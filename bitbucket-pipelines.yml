@@ -1,8 +1,12 @@
-image: python:3.5.1
+image: python:3.5
 pipelines:
   default:
     - step:
         script:
+          # Show versions
           - python --version
-          - python -m unittest discover
+          # Install depencencies
+          - pip install numpy matplotlib IPython nbformat nbimporter
+          # Run tests
+          - python -m unittest discover -p "Test*.py"
 
