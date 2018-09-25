@@ -4,14 +4,10 @@ import math
 import unittest
 import nbimporter
 import LV1toLV2 as nb
+from RoundNumber import round_number
 
 class TestLV1toLV2(unittest.TestCase):
 
-    def test_round_number(self):
-        self.assertEqual(-0.348, nb.round_number(-0.347500, 3))
-        self.assertEqual(-0.347, nb.round_number(-0.347499, 3))
-        self.assertEqual(0.348, nb.round_number(0.347500, 3))
-    
     def test_get_design_parts_area(self):
         self.assertEqual(67.8, nb.get_design_parts_area(50.85,120))
 
@@ -28,14 +24,6 @@ class TestLV1toLV2(unittest.TestCase):
         self.assertEqual(60.0, result['OtherOccupantRoomFloorArea'])
         self.assertEqual(120.0, result['TotalFloorArea'])
         self.assertEqual(True, result['IsSimplifiedInput'])
-
-    def test_material(self):
-        m = nb.Material( 'GPB', 0.0095, 0.22, 830 )
-        self.assertEqual('GPB', m.name)
-        self.assertEqual(0.0095, m.thick)
-        self.assertEqual(0.22, m.cond)
-        self.assertEqual(830, m.spech)
-        self.assertAlmostEqual(0.04318, m.R(), delta=0.0001)
     
     def test_get_gypsum(self):
         m = nb.get_gypsum()
@@ -228,7 +216,7 @@ class TestLV1toLV2(unittest.TestCase):
         )
         z_h = nb.get_overhang_width_for_heating(6, 'SW', 0, 1.1, 0.7)
         z_c = nb.get_overhang_width_for_cooling(6, 'SW', 0, 1.1, 0.9)
-        z = nb.round_number( (z_h + z_c) / 2, 3)
+        z = round_number( (z_h + z_c) / 2, 3)
         self.assertEqual('MyWindow', window['Name'])
         self.assertEqual('SW', window['Direction'])
         self.assertEqual('Single', window['TypeWindow'])
