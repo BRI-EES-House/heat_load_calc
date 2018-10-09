@@ -24,93 +24,11 @@ class TestLV1toLV2(unittest.TestCase):
         self.assertEqual(60.0, result['OtherOccupantRoomFloorArea'])
         self.assertEqual(120.0, result['TotalFloorArea'])
         self.assertEqual(True, result['IsSimplifiedInput'])
-    
-    def test_get_gypsum(self):
-        m = nb.get_gypsum()
-        self.assertEqual('GPB', m.name)
-        self.assertEqual(0.0095, m.thick)
-        self.assertEqual(0.22, m.cond)
-        self.assertEqual(830.0, m.spech)
-
-    def test_get_plywood(self):
-        m = nb.get_plywood()
-        self.assertEqual('PED', m.name)
-        self.assertEqual(0.012, m.thick)
-        self.assertEqual(0.16, m.cond)
-        self.assertEqual(720.0, m.spech)
-
-    def test_get_concrete(self):
-        m = nb.get_concrete()
-        self.assertEqual('RC', m.name)
-        self.assertEqual(0.120, m.thick)
-        self.assertEqual(1.60, m.cond)
-        self.assertEqual(2000.0, m.spech)
-
-    def test_convert_u_value_to_spec___Wood_Ceiling(self):
-        
-        layer = nb.convert_u_value_to_spec('Wood', 'Ceiling', 0.1)
-        m = layer[1]
-
-        R = 1.0 / 0.1
-        Ro, Ri = 0.040, 0.090
-        d = math.floor( max(0, (R - (Ro + m.R() + Ri)) * 0.045) * 1000) / 1000
-
-        self.assertEqual('GW16K', layer[0].name)
-        self.assertEqual(0.045, layer[0].cond)
-        self.assertEqual(13.0, layer[0].spech)
-        self.assertEqual(d, layer[0].thick)
-        self.assertEqual('GPB', m.name)
-
-    def test_convert_u_value_to_spec___Steel_Wall(self):
-        
-        layer = nb.convert_u_value_to_spec('Steel', 'Wall', 0.1)
-        m = layer[1]
-
-        R = 1.0 / 0.1
-        Ro, Ri = 0.040, 0.110
-        d = math.floor( max(0, (R - (Ro + m.R() + Ri)) * 0.045) * 1000) / 1000
-
-        self.assertEqual('GW16K', layer[0].name)
-        self.assertEqual(0.045, layer[0].cond)
-        self.assertEqual(13.0, layer[0].spech)
-        self.assertEqual(d, layer[0].thick)
-        self.assertEqual('GPB', m.name)
-
-    def test_convert_u_value_to_spec___Other_Floor(self):
-        
-        layer = nb.convert_u_value_to_spec('Other', 'Floor', 0.1)
-        m = layer[1]
-
-        R = 1.0 / 0.1
-        Ro, Ri = 0.040, 0.150
-        d = math.floor( max(0, (R - (Ro + m.R() + Ri)) * 0.045) * 1000) / 1000
-
-        self.assertEqual('GW16K', layer[0].name)
-        self.assertEqual(0.045, layer[0].cond)
-        self.assertEqual(13.0, layer[0].spech)
-        self.assertEqual(d, layer[0].thick)
-        self.assertEqual('PED', m.name)
-
-    def test_convert_u_value_to_spec___RC(self):
-        
-        layer = nb.convert_u_value_to_spec('RC', 'BoundaryWall', 0.1)
-        m = layer[0]
-
-        R = 1.0 / 0.1
-        Ro, Ri = 0.110, 0.110
-        d = math.floor( max(0, (R - (Ro + m.R() + Ri)) * 0.045) * 1000) / 1000
-
-        self.assertEqual('RC', m.name)
-        self.assertEqual('GW16K', layer[1].name)
-        self.assertEqual(0.045, layer[1].cond)
-        self.assertEqual(13.0, layer[1].spech)
-        self.assertEqual(d, layer[1].thick)
 
     def test_make_wall(self):
         wall = nb.make_wall(
             Name = 'MyCeiling', 
             Type = 'Ceiling', 
-            Structure = 'Wood', 
             Direction = 'Top',    
             UA = 7.7,  
             Area = 50.85,
@@ -122,10 +40,8 @@ class TestLV1toLV2(unittest.TestCase):
         self.assertEqual('Wood', wall['Structure'])
         self.assertEqual('Top', wall['Direction'])
         #self.assertEqual(, wall.Area)
-        self.assertEqual(1, len(wall['Parts']))
-
-        part = wall['Parts'][0]
-        self.assertEqual(1.0, part['AreaRatio'])
+        self.assertEqual(7.7, wall['UA'])
+        self.assertEqual('InputUA', wall['InputMethodWood'])
 
     def test_convert_wall(self):
         result = nb.convert_wall(
