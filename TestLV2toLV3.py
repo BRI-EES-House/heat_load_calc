@@ -42,88 +42,531 @@ class TestLV2toLV3(unittest.TestCase):
         self.assertEqual(60.0, ret['OtherOccupantRoomFloorArea'])
         self.assertEqual(120.0, ret['TotalFloorArea'])
 
-    def test_make_wall(self):
+    # 簡易入力
+    def test_make_wall_simple(self):
         ret = nb.make_wall(
+            IsSimplifiedInput = True,
             name = 'WAL1',
             direction = 'N',
-            area = 20,
-            space = 'main'
+            areaforspace = 20,
+            space = 'main',
+            type = 'MyType',
+            structure = 'MyStructure',
+            IsSunshadeInput = False,
+            UA = 2.44
         )
         self.assertEqual('WAL1_main', ret['name'])
         self.assertEqual('N', ret['direction'])
         self.assertEqual(20, ret['area'])
         self.assertEqual('main', ret['space'])
+        self.assertEqual('MyType', ret['type'])
+        self.assertEqual('MyStructure', ret['structure'])
+        self.assertEqual(False, ret['IsSunshadeInput'])
+        self.assertEqual(2.44, ret['UA'])
+
+    # 日よけ設定
+    def test_make_wall_sunshade(self):
+        ret = nb.make_wall(
+            IsSimplifiedInput = True,
+            name = 'WAL1',
+            direction = 'N',
+            areaforspace = 20,
+            space = 'main',
+            type = 'MyType',
+            structure = 'MyStructure',
+            IsSunshadeInput = True,
+            UA = 2.44,
+            Y1 = 4,
+            Y2 = 5,
+            Z = 6
+        )
+        self.assertEqual('WAL1_main', ret['name'])
+        self.assertEqual('N', ret['direction'])
+        self.assertEqual(20, ret['area'])
+        self.assertEqual('main', ret['space'])
+        self.assertEqual('MyType', ret['type'])
+        self.assertEqual('MyStructure', ret['structure'])
+        self.assertEqual(True, ret['IsSunshadeInput'])
+        self.assertEqual(2.44, ret['UA'])
+        self.assertEqual(4, ret['Y1'])
+        self.assertEqual(5, ret['Y2'])
+        self.assertEqual(6, ret['Z'])
+    
+    #詳細入力(木造/UA)
+    def test_make_wall_wood_ua(self):
+        ret = nb.make_wall(
+            IsSimplifiedInput = False,
+            name = 'WAL1',
+            direction = 'N',
+            areaforspace = 20,
+            space = 'main',
+            type = 'MyType',
+            structure = 'wood',
+            IsSunshadeInput = False,
+            InputMethodWood = 'InputUA',
+            UA = 2.55
+        )
+        self.assertEqual('InputUA', ret['InputMethodWood'])
+        self.assertEqual(2.55, ret['UA'])
+    
+    #詳細入力(木造/詳細)
+    def test_make_wall_wood_detail(self):
+        ret = nb.make_wall(
+            IsSimplifiedInput = False,
+            name = 'WAL1',
+            direction = 'N',
+            areaforspace = 20,
+            space = 'main',
+            type = 'MyType',
+            structure = 'wood',
+            IsSunshadeInput = False,
+            InputMethodWood = 'InputAllDetails',
+            Parts = [{'AreaRatio': 0.8, 'Layers': [{'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 },
+                                                  {'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 }]},
+                    {'AreaRatio': 0.2, 'Layers': [{'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 },
+                                                  {'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 }]}]
+        )
+        self.assertEqual('InputAllDetails', ret['InputMethodWood'])
+        self.assertEqual(2, len(ret['Parts']))
+        self.assertEqual(0.8, ret['Parts'][0]['AreaRatio'])
+
+    #詳細入力(木造/レイヤー/天井)
+    def test_make_wall_wood_layer_ceiling(self):
+        ret = nb.make_wall(
+            IsSimplifiedInput = False,
+            name = 'WAL1',
+            direction = 'N',
+            areaforspace = 20,
+            space = 'main',
+            type = 'Ceiling',
+            structure = 'wood',
+            IsSunshadeInput = False,
+            InputMethodWood = 'InputAllLayers',
+            Parts = [{'AreaRatio': 0.8, 'Layers': [{'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 },
+                                                  {'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 }]},
+                    {'AreaRatio': 0.2, 'Layers': [{'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 },
+                                                  {'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 }]}],
+            TypeRoof = 'MyRoofType'
+        )
+        self.assertEqual('InputAllLayers', ret['InputMethodWood'])
+        self.assertEqual(2, len(ret['Parts']))
+        self.assertEqual(0.8, ret['Parts'][0]['AreaRatio'])
+        self.assertEqual('MyRoofType', ret['TypeRoof'])
+    
+    ##TODO: レイヤーその他のパターン
+    
+    #詳細入力(木造/UR)
+    def test_make_wall_wood_ur(self):
+        ret = nb.make_wall(
+            IsSimplifiedInput = False,
+            name = 'WAL1',
+            direction = 'N',
+            areaforspace = 20,
+            space = 'main',
+            type = 'Ceiling',
+            structure = 'wood',
+            IsSunshadeInput = False,
+            InputMethodWood = 'InputUR',
+            Parts = [{'AreaRatio': 0.8, 'Layers': [{'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 },
+                                                  {'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 }]},
+                    {'AreaRatio': 0.2, 'Layers': [{'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 },
+                                                  {'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 }]}],
+            URWood = 5.77
+        )
+        self.assertEqual('InputUR', ret['InputMethodWood'])
+        self.assertEqual(2, len(ret['Parts']))
+        self.assertEqual(0.8, ret['Parts'][0]['AreaRatio'])
+        self.assertEqual(5.77, ret['URWood'])
+   
+    #詳細入力(RC/UA)
+    def test_make_wall_rc_ua(self):
+        ret = nb.make_wall(
+            IsSimplifiedInput = False,
+            name = 'WAL1',
+            direction = 'N',
+            areaforspace = 20,
+            space = 'main',
+            type = 'MyType',
+            structure = 'RC',
+            IsSunshadeInput = False,
+            InputMethodRC = 'InputUA',
+            UA = 2.55
+        )
+        self.assertEqual('InputUA', ret['InputMethodRC'])
+        self.assertEqual(2.55, ret['UA'])
+
+    #詳細入力(RC/レイヤー)
+    def test_make_wall_rc_layer(self):
+        ret = nb.make_wall(
+            IsSimplifiedInput = False,
+            name = 'WAL1',
+            direction = 'N',
+            areaforspace = 20,
+            space = 'main',
+            type = 'Ceiling',
+            structure = 'RC',
+            IsSunshadeInput = False,
+            InputMethodRC = 'InputLayers',
+            Parts = [{'AreaRatio': 0.8, 'Layers': [{'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 },
+                                                  {'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 }]},
+                    {'AreaRatio': 0.2, 'Layers': [{'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 },
+                                                  {'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 }]}],
+        )
+        self.assertEqual('InputLayers', ret['InputMethodRC'])
+        self.assertEqual(2, len(ret['Parts']))
+        self.assertEqual(0.8, ret['Parts'][0]['AreaRatio'])
+   
+    #詳細入力(鉄骨/UA)
+    def test_make_wall_steel_ua(self):
+        ret = nb.make_wall(
+            IsSimplifiedInput = False,
+            name = 'WAL1',
+            direction = 'N',
+            areaforspace = 20,
+            space = 'main',
+            type = 'MyType',
+            structure = 'steel',
+            IsSunshadeInput = False,
+            InputMethodSteel = 'InputUA',
+            UA = 2.55
+        )
+        self.assertEqual('InputUA', ret['InputMethodSteel'])
+        self.assertEqual(2.55, ret['UA'])
+
+    #詳細入力(鉄骨/UR)
+    def test_make_wall_steel_ur(self):
+        ret = nb.make_wall(
+            IsSimplifiedInput = False,
+            name = 'WAL1',
+            direction = 'N',
+            areaforspace = 20,
+            space = 'main',
+            type = 'Ceiling',
+            structure = 'steel',
+            IsSunshadeInput = False,
+            InputMethodSteel = 'InputUR',
+            Parts = [{'AreaRatio': 0.8, 'Layers': [{'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 },
+                                                  {'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 }]},
+                    {'AreaRatio': 0.2, 'Layers': [{'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 },
+                                                  {'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 }]}],
+            URSteel = 5.77
+        )
+        self.assertEqual('InputUR', ret['InputMethodSteel'])
+        self.assertEqual(2, len(ret['Parts']))
+        self.assertEqual(0.8, ret['Parts'][0]['AreaRatio'])
+        self.assertEqual(5.77, ret['URSteel'])
 
     def test_convert_wall(self):
         d = {
             'Common': {
+                'Region': 6,
+                'IsSimplifiedInput': True,
                 'MainOccupantRoomFloorArea': 30.0,
                 'OtherOccupantRoomFloorArea': 60.0,
                 'TotalFloorArea': 120.0,
             },
             'Walls': [
-                { 'area': 67.8, 'direction': 'top', 'name': 'Ceiling' },
-                { 'area': 40.63, 'direction': 'SW', 'name': 'Wall_SW',}
+                { 'name': 'Ceiling', 'type': 'Ceiling', 'structure': 'wood', 'InputMethodWood' :'InputUA', 
+                'direction': 'top', 'area': 67.8, 'UA': 0.24, 'IsSunshadeInput': False },
+                { 'name': 'Ceiling', 'type': 'Ceiling', 'structure': 'wood', 'InputMethodWood' :'InputAllDetails', 'direction': 'top', 'area': 67.8,
+                'Parts': [{'AreaRatio': 0.8, 'Layers': [{'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 },
+                                                        {'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 }]},
+                            {'AreaRatio': 0.2, 'Layers': [{'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 },
+                                                        {'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 }]}],
+                'IsSunshadeInput': False },
+                { 'name': 'Floor', 'type': 'Floor', 'structure': 'wood', 'InputMethodWood' :'InputAllLayers', 'direction': 'bottom', 'area': 67.8,
+                'FloorConstructionMethod' :'FrameInsulcolumn',
+                'Parts': [{'TypeFloor': 'Insulation', 'Layers': [{'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 },
+                                                                {'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 }]},
+                            {'TypeFloor': 'Heatbridge', 'Layers': [{'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 },
+                                                                {'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 }]}],
+                'IsSunshadeInput': False },
+                { 'name': 'Wall', 'type': 'Wall', 'structure': 'wood', 'InputMethodWood' :'InputAllLayers', 'direction': 'N', 'area': 67.8, 
+                'WallConstructionMethod': 'WallInsuladdBackvertical',
+                'Parts': [{'TypeFloor': 'Insulation', 'Layers': [{'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 },
+                                                                {'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 }]},
+                            {'TypeFloor': 'Heatbridge', 'Layers': [{'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 },
+                                                                {'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 }]}],         
+                'IsSunshadeInput': False },
+                { 'name': 'Ceiling', 'type': 'Ceiling', 'structure': 'wood', 'InputMethodWood' :'InputAllLayers', 'direction': 'top', 'area': 67.8,
+                'RoofConstructionMethod': 'Insulrafter', 
+                'Parts': [{'TypeFloor': 'Insulation', 'Layers': [{'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 },
+                                                                {'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 }]},
+                            {'TypeFloor': 'Heatbridge', 'Layers': [{'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 },
+                                                                {'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 }]}],
+                'IsSunshadeInput': False },
+                { 'name': 'BoundaryCeiling', 'type': 'BoundaryCeiling', 'structure': 'wood', 'InputMethodWood' :'InputAllLayers', 
+                'direction': 'top', 'area': 67.8, 'CeilingConstructionMethod': 'Insulbeam', 
+                'Parts': [{'TypeFloor': 'Insulation', 'Layers': [{'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 },
+                                                                {'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 }]},
+                            {'TypeFloor': 'Heatbridge', 'Layers': [{'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 },
+                                                                {'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 }]}],
+                'IsSunshadeInput': False },
+                { 'name': 'Ceiling', 'type': 'Ceiling', 'structure': 'wood', 'InputMethodWood' :'InputUR',
+                'direction': 'top', 'area': 67.8, 'URWood': 0.05,
+                'Parts': [{'TypeFloor': 'Insulation', 'Layers': [{'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 },
+                                                                {'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 }]}],
+                'IsSunshadeInput': False },
+                { 'name': 'Ceiling', 'type': 'Ceiling', 'structure': 'RC', 'InputMethodRC' :'InputUA', 
+                'direction': 'top', 'area': 67.8, 'UA': 0.24, 'IsSunshadeInput': False },
+                { 'name': 'Ceiling', 'type': 'Ceiling', 'structure': 'RC', 'InputMethodRC' :'InputLayers', 
+                'direction': 'top', 'area': 67.8,
+                'Parts': [{'TypeFloor': 'Insulation', 'Layers': [{'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 },
+                                                                {'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 }]}],         
+                'IsSunshadeInput': False },
+                { 'name': 'Ceiling', 'type': 'Ceiling', 'structure': 'steel', 'InputMethodSteel' :'InputUA', 
+                'direction': 'top', 'area': 67.8, 'UA': 0.24, 'IsSunshadeInput': False },
+                { 'name': 'Ceiling', 'type': 'Ceiling', 'structure': 'steel', 'InputMethodSteel' :'InputUR', 
+                'direction': 'top', 'area': 67.8, 'URSteel': 0.10, 
+                'Parts': [{'TypeFloor': 'Insulation', 'Layers': [{'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 },
+                                                                {'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 }]}],         
+                'IsSunshadeInput': False },
+                { 'name': 'Ceiling', 'type': 'Ceiling', 'structure': 'other', 'direction': 'top', 'area': 67.8, 'IsSunshadeInput': False }
             ]
         }
         ret = nb.convert_wall(d)
 
         #Wallsに指定した壁が主居室・そのほか居室・非居室に割り付けられる
         # →入力に対して3倍の壁が返ってくる
-        self.assertEqual(6, len(ret))
+        self.assertEqual(12*3, len(ret))
 
-    def test_make_window(self):
+    #簡易入力
+    def test_make_window_simple(self):
         ret = nb.make_window(
+            IsSimplifiedInput = True,
             name = 'WND1',
             direction = 'S',
-            area = 2,
-            space = 'other'
+            areaforspace = 2,
+            space = 'other',
+            IsSunshadeInput = False,
+            UW = 3
         )
         self.assertEqual('WND1_other', ret['name'])
         self.assertEqual('S', ret['direction'])
         self.assertEqual(2, ret['area'])
         self.assertEqual('other', ret['space'])
+        self.assertEqual(3, ret['UW'])
+        self.assertEqual(False, ret['IsSunshadeInput'])
+
+    #詳細入力/一重窓
+    def test_make_window_single_eta(self):
+        ret = nb.make_window(
+            IsSimplifiedInput = False,
+            name = 'WND1',
+            direction = 'S',
+            areaforspace = 2,
+            space = 'other',
+            UW = 3,
+            IsSunshadeInput = False,
+            TypeWindow = 'Single',
+            IsEtaValueInput = True,
+            Eta = 1.23
+        )
+        self.assertEqual(False, ret['IsSunshadeInput'])
+        self.assertEqual('Single', ret['TypeWindow'])
+        self.assertEqual(True, ret['IsEtaValueInput'])
+        self.assertEqual(1.23, ret['Eta'])
+
+    #詳細入力/一重窓
+    def test_make_window_single(self):
+        ret = nb.make_window(
+            IsSimplifiedInput = False,
+            name = 'WND1',
+            direction = 'S',
+            areaforspace = 2,
+            space = 'other',
+            UW = 3,
+            IsSunshadeInput = False,
+            TypeWindow = 'Single',
+            IsEtaValueInput = False,
+            TypeFrame = 'MyTypeFrame',
+            TypeGlass = 'MyTypeGlass',
+            TypeShade = 'MyTypeShade'
+        )
+        self.assertEqual(False, ret['IsSunshadeInput'])
+        self.assertEqual('Single', ret['TypeWindow'])
+        self.assertEqual(False, ret['IsEtaValueInput'])
+        self.assertEqual('MyTypeFrame', ret['TypeFrame'])
+        self.assertEqual('MyTypeGlass', ret['TypeGlass'])
+        self.assertEqual('MyTypeShade', ret['TypeShade'])
+
+    #詳細入力/二重窓
+    def test_make_window_double_eta(self):
+        ret = nb.make_window(
+            IsSimplifiedInput = False,
+            name = 'WND1',
+            direction = 'S',
+            areaforspace = 2,
+            space = 'other',
+            UW = 3,
+            IsSunshadeInput = False,
+            TypeWindow = 'Double',
+            IsEtaValueInput = True,
+            EtaInside = 1.01,
+            EtaOutside = 1.02,
+        )
+        self.assertEqual(False, ret['IsSunshadeInput'])
+        self.assertEqual('Double', ret['TypeWindow'])
+        self.assertEqual(True, ret['IsEtaValueInput'])
+        self.assertEqual(1.01, ret['EtaInside'])
+        self.assertEqual(1.02, ret['EtaOutside'])
+
+    #詳細入力/二重窓
+    def test_make_window_double(self):
+        ret = nb.make_window(
+            IsSimplifiedInput = False,
+            name = 'WND1',
+            direction = 'S',
+            areaforspace = 2,
+            space = 'other',
+            UW = 3,
+            IsSunshadeInput = False,
+            TypeWindow = 'Double',
+            IsEtaValueInput = False,
+            TypeFrameInside = 'MyTypeFrameIn',
+            TypeGlassInside = 'MyTypeGlassIn',
+            TypeShadeInside = 'MyTypeShadeIn',
+            TypeFrameOutside = 'MyTypeFrameOut',
+            TypeGlassOutside = 'MyTypeGlassOut',
+            TypeShadeOutside = 'MyTypeShadeOut'
+        )
+        self.assertEqual(False, ret['IsSunshadeInput'])
+        self.assertEqual('Double', ret['TypeWindow'])
+        self.assertEqual(False, ret['IsEtaValueInput'])
+        self.assertEqual('MyTypeFrameIn', ret['TypeFrameInside'])
+        self.assertEqual('MyTypeGlassIn', ret['TypeGlassInside'])
+        self.assertEqual('MyTypeShadeIn', ret['TypeShadeInside'])
+        self.assertEqual('MyTypeFrameOut', ret['TypeFrameOutside'])
+        self.assertEqual('MyTypeGlassOut', ret['TypeGlassOutside'])
+        self.assertEqual('MyTypeShadeOut', ret['TypeShadeOutside'])
+
+    #日よけ/一重窓
+    def test_make_window_sunshade_single(self):
+        ret = nb.make_window(
+            IsSimplifiedInput = True,
+            name = 'WND1',
+            direction = 'S',
+            areaforspace = 2,
+            space = 'other',
+            UW = 3,
+            IsSunshadeInput = True,
+            TypeWindow = 'Single',
+            TypeGlass = 'MyGlassType',
+            Y1 = 4,
+            Y2 = 5,
+            Z = 6
+        )
+        self.assertEqual(True, ret['IsSunshadeInput'])
+        self.assertEqual('MyGlassType', ret['TypeGlass'])
+        self.assertEqual(4, ret['Y1'])
+        self.assertEqual(5, ret['Y2'])
+        self.assertEqual(6, ret['Z'])
+
+    #日よけ/二重窓
+    def test_make_window_sunshade_double(self):
+        ret = nb.make_window(
+            IsSimplifiedInput = True,
+            name = 'WND1',
+            direction = 'S',
+            areaforspace = 2,
+            space = 'other',
+            UW = 3,
+            IsSunshadeInput = True,
+            TypeWindow = 'Double',
+            TypeGlassInside = 'MyGlassTypeIn',
+            TypeGlassOutside = 'MyGlassTypeOut',
+            Y1 = 4,
+            Y2 = 5,
+            Z = 6
+        )
+        self.assertEqual(True, ret['IsSunshadeInput'])
+        self.assertEqual('MyGlassTypeIn', ret['TypeGlassInside'])
+        self.assertEqual('MyGlassTypeOut', ret['TypeGlassOutside'])
+        self.assertEqual(4, ret['Y1'])
+        self.assertEqual(5, ret['Y2'])
+        self.assertEqual(6, ret['Z'])
 
     def test_convert_window(self):
         d = {
             'Common': {
+                'Region': 6,
+                'IsSimplifiedInput': False,
                 'MainOccupantRoomFloorArea': 30.0,
                 'OtherOccupantRoomFloorArea': 60.0,
                 'TotalFloorArea': 120.0,
             },
             'Windows': [
-                { 'name': 'WindowSW', 'direction': 'SW', 'area': 30.25 },
-                { 'name': 'WindowNW', 'direction': 'NW', 'area': 3.17  }
+                { 'name': 'WindowSW', 'direction': 'SW', 'area': 30.25, 'UW': 6.51, 'TypeWindow': 'Single', 
+                'IsEtaValueInput': False, 'TypeFrame': 'WoodOrResin', 'TypeGlass': '3WgG', 'TypeShade': 'Shoji',
+                'IsSunshadeInput': True, 'Y1': 0.00, 'Y2': 1.00, 'Z': 0.60 },
+                { 'name': 'WindowNW', 'direction': 'NW', 'area': 3.17, 'UW': 4.65, 'TypeWindow': 'Single', 
+                'IsEtaValueInput': True, 'Eta': 0.738, 'IsSunshadeInput': False },
+                { 'name': 'WindowSW', 'direction': 'SW', 'area': 30.25, 'UW': 6.51, 'TypeWindow': 'Double', 'IsEtaValueInput': False,
+                'TypeFrameInside': 'WoodOrResin', 'TypeGlassInside': '3WgG', 'TypeShadeInside': 'Shoji',
+                'TypeFrameOutside': 'Steel', 'TypeGlassOutside': '3WgG', 'TypeShadeOutside': 'ExtarnalBlind',
+                'IsSunshadeInput': True, 'Y1': 0.00, 'Y2': 1.00, 'Z': 0.60 },
+                { 'name': 'WindowNW', 'direction': 'NW', 'area': 3.17, 'UW': 4.65, 'TypeWindow': 'Double', 'IsEtaValueInput': True,
+                'EtaInside': 0.738, 'TypeGlassInside': '3WgG', 'EtaOutside': 0.738, 'TypeGlassOutside': '3WgG',
+                'IsSunshadeInput': True, 'Y1': 0.00, 'Y2': 1.00, 'Z': 0.60 }
             ]
         }    
         ret = nb.convert_window(d)
-        self.assertEqual(6, len(ret))
+        self.assertEqual(12, len(ret))
 
     def test_make_door(self):
         ret = nb.make_door(
             name = 'DOOR1',
             direction = 'W',
-            area = 3,
-            space = 'nonliving'
+            areaforspace = 3,
+            space = 'nonliving',
+            IsSunshadeInput = False,
+            U = 2
         )
         self.assertEqual('DOOR1_nonliving', ret['name'])
         self.assertEqual('W', ret['direction'])
         self.assertEqual(3, ret['area'])
         self.assertEqual('nonliving', ret['space'])
+        self.assertEqual(False, ret['IsSunshadeInput'])
+        self.assertEqual(2, ret['U'])
+
+    def test_make_door_sunshade(self):
+        ret = nb.make_door(
+            name = 'DOOR1',
+            direction = 'W',
+            areaforspace = 3,
+            space = 'nonliving',
+            IsSunshadeInput = True,
+            Y1 = 4,
+            Y2 = 5,
+            Z = 6,
+            U = 2
+        )
+        self.assertEqual('DOOR1_nonliving', ret['name'])
+        self.assertEqual('W', ret['direction'])
+        self.assertEqual(3, ret['area'])
+        self.assertEqual('nonliving', ret['space'])
+        self.assertEqual(True, ret['IsSunshadeInput'])
+        self.assertEqual(4, ret['Y1'])
+        self.assertEqual(5, ret['Y2'])
+        self.assertEqual(6, ret['Z'])
+        self.assertEqual(2, ret['U'])
 
     def test_convert_door(self):
         d = {
             'Common': {
+                'Region': 6,
+                'IsSimplifiedInput': False,
                 'MainOccupantRoomFloorArea': 30.0,
                 'OtherOccupantRoomFloorArea': 60.0,
                 'TotalFloorArea': 120.0,
             },
             'Doors': [
-                { 'name': 'DoorNW', 'direction': 'NW', 'area': 52 }
+                { 'name': 'DoorNW', 'direction': 'NW', 'area': 2.52, 'U': 6.51, 'IsSunshadeInput': False },
+                { 'name': 'DoorNE', 'direction': 'NE', 'area': 2.16, 'U': 4.65, 'IsSunshadeInput': True, 'Y1': 0.00, 'Y2': 1.00, 'Z': 0.60 }
             ]
         }    
         ret = nb.convert_door(d)
-        self.assertEqual(3, len(ret))
+        self.assertEqual(6, len(ret))
 
     def test_make_heatbridge(self):
         ret = nb.make_heatbridge(
@@ -200,25 +643,94 @@ class TestLV2toLV3(unittest.TestCase):
         d = {
             'Common': {
                 'Region': 6,
+                'IsSimplifiedInput': False,
                 'MainOccupantRoomFloorArea': 30.0,
                 'OtherOccupantRoomFloorArea': 60.0,
                 'TotalFloorArea': 120.0
             },
             'Walls': [
-                { 'area': 67.8, 'direction': 'top', 'name': 'Ceiling', 'structure': 'wood', 'type': 'ceiling' },
-                { 'area': 40.63, 'direction': 'SW', 'name': 'Wall_SW', 'structure': 'wood', 'type': 'wall' },
+                { 'name': 'Ceiling', 'type': 'Ceiling', 'structure': 'wood', 'InputMethodWood' :'InputUA', 
+                'direction': 'top', 'area': 67.8, 'UA': 0.24, 'IsSunshadeInput': False },
+                { 'name': 'Ceiling', 'type': 'Ceiling', 'structure': 'wood', 'InputMethodWood' :'InputAllDetails', 'direction': 'top', 'area': 67.8,
+                'Parts': [{'AreaRatio': 0.8, 'Layers': [{'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 },
+                                                        {'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 }]},
+                            {'AreaRatio': 0.2, 'Layers': [{'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 },
+                                                        {'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 }]}],
+                'IsSunshadeInput': False },
+                { 'name': 'Floor', 'type': 'Floor', 'structure': 'wood', 'InputMethodWood' :'InputAllLayers', 'direction': 'bottom', 'area': 67.8,
+                'FloorConstructionMethod' :'FrameInsulcolumn',
+                'Parts': [{'TypeFloor': 'Insulation', 'Layers': [{'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 },
+                                                                {'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 }]},
+                            {'TypeFloor': 'Heatbridge', 'Layers': [{'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 },
+                                                                {'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 }]}],
+                'IsSunshadeInput': False },
+                { 'name': 'Wall', 'type': 'Wall', 'structure': 'wood', 'InputMethodWood' :'InputAllLayers', 'direction': 'N', 'area': 67.8, 
+                'WallConstructionMethod': 'WallInsuladdBackvertical',
+                'Parts': [{'TypeFloor': 'Insulation', 'Layers': [{'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 },
+                                                                {'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 }]},
+                            {'TypeFloor': 'Heatbridge', 'Layers': [{'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 },
+                                                                {'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 }]}],         
+                'IsSunshadeInput': False },
+                { 'name': 'Ceiling', 'type': 'Ceiling', 'structure': 'wood', 'InputMethodWood' :'InputAllLayers', 'direction': 'top', 'area': 67.8,
+                'RoofConstructionMethod': 'Insulrafter', 
+                'Parts': [{'TypeFloor': 'Insulation', 'Layers': [{'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 },
+                                                                {'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 }]},
+                            {'TypeFloor': 'Heatbridge', 'Layers': [{'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 },
+                                                                {'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 }]}],
+                'IsSunshadeInput': False },
+                { 'name': 'BoundaryCeiling', 'type': 'BoundaryCeiling', 'structure': 'wood', 'InputMethodWood' :'InputAllLayers', 
+                'direction': 'top', 'area': 67.8, 'CeilingConstructionMethod': 'Insulbeam', 
+                'Parts': [{'TypeFloor': 'Insulation', 'Layers': [{'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 },
+                                                                {'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 }]},
+                            {'TypeFloor': 'Heatbridge', 'Layers': [{'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 },
+                                                                {'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 }]}],
+                'IsSunshadeInput': False },
+                { 'name': 'Ceiling', 'type': 'Ceiling', 'structure': 'wood', 'InputMethodWood' :'InputUR',
+                'direction': 'top', 'area': 67.8, 'URWood': 0.05,
+                'Parts': [{'TypeFloor': 'Insulation', 'Layers': [{'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 },
+                                                                {'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 }]}],
+                'IsSunshadeInput': False },
+                { 'name': 'Ceiling', 'type': 'Ceiling', 'structure': 'RC', 'InputMethodRC' :'InputUA', 
+                'direction': 'top', 'area': 67.8, 'UA': 0.24, 'IsSunshadeInput': False },
+                { 'name': 'Ceiling', 'type': 'Ceiling', 'structure': 'RC', 'InputMethodRC' :'InputLayers', 
+                'direction': 'top', 'area': 67.8,
+                'Parts': [{'TypeFloor': 'Insulation', 'Layers': [{'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 },
+                                                                {'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 }]}],         
+                'IsSunshadeInput': False },
+                { 'name': 'Ceiling', 'type': 'Ceiling', 'structure': 'steel', 'InputMethodSteel' :'InputUA', 
+                'direction': 'top', 'area': 67.8, 'UA': 0.24, 'IsSunshadeInput': False },
+                { 'name': 'Ceiling', 'type': 'Ceiling', 'structure': 'steel', 'InputMethodSteel' :'InputUR', 
+                'direction': 'top', 'area': 67.8, 'URSteel': 0.10, 
+                'Parts': [{'TypeFloor': 'Insulation', 'Layers': [{'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 },
+                                                                {'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 }]}],         
+                'IsSunshadeInput': False },
+                { 'name': 'Ceiling', 'type': 'Ceiling', 'structure': 'other', 'direction': 'top', 'area': 67.8, 'IsSunshadeInput': False }
             ],
             'Windows': [
-                { 'area': 30.25, 'direction': 'SW', 'name': 'WindowSW', 'type': 'single' },
-                { 'area': 3.17, 'direction': 'NW', 'name': 'WindowNW', 'type': 'single' },
+                { 'name': 'WindowSW', 'direction': 'SW', 'area': 30.25, 'UW': 6.51, 'TypeWindow': 'Single', 
+                'IsEtaValueInput': False, 'TypeFrame': 'WoodOrResin', 'TypeGlass': '3WgG', 'TypeShade': 'Shoji',
+                'IsSunshadeInput': True, 'Y1': 0.00, 'Y2': 1.00, 'Z': 0.60 },
+                { 'name': 'WindowNW', 'direction': 'NW', 'area': 3.17, 'UW': 4.65, 'TypeWindow': 'Single', 
+                'IsEtaValueInput': True, 'Eta': 0.738, 'IsSunshadeInput': False },
+                { 'name': 'WindowSW', 'direction': 'SW', 'area': 30.25, 'UW': 6.51, 'TypeWindow': 'Double', 'IsEtaValueInput': False,
+                'TypeFrameInside': 'WoodOrResin', 'TypeGlassInside': '3WgG', 'TypeShadeInside': 'Shoji',
+                'TypeFrameOutside': 'Steel', 'TypeGlassOutside': '3WgG', 'TypeShadeOutside': 'ExtarnalBlind',
+                'IsSunshadeInput': True, 'Y1': 0.00, 'Y2': 1.00, 'Z': 0.60 },
+                { 'name': 'WindowNW', 'direction': 'NW', 'area': 3.17, 'UW': 4.65, 'TypeWindow': 'Double', 'IsEtaValueInput': True,
+                'EtaInside': 0.738, 'TypeGlassInside': '3WgG', 'EtaOutside': 0.738, 'TypeGlassOutside': '3WgG',
+                'IsSunshadeInput': True, 'Y1': 0.00, 'Y2': 1.00, 'Z': 0.60 }
             ],
             'Doors': [
-                { 'area': 2.52, 'direction': 'NW', 'name': 'DoorNW'},
-                { 'area': 2.16, 'direction': 'NE', 'name': 'DoorNE'}
+                { 'name': 'DoorNW', 'direction': 'NW', 'area': 2.52, 'U': 6.51, 'IsSunshadeInput': False },
+                { 'name': 'DoorNE', 'direction': 'NE', 'area': 2.16, 'U': 4.65, 'IsSunshadeInput': True, 'Y1': 0.00, 'Y2': 1.00, 'Z': 0.60 }
+            ],
+            'Heatbridges': [
+                { 'name': 'NE', 'structure': 'RC', 'length': 1.00, 'psi': 1.8, 'direction1': 'N', 'direction2': 'E' },
+                { 'name': 'NW', 'structure': 'Steel', 'length': 2.00, 'psi': 1.8, 'direction1': 'N', 'direction2': 'W' }
             ],
             'EarthfloorPerimeters': [
-                { 'direction': 'NW', 'length': 2.43, 'name': 'other_NW', 'psi': 1.8 },
-                { 'direction': 'NE', 'length': 2.43, 'name': 'other_NE', 'psi': 1.8 }
+                { 'name': 'NW', 'direction': 'NW', 'length': 2.43, 'psi': 1.8 },
+                { 'name': 'NE', 'direction': 'NE', 'length': 2.43, 'psi': 1.8 }
             ],
             'Earthfloors': [
                 { 'area': 5.0, 'name': 'other' },
