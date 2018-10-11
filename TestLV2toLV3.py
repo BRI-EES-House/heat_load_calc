@@ -1,4 +1,4 @@
-import matplotlib
+﻿import matplotlib
 from matplotlib.testing.decorators import image_comparison
 import math
 import unittest
@@ -13,14 +13,14 @@ class TestLV2toLV3(unittest.TestCase):
         self.assertEqual(0.5, b)
         self.assertEqual(0.3, c)
 
-    def test_get_area_by_room_use(self):
-        adic = nb.get_area_by_room_use(75, 20, 50, 100)
+    def test_get_spacearea(self):
+        adic = nb.get_spacearea(75, 20, 50, 100)
         self.assertEqual(75 * 0.2, adic['main'])
         self.assertEqual(75 * 0.5, adic['other'])
         self.assertEqual(75 * 0.3, adic['nonliving'])
 
-    def test_get_length_by_room_use(self):
-        ldic = nb.get_area_by_room_use(5, 20, 50, 100)
+    def test_get_spacelength(self):
+        ldic = nb.get_spacearea(5, 20, 50, 100)
         self.assertEqual(5 * 0.2, ldic['main'])
         self.assertEqual(5 * 0.5, ldic['other'])
         self.assertEqual(5 * 0.3, ldic['nonliving'])
@@ -48,8 +48,8 @@ class TestLV2toLV3(unittest.TestCase):
             IsSimplifiedInput = True,
             name = 'WAL1',
             direction = 'N',
-            areaforspace = 20,
-            space = 'main',
+            spacename = 'main',
+            spacearea = 20,
             type = 'MyType',
             structure = 'MyStructure',
             IsSunshadeInput = False,
@@ -70,8 +70,8 @@ class TestLV2toLV3(unittest.TestCase):
             IsSimplifiedInput = True,
             name = 'WAL1',
             direction = 'N',
-            areaforspace = 20,
-            space = 'main',
+            spacename = 'main',
+            spacearea = 20,
             type = 'MyType',
             structure = 'MyStructure',
             IsSunshadeInput = True,
@@ -98,8 +98,8 @@ class TestLV2toLV3(unittest.TestCase):
             IsSimplifiedInput = False,
             name = 'WAL1',
             direction = 'N',
-            areaforspace = 20,
-            space = 'main',
+            spacename = 'main',
+            spacearea = 20,
             type = 'MyType',
             structure = 'wood',
             IsSunshadeInput = False,
@@ -115,8 +115,8 @@ class TestLV2toLV3(unittest.TestCase):
             IsSimplifiedInput = False,
             name = 'WAL1',
             direction = 'N',
-            areaforspace = 20,
-            space = 'main',
+            spacename = 'main',
+            spacearea = 20,
             type = 'MyType',
             structure = 'wood',
             IsSunshadeInput = False,
@@ -136,8 +136,8 @@ class TestLV2toLV3(unittest.TestCase):
             IsSimplifiedInput = False,
             name = 'WAL1',
             direction = 'N',
-            areaforspace = 20,
-            space = 'main',
+            spacename = 'main',
+            spacearea = 20,
             type = 'Ceiling',
             structure = 'wood',
             IsSunshadeInput = False,
@@ -161,8 +161,8 @@ class TestLV2toLV3(unittest.TestCase):
             IsSimplifiedInput = False,
             name = 'WAL1',
             direction = 'N',
-            areaforspace = 20,
-            space = 'main',
+            spacename = 'main',
+            spacearea = 20,
             type = 'Ceiling',
             structure = 'wood',
             IsSunshadeInput = False,
@@ -184,8 +184,8 @@ class TestLV2toLV3(unittest.TestCase):
             IsSimplifiedInput = False,
             name = 'WAL1',
             direction = 'N',
-            areaforspace = 20,
-            space = 'main',
+            spacename = 'main',
+            spacearea = 20,
             type = 'MyType',
             structure = 'RC',
             IsSunshadeInput = False,
@@ -201,8 +201,8 @@ class TestLV2toLV3(unittest.TestCase):
             IsSimplifiedInput = False,
             name = 'WAL1',
             direction = 'N',
-            areaforspace = 20,
-            space = 'main',
+            spacename = 'main',
+            spacearea = 20,
             type = 'Ceiling',
             structure = 'RC',
             IsSunshadeInput = False,
@@ -222,8 +222,8 @@ class TestLV2toLV3(unittest.TestCase):
             IsSimplifiedInput = False,
             name = 'WAL1',
             direction = 'N',
-            areaforspace = 20,
-            space = 'main',
+            spacename = 'main',
+            spacearea = 20,
             type = 'MyType',
             structure = 'steel',
             IsSunshadeInput = False,
@@ -239,8 +239,8 @@ class TestLV2toLV3(unittest.TestCase):
             IsSimplifiedInput = False,
             name = 'WAL1',
             direction = 'N',
-            areaforspace = 20,
-            space = 'main',
+            spacename = 'main',
+            spacearea = 20,
             type = 'Ceiling',
             structure = 'steel',
             IsSunshadeInput = False,
@@ -336,8 +336,8 @@ class TestLV2toLV3(unittest.TestCase):
             IsSimplifiedInput = True,
             name = 'WND1',
             direction = 'S',
-            areaforspace = 2,
-            space = 'other',
+            spacename = 'other',
+            spacearea = 2,
             IsSunshadeInput = False,
             UW = 3
         )
@@ -354,8 +354,8 @@ class TestLV2toLV3(unittest.TestCase):
             IsSimplifiedInput = False,
             name = 'WND1',
             direction = 'S',
-            areaforspace = 2,
-            space = 'other',
+            spacename = 'other',
+            spacearea = 2,
             UW = 3,
             IsSunshadeInput = False,
             TypeWindow = 'Single',
@@ -373,8 +373,8 @@ class TestLV2toLV3(unittest.TestCase):
             IsSimplifiedInput = False,
             name = 'WND1',
             direction = 'S',
-            areaforspace = 2,
-            space = 'other',
+            spacename = 'other',
+            spacearea = 2,
             UW = 3,
             IsSunshadeInput = False,
             TypeWindow = 'Single',
@@ -396,8 +396,8 @@ class TestLV2toLV3(unittest.TestCase):
             IsSimplifiedInput = False,
             name = 'WND1',
             direction = 'S',
-            areaforspace = 2,
-            space = 'other',
+            spacename = 'other',
+            spacearea = 2,
             UW = 3,
             IsSunshadeInput = False,
             TypeWindow = 'Double',
@@ -417,8 +417,8 @@ class TestLV2toLV3(unittest.TestCase):
             IsSimplifiedInput = False,
             name = 'WND1',
             direction = 'S',
-            areaforspace = 2,
-            space = 'other',
+            spacename = 'other',
+            spacearea = 2,
             UW = 3,
             IsSunshadeInput = False,
             TypeWindow = 'Double',
@@ -446,8 +446,8 @@ class TestLV2toLV3(unittest.TestCase):
             IsSimplifiedInput = True,
             name = 'WND1',
             direction = 'S',
-            areaforspace = 2,
-            space = 'other',
+            spacename = 'other',
+            spacearea = 2,
             UW = 3,
             IsSunshadeInput = True,
             TypeWindow = 'Single',
@@ -468,8 +468,8 @@ class TestLV2toLV3(unittest.TestCase):
             IsSimplifiedInput = True,
             name = 'WND1',
             direction = 'S',
-            areaforspace = 2,
-            space = 'other',
+            spacename = 'other',
+            spacearea = 2,
             UW = 3,
             IsSunshadeInput = True,
             TypeWindow = 'Double',
@@ -517,8 +517,8 @@ class TestLV2toLV3(unittest.TestCase):
         ret = nb.make_door(
             name = 'DOOR1',
             direction = 'W',
-            areaforspace = 3,
-            space = 'nonliving',
+            spacename = 'nonliving',
+            spacearea = 3,
             IsSunshadeInput = False,
             U = 2
         )
@@ -533,8 +533,8 @@ class TestLV2toLV3(unittest.TestCase):
         ret = nb.make_door(
             name = 'DOOR1',
             direction = 'W',
-            areaforspace = 3,
-            space = 'nonliving',
+            spacename = 'nonliving',
+            spacearea = 3,
             IsSunshadeInput = True,
             Y1 = 4,
             Y2 = 5,
@@ -573,8 +573,8 @@ class TestLV2toLV3(unittest.TestCase):
             structure = 'rc',
             direction1 = 'NW',
             direction2 = 'NE',
-            length = 10,
-            space = 'main'
+            spacename = 'main',
+            spacelength = 10
         )
         self.assertEqual('rc', ret['structure'])
         self.assertEqual('NW', ret['direction1'])
