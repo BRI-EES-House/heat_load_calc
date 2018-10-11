@@ -106,7 +106,7 @@ class TestLV2toLV3(unittest.TestCase):
             InputMethod = 'InputUA',
             UA = 2.55
         )
-        self.assertEqual('InputUA', ret['InputMethodWood'])
+        self.assertEqual('InputUA', ret['InputMethod'])
         self.assertEqual(2.55, ret['UA'])
     
     #詳細入力(木造/詳細)
@@ -148,7 +148,7 @@ class TestLV2toLV3(unittest.TestCase):
                                                   {'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 }]}],
             TypeRoof = 'MyRoofType'
         )
-        self.assertEqual('InputAllLayers', ret['InputMethodWood'])
+        self.assertEqual('InputAllLayers', ret['InputMethod'])
         self.assertEqual(2, len(ret['Parts']))
         self.assertEqual(0.8, ret['Parts'][0]['AreaRatio'])
         self.assertEqual('MyRoofType', ret['TypeRoof'])
@@ -268,7 +268,7 @@ class TestLV2toLV3(unittest.TestCase):
             'Walls': [
                 { 'name': 'Ceiling', 'type': 'Ceiling', 'structure': 'wood', 'InputMethod' :'InputUA', 
                 'direction': 'top', 'area': 67.8, 'UA': 0.24, 'IsSunshadeInput': False },
-                { 'name': 'Ceiling', 'type': 'Ceiling', 'structure': 'wood', 'InputMethodWood' :'InputAllDetails', 'direction': 'top', 'area': 67.8,
+                { 'name': 'Ceiling', 'type': 'Ceiling', 'structure': 'wood', 'InputMethod' :'InputAllDetails', 'direction': 'top', 'area': 67.8,
                 'Parts': [{'AreaRatio': 0.8, 'Layers': [{'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 },
                                                         {'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 }]},
                             {'AreaRatio': 0.2, 'Layers': [{'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 },
