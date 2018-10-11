@@ -60,10 +60,10 @@ class TestLV2toLV3(unittest.TestCase):
         d = [{'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 },
              {'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 }]
         ret = nb.make_layers(d)
-        self.assertEqual('wood', ret['name'])
-        self.assertEqual(0.012, ret['thick'])
-        self.assertEqual(0.16, ret['cond'])
-        self.assertEqual(720, ret['specH'])
+        self.assertEqual('wood', ret[0]['name'])
+        self.assertEqual(0.012, ret[0]['thick'])
+        self.assertEqual(0.16, ret[0]['cond'])
+        self.assertEqual(720, ret[0]['specH'])
 
     # 簡易入力
     def test_make_wall_simple(self):
@@ -165,16 +165,15 @@ class TestLV2toLV3(unittest.TestCase):
             structure = 'wood',
             IsSunshadeInput = False,
             InputMethod = 'InputAllLayers',
-            Parts = [{'AreaRatio': 0.8, 'Layers': [{'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 },
-                                                  {'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 }]},
-                    {'AreaRatio': 0.2, 'Layers': [{'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 },
-                                                  {'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 }]}],
-            TypeRoof = 'MyRoofType'
+            Parts = [{'TypeRoof': 'MyRoofType', 'Layers': [{'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 },
+                                                           {'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 }]},
+                     {'TypeRoof': 'MyRoofType', 'Layers': [{'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 },
+                                                           {'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 }]}]
         )
         self.assertEqual('InputAllLayers', ret['InputMethod'])
         self.assertEqual(2, len(ret['Parts']))
         self.assertEqual(0.8, ret['Parts'][0]['AreaRatio'])
-        self.assertEqual('MyRoofType', ret['TypeRoof'])
+        self.assertEqual('MyRoofType', ret['Parts'][0]['TypeRoof'])
     
     ##TODO: レイヤーその他のパターン
     
@@ -190,15 +189,12 @@ class TestLV2toLV3(unittest.TestCase):
             structure = 'wood',
             IsSunshadeInput = False,
             InputMethod = 'InputUR',
-            Parts = [{'AreaRatio': 0.8, 'Layers': [{'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 },
-                                                  {'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 }]},
-                    {'AreaRatio': 0.2, 'Layers': [{'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 },
+            Parts = [{'Layers': [{'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 },
                                                   {'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 }]}],
             UR = 5.77
         )
         self.assertEqual('InputUR', ret['InputMethod'])
         self.assertEqual(2, len(ret['Parts']))
-        self.assertEqual(0.8, ret['Parts'][0]['AreaRatio'])
         self.assertEqual(5.77, ret['URWood'])
    
     #詳細入力(RC/UA)
@@ -230,14 +226,11 @@ class TestLV2toLV3(unittest.TestCase):
             structure = 'RC',
             IsSunshadeInput = False,
             InputMethod = 'InputLayers',
-            Parts = [{'AreaRatio': 0.8, 'Layers': [{'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 },
-                                                  {'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 }]},
-                    {'AreaRatio': 0.2, 'Layers': [{'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 },
+            Parts = [{'Layers': [{'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 },
                                                   {'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 }]}],
         )
         self.assertEqual('InputLayers', ret['InputMethod'])
         self.assertEqual(2, len(ret['Parts']))
-        self.assertEqual(0.8, ret['Parts'][0]['AreaRatio'])
    
     #詳細入力(鉄骨/UA)
     def test_make_wall_steel_ua(self):
@@ -268,15 +261,12 @@ class TestLV2toLV3(unittest.TestCase):
             structure = 'steel',
             IsSunshadeInput = False,
             InputMethod = 'InputUR',
-            Parts = [{'AreaRatio': 0.8, 'Layers': [{'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 },
-                                                  {'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 }]},
-                    {'AreaRatio': 0.2, 'Layers': [{'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 },
+            Parts = [{'Layers': [{'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 },
                                                   {'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 }]}],
             UR = 5.77
         )
         self.assertEqual('InputUR', ret['InputMethod'])
         self.assertEqual(2, len(ret['Parts']))
-        self.assertEqual(0.8, ret['Parts'][0]['AreaRatio'])
         self.assertEqual(5.77, ret['URSteel'])
 
     def test_convert_wall(self):
