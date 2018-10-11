@@ -13,14 +13,14 @@ class TestLV2toLV3(unittest.TestCase):
         self.assertEqual(0.5, b)
         self.assertEqual(0.3, c)
 
-    def test_get_spacearea(self):
-        adic = nb.get_spacearea(75, 20, 50, 100)
+    def test_get_spaceareas(self):
+        adic = nb.get_spaceareas(75, 20, 50, 100)
         self.assertEqual(75 * 0.2, adic['main'])
         self.assertEqual(75 * 0.5, adic['other'])
         self.assertEqual(75 * 0.3, adic['nonliving'])
 
-    def test_get_spacelength(self):
-        ldic = nb.get_spacearea(5, 20, 50, 100)
+    def test_get_spacelengths(self):
+        ldic = nb.get_spacelengths(5, 20, 50, 100)
         self.assertEqual(5 * 0.2, ldic['main'])
         self.assertEqual(5 * 0.5, ldic['other'])
         self.assertEqual(5 * 0.3, ldic['nonliving'])
