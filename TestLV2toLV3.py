@@ -103,7 +103,7 @@ class TestLV2toLV3(unittest.TestCase):
             type = 'MyType',
             structure = 'wood',
             IsSunshadeInput = False,
-            InputMethodWood = 'InputUA',
+            InputMethod = 'InputUA',
             UA = 2.55
         )
         self.assertEqual('InputUA', ret['InputMethodWood'])
@@ -120,13 +120,13 @@ class TestLV2toLV3(unittest.TestCase):
             type = 'MyType',
             structure = 'wood',
             IsSunshadeInput = False,
-            InputMethodWood = 'InputAllDetails',
+            InputMethod = 'InputAllDetails',
             Parts = [{'AreaRatio': 0.8, 'Layers': [{'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 },
                                                   {'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 }]},
                     {'AreaRatio': 0.2, 'Layers': [{'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 },
                                                   {'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 }]}]
         )
-        self.assertEqual('InputAllDetails', ret['InputMethodWood'])
+        self.assertEqual('InputAllDetails', ret['InputMethod'])
         self.assertEqual(2, len(ret['Parts']))
         self.assertEqual(0.8, ret['Parts'][0]['AreaRatio'])
 
@@ -141,7 +141,7 @@ class TestLV2toLV3(unittest.TestCase):
             type = 'Ceiling',
             structure = 'wood',
             IsSunshadeInput = False,
-            InputMethodWood = 'InputAllLayers',
+            InputMethod = 'InputAllLayers',
             Parts = [{'AreaRatio': 0.8, 'Layers': [{'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 },
                                                   {'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 }]},
                     {'AreaRatio': 0.2, 'Layers': [{'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 },
@@ -166,14 +166,14 @@ class TestLV2toLV3(unittest.TestCase):
             type = 'Ceiling',
             structure = 'wood',
             IsSunshadeInput = False,
-            InputMethodWood = 'InputUR',
+            InputMethod = 'InputUR',
             Parts = [{'AreaRatio': 0.8, 'Layers': [{'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 },
                                                   {'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 }]},
                     {'AreaRatio': 0.2, 'Layers': [{'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 },
                                                   {'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 }]}],
-            URWood = 5.77
+            UR = 5.77
         )
-        self.assertEqual('InputUR', ret['InputMethodWood'])
+        self.assertEqual('InputUR', ret['InputMethod'])
         self.assertEqual(2, len(ret['Parts']))
         self.assertEqual(0.8, ret['Parts'][0]['AreaRatio'])
         self.assertEqual(5.77, ret['URWood'])
@@ -189,10 +189,10 @@ class TestLV2toLV3(unittest.TestCase):
             type = 'MyType',
             structure = 'RC',
             IsSunshadeInput = False,
-            InputMethodRC = 'InputUA',
+            InputMethod = 'InputUA',
             UA = 2.55
         )
-        self.assertEqual('InputUA', ret['InputMethodRC'])
+        self.assertEqual('InputUA', ret['InputMethod'])
         self.assertEqual(2.55, ret['UA'])
 
     #詳細入力(RC/レイヤー)
@@ -206,13 +206,13 @@ class TestLV2toLV3(unittest.TestCase):
             type = 'Ceiling',
             structure = 'RC',
             IsSunshadeInput = False,
-            InputMethodRC = 'InputLayers',
+            InputMethod = 'InputLayers',
             Parts = [{'AreaRatio': 0.8, 'Layers': [{'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 },
                                                   {'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 }]},
                     {'AreaRatio': 0.2, 'Layers': [{'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 },
                                                   {'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 }]}],
         )
-        self.assertEqual('InputLayers', ret['InputMethodRC'])
+        self.assertEqual('InputLayers', ret['InputMethod'])
         self.assertEqual(2, len(ret['Parts']))
         self.assertEqual(0.8, ret['Parts'][0]['AreaRatio'])
    
@@ -227,10 +227,10 @@ class TestLV2toLV3(unittest.TestCase):
             type = 'MyType',
             structure = 'steel',
             IsSunshadeInput = False,
-            InputMethodSteel = 'InputUA',
+            InputMethod = 'InputUA',
             UA = 2.55
         )
-        self.assertEqual('InputUA', ret['InputMethodSteel'])
+        self.assertEqual('InputUA', ret['InputMethod'])
         self.assertEqual(2.55, ret['UA'])
 
     #詳細入力(鉄骨/UR)
@@ -244,14 +244,14 @@ class TestLV2toLV3(unittest.TestCase):
             type = 'Ceiling',
             structure = 'steel',
             IsSunshadeInput = False,
-            InputMethodSteel = 'InputUR',
+            InputMethod = 'InputUR',
             Parts = [{'AreaRatio': 0.8, 'Layers': [{'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 },
                                                   {'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 }]},
                     {'AreaRatio': 0.2, 'Layers': [{'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 },
                                                   {'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 }]}],
-            URSteel = 5.77
+            UR = 5.77
         )
-        self.assertEqual('InputUR', ret['InputMethodSteel'])
+        self.assertEqual('InputUR', ret['InputMethod'])
         self.assertEqual(2, len(ret['Parts']))
         self.assertEqual(0.8, ret['Parts'][0]['AreaRatio'])
         self.assertEqual(5.77, ret['URSteel'])
@@ -266,7 +266,7 @@ class TestLV2toLV3(unittest.TestCase):
                 'TotalFloorArea': 120.0,
             },
             'Walls': [
-                { 'name': 'Ceiling', 'type': 'Ceiling', 'structure': 'wood', 'InputMethodWood' :'InputUA', 
+                { 'name': 'Ceiling', 'type': 'Ceiling', 'structure': 'wood', 'InputMethod' :'InputUA', 
                 'direction': 'top', 'area': 67.8, 'UA': 0.24, 'IsSunshadeInput': False },
                 { 'name': 'Ceiling', 'type': 'Ceiling', 'structure': 'wood', 'InputMethodWood' :'InputAllDetails', 'direction': 'top', 'area': 67.8,
                 'Parts': [{'AreaRatio': 0.8, 'Layers': [{'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 },
@@ -274,50 +274,50 @@ class TestLV2toLV3(unittest.TestCase):
                             {'AreaRatio': 0.2, 'Layers': [{'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 },
                                                         {'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 }]}],
                 'IsSunshadeInput': False },
-                { 'name': 'Floor', 'type': 'Floor', 'structure': 'wood', 'InputMethodWood' :'InputAllLayers', 'direction': 'bottom', 'area': 67.8,
+                { 'name': 'Floor', 'type': 'Floor', 'structure': 'wood', 'InputMethod' :'InputAllLayers', 'direction': 'bottom', 'area': 67.8,
                 'FloorConstructionMethod' :'FrameInsulcolumn',
                 'Parts': [{'TypeFloor': 'Insulation', 'Layers': [{'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 },
                                                                 {'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 }]},
                             {'TypeFloor': 'Heatbridge', 'Layers': [{'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 },
                                                                 {'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 }]}],
                 'IsSunshadeInput': False },
-                { 'name': 'Wall', 'type': 'Wall', 'structure': 'wood', 'InputMethodWood' :'InputAllLayers', 'direction': 'N', 'area': 67.8, 
+                { 'name': 'Wall', 'type': 'Wall', 'structure': 'wood', 'InputMethod' :'InputAllLayers', 'direction': 'N', 'area': 67.8, 
                 'WallConstructionMethod': 'WallInsuladdBackvertical',
                 'Parts': [{'TypeFloor': 'Insulation', 'Layers': [{'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 },
                                                                 {'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 }]},
                             {'TypeFloor': 'Heatbridge', 'Layers': [{'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 },
                                                                 {'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 }]}],         
                 'IsSunshadeInput': False },
-                { 'name': 'Ceiling', 'type': 'Ceiling', 'structure': 'wood', 'InputMethodWood' :'InputAllLayers', 'direction': 'top', 'area': 67.8,
+                { 'name': 'Ceiling', 'type': 'Ceiling', 'structure': 'wood', 'InputMethod' :'InputAllLayers', 'direction': 'top', 'area': 67.8,
                 'RoofConstructionMethod': 'Insulrafter', 
                 'Parts': [{'TypeFloor': 'Insulation', 'Layers': [{'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 },
                                                                 {'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 }]},
                             {'TypeFloor': 'Heatbridge', 'Layers': [{'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 },
                                                                 {'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 }]}],
                 'IsSunshadeInput': False },
-                { 'name': 'BoundaryCeiling', 'type': 'BoundaryCeiling', 'structure': 'wood', 'InputMethodWood' :'InputAllLayers', 
+                { 'name': 'BoundaryCeiling', 'type': 'BoundaryCeiling', 'structure': 'wood', 'InputMethod' :'InputAllLayers', 
                 'direction': 'top', 'area': 67.8, 'CeilingConstructionMethod': 'Insulbeam', 
                 'Parts': [{'TypeFloor': 'Insulation', 'Layers': [{'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 },
                                                                 {'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 }]},
                             {'TypeFloor': 'Heatbridge', 'Layers': [{'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 },
                                                                 {'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 }]}],
                 'IsSunshadeInput': False },
-                { 'name': 'Ceiling', 'type': 'Ceiling', 'structure': 'wood', 'InputMethodWood' :'InputUR',
-                'direction': 'top', 'area': 67.8, 'URWood': 0.05,
+                { 'name': 'Ceiling', 'type': 'Ceiling', 'structure': 'wood', 'InputMethod' :'InputUR',
+                'direction': 'top', 'area': 67.8, 'UR': 0.05,
                 'Parts': [{'TypeFloor': 'Insulation', 'Layers': [{'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 },
                                                                 {'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 }]}],
                 'IsSunshadeInput': False },
-                { 'name': 'Ceiling', 'type': 'Ceiling', 'structure': 'RC', 'InputMethodRC' :'InputUA', 
+                { 'name': 'Ceiling', 'type': 'Ceiling', 'structure': 'RC', 'InputMethod' :'InputUA', 
                 'direction': 'top', 'area': 67.8, 'UA': 0.24, 'IsSunshadeInput': False },
-                { 'name': 'Ceiling', 'type': 'Ceiling', 'structure': 'RC', 'InputMethodRC' :'InputLayers', 
+                { 'name': 'Ceiling', 'type': 'Ceiling', 'structure': 'RC', 'InputMethod' :'InputLayers', 
                 'direction': 'top', 'area': 67.8,
                 'Parts': [{'TypeFloor': 'Insulation', 'Layers': [{'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 },
                                                                 {'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 }]}],         
                 'IsSunshadeInput': False },
-                { 'name': 'Ceiling', 'type': 'Ceiling', 'structure': 'steel', 'InputMethodSteel' :'InputUA', 
+                { 'name': 'Ceiling', 'type': 'Ceiling', 'structure': 'steel', 'InputMethod' :'InputUA', 
                 'direction': 'top', 'area': 67.8, 'UA': 0.24, 'IsSunshadeInput': False },
-                { 'name': 'Ceiling', 'type': 'Ceiling', 'structure': 'steel', 'InputMethodSteel' :'InputUR', 
-                'direction': 'top', 'area': 67.8, 'URSteel': 0.10, 
+                { 'name': 'Ceiling', 'type': 'Ceiling', 'structure': 'steel', 'InputMethod' :'InputUR', 
+                'direction': 'top', 'area': 67.8, 'UR': 0.10, 
                 'Parts': [{'TypeFloor': 'Insulation', 'Layers': [{'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 },
                                                                 {'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 }]}],         
                 'IsSunshadeInput': False },
@@ -649,58 +649,58 @@ class TestLV2toLV3(unittest.TestCase):
                 'TotalFloorArea': 120.0
             },
             'Walls': [
-                { 'name': 'Ceiling', 'type': 'Ceiling', 'structure': 'wood', 'InputMethodWood' :'InputUA', 
+                { 'name': 'Ceiling', 'type': 'Ceiling', 'structure': 'wood', 'InputMethod' :'InputUA', 
                 'direction': 'top', 'area': 67.8, 'UA': 0.24, 'IsSunshadeInput': False },
-                { 'name': 'Ceiling', 'type': 'Ceiling', 'structure': 'wood', 'InputMethodWood' :'InputAllDetails', 'direction': 'top', 'area': 67.8,
+                { 'name': 'Ceiling', 'type': 'Ceiling', 'structure': 'wood', 'InputMethod' :'InputAllDetails', 'direction': 'top', 'area': 67.8,
                 'Parts': [{'AreaRatio': 0.8, 'Layers': [{'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 },
                                                         {'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 }]},
                             {'AreaRatio': 0.2, 'Layers': [{'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 },
                                                         {'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 }]}],
                 'IsSunshadeInput': False },
-                { 'name': 'Floor', 'type': 'Floor', 'structure': 'wood', 'InputMethodWood' :'InputAllLayers', 'direction': 'bottom', 'area': 67.8,
+                { 'name': 'Floor', 'type': 'Floor', 'structure': 'wood', 'InputMethod' :'InputAllLayers', 'direction': 'bottom', 'area': 67.8,
                 'FloorConstructionMethod' :'FrameInsulcolumn',
                 'Parts': [{'TypeFloor': 'Insulation', 'Layers': [{'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 },
                                                                 {'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 }]},
                             {'TypeFloor': 'Heatbridge', 'Layers': [{'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 },
                                                                 {'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 }]}],
                 'IsSunshadeInput': False },
-                { 'name': 'Wall', 'type': 'Wall', 'structure': 'wood', 'InputMethodWood' :'InputAllLayers', 'direction': 'N', 'area': 67.8, 
+                { 'name': 'Wall', 'type': 'Wall', 'structure': 'wood', 'InputMethod' :'InputAllLayers', 'direction': 'N', 'area': 67.8, 
                 'WallConstructionMethod': 'WallInsuladdBackvertical',
                 'Parts': [{'TypeFloor': 'Insulation', 'Layers': [{'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 },
                                                                 {'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 }]},
                             {'TypeFloor': 'Heatbridge', 'Layers': [{'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 },
                                                                 {'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 }]}],         
                 'IsSunshadeInput': False },
-                { 'name': 'Ceiling', 'type': 'Ceiling', 'structure': 'wood', 'InputMethodWood' :'InputAllLayers', 'direction': 'top', 'area': 67.8,
+                { 'name': 'Ceiling', 'type': 'Ceiling', 'structure': 'wood', 'InputMethod' :'InputAllLayers', 'direction': 'top', 'area': 67.8,
                 'RoofConstructionMethod': 'Insulrafter', 
                 'Parts': [{'TypeFloor': 'Insulation', 'Layers': [{'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 },
                                                                 {'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 }]},
                             {'TypeFloor': 'Heatbridge', 'Layers': [{'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 },
                                                                 {'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 }]}],
                 'IsSunshadeInput': False },
-                { 'name': 'BoundaryCeiling', 'type': 'BoundaryCeiling', 'structure': 'wood', 'InputMethodWood' :'InputAllLayers', 
+                { 'name': 'BoundaryCeiling', 'type': 'BoundaryCeiling', 'structure': 'wood', 'InputMethod' :'InputAllLayers', 
                 'direction': 'top', 'area': 67.8, 'CeilingConstructionMethod': 'Insulbeam', 
                 'Parts': [{'TypeFloor': 'Insulation', 'Layers': [{'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 },
                                                                 {'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 }]},
                             {'TypeFloor': 'Heatbridge', 'Layers': [{'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 },
                                                                 {'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 }]}],
                 'IsSunshadeInput': False },
-                { 'name': 'Ceiling', 'type': 'Ceiling', 'structure': 'wood', 'InputMethodWood' :'InputUR',
-                'direction': 'top', 'area': 67.8, 'URWood': 0.05,
+                { 'name': 'Ceiling', 'type': 'Ceiling', 'structure': 'wood', 'InputMethod' :'InputUR',
+                'direction': 'top', 'area': 67.8, 'UR': 0.05,
                 'Parts': [{'TypeFloor': 'Insulation', 'Layers': [{'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 },
                                                                 {'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 }]}],
                 'IsSunshadeInput': False },
-                { 'name': 'Ceiling', 'type': 'Ceiling', 'structure': 'RC', 'InputMethodRC' :'InputUA', 
+                { 'name': 'Ceiling', 'type': 'Ceiling', 'structure': 'RC', 'InputMethod' :'InputUA', 
                 'direction': 'top', 'area': 67.8, 'UA': 0.24, 'IsSunshadeInput': False },
-                { 'name': 'Ceiling', 'type': 'Ceiling', 'structure': 'RC', 'InputMethodRC' :'InputLayers', 
+                { 'name': 'Ceiling', 'type': 'Ceiling', 'structure': 'RC', 'InputMethod' :'InputLayers', 
                 'direction': 'top', 'area': 67.8,
                 'Parts': [{'TypeFloor': 'Insulation', 'Layers': [{'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 },
                                                                 {'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 }]}],         
                 'IsSunshadeInput': False },
-                { 'name': 'Ceiling', 'type': 'Ceiling', 'structure': 'steel', 'InputMethodSteel' :'InputUA', 
+                { 'name': 'Ceiling', 'type': 'Ceiling', 'structure': 'steel', 'InputMethod' :'InputUA', 
                 'direction': 'top', 'area': 67.8, 'UA': 0.24, 'IsSunshadeInput': False },
-                { 'name': 'Ceiling', 'type': 'Ceiling', 'structure': 'steel', 'InputMethodSteel' :'InputUR', 
-                'direction': 'top', 'area': 67.8, 'URSteel': 0.10, 
+                { 'name': 'Ceiling', 'type': 'Ceiling', 'structure': 'steel', 'InputMethod' :'InputUR', 
+                'direction': 'top', 'area': 67.8, 'UR': 0.10, 
                 'Parts': [{'TypeFloor': 'Insulation', 'Layers': [{'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 },
                                                                 {'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 }]}],         
                 'IsSunshadeInput': False },
