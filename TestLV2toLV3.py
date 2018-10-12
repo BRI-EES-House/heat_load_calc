@@ -57,7 +57,7 @@ class TestLV2toLV3(unittest.TestCase):
 
     # 層構成の作成
     def test_make_parts(self):
-        ret = nb.make_layers(
+        ret = nb.make_parts(
             InputMethod = 'InputAllDetails',
             Parts = [{'AreaRatio': 0.8, 'Layers': [{'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 },
                                                    {'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 }]},
