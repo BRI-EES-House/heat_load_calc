@@ -56,14 +56,19 @@ class TestLV2toLV3(unittest.TestCase):
         self.assertEqual(720, ret['specH'])
 
     # 層構成の作成
-    def test_make_layers(self):
-        d = [{'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 },
-             {'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 }]
-        ret = nb.make_layers(d)
-        self.assertEqual('wood', ret[0]['name'])
-        self.assertEqual(0.012, ret[0]['thick'])
-        self.assertEqual(0.16, ret[0]['cond'])
-        self.assertEqual(720, ret[0]['specH'])
+    def test_make_parts(self):
+        ret = nb.make_layers(
+            InputMethod = 'InputAllDetails',
+            Parts = [{'AreaRatio': 0.8, 'Layers': [{'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 },
+                                                   {'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 }]},
+                     {'AreaRatio': 0.2, 'Layers': [{'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 },
+                                                   {'name': 'wood','thick': 0.012, 'cond': 0.16, 'specH': 720 }]}]
+        )
+        self.assertEqual(0.8, ret[0]['AreaRatio'])
+        self.assertEqual('wood', ret[0]['Layers']['name'])
+        self.assertEqual(0.012, ret[0]['Layers']['thick'])
+        self.assertEqual(0.16, ret[0]['Layers']['cond'])
+        self.assertEqual(720, ret[0]['Layers']['specH'])
 
     # 簡易入力
     def test_make_wall_simple(self):
