@@ -201,7 +201,6 @@ class TestLV2toLV3(unittest.TestCase):
          )
         self.assertEqual('InputUR', ret['InputMethod'])
         self.assertEqual(1, len(ret['Parts']))
-        self.assertEqual(5.77, ret['URWood'])
    
     #詳細入力(RC/UA)
     def test_make_wall_rc_ua(self):
