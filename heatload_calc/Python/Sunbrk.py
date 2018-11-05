@@ -79,13 +79,14 @@ class SunbrkType:
         return self.__A
 
     # 日除けの影面積を計算する
-    def FSDW(self,defSolpos):
+    def FSDW(self, defSolpos, Wa):
         # γの計算[rad]
-        dblGamma = defSolpos.dblA - self.__Wa
+        dblGamma = defSolpos.dblA - Wa
         # tan(プロファイル角)の計算
-        dblTanFai = math.tan(defSolpos.dblh / math.cos(dblGamma)
+        dblTanFai = math.tan(defSolpos.dblh / math.cos(dblGamma))
+        # print(defSolpos.dblh)
         # 日が出ているときだけ計算する
-        if defSolpos.dblh > 0.:
+        if defSolpos.dblh > 0.0:
             # DPの計算[m]
             dblDP = self.__D * dblTanFai
 
@@ -170,7 +171,8 @@ class SunbrkMng:
     
     # 水平庇の部位情報の取得
     def Sunbrk(self, Name):
-        return self.__objSunbrk[self.__dicSunbrkName[Name]]()
+        objSunbrk = self.__objSunbrk[self.__dicSunbrkName[Name]]
+        return objSunbrk
 
 
 # ### Example

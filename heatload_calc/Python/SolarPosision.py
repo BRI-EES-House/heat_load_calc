@@ -96,6 +96,9 @@ class SolarPosision:
         # 標準子午線
         dblLs = math.radians(Ls)
         
+        #太陽位置クラスの初期化
+        self.Solpos = defSolpos(0.0, 0.0, 0.0, 0.0, 0.0)
+
         # 地域情報の初期化
         self.__dblCosPhi = math.cos(dblLat)
         self.__dblSinPhi = math.sin(dblLat)

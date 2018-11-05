@@ -88,7 +88,7 @@ class Weather:
         #print(self.__dblWdata)
         #aa =  self.__dblWdata[0]
         #print(aa)
-        #水平面全天日射量の場合
+        #水平面全天日射量、地面反射日射量の場合
         if Compnt == enmWeatherComponent.Ihol:
             #正時に切り捨てた時の気象データを取得
             wdata1 = self.__dblWdata[lngAddress]

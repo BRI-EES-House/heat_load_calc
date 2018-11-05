@@ -42,7 +42,8 @@ class heat_load_main():
         
     #シミュレーション全体の設定条件の読み込み
     def Gdata_init(self):
-        self.__objGdata = Gdata(900,2,1,1,1,3,50,True,"面積比",0.5,False)
+        #def __init__(self, dblDTime, lngApproach, SimStMo, SimStDay, SimEnMo, SimEnDay, lngNcalTime, blnDetailOut, strFFcalcMethod, dblFsolFlr, blnOTset)
+        self.__objGdata = Gdata(900,0,1,1,1,1,50,True,"面積比",0.5,False)
         return self.__objGdata
     
     #気象データの読み込み
@@ -459,7 +460,9 @@ class heat_load_main():
                 Spaces.append(space)
             
             #print(self.__wall_mng)
-            self.__objSpaces = SpaceMng(self.__exsrf_mng, self.__wall_mng, self.__window_mng,                                         self.__sunbrk_mng, Spaces)
+            self.__objSpaces = SpaceMng(self.__objGdata, self.__exsrf_mng, \
+                    self.__wall_mng, self.__window_mng, \
+                    self.__sunbrk_mng, Spaces)
             
             return self.__objSpaces
     
@@ -529,7 +532,7 @@ wall_mng = main.wall_mng()
 window_mng = main.window_mng()
 sunbrk_mng = main.Sunbrk_init()
 Spaces = main.Space_read()
-
+main.calcHload()
 
 # In[4]:
 

@@ -149,7 +149,9 @@ class Exsrf:
     # 外表面名称
     def Name(self):
         return self.__strName
-
+    #地面反射率
+    def Rg(self):
+        return self.__dblRg
 
 # ### Example
 # #### 外表面の各情報の取得

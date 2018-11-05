@@ -7,7 +7,8 @@
 import nbimporter
 import numpy as np
 import datetime
-
+import Weather
+from Weather import enmWeatherComponent
 
 # In[2]:
 
@@ -110,6 +111,16 @@ class Surface:
         #形態係数収録用リストの定義
         self.__FF = []
         
+        #透過日射の室内部位表面吸収日射量の初期化
+        self.__RSsol = 0.0
+
+        #庇フラグの初期化
+        self.__sunbrkflg = False
+        #窓フラグの初期化
+        self.__windowflg = False
+        #開口部透過日射量、吸収日射量の初期化
+        self.__Qgt = 0.0
+        self.__Qga = 0.0
         #print(self.__unsteady)
         # 壁体の初期化
         if self.__unsteady == True :
@@ -138,7 +149,9 @@ class Surface:
             #print('hi=', self.__hi)
         # 定常部位の初期化
         else:
+            self.__objWindow = WindowMng.Window(self.__name)
             objWindow = WindowMng.Window(self.__name)    #Windowオブジェクトの取得
+            self.__windowflg = True
             self.__tau = objWindow.T()        #日射透過率
             self.__B = objWindow.B()          #吸収日射取得率
             self.__Uso = objWindow.Uso()      #熱貫流率（表面熱伝達抵抗除く）
@@ -154,6 +167,69 @@ class Surface:
             if self.__sunbrkflg:
                 self.__sunbkr = SunbrkMng.Sunbrk(self.__sunbreakname)
     
+    #透過日射の室内部位表面吸収日射量の初期化
+    def calcRSsol(self, TotalQgt):
+        self.__RSsol = TltalQgt * self.__SolR / self.__area
+
+    #透過日射の室内部位表面吸収比率の設定
+    def setSolR(self, SolR):
+        self.__SolR = SolR
+
+    #境界条件
+    def boundary(self):
+        return self.__boundary
+
+    #相当外気温度の計算
+    def calcTeo(self, Ta, RN, oldTr, spaces):
+        #非定常部位の場合
+        if self.__unsteady:
+            #外皮の場合（相当外気温度もしくは隣室温度差係数から計算）
+            if self.__skin:
+                self.__Teo = self.__objExsrf.Te(self.__as, self.__ho, \
+                        self.__Eo, Ta, RN, oldTr)
+            #内壁の場合（前時刻の室温）
+            else:
+                self.__Teo = spaces.oldTr2(self.__boundary)
+        #定常部位（窓）の場合
+        else:
+            #外皮の場合
+            if self.__skin:
+                self.__Teo = self.__Qga / self.__area / self.__U \
+                        - self.__Eo * self.__objExsrf.Fs() * RN / self.__ho \
+                        + Ta
+            #内壁の場合（前時刻の室温）
+            else:
+                self.__Teo = spaces.oldTr2(self.__boundary)
+
+    #相当外気温度の取得
+    def Teo(self):
+        return self.__Teo
+
+    #非定常フラグの取得
+    def unstrady(self):
+        return self.__unsteady
+
+    #地面反射率の取得
+    def rg(self):
+        return self.__objExsrf.Rg()
+
+    #透過日射量、吸収日射量の計算
+    def calcQgt_Qga(self):
+        #直達成分
+        Qgtd = self.__objWindow.QGTD(self.__Id, self.__objExsrf.CosT(), self.__Fsdw) * self.__area
+        #拡散成分
+        Qgts = self.__objWindow.QGTS(self.__Isky, self.__Ir) * self.__area
+        #透過日射量の計算
+        self.__Qgt = Qgtd + Qgts
+        #吸収日射量
+        self.__Qga = self.__objWindow.QGA(self.__Id, self.__Isky, \
+                self.__Ir, self.__objExsrf.CosT(), self.__Fsdw) * self.__area
+    #透過日射量の取得
+    def Qgt(self):
+        return self.__Qgt
+    #吸収日射量の取得
+    def Qga(self):
+        return self.__Qga
     #庇名称の取得
     def sunbrkname(self):
         return self.__sunbreakname
@@ -161,6 +237,14 @@ class Surface:
     #庇の有無フラグ
     def sunbrkflg(self):
         return self.__sunbrkflg
+
+    #窓フラグ
+    def windowflg(self):
+        return self.__windowflg
+
+    #日影面積率の計算
+    def calcFsdw(self, Solpos):
+        self.__Fsdw = self.__sunbkr.FSDW(Solpos, self.__objExsrf.Wa())
 
     #日影面積を取得
     def Fsdw(self, Solpos):
@@ -267,13 +351,21 @@ class Surface:
 
 
 class NextVent:
-    def __init__(self, roomname, roomdiv, winter, inter, summer):
-        #室用途
-        self.__roomname = roomname
-        #室名
-        serlf.__roomdiv = roomdiv
+    def __init__(self, Windward_roomname, Windward_roomdiv, Leeward_roomname, Leeward_roomdiv, Season, VentVolume):
+        #風上室用途
+        self.__Windward_roomname = Windward_roomname
+        #風上室名
+        self.__Windward_roomdiv = Windward_roomdiv
         
-        self.__SeasonalValue = SeasonalValue(winter, inter, summer)
+        #風下室用途
+        self.__Leeward_roomname = Leeward_roomname
+        self.__Leeward_roomdiv = Leeward_roomdiv
+        #季節の設定
+        self.__Season = Season
+        #室間換気量
+        self.__VentVolume = VentVolume
+
+        # self.__SeasonalValue = SeasonalValue(winter, inter, summer)
         
         #風上室の室温を初期化
         self.__oldTr = 15.0
@@ -286,24 +378,27 @@ class NextVent:
     def update_oldTr(self, oldTr):
         self.__oldTr = oldTr
     
-    #風上室の室名称を返す
-    def roomdiv(self):
-        return self.__roomdiv
-    
     #風上室の室用途を返す
-    def roomname(self):
-        return self.__roomname
+    def Windward_roomname(self):
+        return self.__Windward_roomname
+    #風上室の室名称を返す
+    def Windward_roomdiv(self):
+        return self.__Windward_roomdiv
     
-    #季節名称から風量を返す
-    def next_vent(self, strseason) :
-        if strseason == '冬期':
-            return self.__SeasonalVaue.winter
-        elif strseason == '中間期':
-            return self.__SeasonalVaue.inter
-        elif strseason == '夏期':
-            return self.__SeasonalVaue.summer
-        else:
-            print('<next_vent> not defined season =', strseason)
+    #風下室の室用途を返す
+    def Leeward_roomname(self):
+        return self.__Leeward_roomname
+    #風下室の室名称を返す
+    def Leeward_roomdiv(self):
+        return self.__Leeward_roomdiv
+    
+    #季節名称を返す
+    def Season(self):
+        return self.__Season
+
+    #風量を返す
+    def next_vent(self) :
+        return self.__VentVolume
     
     #前時刻の隣室温度を返す
     def oldTr(self):
@@ -337,7 +432,9 @@ class NextVent:
 class Space:
     FsolFlr = 0.5                                 #床の日射吸収比率
     # 初期化
-    def __init__(self, ExsrfMng, WallMng, WindowMng, SunbrkMng, roomname, roomdiv,                  HeatCcap, HeatRcap,                  CoolCcap, Vol, Fnt, Vent, Inf, CrossVentRoom,                  RadHeat, Beta, RoomtoRoomVents, Surfaces):
+    def __init__(self, Gdata, ExsrfMng, WallMng, WindowMng, SunbrkMng, roomname, roomdiv,\
+            HeatCcap, HeatRcap, CoolCcap, Vol, Fnt, Vent, Inf, CrossVentRoom,\
+            RadHeat, Beta, RoomtoRoomVents, Surfaces):
         self.__roomname = roomname                #室用途（主たる居室、その他居室、非居室）
         self.__roomdiv = roomdiv                  #室名称（主寝室、子供室1、子供室2、和室）
         self.__AnnualLoadcC = 0.0                 #年間冷房熱負荷（対流成分）
@@ -372,34 +469,49 @@ class Space:
         self.__Beta = Beta                        #放射暖房対流比率
         #self.__oldNextRoom = []
         #self.__NextVent = []
+
+        #内部発熱の初期化
+        #機器顕熱
+        self.__Appl = 0.0
+        #照明
+        self.__Light = 0.0
+        #人体顕熱
+        self.__Human = 0.0
+        #内部発熱合計
+        self.__Hn = 0.0
         
+        #室透過日射熱取得の初期化
+        self.__Qgt = 0.0
+
         #室間換気量クラスの構築
         self.__RoomtoRoomVent = []
         prevroomname = ''
         prevroomdiv = ''
-        winter_vent = 0.0
-        inter_vent = 0.0
-        summer_vent = 0.0
+        # winter_vent = 0.0
+        # inter_vent = 0.0
+        # summer_vent = 0.0
         for room_vent in RoomtoRoomVents:
-            if room_vent['Windward_roomname'] != prevroomname and room_vent['Windward_roomdiv'] != prevroomdiv:
-                self.__RoomtoRoomVent.append(NextVent(prevroomname, prevroomdiv, winter_vent, inter_vent, summer_vent))
-                winter_vent = 0.0
-                inter_vent = 0.0
-                summer_vent = 0.0
+            #if room_vent['Windward_roomname'] != prevroomname and room_vent['Windward_roomdiv'] != prevroomdiv:
+            self.__RoomtoRoomVent.append(NextVent(prevroomname, prevroomdiv, self.__roomname, self.__roomdiv,\
+                    room_vent['Season'], room_vent['VentVolume']))
+            # winter_vent = 0.0
+            # inter_vent = 0.0
+            # summer_vent = 0.0
             
-            prevroomname = room_vent['Windward_roomname']
-            prevroomdiv = room_vent['Windward_roomdiv']
-            if room_vent['Season'] == '冬期':
-                winter_vent = room_vent['VentVolume']
-            elif room_vent['Season'] == '中間期':
-                inter_vent = room_vent['VentVolume']
-            elif room_vent['Season'] == '夏期':
-                summer_vent = room_vent['VentVolume']
-            else:
-                print('RoomtoRoomVent.csv 未定義の季節', room_vent['Season'])
+            # prevroomname = room_vent['Windward_roomname']
+            # prevroomdiv = room_vent['Windward_roomdiv']
+            # if room_vent['Season'] == '冬期':
+            #     winter_vent = room_vent['VentVolume']
+            # elif room_vent['Season'] == '中間期':
+            #     inter_vent = room_vent['VentVolume']
+            # elif room_vent['Season'] == '夏期':
+            #     summer_vent = room_vent['VentVolume']
+            # else:
+            #     print('RoomtoRoomVent.csv 未定義の季節', room_vent['Season'])
         #残ったバッファを吐き出し
-        if winter_vent > 0. or inter_vent > 0. or summer_vent > 0.:
-            self.__RoomtoRoomVent.append(NextVent(prevroom, prevroomdiv, winter_vent, inter_vent, summer_vent))
+        # if winter_vent > 0. or inter_vent > 0. or summer_vent > 0.:
+        #     self.__RoomtoRoomVent.append(NextVent(prevroomname, prevroomdiv, self.__roomname, self.__roomdiv, \
+        #             winter_vent, inter_vent, summer_vent))
         
         #print(self.__RoomtoRoomVent)
         
@@ -416,7 +528,9 @@ class Space:
         
         #部位表面
         for d_surface in Surfaces:
-            self.__Surface.append(Surface(ExsrfMng, WallMng, WindowMng, SunbrkMng,                                      d_surface['skin'], d_surface['boundary'],                                      d_surface['unsteady'], d_surface['name'],                                      d_surface['area'], d_surface['sunbrk'],                                      d_surface['flr'], d_surface['fot']))
+            self.__Surface.append(Surface(ExsrfMng, WallMng, WindowMng, SunbrkMng, \
+                    d_surface['skin'], d_surface['boundary'], d_surface['unsteady'], d_surface['name'],\
+                    d_surface['area'], d_surface['sunbrk'], d_surface['flr'], d_surface['fot']))
             
         #print('self.__Surfaceの型：', type(self.__Surface))
         #print(Surfaces)
@@ -433,11 +547,15 @@ class Space:
         
         #面対面の形態係数の計算
         self.__Atotal = 0.0
+        self.__TotalAF = 0.0
         
         #print('合計面積1=', self.__Atotal)
         #合計面積の計算
-        for nxtsurface in self.__Surface:
-            self.__Atotal += nxtsurface.area()
+        for surface in self.__Surface:
+            self.__Atotal += surface.area()
+            #合計床面積の計算
+            if surface.Floor() == True:
+                self.__TotalAF += surface.area()
         
         #print('合計表面積=', self.__Atotal)
         #形態係数の計算（面積比）
@@ -451,7 +569,34 @@ class Space:
                 #print(i, j, surface.FF(j))
                 j += 1
             i += 1
-                
+        
+        #透過日射の室内部位表面吸収比率の計算
+        #床に集中的に吸収させ、残りは表面積で案分
+        #床の1次入射比率
+        FsolFlr = Gdata.FsolFlr()
+        TotalR = 0.0
+        #床を除いた室内合計表面積の計算
+        Temp = self.__Atotal - self.__TotalAF
+
+        for surface in self.__Surface:
+            #床の室内部位表面吸収比率の設定
+            if surface.Floor() == True:
+                SolR = FsolFlr * surface.area() / self.__TotalAF
+            #床以外は面積案分
+            else:
+                #室に床がある場合
+                if self.__TotalAF > 0.0:
+                    SolR = surface.area() / Temp * (1. - FsolFlr)
+                #床がない場合
+                else:
+                    SolR = surface.area() / Temp
+            surface.setSolR(SolR)
+            #室内部位表面吸収比率の合計値（チェック用）
+            TotalR += SolR
+        #日射吸収率の合計値のチェック
+        if abs(TotalR - 1.0) > 0.00001:
+            print(selr.__roomdiv, '日射吸収比率合計値エラー', TotalR)
+
         #放射収支計算のための行列準備
         #行列の準備と初期化
         #[AX]
@@ -490,7 +635,8 @@ class Space:
                 #print('FF=', surface.FF(j))
                 #対角要素
                 if i == j:
-                    self.__matAXd[i][j] = 1. + surface.RFA0() * surface.hi()                             - surface.RFA0() * surface.hir() * surface.FF(j)
+                    self.__matAXd[i][j] = 1. + surface.RFA0() * surface.hi()\
+                            - surface.RFA0() * surface.hir() * surface.FF(j)
                 #対角要素以外
                 else:
                     self.__matAXd[i][j] = - surface.RFA0() * surface.hir() * surface.FF(j)
@@ -530,29 +676,65 @@ class Space:
         return self.__oldTr
     
     #室温、熱負荷の計算
-    def calcHload(self, spaces, defSolpos, Schedule, Weather, SunbrkMng):
+    def calcHload(self, spaces, dtmNow, defSolpos, Schedule, Weather, SunbrkMng):
         #室間換気の風上室温をアップデート
         for roomvent in self.__RoomtoRoomVent:
             roomvent.update_oldTr(spaces.oldTr(roomvent['Windward_roomname'], roomvent['Windward_roomdiv']))
-            print(roomvent.oldTr())
+            #print(roomvent.oldTr())
         
         #外皮の傾斜面日射量の計算
         for surface in self.__Surface:
-            surface.print_surface()
-            print(surface.skin())
+            #surface.print_surface()
+            #print(surface.skin())
             if surface.skin() == True:
                 surface.update_slope_sol()
-                surface.print_slope_sol()
+                #surface.print_slope_sol()
         
         #庇の日影面積率計算
         for surface in self.__Surface:
             if surface.sunbrkflg() == True:
                 Sunbrk = SunbrkMng.Sunbrk(surface.sunbrkname())
-                print(type(Sunbrk))
-                print('Name=', surface.sunbrkname())
-                surface.setFsdw() = Sunbrk.FSDW(defSolpos)
-                print('Name=', surface.sunbrkname(), 'Fsdw=', surface.Fsdw())
+                #print(type(Sunbrk))
+                #print('Name=', surface.sunbrkname())
+                #日影面積率の計算
+                surface.calcFsdw(defSolpos)
+                #print('Name=', surface.sunbrkname(), 'Fsdw=', surface.Fsdw())
         
+        #透過日射熱取得の初期化
+        self.__Qgt = 0.0
+
+        #透過日射吸収日射の計算
+        for surface in self.__Surface:
+            if surface.windowflg() == True:
+                # print('透過日射量、吸収日射量の計算')
+                # Idn = Weather.WeaData(enmWeatherComponent.Idn, dtmNow)
+                # Isky = Weather.WeaData(enmWeatherComponent.Isky, dtmNow)
+                # Ihol = Idn * math.sin(Weather.WeaData(enmWeatherComponent.h, dtmNow)) + Isky
+                # Ir = Ihol * surface.rg()
+                surface.calcQgt_Qga()
+                # print(dtmNow, surface.Qgt(), surface.Qga())
+                #透過日射熱取得の積算
+                self.__Qgt += surface.Qgt()
+        
+        #相当外気温度の計算
+        Ta = Weather.WeaData(enmWeatherComponent.Ta, dtmNow)
+        RN = Weather.WeaData(enmWeatherComponent.RN, dtmNow)
+        for surface in self.__Surface:
+            surface.calcTeo(Ta, RN, self.__oldTr, spaces)
+            print(surface.boundary(), surface.Teo())
+
+        #内部発熱の計算（すべて対流成分とする）
+        self.__Appl = Schedule.Appl(self.__roomname, self.__roomdiv, \
+                '顕熱', dtmNow)
+        self.__Light = Schedule.Light(self.__roomname, self.__roomdiv, dtmNow)
+        self.__Human = Schedule.Nresi(self.__roomname, self.__roomdiv, dtmNow) \
+                * (63.0 - 4.0 * (self.__oldTr - 24.0))
+        self.__Hn = self.__Appl + self.__Light + self.__Human
+
+        #室内表面の吸収日射量
+        for surface in self.__Surface:
+            print('test')
+
         return 0
 
 
@@ -612,13 +794,13 @@ class Space:
 
 
 class SpaceMng:
-    def __init__(self, ExsrfMng, WallMng, WindowMng, SunbrkMng, d):
+    def __init__(self, Gdata, ExsrfMng, WallMng, WindowMng, SunbrkMng, d):
         #空間定義の配列を作成
         #self.__objSpaces = []
         #print(d)
-        self.SpacedataRead(ExsrfMng, WallMng, WindowMng, SunbrkMng, d)
+        self.SpacedataRead(Gdata, ExsrfMng, WallMng, WindowMng, SunbrkMng, d)
         
-    def SpacedataRead(self, ExsrfMng, WallMng, WindowMng, SunbrkMng, d):
+    def SpacedataRead(self, Gdata, ExsrfMng, WallMng, WindowMng, SunbrkMng, d):
         for d_space in d:
             #print(d_space)
             #部位の情報を保持するクラスをインスタンス化
@@ -646,10 +828,12 @@ class SpaceMng:
             #    Inf_season.append(d_inf)
             
             #室間換気量の読み込み
-            NextVent = []
+            NextVentList = []
             for d_nextvent in d_space['NextVent']:
-                next_vent = NextVent(d_nextvent['name'],                                      d_nextvent['winter'], d_nextvent['inter'], d_nextvent['summer'])
-                NextVent.append(next_vent)
+                next_vent = NextVent(d_nextvent['Windward_roomname'], d_nextvent['Windward_roomdiv'], \
+                        d_nextvent['Leeward_roomname'], d_nextvent['Leeward_roomdiv'], \
+                        d_nextvent['Season'], d_nextvent['VentVolume'])
+                NextVentList.append(next_vent)
             
             self.__objSpace = []
             
@@ -658,7 +842,11 @@ class SpaceMng:
             #     HeatCcap, HeatRcap, \
             #     CoolCcap, Vol, Fnt, Vent, Inf, CrossVentRoom, \
             #     RadHeat, Beta, RoomtoRoomVents, Surfaces):
-            space = Space(ExsrfMng, WallMng, WindowMng, SunbrkMng, d_space['roomname'],                           d_space['roomdiv'], d_space['HeatCcap'],                           d_space['HeatRcap'], d_space['CoolCcap'], d_space['Vol'],                           d_space['Fnt'], d_space['Vent'], Inf_season,                           d_space['CrossVentRoom'], d_space['RadHeat'], d_space['Beta'], NextVent, Surfaces)
+            space = Space(Gdata, ExsrfMng, WallMng, WindowMng, SunbrkMng, d_space['roomname'],\
+                    d_space['roomdiv'], d_space['HeatCcap'],\
+                    d_space['HeatRcap'], d_space['CoolCcap'], d_space['Vol'],\
+                    d_space['Fnt'], d_space['Vent'], Inf_season,\
+                    d_space['CrossVentRoom'], d_space['RadHeat'], d_space['Beta'], NextVentList, Surfaces)
             #print(space)
             self.__objSpace.append(space)
         
@@ -674,9 +862,18 @@ class SpaceMng:
                 break
         return Tr
     
+    #室名称と室用途をつなげた名称から前時刻の室温を取得する
+    def oldTr2(self, roomname_roomdib):
+        Tr = -999.0
+        for space in self.__objSpace:
+            if space.name() + space.roomdiv() == roomname_roomdib:
+                Tr = space.oldTr()
+                break
+        return Tr
+
     #室温、熱負荷の計算
     def calcHload(self, dtmDate, objWdata, objSchedule, objSunbrk):
         for space in self.__objSpace:
             #def calcHload(self, spaces, SolarPosision, Schedule, Weather):
-            space.calcHload(self, objWdata.Solpos(dtmDate), objSchedule, objWdata, objSunbrk)
+            space.calcHload(self, dtmDate, objWdata.Solpos(dtmDate), objSchedule, objWdata, objSunbrk)
 
