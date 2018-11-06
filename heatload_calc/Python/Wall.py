@@ -404,8 +404,8 @@ class ResponseFactor():
         for lngI, root in enumerate(self.__dblAlp):
             dblTemp = root * self.__dblDTime
             dblE1 = ( 1.0 - math.exp(-dblTemp) ) / dblTemp
-            dblRFT[0] = dblRFT[0] + dblE1 * self.__dblAT[lngI]
-            dblRFA[0] = dblRFA[0] + dblE1 * self.__dblAA[lngI]
+            dblRFT[0] += dblE1 * self.__dblAT[lngI]
+            dblRFA[0] += dblE1 * self.__dblAA[lngI]
         
         #二等辺三角波励振の応答係数の二項目以降を計算
         for lngJ in range(1, self.__lngM):
@@ -413,9 +413,10 @@ class ResponseFactor():
             dblRFA[lngJ] = 0.0
             for lngI, root in enumerate(self.__dblAlp):
                 dblTemp = root * self.__dblDTime
-                dblE1 = ( 1.0 - math.exp(-dblTemp) ) ** 2 * math.exp( -(lngJ - 1) * dblTemp ) / dblTemp
-                dblRFT[lngJ] = dblRFT[lngJ] - dblE1 * self.__dblAT[lngI]
-                dblRFA[lngJ] = dblRFA[lngJ] - dblE1 * self.__dblAA[lngI]
+                dblE1 = ( 1.0 - math.exp(-dblTemp) ) ** 2.0 \
+                        * math.exp( -(float(lngJ) - 1.0) * dblTemp ) / dblTemp
+                dblRFT[lngJ] -= dblE1 * self.__dblAT[lngI]
+                dblRFA[lngJ] -= dblE1 * self.__dblAA[lngI]
             
         # 指数項別応答係数、公比を計算
         dblRFT1 = [ 0.0 for i in range( self.__lngNroot ) ]
@@ -423,17 +424,18 @@ class ResponseFactor():
         dblRow = [ 0.0 for i in range( self.__lngNroot ) ]
         for lngI, root in enumerate(self.__dblAlp):
             dblTemp = root * self.__dblDTime
-            dblE1 = 1.0 / dblTemp * ( 1.0 - math.exp(-dblTemp) ) ** 2
+            dblE1 = 1.0 / dblTemp * ( 1.0 - math.exp(-dblTemp) ) ** 2.0
             dblRFT1[lngI] = - self.__dblAT[lngI] * dblE1
             dblRFA1[lngI] = - self.__dblAA[lngI] * dblE1
             dblRow[lngI] = math.exp(-dblTemp)
                          
         # デバッグ用
-        #print('貫流応答係数：', dblRFT[:11])
-        #print('吸熱応答係数：', dblRFA[:11])
-        #print('指数項別貫流応答係数：', dblRFT1)
-        #print('指数項別吸熱応答係数：', dblRFA1)
-        #print('公比：', dblRow)
+        # print(self.__wall.Name())
+        # print('貫流応答係数：', dblRFT[:11])
+        # print('吸熱応答係数：', dblRFA[:11])
+        # print('指数項別貫流応答係数：', dblRFT1)
+        # print('指数項別吸熱応答係数：', dblRFA1)
+        # print('公比：', dblRow)
         
         return copy.deepcopy(dblRFT), copy.deepcopy(dblRFA), copy.deepcopy(dblRFT1), copy.deepcopy(dblRFA1), copy.deepcopy(dblRow)
 

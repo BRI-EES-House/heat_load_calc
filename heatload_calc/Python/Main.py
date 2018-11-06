@@ -30,7 +30,6 @@ from SolarPosision import SolarPosision, defSolpos
 import Space
 from Space import SpaceMng
 
-
 # # 室温・熱負荷計算のメイン関数
 
 # In[2]:
@@ -515,8 +514,10 @@ class heat_load_main():
 #                print('h=', Solpos.dblh, 'A=', Solpos.dblA, 'Idn=', Idn, 'Isky=', Isky)
 #                print('Idi=', self.__exsrf_mng.Idi(1), 'Iski=', self.__exsrf_mng.Iski(1))
                 
+                # if dtmNow.hour == 11:
+                #     print('11時')
                 #室温・熱負荷の計算
-                self.__objSpaces.calcHload(dtmNow, self.__Weather, self.__sch, self.__sunbrk_mng)
+                self.__objSpaces.calcHload(self.__objGdata, dtmNow, self.__Weather, self.__sch, self.__sunbrk_mng)
             lngNnow += 1
 
 

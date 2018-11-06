@@ -63,6 +63,7 @@ from Sunbrk import *
 import SeasonalValue
 from SeasonalValue import SeasonalValue
 
+from common import conca, conrowa
 
 # # 室温・熱負荷を計算するクラス
 
@@ -105,7 +106,7 @@ class Surface:
         self.__area = area            #面積
         self.__sunbreakname = sunbreak    #ひさし名称
         self.__flr = flr              #放射暖房吸収比率
-        self.__for = fot              #人体に対する形態係数
+        self.__fot = fot              #人体に対する形態係数
         #self.__floor = floor          #床フラグ
         
         #形態係数収録用リストの定義
@@ -121,6 +122,15 @@ class Surface:
         #開口部透過日射量、吸収日射量の初期化
         self.__Qgt = 0.0
         self.__Qga = 0.0
+        #相当外気温度の初期化
+        self.__Teo = 15.0
+        self.__oldTeo = 15.0
+
+        self.__Nroot = 0
+
+        self.__Qt = 0.0
+        self.__oldTeo = 15.0                         #前時刻の室外側温度
+        self.__oldqi = 0.0                          #前時刻の室内側表面熱流
         #print(self.__unsteady)
         # 壁体の初期化
         if self.__unsteady == True :
@@ -134,16 +144,16 @@ class Surface:
             self.__RFA1 = WallMng.RFA1(self.__name)      #指数項別吸熱応答の初項
             self.__oldTsd_a = []
             self.__oldTsd_t = []
-            self.__oldTsd_t = range(0, self.__Nroot-1)   #貫流応答の表面温度の履歴
-            self.__oldTsd_a = range(0, self.__Nroot-1)   #吸熱応答の表面温度の履歴
+            self.__oldTsd_a = [ [ 0.0 for i in range(1) ] for j in range(self.__Nroot) ]
+            self.__oldTsd_t = [ [ 0.0 for i in range(1) ] for j in range(self.__Nroot) ]
+            # self.__oldTsd_t = range(0, self.__Nroot-1)   #貫流応答の表面温度の履歴
+            # self.__oldTsd_a = range(0, self.__Nroot-1)   #吸熱応答の表面温度の履歴
             self.__hi = WallMng.hi(self.__name)          #室内側表面総合熱伝達率
             self.__hic = WallMng.hic(self.__name)        #室内側表面対流熱伝達率
             self.__hir = WallMng.hir(self.__name)        #室内側表面放射熱伝達率
             self.__ho = WallMng.ho(self.__name)          #室外側表面総合熱伝達率
             self.__as = WallMng.Solas(self.__name)       #室側側日射吸収率
             self.__Eo = WallMng.Eo(self.__name)          #室内側表面総合熱伝達率
-            self.__oldTeo = 15.0                         #前時刻の室外側温度
-            self.__olddqi = 0.0                          #前時刻の室内側表面熱流
             #print('RFT0=', self.__RFT0)
             #print('RFA0=', self.__RFA0)
             #print('hi=', self.__hi)
@@ -167,9 +177,66 @@ class Surface:
             if self.__sunbrkflg:
                 self.__sunbkr = SunbrkMng.Sunbrk(self.__sunbreakname)
     
+    #畳み込み演算のためのメモリ確保
+    # def Tsd_malloc(self):
+    #     self.__oldTsd_a = [ [ 0.0 for i in range(1) ] for j in range(self.__Nroot) ]
+    #     self.__oldTsd_t = [ [ 0.0 for i in range(1) ] for j in range(self.__Nroot) ]
+
+    #畳み込み積分
+    def convolution(self):
+        sumTsd = 0.0
+        for i in range(self.__Nroot):
+            self.__oldTsd_t[i][0] = self.__oldTeo * self.__RFT1[i] \
+                    + self.__Row[i] * self.__oldTsd_t[i][0]
+            self.__oldTsd_a[i][0] = self.__oldqi * self.__RFA1[i] \
+                    + self.__Row[i] * self.__oldTsd_a[i][0]
+            sumTsd += self.__oldTsd_t[i][0] + self.__oldTsd_a[i][0]
+        
+        return sumTsd
+
+    #人体に対する当該部位の形態係数の取得
+    def fot(self):
+        return self.__fot
+    #表面温度の計算
+    def setTs(self, Ts):
+        self.__Ts = Ts
+    #表面温度の取得
+    def Ts(self):
+        return self.__Ts
+    #室内等価温度の計算
+    def calcTei(self, Tr, Tsx, Lr, Beta):
+        self.__Tei = Tr * self.__hic / self.__hi \
+                + Tsx * self.__hir / self.__hi \
+                + self.__RSsol / self.__hi \
+                + self.__flr * Lr * (1.0 - Beta) / self.__hi / self.__area
+    
+    #前時刻の室内表面熱流の取得
+    def oldqi(self):
+        return self.__oldqi
+    #室内表面熱流の計算
+    def calcqi(self, Tr, Tsx, Lr, Beta):
+        #前時刻熱流の保持
+        self.__oldqi = self.__Qt / self.__area
+
+        #対流成分
+        self.__Qc = self.__hic * self.__area * (Tr - self.__Ts)
+        #放射成分
+        self.__Qr = self.__hir * self.__area * (Tsx - self.__Ts)
+        #短波長熱取得成分
+        self.__RS = self.__RSsol * self.__area
+        #放射暖房成分
+        self.__Lr = self.__flr * Lr * (1.0 - Beta)
+        #表面熱流合計
+        self.__Qt = self.__Qc + self.__Qr + self.__Lr + self.__RS
+
     #透過日射の室内部位表面吸収日射量の初期化
     def calcRSsol(self, TotalQgt):
-        self.__RSsol = TltalQgt * self.__SolR / self.__area
+        self.__RSsol = TotalQgt * self.__SolR / self.__area
+        # print(self.__boundary, self.__RSsol)
+
+    #透過日射の室内部位表面吸収日射の取得
+    def RSsol(self):
+        return self.__RSsol
 
     #透過日射の室内部位表面吸収比率の設定
     def setSolR(self, SolR):
@@ -181,6 +248,7 @@ class Surface:
 
     #相当外気温度の計算
     def calcTeo(self, Ta, RN, oldTr, spaces):
+        self.__oldTeo = self.__Teo
         #非定常部位の場合
         if self.__unsteady:
             #外皮の場合（相当外気温度もしくは隣室温度差係数から計算）
@@ -204,7 +272,10 @@ class Surface:
     #相当外気温度の取得
     def Teo(self):
         return self.__Teo
-
+    #前時刻の相当外気温度の取得
+    def oldTeo(self):
+        return self.__oldTeo
+    
     #非定常フラグの取得
     def unstrady(self):
         return self.__unsteady
@@ -576,7 +647,7 @@ class Space:
         FsolFlr = Gdata.FsolFlr()
         TotalR = 0.0
         #床を除いた室内合計表面積の計算
-        Temp = self.__Atotal - self.__TotalAF
+        temp = self.__Atotal - self.__TotalAF
 
         for surface in self.__Surface:
             #床の室内部位表面吸収比率の設定
@@ -586,16 +657,20 @@ class Space:
             else:
                 #室に床がある場合
                 if self.__TotalAF > 0.0:
-                    SolR = surface.area() / Temp * (1. - FsolFlr)
+                    SolR = surface.area() / temp * (1. - FsolFlr)
                 #床がない場合
                 else:
-                    SolR = surface.area() / Temp
+                    SolR = surface.area() / temp
             surface.setSolR(SolR)
             #室内部位表面吸収比率の合計値（チェック用）
             TotalR += SolR
         #日射吸収率の合計値のチェック
         if abs(TotalR - 1.0) > 0.00001:
-            print(selr.__roomdiv, '日射吸収比率合計値エラー', TotalR)
+            print(self.__roomdiv, '日射吸収比率合計値エラー', TotalR)
+
+        #畳み込み演算のためのメモリー確保
+        # for surface in self.__Surface:
+        #     surface.Tsd_malloc()
 
         #放射収支計算のための行列準備
         #行列の準備と初期化
@@ -676,7 +751,7 @@ class Space:
         return self.__oldTr
     
     #室温、熱負荷の計算
-    def calcHload(self, spaces, dtmNow, defSolpos, Schedule, Weather, SunbrkMng):
+    def calcHload(self, Gdata, spaces, dtmNow, defSolpos, Schedule, Weather, SunbrkMng):
         #室間換気の風上室温をアップデート
         for roomvent in self.__RoomtoRoomVent:
             roomvent.update_oldTr(spaces.oldTr(roomvent['Windward_roomname'], roomvent['Windward_roomdiv']))
@@ -693,7 +768,7 @@ class Space:
         #庇の日影面積率計算
         for surface in self.__Surface:
             if surface.sunbrkflg() == True:
-                Sunbrk = SunbrkMng.Sunbrk(surface.sunbrkname())
+                #Sunbrk = SunbrkMng.Sunbrk(surface.sunbrkname())
                 #print(type(Sunbrk))
                 #print('Name=', surface.sunbrkname())
                 #日影面積率の計算
@@ -721,7 +796,7 @@ class Space:
         RN = Weather.WeaData(enmWeatherComponent.RN, dtmNow)
         for surface in self.__Surface:
             surface.calcTeo(Ta, RN, self.__oldTr, spaces)
-            print(surface.boundary(), surface.Teo())
+            # print(surface.boundary(), surface.Teo())
 
         #内部発熱の計算（すべて対流成分とする）
         self.__Appl = Schedule.Appl(self.__roomname, self.__roomdiv, \
@@ -733,10 +808,336 @@ class Space:
 
         #室内表面の吸収日射量
         for surface in self.__Surface:
-            print('test')
+            surface.calcRSsol(self.__Qgt)
 
+        #流入外気風量の計算
+        #計画換気・すきま風量
+        season = Schedule.Season(dtmNow)
+        if season == '暖房':
+            self.__Ventset = self.__Vent.winter()
+            self.__Infset = self.__Inf.winter()
+        elif season == '中間':
+            self.__Ventset = self.__Vent.inter()
+            self.__Infset = self.__Inf.inter()
+        elif season == '冷房':
+            self.__Ventset = self.__Vent.summer()
+            self.__Infset = self.__Inf.summer()
+        #局所換気量
+        self.__LocalVent = Schedule.LocalVent(self.__roomname, self.__roomdiv, dtmNow)
+
+        #空調設定温度の取得
+        self.__Tset = Schedule.ACSet(self.__roomname, self.__roomdiv, '温度', dtmNow)
+        #空調発停信号
+        self.__SW = 0
+        if season == '暖房' and self.__Tset > 0.0:
+            self.__SW = 1
+        elif season == '冷房' and self.__Tset > 0.0:
+            self.__SW = -1
+        
+        #室温・熱負荷計算のための係数の計算
+        #BRM・BRLの初期化
+        self.__BRM = 0.0
+        self.__BRL = self.__Beta
+        RMdT = self.__Hcap / Gdata.DTime()
+        self.__BRM += RMdT
+        #BRLの計算
+        i = 0
+        for surface in self.__Surface:
+            #室内対流熱伝達率×面積[W/K]
+            AF0 = surface.area() * surface.hic()
+            temp = AF0 * (1.0 - self.__matWSR[i][0])
+            #hc×A×(1-WSR)の積算
+            self.__BRM += temp
+            #BRLの計算
+            self.__BRL += AF0 * self.__matWSB[i][0]
+            i += 1
+        
+        #外気導入項の計算
+        temp = conca * conrowa * \
+                (self.__Ventset + self.__Infset + self.__LocalVent) / 3600.0
+        self.__BRM += temp
+        #室間換気
+        for room_vent in self.__RoomtoRoomVent:
+            if room_vent.Season() == season:
+                temp = conca * conrowa * room_vent.next_vent() / 3600.0
+                self.__BRM += temp
+        
+        #定数項の計算
+        self.__BRC = 0.0
+        #{WSC}、{CRX}の初期化
+        self.__matWSC = [ [ 0.0 for i in range(1) ] for j in range(self.__Nsurf) ]
+        self.__matCRX = [ [ 0.0 for i in range(1) ] for j in range(self.__Nsurf) ]
+        
+        #{CRX}の作成
+        i = 0
+        for surface in self.__Surface:
+            self.__matCRX[i][0] = surface.RFT0() * surface.Teo() \
+                    + surface.RSsol() * surface.RFA0()
+            i += 1
+        
+        #{WSC}=[XA]*{CRX}
+        self.__matWSC = np.dot(self.__matAX, self.__matCRX)
+        #{BRC}の計算
+        i = 0
+        for surface in self.__Surface:
+            NowQw = self.__matWSC[i][0] * surface.area() * surface.hic()
+            self.__BRC += NowQw
+            i += 1
+        
+        #外気流入風（換気＋すきま風）
+        temp = conca * conrowa * \
+                (self.__Ventset + self.__Infset + self.__LocalVent) \
+                * Weather.WeaData(enmWeatherComponent.Ta, dtmNow) / 3600.0
+        self.__BRC += temp
+        
+        #室間換気流入風
+        for room_vent in self.__RoomtoRoomVent:
+            if room_vent.Season() == season:
+                temp = conca * conrowa * room_vent.next_vent() \
+                        * room_vent.oldTr() / 3600.0
+                self.__BRC += temp
+        #RM/Δt*oldTrの項
+        temp = self.__Hcap / Gdata.DTime() * self.__oldTr
+        self.__BRC += temp
+
+        #{WSV}、{CVL}の初期化
+        self.__matWSV = [ [ 0.0 for i in range(1) ] for j in range(self.__Nsurf) ]
+        self.__matCVL = [ [ 0.0 for i in range(1) ] for j in range(self.__Nsurf) ]
+        
+        #畳み込み演算
+        i = 0
+        for surface in self.__Surface:
+            self.__matCVL[i][0] = surface.convolution()
+            i += 1
+        
+        #{WSV}=[XA]*{CVL}
+        self.__matWSV = np.dot(self.__matAX, self.__matCVL)
+        #畳み込み後の室内表面温度の計算
+        i = 0
+        for surface in self.__Surface:
+            temp = surface.area() * surface.hic() * self.__matWSV[i][0]
+    
+            self.__BRC += temp
+            i += 1
+        
+        #定数項への内部発熱の加算
+        self.__BRC += self.__Hn
+
+        #OT制御の換算係数の計算
+        if Gdata.OTset() == True:
+            self.__Xot = 0.0
+            self.__XLr = 0.0
+            self.__XC = 0.0
+            temp = 0.0
+            XLr = 0.0
+            XC = 0.0
+            i = 0
+            for surface in self.__Surface:
+                temp += surface.fot() * self.__matWSR[i][0]
+                XLr += surface.fot() * self.__matWSB[i][0]
+                XC += surface.fot() * (self.__matWSC[i][0] + self.__matWSV[i][0])
+                i += 1
+
+            temp = self.__kc + self.__kr * temp
+            self.__Xot = 1.0 / temp
+            self.__XLr = self.__kr * XLr / temp
+            self.__XC = self.__kr * XC / temp
+            self.__BRMot = self.__BRM * self.__Xot
+            self.__BRCot = self.__BRC + self.__BRM * self.__XC
+            self.__BRLot = self.__BRL + self.__BRM * self.__XLr
+        
+        #### 通風計算はここに入れる（今回は未実装）
+
+        #室温・熱負荷の計算
+        Hcap = 0.0
+        if self.__SW > 0:
+            Hcap = self.__HeatCcap
+        elif self.__SW < 0:
+            Hcap = self.__CoolCcap
+        
+        #仮の室温、熱負荷の計算
+        #室温設定の場合
+        if Gdata.OTset() == False:
+            self.__Tr, self.__Lcs, self.__Lr = self.calcTrLs(self.__SW, \
+                    self.__RadHeat, self.__BRC, self.__BRM, \
+                    self.__BRL, 0, 0, self.__Tset)
+        #OT設定の場合
+        else:
+            self.__OT, self.__Lcs, self.__Lr = self.calcTrLs(self.__SW, \
+                    self.__RadHeat, self.__BRCot, self.__BRMot, \
+                    self.__BRLot, 0, 0, self.__Tset)
+            #室温を計算
+            self.__Tr = self.__Xot * self.__OT \
+                    - self.__XLr * self.__Lr - self.__XC
+        
+        #最終的な運転フラグの設定
+        self.__SW = self.resetSW(Hcap, self.__HeatRcap)
+
+        #機器容量を再設定
+        Hcap = 0.0
+        if self.__SW > 0:
+            Hcap = self.__HeatCcap
+        elif self.__SW < 0:
+            Hcap = self.__CoolCcap
+        
+        #最終室温・熱負荷の再計算
+        if Gdata.OTset() == False:
+            self.__Tr, self.__Lcs, self.__Lr = self.calcTrLs(self.__SW, \
+                    self.__RadHeat, self.__BRC, self.__BRM, \
+                    self.__BRL, Hcap, self.__HeatRcap, self.__Tset)
+        #OT設定の場合
+        else:
+            self.__OT, self.__Lcs, self.__Lr = self.calcTrLs(self.__SW, \
+                    self.__RadHeat, self.__BRCot, self.__BRMot, \
+                    self.__BRLot, Hcap, self.__HeatRcap, self.__Tset)
+            #室温を計算
+            self.__Tr = self.__Xot * self.__OT \
+                    - self.__XLr * self.__Lr - self.__XC
+        
+        #放射暖房最大能力が設定されている場合にはもう１度チェックする
+        if self.__SW == 3 and self.__Lcs > Hcap and Hcap > 0.0:
+            self.__SW = 5
+            if Gdata.OTset() == False:
+                self.__Tr, self.__Lcs, self.__Lr = self.calcTrLs(self.__SW, \
+                        self.__RadHeat, self.__BRC, self.__BRM, \
+                        self.__BRL, Hcap, self.__HeatRcap, self.__Tset)
+            #OT設定の場合
+            else:
+                self.__OT, self.__Lcs, self.__Lr = self.calcTrLs(self.__SW, \
+                        self.__RadHeat, self.__BRCot, self.__BRMot, \
+                        self.__BRLot, Hcap, self.__HeatRcap, self.__Tset)
+                #室温を計算
+                self.__Tr = self.__Xot * self.__OT \
+                        - self.__XLr * self.__Lr - self.__XC
+            
+        #年間熱負荷の積算
+        #助走計算以外の時だけ積算
+        if Gdata.FlgOrig(dtmNow) == True:
+            #対流式空調の積算
+            if self.__Lcs > 0.0:
+                self.__AnnualLoadcH += self.__Lcs * Gdata.DTime() \
+                        * 0.000000001
+            else:
+                self.__AnnualLoadcC += self.__Lcs * Gdata.DTime() \
+                        * 0.000000001
+            
+            #放射式空調の積算
+            if self.__Lcs > 0.0:
+                self.__AnnualLoadrH += self.__Lr * Gdata.DTime() \
+                        * 0.000000001
+            else:
+                self.__AnnualLoadrC += self.__Lr * Gdata.DTime() \
+                        * 0.000000001
+        #表面温度の計算
+        self.__MRT = 0.0
+        self.__AST = 0.0
+        i = 0
+        for surface in self.__Surface:
+            Ts = self.__matWSR[i][0] * self.__Tr \
+                    + self.__matWSC[i][0] + self.__matWSV[i][0] \
+                    + self.__matWSB[i][0] * self.__Lr
+            surface.setTs(Ts)
+            # print(surface.Ts(), )
+
+            #人体に対する放射温度：MRT、面積荷重平均温度：ASTの計算
+            self.__MRT += surface.fot() * surface.Ts()
+            self.__AST += surface.area() * surface.Ts() / self.__Atotal
+            i += 1
+
+        #室内側等価温度の計算
+        for surface in self.__Surface:
+            Tsx = 0.0
+
+            j = 0
+            #形態係数加重平均表面温度の計算
+            for nxtsurface in self.__Surface:
+                Tsx += nxtsurface.Ts() * nxtsurface.FF(j)
+                j += 1
+
+            #室内側等価温度の計算
+            surface.calcTei(self.__Tr, Tsx, self.__Lr, self.__Beta)
+            #室内表面熱流の計算
+            surface.calcqi(self.__Tr, Tsx, self.__Lr, self.__Beta)
+
+        #前時刻の室温の更新
+        self.__oldTr = self.__Tr
+
+        print(dtmNow, self.__SW, self.__Qgt, self.__Tr, self.__Lcs)
+        
         return 0
 
+    #室温・熱負荷の計算ルーティン
+    def calcTrLs(self, SW, RadHeat, BRC, BRM, BRL, \
+            Hcap, Lrcap, Tset):
+        Lcs = 0.0
+        Lr = 0.0
+        Tr = 0.0
+        #非空調時の計算
+        if SW == 0:
+            Tr = BRC / BRM
+        #熱負荷計算（最大能力無制限）
+        elif SW == 1 or SW == -1 or SW == 4:
+            #対流式空調の場合
+            if RadHeat != True:
+                Lcs = BRM * Tset - BRC
+            #放射式空調
+            else:
+                Lr = (BRM * Tset - BRC) / BRL
+            #室温の計算
+            Tr = (BRC + Lcs + BRL * Lr) / BRM
+        #対流空調最大能力運転
+        elif (SW == 2 and Hcap > 0.0) or (SW == -2 and Hcap < 0.0):
+            Lcs = Hcap
+            Tr = (BRC + Hcap) / BRM
+        #放射暖房最大能力運転（当面は暖房のみ）
+        elif SW == 3 and Lrcap > 0.0:
+            Lr = Lrcap
+            #室温は対流式で維持する
+            Lcs = BRM * Tset - BRC - Lr * BRL
+            #室温の計算
+            Tr = (BRC + Lcs + BRL * Lr) / BRM
+        #放射空調も対流空調も最大能力運転
+        elif SW == 5:
+            #放射暖房、対流暖房ともに最大能力
+            Lr = Lrcap
+            Lcs = Hcap
+            #室温を計算する
+            Tr = (BRC + Lcs + BRL * Lr) / BRM
+        
+        #室温、対流空調熱負荷、放射空調熱負荷を返す
+        return (Tr, Lcs, Lr)
+
+    #最終の空調信号の計算
+    def resetSW(self, Hcap, Lrcap):
+        temp = self.__SW
+    
+        # 「冷房時の暖房」、「暖房時の冷房」判定
+        if float(self.__SW) * (self.__Lcs + self.__Lr) < 0.0:
+            temp = 0
+        # 暖房の過負荷状態
+        elif not self.__RadHeat and self.__SW == 1 and Hcap > 0.0 \
+                and self.__Lcs > Hcap:
+            temp = 2
+        # 冷房の過負荷状態
+        elif self.__SW == -1 and Hcap < 0.0 and self.__Lcs < Hcap:
+            temp = -2
+        # 放射暖房の過負荷状態
+        elif self.__RadHeat and self.__SW == 1 and Lrcap > 0.0 \
+                and self.__Lr > Lrcap:
+            temp = 3
+        # 放射暖房の過熱状態
+        elif self.__RadHeat and self.__SW == 1 and Lrcap <= 0.0:
+            temp = 4
+
+        return temp
+
+    #平均放射温度の計算
+    def calcTsx(self):
+        self.__Tsx = 0.0
+        i = 0
+        for surface in self.__Surface:
+            self.__Tsx += surface.Ts() * surface.FF(i)
+            i += 1
 
 # ### Constructor parameters
 # ```
@@ -872,8 +1273,8 @@ class SpaceMng:
         return Tr
 
     #室温、熱負荷の計算
-    def calcHload(self, dtmDate, objWdata, objSchedule, objSunbrk):
+    def calcHload(self, Gdata, dtmDate, objWdata, objSchedule, objSunbrk):
         for space in self.__objSpace:
             #def calcHload(self, spaces, SolarPosision, Schedule, Weather):
-            space.calcHload(self, dtmDate, objWdata.Solpos(dtmDate), objSchedule, objWdata, objSunbrk)
+            space.calcHload(Gdata, self, dtmDate, objWdata.Solpos(dtmDate), objSchedule, objWdata, objSunbrk)
 
