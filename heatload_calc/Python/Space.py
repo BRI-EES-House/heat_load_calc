@@ -1037,13 +1037,13 @@ class Space:
                     + self.__matWSC[i][0] + self.__matWSV[i][0] \
                     + self.__matWSB[i][0] * self.__Lr
             surface.setTs(Ts)
-            # print(surface.Ts(), )
+            print (Ts, "", end="")
 
             #人体に対する放射温度：MRT、面積荷重平均温度：ASTの計算
             self.__MRT += surface.fot() * surface.Ts()
             self.__AST += surface.area() * surface.Ts() / self.__Atotal
             i += 1
-
+        print('')
         #室内側等価温度の計算
         for surface in self.__Surface:
             Tsx = 0.0
@@ -1062,7 +1062,7 @@ class Space:
         #前時刻の室温の更新
         self.__oldTr = self.__Tr
 
-        print(dtmNow, self.__SW, self.__Qgt, self.__Tr, self.__Lcs)
+        # print(dtmNow, self.__SW, self.__Qgt, self.__Tr, self.__Lcs)
         
         return 0
 

@@ -218,9 +218,9 @@ class ResponseFactor():
         
         # 固定根の設定
         if WallType == 'wall':
-            dblAlps = [ 0.000002, 0.0000078997702574515, 0.0000312031850602576,
-                       0.000123248996638389, 0.000486819378952343, 
-                       0.00192288062529936, 0.00759515758618483, 0.03 ]
+            dblAlps = [ 0.000002, 0.0000079, 0.000031205,
+                       0.00012325975, 0.0004868760125, 
+                       0.001923160249375, 0.00759648298503125, 0.0300061077908735 ]
         elif WallType == 'soil':
             dblAlps = [ 1.0597E-09, 4.2389E-09, 1.6956E-08, 6.7806E-08, 2.7128E-07,
                        1.0850E-06, 4.3417E-06, 1.7361E-05, 6.94444E-05, 0.000277778 ]
@@ -275,6 +275,7 @@ class ResponseFactor():
         dblCtotal = 0.0
         for layer in self.__wall.Layers():
             dblAA0 += layer.dblR()
+            # print(layer.name, dblAA0, layer.dblR())
             dblCtotal += layer.dblC()
             
         # GA(0), GT(0)
@@ -317,7 +318,9 @@ class ResponseFactor():
                 else:
                     matTemp = copy.deepcopy( matFt )
                     matFt = np.dot( matTemp, matFi[lngK] )
-                    
+                
+                # print(matFt)
+
                 # 吸熱、貫流の各伝達関数ベクトルの作成
                 matGA[lngI][0] = matFt[0][1] / matFt[1][1] - dblGA0
                 matGT[lngI][0] = 1.0 / matFt[1][1] - dblGT0
@@ -350,7 +353,13 @@ class ResponseFactor():
             matCT[lngK][0] = dblTempT
         
         # 最小二乗法のための係数行列の逆行列を計算
+        # print('[matU]')
+        # print(matU)
         matU_inv = np.linalg.inv(matU)
+
+        # print('[mat_invU]')
+        # for i in matU_inv:
+        #     print(*i)
         
         # 伝達関数の係数を計算
         matAA = np.dot( matU_inv, matCA )
@@ -376,15 +385,15 @@ class ResponseFactor():
         # デバッグ用
         #print('四端子基本行列：', matFi)
         #print('四端子行列：', matFt)
-        #print('貫流伝達関数ベクトル：', matGA)
-        #print('吸熱伝達関数ベクトル：', matGT)
+        print('貫流伝達関数ベクトル：', matGA)
+        print('吸熱伝達関数ベクトル：', matGT)
         #print('伝達関数の係数を求めるための左辺行列：', matF)
         #print('最小二乗法のための係数行列：', matU)
         #print('最小二乗法のための係数行列の逆行列：', matU_inv)
-        #print('貫流定数項行列：', matCT)
-        #print('吸熱定数項行列：', matCA)
-        #print('貫流伝達関数の係数：', dblAT)
-        #print('吸熱伝達関数の係数：', dblAA)
+        print('貫流定数項行列：', matCT)
+        print('吸熱定数項行列：', matCA)
+        # print('貫流伝達関数の係数：', dblAT)
+        # print('吸熱伝達関数の係数：', dblAA)
         #print('単位貫流応答：', dblATstep[:11])
         #print('単位吸熱応答：', dblAAstep[:11])
         

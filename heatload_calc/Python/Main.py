@@ -5,6 +5,7 @@
 
 
 #import julianday
+import copy
 import nbimporter
 import datetime
 import csv
@@ -209,12 +210,22 @@ class heat_load_main():
                     for surfstrudct in surf_heat_trans:
                         #print(surfstrudct['partname'], partname)
                         if surfstrudct['partname'] == prev_partname:
-                            wallstruct = {'Name':prev_partname,                                           'OutEmissiv':0.90,                                           'OutSolarAbs':0.80,                                           'InConHeatTrans':surfstrudct['hic'],                                           'InRadHeatTrans':surfstrudct['hir'],                                           'Layers':layers}
+                            l = copy.copy(layers)
+                            wallstruct = {'Name':prev_partname,\
+                            'OutEmissiv':0.90,\
+                            'OutSolarAbs':0.80,\
+                            'InConHeatTrans':surfstrudct['hic'],\
+                            'InRadHeatTrans':surfstrudct['hir'],\
+                            'Layers':l
+                            }
                             #print('Wallstructに追加：', prev_partname)
-                            Walls.append(wallstruct)
+                            w = copy.copy(wallstruct)
+                            Walls.append(w)
+                            # print('Walls1', Walls)
                             #print(wallstruct)
-                            #wallstruct.clear
+                            wallstruct.clear()
                             layers.clear()
+                            # print('Walls2', Walls)
                             #layers = []
                             #print('List Clear', wallstruct, layers)
                             break
@@ -232,7 +243,8 @@ class heat_load_main():
                 else:
                     Dim = 0.0
                 #層構成の追加
-                layers.append({'Name': name, 'Cond': Lam, 'Thick': Dim, 'SpecH': Spcheat})
+                if len(name) > 0:
+                    layers.append({'Name': name, 'Cond': Lam, 'Thick': Dim, 'SpecH': Spcheat})
                 #print('XXXXXX', partname)
                 #print(layers)
                 prev_partname = partname
@@ -240,9 +252,19 @@ class heat_load_main():
             #バッファに残った壁体構成を追加
             for surfstrudct in surf_heat_trans:
                 if surfstrudct['partname'] == partname:
-                    wallstruct = {'Name':partname,                                   'OutEmissiv':0.90,                                   'OutSolarAbs':0.80,                                   'InConHeatTrans':surfstrudct['hic'],                                   'InRadHeatTrans':surfstrudct['hir'],                                   'Layers':layers}
-                    Walls.append(wallstruct)
-            #print(Walls)
+                    l = copy.copy(layers)
+                    wallstruct = {'Name':partname,\
+                    'OutEmissiv':0.90,\
+                    'OutSolarAbs':0.80,\
+                    'InConHeatTrans':surfstrudct['hic'],\
+                    'InRadHeatTrans':surfstrudct['hir'],\
+                    'Layers':l
+                    }
+                    w = copy.copy(wallstruct)
+                    Walls.append(w)
+                    wallstruct.clear()
+                    layers.clear()
+            # print(Walls)
             
             #壁体群の登録
             d = {
@@ -253,8 +275,8 @@ class heat_load_main():
                 },
                 'Walls': Walls
             }
-            #print('Dictionary 作成完了')
-            #print(type(d))
+            # print('Dictionary 作成完了')
+            # print(d)
             self.__wall_mng = WallMng(d)
             
             return self.__wall_mng
@@ -511,7 +533,7 @@ class heat_load_main():
                 Idn = self.__Weather.WeaData(enmWeatherComponent.Idn, dtmNow)
                 Isky = self.__Weather.WeaData(enmWeatherComponent.Isky, dtmNow)
                 self.__exsrf_mng.CalcSlopSol(Solpos, Idn, Isky)
-#                print('h=', Solpos.dblh, 'A=', Solpos.dblA, 'Idn=', Idn, 'Isky=', Isky)
+                # print(dtmNow,'h=', Solpos.dblh, 'A=', Solpos.dblA, 'Idn=', Idn, 'Isky=', Isky)
 #                print('Idi=', self.__exsrf_mng.Idi(1), 'Iski=', self.__exsrf_mng.Iski(1))
                 
                 # if dtmNow.hour == 11:

@@ -68,6 +68,7 @@ class WallMng:
         # 壁体名称→登録番号変換
         self.__dicWallname = {}
         for lngI, x in enumerate(self.__objWall):
+            print(x.Wall().Name())
             self.__dicWallname[x.Wall().Name()] = lngI
 
     # 壁体構成データの読み込みと応答係数の作成
@@ -83,8 +84,8 @@ class WallMng:
         #print('Dtime=', dblDTime)
         # 登録壁体インスタンスの配列を作成
         for d_wall in d['Walls']:
-            #print('Walls Name=', d_wall['Name'])
-            #print(d_wall)
+            print('Walls Name=', d_wall['Name'])
+            # print(d_wall)
             #print('wallname=', d_wall['Name'])
             # 壁体構成部材の情報を保持するクラスをインスタンス化
             layers = []
@@ -100,7 +101,7 @@ class WallMng:
             rf = ResponseFactor( 'wall' , dblDTime, dblNcalTime, wall )
             self.__objWall.append(rf)
         #print('Walldata')
-        #print(self.__objWall)
+        print(self.__objWall)
     
     # 壁体名称から二等辺三角波励振の貫流応答係数を返す
     def RFT(self, strWallname):
