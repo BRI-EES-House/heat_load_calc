@@ -1,0 +1,202 @@
+{
+	"Walls": [
+		{
+			"Name": "外壁",
+			"OutEmissiv":0.90,
+			"OutSolarAbs":0.80,
+			"InConHeatTrans":4.1,
+			"InRadHeatTrans": 5.0,
+			"Layers": [
+				{
+					"Name": "せっこうボード",
+					"Cond": 0.22,
+					"SpecH": 830,
+					"Thick": 0.0095
+				},
+				{
+					"Name": "密閉空気層",
+					"Cond": 11.11111111,
+					"SpecH": null,
+					"Thick": null
+				},
+				{
+					"Name": "住宅用グラスウール断熱材10K相当",
+					"Cond": 0.05,
+					"SpecH": 8,
+					"Thick": 0.064
+				},
+				{
+					"Name": "合板",
+					"Cond": 0.16,
+					"SpecH": 720,
+					"Thick": 0.012
+				},
+				{
+					"Name": "木片セメント板",
+					"Cond": 0.17,
+					"SpecH": 1678.59,
+					"Thick": 0.015
+				},
+				{
+					"Name": "Ro",
+					"Cond": 25.0,
+					"SpecH": null,
+					"Thick": null
+				}
+			]
+		},
+		{
+			"Name": "1階床",
+			"OutEmissiv":0.90,
+			"OutSolarAbs":0.80,
+			"InConHeatTrans":1.7,
+			"InRadHeatTrans": 5.0,
+			"Layers": [
+				{
+					"Name": "合板",
+					"Cond": 0.16,
+					"SpecH": 720,
+					"Thick": 0.012
+				},
+				{
+					"Name": "住宅用グラスウール断熱材10K相当",
+					"Cond": 0.05,
+					"SpecH": 8,
+					"Thick": 0.064
+				},
+				{
+					"Name": "Ro",
+					"Cond": 6.666666667,
+					"SpecH": null,
+					"Thick": null
+				}
+			]
+		},
+		{
+			"Name": "2階天井",
+			"OutEmissiv":0.90,
+			"OutSolarAbs":0.80,
+			"InConHeatTrans":6.1,
+			"InRadHeatTrans": 5.0,
+			"Layers": [
+				{
+					"Name": "せっこうボード",
+					"Cond": 0.22,
+					"SpecH": 830,
+					"Thick": 0.0095
+				},
+				{
+					"Name": "住宅用グラスウール断熱材10K相当",
+					"Cond": 0.05,
+					"SpecH": 8,
+					"Thick": 0.171
+				},
+				{
+					"Name": "Ro",
+					"Cond": 11.1,
+					"SpecH": null,
+					"Thick": null
+				}
+			]
+		},
+		{
+			"Name": "内壁（間仕切り）",
+			"OutEmissiv":0.90,
+			"OutSolarAbs":0.80,
+			"InConHeatTrans":4.1,
+			"InRadHeatTrans": 5.0,
+			"Layers": [
+				{
+					"Name": "せっこうボード",
+					"Cond": 0.22,
+					"SpecH": 830,
+					"Thick": 0.0125
+				},
+				{
+					"Name": "非密閉空気層",
+					"Cond": 11.11111111,
+					"SpecH": null,
+					"Thick": null
+				},
+				{
+					"Name": "せっこうボード",
+					"Cond": 0.22,
+					"SpecH": 830,
+					"Thick": 0.0125
+				},
+				{
+					"Name": "Ro",
+					"Cond": 9.1,
+					"SpecH": null,
+					"Thick": null
+				}
+			]
+		},
+		{
+			"Name": "内壁（天井）",
+			"OutEmissiv":0.90,
+			"OutSolarAbs":0.80,
+			"InConHeatTrans":6.1,
+			"InRadHeatTrans": 5.0,
+			"Layers": [
+				{
+					"Name": "せっこうボード",
+					"Cond": 0.22,
+					"SpecH": 830,
+					"Thick": 0.0125
+				},
+				{
+					"Name": "非密閉空気層",
+					"Cond": 14.28571429,
+					"SpecH": null,
+					"Thick": null
+				},
+				{
+					"Name": "合板",
+					"Cond": 0.16,
+					"SpecH": 720,
+					"Thick": 0.012
+				},
+				{
+					"Name": "Ro",
+					"Cond": 6.666666667,
+					"SpecH": null,
+					"Thick": null
+				}
+			]
+		},
+		{
+			"Name": "内壁（床）",
+			"OutEmissiv":0.90,
+			"OutSolarAbs":0.80,
+			"InConHeatTrans":1.7,
+			"InRadHeatTrans": 5.0,
+			"Layers": [
+				{
+					"Name": "合板",
+					"Cond": 0.16,
+					"SpecH": 720,
+					"Thick": 0.012
+				},
+				{
+					"Name": "非密閉空気層",
+					"Cond": 14.28571429,
+					"SpecH": null,
+					"Thick": null
+				},
+				{
+					"Name": "石こうボード",
+					"Cond": 0.22,
+					"SpecH": 830,
+					"Thick": 0.0125
+				},
+				{
+					"Name": "Ro",
+					"Cond": 11.1,
+					"SpecH": null,
+					"Thick": null
+				}
+			]
+		}
+	]
+}

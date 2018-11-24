@@ -28,20 +28,22 @@ class Light:
             
             # 照明発熱
             self.__dicLight={}
-            
             for row in reader:
-                strRoomName = row[0] # 室名
-                strRoomDiv = row[1]  # 室分類
-                strWeek =row[2]      # 曜日（'平日' or '休日'）
+                Col = 0
+                strRoomName = row[Col] # 室名
+                Col += 1
+                strWeek =row[Col]      # 曜日（'平日' or '休日'）
+                Col += 1
                 
                 # 毎時スケジュールのリストを設定
                 dblHourly=[]         
                 for hour in range(24):
-                    dblHourly.append(float(row[hour + 3]))
+                    dblHourly.append(float(row[Col]))
+                    Col += 1
                 
                 # 照明発熱をセット
                 # 単位は[W], 蛍光灯の安定器損失20%を含む
-                key = strRoomName + ',' + strRoomDiv + ',' + strWeek 
+                key = strRoomName + ',' + strWeek 
                 self.__dicLight[key] = dblHourly
                 
 
@@ -50,11 +52,13 @@ class Light:
         return self.__dicLight
         
     # 指定した時刻の照明発熱量の取得
-    def Light(self, strRoomName, strRoomDiv, strWeek, lngTime):
-        key = strRoomName + ',' + strRoomDiv + ',' + strWeek
-        vntHourly=self.__dicLight[key] 
-        return vntHourly[lngTime]
-
+    def Light(self, strRoomName, strWeek, lngTime):
+        key = strRoomName + ',' + strWeek
+        light = 0.0
+        if key in self.__dicLight.keys():
+            vntHourly=self.__dicLight[key] 
+            light = vntHourly[lngTime]
+        return light
 
 # # ## Example
 

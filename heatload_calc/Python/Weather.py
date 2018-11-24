@@ -10,8 +10,8 @@ from enum import IntEnum
 import datetime
 import nbimporter
 import SolarPosision
-from SolarPosision import SolarPosision
-import matplotlib.pyplot as plt
+from SolarPosision import *
+# import matplotlib.pyplot as plt
 
 
 # In[6]:
@@ -56,7 +56,18 @@ class Weather:
                 # データ自身は全部で7項目(温度、法線面直達日射量、水平面全天日射量、夜間放射量、絶対湿度)
                 # このうち、VBAでは、夜間放射量と絶対湿度は捨てているので、VBAどおり、5データのみデータ化する。
                 # time は、1始まりであることに注意。
-                self.__dblWdata.append([day,time,float(row[2]),float(row[3]),float(row[4]),float(row[5]),float(row[6])])
+                Col = 2
+                Ta = float(row[Col])
+                Col += 1
+                Idn = float(row[Col])
+                Col += 1
+                Isky = float(row[Col])
+                Col += 1
+                RN = float(row[Col])
+                Col += 1
+                x = float(row[Col])
+                Col += 1
+                self.__dblWdata.append([day, time, Ta, Idn, Isky, RN, x])
                 time += 1
                 if time > 24 :
                     time = 1

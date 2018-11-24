@@ -13,7 +13,10 @@ import datetime
 # シミュレーション全体の設定条件
 class Gdata:
     
-    def __init__(self, dblDTime, lngApproach, SimStMo, SimStDay, SimEnMo, SimEnDay, lngNcalTime, blnDetailOut, strFFcalcMethod, dblFsolFlr, blnOTset):
+    def __init__(self, Region, dblDTime, lngApproach, SimStMo, SimStDay, SimEnMo, SimEnDay, Latitude, Longitude, StMeridian, strFFcalcMethod, dblFsolFlr, blnOTset):
+        # 地域区分
+        self.__Region = Region
+
         # 計算対象年
         self.__conlngYr = 1989
         # 計算時間間隔(s)
@@ -30,18 +33,25 @@ class Gdata:
         # 助走計算開始時刻
         self.__dtmApDate = self.__dtmStDate - datetime.timedelta(days=self.__lngApproach)
         # 応答係数の作成時間数(hour)
-        self.__lngNcalTime = lngNcalTime
+        # self.__lngNcalTime = lngNcalTime
         # 計算結果の行数
         self.__lngOutputRow = int( ( (self.__dtmEnDate - self.__dtmStDate).days + 1 ) * 24 * 3600 / self.__dblDTime )
         # comment - miura : 3600 / dblDtime が必ずしも整数になるとは限らない。その場合のエラー処理が必要か、そもそもdblDtimeではなくて、1時間の分割数とかで入力させるべき。
         # 詳細出力フラグ
-        self.__blnDetailOut = blnDetailOut
+        # self.__blnDetailOut = blnDetailOut
         # 形態係数の計算方法
         self.__strFFcalcMethod = strFFcalcMethod
         # 透過日射の床吸収比率
         self.__dblFsolFlr = dblFsolFlr
         # 作用温度設定フラグ
         self.__blnOTset = blnOTset
+
+        # 緯度
+        self.__Lat = Latitude
+        # 経度
+        self.__Lon = Longitude
+        # 標準子午線
+        self.__StMeridian = StMeridian
     
     # 計算時間間隔の取得
     def DTime(self):
@@ -60,16 +70,16 @@ class Gdata:
         return self.__dtmEnDate
 
     # 応答係数の項数
-    def M(self):
-        return int(self.__lngNcalTime * 3600 / self.__dblDTime + 1)
+    # def M(self):
+    #     return int(self.__lngNcalTime * 3600 / self.__dblDTime + 1)
     
     # 計算結果の行数
     def OutputRow(self):
         return self.__lngOutputRow
     
     # 詳細計算結果出力フラグ
-    def DetailOut(self):
-        return self.__blnDetailOut
+    # def DetailOut(self):
+    #     return self.__blnDetailOut
     
     # 形態係数の計算方法
     def FFcalcMethod(self):
@@ -83,7 +93,15 @@ class Gdata:
     def OTset(self):
         return self.__blnOTset
     
-
+    # 緯度
+    def Latitude(self):
+        return self.__Lat
+    # 経度
+    def Longitude(self):
+        return self.__Lon
+    #標準子午線
+    def StMeridian(self):
+        return self.__StMeridian
 
 # # In[3]:
 

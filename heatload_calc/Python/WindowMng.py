@@ -28,14 +28,14 @@ class Window:
     # 初期化
     def __init__(self, Name, Eta, SolarTrans, SolarAbsorp, Uw, OutHeatTrans, OutEmissiv, InConHeatTrans, InRadHeatTrans ):
         self.__strName = Name           # 開口部名称, string値
-        self.__dblEta = Eta             # 日射熱取得率[-]
-        self.__dblT = SolarTrans        # 日射透過率[-]
-        self.__dblB = SolarAbsorp       # 吸収日射取得率[-]
-        self.__dblUw = Uw               # 開口部熱貫流率[W/m2K]
-        self.__dblho = OutHeatTrans     # 室外側熱伝達率[W/m2K]
-        self.__dblEo = OutEmissiv       # 室外側放射率[-]
-        self.__dblhic = InConHeatTrans  # 室内対流熱伝達率[W/(m2･K)]
-        self.__dblhir = InRadHeatTrans  # 室内放射熱伝達率[W/(m2･K)]
+        self.__dblEta = float(Eta)             # 日射熱取得率[-]
+        self.__dblT = float(SolarTrans)        # 日射透過率[-]
+        self.__dblB = float(SolarAbsorp)       # 吸収日射取得率[-]
+        self.__dblUw = float(Uw)               # 開口部熱貫流率[W/m2K]
+        self.__dblho = float(OutHeatTrans)     # 室外側熱伝達率[W/m2K]
+        self.__dblEo = float(OutEmissiv)       # 室外側放射率[-]
+        self.__dblhic = float(InConHeatTrans)  # 室内対流熱伝達率[W/(m2･K)]
+        self.__dblhir = float(InRadHeatTrans)  # 室内放射熱伝達率[W/(m2･K)]
         
         # 室内総合熱伝達率[W/(m2･K)]
         self.__dblhi = self.__dblhic + self.__dblhir   
@@ -162,7 +162,7 @@ class WindowMng:
             self.__objWindow.append(window)
             
         # 開口部登録数
-        self.__lngNWindow = len( self.__objWindow ) - 1
+        # self.__lngNWindow = len( self.__objWindow ) - 1
         
         # 開口部名称→登録番号変換
         self.__dicWindowName = {}

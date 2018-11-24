@@ -28,22 +28,26 @@ class ACSet:
             
             # 暖冷房設定温湿度
             self.__dicACSet={}
-            
             for row in reader:
-                strRoomName = row[0] # 室名
-                strRoomDiv = row[1]  # 室分類
-                strMode = row[2]     # 運転モード（'冷房' or '暖房'）
-                strTH = row[3]       # 設定分類（'温度' or '湿度'）
-                strWeek =row[4]      # 曜日（'平日' or '休日'）
+                Col = 0
+                strRoomName = row[Col] # 室名
+                Col += 1
+                strMode = row[Col]     # 運転モード（'冷房' or '暖房'）
+                Col += 1
+                strTH = row[Col]       # 設定分類（'温度' or '湿度'）
+                Col += 1
+                strWeek =row[Col]      # 曜日（'平日' or '休日'）
+                Col += 1
                 
                 # 毎時の設定温湿度スケジュールのリストを設定
                 dblHourly=[]         
                 for hour in range(24):
-                    dblHourly.append(float(row[hour + 5]))
+                    dblHourly.append(float(row[Col]))
+                    Col += 1
                 
                 # 暖冷房設定温湿度をセット
                 # 温度の単位は[℃], 湿度の単位は[%]
-                key = strRoomName + ',' + strRoomDiv + ',' + strMode + ',' + strTH + ',' + strWeek
+                key = strRoomName + ',' + strMode + ',' + strTH + ',' + strWeek
                 self.__dicACSet[key] = dblHourly
                 
 
@@ -52,11 +56,13 @@ class ACSet:
         return self.__dicACSet
         
     # 指定した時刻の設定温湿度の取得
-    def ACSet(self, strRoomName, strRoomDiv, strMode, strWeek, strTH, lngTime):
-        key = strRoomName + ',' + strRoomDiv + ',' + strMode + ',' + strTH + ',' + strWeek
-        vntHourly = self.__dicACSet[key] # 指定されたkeyがないときのエラー処理が必要
-        return vntHourly[lngTime] 
-
+    def ACSet(self, strRoomName, strMode, strWeek, strTH, lngTime):
+        key = strRoomName + ',' + strMode + ',' + strTH + ',' + strWeek
+        acset = 0.0
+        if key in self.__dicACSet.keys():
+            vntHourly = self.__dicACSet[key] # 指定されたkeyがないときのエラー処理が必要
+            acset = vntHourly[lngTime] 
+        return acset
 
 # # ## Example
 

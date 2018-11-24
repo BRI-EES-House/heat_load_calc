@@ -30,18 +30,21 @@ class Resi:
             self.__dicResi={}
             
             for row in reader:
-                strRoomName = row[0] # 室名
-                strRoomDiv = row[1]  # 室分類
-                strWeek =row[2]      # 曜日（'平日' or '休日'）
+                Col = 0
+                strRoomName = row[Col] # 室名
+                Col += 1
+                strWeek =row[Col]      # 曜日（'平日' or '休日'）
+                Col += 1
                 
                 # 毎時スケジュールのリストを設定
                 dblHourly=[]         
                 for hour in range(24):
-                    dblHourly.append(float(row[hour + 3]))
+                    dblHourly.append(float(row[Col]))
+                    Col += 1
                 
                 # 在室人員数をセット
                 # 単位は[人]
-                key = strRoomName + ',' + strRoomDiv + ',' + strWeek 
+                key = strRoomName + ',' + strWeek 
                 self.__dicResi[key] = dblHourly
                 
 
@@ -50,11 +53,13 @@ class Resi:
         return self.__dicResi
         
     # 指定した時刻の在室人員数の取得
-    def Nresi(self, strRoomName, strRoomDiv, strWeek, lngTime):
-        key = strRoomName + ',' + strRoomDiv + ',' + strWeek
-        vntHourly=self.__dicResi[key] 
-        return vntHourly[lngTime]
-
+    def Nresi(self, strRoomName, strWeek, lngTime):
+        key = strRoomName + ',' + strWeek
+        nresi = 0
+        if key in self.__dicResi.keys():
+            vntHourly=self.__dicResi[key] 
+            nresi = vntHourly[lngTime]
+        return nresi
 
 # # ## Example
 

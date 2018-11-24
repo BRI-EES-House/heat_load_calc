@@ -1,0 +1,99 @@
+{
+	"Rooms": [
+	{
+		"roomname": "主たる居室",
+		"HeatCcap": null,
+		"HeatRcap": null,
+		"CoolCcap": null,
+		"Vol": 24.3,
+		"Fnt": 12.6,
+		"Vent": {
+			"winter": 12.6,
+			"inter": 12.6,
+			"summer": 12.6
+		},
+		"Inf": {
+			"winter": 0.0,
+			"inter": 0.0,
+			"summer": 0.0
+		},
+		"CrossVentRoom": false,
+		"RadHeat": false,
+		"Beta": 0,
+		"NextVent": [
+		],
+		"Surface": [
+			{
+				"skin": true,
+				"boundary": "北",
+				"unsteady": true,
+				"name": "外壁",
+				"area": 8.1,
+				"sunbrk": "",
+				"flr": 0.0,
+				"fot": 0.160714286
+			},
+			{
+				"skin": true,
+				"boundary": "東",
+				"unsteady": true,
+				"name": "外壁",
+				"area": 8.1,
+				"sunbrk": "",
+				"flr": 0.0,
+				"fot": 0.160714286
+			},
+			{
+				"skin": true,
+				"boundary": "西",
+				"unsteady": true,
+				"name": "外壁",
+				"area": 8.1,
+				"sunbrk": "",
+				"flr": 0.0,
+				"fot": 0.160714286
+			},
+			{
+				"skin": true,
+				"boundary": "南",
+				"unsteady": true,
+				"name": "外壁",
+				"area": 4.5,
+				"sunbrk": "",
+				"flr": 0.0,
+				"fot": 0.089285714
+			},
+			{
+				"skin": true,
+				"boundary": "南",
+				"unsteady": false,
+				"name": "窓",
+				"area": 3.6,
+				"sunbrk": "バルコニー",
+				"flr": 0.0,
+				"fot": 0.071428571
+			},
+			{
+				"skin": true,
+				"boundary": "床",
+				"unsteady": true,
+				"name": "1階床",
+				"area": 9.0,
+				"sunbrk": "",
+				"flr": 1.0,
+				"fot": 0.178571429
+			},
+			{
+				"skin": true,
+				"boundary": "水平",
+				"unsteady": true,
+				"name": "2階天井",
+				"area": 9.0,
+				"sunbrk": "",
+				"flr": 0.0,
+				"fot": 0.178571429
+			}
+		]
+	}
+	]
+}

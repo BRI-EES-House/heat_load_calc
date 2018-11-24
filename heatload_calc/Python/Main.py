@@ -8,28 +8,29 @@
 import copy
 import nbimporter
 import datetime
-import csv
+import json
 import Gdata
 from Gdata import Gdata
 import Weather
-from Weather import Weather, enmWeatherComponent
+from Weather import enmWeatherComponent, Weather
 import WindowMng
-from WindowMng import WindowMng, Window
+from WindowMng import WindowMng
 import WallMng
 from WallMng import WallMng
-from Wall import Layer, Wall
+# from Wall import *
 import Schedule
 from Schedule import Schedule
+import ExsrfMng
 from ExsrfMng import ExsrfMng
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 import Sunbrk
-from Sunbrk import SunbrkMng, SunbrkType
+from Sunbrk import SunbrkMng
 import SeasonalValue
 from SeasonalValue import SeasonalValue
 import SolarPosision
-from SolarPosision import SolarPosision, defSolpos
-import Space
-from Space import SpaceMng
+from SolarPosision import defSolpos, SolarPosision
+import SpaceMng
+from SpaceMng import SpaceMng
 
 # # 室温・熱負荷計算のメイン関数
 
@@ -42,19 +43,22 @@ class heat_load_main():
         
     #シミュレーション全体の設定条件の読み込み
     def Gdata_init(self):
-        #def __init__(self, dblDTime, lngApproach, SimStMo, SimStDay, SimEnMo, SimEnDay, lngNcalTime, blnDetailOut, strFFcalcMethod, dblFsolFlr, blnOTset)
-        self.__objGdata = Gdata(900,0,1,1,1,1,50,True,"面積比",0.5,False)
+        js = open('gdata.json', 'r', encoding='utf-8')
+        d = json.load(js)
+        #def __init__(self, dblDTime, lngApproach, SimStMo, SimStDay, SimEnMo, SimEnDay, strFFcalcMethod, dblFsolFlr, blnOTset)
+        self.__objGdata = Gdata(d['Region'], d['TimeInterval'], d['PreCalc'], d['SimStMo'], d['SimStDay'], d['SimEnMo'], d['SimEnDay'], \
+                d['Latitude'], d['Longitude'], d['StMeridian'], d['FFcalcMethod'], d['FsolFlr'], d['OTset'])
         return self.__objGdata
     
     #気象データの読み込み
     def Weather_init(self):
         #print('Weather_init')
-        self.__Weather = Weather(34.6583333333333, 133.918333333333, 135)
+        self.__Weather = Weather(self.__objGdata.Latitude(), self.__objGdata.Longitude(), self.__objGdata.StMeridian())
         return self.__Weather
     
     #外表面の初期化
     def Exsrf_init(self):
-        with open('exsurfaces.csv', encoding='utf-8') as f:
+        """ with open('exsurfaces.csv', encoding='utf-8') as f:
             reader = csv.reader(f)
             header = next(reader)
             
@@ -82,14 +86,17 @@ class heat_load_main():
             
             #開口部クラスへの登録
             d = { 'Surface': exsrflist }
-            #print(d)
-            self.__exsrf_mng = ExsrfMng(d)
-            
-            return self.__exsrf_mng
+            #print(d) """
+        js = open('exsurfaces.json', 'r', encoding='utf-8')
+        d = json.load(js)
+        # print(d)
+        self.__exsrf_mng = ExsrfMng(d)
+        
+        return self.__exsrf_mng
     
     #外部日除けクラスの初期化
     def Sunbrk_init(self):
-        with open('sunbreakers.csv', encoding='utf-8') as f:
+        """ with open('sunbreakers.csv', encoding='utf-8') as f:
             reader = csv.reader(f)
             header = next(reader)
             
@@ -118,10 +125,12 @@ class heat_load_main():
             
             #開口部クラスへの登録
             d = { 'Sunbrk': snbrklist }
-            #print(d)
-            self.__sunbrk_mng = SunbrkMng(d)
-            
-            return self.__sunbrk_mng
+            #print(d) """
+        js = open('sunbreakers.json', 'r', encoding='utf-8')
+        d = json.load(js)
+        self.__sunbrk_mng = SunbrkMng(d)
+        
+        return self.__sunbrk_mng
     
     #スケジュールの初期化
     def Schedule_init(self):
@@ -131,7 +140,7 @@ class heat_load_main():
     
     #開口部の登録
     def window_mng(self):
-        with open('Windows.csv', encoding='utf-8') as f:
+        """ with open('Windows.csv', encoding='utf-8') as f:
             reader = csv.reader(f)
             header = next(reader)
             
@@ -162,19 +171,21 @@ class heat_load_main():
                 windowlist.append(windowspec)
             
             #開口部クラスへの登録
-            d = { 'Windows': windowlist }
+            d = { 'Windows': windowlist } """
             #print(d)
-            self.__window_mng = WindowMng(d)
-            
-            return self.__window_mng
+        js = open('Windows.json', 'r', encoding='utf-8')
+        d = json.load(js)
+        self.__window_mng = WindowMng(d)
+        
+        return self.__window_mng
     
     #壁体構成の登録
     def wall_mng(self):
         #self.__wall_mng = WallMng()
         
-        surf_heat_trans = []
+        # surf_heat_trans = []
         #表面熱伝達率の読み込み
-        with open('SurfaceHeatTransfer.csv', encoding='utf-8') as f:
+        """ with open('SurfaceHeatTransfer.csv', encoding='utf-8') as f:
             reader = csv.reader(f)
             header = next(reader)
             for row in reader:
@@ -183,18 +194,20 @@ class heat_load_main():
                 hir = 5.0                             #室内側放射熱伝達率
                 hic = hi - hir                        #室内側対流熱伝達率
                 ho = float(row[2])                           #室外側総合熱伝達率
-                dct = {
+                sht = {
                     'partname':partname,
                     'hi':hi,
                     'hir':hir,
                     'hic':hic,
                     'ho':ho
                 }
-                surf_heat_trans.append(dct)
-            
+                surf_heat_trans.append(sht)
+            dct = {
+                'HeatTransfer': surf_heat_trans
+            } """
             #print(surf_heat_trans)
         #壁体構成の読み込み
-        with open('WallStructures.csv', encoding='utf-8') as f:
+        """ with open('WallStructures.csv', encoding='utf-8') as f:
             reader = csv.reader(f)
             header = next(reader)
             
@@ -207,7 +220,7 @@ class heat_load_main():
                 #部位名称が変更されていたら新しい部位とみなす
                 if partname != prev_partname and len(layers) > 0:
                     #表面熱伝達率の取得
-                    for surfstrudct in surf_heat_trans:
+                    for surfstrudct in dct['HeatTransfer']:
                         #print(surfstrudct['partname'], partname)
                         if surfstrudct['partname'] == prev_partname:
                             l = copy.copy(layers)
@@ -250,7 +263,7 @@ class heat_load_main():
                 prev_partname = partname
 
             #バッファに残った壁体構成を追加
-            for surfstrudct in surf_heat_trans:
+            for surfstrudct in dct['HeatTransfer']:
                 if surfstrudct['partname'] == partname:
                     l = copy.copy(layers)
                     wallstruct = {'Name':partname,\
@@ -274,16 +287,18 @@ class heat_load_main():
                     'ResponseFactorCalculationHours': 50.
                 },
                 'Walls': Walls
-            }
+            } """
             # print('Dictionary 作成完了')
             # print(d)
-            self.__wall_mng = WallMng(d)
-            
-            return self.__wall_mng
+        js = open('WallStructures.json', 'r', encoding='utf-8')
+        d = json.load(js)
+        self.__wall_mng = WallMng(d, self.__objGdata.DTime())
+        
+        return self.__wall_mng
     
     def Space_read(self):
         # 部位面積の読み込み
-        with open('BuildingPartsArea.csv', encoding='utf-8') as f:
+        """ with open('BuildingPartsArea.csv', encoding='utf-8') as f:
             reader = csv.reader(f)
             header = next(reader)
             
@@ -480,12 +495,19 @@ class heat_load_main():
                 
                 Spaces.append(space)
             
+            #Dictionary型
+            d = {
+                'Rooms': Spaces
+            }
+ """
             #print(self.__wall_mng)
-            self.__objSpaces = SpaceMng(self.__objGdata, self.__exsrf_mng, \
-                    self.__wall_mng, self.__window_mng, \
-                    self.__sunbrk_mng, Spaces)
-            
-            return self.__objSpaces
+        js = open('Rooms.json', 'r', encoding='utf-8')
+        d = json.load(js)
+        self.__objSpaces = SpaceMng(self.__objGdata, self.__exsrf_mng, \
+                self.__wall_mng, self.__window_mng, \
+                self.__sunbrk_mng, d)
+        
+        return self.__objSpaces
     
     #通日を計算するモジュール
     def __Nday(self,Mo,Day):

@@ -37,7 +37,7 @@ class Schedule:
         self.__objResi = Resi.Resi()
         
     # 空調設定温湿度の取得
-    def ACSet(self, strRoomName, strRooDiv, strTH, dtmDate):
+    def ACSet(self, strRoomName, strTH, dtmDate):
         # strRoomName as string : 室名
         # strRooDiv as string : 室分類
         # strTH as string : 設定分類（'温度' or '湿度'）
@@ -50,40 +50,40 @@ class Schedule:
         strWeek = self.__objAnnualCal.Week(mdlLibrary.Nday(dtmDate))
         # 運転モード（'冷房' or '暖房'）の取得
         strMode = self.__objAnnualCal.Season(Nday)
-        return self.__objACSet.ACSet(strRoomName, strRooDiv, strMode, strWeek, strTH, lngTime)
+        return self.__objACSet.ACSet(strRoomName, strMode, strWeek, strTH, lngTime)
     
     # 機器発熱スケジュールの取得
-    def Appl(self, strRoomName, strRoomDiv, strSHLH, dtmDate):
+    def Appl(self, strRoomName, strSHLH, dtmDate):
         # strSHLH as string : # 機器発熱分類（'顕熱' or '潜熱'）
         # 時刻の取得
         lngTime = dtmDate.hour
         # 曜日（'平日' or '休日'）の取得
         strWeek = self.__objAnnualCal.Week(mdlLibrary.Nday(dtmDate))
-        return self.__objAppl.Appl(strRoomName, strRoomDiv, strWeek, strSHLH, lngTime)
+        return self.__objAppl.Appl(strRoomName, strWeek, strSHLH, lngTime)
     
     # 照明発熱スケジュールの取得
-    def Light(self, strRoomName, strRoomDiv, dtmDate):
+    def Light(self, strRoomName, dtmDate):
         # 時刻の取得
         lngTime =  dtmDate.hour
         # 曜日（'平日' or '休日'）の取得
         strWeek = self.__objAnnualCal.Week(mdlLibrary.Nday(dtmDate))
-        return self.__objLight.Light(strRoomName, strRoomDiv, strWeek, lngTime)
+        return self.__objLight.Light(strRoomName, strWeek, lngTime)
     
     # 局所換気スケジュールの取得
-    def LocalVent(self, strRoomName, strRoomDiv, dtmDate):
+    def LocalVent(self, strRoomName, dtmDate):
         # 時刻の取得
         lngTime =  dtmDate.hour
         # 曜日（'平日' or '休日'）の取得
         strWeek = self.__objAnnualCal.Week(mdlLibrary.Nday(dtmDate))
-        return self.__objLocalVent.Vent(strRoomName, strRoomDiv, strWeek, lngTime)
+        return self.__objLocalVent.Vent(strRoomName, strWeek, lngTime)
     
     # 在室人員スケジュールの取得
-    def Nresi(self, strRoomName, strRoomDiv, dtmDate):
+    def Nresi(self, strRoomName, dtmDate):
         # 時刻の取得
         lngTime =  dtmDate.hour
         # 曜日（'平日' or '休日'）の取得
         strWeek = self.__objAnnualCal.Week(mdlLibrary.Nday(dtmDate))
-        return self.__objResi.Nresi(strRoomName, strRoomDiv, strWeek, lngTime)
+        return self.__objResi.Nresi(strRoomName, strWeek, lngTime)
 
     # datetime型から曜日を取得する
     def Week(self, dtmDate):

@@ -28,21 +28,24 @@ class Appl:
             
             # 機器発熱
             self.__dicAppl={}
-            
             for row in reader:
-                strRoomName = row[0] # 室名
-                strRoomDiv = row[1]  # 室分類
-                strSHLH = row[2]     # 機器発熱分類（'顕熱' or '潜熱'）
-                strWeek =row[3]      # 曜日（'平日' or '休日'）
+                Col = 0
+                strRoomName = row[Col] # 室名
+                Col += 1
+                strSHLH = row[Col]     # 機器発熱分類（'顕熱' or '潜熱'）
+                Col += 1
+                strWeek =row[Col]      # 曜日（'平日' or '休日'）
+                Col += 1
                 
                 # 毎時スケジュールのリストを設定
                 dblHourly=[]         
                 for hour in range(24):
-                    dblHourly.append(float(row[hour + 4]))
+                    dblHourly.append(float(row[Col]))
+                    Col += 1
                 
                 # 機器発熱をセット
                 # 顕熱の単位は[W], 潜熱の単位は[g/h]
-                key = strRoomName + ',' + strRoomDiv + ',' + strWeek + ',' + strSHLH
+                key = strRoomName + ',' + strWeek + ',' + strSHLH
                 self.__dicAppl[key] = dblHourly
                 
 
@@ -51,11 +54,13 @@ class Appl:
         return self.__dicAppl
         
     # 指定した時刻の機器発熱量の取得
-    def Appl(self, strRoomName, strRoomDiv, strWeek, strSHLH, lngTime):
-        key = strRoomName + ',' + strRoomDiv + ',' + strWeek + ',' + strSHLH
-        vntHourly=self.__dicAppl[key] 
-        return vntHourly[lngTime]
-
+    def Appl(self, strRoomName, strWeek, strSHLH, lngTime):
+        key = strRoomName + ',' + strWeek + ',' + strSHLH
+        appl = 0.0
+        if key in self.__dicAppl.keys():
+            vntHourly=self.__dicAppl[key] 
+            appl = vntHourly[lngTime]
+        return appl
 
 # # ## Example
 

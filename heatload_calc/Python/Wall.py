@@ -33,9 +33,13 @@ class Layer:
     # 初期化
     def __init__(self, name, cond, spech, thick):
         self.__name = name        # 部材名称, string値
-        self.__dblLam = cond              # 熱伝導率[W/(m・K)]
-        self.__dblSpcheat = spech * 1000  # 容積比熱[kJ/(m3・K)] → [J/(m3・K)]
-        self.__dblDim = thick             # 厚さ[m]
+        self.__dblLam = float(cond)              # 熱伝導率[W/(m・K)]
+        self.__dblSpcheat = 0.0
+        if spech is not None:
+            self.__dblSpcheat = float(spech * 1000)  # 容積比熱[kJ/(m3・K)] → [J/(m3・K)]
+        self.__dblDim = 0.0
+        if thick is not None:
+            self.__dblDim = float(thick)             # 厚さ[m]
         
     # 部材名称の取得
     @property
@@ -385,13 +389,13 @@ class ResponseFactor():
         # デバッグ用
         #print('四端子基本行列：', matFi)
         #print('四端子行列：', matFt)
-        print('貫流伝達関数ベクトル：', matGA)
-        print('吸熱伝達関数ベクトル：', matGT)
+        # print('貫流伝達関数ベクトル：', matGA)
+        # print('吸熱伝達関数ベクトル：', matGT)
         #print('伝達関数の係数を求めるための左辺行列：', matF)
         #print('最小二乗法のための係数行列：', matU)
         #print('最小二乗法のための係数行列の逆行列：', matU_inv)
-        print('貫流定数項行列：', matCT)
-        print('吸熱定数項行列：', matCA)
+        # print('貫流定数項行列：', matCT)
+        # print('吸熱定数項行列：', matCA)
         # print('貫流伝達関数の係数：', dblAT)
         # print('吸熱伝達関数の係数：', dblAA)
         #print('単位貫流応答：', dblATstep[:11])

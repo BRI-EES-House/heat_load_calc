@@ -46,8 +46,10 @@ class ExsrfMng:
         # 外表面情報インスタンスの配列を作成
         self.__objExsrf = []
         for d_surface in d['Surface']:
-            IsOuterSkin = True if abs(d_surface['TempDifferFactor']) < 0.000001 else False
-            #print(IsOuterSkin)
+            IsOuterSkin = True
+            if d_surface['TempDifferFactor'] is not None:
+                IsOuterSkin = False
+            # print(d_surface['Name'], IsOuterSkin)
             surface = Exsrf( d_surface['Name'], d_surface['DirectionAngle'], d_surface['InclinationAngle'], d_surface['GroundReflectRate'], d_surface['TempDifferFactor'], IsOuterSkin )
             self.__objExsrf.append(surface)
             

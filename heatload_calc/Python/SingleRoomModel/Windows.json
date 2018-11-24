@@ -1,0 +1,26 @@
+{
+	"Windows":[
+		{
+			"Name": "窓",
+			"Eta": 0.792,
+			"SolarTrans": 0.738,
+			"SolarAbsorp": 0.054,
+			"Uw": 4.65,
+			"OutHeatTrans": 25,
+			"OutEmissiv": 0.9,
+			"InConHeatTrans": 4.1,
+			"InRadHeatTrans": 5
+		},
+		{
+			"Name": "窓2",
+			"Eta": 0.65,
+			"SolarTrans": 0.6,
+			"SolarAbsorp": 0.05,
+			"Uw": 2.33,
+			"OutHeatTrans": 25,
+			"OutEmissiv": 0.9,
+			"InConHeatTrans": 4.1,
+			"InRadHeatTrans": 5
+		}
+	]
+}

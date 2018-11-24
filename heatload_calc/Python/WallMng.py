@@ -55,36 +55,36 @@ from Wall import Layer, Wall, ResponseFactor
 class WallMng:
     #@classmethod
     # 初期化
-    def __init__( self, d ):
+    def __init__( self, d, DTime):
         #print('WallMng')
         #print(d)
         # 登録壁体インスタンスを設定
         self.__objWall = []
-        self.WalldataRead( d )
+        self.WalldataRead(d, DTime)
         
         # 壁体登録数
-        self.__lngNWall = len( self.__objWall ) - 1
+        # self.__lngNWall = len( self.__objWall ) - 1
         
         # 壁体名称→登録番号変換
         self.__dicWallname = {}
         for lngI, x in enumerate(self.__objWall):
-            print(x.Wall().Name())
+            # print(x.Wall().Name())
             self.__dicWallname[x.Wall().Name()] = lngI
 
     # 壁体構成データの読み込みと応答係数の作成
-    def WalldataRead( self, d ):
+    def WalldataRead( self, d, DTime):
         
         # 時間間隔(s)
         #print('TimeInterval=', d['Common']['TimeInterval'])
-        dblDTime = d['Common']['TimeInterval']
+        dblDTime = DTime
 
         # 応答係数を作成する時間数(h)
-        dblNcalTime = d['Common']['ResponseFactorCalculationHours']
+        # dblNcalTime = d['Common']['ResponseFactorCalculationHours']
         
         #print('Dtime=', dblDTime)
         # 登録壁体インスタンスの配列を作成
         for d_wall in d['Walls']:
-            print('Walls Name=', d_wall['Name'])
+            # print('Walls Name=', d_wall['Name'])
             # print(d_wall)
             #print('wallname=', d_wall['Name'])
             # 壁体構成部材の情報を保持するクラスをインスタンス化
@@ -98,10 +98,10 @@ class WallMng:
             wall = Wall( d_wall['Name'], d_wall['OutEmissiv'], d_wall['OutSolarAbs'], d_wall['InConHeatTrans'], d_wall['InRadHeatTrans'], layers )
             
             # 応答係数を保持するクラスをインスタンス化し、配列に格納
-            rf = ResponseFactor( 'wall' , dblDTime, dblNcalTime, wall )
+            rf = ResponseFactor( 'wall' , dblDTime, 50, wall )
             self.__objWall.append(rf)
         #print('Walldata')
-        print(self.__objWall)
+        # print(self.__objWall)
     
     # 壁体名称から二等辺三角波励振の貫流応答係数を返す
     def RFT(self, strWallname):

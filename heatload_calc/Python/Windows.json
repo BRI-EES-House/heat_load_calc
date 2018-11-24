@@ -1,0 +1,37 @@
+{
+	"Windows":[
+		{
+			"Name": "窓",
+			"Eta": 0.792,
+			"SolarTrans": 0.738,
+			"SolarAbsorp": 0.054,
+			"Uw": 4.65,
+			"OutHeatTrans": 25,
+			"OutEmissiv": 0.9,
+			"InConHeatTrans": 4.1,
+			"InRadHeatTrans": 5
+		},
+		{
+			"Name": "室内戸",
+			"Eta": 0,
+			"SolarTrans": 0,
+			"SolarAbsorp": 0,
+			"Uw": 2.33,
+			"OutHeatTrans": 9.1,
+			"OutEmissiv": 0.9,
+			"InConHeatTrans": 4.1,
+			"InRadHeatTrans": 5
+		},
+		{
+			"Name": "ドア",
+			"Eta": 0.1581,
+			"SolarTrans": 0,
+			"SolarAbsorp": 0.1581,
+			"Uw": 4.65,
+			"OutHeatTrans": 25,
+			"OutEmissiv": 0.9,
+			"InConHeatTrans": 4.1,
+			"InRadHeatTrans": 5
+		}
+	]
+}

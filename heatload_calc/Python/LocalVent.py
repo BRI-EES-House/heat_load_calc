@@ -30,18 +30,21 @@ class LocalVent:
             self.__dicVent={}
             
             for row in reader:
-                strRoomName = row[0] # 室名
-                strRoomDiv = row[1]  # 室分類
-                strWeek =row[2]      # 曜日（'平日' or '休日'）
+                Col = 0
+                strRoomName = row[Col] # 室名
+                Col += 1
+                strWeek =row[Col]      # 曜日（'平日' or '休日'）
+                Col += 1
                 
                 # 毎時スケジュールのリストを設定
                 dblHourly=[]         
                 for hour in range(24):
-                    dblHourly.append(float(row[hour + 3]))
+                    dblHourly.append(float(row[Col]))
+                    Col += 1
                 
                 # 局所換気をセット
                 # 単位は[m3/h]
-                key = strRoomName + ',' + strRoomDiv + ',' + strWeek 
+                key = strRoomName + ',' + strWeek 
                 self.__dicVent[key] = dblHourly
                 
 
@@ -50,11 +53,13 @@ class LocalVent:
         return self.__dicVent
         
     # 指定した時刻の局所換気量の取得
-    def Vent(self, strRoomName, strRoomDiv, strWeek, lngTime):
-        key = strRoomName + ',' + strRoomDiv + ',' + strWeek
-        vntHourly=self.__dicVent[key] 
-        return vntHourly[lngTime]
-
+    def Vent(self, strRoomName, strWeek, lngTime):
+        vent = 0.0
+        key = strRoomName + ',' + strWeek
+        if key in self.__dicVent.keys():
+            vntHourly = self.__dicVent[key] 
+            vent = vntHourly[lngTime]
+        return vent
 
 # # ## Example
 

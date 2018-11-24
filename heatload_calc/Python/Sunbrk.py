@@ -36,20 +36,20 @@ class SunbrkType:
         self.__Name = Name
         
         # 庇の出巾
-        self.__D = D
+        self.__D = float(D)
         
         # 向かって左側の庇のでっぱり
-        self.__WI1 = WI1
+        self.__WI1 = float(WI1)
         # 向かって右側の庇のでっぱり
-        self.__WI2 = WI2
+        self.__WI2 = float(WI2)
         
         # 窓上端から庇までの距離
-        self.__hi = hi
+        self.__hi = float(hi)
         
         # 開口部巾
-        self.__WR = WR
+        self.__WR = float(WR)
         # 開口部高さ
-        self.__WH = WH
+        self.__WH = float(WH)
         
         # 窓の方位角
 #        self.__Wa = Wa
@@ -162,7 +162,7 @@ class SunbrkMng:
             sunbrk = SunbrkType(d_sunbrk['Name'], d_sunbrk['D'],                               d_sunbrk['WI1'], d_sunbrk['WI2'],                               d_sunbrk['hi'], d_sunbrk['WR'], d_sunbrk['WH'])
             self.__objSunbrk.append(sunbrk)
         # 庇の登録数を加算
-        self.__lngNSunbrk = len(self.__objSunbrk) - 1
+        # self.__lngNSunbrk = len(self.__objSunbrk) - 1
         
         # 水平庇名称と登録番号の返還
         self.__dicSunbrkName = {}
