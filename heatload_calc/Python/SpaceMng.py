@@ -1,14 +1,14 @@
 import Space
-from Space import *
+from Space import Space
 
 class SpaceMng:
-    def __init__(self, Gdata, ExsrfMng, WallMng, WindowMng, SunbrkMng, d):
+    def __init__(self, Gdata, ExsrfMng, SunbrkMng, d):
         #空間定義の配列を作成
         #self.__objSpaces = []
         #print(d)
         
         self.__objSpace = []
-        for d_space in d['Rooms']:
+        for d_space in d:
             #print(d_space)
             #部位の情報を保持するクラスをインスタンス化
             # Surfaces = []
@@ -47,7 +47,7 @@ class SpaceMng:
             #     HeatCcap, HeatRcap, \
             #     CoolCcap, Vol, Fnt, Vent, Inf, CrossVentRoom, \
             #     RadHeat, Beta, RoomtoRoomVents, Surfaces):
-            space = Space(Gdata, ExsrfMng, WallMng, WindowMng, SunbrkMng, d_space['roomname'],\
+            space = Space(Gdata, ExsrfMng, SunbrkMng, d_space['roomname'],\
                     d_space['HeatCcap'],\
                     d_space['HeatRcap'], d_space['CoolCcap'], d_space['Vol'],\
                     d_space['Fnt'], d_space['Vent'], d_space['Inf'],\
@@ -73,7 +73,7 @@ class SpaceMng:
         for space in self.__objSpace:
             #def calcHload(self, spaces, SolarPosision, Schedule, Weather):
             space.calcHload(Gdata, self, dtmDate, objWdata.Solpos(dtmDate), objSchedule, objWdata, objSunbrk)
-            # print('{0:.2f}'.format(space.Tr()), '{0:.2f}'.format(space.MRT()),'{0:.2f}'.format(space.Lcs()), '{0:.2f}'.format(space.Lr()), "", end="")
+            print('{0:.2f}'.format(space.Tr()), '{0:.2f}'.format(space.MRT()),'{0:.2f}'.format(space.Lcs()), '{0:.2f}'.format(space.Lr()), "", end="")
             # if space.name() == '主たる居室':
             #     print('{0:.2f}'.format(space.Tr()), "", end="")
             #     space.surftemp_print()

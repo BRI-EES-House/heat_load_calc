@@ -158,7 +158,7 @@ class SunbrkMng:
         
         # 水平庇のインスタンスの配列を作成
         self.__objSunbrk=[]
-        for d_sunbrk in d['Sunbrk']:
+        for d_sunbrk in d:
             sunbrk = SunbrkType(d_sunbrk['Name'], d_sunbrk['D'],                               d_sunbrk['WI1'], d_sunbrk['WI2'],                               d_sunbrk['hi'], d_sunbrk['WR'], d_sunbrk['WH'])
             self.__objSunbrk.append(sunbrk)
         # 庇の登録数を加算

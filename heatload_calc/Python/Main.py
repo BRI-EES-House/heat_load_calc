@@ -39,16 +39,21 @@ from SpaceMng import SpaceMng
 
 class heat_load_main():
     def __init__(self):
-        pass
-        
-    #シミュレーション全体の設定条件の読み込み
-    def Gdata_init(self):
-        js = open('gdata.json', 'r', encoding='utf-8')
+        js = open('input.json', 'r', encoding='utf-8')
         d = json.load(js)
+        self.__Gdata_init(d['Gdata'])
+        self.__Exsrf_init(d['ExSurface'])
+        self.__Sunbrk_init(d['Sunbrk'])
+        self.__Space_read(d['Rooms'])
+
+    #シミュレーション全体の設定条件の読み込み
+    def __Gdata_init(self, d):
+        # js = open('gdata.json', 'r', encoding='utf-8')
+        # d = json.load(js)
         #def __init__(self, dblDTime, lngApproach, SimStMo, SimStDay, SimEnMo, SimEnDay, strFFcalcMethod, dblFsolFlr, blnOTset)
         self.__objGdata = Gdata(d['Region'], d['TimeInterval'], d['PreCalc'], d['SimStMo'], d['SimStDay'], d['SimEnMo'], d['SimEnDay'], \
                 d['Latitude'], d['Longitude'], d['StMeridian'], d['FFcalcMethod'], d['FsolFlr'], d['OTset'])
-        return self.__objGdata
+        # return self.__objGdata
     
     #気象データの読み込み
     def Weather_init(self):
@@ -57,7 +62,7 @@ class heat_load_main():
         return self.__Weather
     
     #外表面の初期化
-    def Exsrf_init(self):
+    def __Exsrf_init(self, d):
         """ with open('exsurfaces.csv', encoding='utf-8') as f:
             reader = csv.reader(f)
             header = next(reader)
@@ -87,15 +92,15 @@ class heat_load_main():
             #開口部クラスへの登録
             d = { 'Surface': exsrflist }
             #print(d) """
-        js = open('exsurfaces.json', 'r', encoding='utf-8')
-        d = json.load(js)
+        # js = open('exsurfaces.json', 'r', encoding='utf-8')
+        # d = json.load(js)
         # print(d)
         self.__exsrf_mng = ExsrfMng(d)
         
         return self.__exsrf_mng
     
     #外部日除けクラスの初期化
-    def Sunbrk_init(self):
+    def __Sunbrk_init(self,d):
         """ with open('sunbreakers.csv', encoding='utf-8') as f:
             reader = csv.reader(f)
             header = next(reader)
@@ -126,11 +131,11 @@ class heat_load_main():
             #開口部クラスへの登録
             d = { 'Sunbrk': snbrklist }
             #print(d) """
-        js = open('sunbreakers.json', 'r', encoding='utf-8')
-        d = json.load(js)
+        # js = open('sunbreakers.json', 'r', encoding='utf-8')
+        # d = json.load(js)
         self.__sunbrk_mng = SunbrkMng(d)
         
-        return self.__sunbrk_mng
+        # return self.__sunbrk_mng
     
     #スケジュールの初期化
     def Schedule_init(self):
@@ -139,7 +144,7 @@ class heat_load_main():
         #print(self.__sch.ACSet('主たる居室','', '温度', datetime.datetime.strptime('2017/06/01 12:06', '%Y/%m/%d %H:%M')))  
     
     #開口部の登録
-    def window_mng(self):
+    # def __window_mng(selfd, d):
         """ with open('Windows.csv', encoding='utf-8') as f:
             reader = csv.reader(f)
             header = next(reader)
@@ -173,14 +178,14 @@ class heat_load_main():
             #開口部クラスへの登録
             d = { 'Windows': windowlist } """
             #print(d)
-        js = open('Windows.json', 'r', encoding='utf-8')
-        d = json.load(js)
-        self.__window_mng = WindowMng(d)
+        # js = open('Windows.json', 'r', encoding='utf-8')
+        # d = json.load(js)
+        # self.__window_mng = WindowMng(d)
         
-        return self.__window_mng
+        # return self.__window_mng
     
     #壁体構成の登録
-    def wall_mng(self):
+    # def __wall_mng(self):
         #self.__wall_mng = WallMng()
         
         # surf_heat_trans = []
@@ -290,13 +295,13 @@ class heat_load_main():
             } """
             # print('Dictionary 作成完了')
             # print(d)
-        js = open('WallStructures.json', 'r', encoding='utf-8')
-        d = json.load(js)
-        self.__wall_mng = WallMng(d, self.__objGdata.DTime())
+        # js = open('WallStructures.json', 'r', encoding='utf-8')
+        # d = json.load(js)
+        # self.__wall_mng = WallMng(d, self.__objGdata.DTime())
         
-        return self.__wall_mng
+        # return self.__wall_mng
     
-    def Space_read(self):
+    def __Space_read(self, d):
         # 部位面積の読み込み
         """ with open('BuildingPartsArea.csv', encoding='utf-8') as f:
             reader = csv.reader(f)
@@ -501,10 +506,9 @@ class heat_load_main():
             }
  """
             #print(self.__wall_mng)
-        js = open('Rooms.json', 'r', encoding='utf-8')
-        d = json.load(js)
+        # js = open('Rooms.json', 'r', encoding='utf-8')
+        # d = json.load(js)
         self.__objSpaces = SpaceMng(self.__objGdata, self.__exsrf_mng, \
-                self.__wall_mng, self.__window_mng, \
                 self.__sunbrk_mng, d)
         
         return self.__objSpaces
@@ -569,14 +573,14 @@ class heat_load_main():
 
 
 main = heat_load_main()
-objGdata = main.Gdata_init()
+# objGdata = main.Gdata_init()
 weatherdata = main.Weather_init()
 sch = main.Schedule_init()
-exsrf_mng = main.Exsrf_init()
-wall_mng = main.wall_mng()
-window_mng = main.window_mng()
-sunbrk_mng = main.Sunbrk_init()
-Spaces = main.Space_read()
+# exsrf_mng = main.Exsrf_init()
+# wall_mng = main.wall_mng()
+# window_mng = main.window_mng()
+# sunbrk_mng = main.Sunbrk_init()
+# Spaces = main.Space_read()
 main.calcHload()
 
 # In[4]:

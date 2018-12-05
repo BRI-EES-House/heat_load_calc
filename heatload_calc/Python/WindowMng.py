@@ -153,13 +153,13 @@ class Window:
 class WindowMng:
     
     # 初期化
-    def __init__( self, d ):
+    def __init__( self, Name, d ):
         
         # 開口部透明部位インスタンスの配列を作成
         self.__objWindow = []
-        for d_window in d['Windows']:
-            window = Window( d_window['Name'], d_window['Eta'], d_window['SolarTrans'], d_window['SolarAbsorp'], d_window['Uw'], d_window['OutHeatTrans'], d_window['OutEmissiv'], d_window['InConHeatTrans'], d_window['InRadHeatTrans'] )
-            self.__objWindow.append(window)
+        # for d_window in d['Windows']:
+        window = Window( Name, d['Eta'], d['SolarTrans'], d['SolarAbsorp'], d['Uw'], d['OutHeatTrans'], d['OutEmissiv'], d['InConHeatTrans'], d['InRadHeatTrans'] )
+        self.__objWindow.append(window)
             
         # 開口部登録数
         # self.__lngNWindow = len( self.__objWindow ) - 1

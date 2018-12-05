@@ -45,7 +45,7 @@ class ExsrfMng:
         
         # 外表面情報インスタンスの配列を作成
         self.__objExsrf = []
-        for d_surface in d['Surface']:
+        for d_surface in d:
             IsOuterSkin = True
             if d_surface['TempDifferFactor'] is not None:
                 IsOuterSkin = False

@@ -1,30 +1,34 @@
 import nbimporter
+import WallMng
+from WallMng import WallMng
+import WindowMng
+from WindowMng import WindowMng
 
 # 室内部位に関連するクラス
 class Surface:
     
     # 初期化
-    def __init__(self, ExsrfMng, WallMng, WindowMng, SunbrkMng, skin, boundary,                  unsteady, name, area, sunbreak, flr, fot):
-        self.__skin = skin            #外皮フラグ
-        self.__boundary = boundary    #方位・隣室名
+    def __init__(self, ExsrfMng, SunbrkMng, d, Gdata):
+        self.__skin = d['skin']            #外皮フラグ
+        self.__boundary = d['boundary']    #方位・隣室名
         
         # 外皮の場合は方位クラスを取得する
         if self.__skin == True :
             self.__objExsrf = ExsrfMng.ExsrfobjByName(self.__boundary)
         
-        self.__unsteady = unsteady    #非定常フラグ
-        self.__name = name            #壁体名称
+        self.__unsteady = d['unsteady']    #非定常フラグ
+        self.__name = d['name']            #壁体名称
         
         if '床' in self.__name :      #床フラグ
             self.__floor = True
         else:
             self.__floor = False
             
-        self.__area = float(area)            #面積
-        self.__sunbreakname = sunbreak    #ひさし名称
+        self.__area = float(d['area'])            #面積
+        self.__sunbreakname = d['sunbrk']    #ひさし名称
         self.__Fsdw = 0.0                   # 影面積率の初期化
-        self.__flr = float(flr)              #放射暖房吸収比率
-        self.__fot = float(fot)              #人体に対する形態係数
+        self.__flr = float(d['flr'])              #放射暖房吸収比率
+        self.__fot = float(d['fot'])              #人体に対する形態係数
         #self.__floor = floor          #床フラグ
         
         #形態係数収録用リストの定義
@@ -53,32 +57,33 @@ class Surface:
         # 壁体の初期化
         if self.__unsteady == True :
             #print(self.__name)
-            
-            self.__Row = WallMng.Row(self.__name)        #公比の取得
-            self.__Nroot = WallMng.Nroot(self.__name)    #根の数
-            self.__RFT0 = WallMng.RFT0(self.__name)      #貫流応答の初項
-            self.__RFA0 = WallMng.RFA0(self.__name)      #吸熱応答の初項
-            self.__RFT1 = WallMng.RFT1(self.__name)      #指数項別貫流応答の初項
-            self.__RFA1 = WallMng.RFA1(self.__name)      #指数項別吸熱応答の初項
+            self.__WallMng = WallMng(self.__name, d['Wall'], Gdata.DTime())
+            self.__Row = self.__WallMng.Row(self.__name)        #公比の取得
+            self.__Nroot = self.__WallMng.Nroot(self.__name)    #根の数
+            self.__RFT0 = self.__WallMng.RFT0(self.__name)      #貫流応答の初項
+            self.__RFA0 = self.__WallMng.RFA0(self.__name)      #吸熱応答の初項
+            self.__RFT1 = self.__WallMng.RFT1(self.__name)      #指数項別貫流応答の初項
+            self.__RFA1 = self.__WallMng.RFA1(self.__name)      #指数項別吸熱応答の初項
             self.__oldTsd_a = []
             self.__oldTsd_t = []
             self.__oldTsd_a = [ [ 0.0 for i in range(1) ] for j in range(self.__Nroot) ]
             self.__oldTsd_t = [ [ 0.0 for i in range(1) ] for j in range(self.__Nroot) ]
             # self.__oldTsd_t = range(0, self.__Nroot-1)   #貫流応答の表面温度の履歴
             # self.__oldTsd_a = range(0, self.__Nroot-1)   #吸熱応答の表面温度の履歴
-            self.__hi = WallMng.hi(self.__name)          #室内側表面総合熱伝達率
-            self.__hic = WallMng.hic(self.__name)        #室内側表面対流熱伝達率
-            self.__hir = WallMng.hir(self.__name)        #室内側表面放射熱伝達率
-            self.__ho = WallMng.ho(self.__name)          #室外側表面総合熱伝達率
-            self.__as = WallMng.Solas(self.__name)       #室側側日射吸収率
-            self.__Eo = WallMng.Eo(self.__name)          #室内側表面総合熱伝達率
+            self.__hi = self.__WallMng.hi(self.__name)          #室内側表面総合熱伝達率
+            self.__hic = self.__WallMng.hic(self.__name)        #室内側表面対流熱伝達率
+            self.__hir = self.__WallMng.hir(self.__name)        #室内側表面放射熱伝達率
+            self.__ho = self.__WallMng.ho(self.__name)          #室外側表面総合熱伝達率
+            self.__as = self.__WallMng.Solas(self.__name)       #室側側日射吸収率
+            self.__Eo = self.__WallMng.Eo(self.__name)          #室内側表面総合熱伝達率
             #print('RFT0=', self.__RFT0)
             #print('RFA0=', self.__RFA0)
             #print('hi=', self.__hi)
         # 定常部位の初期化
         else:
-            self.__objWindow = WindowMng.Window(self.__name)
-            objWindow = WindowMng.Window(self.__name)    #Windowオブジェクトの取得
+            self.__WindowMng = WindowMng(self.__name, d['Window'])
+            self.__objWindow = self.__WindowMng.Window(self.__name)
+            objWindow = self.__WindowMng.Window(self.__name)    #Windowオブジェクトの取得
             self.__windowflg = True
             self.__tau = objWindow.T()        #日射透過率
             self.__B = objWindow.B()          #吸収日射取得率

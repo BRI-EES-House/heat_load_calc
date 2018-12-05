@@ -55,12 +55,12 @@ from Wall import Layer, Wall, ResponseFactor
 class WallMng:
     #@classmethod
     # 初期化
-    def __init__( self, d, DTime):
+    def __init__( self, Name, d, DTime):
         #print('WallMng')
         #print(d)
         # 登録壁体インスタンスを設定
         self.__objWall = []
-        self.WalldataRead(d, DTime)
+        self.WalldataRead(Name, d, DTime)
         
         # 壁体登録数
         # self.__lngNWall = len( self.__objWall ) - 1
@@ -72,7 +72,7 @@ class WallMng:
             self.__dicWallname[x.Wall().Name()] = lngI
 
     # 壁体構成データの読み込みと応答係数の作成
-    def WalldataRead( self, d, DTime):
+    def WalldataRead( self, Name, d, DTime):
         
         # 時間間隔(s)
         #print('TimeInterval=', d['Common']['TimeInterval'])
@@ -83,23 +83,23 @@ class WallMng:
         
         #print('Dtime=', dblDTime)
         # 登録壁体インスタンスの配列を作成
-        for d_wall in d['Walls']:
-            # print('Walls Name=', d_wall['Name'])
-            # print(d_wall)
-            #print('wallname=', d_wall['Name'])
-            # 壁体構成部材の情報を保持するクラスをインスタンス化
-            layers = []
-            for d_layers in d_wall['Layers']:
-                #print('Layer Name=', d_layers['Name'])
-                layer = Layer( d_layers['Name'], d_layers['Cond'], d_layers['SpecH'], d_layers['Thick'] )
-                layers.append(layer)
-            
-            # 壁体情報を保持するクラスをインスタンス化
-            wall = Wall( d_wall['Name'], d_wall['OutEmissiv'], d_wall['OutSolarAbs'], d_wall['InConHeatTrans'], d_wall['InRadHeatTrans'], layers )
-            
-            # 応答係数を保持するクラスをインスタンス化し、配列に格納
-            rf = ResponseFactor( 'wall' , dblDTime, 50, wall )
-            self.__objWall.append(rf)
+        # for d_wall in d['Walls']:
+        # print('Walls Name=', d_wall['Name'])
+        # print(d_wall)
+        #print('wallname=', d_wall['Name'])
+        # 壁体構成部材の情報を保持するクラスをインスタンス化
+        layers = []
+        for d_layers in d['Layers']:
+            #print('Layer Name=', d_layers['Name'])
+            layer = Layer( d_layers['Name'], d_layers['Cond'], d_layers['SpecH'], d_layers['Thick'] )
+            layers.append(layer)
+        
+        # 壁体情報を保持するクラスをインスタンス化
+        wall = Wall( Name, d['OutEmissiv'], d['OutSolarAbs'], d['InConHeatTrans'], d['InRadHeatTrans'], layers )
+        
+        # 応答係数を保持するクラスをインスタンス化し、配列に格納
+        rf = ResponseFactor( 'wall' , dblDTime, 50, wall )
+        self.__objWall.append(rf)
         #print('Walldata')
         # print(self.__objWall)
     

@@ -119,7 +119,7 @@ from common import conca, conrowa
 class Space:
     FsolFlr = 0.5                                 #床の日射吸収比率
     # 初期化
-    def __init__(self, Gdata, ExsrfMng, WallMng, WindowMng, SunbrkMng, roomname, \
+    def __init__(self, Gdata, ExsrfMng, SunbrkMng, roomname, \
             HeatCcap, HeatRcap, CoolCcap, Vol, Fnt, Vent, Inf, CrossVentRoom,\
             RadHeat, Beta, RoomtoRoomVents, Surfaces):
         self.__roomname = roomname                #室用途（主たる居室、その他居室、非居室）
@@ -221,9 +221,8 @@ class Space:
         #部位表面
         total_Fot = 0.0
         for d_surface in Surfaces:
-            self.__Surface.append(Surface(ExsrfMng, WallMng, WindowMng, SunbrkMng, \
-                    d_surface['skin'], d_surface['boundary'], d_surface['unsteady'], d_surface['name'],\
-                    d_surface['area'], d_surface['sunbrk'], d_surface['flr'], d_surface['fot']))
+            self.__Surface.append(Surface(ExsrfMng, SunbrkMng, \
+                    d_surface, Gdata))
             # Fot総計のチェック
             total_Fot += d_surface['fot']
         if abs(total_Fot - 1.0) > 0.001:
@@ -428,7 +427,7 @@ class Space:
         self.__Human = Schedule.Nresi(self.__roomname, dtmNow) \
                 * (63.0 - 4.0 * (self.__oldTr - 24.0))
         self.__Hn = self.__Appl + self.__Light + self.__Human
-        print(self.__roomname, self.__Appl, self.__Light, self.__Human)
+        # print(self.__roomname, self.__Appl, self.__Light, self.__Human)
 
         #室内表面の吸収日射量
         for surface in self.__Surface:
@@ -647,7 +646,7 @@ class Space:
                         * 0.000000001
             
             #放射式空調の積算
-            if self.__Lcs > 0.0:
+            if self.__Lr > 0.0:
                 self.__AnnualLoadrH += self.__Lr * Gdata.DTime() \
                         * 0.000000001
             else:
