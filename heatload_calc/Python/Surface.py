@@ -1,333 +1,283 @@
-import nbimporter
-import WallMng
-from WallMng import WallMng
-import WindowMng
-from WindowMng import WindowMng
+from Wall import Wall, Layer
+from ResponseFactor import ResponseFactor
+from Window import Window
+from SolarPosision import defSolpos
+from Gdata import Gdata
+
 
 # 室内部位に関連するクラス
 class Surface:
-    
-    # 初期化
-    def __init__(self, ExsrfMng, SunbrkMng, d, Gdata):
-        self.__skin = d['skin']            #外皮フラグ
-        self.__boundary = d['boundary']    #方位・隣室名
-        
-        # 外皮の場合は方位クラスを取得する
-        if self.__skin == True :
-            self.__objExsrf = ExsrfMng.ExsrfobjByName(self.__boundary)
-        
-        self.__unsteady = d['unsteady']    #非定常フラグ
-        self.__name = d['name']            #壁体名称
-        
-        if '床' in self.__name :      #床フラグ
-            self.__floor = True
-        else:
-            self.__floor = False
-            
-        self.__area = float(d['area'])            #面積
-        self.__sunbreakname = d['sunbrk']    #ひさし名称
-        self.__Fsdw = 0.0                   # 影面積率の初期化
-        self.__flr = float(d['flr'])              #放射暖房吸収比率
-        self.__fot = float(d['fot'])              #人体に対する形態係数
-        #self.__floor = floor          #床フラグ
-        
-        #形態係数収録用リストの定義
-        self.__FF = []
-        
-        #透過日射の室内部位表面吸収日射量の初期化
-        self.__RSsol = 0.0
 
-        #庇フラグの初期化
-        self.__sunbrkflg = False
-        #窓フラグの初期化
-        self.__windowflg = False
-        #開口部透過日射量、吸収日射量の初期化
-        self.__Qgt = 0.0
-        self.__Qga = 0.0
-        #相当外気温度の初期化
-        self.__Teo = 15.0
-        self.__oldTeo = 15.0
+    # 初期化
+    def __init__(self, ExsrfMng: dict, SunbrkMng: dict, d: dict, Gdata: Gdata):
+        self.is_skin = d['skin']  # 外皮フラグ
+        self.boundary = d['boundary']  # 方位・隣室名
+
+        # 外皮の場合は方位クラスを取得する
+        if self.is_skin == True:
+            self.__objExsrf = ExsrfMng[self.boundary]
+
+        self.unsteady = d['unsteady']  # 非定常フラグ
+        self.name = d['name']  # 壁体名称
+
+        if '床' in self.name:  # 床フラグ
+            self.Floor = True
+        else:
+            self.Floor = False
+
+        self.area = float(d['area'])  # 面積
+        self.sunbreakname = d['sunbrk']  # ひさし名称
+        self.Fsdw = 0.0  # 影面積率の初期化
+        self.flr = float(d['flr'])  # 放射暖房吸収比率
+        self.fot = float(d['fot'])  # 人体に対する形態係数
+        # self.Floor = floor          #床フラグ
+
+        self.SolR = None  # 透過日射の室内部位表面吸収比率
+
+        # 形態係数収録用リストの定義
+        self.__FF = []
+
+        # 透過日射の室内部位表面吸収日射量の初期化
+        self.RSsol = 0.0
+
+        # 表面温度
+        self.Ts = None
+
+        # 庇フラグの初期化
+        self.has_sunbrk = False
+
+        # 窓フラグの初期化
+        self.is_window = False
+
+        # 直達日射量
+        self.__Id = 0.0
+
+        # 天空日射量
+        self.__Isky = 0.0
+
+        # 反射日射量
+        self.__Ir = 0.0
+
+        # 全天日射量
+        self.__Iw = 0.0
+
+        # 開口部透過日射量、吸収日射量の初期化
+        self.Qgt = 0.0
+        self.Qga = 0.0
+
+        # 相当外気温度の初期化
+        self.Teo = 15.0
+        self.oldTeo = 15.0
 
         self.__Nroot = 0
 
         self.__Qt = 0.0
-        self.__oldTeo = 15.0                         #前時刻の室外側温度
-        self.__oldqi = 0.0                          #前時刻の室内側表面熱流
-        #print(self.__unsteady)
+        self.__Qc = 0.0  # 対流成分
+        self.__Qr = 0.0  # 放射成分
+        self.__RS = 0.0  # 短波長熱取得成分
+        self.__Lr = 0.0  # 放射暖房成分
+
+        self.oldTeo = 15.0  # 前時刻の室外側温度
+        self.oldqi = 0.0  # 前時刻の室内側表面熱流
+
         # 壁体の初期化
-        if self.__unsteady == True :
-            #print(self.__name)
-            self.__WallMng = WallMng(self.__name, d['Wall'], Gdata.DTime())
-            self.__Row = self.__WallMng.Row(self.__name)        #公比の取得
-            self.__Nroot = self.__WallMng.Nroot(self.__name)    #根の数
-            self.__RFT0 = self.__WallMng.RFT0(self.__name)      #貫流応答の初項
-            self.__RFA0 = self.__WallMng.RFA0(self.__name)      #吸熱応答の初項
-            self.__RFT1 = self.__WallMng.RFT1(self.__name)      #指数項別貫流応答の初項
-            self.__RFA1 = self.__WallMng.RFA1(self.__name)      #指数項別吸熱応答の初項
+        if self.unsteady == True:
+            # 壁体情報,応答係数の取得
+            wall, rf = WalldataRead(self.name, d['Wall'], Gdata.DTime)
+            self.__Row = rf.Row  # 公比の取得
+            self.__Nroot = rf.Nroot  # 根の数
+            self.RFT0 = rf.RFT0  # 貫流応答の初項
+            self.RFA0 = rf.RFA0  # 吸熱応答の初項
+            self.RFT1 = rf.RFT1  # 指数項別貫流応答の初項
+            self.RFA1 = rf.RFA1  # 指数項別吸熱応答の初項
             self.__oldTsd_a = []
             self.__oldTsd_t = []
-            self.__oldTsd_a = [ [ 0.0 for i in range(1) ] for j in range(self.__Nroot) ]
-            self.__oldTsd_t = [ [ 0.0 for i in range(1) ] for j in range(self.__Nroot) ]
-            # self.__oldTsd_t = range(0, self.__Nroot-1)   #貫流応答の表面温度の履歴
-            # self.__oldTsd_a = range(0, self.__Nroot-1)   #吸熱応答の表面温度の履歴
-            self.__hi = self.__WallMng.hi(self.__name)          #室内側表面総合熱伝達率
-            self.__hic = self.__WallMng.hic(self.__name)        #室内側表面対流熱伝達率
-            self.__hir = self.__WallMng.hir(self.__name)        #室内側表面放射熱伝達率
-            self.__ho = self.__WallMng.ho(self.__name)          #室外側表面総合熱伝達率
-            self.__as = self.__WallMng.Solas(self.__name)       #室側側日射吸収率
-            self.__Eo = self.__WallMng.Eo(self.__name)          #室内側表面総合熱伝達率
-            #print('RFT0=', self.__RFT0)
-            #print('RFA0=', self.__RFA0)
-            #print('hi=', self.__hi)
+            self.__oldTsd_a = [[0.0 for i in range(1)] for j in range(self.__Nroot)]
+            self.__oldTsd_t = [[0.0 for i in range(1)] for j in range(self.__Nroot)]
+            self.hi = wall.hi  # 室内側表面総合熱伝達率
+            self.hic = wall.hic  # 室内側表面対流熱伝達率
+            self.hir = wall.hir  # 室内側表面放射熱伝達率
+            self.ho = wall.ho  # 室外側表面総合熱伝達率
+            self.__as = wall.Solas  # 室側側日射吸収率
+            self.Eo = wall.Eo  # 室内側表面総合熱伝達率
         # 定常部位の初期化
         else:
-            self.__WindowMng = WindowMng(self.__name, d['Window'])
-            self.__objWindow = self.__WindowMng.Window(self.__name)
-            objWindow = self.__WindowMng.Window(self.__name)    #Windowオブジェクトの取得
-            self.__windowflg = True
-            self.__tau = objWindow.T()        #日射透過率
-            self.__B = objWindow.B()          #吸収日射取得率
-            self.__Uso = objWindow.Uso()      #熱貫流率（表面熱伝達抵抗除く）
-            self.__RFA0 = 1.0 / self.__Uso                 #吸熱応答係数の初項
-            self.__RFT0 = 1.0                              #貫流応答係数の初項
-            self.__hi = objWindow.hi()        #室内側表面総合熱伝達率
-            self.__hic = objWindow.hic()      #室内側表面対流熱伝達率
-            self.__hir = objWindow.hir()      #室内側表面放射熱伝達率
-            self.__ho = objWindow.ho()        #室外側表面総合熱伝達率
-            self.__U = 1.0 / (1.0 / self.__Uso + 1.0 / self.__hi)   #熱貫流率（表面熱伝達抵抗含む）
-            self.__Eo = objWindow.Eo()        #室内側表面総合熱伝達率
-            self.__sunbrkflg = len(self.__sunbreakname) > 0  #庇がついているかのフラグ
-            if self.__sunbrkflg:
-                self.__sunbkr = SunbrkMng.Sunbrk(self.__sunbreakname)
-    
-    #畳み込み演算のためのメモリ確保
-    # def Tsd_malloc(self):
-    #     self.__oldTsd_a = [ [ 0.0 for i in range(1) ] for j in range(self.__Nroot) ]
-    #     self.__oldTsd_t = [ [ 0.0 for i in range(1) ] for j in range(self.__Nroot) ]
+            self.__window = Window(Name=self.name, **d['Window'])
+            self.is_window = True
+            self.tau = self.__window.T  # 日射透過率
+            self.B = self.__window.B  # 吸収日射取得率
+            self.Uso = self.__window.Uso  # 熱貫流率（表面熱伝達抵抗除く）
+            self.RFA0 = 1.0 / self.Uso  # 吸熱応答係数の初項
+            self.RFT0 = 1.0  # 貫流応答係数の初項
+            self.hi = self.__window.hi  # 室内側表面総合熱伝達率
+            self.hic = self.__window.hic  # 室内側表面対流熱伝達率
+            self.hir = self.__window.hir  # 室内側表面放射熱伝達率
+            self.ho = self.__window.ho  # 室外側表面総合熱伝達率
+            self.U = 1.0 / (1.0 / self.Uso + 1.0 / self.hi)  # 熱貫流率（表面熱伝達抵抗含む）
+            self.Eo = self.__window.Eo  # 室内側表面総合熱伝達率
+            self.has_sunbrk = len(self.sunbreakname) > 0  # 庇がついているかのフラグ
+            if self.has_sunbrk:
+                self.sunbrk = SunbrkMng[self.sunbreakname]
 
-    #畳み込み積分
+    # 畳み込み積分
     def convolution(self):
         sumTsd = 0.0
         for i in range(self.__Nroot):
-            self.__oldTsd_t[i][0] = self.__oldTeo * self.__RFT1[i] \
-                    + self.__Row[i] * self.__oldTsd_t[i][0]
-            self.__oldTsd_a[i][0] = self.__oldqi * self.__RFA1[i] \
-                    + self.__Row[i] * self.__oldTsd_a[i][0]
+            self.__oldTsd_t[i][0] = self.oldTeo * self.RFT1[i] + self.__Row[i] * self.__oldTsd_t[i][0]
+            self.__oldTsd_a[i][0] = self.oldqi * self.RFA1[i] + self.__Row[i] * self.__oldTsd_a[i][0]
             sumTsd += self.__oldTsd_t[i][0] + self.__oldTsd_a[i][0]
-        
+
         return sumTsd
 
-    #人体に対する当該部位の形態係数の取得
-    def fot(self):
-        return self.__fot
-    #表面温度の計算
-    def setTs(self, Ts):
-        self.__Ts = Ts
-    #表面温度の取得
-    def Ts(self):
-        return self.__Ts
-    #室内等価温度の計算
-    def calcTei(self, Tr, Tsx, Lr, Beta):
-        self.__Tei = Tr * self.__hic / self.__hi \
-                + Tsx * self.__hir / self.__hi \
-                + self.__RSsol / self.__hi \
-                + self.__flr * Lr * (1.0 - Beta) / self.__hi / self.__area
-    
-    #前時刻の室内表面熱流の取得
-    def oldqi(self):
-        return self.__oldqi
-    #室内表面熱流の計算
-    def calcqi(self, Tr, Tsx, Lr, Beta):
-        #前時刻熱流の保持
-        self.__oldqi = self.__Qt / self.__area
+    # 室内等価温度の計算
+    def update_Tei(self, Tr, Tsx, Lr, Beta):
+        """
+        :param Tr: 室温
+        :param Tsx: 形態係数加重平均表面温度
+        :param Lr:
+        :param Beta:
+        :return:
+        """
+        self.__Tei = Tr * self.hic / self.hi \
+                     + Tsx * self.hir / self.hi \
+                     + self.RSsol / self.hi \
+                     + self.flr * Lr * (1.0 - Beta) / self.hi / self.area
 
-        #対流成分
-        self.__Qc = self.__hic * self.__area * (Tr - self.__Ts)
-        #放射成分
-        self.__Qr = self.__hir * self.__area * (Tsx - self.__Ts)
-        #短波長熱取得成分
-        self.__RS = self.__RSsol * self.__area
-        #放射暖房成分
-        self.__Lr = self.__flr * Lr * (1.0 - Beta)
-        #表面熱流合計
+    # 室内表面熱流の計算
+    def update_qi(self, Tr: float, Tsx: float, Lr: float, Beta: float):
+        """
+        :param Tr: 室温
+        :param Tsx: 形態係数加重平均表面温度
+        :param Lr:
+        :param Beta:
+        :return:
+        """
+        # 前時刻熱流の保持
+        self.oldqi = self.__Qt / self.area
+
+        # 対流成分
+        self.__Qc = self.hic * self.area * (Tr - self.Ts)
+
+        # 放射成分
+        self.__Qr = self.hir * self.area * (Tsx - self.Ts)
+
+        # 短波長熱取得成分
+        self.__RS = self.RSsol * self.area
+
+        # 放射暖房成分
+        self.__Lr = self.flr * Lr * (1.0 - Beta)
+
+        # 表面熱流合計
         self.__Qt = self.__Qc + self.__Qr + self.__Lr + self.__RS
 
-    #透過日射の室内部位表面吸収日射量の初期化
-    def calcRSsol(self, TotalQgt):
-        self.__RSsol = TotalQgt * self.__SolR / self.__area
-        # print(self.__boundary, self.__RSsol)
+    # 透過日射の室内部位表面吸収日射量の初期化
+    def update_RSsol(self, TotalQgt: float):
+        """
+        :param TotalQgt: 透過日射熱取得
+        """
+        self.RSsol = TotalQgt * self.SolR / self.area
 
-    #透過日射の室内部位表面吸収日射の取得
-    def RSsol(self):
-        return self.__RSsol
-
-    #透過日射の室内部位表面吸収比率の設定
-    def setSolR(self, SolR):
-        self.__SolR = SolR
-
-    #境界条件
-    def boundary(self):
-        return self.__boundary
-
-    #相当外気温度の計算
+    # 相当外気温度の計算
     def calcTeo(self, Ta, RN, oldTr, spaces):
-        self.__oldTeo = self.__Teo
-        #非定常部位の場合
-        if self.__unsteady:
-            #外皮の場合（相当外気温度もしくは隣室温度差係数から計算）
-            if self.__skin:
-                self.__Teo = self.__objExsrf.Te(self.__as, self.__ho, \
-                        self.__Eo, Ta, RN, oldTr)
-            #内壁の場合（前時刻の室温）
+        self.oldTeo = self.Teo
+
+        if self.is_skin:
+            # 外皮の場合
+            if self.unsteady:
+                # 非定常部位の場合（相当外気温度もしくは隣室温度差係数から計算）
+                self.Teo = self.__objExsrf.get_Te(self.__as, self.ho, self.Eo, Ta, RN, oldTr)
             else:
-                self.__Teo = spaces.oldTr(self.__boundary)
-        #定常部位（窓）の場合
+                # 定常部位（窓）の場合
+                self.Teo = self.Qga / self.area / self.U \
+                           - self.Eo * self.__objExsrf.Fs * RN / self.ho \
+                           + Ta
         else:
-            #外皮の場合
-            if self.__skin:
-                self.__Teo = self.__Qga / self.__area / self.__U \
-                        - self.__Eo * self.__objExsrf.Fs() * RN / self.__ho \
-                        + Ta
-            #内壁の場合（前時刻の室温）
-            else:
-                self.__Teo = spaces.oldTr(self.__boundary)
+            # 内壁の場合（前時刻の室温）
+            self.Teo = spaces[self.boundary].oldTr
 
-    #相当外気温度の取得
-    def Teo(self):
-        return self.__Teo
-    #前時刻の相当外気温度の取得
-    def oldTeo(self):
-        return self.__oldTeo
-    
-    #非定常フラグの取得
-    def unstrady(self):
-        return self.__unsteady
+    # 地面反射率の取得
+    @property
+    def Rg(self):
+        return self.__objExsrf.Rg
 
-    #地面反射率の取得
-    def rg(self):
-        return self.__objExsrf.Rg()
+    # 透過日射量、吸収日射量の計算
+    def update_Qgt_Qga(self):
+        # 直達成分
+        Qgtd = self.__window.get_QGTD(self.__Id, self.__objExsrf.CosT, self.Fsdw) * self.area
 
-    #透過日射量、吸収日射量の計算
-    def calcQgt_Qga(self):
-        #直達成分
-        Qgtd = self.__objWindow.QGTD(self.__Id, self.__objExsrf.CosT(), self.__Fsdw) * self.__area
-        #拡散成分
-        Qgts = self.__objWindow.QGTS(self.__Isky, self.__Ir) * self.__area
-        #透過日射量の計算
-        self.__Qgt = Qgtd + Qgts
-        #吸収日射量
-        self.__Qga = self.__objWindow.QGA(self.__Id, self.__Isky, \
-                self.__Ir, self.__objExsrf.CosT(), self.__Fsdw) * self.__area
-    #透過日射量の取得
-    def Qgt(self):
-        return self.__Qgt
-    #吸収日射量の取得
-    def Qga(self):
-        return self.__Qga
-    #庇名称の取得
-    def sunbrkname(self):
-        return self.__sunbreakname
+        # 拡散成分
+        Qgts = self.__window.get_QGTS(self.__Isky, self.__Ir) * self.area
 
-    #庇の有無フラグ
-    def sunbrkflg(self):
-        return self.__sunbrkflg
+        # 透過日射量の計算
+        self.Qgt = Qgtd + Qgts
 
-    #窓フラグ
-    def windowflg(self):
-        return self.__windowflg
+        # 吸収日射量
+        self.Qga = self.__window.get_QGA(self.__Id, self.__Isky, self.__Ir, self.__objExsrf.CosT, self.Fsdw) * self.area
 
-    #日影面積率の計算
-    def calcFsdw(self, Solpos):
-        self.__Fsdw = self.__sunbkr.FSDW(Solpos, self.__objExsrf.Wa())
+    # 日影面積率の計算
+    def update_Fsdw(self, Solpos: defSolpos):
+        self.Fsdw = self.sunbrk.get_Fsdw(Solpos, self.__objExsrf.Wa)
 
-    #日影面積を取得
-    def Fsdw(self, Solpos):
-        return self.__sunbkr.FSDW(Solpos)
-
-    #日影面積をセット
-    def setFsdw(self, Fsdw):
-        self.__Fsdw = Fsdw
-
-    #床フラグの取得
-    def Floor(self):
-        return self.__floor
-    
-    #部位面積の取得
-    def area(self):
-        return self.__area
-    
-    #応答係数の初項の取得
-    def RFA0(self):
-        return self.__RFA0
-    def RFT0(self):
-        return self.__RFT0
-    
-    #指数項別応答係数
-    def RFA1(self):
-        return self.__RFA1
-    def RFT1(self):
-        return self.__RFT1
-    
-    #公比の取得
+    # 公比の取得
+    @property
     def Row(self):
-        if self.__unsteady == True:
-            return self.__Row
-        else:
-            return 0
-    
-    #室内側表面総合熱伝達率
-    def hi(self):
-        return self.__hi
-    
-    #放射暖房吸収比率の取得
-    def flr(self):
-        return self.__flr
-    
-    #放射熱伝達率の取得
-    def hir(self):
-        return self.__hir
-    
-    #対流熱伝達率の取得
-    def hic(self):
-        return self.__hic
-    
-    #形態係数収録用メモリの確保
-    #def FF_alloc(self, Nsurf):
-    #    self.__FF = [0:Nsurf-1]
-    #    #self.__FF = range(0, Nsurf-1)
-    #    print('FFの要素数=', len(self.__FF))
-    
-    #傾斜面日射量を計算する
+        return self.__Row if self.unsteady == True else 0.0
+
+    # 傾斜面日射量を計算する
     def update_slope_sol(self):
-        #直達日射量
-        self.__Id = self.__objExsrf.Id()
-        #天空日射量
-        self.__Isky = self.__objExsrf.Isk()
-        #反射日射量
-        self.__Ir = self.__objExsrf.Ir()
-        #全天日射量
+        # 直達日射量
+        self.__Id = self.__objExsrf.Id
+
+        # 天空日射量
+        self.__Isky = self.__objExsrf.Is
+
+        # 反射日射量
+        self.__Ir = self.__objExsrf.Ir
+
+        # 全天日射量
         self.__Iw = self.__Id + self.__Isky + self.__Ir
-    
-    #傾斜面日射量の出力
-    def print_slope_sol(self):
-        print(self.__boundary, self.__name)
-        print('直達日射量[W/m2]：', self.__Id)
-        print('天空日射量[W/m2]：', self.__Isky)
-        print('反射日射量[W/m2]：', self.__Ir)
-        print('全天日射量[W/m2]：', self.__Iw)
-    
-    #部位の情報出力
-    def print_surface(self):
-        print(self.__boundary, self.__name)
-        print('面積[m2]', self.__area)
-    
-    #外皮フラグを返す
-    def skin(self):
-        return self.__skin
-    
-    #形態係数の設定
+
+    # 形態係数の設定
     def setFF(self, FFd):
         self.__FF.append(FFd)
-    #形態係数の取得
+
+    # 形態係数の取得
     def FF(self, i):
         return self.__FF[i]
+
+
+# 壁体構成データの読み込みと応答係数の作成
+def WalldataRead(Name, d, DTime):
+    # 時間間隔(s)
+    dblDTime = DTime
+
+    # 壁体構成部材の情報を保持するクラスをインスタンス化
+    layers = [
+        Layer(
+            name=d_layers['Name'],
+            cond=d_layers['Cond'],
+            spech=d_layers['SpecH'],
+            thick=d_layers['Thick']
+        )
+        for d_layers in d['Layers']
+    ]
+
+    # 壁体情報を保持するクラスをインスタンス化
+    wall = Wall(
+        Name=Name,
+        OutEmissiv=d['OutEmissiv'],
+        OutSolarAbs=d['OutSolarAbs'],
+        InConHeatTrans=d['InConHeatTrans'],
+        InRadHeatTrans=d['InRadHeatTrans'],
+        Layers=layers
+    )
+
+    # 応答係数を保持するクラスをインスタンス化
+    rf = ResponseFactor(
+        WallType='wall',
+        DTime=dblDTime,
+        NcalTime=50,
+        Wall=wall
+    )
+
+    return wall, rf
