@@ -9,7 +9,7 @@ from Sunbrk import create_sunbrks
 from Space import create_spaces
 
 # 熱負荷計算の実行
-def calc_Hload(gdata, weather, schedule, sunbrk_mng):
+def calc_Hload(gdata, weather, schedule):
     """
     :param gdata: シミュレーション全体の設定条件
     :param weather: 気象データ
@@ -44,11 +44,11 @@ def calc_Hload(gdata, weather, schedule, sunbrk_mng):
             dtmNow = apDate + dtime
 
             # 傾斜面日射量の計算
-            Solpos = weather.Solpos(dtmNow)
-            Idn = weather.WeaData(enmWeatherComponent.Idn, dtmNow)
-            Isky = weather.WeaData(enmWeatherComponent.Isky, dtmNow)
-            for exsrf in exsurfaces.values():
-                exsrf.update_slop_sol(Solpos, Idn, Isky)
+            # Solpos = weather.Solpos(dtmNow)
+            # Idn = weather.WeaData(enmWeatherComponent.Idn, dtmNow)
+            # Isky = weather.WeaData(enmWeatherComponent.Isky, dtmNow)
+            # for exsrf in exsurfaces.values():
+            #     exsrf.update_slop_sol(Solpos, Idn, Isky)
 
             # 室温・熱負荷の計算
             print(dtmNow, "", end="")
@@ -60,8 +60,7 @@ def calc_Hload(gdata, weather, schedule, sunbrk_mng):
                     dtmNow=dtmNow,
                     defSolpos=weather.Solpos(dtmNow),
                     Schedule=schedule,
-                    Weather=weather,
-                    SunbrkMng=sunbrk_mng
+                    Weather=weather
                 )
                 print('{0:.2f}'.format(space.Tr), '{0:.2f}'.format(space.MRT), '{0:.2f}'.format(space.Lcs),
                       '{0:.2f}'.format(space.Lr), "", end="")
@@ -82,13 +81,13 @@ if __name__ == '__main__':
     gdata = Gdata(**d['Gdata'])
 
     # 外表面の初期化
-    exsurfaces = create_exsurfaces(d['ExSurface'])
+    # exsurfaces = create_exsurfaces(d['ExSurface'])
 
     # 外部日除けクラスの初期化
-    sunbrks = create_sunbrks(d['Sunbrk'])
+    # sunbrks = create_sunbrks(d['Sunbrk'])
 
     # スペースの読み取り
-    spaces = create_spaces(gdata, exsurfaces, sunbrks, d['Rooms'])
+    spaces = create_spaces(gdata, d['Rooms'])
 
     # 気象データの読み込み
     weather = Weather(gdata.Latitude, gdata.Longitude, gdata.StMeridian)
@@ -97,4 +96,4 @@ if __name__ == '__main__':
     schedule = Schedule()
 
     # 熱負荷計算の実行
-    calc_Hload(gdata, weather, schedule, sunbrks)
+    calc_Hload(gdata, weather, schedule)

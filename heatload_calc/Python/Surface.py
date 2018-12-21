@@ -3,33 +3,32 @@ from ResponseFactor import ResponseFactor
 from Window import Window
 from SolarPosision import defSolpos
 from Gdata import Gdata
-
+from Exsrf import Exsrf
+# from Exsrf import create_exsurfaces
+from Sunbrk import SunbrkType
 
 # 室内部位に関連するクラス
 class Surface:
 
     # 初期化
-    def __init__(self, ExsrfMng: dict, SunbrkMng: dict, d: dict, Gdata: Gdata):
+    def __init__(self, d: dict, Gdata: Gdata):
         self.is_skin = d['skin']  # 外皮フラグ
-        self.boundary = d['boundary']  # 方位・隣室名
-
         # 外皮の場合は方位クラスを取得する
-        if self.is_skin == True:
-            self.__objExsrf = ExsrfMng[self.boundary]
+        self.__objExsrf = Exsrf(d['boundary'])
 
         self.unsteady = d['unsteady']  # 非定常フラグ
         self.name = d['name']  # 壁体名称
 
-        if '床' in self.name:  # 床フラグ
-            self.Floor = True
-        else:
-            self.Floor = False
+        self.Floor = d['floor']        #床フラグ
 
         self.area = float(d['area'])  # 面積
         self.sunbreakname = d['sunbrk']  # ひさし名称
         self.Fsdw = 0.0  # 影面積率の初期化
         self.flr = float(d['flr'])  # 放射暖房吸収比率
         self.fot = float(d['fot'])  # 人体に対する形態係数
+        self.__IsSoil = False
+        if 'IsSoil' in d:
+            self.__IsSoil = d['IsSoil']     # 壁体に土壌が含まれる場合True
         # self.Floor = floor          #床フラグ
 
         self.SolR = None  # 透過日射の室内部位表面吸収比率
@@ -83,7 +82,7 @@ class Surface:
         # 壁体の初期化
         if self.unsteady == True:
             # 壁体情報,応答係数の取得
-            wall, rf = WalldataRead(self.name, d['Wall'], Gdata.DTime)
+            wall, rf = WalldataRead(self.name, d['Wall'], Gdata.DTime, self.__IsSoil)
             self.__Row = rf.Row  # 公比の取得
             self.__Nroot = rf.Nroot  # 根の数
             self.RFT0 = rf.RFT0  # 貫流応答の初項
@@ -115,9 +114,12 @@ class Surface:
             self.ho = self.__window.ho  # 室外側表面総合熱伝達率
             self.U = 1.0 / (1.0 / self.Uso + 1.0 / self.hi)  # 熱貫流率（表面熱伝達抵抗含む）
             self.Eo = self.__window.Eo  # 室内側表面総合熱伝達率
-            self.has_sunbrk = len(self.sunbreakname) > 0  # 庇がついているかのフラグ
+            self.has_sunbrk = type(self.sunbreakname) is dict # 庇がついているかのフラグ
+            # print(type(self.sunbreakname))
             if self.has_sunbrk:
-                self.sunbrk = SunbrkMng[self.sunbreakname]
+                self.sunbrk = SunbrkType(self.sunbreakname['Name'], self.sunbreakname['D'], \
+                        self.sunbreakname['WI1'], self.sunbreakname['WI2'], self.sunbreakname['hi'], \
+                        self.sunbreakname['WR'], self.sunbreakname['WH'])
 
     # 畳み込み積分
     def convolution(self):
@@ -178,22 +180,26 @@ class Surface:
         self.RSsol = TotalQgt * self.SolR / self.area
 
     # 相当外気温度の計算
-    def calcTeo(self, Ta, RN, oldTr, spaces):
+    def calcTeo(self, Ta, RN, oldTr, AnnualTave, spaces):
         self.oldTeo = self.Teo
 
-        if self.is_skin:
-            # 外皮の場合
+        # 日射の当たる外皮の場合
+        if self.__objExsrf.Type == "Outdoor":
             if self.unsteady:
                 # 非定常部位の場合（相当外気温度もしくは隣室温度差係数から計算）
-                self.Teo = self.__objExsrf.get_Te(self.__as, self.ho, self.Eo, Ta, RN, oldTr)
+                self.Teo = self.__objExsrf.get_Te(self.__as, self.ho, self.Eo, Ta, RN)
             else:
                 # 定常部位（窓）の場合
                 self.Teo = self.Qga / self.area / self.U \
-                           - self.Eo * self.__objExsrf.Fs * RN / self.ho \
-                           + Ta
-        else:
+                        - self.Eo * self.__objExsrf.Fs * RN / self.ho + Ta
+        # 年平均気温の場合
+        elif self.__objExsrf.Type == "AnnualAverage":
+            self.Teo = AnnualTave
+        elif self.__objExsrf.Type == "DeltaTCoeff":
+            self.Teo = self.__objExsrf.get_NextRoom_fromR(Ta, oldTr)
+        elif self.__objExsrf.Type == "NextRoom":
             # 内壁の場合（前時刻の室温）
-            self.Teo = spaces[self.boundary].oldTr
+            self.Teo = self.__objExsrf.get_oldNextRoom(spaces)
 
     # 地面反射率の取得
     @property
@@ -224,18 +230,21 @@ class Surface:
         return self.__Row if self.unsteady == True else 0.0
 
     # 傾斜面日射量を計算する
-    def update_slope_sol(self):
-        # 直達日射量
-        self.__Id = self.__objExsrf.Id
+    def update_slope_sol(self, Solpos, Idn, Isky):
+        if self.__objExsrf.Type == 'Outdoor':
+            # 傾斜面日射量を計算
+            self.__objExsrf.update_slop_sol(Solpos, Idn, Isky)
+            # 直達日射量
+            self.__Id = self.__objExsrf.Id
 
-        # 天空日射量
-        self.__Isky = self.__objExsrf.Is
+            # 天空日射量
+            self.__Isky = self.__objExsrf.Is
 
-        # 反射日射量
-        self.__Ir = self.__objExsrf.Ir
+            # 反射日射量
+            self.__Ir = self.__objExsrf.Ir
 
-        # 全天日射量
-        self.__Iw = self.__Id + self.__Isky + self.__Ir
+            # 全天日射量
+            self.__Iw = self.__Id + self.__Isky + self.__Ir
 
     # 形態係数の設定
     def setFF(self, FFd):
@@ -247,7 +256,7 @@ class Surface:
 
 
 # 壁体構成データの読み込みと応答係数の作成
-def WalldataRead(Name, d, DTime):
+def WalldataRead(Name, d, DTime, IsSoil):
     # 時間間隔(s)
     dblDTime = DTime
 
@@ -265,16 +274,19 @@ def WalldataRead(Name, d, DTime):
     # 壁体情報を保持するクラスをインスタンス化
     wall = Wall(
         Name=Name,
+        IsSoil=IsSoil,
         OutEmissiv=d['OutEmissiv'],
         OutSolarAbs=d['OutSolarAbs'],
         InConHeatTrans=d['InConHeatTrans'],
         InRadHeatTrans=d['InRadHeatTrans'],
         Layers=layers
     )
-
+    walltype = 'wall'
+    if IsSoil:
+        walltype = 'soil'
     # 応答係数を保持するクラスをインスタンス化
     rf = ResponseFactor(
-        WallType='wall',
+        WallType=walltype,
         DTime=dblDTime,
         NcalTime=50,
         Wall=wall

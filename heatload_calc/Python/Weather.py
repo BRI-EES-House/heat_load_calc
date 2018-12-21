@@ -25,6 +25,9 @@ class Weather:
         # 太陽位置計算クラスの作成
         self.__objSolpos = SolarPosision(Lat, Lon, Ls)
 
+        # 年平均気温
+        self.__AnnualTave = 0.0
+
         # 気象データの読み込み　→　dblWdata
         with open('weatherdata.csv', encoding='utf-8') as f:
             reader = csv.reader(f)
@@ -46,6 +49,9 @@ class Weather:
                 # time は、1始まりであることに注意。
                 Col = 2
                 Ta = float(row[Col])
+                # 年平均気温の計算
+                self.__AnnualTave += Ta / 8760.0
+
                 Col += 1
                 Idn = float(row[Col])
                 Col += 1
@@ -145,3 +151,8 @@ class Weather:
         if lngNday == 0:
             lngNday = 365
         return (lngNday - 1) * 24 + lngHour - 1
+
+    # 年平均気温の取得
+    def AnnualTave(self):
+        return self.__AnnualTave
+        

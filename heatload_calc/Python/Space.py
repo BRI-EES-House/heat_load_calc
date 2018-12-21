@@ -53,7 +53,7 @@ class Space:
     FsolFlr = 0.5  # 床の日射吸収比率
 
     # 初期化
-    def __init__(self, Gdata, ExsrfMng, SunbrkMng, roomname,
+    def __init__(self, Gdata, roomname,
                  HeatCcap, HeatRcap, CoolCcap, Vol, Fnt, Vent, Inf, CrossVentRoom,
                  RadHeat, Beta, RoomtoRoomVents, Surfaces: List[dict]):
         """
@@ -142,7 +142,7 @@ class Space:
         # 部位表面
         total_Fot = 0.0
         for d_surface in Surfaces:
-            self.surfaces.append(Surface(ExsrfMng, SunbrkMng, d_surface, Gdata))
+            self.surfaces.append(Surface(d_surface, Gdata))
             # Fot総計のチェック
             total_Fot += d_surface['fot']
         if abs(total_Fot - 1.0) > 0.001:
@@ -272,7 +272,7 @@ class Space:
         return self.__oldTr
 
     # 室温、熱負荷の計算
-    def calcHload(self, Gdata, spaces, dtmNow, defSolpos, Schedule, Weather, SunbrkMng):
+    def calcHload(self, Gdata, spaces, dtmNow, defSolpos, Schedule, Weather):
         # 室間換気の風上室温をアップデート
         for roomvent in self.__RoomtoRoomVent:
             windward_roomname = roomvent.Windward_roomname
@@ -280,9 +280,11 @@ class Space:
             roomvent.update_oldTr(oldTr)
 
         # 外皮の傾斜面日射量の計算
+        Idn = Weather.WeaData(enmWeatherComponent.Idn, dtmNow)
+        Isky = Weather.WeaData(enmWeatherComponent.Isky, dtmNow)
         for surface in self.surfaces:
             if surface.is_skin:
-                surface.update_slope_sol()
+                surface.update_slope_sol(defSolpos, Idn, Isky)
 
         # 庇の日影面積率計算
         for surface in self.surfaces:
@@ -290,6 +292,7 @@ class Space:
             if surface.has_sunbrk:
                 # 日影面積率の計算
                 surface.update_Fsdw(defSolpos)
+                # print(surface.Fsdw)
 
         # 透過日射熱取得の初期化
         self.Qgt = 0.0
@@ -303,9 +306,10 @@ class Space:
         # 相当外気温度の計算
         Ta = Weather.WeaData(enmWeatherComponent.Ta, dtmNow)
         RN = Weather.WeaData(enmWeatherComponent.RN, dtmNow)
+        AnnualTave = Weather.AnnualTave()
         for surface in self.surfaces:
-            surface.calcTeo(Ta, RN, self.__oldTr, spaces)
-            # print(surface.boundary(), surface.Teo())
+            surface.calcTeo(Ta, RN, self.__oldTr, AnnualTave, spaces)
+            # print(surface.name, Ta, RN, self.__oldTr, surface.Teo)
 
         # 内部発熱の計算（すべて対流成分とする）
         self.__Appl = Schedule.Appl(self.name, '顕熱', dtmNow)
@@ -647,10 +651,10 @@ class Space:
         for surface in self.surfaces:
             print('{0:.2f}'.format(surface.Ts()), "", end="")
 
-def create_spaces(Gdata, ExsrfMng, SunbrkMng, rooms):
+def create_spaces(Gdata, rooms):
     objSpace = {}
     for room in rooms:
-        space = Space(Gdata, ExsrfMng, SunbrkMng, room['roomname'], \
+        space = Space(Gdata, room['roomname'], \
                       room['HeatCcap'], \
                       room['HeatRcap'], room['CoolCcap'], room['Vol'], \
                       room['Fnt'], room['Vent'], room['Inf'], \

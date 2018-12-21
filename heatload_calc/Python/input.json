@@ -14,89 +14,6 @@
 		"FsolFlr": 0.5,
 		"OTset": false
 	},
-	"ExSurface":[
-		{
-			"Name": "北",
-			"DirectionAngle": 180,
-			"InclinationAngle": 90,
-			"GroundReflectRate": 0.1,
-			"TempDifferFactor": null
-		},
-		{
-			"Name": "東",
-			"DirectionAngle": -90,
-			"InclinationAngle": 90,
-			"GroundReflectRate": 0.1,
-			"TempDifferFactor": null
-		},
-		{
-			"Name": "南",
-			"DirectionAngle": 0,
-			"InclinationAngle": 90,
-			"GroundReflectRate": 0.1,
-			"TempDifferFactor": null
-		},
-		{
-			"Name": "西",
-			"DirectionAngle": 90,
-			"InclinationAngle": 90,
-			"GroundReflectRate": 0.1,
-			"TempDifferFactor": null
-		},
-		{
-			"Name": "天井",
-			"DirectionAngle": 0,
-			"InclinationAngle": 0,
-			"GroundReflectRate": 0,
-			"TempDifferFactor": 1
-		},
-		{
-			"Name": "床下",
-			"DirectionAngle": 0,
-			"InclinationAngle": 0,
-			"GroundReflectRate": 0,
-			"TempDifferFactor": 0.7
-		}
-	],
-	
-	"Sunbrk":[
-		{
-			"Name": "バルコニー",
-			"D": 910,
-			"WI1": 290,
-			"WI2": 50,
-			"hi": 480,
-			"WR": 3300,
-			"WH": 2100
-		},
-		{
-			"Name": "寝室軒",
-			"D": 650,
-			"WI1": 1445,
-			"WI2": 7360,
-			"hi": 512.5,
-			"WR": 1650,
-			"WH": 1050
-		},
-		{
-			"Name": "子供室1軒",
-			"D": 650,
-			"WI1": 5227.5,
-			"WI2": 3407.5,
-			"hi": 650,
-			"WR": 1650,
-			"WH": 1950
-		},
-		{
-			"Name": "子供室2軒",
-			"D": 650,
-			"WI1": 7047.5,
-			"WI2": 1587.5,
-			"hi": 650,
-			"WR": 1650,
-			"WH": 1950
-		}
-	],
 	
 	"Rooms": [
 	{
@@ -124,9 +41,16 @@
 		"Surface": [
 			{
 				"skin": true,
-				"boundary": "北",
+				"boundary": {
+					"Name": "北",
+					"Type": "Outdoor",
+					"DirectionAngle": 180,
+					"InclinationAngle": 90,
+					"GroundReflectRate": 0.1
+				},
 				"unsteady": true,
 				"name": "外壁",
+				"floor": false,
 				"Wall": {
 					"OutEmissiv":0.90,
 					"OutSolarAbs":0.80,
@@ -178,9 +102,16 @@
 			},
 			{
 				"skin": true,
-				"boundary": "北",
+				"boundary": {
+					"Name": "北",
+					"Type": "Outdoor",
+					"DirectionAngle": 180,
+					"InclinationAngle": 90,
+					"GroundReflectRate": 0.1
+				},
 				"unsteady": false,
 				"name": "ドア",
+				"floor": false,
 				"Window": {
 					"Eta": 0.1581,
 					"SolarTrans": 0,
@@ -189,7 +120,8 @@
 					"OutHeatTrans": 25,
 					"OutEmissiv": 0.9,
 					"InConHeatTrans": 4.1,
-					"InRadHeatTrans": 5
+					"InRadHeatTrans": 5,
+					"AngleIncidence": "SingleGlazing"
 				},
 				"area": 1.62,
 				"sunbrk": "",
@@ -198,9 +130,16 @@
 			},
 			{
 				"skin": true,
-				"boundary": "東",
+				"boundary": {
+					"Name": "東",
+					"Type": "Outdoor",
+					"DirectionAngle": -90,
+					"InclinationAngle": 90,
+					"GroundReflectRate": 0.1
+				},
 				"unsteady": true,
 				"name": "外壁",
+				"floor": false,
 				"Wall": {
 					"OutEmissiv":0.90,
 					"OutSolarAbs":0.80,
@@ -252,9 +191,16 @@
 			},
 			{
 				"skin": true,
-				"boundary": "東",
+				"boundary": {
+					"Name": "東",
+					"Type": "Outdoor",
+					"DirectionAngle": -90,
+					"InclinationAngle": 90,
+					"GroundReflectRate": 0.1
+				},
 				"unsteady": false,
 				"name": "窓",
+				"floor": false,
 				"Window": {
 					"Eta": 0.792,
 					"SolarTrans": 0.738,
@@ -263,7 +209,8 @@
 					"OutHeatTrans": 25,
 					"OutEmissiv": 0.9,
 					"InConHeatTrans": 4.1,
-					"InRadHeatTrans": 5
+					"InRadHeatTrans": 5,
+					"AngleIncidence": "SingleGlazing"
 				},
 				"area": 3.13,
 				"sunbrk": "",
@@ -272,9 +219,16 @@
 			},
 			{
 				"skin": true,
-				"boundary": "南",
+				"boundary": {
+					"Name": "南",
+					"Type": "Outdoor",
+					"DirectionAngle": 0,
+					"InclinationAngle": 90,
+					"GroundReflectRate": 0.1
+				},
 				"unsteady": true,
 				"name": "外壁",
+				"floor": false,
 				"Wall": {
 					"OutEmissiv":0.90,
 					"OutSolarAbs":0.80,
@@ -326,9 +280,16 @@
 			},
 			{
 				"skin": true,
-				"boundary": "南",
+				"boundary": {
+					"Name": "南",
+					"Type": "Outdoor",
+					"DirectionAngle": 0,
+					"InclinationAngle": 90,
+					"GroundReflectRate": 0.1
+				},
 				"unsteady": false,
 				"name": "窓",
+				"floor": false,
 				"Window": {
 					"Eta": 0.792,
 					"SolarTrans": 0.738,
@@ -337,18 +298,32 @@
 					"OutHeatTrans": 25,
 					"OutEmissiv": 0.9,
 					"InConHeatTrans": 4.1,
-					"InRadHeatTrans": 5
+					"InRadHeatTrans": 5,
+					"AngleIncidence": "SingleGlazing"
 				},
 				"area": 6.94,
-				"sunbrk": "バルコニー",
+				"sunbrk": {
+					"Name": "バルコニー",
+					"D": 910,
+					"WI1": 290,
+					"WI2": 50,
+					"hi": 480,
+					"WR": 3300,
+					"WH": 2100
+				},
 				"flr": 0.0,
 				"fot": 0.0531
 			},
 			{
 				"skin": true,
-				"boundary": "床下",
+				"boundary": {
+					"Name": "床下",
+					"Type": "DeltaTCoeff",
+					"TempDifferFactor": 0.7
+				},
 				"unsteady": true,
 				"name": "1階床",
+				"floor": true,
 				"Wall": {
 					"OutEmissiv":0.90,
 					"OutSolarAbs":0.80,
@@ -382,9 +357,14 @@
 			},
 			{
 				"skin": true,
-				"boundary": "天井",
+				"boundary": {
+					"Name": "天井",
+					"Type": "DeltaTCoeff",
+					"TempDifferFactor": 1
+				},
 				"unsteady": true,
 				"name": "2階天井",
+				"floor": false,
 				"Wall": {
 					"OutEmissiv":0.90,
 					"OutSolarAbs":0.80,
@@ -418,9 +398,14 @@
 			},
 			{
 				"skin": false,
-				"boundary": "非居室",
+				"boundary": {
+					"Name": "隣室",
+					"Type": "NextRoom",
+					"RoomName": "非居室"
+				},
 				"unsteady": true,
 				"name": "内壁（間仕切り）",
+				"floor": false,
 				"Wall": {
 					"OutEmissiv":0.90,
 					"OutSolarAbs":0.80,
@@ -460,9 +445,14 @@
 			},
 			{
 				"skin": false,
-				"boundary": "非居室",
+				"boundary": {
+					"Name": "隣室",
+					"Type": "NextRoom",
+					"RoomName": "非居室"
+				},
 				"unsteady": false,
 				"name": "室内戸",
+				"floor": false,
 				"Window": {
 					"Eta": 0,
 					"SolarTrans": 0,
@@ -471,7 +461,8 @@
 					"OutHeatTrans": 9.1,
 					"OutEmissiv": 0.9,
 					"InConHeatTrans": 4.1,
-					"InRadHeatTrans": 5
+					"InRadHeatTrans": 5,
+					"AngleIncidence": "SingleGlazing"
 				},
 				"area": 2.84,
 				"sunbrk": "",
@@ -480,9 +471,14 @@
 			},
 			{
 				"skin": false,
-				"boundary": "その他居室_子供室1",
+				"boundary": {
+					"Name": "隣室",
+					"Type": "NextRoom",
+					"RoomName": "その他居室_子供室1"
+				},
 				"unsteady": true,
 				"name": "内壁（天井）",
+				"floor": false,
 				"Wall": {
 					"OutEmissiv":0.90,
 					"OutSolarAbs":0.80,
@@ -522,9 +518,14 @@
 			},
 			{
 				"skin": false,
-				"boundary": "その他居室_子供室2",
+				"boundary": {
+					"Name": "隣室",
+					"Type": "NextRoom",
+					"RoomName": "その他居室_子供室2"
+				},
 				"unsteady": true,
 				"name": "内壁（天井）",
+				"floor": false,
 				"Wall": {
 					"OutEmissiv":0.90,
 					"OutSolarAbs":0.80,
@@ -564,9 +565,14 @@
 			},
 			{
 				"skin": false,
-				"boundary": "その他居室_和室",
+				"boundary": {
+					"Name": "隣室",
+					"Type": "NextRoom",
+					"RoomName": "その他居室_和室"
+				},
 				"unsteady": true,
 				"name": "内壁（間仕切り）",
+				"floor": false,
 				"Wall": {
 					"OutEmissiv":0.90,
 					"OutSolarAbs":0.80,
@@ -606,9 +612,14 @@
 			},
 			{
 				"skin": false,
-				"boundary": "その他居室_和室",
+				"boundary": {
+					"Name": "隣室",
+					"Type": "NextRoom",
+					"RoomName": "その他居室_和室"
+				},
 				"unsteady": false,
 				"name": "室内戸",
+				"floor": false,
 				"Window": {
 					"Eta": 0,
 					"SolarTrans": 0,
@@ -617,7 +628,8 @@
 					"OutHeatTrans": 9.1,
 					"OutEmissiv": 0.9,
 					"InConHeatTrans": 4.1,
-					"InRadHeatTrans": 5
+					"InRadHeatTrans": 5,
+					"AngleIncidence": "SingleGlazing"
 				},
 				"area": 3.06,
 				"sunbrk": "",
@@ -657,9 +669,16 @@
 		"Surface": [
 			{
 				"skin": true,
-				"boundary": "南",
+				"boundary": {
+					"Name": "南",
+					"Type": "Outdoor",
+					"DirectionAngle": 0,
+					"InclinationAngle": 90,
+					"GroundReflectRate": 0.1
+				},
 				"unsteady": true,
 				"name": "外壁",
+				"floor": false,
 				"Wall": {
 					"OutEmissiv":0.90,
 					"OutSolarAbs":0.80,
@@ -711,9 +730,16 @@
 			},
 			{
 				"skin": true,
-				"boundary": "南",
+				"boundary": {
+					"Name": "南",
+					"Type": "Outdoor",
+					"DirectionAngle": 0,
+					"InclinationAngle": 90,
+					"GroundReflectRate": 0.1
+				},
 				"unsteady": false,
 				"name": "窓",
+				"floor": false,
 				"Window": {
 					"Eta": 0.792,
 					"SolarTrans": 0.738,
@@ -722,18 +748,34 @@
 					"OutHeatTrans": 25,
 					"OutEmissiv": 0.9,
 					"InConHeatTrans": 4.1,
-					"InRadHeatTrans": 5
+					"InRadHeatTrans": 5,
+					"AngleIncidence": "SingleGlazing"
 				},
 				"area": 1.73,
-				"sunbrk": "寝室軒",
+				"sunbrk": {
+					"Name": "寝室軒",
+					"D": 650,
+					"WI1": 1445,
+					"WI2": 7360,
+					"hi": 512.5,
+					"WR": 1650,
+					"WH": 1050
+				},
 				"flr": 0.0,
 				"fot": 0.0272
 			},
 			{
 				"skin": true,
-				"boundary": "西",
+				"boundary": {
+					"Name": "西",
+					"Type": "Outdoor",
+					"DirectionAngle": 90,
+					"InclinationAngle": 90,
+					"GroundReflectRate": 0.1
+				},
 				"unsteady": true,
 				"name": "外壁",
+				"floor": false,
 				"Wall": {
 					"OutEmissiv":0.90,
 					"OutSolarAbs":0.80,
@@ -785,9 +827,16 @@
 			},
 			{
 				"skin": true,
-				"boundary": "西",
+				"boundary": {
+					"Name": "西",
+					"Type": "Outdoor",
+					"DirectionAngle": 90,
+					"InclinationAngle": 90,
+					"GroundReflectRate": 0.1
+				},
 				"unsteady": false,
 				"name": "窓",
+				"floor": false,
 				"Window": {
 					"Eta": 0.792,
 					"SolarTrans": 0.738,
@@ -796,7 +845,8 @@
 					"OutHeatTrans": 25,
 					"OutEmissiv": 0.9,
 					"InConHeatTrans": 4.1,
-					"InRadHeatTrans": 5
+					"InRadHeatTrans": 5,
+					"AngleIncidence": "SingleGlazing"
 				},
 				"area": 0.99,
 				"sunbrk": "",
@@ -805,9 +855,14 @@
 			},
 			{
 				"skin": true,
-				"boundary": "天井",
+				"boundary": {
+					"Name": "天井",
+					"Type": "DeltaTCoeff",
+					"TempDifferFactor": 1
+				},
 				"unsteady": true,
 				"name": "2階天井",
+				"floor": false,
 				"Wall": {
 					"OutEmissiv":0.90,
 					"OutSolarAbs":0.80,
@@ -841,9 +896,14 @@
 			},
 			{
 				"skin": false,
-				"boundary": "非居室",
+				"boundary": {
+					"Name": "隣室",
+					"Type": "NextRoom",
+					"RoomName": "非居室"
+				},
 				"unsteady": true,
 				"name": "内壁（間仕切り）",
+				"floor": false,
 				"Wall": {
 					"OutEmissiv":0.90,
 					"OutSolarAbs":0.80,
@@ -883,9 +943,14 @@
 			},
 			{
 				"skin": false,
-				"boundary": "非居室",
+				"boundary": {
+					"Name": "隣室",
+					"Type": "NextRoom",
+					"RoomName": "非居室"
+				},
 				"unsteady": false,
 				"name": "室内戸",
+				"floor": false,
 				"Window": {
 					"Eta": 0,
 					"SolarTrans": 0,
@@ -894,7 +959,8 @@
 					"OutHeatTrans": 9.1,
 					"OutEmissiv": 0.9,
 					"InConHeatTrans": 4.1,
-					"InRadHeatTrans": 5
+					"InRadHeatTrans": 5,
+					"AngleIncidence": "SingleGlazing"
 				},
 				"area": 1.42,
 				"sunbrk": "",
@@ -903,9 +969,14 @@
 			},
 			{
 				"skin": false,
-				"boundary": "その他居室_子供室1",
+				"boundary": {
+					"Name": "隣室",
+					"Type": "NextRoom",
+					"RoomName": "その他居室_子供室1"
+				},
 				"unsteady": true,
 				"name": "内壁（間仕切り）",
+				"floor": false,
 				"Wall": {
 					"OutEmissiv":0.90,
 					"OutSolarAbs":0.80,
@@ -945,9 +1016,14 @@
 			},
 			{
 				"skin": false,
-				"boundary": "その他居室_和室",
+				"boundary": {
+					"Name": "隣室",
+					"Type": "NextRoom",
+					"RoomName": "その他居室_和室"
+				},
 				"unsteady": true,
 				"name": "内壁（床）",
+				"floor": true,
 				"Wall": {
 					"OutEmissiv":0.90,
 					"OutSolarAbs":0.80,
@@ -1012,9 +1088,16 @@
 		"Surface": [
 			{
 				"skin": true,
-				"boundary": "南",
+				"boundary": {
+					"Name": "南",
+					"Type": "Outdoor",
+					"DirectionAngle": 0,
+					"InclinationAngle": 90,
+					"GroundReflectRate": 0.1
+				},
 				"unsteady": true,
 				"name": "外壁",
+				"floor": false,
 				"Wall": {
 					"OutEmissiv":0.90,
 					"OutSolarAbs":0.80,
@@ -1066,9 +1149,16 @@
 			},
 			{
 				"skin": true,
-				"boundary": "南",
+				"boundary": {
+					"Name": "南",
+					"Type": "Outdoor",
+					"DirectionAngle": 0,
+					"InclinationAngle": 90,
+					"GroundReflectRate": 0.1
+				},
 				"unsteady": false,
 				"name": "窓",
+				"floor": false,
 				"Window": {
 					"Eta": 0.792,
 					"SolarTrans": 0.738,
@@ -1077,18 +1167,32 @@
 					"OutHeatTrans": 25,
 					"OutEmissiv": 0.9,
 					"InConHeatTrans": 4.1,
-					"InRadHeatTrans": 5
+					"InRadHeatTrans": 5,
+					"AngleIncidence": "SingleGlazing"
 				},
 				"area": 3.22,
-				"sunbrk": "子供室1軒",
+				"sunbrk": {
+					"Name": "子供室1軒",
+					"D": 650,
+					"WI1": 5227.5,
+					"WI2": 3407.5,
+					"hi": 650,
+					"WR": 1650,
+					"WH": 1950
+				},
 				"flr": 0.0,
 				"fot": 0.0595
 			},
 			{
 				"skin": true,
-				"boundary": "天井",
+				"boundary": {
+					"Name": "天井",
+					"Type": "DeltaTCoeff",
+					"TempDifferFactor": 1
+				},
 				"unsteady": true,
 				"name": "2階天井",
+				"floor": false,
 				"Wall": {
 					"OutEmissiv":0.90,
 					"OutSolarAbs":0.80,
@@ -1122,9 +1226,14 @@
 			},
 			{
 				"skin": false,
-				"boundary": "非居室",
+				"boundary": {
+					"Name": "隣室",
+					"Type": "NextRoom",
+					"RoomName": "非居室"
+				},
 				"unsteady": true,
 				"name": "内壁（間仕切り）",
+				"floor": false,
 				"Wall": {
 					"OutEmissiv":0.90,
 					"OutSolarAbs":0.80,
@@ -1164,9 +1273,14 @@
 			},
 			{
 				"skin": false,
-				"boundary": "非居室",
+				"boundary": {
+					"Name": "隣室",
+					"Type": "NextRoom",
+					"RoomName": "非居室"
+				},
 				"unsteady": false,
 				"name": "室内戸",
+				"floor": false,
 				"Window": {
 					"Eta": 0,
 					"SolarTrans": 0,
@@ -1175,7 +1289,8 @@
 					"OutHeatTrans": 9.1,
 					"OutEmissiv": 0.9,
 					"InConHeatTrans": 4.1,
-					"InRadHeatTrans": 5
+					"InRadHeatTrans": 5,
+					"AngleIncidence": "SingleGlazing"
 				},
 				"area": 1.42,
 				"sunbrk": "",
@@ -1184,9 +1299,14 @@
 			},
 			{
 				"skin": false,
-				"boundary": "主たる居室",
+				"boundary": {
+					"Name": "隣室",
+					"Type": "NextRoom",
+					"RoomName": "主たる居室"
+				},
 				"unsteady": true,
 				"name": "内壁（床）",
+				"floor": true,
 				"Wall": {
 					"OutEmissiv":0.90,
 					"OutSolarAbs":0.80,
@@ -1226,9 +1346,14 @@
 			},
 			{
 				"skin": false,
-				"boundary": "その他居室_寝室",
+				"boundary": {
+					"Name": "隣室",
+					"Type": "NextRoom",
+					"RoomName": "その他居室_寝室"
+				},
 				"unsteady": true,
 				"name": "内壁（間仕切り）",
+				"floor": false,
 				"Wall": {
 					"OutEmissiv":0.90,
 					"OutSolarAbs":0.80,
@@ -1268,9 +1393,14 @@
 			},
 			{
 				"skin": false,
-				"boundary": "その他居室_子供室2",
+				"boundary": {
+					"Name": "隣室",
+					"Type": "NextRoom",
+					"RoomName": "その他居室_子供室2"
+				},
 				"unsteady": true,
 				"name": "内壁（間仕切り）",
+				"floor": false,
 				"Wall": {
 					"OutEmissiv":0.90,
 					"OutSolarAbs":0.80,
@@ -1335,9 +1465,16 @@
 		"Surface": [
 			{
 				"skin": true,
-				"boundary": "東",
+				"boundary":  {
+					"Name": "東",
+					"Type": "Outdoor",
+					"DirectionAngle": -90,
+					"InclinationAngle": 90,
+					"GroundReflectRate": 0.1
+				},
 				"unsteady": true,
 				"name": "外壁",
+				"floor": false,
 				"Wall": {
 					"OutEmissiv":0.90,
 					"OutSolarAbs":0.80,
@@ -1389,9 +1526,16 @@
 			},
 			{
 				"skin": true,
-				"boundary": "東",
+				"boundary":  {
+					"Name": "東",
+					"Type": "Outdoor",
+					"DirectionAngle": -90,
+					"InclinationAngle": 90,
+					"GroundReflectRate": 0.1
+				},
 				"unsteady": false,
 				"name": "窓",
+				"floor": false,
 				"Window": {
 					"Eta": 0.792,
 					"SolarTrans": 0.738,
@@ -1400,18 +1544,26 @@
 					"OutHeatTrans": 25,
 					"OutEmissiv": 0.9,
 					"InConHeatTrans": 4.1,
-					"InRadHeatTrans": 5
+					"InRadHeatTrans": 5,
+					"AngleIncidence": "SingleGlazing"
 				},
 				"area": 0.66,
-				"sunbrk": "子供室2軒",
+				"sunbrk": null,
 				"flr": 0.0,
 				"fot": 0.0120
 			},
 			{
 				"skin": true,
-				"boundary": "南",
+				"boundary": {
+					"Name": "南",
+					"Type": "Outdoor",
+					"DirectionAngle": 0,
+					"InclinationAngle": 90,
+					"GroundReflectRate": 0.1
+				},
 				"unsteady": true,
 				"name": "外壁",
+				"floor": false,
 				"Wall": {
 					"OutEmissiv":0.90,
 					"OutSolarAbs":0.80,
@@ -1463,9 +1615,16 @@
 			},
 			{
 				"skin": true,
-				"boundary": "南",
+				"boundary": {
+					"Name": "南",
+					"Type": "Outdoor",
+					"DirectionAngle": 0,
+					"InclinationAngle": 90,
+					"GroundReflectRate": 0.1
+				},
 				"unsteady": false,
 				"name": "窓",
+				"floor": false,
 				"Window": {
 					"Eta": 0.792,
 					"SolarTrans": 0.738,
@@ -1474,18 +1633,32 @@
 					"OutHeatTrans": 25,
 					"OutEmissiv": 0.9,
 					"InConHeatTrans": 4.1,
-					"InRadHeatTrans": 5
+					"InRadHeatTrans": 5,
+					"AngleIncidence": "SingleGlazing"
 				},
 				"area": 3.22,
-				"sunbrk": "子供室2軒",
+				"sunbrk": {
+					"Name": "子供室2軒",
+					"D": 650,
+					"WI1": 7047.5,
+					"WI2": 1587.5,
+					"hi": 650,
+					"WR": 1650,
+					"WH": 1950
+				},
 				"flr": 0.0,
 				"fot": 0.0583
 			},
 			{
 				"skin": true,
-				"boundary": "天井",
+				"boundary": {
+					"Name": "天井",
+					"Type": "DeltaTCoeff",
+					"TempDifferFactor": 1
+				},
 				"unsteady": true,
 				"name": "2階天井",
+				"floor": false,
 				"Wall": {
 					"OutEmissiv":0.90,
 					"OutSolarAbs":0.80,
@@ -1519,9 +1692,14 @@
 			},
 			{
 				"skin": false,
-				"boundary": "非居室",
+				"boundary": {
+					"Name": "隣室",
+					"Type": "NextRoom",
+					"RoomName": "非居室"
+				},
 				"unsteady": true,
 				"name": "内壁（間仕切り）",
+				"floor": false,
 				"Wall": {
 					"OutEmissiv":0.90,
 					"OutSolarAbs":0.80,
@@ -1561,9 +1739,14 @@
 			},
 			{
 				"skin": false,
-				"boundary": "非居室",
+				"boundary": {
+					"Name": "隣室",
+					"Type": "NextRoom",
+					"RoomName": "非居室"
+				},
 				"unsteady": false,
 				"name": "室内戸",
+				"floor": false,
 				"Window": {
 					"Eta": 0,
 					"SolarTrans": 0,
@@ -1572,7 +1755,8 @@
 					"OutHeatTrans": 9.1,
 					"OutEmissiv": 0.9,
 					"InConHeatTrans": 4.1,
-					"InRadHeatTrans": 5
+					"InRadHeatTrans": 5,
+					"AngleIncidence": "SingleGlazing"
 				},
 				"area": 1.42,
 				"sunbrk": "",
@@ -1581,9 +1765,14 @@
 			},
 			{
 				"skin": false,
-				"boundary": "主たる居室",
+				"boundary": {
+					"Name": "隣室",
+					"Type": "NextRoom",
+					"RoomName": "主たる居室"
+				},
 				"unsteady": true,
 				"name": "内壁（床）",
+				"floor": true,
 				"Wall": {
 					"OutEmissiv":0.90,
 					"OutSolarAbs":0.80,
@@ -1623,9 +1812,14 @@
 			},
 			{
 				"skin": false,
-				"boundary": "その他居室_子供室1",
+				"boundary": {
+					"Name": "隣室",
+					"Type": "NextRoom",
+					"RoomName": "その他居室_子供室1"
+				},
 				"unsteady": true,
 				"name": "内壁（間仕切り）",
+				"floor": false,
 				"Wall": {
 					"OutEmissiv":0.90,
 					"OutSolarAbs":0.80,
@@ -1690,9 +1884,17 @@
 		"Surface": [
 			{
 				"skin": true,
-				"boundary": "北",
+				"boundary": {
+					"Name": "北",
+					"Type": "Outdoor",
+					"DirectionAngle": 180,
+					"InclinationAngle": 90,
+					"GroundReflectRate": 0.1,
+					"TempDifferFactor": null
+				},
 				"unsteady": true,
 				"name": "外壁",
+				"floor": false,
 				"Wall": {
 					"OutEmissiv":0.90,
 					"OutSolarAbs":0.80,
@@ -1744,9 +1946,16 @@
 			},
 			{
 				"skin": true,
-				"boundary": "南",
+				"boundary": {
+					"Name": "南",
+					"Type": "Outdoor",
+					"DirectionAngle": 0,
+					"InclinationAngle": 90,
+					"GroundReflectRate": 0.1
+				},
 				"unsteady": true,
 				"name": "外壁",
+				"floor": false,
 				"Wall": {
 					"OutEmissiv":0.90,
 					"OutSolarAbs":0.80,
@@ -1798,9 +2007,16 @@
 			},
 			{
 				"skin": true,
-				"boundary": "南",
+				"boundary": {
+					"Name": "南",
+					"Type": "Outdoor",
+					"DirectionAngle": 0,
+					"InclinationAngle": 90,
+					"GroundReflectRate": 0.1
+				},
 				"unsteady": false,
 				"name": "窓",
+				"floor": false,
 				"Window": {
 					"Eta": 0.792,
 					"SolarTrans": 0.738,
@@ -1809,7 +2025,8 @@
 					"OutHeatTrans": 25,
 					"OutEmissiv": 0.9,
 					"InConHeatTrans": 4.1,
-					"InRadHeatTrans": 5
+					"InRadHeatTrans": 5,
+					"AngleIncidence": "SingleGlazing"
 				},
 				"area": 4.59,
 				"sunbrk": "",
@@ -1818,9 +2035,16 @@
 			},
 			{
 				"skin": true,
-				"boundary": "西",
+				"boundary": {
+					"Name": "西",
+					"Type": "Outdoor",
+					"DirectionAngle": 90,
+					"InclinationAngle": 90,
+					"GroundReflectRate": 0.1
+				},
 				"unsteady": true,
 				"name": "外壁",
+				"floor": false,
 				"Wall": {
 					"OutEmissiv":0.90,
 					"OutSolarAbs":0.80,
@@ -1872,9 +2096,14 @@
 			},
 			{
 				"skin": true,
-				"boundary": "床下",
+				"boundary": {
+					"Name": "床下",
+					"Type": "DeltaTCoeff",
+					"TempDifferFactor": 0.7
+				},
 				"unsteady": true,
 				"name": "1階床",
+				"floor": true,
 				"Wall": {
 					"OutEmissiv":0.90,
 					"OutSolarAbs":0.80,
@@ -1908,9 +2137,14 @@
 			},
 			{
 				"skin": true,
-				"boundary": "天井",
+				"boundary": {
+					"Name": "天井",
+					"Type": "DeltaTCoeff",
+					"TempDifferFactor": 1
+				},
 				"unsteady": true,
 				"name": "2階天井",
+				"floor": false,
 				"Wall": {
 					"OutEmissiv":0.90,
 					"OutSolarAbs":0.80,
@@ -1944,9 +2178,14 @@
 			},
 			{
 				"skin": false,
-				"boundary": "非居室",
+				"boundary": {
+					"Name": "隣室",
+					"Type": "NextRoom",
+					"RoomName": "非居室"
+				},
 				"unsteady": true,
 				"name": "内壁（間仕切り）",
+				"floor": false,
 				"Wall": {
 					"OutEmissiv":0.90,
 					"OutSolarAbs":0.80,
@@ -1986,9 +2225,14 @@
 			},
 			{
 				"skin": false,
-				"boundary": "非居室",
+				"boundary": {
+					"Name": "隣室",
+					"Type": "NextRoom",
+					"RoomName": "非居室"
+				},
 				"unsteady": false,
 				"name": "室内戸",
+				"floor": false,
 				"Window": {
 					"Eta": 0,
 					"SolarTrans": 0,
@@ -1997,7 +2241,8 @@
 					"OutHeatTrans": 9.1,
 					"OutEmissiv": 0.9,
 					"InConHeatTrans": 4.1,
-					"InRadHeatTrans": 5
+					"InRadHeatTrans": 5,
+					"AngleIncidence": "SingleGlazing"
 				},
 				"area": 1.42,
 				"sunbrk": "",
@@ -2006,9 +2251,14 @@
 			},
 			{
 				"skin": false,
-				"boundary": "主たる居室",
+				"boundary": {
+					"Name": "隣室",
+					"Type": "NextRoom",
+					"RoomName": "主たる居室"
+				},
 				"unsteady": true,
 				"name": "内壁（間仕切り）",
+				"floor": false,
 				"Wall": {
 					"OutEmissiv":0.90,
 					"OutSolarAbs":0.80,
@@ -2048,9 +2298,14 @@
 			},
 			{
 				"skin": false,
-				"boundary": "主たる居室",
+				"boundary": {
+					"Name": "隣室",
+					"Type": "NextRoom",
+					"RoomName": "主たる居室"
+				},
 				"unsteady": false,
 				"name": "室内戸",
+				"floor": false,
 				"Window": {
 					"Eta": 0,
 					"SolarTrans": 0,
@@ -2059,7 +2314,8 @@
 					"OutHeatTrans": 9.1,
 					"OutEmissiv": 0.9,
 					"InConHeatTrans": 4.1,
-					"InRadHeatTrans": 5
+					"InRadHeatTrans": 5,
+					"AngleIncidence": "SingleGlazing"
 				},
 				"area": 3.06,
 				"sunbrk": "",
@@ -2068,9 +2324,14 @@
 			},
 			{
 				"skin": false,
-				"boundary": "その他居室_寝室",
+				"boundary": {
+					"Name": "隣室",
+					"Type": "NextRoom",
+					"RoomName": "その他居室_寝室"
+				},
 				"unsteady": true,
 				"name": "内壁（天井）",
+				"floor": false,
 				"Wall": {
 					"OutEmissiv":0.90,
 					"OutSolarAbs":0.80,
@@ -2165,9 +2426,16 @@
 		"Surface": [
 			{
 				"skin": true,
-				"boundary": "北",
+				"boundary": {
+					"Name": "北",
+					"Type": "Outdoor",
+					"DirectionAngle": 180,
+					"InclinationAngle": 90,
+					"GroundReflectRate": 0.1
+				},
 				"unsteady": true,
 				"name": "外壁",
+				"floor": false,
 				"Wall": {
 					"OutEmissiv":0.90,
 					"OutSolarAbs":0.80,
@@ -2219,9 +2487,16 @@
 			},
 			{
 				"skin": true,
-				"boundary": "北",
+				"boundary": {
+					"Name": "北",
+					"Type": "Outdoor",
+					"DirectionAngle": 180,
+					"InclinationAngle": 90,
+					"GroundReflectRate": 0.1
+				},
 				"unsteady": false,
 				"name": "窓",
+				"floor": false,
 				"Window": {
 					"Eta": 0.792,
 					"SolarTrans": 0.738,
@@ -2230,7 +2505,8 @@
 					"OutHeatTrans": 25,
 					"OutEmissiv": 0.9,
 					"InConHeatTrans": 4.1,
-					"InRadHeatTrans": 5
+					"InRadHeatTrans": 5,
+					"AngleIncidence": "SingleGlazing"
 				},
 				"area": 3.69,
 				"sunbrk": "",
@@ -2239,9 +2515,16 @@
 			},
 			{
 				"skin": true,
-				"boundary": "東",
+				"boundary": {
+					"Name": "東",
+					"Type": "Outdoor",
+					"DirectionAngle": -90,
+					"InclinationAngle": 90,
+					"GroundReflectRate": 0.1
+				},
 				"unsteady": true,
 				"name": "外壁",
+				"floor": false,
 				"Wall": {
 					"OutEmissiv":0.90,
 					"OutSolarAbs":0.80,
@@ -2293,9 +2576,16 @@
 			},
 			{
 				"skin": true,
-				"boundary": "西",
+				"boundary": {
+					"Name": "西",
+					"Type": "Outdoor",
+					"DirectionAngle": 90,
+					"InclinationAngle": 90,
+					"GroundReflectRate": 0.1
+				},
 				"unsteady": true,
 				"name": "外壁",
+				"floor": false,
 				"Wall": {
 					"OutEmissiv":0.90,
 					"OutSolarAbs":0.80,
@@ -2347,9 +2637,16 @@
 			},
 			{
 				"skin": true,
-				"boundary": "西",
+				"boundary": {
+					"Name": "西",
+					"Type": "Outdoor",
+					"DirectionAngle": 90,
+					"InclinationAngle": 90,
+					"GroundReflectRate": 0.1
+				},
 				"unsteady": false,
 				"name": "窓",
+				"floor": false,
 				"Window": {
 					"Eta": 0.792,
 					"SolarTrans": 0.738,
@@ -2358,7 +2655,8 @@
 					"OutHeatTrans": 25,
 					"OutEmissiv": 0.9,
 					"InConHeatTrans": 4.1,
-					"InRadHeatTrans": 5
+					"InRadHeatTrans": 5,
+					"AngleIncidence": "SingleGlazing"
 				},
 				"area": 2.97,
 				"sunbrk": "",
@@ -2367,9 +2665,14 @@
 			},
 			{
 				"skin": true,
-				"boundary": "床下",
+				"boundary": {
+					"Name": "床下",
+					"Type": "DeltaTCoeff",
+					"TempDifferFactor": 0.7
+				},
 				"unsteady": true,
 				"name": "1階床",
+				"floor": true,
 				"Wall": {
 					"OutEmissiv":0.90,
 					"OutSolarAbs":0.80,
@@ -2403,9 +2706,14 @@
 			},
 			{
 				"skin": true,
-				"boundary": "天井",
+				"boundary": {
+					"Name": "天井",
+					"Type": "DeltaTCoeff",
+					"TempDifferFactor": 1
+				},
 				"unsteady": true,
 				"name": "2階天井",
+				"floor": false,
 				"Wall": {
 					"OutEmissiv":0.90,
 					"OutSolarAbs":0.80,
@@ -2439,9 +2747,14 @@
 			},
 			{
 				"skin": false,
-				"boundary": "主たる居室",
+				"boundary": {
+					"Name": "隣室",
+					"Type": "NextRoom",
+					"RoomName": "主たる居室"
+				},
 				"unsteady": true,
 				"name": "内壁（間仕切り）",
+				"floor": false,
 				"Wall": {
 					"OutEmissiv":0.90,
 					"OutSolarAbs":0.80,
@@ -2481,9 +2794,14 @@
 			},
 			{
 				"skin": false,
-				"boundary": "主たる居室",
+				"boundary": {
+					"Name": "隣室",
+					"Type": "NextRoom",
+					"RoomName": "主たる居室"
+				},
 				"unsteady": false,
 				"name": "室内戸",
+				"floor": false,
 				"Window": {
 					"Eta": 0,
 					"SolarTrans": 0,
@@ -2492,7 +2810,8 @@
 					"OutHeatTrans": 9.1,
 					"OutEmissiv": 0.9,
 					"InConHeatTrans": 4.1,
-					"InRadHeatTrans": 5
+					"InRadHeatTrans": 5,
+					"AngleIncidence": "SingleGlazing"
 				},
 				"area": 2.84,
 				"sunbrk": "",
@@ -2501,9 +2820,14 @@
 			},
 			{
 				"skin": false,
-				"boundary": "その他居室_寝室",
+				"boundary": {
+					"Name": "隣室",
+					"Type": "NextRoom",
+					"RoomName": "その他居室_寝室"
+				},
 				"unsteady": true,
 				"name": "内壁（間仕切り）",
+				"floor": false,
 				"Wall": {
 					"OutEmissiv":0.90,
 					"OutSolarAbs":0.80,
@@ -2543,9 +2867,14 @@
 			},
 			{
 				"skin": false,
-				"boundary": "その他居室_寝室",
+				"boundary": {
+					"Name": "隣室",
+					"Type": "NextRoom",
+					"RoomName": "その他居室_寝室"
+				},
 				"unsteady": false,
 				"name": "室内戸",
+				"floor": false,
 				"Window": {
 					"Eta": 0,
 					"SolarTrans": 0,
@@ -2554,7 +2883,8 @@
 					"OutHeatTrans": 9.1,
 					"OutEmissiv": 0.9,
 					"InConHeatTrans": 4.1,
-					"InRadHeatTrans": 5
+					"InRadHeatTrans": 5,
+					"AngleIncidence": "SingleGlazing"
 				},
 				"area": 1.42,
 				"sunbrk": "",
@@ -2563,9 +2893,14 @@
 			},
 			{
 				"skin": false,
-				"boundary": "その他居室_子供室1",
+				"boundary": {
+					"Name": "隣室",
+					"Type": "NextRoom",
+					"RoomName": "その他居室_子供室1"
+				},
 				"unsteady": true,
 				"name": "内壁（間仕切り）",
+				"floor": false,
 				"Wall": {
 					"OutEmissiv":0.90,
 					"OutSolarAbs":0.80,
@@ -2605,9 +2940,14 @@
 			},
 			{
 				"skin": false,
-				"boundary": "その他居室_子供室1",
+				"boundary": {
+					"Name": "隣室",
+					"Type": "NextRoom",
+					"RoomName": "その他居室_子供室1"
+				},
 				"unsteady": false,
 				"name": "室内戸",
+				"floor": false,
 				"Window": {
 					"Eta": 0,
 					"SolarTrans": 0,
@@ -2616,7 +2956,8 @@
 					"OutHeatTrans": 9.1,
 					"OutEmissiv": 0.9,
 					"InConHeatTrans": 4.1,
-					"InRadHeatTrans": 5
+					"InRadHeatTrans": 5,
+					"AngleIncidence": "SingleGlazing"
 				},
 				"area": 1.42,
 				"sunbrk": "",
@@ -2625,9 +2966,14 @@
 			},
 			{
 				"skin": false,
-				"boundary": "その他居室_子供室2",
+				"boundary": {
+					"Name": "隣室",
+					"Type": "NextRoom",
+					"RoomName": "その他居室_子供室2"
+				},
 				"unsteady": true,
 				"name": "内壁（間仕切り）",
+				"floor": false,
 				"Wall": {
 					"OutEmissiv":0.90,
 					"OutSolarAbs":0.80,
@@ -2667,9 +3013,14 @@
 			},
 			{
 				"skin": false,
-				"boundary": "その他居室_子供室2",
+				"boundary": {
+					"Name": "隣室",
+					"Type": "NextRoom",
+					"RoomName": "その他居室_子供室2"
+				},
 				"unsteady": false,
 				"name": "室内戸",
+				"floor": false,
 				"Window": {
 					"Eta": 0,
 					"SolarTrans": 0,
@@ -2678,7 +3029,8 @@
 					"OutHeatTrans": 9.1,
 					"OutEmissiv": 0.9,
 					"InConHeatTrans": 4.1,
-					"InRadHeatTrans": 5
+					"InRadHeatTrans": 5,
+					"AngleIncidence": "SingleGlazing"
 				},
 				"area": 1.42,
 				"sunbrk": "",
@@ -2687,9 +3039,14 @@
 			},
 			{
 				"skin": false,
-				"boundary": "その他居室_和室",
+				"boundary": {
+					"Name": "隣室",
+					"Type": "NextRoom",
+					"RoomName": "その他居室_和室"
+				},
 				"unsteady": true,
 				"name": "内壁（間仕切り）",
+				"floor": false,
 				"Wall": {
 					"OutEmissiv":0.90,
 					"OutSolarAbs":0.80,
@@ -2729,9 +3086,14 @@
 			},
 			{
 				"skin": false,
-				"boundary": "その他居室_和室",
+				"boundary": {
+					"Name": "隣室",
+					"Type": "NextRoom",
+					"RoomName": "その他居室_和室"
+				},
 				"unsteady": false,
 				"name": "室内戸",
+				"floor": false,
 				"Window": {
 					"Eta": 0,
 					"SolarTrans": 0,
@@ -2740,7 +3102,8 @@
 					"OutHeatTrans": 9.1,
 					"OutEmissiv": 0.9,
 					"InConHeatTrans": 4.1,
-					"InRadHeatTrans": 5
+					"InRadHeatTrans": 5,
+					"AngleIncidence": "SingleGlazing"
 				},
 				"area": 1.42,
 				"sunbrk": "",

@@ -80,7 +80,7 @@ class SunbrkType:
 
 def create_sunbrks(d):
     dic = {}
-    for d_sunbrk in d:
-        name = d_sunbrk['Name']
-        dic[name] = SunbrkType(**d_sunbrk)
+    # for d_sunbrk in d:
+    name = d['Name']
+    dic[name] = SunbrkType(**d)
     return dic
