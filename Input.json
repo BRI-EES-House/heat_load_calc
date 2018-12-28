@@ -22,6 +22,7 @@
             "Surface": [
                 {
                     "skin": true,
+                    "direction": "Downward",
                     "floor": false,
                     "boundary": {
                         "Name": "Top",
@@ -56,6 +57,7 @@
                 },
                 {
                     "skin": true,
+                    "direction": "Landscape",
                     "floor": false,
                     "boundary": {
                         "Name": "SW",
@@ -90,6 +92,7 @@
                 },
                 {
                     "skin": true,
+                    "direction": "Landscape",
                     "floor": false,
                     "boundary": {
                         "Name": "NW",
@@ -124,6 +127,7 @@
                 },
                 {
                     "skin": true,
+                    "direction": "Landscape",
                     "floor": false,
                     "boundary": {
                         "Name": "NE",
@@ -158,6 +162,7 @@
                 },
                 {
                     "skin": true,
+                    "direction": "Landscape",
                     "floor": false,
                     "boundary": {
                         "Name": "SE",
@@ -192,6 +197,7 @@
                 },
                 {
                     "skin": true,
+                    "direction": "Upward",
                     "floor": true,
                     "boundary": {
                         "Name": "Bottom",
@@ -226,6 +232,7 @@
                 },
                 {
                     "skin": true,
+                    "direction": "Upward",
                     "floor": true,
                     "boundary": {
                         "Name": "Bottom",
@@ -260,6 +267,7 @@
                 },
                 {
                     "skin": true,
+                    "direction": "Landscape",
                     "floor": false,
                     "boundary": {
                         "Name": "NW",
@@ -281,6 +289,7 @@
                 },
                 {
                     "skin": true,
+                    "direction": "Landscape",
                     "floor": false,
                     "boundary": {
                         "Name": "NE",
@@ -302,6 +311,7 @@
                 },
                 {
                     "skin": true,
+                    "direction": "Landscape",
                     "floor": false,
                     "boundary": {
                         "Name": "SW",
@@ -327,6 +337,7 @@
                 },
                 {
                     "skin": true,
+                    "direction": "Landscape",
                     "floor": false,
                     "boundary": {
                         "Name": "NW",
@@ -352,6 +363,7 @@
                 },
                 {
                     "skin": true,
+                    "direction": "Landscape",
                     "floor": false,
                     "boundary": {
                         "Name": "NE",
@@ -377,6 +389,7 @@
                 },
                 {
                     "skin": true,
+                    "direction": "Landscape",
                     "floor": false,
                     "boundary": {
                         "Name": "SE",
@@ -398,6 +411,136 @@
                         "D": 0.348,
                         "hi": 0,
                         "WH": 1.1
+                    }
+                },
+                {
+                    "skin": false,
+                    "direction": "Upward",
+                    "floor": true,
+                    "boundary": {
+                        "Name": "NextRoom_underfloor",
+                        "Type": "NextRoom",
+                        "RoomName": "underfloor"
+                    },
+                    "unsteady": true,
+                    "IsSoil": false,
+                    "name": "GroundFloor1",
+                    "area": 0.81,
+                    "Wall": {
+                        "OutHeatTrans": 6.666666666666667,
+                        "InHeatTrans": 6.666666666666667,
+                        "Layers": [
+                            {
+                                "name": "PED",
+                                "cond": 0.16,
+                                "thick": 0.012,
+                                "specH": 720.0
+                            }
+                        ]
+                    }
+                },
+                {
+                    "skin": false,
+                    "direction": "Upward",
+                    "floor": true,
+                    "boundary": {
+                        "Name": "NextRoom_other",
+                        "Type": "NextRoom",
+                        "RoomName": "other"
+                    },
+                    "unsteady": true,
+                    "IsSoil": false,
+                    "name": "InnerFloor1",
+                    "area": 10.0,
+                    "Wall": {
+                        "OutHeatTrans": 11.11111111111111,
+                        "InHeatTrans": 6.666666666666667,
+                        "Layers": [
+                            {
+                                "name": "PED",
+                                "cond": 0.16,
+                                "thick": 0.012,
+                                "specH": 720.0
+                            }
+                        ]
+                    }
+                },
+                {
+                    "skin": false,
+                    "direction": "Upward",
+                    "floor": true,
+                    "boundary": {
+                        "Name": "NextRoom_nonliving",
+                        "Type": "NextRoom",
+                        "RoomName": "nonliving"
+                    },
+                    "unsteady": true,
+                    "IsSoil": false,
+                    "name": "InnerFloor2",
+                    "area": 20.0,
+                    "Wall": {
+                        "OutHeatTrans": 11.11111111111111,
+                        "InHeatTrans": 6.666666666666667,
+                        "Layers": [
+                            {
+                                "name": "PED",
+                                "cond": 0.16,
+                                "thick": 0.012,
+                                "specH": 720.0
+                            }
+                        ]
+                    }
+                },
+                {
+                    "skin": false,
+                    "direction": "Downward",
+                    "floor": false,
+                    "boundary": {
+                        "Name": "NextRoom_other",
+                        "Type": "NextRoom",
+                        "RoomName": "other"
+                    },
+                    "unsteady": true,
+                    "IsSoil": false,
+                    "name": "InnerCeiling1",
+                    "area": 10.0,
+                    "Wall": {
+                        "OutHeatTrans": 6.666666666666667,
+                        "InHeatTrans": 11.11111111111111,
+                        "Layers": [
+                            {
+                                "name": "PED",
+                                "cond": 0.16,
+                                "thick": 0.012,
+                                "specH": 720.0
+                            }
+                        ]
+                    }
+                },
+                {
+                    "skin": false,
+                    "direction": "Downward",
+                    "floor": false,
+                    "boundary": {
+                        "Name": "NextRoom_nonliving",
+                        "Type": "NextRoom",
+                        "RoomName": "nonliving"
+                    },
+                    "unsteady": true,
+                    "IsSoil": false,
+                    "name": "InnerCeiling2",
+                    "area": 20.0,
+                    "Wall": {
+                        "OutHeatTrans": 6.666666666666667,
+                        "InHeatTrans": 11.11111111111111,
+                        "Layers": [
+                            {
+                                "name": "PED",
+                                "cond": 0.16,
+                                "thick": 0.012,
+                                "specH": 720.0
+                            }
+                        ]
                     }
                 }
             ]
@@ -421,6 +564,7 @@
             "Surface": [
                 {
                     "skin": true,
+                    "direction": "Downward",
                     "floor": false,
                     "boundary": {
                         "Name": "Top",
@@ -455,6 +599,7 @@
                 },
                 {
                     "skin": true,
+                    "direction": "Landscape",
                     "floor": false,
                     "boundary": {
                         "Name": "SW",
@@ -489,6 +634,7 @@
                 },
                 {
                     "skin": true,
+                    "direction": "Landscape",
                     "floor": false,
                     "boundary": {
                         "Name": "NW",
@@ -523,6 +669,7 @@
                 },
                 {
                     "skin": true,
+                    "direction": "Landscape",
                     "floor": false,
                     "boundary": {
                         "Name": "NE",
@@ -557,6 +704,7 @@
                 },
                 {
                     "skin": true,
+                    "direction": "Landscape",
                     "floor": false,
                     "boundary": {
                         "Name": "SE",
@@ -591,6 +739,7 @@
                 },
                 {
                     "skin": true,
+                    "direction": "Upward",
                     "floor": true,
                     "boundary": {
                         "Name": "Bottom",
@@ -625,6 +774,7 @@
                 },
                 {
                     "skin": true,
+                    "direction": "Upward",
                     "floor": true,
                     "boundary": {
                         "Name": "Bottom",
@@ -659,6 +809,7 @@
                 },
                 {
                     "skin": true,
+                    "direction": "Landscape",
                     "floor": false,
                     "boundary": {
                         "Name": "NW",
@@ -680,6 +831,7 @@
                 },
                 {
                     "skin": true,
+                    "direction": "Landscape",
                     "floor": false,
                     "boundary": {
                         "Name": "NE",
@@ -701,6 +853,7 @@
                 },
                 {
                     "skin": true,
+                    "direction": "Landscape",
                     "floor": false,
                     "boundary": {
                         "Name": "SW",
@@ -726,6 +879,7 @@
                 },
                 {
                     "skin": true,
+                    "direction": "Landscape",
                     "floor": false,
                     "boundary": {
                         "Name": "NW",
@@ -751,6 +905,7 @@
                 },
                 {
                     "skin": true,
+                    "direction": "Landscape",
                     "floor": false,
                     "boundary": {
                         "Name": "NE",
@@ -776,6 +931,7 @@
                 },
                 {
                     "skin": true,
+                    "direction": "Landscape",
                     "floor": false,
                     "boundary": {
                         "Name": "SE",
@@ -797,6 +953,136 @@
                         "D": 0.348,
                         "hi": 0,
                         "WH": 1.1
+                    }
+                },
+                {
+                    "skin": false,
+                    "direction": "Upward",
+                    "floor": true,
+                    "boundary": {
+                        "Name": "NextRoom_underfloor",
+                        "Type": "NextRoom",
+                        "RoomName": "underfloor"
+                    },
+                    "unsteady": true,
+                    "IsSoil": false,
+                    "name": "GroundFloor3",
+                    "area": 0.81,
+                    "Wall": {
+                        "OutHeatTrans": 6.666666666666667,
+                        "InHeatTrans": 6.666666666666667,
+                        "Layers": [
+                            {
+                                "name": "PED",
+                                "cond": 0.16,
+                                "thick": 0.012,
+                                "specH": 720.0
+                            }
+                        ]
+                    }
+                },
+                {
+                    "skin": false,
+                    "direction": "Upward",
+                    "floor": true,
+                    "boundary": {
+                        "Name": "NextRoom_main",
+                        "Type": "NextRoom",
+                        "RoomName": "main"
+                    },
+                    "unsteady": true,
+                    "IsSoil": false,
+                    "name": "InnerFloor3",
+                    "area": 10.0,
+                    "Wall": {
+                        "OutHeatTrans": 11.11111111111111,
+                        "InHeatTrans": 6.666666666666667,
+                        "Layers": [
+                            {
+                                "name": "PED",
+                                "cond": 0.16,
+                                "thick": 0.012,
+                                "specH": 720.0
+                            }
+                        ]
+                    }
+                },
+                {
+                    "skin": false,
+                    "direction": "Upward",
+                    "floor": true,
+                    "boundary": {
+                        "Name": "NextRoom_nonliving",
+                        "Type": "NextRoom",
+                        "RoomName": "nonliving"
+                    },
+                    "unsteady": true,
+                    "IsSoil": false,
+                    "name": "InnerFloor4",
+                    "area": 20.0,
+                    "Wall": {
+                        "OutHeatTrans": 11.11111111111111,
+                        "InHeatTrans": 6.666666666666667,
+                        "Layers": [
+                            {
+                                "name": "PED",
+                                "cond": 0.16,
+                                "thick": 0.012,
+                                "specH": 720.0
+                            }
+                        ]
+                    }
+                },
+                {
+                    "skin": false,
+                    "direction": "Downward",
+                    "floor": false,
+                    "boundary": {
+                        "Name": "NextRoom_main",
+                        "Type": "NextRoom",
+                        "RoomName": "main"
+                    },
+                    "unsteady": true,
+                    "IsSoil": false,
+                    "name": "InnerCeiling3",
+                    "area": 10.0,
+                    "Wall": {
+                        "OutHeatTrans": 6.666666666666667,
+                        "InHeatTrans": 11.11111111111111,
+                        "Layers": [
+                            {
+                                "name": "PED",
+                                "cond": 0.16,
+                                "thick": 0.012,
+                                "specH": 720.0
+                            }
+                        ]
+                    }
+                },
+                {
+                    "skin": false,
+                    "direction": "Downward",
+                    "floor": false,
+                    "boundary": {
+                        "Name": "NextRoom_nonliving",
+                        "Type": "NextRoom",
+                        "RoomName": "nonliving"
+                    },
+                    "unsteady": true,
+                    "IsSoil": false,
+                    "name": "InnerCeiling4",
+                    "area": 20.0,
+                    "Wall": {
+                        "OutHeatTrans": 6.666666666666667,
+                        "InHeatTrans": 11.11111111111111,
+                        "Layers": [
+                            {
+                                "name": "PED",
+                                "cond": 0.16,
+                                "thick": 0.012,
+                                "specH": 720.0
+                            }
+                        ]
                     }
                 }
             ]
@@ -833,6 +1119,7 @@
             "Surface": [
                 {
                     "skin": true,
+                    "direction": "Downward",
                     "floor": false,
                     "boundary": {
                         "Name": "Top",
@@ -867,6 +1154,7 @@
                 },
                 {
                     "skin": true,
+                    "direction": "Landscape",
                     "floor": false,
                     "boundary": {
                         "Name": "SW",
@@ -901,6 +1189,7 @@
                 },
                 {
                     "skin": true,
+                    "direction": "Landscape",
                     "floor": false,
                     "boundary": {
                         "Name": "NW",
@@ -935,6 +1224,7 @@
                 },
                 {
                     "skin": true,
+                    "direction": "Landscape",
                     "floor": false,
                     "boundary": {
                         "Name": "NE",
@@ -969,6 +1259,7 @@
                 },
                 {
                     "skin": true,
+                    "direction": "Landscape",
                     "floor": false,
                     "boundary": {
                         "Name": "SE",
@@ -1003,6 +1294,7 @@
                 },
                 {
                     "skin": true,
+                    "direction": "Upward",
                     "floor": true,
                     "boundary": {
                         "Name": "Bottom",
@@ -1037,6 +1329,7 @@
                 },
                 {
                     "skin": true,
+                    "direction": "Upward",
                     "floor": true,
                     "boundary": {
                         "Name": "Bottom",
@@ -1071,6 +1364,7 @@
                 },
                 {
                     "skin": true,
+                    "direction": "Landscape",
                     "floor": false,
                     "boundary": {
                         "Name": "NW",
@@ -1092,6 +1386,7 @@
                 },
                 {
                     "skin": true,
+                    "direction": "Landscape",
                     "floor": false,
                     "boundary": {
                         "Name": "NE",
@@ -1113,6 +1408,7 @@
                 },
                 {
                     "skin": true,
+                    "direction": "Landscape",
                     "floor": false,
                     "boundary": {
                         "Name": "SW",
@@ -1138,6 +1434,7 @@
                 },
                 {
                     "skin": true,
+                    "direction": "Landscape",
                     "floor": false,
                     "boundary": {
                         "Name": "NW",
@@ -1163,6 +1460,7 @@
                 },
                 {
                     "skin": true,
+                    "direction": "Landscape",
                     "floor": false,
                     "boundary": {
                         "Name": "NE",
@@ -1188,6 +1486,7 @@
                 },
                 {
                     "skin": true,
+                    "direction": "Landscape",
                     "floor": false,
                     "boundary": {
                         "Name": "SE",
@@ -1209,6 +1508,136 @@
                         "D": 0.348,
                         "hi": 0,
                         "WH": 1.1
+                    }
+                },
+                {
+                    "skin": false,
+                    "direction": "Upward",
+                    "floor": true,
+                    "boundary": {
+                        "Name": "NextRoom_underfloor",
+                        "Type": "NextRoom",
+                        "RoomName": "underfloor"
+                    },
+                    "unsteady": true,
+                    "IsSoil": false,
+                    "name": "GroundFloor5",
+                    "area": 1.62,
+                    "Wall": {
+                        "OutHeatTrans": 6.666666666666667,
+                        "InHeatTrans": 6.666666666666667,
+                        "Layers": [
+                            {
+                                "name": "PED",
+                                "cond": 0.16,
+                                "thick": 0.012,
+                                "specH": 720.0
+                            }
+                        ]
+                    }
+                },
+                {
+                    "skin": false,
+                    "direction": "Upward",
+                    "floor": true,
+                    "boundary": {
+                        "Name": "NextRoom_main",
+                        "Type": "NextRoom",
+                        "RoomName": "main"
+                    },
+                    "unsteady": true,
+                    "IsSoil": false,
+                    "name": "InnerFloor5",
+                    "area": 30.0,
+                    "Wall": {
+                        "OutHeatTrans": 11.11111111111111,
+                        "InHeatTrans": 6.666666666666667,
+                        "Layers": [
+                            {
+                                "name": "PED",
+                                "cond": 0.16,
+                                "thick": 0.012,
+                                "specH": 720.0
+                            }
+                        ]
+                    }
+                },
+                {
+                    "skin": false,
+                    "direction": "Upward",
+                    "floor": true,
+                    "boundary": {
+                        "Name": "NextRoom_other",
+                        "Type": "NextRoom",
+                        "RoomName": "other"
+                    },
+                    "unsteady": true,
+                    "IsSoil": false,
+                    "name": "InnerFloor6",
+                    "area": 30.0,
+                    "Wall": {
+                        "OutHeatTrans": 11.11111111111111,
+                        "InHeatTrans": 6.666666666666667,
+                        "Layers": [
+                            {
+                                "name": "PED",
+                                "cond": 0.16,
+                                "thick": 0.012,
+                                "specH": 720.0
+                            }
+                        ]
+                    }
+                },
+                {
+                    "skin": false,
+                    "direction": "Downward",
+                    "floor": false,
+                    "boundary": {
+                        "Name": "NextRoom_main",
+                        "Type": "NextRoom",
+                        "RoomName": "main"
+                    },
+                    "unsteady": true,
+                    "IsSoil": false,
+                    "name": "InnerCeiling5",
+                    "area": 30.0,
+                    "Wall": {
+                        "OutHeatTrans": 6.666666666666667,
+                        "InHeatTrans": 11.11111111111111,
+                        "Layers": [
+                            {
+                                "name": "PED",
+                                "cond": 0.16,
+                                "thick": 0.012,
+                                "specH": 720.0
+                            }
+                        ]
+                    }
+                },
+                {
+                    "skin": false,
+                    "direction": "Downward",
+                    "floor": false,
+                    "boundary": {
+                        "Name": "NextRoom_other",
+                        "Type": "NextRoom",
+                        "RoomName": "other"
+                    },
+                    "unsteady": true,
+                    "IsSoil": false,
+                    "name": "InnerCeiling6",
+                    "area": 30.0,
+                    "Wall": {
+                        "OutHeatTrans": 6.666666666666667,
+                        "InHeatTrans": 11.11111111111111,
+                        "Layers": [
+                            {
+                                "name": "PED",
+                                "cond": 0.16,
+                                "thick": 0.012,
+                                "specH": 720.0
+                            }
+                        ]
                     }
                 }
             ]
@@ -1251,6 +1680,7 @@
             "Surface": [
                 {
                     "skin": true,
+                    "direction": "Upward",
                     "floor": true,
                     "boundary": "AnnualAverage",
                     "unsteady": true,
@@ -1262,6 +1692,84 @@
                         "Layers": [
                             {},
                             {}
+                        ]
+                    }
+                },
+                {
+                    "skin": false,
+                    "direction": "Downward",
+                    "floor": true,
+                    "boundary": {
+                        "Name": "NextRoom_main",
+                        "Type": "NextRoom",
+                        "RoomName": "main"
+                    },
+                    "unsteady": true,
+                    "IsSoil": false,
+                    "name": "GroundFloor2",
+                    "area": 0.81,
+                    "Wall": {
+                        "OutHeatTrans": 6.666666666666667,
+                        "InHeatTrans": 6.666666666666667,
+                        "Layers": [
+                            {
+                                "name": "PED",
+                                "cond": 0.16,
+                                "thick": 0.012,
+                                "specH": 720.0
+                            }
+                        ]
+                    }
+                },
+                {
+                    "skin": false,
+                    "direction": "Downward",
+                    "floor": true,
+                    "boundary": {
+                        "Name": "NextRoom_other",
+                        "Type": "NextRoom",
+                        "RoomName": "other"
+                    },
+                    "unsteady": true,
+                    "IsSoil": false,
+                    "name": "GroundFloor4",
+                    "area": 0.81,
+                    "Wall": {
+                        "OutHeatTrans": 6.666666666666667,
+                        "InHeatTrans": 6.666666666666667,
+                        "Layers": [
+                            {
+                                "name": "PED",
+                                "cond": 0.16,
+                                "thick": 0.012,
+                                "specH": 720.0
+                            }
+                        ]
+                    }
+                },
+                {
+                    "skin": false,
+                    "direction": "Downward",
+                    "floor": true,
+                    "boundary": {
+                        "Name": "NextRoom_nonliving",
+                        "Type": "NextRoom",
+                        "RoomName": "nonliving"
+                    },
+                    "unsteady": true,
+                    "IsSoil": false,
+                    "name": "GroundFloor6",
+                    "area": 1.62,
+                    "Wall": {
+                        "OutHeatTrans": 6.666666666666667,
+                        "InHeatTrans": 6.666666666666667,
+                        "Layers": [
+                            {
+                                "name": "PED",
+                                "cond": 0.16,
+                                "thick": 0.012,
+                                "specH": 720.0
+                            }
                         ]
                     }
                 }
