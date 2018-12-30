@@ -211,7 +211,7 @@
                     "name": "Floor1",
                     "area": 15.0175,
                     "Wall": {
-                        "OutHeatTrans": 25.0,
+                        "OutHeatTrans": 6.666666666666667,
                         "InHeatTrans": 6.666666666666667,
                         "Layers": [
                             {
@@ -246,7 +246,7 @@
                     "name": "Floor4",
                     "area": 1.1025,
                     "Wall": {
-                        "OutHeatTrans": 25.0,
+                        "OutHeatTrans": 6.666666666666667,
                         "InHeatTrans": 6.666666666666667,
                         "Layers": [
                             {
@@ -753,7 +753,7 @@
                     "name": "Floor2",
                     "area": 15.0175,
                     "Wall": {
-                        "OutHeatTrans": 25.0,
+                        "OutHeatTrans": 6.666666666666667,
                         "InHeatTrans": 6.666666666666667,
                         "Layers": [
                             {
@@ -788,7 +788,7 @@
                     "name": "Floor5",
                     "area": 1.1025,
                     "Wall": {
-                        "OutHeatTrans": 25.0,
+                        "OutHeatTrans": 6.666666666666667,
                         "InHeatTrans": 6.666666666666667,
                         "Layers": [
                             {
@@ -1308,7 +1308,7 @@
                     "name": "Floor3",
                     "area": 30.035,
                     "Wall": {
-                        "OutHeatTrans": 25.0,
+                        "OutHeatTrans": 6.666666666666667,
                         "InHeatTrans": 6.666666666666667,
                         "Layers": [
                             {
@@ -1343,7 +1343,7 @@
                     "name": "Floor6",
                     "area": 2.205,
                     "Wall": {
-                        "OutHeatTrans": 25.0,
+                        "OutHeatTrans": 6.666666666666667,
                         "InHeatTrans": 6.666666666666667,
                         "Layers": [
                             {
@@ -1662,19 +1662,29 @@
                     "name": "EarthfloorPerimeter1",
                     "LinearHeatTrans": 1.8,
                     "LinearHeatTransLength": 2.43,
-                    "Direction": "NW"
+                    "boundary": {
+                        "Name": "NW",
+                        "Type": "Outdoor"
+                    }
                 },
                 {
                     "name": "EarthfloorPerimeter2",
                     "LinearHeatTrans": 1.8,
                     "LinearHeatTransLength": 1.83,
-                    "Direction": "NE"
+                    "boundary": {
+                        "Name": "NE",
+                        "Type": "Outdoor"
+                    }
                 },
                 {
                     "name": "EarthfloorPerimeter3",
                     "LinearHeatTrans": 1.8,
                     "LinearHeatTransLength": 4.25,
-                    "Direction": "OpenBackFloor"
+                    "boundary": {
+                        "Name": "OpenBackFloor",
+                        "Type": "DeltaTCoeff",
+                        "TempDifferFactor": 0.7
+                    }
                 }
             ],
             "Surface": [
