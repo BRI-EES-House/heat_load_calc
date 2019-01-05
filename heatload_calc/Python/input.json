@@ -9,15 +9,12 @@
 		"SimEnDay": 1,
 		"Latitude": 34.6583333333333,
 		"Longitude": 133.918333333333,
-		"StMeridian": 135,
-		"FFcalcMethod": "面積比",
-		"FsolFlr": 0.5,
-		"OTset": false
+		"StMeridian": 135
 	},
 	
 	"Rooms": [
 	{
-		"roomname": "主たる居室",
+		"name": "主たる居室",
 		"HeatCcap": 5000,
 		"HeatRcap": 2000,
 		"CoolCcap": -4000,
@@ -54,8 +51,7 @@
 				"Wall": {
 					"OutEmissiv":0.90,
 					"OutSolarAbs":0.80,
-					"InConHeatTrans":4.1,
-					"InRadHeatTrans": 5.0,
+					"InHeatTrans":9.1,
 					"Layers": [
 						{
 							"Name": "せっこうボード",
@@ -119,8 +115,7 @@
 					"Uw": 4.65,
 					"OutHeatTrans": 25,
 					"OutEmissiv": 0.9,
-					"InConHeatTrans": 4.1,
-					"InRadHeatTrans": 5,
+					"InHeatTrans": 9.1,
 					"AngleIncidence": "SingleGlazing"
 				},
 				"area": 1.62,
@@ -143,8 +138,7 @@
 				"Wall": {
 					"OutEmissiv":0.90,
 					"OutSolarAbs":0.80,
-					"InConHeatTrans":4.1,
-					"InRadHeatTrans": 5.0,
+					"InHeatTrans":9.1,
 					"Layers": [
 						{
 							"Name": "せっこうボード",
@@ -208,8 +202,7 @@
 					"Uw": 4.65,
 					"OutHeatTrans": 25,
 					"OutEmissiv": 0.9,
-					"InConHeatTrans": 4.1,
-					"InRadHeatTrans": 5,
+					"InHeatTrans": 9.1,
 					"AngleIncidence": "SingleGlazing"
 				},
 				"area": 3.13,
@@ -232,8 +225,7 @@
 				"Wall": {
 					"OutEmissiv":0.90,
 					"OutSolarAbs":0.80,
-					"InConHeatTrans":4.1,
-					"InRadHeatTrans": 5.0,
+					"InHeatTrans":9.1,
 					"Layers": [
 						{
 							"Name": "せっこうボード",
@@ -297,8 +289,7 @@
 					"Uw": 4.65,
 					"OutHeatTrans": 25,
 					"OutEmissiv": 0.9,
-					"InConHeatTrans": 4.1,
-					"InRadHeatTrans": 5,
+					"InHeatTrans": 9.1,
 					"AngleIncidence": "SingleGlazing"
 				},
 				"area": 6.94,
@@ -327,8 +318,7 @@
 				"Wall": {
 					"OutEmissiv":0.90,
 					"OutSolarAbs":0.80,
-					"InConHeatTrans":1.7,
-					"InRadHeatTrans": 5.0,
+					"InHeatTrans":6.7,
 					"Layers": [
 						{
 							"Name": "合板",
@@ -368,8 +358,7 @@
 				"Wall": {
 					"OutEmissiv":0.90,
 					"OutSolarAbs":0.80,
-					"InConHeatTrans":6.1,
-					"InRadHeatTrans": 5.0,
+					"InHeatTrans":11.1,
 					"Layers": [
 						{
 							"Name": "せっこうボード",
@@ -409,8 +398,7 @@
 				"Wall": {
 					"OutEmissiv":0.90,
 					"OutSolarAbs":0.80,
-					"InConHeatTrans":4.1,
-					"InRadHeatTrans": 5.0,
+					"InHeatTrans":9.1,
 					"Layers": [
 						{
 							"Name": "せっこうボード",
@@ -460,8 +448,7 @@
 					"Uw": 2.33,
 					"OutHeatTrans": 9.1,
 					"OutEmissiv": 0.9,
-					"InConHeatTrans": 4.1,
-					"InRadHeatTrans": 5,
+					"InHeatTrans": 9.1,
 					"AngleIncidence": "SingleGlazing"
 				},
 				"area": 2.84,
@@ -482,8 +469,7 @@
 				"Wall": {
 					"OutEmissiv":0.90,
 					"OutSolarAbs":0.80,
-					"InConHeatTrans":6.1,
-					"InRadHeatTrans": 5.0,
+					"InHeatTrans":11.1,
 					"Layers": [
 						{
 							"Name": "せっこうボード",
@@ -529,8 +515,7 @@
 				"Wall": {
 					"OutEmissiv":0.90,
 					"OutSolarAbs":0.80,
-					"InConHeatTrans":6.1,
-					"InRadHeatTrans": 5.0,
+					"InHeatTrans":11.1,
 					"Layers": [
 						{
 							"Name": "せっこうボード",
@@ -576,8 +561,7 @@
 				"Wall": {
 					"OutEmissiv":0.90,
 					"OutSolarAbs":0.80,
-					"InConHeatTrans":4.1,
-					"InRadHeatTrans": 5.0,
+					"InHeatTrans":9.1,
 					"Layers": [
 						{
 							"Name": "せっこうボード",
@@ -627,8 +611,7 @@
 					"Uw": 2.33,
 					"OutHeatTrans": 9.1,
 					"OutEmissiv": 0.9,
-					"InConHeatTrans": 4.1,
-					"InRadHeatTrans": 5,
+					"InHeatTrans": 9.1,
 					"AngleIncidence": "SingleGlazing"
 				},
 				"area": 3.06,
@@ -639,7 +622,7 @@
 		]
 	},
 	{
-		"roomname": "その他居室_寝室",
+		"name": "その他居室_寝室",
 		"HeatCcap": 3000,
 		"HeatRcap": null,
 		"CoolCcap": -3000,
@@ -682,8 +665,7 @@
 				"Wall": {
 					"OutEmissiv":0.90,
 					"OutSolarAbs":0.80,
-					"InConHeatTrans":4.1,
-					"InRadHeatTrans": 5.0,
+					"InHeatTrans":9.1,
 					"Layers": [
 						{
 							"Name": "せっこうボード",
@@ -747,8 +729,7 @@
 					"Uw": 4.65,
 					"OutHeatTrans": 25,
 					"OutEmissiv": 0.9,
-					"InConHeatTrans": 4.1,
-					"InRadHeatTrans": 5,
+					"InHeatTrans": 9.1,
 					"AngleIncidence": "SingleGlazing"
 				},
 				"area": 1.73,
@@ -779,8 +760,7 @@
 				"Wall": {
 					"OutEmissiv":0.90,
 					"OutSolarAbs":0.80,
-					"InConHeatTrans":4.1,
-					"InRadHeatTrans": 5.0,
+					"InHeatTrans":9.1,
 					"Layers": [
 						{
 							"Name": "せっこうボード",
@@ -844,8 +824,7 @@
 					"Uw": 4.65,
 					"OutHeatTrans": 25,
 					"OutEmissiv": 0.9,
-					"InConHeatTrans": 4.1,
-					"InRadHeatTrans": 5,
+					"InHeatTrans": 9.1,
 					"AngleIncidence": "SingleGlazing"
 				},
 				"area": 0.99,
@@ -866,8 +845,7 @@
 				"Wall": {
 					"OutEmissiv":0.90,
 					"OutSolarAbs":0.80,
-					"InConHeatTrans":6.1,
-					"InRadHeatTrans": 5.0,
+					"InHeatTrans":11.1,
 					"Layers": [
 						{
 							"Name": "せっこうボード",
@@ -907,8 +885,7 @@
 				"Wall": {
 					"OutEmissiv":0.90,
 					"OutSolarAbs":0.80,
-					"InConHeatTrans":4.1,
-					"InRadHeatTrans": 5.0,
+					"InHeatTrans":9.1,
 					"Layers": [
 						{
 							"Name": "せっこうボード",
@@ -958,8 +935,7 @@
 					"Uw": 2.33,
 					"OutHeatTrans": 9.1,
 					"OutEmissiv": 0.9,
-					"InConHeatTrans": 4.1,
-					"InRadHeatTrans": 5,
+					"InHeatTrans": 9.1,
 					"AngleIncidence": "SingleGlazing"
 				},
 				"area": 1.42,
@@ -980,8 +956,7 @@
 				"Wall": {
 					"OutEmissiv":0.90,
 					"OutSolarAbs":0.80,
-					"InConHeatTrans":4.1,
-					"InRadHeatTrans": 5.0,
+					"InHeatTrans":9.1,
 					"Layers": [
 						{
 							"Name": "せっこうボード",
@@ -1027,8 +1002,7 @@
 				"Wall": {
 					"OutEmissiv":0.90,
 					"OutSolarAbs":0.80,
-					"InConHeatTrans":1.7,
-					"InRadHeatTrans": 5.0,
+					"InHeatTrans":6.7,
 					"Layers": [
 						{
 							"Name": "合板",
@@ -1064,7 +1038,7 @@
 		]
 	},
 	{
-		"roomname": "その他居室_子供室1",
+		"name": "その他居室_子供室1",
 		"HeatCcap": 3000,
 		"HeatRcap": null,
 		"CoolCcap": -3000,
@@ -1101,8 +1075,7 @@
 				"Wall": {
 					"OutEmissiv":0.90,
 					"OutSolarAbs":0.80,
-					"InConHeatTrans":4.1,
-					"InRadHeatTrans": 5.0,
+					"InHeatTrans":9.1,
 					"Layers": [
 						{
 							"Name": "せっこうボード",
@@ -1166,8 +1139,7 @@
 					"Uw": 4.65,
 					"OutHeatTrans": 25,
 					"OutEmissiv": 0.9,
-					"InConHeatTrans": 4.1,
-					"InRadHeatTrans": 5,
+					"InHeatTrans": 9.1,
 					"AngleIncidence": "SingleGlazing"
 				},
 				"area": 3.22,
@@ -1196,8 +1168,7 @@
 				"Wall": {
 					"OutEmissiv":0.90,
 					"OutSolarAbs":0.80,
-					"InConHeatTrans":6.1,
-					"InRadHeatTrans": 5.0,
+					"InHeatTrans":11.1,
 					"Layers": [
 						{
 							"Name": "せっこうボード",
@@ -1237,8 +1208,7 @@
 				"Wall": {
 					"OutEmissiv":0.90,
 					"OutSolarAbs":0.80,
-					"InConHeatTrans":4.1,
-					"InRadHeatTrans": 5.0,
+					"InHeatTrans":9.1,
 					"Layers": [
 						{
 							"Name": "せっこうボード",
@@ -1288,8 +1258,7 @@
 					"Uw": 2.33,
 					"OutHeatTrans": 9.1,
 					"OutEmissiv": 0.9,
-					"InConHeatTrans": 4.1,
-					"InRadHeatTrans": 5,
+					"InHeatTrans": 9.1,
 					"AngleIncidence": "SingleGlazing"
 				},
 				"area": 1.42,
@@ -1310,8 +1279,7 @@
 				"Wall": {
 					"OutEmissiv":0.90,
 					"OutSolarAbs":0.80,
-					"InConHeatTrans":1.7,
-					"InRadHeatTrans": 5.0,
+					"InHeatTrans":6.7,
 					"Layers": [
 						{
 							"Name": "合板",
@@ -1357,8 +1325,7 @@
 				"Wall": {
 					"OutEmissiv":0.90,
 					"OutSolarAbs":0.80,
-					"InConHeatTrans":4.1,
-					"InRadHeatTrans": 5.0,
+					"InHeatTrans":9.1,
 					"Layers": [
 						{
 							"Name": "せっこうボード",
@@ -1404,8 +1371,7 @@
 				"Wall": {
 					"OutEmissiv":0.90,
 					"OutSolarAbs":0.80,
-					"InConHeatTrans":4.1,
-					"InRadHeatTrans": 5.0,
+					"InHeatTrans":9.1,
 					"Layers": [
 						{
 							"Name": "せっこうボード",
@@ -1441,7 +1407,7 @@
 		]
 	},
 	{
-		"roomname": "その他居室_子供室2",
+		"name": "その他居室_子供室2",
 		"HeatCcap": 3000,
 		"HeatRcap": null,
 		"CoolCcap": -3000,
@@ -1478,8 +1444,7 @@
 				"Wall": {
 					"OutEmissiv":0.90,
 					"OutSolarAbs":0.80,
-					"InConHeatTrans":4.1,
-					"InRadHeatTrans": 5.0,
+					"InHeatTrans":9.1,
 					"Layers": [
 						{
 							"Name": "せっこうボード",
@@ -1543,8 +1508,7 @@
 					"Uw": 4.65,
 					"OutHeatTrans": 25,
 					"OutEmissiv": 0.9,
-					"InConHeatTrans": 4.1,
-					"InRadHeatTrans": 5,
+					"InHeatTrans": 9.1,
 					"AngleIncidence": "SingleGlazing"
 				},
 				"area": 0.66,
@@ -1567,8 +1531,7 @@
 				"Wall": {
 					"OutEmissiv":0.90,
 					"OutSolarAbs":0.80,
-					"InConHeatTrans":4.1,
-					"InRadHeatTrans": 5.0,
+					"InHeatTrans":9.1,
 					"Layers": [
 						{
 							"Name": "せっこうボード",
@@ -1632,8 +1595,7 @@
 					"Uw": 4.65,
 					"OutHeatTrans": 25,
 					"OutEmissiv": 0.9,
-					"InConHeatTrans": 4.1,
-					"InRadHeatTrans": 5,
+					"InHeatTrans": 9.1,
 					"AngleIncidence": "SingleGlazing"
 				},
 				"area": 3.22,
@@ -1662,8 +1624,7 @@
 				"Wall": {
 					"OutEmissiv":0.90,
 					"OutSolarAbs":0.80,
-					"InConHeatTrans":6.1,
-					"InRadHeatTrans": 5.0,
+					"InHeatTrans":11.1,
 					"Layers": [
 						{
 							"Name": "せっこうボード",
@@ -1703,8 +1664,7 @@
 				"Wall": {
 					"OutEmissiv":0.90,
 					"OutSolarAbs":0.80,
-					"InConHeatTrans":4.1,
-					"InRadHeatTrans": 5.0,
+					"InHeatTrans":9.1,
 					"Layers": [
 						{
 							"Name": "せっこうボード",
@@ -1754,8 +1714,7 @@
 					"Uw": 2.33,
 					"OutHeatTrans": 9.1,
 					"OutEmissiv": 0.9,
-					"InConHeatTrans": 4.1,
-					"InRadHeatTrans": 5,
+					"InHeatTrans": 9.1,
 					"AngleIncidence": "SingleGlazing"
 				},
 				"area": 1.42,
@@ -1776,8 +1735,7 @@
 				"Wall": {
 					"OutEmissiv":0.90,
 					"OutSolarAbs":0.80,
-					"InConHeatTrans":1.7,
-					"InRadHeatTrans": 5.0,
+					"InHeatTrans":6.7,
 					"Layers": [
 						{
 							"Name": "合板",
@@ -1823,8 +1781,7 @@
 				"Wall": {
 					"OutEmissiv":0.90,
 					"OutSolarAbs":0.80,
-					"InConHeatTrans":4.1,
-					"InRadHeatTrans": 5.0,
+					"InHeatTrans":9.1,
 					"Layers": [
 						{
 							"Name": "せっこうボード",
@@ -1860,7 +1817,7 @@
 		]
 	},
 	{
-		"roomname": "その他居室_和室",
+		"name": "その他居室_和室",
 		"HeatCcap": 3000,
 		"HeatRcap": null,
 		"CoolCcap": -3000,
@@ -1898,8 +1855,7 @@
 				"Wall": {
 					"OutEmissiv":0.90,
 					"OutSolarAbs":0.80,
-					"InConHeatTrans":4.1,
-					"InRadHeatTrans": 5.0,
+					"InHeatTrans":9.1,
 					"Layers": [
 						{
 							"Name": "せっこうボード",
@@ -1959,8 +1915,7 @@
 				"Wall": {
 					"OutEmissiv":0.90,
 					"OutSolarAbs":0.80,
-					"InConHeatTrans":4.1,
-					"InRadHeatTrans": 5.0,
+					"InHeatTrans":9.1,
 					"Layers": [
 						{
 							"Name": "せっこうボード",
@@ -2024,8 +1979,7 @@
 					"Uw": 4.65,
 					"OutHeatTrans": 25,
 					"OutEmissiv": 0.9,
-					"InConHeatTrans": 4.1,
-					"InRadHeatTrans": 5,
+					"InHeatTrans": 9.1,
 					"AngleIncidence": "SingleGlazing"
 				},
 				"area": 4.59,
@@ -2048,8 +2002,7 @@
 				"Wall": {
 					"OutEmissiv":0.90,
 					"OutSolarAbs":0.80,
-					"InConHeatTrans":4.1,
-					"InRadHeatTrans": 5.0,
+					"InHeatTrans":9.1,
 					"Layers": [
 						{
 							"Name": "せっこうボード",
@@ -2107,8 +2060,7 @@
 				"Wall": {
 					"OutEmissiv":0.90,
 					"OutSolarAbs":0.80,
-					"InConHeatTrans":1.7,
-					"InRadHeatTrans": 5.0,
+					"InHeatTrans":6.7,
 					"Layers": [
 						{
 							"Name": "合板",
@@ -2148,8 +2100,7 @@
 				"Wall": {
 					"OutEmissiv":0.90,
 					"OutSolarAbs":0.80,
-					"InConHeatTrans":6.1,
-					"InRadHeatTrans": 5.0,
+					"InHeatTrans":11.1,
 					"Layers": [
 						{
 							"Name": "せっこうボード",
@@ -2189,8 +2140,7 @@
 				"Wall": {
 					"OutEmissiv":0.90,
 					"OutSolarAbs":0.80,
-					"InConHeatTrans":4.1,
-					"InRadHeatTrans": 5.0,
+					"InHeatTrans":9.1,
 					"Layers": [
 						{
 							"Name": "せっこうボード",
@@ -2240,8 +2190,7 @@
 					"Uw": 2.33,
 					"OutHeatTrans": 9.1,
 					"OutEmissiv": 0.9,
-					"InConHeatTrans": 4.1,
-					"InRadHeatTrans": 5,
+					"InHeatTrans": 9.1,
 					"AngleIncidence": "SingleGlazing"
 				},
 				"area": 1.42,
@@ -2262,8 +2211,7 @@
 				"Wall": {
 					"OutEmissiv":0.90,
 					"OutSolarAbs":0.80,
-					"InConHeatTrans":4.1,
-					"InRadHeatTrans": 5.0,
+					"InHeatTrans":9.1,
 					"Layers": [
 						{
 							"Name": "せっこうボード",
@@ -2313,8 +2261,7 @@
 					"Uw": 2.33,
 					"OutHeatTrans": 9.1,
 					"OutEmissiv": 0.9,
-					"InConHeatTrans": 4.1,
-					"InRadHeatTrans": 5,
+					"InHeatTrans": 9.1,
 					"AngleIncidence": "SingleGlazing"
 				},
 				"area": 3.06,
@@ -2335,8 +2282,7 @@
 				"Wall": {
 					"OutEmissiv":0.90,
 					"OutSolarAbs":0.80,
-					"InConHeatTrans":6.1,
-					"InRadHeatTrans": 5.0,
+					"InHeatTrans":11.1,
 					"Layers": [
 						{
 							"Name": "せっこうボード",
@@ -2372,7 +2318,7 @@
 		]
 	},
 	{
-		"roomname": "非居室",
+		"name": "非居室",
 		"HeatCcap": null,
 		"HeatRcap": null,
 		"CoolCcap": null,
@@ -2439,8 +2385,7 @@
 				"Wall": {
 					"OutEmissiv":0.90,
 					"OutSolarAbs":0.80,
-					"InConHeatTrans":4.1,
-					"InRadHeatTrans": 5.0,
+					"InHeatTrans":9.1,
 					"Layers": [
 						{
 							"Name": "せっこうボード",
@@ -2504,8 +2449,7 @@
 					"Uw": 4.65,
 					"OutHeatTrans": 25,
 					"OutEmissiv": 0.9,
-					"InConHeatTrans": 4.1,
-					"InRadHeatTrans": 5,
+					"InHeatTrans": 9.1,
 					"AngleIncidence": "SingleGlazing"
 				},
 				"area": 3.69,
@@ -2528,8 +2472,7 @@
 				"Wall": {
 					"OutEmissiv":0.90,
 					"OutSolarAbs":0.80,
-					"InConHeatTrans":4.1,
-					"InRadHeatTrans": 5.0,
+					"InHeatTrans":9.1,
 					"Layers": [
 						{
 							"Name": "せっこうボード",
@@ -2589,8 +2532,7 @@
 				"Wall": {
 					"OutEmissiv":0.90,
 					"OutSolarAbs":0.80,
-					"InConHeatTrans":4.1,
-					"InRadHeatTrans": 5.0,
+					"InHeatTrans":9.1,
 					"Layers": [
 						{
 							"Name": "せっこうボード",
@@ -2654,8 +2596,7 @@
 					"Uw": 4.65,
 					"OutHeatTrans": 25,
 					"OutEmissiv": 0.9,
-					"InConHeatTrans": 4.1,
-					"InRadHeatTrans": 5,
+					"InHeatTrans": 9.1,
 					"AngleIncidence": "SingleGlazing"
 				},
 				"area": 2.97,
@@ -2676,8 +2617,7 @@
 				"Wall": {
 					"OutEmissiv":0.90,
 					"OutSolarAbs":0.80,
-					"InConHeatTrans":1.7,
-					"InRadHeatTrans": 5.0,
+					"InHeatTrans":6.7,
 					"Layers": [
 						{
 							"Name": "合板",
@@ -2717,8 +2657,7 @@
 				"Wall": {
 					"OutEmissiv":0.90,
 					"OutSolarAbs":0.80,
-					"InConHeatTrans":6.1,
-					"InRadHeatTrans": 5.0,
+					"InHeatTrans":11.1,
 					"Layers": [
 						{
 							"Name": "せっこうボード",
@@ -2758,8 +2697,7 @@
 				"Wall": {
 					"OutEmissiv":0.90,
 					"OutSolarAbs":0.80,
-					"InConHeatTrans":4.1,
-					"InRadHeatTrans": 5.0,
+					"InHeatTrans":9.1,
 					"Layers": [
 						{
 							"Name": "せっこうボード",
@@ -2809,8 +2747,7 @@
 					"Uw": 2.33,
 					"OutHeatTrans": 9.1,
 					"OutEmissiv": 0.9,
-					"InConHeatTrans": 4.1,
-					"InRadHeatTrans": 5,
+					"InHeatTrans": 9.1,
 					"AngleIncidence": "SingleGlazing"
 				},
 				"area": 2.84,
@@ -2831,8 +2768,7 @@
 				"Wall": {
 					"OutEmissiv":0.90,
 					"OutSolarAbs":0.80,
-					"InConHeatTrans":4.1,
-					"InRadHeatTrans": 5.0,
+					"InHeatTrans":9.1,
 					"Layers": [
 						{
 							"Name": "せっこうボード",
@@ -2882,8 +2818,7 @@
 					"Uw": 2.33,
 					"OutHeatTrans": 9.1,
 					"OutEmissiv": 0.9,
-					"InConHeatTrans": 4.1,
-					"InRadHeatTrans": 5,
+					"InHeatTrans": 9.1,
 					"AngleIncidence": "SingleGlazing"
 				},
 				"area": 1.42,
@@ -2904,8 +2839,7 @@
 				"Wall": {
 					"OutEmissiv":0.90,
 					"OutSolarAbs":0.80,
-					"InConHeatTrans":4.1,
-					"InRadHeatTrans": 5.0,
+					"InHeatTrans":9.1,
 					"Layers": [
 						{
 							"Name": "せっこうボード",
@@ -2955,8 +2889,7 @@
 					"Uw": 2.33,
 					"OutHeatTrans": 9.1,
 					"OutEmissiv": 0.9,
-					"InConHeatTrans": 4.1,
-					"InRadHeatTrans": 5,
+					"InHeatTrans": 9.1,
 					"AngleIncidence": "SingleGlazing"
 				},
 				"area": 1.42,
@@ -2977,8 +2910,7 @@
 				"Wall": {
 					"OutEmissiv":0.90,
 					"OutSolarAbs":0.80,
-					"InConHeatTrans":4.1,
-					"InRadHeatTrans": 5.0,
+					"InHeatTrans":9.1,
 					"Layers": [
 						{
 							"Name": "せっこうボード",
@@ -3028,8 +2960,7 @@
 					"Uw": 2.33,
 					"OutHeatTrans": 9.1,
 					"OutEmissiv": 0.9,
-					"InConHeatTrans": 4.1,
-					"InRadHeatTrans": 5,
+					"InHeatTrans": 9.1,
 					"AngleIncidence": "SingleGlazing"
 				},
 				"area": 1.42,
@@ -3050,8 +2981,7 @@
 				"Wall": {
 					"OutEmissiv":0.90,
 					"OutSolarAbs":0.80,
-					"InConHeatTrans":4.1,
-					"InRadHeatTrans": 5.0,
+					"InHeatTrans":9.1,
 					"Layers": [
 						{
 							"Name": "せっこうボード",
@@ -3101,8 +3031,7 @@
 					"Uw": 2.33,
 					"OutHeatTrans": 9.1,
 					"OutEmissiv": 0.9,
-					"InConHeatTrans": 4.1,
-					"InRadHeatTrans": 5,
+					"InHeatTrans": 9.1,
 					"AngleIncidence": "SingleGlazing"
 				},
 				"area": 1.42,

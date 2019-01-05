@@ -5,7 +5,7 @@ class Gdata:
     """シミュレーション全体の設定条件"""
 
     def __init__(self, Region, TimeInterval, PreCalc, SimStMo, SimStDay, SimEnMo, SimEnDay, Latitude, Longitude,
-                 StMeridian, FFcalcMethod, FsolFlr, OTset, **options):
+                 StMeridian, **options):
         """
         :param Region: 地域区分
         :param TimeInterval: 計算時間間隔(s)
@@ -17,9 +17,6 @@ class Gdata:
         :param Latitude: 緯度
         :param Longitude: 経度
         :param StMeridian: 標準子午線
-        :param FFcalcMethod: 形態係数の計算方法
-        :param FsolFlr: 透過日射の床吸収比率
-        :param OTset: 作用温度設定フラグ
         :param options: その他のオプション
         """
         # 地域区分
@@ -49,12 +46,8 @@ class Gdata:
         # comment - miura : 3600 / dblDtime が必ずしも整数になるとは限らない。その場合のエラー処理が必要か、そもそもdblDtimeではなくて、1時間の分割数とかで入力させるべき。
         # 詳細出力フラグ
         # self.__blnDetailOut = blnDetailOut
-        # 形態係数の計算方法
-        self.FFcalcMethod = FFcalcMethod
-        # 透過日射の床吸収比率
-        self.FsolFlr = FsolFlr
         # 作用温度設定フラグ
-        self.OTset = OTset
+        self.OTset = True
         # 緯度
         self.Latitude = Latitude
         # 経度

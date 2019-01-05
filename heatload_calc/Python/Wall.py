@@ -38,7 +38,7 @@ class Layer:
 class Wall:
 
     # 初期化
-    def __init__(self, Name: str, IsSoil: bool, OutEmissiv: float, OutSolarAbs: float, InConHeatTrans: float, InRadHeatTrans: float,
+    def __init__(self, Name: str, IsSoil: bool, OutEmissiv: float, OutSolarAbs: float, InHeatTrans: float,
                  Layers: List[Layer]):
         """
         :param Name: 壁体名称
@@ -51,12 +51,14 @@ class Wall:
         self.Name = Name  # 名前
         self.Eo = OutEmissiv  # 室外側放射率[-]
         self.Solas = OutSolarAbs  # 室外側日射吸収率[-]
-        self.hic = InConHeatTrans  # 室内対流熱伝達率[W/(m2･K)]
-        self.hir = InRadHeatTrans  # 室内放射熱伝達率[W/(m2･K)]
         self.IsSoil = IsSoil        # 壁体に土壌が含まれる場合はTrue
+        self.Ei = 0.9               # 室内側放射率[－]
 
         # 室内総合熱伝達率[W/(m2･K)]
-        self.hi = self.hic + self.hir
+        self.hi = InHeatTrans
+        # 室内表面熱伝達率の初期化[W/(m2･K)]
+        self.hic = 0.0
+        self.hir = 0.0
 
         # 壁体構成部材配列
         self.Layers = copy.deepcopy(Layers)

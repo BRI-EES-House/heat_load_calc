@@ -3,7 +3,7 @@ class Window:
     """開口部透明部位の基本情報（開口部名称、日射熱取得率、熱貫流率等）を保持するクラス"""
 
     # 初期化
-    def __init__(self, Name, Eta, SolarTrans, SolarAbsorp, Uw, OutHeatTrans, OutEmissiv, InConHeatTrans, InRadHeatTrans,
+    def __init__(self, Name, Eta, SolarTrans, SolarAbsorp, Uw, OutHeatTrans, OutEmissiv, InHeatTrans,
                  **options):
         """
         :param Name: 開口部名称
@@ -13,8 +13,7 @@ class Window:
         :param Uw: 開口部熱貫流率[W/m2K]
         :param OutHeatTrans: 室外側熱伝達率[W/m2K]
         :param OutEmissiv: 室外側放射率[-]
-        :param InConHeatTrans: 室内対流熱伝達率[W/(m2･K)]
-        :param InRadHeatTrans: 室内放射熱伝達率[W/(m2･K)]
+        :param InHeatTrans: 室内総合熱伝達率[W/(m2･K)]
         :param options: その他のオプション
         """
         self.Name = Name  # 開口部名称, string値
@@ -24,11 +23,12 @@ class Window:
         self.Uw = float(Uw)  # 開口部熱貫流率[W/m2K]
         self.ho = float(OutHeatTrans)  # 室外側熱伝達率[W/m2K]
         self.Eo = float(OutEmissiv)  # 室外側放射率[-]
-        self.hic = float(InConHeatTrans)  # 室内対流熱伝達率[W/(m2･K)]
-        self.hir = float(InRadHeatTrans)  # 室内放射熱伝達率[W/(m2･K)]
+        self.Ei = 0.9               # 室内側放射率[－]
+        self.hic = 0.0  # 室内対流熱伝達率[W/(m2･K)]
+        self.hir = 0.0  # 室内放射熱伝達率[W/(m2･K)]
 
         # 室内総合熱伝達率[W/(m2･K)]
-        self.hi = self.hic + self.hir
+        self.hi = InHeatTrans
 
         # 窓部材熱抵抗[m2K/W]
         self.Rw = 1.0 / self.Uw - 1.0 / self.hi - 1.0 / self.ho

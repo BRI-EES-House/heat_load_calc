@@ -62,7 +62,7 @@ def calc_Hload(gdata, weather, schedule):
                     Schedule=schedule,
                     Weather=weather
                 )
-                print('{0:.2f}'.format(space.Tr), '{0:.2f}'.format(space.MRT), '{0:.2f}'.format(space.Lcs),
+                print('{0:.2f}'.format(space.Tr), '{0:.2f}'.format(space.MRT), '{0:.2f}'.format(space.Tfun), '{0:.2f}'.format(space.Lcs),
                       '{0:.2f}'.format(space.Lr), "", end="")
             print("")
 

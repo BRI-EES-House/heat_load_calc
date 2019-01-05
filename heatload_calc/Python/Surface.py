@@ -22,6 +22,7 @@ class Surface:
         self.Floor = d['floor']        #床フラグ
 
         self.area = float(d['area'])  # 面積
+        self.a = 0.0                    # 部位の面積比率（全面積に対する面積比）
         self.sunbreakname = d['sunbrk']  # ひさし名称
         self.Fsdw = 0.0  # 影面積率の初期化
         self.flr = float(d['flr'])  # 放射暖房吸収比率
@@ -94,11 +95,10 @@ class Surface:
             self.__oldTsd_a = [[0.0 for i in range(1)] for j in range(self.__Nroot)]
             self.__oldTsd_t = [[0.0 for i in range(1)] for j in range(self.__Nroot)]
             self.hi = wall.hi  # 室内側表面総合熱伝達率
-            self.hic = wall.hic  # 室内側表面対流熱伝達率
-            self.hir = wall.hir  # 室内側表面放射熱伝達率
             self.ho = wall.ho  # 室外側表面総合熱伝達率
             self.__as = wall.Solas  # 室側側日射吸収率
-            self.Eo = wall.Eo  # 室内側表面総合熱伝達率
+            self.Eo = wall.Eo  # 室外側表面放射率
+            self.Ei = wall.Ei   # 室内側表面放射率
         # 定常部位の初期化
         else:
             self.__window = Window(Name=self.name, **d['Window'])
@@ -109,11 +109,10 @@ class Surface:
             self.RFA0 = 1.0 / self.Uso  # 吸熱応答係数の初項
             self.RFT0 = 1.0  # 貫流応答係数の初項
             self.hi = self.__window.hi  # 室内側表面総合熱伝達率
-            self.hic = self.__window.hic  # 室内側表面対流熱伝達率
-            self.hir = self.__window.hir  # 室内側表面放射熱伝達率
             self.ho = self.__window.ho  # 室外側表面総合熱伝達率
             self.U = 1.0 / (1.0 / self.Uso + 1.0 / self.hi)  # 熱貫流率（表面熱伝達抵抗含む）
-            self.Eo = self.__window.Eo  # 室内側表面総合熱伝達率
+            self.Eo = self.__window.Eo  # 室外側表面放射率
+            self.Ei = self.__window.Ei  # 室内側表面放射率
             self.has_sunbrk = type(self.sunbreakname) is dict # 庇がついているかのフラグ
             # print(type(self.sunbreakname))
             if self.has_sunbrk:
@@ -246,13 +245,13 @@ class Surface:
             # 全天日射量
             self.__Iw = self.__Id + self.__Isky + self.__Ir
 
-    # 形態係数の設定
+    # 形態係数の設定（面の微小球に対する形態係数）
     def setFF(self, FFd):
-        self.__FF.append(FFd)
+        self.__FF = FFd
 
     # 形態係数の取得
-    def FF(self, i):
-        return self.__FF[i]
+    def FF(self):
+        return self.__FF
 
 
 # 壁体構成データの読み込みと応答係数の作成
@@ -277,8 +276,7 @@ def WalldataRead(Name, d, DTime, IsSoil):
         IsSoil=IsSoil,
         OutEmissiv=d['OutEmissiv'],
         OutSolarAbs=d['OutSolarAbs'],
-        InConHeatTrans=d['InConHeatTrans'],
-        InRadHeatTrans=d['InRadHeatTrans'],
+        InHeatTrans=d['InHeatTrans'],
         Layers=layers
     )
     walltype = 'wall'

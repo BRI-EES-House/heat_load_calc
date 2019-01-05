@@ -1,6 +1,7 @@
 import numpy as np
 from typing import List
 from Weather import enmWeatherComponent
+import math
 
 import Surface
 from Surface import *
@@ -10,7 +11,7 @@ from NextVent import *
 import SeasonalValue
 from SeasonalValue import SeasonalValue
 
-from common import conca, conrowa
+from common import conca, conrowa, Sgm
 
 
 # # 室温・熱負荷を計算するクラス
@@ -81,6 +82,9 @@ class Space:
         self.__AnnualLoadrH = 0.0  # 年間暖房熱負荷（放射成分）
         self.Tr = 15.0  # 室温の初期化
         self.__oldTr = 15.0  # 前時刻の室温の初期化
+        self.Tfun = 15.0  # 家具の温度[℃]
+        self.__oldTfun = 15.0   # 前時刻の家具の温度[℃]
+        self.__rsolfun = 0.5    # 透過日射の内家具が吸収する割合[－]
         self.__kc = 0.5  # 人体表面の熱伝達率の対流成分比率
         self.__kr = 0.5  # 人体表面の熱伝達率の放射成分比率
         self.__HeatCcap = 0.0
@@ -94,14 +98,15 @@ class Space:
             self.__CoolCcap = float(CoolCcap)  # 最大冷房能力（対流）
         # self.__CoolRcap = CoolRcap                #最大冷房能力（放射）
         self.__Vol = float(Vol)  # 室気積
-        self.__Fnt = float(Fnt)  # 家具熱容量
+        self.__Capfun = float(Fnt) * 1000.  # 家具熱容量[J/K]
+        self.__Cfun = 0.0022 * self.__Capfun       # 家具と空気間の熱コンダクタンス[W/K]
         # print(self.__Vol, self.__Fnt)
         # print(self.__Vol * 1.2 * 1005.0)
         # print(self.__Vol * self.__Fnt * 1000.0)
         # print('aaaaa')
         # print('Hcap=', self.__Hcap)
-        # 室空気の熱容量（家具を含む）
-        self.__Hcap = self.__Vol * 1.2 * 1005.0 + self.__Vol * self.__Fnt * 1000.0
+        # 室空気の熱容量
+        self.__Hcap = self.__Vol * 1.2 * 1005.0
         # print(self.__Hcap)
         self.__Vent = SeasonalValue(Vent['winter'], Vent['inter'], Vent['summer'])
         # self.__Vent = Vent                        #計画換気量
@@ -144,6 +149,7 @@ class Space:
         for d_surface in Surfaces:
             self.surfaces.append(Surface(d_surface, Gdata))
             # Fot総計のチェック
+            # Fot:部位の人体に対する形態係数
             total_Fot += d_surface['fot']
         if abs(total_Fot - 1.0) > 0.001:
             print(self.name, 'total_Fot=', total_Fot)
@@ -161,39 +167,64 @@ class Space:
             # 合計床面積の計算
             if surface.Floor == True:
                 self.__TotalAF += surface.area
-
+        # 面積比の計算
+        # 面積比の最大値も同時に計算（ニュートン法の初期値計算用）
+        max_a = 0.0
+        for surface in self.surfaces:
+            surface.a = surface.area / self.__Atotal
+            max_a = max(max_a, surface.a)
+        # 室のパラメータの計算（ニュートン法）
+        fbd = max_a * 4.0 + 0.1
+        # 収束判定
+        Converge = False
+        for i in range(50):
+            L = -1.0
+            Ld = 0.0
+            for surface in self.surfaces:
+                temp = math.sqrt(1.0 - 4.0 * surface.a / fbd)
+                L += 0.5 * (1.0 - temp)
+                Ld += 0.25 * (1.0 + 4.0 * surface.a * fbd ** (-2.0)) / (1.0 - 4.0 * surface.a / fbd)
+            fb = fbd + L / Ld
+            print(i, 'fb=', fb, 'fbd=', fbd)
+            # 収束判定
+            if abs(fb - fbd) < 1.e-4:
+                Converge = True
+                break
+            fbd = fb
+        
+        # 収束しないときには警告を表示
+        if not Converge:
+            print(self.name, '形態係数パラメータが収束しませんでした。')
         # print('合計表面積=', self.__Atotal)
-        # 形態係数の計算（面積比）
-        i = 0
+        # 形態係数の計算（永田の方式）
+        # 総和のチェック
+        TotalFF = 0.0
         for surface in self.surfaces:
-            j = 0
-            # 形態係数収録用メモリの確保
-            for nxtsurface in self.surfaces:
-                surface.setFF(nxtsurface.area / self.__Atotal)
-                # print(i, j, surface.FF(j))
-                j += 1
-            i += 1
-
+            FF = 0.5 * (1.0 - math.sqrt(1.0 - 4.0 * surface.a / fb))
+            TotalFF += FF
+            # print(self.name, surface.name, FF)
+            surface.setFF(FF)
+        
+        # 室内側表面熱伝達率の計算
+        for surface in self.surfaces:
+            surface.hir = surface.Ei / (1.0 - surface.Ei * surface.FF()) \
+                    * 4.0 * Sgm * (20.0 + 273.15) ** 3.0
+            surface.hic = max(0.0, surface.hi - surface.hir)
+            print(surface.name, surface.hic, surface.hir, surface.hi)
+        
+        # print(TotalFF)
         # 透過日射の室内部位表面吸収比率の計算
-        # 床に集中的に吸収させ、残りは表面積で案分
-        # 床の1次入射比率
-        FsolFlr = Gdata.FsolFlr
-        TotalR = 0.0
-        # 床を除いた室内合計表面積の計算
-        temp = self.__Atotal - self.__TotalAF
+        # 50%を床、50%を家具に吸収させる
+        # 床が複数の部位の場合は面積比で案分する
+        FsolFlr = 0.5
+        # 家具の吸収比率で初期化
+        TotalR = self.__rsolfun
 
         for surface in self.surfaces:
+            SolR = 0.0
             # 床の室内部位表面吸収比率の設定
             if surface.Floor == True:
                 SolR = FsolFlr * surface.area / self.__TotalAF
-            # 床以外は面積案分
-            else:
-                # 室に床がある場合
-                if self.__TotalAF > 0.0:
-                    SolR = surface.area / temp * (1. - FsolFlr)
-                # 床がない場合
-                else:
-                    SolR = surface.area / temp
             surface.SolR = SolR
             # 室内部位表面吸収比率の合計値（チェック用）
             TotalR += SolR
@@ -239,10 +270,10 @@ class Space:
                 # 対角要素
                 if i == j:
                     self.__matAXd[i][j] = 1. + surface.RFA0 * surface.hi \
-                                          - surface.RFA0 * surface.hir * surface.FF(j)
+                                          - surface.RFA0 * surface.hir * surface.FF()
                 # 対角要素以外
                 else:
-                    self.__matAXd[i][j] = - surface.RFA0 * surface.hir * surface.FF(j)
+                    self.__matAXd[i][j] = - surface.RFA0 * surface.hir * surface.FF()
             # print('放射計算マトリックス作成完了')
             i += 1
 
@@ -294,10 +325,8 @@ class Space:
                 surface.update_Fsdw(defSolpos)
                 # print(surface.Fsdw)
 
-        # 透過日射熱取得の初期化
+        # 透過日射熱取得の計算
         self.Qgt = 0.0
-
-        # 透過日射吸収日射の計算
         for surface in self.surfaces:
             if surface.is_window and surface.is_skin:
                 surface.update_Qgt_Qga()
@@ -322,6 +351,8 @@ class Space:
         # 室内表面の吸収日射量
         for surface in self.surfaces:
             surface.update_RSsol(self.Qgt)
+        # 家具の吸収日射量
+        self.__Qsolfun = self.Qgt * self.__rsolfun
 
         # 流入外気風量の計算
         # 計画換気・すきま風量
@@ -375,6 +406,9 @@ class Space:
             temp = conca * conrowa * nextvent / 3600.0
             self.__BRM += temp
 
+        # 家具からの熱取得
+        self.__BRM += 1. / (Gdata.DTime / self.__Capfun + 1. / self.__Cfun)
+
         # 定数項の計算
         self.__BRC = 0.0
         # {WSC}、{CRX}の初期化
@@ -414,6 +448,10 @@ class Space:
         temp = self.__Hcap / Gdata.DTime * self.__oldTr
         self.__BRC += temp
 
+        # 家具からの熱取得の項
+        self.__BRC += (self.__Capfun / Gdata.DTime * self.__oldTfun + self.__Qsolfun) \
+                / (self.__Capfun / (Gdata.DTime * self.__Cfun) + 1.)
+
         # {WSV}、{CVL}の初期化
         self.__matWSV = [[0.0 for i in range(1)] for j in range(self.__Nsurf)]
         self.__matCVL = [[0.0 for i in range(1)] for j in range(self.__Nsurf)]
@@ -447,9 +485,9 @@ class Space:
             XC = 0.0
             i = 0
             for surface in self.surfaces:
-                temp += surface.fot() * self.__matWSR[i][0]
-                XLr += surface.fot() * self.__matWSB[i][0]
-                XC += surface.fot() * (self.__matWSC[i][0] + self.__matWSV[i][0])
+                temp += (surface.fot * self.__matWSR[i][0])
+                XLr += surface.fot * self.__matWSB[i][0]
+                XC += surface.fot * (self.__matWSC[i][0] + self.__matWSV[i][0])
                 i += 1
 
             temp = self.__kc + self.__kr * temp
@@ -560,7 +598,7 @@ class Space:
             j = 0
             # 形態係数加重平均表面温度の計算
             for nxtsurface in self.surfaces:
-                Tsx += nxtsurface.Ts * nxtsurface.FF(j)
+                Tsx += nxtsurface.Ts * nxtsurface.FF()
                 j += 1
 
             # 室内側等価温度の計算
@@ -568,11 +606,15 @@ class Space:
             # 室内表面熱流の計算
             surface.update_qi(self.Tr, Tsx, self.Lr, self.__Beta)
 
+        # 家具の温度を計算
+        self.Tfun = self.calcTfun(Gdata, self.Tr)
+
         return 0
 
-    # 前時刻の室温を現在時刻の室温に置換
+    # 前時刻の室温を現在時刻の室温、家具温度に置換
     def update_oldTr(self):
         self.__oldTr = self.Tr
+        self.__oldTfun = self.Tfun
 
     # 室温・熱負荷の計算ルーティン
     def calcTrLs(self, SW, RadHeat, BRC, BRM, BRL, Hcap, Lrcap, Tset):
@@ -651,14 +693,20 @@ class Space:
         for surface in self.surfaces:
             print('{0:.2f}'.format(surface.Ts()), "", end="")
 
+    # 家具の温度を計算する
+    def calcTfun(self, Gdata, Tr):
+        return ((self.__Capfun / Gdata.DTime * self.__oldTfun \
+                + self.__Cfun * Tr + self.__Qsolfun) \
+                / (self.__Capfun / Gdata.DTime + self.__Cfun))
+
 def create_spaces(Gdata, rooms):
     objSpace = {}
     for room in rooms:
-        space = Space(Gdata, room['roomname'], \
+        space = Space(Gdata, room['name'], \
                       room['HeatCcap'], \
                       room['HeatRcap'], room['CoolCcap'], room['Vol'], \
                       room['Fnt'], room['Vent'], room['Inf'], \
                       room['CrossVentRoom'], room['RadHeat'], room['Beta'], room['NextVent'],
                       room['Surface'])
-        objSpace[room['roomname']] = space
+        objSpace[room['name']] = space
     return objSpace
