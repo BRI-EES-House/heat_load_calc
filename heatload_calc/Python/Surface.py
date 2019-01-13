@@ -17,6 +17,7 @@ class Surface:
         self.__objExsrf = Exsrf(d['boundary'])
 
         self.unsteady = d['unsteady']  # 非定常フラグ
+        self.direction = d['direction'] # 室内から見た部位の方向（人体に対する形態係数計算用）
         self.name = d['name']  # 壁体名称
 
         self.Floor = d['floor']        #床フラグ
@@ -26,11 +27,16 @@ class Surface:
         self.sunbreakname = d['sunbrk']  # ひさし名称
         self.Fsdw = 0.0  # 影面積率の初期化
         self.flr = float(d['flr'])  # 放射暖房吸収比率
-        self.fot = float(d['fot'])  # 人体に対する形態係数
+        self.fot = 0.0  # 人体に対する形態係数の初期化
         self.__IsSoil = False
         if 'IsSoil' in d:
             self.__IsSoil = d['IsSoil']     # 壁体に土壌が含まれる場合True
         # self.Floor = floor          #床フラグ
+
+        # 室内表面熱伝達率の初期化
+        self.hi = 0.0
+        self.hic = 0.0
+        self.hir = 0.0
 
         self.SolR = None  # 透過日射の室内部位表面吸収比率
 
@@ -253,6 +259,10 @@ class Surface:
     def FF(self):
         return self.__FF
 
+    # 境界条件が一致するかどうかを判定
+    def boundary_comp(self, comp_surface):
+        # 境界条件種類が一致
+        return self.__objExsrf.exsrf_comp(comp_surface.__objExsrf)
 
 # 壁体構成データの読み込みと応答係数の作成
 def WalldataRead(Name, d, DTime, IsSoil):

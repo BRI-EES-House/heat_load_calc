@@ -98,8 +98,8 @@ class Space:
             self.__CoolCcap = float(CoolCcap)  # 最大冷房能力（対流）
         # self.__CoolRcap = CoolRcap                #最大冷房能力（放射）
         self.__Vol = float(Vol)  # 室気積
-        self.__Capfun = float(Fnt) * 1000.  # 家具熱容量[J/K]
-        self.__Cfun = 0.0022 * self.__Capfun       # 家具と空気間の熱コンダクタンス[W/K]
+        self.__Capfun = self.__Vol * float(Fnt) * 1000.  # 家具熱容量[J/K]
+        self.__Cfun = 0.00022 * self.__Capfun       # 家具と空気間の熱コンダクタンス[W/K]
         # print(self.__Vol, self.__Fnt)
         # print(self.__Vol * 1.2 * 1005.0)
         # print(self.__Vol * self.__Fnt * 1000.0)
@@ -144,13 +144,83 @@ class Space:
         self.__Nsurf = 0  # 部位の数
         self.surfaces = []
 
-        # 部位表面
-        total_Fot = 0.0
         for d_surface in Surfaces:
             self.surfaces.append(Surface(d_surface, Gdata))
-            # Fot総計のチェック
-            # Fot:部位の人体に対する形態係数
-            total_Fot += d_surface['fot']
+        
+        # 部位の人体に対する形態係数の計算
+        total_Aceil = 0.0
+        total_Afloor = 0.0
+        total_Aexwall = 0.0
+        total_Aiwall = 0.0
+        total_Awindow = 0.0
+        # 設定合計値もチェック
+        total_Fot = 0.0
+        # 上向き、下向き、垂直部位の合計面積を計算
+        for surface in self.surfaces:
+            # 上向き部位（天井）
+            if surface.direction == "Upward":
+                total_Aceil += surface.area
+            # 下向き部位（床）
+            elif surface.direction == "Downward":
+                total_Afloor += surface.area
+            # 垂直部位（壁・窓）
+            elif surface.direction == "Landscape":
+                # 間仕切り
+                if not surface.is_skin:
+                    total_Aiwall += surface.area
+                # 外壁
+                elif surface.is_skin and surface.unsteady:
+                    total_Aexwall += surface.area
+                # 窓・ドア
+                elif surface.is_skin and surface.is_window:
+                    total_Awindow += surface.area
+        
+        # 上向き、下向き、垂直部位の合計面積をチェックし人体に対する形態係数の割合を基準化
+        fot_ceil = 0.18
+        fot_floor = 0.45
+        fot_iwall = 0.15
+        fot_exwall = 0.16
+        fot_window = 0.06
+        if total_Aceil < 1.0e-5:
+            fot_ceil = 0.0
+        if total_Afloor < 1.0e-5:
+            fot_floor = 0.0
+        if total_Aiwall < 1.0e-5:
+            fot_iwall = 0.0
+        if total_Aexwall < 1.0e-5:
+            fot_exwall = 0.0
+        if total_Awindow < 1.0e-5:
+            fot_window = 0.0
+        fot_total = fot_ceil + fot_floor + fot_iwall + fot_exwall + fot_window
+        # 人体に対する形態係数の基準化
+        fot_ceil /= fot_total
+        fot_floor /= fot_total
+        fot_iwall /= fot_total
+        fot_exwall /= fot_total
+        fot_window /= fot_total
+
+        # 人体に対する部位の形態係数の計算
+        for surface in self.surfaces:
+            # 上向き部位（天井）
+            if surface.direction == "Upward":
+                surface.fot = surface.area / total_Aceil * fot_ceil
+            # 下向き部位（床）
+            elif surface.direction == "Downward":
+                surface.fot = surface.area / total_Afloor * fot_floor
+            # 垂直部位（壁・窓）
+            elif surface.direction == "Landscape":
+                # 間仕切り
+                if not surface.is_skin:
+                    surface.fot = surface.area / total_Aiwall * fot_iwall
+                # 外壁
+                elif surface.is_skin and surface.unsteady:
+                    surface.fot = surface.area / total_Aexwall * fot_exwall
+                # 窓・ドア
+                elif surface.is_skin and surface.is_window:
+                    surface.fot = surface.area / total_Awindow * fot_window
+            total_Fot += surface.fot
+            # print(surface.name, surface.fot)
+
         if abs(total_Fot - 1.0) > 0.001:
             print(self.name, 'total_Fot=', total_Fot)
 
@@ -173,7 +243,9 @@ class Space:
         for surface in self.surfaces:
             surface.a = surface.area / self.__Atotal
             max_a = max(max_a, surface.a)
+        
         # 室のパラメータの計算（ニュートン法）
+        # 初期値を設定
         fbd = max_a * 4.0 + 0.1
         # 収束判定
         Converge = False
@@ -183,7 +255,8 @@ class Space:
             for surface in self.surfaces:
                 temp = math.sqrt(1.0 - 4.0 * surface.a / fbd)
                 L += 0.5 * (1.0 - temp)
-                Ld += 0.25 * (1.0 + 4.0 * surface.a * fbd ** (-2.0)) / (1.0 - 4.0 * surface.a / fbd)
+                Ld += surface.a / ((fbd ** 2.0) * temp)
+                # print(surface.name, 'a=', surface.a, 'L=', 0.5 * (1.0 - math.sqrt(temp)), 'Ld=', -0.25 * (1.0 + 4.0 * surface.a / fbd ** (2.0)) / temp)
             fb = fbd + L / Ld
             print(i, 'fb=', fb, 'fbd=', fbd)
             # 収束判定
@@ -695,9 +768,12 @@ class Space:
 
     # 家具の温度を計算する
     def calcTfun(self, Gdata, Tr):
-        return ((self.__Capfun / Gdata.DTime * self.__oldTfun \
+        self.Tfun = ((self.__Capfun / Gdata.DTime * self.__oldTfun \
                 + self.__Cfun * Tr + self.__Qsolfun) \
                 / (self.__Capfun / Gdata.DTime + self.__Cfun))
+        if self.name == "主たる居室":
+            print(self.name, self.__oldTfun, self.Tfun, self.__Capfun, self.__Cfun, self.__Qsolfun)
+        return self.Tfun
 
 def create_spaces(Gdata, rooms):
     objSpace = {}

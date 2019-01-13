@@ -21,21 +21,21 @@ class Exsrf:
 
         # 日射が当たる屋外の場合
         if self.Type == "Outdoor":
-            self.__Rg = float(d['GroundReflectRate'])  # 地面反射率[-]        
+            self.Rg = float(d['GroundReflectRate'])  # 地面反射率[-]        
             self.Wa = math.radians(float(d['DirectionAngle']))  # 傾斜面方位角 [rad]
             # 入射角計算のためのパラメータの計算
-            self.__Wb = math.radians(float(d['InclinationAngle']))  # 傾斜角[rad]
-            self.__Wz = math.cos(self.__Wb)
-            self.__Ww = math.sin(self.__Wb) * math.sin(self.Wa)
-            self.__Ws = math.sin(self.__Wb) * math.cos(self.Wa)
+            self.Wb = math.radians(float(d['InclinationAngle']))  # 傾斜角[rad]
+            self.__Wz = math.cos(self.Wb)
+            self.__Ww = math.sin(self.Wb) * math.sin(self.Wa)
+            self.__Ws = math.sin(self.Wb) * math.cos(self.Wa)
             self.Fs = (1.0 + self.__Wz) / 2.0           # 傾斜面の天空に対する形態係数の計算
             self.__dblFg = 1.0 - self.Fs                # 傾斜面の地面に対する形態係数
         # 隣室温度差係数の場合
         elif self.Type == "DeltaTCoeff":
-            self.__R = float(d['TempDifferFactor'])     # 温度差係数
+            self.R = float(d['TempDifferFactor'])     # 温度差係数
         # 隣室の場合
         elif self.Type == "NextRoom":
-            self.__nextroomname = d['RoomName']         # 隣室名称
+            self.nextroomname = d['RoomName']         # 隣室名称
         elif self.Type == "AnnualAverage":            # 年平均気温の場合
             pass                                        # 追加情報はなし
 
@@ -54,7 +54,7 @@ class Exsrf:
             Ihol = solpos.Sh * Idn + Isky  # 水平面全天日射量
             self.Id = self.CosT * Idn  # 傾斜面直達日射量
             self.Is = self.Fs * Isky  # 傾斜面天空日射量
-            self.Ir = self.__dblFg * self.__Rg * Ihol  # 傾斜面地面反射日射量
+            self.Ir = self.__dblFg * self.Rg * Ihol  # 傾斜面地面反射日射量
             self.Iw = self.Id + self.Is + self.Ir  # 傾斜面全日射量
 
     # 傾斜面の相当外気温度の計算
@@ -73,13 +73,37 @@ class Exsrf:
 
     # 温度差係数を設定した隣室温度
     def get_NextRoom_fromR(self, Ta, Tr):
-        Te = self.__R * Ta + (1.0 - self.__R) * Tr
+        Te = self.R * Ta + (1.0 - self.R) * Tr
         return Te
 
     # 前時刻の隣室温度の場合
     def get_oldNextRoom(self, spaces):
-        Te = spaces[self.__nextroomname].oldTr
+        Te = spaces[self.nextroomname].oldTr
         return Te
+
+    # 境界条件が一致するかどうかを判定
+    def exsrf_comp(self, comp_exsrf):
+        temp = False
+        # 境界条件種類が一致
+        if self.Type == comp_exsrf.Type:
+            # 日射が当たる屋外の場合
+            if self.Type == "Outdoor":
+                temp = is_float_equal(self.Rg, comp_exsrf.Rg, 1.e-5) and is_float_equal(self.Wa, comp_exsrf.Wa, 1.e-5) \
+                        and is_float_equal(self.Wb, comp_exsrf.Wb, 1.e-5)
+            # 隣室温度差係数の場合
+            elif self.Type == "DeltaTCoeff":
+                temp = is_float_equal(self.R, comp_exsrf.R, 1.e-5)
+            # 隣室の場合
+            elif self.Type == "NextRoom":
+                temp = (self.nextroomname == comp_exsrf.nextroomname)
+            # 年平均気温の場合は無条件で一致
+            elif self.Type == "AnnualAverage":
+                temp = True
+        return temp
+        
+# 実数型の一致比較
+def is_float_equal(a, b, eps):
+    return abs(a - b < eps)
 
 # 外表面情報インスタンスの辞書を作成
 def create_exsurfaces(d):

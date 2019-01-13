@@ -38,6 +38,7 @@
 		"Surface": [
 			{
 				"skin": true,
+				"direction": "Landscape",
 				"boundary": {
 					"Name": "北",
 					"Type": "Outdoor",
@@ -93,11 +94,11 @@
 				},
 				"area": 4.9775,
 				"sunbrk": "",
-				"flr": 0.0,
-				"fot": 0.0381
+				"flr": 0.0
 			},
 			{
 				"skin": true,
+				"direction": "Landscape",
 				"boundary": {
 					"Name": "北",
 					"Type": "Outdoor",
@@ -120,11 +121,11 @@
 				},
 				"area": 1.62,
 				"sunbrk": "",
-				"flr": 0.0,
-				"fot": 0.0124
+				"flr": 0.0
 			},
 			{
 				"skin": true,
+				"direction": "Landscape",
 				"boundary": {
 					"Name": "東",
 					"Type": "Outdoor",
@@ -180,11 +181,11 @@
 				},
 				"area": 17.982,
 				"sunbrk": "",
-				"flr": 0.0,
-				"fot": 0.1376
+				"flr": 0.0
 			},
 			{
 				"skin": true,
+				"direction": "Landscape",
 				"boundary": {
 					"Name": "東",
 					"Type": "Outdoor",
@@ -207,11 +208,11 @@
 				},
 				"area": 3.13,
 				"sunbrk": "",
-				"flr": 0.0,
-				"fot": 0.0239
+				"flr": 0.0
 			},
 			{
 				"skin": true,
+				"direction": "Landscape",
 				"boundary": {
 					"Name": "南",
 					"Type": "Outdoor",
@@ -267,11 +268,11 @@
 				},
 				"area": 10.2135,
 				"sunbrk": "",
-				"flr": 0.0,
-				"fot": 0.0781
+				"flr": 0.0
 			},
 			{
 				"skin": true,
+				"direction": "Landscape",
 				"boundary": {
 					"Name": "南",
 					"Type": "Outdoor",
@@ -302,11 +303,11 @@
 					"WR": 3300,
 					"WH": 2100
 				},
-				"flr": 0.0,
-				"fot": 0.0531
+				"flr": 0.0
 			},
 			{
 				"skin": true,
+				"direction": "Downward",
 				"boundary": {
 					"Name": "床下",
 					"Type": "DeltaTCoeff",
@@ -342,11 +343,11 @@
 				},
 				"area": 29.81,
 				"sunbrk": "",
-				"flr": 1,
-				"fot": 0.2281
+				"flr": 1
 			},
 			{
 				"skin": true,
+				"direction": "Upward",
 				"boundary": {
 					"Name": "天井",
 					"Type": "DeltaTCoeff",
@@ -382,11 +383,11 @@
 				},
 				"area": 4.14,
 				"sunbrk": "",
-				"flr": 0.0,
-				"fot": 0.0317
+				"flr": 0.0
 			},
 			{
 				"skin": false,
+				"direction": "Landscape",
 				"boundary": {
 					"Name": "隣室",
 					"Type": "NextRoom",
@@ -426,38 +427,13 @@
 						}
 					]
 				},
-				"area": 18.7725,
+				"area": 21.6125,
 				"sunbrk": "",
-				"flr": 0.0,
-				"fot": 0.1436
+				"flr": 0.0
 			},
 			{
 				"skin": false,
-				"boundary": {
-					"Name": "隣室",
-					"Type": "NextRoom",
-					"RoomName": "非居室"
-				},
-				"unsteady": false,
-				"name": "室内戸",
-				"floor": false,
-				"Window": {
-					"Eta": 0,
-					"SolarTrans": 0,
-					"SolarAbsorp": 0,
-					"Uw": 2.33,
-					"OutHeatTrans": 9.1,
-					"OutEmissiv": 0.9,
-					"InHeatTrans": 9.1,
-					"AngleIncidence": "SingleGlazing"
-				},
-				"area": 2.84,
-				"sunbrk": "",
-				"flr": 0.0,
-				"fot": 0.0217
-			},
-			{
-				"skin": false,
+				"direction": "Upward",
 				"boundary": {
 					"Name": "隣室",
 					"Type": "NextRoom",
@@ -499,11 +475,11 @@
 				},
 				"area": 10.77,
 				"sunbrk": "",
-				"flr": 0.0,
-				"fot": 0.0824
+				"flr": 0.0
 			},
 			{
 				"skin": false,
+				"direction": "Upward",
 				"boundary": {
 					"Name": "隣室",
 					"Type": "NextRoom",
@@ -545,11 +521,11 @@
 				},
 				"area": 10.77,
 				"sunbrk": "",
-				"flr": 0.0,
-				"fot": 0.0824
+				"flr": 0.0
 			},
 			{
 				"skin": false,
+				"direction": "Landscape",
 				"boundary": {
 					"Name": "隣室",
 					"Type": "NextRoom",
@@ -589,35 +565,9 @@
 						}
 					]
 				},
-				"area": 5.676,
+				"area": 8.736,
 				"sunbrk": "",
-				"flr": 0.0,
-				"fot": 0.0434
-			},
-			{
-				"skin": false,
-				"boundary": {
-					"Name": "隣室",
-					"Type": "NextRoom",
-					"RoomName": "その他居室_和室"
-				},
-				"unsteady": false,
-				"name": "室内戸",
-				"floor": false,
-				"Window": {
-					"Eta": 0,
-					"SolarTrans": 0,
-					"SolarAbsorp": 0,
-					"Uw": 2.33,
-					"OutHeatTrans": 9.1,
-					"OutEmissiv": 0.9,
-					"InHeatTrans": 9.1,
-					"AngleIncidence": "SingleGlazing"
-				},
-				"area": 3.06,
-				"sunbrk": "",
-				"flr": 0.0,
-				"fot": 0.0234
+				"flr": 0.0
 			}
 		]
 	},
@@ -652,6 +602,7 @@
 		"Surface": [
 			{
 				"skin": true,
+				"direction": "Landscape",
 				"boundary": {
 					"Name": "南",
 					"Type": "Outdoor",
@@ -707,11 +658,11 @@
 				},
 				"area": 8.098,
 				"sunbrk": "",
-				"flr": 0.0,
-				"fot": 0.1273
+				"flr": 0.0
 			},
 			{
 				"skin": true,
+				"direction": "Landscape",
 				"boundary": {
 					"Name": "南",
 					"Type": "Outdoor",
@@ -742,11 +693,11 @@
 					"WR": 1650,
 					"WH": 1050
 				},
-				"flr": 0.0,
-				"fot": 0.0272
+				"flr": 0.0
 			},
 			{
 				"skin": true,
+				"direction": "Landscape",
 				"boundary": {
 					"Name": "西",
 					"Type": "Outdoor",
@@ -802,11 +753,11 @@
 				},
 				"area": 8.838,
 				"sunbrk": "",
-				"flr": 0.0,
-				"fot": 0.1389
+				"flr": 0.0
 			},
 			{
 				"skin": true,
+				"direction": "Landscape",
 				"boundary": {
 					"Name": "西",
 					"Type": "Outdoor",
@@ -829,11 +780,11 @@
 				},
 				"area": 0.99,
 				"sunbrk": "",
-				"flr": 0.0,
-				"fot": 0.0156
+				"flr": 0.0
 			},
 			{
 				"skin": true,
+				"direction": "Upward",
 				"boundary": {
 					"Name": "天井",
 					"Type": "DeltaTCoeff",
@@ -869,11 +820,11 @@
 				},
 				"area": 13.25,
 				"sunbrk": "",
-				"flr": 0.0,
-				"fot": 0.2082
+				"flr": 0.0
 			},
 			{
 				"skin": false,
+				"direction": "Landscape",
 				"boundary": {
 					"Name": "隣室",
 					"Type": "NextRoom",
@@ -913,38 +864,13 @@
 						}
 					]
 				},
-				"area": 7.316,
+				"area": 8.736,
 				"sunbrk": "",
-				"flr": 0.0,
-				"fot": 0.1150
+				"flr": 0.0
 			},
 			{
 				"skin": false,
-				"boundary": {
-					"Name": "隣室",
-					"Type": "NextRoom",
-					"RoomName": "非居室"
-				},
-				"unsteady": false,
-				"name": "室内戸",
-				"floor": false,
-				"Window": {
-					"Eta": 0,
-					"SolarTrans": 0,
-					"SolarAbsorp": 0,
-					"Uw": 2.33,
-					"OutHeatTrans": 9.1,
-					"OutEmissiv": 0.9,
-					"InHeatTrans": 9.1,
-					"AngleIncidence": "SingleGlazing"
-				},
-				"area": 1.42,
-				"sunbrk": "",
-				"flr": 0.0,
-				"fot": 0.0223
-			},
-			{
-				"skin": false,
+				"direction": "Landscape",
 				"boundary": {
 					"Name": "隣室",
 					"Type": "NextRoom",
@@ -986,11 +912,11 @@
 				},
 				"area": 8.736,
 				"sunbrk": "",
-				"flr": 0.0,
-				"fot": 0.1373
+				"flr": 0.0
 			},
 			{
 				"skin": false,
+				"direction": "Downward",
 				"boundary": {
 					"Name": "隣室",
 					"Type": "NextRoom",
@@ -1032,8 +958,7 @@
 				},
 				"area": 13.25,
 				"sunbrk": "",
-				"flr": 0.0,
-				"fot": 0.2082
+				"flr": 0.0
 			}
 		]
 	},
@@ -1062,6 +987,7 @@
 		"Surface": [
 			{
 				"skin": true,
+				"direction": "Landscape",
 				"boundary": {
 					"Name": "南",
 					"Type": "Outdoor",
@@ -1117,11 +1043,11 @@
 				},
 				"area": 4.76525,
 				"sunbrk": "",
-				"flr": 0.0,
-				"fot": 0.0881
+				"flr": 0.0
 			},
 			{
 				"skin": true,
+				"direction": "Landscape",
 				"boundary": {
 					"Name": "南",
 					"Type": "Outdoor",
@@ -1152,11 +1078,11 @@
 					"WR": 1650,
 					"WH": 1950
 				},
-				"flr": 0.0,
-				"fot": 0.0595
+				"flr": 0.0
 			},
 			{
 				"skin": true,
+				"direction": "Upward",
 				"boundary": {
 					"Name": "天井",
 					"Type": "DeltaTCoeff",
@@ -1192,11 +1118,11 @@
 				},
 				"area": 10.77,
 				"sunbrk": "",
-				"flr": 0.0,
-				"fot": 0.1991
+				"flr": 0.0
 			},
 			{
 				"skin": false,
+				"direction": "Landscape",
 				"boundary": {
 					"Name": "隣室",
 					"Type": "NextRoom",
@@ -1236,38 +1162,13 @@
 						}
 					]
 				},
-				"area": 5.678,
+				"area": 7.098,
 				"sunbrk": "",
-				"flr": 0.0,
-				"fot": 0.1050
+				"flr": 0.0
 			},
 			{
 				"skin": false,
-				"boundary": {
-					"Name": "隣室",
-					"Type": "NextRoom",
-					"RoomName": "非居室"
-				},
-				"unsteady": false,
-				"name": "室内戸",
-				"floor": false,
-				"Window": {
-					"Eta": 0,
-					"SolarTrans": 0,
-					"SolarAbsorp": 0,
-					"Uw": 2.33,
-					"OutHeatTrans": 9.1,
-					"OutEmissiv": 0.9,
-					"InHeatTrans": 9.1,
-					"AngleIncidence": "SingleGlazing"
-				},
-				"area": 1.42,
-				"sunbrk": "",
-				"flr": 0.0,
-				"fot": 0.0262
-			},
-			{
-				"skin": false,
+				"direction": "Downward",
 				"boundary": {
 					"Name": "隣室",
 					"Type": "NextRoom",
@@ -1309,11 +1210,11 @@
 				},
 				"area": 10.77,
 				"sunbrk": "",
-				"flr": 0.0,
-				"fot": 0.1991
+				"flr": 0.0
 			},
 			{
 				"skin": false,
+				"direction": "Landscape",
 				"boundary": {
 					"Name": "隣室",
 					"Type": "NextRoom",
@@ -1355,11 +1256,11 @@
 				},
 				"area": 8.736,
 				"sunbrk": "",
-				"flr": 0.0,
-				"fot": 0.1615
+				"flr": 0.0
 			},
 			{
 				"skin": false,
+				"direction": "Landscape",
 				"boundary": {
 					"Name": "隣室",
 					"Type": "NextRoom",
@@ -1401,8 +1302,7 @@
 				},
 				"area": 8.736,
 				"sunbrk": "",
-				"flr": 0.0,
-				"fot": 0.1615
+				"flr": 0.0
 			}
 		]
 	},
@@ -1431,6 +1331,7 @@
 		"Surface": [
 			{
 				"skin": true,
+				"direction": "Landscape",
 				"boundary":  {
 					"Name": "東",
 					"Type": "Outdoor",
@@ -1486,11 +1387,11 @@
 				},
 				"area": 9.168,
 				"sunbrk": "",
-				"flr": 0.0,
-				"fot": 0.1661
+				"flr": 0.0
 			},
 			{
 				"skin": true,
+				"direction": "Landscape",
 				"boundary":  {
 					"Name": "東",
 					"Type": "Outdoor",
@@ -1513,11 +1414,11 @@
 				},
 				"area": 0.66,
 				"sunbrk": null,
-				"flr": 0.0,
-				"fot": 0.0120
+				"flr": 0.0
 			},
 			{
 				"skin": true,
+				"direction": "Landscape",
 				"boundary": {
 					"Name": "南",
 					"Type": "Outdoor",
@@ -1573,11 +1474,11 @@
 				},
 				"area": 4.76525,
 				"sunbrk": "",
-				"flr": 0.0,
-				"fot": 0.0863
+				"flr": 0.0
 			},
 			{
 				"skin": true,
+				"direction": "Landscape",
 				"boundary": {
 					"Name": "南",
 					"Type": "Outdoor",
@@ -1608,11 +1509,11 @@
 					"WR": 1650,
 					"WH": 1950
 				},
-				"flr": 0.0,
-				"fot": 0.0583
+				"flr": 0.0
 			},
 			{
 				"skin": true,
+				"direction": "Upward",
 				"boundary": {
 					"Name": "天井",
 					"Type": "DeltaTCoeff",
@@ -1648,11 +1549,11 @@
 				},
 				"area": 10.77,
 				"sunbrk": "",
-				"flr": 0.0,
-				"fot": 0.1952
+				"flr": 0.0
 			},
 			{
 				"skin": false,
+				"direction": "Landscape",
 				"boundary": {
 					"Name": "隣室",
 					"Type": "NextRoom",
@@ -1692,38 +1593,13 @@
 						}
 					]
 				},
-				"area": 5.678,
+				"area": 7.098,
 				"sunbrk": "",
-				"flr": 0.0,
-				"fot": 0.1029
+				"flr": 0.0
 			},
 			{
 				"skin": false,
-				"boundary": {
-					"Name": "隣室",
-					"Type": "NextRoom",
-					"RoomName": "非居室"
-				},
-				"unsteady": false,
-				"name": "室内戸",
-				"floor": false,
-				"Window": {
-					"Eta": 0,
-					"SolarTrans": 0,
-					"SolarAbsorp": 0,
-					"Uw": 2.33,
-					"OutHeatTrans": 9.1,
-					"OutEmissiv": 0.9,
-					"InHeatTrans": 9.1,
-					"AngleIncidence": "SingleGlazing"
-				},
-				"area": 1.42,
-				"sunbrk": "",
-				"flr": 0.0,
-				"fot": 0.0257
-			},
-			{
-				"skin": false,
+				"direction": "Downward",
 				"boundary": {
 					"Name": "隣室",
 					"Type": "NextRoom",
@@ -1765,11 +1641,11 @@
 				},
 				"area": 10.77,
 				"sunbrk": "",
-				"flr": 0.0,
-				"fot": 0.1952
+				"flr": 0.0
 			},
 			{
 				"skin": false,
+				"direction": "Landscape",
 				"boundary": {
 					"Name": "隣室",
 					"Type": "NextRoom",
@@ -1811,8 +1687,7 @@
 				},
 				"area": 8.736,
 				"sunbrk": "",
-				"flr": 0.0,
-				"fot": 0.1583
+				"flr": 0.0
 			}
 		]
 	},
@@ -1841,6 +1716,7 @@
 		"Surface": [
 			{
 				"skin": true,
+				"direction": "Landscape",
 				"boundary": {
 					"Name": "北",
 					"Type": "Outdoor",
@@ -1897,11 +1773,11 @@
 				},
 				"area": 2.639,
 				"sunbrk": "",
-				"flr": 0.0,
-				"fot": 0.0343
+				"flr": 0.0
 			},
 			{
 				"skin": true,
+				"direction": "Landscape",
 				"boundary": {
 					"Name": "南",
 					"Type": "Outdoor",
@@ -1957,11 +1833,11 @@
 				},
 				"area": 8.605,
 				"sunbrk": "",
-				"flr": 0.0,
-				"fot": 0.1118
+				"flr": 0.0
 			},
 			{
 				"skin": true,
+				"direction": "Landscape",
 				"boundary": {
 					"Name": "南",
 					"Type": "Outdoor",
@@ -1984,11 +1860,11 @@
 				},
 				"area": 4.59,
 				"sunbrk": "",
-				"flr": 0.0,
-				"fot": 0.0596
+				"flr": 0.0
 			},
 			{
 				"skin": true,
+				"direction": "Landscape",
 				"boundary": {
 					"Name": "西",
 					"Type": "Outdoor",
@@ -2044,11 +1920,11 @@
 				},
 				"area": 10.556,
 				"sunbrk": "",
-				"flr": 0.0,
-				"fot": 0.1371
+				"flr": 0.0
 			},
 			{
 				"skin": true,
+				"direction": "Downward",
 				"boundary": {
 					"Name": "床下",
 					"Type": "DeltaTCoeff",
@@ -2084,11 +1960,11 @@
 				},
 				"area": 16.56,
 				"sunbrk": "",
-				"flr": 0.0,
-				"fot": 0.2151
+				"flr": 0.0
 			},
 			{
 				"skin": true,
+				"direction": "Upward",
 				"boundary": {
 					"Name": "天井",
 					"Type": "DeltaTCoeff",
@@ -2124,11 +2000,11 @@
 				},
 				"area": 3.31,
 				"sunbrk": "",
-				"flr": 0.0,
-				"fot": 0.0430
+				"flr": 0.0
 			},
 			{
 				"skin": false,
+				"direction": "Landscape",
 				"boundary": {
 					"Name": "隣室",
 					"Type": "NextRoom",
@@ -2168,38 +2044,13 @@
 						}
 					]
 				},
-				"area": 7.316,
+				"area": 8.736,
 				"sunbrk": "",
-				"flr": 0.0,
-				"fot": 0.0950
+				"flr": 0.0
 			},
 			{
 				"skin": false,
-				"boundary": {
-					"Name": "隣室",
-					"Type": "NextRoom",
-					"RoomName": "非居室"
-				},
-				"unsteady": false,
-				"name": "室内戸",
-				"floor": false,
-				"Window": {
-					"Eta": 0,
-					"SolarTrans": 0,
-					"SolarAbsorp": 0,
-					"Uw": 2.33,
-					"OutHeatTrans": 9.1,
-					"OutEmissiv": 0.9,
-					"InHeatTrans": 9.1,
-					"AngleIncidence": "SingleGlazing"
-				},
-				"area": 1.42,
-				"sunbrk": "",
-				"flr": 0.0,
-				"fot": 0.0184
-			},
-			{
-				"skin": false,
+				"direction": "Landscape",
 				"boundary": {
 					"Name": "隣室",
 					"Type": "NextRoom",
@@ -2239,38 +2090,13 @@
 						}
 					]
 				},
-				"area": 5.676,
+				"area": 8.736,
 				"sunbrk": "",
-				"flr": 0.0,
-				"fot": 0.0737
+				"flr": 0.0
 			},
 			{
 				"skin": false,
-				"boundary": {
-					"Name": "隣室",
-					"Type": "NextRoom",
-					"RoomName": "主たる居室"
-				},
-				"unsteady": false,
-				"name": "室内戸",
-				"floor": false,
-				"Window": {
-					"Eta": 0,
-					"SolarTrans": 0,
-					"SolarAbsorp": 0,
-					"Uw": 2.33,
-					"OutHeatTrans": 9.1,
-					"OutEmissiv": 0.9,
-					"InHeatTrans": 9.1,
-					"AngleIncidence": "SingleGlazing"
-				},
-				"area": 3.06,
-				"sunbrk": "",
-				"flr": 0.0,
-				"fot": 0.0397
-			},
-			{
-				"skin": false,
+				"direction": "Upward",
 				"boundary": {
 					"Name": "隣室",
 					"Type": "NextRoom",
@@ -2312,8 +2138,7 @@
 				},
 				"area": 13.25,
 				"sunbrk": "",
-				"flr": 0.0,
-				"fot": 0.1721
+				"flr": 0.0
 			}
 		]
 	},
@@ -2372,6 +2197,7 @@
 		"Surface": [
 			{
 				"skin": true,
+				"direction": "Landscape",
 				"boundary": {
 					"Name": "北",
 					"Type": "Outdoor",
@@ -2427,11 +2253,11 @@
 				},
 				"area": 43.2205,
 				"sunbrk": "",
-				"flr": 0.0,
-				"fot": 0.2576
+				"flr": 0.0
 			},
 			{
 				"skin": true,
+				"direction": "Landscape",
 				"boundary": {
 					"Name": "北",
 					"Type": "Outdoor",
@@ -2454,11 +2280,11 @@
 				},
 				"area": 3.69,
 				"sunbrk": "",
-				"flr": 0.0,
-				"fot": 0.0220
+				"flr": 0.0
 			},
 			{
 				"skin": true,
+				"direction": "Landscape",
 				"boundary": {
 					"Name": "東",
 					"Type": "Outdoor",
@@ -2514,11 +2340,11 @@
 				},
 				"area": 4.914,
 				"sunbrk": "",
-				"flr": 0.0,
-				"fot": 0.0293
+				"flr": 0.0
 			},
 			{
 				"skin": true,
+				"direction": "Landscape",
 				"boundary": {
 					"Name": "西",
 					"Type": "Outdoor",
@@ -2574,11 +2400,11 @@
 				},
 				"area": 12.5,
 				"sunbrk": "",
-				"flr": 0.0,
-				"fot": 0.0745
+				"flr": 0.0
 			},
 			{
 				"skin": true,
+				"direction": "Landscape",
 				"boundary": {
 					"Name": "西",
 					"Type": "Outdoor",
@@ -2601,11 +2427,11 @@
 				},
 				"area": 2.97,
 				"sunbrk": "",
-				"flr": 0.0,
-				"fot": 0.0177
+				"flr": 0.0
 			},
 			{
 				"skin": true,
+				"direction": "Downward",
 				"boundary": {
 					"Name": "床下",
 					"Type": "DeltaTCoeff",
@@ -2641,11 +2467,11 @@
 				},
 				"area": 21.52,
 				"sunbrk": "",
-				"flr": 0.0,
-				"fot": 0.1283
+				"flr": 0.0
 			},
 			{
 				"skin": true,
+				"direction": "Upward",
 				"boundary": {
 					"Name": "天井",
 					"Type": "DeltaTCoeff",
@@ -2681,11 +2507,11 @@
 				},
 				"area": 25.68,
 				"sunbrk": "",
-				"flr": 0.0,
-				"fot": 0.1531
+				"flr": 0.0
 			},
 			{
 				"skin": false,
+				"direction": "Landscape",
 				"boundary": {
 					"Name": "隣室",
 					"Type": "NextRoom",
@@ -2725,38 +2551,13 @@
 						}
 					]
 				},
-				"area": 18.7725,
+				"area": 21.6125,
 				"sunbrk": "",
-				"flr": 0.0,
-				"fot": 0.1119
+				"flr": 0.0
 			},
 			{
 				"skin": false,
-				"boundary": {
-					"Name": "隣室",
-					"Type": "NextRoom",
-					"RoomName": "主たる居室"
-				},
-				"unsteady": false,
-				"name": "室内戸",
-				"floor": false,
-				"Window": {
-					"Eta": 0,
-					"SolarTrans": 0,
-					"SolarAbsorp": 0,
-					"Uw": 2.33,
-					"OutHeatTrans": 9.1,
-					"OutEmissiv": 0.9,
-					"InHeatTrans": 9.1,
-					"AngleIncidence": "SingleGlazing"
-				},
-				"area": 2.84,
-				"sunbrk": "",
-				"flr": 0.0,
-				"fot": 0.0169
-			},
-			{
-				"skin": false,
+				"direction": "Landscape",
 				"boundary": {
 					"Name": "隣室",
 					"Type": "NextRoom",
@@ -2796,38 +2597,13 @@
 						}
 					]
 				},
-				"area": 7.316,
+				"area": 8.736,
 				"sunbrk": "",
-				"flr": 0.0,
-				"fot": 0.0436
+				"flr": 0.0
 			},
 			{
 				"skin": false,
-				"boundary": {
-					"Name": "隣室",
-					"Type": "NextRoom",
-					"RoomName": "その他居室_寝室"
-				},
-				"unsteady": false,
-				"name": "室内戸",
-				"floor": false,
-				"Window": {
-					"Eta": 0,
-					"SolarTrans": 0,
-					"SolarAbsorp": 0,
-					"Uw": 2.33,
-					"OutHeatTrans": 9.1,
-					"OutEmissiv": 0.9,
-					"InHeatTrans": 9.1,
-					"AngleIncidence": "SingleGlazing"
-				},
-				"area": 1.42,
-				"sunbrk": "",
-				"flr": 0.0,
-				"fot": 0.0085
-			},
-			{
-				"skin": false,
+				"direction": "Landscape",
 				"boundary": {
 					"Name": "隣室",
 					"Type": "NextRoom",
@@ -2867,38 +2643,13 @@
 						}
 					]
 				},
-				"area": 5.678,
+				"area": 7.098,
 				"sunbrk": "",
-				"flr": 0.0,
-				"fot": 0.0338
+				"flr": 0.0
 			},
 			{
 				"skin": false,
-				"boundary": {
-					"Name": "隣室",
-					"Type": "NextRoom",
-					"RoomName": "その他居室_子供室1"
-				},
-				"unsteady": false,
-				"name": "室内戸",
-				"floor": false,
-				"Window": {
-					"Eta": 0,
-					"SolarTrans": 0,
-					"SolarAbsorp": 0,
-					"Uw": 2.33,
-					"OutHeatTrans": 9.1,
-					"OutEmissiv": 0.9,
-					"InHeatTrans": 9.1,
-					"AngleIncidence": "SingleGlazing"
-				},
-				"area": 1.42,
-				"sunbrk": "",
-				"flr": 0.0,
-				"fot": 0.0085
-			},
-			{
-				"skin": false,
+				"direction": "Landscape",
 				"boundary": {
 					"Name": "隣室",
 					"Type": "NextRoom",
@@ -2938,38 +2689,13 @@
 						}
 					]
 				},
-				"area": 5.678,
+				"area": 7.098,
 				"sunbrk": "",
-				"flr": 0.0,
-				"fot": 0.0338
+				"flr": 0.0
 			},
 			{
 				"skin": false,
-				"boundary": {
-					"Name": "隣室",
-					"Type": "NextRoom",
-					"RoomName": "その他居室_子供室2"
-				},
-				"unsteady": false,
-				"name": "室内戸",
-				"floor": false,
-				"Window": {
-					"Eta": 0,
-					"SolarTrans": 0,
-					"SolarAbsorp": 0,
-					"Uw": 2.33,
-					"OutHeatTrans": 9.1,
-					"OutEmissiv": 0.9,
-					"InHeatTrans": 9.1,
-					"AngleIncidence": "SingleGlazing"
-				},
-				"area": 1.42,
-				"sunbrk": "",
-				"flr": 0.0,
-				"fot": 0.0085
-			},
-			{
-				"skin": false,
+				"direction": "Landscape",
 				"boundary": {
 					"Name": "隣室",
 					"Type": "NextRoom",
@@ -3009,35 +2735,9 @@
 						}
 					]
 				},
-				"area": 7.316,
+				"area": 8.736,
 				"sunbrk": "",
-				"flr": 0.0,
-				"fot": 0.0436
-			},
-			{
-				"skin": false,
-				"boundary": {
-					"Name": "隣室",
-					"Type": "NextRoom",
-					"RoomName": "その他居室_和室"
-				},
-				"unsteady": false,
-				"name": "室内戸",
-				"floor": false,
-				"Window": {
-					"Eta": 0,
-					"SolarTrans": 0,
-					"SolarAbsorp": 0,
-					"Uw": 2.33,
-					"OutHeatTrans": 9.1,
-					"OutEmissiv": 0.9,
-					"InHeatTrans": 9.1,
-					"AngleIncidence": "SingleGlazing"
-				},
-				"area": 1.42,
-				"sunbrk": "",
-				"flr": 0.0,
-				"fot": 0.0085
+				"flr": 0.0
 			}
 		]
 	}

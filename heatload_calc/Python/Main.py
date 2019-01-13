@@ -62,9 +62,9 @@ def calc_Hload(gdata, weather, schedule):
                     Schedule=schedule,
                     Weather=weather
                 )
-                print('{0:.2f}'.format(space.Tr), '{0:.2f}'.format(space.MRT), '{0:.2f}'.format(space.Tfun), '{0:.2f}'.format(space.Lcs),
-                      '{0:.2f}'.format(space.Lr), "", end="")
-            print("")
+            #     print('{0:.2f}'.format(space.Tr), '{0:.2f}'.format(space.MRT), '{0:.2f}'.format(space.Tfun), '{0:.2f}'.format(space.Lcs),
+            #           '{0:.2f}'.format(space.Lr), "", end="")
+            # print("")
 
             # 前時刻の室温を現在時刻の室温に置換
             for space in spaces.values():

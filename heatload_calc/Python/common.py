@@ -1,11 +1,14 @@
 import datetime
 
-#空気の比熱
+#空気の比熱[J/kg K]
 conca = 1005.0
-#空気の密度
+#空気の密度[kg/m3]
 conrowa = 1.2
 #ステファンボルツマン定数
 Sgm = 5.67e-8
+
+#大気圧[kPa]
+P = 101.325
 
 # 通日を計算
 def get_nday(mo, day):
