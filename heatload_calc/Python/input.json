@@ -1,15 +1,6 @@
 {
 	"Gdata": {
-		"Region": 6,
-		"TimeInterval": 900,
-		"PreCalc": 0,
-		"SimStMo": 1,
-		"SimStDay": 1,
-		"SimEnMo": 1,
-		"SimEnDay": 1,
-		"Latitude": 34.6583333333333,
-		"Longitude": 133.918333333333,
-		"StMeridian": 135
+		"Region": 6
 	},
 	
 	"Rooms": [
@@ -40,7 +31,7 @@
 				"skin": true,
 				"direction": "Landscape",
 				"boundary": {
-					"Name": "北",
+					"name": "北",
 					"Type": "Outdoor",
 					"DirectionAngle": 180,
 					"InclinationAngle": 90,
@@ -55,52 +46,52 @@
 					"InHeatTrans":9.1,
 					"Layers": [
 						{
-							"Name": "せっこうボード",
-							"Cond": 0.22,
-							"SpecH": 830,
-							"Thick": 0.0095
+							"name": "せっこうボード",
+							"cond": 0.22,
+							"specH": 830,
+							"thick": 0.0095
 						},
 						{
-							"Name": "密閉空気層",
-							"Cond": 11.11111111,
-							"SpecH": null,
-							"Thick": null
+							"name": "密閉空気層",
+							"cond": 11.11111111,
+							"specH": null,
+							"thick": null
 						},
 						{
-							"Name": "住宅用グラスウール断熱材10K相当",
-							"Cond": 0.05,
-							"SpecH": 8,
-							"Thick": 0.064
+							"name": "住宅用グラスウール断熱材10K相当",
+							"cond": 0.05,
+							"specH": 8,
+							"thick": 0.064
 						},
 						{
-							"Name": "合板",
-							"Cond": 0.16,
-							"SpecH": 720,
-							"Thick": 0.012
+							"name": "合板",
+							"cond": 0.16,
+							"specH": 720,
+							"thick": 0.012
 						},
 						{
-							"Name": "木片セメント板",
-							"Cond": 0.17,
-							"SpecH": 1678.59,
-							"Thick": 0.015
+							"name": "木片セメント板",
+							"cond": 0.17,
+							"specH": 1678.59,
+							"thick": 0.015
 						},
 						{
-							"Name": "Ro",
-							"Cond": 25.0,
-							"SpecH": null,
-							"Thick": null
+							"name": "Ro",
+							"cond": 25.0,
+							"specH": null,
+							"thick": null
 						}
 					]
 				},
 				"area": 4.9775,
-				"sunbrk": "",
+				"sunbreak": "",
 				"flr": 0.0
 			},
 			{
 				"skin": true,
 				"direction": "Landscape",
 				"boundary": {
-					"Name": "北",
+					"name": "北",
 					"Type": "Outdoor",
 					"DirectionAngle": 180,
 					"InclinationAngle": 90,
@@ -120,14 +111,14 @@
 					"AngleIncidence": "SingleGlazing"
 				},
 				"area": 1.62,
-				"sunbrk": "",
+				"sunbreak": "",
 				"flr": 0.0
 			},
 			{
 				"skin": true,
 				"direction": "Landscape",
 				"boundary": {
-					"Name": "東",
+					"name": "東",
 					"Type": "Outdoor",
 					"DirectionAngle": -90,
 					"InclinationAngle": 90,
@@ -142,52 +133,52 @@
 					"InHeatTrans":9.1,
 					"Layers": [
 						{
-							"Name": "せっこうボード",
-							"Cond": 0.22,
-							"SpecH": 830,
-							"Thick": 0.0095
+							"name": "せっこうボード",
+							"cond": 0.22,
+							"specH": 830,
+							"thick": 0.0095
 						},
 						{
-							"Name": "密閉空気層",
-							"Cond": 11.11111111,
-							"SpecH": null,
-							"Thick": null
+							"name": "密閉空気層",
+							"cond": 11.11111111,
+							"specH": null,
+							"thick": null
 						},
 						{
-							"Name": "住宅用グラスウール断熱材10K相当",
-							"Cond": 0.05,
-							"SpecH": 8,
-							"Thick": 0.064
+							"name": "住宅用グラスウール断熱材10K相当",
+							"cond": 0.05,
+							"specH": 8,
+							"thick": 0.064
 						},
 						{
-							"Name": "合板",
-							"Cond": 0.16,
-							"SpecH": 720,
-							"Thick": 0.012
+							"name": "合板",
+							"cond": 0.16,
+							"specH": 720,
+							"thick": 0.012
 						},
 						{
-							"Name": "木片セメント板",
-							"Cond": 0.17,
-							"SpecH": 1678.59,
-							"Thick": 0.015
+							"name": "木片セメント板",
+							"cond": 0.17,
+							"specH": 1678.59,
+							"thick": 0.015
 						},
 						{
-							"Name": "Ro",
-							"Cond": 25.0,
-							"SpecH": null,
-							"Thick": null
+							"name": "Ro",
+							"cond": 25.0,
+							"specH": null,
+							"thick": null
 						}
 					]
 				},
 				"area": 17.982,
-				"sunbrk": "",
+				"sunbreak": "",
 				"flr": 0.0
 			},
 			{
 				"skin": true,
 				"direction": "Landscape",
 				"boundary": {
-					"Name": "東",
+					"name": "東",
 					"Type": "Outdoor",
 					"DirectionAngle": -90,
 					"InclinationAngle": 90,
@@ -207,14 +198,14 @@
 					"AngleIncidence": "SingleGlazing"
 				},
 				"area": 3.13,
-				"sunbrk": "",
+				"sunbreak": "",
 				"flr": 0.0
 			},
 			{
 				"skin": true,
 				"direction": "Landscape",
 				"boundary": {
-					"Name": "南",
+					"name": "南",
 					"Type": "Outdoor",
 					"DirectionAngle": 0,
 					"InclinationAngle": 90,
@@ -229,52 +220,52 @@
 					"InHeatTrans":9.1,
 					"Layers": [
 						{
-							"Name": "せっこうボード",
-							"Cond": 0.22,
-							"SpecH": 830,
-							"Thick": 0.0095
+							"name": "せっこうボード",
+							"cond": 0.22,
+							"specH": 830,
+							"thick": 0.0095
 						},
 						{
-							"Name": "密閉空気層",
-							"Cond": 11.11111111,
-							"SpecH": null,
-							"Thick": null
+							"name": "密閉空気層",
+							"cond": 11.11111111,
+							"specH": null,
+							"thick": null
 						},
 						{
-							"Name": "住宅用グラスウール断熱材10K相当",
-							"Cond": 0.05,
-							"SpecH": 8,
-							"Thick": 0.064
+							"name": "住宅用グラスウール断熱材10K相当",
+							"cond": 0.05,
+							"specH": 8,
+							"thick": 0.064
 						},
 						{
-							"Name": "合板",
-							"Cond": 0.16,
-							"SpecH": 720,
-							"Thick": 0.012
+							"name": "合板",
+							"cond": 0.16,
+							"specH": 720,
+							"thick": 0.012
 						},
 						{
-							"Name": "木片セメント板",
-							"Cond": 0.17,
-							"SpecH": 1678.59,
-							"Thick": 0.015
+							"name": "木片セメント板",
+							"cond": 0.17,
+							"specH": 1678.59,
+							"thick": 0.015
 						},
 						{
-							"Name": "Ro",
-							"Cond": 25.0,
-							"SpecH": null,
-							"Thick": null
+							"name": "Ro",
+							"cond": 25.0,
+							"specH": null,
+							"thick": null
 						}
 					]
 				},
 				"area": 10.2135,
-				"sunbrk": "",
+				"sunbreak": "",
 				"flr": 0.0
 			},
 			{
 				"skin": true,
 				"direction": "Landscape",
 				"boundary": {
-					"Name": "南",
+					"name": "南",
 					"Type": "Outdoor",
 					"DirectionAngle": 0,
 					"InclinationAngle": 90,
@@ -294,8 +285,8 @@
 					"AngleIncidence": "SingleGlazing"
 				},
 				"area": 6.94,
-				"sunbrk": {
-					"Name": "バルコニー",
+				"sunbreak": {
+					"name": "バルコニー",
 					"D": 910,
 					"WI1": 290,
 					"WI2": 50,
@@ -309,7 +300,7 @@
 				"skin": true,
 				"direction": "Downward",
 				"boundary": {
-					"Name": "床下",
+					"name": "床下",
 					"Type": "DeltaTCoeff",
 					"TempDifferFactor": 0.7
 				},
@@ -322,34 +313,34 @@
 					"InHeatTrans":6.7,
 					"Layers": [
 						{
-							"Name": "合板",
-							"Cond": 0.16,
-							"SpecH": 720,
-							"Thick": 0.012
+							"name": "合板",
+							"cond": 0.16,
+							"specH": 720,
+							"thick": 0.012
 						},
 						{
-							"Name": "住宅用グラスウール断熱材10K相当",
-							"Cond": 0.05,
-							"SpecH": 8,
-							"Thick": 0.064
+							"name": "住宅用グラスウール断熱材10K相当",
+							"cond": 0.05,
+							"specH": 8,
+							"thick": 0.064
 						},
 						{
-							"Name": "Ro",
-							"Cond": 6.666666667,
-							"SpecH": null,
-							"Thick": null
+							"name": "Ro",
+							"cond": 6.666666667,
+							"specH": null,
+							"thick": null
 						}
 					]
 				},
 				"area": 29.81,
-				"sunbrk": "",
+				"sunbreak": "",
 				"flr": 1
 			},
 			{
 				"skin": true,
 				"direction": "Upward",
 				"boundary": {
-					"Name": "天井",
+					"name": "天井",
 					"Type": "DeltaTCoeff",
 					"TempDifferFactor": 1
 				},
@@ -362,36 +353,36 @@
 					"InHeatTrans":11.1,
 					"Layers": [
 						{
-							"Name": "せっこうボード",
-							"Cond": 0.22,
-							"SpecH": 830,
-							"Thick": 0.0095
+							"name": "せっこうボード",
+							"cond": 0.22,
+							"specH": 830,
+							"thick": 0.0095
 						},
 						{
-							"Name": "住宅用グラスウール断熱材10K相当",
-							"Cond": 0.05,
-							"SpecH": 8,
-							"Thick": 0.171
+							"name": "住宅用グラスウール断熱材10K相当",
+							"cond": 0.05,
+							"specH": 8,
+							"thick": 0.171
 						},
 						{
-							"Name": "Ro",
-							"Cond": 11.1,
-							"SpecH": null,
-							"Thick": null
+							"name": "Ro",
+							"cond": 11.1,
+							"specH": null,
+							"thick": null
 						}
 					]
 				},
 				"area": 4.14,
-				"sunbrk": "",
+				"sunbreak": "",
 				"flr": 0.0
 			},
 			{
 				"skin": false,
 				"direction": "Landscape",
 				"boundary": {
-					"Name": "隣室",
+					"name": "隣室",
 					"Type": "NextRoom",
-					"RoomName": "非居室"
+					"roomname": "非居室"
 				},
 				"unsteady": true,
 				"name": "内壁（間仕切り）",
@@ -402,42 +393,42 @@
 					"InHeatTrans":9.1,
 					"Layers": [
 						{
-							"Name": "せっこうボード",
-							"Cond": 0.22,
-							"SpecH": 830,
-							"Thick": 0.0125
+							"name": "せっこうボード",
+							"cond": 0.22,
+							"specH": 830,
+							"thick": 0.0125
 						},
 						{
-							"Name": "非密閉空気層",
-							"Cond": 11.11111111,
-							"SpecH": null,
-							"Thick": null
+							"name": "非密閉空気層",
+							"cond": 11.11111111,
+							"specH": null,
+							"thick": null
 						},
 						{
-							"Name": "せっこうボード",
-							"Cond": 0.22,
-							"SpecH": 830,
-							"Thick": 0.0125
+							"name": "せっこうボード",
+							"cond": 0.22,
+							"specH": 830,
+							"thick": 0.0125
 						},
 						{
-							"Name": "Ro",
-							"Cond": 9.1,
-							"SpecH": null,
-							"Thick": null
+							"name": "Ro",
+							"cond": 9.1,
+							"specH": null,
+							"thick": null
 						}
 					]
 				},
 				"area": 21.6125,
-				"sunbrk": "",
+				"sunbreak": "",
 				"flr": 0.0
 			},
 			{
 				"skin": false,
 				"direction": "Upward",
 				"boundary": {
-					"Name": "隣室",
+					"name": "隣室",
 					"Type": "NextRoom",
-					"RoomName": "その他居室_子供室1"
+					"roomname": "その他居室_子供室1"
 				},
 				"unsteady": true,
 				"name": "内壁（天井）",
@@ -448,42 +439,42 @@
 					"InHeatTrans":11.1,
 					"Layers": [
 						{
-							"Name": "せっこうボード",
-							"Cond": 0.22,
-							"SpecH": 830,
-							"Thick": 0.0125
+							"name": "せっこうボード",
+							"cond": 0.22,
+							"specH": 830,
+							"thick": 0.0125
 						},
 						{
-							"Name": "非密閉空気層",
-							"Cond": 14.28571429,
-							"SpecH": null,
-							"Thick": null
+							"name": "非密閉空気層",
+							"cond": 14.28571429,
+							"specH": null,
+							"thick": null
 						},
 						{
-							"Name": "合板",
-							"Cond": 0.16,
-							"SpecH": 720,
-							"Thick": 0.012
+							"name": "合板",
+							"cond": 0.16,
+							"specH": 720,
+							"thick": 0.012
 						},
 						{
-							"Name": "Ro",
-							"Cond": 6.666666667,
-							"SpecH": null,
-							"Thick": null
+							"name": "Ro",
+							"cond": 6.666666667,
+							"specH": null,
+							"thick": null
 						}
 					]
 				},
 				"area": 10.77,
-				"sunbrk": "",
+				"sunbreak": "",
 				"flr": 0.0
 			},
 			{
 				"skin": false,
 				"direction": "Upward",
 				"boundary": {
-					"Name": "隣室",
+					"name": "隣室",
 					"Type": "NextRoom",
-					"RoomName": "その他居室_子供室2"
+					"roomname": "その他居室_子供室2"
 				},
 				"unsteady": true,
 				"name": "内壁（天井）",
@@ -494,42 +485,42 @@
 					"InHeatTrans":11.1,
 					"Layers": [
 						{
-							"Name": "せっこうボード",
-							"Cond": 0.22,
-							"SpecH": 830,
-							"Thick": 0.0125
+							"name": "せっこうボード",
+							"cond": 0.22,
+							"specH": 830,
+							"thick": 0.0125
 						},
 						{
-							"Name": "非密閉空気層",
-							"Cond": 14.28571429,
-							"SpecH": null,
-							"Thick": null
+							"name": "非密閉空気層",
+							"cond": 14.28571429,
+							"specH": null,
+							"thick": null
 						},
 						{
-							"Name": "合板",
-							"Cond": 0.16,
-							"SpecH": 720,
-							"Thick": 0.012
+							"name": "合板",
+							"cond": 0.16,
+							"specH": 720,
+							"thick": 0.012
 						},
 						{
-							"Name": "Ro",
-							"Cond": 6.666666667,
-							"SpecH": null,
-							"Thick": null
+							"name": "Ro",
+							"cond": 6.666666667,
+							"specH": null,
+							"thick": null
 						}
 					]
 				},
 				"area": 10.77,
-				"sunbrk": "",
+				"sunbreak": "",
 				"flr": 0.0
 			},
 			{
 				"skin": false,
 				"direction": "Landscape",
 				"boundary": {
-					"Name": "隣室",
+					"name": "隣室",
 					"Type": "NextRoom",
-					"RoomName": "その他居室_和室"
+					"roomname": "その他居室_和室"
 				},
 				"unsteady": true,
 				"name": "内壁（間仕切り）",
@@ -540,33 +531,33 @@
 					"InHeatTrans":9.1,
 					"Layers": [
 						{
-							"Name": "せっこうボード",
-							"Cond": 0.22,
-							"SpecH": 830,
-							"Thick": 0.0125
+							"name": "せっこうボード",
+							"cond": 0.22,
+							"specH": 830,
+							"thick": 0.0125
 						},
 						{
-							"Name": "非密閉空気層",
-							"Cond": 11.11111111,
-							"SpecH": null,
-							"Thick": null
+							"name": "非密閉空気層",
+							"cond": 11.11111111,
+							"specH": null,
+							"thick": null
 						},
 						{
-							"Name": "せっこうボード",
-							"Cond": 0.22,
-							"SpecH": 830,
-							"Thick": 0.0125
+							"name": "せっこうボード",
+							"cond": 0.22,
+							"specH": 830,
+							"thick": 0.0125
 						},
 						{
-							"Name": "Ro",
-							"Cond": 9.1,
-							"SpecH": null,
-							"Thick": null
+							"name": "Ro",
+							"cond": 9.1,
+							"specH": null,
+							"thick": null
 						}
 					]
 				},
 				"area": 8.736,
-				"sunbrk": "",
+				"sunbreak": "",
 				"flr": 0.0
 			}
 		]
@@ -604,7 +595,7 @@
 				"skin": true,
 				"direction": "Landscape",
 				"boundary": {
-					"Name": "南",
+					"name": "南",
 					"Type": "Outdoor",
 					"DirectionAngle": 0,
 					"InclinationAngle": 90,
@@ -619,52 +610,52 @@
 					"InHeatTrans":9.1,
 					"Layers": [
 						{
-							"Name": "せっこうボード",
-							"Cond": 0.22,
-							"SpecH": 830,
-							"Thick": 0.0095
+							"name": "せっこうボード",
+							"cond": 0.22,
+							"specH": 830,
+							"thick": 0.0095
 						},
 						{
-							"Name": "密閉空気層",
-							"Cond": 11.11111111,
-							"SpecH": null,
-							"Thick": null
+							"name": "密閉空気層",
+							"cond": 11.11111111,
+							"specH": null,
+							"thick": null
 						},
 						{
-							"Name": "住宅用グラスウール断熱材10K相当",
-							"Cond": 0.05,
-							"SpecH": 8,
-							"Thick": 0.064
+							"name": "住宅用グラスウール断熱材10K相当",
+							"cond": 0.05,
+							"specH": 8,
+							"thick": 0.064
 						},
 						{
-							"Name": "合板",
-							"Cond": 0.16,
-							"SpecH": 720,
-							"Thick": 0.012
+							"name": "合板",
+							"cond": 0.16,
+							"specH": 720,
+							"thick": 0.012
 						},
 						{
-							"Name": "木片セメント板",
-							"Cond": 0.17,
-							"SpecH": 1678.59,
-							"Thick": 0.015
+							"name": "木片セメント板",
+							"cond": 0.17,
+							"specH": 1678.59,
+							"thick": 0.015
 						},
 						{
-							"Name": "Ro",
-							"Cond": 25.0,
-							"SpecH": null,
-							"Thick": null
+							"name": "Ro",
+							"cond": 25.0,
+							"specH": null,
+							"thick": null
 						}
 					]
 				},
 				"area": 8.098,
-				"sunbrk": "",
+				"sunbreak": "",
 				"flr": 0.0
 			},
 			{
 				"skin": true,
 				"direction": "Landscape",
 				"boundary": {
-					"Name": "南",
+					"name": "南",
 					"Type": "Outdoor",
 					"DirectionAngle": 0,
 					"InclinationAngle": 90,
@@ -684,8 +675,8 @@
 					"AngleIncidence": "SingleGlazing"
 				},
 				"area": 1.73,
-				"sunbrk": {
-					"Name": "寝室軒",
+				"sunbreak": {
+					"name": "寝室軒",
 					"D": 650,
 					"WI1": 1445,
 					"WI2": 7360,
@@ -699,7 +690,7 @@
 				"skin": true,
 				"direction": "Landscape",
 				"boundary": {
-					"Name": "西",
+					"name": "西",
 					"Type": "Outdoor",
 					"DirectionAngle": 90,
 					"InclinationAngle": 90,
@@ -714,52 +705,52 @@
 					"InHeatTrans":9.1,
 					"Layers": [
 						{
-							"Name": "せっこうボード",
-							"Cond": 0.22,
-							"SpecH": 830,
-							"Thick": 0.0095
+							"name": "せっこうボード",
+							"cond": 0.22,
+							"specH": 830,
+							"thick": 0.0095
 						},
 						{
-							"Name": "密閉空気層",
-							"Cond": 11.11111111,
-							"SpecH": null,
-							"Thick": null
+							"name": "密閉空気層",
+							"cond": 11.11111111,
+							"specH": null,
+							"thick": null
 						},
 						{
-							"Name": "住宅用グラスウール断熱材10K相当",
-							"Cond": 0.05,
-							"SpecH": 8,
-							"Thick": 0.064
+							"name": "住宅用グラスウール断熱材10K相当",
+							"cond": 0.05,
+							"specH": 8,
+							"thick": 0.064
 						},
 						{
-							"Name": "合板",
-							"Cond": 0.16,
-							"SpecH": 720,
-							"Thick": 0.012
+							"name": "合板",
+							"cond": 0.16,
+							"specH": 720,
+							"thick": 0.012
 						},
 						{
-							"Name": "木片セメント板",
-							"Cond": 0.17,
-							"SpecH": 1678.59,
-							"Thick": 0.015
+							"name": "木片セメント板",
+							"cond": 0.17,
+							"specH": 1678.59,
+							"thick": 0.015
 						},
 						{
-							"Name": "Ro",
-							"Cond": 25.0,
-							"SpecH": null,
-							"Thick": null
+							"name": "Ro",
+							"cond": 25.0,
+							"specH": null,
+							"thick": null
 						}
 					]
 				},
 				"area": 8.838,
-				"sunbrk": "",
+				"sunbreak": "",
 				"flr": 0.0
 			},
 			{
 				"skin": true,
 				"direction": "Landscape",
 				"boundary": {
-					"Name": "西",
+					"name": "西",
 					"Type": "Outdoor",
 					"DirectionAngle": 90,
 					"InclinationAngle": 90,
@@ -779,14 +770,14 @@
 					"AngleIncidence": "SingleGlazing"
 				},
 				"area": 0.99,
-				"sunbrk": "",
+				"sunbreak": "",
 				"flr": 0.0
 			},
 			{
 				"skin": true,
 				"direction": "Upward",
 				"boundary": {
-					"Name": "天井",
+					"name": "天井",
 					"Type": "DeltaTCoeff",
 					"TempDifferFactor": 1
 				},
@@ -799,36 +790,36 @@
 					"InHeatTrans":11.1,
 					"Layers": [
 						{
-							"Name": "せっこうボード",
-							"Cond": 0.22,
-							"SpecH": 830,
-							"Thick": 0.0095
+							"name": "せっこうボード",
+							"cond": 0.22,
+							"specH": 830,
+							"thick": 0.0095
 						},
 						{
-							"Name": "住宅用グラスウール断熱材10K相当",
-							"Cond": 0.05,
-							"SpecH": 8,
-							"Thick": 0.171
+							"name": "住宅用グラスウール断熱材10K相当",
+							"cond": 0.05,
+							"specH": 8,
+							"thick": 0.171
 						},
 						{
-							"Name": "Ro",
-							"Cond": 11.1,
-							"SpecH": null,
-							"Thick": null
+							"name": "Ro",
+							"cond": 11.1,
+							"specH": null,
+							"thick": null
 						}
 					]
 				},
 				"area": 13.25,
-				"sunbrk": "",
+				"sunbreak": "",
 				"flr": 0.0
 			},
 			{
 				"skin": false,
 				"direction": "Landscape",
 				"boundary": {
-					"Name": "隣室",
+					"name": "隣室",
 					"Type": "NextRoom",
-					"RoomName": "非居室"
+					"roomname": "非居室"
 				},
 				"unsteady": true,
 				"name": "内壁（間仕切り）",
@@ -839,42 +830,42 @@
 					"InHeatTrans":9.1,
 					"Layers": [
 						{
-							"Name": "せっこうボード",
-							"Cond": 0.22,
-							"SpecH": 830,
-							"Thick": 0.0125
+							"name": "せっこうボード",
+							"cond": 0.22,
+							"specH": 830,
+							"thick": 0.0125
 						},
 						{
-							"Name": "非密閉空気層",
-							"Cond": 11.11111111,
-							"SpecH": null,
-							"Thick": null
+							"name": "非密閉空気層",
+							"cond": 11.11111111,
+							"specH": null,
+							"thick": null
 						},
 						{
-							"Name": "せっこうボード",
-							"Cond": 0.22,
-							"SpecH": 830,
-							"Thick": 0.0125
+							"name": "せっこうボード",
+							"cond": 0.22,
+							"specH": 830,
+							"thick": 0.0125
 						},
 						{
-							"Name": "Ro",
-							"Cond": 9.1,
-							"SpecH": null,
-							"Thick": null
+							"name": "Ro",
+							"cond": 9.1,
+							"specH": null,
+							"thick": null
 						}
 					]
 				},
 				"area": 8.736,
-				"sunbrk": "",
+				"sunbreak": "",
 				"flr": 0.0
 			},
 			{
 				"skin": false,
 				"direction": "Landscape",
 				"boundary": {
-					"Name": "隣室",
+					"name": "隣室",
 					"Type": "NextRoom",
-					"RoomName": "その他居室_子供室1"
+					"roomname": "その他居室_子供室1"
 				},
 				"unsteady": true,
 				"name": "内壁（間仕切り）",
@@ -885,42 +876,42 @@
 					"InHeatTrans":9.1,
 					"Layers": [
 						{
-							"Name": "せっこうボード",
-							"Cond": 0.22,
-							"SpecH": 830,
-							"Thick": 0.0125
+							"name": "せっこうボード",
+							"cond": 0.22,
+							"specH": 830,
+							"thick": 0.0125
 						},
 						{
-							"Name": "非密閉空気層",
-							"Cond": 11.11111111,
-							"SpecH": null,
-							"Thick": null
+							"name": "非密閉空気層",
+							"cond": 11.11111111,
+							"specH": null,
+							"thick": null
 						},
 						{
-							"Name": "せっこうボード",
-							"Cond": 0.22,
-							"SpecH": 830,
-							"Thick": 0.0125
+							"name": "せっこうボード",
+							"cond": 0.22,
+							"specH": 830,
+							"thick": 0.0125
 						},
 						{
-							"Name": "Ro",
-							"Cond": 9.1,
-							"SpecH": null,
-							"Thick": null
+							"name": "Ro",
+							"cond": 9.1,
+							"specH": null,
+							"thick": null
 						}
 					]
 				},
 				"area": 8.736,
-				"sunbrk": "",
+				"sunbreak": "",
 				"flr": 0.0
 			},
 			{
 				"skin": false,
 				"direction": "Downward",
 				"boundary": {
-					"Name": "隣室",
+					"name": "隣室",
 					"Type": "NextRoom",
-					"RoomName": "その他居室_和室"
+					"roomname": "その他居室_和室"
 				},
 				"unsteady": true,
 				"name": "内壁（床）",
@@ -931,33 +922,33 @@
 					"InHeatTrans":6.7,
 					"Layers": [
 						{
-							"Name": "合板",
-							"Cond": 0.16,
-							"SpecH": 720,
-							"Thick": 0.012
+							"name": "合板",
+							"cond": 0.16,
+							"specH": 720,
+							"thick": 0.012
 						},
 						{
-							"Name": "非密閉空気層",
-							"Cond": 14.28571429,
-							"SpecH": null,
-							"Thick": null
+							"name": "非密閉空気層",
+							"cond": 14.28571429,
+							"specH": null,
+							"thick": null
 						},
 						{
-							"Name": "石こうボード",
-							"Cond": 0.22,
-							"SpecH": 830,
-							"Thick": 0.0125
+							"name": "石こうボード",
+							"cond": 0.22,
+							"specH": 830,
+							"thick": 0.0125
 						},
 						{
-							"Name": "Ro",
-							"Cond": 11.1,
-							"SpecH": null,
-							"Thick": null
+							"name": "Ro",
+							"cond": 11.1,
+							"specH": null,
+							"thick": null
 						}
 					]
 				},
 				"area": 13.25,
-				"sunbrk": "",
+				"sunbreak": "",
 				"flr": 0.0
 			}
 		]
@@ -989,7 +980,7 @@
 				"skin": true,
 				"direction": "Landscape",
 				"boundary": {
-					"Name": "南",
+					"name": "南",
 					"Type": "Outdoor",
 					"DirectionAngle": 0,
 					"InclinationAngle": 90,
@@ -1004,52 +995,52 @@
 					"InHeatTrans":9.1,
 					"Layers": [
 						{
-							"Name": "せっこうボード",
-							"Cond": 0.22,
-							"SpecH": 830,
-							"Thick": 0.0095
+							"name": "せっこうボード",
+							"cond": 0.22,
+							"specH": 830,
+							"thick": 0.0095
 						},
 						{
-							"Name": "密閉空気層",
-							"Cond": 11.11111111,
-							"SpecH": null,
-							"Thick": null
+							"name": "密閉空気層",
+							"cond": 11.11111111,
+							"specH": null,
+							"thick": null
 						},
 						{
-							"Name": "住宅用グラスウール断熱材10K相当",
-							"Cond": 0.05,
-							"SpecH": 8,
-							"Thick": 0.064
+							"name": "住宅用グラスウール断熱材10K相当",
+							"cond": 0.05,
+							"specH": 8,
+							"thick": 0.064
 						},
 						{
-							"Name": "合板",
-							"Cond": 0.16,
-							"SpecH": 720,
-							"Thick": 0.012
+							"name": "合板",
+							"cond": 0.16,
+							"specH": 720,
+							"thick": 0.012
 						},
 						{
-							"Name": "木片セメント板",
-							"Cond": 0.17,
-							"SpecH": 1678.59,
-							"Thick": 0.015
+							"name": "木片セメント板",
+							"cond": 0.17,
+							"specH": 1678.59,
+							"thick": 0.015
 						},
 						{
-							"Name": "Ro",
-							"Cond": 25.0,
-							"SpecH": null,
-							"Thick": null
+							"name": "Ro",
+							"cond": 25.0,
+							"specH": null,
+							"thick": null
 						}
 					]
 				},
 				"area": 4.76525,
-				"sunbrk": "",
+				"sunbreak": "",
 				"flr": 0.0
 			},
 			{
 				"skin": true,
 				"direction": "Landscape",
 				"boundary": {
-					"Name": "南",
+					"name": "南",
 					"Type": "Outdoor",
 					"DirectionAngle": 0,
 					"InclinationAngle": 90,
@@ -1069,8 +1060,8 @@
 					"AngleIncidence": "SingleGlazing"
 				},
 				"area": 3.22,
-				"sunbrk": {
-					"Name": "子供室1軒",
+				"sunbreak": {
+					"name": "子供室1軒",
 					"D": 650,
 					"WI1": 5227.5,
 					"WI2": 3407.5,
@@ -1084,7 +1075,7 @@
 				"skin": true,
 				"direction": "Upward",
 				"boundary": {
-					"Name": "天井",
+					"name": "天井",
 					"Type": "DeltaTCoeff",
 					"TempDifferFactor": 1
 				},
@@ -1097,36 +1088,36 @@
 					"InHeatTrans":11.1,
 					"Layers": [
 						{
-							"Name": "せっこうボード",
-							"Cond": 0.22,
-							"SpecH": 830,
-							"Thick": 0.0095
+							"name": "せっこうボード",
+							"cond": 0.22,
+							"specH": 830,
+							"thick": 0.0095
 						},
 						{
-							"Name": "住宅用グラスウール断熱材10K相当",
-							"Cond": 0.05,
-							"SpecH": 8,
-							"Thick": 0.171
+							"name": "住宅用グラスウール断熱材10K相当",
+							"cond": 0.05,
+							"specH": 8,
+							"thick": 0.171
 						},
 						{
-							"Name": "Ro",
-							"Cond": 11.1,
-							"SpecH": null,
-							"Thick": null
+							"name": "Ro",
+							"cond": 11.1,
+							"specH": null,
+							"thick": null
 						}
 					]
 				},
 				"area": 10.77,
-				"sunbrk": "",
+				"sunbreak": "",
 				"flr": 0.0
 			},
 			{
 				"skin": false,
 				"direction": "Landscape",
 				"boundary": {
-					"Name": "隣室",
+					"name": "隣室",
 					"Type": "NextRoom",
-					"RoomName": "非居室"
+					"roomname": "非居室"
 				},
 				"unsteady": true,
 				"name": "内壁（間仕切り）",
@@ -1137,42 +1128,42 @@
 					"InHeatTrans":9.1,
 					"Layers": [
 						{
-							"Name": "せっこうボード",
-							"Cond": 0.22,
-							"SpecH": 830,
-							"Thick": 0.0125
+							"name": "せっこうボード",
+							"cond": 0.22,
+							"specH": 830,
+							"thick": 0.0125
 						},
 						{
-							"Name": "非密閉空気層",
-							"Cond": 11.11111111,
-							"SpecH": null,
-							"Thick": null
+							"name": "非密閉空気層",
+							"cond": 11.11111111,
+							"specH": null,
+							"thick": null
 						},
 						{
-							"Name": "せっこうボード",
-							"Cond": 0.22,
-							"SpecH": 830,
-							"Thick": 0.0125
+							"name": "せっこうボード",
+							"cond": 0.22,
+							"specH": 830,
+							"thick": 0.0125
 						},
 						{
-							"Name": "Ro",
-							"Cond": 9.1,
-							"SpecH": null,
-							"Thick": null
+							"name": "Ro",
+							"cond": 9.1,
+							"specH": null,
+							"thick": null
 						}
 					]
 				},
 				"area": 7.098,
-				"sunbrk": "",
+				"sunbreak": "",
 				"flr": 0.0
 			},
 			{
 				"skin": false,
 				"direction": "Downward",
 				"boundary": {
-					"Name": "隣室",
+					"name": "隣室",
 					"Type": "NextRoom",
-					"RoomName": "主たる居室"
+					"roomname": "主たる居室"
 				},
 				"unsteady": true,
 				"name": "内壁（床）",
@@ -1183,42 +1174,42 @@
 					"InHeatTrans":6.7,
 					"Layers": [
 						{
-							"Name": "合板",
-							"Cond": 0.16,
-							"SpecH": 720,
-							"Thick": 0.012
+							"name": "合板",
+							"cond": 0.16,
+							"specH": 720,
+							"thick": 0.012
 						},
 						{
-							"Name": "非密閉空気層",
-							"Cond": 14.28571429,
-							"SpecH": null,
-							"Thick": null
+							"name": "非密閉空気層",
+							"cond": 14.28571429,
+							"specH": null,
+							"thick": null
 						},
 						{
-							"Name": "石こうボード",
-							"Cond": 0.22,
-							"SpecH": 830,
-							"Thick": 0.0125
+							"name": "石こうボード",
+							"cond": 0.22,
+							"specH": 830,
+							"thick": 0.0125
 						},
 						{
-							"Name": "Ro",
-							"Cond": 11.1,
-							"SpecH": null,
-							"Thick": null
+							"name": "Ro",
+							"cond": 11.1,
+							"specH": null,
+							"thick": null
 						}
 					]
 				},
 				"area": 10.77,
-				"sunbrk": "",
+				"sunbreak": "",
 				"flr": 0.0
 			},
 			{
 				"skin": false,
 				"direction": "Landscape",
 				"boundary": {
-					"Name": "隣室",
+					"name": "隣室",
 					"Type": "NextRoom",
-					"RoomName": "その他居室_寝室"
+					"roomname": "その他居室_寝室"
 				},
 				"unsteady": true,
 				"name": "内壁（間仕切り）",
@@ -1229,42 +1220,42 @@
 					"InHeatTrans":9.1,
 					"Layers": [
 						{
-							"Name": "せっこうボード",
-							"Cond": 0.22,
-							"SpecH": 830,
-							"Thick": 0.0125
+							"name": "せっこうボード",
+							"cond": 0.22,
+							"specH": 830,
+							"thick": 0.0125
 						},
 						{
-							"Name": "非密閉空気層",
-							"Cond": 11.11111111,
-							"SpecH": null,
-							"Thick": null
+							"name": "非密閉空気層",
+							"cond": 11.11111111,
+							"specH": null,
+							"thick": null
 						},
 						{
-							"Name": "せっこうボード",
-							"Cond": 0.22,
-							"SpecH": 830,
-							"Thick": 0.0125
+							"name": "せっこうボード",
+							"cond": 0.22,
+							"specH": 830,
+							"thick": 0.0125
 						},
 						{
-							"Name": "Ro",
-							"Cond": 9.1,
-							"SpecH": null,
-							"Thick": null
+							"name": "Ro",
+							"cond": 9.1,
+							"specH": null,
+							"thick": null
 						}
 					]
 				},
 				"area": 8.736,
-				"sunbrk": "",
+				"sunbreak": "",
 				"flr": 0.0
 			},
 			{
 				"skin": false,
 				"direction": "Landscape",
 				"boundary": {
-					"Name": "隣室",
+					"name": "隣室",
 					"Type": "NextRoom",
-					"RoomName": "その他居室_子供室2"
+					"roomname": "その他居室_子供室2"
 				},
 				"unsteady": true,
 				"name": "内壁（間仕切り）",
@@ -1275,33 +1266,33 @@
 					"InHeatTrans":9.1,
 					"Layers": [
 						{
-							"Name": "せっこうボード",
-							"Cond": 0.22,
-							"SpecH": 830,
-							"Thick": 0.0125
+							"name": "せっこうボード",
+							"cond": 0.22,
+							"specH": 830,
+							"thick": 0.0125
 						},
 						{
-							"Name": "非密閉空気層",
-							"Cond": 11.11111111,
-							"SpecH": null,
-							"Thick": null
+							"name": "非密閉空気層",
+							"cond": 11.11111111,
+							"specH": null,
+							"thick": null
 						},
 						{
-							"Name": "せっこうボード",
-							"Cond": 0.22,
-							"SpecH": 830,
-							"Thick": 0.0125
+							"name": "せっこうボード",
+							"cond": 0.22,
+							"specH": 830,
+							"thick": 0.0125
 						},
 						{
-							"Name": "Ro",
-							"Cond": 9.1,
-							"SpecH": null,
-							"Thick": null
+							"name": "Ro",
+							"cond": 9.1,
+							"specH": null,
+							"thick": null
 						}
 					]
 				},
 				"area": 8.736,
-				"sunbrk": "",
+				"sunbreak": "",
 				"flr": 0.0
 			}
 		]
@@ -1333,7 +1324,7 @@
 				"skin": true,
 				"direction": "Landscape",
 				"boundary":  {
-					"Name": "東",
+					"name": "東",
 					"Type": "Outdoor",
 					"DirectionAngle": -90,
 					"InclinationAngle": 90,
@@ -1348,52 +1339,52 @@
 					"InHeatTrans":9.1,
 					"Layers": [
 						{
-							"Name": "せっこうボード",
-							"Cond": 0.22,
-							"SpecH": 830,
-							"Thick": 0.0095
+							"name": "せっこうボード",
+							"cond": 0.22,
+							"specH": 830,
+							"thick": 0.0095
 						},
 						{
-							"Name": "密閉空気層",
-							"Cond": 11.11111111,
-							"SpecH": null,
-							"Thick": null
+							"name": "密閉空気層",
+							"cond": 11.11111111,
+							"specH": null,
+							"thick": null
 						},
 						{
-							"Name": "住宅用グラスウール断熱材10K相当",
-							"Cond": 0.05,
-							"SpecH": 8,
-							"Thick": 0.064
+							"name": "住宅用グラスウール断熱材10K相当",
+							"cond": 0.05,
+							"specH": 8,
+							"thick": 0.064
 						},
 						{
-							"Name": "合板",
-							"Cond": 0.16,
-							"SpecH": 720,
-							"Thick": 0.012
+							"name": "合板",
+							"cond": 0.16,
+							"specH": 720,
+							"thick": 0.012
 						},
 						{
-							"Name": "木片セメント板",
-							"Cond": 0.17,
-							"SpecH": 1678.59,
-							"Thick": 0.015
+							"name": "木片セメント板",
+							"cond": 0.17,
+							"specH": 1678.59,
+							"thick": 0.015
 						},
 						{
-							"Name": "Ro",
-							"Cond": 25.0,
-							"SpecH": null,
-							"Thick": null
+							"name": "Ro",
+							"cond": 25.0,
+							"specH": null,
+							"thick": null
 						}
 					]
 				},
 				"area": 9.168,
-				"sunbrk": "",
+				"sunbreak": "",
 				"flr": 0.0
 			},
 			{
 				"skin": true,
 				"direction": "Landscape",
 				"boundary":  {
-					"Name": "東",
+					"name": "東",
 					"Type": "Outdoor",
 					"DirectionAngle": -90,
 					"InclinationAngle": 90,
@@ -1413,14 +1404,14 @@
 					"AngleIncidence": "SingleGlazing"
 				},
 				"area": 0.66,
-				"sunbrk": null,
+				"sunbreak": null,
 				"flr": 0.0
 			},
 			{
 				"skin": true,
 				"direction": "Landscape",
 				"boundary": {
-					"Name": "南",
+					"name": "南",
 					"Type": "Outdoor",
 					"DirectionAngle": 0,
 					"InclinationAngle": 90,
@@ -1435,52 +1426,52 @@
 					"InHeatTrans":9.1,
 					"Layers": [
 						{
-							"Name": "せっこうボード",
-							"Cond": 0.22,
-							"SpecH": 830,
-							"Thick": 0.0095
+							"name": "せっこうボード",
+							"cond": 0.22,
+							"specH": 830,
+							"thick": 0.0095
 						},
 						{
-							"Name": "密閉空気層",
-							"Cond": 11.11111111,
-							"SpecH": null,
-							"Thick": null
+							"name": "密閉空気層",
+							"cond": 11.11111111,
+							"specH": null,
+							"thick": null
 						},
 						{
-							"Name": "住宅用グラスウール断熱材10K相当",
-							"Cond": 0.05,
-							"SpecH": 8,
-							"Thick": 0.064
+							"name": "住宅用グラスウール断熱材10K相当",
+							"cond": 0.05,
+							"specH": 8,
+							"thick": 0.064
 						},
 						{
-							"Name": "合板",
-							"Cond": 0.16,
-							"SpecH": 720,
-							"Thick": 0.012
+							"name": "合板",
+							"cond": 0.16,
+							"specH": 720,
+							"thick": 0.012
 						},
 						{
-							"Name": "木片セメント板",
-							"Cond": 0.17,
-							"SpecH": 1678.59,
-							"Thick": 0.015
+							"name": "木片セメント板",
+							"cond": 0.17,
+							"specH": 1678.59,
+							"thick": 0.015
 						},
 						{
-							"Name": "Ro",
-							"Cond": 25.0,
-							"SpecH": null,
-							"Thick": null
+							"name": "Ro",
+							"cond": 25.0,
+							"specH": null,
+							"thick": null
 						}
 					]
 				},
 				"area": 4.76525,
-				"sunbrk": "",
+				"sunbreak": "",
 				"flr": 0.0
 			},
 			{
 				"skin": true,
 				"direction": "Landscape",
 				"boundary": {
-					"Name": "南",
+					"name": "南",
 					"Type": "Outdoor",
 					"DirectionAngle": 0,
 					"InclinationAngle": 90,
@@ -1500,8 +1491,8 @@
 					"AngleIncidence": "SingleGlazing"
 				},
 				"area": 3.22,
-				"sunbrk": {
-					"Name": "子供室2軒",
+				"sunbreak": {
+					"name": "子供室2軒",
 					"D": 650,
 					"WI1": 7047.5,
 					"WI2": 1587.5,
@@ -1515,7 +1506,7 @@
 				"skin": true,
 				"direction": "Upward",
 				"boundary": {
-					"Name": "天井",
+					"name": "天井",
 					"Type": "DeltaTCoeff",
 					"TempDifferFactor": 1
 				},
@@ -1528,36 +1519,36 @@
 					"InHeatTrans":11.1,
 					"Layers": [
 						{
-							"Name": "せっこうボード",
-							"Cond": 0.22,
-							"SpecH": 830,
-							"Thick": 0.0095
+							"name": "せっこうボード",
+							"cond": 0.22,
+							"specH": 830,
+							"thick": 0.0095
 						},
 						{
-							"Name": "住宅用グラスウール断熱材10K相当",
-							"Cond": 0.05,
-							"SpecH": 8,
-							"Thick": 0.171
+							"name": "住宅用グラスウール断熱材10K相当",
+							"cond": 0.05,
+							"specH": 8,
+							"thick": 0.171
 						},
 						{
-							"Name": "Ro",
-							"Cond": 11.1,
-							"SpecH": null,
-							"Thick": null
+							"name": "Ro",
+							"cond": 11.1,
+							"specH": null,
+							"thick": null
 						}
 					]
 				},
 				"area": 10.77,
-				"sunbrk": "",
+				"sunbreak": "",
 				"flr": 0.0
 			},
 			{
 				"skin": false,
 				"direction": "Landscape",
 				"boundary": {
-					"Name": "隣室",
+					"name": "隣室",
 					"Type": "NextRoom",
-					"RoomName": "非居室"
+					"roomname": "非居室"
 				},
 				"unsteady": true,
 				"name": "内壁（間仕切り）",
@@ -1568,42 +1559,42 @@
 					"InHeatTrans":9.1,
 					"Layers": [
 						{
-							"Name": "せっこうボード",
-							"Cond": 0.22,
-							"SpecH": 830,
-							"Thick": 0.0125
+							"name": "せっこうボード",
+							"cond": 0.22,
+							"specH": 830,
+							"thick": 0.0125
 						},
 						{
-							"Name": "非密閉空気層",
-							"Cond": 11.11111111,
-							"SpecH": null,
-							"Thick": null
+							"name": "非密閉空気層",
+							"cond": 11.11111111,
+							"specH": null,
+							"thick": null
 						},
 						{
-							"Name": "せっこうボード",
-							"Cond": 0.22,
-							"SpecH": 830,
-							"Thick": 0.0125
+							"name": "せっこうボード",
+							"cond": 0.22,
+							"specH": 830,
+							"thick": 0.0125
 						},
 						{
-							"Name": "Ro",
-							"Cond": 9.1,
-							"SpecH": null,
-							"Thick": null
+							"name": "Ro",
+							"cond": 9.1,
+							"specH": null,
+							"thick": null
 						}
 					]
 				},
 				"area": 7.098,
-				"sunbrk": "",
+				"sunbreak": "",
 				"flr": 0.0
 			},
 			{
 				"skin": false,
 				"direction": "Downward",
 				"boundary": {
-					"Name": "隣室",
+					"name": "隣室",
 					"Type": "NextRoom",
-					"RoomName": "主たる居室"
+					"roomname": "主たる居室"
 				},
 				"unsteady": true,
 				"name": "内壁（床）",
@@ -1614,42 +1605,42 @@
 					"InHeatTrans":6.7,
 					"Layers": [
 						{
-							"Name": "合板",
-							"Cond": 0.16,
-							"SpecH": 720,
-							"Thick": 0.012
+							"name": "合板",
+							"cond": 0.16,
+							"specH": 720,
+							"thick": 0.012
 						},
 						{
-							"Name": "非密閉空気層",
-							"Cond": 14.28571429,
-							"SpecH": null,
-							"Thick": null
+							"name": "非密閉空気層",
+							"cond": 14.28571429,
+							"specH": null,
+							"thick": null
 						},
 						{
-							"Name": "石こうボード",
-							"Cond": 0.22,
-							"SpecH": 830,
-							"Thick": 0.0125
+							"name": "石こうボード",
+							"cond": 0.22,
+							"specH": 830,
+							"thick": 0.0125
 						},
 						{
-							"Name": "Ro",
-							"Cond": 11.1,
-							"SpecH": null,
-							"Thick": null
+							"name": "Ro",
+							"cond": 11.1,
+							"specH": null,
+							"thick": null
 						}
 					]
 				},
 				"area": 10.77,
-				"sunbrk": "",
+				"sunbreak": "",
 				"flr": 0.0
 			},
 			{
 				"skin": false,
 				"direction": "Landscape",
 				"boundary": {
-					"Name": "隣室",
+					"name": "隣室",
 					"Type": "NextRoom",
-					"RoomName": "その他居室_子供室1"
+					"roomname": "その他居室_子供室1"
 				},
 				"unsteady": true,
 				"name": "内壁（間仕切り）",
@@ -1660,33 +1651,33 @@
 					"InHeatTrans":9.1,
 					"Layers": [
 						{
-							"Name": "せっこうボード",
-							"Cond": 0.22,
-							"SpecH": 830,
-							"Thick": 0.0125
+							"name": "せっこうボード",
+							"cond": 0.22,
+							"specH": 830,
+							"thick": 0.0125
 						},
 						{
-							"Name": "非密閉空気層",
-							"Cond": 11.11111111,
-							"SpecH": null,
-							"Thick": null
+							"name": "非密閉空気層",
+							"cond": 11.11111111,
+							"specH": null,
+							"thick": null
 						},
 						{
-							"Name": "せっこうボード",
-							"Cond": 0.22,
-							"SpecH": 830,
-							"Thick": 0.0125
+							"name": "せっこうボード",
+							"cond": 0.22,
+							"specH": 830,
+							"thick": 0.0125
 						},
 						{
-							"Name": "Ro",
-							"Cond": 9.1,
-							"SpecH": null,
-							"Thick": null
+							"name": "Ro",
+							"cond": 9.1,
+							"specH": null,
+							"thick": null
 						}
 					]
 				},
 				"area": 8.736,
-				"sunbrk": "",
+				"sunbreak": "",
 				"flr": 0.0
 			}
 		]
@@ -1718,7 +1709,7 @@
 				"skin": true,
 				"direction": "Landscape",
 				"boundary": {
-					"Name": "北",
+					"name": "北",
 					"Type": "Outdoor",
 					"DirectionAngle": 180,
 					"InclinationAngle": 90,
@@ -1734,52 +1725,52 @@
 					"InHeatTrans":9.1,
 					"Layers": [
 						{
-							"Name": "せっこうボード",
-							"Cond": 0.22,
-							"SpecH": 830,
-							"Thick": 0.0095
+							"name": "せっこうボード",
+							"cond": 0.22,
+							"specH": 830,
+							"thick": 0.0095
 						},
 						{
-							"Name": "密閉空気層",
-							"Cond": 11.11111111,
-							"SpecH": null,
-							"Thick": null
+							"name": "密閉空気層",
+							"cond": 11.11111111,
+							"specH": null,
+							"thick": null
 						},
 						{
-							"Name": "住宅用グラスウール断熱材10K相当",
-							"Cond": 0.05,
-							"SpecH": 8,
-							"Thick": 0.064
+							"name": "住宅用グラスウール断熱材10K相当",
+							"cond": 0.05,
+							"specH": 8,
+							"thick": 0.064
 						},
 						{
-							"Name": "合板",
-							"Cond": 0.16,
-							"SpecH": 720,
-							"Thick": 0.012
+							"name": "合板",
+							"cond": 0.16,
+							"specH": 720,
+							"thick": 0.012
 						},
 						{
-							"Name": "木片セメント板",
-							"Cond": 0.17,
-							"SpecH": 1678.59,
-							"Thick": 0.015
+							"name": "木片セメント板",
+							"cond": 0.17,
+							"specH": 1678.59,
+							"thick": 0.015
 						},
 						{
-							"Name": "Ro",
-							"Cond": 25.0,
-							"SpecH": null,
-							"Thick": null
+							"name": "Ro",
+							"cond": 25.0,
+							"specH": null,
+							"thick": null
 						}
 					]
 				},
 				"area": 2.639,
-				"sunbrk": "",
+				"sunbreak": "",
 				"flr": 0.0
 			},
 			{
 				"skin": true,
 				"direction": "Landscape",
 				"boundary": {
-					"Name": "南",
+					"name": "南",
 					"Type": "Outdoor",
 					"DirectionAngle": 0,
 					"InclinationAngle": 90,
@@ -1794,52 +1785,52 @@
 					"InHeatTrans":9.1,
 					"Layers": [
 						{
-							"Name": "せっこうボード",
-							"Cond": 0.22,
-							"SpecH": 830,
-							"Thick": 0.0095
+							"name": "せっこうボード",
+							"cond": 0.22,
+							"specH": 830,
+							"thick": 0.0095
 						},
 						{
-							"Name": "密閉空気層",
-							"Cond": 11.11111111,
-							"SpecH": null,
-							"Thick": null
+							"name": "密閉空気層",
+							"cond": 11.11111111,
+							"specH": null,
+							"thick": null
 						},
 						{
-							"Name": "住宅用グラスウール断熱材10K相当",
-							"Cond": 0.05,
-							"SpecH": 8,
-							"Thick": 0.064
+							"name": "住宅用グラスウール断熱材10K相当",
+							"cond": 0.05,
+							"specH": 8,
+							"thick": 0.064
 						},
 						{
-							"Name": "合板",
-							"Cond": 0.16,
-							"SpecH": 720,
-							"Thick": 0.012
+							"name": "合板",
+							"cond": 0.16,
+							"specH": 720,
+							"thick": 0.012
 						},
 						{
-							"Name": "木片セメント板",
-							"Cond": 0.17,
-							"SpecH": 1678.59,
-							"Thick": 0.015
+							"name": "木片セメント板",
+							"cond": 0.17,
+							"specH": 1678.59,
+							"thick": 0.015
 						},
 						{
-							"Name": "Ro",
-							"Cond": 25.0,
-							"SpecH": null,
-							"Thick": null
+							"name": "Ro",
+							"cond": 25.0,
+							"specH": null,
+							"thick": null
 						}
 					]
 				},
 				"area": 8.605,
-				"sunbrk": "",
+				"sunbreak": "",
 				"flr": 0.0
 			},
 			{
 				"skin": true,
 				"direction": "Landscape",
 				"boundary": {
-					"Name": "南",
+					"name": "南",
 					"Type": "Outdoor",
 					"DirectionAngle": 0,
 					"InclinationAngle": 90,
@@ -1859,14 +1850,14 @@
 					"AngleIncidence": "SingleGlazing"
 				},
 				"area": 4.59,
-				"sunbrk": "",
+				"sunbreak": "",
 				"flr": 0.0
 			},
 			{
 				"skin": true,
 				"direction": "Landscape",
 				"boundary": {
-					"Name": "西",
+					"name": "西",
 					"Type": "Outdoor",
 					"DirectionAngle": 90,
 					"InclinationAngle": 90,
@@ -1881,52 +1872,52 @@
 					"InHeatTrans":9.1,
 					"Layers": [
 						{
-							"Name": "せっこうボード",
-							"Cond": 0.22,
-							"SpecH": 830,
-							"Thick": 0.0095
+							"name": "せっこうボード",
+							"cond": 0.22,
+							"specH": 830,
+							"thick": 0.0095
 						},
 						{
-							"Name": "密閉空気層",
-							"Cond": 11.11111111,
-							"SpecH": null,
-							"Thick": null
+							"name": "密閉空気層",
+							"cond": 11.11111111,
+							"specH": null,
+							"thick": null
 						},
 						{
-							"Name": "住宅用グラスウール断熱材10K相当",
-							"Cond": 0.05,
-							"SpecH": 8,
-							"Thick": 0.064
+							"name": "住宅用グラスウール断熱材10K相当",
+							"cond": 0.05,
+							"specH": 8,
+							"thick": 0.064
 						},
 						{
-							"Name": "合板",
-							"Cond": 0.16,
-							"SpecH": 720,
-							"Thick": 0.012
+							"name": "合板",
+							"cond": 0.16,
+							"specH": 720,
+							"thick": 0.012
 						},
 						{
-							"Name": "木片セメント板",
-							"Cond": 0.17,
-							"SpecH": 1678.59,
-							"Thick": 0.015
+							"name": "木片セメント板",
+							"cond": 0.17,
+							"specH": 1678.59,
+							"thick": 0.015
 						},
 						{
-							"Name": "Ro",
-							"Cond": 25.0,
-							"SpecH": null,
-							"Thick": null
+							"name": "Ro",
+							"cond": 25.0,
+							"specH": null,
+							"thick": null
 						}
 					]
 				},
 				"area": 10.556,
-				"sunbrk": "",
+				"sunbreak": "",
 				"flr": 0.0
 			},
 			{
 				"skin": true,
 				"direction": "Downward",
 				"boundary": {
-					"Name": "床下",
+					"name": "床下",
 					"Type": "DeltaTCoeff",
 					"TempDifferFactor": 0.7
 				},
@@ -1939,34 +1930,34 @@
 					"InHeatTrans":6.7,
 					"Layers": [
 						{
-							"Name": "合板",
-							"Cond": 0.16,
-							"SpecH": 720,
-							"Thick": 0.012
+							"name": "合板",
+							"cond": 0.16,
+							"specH": 720,
+							"thick": 0.012
 						},
 						{
-							"Name": "住宅用グラスウール断熱材10K相当",
-							"Cond": 0.05,
-							"SpecH": 8,
-							"Thick": 0.064
+							"name": "住宅用グラスウール断熱材10K相当",
+							"cond": 0.05,
+							"specH": 8,
+							"thick": 0.064
 						},
 						{
-							"Name": "Ro",
-							"Cond": 6.666666667,
-							"SpecH": null,
-							"Thick": null
+							"name": "Ro",
+							"cond": 6.666666667,
+							"specH": null,
+							"thick": null
 						}
 					]
 				},
 				"area": 16.56,
-				"sunbrk": "",
+				"sunbreak": "",
 				"flr": 0.0
 			},
 			{
 				"skin": true,
 				"direction": "Upward",
 				"boundary": {
-					"Name": "天井",
+					"name": "天井",
 					"Type": "DeltaTCoeff",
 					"TempDifferFactor": 1
 				},
@@ -1979,36 +1970,36 @@
 					"InHeatTrans":11.1,
 					"Layers": [
 						{
-							"Name": "せっこうボード",
-							"Cond": 0.22,
-							"SpecH": 830,
-							"Thick": 0.0095
+							"name": "せっこうボード",
+							"cond": 0.22,
+							"specH": 830,
+							"thick": 0.0095
 						},
 						{
-							"Name": "住宅用グラスウール断熱材10K相当",
-							"Cond": 0.05,
-							"SpecH": 8,
-							"Thick": 0.171
+							"name": "住宅用グラスウール断熱材10K相当",
+							"cond": 0.05,
+							"specH": 8,
+							"thick": 0.171
 						},
 						{
-							"Name": "Ro",
-							"Cond": 11.1,
-							"SpecH": null,
-							"Thick": null
+							"name": "Ro",
+							"cond": 11.1,
+							"specH": null,
+							"thick": null
 						}
 					]
 				},
 				"area": 3.31,
-				"sunbrk": "",
+				"sunbreak": "",
 				"flr": 0.0
 			},
 			{
 				"skin": false,
 				"direction": "Landscape",
 				"boundary": {
-					"Name": "隣室",
+					"name": "隣室",
 					"Type": "NextRoom",
-					"RoomName": "非居室"
+					"roomname": "非居室"
 				},
 				"unsteady": true,
 				"name": "内壁（間仕切り）",
@@ -2019,42 +2010,42 @@
 					"InHeatTrans":9.1,
 					"Layers": [
 						{
-							"Name": "せっこうボード",
-							"Cond": 0.22,
-							"SpecH": 830,
-							"Thick": 0.0125
+							"name": "せっこうボード",
+							"cond": 0.22,
+							"specH": 830,
+							"thick": 0.0125
 						},
 						{
-							"Name": "非密閉空気層",
-							"Cond": 11.11111111,
-							"SpecH": null,
-							"Thick": null
+							"name": "非密閉空気層",
+							"cond": 11.11111111,
+							"specH": null,
+							"thick": null
 						},
 						{
-							"Name": "せっこうボード",
-							"Cond": 0.22,
-							"SpecH": 830,
-							"Thick": 0.0125
+							"name": "せっこうボード",
+							"cond": 0.22,
+							"specH": 830,
+							"thick": 0.0125
 						},
 						{
-							"Name": "Ro",
-							"Cond": 9.1,
-							"SpecH": null,
-							"Thick": null
+							"name": "Ro",
+							"cond": 9.1,
+							"specH": null,
+							"thick": null
 						}
 					]
 				},
 				"area": 8.736,
-				"sunbrk": "",
+				"sunbreak": "",
 				"flr": 0.0
 			},
 			{
 				"skin": false,
 				"direction": "Landscape",
 				"boundary": {
-					"Name": "隣室",
+					"name": "隣室",
 					"Type": "NextRoom",
-					"RoomName": "主たる居室"
+					"roomname": "主たる居室"
 				},
 				"unsteady": true,
 				"name": "内壁（間仕切り）",
@@ -2065,42 +2056,42 @@
 					"InHeatTrans":9.1,
 					"Layers": [
 						{
-							"Name": "せっこうボード",
-							"Cond": 0.22,
-							"SpecH": 830,
-							"Thick": 0.0125
+							"name": "せっこうボード",
+							"cond": 0.22,
+							"specH": 830,
+							"thick": 0.0125
 						},
 						{
-							"Name": "非密閉空気層",
-							"Cond": 11.11111111,
-							"SpecH": null,
-							"Thick": null
+							"name": "非密閉空気層",
+							"cond": 11.11111111,
+							"specH": null,
+							"thick": null
 						},
 						{
-							"Name": "せっこうボード",
-							"Cond": 0.22,
-							"SpecH": 830,
-							"Thick": 0.0125
+							"name": "せっこうボード",
+							"cond": 0.22,
+							"specH": 830,
+							"thick": 0.0125
 						},
 						{
-							"Name": "Ro",
-							"Cond": 9.1,
-							"SpecH": null,
-							"Thick": null
+							"name": "Ro",
+							"cond": 9.1,
+							"specH": null,
+							"thick": null
 						}
 					]
 				},
 				"area": 8.736,
-				"sunbrk": "",
+				"sunbreak": "",
 				"flr": 0.0
 			},
 			{
 				"skin": false,
 				"direction": "Upward",
 				"boundary": {
-					"Name": "隣室",
+					"name": "隣室",
 					"Type": "NextRoom",
-					"RoomName": "その他居室_寝室"
+					"roomname": "その他居室_寝室"
 				},
 				"unsteady": true,
 				"name": "内壁（天井）",
@@ -2111,33 +2102,33 @@
 					"InHeatTrans":11.1,
 					"Layers": [
 						{
-							"Name": "せっこうボード",
-							"Cond": 0.22,
-							"SpecH": 830,
-							"Thick": 0.0125
+							"name": "せっこうボード",
+							"cond": 0.22,
+							"specH": 830,
+							"thick": 0.0125
 						},
 						{
-							"Name": "非密閉空気層",
-							"Cond": 14.28571429,
-							"SpecH": null,
-							"Thick": null
+							"name": "非密閉空気層",
+							"cond": 14.28571429,
+							"specH": null,
+							"thick": null
 						},
 						{
-							"Name": "合板",
-							"Cond": 0.16,
-							"SpecH": 720,
-							"Thick": 0.012
+							"name": "合板",
+							"cond": 0.16,
+							"specH": 720,
+							"thick": 0.012
 						},
 						{
-							"Name": "Ro",
-							"Cond": 6.666666667,
-							"SpecH": null,
-							"Thick": null
+							"name": "Ro",
+							"cond": 6.666666667,
+							"specH": null,
+							"thick": null
 						}
 					]
 				},
 				"area": 13.25,
-				"sunbrk": "",
+				"sunbreak": "",
 				"flr": 0.0
 			}
 		]
@@ -2199,7 +2190,7 @@
 				"skin": true,
 				"direction": "Landscape",
 				"boundary": {
-					"Name": "北",
+					"name": "北",
 					"Type": "Outdoor",
 					"DirectionAngle": 180,
 					"InclinationAngle": 90,
@@ -2214,52 +2205,52 @@
 					"InHeatTrans":9.1,
 					"Layers": [
 						{
-							"Name": "せっこうボード",
-							"Cond": 0.22,
-							"SpecH": 830,
-							"Thick": 0.0095
+							"name": "せっこうボード",
+							"cond": 0.22,
+							"specH": 830,
+							"thick": 0.0095
 						},
 						{
-							"Name": "密閉空気層",
-							"Cond": 11.11111111,
-							"SpecH": null,
-							"Thick": null
+							"name": "密閉空気層",
+							"cond": 11.11111111,
+							"specH": null,
+							"thick": null
 						},
 						{
-							"Name": "住宅用グラスウール断熱材10K相当",
-							"Cond": 0.05,
-							"SpecH": 8,
-							"Thick": 0.064
+							"name": "住宅用グラスウール断熱材10K相当",
+							"cond": 0.05,
+							"specH": 8,
+							"thick": 0.064
 						},
 						{
-							"Name": "合板",
-							"Cond": 0.16,
-							"SpecH": 720,
-							"Thick": 0.012
+							"name": "合板",
+							"cond": 0.16,
+							"specH": 720,
+							"thick": 0.012
 						},
 						{
-							"Name": "木片セメント板",
-							"Cond": 0.17,
-							"SpecH": 1678.59,
-							"Thick": 0.015
+							"name": "木片セメント板",
+							"cond": 0.17,
+							"specH": 1678.59,
+							"thick": 0.015
 						},
 						{
-							"Name": "Ro",
-							"Cond": 25.0,
-							"SpecH": null,
-							"Thick": null
+							"name": "Ro",
+							"cond": 25.0,
+							"specH": null,
+							"thick": null
 						}
 					]
 				},
 				"area": 43.2205,
-				"sunbrk": "",
+				"sunbreak": "",
 				"flr": 0.0
 			},
 			{
 				"skin": true,
 				"direction": "Landscape",
 				"boundary": {
-					"Name": "北",
+					"name": "北",
 					"Type": "Outdoor",
 					"DirectionAngle": 180,
 					"InclinationAngle": 90,
@@ -2279,14 +2270,14 @@
 					"AngleIncidence": "SingleGlazing"
 				},
 				"area": 3.69,
-				"sunbrk": "",
+				"sunbreak": "",
 				"flr": 0.0
 			},
 			{
 				"skin": true,
 				"direction": "Landscape",
 				"boundary": {
-					"Name": "東",
+					"name": "東",
 					"Type": "Outdoor",
 					"DirectionAngle": -90,
 					"InclinationAngle": 90,
@@ -2301,52 +2292,52 @@
 					"InHeatTrans":9.1,
 					"Layers": [
 						{
-							"Name": "せっこうボード",
-							"Cond": 0.22,
-							"SpecH": 830,
-							"Thick": 0.0095
+							"name": "せっこうボード",
+							"cond": 0.22,
+							"specH": 830,
+							"thick": 0.0095
 						},
 						{
-							"Name": "密閉空気層",
-							"Cond": 11.11111111,
-							"SpecH": null,
-							"Thick": null
+							"name": "密閉空気層",
+							"cond": 11.11111111,
+							"specH": null,
+							"thick": null
 						},
 						{
-							"Name": "住宅用グラスウール断熱材10K相当",
-							"Cond": 0.05,
-							"SpecH": 8,
-							"Thick": 0.064
+							"name": "住宅用グラスウール断熱材10K相当",
+							"cond": 0.05,
+							"specH": 8,
+							"thick": 0.064
 						},
 						{
-							"Name": "合板",
-							"Cond": 0.16,
-							"SpecH": 720,
-							"Thick": 0.012
+							"name": "合板",
+							"cond": 0.16,
+							"specH": 720,
+							"thick": 0.012
 						},
 						{
-							"Name": "木片セメント板",
-							"Cond": 0.17,
-							"SpecH": 1678.59,
-							"Thick": 0.015
+							"name": "木片セメント板",
+							"cond": 0.17,
+							"specH": 1678.59,
+							"thick": 0.015
 						},
 						{
-							"Name": "Ro",
-							"Cond": 25.0,
-							"SpecH": null,
-							"Thick": null
+							"name": "Ro",
+							"cond": 25.0,
+							"specH": null,
+							"thick": null
 						}
 					]
 				},
 				"area": 4.914,
-				"sunbrk": "",
+				"sunbreak": "",
 				"flr": 0.0
 			},
 			{
 				"skin": true,
 				"direction": "Landscape",
 				"boundary": {
-					"Name": "西",
+					"name": "西",
 					"Type": "Outdoor",
 					"DirectionAngle": 90,
 					"InclinationAngle": 90,
@@ -2361,52 +2352,52 @@
 					"InHeatTrans":9.1,
 					"Layers": [
 						{
-							"Name": "せっこうボード",
-							"Cond": 0.22,
-							"SpecH": 830,
-							"Thick": 0.0095
+							"name": "せっこうボード",
+							"cond": 0.22,
+							"specH": 830,
+							"thick": 0.0095
 						},
 						{
-							"Name": "密閉空気層",
-							"Cond": 11.11111111,
-							"SpecH": null,
-							"Thick": null
+							"name": "密閉空気層",
+							"cond": 11.11111111,
+							"specH": null,
+							"thick": null
 						},
 						{
-							"Name": "住宅用グラスウール断熱材10K相当",
-							"Cond": 0.05,
-							"SpecH": 8,
-							"Thick": 0.064
+							"name": "住宅用グラスウール断熱材10K相当",
+							"cond": 0.05,
+							"specH": 8,
+							"thick": 0.064
 						},
 						{
-							"Name": "合板",
-							"Cond": 0.16,
-							"SpecH": 720,
-							"Thick": 0.012
+							"name": "合板",
+							"cond": 0.16,
+							"specH": 720,
+							"thick": 0.012
 						},
 						{
-							"Name": "木片セメント板",
-							"Cond": 0.17,
-							"SpecH": 1678.59,
-							"Thick": 0.015
+							"name": "木片セメント板",
+							"cond": 0.17,
+							"specH": 1678.59,
+							"thick": 0.015
 						},
 						{
-							"Name": "Ro",
-							"Cond": 25.0,
-							"SpecH": null,
-							"Thick": null
+							"name": "Ro",
+							"cond": 25.0,
+							"specH": null,
+							"thick": null
 						}
 					]
 				},
 				"area": 12.5,
-				"sunbrk": "",
+				"sunbreak": "",
 				"flr": 0.0
 			},
 			{
 				"skin": true,
 				"direction": "Landscape",
 				"boundary": {
-					"Name": "西",
+					"name": "西",
 					"Type": "Outdoor",
 					"DirectionAngle": 90,
 					"InclinationAngle": 90,
@@ -2426,14 +2417,14 @@
 					"AngleIncidence": "SingleGlazing"
 				},
 				"area": 2.97,
-				"sunbrk": "",
+				"sunbreak": "",
 				"flr": 0.0
 			},
 			{
 				"skin": true,
 				"direction": "Downward",
 				"boundary": {
-					"Name": "床下",
+					"name": "床下",
 					"Type": "DeltaTCoeff",
 					"TempDifferFactor": 0.7
 				},
@@ -2446,34 +2437,34 @@
 					"InHeatTrans":6.7,
 					"Layers": [
 						{
-							"Name": "合板",
-							"Cond": 0.16,
-							"SpecH": 720,
-							"Thick": 0.012
+							"name": "合板",
+							"cond": 0.16,
+							"specH": 720,
+							"thick": 0.012
 						},
 						{
-							"Name": "住宅用グラスウール断熱材10K相当",
-							"Cond": 0.05,
-							"SpecH": 8,
-							"Thick": 0.064
+							"name": "住宅用グラスウール断熱材10K相当",
+							"cond": 0.05,
+							"specH": 8,
+							"thick": 0.064
 						},
 						{
-							"Name": "Ro",
-							"Cond": 6.666666667,
-							"SpecH": null,
-							"Thick": null
+							"name": "Ro",
+							"cond": 6.666666667,
+							"specH": null,
+							"thick": null
 						}
 					]
 				},
 				"area": 21.52,
-				"sunbrk": "",
+				"sunbreak": "",
 				"flr": 0.0
 			},
 			{
 				"skin": true,
 				"direction": "Upward",
 				"boundary": {
-					"Name": "天井",
+					"name": "天井",
 					"Type": "DeltaTCoeff",
 					"TempDifferFactor": 1
 				},
@@ -2486,36 +2477,36 @@
 					"InHeatTrans":11.1,
 					"Layers": [
 						{
-							"Name": "せっこうボード",
-							"Cond": 0.22,
-							"SpecH": 830,
-							"Thick": 0.0095
+							"name": "せっこうボード",
+							"cond": 0.22,
+							"specH": 830,
+							"thick": 0.0095
 						},
 						{
-							"Name": "住宅用グラスウール断熱材10K相当",
-							"Cond": 0.05,
-							"SpecH": 8,
-							"Thick": 0.171
+							"name": "住宅用グラスウール断熱材10K相当",
+							"cond": 0.05,
+							"specH": 8,
+							"thick": 0.171
 						},
 						{
-							"Name": "Ro",
-							"Cond": 11.1,
-							"SpecH": null,
-							"Thick": null
+							"name": "Ro",
+							"cond": 11.1,
+							"specH": null,
+							"thick": null
 						}
 					]
 				},
 				"area": 25.68,
-				"sunbrk": "",
+				"sunbreak": "",
 				"flr": 0.0
 			},
 			{
 				"skin": false,
 				"direction": "Landscape",
 				"boundary": {
-					"Name": "隣室",
+					"name": "隣室",
 					"Type": "NextRoom",
-					"RoomName": "主たる居室"
+					"roomname": "主たる居室"
 				},
 				"unsteady": true,
 				"name": "内壁（間仕切り）",
@@ -2526,42 +2517,42 @@
 					"InHeatTrans":9.1,
 					"Layers": [
 						{
-							"Name": "せっこうボード",
-							"Cond": 0.22,
-							"SpecH": 830,
-							"Thick": 0.0125
+							"name": "せっこうボード",
+							"cond": 0.22,
+							"specH": 830,
+							"thick": 0.0125
 						},
 						{
-							"Name": "非密閉空気層",
-							"Cond": 11.11111111,
-							"SpecH": null,
-							"Thick": null
+							"name": "非密閉空気層",
+							"cond": 11.11111111,
+							"specH": null,
+							"thick": null
 						},
 						{
-							"Name": "せっこうボード",
-							"Cond": 0.22,
-							"SpecH": 830,
-							"Thick": 0.0125
+							"name": "せっこうボード",
+							"cond": 0.22,
+							"specH": 830,
+							"thick": 0.0125
 						},
 						{
-							"Name": "Ro",
-							"Cond": 9.1,
-							"SpecH": null,
-							"Thick": null
+							"name": "Ro",
+							"cond": 9.1,
+							"specH": null,
+							"thick": null
 						}
 					]
 				},
 				"area": 21.6125,
-				"sunbrk": "",
+				"sunbreak": "",
 				"flr": 0.0
 			},
 			{
 				"skin": false,
 				"direction": "Landscape",
 				"boundary": {
-					"Name": "隣室",
+					"name": "隣室",
 					"Type": "NextRoom",
-					"RoomName": "その他居室_寝室"
+					"roomname": "その他居室_寝室"
 				},
 				"unsteady": true,
 				"name": "内壁（間仕切り）",
@@ -2572,42 +2563,42 @@
 					"InHeatTrans":9.1,
 					"Layers": [
 						{
-							"Name": "せっこうボード",
-							"Cond": 0.22,
-							"SpecH": 830,
-							"Thick": 0.0125
+							"name": "せっこうボード",
+							"cond": 0.22,
+							"specH": 830,
+							"thick": 0.0125
 						},
 						{
-							"Name": "非密閉空気層",
-							"Cond": 11.11111111,
-							"SpecH": null,
-							"Thick": null
+							"name": "非密閉空気層",
+							"cond": 11.11111111,
+							"specH": null,
+							"thick": null
 						},
 						{
-							"Name": "せっこうボード",
-							"Cond": 0.22,
-							"SpecH": 830,
-							"Thick": 0.0125
+							"name": "せっこうボード",
+							"cond": 0.22,
+							"specH": 830,
+							"thick": 0.0125
 						},
 						{
-							"Name": "Ro",
-							"Cond": 9.1,
-							"SpecH": null,
-							"Thick": null
+							"name": "Ro",
+							"cond": 9.1,
+							"specH": null,
+							"thick": null
 						}
 					]
 				},
 				"area": 8.736,
-				"sunbrk": "",
+				"sunbreak": "",
 				"flr": 0.0
 			},
 			{
 				"skin": false,
 				"direction": "Landscape",
 				"boundary": {
-					"Name": "隣室",
+					"name": "隣室",
 					"Type": "NextRoom",
-					"RoomName": "その他居室_子供室1"
+					"roomname": "その他居室_子供室1"
 				},
 				"unsteady": true,
 				"name": "内壁（間仕切り）",
@@ -2618,42 +2609,42 @@
 					"InHeatTrans":9.1,
 					"Layers": [
 						{
-							"Name": "せっこうボード",
-							"Cond": 0.22,
-							"SpecH": 830,
-							"Thick": 0.0125
+							"name": "せっこうボード",
+							"cond": 0.22,
+							"specH": 830,
+							"thick": 0.0125
 						},
 						{
-							"Name": "非密閉空気層",
-							"Cond": 11.11111111,
-							"SpecH": null,
-							"Thick": null
+							"name": "非密閉空気層",
+							"cond": 11.11111111,
+							"specH": null,
+							"thick": null
 						},
 						{
-							"Name": "せっこうボード",
-							"Cond": 0.22,
-							"SpecH": 830,
-							"Thick": 0.0125
+							"name": "せっこうボード",
+							"cond": 0.22,
+							"specH": 830,
+							"thick": 0.0125
 						},
 						{
-							"Name": "Ro",
-							"Cond": 9.1,
-							"SpecH": null,
-							"Thick": null
+							"name": "Ro",
+							"cond": 9.1,
+							"specH": null,
+							"thick": null
 						}
 					]
 				},
 				"area": 7.098,
-				"sunbrk": "",
+				"sunbreak": "",
 				"flr": 0.0
 			},
 			{
 				"skin": false,
 				"direction": "Landscape",
 				"boundary": {
-					"Name": "隣室",
+					"name": "隣室",
 					"Type": "NextRoom",
-					"RoomName": "その他居室_子供室2"
+					"roomname": "その他居室_子供室2"
 				},
 				"unsteady": true,
 				"name": "内壁（間仕切り）",
@@ -2664,42 +2655,42 @@
 					"InHeatTrans":9.1,
 					"Layers": [
 						{
-							"Name": "せっこうボード",
-							"Cond": 0.22,
-							"SpecH": 830,
-							"Thick": 0.0125
+							"name": "せっこうボード",
+							"cond": 0.22,
+							"specH": 830,
+							"thick": 0.0125
 						},
 						{
-							"Name": "非密閉空気層",
-							"Cond": 11.11111111,
-							"SpecH": null,
-							"Thick": null
+							"name": "非密閉空気層",
+							"cond": 11.11111111,
+							"specH": null,
+							"thick": null
 						},
 						{
-							"Name": "せっこうボード",
-							"Cond": 0.22,
-							"SpecH": 830,
-							"Thick": 0.0125
+							"name": "せっこうボード",
+							"cond": 0.22,
+							"specH": 830,
+							"thick": 0.0125
 						},
 						{
-							"Name": "Ro",
-							"Cond": 9.1,
-							"SpecH": null,
-							"Thick": null
+							"name": "Ro",
+							"cond": 9.1,
+							"specH": null,
+							"thick": null
 						}
 					]
 				},
 				"area": 7.098,
-				"sunbrk": "",
+				"sunbreak": "",
 				"flr": 0.0
 			},
 			{
 				"skin": false,
 				"direction": "Landscape",
 				"boundary": {
-					"Name": "隣室",
+					"name": "隣室",
 					"Type": "NextRoom",
-					"RoomName": "その他居室_和室"
+					"roomname": "その他居室_和室"
 				},
 				"unsteady": true,
 				"name": "内壁（間仕切り）",
@@ -2710,33 +2701,33 @@
 					"InHeatTrans":9.1,
 					"Layers": [
 						{
-							"Name": "せっこうボード",
-							"Cond": 0.22,
-							"SpecH": 830,
-							"Thick": 0.0125
+							"name": "せっこうボード",
+							"cond": 0.22,
+							"specH": 830,
+							"thick": 0.0125
 						},
 						{
-							"Name": "非密閉空気層",
-							"Cond": 11.11111111,
-							"SpecH": null,
-							"Thick": null
+							"name": "非密閉空気層",
+							"cond": 11.11111111,
+							"specH": null,
+							"thick": null
 						},
 						{
-							"Name": "せっこうボード",
-							"Cond": 0.22,
-							"SpecH": 830,
-							"Thick": 0.0125
+							"name": "せっこうボード",
+							"cond": 0.22,
+							"specH": 830,
+							"thick": 0.0125
 						},
 						{
-							"Name": "Ro",
-							"Cond": 9.1,
-							"SpecH": null,
-							"Thick": null
+							"name": "Ro",
+							"cond": 9.1,
+							"specH": null,
+							"thick": null
 						}
 					]
 				},
 				"area": 8.736,
-				"sunbrk": "",
+				"sunbreak": "",
 				"flr": 0.0
 			}
 		]

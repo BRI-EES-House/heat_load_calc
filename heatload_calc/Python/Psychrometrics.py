@@ -29,3 +29,25 @@ def x(Pw):
 # 例題
 # for T in range(-20, 20, 5):
 #     print(T, Pws(T), x(Pws(T)))
+
+def xtrh(T, RH):
+        # 水蒸気分圧の計算[kPa]
+        Pw = Pws(T) * RH / 100.0
+        return x(Pw)
+
+# 絶対湿度から水蒸気圧を計算
+# x：絶対湿度[kg/kg(DA)]
+def Pwx(x):
+        return x * P / (x + 0.62198)
+
+# 乾球温度と水蒸気圧から相対湿度を計算
+# T：乾球温度[℃]
+# Pw：水蒸気圧[kPa]
+def rhtp(T, Pw):
+        return Pw / Pws(T) * 100.0
+
+# 乾球温度と絶対湿度から相対湿度を計算
+# T：乾球温度[℃]
+# x：絶対湿度[kg/kg(DA)]
+def rhtx(T, x):
+        return rhtp(T, Pwx(x))
