@@ -32,6 +32,9 @@
             "NextVent": [],
             "LinearHeatBridge": [],
             "EarthfloorPerimeter": [],
+			"CrossVentRoom": false,
+			"RadHeat": false,
+			"Beta": 0,
             "Surface": [
                 {
                     "skin": true,
@@ -49,7 +52,7 @@
                     "area": 16.95,
                     "Wall": {
                         "OutHeatTrans": 25.0,
-                        "InConHeatTrans": 6.111111111111111,
+                        "InHeatTrans": 6.111111111111111,
                         "Layers": [
                             {
                                 "name": "GW16K",
@@ -83,7 +86,7 @@
                     "area": 10.1575,
                     "Wall": {
                         "OutHeatTrans": 25.0,
-                        "InConHeatTrans": 4.090909090909092,
+                        "InHeatTrans": 4.090909090909092,
                         "Layers": [
                             {
                                 "name": "GW16K",
@@ -117,7 +120,7 @@
                     "area": 7.4575,
                     "Wall": {
                         "OutHeatTrans": 25.0,
-                        "InConHeatTrans": 4.090909090909092,
+                        "InHeatTrans": 4.090909090909092,
                         "Layers": [
                             {
                                 "name": "GW16K",
@@ -151,7 +154,7 @@
                     "area": 15.9725,
                     "Wall": {
                         "OutHeatTrans": 25.0,
-                        "InConHeatTrans": 4.090909090909092,
+                        "InHeatTrans": 4.090909090909092,
                         "Layers": [
                             {
                                 "name": "GW16K",
@@ -185,7 +188,7 @@
                     "area": 7.4275,
                     "Wall": {
                         "OutHeatTrans": 25.0,
-                        "InConHeatTrans": 4.090909090909092,
+                        "InHeatTrans": 4.090909090909092,
                         "Layers": [
                             {
                                 "name": "GW16K",
@@ -219,7 +222,7 @@
                     "area": 15.0175,
                     "Wall": {
                         "OutHeatTrans": 25.0,
-                        "InConHeatTrans": 1.666666666666667,
+                        "InHeatTrans": 1.666666666666667,
                         "Layers": [
                             {
                                 "name": "GW16K",
@@ -253,7 +256,7 @@
                     "area": 1.1025,
                     "Wall": {
                         "OutHeatTrans": 25.0,
-                        "InConHeatTrans": 1.666666666666667,
+                        "InHeatTrans": 1.666666666666667,
                         "Layers": [
                             {
                                 "name": "GW16K",
@@ -284,11 +287,11 @@
                     "unsteady": false,
                     "name": "Door1",
                     "area": 0.63,
-                    "Windows": {
+                    "Window": {
                         "Eta": 0.15810000000000002,
                         "Uw": 4.65,
                         "OutHeatTrans": 25,
-                        "InConHeatTrans": 4.090909090909092
+                        "InHeatTrans": 4.090909090909092
                     },
                     "sunbreak": {}
                 },
@@ -305,11 +308,11 @@
                     "unsteady": false,
                     "name": "Door4",
                     "area": 0.54,
-                    "Windows": {
+                    "Window": {
                         "Eta": 0.15810000000000002,
                         "Uw": 4.65,
                         "OutHeatTrans": 25,
-                        "InConHeatTrans": 4.090909090909092
+                        "InHeatTrans": 4.090909090909092
                     },
                     "sunbreak": {}
                 },
@@ -326,11 +329,11 @@
                     "unsteady": false,
                     "name": "Window1",
                     "area": 7.5625,
-                    "Windows": {
+                    "Window": {
                         "Eta": 0.51,
                         "Uw": 3.49,
                         "OutHeatTrans": 25,
-                        "InConHeatTrans": 4.090909090909092
+                        "InHeatTrans": 4.090909090909092
                     },
                     "sunbreak": {
                         "D": null,
@@ -351,11 +354,11 @@
                     "unsteady": false,
                     "name": "Window4",
                     "area": 0.7925,
-                    "Windows": {
+                    "Window": {
                         "Eta": 0.51,
                         "Uw": 3.49,
                         "OutHeatTrans": 25,
-                        "InConHeatTrans": 4.090909090909092
+                        "InHeatTrans": 4.090909090909092
                     },
                     "sunbreak": {
                         "D": null,
@@ -376,11 +379,11 @@
                     "unsteady": false,
                     "name": "Window7",
                     "area": 1.21,
-                    "Windows": {
+                    "Window": {
                         "Eta": 0.51,
                         "Uw": 3.49,
                         "OutHeatTrans": 25,
-                        "InConHeatTrans": 4.090909090909092
+                        "InHeatTrans": 4.090909090909092
                     },
                     "sunbreak": {
                         "D": null,
@@ -401,11 +404,11 @@
                     "unsteady": false,
                     "name": "Window10",
                     "area": 1.4575,
-                    "Windows": {
+                    "Window": {
                         "Eta": 0.51,
                         "Uw": 3.49,
                         "OutHeatTrans": 25,
-                        "InConHeatTrans": 4.090909090909092
+                        "InHeatTrans": 4.090909090909092
                     },
                     "sunbreak": {
                         "D": null,
@@ -435,6 +438,9 @@
             "NextVent": [],
             "LinearHeatBridge": [],
             "EarthfloorPerimeter": [],
+			"CrossVentRoom": false,
+			"RadHeat": false,
+			"Beta": 0,
             "Surface": [
                 {
                     "skin": true,
@@ -452,7 +458,7 @@
                     "area": 16.95,
                     "Wall": {
                         "OutHeatTrans": 25.0,
-                        "InConHeatTrans": 6.111111111111111,
+                        "InHeatTrans": 6.111111111111111,
                         "Layers": [
                             {
                                 "name": "GW16K",
@@ -486,7 +492,7 @@
                     "area": 10.1575,
                     "Wall": {
                         "OutHeatTrans": 25.0,
-                        "InConHeatTrans": 4.090909090909092,
+                        "InHeatTrans": 4.090909090909092,
                         "Layers": [
                             {
                                 "name": "GW16K",
@@ -520,7 +526,7 @@
                     "area": 7.4575,
                     "Wall": {
                         "OutHeatTrans": 25.0,
-                        "InConHeatTrans": 4.090909090909092,
+                        "InHeatTrans": 4.090909090909092,
                         "Layers": [
                             {
                                 "name": "GW16K",
@@ -554,7 +560,7 @@
                     "area": 15.9725,
                     "Wall": {
                         "OutHeatTrans": 25.0,
-                        "InConHeatTrans": 4.090909090909092,
+                        "InHeatTrans": 4.090909090909092,
                         "Layers": [
                             {
                                 "name": "GW16K",
@@ -588,7 +594,7 @@
                     "area": 7.4275,
                     "Wall": {
                         "OutHeatTrans": 25.0,
-                        "InConHeatTrans": 4.090909090909092,
+                        "InHeatTrans": 4.090909090909092,
                         "Layers": [
                             {
                                 "name": "GW16K",
@@ -622,7 +628,7 @@
                     "area": 15.0175,
                     "Wall": {
                         "OutHeatTrans": 25.0,
-                        "InConHeatTrans": 1.666666666666667,
+                        "InHeatTrans": 1.666666666666667,
                         "Layers": [
                             {
                                 "name": "GW16K",
@@ -656,7 +662,7 @@
                     "area": 1.1025,
                     "Wall": {
                         "OutHeatTrans": 25.0,
-                        "InConHeatTrans": 1.666666666666667,
+                        "InHeatTrans": 1.666666666666667,
                         "Layers": [
                             {
                                 "name": "GW16K",
@@ -687,11 +693,11 @@
                     "unsteady": false,
                     "name": "Door2",
                     "area": 0.63,
-                    "Windows": {
+                    "Window": {
                         "Eta": 0.15810000000000002,
                         "Uw": 4.65,
                         "OutHeatTrans": 25,
-                        "InConHeatTrans": 4.090909090909092
+                        "InHeatTrans": 4.090909090909092
                     },
                     "sunbreak": {}
                 },
@@ -708,11 +714,11 @@
                     "unsteady": false,
                     "name": "Door5",
                     "area": 0.54,
-                    "Windows": {
+                    "Window": {
                         "Eta": 0.15810000000000002,
                         "Uw": 4.65,
                         "OutHeatTrans": 25,
-                        "InConHeatTrans": 4.090909090909092
+                        "InHeatTrans": 4.090909090909092
                     },
                     "sunbreak": {}
                 },
@@ -729,11 +735,11 @@
                     "unsteady": false,
                     "name": "Window2",
                     "area": 7.5625,
-                    "Windows": {
+                    "Window": {
                         "Eta": 0.51,
                         "Uw": 3.49,
                         "OutHeatTrans": 25,
-                        "InConHeatTrans": 4.090909090909092
+                        "InHeatTrans": 4.090909090909092
                     },
                     "sunbreak": {
                         "D": null,
@@ -754,11 +760,11 @@
                     "unsteady": false,
                     "name": "Window5",
                     "area": 0.7925,
-                    "Windows": {
+                    "Window": {
                         "Eta": 0.51,
                         "Uw": 3.49,
                         "OutHeatTrans": 25,
-                        "InConHeatTrans": 4.090909090909092
+                        "InHeatTrans": 4.090909090909092
                     },
                     "sunbreak": {
                         "D": null,
@@ -779,11 +785,11 @@
                     "unsteady": false,
                     "name": "Window8",
                     "area": 1.21,
-                    "Windows": {
+                    "Window": {
                         "Eta": 0.51,
                         "Uw": 3.49,
                         "OutHeatTrans": 25,
-                        "InConHeatTrans": 4.090909090909092
+                        "InHeatTrans": 4.090909090909092
                     },
                     "sunbreak": {
                         "D": null,
@@ -804,11 +810,11 @@
                     "unsteady": false,
                     "name": "Window11",
                     "area": 1.4575,
-                    "Windows": {
+                    "Window": {
                         "Eta": 0.51,
                         "Uw": 3.49,
                         "OutHeatTrans": 25,
-                        "InConHeatTrans": 4.090909090909092
+                        "InHeatTrans": 4.090909090909092
                     },
                     "sunbreak": {
                         "D": null,
@@ -851,6 +857,9 @@
             ],
             "LinearHeatBridge": [],
             "EarthfloorPerimeter": [],
+			"CrossVentRoom": false,
+			"RadHeat": false,
+			"Beta": 0,
             "Surface": [
                 {
                     "skin": true,
@@ -868,7 +877,7 @@
                     "area": 33.9,
                     "Wall": {
                         "OutHeatTrans": 25.0,
-                        "InConHeatTrans": 6.111111111111111,
+                        "InHeatTrans": 6.111111111111111,
                         "Layers": [
                             {
                                 "name": "GW16K",
@@ -902,7 +911,7 @@
                     "area": 20.315,
                     "Wall": {
                         "OutHeatTrans": 25.0,
-                        "InConHeatTrans": 4.090909090909092,
+                        "InHeatTrans": 4.090909090909092,
                         "Layers": [
                             {
                                 "name": "GW16K",
@@ -936,7 +945,7 @@
                     "area": 14.915,
                     "Wall": {
                         "OutHeatTrans": 25.0,
-                        "InConHeatTrans": 4.090909090909092,
+                        "InHeatTrans": 4.090909090909092,
                         "Layers": [
                             {
                                 "name": "GW16K",
@@ -970,7 +979,7 @@
                     "area": 31.945,
                     "Wall": {
                         "OutHeatTrans": 25.0,
-                        "InConHeatTrans": 4.090909090909092,
+                        "InHeatTrans": 4.090909090909092,
                         "Layers": [
                             {
                                 "name": "GW16K",
@@ -1004,7 +1013,7 @@
                     "area": 14.855,
                     "Wall": {
                         "OutHeatTrans": 25.0,
-                        "InConHeatTrans": 4.090909090909092,
+                        "InHeatTrans": 4.090909090909092,
                         "Layers": [
                             {
                                 "name": "GW16K",
@@ -1038,7 +1047,7 @@
                     "area": 30.035,
                     "Wall": {
                         "OutHeatTrans": 25.0,
-                        "InConHeatTrans": 1.666666666666667,
+                        "InHeatTrans": 1.666666666666667,
                         "Layers": [
                             {
                                 "name": "GW16K",
@@ -1072,7 +1081,7 @@
                     "area": 2.205,
                     "Wall": {
                         "OutHeatTrans": 25.0,
-                        "InConHeatTrans": 1.666666666666667,
+                        "InHeatTrans": 1.666666666666667,
                         "Layers": [
                             {
                                 "name": "GW16K",
@@ -1103,11 +1112,11 @@
                     "unsteady": false,
                     "name": "Door3",
                     "area": 1.26,
-                    "Windows": {
+                    "Window": {
                         "Eta": 0.15810000000000002,
                         "Uw": 4.65,
                         "OutHeatTrans": 25,
-                        "InConHeatTrans": 4.090909090909092
+                        "InHeatTrans": 4.090909090909092
                     },
                     "sunbreak": {}
                 },
@@ -1124,11 +1133,11 @@
                     "unsteady": false,
                     "name": "Door6",
                     "area": 1.08,
-                    "Windows": {
+                    "Window": {
                         "Eta": 0.15810000000000002,
                         "Uw": 4.65,
                         "OutHeatTrans": 25,
-                        "InConHeatTrans": 4.090909090909092
+                        "InHeatTrans": 4.090909090909092
                     },
                     "sunbreak": {}
                 },
@@ -1145,11 +1154,11 @@
                     "unsteady": false,
                     "name": "Window3",
                     "area": 15.125,
-                    "Windows": {
+                    "Window": {
                         "Eta": 0.51,
                         "Uw": 3.49,
                         "OutHeatTrans": 25,
-                        "InConHeatTrans": 4.090909090909092
+                        "InHeatTrans": 4.090909090909092
                     },
                     "sunbreak": {
                         "D": null,
@@ -1170,11 +1179,11 @@
                     "unsteady": false,
                     "name": "Window6",
                     "area": 1.585,
-                    "Windows": {
+                    "Window": {
                         "Eta": 0.51,
                         "Uw": 3.49,
                         "OutHeatTrans": 25,
-                        "InConHeatTrans": 4.090909090909092
+                        "InHeatTrans": 4.090909090909092
                     },
                     "sunbreak": {
                         "D": null,
@@ -1195,11 +1204,11 @@
                     "unsteady": false,
                     "name": "Window9",
                     "area": 2.42,
-                    "Windows": {
+                    "Window": {
                         "Eta": 0.51,
                         "Uw": 3.49,
                         "OutHeatTrans": 25,
-                        "InConHeatTrans": 4.090909090909092
+                        "InHeatTrans": 4.090909090909092
                     },
                     "sunbreak": {
                         "D": null,
@@ -1220,11 +1229,11 @@
                     "unsteady": false,
                     "name": "Window12",
                     "area": 2.915,
-                    "Windows": {
+                    "Window": {
                         "Eta": 0.51,
                         "Uw": 3.49,
                         "OutHeatTrans": 25,
-                        "InConHeatTrans": 4.090909090909092
+                        "InHeatTrans": 4.090909090909092
                     },
                     "sunbreak": {
                         "D": null,
@@ -1273,6 +1282,9 @@
                     "Direction": "OpenBackFloor"
                 }
             ],
+			"CrossVentRoom": false,
+			"RadHeat": false,
+			"Beta": 0,
             "Surface": [
                 {
                     "skin": true,
@@ -1283,7 +1295,7 @@
                     "name": "Earthfloor1",
                     "area": 3.24,
                     "Wall": {
-                        "InConHeatTrans": 1.666666666666667,
+                        "InHeatTrans": 1.666666666666667,
                         "Layers": [
                             {},
                             {}

@@ -17,16 +17,18 @@ class Surface:
         self.__objExsrf = Exsrf(d['boundary'])
 
         self.unsteady = d['unsteady']  # 非定常フラグ
-        self.direction = d['direction'] # 室内から見た部位の方向（人体に対する形態係数計算用）
+        # self.direction = d['direction'] # 室内から見た部位の方向（人体に対する形態係数計算用）
         self.name = d['name']  # 壁体名称
 
         self.Floor = d['floor']        #床フラグ
 
         self.area = float(d['area'])  # 面積
         self.a = 0.0                    # 部位の面積比率（全面積に対する面積比）
-        self.sunbreakname = d['sunbrk']  # ひさし名称
+        self.sunbreakname = d['sunbreak']  # ひさし名称
         self.Fsdw = 0.0  # 影面積率の初期化
-        self.flr = float(d['flr'])  # 放射暖房吸収比率
+        self.flr = 0,0
+        if 'flr' in d:
+            self.flr = float(d['flr'])  # 放射暖房吸収比率
         self.fot = 0.0  # 人体に対する形態係数の初期化
         self.__IsSoil = False
         if 'IsSoil' in d:
@@ -122,7 +124,7 @@ class Surface:
             self.has_sunbrk = type(self.sunbreakname) is dict # 庇がついているかのフラグ
             # print(type(self.sunbreakname))
             if self.has_sunbrk:
-                self.sunbrk = SunbrkType(self.sunbreakname['Name'], self.sunbreakname['D'], \
+                self.sunbrk = SunbrkType(self.sunbreakname['name'], self.sunbreakname['D'], \
                         self.sunbreakname['WI1'], self.sunbreakname['WI2'], self.sunbreakname['hi'], \
                         self.sunbreakname['WR'], self.sunbreakname['WH'])
 
@@ -272,20 +274,26 @@ def WalldataRead(Name, d, DTime, IsSoil):
     # 壁体構成部材の情報を保持するクラスをインスタンス化
     layers = [
         Layer(
-            name=d_layers['Name'],
-            cond=d_layers['Cond'],
-            spech=d_layers['SpecH'],
-            thick=d_layers['Thick']
+            name=d_layers['name'],
+            cond=d_layers['cond'],
+            spech=d_layers['specH'],
+            thick=d_layers['thick']
         )
         for d_layers in d['Layers']
     ]
 
     # 壁体情報を保持するクラスをインスタンス化
+    OutEmissiv = 0.9
+    if 'OutEmissiv' in d:
+        OutEmissiv = d['OutEmissiv']
+    OutSolarAbs = 0.8
+    if 'OutSolarAbs' in d:
+        OutSolarAbs = d['OutSolarAbs']
     wall = Wall(
         Name=Name,
         IsSoil=IsSoil,
-        OutEmissiv=d['OutEmissiv'],
-        OutSolarAbs=d['OutSolarAbs'],
+        OutEmissiv=OutEmissiv,
+        OutSolarAbs=OutSolarAbs,
         InHeatTrans=d['InHeatTrans'],
         Layers=layers
     )

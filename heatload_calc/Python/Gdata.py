@@ -4,8 +4,7 @@ import datetime
 class Gdata:
     """シミュレーション全体の設定条件"""
 
-    def __init__(self, Region, TimeInterval, PreCalc, SimStMo, SimStDay, SimEnMo, SimEnDay, Latitude, Longitude,
-                 StMeridian, **options):
+    def __init__(self, Region, **options):
         """
         :param Region: 地域区分
         :param TimeInterval: 計算時間間隔(s)
@@ -26,14 +25,17 @@ class Gdata:
         self.__conlngYr = 1989
 
         # 計算時間間隔(s)
-        self.DTime = TimeInterval
+        self.DTime = 900
 
         # 助走計算期間(day)
-        self.__lngApproach = PreCalc
+        self.__lngApproach = 20
+        self.__lngApproach = 0
         # シミュレーション（本計算）の開始日
-        self.StDate = datetime.datetime(self.__conlngYr, SimStMo, SimStDay)
+        self.StDate = datetime.datetime(self.__conlngYr, 1, 1)
+        self.StDate = datetime.datetime(self.__conlngYr, 8, 1)
         # シミュレーション（本計算）終了日
-        self.EnDate = datetime.datetime(self.__conlngYr, SimEnMo, SimEnDay)
+        self.EnDate = datetime.datetime(self.__conlngYr, 12, 31)
+        self.EnDate = datetime.datetime(self.__conlngYr, 8, 1)
         # 開始日が終了日よりも後の月日の場合は、終了日にプラス1年加算する。
         if self.StDate > self.EnDate:
             self.EnDate = self.EnDate + datetime.timedelta(days=365)
@@ -48,13 +50,16 @@ class Gdata:
         # self.__blnDetailOut = blnDetailOut
         # 作用温度設定フラグ
         self.OTset = True
-        # 緯度
-        self.Latitude = Latitude
-        # 経度
-        self.Longitude = Longitude
+        # 緯度、経度
+        self.Latitude, self.Longitude = self.__calcLat_Lon(self.__Region)
         # 標準子午線
-        self.StMeridian = StMeridian
+        self.StMeridian = 135.0
 
     # 本計算フラグ
     def FlgOrig(self, dtmDate):
         return (self.StDate <= dtmDate)
+
+    # 地域区分から緯度、経度を設定する
+    # 当面は6地域の緯度、経度を返す
+    def __calcLat_Lon(self, Region):
+        return 34.6583333333333, 133.918333333333

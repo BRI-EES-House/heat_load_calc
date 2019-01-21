@@ -16,13 +16,15 @@ class Exsrf:
         :param TempDifferFactor: 温度差係数[-]
         :param IsOuterSkin: 外皮かどうか
         """
-        self.name = d['Name']       # 境界条件名称, string値
+        self.name = d['name']       # 境界条件名称, string値
         self.Type = d['Type']     # 境界条件タイプ
 
         # 日射が当たる屋外の場合
         if self.Type == "Outdoor":
-            self.Rg = float(d['GroundReflectRate'])  # 地面反射率[-]        
-            self.Wa = math.radians(float(d['DirectionAngle']))  # 傾斜面方位角 [rad]
+            self.Rg = float(d['GroundReflectRate'])  # 地面反射率[-]
+            self.Wa = 0.0
+            if d['DirectionAngle'] is not None:
+                self.Wa = math.radians(float(d['DirectionAngle']))  # 傾斜面方位角 [rad]
             # 入射角計算のためのパラメータの計算
             self.Wb = math.radians(float(d['InclinationAngle']))  # 傾斜角[rad]
             self.__Wz = math.cos(self.Wb)
@@ -35,7 +37,7 @@ class Exsrf:
             self.R = float(d['TempDifferFactor'])     # 温度差係数
         # 隣室の場合
         elif self.Type == "NextRoom":
-            self.nextroomname = d['RoomName']         # 隣室名称
+            self.nextroomname = d['roomname']         # 隣室名称
         elif self.Type == "AnnualAverage":            # 年平均気温の場合
             pass                                        # 追加情報はなし
 

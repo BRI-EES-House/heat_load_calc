@@ -1,5 +1,6 @@
 import SeasonalValue
 from SeasonalValue import SeasonalValue
+from Psychrometrics import xtrh
 
 
 # ## ２）室間換気量に関するクラス
@@ -21,11 +22,14 @@ class NextVent:
 
         # 風上室の室温を初期化(前時刻の隣室温度)
         self.oldTr = 15.0
+        self.oldxr = xtrh(20.0, 40.0)
 
     # 風上室の室温を更新
-    def update_oldTr(self, oldTr):
+    def update_oldstate(self, oldTr, oldxr):
         # 前時刻の隣室温度
         self.oldTr = oldTr
+        # 前時刻の隣室湿度
+        self.oldxr = oldxr
 
     # 風上室の室名を返す
     @property
