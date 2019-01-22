@@ -64,8 +64,8 @@ def calc_Hload(gdata, weather, schedule):
                     Weather=weather
                 )
                 if space.name == '主たる居室':
-                    print('{0:.2f}'.format(space.Tr), '{0:.4f}'.format(space.xr), '{0:.0f}'.format(space.RH), \
-                            '{0:.6f}'.format(space.Lin), '{0:.6f}'.format(space.Ghum), "", end="")
+                    print('{0:.2f}'.format(space.Tr), '{0:.0f}'.format(space.RH), '{0:.2f}'.format(space.MRT), \
+                            '{0:.0f}'.format(space.Lcs), '{0:.0f}'.format(space.Lr), '{0:.0f}'.format(space.Ll), "", end="")
             print("")
 
             # 前時刻の室温を現在時刻の室温、湿度に置換

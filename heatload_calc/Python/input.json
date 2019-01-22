@@ -6,9 +6,9 @@
 	"Rooms": [
 	{
 		"name": "主たる居室",
-		"HeatCcap": 5000,
-		"HeatRcap": 2000,
-		"CoolCcap": -4000,
+		"HeatCcap": null,
+		"HeatRcap": null,
+		"CoolCcap": null,
 		"Vol": 70.92,
 		"Fnt": 12.6,
 		"Vent": {
