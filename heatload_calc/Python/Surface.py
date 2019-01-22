@@ -111,8 +111,9 @@ class Surface:
         else:
             self.__window = Window(Name=self.name, **d['Window'])
             self.is_window = True
-            self.tau = self.__window.T  # 日射透過率
-            self.B = self.__window.B  # 吸収日射取得率
+            self.tau = self.__window.T  # 日射透過率＝日射熱取得率
+            # self.B = self.__window.B  # 吸収日射取得率
+            self.B = 0.0                # 吸収日射取得率
             self.Uso = self.__window.Uso  # 熱貫流率（表面熱伝達抵抗除く）
             self.RFA0 = 1.0 / self.Uso  # 吸熱応答係数の初項
             self.RFT0 = 1.0  # 貫流応答係数の初項

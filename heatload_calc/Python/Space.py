@@ -11,7 +11,7 @@ from NextVent import *
 import SeasonalValue
 from SeasonalValue import SeasonalValue
 from Psychrometrics import Pws, x, xtrh, rhtx
-from common import conca, conrowa, Sgm
+from common import conca, conrowa, Sgm, conra
 
 
 # # 室温・熱負荷を計算するクラス
@@ -102,14 +102,16 @@ class Space:
         self.__Capfun = self.__Vol * float(Fnt) * 1000.  # 家具熱容量[J/K]
         self.__Cfun = 0.00022 * self.__Capfun       # 家具と空気間の熱コンダクタンス[W/K]
         self.__Gf = 16.8 * self.__Vol               # 家具類の湿気容量[kg]
+        self.__Gf = 16.8 * self.__Vol               # 家具類の湿気容量[kg]
         self.__Cx = 0.0018 * self.__Gf              # 室空気と家具類間の湿気コンダクタンス[kg/(s･kg/kg(DA))]
+        self.__Cx = 0.0
         self.xr = xtrh(20.0, 40.0)
         self.__oldxr = self.xr                    # 室内絶対湿度の初期値
         self.xf = self.xr                       
         self.__oldxf = self.xr                    # 家具類の絶対湿度の初期値
         self.__BF = 0.2                             # バイパスファクター
         self.__xeout = 0.0                          # エアコン熱交換部の飽和絶対湿度[kg/kg(DA)]
-        self.__Vac = 0.0                            # エアコンの風量[m3/s]
+        self.Vac = 0.0                            # エアコンの風量[m3/s]
         self.RH = 0.0                               # 室相対湿度[%]
         # print(self.__Vol, self.__Fnt)
         # print(self.__Vol * 1.2 * 1005.0)
@@ -132,11 +134,11 @@ class Space:
 
         # 内部発熱の初期化
         # 機器顕熱
-        self.__Appl = 0.0
+        self.__Appls = 0.0
         # 照明
         self.__Light = 0.0
         # 人体顕熱
-        self.__Human = 0.0
+        self.__Humans = 0.0
         # 内部発熱合計
         self.__Hn = 0.0
 
@@ -397,12 +399,19 @@ class Space:
             # print(surface.name, Ta, RN, self.__oldTr, surface.Teo)
 
         # 内部発熱の計算（すべて対流成分とする）
-        self.__Appl = Schedule.Appl(self.name, '顕熱', dtmNow)
+        self.__Appls = Schedule.Appl(self.name, '顕熱', dtmNow)
+        self.__Appll = Schedule.Appl(self.name, '潜熱', dtmNow)
         self.__Light = Schedule.Light(self.name, dtmNow)
-        self.__Human = Schedule.Nresi(self.name, dtmNow) \
+        Nresi = Schedule.Nresi(self.name, dtmNow)
+        self.__Humans = Nresi \
                        * (63.0 - 4.0 * (self.__oldTr - 24.0))
-        self.__Hn = self.__Appl + self.__Light + self.__Human
-        # print(self.name, self.__Appl, self.__Light, self.__Human)
+        # 人体潜熱
+        self.__Humanl = max(Nresi * 119.0 - self.__Humans, 0.0)
+        self.__Hn = self.__Appls + self.__Light + self.__Humans
+
+        # 内部発湿
+        self.Lin = (self.__Appll + self.__Humanl) / conra
+        # print(self.name, self.__Appls, self.__Light, self.__Humans)
 
         # 室内表面の吸収日射量
         for surface in self.surfaces:
@@ -664,32 +673,40 @@ class Space:
 
         # 湿度の計算
         xo = Weather.WeaData(enmWeatherComponent.x, dtmNow) / 1000.
-        self.__BRMX = conrowa * (self.__Vol / Gdata.DTime + (self.__Ventset + self.__Infset + self.__LocalVent) / 3600.0)  \
-                + self.__Gf * self.__Cx / (self.__Gf + Gdata.DTime * self.__Cx)
-        self.__BRXC = conrowa * (self.__Vol / Gdata.DTime * self.__oldxr + (self.__Ventset + self.__Infset + self.__LocalVent) \
-                * xo / 3600.0) \
-                + self.__Gf * self.__Cx / (self.__Gf + Gdata.DTime * self.__Cx) * self.__oldxf
+        self.Voin = (self.__Ventset + self.__Infset + self.__LocalVent) / 3600.
+        Ff = self.__Gf * self.__Cx / (self.__Gf + Gdata.DTime * self.__Cx)
+        Vd = self.__Vol / Gdata.DTime
+        self.__BRMX = conrowa * (Vd + self.Voin) + Ff
+        self.__BRXC = conrowa * (self.__Vol / Gdata.DTime * self.__oldxr + self.Voin * xo) \
+                + Ff * self.__oldxf + self.Lin
+        
+        # if self.name == '主たる居室':
+        #     print(self.Voin, Ff, Vd)
         # 室間換気流入風
         for room_vent in self.__RoomtoRoomVent:
             nextvent = room_vent.next_vent(season)
             self.__BRMX += conrowa * nextvent / 3600.0
             self.__BRXC += conrowa * nextvent * room_vent.oldxr / 3600.0
         # 空調の熱交換部飽和絶対湿度の計算
-        self.calcxeout()
+        self.calcxeout(self.__SW)
         # 空調機除湿の項
-        self.__BRMX += conrowa * self.__Vac * (1.0 - self.__BF)
-        self.__BRXC += conrowa * self.__Vac * (1.0 - self.__BF) * self.__xeout
+        RhoVac = conrowa * self.Vac * (1.0 - self.__BF)
+        self.__BRMX += RhoVac
+        self.__BRXC += RhoVac * self.__xeout
         # 室絶対湿度の計算
         self.xr = self.__BRXC / self.__BRMX
-        # 除湿量の計算
-        self.__Ghum = conrowa * self.__Vac * (1.0 - self.__BF) * (self.xr - self.__xeout)
-        if self.__Ghum < 0.0:
-            self.__Ghum = 0.0
+        # 加湿量の計算
+        self.Ghum = RhoVac * (self.__xeout - self.xr)
+        if self.Ghum > 0.0:
+            self.Ghum = 0.0
             # 空調機除湿の項の再計算（除湿なしで計算）
-            self.__BRMX -= conrowa * self.__Vac * (1.0 - self.__BF)
-            self.__BRXC -= conrowa * self.__Vac * (1.0 - self.__BF) * self.__xeout
+            self.__BRMX -= RhoVac
+            self.__BRXC -= RhoVac * self.__xeout
+            self.Va = 0.0
             # 室絶対湿度の計算
             self.xr = self.__BRXC / self.__BRMX
+        # 潜熱負荷の計算
+        self.Ll = self.Ghum * conra
         # 室相対湿度の計算
         self.RH = rhtx(self.Tr, self.xr)
         # 家具の温度を計算
@@ -799,11 +816,12 @@ class Space:
         return self.xf
 
     # エアコンの熱交換部飽和絶対湿度の計算
-    def calcxeout(self):
+    def calcxeout(self, SW):
         # Lcsは加熱が正
         # 加熱時は除湿ゼロ
         Qs = - self.Lcs
-        if Qs < 0.0:
+        if SW == 0 or Qs <= 1.0e-3:
+            self.Vac = 0.0
             self.Ghum = 0.0
             self.Ll = 0.0
             return
@@ -811,10 +829,10 @@ class Space:
             # 風量[m3/s]の計算（線形補間）
             self.Vac = (self.__Vmin + (self.__Vmax - self.__Vmin) \
                     / (self.__qmax_c - self.__qmin_c) * (Qs - self.__qmin_c)) / 60.0
-        # 熱交換器温度＝熱交換器部分吹出温度
-        self.__Teout = self.Tr + Qs / (conca * conrowa * self.Vac * (1.0 - self.__BF))
-        # 熱交換器吹出部分は飽和状態
-        self.__xeout = x(Pws(self.__Teout))
+            # 熱交換器温度＝熱交換器部分吹出温度
+            self.__Teout = self.Tr - Qs / (conca * conrowa * self.Vac * (1.0 - self.__BF))
+            # 熱交換器吹出部分は飽和状態
+            self.__xeout = x(Pws(self.__Teout))
 
 def create_spaces(Gdata, rooms):
     objSpace = {}
