@@ -125,7 +125,10 @@ class Surface:
             self.has_sunbrk = type(self.sunbreakname) is dict # 庇がついているかのフラグ
             # print(type(self.sunbreakname))
             if self.has_sunbrk:
-                self.sunbrk = SunbrkType(self.sunbreakname['name'], self.sunbreakname['D'], \
+                sunbreakname = 'NoName'
+                if 'name' in self.sunbreakname:
+                    sunbreakname = self.sunbreakname['name']
+                self.sunbrk = SunbrkType(sunbreakname, self.sunbreakname['D'], \
                         self.sunbreakname['WI1'], self.sunbreakname['WI2'], self.sunbreakname['hi'], \
                         self.sunbreakname['WR'], self.sunbreakname['WH'])
 

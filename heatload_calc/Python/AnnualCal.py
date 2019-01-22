@@ -31,9 +31,15 @@ class AnnualCal:
     # 曜日の取得
     def Week(self, lngNday):
         # lngNday:通日
-        return self.__dicWeek[lngNday]
+        nday = lngNday
+        if nday > 365:
+            nday -= 365
+        return self.__dicWeek[nday]
 
     # 運転モードの取得
     def Season(self, lngNday):
         # lngNday:通日
-        return self.__dicSeason[lngNday]
+        nday = lngNday
+        if nday > 365:
+            nday -= 365
+        return self.__dicSeason[nday]

@@ -12,7 +12,8 @@ import SeasonalValue
 from SeasonalValue import SeasonalValue
 from Psychrometrics import Pws, x, xtrh, rhtx
 from common import conca, conrowa, Sgm, conra
-
+from PMV import *
+from Win_ACselect import *
 
 # # 室温・熱負荷を計算するクラス
 
@@ -87,6 +88,17 @@ class Space:
         self.__rsolfun = 0.5    # 透過日射の内家具が吸収する割合[－]
         self.__kc = 0.5  # 人体表面の熱伝達率の対流成分比率
         self.__kr = 0.5  # 人体表面の熱伝達率の放射成分比率
+        self.demAC = 0                          # 当該時刻の空調需要（0：なし、1：あり）
+        self.preAC = 0                          # 前時刻の空調運転状態（0：停止、正：暖房、負：冷房）
+        self.preWin = 0                         # 前時刻の窓状態（0：閉鎖、1：開放）
+        self.nowAC = 0                          # 当該時刻の空調運転状態（0：なし、正：暖房、負：冷房）
+        self.nowWin = 0                         # 当該時刻の窓状態（0：閉鎖、1：開放）
+        # PMVの計算条件
+        self.Met = 1.0                          # 代謝量[Met]
+        self.Wme = 0.0                          # 外部仕事[Met]
+        self.Vel = 0.1                          # 相対風速[m/s]
+        self.Clo = 1.0                          # 着衣量[Clo]
+        self.OTset = 0.0
         self.__HeatCcap = 0.0
         if HeatCcap is not None:
             self.__HeatCcap = float(HeatCcap)  # 最大暖房能力（対流）
@@ -112,12 +124,8 @@ class Space:
         self.__BF = 0.2                             # バイパスファクター
         self.__xeout = 0.0                          # エアコン熱交換部の飽和絶対湿度[kg/kg(DA)]
         self.Vac = 0.0                            # エアコンの風量[m3/s]
-        self.RH = 0.0                               # 室相対湿度[%]
-        # print(self.__Vol, self.__Fnt)
-        # print(self.__Vol * 1.2 * 1005.0)
-        # print(self.__Vol * self.__Fnt * 1000.0)
-        # print('aaaaa')
-        # print('Hcap=', self.__Hcap)
+        self.RH = 50.0                               # 室相対湿度[%]
+        self.__Vcrossvent = self.__Vol * 20.0       # 窓開放時通風量：とりあえず5回/h
         # 室空気の熱容量
         self.__Hcap = self.__Vol * conrowa * conca
         # print(self.__Hcap)
@@ -127,8 +135,11 @@ class Space:
         # self.__Inf = Inf                          #すきま風量
         self.__Inf = SeasonalValue(Inf['winter'], Inf['inter'], Inf['summer'])
         self.__CrossVentRoom = CrossVentRoom  # 通風対象室フラグ
-        self.__RadHeat = RadHeat  # 放射暖房設置フラグ
-        self.__Beta = float(Beta)  # 放射暖房対流比率
+        self.__isRadiantHeater = RadHeat  # 放射暖房設置フラグ
+        if Beta is None:
+            self.__Beta = 0.0 
+        else:
+            self.__Beta = float(Beta)  # 放射暖房対流比率
         # self.__oldNextRoom = []
         # self.__NextVent = []
 
@@ -409,7 +420,7 @@ class Space:
         self.__Humanl = max(Nresi * 119.0 - self.__Humans, 0.0)
         self.__Hn = self.__Appls + self.__Light + self.__Humans
 
-        # 内部発湿
+        # 内部発湿[kg/s]
         self.Lin = (self.__Appll + self.__Humanl) / conra
         # print(self.name, self.__Appls, self.__Light, self.__Humans)
 
@@ -435,13 +446,18 @@ class Space:
         self.__LocalVent = Schedule.LocalVent(self.name, dtmNow)
 
         # 空調設定温度の取得
-        self.__Tset = Schedule.ACSet(self.name, '温度', dtmNow)
-        # 空調発停信号
-        self.__SW = 0
-        if season == '暖房' and self.__Tset > 0.0:
-            self.__SW = 1
-        elif season == '冷房' and self.__Tset > 0.0:
-            self.__SW = -1
+        Tset = Schedule.ACSet(self.name, '温度', dtmNow)
+        # 空調需要の設定
+        if Tset > 0.0:
+            self.demAC = 1
+        else:
+            self.demAC = 0
+        
+        # 自然室温計算時窓開閉条件の設定
+        # 空調需要がなければ窓閉鎖、空調需要がある場合は前時刻の窓開閉状態
+        self.nowWin = 0
+        if self.demAC == 1:
+            self.nowWin = self.preWin
 
         # 室温・熱負荷計算のための係数の計算
         # BRM・BRLの初期化
@@ -540,91 +556,118 @@ class Space:
         # 定数項への内部発熱の加算
         self.__BRC += self.__Hn
 
-        # OT制御の換算係数の計算
-        if Gdata.OTset == True:
-            self.__Xot = 0.0
-            self.__XLr = 0.0
-            self.__XC = 0.0
-            temp = 0.0
-            XLr = 0.0
-            XC = 0.0
-            i = 0
-            for surface in self.surfaces:
-                temp += (surface.fot * self.__matWSR[i][0])
-                XLr += surface.fot * self.__matWSB[i][0]
-                XC += surface.fot * (self.__matWSC[i][0] + self.__matWSV[i][0])
-                i += 1
+        # 窓開閉、空調発停判定のための自然室温計算
+        # 通風なしでの係数を控えておく
+        self.__BRMnoncv = self.__BRM
+        self.__BRCnoncv = self.__BRC
+        if self.nowWin == 1:
+            temp = conca * conrowa * self.__Vcrossvent / 3600.0
+            self.__BRM += temp
+            self.__BRC += temp * Ta
 
-            temp = self.__kc + self.__kr * temp
-            self.__Xot = 1.0 / temp
-            self.__XLr = self.__kr * XLr / temp
-            self.__XC = self.__kr * XC / temp
-            self.__BRMot = self.__BRM * self.__Xot
-            self.__BRCot = self.__BRC + self.__BRM * self.__XC
-            self.__BRLot = self.__BRL + self.__BRM * self.__XLr
+        # OT計算用の係数補正
+        self.__Xot = 0.0
+        self.__XLr = 0.0
+        self.__XC = 0.0
+        temp = 0.0
+        XLr = 0.0
+        XC = 0.0
+        i = 0
+        for surface in self.surfaces:
+            temp += (surface.fot * self.__matWSR[i][0])
+            XLr += surface.fot * self.__matWSB[i][0]
+            XC += surface.fot * (self.__matWSC[i][0] + self.__matWSV[i][0])
+            i += 1
 
-        #### 通風計算はここに入れる（今回は未実装）
+        temp = self.__kc + self.__kr * temp
+        self.__Xot = 1.0 / temp
+        self.__XLr = self.__kr * XLr / temp
+        self.__XC = self.__kr * XC / temp
+        self.__BRMot = self.__BRM * self.__Xot
+        self.__BRCot = self.__BRC + self.__BRM * self.__XC
+        self.__BRLot = self.__BRL + self.__BRM * self.__XLr
+        # 自然室温でOTを計算する
+        self.__OT, self.Lcs, self.Lr = self.calcTrLs(0, self.__isRadiantHeater, self.__BRCot, self.__BRMot,
+                                                        self.__BRLot, 0, 0, 0.0)
 
-        # 室温・熱負荷の計算
-        Hcap = 0.0
-        if self.__SW > 0:
-            Hcap = self.__HeatCcap
-        elif self.__SW < 0:
-            Hcap = self.__CoolCcap
+        # 窓開閉と空調発停の判定をする
+        self.nowWin, self.nowAC = mode_select(self.demAC, self.preAC, self.preWin, self.__OT)
+
+        # 最終計算のための係数整備
+        self.__BRC = self.__BRCnoncv
+        self.__BRM = self.__BRMnoncv
+        # 通風なら通風量を設定
+        if self.nowWin == 1:
+            temp = conca * conrowa * self.__Vcrossvent / 3600.0
+            self.__BRM += temp
+            self.__BRC += temp * Ta
+        
+        # OT計算用の係数補正
+        self.__Xot = 0.0
+        self.__XLr = 0.0
+        self.__XC = 0.0
+        temp = 0.0
+        XLr = 0.0
+        XC = 0.0
+        i = 0
+        for surface in self.surfaces:
+            temp += (surface.fot * self.__matWSR[i][0])
+            XLr += surface.fot * self.__matWSB[i][0]
+            XC += surface.fot * (self.__matWSC[i][0] + self.__matWSV[i][0])
+            i += 1
+
+        temp = self.__kc + self.__kr * temp
+        self.__Xot = 1.0 / temp
+        self.__XLr = self.__kr * XLr / temp
+        self.__XC = self.__kr * XC / temp
+        self.__BRMot = self.__BRM * self.__Xot
+        self.__BRCot = self.__BRC + self.__BRM * self.__XC
+        self.__BRLot = self.__BRL + self.__BRM * self.__XLr
+        
+        # 設定温度の計算
+        self.OTset, self.Met, self.Clo, self.Vel = calcOTset(self.nowAC, self.__isRadiantHeater, self.RH)
 
         # 仮の室温、熱負荷の計算
-        # 室温設定の場合
-        if Gdata.OTset == False:
-            self.Tr, self.Lcs, self.Lr = self.calcTrLs(self.__SW,
-                                                       self.__RadHeat, self.__BRC, self.__BRM,
-                                                       self.__BRL, 0, 0, self.__Tset)
-        # OT設定の場合
-        else:
-            self.__OT, self.Lcs, self.Lr = self.calcTrLs(self.__SW,
-                                                         self.__RadHeat, self.__BRCot, self.__BRMot,
-                                                         self.__BRLot, 0, 0, self.__Tset)
-            # 室温を計算
-            self.Tr = self.__Xot * self.__OT - self.__XLr * self.Lr - self.__XC
+        self.__OT, self.Lcs, self.Lr = self.calcTrLs(self.nowAC,
+                                                        self.__isRadiantHeater, self.__BRCot, self.__BRMot,
+                                                        self.__BRLot, 0, 0, self.OTset)
+        # 室温を計算
+        self.Tr = self.__Xot * self.__OT - self.__XLr * self.Lr - self.__XC
 
-        # 最終的な運転フラグの設定
-        self.__SW = self.reset_SW(Hcap, self.__HeatRcap)
+        # 最終的な運転フラグの設定（空調時のみ）
+        self.Clo = 0.7
+        self.Vel = 0.1
+        if self.nowAC != 0:
+            if self.nowAC > 0:
+                Hcap = self.__HeatCcap
+            else:
+                Hcap = self.__CoolCcap
+            self.nowAC = reset_SW(self.nowAC, self.Lcs, self.Lr, self.__isRadiantHeater, Hcap, self.__HeatRcap)
 
         # 機器容量を再設定
-        if self.__SW > 0:
+        if self.nowAC > 0:
             Hcap = self.__HeatCcap
-        elif self.__SW < 0:
+        elif self.nowAC < 0:
             Hcap = self.__CoolCcap
         else:
             Hcap = 0.0
 
         # 最終室温・熱負荷の再計算
-        if Gdata.OTset == False:
-            self.Tr, self.Lcs, self.Lr = self.calcTrLs(self.__SW,
-                                                       self.__RadHeat, self.__BRC, self.__BRM,
-                                                       self.__BRL, Hcap, self.__HeatRcap, self.__Tset)
-        # OT設定の場合
-        else:
-            self.__OT, self.Lcs, self.Lr = self.calcTrLs(self.__SW,
-                                                         self.__RadHeat, self.__BRCot, self.__BRMot,
-                                                         self.__BRLot, Hcap, self.__HeatRcap, self.__Tset)
-            # 室温を計算
-            self.Tr = self.__Xot * self.__OT \
-                      - self.__XLr * self.Lr - self.__XC
+        self.__OT, self.Lcs, self.Lr = self.calcTrLs(self.nowAC,
+                                                        self.__isRadiantHeater, self.__BRCot, self.__BRMot,
+                                                        self.__BRLot, Hcap, self.__HeatRcap, self.OTset)
+        # 室温を計算
+        self.Tr = self.__Xot * self.__OT \
+                    - self.__XLr * self.Lr - self.__XC
 
         # 放射暖房最大能力が設定されている場合にはもう１度チェックする
-        if self.__SW == 3 and self.Lcs > Hcap and Hcap > 0.0:
-            self.__SW = 5
-            if Gdata.OTset == False:
-                self.Tr, self.Lcs, self.Lr = self.calcTrLs(self.__SW, \
-                                                           self.__RadHeat, self.__BRC, self.__BRM, \
-                                                           self.__BRL, Hcap, self.__HeatRcap, self.__Tset)
-            # OT設定の場合
-            else:
-                self.__OT, self.Lcs, self.Lr = self.calcTrLs(self.__SW, \
-                                                             self.__RadHeat, self.__BRCot, self.__BRMot, \
-                                                             self.__BRLot, Hcap, self.__HeatRcap, self.__Tset)
-                # 室温を計算
-                self.Tr = self.__Xot * self.__OT - self.__XLr * self.Lr - self.__XC
+        if self.nowAC == 3 and self.Lcs > Hcap and Hcap > 0.0:
+            self.nowAC = 5
+            self.__OT, self.Lcs, self.Lr = self.calcTrLs(self.nowAC, \
+                                                            self.__isRadiantHeater, self.__BRCot, self.__BRMot, \
+                                                            self.__BRLot, Hcap, self.__HeatRcap, self.OTset)
+            # 室温を計算
+            self.Tr = self.__Xot * self.__OT - self.__XLr * self.Lr - self.__XC
 
         # 年間熱負荷の積算
         # 助走計算以外の時だけ積算
@@ -688,7 +731,7 @@ class Space:
             self.__BRMX += conrowa * nextvent / 3600.0
             self.__BRXC += conrowa * nextvent * room_vent.oldxr / 3600.0
         # 空調の熱交換部飽和絶対湿度の計算
-        self.calcxeout(self.__SW)
+        self.calcxeout(self.nowAC)
         # 空調機除湿の項
         RhoVac = conrowa * self.Vac * (1.0 - self.__BF)
         self.__BRMX += RhoVac
@@ -713,6 +756,13 @@ class Space:
         self.Tfun = self.calcTfun(Gdata)
         self.xf = self.calcxf(Gdata)
 
+        # PMVの計算
+        self.PMV = calcPMV(self.Tr, self.MRT, self.RH, self.Vel, self.Met, self.Wme, self.Clo)
+
+        # 当該時刻の空調状態、窓開閉状態を控える
+        self.preAC = self.nowAC
+        self.preWin = self.nowWin
+
         return 0
 
     # 前時刻の室温を現在時刻の室温、家具温度に置換
@@ -723,15 +773,15 @@ class Space:
         self.__oldxf = self.xf
 
     # 室温・熱負荷の計算ルーティン
-    def calcTrLs(self, SW, RadHeat, BRC, BRM, BRL, Hcap, Lrcap, Tset):
+    def calcTrLs(self, nowAC, RadHeat, BRC, BRM, BRL, Hcap, Lrcap, Tset):
         Lcs = 0.0
         Lr = 0.0
         Tr = 0.0
         # 非空調時の計算
-        if SW == 0:
+        if nowAC == 0:
             Tr = BRC / BRM
         # 熱負荷計算（最大能力無制限）
-        elif SW == 1 or SW == -1 or SW == 4:
+        elif nowAC == 1 or nowAC == -1 or nowAC == 4:
             # 対流式空調の場合
             if RadHeat != True:
                 Lcs = BRM * Tset - BRC
@@ -741,18 +791,18 @@ class Space:
             # 室温の計算
             Tr = (BRC + Lcs + BRL * Lr) / BRM
         # 対流空調最大能力運転
-        elif (SW == 2 and Hcap > 0.0) or (SW == -2 and Hcap < 0.0):
+        elif (nowAC == 2 and Hcap > 0.0) or (nowAC == -2 and Hcap < 0.0):
             Lcs = Hcap
             Tr = (BRC + Hcap) / BRM
         # 放射暖房最大能力運転（当面は暖房のみ）
-        elif SW == 3 and Lrcap > 0.0:
+        elif nowAC == 3 and Lrcap > 0.0:
             Lr = Lrcap
             # 室温は対流式で維持する
             Lcs = BRM * Tset - BRC - Lr * BRL
             # 室温の計算
             Tr = (BRC + Lcs + BRL * Lr) / BRM
         # 放射空調も対流空調も最大能力運転
-        elif SW == 5:
+        elif nowAC == 5:
             # 放射暖房、対流暖房ともに最大能力
             Lr = Lrcap
             Lcs = Hcap
@@ -762,29 +812,7 @@ class Space:
         # 室温、対流空調熱負荷、放射空調熱負荷を返す
         return (Tr, Lcs, Lr)
 
-    # 最終の空調信号の計算
-    def reset_SW(self, Hcap, Lrcap):
-        temp = self.__SW
-
-        # 「冷房時の暖房」、「暖房時の冷房」判定
-        if float(self.__SW) * (self.Lcs + self.Lr) < 0.0:
-            temp = 0
-        # 暖房の過負荷状態
-        elif not self.__RadHeat and self.__SW == 1 and Hcap > 0.0 \
-                and self.Lcs > Hcap:
-            temp = 2
-        # 冷房の過負荷状態
-        elif self.__SW == -1 and Hcap < 0.0 and self.Lcs < Hcap:
-            temp = -2
-        # 放射暖房の過負荷状態
-        elif self.__RadHeat and self.__SW == 1 and Lrcap > 0.0 \
-                and self.Lr > Lrcap:
-            temp = 3
-        # 放射暖房の過熱状態
-        elif self.__RadHeat and self.__SW == 1 and Lrcap <= 0.0:
-            temp = 4
-
-        return temp
+    
 
     # 平均放射温度の計算
     def update_Tsx(self):
@@ -816,11 +844,11 @@ class Space:
         return self.xf
 
     # エアコンの熱交換部飽和絶対湿度の計算
-    def calcxeout(self, SW):
+    def calcxeout(self, nowAC):
         # Lcsは加熱が正
         # 加熱時は除湿ゼロ
         Qs = - self.Lcs
-        if SW == 0 or Qs <= 1.0e-3:
+        if nowAC == 0 or Qs <= 1.0e-3:
             self.Vac = 0.0
             self.Ghum = 0.0
             self.Ll = 0.0
@@ -837,11 +865,31 @@ class Space:
 def create_spaces(Gdata, rooms):
     objSpace = {}
     for room in rooms:
-        space = Space(Gdata, room['name'], \
-                      room['HeatCcap'], \
-                      room['HeatRcap'], room['CoolCcap'], room['Vol'], \
-                      room['Fnt'], room['Vent'], room['Inf'], \
-                      room['CrossVentRoom'], room['RadHeat'], room['Beta'], room['NextVent'],
+        HeatCcap = None
+        if 'HeatCcap' in room:
+            HeatCcap = room['HeatCcap']
+        HeatRcap = None
+        if 'HeatRcap' in room:
+            HeatRcap = room['HeatRcap']
+        CoolCcap = None
+        if 'CoolCcap' in room:
+            CoolCcap = room['CoolCcap']
+        RadHeat = None
+        if 'RadHeat' in room:
+            RadHeat = room['RadHeat']
+        CrossVentRoom = None
+        if 'CrossVentRoom' in room:
+            CrossVentRoom = room['CrossVentRoom']
+        Beta = None
+        if 'Beta' in room:
+            Beta = room['Beta']
+        Fnt = 12.6
+        if 'Fnt' in room:
+            Fnt = room['Fnt']
+        space = Space(Gdata, room['roomname'], \
+                      HeatCcap, HeatRcap, CoolCcap, room['Vol'], \
+                      Fnt, room['Vent'], room['Inf'], \
+                      CrossVentRoom, RadHeat, Beta, room['NextVent'],
                       room['Surface'])
-        objSpace[room['name']] = space
+        objSpace[room['roomname']] = space
     return objSpace

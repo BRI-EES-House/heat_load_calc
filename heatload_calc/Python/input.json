@@ -5,7 +5,7 @@
 	
 	"Rooms": [
 	{
-		"name": "主たる居室",
+		"roomname": "主たる居室",
 		"HeatCcap": null,
 		"HeatRcap": null,
 		"CoolCcap": null,
@@ -563,7 +563,7 @@
 		]
 	},
 	{
-		"name": "その他居室_寝室",
+		"roomname": "その他居室_寝室",
 		"HeatCcap": 3000,
 		"HeatRcap": null,
 		"CoolCcap": -3000,
@@ -954,7 +954,7 @@
 		]
 	},
 	{
-		"name": "その他居室_子供室1",
+		"roomname": "その他居室_子供室1",
 		"HeatCcap": 3000,
 		"HeatRcap": null,
 		"CoolCcap": -3000,
@@ -1298,7 +1298,7 @@
 		]
 	},
 	{
-		"name": "その他居室_子供室2",
+		"roomname": "その他居室_子供室2",
 		"HeatCcap": 3000,
 		"HeatRcap": null,
 		"CoolCcap": -3000,
@@ -1683,7 +1683,7 @@
 		]
 	},
 	{
-		"name": "その他居室_和室",
+		"roomname": "その他居室_和室",
 		"HeatCcap": 3000,
 		"HeatRcap": null,
 		"CoolCcap": -3000,
@@ -2134,7 +2134,7 @@
 		]
 	},
 	{
-		"name": "非居室",
+		"roomname": "非居室",
 		"HeatCcap": null,
 		"HeatRcap": null,
 		"CoolCcap": null,

@@ -20,6 +20,8 @@ def calc_Hload(gdata, weather, schedule):
     lngStNday = common.get_nday(gdata.ApDate.month, gdata.ApDate.day)
     # 計算終了日の通日
     lngEnNday = common.get_nday(gdata.EnDate.month, gdata.EnDate.day)
+    if gdata.ApDate.year != gdata.EnDate.year:
+        lngEnNday += 365
     if lngStNday > lngEnNday:
         lngEnNday += 365
 
@@ -51,6 +53,7 @@ def calc_Hload(gdata, weather, schedule):
             #     exsrf.update_slop_sol(Solpos, Idn, Isky)
 
             # 室温・熱負荷の計算
+            # if gdata.FlgOrig(dtmNow):
             print(dtmNow, '{0:.1f}'.format(weather.WeaData(enmWeatherComponent.Ta, dtmNow)), \
                     '{0:.3f}'.format(weather.WeaData(enmWeatherComponent.x, dtmNow) / 1000.0), "", end="")
             for space in spaces.values():
@@ -63,9 +66,13 @@ def calc_Hload(gdata, weather, schedule):
                     Schedule=schedule,
                     Weather=weather
                 )
-                if space.name == '主たる居室':
-                    print('{0:.2f}'.format(space.Tr), '{0:.0f}'.format(space.RH), '{0:.2f}'.format(space.MRT), \
+                
+                if gdata.FlgOrig(dtmNow) and space.name == '主たる居室':
+                    print('{0:.0f}'.format(space.nowWin), '{0:.0f}'.format(space.nowAC), '{0:.2f}'.format(space.Tr), \
+                            '{0:.0f}'.format(space.RH), '{0:.2f}'.format(space.MRT), '{0:.2f}'.format(space.PMV), \
                             '{0:.0f}'.format(space.Lcs), '{0:.0f}'.format(space.Lr), '{0:.0f}'.format(space.Ll), "", end="")
+            
+            # if gdata.FlgOrig(dtmNow):
             print("")
 
             # 前時刻の室温を現在時刻の室温、湿度に置換
@@ -73,7 +80,6 @@ def calc_Hload(gdata, weather, schedule):
                 space.update_oldstate()
 
         lngNnow += 1
-
 
 if __name__ == '__main__':
     js = open('input.json', 'r', encoding='utf-8')
