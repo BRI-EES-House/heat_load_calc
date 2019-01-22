@@ -51,7 +51,8 @@ def calc_Hload(gdata, weather, schedule):
             #     exsrf.update_slop_sol(Solpos, Idn, Isky)
 
             # 室温・熱負荷の計算
-            print(dtmNow, "", end="")
+            print(dtmNow, '{0:.1f}'.format(weather.WeaData(enmWeatherComponent.Ta, dtmNow)), \
+                    '{0:.3f}'.format(weather.WeaData(enmWeatherComponent.x, dtmNow) / 1000.0), "", end="")
             for space in spaces.values():
                 # 室温、熱負荷の計算
                 space.calcHload(
@@ -62,7 +63,9 @@ def calc_Hload(gdata, weather, schedule):
                     Schedule=schedule,
                     Weather=weather
                 )
-                print('{0:.2f}'.format(space.Tr), '{0:.4f}'.format(space.xr), '{0:.0f}'.format(space.RH), '{0:.2f}'.format(space.Tfun), '{0:.4f}'.format(space.xf), "", end="")
+                if space.name == '主たる居室':
+                    print('{0:.2f}'.format(space.Tr), '{0:.4f}'.format(space.xr), '{0:.0f}'.format(space.RH), \
+                            '{0:.6f}'.format(space.Lin), '{0:.6f}'.format(space.Ghum), "", end="")
             print("")
 
             # 前時刻の室温を現在時刻の室温、湿度に置換

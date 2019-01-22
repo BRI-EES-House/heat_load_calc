@@ -3,13 +3,11 @@ class Window:
     """開口部透明部位の基本情報（開口部名称、日射熱取得率、熱貫流率等）を保持するクラス"""
 
     # 初期化
-    def __init__(self, Name, Eta, SolarTrans, SolarAbsorp, Uw, OutHeatTrans, OutEmissiv, InHeatTrans,
+    def __init__(self, Name, Eta, Uw, OutHeatTrans, OutEmissiv, InHeatTrans,
                  **options):
         """
         :param Name: 開口部名称
         :param Eta: 日射熱取得率[-]
-        :param SolarTrans: 日射透過率[-]
-        :param SolarAbsorp: 吸収日射取得率[-]
         :param Uw: 開口部熱貫流率[W/m2K]
         :param OutHeatTrans: 室外側熱伝達率[W/m2K]
         :param OutEmissiv: 室外側放射率[-]
@@ -17,9 +15,10 @@ class Window:
         :param options: その他のオプション
         """
         self.Name = Name  # 開口部名称, string値
-        self.Eta = float(Eta)  # 日射熱取得率[-]
-        self.T = float(SolarTrans)  # 日射透過率[-]
-        self.B = float(SolarAbsorp)  # 吸収日射取得率[-]
+        self.T = float(Eta)  # 透過率＝日射熱取得率とする
+        # self.T = float(SolarTrans)  # 日射透過率[-]
+        # self.B = float(SolarAbsorp)  # 吸収日射取得率[-]
+        self.B = 0.0
         self.Uw = float(Uw)  # 開口部熱貫流率[W/m2K]
         self.ho = float(OutHeatTrans)  # 室外側熱伝達率[W/m2K]
         self.Eo = float(OutEmissiv)  # 室外側放射率[-]

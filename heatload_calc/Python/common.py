@@ -1,5 +1,7 @@
 import datetime
 
+#蒸発潜熱[J/kg]
+conra = 2501000.0
 #空気の比熱[J/kg K]
 conca = 1005.0
 #空気の密度[kg/m3]
