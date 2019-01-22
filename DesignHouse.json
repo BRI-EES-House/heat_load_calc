@@ -41,7 +41,7 @@
                         "Layers": [
                             {
                                 "name": "GW16K",
-                                "thick": 0.0,
+                                "thick": 0.179,
                                 "cond": 0.045,
                                 "specH": 13.0
                             },
@@ -76,7 +76,7 @@
                         "Layers": [
                             {
                                 "name": "GW16K",
-                                "thick": 0.0,
+                                "thick": 0.076,
                                 "cond": 0.045,
                                 "specH": 13.0
                             },
@@ -111,7 +111,7 @@
                         "Layers": [
                             {
                                 "name": "GW16K",
-                                "thick": 0.0,
+                                "thick": 0.076,
                                 "cond": 0.045,
                                 "specH": 13.0
                             },
@@ -146,7 +146,7 @@
                         "Layers": [
                             {
                                 "name": "GW16K",
-                                "thick": 0.0,
+                                "thick": 0.076,
                                 "cond": 0.045,
                                 "specH": 13.0
                             },
@@ -181,7 +181,7 @@
                         "Layers": [
                             {
                                 "name": "GW16K",
-                                "thick": 0.0,
+                                "thick": 0.076,
                                 "cond": 0.045,
                                 "specH": 13.0
                             },
@@ -214,7 +214,7 @@
                         "Layers": [
                             {
                                 "name": "GW16K",
-                                "thick": 0.0,
+                                "thick": 0.081,
                                 "cond": 0.045,
                                 "specH": 13.0
                             },
@@ -247,7 +247,7 @@
                         "Layers": [
                             {
                                 "name": "GW16K",
-                                "thick": 0.0,
+                                "thick": 0.081,
                                 "cond": 0.045,
                                 "specH": 13.0
                             },
@@ -321,7 +321,7 @@
                     "area": 7.5633333333333335,
                     "Windows": {
                         "Eta": 0.51,
-                        "Uw": 3.49,
+                        "UW": 3.49,
                         "OutHeatTrans": 25,
                         "InHeatTrans": 9.090909090909092
                     },
@@ -347,7 +347,7 @@
                     "area": 0.7933333333333332,
                     "Windows": {
                         "Eta": 0.51,
-                        "Uw": 3.49,
+                        "UW": 3.49,
                         "OutHeatTrans": 25,
                         "InHeatTrans": 9.090909090909092
                     },
@@ -373,7 +373,7 @@
                     "area": 1.21,
                     "Windows": {
                         "Eta": 0.51,
-                        "Uw": 3.49,
+                        "UW": 3.49,
                         "OutHeatTrans": 25,
                         "InHeatTrans": 9.090909090909092
                     },
@@ -399,7 +399,7 @@
                     "area": 1.4566666666666666,
                     "Windows": {
                         "Eta": 0.51,
-                        "Uw": 3.49,
+                        "UW": 3.49,
                         "OutHeatTrans": 25,
                         "InHeatTrans": 9.090909090909092
                     },
@@ -655,7 +655,7 @@
                         "Layers": [
                             {
                                 "name": "GW16K",
-                                "thick": 0.0,
+                                "thick": 0.179,
                                 "cond": 0.045,
                                 "specH": 13.0
                             },
@@ -690,7 +690,7 @@
                         "Layers": [
                             {
                                 "name": "GW16K",
-                                "thick": 0.0,
+                                "thick": 0.076,
                                 "cond": 0.045,
                                 "specH": 13.0
                             },
@@ -725,7 +725,7 @@
                         "Layers": [
                             {
                                 "name": "GW16K",
-                                "thick": 0.0,
+                                "thick": 0.076,
                                 "cond": 0.045,
                                 "specH": 13.0
                             },
@@ -760,7 +760,7 @@
                         "Layers": [
                             {
                                 "name": "GW16K",
-                                "thick": 0.0,
+                                "thick": 0.076,
                                 "cond": 0.045,
                                 "specH": 13.0
                             },
@@ -795,7 +795,7 @@
                         "Layers": [
                             {
                                 "name": "GW16K",
-                                "thick": 0.0,
+                                "thick": 0.076,
                                 "cond": 0.045,
                                 "specH": 13.0
                             },
@@ -828,7 +828,7 @@
                         "Layers": [
                             {
                                 "name": "GW16K",
-                                "thick": 0.0,
+                                "thick": 0.081,
                                 "cond": 0.045,
                                 "specH": 13.0
                             },
@@ -861,7 +861,7 @@
                         "Layers": [
                             {
                                 "name": "GW16K",
-                                "thick": 0.0,
+                                "thick": 0.081,
                                 "cond": 0.045,
                                 "specH": 13.0
                             },
@@ -935,7 +935,7 @@
                     "area": 7.5633333333333335,
                     "Windows": {
                         "Eta": 0.51,
-                        "Uw": 3.49,
+                        "UW": 3.49,
                         "OutHeatTrans": 25,
                         "InHeatTrans": 9.090909090909092
                     },
@@ -961,7 +961,7 @@
                     "area": 0.7933333333333332,
                     "Windows": {
                         "Eta": 0.51,
-                        "Uw": 3.49,
+                        "UW": 3.49,
                         "OutHeatTrans": 25,
                         "InHeatTrans": 9.090909090909092
                     },
@@ -987,7 +987,7 @@
                     "area": 1.21,
                     "Windows": {
                         "Eta": 0.51,
-                        "Uw": 3.49,
+                        "UW": 3.49,
                         "OutHeatTrans": 25,
                         "InHeatTrans": 9.090909090909092
                     },
@@ -1013,7 +1013,7 @@
                     "area": 1.4566666666666666,
                     "Windows": {
                         "Eta": 0.51,
-                        "Uw": 3.49,
+                        "UW": 3.49,
                         "OutHeatTrans": 25,
                         "InHeatTrans": 9.090909090909092
                     },
@@ -1282,7 +1282,7 @@
                         "Layers": [
                             {
                                 "name": "GW16K",
-                                "thick": 0.0,
+                                "thick": 0.179,
                                 "cond": 0.045,
                                 "specH": 13.0
                             },
@@ -1317,7 +1317,7 @@
                         "Layers": [
                             {
                                 "name": "GW16K",
-                                "thick": 0.0,
+                                "thick": 0.076,
                                 "cond": 0.045,
                                 "specH": 13.0
                             },
@@ -1352,7 +1352,7 @@
                         "Layers": [
                             {
                                 "name": "GW16K",
-                                "thick": 0.0,
+                                "thick": 0.076,
                                 "cond": 0.045,
                                 "specH": 13.0
                             },
@@ -1387,7 +1387,7 @@
                         "Layers": [
                             {
                                 "name": "GW16K",
-                                "thick": 0.0,
+                                "thick": 0.076,
                                 "cond": 0.045,
                                 "specH": 13.0
                             },
@@ -1422,7 +1422,7 @@
                         "Layers": [
                             {
                                 "name": "GW16K",
-                                "thick": 0.0,
+                                "thick": 0.076,
                                 "cond": 0.045,
                                 "specH": 13.0
                             },
@@ -1455,7 +1455,7 @@
                         "Layers": [
                             {
                                 "name": "GW16K",
-                                "thick": 0.0,
+                                "thick": 0.081,
                                 "cond": 0.045,
                                 "specH": 13.0
                             },
@@ -1488,7 +1488,7 @@
                         "Layers": [
                             {
                                 "name": "GW16K",
-                                "thick": 0.0,
+                                "thick": 0.081,
                                 "cond": 0.045,
                                 "specH": 13.0
                             },
@@ -1562,7 +1562,7 @@
                     "area": 7.5633333333333335,
                     "Windows": {
                         "Eta": 0.51,
-                        "Uw": 3.49,
+                        "UW": 3.49,
                         "OutHeatTrans": 25,
                         "InHeatTrans": 9.090909090909092
                     },
@@ -1588,7 +1588,7 @@
                     "area": 0.7933333333333332,
                     "Windows": {
                         "Eta": 0.51,
-                        "Uw": 3.49,
+                        "UW": 3.49,
                         "OutHeatTrans": 25,
                         "InHeatTrans": 9.090909090909092
                     },
@@ -1614,7 +1614,7 @@
                     "area": 1.21,
                     "Windows": {
                         "Eta": 0.51,
-                        "Uw": 3.49,
+                        "UW": 3.49,
                         "OutHeatTrans": 25,
                         "InHeatTrans": 9.090909090909092
                     },
@@ -1640,7 +1640,7 @@
                     "area": 1.4566666666666666,
                     "Windows": {
                         "Eta": 0.51,
-                        "Uw": 3.49,
+                        "UW": 3.49,
                         "OutHeatTrans": 25,
                         "InHeatTrans": 9.090909090909092
                     },
