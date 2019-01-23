@@ -35,7 +35,7 @@ class Gdata:
         # self.StDate = datetime.datetime(self.__conlngYr, 1, 1)
         # シミュレーション（本計算）終了日
         self.EnDate = datetime.datetime(self.__conlngYr, 12, 31)
-        # self.EnDate = datetime.datetime(self.__conlngYr, 1, 1)
+        # self.EnDate = datetime.datetime(self.__conlngYr, 1, 6)
         # 開始日が終了日よりも後の月日の場合は、終了日にプラス1年加算する。
         if self.StDate > self.EnDate:
             self.EnDate = self.EnDate + datetime.timedelta(days=365)

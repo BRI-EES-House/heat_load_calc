@@ -1,3 +1,4 @@
+import csv
 import datetime
 import json
 import common
@@ -38,6 +39,8 @@ def calc_Hload(gdata, weather, schedule):
     # 助走計算開始日
     apDate = gdata.ApDate
 
+    # 出力リスト
+    OutList = []
     # 日ループの開始
     for lngNday in range(lngStNday, lngEnNday + 1):
         # 時刻ループの開始
@@ -51,11 +54,15 @@ def calc_Hload(gdata, weather, schedule):
             # Isky = weather.WeaData(enmWeatherComponent.Isky, dtmNow)
             # for exsrf in exsurfaces.values():
             #     exsrf.update_slop_sol(Solpos, Idn, Isky)
-
+            rowlist = []
             # 室温・熱負荷の計算
-            # if gdata.FlgOrig(dtmNow):
-            print(dtmNow, '{0:.1f}'.format(weather.WeaData(enmWeatherComponent.Ta, dtmNow)), \
-                    '{0:.3f}'.format(weather.WeaData(enmWeatherComponent.x, dtmNow) / 1000.0), "", end="")
+            if gdata.FlgOrig(dtmNow):
+                # 出力文字列
+                rowlist.append(str(dtmNow))
+                rowlist.append('{0:.1f}'.format(weather.WeaData(enmWeatherComponent.Ta, dtmNow)))
+                rowlist.append('{0:.4f}'.format(weather.WeaData(enmWeatherComponent.x, dtmNow) / 1000.0))
+                if lngTloop == 0:
+                    print(dtmNow)
             for space in spaces.values():
                 # 室温、熱負荷の計算
                 space.calcHload(
@@ -68,18 +75,38 @@ def calc_Hload(gdata, weather, schedule):
                 )
                 
                 if gdata.FlgOrig(dtmNow) and space.name == '主たる居室':
-                    print('{0:.0f}'.format(space.nowWin), '{0:.0f}'.format(space.nowAC), '{0:.2f}'.format(space.Tr), \
-                            '{0:.0f}'.format(space.RH), '{0:.2f}'.format(space.MRT), '{0:.2f}'.format(space.PMV), \
-                            '{0:.0f}'.format(space.Lcs), '{0:.0f}'.format(space.Lr), '{0:.0f}'.format(space.Ll), "", end="")
+                    rowlist.append('{0:.0f}'.format(space.nowWin))
+                    rowlist.append('{0:.0f}'.format(space.demAC))
+                    rowlist.append('{0:.0f}'.format(space.nowAC))
+                    rowlist.append('{0:.2f}'.format(space.Tr))
+                    rowlist.append('{0:.0f}'.format(space.RH))
+                    rowlist.append('{0:.4f}'.format(space.xr))
+                    rowlist.append('{0:.2f}'.format(space.MRT))
+                    rowlist.append('{0:.2f}'.format(space.Clo))
+                    rowlist.append('{0:.2f}'.format(space.Vel))
+                    rowlist.append('{0:.2f}'.format(space.PMV))
+                    rowlist.append('{0:.0f}'.format(space.Lcs))
+                    rowlist.append('{0:.0f}'.format(space.Lr))
+                    rowlist.append('{0:.0f}'.format(space.Ll))
+                    # print('{0:.0f}'.format(space.nowWin), '{0:.0f}'.format(space.nowAC), '{0:.2f}'.format(space.Tr), \
+                    #         '{0:.0f}'.format(space.RH), '{0:.2f}'.format(space.MRT), '{0:.2f}'.format(space.PMV), \
+                    #         '{0:.0f}'.format(space.Lcs), '{0:.0f}'.format(space.Lr), '{0:.0f}'.format(space.Ll), "", end="")
             
-            # if gdata.FlgOrig(dtmNow):
-            print("")
+            if gdata.FlgOrig(dtmNow):
+                OutList.append(rowlist)
+                # print("")
 
             # 前時刻の室温を現在時刻の室温、湿度に置換
             for space in spaces.values():
                 space.update_oldstate()
 
         lngNnow += 1
+
+    # CSVファイルの出力
+    f = open('simulatin_result.csv', 'w')
+    dataWriter = csv.writer(f, lineterminator='\n')
+    dataWriter.writerows(OutList)
+    f.close()
 
 if __name__ == '__main__':
     js = open('input.json', 'r', encoding='utf-8')

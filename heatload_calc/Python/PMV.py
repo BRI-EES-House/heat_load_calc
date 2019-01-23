@@ -85,7 +85,7 @@ def calcOTset(nowAC, isRadiantHeater, RH):
     Clo = 0.7
     Vel = 0.1
     # 冷房時
-    if nowAC > 0:
+    if nowAC < 0:
         # 着衣量0.4clo、代謝量1.0Met、風速0.2m/sを想定
         OTset = - 0.021 * RH + 28.6
         Met = 1.0

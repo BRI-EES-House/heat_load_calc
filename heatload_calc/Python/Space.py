@@ -448,7 +448,7 @@ class Space:
         # 空調設定温度の取得
         Tset = Schedule.ACSet(self.name, '温度', dtmNow)
         # 空調需要の設定
-        if Tset > 0.0:
+        if Nresi > 0:
             self.demAC = 1
         else:
             self.demAC = 0
@@ -635,8 +635,6 @@ class Space:
         self.Tr = self.__Xot * self.__OT - self.__XLr * self.Lr - self.__XC
 
         # 最終的な運転フラグの設定（空調時のみ）
-        self.Clo = 0.7
-        self.Vel = 0.1
         if self.nowAC != 0:
             if self.nowAC > 0:
                 Hcap = self.__HeatCcap
