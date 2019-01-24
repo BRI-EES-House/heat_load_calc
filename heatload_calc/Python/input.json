@@ -7,7 +7,7 @@
 	{
 		"roomname": "主たる居室",
 		"HeatCcap": null,
-		"HeatRcap": null,
+		"HeatRcap": 3000,
 		"CoolCcap": null,
 		"Vol": 70.92,
 		"Fnt": 12.6,
@@ -22,7 +22,7 @@
 			"summer": 0.0
 		},
 		"CrossVentRoom": false,
-		"RadHeat": false,
+		"RadHeat": true,
 		"Beta": 0,
 		"NextVent": [
 		],

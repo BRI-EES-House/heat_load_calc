@@ -114,9 +114,7 @@ class Space:
         self.__Capfun = self.__Vol * float(Fnt) * 1000.  # 家具熱容量[J/K]
         self.__Cfun = 0.00022 * self.__Capfun       # 家具と空気間の熱コンダクタンス[W/K]
         self.__Gf = 16.8 * self.__Vol               # 家具類の湿気容量[kg]
-        self.__Gf = 16.8 * self.__Vol               # 家具類の湿気容量[kg]
         self.__Cx = 0.0018 * self.__Gf              # 室空気と家具類間の湿気コンダクタンス[kg/(s･kg/kg(DA))]
-        self.__Cx = 0.0
         self.xr = xtrh(20.0, 40.0)
         self.__oldxr = self.xr                    # 室内絶対湿度の初期値
         self.xf = self.xr                       
@@ -592,6 +590,8 @@ class Space:
 
         # 窓開閉と空調発停の判定をする
         self.nowWin, self.nowAC = mode_select(self.demAC, self.preAC, self.preWin, self.__OT)
+        # if self.nowAC == 1 and self.__isRadiantHeater:
+        #     self.nowAC = 4
 
         # 最終計算のための係数整備
         self.__BRC = self.__BRCnoncv
@@ -635,23 +635,24 @@ class Space:
         self.Tr = self.__Xot * self.__OT - self.__XLr * self.Lr - self.__XC
 
         # 最終的な運転フラグの設定（空調時のみ）
+        self.finalAC = self.nowAC
         if self.nowAC != 0:
             if self.nowAC > 0:
                 Hcap = self.__HeatCcap
             else:
                 Hcap = self.__CoolCcap
-            self.nowAC = reset_SW(self.nowAC, self.Lcs, self.Lr, self.__isRadiantHeater, Hcap, self.__HeatRcap)
+            self.finalAC = reset_SW(self.nowAC, self.Lcs, self.Lr, self.__isRadiantHeater, Hcap, self.__HeatRcap)
 
         # 機器容量を再設定
-        if self.nowAC > 0:
+        if self.finalAC > 0:
             Hcap = self.__HeatCcap
-        elif self.nowAC < 0:
+        elif self.finalAC < 0:
             Hcap = self.__CoolCcap
         else:
             Hcap = 0.0
 
         # 最終室温・熱負荷の再計算
-        self.__OT, self.Lcs, self.Lr = self.calcTrLs(self.nowAC,
+        self.__OT, self.Lcs, self.Lr = self.calcTrLs(self.finalAC,
                                                         self.__isRadiantHeater, self.__BRCot, self.__BRMot,
                                                         self.__BRLot, Hcap, self.__HeatRcap, self.OTset)
         # 室温を計算
@@ -659,9 +660,9 @@ class Space:
                     - self.__XLr * self.Lr - self.__XC
 
         # 放射暖房最大能力が設定されている場合にはもう１度チェックする
-        if self.nowAC == 3 and self.Lcs > Hcap and Hcap > 0.0:
-            self.nowAC = 5
-            self.__OT, self.Lcs, self.Lr = self.calcTrLs(self.nowAC, \
+        if self.finalAC == 3 and self.Lcs > Hcap and Hcap > 0.0:
+            self.finalAC = 5
+            self.__OT, self.Lcs, self.Lr = self.calcTrLs(self.finalAC, \
                                                             self.__isRadiantHeater, self.__BRCot, self.__BRMot, \
                                                             self.__BRLot, Hcap, self.__HeatRcap, self.OTset)
             # 室温を計算
@@ -729,7 +730,7 @@ class Space:
             self.__BRMX += conrowa * nextvent / 3600.0
             self.__BRXC += conrowa * nextvent * room_vent.oldxr / 3600.0
         # 空調の熱交換部飽和絶対湿度の計算
-        self.calcxeout(self.nowAC)
+        self.calcVac_xeout(self.nowAC)
         # 空調機除湿の項
         RhoVac = conrowa * self.Vac * (1.0 - self.__BF)
         self.__BRMX += RhoVac
@@ -781,7 +782,7 @@ class Space:
         # 熱負荷計算（最大能力無制限）
         elif nowAC == 1 or nowAC == -1 or nowAC == 4:
             # 対流式空調の場合
-            if RadHeat != True:
+            if RadHeat != True or RadHeat and nowAC < 0:
                 Lcs = BRM * Tset - BRC
             # 放射式空調
             else:
@@ -842,7 +843,7 @@ class Space:
         return self.xf
 
     # エアコンの熱交換部飽和絶対湿度の計算
-    def calcxeout(self, nowAC):
+    def calcVac_xeout(self, nowAC):
         # Lcsは加熱が正
         # 加熱時は除湿ゼロ
         Qs = - self.Lcs

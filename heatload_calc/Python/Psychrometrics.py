@@ -51,3 +51,5 @@ def rhtp(T, Pw):
 # x：絶対湿度[kg/kg(DA)]
 def rhtx(T, x):
         return rhtp(T, Pwx(x))
+
+print(xtrh(20.0, 40.0))

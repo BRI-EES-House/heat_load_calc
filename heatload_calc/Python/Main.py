@@ -77,7 +77,7 @@ def calc_Hload(gdata, weather, schedule):
                 if gdata.FlgOrig(dtmNow) and space.name == '主たる居室':
                     rowlist.append('{0:.0f}'.format(space.nowWin))
                     rowlist.append('{0:.0f}'.format(space.demAC))
-                    rowlist.append('{0:.0f}'.format(space.nowAC))
+                    rowlist.append('{0:.0f}'.format(space.finalAC))
                     rowlist.append('{0:.2f}'.format(space.Tr))
                     rowlist.append('{0:.0f}'.format(space.RH))
                     rowlist.append('{0:.4f}'.format(space.xr))
