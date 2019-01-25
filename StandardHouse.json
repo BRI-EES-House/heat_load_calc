@@ -41,77 +41,7 @@
                         "Layers": [
                             {
                                 "name": "GW16K",
-                                "thick": 0.179,
-                                "cond": 0.045,
-                                "specH": 13.0
-                            },
-                            {
-                                "name": "GPB",
-                                "thick": 0.0095,
-                                "cond": 0.22,
-                                "specH": 830.0
-                            }
-                        ]
-                    },
-                    "sunbreak": {}
-                },
-                {
-                    "skin": true,
-                    "direction": "Vertical",
-                    "floor": false,
-                    "boundary": {
-                        "name": "SW",
-                        "Type": "Outdoor",
-                        "DirectionAngle": 45,
-                        "InclinationAngle": 90,
-                        "GroundReflectRate": 0.1
-                    },
-                    "unsteady": true,
-                    "IsSoil": false,
-                    "name": "Wall1",
-                    "area": 10.156666666666666,
-                    "Wall": {
-                        "OutHeatTrans": 25.0,
-                        "InHeatTrans": 9.090909090909092,
-                        "Layers": [
-                            {
-                                "name": "GW16K",
-                                "thick": 0.076,
-                                "cond": 0.045,
-                                "specH": 13.0
-                            },
-                            {
-                                "name": "GPB",
-                                "thick": 0.0095,
-                                "cond": 0.22,
-                                "specH": 830.0
-                            }
-                        ]
-                    },
-                    "sunbreak": {}
-                },
-                {
-                    "skin": true,
-                    "direction": "Vertical",
-                    "floor": false,
-                    "boundary": {
-                        "name": "NW",
-                        "Type": "Outdoor",
-                        "DirectionAngle": 135,
-                        "InclinationAngle": 90,
-                        "GroundReflectRate": 0.1
-                    },
-                    "unsteady": true,
-                    "IsSoil": false,
-                    "name": "Wall4",
-                    "area": 7.456666666666667,
-                    "Wall": {
-                        "OutHeatTrans": 25.0,
-                        "InHeatTrans": 9.090909090909092,
-                        "Layers": [
-                            {
-                                "name": "GW16K",
-                                "thick": 0.076,
+                                "thick": 0.211,
                                 "cond": 0.045,
                                 "specH": 13.0
                             },
@@ -138,7 +68,7 @@
                     },
                     "unsteady": true,
                     "IsSoil": false,
-                    "name": "Wall7",
+                    "name": "Wall1",
                     "area": 15.973333333333333,
                     "Wall": {
                         "OutHeatTrans": 25.0,
@@ -146,7 +76,7 @@
                         "Layers": [
                             {
                                 "name": "GW16K",
-                                "thick": 0.076,
+                                "thick": 0.09,
                                 "cond": 0.045,
                                 "specH": 13.0
                             },
@@ -173,7 +103,7 @@
                     },
                     "unsteady": true,
                     "IsSoil": false,
-                    "name": "Wall10",
+                    "name": "Wall4",
                     "area": 7.426666666666667,
                     "Wall": {
                         "OutHeatTrans": 25.0,
@@ -181,7 +111,77 @@
                         "Layers": [
                             {
                                 "name": "GW16K",
-                                "thick": 0.076,
+                                "thick": 0.09,
+                                "cond": 0.045,
+                                "specH": 13.0
+                            },
+                            {
+                                "name": "GPB",
+                                "thick": 0.0095,
+                                "cond": 0.22,
+                                "specH": 830.0
+                            }
+                        ]
+                    },
+                    "sunbreak": {}
+                },
+                {
+                    "skin": true,
+                    "direction": "Vertical",
+                    "floor": false,
+                    "boundary": {
+                        "name": "SW",
+                        "Type": "Outdoor",
+                        "DirectionAngle": 45,
+                        "InclinationAngle": 90,
+                        "GroundReflectRate": 0.1
+                    },
+                    "unsteady": true,
+                    "IsSoil": false,
+                    "name": "Wall7",
+                    "area": 10.156666666666666,
+                    "Wall": {
+                        "OutHeatTrans": 25.0,
+                        "InHeatTrans": 9.090909090909092,
+                        "Layers": [
+                            {
+                                "name": "GW16K",
+                                "thick": 0.09,
+                                "cond": 0.045,
+                                "specH": 13.0
+                            },
+                            {
+                                "name": "GPB",
+                                "thick": 0.0095,
+                                "cond": 0.22,
+                                "specH": 830.0
+                            }
+                        ]
+                    },
+                    "sunbreak": {}
+                },
+                {
+                    "skin": true,
+                    "direction": "Vertical",
+                    "floor": false,
+                    "boundary": {
+                        "name": "NW",
+                        "Type": "Outdoor",
+                        "DirectionAngle": 135,
+                        "InclinationAngle": 90,
+                        "GroundReflectRate": 0.1
+                    },
+                    "unsteady": true,
+                    "IsSoil": false,
+                    "name": "Wall10",
+                    "area": 7.456666666666667,
+                    "Wall": {
+                        "OutHeatTrans": 25.0,
+                        "InHeatTrans": 9.090909090909092,
+                        "Layers": [
+                            {
+                                "name": "GW16K",
+                                "thick": 0.09,
                                 "cond": 0.045,
                                 "specH": 13.0
                             },
@@ -207,14 +207,14 @@
                     "unsteady": true,
                     "IsSoil": false,
                     "name": "Floor1",
-                    "area": 15.016666666666666,
+                    "area": 16.119999999999997,
                     "Wall": {
                         "OutHeatTrans": 6.666666666666667,
                         "InHeatTrans": 6.666666666666667,
                         "Layers": [
                             {
                                 "name": "GW16K",
-                                "thick": 0.081,
+                                "thick": 0.097,
                                 "cond": 0.045,
                                 "specH": 13.0
                             },
@@ -225,61 +225,6 @@
                                 "specH": 720.0
                             }
                         ]
-                    },
-                    "sunbreak": {}
-                },
-                {
-                    "skin": true,
-                    "direction": "Upward",
-                    "floor": false,
-                    "boundary": {
-                        "name": "Upward",
-                        "Type": "DeltaTCoeff",
-                        "TempDifferFactor": 0.7
-                    },
-                    "unsteady": true,
-                    "IsSoil": false,
-                    "name": "Floor4",
-                    "area": 1.1033333333333333,
-                    "Wall": {
-                        "OutHeatTrans": 6.666666666666667,
-                        "InHeatTrans": 6.666666666666667,
-                        "Layers": [
-                            {
-                                "name": "GW16K",
-                                "thick": 0.081,
-                                "cond": 0.045,
-                                "specH": 13.0
-                            },
-                            {
-                                "name": "PED",
-                                "thick": 0.012,
-                                "cond": 0.16,
-                                "specH": 720.0
-                            }
-                        ]
-                    },
-                    "sunbreak": {}
-                },
-                {
-                    "skin": true,
-                    "direction": "Vertical",
-                    "floor": false,
-                    "boundary": {
-                        "name": "NW",
-                        "Type": "Outdoor",
-                        "DirectionAngle": 135,
-                        "InclinationAngle": 90,
-                        "GroundReflectRate": 0.1
-                    },
-                    "unsteady": false,
-                    "name": "Door1",
-                    "area": 0.6299999999999999,
-                    "Window": {
-                        "Eta": 0.15810000000000002,
-                        "Uw": 4.65,
-                        "OutHeatTrans": 25,
-                        "InHeatTrans": 9.090909090909092
                     },
                     "sunbreak": {}
                 },
@@ -295,11 +240,33 @@
                         "GroundReflectRate": 0.1
                     },
                     "unsteady": false,
-                    "name": "Door4",
-                    "area": 0.54,
+                    "name": "Window1",
+                    "area": 1.75,
                     "Window": {
-                        "Eta": 0.15810000000000002,
-                        "Uw": 4.65,
+                        "Eta": 0.4386836640077342,
+                        "UW": 3.971401021903669,
+                        "OutHeatTrans": 25,
+                        "InHeatTrans": 9.090909090909092
+                    },
+                    "sunbreak": {}
+                },
+                {
+                    "skin": true,
+                    "direction": "Vertical",
+                    "floor": false,
+                    "boundary": {
+                        "name": "SE",
+                        "Type": "Outdoor",
+                        "DirectionAngle": -45,
+                        "InclinationAngle": 90,
+                        "GroundReflectRate": 0.1
+                    },
+                    "unsteady": false,
+                    "name": "Window4",
+                    "area": 1.4566666666666666,
+                    "Window": {
+                        "Eta": 0.4386836640077342,
+                        "UW": 3.971401021903669,
                         "OutHeatTrans": 25,
                         "InHeatTrans": 9.090909090909092
                     },
@@ -317,19 +284,15 @@
                         "GroundReflectRate": 0.1
                     },
                     "unsteady": false,
-                    "name": "Window1",
+                    "name": "Window7",
                     "area": 7.5633333333333335,
                     "Window": {
-                        "Eta": 0.51,
-                        "UW": 3.49,
+                        "Eta": 0.4386836640077342,
+                        "UW": 3.971401021903669,
                         "OutHeatTrans": 25,
                         "InHeatTrans": 9.090909090909092
                     },
-                    "sunbreak": {
-                        "D": 0.348,
-                        "hi": 0,
-                        "WH": 1.1
-                    }
+                    "sunbreak": {}
                 },
                 {
                     "skin": true,
@@ -343,71 +306,15 @@
                         "GroundReflectRate": 0.1
                     },
                     "unsteady": false,
-                    "name": "Window4",
-                    "area": 0.7933333333333332,
-                    "Window": {
-                        "Eta": 0.51,
-                        "UW": 3.49,
-                        "OutHeatTrans": 25,
-                        "InHeatTrans": 9.090909090909092
-                    },
-                    "sunbreak": {
-                        "D": 0.316,
-                        "hi": 0,
-                        "WH": 1.1
-                    }
-                },
-                {
-                    "skin": true,
-                    "direction": "Vertical",
-                    "floor": false,
-                    "boundary": {
-                        "name": "NE",
-                        "Type": "Outdoor",
-                        "DirectionAngle": -135,
-                        "InclinationAngle": 90,
-                        "GroundReflectRate": 0.1
-                    },
-                    "unsteady": false,
-                    "name": "Window7",
-                    "area": 1.21,
-                    "Window": {
-                        "Eta": 0.51,
-                        "UW": 3.49,
-                        "OutHeatTrans": 25,
-                        "InHeatTrans": 9.090909090909092
-                    },
-                    "sunbreak": {
-                        "D": 0.316,
-                        "hi": 0,
-                        "WH": 1.1
-                    }
-                },
-                {
-                    "skin": true,
-                    "direction": "Vertical",
-                    "floor": false,
-                    "boundary": {
-                        "name": "SE",
-                        "Type": "Outdoor",
-                        "DirectionAngle": -45,
-                        "InclinationAngle": 90,
-                        "GroundReflectRate": 0.1
-                    },
-                    "unsteady": false,
                     "name": "Window10",
-                    "area": 1.4566666666666666,
+                    "area": 1.4233333333333331,
                     "Window": {
-                        "Eta": 0.51,
-                        "UW": 3.49,
+                        "Eta": 0.4386836640077342,
+                        "UW": 3.971401021903669,
                         "OutHeatTrans": 25,
                         "InHeatTrans": 9.090909090909092
                     },
-                    "sunbreak": {
-                        "D": 0.348,
-                        "hi": 0,
-                        "WH": 1.1
-                    }
+                    "sunbreak": {}
                 },
                 {
                     "skin": false,
@@ -420,17 +327,29 @@
                     },
                     "unsteady": true,
                     "IsSoil": false,
-                    "name": "GroundFloor1",
+                    "name": "GroundFloor4",
                     "area": 0.8266666666666668,
                     "Wall": {
                         "OutHeatTrans": 6.666666666666667,
                         "InHeatTrans": 6.666666666666667,
                         "Layers": [
                             {
-                                "name": "PED",
-                                "cond": 0.16,
-                                "thick": 0.012,
-                                "specH": 720.0
+                                "Name": "GPB",
+                                "Cond": 0.22,
+                                "Thick": 0.0125,
+                                "SpecH": 830.0
+                            },
+                            {
+                                "Name": "GPB",
+                                "Cond": 11.11111111111111,
+                                "Thick": 1,
+                                "SpecH": 0
+                            },
+                            {
+                                "Name": "GPB",
+                                "Cond": 0.22,
+                                "Thick": 0.0125,
+                                "SpecH": 830.0
                             }
                         ]
                     }
@@ -446,32 +365,6 @@
                     },
                     "unsteady": true,
                     "IsSoil": false,
-                    "name": "InnerFloor1",
-                    "area": 14.586666666666666,
-                    "Wall": {
-                        "OutHeatTrans": 11.11111111111111,
-                        "InHeatTrans": 6.666666666666667,
-                        "Layers": [
-                            {
-                                "name": "PED",
-                                "cond": 0.16,
-                                "thick": 0.012,
-                                "specH": 720.0
-                            }
-                        ]
-                    }
-                },
-                {
-                    "skin": false,
-                    "direction": "Upward",
-                    "floor": true,
-                    "boundary": {
-                        "name": "NextRoom_nonliving",
-                        "Type": "NextRoom",
-                        "roomname": "nonliving"
-                    },
-                    "unsteady": true,
-                    "IsSoil": false,
                     "name": "InnerFloor3",
                     "area": 14.586666666666666,
                     "Wall": {
@@ -479,10 +372,22 @@
                         "InHeatTrans": 6.666666666666667,
                         "Layers": [
                             {
-                                "name": "PED",
-                                "cond": 0.16,
-                                "thick": 0.012,
-                                "specH": 720.0
+                                "Name": "GPB",
+                                "Cond": 0.22,
+                                "Thick": 0.0125,
+                                "SpecH": 830.0
+                            },
+                            {
+                                "Name": "GPB",
+                                "Cond": 11.11111111111111,
+                                "Thick": 1,
+                                "SpecH": 0
+                            },
+                            {
+                                "Name": "GPB",
+                                "Cond": 0.22,
+                                "Thick": 0.0125,
+                                "SpecH": 830.0
                             }
                         ]
                     }
@@ -498,17 +403,29 @@
                     },
                     "unsteady": true,
                     "IsSoil": false,
-                    "name": "InnerFloor6",
-                    "area": 14.586666666666666,
+                    "name": "InnerFloor5",
+                    "area": 29.173333333333332,
                     "Wall": {
                         "OutHeatTrans": 11.11111111111111,
                         "InHeatTrans": 6.666666666666667,
                         "Layers": [
                             {
-                                "name": "PED",
-                                "cond": 0.16,
-                                "thick": 0.012,
-                                "specH": 720.0
+                                "Name": "GPB",
+                                "Cond": 0.22,
+                                "Thick": 0.0125,
+                                "SpecH": 830.0
+                            },
+                            {
+                                "Name": "GPB",
+                                "Cond": 11.11111111111111,
+                                "Thick": 1,
+                                "SpecH": 0
+                            },
+                            {
+                                "Name": "GPB",
+                                "Cond": 0.22,
+                                "Thick": 0.0125,
+                                "SpecH": 830.0
                             }
                         ]
                     }
@@ -531,10 +448,22 @@
                         "InHeatTrans": 11.11111111111111,
                         "Layers": [
                             {
-                                "name": "PED",
-                                "cond": 0.16,
-                                "thick": 0.012,
-                                "specH": 720.0
+                                "Name": "GPB",
+                                "Cond": 0.22,
+                                "Thick": 0.0125,
+                                "SpecH": 830.0
+                            },
+                            {
+                                "Name": "GPB",
+                                "Cond": 11.11111111111111,
+                                "Thick": 1,
+                                "SpecH": 0
+                            },
+                            {
+                                "Name": "GPB",
+                                "Cond": 0.22,
+                                "Thick": 0.0125,
+                                "SpecH": 830.0
                             }
                         ]
                     }
@@ -550,29 +479,29 @@
                     },
                     "unsteady": true,
                     "IsSoil": false,
-                    "name": "InnerWall1",
+                    "name": "InnerWall3",
                     "area": 36.80695586434716,
                     "Wall": {
                         "OutHeatTrans": 9.090909090909092,
                         "InHeatTrans": 9.090909090909092,
                         "Layers": [
                             {
-                                "name": "GPB",
-                                "cond": 0.22,
-                                "thick": 0.0125,
-                                "specH": 830.0
+                                "Name": "GPB",
+                                "Cond": 0.22,
+                                "Thick": 0.0125,
+                                "SpecH": 830.0
                             },
                             {
-                                "name": "GPB",
-                                "cond": 11.11111111111111,
-                                "thick": 1,
-                                "specH": 0
+                                "Name": "GPB",
+                                "Cond": 11.11111111111111,
+                                "Thick": 1,
+                                "SpecH": 0
                             },
                             {
-                                "name": "GPB",
-                                "cond": 0.22,
-                                "thick": 0.0125,
-                                "specH": 830.0
+                                "Name": "GPB",
+                                "Cond": 0.22,
+                                "Thick": 0.0125,
+                                "SpecH": 830.0
                             }
                         ]
                     }
@@ -588,29 +517,29 @@
                     },
                     "unsteady": true,
                     "IsSoil": false,
-                    "name": "InnerWall3",
+                    "name": "InnerWall5",
                     "area": 36.80695586434716,
                     "Wall": {
                         "OutHeatTrans": 9.090909090909092,
                         "InHeatTrans": 9.090909090909092,
                         "Layers": [
                             {
-                                "name": "GPB",
-                                "cond": 0.22,
-                                "thick": 0.0125,
-                                "specH": 830.0
+                                "Name": "GPB",
+                                "Cond": 0.22,
+                                "Thick": 0.0125,
+                                "SpecH": 830.0
                             },
                             {
-                                "name": "GPB",
-                                "cond": 11.11111111111111,
-                                "thick": 1,
-                                "specH": 0
+                                "Name": "GPB",
+                                "Cond": 11.11111111111111,
+                                "Thick": 1,
+                                "SpecH": 0
                             },
                             {
-                                "name": "GPB",
-                                "cond": 0.22,
-                                "thick": 0.0125,
-                                "specH": 830.0
+                                "Name": "GPB",
+                                "Cond": 0.22,
+                                "Thick": 0.0125,
+                                "SpecH": 830.0
                             }
                         ]
                     }
@@ -622,7 +551,7 @@
                         "type": "room_air_conditioner",
                         "q_rtd_c": 5600,
                         "q_max_c": 5944.619999999999,
-                        "e_rtd_c": 3.2432
+                        "e_rtd_c": null
                     },
                     "sub": {}
                 },
@@ -631,7 +560,7 @@
                         "type": "room_air_conditioner",
                         "q_rtd_h": 6685.3,
                         "q_max_h": 10047.047813999998,
-                        "e_rtd_h": 4.157264
+                        "e_rtd_h": null
                     },
                     "sub": {}
                 }
@@ -675,77 +604,7 @@
                         "Layers": [
                             {
                                 "name": "GW16K",
-                                "thick": 0.179,
-                                "cond": 0.045,
-                                "specH": 13.0
-                            },
-                            {
-                                "name": "GPB",
-                                "thick": 0.0095,
-                                "cond": 0.22,
-                                "specH": 830.0
-                            }
-                        ]
-                    },
-                    "sunbreak": {}
-                },
-                {
-                    "skin": true,
-                    "direction": "Vertical",
-                    "floor": false,
-                    "boundary": {
-                        "name": "SW",
-                        "Type": "Outdoor",
-                        "DirectionAngle": 45,
-                        "InclinationAngle": 90,
-                        "GroundReflectRate": 0.1
-                    },
-                    "unsteady": true,
-                    "IsSoil": false,
-                    "name": "Wall2",
-                    "area": 10.156666666666666,
-                    "Wall": {
-                        "OutHeatTrans": 25.0,
-                        "InHeatTrans": 9.090909090909092,
-                        "Layers": [
-                            {
-                                "name": "GW16K",
-                                "thick": 0.076,
-                                "cond": 0.045,
-                                "specH": 13.0
-                            },
-                            {
-                                "name": "GPB",
-                                "thick": 0.0095,
-                                "cond": 0.22,
-                                "specH": 830.0
-                            }
-                        ]
-                    },
-                    "sunbreak": {}
-                },
-                {
-                    "skin": true,
-                    "direction": "Vertical",
-                    "floor": false,
-                    "boundary": {
-                        "name": "NW",
-                        "Type": "Outdoor",
-                        "DirectionAngle": 135,
-                        "InclinationAngle": 90,
-                        "GroundReflectRate": 0.1
-                    },
-                    "unsteady": true,
-                    "IsSoil": false,
-                    "name": "Wall5",
-                    "area": 7.456666666666667,
-                    "Wall": {
-                        "OutHeatTrans": 25.0,
-                        "InHeatTrans": 9.090909090909092,
-                        "Layers": [
-                            {
-                                "name": "GW16K",
-                                "thick": 0.076,
+                                "thick": 0.211,
                                 "cond": 0.045,
                                 "specH": 13.0
                             },
@@ -772,7 +631,7 @@
                     },
                     "unsteady": true,
                     "IsSoil": false,
-                    "name": "Wall8",
+                    "name": "Wall2",
                     "area": 15.973333333333333,
                     "Wall": {
                         "OutHeatTrans": 25.0,
@@ -780,7 +639,7 @@
                         "Layers": [
                             {
                                 "name": "GW16K",
-                                "thick": 0.076,
+                                "thick": 0.09,
                                 "cond": 0.045,
                                 "specH": 13.0
                             },
@@ -807,7 +666,7 @@
                     },
                     "unsteady": true,
                     "IsSoil": false,
-                    "name": "Wall11",
+                    "name": "Wall5",
                     "area": 7.426666666666667,
                     "Wall": {
                         "OutHeatTrans": 25.0,
@@ -815,7 +674,77 @@
                         "Layers": [
                             {
                                 "name": "GW16K",
-                                "thick": 0.076,
+                                "thick": 0.09,
+                                "cond": 0.045,
+                                "specH": 13.0
+                            },
+                            {
+                                "name": "GPB",
+                                "thick": 0.0095,
+                                "cond": 0.22,
+                                "specH": 830.0
+                            }
+                        ]
+                    },
+                    "sunbreak": {}
+                },
+                {
+                    "skin": true,
+                    "direction": "Vertical",
+                    "floor": false,
+                    "boundary": {
+                        "name": "SW",
+                        "Type": "Outdoor",
+                        "DirectionAngle": 45,
+                        "InclinationAngle": 90,
+                        "GroundReflectRate": 0.1
+                    },
+                    "unsteady": true,
+                    "IsSoil": false,
+                    "name": "Wall8",
+                    "area": 10.156666666666666,
+                    "Wall": {
+                        "OutHeatTrans": 25.0,
+                        "InHeatTrans": 9.090909090909092,
+                        "Layers": [
+                            {
+                                "name": "GW16K",
+                                "thick": 0.09,
+                                "cond": 0.045,
+                                "specH": 13.0
+                            },
+                            {
+                                "name": "GPB",
+                                "thick": 0.0095,
+                                "cond": 0.22,
+                                "specH": 830.0
+                            }
+                        ]
+                    },
+                    "sunbreak": {}
+                },
+                {
+                    "skin": true,
+                    "direction": "Vertical",
+                    "floor": false,
+                    "boundary": {
+                        "name": "NW",
+                        "Type": "Outdoor",
+                        "DirectionAngle": 135,
+                        "InclinationAngle": 90,
+                        "GroundReflectRate": 0.1
+                    },
+                    "unsteady": true,
+                    "IsSoil": false,
+                    "name": "Wall11",
+                    "area": 7.456666666666667,
+                    "Wall": {
+                        "OutHeatTrans": 25.0,
+                        "InHeatTrans": 9.090909090909092,
+                        "Layers": [
+                            {
+                                "name": "GW16K",
+                                "thick": 0.09,
                                 "cond": 0.045,
                                 "specH": 13.0
                             },
@@ -841,14 +770,14 @@
                     "unsteady": true,
                     "IsSoil": false,
                     "name": "Floor2",
-                    "area": 15.016666666666666,
+                    "area": 16.119999999999997,
                     "Wall": {
                         "OutHeatTrans": 6.666666666666667,
                         "InHeatTrans": 6.666666666666667,
                         "Layers": [
                             {
                                 "name": "GW16K",
-                                "thick": 0.081,
+                                "thick": 0.097,
                                 "cond": 0.045,
                                 "specH": 13.0
                             },
@@ -859,61 +788,6 @@
                                 "specH": 720.0
                             }
                         ]
-                    },
-                    "sunbreak": {}
-                },
-                {
-                    "skin": true,
-                    "direction": "Upward",
-                    "floor": false,
-                    "boundary": {
-                        "name": "Upward",
-                        "Type": "DeltaTCoeff",
-                        "TempDifferFactor": 0.7
-                    },
-                    "unsteady": true,
-                    "IsSoil": false,
-                    "name": "Floor5",
-                    "area": 1.1033333333333333,
-                    "Wall": {
-                        "OutHeatTrans": 6.666666666666667,
-                        "InHeatTrans": 6.666666666666667,
-                        "Layers": [
-                            {
-                                "name": "GW16K",
-                                "thick": 0.081,
-                                "cond": 0.045,
-                                "specH": 13.0
-                            },
-                            {
-                                "name": "PED",
-                                "thick": 0.012,
-                                "cond": 0.16,
-                                "specH": 720.0
-                            }
-                        ]
-                    },
-                    "sunbreak": {}
-                },
-                {
-                    "skin": true,
-                    "direction": "Vertical",
-                    "floor": false,
-                    "boundary": {
-                        "name": "NW",
-                        "Type": "Outdoor",
-                        "DirectionAngle": 135,
-                        "InclinationAngle": 90,
-                        "GroundReflectRate": 0.1
-                    },
-                    "unsteady": false,
-                    "name": "Door2",
-                    "area": 0.6299999999999999,
-                    "Window": {
-                        "Eta": 0.15810000000000002,
-                        "Uw": 4.65,
-                        "OutHeatTrans": 25,
-                        "InHeatTrans": 9.090909090909092
                     },
                     "sunbreak": {}
                 },
@@ -929,11 +803,33 @@
                         "GroundReflectRate": 0.1
                     },
                     "unsteady": false,
-                    "name": "Door5",
-                    "area": 0.54,
+                    "name": "Window2",
+                    "area": 1.75,
                     "Window": {
-                        "Eta": 0.15810000000000002,
-                        "Uw": 4.65,
+                        "Eta": 0.4386836640077342,
+                        "UW": 3.971401021903669,
+                        "OutHeatTrans": 25,
+                        "InHeatTrans": 9.090909090909092
+                    },
+                    "sunbreak": {}
+                },
+                {
+                    "skin": true,
+                    "direction": "Vertical",
+                    "floor": false,
+                    "boundary": {
+                        "name": "SE",
+                        "Type": "Outdoor",
+                        "DirectionAngle": -45,
+                        "InclinationAngle": 90,
+                        "GroundReflectRate": 0.1
+                    },
+                    "unsteady": false,
+                    "name": "Window5",
+                    "area": 1.4566666666666666,
+                    "Window": {
+                        "Eta": 0.4386836640077342,
+                        "UW": 3.971401021903669,
                         "OutHeatTrans": 25,
                         "InHeatTrans": 9.090909090909092
                     },
@@ -951,19 +847,15 @@
                         "GroundReflectRate": 0.1
                     },
                     "unsteady": false,
-                    "name": "Window2",
+                    "name": "Window8",
                     "area": 7.5633333333333335,
                     "Window": {
-                        "Eta": 0.51,
-                        "UW": 3.49,
+                        "Eta": 0.4386836640077342,
+                        "UW": 3.971401021903669,
                         "OutHeatTrans": 25,
                         "InHeatTrans": 9.090909090909092
                     },
-                    "sunbreak": {
-                        "D": 0.348,
-                        "hi": 0,
-                        "WH": 1.1
-                    }
+                    "sunbreak": {}
                 },
                 {
                     "skin": true,
@@ -977,71 +869,15 @@
                         "GroundReflectRate": 0.1
                     },
                     "unsteady": false,
-                    "name": "Window5",
-                    "area": 0.7933333333333332,
-                    "Window": {
-                        "Eta": 0.51,
-                        "UW": 3.49,
-                        "OutHeatTrans": 25,
-                        "InHeatTrans": 9.090909090909092
-                    },
-                    "sunbreak": {
-                        "D": 0.316,
-                        "hi": 0,
-                        "WH": 1.1
-                    }
-                },
-                {
-                    "skin": true,
-                    "direction": "Vertical",
-                    "floor": false,
-                    "boundary": {
-                        "name": "NE",
-                        "Type": "Outdoor",
-                        "DirectionAngle": -135,
-                        "InclinationAngle": 90,
-                        "GroundReflectRate": 0.1
-                    },
-                    "unsteady": false,
-                    "name": "Window8",
-                    "area": 1.21,
-                    "Window": {
-                        "Eta": 0.51,
-                        "UW": 3.49,
-                        "OutHeatTrans": 25,
-                        "InHeatTrans": 9.090909090909092
-                    },
-                    "sunbreak": {
-                        "D": 0.316,
-                        "hi": 0,
-                        "WH": 1.1
-                    }
-                },
-                {
-                    "skin": true,
-                    "direction": "Vertical",
-                    "floor": false,
-                    "boundary": {
-                        "name": "SE",
-                        "Type": "Outdoor",
-                        "DirectionAngle": -45,
-                        "InclinationAngle": 90,
-                        "GroundReflectRate": 0.1
-                    },
-                    "unsteady": false,
                     "name": "Window11",
-                    "area": 1.4566666666666666,
+                    "area": 1.4233333333333331,
                     "Window": {
-                        "Eta": 0.51,
-                        "UW": 3.49,
+                        "Eta": 0.4386836640077342,
+                        "UW": 3.971401021903669,
                         "OutHeatTrans": 25,
                         "InHeatTrans": 9.090909090909092
                     },
-                    "sunbreak": {
-                        "D": 0.348,
-                        "hi": 0,
-                        "WH": 1.1
-                    }
+                    "sunbreak": {}
                 },
                 {
                     "skin": false,
@@ -1054,17 +890,29 @@
                     },
                     "unsteady": true,
                     "IsSoil": false,
-                    "name": "GroundFloor3",
+                    "name": "GroundFloor5",
                     "area": 0.8266666666666668,
                     "Wall": {
                         "OutHeatTrans": 6.666666666666667,
                         "InHeatTrans": 6.666666666666667,
                         "Layers": [
                             {
-                                "name": "PED",
-                                "cond": 0.16,
-                                "thick": 0.012,
-                                "specH": 720.0
+                                "Name": "GPB",
+                                "Cond": 0.22,
+                                "Thick": 0.0125,
+                                "SpecH": 830.0
+                            },
+                            {
+                                "Name": "GPB",
+                                "Cond": 11.11111111111111,
+                                "Thick": 1,
+                                "SpecH": 0
+                            },
+                            {
+                                "Name": "GPB",
+                                "Cond": 0.22,
+                                "Thick": 0.0125,
+                                "SpecH": 830.0
                             }
                         ]
                     }
@@ -1080,17 +928,29 @@
                     },
                     "unsteady": true,
                     "IsSoil": false,
-                    "name": "InnerFloor2",
+                    "name": "InnerFloor1",
                     "area": 14.586666666666666,
                     "Wall": {
                         "OutHeatTrans": 11.11111111111111,
                         "InHeatTrans": 6.666666666666667,
                         "Layers": [
                             {
-                                "name": "PED",
-                                "cond": 0.16,
-                                "thick": 0.012,
-                                "specH": 720.0
+                                "Name": "GPB",
+                                "Cond": 0.22,
+                                "Thick": 0.0125,
+                                "SpecH": 830.0
+                            },
+                            {
+                                "Name": "GPB",
+                                "Cond": 11.11111111111111,
+                                "Thick": 1,
+                                "SpecH": 0
+                            },
+                            {
+                                "Name": "GPB",
+                                "Cond": 0.22,
+                                "Thick": 0.0125,
+                                "SpecH": 830.0
                             }
                         ]
                     }
@@ -1106,43 +966,29 @@
                     },
                     "unsteady": true,
                     "IsSoil": false,
-                    "name": "InnerFloor7",
-                    "area": 14.586666666666666,
+                    "name": "InnerFloor6",
+                    "area": 29.173333333333332,
                     "Wall": {
                         "OutHeatTrans": 11.11111111111111,
                         "InHeatTrans": 6.666666666666667,
                         "Layers": [
                             {
-                                "name": "PED",
-                                "cond": 0.16,
-                                "thick": 0.012,
-                                "specH": 720.0
-                            }
-                        ]
-                    }
-                },
-                {
-                    "skin": false,
-                    "direction": "Upward",
-                    "floor": true,
-                    "boundary": {
-                        "name": "NextRoom_nonliving",
-                        "Type": "NextRoom",
-                        "roomname": "nonliving"
-                    },
-                    "unsteady": true,
-                    "IsSoil": false,
-                    "name": "InnerFloor10",
-                    "area": 14.586666666666666,
-                    "Wall": {
-                        "OutHeatTrans": 11.11111111111111,
-                        "InHeatTrans": 6.666666666666667,
-                        "Layers": [
+                                "Name": "GPB",
+                                "Cond": 0.22,
+                                "Thick": 0.0125,
+                                "SpecH": 830.0
+                            },
                             {
-                                "name": "PED",
-                                "cond": 0.16,
-                                "thick": 0.012,
-                                "specH": 720.0
+                                "Name": "GPB",
+                                "Cond": 11.11111111111111,
+                                "Thick": 1,
+                                "SpecH": 0
+                            },
+                            {
+                                "Name": "GPB",
+                                "Cond": 0.22,
+                                "Thick": 0.0125,
+                                "SpecH": 830.0
                             }
                         ]
                     }
@@ -1165,10 +1011,22 @@
                         "InHeatTrans": 11.11111111111111,
                         "Layers": [
                             {
-                                "name": "PED",
-                                "cond": 0.16,
-                                "thick": 0.012,
-                                "specH": 720.0
+                                "Name": "GPB",
+                                "Cond": 0.22,
+                                "Thick": 0.0125,
+                                "SpecH": 830.0
+                            },
+                            {
+                                "Name": "GPB",
+                                "Cond": 11.11111111111111,
+                                "Thick": 1,
+                                "SpecH": 0
+                            },
+                            {
+                                "Name": "GPB",
+                                "Cond": 0.22,
+                                "Thick": 0.0125,
+                                "SpecH": 830.0
                             }
                         ]
                     }
@@ -1184,29 +1042,29 @@
                     },
                     "unsteady": true,
                     "IsSoil": false,
-                    "name": "InnerWall2",
+                    "name": "InnerWall1",
                     "area": 36.80695586434716,
                     "Wall": {
                         "OutHeatTrans": 9.090909090909092,
                         "InHeatTrans": 9.090909090909092,
                         "Layers": [
                             {
-                                "name": "GPB",
-                                "cond": 0.22,
-                                "thick": 0.0125,
-                                "specH": 830.0
+                                "Name": "GPB",
+                                "Cond": 0.22,
+                                "Thick": 0.0125,
+                                "SpecH": 830.0
                             },
                             {
-                                "name": "GPB",
-                                "cond": 11.11111111111111,
-                                "thick": 1,
-                                "specH": 0
+                                "Name": "GPB",
+                                "Cond": 11.11111111111111,
+                                "Thick": 1,
+                                "SpecH": 0
                             },
                             {
-                                "name": "GPB",
-                                "cond": 0.22,
-                                "thick": 0.0125,
-                                "specH": 830.0
+                                "Name": "GPB",
+                                "Cond": 0.22,
+                                "Thick": 0.0125,
+                                "SpecH": 830.0
                             }
                         ]
                     }
@@ -1222,29 +1080,29 @@
                     },
                     "unsteady": true,
                     "IsSoil": false,
-                    "name": "InnerWall5",
+                    "name": "InnerWall6",
                     "area": 49.075941152462875,
                     "Wall": {
                         "OutHeatTrans": 9.090909090909092,
                         "InHeatTrans": 9.090909090909092,
                         "Layers": [
                             {
-                                "name": "GPB",
-                                "cond": 0.22,
-                                "thick": 0.0125,
-                                "specH": 830.0
+                                "Name": "GPB",
+                                "Cond": 0.22,
+                                "Thick": 0.0125,
+                                "SpecH": 830.0
                             },
                             {
-                                "name": "GPB",
-                                "cond": 11.11111111111111,
-                                "thick": 1,
-                                "specH": 0
+                                "Name": "GPB",
+                                "Cond": 11.11111111111111,
+                                "Thick": 1,
+                                "SpecH": 0
                             },
                             {
-                                "name": "GPB",
-                                "cond": 0.22,
-                                "thick": 0.0125,
-                                "specH": 830.0
+                                "Name": "GPB",
+                                "Cond": 0.22,
+                                "Thick": 0.0125,
+                                "SpecH": 830.0
                             }
                         ]
                     }
@@ -1256,21 +1114,18 @@
                         "type": "room_air_conditioner",
                         "q_rtd_c": 5600,
                         "q_max_c": 5944.619999999999,
-                        "e_rtd_c": 3.0576
+                        "e_rtd_c": null
                     },
                     "sub": {}
                 },
                 "heating": {
                     "main": {
-                        "type": "floor_heating",
-                        "construct_area": 21.0
-                    },
-                    "sub": {
                         "type": "room_air_conditioner",
                         "q_rtd_h": 6685.3,
                         "q_max_h": 10047.047813999998,
-                        "e_rtd_h": 3.855424
-                    }
+                        "e_rtd_h": null
+                    },
+                    "sub": {}
                 }
             }
         },
@@ -1325,77 +1180,7 @@
                         "Layers": [
                             {
                                 "name": "GW16K",
-                                "thick": 0.179,
-                                "cond": 0.045,
-                                "specH": 13.0
-                            },
-                            {
-                                "name": "GPB",
-                                "thick": 0.0095,
-                                "cond": 0.22,
-                                "specH": 830.0
-                            }
-                        ]
-                    },
-                    "sunbreak": {}
-                },
-                {
-                    "skin": true,
-                    "direction": "Vertical",
-                    "floor": false,
-                    "boundary": {
-                        "name": "SW",
-                        "Type": "Outdoor",
-                        "DirectionAngle": 45,
-                        "InclinationAngle": 90,
-                        "GroundReflectRate": 0.1
-                    },
-                    "unsteady": true,
-                    "IsSoil": false,
-                    "name": "Wall3",
-                    "area": 10.156666666666666,
-                    "Wall": {
-                        "OutHeatTrans": 25.0,
-                        "InHeatTrans": 9.090909090909092,
-                        "Layers": [
-                            {
-                                "name": "GW16K",
-                                "thick": 0.076,
-                                "cond": 0.045,
-                                "specH": 13.0
-                            },
-                            {
-                                "name": "GPB",
-                                "thick": 0.0095,
-                                "cond": 0.22,
-                                "specH": 830.0
-                            }
-                        ]
-                    },
-                    "sunbreak": {}
-                },
-                {
-                    "skin": true,
-                    "direction": "Vertical",
-                    "floor": false,
-                    "boundary": {
-                        "name": "NW",
-                        "Type": "Outdoor",
-                        "DirectionAngle": 135,
-                        "InclinationAngle": 90,
-                        "GroundReflectRate": 0.1
-                    },
-                    "unsteady": true,
-                    "IsSoil": false,
-                    "name": "Wall6",
-                    "area": 7.456666666666667,
-                    "Wall": {
-                        "OutHeatTrans": 25.0,
-                        "InHeatTrans": 9.090909090909092,
-                        "Layers": [
-                            {
-                                "name": "GW16K",
-                                "thick": 0.076,
+                                "thick": 0.211,
                                 "cond": 0.045,
                                 "specH": 13.0
                             },
@@ -1422,7 +1207,7 @@
                     },
                     "unsteady": true,
                     "IsSoil": false,
-                    "name": "Wall9",
+                    "name": "Wall3",
                     "area": 15.973333333333333,
                     "Wall": {
                         "OutHeatTrans": 25.0,
@@ -1430,7 +1215,7 @@
                         "Layers": [
                             {
                                 "name": "GW16K",
-                                "thick": 0.076,
+                                "thick": 0.09,
                                 "cond": 0.045,
                                 "specH": 13.0
                             },
@@ -1457,7 +1242,7 @@
                     },
                     "unsteady": true,
                     "IsSoil": false,
-                    "name": "Wall12",
+                    "name": "Wall6",
                     "area": 7.426666666666667,
                     "Wall": {
                         "OutHeatTrans": 25.0,
@@ -1465,7 +1250,77 @@
                         "Layers": [
                             {
                                 "name": "GW16K",
-                                "thick": 0.076,
+                                "thick": 0.09,
+                                "cond": 0.045,
+                                "specH": 13.0
+                            },
+                            {
+                                "name": "GPB",
+                                "thick": 0.0095,
+                                "cond": 0.22,
+                                "specH": 830.0
+                            }
+                        ]
+                    },
+                    "sunbreak": {}
+                },
+                {
+                    "skin": true,
+                    "direction": "Vertical",
+                    "floor": false,
+                    "boundary": {
+                        "name": "SW",
+                        "Type": "Outdoor",
+                        "DirectionAngle": 45,
+                        "InclinationAngle": 90,
+                        "GroundReflectRate": 0.1
+                    },
+                    "unsteady": true,
+                    "IsSoil": false,
+                    "name": "Wall9",
+                    "area": 10.156666666666666,
+                    "Wall": {
+                        "OutHeatTrans": 25.0,
+                        "InHeatTrans": 9.090909090909092,
+                        "Layers": [
+                            {
+                                "name": "GW16K",
+                                "thick": 0.09,
+                                "cond": 0.045,
+                                "specH": 13.0
+                            },
+                            {
+                                "name": "GPB",
+                                "thick": 0.0095,
+                                "cond": 0.22,
+                                "specH": 830.0
+                            }
+                        ]
+                    },
+                    "sunbreak": {}
+                },
+                {
+                    "skin": true,
+                    "direction": "Vertical",
+                    "floor": false,
+                    "boundary": {
+                        "name": "NW",
+                        "Type": "Outdoor",
+                        "DirectionAngle": 135,
+                        "InclinationAngle": 90,
+                        "GroundReflectRate": 0.1
+                    },
+                    "unsteady": true,
+                    "IsSoil": false,
+                    "name": "Wall12",
+                    "area": 7.456666666666667,
+                    "Wall": {
+                        "OutHeatTrans": 25.0,
+                        "InHeatTrans": 9.090909090909092,
+                        "Layers": [
+                            {
+                                "name": "GW16K",
+                                "thick": 0.09,
                                 "cond": 0.045,
                                 "specH": 13.0
                             },
@@ -1491,14 +1346,14 @@
                     "unsteady": true,
                     "IsSoil": false,
                     "name": "Floor3",
-                    "area": 15.016666666666666,
+                    "area": 16.119999999999997,
                     "Wall": {
                         "OutHeatTrans": 6.666666666666667,
                         "InHeatTrans": 6.666666666666667,
                         "Layers": [
                             {
                                 "name": "GW16K",
-                                "thick": 0.081,
+                                "thick": 0.097,
                                 "cond": 0.045,
                                 "specH": 13.0
                             },
@@ -1509,61 +1364,6 @@
                                 "specH": 720.0
                             }
                         ]
-                    },
-                    "sunbreak": {}
-                },
-                {
-                    "skin": true,
-                    "direction": "Upward",
-                    "floor": false,
-                    "boundary": {
-                        "name": "Upward",
-                        "Type": "DeltaTCoeff",
-                        "TempDifferFactor": 0.7
-                    },
-                    "unsteady": true,
-                    "IsSoil": false,
-                    "name": "Floor6",
-                    "area": 1.1033333333333333,
-                    "Wall": {
-                        "OutHeatTrans": 6.666666666666667,
-                        "InHeatTrans": 6.666666666666667,
-                        "Layers": [
-                            {
-                                "name": "GW16K",
-                                "thick": 0.081,
-                                "cond": 0.045,
-                                "specH": 13.0
-                            },
-                            {
-                                "name": "PED",
-                                "thick": 0.012,
-                                "cond": 0.16,
-                                "specH": 720.0
-                            }
-                        ]
-                    },
-                    "sunbreak": {}
-                },
-                {
-                    "skin": true,
-                    "direction": "Vertical",
-                    "floor": false,
-                    "boundary": {
-                        "name": "NW",
-                        "Type": "Outdoor",
-                        "DirectionAngle": 135,
-                        "InclinationAngle": 90,
-                        "GroundReflectRate": 0.1
-                    },
-                    "unsteady": false,
-                    "name": "Door3",
-                    "area": 0.6299999999999999,
-                    "Window": {
-                        "Eta": 0.15810000000000002,
-                        "Uw": 4.65,
-                        "OutHeatTrans": 25,
-                        "InHeatTrans": 9.090909090909092
                     },
                     "sunbreak": {}
                 },
@@ -1579,11 +1379,33 @@
                         "GroundReflectRate": 0.1
                     },
                     "unsteady": false,
-                    "name": "Door6",
-                    "area": 0.54,
+                    "name": "Window3",
+                    "area": 1.75,
                     "Window": {
-                        "Eta": 0.15810000000000002,
-                        "Uw": 4.65,
+                        "Eta": 0.4386836640077342,
+                        "UW": 3.971401021903669,
+                        "OutHeatTrans": 25,
+                        "InHeatTrans": 9.090909090909092
+                    },
+                    "sunbreak": {}
+                },
+                {
+                    "skin": true,
+                    "direction": "Vertical",
+                    "floor": false,
+                    "boundary": {
+                        "name": "SE",
+                        "Type": "Outdoor",
+                        "DirectionAngle": -45,
+                        "InclinationAngle": 90,
+                        "GroundReflectRate": 0.1
+                    },
+                    "unsteady": false,
+                    "name": "Window6",
+                    "area": 1.4566666666666666,
+                    "Window": {
+                        "Eta": 0.4386836640077342,
+                        "UW": 3.971401021903669,
                         "OutHeatTrans": 25,
                         "InHeatTrans": 9.090909090909092
                     },
@@ -1601,19 +1423,15 @@
                         "GroundReflectRate": 0.1
                     },
                     "unsteady": false,
-                    "name": "Window3",
+                    "name": "Window9",
                     "area": 7.5633333333333335,
                     "Window": {
-                        "Eta": 0.51,
-                        "UW": 3.49,
+                        "Eta": 0.4386836640077342,
+                        "UW": 3.971401021903669,
                         "OutHeatTrans": 25,
                         "InHeatTrans": 9.090909090909092
                     },
-                    "sunbreak": {
-                        "D": 0.348,
-                        "hi": 0,
-                        "WH": 1.1
-                    }
+                    "sunbreak": {}
                 },
                 {
                     "skin": true,
@@ -1627,71 +1445,15 @@
                         "GroundReflectRate": 0.1
                     },
                     "unsteady": false,
-                    "name": "Window6",
-                    "area": 0.7933333333333332,
-                    "Window": {
-                        "Eta": 0.51,
-                        "UW": 3.49,
-                        "OutHeatTrans": 25,
-                        "InHeatTrans": 9.090909090909092
-                    },
-                    "sunbreak": {
-                        "D": 0.316,
-                        "hi": 0,
-                        "WH": 1.1
-                    }
-                },
-                {
-                    "skin": true,
-                    "direction": "Vertical",
-                    "floor": false,
-                    "boundary": {
-                        "name": "NE",
-                        "Type": "Outdoor",
-                        "DirectionAngle": -135,
-                        "InclinationAngle": 90,
-                        "GroundReflectRate": 0.1
-                    },
-                    "unsteady": false,
-                    "name": "Window9",
-                    "area": 1.21,
-                    "Window": {
-                        "Eta": 0.51,
-                        "UW": 3.49,
-                        "OutHeatTrans": 25,
-                        "InHeatTrans": 9.090909090909092
-                    },
-                    "sunbreak": {
-                        "D": 0.316,
-                        "hi": 0,
-                        "WH": 1.1
-                    }
-                },
-                {
-                    "skin": true,
-                    "direction": "Vertical",
-                    "floor": false,
-                    "boundary": {
-                        "name": "SE",
-                        "Type": "Outdoor",
-                        "DirectionAngle": -45,
-                        "InclinationAngle": 90,
-                        "GroundReflectRate": 0.1
-                    },
-                    "unsteady": false,
                     "name": "Window12",
-                    "area": 1.4566666666666666,
+                    "area": 1.4233333333333331,
                     "Window": {
-                        "Eta": 0.51,
-                        "UW": 3.49,
+                        "Eta": 0.4386836640077342,
+                        "UW": 3.971401021903669,
                         "OutHeatTrans": 25,
                         "InHeatTrans": 9.090909090909092
                     },
-                    "sunbreak": {
-                        "D": 0.348,
-                        "hi": 0,
-                        "WH": 1.1
-                    }
+                    "sunbreak": {}
                 },
                 {
                     "skin": false,
@@ -1704,17 +1466,29 @@
                     },
                     "unsteady": true,
                     "IsSoil": false,
-                    "name": "GroundFloor5",
+                    "name": "GroundFloor6",
                     "area": 0.8266666666666668,
                     "Wall": {
                         "OutHeatTrans": 6.666666666666667,
                         "InHeatTrans": 6.666666666666667,
                         "Layers": [
                             {
-                                "name": "PED",
-                                "cond": 0.16,
-                                "thick": 0.012,
-                                "specH": 720.0
+                                "Name": "GPB",
+                                "Cond": 0.22,
+                                "Thick": 0.0125,
+                                "SpecH": 830.0
+                            },
+                            {
+                                "Name": "GPB",
+                                "Cond": 11.11111111111111,
+                                "Thick": 1,
+                                "SpecH": 0
+                            },
+                            {
+                                "Name": "GPB",
+                                "Cond": 0.22,
+                                "Thick": 0.0125,
+                                "SpecH": 830.0
                             }
                         ]
                     }
@@ -1727,98 +1501,70 @@
                         "name": "NextRoom_main",
                         "Type": "NextRoom",
                         "roomname": "main"
+                    },
+                    "unsteady": true,
+                    "IsSoil": false,
+                    "name": "InnerFloor2",
+                    "area": 29.173333333333332,
+                    "Wall": {
+                        "OutHeatTrans": 11.11111111111111,
+                        "InHeatTrans": 6.666666666666667,
+                        "Layers": [
+                            {
+                                "Name": "GPB",
+                                "Cond": 0.22,
+                                "Thick": 0.0125,
+                                "SpecH": 830.0
+                            },
+                            {
+                                "Name": "GPB",
+                                "Cond": 11.11111111111111,
+                                "Thick": 1,
+                                "SpecH": 0
+                            },
+                            {
+                                "Name": "GPB",
+                                "Cond": 0.22,
+                                "Thick": 0.0125,
+                                "SpecH": 830.0
+                            }
+                        ]
+                    }
+                },
+                {
+                    "skin": false,
+                    "direction": "Upward",
+                    "floor": true,
+                    "boundary": {
+                        "name": "NextRoom_other",
+                        "Type": "NextRoom",
+                        "roomname": "other"
                     },
                     "unsteady": true,
                     "IsSoil": false,
                     "name": "InnerFloor4",
-                    "area": 14.586666666666666,
+                    "area": 29.173333333333332,
                     "Wall": {
                         "OutHeatTrans": 11.11111111111111,
                         "InHeatTrans": 6.666666666666667,
                         "Layers": [
                             {
-                                "name": "PED",
-                                "cond": 0.16,
-                                "thick": 0.012,
-                                "specH": 720.0
-                            }
-                        ]
-                    }
-                },
-                {
-                    "skin": false,
-                    "direction": "Upward",
-                    "floor": true,
-                    "boundary": {
-                        "name": "NextRoom_main",
-                        "Type": "NextRoom",
-                        "roomname": "main"
-                    },
-                    "unsteady": true,
-                    "IsSoil": false,
-                    "name": "InnerFloor5",
-                    "area": 14.586666666666666,
-                    "Wall": {
-                        "OutHeatTrans": 11.11111111111111,
-                        "InHeatTrans": 6.666666666666667,
-                        "Layers": [
+                                "Name": "GPB",
+                                "Cond": 0.22,
+                                "Thick": 0.0125,
+                                "SpecH": 830.0
+                            },
                             {
-                                "name": "PED",
-                                "cond": 0.16,
-                                "thick": 0.012,
-                                "specH": 720.0
-                            }
-                        ]
-                    }
-                },
-                {
-                    "skin": false,
-                    "direction": "Upward",
-                    "floor": true,
-                    "boundary": {
-                        "name": "NextRoom_other",
-                        "Type": "NextRoom",
-                        "roomname": "other"
-                    },
-                    "unsteady": true,
-                    "IsSoil": false,
-                    "name": "InnerFloor8",
-                    "area": 14.586666666666666,
-                    "Wall": {
-                        "OutHeatTrans": 11.11111111111111,
-                        "InHeatTrans": 6.666666666666667,
-                        "Layers": [
+                                "Name": "GPB",
+                                "Cond": 11.11111111111111,
+                                "Thick": 1,
+                                "SpecH": 0
+                            },
                             {
-                                "name": "PED",
-                                "cond": 0.16,
-                                "thick": 0.012,
-                                "specH": 720.0
-                            }
-                        ]
-                    }
-                },
-                {
-                    "skin": false,
-                    "direction": "Upward",
-                    "floor": true,
-                    "boundary": {
-                        "name": "NextRoom_other",
-                        "Type": "NextRoom",
-                        "roomname": "other"
-                    },
-                    "unsteady": true,
-                    "IsSoil": false,
-                    "name": "InnerFloor9",
-                    "area": 14.586666666666666,
-                    "Wall": {
-                        "OutHeatTrans": 11.11111111111111,
-                        "InHeatTrans": 6.666666666666667,
-                        "Layers": [
-                            {
-                                "name": "PED",
-                                "cond": 0.16,
-                                "thick": 0.012,
-                                "specH": 720.0
+                                "Name": "GPB",
+                                "Cond": 0.22,
+                                "Thick": 0.0125,
+                                "SpecH": 830.0
                             }
                         ]
                     }
@@ -1834,29 +1580,29 @@
                     },
                     "unsteady": true,
                     "IsSoil": false,
-                    "name": "InnerWall4",
+                    "name": "InnerWall2",
                     "area": 36.80695586434716,
                     "Wall": {
                         "OutHeatTrans": 9.090909090909092,
                         "InHeatTrans": 9.090909090909092,
                         "Layers": [
                             {
-                                "name": "GPB",
-                                "cond": 0.22,
-                                "thick": 0.0125,
-                                "specH": 830.0
+                                "Name": "GPB",
+                                "Cond": 0.22,
+                                "Thick": 0.0125,
+                                "SpecH": 830.0
                             },
                             {
-                                "name": "GPB",
-                                "cond": 11.11111111111111,
-                                "thick": 1,
-                                "specH": 0
+                                "Name": "GPB",
+                                "Cond": 11.11111111111111,
+                                "Thick": 1,
+                                "SpecH": 0
                             },
                             {
-                                "name": "GPB",
-                                "cond": 0.22,
-                                "thick": 0.0125,
-                                "specH": 830.0
+                                "Name": "GPB",
+                                "Cond": 0.22,
+                                "Thick": 0.0125,
+                                "SpecH": 830.0
                             }
                         ]
                     }
@@ -1872,29 +1618,29 @@
                     },
                     "unsteady": true,
                     "IsSoil": false,
-                    "name": "InnerWall6",
+                    "name": "InnerWall4",
                     "area": 49.075941152462875,
                     "Wall": {
                         "OutHeatTrans": 9.090909090909092,
                         "InHeatTrans": 9.090909090909092,
                         "Layers": [
                             {
-                                "name": "GPB",
-                                "cond": 0.22,
-                                "thick": 0.0125,
-                                "specH": 830.0
+                                "Name": "GPB",
+                                "Cond": 0.22,
+                                "Thick": 0.0125,
+                                "SpecH": 830.0
                             },
                             {
-                                "name": "GPB",
-                                "cond": 11.11111111111111,
-                                "thick": 1,
-                                "specH": 0
+                                "Name": "GPB",
+                                "Cond": 11.11111111111111,
+                                "Thick": 1,
+                                "SpecH": 0
                             },
                             {
-                                "name": "GPB",
-                                "cond": 0.22,
-                                "thick": 0.0125,
-                                "specH": 830.0
+                                "Name": "GPB",
+                                "Cond": 0.22,
+                                "Thick": 0.0125,
+                                "SpecH": 830.0
                             }
                         ]
                     }
@@ -1919,16 +1665,7 @@
             "EarthfloorPerimeter": [
                 {
                     "name": "EarthfloorPerimeter1",
-                    "LinearHeatTrans": 1.8,
-                    "LinearHeatTransLength": 1.82,
-                    "boundary": {
-                        "name": "NW",
-                        "Type": "Outdoor"
-                    }
-                },
-                {
-                    "name": "EarthfloorPerimeter2",
-                    "LinearHeatTrans": 1.8,
+                    "LinearHeatTrans": 0.6490891992788776,
                     "LinearHeatTransLength": 1.37,
                     "boundary": {
                         "name": "NE",
@@ -1936,13 +1673,12 @@
                     }
                 },
                 {
-                    "name": "EarthfloorPerimeter3",
-                    "LinearHeatTrans": 1.8,
-                    "LinearHeatTransLength": 3.19,
+                    "name": "EarthfloorPerimeter2",
+                    "LinearHeatTrans": 0.6490891992788776,
+                    "LinearHeatTransLength": 1.82,
                     "boundary": {
-                        "name": "OpenBackFloor",
-                        "Type": "DeltaTCoeff",
-                        "TempDifferFactor": 0.7
+                        "name": "NW",
+                        "Type": "Outdoor"
                     }
                 }
             ],
@@ -1985,17 +1721,29 @@
                     },
                     "unsteady": true,
                     "IsSoil": false,
-                    "name": "GroundFloor2",
+                    "name": "GroundFloor1",
                     "area": 0.8266666666666668,
                     "Wall": {
                         "OutHeatTrans": 6.666666666666667,
                         "InHeatTrans": 6.666666666666667,
                         "Layers": [
                             {
-                                "name": "PED",
-                                "cond": 0.16,
-                                "thick": 0.012,
-                                "specH": 720.0
+                                "Name": "GPB",
+                                "Cond": 0.22,
+                                "Thick": 0.0125,
+                                "SpecH": 830.0
+                            },
+                            {
+                                "Name": "GPB",
+                                "Cond": 11.11111111111111,
+                                "Thick": 1,
+                                "SpecH": 0
+                            },
+                            {
+                                "Name": "GPB",
+                                "Cond": 0.22,
+                                "Thick": 0.0125,
+                                "SpecH": 830.0
                             }
                         ]
                     }
@@ -2011,17 +1759,29 @@
                     },
                     "unsteady": true,
                     "IsSoil": false,
-                    "name": "GroundFloor4",
+                    "name": "GroundFloor2",
                     "area": 0.8266666666666668,
                     "Wall": {
                         "OutHeatTrans": 6.666666666666667,
                         "InHeatTrans": 6.666666666666667,
                         "Layers": [
                             {
-                                "name": "PED",
-                                "cond": 0.16,
-                                "thick": 0.012,
-                                "specH": 720.0
+                                "Name": "GPB",
+                                "Cond": 0.22,
+                                "Thick": 0.0125,
+                                "SpecH": 830.0
+                            },
+                            {
+                                "Name": "GPB",
+                                "Cond": 11.11111111111111,
+                                "Thick": 1,
+                                "SpecH": 0
+                            },
+                            {
+                                "Name": "GPB",
+                                "Cond": 0.22,
+                                "Thick": 0.0125,
+                                "SpecH": 830.0
                             }
                         ]
                     }
@@ -2037,17 +1797,29 @@
                     },
                     "unsteady": true,
                     "IsSoil": false,
-                    "name": "GroundFloor6",
+                    "name": "GroundFloor3",
                     "area": 0.8266666666666668,
                     "Wall": {
                         "OutHeatTrans": 6.666666666666667,
                         "InHeatTrans": 6.666666666666667,
                         "Layers": [
                             {
-                                "name": "PED",
-                                "cond": 0.16,
-                                "thick": 0.012,
-                                "specH": 720.0
+                                "Name": "GPB",
+                                "Cond": 0.22,
+                                "Thick": 0.0125,
+                                "SpecH": 830.0
+                            },
+                            {
+                                "Name": "GPB",
+                                "Cond": 11.11111111111111,
+                                "Thick": 1,
+                                "SpecH": 0
+                            },
+                            {
+                                "Name": "GPB",
+                                "Cond": 0.22,
+                                "Thick": 0.0125,
+                                "SpecH": 830.0
                             }
                         ]
                     }
