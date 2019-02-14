@@ -16,6 +16,9 @@
                 "inter": 0,
                 "summer": 0
             },
+            "CrossVentRoom": false,
+            "RadHeat": false,
+            "Beta": 0,
             "NextVent": [],
             "LinearHeatBridge": [],
             "EarthfloorPerimeter": [],
@@ -35,7 +38,10 @@
                     "IsSoil": false,
                     "name": "Roof1",
                     "area": 16.95,
+                    "flr": 0,
                     "Wall": {
+                        "OutEmissiv": 0.9,
+                        "OutSolarAbs": 0.8,
                         "OutHeatTrans": 25.0,
                         "InHeatTrans": 11.11111111111111,
                         "Layers": [
@@ -70,7 +76,10 @@
                     "IsSoil": false,
                     "name": "Wall1",
                     "area": 15.973333333333333,
+                    "flr": 0,
                     "Wall": {
+                        "OutEmissiv": 0.9,
+                        "OutSolarAbs": 0.8,
                         "OutHeatTrans": 25.0,
                         "InHeatTrans": 9.090909090909092,
                         "Layers": [
@@ -105,7 +114,10 @@
                     "IsSoil": false,
                     "name": "Wall4",
                     "area": 7.426666666666667,
+                    "flr": 0,
                     "Wall": {
+                        "OutEmissiv": 0.9,
+                        "OutSolarAbs": 0.8,
                         "OutHeatTrans": 25.0,
                         "InHeatTrans": 9.090909090909092,
                         "Layers": [
@@ -140,7 +152,10 @@
                     "IsSoil": false,
                     "name": "Wall7",
                     "area": 10.156666666666666,
+                    "flr": 0,
                     "Wall": {
+                        "OutEmissiv": 0.9,
+                        "OutSolarAbs": 0.8,
                         "OutHeatTrans": 25.0,
                         "InHeatTrans": 9.090909090909092,
                         "Layers": [
@@ -175,7 +190,10 @@
                     "IsSoil": false,
                     "name": "Wall10",
                     "area": 7.456666666666667,
+                    "flr": 0,
                     "Wall": {
+                        "OutEmissiv": 0.9,
+                        "OutSolarAbs": 0.8,
                         "OutHeatTrans": 25.0,
                         "InHeatTrans": 9.090909090909092,
                         "Layers": [
@@ -208,7 +226,10 @@
                     "IsSoil": false,
                     "name": "Floor1",
                     "area": 16.119999999999997,
+                    "flr": 0,
                     "Wall": {
+                        "OutEmissiv": 0.9,
+                        "OutSolarAbs": 0.8,
                         "OutHeatTrans": 6.666666666666667,
                         "InHeatTrans": 6.666666666666667,
                         "Layers": [
@@ -242,9 +263,13 @@
                     "unsteady": false,
                     "name": "Window1",
                     "area": 1.75,
+                    "flr": 0,
                     "Window": {
                         "Eta": 0.4386836640077342,
+                        "SolarTrans": 0.4386836640077342,
+                        "SolarAbsorp": 0,
                         "UW": 3.971401021903669,
+                        "OutEmissiv": 0.9,
                         "OutHeatTrans": 25,
                         "InHeatTrans": 9.090909090909092
                     },
@@ -264,9 +289,13 @@
                     "unsteady": false,
                     "name": "Window4",
                     "area": 1.4566666666666666,
+                    "flr": 0,
                     "Window": {
                         "Eta": 0.4386836640077342,
+                        "SolarTrans": 0.4386836640077342,
+                        "SolarAbsorp": 0,
                         "UW": 3.971401021903669,
+                        "OutEmissiv": 0.9,
                         "OutHeatTrans": 25,
                         "InHeatTrans": 9.090909090909092
                     },
@@ -286,9 +315,13 @@
                     "unsteady": false,
                     "name": "Window7",
                     "area": 7.5633333333333335,
+                    "flr": 0,
                     "Window": {
                         "Eta": 0.4386836640077342,
+                        "SolarTrans": 0.4386836640077342,
+                        "SolarAbsorp": 0,
                         "UW": 3.971401021903669,
+                        "OutEmissiv": 0.9,
                         "OutHeatTrans": 25,
                         "InHeatTrans": 9.090909090909092
                     },
@@ -308,9 +341,13 @@
                     "unsteady": false,
                     "name": "Window10",
                     "area": 1.4233333333333331,
+                    "flr": 0,
                     "Window": {
                         "Eta": 0.4386836640077342,
+                        "SolarTrans": 0.4386836640077342,
+                        "SolarAbsorp": 0,
                         "UW": 3.971401021903669,
+                        "OutEmissiv": 0.9,
                         "OutHeatTrans": 25,
                         "InHeatTrans": 9.090909090909092
                     },
@@ -329,6 +366,7 @@
                     "IsSoil": false,
                     "name": "GroundFloor4",
                     "area": 0.8266666666666668,
+                    "flr": 0,
                     "Wall": {
                         "OutHeatTrans": 6.666666666666667,
                         "InHeatTrans": 6.666666666666667,
@@ -367,6 +405,7 @@
                     "IsSoil": false,
                     "name": "InnerFloor3",
                     "area": 14.586666666666666,
+                    "flr": 0,
                     "Wall": {
                         "OutHeatTrans": 11.11111111111111,
                         "InHeatTrans": 6.666666666666667,
@@ -405,6 +444,7 @@
                     "IsSoil": false,
                     "name": "InnerFloor5",
                     "area": 29.173333333333332,
+                    "flr": 0,
                     "Wall": {
                         "OutHeatTrans": 11.11111111111111,
                         "InHeatTrans": 6.666666666666667,
@@ -443,6 +483,7 @@
                     "IsSoil": false,
                     "name": "InnerCeiling2",
                     "area": 14.586666666666666,
+                    "flr": 0,
                     "Wall": {
                         "OutHeatTrans": 6.666666666666667,
                         "InHeatTrans": 11.11111111111111,
@@ -481,6 +522,7 @@
                     "IsSoil": false,
                     "name": "InnerWall3",
                     "area": 36.80695586434716,
+                    "flr": 0,
                     "Wall": {
                         "OutHeatTrans": 9.090909090909092,
                         "InHeatTrans": 9.090909090909092,
@@ -519,6 +561,7 @@
                     "IsSoil": false,
                     "name": "InnerWall5",
                     "area": 36.80695586434716,
+                    "flr": 0,
                     "Wall": {
                         "OutHeatTrans": 9.090909090909092,
                         "InHeatTrans": 9.090909090909092,
@@ -579,6 +622,9 @@
                 "inter": 0,
                 "summer": 0
             },
+            "CrossVentRoom": false,
+            "RadHeat": false,
+            "Beta": 0,
             "NextVent": [],
             "LinearHeatBridge": [],
             "EarthfloorPerimeter": [],
@@ -598,7 +644,10 @@
                     "IsSoil": false,
                     "name": "Roof2",
                     "area": 16.95,
+                    "flr": 0,
                     "Wall": {
+                        "OutEmissiv": 0.9,
+                        "OutSolarAbs": 0.8,
                         "OutHeatTrans": 25.0,
                         "InHeatTrans": 11.11111111111111,
                         "Layers": [
@@ -633,7 +682,10 @@
                     "IsSoil": false,
                     "name": "Wall2",
                     "area": 15.973333333333333,
+                    "flr": 0,
                     "Wall": {
+                        "OutEmissiv": 0.9,
+                        "OutSolarAbs": 0.8,
                         "OutHeatTrans": 25.0,
                         "InHeatTrans": 9.090909090909092,
                         "Layers": [
@@ -668,7 +720,10 @@
                     "IsSoil": false,
                     "name": "Wall5",
                     "area": 7.426666666666667,
+                    "flr": 0,
                     "Wall": {
+                        "OutEmissiv": 0.9,
+                        "OutSolarAbs": 0.8,
                         "OutHeatTrans": 25.0,
                         "InHeatTrans": 9.090909090909092,
                         "Layers": [
@@ -703,7 +758,10 @@
                     "IsSoil": false,
                     "name": "Wall8",
                     "area": 10.156666666666666,
+                    "flr": 0,
                     "Wall": {
+                        "OutEmissiv": 0.9,
+                        "OutSolarAbs": 0.8,
                         "OutHeatTrans": 25.0,
                         "InHeatTrans": 9.090909090909092,
                         "Layers": [
@@ -738,7 +796,10 @@
                     "IsSoil": false,
                     "name": "Wall11",
                     "area": 7.456666666666667,
+                    "flr": 0,
                     "Wall": {
+                        "OutEmissiv": 0.9,
+                        "OutSolarAbs": 0.8,
                         "OutHeatTrans": 25.0,
                         "InHeatTrans": 9.090909090909092,
                         "Layers": [
@@ -771,7 +832,10 @@
                     "IsSoil": false,
                     "name": "Floor2",
                     "area": 16.119999999999997,
+                    "flr": 0,
                     "Wall": {
+                        "OutEmissiv": 0.9,
+                        "OutSolarAbs": 0.8,
                         "OutHeatTrans": 6.666666666666667,
                         "InHeatTrans": 6.666666666666667,
                         "Layers": [
@@ -805,9 +869,13 @@
                     "unsteady": false,
                     "name": "Window2",
                     "area": 1.75,
+                    "flr": 0,
                     "Window": {
                         "Eta": 0.4386836640077342,
+                        "SolarTrans": 0.4386836640077342,
+                        "SolarAbsorp": 0,
                         "UW": 3.971401021903669,
+                        "OutEmissiv": 0.9,
                         "OutHeatTrans": 25,
                         "InHeatTrans": 9.090909090909092
                     },
@@ -827,9 +895,13 @@
                     "unsteady": false,
                     "name": "Window5",
                     "area": 1.4566666666666666,
+                    "flr": 0,
                     "Window": {
                         "Eta": 0.4386836640077342,
+                        "SolarTrans": 0.4386836640077342,
+                        "SolarAbsorp": 0,
                         "UW": 3.971401021903669,
+                        "OutEmissiv": 0.9,
                         "OutHeatTrans": 25,
                         "InHeatTrans": 9.090909090909092
                     },
@@ -849,9 +921,13 @@
                     "unsteady": false,
                     "name": "Window8",
                     "area": 7.5633333333333335,
+                    "flr": 0,
                     "Window": {
                         "Eta": 0.4386836640077342,
+                        "SolarTrans": 0.4386836640077342,
+                        "SolarAbsorp": 0,
                         "UW": 3.971401021903669,
+                        "OutEmissiv": 0.9,
                         "OutHeatTrans": 25,
                         "InHeatTrans": 9.090909090909092
                     },
@@ -871,9 +947,13 @@
                     "unsteady": false,
                     "name": "Window11",
                     "area": 1.4233333333333331,
+                    "flr": 0,
                     "Window": {
                         "Eta": 0.4386836640077342,
+                        "SolarTrans": 0.4386836640077342,
+                        "SolarAbsorp": 0,
                         "UW": 3.971401021903669,
+                        "OutEmissiv": 0.9,
                         "OutHeatTrans": 25,
                         "InHeatTrans": 9.090909090909092
                     },
@@ -892,6 +972,7 @@
                     "IsSoil": false,
                     "name": "GroundFloor5",
                     "area": 0.8266666666666668,
+                    "flr": 0,
                     "Wall": {
                         "OutHeatTrans": 6.666666666666667,
                         "InHeatTrans": 6.666666666666667,
@@ -930,6 +1011,7 @@
                     "IsSoil": false,
                     "name": "InnerFloor1",
                     "area": 14.586666666666666,
+                    "flr": 0,
                     "Wall": {
                         "OutHeatTrans": 11.11111111111111,
                         "InHeatTrans": 6.666666666666667,
@@ -968,6 +1050,7 @@
                     "IsSoil": false,
                     "name": "InnerFloor6",
                     "area": 29.173333333333332,
+                    "flr": 0,
                     "Wall": {
                         "OutHeatTrans": 11.11111111111111,
                         "InHeatTrans": 6.666666666666667,
@@ -1006,6 +1089,7 @@
                     "IsSoil": false,
                     "name": "InnerCeiling1",
                     "area": 14.586666666666666,
+                    "flr": 0,
                     "Wall": {
                         "OutHeatTrans": 6.666666666666667,
                         "InHeatTrans": 11.11111111111111,
@@ -1044,6 +1128,7 @@
                     "IsSoil": false,
                     "name": "InnerWall1",
                     "area": 36.80695586434716,
+                    "flr": 0,
                     "Wall": {
                         "OutHeatTrans": 9.090909090909092,
                         "InHeatTrans": 9.090909090909092,
@@ -1082,6 +1167,7 @@
                     "IsSoil": false,
                     "name": "InnerWall6",
                     "area": 49.075941152462875,
+                    "flr": 0,
                     "Wall": {
                         "OutHeatTrans": 9.090909090909092,
                         "InHeatTrans": 9.090909090909092,
@@ -1142,6 +1228,9 @@
                 "inter": 0,
                 "summer": 0
             },
+            "CrossVentRoom": false,
+            "RadHeat": false,
+            "Beta": 0,
             "NextVent": [
                 {
                     "Windward_roomname": "main",
@@ -1174,7 +1263,10 @@
                     "IsSoil": false,
                     "name": "Roof3",
                     "area": 16.95,
+                    "flr": 0,
                     "Wall": {
+                        "OutEmissiv": 0.9,
+                        "OutSolarAbs": 0.8,
                         "OutHeatTrans": 25.0,
                         "InHeatTrans": 11.11111111111111,
                         "Layers": [
@@ -1209,7 +1301,10 @@
                     "IsSoil": false,
                     "name": "Wall3",
                     "area": 15.973333333333333,
+                    "flr": 0,
                     "Wall": {
+                        "OutEmissiv": 0.9,
+                        "OutSolarAbs": 0.8,
                         "OutHeatTrans": 25.0,
                         "InHeatTrans": 9.090909090909092,
                         "Layers": [
@@ -1244,7 +1339,10 @@
                     "IsSoil": false,
                     "name": "Wall6",
                     "area": 7.426666666666667,
+                    "flr": 0,
                     "Wall": {
+                        "OutEmissiv": 0.9,
+                        "OutSolarAbs": 0.8,
                         "OutHeatTrans": 25.0,
                         "InHeatTrans": 9.090909090909092,
                         "Layers": [
@@ -1279,7 +1377,10 @@
                     "IsSoil": false,
                     "name": "Wall9",
                     "area": 10.156666666666666,
+                    "flr": 0,
                     "Wall": {
+                        "OutEmissiv": 0.9,
+                        "OutSolarAbs": 0.8,
                         "OutHeatTrans": 25.0,
                         "InHeatTrans": 9.090909090909092,
                         "Layers": [
@@ -1314,7 +1415,10 @@
                     "IsSoil": false,
                     "name": "Wall12",
                     "area": 7.456666666666667,
+                    "flr": 0,
                     "Wall": {
+                        "OutEmissiv": 0.9,
+                        "OutSolarAbs": 0.8,
                         "OutHeatTrans": 25.0,
                         "InHeatTrans": 9.090909090909092,
                         "Layers": [
@@ -1347,7 +1451,10 @@
                     "IsSoil": false,
                     "name": "Floor3",
                     "area": 16.119999999999997,
+                    "flr": 0,
                     "Wall": {
+                        "OutEmissiv": 0.9,
+                        "OutSolarAbs": 0.8,
                         "OutHeatTrans": 6.666666666666667,
                         "InHeatTrans": 6.666666666666667,
                         "Layers": [
@@ -1381,9 +1488,13 @@
                     "unsteady": false,
                     "name": "Window3",
                     "area": 1.75,
+                    "flr": 0,
                     "Window": {
                         "Eta": 0.4386836640077342,
+                        "SolarTrans": 0.4386836640077342,
+                        "SolarAbsorp": 0,
                         "UW": 3.971401021903669,
+                        "OutEmissiv": 0.9,
                         "OutHeatTrans": 25,
                         "InHeatTrans": 9.090909090909092
                     },
@@ -1403,9 +1514,13 @@
                     "unsteady": false,
                     "name": "Window6",
                     "area": 1.4566666666666666,
+                    "flr": 0,
                     "Window": {
                         "Eta": 0.4386836640077342,
+                        "SolarTrans": 0.4386836640077342,
+                        "SolarAbsorp": 0,
                         "UW": 3.971401021903669,
+                        "OutEmissiv": 0.9,
                         "OutHeatTrans": 25,
                         "InHeatTrans": 9.090909090909092
                     },
@@ -1425,9 +1540,13 @@
                     "unsteady": false,
                     "name": "Window9",
                     "area": 7.5633333333333335,
+                    "flr": 0,
                     "Window": {
                         "Eta": 0.4386836640077342,
+                        "SolarTrans": 0.4386836640077342,
+                        "SolarAbsorp": 0,
                         "UW": 3.971401021903669,
+                        "OutEmissiv": 0.9,
                         "OutHeatTrans": 25,
                         "InHeatTrans": 9.090909090909092
                     },
@@ -1447,9 +1566,13 @@
                     "unsteady": false,
                     "name": "Window12",
                     "area": 1.4233333333333331,
+                    "flr": 0,
                     "Window": {
                         "Eta": 0.4386836640077342,
+                        "SolarTrans": 0.4386836640077342,
+                        "SolarAbsorp": 0,
                         "UW": 3.971401021903669,
+                        "OutEmissiv": 0.9,
                         "OutHeatTrans": 25,
                         "InHeatTrans": 9.090909090909092
                     },
@@ -1468,6 +1591,7 @@
                     "IsSoil": false,
                     "name": "GroundFloor6",
                     "area": 0.8266666666666668,
+                    "flr": 0,
                     "Wall": {
                         "OutHeatTrans": 6.666666666666667,
                         "InHeatTrans": 6.666666666666667,
@@ -1506,6 +1630,7 @@
                     "IsSoil": false,
                     "name": "InnerFloor2",
                     "area": 29.173333333333332,
+                    "flr": 0,
                     "Wall": {
                         "OutHeatTrans": 11.11111111111111,
                         "InHeatTrans": 6.666666666666667,
@@ -1544,6 +1669,7 @@
                     "IsSoil": false,
                     "name": "InnerFloor4",
                     "area": 29.173333333333332,
+                    "flr": 0,
                     "Wall": {
                         "OutHeatTrans": 11.11111111111111,
                         "InHeatTrans": 6.666666666666667,
@@ -1582,6 +1708,7 @@
                     "IsSoil": false,
                     "name": "InnerWall2",
                     "area": 36.80695586434716,
+                    "flr": 0,
                     "Wall": {
                         "OutHeatTrans": 9.090909090909092,
                         "InHeatTrans": 9.090909090909092,
@@ -1620,6 +1747,7 @@
                     "IsSoil": false,
                     "name": "InnerWall4",
                     "area": 49.075941152462875,
+                    "flr": 0,
                     "Wall": {
                         "OutHeatTrans": 9.090909090909092,
                         "InHeatTrans": 9.090909090909092,
@@ -1660,6 +1788,9 @@
                 "inter": 0,
                 "summer": 0
             },
+            "CrossVentRoom": false,
+            "RadHeat": false,
+            "Beta": 0,
             "NextVent": [],
             "LinearHeatBridge": [],
             "EarthfloorPerimeter": [
@@ -1692,6 +1823,7 @@
                     "IsSoil": true,
                     "name": "Earthfloor1",
                     "area": 2.48,
+                    "flr": 0,
                     "Wall": {
                         "InHeatTrans": 6.666666666666667,
                         "Layers": [
@@ -1723,6 +1855,7 @@
                     "IsSoil": false,
                     "name": "GroundFloor1",
                     "area": 0.8266666666666668,
+                    "flr": 0,
                     "Wall": {
                         "OutHeatTrans": 6.666666666666667,
                         "InHeatTrans": 6.666666666666667,
@@ -1761,6 +1894,7 @@
                     "IsSoil": false,
                     "name": "GroundFloor2",
                     "area": 0.8266666666666668,
+                    "flr": 0,
                     "Wall": {
                         "OutHeatTrans": 6.666666666666667,
                         "InHeatTrans": 6.666666666666667,
@@ -1799,6 +1933,7 @@
                     "IsSoil": false,
                     "name": "GroundFloor3",
                     "area": 0.8266666666666668,
+                    "flr": 0,
                     "Wall": {
                         "OutHeatTrans": 6.666666666666667,
                         "InHeatTrans": 6.666666666666667,
