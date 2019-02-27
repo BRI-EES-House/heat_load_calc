@@ -28,7 +28,7 @@ class TestLV3toLV4(unittest.TestCase):
         # thickness test
         self.assertEqual(0.024, layer0['thickness'])
     
-    def test_get_downward_envelope_area(self):
+    def test_get_downward_envelope_total_area(self):
         
         # direction test
         
@@ -82,7 +82,7 @@ class TestLV3toLV4(unittest.TestCase):
             ]
         }
         
-        result1_mr, result1_or, result1_nr = nb.get_downward_envelope_area(envelope1)
+        result1_mr, result1_or, result1_nr = nb.get_downward_envelope_total_area(envelope1)
         
         self.assertEqual(70.7, result1_mr)
         self.assertEqual(58.5, result1_or)
@@ -114,12 +114,50 @@ class TestLV3toLV4(unittest.TestCase):
             ],
         }
         
-        result2_mr, result2_or, result2_nr = nb.get_downward_envelope_area(envelope2)
+        result2_mr, result2_or, result2_nr = nb.get_downward_envelope_total_area(envelope2)
         
         self.assertEqual(65.4, result2_mr)
         self.assertEqual(0.0, result2_or)
         self.assertEqual(0.0, result2_nr)
 
+    def test_get_earthfloor_total_area(self):
+        
+        envelope1 = {
+            'earthfloor_centers' : [
+                {
+                    'space_type' : 'main_occupant_room',
+                    'area'       : 55.5,
+                    'direction'  : 'bottom',
+                },
+                {
+                    'space_type' : 'other_occupant_room',
+                    'area'       : 15.2,
+                    'direction'  : 'downward',
+                },
+                {
+                    'space_type' : 'non_occupant_room',
+                    'area'       : 55.5,
+                    'direction'  : 'top',
+                },
+            ]
+        }
+        
+        result1_mr, result1_or, result1_nr = nb.get_earthfloor_total_area(envelope1)
+        
+        self.assertEqual(55.5, result1_mr)
+        self.assertEqual(15.2, result1_or)
+        self.assertEqual(55.5, result1_nr)
+        
+        # in case that ther is no earthfloor 
+        
+        envelope2 = {}
+        
+        result2_mr, result2_or, result2_nr = nb.get_earthfloor_total_area(envelope2)
+        
+        self.assertEqual(0.0, result2_mr)
+        self.assertEqual(0.0, result2_or)
+        self.assertEqual(0.0, result2_nr)
+        
 if __name__ == '__main__':
     unittest.main()
     
