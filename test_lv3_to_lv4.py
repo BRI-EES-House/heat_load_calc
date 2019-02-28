@@ -125,38 +125,65 @@ class TestLV3toLV4(unittest.TestCase):
         envelope1 = {
             'earthfloor_centers' : [
                 {
+                    'name'       : 'ec1',
+                    'area'       : 55.5,
                     'space_type' : 'main_occupant_room',
-                    'area'       : 55.5,
-                    'direction'  : 'bottom',
                 },
                 {
+                    'name'       : 'ec2',
+                    'area'       : 44.4,
                     'space_type' : 'other_occupant_room',
-                    'area'       : 15.2,
-                    'direction'  : 'downward',
                 },
                 {
+                    'name'       : 'ec3',
+                    'area'       : 33.3,
                     'space_type' : 'non_occupant_room',
-                    'area'       : 55.5,
-                    'direction'  : 'top',
+                },
+                {
+                    'name'       : 'ec4',
+                    'area'       : 22.2,
+                    'space_type' : 'under_floor',
+                },
+                {
+                    'name'       : 'ec5',
+                    'area'       : 5.5,
+                    'space_type' : 'main_occupant_room',
+                },
+                {
+                    'name'       : 'ec6',
+                    'area'       : 4.4,
+                    'space_type' : 'other_occupant_room',
+                },
+                {
+                    'name'       : 'ec7',
+                    'area'       : 3.3,
+                    'space_type' : 'non_occupant_room',
+                },
+                {
+                    'name'       : 'ec8',
+                    'area'       : 2.2,
+                    'space_type' : 'under_floor',
                 },
             ]
         }
         
-        result1_mr, result1_or, result1_nr = nb.get_earthfloor_total_area(envelope1)
+        result1_mr, result1_or, result1_nr, result1_uf = nb.get_earthfloor_total_area(envelope1)
         
-        self.assertEqual(55.5, result1_mr)
-        self.assertEqual(15.2, result1_or)
-        self.assertEqual(55.5, result1_nr)
+        self.assertEqual(55.5+5.5, result1_mr)
+        self.assertEqual(44.4+4.4, result1_or)
+        self.assertEqual(33.3+3.3, result1_nr)
+        self.assertEqual(22.2+2.2, result1_uf)
         
         # in case that ther is no earthfloor 
         
         envelope2 = {}
         
-        result2_mr, result2_or, result2_nr = nb.get_earthfloor_total_area(envelope2)
+        result2_mr, result2_or, result2_nr, result2_uf = nb.get_earthfloor_total_area(envelope2)
         
         self.assertEqual(0.0, result2_mr)
         self.assertEqual(0.0, result2_or)
         self.assertEqual(0.0, result2_nr)
+        self.assertEqual(0.0, result2_uf)
         
 if __name__ == '__main__':
     unittest.main()
