@@ -184,6 +184,29 @@ class TestLV3toLV4(unittest.TestCase):
         self.assertEqual(0.0, result2_or)
         self.assertEqual(0.0, result2_nr)
         self.assertEqual(0.0, result2_uf)
+
+    def test_get_inner_floor_total_area(self):
+        
+        # 答えが0より大の場合
+        result1_mr, result1_or, result1_nr = nb.get_inner_floor_total_area(
+                a_a=120.0, a_mr=50.0, a_or=40.0,
+                a_evlp_down_mr=20.0, a_evlp_down_or=15.0, a_evlp_down_nr=10.0,
+                a_ef_mr=7.0, a_ef_or=6.0, a_ef_nr=4.0)
+        
+        self.assertEqual(26.0, result1_mr)
+        self.assertEqual(19.0, result1_or)
+        self.assertEqual(26.0, result1_nr)
+        
+        # 答えが0より小の場合
+        result2_mr, result2_or, result2_nr = nb.get_inner_floor_total_area(
+                a_a=120.0, a_mr=50.0, a_or=40.0,
+                a_evlp_down_mr=80.0, a_evlp_down_or=60.0, a_evlp_down_nr=40.0,
+                a_ef_mr=50.0, a_ef_or=6.0, a_ef_nr=4.0)
+        
+        self.assertEqual(0.0, result2_mr)
+        self.assertEqual(0.0, result2_or)
+        self.assertEqual(0.0, result2_nr)
+        
         
 if __name__ == '__main__':
     unittest.main()
