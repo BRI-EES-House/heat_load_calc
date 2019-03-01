@@ -193,9 +193,9 @@ class TestLV3toLV4(unittest.TestCase):
                 a_evlp_down_mr=20.0, a_evlp_down_or=15.0, a_evlp_down_nr=10.0,
                 a_ef_mr=7.0, a_ef_or=6.0, a_ef_nr=4.0)
         
-        self.assertEqual(26.0, result1_mr)
+        self.assertEqual(23.0, result1_mr)
         self.assertEqual(19.0, result1_or)
-        self.assertEqual(26.0, result1_nr)
+        self.assertEqual(16.0, result1_nr)
         
         # 答えが0より小の場合
         result2_mr, result2_or, result2_nr = nb.get_inner_floor_total_area(
@@ -206,8 +206,33 @@ class TestLV3toLV4(unittest.TestCase):
         self.assertEqual(0.0, result2_mr)
         self.assertEqual(0.0, result2_or)
         self.assertEqual(0.0, result2_nr)
+    
+    def test_get_inner_floor_over_underfloor_total_area(self):
         
+        # a_if_mr + a_if_or + a_if_nr > 0.0 の場合
+        result1_mr, result1_or, result1_nr = nb.get_inner_floor_over_underfloor_total_area(
+                a_if_mr=25.0, a_if_or=15.0, a_if_nr=10.0, a_ef_uf=30.0)
         
+        self.assertEqual(15.0, result1_mr)
+        self.assertEqual(9.0, result1_or)
+        self.assertEqual(6.0, result1_nr)
+        
+        # a_if_mr + a_if_or + a_if_nr > 0.0 の場合
+        result2_mr, result2_or, result2_nr = nb.get_inner_floor_over_underfloor_total_area(
+                a_if_mr=25.0, a_if_or=15.0, a_if_nr=10.0, a_ef_uf=0.0)
+        
+        self.assertEqual(0.0, result2_mr)
+        self.assertEqual(0.0, result2_or)
+        self.assertEqual(0.0, result2_nr)
+
+        # a_if_mr + a_if_or + a_if_nr > 0.0 の場合
+        result3_mr, result3_or, result3_nr = nb.get_inner_floor_over_underfloor_total_area(
+                a_if_mr=0.0, a_if_or=0.0, a_if_nr=0.0, a_ef_uf=30.0)
+        
+        self.assertEqual(0.0, result3_mr)
+        self.assertEqual(0.0, result3_or)
+        self.assertEqual(0.0, result3_nr)
+
 if __name__ == '__main__':
     unittest.main()
     
