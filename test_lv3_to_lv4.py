@@ -232,6 +232,60 @@ class TestLV3toLV4(unittest.TestCase):
         self.assertEqual(0.0, result3_mr)
         self.assertEqual(0.0, result3_or)
         self.assertEqual(0.0, result3_nr)
+    
+    def test_get_inner_floor_between_rooms(self):
+        
+        # その他の居室と非居室の床面積の合計がともに0の場合
+        a_if_mr_or1, a_if_mr_nr1, a_if_or_mr1, a_if_or_nr1, a_if_nr_mr1, a_if_nr_or1 \
+        = nb.get_inner_floor_between_rooms(a_mr=120.0, a_or=0.0, a_a=120.0,
+                                           a_if_mr=35.0, a_if_or=30.0, a_if_nr=25.0,
+                                           a_if_mr_uf=8.0, a_if_or_uf=7.0, a_if_nr_uf=6.0)
+        
+        self.assertEqual(0.0, a_if_mr_or1)
+        self.assertEqual(0.0, a_if_mr_nr1)
+        self.assertEqual(0.0, a_if_or_mr1)
+        self.assertEqual(0.0, a_if_or_nr1)
+        self.assertEqual(0.0, a_if_nr_mr1)
+        self.assertEqual(0.0, a_if_nr_or1)
+
+        # その他の居室の床面積の合計が0で、非居室の床面積の合計が0ではない場合
+        a_if_mr_or2, a_if_mr_nr2, a_if_or_mr2, a_if_or_nr2, a_if_nr_mr2, a_if_nr_or2 \
+        = nb.get_inner_floor_between_rooms(a_mr=30.0, a_or=0.0, a_a=120.0,
+                                           a_if_mr=35.0, a_if_or=30.0, a_if_nr=25.0,
+                                           a_if_mr_uf=8.0, a_if_or_uf=7.0, a_if_nr_uf=6.0)
+        
+        self.assertEqual( 0.0, a_if_mr_or2)
+        self.assertEqual(27.0, a_if_mr_nr2)
+        self.assertEqual( 0.0, a_if_or_mr2)
+        self.assertEqual( 0.0, a_if_or_nr2)
+        self.assertEqual(19.0, a_if_nr_mr2)
+        self.assertEqual( 0.0, a_if_nr_or2)
+
+        # その他の居室の床面積の合計が0でなく、非居室の床面積の合計が0の場合
+        a_if_mr_or3, a_if_mr_nr3, a_if_or_mr3, a_if_or_nr3, a_if_nr_mr3, a_if_nr_or3 \
+        = nb.get_inner_floor_between_rooms(a_mr=30.0, a_or=90.0, a_a=120.0,
+                                           a_if_mr=35.0, a_if_or=30.0, a_if_nr=25.0,
+                                           a_if_mr_uf=8.0, a_if_or_uf=7.0, a_if_nr_uf=6.0)
+        
+        self.assertEqual(27.0, a_if_mr_or3)
+        self.assertEqual( 0.0, a_if_mr_nr3)
+        self.assertEqual(23.0, a_if_or_mr3)
+        self.assertEqual( 0.0, a_if_or_nr3)
+        self.assertEqual( 0.0, a_if_nr_mr3)
+        self.assertEqual( 0.0, a_if_nr_or3)
+
+        # その他の居室、非居室の床面積の合計がともに0ではない場合
+        a_if_mr_or3, a_if_mr_nr3, a_if_or_mr3, a_if_or_nr3, a_if_nr_mr3, a_if_nr_or3 \
+        = nb.get_inner_floor_between_rooms(a_mr=30.0, a_or=60.0, a_a=120.0,
+                                           a_if_mr=35.0, a_if_or=30.0, a_if_nr=25.0,
+                                           a_if_mr_uf=8.0, a_if_or_uf=7.0, a_if_nr_uf=6.0)
+        
+        self.assertEqual(13.5, a_if_mr_or3)
+        self.assertEqual(13.5, a_if_mr_nr3)
+        self.assertEqual(11.5, a_if_or_mr3)
+        self.assertEqual(11.5, a_if_or_nr3)
+        self.assertEqual( 9.5, a_if_nr_mr3)
+        self.assertEqual( 9.5, a_if_nr_or3)
 
 if __name__ == '__main__':
     unittest.main()
