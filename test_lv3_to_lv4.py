@@ -142,7 +142,7 @@ class TestLV3toLV4(unittest.TestCase):
                 {
                     'name'       : 'ec4',
                     'area'       : 22.2,
-                    'space_type' : 'under_floor',
+                    'space_type' : 'underfloor',
                 },
                 {
                     'name'       : 'ec5',
@@ -162,7 +162,7 @@ class TestLV3toLV4(unittest.TestCase):
                 {
                     'name'       : 'ec8',
                     'area'       : 2.2,
-                    'space_type' : 'under_floor',
+                    'space_type' : 'underfloor',
                 },
             ]
         }
