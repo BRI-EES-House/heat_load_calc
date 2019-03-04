@@ -287,6 +287,45 @@ class TestLV3toLV4(unittest.TestCase):
         self.assertEqual( 9.5, a_if_nr_mr3)
         self.assertEqual( 9.5, a_if_nr_or3)
 
+    def test_get_inner_wall_spec(self):
+        
+        result = nb.get_inner_wall_spec()
+        
+        # number of array test
+        self.assertEqual(3, len(result['layers']))
+        
+        layer0 = result['layers'][0]
+        layer1 = result['layers'][1]
+        layer2 = result['layers'][2]
+
+        # name test
+        self.assertEqual('gpb',       layer0['name'])
+        self.assertEqual('air_layer', layer1['name'])
+        self.assertEqual('gpb',       layer2['name'])
+        
+        # thermal resistance input method test
+        self.assertEqual('conductivity', layer0['thermal_resistance_input_method'])
+        self.assertEqual('resistance',   layer1['thermal_resistance_input_method'])
+        self.assertEqual('conductivity', layer2['thermal_resistance_input_method'])
+        
+        # thermal conductivity test
+        self.assertEqual(0.22, layer0['thermal_conductivity'])
+        self.assertEqual(0.22, layer2['thermal_conductivity'])
+        
+        # volumetric specific heat test
+        self.assertEqual(830.0, layer0['volumetric_specific_heat'])
+        self.assertEqual(  0.0, layer1['volumetric_specific_heat'])
+        self.assertEqual(830.0, layer2['volumetric_specific_heat'])
+
+        # thickness test
+        self.assertEqual(0.0125, layer0['thickness'])
+        self.assertEqual(0.0125, layer2['thickness'])
+
+        # thermal resistance test
+        self.assertEqual(0.09, layer1['thermal_resistance'])
+
+
+
 if __name__ == '__main__':
     unittest.main()
     
