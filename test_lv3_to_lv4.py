@@ -506,6 +506,26 @@ class TestLV3toLV4(unittest.TestCase):
         self.assertEqual(0.0, result2_or)
         self.assertEqual(0.0, result2_nr)
 
+    def test_get_inner_wall_total_area(self):
+        
+        # 床面積が0の場合
+        result1_mr, result1_or, result1_nr = nb.get_inner_wall_total_area(
+                a_mr=0.0, a_or=0.0, a_a=0.0, 
+                a_evlp_hzt_mr=15.0, a_evlp_hzt_or=15.0, a_evlp_hzt_nr=15.0)
+        
+        self.assertEqual(0.0, result1_mr)
+        self.assertEqual(0.0, result1_or)
+        self.assertEqual(0.0, result1_nr)
+        
+        # 床面積が0より大で間仕切り壁が負にならない
+        
+        result2_mr, result2_or, result2_nr = nb.get_inner_wall_total_area(
+                a_mr=30.0, a_or=40.0, a_a=120.0, 
+                a_evlp_hzt_mr=15.0, a_evlp_hzt_or=20.0, a_evlp_hzt_nr=25.0)
+        
+        self.assertAlmostEqual(4*1.2*2.8*(30.0**0.5)-15.0, result2_mr)
+        self.assertAlmostEqual(4*1.4*2.8*(40.0**0.5)-20.0, result2_or)
+        self.assertAlmostEqual(4*1.4*2.8*(50.0**0.5)-25.0, result2_nr)
 
 if __name__ == '__main__':
     unittest.main()
