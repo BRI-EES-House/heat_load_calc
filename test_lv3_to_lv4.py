@@ -324,6 +324,187 @@ class TestLV3toLV4(unittest.TestCase):
         # thermal resistance test
         self.assertEqual(0.09, layer1['thermal_resistance'])
 
+    def test_get_horizontal_envelope_total_area(self):
+        
+        # direction test
+        
+        envelope1 = {
+            'general_parts' : [
+                {
+                    'space_type' : 'main_occupant_room',
+                    'area'       : 10.0,
+                    'direction'  : 'n',
+                },
+                {
+                    'space_type' : 'main_occupant_room',
+                    'area'       : 10.0,
+                    'direction'  : 'ne',
+                },
+                {
+                    'space_type' : 'main_occupant_room',
+                    'area'       : 10.0,
+                    'direction'  : 'e',
+                },
+                {
+                    'space_type' : 'main_occupant_room',
+                    'area'       : 10.0,
+                    'direction'  : 'se',
+                },
+                {
+                    'space_type' : 'main_occupant_room',
+                    'area'       : 10.0,
+                    'direction'  : 's',
+                },
+                {
+                    'space_type' : 'main_occupant_room',
+                    'area'       : 10.0,
+                    'direction'  : 'sw',
+                },
+                {
+                    'space_type' : 'main_occupant_room',
+                    'area'       : 10.0,
+                    'direction'  : 'w',
+                },
+                {
+                    'space_type' : 'main_occupant_room',
+                    'area'       : 10.0,
+                    'direction'  : 'nw',
+                },
+                {
+                    'space_type' : 'main_occupant_room',
+                    'area'       : 10.0,
+                    'direction'  : 'horizontal',
+                },
+                {
+                    'space_type' : 'other_occupant_room',
+                    'area'       : 9.0,
+                    'direction'  : 'n',
+                },
+                {
+                    'space_type' : 'other_occupant_room',
+                    'area'       : 9.0,
+                    'direction'  : 'ne',
+                },
+                {
+                    'space_type' : 'other_occupant_room',
+                    'area'       : 9.0,
+                    'direction'  : 'e',
+                },
+                {
+                    'space_type' : 'other_occupant_room',
+                    'area'       : 9.0,
+                    'direction'  : 'se',
+                },
+                {
+                    'space_type' : 'other_occupant_room',
+                    'area'       : 9.0,
+                    'direction'  : 's',
+                },
+                {
+                    'space_type' : 'other_occupant_room',
+                    'area'       : 9.0,
+                    'direction'  : 'sw',
+                },
+                {
+                    'space_type' : 'other_occupant_room',
+                    'area'       : 9.0,
+                    'direction'  : 'w',
+                },
+                {
+                    'space_type' : 'other_occupant_room',
+                    'area'       : 9.0,
+                    'direction'  : 'nw',
+                },
+                {
+                    'space_type' : 'other_occupant_room',
+                    'area'       : 9.0,
+                    'direction'  : 'horizontal',
+                },
+                {
+                    'space_type' : 'non_occupant_room',
+                    'area'       : 8.0,
+                    'direction'  : 'n',
+                },
+                {
+                    'space_type' : 'non_occupant_room',
+                    'area'       : 8.0,
+                    'direction'  : 'ne',
+                },
+                {
+                    'space_type' : 'non_occupant_room',
+                    'area'       : 8.0,
+                    'direction'  : 'e',
+                },
+                {
+                    'space_type' : 'non_occupant_room',
+                    'area'       : 8.0,
+                    'direction'  : 'se',
+                },
+                {
+                    'space_type' : 'non_occupant_room',
+                    'area'       : 8.0,
+                    'direction'  : 's',
+                },
+                {
+                    'space_type' : 'non_occupant_room',
+                    'area'       : 8.0,
+                    'direction'  : 'sw',
+                },
+                {
+                    'space_type' : 'non_occupant_room',
+                    'area'       : 8.0,
+                    'direction'  : 'w',
+                },
+                {
+                    'space_type' : 'non_occupant_room',
+                    'area'       : 8.0,
+                    'direction'  : 'nw',
+                },
+                {
+                    'space_type' : 'non_occupant_room',
+                    'area'       : 8.0,
+                    'direction'  : 'horizontal',
+                },
+            ]
+        }
+        
+        result1_mr, result1_or, result1_nr = nb.get_horizontal_envelope_total_area(envelope1)
+        
+        self.assertEqual(90.0, result1_mr)
+        self.assertEqual(81.0, result1_or)
+        self.assertEqual(72.0, result1_nr)
+        
+        # envelope type included test
+        
+        envelope2 = {
+            'general_parts' : [
+                {
+                    'space_type' : 'main_occupant_room',
+                    'area'       : 55.5,
+                    'direction'  : 'horizontal',
+                }
+            ],
+            'windows' : [
+                {
+                    'space_type' : 'main_occupant_room',
+                    'area'       : 5.5,
+                    'direction'  : 'horizontal',
+                }
+            ],
+            'doors' : [
+                {
+                    'space_type' : 'main_occupant_room',
+                    'area'       : 4.4,
+                    'direction'  : 'horizontal',
+                }
+            ],
+        }
+        
+        result2_mr, result2_or, result2_nr = nb.get_horizontal_envelope_total_area(envelope2)
+        
+        self.assertEqual(65.4, result2_mr)
+        self.assertEqual(0.0, result2_or)
+        self.assertEqual(0.0, result2_nr)
 
 
 if __name__ == '__main__':
