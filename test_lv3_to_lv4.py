@@ -4,6 +4,8 @@ import lv3_to_lv4 as nb
 
 class TestLV3toLV4(unittest.TestCase):
 
+    ### get_inner_floor_spec 関数のテスト ###
+    
     def test_get_inner_floor_spec(self):
         
         result = nb.get_inner_floor_spec()
@@ -28,11 +30,12 @@ class TestLV3toLV4(unittest.TestCase):
         # thickness test
         self.assertEqual(0.024, layer0['thickness'])
     
-    def test_get_downward_envelope_total_area(self):
+    ### get_downward_envelope_total_area 関数のテスト ###
+    
+    # direction の条件に合うものがきちんと集約されているかのテスト
+    def test1_get_downward_envelope_total_area(self):
         
-        # direction test
-        
-        envelope1 = {
+        envelope = {
             'general_parts' : [
                 {
                     'space_type' : 'main_occupant_room',
@@ -82,15 +85,16 @@ class TestLV3toLV4(unittest.TestCase):
             ]
         }
         
-        result1_mr, result1_or, result1_nr = nb.get_downward_envelope_total_area(envelope1)
+        a_evlp_down_mr, a_evlp_down_or, a_evlp_down_nr = nb.get_downward_envelope_total_area(envelope)
         
-        self.assertEqual(70.7, result1_mr)
-        self.assertEqual(58.5, result1_or)
-        self.assertEqual(46.4, result1_nr)
+        self.assertEqual(70.7, a_evlp_down_mr)
+        self.assertEqual(58.5, a_evlp_down_or)
+        self.assertEqual(46.4, a_evlp_down_nr)
         
-        # envelope type included test
+    # 異なる envelope type が合算されているかを見るテスト
+    def test2_get_downward_envelope_total_area(self):
         
-        envelope2 = {
+        envelope = {
             'general_parts' : [
                 {
                     'space_type' : 'main_occupant_room',
@@ -114,15 +118,18 @@ class TestLV3toLV4(unittest.TestCase):
             ],
         }
         
-        result2_mr, result2_or, result2_nr = nb.get_downward_envelope_total_area(envelope2)
+        a_evlp_down_mr, a_evlp_down_or, a_evlp_down_nr = nb.get_downward_envelope_total_area(envelope)
         
-        self.assertEqual(65.4, result2_mr)
-        self.assertEqual(0.0, result2_or)
-        self.assertEqual(0.0, result2_nr)
+        self.assertEqual(65.4, a_evlp_down_mr)
+        self.assertEqual( 0.0, a_evlp_down_or)
+        self.assertEqual( 0.0, a_evlp_down_nr)
 
-    def test_get_earthfloor_total_area(self):
+    ### get_earthfloor_total_area 関数のテスト ###
+    
+    # きちんと集約されているかを見るテスト
+    def test1_get_earthfloor_total_area(self):
         
-        envelope1 = {
+        envelope = {
             'earthfloor_centers' : [
                 {
                     'name'       : 'ec1',
@@ -167,126 +174,147 @@ class TestLV3toLV4(unittest.TestCase):
             ]
         }
         
-        result1_mr, result1_or, result1_nr, result1_uf = nb.get_earthfloor_total_area(envelope1)
+        a_ef_mr, a_ef_or, a_ef_nr, a_ef_uf = nb.get_earthfloor_total_area(envelope)
         
-        self.assertEqual(55.5+5.5, result1_mr)
-        self.assertEqual(44.4+4.4, result1_or)
-        self.assertEqual(33.3+3.3, result1_nr)
-        self.assertEqual(22.2+2.2, result1_uf)
+        self.assertEqual(55.5+5.5, a_ef_mr)
+        self.assertEqual(44.4+4.4, a_ef_or)
+        self.assertEqual(33.3+3.3, a_ef_nr)
+        self.assertEqual(22.2+2.2, a_ef_uf)
         
-        # in case that ther is no earthfloor 
+    # earthfloor が無い場合に面積をすべて0として返すかどうかを見るテスト 
+    def test2_get_earthfloor_total_area(self):
         
-        envelope2 = {}
+        envelope = {}
         
-        result2_mr, result2_or, result2_nr, result2_uf = nb.get_earthfloor_total_area(envelope2)
+        a_ef_mr, a_ef_or, a_ef_nr, a_ef_uf = nb.get_earthfloor_total_area(envelope)
         
-        self.assertEqual(0.0, result2_mr)
-        self.assertEqual(0.0, result2_or)
-        self.assertEqual(0.0, result2_nr)
-        self.assertEqual(0.0, result2_uf)
+        self.assertEqual(0.0, a_ef_mr)
+        self.assertEqual(0.0, a_ef_or)
+        self.assertEqual(0.0, a_ef_nr)
+        self.assertEqual(0.0, a_ef_uf)
 
-    def test_get_inner_floor_total_area(self):
+    ### get_inner_floor_total_area 関数のテスト ###
+    
+    # 答えが0より大きい場合のテスト
+    def test1_get_inner_floor_total_area(self):
         
-        # 答えが0より大の場合
-        result1_mr, result1_or, result1_nr = nb.get_inner_floor_total_area(
+        a_if_mr, a_if_or, a_if_nr = nb.get_inner_floor_total_area(
                 a_a=120.0, a_mr=50.0, a_or=40.0,
                 a_evlp_down_mr=20.0, a_evlp_down_or=15.0, a_evlp_down_nr=10.0,
                 a_ef_mr=7.0, a_ef_or=6.0, a_ef_nr=4.0)
         
-        self.assertEqual(23.0, result1_mr)
-        self.assertEqual(19.0, result1_or)
-        self.assertEqual(16.0, result1_nr)
+        self.assertEqual(23.0, a_if_mr)
+        self.assertEqual(19.0, a_if_or)
+        self.assertEqual(16.0, a_if_nr)
         
-        # 答えが0より小の場合
-        result2_mr, result2_or, result2_nr = nb.get_inner_floor_total_area(
+    # 答えが0より小さい場合のテスト
+    def test1_get_inner_floor_total_area(self):
+
+        a_if_mr, a_if_or, a_if_nr = nb.get_inner_floor_total_area(
                 a_a=120.0, a_mr=50.0, a_or=40.0,
                 a_evlp_down_mr=80.0, a_evlp_down_or=60.0, a_evlp_down_nr=40.0,
                 a_ef_mr=50.0, a_ef_or=6.0, a_ef_nr=4.0)
         
-        self.assertEqual(0.0, result2_mr)
-        self.assertEqual(0.0, result2_or)
-        self.assertEqual(0.0, result2_nr)
+        self.assertEqual(0.0, a_if_mr)
+        self.assertEqual(0.0, a_if_or)
+        self.assertEqual(0.0, a_if_nr)
     
-    def test_get_inner_floor_over_underfloor_total_area(self):
+    ### get_inner_floor_over_underfloor_total_area 関数のテスト ###
+    
+    # a_if_mr + a_if_or + a_if_nr > 0.0 の場合
+    def test1_get_inner_floor_over_underfloor_total_area(self):
         
-        # a_if_mr + a_if_or + a_if_nr > 0.0 の場合
-        result1_mr, result1_or, result1_nr = nb.get_inner_floor_over_underfloor_total_area(
+        a_if_mr_uf, a_if_or_uf, a_if_nr_uf = nb.get_inner_floor_over_underfloor_total_area(
                 a_if_mr=25.0, a_if_or=15.0, a_if_nr=10.0, a_ef_uf=30.0)
         
-        self.assertEqual(15.0, result1_mr)
-        self.assertEqual(9.0, result1_or)
-        self.assertEqual(6.0, result1_nr)
+        self.assertEqual(15.0, a_if_mr_uf)
+        self.assertEqual( 9.0, a_if_or_uf)
+        self.assertEqual( 6.0, a_if_nr_uf)
         
-        # a_if_mr + a_if_or + a_if_nr > 0.0 の場合
-        result2_mr, result2_or, result2_nr = nb.get_inner_floor_over_underfloor_total_area(
+    # a_ef_uf = 0.0 の場合
+    def test2_get_inner_floor_over_underfloor_total_area(self):
+        
+        a_if_mr_uf, a_if_or_uf, a_if_nr_uf = nb.get_inner_floor_over_underfloor_total_area(
                 a_if_mr=25.0, a_if_or=15.0, a_if_nr=10.0, a_ef_uf=0.0)
         
-        self.assertEqual(0.0, result2_mr)
-        self.assertEqual(0.0, result2_or)
-        self.assertEqual(0.0, result2_nr)
+        self.assertEqual(0.0, a_if_mr_uf)
+        self.assertEqual(0.0, a_if_or_uf)
+        self.assertEqual(0.0, a_if_nr_uf)
 
-        # a_if_mr + a_if_or + a_if_nr > 0.0 の場合
-        result3_mr, result3_or, result3_nr = nb.get_inner_floor_over_underfloor_total_area(
+    # a_if_mr=0.0, a_if_or=0.0, a_if_nr=0.0 の場合
+    def test3_get_inner_floor_over_underfloor_total_area(self):
+        
+        a_if_mr_uf, a_if_or_uf, a_if_nr_uf = nb.get_inner_floor_over_underfloor_total_area(
                 a_if_mr=0.0, a_if_or=0.0, a_if_nr=0.0, a_ef_uf=30.0)
         
-        self.assertEqual(0.0, result3_mr)
-        self.assertEqual(0.0, result3_or)
-        self.assertEqual(0.0, result3_nr)
+        self.assertEqual(0.0, a_if_mr_uf)
+        self.assertEqual(0.0, a_if_or_uf)
+        self.assertEqual(0.0, a_if_nr_uf)
     
-    def test_get_inner_floor_between_rooms(self):
+    ### get_inner_floor_between_rooms 関数のテスト ###
+    
+    # その他の居室と非居室の床面積の合計がともに0の場合
+    def test1_get_inner_floor_between_rooms(self):
         
-        # その他の居室と非居室の床面積の合計がともに0の場合
-        a_if_mr_or1, a_if_mr_nr1, a_if_or_mr1, a_if_or_nr1, a_if_nr_mr1, a_if_nr_or1 \
+        a_if_mr_or, a_if_mr_nr, a_if_or_mr, a_if_or_nr, a_if_nr_mr, a_if_nr_or \
         = nb.get_inner_floor_between_rooms(a_mr=120.0, a_or=0.0, a_a=120.0,
                                            a_if_mr=35.0, a_if_or=30.0, a_if_nr=25.0,
                                            a_if_mr_uf=8.0, a_if_or_uf=7.0, a_if_nr_uf=6.0)
         
-        self.assertEqual(0.0, a_if_mr_or1)
-        self.assertEqual(0.0, a_if_mr_nr1)
-        self.assertEqual(0.0, a_if_or_mr1)
-        self.assertEqual(0.0, a_if_or_nr1)
-        self.assertEqual(0.0, a_if_nr_mr1)
-        self.assertEqual(0.0, a_if_nr_or1)
+        self.assertEqual(0.0, a_if_mr_or)
+        self.assertEqual(0.0, a_if_mr_nr)
+        self.assertEqual(0.0, a_if_or_mr)
+        self.assertEqual(0.0, a_if_or_nr)
+        self.assertEqual(0.0, a_if_nr_mr)
+        self.assertEqual(0.0, a_if_nr_or)
+        
+    # その他の居室の床面積の合計が0で、非居室の床面積の合計が0ではない場合
+    def test2_get_inner_floor_between_rooms(self):
 
-        # その他の居室の床面積の合計が0で、非居室の床面積の合計が0ではない場合
-        a_if_mr_or2, a_if_mr_nr2, a_if_or_mr2, a_if_or_nr2, a_if_nr_mr2, a_if_nr_or2 \
+        a_if_mr_or, a_if_mr_nr, a_if_or_mr, a_if_or_nr, a_if_nr_mr, a_if_nr_or \
         = nb.get_inner_floor_between_rooms(a_mr=30.0, a_or=0.0, a_a=120.0,
                                            a_if_mr=35.0, a_if_or=30.0, a_if_nr=25.0,
                                            a_if_mr_uf=8.0, a_if_or_uf=7.0, a_if_nr_uf=6.0)
         
-        self.assertEqual( 0.0, a_if_mr_or2)
-        self.assertEqual(27.0, a_if_mr_nr2)
-        self.assertEqual( 0.0, a_if_or_mr2)
-        self.assertEqual( 0.0, a_if_or_nr2)
-        self.assertEqual(19.0, a_if_nr_mr2)
-        self.assertEqual( 0.0, a_if_nr_or2)
+        self.assertEqual( 0.0, a_if_mr_or)
+        self.assertEqual(27.0, a_if_mr_nr)
+        self.assertEqual( 0.0, a_if_or_mr)
+        self.assertEqual( 0.0, a_if_or_nr)
+        self.assertEqual(19.0, a_if_nr_mr)
+        self.assertEqual( 0.0, a_if_nr_or)
 
-        # その他の居室の床面積の合計が0でなく、非居室の床面積の合計が0の場合
-        a_if_mr_or3, a_if_mr_nr3, a_if_or_mr3, a_if_or_nr3, a_if_nr_mr3, a_if_nr_or3 \
+    # その他の居室の床面積の合計が0でなく、非居室の床面積の合計が0の場合
+    def test3_get_inner_floor_between_rooms(self):
+
+        a_if_mr_or, a_if_mr_nr, a_if_or_mr, a_if_or_nr, a_if_nr_mr, a_if_nr_or \
         = nb.get_inner_floor_between_rooms(a_mr=30.0, a_or=90.0, a_a=120.0,
                                            a_if_mr=35.0, a_if_or=30.0, a_if_nr=25.0,
                                            a_if_mr_uf=8.0, a_if_or_uf=7.0, a_if_nr_uf=6.0)
         
-        self.assertEqual(27.0, a_if_mr_or3)
-        self.assertEqual( 0.0, a_if_mr_nr3)
-        self.assertEqual(23.0, a_if_or_mr3)
-        self.assertEqual( 0.0, a_if_or_nr3)
-        self.assertEqual( 0.0, a_if_nr_mr3)
-        self.assertEqual( 0.0, a_if_nr_or3)
+        self.assertEqual(27.0, a_if_mr_or)
+        self.assertEqual( 0.0, a_if_mr_nr)
+        self.assertEqual(23.0, a_if_or_mr)
+        self.assertEqual( 0.0, a_if_or_nr)
+        self.assertEqual( 0.0, a_if_nr_mr)
+        self.assertEqual( 0.0, a_if_nr_or)
 
-        # その他の居室、非居室の床面積の合計がともに0ではない場合
-        a_if_mr_or3, a_if_mr_nr3, a_if_or_mr3, a_if_or_nr3, a_if_nr_mr3, a_if_nr_or3 \
+    # その他の居室、非居室の床面積の合計がともに0ではない場合
+    def test4_get_inner_floor_between_rooms(self):
+
+        a_if_mr_or, a_if_mr_nr, a_if_or_mr, a_if_or_nr, a_if_nr_mr, a_if_nr_or \
         = nb.get_inner_floor_between_rooms(a_mr=30.0, a_or=60.0, a_a=120.0,
                                            a_if_mr=35.0, a_if_or=30.0, a_if_nr=25.0,
                                            a_if_mr_uf=8.0, a_if_or_uf=7.0, a_if_nr_uf=6.0)
         
-        self.assertEqual(13.5, a_if_mr_or3)
-        self.assertEqual(13.5, a_if_mr_nr3)
-        self.assertEqual(11.5, a_if_or_mr3)
-        self.assertEqual(11.5, a_if_or_nr3)
-        self.assertEqual( 9.5, a_if_nr_mr3)
-        self.assertEqual( 9.5, a_if_nr_or3)
+        self.assertEqual(13.5, a_if_mr_or)
+        self.assertEqual(13.5, a_if_mr_nr)
+        self.assertEqual(11.5, a_if_or_mr)
+        self.assertEqual(11.5, a_if_or_nr)
+        self.assertEqual( 9.5, a_if_nr_mr)
+        self.assertEqual( 9.5, a_if_nr_or)
 
+    ### get_inner_wall_spec 関数のテスト ###
+    
     def test_get_inner_wall_spec(self):
         
         result = nb.get_inner_wall_spec()
@@ -324,11 +352,12 @@ class TestLV3toLV4(unittest.TestCase):
         # thermal resistance test
         self.assertEqual(0.09, layer1['thermal_resistance'])
 
-    def test_get_horizontal_envelope_total_area(self):
+    ### get_horizontal_envelope_total_area 関数のテスト ###
+    
+    # 指定された direction がきちんと集約されているかどうかのテスト
+    def test1_get_horizontal_envelope_total_area(self):
         
-        # direction test
-        
-        envelope1 = {
+        envelope = {
             'general_parts' : [
                 {
                     'space_type' : 'main_occupant_room',
@@ -468,15 +497,16 @@ class TestLV3toLV4(unittest.TestCase):
             ]
         }
         
-        result1_mr, result1_or, result1_nr = nb.get_horizontal_envelope_total_area(envelope1)
+        a_ow_mr, a_ow_or, a_ow_nr = nb.get_horizontal_envelope_total_area(envelope)
         
-        self.assertEqual(90.0, result1_mr)
-        self.assertEqual(81.0, result1_or)
-        self.assertEqual(72.0, result1_nr)
+        self.assertEqual(90.0, a_ow_mr)
+        self.assertEqual(81.0, a_ow_or)
+        self.assertEqual(72.0, a_ow_nr)
+
+    # きちんと面積が合算されているかどうかのテスト
+    def test2_get_horizontal_envelope_total_area(self):
         
-        # envelope type included test
-        
-        envelope2 = {
+        envelope = {
             'general_parts' : [
                 {
                     'space_type' : 'main_occupant_room',
@@ -500,32 +530,35 @@ class TestLV3toLV4(unittest.TestCase):
             ],
         }
         
-        result2_mr, result2_or, result2_nr = nb.get_horizontal_envelope_total_area(envelope2)
+        a_ow_mr, a_ow_or, a_ow_nr = nb.get_horizontal_envelope_total_area(envelope)
         
-        self.assertEqual(65.4, result2_mr)
-        self.assertEqual(0.0, result2_or)
-        self.assertEqual(0.0, result2_nr)
+        self.assertEqual(65.4, a_ow_mr)
+        self.assertEqual( 0.0, a_ow_or)
+        self.assertEqual( 0.0, a_ow_nr)
 
-    def test_get_inner_wall_total_area(self):
+    ### get_inner_wall_total_area 関数のテスト ###
+
+    # 床面積が0の場合
+    def test1_get_inner_wall_total_area(self):
         
-        # 床面積が0の場合
-        result1_mr, result1_or, result1_nr = nb.get_inner_wall_total_area(
+        a_iw_mr, a_iw_or, a_iw_nr = nb.get_inner_wall_total_area(
                 a_mr=0.0, a_or=0.0, a_a=0.0, 
                 a_evlp_hzt_mr=15.0, a_evlp_hzt_or=15.0, a_evlp_hzt_nr=15.0)
         
-        self.assertEqual(0.0, result1_mr)
-        self.assertEqual(0.0, result1_or)
-        self.assertEqual(0.0, result1_nr)
+        self.assertEqual(0.0, a_iw_mr)
+        self.assertEqual(0.0, a_iw_or)
+        self.assertEqual(0.0, a_iw_nr)
         
-        # 床面積が0より大で間仕切り壁が負にならない
+    # 床面積が0より大で間仕切り壁が負にならない
+    def test2_get_inner_wall_total_area(self):
         
-        result2_mr, result2_or, result2_nr = nb.get_inner_wall_total_area(
+        a_iw_mr, a_iw_or, a_iw_nr = nb.get_inner_wall_total_area(
                 a_mr=30.0, a_or=40.0, a_a=120.0, 
                 a_evlp_hzt_mr=15.0, a_evlp_hzt_or=20.0, a_evlp_hzt_nr=25.0)
         
-        self.assertAlmostEqual(4*1.2*2.8*(30.0**0.5)-15.0, result2_mr)
-        self.assertAlmostEqual(4*1.4*2.8*(40.0**0.5)-20.0, result2_or)
-        self.assertAlmostEqual(4*1.4*2.8*(50.0**0.5)-25.0, result2_nr)
+        self.assertAlmostEqual(4*1.2*2.8*(30.0**0.5)-15.0, a_iw_mr)
+        self.assertAlmostEqual(4*1.4*2.8*(40.0**0.5)-20.0, a_iw_or)
+        self.assertAlmostEqual(4*1.4*2.8*(50.0**0.5)-25.0, a_iw_nr)
 
     ### get_inner_wall_total_area_between_rooms ###
     
