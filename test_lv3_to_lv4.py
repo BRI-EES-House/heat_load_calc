@@ -527,6 +527,92 @@ class TestLV3toLV4(unittest.TestCase):
         self.assertAlmostEqual(4*1.4*2.8*(40.0**0.5)-20.0, result2_or)
         self.assertAlmostEqual(4*1.4*2.8*(50.0**0.5)-25.0, result2_nr)
 
+    ### get_inner_wall_total_area_between_rooms ###
+    
+    # a_or=0, a_nr=0 のテスト
+    def test1_get_inner_wall_total_area_between_rooms(self):
+        
+        a_iw_mr_or, a_iw_mr_nr, a_iw_or_nr \
+        = nb.get_inner_wall_total_area_between_rooms(
+                a_mr=30.0, a_or=0.0, a_a=30.0,
+                a_iw_mr=50.0, a_iw_or=90.0, a_iw_nr=120.0)
+        
+        self.assertEqual(a_iw_mr_or, 0.0)
+        self.assertEqual(a_iw_mr_nr, 0.0)
+        self.assertEqual(a_iw_or_nr, 0.0)
+    
+    # a_or=0, a_nr>0 のテスト
+    def test2_get_inner_wall_total_area_between_rooms(self):
+        
+        a_iw_mr_or, a_iw_mr_nr, a_iw_or_nr \
+        = nb.get_inner_wall_total_area_between_rooms(
+                a_mr=30.0, a_or=0.0, a_a=120.0,
+                a_iw_mr=50.0, a_iw_or=90.0, a_iw_nr=120.0)
+        
+        self.assertEqual(a_iw_mr_or,  0.0)
+        self.assertEqual(a_iw_mr_nr, 85.0)
+        self.assertEqual(a_iw_or_nr,  0.0)
+    
+    # a_or>0, a_nr=0 のテスト
+    def test3_get_inner_wall_total_area_between_rooms(self):
+        
+        a_iw_mr_or, a_iw_mr_nr, a_iw_or_nr \
+        = nb.get_inner_wall_total_area_between_rooms(
+                a_mr=30.0, a_or=90.0, a_a=120.0,
+                a_iw_mr=50.0, a_iw_or=90.0, a_iw_nr=120.0)
+        
+        self.assertEqual(a_iw_mr_or, 70.0)
+        self.assertEqual(a_iw_mr_nr,  0.0)
+        self.assertEqual(a_iw_or_nr,  0.0)
+
+    # a_or>0, a_nr>0 かつ、a_iw_mr>a_iw_or+a_iw_nr のテスト
+    def test4_get_inner_wall_total_area_between_rooms(self):
+        
+        a_iw_mr_or, a_iw_mr_nr, a_iw_or_nr \
+        = nb.get_inner_wall_total_area_between_rooms(
+                a_mr=30.0, a_or=50.0, a_a=120.0,
+                a_iw_mr=220.0, a_iw_or=90.0, a_iw_nr=120.0)
+        
+        self.assertEqual(a_iw_mr_or,  95.0)
+        self.assertEqual(a_iw_mr_nr, 125.0)
+        self.assertEqual(a_iw_or_nr,   0.0)
+
+    # a_or>0, a_nr>0 かつ、a_iw_or>a_iw_mr+a_iw_nr のテスト
+    def test5_get_inner_wall_total_area_between_rooms(self):
+        
+        a_iw_mr_or, a_iw_mr_nr, a_iw_or_nr \
+        = nb.get_inner_wall_total_area_between_rooms(
+                a_mr=30.0, a_or=50.0, a_a=120.0,
+                a_iw_mr=90.0, a_iw_or=220.0, a_iw_nr=120.0)
+        
+        self.assertEqual(a_iw_mr_or,  95.0)
+        self.assertEqual(a_iw_mr_nr,   0.0)
+        self.assertEqual(a_iw_or_nr, 125.0)
+        
+    # a_or>0, a_nr>0 かつ、a_iw_nr>a_iw_mr+a_iw_or のテスト
+    def test6_get_inner_wall_total_area_between_rooms(self):
+        
+        a_iw_mr_or, a_iw_mr_nr, a_iw_or_nr \
+        = nb.get_inner_wall_total_area_between_rooms(
+                a_mr=30.0, a_or=50.0, a_a=120.0,
+                a_iw_mr=90.0, a_iw_or=120.0, a_iw_nr=220.0)
+        
+        self.assertEqual(a_iw_mr_or,   0.0)
+        self.assertEqual(a_iw_mr_nr,  95.0)
+        self.assertEqual(a_iw_or_nr, 125.0)
+
+    # a_or>0, a_nr>0 かつ、 a_iw_nr,a_iw_mr,a_iw_or の関係が上記以外の場合のテスト
+    def test7_get_inner_wall_total_area_between_rooms(self):
+        
+        a_iw_mr_or, a_iw_mr_nr, a_iw_or_nr \
+        = nb.get_inner_wall_total_area_between_rooms(
+                a_mr=30.0, a_or=50.0, a_a=120.0,
+                a_iw_mr=120.0, a_iw_or=200.0, a_iw_nr=100.0)
+        
+        self.assertEqual(a_iw_mr_or, 110.0)
+        self.assertEqual(a_iw_mr_nr,  10.0)
+        self.assertEqual(a_iw_or_nr,  90.0)
+        
 if __name__ == '__main__':
     unittest.main()
     
