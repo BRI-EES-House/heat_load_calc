@@ -1,9 +1,6 @@
-import matplotlib
-from matplotlib.testing.decorators import image_comparison
 import unittest
 import nbimporter
-import lv1_to_lv2 as nb
-from RoundNumber import round_number
+import h_lv1_to_h_lv2 as nb
 
 class TestLV1toLV2(unittest.TestCase):
 

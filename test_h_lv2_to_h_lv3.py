@@ -1,9 +1,6 @@
-﻿import matplotlib
-from matplotlib.testing.decorators import image_comparison
-import math
 import unittest
 import nbimporter
-import lv2_to_lv3 as nb
+import h_lv2_to_h_lv3 as nb
 
 class TestLV2toLV3(unittest.TestCase):
 
