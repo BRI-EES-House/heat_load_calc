@@ -1,10 +1,4 @@
 {
-    "common": {
-        "region": 1,
-        "main_occupant_room_floor_area": 29.81,
-        "other_occupant_room_floor_area": 51.34,
-        "total_floor_area": 120.08
-    },
     "envelope": {
         "input_method": 1,
         "simple_method": null,
@@ -283,32 +277,32 @@
         "inner_walls": [
             {
                 "name": "INW1",
-                "area": 0,
+                "area": 1,
                 "space_type_1": 1,
                 "speace_type_2": 1,
                 "spec": {
                     "layers": [
                         {
                             "name": "LYR1",
-                            "heat_resistance_input_method": 1,
-                            "thermal_conductivity": 1,
-                            "thermal_resistance": null,
+                            "heat_resistance_input_method": 2,
+                            "thermal_conductivity": null,
+                            "thermal_resistance": -0.1,
                             "thickness": 1,
                             "volumetric_specific_heat": 1
                         },
                         {
                             "name": "LYR2",
-                            "heat_resistance_input_method": 1,
-                            "thermal_conductivity": 1,
-                            "thermal_resistance": null,
+                            "heat_resistance_input_method": 2,
+                            "thermal_conductivity": null,
+                            "thermal_resistance": -0.1,
                             "thickness": 1,
                             "volumetric_specific_heat": 1
                         },
                         {
                             "name": "LYR3",
-                            "heat_resistance_input_method": 1,
-                            "thermal_conductivity": 1,
-                            "thermal_resistance": null,
+                            "heat_resistance_input_method": 2,
+                            "thermal_conductivity": null,
+                            "thermal_resistance": -0.1,
                             "thickness": 1,
                             "volumetric_specific_heat": 1
                         }
@@ -317,32 +311,32 @@
             },
             {
                 "name": "INW2",
-                "area": 0,
+                "area": 1,
                 "space_type_1": 1,
                 "speace_type_2": 1,
                 "spec": {
                     "layers": [
                         {
                             "name": "LYR1",
-                            "heat_resistance_input_method": 1,
-                            "thermal_conductivity": 1,
-                            "thermal_resistance": null,
+                            "heat_resistance_input_method": 2,
+                            "thermal_conductivity": null,
+                            "thermal_resistance": -0.1,
                             "thickness": 1,
                             "volumetric_specific_heat": 1
                         },
                         {
                             "name": "LYR2",
-                            "heat_resistance_input_method": 1,
-                            "thermal_conductivity": 1,
-                            "thermal_resistance": null,
+                            "heat_resistance_input_method": 2,
+                            "thermal_conductivity": null,
+                            "thermal_resistance": -0.1,
                             "thickness": 1,
                             "volumetric_specific_heat": 1
                         },
                         {
                             "name": "LYR3",
-                            "heat_resistance_input_method": 1,
-                            "thermal_conductivity": 1,
-                            "thermal_resistance": null,
+                            "heat_resistance_input_method": 2,
+                            "thermal_conductivity": null,
+                            "thermal_resistance": -0.1,
                             "thickness": 1,
                             "volumetric_specific_heat": 1
                         }
@@ -351,32 +345,32 @@
             },
             {
                 "name": "INW3",
-                "area": 0,
+                "area": 1,
                 "space_type_1": 1,
                 "speace_type_2": 1,
                 "spec": {
                     "layers": [
                         {
                             "name": "LYR1",
-                            "heat_resistance_input_method": 1,
-                            "thermal_conductivity": 1,
-                            "thermal_resistance": null,
+                            "heat_resistance_input_method": 2,
+                            "thermal_conductivity": null,
+                            "thermal_resistance": -0.1,
                             "thickness": 1,
                             "volumetric_specific_heat": 1
                         },
                         {
                             "name": "LYR2",
-                            "heat_resistance_input_method": 1,
-                            "thermal_conductivity": 1,
-                            "thermal_resistance": null,
+                            "heat_resistance_input_method": 2,
+                            "thermal_conductivity": null,
+                            "thermal_resistance": -0.1,
                             "thickness": 1,
                             "volumetric_specific_heat": 1
                         },
                         {
                             "name": "LYR3",
-                            "heat_resistance_input_method": 1,
-                            "thermal_conductivity": 1,
-                            "thermal_resistance": null,
+                            "heat_resistance_input_method": 2,
+                            "thermal_conductivity": null,
+                            "thermal_resistance": -0.1,
                             "thickness": 1,
                             "volumetric_specific_heat": 1
                         }
@@ -388,5 +382,22 @@
     "ventilation": {
         "air_change_rate": 1
     },
-    "target_key": "area"
+    "heating_equipment": {
+        "is_radiative_heating": 2,
+        "radiative_heating": {
+            "max_capacity": 100,
+            "area": 10
+        }
+    },
+    "cooling_equipment": {
+        "is_radiative_cooling": 2,
+        "radiative_cooling": {
+            "max_capacity": 100,
+            "area": 10
+        },
+        "convective_cooling": {
+            "heat_exchanger_type": 1
+        }
+    },
+    "target_key": "thermal_resistance"
 }

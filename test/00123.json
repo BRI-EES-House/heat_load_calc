@@ -1,10 +1,4 @@
 {
-    "common": {
-        "region": 1,
-        "main_occupant_room_floor_area": 29.81,
-        "other_occupant_room_floor_area": 51.34,
-        "total_floor_area": 120.08
-    },
     "envelope": {
         "input_method": 3,
         "simple_method": null,
@@ -14,7 +8,7 @@
                 "general_part_type": 1,
                 "next_space": 1,
                 "direction": 1,
-                "area": 1,
+                "area": 99.99,
                 "space_type": null,
                 "spec": {
                     "structure": 1,
@@ -39,7 +33,7 @@
                 "general_part_type": 1,
                 "next_space": 1,
                 "direction": 1,
-                "area": 1,
+                "area": 99.99,
                 "space_type": null,
                 "spec": {
                     "structure": 1,
@@ -64,7 +58,7 @@
                 "general_part_type": 1,
                 "next_space": 1,
                 "direction": 1,
-                "area": 1,
+                "area": 99.99,
                 "space_type": null,
                 "spec": {
                     "structure": 1,
@@ -464,5 +458,22 @@
     "ventilation": {
         "air_change_rate": 1
     },
-    "target_key": "next_space"
+    "heating_equipment": {
+        "is_radiative_heating": 2,
+        "radiative_heating": {
+            "max_capacity": 100,
+            "area": 10
+        }
+    },
+    "cooling_equipment": {
+        "is_radiative_cooling": 2,
+        "radiative_cooling": {
+            "max_capacity": 100,
+            "area": 10
+        },
+        "convective_cooling": {
+            "heat_exchanger_type": 1
+        }
+    },
+    "target_key": "area"
 }

@@ -1,21 +1,15 @@
 {
-    "common": {
-        "region": 1,
-        "main_occupant_room_floor_area": 29.81,
-        "other_occupant_room_floor_area": 51.34,
-        "total_floor_area": 120.08
-    },
     "envelope": {
         "input_method": 2,
         "simple_method": {
-            "insulation_type": 3,
-            "insulation_type_bathroom": null,
+            "insulation_type": 1,
+            "insulation_type_bathroom": 1,
             "u_value_roof": 0.24,
             "u_value_wall": 0.53,
             "u_value_door": 4.65,
-            "u_value_window": 4.65,
-            "u_value_floor_bathroom": null,
-            "u_value_floor_other": null,
+            "u_value_window": 10.01,
+            "u_value_floor_bathroom": 0.48,
+            "u_value_floor_other": 0.48,
             "is_psi_value_base_input": 1,
             "psi_value_earthfloor_perimeter_entrance": 0.53,
             "psi_value_earthfloor_perimeter_bathroom": null,
@@ -406,5 +400,22 @@
     "ventilation": {
         "air_change_rate": 1
     },
-    "target_key": "insulation_type"
+    "heating_equipment": {
+        "is_radiative_heating": 2,
+        "radiative_heating": {
+            "max_capacity": 100,
+            "area": 10
+        }
+    },
+    "cooling_equipment": {
+        "is_radiative_cooling": 2,
+        "radiative_cooling": {
+            "max_capacity": 100,
+            "area": 10
+        },
+        "convective_cooling": {
+            "heat_exchanger_type": 1
+        }
+    },
+    "target_key": "u_value_window"
 }

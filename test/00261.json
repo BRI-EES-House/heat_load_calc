@@ -1,96 +1,14 @@
 {
-    "common": {
-        "region": 1,
-        "main_occupant_room_floor_area": 29.81,
-        "other_occupant_room_floor_area": 51.34,
-        "total_floor_area": 120.08
-    },
     "envelope": {
-        "input_method": 3,
+        "input_method": 1,
         "simple_method": null,
-        "general_parts": [
-            {
-                "name": "GP1",
-                "general_part_type": 1,
-                "next_space": 1,
-                "direction": 1,
-                "area": 1,
-                "space_type": null,
-                "spec": {
-                    "structure": 1,
-                    "u_value_input_method_wood": 1,
-                    "u_value_input_method_rc": null,
-                    "u_value_input_method_steel": null,
-                    "u_value_wood": 1,
-                    "floor_construction_method": null,
-                    "wall_construction_method": null,
-                    "ceiling_construction_method": null,
-                    "roof_construction_method": null,
-                    "u_value_rc": null,
-                    "u_value_steel": null,
-                    "u_r_value_steel": null,
-                    "u_value_other": null,
-                    "parts": null,
-                    "is_sunshade_input": 3
-                }
-            },
-            {
-                "name": "GP2",
-                "general_part_type": 1,
-                "next_space": 1,
-                "direction": 1,
-                "area": 1,
-                "space_type": null,
-                "spec": {
-                    "structure": 1,
-                    "u_value_input_method_wood": 1,
-                    "u_value_input_method_rc": null,
-                    "u_value_input_method_steel": null,
-                    "u_value_wood": 1,
-                    "floor_construction_method": null,
-                    "wall_construction_method": null,
-                    "ceiling_construction_method": null,
-                    "roof_construction_method": null,
-                    "u_value_rc": null,
-                    "u_value_steel": null,
-                    "u_r_value_steel": null,
-                    "u_value_other": null,
-                    "parts": null,
-                    "is_sunshade_input": 3
-                }
-            },
-            {
-                "name": "GP3",
-                "general_part_type": 1,
-                "next_space": 1,
-                "direction": 1,
-                "area": 1,
-                "space_type": null,
-                "spec": {
-                    "structure": 1,
-                    "u_value_input_method_wood": 1,
-                    "u_value_input_method_rc": null,
-                    "u_value_input_method_steel": null,
-                    "u_value_wood": 1,
-                    "floor_construction_method": null,
-                    "wall_construction_method": null,
-                    "ceiling_construction_method": null,
-                    "roof_construction_method": null,
-                    "u_value_rc": null,
-                    "u_value_steel": null,
-                    "u_r_value_steel": null,
-                    "u_value_other": null,
-                    "parts": null,
-                    "is_sunshade_input": 3
-                }
-            }
-        ],
+        "general_parts": null,
         "windows": [
             {
                 "name": "WND1",
                 "next_space": 1,
                 "direction": 1,
-                "area": 1,
+                "area": 0,
                 "space_type": 1,
                 "spec": {
                     "window_type": 1,
@@ -117,7 +35,7 @@
                 "name": "WND2",
                 "next_space": 1,
                 "direction": 1,
-                "area": 1,
+                "area": 0,
                 "space_type": 1,
                 "spec": {
                     "window_type": 1,
@@ -144,7 +62,7 @@
                 "name": "WND3",
                 "next_space": 1,
                 "direction": 1,
-                "area": 1,
+                "area": 0,
                 "space_type": 1,
                 "spec": {
                     "window_type": 1,
@@ -464,5 +382,22 @@
     "ventilation": {
         "air_change_rate": 1
     },
-    "target_key": "is_sunshade_input"
+    "heating_equipment": {
+        "is_radiative_heating": 2,
+        "radiative_heating": {
+            "max_capacity": 100,
+            "area": 10
+        }
+    },
+    "cooling_equipment": {
+        "is_radiative_cooling": 2,
+        "radiative_cooling": {
+            "max_capacity": 100,
+            "area": 10
+        },
+        "convective_cooling": {
+            "heat_exchanger_type": 1
+        }
+    },
+    "target_key": "area"
 }
