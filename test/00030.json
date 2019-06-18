@@ -6,15 +6,7 @@
         "total_floor_area": 120.08
     },
     "envelope": {
-        "input_method": 5,
-        "simple_method": null,
-        "general_parts": null,
-        "windows": null,
-        "doors": null,
-        "earthfloor_perimeters": null,
-        "earthfloor_centers": null,
-        "inner_floors": null,
-        "inner_walls": null
+        "input_method": 5
     },
     "ventilation": {
         "air_change_rate": 1

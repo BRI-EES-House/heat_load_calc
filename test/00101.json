@@ -18,21 +18,10 @@
             "u_value_floor_other": 0.48,
             "is_psi_value_base_input": 1,
             "psi_value_earthfloor_perimeter_entrance": 0.53,
-            "psi_value_earthfloor_perimeter_bathroom": null,
-            "psi_value_earthfloor_perimeter_other": null,
             "eta_d_value_window_h": 0.63,
             "eta_d_value_window_c": 0.63,
-            "is_f_value_input": 2,
-            "f_value_h": null,
-            "f_value_c": null
-        },
-        "general_parts": null,
-        "windows": null,
-        "doors": null,
-        "earthfloor_perimeters": null,
-        "earthfloor_centers": null,
-        "inner_floors": null,
-        "inner_walls": null
+            "is_f_value_input": 2
+        }
     },
     "ventilation": {
         "air_change_rate": 1
