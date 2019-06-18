@@ -12,7 +12,7 @@
         "air_change_rate": 1
     },
     "heating_equipment": {
-        "is_radiative_heating": 2,
+        "is_radiative_heating": 1,
         "radiative_heating": {
             "max_capacity": 100,
             "area": 0
@@ -20,10 +20,6 @@
     },
     "cooling_equipment": {
         "is_radiative_cooling": 2,
-        "radiative_cooling": {
-            "max_capacity": 100,
-            "area": 10
-        },
         "convective_cooling": {
             "heat_exchanger_type": "cooling"
         }

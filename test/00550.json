@@ -12,11 +12,7 @@
         "air_change_rate": 1
     },
     "heating_equipment": {
-        "is_radiative_heating": 2,
-        "radiative_heating": {
-            "max_capacity": 100,
-            "area": 10
-        }
+        "is_radiative_heating": 2
     },
     "cooling_equipment": {
         "is_radiative_cooling": 1,
