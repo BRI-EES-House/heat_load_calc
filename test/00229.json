@@ -1,4 +1,10 @@
 {
+    "common": {
+        "region": 1,
+        "main_occupant_room_floor_area": 29.81,
+        "other_occupant_room_floor_area": 51.34,
+        "total_floor_area": 120.08
+    },
     "envelope": {
         "input_method": 3,
         "simple_method": null,
@@ -35,7 +41,7 @@
                                     "thermal_conductivity": 1,
                                     "thermal_resistance": null,
                                     "thickness": 1,
-                                    "volumetric_specific_heat": 0
+                                    "volumetric_specific_heat": 1
                                 },
                                 {
                                     "name": "LYR2",
@@ -43,7 +49,7 @@
                                     "thermal_conductivity": 1,
                                     "thermal_resistance": null,
                                     "thickness": 1,
-                                    "volumetric_specific_heat": 0
+                                    "volumetric_specific_heat": 1
                                 },
                                 {
                                     "name": "LYR3",
@@ -51,7 +57,7 @@
                                     "thermal_conductivity": 1,
                                     "thermal_resistance": null,
                                     "thickness": 1,
-                                    "volumetric_specific_heat": 0
+                                    "volumetric_specific_heat": 1
                                 }
                             ]
                         }
@@ -91,7 +97,7 @@
                                     "thermal_conductivity": 1,
                                     "thermal_resistance": null,
                                     "thickness": 1,
-                                    "volumetric_specific_heat": 0
+                                    "volumetric_specific_heat": 1
                                 },
                                 {
                                     "name": "LYR2",
@@ -99,7 +105,7 @@
                                     "thermal_conductivity": 1,
                                     "thermal_resistance": null,
                                     "thickness": 1,
-                                    "volumetric_specific_heat": 0
+                                    "volumetric_specific_heat": 1
                                 },
                                 {
                                     "name": "LYR3",
@@ -107,7 +113,7 @@
                                     "thermal_conductivity": 1,
                                     "thermal_resistance": null,
                                     "thickness": 1,
-                                    "volumetric_specific_heat": 0
+                                    "volumetric_specific_heat": 1
                                 }
                             ]
                         }
@@ -147,7 +153,7 @@
                                     "thermal_conductivity": 1,
                                     "thermal_resistance": null,
                                     "thickness": 1,
-                                    "volumetric_specific_heat": 0
+                                    "volumetric_specific_heat": 1
                                 },
                                 {
                                     "name": "LYR2",
@@ -155,7 +161,7 @@
                                     "thermal_conductivity": 1,
                                     "thermal_resistance": null,
                                     "thickness": 1,
-                                    "volumetric_specific_heat": 0
+                                    "volumetric_specific_heat": 1
                                 },
                                 {
                                     "name": "LYR3",
@@ -163,7 +169,7 @@
                                     "thermal_conductivity": 1,
                                     "thermal_resistance": null,
                                     "thickness": 1,
-                                    "volumetric_specific_heat": 0
+                                    "volumetric_specific_heat": 1
                                 }
                             ]
                         }
@@ -568,5 +574,5 @@
             "heat_exchanger_type": 1
         }
     },
-    "target_key": "volumetric_specific_heat"
+    "target_key": "part_type"
 }

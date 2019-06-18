@@ -1,4 +1,10 @@
 {
+    "common": {
+        "region": 1,
+        "main_occupant_room_floor_area": 29.81,
+        "other_occupant_room_floor_area": 51.34,
+        "total_floor_area": 120.08
+    },
     "envelope": {
         "input_method": 3,
         "simple_method": null,
@@ -7,7 +13,7 @@
                 "name": "GP1",
                 "general_part_type": 1,
                 "next_space": 1,
-                "direction": 1,
+                "direction": 8,
                 "area": 1,
                 "space_type": null,
                 "spec": {
@@ -32,7 +38,7 @@
                 "name": "GP2",
                 "general_part_type": 1,
                 "next_space": 1,
-                "direction": 1,
+                "direction": 8,
                 "area": 1,
                 "space_type": null,
                 "spec": {
@@ -57,7 +63,7 @@
                 "name": "GP3",
                 "general_part_type": 1,
                 "next_space": 1,
-                "direction": 1,
+                "direction": 8,
                 "area": 1,
                 "space_type": null,
                 "spec": {
@@ -475,5 +481,5 @@
             "heat_exchanger_type": 1
         }
     },
-    "target_key": "u_value_input_method_wood"
+    "target_key": "direction"
 }

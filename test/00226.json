@@ -1,4 +1,10 @@
 {
+    "common": {
+        "region": 1,
+        "main_occupant_room_floor_area": 29.81,
+        "other_occupant_room_floor_area": 51.34,
+        "total_floor_area": 120.08
+    },
     "envelope": {
         "input_method": 3,
         "simple_method": null,
@@ -34,7 +40,7 @@
                                     "heat_resistance_input_method": 1,
                                     "thermal_conductivity": 1,
                                     "thermal_resistance": null,
-                                    "thickness": 9.9999,
+                                    "thickness": 1,
                                     "volumetric_specific_heat": 1
                                 },
                                 {
@@ -42,7 +48,7 @@
                                     "heat_resistance_input_method": 1,
                                     "thermal_conductivity": 1,
                                     "thermal_resistance": null,
-                                    "thickness": 9.9999,
+                                    "thickness": 1,
                                     "volumetric_specific_heat": 1
                                 },
                                 {
@@ -50,7 +56,7 @@
                                     "heat_resistance_input_method": 1,
                                     "thermal_conductivity": 1,
                                     "thermal_resistance": null,
-                                    "thickness": 9.9999,
+                                    "thickness": 1,
                                     "volumetric_specific_heat": 1
                                 }
                             ]
@@ -90,7 +96,7 @@
                                     "heat_resistance_input_method": 1,
                                     "thermal_conductivity": 1,
                                     "thermal_resistance": null,
-                                    "thickness": 9.9999,
+                                    "thickness": 1,
                                     "volumetric_specific_heat": 1
                                 },
                                 {
@@ -98,7 +104,7 @@
                                     "heat_resistance_input_method": 1,
                                     "thermal_conductivity": 1,
                                     "thermal_resistance": null,
-                                    "thickness": 9.9999,
+                                    "thickness": 1,
                                     "volumetric_specific_heat": 1
                                 },
                                 {
@@ -106,7 +112,7 @@
                                     "heat_resistance_input_method": 1,
                                     "thermal_conductivity": 1,
                                     "thermal_resistance": null,
-                                    "thickness": 9.9999,
+                                    "thickness": 1,
                                     "volumetric_specific_heat": 1
                                 }
                             ]
@@ -146,7 +152,7 @@
                                     "heat_resistance_input_method": 1,
                                     "thermal_conductivity": 1,
                                     "thermal_resistance": null,
-                                    "thickness": 9.9999,
+                                    "thickness": 1,
                                     "volumetric_specific_heat": 1
                                 },
                                 {
@@ -154,7 +160,7 @@
                                     "heat_resistance_input_method": 1,
                                     "thermal_conductivity": 1,
                                     "thermal_resistance": null,
-                                    "thickness": 9.9999,
+                                    "thickness": 1,
                                     "volumetric_specific_heat": 1
                                 },
                                 {
@@ -162,7 +168,7 @@
                                     "heat_resistance_input_method": 1,
                                     "thermal_conductivity": 1,
                                     "thermal_resistance": null,
-                                    "thickness": 9.9999,
+                                    "thickness": 1,
                                     "volumetric_specific_heat": 1
                                 }
                             ]
@@ -568,5 +574,5 @@
             "heat_exchanger_type": 1
         }
     },
-    "target_key": "thickness"
+    "target_key": "part_type"
 }

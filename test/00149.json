@@ -1,4 +1,10 @@
 {
+    "common": {
+        "region": 1,
+        "main_occupant_room_floor_area": 29.81,
+        "other_occupant_room_floor_area": 51.34,
+        "total_floor_area": 120.08
+    },
     "envelope": {
         "input_method": 3,
         "simple_method": null,
@@ -8,14 +14,14 @@
                 "general_part_type": 1,
                 "next_space": 1,
                 "direction": 1,
-                "area": 1,
+                "area": 100.0,
                 "space_type": null,
                 "spec": {
-                    "structure": 3,
-                    "u_value_input_method_wood": null,
+                    "structure": 1,
+                    "u_value_input_method_wood": 1,
                     "u_value_input_method_rc": null,
-                    "u_value_input_method_steel": 3,
-                    "u_value_wood": null,
+                    "u_value_input_method_steel": null,
+                    "u_value_wood": 1,
                     "floor_construction_method": null,
                     "wall_construction_method": null,
                     "ceiling_construction_method": null,
@@ -33,14 +39,14 @@
                 "general_part_type": 1,
                 "next_space": 1,
                 "direction": 1,
-                "area": 1,
+                "area": 100.0,
                 "space_type": null,
                 "spec": {
-                    "structure": 3,
-                    "u_value_input_method_wood": null,
+                    "structure": 1,
+                    "u_value_input_method_wood": 1,
                     "u_value_input_method_rc": null,
-                    "u_value_input_method_steel": 3,
-                    "u_value_wood": null,
+                    "u_value_input_method_steel": null,
+                    "u_value_wood": 1,
                     "floor_construction_method": null,
                     "wall_construction_method": null,
                     "ceiling_construction_method": null,
@@ -58,14 +64,14 @@
                 "general_part_type": 1,
                 "next_space": 1,
                 "direction": 1,
-                "area": 1,
+                "area": 100.0,
                 "space_type": null,
                 "spec": {
-                    "structure": 3,
-                    "u_value_input_method_wood": null,
+                    "structure": 1,
+                    "u_value_input_method_wood": 1,
                     "u_value_input_method_rc": null,
-                    "u_value_input_method_steel": 3,
-                    "u_value_wood": null,
+                    "u_value_input_method_steel": null,
+                    "u_value_wood": 1,
                     "floor_construction_method": null,
                     "wall_construction_method": null,
                     "ceiling_construction_method": null,
@@ -475,5 +481,5 @@
             "heat_exchanger_type": 1
         }
     },
-    "target_key": "u_value_input_method_steel"
+    "target_key": "area"
 }

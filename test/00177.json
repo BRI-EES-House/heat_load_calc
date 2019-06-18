@@ -1,4 +1,10 @@
 {
+    "common": {
+        "region": 1,
+        "main_occupant_room_floor_area": 29.81,
+        "other_occupant_room_floor_area": 51.34,
+        "total_floor_area": 120.08
+    },
     "envelope": {
         "input_method": 3,
         "simple_method": null,
@@ -12,140 +18,19 @@
                 "space_type": null,
                 "spec": {
                     "structure": 1,
-                    "u_value_input_method_wood": 3,
+                    "u_value_input_method_wood": 1,
                     "u_value_input_method_rc": null,
                     "u_value_input_method_steel": null,
-                    "u_value_wood": null,
+                    "u_value_wood": 1,
                     "floor_construction_method": null,
                     "wall_construction_method": null,
                     "ceiling_construction_method": null,
-                    "roof_construction_method": 2,
+                    "roof_construction_method": null,
                     "u_value_rc": null,
                     "u_value_steel": null,
                     "u_r_value_steel": null,
                     "u_value_other": null,
-                    "parts": [
-                        {
-                            "name": "PRT1",
-                            "part_type": 1,
-                            "layers": [
-                                {
-                                    "name": "LYR1",
-                                    "heat_resistance_input_method": 1,
-                                    "thermal_conductivity": 1,
-                                    "thermal_resistance": null,
-                                    "thickness": 1,
-                                    "volumetric_specific_heat": 1
-                                },
-                                {
-                                    "name": "LYR2",
-                                    "heat_resistance_input_method": 1,
-                                    "thermal_conductivity": 1,
-                                    "thermal_resistance": null,
-                                    "thickness": 1,
-                                    "volumetric_specific_heat": 1
-                                },
-                                {
-                                    "name": "LYR3",
-                                    "heat_resistance_input_method": 1,
-                                    "thermal_conductivity": 1,
-                                    "thermal_resistance": null,
-                                    "thickness": 1,
-                                    "volumetric_specific_heat": 1
-                                }
-                            ]
-                        },
-                        {
-                            "name": "PRT2",
-                            "part_type": 1,
-                            "layers": [
-                                {
-                                    "name": "LYR1",
-                                    "heat_resistance_input_method": 1,
-                                    "thermal_conductivity": 1,
-                                    "thermal_resistance": null,
-                                    "thickness": 1,
-                                    "volumetric_specific_heat": 1
-                                },
-                                {
-                                    "name": "LYR2",
-                                    "heat_resistance_input_method": 1,
-                                    "thermal_conductivity": 1,
-                                    "thermal_resistance": null,
-                                    "thickness": 1,
-                                    "volumetric_specific_heat": 1
-                                },
-                                {
-                                    "name": "LYR3",
-                                    "heat_resistance_input_method": 1,
-                                    "thermal_conductivity": 1,
-                                    "thermal_resistance": null,
-                                    "thickness": 1,
-                                    "volumetric_specific_heat": 1
-                                }
-                            ]
-                        },
-                        {
-                            "name": "PRT3",
-                            "part_type": 1,
-                            "layers": [
-                                {
-                                    "name": "LYR1",
-                                    "heat_resistance_input_method": 1,
-                                    "thermal_conductivity": 1,
-                                    "thermal_resistance": null,
-                                    "thickness": 1,
-                                    "volumetric_specific_heat": 1
-                                },
-                                {
-                                    "name": "LYR2",
-                                    "heat_resistance_input_method": 1,
-                                    "thermal_conductivity": 1,
-                                    "thermal_resistance": null,
-                                    "thickness": 1,
-                                    "volumetric_specific_heat": 1
-                                },
-                                {
-                                    "name": "LYR3",
-                                    "heat_resistance_input_method": 1,
-                                    "thermal_conductivity": 1,
-                                    "thermal_resistance": null,
-                                    "thickness": 1,
-                                    "volumetric_specific_heat": 1
-                                }
-                            ]
-                        },
-                        {
-                            "name": "PRT4",
-                            "part_type": 1,
-                            "layers": [
-                                {
-                                    "name": "LYR1",
-                                    "heat_resistance_input_method": 1,
-                                    "thermal_conductivity": 1,
-                                    "thermal_resistance": null,
-                                    "thickness": 1,
-                                    "volumetric_specific_heat": 1
-                                },
-                                {
-                                    "name": "LYR2",
-                                    "heat_resistance_input_method": 1,
-                                    "thermal_conductivity": 1,
-                                    "thermal_resistance": null,
-                                    "thickness": 1,
-                                    "volumetric_specific_heat": 1
-                                },
-                                {
-                                    "name": "LYR3",
-                                    "heat_resistance_input_method": 1,
-                                    "thermal_conductivity": 1,
-                                    "thermal_resistance": null,
-                                    "thickness": 1,
-                                    "volumetric_specific_heat": 1
-                                }
-                            ]
-                        }
-                    ],
+                    "parts": null,
                     "is_sunshade_input": 1
                 }
             },
@@ -158,140 +43,19 @@
                 "space_type": null,
                 "spec": {
                     "structure": 1,
-                    "u_value_input_method_wood": 3,
+                    "u_value_input_method_wood": 1,
                     "u_value_input_method_rc": null,
                     "u_value_input_method_steel": null,
-                    "u_value_wood": null,
+                    "u_value_wood": 1,
                     "floor_construction_method": null,
                     "wall_construction_method": null,
                     "ceiling_construction_method": null,
-                    "roof_construction_method": 2,
+                    "roof_construction_method": null,
                     "u_value_rc": null,
                     "u_value_steel": null,
                     "u_r_value_steel": null,
                     "u_value_other": null,
-                    "parts": [
-                        {
-                            "name": "PRT1",
-                            "part_type": 1,
-                            "layers": [
-                                {
-                                    "name": "LYR1",
-                                    "heat_resistance_input_method": 1,
-                                    "thermal_conductivity": 1,
-                                    "thermal_resistance": null,
-                                    "thickness": 1,
-                                    "volumetric_specific_heat": 1
-                                },
-                                {
-                                    "name": "LYR2",
-                                    "heat_resistance_input_method": 1,
-                                    "thermal_conductivity": 1,
-                                    "thermal_resistance": null,
-                                    "thickness": 1,
-                                    "volumetric_specific_heat": 1
-                                },
-                                {
-                                    "name": "LYR3",
-                                    "heat_resistance_input_method": 1,
-                                    "thermal_conductivity": 1,
-                                    "thermal_resistance": null,
-                                    "thickness": 1,
-                                    "volumetric_specific_heat": 1
-                                }
-                            ]
-                        },
-                        {
-                            "name": "PRT2",
-                            "part_type": 1,
-                            "layers": [
-                                {
-                                    "name": "LYR1",
-                                    "heat_resistance_input_method": 1,
-                                    "thermal_conductivity": 1,
-                                    "thermal_resistance": null,
-                                    "thickness": 1,
-                                    "volumetric_specific_heat": 1
-                                },
-                                {
-                                    "name": "LYR2",
-                                    "heat_resistance_input_method": 1,
-                                    "thermal_conductivity": 1,
-                                    "thermal_resistance": null,
-                                    "thickness": 1,
-                                    "volumetric_specific_heat": 1
-                                },
-                                {
-                                    "name": "LYR3",
-                                    "heat_resistance_input_method": 1,
-                                    "thermal_conductivity": 1,
-                                    "thermal_resistance": null,
-                                    "thickness": 1,
-                                    "volumetric_specific_heat": 1
-                                }
-                            ]
-                        },
-                        {
-                            "name": "PRT3",
-                            "part_type": 1,
-                            "layers": [
-                                {
-                                    "name": "LYR1",
-                                    "heat_resistance_input_method": 1,
-                                    "thermal_conductivity": 1,
-                                    "thermal_resistance": null,
-                                    "thickness": 1,
-                                    "volumetric_specific_heat": 1
-                                },
-                                {
-                                    "name": "LYR2",
-                                    "heat_resistance_input_method": 1,
-                                    "thermal_conductivity": 1,
-                                    "thermal_resistance": null,
-                                    "thickness": 1,
-                                    "volumetric_specific_heat": 1
-                                },
-                                {
-                                    "name": "LYR3",
-                                    "heat_resistance_input_method": 1,
-                                    "thermal_conductivity": 1,
-                                    "thermal_resistance": null,
-                                    "thickness": 1,
-                                    "volumetric_specific_heat": 1
-                                }
-                            ]
-                        },
-                        {
-                            "name": "PRT4",
-                            "part_type": 1,
-                            "layers": [
-                                {
-                                    "name": "LYR1",
-                                    "heat_resistance_input_method": 1,
-                                    "thermal_conductivity": 1,
-                                    "thermal_resistance": null,
-                                    "thickness": 1,
-                                    "volumetric_specific_heat": 1
-                                },
-                                {
-                                    "name": "LYR2",
-                                    "heat_resistance_input_method": 1,
-                                    "thermal_conductivity": 1,
-                                    "thermal_resistance": null,
-                                    "thickness": 1,
-                                    "volumetric_specific_heat": 1
-                                },
-                                {
-                                    "name": "LYR3",
-                                    "heat_resistance_input_method": 1,
-                                    "thermal_conductivity": 1,
-                                    "thermal_resistance": null,
-                                    "thickness": 1,
-                                    "volumetric_specific_heat": 1
-                                }
-                            ]
-                        }
-                    ],
+                    "parts": null,
                     "is_sunshade_input": 1
                 }
             },
@@ -304,140 +68,19 @@
                 "space_type": null,
                 "spec": {
                     "structure": 1,
-                    "u_value_input_method_wood": 3,
+                    "u_value_input_method_wood": 1,
                     "u_value_input_method_rc": null,
                     "u_value_input_method_steel": null,
-                    "u_value_wood": null,
+                    "u_value_wood": 1,
                     "floor_construction_method": null,
                     "wall_construction_method": null,
                     "ceiling_construction_method": null,
-                    "roof_construction_method": 2,
+                    "roof_construction_method": null,
                     "u_value_rc": null,
                     "u_value_steel": null,
                     "u_r_value_steel": null,
                     "u_value_other": null,
-                    "parts": [
-                        {
-                            "name": "PRT1",
-                            "part_type": 1,
-                            "layers": [
-                                {
-                                    "name": "LYR1",
-                                    "heat_resistance_input_method": 1,
-                                    "thermal_conductivity": 1,
-                                    "thermal_resistance": null,
-                                    "thickness": 1,
-                                    "volumetric_specific_heat": 1
-                                },
-                                {
-                                    "name": "LYR2",
-                                    "heat_resistance_input_method": 1,
-                                    "thermal_conductivity": 1,
-                                    "thermal_resistance": null,
-                                    "thickness": 1,
-                                    "volumetric_specific_heat": 1
-                                },
-                                {
-                                    "name": "LYR3",
-                                    "heat_resistance_input_method": 1,
-                                    "thermal_conductivity": 1,
-                                    "thermal_resistance": null,
-                                    "thickness": 1,
-                                    "volumetric_specific_heat": 1
-                                }
-                            ]
-                        },
-                        {
-                            "name": "PRT2",
-                            "part_type": 1,
-                            "layers": [
-                                {
-                                    "name": "LYR1",
-                                    "heat_resistance_input_method": 1,
-                                    "thermal_conductivity": 1,
-                                    "thermal_resistance": null,
-                                    "thickness": 1,
-                                    "volumetric_specific_heat": 1
-                                },
-                                {
-                                    "name": "LYR2",
-                                    "heat_resistance_input_method": 1,
-                                    "thermal_conductivity": 1,
-                                    "thermal_resistance": null,
-                                    "thickness": 1,
-                                    "volumetric_specific_heat": 1
-                                },
-                                {
-                                    "name": "LYR3",
-                                    "heat_resistance_input_method": 1,
-                                    "thermal_conductivity": 1,
-                                    "thermal_resistance": null,
-                                    "thickness": 1,
-                                    "volumetric_specific_heat": 1
-                                }
-                            ]
-                        },
-                        {
-                            "name": "PRT3",
-                            "part_type": 1,
-                            "layers": [
-                                {
-                                    "name": "LYR1",
-                                    "heat_resistance_input_method": 1,
-                                    "thermal_conductivity": 1,
-                                    "thermal_resistance": null,
-                                    "thickness": 1,
-                                    "volumetric_specific_heat": 1
-                                },
-                                {
-                                    "name": "LYR2",
-                                    "heat_resistance_input_method": 1,
-                                    "thermal_conductivity": 1,
-                                    "thermal_resistance": null,
-                                    "thickness": 1,
-                                    "volumetric_specific_heat": 1
-                                },
-                                {
-                                    "name": "LYR3",
-                                    "heat_resistance_input_method": 1,
-                                    "thermal_conductivity": 1,
-                                    "thermal_resistance": null,
-                                    "thickness": 1,
-                                    "volumetric_specific_heat": 1
-                                }
-                            ]
-                        },
-                        {
-                            "name": "PRT4",
-                            "part_type": 1,
-                            "layers": [
-                                {
-                                    "name": "LYR1",
-                                    "heat_resistance_input_method": 1,
-                                    "thermal_conductivity": 1,
-                                    "thermal_resistance": null,
-                                    "thickness": 1,
-                                    "volumetric_specific_heat": 1
-                                },
-                                {
-                                    "name": "LYR2",
-                                    "heat_resistance_input_method": 1,
-                                    "thermal_conductivity": 1,
-                                    "thermal_resistance": null,
-                                    "thickness": 1,
-                                    "volumetric_specific_heat": 1
-                                },
-                                {
-                                    "name": "LYR3",
-                                    "heat_resistance_input_method": 1,
-                                    "thermal_conductivity": 1,
-                                    "thermal_resistance": null,
-                                    "thickness": 1,
-                                    "volumetric_specific_heat": 1
-                                }
-                            ]
-                        }
-                    ],
+                    "parts": null,
                     "is_sunshade_input": 1
                 }
             }
@@ -838,5 +481,5 @@
             "heat_exchanger_type": 1
         }
     },
-    "target_key": "roof_construction_method"
+    "target_key": "u_value_wood"
 }
