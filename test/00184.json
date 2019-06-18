@@ -747,7 +747,7 @@
             "area": 10
         },
         "convective_cooling": {
-            "heat_exchanger_type": 1
+            "heat_exchanger_type": "cooling"
         }
     },
     "target_key": "floor_construction_method"
