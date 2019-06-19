@@ -11,13 +11,17 @@
     "ventilation": {
         "air_change_rate": 1
     },
+    "natural_vent": {
+        "main_occupant_room_natural_vent_time": 1,
+        "other_occupant_room_natural_vent_time": 1
+    },
     "heating_equipment": {
         "is_radiative_heating": 2
     },
     "cooling_equipment": {
         "is_radiative_cooling": 1,
         "radiative_cooling": {
-            "max_capacity": -0.1,
+            "max_capacity": 0,
             "area": 10
         },
         "convective_cooling": {

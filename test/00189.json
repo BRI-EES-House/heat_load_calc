@@ -10,17 +10,45 @@
         "general_parts": [
             {
                 "name": "GP1",
-                "general_part_type": 3,
+                "general_part_type": 4,
                 "next_space": 1,
+                "external_surface_type": 1,
                 "direction": 1,
                 "area": 1,
                 "spec": {
                     "structure": 1,
                     "u_value_input_method_wood": 3,
-                    "wall_construction_method": 0,
+                    "floor_construction_method": 5,
                     "parts": [
                         {
-                            "name": "PRT",
+                            "name": "PRT1",
+                            "part_type": 1,
+                            "layers": [
+                                {
+                                    "name": "LYR1",
+                                    "heat_resistance_input_method": 1,
+                                    "thermal_conductivity": 1,
+                                    "thickness": 1,
+                                    "volumetric_specific_heat": 1
+                                },
+                                {
+                                    "name": "LYR2",
+                                    "heat_resistance_input_method": 1,
+                                    "thermal_conductivity": 1,
+                                    "thickness": 1,
+                                    "volumetric_specific_heat": 1
+                                },
+                                {
+                                    "name": "LYR3",
+                                    "heat_resistance_input_method": 1,
+                                    "thermal_conductivity": 1,
+                                    "thickness": 1,
+                                    "volumetric_specific_heat": 1
+                                }
+                            ]
+                        },
+                        {
+                            "name": "PRT2",
                             "part_type": 1,
                             "layers": [
                                 {
@@ -52,17 +80,45 @@
             },
             {
                 "name": "GP2",
-                "general_part_type": 3,
+                "general_part_type": 4,
                 "next_space": 1,
+                "external_surface_type": 1,
                 "direction": 1,
                 "area": 1,
                 "spec": {
                     "structure": 1,
                     "u_value_input_method_wood": 3,
-                    "wall_construction_method": 0,
+                    "floor_construction_method": 5,
                     "parts": [
                         {
-                            "name": "PRT",
+                            "name": "PRT1",
+                            "part_type": 1,
+                            "layers": [
+                                {
+                                    "name": "LYR1",
+                                    "heat_resistance_input_method": 1,
+                                    "thermal_conductivity": 1,
+                                    "thickness": 1,
+                                    "volumetric_specific_heat": 1
+                                },
+                                {
+                                    "name": "LYR2",
+                                    "heat_resistance_input_method": 1,
+                                    "thermal_conductivity": 1,
+                                    "thickness": 1,
+                                    "volumetric_specific_heat": 1
+                                },
+                                {
+                                    "name": "LYR3",
+                                    "heat_resistance_input_method": 1,
+                                    "thermal_conductivity": 1,
+                                    "thickness": 1,
+                                    "volumetric_specific_heat": 1
+                                }
+                            ]
+                        },
+                        {
+                            "name": "PRT2",
                             "part_type": 1,
                             "layers": [
                                 {
@@ -94,17 +150,45 @@
             },
             {
                 "name": "GP3",
-                "general_part_type": 3,
+                "general_part_type": 4,
                 "next_space": 1,
+                "external_surface_type": 1,
                 "direction": 1,
                 "area": 1,
                 "spec": {
                     "structure": 1,
                     "u_value_input_method_wood": 3,
-                    "wall_construction_method": 0,
+                    "floor_construction_method": 5,
                     "parts": [
                         {
-                            "name": "PRT",
+                            "name": "PRT1",
+                            "part_type": 1,
+                            "layers": [
+                                {
+                                    "name": "LYR1",
+                                    "heat_resistance_input_method": 1,
+                                    "thermal_conductivity": 1,
+                                    "thickness": 1,
+                                    "volumetric_specific_heat": 1
+                                },
+                                {
+                                    "name": "LYR2",
+                                    "heat_resistance_input_method": 1,
+                                    "thermal_conductivity": 1,
+                                    "thickness": 1,
+                                    "volumetric_specific_heat": 1
+                                },
+                                {
+                                    "name": "LYR3",
+                                    "heat_resistance_input_method": 1,
+                                    "thermal_conductivity": 1,
+                                    "thickness": 1,
+                                    "volumetric_specific_heat": 1
+                                }
+                            ]
+                        },
+                        {
+                            "name": "PRT2",
                             "part_type": 1,
                             "layers": [
                                 {
@@ -245,7 +329,6 @@
             {
                 "name": "EFP1",
                 "next_space": 1,
-                "direction": 1,
                 "length": 1,
                 "spec": {
                     "psi_value": 1
@@ -254,7 +337,6 @@
             {
                 "name": "EFP2",
                 "next_space": 1,
-                "direction": 1,
                 "length": 1,
                 "spec": {
                     "psi_value": 1
@@ -263,7 +345,6 @@
             {
                 "name": "EFP3",
                 "next_space": 1,
-                "direction": 1,
                 "length": 1,
                 "spec": {
                     "psi_value": 1
@@ -288,6 +369,10 @@
     "ventilation": {
         "air_change_rate": 1
     },
+    "natural_vent": {
+        "main_occupant_room_natural_vent_time": 1,
+        "other_occupant_room_natural_vent_time": 1
+    },
     "heating_equipment": {
         "is_radiative_heating": 2
     },
@@ -297,5 +382,5 @@
             "heat_exchanger_type": "cooling"
         }
     },
-    "target_key": "wall_construction_method"
+    "target_key": "floor_construction_method"
 }

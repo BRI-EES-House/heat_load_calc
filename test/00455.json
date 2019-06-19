@@ -11,8 +11,12 @@
     "ventilation": {
         "air_change_rate": 1
     },
+    "natural_vent": {
+        "main_occupant_room_natural_vent_time": 1,
+        "other_occupant_room_natural_vent_time": 1
+    },
     "heating_equipment": {
-        "is_radiative_heating": 2
+        "is_radiative_heating": 3
     },
     "cooling_equipment": {
         "is_radiative_cooling": 2,

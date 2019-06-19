@@ -12,12 +12,12 @@
                 "name": "GP1",
                 "general_part_type": 1,
                 "next_space": 1,
+                "external_surface_type": 1,
                 "direction": 1,
                 "area": 1,
                 "spec": {
-                    "structure": 3,
-                    "u_value_input_method_steel": 2,
-                    "u_r_value_steel": 1,
+                    "structure": 2,
+                    "u_value_input_method_rc": 2,
                     "parts": [
                         {
                             "name": "PRT1",
@@ -53,12 +53,12 @@
                 "name": "GP2",
                 "general_part_type": 1,
                 "next_space": 1,
+                "external_surface_type": 1,
                 "direction": 1,
                 "area": 1,
                 "spec": {
-                    "structure": 3,
-                    "u_value_input_method_steel": 2,
-                    "u_r_value_steel": 1,
+                    "structure": 2,
+                    "u_value_input_method_rc": 2,
                     "parts": [
                         {
                             "name": "PRT1",
@@ -94,12 +94,12 @@
                 "name": "GP3",
                 "general_part_type": 1,
                 "next_space": 1,
+                "external_surface_type": 1,
                 "direction": 1,
                 "area": 1,
                 "spec": {
-                    "structure": 3,
-                    "u_value_input_method_steel": 2,
-                    "u_r_value_steel": 1,
+                    "structure": 2,
+                    "u_value_input_method_rc": 2,
                     "parts": [
                         {
                             "name": "PRT1",
@@ -242,7 +242,6 @@
             {
                 "name": "EFP1",
                 "next_space": 1,
-                "direction": 1,
                 "length": 1,
                 "spec": {
                     "psi_value": 1
@@ -251,7 +250,6 @@
             {
                 "name": "EFP2",
                 "next_space": 1,
-                "direction": 1,
                 "length": 1,
                 "spec": {
                     "psi_value": 1
@@ -260,7 +258,6 @@
             {
                 "name": "EFP3",
                 "next_space": 1,
-                "direction": 1,
                 "length": 1,
                 "spec": {
                     "psi_value": 1
@@ -285,6 +282,10 @@
     "ventilation": {
         "air_change_rate": 1
     },
+    "natural_vent": {
+        "main_occupant_room_natural_vent_time": 1,
+        "other_occupant_room_natural_vent_time": 1
+    },
     "heating_equipment": {
         "is_radiative_heating": 2
     },
@@ -294,5 +295,5 @@
             "heat_exchanger_type": "cooling"
         }
     },
-    "target_key": "u_value_input_method_steel"
+    "target_key": "u_value_input_method_rc"
 }
