@@ -546,7 +546,6 @@
                 "next_space": 1,
                 "direction": 1,
                 "area": 1,
-                "space_type": 1,
                 "spec": {
                     "window_type": 1,
                     "windows": [
@@ -571,7 +570,6 @@
                 "next_space": 1,
                 "direction": 1,
                 "area": 1,
-                "space_type": 1,
                 "spec": {
                     "window_type": 1,
                     "windows": [
@@ -596,7 +594,6 @@
                 "next_space": 1,
                 "direction": 1,
                 "area": 1,
-                "space_type": 1,
                 "spec": {
                     "window_type": 1,
                     "windows": [
@@ -623,7 +620,6 @@
                 "next_space": 1,
                 "direction": 1,
                 "area": 1,
-                "space_type": 1,
                 "spec": {
                     "u_vaue": 1,
                     "is_sunshade_input": 1
@@ -634,7 +630,6 @@
                 "next_space": 1,
                 "direction": 1,
                 "area": 1,
-                "space_type": 1,
                 "spec": {
                     "u_vaue": 1,
                     "is_sunshade_input": 1
@@ -645,7 +640,6 @@
                 "next_space": 1,
                 "direction": 1,
                 "area": 1,
-                "space_type": 1,
                 "spec": {
                     "u_vaue": 1,
                     "is_sunshade_input": 1
@@ -658,7 +652,6 @@
                 "next_space": 1,
                 "direction": 1,
                 "length": 1,
-                "space_type": 1,
                 "spec": {
                     "psi_value": 1
                 }
@@ -668,7 +661,6 @@
                 "next_space": 1,
                 "direction": 1,
                 "length": 1,
-                "space_type": 1,
                 "spec": {
                     "psi_value": 1
                 }
@@ -678,7 +670,6 @@
                 "next_space": 1,
                 "direction": 1,
                 "length": 1,
-                "space_type": 1,
                 "spec": {
                     "psi_value": 1
                 }
@@ -687,18 +678,15 @@
         "earthfloor_centers": [
             {
                 "name": "EFC1",
-                "area": 1,
-                "space_type": 1
+                "area": 1
             },
             {
                 "name": "EFC2",
-                "area": 1,
-                "space_type": 1
+                "area": 1
             },
             {
                 "name": "EFC3",
-                "area": 1,
-                "space_type": 1
+                "area": 1
             }
         ],
         "inner_floors": [
