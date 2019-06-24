@@ -9,28 +9,18 @@
 			"room_type": 1,
 			"volume": 70.92,
 			"vent": 60.0,
-			"equipment": {
-				"cooling": {
-					"main": {
-						"type": "room_air_conditioner",
-						"q_rtd": -2200,
-						"q_max": -3300,
-						"cop_rtd": 5.8
-					},
-					"sub": {
-					}
-				},
-				"heating": {
-					"main": {
-						"type": "floor_heating",
-						"construct_area": 12.0
-					},
-					"sub": {
-						"type": "room_air_conditioner",
-						"q_rtd": 2500,
-						"q_max": 3500,
-						"cop_rtd": 6.5
-					}
+			"cooling_equipment": {
+				"is_radiative_cooling": false,
+				"convective_cooling": {
+					"max_capacity": -4000.0,
+					"heat_exchanger_type": "normal"
+				}
+			},
+			"heating_equipment": {
+				"is_radiative_heating": true,
+				"radiative_heating": {
+					"max_capacity": 120.0,
+					"area": 35.0
 				}
 			},
 			"next_vent": [
@@ -52614,17 +52604,17 @@
 			"boundaries": [
 				{
 					"name": "north_exterior_wall",
-					"boundary_type": "external",
+					"boundary_type": "external_general_part",
 					"area": 4.9775,
 					"is_sun_striked_outside": true,
 					"temp_dif_coef": 1.0,
 					"direction": "n",
 					"is_solar_absorbed_inside": false,
-					"building_part": "general_part",
 					"general_part_spec": {
 						"outside_emissivity": 0.9,
 						"outside_solar_absorption": 0.8,
 						"inside_heat_transfer_coef": 9.1,
+						"outside_heat_transfer_coef": 25.0,
 						"layers": [
 							{
 								"name": "plaster_board",
@@ -52650,11 +52640,6 @@
 								"name": "wood-wool_and_flake_boards",
 								"thermal_resistance": 0.0882,
 								"thermal_capacity": 25.1789
-							},
-							{
-								"name": "outside_heat_transfer_coef",
-								"thermal_resistance": 0.04,
-								"thermal_capacity": 0.0
 							}
 						]
 					},
@@ -52664,17 +52649,17 @@
 				},
 				{
 					"name": "north_exterior_door",
-					"boundary_type": "external",
+					"boundary_type": "external_opaque_part",
 					"area": 1.62,
 					"is_sun_striked_outside": true,
 					"temp_dif_coef": 1.0,
 					"direction": "n",
 					"is_solar_absorbed_inside": false,
-					"building_part": "opaque_opening",
 					"opaque_opening_part": {
 						"outside_emissivity": 0.9,
 						"outside_solar_absorption": 0.8,
 						"inside_heat_transfer_coef": 9.1,
+						"outside_heat_transfer_coef": 25.0,
 						"u_value": 4.65
 					},
 					"solar_shading_part": {
@@ -52683,17 +52668,17 @@
 				},
 				{
 					"name": "east_exterior_wall",
-					"boundary_type": "external",
+					"boundary_type": "external_general_part",
 					"area": 17.982,
 					"is_sun_striked_outside": true,
 					"temp_dif_coef": 1.0,
 					"direction": "e",
 					"is_solar_absorbed_inside": false,
-					"building_part": "general_part",
 					"general_part_spec": {
 						"outside_emissivity": 0.9,
 						"outside_solar_absorption": 0.8,
 						"inside_heat_transfer_coef": 9.1,
+						"outside_heat_transfer_coef": 25.0,
 						"layers": [
 							{
 								"name": "plaster_board",
@@ -52719,11 +52704,6 @@
 								"name": "wood-wool_and_flake_boards",
 								"thermal_resistance": 0.0882,
 								"thermal_capacity": 25.1789
-							},
-							{
-								"name": "outside_heat_transfer_coef",
-								"thermal_resistance": 0.04,
-								"thermal_capacity": 0.0
 							}
 						]
 					},
@@ -52733,17 +52713,17 @@
 				},
 				{
 					"name": "east_exterior_window",
-					"boundary_type": "external",
+					"boundary_type": "external_transparent_part",
 					"area": 3.13,
 					"is_sun_striked_outside": true,
 					"temp_dif_coef": 1.0,
 					"direction": "e",
 					"is_solar_absorbed_inside": false,
-					"building_part": "transient_opening",
-					"transient_opening_part": {
+					"transparent_opening_part": {
 						"outside_emissivity": 0.9,
 						"outside_solar_absorption": 0.8,
 						"inside_heat_transfer_coef": 9.1,
+						"outside_heat_transfer_coef": 25.0,
 						"incident_angle_characteristics": 2,
 						"eta_value": 0.792,
 						"u_value": 4.65
@@ -52754,17 +52734,17 @@
 				},
 				{
 					"name": "south_exterior_wall",
-					"boundary_type": "external",
+					"boundary_type": "external_general_part",
 					"area": 10.2135,
 					"is_sun_striked_outside": true,
 					"temp_dif_coef": 1.0,
 					"direction": "s",
 					"is_solar_absorbed_inside": false,
-					"building_part": "general_part",
 					"general_part_spec": {
 						"outside_emissivity": 0.9,
 						"outside_solar_absorption": 0.8,
 						"inside_heat_transfer_coef": 9.1,
+						"outside_heat_transfer_coef": 25.0,
 						"layers": [
 							{
 								"name": "plaster_board",
@@ -52790,11 +52770,6 @@
 								"name": "wood-wool_and_flake_boards",
 								"thermal_resistance": 0.0882,
 								"thermal_capacity": 25.1789
-							},
-							{
-								"name": "outside_heat_transfer_coef",
-								"thermal_resistance": 0.04,
-								"thermal_capacity": 0.0
 							}
 						]
 					},
@@ -52804,17 +52779,17 @@
 				},
 				{
 					"name": "south_exterior_window",
-					"boundary_type": "external",
+					"boundary_type": "external_transparent_part",
 					"area": 6.94,
 					"is_sun_striked_outside": true,
 					"temp_dif_coef": 1.0,
 					"direction": "s",
 					"is_solar_absorbed_inside": false,
-					"building_part": "transient_opening",
-					"transient_opening_part": {
+					"transparent_opening_part": {
 						"outside_emissivity": 0.9,
 						"outside_solar_absorption": 0.8,
 						"inside_heat_transfer_coef": 9.1,
+						"outside_heat_transfer_coef": 25.0,
 						"incident_angle_characteristics": 2,
 						"eta_value": 0.792,
 						"u_value": 4.65
@@ -52829,15 +52804,15 @@
 				},
 				{
 					"name": "exterior_floor",
-					"boundary_type": "external",
+					"boundary_type": "external_general_part",
 					"area": 29.81,
 					"is_sun_striked_outside": false,
 					"temp_dif_coef": 0.7,
-					"direction": "bottom",
 					"is_solar_absorbed_inside": true,
-					"building_part": "general_part",
 					"general_part_spec": {
+						"outside_emissivity": 0.9,
 						"inside_heat_transfer_coef": 6.7,
+						"outside_heat_transfer_coef": 6.7,
 						"layers": [
 							{
 								"name": "plywood",
@@ -52848,11 +52823,6 @@
 								"name": "glass_wool_10K",
 								"thermal_resistance": 1.28,
 								"thermal_capacity": 0.512
-							},
-							{
-								"name": "outside_heat_transfer_coef",
-								"thermal_resistance": 0.15,
-								"thermal_capacity": 0.0
 							}
 						]
 					},
@@ -52862,17 +52832,17 @@
 				},
 				{
 					"name": "exterior_ceiling",
-					"boundary_type": "external",
+					"boundary_type": "external_general_part",
 					"area": 4.14,
 					"is_sun_striked_outside": true,
 					"temp_dif_coef": 1.0,
 					"direction": "top",
 					"is_solar_absorbed_inside": false,
-					"building_part": "general_part",
 					"general_part_spec": {
 						"outside_emissivity": 0.9,
 						"outside_solar_absorption": 0.8,
 						"inside_heat_transfer_coef": 11.1,
+						"outside_heat_transfer_coef": 11.1,
 						"layers": [
 							{
 								"name": "plaster_board",
@@ -52883,11 +52853,6 @@
 								"name": "glass_wool_10K",
 								"thermal_resistance": 3.42,
 								"thermal_capacity": 1.368
-							},
-							{
-								"name": "outside_heat_transfer_coef",
-								"thermal_resistance": 0.09,
-								"thermal_capacity": 0.0
 							}
 						]
 					},
@@ -52903,9 +52868,9 @@
 					"temp_dif_coef": 1.0,
 					"next_room_type": "non_occupant_room",
 					"is_solar_absorbed_inside": false,
-					"building_part": "general_part",
 					"general_part_spec": {
 						"inside_heat_transfer_coef": 9.1,
+						"outside_heat_transfer_coef": 9.1,
 						"layers": [
 							{
 								"name": "plaster_board",
@@ -52921,11 +52886,6 @@
 								"name": "plaster_board",
 								"thermal_resistance": 0.0568,
 								"thermal_capacity": 10.375
-							},
-							{
-								"name": "outside_heat_transfer_coef",
-								"thermal_resistance": 0.11,
-								"thermal_capacity": 0.0
 							}
 						]
 					},
@@ -52941,9 +52901,9 @@
 					"temp_dif_coef": 1.0,
 					"next_room_type": "other_occupant_room",
 					"is_solar_absorbed_inside": false,
-					"building_part": "general_part",
 					"general_part_spec": {
 						"inside_heat_transfer_coef": 11.1,
+						"outside_heat_transfer_coef": 6.7,
 						"layers": [
 							{
 								"name": "plaster_board",
@@ -52959,11 +52919,6 @@
 								"name": "plywood",
 								"thermal_resistance": 0.075,
 								"thermal_capacity": 8.64
-							},
-							{
-								"name": "outside_heat_transfer_coef",
-								"thermal_resistance": 0.15,
-								"thermal_capacity": 0.0
 							}
 						]
 					},
@@ -52979,9 +52934,9 @@
 					"temp_dif_coef": 1.0,
 					"next_room_type": "other_occupant_room",
 					"is_solar_absorbed_inside": false,
-					"building_part": "general_part",
 					"general_part_spec": {
 						"inside_heat_transfer_coef": 11.1,
+						"outside_heat_transfer_coef": 6.7,
 						"layers": [
 							{
 								"name": "plaster_board",
@@ -52997,11 +52952,6 @@
 								"name": "plywood",
 								"thermal_resistance": 0.075,
 								"thermal_capacity": 8.64
-							},
-							{
-								"name": "outside_heat_transfer_coef",
-								"thermal_resistance": 0.15,
-								"thermal_capacity": 0.0
 							}
 						]
 					},
@@ -53017,9 +52967,9 @@
 					"temp_dif_coef": 1.0,
 					"next_room_type": "other_occupant_room",
 					"is_solar_absorbed_inside": false,
-					"building_part": "general_part",
 					"general_part_spec": {
 						"inside_heat_transfer_coef": 9.1,
+						"outside_heat_transfer_coef": 9.1,
 						"layers": [
 							{
 								"name": "plaster_board",
@@ -53035,11 +52985,6 @@
 								"name": "plaster_board",
 								"thermal_resistance": 0.0568,
 								"thermal_capacity": 10.375
-							},
-							{
-								"name": "outside_heat_transfer_coef",
-								"thermal_resistance": 0.11,
-								"thermal_capacity": 0.0
 							}
 						]
 					},
@@ -53054,27 +52999,15 @@
 			"room_type": 2,
 			"volume": 123.22,
 			"vent": 100.0,
-			"equipment": {
-				"cooling": {
-					"main": {
-						"type": "room_air_conditioner",
-						"q_rtd": -2200,
-						"q_max": -3300,
-						"cop_rtd": 5.8
-					},
-					"sub": {
-					}
-				},
-				"heating": {
-					"main": {
-						"type": "room_air_conditioner",
-						"q_rtd": 2500,
-						"q_max": 3500,
-						"cop_rtd": 6.5
-					},
-					"sub": {
-					}
+			"cooling_equipment": {
+				"is_radiative_cooling": false,
+				"convective_cooling": {
+					"max_capacity": -2500.0,
+					"heat_exchanger_type": "normal"
 				}
+			},
+			"heating_equipment": {
+				"is_radiative_heating": false
 			},
 			"next_vent": [
 				{
@@ -105661,17 +105594,17 @@
 			"boundaries": [
 				{
 					"name": "south_exterior_wall",
-					"boundary_type": "external",
+					"boundary_type": "external_general_part",
 					"area": 8.098,
 					"is_sun_striked_outside": true,
 					"temp_dif_coef": 1.0,
 					"direction": "s",
 					"is_solar_absorbed_inside": false,
-					"building_part": "general_part",
 					"general_part_spec": {
 						"outside_emissivity": 0.9,
 						"outside_solar_absorption": 0.8,
 						"inside_heat_transfer_coef": 9.1,
+						"outside_heat_transfer_coef": 25.0,
 						"layers": [
 							{
 								"name": "plaster_board",
@@ -105697,11 +105630,6 @@
 								"name": "wood-wool_and_flake_boards",
 								"thermal_resistance": 0.0882,
 								"thermal_capacity": 25.1789
-							},
-							{
-								"name": "outside_heat_transfer_coef",
-								"thermal_resistance": 0.04,
-								"thermal_capacity": 0.0
 							}
 						]
 					},
@@ -105711,17 +105639,17 @@
 				},
 				{
 					"name": "south_exterior_window",
-					"boundary_type": "external",
+					"boundary_type": "external_transparent_part",
 					"area": 1.73,
 					"is_sun_striked_outside": true,
 					"temp_dif_coef": 1.0,
 					"direction": "s",
 					"is_solar_absorbed_inside": false,
-					"building_part": "transient_opening",
-					"transient_opening_part": {
+					"transparent_opening_part": {
 						"outside_emissivity": 0.9,
 						"outside_solar_absorption": 0.8,
 						"inside_heat_transfer_coef": 9.1,
+						"outside_heat_transfer_coef": 25.0,
 						"incident_angle_characteristics": 2,
 						"eta_value": 0.792,
 						"u_value": 4.65
@@ -105736,17 +105664,17 @@
 				},
 				{
 					"name": "west_exterior_wall",
-					"boundary_type": "external",
+					"boundary_type": "external_general_part",
 					"area": 8.838,
 					"is_sun_striked_outside": true,
 					"temp_dif_coef": 1.0,
 					"direction": "w",
 					"is_solar_absorbed_inside": false,
-					"building_part": "general_part",
 					"general_part_spec": {
 						"outside_emissivity": 0.9,
 						"outside_solar_absorption": 0.8,
 						"inside_heat_transfer_coef": 9.1,
+						"outside_heat_transfer_coef": 25.0,
 						"layers": [
 							{
 								"name": "plaster_board",
@@ -105772,11 +105700,6 @@
 								"name": "wood-wool_and_flake_boards",
 								"thermal_resistance": 0.0882,
 								"thermal_capacity": 25.1789
-							},
-							{
-								"name": "outside_heat_transfer_coef",
-								"thermal_resistance": 0.04,
-								"thermal_capacity": 0.0
 							}
 						]
 					},
@@ -105786,17 +105709,17 @@
 				},
 				{
 					"name": "west_exterior_window",
-					"boundary_type": "external",
+					"boundary_type": "external_transparent_part",
 					"area": 0.99,
 					"is_sun_striked_outside": true,
 					"temp_dif_coef": 1.0,
 					"direction": "w",
 					"is_solar_absorbed_inside": false,
-					"building_part": "transient_opening",
-					"transient_opening_part": {
+					"transparent_opening_part": {
 						"outside_emissivity": 0.9,
 						"outside_solar_absorption": 0.8,
 						"inside_heat_transfer_coef": 9.1,
+						"outside_heat_transfer_coef": 25.0,
 						"incident_angle_characteristics": 2,
 						"eta_value": 0.792,
 						"u_value": 4.65
@@ -105807,17 +105730,17 @@
 				},
 				{
 					"name": "exterior_ceiling",
-					"boundary_type": "external",
+					"boundary_type": "external_general_part",
 					"area": 13.25,
 					"is_sun_striked_outside": true,
 					"temp_dif_coef": 1.0,
 					"direction": "top",
 					"is_solar_absorbed_inside": false,
-					"building_part": "general_part",
 					"general_part_spec": {
 						"outside_emissivity": 0.9,
 						"outside_solar_absorption": 0.8,
 						"inside_heat_transfer_coef": 11.1,
+						"outside_heat_transfer_coef": 11.1,
 						"layers": [
 							{
 								"name": "plaster_board",
@@ -105828,11 +105751,6 @@
 								"name": "glass_wool_10K",
 								"thermal_resistance": 3.42,
 								"thermal_capacity": 1.368
-							},
-							{
-								"name": "outside_heat_transfer_coef",
-								"thermal_resistance": 0.09,
-								"thermal_capacity": 0.0
 							}
 						]
 					},
@@ -105848,9 +105766,9 @@
 					"temp_dif_coef": 1.0,
 					"next_room_type": "non_occupant_room",
 					"is_solar_absorbed_inside": false,
-					"building_part": "general_part",
 					"general_part_spec": {
 						"inside_heat_transfer_coef": 9.1,
+						"outside_heat_transfer_coef": 9.1,
 						"layers": [
 							{
 								"name": "plaster_board",
@@ -105866,11 +105784,6 @@
 								"name": "plaster_board",
 								"thermal_resistance": 0.0568,
 								"thermal_capacity": 10.375
-							},
-							{
-								"name": "outside_heat_transfer_coef",
-								"thermal_resistance": 0.11,
-								"thermal_capacity": 0.0
 							}
 						]
 					},
@@ -105880,17 +105793,17 @@
 				},
 				{
 					"name": "south_exterior_wall",
-					"boundary_type": "external",
+					"boundary_type": "external_general_part",
 					"area": 4.76525,
 					"is_sun_striked_outside": true,
 					"temp_dif_coef": 1.0,
 					"direction": "s",
 					"is_solar_absorbed_inside": false,
-					"building_part": "general_part",
 					"general_part_spec": {
 						"outside_emissivity": 0.9,
 						"outside_solar_absorption": 0.8,
 						"inside_heat_transfer_coef": 9.1,
+						"outside_heat_transfer_coef": 25.0,
 						"layers": [
 							{
 								"name": "plaster_board",
@@ -105916,11 +105829,6 @@
 								"name": "wood-wool_and_flake_boards",
 								"thermal_resistance": 0.0882,
 								"thermal_capacity": 25.1789
-							},
-							{
-								"name": "outside_heat_transfer_coef",
-								"thermal_resistance": 0.04,
-								"thermal_capacity": 0.0
 							}
 						]
 					},
@@ -105930,17 +105838,17 @@
 				},
 				{
 					"name": "south_exterior_window",
-					"boundary_type": "external",
+					"boundary_type": "external_transparent_part",
 					"area": 3.22,
 					"is_sun_striked_outside": true,
 					"temp_dif_coef": 1.0,
 					"direction": "s",
 					"is_solar_absorbed_inside": false,
-					"building_part": "transient_opening",
-					"transient_opening_part": {
+					"transparent_opening_part": {
 						"outside_emissivity": 0.9,
 						"outside_solar_absorption": 0.8,
 						"inside_heat_transfer_coef": 9.1,
+						"outside_heat_transfer_coef": 25.0,
 						"incident_angle_characteristics": 2,
 						"eta_value": 0.792,
 						"u_value": 4.65
@@ -105955,17 +105863,17 @@
 				},
 				{
 					"name": "exterior_ceiling",
-					"boundary_type": "external",
+					"boundary_type": "external_general_part",
 					"area": 10.77,
 					"is_sun_striked_outside": true,
 					"temp_dif_coef": 1.0,
 					"direction": "top",
 					"is_solar_absorbed_inside": false,
-					"building_part": "general_part",
 					"general_part_spec": {
 						"outside_emissivity": 0.9,
 						"outside_solar_absorption": 0.8,
 						"inside_heat_transfer_coef": 11.1,
+						"outside_heat_transfer_coef": 11.1,
 						"layers": [
 							{
 								"name": "plaster_board",
@@ -105976,11 +105884,6 @@
 								"name": "glass_wool_10K",
 								"thermal_resistance": 3.42,
 								"thermal_capacity": 1.368
-							},
-							{
-								"name": "outside_heat_transfer_coef",
-								"thermal_resistance": 0.09,
-								"thermal_capacity": 0.0
 							}
 						]
 					},
@@ -105996,9 +105899,9 @@
 					"temp_dif_coef": 1.0,
 					"next_room_type": "non_occupant_room",
 					"is_solar_absorbed_inside": false,
-					"building_part": "general_part",
 					"general_part_spec": {
 						"inside_heat_transfer_coef": 9.1,
+						"outside_heat_transfer_coef": 9.1,
 						"layers": [
 							{
 								"name": "plaster_board",
@@ -106014,11 +105917,6 @@
 								"name": "plaster_board",
 								"thermal_resistance": 0.0568,
 								"thermal_capacity": 10.375
-							},
-							{
-								"name": "outside_heat_transfer_coef",
-								"thermal_resistance": 0.11,
-								"thermal_capacity": 0.0
 							}
 						]
 					},
@@ -106034,9 +105932,9 @@
 					"temp_dif_coef": 1.0,
 					"next_room_type": "main_occupant_room",
 					"is_solar_absorbed_inside": true,
-					"building_part": "general_part",
 					"general_part_spec": {
 						"inside_heat_transfer_coef": 6.7,
+						"outside_heat_transfer_coef": 11.1,
 						"layers": [
 							{
 								"name": "plywood",
@@ -106052,11 +105950,6 @@
 								"name": "plaster_board",
 								"thermal_resistance": 0.0568,
 								"thermal_capacity": 10.375
-							},
-							{
-								"name": "outside_heat_transfer_coef",
-								"thermal_resistance": 0.09,
-								"thermal_capacity": 0.0
 							}
 						]
 					},
@@ -106066,17 +105959,17 @@
 				},
 				{
 					"name": "east_exterior_wall",
-					"boundary_type": "external",
+					"boundary_type": "external_general_part",
 					"area": 9.168,
 					"is_sun_striked_outside": true,
 					"temp_dif_coef": 1.0,
 					"direction": "e",
 					"is_solar_absorbed_inside": false,
-					"building_part": "general_part",
 					"general_part_spec": {
 						"outside_emissivity": 0.9,
 						"outside_solar_absorption": 0.8,
 						"inside_heat_transfer_coef": 9.1,
+						"outside_heat_transfer_coef": 25.0,
 						"layers": [
 							{
 								"name": "plaster_board",
@@ -106102,11 +105995,6 @@
 								"name": "wood-wool_and_flake_boards",
 								"thermal_resistance": 0.0882,
 								"thermal_capacity": 25.1789
-							},
-							{
-								"name": "outside_heat_transfer_coef",
-								"thermal_resistance": 0.04,
-								"thermal_capacity": 0.0
 							}
 						]
 					},
@@ -106116,17 +106004,17 @@
 				},
 				{
 					"name": "east_exterior_window",
-					"boundary_type": "external",
+					"boundary_type": "external_transparent_part",
 					"area": 0.66,
 					"is_sun_striked_outside": true,
 					"temp_dif_coef": 1.0,
 					"direction": "e",
 					"is_solar_absorbed_inside": false,
-					"building_part": "transient_opening",
-					"transient_opening_part": {
+					"transparent_opening_part": {
 						"outside_emissivity": 0.9,
 						"outside_solar_absorption": 0.8,
 						"inside_heat_transfer_coef": 9.1,
+						"outside_heat_transfer_coef": 25.0,
 						"incident_angle_characteristics": 2,
 						"eta_value": 0.792,
 						"u_value": 4.65
@@ -106137,17 +106025,17 @@
 				},
 				{
 					"name": "south_exterior_wall",
-					"boundary_type": "external",
+					"boundary_type": "external_general_part",
 					"area": 4.76525,
 					"is_sun_striked_outside": true,
 					"temp_dif_coef": 1.0,
 					"direction": "s",
 					"is_solar_absorbed_inside": false,
-					"building_part": "general_part",
 					"general_part_spec": {
 						"outside_emissivity": 0.9,
 						"outside_solar_absorption": 0.8,
 						"inside_heat_transfer_coef": 9.1,
+						"outside_heat_transfer_coef": 25.0,
 						"layers": [
 							{
 								"name": "plaster_board",
@@ -106173,11 +106061,6 @@
 								"name": "wood-wool_and_flake_boards",
 								"thermal_resistance": 0.0882,
 								"thermal_capacity": 25.1789
-							},
-							{
-								"name": "outside_heat_transfer_coef",
-								"thermal_resistance": 0.04,
-								"thermal_capacity": 0.0
 							}
 						]
 					},
@@ -106187,17 +106070,17 @@
 				},
 				{
 					"name": "south_exterior_window",
-					"boundary_type": "external",
+					"boundary_type": "external_transparent_part",
 					"area": 3.22,
 					"is_sun_striked_outside": true,
 					"temp_dif_coef": 1.0,
 					"direction": "s",
 					"is_solar_absorbed_inside": false,
-					"building_part": "transient_opening",
-					"transient_opening_part": {
+					"transparent_opening_part": {
 						"outside_emissivity": 0.9,
 						"outside_solar_absorption": 0.8,
 						"inside_heat_transfer_coef": 9.1,
+						"outside_heat_transfer_coef": 25.0,
 						"incident_angle_characteristics": 2,
 						"eta_value": 0.792,
 						"u_value": 4.65
@@ -106212,17 +106095,17 @@
 				},
 				{
 					"name": "exterior_ceiling",
-					"boundary_type": "external",
+					"boundary_type": "external_general_part",
 					"area": 10.77,
 					"is_sun_striked_outside": true,
 					"temp_dif_coef": 1.0,
 					"direction": "top",
 					"is_solar_absorbed_inside": false,
-					"building_part": "general_part",
 					"general_part_spec": {
 						"outside_emissivity": 0.9,
 						"outside_solar_absorption": 0.8,
 						"inside_heat_transfer_coef": 11.1,
+						"outside_heat_transfer_coef": 11.1,
 						"layers": [
 							{
 								"name": "plaster_board",
@@ -106233,11 +106116,6 @@
 								"name": "glass_wool_10K",
 								"thermal_resistance": 3.42,
 								"thermal_capacity": 1.368
-							},
-							{
-								"name": "outside_heat_transfer_coef",
-								"thermal_resistance": 0.09,
-								"thermal_capacity": 0.0
 							}
 						]
 					},
@@ -106253,9 +106131,9 @@
 					"temp_dif_coef": 1.0,
 					"next_room_type": "non_occupant_room",
 					"is_solar_absorbed_inside": false,
-					"building_part": "general_part",
 					"general_part_spec": {
 						"inside_heat_transfer_coef": 9.1,
+						"outside_heat_transfer_coef": 9.1,
 						"layers": [
 							{
 								"name": "plaster_board",
@@ -106271,11 +106149,6 @@
 								"name": "plaster_board",
 								"thermal_resistance": 0.0568,
 								"thermal_capacity": 10.375
-							},
-							{
-								"name": "outside_heat_transfer_coef",
-								"thermal_resistance": 0.11,
-								"thermal_capacity": 0.0
 							}
 						]
 					},
@@ -106291,9 +106164,9 @@
 					"temp_dif_coef": 1.0,
 					"next_room_type": "main_occupant_room",
 					"is_solar_absorbed_inside": true,
-					"building_part": "general_part",
 					"general_part_spec": {
 						"inside_heat_transfer_coef": 6.7,
+						"outside_heat_transfer_coef": 11.1,
 						"layers": [
 							{
 								"name": "plywood",
@@ -106309,11 +106182,6 @@
 								"name": "plaster_board",
 								"thermal_resistance": 0.0568,
 								"thermal_capacity": 10.375
-							},
-							{
-								"name": "outside_heat_transfer_coef",
-								"thermal_resistance": 0.09,
-								"thermal_capacity": 0.0
 							}
 						]
 					},
@@ -106323,17 +106191,17 @@
 				},
 				{
 					"name": "north_exterior_wall",
-					"boundary_type": "external",
+					"boundary_type": "external_general_part",
 					"area": 2.639,
 					"is_sun_striked_outside": true,
 					"temp_dif_coef": 1.0,
 					"direction": "n",
 					"is_solar_absorbed_inside": false,
-					"building_part": "general_part",
 					"general_part_spec": {
 						"outside_emissivity": 0.9,
 						"outside_solar_absorption": 0.8,
 						"inside_heat_transfer_coef": 9.1,
+						"outside_heat_transfer_coef": 25.0,
 						"layers": [
 							{
 								"name": "plaster_board",
@@ -106359,11 +106227,6 @@
 								"name": "wood-wool_and_flake_boards",
 								"thermal_resistance": 0.0882,
 								"thermal_capacity": 25.1789
-							},
-							{
-								"name": "outside_heat_transfer_coef",
-								"thermal_resistance": 0.04,
-								"thermal_capacity": 0.0
 							}
 						]
 					},
@@ -106373,17 +106236,17 @@
 				},
 				{
 					"name": "south_exterior_wall",
-					"boundary_type": "external",
+					"boundary_type": "external_general_part",
 					"area": 8.605,
 					"is_sun_striked_outside": true,
 					"temp_dif_coef": 1.0,
 					"direction": "s",
 					"is_solar_absorbed_inside": false,
-					"building_part": "general_part",
 					"general_part_spec": {
 						"outside_emissivity": 0.9,
 						"outside_solar_absorption": 0.8,
 						"inside_heat_transfer_coef": 9.1,
+						"outside_heat_transfer_coef": 25.0,
 						"layers": [
 							{
 								"name": "plaster_board",
@@ -106409,11 +106272,6 @@
 								"name": "wood-wool_and_flake_boards",
 								"thermal_resistance": 0.0882,
 								"thermal_capacity": 25.1789
-							},
-							{
-								"name": "outside_heat_transfer_coef",
-								"thermal_resistance": 0.04,
-								"thermal_capacity": 0.0
 							}
 						]
 					},
@@ -106423,17 +106281,17 @@
 				},
 				{
 					"name": "south_exterior_window",
-					"boundary_type": "external",
+					"boundary_type": "external_transparent_part",
 					"area": 4.59,
 					"is_sun_striked_outside": true,
 					"temp_dif_coef": 1.0,
 					"direction": "s",
 					"is_solar_absorbed_inside": false,
-					"building_part": "transient_opening",
-					"transient_opening_part": {
+					"transparent_opening_part": {
 						"outside_emissivity": 0.9,
 						"outside_solar_absorption": 0.8,
 						"inside_heat_transfer_coef": 9.1,
+						"outside_heat_transfer_coef": 25.0,
 						"incident_angle_characteristics": 2,
 						"eta_value": 0.792,
 						"u_value": 4.65
@@ -106444,17 +106302,17 @@
 				},
 				{
 					"name": "west_exterior_wall",
-					"boundary_type": "external",
+					"boundary_type": "external_general_part",
 					"area": 10.556,
 					"is_sun_striked_outside": true,
 					"temp_dif_coef": 1.0,
 					"direction": "w",
 					"is_solar_absorbed_inside": false,
-					"building_part": "general_part",
 					"general_part_spec": {
 						"outside_emissivity": 0.9,
 						"outside_solar_absorption": 0.8,
 						"inside_heat_transfer_coef": 9.1,
+						"outside_heat_transfer_coef": 25.0,
 						"layers": [
 							{
 								"name": "plaster_board",
@@ -106480,11 +106338,6 @@
 								"name": "wood-wool_and_flake_boards",
 								"thermal_resistance": 0.0882,
 								"thermal_capacity": 25.1789
-							},
-							{
-								"name": "outside_heat_transfer_coef",
-								"thermal_resistance": 0.04,
-								"thermal_capacity": 0.0
 							}
 						]
 					},
@@ -106494,15 +106347,15 @@
 				},
 				{
 					"name": "exterior_floor",
-					"boundary_type": "external",
+					"boundary_type": "external_general_part",
 					"area": 16.56,
 					"is_sun_striked_outside": false,
 					"temp_dif_coef": 0.7,
-					"direction": "bottom",
 					"is_solar_absorbed_inside": true,
-					"building_part": "general_part",
 					"general_part_spec": {
+						"outside_emissivity": 0.9,
 						"inside_heat_transfer_coef": 6.7,
+						"outside_heat_transfer_coef": 6.7,
 						"layers": [
 							{
 								"name": "plywood",
@@ -106513,11 +106366,6 @@
 								"name": "glass_wool_10K",
 								"thermal_resistance": 1.28,
 								"thermal_capacity": 0.512
-							},
-							{
-								"name": "outside_heat_transfer_coef",
-								"thermal_resistance": 0.15,
-								"thermal_capacity": 0.0
 							}
 						]
 					},
@@ -106527,17 +106375,17 @@
 				},
 				{
 					"name": "exterior_ceiling",
-					"boundary_type": "external",
+					"boundary_type": "external_general_part",
 					"area": 3.31,
 					"is_sun_striked_outside": true,
 					"temp_dif_coef": 1.0,
 					"direction": "top",
 					"is_solar_absorbed_inside": false,
-					"building_part": "general_part",
 					"general_part_spec": {
 						"outside_emissivity": 0.9,
 						"outside_solar_absorption": 0.8,
 						"inside_heat_transfer_coef": 11.1,
+						"outside_heat_transfer_coef": 11.1,
 						"layers": [
 							{
 								"name": "plaster_board",
@@ -106548,11 +106396,6 @@
 								"name": "glass_wool_10K",
 								"thermal_resistance": 3.42,
 								"thermal_capacity": 1.368
-							},
-							{
-								"name": "outside_heat_transfer_coef",
-								"thermal_resistance": 0.09,
-								"thermal_capacity": 0.0
 							}
 						]
 					},
@@ -106568,9 +106411,9 @@
 					"temp_dif_coef": 1.0,
 					"next_room_type": "non_occupant_room",
 					"is_solar_absorbed_inside": false,
-					"building_part": "general_part",
 					"general_part_spec": {
 						"inside_heat_transfer_coef": 9.1,
+						"outside_heat_transfer_coef": 9.1,
 						"layers": [
 							{
 								"name": "plaster_board",
@@ -106586,11 +106429,6 @@
 								"name": "plaster_board",
 								"thermal_resistance": 0.0568,
 								"thermal_capacity": 10.375
-							},
-							{
-								"name": "outside_heat_transfer_coef",
-								"thermal_resistance": 0.11,
-								"thermal_capacity": 0.0
 							}
 						]
 					},
@@ -106606,9 +106444,9 @@
 					"temp_dif_coef": 1.0,
 					"next_room_type": "main_occupant_room",
 					"is_solar_absorbed_inside": false,
-					"building_part": "general_part",
 					"general_part_spec": {
 						"inside_heat_transfer_coef": 9.1,
+						"outside_heat_transfer_coef": 9.1,
 						"layers": [
 							{
 								"name": "plaster_board",
@@ -106624,11 +106462,6 @@
 								"name": "plaster_board",
 								"thermal_resistance": 0.0568,
 								"thermal_capacity": 10.375
-							},
-							{
-								"name": "outside_heat_transfer_coef",
-								"thermal_resistance": 0.11,
-								"thermal_capacity": 0.0
 							}
 						]
 					},
@@ -106643,19 +106476,15 @@
 			"room_type": 3,
 			"volume": 94.88,
 			"vent": 0,
-			"equipment": {
-				"cooling": {
-					"main": {
-					},
-					"sub": {
-					}
-				},
-				"heating": {
-					"main": {
-					},
-					"sub": {
-					}
+			"cooling_equipment": {
+				"is_radiative_cooling": false,
+				"convective_cooling": {
+					"max_capacity": 0.0,
+					"heat_exchanger_type": "normal"
 				}
+			},
+			"heating_equipment": {
+				"is_radiative_heating": false
 			},
 			"next_vent": [
 				{
@@ -159246,17 +159075,17 @@
 			"boundaries": [
 				{
 					"name": "north_exterior_wall",
-					"boundary_type": "external",
+					"boundary_type": "external_general_part",
 					"area": 43.2205,
 					"is_sun_striked_outside": true,
 					"temp_dif_coef": 1.0,
 					"direction": "n",
 					"is_solar_absorbed_inside": false,
-					"building_part": "general_part",
 					"general_part_spec": {
 						"outside_emissivity": 0.9,
 						"outside_solar_absorption": 0.8,
 						"inside_heat_transfer_coef": 9.1,
+						"outside_heat_transfer_coef": 25.0,
 						"layers": [
 							{
 								"name": "plaster_board",
@@ -159282,11 +159111,6 @@
 								"name": "wood-wool_and_flake_boards",
 								"thermal_resistance": 0.0882,
 								"thermal_capacity": 25.1789
-							},
-							{
-								"name": "outside_heat_transfer_coef",
-								"thermal_resistance": 0.04,
-								"thermal_capacity": 0.0
 							}
 						]
 					},
@@ -159296,17 +159120,17 @@
 				},
 				{
 					"name": "north_exterior_window",
-					"boundary_type": "external",
+					"boundary_type": "external_transparent_part",
 					"area": 3.69,
 					"is_sun_striked_outside": true,
 					"temp_dif_coef": 1.0,
 					"direction": "n",
 					"is_solar_absorbed_inside": false,
-					"building_part": "transient_opening",
-					"transient_opening_part": {
+					"transparent_opening_part": {
 						"outside_emissivity": 0.9,
 						"outside_solar_absorption": 0.8,
 						"inside_heat_transfer_coef": 9.1,
+						"outside_heat_transfer_coef": 25.0,
 						"incident_angle_characteristics": 2,
 						"eta_value": 0.792,
 						"u_value": 4.65
@@ -159317,17 +159141,17 @@
 				},
 				{
 					"name": "east_exterior_wall",
-					"boundary_type": "external",
+					"boundary_type": "external_general_part",
 					"area": 4.914,
 					"is_sun_striked_outside": true,
 					"temp_dif_coef": 1.0,
 					"direction": "e",
 					"is_solar_absorbed_inside": false,
-					"building_part": "general_part",
 					"general_part_spec": {
 						"outside_emissivity": 0.9,
 						"outside_solar_absorption": 0.8,
 						"inside_heat_transfer_coef": 9.1,
+						"outside_heat_transfer_coef": 25.0,
 						"layers": [
 							{
 								"name": "plaster_board",
@@ -159353,11 +159177,6 @@
 								"name": "wood-wool_and_flake_boards",
 								"thermal_resistance": 0.0882,
 								"thermal_capacity": 25.1789
-							},
-							{
-								"name": "outside_heat_transfer_coef",
-								"thermal_resistance": 0.04,
-								"thermal_capacity": 0.0
 							}
 						]
 					},
@@ -159367,17 +159186,17 @@
 				},
 				{
 					"name": "west_exterior_wall",
-					"boundary_type": "external",
+					"boundary_type": "external_general_part",
 					"area": 12.5,
 					"is_sun_striked_outside": true,
 					"temp_dif_coef": 1.0,
 					"direction": "w",
 					"is_solar_absorbed_inside": false,
-					"building_part": "general_part",
 					"general_part_spec": {
 						"outside_emissivity": 0.9,
 						"outside_solar_absorption": 0.8,
 						"inside_heat_transfer_coef": 9.1,
+						"outside_heat_transfer_coef": 25.0,
 						"layers": [
 							{
 								"name": "plaster_board",
@@ -159403,11 +159222,6 @@
 								"name": "wood-wool_and_flake_boards",
 								"thermal_resistance": 0.0882,
 								"thermal_capacity": 25.1789
-							},
-							{
-								"name": "outside_heat_transfer_coef",
-								"thermal_resistance": 0.04,
-								"thermal_capacity": 0.0
 							}
 						]
 					},
@@ -159417,17 +159231,17 @@
 				},
 				{
 					"name": "west_exterior_window",
-					"boundary_type": "external",
+					"boundary_type": "external_transparent_part",
 					"area": 2.97,
 					"is_sun_striked_outside": true,
 					"temp_dif_coef": 1.0,
 					"direction": "w",
 					"is_solar_absorbed_inside": false,
-					"building_part": "transient_opening",
-					"transient_opening_part": {
+					"transparent_opening_part": {
 						"outside_emissivity": 0.9,
 						"outside_solar_absorption": 0.8,
 						"inside_heat_transfer_coef": 9.1,
+						"outside_heat_transfer_coef": 25.0,
 						"incident_angle_characteristics": 2,
 						"eta_value": 0.792,
 						"u_value": 4.65
@@ -159438,15 +159252,15 @@
 				},
 				{
 					"name": "exterior_floor",
-					"boundary_type": "external",
+					"boundary_type": "external_general_part",
 					"area": 21.52,
 					"is_sun_striked_outside": false,
 					"temp_dif_coef": 0.7,
-					"direction": "bottom",
 					"is_solar_absorbed_inside": true,
-					"building_part": "general_part",
 					"general_part_spec": {
+						"outside_emissivity": 0.9,
 						"inside_heat_transfer_coef": 6.7,
+						"outside_heat_transfer_coef": 6.7,
 						"layers": [
 							{
 								"name": "plywood",
@@ -159457,11 +159271,6 @@
 								"name": "glass_wool_10K",
 								"thermal_resistance": 1.28,
 								"thermal_capacity": 0.512
-							},
-							{
-								"name": "outside_heat_transfer_coef",
-								"thermal_resistance": 0.15,
-								"thermal_capacity": 0.0
 							}
 						]
 					},
@@ -159471,17 +159280,17 @@
 				},
 				{
 					"name": "exterior_ceiling",
-					"boundary_type": "external",
+					"boundary_type": "external_general_part",
 					"area": 25.68,
 					"is_sun_striked_outside": true,
 					"temp_dif_coef": 1.0,
 					"direction": "top",
 					"is_solar_absorbed_inside": false,
-					"building_part": "general_part",
 					"general_part_spec": {
 						"outside_emissivity": 0.9,
 						"outside_solar_absorption": 0.8,
 						"inside_heat_transfer_coef": 11.1,
+						"outside_heat_transfer_coef": 11.1,
 						"layers": [
 							{
 								"name": "plaster_board",
@@ -159492,11 +159301,6 @@
 								"name": "glass_wool_10K",
 								"thermal_resistance": 3.42,
 								"thermal_capacity": 1.368
-							},
-							{
-								"name": "outside_heat_transfer_coef",
-								"thermal_resistance": 0.09,
-								"thermal_capacity": 0.0
 							}
 						]
 					},
@@ -159512,9 +159316,9 @@
 					"temp_dif_coef": 1.0,
 					"next_room_type": "main_occupant_room",
 					"is_solar_absorbed_inside": false,
-					"building_part": "general_part",
 					"general_part_spec": {
 						"inside_heat_transfer_coef": 9.1,
+						"outside_heat_transfer_coef": 9.1,
 						"layers": [
 							{
 								"name": "plaster_board",
@@ -159530,11 +159334,6 @@
 								"name": "plaster_board",
 								"thermal_resistance": 0.0568,
 								"thermal_capacity": 10.375
-							},
-							{
-								"name": "outside_heat_transfer_coef",
-								"thermal_resistance": 0.11,
-								"thermal_capacity": 0.0
 							}
 						]
 					},
@@ -159550,9 +159349,9 @@
 					"temp_dif_coef": 1.0,
 					"next_room_type": "other_occupant_room",
 					"is_solar_absorbed_inside": false,
-					"building_part": "general_part",
 					"general_part_spec": {
 						"inside_heat_transfer_coef": 9.1,
+						"outside_heat_transfer_coef": 9.1,
 						"layers": [
 							{
 								"name": "plaster_board",
@@ -159568,11 +159367,6 @@
 								"name": "plaster_board",
 								"thermal_resistance": 0.0568,
 								"thermal_capacity": 10.375
-							},
-							{
-								"name": "outside_heat_transfer_coef",
-								"thermal_resistance": 0.11,
-								"thermal_capacity": 0.0
 							}
 						]
 					},
@@ -159588,9 +159382,9 @@
 					"temp_dif_coef": 1.0,
 					"next_room_type": "other_occupant_room",
 					"is_solar_absorbed_inside": false,
-					"building_part": "general_part",
 					"general_part_spec": {
 						"inside_heat_transfer_coef": 9.1,
+						"outside_heat_transfer_coef": 9.1,
 						"layers": [
 							{
 								"name": "plaster_board",
@@ -159606,11 +159400,6 @@
 								"name": "plaster_board",
 								"thermal_resistance": 0.0568,
 								"thermal_capacity": 10.375
-							},
-							{
-								"name": "outside_heat_transfer_coef",
-								"thermal_resistance": 0.11,
-								"thermal_capacity": 0.0
 							}
 						]
 					},
@@ -159626,9 +159415,9 @@
 					"temp_dif_coef": 1.0,
 					"next_room_type": "other_occupant_room",
 					"is_solar_absorbed_inside": false,
-					"building_part": "general_part",
 					"general_part_spec": {
 						"inside_heat_transfer_coef": 9.1,
+						"outside_heat_transfer_coef": 9.1,
 						"layers": [
 							{
 								"name": "plaster_board",
@@ -159644,11 +159433,6 @@
 								"name": "plaster_board",
 								"thermal_resistance": 0.0568,
 								"thermal_capacity": 10.375
-							},
-							{
-								"name": "outside_heat_transfer_coef",
-								"thermal_resistance": 0.11,
-								"thermal_capacity": 0.0
 							}
 						]
 					},
@@ -159664,9 +159448,9 @@
 					"temp_dif_coef": 1.0,
 					"next_room_type": "other_occupant_room",
 					"is_solar_absorbed_inside": false,
-					"building_part": "general_part",
 					"general_part_spec": {
 						"inside_heat_transfer_coef": 9.1,
+						"outside_heat_transfer_coef": 9.1,
 						"layers": [
 							{
 								"name": "plaster_board",
@@ -159682,11 +159466,6 @@
 								"name": "plaster_board",
 								"thermal_resistance": 0.0568,
 								"thermal_capacity": 10.375
-							},
-							{
-								"name": "outside_heat_transfer_coef",
-								"thermal_resistance": 0.11,
-								"thermal_capacity": 0.0
 							}
 						]
 					},
