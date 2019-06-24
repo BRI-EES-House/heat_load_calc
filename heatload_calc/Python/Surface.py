@@ -1,6 +1,6 @@
 from Wall import Wall, Layer
 from ResponseFactor import ResponseFactor
-from Window import Window
+from transparent_opening import transparent_opening
 from SolarPosision import defSolpos
 from Gdata import Gdata
 from Exsrf import Exsrf
@@ -12,28 +12,44 @@ class Surface:
 
     # 初期化
     def __init__(self, d: dict, Gdata: Gdata):
-        self.is_skin = d['skin']  # 外皮フラグ
-        # 外皮の場合は方位クラスを取得する
-        self.__objExsrf = Exsrf(d['boundary'])
+        self.is_sun_striked_outside = d['is_sun_striked_outside']
+                                                        # True:外表面に日射が当たる
+        # 境界条件タイプ
+        self.boundary_type = d['boundary_type']
 
-        self.unsteady = d['unsteady']  # 非定常フラグ
-        # self.direction = d['direction'] # 室内から見た部位の方向（人体に対する形態係数計算用）
-        self.name = d['name']  # 壁体名称
+        # 境界条件クラスの初期化
+        self.__objExsrf = Exsrf()
 
-        self.Floor = d['floor']        #床フラグ
+        # 外皮の場合
+        if "external" in self.boundary_type:
+            direction = None
+            if self.is_sun_striked_outside:
+                direction = d['direction']
+            self.__objExsrf.external_init(direction, \
+                d['is_sun_striked_outside'], d['temp_dif_coef'])
+        # 内壁の場合
+        elif self.boundary_type == "internal":
+            self.__objExsrf.internal_init(d['next_room_type'])
+        # 土壌の場合
+        elif self.boundary_type == "ground":
+            self.__objExsrf.ground_init()
+        # 例外
+        else:
+            print("境界Typeが見つかりません。 name=", self.name, "boundary_type=", self.boundary_type)
 
-        self.area = float(d['area'])  # 面積
-        self.a = 0.0                    # 部位の面積比率（全面積に対する面積比）
-        self.sunbreakname = d['sunbreak']  # ひさし名称
-        self.Fsdw = 0.0  # 影面積率の初期化
-        self.flr = 0,0
-        if 'flr' in d:
-            self.flr = float(d['flr'])  # 放射暖房吸収比率
+        self.name = d['name']                           # 壁体名称
+
+        # 部位のタイプ
+        self.Floor = d['is_solar_absorbed_inside']      #床フラグ（透過日射の吸収部位）
+
+        self.area = float(d['area'])                    # 面積
+        self.a = 0.0                                    # 部位の面積比率（全面積に対する面積比）
+        self.sunbrk = SunbrkType(d['solar_shading_part'])         # ひさし
+        self.Fsdw = 0.0                                 # 影面積率の初期化
+        self.flr = 0.0
         self.fot = 0.0  # 人体に対する形態係数の初期化
-        self.__IsSoil = False
-        if 'IsSoil' in d:
-            self.__IsSoil = d['IsSoil']     # 壁体に土壌が含まれる場合True
-        # self.Floor = floor          #床フラグ
+        self.__is_ground = self.boundary_type == "ground"     # 壁体に土壌が含まれる場合True
+        self.Ei = 0.9                                   # 室内側表面放射率
 
         # 室内表面熱伝達率の初期化
         self.hi = 0.0
@@ -50,12 +66,6 @@ class Surface:
 
         # 表面温度
         self.Ts = None
-
-        # 庇フラグの初期化
-        self.has_sunbrk = False
-
-        # 窓フラグの初期化
-        self.is_window = False
 
         # 直達日射量
         self.__Id = 0.0
@@ -88,10 +98,10 @@ class Surface:
         self.oldTeo = 15.0  # 前時刻の室外側温度
         self.oldqi = 0.0  # 前時刻の室内側表面熱流
 
-        # 壁体の初期化
-        if self.unsteady == True:
+        # 一般部位の初期化
+        if self.boundary_type == "external_general_part" or self.boundary_type == "internal":
             # 壁体情報,応答係数の取得
-            wall, rf = WalldataRead(self.name, d['Wall'], Gdata.DTime, self.__IsSoil)
+            wall, rf = WalldataRead(self.name, self.is_sun_striked_outside, self.boundary_type, d['general_part_spec'], Gdata.DTime, self.__is_ground)
             self.__Row = rf.Row  # 公比の取得
             self.__Nroot = rf.Nroot  # 根の数
             self.RFT0 = rf.RFT0  # 貫流応答の初項
@@ -104,33 +114,38 @@ class Surface:
             self.__oldTsd_t = [[0.0 for i in range(1)] for j in range(self.__Nroot)]
             self.hi = wall.hi  # 室内側表面総合熱伝達率
             self.ho = wall.ho  # 室外側表面総合熱伝達率
-            self.__as = wall.Solas  # 室側側日射吸収率
-            self.Eo = wall.Eo  # 室外側表面放射率
             self.Ei = wall.Ei   # 室内側表面放射率
-        # 定常部位の初期化
-        else:
-            self.__window = Window(Name=self.name, **d['Window'])
-            self.is_window = True
-            self.tau = self.__window.T  # 日射透過率＝日射熱取得率
-            # self.B = self.__window.B  # 吸収日射取得率
-            self.B = 0.0                # 吸収日射取得率
-            self.Uso = self.__window.Uso  # 熱貫流率（表面熱伝達抵抗除く）
-            self.RFA0 = 1.0 / self.Uso  # 吸熱応答係数の初項
-            self.RFT0 = 1.0  # 貫流応答係数の初項
-            self.hi = self.__window.hi  # 室内側表面総合熱伝達率
-            self.ho = self.__window.ho  # 室外側表面総合熱伝達率
+            if self.is_sun_striked_outside:
+                self.__as = wall.Solas  # 室側側日射吸収率
+                self.Eo = wall.Eo  # 室外側表面放射率
+        # 透明部位の初期化
+        elif self.boundary_type == "external_transparent_part":
+            self.__transparent_opening = transparent_opening(self.name, d['transparent_opening_part'])
+            self.tau = self.__transparent_opening.T     # 日射透過率＝日射熱取得率
+            self.Uso = self.__transparent_opening.Uso   # 熱貫流率（表面熱伝達抵抗除く）
+            self.RFA0 = 1.0 / self.Uso                  # 吸熱応答係数の初項
+            self.RFT0 = 1.0                             # 貫流応答係数の初項
+            self.hi = self.__transparent_opening.hi     # 室内側表面総合熱伝達率
+            self.ho = self.__transparent_opening.ho     # 室外側表面総合熱伝達率
             self.U = 1.0 / (1.0 / self.Uso + 1.0 / self.hi)  # 熱貫流率（表面熱伝達抵抗含む）
-            self.Eo = self.__window.Eo  # 室外側表面放射率
-            self.Ei = self.__window.Ei  # 室内側表面放射率
-            self.has_sunbrk = type(self.sunbreakname) is dict # 庇がついているかのフラグ
-            # print(type(self.sunbreakname))
-            if self.has_sunbrk:
-                sunbreakname = 'NoName'
-                if 'name' in self.sunbreakname:
-                    sunbreakname = self.sunbreakname['name']
-                self.sunbrk = SunbrkType(sunbreakname, self.sunbreakname['D'], \
-                        self.sunbreakname['WI1'], self.sunbreakname['WI2'], self.sunbreakname['hi'], \
-                        self.sunbreakname['WR'], self.sunbreakname['WH'])
+            self.Ei = self.__transparent_opening.Ei     # 室内側表面放射率
+            if self.is_sun_striked_outside:
+                self.Eo = self.__transparent_opening.Eo     # 室外側表面放射率
+        # 不透明な開口部の初期化
+        elif self.boundary_type == "external_opaque_part":
+            self.U = d['opaque_opening_part']['u_value']     # 熱貫流率[W/(m2･K)]
+            self.ho = d['opaque_opening_part']['outside_heat_transfer_coef']   # 室外側表面総合熱伝達率
+            self.Ei = 0.9                               # 室内側表面放射率
+            self.hi = d['opaque_opening_part']['inside_heat_transfer_coef']    # 室内側表面総合熱伝達率
+            self.Uso = 1.0 / (1.0 / self.U - 1.0 / self.hi)
+                                                        # 熱貫流率（表面熱伝達抵抗除く）
+            self.RFA0 = 1.0 / self.Uso                  # 吸熱応答係数の初項
+            self.RFT0 = 1.0                             # 貫流応答係数の初項
+            if self.is_sun_striked_outside:
+                self.__as = d['opaque_opening_part']['outside_solar_absorption']  # 室側側日射吸収率
+                self.Eo = d['opaque_opening_part']['outside_emissivity']           # 室外側表面放射率
+        else:
+            print("境界条件が見当たりません。 name=", self.name)
 
     # 畳み込み積分
     def convolution(self):
@@ -194,24 +209,27 @@ class Surface:
     def calcTeo(self, Ta, RN, oldTr, AnnualTave, spaces):
         self.oldTeo = self.Teo
 
-        # 日射の当たる外皮の場合
-        if self.__objExsrf.Type == "Outdoor":
-            if self.unsteady:
-                # 非定常部位の場合（相当外気温度もしくは隣室温度差係数から計算）
+        # 日射の当たる一般部位または不透明部位の場合
+        if self.boundary_type == "external_general_part" or self.boundary_type == "external_opaque_part":
+            # 室外側に日射が当たる場合
+            if self.is_sun_striked_outside:
                 self.Teo = self.__objExsrf.get_Te(self.__as, self.ho, self.Eo, Ta, RN)
+            # 室外側に日射が当たらない場合
             else:
-                # 定常部位（窓）の場合
-                self.Teo = self.Qga / self.area / self.U \
-                        - self.Eo * self.__objExsrf.Fs * RN / self.ho + Ta
-        # 年平均気温の場合
-        elif self.__objExsrf.Type == "AnnualAverage":
+                self.Teo = Ta * self.__objExsrf.R + oldTr * (1.0 - self.__objExsrf.R)
+        # 窓の場合
+        elif self.boundary_type == "external_transparent_part":
+            self.Teo = self.Qga / self.area / self.U \
+                - self.Eo * self.__objExsrf.Fs * RN / self.ho + Ta
+        # 土壌の場合
+        elif self.boundary_type == "ground":
             self.Teo = AnnualTave
-        elif self.__objExsrf.Type == "DeltaTCoeff":
-            self.Teo = self.__objExsrf.get_NextRoom_fromR(Ta, oldTr)
-        elif self.__objExsrf.Type == "NextRoom":
-            # 内壁の場合（前時刻の室温）
+        # 内壁の場合（前時刻の室温）
+        elif self.boundary_type == "internal":
             self.Teo = self.__objExsrf.get_oldNextRoom(spaces)
-
+        # 例外
+        else:
+            print("境界条件が見つかりません。 name=", self.boundary_type)
     # 地面反射率の取得
     @property
     def Rg(self):
@@ -220,20 +238,21 @@ class Surface:
     # 透過日射量、吸収日射量の計算
     def update_Qgt_Qga(self):
         # 直達成分
-        Qgtd = self.__window.get_QGTD(self.__Id, self.__objExsrf.CosT, self.Fsdw) * self.area
+        Qgtd = self.__transparent_opening.get_QGTD(self.__Id, self.__objExsrf.CosT, self.Fsdw) * self.area
 
         # 拡散成分
-        Qgts = self.__window.get_QGTS(self.__Isky, self.__Ir) * self.area
+        Qgts = self.__transparent_opening.get_QGTS(self.__Isky, self.__Ir) * self.area
 
         # 透過日射量の計算
         self.Qgt = Qgtd + Qgts
 
         # 吸収日射量
-        self.Qga = self.__window.get_QGA(self.__Id, self.__Isky, self.__Ir, self.__objExsrf.CosT, self.Fsdw) * self.area
+        self.Qga = self.__transparent_opening.get_QGA(self.__Id, self.__Isky, self.__Ir, self.__objExsrf.CosT, self.Fsdw) * self.area
 
     # 日影面積率の計算
     def update_Fsdw(self, Solpos: defSolpos):
-        self.Fsdw = self.sunbrk.get_Fsdw(Solpos, self.__objExsrf.Wa)
+        if self.sunbrk.existance:
+            self.Fsdw = self.sunbrk.get_Fsdw(Solpos, self.__objExsrf.Wa)
 
     # 公比の取得
     @property
@@ -242,7 +261,7 @@ class Surface:
 
     # 傾斜面日射量を計算する
     def update_slope_sol(self, Solpos, Idn, Isky):
-        if self.__objExsrf.Type == 'Outdoor':
+        if self.__objExsrf.Type == 'external' and self.is_sun_striked_outside:
             # 傾斜面日射量を計算
             self.__objExsrf.update_slop_sol(Solpos, Idn, Isky)
             # 直達日射量
@@ -271,7 +290,8 @@ class Surface:
         return self.__objExsrf.exsrf_comp(comp_surface.__objExsrf)
 
 # 壁体構成データの読み込みと応答係数の作成
-def WalldataRead(Name, d, DTime, IsSoil):
+def WalldataRead(Name, is_solar_absorbed_inside, boundary_type, 
+        d, DTime, is_ground):
     # 時間間隔(s)
     dblDTime = DTime
 
@@ -279,30 +299,36 @@ def WalldataRead(Name, d, DTime, IsSoil):
     layers = [
         Layer(
             name=d_layers['name'],
-            cond=d_layers['cond'],
-            spech=d_layers['specH'],
-            thick=d_layers['thick']
+            thermal_resistance=d_layers['thermal_resistance'],
+            thermal_capacity=d_layers['thermal_capacity']
         )
-        for d_layers in d['Layers']
+        for d_layers in d['layers']
     ]
+    #室外側総合熱伝達率の追加
+    layers.append(Layer( \
+        name="outside_heat_transfer_coef", \
+            thermal_resistance=1.0/d['outside_heat_transfer_coef'], \
+                thermal_capacity=0.0))
 
+    outside_emissivity = 0.0
+    if boundary_type == "external_general_part":
+        outside_emissivity = d['outside_emissivity']
+
+    outside_solar_absorption = 0.0
+    if is_solar_absorbed_inside:
+        outside_solar_absorption = d['outside_solar_absorption']
+    
     # 壁体情報を保持するクラスをインスタンス化
-    OutEmissiv = 0.9
-    if 'OutEmissiv' in d:
-        OutEmissiv = d['OutEmissiv']
-    OutSolarAbs = 0.8
-    if 'OutSolarAbs' in d:
-        OutSolarAbs = d['OutSolarAbs']
     wall = Wall(
-        Name=Name,
-        IsSoil=IsSoil,
-        OutEmissiv=OutEmissiv,
-        OutSolarAbs=OutSolarAbs,
-        InHeatTrans=d['InHeatTrans'],
+        is_ground=is_ground,
+        outside_emissivity=outside_emissivity,
+        outside_solar_absorption=outside_solar_absorption,
+        inside_heat_transfer_coef=d['inside_heat_transfer_coef'],
+        outside_heat_transfer_coef=d['outside_heat_transfer_coef'],
         Layers=layers
     )
     walltype = 'wall'
-    if IsSoil:
+    if is_ground:
         walltype = 'soil'
     # 応答係数を保持するクラスをインスタンス化
     rf = ResponseFactor(

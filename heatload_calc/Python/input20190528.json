@@ -17,7 +17,7 @@
 				}
 			},
 			"heating_equipment": {
-				"is_radiative_heating": true,
+				"is_radiative_heating": false,
 				"radiative_heating": {
 					"max_capacity": 120.0,
 					"area": 35.0

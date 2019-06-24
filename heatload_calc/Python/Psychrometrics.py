@@ -52,4 +52,4 @@ def rhtp(T, Pw):
 def rhtx(T, x):
         return rhtp(T, Pwx(x))
 
-print(xtrh(20.0, 40.0))
+# print(xtrh(20.0, 40.0))

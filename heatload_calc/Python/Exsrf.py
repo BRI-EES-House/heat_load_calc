@@ -1,56 +1,57 @@
 import math
 from SolarPosision import defSolpos
 
-
 # 外表面の情報を保持するクラス
 class Exsrf:
     """外表面の基本情報（方位角、傾斜角、地面反射率、温度差係数等）を保持するクラスを定義します。"""
 
     # 初期化
-    def __init__(self, d: dict):
+    def __init__(self):
+        pass
         """
-        :param name: 名称
-        :param DirectionAngle: 方位角[゜]
-        :param InclinationAngle: 傾斜角[゜]
-        :param GroundReflectRate: 地面反射率[-]
-        :param TempDifferFactor: 温度差係数[-]
-        :param IsOuterSkin: 外皮かどうか
+        :param boundary_type: 境界の種類（1:間仕切り、2:外皮、3:地盤）
+        :param direction: 向き
+        :param is_sun_striked_outside: 日射の有無
+        :param temp_dif_coef: 温度差係数
+        :param next_room_type: 隣室タイプ
         """
-        self.name = d['name']       # 境界条件名称, string値
-        self.Type = d['Type']     # 境界条件タイプ
+    # 外皮として初期化
+    def external_init(self, direction, is_sun_striked_outside, temp_dif_coef):
+        self.Type = "external"                      # 境界条件タイプ
 
-        # 日射が当たる屋外の場合
-        if self.Type == "Outdoor":
-            self.Rg = float(d['GroundReflectRate'])  # 地面反射率[-]
-            self.Wa = 0.0
-            if d['DirectionAngle'] is not None:
-                self.Wa = math.radians(float(d['DirectionAngle']))  # 傾斜面方位角 [rad]
-            # 入射角計算のためのパラメータの計算
-            self.Wb = math.radians(float(d['InclinationAngle']))  # 傾斜角[rad]
-            self.__Wz = math.cos(self.Wb)
-            self.__Ww = math.sin(self.Wb) * math.sin(self.Wa)
-            self.__Ws = math.sin(self.Wb) * math.cos(self.Wa)
-            self.Fs = (1.0 + self.__Wz) / 2.0           # 傾斜面の天空に対する形態係数の計算
-            self.__dblFg = 1.0 - self.Fs                # 傾斜面の地面に対する形態係数
-        # 隣室温度差係数の場合
-        elif self.Type == "DeltaTCoeff":
-            self.R = float(d['TempDifferFactor'])     # 温度差係数
+        # 外皮の場合
+        self.Rg = 0.1                           # 地面反射率[-]
+        self.direction = direction
+        self.Wa, self.Wb = self.__convert_slope_angle(direction)
+                                                # 方位角、傾斜面方位角 [rad]
+        # 太陽入射角の方向余弦cosθ　計算用パラメータ
+        self.__Wz = math.cos(self.Wb)
+        self.__Ww = math.sin(self.Wb) * math.sin(self.Wa)
+        self.__Ws = math.sin(self.Wb) * math.cos(self.Wa)
+        self.Fs = (1.0 + self.__Wz) / 2.0           # 傾斜面の天空に対する形態係数の計算
+        self.__dblFg = 1.0 - self.Fs                # 傾斜面の地面に対する形態係数
+
+        self.R = temp_dif_coef                      # 温度差係数
+        self.is_sun_striked_outside = is_sun_striked_outside
+        
+    def internal_init(self, next_room_type):
         # 隣室の場合
-        elif self.Type == "NextRoom":
-            self.nextroomname = d['roomname']         # 隣室名称
-        elif self.Type == "AnnualAverage":            # 年平均気温の場合
-            pass                                        # 追加情報はなし
+        self.Type = "internal"
+        self.nextroomname = next_room_type          # 隣室名称
+
+    def ground_init(self):
+        self.Type == "ground"                       # 土壌の場合
 
     # 傾斜面日射量の計算
-    # ※注意※　太陽位置の情報を保持するクラス'defSolpos'の定義に従って以下の処理を修正する必要があります
     def update_slop_sol(self, solpos: defSolpos, Idn: float, Isky: float):
         """
         :param solpos: 太陽位置の情報
         :param Idn: 法線面直達日射量[W/m2]
         :param Isky: 水平面天空日射量[W/m2]
         """
-        # 外皮の場合
-        if self.Type == "Outdoor":
+        self.Id = self.Is = self.Ir = self.Iw = self.CosT = 0.0
+        # 外皮の場合　かつ　日射が当たる場合
+        if self.Type == "external" and self.is_sun_striked_outside:
             # 入射角の計算
             self.CosT = max(solpos.Sh * self.__Wz + solpos.Sw * self.__Ww + solpos.Ss * self.__Ws, 0.0)
             Ihol = solpos.Sh * Idn + Isky  # 水平面全天日射量
@@ -89,35 +90,71 @@ class Exsrf:
         # 境界条件種類が一致
         if self.Type == comp_exsrf.Type:
             # 日射が当たる屋外の場合
-            if self.Type == "Outdoor":
-                temp = is_float_equal(self.Rg, comp_exsrf.Rg, 1.e-5) and is_float_equal(self.Wa, comp_exsrf.Wa, 1.e-5) \
-                        and is_float_equal(self.Wb, comp_exsrf.Wb, 1.e-5)
-            # 隣室温度差係数の場合
-            elif self.Type == "DeltaTCoeff":
-                temp = is_float_equal(self.R, comp_exsrf.R, 1.e-5)
+            if self.Type == "external" and self.is_sun_striked_outside:
+                temp = self.__is_float_equal(self.Rg, comp_exsrf.Rg, 1.e-5) \
+                        and self.direction == comp_exsrf.direction \
+                        and self.__is_float_equal(self.R, comp_exsrf.R, 1.0e-5)
+            # 日射が当たらない屋外の場合
+            elif self.Type == "external" and not self.is_sun_striked_outside:
+                temp = self.direction == comp_exsrf.direction \
+                        and self.__is_float_equal(self.R, comp_exsrf.R, 1.0e-5)
             # 隣室の場合
-            elif self.Type == "NextRoom":
+            elif self.Type == "internal":
                 temp = (self.nextroomname == comp_exsrf.nextroomname)
             # 年平均気温の場合は無条件で一致
-            elif self.Type == "AnnualAverage":
+            elif self.Type == "ground":
                 temp = True
         return temp
         
-# 実数型の一致比較
-def is_float_equal(a, b, eps):
-    return abs(a - b < eps)
+    # 実数型の一致比較
+    def __is_float_equal(self, a, b, eps):
+        return abs(a - b < eps)
+
+    # 方向名称から方位角、傾斜角の計算
+    def __convert_slope_angle(self, direction_string):
+        direction_angle = -999.0
+        inclination_angle = -999.0
+        if direction_string == 's':
+            direction_angle = 0.0
+            inclination_angle = 90.0
+        elif direction_string == 'sw':
+            direction_angle = 45.0
+            inclination_angle = 90.0
+        elif direction_string == 'w':
+            direction_angle = 90.0
+            inclination_angle = 90.0
+        elif direction_string == 'nw':
+            direction_angle = 135.0
+            inclination_angle = 90.0
+        elif direction_string == 'n':
+            direction_angle = 180.0
+            inclination_angle = 90.0
+        elif direction_string == 'ne':
+            direction_angle = -135.0
+            inclination_angle = 90.0
+        elif direction_string == 'e':
+            direction_angle = -90.0
+            inclination_angle = 90.0
+        elif direction_string == 'se':
+            direction_angle = -45.0
+            inclination_angle = 90.0
+        elif direction_string == 'top':
+            direction_angle = 0.0
+            inclination_angle = 0.0
+        elif direction_string == 'bottom':
+            direction_angle = 0.0
+            inclination_angle = 180.0
+        
+        return math.radians(direction_angle), math.radians(inclination_angle)
 
 # 外表面情報インスタンスの辞書を作成
-def create_exsurfaces(d):
-    dic = {}
-    # for d_surface in d:
-    name = d['Name']
-    dic[name] = Exsrf(
-        name=name,
-        DirectionAngle=d['DirectionAngle'],
-        InclinationAngle=d['InclinationAngle'],
-        GroundReflectRate=d['GroundReflectRate'],
-        TempDifferFactor=d['TempDifferFactor'],
-        IsOuterSkin=d['TempDifferFactor'] is None
-    )
-    return dic
+# def create_exsurfaces(d):
+#     # for d_surface in d:
+#     dic = Exsrf(
+#         d['boundary_type'],
+#         d['direction'],
+#         d['is_sun_striked_outside'],
+#         d['temp_dif_coef'],
+#         d['next_room_type']
+#     )
+#     return dic

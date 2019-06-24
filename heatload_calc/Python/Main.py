@@ -5,39 +5,39 @@ import common
 from Gdata import Gdata
 from Weather import enmWeatherComponent, Weather
 from Schedule import Schedule
-from Exsrf import create_exsurfaces
-from Sunbrk import create_sunbrks
+# from Exsrf import create_exsurfaces
+from Sunbrk import SunbrkType
 from Space import create_spaces
 
 # 熱負荷計算の実行
-def calc_Hload(gdata, weather, schedule):
+def calc_Hload(cdata, weather, schedule):
     """
-    :param gdata: シミュレーション全体の設定条件
+    :param cdata: シミュレーション全体の設定条件
     :param weather: 気象データ
     :param schedule: スケジュール
     :param sunbrk_mng: 外部日除け
     """
     # 計算開始日の通日
-    lngStNday = common.get_nday(gdata.ApDate.month, gdata.ApDate.day)
+    lngStNday = common.get_nday(cdata.ApDate.month, cdata.ApDate.day)
     # 計算終了日の通日
-    lngEnNday = common.get_nday(gdata.EnDate.month, gdata.EnDate.day)
-    if gdata.ApDate.year != gdata.EnDate.year:
+    lngEnNday = common.get_nday(cdata.EnDate.month, cdata.EnDate.day)
+    if cdata.ApDate.year != cdata.EnDate.year:
         lngEnNday += 365
     if lngStNday > lngEnNday:
         lngEnNday += 365
 
     # １日の計算ステップ数
-    lngNtime = int(24 * 3600 / gdata.DTime)
+    lngNtime = int(24 * 3600 / cdata.DTime)
 
     # 計算完了日数
     lngNnow = 0
 
-    print('計算開始：', gdata.ApDate)
-    print('計算終了：', gdata.EnDate)
+    print('計算開始：', cdata.ApDate)
+    print('計算終了：', cdata.EnDate)
     print('１日の計算ステップ数：', lngNtime)
 
     # 助走計算開始日
-    apDate = gdata.ApDate
+    apDate = cdata.ApDate
 
     # 出力リスト
     OutList = []
@@ -56,7 +56,7 @@ def calc_Hload(gdata, weather, schedule):
             #     exsrf.update_slop_sol(Solpos, Idn, Isky)
             rowlist = []
             # 室温・熱負荷の計算
-            if gdata.FlgOrig(dtmNow):
+            if cdata.FlgOrig(dtmNow):
                 # 出力文字列
                 rowlist.append(str(dtmNow))
                 rowlist.append('{0:.1f}'.format(weather.WeaData(enmWeatherComponent.Ta, dtmNow)))
@@ -66,7 +66,7 @@ def calc_Hload(gdata, weather, schedule):
             for space in spaces.values():
                 # 室温、熱負荷の計算
                 space.calcHload(
-                    Gdata=gdata,
+                    Gdata=cdata,
                     spaces=spaces,
                     dtmNow=dtmNow,
                     defSolpos=weather.Solpos(dtmNow),
@@ -74,7 +74,7 @@ def calc_Hload(gdata, weather, schedule):
                     Weather=weather
                 )
                 
-                if gdata.FlgOrig(dtmNow) and space.name == '主たる居室':
+                if cdata.FlgOrig(dtmNow):
                     rowlist.append('{0:.0f}'.format(space.nowWin))
                     rowlist.append('{0:.0f}'.format(space.demAC))
                     rowlist.append('{0:.0f}'.format(space.finalAC))
@@ -82,17 +82,18 @@ def calc_Hload(gdata, weather, schedule):
                     rowlist.append('{0:.0f}'.format(space.RH))
                     rowlist.append('{0:.4f}'.format(space.xr))
                     rowlist.append('{0:.2f}'.format(space.MRT))
+                    rowlist.append('{0:.2f}'.format(space.OT))
                     rowlist.append('{0:.2f}'.format(space.Clo))
                     rowlist.append('{0:.2f}'.format(space.Vel))
                     rowlist.append('{0:.2f}'.format(space.PMV))
                     rowlist.append('{0:.0f}'.format(space.Lcs))
-                    rowlist.append('{0:.0f}'.format(space.Lr))
-                    rowlist.append('{0:.0f}'.format(space.Ll))
+                    rowlist.append('{0:.0f}'.format(space.Lrs))
+                    rowlist.append('{0:.0f}'.format(space.Lcl))
                     # print('{0:.0f}'.format(space.nowWin), '{0:.0f}'.format(space.nowAC), '{0:.2f}'.format(space.Tr), \
                     #         '{0:.0f}'.format(space.RH), '{0:.2f}'.format(space.MRT), '{0:.2f}'.format(space.PMV), \
                     #         '{0:.0f}'.format(space.Lcs), '{0:.0f}'.format(space.Lr), '{0:.0f}'.format(space.Ll), "", end="")
             
-            if gdata.FlgOrig(dtmNow):
+            if cdata.FlgOrig(dtmNow):
                 OutList.append(rowlist)
                 # print("")
 
@@ -109,11 +110,12 @@ def calc_Hload(gdata, weather, schedule):
     f.close()
 
 if __name__ == '__main__':
-    js = open('input.json', 'r', encoding='utf-8')
+    js = open('input20190528.json', 'r', encoding='utf-8')
+    # js = open('input.json', 'r', encoding='utf-8')
     d = json.load(js)
 
     # シミュレーション全体の設定条件の読み込み
-    gdata = Gdata(**d['Gdata'])
+    cdata = Gdata(**d['common'])
 
     # 外表面の初期化
     # exsurfaces = create_exsurfaces(d['ExSurface'])
@@ -122,13 +124,13 @@ if __name__ == '__main__':
     # sunbrks = create_sunbrks(d['Sunbrk'])
 
     # スペースの読み取り
-    spaces = create_spaces(gdata, d['Rooms'])
+    spaces = create_spaces(cdata, d['rooms'])
 
     # 気象データの読み込み
-    weather = Weather(gdata.Latitude, gdata.Longitude, gdata.StMeridian)
+    weather = Weather(cdata.Latitude, cdata.Longitude, cdata.StMeridian)
 
     # スケジュールの初期化
     schedule = Schedule()
 
     # 熱負荷計算の実行
-    calc_Hload(gdata, weather, schedule)
+    calc_Hload(cdata, weather, schedule)

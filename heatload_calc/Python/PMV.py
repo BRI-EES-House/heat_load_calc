@@ -76,7 +76,7 @@ def calcPPD(PMV):
 def FNPS(T):
     return math.exp(16.6536 - 4030.183 / (T + 235.0))
 
-print(calcPMV(23.9, 23.9, 66, 0.1, 1.1, 0.0, 1.0))
+# print(calcPMV(23.9, 23.9, 66, 0.1, 1.1, 0.0, 1.0))
 
 # PMV=0条件から設定作用温度を計算する
 def calcOTset(nowAC, isRadiantHeater, RH):

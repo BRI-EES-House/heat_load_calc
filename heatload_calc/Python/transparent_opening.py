@@ -1,33 +1,25 @@
 # 開口部透明部位の情報を保持するクラス
-class Window:
+class transparent_opening:
     """開口部透明部位の基本情報（開口部名称、日射熱取得率、熱貫流率等）を保持するクラス"""
 
     # 初期化
-    def __init__(self, Name, Eta, Uw, OutHeatTrans, OutEmissiv, InHeatTrans,
-                 **options):
+    def __init__(self, Name, d_window):
         """
         :param Name: 開口部名称
-        :param Eta: 日射熱取得率[-]
-        :param Uw: 開口部熱貫流率[W/m2K]
-        :param OutHeatTrans: 室外側熱伝達率[W/m2K]
-        :param OutEmissiv: 室外側放射率[-]
-        :param InHeatTrans: 室内総合熱伝達率[W/(m2･K)]
-        :param options: その他のオプション
+        :param d_window: 開口部情報
         """
-        self.Name = Name  # 開口部名称, string値
-        self.T = float(Eta)  # 透過率＝日射熱取得率とする
-        # self.T = float(SolarTrans)  # 日射透過率[-]
-        # self.B = float(SolarAbsorp)  # 吸収日射取得率[-]
+        self.Name = Name                                            # 開口部名称, string値
+        self.T = float(d_window['eta_value'])                       # 透過率＝日射熱取得率とする
         self.B = 0.0
-        self.Uw = float(Uw)  # 開口部熱貫流率[W/m2K]
-        self.ho = float(OutHeatTrans)  # 室外側熱伝達率[W/m2K]
-        self.Eo = float(OutEmissiv)  # 室外側放射率[-]
-        self.Ei = 0.9               # 室内側放射率[－]
+        self.Uw = float(d_window['u_value'])                        # 開口部熱貫流率[W/m2K]
+        self.ho = float(d_window['outside_heat_transfer_coef'])     # 室外側熱伝達率[W/m2K]
+        self.Eo = float(d_window['outside_emissivity'])             # 室外側放射率[-]
+        self.Ei = 0.9                                               # 室内側放射率[－]
         self.hic = 0.0  # 室内対流熱伝達率[W/(m2･K)]
         self.hir = 0.0  # 室内放射熱伝達率[W/(m2･K)]
 
         # 室内総合熱伝達率[W/(m2･K)]
-        self.hi = InHeatTrans
+        self.hi = float(d_window['inside_heat_transfer_coef'])
 
         # 窓部材熱抵抗[m2K/W]
         self.Rw = 1.0 / self.Uw - 1.0 / self.hi - 1.0 / self.ho
@@ -37,6 +29,9 @@ class Window:
 
         # 拡散日射に対する入射角特性
         self.Cd = 0.92
+
+        # 入射角特性番号
+        self.__incident_angle_characteristics = float(d_window['incident_angle_characteristics'])
 
     # 直達日射の入射角特性の計算
     def get_CID(self, CosT: float) -> float:

@@ -12,6 +12,14 @@ Sgm = 5.67e-8
 #大気圧[kPa]
 P = 101.325
 
+#室の家具の顕熱容量[kJ/m3 K]
+funiture_sensible_capacity = 12.6
+#室の家具の潜熱容量[kg/(m3 kg/kg(DA))]
+funiture_latent_capacity = 16.8
+
+#ルームエアコンのバイパスファクター
+bypass_factor_rac = 0.2
+
 # 通日を計算
 def get_nday(mo, day):
     """

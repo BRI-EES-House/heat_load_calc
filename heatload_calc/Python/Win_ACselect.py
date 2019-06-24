@@ -57,19 +57,12 @@ def mode_select(demAC, preAC, preWin, nowOT):
     return (nowWin, nowAC)
 
 # 最終の空調信号の計算（空調停止はこのルーチンに入らない）
-def reset_SW(nowAC, Lcs, Lr, isRadiantHeater, Hcap, Lrcap):
+def reset_SW(nowAC, Lcs, Lr, isRadiantHeater, Lrcap):
     temp = nowAC
 
     # 「冷房時の暖房」、「暖房時の冷房」判定
     if float(nowAC) * (Lcs + Lr) < 0.0:
         temp = 0
-    # 暖房の過負荷状態
-    elif not isRadiantHeater and nowAC == 1 and Hcap > 0.0 \
-            and Lcs > Hcap:
-        temp = 2
-    # 冷房の過負荷状態
-    elif nowAC == -1 and Hcap < 0.0 and Lcs < Hcap:
-        temp = -2
     # 放射暖房の過負荷状態
     elif isRadiantHeater and nowAC == 1 and Lrcap > 0.0 \
             and Lr > Lrcap:

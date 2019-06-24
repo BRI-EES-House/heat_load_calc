@@ -4,7 +4,7 @@ import datetime
 class Gdata:
     """シミュレーション全体の設定条件"""
 
-    def __init__(self, Region, **options):
+    def __init__(self, **options):
         """
         :param Region: 地域区分
         :param TimeInterval: 計算時間間隔(s)
@@ -19,7 +19,7 @@ class Gdata:
         :param options: その他のオプション
         """
         # 地域区分
-        self.__Region = Region
+        self.__Region = options["region"]
 
         # 計算対象年
         self.__conlngYr = 1989
@@ -33,14 +33,14 @@ class Gdata:
         self.StDate = datetime.datetime(self.__conlngYr, 1, 1)
         # シミュレーション（本計算）終了日
         self.EnDate = datetime.datetime(self.__conlngYr, 12, 31)
-        if 0:
+        if 1:
             self.StDate = datetime.datetime(self.__conlngYr, 8, 1)
             self.EnDate = datetime.datetime(self.__conlngYr, 8, 1)
-            self.__lngApproach = 0
+            self.__lngApproach = 20
         if 0:
             self.StDate = datetime.datetime(self.__conlngYr, 1, 1)
             self.EnDate = datetime.datetime(self.__conlngYr, 1, 1)
-            self.__lngApproach = 0
+            self.__lngApproach = 20
         # self.EnDate = datetime.datetime(self.__conlngYr, 1, 1)
         # 開始日が終了日よりも後の月日の場合は、終了日にプラス1年加算する。
         if self.StDate > self.EnDate:
@@ -68,4 +68,39 @@ class Gdata:
     # 地域区分から緯度、経度を設定する
     # 当面は6地域の緯度、経度を返す
     def __calcLat_Lon(self, Region):
-        return 34.6583333333333, 133.918333333333
+        Latitude = -999.0
+        Longitude = -999.0
+
+        if Region == 1:
+            # 1地域（北見）
+            Latitude = 43.82
+            Longitude = 143.91
+        elif Region == 2:
+            # 2地域（岩見沢）
+            Latitude = 43.21
+            Longitude = 141.79
+        elif Region == 3:
+            # 3地域（盛岡）
+            Latitude = 39.70
+            Longitude = 141.17
+        elif Region == 4:
+            # 4地域（長野）
+            Latitude = 36.66
+            Longitude = 138.20
+        elif Region == 5:
+            # 5地域（宇都宮）
+            Latitude = 36.55
+            Longitude = 139.87
+        elif Region == 6:
+            # 6地域（岡山）
+            Latitude = 34.66
+            Longitude = 133.92
+        elif Region == 7:
+            # 7地域（宮崎）
+            Latitude = 31.94
+            Longitude = 131.42
+        elif Region == 8:
+            # 8地域（那覇）
+            Latitude = 26.21
+            Longitude = 127.685
+        return Latitude, Longitude

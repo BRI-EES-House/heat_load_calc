@@ -6,9 +6,30 @@
 	"Rooms": [
 	{
 		"roomname": "主たる居室",
-		"HeatCcap": null,
-		"HeatRcap": 3000,
-		"CoolCcap": null,
+		"equipment": {
+			"cooling": {
+				"main": {
+					"type": "room_air_conditioner",
+					"q_rtd": -2200,
+					"q_max": -3300,
+					"cop_rtd": 5.8
+				},
+				"sub": {
+				}
+			},
+			"heating": {
+				"main": {
+					"type": "floor_heating",
+					"construct_area": 12.0
+				},
+				"sub": {
+					"type": "room_air_conditioner",
+					"q_rtd": 2500,
+					"q_max": 3500,
+					"cop_rtd": 6.5
+				}
+			}
+		},
 		"Vol": 70.92,
 		"Fnt": 12.6,
 		"Vent": {
@@ -564,9 +585,30 @@
 	},
 	{
 		"roomname": "その他居室_寝室",
-		"HeatCcap": 3000,
-		"HeatRcap": null,
-		"CoolCcap": -3000,
+		"equipment": {
+			"cooling": {
+				"main": {
+					"type": "room_air_conditioner",
+					"q_rtd": -2200,
+					"q_max": -3300,
+					"cop_rtd": 5.8
+				},
+				"sub": {
+				}
+			},
+			"heating": {
+				"main": {
+					"type": "floor_heating",
+					"construct_area": 12.0
+				},
+				"sub": {
+					"type": "room_air_conditioner",
+					"q_rtd": 2500,
+					"q_max": 3500,
+					"cop_rtd": 6.5
+				}
+			}
+		},
 		"Vol": 31.8,
 		"Fnt": 12.6,
 		"Vent": {
@@ -955,9 +997,30 @@
 	},
 	{
 		"roomname": "その他居室_子供室1",
-		"HeatCcap": 3000,
-		"HeatRcap": null,
-		"CoolCcap": -3000,
+		"equipment": {
+			"cooling": {
+				"main": {
+					"type": "room_air_conditioner",
+					"q_rtd": -2200,
+					"q_max": -3300,
+					"cop_rtd": 5.8
+				},
+				"sub": {
+				}
+			},
+			"heating": {
+				"main": {
+					"type": "floor_heating",
+					"construct_area": 12.0
+				},
+				"sub": {
+					"type": "room_air_conditioner",
+					"q_rtd": 2500,
+					"q_max": 3500,
+					"cop_rtd": 6.5
+				}
+			}
+		},
 		"Vol": 25.83,
 		"Fnt": 12.6,
 		"Vent": {
@@ -1299,9 +1362,30 @@
 	},
 	{
 		"roomname": "その他居室_子供室2",
-		"HeatCcap": 3000,
-		"HeatRcap": null,
-		"CoolCcap": -3000,
+		"equipment": {
+			"cooling": {
+				"main": {
+					"type": "room_air_conditioner",
+					"q_rtd": -2200,
+					"q_max": -3300,
+					"cop_rtd": 5.8
+				},
+				"sub": {
+				}
+			},
+			"heating": {
+				"main": {
+					"type": "floor_heating",
+					"construct_area": 12.0
+				},
+				"sub": {
+					"type": "room_air_conditioner",
+					"q_rtd": 2500,
+					"q_max": 3500,
+					"cop_rtd": 6.5
+				}
+			}
+		},
 		"Vol": 25.84,
 		"Fnt": 12.6,
 		"Vent": {
@@ -1684,9 +1768,30 @@
 	},
 	{
 		"roomname": "その他居室_和室",
-		"HeatCcap": 3000,
-		"HeatRcap": null,
-		"CoolCcap": -3000,
+		"equipment": {
+			"cooling": {
+				"main": {
+					"type": "room_air_conditioner",
+					"q_rtd": -2200,
+					"q_max": -3300,
+					"cop_rtd": 5.8
+				},
+				"sub": {
+				}
+			},
+			"heating": {
+				"main": {
+					"type": "floor_heating",
+					"construct_area": 12.0
+				},
+				"sub": {
+					"type": "room_air_conditioner",
+					"q_rtd": 2500,
+					"q_max": 3500,
+					"cop_rtd": 6.5
+				}
+			}
+		},
 		"Vol": 39.75,
 		"Fnt": 12.6,
 		"Vent": {
@@ -2135,9 +2240,8 @@
 	},
 	{
 		"roomname": "非居室",
-		"HeatCcap": null,
-		"HeatRcap": null,
-		"CoolCcap": null,
+		"equipment": {
+		},
 		"Vol": 94.88,
 		"Fnt": 12.6,
 		"Vent": {
