@@ -171,10 +171,35 @@ class Space:
         self.__Nsurf = 0  # 部位の数
         self.surfaces = []
 
+        # 部位の読み込み
         for d_surface in d_room['boundaries']:
             # print(d_surface['name'])
             self.surfaces.append(Surface(d_surface, Gdata))
         
+        # 部位のグループ化
+        group_number = 0
+        for surface in self.surfaces:
+            # 最初の部位は最も若いグループ番号にする
+            if not surface.is_grouping:
+                # グループ化済みにする
+                surface.is_grouping = True
+                surface.group_number = group_number
+
+                # 同じ境界条件の部位を探す
+                for comp_surface in self.surfaces:
+                    # 境界条件が同じかどうかチェックする
+                    # グループ化していない部位だけを対象とする
+                    if not comp_surface.is_grouping:
+                        if surface.boundary_comp(comp_surface):
+                            comp_surface.is_grouping = True
+                            comp_surface.group_number = group_number
+                # グループ番号を増やす
+                group_number += 1
+        
+        # グループ化の結果の表示
+        for surface in self.surfaces:
+            print(surface.boundary_type, surface.is_grouping, surface.group_number)
+            
         # 部位の人体に対する形態係数の計算
         total_Aex_floor = 0.0
         total_A_floor = 0.0
