@@ -40,7 +40,7 @@ class Exsrf:
         self.nextroomname = next_room_type          # 隣室名称
 
     def ground_init(self):
-        self.Type == "ground"                       # 土壌の場合
+        self.Type = "ground"                        # 土壌の場合
 
     # 傾斜面日射量の計算
     def update_slop_sol(self, solpos: defSolpos, Idn: float, Isky: float):

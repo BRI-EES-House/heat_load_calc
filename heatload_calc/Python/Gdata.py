@@ -21,11 +21,17 @@ class Gdata:
         # 地域区分
         self.__Region = options["region"]
 
+        # 住宅計算／非住宅計算（Trueなら住宅）
+        self.is_residential = options["is_residential"]
+
         # 計算対象年
         self.__conlngYr = 1989
 
         # 計算時間間隔(s)
-        self.DTime = 900
+        if self.is_residential:
+            self.DTime = 900
+        else:
+            self.DTime = 3600
 
         # 助走計算期間(day)
         self.__lngApproach = 20
@@ -55,7 +61,7 @@ class Gdata:
         # 詳細出力フラグ
         # self.__blnDetailOut = blnDetailOut
         # 作用温度設定フラグ
-        self.OTset = True
+        # self.OTset = True
         # 緯度、経度
         self.Latitude, self.Longitude = self.__calcLat_Lon(self.__Region)
         # 標準子午線

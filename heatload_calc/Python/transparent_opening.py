@@ -12,20 +12,20 @@ class transparent_opening:
         self.T = float(d_window['eta_value'])                       # 透過率＝日射熱取得率とする
         self.B = 0.0
         self.Uw = float(d_window['u_value'])                        # 開口部熱貫流率[W/m2K]
-        self.ho = float(d_window['outside_heat_transfer_coef'])     # 室外側熱伝達率[W/m2K]
+        self.ho = 1.0/float(d_window['outside_heat_transfer_resistance'])     # 室外側熱伝達率[W/m2K]
         self.Eo = float(d_window['outside_emissivity'])             # 室外側放射率[-]
         self.Ei = 0.9                                               # 室内側放射率[－]
         self.hic = 0.0  # 室内対流熱伝達率[W/(m2･K)]
         self.hir = 0.0  # 室内放射熱伝達率[W/(m2･K)]
 
         # 室内総合熱伝達率[W/(m2･K)]
-        self.hi = float(d_window['inside_heat_transfer_coef'])
+        self.hi = 1.0/float(d_window['inside_heat_transfer_resistance'])
 
         # 窓部材熱抵抗[m2K/W]
-        self.Rw = 1.0 / self.Uw - 1.0 / self.hi - 1.0 / self.ho
+        # self.Rw = 1.0 / self.Uw - 1.0 / self.hi - 1.0 / self.ho
 
         # 開口部の室内表面から屋外までの熱貫流率[W/(m2･K)]
-        self.Uso = 1.0 / (self.Rw + 1.0 / self.ho)
+        self.Uso = 1.0 / (1.0 / self.Uw - 1.0 / self.hi)
 
         # 拡散日射に対する入射角特性
         self.Cd = 0.92

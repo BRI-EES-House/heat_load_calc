@@ -41,6 +41,36 @@ def calc_Hload(cdata, weather, schedule):
 
     # 出力リスト
     OutList = []
+    rowlist = []
+    # ヘッダの出力
+    rowlist.append("日時")
+    rowlist.append("外気温度[℃]")
+    rowlist.append("外気絶対湿度[kg/kg(DA)]")
+    rowlist.append("窓開閉")
+    rowlist.append("在室状況")
+    rowlist.append("最終空調状態")
+    rowlist.append("空気温度[℃]")
+    rowlist.append("室相対湿度[%]")
+    rowlist.append("室絶対湿度[kg/kg(DA)]")
+    rowlist.append("室MRT[℃]")
+    rowlist.append("室作用温度[℃]")
+    rowlist.append("透過日射熱取得[W]")
+    rowlist.append("機器顕熱発熱[W]")
+    rowlist.append("照明発熱[W]")
+    rowlist.append("人体顕熱発熱[W]")
+    rowlist.append("人体潜熱発熱[W]")
+    rowlist.append("対流空調顕熱負荷[W]")
+    rowlist.append("放射空調顕熱負荷[W]")
+    rowlist.append("対流空調潜熱負荷[W]")
+    if 1:
+        for space in spaces.values():
+            for surface in space.input_surfaces:
+                rowlist.append(surface.name + "_表面温度[℃]")
+    OutList.append(rowlist)
+    rowlist = []
+
+    # ヘッダ出力フラグ
+    is_header_output = False
     # 日ループの開始
     for lngNday in range(lngStNday, lngEnNday + 1):
         # 時刻ループの開始
@@ -57,6 +87,8 @@ def calc_Hload(cdata, weather, schedule):
             rowlist = []
             # 室温・熱負荷の計算
             if cdata.FlgOrig(dtmNow):
+                
+                # print(str(dtmNow), end="\t")
                 # 出力文字列
                 rowlist.append(str(dtmNow))
                 rowlist.append('{0:.1f}'.format(weather.WeaData(enmWeatherComponent.Ta, dtmNow)))
@@ -83,12 +115,20 @@ def calc_Hload(cdata, weather, schedule):
                     rowlist.append('{0:.4f}'.format(space.xr))
                     rowlist.append('{0:.2f}'.format(space.MRT))
                     rowlist.append('{0:.2f}'.format(space.OT))
-                    rowlist.append('{0:.2f}'.format(space.Clo))
-                    rowlist.append('{0:.2f}'.format(space.Vel))
-                    rowlist.append('{0:.2f}'.format(space.PMV))
+                    rowlist.append('{0:.2f}'.format(space.Qgt))
+                    rowlist.append('{0:.2f}'.format(space.heat_generation_appliances))
+                    rowlist.append('{0:.2f}'.format(space.heat_generation_lighting))
+                    rowlist.append('{0:.2f}'.format(space.Humans))
+                    rowlist.append('{0:.2f}'.format(space.Humanl))
+                    # rowlist.append('{0:.2f}'.format(space.Clo))
+                    # rowlist.append('{0:.2f}'.format(space.Vel))
+                    # rowlist.append('{0:.2f}'.format(space.PMV))
                     rowlist.append('{0:.0f}'.format(space.Lcs))
                     rowlist.append('{0:.0f}'.format(space.Lrs))
                     rowlist.append('{0:.0f}'.format(space.Lcl))
+                    if 1:
+                        for surface in space.input_surfaces:
+                            rowlist.append('{0:.2f}'.format(surface.Ts))
                     # print('{0:.0f}'.format(space.nowWin), '{0:.0f}'.format(space.nowAC), '{0:.2f}'.format(space.Tr), \
                     #         '{0:.0f}'.format(space.RH), '{0:.2f}'.format(space.MRT), '{0:.2f}'.format(space.PMV), \
                     #         '{0:.0f}'.format(space.Lcs), '{0:.0f}'.format(space.Lr), '{0:.0f}'.format(space.Ll), "", end="")
@@ -110,8 +150,8 @@ def calc_Hload(cdata, weather, schedule):
     f.close()
 
 if __name__ == '__main__':
+    # js = open('input_non_residential.json', 'r', encoding='utf-8')
     js = open('input20190528.json', 'r', encoding='utf-8')
-    # js = open('input.json', 'r', encoding='utf-8')
     d = json.load(js)
 
     # シミュレーション全体の設定条件の読み込み
