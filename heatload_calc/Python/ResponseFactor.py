@@ -81,7 +81,6 @@ def get_step_reps_of_wall(layers: List[Layer], laps: List[float], alp: List[floa
     # 単位貫流応答、単位吸熱応答の初期化
     dblAT0 = 1.0
     dblAA0 = sum([layer.R for layer in layers])
-    dblCtotal = sum([layer.C for layer in layers])
 
     # GA(0), GT(0)
     dblGA0 = dblAA0

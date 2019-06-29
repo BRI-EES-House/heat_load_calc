@@ -3,7 +3,6 @@ import numpy as np
 import copy
 from typing import List
 
-
 # 壁体構成部材のクラス
 class Layer:
 

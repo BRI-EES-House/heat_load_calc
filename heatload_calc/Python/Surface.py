@@ -4,7 +4,6 @@ from transparent_opening import transparent_opening
 from SolarPosision import defSolpos
 from Gdata import Gdata
 from Exsrf import Exsrf
-# from Exsrf import create_exsurfaces
 from Sunbrk import SunbrkType
 
 # 室内部位に関連するクラス

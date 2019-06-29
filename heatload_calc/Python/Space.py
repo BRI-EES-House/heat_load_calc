@@ -2,19 +2,15 @@ import numpy as np
 from typing import List
 from Weather import enmWeatherComponent
 import math
-
 import Surface
-from Surface import *
+from Surface import Surface
 import NextVent
 from NextVent import NextVent
-
-import SeasonalValue
-from SeasonalValue import SeasonalValue
 from Psychrometrics import Pws, x, xtrh, rhtx
 from common import conca, conrowa, Sgm, conra, \
     funiture_sensible_capacity, funiture_latent_capacity, bypass_factor_rac, get_nday
-from PMV import *
-from Win_ACselect import *
+from PMV import calcPMV, calcOTset
+from Win_ACselect import reset_SW, mode_select
 
 # # 室温・熱負荷を計算するクラス
 
@@ -445,7 +441,7 @@ class Space:
         return self.__oldxr
 
     # 室温、熱負荷の計算
-    def calcHload(self, Gdata, spaces, dtmNow, defSolpos, Schedule, Weather):
+    def calcHload(self, Gdata, spaces, dtmNow, defSolpos, Weather):
         # 室間換気の風上室温をアップデート
         for roomvent in self.__RoomtoRoomVent:
             windward_roomname = roomvent.Windward_roomname

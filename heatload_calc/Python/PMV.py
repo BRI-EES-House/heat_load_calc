@@ -29,7 +29,7 @@ def calcPMV(Ta, MRT, RH, V, Met, Wme, Clo):
     P5 = 308.7 - 0.028 * MW + P2 * (MRTa / 100.0) ** 4.0
     XN = Tcla / 100.0
     XF = XN
-    N = 0
+    # N = 0
     EPS = 0.00015
     PMV = 99999.0
     # 着衣の表面温度収束計算
@@ -68,9 +68,12 @@ def calcPMV(Ta, MRT, RH, V, Met, Wme, Clo):
 
 # PPDを計算する
 def calcPPD(PMV):
+    PPD = -9999.0
     if abs(PMV) > 3.0:
-        return -9999.0
-    PPD = 100.0 - 95.0 * math.exp(-0.03353 * PMV **4.0 - 0.2179 * PMV **2.0)
+        PPD = -9999.0
+    else:
+        PPD = 100.0 - 95.0 * math.exp(-0.03353 * PMV **4.0 - 0.2179 * PMV **2.0)
+    return PPD
 
 # 飽和水蒸気圧[kPa]の計算（ASHRAE Standard 55-2013）
 def FNPS(T):

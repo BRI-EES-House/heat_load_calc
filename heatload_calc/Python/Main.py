@@ -4,13 +4,11 @@ import json
 import common
 from Gdata import Gdata
 from Weather import enmWeatherComponent, Weather
-from Schedule import Schedule
-# from Exsrf import create_exsurfaces
 from Sunbrk import SunbrkType
 from Space import create_spaces
 
 # 熱負荷計算の実行
-def calc_Hload(cdata, weather, schedule):
+def calc_Hload(cdata, weather):
     """
     :param cdata: シミュレーション全体の設定条件
     :param weather: 気象データ
@@ -69,8 +67,6 @@ def calc_Hload(cdata, weather, schedule):
     OutList.append(rowlist)
     rowlist = []
 
-    # ヘッダ出力フラグ
-    is_header_output = False
     # 日ループの開始
     for lngNday in range(lngStNday, lngEnNday + 1):
         # 時刻ループの開始
@@ -102,7 +98,6 @@ def calc_Hload(cdata, weather, schedule):
                     spaces=spaces,
                     dtmNow=dtmNow,
                     defSolpos=weather.Solpos(dtmNow),
-                    Schedule=schedule,
                     Weather=weather
                 )
                 
@@ -150,8 +145,8 @@ def calc_Hload(cdata, weather, schedule):
     f.close()
 
 if __name__ == '__main__':
-    # js = open('input_non_residential.json', 'r', encoding='utf-8')
-    js = open('input20190528.json', 'r', encoding='utf-8')
+    js = open('input_non_residential.json', 'r', encoding='utf-8')
+    # js = open('input20190528.json', 'r', encoding='utf-8')
     d = json.load(js)
 
     # シミュレーション全体の設定条件の読み込み
@@ -170,7 +165,7 @@ if __name__ == '__main__':
     weather = Weather(cdata.Latitude, cdata.Longitude, cdata.StMeridian)
 
     # スケジュールの初期化
-    schedule = Schedule()
+    # schedule = Schedule()
 
     # 熱負荷計算の実行
-    calc_Hload(cdata, weather, schedule)
+    calc_Hload(cdata, weather)
