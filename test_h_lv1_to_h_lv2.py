@@ -4,8 +4,8 @@ import h_lv1_to_h_lv2 as nb
 
 class TestLV1toLV2(unittest.TestCase):
 
-    def test_get_size_ratio(self):
-        self.assertAlmostEqual(1.33333, nb.get_size_ratio(120.0),5)
+    def test_get_r_size(self):
+        self.assertAlmostEqual(1.33333, nb.get_r_size(120.0),5)
     
     def test_get_direction(self):
         self.assertEqual('sw', nb.get_direction('0'))
@@ -22,7 +22,7 @@ class TestLV1toLV2(unittest.TestCase):
             u_roof=7.7,
             u_wall=6.67,
             u_floor_other=5.27,
-            u_floor_bathroom=5.27,
+            u_floor_bath=5.27,
         )
         
         # number of array test
@@ -117,7 +117,7 @@ class TestLV1toLV2(unittest.TestCase):
             u_roof=7.7,
             u_wall=6.67,
             u_floor_other=5.27,
-            u_floor_bathroom=5.27,
+            u_floor_bath=5.27,
         )
         
         # number of array test
@@ -156,7 +156,7 @@ class TestLV1toLV2(unittest.TestCase):
             u_roof=7.7,
             u_wall=6.67,
             u_floor_other=5.27,
-            u_floor_bathroom=5.27,
+            u_floor_bath=5.27,
         )
         
         # number of array test
@@ -232,7 +232,7 @@ class TestLV1toLV2(unittest.TestCase):
             u_roof=7.7,
             u_wall=6.67,
             u_floor_other=5.27,
-            u_floor_bathroom=5.27,
+            u_floor_bath=5.27,
         )
         
         # area test
@@ -374,34 +374,34 @@ class TestLV1toLV2(unittest.TestCase):
         self.assertEqual('single', result[3]['spec']['window_type'])
 
         # u value input method test
-        self.assertEqual('u_value_directly', result[0]['spec']['window1']['u_value_input_method'])        
-        self.assertEqual('u_value_directly', result[1]['spec']['window1']['u_value_input_method'])        
-        self.assertEqual('u_value_directly', result[2]['spec']['window1']['u_value_input_method'])        
-        self.assertEqual('u_value_directly', result[3]['spec']['window1']['u_value_input_method'])        
+        self.assertEqual('u_value_directly', result[0]['spec']['windows'][0]['u_value_input_method'])        
+        self.assertEqual('u_value_directly', result[1]['spec']['windows'][0]['u_value_input_method'])        
+        self.assertEqual('u_value_directly', result[2]['spec']['windows'][0]['u_value_input_method'])        
+        self.assertEqual('u_value_directly', result[3]['spec']['windows'][0]['u_value_input_method'])        
         
         # u value test
-        self.assertEqual(3.49, result[0]['spec']['window1']['u_value'])
-        self.assertEqual(3.49, result[1]['spec']['window1']['u_value'])
-        self.assertEqual(3.49, result[2]['spec']['window1']['u_value'])
-        self.assertEqual(3.49, result[3]['spec']['window1']['u_value'])
+        self.assertEqual(3.49, result[0]['spec']['windows'][0]['u_value'])
+        self.assertEqual(3.49, result[1]['spec']['windows'][0]['u_value'])
+        self.assertEqual(3.49, result[2]['spec']['windows'][0]['u_value'])
+        self.assertEqual(3.49, result[3]['spec']['windows'][0]['u_value'])
         
         # eta d value input method test
-        self.assertEqual('eta_d_value_directly', result[0]['spec']['window1']['eta_d_value_input_method'])
-        self.assertEqual('eta_d_value_directly', result[1]['spec']['window1']['eta_d_value_input_method'])
-        self.assertEqual('eta_d_value_directly', result[2]['spec']['window1']['eta_d_value_input_method'])
-        self.assertEqual('eta_d_value_directly', result[3]['spec']['window1']['eta_d_value_input_method'])
+        self.assertEqual('eta_d_value_directly', result[0]['spec']['windows'][0]['eta_d_value_input_method'])
+        self.assertEqual('eta_d_value_directly', result[1]['spec']['windows'][0]['eta_d_value_input_method'])
+        self.assertEqual('eta_d_value_directly', result[2]['spec']['windows'][0]['eta_d_value_input_method'])
+        self.assertEqual('eta_d_value_directly', result[3]['spec']['windows'][0]['eta_d_value_input_method'])
         
         # eta d value test
-        self.assertEqual(0.515, result[0]['spec']['window1']['eta_d_value'])
-        self.assertEqual(0.515, result[1]['spec']['window1']['eta_d_value'])
-        self.assertEqual(0.515, result[2]['spec']['window1']['eta_d_value'])
-        self.assertEqual(0.515, result[3]['spec']['window1']['eta_d_value'])
+        self.assertEqual(0.515, result[0]['spec']['windows'][0]['eta_d_value'])
+        self.assertEqual(0.515, result[1]['spec']['windows'][0]['eta_d_value'])
+        self.assertEqual(0.515, result[2]['spec']['windows'][0]['eta_d_value'])
+        self.assertEqual(0.515, result[3]['spec']['windows'][0]['eta_d_value'])
 
         # glass type test
-        self.assertEqual('single', result[0]['spec']['window1']['glass_type'])
-        self.assertEqual('single', result[1]['spec']['window1']['glass_type'])
-        self.assertEqual('single', result[2]['spec']['window1']['glass_type'])
-        self.assertEqual('single', result[3]['spec']['window1']['glass_type'])
+        self.assertEqual('single', result[0]['spec']['windows'][0]['glass_type'])
+        self.assertEqual('single', result[1]['spec']['windows'][0]['glass_type'])
+        self.assertEqual('single', result[2]['spec']['windows'][0]['glass_type'])
+        self.assertEqual('single', result[3]['spec']['windows'][0]['glass_type'])
         
         # attachment type test
         self.assertEqual('none', result[0]['spec']['attachment_type'])
