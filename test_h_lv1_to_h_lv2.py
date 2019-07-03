@@ -92,13 +92,13 @@ class TestLV1toLV2(unittest.TestCase):
         self.assertEqual('u_value_directly', result[6]['spec']['u_value_input_method_wood'])
         
         # u value test
-        self.assertEqual( 7.7, result[0]['spec']['u_value'])
-        self.assertEqual(6.67, result[1]['spec']['u_value'])
-        self.assertEqual(6.67, result[2]['spec']['u_value'])
-        self.assertEqual(6.67, result[3]['spec']['u_value'])
-        self.assertEqual(6.67, result[4]['spec']['u_value'])
-        self.assertEqual(5.27, result[5]['spec']['u_value'])
-        self.assertEqual(5.27, result[6]['spec']['u_value'])
+        self.assertEqual( 7.7, result[0]['spec']['u_value_wood'])
+        self.assertEqual(6.67, result[1]['spec']['u_value_wood'])
+        self.assertEqual(6.67, result[2]['spec']['u_value_wood'])
+        self.assertEqual(6.67, result[3]['spec']['u_value_wood'])
+        self.assertEqual(6.67, result[4]['spec']['u_value_wood'])
+        self.assertEqual(5.27, result[5]['spec']['u_value_wood'])
+        self.assertEqual(5.27, result[6]['spec']['u_value_wood'])
         
         # is sunshade input test
         self.assertEqual(False, result[0]['spec']['is_sunshade_input'])
@@ -141,12 +141,12 @@ class TestLV1toLV2(unittest.TestCase):
         self.assertEqual(45.05, result[5]['area'])
 
         # u value test
-        self.assertEqual( 7.7, result[0]['spec']['u_value'])
-        self.assertEqual(6.67, result[1]['spec']['u_value'])
-        self.assertEqual(6.67, result[2]['spec']['u_value'])
-        self.assertEqual(6.67, result[3]['spec']['u_value'])
-        self.assertEqual(6.67, result[4]['spec']['u_value'])
-        self.assertEqual(5.27, result[5]['spec']['u_value'])
+        self.assertEqual( 7.7, result[0]['spec']['u_value_wood'])
+        self.assertEqual(6.67, result[1]['spec']['u_value_wood'])
+        self.assertEqual(6.67, result[2]['spec']['u_value_wood'])
+        self.assertEqual(6.67, result[3]['spec']['u_value_wood'])
+        self.assertEqual(6.67, result[4]['spec']['u_value_wood'])
+        self.assertEqual(5.27, result[5]['spec']['u_value_wood'])
         
     def test_get_general_parts_f_n(self):
         
@@ -180,12 +180,12 @@ class TestLV1toLV2(unittest.TestCase):
         self.assertEqual(48.36, result[5]['area'])
 
         # u value test
-        self.assertEqual( 7.7, result[0]['spec']['u_value'])
-        self.assertEqual(6.67, result[1]['spec']['u_value'])
-        self.assertEqual(6.67, result[2]['spec']['u_value'])
-        self.assertEqual(6.67, result[3]['spec']['u_value'])
-        self.assertEqual(6.67, result[4]['spec']['u_value'])
-        self.assertEqual(5.27, result[5]['spec']['u_value'])
+        self.assertEqual( 7.7, result[0]['spec']['u_value_wood'])
+        self.assertEqual(6.67, result[1]['spec']['u_value_wood'])
+        self.assertEqual(6.67, result[2]['spec']['u_value_wood'])
+        self.assertEqual(6.67, result[3]['spec']['u_value_wood'])
+        self.assertEqual(6.67, result[4]['spec']['u_value_wood'])
+        self.assertEqual(5.27, result[5]['spec']['u_value_wood'])
     
     def test_get_general_parts_b(self):
         
@@ -195,7 +195,7 @@ class TestLV1toLV2(unittest.TestCase):
             u_roof=7.7,
             u_wall=6.67,
             u_floor_other=5.27,
-            u_floor_bathroom=5.27,
+            u_floor_bath=5.27,
         )
         
         # number of array test
