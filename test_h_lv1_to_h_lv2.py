@@ -646,12 +646,12 @@ class TestLV1toLV2(unittest.TestCase):
         # name test
         self.assertEqual('simple_earthfloor_perimeter1', result[0]['name'])
         self.assertEqual('simple_earthfloor_perimeter2', result[1]['name'])
-        self.assertEqual('simple_earthfloor_perimeter3', result[2]['name'])
-        self.assertEqual('simple_earthfloor_perimeter4', result[3]['name'])
-        self.assertEqual('simple_earthfloor_perimeter5', result[4]['name'])
-        self.assertEqual('simple_earthfloor_perimeter6', result[5]['name'])
-        self.assertEqual('simple_earthfloor_perimeter7', result[6]['name'])
-        self.assertEqual('simple_earthfloor_perimeter8', result[7]['name'])
+        self.assertEqual('simple_earthfloor_perimeter4', result[2]['name'])
+        self.assertEqual('simple_earthfloor_perimeter5', result[3]['name'])
+        self.assertEqual('simple_earthfloor_perimeter7', result[4]['name'])
+        self.assertEqual('simple_earthfloor_perimeter8', result[5]['name'])
+        self.assertEqual('simple_earthfloor_perimeter9', result[6]['name'])
+        self.assertEqual('simple_earthfloor_perimeter10', result[7]['name'])
         
         # next space test
         self.assertEqual('outdoor', result[0]['next_space'])
