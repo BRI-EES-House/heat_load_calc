@@ -218,11 +218,11 @@ class TestLV1toLV2(unittest.TestCase):
         self.assertEqual(22.28, result[4]['area'])
 
         # u value test
-        self.assertEqual( 7.7, result[0]['spec']['u_value'])
-        self.assertEqual(6.67, result[1]['spec']['u_value'])
-        self.assertEqual(6.67, result[2]['spec']['u_value'])
-        self.assertEqual(6.67, result[3]['spec']['u_value'])
-        self.assertEqual(6.67, result[4]['spec']['u_value'])
+        self.assertEqual( 7.7, result[0]['spec']['u_value_wood'])
+        self.assertEqual(6.67, result[1]['spec']['u_value_wood'])
+        self.assertEqual(6.67, result[2]['spec']['u_value_wood'])
+        self.assertEqual(6.67, result[3]['spec']['u_value_wood'])
+        self.assertEqual(6.67, result[4]['spec']['u_value_wood'])
 
     def test_get_general_parts_floor_area_conversion(self):
         
