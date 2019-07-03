@@ -17,12 +17,12 @@ class TestLV1toLV2(unittest.TestCase):
     def test_get_general_parts_f_f(self):
         
         result = nb.get_general_parts(
-            total_floor_area = 90.0,
-            house_type = 'f_f',
-            u_value_roof = 7.7,
-            u_value_wall = 6.67,
-            u_value_floor_other = 5.27,
-            u_value_floor_bathroom = 5.27,
+            a_a=90.0,
+            house_type='f_f',
+            u_roof=7.7,
+            u_wall=6.67,
+            u_floor_other=5.27,
+            u_floor_bathroom=5.27,
         )
         
         # number of array test
@@ -112,12 +112,12 @@ class TestLV1toLV2(unittest.TestCase):
     def test_get_general_parts_f_b(self):
         
         result = nb.get_general_parts(
-            total_floor_area = 90.0,
-            house_type = 'f_b',
-            u_value_roof = 7.7,
-            u_value_wall = 6.67,
-            u_value_floor_other = 5.27,
-            u_value_floor_bathroom = 5.27,
+            a_a=90.0,
+            house_type='f_b',
+            u_roof=7.7,
+            u_wall=6.67,
+            u_floor_other=5.27,
+            u_floor_bathroom=5.27,
         )
         
         # number of array test
@@ -151,12 +151,12 @@ class TestLV1toLV2(unittest.TestCase):
     def test_get_general_parts_f_n(self):
         
         result = nb.get_general_parts(
-            total_floor_area = 90.0,
-            house_type = 'f_n',
-            u_value_roof = 7.7,
-            u_value_wall = 6.67,
-            u_value_floor_other = 5.27,
-            u_value_floor_bathroom = 5.27,
+            a_a=90.0,
+            house_type='f_n',
+            u_roof=7.7,
+            u_wall=6.67,
+            u_floor_other=5.27,
+            u_floor_bathroom=5.27,
         )
         
         # number of array test
@@ -190,12 +190,12 @@ class TestLV1toLV2(unittest.TestCase):
     def test_get_general_parts_b(self):
         
         result = nb.get_general_parts(
-            total_floor_area = 90.0,
-            house_type = 'b',
-            u_value_roof = 7.7,
-            u_value_wall = 6.67,
-            u_value_floor_other = 5.27,
-            u_value_floor_bathroom = 5.27,
+            a_a=90.0,
+            house_type='b',
+            u_roof=7.7,
+            u_wall=6.67,
+            u_floor_other=5.27,
+            u_floor_bathroom=5.27,
         )
         
         # number of array test
@@ -227,12 +227,12 @@ class TestLV1toLV2(unittest.TestCase):
     def test_get_general_parts_floor_area_conversion(self):
         
         result = nb.get_general_parts(
-            total_floor_area = 120.0,
-            house_type = 'f_f',
-            u_value_roof = 7.7,
-            u_value_wall = 6.67,
-            u_value_floor_other = 5.27,
-            u_value_floor_bathroom = 5.27,
+            a_a=120.0,
+            house_type='f_f',
+            u_roof=7.7,
+            u_wall=6.67,
+            u_floor_other=5.27,
+            u_floor_bathroom=5.27,
         )
         
         # area test
@@ -330,14 +330,14 @@ class TestLV1toLV2(unittest.TestCase):
     def test_get_windows(self):
         
         result = nb.get_windows(
-            total_floor_area = 90.0,
-            region = 6,
-            u_value_window = 3.49,
-            eta_d_value_window_h = 0.52,
-            eta_d_value_window_c = 0.51,
-            is_f_value_input = True,
-            f_value_h = 0.7,
-            f_value_c = 0.7
+            a_a=90.0,
+            region=6,
+            u_window=3.49,
+            eta_d_h=0.52,
+            eta_d_c=0.51,
+            is_f_value_input=True,
+            f_h=0.7,
+            f_c=0.7
         )
         
         # number of array test
@@ -441,14 +441,14 @@ class TestLV1toLV2(unittest.TestCase):
     def test_get_windows_floor_area_conversion(self):
         
         result = nb.get_windows(
-            total_floor_area = 120.0,
-            region = 6,
-            u_value_window = 3.49,
-            eta_d_value_window_h = 0.52,
-            eta_d_value_window_c = 0.51,
-            is_f_value_input = True,
-            f_value_h = 0.7,
-            f_value_c = 0.7
+            a_a=120.0,
+            region=6,
+            u_window=3.49,
+            eta_d_h=0.52,
+            eta_d_c=0.51,
+            is_f_value_input=True,
+            f_h=0.7,
+            f_c=0.7
         )
         
         # area test
@@ -460,8 +460,8 @@ class TestLV1toLV2(unittest.TestCase):
     def test_get_doors(self):
         
         result = nb.get_doors(
-            total_floor_area = 90.0,
-            u_value_door = 3.49
+            a_a=90.0,
+            u_door=3.49
         )
         
         # number of array test
@@ -494,8 +494,8 @@ class TestLV1toLV2(unittest.TestCase):
     def test_get_doors_area_conversion(self):
         
         result = nb.get_doors(
-            total_floor_area = 120.0,
-            u_value_door = 3.49
+            a_a=120.0,
+            u_door=3.49
         )
         
         self.assertAlmostEqual( 1.89*120.0/90.0, result[0]['area'])
@@ -504,11 +504,11 @@ class TestLV1toLV2(unittest.TestCase):
     def test_get_earthfloor_perimeters_f_f(self):
         
         result = nb.get_earthfloor_perimeters(
-            total_floor_area = 90.0,
-            house_type = 'f_f',
-            psi_value_earthfloor_perimeter_entrance = 1.8,
-            psi_value_earthfloor_perimeter_bathroom = 1.7,
-            psi_value_earthfloor_perimeter_other = 1.6,
+            a_a=90.0,
+            house_type='f_f',
+            psi_value_earthfloor_perimeter_entrance=1.8,
+            psi_value_earthfloor_perimeter_bathroom=1.7,
+            psi_value_earthfloor_perimeter_other=1.6,
         )
         
         # number of array test
@@ -542,11 +542,11 @@ class TestLV1toLV2(unittest.TestCase):
     def test_get_earthfloor_perimeters_f_b(self):
         
         result = nb.get_earthfloor_perimeters(
-            total_floor_area = 90.0,
-            house_type = 'f_b',
-            psi_value_earthfloor_perimeter_entrance = 1.8,
-            psi_value_earthfloor_perimeter_bathroom = 1.7,
-            psi_value_earthfloor_perimeter_other = 1.6,
+            a_a=90.0,
+            house_type='f_b',
+            psi_value_earthfloor_perimeter_entrance=1.8,
+            psi_value_earthfloor_perimeter_bathroom=1.7,
+            psi_value_earthfloor_perimeter_other=1.6,
         )
         
         # number of array test
@@ -595,11 +595,11 @@ class TestLV1toLV2(unittest.TestCase):
     def test_get_earthfloor_perimeters_f_n(self):
         
         result = nb.get_earthfloor_perimeters(
-            total_floor_area = 90.0,
-            house_type = 'f_f',
-            psi_value_earthfloor_perimeter_entrance = 1.8,
-            psi_value_earthfloor_perimeter_bathroom = 1.7,
-            psi_value_earthfloor_perimeter_other = 1.6,
+            a_a=90.0,
+            house_type='f_f',
+            psi_value_earthfloor_perimeter_entrance=1.8,
+            psi_value_earthfloor_perimeter_bathroom=1.7,
+            psi_value_earthfloor_perimeter_other=1.6,
         )
         
         # number of array test
@@ -633,11 +633,11 @@ class TestLV1toLV2(unittest.TestCase):
     def test_get_earthfloor_perimeters_b(self):
         
         result = nb.get_earthfloor_perimeters(
-            total_floor_area = 90.0,
-            house_type = 'b',
-            psi_value_earthfloor_perimeter_entrance = 1.8,
-            psi_value_earthfloor_perimeter_bathroom = 1.7,
-            psi_value_earthfloor_perimeter_other = 1.6,
+            a_a=90.0,
+            house_type='b',
+            psi_value_earthfloor_perimeter_entrance=1.8,
+            psi_value_earthfloor_perimeter_bathroom=1.7,
+            psi_value_earthfloor_perimeter_other=1.6,
         )
         
         # number of array test
@@ -696,11 +696,11 @@ class TestLV1toLV2(unittest.TestCase):
     def test_area_conversion_test_f_f(self):
 
         result = nb.get_earthfloor_perimeters(
-            total_floor_area = 120.0,
-            house_type = 'f_f',
-            psi_value_earthfloor_perimeter_entrance = 1.8,
-            psi_value_earthfloor_perimeter_bathroom = 1.7,
-            psi_value_earthfloor_perimeter_other = 1.6,
+            a_a=120.0,
+            house_type='f_f',
+            psi_value_earthfloor_perimeter_entrance=1.8,
+            psi_value_earthfloor_perimeter_bathroom=1.7,
+            psi_value_earthfloor_perimeter_other=1.6,
         )
         
         self.assertAlmostEqual( 1.82*120.0/90.0, result[0]['length'], 5)
@@ -710,11 +710,11 @@ class TestLV1toLV2(unittest.TestCase):
     def test_area_conversion_test_f_b(self):
 
         result = nb.get_earthfloor_perimeters(
-            total_floor_area = 120.0,
-            house_type = 'f_b',
-            psi_value_earthfloor_perimeter_entrance = 1.8,
-            psi_value_earthfloor_perimeter_bathroom = 1.7,
-            psi_value_earthfloor_perimeter_other = 1.6,
+            a_a=120.0,
+            house_type='f_b',
+            psi_value_earthfloor_perimeter_entrance=1.8,
+            psi_value_earthfloor_perimeter_bathroom=1.7,
+            psi_value_earthfloor_perimeter_other=1.6,
         )
         
         self.assertAlmostEqual( 1.82*120.0/90.0, result[0]['length'], 5)
@@ -727,11 +727,11 @@ class TestLV1toLV2(unittest.TestCase):
     def test_area_conversion_test_f_n(self):
 
         result = nb.get_earthfloor_perimeters(
-            total_floor_area = 120.0,
-            house_type = 'f_n',
-            psi_value_earthfloor_perimeter_entrance = 1.8,
-            psi_value_earthfloor_perimeter_bathroom = 1.7,
-            psi_value_earthfloor_perimeter_other = 1.6,
+            a_a=120.0,
+            house_type='f_n',
+            psi_value_earthfloor_perimeter_entrance=1.8,
+            psi_value_earthfloor_perimeter_bathroom=1.7,
+            psi_value_earthfloor_perimeter_other=1.6,
         )
         
         self.assertAlmostEqual( 1.82*120.0/90.0, result[0]['length'], 5)
@@ -741,11 +741,11 @@ class TestLV1toLV2(unittest.TestCase):
     def test_area_conversion_test_b(self):
 
         result = nb.get_earthfloor_perimeters(
-            total_floor_area = 120.0,
-            house_type = 'b',
-            psi_value_earthfloor_perimeter_entrance = 1.8,
-            psi_value_earthfloor_perimeter_bathroom = 1.7,
-            psi_value_earthfloor_perimeter_other = 1.6,
+            a_a=120.0,
+            house_type='b',
+            psi_value_earthfloor_perimeter_entrance=1.8,
+            psi_value_earthfloor_perimeter_bathroom=1.7,
+            psi_value_earthfloor_perimeter_other=1.6,
         )
         
         self.assertAlmostEqual( 1.82*120.0/90.0, result[0]['length'], 5)
@@ -872,6 +872,7 @@ class TestLV1toLV2(unittest.TestCase):
                 
         }
         nb.convert(d)    
-    
+
+
 if __name__ == '__main__':
     unittest.main()
