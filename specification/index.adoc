@@ -17,6 +17,8 @@
 :revdate: 2019/7/3
 :stem: latexmath
 :xrefstyle: short
+:eqnums: AMS
+:table-stripes: even
 
 = 暖冷房負荷計算仕様書
 
