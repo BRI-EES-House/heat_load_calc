@@ -506,9 +506,9 @@ class TestLV1toLV2(unittest.TestCase):
         result = nb.get_earthfloor_perimeters(
             a_a=90.0,
             house_type='f_f',
-            psi_value_earthfloor_perimeter_entrance=1.8,
-            psi_value_earthfloor_perimeter_bathroom=1.7,
-            psi_value_earthfloor_perimeter_other=1.6,
+            psi_prm_etrc=1.8,
+            psi_prm_bath=1.7,
+            psi_prm_other=1.6,
         )
         
         # number of array test
@@ -544,9 +544,9 @@ class TestLV1toLV2(unittest.TestCase):
         result = nb.get_earthfloor_perimeters(
             a_a=90.0,
             house_type='f_b',
-            psi_value_earthfloor_perimeter_entrance=1.8,
-            psi_value_earthfloor_perimeter_bathroom=1.7,
-            psi_value_earthfloor_perimeter_other=1.6,
+            psi_prm_etrc=1.8,
+            psi_prm_bath=1.7,
+            psi_prm_other=1.6,
         )
         
         # number of array test
@@ -597,9 +597,9 @@ class TestLV1toLV2(unittest.TestCase):
         result = nb.get_earthfloor_perimeters(
             a_a=90.0,
             house_type='f_f',
-            psi_value_earthfloor_perimeter_entrance=1.8,
-            psi_value_earthfloor_perimeter_bathroom=1.7,
-            psi_value_earthfloor_perimeter_other=1.6,
+            psi_prm_etrc=1.8,
+            psi_prm_bath=1.7,
+            psi_prm_other=1.6,
         )
         
         # number of array test
@@ -635,9 +635,9 @@ class TestLV1toLV2(unittest.TestCase):
         result = nb.get_earthfloor_perimeters(
             a_a=90.0,
             house_type='b',
-            psi_value_earthfloor_perimeter_entrance=1.8,
-            psi_value_earthfloor_perimeter_bathroom=1.7,
-            psi_value_earthfloor_perimeter_other=1.6,
+            psi_prm_etrc=1.8,
+            psi_prm_bath=1.7,
+            psi_prm_other=1.6,
         )
         
         # number of array test
@@ -698,9 +698,9 @@ class TestLV1toLV2(unittest.TestCase):
         result = nb.get_earthfloor_perimeters(
             a_a=120.0,
             house_type='f_f',
-            psi_value_earthfloor_perimeter_entrance=1.8,
-            psi_value_earthfloor_perimeter_bathroom=1.7,
-            psi_value_earthfloor_perimeter_other=1.6,
+            psi_prm_etrc=1.8,
+            psi_prm_bath=1.7,
+            psi_prm_other=1.6,
         )
         
         self.assertAlmostEqual( 1.82*120.0/90.0, result[0]['length'], 5)
@@ -712,9 +712,9 @@ class TestLV1toLV2(unittest.TestCase):
         result = nb.get_earthfloor_perimeters(
             a_a=120.0,
             house_type='f_b',
-            psi_value_earthfloor_perimeter_entrance=1.8,
-            psi_value_earthfloor_perimeter_bathroom=1.7,
-            psi_value_earthfloor_perimeter_other=1.6,
+            psi_prm_etrc=1.8,
+            psi_prm_bath=1.7,
+            psi_prm_other=1.6,
         )
         
         self.assertAlmostEqual( 1.82*120.0/90.0, result[0]['length'], 5)
@@ -729,9 +729,9 @@ class TestLV1toLV2(unittest.TestCase):
         result = nb.get_earthfloor_perimeters(
             a_a=120.0,
             house_type='f_n',
-            psi_value_earthfloor_perimeter_entrance=1.8,
-            psi_value_earthfloor_perimeter_bathroom=1.7,
-            psi_value_earthfloor_perimeter_other=1.6,
+            psi_prm_etrc=1.8,
+            psi_prm_bath=1.7,
+            psi_prm_other=1.6,
         )
         
         self.assertAlmostEqual( 1.82*120.0/90.0, result[0]['length'], 5)
@@ -743,9 +743,9 @@ class TestLV1toLV2(unittest.TestCase):
         result = nb.get_earthfloor_perimeters(
             a_a=120.0,
             house_type='b',
-            psi_value_earthfloor_perimeter_entrance=1.8,
-            psi_value_earthfloor_perimeter_bathroom=1.7,
-            psi_value_earthfloor_perimeter_other=1.6,
+            psi_prm_etrc=1.8,
+            psi_prm_bath=1.7,
+            psi_prm_other=1.6,
         )
         
         self.assertAlmostEqual( 1.82*120.0/90.0, result[0]['length'], 5)
