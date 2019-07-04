@@ -23,3 +23,5 @@
 = 暖冷房負荷計算仕様書
 
 include::appendix_a.adoc[]
+
+include::appendix_b.adoc[]
