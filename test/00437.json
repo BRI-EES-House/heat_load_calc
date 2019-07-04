@@ -63,6 +63,7 @@
                         {
                             "u_value_input_method": "u_value_directly",
                             "u_vaue": 1,
+                            "eta_value_input_method": "eta_d_value_directly",
                             "eta_d_value": 1,
                             "glass_type": "single"
                         }
@@ -87,6 +88,7 @@
                         {
                             "u_value_input_method": "u_value_directly",
                             "u_vaue": 1,
+                            "eta_value_input_method": "eta_d_value_directly",
                             "eta_d_value": 1,
                             "glass_type": "single"
                         }
@@ -111,6 +113,7 @@
                         {
                             "u_value_input_method": "u_value_directly",
                             "u_vaue": 1,
+                            "eta_value_input_method": "eta_d_value_directly",
                             "eta_d_value": 1,
                             "glass_type": "single"
                         }
@@ -186,15 +189,15 @@
         "earthfloor_centers": [
             {
                 "name": "EFC1",
-                "area": 1
+                "area": 0
             },
             {
                 "name": "EFC2",
-                "area": 1
+                "area": 0
             },
             {
                 "name": "EFC3",
-                "area": 1
+                "area": 0
             }
         ]
     },
@@ -214,5 +217,5 @@
             "heat_exchanger_type": "cooling"
         }
     },
-    "target_key": "space_type"
+    "target_key": "area"
 }

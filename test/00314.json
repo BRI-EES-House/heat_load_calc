@@ -63,8 +63,9 @@
                         {
                             "u_value_input_method": "ug_value_and_flame_type",
                             "ug_value": -0.01,
-                            "flame_type": "wood_or_resin",
+                            "eta_value_input_method": "eta_d_value_directly",
                             "eta_d_value": 1,
+                            "flame_type": "wood_or_resin",
                             "glass_type": "single"
                         }
                     ],
@@ -88,8 +89,9 @@
                         {
                             "u_value_input_method": "ug_value_and_flame_type",
                             "ug_value": -0.01,
-                            "flame_type": "wood_or_resin",
+                            "eta_value_input_method": "eta_d_value_directly",
                             "eta_d_value": 1,
+                            "flame_type": "wood_or_resin",
                             "glass_type": "single"
                         }
                     ],
@@ -113,8 +115,9 @@
                         {
                             "u_value_input_method": "ug_value_and_flame_type",
                             "ug_value": -0.01,
-                            "flame_type": "wood_or_resin",
+                            "eta_value_input_method": "eta_d_value_directly",
                             "eta_d_value": 1,
+                            "flame_type": "wood_or_resin",
                             "glass_type": "single"
                         }
                     ],

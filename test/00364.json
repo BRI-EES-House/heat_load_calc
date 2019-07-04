@@ -63,6 +63,7 @@
                         {
                             "u_value_input_method": "u_value_directly",
                             "u_vaue": 1,
+                            "eta_value_input_method": "eta_d_value_directly",
                             "eta_d_value": 1,
                             "glass_type": "single"
                         }
@@ -72,7 +73,7 @@
                     "sunshade": {
                         "y1": 1,
                         "y2": 1,
-                        "z": 1
+                        "z": -0.01
                     }
                 }
             },
@@ -87,6 +88,7 @@
                         {
                             "u_value_input_method": "u_value_directly",
                             "u_vaue": 1,
+                            "eta_value_input_method": "eta_d_value_directly",
                             "eta_d_value": 1,
                             "glass_type": "single"
                         }
@@ -96,7 +98,7 @@
                     "sunshade": {
                         "y1": 1,
                         "y2": 1,
-                        "z": 1
+                        "z": -0.01
                     }
                 }
             },
@@ -111,6 +113,7 @@
                         {
                             "u_value_input_method": "u_value_directly",
                             "u_vaue": 1,
+                            "eta_value_input_method": "eta_d_value_directly",
                             "eta_d_value": 1,
                             "glass_type": "single"
                         }
@@ -120,7 +123,7 @@
                     "sunshade": {
                         "y1": 1,
                         "y2": 1,
-                        "z": 1
+                        "z": -0.01
                     }
                 }
             }
@@ -128,7 +131,7 @@
         "doors": [
             {
                 "name": "DR1",
-                "next_space": "air_conditioned",
+                "next_space": "outdoor",
                 "direction": "top",
                 "area": 1,
                 "spec": {
@@ -138,7 +141,7 @@
             },
             {
                 "name": "DR2",
-                "next_space": "air_conditioned",
+                "next_space": "outdoor",
                 "direction": "top",
                 "area": 1,
                 "spec": {
@@ -148,7 +151,7 @@
             },
             {
                 "name": "DR3",
-                "next_space": "air_conditioned",
+                "next_space": "outdoor",
                 "direction": "top",
                 "area": 1,
                 "spec": {
@@ -214,5 +217,5 @@
             "heat_exchanger_type": "cooling"
         }
     },
-    "target_key": "next_space"
+    "target_key": "z"
 }

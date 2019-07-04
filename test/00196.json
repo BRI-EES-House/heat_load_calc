@@ -150,6 +150,7 @@
                         {
                             "u_value_input_method": "u_value_directly",
                             "u_vaue": 1,
+                            "eta_value_input_method": "eta_d_value_directly",
                             "eta_d_value": 1,
                             "glass_type": "single"
                         }
@@ -174,6 +175,7 @@
                         {
                             "u_value_input_method": "u_value_directly",
                             "u_vaue": 1,
+                            "eta_value_input_method": "eta_d_value_directly",
                             "eta_d_value": 1,
                             "glass_type": "single"
                         }
@@ -198,6 +200,7 @@
                         {
                             "u_value_input_method": "u_value_directly",
                             "u_vaue": 1,
+                            "eta_value_input_method": "eta_d_value_directly",
                             "eta_d_value": 1,
                             "glass_type": "single"
                         }

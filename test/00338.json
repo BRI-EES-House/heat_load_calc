@@ -63,11 +63,12 @@
                         {
                             "u_value_input_method": "u_value_directly",
                             "u_vaue": 1,
+                            "eta_value_input_method": "eta_d_value_directly",
                             "eta_d_value": 1,
                             "glass_type": "single"
                         }
                     ],
-                    "attachment_type": "shoji",
+                    "attachment_type": "none",
                     "is_windbreak_room_attached": true,
                     "sunshade": {
                         "y1": 1,
@@ -87,11 +88,12 @@
                         {
                             "u_value_input_method": "u_value_directly",
                             "u_vaue": 1,
+                            "eta_value_input_method": "eta_d_value_directly",
                             "eta_d_value": 1,
                             "glass_type": "single"
                         }
                     ],
-                    "attachment_type": "shoji",
+                    "attachment_type": "none",
                     "is_windbreak_room_attached": true,
                     "sunshade": {
                         "y1": 1,
@@ -111,11 +113,12 @@
                         {
                             "u_value_input_method": "u_value_directly",
                             "u_vaue": 1,
+                            "eta_value_input_method": "eta_d_value_directly",
                             "eta_d_value": 1,
                             "glass_type": "single"
                         }
                     ],
-                    "attachment_type": "shoji",
+                    "attachment_type": "none",
                     "is_windbreak_room_attached": true,
                     "sunshade": {
                         "y1": 1,
@@ -214,5 +217,5 @@
             "heat_exchanger_type": "cooling"
         }
     },
-    "target_key": "attachment_type"
+    "target_key": "glass_type"
 }

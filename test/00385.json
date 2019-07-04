@@ -63,6 +63,7 @@
                         {
                             "u_value_input_method": "u_value_directly",
                             "u_vaue": 1,
+                            "eta_value_input_method": "eta_d_value_directly",
                             "eta_d_value": 1,
                             "glass_type": "single"
                         }
@@ -87,6 +88,7 @@
                         {
                             "u_value_input_method": "u_value_directly",
                             "u_vaue": 1,
+                            "eta_value_input_method": "eta_d_value_directly",
                             "eta_d_value": 1,
                             "glass_type": "single"
                         }
@@ -111,6 +113,7 @@
                         {
                             "u_value_input_method": "u_value_directly",
                             "u_vaue": 1,
+                            "eta_value_input_method": "eta_d_value_directly",
                             "eta_d_value": 1,
                             "glass_type": "single"
                         }
@@ -129,7 +132,7 @@
             {
                 "name": "DR1",
                 "next_space": "outdoor",
-                "direction": "top",
+                "direction": "nw",
                 "area": 1,
                 "spec": {
                     "u_vaue": 1,
@@ -139,7 +142,7 @@
             {
                 "name": "DR2",
                 "next_space": "outdoor",
-                "direction": "top",
+                "direction": "nw",
                 "area": 1,
                 "spec": {
                     "u_vaue": 1,
@@ -149,7 +152,7 @@
             {
                 "name": "DR3",
                 "next_space": "outdoor",
-                "direction": "top",
+                "direction": "nw",
                 "area": 1,
                 "spec": {
                     "u_vaue": 1,
@@ -214,5 +217,5 @@
             "heat_exchanger_type": "cooling"
         }
     },
-    "target_key": "area"
+    "target_key": "direction"
 }

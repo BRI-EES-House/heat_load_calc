@@ -63,6 +63,7 @@
                         {
                             "u_value_input_method": "u_value_directly",
                             "u_vaue": 1,
+                            "eta_value_input_method": "eta_d_value_directly",
                             "eta_d_value": 1,
                             "glass_type": "single"
                         }
@@ -87,6 +88,7 @@
                         {
                             "u_value_input_method": "u_value_directly",
                             "u_vaue": 1,
+                            "eta_value_input_method": "eta_d_value_directly",
                             "eta_d_value": 1,
                             "glass_type": "single"
                         }
@@ -111,6 +113,7 @@
                         {
                             "u_value_input_method": "u_value_directly",
                             "u_vaue": 1,
+                            "eta_value_input_method": "eta_d_value_directly",
                             "eta_d_value": 1,
                             "glass_type": "single"
                         }
@@ -128,7 +131,7 @@
         "doors": [
             {
                 "name": "DR1",
-                "next_space": "open_space",
+                "next_space": "outdoor",
                 "direction": "top",
                 "area": 1,
                 "spec": {
@@ -138,7 +141,7 @@
             },
             {
                 "name": "DR2",
-                "next_space": "open_space",
+                "next_space": "outdoor",
                 "direction": "top",
                 "area": 1,
                 "spec": {
@@ -148,7 +151,7 @@
             },
             {
                 "name": "DR3",
-                "next_space": "open_space",
+                "next_space": "outdoor",
                 "direction": "top",
                 "area": 1,
                 "spec": {
@@ -214,5 +217,5 @@
             "heat_exchanger_type": "cooling"
         }
     },
-    "target_key": "next_space"
+    "target_key": "y2"
 }

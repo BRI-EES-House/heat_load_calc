@@ -63,6 +63,7 @@
                         {
                             "u_value_input_method": "u_value_directly",
                             "u_vaue": 1,
+                            "eta_value_input_method": "eta_d_value_directly",
                             "eta_d_value": 1,
                             "glass_type": "single"
                         }
@@ -71,7 +72,7 @@
                     "is_windbreak_room_attached": true,
                     "sunshade": {
                         "y1": 1,
-                        "y2": -0.01,
+                        "y2": 1,
                         "z": 1
                     }
                 }
@@ -87,6 +88,7 @@
                         {
                             "u_value_input_method": "u_value_directly",
                             "u_vaue": 1,
+                            "eta_value_input_method": "eta_d_value_directly",
                             "eta_d_value": 1,
                             "glass_type": "single"
                         }
@@ -95,7 +97,7 @@
                     "is_windbreak_room_attached": true,
                     "sunshade": {
                         "y1": 1,
-                        "y2": -0.01,
+                        "y2": 1,
                         "z": 1
                     }
                 }
@@ -111,6 +113,7 @@
                         {
                             "u_value_input_method": "u_value_directly",
                             "u_vaue": 1,
+                            "eta_value_input_method": "eta_d_value_directly",
                             "eta_d_value": 1,
                             "glass_type": "single"
                         }
@@ -119,7 +122,7 @@
                     "is_windbreak_room_attached": true,
                     "sunshade": {
                         "y1": 1,
-                        "y2": -0.01,
+                        "y2": 1,
                         "z": 1
                     }
                 }
@@ -214,5 +217,5 @@
             "heat_exchanger_type": "cooling"
         }
     },
-    "target_key": "y2"
+    "target_key": "is_windbreak_room_attached"
 }

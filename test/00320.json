@@ -61,10 +61,11 @@
                     "window_type": "single",
                     "windows": [
                         {
-                            "u_value_input_method": "ug_value_and_flame_type",
-                            "ug_value": 1,
-                            "flame_type": "mixed",
-                            "eta_d_value": 1,
+                            "u_value_input_method": "u_value_directly",
+                            "u_vaue": 1,
+                            "eta_value_input_method": "eta_g_value_and_flame_type",
+                            "eta_g_value": 1,
+                            "flame_type": "wood_or_resin",
                             "glass_type": "single"
                         }
                     ],
@@ -86,10 +87,11 @@
                     "window_type": "single",
                     "windows": [
                         {
-                            "u_value_input_method": "ug_value_and_flame_type",
-                            "ug_value": 1,
-                            "flame_type": "mixed",
-                            "eta_d_value": 1,
+                            "u_value_input_method": "u_value_directly",
+                            "u_vaue": 1,
+                            "eta_value_input_method": "eta_g_value_and_flame_type",
+                            "eta_g_value": 1,
+                            "flame_type": "wood_or_resin",
                             "glass_type": "single"
                         }
                     ],
@@ -111,10 +113,11 @@
                     "window_type": "single",
                     "windows": [
                         {
-                            "u_value_input_method": "ug_value_and_flame_type",
-                            "ug_value": 1,
-                            "flame_type": "mixed",
-                            "eta_d_value": 1,
+                            "u_value_input_method": "u_value_directly",
+                            "u_vaue": 1,
+                            "eta_value_input_method": "eta_g_value_and_flame_type",
+                            "eta_g_value": 1,
+                            "flame_type": "wood_or_resin",
                             "glass_type": "single"
                         }
                     ],
@@ -217,5 +220,5 @@
             "heat_exchanger_type": "cooling"
         }
     },
-    "target_key": "flame_type"
+    "target_key": "eta_value_input_method"
 }

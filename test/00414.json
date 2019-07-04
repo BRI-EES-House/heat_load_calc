@@ -63,6 +63,7 @@
                         {
                             "u_value_input_method": "u_value_directly",
                             "u_vaue": 1,
+                            "eta_value_input_method": "eta_d_value_directly",
                             "eta_d_value": 1,
                             "glass_type": "single"
                         }
@@ -87,6 +88,7 @@
                         {
                             "u_value_input_method": "u_value_directly",
                             "u_vaue": 1,
+                            "eta_value_input_method": "eta_d_value_directly",
                             "eta_d_value": 1,
                             "glass_type": "single"
                         }
@@ -111,6 +113,7 @@
                         {
                             "u_value_input_method": "u_value_directly",
                             "u_vaue": 1,
+                            "eta_value_input_method": "eta_d_value_directly",
                             "eta_d_value": 1,
                             "glass_type": "single"
                         }
@@ -160,24 +163,24 @@
         "earthfloor_perimeters": [
             {
                 "name": "EFP1",
-                "next_space": "outdoor",
-                "length": 99.99,
+                "next_space": "closed_space",
+                "length": 1,
                 "spec": {
                     "psi_value": 1
                 }
             },
             {
                 "name": "EFP2",
-                "next_space": "outdoor",
-                "length": 99.99,
+                "next_space": "closed_space",
+                "length": 1,
                 "spec": {
                     "psi_value": 1
                 }
             },
             {
                 "name": "EFP3",
-                "next_space": "outdoor",
-                "length": 99.99,
+                "next_space": "closed_space",
+                "length": 1,
                 "spec": {
                     "psi_value": 1
                 }
@@ -214,5 +217,5 @@
             "heat_exchanger_type": "cooling"
         }
     },
-    "target_key": "length"
+    "target_key": "next_space"
 }

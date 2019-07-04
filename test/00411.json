@@ -63,6 +63,7 @@
                         {
                             "u_value_input_method": "u_value_directly",
                             "u_vaue": 1,
+                            "eta_value_input_method": "eta_d_value_directly",
                             "eta_d_value": 1,
                             "glass_type": "single"
                         }
@@ -87,6 +88,7 @@
                         {
                             "u_value_input_method": "u_value_directly",
                             "u_vaue": 1,
+                            "eta_value_input_method": "eta_d_value_directly",
                             "eta_d_value": 1,
                             "glass_type": "single"
                         }
@@ -111,6 +113,7 @@
                         {
                             "u_value_input_method": "u_value_directly",
                             "u_vaue": 1,
+                            "eta_value_input_method": "eta_d_value_directly",
                             "eta_d_value": 1,
                             "glass_type": "single"
                         }
@@ -133,7 +136,7 @@
                 "area": 1,
                 "spec": {
                     "u_vaue": 1,
-                    "is_sunshade_input": true
+                    "is_sunshade_input": "error_check"
                 }
             },
             {
@@ -143,7 +146,7 @@
                 "area": 1,
                 "spec": {
                     "u_vaue": 1,
-                    "is_sunshade_input": true
+                    "is_sunshade_input": "error_check"
                 }
             },
             {
@@ -153,7 +156,7 @@
                 "area": 1,
                 "spec": {
                     "u_vaue": 1,
-                    "is_sunshade_input": true
+                    "is_sunshade_input": "error_check"
                 }
             }
         ],
@@ -161,7 +164,7 @@
             {
                 "name": "EFP1",
                 "next_space": "outdoor",
-                "length": -0.01,
+                "length": 1,
                 "spec": {
                     "psi_value": 1
                 }
@@ -169,7 +172,7 @@
             {
                 "name": "EFP2",
                 "next_space": "outdoor",
-                "length": -0.01,
+                "length": 1,
                 "spec": {
                     "psi_value": 1
                 }
@@ -177,7 +180,7 @@
             {
                 "name": "EFP3",
                 "next_space": "outdoor",
-                "length": -0.01,
+                "length": 1,
                 "spec": {
                     "psi_value": 1
                 }
@@ -214,5 +217,5 @@
             "heat_exchanger_type": "cooling"
         }
     },
-    "target_key": "length"
+    "target_key": "is_sunshade_input"
 }

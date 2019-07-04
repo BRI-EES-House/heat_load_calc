@@ -63,8 +63,9 @@
                         {
                             "u_value_input_method": "u_value_directly",
                             "u_vaue": 1,
+                            "eta_value_input_method": "eta_d_value_directly",
                             "eta_d_value": 1,
-                            "glass_type": "single"
+                            "glass_type": "unknown"
                         }
                     ],
                     "attachment_type": "none",
@@ -87,8 +88,9 @@
                         {
                             "u_value_input_method": "u_value_directly",
                             "u_vaue": 1,
+                            "eta_value_input_method": "eta_d_value_directly",
                             "eta_d_value": 1,
-                            "glass_type": "single"
+                            "glass_type": "unknown"
                         }
                     ],
                     "attachment_type": "none",
@@ -111,8 +113,9 @@
                         {
                             "u_value_input_method": "u_value_directly",
                             "u_vaue": 1,
+                            "eta_value_input_method": "eta_d_value_directly",
                             "eta_d_value": 1,
-                            "glass_type": "single"
+                            "glass_type": "unknown"
                         }
                     ],
                     "attachment_type": "none",
@@ -214,5 +217,5 @@
             "heat_exchanger_type": "cooling"
         }
     },
-    "target_key": "is_windbreak_room_attached"
+    "target_key": "glass_type"
 }
