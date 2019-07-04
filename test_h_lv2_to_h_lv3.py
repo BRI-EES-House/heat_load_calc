@@ -51,9 +51,9 @@ class TestLV2toLV3(unittest.TestCase):
         result = nb.get_general_parts(d['envelope']['general_parts'], d['common'])
         
         self.assertEqual(3, len(result))
-        self.assertEqual('test_part_mr', result[0]['name'])
-        self.assertEqual('test_part_or', result[1]['name'])
-        self.assertEqual('test_part_nr', result[2]['name'])
+        self.assertEqual('test_part_main_occupant_room', result[0]['name'])
+        self.assertEqual('test_part_other_occupant_room', result[1]['name'])
+        self.assertEqual('test_part_non_occupant_room', result[2]['name'])
         self.assertEqual('wall', result[0]['general_part_type'])
         self.assertEqual('wall', result[1]['general_part_type'])
         self.assertEqual('wall', result[2]['general_part_type'])
