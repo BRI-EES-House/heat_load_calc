@@ -40,6 +40,7 @@ class TestLV2toLV3(unittest.TestCase):
                         'name' : 'test_part',
                         'general_part_type' : 'wall',
                         'next_space' : 'outdoor',
+                        'external_surface_type' : 'outdoor',
                         'direction' : 'top',
                         'area' : 67.8,
                         'spec' : 'something',
@@ -60,6 +61,9 @@ class TestLV2toLV3(unittest.TestCase):
         self.assertEqual('outdoor', result[0]['next_space'])
         self.assertEqual('outdoor', result[1]['next_space'])
         self.assertEqual('outdoor', result[2]['next_space'])
+        self.assertEqual('outdoor', result[0]['external_surface_type'])
+        self.assertEqual('outdoor', result[1]['external_surface_type'])
+        self.assertEqual('outdoor', result[2]['external_surface_type'])
         self.assertEqual('top', result[0]['direction'])
         self.assertEqual('top', result[1]['direction'])
         self.assertEqual('top', result[2]['direction'])
@@ -285,6 +289,7 @@ class TestLV2toLV3(unittest.TestCase):
                         'name' : 'test_part1',
                         'general_part_type' : 'ceiling',
                         'next_space' : 'outdoor',
+                        'external_surface_type' : 'outdoor',
                         'direction' : 'top',
                         'area': 67.8,
                         'spec' : 'something',
@@ -293,6 +298,7 @@ class TestLV2toLV3(unittest.TestCase):
                         'name': 'test_part2',
                         'general_part_type': 'ceiling',
                         'next_space' : 'outdoor',
+                        'external_surface_type' : 'outdoor',
                         'direction': 'top',
                         'area': 67.8,
                         'spec': 'something',
