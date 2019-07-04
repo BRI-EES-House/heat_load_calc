@@ -454,8 +454,8 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#_a_3_一般部位">A.3 一般部位</a></li>
 <li><a href="#_a_4_大部分がガラスで構成される窓等の開口部">A.4 大部分がガラスで構成される窓等の開口部</a>
 <ul class="sectlevel3">
-<li><a href="#_a_4_1_壁面からの日除けの張り出し寸法">A.4.1 壁面からの日除けの張り出し寸法</a></li>
-<li><a href="#_a_4_2_種類隣接空間の種類方位面積">A.4.2 種類・隣接空間の種類・方位・面積</a></li>
+<li><a href="#_a_4_1_部位の仕様">A.4.1 部位の仕様</a></li>
+<li><a href="#_a_4_2_壁面からの日除けの張り出し寸法">A.4.2 壁面からの日除けの張り出し寸法</a></li>
 </ul>
 </li>
 <li><a href="#_a_5_大部分がガラスで構成されないドア等の開口部">A.5 大部分がガラスで構成されないドア等の開口部</a></li>
@@ -478,16 +478,16 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="stemblock">
 <div class="content">
 \[\begin{equation}
-r_{size} = \frac{A_A}{A_{S,A}} \tag{1}
+r_{size} = \frac{A_{f,total}}{A_{s,f,total}} \tag{1}
 \end{equation}\]
 </div>
 </div>
 <div class="paragraph">
 <p>ここで、<br>
 　\(r_{size}\)：規模係数<br>
-　\(A_{A}\)：床面積の合計, m<sup>2</sup><br>
-　\(A_{S,A}\)：簡易モデル住戸の床面積の合計, m<sup>2</sup><br>
-である。ここで、簡易モデル住戸の床面積の合計\(A_{A}\)は、90.0(m<sup>2</sup>)とする。</p>
+　\(A_{f,total}\)：床面積の合計, m<sup>2</sup><br>
+　\(A_{s,f,total}\)：簡易モデル住戸の床面積の合計, m<sup>2</sup><br>
+である。ここで、簡易モデル住戸の床面積の合計\(A_{s,f,total}\)は、90.0(m<sup>2</sup>)とする。</p>
 </div>
 </div>
 <div class="sect2">
@@ -549,7 +549,7 @@ r_{size} = \frac{A_A}{A_{S,A}} \tag{1}
 <td class="tableblock halign-center valign-middle"><p class="tableblock">50.85</p></td>
 <td class="tableblock halign-center valign-middle"><p class="tableblock">50.85</p></td>
 <td class="tableblock halign-center valign-middle"><p class="tableblock">50.85</p></td>
-<td class="tableblock halign-center valign-middle"><p class="tableblock">\(U_{roof}\)</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">\(U_{s,roof}\)</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-center valign-middle"><p class="tableblock">2</p></td>
@@ -560,7 +560,7 @@ r_{size} = \frac{A_A}{A_{S,A}} \tag{1}
 <td class="tableblock halign-center valign-middle"><p class="tableblock">30.47</p></td>
 <td class="tableblock halign-center valign-middle"><p class="tableblock">30.47</p></td>
 <td class="tableblock halign-center valign-middle"><p class="tableblock">30.47</p></td>
-<td class="tableblock halign-center valign-middle"><p class="tableblock">\(U_{wall}\)</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">\(U_{s,wall}\)</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-center valign-middle"><p class="tableblock">3</p></td>
@@ -571,7 +571,7 @@ r_{size} = \frac{A_A}{A_{S,A}} \tag{1}
 <td class="tableblock halign-center valign-middle"><p class="tableblock">22.37</p></td>
 <td class="tableblock halign-center valign-middle"><p class="tableblock">22.37</p></td>
 <td class="tableblock halign-center valign-middle"><p class="tableblock">22.37</p></td>
-<td class="tableblock halign-center valign-middle"><p class="tableblock">\(U_{wall}\)</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">\(U_{s,wall}\)</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-center valign-middle"><p class="tableblock">4</p></td>
@@ -582,7 +582,7 @@ r_{size} = \frac{A_A}{A_{S,A}} \tag{1}
 <td class="tableblock halign-center valign-middle"><p class="tableblock">47.92</p></td>
 <td class="tableblock halign-center valign-middle"><p class="tableblock">47.92</p></td>
 <td class="tableblock halign-center valign-middle"><p class="tableblock">47.92</p></td>
-<td class="tableblock halign-center valign-middle"><p class="tableblock">\(U_{wall}\)</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">\(U_{s,wall}\)</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-center valign-middle"><p class="tableblock">5</p></td>
@@ -593,7 +593,7 @@ r_{size} = \frac{A_A}{A_{S,A}} \tag{1}
 <td class="tableblock halign-center valign-middle"><p class="tableblock">22.28</p></td>
 <td class="tableblock halign-center valign-middle"><p class="tableblock">22.28</p></td>
 <td class="tableblock halign-center valign-middle"><p class="tableblock">22.28</p></td>
-<td class="tableblock halign-center valign-middle"><p class="tableblock">\(U_{wall}\)</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">\(U_{s,wall}\)</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-center valign-middle"><p class="tableblock">6</p></td>
@@ -604,7 +604,7 @@ r_{size} = \frac{A_A}{A_{S,A}} \tag{1}
 <td class="tableblock halign-center valign-middle"><p class="tableblock">45.05</p></td>
 <td class="tableblock halign-center valign-middle"><p class="tableblock">48.36</p></td>
 <td class="tableblock halign-center valign-middle"><p class="tableblock">0.00</p></td>
-<td class="tableblock halign-center valign-middle"><p class="tableblock">\(U_{floor,other}\)</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">\(U_{s,floor,other}\)</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-center valign-middle"><p class="tableblock">7</p></td>
@@ -615,7 +615,7 @@ r_{size} = \frac{A_A}{A_{S,A}} \tag{1}
 <td class="tableblock halign-center valign-middle"><p class="tableblock">0.00</p></td>
 <td class="tableblock halign-center valign-middle"><p class="tableblock">0.00</p></td>
 <td class="tableblock halign-center valign-middle"><p class="tableblock">0.00</p></td>
-<td class="tableblock halign-center valign-middle"><p class="tableblock">\(U_{floor,bath}\)</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">\(U_{s,floor,bath}\)</p></td>
 </tr>
 </tbody>
 </table>
@@ -627,126 +627,199 @@ r_{size} = \frac{A_A}{A_{S,A}} \tag{1}
 </div>
 <div class="paragraph">
 <p>ここで、<br>
-　\(U_{roof}\)：屋根又は天井の熱貫流率, W/m<sup>2</sup>K<br>
-　\(U_{wall}\)：壁の熱貫流率, W/m<sup>2</sup>K<br>
-　\(U_{floor,other}\)：その他の床の熱貫流率, W/m<sup>2</sup>K<br>
-　\(U_{floor,bath}\)：浴室の床の熱貫流率, W/m<sup>2</sup>K<br>
+　\(U_{s,roof}\)：簡易モデル住戸における屋根又は天井の熱貫流率, W/m<sup>2</sup>K<br>
+　\(U_{s,wall}\)：簡易モデル住戸における壁の熱貫流率, W/m<sup>2</sup>K<br>
+　\(U_{s,floor,other}\)：簡易モデル住戸におけるその他の床の熱貫流率, W/m<sup>2</sup>K<br>
+　\(U_{s,floor,bath}\)：簡易モデル住戸における浴室の床の熱貫流率, W/m<sup>2</sup>K<br>
 である。</p>
 </div>
 </div>
 <div class="sect2">
 <h3 id="_a_4_大部分がガラスで構成される窓等の開口部"><a class="link" href="#_a_4_大部分がガラスで構成される窓等の開口部">A.4 大部分がガラスで構成される窓等の開口部</a></h3>
 <div class="sect3">
-<h4 id="_a_4_1_壁面からの日除けの張り出し寸法"><a class="link" href="#_a_4_1_壁面からの日除けの張り出し寸法">A.4.1 壁面からの日除けの張り出し寸法</a></h4>
+<h4 id="_a_4_1_部位の仕様"><a class="link" href="#_a_4_1_部位の仕様">A.4.1 部位の仕様</a></h4>
 <div class="paragraph">
-<p>暖房期及び冷房期の壁面から日除けの張り出し寸法（ひさし等のオーバーハング型日除けの出寸法は壁表面から先端までの寸法とする）\(z_H\)・\(z_C\)は、暖房期及び冷房期の取得日射熱補正係数\(f_H\)・\(f_C\)を指定する場合は次の(1)により、指定しない場合は(2)による。</p>
-</div>
-<div class="sect4">
-<h5 id="_1_取得日射熱補正係数を指定する場合"><a class="link" href="#_1_取得日射熱補正係数を指定する場合">(1) 取得日射熱補正係数を指定する場合</a></h5>
-<div class="paragraph">
-<p>\(\frac{f_H}{0.01} - a_H \le 0\)の場合</p>
-</div>
-<div class="stemblock">
-<div class="content">
-\[\begin{equation}
-z_H = 5.0 \tag{2a}
-\end{equation}\]
-</div>
+<p>大部分がガラスで構成される窓等の開口部の隣接空間の種類・方位・熱貫流率・垂直面日射熱取得率は表2による。面積は表2の値に規模係数を乗じた値とする。</p>
 </div>
 <div class="paragraph">
-<p>\(\frac{f_H}{0.01} - a_H \gt 0\)の場合</p>
+<p>表2 大部分がガラスで構成される窓等の開口部の種類・隣接空間の種類・方位・面積</p>
 </div>
-<div class="stemblock">
-<div class="content">
-\[\begin{equation}
-z_H= \left\{ \begin{array}{ll}
-  b_H ( c_H y_1 + y_2 ) / ( \frac{f_H }{0.01} - a_H ) &amp; ( f_H \le 0.72 ) \\
-  b_H ( c_H y_1 + y_2 ) / ( \frac{0.72}{0.01} - a_H ) &amp; ( f_H \gt 0.72 )
-\end{array} \right.
-\tag{2b}
-\end{equation}\]
-</div>
-</div>
+<table class="tableblock frame-all grid-all stripes-even stretch">
+<colgroup>
+<col style="width: 5.7142%;">
+<col style="width: 20%;">
+<col style="width: 11.4285%;">
+<col style="width: 14.2857%;">
+<col style="width: 22.8571%;">
+<col style="width: 25.7145%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">番号</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">隣接空間の種類</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">方位<sup>※1</sup></p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">面積 (m<sup>2</sup>)</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">熱貫流率(W/m<sup>2</sup>K)</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">垂直面日射熱取得率</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">1</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">外気</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">0度</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">22.69</p></td>
+<td class="tableblock halign-center valign-middle" rowspan="4"><p class="tableblock">\(U_{s,window}\)</p></td>
+<td class="tableblock halign-center valign-middle" rowspan="4"><p class="tableblock">\(\eta_{s,d}\)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">2</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">外気</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">90度</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">2.38</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">3</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">外気</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">180度</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">3.63</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">4</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">外気</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">270度</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">4.37</p></td>
+</tr>
+</tbody>
+</table>
 <div class="paragraph">
-<p>ただし、\(z_H\)が5.0を超える場合は5.0とする。</p>
-</div>
-<div class="paragraph">
-<p>\(\frac{f_C}{0.01} - a_C \le 0\)の場合</p>
-</div>
-<div class="stemblock">
-<div class="content">
-\[\begin{equation}
-z_C = \left\{ \begin{array}{ll}
-  b_C ( c_C y_1 + y_2 ) / ( \frac{f_C }{0.01} - a_C ) &amp; ( f_C \le 0.93 ) \\
-  b_C ( c_C y_1 + y_2 ) / ( \frac{0.93}{0.01} - a_C ) &amp; ( f_C \gt 0.93 )
-\end{array} \right.
-\tag{2c}
-\end{equation}\]
-</div>
-</div>
-<div class="paragraph">
-<p>\(\frac{f_C}{0.01} - a_C \gt 0\)の場合</p>
-</div>
-<div class="stemblock">
-<div class="content">
-\[\begin{equation}
-z_C = 5.0	\tag{2d}
-\end{equation}\]
-</div>
-</div>
-</div>
-<div class="sect4">
-<h5 id="_2_取得日射熱補正係数を指定しない場合"><a class="link" href="#_2_取得日射熱補正係数を指定しない場合">(2) 取得日射熱補正係数を指定しない場合</a></h5>
-<div class="stemblock">
-<div class="content">
-\[\begin{equation}
-z_H = \frac{ ( y_1 + y_2 ) }{ l_{H,2} } \tag{3a}
-\end{equation}\]
-</div>
-</div>
-<div class="stemblock">
-<div class="content">
-\[\begin{equation}
-z_C = 0 \tag{3b}
-\end{equation}\]
-</div>
+<p>※1 主開口方位からの時計回りの角度（単位：度）で表す。ただし、「上面」「下面」を除く。</p>
 </div>
 <div class="paragraph">
 <p>ここで、<br>
-　\(z_H\)：暖房期の壁面から日除けの張り出し寸法, m<br>
-　\(z_C\)：冷房期の壁面から日除けの張り出し寸法, m<br>
-　\(f_H\)：暖房期の取得日射熱補正係数<br>
-　\(f_C\)：冷房期の取得日射熱補正係数<br>
-　\(y_1\)：日除け下端から窓上端までの垂直方向の距離, m<br>
-　\(y_2\)：窓の開口高さ寸法, m<br>
+　\(U_{s,window}\)：簡易モデル住戸における窓の熱貫流率, W/m<sup>2</sup>K<br>
+　\(\eta_{s,d}\)：簡易モデル住戸における垂直面日射熱取得率<br>
 である。また、</p>
 </div>
 <div class="stemblock">
 <div class="content">
 \[\begin{equation}
-y_1 = 0	\tag{4a}
-\end{equation}\]
-</div>
-</div>
-<div class="stemblock">
-<div class="content">
-\[\begin{equation}
-y_2 = 1.1	\tag{4b}
-\end{equation}\]
-</div>
-</div>
-<div class="stemblock">
-<div class="content">
-\[\begin{equation}
-l_{H,2} = \frac{1}{0.3} \tag{4c}
+\eta_{s,d} = \frac{ ( \eta_{s,d,h} + \eta_{s,d,c} ) }{2}	\tag{2}
 \end{equation}\]
 </div>
 </div>
 <div class="paragraph">
-<p>とし、式(2)における係数\(a_H\)・\(b_H\)・\(c_H\)及び\(a_C\)・\(b_C\)・\(c_C\)は、暖房期・冷房期の別・地域の区分・方位に応じて表2(a)及び表2(b)に与えられる。</p>
+<p>である。ここで、<br>
+　\(\eta_{s,d,h}\)：簡易モデル住戸における暖房期の垂直面日射熱取得率<br>
+　\(\eta_{s,d,c}\)：簡易モデル住戸における冷房期の垂直面日射熱取得率<br>
+である。</p>
 </div>
 <div class="paragraph">
-<p>表2(a) 式(2a)における係数\(a_H\)・\(b_H\)・\(c_H\)</p>
+<p>また、全ての大部分がガラスで構成される窓等の開口部において、日除け下端から窓上端までの垂直方向の距離\(y_1\)は0mとし、窓の開口高さ寸法\(y_2\)は1.1mとする。壁面から日除けの張り出し寸法\(z\)は次項A.4.2に定める値とする。</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_a_4_2_壁面からの日除けの張り出し寸法"><a class="link" href="#_a_4_2_壁面からの日除けの張り出し寸法">A.4.2 壁面からの日除けの張り出し寸法</a></h4>
+<div class="paragraph">
+<p>壁面から日除けの張り出し寸法\(z\)は式(3)による。<br>
+（この式は、もう少しきちんと考察する必要がある。（特に（3a）））</p>
+</div>
+<div class="paragraph">
+<p>1地域～7地域</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{equation}
+z = \frac{z_h + z_c }{ 2 }	\tag{3a}
+\end{equation}\]
+</div>
+</div>
+<div class="paragraph">
+<p>8地域</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{equation}
+z = z_c \tag{3b}
+\end{equation}\]
+</div>
+</div>
+<div class="paragraph">
+<p>ここで、<br>
+　\(z\)：壁面から日除けの張り出し寸法, m<br>
+　\(z_h\)：暖房期の壁面から日除けの張り出し寸法, m<br>
+　\(z_c\)：冷房期の壁面から日除けの張り出し寸法, m<br>
+である。</p>
+</div>
+<div class="paragraph">
+<p>暖房期及び冷房期の壁面から日除けの張り出し寸法\(z_h\)・\(z_c\)は、暖房期及び冷房期の取得日射熱補正係数を指定する場合は次の(1)により、指定しない場合は(2)による。</p>
+</div>
+<div class="sect4">
+<h5 id="_1_取得日射熱補正係数を指定する場合"><a class="link" href="#_1_取得日射熱補正係数を指定する場合">(1) 取得日射熱補正係数を指定する場合</a></h5>
+<div class="paragraph">
+<p>\(\frac{f_{s,h}}{0.01} - a_h \le 0\)の場合</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{equation}
+z_h = 5.0 \tag{4a}
+\end{equation}\]
+</div>
+</div>
+<div class="paragraph">
+<p>\(\frac{f_{s,h}}{0.01} - a_h \gt 0\)の場合</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{equation}
+z_h= \left\{ \begin{array}{ll}
+  b_h ( c_h y_1 + y_2 ) / ( \frac{f_{s,h} }{0.01} - a_h ) &amp; ( f_{s,h} \le 0.72 ) \\
+  b_h ( c_h y_1 + y_2 ) / ( \frac{0.72}{0.01} - a_h ) &amp; ( f_{s,h} \gt 0.72 )
+\end{array} \right.
+\tag{4b}
+\end{equation}\]
+</div>
+</div>
+<div class="paragraph">
+<p>ただし、\(z_h\)が5.0を超える場合は\(z_h=5.0\)とする。</p>
+</div>
+<div class="paragraph">
+<p>\(\frac{f_{s,c}}{0.01} - a_c \le 0\)の場合</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{equation}
+z_c = 5.0	\tag{4c}
+\end{equation}\]
+</div>
+</div>
+<div class="paragraph">
+<p>\(\frac{f_{s,c}}{0.01} - a_c \gt 0\)の場合</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{equation}
+z_c = \left\{ \begin{array}{ll}
+  b_c ( c_c y_1 + y_2 ) / ( \frac{f_{s,c} }{0.01} - a_c ) &amp; ( f_{s,c} \le 0.93 ) \\
+  b_c ( c_c y_1 + y_2 ) / ( \frac{0.93}{0.01} - a_c ) &amp; ( f_{s,c} \gt 0.93 )
+\end{array} \right.
+\tag{4d}
+\end{equation}\]
+</div>
+</div>
+<div class="paragraph">
+<p>ここで、<br>
+　\(z_h\)：暖房期の壁面から日除けの張り出し寸法, m<br>
+　\(z_c\)：冷房期の壁面から日除けの張り出し寸法, m<br>
+　\(y_1\)：日除け下端から窓上端までの垂直方向の距離(\(=0.0\)), m<br>
+　\(y_2\)：窓の開口高さ寸法(\(=1.1\)), m<br>
+　\(f_{s,h}\)：簡易モデル住戸における暖房期の取得日射熱補正係数<br>
+　\(f_{s,c}\)：簡易モデル住戸における冷房期の取得日射熱補正係数<br>
+である。</p>
+</div>
+<div class="paragraph">
+<p>式(4)における係数\(a_h\)・\(b_h\)・\(c_h\)及び\(a_c\)・\(b_c\)・\(c_c\)は、暖房期・冷房期の別・地域の区分・方位に応じて表3(a)及び表3(b)に与えられる。</p>
+</div>
+<div class="paragraph">
+<p>表3(a)  式(4)における係数\(a_h\)・\(b_h\)・\(c_h\)</p>
 </div>
 <table class="tableblock frame-all grid-all stripes-even stretch">
 <colgroup>
@@ -760,9 +833,9 @@ l_{H,2} = \frac{1}{0.3} \tag{4c}
 <tr>
 <td class="tableblock halign-center valign-middle"><p class="tableblock">地域の区分</p></td>
 <td class="tableblock halign-center valign-middle"><p class="tableblock">方位</p></td>
-<td class="tableblock halign-center valign-middle"><p class="tableblock">\(a_H\)</p></td>
-<td class="tableblock halign-center valign-middle"><p class="tableblock">\(b_H\)</p></td>
-<td class="tableblock halign-center valign-middle"><p class="tableblock">\(c_H\)</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">\(a_h\)</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">\(b_h\)</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">\(c_h\)</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-center valign-middle" rowspan="2"><p class="tableblock">1～7地域</p></td>
@@ -780,7 +853,7 @@ l_{H,2} = \frac{1}{0.3} \tag{4c}
 </tbody>
 </table>
 <div class="paragraph">
-<p>表2(b) 式(2b)における係数\(a_C\)・\(b_C\)・\(c_C\)</p>
+<p>表3(b)  式(4)における係数\(a_c\)・\(b_c\)・\(c_c\)</p>
 </div>
 <table class="tableblock frame-all grid-all stripes-even stretch">
 <colgroup>
@@ -794,9 +867,9 @@ l_{H,2} = \frac{1}{0.3} \tag{4c}
 <tr>
 <td class="tableblock halign-center valign-middle"><p class="tableblock">地域の区分</p></td>
 <td class="tableblock halign-center valign-middle"><p class="tableblock">方位</p></td>
-<td class="tableblock halign-center valign-middle"><p class="tableblock">\(a_C\)</p></td>
-<td class="tableblock halign-center valign-middle"><p class="tableblock">\(b_C\)</p></td>
-<td class="tableblock halign-center valign-middle"><p class="tableblock">\(c_C\)</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">\(a_c\)</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">\(b_c\)</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">\(c_c\)</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-center valign-middle" rowspan="2"><p class="tableblock">1～7地域</p></td>
@@ -826,120 +899,41 @@ l_{H,2} = \frac{1}{0.3} \tag{4c}
 </tr>
 </tbody>
 </table>
-<div class="paragraph">
-<p>壁面から日除けの張り出し寸法zは式(5)による。<br>
-（この式は、もう少しきちんと考察する必要がある。（特に（5a）））</p>
 </div>
-<div class="paragraph">
-<p>1地域～7地域</p>
-</div>
+<div class="sect4">
+<h5 id="_2_取得日射熱補正係数を指定しない場合"><a class="link" href="#_2_取得日射熱補正係数を指定しない場合">(2) 取得日射熱補正係数を指定しない場合</a></h5>
 <div class="stemblock">
 <div class="content">
 \[\begin{equation}
-z = \frac{z_H + z_C }{ 2 }	\tag{5a}
+z_h = \frac{ ( y_1 + y_2 ) }{ l_{h,2} } \tag{5a}
 \end{equation}\]
 </div>
 </div>
-<div class="paragraph">
-<p>8地域</p>
-</div>
 <div class="stemblock">
 <div class="content">
 \[\begin{equation}
-z = z_C \tag{5b}
+z_c = 0 \tag{5b}
 \end{equation}\]
 </div>
 </div>
 <div class="paragraph">
 <p>ここで、<br>
-　\(z\)：壁面から日除けの張り出し寸法, m<br>
-である。</p>
-</div>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_a_4_2_種類隣接空間の種類方位面積"><a class="link" href="#_a_4_2_種類隣接空間の種類方位面積">A.4.2 種類・隣接空間の種類・方位・面積</a></h4>
-<div class="paragraph">
-<p>大部分がガラスで構成される窓等の開口部の隣接空間の種類・方位・熱貫流率・垂直面日射熱取得率は表3による。面積は表3の値に規模係数を乗じた値とする。</p>
-</div>
-<div class="paragraph">
-<p>表3 大部分がガラスで構成される窓等の開口部の種類・隣接空間の種類・方位・面積</p>
-</div>
-<table class="tableblock frame-all grid-all stripes-even stretch">
-<colgroup>
-<col style="width: 14.2857%;">
-<col style="width: 14.2857%;">
-<col style="width: 14.2857%;">
-<col style="width: 14.2857%;">
-<col style="width: 14.2857%;">
-<col style="width: 14.2857%;">
-<col style="width: 14.2858%;">
-</colgroup>
-<tbody>
-<tr>
-<td class="tableblock halign-center valign-middle" rowspan="2"><p class="tableblock">番号</p></td>
-<td class="tableblock halign-center valign-middle" rowspan="2"><p class="tableblock">隣接空間の<br>
-種類</p></td>
-<td class="tableblock halign-center valign-middle" rowspan="2"><p class="tableblock">方位<sup>※1</sup></p></td>
-<td class="tableblock halign-center valign-middle" rowspan="2"><p class="tableblock">面積 (m<sup>2</sup>)</p></td>
-<td class="tableblock halign-center valign-middle" rowspan="2"><p class="tableblock">熱貫流率<br>
-(W/m<sup>2</sup>K)</p></td>
-<td class="tableblock halign-center valign-middle" colspan="2"><p class="tableblock">垂直面日射熱取得率</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-center valign-middle"><p class="tableblock">暖房期</p></td>
-<td class="tableblock halign-center valign-middle"><p class="tableblock">冷房期</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-center valign-middle"><p class="tableblock">1</p></td>
-<td class="tableblock halign-center valign-middle"><p class="tableblock">外気</p></td>
-<td class="tableblock halign-center valign-middle"><p class="tableblock">0度</p></td>
-<td class="tableblock halign-center valign-middle"><p class="tableblock">22.69</p></td>
-<td class="tableblock halign-center valign-middle" rowspan="4"><p class="tableblock">\(U_{window}\)</p></td>
-<td class="tableblock halign-center valign-middle" rowspan="4"><p class="tableblock">\(\eta_{d,H}\)</p></td>
-<td class="tableblock halign-center valign-middle" rowspan="4"><p class="tableblock">\(\eta_{d,C}\)</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-center valign-middle"><p class="tableblock">2</p></td>
-<td class="tableblock halign-center valign-middle"><p class="tableblock">外気</p></td>
-<td class="tableblock halign-center valign-middle"><p class="tableblock">90度</p></td>
-<td class="tableblock halign-center valign-middle"><p class="tableblock">2.38</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-center valign-middle"><p class="tableblock">3</p></td>
-<td class="tableblock halign-center valign-middle"><p class="tableblock">外気</p></td>
-<td class="tableblock halign-center valign-middle"><p class="tableblock">180度</p></td>
-<td class="tableblock halign-center valign-middle"><p class="tableblock">3.63</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-center valign-middle"><p class="tableblock">4</p></td>
-<td class="tableblock halign-center valign-middle"><p class="tableblock">外気</p></td>
-<td class="tableblock halign-center valign-middle"><p class="tableblock">270度</p></td>
-<td class="tableblock halign-center valign-middle"><p class="tableblock">4.37</p></td>
-</tr>
-</tbody>
-</table>
-<div class="paragraph">
-<p>※1 主開口方位からの時計回りの角度（単位：度）で表す。ただし、「上面」「下面」を除く。</p>
-</div>
-<div class="paragraph">
-<p>ここで、<br>
-　\(U_{window}\)：窓の熱貫流率, W/m<sup>2</sup>K<br>
-　\(\eta_{d,H}\)：暖房期の垂直面日射熱取得率<br>
-　\(\eta_{d,C}\)：冷房期の垂直面日射熱取得率<br>
+　\(z_h\)：暖房期の壁面から日除けの張り出し寸法, m<br>
+　\(z_c\)：冷房期の壁面から日除けの張り出し寸法, m<br>
+　\(y_1\)：日除け下端から窓上端までの垂直方向の距離(\(=0.0\)), m<br>
+　\(y_2\)：窓の開口高さ寸法(\(=1.1\)), m<br>
 である。また、</p>
 </div>
 <div class="stemblock">
 <div class="content">
 \[\begin{equation}
-\eta_d = \frac{ ( \eta_{d,H} + \eta_{d,C} ) }{2}	\tag{6}
+l_{h,2} = \frac{1}{0.3} \tag{6}
 \end{equation}\]
 </div>
 </div>
 <div class="paragraph">
-<p>である。ここで、<br>
-　\(\eta_d\)：垂直面日射熱取得率<br>
-である。</p>
+<p>とする。</p>
+</div>
 </div>
 </div>
 </div>
@@ -973,7 +967,7 @@ z = z_C \tag{5b}
 <td class="tableblock halign-center valign-middle"><p class="tableblock">外気</p></td>
 <td class="tableblock halign-center valign-middle"><p class="tableblock">90度</p></td>
 <td class="tableblock halign-center valign-middle"><p class="tableblock">1.89</p></td>
-<td class="tableblock halign-center valign-middle" rowspan="2"><p class="tableblock">\(U_{door}\)</p></td>
+<td class="tableblock halign-center valign-middle" rowspan="2"><p class="tableblock">\(U_{s,door}\)</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-center valign-middle"><p class="tableblock">2</p></td>
@@ -988,7 +982,7 @@ z = z_C \tag{5b}
 </div>
 <div class="paragraph">
 <p>ここで、<br>
-　\(U_{door}\)：ドアの熱貫流率, W/m<sup>2</sup>K<br>
+　\(U_{s,door}\)：簡易モデル住戸におけるドアの熱貫流率, W/m<sup>2</sup>K<br>
 である。</p>
 </div>
 </div>
@@ -1034,7 +1028,7 @@ z = z_C \tag{5b}
 <td class="tableblock halign-center valign-middle"><p class="tableblock">外気</p></td>
 <td class="tableblock halign-center valign-middle"><p class="tableblock">90度</p></td>
 <td class="tableblock halign-center valign-middle" colspan="4"><p class="tableblock">1.82</p></td>
-<td class="tableblock halign-center valign-middle" rowspan="3"><p class="tableblock">\(ψ_{prm,etrc}\)</p></td>
+<td class="tableblock halign-center valign-middle" rowspan="3"><p class="tableblock">\(ψ_{s,prm,etrc}\)</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-center valign-middle"><p class="tableblock">2</p></td>
@@ -1059,7 +1053,7 @@ z = z_C \tag{5b}
 <td class="tableblock halign-center valign-middle"><p class="tableblock">1.82</p></td>
 <td class="tableblock halign-center valign-middle"><p class="tableblock">0.0</p></td>
 <td class="tableblock halign-center valign-middle"><p class="tableblock">1.82</p></td>
-<td class="tableblock halign-center valign-middle" rowspan="3"><p class="tableblock">\(ψ_{prm,bath}\)</p></td>
+<td class="tableblock halign-center valign-middle" rowspan="3"><p class="tableblock">\(ψ_{s,prm,bath}\)</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-center valign-middle"><p class="tableblock">5</p></td>
@@ -1087,7 +1081,7 @@ z = z_C \tag{5b}
 <td class="tableblock halign-center valign-middle"><p class="tableblock">0.0</p></td>
 <td class="tableblock halign-center valign-middle"><p class="tableblock">0.0</p></td>
 <td class="tableblock halign-center valign-middle"><p class="tableblock">10.61</p></td>
-<td class="tableblock halign-center valign-middle" rowspan="3"><p class="tableblock">\(ψ_{prm,other}\)</p></td>
+<td class="tableblock halign-center valign-middle" rowspan="3"><p class="tableblock">\(ψ_{s,prm,other}\)</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-center valign-middle"><p class="tableblock">8</p></td>
@@ -1117,9 +1111,9 @@ z = z_C \tag{5b}
 </div>
 <div class="paragraph">
 <p>ここで、<br>
-　\(ψ_{prm,etrc}\)：玄関等の土間床等の外周部の線熱貫流率, W/mK<br>
-　\(ψ_{prm,bath}\)：浴室の土間床等の外周部の線熱貫流率, W/mK<br>
-　\(ψ_{prm,other}\)：その他の土間床等の外周部の線熱貫流率, W/mK<br>
+　\(ψ_{s,prm,etrc}\)：簡易モデル住戸における玄関等の土間床等の外周部の線熱貫流率, W/mK<br>
+　\(ψ_{s,prm,bath}\)：簡易モデル住戸における浴室の土間床等の外周部の線熱貫流率, W/mK<br>
+　\(ψ_{s,prm,other}\)：簡易モデル住戸におけるその他の土間床等の外周部の線熱貫流率, W/mK<br>
 である。</p>
 </div>
 </div>
