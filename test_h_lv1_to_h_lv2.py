@@ -760,7 +760,7 @@ class TestLV1toLV2(unittest.TestCase):
     def test_get_earthfloor_centers_f_f(self):
         
         result = nb.get_earthfloor_centers(
-            total_floor_area = 90.0,
+            a_a = 90.0,
             house_type = 'f_f',
         )
         
@@ -776,7 +776,7 @@ class TestLV1toLV2(unittest.TestCase):
     def test_get_earthfloor_centers_f_b(self):
         
         result = nb.get_earthfloor_centers(
-            total_floor_area = 90.0,
+            a_a = 90.0,
             house_type = 'f_b',
         )
         
@@ -794,7 +794,7 @@ class TestLV1toLV2(unittest.TestCase):
     def test_get_earthfloor_centers_f_n(self):
         
         result = nb.get_earthfloor_centers(
-            total_floor_area = 90.0,
+            a_a = 90.0,
             house_type = 'f_n',
         )
         
@@ -810,7 +810,7 @@ class TestLV1toLV2(unittest.TestCase):
     def test_get_earthfloor_centers_b(self):
         
         result = nb.get_earthfloor_centers(
-            total_floor_area = 90.0,
+            a_a = 90.0,
             house_type = 'b',
         )
         
@@ -835,7 +835,7 @@ class TestLV1toLV2(unittest.TestCase):
     def test_earthfloor_centers_area_conversion_test_b(self):
 
         result = nb.get_earthfloor_centers(
-            total_floor_area = 120.0,
+            a_a = 120.0,
             house_type = 'b',
         )
         
