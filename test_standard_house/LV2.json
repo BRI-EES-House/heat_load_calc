@@ -6,41 +6,41 @@
         "total_floor_area": 120.08
     },
     "envelope": {
-        "input_method": 3,
+        "input_method": "detail_without_room_usage",
         "general_parts": [
             {
                 "name": "GP1",
-                "general_part_type": 3,
-                "next_space": 1,
-                "external_surface_type": 2,
-                "direction": 2,
+                "general_part_type": "wall",
+                "next_space": "outdoor",
+                "external_surface_type": "not_outdoor",
+                "direction": "n",
                 "area": 48.05,
                 "spec": {
-                    "structure": 1,
-                    "u_value_input_method_wood": 3,
-                    "wall_construction_method": 1,
+                    "part_type": "wood",
+                    "u_value_input_method_wood": "area_ratio_method",
+                    "wall_construction_method": "frame_beam",
                     "parts": [
                         {
                             "name": "PRT1",
-                            "part_type": 1,
+                            "part_type": "ins",
                             "layers": [
                                 {
                                     "name": "LYR1",
-                                    "heat_resistance_input_method": 1,
+                                    "heat_resistance_input_method": "conductivity",
                                     "thermal_conductivity": 0.220,
                                     "thickness": 0.0130,
                                     "volumetric_specific_heat": 830.0
                                 },
                                 {
                                     "name": "LYR2",
-                                    "heat_resistance_input_method": 1,
+                                    "heat_resistance_input_method": "conductivity",
                                     "thermal_conductivity": 0.045,
                                     "thickness": 0.1000,
                                     "volumetric_specific_heat": 13.0
                                 },
                                 {
                                     "name": "LYR3",
-                                    "heat_resistance_input_method": 1,
+                                    "heat_resistance_input_method": "conductivity",
                                     "thermal_conductivity": 0.160,
                                     "thickness": 0.0090,
                                     "volumetric_specific_heat": 720.0
@@ -49,25 +49,25 @@
                         },
                         {
                             "name": "PRT2",
-                            "part_type": 2,
+                            "part_type": "hb",
                             "layers": [
                                 {
                                     "name": "LYR1",
-                                    "heat_resistance_input_method": 1,
+                                    "heat_resistance_input_method": "conductivity",
                                     "thermal_conductivity": 0.220,
                                     "thickness": 0.0130,
                                     "volumetric_specific_heat": 830.0
                                 },
                                 {
                                     "name": "LYR2",
-                                    "heat_resistance_input_method": 1,
+                                    "heat_resistance_input_method": "conductivity",
                                     "thermal_conductivity": 0.120,
                                     "thickness": 0.1000,
                                     "volumetric_specific_heat": 520.0
                                 },
                                 {
                                     "name": "LYR3",
-                                    "heat_resistance_input_method": 1,
+                                    "heat_resistance_input_method": "conductivity",
                                     "thermal_conductivity": 0.160,
                                     "thickness": 0.0090,
                                     "volumetric_specific_heat": 720.0
@@ -75,42 +75,42 @@
                             ]
                         }
                     ],
-                    "is_sunshade_input": 2
+                    "is_sunshade_input": False
                 }
             },
             {
                 "name": "GP2",
-                "general_part_type": 3,
-                "next_space": 1,
-                "external_surface_type": 2,
-                "direction": 4,
+                "general_part_type": "wall",
+                "next_space": "outdoor",
+                "external_surface_type": "not_outdoor",
+                "direction": "e",
                 "area": 29.24,
                 "spec": {
-                    "structure": 1,
-                    "u_value_input_method_wood": 3,
-                    "wall_construction_method": 1,
+                    "part_type": "wood",
+                    "u_value_input_method_wood": "area_ratio_method",
+                    "wall_construction_method": "frame_beam",
                     "parts": [
                         {
                             "name": "PRT1",
-                            "part_type": 1,
+                            "part_type": "ins",
                             "layers": [
                                 {
                                     "name": "LYR1",
-                                    "heat_resistance_input_method": 1,
+                                    "heat_resistance_input_method": "conductivity",
                                     "thermal_conductivity": 0.220,
                                     "thickness": 0.0130,
                                     "volumetric_specific_heat": 830.0
                                 },
                                 {
                                     "name": "LYR2",
-                                    "heat_resistance_input_method": 1,
+                                    "heat_resistance_input_method": "conductivity",
                                     "thermal_conductivity": 0.045,
                                     "thickness": 0.1000,
                                     "volumetric_specific_heat": 13.0
                                 },
                                 {
                                     "name": "LYR3",
-                                    "heat_resistance_input_method": 1,
+                                    "heat_resistance_input_method": "conductivity",
                                     "thermal_conductivity": 0.160,
                                     "thickness": 0.0090,
                                     "volumetric_specific_heat": 720.0
@@ -119,25 +119,25 @@
                         },
                         {
                             "name": "PRT2",
-                            "part_type": 2,
+                            "part_type": "hb",
                             "layers": [
                                 {
                                     "name": "LYR1",
-                                    "heat_resistance_input_method": 1,
+                                    "heat_resistance_input_method": "conductivity",
                                     "thermal_conductivity": 0.220,
                                     "thickness": 0.0130,
                                     "volumetric_specific_heat": 830.0
                                 },
                                 {
                                     "name": "LYR2",
-                                    "heat_resistance_input_method": 1,
+                                    "heat_resistance_input_method": "conductivity",
                                     "thermal_conductivity": 0.120,
                                     "thickness": 0.1000,
                                     "volumetric_specific_heat": 520.0
                                 },
                                 {
                                     "name": "LYR3",
-                                    "heat_resistance_input_method": 1,
+                                    "heat_resistance_input_method": "conductivity",
                                     "thermal_conductivity": 0.160,
                                     "thickness": 0.0090,
                                     "volumetric_specific_heat": 720.0
@@ -145,42 +145,42 @@
                             ]
                         }
                     ],
-                    "is_sunshade_input": 2
+                    "is_sunshade_input": False
                 }
             },
             {
                 "name": "GP3",
-                "general_part_type": 3,
-                "next_space": 1,
-                "external_surface_type": 2,
-                "direction": 6,
+                "general_part_type": "wall",
+                "next_space": "outdoor",
+                "external_surface_type": "not_outdoor",
+                "direction": "s",
                 "area": 33.12,
                 "spec": {
-                    "structure": 1,
-                    "u_value_input_method_wood": 3,
-                    "wall_construction_method": 1,
+                    "part_type": "wood",
+                    "u_value_input_method_wood": "area_ratio_method",
+                    "wall_construction_method": "frame_beam",
                     "parts": [
                         {
                             "name": "PRT1",
-                            "part_type": 1,
+                            "part_type": "ins",
                             "layers": [
                                 {
                                     "name": "LYR1",
-                                    "heat_resistance_input_method": 1,
+                                    "heat_resistance_input_method": "conductivity",
                                     "thermal_conductivity": 0.220,
                                     "thickness": 0.0130,
                                     "volumetric_specific_heat": 830.0
                                 },
                                 {
                                     "name": "LYR2",
-                                    "heat_resistance_input_method": 1,
+                                    "heat_resistance_input_method": "conductivity",
                                     "thermal_conductivity": 0.045,
                                     "thickness": 0.1000,
                                     "volumetric_specific_heat": 13.0
                                 },
                                 {
                                     "name": "LYR3",
-                                    "heat_resistance_input_method": 1,
+                                    "heat_resistance_input_method": "conductivity",
                                     "thermal_conductivity": 0.160,
                                     "thickness": 0.0090,
                                     "volumetric_specific_heat": 720.0
@@ -189,25 +189,25 @@
                         },
                         {
                             "name": "PRT2",
-                            "part_type": 2,
+                            "part_type": "hb",
                             "layers": [
                                 {
                                     "name": "LYR1",
-                                    "heat_resistance_input_method": 1,
+                                    "heat_resistance_input_method": "conductivity",
                                     "thermal_conductivity": 0.220,
                                     "thickness": 0.0130,
                                     "volumetric_specific_heat": 830.0
                                 },
                                 {
                                     "name": "LYR2",
-                                    "heat_resistance_input_method": 1,
+                                    "heat_resistance_input_method": "conductivity",
                                     "thermal_conductivity": 0.120,
                                     "thickness": 0.1000,
                                     "volumetric_specific_heat": 520.0
                                 },
                                 {
                                     "name": "LYR3",
-                                    "heat_resistance_input_method": 1,
+                                    "heat_resistance_input_method": "conductivity",
                                     "thermal_conductivity": 0.160,
                                     "thickness": 0.0090,
                                     "volumetric_specific_heat": 720.0
@@ -215,42 +215,42 @@
                             ]
                         }
                     ],
-                    "is_sunshade_input": 2
+                    "is_sunshade_input": False
                 }
             },
             {
                 "name": "GP4",
-                "general_part_type": 3,
-                "next_space": 1,
-                "external_surface_type": 2,
-                "direction": 8,
+                "general_part_type": "wall",
+                "next_space": "outdoor",
+                "external_surface_type": "not_outdoor",
+                "direction": "w",
                 "area": 29.07,
                 "spec": {
-                    "structure": 1,
-                    "u_value_input_method_wood": 3,
-                    "wall_construction_method": 1,
+                    "part_type": "wood",
+                    "u_value_input_method_wood": "area_ratio_method",
+                    "wall_construction_method": "frame_beam",
                     "parts": [
                         {
                             "name": "PRT1",
-                            "part_type": 1,
+                            "part_type": "ins",
                             "layers": [
                                 {
                                     "name": "LYR1",
-                                    "heat_resistance_input_method": 1,
+                                    "heat_resistance_input_method": "conductivity",
                                     "thermal_conductivity": 0.220,
                                     "thickness": 0.0130,
                                     "volumetric_specific_heat": 830.0
                                 },
                                 {
                                     "name": "LYR2",
-                                    "heat_resistance_input_method": 1,
+                                    "heat_resistance_input_method": "conductivity",
                                     "thermal_conductivity": 0.045,
                                     "thickness": 0.1000,
                                     "volumetric_specific_heat": 13.0
                                 },
                                 {
                                     "name": "LYR3",
-                                    "heat_resistance_input_method": 1,
+                                    "heat_resistance_input_method": "conductivity",
                                     "thermal_conductivity": 0.160,
                                     "thickness": 0.0090,
                                     "volumetric_specific_heat": 720.0
@@ -259,25 +259,25 @@
                         },
                         {
                             "name": "PRT2",
-                            "part_type": 2,
+                            "part_type": "hb",
                             "layers": [
                                 {
                                     "name": "LYR1",
-                                    "heat_resistance_input_method": 1,
+                                    "heat_resistance_input_method": "conductivity",
                                     "thermal_conductivity": 0.220,
                                     "thickness": 0.0130,
                                     "volumetric_specific_heat": 830.0
                                 },
                                 {
                                     "name": "LYR2",
-                                    "heat_resistance_input_method": 1,
+                                    "heat_resistance_input_method": "conductivity",
                                     "thermal_conductivity": 0.120,
                                     "thickness": 0.1000,
                                     "volumetric_specific_heat": 520.0
                                 },
                                 {
                                     "name": "LYR3",
-                                    "heat_resistance_input_method": 1,
+                                    "heat_resistance_input_method": "conductivity",
                                     "thermal_conductivity": 0.160,
                                     "thickness": 0.0090,
                                     "volumetric_specific_heat": 720.0
@@ -285,26 +285,26 @@
                             ]
                         }
                     ],
-                    "is_sunshade_input": 2
+                    "is_sunshade_input": False
                 }
             },
             {
                 "name": "GP5",
-                "general_part_type": 2,
-                "next_space": 1,
-                "external_surface_type": 2,
-                "direction": 1,
+                "general_part_type": "ceiling",
+                "next_space": "outdoor",
+                "external_surface_type": "not_outdoor",
+                "direction": "top",
                 "area": 67.92,
                 "spec": {
-                    "structure": 1,
-                    "u_value_input_method_wood": 2,
+                    "part_type": "wood",
+                    "u_value_input_method_wood": "detail_method",
                     "parts": [
                         {
                             "name": "PRT1",
                             "layers": [
                                 {
                                     "name": "LYR1",
-                                    "heat_resistance_input_method": 1,
+                                    "heat_resistance_input_method": "conductivity",
                                     "thermal_conductivity": 0.052,
                                     "thickness": 0.2100,
                                     "volumetric_specific_heat": 15.0
@@ -312,34 +312,34 @@
                             ]
                         }
                     ],
-                    "is_sunshade_input": 2
+                    "is_sunshade_input": False
                 }
             },
             {
                 "name": "GP6",
-                "general_part_type": 4,
-                "next_space": 4,
-                "direction": 13,
+                "general_part_type": "floor",
+                "next_space": "open_underfloor",
+                "direction": "downward",
                 "area": 65.41,
                 "spec": {
-                    "structure": 1,
-                    "u_value_input_method_wood": 3,
-                    "floor_construction_method": 3,
+                    "part_type": "wood",
+                    "u_value_input_method_wood": "area_ratio_method",
+                    "floor_construction_method": "footing_sleeper_insulation",
                     "parts": [
                         {
                             "name": "PRT1",
-                            "part_type": 1,
+                            "part_type": "ins",
                             "layers": [
                                 {
                                     "name": "LYR1",
-                                    "heat_resistance_input_method": 1,
+                                    "heat_resistance_input_method": "conductivity",
                                     "thermal_conductivity": 0.160,
                                     "thickness": 0.0240,
                                     "volumetric_specific_heat": 720.0
                                 },
                                 {
                                     "name": "LYR2",
-                                    "heat_resistance_input_method": 1,
+                                    "heat_resistance_input_method": "conductivity",
                                     "thermal_conductivity": 0.036,
                                     "thickness": 0.080,
                                     "volumetric_specific_heat": 27.0
@@ -348,18 +348,18 @@
                         },
                         {
                             "name": "PRT2",
-                            "part_type": 2,
+                            "part_type": "hb",
                             "layers": [
                                 {
                                     "name": "LYR1",
-                                    "heat_resistance_input_method": 1,
+                                    "heat_resistance_input_method": "conductivity",
                                     "thermal_conductivity": 0.160,
                                     "thickness": 0.0240,
                                     "volumetric_specific_heat": 720.0
                                 },
                                 {
                                     "name": "LYR2",
-                                    "heat_resistance_input_method": 1,
+                                    "heat_resistance_input_method": "conductivity",
                                     "thermal_conductivity": 0.120,
                                     "thickness": 0.080,
                                     "volumetric_specific_heat": 520.0
@@ -367,28 +367,28 @@
                             ]
                         }
                     ],
-                    "is_sunshade_input": 2
+                    "is_sunshade_input": False
                 }
             }
         ],
         "windows": [
             {
                 "name": "WND1",
-                "next_space": 1,
-                "direction": 6,
+                "next_space": "outdoor",
+                "direction": "s",
                 "area": 4.59,
                 "spec": {
-                    "window_type": 1,
+                    "window_type": "single",
                     "windows": [
                         {
-                            "u_value_input_method": 1,
+                            "u_value_input_method": "u_value_directly",
                             "u_vaue": 4.65,
                             "eta_d_value": 0.79,
                             "glass_type": 2
                         }
                     ],
-                    "attachment_type": 1,
-                    "is_windbreak_room_attached": 2,
+                     "attachment_type": "none",
+                    "is_windbreak_room_attached": False,
                     "sunshade": {
                         "y1": 0.06,
                         "y2": 1.80,
@@ -398,21 +398,21 @@
             },
             {
                 "name": "WND2",
-                "next_space": 1,
-                "direction": 6,
+                "next_space": "outdoor",
+                "direction": "s",
                 "area": 3.47,
                 "spec": {
-                    "window_type": 1,
+                    "window_type": "single",
                     "windows": [
                         {
-                            "u_value_input_method": 1,
+                            "u_value_input_method": "u_value_directly",
                             "u_vaue": 4.65,
                             "eta_d_value": 0.79,
                             "glass_type": 2
                         }
                     ],
-                    "attachment_type": 1,
-                    "is_windbreak_room_attached": 2,
+                     "attachment_type": "none",
+                    "is_windbreak_room_attached": False,
                     "sunshade": {
                         "y1": 0.48,
                         "y2": 2.10,
@@ -422,21 +422,21 @@
             },
             {
                 "name": "WND3",
-                "next_space": 1,
-                "direction": 6,
+                "next_space": "outdoor",
+                "direction": "s",
                 "area": 3.47,
                 "spec": {
-                    "window_type": 1,
+                    "window_type": "single",
                     "windows": [
                         {
-                            "u_value_input_method": 1,
+                            "u_value_input_method": "u_value_directly",
                             "u_vaue": 4.65,
                             "eta_d_value": 0.79,
                             "glass_type": 2
                         }
                     ],
-                    "attachment_type": 1,
-                    "is_windbreak_room_attached": 2,
+                     "attachment_type": "none",
+                    "is_windbreak_room_attached": False,
                     "sunshade": {
                         "y1": 0.48,
                         "y2": 2.10,
@@ -446,21 +446,21 @@
             },
             {
                 "name": "WND4",
-                "next_space": 1,
-                "direction": 4,
+                "next_space": "outdoor",
+                "direction": "e",
                 "area": 2.15,
                 "spec": {
-                    "window_type": 1,
+                    "window_type": "single",
                     "windows": [
                         {
-                            "u_value_input_method": 1,
+                            "u_value_input_method": "u_value_directly",
                             "u_vaue": 4.65,
                             "eta_d_value": 0.79,
                             "glass_type": 2
                         }
                     ],
-                    "attachment_type": 1,
-                    "is_windbreak_room_attached": 2,
+                     "attachment_type": "none",
+                    "is_windbreak_room_attached": False,
                     "sunshade": {
                         "y1": 0.00,
                         "y2": 1.30,
@@ -470,21 +470,21 @@
             },
             {
                 "name": "WND5",
-                "next_space": 1,
-                "direction": 4,
+                "next_space": "outdoor",
+                "direction": "e",
                 "area": 0.98,
                 "spec": {
-                    "window_type": 1,
+                    "window_type": "single",
                     "windows": [
                         {
-                            "u_value_input_method": 1,
+                            "u_value_input_method": "u_value_directly",
                             "u_vaue": 4.65,
                             "eta_d_value": 0.79,
                             "glass_type": 2
                         }
                     ],
-                    "attachment_type": 1,
-                    "is_windbreak_room_attached": 2,
+                     "attachment_type": "none",
+                    "is_windbreak_room_attached": False,
                     "sunshade": {
                         "y1": 0.00,
                         "y2": 0.70,
@@ -494,21 +494,21 @@
             },
             {
                 "name": "WND6",
-                "next_space": 1,
-                "direction": 8,
+                "next_space": "outdoor",
+                "direction": "w",
                 "area": 0.54,
                 "spec": {
-                    "window_type": 1,
+                    "window_type": "single",
                     "windows": [
                         {
-                            "u_value_input_method": 1,
+                            "u_value_input_method": "u_value_directly",
                             "u_vaue": 4.65,
                             "eta_d_value": 0.79,
                             "glass_type": 2
                         }
                     ],
-                    "attachment_type": 1,
-                    "is_windbreak_room_attached": 2,
+                     "attachment_type": "none",
+                    "is_windbreak_room_attached": False,
                     "sunshade": {
                         "y1": 0.49,
                         "y2": 0.90,
@@ -518,21 +518,21 @@
             },
             {
                 "name": "WND7",
-                "next_space": 1,
-                "direction": 2,
+                "next_space": "outdoor",
+                "direction": "n",
                 "area": 0.54,
                 "spec": {
-                    "window_type": 1,
+                    "window_type": "single",
                     "windows": [
                         {
-                            "u_value_input_method": 1,
+                            "u_value_input_method": "u_value_directly",
                             "u_vaue": 4.65,
                             "eta_d_value": 0.79,
                             "glass_type": 2
                         }
                     ],
-                    "attachment_type": 1,
-                    "is_windbreak_room_attached": 2,
+                     "attachment_type": "none",
+                    "is_windbreak_room_attached": False,
                     "sunshade": {
                         "y1": 0.49,
                         "y2": 0.90,
@@ -542,21 +542,21 @@
             },
             {
                 "name": "WND8",
-                "next_space": 1,
-                "direction": 2,
+                "next_space": "outdoor",
+                "direction": "n",
                 "area": 0.54,
                 "spec": {
-                    "window_type": 1,
+                    "window_type": "single",
                     "windows": [
                         {
-                            "u_value_input_method": 1,
+                            "u_value_input_method": "u_value_directly",
                             "u_vaue": 4.65,
                             "eta_d_value": 0.79,
                             "glass_type": 2
                         }
                     ],
-                    "attachment_type": 1,
-                    "is_windbreak_room_attached": 2,
+                     "attachment_type": "none",
+                    "is_windbreak_room_attached": False,
                     "sunshade": {
                         "y1": 0.49,
                         "y2": 0.90,
@@ -566,21 +566,21 @@
             },
             {
                 "name": "WND9",
-                "next_space": 1,
-                "direction": 2,
+                "next_space": "outdoor",
+                "direction": "n",
                 "area": 0.54,
                 "spec": {
-                    "window_type": 1,
+                    "window_type": "single",
                     "windows": [
                         {
-                            "u_value_input_method": 1,
+                            "u_value_input_method": "u_value_directly",
                             "u_vaue": 4.65,
                             "eta_d_value": 0.79,
                             "glass_type": 2
                         }
                     ],
-                    "attachment_type": 1,
-                    "is_windbreak_room_attached": 2,
+                     "attachment_type": "none",
+                    "is_windbreak_room_attached": False,
                     "sunshade": {
                         "y1": 0.49,
                         "y2": 0.90,
@@ -590,21 +590,21 @@
             },
             {
                 "name": "WND10",
-                "next_space": 1,
-                "direction": 8,
+                "next_space": "outdoor",
+                "direction": "w",
                 "area": 0.54,
                 "spec": {
-                    "window_type": 1,
+                    "window_type": "single",
                     "windows": [
                         {
-                            "u_value_input_method": 1,
+                            "u_value_input_method": "u_value_directly",
                             "u_vaue": 4.65,
                             "eta_d_value": 0.79,
                             "glass_type": 2
                         }
                     ],
-                    "attachment_type": 1,
-                    "is_windbreak_room_attached": 2,
+                     "attachment_type": "none",
+                    "is_windbreak_room_attached": False,
                     "sunshade": {
                         "y1": 0.06,
                         "y2": 0.90,
@@ -614,21 +614,21 @@
             },
             {
                 "name": "WND11",
-                "next_space": 1,
-                "direction": 8,
+                "next_space": "outdoor",
+                "direction": "w",
                 "area": 0.99,
                 "spec": {
-                    "window_type": 1,
+                    "window_type": "single",
                     "windows": [
                         {
-                            "u_value_input_method": 1,
+                            "u_value_input_method": "u_value_directly",
                             "u_vaue": 4.65,
                             "eta_d_value": 0.79,
                             "glass_type": 2
                         }
                     ],
-                    "attachment_type": 1,
-                    "is_windbreak_room_attached": 2,
+                     "attachment_type": "none",
+                    "is_windbreak_room_attached": False,
                     "sunshade": {
                         "y1": 0.00,
                         "y2": 1.10,
@@ -638,21 +638,21 @@
             },
             {
                 "name": "WND12",
-                "next_space": 1,
-                "direction": 6,
+                "next_space": "outdoor",
+                "direction": "s",
                 "area": 1.73,
                 "spec": {
-                    "window_type": 1,
+                    "window_type": "single",
                     "windows": [
                         {
-                            "u_value_input_method": 1,
+                            "u_value_input_method": "u_value_directly",
                             "u_vaue": 4.65,
                             "eta_d_value": 0.79,
                             "glass_type": 2
                         }
                     ],
-                    "attachment_type": 1,
-                    "is_windbreak_room_attached": 2,
+                     "attachment_type": "none",
+                    "is_windbreak_room_attached": False,
                     "sunshade": {
                         "y1": 0.75,
                         "y2": 1.05,
@@ -662,21 +662,21 @@
             },
             {
                 "name": "WND13",
-                "next_space": 1,
-                "direction": 6,
+                "next_space": "outdoor",
+                "direction": "s",
                 "area": 3.22,
                 "spec": {
-                    "window_type": 1,
+                    "window_type": "single",
                     "windows": [
                         {
-                            "u_value_input_method": 1,
+                            "u_value_input_method": "u_value_directly",
                             "u_vaue": 4.65,
                             "eta_d_value": 0.79,
                             "glass_type": 2
                         }
                     ],
-                    "attachment_type": 1,
-                    "is_windbreak_room_attached": 2,
+                     "attachment_type": "none",
+                    "is_windbreak_room_attached": False,
                     "sunshade": {
                         "y1": 0.75,
                         "y2": 1.95,
@@ -686,21 +686,21 @@
             },
             {
                 "name": "WND14",
-                "next_space": 1,
-                "direction": 6,
+                "next_space": "outdoor",
+                "direction": "s",
                 "area": 3.22,
                 "spec": {
-                    "window_type": 1,
+                    "window_type": "single",
                     "windows": [
                         {
-                            "u_value_input_method": 1,
+                            "u_value_input_method": "u_value_directly",
                             "u_vaue": 4.65,
                             "eta_d_value": 0.79,
                             "glass_type": 2
                         }
                     ],
-                    "attachment_type": 1,
-                    "is_windbreak_room_attached": 2,
+                     "attachment_type": "none",
+                    "is_windbreak_room_attached": False,
                     "sunshade": {
                         "y1": 0.75,
                         "y2": 1.95,
@@ -710,21 +710,21 @@
             },
             {
                 "name": "WND15",
-                "next_space": 1,
-                "direction": 4,
+                "next_space": "outdoor",
+                "direction": "e",
                 "area": 0.66,
                 "spec": {
-                    "window_type": 1,
+                    "window_type": "single",
                     "windows": [
                         {
-                            "u_value_input_method": 1,
+                            "u_value_input_method": "u_value_directly",
                             "u_vaue": 4.65,
                             "eta_d_value": 0.79,
                             "glass_type": 2
                         }
                     ],
-                    "attachment_type": 1,
-                    "is_windbreak_room_attached": 2,
+                     "attachment_type": "none",
+                    "is_windbreak_room_attached": False,
                     "sunshade": {
                         "y1": 0.06,
                         "y2": 1.10,
@@ -734,21 +734,21 @@
             },
             {
                 "name": "WND16",
-                "next_space": 1,
-                "direction": 2,
+                "next_space": "outdoor",
+                "direction": "n",
                 "area": 0.99,
                 "spec": {
-                    "window_type": 1,
+                    "window_type": "single",
                     "windows": [
                         {
-                            "u_value_input_method": 1,
+                            "u_value_input_method": "u_value_directly",
                             "u_vaue": 4.65,
                             "eta_d_value": 0.79,
                             "glass_type": 2
                         }
                     ],
-                    "attachment_type": 1,
-                    "is_windbreak_room_attached": 2,
+                     "attachment_type": "none",
+                    "is_windbreak_room_attached": False,
                     "sunshade": {
                         "y1": 0.70,
                         "y2": 1.10,
@@ -758,21 +758,21 @@
             },
             {
                 "name": "WND17",
-                "next_space": 1,
-                "direction": 2,
+                "next_space": "outdoor",
+                "direction": "n",
                 "area": 0.54,
                 "spec": {
-                    "window_type": 1,
+                    "window_type": "single",
                     "windows": [
                         {
-                            "u_value_input_method": 1,
+                            "u_value_input_method": "u_value_directly",
                             "u_vaue": 4.65,
                             "eta_d_value": 0.79,
                             "glass_type": 2
                         }
                     ],
-                    "attachment_type": 1,
-                    "is_windbreak_room_attached": 2,
+                     "attachment_type": "none",
+                    "is_windbreak_room_attached": False,
                     "sunshade": {
                         "y1": 0.49,
                         "y2": 0.90,
@@ -784,30 +784,30 @@
         "doors": [
             {
                 "name": "DR1",
-                "next_space": 1,
-                "direction": 2,
+                "next_space": "outdoor",
+                "direction": "n",
                 "area": 1.62,
                 "spec": {
                     "u_vaue": 4.65,
-                    "is_sunshade_input": 2
+                    "is_sunshade_input": False
                 }
             },
             {
                 "name": "DR2",
-                "next_space": 1,
-                "direction": 8,
+                "next_space": "outdoor",
+                "direction": "w",
                 "area": 1.89,
                 "spec": {
                     "u_vaue": 4.65,
-                    "is_sunshade_input": 2
+                    "is_sunshade_input": False
                 }
             }
         ],
         "earthfloor_perimeters": [
             {
                 "name": "EFP1",
-                "next_space": 1,
-                "direction": 2,
+                "next_space": "outdoor",
+                "direction": "n",
                 "length": 1.36,
                 "spec": {
                     "psi_value": 0.57
@@ -815,8 +815,8 @@
             },
             {
                 "name": "EFP2",
-                "next_space": 1,
-                "direction": 8,
+                "next_space": "outdoor",
+                "direction": "w",
                 "length": 1.82,
                 "spec": {
                     "psi_value": 0.57
@@ -824,8 +824,8 @@
             },
             {
                 "name": "EFP3",
-                "next_space": 4,
-                "direction": 12,
+                "next_space": "open_underfloor",
+                "direction": "horizontal",
                 "length": 3.18,
                 "spec": {
                     "psi_value": 0.72
@@ -843,10 +843,10 @@
         "air_change_rate": 0.5
     },
     "heating_equipment": {
-        "is_radiative_heating": 2
+        "is_radiative_heating": False
     },
     "cooling_equipment": {
-        "is_radiative_cooling": 2,
+        "is_radiative_cooling": False,
         "convective_cooling": {
             "heat_exchanger_type": "cooling"
         }
