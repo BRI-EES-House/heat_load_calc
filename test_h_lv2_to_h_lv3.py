@@ -38,7 +38,7 @@ class TestLV2toLV3(unittest.TestCase):
                 'general_parts' : [
                     {
                         'name' : 'test_part',
-                        'evlp_type' : 'wall',
+                        'general_part_type' : 'wall',
                         'next_space' : 'outdoor',
                         'direction' : 'top',
                         'area' : 67.8,
@@ -54,9 +54,9 @@ class TestLV2toLV3(unittest.TestCase):
         self.assertEqual('test_part_main_occupant_room', result[0]['name'])
         self.assertEqual('test_part_other_occupant_room', result[1]['name'])
         self.assertEqual('test_part_non_occupant_room', result[2]['name'])
-        self.assertEqual('wall', result[0]['evlp_type'])
-        self.assertEqual('wall', result[1]['evlp_type'])
-        self.assertEqual('wall', result[2]['evlp_type'])
+        self.assertEqual('wall', result[0]['general_part_type'])
+        self.assertEqual('wall', result[1]['general_part_type'])
+        self.assertEqual('wall', result[2]['general_part_type'])
         self.assertEqual('outdoor', result[0]['next_space'])
         self.assertEqual('outdoor', result[1]['next_space'])
         self.assertEqual('outdoor', result[2]['next_space'])
@@ -283,7 +283,7 @@ class TestLV2toLV3(unittest.TestCase):
                 'general_parts': [
                     {
                         'name' : 'test_part1',
-                        'evlp_type' : 'ceiling',
+                        'general_part_type' : 'ceiling',
                         'next_space' : 'outdoor',
                         'direction' : 'top',
                         'area': 67.8,
@@ -291,7 +291,7 @@ class TestLV2toLV3(unittest.TestCase):
                     },
                     {
                         'name': 'test_part2',
-                        'evlp_type': 'ceiling',
+                        'general_part_type': 'ceiling',
                         'next_space' : 'outdoor',
                         'direction': 'top',
                         'area': 67.8,
