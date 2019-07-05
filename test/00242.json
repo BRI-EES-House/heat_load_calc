@@ -43,7 +43,14 @@
                             ]
                         }
                     ],
-                    "is_sunshade_input": true
+                    "is_sunshade_input": true,
+                    "sunshade": {
+                        "existance": true,
+                        "input_method": "simple",
+                        "depth": 1,
+                        "d_h": 1,
+                        "d_e": 1
+                    }
                 }
             },
             {
@@ -81,7 +88,14 @@
                             ]
                         }
                     ],
-                    "is_sunshade_input": true
+                    "is_sunshade_input": true,
+                    "sunshade": {
+                        "existance": true,
+                        "input_method": "simple",
+                        "depth": 1,
+                        "d_h": 1,
+                        "d_e": 1
+                    }
                 }
             },
             {
@@ -119,7 +133,14 @@
                             ]
                         }
                     ],
-                    "is_sunshade_input": true
+                    "is_sunshade_input": true,
+                    "sunshade": {
+                        "existance": true,
+                        "input_method": "simple",
+                        "depth": 1,
+                        "d_h": 1,
+                        "d_e": 1
+                    }
                 }
             }
         ],
@@ -143,9 +164,11 @@
                     "attachment_type": "none",
                     "is_windbreak_room_attached": true,
                     "sunshade": {
-                        "y1": 1,
-                        "y2": 1,
-                        "z": 1
+                        "existance": true,
+                        "input_method": "simple",
+                        "depth": 1,
+                        "d_h": 1,
+                        "d_e": 1
                     }
                 }
             },
@@ -168,9 +191,11 @@
                     "attachment_type": "none",
                     "is_windbreak_room_attached": true,
                     "sunshade": {
-                        "y1": 1,
-                        "y2": 1,
-                        "z": 1
+                        "existance": true,
+                        "input_method": "simple",
+                        "depth": 1,
+                        "d_h": 1,
+                        "d_e": 1
                     }
                 }
             },
@@ -193,9 +218,11 @@
                     "attachment_type": "none",
                     "is_windbreak_room_attached": true,
                     "sunshade": {
-                        "y1": 1,
-                        "y2": 1,
-                        "z": 1
+                        "existance": true,
+                        "input_method": "simple",
+                        "depth": 1,
+                        "d_h": 1,
+                        "d_e": 1
                     }
                 }
             }
@@ -208,7 +235,14 @@
                 "area": 1,
                 "spec": {
                     "u_vaue": 1,
-                    "is_sunshade_input": true
+                    "is_sunshade_input": true,
+                    "sunshade": {
+                        "existance": true,
+                        "input_method": "simple",
+                        "depth": 1,
+                        "d_h": 1,
+                        "d_e": 1
+                    }
                 }
             },
             {
@@ -218,7 +252,14 @@
                 "area": 1,
                 "spec": {
                     "u_vaue": 1,
-                    "is_sunshade_input": true
+                    "is_sunshade_input": true,
+                    "sunshade": {
+                        "existance": true,
+                        "input_method": "simple",
+                        "depth": 1,
+                        "d_h": 1,
+                        "d_e": 1
+                    }
                 }
             },
             {
@@ -228,7 +269,14 @@
                 "area": 1,
                 "spec": {
                     "u_vaue": 1,
-                    "is_sunshade_input": true
+                    "is_sunshade_input": true,
+                    "sunshade": {
+                        "existance": true,
+                        "input_method": "simple",
+                        "depth": 1,
+                        "d_h": 1,
+                        "d_e": 1
+                    }
                 }
             }
         ],

@@ -19,7 +19,14 @@
                     "structure": "wood",
                     "u_value_input_method_wood": "u_value_directly",
                     "u_value_wood": 1,
-                    "is_sunshade_input": true
+                    "is_sunshade_input": true,
+                    "sunshade": {
+                        "existance": true,
+                        "input_method": "simple",
+                        "depth": 1,
+                        "d_h": 1,
+                        "d_e": 1
+                    }
                 }
             },
             {
@@ -33,7 +40,14 @@
                     "structure": "wood",
                     "u_value_input_method_wood": "u_value_directly",
                     "u_value_wood": 1,
-                    "is_sunshade_input": true
+                    "is_sunshade_input": true,
+                    "sunshade": {
+                        "existance": true,
+                        "input_method": "simple",
+                        "depth": 1,
+                        "d_h": 1,
+                        "d_e": 1
+                    }
                 }
             },
             {
@@ -47,14 +61,21 @@
                     "structure": "wood",
                     "u_value_input_method_wood": "u_value_directly",
                     "u_value_wood": 1,
-                    "is_sunshade_input": true
+                    "is_sunshade_input": true,
+                    "sunshade": {
+                        "existance": true,
+                        "input_method": "simple",
+                        "depth": 1,
+                        "d_h": 1,
+                        "d_e": 1
+                    }
                 }
             }
         ],
         "windows": [
             {
                 "name": "WND1",
-                "next_space": "outdoor",
+                "next_space": "error_check",
                 "direction": "top",
                 "area": 1,
                 "spec": {
@@ -68,18 +89,20 @@
                             "glass_type": "single"
                         }
                     ],
-                    "attachment_type": "shoji",
+                    "attachment_type": "none",
                     "is_windbreak_room_attached": true,
                     "sunshade": {
-                        "y1": 1,
-                        "y2": 1,
-                        "z": 1
+                        "existance": true,
+                        "input_method": "simple",
+                        "depth": 1,
+                        "d_h": 1,
+                        "d_e": 1
                     }
                 }
             },
             {
                 "name": "WND2",
-                "next_space": "outdoor",
+                "next_space": "error_check",
                 "direction": "top",
                 "area": 1,
                 "spec": {
@@ -93,18 +116,20 @@
                             "glass_type": "single"
                         }
                     ],
-                    "attachment_type": "shoji",
+                    "attachment_type": "none",
                     "is_windbreak_room_attached": true,
                     "sunshade": {
-                        "y1": 1,
-                        "y2": 1,
-                        "z": 1
+                        "existance": true,
+                        "input_method": "simple",
+                        "depth": 1,
+                        "d_h": 1,
+                        "d_e": 1
                     }
                 }
             },
             {
                 "name": "WND3",
-                "next_space": "outdoor",
+                "next_space": "error_check",
                 "direction": "top",
                 "area": 1,
                 "spec": {
@@ -118,12 +143,14 @@
                             "glass_type": "single"
                         }
                     ],
-                    "attachment_type": "shoji",
+                    "attachment_type": "none",
                     "is_windbreak_room_attached": true,
                     "sunshade": {
-                        "y1": 1,
-                        "y2": 1,
-                        "z": 1
+                        "existance": true,
+                        "input_method": "simple",
+                        "depth": 1,
+                        "d_h": 1,
+                        "d_e": 1
                     }
                 }
             }
@@ -136,7 +163,14 @@
                 "area": 1,
                 "spec": {
                     "u_vaue": 1,
-                    "is_sunshade_input": true
+                    "is_sunshade_input": true,
+                    "sunshade": {
+                        "existance": true,
+                        "input_method": "simple",
+                        "depth": 1,
+                        "d_h": 1,
+                        "d_e": 1
+                    }
                 }
             },
             {
@@ -146,7 +180,14 @@
                 "area": 1,
                 "spec": {
                     "u_vaue": 1,
-                    "is_sunshade_input": true
+                    "is_sunshade_input": true,
+                    "sunshade": {
+                        "existance": true,
+                        "input_method": "simple",
+                        "depth": 1,
+                        "d_h": 1,
+                        "d_e": 1
+                    }
                 }
             },
             {
@@ -156,7 +197,14 @@
                 "area": 1,
                 "spec": {
                     "u_vaue": 1,
-                    "is_sunshade_input": true
+                    "is_sunshade_input": true,
+                    "sunshade": {
+                        "existance": true,
+                        "input_method": "simple",
+                        "depth": 1,
+                        "d_h": 1,
+                        "d_e": 1
+                    }
                 }
             }
         ],
@@ -286,5 +334,5 @@
             "heat_exchanger_type": "cooling"
         }
     },
-    "target_key": "attachment_type"
+    "target_key": "next_space"
 }

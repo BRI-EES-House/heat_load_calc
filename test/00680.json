@@ -1,0 +1,28 @@
+{
+    "common": {
+        "region": 1,
+        "main_occupant_room_floor_area": 29.81,
+        "other_occupant_room_floor_area": 51.34,
+        "total_floor_area": 120.08
+    },
+    "envelope": {
+        "input_method": "index"
+    },
+    "ventilation": {
+        "air_change_rate": 1
+    },
+    "natural_vent": {
+        "main_occupant_room_natural_vent_time": "0ACH",
+        "other_occupant_room_natural_vent_time": "0ACH"
+    },
+    "heating_equipment": {
+        "is_radiative_heating": false
+    },
+    "cooling_equipment": {
+        "is_radiative_cooling": false,
+        "convective_cooling": {
+            "heat_exchanger_type": "cooling"
+        }
+    },
+    "target_key": "main_occupant_room_natural_vent_time"
+}
