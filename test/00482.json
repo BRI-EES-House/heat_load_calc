@@ -13,20 +13,16 @@
     },
     "natural_vent": {
         "main_occupant_room_natural_vent_time": "0ACH",
-        "other_occupant_room_natural_vent_time": "0ACH"
+        "other_occupant_room_natural_vent_time": "5ACH"
     },
     "heating_equipment": {
         "is_radiative_heating": false
     },
     "cooling_equipment": {
-        "is_radiative_cooling": true,
-        "radiative_cooling": {
-            "max_capacity": 100,
-            "area": 10
-        },
+        "is_radiative_cooling": false,
         "convective_cooling": {
             "heat_exchanger_type": "cooling"
         }
     },
-    "target_key": "max_capacity"
+    "target_key": "other_occupant_room_natural_vent_time"
 }

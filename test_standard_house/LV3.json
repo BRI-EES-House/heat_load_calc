@@ -1618,6 +1618,15 @@
                 "name": "EFC1",
                 "area": 2.48,
                 "space_type": "underfloor",
+                "layers": [
+                     {
+                    "name": "LYR1",
+                    "heat_resistance_input_method": "conductivity",
+                    "thermal_conductivity": 1.000,
+                    "thickness": 3.0000,
+                    "volumetric_specific_heat": 3300.0
+                    }
+                ]
             }
         ]
     },

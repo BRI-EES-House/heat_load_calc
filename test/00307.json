@@ -186,15 +186,84 @@
         "earthfloor_centers": [
             {
                 "name": "EFC1",
-                "area": 1
+                "area": 1,
+                "layers": [
+                    {
+                        "name": "LYR1",
+                        "heat_resistance_input_method": "conductivity",
+                        "thermal_conductivity": 1,
+                        "thickness": 1,
+                        "volumetric_specific_heat": 1
+                    },
+                    {
+                        "name": "LYR2",
+                        "heat_resistance_input_method": "conductivity",
+                        "thermal_conductivity": 1,
+                        "thickness": 1,
+                        "volumetric_specific_heat": 1
+                    },
+                    {
+                        "name": "LYR3",
+                        "heat_resistance_input_method": "conductivity",
+                        "thermal_conductivity": 1,
+                        "thickness": 1,
+                        "volumetric_specific_heat": 1
+                    }
+                ]
             },
             {
                 "name": "EFC2",
-                "area": 1
+                "area": 1,
+                "layers": [
+                    {
+                        "name": "LYR1",
+                        "heat_resistance_input_method": "conductivity",
+                        "thermal_conductivity": 1,
+                        "thickness": 1,
+                        "volumetric_specific_heat": 1
+                    },
+                    {
+                        "name": "LYR2",
+                        "heat_resistance_input_method": "conductivity",
+                        "thermal_conductivity": 1,
+                        "thickness": 1,
+                        "volumetric_specific_heat": 1
+                    },
+                    {
+                        "name": "LYR3",
+                        "heat_resistance_input_method": "conductivity",
+                        "thermal_conductivity": 1,
+                        "thickness": 1,
+                        "volumetric_specific_heat": 1
+                    }
+                ]
             },
             {
                 "name": "EFC3",
-                "area": 1
+                "area": 1,
+                "layers": [
+                    {
+                        "name": "LYR1",
+                        "heat_resistance_input_method": "conductivity",
+                        "thermal_conductivity": 1,
+                        "thickness": 1,
+                        "volumetric_specific_heat": 1
+                    },
+                    {
+                        "name": "LYR2",
+                        "heat_resistance_input_method": "conductivity",
+                        "thermal_conductivity": 1,
+                        "thickness": 1,
+                        "volumetric_specific_heat": 1
+                    },
+                    {
+                        "name": "LYR3",
+                        "heat_resistance_input_method": "conductivity",
+                        "thermal_conductivity": 1,
+                        "thickness": 1,
+                        "volumetric_specific_heat": 1
+                    }
+                ]
             }
         ]
     },
