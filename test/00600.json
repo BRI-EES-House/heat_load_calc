@@ -91,6 +91,7 @@
                     ],
                     "attachment_type": "none",
                     "is_windbreak_room_attached": true,
+                    "is_sunshade_input": true,
                     "sunshade": {
                         "existance": true,
                         "input_method": "simple",
@@ -118,6 +119,7 @@
                     ],
                     "attachment_type": "none",
                     "is_windbreak_room_attached": true,
+                    "is_sunshade_input": true,
                     "sunshade": {
                         "existance": true,
                         "input_method": "simple",
@@ -145,6 +147,7 @@
                     ],
                     "attachment_type": "none",
                     "is_windbreak_room_attached": true,
+                    "is_sunshade_input": true,
                     "sunshade": {
                         "existance": true,
                         "input_method": "simple",
@@ -173,7 +176,7 @@
                         "y1": 1,
                         "y2": 1,
                         "y3": 1,
-                        "z_x_pls": 10.01,
+                        "z_x_pls": -0.01,
                         "z_x_mns": 1,
                         "z_y_pls": 1,
                         "z_y_mns": 1
@@ -197,7 +200,7 @@
                         "y1": 1,
                         "y2": 1,
                         "y3": 1,
-                        "z_x_pls": 10.01,
+                        "z_x_pls": -0.01,
                         "z_x_mns": 1,
                         "z_y_pls": 1,
                         "z_y_mns": 1
@@ -221,7 +224,7 @@
                         "y1": 1,
                         "y2": 1,
                         "y3": 1,
-                        "z_x_pls": 10.01,
+                        "z_x_pls": -0.01,
                         "z_x_mns": 1,
                         "z_y_pls": 1,
                         "z_y_mns": 1

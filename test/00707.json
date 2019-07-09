@@ -19,7 +19,7 @@
         "is_radiative_heating": true,
         "radiative_heating": {
             "max_capacity": 100,
-            "area": 100.0
+            "area": -0.01
         }
     },
     "cooling_equipment": {

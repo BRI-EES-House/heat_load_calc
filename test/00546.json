@@ -91,6 +91,7 @@
                     ],
                     "attachment_type": "none",
                     "is_windbreak_room_attached": true,
+                    "is_sunshade_input": true,
                     "sunshade": {
                         "existance": true,
                         "input_method": "simple",
@@ -118,6 +119,7 @@
                     ],
                     "attachment_type": "none",
                     "is_windbreak_room_attached": true,
+                    "is_sunshade_input": true,
                     "sunshade": {
                         "existance": true,
                         "input_method": "simple",
@@ -145,6 +147,7 @@
                     ],
                     "attachment_type": "none",
                     "is_windbreak_room_attached": true,
+                    "is_sunshade_input": true,
                     "sunshade": {
                         "existance": true,
                         "input_method": "simple",
@@ -163,14 +166,7 @@
                 "area": 1,
                 "spec": {
                     "u_vaue": 1,
-                    "is_sunshade_input": true,
-                    "sunshade": {
-                        "existance": "error_check",
-                        "input_method": "simple",
-                        "depth": 1,
-                        "d_h": 1,
-                        "d_e": 1
-                    }
+                    "is_sunshade_input": "error_check"
                 }
             },
             {
@@ -180,14 +176,7 @@
                 "area": 1,
                 "spec": {
                     "u_vaue": 1,
-                    "is_sunshade_input": true,
-                    "sunshade": {
-                        "existance": "error_check",
-                        "input_method": "simple",
-                        "depth": 1,
-                        "d_h": 1,
-                        "d_e": 1
-                    }
+                    "is_sunshade_input": "error_check"
                 }
             },
             {
@@ -197,14 +186,7 @@
                 "area": 1,
                 "spec": {
                     "u_vaue": 1,
-                    "is_sunshade_input": true,
-                    "sunshade": {
-                        "existance": "error_check",
-                        "input_method": "simple",
-                        "depth": 1,
-                        "d_h": 1,
-                        "d_e": 1
-                    }
+                    "is_sunshade_input": "error_check"
                 }
             }
         ],
@@ -337,5 +319,5 @@
             "heat_exchanger_type": "cooling"
         }
     },
-    "target_key": "existance"
+    "target_key": "is_sunshade_input"
 }

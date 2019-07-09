@@ -91,12 +91,13 @@
                     ],
                     "attachment_type": "none",
                     "is_windbreak_room_attached": true,
+                    "is_sunshade_input": true,
                     "sunshade": {
                         "existance": true,
                         "input_method": "simple",
                         "depth": 1,
                         "d_h": 1,
-                        "d_e": 10.01
+                        "d_e": -0.01
                     }
                 }
             },
@@ -118,12 +119,13 @@
                     ],
                     "attachment_type": "none",
                     "is_windbreak_room_attached": true,
+                    "is_sunshade_input": true,
                     "sunshade": {
                         "existance": true,
                         "input_method": "simple",
                         "depth": 1,
                         "d_h": 1,
-                        "d_e": 10.01
+                        "d_e": -0.01
                     }
                 }
             },
@@ -145,12 +147,13 @@
                     ],
                     "attachment_type": "none",
                     "is_windbreak_room_attached": true,
+                    "is_sunshade_input": true,
                     "sunshade": {
                         "existance": true,
                         "input_method": "simple",
                         "depth": 1,
                         "d_h": 1,
-                        "d_e": 10.01
+                        "d_e": -0.01
                     }
                 }
             }

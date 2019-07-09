@@ -91,6 +91,7 @@
                     ],
                     "attachment_type": "none",
                     "is_windbreak_room_attached": true,
+                    "is_sunshade_input": true,
                     "sunshade": {
                         "existance": true,
                         "input_method": "simple",
@@ -118,6 +119,7 @@
                     ],
                     "attachment_type": "none",
                     "is_windbreak_room_attached": true,
+                    "is_sunshade_input": true,
                     "sunshade": {
                         "existance": true,
                         "input_method": "simple",
@@ -145,6 +147,7 @@
                     ],
                     "attachment_type": "none",
                     "is_windbreak_room_attached": true,
+                    "is_sunshade_input": true,
                     "sunshade": {
                         "existance": true,
                         "input_method": "simple",
@@ -166,10 +169,7 @@
                     "is_sunshade_input": true,
                     "sunshade": {
                         "existance": true,
-                        "input_method": "simple",
-                        "depth": 1,
-                        "d_h": 1,
-                        "d_e": 1
+                        "input_method": ""
                     }
                 }
             },
@@ -183,10 +183,7 @@
                     "is_sunshade_input": true,
                     "sunshade": {
                         "existance": true,
-                        "input_method": "simple",
-                        "depth": 1,
-                        "d_h": 1,
-                        "d_e": 1
+                        "input_method": ""
                     }
                 }
             },
@@ -200,10 +197,7 @@
                     "is_sunshade_input": true,
                     "sunshade": {
                         "existance": true,
-                        "input_method": "simple",
-                        "depth": 1,
-                        "d_h": 1,
-                        "d_e": 1
+                        "input_method": ""
                     }
                 }
             }
@@ -337,5 +331,5 @@
             "heat_exchanger_type": "cooling"
         }
     },
-    "target_key": "depth"
+    "target_key": "input_method"
 }

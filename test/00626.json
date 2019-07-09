@@ -91,6 +91,7 @@
                     ],
                     "attachment_type": "none",
                     "is_windbreak_room_attached": true,
+                    "is_sunshade_input": true,
                     "sunshade": {
                         "existance": true,
                         "input_method": "simple",
@@ -118,6 +119,7 @@
                     ],
                     "attachment_type": "none",
                     "is_windbreak_room_attached": true,
+                    "is_sunshade_input": true,
                     "sunshade": {
                         "existance": true,
                         "input_method": "simple",
@@ -145,6 +147,7 @@
                     ],
                     "attachment_type": "none",
                     "is_windbreak_room_attached": true,
+                    "is_sunshade_input": true,
                     "sunshade": {
                         "existance": true,
                         "input_method": "simple",
@@ -211,7 +214,7 @@
         "earthfloor_perimeters": [
             {
                 "name": "EFP1",
-                "next_space": "outdoor",
+                "next_space": "",
                 "length": 1,
                 "spec": {
                     "psi_value": 1
@@ -219,7 +222,7 @@
             },
             {
                 "name": "EFP2",
-                "next_space": "outdoor",
+                "next_space": "",
                 "length": 1,
                 "spec": {
                     "psi_value": 1
@@ -227,7 +230,7 @@
             },
             {
                 "name": "EFP3",
-                "next_space": "outdoor",
+                "next_space": "",
                 "length": 1,
                 "spec": {
                     "psi_value": 1
@@ -337,5 +340,5 @@
             "heat_exchanger_type": "cooling"
         }
     },
-    "target_key": "length"
+    "target_key": "next_space"
 }

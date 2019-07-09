@@ -91,6 +91,7 @@
                     ],
                     "attachment_type": "none",
                     "is_windbreak_room_attached": true,
+                    "is_sunshade_input": true,
                     "sunshade": {
                         "existance": true,
                         "input_method": "simple",
@@ -118,6 +119,7 @@
                     ],
                     "attachment_type": "none",
                     "is_windbreak_room_attached": true,
+                    "is_sunshade_input": true,
                     "sunshade": {
                         "existance": true,
                         "input_method": "simple",
@@ -145,6 +147,7 @@
                     ],
                     "attachment_type": "none",
                     "is_windbreak_room_attached": true,
+                    "is_sunshade_input": true,
                     "sunshade": {
                         "existance": true,
                         "input_method": "simple",
@@ -159,7 +162,7 @@
             {
                 "name": "DR1",
                 "next_space": "outdoor",
-                "direction": "upward",
+                "direction": "sw",
                 "area": 1,
                 "spec": {
                     "u_vaue": 1,
@@ -176,7 +179,7 @@
             {
                 "name": "DR2",
                 "next_space": "outdoor",
-                "direction": "upward",
+                "direction": "sw",
                 "area": 1,
                 "spec": {
                     "u_vaue": 1,
@@ -193,7 +196,7 @@
             {
                 "name": "DR3",
                 "next_space": "outdoor",
-                "direction": "upward",
+                "direction": "sw",
                 "area": 1,
                 "spec": {
                     "u_vaue": 1,

@@ -91,6 +91,7 @@
                     ],
                     "attachment_type": "none",
                     "is_windbreak_room_attached": true,
+                    "is_sunshade_input": true,
                     "sunshade": {
                         "existance": true,
                         "input_method": "simple",
@@ -118,6 +119,7 @@
                     ],
                     "attachment_type": "none",
                     "is_windbreak_room_attached": true,
+                    "is_sunshade_input": true,
                     "sunshade": {
                         "existance": true,
                         "input_method": "simple",
@@ -145,6 +147,7 @@
                     ],
                     "attachment_type": "none",
                     "is_windbreak_room_attached": true,
+                    "is_sunshade_input": true,
                     "sunshade": {
                         "existance": true,
                         "input_method": "simple",
@@ -243,21 +246,21 @@
                     {
                         "name": "LYR1",
                         "heat_resistance_input_method": "conductivity",
-                        "thermal_conductivity": 1000.0,
+                        "thermal_conductivity": 0.0,
                         "thickness": 1,
                         "volumetric_specific_heat": 1
                     },
                     {
                         "name": "LYR2",
                         "heat_resistance_input_method": "conductivity",
-                        "thermal_conductivity": 1000.0,
+                        "thermal_conductivity": 0.0,
                         "thickness": 1,
                         "volumetric_specific_heat": 1
                     },
                     {
                         "name": "LYR3",
                         "heat_resistance_input_method": "conductivity",
-                        "thermal_conductivity": 1000.0,
+                        "thermal_conductivity": 0.0,
                         "thickness": 1,
                         "volumetric_specific_heat": 1
                     }
@@ -271,21 +274,21 @@
                     {
                         "name": "LYR1",
                         "heat_resistance_input_method": "conductivity",
-                        "thermal_conductivity": 1000.0,
+                        "thermal_conductivity": 0.0,
                         "thickness": 1,
                         "volumetric_specific_heat": 1
                     },
                     {
                         "name": "LYR2",
                         "heat_resistance_input_method": "conductivity",
-                        "thermal_conductivity": 1000.0,
+                        "thermal_conductivity": 0.0,
                         "thickness": 1,
                         "volumetric_specific_heat": 1
                     },
                     {
                         "name": "LYR3",
                         "heat_resistance_input_method": "conductivity",
-                        "thermal_conductivity": 1000.0,
+                        "thermal_conductivity": 0.0,
                         "thickness": 1,
                         "volumetric_specific_heat": 1
                     }
@@ -299,21 +302,21 @@
                     {
                         "name": "LYR1",
                         "heat_resistance_input_method": "conductivity",
-                        "thermal_conductivity": 1000.0,
+                        "thermal_conductivity": 0.0,
                         "thickness": 1,
                         "volumetric_specific_heat": 1
                     },
                     {
                         "name": "LYR2",
                         "heat_resistance_input_method": "conductivity",
-                        "thermal_conductivity": 1000.0,
+                        "thermal_conductivity": 0.0,
                         "thickness": 1,
                         "volumetric_specific_heat": 1
                     },
                     {
                         "name": "LYR3",
                         "heat_resistance_input_method": "conductivity",
-                        "thermal_conductivity": 1000.0,
+                        "thermal_conductivity": 0.0,
                         "thickness": 1,
                         "volumetric_specific_heat": 1
                     }

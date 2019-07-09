@@ -91,6 +91,7 @@
                     ],
                     "attachment_type": "none",
                     "is_windbreak_room_attached": true,
+                    "is_sunshade_input": true,
                     "sunshade": {
                         "existance": true,
                         "input_method": "simple",
@@ -118,6 +119,7 @@
                     ],
                     "attachment_type": "none",
                     "is_windbreak_room_attached": true,
+                    "is_sunshade_input": true,
                     "sunshade": {
                         "existance": true,
                         "input_method": "simple",
@@ -145,6 +147,7 @@
                     ],
                     "attachment_type": "none",
                     "is_windbreak_room_attached": true,
+                    "is_sunshade_input": true,
                     "sunshade": {
                         "existance": true,
                         "input_method": "simple",
@@ -169,8 +172,8 @@
                         "input_method": "detailed",
                         "x1": 1,
                         "x2": 1,
-                        "x3": 1,
-                        "y1": -0.01,
+                        "x3": 0,
+                        "y1": 1,
                         "y2": 1,
                         "y3": 1,
                         "z_x_pls": 1,
@@ -193,8 +196,8 @@
                         "input_method": "detailed",
                         "x1": 1,
                         "x2": 1,
-                        "x3": 1,
-                        "y1": -0.01,
+                        "x3": 0,
+                        "y1": 1,
                         "y2": 1,
                         "y3": 1,
                         "z_x_pls": 1,
@@ -217,8 +220,8 @@
                         "input_method": "detailed",
                         "x1": 1,
                         "x2": 1,
-                        "x3": 1,
-                        "y1": -0.01,
+                        "x3": 0,
+                        "y1": 1,
                         "y2": 1,
                         "y3": 1,
                         "z_x_pls": 1,
@@ -358,5 +361,5 @@
             "heat_exchanger_type": "cooling"
         }
     },
-    "target_key": "y1"
+    "target_key": "x3"
 }

@@ -91,6 +91,7 @@
                     ],
                     "attachment_type": "none",
                     "is_windbreak_room_attached": true,
+                    "is_sunshade_input": true,
                     "sunshade": {
                         "existance": true,
                         "input_method": "simple",
@@ -118,6 +119,7 @@
                     ],
                     "attachment_type": "none",
                     "is_windbreak_room_attached": true,
+                    "is_sunshade_input": true,
                     "sunshade": {
                         "existance": true,
                         "input_method": "simple",
@@ -145,6 +147,7 @@
                     ],
                     "attachment_type": "none",
                     "is_windbreak_room_attached": true,
+                    "is_sunshade_input": true,
                     "sunshade": {
                         "existance": true,
                         "input_method": "simple",
@@ -237,7 +240,7 @@
         "earthfloor_centers": [
             {
                 "name": "EFC1",
-                "area": 0,
+                "area": 1,
                 "is_layers_input": true,
                 "layers": [
                     {
@@ -265,7 +268,7 @@
             },
             {
                 "name": "EFC2",
-                "area": 0,
+                "area": 1,
                 "is_layers_input": true,
                 "layers": [
                     {
@@ -293,7 +296,7 @@
             },
             {
                 "name": "EFC3",
-                "area": 0,
+                "area": 1,
                 "is_layers_input": true,
                 "layers": [
                     {
@@ -337,5 +340,5 @@
             "heat_exchanger_type": "cooling"
         }
     },
-    "target_key": "area"
+    "target_key": "psi_value"
 }

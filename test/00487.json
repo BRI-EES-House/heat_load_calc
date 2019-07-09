@@ -91,6 +91,7 @@
                     ],
                     "attachment_type": "none",
                     "is_windbreak_room_attached": true,
+                    "is_sunshade_input": true,
                     "sunshade": {
                         "existance": true,
                         "input_method": "detailed",
@@ -100,7 +101,7 @@
                         "y1": 1,
                         "y2": 1,
                         "y3": 1,
-                        "z_x_pls": 1,
+                        "z_x_pls": 10,
                         "z_x_mns": 1,
                         "z_y_pls": 1,
                         "z_y_mns": 1
@@ -125,6 +126,7 @@
                     ],
                     "attachment_type": "none",
                     "is_windbreak_room_attached": true,
+                    "is_sunshade_input": true,
                     "sunshade": {
                         "existance": true,
                         "input_method": "detailed",
@@ -134,7 +136,7 @@
                         "y1": 1,
                         "y2": 1,
                         "y3": 1,
-                        "z_x_pls": 1,
+                        "z_x_pls": 10,
                         "z_x_mns": 1,
                         "z_y_pls": 1,
                         "z_y_mns": 1
@@ -159,6 +161,7 @@
                     ],
                     "attachment_type": "none",
                     "is_windbreak_room_attached": true,
+                    "is_sunshade_input": true,
                     "sunshade": {
                         "existance": true,
                         "input_method": "detailed",
@@ -168,7 +171,7 @@
                         "y1": 1,
                         "y2": 1,
                         "y3": 1,
-                        "z_x_pls": 1,
+                        "z_x_pls": 10,
                         "z_x_mns": 1,
                         "z_y_pls": 1,
                         "z_y_mns": 1
@@ -358,5 +361,5 @@
             "heat_exchanger_type": "cooling"
         }
     },
-    "target_key": "z_x_mns"
+    "target_key": "z_x_pls"
 }

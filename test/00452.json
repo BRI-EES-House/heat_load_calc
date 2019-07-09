@@ -91,19 +91,13 @@
                     ],
                     "attachment_type": "none",
                     "is_windbreak_room_attached": true,
+                    "is_sunshade_input": true,
                     "sunshade": {
                         "existance": true,
-                        "input_method": "detailed",
-                        "x1": 1,
-                        "x2": 1,
-                        "x3": 1,
-                        "y1": 1,
-                        "y2": 1,
-                        "y3": 1,
-                        "z_x_pls": 1,
-                        "z_x_mns": 1,
-                        "z_y_pls": 1,
-                        "z_y_mns": 1
+                        "input_method": "simple",
+                        "depth": 1,
+                        "d_h": 1,
+                        "d_e": 10
                     }
                 }
             },
@@ -125,19 +119,13 @@
                     ],
                     "attachment_type": "none",
                     "is_windbreak_room_attached": true,
+                    "is_sunshade_input": true,
                     "sunshade": {
                         "existance": true,
-                        "input_method": "detailed",
-                        "x1": 1,
-                        "x2": 1,
-                        "x3": 1,
-                        "y1": 1,
-                        "y2": 1,
-                        "y3": 1,
-                        "z_x_pls": 1,
-                        "z_x_mns": 1,
-                        "z_y_pls": 1,
-                        "z_y_mns": 1
+                        "input_method": "simple",
+                        "depth": 1,
+                        "d_h": 1,
+                        "d_e": 10
                     }
                 }
             },
@@ -159,19 +147,13 @@
                     ],
                     "attachment_type": "none",
                     "is_windbreak_room_attached": true,
+                    "is_sunshade_input": true,
                     "sunshade": {
                         "existance": true,
-                        "input_method": "detailed",
-                        "x1": 1,
-                        "x2": 1,
-                        "x3": 1,
-                        "y1": 1,
-                        "y2": 1,
-                        "y3": 1,
-                        "z_x_pls": 1,
-                        "z_x_mns": 1,
-                        "z_y_pls": 1,
-                        "z_y_mns": 1
+                        "input_method": "simple",
+                        "depth": 1,
+                        "d_h": 1,
+                        "d_e": 10
                     }
                 }
             }
@@ -358,5 +340,5 @@
             "heat_exchanger_type": "cooling"
         }
     },
-    "target_key": "x1"
+    "target_key": "d_e"
 }
