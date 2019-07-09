@@ -21,7 +21,7 @@
     "cooling_equipment": {
         "is_radiative_cooling": true,
         "radiative_cooling": {
-            "max_capacity": 10000.0,
+            "max_capacity": -0.1,
             "area": 10
         },
         "convective_cooling": {

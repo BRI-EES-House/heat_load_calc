@@ -238,74 +238,17 @@
             {
                 "name": "EFC1",
                 "area": 1,
-                "layers": [
-                    {
-                        "name": "LYR1",
-                        "heat_resistance_input_method": "error_check",
-                        "thickness": 1,
-                        "volumetric_specific_heat": 1
-                    },
-                    {
-                        "name": "LYR2",
-                        "heat_resistance_input_method": "error_check",
-                        "thickness": 1,
-                        "volumetric_specific_heat": 1
-                    },
-                    {
-                        "name": "LYR3",
-                        "heat_resistance_input_method": "error_check",
-                        "thickness": 1,
-                        "volumetric_specific_heat": 1
-                    }
-                ]
+                "is_layers_input": "error_check"
             },
             {
                 "name": "EFC2",
                 "area": 1,
-                "layers": [
-                    {
-                        "name": "LYR1",
-                        "heat_resistance_input_method": "error_check",
-                        "thickness": 1,
-                        "volumetric_specific_heat": 1
-                    },
-                    {
-                        "name": "LYR2",
-                        "heat_resistance_input_method": "error_check",
-                        "thickness": 1,
-                        "volumetric_specific_heat": 1
-                    },
-                    {
-                        "name": "LYR3",
-                        "heat_resistance_input_method": "error_check",
-                        "thickness": 1,
-                        "volumetric_specific_heat": 1
-                    }
-                ]
+                "is_layers_input": "error_check"
             },
             {
                 "name": "EFC3",
                 "area": 1,
-                "layers": [
-                    {
-                        "name": "LYR1",
-                        "heat_resistance_input_method": "error_check",
-                        "thickness": 1,
-                        "volumetric_specific_heat": 1
-                    },
-                    {
-                        "name": "LYR2",
-                        "heat_resistance_input_method": "error_check",
-                        "thickness": 1,
-                        "volumetric_specific_heat": 1
-                    },
-                    {
-                        "name": "LYR3",
-                        "heat_resistance_input_method": "error_check",
-                        "thickness": 1,
-                        "volumetric_specific_heat": 1
-                    }
-                ]
+                "is_layers_input": "error_check"
             }
         ]
     },
@@ -325,5 +268,5 @@
             "heat_exchanger_type": "cooling"
         }
     },
-    "target_key": "heat_resistance_input_method"
+    "target_key": "is_layers_input"
 }

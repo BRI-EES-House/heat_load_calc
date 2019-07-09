@@ -9,7 +9,7 @@
         "input_method": "index"
     },
     "ventilation": {
-        "air_change_rate": 1
+        "air_change_rate": 0
     },
     "natural_vent": {
         "main_occupant_room_natural_vent_time": "0ACH",
@@ -24,5 +24,5 @@
             "heat_exchanger_type": "cooling"
         }
     },
-    "target_key": "main_occupant_room_natural_vent_time"
+    "target_key": "air_change_rate"
 }

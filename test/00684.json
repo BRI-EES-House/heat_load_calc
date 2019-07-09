@@ -12,7 +12,7 @@
         "air_change_rate": 1
     },
     "natural_vent": {
-        "main_occupant_room_natural_vent_time": "error_check",
+        "main_occupant_room_natural_vent_time": "0ACH",
         "other_occupant_room_natural_vent_time": "0ACH"
     },
     "heating_equipment": {

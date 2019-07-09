@@ -238,6 +238,7 @@
             {
                 "name": "EFC1",
                 "area": 1,
+                "is_layers_input": true,
                 "layers": [
                     {
                         "name": "LYR1",
@@ -265,6 +266,7 @@
             {
                 "name": "EFC2",
                 "area": 1,
+                "is_layers_input": true,
                 "layers": [
                     {
                         "name": "LYR1",
@@ -292,6 +294,7 @@
             {
                 "name": "EFC3",
                 "area": 1,
+                "is_layers_input": true,
                 "layers": [
                     {
                         "name": "LYR1",

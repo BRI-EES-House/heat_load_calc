@@ -238,81 +238,84 @@
             {
                 "name": "EFC1",
                 "area": 1,
+                "is_layers_input": true,
                 "layers": [
                     {
                         "name": "LYR1",
                         "heat_resistance_input_method": "conductivity",
                         "thermal_conductivity": 1,
-                        "thickness": 1,
-                        "volumetric_specific_heat": 9999.9
+                        "thickness": 10.0,
+                        "volumetric_specific_heat": 1
                     },
                     {
                         "name": "LYR2",
                         "heat_resistance_input_method": "conductivity",
                         "thermal_conductivity": 1,
-                        "thickness": 1,
-                        "volumetric_specific_heat": 9999.9
+                        "thickness": 10.0,
+                        "volumetric_specific_heat": 1
                     },
                     {
                         "name": "LYR3",
                         "heat_resistance_input_method": "conductivity",
                         "thermal_conductivity": 1,
-                        "thickness": 1,
-                        "volumetric_specific_heat": 9999.9
+                        "thickness": 10.0,
+                        "volumetric_specific_heat": 1
                     }
                 ]
             },
             {
                 "name": "EFC2",
                 "area": 1,
+                "is_layers_input": true,
                 "layers": [
                     {
                         "name": "LYR1",
                         "heat_resistance_input_method": "conductivity",
                         "thermal_conductivity": 1,
-                        "thickness": 1,
-                        "volumetric_specific_heat": 9999.9
+                        "thickness": 10.0,
+                        "volumetric_specific_heat": 1
                     },
                     {
                         "name": "LYR2",
                         "heat_resistance_input_method": "conductivity",
                         "thermal_conductivity": 1,
-                        "thickness": 1,
-                        "volumetric_specific_heat": 9999.9
+                        "thickness": 10.0,
+                        "volumetric_specific_heat": 1
                     },
                     {
                         "name": "LYR3",
                         "heat_resistance_input_method": "conductivity",
                         "thermal_conductivity": 1,
-                        "thickness": 1,
-                        "volumetric_specific_heat": 9999.9
+                        "thickness": 10.0,
+                        "volumetric_specific_heat": 1
                     }
                 ]
             },
             {
                 "name": "EFC3",
                 "area": 1,
+                "is_layers_input": true,
                 "layers": [
                     {
                         "name": "LYR1",
                         "heat_resistance_input_method": "conductivity",
                         "thermal_conductivity": 1,
-                        "thickness": 1,
-                        "volumetric_specific_heat": 9999.9
+                        "thickness": 10.0,
+                        "volumetric_specific_heat": 1
                     },
                     {
                         "name": "LYR2",
                         "heat_resistance_input_method": "conductivity",
                         "thermal_conductivity": 1,
-                        "thickness": 1,
-                        "volumetric_specific_heat": 9999.9
+                        "thickness": 10.0,
+                        "volumetric_specific_heat": 1
                     },
                     {
                         "name": "LYR3",
                         "heat_resistance_input_method": "conductivity",
                         "thermal_conductivity": 1,
-                        "thickness": 1,
-                        "volumetric_specific_heat": 9999.9
+                        "thickness": 10.0,
+                        "volumetric_specific_heat": 1
                     }
                 ]
             }
@@ -334,5 +337,5 @@
             "heat_exchanger_type": "cooling"
         }
     },
-    "target_key": "volumetric_specific_heat"
+    "target_key": "thickness"
 }

@@ -21,12 +21,12 @@
     "cooling_equipment": {
         "is_radiative_cooling": true,
         "radiative_cooling": {
-            "max_capacity": 100,
-            "area": 99.99
+            "max_capacity": 10000.0,
+            "area": 10
         },
         "convective_cooling": {
             "heat_exchanger_type": "cooling"
         }
     },
-    "target_key": "area"
+    "target_key": "max_capacity"
 }

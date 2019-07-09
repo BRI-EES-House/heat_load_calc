@@ -22,7 +22,7 @@
         "is_radiative_cooling": true,
         "radiative_cooling": {
             "max_capacity": 100,
-            "area": 100.0
+            "area": -0.01
         },
         "convective_cooling": {
             "heat_exchanger_type": "cooling"
