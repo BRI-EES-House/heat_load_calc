@@ -64,6 +64,22 @@ def calc_Hload(cdata, weather):
         for space in spaces.values():
             for surface in space.input_surfaces:
                 rowlist.append(surface.name + "_表面温度[℃]")
+    if 1:
+        for space in spaces.values():
+            for surface in space.input_surfaces:
+                rowlist.append(surface.name + "_等価室温[℃]")
+    if 1:
+        for space in spaces.values():
+            for surface in space.input_surfaces:
+                rowlist.append(surface.name + "_境界温度[℃]")
+    if 1:
+        for space in spaces.values():
+            for surface in space.input_surfaces:
+                rowlist.append(surface.name + "_表面熱流[W]")
+    if 0:
+        for space in spaces.values():
+            for surface in space.input_surfaces:
+                rowlist.append(surface.name + "_Tsx[℃]")
     OutList.append(rowlist)
     rowlist = []
 
@@ -91,13 +107,17 @@ def calc_Hload(cdata, weather):
                 rowlist.append('{0:.4f}'.format(weather.WeaData(enmWeatherComponent.x, dtmNow) / 1000.0))
                 if lngTloop == 0:
                     print(dtmNow)
+            # 太陽位置の計算
+            # print(dtmNow)
+            Solpos = weather.Solpos(dtmNow)
+            # print(Solpos.Sh, Solpos.Sw, Solpos.Ss)
             for space in spaces.values():
                 # 室温、熱負荷の計算
                 space.calcHload(
                     Gdata=cdata,
                     spaces=spaces,
                     dtmNow=dtmNow,
-                    defSolpos=weather.Solpos(dtmNow),
+                    defSolpos=Solpos,
                     Weather=weather
                 )
                 
@@ -124,6 +144,18 @@ def calc_Hload(cdata, weather):
                     if 1:
                         for surface in space.input_surfaces:
                             rowlist.append('{0:.2f}'.format(surface.Ts))
+                    if 1:
+                        for surface in space.input_surfaces:
+                            rowlist.append('{0:.2f}'.format(surface.Tei))
+                    if 1:
+                        for surface in space.input_surfaces:
+                            rowlist.append('{0:.2f}'.format(surface.Teo))
+                    if 1:
+                        for surface in space.input_surfaces:
+                            rowlist.append('{0:.2f}'.format(surface.Qt))
+                    if 1:
+                        for surface in space.input_surfaces:
+                            rowlist.append('{0:.2f}'.format(surface.Tsx))
                     # print('{0:.0f}'.format(space.nowWin), '{0:.0f}'.format(space.nowAC), '{0:.2f}'.format(space.Tr), \
                     #         '{0:.0f}'.format(space.RH), '{0:.2f}'.format(space.MRT), '{0:.2f}'.format(space.PMV), \
                     #         '{0:.0f}'.format(space.Lcs), '{0:.0f}'.format(space.Lr), '{0:.0f}'.format(space.Ll), "", end="")
@@ -139,14 +171,16 @@ def calc_Hload(cdata, weather):
         lngNnow += 1
 
     # CSVファイルの出力
-    f = open('simulatin_result.csv', 'w')
+    f = open('simulatin_result.csv', 'w', encoding="utf_8_sig")
     dataWriter = csv.writer(f, lineterminator='\n')
     dataWriter.writerows(OutList)
     f.close()
 
 if __name__ == '__main__':
-    js = open('input_non_residential.json', 'r', encoding='utf-8')
-    # js = open('input20190528.json', 'r', encoding='utf-8')
+    js = open('1RCase1_最初の外壁削除.json', 'r', encoding='utf-8')
+    # js = open('1RCase1.json', 'r', encoding='utf-8')
+    # js = open('input_residential.json', 'r', encoding='utf-8')
+    # js = open('検証用.json', 'r', encoding='utf-8')
     d = json.load(js)
 
     # シミュレーション全体の設定条件の読み込み

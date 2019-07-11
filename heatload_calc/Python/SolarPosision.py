@@ -72,6 +72,8 @@ def get_solpos(dtmDate, coeff, d0, SinD0, CosPhi, SinPhi, LLs, lngN) -> defSolpo
     # 太陽位置の計算
     dblSh = max(SinPhi * dblSinD + CosPhi * dblCosD * math.cos(dblT), 0.0)
 
+    # print('Sh', dblSh)
+
     # 太陽高度
     dblh = math.asin(dblSh)
     if dblSh > 0.:

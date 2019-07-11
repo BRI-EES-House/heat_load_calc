@@ -29,9 +29,9 @@ class Gdata:
 
         # 計算時間間隔(s)
         if self.is_residential:
-            self.DTime = 900
+            self.DTime = 900.0
         else:
-            self.DTime = 3600
+            self.DTime = 3600.0
 
         # 助走計算期間(day)
         self.__lngApproach = 20

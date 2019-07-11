@@ -44,7 +44,7 @@ class Surface:
                 print("境界Typeが見つかりません。 name=", self.name, "boundary_type=", self.boundary_type)
 
             # 部位のタイプ
-            self.Floor = d['is_solar_absorbed_inside']      #床フラグ（透過日射の吸収部位）
+            self.is_solar_absorbed_inside = d['is_solar_absorbed_inside']      #床フラグ（透過日射の吸収部位）
 
             self.area = float(d['area'])                    # 面積
             self.a = 0.0                                    # 部位の面積比率（全面積に対する面積比）
@@ -95,10 +95,10 @@ class Surface:
 
             self.__Nroot = 0
 
-            self.__Qt = 0.0
-            self.__Qc = 0.0  # 対流成分
-            self.__Qr = 0.0  # 放射成分
-            self.__RS = 0.0  # 短波長熱取得成分
+            self.Qt = 0.0
+            self.Qc = 0.0  # 対流成分
+            self.Qr = 0.0  # 放射成分
+            self.RS = 0.0  # 短波長熱取得成分
             self.__Lr = 0.0  # 放射暖房成分
 
             self.oldTeo = 15.0  # 前時刻の室外側温度
@@ -181,7 +181,7 @@ class Surface:
         :param Beta:
         :return:
         """
-        self.__Tei = Tr * self.hic / self.hi \
+        self.Tei = Tr * self.hic / self.hi \
                      + Tsx * self.hir / self.hi \
                      + self.RSsol / self.hi \
                      + self.flr * Lr * (1.0 - Beta) / self.hi / self.area
@@ -195,23 +195,22 @@ class Surface:
         :param Beta:
         :return:
         """
-        # 前時刻熱流の保持
-        self.oldqi = self.__Qt / self.area
-
         # 対流成分
-        self.__Qc = self.hic * self.area * (Tr - self.Ts)
+        self.Qc = self.hic * self.area * (Tr - self.Ts)
 
         # 放射成分
-        self.__Qr = self.hir * self.area * (Tsx - self.Ts)
+        self.Qr = self.hir * self.area * (Tsx - self.Ts)
 
         # 短波長熱取得成分
-        self.__RS = self.RSsol * self.area
+        self.RS = self.RSsol * self.area
 
         # 放射暖房成分
         self.__Lr = self.flr * Lr * (1.0 - Beta)
 
         # 表面熱流合計
-        self.__Qt = self.__Qc + self.__Qr + self.__Lr + self.__RS
+        self.Qt = self.Qc + self.Qr + self.__Lr + self.RS
+        # 前時刻熱流の保持
+        self.oldqi = self.Qt / self.area
 
     # 透過日射の室内部位表面吸収日射量の初期化
     def update_RSsol(self, TotalQgt: float):
@@ -222,6 +221,7 @@ class Surface:
 
     # 相当外気温度の計算
     def calcTeo(self, Ta, RN, oldTr, AnnualTave, spaces):
+        # 前時刻の相当外気温度を控える
         self.oldTeo = self.Teo
 
         # 日射の当たる一般部位または不透明部位の場合
@@ -261,6 +261,7 @@ class Surface:
         # 透過日射量の計算
         self.Qgt = Qgtd + Qgts
 
+        # print('Id', self.__Id, 'Qgtd', Qgtd, 'Qgts', Qgts)
         # 吸収日射量
         self.Qga = self.__transparent_opening.get_QGA(self.__Id, self.__Isky, self.__Ir, self.__objExsrf.CosT, self.Fsdw) * self.area
 
@@ -271,7 +272,7 @@ class Surface:
 
     # 傾斜面日射量を計算する
     def update_slope_sol(self, Solpos, Idn, Isky):
-        if self.__objExsrf.Type == 'external' and self.is_sun_striked_outside:
+        if 'external' in self.__objExsrf.Type and self.is_sun_striked_outside:
             # 傾斜面日射量を計算
             self.__objExsrf.update_slop_sol(Solpos, Idn, Isky)
             # 直達日射量
@@ -313,7 +314,7 @@ class Surface:
                 # 方位の比較
                 temp = temp and self.__direction == comp_surface.__direction
                 # 室内侵入日射吸収の有無の比較
-                temp = temp and self.Floor == comp_surface.Floor
+                temp = temp and self.is_solar_absorbed_inside == comp_surface.is_solar_absorbed_inside
                 # 屋外側放射率の比較
                 temp = temp and abs(self.Eo - comp_surface.Eo) < 1.0E-5
                 # 屋外側日射吸収率の比較

@@ -2,7 +2,7 @@ import math
 import numpy as np
 from Wall import Wall, Layer
 from typing import List
-
+import matplotlib.pyplot as plt
 
 # ラプラス変数の設定
 def get_laps(alp: List[float]) -> List[float]:
@@ -114,6 +114,9 @@ def get_step_reps_of_wall(layers: List[Layer], laps: List[float], alp: List[floa
                     [dblTemp / layer.R * dblSinh, dblCosh]
                 ])
 
+            # print('[Fi(', lngK, ')]')
+            # print(matFi)
+
             # ---- 四端子行列 matFt ----
             if lngK == 0:
                 # 室内側1層目の場合は、四端子行列に四端子基本行列をコピーする
@@ -122,10 +125,15 @@ def get_step_reps_of_wall(layers: List[Layer], laps: List[float], alp: List[floa
                 # 室内側2層目以降は、四端子基本行列を乗算
                 matFt = np.dot(matFt, matFi[lngK])
 
+        # print('martFt')
+        # print(matFt)
+
         # 吸熱、貫流の各伝達関数ベクトルの作成
         matGA[lngI][0] = matFt[0, 1] / matFt[1, 1] - dblGA0
         matGT[lngI][0] = 1.0 / matFt[1][1] - dblGT0
 
+    # print('matGA', matGA)
+    # print('matGT', matGT)
     # 伝達関数の係数を求めるための左辺行列を作成
     nroot = len(alp)
     matF = np.zeros((nlaps, nroot))
@@ -161,8 +169,11 @@ def get_step_reps_of_wall(layers: List[Layer], laps: List[float], alp: List[floa
     dblATstep = np.zeros(M)
     dblAAstep = np.zeros(M)
     for lngJ in range(M):
-        dblATstep[lngJ] = dblAT0 + np.sum(dblAT * np.exp(-root * lngJ * DTime))
-        dblAAstep[lngJ] = dblAA0 + np.sum(dblAA * np.exp(-root * lngJ * DTime))
+        dblATstep[lngJ] = dblAT0
+        dblAAstep[lngJ] = dblAA0
+        for lngK, root in enumerate(alp):
+            dblATstep[lngJ] = dblATstep[lngJ] + dblAT[lngK] * math.exp( -root * lngJ * DTime )
+            dblAAstep[lngJ] = dblAAstep[lngJ] + dblAA[lngK] * math.exp( -root * lngJ * DTime )
 
     # デバッグ用
     # print('四端子基本行列：', matFi)
@@ -197,7 +208,7 @@ def get_RFTRI(alp, AT0, AA0, AT, AA, M, DTime):
     # 二等辺三角波励振の応答係数の二項目以降を計算
     for lngJ in range(1, M):
         dblE1 = (1.0 - np.exp(-dblTemp)) ** 2.0 * np.exp(-(float(lngJ) - 1.0) * dblTemp) / dblTemp
-        dblRFT[lngJ] = - np.sum(dblE1 * AT)
+        dblRFT[lngJ] = (-1.0) * np.sum(dblE1 * AT)
         dblRFA[lngJ] = - np.sum(dblE1 * AA)
 
     # 指数項別応答係数、公比を計算
@@ -241,9 +252,15 @@ class ResponseFactor:
 
         # 単位応答の計算
         AT0, AA0, AT, AA, ATstep, AAstep = get_step_reps_of_wall(Wall.Layers, laps, alps, M, DTime)
+        # plt.plot(ATstep)
+        # plt.show()
+        # plt.plot(AAstep)
+        # plt.show()
 
         # 二等辺三角波励振の応答係数、指数項別応答係数、公比の計算
         RFT, RFA, self.RFT1, self.RFA1, self.Row = get_RFTRI(alps, AT0, AA0, AT, AA, M, DTime)
+        # print('RFT0', RFT[0], 'RFA0', RFA[0])
+        # print('RFT1', self.RFT1, 'RFA1', self.RFA1, 'Row', self.Row)
 
         self.RFT0 = RFT[0]  # 貫流応答係数の初項
         self.RFA0 = RFA[0]  # 吸熱応答係数の初項
