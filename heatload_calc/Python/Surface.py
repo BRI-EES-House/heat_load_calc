@@ -103,6 +103,7 @@ class Surface:
 
             self.oldTeo = 15.0  # 前時刻の室外側温度
             self.oldqi = 0.0  # 前時刻の室内側表面熱流
+            self.Fmrt = 0.0     # 平均放射温度に対する当該表面温度の重み
 
             # 一般部位の初期化
             if self.boundary_type == "external_general_part" or self.boundary_type == "internal" or self.boundary_type == "ground":

@@ -75,8 +75,8 @@ def calc_Hload(cdata, weather):
     if 1:
         for space in spaces.values():
             for surface in space.input_surfaces:
-                rowlist.append(surface.name + "_表面熱流[W]")
-    if 0:
+                rowlist.append(surface.name + "_表面放射熱流[W]")
+    if 1:
         for space in spaces.values():
             for surface in space.input_surfaces:
                 rowlist.append(surface.name + "_Tsx[℃]")
@@ -152,7 +152,7 @@ def calc_Hload(cdata, weather):
                             rowlist.append('{0:.2f}'.format(surface.Teo))
                     if 1:
                         for surface in space.input_surfaces:
-                            rowlist.append('{0:.2f}'.format(surface.Qt))
+                            rowlist.append('{0:.2f}'.format(surface.Qr))
                     if 1:
                         for surface in space.input_surfaces:
                             rowlist.append('{0:.2f}'.format(surface.Tsx))
@@ -177,8 +177,8 @@ def calc_Hload(cdata, weather):
     f.close()
 
 if __name__ == '__main__':
-    js = open('1RCase1_最初の外壁削除.json', 'r', encoding='utf-8')
-    # js = open('1RCase1.json', 'r', encoding='utf-8')
+    # js = open('1RCase1_最初の外壁削除.json', 'r', encoding='utf-8')
+    js = open('1RCase1.json', 'r', encoding='utf-8')
     # js = open('input_residential.json', 'r', encoding='utf-8')
     # js = open('検証用.json', 'r', encoding='utf-8')
     d = json.load(js)

@@ -113,7 +113,7 @@ class Space:
         self.__Ga = self.__volume * conrowa         # 室空気の質量[kg]
         self.__Capfun = self.__volume * funiture_sensible_capacity * 1000.
                                                     # 家具熱容量[J/K]
-        self.__Capfun = 0.0
+        # self.__Capfun = 0.0
         self.__Cfun = 0.00022 * self.__Capfun       # 家具と空気間の熱コンダクタンス[W/K]
         self.__Gf = funiture_latent_capacity * self.__volume
                                                     # 家具類の湿気容量[kg]
@@ -345,6 +345,13 @@ class Space:
             surface.hic = max(0.0, surface.hi - surface.hir)
             # print(surface.name, surface.hic, surface.hir, surface.hi)
         
+        # 平均放射温度計算のための各部位の比率計算
+        total_area_hir = 0.0
+        for surface in self.input_surfaces:
+            total_area_hir += surface.area * surface.hir
+        for surface in self.input_surfaces:
+            surface.Fmrt = surface.area * surface.hir / total_area_hir
+
         # print(TotalFF)
         # 透過日射の室内部位表面吸収比率の計算
         # 50%を床、50%を家具に吸収させる
@@ -399,17 +406,19 @@ class Space:
             self.__matFLB[i][0] = surface.RFA0 * surface.flr * (1. - self.__Beta) / surface.area
 
             # 放射計算のマトリックス作成
-            for j in range(self.__Nsurf):
+            j = 0
+            for nxtsurface in self.input_surfaces:
                 # print('i=', i, 'j=', j)
                 # print('FIA=', self.__matFIA[0][i])
                 # print('FF=', surface.FF(j))
                 # 対角要素
                 if i == j:
                     self.__matAXd[i][j] = 1. + surface.RFA0 * surface.hi \
-                                          - surface.RFA0 * surface.hir * surface.FF()
+                                          - surface.RFA0 * surface.hir * nxtsurface.Fmrt
                 # 対角要素以外
                 else:
-                    self.__matAXd[i][j] = - surface.RFA0 * surface.hir * surface.FF()
+                    self.__matAXd[i][j] = - surface.RFA0 * surface.hir * nxtsurface.Fmrt
+                j += 1
             # print('放射計算マトリックス作成完了')
             i += 1
 
@@ -783,7 +792,7 @@ class Space:
             j = 0
             # 形態係数加重平均表面温度の計算
             for nxtsurface in self.input_surfaces:
-                surface.Tsx += nxtsurface.Ts * nxtsurface.FF()
+                surface.Tsx += nxtsurface.Ts * nxtsurface.Fmrt
                 j += 1
 
             # 室内側等価温度の計算
