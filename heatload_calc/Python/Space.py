@@ -521,7 +521,7 @@ class Space:
         for surface in self.input_surfaces:
             surface.update_RSsol(self.Qgt)
         # 家具の吸収日射量
-        self.__Qsolfun = self.Qgt * self.__rsolfun
+        self.Qsolfun = self.Qgt * self.__rsolfun
 
         # 流入外気風量の計算
         # 計画換気・すきま風量
@@ -626,7 +626,7 @@ class Space:
 
         # 家具からの熱取得の項
         if self.__Capfun > 0.0:
-            self.__BRC += (self.__Capfun / Gdata.DTime * self.__oldTfun + self.__Qsolfun) \
+            self.__BRC += (self.__Capfun / Gdata.DTime * self.__oldTfun + self.Qsolfun) \
                     / (self.__Capfun / (Gdata.DTime * self.__Cfun) + 1.)
 
         # {WSV}、{CVL}の初期化
@@ -971,17 +971,19 @@ class Space:
     def calcTfun(self, Gdata):
         if self.__Capfun > 0.0:
             self.Tfun = ((self.__Capfun / Gdata.DTime * self.__oldTfun \
-                    + self.__Cfun * self.Tr + self.__Qsolfun) \
+                    + self.__Cfun * self.Tr + self.Qsolfun) \
                     / (self.__Capfun / Gdata.DTime + self.__Cfun))
+            self.Qfuns = self.__Cfun * (self.Tr - self.Tfun)
         # if self.name == "主たる居室":
-        #     print(self.name, self.__oldTfun, self.Tfun, self.__Capfun, self.__Cfun, self.__Qsolfun)
+        #     print(self.name, self.__oldTfun, self.Tfun, self.__Capfun, self.__Cfun, self.Qsolfun)
         return self.Tfun
 
     # 家具類の湿度を計算する
     def calcxf(self, Gdata):
         self.xf = (self.__Gf / Gdata.DTime * self.__oldxf + self.__Cx * self.xr) / (self.__Gf / Gdata.DTime + self.__Cx)
+        self.Qfunl = self.__Cx * (self.xr - self.xf)
         # if self.name == "主たる居室":
-        #     print(self.name, self.__oldTfun, self.Tfun, self.__Capfun, self.__Cfun, self.__Qsolfun)
+        #     print(self.name, self.__oldTfun, self.Tfun, self.__Capfun, self.__Cfun, self.Qsolfun)
         return self.xf
 
     # エアコンの熱交換部飽和絶対湿度の計算

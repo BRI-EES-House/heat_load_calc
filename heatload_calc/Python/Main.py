@@ -60,6 +60,11 @@ def calc_Hload(cdata, weather):
     rowlist.append("対流空調顕熱負荷[W]")
     rowlist.append("放射空調顕熱負荷[W]")
     rowlist.append("対流空調潜熱負荷[W]")
+    rowlist.append("家具温度[℃]")
+    rowlist.append("家具取得熱量[W]")
+    rowlist.append("家具吸収日射熱量[W]")
+    rowlist.append("家具絶対湿度[kg/kg(DA)]")
+    rowlist.append("家具取得水蒸気量[kg/s]")
     if 1:
         for space in spaces.values():
             for surface in space.input_surfaces:
@@ -77,6 +82,10 @@ def calc_Hload(cdata, weather):
             for surface in space.input_surfaces:
                 rowlist.append(surface.name + "_表面放射熱流[W]")
     if 1:
+        for space in spaces.values():
+            for surface in space.input_surfaces:
+                rowlist.append(surface.name + "_表面対流熱流[W]")
+    if 0:
         for space in spaces.values():
             for surface in space.input_surfaces:
                 rowlist.append(surface.name + "_Tsx[℃]")
@@ -138,9 +147,14 @@ def calc_Hload(cdata, weather):
                     # rowlist.append('{0:.2f}'.format(space.Clo))
                     # rowlist.append('{0:.2f}'.format(space.Vel))
                     # rowlist.append('{0:.2f}'.format(space.PMV))
-                    rowlist.append('{0:.0f}'.format(space.Lcs))
-                    rowlist.append('{0:.0f}'.format(space.Lrs))
-                    rowlist.append('{0:.0f}'.format(space.Lcl))
+                    rowlist.append('{0:.1f}'.format(space.Lcs))
+                    rowlist.append('{0:.1f}'.format(space.Lrs))
+                    rowlist.append('{0:.1f}'.format(space.Lcl))
+                    rowlist.append('{0:.2f}'.format(space.Tfun))
+                    rowlist.append('{0:.1f}'.format(space.Qfuns))
+                    rowlist.append('{0:.1f}'.format(space.Qsolfun))
+                    rowlist.append('{0:.5f}'.format(space.xf))
+                    rowlist.append('{0:.5f}'.format(space.Qfunl))
                     if 1:
                         for surface in space.input_surfaces:
                             rowlist.append('{0:.2f}'.format(surface.Ts))
@@ -154,6 +168,9 @@ def calc_Hload(cdata, weather):
                         for surface in space.input_surfaces:
                             rowlist.append('{0:.2f}'.format(surface.Qr))
                     if 1:
+                        for surface in space.input_surfaces:
+                            rowlist.append('{0:.2f}'.format(surface.Qc))
+                    if 0:
                         for surface in space.input_surfaces:
                             rowlist.append('{0:.2f}'.format(surface.Tsx))
                     # print('{0:.0f}'.format(space.nowWin), '{0:.0f}'.format(space.nowAC), '{0:.2f}'.format(space.Tr), \
