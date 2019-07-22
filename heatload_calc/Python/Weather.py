@@ -1,8 +1,8 @@
 import csv
 from enum import IntEnum
+import datetime
 import SolarPosision
-from SolarPosision import *
-
+from SolarPosision import defSolpos, SolarPosision
 
 class enmWeatherComponent(IntEnum):
     Ta = 2  # 外気温度[℃]

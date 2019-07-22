@@ -209,7 +209,7 @@ def get_RFTRI(alp, AT0, AA0, AT, AA, M, DTime):
     for lngJ in range(1, M):
         dblE1 = (1.0 - np.exp(-dblTemp)) ** 2.0 * np.exp(-(float(lngJ) - 1.0) * dblTemp) / dblTemp
         dblRFT[lngJ] = (-1.0) * np.sum(dblE1 * AT)
-        dblRFA[lngJ] = - np.sum(dblE1 * AA)
+        dblRFA[lngJ] = (-1.0) * np.sum(dblE1 * AA)
 
     # 指数項別応答係数、公比を計算
     dblE1 = 1.0 / dblTemp * (1.0 - np.exp(-dblTemp)) ** 2.0

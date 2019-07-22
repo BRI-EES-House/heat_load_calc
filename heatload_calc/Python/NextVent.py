@@ -21,9 +21,7 @@ class NextVent:
 
     # 風上室の室温を更新
     def update_oldstate(self, oldTr, oldxr):
-        # 前時刻の隣室温度
         self.oldTr = oldTr
-        # 前時刻の隣室湿度
         self.oldxr = oldxr
 
     # 風上室の室名を返す

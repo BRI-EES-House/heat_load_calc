@@ -43,7 +43,7 @@ class Gdata:
             self.StDate = datetime.datetime(self.__conlngYr, 8, 1)
             self.EnDate = datetime.datetime(self.__conlngYr, 8, 1)
             self.__lngApproach = 0
-        if 0:
+        if 1:
             self.StDate = datetime.datetime(self.__conlngYr, 1, 1)
             self.EnDate = datetime.datetime(self.__conlngYr, 1, 1)
             self.__lngApproach = 0

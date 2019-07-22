@@ -2,6 +2,7 @@ import csv
 import datetime
 import json
 import common
+from common import get_nday
 from Gdata import Gdata
 from Weather import enmWeatherComponent, Weather
 from Sunbrk import SunbrkType
@@ -44,51 +45,47 @@ def calc_Hload(cdata, weather):
     rowlist.append("日時")
     rowlist.append("外気温度[℃]")
     rowlist.append("外気絶対湿度[kg/kg(DA)]")
-    rowlist.append("窓開閉")
-    rowlist.append("在室状況")
-    rowlist.append("最終空調状態")
-    rowlist.append("空気温度[℃]")
-    rowlist.append("室相対湿度[%]")
-    rowlist.append("室絶対湿度[kg/kg(DA)]")
-    rowlist.append("室MRT[℃]")
-    rowlist.append("室作用温度[℃]")
-    rowlist.append("透過日射熱取得[W]")
-    rowlist.append("機器顕熱発熱[W]")
-    rowlist.append("照明発熱[W]")
-    rowlist.append("人体顕熱発熱[W]")
-    rowlist.append("人体潜熱発熱[W]")
-    rowlist.append("対流空調顕熱負荷[W]")
-    rowlist.append("放射空調顕熱負荷[W]")
-    rowlist.append("対流空調潜熱負荷[W]")
-    rowlist.append("家具温度[℃]")
-    rowlist.append("家具取得熱量[W]")
-    rowlist.append("家具吸収日射熱量[W]")
-    rowlist.append("家具絶対湿度[kg/kg(DA)]")
-    rowlist.append("家具取得水蒸気量[kg/s]")
-    if 1:
-        for space in spaces.values():
+
+    for space in spaces.values():
+        rowlist.append(space.name + "_窓開閉")
+        rowlist.append(space.name + "_在室状況")
+        rowlist.append(space.name + "_最終空調状態")
+        rowlist.append(space.name + "_空気温度[℃]")
+        rowlist.append(space.name + "_室相対湿度[%]")
+        rowlist.append(space.name + "_室絶対湿度[kg/kg(DA)]")
+        rowlist.append(space.name + "_室MRT[℃]")
+        rowlist.append(space.name + "_室作用温度[℃]")
+        rowlist.append(space.name + "_透過日射熱取得[W]")
+        rowlist.append(space.name + "_機器顕熱発熱[W]")
+        rowlist.append(space.name + "_照明発熱[W]")
+        rowlist.append(space.name + "_人体顕熱発熱[W]")
+        rowlist.append(space.name + "_人体潜熱発熱[W]")
+        rowlist.append(space.name + "_対流空調顕熱負荷[W]")
+        rowlist.append(space.name + "_放射空調顕熱負荷[W]")
+        rowlist.append(space.name + "_対流空調潜熱負荷[W]")
+        rowlist.append(space.name + "_家具温度[℃]")
+        rowlist.append(space.name + "_家具取得熱量[W]")
+        rowlist.append(space.name + "_家具吸収日射熱量[W]")
+        rowlist.append(space.name + "_家具絶対湿度[kg/kg(DA)]")
+        rowlist.append(space.name + "_家具取得水蒸気量[kg/s]")
+        if 1:
             for surface in space.input_surfaces:
-                rowlist.append(surface.name + "_表面温度[℃]")
-    if 1:
-        for space in spaces.values():
+                rowlist.append(space.name + "_" + surface.name + "_表面温度[℃]")
+        if 1:
             for surface in space.input_surfaces:
-                rowlist.append(surface.name + "_等価室温[℃]")
-    if 1:
-        for space in spaces.values():
+                rowlist.append(space.name + "_" + surface.name + "_等価室温[℃]")
+        if 1:
             for surface in space.input_surfaces:
-                rowlist.append(surface.name + "_境界温度[℃]")
-    if 1:
-        for space in spaces.values():
+                rowlist.append(space.name + "_" + surface.name + "_境界温度[℃]")
+        if 1:
             for surface in space.input_surfaces:
-                rowlist.append(surface.name + "_表面放射熱流[W]")
-    if 1:
-        for space in spaces.values():
+                rowlist.append(space.name + "_" + surface.name + "_表面放射熱流[W]")
+        if 1:
             for surface in space.input_surfaces:
-                rowlist.append(surface.name + "_表面対流熱流[W]")
-    if 0:
-        for space in spaces.values():
+                rowlist.append(space.name + "_" + surface.name + "_表面対流熱流[W]")
+        if 0:
             for surface in space.input_surfaces:
-                rowlist.append(surface.name + "_Tsx[℃]")
+                rowlist.append(space.name + "_" + surface.name + "_Tsx[℃]")
     OutList.append(rowlist)
     rowlist = []
 
@@ -98,13 +95,8 @@ def calc_Hload(cdata, weather):
         for lngTloop in range(0, lngNtime):
             dtime = datetime.timedelta(days=lngNnow + float(lngTloop) / float(lngNtime))
             dtmNow = apDate + dtime
+            sequence_number = int((get_nday(dtmNow.month, dtmNow.day) - 1) * 24 * 4 + dtmNow.hour * 4 + float(dtmNow.minute) / 60.0 * 3600 / cdata.DTime)
 
-            # 傾斜面日射量の計算
-            # Solpos = weather.Solpos(dtmNow)
-            # Idn = weather.WeaData(enmWeatherComponent.Idn, dtmNow)
-            # Isky = weather.WeaData(enmWeatherComponent.Isky, dtmNow)
-            # for exsrf in exsurfaces.values():
-            #     exsrf.update_slop_sol(Solpos, Idn, Isky)
             rowlist = []
             # 室温・熱負荷の計算
             if cdata.FlgOrig(dtmNow):
@@ -139,7 +131,7 @@ def calc_Hload(cdata, weather):
                     rowlist.append('{0:.4f}'.format(space.xr))
                     rowlist.append('{0:.2f}'.format(space.MRT))
                     rowlist.append('{0:.2f}'.format(space.OT))
-                    rowlist.append('{0:.2f}'.format(space.Qgt))
+                    rowlist.append('{0:.2f}'.format(space.Qgt[sequence_number]))
                     rowlist.append('{0:.2f}'.format(space.heat_generation_appliances))
                     rowlist.append('{0:.2f}'.format(space.heat_generation_lighting))
                     rowlist.append('{0:.2f}'.format(space.Humans))
@@ -195,13 +187,17 @@ def calc_Hload(cdata, weather):
 
 if __name__ == '__main__':
     # js = open('1RCase1_最初の外壁削除.json', 'r', encoding='utf-8')
-    js = open('1RCase1.json', 'r', encoding='utf-8')
-    # js = open('input_residential.json', 'r', encoding='utf-8')
+    # js = open('1RCase1.json', 'r', encoding='utf-8')
+    js = open('input_residential.json', 'r', encoding='utf-8')
+    js = open('input_simple_residential.json', 'r', encoding='utf-8')
     # js = open('検証用.json', 'r', encoding='utf-8')
     d = json.load(js)
 
     # シミュレーション全体の設定条件の読み込み
     cdata = Gdata(**d['common'])
+
+    # 気象データの読み込み
+    weather = Weather(cdata.Latitude, cdata.Longitude, cdata.StMeridian)
 
     # 外表面の初期化
     # exsurfaces = create_exsurfaces(d['ExSurface'])
@@ -210,10 +206,7 @@ if __name__ == '__main__':
     # sunbrks = create_sunbrks(d['Sunbrk'])
 
     # スペースの読み取り
-    spaces = create_spaces(cdata, d['rooms'])
-
-    # 気象データの読み込み
-    weather = Weather(cdata.Latitude, cdata.Longitude, cdata.StMeridian)
+    spaces = create_spaces(cdata, d['rooms'], weather)
 
     # スケジュールの初期化
     # schedule = Schedule()

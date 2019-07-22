@@ -1,9 +1,10 @@
 import numpy as np
 from typing import List
+import Weather
 from Weather import enmWeatherComponent
 import math
 import Surface
-from Surface import Surface
+from Surface import Surface, create_surface
 import NextVent
 from NextVent import NextVent
 from Psychrometrics import Pws, x, xtrh, rhtx
@@ -11,6 +12,7 @@ from common import conca, conrowa, Sgm, conra, \
     funiture_sensible_capacity, funiture_latent_capacity, bypass_factor_rac, get_nday
 from PMV import calcPMV, calcOTset
 from Win_ACselect import reset_SW, mode_select
+import datetime
 
 # # 室温・熱負荷を計算するクラス
 
@@ -52,7 +54,7 @@ class Space:
     FsolFlr = 0.5  # 床の日射吸収比率
 
     # 初期化
-    def __init__(self, Gdata, d_room):
+    def __init__(self, Gdata, d_room, weather):
         """
         :param Gdata:
         :param ExsrfMng:
@@ -184,7 +186,7 @@ class Space:
         self.__Hn = 0.0
 
         # 室透過日射熱取得の初期化
-        self.Qgt = 0.0
+        # self.Qgt = [0.0 for j in range(8760 * 3600 / int(Gdata.DTime)]
 
         # 室間換気量クラスの構築
         self.__RoomtoRoomVent = []
@@ -203,25 +205,14 @@ class Space:
             # print(d_surface['name'])
             self.input_surfaces.append(Surface(d = d_surface, Gdata = Gdata))
         
-        # 部位のグループ化
-        group_number = 0
-        for surface in self.input_surfaces:
-            # 最初の部位は最も若いグループ番号にする
-            if not surface.is_grouping:
-                # グループ化済みにする
-                surface.is_grouping = True
-                surface.group_number = group_number
-
-                # 同じ境界条件の部位を探す
-                for comp_surface in self.input_surfaces:
-                    # 境界条件が同じかどうかチェックする
-                    # グループ化していない部位だけを対象とする
-                    if not comp_surface.is_grouping:
-                        if surface.boundary_comp(comp_surface):
-                            comp_surface.is_grouping = True
-                            comp_surface.group_number = group_number
-                # グループ番号を増やす
-                group_number += 1
+        # 透過日射熱取得の計算
+        self.Qgt = summarize_transparent_solar_radiation(self.input_surfaces, Gdata, weather)
+        
+        # 部位の集約
+        self.input_surfaces = summarize_building_part(self.input_surfaces)
+        # print("集約後")
+        # for surface in self.input_surfaces:
+            # print('name=', surface.name, 'area=', surface.area, 'group=', surface.group_number)
         
         # 部位のグループ化
         # self.surfaces = []
@@ -231,6 +222,7 @@ class Space:
         # グループ化の結果の表示
         # for surface in self.input_surfaces:
         #     print(surface.boundary_type, surface.is_grouping, surface.group_number)
+
             
         # 部位の人体に対する形態係数の計算
         total_Aex_floor = 0.0
@@ -333,13 +325,12 @@ class Space:
         for surface in self.input_surfaces:
             FF = 0.5 * (1.0 - math.sqrt(1.0 - 4.0 * surface.a / fb))
             TotalFF += FF
-            # print(self.name, surface.name, FF)
-            surface.setFF(FF)
-            # surface.setFF(surface.a)
+            # 形態係数の設定（面の微小球に対する形態係数）
+            surface.FF = FF
         
         # 室内側表面熱伝達率の計算
         for surface in self.input_surfaces:
-            surface.hir = surface.Ei / (1.0 - surface.Ei * surface.FF()) \
+            surface.hir = surface.Ei / (1.0 - surface.Ei * surface.FF) \
                     * 4.0 * Sgm * (20.0 + 273.15) ** 3.0
             # surface.hir = 5.0
             surface.hic = max(0.0, surface.hi - surface.hir)
@@ -350,7 +341,11 @@ class Space:
         for surface in self.input_surfaces:
             total_area_hir += surface.area * surface.hir
         for surface in self.input_surfaces:
-            surface.Fmrt = surface.area * surface.hir / total_area_hir
+            if total_area_hir > 0.0:
+                surface.Fmrt = surface.area * surface.hir / total_area_hir
+            else:
+                # テスト用（室内放射計算をキャンセルしたときの対応）
+                surface.Fmrt = surface.a
 
         # print(TotalFF)
         # 透過日射の室内部位表面吸収比率の計算
@@ -466,14 +461,14 @@ class Space:
         # print(Idn, Isky)
         for surface in self.input_surfaces:
             if surface.is_sun_striked_outside:
-                surface.update_slope_sol(defSolpos, Idn, Isky)
+                surface.Id, surface.Isky, surface.Ir, surface.Iw = surface.calc_slope_sol(defSolpos, Idn, Isky)
 
-        # 庇の日影面積率計算
+        """ # 庇の日影面積率計算
         for surface in self.input_surfaces:
             # 庇がある場合のみ
             if surface.is_sun_striked_outside and surface.sunbrk.existance:
                 # 日影面積率の計算
-                surface.update_Fsdw(defSolpos)
+                surface.Fsdw = surface.calc_Fsdw(defSolpos)
                 # print(surface.Fsdw)
 
         # 透過日射熱取得の計算
@@ -481,9 +476,9 @@ class Space:
         for surface in self.input_surfaces:
             if surface.boundary_type == "external_transparent_part" and surface.is_sun_striked_outside:
                 # print('name=', surface.name)
-                surface.update_Qgt_Qga()
+                surface.Qgt = surface.calc_Qgt()
                 self.Qgt += surface.Qgt
-                # print("name=", surface.name, "QGT=", surface.Qgt)
+                # print("name=", surface.name, "QGT=", surface.Qgt) """
 
         # 相当外気温度の計算
         Ta = Weather.WeaData(enmWeatherComponent.Ta, dtmNow)
@@ -518,10 +513,11 @@ class Space:
         # print(self.name, self.heat_generation_appliances, self.heat_generation_lighting, self.Humans)
 
         # 室内表面の吸収日射量
+        sequence_number = int((get_nday(dtmNow.month, dtmNow.day) - 1) * 24 * 4 + dtmNow.hour * 4 + float(dtmNow.minute) / 60.0 * 3600 / Gdata.DTime)
         for surface in self.input_surfaces:
-            surface.update_RSsol(self.Qgt)
+            surface.RSsol = surface.calc_RSsol(self.Qgt[sequence_number])
         # 家具の吸収日射量
-        self.Qsolfun = self.Qgt * self.__rsolfun
+        self.Qsolfun = self.Qgt[sequence_number] * self.__rsolfun
 
         # 流入外気風量の計算
         # 計画換気・すきま風量
@@ -796,7 +792,7 @@ class Space:
                 j += 1
 
             # 室内側等価温度の計算
-            surface.update_Tei(self.Tr, surface.Tsx, self.Lrs, self.__Beta)
+            surface.Tei = surface.calc_Tei(self.Tr, surface.Tsx, self.Lrs, self.__Beta)
             # 室内表面熱流の計算
             surface.update_qi(self.Tr, surface.Tsx, self.Lrs, self.__Beta)
 
@@ -1029,56 +1025,77 @@ class Space:
             # 定格冷房能力[W]
             self.__convective_cooling_rtd_capacity = dceqp['convective_cooling']['max_capacity']
 
-    # 機器仕様の読み込み
-    def __equipment_read(self, deqp):
-        # 主冷房
-        self.__main_type_c, \
-        self.__main_q_rtd_c, \
-        self.__main_q_max_c, \
-        self.__main_cop_rtd_c, \
-        self.__main_construct_floor_c = self.__equip_alalysis(deqp['cooling']['main'])
-        # 補助冷房
-        self.__sub_type_c, \
-        self.__sub_q_rtd_c, \
-        self.__sub_q_max_c, \
-        self.__sub_cop_rtd_c, \
-        self.__sub_construct_floor_c = self.__equip_alalysis(deqp['cooling']['sub'])
-        # 主暖房
-        self.__main_type_h, \
-        self.__main_q_rtd_h, \
-        self.__main_q_max_h, \
-        self.__main_cop_rtd_h, \
-        self.__main_construct_floor_h = self.__equip_alalysis(deqp['heating']['main'])
-        # 補助冷房
-        self.__sub_type_h, \
-        self.__sub_q_rtd_h, \
-        self.__sub_q_max_h, \
-        self.__sub_cop_rtd_h, \
-        self.__sub_construct_floor_h = self.__equip_alalysis(deqp['heating']['sub'])
+# 部位の集約（同一境界条件の部位を集約する）
+def summarize_building_part(surfaces):
+    # 部位のグループ化
+    group_number = 0
+    for surface in surfaces:
+        # 最初の部位は最も若いグループ番号にする
+        if not surface.is_grouping:
+            # グループ化済みにする
+            surface.is_grouping = True
+            surface.group_number = group_number
 
-        return 0
+            # 同じ境界条件の部位を探す
+            for comp_surface in surfaces:
+                # 境界条件が同じかどうかチェックする
+                # グループ化していない部位だけを対象とする
+                if not comp_surface.is_grouping:
+                    if surface.boundary_comp(comp_surface):
+                        comp_surface.is_grouping = True
+                        comp_surface.group_number = group_number
+            # グループ番号を増やす
+            group_number += 1
+    
+    # print("集約前")
+    # for surface in surfaces:
+        # print('name=', surface.name, 'area=', surface.area, 'group=', surface.group_number)
 
-    # 機器仕様Dictionaryを解析する
-    def __equip_alalysis(self, eqp):
-        type = None
-        q_rtd = 0.0
-        q_max = 0.0
-        cop_rtd = 0.0
-        construct_area = 0.0
-        if len(eqp) > 0:
-            type = eqp['type']
-            if type == 'room_air_conditioner':
-                q_rtd = float(eqp['q_rtd'])
-                q_max = float(eqp['q_max'])
-                cop_rtd = float(eqp['cop_rtd'])
-            elif type == 'floor_heating':
-                construct_area = float(eqp['construct_area'])
+    summarize_surfaces = []
+    for i in range(group_number):
+        summarize_surfaces.append(create_surface(surfaces, i))
 
-        return type, q_rtd, q_max, cop_rtd, construct_area
+    # for surface in summarize_surfaces:
+    #     print(surface.boundary_type, surface.name, surface.group_number)
+    return summarize_surfaces
 
-def create_spaces(Gdata, rooms):
+# 透過日射を集約する
+def summarize_transparent_solar_radiation(surfaces, Gdata, weather):
+    # 透過日射熱取得収録配列の初期化とメモリ確保
+    Qgt = []
+    Qgt = [0.0 for j in range(int(8760.0 * 3600.0 / float(Gdata.DTime)))]
+
+    ntime = int(24 * 3600 / Gdata.DTime)
+    nnow = 0
+    item = 0
+    start_date = datetime.datetime(1989, 1, 1)
+    for nday in range(get_nday(1, 1), get_nday(12, 31) + 1):
+        for tloop in range(ntime):
+            dtime = datetime.timedelta(days=nnow + float(tloop) / float(ntime))
+            dtmNow = dtime + start_date
+
+            # 太陽位置の計算
+            solar_position = weather.Solpos(dtmNow)
+            # 傾斜面日射量の計算
+            Idn = weather.WeaData(enmWeatherComponent.Idn, dtmNow)
+            Isky = weather.WeaData(enmWeatherComponent.Isky, dtmNow)
+            for surface in surfaces:
+                # 外表面に日射が当たる場合
+                if surface.is_sun_striked_outside and surface.boundary_type == "external_transparent_part":
+                    surface.Id, surface.Isky, surface.Ir, surface.Iw = surface.calc_slope_sol(solar_position, Idn, Isky)
+
+                    # 日除けの日影面積率の計算
+                    if surface.sunbrk.existance:
+                        surface.Fsdw = surface.calc_Fsdw(solar_position)
+                    Qgt[item] += surface.calc_Qgt()
+
+            item += 1
+        nnow += 1
+    return Qgt
+
+def create_spaces(Gdata, rooms, weather):
     objSpace = {}
     for room in rooms:
-        space = Space(Gdata, room)
+        space = Space(Gdata, room, weather)
         objSpace[room['name']] = space
     return objSpace

@@ -31,7 +31,7 @@ class transparent_opening:
         self.Cd = 0.92
 
         # 入射角特性番号
-        self.__incident_angle_characteristics = float(d_window['incident_angle_characteristics'])
+        self.incident_angle_characteristics = int(d_window['incident_angle_characteristics'])
 
     # 直達日射の入射角特性の計算
     def get_CID(self, CosT: float) -> float:
@@ -41,24 +41,6 @@ class transparent_opening:
         """
         CID = (2.392 * CosT - 3.8636 * CosT ** 3.0 + 3.7568 * CosT ** 5.0 - 1.3965 * CosT ** 7.0) / 0.88
         return CID
-
-    # 吸収日射熱取得[W/m2]の計算
-    def get_QGA(self, Id: float, Isk: float, Ir: float, CosT: float, Fsdw: float) -> float:
-        """
-        :param Id: 傾斜面入射直達日射量[W/m2]
-        :param Isk: 傾斜面入射天空日射量[W/m2]
-        :param Ir: 傾斜面入射反射日射量[W/m2]
-        :param CosT: 入射角の方向余弦
-        :param Fsdw: 日よけ等による日影面積率
-        :return: 吸収日射熱取得[W/m2]
-        """
-        # 直達日射の入射角特性の計算
-        CID = self.get_CID(CosT)
-
-        # 吸収日射熱取得[W/m2]の計算
-        QGA = self.B * ((1.0 - Fsdw) * CID * Id + self.Cd * (Isk + Ir))
-
-        return QGA
 
     # 透過日射熱取得（直達成分）[W/m2]の計算
     def get_QGTD(self, Id: float, CosT: float, Fsdw: float) -> float:
