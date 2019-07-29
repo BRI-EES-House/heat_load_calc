@@ -19,7 +19,7 @@ class NextVent:
         self.oldTr = 15.0
         self.oldxr = xtrh(20.0, 40.0)
 
-    # 風上室の室温を更新
-    def update_oldstate(self, oldTr, oldxr):
-        self.oldTr = oldTr
-        self.oldxr = oldxr
+# 風上室の室温を更新
+def update_oldstate(next_vent, oldTr, oldxr):
+    next_vent.oldTr = oldTr
+    next_vent.oldxr = oldxr

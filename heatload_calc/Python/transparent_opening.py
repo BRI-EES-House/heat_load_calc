@@ -33,58 +33,37 @@ class transparent_opening:
         # 入射角特性番号
         self.incident_angle_characteristics = int(d_window['incident_angle_characteristics'])
 
+# 直達日射の入射角特性の計算
+def get_CID(CosT: float) -> float:
+    """
+    :param CosT: 入射角の方向余弦
+    :return: 直達日射の入射角特性
+    """
+    CID = (2.392 * CosT - 3.8636 * CosT ** 3.0 + 3.7568 * CosT ** 5.0 - 1.3965 * CosT ** 7.0) / 0.88
+    return CID
+
+# 透過日射熱取得（直達成分）[W/m2]の計算
+def get_QGTD(surface, Id: float, CosT: float, Fsdw: float) -> float:
+    """
+    :param Id: 傾斜面入射直達日射量[W/m2]
+    :param CosT: 入射角の方向余弦
+    :param Fsdw: 日よけ等による日影面積率
+    :return: 透過日射熱取得（直達成分）[W/m2]
+    """
     # 直達日射の入射角特性の計算
-    def get_CID(self, CosT: float) -> float:
-        """
-        :param CosT: 入射角の方向余弦
-        :return: 直達日射の入射角特性
-        """
-        CID = (2.392 * CosT - 3.8636 * CosT ** 3.0 + 3.7568 * CosT ** 5.0 - 1.3965 * CosT ** 7.0) / 0.88
-        return CID
+    CID = get_CID(CosT)
 
     # 透過日射熱取得（直達成分）[W/m2]の計算
-    def get_QGTD(self, Id: float, CosT: float, Fsdw: float) -> float:
-        """
-        :param Id: 傾斜面入射直達日射量[W/m2]
-        :param CosT: 入射角の方向余弦
-        :param Fsdw: 日よけ等による日影面積率
-        :return: 透過日射熱取得（直達成分）[W/m2]
-        """
-        # 直達日射の入射角特性の計算
-        CID = self.get_CID(CosT)
+    QGTD = surface.T * (1.0 - Fsdw) * CID * Id
 
-        # 透過日射熱取得（直達成分）[W/m2]の計算
-        QGTD = self.T * (1.0 - Fsdw) * CID * Id
+    return QGTD
 
-        return QGTD
-
-    # 透過日射熱取得（拡散成分）[W/m2]の計算
-    def get_QGTS(self, Isk: float, Ir: float) -> float:
-        """
-        :param Isk: 傾斜面入射天空日射量[W/m2]
-        :param Ir: 傾斜面入射反射日射量[W/m2]
-        :return: 透過日射熱取得（拡散成分）[W/m2]
-        """
-        QGTS = self.T * self.Cd * (Isk + Ir)
-        return QGTS
-
-    # 透過日射熱取得[W/m2]の計算
-    def get_QGT(self, Id: float, Isk: float, Ir: float, CosT: float, Fsdw: float) -> float:
-        """
-        :param Id: 傾斜面入射直達日射量[W/m2]
-        :param Isk: 傾斜面入射天空日射量[W/m2]
-        :param Ir: 傾斜面入射反射日射量[W/m2]
-        :param CosT: 入射角の方向余弦
-        :param Fsdw: 日よけ等による日影面積率
-        :return: 透過日射熱取得[W/m2]
-        """
-        # 透過日射熱取得（直達成分）[W/m2]の計算
-        QGTD = self.get_QGTD(Id, CosT, Fsdw)
-
-        # 透過日射熱取得（拡散成分）[W/m2]の計算
-        QGTS = self.get_QGTS(Isk, Ir)
-
-        # 透過日射熱取得[W/m2]の計算
-        QGT = QGTD + QGTS
-
-        return QGT
+# 透過日射熱取得（拡散成分）[W/m2]の計算
+def get_QGTS(window, Isk: float, Ir: float) -> float:
+    """
+    :param Isk: 傾斜面入射天空日射量[W/m2]
+    :param Ir: 傾斜面入射反射日射量[W/m2]
+    :return: 透過日射熱取得（拡散成分）[W/m2]
+    """
+    QGTS = window.T * window.Cd * (Isk + Ir)
+    return QGTS

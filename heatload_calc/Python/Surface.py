@@ -1,6 +1,6 @@
 from Wall import Wall, Layer
 from ResponseFactor import ResponseFactor
-from transparent_opening import transparent_opening
+from transparent_opening import transparent_opening, get_QGTS, get_QGTD
 from SolarPosision import defSolpos
 from Gdata import Gdata
 from Exsrf import Exsrf
@@ -107,55 +107,13 @@ class Surface:
 
             # 一般部位の初期化
             if self.boundary_type == "external_general_part" or self.boundary_type == "internal" or self.boundary_type == "ground":
-                # 壁体情報,応答係数の取得
-                part_key_name = 'general_part_spec'
-                if self.boundary_type == "ground":
-                    part_key_name = 'ground_spec'
-                wall, rf = WalldataRead(self.name, self.is_sun_striked_outside, self.boundary_type, d[part_key_name], Gdata.DTime, self.is_ground)
-                self.Row = rf.Row  # 公比の取得
-                self.Nroot = rf.Nroot  # 根の数
-                self.RFT0 = rf.RFT0  # 貫流応答の初項
-                self.RFA0 = rf.RFA0  # 吸熱応答の初項
-                self.RFT1 = rf.RFT1  # 指数項別貫流応答の初項
-                self.RFA1 = rf.RFA1  # 指数項別吸熱応答の初項
-                self.oldTsd_a = []
-                self.oldTsd_t = []
-                # self.oldTsd_a = [[0.0 for i in range(1)] for j in range(self.Nroot)]
-                # self.oldTsd_t = [[0.0 for i in range(1)] for j in range(self.Nroot)]
-                self.oldTsd_a = [0.0 for j in range(self.Nroot)]
-                self.oldTsd_t = [0.0 for j in range(self.Nroot)]
-                self.hi = wall.hi  # 室内側表面総合熱伝達率
-                self.ho = wall.ho  # 室外側表面総合熱伝達率
-                self.Ei = wall.Ei   # 室内側表面放射率
-                if self.is_sun_striked_outside:
-                    self.outside_solar_absorption = wall.Solas  # 室側側日射吸収率
-                    self.Eo = wall.Eo  # 室外側表面放射率
+                general_part_init(self, d, Gdata)
             # 透明部位の初期化
             elif self.boundary_type == "external_transparent_part":
-                self.transparent_opening = transparent_opening(self.name, d['transparent_opening_part_spec'])
-                self.tau = self.transparent_opening.T     # 日射透過率＝日射熱取得率
-                self.Uso = self.transparent_opening.Uso   # 熱貫流率（表面熱伝達抵抗除く）
-                self.RFA0 = 1.0 / self.Uso                  # 吸熱応答係数の初項
-                self.RFT0 = 1.0                             # 貫流応答係数の初項
-                self.hi = self.transparent_opening.hi     # 室内側表面総合熱伝達率
-                self.ho = self.transparent_opening.ho     # 室外側表面総合熱伝達率
-                self.U = 1.0 / (1.0 / self.Uso + 1.0 / self.hi)  # 熱貫流率（表面熱伝達抵抗含む）
-                self.Ei = self.transparent_opening.Ei     # 室内側表面放射率
-                if self.is_sun_striked_outside:
-                    self.Eo = self.transparent_opening.Eo     # 室外側表面放射率
+                transparent_part_init(self, d)
             # 不透明な開口部の初期化
             elif self.boundary_type == "external_opaque_part":
-                self.U = d['opaque_opening_part_spec']['u_value']     # 熱貫流率[W/(m2･K)]
-                self.ho = 1.0/d['opaque_opening_part_spec']['outside_heat_transfer_resistance']   # 室外側表面総合熱伝達率
-                self.Ei = 0.9                               # 室内側表面放射率
-                self.hi = 1.0/d['opaque_opening_part_spec']['inside_heat_transfer_resistance']    # 室内側表面総合熱伝達率
-                self.Uso = 1.0 / (1.0 / self.U - 1.0 / self.hi)
-                                                            # 熱貫流率（表面熱伝達抵抗除く）
-                self.RFA0 = 1.0 / self.Uso                  # 吸熱応答係数の初項
-                self.RFT0 = 1.0                             # 貫流応答係数の初項
-                if self.is_sun_striked_outside:
-                    self.outside_solar_absorption = d['opaque_opening_part_spec']['outside_solar_absorption']  # 室側側日射吸収率
-                    self.Eo = d['opaque_opening_part_spec']['outside_emissivity']           # 室外側表面放射率
+                opaque_part_init(self, d)
             else:
                 print("境界条件が見当たりません。 name=", self.name)
 
@@ -164,6 +122,58 @@ class Surface:
             self.group_number = -999
             # グループ化済み変数
             self.is_grouping = False
+
+# 一般部位の初期化
+def general_part_init(surface, d, Gdata):
+    # 壁体情報,応答係数の取得
+    part_key_name = 'general_part_spec'
+    if surface.boundary_type == "ground":
+        part_key_name = 'ground_spec'
+    wall, rf = WalldataRead(surface.name, surface.is_sun_striked_outside, surface.boundary_type, d[part_key_name], Gdata.DTime, surface.is_ground)
+    surface.Row = rf.Row  # 公比の取得
+    surface.Nroot = rf.Nroot  # 根の数
+    surface.RFT0 = rf.RFT0  # 貫流応答の初項
+    surface.RFA0 = rf.RFA0  # 吸熱応答の初項
+    surface.RFT1 = rf.RFT1  # 指数項別貫流応答の初項
+    surface.RFA1 = rf.RFA1  # 指数項別吸熱応答の初項
+    surface.oldTsd_a = []
+    surface.oldTsd_t = []
+    surface.oldTsd_a = [0.0 for j in range(surface.Nroot)]
+    surface.oldTsd_t = [0.0 for j in range(surface.Nroot)]
+    surface.hi = wall.hi  # 室内側表面総合熱伝達率
+    surface.ho = wall.ho  # 室外側表面総合熱伝達率
+    surface.Ei = wall.Ei   # 室内側表面放射率
+    if surface.is_sun_striked_outside:
+        surface.outside_solar_absorption = wall.Solas  # 室側側日射吸収率
+        surface.Eo = wall.Eo  # 室外側表面放射率
+
+# 透明部位の初期化
+def transparent_part_init(surface, d):
+    surface.transparent_opening = transparent_opening(surface.name, d['transparent_opening_part_spec'])
+    surface.tau = surface.transparent_opening.T     # 日射透過率＝日射熱取得率
+    surface.Uso = surface.transparent_opening.Uso   # 熱貫流率（表面熱伝達抵抗除く）
+    surface.RFA0 = 1.0 / surface.Uso                  # 吸熱応答係数の初項
+    surface.RFT0 = 1.0                             # 貫流応答係数の初項
+    surface.hi = surface.transparent_opening.hi     # 室内側表面総合熱伝達率
+    surface.ho = surface.transparent_opening.ho     # 室外側表面総合熱伝達率
+    surface.U = 1.0 / (1.0 / surface.Uso + 1.0 / surface.hi)  # 熱貫流率（表面熱伝達抵抗含む）
+    surface.Ei = surface.transparent_opening.Ei     # 室内側表面放射率
+    if surface.is_sun_striked_outside:
+        surface.Eo = surface.transparent_opening.Eo     # 室外側表面放射率
+
+# 不透明開口部の初期化
+def opaque_part_init(surface, d):
+    surface.U = d['opaque_opening_part_spec']['u_value']     # 熱貫流率[W/(m2･K)]
+    surface.ho = 1.0/d['opaque_opening_part_spec']['outside_heat_transfer_resistance']   # 室外側表面総合熱伝達率
+    surface.Ei = 0.9                               # 室内側表面放射率
+    surface.hi = 1.0/d['opaque_opening_part_spec']['inside_heat_transfer_resistance']    # 室内側表面総合熱伝達率
+    surface.Uso = 1.0 / (1.0 / surface.U - 1.0 / surface.hi)
+                                                # 熱貫流率（表面熱伝達抵抗除く）
+    surface.RFA0 = 1.0 / surface.Uso                  # 吸熱応答係数の初項
+    surface.RFT0 = 1.0                             # 貫流応答係数の初項
+    if surface.is_sun_striked_outside:
+        surface.outside_solar_absorption = d['opaque_opening_part_spec']['outside_solar_absorption']  # 室側側日射吸収率
+        surface.Eo = d['opaque_opening_part_spec']['outside_emissivity']           # 室外側表面放射率
 
 # 畳み込み積分
 def convolution(surface):
@@ -251,10 +261,10 @@ def calcTeo(surface, Ta, RN, oldTr, AnnualTave, spaces):
 # 透過日射量[W]、吸収日射量[W]の計算
 def calc_Qgt(surface):
     # 直達成分
-    Qgtd = surface.transparent_opening.get_QGTD(surface.Id, surface.backside_boundary_condition.CosT, surface.Fsdw) * surface.area
+    Qgtd = get_QGTD(surface.transparent_opening, surface.Id, surface.backside_boundary_condition.CosT, surface.Fsdw) * surface.area
 
     # 拡散成分
-    Qgts = surface.transparent_opening.get_QGTS(surface.Isky, surface.Ir) * surface.area
+    Qgts = get_QGTS(surface.transparent_opening, surface.Isky, surface.Ir) * surface.area
 
     # 透過日射量の計算
     return Qgtd + Qgts

@@ -6,7 +6,7 @@ from common import get_nday
 from Gdata import Gdata, FlgOrig
 from Weather import enmWeatherComponent, Weather, WeaData, Solpos
 from Sunbrk import SunbrkType
-from Space import create_spaces
+from Space import create_spaces, update_space_oldstate
 from PMV import get_OT
 
 # 熱負荷計算の実行
@@ -176,7 +176,7 @@ def calc_Hload(cdata, weather):
 
             # 前時刻の室温を現在時刻の室温、湿度に置換
             for space in spaces.values():
-                space.update_oldstate()
+                update_space_oldstate(space)
 
         lngNnow += 1
 
