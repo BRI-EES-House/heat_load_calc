@@ -1,18 +1,19 @@
 import numpy as np
 from typing import List
 import Weather
-from Weather import enmWeatherComponent
+from Weather import enmWeatherComponent, Solpos, WeaData
 import math
 import Surface
-from Surface import Surface, create_surface
+from Surface import Surface, create_surface, boundary_comp, calc_slope_sol, calc_Fsdw, calc_Qgt, calcTeo, calc_RSsol, update_qi, calc_Tei, convolution
 import NextVent
 from NextVent import NextVent
 from Psychrometrics import Pws, x, xtrh, rhtx
 from common import conca, conrowa, Sgm, conra, \
     funiture_sensible_capacity, funiture_latent_capacity, bypass_factor_rac, get_nday
-from PMV import calcPMV, calcOTset
+from PMV import calcPMV, calcOTset, get_OT
 from Win_ACselect import reset_SW, mode_select
 import datetime
+from Gdata import FlgOrig
 
 # # 室温・熱負荷を計算するクラス
 
@@ -44,7 +45,7 @@ import datetime
 # - Vent:          計画換気量, m3/h
 # - Inf:           すきま風量[Season]（list型、暖房・中間期・冷房の順）, m3/h
 # - CrossVentRoom: 通風計算対象室, False
-# - __is_radiative_heating:       放射暖房対象室フラグ, True
+# - is_radiative_heating:       放射暖房対象室フラグ, True
 # - Betat:         放射暖房対流比率, －
 # - RoomtoRoomVents:      室間換気量（list型、暖房・中間期・冷房、風上室名称）, m3/h
 # - d:             室内部位に関連するクラス, Surface
@@ -68,33 +69,33 @@ class Space:
         :param Vent:
         :param Inf:
         :param CrossVentRoom:
-        :param __is_radiative_heating:
+        :param is_radiative_heating:
         :param Beta:
         :param RoomtoRoomVents:
         :param input_surfaces:
         """
         self.name = d_room['name']                  # 室名称
         if Gdata.is_residential:
-            self.__room_type = d_room['room_type']      # 室用途（1:主たる居室、2:その他居室、3:非居室）
-        self.__AnnualLoadcCs = 0.0                  # 年間顕熱冷房熱負荷（主暖房）
-        self.__AnnualLoadcHs = 0.0                  # 年間顕熱暖房熱負荷（対流成分）
-        self.__AnnualLoadcCl = 0.0                  # 年間潜熱冷房熱負荷（対流成分）
-        self.__AnnualLoadcHl = 0.0                  # 年間潜熱暖房熱負荷（対流成分）
-        self.__Annual_un_LoadcCs = 0.0              # 年間未処理顕熱冷房熱負荷（対流成分）
-        self.__Annual_un_LoadcHs = 0.0              # 年間未処理顕熱暖房熱負荷（対流成分）
-        self.__AnnualLoadrCs = 0.0                  # 年間顕熱冷房熱負荷（放射成分）
-        self.__AnnualLoadrHs = 0.0                  # 年間顕熱暖房熱負荷（放射成分）
-        self.__AnnualLoadrCl = 0.0                  # 年間潜熱冷房熱負荷（放射成分）
-        self.__AnnualLoadrHl = 0.0                  # 年間潜熱暖房熱負荷（放射成分）
+            self.room_type = d_room['room_type']      # 室用途（1:主たる居室、2:その他居室、3:非居室）
+        self.AnnualLoadcCs = 0.0                  # 年間顕熱冷房熱負荷（主暖房）
+        self.AnnualLoadcHs = 0.0                  # 年間顕熱暖房熱負荷（対流成分）
+        self.AnnualLoadcCl = 0.0                  # 年間潜熱冷房熱負荷（対流成分）
+        self.AnnualLoadcHl = 0.0                  # 年間潜熱暖房熱負荷（対流成分）
+        self.Annual_un_LoadcCs = 0.0              # 年間未処理顕熱冷房熱負荷（対流成分）
+        self.Annual_un_LoadcHs = 0.0              # 年間未処理顕熱暖房熱負荷（対流成分）
+        self.AnnualLoadrCs = 0.0                  # 年間顕熱冷房熱負荷（放射成分）
+        self.AnnualLoadrHs = 0.0                  # 年間顕熱暖房熱負荷（放射成分）
+        self.AnnualLoadrCl = 0.0                  # 年間潜熱冷房熱負荷（放射成分）
+        self.AnnualLoadrHl = 0.0                  # 年間潜熱暖房熱負荷（放射成分）
         self.Lrs = self.Lrl = self.Lcl = self.Lcl = 0.0
         self.Tr = 15.0                              # 室温の初期化
-        self.__oldTr = 15.0                         # 前時刻の室温の初期化
+        self.oldTr = 15.0                         # 前時刻の室温の初期化
         self.Tfun = 15.0                            # 家具の温度[℃]
-        self.__oldTfun = 15.0                       # 前時刻の家具の温度[℃]
-        self.__rsolfun = 0.5                        # 透過日射の内家具が吸収する割合[－]
-        # self.__rsolfun = 0.0
-        self.__kc = 0.5                             # 人体表面の熱伝達率の対流成分比率
-        self.__kr = 0.5                             # 人体表面の熱伝達率の放射成分比率
+        self.oldTfun = 15.0                       # 前時刻の家具の温度[℃]
+        self.rsolfun = 0.5                        # 透過日射の内家具が吸収する割合[－]
+        # self.rsolfun = 0.0
+        self.kc = 0.5                             # 人体表面の熱伝達率の対流成分比率
+        self.kr = 0.5                             # 人体表面の熱伝達率の放射成分比率
         self.demAC = 0                              # 当該時刻の空調需要（0：なし、1：あり）
         self.preAC = 0                              # 前時刻の空調運転状態（0：停止、正：暖房、負：冷房）
         self.preWin = 0                             # 前時刻の窓状態（0：閉鎖、1：開放）
@@ -107,97 +108,97 @@ class Space:
         self.Clo = 1.0                              # 着衣量[Clo]
         self.OTset = 0.0                            # 設定作用温度[℃]
         if Gdata.is_residential:
-            self.__heating_equipment_read(d_room['heating_equipment'])
+            self.heating_equipment_read(d_room['heating_equipment'])
                                                     # 暖房設備仕様の読み込み
-            self.__cooling_equipment_read(d_room['cooling_equipment'])
+            self.cooling_equipment_read(d_room['cooling_equipment'])
         
-        self.__volume = d_room['volume']            # 室気積[m3]
-        self.__Ga = self.__volume * conrowa         # 室空気の質量[kg]
-        self.__Capfun = self.__volume * funiture_sensible_capacity * 1000.
+        self.volume = d_room['volume']            # 室気積[m3]
+        self.Ga = self.volume * conrowa         # 室空気の質量[kg]
+        self.Capfun = self.volume * funiture_sensible_capacity * 1000.
                                                     # 家具熱容量[J/K]
-        # self.__Capfun = 0.0
-        self.__Cfun = 0.00022 * self.__Capfun       # 家具と空気間の熱コンダクタンス[W/K]
-        self.__Gf = funiture_latent_capacity * self.__volume
+        # self.Capfun = 0.0
+        self.Cfun = 0.00022 * self.Capfun       # 家具と空気間の熱コンダクタンス[W/K]
+        self.Gf = funiture_latent_capacity * self.volume
                                                     # 家具類の湿気容量[kg]
-        self.__Cx = 0.0018 * self.__Gf              # 室空気と家具類間の湿気コンダクタンス[kg/(s･kg/kg(DA))]
+        self.Cx = 0.0018 * self.Gf              # 室空気と家具類間の湿気コンダクタンス[kg/(s･kg/kg(DA))]
         self.xr = xtrh(20.0, 40.0)                  # 室の絶対湿度[kg/kg(DA)]
-        self.__oldxr = self.xr                      # 室内絶対湿度の初期値
+        self.oldxr = self.xr                      # 室内絶対湿度の初期値
         self.xf = self.xr                           # 家具類の絶対湿度
-        self.__oldxf = self.xr                      # 家具類の絶対湿度の初期値
-        self.__BF = bypass_factor_rac               # バイパスファクター
-        self.__xeout = 0.0                          # エアコン熱交換部の飽和絶対湿度[kg/kg(DA)]
+        self.oldxf = self.xr                      # 家具類の絶対湿度の初期値
+        self.bypass_factor_rac = bypass_factor_rac               # バイパスファクター
+        self.xeout = 0.0                          # エアコン熱交換部の飽和絶対湿度[kg/kg(DA)]
         self.Vac = 0.0                              # エアコンの風量[m3/s]
         self.RH = 50.0                              # 室相対湿度[%]
         if Gdata.is_residential:
-            self.__Vcrossvent = self.__volume * d_room['natural_vent_time']
+            self.Vcrossvent = self.volume * d_room['natural_vent_time']
                                                     # 窓開放時通風量
         # 室空気の熱容量
-        self.__Hcap = self.__volume * conrowa * conca
-        # print(self.__Hcap)
-        self.__Vent = d_room['vent']                #計画換気量
-        self.__Inf = 0.0                            #すきま風量（暫定値）
-        self.__Beta = 0.0                           # 放射暖房対流比率
+        self.Hcap = self.volume * conrowa * conca
+        # print(self.Hcap)
+        self.Vent = d_room['vent']                #計画換気量
+        self.Inf = 0.0                            #すきま風量（暫定値）
+        self.Beta = 0.0                           # 放射暖房対流比率
 
         # 空調スケジュールの読み込み
         # 設定温度／PMV上限値の設定
         if 'is_upper_temp_limit_set' in d_room['schedule']:
-            self.__is_upper_temp_limit_set = d_room['schedule']['is_upper_temp_limit_set']
+            self.is_upper_temp_limit_set_schedule = d_room['schedule']['is_upper_temp_limit_set']
         # 設定温度／PMV下限値の設定
         if 'is_lower_temp_limit_set' in d_room['schedule']:
-            self.__is_lower_temp_limit_set = d_room['schedule']['is_lower_temp_limit_set']
+            self.is_lower_temp_limit_set_schedule = d_room['schedule']['is_lower_temp_limit_set']
         # 非住宅の場合
         if not Gdata.is_residential:
             # 室温上限値
-            self.__temperature_upper_limit = d_room['schedule']['temperature_upper_limit']
+            self.temperature_upper_limit_schedule = d_room['schedule']['temperature_upper_limit']
             # 室温下限値
-            self.__temperature_lower_limit = d_room['schedule']['temperature_lower_limit']
+            self.temperature_lower_limit_schedule = d_room['schedule']['temperature_lower_limit']
             # 相対湿度上限値の設定
-            self.__is_upper_humidity_limit_set = d_room['schedule']['is_upper_humidity_limit_set']
+            self.is_upper_humidity_limit_set_schedule = d_room['schedule']['is_upper_humidity_limit_set']
             # 相対湿度下限値の設定
-            self.__is_lower_humidity_limit_set = d_room['schedule']['is_lower_humidity_limit_set']
+            self.is_lower_humidity_limit_set_schedule = d_room['schedule']['is_lower_humidity_limit_set']
             # 相対湿度上限値
-            self.__relative_humidity_upper_limit = d_room['schedule']['relative_humidity_upper_limit']
+            self.relative_humidity_upper_limit_schedule = d_room['schedule']['relative_humidity_upper_limit']
             # 相対湿度下限値
-            self.__relative_humidity_lower_limit = d_room['schedule']['relative_humidity_lower_limit']
+            self.relative_humidity_lower_limit_schedule = d_room['schedule']['relative_humidity_lower_limit']
         # 住宅の場合
         else:
             # PMV上限値
             if 'pmv_upper_limit' in d_room['schedule']:
-                self.__pmv_upper_limit = d_room['schedule']['pmv_upper_limit']
+                self.pmv_upper_limit_schedule = d_room['schedule']['pmv_upper_limit']
             # PMV下限値
             if 'pmv_lower_limit' in d_room['schedule']:
-                self.__pmv_lower_limit = d_room['schedule']['pmv_lower_limit']
+                self.pmv_lower_limit_schedule = d_room['schedule']['pmv_lower_limit']
         # 内部発熱の初期化
         # 機器顕熱
-        self.__Appls_schedule = d_room['schedule']['heat_generation_appliances']
+        self.heat_generation_appliances_schedule = d_room['schedule']['heat_generation_appliances']
         # 調理顕熱
-        self.__cooking_s_schedule = d_room['schedule']['heat_generation_cooking']
+        self.heat_generation_cooking_schedule = d_room['schedule']['heat_generation_cooking']
         # 調理潜熱
-        self.__cooking_l_schedule = d_room['schedule']['vapor_generation_cooking']
+        self.vapor_generation_cooking_schedule = d_room['schedule']['vapor_generation_cooking']
         
         # 照明
-        self.__Light_schedule = d_room['schedule']['heat_generation_lighting']
+        self.heat_generation_lighting_schedule = d_room['schedule']['heat_generation_lighting']
         # 人体顕熱
-        self.__number_of_people_schedule = d_room['schedule']['number_of_people']
+        self.number_of_people_schedule = d_room['schedule']['number_of_people']
 
         # 局所換気
-        self.__LocalVent_schedule = d_room['schedule']['local_vent_amount']
+        self.local_vent_amount_schedule = d_room['schedule']['local_vent_amount']
         # 内部発熱合計
-        self.__Hn = 0.0
+        self.Hn = 0.0
 
         # 室透過日射熱取得の初期化
         # self.Qgt = [0.0 for j in range(8760 * 3600 / int(Gdata.DTime)]
 
         # 室間換気量クラスの構築
-        self.__RoomtoRoomVent = []
+        self.RoomtoRoomVent = []
         # prevroomname = ''
         # winter_vent = 0.0
         # inter_vent = 0.0
         # summer_vent = 0.0
         if Gdata.is_residential:
             for room_vent in d_room['next_vent']:
-                self.__RoomtoRoomVent.append(NextVent(room_vent['upstream_room_type'], room_vent['volume']))
-        self.__Nsurf = 0  # 部位の数
+                self.RoomtoRoomVent.append(NextVent(room_vent['upstream_room_type'], room_vent['volume']))
+        self.Nsurf = 0  # 部位の数
         self.input_surfaces = []
 
         # 部位の読み込み
@@ -210,6 +211,7 @@ class Space:
         
         # 部位の集約
         self.input_surfaces = summarize_building_part(self.input_surfaces)
+
         # print("集約後")
         # for surface in self.input_surfaces:
             # print('name=', surface.name, 'area=', surface.area, 'group=', surface.group_number)
@@ -256,23 +258,23 @@ class Space:
         if abs(total_Fot - 1.0) > 0.001:
             print(self.name, 'total_Fot=', total_Fot)
 
-        self.__Nsurf = len(self.input_surfaces)
+        self.Nsurf = len(self.input_surfaces)
 
         # 面対面の形態係数の計算
-        self.__Atotal = 0.0
+        self.Atotal = 0.0
         self.__TotalAF = 0.0
 
-        # print('合計面積1=', self.__Atotal)
+        # print('合計面積1=', self.Atotal)
         # 合計面積の計算
         for surface in self.input_surfaces:
-            self.__Atotal += surface.area
+            self.Atotal += surface.area
             # 合計床面積の計算
             if surface.is_solar_absorbed_inside == True:
                 self.__TotalAF += surface.area
         
         # 放射暖房の発熱部位の設定（とりあえず床発熱）
         if Gdata.is_residential:
-            if self.__is_radiative_heating:
+            if self.is_radiative_heating:
                 for surface in self.input_surfaces:
                     if surface.is_solar_absorbed_inside:
                         surface.flr = surface.area / self.__TotalAF
@@ -291,7 +293,7 @@ class Space:
         # 面積比の最大値も同時に計算（ニュートン法の初期値計算用）
         max_a = 0.0
         for surface in self.input_surfaces:
-            surface.a = surface.area / self.__Atotal
+            surface.a = surface.area / self.Atotal
             max_a = max(max_a, surface.a)
         
         # 室のパラメータの計算（ニュートン法）
@@ -318,7 +320,7 @@ class Space:
         # 収束しないときには警告を表示
         if not isConverge:
             print(self.name, '形態係数パラメータが収束しませんでした。')
-        # print('合計表面積=', self.__Atotal)
+        # print('合計表面積=', self.Atotal)
         # 形態係数の計算（永田の方式）
         # 総和のチェック
         TotalFF = 0.0
@@ -354,7 +356,7 @@ class Space:
         FsolFlr = 0.5
         # FsolFlr = 1.0
         # 家具の吸収比率で初期化
-        TotalR = self.__rsolfun
+        TotalR = self.rsolfun
 
         for surface in self.input_surfaces:
             SolR = 0.0
@@ -368,37 +370,37 @@ class Space:
         if abs(TotalR - 1.0) > 0.00001:
             print(self.name, '日射吸収比率合計値エラー', TotalR)
             print("残りは家具に吸収させます")
-            self.__rsolfun += max(1.0 - TotalR, 0)
+            self.rsolfun += max(1.0 - TotalR, 0)
 
         # 放射収支計算のための行列準備
         # 行列の準備と初期化
         # [AX]
-        self.__matAXd = [[0.0 for i in range(self.__Nsurf)] for j in range(self.__Nsurf)]
+        self.__matAXd = [[0.0 for i in range(self.Nsurf)] for j in range(self.Nsurf)]
         # {FIA}
-        self.__matFIA = [[0.0 for i in range(1)] for j in range(self.__Nsurf)]
+        self.__matFIA = [[0.0 for i in range(1)] for j in range(self.Nsurf)]
         # {CRX}
-        self.__matCRX = [[0.0 for i in range(1)] for j in range(self.__Nsurf)]
+        self.matCRX = [[0.0 for i in range(1)] for j in range(self.Nsurf)]
         # {CVL}
-        self.__matCVL = [[0.0 for i in range(1)] for j in range(self.__Nsurf)]
+        self.matCVL = [[0.0 for i in range(1)] for j in range(self.Nsurf)]
         # {FLB}
-        self.__matFLB = [[0.0 for i in range(1)] for j in range(self.__Nsurf)]
+        self.__matFLB = [[0.0 for i in range(1)] for j in range(self.Nsurf)]
         # {WSC}
-        self.__matWSC = [[0.0 for i in range(1)] for j in range(self.__Nsurf)]
+        self.matWSC = [[0.0 for i in range(1)] for j in range(self.Nsurf)]
         # {WSR}
-        # self.__matWSR = [ [ 0.0 for i in range(1) ] for j in range(self.__Nsurf) ]
+        # self.matWSR = [ [ 0.0 for i in range(1) ] for j in range(self.Nsurf) ]
         # {WSV}
-        self.__matWSV = [[0.0 for i in range(1)] for j in range(self.__Nsurf)]
+        self.matWSV = [[0.0 for i in range(1)] for j in range(self.Nsurf)]
         # {WSB}
-        # self.__matWSB = [ [ 0.0 for i in range(1) ] for j in range(self.__Nsurf) ]
+        # self.matWSB = [ [ 0.0 for i in range(1) ] for j in range(self.Nsurf) ]
 
         # print('FIA[len]=', len(self.__matFIA))
         i = 0
         for surface in self.input_surfaces:
             # matFIAの作成
-            self.__matFIA[i][0] = surface.RFA0 * surface.hic
-            # print('i=', i, 'FIA=', self.__matFIA[i][0])
+            self.__matFIA[i] = surface.RFA0 * surface.hic
+            # print('i=', i, 'FIA=', self.__matFIA[i])
             # FLB=φA0×flr×(1-Beta)
-            self.__matFLB[i][0] = surface.RFA0 * surface.flr * (1. - self.__Beta) / surface.area
+            self.__matFLB[i] = surface.RFA0 * surface.flr * (1. - self.Beta) / surface.area
 
             # 放射計算のマトリックス作成
             j = 0
@@ -421,47 +423,38 @@ class Space:
         # print(self.__matAXd)
 
         # 逆行列の計算
-        self.__matAX = np.linalg.inv(self.__matAXd)
+        self.matAX = np.linalg.inv(self.__matAXd)
         # print('[Matrix AX  inverse Matrix AXd]')
-        # print(self.__matAX)
+        # print(self.matAX)
         # {WSR}の計算
-        self.__matWSR = np.dot(self.__matAX, self.__matFIA)
+        self.matWSR = np.dot(self.matAX, self.__matFIA)
         # print('[Matrix FIA]')
         # print(self.__matFIA)
         # print('[Matrix WSR]')
-        # print(self.__matWSR)
+        # print(self.matWSR)
         # {WSB}の計算
-        self.__matWSB = np.dot(self.__matAX, self.__matFLB)
+        self.matWSB = np.dot(self.matAX, self.__matFLB)
         # print('[Matrix FLB]')
         # print(self.__matFLB)
         # print('[Matrix WSB]')
-        # print(self.__matWSB)
-
-    # 前時刻の室温を返す
-    @property
-    def oldTr(self):
-        return self.__oldTr
-    # 前時刻の絶対湿度を返す
-    @property
-    def oldxr(self):
-        return self.__oldxr
+        # print(self.matWSB)
 
     # 室温、熱負荷の計算
     def calcHload(self, Gdata, spaces, dtmNow, defSolpos, Weather):
         # 室間換気の風上室温をアップデート
-        for roomvent in self.__RoomtoRoomVent:
-            windward_roomname = roomvent.Windward_roomname
+        for roomvent in self.RoomtoRoomVent:
+            windward_roomname = roomvent.windward_roomname
             oldTr = spaces[windward_roomname].oldTr
             oldxr = spaces[windward_roomname].oldxr
             roomvent.update_oldstate(oldTr, oldxr)
 
         # 外皮の傾斜面日射量の計算
-        Idn = Weather.WeaData(enmWeatherComponent.Idn, dtmNow)
-        Isky = Weather.WeaData(enmWeatherComponent.Isky, dtmNow)
+        Idn = WeaData(Weather, enmWeatherComponent.Idn, dtmNow)
+        Isky = WeaData(Weather, enmWeatherComponent.Isky, dtmNow)
         # print(Idn, Isky)
         for surface in self.input_surfaces:
             if surface.is_sun_striked_outside:
-                surface.Id, surface.Isky, surface.Ir, surface.Iw = surface.calc_slope_sol(defSolpos, Idn, Isky)
+                surface.Id, surface.Isky, surface.Ir, surface.Iw = calc_slope_sol(surface, defSolpos, Idn, Isky)
 
         """ # 庇の日影面積率計算
         for surface in self.input_surfaces:
@@ -481,59 +474,58 @@ class Space:
                 # print("name=", surface.name, "QGT=", surface.Qgt) """
 
         # 相当外気温度の計算
-        Ta = Weather.WeaData(enmWeatherComponent.Ta, dtmNow)
-        RN = Weather.WeaData(enmWeatherComponent.RN, dtmNow)
-        AnnualTave = Weather.AnnualTave()
+        Ta = WeaData(Weather, enmWeatherComponent.Ta, dtmNow)
+        RN = WeaData(Weather, enmWeatherComponent.RN, dtmNow)
         for surface in self.input_surfaces:
-            surface.calcTeo(Ta, RN, self.__oldTr, AnnualTave, spaces)
-            # print(surface.name, Ta, RN, self.__oldTr, surface.Teo)
+            calcTeo(surface, Ta, RN, self.oldTr, Weather.AnnualTave, spaces)
+            # print(surface.name, Ta, RN, self.oldTr, surface.Teo)
 
         # 内部発熱の計算（すべて対流成分とする）
         # スケジュールのリスト番号の計算
         item = (get_nday(dtmNow.month, dtmNow.day) - 1) * 24 + dtmNow.hour
         # 機器顕熱[W]
-        self.heat_generation_appliances = self.__Appls_schedule[item]
+        self.heat_generation_appliances = self.heat_generation_appliances_schedule[item]
         # 調理顕熱[W]
-        self.__heat_generation_cooking = self.__cooking_s_schedule[item]
+        self.heat_generation_cooking = self.heat_generation_cooking_schedule[item]
         # 調理潜熱[g/h]
-        self.__vapor_generation_cooking = self.__cooking_l_schedule[item]
+        self.vapor_generation_cooking = self.vapor_generation_cooking_schedule[item]
         # 照明発熱[W]
-        self.heat_generation_lighting = self.__Light_schedule[item]
+        self.heat_generation_lighting = self.heat_generation_lighting_schedule[item]
         # 在室人員[人]
-        self.__number_of_people = self.__number_of_people_schedule[item]
+        self.number_of_people = self.number_of_people_schedule[item]
         # 人体顕熱[W]
-        self.Humans = self.__number_of_people \
-                       * (63.0 - 4.0 * (self.__oldTr - 24.0))
+        self.Humans = self.number_of_people \
+                       * (63.0 - 4.0 * (self.oldTr - 24.0))
         # 人体潜熱[W]
-        self.Humanl = max(self.__number_of_people * 119.0 - self.Humans, 0.0)
-        self.__Hn = self.heat_generation_appliances + self.heat_generation_lighting + self.Humans + self.__heat_generation_cooking
+        self.Humanl = max(self.number_of_people * 119.0 - self.Humans, 0.0)
+        self.Hn = self.heat_generation_appliances + self.heat_generation_lighting + self.Humans + self.heat_generation_cooking
 
         # 内部発湿[kg/s]
-        self.Lin = self.__vapor_generation_cooking / 1000.0 / 3600.0 + self.Humanl / conra
+        self.Lin = self.vapor_generation_cooking / 1000.0 / 3600.0 + self.Humanl / conra
         # print(self.name, self.heat_generation_appliances, self.heat_generation_lighting, self.Humans)
 
         # 室内表面の吸収日射量
         sequence_number = int((get_nday(dtmNow.month, dtmNow.day) - 1) * 24 * 4 + dtmNow.hour * 4 + float(dtmNow.minute) / 60.0 * 3600 / Gdata.DTime)
         for surface in self.input_surfaces:
-            surface.RSsol = surface.calc_RSsol(self.Qgt[sequence_number])
+            surface.RSsol = calc_RSsol(surface, self.Qgt[sequence_number])
         # 家具の吸収日射量
-        self.Qsolfun = self.Qgt[sequence_number] * self.__rsolfun
+        self.Qsolfun = self.Qgt[sequence_number] * self.rsolfun
 
         # 流入外気風量の計算
         # 計画換気・すきま風量
         # season = Schedule.Season(dtmNow)
-        self.__Ventset = self.__Vent
+        self.Ventset = self.Vent
 
         # すきま風量未実装につき、とりあえず０とする
-        self.__Infset = 0.0
-        # self.__Infset = self.__Inf
+        self.Infset = 0.0
+        # self.Infset = self.Inf
         # 局所換気量
-        self.__LocalVentset = self.__LocalVent_schedule[item]
+        self.LocalVentset = self.local_vent_amount_schedule[item]
 
         # 空調設定温度の取得
         # Tset = Schedule.ACSet(self.name, '温度', dtmNow)
         # 空調需要の設定
-        if self.__number_of_people > 0:
+        if self.number_of_people > 0:
             self.demAC = 1
         else:
             self.demAC = 0
@@ -546,204 +538,204 @@ class Space:
 
         # 室温・熱負荷計算のための係数の計算
         # BRM・BRLの初期化
-        self.__BRM = 0.0
-        self.__BRL = self.__Beta
-        RMdT = self.__Hcap / Gdata.DTime
-        self.__BRM += RMdT
+        self.BRM = 0.0
+        self.BRL = self.Beta
+        RMdT = self.Hcap / Gdata.DTime
+        self.BRM += RMdT
         # BRLの計算
         i = 0
         for surface in self.input_surfaces:
             # 室内対流熱伝達率×面積[W/K]
             AF0 = surface.area * surface.hic
-            temp = AF0 * (1.0 - self.__matWSR[i][0])
+            temp = AF0 * (1.0 - self.matWSR[i])
             # hc×A×(1-WSR)の積算
-            self.__BRM += temp
+            self.BRM += temp
             # BRLの計算
-            self.__BRL += AF0 * self.__matWSB[i][0]
+            self.BRL += AF0 * self.matWSB[i]
             i += 1
 
         # 外気導入項の計算
         temp = conca * conrowa * \
-               (self.__Ventset + self.__Infset + self.__LocalVentset) / 3600.0
-        self.__BRM += temp
+               (self.Ventset + self.Infset + self.LocalVentset) / 3600.0
+        self.BRM += temp
         # 室間換気
-        for room_vent in self.__RoomtoRoomVent:
-            nextvent = room_vent.next_vent()
+        for room_vent in self.RoomtoRoomVent:
+            nextvent = room_vent.volume
             temp = conca * conrowa * nextvent / 3600.0
-            self.__BRM += temp
+            self.BRM += temp
 
         # 家具からの熱取得
-        if self.__Capfun > 0.0:
-            self.__BRM += 1. / (Gdata.DTime / self.__Capfun + 1. / self.__Cfun)
+        if self.Capfun > 0.0:
+            self.BRM += 1. / (Gdata.DTime / self.Capfun + 1. / self.Cfun)
 
         # 定数項の計算
-        self.__BRC = 0.0
+        self.BRC = 0.0
         # {WSC}、{CRX}の初期化
-        self.__matWSC = [[0.0 for i in range(1)] for j in range(self.__Nsurf)]
-        self.__matCRX = [[0.0 for i in range(1)] for j in range(self.__Nsurf)]
+        self.matWSC = [0.0 for j in range(self.Nsurf)]
+        self.matCRX = [0.0 for j in range(self.Nsurf)]
 
         # {CRX}の作成
         i = 0
         for surface in self.input_surfaces:
-            self.__matCRX[i][0] = surface.RFT0 * surface.Teo \
+            self.matCRX[i] = surface.RFT0 * surface.Teo \
                                   + surface.RSsol * surface.RFA0
             i += 1
 
         # print('matCRX')
-        # print(self.__matCRX)
+        # print(self.matCRX)
         # {WSC}=[XA]*{CRX}
-        self.__matWSC = np.dot(self.__matAX, self.__matCRX)
+        self.matWSC = np.dot(self.matAX, self.matCRX)
         
         # print('matWSC')
-        # print(self.__matWSC)
+        # print(self.matWSC)
         # {BRC}の計算
         i = 0
         for surface in self.input_surfaces:
-            NowQw = self.__matWSC[i][0] * surface.area * surface.hic
-            self.__BRC += NowQw
+            NowQw = self.matWSC[i] * surface.area * surface.hic
+            self.BRC += NowQw
             i += 1
 
         # 外気流入風（換気＋すきま風）
         temp = conca * conrowa * \
-               (self.__Ventset + self.__Infset + self.__LocalVentset) \
-               * Weather.WeaData(enmWeatherComponent.Ta, dtmNow) / 3600.0
-        self.__BRC += temp
+               (self.Ventset + self.Infset + self.LocalVentset) \
+               * WeaData(Weather, enmWeatherComponent.Ta, dtmNow) / 3600.0
+        self.BRC += temp
 
         # 室間換気流入風
-        for room_vent in self.__RoomtoRoomVent:
-            nextvent = room_vent.next_vent()
+        for room_vent in self.RoomtoRoomVent:
+            nextvent = room_vent.volume
             temp = conca * conrowa * nextvent \
                    * room_vent.oldTr / 3600.0
             # print(self.name, room_vent.Windward_roomname(), nextvent, room_vent.oldTr())
-            self.__BRC += temp
+            self.BRC += temp
         # RM/Δt*oldTrの項
-        temp = self.__Hcap / Gdata.DTime * self.__oldTr
-        self.__BRC += temp
+        temp = self.Hcap / Gdata.DTime * self.oldTr
+        self.BRC += temp
 
         # 家具からの熱取得の項
-        if self.__Capfun > 0.0:
-            self.__BRC += (self.__Capfun / Gdata.DTime * self.__oldTfun + self.Qsolfun) \
-                    / (self.__Capfun / (Gdata.DTime * self.__Cfun) + 1.)
+        if self.Capfun > 0.0:
+            self.BRC += (self.Capfun / Gdata.DTime * self.oldTfun + self.Qsolfun) \
+                    / (self.Capfun / (Gdata.DTime * self.Cfun) + 1.)
 
         # {WSV}、{CVL}の初期化
-        self.__matWSV = [[0.0 for i in range(1)] for j in range(self.__Nsurf)]
-        self.__matCVL = [[0.0 for i in range(1)] for j in range(self.__Nsurf)]
+        self.matWSV = [0.0 for j in range(self.Nsurf)]
+        self.matCVL = [0.0 for j in range(self.Nsurf)]
 
         # 畳み込み演算
         i = 0
         for surface in self.input_surfaces:
-            self.__matCVL[i][0] = surface.convolution()
+            self.matCVL[i] = convolution(surface)
             i += 1
 
         # {WSV}=[XA]*{CVL}
-        self.__matWSV = np.dot(self.__matAX, self.__matCVL)
+        self.matWSV = np.dot(self.matAX, self.matCVL)
         # 畳み込み後の室内表面温度の計算
         i = 0
         for surface in self.input_surfaces:
-            temp = surface.area * surface.hic * self.__matWSV[i][0]
+            temp = surface.area * surface.hic * self.matWSV[i]
 
-            self.__BRC += temp
+            self.BRC += temp
             i += 1
 
         # 定数項への内部発熱の加算
-        self.__BRC += self.__Hn
+        self.BRC += self.Hn
 
         # 窓開閉、空調発停判定のための自然室温計算
         # 通風なしでの係数を控えておく
-        self.__BRMnoncv = self.__BRM
-        self.__BRCnoncv = self.__BRC
+        self.BRMnoncv = self.BRM
+        self.BRCnoncv = self.BRC
         if self.nowWin == 1:
-            temp = conca * conrowa * self.__Vcrossvent / 3600.0
-            self.__BRM += temp
-            self.__BRC += temp * Ta
+            temp = conca * conrowa * self.Vcrossvent / 3600.0
+            self.BRM += temp
+            self.BRC += temp * Ta
 
         # OT計算用の係数補正
-        self.__Xot = 0.0
-        self.__XLr = 0.0
-        self.__XC = 0.0
+        self.Xot = 0.0
+        self.XLr = 0.0
+        self.XC = 0.0
         temp = 0.0
         XLr = 0.0
         XC = 0.0
         i = 0
         for surface in self.input_surfaces:
-            temp += (surface.fot * self.__matWSR[i][0])
-            XLr += surface.fot * self.__matWSB[i][0]
-            XC += surface.fot * (self.__matWSC[i][0] + self.__matWSV[i][0])
+            temp += (surface.fot * self.matWSR[i])
+            XLr += surface.fot * self.matWSB[i]
+            XC += surface.fot * (self.matWSC[i] + self.matWSV[i])
             i += 1
 
-        temp = self.__kc + self.__kr * temp
-        self.__Xot = 1.0 / temp
-        self.__XLr = self.__kr * XLr / temp
-        self.__XC = self.__kr * XC / temp
-        self.__BRMot = self.__BRM * self.__Xot
-        self.__BRCot = self.__BRC + self.__BRM * self.__XC
-        self.__BRLot = self.__BRL + self.__BRM * self.__XLr
+        temp = self.kc + self.kr * temp
+        self.Xot = 1.0 / temp
+        self.XLr = self.kr * XLr / temp
+        self.XC = self.kr * XC / temp
+        self.BRMot = self.BRM * self.Xot
+        self.BRCot = self.BRC + self.BRM * self.XC
+        self.BRLot = self.BRL + self.BRM * self.XLr
         # 自然室温でOTを計算する
         is_radiative_heating = False
         if Gdata.is_residential:
-            is_radiative_heating = self.__is_radiative_heating
+            is_radiative_heating = self.is_radiative_heating
         
         # 自然作用温度の計算（住宅用）
         if Gdata.is_residential:
-            self.OT, self.Lcs, self.Lrs = self.calcTrLs(0, is_radiative_heating, self.__BRCot, self.__BRMot,
-                                                        self.__BRLot, 0, 0.0)
+            self.OT, self.Lcs, self.Lrs = self.calcTrLs(0, is_radiative_heating, self.BRCot, self.BRMot,
+                                                        self.BRLot, 0, 0.0)
             # 窓開閉と空調発停の判定をする
             self.nowWin, self.nowAC = mode_select(self.demAC, self.preAC, self.preWin, self.OT)
             # 最終計算のための係数整備
-            self.__BRC = self.__BRCnoncv
-            self.__BRM = self.__BRMnoncv
+            self.BRC = self.BRCnoncv
+            self.BRM = self.BRMnoncv
             # 通風なら通風量を設定
             if self.nowWin == 1:
-                temp = conca * conrowa * self.__Vcrossvent / 3600.0
-                self.__BRM += temp
-                self.__BRC += temp * Ta
+                temp = conca * conrowa * self.Vcrossvent / 3600.0
+                self.BRM += temp
+                self.BRC += temp * Ta
             
             # OT計算用の係数補正
-            self.__Xot = 0.0
-            self.__XLr = 0.0
-            self.__XC = 0.0
+            self.Xot = 0.0
+            self.XLr = 0.0
+            self.XC = 0.0
             temp = 0.0
             XLr = 0.0
             XC = 0.0
             i = 0
             for surface in self.input_surfaces:
-                temp += (surface.fot * self.__matWSR[i][0])
-                XLr += surface.fot * self.__matWSB[i][0]
-                XC += surface.fot * (self.__matWSC[i][0] + self.__matWSV[i][0])
+                temp += (surface.fot * self.matWSR[i])
+                XLr += surface.fot * self.matWSB[i]
+                XC += surface.fot * (self.matWSC[i] + self.matWSV[i])
                 i += 1
 
-            temp = self.__kc + self.__kr * temp
-            self.__Xot = 1.0 / temp
-            self.__XLr = self.__kr * XLr / temp
-            self.__XC = self.__kr * XC / temp
-            self.__BRMot = self.__BRM * self.__Xot
-            self.__BRCot = self.__BRC + self.__BRM * self.__XC
-            self.__BRLot = self.__BRL + self.__BRM * self.__XLr
+            temp = self.kc + self.kr * temp
+            self.Xot = 1.0 / temp
+            self.XLr = self.kr * XLr / temp
+            self.XC = self.kr * XC / temp
+            self.BRMot = self.BRM * self.Xot
+            self.BRCot = self.BRC + self.BRM * self.XC
+            self.BRLot = self.BRL + self.BRM * self.XLr
             
             # 設定温度の計算
-            self.OTset, self.Met, self.Clo, self.Vel = calcOTset(self.nowAC, self.__is_radiative_heating, self.RH)
+            self.OTset, self.Met, self.Clo, self.Vel = calcOTset(self.nowAC, self.is_radiative_heating, self.RH)
 
             # 仮の室温、熱負荷の計算
             self.OT, self.Lcs, self.Lrs = self.calcTrLs(self.nowAC,
-                                                            self.__is_radiative_heating, self.__BRCot, self.__BRMot,
-                                                            self.__BRLot, 0, self.OTset)
+                                                            self.is_radiative_heating, self.BRCot, self.BRMot,
+                                                            self.BRLot, 0, self.OTset)
             # 室温を計算
-            self.Tr = self.__Xot * self.OT - self.__XLr * self.Lrs - self.__XC
+            self.Tr = self.Xot * self.OT - self.XLr * self.Lrs - self.XC
 
             # 最終的な運転フラグの設定（空調時のみ）
-            self.finalAC = reset_SW(self.nowAC, self.Lcs, self.Lrs, self.__is_radiative_heating, self.__radiative_heating_max_capacity)
+            self.finalAC = reset_SW(self.nowAC, self.Lcs, self.Lrs, self.is_radiative_heating, self.radiative_heating_max_capacity)
 
             # 最終室温・熱負荷の再計算
             self.OT, self.Lcs, self.Lrs = self.calcTrLs(self.finalAC,
-                                                            self.__is_radiative_heating, self.__BRCot, self.__BRMot,
-                                                            self.__BRLot, self.__radiative_heating_max_capacity, self.OTset)
+                                                            self.is_radiative_heating, self.BRCot, self.BRMot,
+                                                            self.BRLot, self.radiative_heating_max_capacity, self.OTset)
             # 室温を計算
-            self.Tr = self.__Xot * self.OT \
-                        - self.__XLr * self.Lrs - self.__XC
+            self.Tr = self.Xot * self.OT \
+                        - self.XLr * self.Lrs - self.XC
         # 自然室温の計算（非住宅用）
         else:
-            self.Tr, self.Lcs, self.Lrs = self.calcTrLs(0, is_radiative_heating, self.__BRC, self.__BRM,
-                                                        self.__BRL, 0, 0.0)
+            self.Tr, self.Lcs, self.Lrs = self.calcTrLs(0, is_radiative_heating, self.BRC, self.BRM,
+                                                        self.BRL, 0, 0.0)
             # 空調停止で初期化
             self.finalAC = 0
             # 窓閉鎖
@@ -751,35 +743,35 @@ class Space:
             # 設定温度
             temp_set = 0.0
             # 上限温度を超える場合は冷房
-            if self.__is_upper_temp_limit_set[item] and self.Tr > self.__temperature_upper_limit[item]:
+            if self.is_upper_temp_limit_set_schedule[item] and self.Tr > self.temperature_upper_limit_schedule[item]:
                 self.finalAC = -1
-                temp_set = self.__temperature_upper_limit[item]
+                temp_set = self.temperature_upper_limit_schedule[item]
             # 下限温度を下回る場合は暖房
-            elif self.__is_lower_temp_limit_set[item] and self.Tr < self.__temperature_lower_limit[item]:
+            elif self.is_lower_temp_limit_set_schedule[item] and self.Tr < self.temperature_lower_limit_schedule[item]:
                 self.finalAC = 1
-                temp_set = self.__temperature_lower_limit[item]
+                temp_set = self.temperature_lower_limit_schedule[item]
             # print("item=", item, "Tr=", self.Tr, "finalAC=", self.finalAC, "temp_set=", temp_set, \
-            #     self.__is_upper_temp_limit_set[item], self.__temperature_upper_limit[item])
+            #     self.is_upper_temp_limit_set[item], self.temperature_upper_limit[item])
             # 室温、熱負荷の計算
-            self.Tr, self.Lcs, self.Lrs = self.calcTrLs(self.finalAC, is_radiative_heating, self.__BRC, self.__BRM, \
-                self.__BRL, 0, temp_set)
+            self.Tr, self.Lcs, self.Lrs = self.calcTrLs(self.finalAC, is_radiative_heating, self.BRC, self.BRM, \
+                self.BRL, 0, temp_set)
 
         # 表面温度の計算
         self.MRT = 0.0
         self.AST = 0.0
         i = 0
         for surface in self.input_surfaces:
-            Ts = self.__matWSR[i][0] * self.Tr \
-                 + self.__matWSC[i][0] + self.__matWSV[i][0] \
-                 + self.__matWSB[i][0] * self.Lrs
+            Ts = self.matWSR[i] * self.Tr \
+                 + self.matWSC[i] + self.matWSV[i] \
+                 + self.matWSB[i] * self.Lrs
             surface.Ts = Ts
 
             # 人体に対する放射温度：MRT、面積荷重平均温度：ASTの計算
             self.MRT += surface.fot * surface.Ts
-            self.AST += surface.area * surface.Ts / self.__Atotal
+            self.AST += surface.area * surface.Ts / self.Atotal
             i += 1
         # 非住宅の場合の作用温度を計算する
-        self.OT = self.__kc * self.Tr + self.__kr * self.MRT
+        self.OT = self.kc * self.Tr + self.kr * self.MRT
 
         # 室内側等価温度の計算
         for surface in self.input_surfaces:
@@ -792,47 +784,47 @@ class Space:
                 j += 1
 
             # 室内側等価温度の計算
-            surface.Tei = surface.calc_Tei(self.Tr, surface.Tsx, self.Lrs, self.__Beta)
+            surface.Tei = calc_Tei(surface, self.Tr, surface.Tsx, self.Lrs, self.Beta)
             # 室内表面熱流の計算
-            surface.update_qi(self.Tr, surface.Tsx, self.Lrs, self.__Beta)
+            update_qi(surface, self.Tr, surface.Tsx, self.Lrs, self.Beta)
 
         # 湿度の計算
-        xo = Weather.WeaData(enmWeatherComponent.x, dtmNow) / 1000.
-        self.Voin = (self.__Ventset + self.__Infset + self.__LocalVentset) / 3600.
-        Ff = self.__Gf * self.__Cx / (self.__Gf + Gdata.DTime * self.__Cx)
-        Vd = self.__volume / Gdata.DTime
-        self.__BRMX = conrowa * (Vd + self.Voin) + Ff
-        self.__BRXC = conrowa * (self.__volume / Gdata.DTime * self.__oldxr + self.Voin * xo) \
-                + Ff * self.__oldxf + self.Lin
+        xo = WeaData(Weather, enmWeatherComponent.x, dtmNow) / 1000.
+        self.Voin = (self.Ventset + self.Infset + self.LocalVentset) / 3600.
+        Ff = self.Gf * self.Cx / (self.Gf + Gdata.DTime * self.Cx)
+        Vd = self.volume / Gdata.DTime
+        self.BRMX = conrowa * (Vd + self.Voin) + Ff
+        self.BRXC = conrowa * (self.volume / Gdata.DTime * self.oldxr + self.Voin * xo) \
+                + Ff * self.oldxf + self.Lin
         
         # if self.name == '主たる居室':
         #     print(self.Voin, Ff, Vd)
         # 室間換気流入風
-        for room_vent in self.__RoomtoRoomVent:
-            nextvent = room_vent.next_vent()
-            self.__BRMX += conrowa * nextvent / 3600.0
-            self.__BRXC += conrowa * nextvent * room_vent.oldxr / 3600.0
+        for room_vent in self.RoomtoRoomVent:
+            nextvent = room_vent.volume
+            self.BRMX += conrowa * nextvent / 3600.0
+            self.BRXC += conrowa * nextvent * room_vent.oldxr / 3600.0
         
         # 住宅の場合
         if Gdata.is_residential:
             # 空調の熱交換部飽和絶対湿度の計算
             self.calcVac_xeout(self.nowAC)
             # 空調機除湿の項
-            RhoVac = conrowa * self.Vac * (1.0 - self.__BF)
-            self.__BRMX += RhoVac
-            self.__BRXC += RhoVac * self.__xeout
+            RhoVac = conrowa * self.Vac * (1.0 - self.bypass_factor_rac)
+            self.BRMX += RhoVac
+            self.BRXC += RhoVac * self.xeout
             # 室絶対湿度[kg/kg(DA)]の計算
-            self.xr = self.__BRXC / self.__BRMX
+            self.xr = self.BRXC / self.BRMX
             # 加湿量の計算
-            self.Ghum = RhoVac * (self.__xeout - self.xr)
+            self.Ghum = RhoVac * (self.xeout - self.xr)
             if self.Ghum > 0.0:
                 self.Ghum = 0.0
                 # 空調機除湿の項の再計算（除湿なしで計算）
-                self.__BRMX -= RhoVac
-                self.__BRXC -= RhoVac * self.__xeout
+                self.BRMX -= RhoVac
+                self.BRXC -= RhoVac * self.xeout
                 self.Va = 0.0
                 # 室絶対湿度の計算
-                self.xr = self.__BRXC / self.__BRMX
+                self.xr = self.BRXC / self.BRMX
             # 潜熱負荷の計算
             self.Lcl = self.Ghum * conra
             # 当面は放射空調の潜熱は0
@@ -843,7 +835,7 @@ class Space:
         else:
             # 自然湿度の計算
             # 室絶対湿度[kg/kg(DA)]の計算
-            self.xr = self.__BRXC / self.__BRMX
+            self.xr = self.BRXC / self.BRMX
             # 相対湿度の計算
             self.RH = rhtx(self.Tr, self.xr)
             # 潜熱計算運転状態
@@ -851,20 +843,20 @@ class Space:
             # 潜熱負荷の初期化
             self.Lcl = 0.0
             # 上限湿度を超える場合は除湿
-            if self.__is_upper_humidity_limit_set[item] and self.RH > self.__relative_humidity_upper_limit[item]:
+            if self.is_upper_humidity_limit_set_schedule[item] and self.RH > self.relative_humidity_upper_limit_schedule[item]:
                 self.nowACx = -1
-                RH_set = self.__relative_humidity_upper_limit[item]
+                RH_set = self.relative_humidity_upper_limit_schedule[item]
                 
             # 下限湿度を下回る場合は加湿
-            elif self.__is_lower_humidity_limit_set[item] and self.RH < self.__relative_humidity_lower_limit[item]:
+            elif self.is_lower_humidity_limit_set_schedule[item] and self.RH < self.relative_humidity_lower_limit_schedule[item]:
                 self.nowACx = 1
-                RH_set = self.__relative_humidity_lower_limit[item]
+                RH_set = self.relative_humidity_lower_limit_schedule[item]
 
             # 設定絶対湿度の計算（潜熱運転のときだけ）
             if self.nowACx != 0:
                 self.xr = xtrh(self.Tr, RH_set)
                 self.RH = RH_set
-                self.Lcl = - conra * (self.__BRXC - self.__BRMX * self.xr)
+                self.Lcl = - conra * (self.BRXC - self.BRMX * self.xr)
 
         # 家具の温度を計算
         self.Tfun = self.calcTfun(Gdata)
@@ -872,38 +864,38 @@ class Space:
 
         # 年間熱負荷の積算
         # 助走計算以外の時だけ積算
-        if Gdata.FlgOrig(dtmNow) == True:
+        if FlgOrig(Gdata, dtmNow) == True:
             # 対流式空調（顕熱）の積算
             if self.Lcs > 0.0:
-                self.__AnnualLoadcHs += self.Lcs * Gdata.DTime * 0.000000001
+                self.AnnualLoadcHs += self.Lcs * Gdata.DTime * 0.000000001
             else:
-                self.__AnnualLoadcCs += self.Lcs * Gdata.DTime * 0.000000001
+                self.AnnualLoadcCs += self.Lcs * Gdata.DTime * 0.000000001
             
             # 当面未処理負荷は0
             self.un_Lcs = 0.0
             # 対流式空調（顕熱未処理）の積算
             if self.un_Lcs > 0.0:
-                self.__Annual_un_LoadcHs += self.un_Lcs * Gdata.DTime * 0.000000001
+                self.Annual_un_LoadcHs += self.un_Lcs * Gdata.DTime * 0.000000001
             else:
-                self.__Annual_un_LoadcCs += self.un_Lcs * Gdata.DTime * 0.000000001
+                self.Annual_un_LoadcCs += self.un_Lcs * Gdata.DTime * 0.000000001
             
             # 対流式空調（潜熱）の積算
             if self.Lcl > 0.0:
-                self.__AnnualLoadcHl += self.Lcl * Gdata.DTime * 0.000000001
+                self.AnnualLoadcHl += self.Lcl * Gdata.DTime * 0.000000001
             else:
-                self.__AnnualLoadcCs += self.Lcl * Gdata.DTime * 0.000000001
+                self.AnnualLoadcCs += self.Lcl * Gdata.DTime * 0.000000001
 
             # 放射式空調（顕熱）の積算
             if self.Lrs > 0.0:
-                self.__AnnualLoadrHs += self.Lrs * Gdata.DTime * 0.000000001
+                self.AnnualLoadrHs += self.Lrs * Gdata.DTime * 0.000000001
             else:
-                self.__AnnualLoadrCs += self.Lrs * Gdata.DTime * 0.000000001
+                self.AnnualLoadrCs += self.Lrs * Gdata.DTime * 0.000000001
 
             # 放射式空調（潜熱）の積算
             if self.Lrl > 0.0:
-                self.__AnnualLoadrHl += self.Lrl * Gdata.DTime * 0.000000001
+                self.AnnualLoadrHl += self.Lrl * Gdata.DTime * 0.000000001
             else:
-                self.__AnnualLoadrCl += self.Lrl * Gdata.DTime * 0.000000001
+                self.AnnualLoadrCl += self.Lrl * Gdata.DTime * 0.000000001
 
         # PMVの計算
         self.PMV = calcPMV(self.Tr, self.MRT, self.RH, self.Vel, self.Met, self.Wme, self.Clo)
@@ -916,10 +908,10 @@ class Space:
 
     # 前時刻の室温を現在時刻の室温、家具温度に置換
     def update_oldstate(self):
-        self.__oldTr = self.Tr
-        self.__oldTfun = self.Tfun
-        self.__oldxr = self.xr
-        self.__oldxf = self.xf
+        self.oldTr = self.Tr
+        self.oldTfun = self.Tfun
+        self.oldxr = self.xr
+        self.oldxf = self.xf
 
     # 室温・熱負荷の計算ルーティン
     def calcTrLs(self, nowAC, is_radiative_heating, BRC, BRM, BRL, Lrcap, Tset):
@@ -965,21 +957,21 @@ class Space:
 
     # 家具の温度を計算する
     def calcTfun(self, Gdata):
-        if self.__Capfun > 0.0:
-            self.Tfun = ((self.__Capfun / Gdata.DTime * self.__oldTfun \
-                    + self.__Cfun * self.Tr + self.Qsolfun) \
-                    / (self.__Capfun / Gdata.DTime + self.__Cfun))
-            self.Qfuns = self.__Cfun * (self.Tr - self.Tfun)
+        if self.Capfun > 0.0:
+            self.Tfun = ((self.Capfun / Gdata.DTime * self.oldTfun \
+                    + self.Cfun * self.Tr + self.Qsolfun) \
+                    / (self.Capfun / Gdata.DTime + self.Cfun))
+            self.Qfuns = self.Cfun * (self.Tr - self.Tfun)
         # if self.name == "主たる居室":
-        #     print(self.name, self.__oldTfun, self.Tfun, self.__Capfun, self.__Cfun, self.Qsolfun)
+        #     print(self.name, self.oldTfun, self.Tfun, self.Capfun, self.Cfun, self.Qsolfun)
         return self.Tfun
 
     # 家具類の湿度を計算する
     def calcxf(self, Gdata):
-        self.xf = (self.__Gf / Gdata.DTime * self.__oldxf + self.__Cx * self.xr) / (self.__Gf / Gdata.DTime + self.__Cx)
-        self.Qfunl = self.__Cx * (self.xr - self.xf)
+        self.xf = (self.Gf / Gdata.DTime * self.oldxf + self.Cx * self.xr) / (self.Gf / Gdata.DTime + self.Cx)
+        self.Qfunl = self.Cx * (self.xr - self.xf)
         # if self.name == "主たる居室":
-        #     print(self.name, self.__oldTfun, self.Tfun, self.__Capfun, self.__Cfun, self.Qsolfun)
+        #     print(self.name, self.oldTfun, self.Tfun, self.Capfun, self.Cfun, self.Qsolfun)
         return self.xf
 
     # エアコンの熱交換部飽和絶対湿度の計算
@@ -997,21 +989,21 @@ class Space:
             self.Vac = (self.__Vmin + (self.__Vmax - self.__Vmin) \
                     / (self.__qmax_c - self.__qmin_c) * (Qs - self.__qmin_c)) / 60.0
             # 熱交換器温度＝熱交換器部分吹出温度
-            self.__Teout = self.Tr - Qs / (conca * conrowa * self.Vac * (1.0 - self.__BF))
+            self.__Teout = self.Tr - Qs / (conca * conrowa * self.Vac * (1.0 - self.bypass_factor_rac))
             # 熱交換器吹出部分は飽和状態
-            self.__xeout = x(Pws(self.__Teout))
+            self.xeout = x(Pws(self.__Teout))
 
     # 暖房設備仕様の読み込み
-    def __heating_equipment_read(self, dheqp):
+    def heating_equipment_read(self, dheqp):
         # 放射暖房有無（Trueなら放射暖房あり）
-        self.__is_radiative_heating = dheqp['is_radiative_heating']
+        self.is_radiative_heating = dheqp['is_radiative_heating']
         # 放射暖房最大能力[W]
-        self.__radiative_heating_max_capacity = 0.0
-        if self.__is_radiative_heating:
-            self.__radiative_heating_max_capacity = dheqp['radiative_heating']['max_capacity'] * dheqp['radiative_heating']['area']
+        self.radiative_heating_max_capacity = 0.0
+        if self.is_radiative_heating:
+            self.radiative_heating_max_capacity = dheqp['radiative_heating']['max_capacity'] * dheqp['radiative_heating']['area']
 
     # 冷房設備仕様の読み込み
-    def __cooling_equipment_read(self, dceqp):
+    def cooling_equipment_read(self, dceqp):
         # 放射冷房有無（Trueなら放射冷房あり）
         self.__is_radiative_cooling = dceqp['is_radiative_cooling']
         # 放射冷房最大能力[W]
@@ -1041,7 +1033,7 @@ def summarize_building_part(surfaces):
                 # 境界条件が同じかどうかチェックする
                 # グループ化していない部位だけを対象とする
                 if not comp_surface.is_grouping:
-                    if surface.boundary_comp(comp_surface):
+                    if boundary_comp(surface, comp_surface):
                         comp_surface.is_grouping = True
                         comp_surface.group_number = group_number
             # グループ番号を増やす
@@ -1075,19 +1067,19 @@ def summarize_transparent_solar_radiation(surfaces, Gdata, weather):
             dtmNow = dtime + start_date
 
             # 太陽位置の計算
-            solar_position = weather.Solpos(dtmNow)
+            solar_position = Solpos(weather, dtmNow)
             # 傾斜面日射量の計算
-            Idn = weather.WeaData(enmWeatherComponent.Idn, dtmNow)
-            Isky = weather.WeaData(enmWeatherComponent.Isky, dtmNow)
+            Idn = WeaData(weather, enmWeatherComponent.Idn, dtmNow)
+            Isky = WeaData(weather, enmWeatherComponent.Isky, dtmNow)
             for surface in surfaces:
                 # 外表面に日射が当たる場合
                 if surface.is_sun_striked_outside and surface.boundary_type == "external_transparent_part":
-                    surface.Id, surface.Isky, surface.Ir, surface.Iw = surface.calc_slope_sol(solar_position, Idn, Isky)
+                    surface.Id, surface.Isky, surface.Ir, surface.Iw = calc_slope_sol(surface, solar_position, Idn, Isky)
 
                     # 日除けの日影面積率の計算
                     if surface.sunbrk.existance:
-                        surface.Fsdw = surface.calc_Fsdw(solar_position)
-                    Qgt[item] += surface.calc_Qgt()
+                        surface.Fsdw = calc_Fsdw(surface, solar_position)
+                    Qgt[item] += calc_Qgt(surface)
 
             item += 1
         nnow += 1

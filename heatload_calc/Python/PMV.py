@@ -1,5 +1,12 @@
 import math
+from scipy.optimize import fsolve
 
+def get_OT(met, clo, velocity, RH, PMV_set):
+    # 定数部分があるので、ラムダ式で関数を包む
+    # 右辺が0になるように式を変形する
+    # 初期値は適当に0にした
+    return fsolve(lambda OT: calcPMV(OT - 2.0, OT + 2.0, RH, velocity, met, 0.0, clo) - PMV_set, 0.0)
+    
 def calcPMV(Ta, MRT, RH, V, Met, Wme, Clo):
     # 水蒸気分圧[Pa]の計算
     Pa = RH / 100. * FNPS(Ta) * 1000.0

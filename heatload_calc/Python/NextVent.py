@@ -10,10 +10,10 @@ from Psychrometrics import xtrh
 class NextVent:
     def __init__(self, Windward_roomname, volume):
         # 風上室名
-        self.__Windward_roomname = Windward_roomname
+        self.windward_roomname = Windward_roomname
 
         # 流入風量[m3/h]
-        self.__volume = volume
+        self.volume = volume
 
         # 風上室の室温を初期化(前時刻の隣室温度)
         self.oldTr = 15.0
@@ -23,12 +23,3 @@ class NextVent:
     def update_oldstate(self, oldTr, oldxr):
         self.oldTr = oldTr
         self.oldxr = oldxr
-
-    # 風上室の室名を返す
-    @property
-    def Windward_roomname(self):
-        return self.__Windward_roomname
-
-    # 風量を返す
-    def next_vent(self):
-        return self.__volume

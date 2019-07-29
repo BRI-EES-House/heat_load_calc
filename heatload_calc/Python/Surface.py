@@ -25,14 +25,14 @@ class Surface:
 
             # 外皮の場合
             if "external" in self.boundary_type:
-                self.__direction = None
+                self.direction = None
                 if self.is_sun_striked_outside:
-                    self.__direction = d['direction']
+                    self.direction = d['direction']
                 # 隣室温度差係数
-                self.__temp_dif_coef = d['temp_dif_coef']
+                self.temp_dif_coef = d['temp_dif_coef']
                 # 境界条件の初期化
-                self.backside_boundary_condition.external_init(self.__direction, \
-                    self.is_sun_striked_outside, self.__temp_dif_coef)
+                self.backside_boundary_condition.external_init(self.direction, \
+                    self.is_sun_striked_outside, self.temp_dif_coef)
             # 内壁の場合
             elif self.boundary_type == "internal":
                 self.next_room_type = d['next_room_type']
@@ -99,7 +99,7 @@ class Surface:
             self.Qc = 0.0  # 対流成分
             self.Qr = 0.0  # 放射成分
             self.RS = 0.0  # 短波長熱取得成分
-            self.__Lr = 0.0  # 放射暖房成分
+            self.Lr = 0.0  # 放射暖房成分
 
             self.oldTeo = 15.0  # 前時刻の室外側温度
             self.oldqi = 0.0  # 前時刻の室内側表面熱流
@@ -132,17 +132,17 @@ class Surface:
                     self.Eo = wall.Eo  # 室外側表面放射率
             # 透明部位の初期化
             elif self.boundary_type == "external_transparent_part":
-                self.__transparent_opening = transparent_opening(self.name, d['transparent_opening_part_spec'])
-                self.tau = self.__transparent_opening.T     # 日射透過率＝日射熱取得率
-                self.Uso = self.__transparent_opening.Uso   # 熱貫流率（表面熱伝達抵抗除く）
+                self.transparent_opening = transparent_opening(self.name, d['transparent_opening_part_spec'])
+                self.tau = self.transparent_opening.T     # 日射透過率＝日射熱取得率
+                self.Uso = self.transparent_opening.Uso   # 熱貫流率（表面熱伝達抵抗除く）
                 self.RFA0 = 1.0 / self.Uso                  # 吸熱応答係数の初項
                 self.RFT0 = 1.0                             # 貫流応答係数の初項
-                self.hi = self.__transparent_opening.hi     # 室内側表面総合熱伝達率
-                self.ho = self.__transparent_opening.ho     # 室外側表面総合熱伝達率
+                self.hi = self.transparent_opening.hi     # 室内側表面総合熱伝達率
+                self.ho = self.transparent_opening.ho     # 室外側表面総合熱伝達率
                 self.U = 1.0 / (1.0 / self.Uso + 1.0 / self.hi)  # 熱貫流率（表面熱伝達抵抗含む）
-                self.Ei = self.__transparent_opening.Ei     # 室内側表面放射率
+                self.Ei = self.transparent_opening.Ei     # 室内側表面放射率
                 if self.is_sun_striked_outside:
-                    self.Eo = self.__transparent_opening.Eo     # 室外側表面放射率
+                    self.Eo = self.transparent_opening.Eo     # 室外側表面放射率
             # 不透明な開口部の初期化
             elif self.boundary_type == "external_opaque_part":
                 self.U = d['opaque_opening_part_spec']['u_value']     # 熱貫流率[W/(m2･K)]
@@ -165,194 +165,190 @@ class Surface:
             # グループ化済み変数
             self.is_grouping = False
 
-    # 畳み込み積分
-    def convolution(self):
-        sumTsd = 0.0
-        for i in range(self.Nroot):
-            self.oldTsd_t[i] = self.oldTeo * self.RFT1[i] + self.Row[i] * self.oldTsd_t[i]
-            self.oldTsd_a[i] = self.oldqi * self.RFA1[i] + self.Row[i] * self.oldTsd_a[i]
-            sumTsd += self.oldTsd_t[i] + self.oldTsd_a[i]
+# 畳み込み積分
+def convolution(surface):
+    sumTsd = 0.0
+    for i in range(surface.Nroot):
+        surface.oldTsd_t[i] = surface.oldTeo * surface.RFT1[i] + surface.Row[i] * surface.oldTsd_t[i]
+        surface.oldTsd_a[i] = surface.oldqi * surface.RFA1[i] + surface.Row[i] * surface.oldTsd_a[i]
+        sumTsd += surface.oldTsd_t[i] + surface.oldTsd_a[i]
 
-        return sumTsd
+    return sumTsd
 
-    # 室内等価温度の計算
-    def calc_Tei(self, Tr, Tsx, Lr, Beta):
-        """
-        :param Tr: 室温
-        :param Tsx: 形態係数加重平均表面温度
-        :param Lr:
-        :param Beta:
-        :return:
-        """
-        return Tr * self.hic / self.hi \
-                     + Tsx * self.hir / self.hi \
-                     + self.RSsol / self.hi \
-                     + self.flr * Lr * (1.0 - Beta) / self.hi / self.area
+# 室内等価温度の計算
+def calc_Tei(surface, Tr, Tsx, Lr, Beta):
+    """
+    :param Tr: 室温
+    :param Tsx: 形態係数加重平均表面温度
+    :param Lr:
+    :param Beta:
+    :return:
+    """
+    return Tr * surface.hic / surface.hi \
+                    + Tsx * surface.hir / surface.hi \
+                    + surface.RSsol / surface.hi \
+                    + surface.flr * Lr * (1.0 - Beta) / surface.hi / surface.area
 
-    # 室内表面熱流の計算
-    def update_qi(self, Tr: float, Tsx: float, Lr: float, Beta: float):
-        """
-        :param Tr: 室温
-        :param Tsx: 形態係数加重平均表面温度
-        :param Lr:
-        :param Beta:
-        :return:
-        """
-        # 対流成分
-        self.Qc = self.hic * self.area * (Tr - self.Ts)
+# 室内表面熱流の計算
+def update_qi(surface, Tr: float, Tsx: float, Lr: float, Beta: float):
+    """
+    :param Tr: 室温
+    :param Tsx: 形態係数加重平均表面温度
+    :param Lr:
+    :param Beta:
+    :return:
+    """
+    # 対流成分
+    surface.Qc = surface.hic * surface.area * (Tr - surface.Ts)
 
-        # 放射成分
-        self.Qr = self.hir * self.area * (Tsx - self.Ts)
+    # 放射成分
+    surface.Qr = surface.hir * surface.area * (Tsx - surface.Ts)
 
-        # 短波長熱取得成分
-        self.RS = self.RSsol * self.area
+    # 短波長熱取得成分
+    surface.RS = surface.RSsol * surface.area
 
-        # 放射暖房成分
-        self.__Lr = self.flr * Lr * (1.0 - Beta)
+    # 放射暖房成分
+    surface.Lr = surface.flr * Lr * (1.0 - Beta)
 
-        # 表面熱流合計
-        self.Qt = self.Qc + self.Qr + self.__Lr + self.RS
-        # 前時刻熱流の保持
-        self.oldqi = self.Qt / self.area
+    # 表面熱流合計
+    surface.Qt = surface.Qc + surface.Qr + surface.Lr + surface.RS
+    # 前時刻熱流の保持
+    surface.oldqi = surface.Qt / surface.area
 
-    # 透過日射の室内部位表面吸収日射量の初期化
-    def calc_RSsol(self, TotalQgt: float):
-        """
-        :param TotalQgt: 透過日射熱取得
-        """
-        return TotalQgt * self.SolR / self.area
+# 透過日射の室内部位表面吸収日射量の初期化
+def calc_RSsol(surface, TotalQgt: float):
+    """
+    :param TotalQgt: 透過日射熱取得
+    """
+    return TotalQgt * surface.SolR / surface.area
 
-    # 相当外気温度の計算
-    def calcTeo(self, Ta, RN, oldTr, AnnualTave, spaces):
-        # 前時刻の相当外気温度を控える
-        self.oldTeo = self.Teo
+# 相当外気温度の計算
+def calcTeo(surface, Ta, RN, oldTr, AnnualTave, spaces):
+    # 前時刻の相当外気温度を控える
+    surface.oldTeo = surface.Teo
 
-        # 日射の当たる一般部位または不透明部位の場合
-        if self.boundary_type == "external_general_part" or self.boundary_type == "external_opaque_part":
-            # 室外側に日射が当たる場合
-            if self.is_sun_striked_outside:
-                self.Teo = self.backside_boundary_condition.get_Te(self.outside_solar_absorption, self.ho, self.Eo, Ta, RN)
-            # 室外側に日射が当たらない場合
-            else:
-                self.Teo = Ta * self.backside_boundary_condition.R + oldTr * (1.0 - self.backside_boundary_condition.R)
-        # 窓の場合
-        elif self.boundary_type == "external_transparent_part":
-            self.Teo = - self.Eo * self.backside_boundary_condition.Fs * RN / self.ho + Ta
-        # 土壌の場合
-        elif self.boundary_type == "ground":
-            self.Teo = AnnualTave
-        # 内壁の場合（前時刻の室温）
-        elif self.boundary_type == "internal":
-            self.Teo = self.backside_boundary_condition.get_oldNextRoom(spaces)
-        # 例外
+    # 日射の当たる一般部位または不透明部位の場合
+    if surface.boundary_type == "external_general_part" or surface.boundary_type == "external_opaque_part":
+        # 室外側に日射が当たる場合
+        if surface.is_sun_striked_outside:
+            surface.Teo = surface.backside_boundary_condition.get_Te(surface.outside_solar_absorption, surface.ho, surface.Eo, Ta, RN)
+        # 室外側に日射が当たらない場合
         else:
-            print("境界条件が見つかりません。 name=", self.boundary_type)
-    # 地面反射率の取得
-    @property
-    def Rg(self):
-        return self.backside_boundary_condition.Rg
+            surface.Teo = Ta * surface.backside_boundary_condition.R + oldTr * (1.0 - surface.backside_boundary_condition.R)
+    # 窓の場合
+    elif surface.boundary_type == "external_transparent_part":
+        surface.Teo = - surface.Eo * surface.backside_boundary_condition.Fs * RN / surface.ho + Ta
+    # 土壌の場合
+    elif surface.boundary_type == "ground":
+        surface.Teo = AnnualTave
+    # 内壁の場合（前時刻の室温）
+    elif surface.boundary_type == "internal":
+        surface.Teo = surface.backside_boundary_condition.get_oldNextRoom(spaces)
+    # 例外
+    else:
+        print("境界条件が見つかりません。 name=", surface.boundary_type)
 
-    # 透過日射量[W]、吸収日射量[W]の計算
-    def calc_Qgt(self):
-        # 直達成分
-        Qgtd = self.__transparent_opening.get_QGTD(self.Id, self.backside_boundary_condition.CosT, self.Fsdw) * self.area
+# 透過日射量[W]、吸収日射量[W]の計算
+def calc_Qgt(surface):
+    # 直達成分
+    Qgtd = surface.transparent_opening.get_QGTD(surface.Id, surface.backside_boundary_condition.CosT, surface.Fsdw) * surface.area
 
-        # 拡散成分
-        Qgts = self.__transparent_opening.get_QGTS(self.Isky, self.Ir) * self.area
+    # 拡散成分
+    Qgts = surface.transparent_opening.get_QGTS(surface.Isky, surface.Ir) * surface.area
 
-        # 透過日射量の計算
-        return Qgtd + Qgts
+    # 透過日射量の計算
+    return Qgtd + Qgts
 
-    # 日影面積率の計算
-    def calc_Fsdw(self, Solpos: defSolpos):
-        return self.sunbrk.get_Fsdw(Solpos, self.backside_boundary_condition.Wa)
+# 日影面積率の計算
+def calc_Fsdw(suraface, Solpos: defSolpos):
+    return suraface.sunbrk.get_Fsdw(Solpos, suraface.backside_boundary_condition.Wa)
 
-    # 傾斜面日射量を計算する
-    def calc_slope_sol(self, Solpos, Idn, Isky):
-        if 'external' in self.backside_boundary_condition.Type and self.is_sun_striked_outside:
-            # 傾斜面日射量を計算
-            self.backside_boundary_condition.update_slop_sol(Solpos, Idn, Isky)
-            # 直達日射量
-            Id = self.backside_boundary_condition.Id
+# 傾斜面日射量を計算する
+def calc_slope_sol(suraface, Solpos, Idn, Isky):
+    if 'external' in suraface.backside_boundary_condition.Type and suraface.is_sun_striked_outside:
+        # 傾斜面日射量を計算
+        suraface.backside_boundary_condition.update_slop_sol(Solpos, Idn, Isky)
+        # 直達日射量
+        Id = suraface.backside_boundary_condition.Id
 
-            # 天空日射量
-            Isky = self.backside_boundary_condition.Is
+        # 天空日射量
+        Isky = suraface.backside_boundary_condition.Is
 
-            # 反射日射量
-            Ir = self.backside_boundary_condition.Ir
+        # 反射日射量
+        Ir = suraface.backside_boundary_condition.Ir
 
-            # 全天日射量
-            Iw = Id + Isky + Ir
+        # 全天日射量
+        Iw = Id + Isky + Ir
 
-            return Id, Isky, Ir, Iw
+        return Id, Isky, Ir, Iw
 
-    # 境界条件が一致するかどうかを判定
-    def boundary_comp(self, comp_surface):
-        temp = False
-        if self.boundary_type == comp_surface.boundary_type:
-            # 間仕切りの場合
-            if self.boundary_type == "internal":
-                # 隣室名が同じ壁体は集約対象
-                temp = self.next_room_type == comp_surface.next_room_type
-                # 室内側熱伝達率の比較
-                temp = temp and abs(self.hi - comp_surface.hi) < 1.0E-5
-                # 室外側総合熱伝達率の比較
-                temp = temp and abs(self.ho - comp_surface.ho) < 1.0E-5
-            # 外皮_一般部位の場合
-            elif self.boundary_type == "external_general_part":
-                # 日射の有無の比較
-                temp = self.is_sun_striked_outside == comp_surface.is_sun_striked_outside
-                # 温度差係数の比較
-                temp = temp and abs(self.__temp_dif_coef - comp_surface.__temp_dif_coef) < 1.0E-5
-                # 方位の比較
-                temp = temp and self.__direction == comp_surface.__direction
-                # 室内侵入日射吸収の有無の比較
-                temp = temp and self.is_solar_absorbed_inside == comp_surface.is_solar_absorbed_inside
-                # 屋外側放射率の比較
-                temp = temp and abs(self.Eo - comp_surface.Eo) < 1.0E-5
-                # 屋外側日射吸収率の比較
-                temp = temp and abs(self.outside_solar_absorption - comp_surface.outside_solar_absorption) < 1.0E-5
-                # 室内側熱伝達率の比較
-                temp = temp and abs(self.hi - comp_surface.hi) < 1.0E-5
-                # 室外側総合熱伝達率の比較
-                temp = temp and abs(self.ho - comp_surface.ho) < 1.0E-5
-            # 透明な開口部の場合
-            elif self.boundary_type == "external_transparent_part":
-                # 日射の有無の比較
-                temp = self.is_sun_striked_outside == comp_surface.is_sun_striked_outside
-                # 方位の比較
-                temp = temp and self.__direction == comp_surface.__direction
-                # 屋外側放射率の比較
-                temp = temp and abs(self.Eo - comp_surface.Eo) < 1.0E-5
-                # 室内側熱伝達率の比較
-                temp = temp and abs(self.hi - comp_surface.hi) < 1.0E-5
-                # 室外側総合熱伝達率の比較
-                temp = temp and abs(self.ho - comp_surface.ho) < 1.0E-5
-            # 不透明な開口部の場合
-            elif self.boundary_type == "external_transparent_part":
-                # 日射の有無の比較
-                temp = self.is_sun_striked_outside == comp_surface.is_sun_striked_outside
-                # 方位の比較
-                temp = temp and self.__direction == comp_surface.__direction
-                # 屋外側放射率の比較
-                temp = temp and abs(self.Eo - comp_surface.Eo) < 1.0E-5
-                # 屋外側日射吸収率の比較
-                temp = temp and abs(self.outside_solar_absorption - comp_surface.outside_solar_absorption) < 1.0E-5
-                # 室内側熱伝達率の比較
-                temp = temp and abs(self.hi - comp_surface.hi) < 1.0E-5
-                # 室外側総合熱伝達率の比較
-                temp = temp and abs(self.ho - comp_surface.ho) < 1.0E-5
-            # 地盤の場合
-            elif self.boundary_type == "ground":
-                # 室内側熱伝達率の比較
-                temp = temp and abs(self.hi - comp_surface.hi) < 1.0E-5
-            # else:
-            #     print("境界の種類が不適です。 name=", self.name)
-        
-        # 室内側放射率
-        temp = temp and abs(self.Ei - comp_surface.Ei) < 1.0E-5
+# 境界条件が一致するかどうかを判定
+def boundary_comp(surface_a, comp_surface):
+    temp = False
+    if surface_a.boundary_type == comp_surface.boundary_type:
+        # 間仕切りの場合
+        if surface_a.boundary_type == "internal":
+            # 隣室名が同じ壁体は集約対象
+            temp = surface_a.next_room_type == comp_surface.next_room_type
+            # 室内側熱伝達率の比較
+            temp = temp and abs(surface_a.hi - comp_surface.hi) < 1.0E-5
+            # 室外側総合熱伝達率の比較
+            temp = temp and abs(surface_a.ho - comp_surface.ho) < 1.0E-5
+        # 外皮_一般部位の場合
+        elif surface_a.boundary_type == "external_general_part":
+            # 日射の有無の比較
+            temp = surface_a.is_sun_striked_outside == comp_surface.is_sun_striked_outside
+            # 温度差係数の比較
+            temp = temp and abs(surface_a.temp_dif_coef - comp_surface.temp_dif_coef) < 1.0E-5
+            # 方位の比較
+            temp = temp and surface_a.direction == comp_surface.direction
+            # 室内侵入日射吸収の有無の比較
+            temp = temp and surface_a.is_solar_absorbed_inside == comp_surface.is_solar_absorbed_inside
+            # 屋外側放射率の比較
+            temp = temp and abs(surface_a.Eo - comp_surface.Eo) < 1.0E-5
+            # 屋外側日射吸収率の比較
+            temp = temp and abs(surface_a.outside_solar_absorption - comp_surface.outside_solar_absorption) < 1.0E-5
+            # 室内側熱伝達率の比較
+            temp = temp and abs(surface_a.hi - comp_surface.hi) < 1.0E-5
+            # 室外側総合熱伝達率の比較
+            temp = temp and abs(surface_a.ho - comp_surface.ho) < 1.0E-5
+        # 透明な開口部の場合
+        elif surface_a.boundary_type == "external_transparent_part":
+            # 日射の有無の比較
+            temp = surface_a.is_sun_striked_outside == comp_surface.is_sun_striked_outside
+            # 方位の比較
+            temp = temp and surface_a.direction == comp_surface.direction
+            # 屋外側放射率の比較
+            temp = temp and abs(surface_a.Eo - comp_surface.Eo) < 1.0E-5
+            # 室内側熱伝達率の比較
+            temp = temp and abs(surface_a.hi - comp_surface.hi) < 1.0E-5
+            # 室外側総合熱伝達率の比較
+            temp = temp and abs(surface_a.ho - comp_surface.ho) < 1.0E-5
+        # 不透明な開口部の場合
+        elif surface_a.boundary_type == "external_transparent_part":
+            # 日射の有無の比較
+            temp = surface_a.is_sun_striked_outside == comp_surface.is_sun_striked_outside
+            # 方位の比較
+            temp = temp and surface_a.direction == comp_surface.direction
+            # 屋外側放射率の比較
+            temp = temp and abs(surface_a.Eo - comp_surface.Eo) < 1.0E-5
+            # 屋外側日射吸収率の比較
+            temp = temp and abs(surface_a.outside_solar_absorption - comp_surface.outside_solar_absorption) < 1.0E-5
+            # 室内側熱伝達率の比較
+            temp = temp and abs(surface_a.hi - comp_surface.hi) < 1.0E-5
+            # 室外側総合熱伝達率の比較
+            temp = temp and abs(surface_a.ho - comp_surface.ho) < 1.0E-5
+        # 地盤の場合
+        elif surface_a.boundary_type == "ground":
+            # 室内側熱伝達率の比較
+            temp = temp and abs(surface_a.hi - comp_surface.hi) < 1.0E-5
+        # else:
+        #     print("境界の種類が不適です。 name=", self.name)
+    
+    # 室内側放射率
+    temp = temp and abs(surface_a.Ei - comp_surface.Ei) < 1.0E-5
 
-        return(temp)
+    return(temp)
 
 # 壁体構成データの読み込みと応答係数の作成
 def WalldataRead(Name, is_solar_absorbed_inside, boundary_type, 

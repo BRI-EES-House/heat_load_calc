@@ -3,10 +3,11 @@ import datetime
 import json
 import common
 from common import get_nday
-from Gdata import Gdata
-from Weather import enmWeatherComponent, Weather
+from Gdata import Gdata, FlgOrig
+from Weather import enmWeatherComponent, Weather, WeaData, Solpos
 from Sunbrk import SunbrkType
 from Space import create_spaces
+from PMV import get_OT
 
 # 熱負荷計算の実行
 def calc_Hload(cdata, weather):
@@ -99,18 +100,18 @@ def calc_Hload(cdata, weather):
 
             rowlist = []
             # 室温・熱負荷の計算
-            if cdata.FlgOrig(dtmNow):
+            if FlgOrig(cdata, dtmNow):
                 
                 # print(str(dtmNow), end="\t")
                 # 出力文字列
                 rowlist.append(str(dtmNow))
-                rowlist.append('{0:.1f}'.format(weather.WeaData(enmWeatherComponent.Ta, dtmNow)))
-                rowlist.append('{0:.4f}'.format(weather.WeaData(enmWeatherComponent.x, dtmNow) / 1000.0))
+                rowlist.append('{0:.1f}'.format(WeaData(weather, enmWeatherComponent.Ta, dtmNow)))
+                rowlist.append('{0:.4f}'.format(WeaData(weather, enmWeatherComponent.x, dtmNow) / 1000.0))
                 if lngTloop == 0:
                     print(dtmNow)
             # 太陽位置の計算
             # print(dtmNow)
-            Solpos = weather.Solpos(dtmNow)
+            solar_position = Solpos(weather, dtmNow)
             # print(Solpos.Sh, Solpos.Sw, Solpos.Ss)
             for space in spaces.values():
                 # 室温、熱負荷の計算
@@ -118,11 +119,11 @@ def calc_Hload(cdata, weather):
                     Gdata=cdata,
                     spaces=spaces,
                     dtmNow=dtmNow,
-                    defSolpos=Solpos,
+                    defSolpos=solar_position,
                     Weather=weather
                 )
                 
-                if cdata.FlgOrig(dtmNow):
+                if FlgOrig(cdata, dtmNow):
                     rowlist.append('{0:.0f}'.format(space.nowWin))
                     rowlist.append('{0:.0f}'.format(space.demAC))
                     rowlist.append('{0:.0f}'.format(space.finalAC))
@@ -169,7 +170,7 @@ def calc_Hload(cdata, weather):
                     #         '{0:.0f}'.format(space.RH), '{0:.2f}'.format(space.MRT), '{0:.2f}'.format(space.PMV), \
                     #         '{0:.0f}'.format(space.Lcs), '{0:.0f}'.format(space.Lr), '{0:.0f}'.format(space.Ll), "", end="")
             
-            if cdata.FlgOrig(dtmNow):
+            if FlgOrig(cdata, dtmNow):
                 OutList.append(rowlist)
                 # print("")
 
@@ -186,10 +187,14 @@ def calc_Hload(cdata, weather):
     f.close()
 
 if __name__ == '__main__':
+
+    # OT = get_OT(1.0, 1.0, 0.15, 50.0, 0.0)
+    # print(OT)
+
     # js = open('1RCase1_最初の外壁削除.json', 'r', encoding='utf-8')
     # js = open('1RCase1.json', 'r', encoding='utf-8')
     js = open('input_residential.json', 'r', encoding='utf-8')
-    js = open('input_simple_residential.json', 'r', encoding='utf-8')
+    # js = open('input_simple_residential.json', 'r', encoding='utf-8')
     # js = open('検証用.json', 'r', encoding='utf-8')
     d = json.load(js)
 

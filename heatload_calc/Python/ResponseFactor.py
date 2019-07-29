@@ -129,8 +129,8 @@ def get_step_reps_of_wall(layers: List[Layer], laps: List[float], alp: List[floa
         # print(matFt)
 
         # 吸熱、貫流の各伝達関数ベクトルの作成
-        matGA[lngI][0] = matFt[0, 1] / matFt[1, 1] - dblGA0
-        matGT[lngI][0] = 1.0 / matFt[1][1] - dblGT0
+        matGA[lngI] = matFt[0, 1] / matFt[1, 1] - dblGA0
+        matGT[lngI] = 1.0 / matFt[1][1] - dblGT0
 
     # print('matGA', matGA)
     # print('matGT', matGT)
