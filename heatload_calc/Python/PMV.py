@@ -117,3 +117,6 @@ def calcOTset(nowAC, isRadiantHeater, RH):
         Vel = 0.0
 
     return OTset, Met, Clo, Vel
+
+def get_set_point_temperature_non_residential():
+    pass

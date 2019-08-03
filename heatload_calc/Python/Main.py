@@ -84,9 +84,6 @@ def calc_Hload(cdata, weather):
         if 1:
             for surface in space.input_surfaces:
                 rowlist.append(space.name + "_" + surface.name + "_表面対流熱流[W]")
-        if 0:
-            for surface in space.input_surfaces:
-                rowlist.append(space.name + "_" + surface.name + "_Tsx[℃]")
     OutList.append(rowlist)
     rowlist = []
 
@@ -98,6 +95,21 @@ def calc_Hload(cdata, weather):
             dtmNow = apDate + dtime
             sequence_number = int((get_nday(dtmNow.month, dtmNow.day) - 1) * 24 * 4 + dtmNow.hour * 4 + float(dtmNow.minute) / 60.0 * 3600 / cdata.DTime)
 
+            # 太陽位置の計算
+            # print(dtmNow)
+            solar_position = Solpos(weather, dtmNow)
+
+            # 気象データの読み込み
+            # 法線面直達日射量
+            Idn = WeaData(weather, enmWeatherComponent.Idn, dtmNow, solar_position)
+            # 水平面天空日射量
+            Isky = WeaData(weather, enmWeatherComponent.Isky, dtmNow, solar_position)
+            # 外気温度
+            Ta = WeaData(weather, enmWeatherComponent.Ta, dtmNow, solar_position)
+            # 夜間放射量
+            RN = WeaData(weather, enmWeatherComponent.RN, dtmNow, solar_position)
+            # 絶対湿度[kg/kg(DA)]
+            xo = WeaData(weather, enmWeatherComponent.x, dtmNow, solar_position) / 1000.
             rowlist = []
             # 室温・熱負荷の計算
             if FlgOrig(cdata, dtmNow):
@@ -105,13 +117,10 @@ def calc_Hload(cdata, weather):
                 # print(str(dtmNow), end="\t")
                 # 出力文字列
                 rowlist.append(str(dtmNow))
-                rowlist.append('{0:.1f}'.format(WeaData(weather, enmWeatherComponent.Ta, dtmNow)))
-                rowlist.append('{0:.4f}'.format(WeaData(weather, enmWeatherComponent.x, dtmNow) / 1000.0))
+                rowlist.append('{0:.1f}'.format(Ta))
+                rowlist.append('{0:.4f}'.format(xo))
                 if lngTloop == 0:
                     print(dtmNow)
-            # 太陽位置の計算
-            # print(dtmNow)
-            solar_position = Solpos(weather, dtmNow)
             # print(Solpos.Sh, Solpos.Sw, Solpos.Ss)
             for space in spaces.values():
                 # 室温、熱負荷の計算
@@ -120,7 +129,12 @@ def calc_Hload(cdata, weather):
                     spaces=spaces,
                     dtmNow=dtmNow,
                     defSolpos=solar_position,
-                    Weather=weather
+                    Ta=Ta,
+                    xo=xo,
+                    Idn=Idn,
+                    Isky=Isky,
+                    RN=RN,
+                    annual_average_temperature=weather.AnnualTave
                 )
                 
                 if FlgOrig(cdata, dtmNow):
@@ -163,9 +177,6 @@ def calc_Hload(cdata, weather):
                     if 1:
                         for surface in space.input_surfaces:
                             rowlist.append('{0:.2f}'.format(surface.Qc))
-                    if 0:
-                        for surface in space.input_surfaces:
-                            rowlist.append('{0:.2f}'.format(surface.Tsx))
                     # print('{0:.0f}'.format(space.nowWin), '{0:.0f}'.format(space.nowAC), '{0:.2f}'.format(space.Tr), \
                     #         '{0:.0f}'.format(space.RH), '{0:.2f}'.format(space.MRT), '{0:.2f}'.format(space.PMV), \
                     #         '{0:.0f}'.format(space.Lcs), '{0:.0f}'.format(space.Lr), '{0:.0f}'.format(space.Ll), "", end="")
@@ -192,7 +203,7 @@ if __name__ == '__main__':
     # print(OT)
 
     # js = open('1RCase1_最初の外壁削除.json', 'r', encoding='utf-8')
-    # js = open('1RCase1.json', 'r', encoding='utf-8')
+    # js = open('input_non_residential.json', 'r', encoding='utf-8')
     js = open('input_residential.json', 'r', encoding='utf-8')
     # js = open('input_simple_residential.json', 'r', encoding='utf-8')
     # js = open('検証用.json', 'r', encoding='utf-8')

@@ -69,7 +69,7 @@ class Weather:
 
 # 気象データの取得
 # 戻り値はdouble
-def WeaData(weatherdata, Compnt, dtmDate, blnLinear=True):
+def WeaData(weatherdata, Compnt, dtmDate, solar_position, blnLinear=True):
     # Compnt:取得する気象要素
     # dtmDate:取得する日時
     # blnLinear:線形補間するかどうか（Trueは線形補間する）
@@ -85,8 +85,6 @@ def WeaData(weatherdata, Compnt, dtmDate, blnLinear=True):
     # 1時間後のアドレスを取得
     lngAddress2 = Address(dtmDate + datetime.timedelta(hours=1))
 
-    # 太陽位置の取得
-    sp = weatherdata.objSolpos.get_solpos(dtmDate)
     # print('h=', sp.h, 'A=', sp.A)
     # print(self.dblWdata)
     # aa =  self.dblWdata[0]
@@ -104,18 +102,18 @@ def WeaData(weatherdata, Compnt, dtmDate, blnLinear=True):
 
         # 直線補間しない場合
         if not blnLinear:
-            return sp.Sh * dblIdn2 + dblIsky2
+            return solar_position.Sh * dblIdn2 + dblIsky2
         # 直線補間する場合
         else:
             dblIdn = (1. - dblR) * dblIdn1 + dblR * dblIdn2
             dblIsky = (1. - dblR) * dblIsky1 + dblR * dblIsky2
-            return sp.Sh * dblIdn + dblIsky
+            return solar_position.Sh * dblIdn + dblIsky
     # 太陽高度の場合
     elif Compnt == enmWeatherComponent.h:
-        return sp.h
+        return solar_position.h
     # 太陽方位角の場合
     elif Compnt == enmWeatherComponent.A:
-        return sp.A
+        return solar_position.A
     # 上記以外の場合
     else:
         # 正時に切り捨てた時の気象データを取得

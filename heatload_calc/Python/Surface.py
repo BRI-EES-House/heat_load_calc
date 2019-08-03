@@ -4,7 +4,7 @@ from transparent_opening import transparent_opening, get_QGTS, get_QGTD
 from SolarPosision import defSolpos
 from Gdata import Gdata
 from Exsrf import Exsrf
-from Sunbrk import SunbrkType
+from Sunbrk import SunbrkType, calc_shading_area_ratio
 import datetime
 
 # 室内部位に関連するクラス
@@ -66,7 +66,7 @@ class Surface:
             self.SolR = None  # 透過日射の室内部位表面吸収比率
 
             # 形態係数収録用リストの定義
-            self.FF = []
+            # self.FF = []
 
             # 透過日射の室内部位表面吸収日射量の初期化
             self.RSsol = 0.0
@@ -200,7 +200,7 @@ def calc_Tei(surface, Tr, Tsx, Lr, Beta):
                     + surface.flr * Lr * (1.0 - Beta) / surface.hi / surface.area
 
 # 室内表面熱流の計算
-def update_qi(surface, Tr: float, Tsx: float, Lr: float, Beta: float):
+def calc_qi(surface, Tr: float, Tsx: float, Lr: float, Beta: float):
     """
     :param Tr: 室温
     :param Tsx: 形態係数加重平均表面温度
@@ -270,8 +270,8 @@ def calc_Qgt(surface):
     return Qgtd + Qgts
 
 # 日影面積率の計算
-def calc_Fsdw(suraface, Solpos: defSolpos):
-    return suraface.sunbrk.get_Fsdw(Solpos, suraface.backside_boundary_condition.Wa)
+def get_shading_area_ratio(suraface, Solpos: defSolpos):
+    return calc_shading_area_ratio(suraface.sunbrk, Solpos, suraface.backside_boundary_condition.Wa)
 
 # 傾斜面日射量を計算する
 def calc_slope_sol(suraface, Solpos, Idn, Isky):
