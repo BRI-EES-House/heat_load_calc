@@ -1,5 +1,7 @@
 import math
 from SolarPosision import defSolpos
+from direction_cos_incident_angle import calc_cos_incident_angle
+from inclined_surface_solar_radiation import calc_inclined_surface_solar_radiation
 
 # 外表面の情報を保持するクラス
 class Exsrf:
@@ -22,14 +24,14 @@ class Exsrf:
         # 外皮の場合
         self.Rg = 0.1                           # 地面反射率[-]
         self.direction = direction
-        self.Wa, self.Wb = self.__convert_slope_angle(direction)
+        self.Wa, self.Wb = convert_slope_angle(direction)
                                                 # 方位角、傾斜面方位角 [rad]
         # 太陽入射角の方向余弦cosθ　計算用パラメータ
-        self.__Wz = math.cos(self.Wb)
-        self.__Ww = math.sin(self.Wb) * math.sin(self.Wa)
-        self.__Ws = math.sin(self.Wb) * math.cos(self.Wa)
-        self.Fs = (1.0 + self.__Wz) / 2.0           # 傾斜面の天空に対する形態係数の計算
-        self.__dblFg = 1.0 - self.Fs                # 傾斜面の地面に対する形態係数
+        self.Wz = math.cos(self.Wb)
+        self.Ww = math.sin(self.Wb) * math.sin(self.Wa)
+        self.Ws = math.sin(self.Wb) * math.cos(self.Wa)
+        self.Fs = (1.0 + self.Wz) / 2.0           # 傾斜面の天空に対する形態係数の計算
+        self.dblFg = 1.0 - self.Fs                # 傾斜面の地面に対する形態係数
 
         self.R = temp_dif_coef                      # 温度差係数
         self.is_sun_striked_outside = is_sun_striked_outside
@@ -53,12 +55,9 @@ class Exsrf:
         # 外皮の場合　かつ　日射が当たる場合
         if self.Type == "external" and self.is_sun_striked_outside:
             # 入射角の計算
-            self.CosT = max(solpos.Sh * self.__Wz + solpos.Sw * self.__Ww + solpos.Ss * self.__Ws, 0.0)
-            Ihol = solpos.Sh * Idn + Isky  # 水平面全天日射量
-            self.Id = self.CosT * Idn  # 傾斜面直達日射量
-            self.Is = self.Fs * Isky  # 傾斜面天空日射量
-            self.Ir = self.__dblFg * self.Rg * Ihol  # 傾斜面地面反射日射量
-            self.Iw = self.Id + self.Is + self.Ir  # 傾斜面全日射量
+            self.CosT = calc_cos_incident_angle(self, solpos)
+            # 傾斜面日射量の計算
+            self.Id, self.Is, self.Ir, self.Iw = calc_inclined_surface_solar_radiation(Idn, Isky, self, solpos)
 
     # 傾斜面の相当外気温度の計算
     def get_Te(self, _as, ho, e, Ta, RN):
@@ -110,42 +109,42 @@ class Exsrf:
     def __is_float_equal(self, a, b, eps):
         return abs(a - b < eps)
 
-    # 方向名称から方位角、傾斜角の計算
-    def __convert_slope_angle(self, direction_string):
-        direction_angle = -999.0
-        inclination_angle = -999.0
-        if direction_string == 's':
-            direction_angle = 0.0
-            inclination_angle = 90.0
-        elif direction_string == 'sw':
-            direction_angle = 45.0
-            inclination_angle = 90.0
-        elif direction_string == 'w':
-            direction_angle = 90.0
-            inclination_angle = 90.0
-        elif direction_string == 'nw':
-            direction_angle = 135.0
-            inclination_angle = 90.0
-        elif direction_string == 'n':
-            direction_angle = 180.0
-            inclination_angle = 90.0
-        elif direction_string == 'ne':
-            direction_angle = -135.0
-            inclination_angle = 90.0
-        elif direction_string == 'e':
-            direction_angle = -90.0
-            inclination_angle = 90.0
-        elif direction_string == 'se':
-            direction_angle = -45.0
-            inclination_angle = 90.0
-        elif direction_string == 'top':
-            direction_angle = 0.0
-            inclination_angle = 0.0
-        elif direction_string == 'bottom':
-            direction_angle = 0.0
-            inclination_angle = 180.0
-        
-        return math.radians(direction_angle), math.radians(inclination_angle)
+# 方向名称から方位角、傾斜角の計算
+def convert_slope_angle(direction_string):
+    direction_angle = -999.0
+    inclination_angle = -999.0
+    if direction_string == 's':
+        direction_angle = 0.0
+        inclination_angle = 90.0
+    elif direction_string == 'sw':
+        direction_angle = 45.0
+        inclination_angle = 90.0
+    elif direction_string == 'w':
+        direction_angle = 90.0
+        inclination_angle = 90.0
+    elif direction_string == 'nw':
+        direction_angle = 135.0
+        inclination_angle = 90.0
+    elif direction_string == 'n':
+        direction_angle = 180.0
+        inclination_angle = 90.0
+    elif direction_string == 'ne':
+        direction_angle = -135.0
+        inclination_angle = 90.0
+    elif direction_string == 'e':
+        direction_angle = -90.0
+        inclination_angle = 90.0
+    elif direction_string == 'se':
+        direction_angle = -45.0
+        inclination_angle = 90.0
+    elif direction_string == 'top':
+        direction_angle = 0.0
+        inclination_angle = 0.0
+    elif direction_string == 'bottom':
+        direction_angle = 0.0
+        inclination_angle = 180.0
+    
+    return math.radians(direction_angle), math.radians(inclination_angle)
 
 # 外表面情報インスタンスの辞書を作成
 # def create_exsurfaces(d):

@@ -1,5 +1,5 @@
 import datetime
-
+from calculation_period import calc_period
 
 class Gdata:
     """シミュレーション全体の設定条件"""
@@ -19,40 +19,23 @@ class Gdata:
         :param options: その他のオプション
         """
         # 地域区分
-        self.__Region = options["region"]
+        self.Region = options["region"]
 
         # 住宅計算／非住宅計算（Trueなら住宅）
         self.is_residential = options["is_residential"]
 
         # 計算対象年
-        self.__conlngYr = 1989
+        self.conlngYr = 1989
 
         # 計算時間間隔(s)
         if self.is_residential:
             self.DTime = 900.0
         else:
             self.DTime = 3600.0
+        
+        # 計算期間、助走計算日数の設定
+        calc_period(self)
 
-        # 助走計算期間(day)
-        self.__lngApproach = 20
-        # シミュレーション（本計算）の開始日
-        self.StDate = datetime.datetime(self.__conlngYr, 1, 1)
-        # シミュレーション（本計算）終了日
-        self.EnDate = datetime.datetime(self.__conlngYr, 12, 31)
-        if 0:
-            self.StDate = datetime.datetime(self.__conlngYr, 8, 1)
-            self.EnDate = datetime.datetime(self.__conlngYr, 8, 1)
-            self.__lngApproach = 0
-        if 1:
-            self.StDate = datetime.datetime(self.__conlngYr, 1, 1)
-            self.EnDate = datetime.datetime(self.__conlngYr, 1, 1)
-            self.__lngApproach = 0
-        # self.EnDate = datetime.datetime(self.__conlngYr, 1, 1)
-        # 開始日が終了日よりも後の月日の場合は、終了日にプラス1年加算する。
-        if self.StDate > self.EnDate:
-            self.EnDate = self.EnDate + datetime.timedelta(days=365)
-        # 助走計算開始時刻
-        self.ApDate = self.StDate - datetime.timedelta(days=self.__lngApproach)
         # 応答係数の作成時間数(hour)
         # self.__lngNcalTime = lngNcalTime
         # 計算結果の行数
@@ -63,7 +46,7 @@ class Gdata:
         # 作用温度設定フラグ
         # self.OTset = True
         # 緯度、経度
-        self.Latitude, self.Longitude = setLat_Lon(self.__Region)
+        self.Latitude, self.Longitude = setLat_Lon(self.Region)
         # 標準子午線
         self.StMeridian = 135.0
 

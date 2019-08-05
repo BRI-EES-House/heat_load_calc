@@ -77,3 +77,7 @@ def calc_shading_area_ratio(sunbreak, defSolpos: defSolpos, Wa: float):
         shading_area_ratio = 0.0
 
     return shading_area_ratio
+
+# 日影面積率の計算
+def get_shading_area_ratio(suraface, Solpos: defSolpos):
+    return calc_shading_area_ratio(suraface.sunbrk, Solpos, suraface.backside_boundary_condition.Wa)

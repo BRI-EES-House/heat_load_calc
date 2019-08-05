@@ -149,5 +149,3 @@ def Address(dtmDate):
     if lngNday == 0:
         lngNday = 365
     return (lngNday - 1) * 24 + lngHour - 1
-
-        

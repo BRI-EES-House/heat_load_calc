@@ -7,6 +7,7 @@ from Gdata import Gdata, FlgOrig
 from Weather import enmWeatherComponent, Weather, WeaData, Solpos
 from Sunbrk import SunbrkType
 from Space import create_spaces, update_space_oldstate
+from heat_load import calcHload
 from PMV import get_OT
 
 # 熱負荷計算の実行
@@ -124,7 +125,8 @@ def calc_Hload(cdata, weather):
             # print(Solpos.Sh, Solpos.Sw, Solpos.Ss)
             for space in spaces.values():
                 # 室温、熱負荷の計算
-                space.calcHload(
+                calcHload(
+                    space=space,
                     Gdata=cdata,
                     spaces=spaces,
                     dtmNow=dtmNow,

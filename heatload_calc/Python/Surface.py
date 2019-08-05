@@ -1,11 +1,12 @@
 from Wall import Wall, Layer
 from ResponseFactor import ResponseFactor
-from transparent_opening import transparent_opening, get_QGTS, get_QGTD
+from transparent_opening import transparent_opening
 from SolarPosision import defSolpos
 from Gdata import Gdata
 from Exsrf import Exsrf
 from Sunbrk import SunbrkType, calc_shading_area_ratio
 import datetime
+
 
 # 室内部位に関連するクラス
 class Surface:
@@ -175,122 +176,11 @@ def opaque_part_init(surface, d):
         surface.outside_solar_absorption = d['opaque_opening_part_spec']['outside_solar_absorption']  # 室側側日射吸収率
         surface.Eo = d['opaque_opening_part_spec']['outside_emissivity']           # 室外側表面放射率
 
-# 畳み込み積分
-def convolution(surface):
-    sumTsd = 0.0
-    for i in range(surface.Nroot):
-        surface.oldTsd_t[i] = surface.oldTeo * surface.RFT1[i] + surface.Row[i] * surface.oldTsd_t[i]
-        surface.oldTsd_a[i] = surface.oldqi * surface.RFA1[i] + surface.Row[i] * surface.oldTsd_a[i]
-        sumTsd += surface.oldTsd_t[i] + surface.oldTsd_a[i]
 
-    return sumTsd
 
-# 室内等価温度の計算
-def calc_Tei(surface, Tr, Tsx, Lr, Beta):
-    """
-    :param Tr: 室温
-    :param Tsx: 形態係数加重平均表面温度
-    :param Lr:
-    :param Beta:
-    :return:
-    """
-    return Tr * surface.hic / surface.hi \
-                    + Tsx * surface.hir / surface.hi \
-                    + surface.RSsol / surface.hi \
-                    + surface.flr * Lr * (1.0 - Beta) / surface.hi / surface.area
 
-# 室内表面熱流の計算
-def calc_qi(surface, Tr: float, Tsx: float, Lr: float, Beta: float):
-    """
-    :param Tr: 室温
-    :param Tsx: 形態係数加重平均表面温度
-    :param Lr:
-    :param Beta:
-    :return:
-    """
-    # 対流成分
-    surface.Qc = surface.hic * surface.area * (Tr - surface.Ts)
 
-    # 放射成分
-    surface.Qr = surface.hir * surface.area * (Tsx - surface.Ts)
 
-    # 短波長熱取得成分
-    surface.RS = surface.RSsol * surface.area
-
-    # 放射暖房成分
-    surface.Lr = surface.flr * Lr * (1.0 - Beta)
-
-    # 表面熱流合計
-    surface.Qt = surface.Qc + surface.Qr + surface.Lr + surface.RS
-    # 前時刻熱流の保持
-    surface.oldqi = surface.Qt / surface.area
-
-# 透過日射の室内部位表面吸収日射量の初期化
-def calc_RSsol(surface, TotalQgt: float):
-    """
-    :param TotalQgt: 透過日射熱取得
-    """
-    return TotalQgt * surface.SolR / surface.area
-
-# 相当外気温度の計算
-def calcTeo(surface, Ta, RN, oldTr, AnnualTave, spaces):
-    # 前時刻の相当外気温度を控える
-    surface.oldTeo = surface.Teo
-
-    # 日射の当たる一般部位または不透明部位の場合
-    if surface.boundary_type == "external_general_part" or surface.boundary_type == "external_opaque_part":
-        # 室外側に日射が当たる場合
-        if surface.is_sun_striked_outside:
-            surface.Teo = surface.backside_boundary_condition.get_Te(surface.outside_solar_absorption, surface.ho, surface.Eo, Ta, RN)
-        # 室外側に日射が当たらない場合
-        else:
-            surface.Teo = Ta * surface.backside_boundary_condition.R + oldTr * (1.0 - surface.backside_boundary_condition.R)
-    # 窓の場合
-    elif surface.boundary_type == "external_transparent_part":
-        surface.Teo = - surface.Eo * surface.backside_boundary_condition.Fs * RN / surface.ho + Ta
-    # 土壌の場合
-    elif surface.boundary_type == "ground":
-        surface.Teo = AnnualTave
-    # 内壁の場合（前時刻の室温）
-    elif surface.boundary_type == "internal":
-        surface.Teo = surface.backside_boundary_condition.get_oldNextRoom(spaces)
-    # 例外
-    else:
-        print("境界条件が見つかりません。 name=", surface.boundary_type)
-
-# 透過日射量[W]、吸収日射量[W]の計算
-def calc_Qgt(surface):
-    # 直達成分
-    Qgtd = get_QGTD(surface.transparent_opening, surface.Id, surface.backside_boundary_condition.CosT, surface.Fsdw) * surface.area
-
-    # 拡散成分
-    Qgts = get_QGTS(surface.transparent_opening, surface.Isky, surface.Ir) * surface.area
-
-    # 透過日射量の計算
-    return Qgtd + Qgts
-
-# 日影面積率の計算
-def get_shading_area_ratio(suraface, Solpos: defSolpos):
-    return calc_shading_area_ratio(suraface.sunbrk, Solpos, suraface.backside_boundary_condition.Wa)
-
-# 傾斜面日射量を計算する
-def calc_slope_sol(suraface, Solpos, Idn, Isky):
-    if 'external' in suraface.backside_boundary_condition.Type and suraface.is_sun_striked_outside:
-        # 傾斜面日射量を計算
-        suraface.backside_boundary_condition.update_slop_sol(Solpos, Idn, Isky)
-        # 直達日射量
-        Id = suraface.backside_boundary_condition.Id
-
-        # 天空日射量
-        Isky = suraface.backside_boundary_condition.Is
-
-        # 反射日射量
-        Ir = suraface.backside_boundary_condition.Ir
-
-        # 全天日射量
-        Iw = Id + Isky + Ir
-
-        return Id, Isky, Ir, Iw
 
 # 境界条件が一致するかどうかを判定
 def boundary_comp(surface_a, comp_surface):
