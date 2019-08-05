@@ -8,9 +8,10 @@ from indoor_radiative_heat_transfer import distribution_transmitted_solar_radiat
 from calculation_surface_temperature import calc_surface_temperature, calc_Tei, convolution, \
     calc_CRX_WSC, calc_Tei, calc_CVL_WSV, calc_qi
 from Win_ACselect import reset_SW, mode_select
-from PMV import calcPMV, calcOTset, get_OT
+from PMV import calcPMV, get_OT
 from Psychrometrics import xtrh, rhtx
 from Gdata import FlgOrig
+from set_point_temperature import calcOTset
 
 # 室温、熱負荷の計算
 def calcHload(space, Gdata, spaces, dtmNow, defSolpos, Ta, xo, Idn, Isky, RN, annual_average_temperature):
@@ -22,11 +23,14 @@ def calcHload(space, Gdata, spaces, dtmNow, defSolpos, Ta, xo, Idn, Isky, RN, an
     # 外皮の傾斜面日射量の計算
     for surface in space.input_surfaces:
         if surface.is_sun_striked_outside:
-            surface.Id, surface.Isky, surface.Ir, surface.Iw = calc_slope_sol(surface, defSolpos, Idn, Isky)
+            surface.Id, surface.Isky, surface.Ir, surface.Iw = calc_slope_sol(surface.backside_boundary_condition, defSolpos, Idn, Isky)
 
     # 相当外気温度の計算
     for surface in space.input_surfaces:
-        calcTeo(surface, Ta, RN, space.oldTr, annual_average_temperature, spaces)
+        Iw = 0.0
+        if surface.is_sun_striked_outside:
+            Iw = surface.Iw
+        calcTeo(surface, Ta, Iw, RN, space.oldTr, annual_average_temperature, spaces)
 
     # 当該時刻の内部発熱・発湿・局所換気量の読み込み（顕熱はすべて対流成分とする）
     create_hourly_schedules(space, dtmNow, Gdata.is_residential)

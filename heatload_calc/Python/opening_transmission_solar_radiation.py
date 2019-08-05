@@ -66,7 +66,7 @@ def summarize_transparent_solar_radiation(surfaces, Gdata, weather):
             for surface in surfaces:
                 # 外表面に日射が当たる場合
                 if surface.is_sun_striked_outside and surface.boundary_type == "external_transparent_part":
-                    surface.Id, surface.Isky, surface.Ir, surface.Iw = calc_slope_sol(surface, solar_position, Idn, Isky)
+                    surface.Id, surface.Isky, surface.Ir, surface.Iw = calc_slope_sol(surface.backside_boundary_condition, solar_position, Idn, Isky)
 
                     # 日除けの日影面積率の計算
                     if surface.sunbrk.existance:

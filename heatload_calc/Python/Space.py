@@ -223,18 +223,12 @@ class Space:
         # 室内表面熱収支計算のための行列作成
         make_matrix_for_surface_heat_balance(self)
 
-
-
-
-
 # 前時刻の室温を現在時刻の室温、家具温度に置換
 def update_space_oldstate(space):
     space.oldTr = space.Tr
     space.oldTfun = space.Tfun
     space.oldxr = space.xr
     space.oldxf = space.xf
-
-
 
 # 暖房設備仕様の読み込み
 def heating_equipment_read(space, dheqp):

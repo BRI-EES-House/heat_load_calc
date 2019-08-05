@@ -3,7 +3,7 @@ from ResponseFactor import ResponseFactor
 from transparent_opening import transparent_opening
 from SolarPosision import defSolpos
 from Gdata import Gdata
-from Exsrf import Exsrf
+from Exsrf import Exsrf, external_init, ground_init, internal_init
 from Sunbrk import SunbrkType, calc_shading_area_ratio
 import datetime
 
@@ -32,15 +32,15 @@ class Surface:
                 # 隣室温度差係数
                 self.temp_dif_coef = d['temp_dif_coef']
                 # 境界条件の初期化
-                self.backside_boundary_condition.external_init(self.direction, \
+                external_init(self.backside_boundary_condition, self.direction, \
                     self.is_sun_striked_outside, self.temp_dif_coef)
             # 内壁の場合
             elif self.boundary_type == "internal":
                 self.next_room_type = d['next_room_type']
-                self.backside_boundary_condition.internal_init(self.next_room_type)
+                internal_init(self.backside_boundary_condition, self.next_room_type)
             # 土壌の場合
             elif self.boundary_type == "ground":
-                self.backside_boundary_condition.ground_init()
+                ground_init(self.backside_boundary_condition)
             # 例外
             else:
                 print("境界Typeが見つかりません。 name=", self.name, "boundary_type=", self.boundary_type)

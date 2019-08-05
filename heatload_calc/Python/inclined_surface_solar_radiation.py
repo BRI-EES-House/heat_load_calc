@@ -1,28 +1,23 @@
-# 傾斜面日射量の計算
-def calc_inclined_surface_solar_radiation(Idn, Isky, exterior_surface, solar_position):
-    Ihol = solar_position.Sh * Idn + Isky  # 水平面全天日射量
-    Id = exterior_surface.CosT * Idn  # 傾斜面直達日射量
-    Is = exterior_surface.Fs * Isky  # 傾斜面天空日射量
-    Ir = exterior_surface.dblFg * exterior_surface.Rg * Ihol  # 傾斜面地面反射日射量
-    Iw = Id + Is + Ir  # 傾斜面全日射量
-
-    return Id, Is, Ir, Iw
+from direction_cos_incident_angle import calc_cos_incident_angle
 
 # 傾斜面日射量を計算する
-def calc_slope_sol(suraface, Solpos, Idn, Isky):
-    if 'external' in suraface.backside_boundary_condition.Type and suraface.is_sun_striked_outside:
-        # 傾斜面日射量を計算
-        suraface.backside_boundary_condition.update_slop_sol(Solpos, Idn, Isky)
-        # 直達日射量
-        Id = suraface.backside_boundary_condition.Id
+def calc_slope_sol(backside_boundary_condition, Solpos, Idn, Isky):
+        Id = Is = Ir = Iw = backside_boundary_condition.CosT = Ihol = 0.0
+        if 'external' in backside_boundary_condition.Type and backside_boundary_condition.is_sun_striked_outside:
+                Ihol = Solpos.Sh * Idn + Isky  # 水平面全天日射量
 
-        # 天空日射量
-        Isky = suraface.backside_boundary_condition.Is
+                # 入射角の計算
+                backside_boundary_condition.CosT = calc_cos_incident_angle(backside_boundary_condition, Solpos)
+                # 直達日射量
+                Id = backside_boundary_condition.CosT * Idn
 
-        # 反射日射量
-        Ir = suraface.backside_boundary_condition.Ir
+                # 天空日射量
+                Is = backside_boundary_condition.Fs * Isky
 
-        # 全天日射量
-        Iw = Id + Isky + Ir
+                # 反射日射量
+                Ir = backside_boundary_condition.dblFg * backside_boundary_condition.Rg * Ihol
 
-        return Id, Isky, Ir, Iw
+                # 全天日射量
+                Iw = Id + Is + Ir
+
+        return (Id, Is, Ir, Iw)
