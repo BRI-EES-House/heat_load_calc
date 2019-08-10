@@ -82,8 +82,7 @@ class Space:
         :param input_surfaces:
         """
         self.name = d_room['name']                  # 室名称
-        if Gdata.is_residential:
-            self.room_type = d_room['room_type']      # 室用途（1:主たる居室、2:その他居室、3:非居室）
+        self.room_type = d_room['room_type']      # 室用途（1:主たる居室、2:その他居室、3:非居室）
         self.AnnualLoadcCs = 0.0                  # 年間顕熱冷房熱負荷（主暖房）
         self.AnnualLoadcHs = 0.0                  # 年間顕熱暖房熱負荷（対流成分）
         self.AnnualLoadcCl = 0.0                  # 年間潜熱冷房熱負荷（対流成分）
@@ -105,11 +104,11 @@ class Space:
         self.kr = radiative_heat_transfer_coefficient_human_body \
             / (radiative_heat_transfer_coefficient_human_body + convective_heat_transfer_coefficient_human_body)
                                                     # 人体表面の熱伝達率の放射成分比率
-        self.demAC = 0                              # 当該時刻の空調需要（0：なし、1：あり）
-        self.preAC = 0                              # 前時刻の空調運転状態（0：停止、正：暖房、負：冷房）
-        self.preWin = 0                             # 前時刻の窓状態（0：閉鎖、1：開放）
-        self.nowAC = 0                              # 当該時刻の空調運転状態（0：なし、正：暖房、負：冷房）
-        self.nowWin = 0                             # 当該時刻の窓状態（0：閉鎖、1：開放）
+        self.air_conditioning_demand = False        # 当該時刻の空調需要（0：なし、1：あり）
+        self.prev_air_conditioning_mode = 0         # 前時刻の空調運転状態（0：停止、正：暖房、負：冷房）
+        self.is_prev_window_open = False            # 前時刻の窓状態（0：閉鎖、1：開放）
+        self.now_air_conditioning_mode = 0          # 当該時刻の空調運転状態（0：なし、正：暖房、負：冷房）
+        self.is_now_window_open = False             # 当該時刻の窓状態（0：閉鎖、1：開放）
         # PMVの計算条件
         self.Met = 1.0                              # 代謝量[Met]
         self.Wme = 0.0                              # 外部仕事[Met]
@@ -118,10 +117,11 @@ class Space:
         self.OTset = 0.0                            # 設定作用温度[℃]
         self.is_radiative_heating = False
         self.radiative_heating_max_capacity = 0.0
-        if Gdata.is_residential:
-            heating_equipment_read(self, d_room['heating_equipment'])
-                                                    # 暖房設備仕様の読み込み
-            cooling_equipment_read(self, d_room['cooling_equipment'])
+
+        # 暖房設備仕様の読み込み
+        heating_equipment_read(self, d_room['heating_equipment'])
+        # 冷房設備仕様の読み込み
+        cooling_equipment_read(self, d_room['cooling_equipment'])
         
         self.volume = d_room['volume']            # 室気積[m3]
         self.Ga = self.volume * conrowa         # 室空気の質量[kg]
@@ -137,8 +137,7 @@ class Space:
         self.xeout = 0.0                          # エアコン熱交換部の飽和絶対湿度[kg/kg(DA)]
         self.Vac = 0.0                              # エアコンの風量[m3/s]
         self.RH = 50.0                              # 室相対湿度[%]
-        if Gdata.is_residential:
-            self.Vcrossvent = self.volume * d_room['natural_vent_time']
+        self.Vcrossvent = self.volume * d_room['natural_vent_time']
                                                     # 窓開放時通風量
         # 室空気の熱容量
         self.Hcap = self.volume * conrowa * conca
@@ -153,18 +152,10 @@ class Space:
         # 内部発熱合計
         self.Hn = 0.0
 
-        # 室透過日射熱取得の初期化
-        # self.Qgt = [0.0 for j in range(8760 * 3600 / int(Gdata.DTime)]
-
         # 室間換気量クラスの構築
         self.RoomtoRoomVent = []
-        # prevroomname = ''
-        # winter_vent = 0.0
-        # inter_vent = 0.0
-        # summer_vent = 0.0
-        if Gdata.is_residential:
-            for room_vent in d_room['next_vent']:
-                self.RoomtoRoomVent.append(NextVent(room_vent['upstream_room_type'], room_vent['volume']))
+        for room_vent in d_room['next_vent']:
+            self.RoomtoRoomVent.append(NextVent(room_vent['upstream_room_type'], room_vent['volume']))
         self.Nsurf = 0  # 部位の数
         self.input_surfaces = []
 
@@ -202,11 +193,10 @@ class Space:
         set_rac_spec(self)
 
         # 放射暖房の発熱部位の設定（とりあえず床発熱）
-        if Gdata.is_residential:
-            if self.is_radiative_heating:
-                for surface in self.input_surfaces:
-                    if surface.is_solar_absorbed_inside:
-                        surface.flr = surface.area / self.TotalAF
+        if self.is_radiative_heating:
+            for surface in self.input_surfaces:
+                if surface.is_solar_absorbed_inside:
+                    surface.flr = surface.area / self.TotalAF
 
         # 微小点に対する室内部位の形態係数の計算（永田先生の方法）
         calc_form_factor_of_microbodies(self.name, self.input_surfaces)

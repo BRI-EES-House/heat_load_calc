@@ -8,7 +8,6 @@ from Weather import enmWeatherComponent, Weather, WeaData, Solpos
 from Sunbrk import SunbrkType
 from Space import create_spaces, update_space_oldstate
 from heat_load import calcHload
-from PMV import get_OT
 
 # 熱負荷計算の実行
 def calc_Hload(cdata, weather):
@@ -57,6 +56,9 @@ def calc_Hload(cdata, weather):
         rowlist.append(space.name + "_室絶対湿度[kg/kg(DA)]")
         rowlist.append(space.name + "_室MRT[℃]")
         rowlist.append(space.name + "_室作用温度[℃]")
+        rowlist.append(space.name + "_PMV[-]")
+        rowlist.append(space.name + "_着衣量[clo]")
+        rowlist.append(space.name + "_風速[m/s]")
         rowlist.append(space.name + "_透過日射熱取得[W]")
         rowlist.append(space.name + "_機器顕熱発熱[W]")
         rowlist.append(space.name + "_照明発熱[W]")
@@ -140,22 +142,22 @@ def calc_Hload(cdata, weather):
                 )
                 
                 if FlgOrig(cdata, dtmNow):
-                    rowlist.append('{0:.0f}'.format(space.nowWin))
-                    rowlist.append('{0:.0f}'.format(space.demAC))
-                    rowlist.append('{0:.0f}'.format(space.finalAC))
+                    rowlist.append(space.is_now_window_open)
+                    rowlist.append(space.air_conditioning_demand)
+                    rowlist.append('{0:.0f}'.format(space.now_air_conditioning_mode))
                     rowlist.append('{0:.2f}'.format(space.Tr))
                     rowlist.append('{0:.0f}'.format(space.RH))
                     rowlist.append('{0:.4f}'.format(space.xr))
                     rowlist.append('{0:.2f}'.format(space.MRT))
                     rowlist.append('{0:.2f}'.format(space.OT))
+                    rowlist.append('{0:.2f}'.format(space.PMV))
+                    rowlist.append('{0:.2f}'.format(space.Clo))
+                    rowlist.append('{0:.2f}'.format(space.Vel))
                     rowlist.append('{0:.2f}'.format(space.Qgt[sequence_number]))
                     rowlist.append('{0:.2f}'.format(space.heat_generation_appliances))
                     rowlist.append('{0:.2f}'.format(space.heat_generation_lighting))
                     rowlist.append('{0:.2f}'.format(space.Humans))
                     rowlist.append('{0:.2f}'.format(space.Humanl))
-                    # rowlist.append('{0:.2f}'.format(space.Clo))
-                    # rowlist.append('{0:.2f}'.format(space.Vel))
-                    # rowlist.append('{0:.2f}'.format(space.PMV))
                     rowlist.append('{0:.1f}'.format(space.Lcs))
                     rowlist.append('{0:.1f}'.format(space.Lrs))
                     rowlist.append('{0:.1f}'.format(space.Lcl))
@@ -179,7 +181,7 @@ def calc_Hload(cdata, weather):
                     if 1:
                         for surface in space.input_surfaces:
                             rowlist.append('{0:.2f}'.format(surface.Qc))
-                    # print('{0:.0f}'.format(space.nowWin), '{0:.0f}'.format(space.nowAC), '{0:.2f}'.format(space.Tr), \
+                    # print('{0:.0f}'.format(space.is_now_window_open), '{0:.0f}'.format(space.nowAC), '{0:.2f}'.format(space.Tr), \
                     #         '{0:.0f}'.format(space.RH), '{0:.2f}'.format(space.MRT), '{0:.2f}'.format(space.PMV), \
                     #         '{0:.0f}'.format(space.Lcs), '{0:.0f}'.format(space.Lr), '{0:.0f}'.format(space.Ll), "", end="")
             

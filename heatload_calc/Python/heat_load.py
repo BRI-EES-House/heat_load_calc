@@ -8,10 +8,10 @@ from indoor_radiative_heat_transfer import distribution_transmitted_solar_radiat
 from calculation_surface_temperature import calc_surface_temperature, calc_Tei, convolution, \
     calc_CRX_WSC, calc_Tei, calc_CVL_WSV, calc_qi
 from Win_ACselect import reset_SW, mode_select
-from PMV import calcPMV, get_OT
+from PMV import calcPMV
 from Psychrometrics import xtrh, rhtx
 from Gdata import FlgOrig
-from set_point_temperature import calcOTset
+from set_point_temperature import calcOTset, calc_clothing
 
 # 室温、熱負荷の計算
 def calcHload(space, Gdata, spaces, dtmNow, defSolpos, Ta, xo, Idn, Isky, RN, annual_average_temperature):
@@ -33,7 +33,7 @@ def calcHload(space, Gdata, spaces, dtmNow, defSolpos, Ta, xo, Idn, Isky, RN, an
         calcTeo(surface, Ta, Iw, RN, space.oldTr, annual_average_temperature, spaces)
 
     # 当該時刻の内部発熱・発湿・局所換気量の読み込み（顕熱はすべて対流成分とする）
-    create_hourly_schedules(space, dtmNow, Gdata.is_residential)
+    create_hourly_schedules(space, dtmNow)
 
     # 室内表面の吸収日射量
     sequence_number = int((get_nday(dtmNow.month, dtmNow.day) - 1) * 24 * 4 + dtmNow.hour * 4 + float(dtmNow.minute) / 60.0 * 3600 / Gdata.DTime)
@@ -46,18 +46,11 @@ def calcHload(space, Gdata, spaces, dtmNow, defSolpos, Ta, xo, Idn, Isky, RN, an
     # すきま風量未実装につき、とりあえず０とする
     space.Infset = 0.0
 
-    # 空調設定温度の取得
-    # 空調需要の設定
-    if space.number_of_people > 0:
-        space.demAC = 1
-    else:
-        space.demAC = 0
-    
     # 自然室温計算時窓開閉条件の設定
     # 空調需要がなければ窓閉鎖、空調需要がある場合は前時刻の窓開閉状態
-    space.nowWin = 0
-    if space.demAC == 1:
-        space.nowWin = space.preWin
+    space.is_now_window_open = False
+    if space.air_conditioning_demand:
+        space.is_now_window_open = space.is_prev_window_open
 
     # 室温・熱負荷計算のための係数BRM、BRLの計算
     space.BRM, space.BRL = calc_BRM_BRL(space, Gdata.DTime)
@@ -69,8 +62,8 @@ def calcHload(space, Gdata, spaces, dtmNow, defSolpos, Ta, xo, Idn, Isky, RN, an
     # 通風なしでの係数を控えておく
     space.BRMnoncv = space.BRM
     space.BRCnoncv = space.BRC
-    # 通風計算用に係数を補正（前時刻が通風状態の場合は非空調作用温度を通府状態で計算する）
-    if space.nowWin == 1:
+    # 通風計算用に係数を補正（前時刻が通風状態の場合は非空調作用温度を通風状態で計算する）
+    if space.is_now_window_open == True:
         temp = conca * conrowa * space.Vcrossvent / 3600.0
         space.BRM += temp
         space.BRC += temp * Ta
@@ -78,74 +71,55 @@ def calcHload(space, Gdata, spaces, dtmNow, defSolpos, Ta, xo, Idn, Isky, RN, an
     # OT計算用の係数補正
     space.BRMot, space.BRLot, space.BRCot, space.Xot, space.XLr, space.XC = convert_coefficient_for_operative_temperature(space)
     
-    # 自然作用温度の計算（住宅用）
-    if Gdata.is_residential:
-        # 自然作用温度の計算
-        space.OT, space.Lcs, space.Lrs = calc_Tr_Ls(0, space.is_radiative_heating, space.BRCot, space.BRMot,
-                                                    space.BRLot, 0, 0.0)
-        # 窓開閉と空調発停の判定をする
-        space.nowWin, space.nowAC = mode_select(space.demAC, space.preAC, space.preWin, space.OT)
-        # 最終計算のための係数整備
-        space.BRC = space.BRCnoncv
-        space.BRM = space.BRMnoncv
-        # 通風なら通風量を設定
-        if space.nowWin == 1:
-            temp = conca * conrowa * space.Vcrossvent / 3600.0
-            space.BRM += temp
-            space.BRC += temp * Ta
-        
-        # OT計算用の係数補正
-        space.BRMot, space.BRLot, space.BRCot, space.Xot, space.XLr, space.XC = convert_coefficient_for_operative_temperature(space)
-        
-        # 目標作用温度、代謝量、着衣量、風速の計算
-        space.OTset, space.Met, space.Clo, space.Vel = calcOTset(space.nowAC, space.is_radiative_heating, space.RH)
+    # 自然作用温度の計算
+    space.OT, space.Lcs, space.Lrs = calc_Tr_Ls(0, space.is_radiative_heating, space.BRCot, space.BRMot,
+                                                space.BRLot, 0, 0.0)
+    # 自然室温を計算
+    space.Tr = space.Xot * space.OT - space.XLr * space.Lrs - space.XC
+    # 自然MRTを計算
+    space.MRT = (space.OT - space.kc * space.Tr) / space.kr
+    # 自然PMVを計算する
+    space.PMV = calcPMV(space.Tr, space.MRT, space.RH, \
+        0.0 if not space.is_now_window_open else 0.1, 1.0, 0.0, calc_clothing(space.OT))
+    # 窓開閉と空調発停の判定をする
+    space.is_now_window_open, space.now_air_conditioning_mode \
+        = mode_select(space.air_conditioning_demand, space.prev_air_conditioning_mode, space.is_prev_window_open, space.PMV)
+    # 目標PMVの計算（冷房時は上限、暖房時は下限PMVを目標値とする）
+    pmv_set = space.pmv_lower_limit if space.now_air_conditioning_mode > 0 else space.pmv_upper_limit
 
-        # 仮の作用温度、熱負荷の計算
-        space.OT, space.Lcs, space.Lrs = calc_Tr_Ls(space.nowAC,
-                                                        space.is_radiative_heating, space.BRCot, space.BRMot,
-                                                        space.BRLot, 0, space.OTset)
+    # 最終計算のための係数整備
+    space.BRC = space.BRCnoncv
+    space.BRM = space.BRMnoncv
+    # 通風なら通風量を設定
+    if space.is_now_window_open == 1:
+        temp = conca * conrowa * space.Vcrossvent / 3600.0
+        space.BRM += temp
+        space.BRC += temp * Ta
+    
+    # OT計算用の係数補正
+    space.BRMot, space.BRLot, space.BRCot, space.Xot, space.XLr, space.XC = convert_coefficient_for_operative_temperature(space)
+    
+    # 目標作用温度、代謝量、着衣量、風速の計算
+    space.OTset, space.Met, space.Clo, space.Vel = calcOTset(space.now_air_conditioning_mode, space.is_radiative_heating, space.RH, pmv_set)
 
-        # 放射空調の過負荷状態をチェックする
-        space.finalAC = reset_SW(space.nowAC, space.Lcs, space.Lrs, space.is_radiative_heating, space.radiative_heating_max_capacity)
+    # 仮の作用温度、熱負荷の計算
+    space.OT, space.Lcs, space.Lrs = calc_Tr_Ls(space.now_air_conditioning_mode,
+                                                    space.is_radiative_heating, space.BRCot, space.BRMot,
+                                                    space.BRLot, 0, space.OTset)
+    # 放射空調の過負荷状態をチェックする
+    space.now_air_conditioning_mode = reset_SW(space.now_air_conditioning_mode, space.Lcs, space.Lrs, space.is_radiative_heating, space.radiative_heating_max_capacity)
 
-        # 最終作用温度・熱負荷の再計算
-        space.OT, space.Lcs, space.Lrs = calc_Tr_Ls(space.finalAC,
-                                                        space.is_radiative_heating, space.BRCot, space.BRMot,
-                                                        space.BRLot, space.radiative_heating_max_capacity, space.OTset)
-        # 室温を計算
-        space.Tr = space.Xot * space.OT - space.XLr * space.Lrs - space.XC
-    # 自然室温の計算（非住宅用）
-    else:
-        # 自然室温の計算
-        space.Tr, space.Lcs, space.Lrs = calc_Tr_Ls(0, space.is_radiative_heating, space.BRC, space.BRM,
-                                                    space.BRL, 0, 0.0)
-        # 空調停止で初期化
-        space.finalAC = 0
-        # 窓閉鎖
-        space.nowWin = 0
-        # 設定温度
-        temp_set = 0.0
-        # 上限温度を超える場合は冷房
-        if space.is_upper_temp_limit_set and space.Tr > space.temperature_upper_limit:
-            space.finalAC = -1
-            temp_set = space.temperature_upper_limit
-        # 下限温度を下回る場合は暖房
-        elif space.is_lower_temp_limit_set and space.Tr < space.temperature_lower_limit:
-            space.finalAC = 1
-            temp_set = space.temperature_lower_limit
-        # print("item=", item, "Tr=", self.Tr, "finalAC=", self.finalAC, "temp_set=", temp_set, \
-        #     self.is_upper_temp_limit_set[item], self.temperature_upper_limit[item])
-        # 室温、熱負荷の計算
-        space.Tr, space.Lcs, space.Lrs = calc_Tr_Ls(space.finalAC, space.is_radiative_heating, space.BRC, space.BRM, \
-            space.BRL, 0, temp_set)
-
+    # 最終作用温度・熱負荷の再計算
+    space.OT, space.Lcs, space.Lrs = calc_Tr_Ls(space.now_air_conditioning_mode,
+                                                    space.is_radiative_heating, space.BRCot, space.BRMot,
+                                                    space.BRLot, space.radiative_heating_max_capacity, space.OTset)
+    # 室温を計算
+    space.Tr = space.Xot * space.OT - space.XLr * space.Lrs - space.XC
+    
     # 表面温度の計算
     calc_surface_temperature(space)
     # MRT、AST、平均放射温度の計算
     calc_MRT_AST＿Tsx(space)
-    
-    # 非住宅の場合の作用温度を計算する
-    space.OT = space.kc * space.Tr + space.kr * space.MRT
 
     # 室内側等価温度・熱流の計算
     for surface in space.input_surfaces:
@@ -156,13 +130,8 @@ def calcHload(space, Gdata, spaces, dtmNow, defSolpos, Ta, xo, Idn, Isky, RN, an
 
     # ここから潜熱の計算
     space.BRMX, space.BRXC = calc_BRMX_BRXC(space, Gdata.DTime, xo)
-    
-    # 住宅の場合
-    if Gdata.is_residential:
-        calc_xr_Ll_residential(space)
-    # 非住宅の場合
-    else:
-        calc_xr_Ll_non_residential(space)
+    # 室内湿度と潜熱負荷の計算
+    calc_xr_Ll_residential(space)
 
     # 家具の温度を計算
     space.Tfun = calcTfun(space, Gdata)
@@ -177,8 +146,8 @@ def calcHload(space, Gdata, spaces, dtmNow, defSolpos, Ta, xo, Idn, Isky, RN, an
     space.PMV = calcPMV(space.Tr, space.MRT, space.RH, space.Vel, space.Met, space.Wme, space.Clo)
 
     # 当該時刻の空調状態、窓開閉状態を控える
-    space.preAC = space.nowAC
-    space.preWin = space.nowWin
+    space.prev_air_conditioning_mode = space.now_air_conditioning_mode
+    space.is_prev_window_open = space.is_now_window_open
 
     return 0
 
@@ -329,17 +298,17 @@ def calc_BRM_BRL(space, Dtime):
     return BRM, BRL
 
 # 室温・顕熱熱負荷の計算ルーティン
-def calc_Tr_Ls(nowAC, is_radiative_heating, BRC, BRM, BRL, Lrcap, Tset):
+def calc_Tr_Ls(now_air_conditioning_mode, is_radiative_heating, BRC, BRM, BRL, Lrcap, Tset):
     Lcs = 0.0
     Lrs = 0.0
     Tr = 0.0
     # 非空調時の計算
-    if nowAC == 0:
+    if now_air_conditioning_mode == 0:
         Tr = BRC / BRM
     # 熱負荷計算（能力無制限）
-    elif nowAC == 1 or nowAC == -1 or nowAC == 4:
+    elif now_air_conditioning_mode == 1 or now_air_conditioning_mode == -1 or now_air_conditioning_mode == 4:
         # 対流式空調の場合
-        if is_radiative_heating != True or is_radiative_heating and nowAC < 0:
+        if is_radiative_heating != True or is_radiative_heating and now_air_conditioning_mode < 0:
             Lcs = BRM * Tset - BRC
         # 放射式空調
         else:
@@ -347,7 +316,7 @@ def calc_Tr_Ls(nowAC, is_radiative_heating, BRC, BRM, BRL, Lrcap, Tset):
         # 室温の計算
         Tr = (BRC + Lcs + BRL * Lrs) / BRM
     # 放射暖房最大能力運転（当面は暖房のみ）
-    elif nowAC == 3 and Lrcap > 0.0:
+    elif now_air_conditioning_mode == 3 and Lrcap > 0.0:
         Lrs = Lrcap
         # 室温は対流式で維持する
         Lcs = BRM * Tset - BRC - Lrs * BRL
@@ -360,7 +329,7 @@ def calc_Tr_Ls(nowAC, is_radiative_heating, BRC, BRM, BRL, Lrcap, Tset):
 # 湿度・潜熱負荷の計算ルーチン（住宅）
 def calc_xr_Ll_residential(space):
     # 空調の熱交換部飽和絶対湿度の計算
-    calcVac_xeout(space, space.nowAC)
+    calcVac_xeout(space, space.now_air_conditioning_mode)
     # 空調機除湿の項
     RhoVac = conrowa * space.Vac * (1.0 - space.bypass_factor_rac)
     space.BRMX += RhoVac

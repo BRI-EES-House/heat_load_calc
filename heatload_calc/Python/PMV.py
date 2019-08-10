@@ -1,12 +1,5 @@
 import math
-from scipy.optimize import fsolve
 
-def get_OT(met, clo, velocity, RH, PMV_set):
-    # 定数部分があるので、ラムダ式で関数を包む
-    # 右辺が0になるように式を変形する
-    # 初期値は適当に0にした
-    return fsolve(lambda OT: calcPMV(OT - 2.0, OT + 2.0, RH, velocity, met, 0.0, clo) - PMV_set, 0.0)
-    
 def calcPMV(Ta, MRT, RH, V, Met, Wme, Clo):
     # 水蒸気分圧[Pa]の計算
     Pa = RH / 100. * FNPS(Ta) * 1000.0
@@ -65,11 +58,12 @@ def calcPMV(Ta, MRT, RH, V, Met, Wme, Clo):
 
     TS = 0.303 * math.exp(-0.036 * M) + 0.028
     PMV = TS * (MW - HL1 - HL2 - HL3 - HL4 - HL5 - HL6)
-    
-    if PMV > 3.0:
-        PMV = 999#
-    elif PMV < -3.0:
-        PMV = -999.0
+
+    # PMVを目標値として作用温度を逆算するために上下限値の不連続をやめる
+    # if PMV > 3.0:
+    #     PMV = 999.
+    # elif PMV < -3.0:
+    #     PMV = -999.0
     
     return PMV
 
@@ -85,10 +79,3 @@ def calcPPD(PMV):
 # 飽和水蒸気圧[kPa]の計算（ASHRAE Standard 55-2013）
 def FNPS(T):
     return math.exp(16.6536 - 4030.183 / (T + 235.0))
-
-# print(calcPMV(23.9, 23.9, 66, 0.1, 1.1, 0.0, 1.0))
-
-
-
-def get_set_point_temperature_non_residential():
-    pass

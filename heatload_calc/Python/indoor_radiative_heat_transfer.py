@@ -14,7 +14,7 @@ def calc_form_factor_of_microbodies(space_name, surfaces):
     
     # 室のパラメータの計算（ニュートン法）
     # 初期値を設定
-    fbd = max_a * 4.0 + 1.e-4
+    fbd = max_a * 4.0 + 1.0e-5
     # 収束判定
     isConverge = False
     for i in range(50):

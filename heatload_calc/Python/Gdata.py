@@ -21,17 +21,11 @@ class Gdata:
         # 地域区分
         self.Region = options["region"]
 
-        # 住宅計算／非住宅計算（Trueなら住宅）
-        self.is_residential = options["is_residential"]
-
         # 計算対象年
         self.conlngYr = 1989
 
         # 計算時間間隔(s)
-        if self.is_residential:
-            self.DTime = 900.0
-        else:
-            self.DTime = 3600.0
+        self.DTime = 900.0
         
         # 計算期間、助走計算日数の設定
         calc_period(self)
