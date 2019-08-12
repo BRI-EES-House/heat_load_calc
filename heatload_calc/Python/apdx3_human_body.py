@@ -1,5 +1,6 @@
 import common
 
+
 def get_alpha_hm_c() -> float:
     """
     Returns:
