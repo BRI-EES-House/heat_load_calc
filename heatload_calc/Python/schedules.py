@@ -1,4 +1,5 @@
 from common import get_nday, conra
+from apdx3_human_body import get_q_hum_and_x_hum
 
 # スケジュールの読み込み
 def create_hourly_schedules(space, dtmNow):
@@ -14,15 +15,21 @@ def create_hourly_schedules(space, dtmNow):
     space.heat_generation_lighting = space.heat_generation_lighting_schedule[item]
     # 在室人員[人]
     space.number_of_people = space.number_of_people_schedule[item]
+
+    # 1人あたりの人体発熱(W)・発湿(kg/s)
+    q_hum, x_hum = get_q_hum_and_x_hum(space.oldTr)
+
     # 人体顕熱[W]
-    space.Humans = space.number_of_people \
-                    * min(63.0 - 4.0 * (space.oldTr - 24.0), 119.0)
-    # 人体潜熱[W]
-    space.Humanl = max(space.number_of_people * 119.0 - space.Humans, 0.0)
+    space.Humans = space.number_of_people * q_hum
+
+    # 人体潜熱[kg/s]
+    space.Humanl = space.number_of_people * x_hum
+
+    # 内部発熱[W]
     space.Hn = space.heat_generation_appliances + space.heat_generation_lighting + space.Humans + space.heat_generation_cooking
 
     # 内部発湿[kg/s]
-    space.Lin = space.vapor_generation_cooking / 1000.0 / 3600.0 + space.Humanl / conra
+    space.Lin = space.vapor_generation_cooking / 1000.0 / 3600.0 + space.Humanl
     
     # 局所換気量
     space.LocalVentset = space.local_vent_amount_schedule[item]

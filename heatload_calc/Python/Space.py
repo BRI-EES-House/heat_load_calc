@@ -11,7 +11,7 @@ from NextVent import NextVent
 from common import conca, conrowa, Sgm, conra, bypass_factor_rac, get_nday
 import datetime
 from calculation_surface_temperature import make_matrix_for_surface_heat_balance
-from apdx3_heat_transfer_coefficient_human_body import get_alpha_hm_c, get_alpha_hm_r
+from apdx3_human_body import get_alpha_hm_c, get_alpha_hm_r
 from opening_transmission_solar_radiation import summarize_transparent_solar_radiation
 from inclined_surface_solar_radiation import calc_slope_sol
 from furniture import calc_furniture
