@@ -11,7 +11,7 @@ from NextVent import NextVent
 from common import conca, conrowa, Sgm, conra, bypass_factor_rac, get_nday
 import datetime
 from calculation_surface_temperature import make_matrix_for_surface_heat_balance
-from heat_transfer_coefficient_human_body import convective_heat_transfer_coefficient_human_body, radiative_heat_transfer_coefficient_human_body
+from apdx3_heat_transfer_coefficient_human_body import get_alpha_hm_c, get_alpha_hm_r
 from opening_transmission_solar_radiation import summarize_transparent_solar_radiation
 from inclined_surface_solar_radiation import calc_slope_sol
 from furniture import calc_furniture
@@ -98,11 +98,9 @@ class Space:
         self.oldTfun = 15.0                       # 前時刻の家具の温度[℃]
         self.rsolfun = 0.5                        # 透過日射の内家具が吸収する割合[－]
         # self.rsolfun = 0.0
-        self.kc = convective_heat_transfer_coefficient_human_body \
-            / (radiative_heat_transfer_coefficient_human_body + convective_heat_transfer_coefficient_human_body)
+        self.kc = get_alpha_hm_c() / (get_alpha_hm_r() + get_alpha_hm_c())
                                                     # 人体表面の熱伝達率の対流成分比率
-        self.kr = radiative_heat_transfer_coefficient_human_body \
-            / (radiative_heat_transfer_coefficient_human_body + convective_heat_transfer_coefficient_human_body)
+        self.kr = get_alpha_hm_r() / (get_alpha_hm_r() + get_alpha_hm_c())
                                                     # 人体表面の熱伝達率の放射成分比率
         self.air_conditioning_demand = False        # 当該時刻の空調需要（0：なし、1：あり）
         self.prev_air_conditioning_mode = 0         # 前時刻の空調運転状態（0：停止、正：暖房、負：冷房）
