@@ -18,10 +18,10 @@
 				}
 			},
 			"heating_equipment": {
-				"is_radiative_heating": false,
+				"is_radiative_heating": true,
 				"radiative_heating": {
 					"max_capacity": 120.0,
-					"area": 35.0
+					"area": 20.0
 				}
 			},
 			"next_vent": [

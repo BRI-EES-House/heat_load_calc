@@ -11,7 +11,7 @@ def calc_period(gdata):
         gdata.StDate = datetime.datetime(gdata.conlngYr, 8, 1)
         gdata.EnDate = datetime.datetime(gdata.conlngYr, 8, 1)
         gdata.lngApproach = 0
-    if 1:
+    if 0:
         gdata.StDate = datetime.datetime(gdata.conlngYr, 1, 1)
         gdata.EnDate = datetime.datetime(gdata.conlngYr, 1, 1)
         gdata.lngApproach = 0
