@@ -1,7 +1,7 @@
 
 from typing import List
 import Weather
-from Weather import enmWeatherComponent, Solpos, WeaData
+from Weather import enmWeatherComponent, WeaData
 import math
 import numpy as np
 # import Surface

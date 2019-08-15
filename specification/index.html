@@ -471,6 +471,14 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#_x_3_2_発熱発湿">X.3.2 発熱・発湿</a></li>
 </ul>
 </li>
+<li><a href="#_x_5_太陽位置">X.5 太陽位置</a>
+<ul class="sectlevel3">
+<li><a href="#_x_5_1_概要">X.5.1 概要</a></li>
+<li><a href="#_x_5_2_均時差と赤緯">X.5.2 均時差と赤緯</a></li>
+<li><a href="#_x_5_3_時角">X.5.3 時角</a></li>
+<li><a href="#_x_5_4_太陽位置">X.5.4 太陽位置</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -1320,13 +1328,168 @@ X_{hum} = \frac{119 - q_{hum}}{L_{wtr}} \tag{2b}
 </div>
 </div>
 </div>
+<div class="sect2">
+<h3 id="_x_5_太陽位置"><a class="link" href="#_x_5_太陽位置">X.5 太陽位置</a></h3>
+<div class="sect3">
+<h4 id="_x_5_1_概要"><a class="link" href="#_x_5_1_概要">X.5.1 概要</a></h4>
+<div class="paragraph">
+<p>　太陽高度と太陽方位角を計算する。</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_x_5_2_均時差と赤緯"><a class="link" href="#_x_5_2_均時差と赤緯">X.5.2 均時差と赤緯</a></h4>
+<div class="paragraph">
+<p>　均時差と赤緯は、式(1)から式(7)による。</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{equation}
+n = Y - 1968 \tag{1}
+\end{equation}\]
+</div>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{equation}
+d_0 = 3.71 + 0.2596 n - INT \left[ \frac{n+3}{4} \right] \tag{2}
+\end{equation}\]
+</div>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{equation}
+M = 2 \pi \cdot \frac{(D-d_0)}{D_{ay}} \tag{3}
+\end{equation}\]
+</div>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{equation}
+\epsilon = \frac{2 \pi}{360} \cdot \left( 12.3901 + 0.0172 \cdot \left( n + \frac{M}{2 \pi} \right) \right) \tag{4}
+\end{equation}\]
+</div>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{equation}
+v = M + \frac{2 \pi}{360} \cdot \left( 1.914 \cdot \sin{M} + 0.02 \cdot \sin{(2M)} \right) \tag{5}
+\end{equation}\]
+</div>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{equation}
+E_t = (M - v) - \tan^{-1} \left( \frac{ 0.043 \cdot \sin {2( v + \epsilon )} }{ 1 - 0.043 \cdot \cos {2(v + \epsilon)} } \right) \tag{6}
+\end{equation}\]
+</div>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{equation}
+\sin{\delta} = \cos{(v+\epsilon)} \cdot \sin{\delta_0} \tag{7a}
+\end{equation}\]
+</div>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{equation}
+\cos{\delta} = \sqrt{1 - \sin^2{\delta}} \tag{7b}
+\end{equation}\]
+</div>
+</div>
+<div class="paragraph">
+<p>\(INT\) は小数点以下切り捨てた整数を表す。</p>
+</div>
+<div class="paragraph">
+<p>　ここで、<br>
+　\(n\)：1968年との年差<br>
+　\(Y\)：西暦年(=1989)<br>
+　\(d_0\)：平均軌道上の近日点通過日（暦表時による1968年1月1日正午基準の日差）, d<br>
+　\(M\)：平均近点離角, rad<br>
+　\(D\)：年通算日（1/1を \(D=1\) とする), d<br>
+　\(D_{ay}\)：近点年（近日点基準の公転周期日数）(=365.2596), d<br>
+　\(\epsilon\)：近日点と冬至点の角度, rad<br>
+　\(v\)：真近点離角, rad<br>
+　\(E_t\)：均時差, rad<br>
+　\(\delta\)：赤緯, rad<br>
+　\(\delta_0\)：北半球の冬至の日赤緯(=-23.4393[deg]), deg<br>
+である。</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_x_5_3_時角"><a class="link" href="#_x_5_3_時角">X.5.3 時角</a></h4>
+<div class="stemblock">
+<div class="content">
+\[\begin{equation}
+t = 2 \pi \cdot \frac{T_m - 12}{24} + (L - L_0) + E_t \tag{8}
+\end{equation}\]
+</div>
+</div>
+<div class="paragraph">
+<p>ここで、<br>
+　\(t\)：時角, rad<br>
+　\(T_m\)：標準時, h<br>
+　\(L\)：経度, rad<br>
+　\(L_0\)：標準時の地点の経度（標準子午線）, rad<br>
+　\(E_t\)：均時差, rad<br>
+である。</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_x_5_4_太陽位置"><a class="link" href="#_x_5_4_太陽位置">X.5.4 太陽位置</a></h4>
+<div class="paragraph">
+<p>　太陽高度 \(h_s\) は式(9)、太陽方位角 \(A_s\) は式(10)による。</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{equation}
+\sin{h_s} = \max{ \left( 0, \sin{\phi} \sin{\delta}⁡ + \cos{\phi} \cos{\delta}⁡ \cos{t} \right) ⁡} \tag{9a}
+\end{equation}\]
+</div>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{equation}
+\cos{h_s} = \sqrt{1 - \sin^2{h_s}} \tag{9b}
+\end{equation}\]
+</div>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\sin A_s = \left\{ \begin{array}{ll}
+  \frac{ \cos \delta \sin t }{ \cos h_s } &amp; ( h_s \gt 0 ) \\
+  0 &amp; ( h_s = 0 )
+\end{array} \right.
+\tag{10a}\]
+</div>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\cos A_s = \left\{ \begin{array}{ll}
+  \frac { \sin h_s \sin \phi - \sin \delta }{ \cos h_s \cos \phi } &amp; ( h_s \gt 0 ) \\
+  0 &amp; ( h_s = 0 )
+\end{array} \right.
+\tag{10b}\]
+</div>
+</div>
+<div class="paragraph">
+<p>ここで、<br>
+　\(h_s\)：太陽高度, rad<br>
+　\(A_s\)：太陽方位角, rad<br>
+　\(\phi\)：緯度, rad<br>
+　\(\delta\)：赤緯, rad<br>
+　\(t\)：時角, rad<br>
+である。</p>
+</div>
+</div>
+</div>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
 Version 1.0.0(201907)<br>
-Last updated 2019-08-13 01:43:36 +0900
+Last updated 2019-08-14 07:49:46 +0900
 </div>
 </div>
 <script type="text/x-mathjax-config">

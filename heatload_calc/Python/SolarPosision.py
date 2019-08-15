@@ -1,6 +1,5 @@
 import math
-import datetime
-import common
+import numpy as np
 
 
 # 太陽位置を計算するクラス
@@ -22,105 +21,214 @@ class defSolpos:
         self.A = A  # 太陽方位角
 
 
-def get_d0(lngN):
-    return 3.71 + 0.2596 * lngN - int((lngN + 3.0) / 4.0)
+def get_n(y: int) -> int:
+    """
+    Args:
+        y: 年, year
+    Returns:
+        1968年との年差, year
+    """
+
+    return y - 1968
 
 
-# 均時差の計算
-def get_Et(dtmDate, coeff, d0, SinD0, lngN):
-    # 通日の計算
-    nday = common.get_nday(dtmDate.month, dtmDate.day)
+def get_d0(n: int) -> float:
+    """
+    Args:
+        n: 1968年との年差, year
+    Returns:
+        平均軌道上の近日点通過日（暦表時による1968年1月1日正午基準の日差）, d
+    """
 
-    # 平均近点離角Mの計算
-    M = coeff * (nday - d0)
+    return 3.71 + 0.2596 * n - int((n + 3.0) / 4.0)
 
-    # 近日点と冬至点の角度
-    dble = 12.3901 + 0.0172 * (lngN + M / 360.0)
 
-    # 真近点離角の計算
-    dblV = M + 1.914 * math.sin(math.radians(M)) + 0.02 * math.sin(math.radians(M * 2.0))
+def get_m(d: float, d0: float) -> float:
+    """
+    Args:
+        d: 年通算日（1/1を1とする）, d
+        d0: 平均軌道上の近日点通過日（暦表時による1968年1月1日正午基準の日差）, d
+    Returns:
+        平均近点離角, rad
+    """
 
-    dblRad2VE = math.radians(dblV + dble)
+    # 近点年（近日点基準の公転周期日数）
+    d_ay = 365.2596
+
+    return 2 * math.pi * (d - d0) / d_ay
+
+
+def get_epsilon(m: float, n: int) -> float:
+    """
+    Args:
+        m: 平均近点離角, rad
+        n: 1968年との年差
+    Returns:
+        近日点と冬至点の角度, rad
+    """
+
+    return math.radians(12.3901 + 0.0172 * (n + m / (2 * math.pi)))
+
+
+def get_v(m: float) -> float:
+    """
+    Args:
+        m: 平均近点離角, rad
+    Returns:
+        真近点離角, rad
+    """
+
+    return m + math.radians(1.914 * math.sin(m) + 0.02 * math.sin(2 * m))
+
+
+def get_e_t(m: float, epsilon: float, v: float) -> (float):
+    """
+    Args:
+        m: 平均近点離角, rad
+        epsilon: 近日点と冬至点の角度, rad
+        v: 真近点離角, rad
+    Returns:
+        均時差, deg,
+    """
+
+    # 均時差, rad
+    e_t = (m - v) \
+        - math.atan(0.043 * math.sin(2.0 * (v + epsilon)) / (1.0 - 0.043 * math.cos(2.0 * (v + epsilon))))
+
+    return e_t
+
+
+def get_delta(epsilon: float, v: float) -> (float, float):
+    """
+    Args:
+        epsilon: 近日点と冬至点の角度, rad
+        v: 真近点離角, rad
+    Returns:
+        赤緯の正弦
+        赤緯の余弦
+    """
+
+    # 北半球の冬至の日赤緯, rad
+    delta0 = math.radians(-23.4393)
 
     # 赤緯の正弦
-    dblSinD = math.cos(dblRad2VE) * SinD0
+    sin_delta = math.cos(v + epsilon) * math.sin(delta0)
 
     # 赤緯の余弦
-    dblCosD = math.sqrt(1.0 - dblSinD * dblSinD)
+    cos_delta = math.sqrt(1.0 - sin_delta ** 2)
 
-    # 中心差による時差
-    dblEt1 = M - dblV
+    return sin_delta, cos_delta
 
-    # 太陽赤経と太陽黄経の差
-    dblRad2VE = dblRad2VE * 2.0
-    dblEt2 = math.degrees(math.atan(0.043 * math.sin(dblRad2VE) / (1.0 - 0.043 * math.cos(dblRad2VE))))
 
-    return dblSinD, dblCosD, dblEt1 - dblEt2
+def get_t(t_m: float, l: float, l0: float, e_t: float) -> float:
+    """
+    Args:
+        t_m:  標準時, h
+        l: 経度, rad
+        l0: 標準時の地点の経度, rad
+        e_t: 均時差, rad
+    Returns:
+        時角, rad
+    """
+
+    return math.radians((t_m - 12.0) * 15.0) + (l - l0) + e_t
+
+
+def get_h_s(phi: float, sin_delta: float, cos_delta: float, t: float) -> (float, float, float):
+    """
+    Args:
+        phi: 経度, rad
+        sin_delta: 赤緯の正弦
+        cos_delta: 赤緯の余弦
+        t: 時角, rad
+    Returns:
+        太陽高度, rad
+        太陽高度の正弦
+        太陽高度の余弦
+    """
+
+    sin_h_s = max(math.sin(phi) * sin_delta + math.cos(phi) * cos_delta * math.cos(t), 0.0)
+    cos_h_s = math.sqrt(1.0 - sin_h_s ** 2)
+    h_s = math.asin(sin_h_s)
+
+    return h_s, sin_h_s, cos_h_s
+
+
+def get_a_s(
+        sin_h_s: float, cos_h_s: float, sin_delta: float, cos_delta: float,
+        t: float, phi: float) -> (float, float, float):
+    """
+    Args:
+        sin_h_s: 太陽高度の正弦
+        cos_h_s: 太陽高度の余弦
+        sin_delta: 赤緯の正弦
+        cos_delta: 赤緯の余弦
+        t: 時角, rad
+        phi: 緯度, rad
+    Returns:
+        太陽方位角, rad
+        太陽方位角の正弦
+        太陽方位角の余弦
+    """
+
+    if sin_h_s > 0.0:
+        sin_a_s = cos_delta * math.sin(t) / cos_h_s
+        cos_a_s = (sin_h_s * math.sin(phi) - sin_delta) / (cos_h_s * math.cos(phi))
+        a_s = np.sign(t) * math.acos(cos_a_s)
+    else:
+        sin_a_s = 0.0
+        cos_a_s = 0.0
+        a_s = 0.0
+
+    return a_s, sin_a_s, cos_a_s
 
 
 # 太陽位置を計算する
-def get_solpos(dtmDate, coeff, d0, SinD0, CosPhi, SinPhi, LLs, lngN) -> defSolpos:
-    # 標準時の計算
-    dblTm = dtmDate.hour + dtmDate.minute / 60.0 + dtmDate.second / 3600.0
+def get_solar_position(t_m, d, phi, l, l0) -> defSolpos:
+    """
+    Args:
+        t_m: 標準時,h
+        d: 年通算日（1/1を1とする）, d
+        phi: 緯度, rad
+        l: 経度, rad
+        l0: 標準時の地点の経度, rad
+    Returns:
+        defSolpos クラス
+    """
 
-    # 均時差の計算
-    dblSinD, dblCosD, dblEt = get_Et(dtmDate, coeff, d0, SinD0, lngN)
+    # 1968年との年差
+    n = get_n(y=1989)
 
-    # 時角の計算
-    dblT = math.radians(15.0 * (dblTm - 12.0) + math.degrees(LLs) + dblEt)
+    # 平均軌道上の近日点通過日（暦表時による1968年1月1日正午基準の日差）, d
+    d0 = get_d0(n)
 
-    # 太陽位置の計算
-    dblSh = max(SinPhi * dblSinD + CosPhi * dblCosD * math.cos(dblT), 0.0)
+    # 平均近点離角, rad
+    m = get_m(d, d0)
 
-    # print('Sh', dblSh)
+    # 近日点と冬至点の角度, rad
+    epsilon = get_epsilon(m, n)
 
-    # 太陽高度
-    dblh = math.asin(dblSh)
-    if dblSh > 0.:
-        dblCosh = math.sqrt(1.0 - dblSh * dblSh)
-        dblSinA = dblCosD * math.sin(dblT) / dblCosh
-        dblCosA = (dblSh * SinPhi - dblSinD) / (dblCosh * CosPhi)
-        dblTemp = 1.0
-        if dblT < 0.0:
-            dblTemp = -1.0
-        dblA = dblTemp * math.acos(dblCosA)
-        dblSs = dblCosh * dblCosA
-        dblSw = dblCosh * dblSinA
-    else:
-        dblSs = 0.0
-        dblSw = 0.0
-        dblA = 0.0
+    # 真近点離角, rad
+    v = get_v(m)
 
-    return defSolpos(dblSh, dblSw, dblSs, dblh, dblA)
+    # 均時差, rad
+    e_t = get_e_t(m, epsilon, v)
+
+    # 赤緯の正弦, 赤緯の余弦
+    sin_delta, cos_delta = get_delta(epsilon, v)
+
+    # 時角, rad
+    t = get_t(t_m, l, l0, e_t)
+
+    # 太陽高度, rad, 太陽高度の正弦, 太陽高度の余弦
+    h_s, sin_h_s, cos_h_s = get_h_s(phi, sin_delta, cos_delta, t)
+
+    # 太陽方位角, rad, 太陽方位角の正弦, 太陽方位角の余弦
+    a_s, sin_a_s, cos_a_s = get_a_s(sin_h_s, cos_h_s, sin_delta, cos_delta, t, phi)
+
+    dblSs = cos_h_s * cos_a_s
+    dblSw = cos_h_s * sin_a_s
+
+    return defSolpos(sin_h_s, dblSw, dblSs, h_s, a_s)
 
 
-class SolarPosision:
-    ___mconDelta0 = -23.4393  # 冬至の日赤緯
-    __lngN = 1989 - 1968
-
-    # 緯度経度を読み込み計算準備
-    # 緯度、経度、標準子午線を引数として初期化する
-    def __init__(self, Lat, Lon, Ls):
-        """
-        :param Lat: 緯度(°)
-        :param Lon: 経度(°)
-        :param Ls: 標準子午線(°)
-        """
-        dblLat = math.radians(Lat)  # 緯度
-        dblLon = math.radians(Lon)  # 経度
-        dblLs = math.radians(Ls)  # 標準子午線
-
-        # 地域情報の初期化
-        self.__dblCosPhi = math.cos(dblLat)
-        self.__dblSinPhi = math.sin(dblLat)
-        self.__dblLLs = dblLon - dblLs
-        self.__dblSinD0 = math.sin(math.radians(self.___mconDelta0))
-        self.__dblCoeff = 360.0 / 365.2596
-
-        # 平均軌道上の近日点通過日（暦表時による1968年1月1日正午基準日差）
-        self.__d0 = get_d0(self.__lngN)
-
-    # 太陽位置を計算する
-    def get_solpos(self, dtmDate) -> defSolpos:
-        return get_solpos(dtmDate, self.__dblCoeff, self.__d0, self.__dblSinD0, self.__dblCosPhi, self.__dblSinPhi,
-                          self.__dblLLs, self.__lngN)

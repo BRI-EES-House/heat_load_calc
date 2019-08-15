@@ -2,7 +2,9 @@ import csv
 from enum import IntEnum
 import datetime
 import SolarPosision
-from SolarPosision import defSolpos, SolarPosision
+from SolarPosision import defSolpos, get_solar_position
+import math
+import common
 
 class enmWeatherComponent(IntEnum):
     Ta = 2  # 外気温度[℃]
@@ -20,10 +22,18 @@ class Weather:
 
     # 気象データの取得
     def __init__(self, Lat, Lon, Ls):
+        """
+        :param Lat: 緯度
+        :param Lon: 軽度
+        :param Ls: 標準子午線
+        """
         # print('Weather initialize')
-
-        # 太陽位置計算クラスの作成
-        self.objSolpos = SolarPosision(Lat, Lon, Ls)
+        self.Lat = math.radians(Lat)
+        self.Lon = math.radians(Lon)
+        self.Ls = math.radians(Ls)
+        self.dblCosPhi = math.cos(math.radians(Lat))
+        self.dblSinPhi = math.sin(math.radians(Lat))
+        self.dblLLs = math.radians(Lon) - math.radians(Ls)
 
         # 年平均気温
         self.AnnualTave = 0.0
@@ -133,7 +143,16 @@ def WeaData(weatherdata, Compnt, dtmDate, solar_position, blnLinear=True):
 
 # 太陽位置の取得（計算も実施）
 def Solpos(weatherdata, dtmDate) -> defSolpos:
-    return weatherdata.objSolpos.get_solpos(dtmDate)
+
+    # 標準時の計算
+    t_m = dtmDate.hour + dtmDate.minute / 60.0 + dtmDate.second / 3600.0
+
+    d = common.get_nday(dtmDate.month, dtmDate.day)
+
+    return get_solar_position(t_m=t_m, d=d,
+                              phi=weatherdata.Lat,
+                              l=weatherdata.Lon,
+                              l0=weatherdata.Ls)
 
 # Date型日時から取得する通日、時刻アドレスを計算する
 # 0時を24時に変換するため
