@@ -81,7 +81,7 @@ def get_v(m: float) -> float:
     return m + math.radians(1.914 * math.sin(m) + 0.02 * math.sin(2 * m))
 
 
-def get_e_t(m: float, epsilon: float, v: float) -> (float):
+def get_e_t(m: float, epsilon: float, v: float) -> float:
     """
     Args:
         m: 平均近点離角, rad
