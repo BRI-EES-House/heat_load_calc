@@ -1,0 +1,19 @@
+=== X.6 外表面における入射角の方向余弦
+
+[stem]
+++++++++++++++++++++++++++++++++++++++++++++
+\begin{align}
+\cos⁡ \theta &= \sin⁡{h_s} \cos{W_{\beta}}⁡ + \cos{h_s} \sin{W_{\beta}} \cos{(A_s - W_{\alpha})} \nonumber \\
+&= \sin⁡{h_s} \cos{W_{\beta}}⁡ + \cos{h_s} \sin{W_{\beta}} \cos{A_s} \cos{W_{\alpha}} + \cos{h_s} \sin{W_{\beta}} \sin{A_s} \sin{W_{\alpha}} \tag{1}
+\end{align}
+++++++++++++++++++++++++++++++++++++++++++++
+
+ただし、stem:[\cos{\theta} \lt 0] の場合、stem:[\cos{\theta} = 0] とする。
+
+　ここで、 +
+　stem:[\theta]：外表面における入射角 +
+　stem:[h_s]：太陽高度, rad +
+　stem:[A_s]：太陽方位角, rad +
+　stem:[W_{\alpha}]：外表面の方位角, rad +
+　stem:[W_{\beta}]：外表面の傾斜角, rad +
+である。

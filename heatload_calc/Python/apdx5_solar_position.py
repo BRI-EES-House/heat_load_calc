@@ -6,19 +6,22 @@ import numpy as np
 class defSolpos:
     """VBA では、mdlDefine モジュールにあったものを、モジュール　SolarPosision で記述することにした。"""
 
-    def __init__(self, Sh, Sw, Ss, h, A):
+    def __init__(self, Sw, Ss, h_s, sin_h_s, cos_h_s, a_s, sin_a_s, cos_a_s):
         """
-        :param Sh: sin(h)
         :param Sw: cos(h)*sin(A)
         :param Ss: cos(h)*cos(A)
-        :param h: 太陽高度[rad]
-        :param A: 太陽方位角[rad]
+        :param h_s: 太陽高度[rad]
+        :param sin_h_s: sin(h)
+        :param a_s: 太陽方位角[rad]
         """
-        self.Sh = Sh  # sin h
         self.Sw = Sw  # cos h sin A
         self.Ss = Ss  # cos h cos A
-        self.h = h  # 太陽高度
-        self.A = A  # 太陽方位角
+        self.h_s = h_s  # 太陽高度
+        self.sin_h_s = sin_h_s  # sin h
+        self.cos_h_s = cos_h_s
+        self.a_s = a_s  # 太陽方位角
+        self.sin_a_s = sin_a_s
+        self.cos_a_s = cos_a_s
 
 
 def get_n(y: int) -> int:
@@ -229,6 +232,6 @@ def get_solar_position(t_m, d, phi, l, l0) -> defSolpos:
     dblSs = cos_h_s * cos_a_s
     dblSw = cos_h_s * sin_a_s
 
-    return defSolpos(sin_h_s, dblSw, dblSs, h_s, a_s)
+    return defSolpos(dblSw, dblSs, h_s, sin_h_s, cos_h_s, a_s, sin_a_s, cos_a_s)
 
 

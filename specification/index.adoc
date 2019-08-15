@@ -29,3 +29,5 @@ include::appendix_b.adoc[]
 include::appendix_x3.adoc[]
 
 include::appendix_x5.adoc[]
+
+include::appendix_x6.adoc[]

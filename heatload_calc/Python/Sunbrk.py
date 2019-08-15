@@ -58,12 +58,12 @@ def calc_shading_area_ratio(sunbreak, defSolpos: defSolpos, Wa: float):
     :return: 日除けの影面積
     """
     # γの計算[rad]
-    gamma = defSolpos.A - Wa
+    gamma = defSolpos.a_s - Wa
     # tan(プロファイル角)の計算
-    tan_fai = math.tan(defSolpos.h) / math.cos(gamma)
+    tan_fai = math.tan(defSolpos.h_s) / math.cos(gamma)
 
     # 日が出ているときだけ計算する
-    if defSolpos.h > 0.0:
+    if defSolpos.h_s > 0.0:
         # DPの計算[m]
         dblDP = sunbreak.depth * tan_fai
         # DH'の計算[m]
