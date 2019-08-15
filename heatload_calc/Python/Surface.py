@@ -1,7 +1,7 @@
 from Wall import Wall, Layer
 from ResponseFactor import ResponseFactor
 from transparent_opening import transparent_opening
-from SolarPosision import defSolpos
+from apdx5_solar_position import defSolpos
 from Gdata import Gdata
 from Exsrf import Exsrf, external_init, ground_init, internal_init
 from Sunbrk import SunbrkType, calc_shading_area_ratio

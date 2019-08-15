@@ -1,8 +1,8 @@
 import csv
 from enum import IntEnum
 import datetime
-import SolarPosision
-from SolarPosision import defSolpos, get_solar_position
+import apdx5_solar_position
+from apdx5_solar_position import defSolpos, get_solar_position
 import math
 import common
 

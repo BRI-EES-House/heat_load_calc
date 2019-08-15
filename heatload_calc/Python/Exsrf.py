@@ -1,5 +1,5 @@
 import math
-from SolarPosision import defSolpos
+from apdx5_solar_position import defSolpos
 
 # from inclined_surface_solar_radiation import calc_inclined_surface_solar_radiation
 from common import is_float_equal

@@ -183,9 +183,9 @@ def get_a_s(
     return a_s, sin_a_s, cos_a_s
 
 
-# 太陽位置を計算する
 def get_solar_position(t_m, d, phi, l, l0) -> defSolpos:
     """
+    太陽位置を計算する
     Args:
         t_m: 標準時,h
         d: 年通算日（1/1を1とする）, d

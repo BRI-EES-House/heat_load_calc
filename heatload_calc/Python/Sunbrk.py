@@ -1,5 +1,5 @@
 import math
-from SolarPosision import defSolpos
+from apdx5_solar_position import defSolpos
 
 # 水平庇の物理的な長さを保持するクラス
 class SunbrkType:
