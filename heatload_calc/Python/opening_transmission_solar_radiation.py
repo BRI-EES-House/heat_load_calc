@@ -5,6 +5,7 @@ from common import get_nday
 from apdx10_oblique_incidence_characteristics import get_CID
 from inclined_surface_solar_radiation import calc_slope_sol
 from Sunbrk import calc_shading_area_ratio, get_shading_area_ratio
+from apdx6_direction_cos_incident_angle import calc_cos_incident_angle
 
 # 透過日射量[W]、吸収日射量[W]の計算
 def calc_Qgt(surface):
@@ -66,7 +67,25 @@ def summarize_transparent_solar_radiation(surfaces, Gdata, weather):
             for surface in surfaces:
                 # 外表面に日射が当たる場合
                 if surface.is_sun_striked_outside and surface.boundary_type == "external_transparent_part":
-                    surface.Id, surface.Isky, surface.Ir, surface.Iw = calc_slope_sol(surface.backside_boundary_condition, solar_position, Idn, Isky)
+                    sin_h_s = solar_position.sin_h_s
+                    cos_h_s = solar_position.cos_h_s
+                    sin_a_s = solar_position.sin_a_s
+                    cos_a_s = solar_position.cos_a_s
+                    wa = surface.backside_boundary_condition.Wa
+                    wb = surface.backside_boundary_condition.Wb
+
+                    if 'external' in surface.backside_boundary_condition.Type and surface.backside_boundary_condition.is_sun_striked_outside:
+                        cos_t = calc_cos_incident_angle(sin_h_s, cos_h_s, sin_a_s, cos_a_s, wa, wb)
+                        surface.backside_boundary_condition.CosT = cos_t
+                        Fs = surface.backside_boundary_condition.Fs
+                        dblFg = surface.backside_boundary_condition.dblFg
+                        Rg = surface.backside_boundary_condition.Rg
+                        surface.Id, surface.Isky, surface.Ir, surface.Iw = calc_slope_sol(
+                            Idn, Isky, sin_h_s, cos_t, Fs, dblFg, Rg)
+                    else:
+                        surface.backside_boundary_condition.CosT = 0.0
+                        surface.Id, surface.Isky, surface.Ir, surface.Iw = 0.0, 0.0, 0.0, 0.0
+
 
                     # 日除けの日影面積率の計算
                     if surface.sunbrk.existance:

@@ -12,6 +12,7 @@ from PMV import calcPMV
 from Psychrometrics import xtrh, rhtx
 from Gdata import FlgOrig
 from set_point_temperature import calcOTset, calc_clothing
+from apdx6_direction_cos_incident_angle import calc_cos_incident_angle
 
 # 室温、熱負荷の計算
 def calcHload(space, Gdata, spaces, dtmNow, defSolpos, Ta, xo, Idn, Isky, RN, annual_average_temperature):
@@ -23,7 +24,25 @@ def calcHload(space, Gdata, spaces, dtmNow, defSolpos, Ta, xo, Idn, Isky, RN, an
     # 外皮の傾斜面日射量の計算
     for surface in space.input_surfaces:
         if surface.is_sun_striked_outside:
-            surface.Id, surface.Isky, surface.Ir, surface.Iw = calc_slope_sol(surface.backside_boundary_condition, defSolpos, Idn, Isky)
+            sin_h_s = defSolpos.sin_h_s
+            cos_h_s = defSolpos.cos_h_s
+            sin_a_s = defSolpos.sin_a_s
+            cos_a_s = defSolpos.cos_a_s
+            wa = surface.backside_boundary_condition.Wa
+            wb = surface.backside_boundary_condition.Wb
+
+            if 'external' in surface.backside_boundary_condition.Type and surface.backside_boundary_condition.is_sun_striked_outside:
+                cos_t = calc_cos_incident_angle(sin_h_s, cos_h_s, sin_a_s, cos_a_s, wa, wb)
+                surface.backside_boundary_condition.CosT = cos_t
+                Fs = surface.backside_boundary_condition.Fs
+                dblFg = surface.backside_boundary_condition.dblFg
+                Rg = surface.backside_boundary_condition.Rg
+
+                surface.Id, surface.Isky, surface.Ir, surface.Iw = calc_slope_sol(Idn, Isky, sin_h_s, cos_t, Fs, dblFg, Rg)
+            else:
+                surface.backside_boundary_condition.CosT = 0.0
+                surface.Id, surface.Isky, surface.Ir, surface.Iw = 0.0, 0.0, 0.0, 0.0
+
 
     # 相当外気温度の計算
     for surface in space.input_surfaces:
