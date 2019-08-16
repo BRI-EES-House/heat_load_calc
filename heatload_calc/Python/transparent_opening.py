@@ -1,4 +1,4 @@
-from oblique_incidence_characteristics import get_CID
+from apdx10_oblique_incidence_characteristics import get_CID
 
 # 開口部透明部位の情報を保持するクラス
 class transparent_opening:

@@ -2,7 +2,7 @@ import datetime
 # import Weather
 from Weather import Solpos, WeaData, enmWeatherComponent
 from common import get_nday
-from oblique_incidence_characteristics import get_CID
+from apdx10_oblique_incidence_characteristics import get_CID
 from inclined_surface_solar_radiation import calc_slope_sol
 from Sunbrk import calc_shading_area_ratio, get_shading_area_ratio
 
