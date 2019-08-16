@@ -26,8 +26,10 @@ include::appendix_a.adoc[]
 
 include::appendix_b.adoc[]
 
-include::appendix_x3.adoc[]
+include::appendix_x03.adoc[]
 
-include::appendix_x5.adoc[]
+include::appendix_x05.adoc[]
 
-include::appendix_x6.adoc[]
+include::appendix_x06.adoc[]
+
+include::appendix_x10.adoc[]
