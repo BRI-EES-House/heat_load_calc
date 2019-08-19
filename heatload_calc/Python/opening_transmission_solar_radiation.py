@@ -10,7 +10,8 @@ from apdx6_direction_cos_incident_angle import calc_cos_incident_angle
 # 透過日射量[W]、吸収日射量[W]の計算
 def calc_Qgt(surface):
     # 直達成分
-    Qgtd = get_QGTD(surface.transparent_opening, surface.Id, surface.backside_boundary_condition.CosT, surface.Fsdw) * surface.area
+    Qgtd = get_QGTD(surface.transparent_opening, surface.Id, \
+        surface.backside_boundary_condition.CosT, surface.Fsdw, surface.transparent_opening.incident_angle_characteristics) * surface.area
 
     # 拡散成分
     Qgts = get_QGTS(surface.transparent_opening, surface.Isky, surface.Ir) * surface.area
@@ -19,7 +20,7 @@ def calc_Qgt(surface):
     return Qgtd + Qgts
 
 # 透過日射熱取得（直達成分）[W/m2]の計算
-def get_QGTD(surface, Id: float, CosT: float, Fsdw: float) -> float:
+def get_QGTD(transparent_opening, Id: float, CosT: float, Fsdw: float, incident_angle_characteristics: str) -> float:
     """
     :param Id: 傾斜面入射直達日射量[W/m2]
     :param CosT: 入射角の方向余弦
@@ -27,10 +28,10 @@ def get_QGTD(surface, Id: float, CosT: float, Fsdw: float) -> float:
     :return: 透過日射熱取得（直達成分）[W/m2]
     """
     # 直達日射の入射角特性の計算
-    CID = get_CID(CosT)
+    CID = get_CID(CosT, incident_angle_characteristics)
 
     # 透過日射熱取得（直達成分）[W/m2]の計算
-    QGTD = surface.T * (1.0 - Fsdw) * CID * Id
+    QGTD = transparent_opening.T * (1.0 - Fsdw) * CID * Id
 
     return QGTD
 

@@ -87773,7 +87773,7 @@
 						"outside_solar_absorption": 0.8,
 						"inside_heat_transfer_resistance": 0.11,
 						"outside_heat_transfer_resistance": 0.04,
-						"incident_angle_characteristics": 2,
+						"incident_angle_characteristics": "multiple",
 						"eta_value": 0.792,
 						"u_value": 4.65
 					},
@@ -87839,7 +87839,7 @@
 						"outside_solar_absorption": 0.8,
 						"inside_heat_transfer_resistance": 0.11,
 						"outside_heat_transfer_resistance": 0.04,
-						"incident_angle_characteristics": 2,
+						"incident_angle_characteristics": "multiple",
 						"eta_value": 0.792,
 						"u_value": 4.65
 					},
@@ -175747,7 +175747,7 @@
 						"outside_solar_absorption": 0.8,
 						"inside_heat_transfer_resistance": 0.11,
 						"outside_heat_transfer_resistance": 0.04,
-						"incident_angle_characteristics": 2,
+						"incident_angle_characteristics": "multiple",
 						"eta_value": 0.792,
 						"u_value": 4.65
 					},
@@ -175817,7 +175817,7 @@
 						"outside_solar_absorption": 0.8,
 						"inside_heat_transfer_resistance": 0.11,
 						"outside_heat_transfer_resistance": 0.04,
-						"incident_angle_characteristics": 2,
+						"incident_angle_characteristics": "multiple",
 						"eta_value": 0.792,
 						"u_value": 4.65
 					},
@@ -175946,7 +175946,7 @@
 						"outside_solar_absorption": 0.8,
 						"inside_heat_transfer_resistance": 0.11,
 						"outside_heat_transfer_resistance": 0.04,
-						"incident_angle_characteristics": 2,
+						"incident_angle_characteristics": "multiple",
 						"eta_value": 0.792,
 						"u_value": 4.65
 					},
@@ -176112,7 +176112,7 @@
 						"outside_solar_absorption": 0.8,
 						"inside_heat_transfer_resistance": 0.11,
 						"outside_heat_transfer_resistance": 0.04,
-						"incident_angle_characteristics": 2,
+						"incident_angle_characteristics": "multiple",
 						"eta_value": 0.792,
 						"u_value": 4.65
 					},
@@ -176178,7 +176178,7 @@
 						"outside_solar_absorption": 0.8,
 						"inside_heat_transfer_resistance": 0.11,
 						"outside_heat_transfer_resistance": 0.04,
-						"incident_angle_characteristics": 2,
+						"incident_angle_characteristics": "multiple",
 						"eta_value": 0.792,
 						"u_value": 4.65
 					},
@@ -176389,7 +176389,7 @@
 						"outside_solar_absorption": 0.8,
 						"inside_heat_transfer_resistance": 0.11,
 						"outside_heat_transfer_resistance": 0.04,
-						"incident_angle_characteristics": 2,
+						"incident_angle_characteristics": "multiple",
 						"eta_value": 0.792,
 						"u_value": 4.65
 					},
@@ -264276,7 +264276,7 @@
 						"outside_solar_absorption": 0.8,
 						"inside_heat_transfer_resistance": 0.11,
 						"outside_heat_transfer_resistance": 0.04,
-						"incident_angle_characteristics": 2,
+						"incident_angle_characteristics": "multiple",
 						"eta_value": 0.792,
 						"u_value": 4.65
 					},
@@ -264387,7 +264387,7 @@
 						"outside_solar_absorption": 0.8,
 						"inside_heat_transfer_resistance": 0.11,
 						"outside_heat_transfer_resistance": 0.04,
-						"incident_angle_characteristics": 2,
+						"incident_angle_characteristics": "multiple",
 						"eta_value": 0.792,
 						"u_value": 4.65
 					},

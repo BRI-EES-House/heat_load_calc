@@ -224,7 +224,7 @@ def boundary_comp(surface_a, comp_surface):
             # 室外側総合熱伝達率の比較
             temp = temp and abs(surface_a.ho - comp_surface.ho) < 1.0E-5
         # 不透明な開口部の場合
-        elif surface_a.boundary_type == "external_transparent_part":
+        elif surface_a.boundary_type == "external_opaque_part":
             # 日射の有無の比較
             temp = surface_a.is_sun_striked_outside == comp_surface.is_sun_striked_outside
             # 方位の比較

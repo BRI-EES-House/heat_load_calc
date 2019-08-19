@@ -1,4 +1,4 @@
-from apdx10_oblique_incidence_characteristics import get_CID
+from apdx10_oblique_incidence_characteristics import get_CID, get_Cd
 
 # 開口部透明部位の情報を保持するクラス
 class transparent_opening:
@@ -29,10 +29,10 @@ class transparent_opening:
         # 開口部の室内表面から屋外までの熱貫流率[W/(m2･K)]
         self.Uso = 1.0 / (1.0 / self.Uw - 1.0 / self.hi)
 
-        # 拡散日射に対する入射角特性
-        self.Cd = 0.92
-
         # 入射角特性番号
-        self.incident_angle_characteristics = int(d_window['incident_angle_characteristics'])
+        self.incident_angle_characteristics = d_window['incident_angle_characteristics']
+
+        # 拡散日射に対する入射角特性
+        self.Cd = get_Cd(self.incident_angle_characteristics)
 
 
