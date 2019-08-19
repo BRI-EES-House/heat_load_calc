@@ -4,9 +4,7 @@ import Weather
 from Weather import enmWeatherComponent, WeaData
 import math
 import numpy as np
-# import Surface
-from Surface import Surface, create_surface, boundary_comp
-# import NextVent
+from Surface import Surface
 from NextVent import NextVent
 from common import conca, conrowa, Sgm, conra, bypass_factor_rac, get_nday
 import datetime
@@ -20,6 +18,7 @@ from indoor_radiative_heat_transfer import calc_form_factor_of_microbodies, calc
     calc_form_factor_for_human_body
 from Psychrometrics import xtrh
 from surface_heat_transfer_coefficient import calc_surface_heat_transfer_coefficient
+from building_part_summarize import summarize_building_part
 
 # # 室温・熱負荷を計算するクラス
 
@@ -241,39 +240,7 @@ def cooling_equipment_read(space, dceqp):
         # 定格冷房能力[W]
         space.convective_cooling_rtd_capacity = dceqp['convective_cooling']['max_capacity']
 
-# 部位の集約（同一境界条件の部位を集約する）
-def summarize_building_part(surfaces):
-    # 部位のグループ化
-    group_number = 0
-    for surface in surfaces:
-        # 最初の部位は最も若いグループ番号にする
-        if not surface.is_grouping:
-            # グループ化済みにする
-            surface.is_grouping = True
-            surface.group_number = group_number
 
-            # 同じ境界条件の部位を探す
-            for comp_surface in surfaces:
-                # 境界条件が同じかどうかチェックする
-                # グループ化していない部位だけを対象とする
-                if not comp_surface.is_grouping:
-                    if boundary_comp(surface, comp_surface):
-                        comp_surface.is_grouping = True
-                        comp_surface.group_number = group_number
-            # グループ番号を増やす
-            group_number += 1
-    
-    # print("集約前")
-    # for surface in surfaces:
-        # print('name=', surface.name, 'area=', surface.area, 'group=', surface.group_number)
-
-    summarize_surfaces = []
-    for i in range(group_number):
-        summarize_surfaces.append(create_surface(surfaces, i))
-
-    # for surface in summarize_surfaces:
-    #     print(surface.boundary_type, surface.name, surface.group_number)
-    return summarize_surfaces
 
 def create_spaces(Gdata, rooms, weather):
     objSpace = {}
