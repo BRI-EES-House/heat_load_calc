@@ -7,7 +7,7 @@ def calc_period(gdata):
     gdata.StDate = datetime.datetime(gdata.conlngYr, 1, 1)
     # シミュレーション（本計算）終了日
     gdata.EnDate = datetime.datetime(gdata.conlngYr, 12, 31)
-    if 0:
+    if 1:
         gdata.StDate = datetime.datetime(gdata.conlngYr, 8, 1)
         gdata.EnDate = datetime.datetime(gdata.conlngYr, 8, 1)
         gdata.lngApproach = 0

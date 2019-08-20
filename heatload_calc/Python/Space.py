@@ -13,12 +13,16 @@ from apdx3_human_body import get_alpha_hm_c, get_alpha_hm_r
 from opening_transmission_solar_radiation import summarize_transparent_solar_radiation
 from furniture import calc_furniture
 from air_flow_rate_rac import set_rac_spec
-from schedules import read_schedules_from_json
 from indoor_radiative_heat_transfer import calc_form_factor_of_microbodies, calc_mrt_weight, calc_absorption_ratio_of_transmitted_solar_radiation, \
     calc_form_factor_for_human_body
 from Psychrometrics import xtrh
 from surface_heat_transfer_coefficient import calc_surface_heat_transfer_coefficient
 from building_part_summarize import summarize_building_part
+from local_vent_schedule import read_local_vent_schedules_from_json
+from internal_heat_schedule import read_internal_heat_schedules_from_json
+from lighting_schedule import read_lighting_schedules_from_json
+from resident_schedule import read_resident_schedules_from_json
+from Win_ACselect import read_air_conditioning_schedules_from_json
 
 # # 室温・熱負荷を計算するクラス
 
@@ -142,11 +146,16 @@ class Space:
         self.Inf = 0.0                            #すきま風量（暫定値）
         self.Beta = 0.0                           # 放射暖房対流比率
 
-        # スケジュールの読み込み
-        read_schedules_from_json(self, d_room, Gdata)
-        
-        # 内部発熱合計
-        self.Hn = 0.0
+        # 局所換気スケジュールの読み込み
+        read_local_vent_schedules_from_json(self, d_room)
+        # 機器発熱スケジュールの読み込み
+        read_internal_heat_schedules_from_json(self, d_room)
+        # 照明発熱スケジュールの読み込み
+        read_lighting_schedules_from_json(self, d_room)
+        # 在室人数スケジュールの読み込み
+        read_resident_schedules_from_json(self, d_room)
+        # 空調スケジュールの読み込み
+        read_air_conditioning_schedules_from_json(self, d_room)
 
         # 室間換気量クラスの構築
         self.RoomtoRoomVent = []

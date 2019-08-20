@@ -1,3 +1,4 @@
+from common import get_nday
 
 # 窓の開閉、空調の発停を決定する
 # 冷房開始PMV
@@ -78,3 +79,33 @@ def reset_SW(now_air_conditioning_mode, Lcs, Lr, isRadiantHeater, Lrcap):
         temp = 4
 
     return temp
+
+# JSONファイルから空調スケジュールを読み込む
+def read_air_conditioning_schedules_from_json(space, d_room):
+    # 空調スケジュールの読み込み
+    # 設定温度／PMV上限値の設定
+    space.is_upper_temp_limit_set_schedule = d_room['schedule']['is_upper_temp_limit_set']
+    # 設定温度／PMV下限値の設定
+    space.is_lower_temp_limit_set_schedule = d_room['schedule']['is_lower_temp_limit_set']
+    
+    # PMV上限値
+    space.pmv_upper_limit_schedule = d_room['schedule']['pmv_upper_limit']
+    # PMV下限値
+    space.pmv_lower_limit_schedule = d_room['schedule']['pmv_lower_limit']
+
+# スケジュールの読み込み
+def create_hourly_air_conditioning_schedules(space, dtmNow):
+    # スケジュールのリスト番号の計算
+    item = (get_nday(dtmNow.month, dtmNow.day) - 1) * 24 + dtmNow.hour
+
+    # 上限PMV設定フラグ
+    space.is_upper_temp_limit_set = space.is_upper_temp_limit_set_schedule[item]
+    # 下限温度設定フラグ
+    space.is_lower_temp_limit_set = space.is_lower_temp_limit_set_schedule[item]
+    # 上限PMV
+    space.pmv_upper_limit = space.pmv_upper_limit_schedule[item]
+    # 下限PMV
+    space.pmv_lower_limit = space.pmv_lower_limit_schedule[item]
+
+    # 空調や通風などの需要がある場合にTrue
+    space.air_conditioning_demand = space.is_upper_temp_limit_set or space.is_lower_temp_limit_set

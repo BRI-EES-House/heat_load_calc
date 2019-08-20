@@ -1,7 +1,6 @@
 from inclined_surface_solar_radiation import calc_slope_sol
 from NextVent import update_oldstate
 from rear_surface_equivalent_temperature import calcTeo
-from schedules import create_hourly_schedules
 from common import get_nday, conca, conrowa, conra
 from air_flow_rate_rac import calcVac_xeout
 from indoor_radiative_heat_transfer import distribution_transmitted_solar_radiation
@@ -13,6 +12,11 @@ from Psychrometrics import xtrh, rhtx
 from Gdata import FlgOrig
 from set_point_temperature import calcOTset, calc_clothing
 from apdx6_direction_cos_incident_angle import calc_cos_incident_angle
+from local_vent_schedule import create_hourly_local_vent_schedules
+from internal_heat_schedule import create_hourly_internal_heat_schedules
+from lighting_schedule import create_hourly_lighting_schedules
+from resident_schedule import create_hourly_resident_schedules
+from Win_ACselect import create_hourly_air_conditioning_schedules
 
 # 室温、熱負荷の計算
 def calcHload(space, Gdata, spaces, dtmNow, defSolpos, Ta, xo, Idn, Isky, RN, annual_average_temperature):
@@ -51,8 +55,21 @@ def calcHload(space, Gdata, spaces, dtmNow, defSolpos, Ta, xo, Idn, Isky, RN, an
             Iw = surface.Iw
         calcTeo(surface, Ta, Iw, RN, space.oldTr, annual_average_temperature, spaces)
 
-    # 当該時刻の内部発熱・発湿・局所換気量の読み込み（顕熱はすべて対流成分とする）
-    create_hourly_schedules(space, dtmNow)
+    # 当該時刻の局所換気量の読み込み
+    create_hourly_local_vent_schedules(space, dtmNow)
+    # 当該時刻の機器・調理発熱の読み込み
+    create_hourly_internal_heat_schedules(space, dtmNow)
+    # 当該時刻の照明発熱の読み込み
+    create_hourly_lighting_schedules(space, dtmNow)
+    # 当該時刻の人体発熱の読み込み
+    create_hourly_resident_schedules(space, dtmNow)
+    # 内部発熱[W]
+    space.Hn = space.heat_generation_appliances + space.heat_generation_lighting + space.Humans + space.heat_generation_cooking
+    # 内部発湿[kg/s]
+    space.Lin = space.vapor_generation_cooking / 1000.0 / 3600.0 + space.Humanl
+
+    # 当該時刻の空調スケジュールの読み込み
+    create_hourly_air_conditioning_schedules(space, dtmNow)
 
     # 室内表面の吸収日射量
     sequence_number = int((get_nday(dtmNow.month, dtmNow.day) - 1) * 24 * 4 + dtmNow.hour * 4 + float(dtmNow.minute) / 60.0 * 3600 / Gdata.DTime)
