@@ -2,7 +2,7 @@ from inclined_surface_solar_radiation import calc_slope_sol
 from NextVent import update_oldstate
 from rear_surface_equivalent_temperature import calcTeo
 from common import get_nday, conca, conrowa, conra
-from air_flow_rate_rac import calcVac_xeout
+from blowing_condition_rac import calcVac_xeout
 from indoor_radiative_heat_transfer import distribution_transmitted_solar_radiation
 from calculation_surface_temperature import calc_surface_temperature, calc_Tei, convolution, \
     calc_CRX_WSC, calc_Tei, calc_CVL_WSV, calc_qi
