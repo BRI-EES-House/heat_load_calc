@@ -27,29 +27,7 @@ def internal_init(exsrf, next_room_type):
 def ground_init(exsrf):
     exsrf.Type = "ground"                        # 土壌の場合
 
-# 傾斜面の相当外気温度の計算
-def get_Te(exsrf, Iw,  _as, ho, e, Ta, RN):
-    """
-    :param _as: 日射吸収率 [-]
-    :param ho: 外表面の総合熱伝達率[W/m2K]
-    :param e: 外表面の放射率[-]
-    :param Ta: 外気温度[℃]
-    :param RN: 夜間放射量[W/m2]
-    :return: 傾斜面の相当外気温度 [℃]
-    """
-    Te = Ta + (_as * Iw - exsrf.Fs * e * RN) / ho
 
-    return Te
-
-# 温度差係数を設定した隣室温度
-def get_NextRoom_fromR(exsrf, Ta, Tr):
-    Te = exsrf.R * Ta + (1.0 - exsrf.R) * Tr
-    return Te
-
-# 前時刻の隣室温度の場合
-def get_oldNextRoom(exsrf, spaces):
-    Te = spaces[exsrf.nextroomname].oldTr
-    return Te
 
 # 外皮として初期化
 def external_init(exsrf, direction, is_sun_striked_outside, temp_dif_coef):
