@@ -21,7 +21,7 @@ class enmWeatherComponent(IntEnum):
 class Weather:
 
     # 気象データの取得
-    def __init__(self, Lat, Lon, Ls):
+    def __init__(self, Lat: float, Lon: float, Ls: float):
         """
         :param Lat: 緯度
         :param Lon: 軽度
@@ -58,17 +58,22 @@ class Weather:
                 # このうち、VBAでは、夜間放射量と絶対湿度は捨てているので、VBAどおり、5データのみデータ化する。
                 # time は、1始まりであることに注意。
                 Col = 2
+                # 外気温度
                 Ta = float(row[Col])
                 # 年平均気温の計算
                 self.AnnualTave += Ta / 8760.0
 
                 Col += 1
+                # 法線面直達日射量
                 Idn = float(row[Col])
                 Col += 1
+                # 水平面天空日射量
                 Isky = float(row[Col])
                 Col += 1
+                # 夜間放射量
                 RN = float(row[Col])
                 Col += 1
+                # 絶対湿度
                 x = float(row[Col])
                 Col += 1
                 self.dblWdata.append([day, time, Ta, Idn, Isky, RN, x])
@@ -79,7 +84,7 @@ class Weather:
 
 # 気象データの取得
 # 戻り値はdouble
-def WeaData(weatherdata, Compnt, dtmDate, solar_position, blnLinear=True):
+def WeaData(weatherdata: Weather, Compnt: enmWeatherComponent, dtmDate: datetime, solar_position: defSolpos, blnLinear: bool =True) -> float :
     # Compnt:取得する気象要素
     # dtmDate:取得する日時
     # blnLinear:線形補間するかどうか（Trueは線形補間する）
@@ -142,7 +147,7 @@ def WeaData(weatherdata, Compnt, dtmDate, solar_position, blnLinear=True):
             return (1. - dblR) * dblTemp1 + dblR * dblTemp2
 
 # 太陽位置の取得（計算も実施）
-def Solpos(weatherdata, dtmDate) -> defSolpos:
+def Solpos(weatherdata: Weather, dtmDate: datetime) -> defSolpos:
 
     # 標準時の計算
     t_m = dtmDate.hour + dtmDate.minute / 60.0 + dtmDate.second / 3600.0
@@ -157,7 +162,7 @@ def Solpos(weatherdata, dtmDate) -> defSolpos:
 # Date型日時から取得する通日、時刻アドレスを計算する
 # 0時を24時に変換するため
 # 補間は行わない
-def Address(dtmDate):
+def Address(dtmDate: datetime) -> int:
     # dtmDate は、datetime オブジェクトとする。
     lngHour = dtmDate.hour
     # 1月1日から数えて何日目にあたるのかを計算する。

@@ -1,17 +1,19 @@
 from common import get_nday
-
-# 窓の開閉、空調の発停を決定する
-# 冷房開始PMV
-occu_cooling_pmv = 0.84
-# 暖房開始PMV
-occu_heating_pmv = -0.84
-# 窓を開放するときのPMV
-occu_window_open_pmv = 0.49
-# 窓を閉鎖するときのPMV
-occu_window_close_pmv = -0.49
+import datetime
+import Space
 
 # 当該時刻の窓開閉、空調発停を判定する
-def mode_select(air_conditioning_demand, prev_air_conditioning_mode, is_prev_window_open, now_pmv):
+def mode_select(air_conditioning_demand: bool, prev_air_conditioning_mode: int, is_prev_window_open: bool, now_pmv: float) -> tuple:
+    # 窓の開閉、空調の発停を決定する
+    # 冷房開始PMV
+    occu_cooling_pmv = 0.84
+    # 暖房開始PMV
+    occu_heating_pmv = -0.84
+    # 窓を開放するときのPMV
+    occu_window_open_pmv = 0.49
+    # 窓を閉鎖するときのPMV
+    occu_window_close_pmv = -0.49
+
     # 空調需要がない場合（窓閉鎖、空調停止）
     if air_conditioning_demand == False:
         is_now_window_open = False
@@ -64,7 +66,7 @@ def mode_select(air_conditioning_demand, prev_air_conditioning_mode, is_prev_win
     return (is_now_window_open, now_air_conditioning_mode)
 
 # 最終の空調信号の計算（空調停止はこのルーチンに入らない）
-def reset_SW(now_air_conditioning_mode, Lcs, Lr, isRadiantHeater, Lrcap):
+def reset_SW(now_air_conditioning_mode: int, Lcs: float, Lr: float, isRadiantHeater: bool, Lrcap: float) -> int:
     temp = now_air_conditioning_mode
 
     # 「冷房時の暖房」、「暖房時の冷房」判定
@@ -81,7 +83,7 @@ def reset_SW(now_air_conditioning_mode, Lcs, Lr, isRadiantHeater, Lrcap):
     return temp
 
 # JSONファイルから空調スケジュールを読み込む
-def read_air_conditioning_schedules_from_json(space, d_room):
+def read_air_conditioning_schedules_from_json(space: Space, d_room: dict) -> None:
     # 空調スケジュールの読み込み
     # 設定温度／PMV上限値の設定
     space.is_upper_temp_limit_set_schedule = d_room['schedule']['is_upper_temp_limit_set']
@@ -94,7 +96,7 @@ def read_air_conditioning_schedules_from_json(space, d_room):
     space.pmv_lower_limit_schedule = d_room['schedule']['pmv_lower_limit']
 
 # スケジュールの読み込み
-def create_hourly_air_conditioning_schedules(space, dtmNow):
+def create_hourly_air_conditioning_schedules(space: Space, dtmNow: datetime) -> None:
     # スケジュールのリスト番号の計算
     item = (get_nday(dtmNow.month, dtmNow.day) - 1) * 24 + dtmNow.hour
 

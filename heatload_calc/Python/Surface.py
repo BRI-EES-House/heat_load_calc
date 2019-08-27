@@ -6,7 +6,6 @@ from Exsrf import Exsrf, external_init, ground_init, internal_init
 from Sunbrk import SunbrkType, calc_shading_area_ratio
 import datetime
 
-
 # 室内部位に関連するクラス
 class Surface:
 
@@ -23,11 +22,15 @@ class Surface:
 
             self.name = d['name']                           # 壁体名称
 
+            # 裏面相当外気温度をListで保持していない
+            self.is_Teo_list = False
             # 外皮の場合
             if "external" in self.boundary_type:
                 self.direction = None
                 if self.is_sun_striked_outside:
                     self.direction = d['direction']
+                    self.Teolist = [15.0 for j in range(8760 * 4)]
+                    self.is_Teo_list = True
                 # 隣室温度差係数
                 self.temp_dif_coef = d['temp_dif_coef']
                 # 境界条件の初期化

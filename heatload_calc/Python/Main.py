@@ -8,6 +8,7 @@ from Weather import enmWeatherComponent, Weather, WeaData, Solpos
 from Sunbrk import SunbrkType
 from Space import create_spaces, update_space_oldstate
 from heat_load import calcHload
+from rear_surface_equivalent_temperature import precalcTeo
 
 # 熱負荷計算の実行
 def calc_Hload(cdata, weather):
@@ -90,6 +91,33 @@ def calc_Hload(cdata, weather):
     OutList.append(rowlist)
     rowlist = []
 
+    outdoor_temp_list = [0.0 for j in range(8760 * 4)]
+    outdoor_humid_list = [0.0 for j in range(8760 * 4)]
+    # 予備計算（気象データの読み込みと相当外気温度の計算）
+    for lngNday in range(common.get_nday(cdata.StDate.month, cdata.StDate.day), lngEnNday + 1):
+        # 時刻ループ
+        for lngTloop in range(lngNtime):
+            dtime = datetime.timedelta(days=lngNnow + float(lngTloop) / float(lngNtime))
+            dtmNow = apDate + dtime
+            sequence_number = int((get_nday(dtmNow.month, dtmNow.day) - 1) * 24 * 4 + dtmNow.hour * 4 + float(dtmNow.minute) / 60.0 * 3600 / cdata.DTime)
+
+            # 太陽位置の計算
+            # print(dtmNow)
+            solar_position = Solpos(weather, dtmNow)
+            # 外気温度の補間、Listへの追加
+            outdoor_temp_list[sequence_number] = WeaData(weather, enmWeatherComponent.Ta, dtmNow, solar_position)
+            # 外気絶対湿度の補間、Listへの追加
+            outdoor_humid_list[sequence_number] = WeaData(weather, enmWeatherComponent.x, dtmNow, solar_position) / 1000.
+            # 法線面直達日射量
+            Idn = WeaData(weather, enmWeatherComponent.Idn, dtmNow, solar_position)
+            # 水平面天空日射量
+            Isky = WeaData(weather, enmWeatherComponent.Isky, dtmNow, solar_position)
+            # 夜間放射量
+            RN = WeaData(weather, enmWeatherComponent.RN, dtmNow, solar_position)
+            # 相当外気温度の計算
+            for space in spaces.values():
+                precalcTeo(space, outdoor_temp_list[sequence_number], Idn, Isky, RN, solar_position, sequence_number)
+
     # 日ループの開始
     for lngNday in range(lngStNday, lngEnNday + 1):
         # 時刻ループの開始
@@ -98,21 +126,6 @@ def calc_Hload(cdata, weather):
             dtmNow = apDate + dtime
             sequence_number = int((get_nday(dtmNow.month, dtmNow.day) - 1) * 24 * 4 + dtmNow.hour * 4 + float(dtmNow.minute) / 60.0 * 3600 / cdata.DTime)
 
-            # 太陽位置の計算
-            # print(dtmNow)
-            solar_position = Solpos(weather, dtmNow)
-
-            # 気象データの読み込み
-            # 法線面直達日射量
-            Idn = WeaData(weather, enmWeatherComponent.Idn, dtmNow, solar_position)
-            # 水平面天空日射量
-            Isky = WeaData(weather, enmWeatherComponent.Isky, dtmNow, solar_position)
-            # 外気温度
-            Ta = WeaData(weather, enmWeatherComponent.Ta, dtmNow, solar_position)
-            # 夜間放射量
-            RN = WeaData(weather, enmWeatherComponent.RN, dtmNow, solar_position)
-            # 絶対湿度[kg/kg(DA)]
-            xo = WeaData(weather, enmWeatherComponent.x, dtmNow, solar_position) / 1000.
             rowlist = []
             # 室温・熱負荷の計算
             if FlgOrig(cdata, dtmNow):
@@ -120,8 +133,8 @@ def calc_Hload(cdata, weather):
                 # print(str(dtmNow), end="\t")
                 # 出力文字列
                 rowlist.append(str(dtmNow))
-                rowlist.append('{0:.1f}'.format(Ta))
-                rowlist.append('{0:.4f}'.format(xo))
+                rowlist.append('{0:.1f}'.format(outdoor_temp_list[sequence_number]))
+                rowlist.append('{0:.4f}'.format(outdoor_humid_list[sequence_number]))
                 if lngTloop == 0:
                     print(dtmNow)
             # print(Solpos.Sh, Solpos.Sw, Solpos.Ss)
@@ -133,12 +146,10 @@ def calc_Hload(cdata, weather):
                     spaces=spaces,
                     dtmNow=dtmNow,
                     defSolpos=solar_position,
-                    Ta=Ta,
-                    xo=xo,
-                    Idn=Idn,
-                    Isky=Isky,
-                    RN=RN,
-                    annual_average_temperature=weather.AnnualTave
+                    Ta=outdoor_temp_list[sequence_number],
+                    xo=outdoor_humid_list[sequence_number],
+                    annual_average_temperature=weather.AnnualTave,
+                    sequence_number=sequence_number
                 )
                 
                 if FlgOrig(cdata, dtmNow):

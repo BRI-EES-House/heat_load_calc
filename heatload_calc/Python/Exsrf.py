@@ -8,7 +8,7 @@ class Exsrf:
     """外表面の基本情報（方位角、傾斜角、地面反射率、温度差係数等）を保持するクラスを定義します。"""
 
     # 初期化
-    def __init__(self):
+    def __init__(self) -> None:
         pass
         """
         :param boundary_type: 境界の種類（1:間仕切り、2:外皮、3:地盤）
@@ -19,18 +19,18 @@ class Exsrf:
         """
     
         
-def internal_init(exsrf, next_room_type):
+def internal_init(exsrf: Exsrf, next_room_type: str) -> None:
     # 隣室の場合
     exsrf.Type = "internal"
     exsrf.nextroomname = next_room_type          # 隣室名称
 
-def ground_init(exsrf):
+def ground_init(exsrf: Exsrf) -> None:
     exsrf.Type = "ground"                        # 土壌の場合
 
 
 
 # 外皮として初期化
-def external_init(exsrf, direction, is_sun_striked_outside, temp_dif_coef):
+def external_init(exsrf: Exsrf, direction: str, is_sun_striked_outside: bool, temp_dif_coef: float) -> None:
     exsrf.Type = "external"                      # 境界条件タイプ
 
     # 外皮の場合
@@ -49,7 +49,7 @@ def external_init(exsrf, direction, is_sun_striked_outside, temp_dif_coef):
     exsrf.is_sun_striked_outside = is_sun_striked_outside
 
 # 方向名称から方位角、傾斜角の計算
-def convert_slope_angle(direction_string):
+def convert_slope_angle(direction_string: str) -> tuple:
     direction_angle = -999.0
     inclination_angle = -999.0
     if direction_string == 's':

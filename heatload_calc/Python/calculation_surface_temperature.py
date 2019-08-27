@@ -62,7 +62,7 @@ def calc_CVL_WSV(space):
     space.matWSV = np.dot(space.matAX, space.matCVL)
 
 # 行列CRX、WSCの計算
-def calc_CRX_WSC(space):
+def calc_CRX_WSC(space, sequence_number: int):
     # {WSC}、{CRX}の初期化
     space.matWSC = [0.0 for j in range(space.Nsurf)]
     space.matCRX = [0.0 for j in range(space.Nsurf)]

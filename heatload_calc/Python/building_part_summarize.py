@@ -140,6 +140,9 @@ def create_surface(surfaces, group_number):
 
     # 裏面境界温度のコピー
     summarize_surface.Teo = first_found_surface.Teo
+    summarize_surface.is_Teo_list = first_found_surface.is_Teo_list
+    if summarize_surface.is_Teo_list:
+        summarize_surface.Teolist = first_found_surface.Teolist
     # 前時刻の裏面境界温度
     summarize_surface.oldTeo = first_found_surface.oldTeo
     # 前時刻の室内表面熱流

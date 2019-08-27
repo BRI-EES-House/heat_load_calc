@@ -45,12 +45,12 @@ class Gdata:
         self.StMeridian = 135.0
 
 # 本計算フラグ
-def FlgOrig(gdata, dtmDate):
+def FlgOrig(gdata: Gdata, dtmDate: datetime) -> bool:
     return (gdata.StDate <= dtmDate)
 
 # 地域区分から緯度、経度を設定する
 # 当面は6地域の緯度、経度を返す
-def setLat_Lon(Region):
+def setLat_Lon(Region: int) -> tuple:
     Latitude = -999.0
     Longitude = -999.0
 

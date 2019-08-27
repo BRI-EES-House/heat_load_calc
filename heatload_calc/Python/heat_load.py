@@ -19,41 +19,15 @@ from resident_schedule import create_hourly_resident_schedules
 from Win_ACselect import create_hourly_air_conditioning_schedules
 
 # 室温、熱負荷の計算
-def calcHload(space, Gdata, spaces, dtmNow, defSolpos, Ta, xo, Idn, Isky, RN, annual_average_temperature):
+def calcHload(space, Gdata, spaces, dtmNow, defSolpos, Ta: float, xo: float, annual_average_temperature: float, sequence_number: int):
     # 室間換気の風上室温をアップデート
     for roomvent in space.RoomtoRoomVent:
         windward_roomname = roomvent.windward_roomname
         update_oldstate(roomvent, spaces[windward_roomname].oldTr, spaces[windward_roomname].oldxr)
 
-    # 外皮の傾斜面日射量の計算
+    # 裏面温度の計算
     for surface in space.input_surfaces:
-        if surface.is_sun_striked_outside:
-            sin_h_s = defSolpos.sin_h_s
-            cos_h_s = defSolpos.cos_h_s
-            sin_a_s = defSolpos.sin_a_s
-            cos_a_s = defSolpos.cos_a_s
-            wa = surface.backside_boundary_condition.Wa
-            wb = surface.backside_boundary_condition.Wb
-
-            if 'external' in surface.backside_boundary_condition.Type and surface.backside_boundary_condition.is_sun_striked_outside:
-                cos_t = calc_cos_incident_angle(sin_h_s, cos_h_s, sin_a_s, cos_a_s, wa, wb)
-                surface.backside_boundary_condition.CosT = cos_t
-                Fs = surface.backside_boundary_condition.Fs
-                dblFg = surface.backside_boundary_condition.dblFg
-                Rg = surface.backside_boundary_condition.Rg
-
-                surface.Id, surface.Isky, surface.Ir, surface.Iw = calc_slope_sol(Idn, Isky, sin_h_s, cos_t, Fs, dblFg, Rg)
-            else:
-                surface.backside_boundary_condition.CosT = 0.0
-                surface.Id, surface.Isky, surface.Ir, surface.Iw = 0.0, 0.0, 0.0, 0.0
-
-
-    # 相当外気温度の計算
-    for surface in space.input_surfaces:
-        Iw = 0.0
-        if surface.is_sun_striked_outside:
-            Iw = surface.Iw
-        calcTeo(surface, Ta, Iw, RN, space.oldTr, annual_average_temperature, spaces)
+        calcTeo(surface, Ta, space.oldTr, annual_average_temperature, spaces, sequence_number)
 
     # 当該時刻の局所換気量の読み込み
     create_hourly_local_vent_schedules(space, dtmNow)
@@ -72,7 +46,6 @@ def calcHload(space, Gdata, spaces, dtmNow, defSolpos, Ta, xo, Idn, Isky, RN, an
     create_hourly_air_conditioning_schedules(space, dtmNow)
 
     # 室内表面の吸収日射量
-    sequence_number = int((get_nday(dtmNow.month, dtmNow.day) - 1) * 24 * 4 + dtmNow.hour * 4 + float(dtmNow.minute) / 60.0 * 3600 / Gdata.DTime)
     distribution_transmitted_solar_radiation(space, space.Qgt[sequence_number])
 
     # 流入外気風量の計算
@@ -92,7 +65,7 @@ def calcHload(space, Gdata, spaces, dtmNow, defSolpos, Ta, xo, Idn, Isky, RN, an
     space.BRM, space.BRL = calc_BRM_BRL(space, Gdata.DTime)
 
     # 室温・熱負荷計算のための定数項BRCの計算
-    space.BRC = calc_BRC(space, Gdata.DTime, Ta)
+    space.BRC = calc_BRC(space, Gdata.DTime, Ta, sequence_number)
 
     # 窓開閉、空調発停判定のための自然室温計算
     # 通風なしでの係数を控えておく
@@ -249,12 +222,12 @@ def convert_coefficient_for_operative_temperature(space):
     return BRMot, BRLot, BRCot, Xot, XLr, XC
 
 # 室温・負荷計算の定数項BRCを計算する
-def calc_BRC(space, Dtime, Ta):
+def calc_BRC(space, Dtime, Ta, sequence_number):
     # 定数項の計算
     BRC = 0.0
     
     # 行列CRX、WSCの計算
-    calc_CRX_WSC(space)
+    calc_CRX_WSC(space, sequence_number)
     
     # {BRC}の計算
     for (matWSC, surface) in zip(space.matWSC, space.input_surfaces):

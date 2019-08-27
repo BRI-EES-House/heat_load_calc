@@ -1,6 +1,7 @@
 import datetime
+import Gdata
 
-def calc_period(gdata):
+def calc_period(gdata: Gdata) ->None:
     # 助走計算期間(day)
     gdata.lngApproach = 20
     # シミュレーション（本計算）の開始日
