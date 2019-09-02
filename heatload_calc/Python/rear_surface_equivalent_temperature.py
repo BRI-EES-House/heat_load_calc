@@ -7,7 +7,7 @@ from apdx6_direction_cos_incident_angle import calc_cos_incident_angle
 from inclined_surface_solar_radiation import calc_slope_sol
 
 # 裏面の相当温度を計算する
-def calcTeo(surface: Surface, Ta: float, oldTr: float, AnnualTave: float, spaces: List['Space'], sequence_number: int):
+def calcTeo(surface: Surface, Ta: float, oldTr: float, spaces: List['Space'], sequence_number: int):
     # 前時刻の相当外気温度を控える
     surface.oldTeo = surface.Teo
 
@@ -24,7 +24,8 @@ def calcTeo(surface: Surface, Ta: float, oldTr: float, AnnualTave: float, spaces
         surface.Teo = surface.Teolist[sequence_number]
     # 土壌の場合
     elif surface.boundary_type == "ground":
-        surface.Teo = AnnualTave
+        # 年平均気温で初期化済み
+        pass
     # 内壁の場合（前時刻の室温）
     elif surface.boundary_type == "internal":
         surface.Teo = get_oldNextRoom(surface.backside_boundary_condition, spaces)
@@ -56,8 +57,8 @@ def get_oldNextRoom(exsrf: Exsrf, spaces: List['Space']) -> float:
     Te = spaces[exsrf.nextroomname].oldTr
     return Te
 
-# 相当外気温度の計算
-def precalcTeo(space: Space, Ta: float, Idn: float, Isky: float, RN: float, defSolpos: defSolpos, sequence_number: int):
+""" # 相当外気温度の計算
+def precalcTeo(space: Space, Ta: float, Idn: float, Isky: float, RN: float, annual_average_ta: float, defSolpos: defSolpos, sequence_number: int):
     # 外皮の傾斜面日射量の計算
     for surface in space.input_surfaces:
         if surface.is_sun_striked_outside:
@@ -79,7 +80,8 @@ def precalcTeo(space: Space, Ta: float, Idn: float, Isky: float, RN: float, defS
             else:
                 surface.backside_boundary_condition.CosT = 0.0
                 surface.Id, surface.Isky, surface.Ir, surface.Iw = 0.0, 0.0, 0.0, 0.0
-        
+        elif surface.boundary_type == "ground":
+            surface.Teo = annual_average_ta
 
     # 相当外気温度の計算
     for surface in space.input_surfaces:
@@ -90,4 +92,4 @@ def precalcTeo(space: Space, Ta: float, Idn: float, Isky: float, RN: float, defS
                     surface.Iw, surface.outside_solar_absorption, surface.ho, surface.Eo, Ta, RN)
             # 外皮_透明部位の場合
             else:
-                surface.Teolist[sequence_number] = - surface.Eo * surface.backside_boundary_condition.Fs * RN / surface.ho + Ta
+                surface.Teolist[sequence_number] = - surface.Eo * surface.backside_boundary_condition.Fs * RN / surface.ho + Ta """

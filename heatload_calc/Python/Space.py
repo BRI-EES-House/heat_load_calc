@@ -1,7 +1,7 @@
 
 from typing import List
 import Weather
-from Weather import enmWeatherComponent, WeaData
+from Weather import enmWeatherComponent, WeaData, Solpos
 import math
 import numpy as np
 from Surface import Surface
@@ -10,7 +10,7 @@ from common import conca, conrowa, Sgm, conra, bypass_factor_rac, get_nday
 import datetime
 from calculation_surface_temperature import make_matrix_for_surface_heat_balance
 from apdx3_human_body import get_alpha_hm_c, get_alpha_hm_r
-from opening_transmission_solar_radiation import summarize_transparent_solar_radiation
+# from opening_transmission_solar_radiation import summarize_transparent_solar_radiation
 from furniture import calc_furniture
 from air_flow_rate_rac import set_rac_spec
 from indoor_radiative_heat_transfer import calc_form_factor_of_microbodies, calc_mrt_weight, calc_absorption_ratio_of_transmitted_solar_radiation, \
@@ -23,6 +23,11 @@ from internal_heat_schedule import read_internal_heat_schedules_from_json
 from lighting_schedule import read_lighting_schedules_from_json
 from resident_schedule import read_resident_schedules_from_json
 from Win_ACselect import read_air_conditioning_schedules_from_json
+from apdx6_direction_cos_incident_angle import calc_cos_incident_angle
+from inclined_surface_solar_radiation import calc_slope_sol
+from rear_surface_equivalent_temperature import get_Te
+from opening_transmission_solar_radiation import calc_Qgt
+from Sunbrk import get_shading_area_ratio
 
 # # 室温・熱負荷を計算するクラス
 
@@ -64,7 +69,7 @@ class Space:
     FsolFlr = 0.5  # 床の日射吸収比率
 
     # 初期化
-    def __init__(self, Gdata, d_room, weather):
+    def __init__(self, calc_time_interval, d_room, weather):
         """
         :param Gdata:
         :param ExsrfMng:
@@ -167,10 +172,72 @@ class Space:
         # 部位の読み込み
         for d_surface in d_room['boundaries']:
             # print(d_surface['name'])
-            self.input_surfaces.append(Surface(d = d_surface, Gdata = Gdata))
+            self.input_surfaces.append(Surface(d = d_surface, calc_time_interval = calc_time_interval))
         
         # 透過日射熱取得の計算（部位を集約するので最初に8760時間分計算しておく）
-        self.Qgt = summarize_transparent_solar_radiation(self.input_surfaces, Gdata, weather)
+        # 透過日射熱取得収録配列の初期化とメモリ確保
+        self.Qgt = [0.0 for j in range(int(8760.0 * 3600.0 / float(calc_time_interval)))]
+
+        ntime = int(24 * 3600 / calc_time_interval)
+        # nnow = 0
+        item = 0
+        start_date = datetime.datetime(1989, 1, 1)
+        for nday in range(get_nday(1, 1), get_nday(12, 31) + 1):
+            for tloop in range(ntime):
+                dtime = datetime.timedelta(days=nnow + float(tloop) / float(ntime))
+                dtmNow = dtime + start_date
+                sequence_number = int((get_nday(dtmNow.month, dtmNow.day) - 1) * 24 * 4 + dtmNow.hour * 4 + float(dtmNow.minute) / 60.0 * 3600 / calc_time_interval)
+
+                # 太陽位置の計算
+                solar_position = Solpos(weather, dtmNow)
+                # 傾斜面日射量の計算
+                Idn = WeaData(weather, enmWeatherComponent.Idn, dtmNow, solar_position)
+                Isky = WeaData(weather, enmWeatherComponent.Isky, dtmNow, solar_position)
+                # 夜間放射量
+                RN = WeaData(weather, enmWeatherComponent.RN, dtmNow, solar_position)
+                # 外気温度
+                Ta = WeaData(weather, enmWeatherComponent.Ta, dtmNow, solar_position)
+                for surface in self.input_surfaces:
+                    # 外表面に日射が当たる場合
+                    if surface.is_sun_striked_outside:
+                        sin_h_s = solar_position.sin_h_s
+                        cos_h_s = solar_position.cos_h_s
+                        sin_a_s = solar_position.sin_a_s
+                        cos_a_s = solar_position.cos_a_s
+                        wa = surface.backside_boundary_condition.Wa
+                        wb = surface.backside_boundary_condition.Wb
+
+                        if 'external' in surface.backside_boundary_condition.Type:
+                            cos_t = calc_cos_incident_angle(sin_h_s, cos_h_s, sin_a_s, cos_a_s, wa, wb)
+                            surface.backside_boundary_condition.CosT = cos_t
+                            Fs = surface.backside_boundary_condition.Fs
+                            dblFg = surface.backside_boundary_condition.dblFg
+                            Rg = surface.backside_boundary_condition.Rg
+                            surface.Id, surface.Isky, surface.Ir, surface.Iw = calc_slope_sol(
+                                Idn, Isky, sin_h_s, cos_t, Fs, dblFg, Rg)
+                        else:
+                            surface.backside_boundary_condition.CosT = 0.0
+                            surface.Id, surface.Isky, surface.Ir, surface.Iw = 0.0, 0.0, 0.0, 0.0
+
+                        # 一般部位、不透明な開口部の場合
+                        if surface.boundary_type == "external_general_part" or surface.boundary_type == "external_opaque_part":
+                            surface.Teolist[item] = get_Te(surface.backside_boundary_condition, \
+                                surface.Iw, surface.outside_solar_absorption, surface.ho, surface.Eo, Ta, RN)
+                        # 透明開口部の場合
+                        elif surface.boundary_type == "external_transparent_part":
+                            # 日除けの日影面積率の計算
+                            if surface.sunbrk.existance:
+                                surface.Fsdw = get_shading_area_ratio(surface, solar_position)
+                            # 透過日射熱取得の集約
+                            self.Qgt[item] += calc_Qgt(surface)
+
+                            # 相当外気温度の集約
+                            surface.Teolist[item] = - surface.Eo * surface.backside_boundary_condition.Fs * RN / surface.ho + Ta
+                    # 地面の場合は、年平均気温とする
+                    elif surface.boundary_type == "ground":
+                        surface.Teo = weather.AnnualTave
+                item += 1
+            # nnow += 1
         
         # 部位の集約
         self.input_surfaces = summarize_building_part(self.input_surfaces)
@@ -251,9 +318,9 @@ def cooling_equipment_read(space, dceqp):
 
 
 
-def create_spaces(Gdata, rooms, weather):
+def create_spaces(calc_time_interval, rooms, weather):
     objSpace = {}
     for room in rooms:
-        space = Space(Gdata, room, weather)
+        space = Space(calc_time_interval, room, weather)
         objSpace[room['name']] = space
     return objSpace

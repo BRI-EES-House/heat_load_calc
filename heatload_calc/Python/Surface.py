@@ -1,7 +1,6 @@
 from Wall import Wall, Layer
 from ResponseFactor import ResponseFactor
 from transparent_opening import transparent_opening
-from Gdata import Gdata
 from Exsrf import Exsrf, external_init, ground_init, internal_init
 from Sunbrk import SunbrkType, calc_shading_area_ratio
 import datetime
@@ -10,8 +9,8 @@ import datetime
 class Surface:
 
     # 初期化
-    def __init__(self, d = None, Gdata = None):
-        if d != None and Gdata != None:
+    def __init__(self, d = None, calc_time_interval = None):
+        if d != None and calc_time_interval != None:
             self.is_sun_striked_outside = d['is_sun_striked_outside']
                                                             # True:外表面に日射が当たる
             # 境界条件タイプ
@@ -110,7 +109,7 @@ class Surface:
 
             # 一般部位の初期化
             if self.boundary_type == "external_general_part" or self.boundary_type == "internal" or self.boundary_type == "ground":
-                general_part_init(self, d, Gdata)
+                general_part_init(self, d, calc_time_interval)
             # 透明部位の初期化
             elif self.boundary_type == "external_transparent_part":
                 transparent_part_init(self, d)
@@ -127,12 +126,12 @@ class Surface:
             self.is_grouping = False
 
 # 一般部位の初期化
-def general_part_init(surface, d, Gdata):
+def general_part_init(surface, d, calc_time_interval):
     # 壁体情報,応答係数の取得
     part_key_name = 'general_part_spec'
     if surface.boundary_type == "ground":
         part_key_name = 'ground_spec'
-    wall, rf = WalldataRead(surface.name, surface.is_sun_striked_outside, surface.boundary_type, d[part_key_name], Gdata.DTime, surface.is_ground)
+    wall, rf = WalldataRead(surface.name, surface.is_sun_striked_outside, surface.boundary_type, d[part_key_name], calc_time_interval, surface.is_ground)
     surface.Row = rf.Row  # 公比の取得
     surface.Nroot = rf.Nroot  # 根の数
     surface.RFT0 = rf.RFT0  # 貫流応答の初項
@@ -180,9 +179,7 @@ def opaque_part_init(surface, d):
 
 # 壁体構成データの読み込みと応答係数の作成
 def WalldataRead(Name, is_solar_absorbed_inside, boundary_type, 
-        d, DTime, is_ground):
-    # 時間間隔(s)
-    dblDTime = DTime
+        d, calc_time_interval, is_ground):
 
     # 壁体構成部材の情報を保持するクラスをインスタンス化
     layers = [
@@ -233,7 +230,7 @@ def WalldataRead(Name, is_solar_absorbed_inside, boundary_type,
     # 応答係数を保持するクラスをインスタンス化
     rf = ResponseFactor(
         WallType=walltype,
-        DTime=dblDTime,
+        calc_time_interval=calc_time_interval,
         NcalTime=50,
         Wall=wall
     )

@@ -45,7 +45,7 @@ class Gdata:
         self.StMeridian = 135.0
 
 # 本計算フラグ
-def FlgOrig(gdata: Gdata, dtmDate: datetime) -> bool:
+def is_actual_calc(gdata: Gdata, dtmDate: datetime) -> bool:
     return (gdata.StDate <= dtmDate)
 
 # 地域区分から緯度、経度を設定する

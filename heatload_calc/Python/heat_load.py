@@ -9,7 +9,6 @@ from calculation_surface_temperature import calc_surface_temperature, calc_Tei, 
 from Win_ACselect import reset_SW, mode_select
 from PMV import calcPMV
 from Psychrometrics import xtrh, rhtx
-from Gdata import FlgOrig
 from set_point_temperature import calcOTset, calc_clothing
 from apdx6_direction_cos_incident_angle import calc_cos_incident_angle
 from local_vent_schedule import create_hourly_local_vent_schedules
@@ -19,7 +18,7 @@ from resident_schedule import create_hourly_resident_schedules
 from Win_ACselect import create_hourly_air_conditioning_schedules
 
 # 室温、熱負荷の計算
-def calcHload(space, Gdata, spaces, dtmNow, defSolpos, Ta: float, xo: float, annual_average_temperature: float, sequence_number: int):
+def calcHload(space, is_actual_calc, calc_time_interval, spaces, dtmNow, Ta: float, xo: float, sequence_number: int):
     # 室間換気の風上室温をアップデート
     for roomvent in space.RoomtoRoomVent:
         windward_roomname = roomvent.windward_roomname
@@ -27,7 +26,7 @@ def calcHload(space, Gdata, spaces, dtmNow, defSolpos, Ta: float, xo: float, ann
 
     # 裏面温度の計算
     for surface in space.input_surfaces:
-        calcTeo(surface, Ta, space.oldTr, annual_average_temperature, spaces, sequence_number)
+        calcTeo(surface, Ta, space.oldTr, spaces, sequence_number)
 
     # 当該時刻の局所換気量の読み込み
     create_hourly_local_vent_schedules(space, dtmNow)
@@ -62,10 +61,10 @@ def calcHload(space, Gdata, spaces, dtmNow, defSolpos, Ta: float, xo: float, ann
         space.is_now_window_open = space.is_prev_window_open
 
     # 室温・熱負荷計算のための係数BRM、BRLの計算
-    space.BRM, space.BRL = calc_BRM_BRL(space, Gdata.DTime)
+    space.BRM, space.BRL = calc_BRM_BRL(space, calc_time_interval)
 
     # 室温・熱負荷計算のための定数項BRCの計算
-    space.BRC = calc_BRC(space, Gdata.DTime, Ta, sequence_number)
+    space.BRC = calc_BRC(space, calc_time_interval, Ta, sequence_number)
 
     # 窓開閉、空調発停判定のための自然室温計算
     # 通風なしでの係数を控えておく
@@ -128,7 +127,7 @@ def calcHload(space, Gdata, spaces, dtmNow, defSolpos, Ta: float, xo: float, ann
     # 表面温度の計算
     calc_surface_temperature(space)
     # MRT、AST、平均放射温度の計算
-    calc_MRT_AST＿Tsx(space)
+    calc_MRT_AST_Tsx(space)
 
     # 室内側等価温度・熱流の計算
     for surface in space.input_surfaces:
@@ -138,18 +137,18 @@ def calcHload(space, Gdata, spaces, dtmNow, defSolpos, Ta: float, xo: float, ann
         calc_qi(surface, space.Tr, space.Tsx, space.Lrs, space.Beta)
 
     # ここから潜熱の計算
-    space.BRMX, space.BRXC = calc_BRMX_BRXC(space, Gdata.DTime, xo)
+    space.BRMX, space.BRXC = calc_BRMX_BRXC(space, calc_time_interval, xo)
     # 室内湿度と潜熱負荷の計算
     calc_xr_Ll_residential(space)
 
     # 家具の温度を計算
-    space.Tfun = calcTfun(space, Gdata)
-    space.xf = calcxf(space, Gdata)
+    space.Tfun = calcTfun(space, calc_time_interval)
+    space.xf = calcxf(space, calc_time_interval)
 
     # 年間熱負荷の積算
     # 助走計算以外の時だけ積算
-    if FlgOrig(Gdata, dtmNow) == True:
-        calc_annual_heat_load(space, Gdata.DTime)
+    if is_actual_calc == True:
+        calc_annual_heat_load(space, calc_time_interval)
 
     # PMVの計算
     space.PMV = calcPMV(space.Tr, space.MRT, space.RH, space.Vel, space.Met, space.Wme, space.Clo)
@@ -161,7 +160,7 @@ def calcHload(space, Gdata, spaces, dtmNow, defSolpos, Ta: float, xo: float, ann
     return 0
 
 # 表面温度、MRT、AST、平均放射温度の計算
-def calc_MRT_AST＿Tsx(space):
+def calc_MRT_AST_Tsx(space):
     space.MRT = 0.0
     space.AST = 0.0
     space.Tsx = 0.0
@@ -268,7 +267,6 @@ def calc_BRMX_BRXC(space, Dtime, xo):
     Voin = (space.Ventset + space.Infset + space.LocalVentset) / 3600.
     # 湿気容量の項
     temp = space.Gf * space.Cx / (space.Gf + Dtime * space.Cx)
-    # Vd = self.volume / Gdata.DTime
     BRMX = conrowa * (space.volume / Dtime + Voin) + temp
     BRXC = conrowa * (space.volume / Dtime * space.oldxr + Voin * xo) \
             + temp * space.oldxf + space.Lin
@@ -390,19 +388,19 @@ def calc_xr_Ll_non_residential(space):
         space.Lcl = - conra * (space.BRXC - space.BRMX * space.xr)
 
 # 家具の温度を計算する
-def calcTfun(space, Gdata):
+def calcTfun(space, calc_time_interval):
     if space.Capfun > 0.0:
-        space.Tfun = ((space.Capfun / Gdata.DTime * space.oldTfun \
+        space.Tfun = ((space.Capfun / calc_time_interval * space.oldTfun \
                 + space.Cfun * space.Tr + space.Qsolfun) \
-                / (space.Capfun / Gdata.DTime + space.Cfun))
+                / (space.Capfun / calc_time_interval + space.Cfun))
         space.Qfuns = space.Cfun * (space.Tr - space.Tfun)
     # if self.name == "主たる居室":
     #     print(self.name, self.oldTfun, self.Tfun, self.Capfun, self.Cfun, self.Qsolfun)
     return space.Tfun
 
 # 家具類の湿度を計算する
-def calcxf(space, Gdata):
-    space.xf = (space.Gf / Gdata.DTime * space.oldxf + space.Cx * space.xr) / (space.Gf / Gdata.DTime + space.Cx)
+def calcxf(space, calc_time_interval):
+    space.xf = (space.Gf / calc_time_interval * space.oldxf + space.Cx * space.xr) / (space.Gf / calc_time_interval + space.Cx)
     space.Qfunl = space.Cx * (space.xr - space.xf)
     # if self.name == "主たる居室":
     #     print(self.name, self.oldTfun, self.Tfun, self.Capfun, self.Cfun, self.Qsolfun)

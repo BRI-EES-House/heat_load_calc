@@ -230,7 +230,7 @@ def get_RFTRI(alp, AT0, AA0, AT, AA, M, DTime):
 # 応答係数
 class ResponseFactor:
     # 初期化
-    def __init__(self, WallType: str, DTime: int, NcalTime: int, Wall: Wall):
+    def __init__(self, WallType: str, calc_time_interval: int, NcalTime: int, Wall: Wall):
         """
         VBAからの主な変更点：
         (1)二次元配列（objArray）で壁体の情報を受け取っていたが、壁体情報クラスで受け取るように変更
@@ -242,7 +242,7 @@ class ResponseFactor:
         :param NcalTime: 応答係数を作成する時間数[h]
         :param Wall: 壁体基本情報クラス
         """
-        M = int(NcalTime * 3600 / DTime) + 1  # 応答係数で作成する項数
+        M = int(NcalTime * 3600 / calc_time_interval) + 1  # 応答係数で作成する項数
 
         # 固定根の設定
         alps = get_alps(WallType)
@@ -251,14 +251,14 @@ class ResponseFactor:
         laps = get_laps(alps)
 
         # 単位応答の計算
-        AT0, AA0, AT, AA, ATstep, AAstep = get_step_reps_of_wall(Wall.Layers, laps, alps, M, DTime)
+        AT0, AA0, AT, AA, ATstep, AAstep = get_step_reps_of_wall(Wall.Layers, laps, alps, M, calc_time_interval)
         # plt.plot(ATstep)
         # plt.show()
         # plt.plot(AAstep)
         # plt.show()
 
         # 二等辺三角波励振の応答係数、指数項別応答係数、公比の計算
-        RFT, RFA, self.RFT1, self.RFA1, self.Row = get_RFTRI(alps, AT0, AA0, AT, AA, M, DTime)
+        RFT, RFA, self.RFT1, self.RFA1, self.Row = get_RFTRI(alps, AT0, AA0, AT, AA, M, calc_time_interval)
         # print('RFT0', RFT[0], 'RFA0', RFA[0])
         # print('RFT1', self.RFT1, 'RFA1', self.RFA1, 'Row', self.Row)
 

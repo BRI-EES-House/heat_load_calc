@@ -3,12 +3,13 @@ import datetime
 import json
 import common
 from common import get_nday
-from Gdata import Gdata, FlgOrig
+from Gdata import Gdata, is_actual_calc
 from Weather import enmWeatherComponent, Weather, WeaData, Solpos
 from Sunbrk import SunbrkType
 from Space import create_spaces, update_space_oldstate
 from heat_load import calcHload
-from rear_surface_equivalent_temperature import precalcTeo
+# from apdx6_direction_cos_incident_angle import calc_cos_incident_angle
+# from rear_surface_equivalent_temperature import precalcTeo
 
 # 熱負荷計算の実行
 def calc_Hload(cdata, weather):
@@ -93,7 +94,7 @@ def calc_Hload(cdata, weather):
 
     outdoor_temp_list = [0.0 for j in range(8760 * 4)]
     outdoor_humid_list = [0.0 for j in range(8760 * 4)]
-    # 予備計算（気象データの読み込みと相当外気温度の計算）
+    # 予備計算（気象データの読み込み）
     for lngNday in range(common.get_nday(cdata.StDate.month, cdata.StDate.day), lngEnNday + 1):
         # 時刻ループ
         for lngTloop in range(lngNtime):
@@ -108,15 +109,6 @@ def calc_Hload(cdata, weather):
             outdoor_temp_list[sequence_number] = WeaData(weather, enmWeatherComponent.Ta, dtmNow, solar_position)
             # 外気絶対湿度の補間、Listへの追加
             outdoor_humid_list[sequence_number] = WeaData(weather, enmWeatherComponent.x, dtmNow, solar_position) / 1000.
-            # 法線面直達日射量
-            Idn = WeaData(weather, enmWeatherComponent.Idn, dtmNow, solar_position)
-            # 水平面天空日射量
-            Isky = WeaData(weather, enmWeatherComponent.Isky, dtmNow, solar_position)
-            # 夜間放射量
-            RN = WeaData(weather, enmWeatherComponent.RN, dtmNow, solar_position)
-            # 相当外気温度の計算
-            for space in spaces.values():
-                precalcTeo(space, outdoor_temp_list[sequence_number], Idn, Isky, RN, solar_position, sequence_number)
 
     # 日ループの開始
     for lngNday in range(lngStNday, lngEnNday + 1):
@@ -128,7 +120,7 @@ def calc_Hload(cdata, weather):
 
             rowlist = []
             # 室温・熱負荷の計算
-            if FlgOrig(cdata, dtmNow):
+            if is_actual_calc(cdata, dtmNow):
                 
                 # print(str(dtmNow), end="\t")
                 # 出力文字列
@@ -142,17 +134,16 @@ def calc_Hload(cdata, weather):
                 # 室温、熱負荷の計算
                 calcHload(
                     space=space,
-                    Gdata=cdata,
+                    is_actual_calc=is_actual_calc(cdata, dtmNow),
+                    calc_time_interval=cdata.DTime,
                     spaces=spaces,
                     dtmNow=dtmNow,
-                    defSolpos=solar_position,
                     Ta=outdoor_temp_list[sequence_number],
                     xo=outdoor_humid_list[sequence_number],
-                    annual_average_temperature=weather.AnnualTave,
                     sequence_number=sequence_number
                 )
                 
-                if FlgOrig(cdata, dtmNow):
+                if is_actual_calc(cdata, dtmNow):
                     rowlist.append(space.is_now_window_open)
                     rowlist.append(space.air_conditioning_demand)
                     rowlist.append('{0:.0f}'.format(space.now_air_conditioning_mode))
@@ -196,7 +187,7 @@ def calc_Hload(cdata, weather):
                     #         '{0:.0f}'.format(space.RH), '{0:.2f}'.format(space.MRT), '{0:.2f}'.format(space.PMV), \
                     #         '{0:.0f}'.format(space.Lcs), '{0:.0f}'.format(space.Lr), '{0:.0f}'.format(space.Ll), "", end="")
             
-            if FlgOrig(cdata, dtmNow):
+            if is_actual_calc(cdata, dtmNow):
                 OutList.append(rowlist)
                 # print("")
 
@@ -237,7 +228,7 @@ if __name__ == '__main__':
     # sunbrks = create_sunbrks(d['Sunbrk'])
 
     # スペースの読み取り
-    spaces = create_spaces(cdata, d['rooms'], weather)
+    spaces = create_spaces(cdata.DTime, d['rooms'], weather)
 
     # スケジュールの初期化
     # schedule = Schedule()

@@ -46,12 +46,12 @@ def get_QGTS(window, Isk: float, Ir: float) -> float:
     return QGTS
 
 # 透過日射を集約する
-def summarize_transparent_solar_radiation(surfaces, Gdata, weather):
+""" def summarize_transparent_solar_radiation(surfaces, calc_time_interval, weather):
     # 透過日射熱取得収録配列の初期化とメモリ確保
     Qgt = []
-    Qgt = [0.0 for j in range(int(8760.0 * 3600.0 / float(Gdata.DTime)))]
+    Qgt = [0.0 for j in range(int(8760.0 * 3600.0 / float(calc_time_interval)))]
 
-    ntime = int(24 * 3600 / Gdata.DTime)
+    ntime = int(24 * 3600 / calc_time_interval)
     nnow = 0
     item = 0
     start_date = datetime.datetime(1989, 1, 1)
@@ -95,4 +95,4 @@ def summarize_transparent_solar_radiation(surfaces, Gdata, weather):
 
             item += 1
         nnow += 1
-    return Qgt
+    return Qgt """
