@@ -30,21 +30,23 @@ def calc_qi(surface, Tr: float, Tsx: float, Lr: float, Beta: float):
     :return:
     """
     # 対流成分
-    surface.Qc = surface.hic * surface.area * (Tr - surface.Ts)
+    Qc = surface.hic * surface.area * (Tr - surface.Ts)
 
     # 放射成分
-    surface.Qr = surface.hir * surface.area * (Tsx - surface.Ts)
+    Qr = surface.hir * surface.area * (Tsx - surface.Ts)
 
     # 短波長熱取得成分
-    surface.RS = surface.RSsol * surface.area
+    RS = surface.RSsol * surface.area
 
     # 放射暖房成分
-    surface.Lr = surface.flr * Lr * (1.0 - Beta)
+    Lr = surface.flr * Lr * (1.0 - Beta)
 
     # 表面熱流合計
-    surface.Qt = surface.Qc + surface.Qr + surface.Lr + surface.RS
+    Qt = Qc + Qr + Lr + RS
     # 前時刻熱流の保持
-    surface.oldqi = surface.Qt / surface.area
+    oldqi = Qt / surface.area
+
+    return Qc, Qr, Lr, RS, Qt, oldqi
     
 # 行列CVL、WSVの計算
 def calc_CVL_WSV(space):
@@ -81,47 +83,41 @@ def calc_CRX_WSC(space, sequence_number: int):
 def make_matrix_for_surface_heat_balance(space):
     # 行列の準備と初期化
     # [AX]
-    space.matAXd = [[0.0 for i in range(space.Nsurf)] for j in range(space.Nsurf)]
+    matAXd = [[0.0 for i in range(space.Nsurf)] for j in range(space.Nsurf)]
     # {FIA}
-    space.matFIA = [0.0 for j in range(space.Nsurf)]
-    # {CRX}
-    space.matCRX = [0.0 for j in range(space.Nsurf)]
-    # {CVL}
-    space.matCVL = [0.0 for j in range(space.Nsurf)]
+    matFIA = [0.0 for j in range(space.Nsurf)]
     # {FLB}
-    space.matFLB = [0.0 for j in range(space.Nsurf)]
-    # {WSC}
-    space.matWSC = [0.0 for j in range(space.Nsurf)]
-    # {WSV}
-    space.matWSV = [0.0 for j in range(space.Nsurf)]
+    matFLB = [0.0 for j in range(space.Nsurf)]
 
     i = 0
     for surface in space.input_surfaces:
         # matFIAの作成
-        space.matFIA[i] = surface.RFA0 * surface.hic
+        matFIA[i] = surface.RFA0 * surface.hic
         # FLB=φA0×flr×(1-Beta)
-        space.matFLB[i] = surface.RFA0 * surface.flr * (1. - space.Beta) / surface.area
+        matFLB[i] = surface.RFA0 * surface.flr * (1. - space.Beta) / surface.area
 
         # 放射計算のマトリックス作成
         j = 0
         for nxtsurface in space.input_surfaces:
             # 対角要素
             if i == j:
-                space.matAXd[i][j] = 1. + surface.RFA0 * surface.hi \
+                matAXd[i][j] = 1. + surface.RFA0 * surface.hi \
                                         - surface.RFA0 * surface.hir * nxtsurface.Fmrt
             # 対角要素以外
             else:
-                space.matAXd[i][j] = - surface.RFA0 * surface.hir * nxtsurface.Fmrt
+                matAXd[i][j] = - surface.RFA0 * surface.hir * nxtsurface.Fmrt
             j += 1
         # print('放射計算マトリックス作成完了')
         i += 1
 
     # 逆行列の計算
-    space.matAX = np.linalg.inv(space.matAXd)
+    matAX = np.linalg.inv(matAXd)
     # {WSR}の計算
-    space.matWSR = np.dot(space.matAX, space.matFIA)
+    matWSR = np.dot(matAX, matFIA)
     # {WSB}の計算
-    space.matWSB = np.dot(space.matAX, space.matFLB)
+    matWSB = np.dot(matAX, matFLB)
+
+    return (matAX, matWSR, matWSB)
 
 # 畳み込み積分
 def convolution(surface):

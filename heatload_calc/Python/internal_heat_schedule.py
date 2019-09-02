@@ -11,12 +11,14 @@ def read_internal_heat_schedules_from_json(space, d_room):
     space.vapor_generation_cooking_schedule = d_room['schedule']['vapor_generation_cooking']
 
 # 機器・調理発熱スケジュールの読み込み
-def create_hourly_internal_heat_schedules(space, dtmNow):
+def get_hourly_internal_heat_schedules(space, dtmNow):
     # スケジュールのリスト番号の計算
     item = (get_nday(dtmNow.month, dtmNow.day) - 1) * 24 + dtmNow.hour
     # 機器顕熱[W]
-    space.heat_generation_appliances = space.heat_generation_appliances_schedule[item]
+    heat_generation_appliances = space.heat_generation_appliances_schedule[item]
     # 調理顕熱[W]
-    space.heat_generation_cooking = space.heat_generation_cooking_schedule[item]
+    heat_generation_cooking = space.heat_generation_cooking_schedule[item]
     # 調理潜熱[g/h]
-    space.vapor_generation_cooking = space.vapor_generation_cooking_schedule[item]
+    vapor_generation_cooking = space.vapor_generation_cooking_schedule[item]
+
+    return heat_generation_appliances, heat_generation_cooking, vapor_generation_cooking

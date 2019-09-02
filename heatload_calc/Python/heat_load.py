@@ -11,11 +11,11 @@ from PMV import calcPMV
 from Psychrometrics import xtrh, rhtx
 from set_point_temperature import calcOTset, calc_clothing
 from apdx6_direction_cos_incident_angle import calc_cos_incident_angle
-from local_vent_schedule import create_hourly_local_vent_schedules
-from internal_heat_schedule import create_hourly_internal_heat_schedules
-from lighting_schedule import create_hourly_lighting_schedules
-from resident_schedule import create_hourly_resident_schedules
-from Win_ACselect import create_hourly_air_conditioning_schedules
+from local_vent_schedule import get_hourly_local_vent_schedules
+from internal_heat_schedule import get_hourly_internal_heat_schedules
+from lighting_schedule import get_hourly_lighting_schedules
+from resident_schedule import get_hourly_resident_schedules
+from Win_ACselect import get_hourly_air_conditioning_schedules
 
 # 室温、熱負荷の計算
 def calcHload(space, is_actual_calc, calc_time_interval, spaces, dtmNow, Ta: float, xo: float, sequence_number: int):
@@ -28,21 +28,27 @@ def calcHload(space, is_actual_calc, calc_time_interval, spaces, dtmNow, Ta: flo
     for surface in space.input_surfaces:
         calcTeo(surface, Ta, space.oldTr, spaces, sequence_number)
 
+    # スケジュールの読み込み
     # 当該時刻の局所換気量の読み込み
-    create_hourly_local_vent_schedules(space, dtmNow)
+    space.LocalVentset = get_hourly_local_vent_schedules(space, dtmNow)
     # 当該時刻の機器・調理発熱の読み込み
-    create_hourly_internal_heat_schedules(space, dtmNow)
+    space.heat_generation_appliances, space.heat_generation_cooking, space.vapor_generation_cooking \
+        = get_hourly_internal_heat_schedules(space, dtmNow)
     # 当該時刻の照明発熱の読み込み
-    create_hourly_lighting_schedules(space, dtmNow)
+    space.heat_generation_lighting = get_hourly_lighting_schedules(space, dtmNow)
     # 当該時刻の人体発熱の読み込み
-    create_hourly_resident_schedules(space, dtmNow)
+    space.number_of_people, space.Humans, space.Humanl = get_hourly_resident_schedules(space, dtmNow)
     # 内部発熱[W]
     space.Hn = space.heat_generation_appliances + space.heat_generation_lighting + space.Humans + space.heat_generation_cooking
     # 内部発湿[kg/s]
     space.Lin = space.vapor_generation_cooking / 1000.0 / 3600.0 + space.Humanl
 
     # 当該時刻の空調スケジュールの読み込み
-    create_hourly_air_conditioning_schedules(space, dtmNow)
+    space.is_upper_temp_limit_set, \
+        space.is_lower_temp_limit_set, \
+            space.pmv_upper_limit, \
+                space.pmv_lower_limit, \
+                    space.air_conditioning_demand = get_hourly_air_conditioning_schedules(space, dtmNow)
 
     # 室内表面の吸収日射量
     distribution_transmitted_solar_radiation(space, space.Qgt[sequence_number])
@@ -61,23 +67,23 @@ def calcHload(space, is_actual_calc, calc_time_interval, spaces, dtmNow, Ta: flo
         space.is_now_window_open = space.is_prev_window_open
 
     # 室温・熱負荷計算のための係数BRM、BRLの計算
-    space.BRM, space.BRL = calc_BRM_BRL(space, calc_time_interval)
+    # space.BRM, space.BRL = calc_BRM_BRL(space, calc_time_interval)
 
     # 室温・熱負荷計算のための定数項BRCの計算
     space.BRC = calc_BRC(space, calc_time_interval, Ta, sequence_number)
 
     # 窓開閉、空調発停判定のための自然室温計算
     # 通風なしでの係数を控えておく
-    space.BRMnoncv = space.BRM
+    space.BRMnoncv = space.BRM[sequence_number]
     space.BRCnoncv = space.BRC
     # 通風計算用に係数を補正（前時刻が通風状態の場合は非空調作用温度を通風状態で計算する）
     if space.is_now_window_open == True:
         temp = conca * conrowa * space.Vcrossvent / 3600.0
-        space.BRM += temp
+        space.BRM[sequence_number] += temp
         space.BRC += temp * Ta
 
     # OT計算用の係数補正
-    space.BRMot, space.BRLot, space.BRCot, space.Xot, space.XLr, space.XC = convert_coefficient_for_operative_temperature(space)
+    space.BRMot, space.BRLot, space.BRCot, space.Xot, space.XLr, space.XC = convert_coefficient_for_operative_temperature(space, sequence_number)
     
     # 自然作用温度の計算
     space.OT, space.Lcs, space.Lrs = calc_Tr_Ls(0, space.is_radiative_heating, space.BRCot, space.BRMot,
@@ -97,15 +103,15 @@ def calcHload(space, is_actual_calc, calc_time_interval, spaces, dtmNow, Ta: flo
 
     # 最終計算のための係数整備
     space.BRC = space.BRCnoncv
-    space.BRM = space.BRMnoncv
+    space.BRM[sequence_number] = space.BRMnoncv
     # 通風なら通風量を設定
     if space.is_now_window_open == 1:
         temp = conca * conrowa * space.Vcrossvent / 3600.0
-        space.BRM += temp
+        space.BRM[sequence_number] += temp
         space.BRC += temp * Ta
     
     # OT計算用の係数補正
-    space.BRMot, space.BRLot, space.BRCot, space.Xot, space.XLr, space.XC = convert_coefficient_for_operative_temperature(space)
+    space.BRMot, space.BRLot, space.BRCot, space.Xot, space.XLr, space.XC = convert_coefficient_for_operative_temperature(space, sequence_number)
     
     # 目標作用温度、代謝量、着衣量、風速の計算
     space.OTset, space.Met, space.Clo, space.Vel = calcOTset(space.now_air_conditioning_mode, space.is_radiative_heating, space.RH, pmv_set)
@@ -127,14 +133,14 @@ def calcHload(space, is_actual_calc, calc_time_interval, spaces, dtmNow, Ta: flo
     # 表面温度の計算
     calc_surface_temperature(space)
     # MRT、AST、平均放射温度の計算
-    calc_MRT_AST_Tsx(space)
+    space.MRT, space.AST, space.Tsx = calc_MRT_AST_Tsx(space)
 
     # 室内側等価温度・熱流の計算
     for surface in space.input_surfaces:
         # 室内側等価温度の計算
         surface.Tei = calc_Tei(surface, space.Tr, space.Tsx, space.Lrs, space.Beta)
         # 室内表面熱流の計算
-        calc_qi(surface, space.Tr, space.Tsx, space.Lrs, space.Beta)
+        surface.Qc, surface.Qr, surface.Lr, surface.RS, surface.Qt, surface.oldqi = calc_qi(surface, space.Tr, space.Tsx, space.Lrs, space.Beta)
 
     # ここから潜熱の計算
     space.BRMX, space.BRXC = calc_BRMX_BRXC(space, calc_time_interval, xo)
@@ -159,16 +165,18 @@ def calcHload(space, is_actual_calc, calc_time_interval, spaces, dtmNow, Ta: flo
 
     return 0
 
-# 表面温度、MRT、AST、平均放射温度の計算
+# MRT、AST、平均放射温度の計算
 def calc_MRT_AST_Tsx(space):
-    space.MRT = 0.0
-    space.AST = 0.0
-    space.Tsx = 0.0
+    MRT = 0.0
+    AST = 0.0
+    Tsx = 0.0
     for surface in space.input_surfaces:
         # 人体に対する放射温度：MRT、面積荷重平均温度：AST、平均放射温度：Tsx
-        space.MRT += surface.fot * surface.Ts
-        space.AST += surface.area * surface.Ts / space.Atotal
-        space.Tsx += surface.Fmrt * surface.Ts
+        MRT += surface.fot * surface.Ts
+        AST += surface.area * surface.Ts / space.Atotal
+        Tsx += surface.Fmrt * surface.Ts
+    
+    return MRT, AST, Tsx
 
 # 年間熱負荷の積算
 def calc_annual_heat_load(space, DTime):
@@ -198,7 +206,7 @@ def calc_annual_heat_load(space, DTime):
         space.AnnualLoadrCl += space.Lrl * DTime * convert_J_GJ
 
 # 作用温度設定用係数への換算
-def convert_coefficient_for_operative_temperature(space):
+def convert_coefficient_for_operative_temperature(space, sequence_number):
     Xot = 0.0
     XLr = 0.0
     XC = 0.0
@@ -214,9 +222,9 @@ def convert_coefficient_for_operative_temperature(space):
     Xot = 1.0 / Deno
     XLr = space.kr * fot_WSB / Deno
     XC = space.kr * fot_WSC_WSV / Deno
-    BRMot = space.BRM * Xot
-    BRCot = space.BRC + space.BRM * XC
-    BRLot = space.BRL + space.BRM * XLr
+    BRMot = space.BRM[sequence_number] * Xot
+    BRCot = space.BRC + space.BRM[sequence_number] * XC
+    BRLot = space.BRL[sequence_number] + space.BRM[sequence_number] * XLr
 
     return BRMot, BRLot, BRCot, Xot, XLr, XC
 

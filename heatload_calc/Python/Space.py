@@ -132,7 +132,9 @@ class Space:
         self.Ga = self.volume * conrowa         # 室空気の質量[kg]
 
         # 家具の熱容量、湿気容量の計算
-        calc_furniture(self)
+        # Capfun:家具熱容量[J/K]、Cfun:家具と室空気間の熱コンダクタンス[W/K]
+        # Gf:湿気容量[kg/(kg/kg(DA))]、Cx:湿気コンダクタンス[kg/(s･kg/kg(DA))]
+        self.Capfun, self.Cfun, self.Gf, self.Cx = calc_furniture(self)
 
         self.xr = xtrh(20.0, 40.0)                  # 室の絶対湿度[kg/kg(DA)]
         self.oldxr = self.xr                      # 室内絶対湿度の初期値
@@ -179,7 +181,7 @@ class Space:
         self.Qgt = [0.0 for j in range(int(8760.0 * 3600.0 / float(calc_time_interval)))]
 
         ntime = int(24 * 3600 / calc_time_interval)
-        # nnow = 0
+        nnow = 0
         item = 0
         start_date = datetime.datetime(1989, 1, 1)
         for nday in range(get_nday(1, 1), get_nday(12, 31) + 1):
@@ -237,7 +239,7 @@ class Space:
                     elif surface.boundary_type == "ground":
                         surface.Teo = weather.AnnualTave
                 item += 1
-            # nnow += 1
+            nnow += 1
         
         # 部位の集約
         self.input_surfaces = summarize_building_part(self.input_surfaces)
@@ -262,7 +264,7 @@ class Space:
                 self.TotalAF += surface.area
         
         # ルームエアコンの仕様の設定
-        set_rac_spec(self)
+        self.qrtd_c, self.qmax_c, self.qmin_c, self.Vmax, self.Vmin = set_rac_spec(self)
 
         # 放射暖房の発熱部位の設定（とりあえず床発熱）
         if self.is_radiative_heating:
@@ -283,7 +285,32 @@ class Space:
         self.rsolfun = calc_absorption_ratio_of_transmitted_solar_radiation(self.name, self.TotalAF, self.rsolfun, self.input_surfaces)
 
         # 室内表面熱収支計算のための行列作成
-        make_matrix_for_surface_heat_balance(self)
+        self.matAX, self.matWSR, self.matWSB = make_matrix_for_surface_heat_balance(self)
+
+        # BRM、BRLを計算する
+        self.BRM = [0.0 for j in range(8760 * 4)]
+        self.BRL = [0.0 for j in range(8760 * 4)]
+        for tloop in range(8760 * 4):
+            # BRM、BRLの初期化
+            self.BRM[tloop] = self.Hcap / calc_time_interval
+            self.BRL[tloop] = self.Beta
+            for (matWSR, matWSB, surface) in zip(self.matWSR, self.matWSB, self.input_surfaces):
+                # 室内対流熱伝達率×面積[W/K]
+                AF0 = surface.area * surface.hic
+                # hc×A×(1-WSR)の積算
+                self.BRM[tloop] += AF0 * (1.0 - matWSR)
+                # BRLの計算
+                self.BRL[tloop] += AF0 * matWSB
+
+            # 外気導入項の計算（2項目の0.0はすきま風量）
+            self.BRM[tloop] += conca * conrowa * (self.Vent + 0.0 + self.local_vent_amount_schedule[math.floor(tloop / 4)]) / 3600.0
+            # 室間換気
+            for room_vent in self.RoomtoRoomVent:
+                self.BRM[tloop] += conca * conrowa * room_vent.volume / 3600.0
+            
+            # 家具からの熱取得
+            if self.Capfun > 0.0:
+                self.BRM[tloop] += 1. / (calc_time_interval / self.Capfun + 1. / self.Cfun)
 
 # 前時刻の室温を現在時刻の室温、家具温度に置換
 def update_space_oldstate(space):

@@ -96,18 +96,20 @@ def read_air_conditioning_schedules_from_json(space: Space, d_room: dict) -> Non
     space.pmv_lower_limit_schedule = d_room['schedule']['pmv_lower_limit']
 
 # スケジュールの読み込み
-def create_hourly_air_conditioning_schedules(space: Space, dtmNow: datetime) -> None:
+def get_hourly_air_conditioning_schedules(space: Space, dtmNow: datetime) -> None:
     # スケジュールのリスト番号の計算
     item = (get_nday(dtmNow.month, dtmNow.day) - 1) * 24 + dtmNow.hour
 
     # 上限PMV設定フラグ
-    space.is_upper_temp_limit_set = space.is_upper_temp_limit_set_schedule[item]
+    is_upper_temp_limit_set = space.is_upper_temp_limit_set_schedule[item]
     # 下限温度設定フラグ
-    space.is_lower_temp_limit_set = space.is_lower_temp_limit_set_schedule[item]
+    is_lower_temp_limit_set = space.is_lower_temp_limit_set_schedule[item]
     # 上限PMV
-    space.pmv_upper_limit = space.pmv_upper_limit_schedule[item]
+    pmv_upper_limit = space.pmv_upper_limit_schedule[item]
     # 下限PMV
-    space.pmv_lower_limit = space.pmv_lower_limit_schedule[item]
+    pmv_lower_limit = space.pmv_lower_limit_schedule[item]
 
     # 空調や通風などの需要がある場合にTrue
-    space.air_conditioning_demand = space.is_upper_temp_limit_set or space.is_lower_temp_limit_set
+    air_conditioning_demand = is_upper_temp_limit_set or is_lower_temp_limit_set
+
+    return is_upper_temp_limit_set, is_lower_temp_limit_set, pmv_upper_limit, pmv_lower_limit, air_conditioning_demand
