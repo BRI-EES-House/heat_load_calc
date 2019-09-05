@@ -287,37 +287,64 @@ class Space:
         # 室内表面熱収支計算のための行列作成
         self.matAX, self.matWSR, self.matWSB = make_matrix_for_surface_heat_balance(self)
 
-        # ** BRMを計算する 式(5) **
+        # BRMの計算 式(5)
+        self.BRM = get_BRM(
+            Hcap=self.Hcap, 
+            calc_time_interval=calc_time_interval, 
+            matWSR=self.matWSR, 
+            surfaces=self.input_surfaces, 
+            RoomtoRoomVent=self.RoomtoRoomVent, 
+            Capfun=self.Capfun, 
+            Cfun=self.Cfun, 
+            Vent=self.Vent, 
+            local_vent_amount_schedule=self.local_vent_amount_schedule
+        )
 
-        # BRM - 初期値
-        BRM_0 = self.Hcap / calc_time_interval
+        # BRLの計算 式(7)
+        self.BRL = get_BRL(
+            Beta=self.Beta,
+            matWSB=self.matWSB,
+            surfaces=self.input_surfaces
+        )
 
-        # BRM - 何と書けばよいのだろう
-        for (matWSR, surface) in zip(self.matWSR, self.input_surfaces):
-            BRM_0 += surface.area * surface.hic * (1.0 - matWSR)
+# BRMの計算 式(5)
+def get_BRM(Hcap, calc_time_interval, matWSR, surfaces, RoomtoRoomVent, Capfun, Cfun, Vent, local_vent_amount_schedule):
+    # 配列の準備
+    area = np.array([x.area for x in surfaces])
+    hic = np.array([x.hic for x in surfaces])
+    V_nxt = np.array([x.volume for x in RoomtoRoomVent])
 
-        # BRM - 室間換気
-        for room_vent in self.RoomtoRoomVent:
-            BRM_0 += conca * conrowa * room_vent.volume / 3600.0
-            
-        # BRM - 家具からの熱取得
-        if self.Capfun > 0.0:
-            BRM_0 += 1. / (calc_time_interval / self.Capfun + 1. / self.Cfun)
+    # 第1項
+    BRM_0 = Hcap / calc_time_interval
+    
+    # 第2項
+    BRM_0 += np.sum(area * hic * (1.0 - matWSR))
+    
+    # 空間換気
+    BRM_0 += np.sum(conca * conrowa * V_nxt / 3600.0)    
 
-        # BRM - 外気導入項の計算（3項目の0.0はすきま風量）
-        self.BRM = BRM_0 + conca * conrowa * (self.Vent + 0.0 + np.repeat(self.local_vent_amount_schedule, 4)) / 3600.0
+    # 家具からの熱取得
+    BRM_0 += 1. / (calc_time_interval / Capfun + 1. / Cfun) if Capfun > 0.0 else 0.0
 
-        # ** BRLを計算する 式(7) **
+    # 外気導入項の計算（3項目の0.0はすきま風量）
+    # ※ここで、BRMがスカラー値(BRM_0)から1時間ごとの1次元配列(BRM_h)へ
+    BRM_h = BRM_0 + conca * conrowa * (Vent + 0.0 + np.array(local_vent_amount_schedule)) / 3600.0
 
-        # BRL - 初期値
-        BRL_0 = self.Beta
+    # 1時間当たり4ステップなので、配列を4倍に拡張
+    BRM = np.repeat(BRM_h, 4)
 
-        # BRL - 何と書けばよいのだろう
-        for (matWSB, surface) in zip(self.matWSB, self.input_surfaces):
-            BRL_0 += surface.area * surface.hic * matWSB
+    return BRM
 
-        self.BRL = np.repeat([BRL_0], 8760 * 4)
+# BRLの計算 式(7)
+def get_BRL(Beta, matWSB, surfaces):
+    # 配列の準備
+    area = np.array([x.area for x in surfaces])
+    hic = np.array([x.hic for x in surfaces])
 
+    # 式(7)
+    BRL = np.sum(area * hic * matWSB) + Beta
+
+    return np.repeat([BRL], 8760 * 4)
 
 # 前時刻の室温を現在時刻の室温、家具温度に置換
 def update_space_oldstate(space):
