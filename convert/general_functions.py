@@ -12,17 +12,17 @@ def round_num(num: float, digit: int) -> float:
     Notes:
         PythonのRound関数は最近接偶数への丸めとなるため、四捨五入を行う関数を独自に定義する。
     Examples:
-        >>> round2(2.732, 2)
+        >>> round_num(2.732, 2)
         2.73
-        >>> round2(2.735, 2)
+        >>> round_num(2.735, 2)
         2.74
-        >>> round2(2.737, 2)
+        >>> round_num(2.737, 2)
         2.74
-        >>> round2(-2.732, 2)
+        >>> round_num(-2.732, 2)
         -2.73
-        >>> round2(-2.735, 2)
+        >>> round_num(-2.735, 2)
         -2.74
-        >>> round2(-2.737, 2)
+        >>> round_num(-2.737, 2)
         -2.74
     """
 

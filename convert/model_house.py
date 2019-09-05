@@ -1,12 +1,5 @@
-from typing import Optional, List
+from typing import Optional, List, Dict, Union, Tuple
 from general_functions import round_num
-
-
-class ModelHouse:
-
-    def __init__(self, a_f):
-
-        self.a_f = a_f
 
 
 def get_a_f(house_type: str, a_f_total: float, r_fa: Optional[float]) -> List[float]:
@@ -31,24 +24,20 @@ def get_a_f(house_type: str, a_f_total: float, r_fa: Optional[float]) -> List[fl
 
 
 def get_entrance(
-        house_type: str, floor_ins_type: str, l_entrance_ms: float, l_entrance_os: float
-) -> (float, float, (float, float, float, float), float, float, float, float, float):
+        house_type: str, floor_ins_type: str, l_etrc_ms: float, l_etrc_os: float
+) -> (float, float, (float, float, float, float), float):
     """
     Args:
         house_type: 住戸の種類
         floor_ins_type: 床断熱の種類
-        l_entrance_ms: 主開口方位側の玄関の土間床等の周辺部の基礎長さ, m
-        l_entrance_os: その他方位側の玄関の土間床等の周辺部の基礎長さ, m
+        l_etrc_ms: 主開口方位側の玄関の土間床等の周辺部の基礎長さ, m
+        l_etrc_os: その他方位側の玄関の土間床等の周辺部の基礎長さ, m
     Returns:
         次の7つの変数からなるタプル
             (1) 玄関の土間床等の面積, m2
-            (2) 玄関の床の面積, m2
+            (2) 玄関の断熱した床の面積, m2
             (3) 玄関の土間床等の外周部の長さ（室外側）（4方向）, m
-            (4) 玄関の土間床等の外周部の長さ（主方位から0度）, m
-            (5) 玄関の土間床等の外周部の長さ（主方位から90度）, m
-            (6) 玄関の土間床等の外周部の長さ（主方位から180度）, m
-            (7) 玄関の土間床等の外周部の長さ（主方位から270度）, m
-            (8) 玄関の土間床等の外周部の長さ（室内側）, m
+            (4) 玄関の土間床等の外周部の長さ（室内側）, m
     """
 
     # 玄関の土間床等の外周部の長さ（主方位から0度）, m
@@ -56,43 +45,42 @@ def get_entrance(
     # 玄関の土間床等の外周部の長さ（主方位から180度）, m
     # 玄関の土間床等の外周部の長さ（主方位から270度）, m
     if house_type == 'detached':
-        l_base_entrance_000, l_base_entrance_090, l_base_entrance_180, l_base_entrance_270 \
-            = 0.0, l_entrance_os, l_entrance_ms, 0.0
+        l_base_etrc_000, l_base_etrc_090, l_base_etrc_180, l_base_etrc_270 \
+            = 0.0, l_etrc_os, l_etrc_ms, 0.0
     elif house_type == 'attached':
-        l_base_entrance_000, l_base_entrance_090, l_base_entrance_180, l_base_entrance_270 = 0.0, 0.0, 0.0, 0.0
+        l_base_etrc_000, l_base_etrc_090, l_base_etrc_180, l_base_etrc_270 = 0.0, 0.0, 0.0, 0.0
     else:
         raise Exception
 
     # 玄関の土間床等の外周部の長さ（室内側）, m
     if house_type == 'detached':
         if floor_ins_type == 'floor':
-            l_base_entrance_inside = l_entrance_ms + l_entrance_os
+            l_base_etrc_inside = l_etrc_ms + l_etrc_os
         elif floor_ins_type == 'base':
-            l_base_entrance_inside = 0.0
+            l_base_etrc_inside = 0.0
         else:
             raise Exception
     elif house_type == 'attached':
-        l_base_entrance_inside = 0.0
+        l_base_etrc_inside = 0.0
     else:
         raise Exception
 
     # 玄関の土間床等の面積, m2
     if house_type == 'detached':
-        a_ef_entrance = l_entrance_ms * l_entrance_os
-        a_entrance = 0.0
+        a_evp_ef_etrc = l_etrc_ms * l_etrc_os
+        a_evp_f_etrc = 0.0
     elif house_type == 'attached':
-        a_ef_entrance = 0.0
-        a_entrance = l_entrance_ms * l_entrance_os
+        a_evp_ef_etrc = 0.0
+        a_evp_f_etrc = l_etrc_ms * l_etrc_os
 
-    return a_ef_entrance,a_entrance, \
-        (l_base_entrance_000, l_base_entrance_090, l_base_entrance_180, l_base_entrance_270), \
-        l_base_entrance_000, l_base_entrance_090, l_base_entrance_180, l_base_entrance_270,\
-        l_base_entrance_inside
+    l_base_etrc_outside = (l_base_etrc_000, l_base_etrc_090, l_base_etrc_180, l_base_etrc_270)
+
+    return a_evp_ef_etrc,a_evp_f_etrc, l_base_etrc_outside, l_base_etrc_inside
 
 
 def get_bath(
         house_type: str, floor_ins_type: str, bath_ins_type: str, l_base_bath_ms: float, l_base_bath_os: float
-) -> (float, float, float, float, float, float, float):
+) -> (float, float, (float, float, float, float),float):
     """
     Args:
         house_type: 住戸の種類
@@ -103,12 +91,9 @@ def get_bath(
     Returns:
         次の7つの変数からなるタプル
             (1) 浴室の土間床等の面積, m2,
-            (2) 浴室の床面積, m2
-            (3) 浴室の土間床等の外周部の長さ（主方位から0度）, m
-            (4) 浴室の土間床等の外周部の長さ（主方位から90度）, m
-            (5) 浴室の土間床等の外周部の長さ（主方位から180度）, m
-            (6) 浴室の土間床等の外周部の長さ（主方位から270度）, m
-            (7) 浴室の土間床等の外周部の長さ（室内側）, m
+            (2) 浴室の断熱した床の面積, m2
+            (3) 浴室の土間床等の外周部の長さ（4方位）, m
+            (4) 浴室の土間床等の外周部の長さ（室内側）, m
     """
 
     # 浴室の土間床等の外周部の長さ（主方位から0度）, m
@@ -168,15 +153,17 @@ def get_bath(
     else:
         raise Exception
 
-    return a_ef_bath, a_f_bath, l_base_bath_000, l_base_bath_090, l_base_bath_180, l_base_bath_270, l_base_bath_inside
+    l_base_bath_outside = (l_base_bath_000, l_base_bath_090, l_base_bath_180, l_base_bath_270)
+
+    return a_ef_bath, a_f_bath, l_base_bath_outside, l_base_bath_inside
 
 
 def get_f_s(house_type: str, floor_ins_type: str, bath_ins_type: str,
-            a_env: float, a_f: List[float], h: List[float], h_base_other: float,
-            h_base_bath: float, h_base_entrance: float, l_base_bath_000: float, l_base_bath_090: float,
-            l_base_bath_180: float, l_base_bath_270: float, l_base_bath_inside: float, l_base_entrance_000: float,
-            l_base_entrance_090: float, l_base_entrance_180: float, l_base_entrance_270: float,
-            l_base_entrance_inside: float, f_s_default: List[float]):
+            a_env: float, a_f: List[float],
+            h: List[float], h_base_other: float, h_base_bath: float, h_base_etrc: float,
+            l_base_bath_outside: (float, float, float, float), l_base_bath_inside: float,
+            l_base_etrc_outside: (float, float, float, float), l_base_etrc_inside: float,
+            f_s_default: List[float]):
     """
     Args:
         house_type: 住戸の種類
@@ -187,17 +174,11 @@ def get_f_s(house_type: str, floor_ins_type: str, bath_ins_type: str,
         h: 各階の高さ, m
         h_base_other: 基礎の高さ, m
         h_base_bath: 浴室の基礎の高さ, m
-        h_base_entrance: 玄関の基礎の高さ, m
-        l_base_bath_000: 浴室の土間床等の外周部の長さ（主方位から0度）, m
-        l_base_bath_090: 浴室の土間床等の外周部の長さ（主方位から90度）, m
-        l_base_bath_180: 浴室の土間床等の外周部の長さ（主方位から180度）, m
-        l_base_bath_270: 浴室の土間床等の外周部の長さ（主方位から270度）, m
+        h_base_etrc: 玄関の基礎の高さ, m
+        l_base_bath_outside: 浴室の土間床等の外周部の長さ（４方位）, m
         l_base_bath_inside: 浴室の土間床等の外周部の長さ（室内側）, m
-        l_base_entrance_000: 玄関の土間床等の外周部の長さ（主方位から0度）, m
-        l_base_entrance_090: 玄関の土間床等の外周部の長さ（主方位から90度）, m
-        l_base_entrance_180: 玄関の土間床等の外周部の長さ（主方位から180度）, m
-        l_base_entrance_270: 玄関の土間床等の外周部の長さ（主方位から270度）, m
-        l_base_entrance_inside: 玄関の土間床等の外周部の長さ（室内側）, m
+        l_base_etrc_outside: 玄関の土間床等の外周部の長さ（4方位）, m
+        l_base_etrc_inside: 玄関の土間床等の外周部の長さ（室内側）, m
         f_s_default: 形状係数のデフォルト値
     Returns:
         形状係数（リスト）
@@ -206,14 +187,13 @@ def get_f_s(house_type: str, floor_ins_type: str, bath_ins_type: str,
         集合住宅の場合は1つの要素からなる配列（集合住宅の場合、平屋を想定している。）
     """
 
-    l_base_entrance_total = l_base_entrance_000 + l_base_entrance_090 + l_base_entrance_180 \
-        + l_base_entrance_270 + l_base_entrance_inside
-    l_base_bath_total = l_base_bath_000 + l_base_bath_090 + l_base_bath_180 + l_base_bath_270 + l_base_bath_inside
+    l_base_etrc_total = sum(l_base_etrc_outside) + l_base_etrc_inside
+    l_base_bath_total = sum(l_base_bath_outside) + l_base_bath_inside
 
     x = a_env - 2 * a_f[0] \
-        - l_base_entrance_total * h_base_entrance \
+        - l_base_etrc_total * h_base_etrc \
         - l_base_bath_total * h_base_bath \
-        + (l_base_entrance_total + l_base_bath_total) * h_base_other
+        + (l_base_etrc_total + l_base_bath_total) * h_base_other
 
     if house_type == 'detached':
         y = 4 * a_f[0] ** 0.5 * (h[0] + h_base_other) + 4 * a_f[1] ** 0.5 * f_s_default[1] / f_s_default[0] * h[1]
@@ -271,120 +251,341 @@ def get_l(house_type: str, a_f: List[float], l_prm: List[float]) -> (List[float]
     return l_ms, l_os
 
 
-def get_a_d_wall(a_door_000, a_door_090, a_door_180, a_door_270, a_srf_000, a_srf_090, a_srf_180, a_srf_270, a_window_000,
-                 a_window_090, a_window_180, a_window_270):
-    a_wall_000 = sum(a_srf_000) - a_window_000 - a_door_000
-    a_wall_090 = sum(a_srf_090) - a_window_090 - a_door_090
-    a_wall_180 = sum(a_srf_180) - a_window_180 - a_door_180
-    a_wall_270 = sum(a_srf_270) - a_window_270 - a_door_270
-    return a_wall_000, a_wall_090, a_wall_180, a_wall_270
+def get_a_evp_wall(
+        a_evp_door: (float, float, float, float),
+        a_evp_srf: (List[float], List[float], List[float], List[float]),
+        a_evp_window: (float, float, float, float)) -> (float, float, float, float):
+    """
+    Args:
+        a_evp_door: ドアの面積（4方位）, m2
+        a_evp_srf: 各階の壁面積（窓面積を含む）（4方位）, m2
+        a_evp_window: 窓の面積の合計(4方位）, m2
+    Returns:
+        壁の面積（4方位）, m2
+    """
+
+    a_evp_srf_000, a_evp_srf_090, a_evp_srf_180, a_evp_srf_270 = a_evp_srf
+    a_evp_window_000, a_evp_window_090, a_evp_window_180, a_evp_window_270 = a_evp_window
+    a_evp_door_000, a_evp_door_090, a_evp_door_180, a_evp_door_270 = a_evp_door
+
+    a_evp_wall_000 = sum(a_evp_srf_000) - a_evp_window_000 - a_evp_door_000
+    a_evp_wall_090 = sum(a_evp_srf_090) - a_evp_window_090 - a_evp_door_090
+    a_evp_wall_180 = sum(a_evp_srf_180) - a_evp_window_180 - a_evp_door_180
+    a_evp_wall_270 = sum(a_evp_srf_270) - a_evp_window_270 - a_evp_door_270
+
+    return a_evp_wall_000, a_evp_wall_090, a_evp_wall_180, a_evp_wall_270
 
 
-def get_a_d_door(a_door_back_entrance, a_door_entrance, house_type):
-    a_door_000 = 0.0
-    a_door_090 = a_door_entrance if house_type == 'detached' else 0.0
-    a_door_180 = a_door_back_entrance if house_type == 'detached' else a_door_entrance
-    a_door_270 = 0.0
-    return a_door_000, a_door_090, a_door_180, a_door_270
+def get_a_evp_door(
+        a_evp_door_back_entrance: float, a_evp_door_entrance: float, house_type: str
+) -> (float, float, float, float):
+    """
+    Args:
+        a_evp_door_back_entrance: 勝手口ドアの面積, m2
+        a_evp_door_entrance: 玄関ドアの面積, m2
+        house_type: 住宅の種類
+    Returns:
+        ドアの面積（4方位）, m2
+    """
+
+    a_evp_door_000 = 0.0
+
+    a_evp_door_090 = {
+        'detached': a_evp_door_entrance,
+        'attached': 0.0,
+    }[house_type]
+
+    a_evp_door_180 = {
+        'detached': a_evp_door_back_entrance,
+        'attached': a_evp_door_entrance,
+    }[house_type]
+
+    a_evp_door_270 = 0.0
+
+    return a_evp_door_000, a_evp_door_090, a_evp_door_180, a_evp_door_270
 
 
-def get_a_d_window(a_window_total, r_window_000, r_window_090, r_window_180, r_window_270):
+def get_a_evp_window(a_window_total, r_window):
+    """
+    Args:
+        a_window_total: 窓の面積の合計, m2
+        r_window: 窓の面積の合計に対する方位別の窓の面積（4方位）
+    Returns:
+        窓の面積（4方位）, m2
+    """
+
+    r_window_000, r_window_090, r_window_180, r_window_270 = r_window
+
     a_window_000 = a_window_total * r_window_000
     a_window_090 = a_window_total * r_window_090
     a_window_180 = a_window_total * r_window_180
     a_window_270 = a_window_total * r_window_270
+
     return a_window_000, a_window_090, a_window_180, a_window_270
 
 
-def get_a_d_window_total(a_door_back_entrance, a_door_entrance, a_open):
-    a_window_total = a_open - a_door_entrance - a_door_back_entrance
-    return a_window_total
+def get_a_evp_window_total(
+        a_evp_door_back_entrance: float, a_evp_door_entrance: float, a_evp_open_total: float) -> float:
+    """
+    Args:
+        a_evp_door_back_entrance: 勝手口ドアの面積, m2
+        a_evp_door_entrance: 玄関ドアの面積, m2
+        a_evp_open_total: 開口部の面積の合計, m2
+    Returns:
+        窓の面積の合計, m2
+    """
+
+    return a_evp_open_total - a_evp_door_entrance - a_evp_door_back_entrance
 
 
-def get_a_d_open(a_d_env, r_open):
-    a_open = a_d_env * r_open
-    return a_open
+def get_a_evp_open_total(a_d_env: float, r_open: float) -> float:
+    """
+    Args:
+        a_d_env: 外皮の面積の合計（基礎の面積を除く）, m2
+        r_open: 開口部の面積比率
+    Returns:
+        開口部の面積の合計, m2
+    """
+
+    return a_d_env * r_open
 
 
-def get_a_d_env(a_base_total_000, a_base_total_090, a_base_total_180, a_base_total_270, a_base_total_inside, a_d_env):
-    a_env = a_d_env + a_base_total_000 + a_base_total_090 + a_base_total_180 + a_base_total_270 + a_base_total_inside
-    return a_env
+def get_a_evp_total(
+        a_evp_base_total_outside: (float, float, float, float), a_base_total_inside: float, a_evp_total_not_base: float
+) -> float:
+    """
+    Args:
+        a_evp_base_total_outside: 基礎の面積の合計（室外側）（4方位）, m2
+        a_base_total_inside: 基礎の面積の合計（室内側）, m2
+        a_evp_total_not_base: 外皮の面積の合計（基礎の面積を除く）, m2
+    Returns: 外皮の面積の合計, m2
+    """
+
+    return a_evp_total_not_base + sum(a_evp_base_total_outside) + a_base_total_inside
 
 
-def get_a_d_env_not_base(a_ef_total, a_f_total, a_roof, a_srf_000, a_srf_090, a_srf_180, a_srf_270):
-    a_d_env = a_f_total + a_ef_total + a_roof + sum(a_srf_000) + sum(a_srf_090) + sum(a_srf_180) + sum(a_srf_270)
-    return a_d_env
+def get_a_evp_total_not_base(
+        a_evp_ef_total: float, a_evp_f_total: float, a_evp_roof: float,
+        a_evp_srf: (List[float], List[float], List[float], List[float])) -> float:
+    """
+    Args:
+        a_evp_ef_total: 土間床の面積の合計, m2
+        a_evp_f_total: 断熱した床面積の合計, m2
+        a_evp_roof: 屋根又は天井の面積, m2
+        a_evp_srf: 各階の壁面積（窓面積を含む）（4方位）, m2
+    Returns:
+        外皮の面積の合計（基礎の面積を除く）, m2
+    """
+
+    a_evp_srf_000, a_evp_srf_090, a_evp_srf_180, a_evp_srf_270 = a_evp_srf
+    a_evp_srf_total = sum(a_evp_srf_000) + sum(a_evp_srf_090) + sum(a_evp_srf_180) + sum(a_evp_srf_270)
+
+    return a_evp_f_total + a_evp_ef_total + a_evp_roof + a_evp_srf_total
 
 
-def get_a_d_srf(l_ms, l_os, h):
-    a_srf_000 = [l_ls_i * h_i for l_ls_i, h_i in zip(l_ms, h)]
-    a_srf_090 = [l_ss_i * h_i for l_ss_i, h_i in zip(l_os, h)]
-    a_srf_180 = [l_ls_i * h_i for l_ls_i, h_i in zip(l_ms, h)]
-    a_srf_270 = [l_ss_i * h_i for l_ss_i, h_i in zip(l_os, h)]
-    return a_srf_000, a_srf_090, a_srf_180, a_srf_270
+def get_a_evp_srf(l_ms: List[float], l_os: List[float], h: List[float]) -> (float, float, float, float):
+    """
+    Args:
+        l_ms: 各階の主方位の長さ, m
+        l_os: 各階のその他方位の長さ, m
+        h: 各階の高さ, m
+    Returns:
+        各階の壁面積（窓面積を含む）（4方位）, m2
+    """
+
+    a_evp_srf_000 = [l_ms_i * h_i for l_ms_i, h_i in zip(l_ms, h)]
+    a_evp_srf_090 = [l_os_i * h_i for l_os_i, h_i in zip(l_os, h)]
+    a_evp_srf_180 = [l_ms_i * h_i for l_ms_i, h_i in zip(l_ms, h)]
+    a_evp_srf_270 = [l_os_i * h_i for l_os_i, h_i in zip(l_os, h)]
+
+    return a_evp_srf_000, a_evp_srf_090, a_evp_srf_180, a_evp_srf_270
 
 
-def get_a_d_base_total(a_base_entrance_000, a_base_entrance_090, a_base_entrance_180, a_base_entrance_270,
-                       a_base_entrance_inside, a_base_bath_000, a_base_bath_090, a_base_bath_180, a_base_bath_270,
-                       a_base_bath_inside, a_base_other_000, a_base_other_090, a_base_other_180, a_base_other_270,
-                       a_base_other_inside):
-    a_base_total_000 = a_base_other_000 + a_base_entrance_000 + a_base_bath_000
-    a_base_total_090 = a_base_other_090 + a_base_entrance_090 + a_base_bath_090
-    a_base_total_180 = a_base_other_180 + a_base_entrance_180 + a_base_bath_180
-    a_base_total_270 = a_base_other_270 + a_base_entrance_270 + a_base_bath_270
-    a_base_total_inside = a_base_other_inside + a_base_entrance_inside + a_base_bath_inside
-    return a_base_total_000, a_base_total_090, a_base_total_180, a_base_total_270, a_base_total_inside
+def get_a_evp_base_total(
+        a_evp_base_etrc_outside: (float, float, float, float), a_evp_base_etrc_inside: float,
+        a_evp_base_bath_outside: (float, float, float, float), a_evp_base_bath_inside: float,
+        a_evp_base_other_outside: (float, float, float, float), a_evp_base_other_inside: float
+) -> ((float, float, float, float), float):
+    """
+    Args:
+        a_evp_base_etrc_outside: 玄関等の基礎の面積（室外側）（4方位）, m2
+        a_evp_base_etrc_inside:  玄関等の基礎の面積（室内側）, m2
+        a_evp_base_bath_outside: 浴室の基礎の面積（室外側）（4方位）, m2
+        a_evp_base_bath_inside: 浴室の基礎の面積（室内側）, m2
+        a_evp_base_other_outside: その他の基礎の面積（室外側）（4方位）, m2
+        a_evp_base_other_inside: その他の基礎の面積（室内側）, m2
+    Returns:
+        タプル
+            (1) 基礎の面積の合計（室外側）（4方位）, m2
+            (2) 基礎の面積の合計（室内側）, m2
+    """
+
+    a_evp_base_etrc_000, a_evp_base_etrc_090, a_evp_base_etrc_180, a_evp_base_etrc_270 = a_evp_base_etrc_outside
+    a_evp_base_bath_000, a_evp_base_bath_090, a_evp_base_bath_180, a_evp_base_bath_270 = a_evp_base_bath_outside
+    a_evp_base_other_000, a_evp_base_other_090, a_evp_base_other_180, a_evp_base_other_270 = a_evp_base_other_outside
+
+    a_evp_base_total_000 = a_evp_base_other_000 + a_evp_base_etrc_000 + a_evp_base_bath_000
+    a_evp_base_total_090 = a_evp_base_other_090 + a_evp_base_etrc_090 + a_evp_base_bath_090
+    a_evp_base_total_180 = a_evp_base_other_180 + a_evp_base_etrc_180 + a_evp_base_bath_180
+    a_evp_base_total_270 = a_evp_base_other_270 + a_evp_base_etrc_270 + a_evp_base_bath_270
+
+    a_evp_base_total_outside = a_evp_base_total_000, a_evp_base_total_090, a_evp_base_total_180, a_evp_base_total_270
+
+    a_evp_base_total_inside = a_evp_base_other_inside + a_evp_base_etrc_inside + a_evp_base_bath_inside
+
+    return a_evp_base_total_outside, a_evp_base_total_inside
 
 
-def get_a_d_base_other(l_base_other_000, l_base_other_090, l_base_other_180, l_base_other_270, h_base_other):
-    a_base_other_000 = l_base_other_000 * h_base_other
-    a_base_other_090 = l_base_other_090 * h_base_other
-    a_base_other_180 = l_base_other_180 * h_base_other
-    a_base_other_270 = l_base_other_270 * h_base_other
-    a_base_other_inside = 0.0
-    return a_base_other_000, a_base_other_090, a_base_other_180, a_base_other_270, a_base_other_inside
+def get_a_evp_base_other(
+        l_base_other_outside: (float, float, float, float), h_base_other: float
+) -> ((float, float, float, float), float):
+    """
+    Args:
+        l_base_other_outside: その他の土間床等の周辺部の長さ（室外側）（4方位）, m
+        h_base_other: その他の基礎の高さ, m
+    Returns:
+        タプル
+            (1) その他の基礎の面積（室外側）（4方位）, m2
+            (2) その他の基礎の面積（室内側）, m2
+    """
+
+    l_base_other_000, l_base_other_090, l_base_other_180, l_base_other_270 = l_base_other_outside
+
+    a_evp_base_other_000 = l_base_other_000 * h_base_other
+    a_evp_base_other_090 = l_base_other_090 * h_base_other
+    a_evp_base_other_180 = l_base_other_180 * h_base_other
+    a_evp_base_other_270 = l_base_other_270 * h_base_other
+
+    a_evp_base_other_outside = a_evp_base_other_000, a_evp_base_other_090, a_evp_base_other_180, a_evp_base_other_270
+
+    a_evp_base_other_inside = 0.0
+
+    return a_evp_base_other_outside, a_evp_base_other_inside
 
 
-def get_a_d_base_bath(l_base_bath_000, l_base_bath_090, l_base_bath_180, l_base_bath_270, l_base_bath_inside,
-                      h_base_bath):
+def get_a_evp_base_bath(
+        l_base_bath_outside: (float, float, float, float), l_base_bath_inside: float, h_base_bath: float
+) -> ((float, float, float, float), float):
+    """
+    Args:
+        l_base_bath_outside: 浴室の土間床等の周辺部の長さ（室外側）（4方位）, m
+        l_base_bath_inside:  浴室の土間床等の周辺部の長さ（室内側）, m
+        h_base_bath:  浴室の基礎の高さ, m
+    Returns:
+        タプル
+            (1) 浴室の基礎の面積（室外側）（4方位）, m2
+            (2) 浴室の基礎の面積（室内側）, m2
+    """
+
+    l_base_bath_000, l_base_bath_090, l_base_bath_180, l_base_bath_270 = l_base_bath_outside
+
     a_base_bath_000 = l_base_bath_000 * h_base_bath
     a_base_bath_090 = l_base_bath_090 * h_base_bath
     a_base_bath_180 = l_base_bath_180 * h_base_bath
     a_base_bath_270 = l_base_bath_270 * h_base_bath
+
+    a_evp_base_bath_outside = a_base_bath_000, a_base_bath_090, a_base_bath_180, a_base_bath_270
+
     a_base_bath_inside = l_base_bath_inside * h_base_bath
-    return a_base_bath_000, a_base_bath_090, a_base_bath_180, a_base_bath_270, a_base_bath_inside
+
+    return a_evp_base_bath_outside, a_base_bath_inside
 
 
-def get_a_d_base_entrance(l_base_entrance_000, l_base_entrance_090, l_base_entrance_180, l_base_entrance_270,
-                          l_base_entrance_inside, h_base_entrance):
-    a_base_entrance_000 = l_base_entrance_000 * h_base_entrance
-    a_base_entrance_090 = l_base_entrance_090 * h_base_entrance
-    a_base_entrance_180 = l_base_entrance_180 * h_base_entrance
-    a_base_entrance_270 = l_base_entrance_270 * h_base_entrance
-    a_base_entrance_inside = l_base_entrance_inside * h_base_entrance
-    return a_base_entrance_000, a_base_entrance_090, a_base_entrance_180, a_base_entrance_270, a_base_entrance_inside
+def get_a_evp_base_entrance(
+        l_base_etrc_outside: (float, float, float, float), l_base_etrc_inside: float, h_base_etrc: float
+) -> ((float, float, float, float), float):
+    """
+    Args:
+        l_base_etrc_outside: 玄関等の土間床周辺部の長さ（室外側）（4方位）, m
+        l_base_etrc_inside:  玄関等の土間床周辺部の長さ（室内側）, m
+        h_base_etrc: 玄関等の基礎の高さ, m
+    Returns:
+        タプル
+            (1) 玄関等の基礎の面積（室外側）（4方位）, m
+            (2) 玄関等の基礎の面積（室内側）, m
+    """
+
+    l_base_etrc_000, l_base_etrc_090, l_base_etrc_180, l_base_etrc_270 = l_base_etrc_outside
+
+    a_evp_base_etrc_000 = l_base_etrc_000 * h_base_etrc
+    a_evp_base_etrc_090 = l_base_etrc_090 * h_base_etrc
+    a_evp_base_etrc_180 = l_base_etrc_180 * h_base_etrc
+    a_evp_base_etrc_270 = l_base_etrc_270 * h_base_etrc
+
+    a_evp_base_etrc_outside = a_evp_base_etrc_000, a_evp_base_etrc_090, a_evp_base_etrc_180, a_evp_base_etrc_270
+
+    a_evp_base_etrc_inside = l_base_etrc_inside * h_base_etrc
+
+    return a_evp_base_etrc_outside, a_evp_base_etrc_inside
 
 
-def get_a_d_roof(a_f):
-    a_roof = a_f[0]
-    return a_roof
+def get_a_evp_roof(a_f: List[float]) -> float:
+    """
+    Args:
+        a_f: 各階の床面積, m2
+    Returns:
+        屋根又は天井の面積, m2
+    """
+
+    return a_f[0]
 
 
-def get_l_base_total(l_base_entrance_000, l_base_entrance_090, l_base_entrance_180, l_base_entrance_270,
-                     l_base_entrance_inside, l_base_bath_000, l_base_bath_090, l_base_bath_180, l_base_bath_270,
-                     l_base_bath_inside, l_base_other_000, l_base_other_090, l_base_other_180, l_base_other_270,
-                     l_base_other_inside):
+def get_l_base_total(
+        l_base_etrc_outside: (float, float, float, float), l_base_entrance_inside: float,
+        l_base_bath_outside: (float, float, float, float), l_base_bath_inside: float,
+        l_base_other_outside: (float, float, float, float), l_base_other_inside: float
+) -> ((float, float, float, float), float):
+    """
+    Args:
+        l_base_etrc_outside: 玄関等の土間床等の外周部の長さ（室外側）（4方位）, m
+        l_base_entrance_inside: 玄関等の土間床等の外周部の長さ（室内側）, m
+        l_base_bath_outside: 浴室の土間床等の外周部の長さ（室外側）（4方位）, m
+        l_base_bath_inside: 浴室の土間床等の外周部の長さ（室内側）, m
+        l_base_other_outside: その他の土間床等の外周部の長さ（室外側）（4方位）, m
+        l_base_other_inside: その他の土間床等の外周部の長さ（室内側）, m
+    Returns:
+        タプル
+            (1) 土間床等の外周部の長さの合計（室外側）（4方位）, m
+            (2) 土間床等の外周部の長さの合計（室内側）, m
+    """
+
+    l_base_entrance_000, l_base_entrance_090, l_base_entrance_180, l_base_entrance_270 = l_base_etrc_outside
+    l_base_bath_000, l_base_bath_090, l_base_bath_180, l_base_bath_270 = l_base_bath_outside
+    l_base_other_000, l_base_other_090, l_base_other_180, l_base_other_270 = l_base_other_outside
+
     l_base_total_000 = l_base_other_000 + l_base_entrance_000 + l_base_bath_000
     l_base_total_090 = l_base_other_090 + l_base_entrance_090 + l_base_bath_090
     l_base_total_180 = l_base_other_180 + l_base_entrance_180 + l_base_bath_180
     l_base_total_270 = l_base_other_270 + l_base_entrance_270 + l_base_bath_270
+
+    l_base_total_outside = l_base_total_000, l_base_total_090, l_base_total_180, l_base_total_270
+
     l_base_total_inside = l_base_other_inside + l_base_entrance_inside + l_base_bath_inside
-    return l_base_total_000, l_base_total_090, l_base_total_180, l_base_total_270, l_base_total_inside
+
+    return l_base_total_outside, l_base_total_inside
 
 
-def get_l_base_other(house_type, floor_ins_type, l_ms, l_os, l_base_entrance_000, l_base_entrance_090,
-                     l_base_entrance_180, l_base_entrance_270, l_base_bath_000, l_base_bath_090, l_base_bath_180,
-                     l_base_bath_270):
+def get_l_base_other(
+        house_type: str, floor_ins_type: str, l_ms: List[float], l_os: List[float],
+        l_base_etrc_outside: (float, float, float, float), l_base_bath_outside: (float, float, float, float)
+) -> ((float, float, float, float), float):
+    """
+    Args:
+        house_type: 住戸の種類
+        floor_ins_type: 床の断熱の種類
+        l_ms: 主方位側の長さ, m
+        l_os: その他方位側の長さ, m
+        l_base_etrc_outside: 玄関等の土間床等の周辺部の長さ（室外側）（4方位）, m
+        l_base_bath_outside: 浴室の土間床等の周辺部の長さ（室外側）（4方位）, m
+    Returns:
+        タプル
+            (1) その他の土間床等の周辺部の長さ（室外側）（4方位）, m
+            (2) その他の土間床等の周辺部の長さ（室内側）, m
+    """
+
+    l_base_entrance_000, l_base_entrance_090, l_base_entrance_180, l_base_entrance_270 = l_base_etrc_outside
+    l_base_bath_000, l_base_bath_090, l_base_bath_180, l_base_bath_270 = l_base_bath_outside
+
     if house_type == 'detached' and floor_ins_type == 'base':
         l_base_other_000 = l_ms[0] - l_base_entrance_000 - l_base_bath_000
         l_base_other_090 = l_os[0] - l_base_entrance_090 - l_base_bath_090
@@ -395,49 +596,78 @@ def get_l_base_other(house_type, floor_ins_type, l_ms, l_os, l_base_entrance_000
         l_base_other_090 = 0.0
         l_base_other_180 = 0.0
         l_base_other_270 = 0.0
+
+    l_base_other_outside = l_base_other_000, l_base_other_090, l_base_other_180, l_base_other_270
+
     l_base_other_inside = 0.0
-    return l_base_other_000, l_base_other_090, l_base_other_180, l_base_other_270, l_base_other_inside
+
+    return l_base_other_outside, l_base_other_inside
 
 
-def get_a_d_f_total(a_f_entrance, a_f_bath, a_f_other):
-    return a_f_entrance + a_f_bath + a_f_other
+def get_a_evp_f_total(
+        a_evp_f_etrc: float, a_evp_f_bath: float, a_evp_f_other: float) -> float:
+    """
+    Args:
+        a_evp_f_etrc: 玄関の断熱した床の面積, m2
+        a_evp_f_bath: 浴室の断熱した床の面積, m2
+        a_evp_f_other: その他の断熱した床の面積, m2
+    Returns:
+        断熱した床の面積の合計, m2
+    """
+
+    return a_evp_f_etrc + a_evp_f_bath + a_evp_f_other
 
 
-def get_a_d_f_other(house_type, floor_ins_type, bath_ins_type, a_ef_entrance, a_ef_bath, a_f, a_f_entrance, a_f_bath):
-    if house_type == 'detached':
-        if floor_ins_type == 'floor':
-            if bath_ins_type == 'base':
-                a_f_other = a_f[0] - a_ef_entrance - a_ef_bath
-            elif bath_ins_type == 'floor' or bath_ins_type == 'not_exist':
-                a_f_other = a_f[0] - a_ef_entrance - a_f_bath
-            else:
-                raise Exception
-        elif floor_ins_type == 'base':
-            a_f_other = 0.0
-        else:
-            raise Exception
-    elif house_type == 'attached':
-        a_f_other = a_f[0] - a_f_entrance - a_f_bath
-    else:
-        raise Exception
-    return a_f_other
+def get_a_evp_f_other(
+        a_f: List[float], a_evp_f_etrc: float, a_evp_f_bath: float, a_evp_ef_total: float) -> float:
+    """
+    Args:
+        a_f: 各階の床面積, m2
+        a_evp_f_etrc: 玄関の断熱した床の面積, m2
+        a_evp_f_bath: 浴室の断熱した床の面積, m2
+        a_evp_ef_total: 土間床の面積の合計, m2
+    Returns:
+        断熱した床の面積の合計, m2
+    """
+
+    return a_f[0] - a_evp_ef_total - a_evp_f_etrc - a_evp_f_bath
 
 
-def get_a_d_ef_total(a_ef_bath, a_ef_entrance, a_ef_other):
-    a_ef_total = a_ef_entrance + a_ef_bath + a_ef_other
-    return a_ef_total
+def get_a_evp_ef_total(a_evp_ef_bath: float, a_evp_ef_etrc: float, a_evp_ef_other: float) -> float:
+    """
+    Args:
+        a_evp_ef_bath: 浴室の土間の床面積, m2
+        a_evp_ef_etrc: 玄関の土間の床面積, m2
+        a_evp_ef_other: その他の土間の床面積, m2
+    Returns:
+        土間の床面積の合計, m2
+    """
+
+    return a_evp_ef_etrc + a_evp_ef_bath + a_evp_ef_other
 
 
-def get_a_d_ef_other(house_type, floor_ins_type, a_f, a_ef_bath, a_ef_entrance):
+def get_a_evp_ef_other(
+        house_type: str, floor_ins_type: str, a_f: List[float], a_evp_ef_bath: float, a_evp_ef_etrc: float) -> float:
+    """
+    Args:
+        house_type: 住戸の種類
+        floor_ins_type: 床の断熱の種類
+        a_f: 各階の床面積, m2
+        a_evp_ef_bath: 浴室の土間の床面積, m2
+        a_evp_ef_etrc: 玄関の土間の床面積, m2
+    Returns:
+        その他の土間の床面積, m2
+    """
+
     if house_type == 'detached' and floor_ins_type == 'base':
-        a_ef_other = a_f[0] - a_ef_entrance - a_ef_bath
+        return a_f[0] - a_evp_ef_etrc - a_evp_ef_bath
     else:
-        a_ef_other = 0.0
-    return a_ef_other
+        return 0.0
 
 
-def calc_area(house_type: str, a_f_total: float, r_open: float,
-              floor_ins_type: str = None, bath_ins_type: str = None, a_d_env: float = None):
+def calc_area(
+        house_type: str, a_f_total: float, r_open: float,
+        floor_ins_type: str = None, bath_ins_type: str = None, a_env_input: float = None) -> Dict:
     """
     Args:
         house_type: 住戸の種類 (= 'detached', 'attached')
@@ -445,8 +675,9 @@ def calc_area(house_type: str, a_f_total: float, r_open: float,
         r_open: 開口部の面積比率
         floor_ins_type: 床の断熱の種類 (= 'floor', 'base')
         bath_ins_type: 浴室の床の断熱の種類 (= 'floor', 'base', 'not_exist')
-        a_d_env: 外皮面積の合計, m2
+        a_env_input: 外皮面積の合計, m2
     Returns:
+
     """
 
     # region model house を作成するにあたってのデフォルト設定
@@ -456,14 +687,14 @@ def calc_area(house_type: str, a_f_total: float, r_open: float,
     #   デフォルト住宅の床面積は70.00m2であり、周長は、主方位側長さ6.14m、その他方位側長さ11.4mである。
     #   f_s = l_prm / (a_f ** 0.5 * 4) だから、
     #   f_s = (11.4 + 11.4 + 6.14 + 6.14) / (70 ** 0.5 * 4) = 1.048215... = 1.05
-    f_s_default = {'detached': [1.08, 1.04], 'attached': [1.05]}[house_type]
+    f_s_default = {'detached': [1.08, 1.04], 'attached': [1.048215]}[house_type]
 
     # 1階の床面積に対する2階の床面積の比
     # 集合住宅の場合、平屋であるので、この値は定義できないため、Noneを返す。
     r_fa = {'detached': 0.77, 'attached': None}[house_type]
 
     # 玄関の基礎の高さ, m
-    h_base_entrance = {'detached': 0.18, 'attached': 0.0}[house_type]
+    h_base_etrc = {'detached': 0.18, 'attached': 0.0}[house_type]
 
     # 浴室の基礎の高さ, m
     h_base_bath = {
@@ -491,14 +722,14 @@ def calc_area(house_type: str, a_f_total: float, r_open: float,
 
     # 玄関ドアの面積, m2
     #   集合住宅の玄関ドアは、0.9*1.95
-    a_door_entrance = {'detached': 1.89, 'attached': 1.755}[house_type]
+    a_evp_door_entrance = {'detached': 1.89, 'attached': 1.755}[house_type]
 
     # 勝手口ドアの面積, m2
-    a_door_back_entrance = {'detached': 1.62, 'attached': 0.0}[house_type]
+    a_evp_door_back_entrance = {'detached': 1.62, 'attached': 0.0}[house_type]
 
     # 主開口方位側の玄関の長さ, m
     # その他方位側の玄関の長さ, m
-    l_entrance_ms, l_entrance_os = {'detached': (1.365, 1.82), 'attached': (1.0, 1.0)}[house_type]
+    l_etrc_ms, l_etrc_os = {'detached': (1.365, 1.82), 'attached': (1.0, 1.0)}[house_type]
 
     # 主開口方位側の浴室の長さ, m
     # その他方位側の浴室の長さ, m
@@ -513,7 +744,7 @@ def calc_area(house_type: str, a_f_total: float, r_open: float,
     #   窓の面積の合計：12.26
     #   外皮の面積の合計：237.03
     #   面積比率：0.051723... = 0.052
-    r_window_000, r_window_090, r_window_180, r_window_270 = {
+    r_window = {
         'detached': (0.6862, 0.0721, 0.1097, 0.1320),
         'attached': (0.6330, 0.1517, 0.2153, 0.0000),
     }[house_type]
@@ -524,31 +755,27 @@ def calc_area(house_type: str, a_f_total: float, r_open: float,
     a_f = get_a_f(house_type, a_f_total, r_fa)
 
     # 玄関の土間床等の面積, m2
-    # 玄関の床面積, m2
+    # 玄関の断熱した床の面積, m2
     # 玄関の土間床等の外周部の長さ, m
-    a_evp_ef_etrc, a_evp_f_entrance, l_base_entrance_outside, l_base_entrance_000, l_base_entrance_090, l_base_entrance_180, l_base_entrance_270, \
-        l_base_entrance_inside = get_entrance(house_type, floor_ins_type, l_entrance_ms, l_entrance_os)
-    l_base_entrance_000, l_base_entrance_090, l_base_entrance_180, l_base_entrance_270 = l_base_entrance_outside
-
-    mh = ModelHouse(a_f)
+    a_evp_ef_etrc, a_evp_f_etrc, l_base_etrc_outside, l_base_etrc_inside = get_entrance(
+        house_type, floor_ins_type, l_etrc_ms, l_etrc_os)
 
     # 浴室の土間床等の面積, m2
-    # 浴室の床面積, m2
+    # 浴室の断熱した床の面積, m2
     # 浴室の土間床等の外周部の長さ, m
-    a_d_ef_bath, a_d_f_bath, l_base_bath_000, l_base_bath_090, l_base_bath_180, l_base_bath_270, l_base_bath_inside \
-        = get_bath(house_type, floor_ins_type, bath_ins_type, l_bath_ms, l_bath_os)
+    a_evp_ef_bath, a_evp_f_bath, l_base_bath_outside, l_base_bath_inside = get_bath(
+        house_type, floor_ins_type, bath_ins_type, l_bath_ms, l_bath_os)
 
     # 各階の形状係数
     # 外皮の面積の合計が定義されていない場合はデフォルト値を使用する。
     # 外皮の面積の合計が定義されている場合は、そこから逆算して形状係数を求める。
-    if a_d_env is None:
+    if a_env_input is None:
         f_s = f_s_default
     else:
         f_s = get_f_s(
             house_type, floor_ins_type, bath_ins_type,
-            a_d_env, a_f, h, h_base_other, h_base_bath, h_base_entrance, l_base_bath_000,
-            l_base_bath_090, l_base_bath_180, l_base_bath_270, l_base_bath_inside, l_base_entrance_000,
-            l_base_entrance_090, l_base_entrance_180, l_base_entrance_270, l_base_entrance_inside, f_s_default)
+            a_env_input, a_f, h, h_base_other, h_base_bath, h_base_etrc,
+            l_base_bath_outside, l_base_bath_inside, l_base_etrc_outside, l_base_etrc_inside, f_s_default)
 
     # 各階の周長, m
     l_prm = get_l_prm(a_f, f_s)
@@ -558,108 +785,145 @@ def calc_area(house_type: str, a_f_total: float, r_open: float,
     # 集合住宅の場合は修正する必要あり
     l_ms, l_os = get_l(house_type, a_f, l_prm)
 
-    a_d_ef_other = get_a_d_ef_other(house_type, floor_ins_type, a_f, a_d_ef_bath, a_evp_ef_etrc)
+    # その他の土間の床面積, m2
+    a_evp_ef_other = get_a_evp_ef_other(house_type, floor_ins_type, a_f, a_evp_ef_bath, a_evp_ef_etrc)
 
-    a_d_ef_total = get_a_d_ef_total(a_d_ef_bath, a_evp_ef_etrc, a_d_ef_other)
+    # 土間の床面積の合計, m2
+    a_evp_ef_total = get_a_evp_ef_total(a_evp_ef_bath, a_evp_ef_etrc, a_evp_ef_other)
 
-    a_d_f_other = get_a_d_f_other(
-        house_type, floor_ins_type, bath_ins_type, a_evp_ef_etrc, a_d_ef_bath, a_f, a_evp_f_entrance, a_d_f_bath)
+    # その他の断熱した床面積, m2
+    a_evp_f_other = get_a_evp_f_other(a_f, a_evp_f_etrc, a_evp_f_bath, a_evp_ef_total)
 
-    a_d_f_total = get_a_d_f_total(a_evp_f_entrance, a_d_f_bath, a_d_f_other)
+    # 断熱した床面積の合計, m2
+    a_evp_f_total = get_a_evp_f_total(a_evp_f_etrc, a_evp_f_bath, a_evp_f_other)
 
-    l_base_other_000, l_base_other_090, l_base_other_180, l_base_other_270, l_base_other_inside = get_l_base_other(
-        house_type, floor_ins_type, l_ms, l_os, l_base_entrance_000, l_base_entrance_090, l_base_entrance_180,
-        l_base_entrance_270, l_base_bath_000, l_base_bath_090, l_base_bath_180, l_base_bath_270)
+    # その他の土間床等の外周部の長さ（室外側）（4方位）, m
+    # その他の土間床等の外周部の長さ（室内側）, m
+    l_base_other_outside, l_base_other_inside = get_l_base_other(
+        house_type, floor_ins_type, l_ms, l_os, l_base_etrc_outside, l_base_bath_outside)
 
-    l_base_total_000, l_base_total_090, l_base_total_180, l_base_total_270, l_base_total_inside = get_l_base_total(
-        l_base_entrance_000, l_base_entrance_090, l_base_entrance_180, l_base_entrance_270,
-        l_base_entrance_inside, l_base_bath_000, l_base_bath_090, l_base_bath_180, l_base_bath_270,
-        l_base_bath_inside, l_base_other_000, l_base_other_090, l_base_other_180, l_base_other_270,
-        l_base_other_inside)
+    # 土間床等の外周部の長さの合計（室外側）（4方位）, m
+    # 土間床等の外周部の長さの合計（室内側）, m
+    l_base_total_outside, l_base_total_inside = get_l_base_total(
+        l_base_etrc_outside, l_base_etrc_inside,
+        l_base_bath_outside, l_base_bath_inside,
+        l_base_other_outside, l_base_other_inside)
 
-    a_d_roof = get_a_d_roof(a_f)
+    # 屋根又は天井の面積, m2
+    a_evp_roof = get_a_evp_roof(a_f)
 
-    a_d_base_entrance_000, a_d_base_entrance_090, a_d_base_entrance_180, a_d_base_entrance_270,\
-        a_d_base_entrance_inside = get_a_d_base_entrance(
-            l_base_entrance_000, l_base_entrance_090, l_base_entrance_180, l_base_entrance_270, l_base_entrance_inside,
-            h_base_entrance)
+    # 玄関等の基礎の面積（室外側）（4方位）, m2
+    # 玄関等の基礎の面積（室内側）, m2
+    a_evp_base_etrc_outside, a_evp_base_etrc_inside = get_a_evp_base_entrance(
+        l_base_etrc_outside, l_base_etrc_inside, h_base_etrc)
 
-    a_d_base_bath_000, a_d_base_bath_090, a_d_base_bath_180, a_d_base_bath_270,\
-        a_d_base_bath_inside = get_a_d_base_bath(
-            l_base_bath_000, l_base_bath_090, l_base_bath_180, l_base_bath_270, l_base_bath_inside, h_base_bath)
+    # 浴室の基礎の面積（室外側）（4方位）, m2
+    # 浴室の基礎の面積（室内側）, m2
+    a_evp_base_bath_outside, a_evp_base_bath_inside = get_a_evp_base_bath(
+            l_base_bath_outside, l_base_bath_inside, h_base_bath)
 
-    a_d_base_other_000, a_d_base_other_090, a_d_base_other_180, a_d_base_other_270,\
-        a_d_base_other_inside = get_a_d_base_other(
-            l_base_other_000, l_base_other_090, l_base_other_180, l_base_other_270, h_base_other)
+    # その他の基礎の面積（室外側）（4方位）, m2
+    # その他の基礎の面積（室内側）, m2
+    a_evp_base_other_outside, a_evp_base_other_inside = get_a_evp_base_other(l_base_other_outside, h_base_other)
 
-    a_d_base_total_000, a_d_base_total_090, a_d_base_total_180, a_d_base_total_270,\
-        a_d_base_total_inside = get_a_d_base_total(
-            a_d_base_entrance_000, a_d_base_entrance_090, a_d_base_entrance_180, a_d_base_entrance_270,
-            a_d_base_entrance_inside, a_d_base_bath_000, a_d_base_bath_090, a_d_base_bath_180, a_d_base_bath_270,
-            a_d_base_bath_inside, a_d_base_other_000, a_d_base_other_090, a_d_base_other_180, a_d_base_other_270,
-            a_d_base_other_inside)
+    # 基礎の面積の合計（室外側）（4方位）, m2
+    # 基礎の面積の合計（室内側）, m2
+    a_evp_base_total_outside, a_evp_base_total_inside = get_a_evp_base_total(
+        a_evp_base_etrc_outside, a_evp_base_etrc_inside,
+        a_evp_base_bath_outside, a_evp_base_bath_inside,
+        a_evp_base_other_outside, a_evp_base_other_inside)
 
-    a_d_srf_000, a_d_srf_090, a_d_srf_180, a_d_srf_270 = get_a_d_srf(l_ms, l_os, h)
+    # 各階の壁面積（窓面積を含む）（4方位）, m2
+    a_evp_srf = get_a_evp_srf(l_ms, l_os, h)
 
-    a_d_env_not_base = get_a_d_env_not_base(a_d_ef_total, a_d_f_total, a_d_roof, a_d_srf_000, a_d_srf_090, a_d_srf_180, a_d_srf_270)
+    # 外皮の面積の合計（基礎の面積を除く）, m2
+    a_evp_total_not_base = get_a_evp_total_not_base(a_evp_ef_total, a_evp_f_total, a_evp_roof, a_evp_srf)
 
-    a_d_env = get_a_d_env(
-        a_d_base_total_000, a_d_base_total_090, a_d_base_total_180, a_d_base_total_270, a_d_base_total_inside,
-        a_d_env_not_base)
+    # 外皮の面積の合計, m2
+    a_evp_total = get_a_evp_total(a_evp_base_total_outside, a_evp_base_total_inside, a_evp_total_not_base)
 
-    a_d_open = get_a_d_open(a_d_env_not_base, r_open)
+    # 開口部の面積の合計, m2
+    a_evp_open_total = get_a_evp_open_total(a_evp_total_not_base, r_open)
 
-    a_d_window_total = get_a_d_window_total(a_door_back_entrance, a_door_entrance, a_d_open)
+    # 窓の面積の合計, m2
+    a_evp_window_total = get_a_evp_window_total(a_evp_door_back_entrance, a_evp_door_entrance, a_evp_open_total)
 
-    a_d_window_000, a_d_window_090, a_d_window_180, a_d_window_270 = get_a_d_window(
-        a_d_window_total, r_window_000, r_window_090, r_window_180, r_window_270)
+    # 窓の面積の合計, m2
+    a_evp_window = get_a_evp_window(a_evp_window_total, r_window)
 
-    a_d_door_000, a_d_door_090, a_d_door_180, a_d_door_270 = get_a_d_door(
-        a_door_back_entrance, a_door_entrance, house_type)
+    # ドアの面積, m2
+    a_evp_door = get_a_evp_door(a_evp_door_back_entrance, a_evp_door_entrance, house_type)
 
-    a_d_wall_000, a_d_wall_090, a_d_wall_180, a_d_wall_270 = get_a_d_wall(
-        a_d_door_000, a_d_door_090, a_d_door_180, a_d_door_270, a_d_srf_000, a_d_srf_090, a_d_srf_180, a_d_srf_270,
-        a_d_window_000, a_d_window_090, a_d_window_180, a_d_window_270)
+    # 壁の面積, m2
+    a_evp_wall = get_a_evp_wall(a_evp_door, a_evp_srf, a_evp_window)
 
-    return mh
-    """
-           dict(
-        a_f=a_f,  # 各階の床面積, m2
-        a_env=round_num(a_d_env, 2),  # 外皮の部位の面積の合計, m2
-        a_f_total=round_num(a_f_total, 2),  # 床面積の合計, m2
-        a_roof=round_num(a_d_roof, 2),  # 屋根又は天井の面積, m2
-        a_wall_000=round_num(a_d_wall_000, 2),  # 主開口方位から時計回りに0度の方向に面した壁の面積, m2
-        a_wall_090=round_num(a_d_wall_090, 2),  # 主開口方位から時計回りに90度の方向に面した壁の面積, m2
-        a_wall_180=round_num(a_d_wall_180, 2),  # 主開口方位から時計回りに180度の方向に面した壁の面積, m2
-        a_wall_270=round_num(a_d_wall_270, 2),  # 主開口方位から時計回りに270度の方向に面した壁の面積, m2
-        a_door_000=round_num(a_d_door_000, 2),
-        a_door_090=round_num(a_d_door_090, 2),
-        a_door_180=round_num(a_d_door_180, 2),
-        a_door_270=round_num(a_d_door_270, 2),
-        a_window_000=round_num(a_d_window_000, 2),
-        a_window_090=round_num(a_d_window_090, 2),
-        a_window_180=round_num(a_d_window_180, 2),
-        a_window_270=round_num(a_d_window_270, 2),
-        a_evp_f_entrance=round_num(a_evp_f_entrance, 2),
-        a_d_f_bath=round_num(a_d_f_bath, 2),
-        a_d_f_other=round_num(a_d_f_other, 2),
-        a_d_f_total=round_num(a_d_f_total, 2),
+    return dict(
+        a_f=a_f,
+        a_evp_ef_etrc=a_evp_ef_etrc,
+        a_evp_f_etrc=a_evp_f_etrc,
+        l_base_etrc_outside=l_base_etrc_outside,
+        l_base_etrc_inside=l_base_etrc_inside,
+        a_evp_ef_bath=a_evp_ef_bath,
+        a_evp_f_bath=a_evp_f_bath,
+        l_base_bath_outside=l_base_bath_outside,
+        l_base_bath_inside=l_base_bath_inside,
+        f_s=f_s,
+        l_prm=l_prm,
+        l_ms=l_ms,
+        l_os=l_os,
+        a_evp_ef_other=a_evp_ef_other,
+        a_evp_ef_total=a_evp_ef_total,
+        a_evp_f_other=a_evp_f_other,
+        a_evp_f_total=a_evp_f_total,
+        l_base_other_outside=l_base_other_outside,
+        l_base_other_inside=l_base_other_inside,
+        l_base_total_outside=l_base_total_outside,
+        l_base_total_inside=l_base_total_inside,
+        a_evp_roof=a_evp_roof,
+        a_evp_base_etrc_outside=a_evp_base_etrc_outside,
+        a_evp_base_etrc_inside=a_evp_base_etrc_inside,
+        a_evp_base_bath_outside=a_evp_base_bath_outside,
+        a_evp_base_bath_inside=a_evp_base_bath_inside,
+        a_evp_base_other_outside=a_evp_base_other_outside,
+        a_evp_base_other_inside=a_evp_base_other_inside,
+        a_evp_base_total_outside=a_evp_base_total_outside,
+        a_evp_base_total_inside=a_evp_base_total_inside,
+        a_evp_srf=a_evp_srf,
+        a_evp_total_not_base=a_evp_total_not_base,
+        a_evp_total=a_evp_total,
+        a_evp_open_total=a_evp_open_total,
+        a_evp_window_total=a_evp_window_total,
+        a_evp_window=a_evp_window,
+        a_evp_door=a_evp_door,
+        a_evp_wall=a_evp_wall,
     )
-"""
 
 
 if __name__ == '__main__':
 
-    result1 = calc_area(house_type='detached', a_f_total=90.00, r_open=0.14, floor_ins_type='floor', bath_ins_type='base', a_d_env=266.10)
-    result2 = calc_area(house_type='detached', a_f_total=90.00, r_open=0.14, floor_ins_type='floor', bath_ins_type='floor', a_d_env=266.10)
-    result3 = calc_area(house_type='detached', a_f_total=90.00, r_open=0.14, floor_ins_type='floor', bath_ins_type='not_exist', a_d_env=266.10)
-    result4 = calc_area(house_type='detached', a_f_total=90.00, r_open=0.14, floor_ins_type='base', a_d_env=237.03)
-    result5 = calc_area(house_type='attached', a_f_total=70.00, r_open=0.052, a_d_env=264.36)
-    result6 = calc_area(house_type='detached', a_f_total=90.00, r_open=0.14, floor_ins_type='floor', bath_ins_type='base')
-    result7 = calc_area(house_type='detached', a_f_total=90.00, r_open=0.14, floor_ins_type='floor', bath_ins_type='floor')
-    result8 = calc_area(house_type='detached', a_f_total=90.00, r_open=0.14, floor_ins_type='floor', bath_ins_type='not_exist')
-    result9 = calc_area(house_type='detached', a_f_total=90.00, r_open=0.14, floor_ins_type='base')
-    result10 = calc_area(house_type='attached', a_f_total=70.00, r_open=0.052)
+    result1 = calc_area(
+        house_type='detached', a_f_total=90.00, r_open=0.14, floor_ins_type='floor',bath_ins_type='base',
+        a_env_input=266.10)
+    result2 = calc_area(
+        house_type='detached', a_f_total=90.00, r_open=0.14, floor_ins_type='floor', bath_ins_type='floor',
+        a_env_input=262.46)
+    result3 = calc_area(
+        house_type='detached', a_f_total=90.00, r_open=0.14, floor_ins_type='floor', bath_ins_type='not_exist',
+        a_env_input=262.46)
+    result4 = calc_area(
+        house_type='detached', a_f_total=90.00, r_open=0.14, floor_ins_type='base', a_env_input=275.69)
+    result5 = calc_area(
+        house_type='attached', a_f_total=70.00, r_open=0.05885, a_env_input=238.22)
+    result6 = calc_area(
+        house_type='detached', a_f_total=90.00, r_open=0.14, floor_ins_type='floor', bath_ins_type='base')
+    result7 = calc_area(
+        house_type='detached', a_f_total=90.00, r_open=0.14, floor_ins_type='floor', bath_ins_type='floor')
+    result8 = calc_area(
+        house_type='detached', a_f_total=90.00, r_open=0.14, floor_ins_type='floor', bath_ins_type='not_exist')
+    result9 = calc_area(
+        house_type='detached', a_f_total=90.00, r_open=0.14, floor_ins_type='base')
+    result10 = calc_area(
+        house_type='attached', a_f_total=70.00, r_open=0.05885)
 
     print(result1)
     print(result2)
