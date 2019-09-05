@@ -287,30 +287,37 @@ class Space:
         # 室内表面熱収支計算のための行列作成
         self.matAX, self.matWSR, self.matWSB = make_matrix_for_surface_heat_balance(self)
 
-        # BRM、BRLを計算する
-        self.BRM = [0.0 for j in range(8760 * 4)]
-        self.BRL = [0.0 for j in range(8760 * 4)]
-        for tloop in range(8760 * 4):
-            # BRM、BRLの初期化
-            self.BRM[tloop] = self.Hcap / calc_time_interval
-            self.BRL[tloop] = self.Beta
-            for (matWSR, matWSB, surface) in zip(self.matWSR, self.matWSB, self.input_surfaces):
-                # 室内対流熱伝達率×面積[W/K]
-                AF0 = surface.area * surface.hic
-                # hc×A×(1-WSR)の積算
-                self.BRM[tloop] += AF0 * (1.0 - matWSR)
-                # BRLの計算
-                self.BRL[tloop] += AF0 * matWSB
+        # ** BRMを計算する 式(5) **
 
-            # 外気導入項の計算（2項目の0.0はすきま風量）
-            self.BRM[tloop] += conca * conrowa * (self.Vent + 0.0 + self.local_vent_amount_schedule[math.floor(tloop / 4)]) / 3600.0
-            # 室間換気
-            for room_vent in self.RoomtoRoomVent:
-                self.BRM[tloop] += conca * conrowa * room_vent.volume / 3600.0
+        # BRM - 初期値
+        BRM_0 = self.Hcap / calc_time_interval
+
+        # BRM - 何と書けばよいのだろう
+        for (matWSR, surface) in zip(self.matWSR, self.input_surfaces):
+            BRM_0 += surface.area * surface.hic * (1.0 - matWSR)
+
+        # BRM - 室間換気
+        for room_vent in self.RoomtoRoomVent:
+            BRM_0 += conca * conrowa * room_vent.volume / 3600.0
             
-            # 家具からの熱取得
-            if self.Capfun > 0.0:
-                self.BRM[tloop] += 1. / (calc_time_interval / self.Capfun + 1. / self.Cfun)
+        # BRM - 家具からの熱取得
+        if self.Capfun > 0.0:
+            BRM_0 += 1. / (calc_time_interval / self.Capfun + 1. / self.Cfun)
+
+        # BRM - 外気導入項の計算（3項目の0.0はすきま風量）
+        self.BRM = BRM_0 + conca * conrowa * (self.Vent + 0.0 + np.repeat(self.local_vent_amount_schedule, 4)) / 3600.0
+
+        # ** BRLを計算する 式(7) **
+
+        # BRL - 初期値
+        BRL_0 = self.Beta
+
+        # BRL - 何と書けばよいのだろう
+        for (matWSB, surface) in zip(self.matWSB, self.input_surfaces):
+            BRL_0 += surface.area * surface.hic * matWSB
+
+        self.BRL = np.repeat([BRL_0], 8760 * 4)
+
 
 # 前時刻の室温を現在時刻の室温、家具温度に置換
 def update_space_oldstate(space):
