@@ -1,11 +1,12 @@
+import numpy as np
 from inclined_surface_solar_radiation import calc_slope_sol
 from NextVent import update_oldstate
 from rear_surface_equivalent_temperature import calcTeo
 from common import get_nday, conca, conrowa, conra
 from blowing_condition_rac import calcVac_xeout
 from indoor_radiative_heat_transfer import distribution_transmitted_solar_radiation
-from calculation_surface_temperature import calc_surface_temperature, calc_Tei, convolution, \
-    calc_CRX_WSC, calc_Tei, calc_CVL_WSV, calc_qi
+from calculation_surface_temperature import get_surface_temperature, get_Tei, \
+    calc_CRX_WSC, get_Tei, calc_CVL_WSV, calc_qi, update_Tsd
 from Win_ACselect import reset_SW, mode_select
 from PMV import calcPMV
 from Psychrometrics import xtrh, rhtx
@@ -131,19 +132,24 @@ def calcHload(space, is_actual_calc, calc_time_interval, spaces, dtmNow, Ta: flo
     space.Tr = space.Xot * space.OT - space.XLr * space.Lrs - space.XC
     
     # 表面温度の計算
-    calc_surface_temperature(space)
+    Ts = get_surface_temperature(space.matWSR, space.matWSV, space.matWSC, space.matWSB, space.input_surfaces, space.Tr, space.Lrs)
+    for i in range(space.Nsurf):
+        space.input_surfaces[i].Ts = Ts[i]
+
     # MRT、AST、平均放射温度の計算
     space.MRT, space.AST, space.Tsx = calc_MRT_AST_Tsx(space)
 
     # 室内側等価温度・熱流の計算
     for surface in space.input_surfaces:
         # 室内側等価温度の計算
-        surface.Tei = calc_Tei(surface, space.Tr, space.Tsx, space.Lrs, space.Beta)
+        surface.Tei = get_Tei(surface.hic, surface.hi, surface.hir, surface.RSsol, surface.flr, surface.area, space.Tr, space.Tsx, space.Lrs, space.Beta)
         # 室内表面熱流の計算
-        surface.Qc, surface.Qr, surface.Lr, surface.RS, surface.Qt, surface.oldqi = calc_qi(surface, space.Tr, space.Tsx, space.Lrs, space.Beta)
+        surface.Qc, surface.Qr, surface.Lr, surface.RS, surface.Qt, surface.oldqi = \
+            calc_qi(surface.hic, surface.area, surface.hir, surface.RSsol, surface.flr, surface.Ts, space.Tr, space.Tsx, space.Lrs, space.Beta)
 
     # ここから潜熱の計算
     space.BRMX, space.BRXC = calc_BRMX_BRXC(space, calc_time_interval, xo)
+
     # 室内湿度と潜熱負荷の計算
     calc_xr_Ll_residential(space)
 
@@ -232,13 +238,22 @@ def convert_coefficient_for_operative_temperature(space, sequence_number):
 def calc_BRC(space, Dtime, Ta, sequence_number):
     # 定数項の計算
     BRC = 0.0
+
+    # 配列の準備
+    area = np.array([x.area for x in space.input_surfaces])
+    hic = np.array([x.hic for x in space.input_surfaces])
+    RFT0 = np.array([x.RFT0 for x in space.input_surfaces])
+    Teo = np.array([x.Teo for x in space.input_surfaces])
+    RSsol = np.array([x.RSsol for x in space.input_surfaces])
+    RFA0 = np.array([x.RFA0 for x in space.input_surfaces])
     
     # 行列CRX、WSCの計算
-    calc_CRX_WSC(space, sequence_number)
+    matCRX, matWSC = calc_CRX_WSC(RFT0, Teo, RSsol, RFA0, space.matAX, sequence_number)
+    space.matCRX = matCRX
+    space.matWSC = matWSC
     
     # {BRC}の計算
-    for (matWSC, surface) in zip(space.matWSC, space.input_surfaces):
-        BRC += matWSC * surface.area * surface.hic
+    BRC += np.sum(matWSC * area * hic)
 
     # 外気流入風（換気＋すきま風）
     BRC += conca * conrowa * \
@@ -249,6 +264,7 @@ def calc_BRC(space, Dtime, Ta, sequence_number):
     for room_vent in space.RoomtoRoomVent:
         BRC += conca * conrowa * room_vent.volume \
                 * room_vent.oldTr / 3600.0
+
     # RM/Δt*oldTrの項
     BRC += space.Hcap / Dtime * space.oldTr
 
@@ -257,12 +273,17 @@ def calc_BRC(space, Dtime, Ta, sequence_number):
         BRC += (space.Capfun / Dtime * space.oldTfun + space.Qsolfun) \
                 / (space.Capfun / (Dtime * space.Cfun) + 1.)
 
+    # Tsdの更新
+    update_Tsd(space)
+
     # 行列CVL、WSVの計算
-    calc_CVL_WSV(space)
+    matCVL, matWSV = calc_CVL_WSV(space.matAX, space.input_surfaces)
+
+    space.matCVL= matCVL
+    space.matWSV = matWSV
     
     # 畳み込み後の室内表面温度の計算
-    for (matWSV, surface) in zip(space.matWSV, space.input_surfaces):
-        BRC += surface.area * surface.hic * matWSV
+    BRC += np.sum(area * hic * matWSV)
 
     # 定数項への内部発熱の加算
     BRC += space.Hn

@@ -8,7 +8,7 @@ from Surface import Surface
 from NextVent import NextVent
 from common import conca, conrowa, Sgm, conra, bypass_factor_rac, get_nday
 import datetime
-from calculation_surface_temperature import make_matrix_for_surface_heat_balance
+from calculation_surface_temperature import calc_matrix_for_surface_heat_balance
 from apdx3_human_body import get_alpha_hm_c, get_alpha_hm_r
 # from opening_transmission_solar_radiation import summarize_transparent_solar_radiation
 from furniture import calc_furniture
@@ -284,8 +284,27 @@ class Space:
         # 日射吸収比率の計算
         self.rsolfun = calc_absorption_ratio_of_transmitted_solar_radiation(self.name, self.TotalAF, self.rsolfun, self.input_surfaces)
 
+        #配列の準備
+        RFA0 = np.array([x.RFA0 for x in self.input_surfaces])
+        hic = np.array([x.hic for x in self.input_surfaces])
+        flr = np.array([x.flr for x in self.input_surfaces])
+        area = np.array([x.area for x in self.input_surfaces])
+        hir = np.array([x.hir for x in self.input_surfaces])
+        Fmrt = np.array([x.Fmrt for x in self.input_surfaces])
+        hi = np.array([x.hi for x in self.input_surfaces])
+
         # 室内表面熱収支計算のための行列作成
-        self.matAX, self.matWSR, self.matWSB = make_matrix_for_surface_heat_balance(self)
+        self.matAX, self.matWSR, self.matWSB = calc_matrix_for_surface_heat_balance(
+            RFA0=RFA0, 
+            hic=hic, 
+            flr=flr, 
+            area=area, 
+            hir=hir, 
+            Fmrt=Fmrt, 
+            hi=hi, 
+            Nsurf=self.Nsurf, 
+            Beta=self.Beta
+        )
 
         # BRMの計算 式(5)
         self.BRM = get_BRM(
