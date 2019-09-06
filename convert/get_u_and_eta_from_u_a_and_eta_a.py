@@ -294,13 +294,13 @@ def get_m_opq(region: int, u_psi_value: Dict[str, float], general_parts: Dict, d
     def get_m_opq_h_in_general_parts(pt):
         return sum([
             p['area'] * 0.034 * u_psi_value[pt] * factor_nu.get_nu(region, 'heating', p['direction'])
-            for p in general_parts if (p['general_part_type'] == pt and p['external_surface_type'] == 'outdoor')
+            for p in general_parts if (p['general_part_type'] == pt and p['next_space'] == 'outdoor')
         ])
 
     def get_m_opq_c_in_general_parts(pt):
         return sum([
             p['area'] * 0.034 * u_psi_value[pt] * factor_nu.get_nu(region, 'cooling', p['direction'])
-            for p in general_parts if (p['general_part_type'] == pt and p['external_surface_type'] == 'outdoor')
+            for p in general_parts if (p['general_part_type'] == pt and p['next_space'] == 'outdoor')
         ])
 
     m_opq_h_general_part = sum(get_m_opq_h_in_general_parts(pt) for pt in general_parts_type)
