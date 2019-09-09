@@ -6,17 +6,16 @@ import math
 import numpy as np
 from Surface import Surface
 from NextVent import NextVent
-from common import conca, conrowa, Sgm, conra, bypass_factor_rac, get_nday
+from common import conca, conrowa, Sgm, conra, get_nday
 import datetime
 from calculation_surface_temperature import calc_matrix_for_surface_heat_balance
 from apdx3_human_body import get_alpha_hm_c, get_alpha_hm_r
 # from opening_transmission_solar_radiation import summarize_transparent_solar_radiation
-from furniture import calc_furniture
-from air_flow_rate_rac import set_rac_spec
-from indoor_radiative_heat_transfer import calc_form_factor_of_microbodies, calc_mrt_weight, calc_absorption_ratio_of_transmitted_solar_radiation, \
-    calc_form_factor_for_human_body
+import furniture as a14
+import air_flow_rate_rac as a15 #付録.15
+import indoor_radiative_heat_transfer as a12
 from Psychrometrics import xtrh
-from surface_heat_transfer_coefficient import calc_surface_heat_transfer_coefficient
+import surface_heat_transfer_coefficient as a23
 from building_part_summarize import summarize_building_part
 from local_vent_schedule import read_local_vent_schedules_from_json
 from internal_heat_schedule import read_internal_heat_schedules_from_json
@@ -98,7 +97,11 @@ class Space:
         self.AnnualLoadrHs = 0.0                  # 年間顕熱暖房熱負荷（放射成分）
         self.AnnualLoadrCl = 0.0                  # 年間潜熱冷房熱負荷（放射成分）
         self.AnnualLoadrHl = 0.0                  # 年間潜熱暖房熱負荷（放射成分）
-        self.Lrs = self.Lrl = self.Lcl = self.Lcl = 0.0
+        self.Lrs = 0.0
+        self.Lrl = 0.0
+        self.Lcl = 0.0
+        self.Lcl = 0.0
+        self.Ls = None
         self.Tr = 15.0                              # 室温の初期化
         self.oldTr = 15.0                         # 前時刻の室温の初期化
         self.Tfun = 15.0                            # 家具の温度[℃]
@@ -134,13 +137,15 @@ class Space:
         # 家具の熱容量、湿気容量の計算
         # Capfun:家具熱容量[J/K]、Cfun:家具と室空気間の熱コンダクタンス[W/K]
         # Gf:湿気容量[kg/(kg/kg(DA))]、Cx:湿気コンダクタンス[kg/(s･kg/kg(DA))]
-        self.Capfun, self.Cfun, self.Gf, self.Cx = calc_furniture(self)
+        self.Capfun  = a14.get_Capfun(self.volume)
+        self.Cfun = a14.get_Cfun(self.Capfun)
+        self.Gf = a14.get_Gf(self.volume)
+        self.Cx = a14.get_Cx(self.Gf)
 
         self.xr = xtrh(20.0, 40.0)                  # 室の絶対湿度[kg/kg(DA)]
         self.oldxr = self.xr                      # 室内絶対湿度の初期値
         self.xf = self.xr                           # 家具類の絶対湿度
         self.oldxf = self.xr                      # 家具類の絶対湿度の初期値
-        self.bypass_factor_rac = bypass_factor_rac               # バイパスファクター
         self.xeout = 0.0                          # エアコン熱交換部の飽和絶対湿度[kg/kg(DA)]
         self.Vac = 0.0                              # エアコンの風量[m3/s]
         self.RH = 50.0                              # 室相対湿度[%]
@@ -178,7 +183,7 @@ class Space:
         
         # 透過日射熱取得の計算（部位を集約するので最初に8760時間分計算しておく）
         # 透過日射熱取得収録配列の初期化とメモリ確保
-        self.Qgt = [0.0 for j in range(int(8760.0 * 3600.0 / float(calc_time_interval)))]
+        self.Qgt = np.zeros(int(8760.0 * 3600.0 / float(calc_time_interval)))
 
         ntime = int(24 * 3600 / calc_time_interval)
         nnow = 0
@@ -188,7 +193,6 @@ class Space:
             for tloop in range(ntime):
                 dtime = datetime.timedelta(days=nnow + float(tloop) / float(ntime))
                 dtmNow = dtime + start_date
-                sequence_number = int((get_nday(dtmNow.month, dtmNow.day) - 1) * 24 * 4 + dtmNow.hour * 4 + float(dtmNow.minute) / 60.0 * 3600 / calc_time_interval)
 
                 # 太陽位置の計算
                 solar_position = Solpos(weather, dtmNow)
@@ -243,57 +247,69 @@ class Space:
         
         # 部位の集約
         self.input_surfaces = summarize_building_part(self.input_surfaces)
-            
+
+        # 配列の準備
+        area = np.array([x.area for x in self.input_surfaces])
+        is_solar_absorbed_inside = np.array([x.is_solar_absorbed_inside for x in self.input_surfaces])
+
         # 部位の人体に対する形態係数を計算
-        calc_form_factor_for_human_body(self)
+        fot = a12.calc_form_factor_for_human_body(area, is_solar_absorbed_inside)
+
+        if abs(np.sum(fot) - 1.0) > 0.001:
+            print(self.name, 'total_Fot=', np.sum(fot))
 
         # 部位の面数
         self.Nsurf = len(self.input_surfaces)
 
-        # 各種合計面積の計算
-        self.Atotal = 0.0
-        self.TotalAF = 0.0
-
-        # print('合計面積1=', self.Atotal)
         # 合計面積の計算
-        for surface in self.input_surfaces:
-            self.Atotal += surface.area
+        self.Atotal = np.sum(area)
 
-            # 合計床面積の計算
-            if surface.is_solar_absorbed_inside == True:
-                self.TotalAF += surface.area
-        
+        # 合計床面積の計算
+        self.TotalAF = np.sum(area * is_solar_absorbed_inside)
+
         # ルームエアコンの仕様の設定
-        self.qrtd_c, self.qmax_c, self.qmin_c, self.Vmax, self.Vmin = set_rac_spec(self)
+        self.qrtd_c = a15.get_qrtd_c(self.TotalAF)
+        self.qmax_c = a15.get_qmax_c(self.qrtd_c)
+        self.qmin_c = a15.get_qmin_c()
+        self.Vmax = a15.get_Vmax(self.qrtd_c)
+        self.Vmin = a15.get_Vmin(self.Vmax)
 
         # 放射暖房の発熱部位の設定（とりあえず床発熱）
-        if self.is_radiative_heating:
-            for surface in self.input_surfaces:
-                if surface.is_solar_absorbed_inside:
-                    surface.flr = surface.area / self.TotalAF
+        flr = (area / self.TotalAF) * self.is_radiative_heating * is_solar_absorbed_inside
 
-        # 微小点に対する室内部位の形態係数の計算（永田先生の方法）
-        calc_form_factor_of_microbodies(self.name, self.input_surfaces)
-        
-        #　室内表面対流・放射熱伝達率の計算
-        calc_surface_heat_transfer_coefficient(self.input_surfaces)
-
-        # 平均放射温度計算時の各部位表面温度の重み計算
-        calc_mrt_weight(self.input_surfaces)
-
-        # 日射吸収比率の計算
-        self.rsolfun = calc_absorption_ratio_of_transmitted_solar_radiation(self.name, self.TotalAF, self.rsolfun, self.input_surfaces)
-
-        #配列の準備
-        RFA0 = np.array([x.RFA0 for x in self.input_surfaces])
-        hic = np.array([x.hic for x in self.input_surfaces])
-        flr = np.array([x.flr for x in self.input_surfaces])
-        area = np.array([x.area for x in self.input_surfaces])
-        hir = np.array([x.hir for x in self.input_surfaces])
-        Fmrt = np.array([x.Fmrt for x in self.input_surfaces])
+        # 配列の準備
+        Ei = np.array([x.Ei for x in self.input_surfaces])
         hi = np.array([x.hi for x in self.input_surfaces])
 
-        # 室内表面熱収支計算のための行列作成
+        # 微小点に対する室内部位の形態係数の計算（永田先生の方法）
+        FF, a = a12.calc_form_factor_of_microbodies(self.name, area)
+
+        # 表面熱伝達率の計算
+        hir, hic = a23.calc_surface_transfer_coefficient(Ei, FF, hi)
+
+        # 平均放射温度計算時の各部位表面温度の重み計算 式(101)
+        Fmrt = a12.get_mrt_weight(area, hir)
+
+        # 日射吸収比率の計算
+        self.rsolfun, SolR = a12.calc_absorption_ratio_of_transmitted_solar_radiation(self.name, self.TotalAF, self.rsolfun, is_solar_absorbed_inside, area)
+
+        # 結果保持
+        for i, surface in enumerate(self.input_surfaces):
+            surface.a = a[i]
+            surface.FF = FF[i]
+            surface.hir = hir[i]
+            surface.hic = hic[i]
+            surface.Fmrt = Fmrt[i]
+            surface.SolR = SolR[i]
+            surface.fot = fot[i]
+            surface.flr = flr[i]
+
+
+        # 配列の準備
+        RFA0 = np.array([x.RFA0 for x in self.input_surfaces])
+        V_nxt = np.array([x.volume for x in self.RoomtoRoomVent])
+
+        # 室内表面熱収支計算のための行列作成 式(24)-(26)
         self.matAX, self.matWSR, self.matWSB = calc_matrix_for_surface_heat_balance(
             RFA0=RFA0, 
             hic=hic, 
@@ -311,28 +327,26 @@ class Space:
             Hcap=self.Hcap, 
             calc_time_interval=calc_time_interval, 
             matWSR=self.matWSR, 
-            surfaces=self.input_surfaces, 
-            RoomtoRoomVent=self.RoomtoRoomVent, 
-            Capfun=self.Capfun, 
+            Capfun=self.Capfun,
             Cfun=self.Cfun, 
             Vent=self.Vent, 
-            local_vent_amount_schedule=self.local_vent_amount_schedule
+            local_vent_amount_schedule=self.local_vent_amount_schedule,
+            area=area,
+            hic=hic,
+            V_nxt=V_nxt
         )
 
         # BRLの計算 式(7)
         self.BRL = get_BRL(
             Beta=self.Beta,
             matWSB=self.matWSB,
-            surfaces=self.input_surfaces
+            area=area,
+            hic=hic
         )
 
-# BRMの計算 式(5)
-def get_BRM(Hcap, calc_time_interval, matWSR, surfaces, RoomtoRoomVent, Capfun, Cfun, Vent, local_vent_amount_schedule):
-    # 配列の準備
-    area = np.array([x.area for x in surfaces])
-    hic = np.array([x.hic for x in surfaces])
-    V_nxt = np.array([x.volume for x in RoomtoRoomVent])
 
+# BRMの計算 式(5)
+def get_BRM(Hcap, calc_time_interval, matWSR, Capfun, Cfun, Vent, local_vent_amount_schedule, area, hic, V_nxt):
     # 第1項
     BRM_0 = Hcap / calc_time_interval
     
@@ -354,16 +368,13 @@ def get_BRM(Hcap, calc_time_interval, matWSR, surfaces, RoomtoRoomVent, Capfun, 
 
     return BRM
 
-# BRLの計算 式(7)
-def get_BRL(Beta, matWSB, surfaces):
-    # 配列の準備
-    area = np.array([x.area for x in surfaces])
-    hic = np.array([x.hic for x in surfaces])
 
+# BRLの計算 式(7)
+def get_BRL(Beta, matWSB, area, hic):
     # 式(7)
     BRL = np.sum(area * hic * matWSB) + Beta
-
     return np.repeat([BRL], 8760 * 4)
+
 
 # 前時刻の室温を現在時刻の室温、家具温度に置換
 def update_space_oldstate(space):

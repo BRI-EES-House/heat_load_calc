@@ -3,7 +3,7 @@ from inclined_surface_solar_radiation import calc_slope_sol
 from NextVent import update_oldstate
 from rear_surface_equivalent_temperature import calcTeo
 from common import get_nday, conca, conrowa, conra
-from blowing_condition_rac import calcVac_xeout
+import blowing_condition_rac as a16     #付録.16
 from indoor_radiative_heat_transfer import distribution_transmitted_solar_radiation
 from calculation_surface_temperature import get_surface_temperature, get_Tei, \
     calc_CRX_WSC, get_Tei, calc_CVL_WSV, calc_qi, update_Tsd
@@ -136,26 +136,60 @@ def calcHload(space, is_actual_calc, calc_time_interval, spaces, dtmNow, Ta: flo
     for i in range(space.Nsurf):
         space.input_surfaces[i].Ts = Ts[i]
 
+    # 配列の準備
+    fot = np.array([x.fot for x in space.input_surfaces])
+    area = np.array([x.area for x in space.input_surfaces])
+    Fmrt = np.array([x.Fmrt for x in space.input_surfaces])
+    hic = np.array([x.hic for x in space.input_surfaces])
+    hi = np.array([x.hi for x in space.input_surfaces])
+    hir = np.array([x.hir for x in space.input_surfaces])
+    RSsol = np.array([x.RSsol for x in space.input_surfaces])
+    flr = np.array([x.hi for x in space.input_surfaces])
+
     # MRT、AST、平均放射温度の計算
-    space.MRT, space.AST, space.Tsx = calc_MRT_AST_Tsx(space)
+    space.MRT = get_MRT(fot, Ts)
+    space.AST = get_AST(area, Ts, space.Atotal)
+    space.Tsx = get_Tsx(Fmrt, Ts)
 
-    # 室内側等価温度・熱流の計算
-    for surface in space.input_surfaces:
-        # 室内側等価温度の計算
-        surface.Tei = get_Tei(surface.hic, surface.hi, surface.hir, surface.RSsol, surface.flr, surface.area, space.Tr, space.Tsx, space.Lrs, space.Beta)
-        # 室内表面熱流の計算
-        surface.Qc, surface.Qr, surface.Lr, surface.RS, surface.Qt, surface.oldqi = \
-            calc_qi(surface.hic, surface.area, surface.hir, surface.RSsol, surface.flr, surface.Ts, space.Tr, space.Tsx, space.Lrs, space.Beta)
+    # 室内側等価温度の計算
+    Tei = get_Tei(hic, hi, hir, RSsol, flr, area, space.Tr, space.Tsx, space.Lrs, space.Beta)
 
-    # ここから潜熱の計算
-    space.BRMX, space.BRXC = calc_BRMX_BRXC(space, calc_time_interval, xo)
+    # 室内表面熱流の計算
+    Qc, Qr, Lr, RS, Qt, oldqi = \
+        calc_qi(hic, area, hir, RSsol, flr, Ts, space.Tr, space.Tsx, space.Lrs, space.Beta)
+
+    for i, surface in enumerate(space.input_surfaces):
+        surface.Tei = Tei[i]
+        surface.Qc = Qc[i]
+        surface.Qr = Qr[i]
+        surface.Lr = Lr[i]
+        surface.RS = RS[i]
+        surface.Qt = Qt[i]
+        surface.oldqi = oldqi[i]
+
+    # ======= 4.2 潜熱 =======
 
     # 室内湿度と潜熱負荷の計算
-    calc_xr_Ll_residential(space)
+    calc_xr_Ll_residential(space, calc_time_interval, xo)
 
     # 家具の温度を計算
-    space.Tfun = calcTfun(space, calc_time_interval)
-    space.xf = calcxf(space, calc_time_interval)
+    if space.Capfun > 0.0:
+        space.Tfun, space.Qfuns = calcTfun(
+            Capfun=space.Capfun,
+            oldTfun=space.oldTfun,
+            Cfun=space.Cfun,
+            Tr=space.Tr,
+            Qsolfun=space.Qsolfun,
+            calc_time_interval=calc_time_interval
+        )
+
+    space.xf, space.Qfunl = calcxf(
+        Gf=space.Gf,
+        oldxf=space.oldxf,
+        Cx=space.Cx,
+        xr=space.xr,
+        calc_time_interval=calc_time_interval
+    )
 
     # 年間熱負荷の積算
     # 助走計算以外の時だけ積算
@@ -171,18 +205,17 @@ def calcHload(space, is_actual_calc, calc_time_interval, spaces, dtmNow, Ta: flo
 
     return 0
 
-# MRT、AST、平均放射温度の計算
-def calc_MRT_AST_Tsx(space):
-    MRT = 0.0
-    AST = 0.0
-    Tsx = 0.0
-    for surface in space.input_surfaces:
-        # 人体に対する放射温度：MRT、面積荷重平均温度：AST、平均放射温度：Tsx
-        MRT += surface.fot * surface.Ts
-        AST += surface.area * surface.Ts / space.Atotal
-        Tsx += surface.Fmrt * surface.Ts
-    
-    return MRT, AST, Tsx
+# MRTの計算
+def get_MRT(fot, Ts):
+    return np.sum(fot * Ts)
+
+# ASTの計算
+def get_AST(area, Ts, Atotal):
+    return np.sum(area * Ts / Atotal)
+
+# 平均放射温度の計算
+def get_Tsx(Fmrt, Ts):
+    return np.sum(Fmrt * Ts)
 
 # 年間熱負荷の積算
 def calc_annual_heat_load(space, DTime):
@@ -291,21 +324,68 @@ def calc_BRC(space, Dtime, Ta, sequence_number):
     return BRC
 
 # 湿度・潜熱負荷計算の係数BRMXを計算する
-def calc_BRMX_BRXC(space, Dtime, xo):
+def calc_BRMX_BRXC(Ventset, Infset, LocalVentset, Dtime, Gf,Cx, xo, volume, RoomtoRoomVent, oldxr, oldxf, Lin):
+
     # 外気の流入量
-    Voin = (space.Ventset + space.Infset + space.LocalVentset) / 3600.
+    Voin = get_Voin(Ventset, Infset, LocalVentset)
+
     # 湿気容量の項
-    temp = space.Gf * space.Cx / (space.Gf + Dtime * space.Cx)
-    BRMX = conrowa * (space.volume / Dtime + Voin) + temp
-    BRXC = conrowa * (space.volume / Dtime * space.oldxr + Voin * xo) \
-            + temp * space.oldxf + space.Lin
-    
-    # 室間換気流入風
-    for room_vent in space.RoomtoRoomVent:
-        BRMX += conrowa * room_vent.volume / 3600.0
-        BRXC += conrowa * room_vent.volume * room_vent.oldxr / 3600.0
+    temp = get_temp(Gf=Gf, Cx=Cx, Dtime=Dtime)
+
+    BRMX = get_BRMX(
+        temp=temp,
+        Dtime=Dtime, 
+        volume=volume,
+        Voin=Voin,
+        RoomtoRoomVent=RoomtoRoomVent
+    )
+
+    BRXC = get_BRXC(
+        temp=temp,
+        Dtime=Dtime,
+        volume=volume,
+        Voin=Voin,
+        xo=xo,
+        oldxr=oldxr,
+        oldxf=oldxf,
+        Lin=Lin,
+        RoomtoRoomVent=RoomtoRoomVent
+    )
     
     return BRMX, BRXC
+
+# 外気の流入量
+def get_Voin(Ventset, Infset, LocalVentset):
+    return (Ventset + Infset + LocalVentset) / 3600.
+
+def get_BRMX(temp, Dtime, volume, Voin, RoomtoRoomVent):
+
+    # 配列準備
+    next_volume = np.array([x.volume for x in RoomtoRoomVent])
+
+    BRMX = (conrowa * (volume / Dtime + Voin)
+           + temp
+           + np.sum(conrowa * next_volume / 3600.0))
+
+    return BRMX
+
+def get_BRXC(temp, Dtime, volume, Voin, xo, oldxr, oldxf, Lin, RoomtoRoomVent):
+
+    # 配列準備
+    next_volume = np.array([x.volume for x in RoomtoRoomVent])
+    next_oldxr = np.array([x.oldxr for x in RoomtoRoomVent])
+
+    BRXC = conrowa * (volume / Dtime * oldxr + Voin * xo) \
+           + temp * oldxf \
+           + Lin \
+           + np.sum([conrowa * next_volume * next_oldxr / 3600.0])
+
+    return BRXC
+
+# 湿気容量の項
+def get_temp(Gf, Cx, Dtime):
+    temp = Gf * Cx / (Gf + Dtime * Cx)
+    return temp
 
 # 室温・負荷計算の係数BRMとBRLを計算する
 def calc_BRM_BRL(space, Dtime):
@@ -362,32 +442,118 @@ def calc_Tr_Ls(now_air_conditioning_mode, is_radiative_heating, BRC, BRM, BRL, L
     # 室温、対流空調熱負荷、放射空調熱負荷を返す
     return (Tr, Lcs, Lrs)
 
+
 # 湿度・潜熱負荷の計算ルーチン（住宅）
-def calc_xr_Ll_residential(space):
+def calc_xr_Ll_residential(space, calc_time_interval, xo):
+
+    # BRMX, BRXCの計算 式(17),(18)
+    BRMX_pre, BRXC_pre = calc_BRMX_BRXC(
+        Ventset = space.Ventset,
+        Infset=space.Infset,
+        LocalVentset=space.LocalVentset,
+        Gf=space.Gf,
+        Cx=space.Cx,
+        volume=space.volume,
+        RoomtoRoomVent=space.RoomtoRoomVent,
+        oldxr=space.oldxr,
+        oldxf=space.oldxf,
+        Lin=space.Lin,
+        Dtime=calc_time_interval,
+        xo=xo
+    )
+
+    # ==== ルームエアコン吹出絶対湿度の計算 ====
+
     # 空調の熱交換部飽和絶対湿度の計算
-    calcVac_xeout(space, space.now_air_conditioning_mode)
-    # 空調機除湿の項
-    RhoVac = conrowa * space.Vac * (1.0 - space.bypass_factor_rac)
-    space.BRMX += RhoVac
-    space.BRXC += RhoVac * space.xeout
+    a16.calcVac_xeout(space, space.now_air_conditioning_mode)
+
+    # バイパスファクターBF 式(114)
+    BF = a16.get_BF()
+
+    # 空調機除湿の項 式(20)より
+    RhoVac = get_RhoVac(space.Vac, BF)
+
     # 室絶対湿度[kg/kg(DA)]の計算
-    space.xr = space.BRXC / space.BRMX
-    # 加湿量の計算
-    space.Ghum = RhoVac * (space.xeout - space.xr)
-    if space.Ghum > 0.0:
-        space.Ghum = 0.0
+    BRMX_base = BRMX_pre + RhoVac
+    BRXC_base = BRXC_pre + RhoVac * space.xeout
+
+    # 室絶対湿度の計算 式(16)
+    xr_base = get_xr(BRXC_base, BRMX_base)
+
+    # 補正前の加湿量の計算 [ks/s] 式(20)
+    Ghum_base = get_Ghum(RhoVac, space.xeout, xr_base)
+
+    # 除湿量が負値になった場合にはルームエアコン風量V_(ac,n)をゼロとして再度室湿度を計算する
+    if Ghum_base > 0.0:
+        Ghum = 0.0
+        BRMX = BRMX_pre
+        BRXC = BRXC_pre
+
         # 空調機除湿の項の再計算（除湿なしで計算）
-        space.BRMX -= RhoVac
-        space.BRXC -= RhoVac * space.xeout
         space.Va = 0.0
-        # 室絶対湿度の計算
-        space.xr = space.BRXC / space.BRMX
-    # 潜熱負荷の計算
-    space.Lcl = space.Ghum * conra
+
+        # 室絶対湿度の計算 式(16)
+        xr = get_xr(BRXC_pre, BRMX_pre)
+    else:
+        Ghum = Ghum_base
+        BRMX = BRMX_base
+        BRXC = BRXC_base
+        xr = xr_base
+
+    # 除湿量から室加湿熱量を計算 式(21)
+    Lcl = get_Lcl(Ghum)
+
     # 当面は放射空調の潜熱は0
-    space.Lrl = 0.0
-    # 室相対湿度の計算
-    space.RH = rhtx(space.Tr, space.xr)
+    Lrl = get_Lrl()
+
+    # 室相対湿度の計算 式(22)
+    RH = rhtx(space.Tr, xr)
+
+    # 計算結果の保存
+    space.BRMX = BRMX
+    space.BRXC = BRXC
+    space.xr = xr
+    space.Lcl = Lcl
+    space.Lrl = Lrl
+    space.Ghum = Ghum
+    space.RH = RH
+
+
+# 当面は放射空調の潜熱は0
+def get_Lrl():
+    return 0.0
+
+
+# 潜熱負荷の計算
+def get_Lcl(Ghum):
+    """除湿量から室加湿熱量を計算
+
+    :param Ghum: i室のn時点における除湿量 [ks/s]
+    :return:
+    """
+    return Ghum * conra
+
+
+def get_RhoVac(Vac, BF):
+    # 式(20)のうちの一部
+    return conrowa * Vac * (1.0 - BF)
+
+
+# 室絶対湿度の計算 式(16)
+def get_xr(BRXC_i, BRMX_i):
+    return BRXC_i / BRMX_i
+
+
+# i室のn時点における除湿量 [ks/s] 式(20)
+def get_Ghum(RhoVac, xeout, xr):
+    """
+    :param RhoVac:
+    :param xeout:
+    :param xr: 室空気の絶対湿度
+    :return: i室のn時点における除湿量 [ks/s]
+    """
+    return RhoVac * (xeout - xr)
+
 
 # 湿度・潜熱負荷の計算ルーチン（非住宅）
 def calc_xr_Ll_non_residential(space):
@@ -417,20 +583,62 @@ def calc_xr_Ll_non_residential(space):
         space.Lcl = - conra * (space.BRXC - space.BRMX * space.xr)
 
 # 家具の温度を計算する
-def calcTfun(space, calc_time_interval):
-    if space.Capfun > 0.0:
-        space.Tfun = ((space.Capfun / calc_time_interval * space.oldTfun \
-                + space.Cfun * space.Tr + space.Qsolfun) \
-                / (space.Capfun / calc_time_interval + space.Cfun))
-        space.Qfuns = space.Cfun * (space.Tr - space.Tfun)
-    # if self.name == "主たる居室":
-    #     print(self.name, self.oldTfun, self.Tfun, self.Capfun, self.Cfun, self.Qsolfun)
-    return space.Tfun
+def calcTfun(Capfun, oldTfun, Cfun, Tr, Qsolfun, calc_time_interval):
+    """
+
+    :param Capfun: i室の家具の熱容量（付録14．による） [J/K]
+    :param oldTfun: i室の家具の15分前の温度 [℃]
+    :param Cfun: i室の家具と室空気間の熱コンダクタンス（付録14．による）
+    :param Tr:
+    :param Qsolfun: i室のn時点における家具の日射吸収熱量 [W]
+    :param calc_time_interval:
+    :return: i室の家具の温度 [℃]
+    """
+    Tfun = get_Tfun(calc_time_interval, Capfun, oldTfun, Cfun, Tr, Qsolfun)
+    Qfuns = get_Qfuns(Cfun, Tr, Tfun)
+
+    return Tfun, Qfuns
+
+
+def get_Qfuns(Cfun, Tr, Tfun):
+    """
+
+    :param Cfun: i室の家具と室空気間の熱コンダクタンス（付録14．による）
+    :param Tr:
+    :param Tfun: i室の家具の温度 [℃]
+    :return:
+    """
+    return Cfun * (Tr - Tfun)
+
+
+# 家具の温度 式(15)
+def get_Tfun(calc_time_interval, Capfun, oldTfun, Cfun, Tr, Qsolfun):
+    """
+
+    :param calc_time_interval:
+    :param Capfun: i室の家具の熱容量（付録14．による） [J/K]
+    :param oldTfun: i室の家具の15分前の温度 [℃]
+    :param Cfun: i室の家具と室空気間の熱コンダクタンス（付録14．による）
+    :param Tr:
+    :param Qsolfun: i室のn時点における家具の日射吸収熱量 [W]
+    :return:
+    """
+    return (((Capfun / calc_time_interval * oldTfun
+                   + Cfun * Tr + Qsolfun)
+                  / (Capfun / calc_time_interval + Cfun)))
+
 
 # 家具類の湿度を計算する
-def calcxf(space, calc_time_interval):
-    space.xf = (space.Gf / calc_time_interval * space.oldxf + space.Cx * space.xr) / (space.Gf / calc_time_interval + space.Cx)
-    space.Qfunl = space.Cx * (space.xr - space.xf)
-    # if self.name == "主たる居室":
-    #     print(self.name, self.oldTfun, self.Tfun, self.Capfun, self.Cfun, self.Qsolfun)
-    return space.xf
+def calcxf(Gf, oldxf, Cx, xr, calc_time_interval):
+    xf = get_xf(calc_time_interval, Gf, oldxf, Cx, xr)
+    Qfunl = get_Qfunl(Cx, xr, xf)
+
+    return xf, Qfunl
+
+
+def get_Qfunl(Cx, xr, xf):
+    return Cx * (xr - xf)
+
+
+def get_xf(calc_time_interval, Gf, oldxf, Cx, xr):
+    return (Gf / calc_time_interval * oldxf + Cx * xr) / (Gf / calc_time_interval + Cx)

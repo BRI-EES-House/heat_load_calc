@@ -127,7 +127,8 @@ def get_WSC(matAX, matCRX):
 def get_CRX(RFT0, Teo, RSsol, RFA0):
     return RFT0 * Teo + RSsol * RFA0
 
-# 室内表面熱収支計算のための行列作成
+
+# 室内表面熱収支計算のための行列作成 式(24)-(26)
 def calc_matrix_for_surface_heat_balance(RFA0, hic, flr, area, hir, Fmrt, hi, Nsurf, Beta):
     # matFIAの作成 式(26)
     matFIA = get_FIA(RFA0, hic)
