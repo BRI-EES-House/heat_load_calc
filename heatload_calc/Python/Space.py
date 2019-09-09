@@ -8,7 +8,7 @@ from Surface import Surface
 from NextVent import NextVent
 from common import conca, conrowa, Sgm, conra, get_nday
 import datetime
-from calculation_surface_temperature import calc_matrix_for_surface_heat_balance
+import calculation_surface_temperature as a1
 from apdx3_human_body import get_alpha_hm_c, get_alpha_hm_r
 # from opening_transmission_solar_radiation import summarize_transparent_solar_radiation
 import furniture as a14
@@ -27,6 +27,7 @@ from inclined_surface_solar_radiation import calc_slope_sol
 from rear_surface_equivalent_temperature import get_Te
 from opening_transmission_solar_radiation import calc_Qgt
 from Sunbrk import get_shading_area_ratio
+from s4_1_sensible_heat import calc_kc, calc_kr, get_BRL
 
 # # 室温・熱負荷を計算するクラス
 
@@ -108,9 +109,9 @@ class Space:
         self.oldTfun = 15.0                       # 前時刻の家具の温度[℃]
         self.rsolfun = 0.5                        # 透過日射の内家具が吸収する割合[－]
         # self.rsolfun = 0.0
-        self.kc = get_alpha_hm_c() / (get_alpha_hm_r() + get_alpha_hm_c())
+        self.kc = calc_kc()  #式(12)
                                                     # 人体表面の熱伝達率の対流成分比率
-        self.kr = get_alpha_hm_r() / (get_alpha_hm_r() + get_alpha_hm_c())
+        self.kr = calc_kr()  #式(13)
                                                     # 人体表面の熱伝達率の放射成分比率
         self.air_conditioning_demand = False        # 当該時刻の空調需要（0：なし、1：あり）
         self.prev_air_conditioning_mode = 0         # 前時刻の空調運転状態（0：停止、正：暖房、負：冷房）
@@ -125,6 +126,8 @@ class Space:
         self.OTset = 0.0                            # 設定作用温度[℃]
         self.is_radiative_heating = False
         self.radiative_heating_max_capacity = 0.0
+
+        self.Ghum = 0.0
 
         # 暖房設備仕様の読み込み
         heating_equipment_read(self, d_room['heating_equipment'])
@@ -309,18 +312,24 @@ class Space:
         RFA0 = np.array([x.RFA0 for x in self.input_surfaces])
         V_nxt = np.array([x.volume for x in self.RoomtoRoomVent])
 
-        # 室内表面熱収支計算のための行列作成 式(24)-(26)
-        self.matAX, self.matWSR, self.matWSB = calc_matrix_for_surface_heat_balance(
-            RFA0=RFA0, 
-            hic=hic, 
-            flr=flr, 
-            area=area, 
-            hir=hir, 
-            Fmrt=Fmrt, 
-            hi=hi, 
-            Nsurf=self.Nsurf, 
-            Beta=self.Beta
-        )
+        # *********** 室内表面熱収支計算のための行列作成 ***********
+
+        # matFIAの作成 式(26)
+        matFIA = a1.get_FIA(RFA0, hic)
+
+        # FLB=φA0×flr×(1-Beta) 式(26)
+        matFLB = a1.get_FLB(RFA0, flr, self.Beta, area)
+
+        # 行列AX 式(25)
+        self.matAX = a1.get_AX(RFA0, hir, Fmrt, hi, self.Nsurf)
+
+        # {WSR}の計算 式(24)
+        self.matWSR = a1.get_WSR(self.matAX, matFIA)
+
+        # {WSB}の計算 式(24)
+        self.matWSB = a1.get_WSB(self.matAX, matFLB)
+
+        # ****************************************************
 
         # BRMの計算 式(5)
         self.BRM = get_BRM(
@@ -345,6 +354,7 @@ class Space:
         )
 
 
+
 # BRMの計算 式(5)
 def get_BRM(Hcap, calc_time_interval, matWSR, Capfun, Cfun, Vent, local_vent_amount_schedule, area, hic, V_nxt):
     # 第1項
@@ -367,13 +377,6 @@ def get_BRM(Hcap, calc_time_interval, matWSR, Capfun, Cfun, Vent, local_vent_amo
     BRM = np.repeat(BRM_h, 4)
 
     return BRM
-
-
-# BRLの計算 式(7)
-def get_BRL(Beta, matWSB, area, hic):
-    # 式(7)
-    BRL = np.sum(area * hic * matWSB) + Beta
-    return np.repeat([BRL], 8760 * 4)
 
 
 # 前時刻の室温を現在時刻の室温、家具温度に置換

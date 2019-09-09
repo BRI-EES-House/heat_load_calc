@@ -1,7 +1,11 @@
 from PMV import calcPMV
 from scipy.optimize import fsolve
 
-# 着衣量の計算（作用温度から求める）
+"""
+付録35．	PMVの計算方法
+"""
+
+# 着衣量の計算（作用温度から求める） 式(128)
 def calc_clothing(OT):
     # 冷房時の着衣量
     if OT > 29.1:

@@ -2,6 +2,10 @@ from common import get_nday
 import datetime
 import Space
 
+"""
+付録13．	窓の開閉と空調発停の切り替え
+"""
+
 # 当該時刻の窓開閉、空調発停を判定する
 def mode_select(air_conditioning_demand: bool, prev_air_conditioning_mode: int, is_prev_window_open: bool, now_pmv: float) -> tuple:
     # 窓の開閉、空調の発停を決定する

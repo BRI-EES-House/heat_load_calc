@@ -1,3 +1,4 @@
+import numpy as np
 from Wall import Wall, Layer
 from ResponseFactor import ResponseFactor
 from transparent_opening import transparent_opening
@@ -10,6 +11,10 @@ class Surface:
 
     # 初期化
     def __init__(self, d = None, calc_time_interval = None):
+
+        self.oldTsd_a = np.zeros(0)
+        self.oldTsd_t = np.zeros(0)
+
         if d != None and calc_time_interval != None:
             self.is_sun_striked_outside = d['is_sun_striked_outside']
                                                             # True:外表面に日射が当たる
@@ -96,6 +101,8 @@ class Surface:
             self.oldTeo = 15.0
 
             self.Nroot = 0
+            self.oldTsd_a = np.zeros(0)
+            self.oldTsd_t = np.zeros(0)
 
             self.Qt = 0.0
             self.Qc = 0.0  # 対流成分
@@ -138,10 +145,8 @@ def general_part_init(surface, d, calc_time_interval):
     surface.RFA0 = rf.RFA0  # 吸熱応答の初項
     surface.RFT1 = rf.RFT1  # 指数項別貫流応答の初項
     surface.RFA1 = rf.RFA1  # 指数項別吸熱応答の初項
-    surface.oldTsd_a = []
-    surface.oldTsd_t = []
-    surface.oldTsd_a = [0.0 for j in range(surface.Nroot)]
-    surface.oldTsd_t = [0.0 for j in range(surface.Nroot)]
+    surface.oldTsd_a = np.zeros(surface.Nroot)
+    surface.oldTsd_t = np.zeros(surface.Nroot)
     surface.hi = wall.hi  # 室内側表面総合熱伝達率
     surface.ho = wall.ho  # 室外側表面総合熱伝達率
     surface.Ei = wall.Ei   # 室内側表面放射率

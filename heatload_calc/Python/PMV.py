@@ -1,5 +1,9 @@
 import math
 
+"""
+付録35．	PMVの計算方法
+"""
+
 def calcPMV(Ta, MRT, RH, V, Met, Wme, Clo):
     # 水蒸気分圧[Pa]の計算
     Pa = RH / 100. * FNPS(Ta) * 1000.0
@@ -40,7 +44,7 @@ def calcPMV(Ta, MRT, RH, V, Met, Wme, Clo):
         Hc = max(Hcf, Hcn)
         XN = (P5 + P4 * Hc - P2 * XF ** 4.0) / (100.0 + P3 * Hc)
         
-        if abs(XN - XF) < EPS:
+        if abs(XN - XF) < EPS:      #式(138)
             break
     # 着衣の表面温度[℃]
     Tcl = 100.0 * XN - 273.0
