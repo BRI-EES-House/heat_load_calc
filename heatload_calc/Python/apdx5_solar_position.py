@@ -1,6 +1,9 @@
 import math
 import numpy as np
 
+"""
+付録5．	太陽位置の計算
+"""
 
 # 太陽位置を計算するクラス
 class defSolpos:

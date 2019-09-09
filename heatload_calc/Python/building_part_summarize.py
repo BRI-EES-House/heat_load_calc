@@ -1,3 +1,4 @@
+import numpy as np
 from Surface import Surface
 
 # 部位の集約（同一境界条件の部位を集約する）
@@ -162,11 +163,17 @@ def create_surface(surfaces, group_number):
     # 過去の項別応答の履歴配列のメモリ確保
     summarize_surface.Nroot = first_found_surface.Nroot
     if first_found_surface.Nroot > 0:
-        summarize_surface.oldTsd_a = [0.0 for j in range(summarize_surface.Nroot)]
-        summarize_surface.oldTsd_t = [0.0 for j in range(summarize_surface.Nroot)]
+        summarize_surface.oldTsd_a = np.zeros(summarize_surface.Nroot)
+        summarize_surface.oldTsd_t = np.zeros(summarize_surface.Nroot)
         summarize_surface.Row = first_found_surface.Row
-        summarize_surface.RFT1 = [0.0 for j in range(summarize_surface.Nroot)]
-        summarize_surface.RFA1 = [0.0 for j in range(summarize_surface.Nroot)]
+        summarize_surface.RFT1 = np.zeros(summarize_surface.Nroot)
+        summarize_surface.RFA1 = np.zeros(summarize_surface.Nroot)
+    else:
+        summarize_surface.oldTsd_a = np.zeros(0)
+        summarize_surface.oldTsd_t = np.zeros(0)
+        summarize_surface.Row = 0.0
+        summarize_surface.RFT1 = np.zeros(0)
+        summarize_surface.RFA1 = np.zeros(0)
 
     # 伝熱計算のパラメータの面積荷重平均計算
     i = 0
@@ -193,5 +200,7 @@ def create_surface(surfaces, group_number):
                     summarize_surface.RFT1[j] += area[i] * surface.RFT1[j] / summarize_surface.area
                     summarize_surface.RFA1[j] += area[i] * surface.RFA1[j] / summarize_surface.area
             i += 1
+
+
 
     return summarize_surface

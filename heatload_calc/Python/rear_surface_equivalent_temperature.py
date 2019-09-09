@@ -2,36 +2,36 @@ from typing import List
 import Surface
 import Space
 import Exsrf
-from apdx5_solar_position import defSolpos
-from apdx6_direction_cos_incident_angle import calc_cos_incident_angle
-from inclined_surface_solar_radiation import calc_slope_sol
+
+"""
+付録9．	裏面相当温度
+"""
+
 
 # 裏面の相当温度を計算する
-def calcTeo(surface: Surface, Ta: float, oldTr: float, spaces: List['Space'], sequence_number: int):
-    # 前時刻の相当外気温度を控える
-    surface.oldTeo = surface.Teo
-
+def calc_Teo(surface: Surface, Ta: float, oldTr: float, spaces: List['Space'], sequence_number: int):
     # 日射の当たる一般部位または不透明部位の場合
     if surface.boundary_type == "external_general_part" or surface.boundary_type == "external_opaque_part":
         # 室外側に日射が当たる場合
         if surface.is_sun_striked_outside:
-            surface.Teo = surface.Teolist[sequence_number]
+            return surface.Teolist[sequence_number]
         # 室外側に日射が当たらない場合
         else:
-            surface.Teo = get_NextRoom_fromR(surface.backside_boundary_condition, Ta, oldTr)
+            return get_NextRoom_fromR(surface.backside_boundary_condition, Ta, oldTr)
     # 窓の場合
     elif surface.boundary_type == "external_transparent_part":
-        surface.Teo = surface.Teolist[sequence_number]
+        return surface.Teolist[sequence_number]
     # 土壌の場合
     elif surface.boundary_type == "ground":
         # 年平均気温で初期化済み
-        pass
+        return surface.Teo
     # 内壁の場合（前時刻の室温）
     elif surface.boundary_type == "internal":
-        surface.Teo = get_oldNextRoom(surface.backside_boundary_condition, spaces)
+        return get_oldNextRoom(surface.backside_boundary_condition, spaces)
     # 例外
     else:
         print("境界条件が見つかりません。 name=", surface.boundary_type)
+
 
 # 傾斜面の相当外気温度の計算
 def get_Te(exsrf: Exsrf, Iw: float,  _as: float, ho: float, e: float, Ta: float, RN: float) -> float:
@@ -47,10 +47,12 @@ def get_Te(exsrf: Exsrf, Iw: float,  _as: float, ho: float, e: float, Ta: float,
 
     return Te
 
+
 # 温度差係数を設定した隣室温度
 def get_NextRoom_fromR(exsrf: Exsrf, Ta: float, Tr: float) -> float:
     Te = exsrf.R * Ta + (1.0 - exsrf.R) * Tr
     return Te
+
 
 # 前時刻の隣室温度の場合
 def get_oldNextRoom(exsrf: Exsrf, spaces: List['Space']) -> float:
