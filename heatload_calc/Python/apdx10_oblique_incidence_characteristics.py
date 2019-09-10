@@ -1,19 +1,22 @@
+import numpy as np
+
 # 透明部位の入射角特性
 # 直達日射の入射角特性の計算
-def get_CID(CosT: float, incident_angle_characteristics: str) -> float:
+def get_CID(CosT: np.ndarray, incident_angle_characteristics: str) -> np.ndarray:
     """
     :param CosT: 入射角の方向余弦
     :incident_angle_characteristics: ガラスの入射角特性タイプ
     :return: 直達日射の入射角特性
     """
-    CID = 0.0
-    if CosT > 0.0:
-        if incident_angle_characteristics == "single":
-            CID = get_taud_n_single(CosT)
-        elif incident_angle_characteristics == "multiple":
-            CID = get_taud_n_double(CosT)
-        else:
-            print("ガラスの入射角特性タイプ ", incident_angle_characteristics, " が未定義です")
+    if incident_angle_characteristics == "single":
+        CID = get_taud_n_single(CosT)
+    elif incident_angle_characteristics == "multiple":
+        CID = get_taud_n_double(CosT)
+    else:
+        print("ガラスの入射角特性タイプ ", incident_angle_characteristics, " が未定義です")
+
+    CID[CosT <= 0.0] = 0.0
+
     return CID
 
 # 拡散日射の入射角特性の計算

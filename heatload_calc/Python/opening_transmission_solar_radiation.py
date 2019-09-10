@@ -1,49 +1,53 @@
-import datetime
-# import Weather
-from Weather import Solpos, WeaData, enmWeatherComponent
-from common import get_nday
+import numpy as np
 from apdx10_oblique_incidence_characteristics import get_CID
-from inclined_surface_solar_radiation import calc_slope_sol
-from Sunbrk import calc_shading_area_ratio, get_shading_area_ratio
-from apdx6_direction_cos_incident_angle import calc_cos_incident_angle
 
-# 透過日射量[W]、吸収日射量[W]の計算
-def calc_Qgt(surface):
-    # 直達成分
-    Qgtd = get_QGTD(surface.transparent_opening, surface.Id, \
-        surface.backside_boundary_condition.CosT, surface.Fsdw, surface.transparent_opening.incident_angle_characteristics) * surface.area
+"""
+付録11．窓の透過日射熱取得の計算
+"""
 
-    # 拡散成分
-    Qgts = get_QGTS(surface.transparent_opening, surface.Isky, surface.Ir) * surface.area
 
-    # 透過日射量の計算
-    return Qgtd + Qgts
+# 透過日射量[W]、吸収日射量[W]の計算 式(90)
+def calc_Qgt(CosT: np.ndarray, incident_angle_characteristics, Id: np.ndarray, Fsdw: np.ndarray, Isky: np.ndarray, Ir: np.ndarray, area, T, Cd):
 
-# 透過日射熱取得（直達成分）[W/m2]の計算
-def get_QGTD(transparent_opening, Id: float, CosT: float, Fsdw: float, incident_angle_characteristics: str) -> float:
-    """
-    :param Id: 傾斜面入射直達日射量[W/m2]
-    :param CosT: 入射角の方向余弦
-    :param Fsdw: 日よけ等による日影面積率
-    :return: 透過日射熱取得（直達成分）[W/m2]
-    """
     # 直達日射の入射角特性の計算
     CID = get_CID(CosT, incident_angle_characteristics)
 
+    # 直達成分
+    Qgtd = get_QGTD(T, Id, CID, Fsdw)
+
+    # 拡散成分
+    Qgts = get_QGTS(T, Cd, Isky, Ir)
+
+    # 透過日射量の計算
+    Qgt = (Qgtd + Qgts) * area
+
+    return Qgt
+
+
+# 透過日射熱取得（直達成分）[W/m2]の計算
+def get_QGTD(T, Id: np.ndarray, CID: np.ndarray, Fsdw: np.ndarray) -> np.ndarray:
+    """
+    :param Id: 傾斜面入射直達日射量[W/m2]
+    :param CID: 直達日射の入射角特性
+    :param Fsdw: 日よけ等による日影面積率
+    :return: 透過日射熱取得（直達成分）[W/m2]
+    """
     # 透過日射熱取得（直達成分）[W/m2]の計算
-    QGTD = transparent_opening.T * (1.0 - Fsdw) * CID * Id
+    QGTD = T * (1.0 - Fsdw) * CID * Id
 
     return QGTD
 
+
 # 透過日射熱取得（拡散成分）[W/m2]の計算
-def get_QGTS(window, Isk: float, Ir: float) -> float:
+def get_QGTS(T: float, Cd: np.ndarray, Isk: np.ndarray, Ir: np.ndarray) -> np.ndarray:
     """
     :param Isk: 傾斜面入射天空日射量[W/m2]
     :param Ir: 傾斜面入射反射日射量[W/m2]
     :return: 透過日射熱取得（拡散成分）[W/m2]
     """
-    QGTS = window.T * window.Cd * (Isk + Ir)
+    QGTS = T * Cd * (Isk + Ir)
     return QGTS
+
 
 # 透過日射を集約する
 """ def summarize_transparent_solar_radiation(surfaces, calc_time_interval, weather):
@@ -90,7 +94,7 @@ def get_QGTS(window, Isk: float, Ir: float) -> float:
 
                     # 日除けの日影面積率の計算
                     if surface.sunbrk.existance:
-                        surface.Fsdw = get_shading_area_ratio(surface, solar_position)
+                        surface.Fsdw = calc_shading_area_ratio(surface, solar_position)
                     Qgt[item] += calc_Qgt(surface)
 
             item += 1

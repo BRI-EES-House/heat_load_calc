@@ -1,3 +1,4 @@
+import numpy as np
 from common import get_nday
 
 """
@@ -6,14 +7,16 @@ from common import get_nday
 
 
 # JSONファイルから機器・調理発熱スケジュールを読み込む
-def read_internal_heat_schedules_from_json(space, d_room):
+def read_internal_heat_schedules_from_json(d_room):
     # 内部発熱の初期化
     # 機器顕熱
-    space.heat_generation_appliances_schedule = d_room['schedule']['heat_generation_appliances']
+    heat_generation_appliances_schedule = np.array(d_room['schedule']['heat_generation_appliances'])
     # 調理顕熱
-    space.heat_generation_cooking_schedule = d_room['schedule']['heat_generation_cooking']
+    heat_generation_cooking_schedule = np.array(d_room['schedule']['heat_generation_cooking'])
     # 調理潜熱
-    space.vapor_generation_cooking_schedule = d_room['schedule']['vapor_generation_cooking']
+    vapor_generation_cooking_schedule = np.array(d_room['schedule']['vapor_generation_cooking'])
+
+    return heat_generation_appliances_schedule, heat_generation_cooking_schedule, vapor_generation_cooking_schedule
 
 
 # 機器・調理発熱スケジュールの読み込み

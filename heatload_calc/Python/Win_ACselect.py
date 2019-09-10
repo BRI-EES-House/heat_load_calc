@@ -1,6 +1,7 @@
 from common import get_nday
 import datetime
 import Space
+import numpy as np
 
 """
 付録13．	窓の開閉と空調発停の切り替え
@@ -87,17 +88,22 @@ def reset_SW(now_air_conditioning_mode: int, Lcs: float, Lr: float, isRadiantHea
     return temp
 
 # JSONファイルから空調スケジュールを読み込む
-def read_air_conditioning_schedules_from_json(space: Space, d_room: dict) -> None:
+def read_air_conditioning_schedules_from_json(d_room: dict):
     # 空調スケジュールの読み込み
     # 設定温度／PMV上限値の設定
-    space.is_upper_temp_limit_set_schedule = d_room['schedule']['is_upper_temp_limit_set']
+    is_upper_temp_limit_set_schedule = np.array(d_room['schedule']['is_upper_temp_limit_set'])
     # 設定温度／PMV下限値の設定
-    space.is_lower_temp_limit_set_schedule = d_room['schedule']['is_lower_temp_limit_set']
+    is_lower_temp_limit_set_schedule = np.array(d_room['schedule']['is_lower_temp_limit_set'])
     
     # PMV上限値
-    space.pmv_upper_limit_schedule = d_room['schedule']['pmv_upper_limit']
+    pmv_upper_limit_schedule = np.array(d_room['schedule']['pmv_upper_limit'])
     # PMV下限値
-    space.pmv_lower_limit_schedule = d_room['schedule']['pmv_lower_limit']
+    pmv_lower_limit_schedule = np.array(d_room['schedule']['pmv_lower_limit'])
+
+    return is_upper_temp_limit_set_schedule, \
+           is_lower_temp_limit_set_schedule, \
+           pmv_upper_limit_schedule, \
+           pmv_lower_limit_schedule
 
 # スケジュールの読み込み
 def get_hourly_air_conditioning_schedules(space: Space, dtmNow: datetime) -> None:

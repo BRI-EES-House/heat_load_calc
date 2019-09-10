@@ -1,33 +1,34 @@
 
 from typing import List
 import Weather
-from Weather import enmWeatherComponent, WeaData, Solpos
+from Weather import enmWeatherComponent, WeaData, SolPosList, get_datetime_list
 import math
 import numpy as np
 from Surface import Surface
 from NextVent import NextVent
 from common import conca, conrowa, Sgm, conra, get_nday
 import datetime
+
+import s4_1_sensible_heat as s41
+
 import calculation_surface_temperature as a1
-from apdx3_human_body import get_alpha_hm_c, get_alpha_hm_r
-# from opening_transmission_solar_radiation import summarize_transparent_solar_radiation
+import apdx6_direction_cos_incident_angle as a6
+import inclined_surface_solar_radiation as a7
+import shading as a8
+import rear_surface_equivalent_temperature as a9
+import opening_transmission_solar_radiation as a11
 import furniture as a14
-import air_flow_rate_rac as a15 #付録.15
+import air_flow_rate_rac as a15
 import indoor_radiative_heat_transfer as a12
-from Psychrometrics import xtrh
+import Win_ACselect as a13
 import surface_heat_transfer_coefficient as a23
-from building_part_summarize import summarize_building_part
-from local_vent_schedule import read_local_vent_schedules_from_json
-from internal_heat_schedule import read_internal_heat_schedules_from_json
-from lighting_schedule import read_lighting_schedules_from_json
-from resident_schedule import read_resident_schedules_from_json
-from Win_ACselect import read_air_conditioning_schedules_from_json
-from apdx6_direction_cos_incident_angle import calc_cos_incident_angle
-from inclined_surface_solar_radiation import calc_slope_sol
-from rear_surface_equivalent_temperature import get_Te
-from opening_transmission_solar_radiation import calc_Qgt
-from Sunbrk import get_shading_area_ratio
-from s4_1_sensible_heat import calc_kc, calc_kr, get_BRL
+import local_vent_schedule as a29
+import internal_heat_schedule as a30
+import lighting_schedule as a31
+import resident_schedule as a32
+import building_part_summarize as a34
+
+from Psychrometrics import xtrh
 
 # # 室温・熱負荷を計算するクラス
 
@@ -69,7 +70,7 @@ class Space:
     FsolFlr = 0.5  # 床の日射吸収比率
 
     # 初期化
-    def __init__(self, calc_time_interval, d_room, weather):
+    def __init__(self, calc_time_interval, d_room, weather, solar_position):
         """
         :param Gdata:
         :param ExsrfMng:
@@ -109,9 +110,9 @@ class Space:
         self.oldTfun = 15.0                       # 前時刻の家具の温度[℃]
         self.rsolfun = 0.5                        # 透過日射の内家具が吸収する割合[－]
         # self.rsolfun = 0.0
-        self.kc = calc_kc()  #式(12)
+        self.kc = s41.calc_kc()  #式(12)
                                                     # 人体表面の熱伝達率の対流成分比率
-        self.kr = calc_kr()  #式(13)
+        self.kr = s41.calc_kr()  #式(13)
                                                     # 人体表面の熱伝達率の放射成分比率
         self.air_conditioning_demand = False        # 当該時刻の空調需要（0：なし、1：あり）
         self.prev_air_conditioning_mode = 0         # 前時刻の空調運転状態（0：停止、正：暖房、負：冷房）
@@ -161,108 +162,159 @@ class Space:
         self.Inf = 0.0                            #すきま風量（暫定値）
         self.Beta = 0.0                           # 放射暖房対流比率
 
+        # ********** 計算準備14 局所換気スケジュール、機器発熱スケジュール、
+        # 照明発熱スケジュール、人体発熱スケジュールの読み込み **********
+
         # 局所換気スケジュールの読み込み
-        read_local_vent_schedules_from_json(self, d_room)
+        self.local_vent_amount_schedule = a29.read_local_vent_schedules_from_json(d_room)
+
         # 機器発熱スケジュールの読み込み
-        read_internal_heat_schedules_from_json(self, d_room)
+        self.heat_generation_appliances_schedule, \
+        self.heat_generation_cooking_schedule, \
+        self.vapor_generation_cooking_schedule = a30.read_internal_heat_schedules_from_json(d_room)
+
         # 照明発熱スケジュールの読み込み
-        read_lighting_schedules_from_json(self, d_room)
+        self.heat_generation_lighting_schedule = a31.read_lighting_schedules_from_json(d_room)
+
         # 在室人数スケジュールの読み込み
-        read_resident_schedules_from_json(self, d_room)
+        self.number_of_people_schedule  = a32.read_resident_schedules_from_json(d_room)
+
         # 空調スケジュールの読み込み
-        read_air_conditioning_schedules_from_json(self, d_room)
+        self.is_upper_temp_limit_set_schedule, \
+        self.is_lower_temp_limit_set_schedule, \
+        self.pmv_upper_limit_schedule, \
+        self.pmv_lower_limit_schedule = a13.read_air_conditioning_schedules_from_json(d_room)
+
+        # ********** 計算準備6 隣室間換気の読み込み **********
 
         # 室間換気量クラスの構築
-        self.RoomtoRoomVent = []
-        for room_vent in d_room['next_vent']:
-            self.RoomtoRoomVent.append(NextVent(room_vent['upstream_room_type'], room_vent['volume']))
-        self.Nsurf = 0  # 部位の数
-        self.input_surfaces = []
+        self.RoomtoRoomVent = \
+            [NextVent(room_vent['upstream_room_type'], room_vent['volume']) for room_vent in d_room['next_vent']]
 
         # 部位の読み込み
-        for d_surface in d_room['boundaries']:
-            # print(d_surface['name'])
-            self.input_surfaces.append(Surface(d = d_surface, calc_time_interval = calc_time_interval))
-        
+        self.input_surfaces = \
+            [Surface(d_surface, calc_time_interval) for d_surface in d_room['boundaries']]
+
         # 透過日射熱取得の計算（部位を集約するので最初に8760時間分計算しておく）
         # 透過日射熱取得収録配列の初期化とメモリ確保
         self.Qgt = np.zeros(int(8760.0 * 3600.0 / float(calc_time_interval)))
 
-        ntime = int(24 * 3600 / calc_time_interval)
-        nnow = 0
-        item = 0
-        start_date = datetime.datetime(1989, 1, 1)
-        for nday in range(get_nday(1, 1), get_nday(12, 31) + 1):
-            for tloop in range(ntime):
-                dtime = datetime.timedelta(days=nnow + float(tloop) / float(ntime))
-                dtmNow = dtime + start_date
 
-                # 太陽位置の計算
-                solar_position = Solpos(weather, dtmNow)
-                # 傾斜面日射量の計算
-                Idn = WeaData(weather, enmWeatherComponent.Idn, dtmNow, solar_position)
-                Isky = WeaData(weather, enmWeatherComponent.Isky, dtmNow, solar_position)
-                # 夜間放射量
-                RN = WeaData(weather, enmWeatherComponent.RN, dtmNow, solar_position)
-                # 外気温度
-                Ta = WeaData(weather, enmWeatherComponent.Ta, dtmNow, solar_position)
-                for surface in self.input_surfaces:
-                    # 外表面に日射が当たる場合
-                    if surface.is_sun_striked_outside:
-                        sin_h_s = solar_position.sin_h_s
-                        cos_h_s = solar_position.cos_h_s
-                        sin_a_s = solar_position.sin_a_s
-                        cos_a_s = solar_position.cos_a_s
-                        wa = surface.backside_boundary_condition.Wa
-                        wb = surface.backside_boundary_condition.Wb
+        dtlist = get_datetime_list(calc_time_interval)
+        Idn = np.zeros(len(dtlist))
+        Isky = np.zeros(len(dtlist))
+        RN = np.zeros(len(dtlist))
+        Ta = np.zeros(len(dtlist))
 
-                        if 'external' in surface.backside_boundary_condition.Type:
-                            cos_t = calc_cos_incident_angle(sin_h_s, cos_h_s, sin_a_s, cos_a_s, wa, wb)
-                            surface.backside_boundary_condition.CosT = cos_t
-                            Fs = surface.backside_boundary_condition.Fs
-                            dblFg = surface.backside_boundary_condition.dblFg
-                            Rg = surface.backside_boundary_condition.Rg
-                            surface.Id, surface.Isky, surface.Ir, surface.Iw = calc_slope_sol(
-                                Idn, Isky, sin_h_s, cos_t, Fs, dblFg, Rg)
-                        else:
-                            surface.backside_boundary_condition.CosT = 0.0
-                            surface.Id, surface.Isky, surface.Ir, surface.Iw = 0.0, 0.0, 0.0, 0.0
+        for item, dtmNow in enumerate(dtlist):
+            # 傾斜面日射量の計算
+            Idn[item] = WeaData(weather, enmWeatherComponent.Idn, dtmNow, solar_position, item)
+            Isky[item] = WeaData(weather, enmWeatherComponent.Isky, dtmNow, solar_position, item)
+            # 夜間放射量
+            RN[item] = WeaData(weather, enmWeatherComponent.RN, dtmNow, solar_position, item)
+            # 外気温度
+            Ta[item] = WeaData(weather, enmWeatherComponent.Ta, dtmNow, solar_position, item)
 
-                        # 一般部位、不透明な開口部の場合
-                        if surface.boundary_type == "external_general_part" or surface.boundary_type == "external_opaque_part":
-                            surface.Teolist[item] = get_Te(surface.backside_boundary_condition, \
-                                surface.Iw, surface.outside_solar_absorption, surface.ho, surface.Eo, Ta, RN)
-                        # 透明開口部の場合
-                        elif surface.boundary_type == "external_transparent_part":
-                            # 日除けの日影面積率の計算
-                            if surface.sunbrk.existance:
-                                surface.Fsdw = get_shading_area_ratio(surface, solar_position)
-                            # 透過日射熱取得の集約
-                            self.Qgt[item] += calc_Qgt(surface)
+        for surface in self.input_surfaces:
+            # 外表面に日射が当たる場合
+            if surface.is_sun_striked_outside:
 
-                            # 相当外気温度の集約
-                            surface.Teolist[item] = - surface.Eo * surface.backside_boundary_condition.Fs * RN / surface.ho + Ta
-                    # 地面の場合は、年平均気温とする
-                    elif surface.boundary_type == "ground":
-                        surface.Teo = weather.AnnualTave
-                item += 1
-            nnow += 1
-        
+                if 'external' in surface.backside_boundary_condition.Type:
+
+                    # 入射角の方向余弦
+                    surface.backside_boundary_condition.CosT = a6.calc_cos_incident_angle(
+                        sin_h_s=solar_position.sin_h_s,
+                        cos_h_s=solar_position.cos_h_s,
+                        sin_a_s=solar_position.sin_a_s,
+                        cos_a_s=solar_position.cos_a_s,
+                        wa=surface.backside_boundary_condition.Wa,
+                        wb= surface.backside_boundary_condition.Wb
+                    )
+
+                    # 傾斜面日射量
+                    surface.Id, surface.Isky, surface.Ir, surface.Iw = a7.calc_slope_sol(
+                        i_sun_dir=Idn,
+                        i_sun_sky=Isky,
+                        sin_h_s=solar_position.sin_h_s,
+                        cos_phi=surface.backside_boundary_condition.CosT,
+                        phi_evlp_sky=surface.backside_boundary_condition.Fs,
+                        phi_evlp_grd=surface.backside_boundary_condition.dblFg,
+                        rho_grd=surface.backside_boundary_condition.Rg
+                    )
+                else:
+                    # 0を入れておく
+                    surface.backside_boundary_condition.CosT = np.zeros(len(dtlist))
+                    surface.Id = np.zeros(len(dtlist))
+                    surface.Isky = np.zeros(len(dtlist))
+                    surface.Ir = np.zeros(len(dtlist))
+                    surface.Iw = np.zeros(len(dtlist))
+
+                # 一般部位、不透明な開口部の場合
+                if surface.boundary_type == "external_general_part" or surface.boundary_type == "external_opaque_part":
+                    # 傾斜面の相当外気温度の計算
+                    surface.Teolist = a9.get_Te(
+                        Fs=surface.backside_boundary_condition.Fs,
+                        Iw=surface.Iw,
+                        _as=surface.outside_solar_absorption,
+                        ho=surface.ho,
+                        e=surface.Eo,
+                        Ta=Ta,
+                        RN=RN
+                    )
+                # 透明開口部の場合
+                elif surface.boundary_type == "external_transparent_part":
+                    # 日除けの日影面積率の計算
+                    if surface.sunbrk.existance:
+                        surface.Fsdw = a8.calc_shading_area_ratio(
+                            depth=surface.sunbrk.depth,
+                            d_e=surface.sunbrk.d_e,
+                            d_h=surface.sunbrk.d_h,
+                            a_s=solar_position.a_s,
+                            h_s=solar_position.h_s,
+                            Wa=surface.backside_boundary_condition.Wa
+                        )
+                    else:
+                        surface.Fsdw = np.zeros_like(dtlist, dtype=np.float)
+
+                    # 透過日射熱取得の集約
+                    self.Qgt += a11.calc_Qgt(
+                        CosT=surface.backside_boundary_condition.CosT,
+                        incident_angle_characteristics=surface.transparent_opening.incident_angle_characteristics,
+                        Id=surface.Id,
+                        Fsdw=surface.Fsdw,
+                        Isky=surface.Isky,
+                        Ir=surface.Ir,
+                        area=surface.area,
+                        T=surface.transparent_opening.T,
+                        Cd=surface.transparent_opening.Cd
+                    )
+
+                    # 相当外気温度の集約
+                    surface.Teolist = - surface.Eo * surface.backside_boundary_condition.Fs * RN / surface.ho + Ta
+
+            # 地面の場合は、年平均気温とする
+            elif surface.boundary_type == "ground":
+                surface.Teo = np.array([weather.AnnualTave]*len(dtlist))
+
         # 部位の集約
-        self.input_surfaces = summarize_building_part(self.input_surfaces)
+        self.input_surfaces = a34.summarize_building_part(self.input_surfaces)
+
+        # 部位の面数
+        self.Nsurf = len(self.input_surfaces)
 
         # 配列の準備
         area = np.array([x.area for x in self.input_surfaces])
         is_solar_absorbed_inside = np.array([x.is_solar_absorbed_inside for x in self.input_surfaces])
+        Ei = np.array([x.Ei for x in self.input_surfaces])
+        hi = np.array([x.hi for x in self.input_surfaces])
+        RFA0 = np.array([x.RFA0 for x in self.input_surfaces])
+        V_nxt = np.array([x.volume for x in self.RoomtoRoomVent])
 
         # 部位の人体に対する形態係数を計算
         fot = a12.calc_form_factor_for_human_body(area, is_solar_absorbed_inside)
 
         if abs(np.sum(fot) - 1.0) > 0.001:
             print(self.name, 'total_Fot=', np.sum(fot))
-
-        # 部位の面数
-        self.Nsurf = len(self.input_surfaces)
 
         # 合計面積の計算
         self.Atotal = np.sum(area)
@@ -279,10 +331,6 @@ class Space:
 
         # 放射暖房の発熱部位の設定（とりあえず床発熱）
         flr = (area / self.TotalAF) * self.is_radiative_heating * is_solar_absorbed_inside
-
-        # 配列の準備
-        Ei = np.array([x.Ei for x in self.input_surfaces])
-        hi = np.array([x.hi for x in self.input_surfaces])
 
         # 微小点に対する室内部位の形態係数の計算（永田先生の方法）
         FF, a = a12.calc_form_factor_of_microbodies(self.name, area)
@@ -308,10 +356,6 @@ class Space:
             surface.flr = flr[i]
 
 
-        # 配列の準備
-        RFA0 = np.array([x.RFA0 for x in self.input_surfaces])
-        V_nxt = np.array([x.volume for x in self.RoomtoRoomVent])
-
         # *********** 室内表面熱収支計算のための行列作成 ***********
 
         # matFIAの作成 式(26)
@@ -332,7 +376,7 @@ class Space:
         # ****************************************************
 
         # BRMの計算 式(5)
-        self.BRM = get_BRM(
+        self.BRM = s41.get_BRM(
             Hcap=self.Hcap, 
             calc_time_interval=calc_time_interval, 
             matWSR=self.matWSR, 
@@ -346,37 +390,13 @@ class Space:
         )
 
         # BRLの計算 式(7)
-        self.BRL = get_BRL(
+        self.BRL = s41.get_BRL(
             Beta=self.Beta,
             matWSB=self.matWSB,
             area=area,
             hic=hic
         )
 
-
-
-# BRMの計算 式(5)
-def get_BRM(Hcap, calc_time_interval, matWSR, Capfun, Cfun, Vent, local_vent_amount_schedule, area, hic, V_nxt):
-    # 第1項
-    BRM_0 = Hcap / calc_time_interval
-    
-    # 第2項
-    BRM_0 += np.sum(area * hic * (1.0 - matWSR))
-    
-    # 空間換気
-    BRM_0 += np.sum(conca * conrowa * V_nxt / 3600.0)    
-
-    # 家具からの熱取得
-    BRM_0 += 1. / (calc_time_interval / Capfun + 1. / Cfun) if Capfun > 0.0 else 0.0
-
-    # 外気導入項の計算（3項目の0.0はすきま風量）
-    # ※ここで、BRMがスカラー値(BRM_0)から1時間ごとの1次元配列(BRM_h)へ
-    BRM_h = BRM_0 + conca * conrowa * (Vent + 0.0 + np.array(local_vent_amount_schedule)) / 3600.0
-
-    # 1時間当たり4ステップなので、配列を4倍に拡張
-    BRM = np.repeat(BRM_h, 4)
-
-    return BRM
 
 
 # 前時刻の室温を現在時刻の室温、家具温度に置換
@@ -412,9 +432,9 @@ def cooling_equipment_read(space, dceqp):
 
 
 
-def create_spaces(calc_time_interval, rooms, weather):
+def create_spaces(calc_time_interval, rooms, weather, solar_position):
     objSpace = {}
     for room in rooms:
-        space = Space(calc_time_interval, room, weather)
+        space = Space(calc_time_interval, room, weather, solar_position)
         objSpace[room['name']] = space
     return objSpace

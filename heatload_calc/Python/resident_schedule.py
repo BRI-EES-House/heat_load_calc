@@ -1,10 +1,15 @@
+import numpy as np
 from common import get_nday
 from apdx3_human_body import get_q_hum_and_x_hum
 
+"""
+付録32．	人体発熱スケジュール
+"""
+
 # JSONファイルから在室人数スケジュールを読み込む
-def read_resident_schedules_from_json(space, d_room):
+def read_resident_schedules_from_json(d_room):
     # 人体顕熱
-    space.number_of_people_schedule = d_room['schedule']['number_of_people']
+    return np.array(d_room['schedule']['number_of_people'])
 
 # 在室人数スケジュールの読み込み
 def get_hourly_resident_schedules(space, dtmNow):

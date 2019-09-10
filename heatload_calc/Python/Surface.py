@@ -3,7 +3,7 @@ from Wall import Wall, Layer
 from ResponseFactor import ResponseFactor
 from transparent_opening import transparent_opening
 from Exsrf import Exsrf, external_init, ground_init, internal_init
-from Sunbrk import SunbrkType, calc_shading_area_ratio
+from Sunbrk import SunbrkType
 import datetime
 
 # 室内部位に関連するクラス

@@ -1,7 +1,11 @@
+import numpy as np
 
+"""
+付録7．傾斜面日射量
+"""
 
 def calc_slope_sol(
-    i_sun_dir: float, i_sun_sky: float, sin_h_s: float, cos_phi: float,
+    i_sun_dir: np.ndarray, i_sun_sky: np.ndarray, sin_h_s: np.ndarray, cos_phi: np.ndarray,
     phi_evlp_sky: float, phi_evlp_grd: float, rho_grd: float) ->(float, float, float, float):
     """
     Args:

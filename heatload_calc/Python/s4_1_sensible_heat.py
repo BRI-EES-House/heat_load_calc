@@ -45,6 +45,30 @@ def get_BRLot(BRL, BRM, XLr):
     return BRL + BRM * XLr
 
 
+# BRMの計算 式(5)
+def get_BRM(Hcap, calc_time_interval, matWSR, Capfun, Cfun, Vent, local_vent_amount_schedule, area, hic, V_nxt):
+    # 第1項
+    BRM_0 = Hcap / calc_time_interval
+
+    # 第2項
+    BRM_0 += np.sum(area * hic * (1.0 - matWSR))
+
+    # 空間換気
+    BRM_0 += np.sum(conca * conrowa * V_nxt / 3600.0)
+
+    # 家具からの熱取得
+    BRM_0 += 1. / (calc_time_interval / Capfun + 1. / Cfun) if Capfun > 0.0 else 0.0
+
+    # 外気導入項の計算（3項目の0.0はすきま風量）
+    # ※ここで、BRMがスカラー値(BRM_0)から1時間ごとの1次元配列(BRM_h)へ
+    BRM_h = BRM_0 + conca * conrowa * (Vent + 0.0 + np.array(local_vent_amount_schedule)) / 3600.0
+
+    # 1時間当たり4ステップなので、配列を4倍に拡張
+    BRM = np.repeat(BRM_h, 4)
+
+    return BRM
+
+
 # 室温・負荷計算の定数項BRCを計算する 式(6)
 def get_BRC(matWSC, matWSV, area, hic, Dtime, Ta, Hn, Ventset, Infset, LocalVentset, Hcap, oldTr, Capfun, Cfun,
             Qsolfun, oldTfun, nextroom_volume, nextroom_oldTr):

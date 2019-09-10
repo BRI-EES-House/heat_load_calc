@@ -4,7 +4,7 @@ import json
 import common
 from common import get_nday
 from Gdata import Gdata, is_actual_calc
-from Weather import enmWeatherComponent, Weather, WeaData, Solpos
+from Weather import enmWeatherComponent, Weather, WeaData, SolPosList
 from Sunbrk import SunbrkType
 from Space import create_spaces, update_space_oldstate
 from heat_load import calcHload
@@ -92,6 +92,8 @@ def calc_Hload(cdata, weather):
     OutList.append(rowlist)
     rowlist = []
 
+    solar_position = SolPosList(weather, 900)
+
     outdoor_temp_list = [0.0 for j in range(8760 * 4)]
     outdoor_humid_list = [0.0 for j in range(8760 * 4)]
     # 予備計算（気象データの読み込み）
@@ -104,11 +106,10 @@ def calc_Hload(cdata, weather):
 
             # 太陽位置の計算
             # print(dtmNow)
-            solar_position = Solpos(weather, dtmNow)
             # 外気温度の補間、Listへの追加
-            outdoor_temp_list[sequence_number] = WeaData(weather, enmWeatherComponent.Ta, dtmNow, solar_position)
+            outdoor_temp_list[sequence_number] = WeaData(weather, enmWeatherComponent.Ta, dtmNow, solar_position, sequence_number)
             # 外気絶対湿度の補間、Listへの追加
-            outdoor_humid_list[sequence_number] = WeaData(weather, enmWeatherComponent.x, dtmNow, solar_position) / 1000.
+            outdoor_humid_list[sequence_number] = WeaData(weather, enmWeatherComponent.x, dtmNow, solar_position, sequence_number) / 1000.
 
     # 日ループの開始
     for lngNday in range(lngStNday, lngEnNday + 1):
@@ -227,8 +228,11 @@ if __name__ == '__main__':
     # 外部日除けクラスの初期化
     # sunbrks = create_sunbrks(d['Sunbrk'])
 
+    # 太陽位置は個別計算可能
+    solar_position = SolPosList(weather, cdata.DTime)
+
     # スペースの読み取り
-    spaces = create_spaces(cdata.DTime, d['rooms'], weather)
+    spaces = create_spaces(cdata.DTime, d['rooms'], weather, solar_position)
 
     # スケジュールの初期化
     # schedule = Schedule()

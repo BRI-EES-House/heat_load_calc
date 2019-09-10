@@ -6,6 +6,10 @@ from apdx5_solar_position import defSolpos, get_solar_position
 import math
 import common
 
+from functools import lru_cache
+from typing import List, Tuple
+import numpy as np
+
 class enmWeatherComponent(IntEnum):
     Ta = 2  # 外気温度[℃]
     x = 6  # 絶対湿度[g/kg']
@@ -82,9 +86,11 @@ class Weather:
                     time = 1
                     day += 1
 
+            self.dblWdata = np.array(self.dblWdata)
+
 # 気象データの取得
 # 戻り値はdouble
-def WeaData(weatherdata: Weather, Compnt: enmWeatherComponent, dtmDate: datetime, solar_position: defSolpos, blnLinear: bool =True) -> float :
+def WeaData(weatherdata: Weather, Compnt: enmWeatherComponent, dtmDate: datetime, solar_position: defSolpos, item:int) -> float :
     # Compnt:取得する気象要素
     # dtmDate:取得する日時
     # blnLinear:線形補間するかどうか（Trueは線形補間する）
@@ -115,20 +121,16 @@ def WeaData(weatherdata: Weather, Compnt: enmWeatherComponent, dtmDate: datetime
         dblIdn2 = wdata2[int(enmWeatherComponent.Idn)]
         dblIsky2 = wdata2[int(enmWeatherComponent.Isky)]
 
-        # 直線補間しない場合
-        if not blnLinear:
-            return solar_position.Sh * dblIdn2 + dblIsky2
-        # 直線補間する場合
-        else:
-            dblIdn = (1. - dblR) * dblIdn1 + dblR * dblIdn2
-            dblIsky = (1. - dblR) * dblIsky1 + dblR * dblIsky2
-            return solar_position.Sh * dblIdn + dblIsky
+        # 直線補間
+        dblIdn = (1. - dblR) * dblIdn1 + dblR * dblIdn2
+        dblIsky = (1. - dblR) * dblIsky1 + dblR * dblIsky2
+        return solar_position.Sh[item] * dblIdn + dblIsky
     # 太陽高度の場合
     elif Compnt == enmWeatherComponent.h:
-        return solar_position.h
+        return solar_position.h[item]
     # 太陽方位角の場合
     elif Compnt == enmWeatherComponent.A:
-        return solar_position.A
+        return solar_position.A[item]
     # 上記以外の場合
     else:
         # 正時に切り捨てた時の気象データを取得
@@ -139,20 +141,40 @@ def WeaData(weatherdata: Weather, Compnt: enmWeatherComponent, dtmDate: datetime
         dblTemp2 = wdata2[int(Compnt)]
 
         # print(R, dblTemp1, dblTemp2)
-        # 直線補完しない場合
-        if not blnLinear:
-            return dblTemp2
-        # 直線補間する場合
-        else:
-            return (1. - dblR) * dblTemp1 + dblR * dblTemp2
+        # 直線補完
+        return (1. - dblR) * dblTemp1 + dblR * dblTemp2
+
+
+from common import get_nday
+def SolPosList(weatherdata: Weather, calc_time_interval):
+    dtlist = get_datetime_list(calc_time_interval)
+    list = Solpos(weatherdata, dtlist)
+    return list
+
+
+# 計算日時のリストを生成する（正確にはタプル)
+@lru_cache(maxsize = None)
+def get_datetime_list(calc_time_interval = 900):
+    ntime = int(24 * 3600 / calc_time_interval)
+    nnow = 0
+    start_date = datetime.datetime(1989, 1, 1)
+    dtlist = []
+    for nday in range(get_nday(1, 1), get_nday(12, 31) + 1):
+        for tloop in range(ntime):
+            dtime = datetime.timedelta(days=nnow + float(tloop) / float(ntime))
+            dtmNow = dtime + start_date
+            dtlist.append(dtmNow)
+        nnow += 1
+    return tuple(dtlist)
+
 
 # 太陽位置の取得（計算も実施）
-def Solpos(weatherdata: Weather, dtmDate: datetime) -> defSolpos:
+def Solpos(weatherdata: Weather, dtmDate) -> defSolpos:
 
     # 標準時の計算
-    t_m = dtmDate.hour + dtmDate.minute / 60.0 + dtmDate.second / 3600.0
+    t_m = np.array([x.hour + x.minute / 60.0 + x.second / 3600.0 for x in dtmDate])
 
-    d = common.get_nday(dtmDate.month, dtmDate.day)
+    d = np.array([common.get_nday(x.month, x.day) for x in dtmDate])
 
     return get_solar_position(t_m=t_m, d=d,
                               phi=weatherdata.Lat,

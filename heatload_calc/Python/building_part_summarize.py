@@ -1,6 +1,10 @@
 import numpy as np
 from Surface import Surface
 
+"""
+付録34．境界条件が同じ部位の集約
+"""
+
 # 部位の集約（同一境界条件の部位を集約する）
 def summarize_building_part(surfaces):
     # 部位のグループ化

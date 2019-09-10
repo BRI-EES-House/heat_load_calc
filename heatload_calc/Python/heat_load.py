@@ -1,22 +1,23 @@
 import numpy as np
+
 import s4_1_sensible_heat as s41
 import s4_2_latent_heat as s42
+
 import calculation_surface_temperature as a1
 import rear_surface_equivalent_temperature as a9
 import indoor_radiative_heat_transfer as a12
 import Win_ACselect as a13
 import blowing_condition_rac as a16
+import local_vent_schedule as a29
+import internal_heat_schedule as a30
+import lighting_schedule as a31
+import resident_schedule as a32
 import PMV as a35_1
 import set_point_temperature as a35_2
 
 from NextVent import update_oldstate
 from common import get_nday, conca, conrowa, conra
 from Psychrometrics import xtrh, rhtx
-from local_vent_schedule import get_hourly_local_vent_schedules
-from internal_heat_schedule import get_hourly_internal_heat_schedules
-from lighting_schedule import get_hourly_lighting_schedules
-from resident_schedule import get_hourly_resident_schedules
-from Win_ACselect import get_hourly_air_conditioning_schedules
 
 
 # 室温、熱負荷の計算
@@ -39,13 +40,13 @@ def calcHload(space, is_actual_calc, calc_time_interval, spaces, dtmNow, Ta: flo
 
     # 当該時刻の機器・調理発熱の読み込み
     heat_generation_appliances, heat_generation_cooking, vapor_generation_cooking \
-        = get_hourly_internal_heat_schedules(space, dtmNow)
+        = a30.get_hourly_internal_heat_schedules(space, dtmNow)
 
     # 当該時刻の照明発熱の読み込み
-    heat_generation_lighting = get_hourly_lighting_schedules(space, dtmNow)
+    heat_generation_lighting = a31.get_hourly_lighting_schedules(space, dtmNow)
 
     # 当該時刻の人体発熱の読み込み
-    number_of_people, Humans, Humanl = get_hourly_resident_schedules(space, dtmNow)
+    number_of_people, Humans, Humanl = a32.get_hourly_resident_schedules(space, dtmNow)
 
     # 内部発熱[W]
     Hn = heat_generation_appliances + heat_generation_lighting + Humans + heat_generation_cooking
@@ -54,7 +55,7 @@ def calcHload(space, is_actual_calc, calc_time_interval, spaces, dtmNow, Ta: flo
     Lin = vapor_generation_cooking / 1000.0 / 3600.0 + Humanl
 
     # 当該時刻の局所換気量の読み込み
-    LocalVentset = get_hourly_local_vent_schedules(space, dtmNow)
+    LocalVentset = a29.get_hourly_local_vent_schedules(space, dtmNow)
 
     # 保存
     space.heat_generation_appliances = heat_generation_appliances
@@ -72,7 +73,7 @@ def calcHload(space, is_actual_calc, calc_time_interval, spaces, dtmNow, Ta: flo
         is_lower_temp_limit_set, \
             pmv_upper_limit, \
                 pmv_lower_limit, \
-                    air_conditioning_demand = get_hourly_air_conditioning_schedules(space, dtmNow)
+                    air_conditioning_demand = a13.get_hourly_air_conditioning_schedules(space, dtmNow)
 
     space.is_upper_temp_limit_set = is_upper_temp_limit_set
     space.is_lower_temp_limit_set = is_lower_temp_limit_set

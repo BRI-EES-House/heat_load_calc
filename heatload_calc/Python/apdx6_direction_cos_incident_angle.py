@@ -1,8 +1,13 @@
 import math
+import numpy as np
 
+"""
+付録6．入射角の方向余弦
+"""
 
+# 式(72)
 def calc_cos_incident_angle(
-        sin_h_s: float, cos_h_s: float, sin_a_s: float, cos_a_s: float, wa: float, wb: float) -> float:
+        sin_h_s: np.ndarray, cos_h_s: np.ndarray, sin_a_s: np.ndarray, cos_a_s: np.ndarray, wa: float, wb: float) -> np.ndarray:
     """
     Args:
         sin_h_s: 太陽高度の正弦
@@ -15,8 +20,10 @@ def calc_cos_incident_angle(
         入射角の方向余弦
     """
 
-    return max(
+    return np.clip(
         sin_h_s * math.cos(wb)
         + cos_h_s * sin_a_s * math.sin(wb) * math.sin(wa)
         + cos_h_s * cos_a_s * math.sin(wb) * math.cos(wa),
-        0.0)
+        0.0,
+        None
+    )

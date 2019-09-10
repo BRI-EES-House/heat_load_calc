@@ -2,6 +2,7 @@ from typing import List
 import Surface
 import Space
 import Exsrf
+import numpy as np
 
 """
 付録9．	裏面相当温度
@@ -34,7 +35,7 @@ def calc_Teo(surface: Surface, Ta: float, oldTr: float, spaces: List['Space'], s
 
 
 # 傾斜面の相当外気温度の計算
-def get_Te(exsrf: Exsrf, Iw: float,  _as: float, ho: float, e: float, Ta: float, RN: float) -> float:
+def get_Te(Fs:float, Iw: np.ndarray,  _as: float, ho: float, e: float, Ta: np.ndarray, RN: np.ndarray) -> np.ndarray:
     """
     :param _as: 日射吸収率 [-]
     :param ho: 外表面の総合熱伝達率[W/m2K]
@@ -43,7 +44,7 @@ def get_Te(exsrf: Exsrf, Iw: float,  _as: float, ho: float, e: float, Ta: float,
     :param RN: 夜間放射量[W/m2]
     :return: 傾斜面の相当外気温度 [℃]
     """
-    Te = Ta + (_as * Iw - exsrf.Fs * e * RN) / ho
+    Te = Ta + (_as * Iw - Fs * e * RN) / ho
 
     return Te
 
