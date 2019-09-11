@@ -1,5 +1,6 @@
 import datetime
-from calculation_period import calc_period
+import a17_calculation_period as a17
+import a36_region_location as a36
 
 class Gdata:
     """シミュレーション全体の設定条件"""
@@ -24,23 +25,20 @@ class Gdata:
         # 計算対象年
         self.conlngYr = 1989
 
-        # 計算時間間隔(s)
-        self.DTime = 900.0
-        
         # 計算期間、助走計算日数の設定
-        calc_period(self)
+        a17.calc_period(self)
 
         # 応答係数の作成時間数(hour)
         # self.__lngNcalTime = lngNcalTime
         # 計算結果の行数
-        self.OutputRow = int(((self.EnDate - self.StDate).days + 1) * 24 * 3600 / self.DTime)
+        self.OutputRow = int(((self.EnDate - self.StDate).days + 1) * 24 * 3600 / 900)
         # comment - miura : 3600 / dblDtime が必ずしも整数になるとは限らない。その場合のエラー処理が必要か、そもそもdblDtimeではなくて、1時間の分割数とかで入力させるべき。
         # 詳細出力フラグ
         # self.__blnDetailOut = blnDetailOut
         # 作用温度設定フラグ
         # self.OTset = True
         # 緯度、経度
-        self.Latitude, self.Longitude = setLat_Lon(self.Region)
+        self.Latitude, self.Longitude = a36.get_region_location(self.Region)
         # 標準子午線
         self.StMeridian = 135.0
 
@@ -48,42 +46,3 @@ class Gdata:
 def is_actual_calc(gdata: Gdata, dtmDate: datetime) -> bool:
     return (gdata.StDate <= dtmDate)
 
-# 地域区分から緯度、経度を設定する
-# 当面は6地域の緯度、経度を返す
-def setLat_Lon(Region: int) -> tuple:
-    Latitude = -999.0
-    Longitude = -999.0
-
-    if Region == 1:
-        # 1地域（北見）
-        Latitude = 43.82
-        Longitude = 143.91
-    elif Region == 2:
-        # 2地域（岩見沢）
-        Latitude = 43.21
-        Longitude = 141.79
-    elif Region == 3:
-        # 3地域（盛岡）
-        Latitude = 39.70
-        Longitude = 141.17
-    elif Region == 4:
-        # 4地域（長野）
-        Latitude = 36.66
-        Longitude = 138.20
-    elif Region == 5:
-        # 5地域（宇都宮）
-        Latitude = 36.55
-        Longitude = 139.87
-    elif Region == 6:
-        # 6地域（岡山）
-        Latitude = 34.66
-        Longitude = 133.92
-    elif Region == 7:
-        # 7地域（宮崎）
-        Latitude = 31.94
-        Longitude = 131.42
-    elif Region == 8:
-        # 8地域（那覇）
-        Latitude = 26.21
-        Longitude = 127.685
-    return Latitude, Longitude

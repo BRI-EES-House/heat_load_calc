@@ -5,17 +5,17 @@ import numpy as np
 """
 
 def calc_slope_sol(
-    i_sun_dir: np.ndarray, i_sun_sky: np.ndarray, sin_h_s: np.ndarray, cos_phi: np.ndarray,
-    phi_evlp_sky: float, phi_evlp_grd: float, rho_grd: float) ->(float, float, float, float):
+    I_DN_n: np.ndarray, I_sky_n: np.ndarray, Sh_n: np.ndarray, cos_Theta_i_k_n: np.ndarray,
+    PhiS_i_k: float, PhiG_i_k: float, RhoG_l: float) ->(float, float, float, float):
     """
     Args:
-        i_sun_dir: 法線面直達日射量, W/m2K
-        i_sun_sky: 水平面天空日射量, W/m2K
-        sin_h_s: 太陽高度の正弦
-        cos_phi: 外表面における入射角の正弦
-        phi_evlp_sky: 外表面における天空に対する形態係数
-        phi_evlp_grd: 外表面における地面に対する形態係数
-        rho_grd: 地面日射反射率
+        I_DN_n: 法線面直達日射量, W/m2K
+        I_sky_n: 水平面天空日射量, W/m2K
+        Sh_n: 太陽高度の正弦
+        cos_Theta_i_k_n: 外表面における入射角の正弦
+        PhiS_i_k: i室の部位kにおける天空に対する形態係数（付録19．による）
+        PhiG_i_k: i室の部位kにおける地面に対する形態係数（付録19．による）
+        RhoG_l: 部位lの地面日射反射率
     Returns:
         傾斜面直達日射量, W/m2K
         傾斜面天空日射量, W/m2K
@@ -23,17 +23,48 @@ def calc_slope_sol(
         傾斜面日射量の合計, W/m2K
     """
 
-    # 直達日射量
-    i_evlp_dir = cos_phi * i_sun_dir
+    # 地物反射日射[W/m2] 式(78)
+    I_R_i_k_n = get_I_R_i_k_n(I_DN_n, I_sky_n, PhiG_i_k, RhoG_l, Sh_n)
 
-    # 天空日射量
-    i_evlp_sky = phi_evlp_sky * i_sun_sky
+    # 傾斜面天空日射 式(77)
+    I_S_i_k_n = get_I_S_i_k_n(I_sky_n, PhiS_i_k)
 
-    # 反射日射量
-    i_sun_hrz = sin_h_s * i_sun_dir + i_sun_sky  # 水平面全天日射量
-    i_evlp_ref = phi_evlp_grd * rho_grd * i_sun_hrz
+    # 傾斜面拡散日射量 式(76)
+    I_d_i_k_n = get_I_d_i_k_n(I_S_i_k_n, I_R_i_k_n)
 
-    # 日射量の合計
-    i_evlp = i_evlp_dir + i_evlp_sky + i_evlp_ref
+    # 傾斜面直達日射量 式(75)
+    I_D_i_k_n = get_I_D_i_k_n(I_DN_n, cos_Theta_i_k_n)
 
-    return i_evlp_dir, i_evlp_sky, i_evlp_ref, i_evlp
+    # 傾斜面全天日射量 式(74)
+    I_w_i_k_n = get_I_w_i_k_n(I_D_i_k_n, I_d_i_k_n)
+
+    return I_w_i_k_n, I_D_i_k_n, I_S_i_k_n, I_R_i_k_n
+
+
+# 傾斜面全天日射量 式(74)
+def get_I_w_i_k_n(I_D_i_k_n, I_d_i_k_n):
+    I_w_i_k_n = I_D_i_k_n + I_d_i_k_n
+    return I_w_i_k_n
+
+
+# 傾斜面直達日射量 式(75)
+def get_I_D_i_k_n(I_DN_n, cos_Theta_i_k_n):
+    I_D_i_k_n = I_DN_n * cos_Theta_i_k_n
+    return I_D_i_k_n
+
+
+# 傾斜面拡散日射量 式(76)
+def get_I_d_i_k_n(I_S_i_k_n, I_R_i_k_n):
+    return I_S_i_k_n + I_R_i_k_n
+
+
+# 傾斜面天空日射 式(77)
+def get_I_S_i_k_n(I_sky_n, PhiS_i_k):
+    return PhiS_i_k * I_sky_n
+
+
+# 地物反射日射[W/m2] 式(78)
+def get_I_R_i_k_n(I_DN_n, I_sky_n, PhiG_i_k, RhoG_l, Sh_n):
+    I_HOL_n = Sh_n * I_DN_n + I_sky_n  # 水平面全天日射量
+    I_R_i_k_n = PhiG_i_k * RhoG_l * I_HOL_n
+    return I_R_i_k_n

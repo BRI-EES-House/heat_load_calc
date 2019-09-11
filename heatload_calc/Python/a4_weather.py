@@ -1,22 +1,20 @@
 import csv
 from enum import IntEnum
 import datetime
-import apdx5_solar_position
-from apdx5_solar_position import defSolpos, get_solar_position
 import math
-import common
 
 from functools import lru_cache
-from typing import List, Tuple
 import numpy as np
 
-from Gdata import setLat_Lon
+"""
+付録4．気象データの補間方法
+"""
 
 class enmWeatherComponent(IntEnum):
-    Ta = 2  # 外気温度[℃]
+    To = 2  # 外気温度[℃]
     x = 6  # 絶対湿度[g/kg']
-    Idn = 3  # 法線面直辰日射量[W/m2]
-    Isky = 4  # 水平面天空日射量[W/m2]
+    I_DN = 3  # 法線面直辰日射量[W/m2]
+    I_sky = 4  # 水平面天空日射量[W/m2]
     RN = 5  # 夜間放射量[W/m2]
     Ihol = 7  # 水平面全天日射量[W/m2]
     h = 8  # 太陽高度[rad]
@@ -92,7 +90,7 @@ class Weather:
 
 # 気象データの取得
 # 戻り値はdouble
-def WeaData(weatherdata: Weather, Compnt: enmWeatherComponent, dtmDate: datetime, solar_position: defSolpos, item:int) -> float :
+def WeaData(weatherdata: Weather, Compnt: enmWeatherComponent, dtmDate: datetime, solar_position, item:int) -> float :
     # Compnt:取得する気象要素
     # dtmDate:取得する日時
     # blnLinear:線形補間するかどうか（Trueは線形補間する）
@@ -116,12 +114,12 @@ def WeaData(weatherdata: Weather, Compnt: enmWeatherComponent, dtmDate: datetime
     if Compnt == enmWeatherComponent.Ihol:
         # 正時に切り捨てた時の気象データを取得
         wdata1 = weatherdata.dblWdata[lngAddress]
-        dblIdn1 = wdata1[int(enmWeatherComponent.Idn)]
-        dblIsky1 = wdata1[int(enmWeatherComponent.Isky)]
+        dblIdn1 = wdata1[int(enmWeatherComponent.I_DN)]
+        dblIsky1 = wdata1[int(enmWeatherComponent.I_sky)]
         # 1時間後の気象要素を取得
         wdata2 = weatherdata.dblWdata[lngAddress2]
-        dblIdn2 = wdata2[int(enmWeatherComponent.Idn)]
-        dblIsky2 = wdata2[int(enmWeatherComponent.Isky)]
+        dblIdn2 = wdata2[int(enmWeatherComponent.I_DN)]
+        dblIsky2 = wdata2[int(enmWeatherComponent.I_sky)]
 
         # 直線補間
         dblIdn = (1. - dblR) * dblIdn1 + dblR * dblIdn2
@@ -142,30 +140,19 @@ def WeaData(weatherdata: Weather, Compnt: enmWeatherComponent, dtmDate: datetime
         wdata2 = weatherdata.dblWdata[lngAddress2]
         dblTemp2 = wdata2[int(Compnt)]
 
-        # print(R, dblTemp1, dblTemp2)
+        # print(a_i_k, dblTemp1, dblTemp2)
         # 直線補完
         return (1. - dblR) * dblTemp1 + dblR * dblTemp2
 
 
-from common import get_nday
-def SolPosList(region):
-
-    # タイムインターバルを900 sec に固定化した。
-    calc_time_interval = 900
-
-    dtlist = get_datetime_list(calc_time_interval)
-    list = Solpos(dtlist, region)
-    return list
-
-
 # 計算日時のリストを生成する（正確にはタプル)
 @lru_cache(maxsize = None)
-def get_datetime_list(calc_time_interval = 900):
-    ntime = int(24 * 3600 / calc_time_interval)
+def get_datetime_list():
+    ntime = int(24 * 4)
     nnow = 0
     start_date = datetime.datetime(1989, 1, 1)
     dtlist = []
-    for nday in range(get_nday(1, 1), get_nday(12, 31) + 1):
+    for nday in range(365):
         for tloop in range(ntime):
             dtime = datetime.timedelta(days=nnow + float(tloop) / float(ntime))
             dtmNow = dtime + start_date
@@ -173,26 +160,6 @@ def get_datetime_list(calc_time_interval = 900):
         nnow += 1
     return tuple(dtlist)
 
-
-# 太陽位置の取得（計算も実施）
-def Solpos(dtmDate, region) -> defSolpos:
-
-    # 緯度, 度
-    # 経度, 度
-    latitude, longitude = setLat_Lon(region)
-
-    # 標準子午線, 度
-    StMeridian = 135.0
-
-    # 標準時の計算
-    t_m = np.array([x.hour + x.minute / 60.0 + x.second / 3600.0 for x in dtmDate])
-
-    d = np.array([common.get_nday(x.month, x.day) for x in dtmDate])
-
-    return get_solar_position(t_m=t_m, d=d,
-                              phi=math.radians(latitude),
-                              l=math.radians(longitude),
-                              l0=math.radians(StMeridian))
 
 # Date型日時から取得する通日、時刻アドレスを計算する
 # 0時を24時に変換するため

@@ -1,31 +1,31 @@
 import math
 import numpy as np
 from typing import List
+from functools import lru_cache
 
 """
 付録5．	太陽位置の計算
 """
 
 # 太陽位置を計算するクラス
-class defSolpos:
-    """VBA では、mdlDefine モジュールにあったものを、モジュール　SolarPosision で記述することにした。"""
-
-    def __init__(self, Sw, Ss, h_s, sin_h_s, cos_h_s, a_s, sin_a_s, cos_a_s):
-        """
-        :param Sw: cos(h)*sin(A)
-        :param Ss: cos(h)*cos(A)
-        :param h_s: 太陽高度[rad]
-        :param sin_h_s: sin(h)
-        :param a_s: 太陽方位角[rad]
-        """
-        self.Sw = Sw  # cos h sin A
-        self.Ss = Ss  # cos h cos A
-        self.h_s = h_s  # 太陽高度
-        self.sin_h_s = sin_h_s  # sin h
-        self.cos_h_s = cos_h_s
-        self.a_s = a_s  # 太陽方位角
-        self.sin_a_s = sin_a_s
-        self.cos_a_s = cos_a_s
+def defSolpos(Sw, Ss, h_s, Sh_n, cos_h_s, a_s, sin_a_s, cos_a_s):
+    """
+    :param Sw: cos(h)*sin(A)
+    :param Ss: cos(h)*cos(A)
+    :param h_s: 太陽高度[rad]
+    :param Sh_n: sin(h)
+    :param a_s: 太陽方位角[rad]
+    """
+    return {
+        "Sw": Sw,  # cos h sin A
+        "Ss": Ss,  # cos h cos A
+        "h_s": h_s,  # 太陽高度
+        "Sh_n": Sh_n,  # sin h
+        "cos_h_s": cos_h_s,
+        "a_s": a_s,  # 太陽方位角
+        "sin_a_s": sin_a_s,
+        "cos_a_s": cos_a_s
+    }
 
 
 def get_n(y: int) -> int:
@@ -154,15 +154,15 @@ def get_h_s(phi: float, sin_delta: np.ndarray, cos_delta: np.ndarray, t: np.ndar
         太陽高度の余弦
     """
 
-    sin_h_s = np.clip(math.sin(phi) * sin_delta + math.cos(phi) * cos_delta * np.cos(t), 0.0, None)
-    cos_h_s = np.sqrt(1.0 - sin_h_s ** 2)
-    h_s = np.arcsin(sin_h_s)
+    Sh_n = np.clip(math.sin(phi) * sin_delta + math.cos(phi) * cos_delta * np.cos(t), 0.0, None)
+    cos_h_s = np.sqrt(1.0 - Sh_n ** 2)
+    h_s = np.arcsin(Sh_n)
 
-    return h_s, sin_h_s, cos_h_s
+    return h_s, Sh_n, cos_h_s
 
 
 def get_a_s(
-        sin_h_s: np.ndarray, cos_h_s: np.ndarray, sin_delta: float, cos_delta: np.ndarray,
+        Sh_n: np.ndarray, cos_h_s: np.ndarray, sin_delta: float, cos_delta: np.ndarray,
         t: np.ndarray, phi: float) -> (float, float, float):
     """
     Args:
@@ -178,10 +178,10 @@ def get_a_s(
         太陽方位角の余弦
     """
 
-    f = sin_h_s <= 0.0
+    f = Sh_n <= 0.0
 
     sin_a_s = cos_delta * np.sin(t) / cos_h_s
-    cos_a_s = (sin_h_s * math.sin(phi) - sin_delta) / (cos_h_s * math.cos(phi))
+    cos_a_s = (Sh_n * math.sin(phi) - sin_delta) / (cos_h_s * math.cos(phi))
     a_s = np.sign(t) * np.arccos(cos_a_s)
 
     sin_a_s[f] = 0.0
@@ -191,18 +191,23 @@ def get_a_s(
     return a_s, sin_a_s, cos_a_s
 
 
-def get_solar_position(t_m: np.ndarray, d: np.ndarray, phi, l, l0) -> defSolpos:
+@lru_cache(maxsize = None)
+def calc_solar_position(phi, l, l0) -> defSolpos:
     """
     太陽位置を計算する
     Args:
-        t_m: 標準時,h
-        d: 年通算日（1/1を1とする）, d
         phi: 緯度, rad
         l: 経度, rad
         l0: 標準時の地点の経度, rad
     Returns:
         defSolpos クラス
     """
+
+    # 標準時の計算 0, 0.25, 0.5, 0.75, ...., 23.75, 0, 0.25, ...
+    t_m = np.tile(np.arange(24*4)*0.25, 365)
+
+    # 年通算日の計算 年通算日（1/1を1とする）, d
+    d = np.repeat(np.arange(365) + 1, 24*4)
 
     # 1968年との年差
     n = get_n(y=1989)
@@ -229,14 +234,14 @@ def get_solar_position(t_m: np.ndarray, d: np.ndarray, phi, l, l0) -> defSolpos:
     t = get_t(t_m, l, l0, e_t)
 
     # 太陽高度, rad, 太陽高度の正弦, 太陽高度の余弦
-    h_s, sin_h_s, cos_h_s = get_h_s(phi, sin_delta, cos_delta, t)
+    h_s, Sh_n, cos_h_s = get_h_s(phi, sin_delta, cos_delta, t)
 
     # 太陽方位角, rad, 太陽方位角の正弦, 太陽方位角の余弦
-    a_s, sin_a_s, cos_a_s = get_a_s(sin_h_s, cos_h_s, sin_delta, cos_delta, t, phi)
+    a_s, sin_a_s, cos_a_s = get_a_s(Sh_n, cos_h_s, sin_delta, cos_delta, t, phi)
 
     dblSs = cos_h_s * cos_a_s
     dblSw = cos_h_s * sin_a_s
 
-    return defSolpos(dblSw, dblSs, h_s, sin_h_s, cos_h_s, a_s, sin_a_s, cos_a_s)
+    return defSolpos(dblSw, dblSs, h_s, Sh_n, cos_h_s, a_s, sin_a_s, cos_a_s)
 
 

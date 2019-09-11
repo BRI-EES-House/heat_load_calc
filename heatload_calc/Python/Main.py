@@ -4,14 +4,15 @@ import json
 import common
 from common import get_nday
 from Gdata import Gdata, is_actual_calc
-from Weather import enmWeatherComponent, Weather, WeaData, SolPosList
-from Sunbrk import SunbrkType
+from a4_weather import enmWeatherComponent, Weather, WeaData
 from Space import create_spaces, update_space_oldstate
 from heat_load import calcHload
+import apdx5_solar_position as a5
+import numpy as np
 # from apdx6_direction_cos_incident_angle import calc_cos_incident_angle
 # from rear_surface_equivalent_temperature import precalcTeo
 
-from Gdata import setLat_Lon
+import a36_region_location as a36
 
 # 熱負荷計算の実行
 def calc_Hload(cdata, weather, region):
@@ -31,7 +32,7 @@ def calc_Hload(cdata, weather, region):
         lngEnNday += 365
 
     # １日の計算ステップ数
-    lngNtime = int(24 * 3600 / cdata.DTime)
+    lngNtime = int(24 * 3600 / 900)
 
     # 計算完了日数
     lngNnow = 0
@@ -94,22 +95,28 @@ def calc_Hload(cdata, weather, region):
     OutList.append(rowlist)
     rowlist = []
 
-    solar_position = SolPosList(region)
+    #太陽位置を計算する
+    solar_position = a5.calc_solar_position(
+        phi=weather.Lat,
+        l=weather.Lon,
+        l0=weather.Ls
+    )
 
-    outdoor_temp_list = [0.0 for j in range(8760 * 4)]
-    outdoor_humid_list = [0.0 for j in range(8760 * 4)]
+    outdoor_temp_list = np.zeros(8760*4)
+    outdoor_humid_list = np.zeros(8760*4)
+
     # 予備計算（気象データの読み込み）
     for lngNday in range(common.get_nday(cdata.StDate.month, cdata.StDate.day), lngEnNday + 1):
         # 時刻ループ
         for lngTloop in range(lngNtime):
             dtime = datetime.timedelta(days=lngNnow + float(lngTloop) / float(lngNtime))
             dtmNow = apDate + dtime
-            sequence_number = int((get_nday(dtmNow.month, dtmNow.day) - 1) * 24 * 4 + dtmNow.hour * 4 + float(dtmNow.minute) / 60.0 * 3600 / cdata.DTime)
+            sequence_number = int((get_nday(dtmNow.month, dtmNow.day) - 1) * 24 * 4 + dtmNow.hour * 4 + float(dtmNow.minute) / 60.0 * 3600 / 900)
 
             # 太陽位置の計算
             # print(dtmNow)
             # 外気温度の補間、Listへの追加
-            outdoor_temp_list[sequence_number] = WeaData(weather, enmWeatherComponent.Ta, dtmNow, solar_position, sequence_number)
+            outdoor_temp_list[sequence_number] = WeaData(weather, enmWeatherComponent.To, dtmNow, solar_position, sequence_number)
             # 外気絶対湿度の補間、Listへの追加
             outdoor_humid_list[sequence_number] = WeaData(weather, enmWeatherComponent.x, dtmNow, solar_position, sequence_number) / 1000.
 
@@ -119,7 +126,7 @@ def calc_Hload(cdata, weather, region):
         for lngTloop in range(0, lngNtime):
             dtime = datetime.timedelta(days=lngNnow + float(lngTloop) / float(lngNtime))
             dtmNow = apDate + dtime
-            sequence_number = int((get_nday(dtmNow.month, dtmNow.day) - 1) * 24 * 4 + dtmNow.hour * 4 + float(dtmNow.minute) / 60.0 * 3600 / cdata.DTime)
+            sequence_number = int((get_nday(dtmNow.month, dtmNow.day) - 1) * 24 * 4 + dtmNow.hour * 4 + float(dtmNow.minute) / 60.0 * 3600 / 900)
 
             rowlist = []
             # 室温・熱負荷の計算
@@ -132,16 +139,15 @@ def calc_Hload(cdata, weather, region):
                 rowlist.append('{0:.4f}'.format(outdoor_humid_list[sequence_number]))
                 if lngTloop == 0:
                     print(dtmNow)
-            # print(Solpos.Sh, Solpos.Sw, Solpos.Ss)
+            # print(calc_solar_position.Sh, calc_solar_position.Sw, calc_solar_position.Ss)
             for space in spaces.values():
                 # 室温、熱負荷の計算
                 calcHload(
                     space=space,
                     is_actual_calc=is_actual_calc(cdata, dtmNow),
-                    calc_time_interval=cdata.DTime,
                     spaces=spaces,
                     dtmNow=dtmNow,
-                    Ta=outdoor_temp_list[sequence_number],
+                    To_n=outdoor_temp_list[sequence_number],
                     xo=outdoor_humid_list[sequence_number],
                     sequence_number=sequence_number
                 )
@@ -158,7 +164,7 @@ def calc_Hload(cdata, weather, region):
                     rowlist.append('{0:.2f}'.format(space.PMV))
                     rowlist.append('{0:.2f}'.format(space.Clo))
                     rowlist.append('{0:.2f}'.format(space.Vel))
-                    rowlist.append('{0:.2f}'.format(space.Qgt[sequence_number]))
+                    rowlist.append('{0:.2f}'.format(space.QGT_i_n[sequence_number]))
                     rowlist.append('{0:.2f}'.format(space.heat_generation_appliances))
                     rowlist.append('{0:.2f}'.format(space.heat_generation_lighting))
                     rowlist.append('{0:.2f}'.format(space.Humans))
@@ -172,20 +178,20 @@ def calc_Hload(cdata, weather, region):
                     rowlist.append('{0:.5f}'.format(space.xf))
                     rowlist.append('{0:.5f}'.format(space.Qfunl))
                     if 1:
-                        for surface in space.input_surfaces:
-                            rowlist.append('{0:.2f}'.format(surface.Ts))
+                        for i, surface in enumerate(space.input_surfaces):
+                            rowlist.append('{0:.2f}'.format(space.Ts[i]))
                     if 1:
-                        for surface in space.input_surfaces:
-                            rowlist.append('{0:.2f}'.format(surface.Tei))
+                        for i, surface in enumerate(space.input_surfaces):
+                            rowlist.append('{0:.2f}'.format(space.Tei[i]))
                     if 1:
                         for surface in space.input_surfaces:
                             rowlist.append('{0:.2f}'.format(surface.Teo))
                     if 1:
-                        for surface in space.input_surfaces:
-                            rowlist.append('{0:.2f}'.format(surface.Qr))
+                        for i, surface in enumerate(space.input_surfaces):
+                            rowlist.append('{0:.2f}'.format(space.Qr[i]))
                     if 1:
-                        for surface in space.input_surfaces:
-                            rowlist.append('{0:.2f}'.format(surface.Qc))
+                        for i, surface in enumerate(space.input_surfaces):
+                            rowlist.append('{0:.2f}'.format(space.Qc[i]))
                     # print('{0:.0f}'.format(space.is_now_window_open), '{0:.0f}'.format(space.nowAC), '{0:.2f}'.format(space.Tr), \
                     #         '{0:.0f}'.format(space.RH), '{0:.2f}'.format(space.MRT), '{0:.2f}'.format(space.PMV), \
                     #         '{0:.0f}'.format(space.Lcs), '{0:.0f}'.format(space.Lr), '{0:.0f}'.format(space.Ll), "", end="")
@@ -222,7 +228,7 @@ if __name__ == '__main__':
     region = d['common']['region']
 
     # 緯度, 経度
-    latitude, longitude = setLat_Lon(region)
+    latitude, longitude = a36.get_region_location(region)
 
     # シミュレーション全体の設定条件の読み込み
     cdata = Gdata(**d['common'])
@@ -237,10 +243,14 @@ if __name__ == '__main__':
     # sunbrks = create_sunbrks(d['Sunbrk'])
 
     # 太陽位置は個別計算可能
-    solar_position = SolPosList(region)
+    solar_position = a5.calc_solar_position(
+        phi=weather.Lat,
+        l=weather.Lon,
+        l0=weather.Ls
+    )
 
     # スペースの読み取り
-    spaces = create_spaces(cdata.DTime, d['rooms'], weather, solar_position)
+    spaces = create_spaces(d['rooms'], weather, solar_position)
 
     # スケジュールの初期化
     # schedule = Schedule()

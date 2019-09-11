@@ -46,18 +46,18 @@ def get_BRLot(BRL, BRM, XLr):
 
 
 # BRMの計算 式(5)
-def get_BRM(Hcap, calc_time_interval, matWSR, Capfun, Cfun, Vent, local_vent_amount_schedule, area, hic, V_nxt):
+def get_BRM(Hcap, matWSR, Capfun, Cfun, Vent, local_vent_amount_schedule, A_i_k, hic, V_nxt):
     # 第1項
-    BRM_0 = Hcap / calc_time_interval
+    BRM_0 = Hcap / 900
 
     # 第2項
-    BRM_0 += np.sum(area * hic * (1.0 - matWSR))
+    BRM_0 += np.sum(A_i_k * hic * (1.0 - matWSR))
 
     # 空間換気
     BRM_0 += np.sum(conca * conrowa * V_nxt / 3600.0)
 
     # 家具からの熱取得
-    BRM_0 += 1. / (calc_time_interval / Capfun + 1. / Cfun) if Capfun > 0.0 else 0.0
+    BRM_0 += 1. / (900 / Capfun + 1. / Cfun) if Capfun > 0.0 else 0.0
 
     # 外気導入項の計算（3項目の0.0はすきま風量）
     # ※ここで、BRMがスカラー値(BRM_0)から1時間ごとの1次元配列(BRM_h)へ
@@ -70,21 +70,21 @@ def get_BRM(Hcap, calc_time_interval, matWSR, Capfun, Cfun, Vent, local_vent_amo
 
 
 # 室温・負荷計算の定数項BRCを計算する 式(6)
-def get_BRC(matWSC, matWSV, area, hic, Dtime, Ta, Hn, Ventset, Infset, LocalVentset, Hcap, oldTr, Capfun, Cfun,
+def get_BRC(matWSC, matWSV, area, hic, Ta, Hn, Ventset, Infset, LocalVentset, Hcap, oldTr, Capfun, Cfun,
             Qsolfun, oldTfun, nextroom_volume, nextroom_oldTr):
     BRC = np.sum(matWSC * area * hic) \
         + conca * conrowa * (Ventset + Infset + LocalVentset) * Ta / 3600.0 \
         + conca * conrowa * np.sum(nextroom_volume * nextroom_oldTr) / 3600.0 \
-        + Hcap / Dtime * oldTr \
-        + ((Capfun / Dtime * oldTfun + Qsolfun) / (Capfun / (Dtime * Cfun) + 1.) if Capfun > 0.0 else 0.0) \
+        + Hcap / 900 * oldTr \
+        + ((Capfun / 900 * oldTfun + Qsolfun) / (Capfun / (900 * Cfun) + 1.) if Capfun > 0.0 else 0.0) \
         + np.sum(area * hic * matWSV) \
         + Hn
     return BRC
 
 
 # BRLの計算 式(7)
-def get_BRL(Beta, matWSB, area, hic):
-    BRL = np.sum(area * hic * matWSB) + Beta
+def get_BRL(Beta, matWSB, A_i_k, hic):
+    BRL = np.sum(A_i_k * hic * matWSB) + Beta
     return np.repeat([BRL], 8760 * 4)
 
 
@@ -124,7 +124,7 @@ def get_Tr(Lrs, OT, Xot, XLr, XC):
 
 
 # 家具の温度を計算する 式(15)
-def calcTfun(Capfun, oldTfun, Cfun, Tr, Qsolfun, calc_time_interval):
+def calcTfun(Capfun, oldTfun, Cfun, Tr, Qsolfun):
     """
 
     :param Capfun: i室の家具の熱容量（付録14．による） [J/K]
@@ -132,10 +132,9 @@ def calcTfun(Capfun, oldTfun, Cfun, Tr, Qsolfun, calc_time_interval):
     :param Cfun: i室の家具と室空気間の熱コンダクタンス（付録14．による）
     :param Tr:
     :param Qsolfun: i室のn時点における家具の日射吸収熱量 [W]
-    :param calc_time_interval:
     :return: i室の家具の温度 [℃]
     """
-    Tfun = get_Tfun(calc_time_interval, Capfun, oldTfun, Cfun, Tr, Qsolfun)
+    Tfun = get_Tfun(Capfun, oldTfun, Cfun, Tr, Qsolfun)
     Qfuns = get_Qfuns(Cfun, Tr, Tfun)
 
     return Tfun, Qfuns
@@ -143,10 +142,9 @@ def calcTfun(Capfun, oldTfun, Cfun, Tr, Qsolfun, calc_time_interval):
 
 
 # 家具の温度 式(15)
-def get_Tfun(calc_time_interval, Capfun, oldTfun, Cfun, Tr, Qsolfun):
+def get_Tfun(Capfun, oldTfun, Cfun, Tr, Qsolfun):
     """
 
-    :param calc_time_interval:
     :param Capfun: i室の家具の熱容量（付録14．による） [J/K]
     :param oldTfun: i室の家具の15分前の温度 [℃]
     :param Cfun: i室の家具と室空気間の熱コンダクタンス（付録14．による）
@@ -154,9 +152,9 @@ def get_Tfun(calc_time_interval, Capfun, oldTfun, Cfun, Tr, Qsolfun):
     :param Qsolfun: i室のn時点における家具の日射吸収熱量 [W]
     :return:
     """
-    return (((Capfun / calc_time_interval * oldTfun
+    return (((Capfun / 900 * oldTfun
                    + Cfun * Tr + Qsolfun)
-                  / (Capfun / calc_time_interval + Cfun)))
+                  / (Capfun / 900 + Cfun)))
 
 
 def get_Qfuns(Cfun, Tr, Tfun):

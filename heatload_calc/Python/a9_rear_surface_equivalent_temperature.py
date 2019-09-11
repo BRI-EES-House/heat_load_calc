@@ -1,7 +1,7 @@
 from typing import List
 import Surface
 import Space
-import Exsrf
+import a19_Exsrf
 import numpy as np
 
 """
@@ -9,8 +9,8 @@ import numpy as np
 """
 
 
-# 裏面の相当温度を計算する
-def calc_Teo(surface: Surface, Ta: float, oldTr: float, spaces: List['Space'], sequence_number: int):
+# 裏面の相当温度を計算する 表.4
+def calc_Teo(surface: Surface, To_n: float, oldTr: float, spaces: List['Space'], sequence_number: int):
     # 日射の当たる一般部位または不透明部位の場合
     if surface.boundary_type == "external_general_part" or surface.boundary_type == "external_opaque_part":
         # 室外側に日射が当たる場合
@@ -18,14 +18,10 @@ def calc_Teo(surface: Surface, Ta: float, oldTr: float, spaces: List['Space'], s
             return surface.Teolist[sequence_number]
         # 室外側に日射が当たらない場合
         else:
-            return get_NextRoom_fromR(surface.backside_boundary_condition, Ta, oldTr)
-    # 窓の場合
-    elif surface.boundary_type == "external_transparent_part":
+            return get_NextRoom_fromR(surface.backside_boundary_condition, To_n, oldTr)
+    # 窓,土壌の場合
+    elif surface.boundary_type == "external_transparent_part" or surface.boundary_type == "ground":
         return surface.Teolist[sequence_number]
-    # 土壌の場合
-    elif surface.boundary_type == "ground":
-        # 年平均気温で初期化済み
-        return surface.Teo
     # 内壁の場合（前時刻の室温）
     elif surface.boundary_type == "internal":
         return get_oldNextRoom(surface.backside_boundary_condition, spaces)
@@ -35,33 +31,50 @@ def calc_Teo(surface: Surface, Ta: float, oldTr: float, spaces: List['Space'], s
 
 
 # 傾斜面の相当外気温度の計算
-def get_Te(Fs:float, Iw: np.ndarray,  _as: float, ho: float, e: float, Ta: np.ndarray, RN: np.ndarray) -> np.ndarray:
+# 日射の当たる外皮_一般部位, 日射の当たる外皮_不透明な開口部
+def get_Te_n_1(To_n: np.ndarray, as_i_k: float, I_w_i_k_n: np.ndarray, eps_i_k: float, PhiS_i_k: float, RN_n: np.ndarray,
+               ho_i_k_n: float) -> np.ndarray:
     """
-    :param _as: 日射吸収率 [-]
-    :param ho: 外表面の総合熱伝達率[W/m2K]
-    :param e: 外表面の放射率[-]
-    :param Ta: 外気温度[℃]
-    :param RN: 夜間放射量[W/m2]
+    :param as_i_k: 日射吸収率 [-]
+    :param ho_i_k_n: 外表面の総合熱伝達率[W/m2K]
+    :param eps_i_k: 外表面の放射率[-]
+    :param To_n: 外気温度[℃]
+    :param RN_n: 夜間放射量[W/m2]
     :return: 傾斜面の相当外気温度 [℃]
     """
-    Te = Ta + (_as * Iw - Fs * e * RN) / ho
+    Te_n = To_n + (as_i_k * I_w_i_k_n - eps_i_k * PhiS_i_k * RN_n) / ho_i_k_n
 
-    return Te
+    return Te_n
+
+# 傾斜面の相当外気温度の計算
+# 外皮_透明な開口部
+def get_Te_n_2(To_n: np.ndarray, eps_i_k: float, PhiS_i_k: float, RN_n: np.ndarray,
+               ho_i_k_n: float) -> np.ndarray:
+    """
+    :param ho_i_k_n: 外表面の総合熱伝達率[W/m2K]
+    :param eps_i_k: 外表面の放射率[-]
+    :param To_n: 外気温度[℃]
+    :param RN_n: 夜間放射量[W/m2]
+    :return: 傾斜面の相当外気温度 [℃]
+    """
+    Te_n = To_n + (- eps_i_k * PhiS_i_k * RN_n) / ho_i_k_n
+
+    return Te_n
 
 
-# 温度差係数を設定した隣室温度
-def get_NextRoom_fromR(exsrf: Exsrf, Ta: float, Tr: float) -> float:
-    Te = exsrf.R * Ta + (1.0 - exsrf.R) * Tr
+# 温度差係数を設定した隣室温度 ( 日射が当たらない外皮_一般部位 )
+def get_NextRoom_fromR(exsrf: a19_Exsrf, Ta: float, Tr: float) -> float:
+    Te = exsrf.a_i_k * Ta + (1.0 - exsrf.a_i_k) * Tr
     return Te
 
 
 # 前時刻の隣室温度の場合
-def get_oldNextRoom(exsrf: Exsrf, spaces: List['Space']) -> float:
+def get_oldNextRoom(exsrf: a19_Exsrf, spaces: List['Space']) -> float:
     Te = spaces[exsrf.nextroomname].oldTr
     return Te
 
 """ # 相当外気温度の計算
-def precalcTeo(space: Space, Ta: float, Idn: float, Isky: float, RN: float, annual_average_ta: float, defSolpos: defSolpos, sequence_number: int):
+def precalcTeo(space: Space, To: float, I_DN: float, I_sky: float, RN: float, annual_average_ta: float, defSolpos: defSolpos, sequence_number: int):
     # 外皮の傾斜面日射量の計算
     for surface in space.input_surfaces:
         if surface.is_sun_striked_outside:
@@ -74,15 +87,15 @@ def precalcTeo(space: Space, Ta: float, Idn: float, Isky: float, RN: float, annu
 
             if 'external' in surface.backside_boundary_condition.Type and surface.backside_boundary_condition.is_sun_striked_outside:
                 cos_t = calc_cos_incident_angle(sin_h_s, cos_h_s, sin_a_s, cos_a_s, wa, wb)
-                surface.backside_boundary_condition.CosT = cos_t
+                surface.backside_boundary_condition.cos_Theta_i_k_n = cos_t
                 Fs = surface.backside_boundary_condition.Fs
                 dblFg = surface.backside_boundary_condition.dblFg
                 Rg = surface.backside_boundary_condition.Rg
 
-                surface.Id, surface.Isky, surface.Ir, surface.Iw = calc_slope_sol(Idn, Isky, sin_h_s, cos_t, Fs, dblFg, Rg)
+                surface.I_D_i_k_n, surface.I_sky, surface.I_R_i_k_n, surface.Iw_i_k_n = calc_slope_sol(I_DN, I_sky, sin_h_s, cos_t, Fs, dblFg, Rg)
             else:
-                surface.backside_boundary_condition.CosT = 0.0
-                surface.Id, surface.Isky, surface.Ir, surface.Iw = 0.0, 0.0, 0.0, 0.0
+                surface.backside_boundary_condition.cos_Theta_i_k_n = 0.0
+                surface.I_D_i_k_n, surface.I_sky, surface.I_R_i_k_n, surface.Iw_i_k_n = 0.0, 0.0, 0.0, 0.0
         elif surface.boundary_type == "ground":
             surface.Teo = annual_average_ta
 
@@ -91,8 +104,8 @@ def precalcTeo(space: Space, Ta: float, Idn: float, Isky: float, RN: float, annu
         if surface.is_sun_striked_outside:
             # 外皮_一般部位もしくは外皮_不透明部位の場合
             if surface.boundary_type == "external_general_part" or surface.boundary_type == "external_opaque_part":
-                surface.Teolist[sequence_number] = get_Te(surface.backside_boundary_condition, \
-                    surface.Iw, surface.outside_solar_absorption, surface.ho, surface.Eo, Ta, RN)
+                surface.Teolist[sequence_number] = get_Te_n_1(surface.backside_boundary_condition, \
+                    surface.Iw_i_k_n, surface.as_i_k, surface.ho, surface.eps_i_k, To, RN)
             # 外皮_透明部位の場合
             else:
-                surface.Teolist[sequence_number] = - surface.Eo * surface.backside_boundary_condition.Fs * RN / surface.ho + Ta """
+                surface.Teolist[sequence_number] = - surface.eps_i_k * surface.backside_boundary_condition.Fs * RN / surface.ho + To """

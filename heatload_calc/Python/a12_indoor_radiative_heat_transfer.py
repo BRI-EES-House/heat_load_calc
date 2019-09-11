@@ -9,30 +9,30 @@ import numpy as np
 # 微小体に対する部位の形態係数の計算
 def calc_form_factor_of_microbodies(space_name, area):
     # 面積比 式(95)
-    a = get_a(area)
+    a_k = get_a_k(area)
 
     # 面積比の最大値 （ニュートン法の初期値計算用）
-    max_a = get_max_a(a)
+    max_a = get_max_a(a_k)
 
     # 非線形方程式L(f̅)=0の解
-    fb = get_fb(max_a, space_name, a)
+    fb = get_fb(max_a, space_name, a_k)
 
     # 式（123）で示す放射伝熱計算で使用する微小球に対する部位の形態係数 [-] 式(94)
-    FF = get_FF(fb, a)
+    FF_m = get_FF_m(fb, a_k)
 
     # 総和のチェック
-    TotalFF = np.sum(FF)
-    if abs(TotalFF - 1.0) > 1.0e-3:
-        print('形態係数の合計値が不正 name=', space_name, 'TotalFF=', TotalFF)
+    FF = np.sum(FF_m)
+    if abs(FF - 1.0) > 1.0e-3:
+        print('形態係数の合計値が不正 name=', space_name, 'TotalFF=', FF)
 
-    return FF, a
+    return FF_m
 
 
 # 面積比 [-] 式(95)
-def get_a(area):
-    Atotal = sum(area)
-    a = area / Atotal
-    return a
+def get_a_k(A_i_k):
+    A_i = sum(A_i_k)
+    a_k = A_i_k / A_i
+    return a_k
 
 
 def get_max_a(a):
@@ -40,7 +40,7 @@ def get_max_a(a):
 
 
 # 式（123）で示す放射伝熱計算で使用する微小球に対する部位の形態係数 [-] 式(94)
-def get_FF(fb, a):
+def get_FF_m(fb, a):
     return 0.5 * (1.0 - np.sqrt(1.0 - 4.0 * a / fb))
 
 
@@ -74,13 +74,13 @@ def get_fb(max_a, space_name, a):
 
 
 # 平均放射温度計算時の各部位表面温度の重み計算 式(101)
-def get_mrt_weight(area, hir):
+def get_F_mrt_i_k(area, hir):
     # 各部位表面温度の重み=面積×放射熱伝達率の比率
     total_area_hir = np.sum(area * hir)
     
-    Fmrt = area * hir / total_area_hir
+    F_mrt_i_k = area * hir / total_area_hir
 
-    return Fmrt
+    return F_mrt_i_k
 
 
 # 透過日射の吸収比率を設定する（家具の吸収比率を返す）
@@ -141,11 +141,10 @@ def calc_form_factor_for_human_body(area, is_solar_absorbed_inside):
     return fot
 
 
+def get_RSsol(Qgt, SolR, A_i_k):
+    return Qgt * SolR / A_i_k
 
-# 透過日射の家具、室内部位表面発熱量への分配
-def distribution_transmitted_solar_radiation(space, Qgt):
-    # RSsol:透過日射の内、室内部位表面での吸収量[W/m2]
-    for surface in space.input_surfaces:
-        surface.RSsol = Qgt * surface.SolR / surface.area
-    # 家具の吸収日射量[W]
-    space.Qsolfun = Qgt * space.rsolfun
+
+# 家具の吸収日射量[W]
+def get_Qsolfun(Qgt, rsolfun):
+    return Qgt * rsolfun

@@ -29,7 +29,7 @@ def summarize_building_part(surfaces):
     
     # print("集約前")
     # for surface in surfaces:
-        # print('name=', surface.name, 'area=', surface.area, 'group=', surface.group_number)
+        # print('name=', surface.name, 'A_i_k=', surface.A_i_k, 'group=', surface.group_number)
 
     summarize_surfaces = []
     for i in range(group_number):
@@ -62,9 +62,9 @@ def boundary_comp(surface_a, comp_surface):
             # 室内侵入日射吸収の有無の比較
             temp = temp and surface_a.is_solar_absorbed_inside == comp_surface.is_solar_absorbed_inside
             # 屋外側放射率の比較
-            temp = temp and abs(surface_a.Eo - comp_surface.Eo) < 1.0E-5
+            temp = temp and abs(surface_a.eps_i_k - comp_surface.eps_i_k) < 1.0E-5
             # 屋外側日射吸収率の比較
-            temp = temp and abs(surface_a.outside_solar_absorption - comp_surface.outside_solar_absorption) < 1.0E-5
+            temp = temp and abs(surface_a.as_i_k - comp_surface.as_i_k) < 1.0E-5
             # 室内側熱伝達率の比較
             temp = temp and abs(surface_a.hi - comp_surface.hi) < 1.0E-5
             # 室外側総合熱伝達率の比較
@@ -76,7 +76,7 @@ def boundary_comp(surface_a, comp_surface):
             # 方位の比較
             temp = temp and surface_a.direction == comp_surface.direction
             # 屋外側放射率の比較
-            temp = temp and abs(surface_a.Eo - comp_surface.Eo) < 1.0E-5
+            temp = temp and abs(surface_a.eps_i_k - comp_surface.eps_i_k) < 1.0E-5
             # 室内側熱伝達率の比較
             temp = temp and abs(surface_a.hi - comp_surface.hi) < 1.0E-5
             # 室外側総合熱伝達率の比較
@@ -126,8 +126,8 @@ def create_surface(surfaces, group_number):
     # 室内透過日射吸収フラグ
     summarize_surface.is_solar_absorbed_inside = first_found_surface.is_solar_absorbed_inside
 
-    # 床フラグ
-    summarize_surface.flr = first_found_surface.flr
+    # 床フラグ あとで計算するから不要
+    #summarize_surface.flr = first_found_surface.flr
 
     # 室内側表面熱伝達率
     summarize_surface.hi = first_found_surface.hi
@@ -139,9 +139,9 @@ def create_surface(surfaces, group_number):
     if summarize_surface.is_sun_striked_outside:
         # 日射吸収率
         if first_found_surface.boundary_type == "external_opaque_part" or first_found_surface.boundary_type == "external_general_part" :
-            summarize_surface.outside_solar_absorption = first_found_surface.outside_solar_absorption
+            summarize_surface.as_i_k = first_found_surface.as_i_k
         # 室外側放射率
-        summarize_surface.Eo = first_found_surface.Eo
+        summarize_surface.eps_i_k = first_found_surface.eps_i_k
 
     # 裏面境界温度のコピー
     summarize_surface.Teo = first_found_surface.Teo
@@ -161,8 +161,8 @@ def create_surface(surfaces, group_number):
     area = []
     for surface in surfaces:
         if surface.group_number == group_number:
-            area.append(surface.area)
-    summarize_surface.area = sum(area)
+            area.append(surface.A_i_k)
+    summarize_surface.A_i_k = sum(area)
 
     # 過去の項別応答の履歴配列のメモリ確保
     summarize_surface.Nroot = first_found_surface.Nroot
@@ -190,19 +190,19 @@ def create_surface(surfaces, group_number):
     for surface in surfaces:
         if surface.group_number == group_number:
             # 吸熱応答係数の初項
-            summarize_surface.RFA0 += area[i] * surface.RFA0 / summarize_surface.area
+            summarize_surface.RFA0 += area[i] * surface.RFA0 / summarize_surface.A_i_k
             # 貫流応答係数の初項
-            summarize_surface.RFT0 += area[i] * surface.RFT0 / summarize_surface.area
+            summarize_surface.RFT0 += area[i] * surface.RFT0 / summarize_surface.A_i_k
             # 熱貫流率
             if first_found_surface.boundary_type == "external_transparent_part" \
                 or first_found_surface.boundary_type == "external_opaque_part":
-                summarize_surface.Uso += area[i] * surface.Uso / summarize_surface.area
-                summarize_surface.U += area[i] * surface.U / summarize_surface.area
+                summarize_surface.Uso += area[i] * surface.Uso / summarize_surface.A_i_k
+                summarize_surface.U += area[i] * surface.U / summarize_surface.A_i_k
             # 指数項別応答係数
             if summarize_surface.Nroot > 0:
                 for j in range(summarize_surface.Nroot):
-                    summarize_surface.RFT1[j] += area[i] * surface.RFT1[j] / summarize_surface.area
-                    summarize_surface.RFA1[j] += area[i] * surface.RFA1[j] / summarize_surface.area
+                    summarize_surface.RFT1[j] += area[i] * surface.RFT1[j] / summarize_surface.A_i_k
+                    summarize_surface.RFA1[j] += area[i] * surface.RFA1[j] / summarize_surface.A_i_k
             i += 1
 
 
