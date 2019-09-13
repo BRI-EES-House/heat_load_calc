@@ -223,14 +223,11 @@ if __name__ == '__main__':
     # 地域の区分
     region = d['common']['region']
 
-    # 緯度, 経度
-    latitude, longitude = a36.get_region_location(region)
-
     # シミュレーション全体の設定条件の読み込み
     cdata = Gdata(**d['common'])
 
     # 気象データの読み込み
-    weather = Weather(latitude, longitude, cdata.StMeridian)
+    weather = Weather()
 
     # 外表面の初期化
     # exsurfaces = create_exsurfaces(d['ExSurface'])

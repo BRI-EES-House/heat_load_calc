@@ -1,3 +1,4 @@
+import math
 """
 付録36．計算地域の緯度、経度
 """
@@ -40,4 +41,4 @@ def get_region_location(Region: int) -> tuple:
         # 8地域（那覇）
         Latitude = 26.21
         Longitude = 127.685
-    return Latitude, Longitude
+    return math.radians(Latitude), math.radians(Longitude)

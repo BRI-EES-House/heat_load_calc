@@ -25,19 +25,13 @@ class enmWeatherComponent(IntEnum):
 class Weather:
 
     # 気象データの取得
-    def __init__(self, Lat: float, Lon: float, Ls: float):
+    def __init__(self):
         """
         :param Lat: 緯度
         :param Lon: 軽度
         :param Ls: 標準子午線
         """
         # print('Weather initialize')
-        self.Lat = math.radians(Lat)
-        self.Lon = math.radians(Lon)
-        self.Ls = math.radians(Ls)
-        self.dblCosPhi = math.cos(math.radians(Lat))
-        self.dblSinPhi = math.sin(math.radians(Lat))
-        self.dblLLs = math.radians(Lon) - math.radians(Ls)
 
         # 年平均気温
         self.AnnualTave = 0.0

@@ -37,10 +37,6 @@ class Gdata:
         # self.__blnDetailOut = blnDetailOut
         # 作用温度設定フラグ
         # self.OTset = True
-        # 緯度、経度
-        self.Latitude, self.Longitude = a36.get_region_location(self.Region)
-        # 標準子午線
-        self.StMeridian = 135.0
 
 # 本計算フラグ
 def is_actual_calc(gdata: Gdata, dtmDate: datetime) -> bool:

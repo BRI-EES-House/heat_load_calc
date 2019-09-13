@@ -163,7 +163,7 @@ def get_h_s(phi: float, sin_delta: np.ndarray, cos_delta: np.ndarray, t: np.ndar
 
 
 def get_a_s(
-        Sh_n: np.ndarray, cos_h_s: np.ndarray, sin_delta: float, cos_delta: np.ndarray,
+        sin_h_s: np.ndarray, cos_h_s: np.ndarray, sin_delta: float, cos_delta: np.ndarray,
         t: np.ndarray, phi: float) -> (float, float, float):
     """
     Args:
@@ -179,10 +179,10 @@ def get_a_s(
         太陽方位角の余弦
     """
 
-    f = Sh_n <= 0.0
+    f = sin_h_s <= 0.0
 
     sin_a_s = cos_delta * np.sin(t) / cos_h_s
-    cos_a_s = (Sh_n * math.sin(phi) - sin_delta) / (cos_h_s * math.cos(phi))
+    cos_a_s = (sin_h_s * math.sin(phi) - sin_delta) / (cos_h_s * math.cos(phi))
     a_s = np.sign(t) * np.arccos(cos_a_s)
 
     sin_a_s[f] = 0.0
@@ -202,13 +202,10 @@ def calc_solar_position(region: int) -> defSolpos:
         defSolpos クラス
     """
 
-    latitude, longitude = a36.get_region_location(region)
-    phi = math.radians(latitude)
-    l = math.radians(longitude)
+    phi, l = a36.get_region_location(region)
 
     # 標準子午線
-    StMeridian = 135.0
-    l0 = math.radians(StMeridian)
+    l0 = math.radians(135.0)
 
     # 標準時の計算 0, 0.25, 0.5, 0.75, ...., 23.75, 0, 0.25, ...
     t_m = np.tile(np.arange(24*4)*0.25, 365)
