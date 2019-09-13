@@ -2,6 +2,7 @@ import math
 import numpy as np
 from typing import List
 from functools import lru_cache
+import a36_region_location as a36
 
 """
 付録5．	太陽位置の計算
@@ -192,16 +193,22 @@ def get_a_s(
 
 
 @lru_cache(maxsize = None)
-def calc_solar_position(phi, l, l0) -> defSolpos:
+def calc_solar_position(region: int) -> defSolpos:
     """
     太陽位置を計算する
     Args:
-        phi: 緯度, rad
-        l: 経度, rad
-        l0: 標準時の地点の経度, rad
+        region: 地域の区分
     Returns:
         defSolpos クラス
     """
+
+    latitude, longitude = a36.get_region_location(region)
+    phi = math.radians(latitude)
+    l = math.radians(longitude)
+
+    # 標準子午線
+    StMeridian = 135.0
+    l0 = math.radians(StMeridian)
 
     # 標準時の計算 0, 0.25, 0.5, 0.75, ...., 23.75, 0, 0.25, ...
     t_m = np.tile(np.arange(24*4)*0.25, 365)

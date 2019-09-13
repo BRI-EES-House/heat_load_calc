@@ -96,11 +96,7 @@ def calc_Hload(cdata, weather, region):
     rowlist = []
 
     #太陽位置を計算する
-    solar_position = a5.calc_solar_position(
-        phi=weather.Lat,
-        l=weather.Lon,
-        l0=weather.Ls
-    )
+    solar_position = a5.calc_solar_position(region=region)
 
     outdoor_temp_list = np.zeros(8760*4)
     outdoor_humid_list = np.zeros(8760*4)
@@ -243,11 +239,7 @@ if __name__ == '__main__':
     # sunbrks = create_sunbrks(d['Sunbrk'])
 
     # 太陽位置は個別計算可能
-    solar_position = a5.calc_solar_position(
-        phi=weather.Lat,
-        l=weather.Lon,
-        l0=weather.Ls
-    )
+    solar_position = a5.calc_solar_position(region=region)
 
     # スペースの読み取り
     spaces = create_spaces(d['rooms'], weather, solar_position)
