@@ -10,6 +10,8 @@ from functools import lru_cache
 from typing import List, Tuple
 import numpy as np
 
+from Gdata import setLat_Lon
+
 class enmWeatherComponent(IntEnum):
     Ta = 2  # 外気温度[℃]
     x = 6  # 絶対湿度[g/kg']
@@ -146,9 +148,13 @@ def WeaData(weatherdata: Weather, Compnt: enmWeatherComponent, dtmDate: datetime
 
 
 from common import get_nday
-def SolPosList(weatherdata: Weather, calc_time_interval):
+def SolPosList(region):
+
+    # タイムインターバルを900 sec に固定化した。
+    calc_time_interval = 900
+
     dtlist = get_datetime_list(calc_time_interval)
-    list = Solpos(weatherdata, dtlist)
+    list = Solpos(dtlist, region)
     return list
 
 
@@ -169,7 +175,14 @@ def get_datetime_list(calc_time_interval = 900):
 
 
 # 太陽位置の取得（計算も実施）
-def Solpos(weatherdata: Weather, dtmDate) -> defSolpos:
+def Solpos(dtmDate, region) -> defSolpos:
+
+    # 緯度, 度
+    # 経度, 度
+    latitude, longitude = setLat_Lon(region)
+
+    # 標準子午線, 度
+    StMeridian = 135.0
 
     # 標準時の計算
     t_m = np.array([x.hour + x.minute / 60.0 + x.second / 3600.0 for x in dtmDate])
@@ -177,9 +190,9 @@ def Solpos(weatherdata: Weather, dtmDate) -> defSolpos:
     d = np.array([common.get_nday(x.month, x.day) for x in dtmDate])
 
     return get_solar_position(t_m=t_m, d=d,
-                              phi=weatherdata.Lat,
-                              l=weatherdata.Lon,
-                              l0=weatherdata.Ls)
+                              phi=math.radians(latitude),
+                              l=math.radians(longitude),
+                              l0=math.radians(StMeridian))
 
 # Date型日時から取得する通日、時刻アドレスを計算する
 # 0時を24時に変換するため

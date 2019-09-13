@@ -11,8 +11,10 @@ from heat_load import calcHload
 # from apdx6_direction_cos_incident_angle import calc_cos_incident_angle
 # from rear_surface_equivalent_temperature import precalcTeo
 
+from Gdata import setLat_Lon
+
 # 熱負荷計算の実行
-def calc_Hload(cdata, weather):
+def calc_Hload(cdata, weather, region):
     """
     :param cdata: シミュレーション全体の設定条件
     :param weather: 気象データ
@@ -92,7 +94,7 @@ def calc_Hload(cdata, weather):
     OutList.append(rowlist)
     rowlist = []
 
-    solar_position = SolPosList(weather, 900)
+    solar_position = SolPosList(region)
 
     outdoor_temp_list = [0.0 for j in range(8760 * 4)]
     outdoor_humid_list = [0.0 for j in range(8760 * 4)]
@@ -216,11 +218,17 @@ if __name__ == '__main__':
     # js = open('検証用.json', 'r', encoding='utf-8')
     d = json.load(js)
 
+    # 地域の区分
+    region = d['common']['region']
+
+    # 緯度, 経度
+    latitude, longitude = setLat_Lon(region)
+
     # シミュレーション全体の設定条件の読み込み
     cdata = Gdata(**d['common'])
 
     # 気象データの読み込み
-    weather = Weather(cdata.Latitude, cdata.Longitude, cdata.StMeridian)
+    weather = Weather(latitude, longitude, cdata.StMeridian)
 
     # 外表面の初期化
     # exsurfaces = create_exsurfaces(d['ExSurface'])
@@ -229,7 +237,7 @@ if __name__ == '__main__':
     # sunbrks = create_sunbrks(d['Sunbrk'])
 
     # 太陽位置は個別計算可能
-    solar_position = SolPosList(weather, cdata.DTime)
+    solar_position = SolPosList(region)
 
     # スペースの読み取り
     spaces = create_spaces(cdata.DTime, d['rooms'], weather, solar_position)
@@ -238,4 +246,4 @@ if __name__ == '__main__':
     # schedule = Schedule()
 
     # 熱負荷計算の実行
-    calc_Hload(cdata, weather)
+    calc_Hload(cdata, weather, region)
