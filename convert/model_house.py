@@ -858,6 +858,9 @@ def calc_area(
     a_evp_wall = get_a_evp_wall(a_evp_door, a_evp_srf, a_evp_window)
 
     return dict(
+        house_type=house_type,
+        floor_ins_type=floor_ins_type,
+        bath_ins_type=bath_ins_type,
         a_f=a_f,
         a_evp_ef_etrc=a_evp_ef_etrc,
         a_evp_f_etrc=a_evp_f_etrc,
@@ -902,7 +905,7 @@ def calc_area(
 if __name__ == '__main__':
 
     result1 = calc_area(
-        house_type='detached', a_f_total=90.00, r_open=0.14, floor_ins_type='floor',bath_ins_type='base',
+        house_type='detached', a_f_total=90.00, r_open=0.14, floor_ins_type='floor', bath_ins_type='base',
         a_env_input=266.10)
     result2 = calc_area(
         house_type='detached', a_f_total=90.00, r_open=0.14, floor_ins_type='floor', bath_ins_type='floor',
