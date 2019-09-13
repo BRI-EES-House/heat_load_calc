@@ -8,23 +8,25 @@ import numpy as np
 
 # 式(72)
 def calc_cos_incident_angle(
-        Sh_n: np.ndarray, cos_h_s: np.ndarray, sin_a_s: np.ndarray, cos_a_s: np.ndarray, Wa: float, Wb: float) -> np.ndarray:
+        h_sun_sin_n: np.ndarray, h_sun_cos_n: np.ndarray,
+        a_sun_sin_n: np.ndarray, a_sun_cos_n: np.ndarray,
+        w_alpha: float, w_beta: float) -> np.ndarray:
     """
     Args:
-        Sh_n: 太陽高度の正弦
-        cos_h_s: 太陽高度の余弦
-        sin_a_s: 太陽方位角の正弦
-        cos_a_s: 太陽方位角の余弦
-        Wa: 外表面の方位角, rad
-        Wb: 外表面の傾斜角, rad
+        h_sun_sin_n: 時刻nにおける太陽高度の正弦
+        h_sun_cos_n: 時刻nにおける太陽高度の余弦
+        a_sun_sin_n: 時刻nにおける太陽方位角の正弦
+        a_sun_cos_n: 時刻nにおける太陽方位角の余弦
+        w_alpha: 外表面の方位角, rad
+        w_beta: 外表面の傾斜角, rad
     Returns:
-        入射角の方向余弦
+        時刻nにおける入射角の方向余弦
     """
 
     return np.clip(
-        Sh_n * math.cos(Wb)
-        + cos_h_s * sin_a_s * math.sin(Wb) * math.sin(Wa)
-        + cos_h_s * cos_a_s * math.sin(Wb) * math.cos(Wa),
+        h_sun_sin_n * math.cos(w_beta)
+        + h_sun_cos_n * a_sun_sin_n * math.sin(w_beta) * math.sin(w_alpha)
+        + h_sun_cos_n * a_sun_cos_n * math.sin(w_beta) * math.cos(w_alpha),
         0.0,
         None
     )

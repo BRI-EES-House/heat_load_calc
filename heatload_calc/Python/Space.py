@@ -233,12 +233,12 @@ class Space:
 
                     # 入射角の方向余弦
                     surface.cos_Theta_i_k_n = a6.calc_cos_incident_angle(
-                        Sh_n=solar_position["Sh_n"],
-                        cos_h_s=solar_position["cos_h_s"],
-                        sin_a_s=solar_position["sin_a_s"],
-                        cos_a_s=solar_position["cos_a_s"],
-                        Wa=surface.backside_boundary_condition.Wa,
-                        Wb=surface.backside_boundary_condition.Wb
+                        h_sun_sin_n=solar_position["Sh_n"],
+                        h_sun_cos_n=solar_position["cos_h_s"],
+                        a_sun_sin_n=solar_position["sin_a_s"],
+                        a_sun_cos_n=solar_position["cos_a_s"],
+                        w_alpha=surface.backside_boundary_condition.Wa,
+                        w_beta=surface.backside_boundary_condition.Wb
                     )
 
                     # 傾斜面日射量
