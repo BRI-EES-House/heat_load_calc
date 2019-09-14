@@ -7,7 +7,7 @@ from apdx10_oblique_incidence_characteristics import get_CID
 
 
 # 透過日射量[W]、吸収日射量[W]の計算 式(90)
-def calc_QGT_i_n(
+def calc_QGT_i_k_n(
         cos_Theta_i_k_n: np.ndarray,
         incident_angle_characteristics,
         I_D_i_k_n: np.ndarray,

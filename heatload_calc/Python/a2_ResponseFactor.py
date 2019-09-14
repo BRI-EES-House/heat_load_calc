@@ -259,4 +259,11 @@ def calc_response_factor(is_ground:bool, C, R):
     RFA0 = RFA[0]  # 吸熱応答係数の初項
     Nroot = len(alps)  # 根の数
 
-    return RFT0, RFA0, RFT1, RFA1, Row, Nroot
+    RFT1_12 = np.zeros(12)
+    RFA1_12 = np.zeros(12)
+    Row_12 = np.zeros(12)
+    RFT1_12[:len(RFT1)] = RFT1
+    RFA1_12[:len(RFA1)] = RFA1
+    Row_12[:len(Row)] = Row
+
+    return RFT0, RFA0, RFT1_12, RFA1_12, Row_12, Nroot

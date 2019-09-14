@@ -111,8 +111,8 @@ def calcHload(space, is_actual_calc, spaces, dtmNow, To_n: float, xo: float, seq
 
     # 畳み込み積分 式(27)
     for i in range(space.Nsurf):
-        space.oldTsd_t[i] = oldTeo[i] * space.RFT1[i] + Row[i] * space.oldTsd_t[i]
-        space.oldTsd_a[i] = space.oldqi[i] * space.RFA1[i] + Row[i] * space.oldTsd_a[i]
+        space.oldTsd_t[i] = oldTeo[i] * space.RFT1[i,:Nroot[i]] + Row[i,:Nroot[i]] * space.oldTsd_t[i]
+        space.oldTsd_a[i] = space.oldqi[i] * space.RFA1[i,:Nroot[i]] + Row[i,:Nroot[i]] * space.oldTsd_a[i]
 
     # 畳み込み演算 式(26)
     matCVL = a1.get_CVL(space.oldTsd_t, space.oldTsd_a, Nroot)

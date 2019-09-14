@@ -221,11 +221,10 @@ class Space:
             To_n[item] = WeaData(weather, enmWeatherComponent.To, dtmNow, solar_position, item)
 
         # 部位の読み込み
-        self.input_surfaces = \
-            [Surface(d_surface, solar_position, I_DN_n, I_sky_n, RN_n, To_n, weather.AnnualTave) for d_surface in d_room['boundaries']]
+        self.input_surfaces = Surface(d_room['boundaries'], solar_position, I_DN_n, I_sky_n, RN_n, To_n, weather.AnnualTave)
 
         # 透過日射熱取得の集約
-        self.QGT_i_n = sum([x.QGT_i_n for x in self.input_surfaces])
+        self.QGT_i_n = np.sum(self.input_surfaces.QGT_i_k_n, axis=0)
 
         # 部位の集約
         self.grouped_surfaces = a34.get_grouped_surfaces(self.input_surfaces)
