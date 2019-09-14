@@ -228,7 +228,7 @@ def get_RFTRI(alp, AT0, AA0, AT, AA, M):
 
 
 # 応答係数
-def calc_response_factor(is_ground:bool, NcalTime: int, C, R):
+def calc_response_factor(is_ground:bool, C, R):
     """
     VBAからの主な変更点：
     (1)二次元配列（objArray）で壁体の情報を受け取っていたが、壁体情報クラスで受け取るように変更
@@ -237,9 +237,10 @@ def calc_response_factor(is_ground:bool, NcalTime: int, C, R):
     (4)伝達関数近似のA0の周期は使用しない
     :param WallType: 壁体種類, 'wall' or 'soil'
     :param DTime: 計算時間間隔[s]
-    :param NcalTime: 応答係数を作成する時間数[h]
     :param wall: 壁体基本情報クラス
     """
+
+    NcalTime = 50                       # 応答係数を作成する時間数[h]
     M = int(NcalTime * 3600 / 900) + 1  # 応答係数で作成する項数
 
     # 固定根の設定

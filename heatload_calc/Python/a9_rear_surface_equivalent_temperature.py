@@ -18,13 +18,13 @@ def calc_Teo(surface: Surface, To_n: float, oldTr: float, spaces: List['Space'],
             return surface.Teolist[sequence_number]
         # 室外側に日射が当たらない場合
         else:
-            return get_NextRoom_fromR(surface.backside_boundary_condition, To_n, oldTr)
+            return get_NextRoom_fromR(surface.a_i_k, To_n, oldTr)
     # 窓,土壌の場合
     elif surface.boundary_type == "external_transparent_part" or surface.boundary_type == "ground":
         return surface.Teolist[sequence_number]
     # 内壁の場合（前時刻の室温）
     elif surface.boundary_type == "internal":
-        return get_oldNextRoom(surface.backside_boundary_condition, spaces)
+        return get_oldNextRoom(surface.nextroomname, spaces)
     # 例外
     else:
         print("境界条件が見つかりません。 name=", surface.boundary_type)
@@ -63,14 +63,14 @@ def get_Te_n_2(To_n: np.ndarray, eps_i_k: float, PhiS_i_k: float, RN_n: np.ndarr
 
 
 # 温度差係数を設定した隣室温度 ( 日射が当たらない外皮_一般部位 )
-def get_NextRoom_fromR(exsrf: a19_Exsrf, Ta: float, Tr: float) -> float:
-    Te = exsrf.a_i_k * Ta + (1.0 - exsrf.a_i_k) * Tr
+def get_NextRoom_fromR(a_i_k: float, Ta: float, Tr: float) -> float:
+    Te = a_i_k * Ta + (1.0 - a_i_k) * Tr
     return Te
 
 
 # 前時刻の隣室温度の場合
-def get_oldNextRoom(exsrf: a19_Exsrf, spaces: List['Space']) -> float:
-    Te = spaces[exsrf.nextroomname].oldTr
+def get_oldNextRoom(nextroomname: str, spaces: List['Space']) -> float:
+    Te = spaces[nextroomname].oldTr
     return Te
 
 """ # 相当外気温度の計算
@@ -105,7 +105,7 @@ def precalcTeo(space: Space, To: float, I_DN: float, I_sky: float, RN: float, an
             # 外皮_一般部位もしくは外皮_不透明部位の場合
             if surface.boundary_type == "external_general_part" or surface.boundary_type == "external_opaque_part":
                 surface.Teolist[sequence_number] = get_Te_n_1(surface.backside_boundary_condition, \
-                    surface.Iw_i_k_n, surface.as_i_k, surface.ho, surface.eps_i_k, To, RN)
+                    surface.Iw_i_k_n, surface.as_i_k, surface.ho_i_k_n, surface.eps_i_k, To, RN)
             # 外皮_透明部位の場合
             else:
-                surface.Teolist[sequence_number] = - surface.eps_i_k * surface.backside_boundary_condition.Fs * RN / surface.ho + To """
+                surface.Teolist[sequence_number] = - surface.eps_i_k * surface.backside_boundary_condition.Fs * RN / surface.ho_i_k_n + To """

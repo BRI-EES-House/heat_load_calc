@@ -5,6 +5,7 @@ import math
 
 from functools import lru_cache
 import numpy as np
+import a36_region_location as a36
 
 """
 付録4．気象データの補間方法
@@ -31,7 +32,6 @@ class Weather:
         :param Lon: 軽度
         :param Ls: 標準子午線
         """
-        # print('Weather initialize')
 
         # 年平均気温
         self.AnnualTave = 0.0

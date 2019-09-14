@@ -30,7 +30,7 @@ def calcHload(space, is_actual_calc, spaces, dtmNow, To_n: float, xo: float, seq
 
     # ********** 毎時計算5 裏面相当温度の計算 **********
 
-    for surface in space.input_surfaces:
+    for surface in space.grouped_surfaces:
         # 前時刻の相当外気温度を控える
         surface.oldTeo = surface.Teo
 
@@ -102,10 +102,10 @@ def calcHload(space, is_actual_calc, spaces, dtmNow, To_n: float, xo: float, seq
     is_now_window_open = space.is_prev_window_open and air_conditioning_demand
 
     # 配列の準備
-    Teo = np.array([x.Teo for x in space.input_surfaces])
-    Nroot = np.array([x.Nroot for x in space.input_surfaces])
-    oldTeo = np.array([x.oldTeo for x in space.input_surfaces])
-    Row = np.array([x.Row for x in space.input_surfaces])
+    Teo = np.array([x.Teo for x in space.grouped_surfaces])
+    Nroot = np.array([x.Nroot for x in space.grouped_surfaces])
+    oldTeo = np.array([x.oldTeo for x in space.grouped_surfaces])
+    Row = np.array([x.Row for x in space.grouped_surfaces])
     nextroom_volume = np.array([x.volume for x in space.RoomtoRoomVent])
     nextroom_oldTr = np.array([x.oldTr for x in space.RoomtoRoomVent])
 

@@ -197,14 +197,9 @@ class Space:
         self.RoomtoRoomVent = \
             [NextVent(room_vent['upstream_room_type'], room_vent['volume']) for room_vent in d_room['next_vent']]
 
-        # 部位の読み込み
-        self.input_surfaces = \
-            [Surface(d_surface) for d_surface in d_room['boundaries']]
-
         # 透過日射熱取得の計算（部位を集約するので最初に8760時間分計算しておく）
         # 透過日射熱取得収録配列の初期化とメモリ確保
         self.QGT_i_n = np.zeros(8760 * 4)
-
 
         dtlist = get_datetime_list()
         I_DN_n = np.zeros(24 * 365 * 4)
@@ -225,134 +220,35 @@ class Space:
             # n時点における外気温度
             To_n[item] = WeaData(weather, enmWeatherComponent.To, dtmNow, solar_position, item)
 
-        for surface in self.input_surfaces:
-            # 外表面に日射が当たる場合
-            if surface.is_sun_striked_outside:
+        # 部位の読み込み
+        self.input_surfaces = \
+            [Surface(d_surface, solar_position, I_DN_n, I_sky_n, RN_n, To_n, weather.AnnualTave) for d_surface in d_room['boundaries']]
 
-                if 'external' in surface.backside_boundary_condition.Type:
-
-                    # 入射角の方向余弦
-                    surface.cos_Theta_i_k_n = a6.calc_cos_incident_angle(
-                        h_sun_sin_n=solar_position["Sh_n"],
-                        h_sun_cos_n=solar_position["cos_h_s"],
-                        a_sun_sin_n=solar_position["sin_a_s"],
-                        a_sun_cos_n=solar_position["cos_a_s"],
-                        w_alpha=surface.backside_boundary_condition.Wa,
-                        w_beta=surface.backside_boundary_condition.Wb
-                    )
-
-                    # 傾斜面日射量
-                    surface.Iw_i_k_n, surface.I_D_i_k_n, surface.I_S_i_k_n, surface.I_R_i_k_n = a7.calc_slope_sol(
-                        I_DN_n=I_DN_n,
-                        I_sky_n=I_sky_n,
-                        Sh_n=solar_position["Sh_n"],
-                        cos_Theta_i_k_n=surface.cos_Theta_i_k_n,
-                        PhiS_i_k=surface.backside_boundary_condition.PhiS_i_k,
-                        PhiG_i_k=surface.backside_boundary_condition.PhiG_i_k,
-                        RhoG_l=surface.backside_boundary_condition.RhoG_l
-                    )
-                else:
-                    # 0を入れておく
-                    surface.cos_Theta_i_k_n = np.zeros(24 * 365 * 4)
-                    surface.Iw_i_k_n = np.zeros(24 * 365 * 4)
-                    surface.I_D_i_k_n = np.zeros(24 * 365 * 4)
-                    surface.I_S_i_k_n = np.zeros(24 * 365 * 4)
-                    surface.I_R_i_k_n = np.zeros(24 * 365 * 4)
-
-        for surface in self.input_surfaces:
-            # 外表面に日射が当たる場合
-            if surface.is_sun_striked_outside:
-
-                # 一般部位、不透明な開口部の場合
-                if surface.boundary_type == "external_general_part" or surface.boundary_type == "external_opaque_part":
-                    # 傾斜面の相当外気温度の計算
-                    surface.Teolist = a9.get_Te_n_1(
-                        To_n=To_n,
-                        as_i_k=surface.as_i_k,
-                        I_w_i_k_n=surface.Iw_i_k_n,
-                        eps_i_k=surface.eps_i_k,
-                        PhiS_i_k=surface.backside_boundary_condition.PhiS_i_k,
-                        RN_n=RN_n,
-                        ho_i_k_n=surface.ho
-                    )
-
-                # 透明開口部の場合
-                elif surface.boundary_type == "external_transparent_part":
-                    # 相当外気温度の集約
-                    surface.Teolist = a9.get_Te_n_2(
-                        To_n=To_n,
-                        eps_i_k=surface.eps_i_k,
-                        PhiS_i_k=surface.backside_boundary_condition.PhiS_i_k,
-                        RN_n=RN_n,
-                        ho_i_k_n=surface.ho
-                    )
-
-            # 地面の場合は、年平均気温とする
-            elif surface.boundary_type == "ground":
-                surface.Teolist = [weather.AnnualTave] * (24*365*5)
-
-        for surface in self.input_surfaces:
-            # 外表面に日射が当たる場合
-            if surface.is_sun_striked_outside:
-
-                # 透明開口部の場合
-                if surface.boundary_type == "external_transparent_part":
-                    # 日除けの日影面積率の計算
-                    if surface.sunbrk['existance']:
-                        if surface.sunbrk['input_method'] == 'simple':
-                            surface.F_SDW_i_k = a8.calc_F_SDW_i_k(
-                                D_i_k=surface.sunbrk['depth'],  # 出幅
-                                d_e=surface.sunbrk['d_e'],      # 窓の上端から庇までの距離
-                                d_h=surface.sunbrk['d_h'],      # 窓の高さ
-                                a_s_n=solar_position['a_s'],
-                                h_s_n=solar_position['h_s'],
-                                Wa_i_k=surface.backside_boundary_condition.Wa
-                            )
-                        elif surface.sunbrk.input_method == 'detailed':
-                            raise ValueError
-                        else:
-                            raise ValueError
-                    else:
-                        surface.F_SDW_i_k = np.zeros(24*365*4, dtype=np.float)
-
-                    # 透過日射熱取得の集約
-                    self.QGT_i_n += a11.calc_QGT_i_n(
-                        cos_Theta_i_k_n=surface.cos_Theta_i_k_n,
-                        incident_angle_characteristics=surface.incident_angle_characteristics,
-                        I_D_i_k_n=surface.I_D_i_k_n,
-                        F_SDW_i_k=surface.F_SDW_i_k,
-                        I_S_i_k_n=surface.I_S_i_k_n,
-                        I_R_i_k_n=surface.I_R_i_k_n,
-                        A_i_k=surface.A_i_k,
-                        T=surface.tau,
-                        Cd=surface.Cd
-                    )
+        # 透過日射熱取得の集約
+        self.QGT_i_n = sum([x.QGT_i_n for x in self.input_surfaces])
 
         # 部位の集約
-        self.input_surfaces = a34.summarize_building_part(self.input_surfaces)
+        self.grouped_surfaces = a34.get_grouped_surfaces(self.input_surfaces)
 
         # 部位の面数
-        self.Nsurf = len(self.input_surfaces)
+        self.Nsurf = len(self.grouped_surfaces)
 
         # 配列の準備
-        self.A_i_k = np.array([x.A_i_k for x in self.input_surfaces])
-        is_solar_absorbed_inside = np.array([x.is_solar_absorbed_inside for x in self.input_surfaces])
-        eps_m = np.array([x.Ei for x in self.input_surfaces])
-        self.hi_i_k_n = np.array([x.hi for x in self.input_surfaces])
-        self.RFA0 = np.array([x.RFA0 for x in self.input_surfaces])
-        self.RFT0 = np.array([x.RFT0 for x in self.input_surfaces])
-        self.RFA1 = np.array([x.RFA1 for x in self.input_surfaces])
-        self.RFT1 = np.array([x.RFT1 for x in self.input_surfaces])
-        self.oldTsd_t = np.array([x.oldTsd_t for x in self.input_surfaces])
-        self.oldTsd_a = np.array([x.oldTsd_a for x in self.input_surfaces])
-        self.oldqi = np.array([x.oldqi for x in self.input_surfaces])
+        self.A_i_k = np.array([x.A_i_k for x in self.grouped_surfaces])
+        is_solar_absorbed_inside = np.array([x.is_solar_absorbed_inside for x in self.grouped_surfaces])
+        eps_m = 0.9
+        self.hi_i_k_n = np.array([x.hi_i_k_n for x in self.grouped_surfaces])
+        self.RFA0 = np.array([x.RFA0 for x in self.grouped_surfaces])
+        self.RFT0 = np.array([x.RFT0 for x in self.grouped_surfaces])
+        self.RFA1 = np.array([x.RFA1 for x in self.grouped_surfaces])
+        self.RFT1 = np.array([x.RFT1 for x in self.grouped_surfaces])
+        self.oldTsd_t = np.array([np.zeros(x.Nroot) for x in self.grouped_surfaces])
+        self.oldTsd_a = np.array([np.zeros(x.Nroot) for x in self.grouped_surfaces])
+        self.oldqi = np.array([x.oldqi for x in self.grouped_surfaces])
         V_nxt = np.array([x.volume for x in self.RoomtoRoomVent])
 
         # 部位の人体に対する形態係数を計算
         self.fot = a12.calc_form_factor_for_human_body(self.A_i_k, is_solar_absorbed_inside)
-
-        if abs(np.sum(self.fot) - 1.0) > 0.001:
-            print(self.name, 'total_Fot=', np.sum(self.fot))
 
         # 合計面積の計算
         self.Atotal = np.sum(self.A_i_k)

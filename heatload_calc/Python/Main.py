@@ -12,10 +12,8 @@ import numpy as np
 # from apdx6_direction_cos_incident_angle import calc_cos_incident_angle
 # from rear_surface_equivalent_temperature import precalcTeo
 
-import a36_region_location as a36
-
 # 熱負荷計算の実行
-def calc_Hload(cdata, weather, region):
+def calc_Hload(cdata, weather, solar_position):
     """
     :param cdata: シミュレーション全体の設定条件
     :param weather: 気象データ
@@ -78,19 +76,19 @@ def calc_Hload(cdata, weather, region):
         rowlist.append(space.name + "_家具絶対湿度[kg/kg(DA)]")
         rowlist.append(space.name + "_家具取得水蒸気量[kg/s]")
         if 1:
-            for surface in space.input_surfaces:
+            for surface in space.grouped_surfaces:
                 rowlist.append(space.name + "_" + surface.name + "_表面温度[℃]")
         if 1:
-            for surface in space.input_surfaces:
+            for surface in space.grouped_surfaces:
                 rowlist.append(space.name + "_" + surface.name + "_等価室温[℃]")
         if 1:
-            for surface in space.input_surfaces:
+            for surface in space.grouped_surfaces:
                 rowlist.append(space.name + "_" + surface.name + "_境界温度[℃]")
         if 1:
-            for surface in space.input_surfaces:
+            for surface in space.grouped_surfaces:
                 rowlist.append(space.name + "_" + surface.name + "_表面放射熱流[W]")
         if 1:
-            for surface in space.input_surfaces:
+            for surface in space.grouped_surfaces:
                 rowlist.append(space.name + "_" + surface.name + "_表面対流熱流[W]")
     OutList.append(rowlist)
     rowlist = []
@@ -174,19 +172,19 @@ def calc_Hload(cdata, weather, region):
                     rowlist.append('{0:.5f}'.format(space.xf))
                     rowlist.append('{0:.5f}'.format(space.Qfunl))
                     if 1:
-                        for i, surface in enumerate(space.input_surfaces):
+                        for i, surface in enumerate(space.grouped_surfaces):
                             rowlist.append('{0:.2f}'.format(space.Ts[i]))
                     if 1:
-                        for i, surface in enumerate(space.input_surfaces):
+                        for i, surface in enumerate(space.grouped_surfaces):
                             rowlist.append('{0:.2f}'.format(space.Tei[i]))
                     if 1:
-                        for surface in space.input_surfaces:
+                        for surface in space.grouped_surfaces:
                             rowlist.append('{0:.2f}'.format(surface.Teo))
                     if 1:
-                        for i, surface in enumerate(space.input_surfaces):
+                        for i, surface in enumerate(space.grouped_surfaces):
                             rowlist.append('{0:.2f}'.format(space.Qr[i]))
                     if 1:
-                        for i, surface in enumerate(space.input_surfaces):
+                        for i, surface in enumerate(space.grouped_surfaces):
                             rowlist.append('{0:.2f}'.format(space.Qc[i]))
                     # print('{0:.0f}'.format(space.is_now_window_open), '{0:.0f}'.format(space.nowAC), '{0:.2f}'.format(space.Tr), \
                     #         '{0:.0f}'.format(space.RH), '{0:.2f}'.format(space.MRT), '{0:.2f}'.format(space.PMV), \
@@ -229,20 +227,11 @@ if __name__ == '__main__':
     # 気象データの読み込み
     weather = Weather()
 
-    # 外表面の初期化
-    # exsurfaces = create_exsurfaces(d['ExSurface'])
-
-    # 外部日除けクラスの初期化
-    # sunbrks = create_sunbrks(d['Sunbrk'])
-
     # 太陽位置は個別計算可能
     solar_position = a5.calc_solar_position(region=region)
 
     # スペースの読み取り
     spaces = create_spaces(d['rooms'], weather, solar_position)
 
-    # スケジュールの初期化
-    # schedule = Schedule()
-
     # 熱負荷計算の実行
-    calc_Hload(cdata, weather, region)
+    calc_Hload(cdata, weather, solar_position)
