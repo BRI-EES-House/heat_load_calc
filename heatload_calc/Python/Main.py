@@ -76,20 +76,20 @@ def calc_Hload(cdata, weather, solar_position):
         rowlist.append(space.name + "_家具絶対湿度[kg/kg(DA)]")
         rowlist.append(space.name + "_家具取得水蒸気量[kg/s]")
         if 1:
-            for surface in space.grouped_surfaces:
-                rowlist.append(space.name + "_" + surface.name + "_表面温度[℃]")
+            for g in range(space.grouped_surfaces.Nsurf_g):
+                rowlist.append(space.name + "_" + space.grouped_surfaces.name[g] + "_表面温度[℃]")
         if 1:
-            for surface in space.grouped_surfaces:
-                rowlist.append(space.name + "_" + surface.name + "_等価室温[℃]")
+            for g in range(space.grouped_surfaces.Nsurf_g):
+                rowlist.append(space.name + "_" + space.grouped_surfaces.name[g] + "_等価室温[℃]")
         if 1:
-            for surface in space.grouped_surfaces:
-                rowlist.append(space.name + "_" + surface.name + "_境界温度[℃]")
+            for g in range(space.grouped_surfaces.Nsurf_g):
+                rowlist.append(space.name + "_" + space.grouped_surfaces.name[g] + "_境界温度[℃]")
         if 1:
-            for surface in space.grouped_surfaces:
-                rowlist.append(space.name + "_" + surface.name + "_表面放射熱流[W]")
+            for g in range(space.grouped_surfaces.Nsurf_g):
+                rowlist.append(space.name + "_" + space.grouped_surfaces.name[g] + "_表面放射熱流[W]")
         if 1:
-            for surface in space.grouped_surfaces:
-                rowlist.append(space.name + "_" + surface.name + "_表面対流熱流[W]")
+            for g in range(space.grouped_surfaces.Nsurf_g):
+                rowlist.append(space.name + "_" + space.grouped_surfaces.name[g] + "_表面対流熱流[W]")
     OutList.append(rowlist)
     rowlist = []
 
@@ -172,20 +172,20 @@ def calc_Hload(cdata, weather, solar_position):
                     rowlist.append('{0:.5f}'.format(space.xf))
                     rowlist.append('{0:.5f}'.format(space.Qfunl))
                     if 1:
-                        for i, surface in enumerate(space.grouped_surfaces):
-                            rowlist.append('{0:.2f}'.format(space.Ts[i]))
+                        for g in range(space.grouped_surfaces.Nsurf_g):
+                            rowlist.append('{0:.2f}'.format(space.Ts[g]))
                     if 1:
-                        for i, surface in enumerate(space.grouped_surfaces):
-                            rowlist.append('{0:.2f}'.format(space.Tei[i]))
+                        for g in range(space.grouped_surfaces.Nsurf_g):
+                            rowlist.append('{0:.2f}'.format(space.Tei[g]))
                     if 1:
-                        for surface in space.grouped_surfaces:
-                            rowlist.append('{0:.2f}'.format(surface.Teo))
+                        for g in range(space.grouped_surfaces.Nsurf_g):
+                            rowlist.append('{0:.2f}'.format(space.grouped_surfaces.Teo[g]))
                     if 1:
-                        for i, surface in enumerate(space.grouped_surfaces):
-                            rowlist.append('{0:.2f}'.format(space.Qr[i]))
+                        for g in range(space.grouped_surfaces.Nsurf_g):
+                            rowlist.append('{0:.2f}'.format(space.Qr[g]))
                     if 1:
-                        for i, surface in enumerate(space.grouped_surfaces):
-                            rowlist.append('{0:.2f}'.format(space.Qc[i]))
+                        for g in range(space.grouped_surfaces.Nsurf_g):
+                            rowlist.append('{0:.2f}'.format(space.Qc[g]))
                     # print('{0:.0f}'.format(space.is_now_window_open), '{0:.0f}'.format(space.nowAC), '{0:.2f}'.format(space.Tr), \
                     #         '{0:.0f}'.format(space.RH), '{0:.2f}'.format(space.MRT), '{0:.2f}'.format(space.PMV), \
                     #         '{0:.0f}'.format(space.Lcs), '{0:.0f}'.format(space.Lr), '{0:.0f}'.format(space.Ll), "", end="")

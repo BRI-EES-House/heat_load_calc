@@ -229,21 +229,21 @@ class Space:
         # 部位の集約
         self.grouped_surfaces = a34.get_grouped_surfaces(self.input_surfaces)
 
-        # 部位の面数
-        self.Nsurf = len(self.grouped_surfaces)
+        # 部位の面数(集約後)
+        self.Nsurf_g = self.grouped_surfaces.Nsurf_g
 
         # 配列の準備
-        self.A_i_k = np.array([x.A_i_k for x in self.grouped_surfaces])
-        is_solar_absorbed_inside = np.array([x.is_solar_absorbed_inside for x in self.grouped_surfaces])
+        self.A_i_k = self.grouped_surfaces.A_i_k
+        is_solar_absorbed_inside = self.grouped_surfaces.is_solar_absorbed_inside
         eps_m = 0.9
-        self.hi_i_k_n = np.array([x.hi_i_k_n for x in self.grouped_surfaces])
-        self.RFA0 = np.array([x.RFA0 for x in self.grouped_surfaces])
-        self.RFT0 = np.array([x.RFT0 for x in self.grouped_surfaces])
-        self.RFA1 = np.array([x.RFA1 for x in self.grouped_surfaces])
-        self.RFT1 = np.array([x.RFT1 for x in self.grouped_surfaces])
-        self.oldTsd_t = np.array([np.zeros(x.Nroot) for x in self.grouped_surfaces])
-        self.oldTsd_a = np.array([np.zeros(x.Nroot) for x in self.grouped_surfaces])
-        self.oldqi = np.array([x.oldqi for x in self.grouped_surfaces])
+        self.hi_i_k_n = self.grouped_surfaces.hi_i_k_n
+        self.RFA0 = self.grouped_surfaces.RFA0
+        self.RFT0 = self.grouped_surfaces.RFT0
+        self.RFA1 = self.grouped_surfaces.RFA1
+        self.RFT1 = self.grouped_surfaces.RFT1
+        self.oldTsd_t = np.zeros((self.Nsurf_g,12))
+        self.oldTsd_a = np.zeros((self.Nsurf_g,12))
+        self.oldqi = self.grouped_surfaces.oldqi
         V_nxt = np.array([x.volume for x in self.RoomtoRoomVent])
 
         # 部位の人体に対する形態係数を計算
@@ -288,7 +288,7 @@ class Space:
         matFLB = a1.get_FLB(self.RFA0, self.flr, self.Beta, self.A_i_k)
 
         # 行列AX 式(25)
-        self.matAX = a1.get_AX(self.RFA0, self.hr_i_k_n, self.F_mrt_i_k, self.hi_i_k_n, self.Nsurf)
+        self.matAX = a1.get_AX(self.RFA0, self.hr_i_k_n, self.F_mrt_i_k, self.hi_i_k_n, self.Nsurf_g)
 
         # {WSR}の計算 式(24)
         self.matWSR = a1.get_WSR(self.matAX, matFIA)

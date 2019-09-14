@@ -30,12 +30,12 @@ def calcHload(space, is_actual_calc, spaces, dtmNow, To_n: float, xo: float, seq
 
     # ********** 毎時計算5 裏面相当温度の計算 **********
 
-    for surface in space.grouped_surfaces:
+    for g in range(space.grouped_surfaces.Nsurf_g):
         # 前時刻の相当外気温度を控える
-        surface.oldTeo = surface.Teo
+        space.grouped_surfaces.oldTeo[g] = space.grouped_surfaces.Teo[g]
 
         # 裏面温度の計算
-        surface.Teo = a9.calc_Teo(surface, To_n, space.oldTr, spaces, sequence_number)
+        space.grouped_surfaces.Teo[g] = a9.calc_Teo(space.grouped_surfaces, g, To_n, space.oldTr, spaces, sequence_number)
 
     # ********** 毎時計算8 内部発熱、内部発湿の計算、計画換気、すきま風、局所換気の設定 **********
 
@@ -102,17 +102,17 @@ def calcHload(space, is_actual_calc, spaces, dtmNow, To_n: float, xo: float, seq
     is_now_window_open = space.is_prev_window_open and air_conditioning_demand
 
     # 配列の準備
-    Teo = np.array([x.Teo for x in space.grouped_surfaces])
-    Nroot = np.array([x.Nroot for x in space.grouped_surfaces])
-    oldTeo = np.array([x.oldTeo for x in space.grouped_surfaces])
-    Row = np.array([x.Row for x in space.grouped_surfaces])
+    Teo = space.grouped_surfaces.Teo
+    Nroot = space.grouped_surfaces.Nroot
+    oldTeo = space.grouped_surfaces.oldTeo
+    Row = space.grouped_surfaces.Row
     nextroom_volume = np.array([x.volume for x in space.RoomtoRoomVent])
     nextroom_oldTr = np.array([x.oldTr for x in space.RoomtoRoomVent])
 
     # 畳み込み積分 式(27)
-    for i in range(space.Nsurf):
-        space.oldTsd_t[i] = oldTeo[i] * space.RFT1[i,:Nroot[i]] + Row[i,:Nroot[i]] * space.oldTsd_t[i]
-        space.oldTsd_a[i] = space.oldqi[i] * space.RFA1[i,:Nroot[i]] + Row[i,:Nroot[i]] * space.oldTsd_a[i]
+    for i in range(space.Nsurf_g):
+        space.oldTsd_t[i,:Nroot[i]] = oldTeo[i] * space.RFT1[i,:Nroot[i]] + Row[i,:Nroot[i]] * space.oldTsd_t[i,:Nroot[i]]
+        space.oldTsd_a[i,:Nroot[i]] = space.oldqi[i] * space.RFA1[i,:Nroot[i]] + Row[i,:Nroot[i]] * space.oldTsd_a[i,:Nroot[i]]
 
     # 畳み込み演算 式(26)
     matCVL = a1.get_CVL(space.oldTsd_t, space.oldTsd_a, Nroot)

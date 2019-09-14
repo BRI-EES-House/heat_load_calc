@@ -10,21 +10,21 @@ import numpy as np
 
 
 # 裏面の相当温度を計算する 表.4
-def calc_Teo(surface: Surface, To_n: float, oldTr: float, spaces: List['Space'], sequence_number: int):
+def calc_Teo(surface, g,  To_n: float, oldTr: float, spaces: List['Space'], sequence_number: int):
     # 日射の当たる一般部位または不透明部位の場合
-    if surface.boundary_type == "external_general_part" or surface.boundary_type == "external_opaque_part":
+    if surface.boundary_type[g] == "external_general_part" or surface.boundary_type[g] == "external_opaque_part":
         # 室外側に日射が当たる場合
-        if surface.is_sun_striked_outside:
-            return surface.Teolist[sequence_number]
+        if surface.is_sun_striked_outside[g]:
+            return surface.Teolist[g][sequence_number]
         # 室外側に日射が当たらない場合
         else:
-            return get_NextRoom_fromR(surface.a_i_k, To_n, oldTr)
+            return get_NextRoom_fromR(surface.a_i_k[g], To_n, oldTr)
     # 窓,土壌の場合
-    elif surface.boundary_type == "external_transparent_part" or surface.boundary_type == "ground":
-        return surface.Teolist[sequence_number]
+    elif surface.boundary_type[g] == "external_transparent_part" or surface.boundary_type[g] == "ground":
+        return surface.Teolist[g][sequence_number]
     # 内壁の場合（前時刻の室温）
-    elif surface.boundary_type == "internal":
-        return get_oldNextRoom(surface.nextroomname, spaces)
+    elif surface.boundary_type[g] == "internal":
+        return get_oldNextRoom(surface.nextroomname[g], spaces)
     # 例外
     else:
         print("境界条件が見つかりません。 name=", surface.boundary_type)
