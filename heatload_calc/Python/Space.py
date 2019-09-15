@@ -1,22 +1,12 @@
-
-from typing import List
-import a4_weather
 from a4_weather import enmWeatherComponent, WeaData, get_datetime_list
-import math
 import numpy as np
 from Surface import Surface
 from NextVent import NextVent
-from common import conca, conrowa, Sgm, conra, get_nday
-import datetime
+from common import ca, rhoa
 
 import s4_1_sensible_heat as s41
 
 import a1_calculation_surface_temperature as a1
-import apdx6_direction_cos_incident_angle as a6
-import a7_inclined_surface_solar_radiation as a7
-import a8_shading as a8
-import a9_rear_surface_equivalent_temperature as a9
-import a11_opening_transmission_solar_radiation as a11
 import a14_furniture as a14
 import a15_air_flow_rate_rac as a15
 import a12_indoor_radiative_heat_transfer as a12
@@ -46,7 +36,7 @@ from Psychrometrics import xtrh
 # - boundary:  方位・隣室名, string
 # - unsteady:  非定常フラグ, 非定常壁体の場合True
 # - name:      壁体・開口部名称, string
-# - A_i_k:      面積, m2
+# - A_i_g:      面積, m2
 # - sunbreak:  ひさし名称, string
 # - flr:       放射暖房吸収比率, －
 # - fot:       人体に対する形態係数, －
@@ -116,9 +106,9 @@ class Space:
         self.oldTfun = 15.0                       # 前時刻の家具の温度[℃]
         self.rsolfun = 0.5                        # 透過日射の内家具が吸収する割合[－]
         # self.rsolfun = 0.0
-        self.kc = s41.calc_kc()  #式(12)
+        self.kc = s41.calc_kc_i()  #式(12)
                                                     # 人体表面の熱伝達率の対流成分比率
-        self.kr = s41.calc_kr()  #式(13)
+        self.kr = s41.calc_kr_i()  #式(13)
                                                     # 人体表面の熱伝達率の放射成分比率
         self.air_conditioning_demand = False        # 当該時刻の空調需要（0：なし、1：あり）
         self.prev_air_conditioning_mode = 0         # 前時刻の空調運転状態（0：停止、正：暖房、負：冷房）
@@ -142,7 +132,7 @@ class Space:
         cooling_equipment_read(self, d_room['cooling_equipment'])
         
         self.volume = d_room['volume']            # 室気積[m3]
-        self.Ga = self.volume * conrowa         # 室空気の質量[kg]
+        self.Ga = self.volume * rhoa         # 室空気の質量[kg]
 
         # 家具の熱容量、湿気容量の計算
         # Capfun:家具熱容量[J/K]、Cfun:家具と室空気間の熱コンダクタンス[W/K]
@@ -162,7 +152,7 @@ class Space:
         self.Vcrossvent = self.volume * d_room['natural_vent_time']
                                                     # 窓開放時通風量
         # 室空気の熱容量
-        self.Hcap = self.volume * conrowa * conca
+        self.Hcap = self.volume * rhoa * ca
         # print(self.Hcap)
         self.Vent = d_room['vent']                #計画換気量
         self.Inf = 0.0                            #すきま風量（暫定値）
@@ -197,126 +187,115 @@ class Space:
         self.RoomtoRoomVent = \
             [NextVent(room_vent['upstream_room_type'], room_vent['volume']) for room_vent in d_room['next_vent']]
 
-        # 透過日射熱取得の計算（部位を集約するので最初に8760時間分計算しておく）
-        # 透過日射熱取得収録配列の初期化とメモリ確保
-        self.QGT_i_n = np.zeros(8760 * 4)
-
         dtlist = get_datetime_list()
         I_DN_n = np.zeros(24 * 365 * 4)
         I_sky_n = np.zeros(24 * 365 * 4)
         RN_n = np.zeros(24 * 365 * 4)
         To_n = np.zeros(24 * 365 * 4)
 
-        for item, dtmNow in enumerate(dtlist):
-            # n時点における法線面直達日射量
-            I_DN_n[item] = WeaData(weather, enmWeatherComponent.I_DN, dtmNow, solar_position, item)
+        for n, dtmNow in enumerate(dtlist):
+            # i室のn時点における法線面直達日射量
+            I_DN_n[n] = WeaData(weather, enmWeatherComponent.I_DN, dtmNow, solar_position, n)
 
-            # n時点における水平面天空日射量
-            I_sky_n[item] = WeaData(weather, enmWeatherComponent.I_sky, dtmNow, solar_position, item)
+            # i室のn時点における水平面天空日射量
+            I_sky_n[n] = WeaData(weather, enmWeatherComponent.I_sky, dtmNow, solar_position, n)
 
-            # n時点における夜間放射量
-            RN_n[item] = WeaData(weather, enmWeatherComponent.RN, dtmNow, solar_position, item)
+            # i室のn時点における夜間放射量
+            RN_n[n] = WeaData(weather, enmWeatherComponent.RN, dtmNow, solar_position, n)
 
-            # n時点における外気温度
-            To_n[item] = WeaData(weather, enmWeatherComponent.To, dtmNow, solar_position, item)
+            # i室のn時点における外気温度
+            To_n[n] = WeaData(weather, enmWeatherComponent.To, dtmNow, solar_position, n)
 
-        # 部位の読み込み
-        self.input_surfaces = Surface(d_room['boundaries'], solar_position, I_DN_n, I_sky_n, RN_n, To_n, weather.AnnualTave)
+        # i室の部位の読み込み
+        surf_i = Surface(d_room['boundaries'], solar_position, I_DN_n, I_sky_n, RN_n, To_n, weather.AnnualTave)
 
-        # 透過日射熱取得の集約
-        self.QGT_i_n = np.sum(self.input_surfaces.QGT_i_k_n, axis=0)
+        # 透過日射熱取得の集約し、i室のn時点における透過日射熱取得 QGT_i_n を計算
+        self.QGT_i_n = np.sum(surf_i.QGT_i_k_n, axis=0)
 
-        # 部位の集約
-        self.grouped_surfaces = a34.get_grouped_surfaces(self.input_surfaces)
+        # i室の境界条件が同じ部位kを集約し、部位gを作成
+        self.surfG_i = a34.get_grouped_surfaces(surf_i)
 
-        # 部位の面数(集約後)
-        self.Nsurf_g = self.grouped_surfaces.Nsurf_g
+        # i室の部位の面数(集約後)
+        self.NsurfG_i = self.surfG_i.NsurfG_i
 
         # 配列の準備
-        self.A_i_k = self.grouped_surfaces.A_i_k
-        is_solar_absorbed_inside = self.grouped_surfaces.is_solar_absorbed_inside
         eps_m = 0.9
-        self.hi_i_k_n = self.grouped_surfaces.hi_i_k_n
-        self.RFA0 = self.grouped_surfaces.RFA0
-        self.RFT0 = self.grouped_surfaces.RFT0
-        self.RFA1 = self.grouped_surfaces.RFA1
-        self.RFT1 = self.grouped_surfaces.RFT1
-        self.oldTsd_t = np.zeros((self.Nsurf_g,12))
-        self.oldTsd_a = np.zeros((self.Nsurf_g,12))
-        self.oldqi = self.grouped_surfaces.oldqi
+        self.oldTsd_t = np.zeros((self.NsurfG_i, 12))
+        self.oldTsd_a = np.zeros((self.NsurfG_i, 12))
+        self.oldqi = self.surfG_i.oldqi
         V_nxt = np.array([x.volume for x in self.RoomtoRoomVent])
 
         # 部位の人体に対する形態係数を計算
-        self.fot = a12.calc_form_factor_for_human_body(self.A_i_k, is_solar_absorbed_inside)
+        self.fot = a12.calc_form_factor_for_human_body(self.surfG_i.A_i_g, self.surfG_i.is_solar_absorbed_inside)
 
         # 合計面積の計算
-        self.Atotal = np.sum(self.A_i_k)
+        self.A_total_i = np.sum(self.surfG_i.A_i_g)
 
         # 合計床面積の計算
-        self.TotalAF = np.sum(self.A_i_k * is_solar_absorbed_inside)
+        A_fs_i = np.sum(self.surfG_i.A_i_g * self.surfG_i.is_solar_absorbed_inside)
 
         # ルームエアコンの仕様の設定
-        self.qrtd_c = a15.get_qrtd_c(self.TotalAF)
-        self.qmax_c = a15.get_qmax_c(self.qrtd_c)
-        self.qmin_c = a15.get_qmin_c()
-        self.Vmax = a15.get_Vmax(self.qrtd_c)
-        self.Vmin = a15.get_Vmin(self.Vmax)
+        self.qrtd_c_i = a15.get_qrtd_c(A_fs_i)
+        self.qmax_c_i = a15.get_qmax_c(self.qrtd_c_i)
+        self.qmin_c_i = a15.get_qmin_c()
+        self.Vmax_i = a15.get_Vmax(self.qrtd_c_i)
+        self.Vmin_i = a15.get_Vmin(self.Vmax_i)
 
         # 放射暖房の発熱部位の設定（とりあえず床発熱）
-        self.flr = (self.A_i_k / self.TotalAF) * self.is_radiative_heating * is_solar_absorbed_inside
+        self.flr = (self.surfG_i.A_i_g / A_fs_i) * self.is_radiative_heating * self.surfG_i.is_solar_absorbed_inside
 
         # 微小点に対する室内部位の形態係数の計算（永田先生の方法）
-        FF_m = a12.calc_form_factor_of_microbodies(self.name, self.A_i_k)
+        FF_m = a12.calc_form_factor_of_microbodies(self.name, self.surfG_i.A_i_g)
 
         # 表面熱伝達率の計算
-        self.hr_i_k_n, self.hc_i_k_n = a23.calc_surface_transfer_coefficient(eps_m, FF_m, self.hi_i_k_n)
+        self.hr_i_g_n, self.hc_i_g_n = a23.calc_surface_transfer_coefficient(eps_m, FF_m, self.surfG_i.hi_i_g_n)
 
         # 平均放射温度計算時の各部位表面温度の重み計算 式(101)
-        self.F_mrt_i_k = a12.get_F_mrt_i_k(self.A_i_k, self.hr_i_k_n)
+        self.F_mrt_i_g = a12.get_F_mrt_i_g(self.surfG_i.A_i_g, self.hr_i_g_n)
 
         # 日射吸収比率の計算
         self.rsolfun, self.SolR = a12.calc_absorption_ratio_of_transmitted_solar_radiation(
-            self.name, self.TotalAF, self.rsolfun, is_solar_absorbed_inside, self.A_i_k)
+            self.name, A_fs_i, self.rsolfun, self.surfG_i.is_solar_absorbed_inside, self.surfG_i.A_i_g)
 
 
         # *********** 室内表面熱収支計算のための行列作成 ***********
 
         # matFIAの作成 式(26)
-        matFIA = a1.get_FIA(self.RFA0, self.hc_i_k_n)
+        FIA_i_l = a1.get_FIA(self.surfG_i.RFA0, self.hc_i_g_n)
 
         # FLB=φA0×flr×(1-Beta) 式(26)
-        matFLB = a1.get_FLB(self.RFA0, self.flr, self.Beta, self.A_i_k)
+        FLB_i_l = a1.get_FLB(self.surfG_i.RFA0, self.flr, self.Beta, self.surfG_i.A_i_g)
 
         # 行列AX 式(25)
-        self.matAX = a1.get_AX(self.RFA0, self.hr_i_k_n, self.F_mrt_i_k, self.hi_i_k_n, self.Nsurf_g)
+        self.AX_k_l = a1.get_AX(self.surfG_i.RFA0, self.hr_i_g_n, self.F_mrt_i_g, self.surfG_i.hi_i_g_n, self.NsurfG_i)
 
         # {WSR}の計算 式(24)
-        self.matWSR = a1.get_WSR(self.matAX, matFIA)
+        self.WSR_i_k = a1.get_WSR(self.AX_k_l, FIA_i_l)
 
         # {WSB}の計算 式(24)
-        self.matWSB = a1.get_WSB(self.matAX, matFLB)
+        self.WSB_i_k = a1.get_WSB(self.AX_k_l, FLB_i_l)
 
         # ****************************************************
 
         # BRMの計算 式(5)
-        self.BRM = s41.get_BRM(
+        self.BRM_i = s41.get_BRM_i(
             Hcap=self.Hcap, 
-            matWSR=self.matWSR,
-            Capfun=self.Capfun,
-            Cfun=self.Cfun, 
+            WSR_i_k=self.WSR_i_k,
+            Cap_fun_i=self.Capfun,
+            C_fun_i=self.Cfun,
             Vent=self.Vent, 
             local_vent_amount_schedule=self.local_vent_amount_schedule,
-            A_i_k=self.A_i_k,
-            hic=self.hc_i_k_n,
+            A_i_k=self.surfG_i.A_i_g,
+            hc_i_k_n=self.hc_i_g_n,
             V_nxt=V_nxt
         )
 
         # BRLの計算 式(7)
-        self.BRL = s41.get_BRL(
-            Beta=self.Beta,
-            matWSB=self.matWSB,
-            A_i_k=self.A_i_k,
-            hic=self.hc_i_k_n
+        self.BRL_i = s41.get_BRL_i(
+            Beta_i=self.Beta,
+            WSB_i_k=self.WSB_i_k,
+            A_i_k=self.surfG_i.A_i_g,
+            hc_i_k_n=self.hc_i_g_n
         )
 
 
@@ -351,7 +330,6 @@ def cooling_equipment_read(space, dceqp):
         space.heat_exchanger_type = dceqp['convective_cooling']['heat_exchanger_type']
         # 定格冷房能力[W]
         space.convective_cooling_rtd_capacity = dceqp['convective_cooling']['max_capacity']
-
 
 
 def create_spaces(rooms, weather, solar_position):

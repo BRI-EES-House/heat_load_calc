@@ -74,7 +74,7 @@ def get_fb(max_a, space_name, a):
 
 
 # 平均放射温度計算時の各部位表面温度の重み計算 式(101)
-def get_F_mrt_i_k(area, hir):
+def get_F_mrt_i_g(area, hir):
     # 各部位表面温度の重み=面積×放射熱伝達率の比率
     total_area_hir = np.sum(area * hir)
     

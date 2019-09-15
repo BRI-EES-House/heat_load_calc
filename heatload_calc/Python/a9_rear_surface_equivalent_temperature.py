@@ -18,13 +18,13 @@ def calc_Teo(surface, g,  To_n: float, oldTr: float, spaces: List['Space'], sequ
             return surface.Teolist[g][sequence_number]
         # 室外側に日射が当たらない場合
         else:
-            return get_NextRoom_fromR(surface.a_i_k[g], To_n, oldTr)
+            return get_NextRoom_fromR(surface.a_i_g[g], To_n, oldTr)
     # 窓,土壌の場合
     elif surface.boundary_type[g] == "external_transparent_part" or surface.boundary_type[g] == "ground":
         return surface.Teolist[g][sequence_number]
     # 内壁の場合（前時刻の室温）
     elif surface.boundary_type[g] == "internal":
-        return get_oldNextRoom(surface.nextroomname[g], spaces)
+        return get_oldNextRoom(surface.Rnext_i_g[g], spaces)
     # 例外
     else:
         print("境界条件が見つかりません。 name=", surface.boundary_type)
@@ -82,19 +82,19 @@ def precalcTeo(space: Space, To: float, I_DN: float, I_sky: float, RN: float, an
             cos_h_s = defSolpos.cos_h_s
             sin_a_s = defSolpos.sin_a_s
             cos_a_s = defSolpos.cos_a_s
-            wa = surface.backside_boundary_condition.Wa
-            wb = surface.backside_boundary_condition.Wb
+            wa = surface.backside_boundary_condition.w_alpha_i_k
+            wb = surface.backside_boundary_condition.w_beta_i_k
 
             if 'external' in surface.backside_boundary_condition.Type and surface.backside_boundary_condition.is_sun_striked_outside:
                 cos_t = calc_cos_incident_angle(sin_h_s, cos_h_s, sin_a_s, cos_a_s, wa, wb)
-                surface.backside_boundary_condition.cos_Theta_i_k_n = cos_t
+                surface.backside_boundary_condition.cos_Theta_i_g_n = cos_t
                 Fs = surface.backside_boundary_condition.Fs
                 dblFg = surface.backside_boundary_condition.dblFg
                 Rg = surface.backside_boundary_condition.Rg
 
                 surface.I_D_i_k_n, surface.I_sky, surface.I_R_i_k_n, surface.Iw_i_k_n = calc_slope_sol(I_DN, I_sky, sin_h_s, cos_t, Fs, dblFg, Rg)
             else:
-                surface.backside_boundary_condition.cos_Theta_i_k_n = 0.0
+                surface.backside_boundary_condition.cos_Theta_i_g_n = 0.0
                 surface.I_D_i_k_n, surface.I_sky, surface.I_R_i_k_n, surface.Iw_i_k_n = 0.0, 0.0, 0.0, 0.0
         elif surface.boundary_type == "ground":
             surface.Teo = annual_average_ta
@@ -105,7 +105,7 @@ def precalcTeo(space: Space, To: float, I_DN: float, I_sky: float, RN: float, an
             # 外皮_一般部位もしくは外皮_不透明部位の場合
             if surface.boundary_type == "external_general_part" or surface.boundary_type == "external_opaque_part":
                 surface.Teolist[sequence_number] = get_Te_n_1(surface.backside_boundary_condition, \
-                    surface.Iw_i_k_n, surface.as_i_k, surface.ho_i_k_n, surface.eps_i_k, To, RN)
+                    surface.Iw_i_k_n, surface.as_i_g, surface.ho_i_g_n, surface.eps_i_g, To, RN)
             # 外皮_透明部位の場合
             else:
-                surface.Teolist[sequence_number] = - surface.eps_i_k * surface.backside_boundary_condition.Fs * RN / surface.ho_i_k_n + To """
+                surface.Teolist[sequence_number] = - surface.eps_i_g * surface.backside_boundary_condition.Fs * RN / surface.ho_i_g_n + To """

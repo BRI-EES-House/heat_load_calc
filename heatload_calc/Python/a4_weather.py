@@ -134,7 +134,7 @@ def WeaData(weatherdata: Weather, Compnt: enmWeatherComponent, dtmDate: datetime
         wdata2 = weatherdata.dblWdata[lngAddress2]
         dblTemp2 = wdata2[int(Compnt)]
 
-        # print(a_i_k, dblTemp1, dblTemp2)
+        # print(a_i_g, dblTemp1, dblTemp2)
         # 直線補完
         return (1. - dblR) * dblTemp1 + dblR * dblTemp2
 

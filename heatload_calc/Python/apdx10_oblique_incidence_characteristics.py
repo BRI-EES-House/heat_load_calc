@@ -7,43 +7,43 @@ import numpy as np
 
 # 透明部位の入射角特性
 # 直達日射の入射角特性の計算
-def get_CID(CosT: np.ndarray, incident_angle_characteristics: str) -> np.ndarray:
+def get_taud_i_k_n(cos_Theta_i_k_n: np.ndarray, IAC_i_k: str) -> np.ndarray:
     """
-    :param CosT: 入射角の方向余弦
-    :incident_angle_characteristics: ガラスの入射角特性タイプ
+    :param cos_Theta_i_k_n: 入射角の方向余弦
+    :param IAC_i_k: ガラスの入射角特性タイプ
     :return: 直達日射の入射角特性
     """
-    if incident_angle_characteristics == "single":
-        CID = get_taud_n_single(CosT)
-    elif incident_angle_characteristics == "multiple":
-        CID = get_taud_n_double(CosT)
+    if IAC_i_k == "single":
+        taud_i_k_n = get_taud_n_single(cos_Theta_i_k_n)
+    elif IAC_i_k == "multiple":
+        taud_i_k_n = get_taud_n_double(cos_Theta_i_k_n)
     else:
-        print("ガラスの入射角特性タイプ ", incident_angle_characteristics, " が未定義です")
+        print("ガラスの入射角特性タイプ ", IAC_i_k, " が未定義です")
 
-    CID[CosT <= 0.0] = 0.0
+    taud_i_k_n[cos_Theta_i_k_n <= 0.0] = 0.0
 
-    return CID
+    return taud_i_k_n
 
 # 拡散日射の入射角特性の計算
-def get_Cd(incident_angle_characteristics: str) -> float:
+def get_Cd(IAC: str) -> float:
     Cd = 0.0
-    if incident_angle_characteristics == "single":
+    if IAC == "single":
         Cd = get_taus_n_single()
-    elif incident_angle_characteristics == "multiple":
+    elif IAC == "multiple":
         Cd = get_taus_n_double()
     else:
-        print("ガラスの入射角特性タイプ ", incident_angle_characteristics, " が未定義です")
+        print("ガラスの入射角特性タイプ ", IAC, " が未定義です")
     return Cd
 
 
 # 直達日射に対する基準化透過率の計算（単層ガラス）
-def get_taud_n_single(cos_phi: float) -> float:
+def get_taud_n_single(cos_phi: np.ndarray) -> np.ndarray:
     return 0.000 * cos_phi ** 0.0 + 2.552 * cos_phi ** 1.0 + 1.364 * cos_phi ** 2.0 \
         - 11.388 * cos_phi ** 3.0 + 13.617 * cos_phi ** 4.0 - 5.146 * cos_phi ** 5.0
 
 
 # 直達日射に対する基準化反射率の計算（単層ガラス）
-def get_rhod_n_single(cos_phi: float) -> float:
+def get_rhod_n_single(cos_phi: np.ndarray) -> np.ndarray:
     return 1.000 * cos_phi ** 0.0 - 5.189 * cos_phi ** 1.0 + 12.392 * cos_phi ** 2.0 \
         - 16.593 * cos_phi ** 3.0 + 11.851 * cos_phi ** 4.0 - 3.461 * cos_phi ** 5.0
 

@@ -6,7 +6,7 @@ import numpy as np
 
 
 # 日除けの影面積を計算する（当面、簡易入力のみに対応）式(79)
-def calc_F_SDW_i_k(D_i_k: float, d_e: float, d_h: float, a_s_n: np.ndarray, h_s_n: np.ndarray, Wa_i_k: float) -> np.ndarray:
+def calc_F_SDW_i_k_n(D_i_k: float, d_e: float, d_h: float, a_s_n: np.ndarray, h_s_n: np.ndarray, Wa_i_k: float) -> np.ndarray:
     """
     :param D_i_k: 出幅 [m]
     :param d_e: 窓の上端から庇までの距離 [m]

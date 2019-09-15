@@ -11,9 +11,9 @@ def get_l_wtr() -> float:
     return 2501000.0
 
 #空気の比熱[J/kg K]
-conca = 1005.0
+ca = 1005.0
 #空気の密度[kg/m3]
-conrowa = 1.2
+rhoa = 1.2
 #ステファンボルツマン定数
 Sgm = 5.67e-8
 

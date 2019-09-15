@@ -1,5 +1,5 @@
 from Psychrometrics import Pws, x
-from common import conca, conrowa
+from common import ca, rhoa
 from Space import Space
 
 """
@@ -50,7 +50,7 @@ def get_Vac(Qs, Vmin, Vmax, qmin_c, qmax_c):
 
 # 熱交換器温度＝熱交換器部分吹出温度 式(113)
 def get_Teout(Qs, Tr, Vac, BF):
-    return Tr - Qs / (conca * conrowa * Vac * (1.0 - BF))
+    return Tr - Qs / (ca * rhoa * Vac * (1.0 - BF))
 
 
 # バイパスファクターBF 式(114)

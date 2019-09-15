@@ -1,5 +1,5 @@
 import numpy as np
-from common import conrowa
+from common import rhoa
 
 # *********** 4.2 潜熱 **********
 
@@ -52,9 +52,9 @@ def get_BRMX(Ventset, Infset, LocalVentset, Gf, Cx, volume, RoomtoRoomVent):
     # 配列準備
     next_volume = np.array([x.volume for x in RoomtoRoomVent])
 
-    BRMX = (conrowa * (volume / 900 + Voin)
-           + temp
-           + np.sum(conrowa * next_volume / 3600.0))
+    BRMX = (rhoa * (volume / 900 + Voin)
+            + temp
+            + np.sum(rhoa * next_volume / 3600.0))
 
     return BRMX
 
@@ -72,10 +72,10 @@ def get_BRXC(Ventset, Infset, LocalVentset, Gf, Cx, volume, xo, oldxr, oldxf, Li
     next_volume = np.array([x.volume for x in RoomtoRoomVent])
     next_oldxr = np.array([x.oldxr for x in RoomtoRoomVent])
 
-    BRXC = conrowa * (volume / 900 * oldxr + Voin * xo) \
+    BRXC = rhoa * (volume / 900 * oldxr + Voin * xo) \
            + temp * oldxf \
            + Lin \
-           + np.sum([conrowa * next_volume * next_oldxr / 3600.0])
+           + np.sum([rhoa * next_volume * next_oldxr / 3600.0])
 
     return BRXC
 

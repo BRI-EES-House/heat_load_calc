@@ -1,4 +1,4 @@
-from apdx10_oblique_incidence_characteristics import get_CID, get_Cd
+from apdx10_oblique_incidence_characteristics import get_taud_i_k_n, get_Cd
 import a23_surface_heat_transfer_coefficient as a23
 
 """

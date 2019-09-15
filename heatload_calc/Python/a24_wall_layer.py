@@ -10,7 +10,7 @@ def get_layers(d, is_ground):
     # 壁体構成部材の情報を保持するクラスをインスタンス化
     # 層構成タプルリスト
     #         要素0: 熱抵抗[(m2・K)/W]
-    #         a_i_k = thermal_resistance
+    #         a_i_g = thermal_resistance
     #
     #         要素1: 熱容量[J/(m2・K)]
     #         C = thermal_capacity * 1000.0

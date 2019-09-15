@@ -1,13 +1,15 @@
 import math
 
+
 # 傾斜面に関する変数であり、式(73)
-def get_Wz_Ww_Ws(Wa, Wb):
+def get_slope_angle_intermediate_variables(Wa, Wb):
     # 太陽入射角の方向余弦cosθ　計算用パラメータ
     Wz = math.cos(Wb)
     Ww = math.sin(Wb) * math.sin(Wa)
     Ws = math.sin(Wb) * math.cos(Wa)
 
     return Wz, Ww, Ws
+
 
 # 方向名称から方位角、傾斜角の計算 表11 方位と方位角、傾斜角の対応
 def get_slope_angle(direction_string: str) -> tuple:
