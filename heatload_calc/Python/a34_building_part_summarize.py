@@ -32,7 +32,7 @@ def compare_surfaces(surfaces, a, b):
         # 間仕切りの場合
         if surfaces.boundary_type[a] == "internal":
             # 隣室名が同じ壁体は集約対象
-            temp = surfaces.next_room_type[a] == surfaces.next_room_type[b]
+            temp = surfaces.Rnext_i_k[a] == surfaces.Rnext_i_k[b]
             # 室内側熱伝達率の比較
             temp = temp and abs(surfaces.hi_i_k_n[a] - surfaces.hi_i_k_n[b]) < 1.0E-5
             # 室外側総合熱伝達率の比較
