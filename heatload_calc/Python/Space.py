@@ -66,7 +66,7 @@ class Space:
     FsolFlr = 0.5  # 床の日射吸収比率
 
     # 初期化
-    def __init__(self, d_room, weather, solar_position):
+    def __init__(self, d_room, weather, solar_position, I_DN_n, I_sky_n, RN_n, To_n):
         """
         :param Gdata:
         :param ExsrfMng:
@@ -186,25 +186,6 @@ class Space:
         # 室間換気量クラスの構築
         self.RoomtoRoomVent = \
             [NextVent(room_vent['upstream_room_type'], room_vent['volume']) for room_vent in d_room['next_vent']]
-
-        dtlist = get_datetime_list()
-        I_DN_n = np.zeros(24 * 365 * 4)
-        I_sky_n = np.zeros(24 * 365 * 4)
-        RN_n = np.zeros(24 * 365 * 4)
-        To_n = np.zeros(24 * 365 * 4)
-
-        for n, dtmNow in enumerate(dtlist):
-            # i室のn時点における法線面直達日射量
-            I_DN_n[n] = WeaData(weather, enmWeatherComponent.I_DN, dtmNow, solar_position, n)
-
-            # i室のn時点における水平面天空日射量
-            I_sky_n[n] = WeaData(weather, enmWeatherComponent.I_sky, dtmNow, solar_position, n)
-
-            # i室のn時点における夜間放射量
-            RN_n[n] = WeaData(weather, enmWeatherComponent.RN, dtmNow, solar_position, n)
-
-            # i室のn時点における外気温度
-            To_n[n] = WeaData(weather, enmWeatherComponent.To, dtmNow, solar_position, n)
 
         # i室の部位の読み込み
         surf_i = Surface(d_room['boundaries'], solar_position, I_DN_n, I_sky_n, RN_n, To_n, weather.AnnualTave)
@@ -334,7 +315,27 @@ def cooling_equipment_read(space, dceqp):
 
 def create_spaces(rooms, weather, solar_position):
     objSpace = {}
+
+    dtlist = get_datetime_list()
+    I_DN_n = np.zeros(24 * 365 * 4)
+    I_sky_n = np.zeros(24 * 365 * 4)
+    RN_n = np.zeros(24 * 365 * 4)
+    To_n = np.zeros(24 * 365 * 4)
+
+    for n, dtmNow in enumerate(dtlist):
+        # i室のn時点における法線面直達日射量
+        I_DN_n[n] = WeaData(weather, enmWeatherComponent.I_DN, dtmNow, solar_position, n)
+
+        # i室のn時点における水平面天空日射量
+        I_sky_n[n] = WeaData(weather, enmWeatherComponent.I_sky, dtmNow, solar_position, n)
+
+        # i室のn時点における夜間放射量
+        RN_n[n] = WeaData(weather, enmWeatherComponent.RN, dtmNow, solar_position, n)
+
+        # i室のn時点における外気温度
+        To_n[n] = WeaData(weather, enmWeatherComponent.To, dtmNow, solar_position, n)
+
     for room in rooms:
-        space = Space(room, weather, solar_position)
+        space = Space(room, weather, solar_position, I_DN_n, I_sky_n, RN_n, To_n)
         objSpace[room['name']] = space
     return objSpace
