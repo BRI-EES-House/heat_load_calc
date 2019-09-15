@@ -191,10 +191,10 @@ class Surface:
 
         # 外表面に日射が当たる場合
         self.cos_Theta_i_k_n = np.zeros((self.N_surf_i, 24 * 365 * 4))
-        self.Iw_i_k_n = np.zeros((self.N_surf_i, 24 * 365 * 4))
-        self.I_D_i_k_n = np.zeros((self.N_surf_i, 24 * 365 * 4))
-        self.I_S_i_k_n = np.zeros((self.N_surf_i, 24 * 365 * 4))
-        self.I_R_i_k_n = np.zeros((self.N_surf_i, 24 * 365 * 4))
+        Iw_i_k_n = np.zeros((self.N_surf_i, 24 * 365 * 4))
+        I_D_i_k_n = np.zeros((self.N_surf_i, 24 * 365 * 4))
+        I_S_i_k_n = np.zeros((self.N_surf_i, 24 * 365 * 4))
+        I_R_i_k_n = np.zeros((self.N_surf_i, 24 * 365 * 4))
 
         f = tuple([self.Type == 'external'])
 
@@ -209,7 +209,7 @@ class Surface:
         )
 
         # 傾斜面日射量
-        self.Iw_i_k_n[f], self.I_D_i_k_n[f], self.I_S_i_k_n[f], self.I_R_i_k_n[f] = a7.calc_slope_sol(
+        Iw_i_k_n[f], I_D_i_k_n[f], I_S_i_k_n[f], I_R_i_k_n[f] = a7.calc_slope_sol(
             I_DN_n=I_DN_n,
             I_sky_n=I_sky_n,
             Sh_n=solar_position["Sh_n"],
@@ -235,7 +235,7 @@ class Surface:
         self.Teolist[f] = a9.get_Te_n_1(
             To_n=To_n,
             as_i_k=self.as_i_k[f],
-            I_w_i_k_n=self.Iw_i_k_n[f],
+            I_w_i_k_n=Iw_i_k_n[f],
             eps_i_k=self.eps_i_k[f],
             PhiS_i_k=self.PhiS_i_k[f],
             RN_n=RN_n,
@@ -269,7 +269,7 @@ class Surface:
 
 
         # 外表面に日射が当たる場合
-        self.FSDW_i_k_n = np.zeros((self.N_surf_i, 24 * 365 * 4))
+        FSDW_i_k_n = np.zeros((self.N_surf_i, 24 * 365 * 4))
         self.QGT_i_k_n = np.zeros((self.N_surf_i, 24 * 365 * 4))
         for k in range(self.N_surf_i):
             if self.is_sun_striked_outside[k]:
@@ -279,7 +279,7 @@ class Surface:
                     # 日除けの日影面積率の計算
                     if self.sunbrk[k]['existance']:
                         if self.sunbrk[k]['input_method'] == 'simple':
-                            self.FSDW_i_k_n[k] = a8.calc_F_SDW_i_k_n(
+                            FSDW_i_k_n[k] = a8.calc_F_SDW_i_k_n(
                                 D_i_k=self.sunbrk[k]['depth'],  # 出幅
                                 d_e=self.sunbrk[k]['d_e'],      # 窓の上端から庇までの距離
                                 d_h=self.sunbrk[k]['d_h'],      # 窓の高さ
@@ -291,8 +291,6 @@ class Surface:
                             raise ValueError
                         else:
                             raise ValueError
-                    else:
-                        self.FSDW_i_k_n[k, :] = 0.0
 
         # 透明開口部の場合
         f = tuple(np.logical_and(get_bi(self.is_sun_striked_outside), self.boundary_type == "external_transparent_part"))
@@ -301,10 +299,10 @@ class Surface:
         self.QGT_i_k_n[f] = a11.calc_QGT_i_k_n(
             cos_Theta_i_k_n=self.cos_Theta_i_k_n[f],
             IAC_i_k=self.IAC_i_k[f],
-            I_D_i_k_n=self.I_D_i_k_n[f],
-            FSDW_i_k_n=self.FSDW_i_k_n[f],
-            I_S_i_k_n=self.I_S_i_k_n[f],
-            I_R_i_k_n=self.I_R_i_k_n[f],
+            I_D_i_k_n=I_D_i_k_n[f],
+            FSDW_i_k_n=FSDW_i_k_n[f],
+            I_S_i_k_n=I_S_i_k_n[f],
+            I_R_i_k_n=I_R_i_k_n[f],
             A_i_k=self.A_i_k[f],
             tau_i_k=self.tau_i_k[f],
             Cd_i_k=self.Cd_i_k[f]
