@@ -7,32 +7,28 @@ import numpy as np
 
 # 透明部位の入射角特性
 # 直達日射の入射角特性の計算
-def get_taud_i_k_n(cos_Theta_i_k_n: np.ndarray, IAC_i_k: str) -> np.ndarray:
+def get_taud_i_k_n(cos_Theta_i_k_n: np.ndarray, IAC_i_k: np.ndarray) -> np.ndarray:
     """
     :param cos_Theta_i_k_n: 入射角の方向余弦
     :param IAC_i_k: ガラスの入射角特性タイプ
     :return: 直達日射の入射角特性
     """
-    if IAC_i_k == "single":
-        taud_i_k_n = get_taud_n_single(cos_Theta_i_k_n)
-    elif IAC_i_k == "multiple":
-        taud_i_k_n = get_taud_n_double(cos_Theta_i_k_n)
-    else:
-        print("ガラスの入射角特性タイプ ", IAC_i_k, " が未定義です")
+    taud_i_k_n = np.zeros((len(IAC_i_k), 24*365*4))
+
+    taud_i_k_n[IAC_i_k == "single"] = get_taud_n_single(cos_Theta_i_k_n[IAC_i_k == "single"])
+    taud_i_k_n[IAC_i_k == "multiple"] = get_taud_n_double(cos_Theta_i_k_n[IAC_i_k == "multiple"])
 
     taud_i_k_n[cos_Theta_i_k_n <= 0.0] = 0.0
 
     return taud_i_k_n
 
 # 拡散日射の入射角特性の計算
-def get_Cd(IAC: str) -> float:
-    Cd = 0.0
-    if IAC == "single":
-        Cd = get_taus_n_single()
-    elif IAC == "multiple":
-        Cd = get_taus_n_double()
-    else:
-        print("ガラスの入射角特性タイプ ", IAC, " が未定義です")
+def get_Cd(IAC: np.ndarray) -> np.ndarray:
+    Cd = np.zeros(len(IAC))
+
+    Cd[IAC == "single"] = get_taus_n_single()
+    Cd[IAC == "multiple"] = get_taus_n_double()
+
     return Cd
 
 

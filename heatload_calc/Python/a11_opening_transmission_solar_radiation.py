@@ -29,7 +29,7 @@ def calc_QGT_i_k_n(
     QGTS_i_k_n = get_QGTS_i_k_n(tau_i_k, Cd_i_k, I_S_i_k_n, I_R_i_k_n)
 
     # 透過日射量の計算
-    QGT_i_k_n = (QGTD_i_k_n + QGTS_i_k_n) * A_i_k
+    QGT_i_k_n = (QGTD_i_k_n + QGTS_i_k_n) * A_i_k[:,np.newaxis]
 
     return QGT_i_k_n
 
@@ -43,7 +43,7 @@ def get_QGTD_i_k_n(T, I_D_i_k_n: np.ndarray, CID: np.ndarray, F_SDW_i_k: np.ndar
     :return: 透過日射熱取得（直達成分）[W/m2]
     """
     # 透過日射熱取得（直達成分）[W/m2]の計算
-    QGTD = T * (1.0 - F_SDW_i_k) * CID * I_D_i_k_n
+    QGTD = T[:,np.newaxis] * (1.0 - F_SDW_i_k) * CID * I_D_i_k_n
 
     return QGTD
 
@@ -55,7 +55,7 @@ def get_QGTS_i_k_n(T: float, Cd: np.ndarray, I_S_i_k_n: np.ndarray, I_R_i_k_n: n
     :param I_R_i_k_n: 傾斜面入射反射日射量[W/m2]
     :return: 透過日射熱取得（拡散成分）[W/m2]
     """
-    QGTS = T * Cd * (I_S_i_k_n + I_R_i_k_n)
+    QGTS = T[:,np.newaxis] * Cd[:,np.newaxis] * (I_S_i_k_n + I_R_i_k_n)
     return QGTS
 
 

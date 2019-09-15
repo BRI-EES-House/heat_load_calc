@@ -26,10 +26,10 @@ class Surface:
 
         self.N_surf_i = len(surfaces)
 
-        self.is_sun_striked_outside = [d['is_sun_striked_outside'] for d in surfaces]
+        self.is_sun_striked_outside = tuple([d['is_sun_striked_outside'] for d in surfaces])
                                                         # True:外表面に日射が当たる
         # 境界条件タイプ
-        self.boundary_type = [d['boundary_type'] for d in surfaces]
+        self.boundary_type = np.array([d['boundary_type'] for d in surfaces])
 
         # 隣室温度差係数
         self.a_i_k = np.zeros(self.N_surf_i)
@@ -133,12 +133,17 @@ class Surface:
         # 透過率・拡散日射の入射角特性
         self.tau_i_k = np.zeros(self.N_surf_i)
         self.IAC_i_k = np.zeros(self.N_surf_i, dtype=np.object)
-        self.Cd_i_k = np.zeros(self.N_surf_i)
         for k, data in enumerate(datalist):
             if is_transparent_part[k]:
                 self.tau_i_k[k] = float(data['eta_value'])
                 self.IAC_i_k[k] = data['incident_angle_characteristics']
-                self.Cd_i_k[k] = a25.get_Cd(self.IAC_i_k[k])
+
+        def get_bi(b):
+            return np.array(b)[np.newaxis, :]
+
+        f = tuple(get_bi(is_transparent_part))
+        self.Cd_i_k = np.zeros(self.N_surf_i)
+        self.Cd_i_k[f] = a25.get_Cd(self.IAC_i_k[f])
 
         # 室外側日射吸収率・室外側放射率
         self.as_i_k = np.zeros(self.N_surf_i)
@@ -156,11 +161,8 @@ class Surface:
                 self.ho_i_k_n[k] = a23.get_ho_i_k_n(Ro_i_k_n)          # 室外側熱伝達率[W/m2K]
 
         # 室内側熱伝達抵抗・室内側表面総合熱伝達率
-        self.hi_i_k_n = np.zeros(self.N_surf_i)
-        Ri_i_k_n = np.zeros(self.N_surf_i)
-        for k, data in enumerate(datalist):
-            Ri_i_k_n[k] = data['inside_heat_transfer_resistance']        # 室内側熱伝達抵抗
-            self.hi_i_k_n[k] = a23.get_hi_i_k_n(Ri_i_k_n[k])              # 室内側表面総合熱伝達率 式(122)
+        Ri_i_k_n = np.array([data['inside_heat_transfer_resistance'] for data in datalist])        # 室内側熱伝達抵抗
+        self.hi_i_k_n = a23.get_hi_i_k_n(Ri_i_k_n)              # 室内側表面総合熱伝達率 式(122)
 
         # 開口部熱貫流率・開口部の室内表面から屋外までの熱貫流率
         self.U = np.zeros(self.N_surf_i)
@@ -168,7 +170,9 @@ class Surface:
         for k, data in enumerate(datalist):
             if is_general_part[k] == False:
                 self.U[k] = float(data['u_value'])                       # 開口部熱貫流率[W/m2K]
-                self.Uso[k] = a25.get_Uso(self.U[k], Ri_i_k_n[k])            # 開口部の室内表面から屋外までの熱貫流率[W/(m2･K)] 式(124)
+
+        f = tuple(np.logical_not(get_bi(is_general_part)))
+        self.Uso[f] = a25.get_Uso(self.U[f], Ri_i_k_n[f])            # 開口部の室内表面から屋外までの熱貫流率[W/(m2･K)] 式(124)
 
         # 応答係数
         self.RFT0, self.RFA0, self.RFT1, self.RFA1, self.Row, self.Nroot = \
@@ -191,77 +195,83 @@ class Surface:
         self.I_D_i_k_n = np.zeros((self.N_surf_i, 24 * 365 * 4))
         self.I_S_i_k_n = np.zeros((self.N_surf_i, 24 * 365 * 4))
         self.I_R_i_k_n = np.zeros((self.N_surf_i, 24 * 365 * 4))
-        for k, data in enumerate(datalist):
-            if 'external' in self.Type[k]:
-                # 入射角の方向余弦
-                self.cos_Theta_i_k_n[k] = a6.calc_cos_incident_angle(
-                    h_sun_sin_n=solar_position["Sh_n"],
-                    h_sun_cos_n=solar_position["cos_h_s"],
-                    a_sun_sin_n=solar_position["sin_a_s"],
-                    a_sun_cos_n=solar_position["cos_a_s"],
-                    w_alpha=self.w_alpha_i_k[k],
-                    w_beta=self.w_beta_i_k[k]
-                )
 
-                # 傾斜面日射量
-                self.Iw_i_k_n[k], self.I_D_i_k_n[k], self.I_S_i_k_n[k], self.I_R_i_k_n[k] = a7.calc_slope_sol(
-                    I_DN_n=I_DN_n,
-                    I_sky_n=I_sky_n,
-                    Sh_n=solar_position["Sh_n"],
-                    cos_Theta_i_k_n=self.cos_Theta_i_k_n[k],
-                    PhiS_i_k=self.PhiS_i_k[k],
-                    PhiG_i_k=self.PhiG_i_k[k],
-                    RhoG_l=self.RhoG_l[k]
-                )
+        f = tuple([self.Type == 'external'])
+
+        # 入射角の方向余弦
+        self.cos_Theta_i_k_n[f] = a6.calc_cos_incident_angle(
+            h_sun_sin_n=solar_position["Sh_n"],
+            h_sun_cos_n=solar_position["cos_h_s"],
+            a_sun_sin_n=solar_position["sin_a_s"],
+            a_sun_cos_n=solar_position["cos_a_s"],
+            w_alpha_k=self.w_alpha_i_k[f],
+            w_beta_k=self.w_beta_i_k[f]
+        )
+
+        # 傾斜面日射量
+        self.Iw_i_k_n[f], self.I_D_i_k_n[f], self.I_S_i_k_n[f], self.I_R_i_k_n[f] = a7.calc_slope_sol(
+            I_DN_n=I_DN_n,
+            I_sky_n=I_sky_n,
+            Sh_n=solar_position["Sh_n"],
+            cos_Theta_i_k_n=self.cos_Theta_i_k_n[f],
+            PhiS_i_k=self.PhiS_i_k[f],
+            PhiG_i_k=self.PhiG_i_k[f],
+            RhoG_l=self.RhoG_l[f]
+        )
 
 
         # 外表面に日射が当たる場合
         self.Teolist = np.zeros((self.N_surf_i, 24 * 365 * 4))
-        for k, data in enumerate(datalist):
-            if self.is_sun_striked_outside[k]:
 
-                # 一般部位、不透明な開口部の場合
-                if self.boundary_type[k] in ["external_general_part", "external_opaque_part"]:
-                    # 傾斜面の相当外気温度の計算
-                    self.Teolist[k] = a9.get_Te_n_1(
-                        To_n=To_n,
-                        as_i_k=self.as_i_k[k],
-                        I_w_i_k_n=self.Iw_i_k_n[k],
-                        eps_i_k=self.eps_i_k[k],
-                        PhiS_i_k=self.PhiS_i_k[k],
-                        RN_n=RN_n,
-                        ho_i_k_n=self.ho_i_k_n[k]
-                    )
+        # 一般部位、不透明な開口部の場合
+        f = tuple(np.logical_and(get_bi(self.is_sun_striked_outside),
+                                 np.logical_or(
+                                     self.boundary_type == "external_general_part",
+                                     self.boundary_type == "external_opaque_part",
+                                 )
+                                 ))
 
-                # 透明開口部の場合
-                elif self.boundary_type[k] == "external_transparent_part":
-                    # 相当外気温度の集約
-                    self.Teolist[k] = a9.get_Te_n_2(
-                        To_n=To_n,
-                        eps_i_k=self.eps_i_k[k],
-                        PhiS_i_k=self.PhiS_i_k[k],
-                        RN_n=RN_n,
-                        ho_i_k_n=self.ho_i_k_n[k]
-                    )
+        # 傾斜面の相当外気温度の計算
+        self.Teolist[f] = a9.get_Te_n_1(
+            To_n=To_n,
+            as_i_k=self.as_i_k[f],
+            I_w_i_k_n=self.Iw_i_k_n[f],
+            eps_i_k=self.eps_i_k[f],
+            PhiS_i_k=self.PhiS_i_k[f],
+            RN_n=RN_n,
+            ho_i_k_n=self.ho_i_k_n[f]
+        )
 
-                else:
-                    raise ValueError()
+        # 透明開口部の場合
 
-            # 地面の場合は、年平均気温とする
-            elif self.boundary_type[k] == "ground":
-                self.Teolist[k] = [AnnualTave] * (24*365*4)
+        f = tuple(np.logical_and(get_bi(self.is_sun_striked_outside), self.boundary_type == "external_transparent_part"))
 
-            elif self.boundary_type[k] in ["external_general_part", "internal"]:
-                self.Teolist[k] = [0.0] * (24*365*4)
+        # 相当外気温度の集約
+        self.Teolist[f] = a9.get_Te_n_2(
+            To_n=To_n,
+            eps_i_k=self.eps_i_k[f],
+            PhiS_i_k=self.PhiS_i_k[f],
+            RN_n=RN_n,
+            ho_i_k_n=self.ho_i_k_n[f]
+        )
 
-            else:
-                raise ValueError(self.boundary_type[k])
+        # 地面の場合は、年平均気温とする
+        f = tuple(np.logical_and(get_bi(self.is_sun_striked_outside) == False, self.boundary_type == "ground"))
+        self.Teolist[f] = [AnnualTave] * (24*365*4)
+
+        f = tuple(np.logical_and(get_bi(self.is_sun_striked_outside) == False,
+                                 np.logical_or(
+                                     self.boundary_type == "external_general_part",
+                                     self.boundary_type == "internal",
+                                 )
+                                 ))
+        self.Teolist[f] = [0.0] * (24*365*4)
 
 
         # 外表面に日射が当たる場合
         self.FSDW_i_k_n = np.zeros((self.N_surf_i, 24 * 365 * 4))
         self.QGT_i_k_n = np.zeros((self.N_surf_i, 24 * 365 * 4))
-        for k, data in enumerate(datalist):
+        for k in range(self.N_surf_i):
             if self.is_sun_striked_outside[k]:
 
                 # 透明開口部の場合
@@ -284,20 +294,18 @@ class Surface:
                     else:
                         self.FSDW_i_k_n[k, :] = 0.0
 
-                    # 透過日射熱取得
-                    self.QGT_i_k_n[k] = a11.calc_QGT_i_k_n(
-                        cos_Theta_i_k_n=self.cos_Theta_i_k_n[k],
-                        IAC_i_k=self.IAC_i_k[k],
-                        I_D_i_k_n=self.I_D_i_k_n[k],
-                        FSDW_i_k_n=self.FSDW_i_k_n[k],
-                        I_S_i_k_n=self.I_S_i_k_n[k],
-                        I_R_i_k_n=self.I_R_i_k_n[k],
-                        A_i_k=self.A_i_k[k],
-                        tau_i_k=self.tau_i_k[k],
-                        Cd_i_k=self.Cd_i_k[k]
-                    )
+        # 透明開口部の場合
+        f = tuple(np.logical_and(get_bi(self.is_sun_striked_outside), self.boundary_type == "external_transparent_part"))
 
-                else:
-                    self.QGT_i_k_n[k] = np.zeros(24*365*4)
-            else:
-                self.QGT_i_k_n[k] = np.zeros(24 * 365 * 4)
+        # 透過日射熱取得
+        self.QGT_i_k_n[f] = a11.calc_QGT_i_k_n(
+            cos_Theta_i_k_n=self.cos_Theta_i_k_n[f],
+            IAC_i_k=self.IAC_i_k[f],
+            I_D_i_k_n=self.I_D_i_k_n[f],
+            FSDW_i_k_n=self.FSDW_i_k_n[f],
+            I_S_i_k_n=self.I_S_i_k_n[f],
+            I_R_i_k_n=self.I_R_i_k_n[f],
+            A_i_k=self.A_i_k[f],
+            tau_i_k=self.tau_i_k[f],
+            Cd_i_k=self.Cd_i_k[f]
+        )
