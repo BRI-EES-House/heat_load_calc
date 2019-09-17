@@ -21,21 +21,18 @@ from Psychrometrics import rhtx
 
 
 # 室温、熱負荷の計算
-def calcHload(space, is_actual_calc, spaces, dtmNow, To_n: float, xo: float, sequence_number: int):
+def calcHload(space, is_actual_calc, spaces, dtmNow, To_n: float, xo: float, n: int):
 
     # 室間換気の風上室温をアップデート
     for roomvent in space.RoomtoRoomVent:
         windward_roomname = roomvent.windward_roomname
-        update_oldstate(roomvent, spaces[windward_roomname].oldTr, spaces[windward_roomname].oldxr)
+        update_oldstate(roomvent, spaces[windward_roomname].Tr_i_n[n - 1], spaces[windward_roomname].xr_i_n[n - 1])
 
     # ********** 毎時計算5 裏面相当温度の計算 **********
 
     for g in range(space.surfG_i.NsurfG_i):
-        # 前時刻の相当外気温度を控える
-        space.surfG_i.oldTeo[g] = space.surfG_i.Teo[g]
-
         # 裏面温度の計算
-        space.surfG_i.Teo[g] = a9.calc_Teo(space.surfG_i, g, To_n, space.oldTr, spaces, sequence_number)
+        space.Teo_i_k_n[g, n] = a9.calc_Teo(space.surfG_i, g, To_n, space.Tr_i_n[n - 1], spaces, n)
 
     # ********** 毎時計算8 内部発熱、内部発湿の計算、計画換気、すきま風、局所換気の設定 **********
 
@@ -47,7 +44,7 @@ def calcHload(space, is_actual_calc, spaces, dtmNow, To_n: float, xo: float, seq
     heat_generation_lighting = a31.get_hourly_lighting_schedules(space, dtmNow)
 
     # 当該時刻の人体発熱の読み込み
-    number_of_people, Humans, Humanl = a32.get_hourly_resident_schedules(space, dtmNow)
+    number_of_people, Humans, Humanl = a32.get_hourly_resident_schedules(space, dtmNow, n)
 
     # 内部発熱[W]
     Hn = heat_generation_appliances + heat_generation_lighting + Humans + heat_generation_cooking
@@ -70,6 +67,7 @@ def calcHload(space, is_actual_calc, spaces, dtmNow, To_n: float, xo: float, seq
     space.LocalVentset = LocalVentset
 
     # ********** 当該時刻の空調スケジュールの読み込み **********
+    #TODO: 一括読み込みにしたい
     is_upper_temp_limit_set, \
         is_lower_temp_limit_set, \
             pmv_upper_limit, \
@@ -85,10 +83,10 @@ def calcHload(space, is_actual_calc, spaces, dtmNow, To_n: float, xo: float, seq
     # **** 透過日射の家具、室内部位表面発熱量への分配 ****
 
     # RSsol:透過日射の内、室内部位表面での吸収量[W/m2]
-    space.RSsol = a12.get_RSsol(space.QGT_i_n[sequence_number], space.SolR, space.surfG_i.A_i_g)
+    space.RSsol = a12.get_RSsol(space.QGT_i_n[n], space.SolR, space.surfG_i.A_i_g)
 
     # 家具の吸収日射量[W]
-    space.Qsolfun = a12.get_Qsolfun(space.QGT_i_n[sequence_number], space.rsolfun)
+    space.Qsolfun_i_n[n] = a12.get_Qsolfun(space.QGT_i_n[n], space.rsolfun)
 
     # 流入外気風量の計算
     # 計画換気・すきま風量
@@ -102,23 +100,21 @@ def calcHload(space, is_actual_calc, spaces, dtmNow, To_n: float, xo: float, seq
     is_now_window_open = space.is_prev_window_open and air_conditioning_demand
 
     # 配列の準備
-    Teo = space.surfG_i.Teo
     Nroot = space.surfG_i.Nroot
-    oldTeo = space.surfG_i.oldTeo
     Row = space.surfG_i.Row
     nextroom_volume = np.array([x.volume for x in space.RoomtoRoomVent])
     nextroom_oldTr = np.array([x.oldTr for x in space.RoomtoRoomVent])
 
     # 畳み込み積分 式(27)
     for g in range(space.NsurfG_i):
-        space.oldTsd_t[g,:Nroot[g]] = oldTeo[g] * space.surfG_i.RFT1[g,:Nroot[g]] + Row[g,:Nroot[g]] * space.oldTsd_t[g,:Nroot[g]]
-        space.oldTsd_a[g,:Nroot[g]] = space.oldqi[g] * space.surfG_i.RFA1[g,:Nroot[g]] + Row[g,:Nroot[g]] * space.oldTsd_a[g,:Nroot[g]]
+        space.TsdA_l_n_m[g, n] = space.oldqi[g] * space.surfG_i.RFA1[g] + Row[g] * space.TsdA_l_n_m[g, n-1]
+        space.TsdT_l_n_m[g, n] = space.Teo_i_k_n[g, n-1] * space.surfG_i.RFT1[g] + Row[g] * space.TsdT_l_n_m[g, n-1]
 
     # 畳み込み演算 式(26)
-    CVL_i_l = a1.get_CVL(space.oldTsd_t, space.oldTsd_a, Nroot)
+    CVL_i_l = a1.get_CVL(space.TsdT_l_n_m[:,n,:], space.TsdA_l_n_m[:,n,:], Nroot)
 
     # {CRX}の作成  式(24)
-    CRX_i_j = a1.get_CRX(space.surfG_i.RFT0, Teo, space.RSsol, space.surfG_i.RFA0)
+    CRX_i_j = a1.get_CRX(space.surfG_i.RFT0, space.Teo_i_k_n[:, n], space.RSsol, space.surfG_i.RFA0)
 
     # {WSC}=[XA]*{CRX} 式(24)
     WSC_i_k = a1.get_WSC(space.AX_k_l, CRX_i_j)
@@ -127,26 +123,50 @@ def calcHload(space, is_actual_calc, spaces, dtmNow, To_n: float, xo: float, seq
     WSV_i_k = a1.get_WSV(space.AX_k_l, CVL_i_l)
 
     # 室温・熱負荷計算のための定数項BRCの計算 式(6)
-    BRC_i = s41.get_BRC_i(WSC_i_k, WSV_i_k, space.surfG_i.A_i_g, space.hc_i_g_n, To_n, Hn, space.Ventset, space.Infset,
-                          space.LocalVentset, space.Hcap, space.oldTr, space.Capfun, space.Cfun, space.Qsolfun,
-                          space.oldTfun, nextroom_volume, nextroom_oldTr)
+    BRC_i = s41.get_BRC_i(
+        WSC_i_k=WSC_i_k,
+        WSV_i_k=WSV_i_k,
+        area=space.surfG_i.A_i_g,
+        hc_i_k_n=space.hc_i_g_n,
+        Ta=To_n,
+        Hn=Hn,
+        Ventset=space.Ventset,
+        Infset=space.Infset,
+        LocalVentset=space.LocalVentset,
+        Hcap=space.Hcap,
+        oldTr=space.Tr_i_n[n - 1],
+        Cap_fun_i=space.Capfun,
+        C_fun_i=space.Cfun,
+        Qsolfun=space.Qsolfun_i_n[n],
+        oldTfun=space.Tfun_i_n[n - 1],
+        nextroom_volume=nextroom_volume,
+        nextroom_oldTr=nextroom_oldTr
+    )
 
     # 窓開閉、空調発停判定のための自然室温計算
     # 通風なしでの係数を控えておく
-    space.BRMnoncv = space.BRM_i[sequence_number]
+    space.BRMnoncv = space.BRM_i[n]
     space.BRCnoncv = BRC_i
 
     # 通風計算用に係数を補正（前時刻が通風状態の場合は非空調作用温度を通風状態で計算する）
-    temp = get_temp(is_now_window_open, space.Vcrossvent)
+    temp = get_temp(is_now_window_open, space.NV_i_n[n])
 
     # ********** 毎時計算10. BRMot,BRCot,BRLotの計算 **********
 
-    BRMot, BRLot, BRCot, Xot, XLr, XC = s41.calc_OT_coeff(BRC=BRC_i + temp * To_n, BRM=space.BRM_i[sequence_number] + temp,
-                                                          matWSV=WSV_i_k, matWSC=WSC_i_k, fot=space.fot, matWSR=space.WSR_i_k,
-                                                          matWSB=space.WSB_i_k, kc=space.kc, kr=space.kr,
-                                                          BRL=space.BRL_i[sequence_number])
+    BRMot, BRLot, BRCot, Xot, XLr, XC = s41.calc_OT_coeff(
+        BRC_i=BRC_i + temp * To_n,
+        BRM_i=space.BRM_i[n] + temp,
+        WSV_i_k=WSV_i_k,
+        WSC_i_k=WSC_i_k,
+        fot=space.fot,
+        WSR_i_k=space.WSR_i_k,
+        WSB_i_k=space.WSB_i_k,
+        kc_i=space.kc_i,
+        kr_i=space.kr_i,
+        BRL_i=space.BRL_i[n]
+    )
 
-    # ********** 非空調作用温度、PMV の計算 **********
+    # ********** 非空調作用温度、PMV_i_n の計算 **********
 
     # 自然作用温度の計算
     OT, Lcs, Lrs = calc_Tr_Ls(0, space.is_radiative_heating, BRCot, BRMot, BRLot, 0, 0.0)
@@ -155,13 +175,13 @@ def calcHload(space, is_actual_calc, spaces, dtmNow, To_n: float, xo: float, seq
     Tr = s41.get_Tr_i_n(Lrs, OT, Xot, XLr, XC)
 
     # 自然MRTを計算
-    MRT = (OT - space.kc * Tr) / space.kr
+    MRT = (OT - space.kc_i * Tr) / space.kr_i
 
     # 着衣量
     I_cl = a35_2.calc_clothing(OT)
 
     # 自然PMVを計算する
-    PMV = a35_1.calcPMV(Tr, MRT, space.RH, 0.0 if not is_now_window_open else 0.1, 1.0, 0.0, I_cl)
+    PMV = a35_1.calcPMV(Tr, MRT, space.RH_i_n[n - 1], 0.0 if not is_now_window_open else 0.1, 1.0, 0.0, I_cl)
 
     # ********** 窓開閉、空調発停の決定 **********
 
@@ -173,72 +193,85 @@ def calcHload(space, is_actual_calc, spaces, dtmNow, To_n: float, xo: float, seq
     pmv_set = space.pmv_lower_limit if now_air_conditioning_mode > 0 else space.pmv_upper_limit
 
     # 通風なら通風量を設定
-    temp = get_temp(is_now_window_open, space.Vcrossvent)
+    temp = get_temp(is_now_window_open, space.NV_i_n[n])
 
     # 最終計算のための係数整備
-    space.BRM_i[sequence_number] += temp
+    space.BRM_i[n] += temp
     BRC_i += temp * To_n
 
     # OT計算用の係数補正
-    BRMot, BRLot, BRCot, Xot, XLr, XC = s41.calc_OT_coeff(BRC=BRC_i, BRM=space.BRM_i[sequence_number], matWSV=WSV_i_k, matWSC=WSC_i_k, fot=space.fot,
-                                                          matWSR=space.WSR_i_k, matWSB=space.WSB_i_k, kc=space.kc,
-                                                          kr=space.kr, BRL=space.BRL_i[sequence_number])
+    BRMot, BRLot, BRCot, Xot, XLr, XC = s41.calc_OT_coeff(
+        BRC_i=BRC_i,
+        BRM_i=space.BRM_i[n],
+        WSV_i_k=WSV_i_k,
+        WSC_i_k=WSC_i_k,
+        fot=space.fot,
+        WSR_i_k=space.WSR_i_k,
+        WSB_i_k=space.WSB_i_k,
+        kc_i=space.kc_i,
+        kr_i=space.kr_i,
+        BRL_i=space.BRL_i[n]
+    )
 
     # ********** 空調設定温度の計算 **********
 
     # 目標作用温度、代謝量、着衣量、風速の計算
-    OTset, Met, Clo, Vel = a35_2.calcOTset(now_air_conditioning_mode, space.is_radiative_heating, space.RH, pmv_set)
+    OTset, Met, Clo, Vel = a35_2.calcOTset(now_air_conditioning_mode, space.is_radiative_heating, space.RH_i_n[n - 1], pmv_set)
 
     # 仮の作用温度、熱負荷の計算
-    OT, Lcs, Lrs = calc_Tr_Ls(now_air_conditioning_mode,
-                                                    space.is_radiative_heating, BRCot, BRMot,
-                                                    BRLot, 0, OTset)
+    OT, Lcs, Lrs = calc_Tr_Ls(
+        now_air_conditioning_mode=now_air_conditioning_mode,
+        is_radiative_heating=space.is_radiative_heating,
+        BRC=BRCot,
+        BRM=BRMot,
+        BRL=BRLot,
+        Lrcap=0,
+        Tset=OTset
+    )
+
     # 放射空調の過負荷状態をチェックする
     now_air_conditioning_mode = a13.reset_SW(now_air_conditioning_mode, Lcs, Lrs, space.is_radiative_heating, space.radiative_heating_max_capacity)
 
     # 最終作用温度・熱負荷の再計算
-    OT, Lcs, Lrs = calc_Tr_Ls(now_air_conditioning_mode,
+    space.OT_i_n[n], Lcs, Lrs = calc_Tr_Ls(now_air_conditioning_mode,
                                                     space.is_radiative_heating, BRCot, BRMot,
                                                     BRLot, space.radiative_heating_max_capacity, OTset)
 
-    # ********** 室温 Tr、表面温度 Ts、室内表面熱流 q の計算 **********
+    # ********** 室温 Tr、表面温度 Ts_i_k_n、室内表面熱流 q の計算 **********
 
     # 室温を計算
-    Tr = s41.get_Tr_i_n(Lrs, OT, Xot, XLr, XC)
+    Tr = s41.get_Tr_i_n(Lrs, space.OT_i_n[n], Xot, XLr, XC)
 
     # 表面温度の計算 式(23)
-    Ts = a1.get_surface_temperature(space.WSR_i_k, space.WSB_i_k, WSC_i_k, WSV_i_k, Tr, Lrs)
+    space.Ts_i_k_n[:, n] = a1.get_surface_temperature(space.WSR_i_k, space.WSB_i_k, WSC_i_k, WSV_i_k, Tr, Lrs)
 
-    # MRT、AST、平均放射温度の計算
-    MRT = get_MRT(space.fot, Ts)
-    AST = get_AST(space.surfG_i.A_i_g, Ts, space.A_total_i)
+    # MRT_i_n、AST、平均放射温度の計算
+    MRT = get_MRT(space.fot, space.Ts_i_k_n[:, n])
+    AST = get_AST(space.surfG_i.A_i_g, space.Ts_i_k_n[:, n], space.A_total_i)
 
     # 平均放射温度の計算
-    Tsx = a1.get_Tsx(space.F_mrt_i_g, Ts)
+    Tsx = a1.get_Tsx(space.F_mrt_i_g, space.Ts_i_k_n[:, n])
 
     # 室内側等価温度の計算 式(29)
-    Tei = a1.calc_Tei(space.hc_i_g_n, space.surfG_i.hi_i_g_n, space.hr_i_g_n, space.RSsol, space.flr, space.surfG_i.A_i_g, Tr, space.F_mrt_i_g, Ts, Lrs, space.Beta)
+    space.Tei_i_k_n[:,n] = a1.calc_Tei(space.hc_i_g_n, space.surfG_i.hi_i_g_n, space.hr_i_g_n, space.RSsol, space.flr, space.surfG_i.A_i_g, Tr, space.F_mrt_i_g, space.Ts_i_k_n[:, n], Lrs, space.Beta_i)
 
     # 室内表面熱流の計算 式(28)
-    Qc, Qr, Lr, RS, Qt, oldqi = a1.calc_qi(space.hc_i_g_n, space.surfG_i.A_i_g, space.hr_i_g_n, space.RSsol, space.flr, Ts, Tr, space.F_mrt_i_g, Lrs, space.Beta)
+    Qc, Qr, Lr, RS, Qt, oldqi = a1.calc_qi(space.hc_i_g_n, space.surfG_i.A_i_g, space.hr_i_g_n, space.RSsol, space.flr, space.Ts_i_k_n[:, n], Tr, space.F_mrt_i_g, Lrs, space.Beta_i)
 
     # 保存1
     space.Lr = Lr
     space.RS = RS
-    space.Ts = Ts
     space.Qc = Qc
     space.Qr = Qr
-    space.Tei = Tei
     space.oldqi = oldqi
 
     # 保存2
-    space.MRT = MRT
-    space.Tr = Tr
-    space.OT = OT
-    space.Lcs = Lcs
-    space.Lrs = Lrs
-    space.Clo = Clo
-    space.Vel = Vel
+    space.MRT_i_n[n] = MRT
+    space.Lcs_i_n[n] = Lcs
+    space.Lrs_i_n[n] = Lrs
+    space.Met_i_n[n] = Met
+    space.Vel_i_n[n] = Vel
+    space.Clo_i_n[n] = Clo
     space.is_now_window_open = is_now_window_open
 
     # ********** 室湿度 xr、除湿量 G_hum、湿加湿熱量 Ll の計算 **********
@@ -249,8 +282,8 @@ def calcHload(space, is_actual_calc, spaces, dtmNow, To_n: float, xo: float, seq
         Ventset = space.Ventset,
         Infset=space.Infset,
         LocalVentset=space.LocalVentset,
-        Gf=space.Gf,
-        Cx=space.Cx,
+        Gf=space.Gf_i,
+        Cx=space.Cx_i,
         volume=space.volume,
         RoomtoRoomVent=space.RoomtoRoomVent
     )
@@ -260,12 +293,12 @@ def calcHload(space, is_actual_calc, spaces, dtmNow, To_n: float, xo: float, seq
         Ventset = space.Ventset,
         Infset=space.Infset,
         LocalVentset=space.LocalVentset,
-        Gf=space.Gf,
-        Cx=space.Cx,
+        Gf=space.Gf_i,
+        Cx=space.Cx_i,
         volume=space.volume,
         RoomtoRoomVent=space.RoomtoRoomVent,
-        oldxr=space.oldxr,
-        oldxf=space.oldxf,
+        oldxr=space.xr_i_n[n - 1],
+        oldxf=space.xf_i_n[n - 1],
         Lin=space.Lin,
         xo=xo
     )
@@ -276,25 +309,25 @@ def calcHload(space, is_actual_calc, spaces, dtmNow, To_n: float, xo: float, seq
     BF = a16.get_BF()
 
     # 空調の熱交換部飽和絶対湿度の計算
-    Vac, Teout, xeout = a16.calcVac_xeout(space.Lcs, space.Vmin_i, space.Vmax_i, space.qmin_c_i,
-                                                  space.qmax_c_i, space.Tr, BF, now_air_conditioning_mode)
+    space.Vac_n[n], Teout, space.xeout_i_n[n] = a16.calcVac_xeout(space.Lcs_i_n[n], space.Vmin_i, space.Vmax_i, space.qmin_c_i,
+                                          space.qmax_c_i, Tr, BF, now_air_conditioning_mode)
 
     # 空調機除湿の項 式(20)より
-    RhoVac = get_RhoVac(Vac, BF)
+    RhoVac = get_RhoVac(space.Vac_n[n], BF)
 
     # 室絶対湿度[kg/kg(DA)]の計算
     BRMX_base = BRMX_pre + RhoVac
-    BRXC_base = BRXC_pre + RhoVac * xeout
+    BRXC_base = BRXC_pre + RhoVac * space.xeout_i_n[n]
 
     # 室絶対湿度の計算 式(16)
     xr_base = s42.get_xr(BRXC_base, BRMX_base)
 
     # 補正前の加湿量の計算 [ks/s] 式(20)
-    Ghum_base = s42.get_Ghum(RhoVac, xeout, xr_base)
+    Ghum_base = s42.get_Ghum(RhoVac, space.xeout_i_n[n], xr_base)
 
     # 除湿量が負値になった場合にはルームエアコン風量V_(ac,n)をゼロとして再度室湿度を計算する
     if Ghum_base > 0.0:
-        Ghum = 0.0
+        space.Ghum_i_n[n] = 0.0
         BRMX = BRMX_pre
         BRXC = BRXC_pre
 
@@ -302,55 +335,44 @@ def calcHload(space, is_actual_calc, spaces, dtmNow, To_n: float, xo: float, seq
         space.Va = 0.0
 
         # 室絶対湿度の計算 式(16)
-        xr = s42.get_xr(BRXC_pre, BRMX_pre)
+        space.xr_i_n[n]  = s42.get_xr(BRXC_pre, BRMX_pre)
     else:
-        Ghum = Ghum_base
+        space.Ghum_i_n[n] = Ghum_base
         BRMX = BRMX_base
         BRXC = BRXC_base
-        xr = xr_base
+        space.xr_i_n[n]  = xr_base
 
     # 除湿量から室加湿熱量を計算 式(21)
-    Lcl = get_Lcl(Ghum)
+    space.Lcl_i_n[n] = get_Lcl(space.Ghum_i_n[n])
 
     # 当面は放射空調の潜熱は0
-    Lrl = get_Lrl()
+    space.Lrl_i_n[n] = get_Lrl()
 
     # 室相対湿度の計算 式(22)
-    RH = rhtx(space.Tr, xr)
-
-    # 計算結果の保存 (3)
-    space.xr = xr
-    space.Lcl = Lcl
-    space.Lrl = Lrl
-    space.RH = RH
+    space.RH_i_n[n] = rhtx(Tr, space.xr_i_n[n])
 
     # ********** 家具温度 T_fun、備品類の絶対湿度 xf の計算 **********
 
     # 家具の温度を計算
     if space.Capfun > 0.0:
         # 家具の温度 式(15)
-        Tfun = s41.get_Tfun_i_n(space.Capfun, space.oldTfun, space.Cfun, Tr, space.Qsolfun)
-        Qfuns = s41.get_Qfuns(space.Cfun, Tr, Tfun)
+        space.Tfun_i_n[n] = s41.get_Tfun_i_n(space.Capfun, space.Tfun_i_n[n - 1], space.Cfun, Tr, space.Qsolfun_i_n[n])
+        space.Qfuns_i_n[n] = s41.get_Qfuns(space.Cfun, Tr, space.Tfun_i_n[n])
     else:
-        Tfun = 0
-        Qfuns = 0
+        space.Tfun_i_n[n] = 0
+        space.Qfuns_i_n[n]  = 0
 
     # 備品類の絶対湿度の計算
-    xf = s42.get_xf(space.Gf, space.oldxf, space.Cx, xr)
-    Qfunl = s42.get_Qfunl(space.Cx, xr, xf)
-
-    space.Tfun = Tfun
-    space.Qfuns = Qfuns
-    space.xf = xf
-    space.Qfunl = Qfunl
+    space.xf_i_n[n] = s42.get_xf(space.Gf_i, space.xf_i_n[n - 1], space.Cx_i, space.xr_i_n[n])
+    space.Qfunl_i_n[n] = s42.get_Qfunl(space.Cx_i, space.xr_i_n[n], space.xf_i_n[n])
 
     # 年間熱負荷の積算
     # 助走計算以外の時だけ積算
     if is_actual_calc == True:
-        calc_annual_heat_load(space)
+        calc_annual_heat_load(space, n)
 
     # PMVの計算 (ここでもう一度PMVを計算している理由が不明)
-    PMV = a35_1.calcPMV(Tr, MRT, space.RH, Vel, Met, space.Wme, Clo)
+    PMV = a35_1.calcPMV(Tr, MRT, space.RH_i_n[n], Vel, Met, space.Wme_i_n[n], Clo)
 
     # ********** 窓開閉、空調発停の決定 **********
 
@@ -360,7 +382,9 @@ def calcHload(space, is_actual_calc, spaces, dtmNow, To_n: float, xo: float, seq
 
     # 保存(4)
     space.now_air_conditioning_mode = now_air_conditioning_mode
-    space.PMV = PMV
+    space.PMV_i_n[n] = PMV
+
+    space.Tr_i_n[n] = Tr
 
     return 0
 
@@ -383,32 +407,32 @@ def get_AST(area, Ts, Atotal):
 
 
 # 年間熱負荷の積算
-def calc_annual_heat_load(space):
+def calc_annual_heat_load(space, sequence_number):
     convert_J_GJ = 1.0e-9
     DTime = 900
     # 対流式空調（顕熱）の積算
-    if space.Lcs > 0.0:
-        space.AnnualLoadcHs += space.Lcs * DTime * convert_J_GJ
+    if space.Lcs_i_n[sequence_number] > 0.0:
+        space.AnnualLoadcHs += space.Lcs_i_n[sequence_number] * DTime * convert_J_GJ
     else:
-        space.AnnualLoadcCs += space.Lcs * DTime * convert_J_GJ
+        space.AnnualLoadcCs += space.Lcs_i_n[sequence_number] * DTime * convert_J_GJ
     
     # 対流式空調（潜熱）の積算
-    if space.Lcl > 0.0:
-        space.AnnualLoadcHl += space.Lcl * DTime * convert_J_GJ
+    if space.Lcl_i_n[sequence_number] > 0.0:
+        space.AnnualLoadcHl += space.Lcl_i_n[sequence_number] * DTime * convert_J_GJ
     else:
-        space.AnnualLoadcCs += space.Lcl * DTime * convert_J_GJ
+        space.AnnualLoadcCs += space.Lcl_i_n[sequence_number] * DTime * convert_J_GJ
 
     # 放射式空調（顕熱）の積算
-    if space.Lrs > 0.0:
-        space.AnnualLoadrHs += space.Lrs * DTime * convert_J_GJ
+    if space.Lrs_i_n[sequence_number] > 0.0:
+        space.AnnualLoadrHs += space.Lrs_i_n[sequence_number] * DTime * convert_J_GJ
     else:
-        space.AnnualLoadrCs += space.Lrs * DTime * convert_J_GJ
+        space.AnnualLoadrCs += space.Lrs_i_n[sequence_number] * DTime * convert_J_GJ
 
     # 放射式空調（潜熱）の積算
-    if space.Lrl > 0.0:
-        space.AnnualLoadrHl += space.Lrl * DTime * convert_J_GJ
+    if space.Lrl_i_n[sequence_number] > 0.0:
+        space.AnnualLoadrHl += space.Lrl_i_n[sequence_number] * DTime * convert_J_GJ
     else:
-        space.AnnualLoadrCl += space.Lrl * DTime * convert_J_GJ
+        space.AnnualLoadrCl += space.Lrl_i_n[sequence_number] * DTime * convert_J_GJ
 
 
 # 室温・顕熱熱負荷の計算ルーティン

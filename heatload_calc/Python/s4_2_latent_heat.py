@@ -3,29 +3,6 @@ from common import rhoa
 
 # *********** 4.2 潜熱 **********
 
-# 湿度・潜熱負荷計算の係数BRMXを計算する
-def calc_BRMX_BRXC(Ventset, Infset, LocalVentset, Dtime, Gf, Cx, xo, volume, RoomtoRoomVent, oldxr, oldxf, Lin):
-
-
-    # 式(17)
-    BRMX = get_BRMX(Ventset, Infset, LocalVentset, Gf, Cx,
-        volume=volume,
-        RoomtoRoomVent=RoomtoRoomVent
-    )
-
-    BRXC = get_BRXC(
-        Ventset, Infset, LocalVentset, Gf, Cx,
-        volume=volume,
-        xo=xo,
-        oldxr=oldxr,
-        oldxf=oldxf,
-        Lin=Lin,
-        RoomtoRoomVent=RoomtoRoomVent
-    )
-
-    return BRMX, BRXC
-
-
 # 外気の流入量
 def get_Voin(Ventset, Infset, LocalVentset):
     return (Ventset + Infset + LocalVentset) / 3600.

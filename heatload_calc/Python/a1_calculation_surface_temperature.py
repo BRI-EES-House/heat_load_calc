@@ -58,7 +58,7 @@ def get_FIA(RFA0, hic):
     return RFA0 * hic
 
 
-# FLB=φA0×flr×(1-Beta) 式(26)
+# FLB=φA0×flr×(1-Beta_i) 式(26)
 def get_FLB(RFA0, flr, Beta, area):
     return RFA0 * flr * (1. - Beta) / area
 

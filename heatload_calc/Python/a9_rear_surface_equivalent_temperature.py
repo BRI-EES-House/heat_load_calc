@@ -24,7 +24,7 @@ def calc_Teo(surface, g,  To_n: float, oldTr: float, spaces: List['Space'], sequ
         return surface.Teolist[g][sequence_number]
     # 内壁の場合（前時刻の室温）
     elif surface.boundary_type[g] == "internal":
-        return get_oldNextRoom(surface.Rnext_i_g[g], spaces)
+        return get_oldNextRoom(surface.Rnext_i_g[g], spaces, sequence_number)
     # 例外
     else:
         print("境界条件が見つかりません。 name=", surface.boundary_type)
@@ -69,8 +69,8 @@ def get_NextRoom_fromR(a_i_k: float, Ta: float, Tr: float) -> float:
 
 
 # 前時刻の隣室温度の場合
-def get_oldNextRoom(nextroomname: str, spaces: List['Space']) -> float:
-    Te = spaces[nextroomname].oldTr
+def get_oldNextRoom(nextroomname: str, spaces: List['Space'], sequence_number: int) -> float:
+    Te = spaces[nextroomname].Tr_i_n[sequence_number - 1]
     return Te
 
 """ # 相当外気温度の計算

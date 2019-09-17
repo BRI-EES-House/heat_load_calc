@@ -32,7 +32,7 @@ def get_OT(met, velocity, RH, Clo, PMV_set):
 #     ot_set, clo = get_OT(1.0, 0.2, 50.0, i / 10.0)
 #     print(i / 10.0, ot_set, clo)
 
-# PMV=0条件から設定作用温度を計算する
+# PMV_i_n=0条件から設定作用温度を計算する
 def calcOTset(now_air_conditioning_mode, isRadiantHeater, RH, pmv_set_point):
     ot_set = 0.0
     Met = 1.0

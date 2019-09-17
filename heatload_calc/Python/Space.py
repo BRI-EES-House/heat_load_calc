@@ -81,7 +81,7 @@ class Space:
         :param Inf:
         :param CrossVentRoom:
         :param is_radiative_heating:
-        :param Beta:
+        :param Beta_i:
         :param RoomtoRoomVents:
         :param input_surfaces:
         """
@@ -96,35 +96,38 @@ class Space:
         self.AnnualLoadrCl = 0.0                  # 年間潜熱冷房熱負荷（放射成分）
         self.AnnualLoadrHl = 0.0                  # 年間潜熱暖房熱負荷（放射成分）
         self.Lrs = 0.0
-        self.Lrl = 0.0
-        self.Lcl = 0.0
-        self.Lcl = 0.0
         self.Ls = None
-        self.Tr = 15.0                              # 室温の初期化
-        self.oldTr = 15.0                         # 前時刻の室温の初期化
-        self.Tfun = 15.0                            # 家具の温度[℃]
-        self.oldTfun = 15.0                       # 前時刻の家具の温度[℃]
-        self.rsolfun = 0.5                        # 透過日射の内家具が吸収する割合[－]
-        # self.rsolfun = 0.0
-        self.kc = s41.calc_kc_i()  #式(12)
-                                                    # 人体表面の熱伝達率の対流成分比率
-        self.kr = s41.calc_kr_i()  #式(13)
-                                                    # 人体表面の熱伝達率の放射成分比率
+
+        self.Tr_i_n = np.full(24*365*4, 15.0)       # i室のn時点における室温
+        self.OT_i_n = np.zeros(24*365*4)            # i室のn時点における室の作用温度
+        self.OTset = 0.0                            # i室のn時点における室の空調設定作用温度(目標作用温度)
+        self.Ts_i_k_n = np.zeros((0, 24*365*4))     # i室の部位kにおけるn時点の室内側表面温度 (max(k)が不明なのであとで初期化
+
+        xr_ini = xtrh(20.0, 40.0)                  # 室の絶対湿度[kg/kg(DA)]
+        self.xr_i_n = np.full(24*365*4, xr_ini)     # i室のn時点における室絶対湿度
+        self.RH_i_n = np.full(24*365*4, 50.0)                              # i室のn時点における室相対湿度[%]
+
+        self.Qfuns_i_n = np.zeros(24*365*4)
+        self.rsolfun = 0.5                          # 透過日射の内家具が吸収する割合[－]
+        self.kc_i = s41.calc_kc_i()                 # i室の人体表面における対流熱伝達率の総合熱伝達率に対する比
+        self.kr_i = s41.calc_kr_i()                 # i室の人体表面における放射熱伝達率の総合熱伝達率に対する比
         self.air_conditioning_demand = False        # 当該時刻の空調需要（0：なし、1：あり）
         self.prev_air_conditioning_mode = 0         # 前時刻の空調運転状態（0：停止、正：暖房、負：冷房）
         self.is_prev_window_open = False            # 前時刻の窓状態（0：閉鎖、1：開放）
         self.now_air_conditioning_mode = 0          # 当該時刻の空調運転状態（0：なし、正：暖房、負：冷房）
         self.is_now_window_open = False             # 当該時刻の窓状態（0：閉鎖、1：開放）
-        # PMVの計算条件
-        self.Met = 1.0                              # 代謝量[Met]
-        self.Wme = 0.0                              # 外部仕事[Met]
-        self.Vel = 0.1                              # 相対風速[m/s]
-        self.Clo = 1.0                              # 着衣量[Clo]
-        self.OTset = 0.0                            # 設定作用温度[℃]
+        self.Met_i_n = np.zeros(24*365*4)           # i室のn時点における代謝量[Met]
+        self.Wme_i_n = np.zeros(24*365*4)           # i室のn時点における外部仕事[Met]
+        self.Vel_i_n = np.full(24*365*4, 0.1)       # i室のn時点における相対風速[m/s]
+        self.Clo_i_n = np.ones(24*365*4)            # i室のn時点における着衣量[Clo]
+        self.PMV_i_n = np.zeros(24*365*4)           # i室のn時点におけるPMV(Predicted Mean Vote,予測温冷感申告)
+        self.MRT_i_n = np.zeros(24*365*4)           # i室のn時点におけるMRV
+        self.Lcs_i_n = np.zeros(24*365*4)           # i室のn時点における対流空調熱負荷
+        self.Lrs_i_n = np.zeros(24*365*4)           # i室のn時点における放射空調熱負荷
+        self.Lcl_i_n = np.zeros(24*365*4)           # i室のn時点における室加湿熱量
+        self.Lrl_i_n = np.zeros(24*365*4)           # i室のn時点における放射空調の潜熱
         self.is_radiative_heating = False
         self.radiative_heating_max_capacity = 0.0
-
-        self.Ghum = 0.0
 
         # 暖房設備仕様の読み込み
         heating_equipment_read(self, d_room['heating_equipment'])
@@ -136,27 +139,27 @@ class Space:
 
         # 家具の熱容量、湿気容量の計算
         # Capfun:家具熱容量[J/K]、Cfun:家具と室空気間の熱コンダクタンス[W/K]
-        # Gf:湿気容量[kg/(kg/kg(DA))]、Cx:湿気コンダクタンス[kg/(s･kg/kg(DA))]
-        self.Capfun  = a14.get_Capfun(self.volume)
+        # Gf_i:湿気容量[kg/(kg/kg(DA))]、Cx_i:湿気コンダクタンス[kg/(s･kg/kg(DA))]
+        self.Capfun = a14.get_Capfun(self.volume)
         self.Cfun = a14.get_Cfun(self.Capfun)
-        self.Gf = a14.get_Gf(self.volume)
-        self.Cx = a14.get_Cx(self.Gf)
+        self.Tfun_i_n = np.full(24*365*4, 15.0)     # i室のn時点における家具の温度
+        self.Qfunl_i_n = np.zeros(24*365*4)         # i室のn時点における家具の日射吸収熱量
+        self.Qsolfun_i_n = np.zeros(24*365*4)
+        self.Gf_i = a14.get_Gf(self.volume)         # i室の備品類の湿気容量
+        self.Cx_i = a14.get_Cx(self.Gf_i)           # i室の備品類と室空気間の湿気コンダクタンス
+        self.xf_i_n = np.full(24*365*4, xr_ini)     # i室のn時点における備品類の絶対湿度
+        self.Ghum_i_n = np.zeros(24*365*4)
 
-        self.xr = xtrh(20.0, 40.0)                  # 室の絶対湿度[kg/kg(DA)]
-        self.oldxr = self.xr                      # 室内絶対湿度の初期値
-        self.xf = self.xr                           # 家具類の絶対湿度
-        self.oldxf = self.xr                      # 家具類の絶対湿度の初期値
-        self.xeout = 0.0                          # エアコン熱交換部の飽和絶対湿度[kg/kg(DA)]
-        self.Vac = 0.0                              # エアコンの風量[m3/s]
-        self.RH = 50.0                              # 室相対湿度[%]
-        self.Vcrossvent = self.volume * d_room['natural_vent_time']
-                                                    # 窓開放時通風量
+        self.xeout_i_n = np.zeros(24*365*4)         # i室のn時点におけるルームエアコン熱交換器出口の絶対湿度
+        self.Vac_n = np.zeros(24*365*4)             # i室のn時点におけるエアコンの風量[m3/s]
+        self.NV_i_n = np.full(24*365*4, self.volume * d_room['natural_vent_time'])
+                                                    # i室のn時点における窓開放時通風量
         # 室空気の熱容量
         self.Hcap = self.volume * rhoa * ca
         # print(self.Hcap)
         self.Vent = d_room['vent']                #計画換気量
         self.Inf = 0.0                            #すきま風量（暫定値）
-        self.Beta = 0.0                           # 放射暖房対流比率
+        self.Beta_i = 0.0                           # 放射暖房対流比率
 
         # ********** 計算準備14 局所換気スケジュール、機器発熱スケジュール、
         # 照明発熱スケジュール、人体発熱スケジュールの読み込み **********
@@ -199,11 +202,16 @@ class Space:
         # i室の部位の面数(集約後)
         self.NsurfG_i = self.surfG_i.NsurfG_i
 
-        # 配列の準備
-        eps_m = 0.9
-        self.oldTsd_t = np.zeros((self.NsurfG_i, 12))
-        self.oldTsd_a = np.zeros((self.NsurfG_i, 12))
+        # 部位ごとの計算結果用変数
+        self.Ts_i_k_n = np.zeros((self.NsurfG_i, 24*365*4))
+        self.Teo_i_k_n = np.full((self.NsurfG_i, 24*365*4), 15.0)       # i室の部位kにおけるn時点の裏面相当温度
+        self.Tei_i_k_n = np.zeros((self.NsurfG_i, 24*365*4))            # i室の部位kにおけるn時点の室内等価温度
+        self.TsdA_l_n_m = np.zeros((self.NsurfG_i, 24*365*4, 12))       #（26）式中の〖CVL〗_(i,l)の計算式右辺
+        self.TsdT_l_n_m = np.zeros((self.NsurfG_i, 24*365*4, 12))       # （26）式中の〖CVL〗_(i,l)の計算式右辺
         self.oldqi = self.surfG_i.oldqi
+
+        eps_m = 0.9
+
         V_nxt = np.array([x.volume for x in self.RoomtoRoomVent])
 
         # 部位の人体に対する形態係数を計算
@@ -223,6 +231,7 @@ class Space:
         self.Vmin_i = a15.get_Vmin(self.Vmax_i)
 
         # 放射暖房の発熱部位の設定（とりあえず床発熱）
+        # TODO:仕様書の対応確認
         self.flr = (self.surfG_i.A_i_g / A_fs_i) * self.is_radiative_heating * self.surfG_i.is_solar_absorbed_inside
 
         # 微小点に対する室内部位の形態係数の計算（永田先生の方法）
@@ -235,25 +244,22 @@ class Space:
         self.F_mrt_i_g = a12.get_F_mrt_i_g(self.surfG_i.A_i_g, self.hr_i_g_n)
 
         # 日射吸収比率の計算
+        # TODO:要整理
         self.rsolfun, self.SolR = a12.calc_absorption_ratio_of_transmitted_solar_radiation(
             self.name, A_fs_i, self.rsolfun, self.surfG_i.is_solar_absorbed_inside, self.surfG_i.A_i_g)
 
 
         # *********** 室内表面熱収支計算のための行列作成 ***********
 
-        # matFIAの作成 式(26)
+        # FIA, FLBの作成 式(26)
         FIA_i_l = a1.get_FIA(self.surfG_i.RFA0, self.hc_i_g_n)
-
-        # FLB=φA0×flr×(1-Beta) 式(26)
-        FLB_i_l = a1.get_FLB(self.surfG_i.RFA0, self.flr, self.Beta, self.surfG_i.A_i_g)
+        FLB_i_l = a1.get_FLB(self.surfG_i.RFA0, self.flr, self.Beta_i, self.surfG_i.A_i_g)
 
         # 行列AX 式(25)
         self.AX_k_l = a1.get_AX(self.surfG_i.RFA0, self.hr_i_g_n, self.F_mrt_i_g, self.surfG_i.hi_i_g_n, self.NsurfG_i)
 
-        # {WSR}の計算 式(24)
+        # WSR, WSB の計算 式(24)
         self.WSR_i_k = a1.get_WSR(self.AX_k_l, FIA_i_l)
-
-        # {WSB}の計算 式(24)
         self.WSB_i_k = a1.get_WSB(self.AX_k_l, FLB_i_l)
 
         # ****************************************************
@@ -273,20 +279,12 @@ class Space:
 
         # BRLの計算 式(7)
         self.BRL_i = s41.get_BRL_i(
-            Beta_i=self.Beta,
+            Beta_i=self.Beta_i,
             WSB_i_k=self.WSB_i_k,
             A_i_k=self.surfG_i.A_i_g,
             hc_i_k_n=self.hc_i_g_n
         )
 
-
-
-# 前時刻の室温を現在時刻の室温、家具温度に置換
-def update_space_oldstate(space):
-    space.oldTr = space.Tr
-    space.oldTfun = space.Tfun
-    space.oldxr = space.xr
-    space.oldxf = space.xf
 
 # 暖房設備仕様の読み込み
 def heating_equipment_read(space, dheqp):

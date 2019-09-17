@@ -56,12 +56,6 @@ class Surface:
         # 屋外に日射が当たる場合はひさしの情報を読み込む
         sunbrk = read_to_array('solar_shading_part')
 
-        # 壁体の種別
-        is_general_part = [(self.boundary_type[k] in ["external_general_part", "internal", "ground"]) for k in range(self.N_surf_i)]
-        is_transparent_part = [self.boundary_type[k] in ["external_transparent_part"] for k in range(self.N_surf_i)]
-        is_opaque_part = [self.boundary_type[k] in ["external_opaque_part"] for k in range(self.N_surf_i)]
-        is_ground = [self.boundary_type[k] == "ground" for k in range(self.N_surf_i)]     # 壁体に土壌が含まれる場合True
-
         # 読みだし元位置決定
         part_key_name = [{
             "external_general_part":     "general_part_spec",
@@ -134,39 +128,41 @@ class Surface:
         # 地面反射率[-]
         self.RhoG_l[f] = 0.1
 
-        # ********** 拡散日射の入射角特性の計算 **********
-        f = tuple(get_bi(is_transparent_part))
-        self.Cd_i_k = np.zeros(self.N_surf_i)
-        self.Cd_i_k[f] = a25.get_Cd(self.IAC_i_k[f])
+        # 拡散日射の入射角特性
+        self.Cd_i_k = a25.get_Cd(self.IAC_i_k)
 
-        # 室外側熱伝達率
-        self.ho_i_k_n = np.zeros(self.N_surf_i)
-        for k, data in enumerate(datalist):
-            if self.boundary_type[k] == 'external_general_part' or is_transparent_part[k] or is_opaque_part[k]:
-                self.ho_i_k_n[k] = a23.get_ho_i_k_n(Ro_i_k_n[k])          # 室外側熱伝達率[W/m2K]
+        # 室外側表面総合熱伝達率 [W/m2K] 式(121)
+        self.ho_i_k_n = a23.get_ho_i_k_n(Ro_i_k_n)
 
-        # 室内側熱伝達抵抗・室内側表面総合熱伝達率
-        self.hi_i_k_n = a23.get_hi_i_k_n(Ri_i_k_n)              # 室内側表面総合熱伝達率 式(122)
+        # 室内側表面総合熱伝達率 [W/m2K] 式(122)
+        self.hi_i_k_n = a23.get_hi_i_k_n(Ri_i_k_n)
 
-        # 開口部熱貫流率・開口部の室内表面から屋外までの熱貫流率
+        # 開口部の室内表面から屋外までの熱貫流率[W / (m2･K)] 式(124)
+        f = np.logical_not((self.boundary_type == "external_general_part") | (self.boundary_type == "internal") | (self.boundary_type == "ground"))
         self.Uso = np.zeros(self.N_surf_i)
-        f = tuple(np.logical_not(get_bi(is_general_part)))
-        self.Uso[f] = a25.get_Uso(self.U[f], Ri_i_k_n[f])            # 開口部の室内表面から屋外までの熱貫流率[W/(m2･K)] 式(124)
+        self.Uso[f] = a25.get_Uso(self.U[f], Ri_i_k_n[f])
 
         # 応答係数
         self.RFT0, self.RFA0, self.RFT1, self.RFA1, self.Row, self.Nroot = \
             np.zeros(self.N_surf_i), np.zeros(self.N_surf_i), np.zeros((self.N_surf_i, 12)), np.zeros((self.N_surf_i, 12)), \
             np.zeros((self.N_surf_i, 12)), np.zeros(self.N_surf_i, dtype=np.int64)
+
+        # 1) 非一般部位
+        f = np.logical_not((self.boundary_type == "external_general_part") | (self.boundary_type == "internal") | (self.boundary_type == "ground"))
+        self.RFT0[f], self.RFA0[f], self.RFT1[f], self.RFA1[f], self.Row[f], self.Nroot[f] = \
+            1.0, 1.0 / self.Uso[f], np.zeros(12), np.zeros(12), np.zeros(12), 0
+
+        # 2) 一般部位
         for k, data in enumerate(datalist):
-            if is_general_part[k] == False:
-                self.RFT0[k], self.RFA0[k], self.RFT1[k], self.RFA1[k], self.Row[k], self.Nroot[k] = \
-                    1.0, 1.0/self.Uso[k], np.zeros(12), np.zeros(12), np.zeros(12), 0
-            else:
-                layers = a24.get_layers(data, is_ground[k])
+            if self.boundary_type[k] in ["external_general_part", "internal", "ground"]:
+
+                is_ground = self.boundary_type[k] == "ground"
+
+                R_i_k_p, C_i_k_p = a24.get_layers(data, is_ground)
 
                 # 応答係数
                 self.RFT0[k], self.RFA0[k], self.RFT1[k], self.RFA1[k], self.Row[k], self.Nroot[k] = \
-                    a2.calc_response_factor(is_ground[k], layers[:, 1] * 1000.0, layers[:, 0])
+                    a2.calc_response_factor(is_ground, C_i_k_p, R_i_k_p)
 
         # ********** 入射角の方向余弦および傾斜面日射量の計算(外壁のみ) **********
 

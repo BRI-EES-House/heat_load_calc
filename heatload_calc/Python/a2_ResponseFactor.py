@@ -59,7 +59,7 @@ def get_alps(is_ground: bool) -> np.ndarray:
 
 
 # 壁体の単位応答の計算
-def get_step_reps_of_wall(C, R, laps: List[float], alp: List[float], M: int):
+def get_step_reps_of_wall(C_i_k_p, R_i_k_p, laps: List[float], alp: List[float], M: int):
     """
     :param layers: 壁体構成部材
     :param laps: ラプラス変数
@@ -71,7 +71,7 @@ def get_step_reps_of_wall(C, R, laps: List[float], alp: List[float], M: int):
     """
 
     # 四端子基本行列の初期化
-    matFi = np.zeros((len(C), 2, 2))
+    matFi = np.zeros((len(C_i_k_p), 2, 2))
 
     # 吸熱、貫流の各伝達関数ベクトルの初期化
     nlaps = len(laps)
@@ -80,7 +80,7 @@ def get_step_reps_of_wall(C, R, laps: List[float], alp: List[float], M: int):
 
     # 単位貫流応答、単位吸熱応答の初期化
     dblAT0 = 1.0
-    dblAA0 = sum(R)
+    dblAA0 = sum(R_i_k_p)
 
     # GA(0), GT(0)
     dblGA0 = dblAA0
@@ -94,7 +94,7 @@ def get_step_reps_of_wall(C, R, laps: List[float], alp: List[float], M: int):
     # 吸熱、貫流の各伝達関数ベクトルの作成
     for lngI in range(0, len(laps)):
         # 四端子行列の作成
-        for lngK, (R_k, C_k) in enumerate(zip(R, C)):
+        for lngK, (R_k, C_k) in enumerate(zip(R_i_k_p, C_i_k_p)):
 
             # ---- 四端子基本行列 matFi ----
             if abs(C_k) < 0.001:
@@ -228,7 +228,7 @@ def get_RFTRI(alp, AT0, AA0, AT, AA, M):
 
 
 # 応答係数
-def calc_response_factor(is_ground:bool, C, R):
+def calc_response_factor(is_ground:bool, C_i_k_p, R_i_k_p):
     """
     VBAからの主な変更点：
     (1)二次元配列（objArray）で壁体の情報を受け取っていたが、壁体情報クラスで受け取るように変更
@@ -250,7 +250,7 @@ def calc_response_factor(is_ground:bool, C, R):
     laps = get_laps(alps)
 
     # 単位応答の計算
-    AT0, AA0, AT, AA, ATstep, AAstep = get_step_reps_of_wall(C, R, laps, alps, M)
+    AT0, AA0, AT, AA, ATstep, AAstep = get_step_reps_of_wall(C_i_k_p, R_i_k_p, laps, alps, M)
 
     # 二等辺三角波励振の応答係数、指数項別応答係数、公比の計算
     RFT, RFA, RFT1, RFA1, Row = get_RFTRI(alps, AT0, AA0, AT, AA, M)

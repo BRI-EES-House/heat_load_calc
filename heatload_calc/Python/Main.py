@@ -5,7 +5,7 @@ import common
 from common import get_nday
 from Gdata import Gdata, is_actual_calc
 from a4_weather import enmWeatherComponent, Weather, WeaData
-from Space import create_spaces, update_space_oldstate
+from Space import create_spaces
 from heat_load import calcHload
 import apdx5_solar_position as a5
 import numpy as np
@@ -105,14 +105,14 @@ def calc_Hload(cdata, weather, solar_position):
         for lngTloop in range(lngNtime):
             dtime = datetime.timedelta(days=lngNnow + float(lngTloop) / float(lngNtime))
             dtmNow = apDate + dtime
-            sequence_number = int((get_nday(dtmNow.month, dtmNow.day) - 1) * 24 * 4 + dtmNow.hour * 4 + float(dtmNow.minute) / 60.0 * 3600 / 900)
+            n = int((get_nday(dtmNow.month, dtmNow.day) - 1) * 24 * 4 + dtmNow.hour * 4 + float(dtmNow.minute) / 60.0 * 3600 / 900)
 
             # 太陽位置の計算
             # print(dtmNow)
             # 外気温度の補間、Listへの追加
-            outdoor_temp_list[sequence_number] = WeaData(weather, enmWeatherComponent.To, dtmNow, solar_position, sequence_number)
+            outdoor_temp_list[n] = WeaData(weather, enmWeatherComponent.To, dtmNow, solar_position, n)
             # 外気絶対湿度の補間、Listへの追加
-            outdoor_humid_list[sequence_number] = WeaData(weather, enmWeatherComponent.x, dtmNow, solar_position, sequence_number) / 1000.
+            outdoor_humid_list[n] = WeaData(weather, enmWeatherComponent.x, dtmNow, solar_position, n) / 1000.
 
     # 日ループの開始
     for lngNday in range(lngStNday, lngEnNday + 1):
@@ -120,7 +120,7 @@ def calc_Hload(cdata, weather, solar_position):
         for lngTloop in range(0, lngNtime):
             dtime = datetime.timedelta(days=lngNnow + float(lngTloop) / float(lngNtime))
             dtmNow = apDate + dtime
-            sequence_number = int((get_nday(dtmNow.month, dtmNow.day) - 1) * 24 * 4 + dtmNow.hour * 4 + float(dtmNow.minute) / 60.0 * 3600 / 900)
+            n = int((get_nday(dtmNow.month, dtmNow.day) - 1) * 24 * 4 + dtmNow.hour * 4 + float(dtmNow.minute) / 60.0 * 3600 / 900)
 
             rowlist = []
             # 室温・熱負荷の計算
@@ -129,8 +129,8 @@ def calc_Hload(cdata, weather, solar_position):
                 # print(str(dtmNow), end="\t")
                 # 出力文字列
                 rowlist.append(str(dtmNow))
-                rowlist.append('{0:.1f}'.format(outdoor_temp_list[sequence_number]))
-                rowlist.append('{0:.4f}'.format(outdoor_humid_list[sequence_number]))
+                rowlist.append('{0:.1f}'.format(outdoor_temp_list[n]))
+                rowlist.append('{0:.4f}'.format(outdoor_humid_list[n]))
                 if lngTloop == 0:
                     print(dtmNow)
             # print(calc_solar_position.Sh, calc_solar_position.Sw, calc_solar_position.Ss)
@@ -141,45 +141,45 @@ def calc_Hload(cdata, weather, solar_position):
                     is_actual_calc=is_actual_calc(cdata, dtmNow),
                     spaces=spaces,
                     dtmNow=dtmNow,
-                    To_n=outdoor_temp_list[sequence_number],
-                    xo=outdoor_humid_list[sequence_number],
-                    sequence_number=sequence_number
+                    To_n=outdoor_temp_list[n],
+                    xo=outdoor_humid_list[n],
+                    n=n
                 )
                 
                 if is_actual_calc(cdata, dtmNow):
                     rowlist.append(space.is_now_window_open)
                     rowlist.append(space.air_conditioning_demand)
                     rowlist.append('{0:.0f}'.format(space.now_air_conditioning_mode))
-                    rowlist.append('{0:.2f}'.format(space.Tr))
-                    rowlist.append('{0:.0f}'.format(space.RH))
-                    rowlist.append('{0:.4f}'.format(space.xr))
-                    rowlist.append('{0:.2f}'.format(space.MRT))
-                    rowlist.append('{0:.2f}'.format(space.OT))
-                    rowlist.append('{0:.2f}'.format(space.PMV))
-                    rowlist.append('{0:.2f}'.format(space.Clo))
-                    rowlist.append('{0:.2f}'.format(space.Vel))
-                    rowlist.append('{0:.2f}'.format(space.QGT_i_n[sequence_number]))
+                    rowlist.append('{0:.2f}'.format(space.Tr_i_n[n]))
+                    rowlist.append('{0:.0f}'.format(space.RH_i_n[n]))
+                    rowlist.append('{0:.4f}'.format(space.xr_i_n[n]))
+                    rowlist.append('{0:.2f}'.format(space.MRT_i_n[n]))
+                    rowlist.append('{0:.2f}'.format(space.OT_i_n[n]))
+                    rowlist.append('{0:.2f}'.format(space.PMV_i_n[n]))
+                    rowlist.append('{0:.2f}'.format(space.Clo_i_n[n]))
+                    rowlist.append('{0:.2f}'.format(space.Vel_i_n[n]))
+                    rowlist.append('{0:.2f}'.format(space.QGT_i_n[n]))
                     rowlist.append('{0:.2f}'.format(space.heat_generation_appliances))
                     rowlist.append('{0:.2f}'.format(space.heat_generation_lighting))
                     rowlist.append('{0:.2f}'.format(space.Humans))
                     rowlist.append('{0:.2f}'.format(space.Humanl))
-                    rowlist.append('{0:.1f}'.format(space.Lcs))
-                    rowlist.append('{0:.1f}'.format(space.Lrs))
-                    rowlist.append('{0:.1f}'.format(space.Lcl))
-                    rowlist.append('{0:.2f}'.format(space.Tfun))
-                    rowlist.append('{0:.1f}'.format(space.Qfuns))
-                    rowlist.append('{0:.1f}'.format(space.Qsolfun))
-                    rowlist.append('{0:.5f}'.format(space.xf))
-                    rowlist.append('{0:.5f}'.format(space.Qfunl))
+                    rowlist.append('{0:.1f}'.format(space.Lcs_i_n[n]))
+                    rowlist.append('{0:.1f}'.format(space.Lrs_i_n[n]))
+                    rowlist.append('{0:.1f}'.format(space.Lcl_i_n[n]))
+                    rowlist.append('{0:.2f}'.format(space.Tfun_i_n[n]))
+                    rowlist.append('{0:.1f}'.format(space.Qfuns_i_n[n]))
+                    rowlist.append('{0:.1f}'.format(space.Qsolfun_i_n[n]))
+                    rowlist.append('{0:.5f}'.format(space.xf_i_n[n]))
+                    rowlist.append('{0:.5f}'.format(space.Qfunl_i_n[n]))
                     if 1:
                         for g in range(space.surfG_i.NsurfG_i):
-                            rowlist.append('{0:.2f}'.format(space.Ts[g]))
+                            rowlist.append('{0:.2f}'.format(space.Ts_i_k_n[g, n]))
                     if 1:
                         for g in range(space.surfG_i.NsurfG_i):
-                            rowlist.append('{0:.2f}'.format(space.Tei[g]))
+                            rowlist.append('{0:.2f}'.format(space.Tei_i_k_n[g, n]))
                     if 1:
                         for g in range(space.surfG_i.NsurfG_i):
-                            rowlist.append('{0:.2f}'.format(space.surfG_i.Teo[g]))
+                            rowlist.append('{0:.2f}'.format(space.Teo_i_k_n[g, n]))
                     if 1:
                         for g in range(space.surfG_i.NsurfG_i):
                             rowlist.append('{0:.2f}'.format(space.Qr[g]))
@@ -187,16 +187,12 @@ def calc_Hload(cdata, weather, solar_position):
                         for g in range(space.surfG_i.NsurfG_i):
                             rowlist.append('{0:.2f}'.format(space.Qc[g]))
                     # print('{0:.0f}'.format(space.is_now_window_open), '{0:.0f}'.format(space.nowAC), '{0:.2f}'.format(space.Tr), \
-                    #         '{0:.0f}'.format(space.RH), '{0:.2f}'.format(space.MRT), '{0:.2f}'.format(space.PMV), \
+                    #         '{0:.0f}'.format(space.RH), '{0:.2f}'.format(space.MRT_i_n), '{0:.2f}'.format(space.PMV_i_n), \
                     #         '{0:.0f}'.format(space.Lcs), '{0:.0f}'.format(space.Lr), '{0:.0f}'.format(space.Ll), "", end="")
             
             if is_actual_calc(cdata, dtmNow):
                 OutList.append(rowlist)
                 # print("")
-
-            # 前時刻の室温を現在時刻の室温、湿度に置換
-            for space in spaces.values():
-                update_space_oldstate(space)
 
         lngNnow += 1
 

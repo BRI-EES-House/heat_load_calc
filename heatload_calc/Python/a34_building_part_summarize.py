@@ -197,11 +197,9 @@ def aggregate_surfaces(surfaces, g_k):
 
     # 20) 裏面境界温度
     gs.Teolist = first(surfaces.Teolist)
-    gs.Teo = np.ones(gs.NsurfG_i) * 15.0
 
     # 21) 前時刻の裏面境界温度
     gs.oldTsd_t = np.zeros((gs.NsurfG_i, 12))
-    gs.oldTeo = np.ones(gs.NsurfG_i) * 15.0  # 前時刻の室外側温度
 
     # 22) 前時刻の室内表面熱流
     gs.oldTsd_a = np.zeros((gs.NsurfG_i, 12))

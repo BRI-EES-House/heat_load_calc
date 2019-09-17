@@ -5,27 +5,27 @@ from common import ca, rhoa
 # ********** 4.1 顕熱 **********
 
 # 作用温度設定用係数への換算
-def calc_OT_coeff(BRC, BRM, matWSV, matWSC, fot, matWSR, matWSB, kc, kr, BRL):
+def calc_OT_coeff(BRC_i, BRM_i, WSV_i_k, WSC_i_k, fot, WSR_i_k, WSB_i_k, kc_i, kr_i, BRL_i):
     # Deno 式(11)
-    Deno = get_Deno(fot, kc, kr, matWSR)
+    Deno = get_Deno(fot, kc_i, kr_i, WSR_i_k)
 
     # XLr 式(10)
-    XLr = get_XLr_i(Deno, fot, kr, matWSB)
+    XLr = get_XLr_i(Deno, fot, kr_i, WSB_i_k)
 
     # XC 式(9)
-    XC = get_XC_i(Deno, fot, kr, matWSC, matWSV)
+    XC = get_XC_i(Deno, fot, kr_i, WSC_i_k, WSV_i_k)
 
     # Xot 式(8)
     Xot = get_Xot_i(Deno)
 
     # BRMot 式(2)
-    BRMot = get_BRMot(BRM, Xot)
+    BRMot = get_BRMot(BRM_i, Xot)
 
     # BRCot 式(3)
-    BRCot = get_BRCot(BRC, BRM, XC)
+    BRCot = get_BRCot(BRC_i, BRM_i, XC)
 
     # BRLot 式(4)
-    BRLot = get_BRLot(BRL, BRM, XLr)
+    BRLot = get_BRLot(BRL_i, BRM_i, XLr)
 
     return BRMot, BRLot, BRCot, Xot, XLr, XC
 
@@ -108,12 +108,12 @@ def get_Deno(Fot_i_k, kc_i, kr_i, WSR_i_k):
     return kc_i + kr_i * np.sum(Fot_i_k * WSR_i_k)
 
 
-# kc 式(12)
+# kc_i 式(12)
 def calc_kr_i():
     return a3.get_alpha_hm_r() / (a3.get_alpha_hm_r() + a3.get_alpha_hm_c())
 
 
-# kc 式(13)
+# kc_i 式(13)
 def calc_kc_i():
     return a3.get_alpha_hm_c() / (a3.get_alpha_hm_r() + a3.get_alpha_hm_c())
 
@@ -123,37 +123,19 @@ def get_Tr_i_n(Lrs, OT, Xot, XLr, XC):
     return Xot * OT - XLr * Lrs - XC
 
 
-# 家具の温度を計算する 式(15)
-def calc_Tfun_i_n(Capfun, oldTfun, Cfun, Tr, Qsolfun):
-    """
-
-    :param Capfun: i室の家具の熱容量（付録14．による） [J/K]
-    :param oldTfun: i室の家具の15分前の温度 [℃]
-    :param Cfun: i室の家具と室空気間の熱コンダクタンス（付録14．による）
-    :param Tr:
-    :param Qsolfun: i室のn時点における家具の日射吸収熱量 [W]
-    :return: i室の家具の温度 [℃]
-    """
-    Tfun = get_Tfun_i_n(Capfun, oldTfun, Cfun, Tr, Qsolfun)
-    Qfuns = get_Qfuns(Cfun, Tr, Tfun)
-
-    return Tfun, Qfuns
-
-
-
 # 家具の温度 式(15)
-def get_Tfun_i_n(Capfun, oldTfun, Cfun, Tr, Qsolfun):
+def get_Tfun_i_n(Capfun, Tfun_i_n_m1, Cfun, Tr, Qsolfun):
     """
 
     :param Capfun: i室の家具の熱容量（付録14．による） [J/K]
-    :param oldTfun: i室の家具の15分前の温度 [℃]
+    :param Tfun_i_n_m1: i室の家具の15分前の温度 [℃]
     :param Cfun: i室の家具と室空気間の熱コンダクタンス（付録14．による）
     :param Tr:
     :param Qsolfun: i室のn時点における家具の日射吸収熱量 [W]
     :return:
     """
-    return (((Capfun / 900 * oldTfun
-                   + Cfun * Tr + Qsolfun)
+    return (((Capfun / 900 * Tfun_i_n_m1
+              + Cfun * Tr + Qsolfun)
                   / (Capfun / 900 + Cfun)))
 
 

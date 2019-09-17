@@ -64,10 +64,10 @@ def calcPMV(Ta, MRT, RH, V, Met, Wme, Clo):
     PMV = TS * (MW - HL1 - HL2 - HL3 - HL4 - HL5 - HL6)
 
     # PMVを目標値として作用温度を逆算するために上下限値の不連続をやめる
-    # if PMV > 3.0:
-    #     PMV = 999.
-    # elif PMV < -3.0:
-    #     PMV = -999.0
+    # if PMV_i_n > 3.0:
+    #     PMV_i_n = 999.
+    # elif PMV_i_n < -3.0:
+    #     PMV_i_n = -999.0
     
     return PMV
 
