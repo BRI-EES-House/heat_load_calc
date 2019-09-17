@@ -12,11 +12,11 @@
                 "name": "GP1",
                 "general_part_type": "roof",
                 "next_space": "outdoor",
-                "external_surface_type": "outdoor",
                 "direction": "top",
                 "area": 1,
                 "spec": {
-                    "structure": "error_check",
+                    "structure": "wood",
+                    "u_value_input_method_wood": "",
                     "is_sunshade_input": true,
                     "sunshade": {
                         "existance": true,
@@ -31,11 +31,11 @@
                 "name": "GP2",
                 "general_part_type": "roof",
                 "next_space": "outdoor",
-                "external_surface_type": "outdoor",
                 "direction": "top",
                 "area": 1,
                 "spec": {
-                    "structure": "error_check",
+                    "structure": "wood",
+                    "u_value_input_method_wood": "",
                     "is_sunshade_input": true,
                     "sunshade": {
                         "existance": true,
@@ -50,11 +50,11 @@
                 "name": "GP3",
                 "general_part_type": "roof",
                 "next_space": "outdoor",
-                "external_surface_type": "outdoor",
                 "direction": "top",
                 "area": 1,
                 "spec": {
-                    "structure": "error_check",
+                    "structure": "wood",
+                    "u_value_input_method_wood": "",
                     "is_sunshade_input": true,
                     "sunshade": {
                         "existance": true,
@@ -334,5 +334,5 @@
             "heat_exchanger_type": "cooling"
         }
     },
-    "target_key": "structure"
+    "target_key": "u_value_input_method_wood"
 }

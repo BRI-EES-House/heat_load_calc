@@ -12,13 +12,41 @@
                 "name": "GP1",
                 "general_part_type": "roof",
                 "next_space": "outdoor",
-                "external_surface_type": "outdoor",
                 "direction": "top",
                 "area": 1,
                 "spec": {
                     "structure": "steel",
-                    "u_value_input_method_steel": "u_value_directly",
-                    "u_value_steel": 0,
+                    "u_value_input_method_steel": "detail_method",
+                    "u_r_value_steel": -0.01,
+                    "external_surface_type": "outdoor",
+                    "parts": [
+                        {
+                            "name": "PRT",
+                            "layers": [
+                                {
+                                    "name": "LYR1",
+                                    "heat_resistance_input_method": "conductivity",
+                                    "thermal_conductivity": 1,
+                                    "thickness": 1,
+                                    "volumetric_specific_heat": 1
+                                },
+                                {
+                                    "name": "LYR2",
+                                    "heat_resistance_input_method": "conductivity",
+                                    "thermal_conductivity": 1,
+                                    "thickness": 1,
+                                    "volumetric_specific_heat": 1
+                                },
+                                {
+                                    "name": "LYR3",
+                                    "heat_resistance_input_method": "conductivity",
+                                    "thermal_conductivity": 1,
+                                    "thickness": 1,
+                                    "volumetric_specific_heat": 1
+                                }
+                            ]
+                        }
+                    ],
                     "is_sunshade_input": true,
                     "sunshade": {
                         "existance": true,
@@ -33,13 +61,41 @@
                 "name": "GP2",
                 "general_part_type": "roof",
                 "next_space": "outdoor",
-                "external_surface_type": "outdoor",
                 "direction": "top",
                 "area": 1,
                 "spec": {
                     "structure": "steel",
-                    "u_value_input_method_steel": "u_value_directly",
-                    "u_value_steel": 0,
+                    "u_value_input_method_steel": "detail_method",
+                    "u_r_value_steel": -0.01,
+                    "external_surface_type": "outdoor",
+                    "parts": [
+                        {
+                            "name": "PRT",
+                            "layers": [
+                                {
+                                    "name": "LYR1",
+                                    "heat_resistance_input_method": "conductivity",
+                                    "thermal_conductivity": 1,
+                                    "thickness": 1,
+                                    "volumetric_specific_heat": 1
+                                },
+                                {
+                                    "name": "LYR2",
+                                    "heat_resistance_input_method": "conductivity",
+                                    "thermal_conductivity": 1,
+                                    "thickness": 1,
+                                    "volumetric_specific_heat": 1
+                                },
+                                {
+                                    "name": "LYR3",
+                                    "heat_resistance_input_method": "conductivity",
+                                    "thermal_conductivity": 1,
+                                    "thickness": 1,
+                                    "volumetric_specific_heat": 1
+                                }
+                            ]
+                        }
+                    ],
                     "is_sunshade_input": true,
                     "sunshade": {
                         "existance": true,
@@ -54,13 +110,41 @@
                 "name": "GP3",
                 "general_part_type": "roof",
                 "next_space": "outdoor",
-                "external_surface_type": "outdoor",
                 "direction": "top",
                 "area": 1,
                 "spec": {
                     "structure": "steel",
-                    "u_value_input_method_steel": "u_value_directly",
-                    "u_value_steel": 0,
+                    "u_value_input_method_steel": "detail_method",
+                    "u_r_value_steel": -0.01,
+                    "external_surface_type": "outdoor",
+                    "parts": [
+                        {
+                            "name": "PRT",
+                            "layers": [
+                                {
+                                    "name": "LYR1",
+                                    "heat_resistance_input_method": "conductivity",
+                                    "thermal_conductivity": 1,
+                                    "thickness": 1,
+                                    "volumetric_specific_heat": 1
+                                },
+                                {
+                                    "name": "LYR2",
+                                    "heat_resistance_input_method": "conductivity",
+                                    "thermal_conductivity": 1,
+                                    "thickness": 1,
+                                    "volumetric_specific_heat": 1
+                                },
+                                {
+                                    "name": "LYR3",
+                                    "heat_resistance_input_method": "conductivity",
+                                    "thermal_conductivity": 1,
+                                    "thickness": 1,
+                                    "volumetric_specific_heat": 1
+                                }
+                            ]
+                        }
+                    ],
                     "is_sunshade_input": true,
                     "sunshade": {
                         "existance": true,
@@ -340,5 +424,5 @@
             "heat_exchanger_type": "cooling"
         }
     },
-    "target_key": "u_value_steel"
+    "target_key": "u_r_value_steel"
 }

@@ -12,13 +12,12 @@
                 "name": "GP1",
                 "general_part_type": "roof",
                 "next_space": "outdoor",
-                "external_surface_type": "outdoor",
                 "direction": "top",
                 "area": 1,
                 "spec": {
-                    "structure": "wood",
-                    "u_value_input_method_wood": "u_value_directly",
-                    "u_value_wood": 1,
+                    "structure": "steel",
+                    "u_value_input_method_steel": "u_value_directly",
+                    "u_value_steel": 1,
                     "is_sunshade_input": true,
                     "sunshade": {
                         "existance": true,
@@ -33,13 +32,12 @@
                 "name": "GP2",
                 "general_part_type": "roof",
                 "next_space": "outdoor",
-                "external_surface_type": "outdoor",
                 "direction": "top",
                 "area": 1,
                 "spec": {
-                    "structure": "wood",
-                    "u_value_input_method_wood": "u_value_directly",
-                    "u_value_wood": 1,
+                    "structure": "steel",
+                    "u_value_input_method_steel": "u_value_directly",
+                    "u_value_steel": 1,
                     "is_sunshade_input": true,
                     "sunshade": {
                         "existance": true,
@@ -54,13 +52,12 @@
                 "name": "GP3",
                 "general_part_type": "roof",
                 "next_space": "outdoor",
-                "external_surface_type": "outdoor",
                 "direction": "top",
                 "area": 1,
                 "spec": {
-                    "structure": "wood",
-                    "u_value_input_method_wood": "u_value_directly",
-                    "u_value_wood": 1,
+                    "structure": "steel",
+                    "u_value_input_method_steel": "u_value_directly",
+                    "u_value_steel": 1,
                     "is_sunshade_input": true,
                     "sunshade": {
                         "existance": true,
@@ -340,5 +337,5 @@
             "heat_exchanger_type": "cooling"
         }
     },
-    "target_key": "space_type"
+    "target_key": "structure"
 }

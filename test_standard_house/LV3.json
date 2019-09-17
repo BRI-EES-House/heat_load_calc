@@ -12,7 +12,6 @@
                 "name": "GP1_main_occupant_room",
                 "general_part_type": "wall",
                 "next_space": "outdoor",
-                "external_surface_type": "not_outdoor",
                 "direction": "n",
                 "area": 3.84,
                 "space_type": "main_occupant_room",
@@ -20,6 +19,7 @@
                     "part_type": "wood",
                     "u_value_input_method_wood": "area_ratio_method",
                     "wall_construction_method": "frame_beam",
+                    "external_surface_type": "not_outdoor",
                     "parts": [
                         {
                             "name": "PRT1",
@@ -83,7 +83,6 @@
                 "name": "GP1_other_occupant_room",
                 "general_part_type": "wall",
                 "next_space": "outdoor",
-                "external_surface_type": "not_outdoor",
                 "direction": "n",
                 "area": 2.18,
                 "space_type": "other_occupant_room",
@@ -91,6 +90,7 @@
                     "part_type": "wood",
                     "u_value_input_method_wood": "area_ratio_method",
                     "wall_construction_method": "frame_beam",
+                    "external_surface_type": "not_outdoor",
                     "parts": [
                         {
                             "name": "PRT1",
@@ -154,7 +154,6 @@
                 "name": "GP1_non_occupant_room",
                 "general_part_type": "wall",
                 "next_space": "outdoor",
-                "external_surface_type": "not_outdoor",
                 "direction": "n",
                 "area": 38.62,
                 "space_type": "non_occupant_room",
@@ -162,6 +161,7 @@
                     "part_type": "wood",
                     "u_value_input_method_wood": "area_ratio_method",
                     "wall_construction_method": "frame_beam",
+                    "external_surface_type": "not_outdoor",
                     "parts": [
                         {
                             "name": "PRT1",
@@ -225,7 +225,6 @@
                 "name": "GP2_main_occupant_room",
                 "general_part_type": "wall",
                 "next_space": "outdoor",
-                "external_surface_type": "not_outdoor",
                 "direction": "e",
                 "area": 16.80,
                 "space_type": "main_occupant_room",
@@ -233,6 +232,7 @@
                     "part_type": "wood",
                     "u_value_input_method_wood": "area_ratio_method",
                     "wall_construction_method": "frame_beam",
+                    "external_surface_type": "not_outdoor",
                     "parts": [
                         {
                             "name": "PRT1",
@@ -296,7 +296,6 @@
                 "name": "GP2_other_occupant_room",
                 "general_part_type": "wall",
                 "next_space": "outdoor",
-                "external_surface_type": "not_outdoor",
                 "direction": "e",
                 "area": 8.08,
                 "space_type": "other_occupant_room",
@@ -304,6 +303,7 @@
                     "part_type": "wood",
                     "u_value_input_method_wood": "area_ratio_method",
                     "wall_construction_method": "frame_beam",
+                    "external_surface_type": "not_outdoor",
                     "parts": [
                         {
                             "name": "PRT1",
@@ -367,7 +367,6 @@
                 "name": "GP2_non_occupant_room",
                 "general_part_type": "wall",
                 "next_space": "outdoor",
-                "external_surface_type": "not_outdoor",
                 "direction": "e",
                 "area": 4.37,
                 "space_type": "non_occupant_room",
@@ -375,6 +374,7 @@
                     "part_type": "wood",
                     "u_value_input_method_wood": "area_ratio_method",
                     "wall_construction_method": "frame_beam",
+                    "external_surface_type": "not_outdoor",
                     "parts": [
                         {
                             "name": "PRT1",
@@ -438,7 +438,6 @@
                 "name": "GP3_main_occupant_room",
                 "general_part_type": "wall",
                 "next_space": "outdoor",
-                "external_surface_type": "not_outdoor",
                 "direction": "s",
                 "area": 10.22,
                 "space_type": "main_occupant_room",
@@ -446,6 +445,7 @@
                     "part_type": "wood",
                     "u_value_input_method_wood": "area_ratio_method",
                     "wall_construction_method": "frame_beam",
+                    "external_surface_type": "not_outdoor",
                     "parts": [
                         {
                             "name": "PRT1",
@@ -509,7 +509,6 @@
                 "name": "GP3_other_occupant_room",
                 "general_part_type": "wall",
                 "next_space": "outdoor",
-                "external_surface_type": "not_outdoor",
                 "direction": "s",
                 "area": 23.00,
                 "space_type": "other_occupant_room",
@@ -517,6 +516,7 @@
                     "part_type": "wood",
                     "u_value_input_method_wood": "area_ratio_method",
                     "wall_construction_method": "frame_beam",
+                    "external_surface_type": "not_outdoor",
                     "parts": [
                         {
                             "name": "PRT1",
@@ -580,7 +580,6 @@
                 "name": "GP3_non_occupant_room",
                 "general_part_type": "wall",
                 "next_space": "outdoor",
-                "external_surface_type": "not_outdoor",
                 "direction": "s",
                 "area": 0.00,
                 "space_type": "non_occupant_room",
@@ -588,6 +587,7 @@
                     "part_type": "wood",
                     "u_value_input_method_wood": "area_ratio_method",
                     "wall_construction_method": "frame_beam",
+                    "external_surface_type": "not_outdoor",
                     "parts": [
                         {
                             "name": "PRT1",
@@ -651,7 +651,6 @@
                 "name": "GP4_main_occupant_room",
                 "general_part_type": "wall",
                 "next_space": "outdoor",
-                "external_surface_type": "not_outdoor",
                 "direction": "w",
                 "area": 0.00,
                 "space_type": "main_occupant_room",
@@ -659,6 +658,7 @@
                     "part_type": "wood",
                     "u_value_input_method_wood": "area_ratio_method",
                     "wall_construction_method": "frame_beam",
+                    "external_surface_type": "not_outdoor",
                     "parts": [
                         {
                             "name": "PRT1",
@@ -722,7 +722,6 @@
                 "name": "GP4_other_occupant_room",
                 "general_part_type": "wall",
                 "next_space": "outdoor",
-                "external_surface_type": "not_outdoor",
                 "direction": "w",
                 "area": 18.31,
                 "space_type": "other_occupant_room",
@@ -730,6 +729,7 @@
                     "part_type": "wood",
                     "u_value_input_method_wood": "area_ratio_method",
                     "wall_construction_method": "frame_beam",
+                    "external_surface_type": "not_outdoor",
                     "parts": [
                         {
                             "name": "PRT1",
@@ -793,7 +793,6 @@
                 "name": "GP4_non_occupant_room",
                 "general_part_type": "wall",
                 "next_space": "outdoor",
-                "external_surface_type": "not_outdoor",
                 "direction": "w",
                 "area": 10.78,
                 "space_type": "non_occupant_room",
@@ -801,6 +800,7 @@
                     "part_type": "wood",
                     "u_value_input_method_wood": "area_ratio_method",
                     "wall_construction_method": "frame_beam",
+                    "external_surface_type": "not_outdoor",
                     "parts": [
                         {
                             "name": "PRT1",
@@ -864,13 +864,13 @@
                 "name": "GP5_main_occupant_room",
                 "general_part_type": "ceiling",
                 "next_space": "outdoor",
-                "external_surface_type": "not_outdoor",
                 "direction": "top",
                 "area": 4.14,
                 "space_type": "main_occupant_room",
                 "spec": {
                     "part_type": "wood",
                     "u_value_input_method_wood": "detail_method",
+                    "external_surface_type": "not_outdoor",
                     "parts": [
                         {
                             "name": "PRT1",
@@ -892,13 +892,13 @@
                 "name": "GP5_other_occupant_room",
                 "general_part_type": "ceiling",
                 "next_space": "outdoor",
-                "external_surface_type": "not_outdoor",
                 "direction": "top",
                 "area": 38.09,
                 "space_type": "other_occupant_room",
                 "spec": {
                     "part_type": "wood",
                     "u_value_input_method_wood": "detail_method",
+                    "external_surface_type": "not_outdoor",
                     "parts": [
                         {
                             "name": "PRT1",
@@ -920,13 +920,13 @@
                 "name": "GP5_non_occupant_room",
                 "general_part_type": "ceiling",
                 "next_space": "outdoor",
-                "external_surface_type": "not_outdoor",
                 "direction": "top",
                 "area": 25.69,
                 "space_type": "non_occupant_room",
                 "spec": {
                     "part_type": "wood",
                     "u_value_input_method_wood": "detail_method",
+                    "external_surface_type": "not_outdoor",
                     "parts": [
                         {
                             "name": "PRT1",

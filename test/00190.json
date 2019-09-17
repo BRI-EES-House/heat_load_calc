@@ -10,15 +10,15 @@
         "general_parts": [
             {
                 "name": "GP1",
-                "general_part_type": "floor",
+                "general_part_type": "wall",
                 "next_space": "outdoor",
-                "external_surface_type": "outdoor",
                 "direction": "top",
                 "area": 1,
                 "spec": {
                     "structure": "wood",
                     "u_value_input_method_wood": "area_ratio_method",
-                    "floor_construction_method": "same_surface_joist_insulation",
+                    "wall_construction_method": "frame_beam",
+                    "external_surface_type": "outdoor",
                     "parts": [
                         {
                             "name": "PRT",
@@ -60,15 +60,15 @@
             },
             {
                 "name": "GP2",
-                "general_part_type": "floor",
+                "general_part_type": "wall",
                 "next_space": "outdoor",
-                "external_surface_type": "outdoor",
                 "direction": "top",
                 "area": 1,
                 "spec": {
                     "structure": "wood",
                     "u_value_input_method_wood": "area_ratio_method",
-                    "floor_construction_method": "same_surface_joist_insulation",
+                    "wall_construction_method": "frame_beam",
+                    "external_surface_type": "outdoor",
                     "parts": [
                         {
                             "name": "PRT",
@@ -110,15 +110,15 @@
             },
             {
                 "name": "GP3",
-                "general_part_type": "floor",
+                "general_part_type": "wall",
                 "next_space": "outdoor",
-                "external_surface_type": "outdoor",
                 "direction": "top",
                 "area": 1,
                 "spec": {
                     "structure": "wood",
                     "u_value_input_method_wood": "area_ratio_method",
-                    "floor_construction_method": "same_surface_joist_insulation",
+                    "wall_construction_method": "frame_beam",
+                    "external_surface_type": "outdoor",
                     "parts": [
                         {
                             "name": "PRT",
@@ -427,5 +427,5 @@
             "heat_exchanger_type": "cooling"
         }
     },
-    "target_key": "floor_construction_method"
+    "target_key": "wall_construction_method"
 }

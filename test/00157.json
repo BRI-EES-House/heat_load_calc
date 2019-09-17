@@ -12,7 +12,6 @@
                 "name": "GP1",
                 "general_part_type": "roof",
                 "next_space": "outdoor",
-                "external_surface_type": "outdoor",
                 "direction": "top",
                 "area": 1,
                 "spec": {
@@ -33,7 +32,6 @@
                 "name": "GP2",
                 "general_part_type": "roof",
                 "next_space": "outdoor",
-                "external_surface_type": "outdoor",
                 "direction": "top",
                 "area": 1,
                 "spec": {
@@ -54,7 +52,6 @@
                 "name": "GP3",
                 "general_part_type": "roof",
                 "next_space": "outdoor",
-                "external_surface_type": "outdoor",
                 "direction": "top",
                 "area": 1,
                 "spec": {
@@ -340,5 +337,5 @@
             "heat_exchanger_type": "cooling"
         }
     },
-    "target_key": "space_type"
+    "target_key": "structure"
 }

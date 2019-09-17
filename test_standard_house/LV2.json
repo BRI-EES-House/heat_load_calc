@@ -12,13 +12,13 @@
                 "name": "GP1",
                 "general_part_type": "wall",
                 "next_space": "outdoor",
-                "external_surface_type": "not_outdoor",
                 "direction": "n",
                 "area": 48.05,
                 "spec": {
                     "part_type": "wood",
                     "u_value_input_method_wood": "area_ratio_method",
                     "wall_construction_method": "frame_beam",
+                    "external_surface_type": "not_outdoor",
                     "parts": [
                         {
                             "name": "PRT1",
@@ -82,13 +82,13 @@
                 "name": "GP2",
                 "general_part_type": "wall",
                 "next_space": "outdoor",
-                "external_surface_type": "not_outdoor",
                 "direction": "e",
                 "area": 29.24,
                 "spec": {
                     "part_type": "wood",
                     "u_value_input_method_wood": "area_ratio_method",
                     "wall_construction_method": "frame_beam",
+                    "external_surface_type": "not_outdoor",
                     "parts": [
                         {
                             "name": "PRT1",
@@ -152,13 +152,13 @@
                 "name": "GP3",
                 "general_part_type": "wall",
                 "next_space": "outdoor",
-                "external_surface_type": "not_outdoor",
                 "direction": "s",
                 "area": 33.12,
                 "spec": {
                     "part_type": "wood",
                     "u_value_input_method_wood": "area_ratio_method",
                     "wall_construction_method": "frame_beam",
+                    "external_surface_type": "not_outdoor",
                     "parts": [
                         {
                             "name": "PRT1",
@@ -222,13 +222,13 @@
                 "name": "GP4",
                 "general_part_type": "wall",
                 "next_space": "outdoor",
-                "external_surface_type": "not_outdoor",
                 "direction": "w",
                 "area": 29.07,
                 "spec": {
                     "part_type": "wood",
                     "u_value_input_method_wood": "area_ratio_method",
                     "wall_construction_method": "frame_beam",
+                    "external_surface_type": "not_outdoor",
                     "parts": [
                         {
                             "name": "PRT1",
@@ -292,12 +292,12 @@
                 "name": "GP5",
                 "general_part_type": "ceiling",
                 "next_space": "outdoor",
-                "external_surface_type": "not_outdoor",
                 "direction": "top",
                 "area": 67.92,
                 "spec": {
                     "part_type": "wood",
                     "u_value_input_method_wood": "detail_method",
+                    "external_surface_type": "not_outdoor",
                     "parts": [
                         {
                             "name": "PRT1",

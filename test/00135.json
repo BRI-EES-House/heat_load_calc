@@ -12,8 +12,7 @@
                 "name": "GP1",
                 "general_part_type": "roof",
                 "next_space": "outdoor",
-                "external_surface_type": "outdoor",
-                "direction": "top",
+                "direction": "se",
                 "area": 1,
                 "spec": {
                     "structure": "wood",
@@ -33,8 +32,7 @@
                 "name": "GP2",
                 "general_part_type": "roof",
                 "next_space": "outdoor",
-                "external_surface_type": "outdoor",
-                "direction": "top",
+                "direction": "se",
                 "area": 1,
                 "spec": {
                     "structure": "wood",
@@ -54,8 +52,7 @@
                 "name": "GP3",
                 "general_part_type": "roof",
                 "next_space": "outdoor",
-                "external_surface_type": "outdoor",
-                "direction": "top",
+                "direction": "se",
                 "area": 1,
                 "spec": {
                     "structure": "wood",
