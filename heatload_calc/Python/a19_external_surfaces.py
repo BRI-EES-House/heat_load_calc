@@ -1,5 +1,9 @@
-import math
 import numpy as np
+
+"""
+付録19．外表面の定義
+"""
+
 
 # 傾斜面に関する変数であり、式(73)
 def get_slope_angle_intermediate_variables(Wa, Wb):
@@ -55,7 +59,7 @@ def get_slope_angle(direction_string: np.ndarray) -> tuple:
     # direction_string == 'bottom'
     direction_angle[direction_string == 'bottom'] = 0.0
     inclination_angle[direction_string == 'bottom'] = 180.0
-    
+
     return np.radians(direction_angle), np.radians(inclination_angle)
 
 
@@ -67,4 +71,3 @@ def get_Phi_G_i_k(PhiS_i_k):
 # 傾斜面の天空に対する形態係数の計算 式(120)
 def get_Phi_S_i_k(Wz):
     return (1.0 + Wz) / 2.0
-

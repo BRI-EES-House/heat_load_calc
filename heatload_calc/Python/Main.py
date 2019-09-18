@@ -1,16 +1,16 @@
+import numpy as np
 import csv
 import datetime
 import json
 import common
+import a4_weather as a4
+import apdx5_solar_position as a5
+
 from common import get_nday
 from Gdata import Gdata, is_actual_calc
-from a4_weather import enmWeatherComponent, Weather, WeaData
 from Space import create_spaces
 from heat_load import calcHload
-import apdx5_solar_position as a5
-import numpy as np
-# from apdx6_direction_cos_incident_angle import calc_cos_incident_angle
-# from rear_surface_equivalent_temperature import precalcTeo
+
 
 # 熱負荷計算の実行
 def calc_Hload(cdata, weather, solar_position):
@@ -93,11 +93,11 @@ def calc_Hload(cdata, weather, solar_position):
     OutList.append(rowlist)
     rowlist = []
 
-    #太陽位置を計算する
+    # 太陽位置を計算する
     solar_position = a5.calc_solar_position(region=region)
 
-    outdoor_temp_list = np.zeros(8760*4)
-    outdoor_humid_list = np.zeros(8760*4)
+    outdoor_temp_list = np.zeros(8760 * 4)
+    outdoor_humid_list = np.zeros(8760 * 4)
 
     # 予備計算（気象データの読み込み）
     for lngNday in range(common.get_nday(cdata.StDate.month, cdata.StDate.day), lngEnNday + 1):
@@ -105,14 +105,15 @@ def calc_Hload(cdata, weather, solar_position):
         for lngTloop in range(lngNtime):
             dtime = datetime.timedelta(days=lngNnow + float(lngTloop) / float(lngNtime))
             dtmNow = apDate + dtime
-            n = int((get_nday(dtmNow.month, dtmNow.day) - 1) * 24 * 4 + dtmNow.hour * 4 + float(dtmNow.minute) / 60.0 * 3600 / 900)
+            n = int((get_nday(dtmNow.month, dtmNow.day) - 1) * 24 * 4 + dtmNow.hour * 4 + float(
+                dtmNow.minute) / 60.0 * 3600 / 900)
 
             # 太陽位置の計算
             # print(dtmNow)
             # 外気温度の補間、Listへの追加
-            outdoor_temp_list[n] = WeaData(weather, enmWeatherComponent.To, dtmNow, solar_position, n)
+            outdoor_temp_list[n] = a4.WeaData(weather, a4.enmWeatherComponent.To, dtmNow, solar_position, n)
             # 外気絶対湿度の補間、Listへの追加
-            outdoor_humid_list[n] = WeaData(weather, enmWeatherComponent.x, dtmNow, solar_position, n) / 1000.
+            outdoor_humid_list[n] = a4.WeaData(weather, a4.enmWeatherComponent.x, dtmNow, solar_position, n) / 1000.
 
     # 日ループの開始
     for lngNday in range(lngStNday, lngEnNday + 1):
@@ -120,12 +121,13 @@ def calc_Hload(cdata, weather, solar_position):
         for lngTloop in range(0, lngNtime):
             dtime = datetime.timedelta(days=lngNnow + float(lngTloop) / float(lngNtime))
             dtmNow = apDate + dtime
-            n = int((get_nday(dtmNow.month, dtmNow.day) - 1) * 24 * 4 + dtmNow.hour * 4 + float(dtmNow.minute) / 60.0 * 3600 / 900)
+            n = int((get_nday(dtmNow.month, dtmNow.day) - 1) * 24 * 4 + dtmNow.hour * 4 + float(
+                dtmNow.minute) / 60.0 * 3600 / 900)
 
             rowlist = []
             # 室温・熱負荷の計算
             if is_actual_calc(cdata, dtmNow):
-                
+
                 # print(str(dtmNow), end="\t")
                 # 出力文字列
                 rowlist.append(str(dtmNow))
@@ -134,20 +136,19 @@ def calc_Hload(cdata, weather, solar_position):
                 if lngTloop == 0:
                     print(dtmNow)
             # print(calc_solar_position.Sh, calc_solar_position.Sw, calc_solar_position.Ss)
+            # 室温、熱負荷の計算
+            calcHload(
+                is_actual_calc=is_actual_calc(cdata, dtmNow),
+                spaces=spaces,
+                dtmNow=dtmNow,
+                To_n=outdoor_temp_list[n],
+                xo=outdoor_humid_list[n],
+                n=n
+            )
+
             for space in spaces.values():
-                # 室温、熱負荷の計算
-                calcHload(
-                    space=space,
-                    is_actual_calc=is_actual_calc(cdata, dtmNow),
-                    spaces=spaces,
-                    dtmNow=dtmNow,
-                    To_n=outdoor_temp_list[n],
-                    xo=outdoor_humid_list[n],
-                    n=n
-                )
-                
                 if is_actual_calc(cdata, dtmNow):
-                    rowlist.append(space.is_now_window_open)
+                    rowlist.append(space.is_now_window_open_i_n[n])
                     rowlist.append(space.air_conditioning_demand)
                     rowlist.append('{0:.0f}'.format(space.now_air_conditioning_mode))
                     rowlist.append('{0:.2f}'.format(space.Tr_i_n[n]))
@@ -189,7 +190,7 @@ def calc_Hload(cdata, weather, solar_position):
                     # print('{0:.0f}'.format(space.is_now_window_open), '{0:.0f}'.format(space.nowAC), '{0:.2f}'.format(space.Tr), \
                     #         '{0:.0f}'.format(space.RH), '{0:.2f}'.format(space.MRT_i_n), '{0:.2f}'.format(space.PMV_i_n), \
                     #         '{0:.0f}'.format(space.Lcs), '{0:.0f}'.format(space.Lr), '{0:.0f}'.format(space.Ll), "", end="")
-            
+
             if is_actual_calc(cdata, dtmNow):
                 OutList.append(rowlist)
                 # print("")
@@ -202,8 +203,8 @@ def calc_Hload(cdata, weather, solar_position):
     dataWriter.writerows(OutList)
     f.close()
 
-if __name__ == '__main__':
 
+if __name__ == '__main__':
     # OT = get_OT(1.0, 1.0, 0.15, 50.0, 0.0)
     # print(OT)
 
@@ -221,7 +222,7 @@ if __name__ == '__main__':
     cdata = Gdata(**d['common'])
 
     # 気象データの読み込み
-    weather = Weather()
+    weather = a4.Weather()
 
     # 太陽位置は個別計算可能
     solar_position = a5.calc_solar_position(region=region)

@@ -8,6 +8,7 @@ import a36_region_location as a36
 付録5．	太陽位置の計算
 """
 
+
 # 太陽位置を計算するクラス
 def defSolpos(Sw, Ss, h_s, Sh_n, cos_h_s, a_s, sin_a_s, cos_a_s):
     """
@@ -101,7 +102,7 @@ def get_e_t(m: np.ndarray, epsilon: float, v: np.ndarray) -> np.ndarray:
 
     # 均時差, rad
     e_t = (m - v) \
-        - np.arctan(0.043 * np.sin(2.0 * (v + epsilon)) / (1.0 - 0.043 * np.cos(2.0 * (v + epsilon))))
+          - np.arctan(0.043 * np.sin(2.0 * (v + epsilon)) / (1.0 - 0.043 * np.cos(2.0 * (v + epsilon))))
 
     return e_t
 
@@ -142,7 +143,8 @@ def get_t(t_m: np.ndarray, l: float, l0: float, e_t: np.ndarray) -> np.ndarray:
     return np.radians((t_m - 12.0) * 15.0) + (l - l0) + e_t
 
 
-def get_h_s(phi: float, sin_delta: np.ndarray, cos_delta: np.ndarray, t: np.ndarray) -> (np.ndarray, np.ndarray, np.ndarray):
+def get_h_s(phi: float, sin_delta: np.ndarray, cos_delta: np.ndarray, t: np.ndarray) -> (
+np.ndarray, np.ndarray, np.ndarray):
     """
     Args:
         phi: 経度, rad
@@ -192,7 +194,7 @@ def get_a_s(
     return a_s, sin_a_s, cos_a_s
 
 
-@lru_cache(maxsize = None)
+@lru_cache(maxsize=None)
 def calc_solar_position(region: int) -> defSolpos:
     """
     太陽位置を計算する
@@ -208,10 +210,10 @@ def calc_solar_position(region: int) -> defSolpos:
     l0 = math.radians(135.0)
 
     # 標準時の計算 0, 0.25, 0.5, 0.75, ...., 23.75, 0, 0.25, ...
-    t_m = np.tile(np.arange(24*4)*0.25, 365)
+    t_m = np.tile(np.arange(24 * 4) * 0.25, 365)
 
     # 年通算日の計算 年通算日（1/1を1とする）, d
-    d = np.repeat(np.arange(365) + 1, 24*4)
+    d = np.repeat(np.arange(365) + 1, 24 * 4)
 
     # 1968年との年差
     n = get_n(y=1989)
@@ -247,5 +249,3 @@ def calc_solar_position(region: int) -> defSolpos:
     dblSw = cos_h_s * sin_a_s
 
     return defSolpos(dblSw, dblSs, h_s, Sh_n, cos_h_s, a_s, sin_a_s, cos_a_s)
-
-

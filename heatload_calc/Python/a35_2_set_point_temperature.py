@@ -1,9 +1,10 @@
-from a35_1_PMV import calcPMV
+import a35_1_PMV as a35
 from scipy.optimize import fsolve
 
 """
-付録35．	PMVの計算方法
+付録35．PMVの計算方法
 """
+
 
 # 着衣量の計算（作用温度から求める） 式(128)
 def calc_clothing(OT):
@@ -16,17 +17,19 @@ def calc_clothing(OT):
     # 非空調時の着衣量（作用温度と線形関係で調節する）
     else:
         clothing = 1.1 + (0.3 - 1.1) / (29.1 - 19.4) * (OT - 19.4)
-    
+
     return clothing
+
 
 def get_OT(met, velocity, RH, Clo, PMV_set):
     # 定数部分があるので、ラムダ式で関数を包む
     # 右辺が0になるように式を変形する
     # 初期値は適当に0にした
-    ot_set = fsolve(lambda OT: calcPMV(OT, OT, RH, velocity, met, 0.0, Clo) - PMV_set, 0.0)
+    ot_set = fsolve(lambda OT: a35.calc_PMV(OT, OT, RH, velocity, met, 0.0, Clo) - PMV_set, 0.0)
 
     # 着衣量と設定作用温度を返す
     return ot_set[0]
+
 
 # for i in range(18, 32):
 #     ot_set, clo = get_OT(1.0, 0.2, 50.0, i / 10.0)

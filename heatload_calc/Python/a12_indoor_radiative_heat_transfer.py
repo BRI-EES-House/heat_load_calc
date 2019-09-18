@@ -6,7 +6,7 @@ import numpy as np
 """
 
 
-# 微小体に対する部位の形態係数の計算
+# 微小体に対する部位の形態係数の計算 式(94)
 def calc_form_factor_of_microbodies(space_name, area):
     # 面積比 式(95)
     a_k = get_a_k(area)
@@ -48,21 +48,21 @@ def get_FF_m(fb, a):
 def get_fb(max_a, space_name, a):
     # 室のパラメータの計算（ニュートン法）
     # 初期値を設定
-    fbd = max_a * 4.0 + 1.0e-5      # 式(99)
+    fbd = max_a * 4.0 + 1.0e-5  # 式(99)
     # 収束判定
     isConverge = False
     for i in range(50):
-        L = -1.0    #式(96)の一部
+        L = -1.0  # 式(96)の一部
         Ld = 0.0
         for _a in a:
             temp = math.sqrt(1.0 - 4.0 * _a / fbd)
-            L += 0.5 * (1.0 - temp)     #式(96)の一部
+            L += 0.5 * (1.0 - temp)  # 式(96)の一部
             Ld += _a / ((fbd ** 2.0) * temp)
             # print(surface.name, 'a=', surface.a, 'L=', 0.5 * (1.0 - math.sqrt(temp)), 'Ld=', -0.25 * (1.0 + 4.0 * surface.a / fbd ** (2.0)) / temp)
-        fb = fbd + L / Ld   #式(97)
+        fb = fbd + L / Ld  # 式(97)
         # print(i, 'fb=', fb, 'fbd=', fbd)
         # 収束判定
-        if abs(fb - fbd) < 1.e-4:   # 式(100)
+        if abs(fb - fbd) < 1.e-4:  # 式(100)
             isConverge = True
             break
         fbd = fb
@@ -77,41 +77,29 @@ def get_fb(max_a, space_name, a):
 def get_F_mrt_i_g(area, hir):
     # 各部位表面温度の重み=面積×放射熱伝達率の比率
     total_area_hir = np.sum(area * hir)
-    
+
     F_mrt_i_k = area * hir / total_area_hir
 
     return F_mrt_i_k
 
 
+# 家具の透過日射吸収比率 (表5 家具の場合)
+def get_furniture_ratio_base():
+    return 0.5
+
+
 # 透過日射の吸収比率を設定する（家具の吸収比率を返す）
-def calc_absorption_ratio_of_transmitted_solar_radiation(room_name, tolal_floor_area, furniture_ratio, is_solar_absorbed_inside, area):
-    # 部位の日射吸収比率の計算
+def calc_absorption_ratio_of_transmitted_solar_radiation():
+    return 0.5
 
-    # 透過日射の室内部位表面吸収比率の計算
-    # 50%を床、50%を家具に吸収させる
-    # 床が複数の部位の場合は面積比で案分する
+
+def get_SolR(area, is_solar_absorbed_inside, tolal_floor_area):
     FsolFlr = 0.5
-    # 家具の吸収比率で初期化
-    TotalR = furniture_ratio
-    modify_furniture_ratio = furniture_ratio
-
-    # 床の室内部位表面吸収比率の設定 表(5) 床の場合
     SolR = (FsolFlr * area / tolal_floor_area) * is_solar_absorbed_inside
-
-    # 室内部位表面吸収比率の合計値（チェック用）
-    TotalR += np.sum(SolR)
-
-    # 日射吸収率の合計値のチェック 式(93)
-    if abs(TotalR - 1.0) > 0.00001:
-        print(room_name, '日射吸収比率合計値エラー', TotalR)
-        print("残りは家具に吸収させます")
-        # 修正家具の日射吸収比率の計算
-        modify_furniture_ratio = furniture_ratio + max(1.0 - TotalR, 0)
-    
-    return modify_furniture_ratio, SolR
+    return SolR
 
 
-# 部位の人体に対する形態係数の計算
+# 部位の人体に対する形態係数の計算 表6
 def calc_form_factor_for_human_body(area, is_solar_absorbed_inside):
     # 設定合計値もチェック
     total_Fot = 0.0
@@ -121,7 +109,7 @@ def calc_form_factor_for_human_body(area, is_solar_absorbed_inside):
 
     # 床以外の合計面積
     total_Aex_floor = np.sum(area * (1 - is_solar_absorbed_inside))
-    
+
     # 上向き、下向き、垂直部位の合計面積をチェックし人体に対する形態係数の割合を基準化
     fot_floor = 0.45
     fot_exfloor = 1.0 - fot_floor
@@ -141,10 +129,16 @@ def calc_form_factor_for_human_body(area, is_solar_absorbed_inside):
     return fot
 
 
-def get_RSsol(Qgt, SolR, A_i_k):
+# 室の透過日射熱取得から室内各部位の吸収日射量 式(91)
+def get_Sol(Qgt, SolR, A_i_k):
     return Qgt * SolR / A_i_k
 
 
-# 家具の吸収日射量[W]
+# 家具の吸収日射量[W] 式(92)
 def get_Qsolfun(Qgt, rsolfun):
     return Qgt * rsolfun
+
+
+# 放射暖房放射成分吸収比率 表7
+def get_flr(A_i_g, A_fs_i, is_radiative_heating, is_solar_absorbed_inside):
+    return (A_i_g / A_fs_i) * is_radiative_heating * is_solar_absorbed_inside

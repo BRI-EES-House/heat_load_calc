@@ -1,6 +1,7 @@
 import numpy as np
 import apdx3_human_body as a3
-from common import ca, rhoa
+import a18_initial_value_constants as a18
+
 
 # ********** 4.1 顕熱 **********
 
@@ -47,6 +48,9 @@ def get_BRLot(BRL, BRM, XLr):
 
 # BRMの計算 式(5)
 def get_BRM_i(Hcap, WSR_i_k, Cap_fun_i, C_fun_i, Vent, local_vent_amount_schedule, A_i_k, hc_i_k_n, V_nxt):
+    ca = a18.get_ca()
+    rhoa = a18.get_rhoa()
+
     # 第1項
     BRM_0 = Hcap / 900
 
@@ -71,10 +75,13 @@ def get_BRM_i(Hcap, WSR_i_k, Cap_fun_i, C_fun_i, Vent, local_vent_amount_schedul
 
 # 室温・負荷計算の定数項BRCを計算する 式(6)
 def get_BRC_i(WSC_i_k, WSV_i_k, area, hc_i_k_n, Ta, Hn, Ventset, Infset, LocalVentset, Hcap, oldTr, Cap_fun_i, C_fun_i,
-              Qsolfun, oldTfun, nextroom_volume, nextroom_oldTr):
+              Qsolfun, oldTfun, Vnext_i_j, Tr_next_i_j_nm1):
+    ca = a18.get_ca()
+    rhoa = a18.get_rhoa()
+
     BRC = np.sum(WSC_i_k * area * hc_i_k_n) \
           + ca * rhoa * (Ventset + Infset + LocalVentset) * Ta / 3600.0 \
-          + ca * rhoa * np.sum(nextroom_volume * nextroom_oldTr) / 3600.0 \
+          + ca * rhoa * np.sum(Vnext_i_j * Tr_next_i_j_nm1) / 3600.0 \
           + Hcap / 900 * oldTr \
           + ((Cap_fun_i / 900 * oldTfun + Qsolfun) / (Cap_fun_i / (900 * C_fun_i) + 1.) if Cap_fun_i > 0.0 else 0.0) \
           + np.sum(area * hc_i_k_n * WSV_i_k) \
@@ -136,7 +143,7 @@ def get_Tfun_i_n(Capfun, Tfun_i_n_m1, Cfun, Tr, Qsolfun):
     """
     return (((Capfun / 900 * Tfun_i_n_m1
               + Cfun * Tr + Qsolfun)
-                  / (Capfun / 900 + Cfun)))
+             / (Capfun / 900 + Cfun)))
 
 
 def get_Qfuns(Cfun, Tr, Tfun):

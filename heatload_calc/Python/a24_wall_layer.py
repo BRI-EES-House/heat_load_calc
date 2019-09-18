@@ -1,10 +1,9 @@
 import numpy as np
-import a23_surface_heat_transfer_coefficient as a23
-import a25_window as a25
 
 """
 付録24．壁体構成
 """
+
 
 def get_layers(d, is_ground):
     # 壁体構成部材の情報を保持するクラスをインスタンス化
@@ -30,4 +29,3 @@ def get_layers(d, is_ground):
         C.append(3300.0 * 3.0)
 
     return np.array(R), np.array(C) * 1000.0
-

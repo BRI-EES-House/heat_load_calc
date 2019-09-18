@@ -1,15 +1,14 @@
 import csv
 from enum import IntEnum
 import datetime
-import math
 
 from functools import lru_cache
 import numpy as np
-import a36_region_location as a36
 
 """
 付録4．気象データの補間方法
 """
+
 
 class enmWeatherComponent(IntEnum):
     To = 2  # 外気温度[℃]
@@ -82,9 +81,10 @@ class Weather:
 
             self.dblWdata = np.array(self.dblWdata)
 
+
 # 気象データの取得
 # 戻り値はdouble
-def WeaData(weatherdata: Weather, Compnt: enmWeatherComponent, dtmDate: datetime, solar_position, item:int) -> float :
+def WeaData(weatherdata: Weather, Compnt: enmWeatherComponent, dtmDate: datetime, solar_position, item: int) -> float:
     # Compnt:取得する気象要素
     # dtmDate:取得する日時
     # blnLinear:線形補間するかどうか（Trueは線形補間する）
@@ -140,7 +140,7 @@ def WeaData(weatherdata: Weather, Compnt: enmWeatherComponent, dtmDate: datetime
 
 
 # 計算日時のリストを生成する（正確にはタプル)
-@lru_cache(maxsize = None)
+@lru_cache(maxsize=None)
 def get_datetime_list():
     ntime = int(24 * 4)
     nnow = 0

@@ -4,7 +4,8 @@ import math
 付録35．	PMVの計算方法
 """
 
-def calcPMV(Ta, MRT, RH, V, Met, Wme, Clo):
+
+def calc_PMV(Ta, MRT, RH, V, Met, Wme, Clo):
     # 水蒸気分圧[Pa]の計算
     Pa = RH / 100. * FNPS(Ta) * 1000.0
     # 着衣の熱抵抗[m2K/W]の計算
@@ -43,8 +44,8 @@ def calcPMV(Ta, MRT, RH, V, Met, Wme, Clo):
         Hcn = 2.38 * abs(100.0 * XF - Taa) ** 0.25
         Hc = max(Hcf, Hcn)
         XN = (P5 + P4 * Hc - P2 * XF ** 4.0) / (100.0 + P3 * Hc)
-        
-        if abs(XN - XF) < EPS:      #式(138)
+
+        if abs(XN - XF) < EPS:  # 式(138)
             break
     # 着衣の表面温度[℃]
     Tcl = 100.0 * XN - 273.0
@@ -57,7 +58,7 @@ def calcPMV(Ta, MRT, RH, V, Met, Wme, Clo):
 
     HL3 = 1.7 * M * (5867.0 - Pa) / 100000.0
     HL4 = 14.0 * M * (34.0 - Ta) / 10000.0
-    HL5 = 3.96 * fcl * (XN **4.0 - (MRTa / 100.0) ** 4.0)
+    HL5 = 3.96 * fcl * (XN ** 4.0 - (MRTa / 100.0) ** 4.0)
     HL6 = fcl * Hc * (Tcl - Ta)
 
     TS = 0.303 * math.exp(-0.036 * M) + 0.028
@@ -68,8 +69,9 @@ def calcPMV(Ta, MRT, RH, V, Met, Wme, Clo):
     #     PMV_i_n = 999.
     # elif PMV_i_n < -3.0:
     #     PMV_i_n = -999.0
-    
+
     return PMV
+
 
 # PPDを計算する
 def calcPPD(PMV):
@@ -77,8 +79,9 @@ def calcPPD(PMV):
     if abs(PMV) > 3.0:
         PPD = -9999.0
     else:
-        PPD = 100.0 - 95.0 * math.exp(-0.03353 * PMV **4.0 - 0.2179 * PMV **2.0)
+        PPD = 100.0 - 95.0 * math.exp(-0.03353 * PMV ** 4.0 - 0.2179 * PMV ** 2.0)
     return PPD
+
 
 # 飽和水蒸気圧[kPa]の計算（ASHRAE Standard 55-2013）
 def FNPS(T):

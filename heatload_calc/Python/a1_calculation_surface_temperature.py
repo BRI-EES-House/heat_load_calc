@@ -4,11 +4,13 @@ import numpy as np
 付録1．	表面温度の計算
 """
 
+
 # ********** 室内表面温度 **********
 
 # 表面温度の計算 式(23)
 def get_surface_temperature(matWSR, matWSB, matWSC, matWSV, Tr, Lrs):
     return matWSR * Tr + matWSC + matWSV + matWSB * Lrs
+
 
 # ********** 表面温度を計算するための各種係数 **********
 
@@ -44,7 +46,7 @@ def get_AX(RFA0, hir, Fmrt, hi, Nsurf):
     eye = np.eye(Nsurf)
 
     # 対角要素以外 式(25)上段
-    matAXd = - RFA0[:,np.newaxis] * hir[:,np.newaxis] * Fmrt[np.newaxis,:]
+    matAXd = - RFA0[:, np.newaxis] * hir[:, np.newaxis] * Fmrt[np.newaxis, :]
 
     # 対角要素 式(25)下段
     matAXd[eye == 1] = 1. + RFA0 * hi - RFA0 * hir * Fmrt
@@ -58,7 +60,7 @@ def get_FIA(RFA0, hic):
     return RFA0 * hic
 
 
-# FLB=φA0×flr×(1-Beta_i) 式(26)
+# FLB=φA0×flr_i_k×(1-Beta_i) 式(26)
 def get_FLB(RFA0, flr, Beta, area):
     return RFA0 * flr * (1. - Beta) / area
 
@@ -95,7 +97,7 @@ def calc_qi(hic, area, hir, RSsol, flr, Ts, Tr: float, Fmrt: float, Lr: float, B
     RS = get_RS(RSsol, area)
 
     # 放射暖房成分
-    Lr = get_Lr(flr,  Lr, Beta)
+    Lr = get_Lr(flr, Lr, Beta)
 
     # 表面熱流合計
     Qt = get_Qt(Qc, Qr, Lr, RS)
@@ -104,6 +106,7 @@ def calc_qi(hic, area, hir, RSsol, flr, Ts, Tr: float, Fmrt: float, Lr: float, B
     oldqi = get_qi(Qt, area)
 
     return Qc, Qr, Lr, RS, Qt, oldqi
+
 
 # 室内表面熱流 - 対流成分 [W]
 def get_Qc(hic, area, Tr, Ts):
@@ -149,9 +152,10 @@ def calc_Tei(hic, hi, hir, RSsol, flr, area, Tr, Fmrt, Ts, Lr, Beta):
     Tsx = get_Tsx(Fmrt, Ts)
 
     return Tr * hic / hi \
-                    + Tsx * hir / hi \
-                    + RSsol / hi \
-                    + flr * Lr * (1.0 - Beta) / hi / area
+           + Tsx * hir / hi \
+           + RSsol / hi \
+           + flr * Lr * (1.0 - Beta) / hi / area
+
 
 # 平均放射温度の計算
 def get_Tsx(Fmrt, Ts):

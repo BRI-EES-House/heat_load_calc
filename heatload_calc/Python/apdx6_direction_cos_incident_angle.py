@@ -24,9 +24,11 @@ def calc_cos_incident_angle(
     """
 
     return np.clip(
-        h_sun_sin_n[np.newaxis,:] * np.cos(w_beta_k[:,np.newaxis])
-        + h_sun_cos_n[np.newaxis,:] * a_sun_sin_n[np.newaxis,:] * np.sin(w_beta_k[:,np.newaxis]) * np.sin(w_alpha_k[:,np.newaxis])
-        + h_sun_cos_n[np.newaxis,:] * a_sun_cos_n[np.newaxis,:] * np.sin(w_beta_k[:,np.newaxis]) * np.cos(w_alpha_k[:,np.newaxis]),
+        h_sun_sin_n[np.newaxis, :] * np.cos(w_beta_k[:, np.newaxis])
+        + h_sun_cos_n[np.newaxis, :] * a_sun_sin_n[np.newaxis, :] * np.sin(w_beta_k[:, np.newaxis]) * np.sin(
+            w_alpha_k[:, np.newaxis])
+        + h_sun_cos_n[np.newaxis, :] * a_sun_cos_n[np.newaxis, :] * np.sin(w_beta_k[:, np.newaxis]) * np.cos(
+            w_alpha_k[:, np.newaxis]),
         0.0,
         None
     )

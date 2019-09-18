@@ -1,29 +1,10 @@
 import numpy as np
-from Surface import Surface, GroupedSurface
+from Surface import Surface
 
 """
 付録34．境界条件が同じ部位の集約
 """
 
-
-# 部位の集約（同一境界条件の部位を集約する）
-def get_grouped_surfaces(surfaces):
-
-    # 部位番号とグループ番号の対応表 (-1は未割当)
-    g_k = np.zeros(surfaces.N_surf_i, dtype=np.int64) - 1
-
-    # 部位のグループ化
-    for k in range(surfaces.N_surf_i):
-        # 同じ境界条件の部位を探す
-        gs_index = np.array([l for l in range(surfaces.N_surf_i) if g_k[l] < 0 and compare_surfaces(surfaces, k, l)], dtype=np.int64)
-
-        # 部位番号とグループ番号の対応表に新しいグループ番号を記述
-        g_k[gs_index] = np.max(g_k) + 1
-
-    # グループごとの集約処理
-    surfG_i = aggregate_surfaces(surfaces, g_k)
-
-    return surfG_i
 
 # 境界条件が一致するかどうかを判定
 def compare_surfaces(surfaces, a, b):
@@ -87,150 +68,164 @@ def compare_surfaces(surfaces, a, b):
             temp = temp and abs(surfaces.hi[a] - surfaces.hi[b]) < 1.0E-5
         # else:
         #     print("境界の種類が不適です。 name=", self.name)
-    
+
     # 室内側放射率
-    #temp = temp and abs(surface_a.Ei - comp_surface.Ei) < 1.0E-5
+    # temp = temp and abs(surface_a.Ei - comp_surface.Ei) < 1.0E-5
 
-    return(temp)
+    return (temp)
 
-# 新しい室内表面の作成
-def aggregate_surfaces(surfaces, g_k):
 
-    gs = GroupedSurface()
+# 部位の集約（同一境界条件の部位を集約する）
+class GroupedSurface:
+    def __init__(self, surfaces: Surface):
 
-    gs.group_number = np.unique(g_k)
+        # 部位番号とグループ番号の対応表 (-1は未割当)
+        g_k = np.zeros(surfaces.N_surf_i, dtype=np.int64) - 1
 
-    gs.NsurfG_i = len(gs.group_number)
+        # 部位のグループ化
+        for k in range(surfaces.N_surf_i):
+            # 同じ境界条件の部位を探す
+            gs_index = np.array(
+                [l for l in range(surfaces.N_surf_i) if g_k[l] < 0 and compare_surfaces(surfaces, k, l)],
+                dtype=np.int64)
 
-    # 境界条件名称
-    gs.name = ["summarize_building_part_" + str(x) for x in gs.group_number]
+            # 部位番号とグループ番号の対応表に新しいグループ番号を記述
+            g_k[gs_index] = np.max(g_k) + 1
 
-    # 先頭インデックス一覧
-    idx0 = np.array([np.where(g_k == k)[0][0] for k in gs.group_number], dtype=np.int)
+        # グループごとの集約処理
 
-    # グループBooleanIndexMap
-    map_g = np.array([[g_k == k][0] for k in gs.group_number], dtype=np.int)
+        # 新しい室内表面の作成
 
-    def first(arr):
-        return np.array(arr)[idx0]
+        self.group_number = np.unique(g_k)
 
-    # 1) 境界の種類
-    gs.boundary_type = first(surfaces.boundary_type)
+        self.NsurfG_i = len(self.group_number)
 
-    # 2) 隣室タイプ
-    gs.Rnext_i_g = first(surfaces.Rnext_i_k)
+        # 境界条件名称
+        self.name = ["summarize_building_part_" + str(x) for x in self.group_number]
 
-    gs.is_sun_striked_outside = np.zeros(gs.NsurfG_i, dtype=np.bool)
-    gs.a_i_g = np.zeros(gs.NsurfG_i)
-    gs.direction_i_g = np.zeros(gs.NsurfG_i, dtype=np.object)
-    gs.RhoG_l = np.zeros(gs.NsurfG_i)
-    gs.w_alpha_i_g = np.zeros(gs.NsurfG_i)
-    gs.w_beta_i_g = np.zeros(gs.NsurfG_i)
-    gs.cos_Theta_i_g_n = np.zeros((gs.NsurfG_i, 24 * 365 * 4))
-    gs.Wz_i_k = np.zeros(gs.NsurfG_i)
-    gs.Ww_i_k = np.zeros(gs.NsurfG_i)
-    gs.Ws_i_k = np.zeros(gs.NsurfG_i)
-    gs.PhiS_i_k = np.zeros(gs.NsurfG_i)
-    gs.PhiG_i_k = np.zeros(gs.NsurfG_i)
+        # 先頭インデックス一覧
+        idx0 = np.array([np.where(g_k == k)[0][0] for k in self.group_number], dtype=np.int)
 
-    for g in np.unique(g_k):
+        # グループBooleanIndexMap
+        map_g = np.array([[g_k == k][0] for k in self.group_number], dtype=np.int)
 
-        def firstel(arr):
-            return np.array(arr)[g_k == g][0]
+        def first(arr):
+            return np.array(arr)[idx0]
 
-        if gs.boundary_type[g] in ["external_general_part", "external_transparent_part", "external_opaque_part"]:
-            # 3) 日射の有無
-            gs.is_sun_striked_outside[g] = firstel(surfaces.is_sun_striked_outside)
+        # 1) 境界の種類
+        self.boundary_type = first(surfaces.boundary_type)
 
-            # 4) 温度差係数
-            gs.a_i_g[g] = firstel(surfaces.a_i_k)
+        # 2) 隣室タイプ
+        self.Rnext_i_g = first(surfaces.Rnext_i_k)
 
-            # 5) 向き
-            gs.direction_i_g[g] = firstel(surfaces.direction)
+        self.is_sun_striked_outside = np.zeros(self.NsurfG_i, dtype=np.bool)
+        self.a_i_g = np.zeros(self.NsurfG_i)
+        self.direction_i_g = np.zeros(self.NsurfG_i, dtype=np.object)
+        self.RhoG_l = np.zeros(self.NsurfG_i)
+        self.w_alpha_i_g = np.zeros(self.NsurfG_i)
+        self.w_beta_i_g = np.zeros(self.NsurfG_i)
+        self.cos_Theta_i_g_n = np.zeros((self.NsurfG_i, 24 * 365 * 4))
+        self.Wz_i_k = np.zeros(self.NsurfG_i)
+        self.Ww_i_k = np.zeros(self.NsurfG_i)
+        self.Ws_i_k = np.zeros(self.NsurfG_i)
+        self.PhiS_i_k = np.zeros(self.NsurfG_i)
+        self.PhiG_i_k = np.zeros(self.NsurfG_i)
 
-            # 6) 地面反射率
-            gs.RhoG_l[g] = firstel(surfaces.RhoG_l)
+        for g in np.unique(g_k):
 
-            # 7) 方位角
-            gs.w_alpha_i_g[g] = firstel(surfaces.w_alpha_i_k)
+            def firstel(arr):
+                return np.array(arr)[g_k == g][0]
 
-            # 8) 傾斜角
-            gs.w_beta_i_g[g] = firstel(surfaces.w_beta_i_k)
+            if self.boundary_type[g] in ["external_general_part", "external_transparent_part", "external_opaque_part"]:
+                # 3) 日射の有無
+                self.is_sun_striked_outside[g] = firstel(surfaces.is_sun_striked_outside)
 
-            # 9) 太陽入射角の方向余弦計算パラメータ
-            gs.cos_Theta_i_g_n[g] = firstel(surfaces.cos_Theta_i_k_n)
-            gs.Wz_i_k[g] = firstel(surfaces.Wz_i_k)
-            gs.Ww_i_k[g] = firstel(surfaces.Ww_i_k)
-            gs.Ws_i_k[g] = firstel(surfaces.Ws_i_k)
+                # 4) 温度差係数
+                self.a_i_g[g] = firstel(surfaces.a_i_k)
 
-            # 10) 傾斜面の天空に対する形態係数
-            gs.PhiS_i_k[g] = firstel(surfaces.PhiS_i_k)
+                # 5) 向き
+                self.direction_i_g[g] = firstel(surfaces.direction)
 
-            # 11) 傾斜面の地面に対する形態係数
-            gs.PhiG_i_k[g] = firstel(surfaces.PhiG_i_k)
+                # 6) 地面反射率
+                self.RhoG_l[g] = firstel(surfaces.RhoG_l)
 
-    # 12) 室外側日射吸収率
-    gs.as_i_g = first(surfaces.as_i_k)
+                # 7) 方位角
+                self.w_alpha_i_g[g] = firstel(surfaces.w_alpha_i_k)
 
-    # 13) 室外側放射率
-    gs.eps_i_g = first(surfaces.eps_i_k)
+                # 8) 傾斜角
+                self.w_beta_i_g[g] = firstel(surfaces.w_beta_i_k)
 
-    # 14) 室内侵入日射吸収の有無
-    # TODO: 仕様書とずれ
-    gs.is_solar_absorbed_inside = first(surfaces.is_solar_absorbed_inside)
+                # 9) 太陽入射角の方向余弦計算パラメータ
+                self.cos_Theta_i_g_n[g] = firstel(surfaces.cos_Theta_i_k_n)
+                self.Wz_i_k[g] = firstel(surfaces.Wz_i_k)
+                self.Ww_i_k[g] = firstel(surfaces.Ww_i_k)
+                self.Ws_i_k[g] = firstel(surfaces.Ws_i_k)
 
-    # 15) 放射暖房発熱の有無
-    # TODO: 仕様書とずれ
+                # 10) 傾斜面の天空に対する形態係数
+                self.PhiS_i_k[g] = firstel(surfaces.PhiS_i_k)
 
-    # 16) 室内側熱伝達率
-    gs.hi_i_g_n = first(surfaces.hi_i_k_n)
+                # 11) 傾斜面の地面に対する形態係数
+                self.PhiG_i_k[g] = firstel(surfaces.PhiG_i_k)
 
-    # 17) 室内側放射率
-    # TODO: 仕様書とずれ
+        # 12) 室外側日射吸収率
+        self.as_i_g = first(surfaces.as_i_k)
 
-    # 18) 室外側熱伝達率
-    # TODO: 仕様書とずれ (internalは許容されるように仕様にはある
-    gs.ho_i_g_n = first(surfaces.ho_i_k_n)
+        # 13) 室外側放射率
+        self.eps_i_g = first(surfaces.eps_i_k)
 
-    # 19) 面積
-    gs.A_i_g = np.sum(surfaces.A_i_k * map_g, axis=1)
+        # 14) 室内侵入日射吸収の有無
+        # TODO: 仕様書とずれ
+        self.is_solar_absorbed_inside = first(surfaces.is_solar_absorbed_inside)
 
-    # 20) 裏面境界温度
-    gs.Teolist = first(surfaces.Teolist)
+        # 15) 放射暖房発熱の有無
+        # TODO: 仕様書とずれ
 
-    # 21) 前時刻の裏面境界温度
-    gs.oldTsd_t = np.zeros((gs.NsurfG_i, 12))
+        # 16) 室内側熱伝達率
+        self.hi_i_g_n = first(surfaces.hi_i_k_n)
 
-    # 22) 前時刻の室内表面熱流
-    gs.oldTsd_a = np.zeros((gs.NsurfG_i, 12))
-    gs.oldqi = np.zeros(gs.NsurfG_i)  # 前時刻の室内側表面熱流
+        # 17) 室内側放射率
+        # TODO: 仕様書とずれ
 
-    # 23) 根の数
-    gs.Nroot = first(surfaces.Nroot)
+        # 18) 室外側熱伝達率
+        # TODO: 仕様書とずれ (internalは許容されるように仕様にはある
+        self.ho_i_g_n = first(surfaces.ho_i_k_n)
 
-    # 24) 公比
-    gs.Row = first(surfaces.Row)
+        # 19) 面積
+        self.A_i_g = np.sum(surfaces.A_i_k * map_g, axis=1)
 
-    # 25) 室内表面から室外側空気までの熱貫流率
-    gs.Uso_i_g = np.sum(surfaces.A_i_k * surfaces.Uso * map_g, axis=1) / gs.A_i_g
-    gs.U_i_g = np.sum(surfaces.A_i_k * surfaces.U * map_g, axis=1) / gs.A_i_g
+        # 20) 裏面境界温度
+        self.Teolist = first(surfaces.Teolist)
 
-    # 26) 吸熱応答係数の初項
-    gs.RFA0 = np.sum(surfaces.A_i_k * surfaces.RFA0 * map_g, axis=1) / gs.A_i_g
+        # 21) 前時刻の裏面境界温度
+        self.oldTsd_t = np.zeros((self.NsurfG_i, 12))
 
-    # 27) 貫流応答係数の初項
-    gs.RFT0 = np.sum(surfaces.A_i_k * surfaces.RFT0 * map_g, axis=1) / gs.A_i_g
+        # 22) 前時刻の室内表面熱流
+        self.oldTsd_a = np.zeros((self.NsurfG_i, 12))
+        self.oldqi = np.zeros(self.NsurfG_i)  # 前時刻の室内側表面熱流
 
-    gs.RFT1 = np.zeros((gs.NsurfG_i, 12))
-    gs.RFA1 = np.zeros((gs.NsurfG_i, 12))
-    for g in np.unique(g_k):
+        # 23) 根の数
+        self.Nroot = first(surfaces.Nroot)
 
-        f = g_k == g
+        # 24) 公比
+        self.Row = first(surfaces.Row)
 
-        # 28) 指数項別吸熱応答係数
-        gs.RFT1[g] = np.sum(surfaces.A_i_k[f,np.newaxis] * surfaces.RFT1[f,:], axis=0) / gs.A_i_g[g]
+        # 25) 室内表面から室外側空気までの熱貫流率
+        self.Uso_i_g = np.sum(surfaces.A_i_k * surfaces.Uso * map_g, axis=1) / self.A_i_g
+        self.U_i_g = np.sum(surfaces.A_i_k * surfaces.U * map_g, axis=1) / self.A_i_g
 
-        # 29) 指数項別貫流応答係数
-        gs.RFA1[g] = np.sum(surfaces.A_i_k[f,np.newaxis] * surfaces.RFA1[f,:], axis=0) / gs.A_i_g[g]
+        # 26) 吸熱応答係数の初項
+        self.RFA0 = np.sum(surfaces.A_i_k * surfaces.RFA0 * map_g, axis=1) / self.A_i_g
 
-    return gs
+        # 27) 貫流応答係数の初項
+        self.RFT0 = np.sum(surfaces.A_i_k * surfaces.RFT0 * map_g, axis=1) / self.A_i_g
+
+        self.RFT1 = np.zeros((self.NsurfG_i, 12))
+        self.RFA1 = np.zeros((self.NsurfG_i, 12))
+        for g in np.unique(g_k):
+            f = g_k == g
+
+            # 28) 指数項別吸熱応答係数
+            self.RFT1[g] = np.sum(surfaces.A_i_k[f, np.newaxis] * surfaces.RFT1[f, :], axis=0) / self.A_i_g[g]
+
+            # 29) 指数項別貫流応答係数
+            self.RFA1[g] = np.sum(surfaces.A_i_k[f, np.newaxis] * surfaces.RFA1[f, :], axis=0) / self.A_i_g[g]

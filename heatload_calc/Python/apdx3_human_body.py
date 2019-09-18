@@ -1,4 +1,4 @@
-import common
+import a18_initial_value_constants as a18
 
 
 def get_alpha_hm_c() -> float:
@@ -29,7 +29,7 @@ def get_q_hum_and_x_hum(theta_r: float) -> (float, float):
     """
 
     # 水の蒸発潜熱, J/kg
-    l_wtr = common.get_l_wtr()
+    l_wtr = a18.get_l_wtr()
 
     q_hum = min(63.0 - 4.0 * (theta_r - 24.0), 119.0)
     x_hum = (119.0 - q_hum) / l_wtr

@@ -6,6 +6,7 @@ from typing import List
 付録2．応答係数の初項、指数項別応答係数、公比の計算
 """
 
+
 # ラプラス変数の設定
 def get_laps(alp: np.ndarray) -> np.ndarray:
     """
@@ -172,8 +173,8 @@ def get_step_reps_of_wall(C_i_k_p, R_i_k_p, laps: List[float], alp: List[float],
         dblATstep[lngJ] = dblAT0
         dblAAstep[lngJ] = dblAA0
         for lngK, root in enumerate(alp):
-            dblATstep[lngJ] = dblATstep[lngJ] + dblAT[lngK] * math.exp( -root * lngJ * 900 )
-            dblAAstep[lngJ] = dblAAstep[lngJ] + dblAA[lngK] * math.exp( -root * lngJ * 900 )
+            dblATstep[lngJ] = dblATstep[lngJ] + dblAT[lngK] * math.exp(-root * lngJ * 900)
+            dblAAstep[lngJ] = dblAAstep[lngJ] + dblAA[lngK] * math.exp(-root * lngJ * 900)
 
     # デバッグ用
     # print('四端子基本行列：', matFi)
@@ -228,7 +229,7 @@ def get_RFTRI(alp, AT0, AA0, AT, AA, M):
 
 
 # 応答係数
-def calc_response_factor(is_ground:bool, C_i_k_p, R_i_k_p):
+def calc_response_factor(is_ground: bool, C_i_k_p, R_i_k_p):
     """
     VBAからの主な変更点：
     (1)二次元配列（objArray）で壁体の情報を受け取っていたが、壁体情報クラスで受け取るように変更
@@ -240,7 +241,7 @@ def calc_response_factor(is_ground:bool, C_i_k_p, R_i_k_p):
     :param wall: 壁体基本情報クラス
     """
 
-    NcalTime = 50                       # 応答係数を作成する時間数[h]
+    NcalTime = 50  # 応答係数を作成する時間数[h]
     M = int(NcalTime * 3600 / 900) + 1  # 応答係数で作成する項数
 
     # 固定根の設定

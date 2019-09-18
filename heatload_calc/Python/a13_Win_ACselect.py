@@ -7,8 +7,10 @@ import numpy as np
 付録13．	窓の開閉と空調発停の切り替え
 """
 
+
 # 当該時刻の窓開閉、空調発停を判定する
-def mode_select(air_conditioning_demand: bool, prev_air_conditioning_mode: int, is_prev_window_open: bool, now_pmv: float) -> tuple:
+def mode_select(air_conditioning_demand: bool, prev_air_conditioning_mode: int, is_prev_window_open: bool,
+                now_pmv: float) -> tuple:
     # 窓の開閉、空調の発停を決定する
     # 冷房開始PMV
     occu_cooling_pmv = 0.84
@@ -67,8 +69,9 @@ def mode_select(air_conditioning_demand: bool, prev_air_conditioning_mode: int, 
                 # 窓を閉鎖する
                 elif is_prev_window_open == 1 and now_pmv <= occu_window_close_pmv:
                     is_now_window_open = False
-    
+
     return (is_now_window_open, now_air_conditioning_mode)
+
 
 # 最終の空調信号の計算（空調停止はこのルーチンに入らない）
 def reset_SW(now_air_conditioning_mode: int, Lcs: float, Lr: float, isRadiantHeater: bool, Lrcap: float) -> int:
@@ -87,6 +90,7 @@ def reset_SW(now_air_conditioning_mode: int, Lcs: float, Lr: float, isRadiantHea
 
     return temp
 
+
 # JSONファイルから空調スケジュールを読み込む
 def read_air_conditioning_schedules_from_json(d_room: dict):
     # 空調スケジュールの読み込み
@@ -94,7 +98,7 @@ def read_air_conditioning_schedules_from_json(d_room: dict):
     is_upper_temp_limit_set_schedule = np.array(d_room['schedule']['is_upper_temp_limit_set'])
     # 設定温度／PMV下限値の設定
     is_lower_temp_limit_set_schedule = np.array(d_room['schedule']['is_lower_temp_limit_set'])
-    
+
     # PMV上限値
     pmv_upper_limit_schedule = np.array(d_room['schedule']['pmv_upper_limit'])
     # PMV下限値
@@ -104,6 +108,7 @@ def read_air_conditioning_schedules_from_json(d_room: dict):
            is_lower_temp_limit_set_schedule, \
            pmv_upper_limit_schedule, \
            pmv_lower_limit_schedule
+
 
 # スケジュールの読み込み
 def get_hourly_air_conditioning_schedules(space: Space, dtmNow: datetime) -> None:

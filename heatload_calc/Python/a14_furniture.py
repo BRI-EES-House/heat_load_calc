@@ -35,7 +35,6 @@ def get_Gf(Vol):
     return Gf
 
 
-
 # 家具と空気間の熱コンダクタンス[W/K] 式(105)
 def get_Cfun(Capfun):
     return 0.00022 * Capfun
@@ -44,4 +43,3 @@ def get_Cfun(Capfun):
 # 室空気と家具類間の湿気コンダクタンス[kg/(s･kg/kg(DA))]  式(106)
 def get_Cx(Gf):
     return 0.0018 * Gf
-

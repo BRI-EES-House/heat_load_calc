@@ -1,5 +1,6 @@
 import numpy as np
-from common import rhoa
+import a18_initial_value_constants as a18
+
 
 # *********** 4.2 潜熱 **********
 
@@ -13,13 +14,14 @@ def get_temp(Gf, Cx):
     temp = Gf * Cx / (Gf + 900 * Cx)
     return temp
 
+
 # 室絶対湿度の計算 式(16)
 def get_xr(BRXC_i, BRMX_i):
     return BRXC_i / BRMX_i
 
 
 # 式(17)
-def get_BRMX(Ventset, Infset, LocalVentset, Gf, Cx, volume, RoomtoRoomVent):
+def get_BRMX(Ventset, Infset, LocalVentset, Gf, Cx, volume, Vnext_i_j):
     # 外気の流入量
     Voin = get_Voin(Ventset, Infset, LocalVentset)
 
@@ -27,7 +29,9 @@ def get_BRMX(Ventset, Infset, LocalVentset, Gf, Cx, volume, RoomtoRoomVent):
     temp = get_temp(Gf=Gf, Cx=Cx)
 
     # 配列準備
-    next_volume = np.array([x.volume for x in RoomtoRoomVent])
+    next_volume = np.array(Vnext_i_j)
+
+    rhoa = a18.get_rhoa()
 
     BRMX = (rhoa * (volume / 900 + Voin)
             + temp
@@ -37,22 +41,19 @@ def get_BRMX(Ventset, Infset, LocalVentset, Gf, Cx, volume, RoomtoRoomVent):
 
 
 # 式(18)
-def get_BRXC(Ventset, Infset, LocalVentset, Gf, Cx, volume, xo, oldxr, oldxf, Lin, RoomtoRoomVent):
-
+def get_BRXC(Ventset, Infset, LocalVentset, Gf, Cx, volume, xo, xr_i_nm1, xf_i_nm1, Lin, Vnext_i_j, xr_next_i_j_nm1):
     # 外気の流入量
     Voin = get_Voin(Ventset, Infset, LocalVentset)
 
     # 湿気容量の項
     temp = get_temp(Gf=Gf, Cx=Cx)
 
-    # 配列準備
-    next_volume = np.array([x.volume for x in RoomtoRoomVent])
-    next_oldxr = np.array([x.oldxr for x in RoomtoRoomVent])
+    rhoa = a18.get_rhoa()
 
-    BRXC = rhoa * (volume / 900 * oldxr + Voin * xo) \
-           + temp * oldxf \
+    BRXC = rhoa * (volume / 900 * xr_i_nm1 + Voin * xo) \
+           + temp * xf_i_nm1 \
            + Lin \
-           + np.sum([rhoa * next_volume * next_oldxr / 3600.0])
+           + np.sum([rhoa * Vnext_i_j * xr_next_i_j_nm1 / 3600.0])
 
     return BRXC
 
@@ -60,7 +61,6 @@ def get_BRXC(Ventset, Infset, LocalVentset, Gf, Cx, volume, xo, oldxr, oldxf, Li
 # 式(19)
 def get_xf(Gf, oldxf, Cx, xr):
     return (Gf / 900 * oldxf + Cx * xr) / (Gf / 900 + Cx)
-
 
 
 def get_Qfunl(Cx, xr, xf):

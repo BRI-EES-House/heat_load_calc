@@ -1,7 +1,7 @@
 from typing import List
 import Surface
 import Space
-import a19_Exsrf
+import a19_external_surfaces
 import numpy as np
 
 """
@@ -10,24 +10,30 @@ import numpy as np
 
 
 # 裏面の相当温度を計算する 表.4
-def calc_Teo(surface, g,  To_n: float, oldTr: float, spaces: List['Space'], sequence_number: int):
-    # 日射の当たる一般部位または不透明部位の場合
-    if surface.boundary_type[g] == "external_general_part" or surface.boundary_type[g] == "external_opaque_part":
-        # 室外側に日射が当たる場合
-        if surface.is_sun_striked_outside[g]:
-            return surface.Teolist[g][sequence_number]
-        # 室外側に日射が当たらない場合
-        else:
-            return get_NextRoom_fromR(surface.a_i_g[g], To_n, oldTr)
+def calc_Teo(surfG_i, To_n: float, oldTr: float, spaces: List['Space'], sequence_number: int):
+    Teo_i_k_n = np.zeros(surfG_i.NsurfG_i)
+
+    for g in range(surfG_i.NsurfG_i):
+        # 日射の当たる一般部位または不透明部位の場合
+        if surfG_i.boundary_type[g] == "external_general_part" or surfG_i.boundary_type[g] == "external_opaque_part":
+            # 室外側に日射が当たる場合
+            if surfG_i.is_sun_striked_outside[g]:
+                Teo_i_k_n[g] = surfG_i.Teolist[g][sequence_number]
+            # 室外側に日射が当たらない場合
+            else:
+                Teo_i_k_n[g] = get_NextRoom_fromR(surfG_i.a_i_g[g], To_n, oldTr)
+
     # 窓,土壌の場合
-    elif surface.boundary_type[g] == "external_transparent_part" or surface.boundary_type[g] == "ground":
-        return surface.Teolist[g][sequence_number]
-    # 内壁の場合（前時刻の室温）
-    elif surface.boundary_type[g] == "internal":
-        return get_oldNextRoom(surface.Rnext_i_g[g], spaces, sequence_number)
-    # 例外
-    else:
-        print("境界条件が見つかりません。 name=", surface.boundary_type)
+    for g in range(surfG_i.NsurfG_i):
+        if surfG_i.boundary_type[g] == "external_transparent_part" or surfG_i.boundary_type[g] == "ground":
+            Teo_i_k_n[g] = surfG_i.Teolist[g][sequence_number]
+
+    for g in range(surfG_i.NsurfG_i):
+        # 内壁の場合（前時刻の室温）
+        if surfG_i.boundary_type[g] == "internal":
+            Teo_i_k_n[g] = spaces[surfG_i.Rnext_i_g[g]].Tr_i_n[sequence_number - 1]
+
+    return Teo_i_k_n
 
 
 # 傾斜面の相当外気温度の計算
@@ -72,40 +78,3 @@ def get_NextRoom_fromR(a_i_k: float, Ta: float, Tr: float) -> float:
 def get_oldNextRoom(nextroomname: str, spaces: List['Space'], sequence_number: int) -> float:
     Te = spaces[nextroomname].Tr_i_n[sequence_number - 1]
     return Te
-
-""" # 相当外気温度の計算
-def precalcTeo(space: Space, To: float, I_DN: float, I_sky: float, RN: float, annual_average_ta: float, defSolpos: defSolpos, sequence_number: int):
-    # 外皮の傾斜面日射量の計算
-    for surface in space.input_surfaces:
-        if surface.is_sun_striked_outside:
-            sin_h_s = defSolpos.sin_h_s
-            cos_h_s = defSolpos.cos_h_s
-            sin_a_s = defSolpos.sin_a_s
-            cos_a_s = defSolpos.cos_a_s
-            wa = surface.backside_boundary_condition.w_alpha_i_k
-            wb = surface.backside_boundary_condition.w_beta_i_k
-
-            if 'external' in surface.backside_boundary_condition.Type and surface.backside_boundary_condition.is_sun_striked_outside:
-                cos_t = calc_cos_incident_angle(sin_h_s, cos_h_s, sin_a_s, cos_a_s, wa, wb)
-                surface.backside_boundary_condition.cos_Theta_i_g_n = cos_t
-                Fs = surface.backside_boundary_condition.Fs
-                dblFg = surface.backside_boundary_condition.dblFg
-                Rg = surface.backside_boundary_condition.Rg
-
-                surface.I_D_i_k_n, surface.I_sky, surface.I_R_i_k_n, surface.Iw_i_k_n = calc_slope_sol(I_DN, I_sky, sin_h_s, cos_t, Fs, dblFg, Rg)
-            else:
-                surface.backside_boundary_condition.cos_Theta_i_g_n = 0.0
-                surface.I_D_i_k_n, surface.I_sky, surface.I_R_i_k_n, surface.Iw_i_k_n = 0.0, 0.0, 0.0, 0.0
-        elif surface.boundary_type == "ground":
-            surface.Teo = annual_average_ta
-
-    # 相当外気温度の計算
-    for surface in space.input_surfaces:
-        if surface.is_sun_striked_outside:
-            # 外皮_一般部位もしくは外皮_不透明部位の場合
-            if surface.boundary_type == "external_general_part" or surface.boundary_type == "external_opaque_part":
-                surface.Teolist[sequence_number] = get_Te_n_1(surface.backside_boundary_condition, \
-                    surface.Iw_i_k_n, surface.as_i_g, surface.ho_i_g_n, surface.eps_i_g, To, RN)
-            # 外皮_透明部位の場合
-            else:
-                surface.Teolist[sequence_number] = - surface.eps_i_g * surface.backside_boundary_condition.Fs * RN / surface.ho_i_g_n + To """

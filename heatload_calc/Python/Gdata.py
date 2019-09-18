@@ -1,6 +1,6 @@
 import datetime
 import a17_calculation_period as a17
-import a36_region_location as a36
+
 
 class Gdata:
     """シミュレーション全体の設定条件"""
@@ -38,7 +38,7 @@ class Gdata:
         # 作用温度設定フラグ
         # self.OTset = True
 
+
 # 本計算フラグ
 def is_actual_calc(gdata: Gdata, dtmDate: datetime) -> bool:
     return (gdata.StDate <= dtmDate)
-
