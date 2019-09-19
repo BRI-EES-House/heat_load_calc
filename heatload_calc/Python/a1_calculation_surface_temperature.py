@@ -15,13 +15,13 @@ def get_surface_temperature(matWSR, matWSB, matWSC, matWSV, Tr, Lrs):
 # ********** 表面温度を計算するための各種係数 **********
 
 # 式(24)
-def get_WSR(matAX, matFIA):
-    return np.dot(matAX, matFIA)
+def get_WSR(AX_k_l, FIA_i_l):
+    return np.dot(AX_k_l, FIA_i_l)
 
 
 # 式(24)
-def get_WSB(matAX, matFLB):
-    return np.dot(matAX, matFLB)
+def get_WSB(AX_k_l, FLB_i_l):
+    return np.dot(AX_k_l, FLB_i_l)
 
 
 # 式(24)

@@ -8,9 +8,6 @@ import math
 # 地域区分から緯度、経度を設定する
 # 当面は6地域の緯度、経度を返す
 def get_region_location(Region: int) -> tuple:
-    Latitude = -999.0
-    Longitude = -999.0
-
     if Region == 1:
         # 1地域（北見）
         Latitude = 43.82
@@ -43,4 +40,7 @@ def get_region_location(Region: int) -> tuple:
         # 8地域（那覇）
         Latitude = 26.21
         Longitude = 127.685
+    else:
+        raise ValueError(Region)
+
     return math.radians(Latitude), math.radians(Longitude)

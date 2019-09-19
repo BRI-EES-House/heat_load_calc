@@ -1,7 +1,5 @@
 from typing import List
-import Surface
-import Space
-import a19_external_surfaces
+import s3_space_initializer
 import numpy as np
 
 """
@@ -10,7 +8,7 @@ import numpy as np
 
 
 # 裏面の相当温度を計算する 表.4
-def calc_Teo(surfG_i, To_n: float, oldTr: float, spaces: List['Space'], sequence_number: int):
+def calc_Teo(surfG_i, To_n: float, oldTr: float, spaces: List['s3_space_initializer'], sequence_number: int):
     Teo_i_k_n = np.zeros(surfG_i.NsurfG_i)
 
     for g in range(surfG_i.NsurfG_i):
@@ -75,6 +73,6 @@ def get_NextRoom_fromR(a_i_k: float, Ta: float, Tr: float) -> float:
 
 
 # 前時刻の隣室温度の場合
-def get_oldNextRoom(nextroomname: str, spaces: List['Space'], sequence_number: int) -> float:
+def get_oldNextRoom(nextroomname: str, spaces: List['s3_space_initializer'], sequence_number: int) -> float:
     Te = spaces[nextroomname].Tr_i_n[sequence_number - 1]
     return Te

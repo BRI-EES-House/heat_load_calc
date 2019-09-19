@@ -1,10 +1,11 @@
 import math
 
 """
-付録35．	PMVの計算方法
+付録35．PMVの計算方法
 """
 
 
+# PMVを計算する
 def calc_PMV(Ta, MRT, RH, V, Met, Wme, Clo):
     # 水蒸気分圧[Pa]の計算
     Pa = RH / 100. * FNPS(Ta) * 1000.0
@@ -64,25 +65,38 @@ def calc_PMV(Ta, MRT, RH, V, Met, Wme, Clo):
     TS = 0.303 * math.exp(-0.036 * M) + 0.028
     PMV = TS * (MW - HL1 - HL2 - HL3 - HL4 - HL5 - HL6)
 
-    # PMVを目標値として作用温度を逆算するために上下限値の不連続をやめる
-    # if PMV_i_n > 3.0:
-    #     PMV_i_n = 999.
-    # elif PMV_i_n < -3.0:
-    #     PMV_i_n = -999.0
-
     return PMV
 
 
 # PPDを計算する
-def calcPPD(PMV):
-    PPD = -9999.0
+# PPD（Predicted Percentage of Dissatisfied,予測不快者率（その温熱環境に不満足・不快さを感じる人の割合）)
+# ref: https://www.jsrae.or.jp/annai/yougo/66.html
+def get_PPD(PMV: float) -> float:
     if abs(PMV) > 3.0:
-        PPD = -9999.0
+        # TODO: -9999.0 の扱いは要検討
+        return -9999.0
     else:
-        PPD = 100.0 - 95.0 * math.exp(-0.03353 * PMV ** 4.0 - 0.2179 * PMV ** 2.0)
-    return PPD
+        return 100.0 - 95.0 * math.exp(-0.03353 * PMV ** 4.0 - 0.2179 * PMV ** 2.0)
 
 
 # 飽和水蒸気圧[kPa]の計算（ASHRAE Standard 55-2013）
-def FNPS(T):
+def FNPS(T: float) -> float:
     return math.exp(16.6536 - 4030.183 / (T + 235.0))
+
+
+# 着衣量 [clo] の計算（作用温度から求める） 式(128)
+def get_I_cl(OT: float) -> float:
+    # 冷房時の着衣量
+    if OT > 29.1:
+        clothing = 0.3
+    # 暖房時の着衣量
+    elif OT < 19.4:
+        clothing = 1.1
+    # 非空調時の着衣量（作用温度と線形関係で調節する）
+    else:
+        clothing = 1.1 + (0.3 - 1.1) / (29.1 - 19.4) * (OT - 19.4)
+
+    return clothing
+
+
+

@@ -6,7 +6,7 @@ import a18_initial_value_constants as a18
 # ********** 4.1 顕熱 **********
 
 # 作用温度設定用係数への換算
-def calc_OT_coeff(BRC_i, BRM_i, WSV_i_k, WSC_i_k, fot, WSR_i_k, WSB_i_k, kc_i, kr_i, BRL_i):
+def calc_OT_coeff(BRM_i, BRC_i, BRL_i, WSR_i_k, WSB_i_k, WSC_i_k, WSV_i_k, fot, kc_i, kr_i):
     # Deno 式(11)
     Deno = get_Deno(fot, kc_i, kr_i, WSR_i_k)
 
@@ -28,7 +28,7 @@ def calc_OT_coeff(BRC_i, BRM_i, WSV_i_k, WSC_i_k, fot, WSR_i_k, WSB_i_k, kc_i, k
     # BRLot 式(4)
     BRLot = get_BRLot(BRL_i, BRM_i, XLr)
 
-    return BRMot, BRLot, BRCot, Xot, XLr, XC
+    return BRMot, BRCot, BRLot, Xot, XLr, XC
 
 
 # BRMot 式(2)
@@ -65,7 +65,7 @@ def get_BRM_i(Hcap, WSR_i_k, Cap_fun_i, C_fun_i, Vent, local_vent_amount_schedul
 
     # 外気導入項の計算（3項目の0.0はすきま風量）
     # ※ここで、BRMがスカラー値(BRM_0)から1時間ごとの1次元配列(BRM_h)へ
-    BRM_h = BRM_0 + ca * rhoa * (Vent + 0.0 + np.array(local_vent_amount_schedule)) / 3600.0
+    BRM_h = BRM_0 + ca * rhoa * (Vent + 0.0 + np.array(local_vent_amount_schedule[::4])) / 3600.0
 
     # 1時間当たり4ステップなので、配列を4倍に拡張
     BRM = np.repeat(BRM_h, 4)
@@ -125,8 +125,62 @@ def calc_kc_i():
     return a3.get_alpha_hm_c() / (a3.get_alpha_hm_r() + a3.get_alpha_hm_c())
 
 
+# ********** （1）式から作用温度、室除去熱量を計算する方法 **********
+
+# TODO: 空調運転モード3,4については未定義
+
+# 作用温度、室除去熱量の計算ルーティン
+def calc_heatload(ac_mode: int, is_radiative_heating: bool, BRCot: float, BRMot: float, BRLot: float,
+                  Lrcap: float, Tset: float) -> (float, float, float):
+    """
+
+    :param ac_mode:
+    :param is_radiative_heating:
+    :param BRCot:
+    :param BRMot:
+    :param BRLot:
+    :param Lrcap:
+    :param Tset:
+    :return: 室温、対流空調熱負荷、放射空調熱負荷を返す
+    """
+
+    # 非空調時の室温計算
+    if ac_mode == 0:
+        Lrs = 0.0
+        Lcs = 0.0
+        OT = get_OT_natural(BRCot, BRMot)
+
+    # 熱負荷計算（能力無制限）
+    elif ac_mode == 1 or ac_mode == -1 or ac_mode == 4:
+        # 対流式空調の場合
+        if (is_radiative_heating is not True) or (is_radiative_heating and ac_mode < 0):
+            Lrs = 0.0
+            Lcs = BRMot * Tset - BRCot
+        # 放射式空調
+        else:
+            Lcs = 0.0
+            Lrs = (BRMot * Tset - BRCot) / BRLot
+        # 室温の計算
+        OT = (BRCot + Lcs + BRLot * Lrs) / BRMot
+
+    # 放射暖房最大能力運転（当面は暖房のみ）
+    elif ac_mode == 3 and Lrcap > 0.0:
+        Lrs = Lrcap
+        # 室温は対流式で維持する
+        Lcs = BRMot * Tset - BRCot - Lrs * BRLot
+        # 室温の計算
+        OT = (BRCot + Lcs + BRLot * Lrs) / BRMot
+
+    return (OT, Lcs, Lrs)
+
+
+def get_OT_natural(BRCot, BRMot):
+    OT = BRCot / BRMot
+    return OT
+
+
 # 自然室温を計算 式(14)
-def get_Tr_i_n(Lrs, OT, Xot, XLr, XC):
+def get_Tr_i_n(OT, Lrs, Xot, XLr, XC):
     return Xot * OT - XLr * Lrs - XC
 
 
@@ -137,13 +191,17 @@ def get_Tfun_i_n(Capfun, Tfun_i_n_m1, Cfun, Tr, Qsolfun):
     :param Capfun: i室の家具の熱容量（付録14．による） [J/K]
     :param Tfun_i_n_m1: i室の家具の15分前の温度 [℃]
     :param Cfun: i室の家具と室空気間の熱コンダクタンス（付録14．による）
-    :param Tr:
+    :param Tr: 室温 [℃]
     :param Qsolfun: i室のn時点における家具の日射吸収熱量 [W]
-    :return:
+    :return: 家具の温度 [℃]
     """
-    return (((Capfun / 900 * Tfun_i_n_m1
-              + Cfun * Tr + Qsolfun)
-             / (Capfun / 900 + Cfun)))
+
+    delta_t = a18.get_delta_t()
+
+    if Capfun > 0.0:
+        return (Capfun / delta_t * Tfun_i_n_m1 + Cfun * Tr + Qsolfun) / (Capfun / delta_t + Cfun)
+    else:
+        return 0.0
 
 
 def get_Qfuns(Cfun, Tr, Tfun):

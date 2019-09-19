@@ -1,33 +1,25 @@
 import math
 import numpy as np
-from typing import List
-from functools import lru_cache
+
 import a36_region_location as a36
+
+from collections import namedtuple
+from functools import lru_cache
 
 """
 付録5．	太陽位置の計算
 """
 
-
-# 太陽位置を計算するクラス
-def defSolpos(Sw, Ss, h_s, Sh_n, cos_h_s, a_s, sin_a_s, cos_a_s):
-    """
-    :param Sw: cos(h)*sin(A)
-    :param Ss: cos(h)*cos(A)
-    :param h_s: 太陽高度[rad]
-    :param Sh_n: sin(h)
-    :param a_s: 太陽方位角[rad]
-    """
-    return {
-        "Sw": Sw,  # cos h sin A
-        "Ss": Ss,  # cos h cos A
-        "h_s": h_s,  # 太陽高度
-        "Sh_n": Sh_n,  # sin h
-        "cos_h_s": cos_h_s,
-        "a_s": a_s,  # 太陽方位角
-        "sin_a_s": sin_a_s,
-        "cos_a_s": cos_a_s
-    }
+solar_position = namedtuple('solar_position', [
+    'Sw',  # cos h sin A
+    'Ss',  # cos h cos A
+    'h_s',  # 太陽高度
+    'Sh_n',  # sin h
+    'cos_h_s',
+    'a_s',  # 太陽方位角
+    'sin_a_s',
+    'cos_a_s'
+])
 
 
 def get_n(y: int) -> int:
@@ -144,7 +136,7 @@ def get_t(t_m: np.ndarray, l: float, l0: float, e_t: np.ndarray) -> np.ndarray:
 
 
 def get_h_s(phi: float, sin_delta: np.ndarray, cos_delta: np.ndarray, t: np.ndarray) -> (
-np.ndarray, np.ndarray, np.ndarray):
+        np.ndarray, np.ndarray, np.ndarray):
     """
     Args:
         phi: 経度, rad
@@ -195,13 +187,13 @@ def get_a_s(
 
 
 @lru_cache(maxsize=None)
-def calc_solar_position(region: int) -> defSolpos:
+def calc_solar_position(region: int) -> solar_position:
     """
     太陽位置を計算する
     Args:
         region: 地域の区分
     Returns:
-        defSolpos クラス
+        solar_position クラス
     """
 
     phi, l = a36.get_region_location(region)
@@ -248,4 +240,4 @@ def calc_solar_position(region: int) -> defSolpos:
     dblSs = cos_h_s * cos_a_s
     dblSw = cos_h_s * sin_a_s
 
-    return defSolpos(dblSw, dblSs, h_s, Sh_n, cos_h_s, a_s, sin_a_s, cos_a_s)
+    return solar_position(dblSw, dblSs, h_s, Sh_n, cos_h_s, a_s, sin_a_s, cos_a_s)

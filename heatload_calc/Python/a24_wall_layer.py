@@ -5,15 +5,8 @@ import numpy as np
 """
 
 
-def get_layers(d, is_ground):
-    # 壁体構成部材の情報を保持するクラスをインスタンス化
-    # 層構成タプルリスト
-    #         要素0: 熱抵抗[(m2・K)/W]
-    #         a_i_g = thermal_resistance
-    #
-    #         要素1: 熱容量[J/(m2・K)]
-    #         C = thermal_capacity * 1000.0
-
+# 壁体構成部材の情報を読み込む
+def read_layers(d, is_ground):
     R = [d_layers['thermal_resistance'] for d_layers in d['layers']]
     C = [d_layers['thermal_capacity'] for d_layers in d['layers']]
 

@@ -1,5 +1,5 @@
 import numpy as np
-from Surface import Surface
+from s3_surface_loader import Surface
 
 """
 付録34．境界条件が同じ部位の集約
