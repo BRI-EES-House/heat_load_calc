@@ -171,6 +171,11 @@ def calc_heatload(ac_mode: int, is_radiative_heating: bool, BRCot: float, BRMot:
         # 室温の計算
         OT = (BRCot + Lcs + BRLot * Lrs) / BRMot
 
+    else:
+        Lrs = 0.0
+        Lcs = 0.0
+        OT = get_OT_natural(BRCot, BRMot)
+
     return (OT, Lcs, Lrs)
 
 

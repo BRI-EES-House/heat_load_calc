@@ -131,8 +131,12 @@ def run_tick(spaces, To_n: float, xo: float, n: int):
                               PMV_natural)
 
         # 目標PMVの計算（冷房時は上限、暖房時は下限PMVを目標値とする）
-        # 空調モード: -1=冷房, 0=停止, 1=暖房    ==>  [停止, 暖房, 冷房]
-        PMV_set = [None, s.pmv_lower_limit_schedule[n], s.pmv_upper_limit_schedule[n]][ac_mode]
+        # 空調モード: -1=冷房, 0=停止, 1=暖房, 2=, 3=    ==>  [停止, 暖房, 暖房(1), 暖房(2), 冷房]
+        PMV_set = [None,
+                   s.pmv_lower_limit_schedule[n],
+                   s.pmv_lower_limit_schedule[n],
+                   s.pmv_lower_limit_schedule[n],
+                   s.pmv_upper_limit_schedule[n]][ac_mode]
 
         # 確定した窓開閉状態における通風量を計算
         NV = a13.get_NV(s.is_now_window_open_i_n[n], s.Vol_i, s.Nventtime_i)
