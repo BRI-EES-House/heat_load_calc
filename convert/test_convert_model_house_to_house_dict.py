@@ -836,6 +836,198 @@ class ConvertModelHouseToHouseDict(unittest.TestCase):
         self.assertAlmostEqual(get_floor_area_with_direction(self.mh7, 'downward')[0], 48.36315762711864)
         self.assertAlmostEqual(get_floor_area_with_direction(self.mh8, 'downward')[0], 48.36315762711864)
 
+    def test_boundary_wall(self):
+
+        def get_boundary_wall_number(mh):
+            return len([p for p in mh['general_parts'] if p['general_part_type'] == 'boundary_wall'])
+
+        self.assertEqual(get_boundary_wall_number(self.mh1), 0)
+        self.assertEqual(get_boundary_wall_number(self.mh2), 0)
+        self.assertEqual(get_boundary_wall_number(self.mh3), 0)
+        self.assertEqual(get_boundary_wall_number(self.mh4), 0)
+        self.assertEqual(get_boundary_wall_number(self.mh5), 1)
+        self.assertEqual(get_boundary_wall_number(self.mh6), 0)
+        self.assertEqual(get_boundary_wall_number(self.mh7), 0)
+        self.assertEqual(get_boundary_wall_number(self.mh8), 0)
+        self.assertEqual(get_boundary_wall_number(self.mh9), 0)
+        self.assertEqual(get_boundary_wall_number(self.mh10), 1)
+
+        def get_boundary_wall_next_space_number(mh, key):
+            return len([p for p in mh['general_parts']
+                        if p['general_part_type'] == 'boundary_wall' and p['next_space'] == key])
+
+        self.assertEqual(get_boundary_wall_next_space_number(self.mh5, 'air_conditioned'), 1)
+        self.assertEqual(get_boundary_wall_next_space_number(self.mh10, 'air_conditioned'), 1)
+
+        def get_boundary_wall_direction_number(mh, key):
+            return len([p for p in mh['general_parts']
+                        if p['general_part_type'] == 'boundary_wall' and p['direction'] == key])
+
+        self.assertEqual(get_boundary_wall_direction_number(self.mh5, 'horizontal'), 1)
+        self.assertEqual(get_boundary_wall_direction_number(self.mh10, 'horizontal'), 1)
+
+        def get_boundary_wall_area_with_direction(mh, key):
+            return sorted([p['area'] for p in mh['general_parts']
+                           if p['general_part_type'] == 'boundary_wall' and p['direction'] == key])
+
+        self.assertAlmostEqual(get_boundary_wall_area_with_direction(self.mh5, 'horizontal')[0], 31.913534161094855)
+        self.assertAlmostEqual(get_boundary_wall_area_with_direction(self.mh10, 'horizontal')[0], 31.917820607336132)
+
+    def test_upward_boundary_floor(self):
+
+        def get_upward_boundary_floor_number(mh):
+            return len([p for p in mh['general_parts'] if p['general_part_type'] == 'upward_boundary_floor'])
+
+        self.assertEqual(get_upward_boundary_floor_number(self.mh1), 0)
+        self.assertEqual(get_upward_boundary_floor_number(self.mh2), 0)
+        self.assertEqual(get_upward_boundary_floor_number(self.mh3), 0)
+        self.assertEqual(get_upward_boundary_floor_number(self.mh4), 0)
+        self.assertEqual(get_upward_boundary_floor_number(self.mh5), 1)
+        self.assertEqual(get_upward_boundary_floor_number(self.mh6), 0)
+        self.assertEqual(get_upward_boundary_floor_number(self.mh7), 0)
+        self.assertEqual(get_upward_boundary_floor_number(self.mh8), 0)
+        self.assertEqual(get_upward_boundary_floor_number(self.mh9), 0)
+        self.assertEqual(get_upward_boundary_floor_number(self.mh10), 1)
+
+        def get_upward_boundary_floor_next_space_number(mh, key):
+            return len([p for p in mh['general_parts']
+                        if p['general_part_type'] == 'upward_boundary_floor' and p['next_space'] == key])
+
+        self.assertEqual(get_upward_boundary_floor_next_space_number(self.mh5, 'air_conditioned'), 1)
+        self.assertEqual(get_upward_boundary_floor_next_space_number(self.mh10, 'air_conditioned'), 1)
+
+        def get_upward_boundary_floor_direction_number(mh, key):
+            return len([p for p in mh['general_parts']
+                        if p['general_part_type'] == 'upward_boundary_floor' and p['direction'] == key])
+
+        self.assertEqual(get_upward_boundary_floor_direction_number(self.mh5, 'upward'), 1)
+        self.assertEqual(get_upward_boundary_floor_direction_number(self.mh10, 'upward'), 1)
+
+        def get_upward_boundary_floor_area_with_direction(mh, key):
+            return sorted([p['area'] for p in mh['general_parts']
+                           if p['general_part_type'] == 'upward_boundary_floor' and p['direction'] == key])
+
+        self.assertAlmostEqual(get_upward_boundary_floor_area_with_direction(self.mh5, 'upward')[0], 70.0)
+        self.assertAlmostEqual(get_upward_boundary_floor_area_with_direction(self.mh10, 'upward')[0], 70.0)
+
+    def test_downward_boundary_floor(self):
+
+        def get_downward_boundary_floor_number(mh):
+            return len([p for p in mh['general_parts'] if p['general_part_type'] == 'downward_boundary_floor'])
+
+        self.assertEqual(get_downward_boundary_floor_number(self.mh1), 0)
+        self.assertEqual(get_downward_boundary_floor_number(self.mh2), 0)
+        self.assertEqual(get_downward_boundary_floor_number(self.mh3), 0)
+        self.assertEqual(get_downward_boundary_floor_number(self.mh4), 0)
+        self.assertEqual(get_downward_boundary_floor_number(self.mh5), 1)
+        self.assertEqual(get_downward_boundary_floor_number(self.mh6), 0)
+        self.assertEqual(get_downward_boundary_floor_number(self.mh7), 0)
+        self.assertEqual(get_downward_boundary_floor_number(self.mh8), 0)
+        self.assertEqual(get_downward_boundary_floor_number(self.mh9), 0)
+        self.assertEqual(get_downward_boundary_floor_number(self.mh10), 1)
+
+        def get_downward_boundary_floor_next_space_number(mh, key):
+            return len([p for p in mh['general_parts']
+                        if p['general_part_type'] == 'downward_boundary_floor' and p['next_space'] == key])
+
+        self.assertEqual(get_downward_boundary_floor_next_space_number(self.mh5, 'air_conditioned'), 1)
+        self.assertEqual(get_downward_boundary_floor_next_space_number(self.mh10, 'air_conditioned'), 1)
+
+        def get_downward_boundary_floor_direction_number(mh, key):
+            return len([p for p in mh['general_parts']
+                        if p['general_part_type'] == 'downward_boundary_floor' and p['direction'] == key])
+
+        self.assertEqual(get_downward_boundary_floor_direction_number(self.mh5, 'downward'), 1)
+        self.assertEqual(get_downward_boundary_floor_direction_number(self.mh10, 'downward'), 1)
+
+        def get_downward_boundary_floor_area_with_direction(mh, key):
+            return sorted([p['area'] for p in mh['general_parts']
+                           if p['general_part_type'] == 'downward_boundary_floor' and p['direction'] == key])
+
+        self.assertAlmostEqual(get_downward_boundary_floor_area_with_direction(self.mh5, 'downward')[0], 70.0)
+        self.assertAlmostEqual(get_downward_boundary_floor_area_with_direction(self.mh10, 'downward')[0], 70.0)
+
+    def test_windows_number(self):
+
+        def get_windows_number(mh):
+            return len(mh['windows'])
+
+        self.assertEqual(get_windows_number(self.mh1), 4)
+        self.assertEqual(get_windows_number(self.mh2), 4)
+        self.assertEqual(get_windows_number(self.mh3), 4)
+        self.assertEqual(get_windows_number(self.mh4), 4)
+        self.assertEqual(get_windows_number(self.mh5), 3)
+        self.assertEqual(get_windows_number(self.mh6), 4)
+        self.assertEqual(get_windows_number(self.mh7), 4)
+        self.assertEqual(get_windows_number(self.mh8), 4)
+        self.assertEqual(get_windows_number(self.mh9), 4)
+        self.assertEqual(get_windows_number(self.mh10), 3)
+
+        def get_windows_next_space_number(mh, key):
+            return len([p for p in mh['windows'] if p['next_space'] == key])
+
+        self.assertEqual(get_windows_next_space_number(self.mh1, 'outdoor'), 4)
+        self.assertEqual(get_windows_next_space_number(self.mh2, 'outdoor'), 4)
+        self.assertEqual(get_windows_next_space_number(self.mh3, 'outdoor'), 4)
+        self.assertEqual(get_windows_next_space_number(self.mh4, 'outdoor'), 4)
+        self.assertEqual(get_windows_next_space_number(self.mh5, 'outdoor'), 2)
+        self.assertEqual(get_windows_next_space_number(self.mh5, 'open_space'), 1)
+        self.assertEqual(get_windows_next_space_number(self.mh6, 'outdoor'), 4)
+        self.assertEqual(get_windows_next_space_number(self.mh7, 'outdoor'), 4)
+        self.assertEqual(get_windows_next_space_number(self.mh8, 'outdoor'), 4)
+        self.assertEqual(get_windows_next_space_number(self.mh9, 'outdoor'), 4)
+        self.assertEqual(get_windows_next_space_number(self.mh10, 'outdoor'), 2)
+        self.assertEqual(get_windows_next_space_number(self.mh10, 'open_space'), 1)
+
+        def get_windows_direction_number(mh, key):
+            return len([p for p in mh['windows'] if p['direction'] == key])
+
+        self.assertEqual(get_windows_direction_number(self.mh1, 'sw'), 1)
+        self.assertEqual(get_windows_direction_number(self.mh1, 'nw'), 1)
+        self.assertEqual(get_windows_direction_number(self.mh1, 'ne'), 1)
+        self.assertEqual(get_windows_direction_number(self.mh1, 'se'), 1)
+        self.assertEqual(get_windows_direction_number(self.mh2, 'sw'), 1)
+        self.assertEqual(get_windows_direction_number(self.mh2, 'nw'), 1)
+        self.assertEqual(get_windows_direction_number(self.mh2, 'ne'), 1)
+        self.assertEqual(get_windows_direction_number(self.mh2, 'se'), 1)
+        self.assertEqual(get_windows_direction_number(self.mh3, 'sw'), 1)
+        self.assertEqual(get_windows_direction_number(self.mh3, 'nw'), 1)
+        self.assertEqual(get_windows_direction_number(self.mh3, 'ne'), 1)
+        self.assertEqual(get_windows_direction_number(self.mh3, 'se'), 1)
+        self.assertEqual(get_windows_direction_number(self.mh4, 'sw'), 1)
+        self.assertEqual(get_windows_direction_number(self.mh4, 'nw'), 1)
+        self.assertEqual(get_windows_direction_number(self.mh4, 'ne'), 1)
+        self.assertEqual(get_windows_direction_number(self.mh4, 'se'), 1)
+        self.assertEqual(get_windows_direction_number(self.mh5, 'sw'), 1)
+        self.assertEqual(get_windows_direction_number(self.mh5, 'nw'), 1)
+        self.assertEqual(get_windows_direction_number(self.mh5, 'horizontal'), 1)
+        self.assertEqual(get_windows_direction_number(self.mh6, 'sw'), 1)
+        self.assertEqual(get_windows_direction_number(self.mh6, 'nw'), 1)
+        self.assertEqual(get_windows_direction_number(self.mh6, 'ne'), 1)
+        self.assertEqual(get_windows_direction_number(self.mh6, 'se'), 1)
+        self.assertEqual(get_windows_direction_number(self.mh7, 'sw'), 1)
+        self.assertEqual(get_windows_direction_number(self.mh7, 'nw'), 1)
+        self.assertEqual(get_windows_direction_number(self.mh7, 'ne'), 1)
+        self.assertEqual(get_windows_direction_number(self.mh7, 'se'), 1)
+        self.assertEqual(get_windows_direction_number(self.mh8, 'sw'), 1)
+        self.assertEqual(get_windows_direction_number(self.mh8, 'nw'), 1)
+        self.assertEqual(get_windows_direction_number(self.mh8, 'ne'), 1)
+        self.assertEqual(get_windows_direction_number(self.mh8, 'se'), 1)
+        self.assertEqual(get_windows_direction_number(self.mh9, 'sw'), 1)
+        self.assertEqual(get_windows_direction_number(self.mh9, 'nw'), 1)
+        self.assertEqual(get_windows_direction_number(self.mh9, 'ne'), 1)
+        self.assertEqual(get_windows_direction_number(self.mh9, 'se'), 1)
+        self.assertEqual(get_windows_direction_number(self.mh10, 'sw'), 1)
+        self.assertEqual(get_windows_direction_number(self.mh10, 'nw'), 1)
+        self.assertEqual(get_windows_direction_number(self.mh10, 'horizontal'), 1)
+
+        def get_windows_area_with_direction(mh, key):
+            return sorted([p['area'] for p in mh['windows'] if p['direction'] == key])
+
+        self.assertAlmostEqual(get_windows_area_with_direction(self.mh1, 'sw')[0], 22.695293711200005)
+        self.assertAlmostEqual(get_windows_area_with_direction(self.mh1, 'nw')[0], 2.3846264596)
+        self.assertAlmostEqual(get_windows_area_with_direction(self.mh1, 'ne')[0], 3.628204197200001)
+        self.assertAlmostEqual(get_windows_area_with_direction(self.mh1, 'se')[0], 4.365751632000001)
 
 
 if __name__ == '__main__':

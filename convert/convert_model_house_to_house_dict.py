@@ -207,7 +207,7 @@ def convert(
         part_window = [
             get_window(name='window_sw', next_space='outdoor', direction='sw', area=a_evp_window[0]),
             get_window(name='window_nw', next_space='outdoor', direction='nw', area=a_evp_window[1]),
-            get_window(name='window_ne', next_space='open_space', direction='ne', area=a_evp_window[2]),
+            get_window(name='window_ne', next_space='open_space', direction='horizontal', area=a_evp_window[2]),
         ]
     else:
         raise Exception
