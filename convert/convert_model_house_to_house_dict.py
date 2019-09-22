@@ -87,7 +87,7 @@ def get_earth_floor(name: str, area: float) -> Dict[str, Optional[Union[str, flo
         'name': name,
         'area': area,
         'space_type': None,
-        'is_layers_input': None
+        'spec': None
     }
 
 
