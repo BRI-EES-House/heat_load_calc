@@ -230,7 +230,7 @@ def convert(
         if a_evp_door[3] > 0.0:
             raise Exception('集合住宅において、Direction 270 側にドアが設定（面積が0より大）されました。')
         part_door = [
-            get_door(name='door_ne', next_space='open_space', direction='ne', area=a_evp_door[2]),
+            get_door(name='door_ne', next_space='open_space', direction='horizontal', area=a_evp_door[2]),
         ]
     else:
         raise Exception
