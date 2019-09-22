@@ -135,9 +135,8 @@ def convert(
         a_evp_door: 各方位のドアの面積, m2
         a_evp_wall: 各方位の壁の面積, m2
         **kwargs:
-
     Returns:
-
+        モデルハウスを表す辞書（spec = None）
     """
 
     # roof
@@ -390,7 +389,7 @@ def convert(
     else:
         raise Exception
 
-    # base inside
+    # earth floor perimeter inside
     if house_type == 'detached':
         if floor_ins_type == 'floor':
             part_earth_floor_perimeter_inside = [

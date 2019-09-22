@@ -947,7 +947,7 @@ class ConvertModelHouseToHouseDict(unittest.TestCase):
         self.assertAlmostEqual(get_downward_boundary_floor_area_with_direction(self.mh5, 'downward')[0], 70.0)
         self.assertAlmostEqual(get_downward_boundary_floor_area_with_direction(self.mh10, 'downward')[0], 70.0)
 
-    def test_windows_number(self):
+    def test_windows(self):
 
         def get_windows_number(mh):
             return len(mh['windows'])
@@ -1028,6 +1028,172 @@ class ConvertModelHouseToHouseDict(unittest.TestCase):
         self.assertAlmostEqual(get_windows_area_with_direction(self.mh1, 'nw')[0], 2.3846264596)
         self.assertAlmostEqual(get_windows_area_with_direction(self.mh1, 'ne')[0], 3.628204197200001)
         self.assertAlmostEqual(get_windows_area_with_direction(self.mh1, 'se')[0], 4.365751632000001)
+
+    def test_doors(self):
+
+        def get_doors_number(mh):
+            return len(mh['doors'])
+
+        self.assertEqual(get_doors_number(self.mh1), 2)
+        self.assertEqual(get_doors_number(self.mh2), 2)
+        self.assertEqual(get_doors_number(self.mh3), 2)
+        self.assertEqual(get_doors_number(self.mh4), 2)
+        self.assertEqual(get_doors_number(self.mh5), 1)
+        self.assertEqual(get_doors_number(self.mh6), 2)
+        self.assertEqual(get_doors_number(self.mh7), 2)
+        self.assertEqual(get_doors_number(self.mh8), 2)
+        self.assertEqual(get_doors_number(self.mh9), 2)
+        self.assertEqual(get_doors_number(self.mh10), 1)
+
+        def get_doors_next_space_number(mh, key):
+            return len([p for p in mh['doors'] if p['next_space'] == key])
+
+        self.assertEqual(get_doors_next_space_number(self.mh1, 'outdoor'), 2)
+        self.assertEqual(get_doors_next_space_number(self.mh2, 'outdoor'), 2)
+        self.assertEqual(get_doors_next_space_number(self.mh3, 'outdoor'), 2)
+        self.assertEqual(get_doors_next_space_number(self.mh4, 'outdoor'), 2)
+        self.assertEqual(get_doors_next_space_number(self.mh5, 'open_space'), 1)
+        self.assertEqual(get_doors_next_space_number(self.mh6, 'outdoor'), 2)
+        self.assertEqual(get_doors_next_space_number(self.mh7, 'outdoor'), 2)
+        self.assertEqual(get_doors_next_space_number(self.mh8, 'outdoor'), 2)
+        self.assertEqual(get_doors_next_space_number(self.mh9, 'outdoor'), 2)
+        self.assertEqual(get_doors_next_space_number(self.mh10, 'open_space'), 1)
+
+        def get_windows_direction_number(mh, key):
+            return len([p for p in mh['doors'] if p['direction'] == key])
+
+        self.assertEqual(get_windows_direction_number(self.mh1, 'nw'), 1)
+        self.assertEqual(get_windows_direction_number(self.mh1, 'ne'), 1)
+        self.assertEqual(get_windows_direction_number(self.mh2, 'nw'), 1)
+        self.assertEqual(get_windows_direction_number(self.mh2, 'ne'), 1)
+        self.assertEqual(get_windows_direction_number(self.mh3, 'nw'), 1)
+        self.assertEqual(get_windows_direction_number(self.mh3, 'ne'), 1)
+        self.assertEqual(get_windows_direction_number(self.mh4, 'nw'), 1)
+        self.assertEqual(get_windows_direction_number(self.mh4, 'ne'), 1)
+        self.assertEqual(get_windows_direction_number(self.mh5, 'horizontal'), 1)
+        self.assertEqual(get_windows_direction_number(self.mh6, 'nw'), 1)
+        self.assertEqual(get_windows_direction_number(self.mh6, 'ne'), 1)
+        self.assertEqual(get_windows_direction_number(self.mh7, 'nw'), 1)
+        self.assertEqual(get_windows_direction_number(self.mh7, 'ne'), 1)
+        self.assertEqual(get_windows_direction_number(self.mh8, 'nw'), 1)
+        self.assertEqual(get_windows_direction_number(self.mh8, 'ne'), 1)
+        self.assertEqual(get_windows_direction_number(self.mh9, 'nw'), 1)
+        self.assertEqual(get_windows_direction_number(self.mh9, 'ne'), 1)
+        self.assertEqual(get_windows_direction_number(self.mh10, 'horizontal'), 1)
+
+        def get_doors_area_with_direction(mh, key):
+            return sorted([p['area'] for p in mh['doors'] if p['direction'] == key])
+
+        self.assertAlmostEqual(get_doors_area_with_direction(self.mh1, 'nw')[0], 1.89)
+        self.assertAlmostEqual(get_doors_area_with_direction(self.mh1, 'ne')[0], 1.62)
+        self.assertAlmostEqual(get_doors_area_with_direction(self.mh2, 'nw')[0], 1.89)
+        self.assertAlmostEqual(get_doors_area_with_direction(self.mh2, 'ne')[0], 1.62)
+        self.assertAlmostEqual(get_doors_area_with_direction(self.mh3, 'nw')[0], 1.89)
+        self.assertAlmostEqual(get_doors_area_with_direction(self.mh3, 'ne')[0], 1.62)
+        self.assertAlmostEqual(get_doors_area_with_direction(self.mh4, 'nw')[0], 1.89)
+        self.assertAlmostEqual(get_doors_area_with_direction(self.mh4, 'ne')[0], 1.62)
+        self.assertAlmostEqual(get_doors_area_with_direction(self.mh5, 'horizontal')[0], 1.755)
+        self.assertAlmostEqual(get_doors_area_with_direction(self.mh6, 'nw')[0], 1.89)
+        self.assertAlmostEqual(get_doors_area_with_direction(self.mh6, 'ne')[0], 1.62)
+        self.assertAlmostEqual(get_doors_area_with_direction(self.mh7, 'nw')[0], 1.89)
+        self.assertAlmostEqual(get_doors_area_with_direction(self.mh7, 'ne')[0], 1.62)
+        self.assertAlmostEqual(get_doors_area_with_direction(self.mh8, 'nw')[0], 1.89)
+        self.assertAlmostEqual(get_doors_area_with_direction(self.mh8, 'ne')[0], 1.62)
+        self.assertAlmostEqual(get_doors_area_with_direction(self.mh9, 'nw')[0], 1.89)
+        self.assertAlmostEqual(get_doors_area_with_direction(self.mh9, 'ne')[0], 1.62)
+        self.assertAlmostEqual(get_doors_area_with_direction(self.mh10, 'horizontal')[0], 1.755)
+
+    def test_earthfloor_perimeters(self):
+
+        def get_earthfloor_perimeters_number(mh):
+            return len(mh['earthfloor_perimeters'])
+
+        self.assertEqual(get_earthfloor_perimeters_number(self.mh1), 3)
+        self.assertEqual(get_earthfloor_perimeters_number(self.mh2), 3)
+        self.assertEqual(get_earthfloor_perimeters_number(self.mh3), 3)
+        self.assertEqual(get_earthfloor_perimeters_number(self.mh4), 4)
+        self.assertEqual(get_earthfloor_perimeters_number(self.mh5), 0)
+        self.assertEqual(get_earthfloor_perimeters_number(self.mh6), 3)
+        self.assertEqual(get_earthfloor_perimeters_number(self.mh7), 3)
+        self.assertEqual(get_earthfloor_perimeters_number(self.mh8), 3)
+        self.assertEqual(get_earthfloor_perimeters_number(self.mh9), 4)
+        self.assertEqual(get_earthfloor_perimeters_number(self.mh10), 0)
+
+        def get_earthfloor_perimeters_next_space_number(mh, key):
+            return len([p for p in mh['earthfloor_perimeters'] if p['next_space'] == key])
+
+        self.assertEqual(get_earthfloor_perimeters_next_space_number(self.mh1, 'outdoor'), 2)
+        self.assertEqual(get_earthfloor_perimeters_next_space_number(self.mh1, 'open_underfloor'), 1)
+        self.assertEqual(get_earthfloor_perimeters_next_space_number(self.mh2, 'outdoor'), 2)
+        self.assertEqual(get_earthfloor_perimeters_next_space_number(self.mh2, 'open_underfloor'), 1)
+        self.assertEqual(get_earthfloor_perimeters_next_space_number(self.mh3, 'outdoor'), 2)
+        self.assertEqual(get_earthfloor_perimeters_next_space_number(self.mh3, 'open_underfloor'), 1)
+        self.assertEqual(get_earthfloor_perimeters_next_space_number(self.mh4, 'outdoor'), 4)
+        self.assertEqual(get_earthfloor_perimeters_next_space_number(self.mh6, 'outdoor'), 2)
+        self.assertEqual(get_earthfloor_perimeters_next_space_number(self.mh6, 'open_underfloor'), 1)
+        self.assertEqual(get_earthfloor_perimeters_next_space_number(self.mh7, 'outdoor'), 2)
+        self.assertEqual(get_earthfloor_perimeters_next_space_number(self.mh7, 'open_underfloor'), 1)
+        self.assertEqual(get_earthfloor_perimeters_next_space_number(self.mh8, 'outdoor'), 2)
+        self.assertEqual(get_earthfloor_perimeters_next_space_number(self.mh8, 'open_underfloor'), 1)
+        self.assertEqual(get_earthfloor_perimeters_next_space_number(self.mh9, 'outdoor'), 4)
+
+        def get_earthfloor_perimeters_length(mh):
+            return sorted([p['length'] for p in mh['earthfloor_perimeters']])
+
+        self.assertAlmostEqual(get_earthfloor_perimeters_length(self.mh1)[0], 3.185)
+        self.assertAlmostEqual(get_earthfloor_perimeters_length(self.mh1)[1], 3.64)
+        self.assertAlmostEqual(get_earthfloor_perimeters_length(self.mh1)[2], 6.825)
+        self.assertAlmostEqual(get_earthfloor_perimeters_length(self.mh2)[0], 1.365)
+        self.assertAlmostEqual(get_earthfloor_perimeters_length(self.mh2)[1], 1.82)
+        self.assertAlmostEqual(get_earthfloor_perimeters_length(self.mh2)[2], 3.185)
+        self.assertAlmostEqual(get_earthfloor_perimeters_length(self.mh3)[0], 1.365)
+        self.assertAlmostEqual(get_earthfloor_perimeters_length(self.mh3)[1], 1.82)
+        self.assertAlmostEqual(get_earthfloor_perimeters_length(self.mh3)[2], 3.185)
+        self.assertAlmostEqual(get_earthfloor_perimeters_length(self.mh4)[0], 4.7926264410438755)
+        self.assertAlmostEqual(get_earthfloor_perimeters_length(self.mh4)[1], 4.7926264410438755)
+        self.assertAlmostEqual(get_earthfloor_perimeters_length(self.mh4)[2], 10.60951823652745)
+        self.assertAlmostEqual(get_earthfloor_perimeters_length(self.mh4)[3], 10.60951823652745)
+        self.assertAlmostEqual(get_earthfloor_perimeters_length(self.mh6)[0], 3.185)
+        self.assertAlmostEqual(get_earthfloor_perimeters_length(self.mh6)[1], 3.64)
+        self.assertAlmostEqual(get_earthfloor_perimeters_length(self.mh6)[2], 6.825)
+        self.assertAlmostEqual(get_earthfloor_perimeters_length(self.mh7)[0], 1.365)
+        self.assertAlmostEqual(get_earthfloor_perimeters_length(self.mh7)[1], 1.82)
+        self.assertAlmostEqual(get_earthfloor_perimeters_length(self.mh7)[2], 3.185)
+        self.assertAlmostEqual(get_earthfloor_perimeters_length(self.mh8)[0], 1.365)
+        self.assertAlmostEqual(get_earthfloor_perimeters_length(self.mh8)[1], 1.82)
+        self.assertAlmostEqual(get_earthfloor_perimeters_length(self.mh8)[2], 3.185)
+        self.assertAlmostEqual(get_earthfloor_perimeters_length(self.mh9)[0], 4.7924168280158135)
+        self.assertAlmostEqual(get_earthfloor_perimeters_length(self.mh9)[1], 4.7924168280158135)
+        self.assertAlmostEqual(get_earthfloor_perimeters_length(self.mh9)[2], 10.609982280729707)
+        self.assertAlmostEqual(get_earthfloor_perimeters_length(self.mh9)[3], 10.609982280729707)
+
+    def test_earthfloor_centers(self):
+
+        def get_earthfloor_centers_number(mh):
+            return len(mh['earthfloor_centers'])
+
+        self.assertEqual(get_earthfloor_centers_number(self.mh1), 1)
+        self.assertEqual(get_earthfloor_centers_number(self.mh2), 1)
+        self.assertEqual(get_earthfloor_centers_number(self.mh3), 1)
+        self.assertEqual(get_earthfloor_centers_number(self.mh4), 1)
+        self.assertEqual(get_earthfloor_centers_number(self.mh5), 0)
+        self.assertEqual(get_earthfloor_centers_number(self.mh6), 1)
+        self.assertEqual(get_earthfloor_centers_number(self.mh7), 1)
+        self.assertEqual(get_earthfloor_centers_number(self.mh8), 1)
+        self.assertEqual(get_earthfloor_centers_number(self.mh9), 1)
+        self.assertEqual(get_earthfloor_centers_number(self.mh10), 0)
+
+        def get_earthfloor_centers_area(mh):
+            return sorted([p['area'] for p in mh['earthfloor_centers']])
+
+        self.assertAlmostEqual(get_earthfloor_centers_area(self.mh1)[0], 5.7967)
+        self.assertAlmostEqual(get_earthfloor_centers_area(self.mh2)[0], 2.4843)
+        self.assertAlmostEqual(get_earthfloor_centers_area(self.mh3)[0], 2.4843)
+        self.assertAlmostEqual(get_earthfloor_centers_area(self.mh4)[0], 50.847457627118644)
+        self.assertAlmostEqual(get_earthfloor_centers_area(self.mh6)[0], 5.7967)
+        self.assertAlmostEqual(get_earthfloor_centers_area(self.mh7)[0], 2.4843)
+        self.assertAlmostEqual(get_earthfloor_centers_area(self.mh8)[0], 2.4843)
+        self.assertAlmostEqual(get_earthfloor_centers_area(self.mh9)[0], 50.847457627118644)
 
 
 if __name__ == '__main__':
