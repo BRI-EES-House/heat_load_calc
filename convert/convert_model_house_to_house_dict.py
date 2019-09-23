@@ -113,13 +113,17 @@ def get_earth_floor_perimeter(name: str, next_space: str, length: float) -> Dict
 
 def convert(
         house_type: str, floor_ins_type: str,
-        a_evp_ef_total, a_evp_f_total,
-        l_base_total_outside, l_base_total_inside,
+        a_evp_ef_total: float,
+        a_evp_f_total: float,
+        l_base_total_outside: float,
+        l_base_total_inside: float,
         a_evp_roof: float,
-        a_evp_base_total_outside, a_evp_base_total_inside,
-        a_evp_window: (float, float, float, float),
-        a_evp_door: (float, float, float, float),
-        a_evp_wall: (float, float, float, float), **kwargs):
+        a_evp_base_total_outside: float,
+        a_evp_base_total_inside: float,
+        a_evp_window: Tuple[float, float, float, float],
+        a_evp_door: Tuple[float, float, float, float],
+        a_evp_wall: Tuple[float, float, float, float],
+        **kwargs):
     """
     Args:
         house_type: 住戸の種類(= 'detached' or 'attached')

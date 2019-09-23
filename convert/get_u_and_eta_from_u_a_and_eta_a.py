@@ -1,10 +1,9 @@
 import copy
 import math
 
-import nbimporter
 import numpy as np
 
-from typing import Optional, List, Dict, Union, Tuple
+from typing import Optional, List, Dict, Union, Tuple, Any
 
 import factor_nu # 方位係数
 import factor_f  # 日射取得率補正係数
@@ -378,7 +377,7 @@ def check_u_a_and_eta_a(a_evp_total, general_parts, windows, doors, earthfloor_p
     m_c_general = sum(
         p['area'] * 0.034 * u_psi_value[p['general_part_type']]
         * factor_nu.get_nu(region=region, season='cooling', direction=p['direction'])
-        for p in general_parts)
+        for p in general_parts if p['next_space'] == 'outdoor')
 
     m_c_door = sum(
         p['area'] * 0.034 * u_psi_value['door']
@@ -397,7 +396,24 @@ def check_u_a_and_eta_a(a_evp_total, general_parts, windows, doors, earthfloor_p
 
 
 def calc_parts_spec(
-        region, general_parts, windows, doors, earthfloor_perimeters, earthfloor_centers, u_a, eta_a_h, eta_a_c):
+        region: int,
+        general_parts: List[Dict[str, Any]],
+        windows, doors, earthfloor_perimeters, earthfloor_centers, u_a, eta_a_h, eta_a_c
+):
+    """
+    Args:
+        region: 地域の区分
+        general_parts: 一般部位
+        windows:
+        doors:
+        earthfloor_perimeters:
+        earthfloor_centers:
+        u_a:
+        eta_a_h:
+        eta_a_c:
+    Returns:
+
+    """
 
     # 部位の種類のリスト
     part_type_all = get_part_type_all()
@@ -418,13 +434,13 @@ def calc_parts_spec(
     # 部位の種類ごとの標準U値・ψ値に乗じる係数の最大値（ = 最大値 / 標準値 ）
     f_u_psi_max_each_part = get_f_u_psi_max_each_part(region, part_type_all)
 
-    # q値を満たす部位の種類ごとのf_u値（ = 標準U値・ψ値に乗じる係数）
+    # q値を満たす部位の種類ごとのf_u値またはf_psi値（ = 標準U値・ψ値に乗じる係数）
     f_u_psi = get_f_u_psi(q_std=q_std, f_u_psi_max_each_part=f_u_psi_max_each_part, q=q, part_type_all=part_type_all)
 
     # 各部位の種類のU値またはψ値, W/m2K or W/mK
     u_psi_value = get_u_psi_value(region, part_type_all, f_u_psi)
 
-    # 不透明部位のma値, W/(W/m2)
+    # 不透明部位のm値, W/(W/m2)
     m_h_opq, m_c_opq = get_m_opq(region, u_psi_value, general_parts, doors)
 
     # ηの算出
