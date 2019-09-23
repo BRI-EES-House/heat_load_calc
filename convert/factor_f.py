@@ -1,3 +1,4 @@
+from collections import namedtuple
 from typing import Optional, List, Dict, Union, Tuple
 
 # ⽇射取得率補正係数
@@ -13,6 +14,24 @@ from typing import Optional, List, Dict, Union, Tuple
 # 付録 B 大部分がガラスで構成されている窓等の開口部における取得日射熱補正係数
 # データ「取得日射熱補正係数」 表 1(a) 屋根又は屋根の直下の天井に設置されている開口部の暖房期の取得日
 # 射熱補正係数 表 1(b) 屋根又は屋根の直下の天井に設置されている開口部の冷房期の取得日射熱補正係数
+
+Sunshade = namedtuple('Sunshade', [
+    'existence',
+    'input_method',
+    'depth',
+    'd_h',
+    'd_e',
+    'x1',
+    'x2',
+    'x3',
+    'y1',
+    'y2',
+    'y3',
+    'z_x_pls',
+    'z_x_mns',
+    'z_y_pls',
+    'z_y_mns',
+])
 
 
 def get_f_without_eaves(season: str, region: int, direction: str) -> Optional[float]:

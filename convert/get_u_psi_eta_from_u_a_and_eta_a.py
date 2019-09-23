@@ -1,33 +1,46 @@
-import copy
-import math
-
 import numpy as np
-
+from collections import namedtuple
 from typing import Optional, List, Dict, Union, Tuple, Any
 
 import factor_nu # 方位係数
 import factor_f  # 日射取得率補正係数
 from factor_h import get_factor_h  # 温度差係数
 
+PartType = namedtuple('PartType', [
+    'roof',
+    'ceiling',
+    'wall',
+    'floor',
+    'boundary_ceiling',
+    'boundary_wall',
+    'boundary_floor',
+    'window',
+    'door',
+    'earthfloor_perimeter',
+])
 
-def get_part_type_all() -> List[str]:
+
+def get_u_psi(u_psi: PartType, key: str) -> float:
     """
+    Args:
+        u_psi: 各部位のU値またはψ値
+        key: 部位の名称
     Returns:
-        外皮の種類（リスト）
+        U値又はψ値, W/m2K or W/mK
     """
 
-    return [
-        'roof',
-        'ceiling',
-        'wall',
-        'floor',
-        'boundary_ceiling',
-        'boundary_wall',
-        'boundary_floor',
-        'window',
-        'door',
-        'earthfloor_perimeter',
-    ]
+    return {
+        'roof': u_psi.roof,
+        'ceiling': u_psi.ceiling,
+        'wall': u_psi.wall,
+        'floor': u_psi.floor,
+        'boundary_ceiling': u_psi.boundary_ceiling,
+        'boundary_wall': u_psi.boundary_wall,
+        'boundary_floor': u_psi.boundary_wall,
+        'window': u_psi.window,
+        'door': u_psi.door,
+        'earthfloor_perimeter': u_psi.earthfloor_perimeter,
+    }[key]
 
 
 def get_a_evp_total(general_parts: Dict, windows: Dict, doors: Dict, earthfloor_centers: Dict) -> float:
@@ -195,27 +208,25 @@ def get_u_psi_max(part_type):    # 部位別の熱貫流率の上限値, W/m2 K
     }[part_type]
 
 
-def get_f_u_psi_max_each_part(region: str, part_type_all: List[str]) -> Dict[str, float]:
+def get_f_u_psi_max_each_part(region: str) -> Dict[str, float]:
     """
     Args:
         region: 地域の区分
-        part_type_all: 部位の種類（リスト）
     Returns:
         部位の種類ごとの標準U値に乗じる係数の最大値（ = 最大U値 / 標準U値 ）
     """
 
+    part_type_all = PartType._fields
+
     return {p: get_u_psi_max(p) / get_u_psi_std(region, p) for p in part_type_all}
 
 
-def get_f_u_psi(
-        q_std: Dict[str, float], f_u_psi_max_each_part: Dict[str, float], q: float, part_type_all: List[str]
-) -> Dict[str, float]:
+def get_f_u_psi(q_std: Dict[str, float], f_u_psi_max_each_part: Dict[str, float], q: float) -> Dict[str, float]:
     """
     Args:
         q_std: 各部位の標準U値・ψ値に対するq値, W/K
         f_u_psi_max_each_part: 各部位の標準U値・ψ値に対するU値・ψ値の最大値の比
         q: q値, W/K
-        part_type_all: 各部位の名称
     Returns:
         各部位の各部位の標準U値に対するU値の比
     """
@@ -262,10 +273,12 @@ def get_f_u_psi(
 
             return dict(**dict1, **dict2)
 
+    part_type_all = list(PartType._fields)
+
     return get_remaining_f(remaining_q=q, f_u_base=0.0, remaining_part=part_type_all.copy())
 
 
-def get_u_psi_value(region: int, part_type_all: List[str], f_u: Dict[str, float]) -> Dict[str, float]:
+def get_u_psi_value(region: int, f_u: Dict[str, float]) -> Dict[str, float]:
     """
     Args:
         region: 地域の区分
@@ -274,7 +287,8 @@ def get_u_psi_value(region: int, part_type_all: List[str], f_u: Dict[str, float]
     Returns:
         各部位のU値, W/m2K
     """
-    return {pt: get_u_psi_std(region, pt) * f_u[pt] for pt in part_type_all}
+
+    return {pt: get_u_psi_std(region, pt) * f_u[pt] for pt in list(PartType._fields)}
 
 
 def get_m_opq(region: int, u_psi_value: Dict[str, float], general_parts: Dict, doors: Dict) -> (float, float):
@@ -318,7 +332,19 @@ def get_m_opq(region: int, u_psi_value: Dict[str, float], general_parts: Dict, d
     return m_opq_h, m_opq_c
 
 
-def get_eta_d(region: int, m_h: float, m_c: float, m_h_opq: float, m_c_opq: float, windows: Dict):
+def get_eta_d_each(
+        region: int, m_h: float, m_c: float, m_h_opq: float, m_c_opq: float, windows: Dict) -> Tuple[float, float]:
+    """
+    Args:
+        region: 地域の区分
+        m_h: m_h値, W/(W/m2)
+        m_c: m_c値, W/(W/m2)
+        m_h_opq: 不透明部位のm_h値, W/(W/m2)
+        m_c_opq: 不透明部位のm_c値, W/(W/m2)
+        windows: 窓
+    Returns:
+        η_d,h・η_d,c 値, (W/m2)/(W/m2)
+    """
 
     sum_a_f_nu_h = sum(
         p['area'] * factor_f.get_f_without_eaves(season='heating', region=region, direction=p['direction'])
@@ -336,7 +362,7 @@ def get_eta_d(region: int, m_h: float, m_c: float, m_h_opq: float, m_c_opq: floa
     return eta_d_h, eta_d_c
 
 
-def check_u_a_and_eta_a(a_evp_total, general_parts, windows, doors, earthfloor_perimeters, u_psi_value, eta, region, eta_d_h, eta_d_c):
+def check_u_a_and_eta_a(a_evp_total, general_parts, windows, doors, earthfloor_perimeters, u_psi_value, region, eta_d_h, eta_d_c):
 
     q_general = sum(p['area'] * u_psi_value[p['general_part_type']] * get_factor_h(region, p['next_space'])
                     for p in general_parts)
@@ -390,77 +416,100 @@ def check_u_a_and_eta_a(a_evp_total, general_parts, windows, doors, earthfloor_p
         * factor_nu.get_nu(season='cooling', region=region,direction=p['direction'])
         for p in windows)
 
-    eta_a_c = (m_c_general +  m_c_door + m_c_window) / a_evp_total * 100
+    eta_a_c = (m_c_general + m_c_door + m_c_window) / a_evp_total * 100
 
     return u_a, eta_a_h, eta_a_c
 
 
-def calc_parts_spec(
-        region: int,
-        general_parts: List[Dict[str, Any]],
-        windows, doors, earthfloor_perimeters, earthfloor_centers, u_a, eta_a_h, eta_a_c
-):
+def get_eta_d(region: int, eta_d_h: float, eta_d_c: float) -> float:
     """
     Args:
         region: 地域の区分
-        general_parts: 一般部位
-        windows:
-        doors:
-        earthfloor_perimeters:
-        earthfloor_centers:
-        u_a:
-        eta_a_h:
-        eta_a_c:
+        eta_d_h: 暖房期のηd値, (W/m2)/(W/m2)
+        eta_d_c: 冷房期のηd値, (W/m2)/(W/m2)
+    Returns:
+        ηd 値, (W/m2)/(W/m2)
+    """
+
+    if region == 8:
+        return  eta_d_c
+    else:
+        # ここは将来的に変更しないといけない。
+        # 暖房と冷房におけるデグリーデーで重み付け平均するなど
+        return (eta_d_h + eta_d_c) / 2
+
+
+def calc_parts_spec(region: int, house_no_spec: Dict, u_a_target, eta_a_h_target, eta_a_c_target):
+    """
+    Args:
+        region: 地域の区分
+        house_no_spec: 住宅辞書
+        u_a_target: 目標とするUA値, W/k
+        eta_a_h_target: 目標とするηAH値, W/(W/m2)
+        eta_a_c_target: 目標とするηAC値, W/(W/m2)
     Returns:
 
     """
 
-    # 部位の種類のリスト
-    part_type_all = get_part_type_all()
+    general_parts = house_no_spec['general_parts']
+    windows = house_no_spec['windows']
+    doors = house_no_spec['doors']
+    earthfloor_perimeters = house_no_spec['earthfloor_perimeters']
+    earthfloor_centers = house_no_spec['earthfloor_centers']
 
     # 外皮の面積の合計, m2
     a_evp_total = get_a_evp_total(general_parts, windows, doors, earthfloor_centers)
 
     # q値, W/K
-    q = get_q(a_evp_total, u_a)
+    q = get_q(a_evp_total, u_a_target)
 
     # m値, W/(W/m2)
-    m_h = get_m_h(a_evp_total, eta_a_h)
-    m_c = get_m_c(a_evp_total, eta_a_c)
+    m_h = get_m_h(a_evp_total, eta_a_h_target)
+    m_c = get_m_c(a_evp_total, eta_a_c_target)
 
     # 各部位の基準U値・ψ値に対するq値, W/K
     q_std = get_q_std(region, general_parts, windows, doors, earthfloor_perimeters)
 
     # 部位の種類ごとの標準U値・ψ値に乗じる係数の最大値（ = 最大値 / 標準値 ）
-    f_u_psi_max_each_part = get_f_u_psi_max_each_part(region, part_type_all)
+    f_u_psi_max_each_part = get_f_u_psi_max_each_part(region)
 
     # q値を満たす部位の種類ごとのf_u値またはf_psi値（ = 標準U値・ψ値に乗じる係数）
-    f_u_psi = get_f_u_psi(q_std=q_std, f_u_psi_max_each_part=f_u_psi_max_each_part, q=q, part_type_all=part_type_all)
+    f_u_psi = get_f_u_psi(q_std=q_std, f_u_psi_max_each_part=f_u_psi_max_each_part, q=q)
 
     # 各部位の種類のU値またはψ値, W/m2K or W/mK
-    u_psi_value = get_u_psi_value(region, part_type_all, f_u_psi)
+    u_psi_value = get_u_psi_value(region, f_u_psi)
 
     # 不透明部位のm値, W/(W/m2)
     m_h_opq, m_c_opq = get_m_opq(region, u_psi_value, general_parts, doors)
 
-    # ηの算出
-    eta_d_h, eta_d_c = get_eta_d(region, m_h, m_c, m_h_opq, m_c_opq, windows)
+    # ηdの算出
+    eta_d_h, eta_d_c = get_eta_d_each(region, m_h, m_c, m_h_opq, m_c_opq, windows)
 
-    eta_d = {
-        'heating': eta_d_h,
-        'cooling': eta_d_c,
-        'annual': eta_d_c,
-    }
+    # ηd値（平均化）
+    eta_d = get_eta_d(region=region, eta_d_h=eta_d_h, eta_d_c=eta_d_c)
 
     # 検算
     u_a_check, eta_a_h_check, eta_a_c_check = check_u_a_and_eta_a(
-        a_evp_total, general_parts, windows, doors, earthfloor_perimeters, u_psi_value, eta_d, region, eta_d_h, eta_d_c)
+        a_evp_total, general_parts, windows, doors, earthfloor_perimeters, u_psi_value, region, eta_d_h, eta_d_c)
 
-    print("U値{0},開口部η{1},開口部ηH{2},開口部ηC{3}".format(u_psi_value, eta_d['annual'], eta_d['heating'], eta_d['cooling']))
-    print('UA設定値: ' + str(u_a) + ', ηAH設定値: ' + str(eta_a_h) + ', ηAC設定値: ' + str(eta_a_c))
+    print("U値{0},開口部ηH{1},開口部ηC{2}".format(u_psi_value, eta_d_h, eta_d_c))
+    print('UA設定値: ' + str(u_a_target) + ', ηAH設定値: ' + str(eta_a_h_target) + ', ηAC設定値: ' + str(eta_a_c_target))
     print("UA計算値{0},ηAH計算値{1},ηAC計算値{2}".format(u_a_check, eta_a_h_check, eta_a_c_check))
 
-    return eta_d['annual'], eta_d['heating'], eta_d['cooling'], u_psi_value
+    u = PartType(
+        roof=u_psi_value['roof'],
+        ceiling=u_psi_value['ceiling'],
+        wall=u_psi_value['wall'],
+        floor=u_psi_value['floor'],
+        boundary_ceiling=u_psi_value['boundary_ceiling'],
+        boundary_wall=u_psi_value['boundary_wall'],
+        boundary_floor=u_psi_value['boundary_floor'],
+        window=u_psi_value['window'],
+        door= u_psi_value['door'],
+        earthfloor_perimeter=u_psi_value['earthfloor_perimeter']
+    )
+
+    return u, eta_d
 
 
 

@@ -1,12 +1,7 @@
-import copy
-import numpy as np
-
 import factor_f
-
 import model_house
 import convert_model_house_to_house_dict
-
-import get_u_and_eta_from_u_a_and_eta_a as get_u_and_eta
+import get_u_psi_eta_from_u_a_and_eta_a as get_u_and_eta
 
 
 def convert(input_data):
@@ -37,7 +32,7 @@ def convert(input_data):
         floor_ins_type=floor_ins_type, bath_ins_type=bath_ins_type, a_env_input=a_env_total
     )
 
-    model_house_no_spec = convert_model_house_to_house_dict.convert(**model_house_shape)
+    model_house_envelope_no_spec = convert_model_house_to_house_dict.convert(**model_house_shape)
 
     # U値、η値の取得
     l_direction_s = ['top', 'n', 'ne', 'e', 'se', 's', 'sw', 'w', 'nw']
@@ -45,35 +40,124 @@ def convert(input_data):
     f_heating = min(factor_f.get_f_without_eaves('heating', region, direction) for direction in l_direction_s)
     f_cooling = max(factor_f.get_f_without_eaves('cooling', region, direction) for direction in l_direction_s)
 
-    eta, eta_heating, eta_cooling, part_U = get_u_and_eta.calc_parts_spec(
+    u, eta_d = get_u_and_eta.calc_parts_spec(
         region=region,
-        general_parts=model_house_no_spec['general_parts'],
-        windows=model_house_no_spec['windows'],
-        doors=model_house_no_spec['doors'],
-        earthfloor_perimeters=model_house_no_spec['earthfloor_perimeters'],
-        earthfloor_centers=model_house_no_spec['earthfloor_centers'],
-        u_a=u_a,
-        eta_a_h=eta_a_h,
-        eta_a_c=eta_a_c
+        house_no_spec=model_house_envelope_no_spec,
+        u_a_target=u_a,
+        eta_a_h_target=eta_a_h,
+        eta_a_c_target=eta_a_c
     )
 
-    return {
-        'simple_method': {
-            'insulation_type': 'floor',
-            'insulation_type_bathroom': 'inside',
-            'u_value_roof': part_U['roof'],
-            'u_value_wall': part_U['wall'],
-            'u_value_floor_other': part_U['floor'],
-            'u_value_door': part_U['window'],
-            'u_value_window': part_U['window'],
-            'eta_d_value_window_c': eta_cooling,
-            'eta_d_value_window_h': eta_heating,
-            'is_f_value_input': False,
-            'f_value_c': f_cooling,
-            'f_value_h': f_heating,
-            'psi_value_earthfloor_perimeter_entrance': part_U['earthfloor_perimeter']
-        }
+    sunshade = factor_f.Sunshade(
+        existence=True, input_method='simple', depth=0.3, d_h=1.0, d_e=0.0,
+        x1=None, x2=None, x3=None, y1=None, y2=None, y3=None, z_x_pls=None, z_x_mns=None, z_y_pls=None, z_y_mns=None
+    )
+
+    general_parts = [
+        {
+            'name': p['name'],
+            'general_part_type': p['general_part_type'],
+            'next_space': p['next_space'],
+            'direction': p['direction'],
+            'area': p['area'],
+            'space_type': p['space_type'],
+            'spec': {
+                'structure': 'other',
+                'u_value_other': get_u_and_eta.get_u_psi(u, p['general_part_type'])
+            },
+            'is_sunshade_input': False
+        } for p in model_house_envelope_no_spec['general_parts']
+    ]
+
+    windows = [
+        {
+            'name': p['name'],
+            'next_space': p['next_space'],
+            'direction': p['direction'],
+            'area': p['area'],
+            'space_type': p['space_type'],
+            'spec': {
+                'window_type': 'single',
+                'windows': [
+                    {
+                        'u_value_input_method': 'u_value_directly',
+                        'u_value': get_u_and_eta.get_u_psi(u, 'window'),
+                        'eta_value_input_method': 'eta_value_directly',
+                        'eta_d_value': eta_d,
+                        'glass_type': 'single'
+                    }
+                ],
+                'attachment_type': 'none',
+                'is_windbreak_room_attached': 'none',
+                'is_sunshade_input': True,
+                'sunshade': {
+                    'existance': sunshade.existence,
+                    'input_method': sunshade.input_method,
+                    'depth': sunshade.depth,
+                    'd_h': sunshade.d_h,
+                    'd_e': sunshade.d_e,
+                    'x1': sunshade.x1,
+                    'x2': sunshade.x2,
+                    'x3': sunshade.x3,
+                    'y1': sunshade.y1,
+                    'y2': sunshade.y2,
+                    'y3': sunshade.y3,
+                    'z_x_pls': sunshade.z_x_pls,
+                    'z_x_mns': sunshade.z_x_mns,
+                    'z_y_pls': sunshade.z_y_pls,
+                    'z_y_mns': sunshade.z_y_mns
+                }
+            },
+            'is_sunshade_input': False
+        } for p in model_house_envelope_no_spec['windows']
+    ]
+
+    doors = [
+        {
+            'name': p['name'],
+            'next_space': p['next_space'],
+            'direction': p['direction'],
+            'area': p['area'],
+            'space_type': p['space_type'],
+            'spec': {
+                'u_value': get_u_and_eta.get_u_psi(u, 'door'),
+                'is_sunshade_input': False
+            }
+        } for p in model_house_envelope_no_spec['doors']
+    ]
+
+    earthfloor_perimeters = [
+        {
+            'name': p['name'],
+            'next_space': p['next_space'],
+            'length': p['length'],
+            'space_type': p['space_type'],
+            'spec': {
+                'psi_value': get_u_and_eta.get_u_psi(u, 'earthfloor_perimeter'),
+            }
+        } for p in model_house_envelope_no_spec['earthfloor_perimeters']
+    ]
+
+    earthfloor_centers = [
+        {
+            'name': p['name'],
+            'area': p['area'],
+            'space_type': p['space_type'],
+            'spec': {
+                'is_layers_input': False
+            }
+        } for p in model_house_envelope_no_spec['earthfloor_centers']
+    ]
+
+    model_house_envelope = {
+        'general_parts': general_parts,
+        'windows': windows,
+        'doors': doors,
+        'earthfloor_perimeters': earthfloor_perimeters,
+        'earthfloor_centers': earthfloor_centers
     }
+
+    return model_house_envelope
 
 
 if __name__ == '__main__':
