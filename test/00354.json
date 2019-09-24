@@ -3,7 +3,8 @@
         "region": 1,
         "main_occupant_room_floor_area": 29.81,
         "other_occupant_room_floor_area": 51.34,
-        "total_floor_area": 120.08
+        "total_floor_area": 120.08,
+        "house_type": "detached"
     },
     "envelope": {
         "input_method": "detail_without_room_usage",
@@ -20,11 +21,18 @@
                     "u_value_wood": 1,
                     "is_sunshade_input": true,
                     "sunshade": {
-                        "existance": true,
-                        "input_method": "simple",
-                        "depth": 1,
-                        "d_h": 1,
-                        "d_e": 1
+                        "existence": true,
+                        "input_method": "detailed",
+                        "x1": 1,
+                        "x2": 1,
+                        "x3": 1,
+                        "y1": 1,
+                        "y2": 1,
+                        "y3": 1,
+                        "z_x_pls": 1,
+                        "z_x_mns": 1,
+                        "z_y_pls": -0.01,
+                        "z_y_mns": 1
                     }
                 }
             },
@@ -40,11 +48,18 @@
                     "u_value_wood": 1,
                     "is_sunshade_input": true,
                     "sunshade": {
-                        "existance": true,
-                        "input_method": "simple",
-                        "depth": 1,
-                        "d_h": 1,
-                        "d_e": 1
+                        "existence": true,
+                        "input_method": "detailed",
+                        "x1": 1,
+                        "x2": 1,
+                        "x3": 1,
+                        "y1": 1,
+                        "y2": 1,
+                        "y3": 1,
+                        "z_x_pls": 1,
+                        "z_x_mns": 1,
+                        "z_y_pls": -0.01,
+                        "z_y_mns": 1
                     }
                 }
             },
@@ -60,11 +75,18 @@
                     "u_value_wood": 1,
                     "is_sunshade_input": true,
                     "sunshade": {
-                        "existance": true,
-                        "input_method": "simple",
-                        "depth": 1,
-                        "d_h": 1,
-                        "d_e": 1
+                        "existence": true,
+                        "input_method": "detailed",
+                        "x1": 1,
+                        "x2": 1,
+                        "x3": 1,
+                        "y1": 1,
+                        "y2": 1,
+                        "y3": 1,
+                        "z_x_pls": 1,
+                        "z_x_mns": 1,
+                        "z_y_pls": -0.01,
+                        "z_y_mns": 1
                     }
                 }
             }
@@ -73,7 +95,7 @@
             {
                 "name": "WND1",
                 "next_space": "outdoor",
-                "direction": "sw",
+                "direction": "top",
                 "area": 1,
                 "spec": {
                     "window_type": "single",
@@ -90,7 +112,7 @@
                     "is_windbreak_room_attached": true,
                     "is_sunshade_input": true,
                     "sunshade": {
-                        "existance": true,
+                        "existence": true,
                         "input_method": "simple",
                         "depth": 1,
                         "d_h": 1,
@@ -101,7 +123,7 @@
             {
                 "name": "WND2",
                 "next_space": "outdoor",
-                "direction": "sw",
+                "direction": "top",
                 "area": 1,
                 "spec": {
                     "window_type": "single",
@@ -118,7 +140,7 @@
                     "is_windbreak_room_attached": true,
                     "is_sunshade_input": true,
                     "sunshade": {
-                        "existance": true,
+                        "existence": true,
                         "input_method": "simple",
                         "depth": 1,
                         "d_h": 1,
@@ -129,7 +151,7 @@
             {
                 "name": "WND3",
                 "next_space": "outdoor",
-                "direction": "sw",
+                "direction": "top",
                 "area": 1,
                 "spec": {
                     "window_type": "single",
@@ -146,7 +168,7 @@
                     "is_windbreak_room_attached": true,
                     "is_sunshade_input": true,
                     "sunshade": {
-                        "existance": true,
+                        "existence": true,
                         "input_method": "simple",
                         "depth": 1,
                         "d_h": 1,
@@ -165,7 +187,7 @@
                     "u_vaue": 1,
                     "is_sunshade_input": true,
                     "sunshade": {
-                        "existance": true,
+                        "existence": true,
                         "input_method": "simple",
                         "depth": 1,
                         "d_h": 1,
@@ -182,7 +204,7 @@
                     "u_vaue": 1,
                     "is_sunshade_input": true,
                     "sunshade": {
-                        "existance": true,
+                        "existence": true,
                         "input_method": "simple",
                         "depth": 1,
                         "d_h": 1,
@@ -199,7 +221,7 @@
                     "u_vaue": 1,
                     "is_sunshade_input": true,
                     "sunshade": {
-                        "existance": true,
+                        "existence": true,
                         "input_method": "simple",
                         "depth": 1,
                         "d_h": 1,
@@ -238,86 +260,92 @@
             {
                 "name": "EFC1",
                 "area": 1,
-                "is_layers_input": true,
-                "layers": [
-                    {
-                        "name": "LYR1",
-                        "heat_resistance_input_method": "conductivity",
-                        "thermal_conductivity": 1,
-                        "thickness": 1,
-                        "volumetric_specific_heat": 1
-                    },
-                    {
-                        "name": "LYR2",
-                        "heat_resistance_input_method": "conductivity",
-                        "thermal_conductivity": 1,
-                        "thickness": 1,
-                        "volumetric_specific_heat": 1
-                    },
-                    {
-                        "name": "LYR3",
-                        "heat_resistance_input_method": "conductivity",
-                        "thermal_conductivity": 1,
-                        "thickness": 1,
-                        "volumetric_specific_heat": 1
-                    }
-                ]
+                "layers": {
+                    "is_layers_input": true,
+                    "layers": [
+                        {
+                            "name": "LYR1",
+                            "heat_resistance_input_method": "conductivity",
+                            "thermal_conductivity": 1,
+                            "thickness": 1,
+                            "volumetric_specific_heat": 1
+                        },
+                        {
+                            "name": "LYR2",
+                            "heat_resistance_input_method": "conductivity",
+                            "thermal_conductivity": 1,
+                            "thickness": 1,
+                            "volumetric_specific_heat": 1
+                        },
+                        {
+                            "name": "LYR3",
+                            "heat_resistance_input_method": "conductivity",
+                            "thermal_conductivity": 1,
+                            "thickness": 1,
+                            "volumetric_specific_heat": 1
+                        }
+                    ]
+                }
             },
             {
                 "name": "EFC2",
                 "area": 1,
-                "is_layers_input": true,
-                "layers": [
-                    {
-                        "name": "LYR1",
-                        "heat_resistance_input_method": "conductivity",
-                        "thermal_conductivity": 1,
-                        "thickness": 1,
-                        "volumetric_specific_heat": 1
-                    },
-                    {
-                        "name": "LYR2",
-                        "heat_resistance_input_method": "conductivity",
-                        "thermal_conductivity": 1,
-                        "thickness": 1,
-                        "volumetric_specific_heat": 1
-                    },
-                    {
-                        "name": "LYR3",
-                        "heat_resistance_input_method": "conductivity",
-                        "thermal_conductivity": 1,
-                        "thickness": 1,
-                        "volumetric_specific_heat": 1
-                    }
-                ]
+                "layers": {
+                    "is_layers_input": true,
+                    "layers": [
+                        {
+                            "name": "LYR1",
+                            "heat_resistance_input_method": "conductivity",
+                            "thermal_conductivity": 1,
+                            "thickness": 1,
+                            "volumetric_specific_heat": 1
+                        },
+                        {
+                            "name": "LYR2",
+                            "heat_resistance_input_method": "conductivity",
+                            "thermal_conductivity": 1,
+                            "thickness": 1,
+                            "volumetric_specific_heat": 1
+                        },
+                        {
+                            "name": "LYR3",
+                            "heat_resistance_input_method": "conductivity",
+                            "thermal_conductivity": 1,
+                            "thickness": 1,
+                            "volumetric_specific_heat": 1
+                        }
+                    ]
+                }
             },
             {
                 "name": "EFC3",
                 "area": 1,
-                "is_layers_input": true,
-                "layers": [
-                    {
-                        "name": "LYR1",
-                        "heat_resistance_input_method": "conductivity",
-                        "thermal_conductivity": 1,
-                        "thickness": 1,
-                        "volumetric_specific_heat": 1
-                    },
-                    {
-                        "name": "LYR2",
-                        "heat_resistance_input_method": "conductivity",
-                        "thermal_conductivity": 1,
-                        "thickness": 1,
-                        "volumetric_specific_heat": 1
-                    },
-                    {
-                        "name": "LYR3",
-                        "heat_resistance_input_method": "conductivity",
-                        "thermal_conductivity": 1,
-                        "thickness": 1,
-                        "volumetric_specific_heat": 1
-                    }
-                ]
+                "layers": {
+                    "is_layers_input": true,
+                    "layers": [
+                        {
+                            "name": "LYR1",
+                            "heat_resistance_input_method": "conductivity",
+                            "thermal_conductivity": 1,
+                            "thickness": 1,
+                            "volumetric_specific_heat": 1
+                        },
+                        {
+                            "name": "LYR2",
+                            "heat_resistance_input_method": "conductivity",
+                            "thermal_conductivity": 1,
+                            "thickness": 1,
+                            "volumetric_specific_heat": 1
+                        },
+                        {
+                            "name": "LYR3",
+                            "heat_resistance_input_method": "conductivity",
+                            "thermal_conductivity": 1,
+                            "thickness": 1,
+                            "volumetric_specific_heat": 1
+                        }
+                    ]
+                }
             }
         ]
     },
@@ -337,5 +365,5 @@
             "heat_exchanger_type": "cooling"
         }
     },
-    "target_key": "direction"
+    "target_key": "z_y_pls"
 }

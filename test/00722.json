@@ -3,10 +3,17 @@
         "region": 1,
         "main_occupant_room_floor_area": 29.81,
         "other_occupant_room_floor_area": 51.34,
-        "total_floor_area": 120.08
+        "total_floor_area": 120.08,
+        "house_type": "detached"
     },
     "envelope": {
-        "input_method": "index"
+        "input_method": "index",
+        "indices": {
+            "u_a": 307.51,
+            "eta_a_h": 4.3,
+            "eta_a_c": 2.8,
+            "total_envelope_area": 0.87
+        }
     },
     "ventilation": {
         "air_change_rate": 1
@@ -16,17 +23,17 @@
         "other_occupant_room_natural_vent_time": "0ACH"
     },
     "heating_equipment": {
-        "is_radiative_heating": false
+        "is_radiative_heating": true,
+        "radiative_heating": {
+            "max_capacity": 100,
+            "area": 10
+        }
     },
     "cooling_equipment": {
-        "is_radiative_cooling": true,
-        "radiative_cooling": {
-            "max_capacity": 100,
-            "area": 0
-        },
+        "is_radiative_cooling": false,
         "convective_cooling": {
             "heat_exchanger_type": "cooling"
         }
     },
-    "target_key": "area"
+    "target_key": "is_radiative_heating"
 }

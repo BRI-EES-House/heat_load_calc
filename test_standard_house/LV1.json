@@ -3,7 +3,8 @@
         "region": 6,
         "main_occupant_room_floor_area": 29.81,
         "other_occupant_room_floor_area": 51.34,
-        "total_floor_area": 120.08
+        "total_floor_area": 120.08,
+        "house_type": "detached"
     },
     "envelope": {
         "input_method": "simple",

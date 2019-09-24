@@ -3,7 +3,8 @@
         "region": 1,
         "main_occupant_room_floor_area": 29.81,
         "other_occupant_room_floor_area": 51.34,
-        "total_floor_area": 120.08
+        "total_floor_area": 120.08,
+        "house_type": "detached"
     },
     "envelope": {
         "input_method": "simple",
@@ -13,7 +14,7 @@
             "u_value_roof": 0.24,
             "u_value_wall": 0.53,
             "u_value_door": 4.65,
-            "u_value_window": -0.01,
+            "u_value_window": 4.65,
             "u_value_floor_bathroom": 0.48,
             "u_value_floor_other": 0.48,
             "is_psi_value_base_input": true,
@@ -41,5 +42,5 @@
             "heat_exchanger_type": "cooling"
         }
     },
-    "target_key": "u_value_window"
+    "target_key": "insulation_type"
 }
