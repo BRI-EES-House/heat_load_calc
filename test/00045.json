@@ -10,7 +10,7 @@
         "input_method": "index",
         "indices": {
             "u_a": 307.51,
-            "eta_a_h": 10.1,
+            "eta_a_h": 100.0,
             "eta_a_c": 2.8,
             "total_envelope_area": 0.87
         }

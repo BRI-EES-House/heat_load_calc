@@ -9,7 +9,7 @@
     "envelope": {
         "input_method": "index",
         "indices": {
-            "u_a": 10,
+            "u_a": 10000,
             "eta_a_h": 4.3,
             "eta_a_c": 2.8,
             "total_envelope_area": 0.87
