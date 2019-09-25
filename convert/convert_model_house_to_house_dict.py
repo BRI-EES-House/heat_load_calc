@@ -415,6 +415,7 @@ def convert(
         raise Exception
 
     return {
+        'input_method': 'detail_without_room_usage',
         'general_parts': part_roof + part_wall + part_floor + part_base_outside + part_base_inside,
         'windows': part_window,
         'doors': part_door,

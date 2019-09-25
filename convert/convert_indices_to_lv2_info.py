@@ -6,14 +6,12 @@ from factor_h import get_factor_h
 import factor_nu
 
 
-def convert(input_data):
+def convert(common, envelope):
 
-    common = input_data['common']
     region = common['region']
     house_type = common['house_type']
     a_f_total = common['total_floor_area']
 
-    envelope = input_data['envelope']
     indices = envelope['indices']
     u_a = indices['u_a']
     eta_a_h = indices['eta_a_h']
@@ -268,6 +266,7 @@ def add_spec(model_house_envelope_no_spec, u, eta_d, sunshade):
     ]
 
     return {
+        'input_method': model_house_envelope_no_spec['input_method'],
         'general_parts': general_parts,
         'windows': windows,
         'doors': doors,
@@ -297,6 +296,6 @@ if __name__ == '__main__':
         }
     }
 
-    result = convert(input_data=input_data_1)
+    result = convert(common=input_data_1['common'], envelope=input_data_1['envelope'])
 
     print(result)
