@@ -2,7 +2,7 @@ import numpy as np
 from collections import namedtuple
 from typing import Optional, List, Dict, Union, Tuple, Any
 
-import factor_nu # 方位係数
+import factor_nu  # 方位係数
 import factor_f  # 日射取得率補正係数
 from factor_h import get_factor_h  # 温度差係数
 
@@ -208,7 +208,7 @@ def get_u_psi_max(part_type):    # 部位別の熱貫流率の上限値, W/m2 K
     }[part_type]
 
 
-def get_f_u_psi_max_each_part(region: str) -> Dict[str, float]:
+def get_f_u_psi_max_each_part(region: int) -> Dict[str, float]:
     """
     Args:
         region: 地域の区分
@@ -333,7 +333,7 @@ def get_m_opq(region: int, u_psi_value: Dict[str, float], general_parts: Dict, d
 
 
 def get_eta_d_each(
-        region: int, m_h: float, m_c: float, m_h_opq: float, m_c_opq: float, windows: Dict) -> Tuple[float, float]:
+        region: int, m_h: float, m_c: float, m_h_opq: float, m_c_opq: float, windows: Dict, sunshade: factor_f.Sunshade) -> Tuple[float, float]:
     """
     Args:
         region: 地域の区分
@@ -342,17 +342,18 @@ def get_eta_d_each(
         m_h_opq: 不透明部位のm_h値, W/(W/m2)
         m_c_opq: 不透明部位のm_c値, W/(W/m2)
         windows: 窓
+        sunshade: 窓まわりの日除けの形状
     Returns:
         η_d,h・η_d,c 値, (W/m2)/(W/m2)
     """
 
     sum_a_f_nu_h = sum(
-        p['area'] * factor_f.get_f_without_eaves(season='heating', region=region, direction=p['direction'])
+        p['area'] * factor_f.get_f(season='heating', region=region, direction=p['direction'], sunshade=sunshade)
         * factor_nu.get_nu(region=region, season='heating', direction=p['direction']) for p in windows
     )
 
     sum_a_f_nu_c = sum(
-        p['area'] * factor_f.get_f_without_eaves(season='cooling', region=region, direction=p['direction'])
+        p['area'] * factor_f.get_f(season='cooling', region=region, direction=p['direction'], sunshade=sunshade)
         * factor_nu.get_nu(region=region, season='cooling', direction=p['direction']) for p in windows
     )
 
@@ -360,65 +361,6 @@ def get_eta_d_each(
     eta_d_c = np.clip((m_c - m_c_opq) / sum_a_f_nu_c, 0.0, 0.88)
 
     return eta_d_h, eta_d_c
-
-
-def check_u_a_and_eta_a(a_evp_total, general_parts, windows, doors, earthfloor_perimeters, u_psi_value, region, eta_d_h, eta_d_c):
-
-    q_general = sum(p['area'] * u_psi_value[p['general_part_type']] * get_factor_h(region, p['next_space'])
-                    for p in general_parts)
-
-    q_window = sum(p['area'] * u_psi_value['window'] * get_factor_h(region, p['next_space']) for p in windows)
-
-    q_door = sum(x['area'] * u_psi_value['window'] * get_factor_h(region, x['next_space']) for x in doors)
-
-    q_earthfloor_perimeter = sum(p['length'] * u_psi_value['earthfloor_perimeter']
-                                 * get_factor_h(region, p['next_space']) for p in earthfloor_perimeters)
-
-    u_a = (q_general + q_window + q_door + q_earthfloor_perimeter) / a_evp_total
-
-    if region != 8:
-
-        m_h_general = sum(
-            p['area'] * 0.034 * u_psi_value[p['general_part_type']]
-            * factor_nu.get_nu(region=region, season='heating', direction=p['direction'])
-            for p in general_parts if p['next_space'] == 'outdoor')
-
-        m_h_door = sum(
-            p['area'] * 0.034 * u_psi_value['door']
-            * factor_nu.get_nu(region=region, season='heating', direction=p['direction'])
-            for p in doors if p['next_space'] == 'outdoor')
-
-        m_h_window = sum(
-            eta_d_h * p['area']
-            * factor_f.get_f_without_eaves(season='heating', region=region, direction=p['direction'])
-            * factor_nu.get_nu(season='heating', region=region, direction=p['direction'])
-            for p in windows)
-
-        eta_a_h = (m_h_general + m_h_door + m_h_window) / a_evp_total * 100
-
-    else:
-
-        eta_a_h = None
-
-    m_c_general = sum(
-        p['area'] * 0.034 * u_psi_value[p['general_part_type']]
-        * factor_nu.get_nu(region=region, season='cooling', direction=p['direction'])
-        for p in general_parts if p['next_space'] == 'outdoor')
-
-    m_c_door = sum(
-        p['area'] * 0.034 * u_psi_value['door']
-        * factor_nu.get_nu(region=region, season='cooling', direction=p['direction'])
-        for p in doors)
-
-    m_c_window = sum(
-        eta_d_c * p['area']
-        * factor_f.get_f_without_eaves(season='cooling', region=region, direction=p['direction'])
-        * factor_nu.get_nu(season='cooling', region=region,direction=p['direction'])
-        for p in windows)
-
-    eta_a_c = (m_c_general + m_c_door + m_c_window) / a_evp_total * 100
-
-    return u_a, eta_a_h, eta_a_c
 
 
 def get_eta_d(region: int, eta_d_h: float, eta_d_c: float) -> float:
@@ -442,7 +384,7 @@ def get_eta_d(region: int, eta_d_h: float, eta_d_c: float) -> float:
 def calc_parts_spec(
         region: int, house_no_spec: Dict,
         u_a_target: float, eta_a_h_target: float, eta_a_c_target: float, sunshade: factor_f.Sunshade
-) -> Tuple[PartType, float]:
+) -> Tuple[PartType, float, float, float]:
     """
     Args:
         region: 地域の区分
@@ -488,20 +430,12 @@ def calc_parts_spec(
     m_h_opq, m_c_opq = get_m_opq(region, u_psi_value, general_parts, doors)
 
     # ηdの算出
-    eta_d_h, eta_d_c = get_eta_d_each(region, m_h, m_c, m_h_opq, m_c_opq, windows)
+    eta_d_h, eta_d_c = get_eta_d_each(region, m_h, m_c, m_h_opq, m_c_opq, windows, sunshade)
 
     # ηd値（平均化）
     eta_d = get_eta_d(region=region, eta_d_h=eta_d_h, eta_d_c=eta_d_c)
 
-    # 検算
-    u_a_check, eta_a_h_check, eta_a_c_check = check_u_a_and_eta_a(
-        a_evp_total, general_parts, windows, doors, earthfloor_perimeters, u_psi_value, region, eta_d_h, eta_d_c)
-
-    print("U値{0},開口部ηH{1},開口部ηC{2}".format(u_psi_value, eta_d_h, eta_d_c))
-    print('UA設定値: ' + str(u_a_target) + ', ηAH設定値: ' + str(eta_a_h_target) + ', ηAC設定値: ' + str(eta_a_c_target))
-    print("UA計算値{0},ηAH計算値{1},ηAC計算値{2}".format(u_a_check, eta_a_h_check, eta_a_c_check))
-
-    u = PartType(
+    u_psi = PartType(
         roof=u_psi_value['roof'],
         ceiling=u_psi_value['ceiling'],
         wall=u_psi_value['wall'],
@@ -514,7 +448,7 @@ def calc_parts_spec(
         earthfloor_perimeter=u_psi_value['earthfloor_perimeter']
     )
 
-    return u, eta_d
+    return u_psi, eta_d, eta_d_h, eta_d_c
 
 
 
