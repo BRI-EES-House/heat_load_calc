@@ -40,18 +40,29 @@ def convert(input_data):
     f_heating = min(factor_f.get_f_without_eaves('heating', region, direction) for direction in l_direction_s)
     f_cooling = max(factor_f.get_f_without_eaves('cooling', region, direction) for direction in l_direction_s)
 
+    sunshade = factor_f.Sunshade(
+        existence=True, input_method='simple',
+        depth=0.3, d_h=1.0, d_e=0.0,
+        x1=None, x2=None, x3=None,
+        y1=None, y2=None, y3=None,
+        z_x_pls=None, z_x_mns=None, z_y_pls=None, z_y_mns=None
+    )
+
     u, eta_d = get_u_and_eta.calc_parts_spec(
         region=region,
         house_no_spec=model_house_envelope_no_spec,
         u_a_target=u_a,
         eta_a_h_target=eta_a_h,
-        eta_a_c_target=eta_a_c
+        eta_a_c_target=eta_a_c,
+        sunshade=sunshade
     )
 
-    sunshade = factor_f.Sunshade(
-        existence=True, input_method='simple', depth=0.3, d_h=1.0, d_e=0.0,
-        x1=None, x2=None, x3=None, y1=None, y2=None, y3=None, z_x_pls=None, z_x_mns=None, z_y_pls=None, z_y_mns=None
-    )
+    model_house_envelope = add_spec(model_house_envelope_no_spec, u, eta_d, sunshade)
+
+    return model_house_envelope
+
+
+def add_spec(model_house_envelope_no_spec, u, eta_d, sunshade):
 
     general_parts = [
         {
@@ -149,15 +160,13 @@ def convert(input_data):
         } for p in model_house_envelope_no_spec['earthfloor_centers']
     ]
 
-    model_house_envelope = {
+    return {
         'general_parts': general_parts,
         'windows': windows,
         'doors': doors,
         'earthfloor_perimeters': earthfloor_perimeters,
         'earthfloor_centers': earthfloor_centers
     }
-
-    return model_house_envelope
 
 
 if __name__ == '__main__':

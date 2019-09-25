@@ -439,7 +439,10 @@ def get_eta_d(region: int, eta_d_h: float, eta_d_c: float) -> float:
         return (eta_d_h + eta_d_c) / 2
 
 
-def calc_parts_spec(region: int, house_no_spec: Dict, u_a_target, eta_a_h_target, eta_a_c_target):
+def calc_parts_spec(
+        region: int, house_no_spec: Dict,
+        u_a_target: float, eta_a_h_target: float, eta_a_c_target: float, sunshade: factor_f.Sunshade
+) -> Tuple[PartType, float]:
     """
     Args:
         region: 地域の区分
@@ -448,7 +451,9 @@ def calc_parts_spec(region: int, house_no_spec: Dict, u_a_target, eta_a_h_target
         eta_a_h_target: 目標とするηAH値, W/(W/m2)
         eta_a_c_target: 目標とするηAC値, W/(W/m2)
     Returns:
-
+        次の2変数
+            (1) 部位の種類ごとのU値, W/m2K,
+            (2) 透明な開口部のηd値, (W/m2)/(W/m2)
     """
 
     general_parts = house_no_spec['general_parts']
