@@ -153,7 +153,9 @@ def get_earthfloor_centers(earthfloor_centers):
 
 def convert(common, envelope):
 
-    result = {}
+    result = {
+        'input_method': 'detail_with_room_usage'
+    }
 
     if 'general_parts' in envelope:
         result['general_parts'] = get_general_parts(envelope['general_parts'], common)
@@ -275,6 +277,6 @@ if __name__ == '__main__':
         }
     }
 
-    result = convert(common=input_data_1['common'], envelope=input_data_1['envelope'])
+    result1 = convert(common=input_data_1['common'], envelope=input_data_1['envelope'])
 
-    print(result)
+    print(result1)
