@@ -87,9 +87,9 @@
                             "glass_type": "single"
                         }
                     ],
-                    "attachment_type": "none",
+                    "attachment_type": "amado",
                     "is_windbreak_room_attached": true,
-                    "is_sunshade_input": "",
+                    "is_sunshade_input": true,
                     "sunshade": {
                         "existence": true,
                         "input_method": "simple",
@@ -115,9 +115,9 @@
                             "glass_type": "single"
                         }
                     ],
-                    "attachment_type": "none",
+                    "attachment_type": "amado",
                     "is_windbreak_room_attached": true,
-                    "is_sunshade_input": "",
+                    "is_sunshade_input": true,
                     "sunshade": {
                         "existence": true,
                         "input_method": "simple",
@@ -143,9 +143,9 @@
                             "glass_type": "single"
                         }
                     ],
-                    "attachment_type": "none",
+                    "attachment_type": "amado",
                     "is_windbreak_room_attached": true,
-                    "is_sunshade_input": "",
+                    "is_sunshade_input": true,
                     "sunshade": {
                         "existence": true,
                         "input_method": "simple",
@@ -344,5 +344,5 @@
             "heat_exchanger_type": "cooling"
         }
     },
-    "target_key": "is_sunshade_input"
+    "target_key": "attachment_type"
 }

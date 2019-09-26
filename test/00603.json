@@ -167,17 +167,10 @@
                     "is_sunshade_input": true,
                     "sunshade": {
                         "existence": true,
-                        "input_method": "detailed",
-                        "x1": 1,
-                        "x2": 10.01,
-                        "x3": 1,
-                        "y1": 1,
-                        "y2": 1,
-                        "y3": 1,
-                        "z_x_pls": 1,
-                        "z_x_mns": 1,
-                        "z_y_pls": 1,
-                        "z_y_mns": 1
+                        "input_method": "simple",
+                        "depth": 1,
+                        "d_h": 1,
+                        "d_e": 10.01
                     }
                 }
             },
@@ -191,17 +184,10 @@
                     "is_sunshade_input": true,
                     "sunshade": {
                         "existence": true,
-                        "input_method": "detailed",
-                        "x1": 1,
-                        "x2": 10.01,
-                        "x3": 1,
-                        "y1": 1,
-                        "y2": 1,
-                        "y3": 1,
-                        "z_x_pls": 1,
-                        "z_x_mns": 1,
-                        "z_y_pls": 1,
-                        "z_y_mns": 1
+                        "input_method": "simple",
+                        "depth": 1,
+                        "d_h": 1,
+                        "d_e": 10.01
                     }
                 }
             },
@@ -215,17 +201,10 @@
                     "is_sunshade_input": true,
                     "sunshade": {
                         "existence": true,
-                        "input_method": "detailed",
-                        "x1": 1,
-                        "x2": 10.01,
-                        "x3": 1,
-                        "y1": 1,
-                        "y2": 1,
-                        "y3": 1,
-                        "z_x_pls": 1,
-                        "z_x_mns": 1,
-                        "z_y_pls": 1,
-                        "z_y_mns": 1
+                        "input_method": "simple",
+                        "depth": 1,
+                        "d_h": 1,
+                        "d_e": 10.01
                     }
                 }
             }
@@ -365,5 +344,5 @@
             "heat_exchanger_type": "cooling"
         }
     },
-    "target_key": "x2"
+    "target_key": "d_e"
 }

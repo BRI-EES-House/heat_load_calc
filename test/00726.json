@@ -19,15 +19,11 @@
         "air_change_rate": 1
     },
     "natural_vent": {
-        "main_occupant_room_natural_vent_time": "0ACH",
+        "main_occupant_room_natural_vent_time": "error_check",
         "other_occupant_room_natural_vent_time": "0ACH"
     },
     "heating_equipment": {
-        "is_radiative_heating": true,
-        "radiative_heating": {
-            "max_capacity": -0.1,
-            "area": 10
-        }
+        "is_radiative_heating": false
     },
     "cooling_equipment": {
         "is_radiative_cooling": false,
@@ -35,5 +31,5 @@
             "heat_exchanger_type": "cooling"
         }
     },
-    "target_key": "max_capacity"
+    "target_key": "main_occupant_room_natural_vent_time"
 }

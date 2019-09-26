@@ -16,9 +16,51 @@
                 "direction": "top",
                 "area": 1,
                 "spec": {
-                    "structure": "wood",
-                    "u_value_input_method_wood": "u_value_directly",
-                    "u_value_wood": 1,
+                    "structure": "rc",
+                    "u_value_input_method_rc": "detail_method",
+                    "external_surface_type": "outdoor",
+                    "parts": [
+                        {
+                            "name": "PRT",
+                            "layers": [
+                                {
+                                    "name": "LYR1",
+                                    "heat_resistance_input_method": "conductivity",
+                                    "thermal_conductivity": 1,
+                                    "thickness": 1,
+                                    "volumetric_specific_heat": 1
+                                },
+                                {
+                                    "name": "LYR2",
+                                    "heat_resistance_input_method": "conductivity",
+                                    "thermal_conductivity": 1,
+                                    "thickness": 1,
+                                    "volumetric_specific_heat": 1
+                                },
+                                {
+                                    "name": "LYR3",
+                                    "heat_resistance_input_method": "conductivity",
+                                    "thermal_conductivity": 1,
+                                    "thickness": 1,
+                                    "volumetric_specific_heat": 1
+                                }
+                            ]
+                        }
+                    ],
+                    "heat_bridges": [
+                        {
+                            "length": 1,
+                            "psi_value": 10
+                        },
+                        {
+                            "length": 1,
+                            "psi_value": 10
+                        },
+                        {
+                            "length": 1,
+                            "psi_value": 10
+                        }
+                    ],
                     "is_sunshade_input": true,
                     "sunshade": {
                         "existence": true,
@@ -36,9 +78,51 @@
                 "direction": "top",
                 "area": 1,
                 "spec": {
-                    "structure": "wood",
-                    "u_value_input_method_wood": "u_value_directly",
-                    "u_value_wood": 1,
+                    "structure": "rc",
+                    "u_value_input_method_rc": "detail_method",
+                    "external_surface_type": "outdoor",
+                    "parts": [
+                        {
+                            "name": "PRT",
+                            "layers": [
+                                {
+                                    "name": "LYR1",
+                                    "heat_resistance_input_method": "conductivity",
+                                    "thermal_conductivity": 1,
+                                    "thickness": 1,
+                                    "volumetric_specific_heat": 1
+                                },
+                                {
+                                    "name": "LYR2",
+                                    "heat_resistance_input_method": "conductivity",
+                                    "thermal_conductivity": 1,
+                                    "thickness": 1,
+                                    "volumetric_specific_heat": 1
+                                },
+                                {
+                                    "name": "LYR3",
+                                    "heat_resistance_input_method": "conductivity",
+                                    "thermal_conductivity": 1,
+                                    "thickness": 1,
+                                    "volumetric_specific_heat": 1
+                                }
+                            ]
+                        }
+                    ],
+                    "heat_bridges": [
+                        {
+                            "length": 1,
+                            "psi_value": 10
+                        },
+                        {
+                            "length": 1,
+                            "psi_value": 10
+                        },
+                        {
+                            "length": 1,
+                            "psi_value": 10
+                        }
+                    ],
                     "is_sunshade_input": true,
                     "sunshade": {
                         "existence": true,
@@ -56,9 +140,51 @@
                 "direction": "top",
                 "area": 1,
                 "spec": {
-                    "structure": "wood",
-                    "u_value_input_method_wood": "u_value_directly",
-                    "u_value_wood": 1,
+                    "structure": "rc",
+                    "u_value_input_method_rc": "detail_method",
+                    "external_surface_type": "outdoor",
+                    "parts": [
+                        {
+                            "name": "PRT",
+                            "layers": [
+                                {
+                                    "name": "LYR1",
+                                    "heat_resistance_input_method": "conductivity",
+                                    "thermal_conductivity": 1,
+                                    "thickness": 1,
+                                    "volumetric_specific_heat": 1
+                                },
+                                {
+                                    "name": "LYR2",
+                                    "heat_resistance_input_method": "conductivity",
+                                    "thermal_conductivity": 1,
+                                    "thickness": 1,
+                                    "volumetric_specific_heat": 1
+                                },
+                                {
+                                    "name": "LYR3",
+                                    "heat_resistance_input_method": "conductivity",
+                                    "thermal_conductivity": 1,
+                                    "thickness": 1,
+                                    "volumetric_specific_heat": 1
+                                }
+                            ]
+                        }
+                    ],
+                    "heat_bridges": [
+                        {
+                            "length": 1,
+                            "psi_value": 10
+                        },
+                        {
+                            "length": 1,
+                            "psi_value": 10
+                        },
+                        {
+                            "length": 1,
+                            "psi_value": 10
+                        }
+                    ],
                     "is_sunshade_input": true,
                     "sunshade": {
                         "existence": true,
@@ -344,5 +470,5 @@
             "heat_exchanger_type": "cooling"
         }
     },
-    "target_key": "input_method"
+    "target_key": "psi_value"
 }

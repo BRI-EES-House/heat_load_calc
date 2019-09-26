@@ -170,9 +170,9 @@
                         "input_method": "detailed",
                         "x1": 1,
                         "x2": 1,
-                        "x3": 1,
+                        "x3": -0.01,
                         "y1": 1,
-                        "y2": -0.01,
+                        "y2": 1,
                         "y3": 1,
                         "z_x_pls": 1,
                         "z_x_mns": 1,
@@ -194,9 +194,9 @@
                         "input_method": "detailed",
                         "x1": 1,
                         "x2": 1,
-                        "x3": 1,
+                        "x3": -0.01,
                         "y1": 1,
-                        "y2": -0.01,
+                        "y2": 1,
                         "y3": 1,
                         "z_x_pls": 1,
                         "z_x_mns": 1,
@@ -218,9 +218,9 @@
                         "input_method": "detailed",
                         "x1": 1,
                         "x2": 1,
-                        "x3": 1,
+                        "x3": -0.01,
                         "y1": 1,
-                        "y2": -0.01,
+                        "y2": 1,
                         "y3": 1,
                         "z_x_pls": 1,
                         "z_x_mns": 1,
@@ -365,5 +365,5 @@
             "heat_exchanger_type": "cooling"
         }
     },
-    "target_key": "y2"
+    "target_key": "x3"
 }

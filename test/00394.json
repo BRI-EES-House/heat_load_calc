@@ -74,7 +74,7 @@
             {
                 "name": "WND1",
                 "next_space": "outdoor",
-                "direction": "top",
+                "direction": "downward",
                 "area": 1,
                 "spec": {
                     "window_type": "single",
@@ -102,7 +102,7 @@
             {
                 "name": "WND2",
                 "next_space": "outdoor",
-                "direction": "top",
+                "direction": "downward",
                 "area": 1,
                 "spec": {
                     "window_type": "single",
@@ -130,7 +130,7 @@
             {
                 "name": "WND3",
                 "next_space": "outdoor",
-                "direction": "top",
+                "direction": "downward",
                 "area": 1,
                 "spec": {
                     "window_type": "single",
@@ -344,5 +344,5 @@
             "heat_exchanger_type": "cooling"
         }
     },
-    "target_key": "space_type"
+    "target_key": "direction"
 }

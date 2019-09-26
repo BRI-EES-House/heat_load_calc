@@ -80,14 +80,15 @@
                     "window_type": "single",
                     "windows": [
                         {
-                            "u_value_input_method": "u_value_directly",
-                            "u_vaue": 1,
+                            "u_value_input_method": "ug_value_and_flame_type",
+                            "ug_value": 1,
                             "eta_value_input_method": "eta_d_value_directly",
                             "eta_d_value": 1,
+                            "flame_type": "metal",
                             "glass_type": "single"
                         }
                     ],
-                    "attachment_type": "shutter",
+                    "attachment_type": "none",
                     "is_windbreak_room_attached": true,
                     "is_sunshade_input": true,
                     "sunshade": {
@@ -108,14 +109,15 @@
                     "window_type": "single",
                     "windows": [
                         {
-                            "u_value_input_method": "u_value_directly",
-                            "u_vaue": 1,
+                            "u_value_input_method": "ug_value_and_flame_type",
+                            "ug_value": 1,
                             "eta_value_input_method": "eta_d_value_directly",
                             "eta_d_value": 1,
+                            "flame_type": "metal",
                             "glass_type": "single"
                         }
                     ],
-                    "attachment_type": "shutter",
+                    "attachment_type": "none",
                     "is_windbreak_room_attached": true,
                     "is_sunshade_input": true,
                     "sunshade": {
@@ -136,14 +138,15 @@
                     "window_type": "single",
                     "windows": [
                         {
-                            "u_value_input_method": "u_value_directly",
-                            "u_vaue": 1,
+                            "u_value_input_method": "ug_value_and_flame_type",
+                            "ug_value": 1,
                             "eta_value_input_method": "eta_d_value_directly",
                             "eta_d_value": 1,
+                            "flame_type": "metal",
                             "glass_type": "single"
                         }
                     ],
-                    "attachment_type": "shutter",
+                    "attachment_type": "none",
                     "is_windbreak_room_attached": true,
                     "is_sunshade_input": true,
                     "sunshade": {
@@ -344,5 +347,5 @@
             "heat_exchanger_type": "cooling"
         }
     },
-    "target_key": "attachment_type"
+    "target_key": "flame_type"
 }

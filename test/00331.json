@@ -365,5 +365,5 @@
             "heat_exchanger_type": "cooling"
         }
     },
-    "target_key": "y1"
+    "target_key": "x2"
 }

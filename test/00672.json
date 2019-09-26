@@ -238,7 +238,7 @@
         "earthfloor_centers": [
             {
                 "name": "EFC1",
-                "area": 100.0,
+                "area": 1,
                 "layers": {
                     "is_layers_input": true,
                     "layers": [
@@ -268,7 +268,7 @@
             },
             {
                 "name": "EFC2",
-                "area": 100.0,
+                "area": 1,
                 "layers": {
                     "is_layers_input": true,
                     "layers": [
@@ -298,7 +298,7 @@
             },
             {
                 "name": "EFC3",
-                "area": 100.0,
+                "area": 1,
                 "layers": {
                     "is_layers_input": true,
                     "layers": [
@@ -344,5 +344,5 @@
             "heat_exchanger_type": "cooling"
         }
     },
-    "target_key": "area"
+    "target_key": "space_type"
 }

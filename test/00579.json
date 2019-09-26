@@ -164,14 +164,7 @@
                 "area": 1,
                 "spec": {
                     "u_vaue": 1,
-                    "is_sunshade_input": true,
-                    "sunshade": {
-                        "existence": true,
-                        "input_method": "simple",
-                        "depth": -0.01,
-                        "d_h": 1,
-                        "d_e": 1
-                    }
+                    "is_sunshade_input": ""
                 }
             },
             {
@@ -181,14 +174,7 @@
                 "area": 1,
                 "spec": {
                     "u_vaue": 1,
-                    "is_sunshade_input": true,
-                    "sunshade": {
-                        "existence": true,
-                        "input_method": "simple",
-                        "depth": -0.01,
-                        "d_h": 1,
-                        "d_e": 1
-                    }
+                    "is_sunshade_input": ""
                 }
             },
             {
@@ -198,14 +184,7 @@
                 "area": 1,
                 "spec": {
                     "u_vaue": 1,
-                    "is_sunshade_input": true,
-                    "sunshade": {
-                        "existence": true,
-                        "input_method": "simple",
-                        "depth": -0.01,
-                        "d_h": 1,
-                        "d_e": 1
-                    }
+                    "is_sunshade_input": ""
                 }
             }
         ],
@@ -344,5 +323,5 @@
             "heat_exchanger_type": "cooling"
         }
     },
-    "target_key": "depth"
+    "target_key": "is_sunshade_input"
 }

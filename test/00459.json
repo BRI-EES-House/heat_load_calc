@@ -88,7 +88,7 @@
                         }
                     ],
                     "attachment_type": "none",
-                    "is_windbreak_room_attached": true,
+                    "is_windbreak_room_attached": "",
                     "is_sunshade_input": true,
                     "sunshade": {
                         "existence": true,
@@ -116,7 +116,7 @@
                         }
                     ],
                     "attachment_type": "none",
-                    "is_windbreak_room_attached": true,
+                    "is_windbreak_room_attached": "",
                     "is_sunshade_input": true,
                     "sunshade": {
                         "existence": true,
@@ -144,7 +144,7 @@
                         }
                     ],
                     "attachment_type": "none",
-                    "is_windbreak_room_attached": true,
+                    "is_windbreak_room_attached": "",
                     "is_sunshade_input": true,
                     "sunshade": {
                         "existence": true,
@@ -344,5 +344,5 @@
             "heat_exchanger_type": "cooling"
         }
     },
-    "target_key": "input_method"
+    "target_key": "is_windbreak_room_attached"
 }

@@ -344,5 +344,5 @@
             "heat_exchanger_type": "cooling"
         }
     },
-    "target_key": "thickness"
+    "target_key": "thermal_conductivity"
 }

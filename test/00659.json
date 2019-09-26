@@ -212,7 +212,7 @@
         "earthfloor_perimeters": [
             {
                 "name": "EFP1",
-                "next_space": "outdoor",
+                "next_space": "closed_underfloor",
                 "length": 1,
                 "spec": {
                     "psi_value": 1
@@ -220,7 +220,7 @@
             },
             {
                 "name": "EFP2",
-                "next_space": "outdoor",
+                "next_space": "closed_underfloor",
                 "length": 1,
                 "spec": {
                     "psi_value": 1
@@ -228,7 +228,7 @@
             },
             {
                 "name": "EFP3",
-                "next_space": "outdoor",
+                "next_space": "closed_underfloor",
                 "length": 1,
                 "spec": {
                     "psi_value": 1
@@ -344,5 +344,5 @@
             "heat_exchanger_type": "cooling"
         }
     },
-    "target_key": "space_type"
+    "target_key": "next_space"
 }

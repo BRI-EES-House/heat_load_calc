@@ -80,11 +80,12 @@
                     "window_type": "single",
                     "windows": [
                         {
-                            "u_value_input_method": "u_value_directly",
-                            "u_vaue": 1,
+                            "u_value_input_method": "ug_value_and_flame_type",
+                            "ug_value": 1,
                             "eta_value_input_method": "eta_d_value_directly",
                             "eta_d_value": 1,
-                            "glass_type": "error_check"
+                            "flame_type": "wood_or_resin",
+                            "glass_type": "single"
                         }
                     ],
                     "attachment_type": "none",
@@ -108,11 +109,12 @@
                     "window_type": "single",
                     "windows": [
                         {
-                            "u_value_input_method": "u_value_directly",
-                            "u_vaue": 1,
+                            "u_value_input_method": "ug_value_and_flame_type",
+                            "ug_value": 1,
                             "eta_value_input_method": "eta_d_value_directly",
                             "eta_d_value": 1,
-                            "glass_type": "error_check"
+                            "flame_type": "wood_or_resin",
+                            "glass_type": "single"
                         }
                     ],
                     "attachment_type": "none",
@@ -136,11 +138,12 @@
                     "window_type": "single",
                     "windows": [
                         {
-                            "u_value_input_method": "u_value_directly",
-                            "u_vaue": 1,
+                            "u_value_input_method": "ug_value_and_flame_type",
+                            "ug_value": 1,
                             "eta_value_input_method": "eta_d_value_directly",
                             "eta_d_value": 1,
-                            "glass_type": "error_check"
+                            "flame_type": "wood_or_resin",
+                            "glass_type": "single"
                         }
                     ],
                     "attachment_type": "none",
@@ -344,5 +347,5 @@
             "heat_exchanger_type": "cooling"
         }
     },
-    "target_key": "glass_type"
+    "target_key": "flame_type"
 }

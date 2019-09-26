@@ -91,9 +91,9 @@
                     "is_windbreak_room_attached": true,
                     "is_sunshade_input": true,
                     "sunshade": {
-                        "existence": true,
+                        "existence": false,
                         "input_method": "simple",
-                        "depth": 10,
+                        "depth": 1,
                         "d_h": 1,
                         "d_e": 1
                     }
@@ -119,9 +119,9 @@
                     "is_windbreak_room_attached": true,
                     "is_sunshade_input": true,
                     "sunshade": {
-                        "existence": true,
+                        "existence": false,
                         "input_method": "simple",
-                        "depth": 10,
+                        "depth": 1,
                         "d_h": 1,
                         "d_e": 1
                     }
@@ -147,9 +147,9 @@
                     "is_windbreak_room_attached": true,
                     "is_sunshade_input": true,
                     "sunshade": {
-                        "existence": true,
+                        "existence": false,
                         "input_method": "simple",
-                        "depth": 10,
+                        "depth": 1,
                         "d_h": 1,
                         "d_e": 1
                     }
@@ -344,5 +344,5 @@
             "heat_exchanger_type": "cooling"
         }
     },
-    "target_key": "depth"
+    "target_key": "existence"
 }

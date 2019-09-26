@@ -344,5 +344,5 @@
             "heat_exchanger_type": "cooling"
         }
     },
-    "target_key": "u_vaue"
+    "target_key": "window_type"
 }

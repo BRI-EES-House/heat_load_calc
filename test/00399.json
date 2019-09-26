@@ -77,7 +77,7 @@
                 "direction": "top",
                 "area": 1,
                 "spec": {
-                    "window_type": "double",
+                    "window_type": "single",
                     "windows": [
                         {
                             "u_value_input_method": "u_value_directly",
@@ -105,7 +105,7 @@
                 "direction": "top",
                 "area": 1,
                 "spec": {
-                    "window_type": "double",
+                    "window_type": "single",
                     "windows": [
                         {
                             "u_value_input_method": "u_value_directly",
@@ -133,7 +133,7 @@
                 "direction": "top",
                 "area": 1,
                 "spec": {
-                    "window_type": "double",
+                    "window_type": "single",
                     "windows": [
                         {
                             "u_value_input_method": "u_value_directly",
@@ -344,5 +344,5 @@
             "heat_exchanger_type": "cooling"
         }
     },
-    "target_key": "window_type"
+    "target_key": "area"
 }

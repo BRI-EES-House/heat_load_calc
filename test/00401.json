@@ -75,9 +75,9 @@
                 "name": "WND1",
                 "next_space": "outdoor",
                 "direction": "top",
-                "area": 1,
+                "area": 100.0,
                 "spec": {
-                    "window_type": "error_check",
+                    "window_type": "single",
                     "windows": [
                         {
                             "u_value_input_method": "u_value_directly",
@@ -103,9 +103,9 @@
                 "name": "WND2",
                 "next_space": "outdoor",
                 "direction": "top",
-                "area": 1,
+                "area": 100.0,
                 "spec": {
-                    "window_type": "error_check",
+                    "window_type": "single",
                     "windows": [
                         {
                             "u_value_input_method": "u_value_directly",
@@ -131,9 +131,9 @@
                 "name": "WND3",
                 "next_space": "outdoor",
                 "direction": "top",
-                "area": 1,
+                "area": 100.0,
                 "spec": {
-                    "window_type": "error_check",
+                    "window_type": "single",
                     "windows": [
                         {
                             "u_value_input_method": "u_value_directly",
@@ -344,5 +344,5 @@
             "heat_exchanger_type": "cooling"
         }
     },
-    "target_key": "window_type"
+    "target_key": "area"
 }

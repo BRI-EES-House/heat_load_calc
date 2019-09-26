@@ -93,9 +93,9 @@
                     "sunshade": {
                         "existence": true,
                         "input_method": "simple",
-                        "depth": 1,
+                        "depth": 10.01,
                         "d_h": 1,
-                        "d_e": 10.01
+                        "d_e": 1
                     }
                 }
             },
@@ -121,9 +121,9 @@
                     "sunshade": {
                         "existence": true,
                         "input_method": "simple",
-                        "depth": 1,
+                        "depth": 10.01,
                         "d_h": 1,
-                        "d_e": 10.01
+                        "d_e": 1
                     }
                 }
             },
@@ -149,9 +149,9 @@
                     "sunshade": {
                         "existence": true,
                         "input_method": "simple",
-                        "depth": 1,
+                        "depth": 10.01,
                         "d_h": 1,
-                        "d_e": 10.01
+                        "d_e": 1
                     }
                 }
             }
@@ -344,5 +344,5 @@
             "heat_exchanger_type": "cooling"
         }
     },
-    "target_key": "d_e"
+    "target_key": "depth"
 }

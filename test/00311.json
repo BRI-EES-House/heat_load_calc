@@ -344,5 +344,5 @@
             "heat_exchanger_type": "cooling"
         }
     },
-    "target_key": "d_e"
+    "target_key": "depth"
 }

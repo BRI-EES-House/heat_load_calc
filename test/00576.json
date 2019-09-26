@@ -163,21 +163,14 @@
                 "direction": "top",
                 "area": 1,
                 "spec": {
-                    "u_vaue": 1,
+                    "u_vaue": 10.01,
                     "is_sunshade_input": true,
                     "sunshade": {
                         "existence": true,
-                        "input_method": "detailed",
-                        "x1": 1,
-                        "x2": 1,
-                        "x3": 1,
-                        "y1": 1,
-                        "y2": 1,
-                        "y3": 1,
-                        "z_x_pls": 1,
-                        "z_x_mns": 1,
-                        "z_y_pls": 1,
-                        "z_y_mns": 1
+                        "input_method": "simple",
+                        "depth": 1,
+                        "d_h": 1,
+                        "d_e": 1
                     }
                 }
             },
@@ -187,21 +180,14 @@
                 "direction": "top",
                 "area": 1,
                 "spec": {
-                    "u_vaue": 1,
+                    "u_vaue": 10.01,
                     "is_sunshade_input": true,
                     "sunshade": {
                         "existence": true,
-                        "input_method": "detailed",
-                        "x1": 1,
-                        "x2": 1,
-                        "x3": 1,
-                        "y1": 1,
-                        "y2": 1,
-                        "y3": 1,
-                        "z_x_pls": 1,
-                        "z_x_mns": 1,
-                        "z_y_pls": 1,
-                        "z_y_mns": 1
+                        "input_method": "simple",
+                        "depth": 1,
+                        "d_h": 1,
+                        "d_e": 1
                     }
                 }
             },
@@ -211,21 +197,14 @@
                 "direction": "top",
                 "area": 1,
                 "spec": {
-                    "u_vaue": 1,
+                    "u_vaue": 10.01,
                     "is_sunshade_input": true,
                     "sunshade": {
                         "existence": true,
-                        "input_method": "detailed",
-                        "x1": 1,
-                        "x2": 1,
-                        "x3": 1,
-                        "y1": 1,
-                        "y2": 1,
-                        "y3": 1,
-                        "z_x_pls": 1,
-                        "z_x_mns": 1,
-                        "z_y_pls": 1,
-                        "z_y_mns": 1
+                        "input_method": "simple",
+                        "depth": 1,
+                        "d_h": 1,
+                        "d_e": 1
                     }
                 }
             }
@@ -365,5 +344,5 @@
             "heat_exchanger_type": "cooling"
         }
     },
-    "target_key": "input_method"
+    "target_key": "u_vaue"
 }

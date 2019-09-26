@@ -87,7 +87,7 @@
                             "glass_type": "single"
                         }
                     ],
-                    "attachment_type": "none",
+                    "attachment_type": "",
                     "is_windbreak_room_attached": true,
                     "is_sunshade_input": true,
                     "sunshade": {
@@ -115,7 +115,7 @@
                             "glass_type": "single"
                         }
                     ],
-                    "attachment_type": "none",
+                    "attachment_type": "",
                     "is_windbreak_room_attached": true,
                     "is_sunshade_input": true,
                     "sunshade": {
@@ -143,7 +143,7 @@
                             "glass_type": "single"
                         }
                     ],
-                    "attachment_type": "none",
+                    "attachment_type": "",
                     "is_windbreak_room_attached": true,
                     "is_sunshade_input": true,
                     "sunshade": {
@@ -344,5 +344,5 @@
             "heat_exchanger_type": "cooling"
         }
     },
-    "target_key": "existence"
+    "target_key": "attachment_type"
 }

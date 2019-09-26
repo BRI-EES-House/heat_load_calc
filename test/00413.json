@@ -347,5 +347,5 @@
             "heat_exchanger_type": "cooling"
         }
     },
-    "target_key": "ug_value"
+    "target_key": "u_value_input_method"
 }

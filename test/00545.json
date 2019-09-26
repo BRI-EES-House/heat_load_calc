@@ -159,8 +159,8 @@
         "doors": [
             {
                 "name": "DR1",
-                "next_space": "outdoor",
-                "direction": "bottom",
+                "next_space": "error_check",
+                "direction": "top",
                 "area": 1,
                 "spec": {
                     "u_vaue": 1,
@@ -176,8 +176,8 @@
             },
             {
                 "name": "DR2",
-                "next_space": "outdoor",
-                "direction": "bottom",
+                "next_space": "error_check",
+                "direction": "top",
                 "area": 1,
                 "spec": {
                     "u_vaue": 1,
@@ -193,8 +193,8 @@
             },
             {
                 "name": "DR3",
-                "next_space": "outdoor",
-                "direction": "bottom",
+                "next_space": "error_check",
+                "direction": "top",
                 "area": 1,
                 "spec": {
                     "u_vaue": 1,
@@ -344,5 +344,5 @@
             "heat_exchanger_type": "cooling"
         }
     },
-    "target_key": "direction"
+    "target_key": "next_space"
 }

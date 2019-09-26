@@ -16,11 +16,11 @@
         }
     },
     "ventilation": {
-        "air_change_rate": 1
+        "air_change_rate": 1.1
     },
     "natural_vent": {
         "main_occupant_room_natural_vent_time": "0ACH",
-        "other_occupant_room_natural_vent_time": "error_check"
+        "other_occupant_room_natural_vent_time": "0ACH"
     },
     "heating_equipment": {
         "is_radiative_heating": false
@@ -31,5 +31,5 @@
             "heat_exchanger_type": "cooling"
         }
     },
-    "target_key": "other_occupant_room_natural_vent_time"
+    "target_key": "air_change_rate"
 }

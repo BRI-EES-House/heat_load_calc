@@ -82,9 +82,10 @@
                         {
                             "u_value_input_method": "u_value_directly",
                             "u_vaue": 1,
-                            "eta_value_input_method": "eta_d_value_directly",
-                            "eta_d_value": 1,
-                            "glass_type": "unknown"
+                            "eta_value_input_method": "eta_g_value_and_flame_type",
+                            "eta_g_value": 1,
+                            "flame_type": "wood_or_resin",
+                            "glass_type": "single"
                         }
                     ],
                     "attachment_type": "none",
@@ -110,9 +111,10 @@
                         {
                             "u_value_input_method": "u_value_directly",
                             "u_vaue": 1,
-                            "eta_value_input_method": "eta_d_value_directly",
-                            "eta_d_value": 1,
-                            "glass_type": "unknown"
+                            "eta_value_input_method": "eta_g_value_and_flame_type",
+                            "eta_g_value": 1,
+                            "flame_type": "wood_or_resin",
+                            "glass_type": "single"
                         }
                     ],
                     "attachment_type": "none",
@@ -138,9 +140,10 @@
                         {
                             "u_value_input_method": "u_value_directly",
                             "u_vaue": 1,
-                            "eta_value_input_method": "eta_d_value_directly",
-                            "eta_d_value": 1,
-                            "glass_type": "unknown"
+                            "eta_value_input_method": "eta_g_value_and_flame_type",
+                            "eta_g_value": 1,
+                            "flame_type": "wood_or_resin",
+                            "glass_type": "single"
                         }
                     ],
                     "attachment_type": "none",
@@ -344,5 +347,5 @@
             "heat_exchanger_type": "cooling"
         }
     },
-    "target_key": "glass_type"
+    "target_key": "eta_g_value"
 }

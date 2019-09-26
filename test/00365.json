@@ -22,10 +22,17 @@
                     "is_sunshade_input": true,
                     "sunshade": {
                         "existence": true,
-                        "input_method": "simple",
-                        "depth": 1,
-                        "d_h": 1,
-                        "d_e": 1
+                        "input_method": "detailed",
+                        "x1": 1,
+                        "x2": 1,
+                        "x3": 1,
+                        "y1": 1,
+                        "y2": 1,
+                        "y3": 1,
+                        "z_x_pls": 1,
+                        "z_x_mns": 1,
+                        "z_y_pls": 0,
+                        "z_y_mns": 1
                     }
                 }
             },
@@ -42,10 +49,17 @@
                     "is_sunshade_input": true,
                     "sunshade": {
                         "existence": true,
-                        "input_method": "simple",
-                        "depth": 1,
-                        "d_h": 1,
-                        "d_e": 1
+                        "input_method": "detailed",
+                        "x1": 1,
+                        "x2": 1,
+                        "x3": 1,
+                        "y1": 1,
+                        "y2": 1,
+                        "y3": 1,
+                        "z_x_pls": 1,
+                        "z_x_mns": 1,
+                        "z_y_pls": 0,
+                        "z_y_mns": 1
                     }
                 }
             },
@@ -62,10 +76,17 @@
                     "is_sunshade_input": true,
                     "sunshade": {
                         "existence": true,
-                        "input_method": "simple",
-                        "depth": 1,
-                        "d_h": 1,
-                        "d_e": 1
+                        "input_method": "detailed",
+                        "x1": 1,
+                        "x2": 1,
+                        "x3": 1,
+                        "y1": 1,
+                        "y2": 1,
+                        "y3": 1,
+                        "z_x_pls": 1,
+                        "z_x_mns": 1,
+                        "z_y_pls": 0,
+                        "z_y_mns": 1
                     }
                 }
             }
@@ -73,7 +94,7 @@
         "windows": [
             {
                 "name": "WND1",
-                "next_space": "open_space",
+                "next_space": "outdoor",
                 "direction": "top",
                 "area": 1,
                 "spec": {
@@ -101,7 +122,7 @@
             },
             {
                 "name": "WND2",
-                "next_space": "open_space",
+                "next_space": "outdoor",
                 "direction": "top",
                 "area": 1,
                 "spec": {
@@ -129,7 +150,7 @@
             },
             {
                 "name": "WND3",
-                "next_space": "open_space",
+                "next_space": "outdoor",
                 "direction": "top",
                 "area": 1,
                 "spec": {
@@ -344,5 +365,5 @@
             "heat_exchanger_type": "cooling"
         }
     },
-    "target_key": "next_space"
+    "target_key": "z_y_pls"
 }

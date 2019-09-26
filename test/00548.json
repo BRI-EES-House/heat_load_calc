@@ -160,7 +160,7 @@
             {
                 "name": "DR1",
                 "next_space": "outdoor",
-                "direction": "downward",
+                "direction": "ne",
                 "area": 1,
                 "spec": {
                     "u_vaue": 1,
@@ -177,7 +177,7 @@
             {
                 "name": "DR2",
                 "next_space": "outdoor",
-                "direction": "downward",
+                "direction": "ne",
                 "area": 1,
                 "spec": {
                     "u_vaue": 1,
@@ -194,7 +194,7 @@
             {
                 "name": "DR3",
                 "next_space": "outdoor",
-                "direction": "downward",
+                "direction": "ne",
                 "area": 1,
                 "spec": {
                     "u_vaue": 1,

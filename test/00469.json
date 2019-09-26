@@ -94,7 +94,7 @@
                         "existence": true,
                         "input_method": "simple",
                         "depth": 1,
-                        "d_h": 0,
+                        "d_h": 1,
                         "d_e": 1
                     }
                 }
@@ -122,7 +122,7 @@
                         "existence": true,
                         "input_method": "simple",
                         "depth": 1,
-                        "d_h": 0,
+                        "d_h": 1,
                         "d_e": 1
                     }
                 }
@@ -150,7 +150,7 @@
                         "existence": true,
                         "input_method": "simple",
                         "depth": 1,
-                        "d_h": 0,
+                        "d_h": 1,
                         "d_e": 1
                     }
                 }
@@ -344,5 +344,5 @@
             "heat_exchanger_type": "cooling"
         }
     },
-    "target_key": "d_h"
+    "target_key": "input_method"
 }

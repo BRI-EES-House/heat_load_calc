@@ -169,9 +169,9 @@
                         "existence": true,
                         "input_method": "detailed",
                         "x1": 1,
-                        "x2": 1,
+                        "x2": 0,
                         "x3": 1,
-                        "y1": 0,
+                        "y1": 1,
                         "y2": 1,
                         "y3": 1,
                         "z_x_pls": 1,
@@ -193,9 +193,9 @@
                         "existence": true,
                         "input_method": "detailed",
                         "x1": 1,
-                        "x2": 1,
+                        "x2": 0,
                         "x3": 1,
-                        "y1": 0,
+                        "y1": 1,
                         "y2": 1,
                         "y3": 1,
                         "z_x_pls": 1,
@@ -217,9 +217,9 @@
                         "existence": true,
                         "input_method": "detailed",
                         "x1": 1,
-                        "x2": 1,
+                        "x2": 0,
                         "x3": 1,
-                        "y1": 0,
+                        "y1": 1,
                         "y2": 1,
                         "y3": 1,
                         "z_x_pls": 1,
@@ -365,5 +365,5 @@
             "heat_exchanger_type": "cooling"
         }
     },
-    "target_key": "y1"
+    "target_key": "x2"
 }

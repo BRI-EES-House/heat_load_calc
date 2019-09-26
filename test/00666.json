@@ -213,25 +213,25 @@
             {
                 "name": "EFP1",
                 "next_space": "outdoor",
-                "length": 1,
+                "length": 100.0,
                 "spec": {
-                    "psi_value": 10
+                    "psi_value": 1
                 }
             },
             {
                 "name": "EFP2",
                 "next_space": "outdoor",
-                "length": 1,
+                "length": 100.0,
                 "spec": {
-                    "psi_value": 10
+                    "psi_value": 1
                 }
             },
             {
                 "name": "EFP3",
                 "next_space": "outdoor",
-                "length": 1,
+                "length": 100.0,
                 "spec": {
-                    "psi_value": 10
+                    "psi_value": 1
                 }
             }
         ],
@@ -344,5 +344,5 @@
             "heat_exchanger_type": "cooling"
         }
     },
-    "target_key": "psi_value"
+    "target_key": "length"
 }

@@ -26,7 +26,7 @@
         "is_radiative_heating": true,
         "radiative_heating": {
             "max_capacity": 100,
-            "area": 0
+            "area": 10
         }
     },
     "cooling_equipment": {
@@ -35,5 +35,5 @@
             "heat_exchanger_type": "cooling"
         }
     },
-    "target_key": "area"
+    "target_key": "is_radiative_heating"
 }

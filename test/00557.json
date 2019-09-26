@@ -160,7 +160,7 @@
             {
                 "name": "DR1",
                 "next_space": "outdoor",
-                "direction": "top",
+                "direction": "horizontal",
                 "area": 1,
                 "spec": {
                     "u_vaue": 1,
@@ -177,7 +177,7 @@
             {
                 "name": "DR2",
                 "next_space": "outdoor",
-                "direction": "top",
+                "direction": "horizontal",
                 "area": 1,
                 "spec": {
                     "u_vaue": 1,
@@ -194,7 +194,7 @@
             {
                 "name": "DR3",
                 "next_space": "outdoor",
-                "direction": "top",
+                "direction": "horizontal",
                 "area": 1,
                 "spec": {
                     "u_vaue": 1,
@@ -344,5 +344,5 @@
             "heat_exchanger_type": "cooling"
         }
     },
-    "target_key": "space_type"
+    "target_key": "direction"
 }

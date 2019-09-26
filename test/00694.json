@@ -344,5 +344,5 @@
             "heat_exchanger_type": "cooling"
         }
     },
-    "target_key": "thermal_resistance"
+    "target_key": "heat_resistance_input_method"
 }

@@ -81,7 +81,7 @@
                     "windows": [
                         {
                             "u_value_input_method": "u_value_directly",
-                            "u_vaue": -0.01,
+                            "u_vaue": 1,
                             "eta_value_input_method": "eta_d_value_directly",
                             "eta_d_value": 1,
                             "glass_type": "single"
@@ -109,7 +109,7 @@
                     "windows": [
                         {
                             "u_value_input_method": "u_value_directly",
-                            "u_vaue": -0.01,
+                            "u_vaue": 1,
                             "eta_value_input_method": "eta_d_value_directly",
                             "eta_d_value": 1,
                             "glass_type": "single"
@@ -137,7 +137,7 @@
                     "windows": [
                         {
                             "u_value_input_method": "u_value_directly",
-                            "u_vaue": -0.01,
+                            "u_vaue": 1,
                             "eta_value_input_method": "eta_d_value_directly",
                             "eta_d_value": 1,
                             "glass_type": "single"
@@ -344,5 +344,5 @@
             "heat_exchanger_type": "cooling"
         }
     },
-    "target_key": "u_vaue"
+    "target_key": "space_type"
 }

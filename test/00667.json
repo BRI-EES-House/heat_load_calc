@@ -215,7 +215,7 @@
                 "next_space": "outdoor",
                 "length": 1,
                 "spec": {
-                    "psi_value": 10.01
+                    "psi_value": 1
                 }
             },
             {
@@ -223,7 +223,7 @@
                 "next_space": "outdoor",
                 "length": 1,
                 "spec": {
-                    "psi_value": 10.01
+                    "psi_value": 1
                 }
             },
             {
@@ -231,7 +231,7 @@
                 "next_space": "outdoor",
                 "length": 1,
                 "spec": {
-                    "psi_value": 10.01
+                    "psi_value": 1
                 }
             }
         ],
@@ -344,5 +344,5 @@
             "heat_exchanger_type": "cooling"
         }
     },
-    "target_key": "psi_value"
+    "target_key": "space_type"
 }

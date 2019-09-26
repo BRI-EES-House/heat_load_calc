@@ -161,9 +161,9 @@
                 "name": "DR1",
                 "next_space": "outdoor",
                 "direction": "top",
-                "area": 1,
+                "area": 0,
                 "spec": {
-                    "u_vaue": -0.01,
+                    "u_vaue": 1,
                     "is_sunshade_input": true,
                     "sunshade": {
                         "existence": true,
@@ -178,9 +178,9 @@
                 "name": "DR2",
                 "next_space": "outdoor",
                 "direction": "top",
-                "area": 1,
+                "area": 0,
                 "spec": {
-                    "u_vaue": -0.01,
+                    "u_vaue": 1,
                     "is_sunshade_input": true,
                     "sunshade": {
                         "existence": true,
@@ -195,9 +195,9 @@
                 "name": "DR3",
                 "next_space": "outdoor",
                 "direction": "top",
-                "area": 1,
+                "area": 0,
                 "spec": {
-                    "u_vaue": -0.01,
+                    "u_vaue": 1,
                     "is_sunshade_input": true,
                     "sunshade": {
                         "existence": true,
@@ -344,5 +344,5 @@
             "heat_exchanger_type": "cooling"
         }
     },
-    "target_key": "u_vaue"
+    "target_key": "area"
 }

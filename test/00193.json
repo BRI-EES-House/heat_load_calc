@@ -47,6 +47,20 @@
                             ]
                         }
                     ],
+                    "heat_bridges": [
+                        {
+                            "length": 1,
+                            "psi_value": 1
+                        },
+                        {
+                            "length": 1,
+                            "psi_value": 1
+                        },
+                        {
+                            "length": 1,
+                            "psi_value": 1
+                        }
+                    ],
                     "is_sunshade_input": true,
                     "sunshade": {
                         "existence": true,
@@ -95,6 +109,20 @@
                             ]
                         }
                     ],
+                    "heat_bridges": [
+                        {
+                            "length": 1,
+                            "psi_value": 1
+                        },
+                        {
+                            "length": 1,
+                            "psi_value": 1
+                        },
+                        {
+                            "length": 1,
+                            "psi_value": 1
+                        }
+                    ],
                     "is_sunshade_input": true,
                     "sunshade": {
                         "existence": true,
@@ -141,6 +169,20 @@
                                     "volumetric_specific_heat": 1
                                 }
                             ]
+                        }
+                    ],
+                    "heat_bridges": [
+                        {
+                            "length": 1,
+                            "psi_value": 1
+                        },
+                        {
+                            "length": 1,
+                            "psi_value": 1
+                        },
+                        {
+                            "length": 1,
+                            "psi_value": 1
                         }
                     ],
                     "is_sunshade_input": true,

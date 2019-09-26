@@ -73,8 +73,8 @@
         "windows": [
             {
                 "name": "WND1",
-                "next_space": "outdoor",
-                "direction": "se",
+                "next_space": "closed_space",
+                "direction": "top",
                 "area": 1,
                 "spec": {
                     "window_type": "single",
@@ -101,8 +101,8 @@
             },
             {
                 "name": "WND2",
-                "next_space": "outdoor",
-                "direction": "se",
+                "next_space": "closed_space",
+                "direction": "top",
                 "area": 1,
                 "spec": {
                     "window_type": "single",
@@ -129,8 +129,8 @@
             },
             {
                 "name": "WND3",
-                "next_space": "outdoor",
-                "direction": "se",
+                "next_space": "closed_space",
+                "direction": "top",
                 "area": 1,
                 "spec": {
                     "window_type": "single",
@@ -344,5 +344,5 @@
             "heat_exchanger_type": "cooling"
         }
     },
-    "target_key": "direction"
+    "target_key": "next_space"
 }

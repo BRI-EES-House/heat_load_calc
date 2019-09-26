@@ -23,11 +23,7 @@
         "other_occupant_room_natural_vent_time": "0ACH"
     },
     "heating_equipment": {
-        "is_radiative_heating": true,
-        "radiative_heating": {
-            "max_capacity": 100,
-            "area": 99.99
-        }
+        "is_radiative_heating": ""
     },
     "cooling_equipment": {
         "is_radiative_cooling": false,
@@ -35,5 +31,5 @@
             "heat_exchanger_type": "cooling"
         }
     },
-    "target_key": "area"
+    "target_key": "is_radiative_heating"
 }

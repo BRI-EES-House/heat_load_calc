@@ -245,21 +245,21 @@
                         {
                             "name": "LYR1",
                             "heat_resistance_input_method": "conductivity",
-                            "thermal_conductivity": 0.0,
+                            "thermal_conductivity": 1,
                             "thickness": 1,
                             "volumetric_specific_heat": 1
                         },
                         {
                             "name": "LYR2",
                             "heat_resistance_input_method": "conductivity",
-                            "thermal_conductivity": 0.0,
+                            "thermal_conductivity": 1,
                             "thickness": 1,
                             "volumetric_specific_heat": 1
                         },
                         {
                             "name": "LYR3",
                             "heat_resistance_input_method": "conductivity",
-                            "thermal_conductivity": 0.0,
+                            "thermal_conductivity": 1,
                             "thickness": 1,
                             "volumetric_specific_heat": 1
                         }
@@ -275,21 +275,21 @@
                         {
                             "name": "LYR1",
                             "heat_resistance_input_method": "conductivity",
-                            "thermal_conductivity": 0.0,
+                            "thermal_conductivity": 1,
                             "thickness": 1,
                             "volumetric_specific_heat": 1
                         },
                         {
                             "name": "LYR2",
                             "heat_resistance_input_method": "conductivity",
-                            "thermal_conductivity": 0.0,
+                            "thermal_conductivity": 1,
                             "thickness": 1,
                             "volumetric_specific_heat": 1
                         },
                         {
                             "name": "LYR3",
                             "heat_resistance_input_method": "conductivity",
-                            "thermal_conductivity": 0.0,
+                            "thermal_conductivity": 1,
                             "thickness": 1,
                             "volumetric_specific_heat": 1
                         }
@@ -305,21 +305,21 @@
                         {
                             "name": "LYR1",
                             "heat_resistance_input_method": "conductivity",
-                            "thermal_conductivity": 0.0,
+                            "thermal_conductivity": 1,
                             "thickness": 1,
                             "volumetric_specific_heat": 1
                         },
                         {
                             "name": "LYR2",
                             "heat_resistance_input_method": "conductivity",
-                            "thermal_conductivity": 0.0,
+                            "thermal_conductivity": 1,
                             "thickness": 1,
                             "volumetric_specific_heat": 1
                         },
                         {
                             "name": "LYR3",
                             "heat_resistance_input_method": "conductivity",
-                            "thermal_conductivity": 0.0,
+                            "thermal_conductivity": 1,
                             "thickness": 1,
                             "volumetric_specific_heat": 1
                         }
@@ -344,5 +344,5 @@
             "heat_exchanger_type": "cooling"
         }
     },
-    "target_key": "thermal_conductivity"
+    "target_key": "space_type"
 }

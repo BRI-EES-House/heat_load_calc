@@ -19,14 +19,7 @@
                     "structure": "wood",
                     "u_value_input_method_wood": "u_value_directly",
                     "u_value_wood": 1,
-                    "is_sunshade_input": true,
-                    "sunshade": {
-                        "existence": true,
-                        "input_method": "simple",
-                        "depth": 0,
-                        "d_h": 1,
-                        "d_e": 1
-                    }
+                    "is_sunshade_input": "error_check"
                 }
             },
             {
@@ -39,14 +32,7 @@
                     "structure": "wood",
                     "u_value_input_method_wood": "u_value_directly",
                     "u_value_wood": 1,
-                    "is_sunshade_input": true,
-                    "sunshade": {
-                        "existence": true,
-                        "input_method": "simple",
-                        "depth": 0,
-                        "d_h": 1,
-                        "d_e": 1
-                    }
+                    "is_sunshade_input": "error_check"
                 }
             },
             {
@@ -59,14 +45,7 @@
                     "structure": "wood",
                     "u_value_input_method_wood": "u_value_directly",
                     "u_value_wood": 1,
-                    "is_sunshade_input": true,
-                    "sunshade": {
-                        "existence": true,
-                        "input_method": "simple",
-                        "depth": 0,
-                        "d_h": 1,
-                        "d_e": 1
-                    }
+                    "is_sunshade_input": "error_check"
                 }
             }
         ],
@@ -344,5 +323,5 @@
             "heat_exchanger_type": "cooling"
         }
     },
-    "target_key": "depth"
+    "target_key": "is_sunshade_input"
 }

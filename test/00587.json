@@ -167,10 +167,7 @@
                     "is_sunshade_input": true,
                     "sunshade": {
                         "existence": true,
-                        "input_method": "simple",
-                        "depth": 1,
-                        "d_h": 10,
-                        "d_e": 1
+                        "input_method": ""
                     }
                 }
             },
@@ -184,10 +181,7 @@
                     "is_sunshade_input": true,
                     "sunshade": {
                         "existence": true,
-                        "input_method": "simple",
-                        "depth": 1,
-                        "d_h": 10,
-                        "d_e": 1
+                        "input_method": ""
                     }
                 }
             },
@@ -201,10 +195,7 @@
                     "is_sunshade_input": true,
                     "sunshade": {
                         "existence": true,
-                        "input_method": "simple",
-                        "depth": 1,
-                        "d_h": 10,
-                        "d_e": 1
+                        "input_method": ""
                     }
                 }
             }
@@ -344,5 +335,5 @@
             "heat_exchanger_type": "cooling"
         }
     },
-    "target_key": "d_h"
+    "target_key": "input_method"
 }
