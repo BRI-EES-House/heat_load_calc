@@ -15,6 +15,19 @@ import a35_PMV as a35
 
 from Psychrometrics import rhtx
 
+# 地盤の計算
+def run_tick_groundonly(spaces, To_n: float, xo: float, n: int):
+    for i, s in spaces.items():
+
+        # 配列の準備
+        Nroot = s.surfG_i.Nroot
+        Row = s.surfG_i.Row
+
+        # 畳み込み積分 式(27)
+        for g in range(s.NsurfG_i):
+            s.TsdA_l_n_m[g, n] = s.oldqi[g] * s.surfG_i.RFA1[g] + Row[g] * s.TsdA_l_n_m[g, n - 1]
+            s.TsdT_l_n_m[g, n] = s.Teo_i_k_n[g, n - 1] * s.surfG_i.RFT1[g] + Row[g] * s.TsdT_l_n_m[g, n - 1]
+
 
 # 室温、熱負荷の計算
 def run_tick(spaces, To_n: float, xo: float, n: int):
