@@ -49,7 +49,7 @@ class TestLV2toLV3(unittest.TestCase):
             }
         }
 
-        result = nb.get_general_parts(d['envelope']['general_parts'], d['common'])
+        result = nb.get_general_parts(d['common'], d['envelope']['general_parts'])
 
         self.assertEqual(3, len(result))
         self.assertEqual('test_part_main_occupant_room', result[0]['name'])
@@ -93,7 +93,7 @@ class TestLV2toLV3(unittest.TestCase):
             }
         }
 
-        result = nb.get_windows(d['envelope']['windows'], d['common'])
+        result = nb.get_windows(d['common'], d['envelope']['windows'])
 
         self.assertEqual(3, len(result))
         self.assertEqual('test_part_main_occupant_room', result[0]['name'])
@@ -134,7 +134,7 @@ class TestLV2toLV3(unittest.TestCase):
             }
         }
 
-        result = nb.get_doors(d['envelope']['doors'], d['common'])
+        result = nb.get_doors(d['common'], d['envelope']['doors'])
 
         self.assertEqual(3, len(result))
         self.assertEqual('test_part_main_occupant_room', result[0]['name'])
@@ -175,7 +175,7 @@ class TestLV2toLV3(unittest.TestCase):
             }
         }
 
-        result = nb.get_heatbridges(d['envelope']['heatbridges'], d['common'])
+        result = nb.get_heatbridges(d['common'], d['envelope']['heatbridges'])
 
         self.assertEqual(3, len(result))
         self.assertEqual('test_part_main_occupant_room', result[0]['name'])
