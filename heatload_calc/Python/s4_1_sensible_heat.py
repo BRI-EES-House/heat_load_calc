@@ -148,7 +148,7 @@ def calc_heatload(ac_mode: int, is_radiative_heating: bool, BRCot: float, BRMot:
     if ac_mode == 0:
         Lrs = 0.0
         Lcs = 0.0
-        OT = get_OT_natural(BRCot, BRMot)
+        OT = get_OT_without_ac(BRCot, BRMot)
 
     # 熱負荷計算（能力無制限）
     elif ac_mode == 1 or ac_mode == -1 or ac_mode == 4:
@@ -174,12 +174,12 @@ def calc_heatload(ac_mode: int, is_radiative_heating: bool, BRCot: float, BRMot:
     else:
         Lrs = 0.0
         Lcs = 0.0
-        OT = get_OT_natural(BRCot, BRMot)
+        OT = get_OT_without_ac(BRCot, BRMot)
 
     return (OT, Lcs, Lrs)
 
 
-def get_OT_natural(BRCot, BRMot):
+def get_OT_without_ac(BRCot, BRMot):
     OT = BRCot / BRMot
     return OT
 

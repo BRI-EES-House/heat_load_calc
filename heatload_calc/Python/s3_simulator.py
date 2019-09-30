@@ -15,6 +15,19 @@ import a35_PMV as a35
 
 from Psychrometrics import rhtx
 
+# 地盤の計算
+def run_tick_groundonly(spaces, To_n: float, xo: float, n: int):
+    for i, s in spaces.items():
+
+        # 配列の準備
+        Nroot = s.surfG_i.Nroot
+        Row = s.surfG_i.Row
+
+        # 畳み込み積分 式(27)
+        for g in range(s.NsurfG_i):
+            s.TsdA_l_n_m[g, n] = s.oldqi[g] * s.surfG_i.RFA1[g] + Row[g] * s.TsdA_l_n_m[g, n - 1]
+            s.TsdT_l_n_m[g, n] = s.Teo_i_k_n[g, n - 1] * s.surfG_i.RFT1[g] + Row[g] * s.TsdT_l_n_m[g, n - 1]
+
 
 # 室温、熱負荷の計算
 def run_tick(spaces, To_n: float, xo: float, n: int):
@@ -99,28 +112,28 @@ def run_tick(spaces, To_n: float, xo: float, n: int):
 
         # ********** 非空調(自然)作用温度、PMV の計算 **********
 
-        BRMot_natural, BRCot_natural, _, Xot_natural, XLr_natural, XC_natural = s41.calc_OT_coeff(
+        BRMot_without_ac, BRCot_without_ac, _, Xot_without_ac, XLr_without_ac, XC_without_ac = s41.calc_OT_coeff(
             BRM_i=s.BRMnoncv_i[n] + ca * rhoa * NVot, BRC_i=BRCnoncv + ca * rhoa * NVot * To_n, BRL_i=s.BRL_i[n],
             WSR_i_k=s.WSR_i_k, WSB_i_k=s.WSB_i_k, WSC_i_k=WSC_i_k, WSV_i_k=WSV_i_k, fot=s.Fot_i_g, kc_i=s.kc_i,
             kr_i=s.kr_i)
 
         # 自然作用温度の計算
-        OT_natural = s41.get_OT_natural(BRCot_natural, BRMot_natural)
+        OT_without_ac = s41.get_OT_without_ac(BRCot_without_ac, BRMot_without_ac)
 
         # 自然室温を計算 式(14)
-        Tr_natural = s41.get_Tr_i_n(OT_natural, 0.0, Xot_natural, XLr_natural, XC_natural)
+        Tr_without_ac = s41.get_Tr_i_n(OT_without_ac, 0.0, Xot_without_ac, XLr_without_ac, XC_without_ac)
 
         # 自然MRTを計算 TODO:仕様書内の場所不明
-        MRT_natural = (OT_natural - s.kc_i * Tr_natural) / s.kr_i
+        MRT_without_ac = (OT_without_ac - s.kc_i * Tr_without_ac) / s.kr_i
 
         # 着衣量 式(128)
-        I_cl = a35.get_I_cl(OT_natural)
+        I_cl = a35.get_I_cl(OT_without_ac)
 
         # 自然PMVを計算する
-        Met_natural = 1.0
-        Vel_natural = 0.0 if not is_now_window_open else 0.1
-        Wme_natural = 0.0
-        PMV_natural = a35.calc_PMV(Tr_natural, MRT_natural, s.RH_i_n[n - 1], Vel_natural, Met_natural, Wme_natural,
+        Met_without_ac = 1.0
+        Vel_without_ac = 0.0 if not is_now_window_open else 0.1
+        Wme_without_ac = 0.0
+        PMV_without_ac = a35.calc_PMV(Tr_without_ac, MRT_without_ac, s.RH_i_n[n - 1], Vel_without_ac, Met_without_ac, Wme_without_ac,
                                    I_cl)
 
         # ********** 窓開閉、空調発停の決定 **********
@@ -128,7 +141,7 @@ def run_tick(spaces, To_n: float, xo: float, n: int):
         # 窓の開閉と空調発停の切り替え判定
         s.is_now_window_open_i_n[n], ac_mode \
             = a13.mode_select(s.air_conditioning_demand[n], s.prev_air_conditioning_mode, s.is_prev_window_open,
-                              PMV_natural)
+                              PMV_without_ac)
 
         # 目標PMVの計算（冷房時は上限、暖房時は下限PMVを目標値とする）
         # 空調モード: -1=冷房, 0=停止, 1=暖房, 2=, 3=    ==>  [停止, 暖房, 暖房(1), 暖房(2), 冷房]
