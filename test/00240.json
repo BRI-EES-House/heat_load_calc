@@ -50,15 +50,15 @@
                     ],
                     "heat_bridges": [
                         {
-                            "length": 1,
+                            "length_per_area": 1,
                             "psi_value": 1
                         },
                         {
-                            "length": 1,
+                            "length_per_area": 1,
                             "psi_value": 1
                         },
                         {
-                            "length": 1,
+                            "length_per_area": 1,
                             "psi_value": 1
                         }
                     ],
@@ -113,15 +113,15 @@
                     ],
                     "heat_bridges": [
                         {
-                            "length": 1,
+                            "length_per_area": 1,
                             "psi_value": 1
                         },
                         {
-                            "length": 1,
+                            "length_per_area": 1,
                             "psi_value": 1
                         },
                         {
-                            "length": 1,
+                            "length_per_area": 1,
                             "psi_value": 1
                         }
                     ],
@@ -176,15 +176,15 @@
                     ],
                     "heat_bridges": [
                         {
-                            "length": 1,
+                            "length_per_area": 1,
                             "psi_value": 1
                         },
                         {
-                            "length": 1,
+                            "length_per_area": 1,
                             "psi_value": 1
                         },
                         {
-                            "length": 1,
+                            "length_per_area": 1,
                             "psi_value": 1
                         }
                     ],
