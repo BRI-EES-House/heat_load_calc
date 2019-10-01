@@ -2,16 +2,16 @@ import factor_f
 import model_house
 import convert_model_house_to_house_dict
 import get_u_psi_eta_from_u_a_and_eta_a as get_u_and_eta
+from factor_h import get_factor_h
+import factor_nu
 
 
-def convert(input_data):
+def convert(common, envelope):
 
-    common = input_data['common']
     region = common['region']
     house_type = common['house_type']
     a_f_total = common['total_floor_area']
 
-    envelope = input_data['envelope']
     indices = envelope['indices']
     u_a = indices['u_a']
     eta_a_h = indices['eta_a_h']
@@ -34,12 +34,6 @@ def convert(input_data):
 
     model_house_envelope_no_spec = convert_model_house_to_house_dict.convert(**model_house_shape)
 
-    # U値、η値の取得
-    l_direction_s = ['top', 'n', 'ne', 'e', 'se', 's', 'sw', 'w', 'nw']
-
-    f_heating = min(factor_f.get_f_without_eaves('heating', region, direction) for direction in l_direction_s)
-    f_cooling = max(factor_f.get_f_without_eaves('cooling', region, direction) for direction in l_direction_s)
-
     sunshade = factor_f.Sunshade(
         existence=True, input_method='simple',
         depth=0.3, d_h=1.0, d_e=0.0,
@@ -48,7 +42,7 @@ def convert(input_data):
         z_x_pls=None, z_x_mns=None, z_y_pls=None, z_y_mns=None
     )
 
-    u, eta_d = get_u_and_eta.calc_parts_spec(
+    u_psi, eta_d, eta_d_h, eta_d_c = get_u_and_eta.calc_parts_spec(
         region=region,
         house_no_spec=model_house_envelope_no_spec,
         u_a_target=u_a,
@@ -57,9 +51,120 @@ def convert(input_data):
         sunshade=sunshade
     )
 
-    model_house_envelope = add_spec(model_house_envelope_no_spec, u, eta_d, sunshade)
+    print('U値: ' + str(u_psi))
+    print('ηd値: ' + str(eta_d))
+    print('UA設定値: ' + str(u_a) + ', ηAH設定値: ' + str(eta_a_h) + ', ηAC設定値: ' + str(eta_a_c))
+
+    model_house_envelope = add_spec(model_house_envelope_no_spec, u_psi, eta_d, sunshade)
+
+    checked_u_a, checked_eta_a_h, checked_eta_a_c = check_u_a_and_eta_a(region, model_house_envelope, eta_d_h, eta_d_c, sunshade)
+
+    print('UA計算値: ' + str(checked_u_a) + ', ηAH計算値: ' + str(checked_eta_a_h) + ', ηAC計算値: ' + str(checked_eta_a_c))
 
     return model_house_envelope
+
+
+def check_u_a_and_eta_a(region, model_house_envelope, eta_d_h, eta_d_c, sunshade):
+
+    general_parts = model_house_envelope['general_parts']
+
+    windows = model_house_envelope['windows']
+
+    doors = model_house_envelope['doors']
+
+    earthfloor_perimeters = model_house_envelope['earthfloor_perimeters']
+
+    earthfloor_centers = model_house_envelope['earthfloor_centers']
+
+    a_evp_total = get_total_area(general_parts, windows, doors, earthfloor_centers)
+
+    q_general = sum(p['area'] * p['spec']['u_value_other'] * get_factor_h(region, p['next_space'])
+                    for p in general_parts)
+
+    q_window = sum(p['area'] * p['spec']['windows'][0]['u_value'] * get_factor_h(region, p['next_space'])
+                   for p in windows)
+
+    q_door = sum(p['area'] * p['spec']['u_value'] * get_factor_h(region, p['next_space']) for p in doors)
+
+    q_earthfloor_perimeter = sum(p['length'] * p['spec']['psi_value'] * get_factor_h(region, p['next_space'])
+                                 for p in earthfloor_perimeters)
+
+    u_a = (q_general + q_window + q_door + q_earthfloor_perimeter) / a_evp_total
+
+    if region != 8:
+
+        m_h_general = sum(
+            p['area'] * 0.034 * p['spec']['u_value_other']
+            * factor_nu.get_nu(region=region, season='heating', direction=p['direction'])
+            for p in general_parts if p['next_space'] == 'outdoor')
+
+        m_h_door = sum(
+            p['area'] * 0.034 * p['spec']['u_value']
+            * factor_nu.get_nu(region=region, season='heating', direction=p['direction'])
+            for p in doors if p['next_space'] == 'outdoor')
+
+        m_h_window = sum(
+            p['spec']['windows'][0]['eta_d_value'] * p['area']
+            * factor_f.get_f(season='heating', region=region, direction=p['direction'], sunshade=sunshade)
+            * factor_nu.get_nu(season='heating', region=region, direction=p['direction'])
+            for p in windows)
+
+        m_h_window = sum(
+            eta_d_h * p['area']
+            * factor_f.get_f(season='heating', region=region, direction=p['direction'], sunshade=sunshade)
+            * factor_nu.get_nu(season='heating', region=region, direction=p['direction'])
+            for p in windows)
+
+        eta_a_h = (m_h_general + m_h_door + m_h_window) / a_evp_total * 100
+
+    else:
+
+        eta_a_h = None
+
+    m_c_general = sum(
+        p['area'] * 0.034 * p['spec']['u_value_other']
+        * factor_nu.get_nu(region=region, season='cooling', direction=p['direction'])
+        for p in general_parts if p['next_space'] == 'outdoor')
+
+    m_c_door = sum(
+        p['area'] * 0.034 * p['spec']['u_value']
+        * factor_nu.get_nu(region=region, season='cooling', direction=p['direction'])
+        for p in doors if p['next_space'] == 'outdoor')
+
+    m_c_window = sum(
+        p['spec']['windows'][0]['eta_d_value'] * p['area']
+        * factor_f.get_f(season='cooling', region=region, direction=p['direction'], sunshade=sunshade)
+        * factor_nu.get_nu(season='cooling', region=region,direction=p['direction'])
+        for p in windows)
+
+    m_c_window = sum(
+        eta_d_c * p['area']
+        * factor_f.get_f(season='cooling', region=region, direction=p['direction'], sunshade=sunshade)
+        * factor_nu.get_nu(season='cooling', region=region, direction=p['direction'])
+        for p in windows)
+
+    eta_a_c = (m_c_general + m_c_door + m_c_window) / a_evp_total * 100
+
+    return u_a, eta_a_h, eta_a_c
+
+
+def get_total_area(general_parts, windows, doors, earthfloor_centers):
+
+    d_area = []
+
+    if general_parts is not None:
+        d_area.extend(general_parts)
+
+    if windows is not None:
+        d_area.extend(windows)
+
+    if doors is not None:
+        d_area.extend(doors)
+
+    if earthfloor_centers is not None:
+        d_area.extend(earthfloor_centers)
+
+    return sum(d['area'] for d in d_area)
 
 
 def add_spec(model_house_envelope_no_spec, u, eta_d, sunshade):
@@ -161,6 +266,7 @@ def add_spec(model_house_envelope_no_spec, u, eta_d, sunshade):
     ]
 
     return {
+        'input_method': model_house_envelope_no_spec['input_method'],
         'general_parts': general_parts,
         'windows': windows,
         'doors': doors,
@@ -190,6 +296,6 @@ if __name__ == '__main__':
         }
     }
 
-    result = convert(input_data=input_data_1)
+    result1 = convert(common=input_data_1['common'], envelope=input_data_1['envelope'])
 
-    print(result)
+    print(result1)

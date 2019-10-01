@@ -34,7 +34,108 @@ Sunshade = namedtuple('Sunshade', [
 ])
 
 
-def get_f_without_eaves(season: str, region: int, direction: str) -> Optional[float]:
+def get_f_not_input(season: str, region: int) -> Optional[float]:
+    """
+    Args:
+        season: 期間
+        region: 地域の区分
+    Returns:
+        f値
+    """
+
+    if season == 'heating':
+        if region == 8:
+            return None
+        else:
+            return 0.51
+    elif season == 'cooling':
+        return 0.93
+    else:
+        raise ValueError()
+
+
+def get_f(season: str, region: int, direction: str, sunshade: Optional[Sunshade]) -> Optional[float]:
+    """
+    Args:
+        season: 期間
+        region: 地域の区分
+        direction: 方位
+        sunshade: 日除けの形状
+    Returns:
+        f値
+    """
+
+    if sunshade is None:
+        return get_f_not_input(season, region)
+    elif sunshade.existence:
+        return get_f_existence(season, region, direction, sunshade)
+    elif not sunshade.existence:
+        return get_f_not_existence(season, region, direction)
+    else:
+        raise ValueError()
+
+
+def get_f_existence(season: str, region: int, direction: str, sunshade: Sunshade) -> Optional[float]:
+    """
+    Args:
+        season: 期間
+        region: 地域の区分
+        direction: 方位
+        sunshade: 日除けの形状
+    Returns:
+        f値
+    """
+
+    if sunshade.input_method == 'simple':
+        if season == 'heating':
+            if region == 8:
+                return None
+            else:
+                if direction == 'sw' or direction == 's' or direction == 'se':
+                    return min(0.01 * (5 + 20 * (3 * sunshade.d_e + sunshade.d_h)/sunshade.depth), 0.72)
+                elif (direction == 'n' or direction == 'ne' or direction == 'e'
+                      or direction == 'nw' or direction == 'w'):
+                    return min(0.01 * (10 + 15 * (2 * sunshade.d_e + sunshade.d_h) / sunshade.depth), 0.72)
+                elif direction == 'top':
+                    return 1.0
+                elif direction == 'bottom':
+                    return 0.0
+                else:
+                    raise ValueError()
+        elif season == 'cooling':
+            if region == 8:
+                if direction == 'sw' or direction == 's' or direction == 'se':
+                    return min(0.01 * (16 + 19 * (2 * sunshade.d_e + sunshade.d_h)/sunshade.depth), 0.93)
+                elif (direction == 'n' or direction == 'ne' or direction == 'e'
+                      or direction == 'nw' or direction == 'w'):
+                    return min(0.01 * (16 + 24 * (2 * sunshade.d_e + sunshade.d_h) / sunshade.depth), 0.93)
+                elif direction == 'top':
+                    return 1.0
+                elif direction == 'bottom':
+                    return 0.0
+                else:
+                    raise ValueError()
+            else:
+                if direction == 's':
+                    return min(0.01 * (24 + 9 * (3 * sunshade.d_e + sunshade.d_h)/sunshade.depth), 0.93)
+                elif (direction == 'n' or direction == 'ne' or direction == 'e' or direction == 'se'
+                      or direction == 'nw' or direction == 'w' or direction == 'sw'):
+                    return min(0.01 * (16 + 24 * (2 * sunshade.d_e + sunshade.d_h) / sunshade.depth), 0.93)
+                elif direction == 'top':
+                    return 1.0
+                elif direction == 'bottom':
+                    return 0.0
+                else:
+                    raise ValueError()
+        else:
+            raise ValueError()
+    elif sunshade.input_method == 'detailed':
+        raise NotImplementedError()
+    else:
+        raise ValueError()
+
+
+def get_f_not_existence(season: str, region: int, direction: str) -> Optional[float]:
     """
     Args:
         season: 期間
@@ -49,15 +150,15 @@ def get_f_without_eaves(season: str, region: int, direction: str) -> Optional[fl
     return {
         'heating': {
             'top': {1: 0.90, 2: 0.91, 3: 0.91, 4: 0.91, 5: 0.90, 6: 0.90, 7: 0.90, 8: None}[region],
-            'n': {1: 0.862, 2: 0.860, 3: 0.862, 4: 0.861, 5: 0.867, 6: 0.870, 7: 0.873, 8: 0.0}[region],
-            'ne': {1: 0.848, 2: 0.851, 3: 0.850, 4: 0.846, 5: 0.838, 6: 0.839, 7: 0.833, 8: 0.0}[region],
-            'e': {1: 0.871, 2: 0.873, 3: 0.869, 4: 0.874, 5: 0.874, 6: 0.874, 7: 0.868, 8: 0.0}[region],
-            'se': {1: 0.892, 2: 0.888, 3: 0.885, 4: 0.883, 5: 0.894, 6: 0.896, 7: 0.892, 8: 0.0}[region],
-            's': {1: 0.892, 2: 0.880, 3: 0.884, 4: 0.874, 5: 0.894, 6: 0.889, 7: 0.896, 8: 0.0}[region],
-            'sw': {1: 0.888, 2: 0.885, 3: 0.885, 4: 0.882, 5: 0.891, 6: 0.885, 7: 0.894, 8: 0.0}[region],
-            'w': {1: 0.869, 2: 0.874, 3: 0.871, 4: 0.872, 5: 0.871, 6: 0.874, 7: 0.870, 8: 0.0}[region],
-            'nw': {1: 0.850, 2: 0.850, 3: 0.850, 4: 0.845, 5: 0.840, 6: 0.844, 7: 0.834, 8: 0.0}[region],
-            'bottom': 0.0,
+            'n': {1: 0.862, 2: 0.860, 3: 0.862, 4: 0.861, 5: 0.867, 6: 0.870, 7: 0.873, 8: None}[region],
+            'ne': {1: 0.848, 2: 0.851, 3: 0.850, 4: 0.846, 5: 0.838, 6: 0.839, 7: 0.833, 8: None}[region],
+            'e': {1: 0.871, 2: 0.873, 3: 0.869, 4: 0.874, 5: 0.874, 6: 0.874, 7: 0.868, 8: None}[region],
+            'se': {1: 0.892, 2: 0.888, 3: 0.885, 4: 0.883, 5: 0.894, 6: 0.896, 7: 0.892, 8: None}[region],
+            's': {1: 0.892, 2: 0.880, 3: 0.884, 4: 0.874, 5: 0.894, 6: 0.889, 7: 0.896, 8: None}[region],
+            'sw': {1: 0.888, 2: 0.885, 3: 0.885, 4: 0.882, 5: 0.891, 6: 0.885, 7: 0.894, 8: None}[region],
+            'w': {1: 0.869, 2: 0.874, 3: 0.871, 4: 0.872, 5: 0.871, 6: 0.874, 7: 0.870, 8: None}[region],
+            'nw': {1: 0.850, 2: 0.850, 3: 0.850, 4: 0.845, 5: 0.840, 6: 0.844, 7: 0.834, 8: None}[region],
+            'bottom': {1: 0.0, 2: 0.0, 3: 0.0, 4: 0.0, 5: 0.0, 6: 0.0, 7: 0.0, 8: None}[region],
         }[direction],
         'cooling': {
             'top': {1: 0.93, 2: 0.93, 3: 0.93, 4: 0.94, 5: 0.93, 6: 0.94, 7: 0.94, 8: 0.93}[region],

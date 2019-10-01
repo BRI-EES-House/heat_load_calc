@@ -33,8 +33,16 @@ def calc_Hload(cdata, To_n, xo_n):
 
     OutList = exporter.append_headers(spaces)
 
-    # 室温、熱負荷の計算ループ
-    for n in range((lngStNday-1) * 96, lngEnNday*96):
+    # 助走計算1(土壌のみ)
+    for n in range((lngStNday-365) * 96, (lngStNday-184) * 96):
+        simulator.run_tick_groundonly(spaces, To_n[n], xo_n[n], n)
+
+    # 助走計算2(室温、熱負荷)
+    for n in range((lngStNday-184) * 96, lngStNday * 96):
+        simulator.run_tick(spaces, To_n[n], xo_n[n], n)
+
+    # 本計算(室温、熱負荷)
+    for n in range((lngStNday-1) * 96, lngEnNday * 96):
         simulator.run_tick(spaces, To_n[n], xo_n[n], n)
 
     # 年間熱負荷の積算
