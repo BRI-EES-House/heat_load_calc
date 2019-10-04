@@ -35,7 +35,7 @@ def calc_Hload(cdata, To_n, xo_n):
 
     # 助走計算1(土壌のみ)
     for n in range((lngStNday-365) * 96, (lngStNday-184) * 96):
-        simulator.run_tick_groundonly(spaces, To_n[n], xo_n[n], n)
+        simulator.run_tick_groundonly(spaces, To_n[n], n)
 
     # 助走計算2(室温、熱負荷)
     for n in range((lngStNday-184) * 96, lngStNday * 96):
@@ -91,9 +91,6 @@ def get_nday(mo, day):
 
 
 if __name__ == '__main__':
-    # OT = get_OTset(1.0, 1.0, 0.15, 50.0, 0.0)
-    # print(OT)
-
     # js = open('1RCase1_最初の外壁削除.json', 'r', encoding='utf-8')
     # js = open('input_non_residential.json', 'r', encoding='utf-8')
     js = open('input_residential.json', 'r', encoding='utf-8')

@@ -12,21 +12,26 @@ import a16_blowing_condition_rac as a16
 import a18_initial_value_constants as a18
 import a28_operative_temperature as a28
 import a35_PMV as a35
+import a37_groundonly_runup_calculation as a37
 
 from Psychrometrics import rhtx
 
+
 # 地盤の計算
-def run_tick_groundonly(spaces, To_n: float, xo: float, n: int):
+def run_tick_groundonly(spaces, To_n: float, n: int):
     for i, s in spaces.items():
 
         # 配列の準備
-        Nroot = s.surfG_i.Nroot
         Row = s.surfG_i.Row
+
+        Phi_A_i_k_0 = s.surfG_i.RFA0
+        hi_i_k = s.surfG_i.hi_i_g_n
+        a0 = a37.get_a0(To_n)
 
         # 畳み込み積分 式(27)
         for g in range(s.NsurfG_i):
             s.TsdA_l_n_m[g, n] = s.oldqi[g] * s.surfG_i.RFA1[g] + Row[g] * s.TsdA_l_n_m[g, n - 1]
-            s.TsdT_l_n_m[g, n] = s.Teo_i_k_n[g, n - 1] * s.surfG_i.RFT1[g] + Row[g] * s.TsdT_l_n_m[g, n - 1]
+            s.Ts_i_k_n[g, n] = a37.get_Ts_i_n_k(Phi_A_i_k_0[g], hi_i_k[g], s.Tei_i_k_n[g, n], s.TsdA_l_n_m[g, n], a0)
 
 
 # 室温、熱負荷の計算
