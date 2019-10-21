@@ -30,6 +30,7 @@ def run_tick_groundonly(spaces, To_n: float, n: int):
 
         # 畳み込み積分 式(27)
         for g in range(s.NsurfG_i):
+            if s.surfG_i.boundary_type[g] == "ground":
             s.TsdA_l_n_m[g, n] = s.oldqi[g] * s.surfG_i.RFA1[g] + Row[g] * s.TsdA_l_n_m[g, n - 1]
             s.Ts_i_k_n[g, n] = a37.get_Ts_i_n_k(Phi_A_i_k_0[g], hi_i_k[g], s.Tei_i_k_n[g, n], s.TsdA_l_n_m[g, n], a0)
 
