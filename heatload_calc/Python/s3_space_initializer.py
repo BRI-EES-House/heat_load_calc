@@ -73,14 +73,14 @@ def init_spaces(space, solar_position, I_DN_n, I_sky_n, RN_n, To_n):
     space.NsurfG_i = space.surfG_i.NsurfG_i
 
     # 部位ごとの計算結果用変数
-    space.Ts_i_k_n = np.zeros((space.NsurfG_i, 24 * 365 * 4))
-    space.Teo_i_k_n = np.full((space.NsurfG_i, 24 * 365 * 4), a18.get_Teo_initial())  # i室の部位kにおけるn時点の裏面相当温度
-    space.Tei_i_k_n = np.zeros((space.NsurfG_i, 24 * 365 * 4))  # i室の部位kにおけるn時点の室内等価温度
-    space.TsdA_l_n_m = np.full((space.NsurfG_i, 24 * 365 * 4, 12), a18.get_TsdT_initial())  # （26）式中の〖CVL〗_(i,l)の計算式右辺
-    space.TsdT_l_n_m = np.full((space.NsurfG_i, 24 * 365 * 4, 12), a18.get_TsdT_initial())  # （26）式中の〖CVL〗_(i,l)の計算式右辺
-    space.Sol_i_g_n = np.zeros((space.NsurfG_i, 24 * 365 * 4))
-    space.Qc = np.zeros((space.NsurfG_i, 24 * 365 * 4))
-    space.Qr = np.zeros((space.NsurfG_i, 24 * 365 * 4))
+    space.Ts_i_k_n = np.zeros((space.NsurfG_i, 24 * 365 * 4 * 4))
+    space.Teo_i_k_n = np.full((space.NsurfG_i, 24 * 365 * 4 * 4), a18.get_Teo_initial())  # i室の部位kにおけるn時点の裏面相当温度
+    space.Tei_i_k_n = np.zeros((space.NsurfG_i, 24 * 365 * 4 * 4))  # i室の部位kにおけるn時点の室内等価温度
+    space.TsdA_l_n_m = np.full((space.NsurfG_i, 24 * 365 * 4 * 4, 12), a18.get_TsdT_initial())  # （26）式中の〖CVL〗_(i,l)の計算式右辺
+    space.TsdT_l_n_m = np.full((space.NsurfG_i, 24 * 365 * 4 * 4, 12), a18.get_TsdT_initial())  # （26）式中の〖CVL〗_(i,l)の計算式右辺
+    space.Sol_i_g_n = np.zeros((space.NsurfG_i, 24 * 365 * 4 * 4))
+    space.Qc = np.zeros((space.NsurfG_i, 24 * 365 * 4 * 4))
+    space.Qr = np.zeros((space.NsurfG_i, 24 * 365 * 4 * 4))
     space.oldqi = space.surfG_i.oldqi
 
     eps_m = a18.get_eps()
