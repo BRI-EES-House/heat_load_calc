@@ -28,17 +28,13 @@ def run_tick_groundonly(spaces, To_n: float, n: int):
         hi_i_k = s.surfG_i.hi_i_g_n
         a0 = a37.get_a0(To_n)
 
-
-        # 室内表面熱流の計算 式(28)
-        _, _, _, _, _, s.oldqi = a1.calc_qi(s.hc_i_g_n, s.surfG_i.A_i_g, s.hr_i_g_n, s.Sol_i_g_n[:, n],
-                                                         s.flr_i_k,
-                                                         s.Ts_i_k_n[:, n], s.Tr_i_n[n], s.F_mrt_i_g, s.Lrs_i_n[n],
-                                                         s.Beta_i)
         # 畳み込み積分 式(27)
         for g in range(s.NsurfG_i):
             if s.surfG_i.boundary_type[g] == "ground":
                 s.TsdA_l_n_m[g, n] = s.oldqi[g] * s.surfG_i.RFA1[g] + Row[g] * s.TsdA_l_n_m[g, n - 1]
                 s.Ts_i_k_n[g, n] = a37.get_Ts_i_n_k(Phi_A_i_k_0[g], hi_i_k[g], s.Tei_i_k_n[g, n], s.TsdA_l_n_m[g, n], a0)
+                # 室内表面熱流の計算 式(28)
+                s.oldqi[g] = hi_i_k[g] * (To_n - s.Ts_i_k_n[g, n])
 
 
 # 室温、熱負荷の計算
