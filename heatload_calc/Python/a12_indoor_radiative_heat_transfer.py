@@ -11,14 +11,8 @@ def calc_form_factor_of_microbodies(space_name, area):
     # 面積比 式(95)
     a_k = get_a_k(area)
 
-    # 面積比の最大値 （ニュートン法の初期値計算用）
-    max_a = get_max_a(a_k)
-
-    # 非線形方程式L(f̅)=0の解
-    fb = get_fb(max_a, space_name, a_k)
-
     # 式（123）で示す放射伝熱計算で使用する微小球に対する部位の形態係数 [-] 式(94)
-    FF_m = get_FF_m(fb, a_k)
+    FF_m = get_FF_m(a_k)
 
     # 総和のチェック
     FF = np.sum(FF_m)
@@ -35,42 +29,9 @@ def get_a_k(A_i_k):
     return a_k
 
 
-def get_max_a(a):
-    return max(a)
-
-
 # 式（123）で示す放射伝熱計算で使用する微小球に対する部位の形態係数 [-] 式(94)
-def get_FF_m(fb, a):
-    return 0.5 * (1.0 - np.sqrt(1.0 - 4.0 * a / fb))
-
-
-# 非線形方程式L(f̅)=0の解
-def get_fb(max_a, space_name, a):
-    # 室のパラメータの計算（ニュートン法）
-    # 初期値を設定
-    fbd = max_a * 4.0 + 1.0e-5  # 式(99)
-    # 収束判定
-    isConverge = False
-    for i in range(50):
-        L = -1.0  # 式(96)の一部
-        Ld = 0.0
-        for _a in a:
-            temp = math.sqrt(1.0 - 4.0 * _a / fbd)
-            L += 0.5 * (1.0 - temp)  # 式(96)の一部
-            Ld += _a / ((fbd ** 2.0) * temp)
-            # print(surface.name, 'a=', surface.a, 'L=', 0.5 * (1.0 - math.sqrt(temp)), 'Ld=', -0.25 * (1.0 + 4.0 * surface.a / fbd ** (2.0)) / temp)
-        fb = fbd + L / Ld  # 式(97)
-        # print(i, 'fb=', fb, 'fbd=', fbd)
-        # 収束判定
-        if abs(fb - fbd) < 1.e-4:  # 式(100)
-            isConverge = True
-            break
-        fbd = fb
-    # 収束しないときには警告を表示
-    if not isConverge:
-        print(space_name, '形態係数パラメータが収束しませんでした。')
-
-    return fb
+def get_FF_m(a):
+    return a
 
 
 # 平均放射温度計算時の各部位表面温度の重み計算 式(101)
