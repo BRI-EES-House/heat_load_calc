@@ -207,7 +207,7 @@ def add_spec(model_house_envelope_no_spec, u, eta_d, sunshade):
                 'is_windbreak_room_attached': 'none',
                 'is_sunshade_input': True,
                 'sunshade': {
-                    'existance': sunshade.existence,
+                    'existence': sunshade.existence,
                     'input_method': sunshade.input_method,
                     'depth': sunshade.depth,
                     'd_h': sunshade.d_h,
