@@ -93,8 +93,8 @@ def get_nday(mo, day):
 if __name__ == '__main__':
     # js = open('1RCase1_最初の外壁削除.json', 'r', encoding='utf-8')
     # js = open('input_non_residential.json', 'r', encoding='utf-8')
-    js = open('input_residential.json', 'r', encoding='utf-8')
-    # js = open('input_residential_include_ground.json', 'r', encoding='utf-8')
+    # js = open('input_residential.json', 'r', encoding='utf-8')
+    js = open('input_residential_include_ground.json', 'r', encoding='utf-8')
     # js = open('input_simple_residential.json', 'r', encoding='utf-8')
     # js = open('検証用.json', 'r', encoding='utf-8')
     d = json.load(js)
