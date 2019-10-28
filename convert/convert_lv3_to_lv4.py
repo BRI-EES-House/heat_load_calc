@@ -464,8 +464,8 @@ def convert(common, envelope):
     if ('doors' in envelope) == True:
         envelope_out['doors'] = copy.deepcopy(envelope['doors'])
 
-    if ('heat_bridges' in envelope) == True:
-        envelope_out['heat_bridges'] = copy.deepcopy(envelope['heat_bridges'])
+    # if ('heat_bridges' in envelope) == True:
+    #     envelope_out['heat_bridges'] = copy.deepcopy(envelope['heat_bridges'])
 
     if ('earthfloor_perimeters' in envelope) == True:
         envelope_out['earthfloor_perimeters'] = copy.deepcopy(envelope['earthfloor_perimeters'])
