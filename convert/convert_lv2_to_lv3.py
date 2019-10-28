@@ -47,25 +47,25 @@ def get_evlps_lv3_area(
     return result
 
 
-def get_evlps_lv3_length(
-        common: Dict, envelope: List[Dict], make_evlp_lv3: Callable[[Dict, str, float], Dict]) -> List[Dict]:
-
-    result = []
-
-    for evlp_lv2 in envelope:
-
-        l_evlp_mr, l_evlp_or, l_evlp_nr = get_separated_lengths(
-            l_evlp_i=evlp_lv2['length'],
-            a_f_mr=common['main_occupant_room_floor_area'],
-            a_f_or=common['other_occupant_room_floor_area'],
-            a_f_total=common['total_floor_area']
-        )
-
-        result.append(make_evlp_lv3(evlp_lv2, 'main_occupant_room', l_evlp_mr))
-        result.append(make_evlp_lv3(evlp_lv2, 'other_occupant_room', l_evlp_or))
-        result.append(make_evlp_lv3(evlp_lv2, 'non_occupant_room', l_evlp_nr))
-
-    return result
+# def get_evlps_lv3_length(
+#         common: Dict, envelope: List[Dict], make_evlp_lv3: Callable[[Dict, str, float], Dict]) -> List[Dict]:
+#
+#     result = []
+#
+#     for evlp_lv2 in envelope:
+#
+#         l_evlp_mr, l_evlp_or, l_evlp_nr = get_separated_lengths(
+#             l_evlp_i=evlp_lv2['length'],
+#             a_f_mr=common['main_occupant_room_floor_area'],
+#             a_f_or=common['other_occupant_room_floor_area'],
+#             a_f_total=common['total_floor_area']
+#         )
+#
+#         result.append(make_evlp_lv3(evlp_lv2, 'main_occupant_room', l_evlp_mr))
+#         result.append(make_evlp_lv3(evlp_lv2, 'other_occupant_room', l_evlp_or))
+#         result.append(make_evlp_lv3(evlp_lv2, 'non_occupant_room', l_evlp_nr))
+#
+#     return result
 
 
 def get_general_parts(common: Dict, general_parts: List[Dict]) -> List[Dict]:
@@ -117,20 +117,20 @@ def get_doors(common: Dict, doors: List[Dict]) -> List[Dict]:
     return get_evlps_lv3_area(common, doors, make_door_lv3)
 
 
-def get_heatbridges(common: Dict, heatbridges: List[Dict]) -> List[Dict]:
-
-    def make_heatbridge_lv3(heatbridge_lv2, space_type, l_evlp):
-
-        return {
-            'name': heatbridge_lv2['name'] + '_' + space_type,
-            'next_space': heatbridge_lv2['next_space'],
-            'direction': heatbridge_lv2['direction'],
-            'space_type': space_type,
-            'length': l_evlp,
-            'spec': copy.deepcopy(heatbridge_lv2['spec']),
-        }
-
-    return get_evlps_lv3_length(common, heatbridges, make_heatbridge_lv3)
+# def get_heatbridges(common: Dict, heatbridges: List[Dict]) -> List[Dict]:
+#
+#     def make_heatbridge_lv3(heatbridge_lv2, space_type, l_evlp):
+#
+#         return {
+#             'name': heatbridge_lv2['name'] + '_' + space_type,
+#             'next_space': heatbridge_lv2['next_space'],
+#             'direction': heatbridge_lv2['direction'],
+#             'space_type': space_type,
+#             'length': l_evlp,
+#             'spec': copy.deepcopy(heatbridge_lv2['spec']),
+#         }
+#
+#     return get_evlps_lv3_length(common, heatbridges, make_heatbridge_lv3)
 
 
 def get_earthfloor_perimeters(earthfloor_perimeters: List[Dict]) -> List[Dict]:
@@ -173,8 +173,8 @@ def convert(common, envelope):
     if 'doors' in envelope:
         result['doors'] = get_doors(common, envelope['doors'])
 
-    if 'heatbridges' in envelope:
-        result['heatbridges'] = get_heatbridges(common, envelope['heatbridges'])
+    # if 'heatbridges' in envelope:
+    #     result['heatbridges'] = get_heatbridges(common, envelope['heatbridges'])
 
     if 'earthfloor_perimeters' in envelope:
         result['earthfloor_perimeters'] = get_earthfloor_perimeters(envelope['earthfloor_perimeters'])

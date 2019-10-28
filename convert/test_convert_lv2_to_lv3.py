@@ -153,46 +153,46 @@ class TestLV2toLV3(unittest.TestCase):
         self.assertEqual('something', result[1]['spec'])
         self.assertEqual('something', result[2]['spec'])
 
-    def test_get_heatbridges(self):
-
-        d = {
-            'common': {
-                'region': 6,
-                'main_occupant_room_floor_area': 30.0,
-                'other_occupant_room_floor_area': 60.0,
-                'total_floor_area': 120.0,
-            },
-            'envelope': {
-                'heatbridges': [
-                    {
-                        'name': 'test_part',
-                        'next_space': 'outdoor',
-                        'direction': 'top',
-                        'length': 2.0,
-                        'spec': 'something',
-                    }
-                ]
-            }
-        }
-
-        result = nb.get_heatbridges(d['common'], d['envelope']['heatbridges'])
-
-        self.assertEqual(3, len(result))
-        self.assertEqual('test_part_main_occupant_room', result[0]['name'])
-        self.assertEqual('test_part_other_occupant_room', result[1]['name'])
-        self.assertEqual('test_part_non_occupant_room', result[2]['name'])
-        self.assertEqual('outdoor', result[0]['next_space'])
-        self.assertEqual('outdoor', result[1]['next_space'])
-        self.assertEqual('outdoor', result[2]['next_space'])
-        self.assertEqual('top', result[0]['direction'])
-        self.assertEqual('top', result[1]['direction'])
-        self.assertEqual('top', result[2]['direction'])
-        self.assertEqual(2.0 * 30.0 / 120.0, result[0]['length'])
-        self.assertEqual(2.0 * 60.0 / 120.0, result[1]['length'])
-        self.assertEqual(2.0 * 30.0 / 120.0, result[2]['length'])
-        self.assertEqual('something', result[0]['spec'])
-        self.assertEqual('something', result[1]['spec'])
-        self.assertEqual('something', result[2]['spec'])
+    # def test_get_heatbridges(self):
+    #
+    #     d = {
+    #         'common': {
+    #             'region': 6,
+    #             'main_occupant_room_floor_area': 30.0,
+    #             'other_occupant_room_floor_area': 60.0,
+    #             'total_floor_area': 120.0,
+    #         },
+    #         'envelope': {
+    #             'heatbridges': [
+    #                 {
+    #                     'name': 'test_part',
+    #                     'next_space': 'outdoor',
+    #                     'direction': 'top',
+    #                     'length': 2.0,
+    #                     'spec': 'something',
+    #                 }
+    #             ]
+    #         }
+    #     }
+    #
+    #     result = nb.get_heatbridges(d['common'], d['envelope']['heatbridges'])
+    #
+    #     self.assertEqual(3, len(result))
+    #     self.assertEqual('test_part_main_occupant_room', result[0]['name'])
+    #     self.assertEqual('test_part_other_occupant_room', result[1]['name'])
+    #     self.assertEqual('test_part_non_occupant_room', result[2]['name'])
+    #     self.assertEqual('outdoor', result[0]['next_space'])
+    #     self.assertEqual('outdoor', result[1]['next_space'])
+    #     self.assertEqual('outdoor', result[2]['next_space'])
+    #     self.assertEqual('top', result[0]['direction'])
+    #     self.assertEqual('top', result[1]['direction'])
+    #     self.assertEqual('top', result[2]['direction'])
+    #     self.assertEqual(2.0 * 30.0 / 120.0, result[0]['length'])
+    #     self.assertEqual(2.0 * 60.0 / 120.0, result[1]['length'])
+    #     self.assertEqual(2.0 * 30.0 / 120.0, result[2]['length'])
+    #     self.assertEqual('something', result[0]['spec'])
+    #     self.assertEqual('something', result[1]['spec'])
+    #     self.assertEqual('something', result[2]['spec'])
 
     def test_get_earthfloor_perimeters(self):
 
