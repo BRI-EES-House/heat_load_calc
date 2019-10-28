@@ -1,3 +1,5 @@
+from typing import Dict
+
 import factor_f
 import model_house
 import convert_model_house_to_house_dict
@@ -6,7 +8,7 @@ from factor_h import get_factor_h
 import factor_nu
 
 
-def convert(common, envelope):
+def convert(common: Dict, envelope: Dict):
 
     region = common['region']
     house_type = common['house_type']
@@ -51,20 +53,12 @@ def convert(common, envelope):
         sunshade=sunshade
     )
 
-    print('U値: ' + str(u_psi))
-    print('ηd値: ' + str(eta_d))
-    print('UA設定値: ' + str(u_a) + ', ηAH設定値: ' + str(eta_a_h) + ', ηAC設定値: ' + str(eta_a_c))
+    model_house_envelope = add_spec(model_house_envelope_no_spec, u_psi, eta_d, eta_d_h, eta_d_c, sunshade)
 
-    model_house_envelope = add_spec(model_house_envelope_no_spec, u_psi, eta_d, sunshade)
-
-    checked_u_a, checked_eta_a_h, checked_eta_a_c = check_u_a_and_eta_a(region, model_house_envelope, eta_d_h, eta_d_c, sunshade)
-
-    print('UA計算値: ' + str(checked_u_a) + ', ηAH計算値: ' + str(checked_eta_a_h) + ', ηAC計算値: ' + str(checked_eta_a_c))
-
-    return model_house_envelope
+    return model_house_envelope, sunshade
 
 
-def check_u_a_and_eta_a(region, model_house_envelope, eta_d_h, eta_d_c, sunshade):
+def check_u_a_and_eta_a(region, model_house_envelope, sunshade):
 
     general_parts = model_house_envelope['general_parts']
 
@@ -104,13 +98,7 @@ def check_u_a_and_eta_a(region, model_house_envelope, eta_d_h, eta_d_c, sunshade
             for p in doors if p['next_space'] == 'outdoor')
 
         m_h_window = sum(
-            p['spec']['windows'][0]['eta_d_value'] * p['area']
-            * factor_f.get_f(season='heating', region=region, direction=p['direction'], sunshade=sunshade)
-            * factor_nu.get_nu(season='heating', region=region, direction=p['direction'])
-            for p in windows)
-
-        m_h_window = sum(
-            eta_d_h * p['area']
+            p['spec']['windows'][0]['eta_d_h_value'] * p['area']
             * factor_f.get_f(season='heating', region=region, direction=p['direction'], sunshade=sunshade)
             * factor_nu.get_nu(season='heating', region=region, direction=p['direction'])
             for p in windows)
@@ -132,15 +120,9 @@ def check_u_a_and_eta_a(region, model_house_envelope, eta_d_h, eta_d_c, sunshade
         for p in doors if p['next_space'] == 'outdoor')
 
     m_c_window = sum(
-        p['spec']['windows'][0]['eta_d_value'] * p['area']
+        p['spec']['windows'][0]['eta_d_c_value'] * p['area']
         * factor_f.get_f(season='cooling', region=region, direction=p['direction'], sunshade=sunshade)
         * factor_nu.get_nu(season='cooling', region=region,direction=p['direction'])
-        for p in windows)
-
-    m_c_window = sum(
-        eta_d_c * p['area']
-        * factor_f.get_f(season='cooling', region=region, direction=p['direction'], sunshade=sunshade)
-        * factor_nu.get_nu(season='cooling', region=region, direction=p['direction'])
         for p in windows)
 
     eta_a_c = (m_c_general + m_c_door + m_c_window) / a_evp_total * 100
@@ -167,7 +149,20 @@ def get_total_area(general_parts, windows, doors, earthfloor_centers):
     return sum(d['area'] for d in d_area)
 
 
-def add_spec(model_house_envelope_no_spec, u, eta_d, sunshade):
+def add_spec(
+        model_house_envelope_no_spec: Dict, u: Dict, eta_d: float, eta_d_h: float, eta_d_c: float, sunshade: Dict
+) -> Dict:
+    """
+    Args:
+        model_house_envelope_no_spec: U値やη値等の仕様が無い住宅形状等の辞書
+        u: U値を格納した辞書
+        eta_d: ηd値
+        eta_d_h: ηdh値
+        eta_d_c: ηdc値
+        sunshade: ひさし形状の辞書
+    Returns:
+        U値やη値等の仕様を追加した住宅形状等の辞書
+    """
 
     general_parts = [
         {
@@ -200,6 +195,8 @@ def add_spec(model_house_envelope_no_spec, u, eta_d, sunshade):
                         'u_value': get_u_and_eta.get_u_psi(u, 'window'),
                         'eta_value_input_method': 'eta_value_directly',
                         'eta_d_value': eta_d,
+                        'eta_d_h_value': eta_d_h,
+                        'eta_d_c_value': eta_d_c,
                         'glass_type': 'single'
                     }
                 ],
@@ -275,6 +272,25 @@ def add_spec(model_house_envelope_no_spec, u, eta_d, sunshade):
     }
 
 
+def print_target(indices: Dict):
+    """
+        ターゲットとなる指標をプリントする
+    Args:
+        indices: UA値・ηAH値・ηAC値の辞書
+    """
+
+    print('目標UA値：' + str(indices['u_a']))
+    print('目標ηAH値：' + str(indices['eta_a_h']))
+    print('目標ηAC値：' + str(indices['eta_a_c']))
+
+
+def print_result(checked_u_a, checked_eta_a_h, checked_eta_a_c):
+
+    print('計算UA値：' + str(checked_u_a))
+    print('計算ηAH値：' + str(checked_eta_a_h))
+    print('計算ηAC値：' + str(checked_eta_a_c))
+
+
 if __name__ == '__main__':
 
     input_data_1 = {
@@ -296,6 +312,12 @@ if __name__ == '__main__':
         }
     }
 
-    result1 = convert(common=input_data_1['common'], envelope=input_data_1['envelope'])
+    print_target(indices=input_data_1['envelope']['indices'])
+    result1, sunshade1 = convert(common=input_data_1['common'], envelope=input_data_1['envelope'])
+
+    checked_u_a1, checked_eta_a_h1, checked_eta_a_c1 = check_u_a_and_eta_a(
+        region=input_data_1['common']['region'], model_house_envelope=result1, sunshade=sunshade1)
+
+    print_result(checked_u_a=checked_u_a1, checked_eta_a_h=checked_eta_a_h1, checked_eta_a_c=checked_eta_a_c1)
 
     print(result1)
