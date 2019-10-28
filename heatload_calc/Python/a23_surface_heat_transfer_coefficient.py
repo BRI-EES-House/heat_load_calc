@@ -39,7 +39,8 @@ def get_hr_i_k_n(eps_m, FF_m):
 
     Sgm = a18.get_Sgm()
 
-    hr_i_k_n = eps_m / (1.0 - eps_m * FF_m) * 4.0 * Sgm * (MRT + 273.15) ** 3.0
+    # hr_i_k_n = eps_m / (1.0 - eps_m * FF_m) * 4.0 * Sgm * (MRT + 273.15) ** 3.0
+    hr_i_k_n = np.repeat([eps_m * 4.0 * Sgm * (MRT + 273.15) ** 3.0], FF_m.size)
 
     return hr_i_k_n
 
