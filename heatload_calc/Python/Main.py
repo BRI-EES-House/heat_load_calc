@@ -1,10 +1,11 @@
 from typing import Dict
 import numpy as np
 import csv, json, datetime
+
 import a4_weather as a4
+import x_17_calculation_period as x_17
 import apdx5_solar_position as a5
 
-from Gdata import Gdata
 from s3_space_initializer import init_spaces
 from s3_space_loader import Space
 import s3_simulator as simulator
@@ -22,11 +23,17 @@ def calc_heat_load(d: Dict):
 
     """
 
+    # 本計算のステップ数
+    n_step_main = x_17.get_n_step_main()
+
+    # 助走計算のステップ数
+    n_step_run_up = x_17.get_n_step_run_up()
+
+    # 助走計算の日数のうち建物全体を解く日数, d
+    n_step_run_up_build = x_17.get_n_step_run_up_build()
+
     # 地域の区分
     region = d['common']['region']
-
-    # シミュレーション全体の設定条件の読み込み
-    cdata = Gdata(**d['common'])
 
     # 気象データの読み込み
     To_n, I_DN_n, I_sky_n, RN_n, xo_n = a4.load_weatherdata()
@@ -41,35 +48,18 @@ def calc_heat_load(d: Dict):
         init_spaces(space, solar_position, I_DN_n, I_sky_n, RN_n, To_n)
         spaces[room['name']] = space
 
-
-    # 計算開始日の通日
-    lngStNday = get_nday(cdata.ApDate.month, cdata.ApDate.day)
-    # 計算終了日の通日
-    lngEnNday = get_nday(cdata.EnDate.month, cdata.EnDate.day)
-    if cdata.ApDate.year != cdata.EnDate.year:
-        lngEnNday += 365
-    if lngStNday > lngEnNday:
-        lngEnNday += 365
-
-    print('計算開始：', cdata.ApDate)
-    print('計算終了：', cdata.EnDate)
-    print('１日の計算ステップ数：', 96)
-
-    # 助走計算開始日
-    apDate = cdata.ApDate
-
     OutList = exporter.append_headers(spaces)
 
     # 助走計算1(土壌のみ)
-    for n in range((lngStNday-366) * 96, (lngStNday-184) * 96):
+    for n in range(-n_step_run_up, -n_step_run_up_build):
         simulator.run_tick_groundonly(spaces, To_n[n], n)
 
     # 助走計算2(室温、熱負荷)
-    for n in range((lngStNday-184) * 96, (lngStNday-1) * 96):
+    for n in range(-n_step_run_up_build, 0):
         simulator.run_tick(spaces, To_n[n], xo_n[n], n)
 
     # 本計算(室温、熱負荷)
-    for n in range((lngStNday-1) * 96, lngEnNday * 96):
+    for n in range(0, n_step_main):
         simulator.run_tick(spaces, To_n[n], xo_n[n], n)
 
     # 年間熱負荷の積算
@@ -77,7 +67,7 @@ def calc_heat_load(d: Dict):
 
     # 計算結果出力前処理
     dtlist = get_datetime_list()
-    for n in range((lngStNday - 1) * 96, lngEnNday * 96):
+    for n in range(0, n_step_main):
         exporter.append_tick_log(spaces, OutList, To_n, dtlist, n, xo_n)
 
     # CSVファイルの出力
@@ -114,7 +104,7 @@ def get_nday(mo, day):
     that_day = datetime.datetime(2017, mo, day)
     ndays = that_day - new_year
 
-    return (ndays.days + 1)
+    return ndays.days + 1
 
 
 if __name__ == '__main__':
@@ -126,7 +116,7 @@ if __name__ == '__main__':
 
     # js = open('input_simple_residential.json', 'r', encoding='utf-8')
     # js = open('検証用.json', 'r', encoding='utf-8')
-    d = json.load(js)
+    d_json = json.load(js)
 
     # 熱負荷計算の実行
-    calc_heat_load(d)
+    calc_heat_load(d=d_json)
