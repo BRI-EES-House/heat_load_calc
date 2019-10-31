@@ -1,3 +1,4 @@
+from typing import Dict
 import numpy as np
 import csv, json, datetime
 import a4_weather as a4
@@ -11,10 +12,36 @@ import a33_results_exporting as exporter
 
 
 # 熱負荷計算の実行
-def calc_Hload(cdata, To_n, xo_n):
+def calc_heat_load(d: Dict):
     """
-    :param cdata: シミュレーション全体の設定条件
+
+    Args:
+        d: 入力情報（辞書形式）
+
+    Returns:
+
     """
+
+    # 地域の区分
+    region = d['common']['region']
+
+    # シミュレーション全体の設定条件の読み込み
+    cdata = Gdata(**d['common'])
+
+    # 気象データの読み込み
+    To_n, I_DN_n, I_sky_n, RN_n, xo_n = a4.load_weatherdata()
+
+    # 太陽位置は個別計算可能
+    solar_position = a5.calc_solar_position(region=region)
+
+    # スペースの読み取り
+    spaces = {}
+    for room in d['rooms']:
+        space = Space(room)
+        init_spaces(space, solar_position, I_DN_n, I_sky_n, RN_n, To_n)
+        spaces[room['name']] = space
+
+
     # 計算開始日の通日
     lngStNday = get_nday(cdata.ApDate.month, cdata.ApDate.day)
     # 計算終了日の通日
@@ -91,32 +118,15 @@ def get_nday(mo, day):
 
 
 if __name__ == '__main__':
+
     # js = open('1RCase1_最初の外壁削除.json', 'r', encoding='utf-8')
     # js = open('input_non_residential.json', 'r', encoding='utf-8')
     # js = open('input_residential.json', 'r', encoding='utf-8')
     js = open('input_residential_include_ground.json', 'r', encoding='utf-8')
+
     # js = open('input_simple_residential.json', 'r', encoding='utf-8')
     # js = open('検証用.json', 'r', encoding='utf-8')
     d = json.load(js)
 
-    # 地域の区分
-    region = d['common']['region']
-
-    # シミュレーション全体の設定条件の読み込み
-    cdata = Gdata(**d['common'])
-
-    # 気象データの読み込み
-    To_n, I_DN_n, I_sky_n, RN_n, xo_n = a4.load_weatherdata()
-
-    # 太陽位置は個別計算可能
-    solar_position = a5.calc_solar_position(region=region)
-
-    # スペースの読み取り
-    spaces = {}
-    for room in d['rooms']:
-        space = Space(room)
-        init_spaces(space, solar_position, I_DN_n, I_sky_n, RN_n, To_n)
-        spaces[room['name']] = space
-
     # 熱負荷計算の実行
-    calc_Hload(cdata, To_n, xo_n)
+    calc_heat_load(d)
