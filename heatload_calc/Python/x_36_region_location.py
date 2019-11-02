@@ -1,3 +1,6 @@
+# 附属書36 計算地点の緯度及び経度
+# 本附属書は地域区分に応じた計算地点の緯度及び経度を定義する。
+
 from typing import Tuple
 import math
 
