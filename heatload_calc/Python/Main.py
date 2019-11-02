@@ -4,7 +4,7 @@ import csv, json, datetime
 
 import a4_weather as a4
 import x_17_calculation_period as x_17
-import apdx5_solar_position as a5
+import x_05_solar_position as a5
 
 from s3_space_initializer import init_spaces
 from s3_space_loader import Space
@@ -39,13 +39,14 @@ def calc_heat_load(d: Dict):
     To_n, I_DN_n, I_sky_n, RN_n, xo_n = a4.load_weatherdata()
 
     # 太陽位置は個別計算可能
-    solar_position = a5.calc_solar_position(region=region)
+    h_s_n, a_s_n = a5.calc_solar_position(region=region)
+
 
     # スペースの読み取り
     spaces = {}
     for room in d['rooms']:
         space = Space(room)
-        init_spaces(space, solar_position, I_DN_n, I_sky_n, RN_n, To_n)
+        init_spaces(space, I_DN_n, I_sky_n, RN_n, To_n, h_s_n, a_s_n)
         spaces[room['name']] = space
 
     OutList = exporter.append_headers(spaces)

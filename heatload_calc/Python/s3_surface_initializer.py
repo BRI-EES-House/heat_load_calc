@@ -52,8 +52,13 @@ Initialized_Surface = namedtuple('Initialized_Surface', [
 ])
 
 
-def init_surface(data, solar_position, I_DN_n, I_sky_n, RN_n, To_n):
+def init_surface(data, I_DN_n, I_sky_n, RN_n, To_n, h_s_n, a_s_n):
 
+    sin_a_s = np.where(h_s_n > 0.0, np.sin(a_s_n), 0.0)
+    cos_a_s = np.where(h_s_n > 0.0, np.cos(a_s_n), 0.0)
+
+    Sh_n = np.where(h_s_n > 0.0, np.sin(h_s_n), 0.0)
+    cos_h_s = np.where(h_s_n > 0.0, np.cos(h_s_n), 1.0)
 
     # ========== 初期計算 ==========
 
@@ -153,11 +158,12 @@ def init_surface(data, solar_position, I_DN_n, I_sky_n, RN_n, To_n):
         | (data.boundary_type == "external_transparent_part") \
         | (data.boundary_type == "external_opaque_part")
 
+##########################################################################
     cos_Theta_i_k_n[f] = a6.calc_cos_incident_angle(
-        h_sun_sin_n=solar_position.Sh_n,
-        h_sun_cos_n=solar_position.cos_h_s,
-        a_sun_sin_n=solar_position.sin_a_s,
-        a_sun_cos_n=solar_position.cos_a_s,
+        h_sun_sin_n=Sh_n,
+        h_sun_cos_n=cos_h_s,
+        a_sun_sin_n=sin_a_s,
+        a_sun_cos_n=cos_a_s,
         w_alpha_k=w_alpha_i_k[f],
         w_beta_k=w_beta_i_k[f]
     )
@@ -172,10 +178,11 @@ def init_surface(data, solar_position, I_DN_n, I_sky_n, RN_n, To_n):
     I_S_i_k_n = np.zeros((data.N_surf_i, 24 * 365 * 4))
     I_R_i_k_n = np.zeros((data.N_surf_i, 24 * 365 * 4))
 
+#####################################################################
     Iw_i_k_n[f], I_D_i_k_n[f], I_S_i_k_n[f], I_R_i_k_n[f] = a7.calc_slope_sol(
         I_DN_n=I_DN_n,
         I_sky_n=I_sky_n,
-        Sh_n=solar_position.Sh_n,
+        Sh_n=Sh_n,
         cos_Theta_i_k_n=cos_Theta_i_k_n[f],
         PhiS_i_k=PhiS_i_k[f],
         PhiG_i_k=PhiG_i_k[f],
@@ -237,12 +244,16 @@ def init_surface(data, solar_position, I_DN_n, I_sky_n, RN_n, To_n):
                 # 日除けの日影面積率の計算
                 if data.sunbrk[k]['existance']:
                     if data.sunbrk[k]['input_method'] == 'simple':
+###################################################################################
+                        h_s = np.where(h_s_n > 0.0, h_s_n, 0.0)
+                        a_s = np.where(h_s_n > 0.0, a_s_n, 0.0)
+
                         FSDW_i_k_n[k] = a8.calc_F_SDW_i_k_n(
                             D_i_k=data.sunbrk[k]['depth'],  # 出幅
                             d_e=data.sunbrk[k]['d_e'],  # 窓の上端から庇までの距離
                             d_h=data.sunbrk[k]['d_h'],  # 窓の高さ
-                            a_s_n=solar_position.a_s,
-                            h_s_n=solar_position.h_s,
+                            a_s_n=a_s,
+                            h_s_n=h_s,
                             Wa_i_k=w_alpha_i_k[k]
                         )
                     elif data.sunbrk[k].input_method == 'detailed':

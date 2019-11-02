@@ -56,12 +56,12 @@ from s3_surface_loader import read_surface
 # - RoomtoRoomVents:      室間換気量（list型、暖房・中間期・冷房、風上室名称）, m3/h
 # - d:             室内部位に関連するクラス, Surface
 
-def init_spaces(space, solar_position, I_DN_n, I_sky_n, RN_n, To_n):
+def init_spaces(space, I_DN_n, I_sky_n, RN_n, To_n, h_s_n, a_s_n):
     # 空調や通風などの需要がある場合にTrue
     space.air_conditioning_demand = space.is_upper_temp_limit_set_schedule | space.is_lower_temp_limit_set_schedule
 
     # i室の部位の初期化
-    space.surf_i = init_surface(space.surf_i, solar_position, I_DN_n, I_sky_n, RN_n, To_n)
+    space.surf_i = init_surface(space.surf_i, I_DN_n, I_sky_n, RN_n, To_n, h_s_n, a_s_n)
 
     # 透過日射熱取得の集約し、i室のn時点における透過日射熱取得 QGT_i_n を計算
     space.QGT_i_n = np.sum(space.surf_i.QGT_i_k_n, axis=0)
