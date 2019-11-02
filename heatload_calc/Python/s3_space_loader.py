@@ -17,10 +17,8 @@ import a31_lighting_schedule as a31
 import a32_resident_schedule as a32
 import a34_building_part_summarize as a34
 import s4_1_sensible_heat as s41
-from s3_surface_initializer import init_surface
 from s3_surface_loader import read_surface
 
-from s3_space_initializer import init_spaces
 
 # # 室温・熱負荷を計算するクラス
 
