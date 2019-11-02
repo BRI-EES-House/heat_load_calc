@@ -1,5 +1,5 @@
 # 附属書36 計算地点の緯度及び経度
-# 本附属書は地域区分に応じた計算地点の緯度及び経度を定義する。
+# 本附属書は地域の区分に応じた計算地点の緯度及び経度を定義する。
 
 from typing import Tuple
 import math
@@ -7,7 +7,7 @@ import math
 
 def get_phi_loc_and_lambda_loc(region: int) -> Tuple:
     """
-    地域区分から緯度、経度を設定する
+    地域の区分から緯度、経度を設定する
 
     Args:
         region: 地域区分
