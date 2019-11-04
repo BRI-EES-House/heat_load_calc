@@ -19,6 +19,7 @@ import a34_building_part_summarize as a34
 import s4_1_sensible_heat as s41
 from s3_surface_initializer import init_surface
 from s3_surface_loader import read_surface
+from s3_space_loader import Space
 
 
 # # 室温・熱負荷を計算するクラス
@@ -56,7 +57,7 @@ from s3_surface_loader import read_surface
 # - RoomtoRoomVents:      室間換気量（list型、暖房・中間期・冷房、風上室名称）, m3/h
 # - d:             室内部位に関連するクラス, Surface
 
-def init_spaces(space, I_DN_n, I_sky_n, RN_n, To_n, h_s_n, a_s_n):
+def init_spaces(space: Space, I_DN_n, I_sky_n, RN_n, To_n, h_s_n, a_s_n):
     # 空調や通風などの需要がある場合にTrue
     space.air_conditioning_demand = space.is_upper_temp_limit_set_schedule | space.is_lower_temp_limit_set_schedule
 

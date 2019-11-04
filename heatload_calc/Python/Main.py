@@ -1,11 +1,14 @@
 from typing import Dict
-import numpy as np
-import csv, json, datetime
+import csv
+import json
+import datetime
+
+from x_05_solar_position import calc_solar_position as x05_calc_solar_position
+from x_17_calculation_period import get_n_step_main as x_17_get_n_step_main
+from x_17_calculation_period import get_n_step_run_up as x_17_get_n_step_run_up
+from x_17_calculation_period import get_n_step_run_up_build as x_17_get_n_step_run_up_build
 
 import a4_weather as a4
-import x_17_calculation_period as x_17
-import x_05_solar_position as a5
-
 from s3_space_initializer import init_spaces
 from s3_space_loader import Space
 import s3_simulator as simulator
@@ -24,13 +27,13 @@ def calc_heat_load(d: Dict):
     """
 
     # 本計算のステップ数
-    n_step_main = x_17.get_n_step_main()
+    n_step_main = x_17_get_n_step_main()
 
     # 助走計算のステップ数
-    n_step_run_up = x_17.get_n_step_run_up()
+    n_step_run_up = x_17_get_n_step_run_up()
 
     # 助走計算の日数のうち建物全体を解く日数, d
-    n_step_run_up_build = x_17.get_n_step_run_up_build()
+    n_step_run_up_build = x_17_get_n_step_run_up_build()
 
     # 地域の区分
     region = d['common']['region']
@@ -39,8 +42,7 @@ def calc_heat_load(d: Dict):
     To_n, I_DN_n, I_sky_n, RN_n, xo_n = a4.load_weatherdata()
 
     # 太陽位置は個別計算可能
-    h_s_n, a_s_n = a5.calc_solar_position(region=region)
-
+    h_s_n, a_s_n = x05_calc_solar_position(region=region)
 
     # スペースの読み取り
     spaces = {}
