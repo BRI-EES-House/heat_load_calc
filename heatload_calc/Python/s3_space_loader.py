@@ -17,7 +17,7 @@ import a31_lighting_schedule as a31
 import a32_resident_schedule as a32
 import a34_building_part_summarize as a34
 import s4_1_sensible_heat as s41
-from s3_surface_loader import read_surface
+from s3_surface_loader import read_d_boundary_i_ks
 
 
 # # 室温・熱負荷を計算するクラス
@@ -86,7 +86,7 @@ class Space:
         self.Vnext_i_j = np.array([next_vent['volume'] for next_vent in d_room['next_vent']])
 
         # 室iの境界k
-        self.surf_i = read_surface(d_room['boundaries'])
+        self.d_boundary_i_ks = read_d_boundary_i_ks(boundary=d_room['boundaries'])
 
         # 室iの相当隙間面積（C値）,
         # TODO: 相当隙間面積についてはからすきま風量を変換する部分については実装されていない。

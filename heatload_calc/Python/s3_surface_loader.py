@@ -1,4 +1,5 @@
 from collections import namedtuple
+from typing import Dict
 
 import numpy as np
 
@@ -27,12 +28,13 @@ Surface = namedtuple('Surface', [
 
 
 # ========== JSONからの読み出し ==========
-def read_surface(surfaces):
+def read_d_boundary_i_ks(boundary: Dict):
+
     # 部位数
-    N_surf_i = len(surfaces)
+    N_surf_i = len(boundary)
 
     def read_to_array(key):
-        return np.array([d[key] if key in d else None for d in surfaces])
+        return np.array([d[key] if key in d else None for d in boundary])
 
     # True:外表面に日射が当たる
     is_sun_striked_outside = read_to_array('is_sun_striked_outside')
@@ -68,7 +70,7 @@ def read_surface(surfaces):
                      }[boundary_type[k]] for k in range(N_surf_i)]
 
     # 読み出し
-    datalist = [s[k] for (s, k) in zip(surfaces, part_key_name)]
+    datalist = [s[k] for (s, k) in zip(boundary, part_key_name)]
 
     def read_from_datalist(key: str, default: str = None):
         return np.array([data[key] if key in data else default for data in datalist])
