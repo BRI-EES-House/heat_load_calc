@@ -1,4 +1,5 @@
 import numpy as np
+from typing import Dict
 
 """
 付録13．窓の開閉と空調発停の切り替え
@@ -98,7 +99,8 @@ def get_NV(is_now_window_open: bool, volume: float, Nventtime: float) -> float:
 
 
 # JSONファイルから空調スケジュールを読み込む
-def read_air_conditioning_schedules_from_json(d_room: dict):
+def read_air_conditioning_schedules_from_json(d_room: Dict) -> (np.ndarray, np.ndarray, np.ndarray, np.ndarray):
+
     # 空調スケジュールの読み込み
     # 設定温度／PMV上限値の設定
     is_upper_temp_limit_set_schedule = np.repeat(d_room['schedule']['is_upper_temp_limit_set'], 4)

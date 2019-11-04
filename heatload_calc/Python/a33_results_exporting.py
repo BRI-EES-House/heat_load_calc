@@ -15,45 +15,45 @@ def append_headers(spaces: List[Space]) -> List[List]:
     rowlist.append("外気絶対湿度[kg/kg(DA)]")
 
     for space in spaces:
-        rowlist.append(space.name + "_窓開閉")
-        rowlist.append(space.name + "_在室状況")
-        rowlist.append(space.name + "_最終空調状態")
-        rowlist.append(space.name + "_空気温度[℃]")
-        rowlist.append(space.name + "_室相対湿度[%]")
-        rowlist.append(space.name + "_室絶対湿度[kg/kg(DA)]")
-        rowlist.append(space.name + "_室MRT[℃]")
-        rowlist.append(space.name + "_室作用温度[℃]")
-        rowlist.append(space.name + "_PMV[-]")
-        rowlist.append(space.name + "_着衣量[clo]")
-        rowlist.append(space.name + "_風速[m/s]")
-        rowlist.append(space.name + "_透過日射熱取得[W]")
-        rowlist.append(space.name + "_機器顕熱発熱[W]")
-        rowlist.append(space.name + "_照明発熱[W]")
-        rowlist.append(space.name + "_人体顕熱発熱[W]")
-        rowlist.append(space.name + "_人体潜熱発熱[W]")
-        rowlist.append(space.name + "_対流空調顕熱負荷[W]")
-        rowlist.append(space.name + "_放射空調顕熱負荷[W]")
-        rowlist.append(space.name + "_対流空調潜熱負荷[W]")
-        rowlist.append(space.name + "_家具温度[℃]")
-        rowlist.append(space.name + "_家具取得熱量[W]")
-        rowlist.append(space.name + "_家具吸収日射熱量[W]")
-        rowlist.append(space.name + "_家具絶対湿度[kg/kg(DA)]")
-        rowlist.append(space.name + "_家具取得水蒸気量[kg/s]")
+        rowlist.append(space.name_i + "_窓開閉")
+        rowlist.append(space.name_i + "_在室状況")
+        rowlist.append(space.name_i + "_最終空調状態")
+        rowlist.append(space.name_i + "_空気温度[℃]")
+        rowlist.append(space.name_i + "_室相対湿度[%]")
+        rowlist.append(space.name_i + "_室絶対湿度[kg/kg(DA)]")
+        rowlist.append(space.name_i + "_室MRT[℃]")
+        rowlist.append(space.name_i + "_室作用温度[℃]")
+        rowlist.append(space.name_i + "_PMV[-]")
+        rowlist.append(space.name_i + "_着衣量[clo]")
+        rowlist.append(space.name_i + "_風速[m/s]")
+        rowlist.append(space.name_i + "_透過日射熱取得[W]")
+        rowlist.append(space.name_i + "_機器顕熱発熱[W]")
+        rowlist.append(space.name_i + "_照明発熱[W]")
+        rowlist.append(space.name_i + "_人体顕熱発熱[W]")
+        rowlist.append(space.name_i + "_人体潜熱発熱[W]")
+        rowlist.append(space.name_i + "_対流空調顕熱負荷[W]")
+        rowlist.append(space.name_i + "_放射空調顕熱負荷[W]")
+        rowlist.append(space.name_i + "_対流空調潜熱負荷[W]")
+        rowlist.append(space.name_i + "_家具温度[℃]")
+        rowlist.append(space.name_i + "_家具取得熱量[W]")
+        rowlist.append(space.name_i + "_家具吸収日射熱量[W]")
+        rowlist.append(space.name_i + "_家具絶対湿度[kg/kg(DA)]")
+        rowlist.append(space.name_i + "_家具取得水蒸気量[kg/s]")
         if 1:
             for g in range(space.surfG_i.NsurfG_i):
-                rowlist.append(space.name + "_" + space.surfG_i.name[g] + "_表面温度[℃]")
+                rowlist.append(space.name_i + "_" + space.surfG_i.name[g] + "_表面温度[℃]")
         if 1:
             for g in range(space.surfG_i.NsurfG_i):
-                rowlist.append(space.name + "_" + space.surfG_i.name[g] + "_等価室温[℃]")
+                rowlist.append(space.name_i + "_" + space.surfG_i.name[g] + "_等価室温[℃]")
         if 1:
             for g in range(space.surfG_i.NsurfG_i):
-                rowlist.append(space.name + "_" + space.surfG_i.name[g] + "_境界温度[℃]")
+                rowlist.append(space.name_i + "_" + space.surfG_i.name[g] + "_境界温度[℃]")
         if 1:
             for g in range(space.surfG_i.NsurfG_i):
-                rowlist.append(space.name + "_" + space.surfG_i.name[g] + "_表面放射熱流[W]")
+                rowlist.append(space.name_i + "_" + space.surfG_i.name[g] + "_表面放射熱流[W]")
         if 1:
             for g in range(space.surfG_i.NsurfG_i):
-                rowlist.append(space.name + "_" + space.surfG_i.name[g] + "_表面対流熱流[W]")
+                rowlist.append(space.name_i + "_" + space.surfG_i.name[g] + "_表面対流熱流[W]")
 
     OutList.append(rowlist)
 

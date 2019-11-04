@@ -18,7 +18,6 @@ import a32_resident_schedule as a32
 import a34_building_part_summarize as a34
 import s4_1_sensible_heat as s41
 from s3_surface_initializer import init_surface
-from s3_surface_loader import read_surface
 from s3_space_loader import Space
 
 
@@ -61,7 +60,7 @@ def init_spaces(space: Space,
                 I_DN_n: np.ndarray, I_sky_n: np.ndarray, RN_n: np.ndarray, To_n: np.ndarray,
                 h_s_n: np.ndarray, a_s_n: np.ndarray):
 
-    # 空調や通風などの需要がある場合にTrue
+    # 空調や通風などの需要があるかどうか, bool * 365 * 96
     space.air_conditioning_demand = space.is_upper_temp_limit_set_schedule | space.is_lower_temp_limit_set_schedule
 
     # i室の部位の初期化
@@ -110,7 +109,7 @@ def init_spaces(space: Space,
                                 space.surfG_i.is_solar_absorbed_inside)
 
     # 微小点に対する室内部位の形態係数の計算（永田先生の方法） 式(94)
-    FF_m = a12.calc_form_factor_of_microbodies(space.name, space.surfG_i.A_i_g)
+    FF_m = a12.calc_form_factor_of_microbodies(space.name_i, space.surfG_i.A_i_g)
 
     # 表面熱伝達率の計算 式(123) 表16
     space.hr_i_g_n, space.hc_i_g_n = a23.calc_surface_transfer_coefficient(eps_m, FF_m, space.surfG_i.hi_i_g_n)
@@ -126,6 +125,9 @@ def init_spaces(space: Space,
     space.Rsol_fun_i = a12.calc_absorption_ratio_of_transmitted_solar_radiation()
 
     # *********** 室内表面熱収支計算のための行列作成 ***********
+
+    rhoa = a18.get_rhoa()
+    space.Ga = space.vol_i * rhoa  # 室空気の質量[kg]
 
     # FIA, FLBの作成 式(26)
     FIA_i_l = a1.get_FIA(space.surfG_i.RFA0, space.hc_i_g_n)

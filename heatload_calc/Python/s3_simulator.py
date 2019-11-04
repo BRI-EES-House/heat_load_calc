@@ -80,8 +80,11 @@ def run_tick(spaces: List[Space], To_n: float, xo_n: float, n: int):
         # 配列の準備
         Nroot = s.surfG_i.Nroot
         Row = s.surfG_i.Row
-        Tr_next_i_j_nm1 = np.array([spaces[x].Tr_i_n[n - 1] for x in s.Rtype_i_j])
-        xr_next_i_j_nm1 = np.array([spaces[x].xr_i_n[n - 1] for x in s.Rtype_i_j])
+
+        # ここのコードはもう少し構造を考え直さないといけない
+        idxs = [[i for i, space in enumerate(spaces) if space.name_i == x] for x in s.Rtype_i_j]
+        Tr_next_i_j_nm1 = np.array([spaces[x].Tr_i_n[n - 1] for x in idxs])
+        xr_next_i_j_nm1 = np.array([spaces[x].xr_i_n[n - 1] for x in idxs])
 
         # 畳み込み積分 式(27)
         for g in range(s.NsurfG_i):
@@ -120,7 +123,7 @@ def run_tick(spaces: List[Space], To_n: float, xo_n: float, n: int):
         # 仮の窓開閉条件における通風量 NVot の計算
         ca = a18.get_ca()
         rhoa = a18.get_rhoa()
-        NVot = a13.get_NV(is_now_window_open, s.Vol_i, s.Nventtime_i)
+        NVot = a13.get_NV(is_now_window_open, s.vol_i, s.Nventtime_i)
 
         # ********** 非空調(自然)作用温度、PMV の計算 **********
 
@@ -164,7 +167,7 @@ def run_tick(spaces: List[Space], To_n: float, xo_n: float, n: int):
                    s.pmv_upper_limit_schedule[n]][ac_mode]
 
         # 確定した窓開閉状態における通風量を計算
-        NV = a13.get_NV(s.is_now_window_open_i_n[n], s.Vol_i, s.Nventtime_i)
+        NV = a13.get_NV(s.is_now_window_open_i_n[n], s.vol_i, s.Nventtime_i)
 
         # メモ: 窓開閉のいずれの条件で計算したBRM,BRCを採用しているだけに見える。
         #       ⇒両方計算して比較するように記述したほうがシンプル
@@ -233,7 +236,7 @@ def run_tick(spaces: List[Space], To_n: float, xo_n: float, n: int):
             LocalVentset=s.local_vent_amount_schedule[n],
             Gf=s.Gf_i,
             Cx=s.Cx_i,
-            volume=s.Vol_i,
+            volume=s.vol_i,
             Vnext_i_j=s.Vnext_i_j
         )
 
@@ -244,7 +247,7 @@ def run_tick(spaces: List[Space], To_n: float, xo_n: float, n: int):
             LocalVentset=s.local_vent_amount_schedule[n],
             Gf=s.Gf_i,
             Cx=s.Cx_i,
-            volume=s.Vol_i,
+            volume=s.vol_i,
             Vnext_i_j=s.Vnext_i_j,
             xr_next_i_j_nm1=xr_next_i_j_nm1,
             xr_i_nm1=s.xr_i_n[n - 1],

@@ -57,13 +57,45 @@ from s3_surface_loader import read_surface
 
 # 空間に関する情報の保持
 class Space:
+
     FsolFlr = 0.5  # 床の日射吸収比率
 
     # 初期化
     def __init__(self, d_room):
 
-        self.name = d_room['name']  # 室名称
-        self.room_type = d_room['room_type']  # 室用途（1:主たる居室、2:その他居室、3:非居室）
+        # 室iの名称
+        self.name_i = d_room['name']
+
+        # 室iの室タイプ
+        #   main_occupant_room: 主たる居室
+        #   other_occupant_room: その他の居室
+        #   non_occupant_room: 非居室
+        #   underfloor: 床下空間
+        self.room_type_i = d_room['room_type']
+
+        # 室iの気積, m3
+        self.vol_i = d_room['volume']
+
+        # 室iの外気からの機械換気量, m3/h
+        self.Vent = d_room['vent']
+
+        # 室iの隣室からの機械換気量jの上流側の室の名称
+        self.Rtype_i_j = [next_vent['upstream_room_type'] for next_vent in d_room['next_vent']]
+
+        # 室iの隣室からの機械換気量jの換気量, m3/h
+        self.Vnext_i_j = np.array([next_vent['volume'] for next_vent in d_room['next_vent']])
+
+        # 室iの境界k
+        self.surf_i = read_surface(d_room['boundaries'])
+
+        # 室iの相当隙間面積（C値）,
+        # TODO: 相当隙間面積についてはからすきま風量を変換する部分については実装されていない。
+
+        # 室iの自然風利用時の換気回数, 1/h
+        self.Nventtime_i = d_room['natural_vent_time']
+
+        self.Inf = 0.0  # すきま風量（暫定値）
+
         self.Lrs = 0.0
         self.Ls = None
 
@@ -119,37 +151,29 @@ class Space:
         # 定格冷房能力[W]
         self.convective_cooling_rtd_capacity = a22.read_convective_cooling_rtd_capacity(d_room)
 
-        # 室気積[m3]
-        self.Vol_i = a20.read_volume(d_room)
-        rhoa = a18.get_rhoa()
-        self.Ga = self.Vol_i * rhoa  # 室空気の質量[kg]
-
         # 家具の熱容量、湿気容量の計算
         # Capfun:家具熱容量[J/K]、Cfun:家具と室空気間の熱コンダクタンス[W/K]
         # Gf_i:湿気容量[kg/(kg/kg(DA))]、Cx_i:湿気コンダクタンス[kg/(s･kg/kg(DA))]
-        self.Capfun = a14.get_Capfun(self.Vol_i)
+        self.Capfun = a14.get_Capfun(self.vol_i)
         self.Cfun = a14.get_Cfun(self.Capfun)
         self.Tfun_i_n = np.full(24 * 365 * 4 * 3, a18.get_Tfun_initial())  # i室のn時点における家具の温度
         self.Qfunl_i_n = np.zeros(24 * 365 * 4 * 3)  # i室のn時点における家具の日射吸収熱量
         self.Qsolfun_i_n = np.zeros(24 * 365 * 4 * 3)
-        self.Gf_i = a14.get_Gf(self.Vol_i)  # i室の備品類の湿気容量
+        self.Gf_i = a14.get_Gf(self.vol_i)  # i室の備品類の湿気容量
         self.Cx_i = a14.get_Cx(self.Gf_i)  # i室の備品類と室空気間の湿気コンダクタンス
         self.xf_i_n = np.full(24 * 365 * 4 * 3, a18.get_xf_initial())  # i室のn時点における備品類の絶対湿度
         self.Ghum_i_n = np.zeros(24 * 365 * 4 * 3)
 
         self.xeout_i_n = np.zeros(24 * 365 * 4 * 3)  # i室のn時点におけるルームエアコン熱交換器出口の絶対湿度
         self.Vac_n = np.zeros(24 * 365 * 4 * 3)  # i室のn時点におけるエアコンの風量[m3/s]
-        self.Nventtime_i = a20.read_natural_vent_time(d_room)
 
         # i室のn時点における窓開放時通風量
         # 室空気の熱容量
         ca = a18.get_ca()
-        self.Hcap = self.Vol_i * rhoa * ca
+        rhoa = a18.get_rhoa()
+        self.Hcap = self.vol_i * rhoa * ca
         # print(self.Hcap)
 
-        # 計画換気量
-        self.Vent = a20.read_vent(d_room)
-        self.Inf = 0.0  # すきま風量（暫定値）
         self.Beta_i = 0.0  # 放射暖房対流比率
 
         # ********** 計算準備14 局所換気スケジュール、機器発熱スケジュール、
@@ -170,19 +194,16 @@ class Space:
         self.number_of_people_schedule = a32.read_resident_schedules_from_json(d_room)
 
         # 空調スケジュールの読み込み
+        #   設定温度上限値, degree C * 365* 96
+        #   設定温度下限値, degree C * 365* 96
+        #   PMV上限値, degree C * 365* 96
+        #   PMV下限値, degree C * 365* 96
         self.is_upper_temp_limit_set_schedule, \
-        self.is_lower_temp_limit_set_schedule, \
-        self.pmv_upper_limit_schedule, \
-        self.pmv_lower_limit_schedule = a13.read_air_conditioning_schedules_from_json(d_room)
+            self.is_lower_temp_limit_set_schedule, \
+            self.pmv_upper_limit_schedule, \
+            self.pmv_lower_limit_schedule = a13.read_air_conditioning_schedules_from_json(d_room)
 
         # ********** 計算準備6 隣室間換気の読み込み **********
-
-        # 室間換気量クラスの構築
-        self.Rtype_i_j = a21.read_upstream_room_type(d_room)
-        self.Vnext_i_j = a21.read_next_vent_volume(d_room)
-
-        # i室の部位の読み込み
-        self.surf_i = read_surface(d_room['boundaries'])
 
         self.QGT_i_n = np.zeros(24 * 365 * 4 * 3)
         self.surfG_i = None
