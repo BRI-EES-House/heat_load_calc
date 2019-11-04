@@ -1,7 +1,6 @@
 from typing import Dict
 import csv
 import json
-import datetime
 
 from x_05_solar_position import calc_solar_position as x05_calc_solar_position
 from x_17_calculation_period import get_n_step_main as x_17_get_n_step_main
@@ -39,75 +38,42 @@ def calc_heat_load(d: Dict):
     region = d['common']['region']
 
     # 気象データの読み込み
-    To_n, I_DN_n, I_sky_n, RN_n, xo_n = a4.load_weatherdata()
+    To_ns, I_DN_n, I_sky_n, RN_n, xo_ns = a4.load_weatherdata()
 
     # 太陽位置は個別計算可能
-    h_s_n, a_s_n = x05_calc_solar_position(region=region)
+    h_s_ns, a_s_ns = x05_calc_solar_position(region=region)
 
     # スペースの読み取り
-    spaces = {}
+    spaces = []
     for room in d['rooms']:
         space = Space(room)
-        init_spaces(space, I_DN_n, I_sky_n, RN_n, To_n, h_s_n, a_s_n)
-        spaces[room['name']] = space
-
-    OutList = exporter.append_headers(spaces)
+        init_spaces(space, I_DN_n, I_sky_n, RN_n, To_ns, h_s_ns, a_s_ns)
+        spaces.append(space)
 
     # 助走計算1(土壌のみ)
     for n in range(-n_step_run_up, -n_step_run_up_build):
-        simulator.run_tick_groundonly(spaces, To_n[n], n)
+        simulator.run_tick_groundonly(spaces=spaces, To_n=To_ns[n], n=n)
 
     # 助走計算2(室温、熱負荷)
     for n in range(-n_step_run_up_build, 0):
-        simulator.run_tick(spaces, To_n[n], xo_n[n], n)
+        simulator.run_tick(spaces=spaces, To_n=To_ns[n], xo_n=xo_ns[n], n=n)
 
     # 本計算(室温、熱負荷)
     for n in range(0, n_step_main):
-        simulator.run_tick(spaces, To_n[n], xo_n[n], n)
+        simulator.run_tick(spaces=spaces, To_n=To_ns[n], xo_n=xo_ns[n], n=n)
 
-    # 年間熱負荷の積算
-    _ = exporter.get_annual_loads(spaces)
+    # log ヘッダーの作成
+    log = exporter.append_headers(spaces=spaces)
 
-    # 計算結果出力前処理
-    dtlist = get_datetime_list()
+    # log の記録
     for n in range(0, n_step_main):
-        exporter.append_tick_log(spaces, OutList, To_n, dtlist, n, xo_n)
+        exporter.append_tick_log(spaces=spaces, log=log, To_n=To_ns, n=n, xo_n=xo_ns)
 
     # CSVファイルの出力
     f = open('simulatin_result.csv', 'w', encoding="utf_8_sig")
     dataWriter = csv.writer(f, lineterminator='\n')
-    dataWriter.writerows(OutList)
+    dataWriter.writerows(log)
     f.close()
-
-
-
-# 計算日時のリストを生成する（正確にはタプル)
-def get_datetime_list():
-    ntime = int(24 * 4)
-    nnow = 0
-    start_date = datetime.datetime(1989, 1, 1)
-    dtlist = []
-    for nday in range(365):
-        for tloop in range(ntime):
-            dtime = datetime.timedelta(days=nnow + float(tloop) / float(ntime))
-            dtmNow = dtime + start_date
-            dtlist.append(dtmNow)
-        nnow += 1
-    return tuple(dtlist)
-
-
-# 通日を計算
-def get_nday(mo, day):
-    """
-    :param mo: 月
-    :param day: 日
-    :return: 1月1日からの通日
-    """
-    new_year = datetime.datetime(2017, 1, 1)
-    that_day = datetime.datetime(2017, mo, day)
-    ndays = that_day - new_year
-
-    return ndays.days + 1
 
 
 if __name__ == '__main__':
