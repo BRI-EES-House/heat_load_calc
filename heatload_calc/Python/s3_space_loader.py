@@ -61,24 +61,7 @@ class Space:
 
     # 初期化
     def __init__(self, d_room):
-        """
-        :param Gdata:
-        :param ExsrfMng:
-        :param SunbrkMng:
-        :param roomname: 室用途（主たる居室、その他居室、非居室）
-        :param HeatCcap:
-        :param HeatRcap:
-        :param CoolCcap:
-        :param Vol:
-        :param Fnt:
-        :param Vent:
-        :param Inf:
-        :param CrossVentRoom:
-        :param is_radiative_heating:
-        :param Beta_i:
-        :param RoomtoRoomVents:
-        :param input_surfaces:
-        """
+
         self.name = d_room['name']  # 室名称
         self.room_type = d_room['room_type']  # 室用途（1:主たる居室、2:その他居室、3:非居室）
         self.Lrs = 0.0
