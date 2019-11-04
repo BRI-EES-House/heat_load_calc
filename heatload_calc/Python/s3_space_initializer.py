@@ -57,7 +57,10 @@ from s3_space_loader import Space
 # - RoomtoRoomVents:      室間換気量（list型、暖房・中間期・冷房、風上室名称）, m3/h
 # - d:             室内部位に関連するクラス, Surface
 
-def init_spaces(space: Space, I_DN_n, I_sky_n, RN_n, To_n, h_s_n, a_s_n):
+def init_spaces(space: Space,
+                I_DN_n: np.ndarray, I_sky_n: np.ndarray, RN_n: np.ndarray, To_n: np.ndarray,
+                h_s_n: np.ndarray, a_s_n: np.ndarray):
+
     # 空調や通風などの需要がある場合にTrue
     space.air_conditioning_demand = space.is_upper_temp_limit_set_schedule | space.is_lower_temp_limit_set_schedule
 

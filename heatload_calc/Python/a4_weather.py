@@ -30,7 +30,8 @@ def interpolate(weatherdata: np.ndarray) -> np.ndarray:
 
 
 # 気象データの読み込み
-def load_weatherdata():
+def load_weatherdata() -> (np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray):
+
     # ファイル読み込み
     data = np.loadtxt("weatherdata.csv", delimiter=",", skiprows=2, usecols=(2, 3, 4, 5, 6), encoding="utf-8")
 

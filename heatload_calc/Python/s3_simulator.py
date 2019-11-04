@@ -1,4 +1,5 @@
 import numpy as np
+from typing import List
 
 import s4_1_sensible_heat as s41
 import s4_2_latent_heat as s42
@@ -13,13 +14,15 @@ import a18_initial_value_constants as a18
 import a28_operative_temperature as a28
 import a35_PMV as a35
 import a37_groundonly_runup_calculation as a37
+from s3_space_loader import Space
 
 from Psychrometrics import rhtx
 
 
 # 地盤の計算
-def run_tick_groundonly(spaces, To_n: float, n: int):
-    for i, s in spaces.items():
+def run_tick_groundonly(spaces: List[Space], To_n: float, n: int):
+
+    for s in spaces:
 
         # 配列の準備
         Row = s.surfG_i.Row
@@ -38,8 +41,9 @@ def run_tick_groundonly(spaces, To_n: float, n: int):
 
 
 # 室温、熱負荷の計算
-def run_tick(spaces, To_n: float, xo: float, n: int):
-    for i, s in spaces.items():
+def run_tick(spaces: List[Space], To_n: float, xo_n: float, n: int):
+
+    for s in spaces:
 
         # ********** 裏面相当温度の計算 **********
 
@@ -246,7 +250,7 @@ def run_tick(spaces, To_n: float, xo: float, n: int):
             xr_i_nm1=s.xr_i_n[n - 1],
             xf_i_nm1=s.xf_i_n[n - 1],
             Lin=Lin,
-            xo=xo
+            xo=xo_n
         )
 
         # ==== ルームエアコン吹出絶対湿度の計算 ====
