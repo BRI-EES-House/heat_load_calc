@@ -43,7 +43,7 @@ def run_tick_groundonly(spaces: List[Space], To_n: float, n: int):
 # 室温、熱負荷の計算
 def run_tick(spaces: List[Space], To_n: float, xo_n: float, n: int):
 
-    for s in spaces:
+    for i, s in enumerate(spaces):
 
         # ********** 裏面相当温度の計算 **********
 
@@ -81,10 +81,15 @@ def run_tick(spaces: List[Space], To_n: float, xo_n: float, n: int):
         Nroot = s.surfG_i.Nroot
         Row = s.surfG_i.Row
 
+#        print([s.name_i for s in spaces])
+#        print(str(i) + ': ' + str(s.Rtype_i_j))
         # ここのコードはもう少し構造を考え直さないといけない
-        idxs = [[i for i, space in enumerate(spaces) if space.name_i == x] for x in s.Rtype_i_j]
+        # 室名が重複して指定された場合に破綻する。
+        idxs = [[i for i, space in enumerate(spaces) if space.name_i == x][0] for x in s.Rtype_i_j]
+#        print(str(i) + ':' + str(idxs))
         Tr_next_i_j_nm1 = np.array([spaces[x].Tr_i_n[n - 1] for x in idxs])
         xr_next_i_j_nm1 = np.array([spaces[x].xr_i_n[n - 1] for x in idxs])
+#        print(str(i) + ': ' + str(Tr_next_i_j_nm1))
 
         # 畳み込み積分 式(27)
         for g in range(s.NsurfG_i):
