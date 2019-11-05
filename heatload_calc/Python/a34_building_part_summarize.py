@@ -1,5 +1,5 @@
 import numpy as np
-from s3_surface_loader import DSurface
+from s3_surface_initializer import Initialized_Surface
 
 """
 付録34．境界条件が同じ部位の集約
@@ -77,7 +77,7 @@ def compare_surfaces(surfaces, a, b):
 
 # 部位の集約（同一境界条件の部位を集約する）
 class GroupedSurface:
-    def __init__(self, surfaces: DSurface):
+    def __init__(self, surfaces: Initialized_Surface):
 
         # 部位番号とグループ番号の対応表 (-1は未割当)
         g_k = np.zeros(surfaces.N_surf_i, dtype=np.int64) - 1
@@ -211,7 +211,11 @@ class GroupedSurface:
 
         # 25) 室内表面から室外側空気までの熱貫流率
         self.Uso_i_g = np.sum(surfaces.A_i_k * surfaces.Uso * map_g, axis=1) / self.A_i_g
-        self.U_i_g = np.sum(surfaces.A_i_k * surfaces.U * map_g, axis=1) / self.A_i_g
+        # U_i_g 計算における surfaces.U は、透明な開口部と不透明な開口部のみで定義されている値であり、
+        # そのほかの部位の種類ではこの計算は成り立たない。
+        # 他で使用していないようなので、とりあえずコメントアウトしてある。
+        # 2019.11.05. 三浦
+        #self.U_i_g = np.sum(surfaces.A_i_k * surfaces.U * map_g, axis=1) / self.A_i_g
 
         # 26) 吸熱応答係数の初項
         self.RFA0 = np.sum(surfaces.A_i_k * surfaces.RFA0 * map_g, axis=1) / self.A_i_g
