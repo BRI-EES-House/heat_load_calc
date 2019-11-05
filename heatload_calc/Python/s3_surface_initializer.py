@@ -13,6 +13,7 @@ import a8_shading as a8
 import a9_rear_surface_equivalent_temperature as a9
 import apdx10_oblique_incidence_characteristics as a10
 import apdx6_direction_cos_incident_angle as a6
+from s3_surface_loader import Surface
 
 Initialized_Surface = namedtuple('Initialized_Surface', [
     'N_surf_i',
@@ -52,7 +53,10 @@ Initialized_Surface = namedtuple('Initialized_Surface', [
 ])
 
 
-def init_surface(data, I_DN_n, I_sky_n, RN_n, To_n, h_s_n, a_s_n):
+def init_surface(
+        data: Surface,
+        I_DN_n: np.ndarray, I_sky_n: np.ndarray, RN_n: np.ndarray, To_n: np.ndarray,
+        h_s_n: np.ndarray, a_s_n: np.ndarray) -> Initialized_Surface:
 
     sin_a_s = np.where(h_s_n > 0.0, np.sin(a_s_n), 0.0)
     cos_a_s = np.where(h_s_n > 0.0, np.cos(a_s_n), 0.0)
