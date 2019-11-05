@@ -1,5 +1,5 @@
 import numpy as np
-from s3_surface_loader import Surface
+from s3_surface_loader import DSurface
 
 """
 付録34．境界条件が同じ部位の集約
@@ -77,7 +77,7 @@ def compare_surfaces(surfaces, a, b):
 
 # 部位の集約（同一境界条件の部位を集約する）
 class GroupedSurface:
-    def __init__(self, surfaces: Surface):
+    def __init__(self, surfaces: DSurface):
 
         # 部位番号とグループ番号の対応表 (-1は未割当)
         g_k = np.zeros(surfaces.N_surf_i, dtype=np.int64) - 1

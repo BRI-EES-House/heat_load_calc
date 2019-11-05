@@ -13,7 +13,7 @@ import a8_shading as a8
 import a9_rear_surface_equivalent_temperature as a9
 import apdx10_oblique_incidence_characteristics as a10
 import apdx6_direction_cos_incident_angle as a6
-from s3_surface_loader import Surface
+from s3_surface_loader import DSurface
 
 Initialized_Surface = namedtuple('Initialized_Surface', [
     'N_surf_i',
@@ -54,7 +54,7 @@ Initialized_Surface = namedtuple('Initialized_Surface', [
 
 
 def init_surface(
-        data: Surface,
+        data: DSurface,
         I_DN_n: np.ndarray, I_sky_n: np.ndarray, RN_n: np.ndarray, To_n: np.ndarray,
         h_s_n: np.ndarray, a_s_n: np.ndarray) -> Initialized_Surface:
 
@@ -97,12 +97,12 @@ def init_surface(
 
     # *********** 外壁傾斜面の計算 ***********
 
-    f = (data.boundary_type == "external_general_part") \
-        | (data.boundary_type == "external_transparent_part") \
-        | (data.boundary_type == "external_opaque_part")
+    f = (data.boundary_type_i_ks == "external_general_part") \
+        | (data.boundary_type_i_ks == "external_transparent_part") \
+        | (data.boundary_type_i_ks == "external_opaque_part")
 
     # 方位角、傾斜面方位角 [rad]
-    w_alpha_i_k[f], w_beta_i_k[f] = a19.get_slope_angle(data.direction[f])
+    w_alpha_i_k[f], w_beta_i_k[f] = a19.get_slope_angle(data.direction_i_ks[f])
 
     # 傾斜面に関する変数であり、式(73)
     Wz_i_k[f], Ww_i_k[f], Ws_i_k[f] = \
@@ -115,7 +115,7 @@ def init_surface(
     PhiG_i_k[f] = a19.get_Phi_G_i_k(PhiS_i_k[f])
 
     # 温度差係数
-    # a_i_k[f] = data.a_i_k[f]
+    # h_i_ks[f] = data.h_i_ks[f]
 
     # 地面反射率[-]
     RhoG_l[f] = a18.get_RhoG()
@@ -130,26 +130,26 @@ def init_surface(
     hi_i_k_n = a23.get_hi_i_k_n(data.Ri_i_k_n)
 
     # 開口部の室内表面から屋外までの熱貫流率[W / (m2･K)] 式(124)
-    f = np.logical_not((data.boundary_type == "external_general_part")
-                       | (data.boundary_type == "internal")
-                       | (data.boundary_type == "ground"))
+    f = np.logical_not((data.boundary_type_i_ks == "external_general_part")
+                       | (data.boundary_type_i_ks == "internal")
+                       | (data.boundary_type_i_ks == "ground"))
 
     Uso[f] = a25.get_Uso(data.U[f], data.Ri_i_k_n[f])
 
     # ********** 応答係数 **********
 
     # 1) 非一般部位
-    f = np.logical_not((data.boundary_type == "external_general_part")
-                       | (data.boundary_type == "internal")
-                       | (data.boundary_type == "ground"))
+    f = np.logical_not((data.boundary_type_i_ks == "external_general_part")
+                       | (data.boundary_type_i_ks == "internal")
+                       | (data.boundary_type_i_ks == "ground"))
 
     RFT0[f], RFA0[f], RFT1[f], RFA1[f], Row[f], Nroot[f] = \
         1.0, 1.0 / Uso[f], np.zeros(12), np.zeros(12), np.zeros(12), 0
 
     # 2) 一般部位
     for k in range(data.N_surf_i):
-        if data.boundary_type[k] in ["external_general_part", "internal", "ground"]:
-            is_ground = data.boundary_type[k] == "ground"
+        if data.boundary_type_i_ks[k] in ["external_general_part", "internal", "ground"]:
+            is_ground = data.boundary_type_i_ks[k] == "ground"
 
             # 応答係数
             RFT0[k], RFA0[k], RFT1[k], RFA1[k], Row[k], Nroot[k] = \
@@ -158,9 +158,9 @@ def init_surface(
     # ********** 入射角の方向余弦および傾斜面日射量の計算(外壁のみ) **********
 
     # 入射角の方向余弦
-    f = (data.boundary_type == "external_general_part") \
-        | (data.boundary_type == "external_transparent_part") \
-        | (data.boundary_type == "external_opaque_part")
+    f = (data.boundary_type_i_ks == "external_general_part") \
+        | (data.boundary_type_i_ks == "external_transparent_part") \
+        | (data.boundary_type_i_ks == "external_opaque_part")
 
 ##########################################################################
     cos_Theta_i_k_n[f] = a6.calc_cos_incident_angle(
@@ -173,9 +173,9 @@ def init_surface(
     )
 
     # 傾斜面日射量
-    f = (data.boundary_type == "external_general_part") \
-        | (data.boundary_type == "external_transparent_part") \
-        | (data.boundary_type == "external_opaque_part")
+    f = (data.boundary_type_i_ks == "external_general_part") \
+        | (data.boundary_type_i_ks == "external_transparent_part") \
+        | (data.boundary_type_i_ks == "external_opaque_part")
 
     Iw_i_k_n = np.zeros((data.N_surf_i, 24 * 365 * 4))
     I_D_i_k_n = np.zeros((data.N_surf_i, 24 * 365 * 4))
@@ -196,11 +196,11 @@ def init_surface(
     # ********** 傾斜面の相当外気温度の計算 **********
 
     # 1) 日射が当たる場合
-    f_sun = get_bi(data.is_sun_striked_outside)
+    f_sun = get_bi(np.array([d if d is not None else False for d in data.is_sun_striked_outside_i_ks]))
 
     # 1-1) 一般部位、不透明な開口部の場合
     f = tuple(f_sun &
-              ((data.boundary_type == "external_general_part") | (data.boundary_type == "external_opaque_part")))
+              ((data.boundary_type_i_ks == "external_general_part") | (data.boundary_type_i_ks == "external_opaque_part")))
 
     Teolist[f] = a9.get_Te_n_1(
         To_n=To_n,
@@ -213,7 +213,7 @@ def init_surface(
     )
 
     # 1-2) 透明開口部の場合
-    f = tuple(f_sun & (data.boundary_type == "external_transparent_part"))
+    f = tuple(f_sun & (data.boundary_type_i_ks == "external_transparent_part"))
 
     Teolist[f] = a9.get_Te_n_2(
         To_n=To_n,
@@ -226,12 +226,12 @@ def init_surface(
     # 2) 日射が当たらない場合
 
     # 2-1) 地面の場合は、年平均気温とする
-    f = tuple((f_sun == False) & (data.boundary_type == "ground"))
+    f = tuple((f_sun == False) & (data.boundary_type_i_ks == "ground"))
     Teolist[f] = np.full(24 * 365 * 4, np.average(To_n))
 
     # 2-2) 日の当たらない一般部位と内壁
     f = tuple(
-        (f_sun == False) & ((data.boundary_type == "external_general_part") | (data.boundary_type == "internal")))
+        (f_sun == False) & ((data.boundary_type_i_ks == "external_general_part") | (data.boundary_type_i_ks == "internal")))
     Teolist[f] = np.zeros(24 * 365 * 4)
 
     # ********** 日除けの日影面積率の計算 **********
@@ -241,10 +241,10 @@ def init_surface(
 
     for k in range(data.N_surf_i):
 
-        if data.is_sun_striked_outside[k]:
+        if data.is_sun_striked_outside_i_ks[k]:
 
             # 透明開口部の場合
-            if data.boundary_type[k] == "external_transparent_part":
+            if data.boundary_type_i_ks[k] == "external_transparent_part":
                 # 日除けの日影面積率の計算
                 if data.sunbrk[k]['existance']:
                     if data.sunbrk[k]['input_method'] == 'simple':
@@ -267,7 +267,7 @@ def init_surface(
 
     # ********** 透過日射熱取得の計算 **********
 
-    f = tuple(f_sun & (data.boundary_type == "external_transparent_part"))
+    f = tuple(f_sun & (data.boundary_type_i_ks == "external_transparent_part"))
 
     QGT_i_k_n[f] = a11.calc_QGT_i_k_n(
         cos_Theta_i_k_n=cos_Theta_i_k_n[f],
@@ -276,22 +276,34 @@ def init_surface(
         FSDW_i_k_n=FSDW_i_k_n[f],
         I_S_i_k_n=I_S_i_k_n[f],
         I_R_i_k_n=I_R_i_k_n[f],
-        A_i_k=data.A_i_k[f],
+        A_i_k=data.a_i_ks[f],
         tau_i_k=data.tau_i_k[f],
         Cd_i_k=Cd_i_k[f]
     )
 
+    def convert_from_next_room_name_to_id(name):
+        if name is not None:
+            return {
+                'main_occupant_room': 0,
+                'other_occupant_room': 1,
+                'non_occupant_room': 2,
+                'underfloor': 3
+            }[name]
+        else:
+            return -1
+
     return Initialized_Surface(
         N_surf_i=data.N_surf_i,
-        direction=data.direction,
-        boundary_type=data.boundary_type,
-        is_sun_striked_outside=data.is_sun_striked_outside,
+        direction=data.direction_i_ks,
+        boundary_type=data.boundary_type_i_ks,
+        is_sun_striked_outside=data.is_sun_striked_outside_i_ks,
         is_solar_absorbed_inside=data.is_solar_absorbed_inside,
-        a_i_k=data.a_i_k,
+        a_i_k=data.h_i_ks,
         eps_i_k=data.eps_i_k,
         as_i_k=data.as_i_k,
-        A_i_k=data.A_i_k,
-        Rnext_i_k=data.Rnext_i_k,
+        A_i_k=data.a_i_ks,
+        Rnext_i_k=np.vectorize(convert_from_next_room_name_to_id)(data.next_room_type_i_ks),
+#        Rnext_i_k=data.next_room_type_i_ks,
         U=data.U,
         QGT_i_k_n=QGT_i_k_n,
         Teolist=Teolist,
