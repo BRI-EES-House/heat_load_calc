@@ -24,6 +24,7 @@ from s3_surface_loader import OpaqueOpeningPartSpec
 from s3_surface_loader import GroundSpec
 from s3_surface_loader import GroundSpecLayers
 from s3_surface_loader import SolarShadingPart
+import a34_building_part_summarize as a34
 
 
 Initialized_Surface = namedtuple('Initialized_Surface', [
@@ -60,7 +61,8 @@ Initialized_Surface = namedtuple('Initialized_Surface', [
     'RFT1',
     'RFA1',
     'Row',
-    'Nroot'
+    'Nroot',
+    'gpi'
 ])
 
 
@@ -68,6 +70,8 @@ def init_surface(
         boundaries: List[Boundary],
         I_DN_n: np.ndarray, I_sky_n: np.ndarray, RN_n: np.ndarray, To_n: np.ndarray,
         h_s_n: np.ndarray, a_s_n: np.ndarray) -> Initialized_Surface:
+
+    gpi = a34.get_group_indices(boundaries)
 
     N_surf_i = len(boundaries)
 
@@ -535,5 +539,6 @@ def init_surface(
         RFT1=RFT1,
         RFA1=RFA1,
         Row=Row,
-        Nroot=Nroot
+        Nroot=Nroot,
+        gpi=gpi
     )
