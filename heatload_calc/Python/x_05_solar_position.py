@@ -277,9 +277,21 @@ def get_a_s_ns(omega_ns: np.ndarray, phi_loc: float, delta_ns: np.ndarray, h_s_n
         太陽方位角, rad * 8760 * 96
     """
 
-    sin_a_s_ns = np.cos(delta_ns) * np.sin(omega_ns) / np.cos(h_s_ns)
-    cos_a_s_ns = (np.sin(h_s_ns) * np.sin(phi_loc) - np.sin(delta_ns)) / (np.cos(h_s_ns) * np.cos(phi_loc))
+    a_s_ns = np.full(len(h_s_ns), np.nan)
+    sin_a_s_ns = np.full(len(h_s_ns), np.nan)
+    cos_a_s_ns = np.full(len(h_s_ns), np.nan)
 
+    # 太陽の位置が天頂にない場合をチェックする, 天頂にない場合がTrue * 365 * 96
+    f = h_s_ns != np.pi / 2
+
+    # 太陽の方位角の正弦（太陽が天頂に無い場合のみ計算する）
+    sin_a_s_ns[f] = np.cos(delta_ns[f]) * np.sin(omega_ns[f]) / np.cos(h_s_ns[f])
+
+    # 太陽の方位角の余弦（太陽が天頂に無い場合のみ計算する）
+    cos_a_s_ns[f] = (np.sin(h_s_ns[f]) * np.sin(phi_loc) - np.sin(delta_ns[f])) / (np.cos(h_s_ns[f]) * np.cos(phi_loc))
+
+    # 太陽の方位角, rad * 365 * 96（太陽が天頂に無い場合のみ計算する）
+    # 太陽が天頂にある場合は最初に定義した「定義なし=np.nan」のままである。
     # arctan の注意点。
     # arctan2 は、座標上で第1引数をy, 第2引数をxにした際にx軸との角度を求める関数です。
     # 従って、単射の通常良く用いられる -π/2 ～ 0 ～ π/2 ではないので、ここだけ小文字の arctan としてください。
@@ -289,6 +301,6 @@ def get_a_s_ns(omega_ns: np.ndarray, phi_loc: float, delta_ns: np.ndarray, h_s_n
     # sin_a_s_ns が正 かつ cos_a_s_ns が正 の場合は第3象限（-π～-π/2）
     # sin_a_s_ns が正 かつ cos_a_s_ns が正 の場合は第4象限（-π/2～0）
     # である旨の注釈をつけておいてください。
-    a_s_ns = np.arctan2(sin_a_s_ns, cos_a_s_ns)
+    a_s_ns[f] = np.arctan2(sin_a_s_ns[f], cos_a_s_ns[f])
 
     return a_s_ns
