@@ -87862,6 +87862,7 @@
 						"outside_emissivity": 0.9,
 						"inside_heat_transfer_resistance": 0.15,
 						"outside_heat_transfer_resistance": 0.15,
+						"outside_solar_absorption": 0.8,
 						"layers": [
 							{
 								"name": "plywood",
@@ -176453,6 +176454,7 @@
 						"outside_emissivity": 0.9,
 						"inside_heat_transfer_resistance": 0.15,
 						"outside_heat_transfer_resistance": 0.15,
+						"outside_solar_absorption": 0.8,
 						"layers": [
 							{
 								"name": "plywood",
@@ -264406,6 +264408,7 @@
 						"outside_emissivity": 0.9,
 						"inside_heat_transfer_resistance": 0.15,
 						"outside_heat_transfer_resistance": 0.15,
+						"outside_solar_absorption": 0.8,
 						"layers": [
 							{
 								"name": "plywood",

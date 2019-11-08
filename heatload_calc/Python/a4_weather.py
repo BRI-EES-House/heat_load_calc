@@ -30,10 +30,37 @@ def interpolate(weatherdata: np.ndarray) -> np.ndarray:
 
 
 # 気象データの読み込み
-def load_weatherdata() -> (np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray):
+def load_weatherdata(region: int) -> (np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray):
+    if region == 1:
+        # 1地域（北見）
+        weatherdata_filename = '1_Kitami.csv'
+    elif region == 2:
+        # 2地域（岩見沢）
+        weatherdata_filename = '2_Iwamizawa.csv'
+    elif region == 3:
+        # 3地域（盛岡）
+        weatherdata_filename = '3_Morioka.csv'
+    elif region == 4:
+        # 4地域（長野）
+        weatherdata_filename = '4_Nagano.csv'
+    elif region == 5:
+        # 5地域（宇都宮）
+        weatherdata_filename = '5_Utsunomiya.csv'
+    elif region == 6:
+        # 6地域（岡山）
+        weatherdata_filename = '6_Okayama.csv'
+    elif region == 7:
+        # 7地域（宮崎）
+        weatherdata_filename = '7_Miyazaki.csv'
+    elif region == 8:
+        # 8地域（那覇）
+        weatherdata_filename = '8_Naha.csv'
+    else:
+        raise ValueError(region)
 
     # ファイル読み込み
-    data = np.loadtxt("weatherdata.csv", delimiter=",", skiprows=2, usecols=(2, 3, 4, 5, 6), encoding="utf-8")
+    path_and_filename = "weather_data\\" + weatherdata_filename
+    data = np.loadtxt(path_and_filename, delimiter=",", skiprows=2, usecols=(2, 3, 4, 5, 6), encoding="utf-8")
 
     # 扱いにくいので転地
     weather = data.T

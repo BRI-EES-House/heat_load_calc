@@ -38,7 +38,7 @@ def calc_heat_load(d: Dict):
     region = d['common']['region']
 
     # 気象データの読み込み
-    To_ns, I_DN_n, I_sky_n, RN_n, xo_ns = a4.load_weatherdata()
+    To_ns, I_DN_n, I_sky_n, RN_n, xo_ns = a4.load_weatherdata(region)
 
     # 太陽位置は個別計算可能
     h_s_ns, a_s_ns = x05_calc_solar_position(region=region)
@@ -80,8 +80,8 @@ if __name__ == '__main__':
 
     # js = open('1RCase1_最初の外壁削除.json', 'r', encoding='utf-8')
     # js = open('input_non_residential.json', 'r', encoding='utf-8')
-    # js = open('input_residential.json', 'r', encoding='utf-8')
-    js = open('input_residential_include_ground.json', 'r', encoding='utf-8')
+    js = open('input_residential.json', 'r', encoding='utf-8')
+    # js = open('input_residential_include_ground.json', 'r', encoding='utf-8')
 
     # js = open('input_simple_residential.json', 'r', encoding='utf-8')
     # js = open('検証用.json', 'r', encoding='utf-8')
