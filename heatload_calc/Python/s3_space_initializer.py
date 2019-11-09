@@ -19,7 +19,7 @@ import a34_building_part_summarize as a34
 import s4_1_sensible_heat as s41
 from s3_surface_initializer import init_surface
 from s3_space_loader import Space
-
+import s3_surface_initializer as s3
 
 # # 室温・熱負荷を計算するクラス
 
@@ -66,11 +66,14 @@ def init_spaces(space: Space,
     # i室の部位の初期化
     space.surf_i = init_surface(space.d_boundary_i_ks, I_DN_n, I_sky_n, RN_n, To_n, h_s_n, a_s_n)
 
-    # 透過日射熱取得の集約し、i室のn時点における透過日射熱取得 QGT_i_n を計算
-    space.QGT_i_n = np.sum(space.surf_i.QGT_i_k_n, axis=0)
-
     # i室の境界条件が同じ部位kを集約し、部位gを作成
     space.surfG_i = a34.GroupedSurface(space.surf_i)
+
+    # 透過日射熱取得の集約し、i室のn時点における透過日射熱取得 QGT_i_n を計算
+    space.QGT_i_n = np.sum(
+        s3.get_transmitted_solar_radiation(
+            space.d_boundary_i_ks, I_DN_n, I_sky_n, h_s_n, a_s_n
+        ), axis=0)
 
     # i室の部位の面数(集約後)
     space.NsurfG_i = space.surfG_i.NsurfG_i

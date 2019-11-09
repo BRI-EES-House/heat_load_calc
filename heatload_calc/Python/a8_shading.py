@@ -1,8 +1,39 @@
 import numpy as np
 
+import a19_external_surfaces as a19
+
+
 """
 付録8．ひさしの影面積の計算
 """
+
+
+def get_FSDW_i_k_n2(a_s_n, direction_i_ks, h_s_n, solar_shading_part_i_ks):
+
+    ###################################################################################
+    h_s = np.where(h_s_n > 0.0, h_s_n, 0.0)
+    a_s = np.where(h_s_n > 0.0, a_s_n, 0.0)
+    # 日除けの日影面積率の計算
+    if solar_shading_part_i_ks.existence:
+        if solar_shading_part_i_ks.input_method == 'simple':
+
+            # 方位角、傾斜面方位角 [rad]
+            w_alpha_i_k, _ = a19.get_slope_angle(direction_i_ks)
+
+            return calc_F_SDW_i_k_n(
+                D_i_k=solar_shading_part_i_ks.depth,  # 出幅
+                d_e=solar_shading_part_i_ks.d_e,  # 窓の上端から庇までの距離
+                d_h=solar_shading_part_i_ks.d_h,  # 窓の高さ
+                a_s_n=a_s,
+                h_s_n=h_s,
+                Wa_i_k=w_alpha_i_k
+            )
+        elif solar_shading_part_i_ks.input_method == 'detailed':
+            raise NotImplementedError()
+        else:
+            raise ValueError
+    else:
+        return np.full(len(h_s_n), 1.0)
 
 
 # 日除けの影面積を計算する（当面、簡易入力のみに対応）式(79)
