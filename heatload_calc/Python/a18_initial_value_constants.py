@@ -88,9 +88,6 @@ def get_delta_t():
 #    return 0.8
 
 
-def get_RhoG():
-    return 0.1
-
 
 def get_eps():
     return 0.9

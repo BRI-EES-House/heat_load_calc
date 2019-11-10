@@ -41,13 +41,13 @@ def calc_heat_load(d: Dict):
     To_ns, I_DN_n, I_sky_n, RN_n, xo_ns = a4.load_weatherdata(region)
 
     # 太陽位置は個別計算可能
-    h_s_ns, a_s_ns = x05_calc_solar_position(region=region)
+    h_sun_ns, a_sun_ns = x05_calc_solar_position(region=region)
 
     # スペースの読み取り
     spaces = []
     for room in d['rooms']:
         space = Space(room)
-        init_spaces(space, I_DN_n, I_sky_n, RN_n, To_ns, h_s_ns, a_s_ns)
+        init_spaces(space, I_DN_n, I_sky_n, RN_n, To_ns, h_sun_ns, a_sun_ns)
         spaces.append(space)
 
     # 助走計算1(土壌のみ)

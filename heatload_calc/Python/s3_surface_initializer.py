@@ -5,7 +5,7 @@ import numpy as np
 
 import a11_opening_transmission_solar_radiation as a11
 import a18_initial_value_constants as a18
-import a19_external_surfaces as a19
+import x_19_external_boundaries_direction as a19
 import a23_surface_heat_transfer_coefficient as a23
 import a25_window as a25
 import a2_response_factor as a2
@@ -13,7 +13,6 @@ import a7_inclined_surface_solar_radiation as a7
 import a8_shading as a8
 import a9_rear_surface_equivalent_temperature as a9
 import apdx10_oblique_incidence_characteristics as a10
-import apdx6_direction_cos_incident_angle as a6
 from s3_surface_loader import Boundary
 from s3_surface_loader import InternalPartSpec
 from s3_surface_loader import InternalPartSpecLayers
@@ -25,6 +24,8 @@ from s3_surface_loader import GroundSpec
 from s3_surface_loader import GroundSpecLayers
 from s3_surface_loader import SolarShadingPart
 import a34_building_part_summarize as a34
+
+from x_19_external_boundaries_direction import get_w_alpha_i_k_w_beta_i_k as x_19_get_w_alpha_i_k_w_beta_i_k
 
 
 Initialized_Surface = namedtuple('Initialized_Surface', [
@@ -41,17 +42,8 @@ Initialized_Surface = namedtuple('Initialized_Surface', [
     # ----- 以上はデータを参照用に保持 ----
     # ----- 以下は計算した結果の保存用 ----
     'Teolist',
-    'cos_Theta_i_k_n',
     'hi_i_k_n',
     'ho_i_k_n',
-    'RhoG_l',
-    'w_alpha_i_k',
-    'w_beta_i_k',
-    'Wz_i_k',
-    'Ww_i_k',
-    'Ws_i_k',
-    'PhiS_i_k',
-    'PhiG_i_k',
     'RFT0',
     'RFA0',
     'RFT1',
@@ -78,7 +70,7 @@ IntegratedBoundaries = namedtuple('IntegratedBoundaries', [
 def init_surface(
         boundaries: List[Boundary],
         I_DN_n: np.ndarray, I_sky_n: np.ndarray, RN_n: np.ndarray, To_n: np.ndarray,
-        h_s_n: np.ndarray, a_s_n: np.ndarray) -> Initialized_Surface:
+        h_sun_ns: np.ndarray, a_sun_ns: np.ndarray) -> Initialized_Surface:
 
     # 集約化可能な境界には同じIDを振り、境界ごとにそのIDを取得する。
     # boundaries の数のIDを持つndarray
@@ -353,12 +345,6 @@ def init_surface(
 
 
 
-    sin_a_s = np.where(h_s_n > 0.0, np.sin(a_s_n), 0.0)
-    cos_a_s = np.where(h_s_n > 0.0, np.cos(a_s_n), 0.0)
-
-    Sh_n = np.where(h_s_n > 0.0, np.sin(h_s_n), 0.0)
-    cos_h_s = np.where(h_s_n > 0.0, np.cos(h_s_n), 1.0)
-
     # ========== 初期計算 ==========
 
     # 以下、計算結果格納用
@@ -366,16 +352,9 @@ def init_surface(
     N_surf_i = len(boundaries)
 
     Teolist = np.zeros((N_surf_i, 24 * 365 * 4))
-    cos_Theta_i_k_n = np.zeros((N_surf_i, 24 * 365 * 4))
 
-    RhoG_l = np.zeros(N_surf_i)
-    w_alpha_i_k = np.zeros(N_surf_i)
-    w_beta_i_k = np.zeros(N_surf_i)
-    Wz_i_k = np.zeros(N_surf_i)
-    Ww_i_k = np.zeros(N_surf_i)
-    Ws_i_k = np.zeros(N_surf_i)
-    PhiS_i_k = np.zeros(N_surf_i)
-    PhiG_i_k = np.zeros(N_surf_i)
+    f_sky_i_k = np.zeros(N_surf_i)
+    f_gnd_i_k = np.zeros(N_surf_i)
     Uso = np.zeros(N_surf_i)
 
     # 応答係数
@@ -413,73 +392,68 @@ def init_surface(
             RFT0[k], RFA0[k], RFT1[k], RFA1[k], Row[k], Nroot[k] = \
                 a2.calc_response_factor(is_ground, c_layer_i_k_ls[k], r_layer_i_k_ls[k])
 
-
-
-
     # *********** 外壁傾斜面の計算 ***********
 
-    f = (boundary_type_i_ks == "external_general_part") \
-        | (boundary_type_i_ks == "external_transparent_part") \
-        | (boundary_type_i_ks == "external_opaque_part")
+    f_sun = get_bi(np.array([d if d is not None else False for d in is_sun_striked_outside_i_ks]))
 
-    # 方位角、傾斜面方位角 [rad]
-    w_alpha_i_k[f], w_beta_i_k[f] = a19.get_slope_angle(direction_i_ks[f])
+    # 1-1) 一般部位、不透明な開口部の場合
+    f = tuple(f_sun &
+              ((boundary_type_i_ks == "external_general_part")
+               | (boundary_type_i_ks == "external_transparent_part")
+               | (boundary_type_i_ks == "external_opaque_part"))
+              )
 
-    # 傾斜面に関する変数であり、式(73)
-    Wz_i_k[f], Ww_i_k[f], Ws_i_k[f] = \
-        a19.get_slope_angle_intermediate_variables(w_alpha_i_k[f], w_beta_i_k[f])
+    i_inc_i_k_n_all = np.zeros((N_surf_i, 24 * 365 * 4))
 
-    # 傾斜面の天空に対する形態係数の計算 式(120)
-    PhiS_i_k[f] = a19.get_Phi_S_i_k(Wz_i_k[f])
+    f_skys = []
+    rho_gnds =[]
+    i_inc_i_k_n_alls =[]
 
-    # 傾斜面の地面に対する形態係数 式(119)
-    PhiG_i_k[f] = a19.get_Phi_G_i_k(PhiS_i_k[f])
+    for b in boundaries:
 
-    # 地面反射率[-]
-    RhoG_l[f] = a18.get_RhoG()
+        if (b.boundary_type == 'external_general_part') \
+            or (b.boundary_type == 'external_transparent_part') \
+                or (b.boundary_type == 'external_opaque_part'):
+
+            if b.is_sun_striked_outside:
+
+                # 室iの境界kの傾斜面の方位角, rad
+                # 室iの境界kの傾斜面の傾斜角, rad
+                w_alpha, w_beta = x_19_get_w_alpha_i_k_w_beta_i_k(b.direction)
+
+                # ステップnの室iの境界kにおける傾斜面に入射する太陽の入射角* 365 * 24 * 4
+                theta_aoi = a7.get_cos_theta_aoi_i_k_n(w_alpha, w_beta, h_sun_ns, a_sun_ns)
+
+                # 室iの境界kの傾斜面の天空に対する形態係数
+                f_sky = a7.get_f_sky_i_k(w_beta)
+
+                # 室iの境界kの傾斜面の地面に対する形態係数
+                f_gnd = a7.get_f_gnd_i_k(f_sky)
+
+                # 地面の日射に対する反射率（アルベド）
+                rho_gnd = a7.get_rho_gnd()
+
+                # ステップnにおける室iの境界kにおける傾斜面の日射量, W / m2K
+                # ステップnにおける室iの境界kにおける傾斜面の日射量のうち直達成分, W / m2K
+                # ステップnにおける室iの境界kにおける傾斜面の日射量のうち天空成分, W / m2K
+                # ステップnにおける室iの境界kにおける傾斜面の日射量のうち地盤反射成分, W / m2K
+                i_inc_all, i_inc_d, i_inc_sky, i_inc_ref = a7.get_i_inc_i_k_n(
+                    i_dn_ns=I_DN_n,
+                    i_sky_ns=I_sky_n,
+                    theta_aoi_i_k_n=theta_aoi,
+                    f_sky_i_k=f_sky,
+                    f_gnd_i_k=f_gnd,
+                    rho_gnd_i_k=rho_gnd,
+                    h_sun_ns=h_sun_ns
+                )
+
+                f_skys.append(f_sky)
+                rho_gnds.append(rho_gnd)
+                i_inc_i_k_n_alls.append(i_inc_all)
 
 
-
-
-
-
-    # ********** 入射角の方向余弦および傾斜面日射量の計算(外壁のみ) **********
-
-    # 入射角の方向余弦
-    f = (boundary_type_i_ks == "external_general_part") \
-        | (boundary_type_i_ks == "external_transparent_part") \
-        | (boundary_type_i_ks == "external_opaque_part")
-
-##########################################################################
-    cos_Theta_i_k_n[f] = a6.calc_cos_incident_angle(
-        h_sun_sin_n=Sh_n,
-        h_sun_cos_n=cos_h_s,
-        a_sun_sin_n=sin_a_s,
-        a_sun_cos_n=cos_a_s,
-        w_alpha_k=w_alpha_i_k[f],
-        w_beta_k=w_beta_i_k[f]
-    )
-
-    # 傾斜面日射量
-    f = (boundary_type_i_ks == "external_general_part") \
-        | (boundary_type_i_ks == "external_transparent_part") \
-        | (boundary_type_i_ks == "external_opaque_part")
-
-    Iw_i_k_n = np.zeros((N_surf_i, 24 * 365 * 4))
-    I_D_i_k_n = np.zeros((N_surf_i, 24 * 365 * 4))
-    I_S_i_k_n = np.zeros((N_surf_i, 24 * 365 * 4))
-    I_R_i_k_n = np.zeros((N_surf_i, 24 * 365 * 4))
-
-#####################################################################
-    Iw_i_k_n[f], I_D_i_k_n[f], I_S_i_k_n[f], I_R_i_k_n[f] = a7.calc_slope_sol(
-        I_DN_n=I_DN_n,
-        I_sky_n=I_sky_n,
-        Sh_n=Sh_n,
-        cos_Theta_i_k_n=cos_Theta_i_k_n[f],
-        PhiS_i_k=PhiS_i_k[f],
-        PhiG_i_k=PhiG_i_k[f],
-        RhoG_l=RhoG_l[f]
-    )
+    f_sky_i_k[f] = f_skys
+    i_inc_i_k_n_all[f] = i_inc_i_k_n_alls
 
     # ********** 傾斜面の相当外気温度の計算 **********
 
@@ -493,9 +467,9 @@ def init_surface(
     Teolist[f] = a9.get_Te_n_1(
         To_n=To_n,
         as_i_k=a_sun_i_ks[f],
-        I_w_i_k_n=Iw_i_k_n[f],
+        I_w_i_k_n=i_inc_i_k_n_all[f],
         eps_i_k=epsilon_o_i_ks[f],
-        PhiS_i_k=PhiS_i_k[f],
+        PhiS_i_k=f_sky_i_k[f],
         RN_n=RN_n,
         ho_i_k_n=ho_i_k_n[f]
     )
@@ -506,7 +480,7 @@ def init_surface(
     Teolist[f] = a9.get_Te_n_2(
         To_n=To_n,
         eps_i_k=epsilon_o_i_ks[f],
-        PhiS_i_k=PhiS_i_k[f],
+        PhiS_i_k=f_sky_i_k[f],
         RN_n=RN_n,
         ho_i_k_n=ho_i_k_n[f]
     )
@@ -535,17 +509,8 @@ def init_surface(
         Rnext_i_k=next_room_type_i_ks,
         U=u_i_ks,
         Teolist=Teolist,
-        cos_Theta_i_k_n=cos_Theta_i_k_n,
         hi_i_k_n=h_i_i_ks,
         ho_i_k_n=ho_i_k_n,
-        RhoG_l=RhoG_l,
-        w_alpha_i_k=w_alpha_i_k,
-        w_beta_i_k=w_beta_i_k,
-        Wz_i_k=Wz_i_k,
-        Ww_i_k=Ww_i_k,
-        Ws_i_k=Ws_i_k,
-        PhiS_i_k=PhiS_i_k,
-        PhiG_i_k=PhiG_i_k,
         RFT0=RFT0,
         RFA0=RFA0,
         RFT1=RFT1,
@@ -574,34 +539,11 @@ def is_solar_radiation_transmitted(boundary: Boundary):
 
 
 def get_transmitted_solar_radiation(
-        boundaries: List[Boundary], I_DN_n, I_sky_n, h_s_n, a_s_n):
+        boundaries: List[Boundary], I_DN_n, I_sky_n, h_sun_ns, a_sun_ns):
 
     bs = [b for b in boundaries if is_solar_radiation_transmitted(b)]
 
-    a_i_ks = np.array([b.area for b in bs])
-
-    direction_i_ks = np.array([b.direction for b in bs])
-
-    eta_w_i_k = np.array([b.spec.eta_value for b in bs])
-
-    incident_angle_characteristics_i_ks = np.array([b.spec.incident_angle_characteristics for b in bs])
-
-    # 日除けの日影面積率
-    FSDW_i_k_n2 = np.array([a8.get_FSDW_i_k_n2(a_s_n, b.direction, h_s_n, b.solar_shading_part) for b in bs])
-
-
-    q = a11.test(
-        n=len(bs),
-        IAC_i_k=incident_angle_characteristics_i_ks,
-        FSDW_i_k_n=FSDW_i_k_n2,
-        A_i_k=a_i_ks,
-        tau_i_k=eta_w_i_k,
-        I_DN_n=I_DN_n,
-        I_sky_n=I_sky_n,
-        direction_i_ks=direction_i_ks,
-        h_s_n=h_s_n,
-        a_s_n=a_s_n
-    )
+    q = a11.test(boundaries=bs, I_DN_n=I_DN_n, I_sky_n=I_sky_n, h_sun_ns=h_sun_ns, a_sun_ns=a_sun_ns)
 
     return q
 

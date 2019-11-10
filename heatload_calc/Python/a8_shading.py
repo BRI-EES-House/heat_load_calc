@@ -1,6 +1,7 @@
 import numpy as np
 
-import a19_external_surfaces as a19
+import x_19_external_boundaries_direction as a19
+from x_19_external_boundaries_direction import get_w_alpha_i_k_w_beta_i_k as x_19_get_w_alpha_i_k_w_beta_i_k
 
 
 """
@@ -8,17 +9,19 @@ import a19_external_surfaces as a19
 """
 
 
-def get_FSDW_i_k_n2(a_s_n, direction_i_ks, h_s_n, solar_shading_part_i_ks):
+def get_FSDW_i_k_n2(a_sun_n, direction_i_ks: str, h_sun_n, solar_shading_part_i_ks):
+
+    # 室iの境界kの傾斜面の方位角, rad
+    # 室iの境界kの傾斜面の傾斜角, rad
+    w_alpha_i_k, _ = x_19_get_w_alpha_i_k_w_beta_i_k(direction_i_ks)
 
     ###################################################################################
-    h_s = np.where(h_s_n > 0.0, h_s_n, 0.0)
-    a_s = np.where(h_s_n > 0.0, a_s_n, 0.0)
+    h_s = np.where(h_sun_n > 0.0, h_sun_n, 0.0)
+    a_s = np.where(h_sun_n > 0.0, a_sun_n, 0.0)
     # 日除けの日影面積率の計算
     if solar_shading_part_i_ks.existence:
         if solar_shading_part_i_ks.input_method == 'simple':
 
-            # 方位角、傾斜面方位角 [rad]
-            w_alpha_i_k, _ = a19.get_slope_angle(direction_i_ks)
 
             return calc_F_SDW_i_k_n(
                 D_i_k=solar_shading_part_i_ks.depth,  # 出幅
@@ -33,7 +36,7 @@ def get_FSDW_i_k_n2(a_s_n, direction_i_ks, h_s_n, solar_shading_part_i_ks):
         else:
             raise ValueError
     else:
-        return np.full(len(h_s_n), 1.0)
+        return np.full(len(h_sun_n), 1.0)
 
 
 # 日除けの影面積を計算する（当面、簡易入力のみに対応）式(79)

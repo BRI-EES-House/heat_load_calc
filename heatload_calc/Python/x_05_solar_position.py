@@ -26,7 +26,7 @@ def calc_solar_position(region: int) -> (np.ndarray, np.ndarray):
     # arccos も同様に、求まる角度を -π/2～π/2 としています。従って、先頭は大文字とし、Arccos としてください。
 
     # 緯度, rad & 経度, rad
-    phi_loc, lambda_loc = x_36_get_phi_loc_and_lambda_loc(region)
+    phi_loc, lambda_loc = x_36_get_phi_loc_and_lambda_loc(region=region)
 
     # 標準子午線(meridian), rad
     lambda_loc_mer = get_lambda_loc_mer()
@@ -63,12 +63,12 @@ def calc_solar_position(region: int) -> (np.ndarray, np.ndarray):
     omega_ns = get_omega_ns(t_m_ns=t_m_ns, lambda_loc=lambda_loc, lambda_loc_mer=lambda_loc_mer, e_t_ns=e_t_ns)
 
     # 太陽高度, rad * 8760 * 96
-    h_s_ns = get_h_s_ns(phi_loc=phi_loc, omega_ns=omega_ns, delta_ns=delta_ns)
+    h_sun_ns = get_h_sun_ns(phi_loc=phi_loc, omega_ns=omega_ns, delta_ns=delta_ns)
 
     # 太陽方位角, rad * 8760 * 96
-    a_s_ns = get_a_s_ns(omega_ns=omega_ns, phi_loc=phi_loc, delta_ns=delta_ns, h_s_ns=h_s_ns)
+    a_sun_ns = get_a_sun_ns(omega_ns=omega_ns, phi_loc=phi_loc, delta_ns=delta_ns, h_s_ns=h_sun_ns)
 
-    return h_s_ns, a_s_ns
+    return h_sun_ns, a_sun_ns
 
 
 def get_lambda_loc_mer() -> float:
@@ -244,7 +244,7 @@ def get_omega_ns(t_m_ns: np.ndarray, lambda_loc: float, lambda_loc_mer: float, e
     return np.radians((t_m_ns - 12.0) * 15.0) + (lambda_loc - lambda_loc_mer) + e_t_ns
 
 
-def get_h_s_ns(phi_loc: float, omega_ns: np.ndarray, delta_ns: np.ndarray) -> np.ndarray:
+def get_h_sun_ns(phi_loc: float, omega_ns: np.ndarray, delta_ns: np.ndarray) -> np.ndarray:
     """
     ステップnにおける太陽高度を計算する。
 
@@ -260,12 +260,12 @@ def get_h_s_ns(phi_loc: float, omega_ns: np.ndarray, delta_ns: np.ndarray) -> np
         太陽高度はマイナスの値もとり得る。（太陽が沈んでいる場合）
     """
 
-    h_s_n = np.arcsin(np.sin(phi_loc) * np.sin(delta_ns) + np.cos(phi_loc) * np.cos(delta_ns) * np.cos(omega_ns))
+    h_sun_n = np.arcsin(np.sin(phi_loc) * np.sin(delta_ns) + np.cos(phi_loc) * np.cos(delta_ns) * np.cos(omega_ns))
 
-    return h_s_n
+    return h_sun_n
 
 
-def get_a_s_ns(omega_ns: np.ndarray, phi_loc: float, delta_ns: np.ndarray, h_s_ns: np.ndarray) -> np.ndarray:
+def get_a_sun_ns(omega_ns: np.ndarray, phi_loc: float, delta_ns: np.ndarray, h_s_ns: np.ndarray) -> np.ndarray:
     """
     Args:
         omega_ns: ステップnにおける時角, rad * 365 * 96
