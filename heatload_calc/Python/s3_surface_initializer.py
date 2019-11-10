@@ -34,8 +34,6 @@ Initialized_Surface = namedtuple('Initialized_Surface', [
     'is_sun_striked_outside',
     'is_solar_absorbed_inside',
     'a_i_k',
-    'eps_i_k',
-    'as_i_k',
     'A_i_k',
     'Rnext_i_k',
     'U',
@@ -96,9 +94,6 @@ def init_surface(
     # 室iの境界kの温度差係数 * k
     h_i_ks = np.array([b.temp_dif_coef for b in boundaries])
 
-    # 室iの境界kの方位 * k
-    direction_i_ks = np.array([b.direction for b in boundaries])
-
     def convert_from_next_room_name_to_id(name):
         if name is not None:
             return {
@@ -153,62 +148,6 @@ def init_surface(
             raise TypeError
 
     r_o_i_ks = np.array([get_r_o_i_ks(b) for b in boundaries])
-
-    # 室iの境界kの室外側長波長放射率
-    # 間仕切り・地盤では定義されない。
-    def get_epsilon_o_i_ks(b):
-        if type(b.spec) is InternalPartSpec:
-            return None  # 本計算では室内側の長波長放射率の値は固定値で実施しているため、間仕切りの場合は定義しない。
-        elif type(b.spec) is GeneralPartSpec:
-            return b.spec.outside_emissivity
-        elif type(b.spec) is TransparentOpeningPartSpec:
-            return b.spec.outside_emissivity
-        elif type(b.spec) is OpaqueOpeningPartSpec:
-            return b.spec.outside_emissivity
-        elif type(b.spec) is GroundSpec:
-            return None   # 地盤の場合は逆側が年間一定温度とする温度境界のため熱伝達抵抗の定義がない。
-        else:
-            raise TypeError
-
-    epsilon_o_i_ks = np.array([get_epsilon_o_i_ks(b) for b in boundaries])
-
-    # 室iの境界kの室外側日射吸収率
-    # 一般部位・不透明な開口部で定義される。
-    # 間仕切り・地盤では定義されない。
-    # 透明な開口部も吸収および再放熱と透過成分のどちらも考慮した日射吸収率として定義される。
-    def get_a_sun_i_ks(b):
-        if type(b.spec) is InternalPartSpec:
-            return None  # 間仕切りの場合は定義しない。
-        elif type(b.spec) is GeneralPartSpec:
-            return b.spec.outside_solar_absorption
-        elif type(b.spec) is TransparentOpeningPartSpec:
-            return None  # 日射熱取得率の中に含まれるため定義しない。
-        elif type(b.spec) is OpaqueOpeningPartSpec:
-            return b.spec.outside_solar_absorption
-        elif type(b.spec) is GroundSpec:
-            return None  # 地盤の場合は定義しない。
-        else:
-            raise TypeError
-
-    a_sun_i_ks = np.array([get_a_sun_i_ks(b) for b in boundaries])
-
-    # 室iの境界kのガラスの入射角特性タイプ
-    # 透明な開口部のみで定義される。
-    def get_incident_angle_characteristics_i_ks(b):
-        if type(b.spec) is InternalPartSpec:
-            return None
-        elif type(b.spec) is GeneralPartSpec:
-            return None
-        elif type(b.spec) is TransparentOpeningPartSpec:
-            return b.spec.incident_angle_characteristics
-        elif type(b.spec) is OpaqueOpeningPartSpec:
-            return None
-        elif type(b.spec) is GroundSpec:
-            return None
-        else:
-            raise TypeError
-
-    incident_angle_characteristics_i_ks = np.array([get_incident_angle_characteristics_i_ks(b) for b in boundaries])
 
     # 室iの境界kの熱貫流率, W/m2K
     # 定常で解く部位、つまり、透明な開口部・不透明な開口部で定義される。
@@ -284,11 +223,8 @@ def init_surface(
     itg_bs = []
 
     for i in np.unique(gp_idxs):
-        direction_i_iks = direction_i_ks[first_idx[i]]
         r_i_i_iks = r_i_i_ks[first_idx[i]]
         r_o_i_iks = r_o_i_ks[first_idx[i]]
-        epsilon_o_i_iks = epsilon_o_i_ks[first_idx[i]]
-        a_sun_i_iks = a_sun_i_ks[first_idx[i]]
         h_i_i_ik = h_i_i_ks[first_idx[i]]
         itg_bs.append(IntegratedBoundaries(
             name_i_iks='integrated_boundary' + str(i),
@@ -351,10 +287,6 @@ def init_surface(
 
     N_surf_i = len(boundaries)
 
-    Teolist = np.zeros((N_surf_i, 24 * 365 * 4))
-
-    f_sky_i_k = np.zeros(N_surf_i)
-    f_gnd_i_k = np.zeros(N_surf_i)
     Uso = np.zeros(N_surf_i)
 
     # 応答係数
@@ -403,10 +335,10 @@ def init_surface(
                | (boundary_type_i_ks == "external_opaque_part"))
               )
 
+    f_sky_i_k = np.zeros(N_surf_i)
     i_inc_i_k_n_all = np.zeros((N_surf_i, 24 * 365 * 4))
 
     f_skys = []
-    rho_gnds =[]
     i_inc_i_k_n_alls =[]
 
     for b in boundaries:
@@ -448,7 +380,6 @@ def init_surface(
                 )
 
                 f_skys.append(f_sky)
-                rho_gnds.append(rho_gnd)
                 i_inc_i_k_n_alls.append(i_inc_all)
 
 
@@ -457,44 +388,54 @@ def init_surface(
 
     # ********** 傾斜面の相当外気温度の計算 **********
 
-    # 1) 日射が当たる場合
-    f_sun = get_bi(np.array([d if d is not None else False for d in is_sun_striked_outside_i_ks]))
+    Ts = []
 
-    # 1-1) 一般部位、不透明な開口部の場合
-    f = tuple(f_sun &
-              ((boundary_type_i_ks == "external_general_part") | (boundary_type_i_ks == "external_opaque_part")))
+    for i, b in enumerate(boundaries):
 
-    Teolist[f] = a9.get_Te_n_1(
-        To_n=To_n,
-        as_i_k=a_sun_i_ks[f],
-        I_w_i_k_n=i_inc_i_k_n_all[f],
-        eps_i_k=epsilon_o_i_ks[f],
-        PhiS_i_k=f_sky_i_k[f],
-        RN_n=RN_n,
-        ho_i_k_n=ho_i_k_n[f]
-    )
+        if b.boundary_type == 'internal':
+            T = np.zeros(24 * 365 * 4)
+            Ts.append(T)
 
-    # 1-2) 透明開口部の場合
-    f = tuple(f_sun & (boundary_type_i_ks == "external_transparent_part"))
+        elif (b.boundary_type == 'external_general_part') or (b.boundary_type == 'external_opaque_part'):
 
-    Teolist[f] = a9.get_Te_n_2(
-        To_n=To_n,
-        eps_i_k=epsilon_o_i_ks[f],
-        PhiS_i_k=f_sky_i_k[f],
-        RN_n=RN_n,
-        ho_i_k_n=ho_i_k_n[f]
-    )
+            if b.is_sun_striked_outside:
 
-    # 2) 日射が当たらない場合
+                T = a9.get_Te_n_1(
+                    To_n=To_n,
+                    as_i_k=b.spec.outside_solar_absorption,
+                    I_w_i_k_n=i_inc_i_k_n_all[i],
+                    eps_i_k=b.spec.outside_emissivity,
+                    PhiS_i_k=f_sky_i_k[i],
+                    RN_n=RN_n,
+                    ho_i_k_n=a23.get_ho_i_k_n(b.spec.outside_heat_transfer_resistance)
+                )
+                Ts.append(T)
 
-    # 2-1) 地面の場合は、年平均気温とする
-    f = tuple((f_sun == False) & (boundary_type_i_ks == "ground"))
-    Teolist[f] = np.full(24 * 365 * 4, np.average(To_n))
+            else:
 
-    # 2-2) 日の当たらない一般部位と内壁
-    f = tuple(
-        (f_sun == False) & ((boundary_type_i_ks == "external_general_part") | (boundary_type_i_ks == "internal")))
-    Teolist[f] = np.zeros(24 * 365 * 4)
+                T = np.zeros(24 * 365 * 4)
+                Ts.append(T)
+
+        elif b.boundary_type == 'external_transparent_part':
+
+            T = a9.get_Te_n_2(
+                To_n=To_n,
+                eps_i_k=b.spec.outside_emissivity,
+                PhiS_i_k=f_sky_i_k[i],
+                RN_n=RN_n,
+                ho_i_k_n=a23.get_ho_i_k_n(b.spec.outside_heat_transfer_resistance)
+            )
+
+            Ts.append(T)
+
+        elif b.boundary_type == 'ground':
+            T = np.full(24 * 365 * 4, np.average(To_n))
+            Ts.append(T)
+
+        else:
+            raise ValueError()
+
+    Teolist = Ts
 
     return Initialized_Surface(
         N_surf_i=N_surf_i,
@@ -502,8 +443,6 @@ def init_surface(
         is_sun_striked_outside=is_sun_striked_outside_i_ks,
         is_solar_absorbed_inside=is_solar_absorbed_inside_i_ks,
         a_i_k=h_i_ks,
-        eps_i_k=epsilon_o_i_ks,
-        as_i_k=a_sun_i_ks,
         A_i_k=a_i_ks,
 #        Rnext_i_k=np.vectorize(convert_from_next_room_name_to_id)(next_room_type_i_ks),
         Rnext_i_k=next_room_type_i_ks,

@@ -46,7 +46,7 @@ def get_Te_n_1(To_n: np.ndarray, as_i_k: float, I_w_i_k_n: np.ndarray, eps_i_k: 
     :param RN_n: 夜間放射量[W/m2]
     :return: 傾斜面の相当外気温度 [℃]
     """
-    Te_n = To_n[np.newaxis,:] + (as_i_k[:,np.newaxis] * I_w_i_k_n - eps_i_k[:,np.newaxis] * PhiS_i_k[:,np.newaxis] * RN_n[np.newaxis,:]) / ho_i_k_n[:,np.newaxis]
+    Te_n = To_n + (as_i_k * I_w_i_k_n - eps_i_k * PhiS_i_k * RN_n) / ho_i_k_n
 
     return Te_n
 
@@ -61,7 +61,7 @@ def get_Te_n_2(To_n: np.ndarray, eps_i_k: float, PhiS_i_k: float, RN_n: np.ndarr
     :param RN_n: 夜間放射量[W/m2]
     :return: 傾斜面の相当外気温度 [℃]
     """
-    Te_n = To_n[np.newaxis,:] + (- eps_i_k[:,np.newaxis] * PhiS_i_k[:,np.newaxis] * RN_n[np.newaxis,:]) / ho_i_k_n[:,np.newaxis]
+    Te_n = To_n + (- eps_i_k * PhiS_i_k * RN_n) / ho_i_k_n
 
     return Te_n
 

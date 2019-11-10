@@ -47,19 +47,21 @@ def get_c_d_i_k(incident_angle_characteristics_i_ks: str) -> float:
 # 直達日射に対する基準化透過率の計算（単層ガラス）
 def get_tau_norm_glass_i_k_n(theta_aoi_i_k: np.ndarray) -> np.ndarray:
 
-    cos_theta_aoi_i_k_n = np.cos(theta_aoi_i_k)
+    c = np.cos(theta_aoi_i_k)
 
-    return 0.000 * cos_theta_aoi_i_k_n ** 0.0 + 2.552 * cos_theta_aoi_i_k_n ** 1.0 + 1.364 * cos_theta_aoi_i_k_n ** 2.0 \
-           - 11.388 * cos_theta_aoi_i_k_n ** 3.0 + 13.617 * cos_theta_aoi_i_k_n ** 4.0 - 5.146 * cos_theta_aoi_i_k_n ** 5.0
+
+
+    return 0.000 * c ** 0.0 + 2.552 * c ** 1.0 + 1.364 * c ** 2.0 \
+           - 11.388 * c ** 3.0 + 13.617 * c ** 4.0 - 5.146 * c ** 5.0
 
 
 # 直達日射に対する基準化反射率の計算（単層ガラス）
 def get_rhod_n_single(theta_aoi_i_k) -> np.ndarray:
 
-    cos_phi = np.cos(theta_aoi_i_k)
+    cos = np.cos(theta_aoi_i_k)
 
-    return 1.000 * cos_phi ** 0.0 - 5.189 * cos_phi ** 1.0 + 12.392 * cos_phi ** 2.0 \
-           - 16.593 * cos_phi ** 3.0 + 11.851 * cos_phi ** 4.0 - 3.461 * cos_phi ** 5.0
+    return 1.000 * cos ** 0.0 - 5.189 * cos ** 1.0 + 12.392 * cos ** 2.0 \
+           - 16.593 * cos ** 3.0 + 11.851 * cos ** 4.0 - 3.461 * cos ** 5.0
 
 
 # 直達日射に対する基準化透過率の計算（複層ガラス）
