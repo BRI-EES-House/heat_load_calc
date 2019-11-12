@@ -8,7 +8,7 @@ import x_19_external_boundaries_direction as x_19
 """
 
 
-def get_FSDW_i_k_n2(a_sun_n, direction_i_ks: str, h_sun_n, solar_shading_part_i_ks):
+def get_FSDW_i_k_n2(h_sun_n, a_sun_n, direction_i_ks: str, solar_shading_part_i_ks):
 
     # 室iの境界kの傾斜面の方位角, rad
     # 室iの境界kの傾斜面の傾斜角, rad

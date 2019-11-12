@@ -391,7 +391,7 @@ def get_eot(boundary, theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, a_sun_ns, h_sun_ns)
                 w_alpha_i_j=w_alpha_i_j,
                 w_beta_i_j=w_beta_i_j
             )
-            r_n_is_i_j_n = x_07.get_r_n_is_i_j_n(r_n_ns, w_beta_i_j)
+            r_n_is_i_j_n = x_07.get_r_n_is_i_j_n(r_n_ns=r_n_ns, w_beta_i_j=w_beta_i_j)
 
             T = a9.get_Te_n_1(
                 To_n=theta_o_ns,
@@ -419,7 +419,7 @@ def get_eot(boundary, theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, a_sun_ns, h_sun_ns)
             # 室iの境界kの傾斜面の傾斜角, rad
             w_alpha_i_j, w_beta_i_j = x_19.get_w_alpha_i_j_w_beta_i_j(direction_i_j=boundary.direction)
 
-            r_n_is_i_j_n = x_07.get_r_n_is_i_j_n(r_n_ns, w_beta_i_j)
+            r_n_is_i_j_n = x_07.get_r_n_is_i_j_n(r_n_ns=r_n_ns, w_beta_i_j=w_beta_i_j)
 
             T = a9.get_Te_n_2(
                 To_n=theta_o_ns,

@@ -1,10 +1,10 @@
 import numpy as np
 from typing import List
 
+import x_07_inclined_surface_solar_radiation as x_07
 import x_19_external_boundaries_direction as x_19
 
 from apdx10_oblique_incidence_characteristics import get_taud_i_k_n
-import x_07_inclined_surface_solar_radiation as x_07
 import apdx10_oblique_incidence_characteristics as a10
 from s3_surface_loader import Boundary
 import a8_shading as a8
@@ -31,9 +31,9 @@ def test(boundaries: List[Boundary], i_dn_ns, i_sky_ns, h_sun_ns, a_sun_ns):
 
     qgts = []
 
-    for i, b in enumerate(boundaries):
+    for b in boundaries:
 
-        FSDW_i_k_n = a8.get_FSDW_i_k_n2(a_sun_ns, b.direction, h_sun_ns, b.solar_shading_part)
+        FSDW_i_k_n = a8.get_FSDW_i_k_n2(h_sun_ns, a_sun_ns, b.direction, b.solar_shading_part)
 
         # 室iの境界jの傾斜面の方位角, rad
         # 室iの境界jの傾斜面の傾斜角, rad
