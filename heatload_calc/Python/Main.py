@@ -36,7 +36,7 @@ def calc_heat_load(d: Dict):
     region = d['common']['region']
 
     # 気象データの読み込み
-    To_ns, I_DN_n, I_sky_n, RN_n, xo_ns = a4.load_weatherdata(region)
+    To_ns, I_DN_n, I_sky_n, RN_n, xo_ns = a4.load_weather_data(region)
 
     # 太陽位置は個別計算可能
     h_sun_ns, a_sun_ns = x05_calc_solar_position(region=region)

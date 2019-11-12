@@ -372,7 +372,7 @@ def get_eot(I_DN_n, I_sky_n, RN_n, To_n, a_sun_ns, b, h_sun_ns):
 
             # 室iの境界kの傾斜面の方位角, rad
             # 室iの境界kの傾斜面の傾斜角, rad
-            w_alpha_i_k, w_beta_i_k = x_19.get_w_alpha_i_k_w_beta_i_k(direction_i_j=b.direction)
+            w_alpha_i_k, w_beta_i_k = x_19.get_w_alpha_i_j_w_beta_i_j(direction_i_j=b.direction)
 
             # 室iの境界kの傾斜面の天空に対する形態係数
             f_sky_i_k = a7.get_f_sky_i_k(w_beta_i_k)
@@ -411,7 +411,7 @@ def get_eot(I_DN_n, I_sky_n, RN_n, To_n, a_sun_ns, b, h_sun_ns):
         if b.is_sun_striked_outside:
             # 室iの境界kの傾斜面の方位角, rad
             # 室iの境界kの傾斜面の傾斜角, rad
-            w_alpha_i_k, w_beta_i_k = x_19.get_w_alpha_i_k_w_beta_i_k(direction_i_j=b.direction)
+            w_alpha_i_k, w_beta_i_k = x_19.get_w_alpha_i_j_w_beta_i_j(direction_i_j=b.direction)
 
             # 室iの境界kの傾斜面の天空に対する形態係数
             f_sky_i_k = a7.get_f_sky_i_k(w_beta_i_k)
