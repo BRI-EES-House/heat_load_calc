@@ -4,7 +4,7 @@ from typing import List
 import x_19_external_boundaries_direction as x_19
 
 from apdx10_oblique_incidence_characteristics import get_taud_i_k_n
-import a7_inclined_surface_solar_radiation as a7
+import x_07_inclined_surface_solar_radiation as x_07
 import apdx10_oblique_incidence_characteristics as a10
 from s3_surface_loader import Boundary
 import a8_shading as a8
@@ -35,29 +35,24 @@ def test(boundaries: List[Boundary], i_dn_ns, i_sky_ns, h_sun_ns, a_sun_ns):
 
         FSDW_i_k_n = a8.get_FSDW_i_k_n2(a_sun_ns, b.direction, h_sun_ns, b.solar_shading_part)
 
-        # 室iの境界kの傾斜面の方位角, rad
-        # 室iの境界kの傾斜面の傾斜角, rad
-        w_alpha_i_k, w_beta_i_k = x_19.get_w_alpha_i_j_w_beta_i_j(direction_i_j=b.direction)
+        # 室iの境界jの傾斜面の方位角, rad
+        # 室iの境界jの傾斜面の傾斜角, rad
+        w_alpha_i_j, w_beta_i_j = x_19.get_w_alpha_i_j_w_beta_i_j(direction_i_j=b.direction)
 
-        # ステップnの室iの境界kにおける傾斜面に入射する太陽の入射角 * 365 * 24 * 4
-        theta_aoi_i_k_n = a7.get_theta_aoi_i_k_n(
-            w_alpha_i_k=w_alpha_i_k,
-            w_beta_i_k=w_beta_i_k,
-            h_sun_ns=h_sun_ns,
-            a_sun_ns=a_sun_ns
-        )
+        # ステップnの室iの境界jにおける傾斜面に入射する太陽の入射角 * 365 * 24 * 4
+        theta_aoi_i_k_n = x_07.get_theta_aoi_i_j_n(
+            h_sun_ns=h_sun_ns, a_sun_ns=a_sun_ns, w_alpha_i_j=w_alpha_i_j, w_beta_i_j=w_beta_i_j)
 
-        # ステップnにおける室iの境界kにおける傾斜面の日射量, W / m2K
-        # ステップnにおける室iの境界kにおける傾斜面の日射量のうち直達成分, W / m2K
-        # ステップnにおける室iの境界kにおける傾斜面の日射量のうち天空成分, W / m2K
-        # ステップnにおける室iの境界kにおける傾斜面の日射量のうち地盤反射成分, W / m2K
-        _, i_inc_d, i_inc_sky, i_inc_ref = a7.get_i_inc_i_k_n(
+        # ステップnにおける室iの境界jにおける傾斜面の日射量のうち直達成分, W / m2K
+        # ステップnにおける室iの境界jにおける傾斜面の日射量のうち天空成分, W / m2K
+        # ステップnにおける室iの境界jにおける傾斜面の日射量のうち地盤反射成分, W / m2K
+        i_inc_d, i_inc_sky, i_inc_ref = x_07.get_i_is_i_j_n(
             i_dn_ns=i_dn_ns,
             i_sky_ns=i_sky_ns,
             h_sun_ns=h_sun_ns,
             a_sun_ns=a_sun_ns,
-            w_alpha_i_k=w_alpha_i_k,
-            w_beta_i_k=w_beta_i_k
+            w_alpha_i_j=w_alpha_i_j,
+            w_beta_i_j=w_beta_i_j
         )
 
         qgt = calc_QGT_i_k_n(

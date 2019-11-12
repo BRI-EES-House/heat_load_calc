@@ -36,8 +36,8 @@ def calc_Teo(surfG_i, To_n: float, oldTr: float, spaces: List['s3_space_initiali
 
 # 傾斜面の相当外気温度の計算
 # 日射の当たる外皮_一般部位, 日射の当たる外皮_不透明な開口部
-def get_Te_n_1(To_n: np.ndarray, as_i_k: float, I_w_i_k_n: np.ndarray, eps_i_k: float, PhiS_i_k: float, RN_n: np.ndarray,
-               ho_i_k_n: float) -> np.ndarray:
+def get_Te_n_1(To_n: np.ndarray, as_i_k: float, eps_i_k: float,
+               ho_i_k_n: float, i_inc_d, i_inc_sky, i_inc_ref, r_n_is_i_j_n) -> np.ndarray:
     """
     :param as_i_k: 日射吸収率 [-]
     :param ho_i_k_n: 外表面の総合熱伝達率[W/m2K]
@@ -46,14 +46,15 @@ def get_Te_n_1(To_n: np.ndarray, as_i_k: float, I_w_i_k_n: np.ndarray, eps_i_k: 
     :param RN_n: 夜間放射量[W/m2]
     :return: 傾斜面の相当外気温度 [℃]
     """
-    Te_n = To_n + (as_i_k * I_w_i_k_n - eps_i_k * PhiS_i_k * RN_n) / ho_i_k_n
+
+    Te_n = To_n + (as_i_k * (i_inc_d + i_inc_sky + i_inc_ref) - eps_i_k * r_n_is_i_j_n) / ho_i_k_n
 
     return Te_n
 
 # 傾斜面の相当外気温度の計算
 # 外皮_透明な開口部
-def get_Te_n_2(To_n: np.ndarray, eps_i_k: float, PhiS_i_k: float, RN_n: np.ndarray,
-               ho_i_k_n: float) -> np.ndarray:
+def get_Te_n_2(To_n: np.ndarray, eps_i_k: float,
+               ho_i_k_n: float, r_n_is_i_j_n) -> np.ndarray:
     """
     :param ho_i_k_n: 外表面の総合熱伝達率[W/m2K]
     :param eps_i_k: 外表面の放射率[-]
@@ -61,7 +62,7 @@ def get_Te_n_2(To_n: np.ndarray, eps_i_k: float, PhiS_i_k: float, RN_n: np.ndarr
     :param RN_n: 夜間放射量[W/m2]
     :return: 傾斜面の相当外気温度 [℃]
     """
-    Te_n = To_n + (- eps_i_k * PhiS_i_k * RN_n) / ho_i_k_n
+    Te_n = To_n + (- eps_i_k * r_n_is_i_j_n) / ho_i_k_n
 
     return Te_n
 

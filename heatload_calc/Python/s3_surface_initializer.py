@@ -2,13 +2,13 @@ from collections import namedtuple
 from typing import List
 import numpy as np
 
+import x_07_inclined_surface_solar_radiation as x_07
 import x_19_external_boundaries_direction as x_19
 
 import a11_opening_transmission_solar_radiation as a11
 import a23_surface_heat_transfer_coefficient as a23
 import a25_window as a25
 import a2_response_factor as a2
-import a7_inclined_surface_solar_radiation as a7
 import a9_rear_surface_equivalent_temperature as a9
 from s3_surface_loader import Boundary
 from s3_surface_loader import InternalPartSpec
@@ -376,34 +376,32 @@ def get_eot(boundary, theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, a_sun_ns, h_sun_ns)
         # 日射が当たる場合
         if boundary.is_sun_striked_outside:
 
-            # 室iの境界kの傾斜面の方位角, rad
-            # 室iの境界kの傾斜面の傾斜角, rad
-            w_alpha_i_k, w_beta_i_k = x_19.get_w_alpha_i_j_w_beta_i_j(direction_i_j=boundary.direction)
+            # 室iの境界jの傾斜面の方位角, rad
+            # 室iの境界jの傾斜面の傾斜角, rad
+            w_alpha_i_j, w_beta_i_j = x_19.get_w_alpha_i_j_w_beta_i_j(direction_i_j=boundary.direction)
 
-            # 室iの境界kの傾斜面の天空に対する形態係数
-            f_sky_i_k = a7.get_f_sky_i_k(w_beta_i_k)
-
-            # ステップnにおける室iの境界kにおける傾斜面の日射量, W / m2K
             # ステップnにおける室iの境界kにおける傾斜面の日射量のうち直達成分, W / m2K
             # ステップnにおける室iの境界kにおける傾斜面の日射量のうち天空成分, W / m2K
             # ステップnにおける室iの境界kにおける傾斜面の日射量のうち地盤反射成分, W / m2K
-            i_inc_all, i_inc_d, i_inc_sky, i_inc_ref = a7.get_i_inc_i_k_n(
+            i_inc_d, i_inc_sky, i_inc_ref = x_07.get_i_is_i_j_n(
                 i_dn_ns=i_dn_ns,
                 i_sky_ns=i_sky_ns,
                 h_sun_ns=h_sun_ns,
                 a_sun_ns=a_sun_ns,
-                w_alpha_i_k=w_alpha_i_k,
-                w_beta_i_k=w_beta_i_k
+                w_alpha_i_j=w_alpha_i_j,
+                w_beta_i_j=w_beta_i_j
             )
+            r_n_is_i_j_n = x_07.get_r_n_is_i_j_n(r_n_ns, w_beta_i_j)
 
             T = a9.get_Te_n_1(
                 To_n=theta_o_ns,
                 as_i_k=boundary.spec.outside_solar_absorption,
-                I_w_i_k_n=i_inc_all,
                 eps_i_k=boundary.spec.outside_emissivity,
-                PhiS_i_k=f_sky_i_k,
-                RN_n=r_n_ns,
-                ho_i_k_n=a23.get_ho_i_k_n(boundary.spec.outside_heat_transfer_resistance)
+                ho_i_k_n=a23.get_ho_i_k_n(boundary.spec.outside_heat_transfer_resistance),
+                i_inc_d=i_inc_d,
+                i_inc_sky=i_inc_sky,
+                i_inc_ref=i_inc_ref,
+                r_n_is_i_j_n=r_n_is_i_j_n
             )
 
             return T
@@ -419,17 +417,15 @@ def get_eot(boundary, theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, a_sun_ns, h_sun_ns)
         if boundary.is_sun_striked_outside:
             # 室iの境界kの傾斜面の方位角, rad
             # 室iの境界kの傾斜面の傾斜角, rad
-            w_alpha_i_k, w_beta_i_k = x_19.get_w_alpha_i_j_w_beta_i_j(direction_i_j=boundary.direction)
+            w_alpha_i_j, w_beta_i_j = x_19.get_w_alpha_i_j_w_beta_i_j(direction_i_j=boundary.direction)
 
-            # 室iの境界kの傾斜面の天空に対する形態係数
-            f_sky_i_k = a7.get_f_sky_i_k(w_beta_i_k)
+            r_n_is_i_j_n = x_07.get_r_n_is_i_j_n(r_n_ns, w_beta_i_j)
 
             T = a9.get_Te_n_2(
                 To_n=theta_o_ns,
                 eps_i_k=boundary.spec.outside_emissivity,
-                PhiS_i_k=f_sky_i_k,
-                RN_n=r_n_ns,
-                ho_i_k_n=a23.get_ho_i_k_n(boundary.spec.outside_heat_transfer_resistance)
+                ho_i_k_n=a23.get_ho_i_k_n(boundary.spec.outside_heat_transfer_resistance),
+                r_n_is_i_j_n=r_n_is_i_j_n
             )
 
             return T
