@@ -4,7 +4,7 @@
 import math
 import numpy as np
 
-from x_36_region_location import get_phi_loc_and_lambda_loc as x_36_get_phi_loc_and_lambda_loc
+import x_36_region_location as x_36
 
 
 def calc_solar_position(region: int) -> (np.ndarray, np.ndarray):
@@ -26,7 +26,7 @@ def calc_solar_position(region: int) -> (np.ndarray, np.ndarray):
     # arccos も同様に、求まる角度を -π/2～π/2 としています。従って、先頭は大文字とし、Arccos としてください。
 
     # 緯度, rad & 経度, rad
-    phi_loc, lambda_loc = x_36_get_phi_loc_and_lambda_loc(region=region)
+    phi_loc, lambda_loc = x_36.get_phi_loc_and_lambda_loc(region=region)
 
     # 標準子午線(meridian), rad
     lambda_loc_mer = get_lambda_loc_mer()

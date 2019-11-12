@@ -1,31 +1,22 @@
 from collections import namedtuple
 from typing import List
-
 import numpy as np
 
+import x_19_external_boundaries_direction as x_19
+
 import a11_opening_transmission_solar_radiation as a11
-import a18_initial_value_constants as a18
-import x_19_external_boundaries_direction as a19
 import a23_surface_heat_transfer_coefficient as a23
 import a25_window as a25
 import a2_response_factor as a2
 import a7_inclined_surface_solar_radiation as a7
-import a8_shading as a8
 import a9_rear_surface_equivalent_temperature as a9
-import apdx10_oblique_incidence_characteristics as a10
 from s3_surface_loader import Boundary
 from s3_surface_loader import InternalPartSpec
-from s3_surface_loader import InternalPartSpecLayers
 from s3_surface_loader import GeneralPartSpec
-from s3_surface_loader import GeneralPartSpecLayers
 from s3_surface_loader import TransparentOpeningPartSpec
 from s3_surface_loader import OpaqueOpeningPartSpec
 from s3_surface_loader import GroundSpec
-from s3_surface_loader import GroundSpecLayers
-from s3_surface_loader import SolarShadingPart
 import a34_building_part_summarize as a34
-
-from x_19_external_boundaries_direction import get_w_alpha_i_k_w_beta_i_k as x_19_get_w_alpha_i_k_w_beta_i_k
 
 
 Initialized_Surface = namedtuple('Initialized_Surface', [

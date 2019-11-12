@@ -3,9 +3,7 @@ import csv
 import json
 
 from x_05_solar_position import calc_solar_position as x05_calc_solar_position
-from x_17_calculation_period import get_n_step_main as x_17_get_n_step_main
-from x_17_calculation_period import get_n_step_run_up as x_17_get_n_step_run_up
-from x_17_calculation_period import get_n_step_run_up_build as x_17_get_n_step_run_up_build
+import x_17_calculation_period as x_17
 
 import a4_weather as a4
 from s3_space_initializer import init_spaces
@@ -26,13 +24,13 @@ def calc_heat_load(d: Dict):
     """
 
     # 本計算のステップ数
-    n_step_main = x_17_get_n_step_main()
+    n_step_main = x_17.get_n_step_main()
 
     # 助走計算のステップ数
-    n_step_run_up = x_17_get_n_step_run_up()
+    n_step_run_up = x_17.get_n_step_run_up()
 
     # 助走計算の日数のうち建物全体を解く日数, d
-    n_step_run_up_build = x_17_get_n_step_run_up_build()
+    n_step_run_up_build = x_17.get_n_step_run_up_build()
 
     # 地域の区分
     region = d['common']['region']

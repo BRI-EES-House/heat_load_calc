@@ -1,11 +1,11 @@
 import numpy as np
 from typing import List
 
+import x_19_external_boundaries_direction as x_19
+
 from apdx10_oblique_incidence_characteristics import get_taud_i_k_n
 import a7_inclined_surface_solar_radiation as a7
 import apdx10_oblique_incidence_characteristics as a10
-import a18_initial_value_constants as a18
-from x_19_external_boundaries_direction import get_w_alpha_i_k_w_beta_i_k as x_19_get_w_alpha_i_k_w_beta_i_k
 from s3_surface_loader import Boundary
 import a8_shading as a8
 
@@ -43,7 +43,7 @@ def test(
 
         # 室iの境界kの傾斜面の方位角, rad
         # 室iの境界kの傾斜面の傾斜角, rad
-        w_alpha_i_k, w_beta_i_k = x_19_get_w_alpha_i_k_w_beta_i_k(b.direction)
+        w_alpha_i_k, w_beta_i_k = x_19.get_w_alpha_i_j_w_beta_i_j(direction_i_j=b.direction)
 
         # ステップnの室iの境界kにおける傾斜面に入射する太陽の入射角 * 365 * 24 * 4
         theta_aoi = a7.get_cos_theta_aoi_i_k_n(

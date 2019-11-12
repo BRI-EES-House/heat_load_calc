@@ -1,7 +1,6 @@
 import numpy as np
 
-import x_19_external_boundaries_direction as a19
-from x_19_external_boundaries_direction import get_w_alpha_i_k_w_beta_i_k as x_19_get_w_alpha_i_k_w_beta_i_k
+import x_19_external_boundaries_direction as x_19
 
 
 """
@@ -13,7 +12,7 @@ def get_FSDW_i_k_n2(a_sun_n, direction_i_ks: str, h_sun_n, solar_shading_part_i_
 
     # 室iの境界kの傾斜面の方位角, rad
     # 室iの境界kの傾斜面の傾斜角, rad
-    w_alpha_i_k, _ = x_19_get_w_alpha_i_k_w_beta_i_k(direction_i_ks)
+    w_alpha_i_k, _ = x_19.get_w_alpha_i_k_w_beta_i_k(direction_i_j=direction_i_ks)
 
     ###################################################################################
     h_s = np.where(h_sun_n > 0.0, h_sun_n, 0.0)
