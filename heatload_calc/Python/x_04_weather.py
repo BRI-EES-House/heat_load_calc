@@ -68,9 +68,8 @@ def interpolate(weather_data: np.ndarray) -> np.ndarray:
     data1 = np.roll(weather_data, 1)     #0時=24時のため、1回分前のデータを参照
     data2 = weather_data
 
-    # 直線補完 8760×4 の2次元配列 式(55)相当
+    # 直線補完 8760×4 の2次元配列
     data_interp_2d = alpha[np.newaxis, :] * data1[:, np.newaxis] + (1.0 - alpha[np.newaxis, :]) * data2[:, np.newaxis]
-    print(data_interp_2d)
 
     # 1次元配列へ変換
     data_interp_1d = np.reshape(data_interp_2d, (24 * 365 * 4))

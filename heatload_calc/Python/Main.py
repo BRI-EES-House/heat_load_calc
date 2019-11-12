@@ -2,10 +2,10 @@ from typing import Dict
 import csv
 import json
 
+import x_04_weather as x_04
 import x_05_solar_position as x_05
 import x_17_calculation_period as x_17
 
-import a4_weather as a4
 from s3_space_initializer import init_spaces
 from s3_space_loader import Space
 import s3_simulator as simulator
@@ -41,7 +41,7 @@ def calc_heat_load(d: Dict):
     #   (3)ステップnにおける水平面天空日射量, W/m2, [8760 * 4]
     #   (4)ステップnにおける夜間放射量, W/m2, [8760 * 4]
     #   (5)ステップnにおける外気絶対湿度, g/kgDA, [8760 * 4]
-    theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, x_o_ns = a4.load_weather_data(region=region)
+    theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, x_o_ns = x_04.load_weather_data(region=region)
 
     # 太陽位置
     #   (1) ステップnにおける太陽高度, rad, [8760 * 96]
