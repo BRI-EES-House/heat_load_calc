@@ -2,7 +2,7 @@ from typing import Dict
 import csv
 import json
 
-from x_05_solar_position import calc_solar_position as x05_calc_solar_position
+import x_05_solar_position as x_05
 import x_17_calculation_period as x_17
 
 import a4_weather as a4
@@ -36,36 +36,43 @@ def calc_heat_load(d: Dict):
     region = d['common']['region']
 
     # 気象データの読み込み
-    To_ns, I_DN_n, I_sky_n, RN_n, xo_ns = a4.load_weather_data(region)
+    #   (1)ステップnにおける外気温度, ℃, [8760 * 4]
+    #   (2)ステップnにおける法線面直達日射量, W/m2, [8760 * 4]
+    #   (3)ステップnにおける水平面天空日射量, W/m2, [8760 * 4]
+    #   (4)ステップnにおける夜間放射量, W/m2, [8760 * 4]
+    #   (5)ステップnにおける外気絶対湿度, g/kgDA, [8760 * 4]
+    theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, x_o_ns = a4.load_weather_data(region=region)
 
-    # 太陽位置は個別計算可能
-    h_sun_ns, a_sun_ns = x05_calc_solar_position(region=region)
+    # 太陽位置
+    #   (1) ステップnにおける太陽高度, rad, [8760 * 96]
+    #   (2) ステップnにおける太陽方位角, rad, [8760 * 96]
+    h_sun_ns, a_sun_ns = x_05.calc_solar_position(region=region)
 
     # スペースの読み取り
     spaces = []
     for room in d['rooms']:
         space = Space(room)
-        init_spaces(space, I_DN_n, I_sky_n, RN_n, To_ns, h_sun_ns, a_sun_ns)
+        init_spaces(space, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns)
         spaces.append(space)
 
     # 助走計算1(土壌のみ)
     for n in range(-n_step_run_up, -n_step_run_up_build):
-        simulator.run_tick_groundonly(spaces=spaces, To_n=To_ns[n], n=n)
+        simulator.run_tick_groundonly(spaces=spaces, To_n=theta_o_ns[n], n=n)
 
     # 助走計算2(室温、熱負荷)
     for n in range(-n_step_run_up_build, 0):
-        simulator.run_tick(spaces=spaces, To_n=To_ns[n], xo_n=xo_ns[n], n=n)
+        simulator.run_tick(spaces=spaces, To_n=theta_o_ns[n], xo_n=x_o_ns[n], n=n)
 
     # 本計算(室温、熱負荷)
     for n in range(0, n_step_main):
-        simulator.run_tick(spaces=spaces, To_n=To_ns[n], xo_n=xo_ns[n], n=n)
+        simulator.run_tick(spaces=spaces, To_n=theta_o_ns[n], xo_n=x_o_ns[n], n=n)
 
     # log ヘッダーの作成
     log = exporter.append_headers(spaces=spaces)
 
     # log の記録
     for n in range(0, n_step_main):
-        exporter.append_tick_log(spaces=spaces, log=log, To_n=To_ns, n=n, xo_n=xo_ns)
+        exporter.append_tick_log(spaces=spaces, log=log, To_n=theta_o_ns, n=n, xo_n=x_o_ns)
 
     # CSVファイルの出力
     f = open('simulatin_result.csv', 'w', encoding="utf_8_sig")
