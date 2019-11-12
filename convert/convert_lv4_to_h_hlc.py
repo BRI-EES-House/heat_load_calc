@@ -71,9 +71,14 @@ def make_rooms(common, d, d_calc_input, envelope, equipment_main, equipment_othe
     room_nr['surface'].extend(boundaries_nr)
     room_uf['surface'].extend(boundaries_uf)
 
-    d_calc_input['Rooms'] = rooms
+    boundaries_mr, boundaries_or, boundaries_nr, boundaries_uf = get_boundaries_windows(region, gws)
 
-    d_calc_input['Rooms'] = get_boundaries_windows(region, gws, rooms)
+    room_mr['surface'].extend(boundaries_mr)
+    room_or['surface'].extend(boundaries_or)
+    room_nr['surface'].extend(boundaries_nr)
+    room_uf['surface'].extend(boundaries_uf)
+
+    d_calc_input['Rooms'] = rooms
 
     d_calc_input['Rooms'] = integrate_doors_to_rooms(region, gds, rooms)
 
@@ -324,6 +329,45 @@ def get_boundaries_general_part(region, general_parts):
                 boundary_uf.append(boundary)
             else:
                 raise ValueError()
+
+    return boundary_mr, boundary_or, boundary_nr, boundary_uf
+
+
+def get_boundaries_windows(region, d_windows):
+
+    boundary_mr = []
+    boundary_or = []
+    boundary_nr = []
+    boundary_uf = []
+
+    for window in d_windows:
+
+        eta = get_eta(window)
+        transparent_opening_part_spec_hlc_i = None  # 未実装
+        boundary = {
+            'name': window['name'],
+            'boundary_type': 'external_transparent_part',
+            'area': window['area'],
+            'is_sun_striked_outside': get_is_sun_striked_outside(window['direction']),
+            'temp_dif_coef': f_01_get_factor_h(region=region, next_space=window['next_space']),
+            'direction': get_direction(window['direction']),
+            'is_solar_absorbed_inside': False,
+            'general_part_spec': transparent_opening_part_spec_hlc_i,
+            'solar_shading_part': copy.deepcopy(window['spec']['sunshade'])
+        }
+
+        space_type = window['space_type']
+
+        if space_type == 'main_occupant_room':
+            boundary_mr.append(boundary)
+        elif space_type == 'other_occupant_room':
+            boundary_or.append(boundary)
+        elif space_type == 'non_occupant_room':
+            boundary_nr.append(boundary)
+        elif space_type == 'under_floor':
+            boundary_uf.append(boundary)
+        else:
+            raise ValueError()
 
     return boundary_mr, boundary_or, boundary_nr, boundary_uf
 
@@ -694,59 +738,6 @@ def get_eta(d_window):
         raise ValueError
 
     return eta
-
-
-def get_boundaries_windows(region, d_windows, d_rooms):
-
-    n = 1
-
-    boundary_mr = []
-    boundary_or = []
-    boundary_nr = []
-    boundary_uf = []
-
-    for window in d_windows:
-
-        eta = get_eta(window)
-                surface = {
-                    'skin': True,
-                    'direction': get_direction_from_direction_for_outer_skin(window['direction']),
-                    'floor': True if window['direction'] == 'Bottom' else False,
-                    'boundary': get_boundary_for_outer_skin(region, window['nextspace'], window['direction']),
-                    'unsteady': False,
-                    'name': 'Window' + str(n),
-                    'area': window['area'],
-                    'flr': 0,
-                    'Window': {
-                        'Eta': eta,
-                        'SolarTrans': eta,
-                        'SolarAbsorp': 0,
-                        'UW': window['UW'],
-                        'OutEmissiv': 0.9,
-                        'OutHeatTrans': 1 / 0.04,
-                        'InHeatTrans': 1 / 0.11,
-                    },
-                    'sunbreak': {'D': window['Z'], 'WI1': 500, 'WI2': 500, 'hi': window['Y1'], 'WR': 0, 'WH': window['Y2'],
-                                 'name': 'ひさし'} if window['IsSunshadeInput'] == True else {}
-                }
-                y['Surface'].append(surface)
-
-                space_type = gp['space_type']
-
-                if space_type == 'main_occupant_room':
-                    boundary_mr.append(boundary)
-                elif space_type == 'other_occupant_room':
-                    boundary_or.append(boundary)
-                elif space_type == 'non_occupant_room':
-                    boundary_nr.append(boundary)
-                elif space_type == 'under_floor':
-                    boundary_uf.append(boundary)
-                else:
-                    raise ValueError()
-
-                n = n + 1
-
-    return d_rooms
 
 
 def integrate_earthfloorperimeters_to_rooms(region, d_earthfloorperimeters, d_rooms):

@@ -53,7 +53,8 @@ IntegratedBoundaries = namedtuple('IntegratedBoundaries', [
     'h_i_iks',
     'next_room_type_i_iks',
     'is_solar_absorbed_inside_i_ks',
-    'h_i_i_iks'
+    'h_i_i_iks',
+    't_e_o_group'
 ])
 
 def init_surface(
@@ -226,7 +227,8 @@ def init_surface(
             h_i_iks=h_i_ks[first_idx[i]],
             next_room_type_i_iks=next_room_type_i_ks[first_idx[i]],
             is_solar_absorbed_inside_i_ks=is_solar_absorbed_inside_i_ks[first_idx[i]],
-            h_i_i_iks=h_i_i_ik
+            h_i_i_iks=h_i_i_ik,
+            t_e_o_group=None
         ))
 
     # 室iの統合された境界ikの名称
@@ -255,17 +257,6 @@ def init_surface(
 
     h_i_i_iks = np.array([itg_b.h_i_i_iks for itg_b in itg_bs])
 
-    ib = IntegratedBoundaries(
-        name_i_iks=itg_name_i_iks,
-        sub_name_i_iks=itg_sub_name_i_iks,
-        boundary_type_i_iks=itg_boundary_type_i_iks,
-        a_i_iks=itg_a_i_iks,
-        is_sun_striked_outside_i_iks=itg_is_sun_striked_outside_i_iks,
-        h_i_iks=itg_h_i_iks,
-        next_room_type_i_iks=itg_next_room_type_i_iks,
-        is_solar_absorbed_inside_i_ks=itg_is_solar_absorbed_inside_i_ks,
-        h_i_i_iks=h_i_i_iks
-    )
 
 
 
@@ -286,9 +277,6 @@ def init_surface(
         np.zeros(N_surf_i), np.zeros(N_surf_i), np.zeros((N_surf_i, 12)), np.zeros(
             (N_surf_i, 12)), \
         np.zeros((N_surf_i, 12)), np.zeros(N_surf_i, dtype=np.int64)
-
-    def get_bi(b):
-        return np.array(b)[np.newaxis, :]
 
     # 室外側表面総合熱伝達率 [W/m2K] 式(121)
     ho_i_k_n = np.array([a23.get_ho_i_k_n(r_o_i_k) if r_o_i_k is not None else None for r_o_i_k in r_o_i_ks])
@@ -315,118 +303,25 @@ def init_surface(
             RFT0[k], RFA0[k], RFT1[k], RFA1[k], Row[k], Nroot[k] = \
                 a2.calc_response_factor(is_ground, c_layer_i_k_ls[k], r_layer_i_k_ls[k])
 
-    # *********** 外壁傾斜面の計算 ***********
+    # 傾斜面の相当外気温度の計算
+    Teolist = np.array([
+        get_eot(I_DN_n, I_sky_n, RN_n, To_n, a_sun_ns, b, h_sun_ns)
+        for b in boundaries])
 
-    f_sun = get_bi(np.array([d if d is not None else False for d in is_sun_striked_outside_i_ks]))
+    t_e_o_group = get_grouped_t_e_o(Teolist, a_i_ks, gp_idxs)
 
-    # 1-1) 一般部位、不透明な開口部の場合
-    f = tuple(f_sun &
-              ((boundary_type_i_ks == "external_general_part")
-               | (boundary_type_i_ks == "external_transparent_part")
-               | (boundary_type_i_ks == "external_opaque_part"))
-              )
-
-    f_sky_i_k = np.zeros(N_surf_i)
-    i_inc_i_k_n_all = np.zeros((N_surf_i, 24 * 365 * 4))
-
-    f_skys = []
-    i_inc_i_k_n_alls =[]
-
-    for b in boundaries:
-
-        if (b.boundary_type == 'external_general_part') \
-            or (b.boundary_type == 'external_transparent_part') \
-                or (b.boundary_type == 'external_opaque_part'):
-
-            if b.is_sun_striked_outside:
-
-                # 室iの境界kの傾斜面の方位角, rad
-                # 室iの境界kの傾斜面の傾斜角, rad
-                w_alpha, w_beta = x_19_get_w_alpha_i_k_w_beta_i_k(b.direction)
-
-                # ステップnの室iの境界kにおける傾斜面に入射する太陽の入射角* 365 * 24 * 4
-                theta_aoi = a7.get_cos_theta_aoi_i_k_n(w_alpha, w_beta, h_sun_ns, a_sun_ns)
-
-                # 室iの境界kの傾斜面の天空に対する形態係数
-                f_sky = a7.get_f_sky_i_k(w_beta)
-
-                # 室iの境界kの傾斜面の地面に対する形態係数
-                f_gnd = a7.get_f_gnd_i_k(f_sky)
-
-                # 地面の日射に対する反射率（アルベド）
-                rho_gnd = a7.get_rho_gnd()
-
-                # ステップnにおける室iの境界kにおける傾斜面の日射量, W / m2K
-                # ステップnにおける室iの境界kにおける傾斜面の日射量のうち直達成分, W / m2K
-                # ステップnにおける室iの境界kにおける傾斜面の日射量のうち天空成分, W / m2K
-                # ステップnにおける室iの境界kにおける傾斜面の日射量のうち地盤反射成分, W / m2K
-                i_inc_all, i_inc_d, i_inc_sky, i_inc_ref = a7.get_i_inc_i_k_n(
-                    i_dn_ns=I_DN_n,
-                    i_sky_ns=I_sky_n,
-                    theta_aoi_i_k_n=theta_aoi,
-                    f_sky_i_k=f_sky,
-                    f_gnd_i_k=f_gnd,
-                    rho_gnd_i_k=rho_gnd,
-                    h_sun_ns=h_sun_ns
-                )
-
-                f_skys.append(f_sky)
-                i_inc_i_k_n_alls.append(i_inc_all)
-
-
-    f_sky_i_k[f] = f_skys
-    i_inc_i_k_n_all[f] = i_inc_i_k_n_alls
-
-    # ********** 傾斜面の相当外気温度の計算 **********
-
-    Ts = []
-
-    for i, b in enumerate(boundaries):
-
-        if b.boundary_type == 'internal':
-            T = np.zeros(24 * 365 * 4)
-            Ts.append(T)
-
-        elif (b.boundary_type == 'external_general_part') or (b.boundary_type == 'external_opaque_part'):
-
-            if b.is_sun_striked_outside:
-
-                T = a9.get_Te_n_1(
-                    To_n=To_n,
-                    as_i_k=b.spec.outside_solar_absorption,
-                    I_w_i_k_n=i_inc_i_k_n_all[i],
-                    eps_i_k=b.spec.outside_emissivity,
-                    PhiS_i_k=f_sky_i_k[i],
-                    RN_n=RN_n,
-                    ho_i_k_n=a23.get_ho_i_k_n(b.spec.outside_heat_transfer_resistance)
-                )
-                Ts.append(T)
-
-            else:
-
-                T = np.zeros(24 * 365 * 4)
-                Ts.append(T)
-
-        elif b.boundary_type == 'external_transparent_part':
-
-            T = a9.get_Te_n_2(
-                To_n=To_n,
-                eps_i_k=b.spec.outside_emissivity,
-                PhiS_i_k=f_sky_i_k[i],
-                RN_n=RN_n,
-                ho_i_k_n=a23.get_ho_i_k_n(b.spec.outside_heat_transfer_resistance)
-            )
-
-            Ts.append(T)
-
-        elif b.boundary_type == 'ground':
-            T = np.full(24 * 365 * 4, np.average(To_n))
-            Ts.append(T)
-
-        else:
-            raise ValueError()
-
-    Teolist = Ts
+    ib = IntegratedBoundaries(
+        name_i_iks=itg_name_i_iks,
+        sub_name_i_iks=itg_sub_name_i_iks,
+        boundary_type_i_iks=itg_boundary_type_i_iks,
+        a_i_iks=itg_a_i_iks,
+        is_sun_striked_outside_i_iks=itg_is_sun_striked_outside_i_iks,
+        h_i_iks=itg_h_i_iks,
+        next_room_type_i_iks=itg_next_room_type_i_iks,
+        is_solar_absorbed_inside_i_ks=itg_is_solar_absorbed_inside_i_ks,
+        h_i_i_iks=h_i_i_iks,
+        t_e_o_group=t_e_o_group
+    )
 
     return Initialized_Surface(
         N_surf_i=N_surf_i,
@@ -450,6 +345,100 @@ def init_surface(
         gp_idx=gp_idxs,
         ib=ib
     )
+
+
+def get_grouped_t_e_o(Teolist, a_i_ks, gp_idxs):
+    t_e_o_group = []
+    for i in np.unique(gp_idxs):
+        t = Teolist[gp_idxs == i]
+        r = (a_i_ks[gp_idxs == i] / np.sum(a_i_ks[gp_idxs == i])).reshape(-1, 1)
+        result = np.sum(t * r, axis=0)
+
+        t_e_o_group.append(result)
+
+    return np.array(t_e_o_group)
+
+
+def get_eot(I_DN_n, I_sky_n, RN_n, To_n, a_sun_ns, b, h_sun_ns):
+
+    if b.boundary_type == 'internal':
+
+        # この値は使用しないのでNoneでもよいはず
+        return np.zeros(24 * 365 * 4)
+
+    elif (b.boundary_type == 'external_general_part') or (b.boundary_type == 'external_opaque_part'):
+
+        if b.is_sun_striked_outside:
+
+            # 室iの境界kの傾斜面の方位角, rad
+            # 室iの境界kの傾斜面の傾斜角, rad
+            w_alpha_i_k, w_beta_i_k = x_19.get_w_alpha_i_k_w_beta_i_k(direction_i_j=b.direction)
+
+            # 室iの境界kの傾斜面の天空に対する形態係数
+            f_sky_i_k = a7.get_f_sky_i_k(w_beta_i_k)
+
+            # ステップnにおける室iの境界kにおける傾斜面の日射量, W / m2K
+            # ステップnにおける室iの境界kにおける傾斜面の日射量のうち直達成分, W / m2K
+            # ステップnにおける室iの境界kにおける傾斜面の日射量のうち天空成分, W / m2K
+            # ステップnにおける室iの境界kにおける傾斜面の日射量のうち地盤反射成分, W / m2K
+            i_inc_all, i_inc_d, i_inc_sky, i_inc_ref = a7.get_i_inc_i_k_n(
+                i_dn_ns=I_DN_n,
+                i_sky_ns=I_sky_n,
+                h_sun_ns=h_sun_ns,
+                a_sun_ns=a_sun_ns,
+                w_alpha_i_k=w_alpha_i_k,
+                w_beta_i_k=w_beta_i_k
+            )
+
+            T = a9.get_Te_n_1(
+                To_n=To_n,
+                as_i_k=b.spec.outside_solar_absorption,
+                I_w_i_k_n=i_inc_all,
+                eps_i_k=b.spec.outside_emissivity,
+                PhiS_i_k=f_sky_i_k,
+                RN_n=RN_n,
+                ho_i_k_n=a23.get_ho_i_k_n(b.spec.outside_heat_transfer_resistance)
+            )
+
+            return T
+
+        else:
+
+            return np.zeros(24 * 365 * 4)
+
+    elif b.boundary_type == 'external_transparent_part':
+
+        if b.is_sun_striked_outside:
+            # 室iの境界kの傾斜面の方位角, rad
+            # 室iの境界kの傾斜面の傾斜角, rad
+            w_alpha_i_k, w_beta_i_k = x_19.get_w_alpha_i_k_w_beta_i_k(direction_i_j=b.direction)
+
+            # 室iの境界kの傾斜面の天空に対する形態係数
+            f_sky_i_k = a7.get_f_sky_i_k(w_beta_i_k)
+
+            T = a9.get_Te_n_2(
+                To_n=To_n,
+                eps_i_k=b.spec.outside_emissivity,
+                PhiS_i_k=f_sky_i_k,
+                RN_n=RN_n,
+                ho_i_k_n=a23.get_ho_i_k_n(b.spec.outside_heat_transfer_resistance)
+            )
+
+            return T
+
+        else:
+
+            # もともとこのケースは考えられていなかった。
+            # とりあえず、ゼロにするが、概念的には、外気温の方が正しいと思う。
+            return np.zeros(24 * 365 * 4)
+
+    elif b.boundary_type == 'ground':
+
+        return np.full(24 * 365 * 4, np.average(To_n))
+
+    else:
+
+        raise ValueError()
 
 
 def is_solar_radiation_transmitted(boundary: Boundary):

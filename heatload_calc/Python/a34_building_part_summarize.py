@@ -362,7 +362,10 @@ class GroupedSurface:
         self.hi_i_g_n = ib.h_i_i_iks  # 16) 室内側熱伝達率
 
         # 20) 裏面境界温度
-        self.Teolist = first(surfaces.Teolist)
+#        self.Teolist = first(surfaces.Teolist)
+        self.Teolist = ib.t_e_o_group
+        print('t1' + str(self.Teolist))
+        print('t2' + str(ib.t_e_o_group))
 
         # 21) 前時刻の裏面境界温度
         self.oldTsd_t = np.zeros((self.NsurfG_i, 12))

@@ -6,17 +6,16 @@ import numpy as np
 
 
 def get_i_inc_i_k_n(
-        i_dn_ns: np.ndarray, i_sky_ns: np.ndarray, theta_aoi_i_k_n: np.ndarray,
-        f_sky_i_k: float, f_gnd_i_k: float, rho_gnd_i_k: float, h_sun_ns: np.ndarray) -> (float, float, float, float):
+        i_dn_ns: np.ndarray, i_sky_ns: np.ndarray, h_sun_ns: np.ndarray, a_sun_ns,
+        w_alpha_i_k: float, w_beta_i_k: float) -> (float, float, float, float):
     """
     Args:
         i_dn_ns: ステップnにおける法線面直達日射量, W/m2K
         i_sky_ns: ステップnにおける水平面天空日射量, W/m2K
-        theta_aoi_i_k_n: ステップnの室iの境界kのにおける傾斜面に入射する太陽の入射角, rad
-        f_sky_i_k: 室iの境界kにおける天空に対する傾斜面の形態係数
-        f_gnd_i_k: 室iの境界kにおける地面に対する傾斜面の形態係数
-        rho_gnd_i_k: 室iの境界kにおける地面の日射反射率
         h_sun_ns: ステップnにおける太陽高度, rad
+        a_sun_ns: ステップnにおける太陽方位角, rad
+        w_alpha_i_k: 室iの境界kの傾斜面の方位角, rad
+        w_beta_i_k: 室iの境界kの傾斜面の傾斜角, rad
     Returns:
         以下のタプル
             (1) ステップnにおける室iの境界kにおける傾斜面の日射量, W/m2K
@@ -24,6 +23,23 @@ def get_i_inc_i_k_n(
             (3) ステップnにおける室iの境界kにおける傾斜面の日射量のうち天空成分, W/m2K
             (4) ステップnにおける室iの境界kにおける傾斜面の日射量のうち地盤反射成分, W/m2K
     """
+
+    # ステップnの室iの境界kにおける傾斜面に入射する太陽の入射角 * 365 * 24 * 4
+    theta_aoi_i_k_n = get_theta_aoi_i_k_n(
+        w_alpha_i_k=w_alpha_i_k,
+        w_beta_i_k=w_beta_i_k,
+        h_sun_ns=h_sun_ns,
+        a_sun_ns=a_sun_ns
+    )
+
+    # 室iの境界kの傾斜面の天空に対する形態係数
+    f_sky_i_k = get_f_sky_i_k(w_beta_i_k)
+
+    # 室iの境界kの傾斜面の地面に対する形態係数
+    f_gnd_i_k = get_f_gnd_i_k(f_sky_i_k)
+
+    # 地面の日射に対する反射率（アルベド）
+    rho_gnd_i_k = get_rho_gnd()
 
     # ステップnにおける室iの境界kにおける傾斜面の日射量のうち地盤反射成分, W/m2K
     i_inc_ref_i_k_n = get_i_inc_ref_i_k_n(
@@ -175,16 +191,16 @@ def get_f_gnd_i_k(f_sky_i_k: float) -> float:
     return f_gnd_i_k
 
 
-def get_cos_theta_aoi_i_k_n(
-        w_alpha_i_ks: float, w_beta_i_ks: float,
+def get_theta_aoi_i_k_n(
+        w_alpha_i_k: float, w_beta_i_k: float,
         h_sun_ns: np.ndarray, a_sun_ns: np.ndarray
 ) -> np.ndarray:
     """
-    傾斜面に入射する太陽の入射角の方向余弦を求める。
+    傾斜面に入射する太陽の入射角を求める。
 
     Args:
-        w_alpha_i_ks: 室iの境界kにおける傾斜面の方位角, rad
-        w_beta_i_ks: 室iの境界kにおける傾斜面の傾斜角, rad
+        w_alpha_i_k: 室iの境界kにおける傾斜面の方位角, rad
+        w_beta_i_k: 室iの境界kにおける傾斜面の傾斜角, rad
         h_sun_ns: ステップnにおける太陽高度, rad * 365 * 24 * 4
         a_sun_ns: ステップnにおける太陽方位角, rad * 365 * 24 * 4
 
@@ -201,10 +217,10 @@ def get_cos_theta_aoi_i_k_n(
     # その場合、cos(h_sun_ns)がゼロとなり、下式の第2項・第3項がゼロになる。
     cos_theta_aoi_i_k_n = np.where(
         h_sun_ns == 1.0,
-        np.sin(h_sun_ns) * np.cos(w_beta_i_ks),
-        np.sin(h_sun_ns) * np.cos(w_beta_i_ks)
-        + np.cos(h_sun_ns) * np.sin(a_sun_ns) * np.sin(w_beta_i_ks) * np.sin(w_alpha_i_ks)
-        + np.cos(h_sun_ns) * np.cos(a_sun_ns) * np.sin(w_beta_i_ks) * np.cos(w_alpha_i_ks)
+        np.sin(h_sun_ns) * np.cos(w_beta_i_k),
+        np.sin(h_sun_ns) * np.cos(w_beta_i_k)
+        + np.cos(h_sun_ns) * np.sin(a_sun_ns) * np.sin(w_beta_i_k) * np.sin(w_alpha_i_k)
+        + np.cos(h_sun_ns) * np.cos(a_sun_ns) * np.sin(w_beta_i_k) * np.cos(w_alpha_i_k)
     )
 
     cos_theta_aoi_i_k_n = np.clip(cos_theta_aoi_i_k_n, 0.0, None)

@@ -46,21 +46,12 @@ def test(
         w_alpha_i_k, w_beta_i_k = x_19.get_w_alpha_i_j_w_beta_i_j(direction_i_j=b.direction)
 
         # ステップnの室iの境界kにおける傾斜面に入射する太陽の入射角 * 365 * 24 * 4
-        theta_aoi = a7.get_cos_theta_aoi_i_k_n(
-            w_alpha_i_ks=w_alpha_i_k,
-            w_beta_i_ks=w_beta_i_k,
+        theta_aoi_i_k_n = a7.get_theta_aoi_i_k_n(
+            w_alpha_i_k=w_alpha_i_k,
+            w_beta_i_k=w_beta_i_k,
             h_sun_ns=h_sun_ns,
             a_sun_ns=a_sun_ns
         )
-
-        # 室iの境界kの傾斜面の天空に対する形態係数
-        f_sky = a7.get_f_sky_i_k(w_beta_i_k)
-
-        # 室iの境界kの傾斜面の地面に対する形態係数
-        f_gnd = a7.get_f_gnd_i_k(f_sky)
-
-        # 地面の日射に対する反射率（アルベド）
-        rho_gnd = a7.get_rho_gnd()
 
         # ステップnにおける室iの境界kにおける傾斜面の日射量, W / m2K
         # ステップnにおける室iの境界kにおける傾斜面の日射量のうち直達成分, W / m2K
@@ -69,17 +60,14 @@ def test(
         _, i_inc_d, i_inc_sky, i_inc_ref = a7.get_i_inc_i_k_n(
             i_dn_ns=I_DN_n,
             i_sky_ns=I_sky_n,
-            theta_aoi_i_k_n=theta_aoi,
-            f_sky_i_k=f_sky,
-            f_gnd_i_k=f_gnd,
-            rho_gnd_i_k=rho_gnd,
-            h_sun_ns=h_sun_ns
+            h_sun_ns=h_sun_ns,
+            a_sun_ns=a_sun_ns,
+            w_alpha_i_k=w_alpha_i_k,
+            w_beta_i_k=w_beta_i_k
         )
 
-        c_d = a10.get_c_d_i_k(incident_angle_characteristics_i_ks=b.spec.incident_angle_characteristics)
-
         qgt = calc_QGT_i_k_n(
-            theta_aoi_i_k=theta_aoi,
+            theta_aoi_i_k=theta_aoi_i_k_n,
             incident_angle_characteristics_i_ks=b.spec.incident_angle_characteristics,
             i_inc_d_i_k_n=i_inc_d,
             FSDW_i_k_n=FSDW_i_k_n,
@@ -87,7 +75,6 @@ def test(
             i_inc_ref_i_k_n=i_inc_ref,
             a_i_ks=b.area,
             tau_i_k=b.spec.eta_value,
-            c_d_i_ks=c_d
         )
 
         qgts.append(qgt)
@@ -108,8 +95,10 @@ def calc_QGT_i_k_n(
         i_inc_ref_i_k_n: np.ndarray,
         a_i_ks: float,
         tau_i_k: float,
-        c_d_i_ks: float
 ):
+
+    # 室iの境界kにおける透明な開口部の拡散日射に対する基準化透過率
+    c_d_i_k = a10.get_c_d_i_k(incident_angle_characteristics_i_ks=incident_angle_characteristics_i_ks)
 
     # 直達日射の入射角特性の計算
     taud_i_k_n = get_taud_i_k_n(
@@ -121,7 +110,7 @@ def calc_QGT_i_k_n(
         tau_i_k=tau_i_k, i_inc_d_i_k_n=i_inc_d_i_k_n, taud_i_k_n=taud_i_k_n, F_SDW_i_k_n=FSDW_i_k_n)
 
     # 拡散成分
-    QGTS_i_k_n = get_QGTS_i_k_n(tau_i_k, c_d_i_ks, i_inc_sky_i_k_n, i_inc_ref_i_k_n)
+    QGTS_i_k_n = get_QGTS_i_k_n(tau_i_k, c_d_i_k, i_inc_sky_i_k_n, i_inc_ref_i_k_n)
 
     # 透過日射量の計算
     QGT_i_k_n = (QGTD_i_k_n + QGTS_i_k_n) * a_i_ks
