@@ -14,21 +14,15 @@ import a8_shading as a8
 """
 
 
-def test(
-        boundaries: List[Boundary],
-        I_DN_n,
-        I_sky_n,
-        h_sun_ns,
-        a_sun_ns
-):
+def test(boundaries: List[Boundary], i_dn_ns, i_sky_ns, h_sun_ns, a_sun_ns):
     """
 
     Args:
         boundaries: 境界
         a_i_ks: 面積（境界数）
         tau_i_k: 室iの境界kの日射熱取得率（境界数）
-        I_DN_n: 直達日射（ステップn）
-        I_sky_n: 天空放射（ステップn）
+        i_dn_ns: 直達日射（ステップn）
+        i_sky_ns: 天空放射（ステップn）
         h_sun_ns: 太陽高度
         a_sun_ns: 太陽方位角
     Returns:
@@ -58,8 +52,8 @@ def test(
         # ステップnにおける室iの境界kにおける傾斜面の日射量のうち天空成分, W / m2K
         # ステップnにおける室iの境界kにおける傾斜面の日射量のうち地盤反射成分, W / m2K
         _, i_inc_d, i_inc_sky, i_inc_ref = a7.get_i_inc_i_k_n(
-            i_dn_ns=I_DN_n,
-            i_sky_ns=I_sky_n,
+            i_dn_ns=i_dn_ns,
+            i_sky_ns=i_sky_ns,
             h_sun_ns=h_sun_ns,
             a_sun_ns=a_sun_ns,
             w_alpha_i_k=w_alpha_i_k,

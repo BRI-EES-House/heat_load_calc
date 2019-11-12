@@ -57,14 +57,16 @@ import s3_surface_initializer as s3
 # - d:             室内部位に関連するクラス, Surface
 
 def init_spaces(space: Space,
-                I_DN_n: np.ndarray, I_sky_n: np.ndarray, RN_n: np.ndarray, To_n: np.ndarray,
+                i_dn_ns: np.ndarray, i_sky_ns: np.ndarray, r_n_ns: np.ndarray, theta_o_ns: np.ndarray,
                 h_sun_ns: np.ndarray, a_sun_ns: np.ndarray):
 
     # 空調や通風などの需要があるかどうか, bool * 365 * 96
     space.air_conditioning_demand = space.is_upper_temp_limit_set_schedule | space.is_lower_temp_limit_set_schedule
 
     # i室の部位の初期化
-    space.surf_i = init_surface(space.d_boundary_i_ks, I_DN_n, I_sky_n, RN_n, To_n, h_sun_ns, a_sun_ns)
+    space.surf_i = init_surface(
+        boundaries=space.d_boundary_i_ks,
+        i_dn_ns=i_dn_ns, i_sky_ns=i_sky_ns, r_n_ns=r_n_ns, theta_o_ns=theta_o_ns, h_sun_ns=h_sun_ns, a_sun_ns=a_sun_ns)
 
     # i室の境界条件が同じ部位kを集約し、部位gを作成
     space.surfG_i = a34.GroupedSurface(space.surf_i)
@@ -72,7 +74,7 @@ def init_spaces(space: Space,
     # 透過日射熱取得の集約し、i室のn時点における透過日射熱取得 QGT_i_n を計算
     space.QGT_i_n = np.sum(
         s3.get_transmitted_solar_radiation(
-            space.d_boundary_i_ks, I_DN_n, I_sky_n, h_sun_ns, a_sun_ns
+            boundaries=space.d_boundary_i_ks, i_dn_ns=i_dn_ns, i_sky_ns=i_sky_ns, h_sun_ns=h_sun_ns, a_sun_ns=a_sun_ns
         ), axis=0)
 
     # i室の部位の面数(集約後)

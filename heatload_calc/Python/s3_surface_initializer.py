@@ -57,9 +57,10 @@ IntegratedBoundaries = namedtuple('IntegratedBoundaries', [
     't_e_o_group'
 ])
 
+
 def init_surface(
         boundaries: List[Boundary],
-        I_DN_n: np.ndarray, I_sky_n: np.ndarray, RN_n: np.ndarray, To_n: np.ndarray,
+        i_dn_ns: np.ndarray, i_sky_ns: np.ndarray, r_n_ns: np.ndarray, theta_o_ns: np.ndarray,
         h_sun_ns: np.ndarray, a_sun_ns: np.ndarray) -> Initialized_Surface:
 
     # 集約化可能な境界には同じIDを振り、境界ごとにそのIDを取得する。
@@ -305,7 +306,8 @@ def init_surface(
 
     # 傾斜面の相当外気温度の計算
     Teolist = np.array([
-        get_eot(I_DN_n, I_sky_n, RN_n, To_n, a_sun_ns, b, h_sun_ns)
+        get_eot(boundary=b, theta_o_ns=theta_o_ns, i_dn_ns=i_dn_ns, i_sky_ns=i_sky_ns, r_n_ns=r_n_ns, a_sun_ns=a_sun_ns,
+                h_sun_ns=h_sun_ns)
         for b in boundaries])
 
     t_e_o_group = get_grouped_t_e_o(Teolist, a_i_ks, gp_idxs)
@@ -359,20 +361,24 @@ def get_grouped_t_e_o(Teolist, a_i_ks, gp_idxs):
     return np.array(t_e_o_group)
 
 
-def get_eot(I_DN_n, I_sky_n, RN_n, To_n, a_sun_ns, b, h_sun_ns):
+def get_eot(boundary, theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, a_sun_ns, h_sun_ns):
 
-    if b.boundary_type == 'internal':
+    # 間仕切りの場合
+    if boundary.boundary_type == 'internal':
 
         # この値は使用しないのでNoneでもよいはず
+        # 集約化する際にNoneだと変な挙動を示すかも知れないのでとりあえずゼロにしておく。
         return np.zeros(24 * 365 * 4)
 
-    elif (b.boundary_type == 'external_general_part') or (b.boundary_type == 'external_opaque_part'):
+    # 外壁・不透明な開口部の場合
+    elif (boundary.boundary_type == 'external_general_part') or (boundary.boundary_type == 'external_opaque_part'):
 
-        if b.is_sun_striked_outside:
+        # 日射が当たる場合
+        if boundary.is_sun_striked_outside:
 
             # 室iの境界kの傾斜面の方位角, rad
             # 室iの境界kの傾斜面の傾斜角, rad
-            w_alpha_i_k, w_beta_i_k = x_19.get_w_alpha_i_j_w_beta_i_j(direction_i_j=b.direction)
+            w_alpha_i_k, w_beta_i_k = x_19.get_w_alpha_i_j_w_beta_i_j(direction_i_j=boundary.direction)
 
             # 室iの境界kの傾斜面の天空に対する形態係数
             f_sky_i_k = a7.get_f_sky_i_k(w_beta_i_k)
@@ -382,8 +388,8 @@ def get_eot(I_DN_n, I_sky_n, RN_n, To_n, a_sun_ns, b, h_sun_ns):
             # ステップnにおける室iの境界kにおける傾斜面の日射量のうち天空成分, W / m2K
             # ステップnにおける室iの境界kにおける傾斜面の日射量のうち地盤反射成分, W / m2K
             i_inc_all, i_inc_d, i_inc_sky, i_inc_ref = a7.get_i_inc_i_k_n(
-                i_dn_ns=I_DN_n,
-                i_sky_ns=I_sky_n,
+                i_dn_ns=i_dn_ns,
+                i_sky_ns=i_sky_ns,
                 h_sun_ns=h_sun_ns,
                 a_sun_ns=a_sun_ns,
                 w_alpha_i_k=w_alpha_i_k,
@@ -391,37 +397,39 @@ def get_eot(I_DN_n, I_sky_n, RN_n, To_n, a_sun_ns, b, h_sun_ns):
             )
 
             T = a9.get_Te_n_1(
-                To_n=To_n,
-                as_i_k=b.spec.outside_solar_absorption,
+                To_n=theta_o_ns,
+                as_i_k=boundary.spec.outside_solar_absorption,
                 I_w_i_k_n=i_inc_all,
-                eps_i_k=b.spec.outside_emissivity,
+                eps_i_k=boundary.spec.outside_emissivity,
                 PhiS_i_k=f_sky_i_k,
-                RN_n=RN_n,
-                ho_i_k_n=a23.get_ho_i_k_n(b.spec.outside_heat_transfer_resistance)
+                RN_n=r_n_ns,
+                ho_i_k_n=a23.get_ho_i_k_n(boundary.spec.outside_heat_transfer_resistance)
             )
 
             return T
 
+        # 日射が当たらない場合
         else:
 
             return np.zeros(24 * 365 * 4)
 
-    elif b.boundary_type == 'external_transparent_part':
+    # 透明な開口部の場合
+    elif boundary.boundary_type == 'external_transparent_part':
 
-        if b.is_sun_striked_outside:
+        if boundary.is_sun_striked_outside:
             # 室iの境界kの傾斜面の方位角, rad
             # 室iの境界kの傾斜面の傾斜角, rad
-            w_alpha_i_k, w_beta_i_k = x_19.get_w_alpha_i_j_w_beta_i_j(direction_i_j=b.direction)
+            w_alpha_i_k, w_beta_i_k = x_19.get_w_alpha_i_j_w_beta_i_j(direction_i_j=boundary.direction)
 
             # 室iの境界kの傾斜面の天空に対する形態係数
             f_sky_i_k = a7.get_f_sky_i_k(w_beta_i_k)
 
             T = a9.get_Te_n_2(
-                To_n=To_n,
-                eps_i_k=b.spec.outside_emissivity,
+                To_n=theta_o_ns,
+                eps_i_k=boundary.spec.outside_emissivity,
                 PhiS_i_k=f_sky_i_k,
-                RN_n=RN_n,
-                ho_i_k_n=a23.get_ho_i_k_n(b.spec.outside_heat_transfer_resistance)
+                RN_n=r_n_ns,
+                ho_i_k_n=a23.get_ho_i_k_n(boundary.spec.outside_heat_transfer_resistance)
             )
 
             return T
@@ -432,9 +440,9 @@ def get_eot(I_DN_n, I_sky_n, RN_n, To_n, a_sun_ns, b, h_sun_ns):
             # とりあえず、ゼロにするが、概念的には、外気温の方が正しいと思う。
             return np.zeros(24 * 365 * 4)
 
-    elif b.boundary_type == 'ground':
+    elif boundary.boundary_type == 'ground':
 
-        return np.full(24 * 365 * 4, np.average(To_n))
+        return np.full(24 * 365 * 4, np.average(theta_o_ns))
 
     else:
 
@@ -458,11 +466,11 @@ def is_solar_radiation_transmitted(boundary: Boundary):
 
 
 def get_transmitted_solar_radiation(
-        boundaries: List[Boundary], I_DN_n, I_sky_n, h_sun_ns, a_sun_ns):
+        boundaries: List[Boundary], i_dn_ns, i_sky_ns, h_sun_ns, a_sun_ns):
 
     bs = [b for b in boundaries if is_solar_radiation_transmitted(b)]
 
-    q = a11.test(boundaries=bs, I_DN_n=I_DN_n, I_sky_n=I_sky_n, h_sun_ns=h_sun_ns, a_sun_ns=a_sun_ns)
+    q = a11.test(boundaries=bs, i_dn_ns=i_dn_ns, i_sky_ns=i_sky_ns, h_sun_ns=h_sun_ns, a_sun_ns=a_sun_ns)
 
     return q
 
