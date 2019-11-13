@@ -4,7 +4,7 @@
 import numpy as np
 
 
-def get_i_is_i_j_n(
+def get_i_is_i_j_ns(
         i_dn_ns: np.ndarray, i_sky_ns: np.ndarray, h_sun_ns: np.ndarray, a_sun_ns,
         w_alpha_i_j: float, w_beta_i_j: float) -> (float, float, float):
     """
@@ -28,7 +28,7 @@ def get_i_is_i_j_n(
         添字 is は、傾斜面（inclined surface）
     """
 
-    # ステップnの室iの境界jにおける傾斜面に入射する太陽の入射角 [365 * 24 * 4]
+    # ステップnの室iの境界jにおける傾斜面に入射する太陽の入射角 [365*24*4]
     theta_aoi_i_j_n = get_theta_aoi_i_j_n(
         h_sun_ns=h_sun_ns, a_sun_ns=a_sun_ns, w_alpha_i_j=w_alpha_i_j, w_beta_i_j=w_beta_i_j)
 
@@ -54,7 +54,7 @@ def get_i_is_i_j_n(
     return i_is_d_i_j_n, i_is_sky_i_j_n, i_is_ref_i_j_n
 
 
-def get_r_n_is_i_j_n(r_n_ns: np.ndarray, w_beta_i_j: float) -> np.ndarray:
+def get_r_n_is_i_j_ns(r_n_ns: np.ndarray, w_beta_i_j: float) -> np.ndarray:
     """
     傾斜面の方位角・傾斜角に応じて傾斜面の夜間放射量を計算する。
 

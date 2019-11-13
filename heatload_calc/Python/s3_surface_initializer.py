@@ -304,13 +304,15 @@ def init_surface(
             RFT0[k], RFA0[k], RFT1[k], RFA1[k], Row[k], Nroot[k] = \
                 a2.calc_response_factor(is_ground, c_layer_i_k_ls[k], r_layer_i_k_ls[k])
 
-    # 傾斜面の相当外気温度の計算
-    Teolist = np.array([
-        get_eot(boundary=b, theta_o_ns=theta_o_ns, i_dn_ns=i_dn_ns, i_sky_ns=i_sky_ns, r_n_ns=r_n_ns, a_sun_ns=a_sun_ns,
-                h_sun_ns=h_sun_ns)
+    # 室iの境界jの傾斜面のステップnにおける相当外気温度, ℃, [8760*4]
+    theta_o_sol_i_j_n = np.array([
+        a9.get_theta_o_sol_i_j_n(
+            boundary_i_j=b,
+            theta_o_ns=theta_o_ns,
+            i_dn_ns=i_dn_ns, i_sky_ns=i_sky_ns, r_n_ns=r_n_ns, a_sun_ns=a_sun_ns, h_sun_ns=h_sun_ns)
         for b in boundaries])
 
-    t_e_o_group = get_grouped_t_e_o(Teolist, a_i_ks, gp_idxs)
+    t_e_o_group = get_grouped_t_e_o(theta_o_sol_i_j_n, a_i_ks, gp_idxs)
 
     ib = IntegratedBoundaries(
         name_i_iks=itg_name_i_iks,
@@ -335,7 +337,7 @@ def init_surface(
 #        Rnext_i_k=np.vectorize(convert_from_next_room_name_to_id)(next_room_type_i_ks),
         Rnext_i_k=next_room_type_i_ks,
         U=u_i_ks,
-        Teolist=Teolist,
+        Teolist=theta_o_sol_i_j_n,
         hi_i_k_n=h_i_i_ks,
         ho_i_k_n=ho_i_k_n,
         RFT0=RFT0,
@@ -359,90 +361,6 @@ def get_grouped_t_e_o(Teolist, a_i_ks, gp_idxs):
         t_e_o_group.append(result)
 
     return np.array(t_e_o_group)
-
-
-def get_eot(boundary, theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, a_sun_ns, h_sun_ns):
-
-    # 間仕切りの場合
-    if boundary.boundary_type == 'internal':
-
-        # この値は使用しないのでNoneでもよいはず
-        # 集約化する際にNoneだと変な挙動を示すかも知れないのでとりあえずゼロにしておく。
-        return np.zeros(24 * 365 * 4)
-
-    # 外壁・不透明な開口部の場合
-    elif (boundary.boundary_type == 'external_general_part') or (boundary.boundary_type == 'external_opaque_part'):
-
-        # 日射が当たる場合
-        if boundary.is_sun_striked_outside:
-
-            # 室iの境界jの傾斜面の方位角, rad
-            # 室iの境界jの傾斜面の傾斜角, rad
-            w_alpha_i_j, w_beta_i_j = x_19.get_w_alpha_i_j_w_beta_i_j(direction_i_j=boundary.direction)
-
-            # ステップnにおける室iの境界kにおける傾斜面の日射量のうち直達成分, W / m2K
-            # ステップnにおける室iの境界kにおける傾斜面の日射量のうち天空成分, W / m2K
-            # ステップnにおける室iの境界kにおける傾斜面の日射量のうち地盤反射成分, W / m2K
-            i_inc_d, i_inc_sky, i_inc_ref = x_07.get_i_is_i_j_n(
-                i_dn_ns=i_dn_ns,
-                i_sky_ns=i_sky_ns,
-                h_sun_ns=h_sun_ns,
-                a_sun_ns=a_sun_ns,
-                w_alpha_i_j=w_alpha_i_j,
-                w_beta_i_j=w_beta_i_j
-            )
-            r_n_is_i_j_n = x_07.get_r_n_is_i_j_n(r_n_ns=r_n_ns, w_beta_i_j=w_beta_i_j)
-
-            T = a9.get_Te_n_1(
-                To_n=theta_o_ns,
-                as_i_k=boundary.spec.outside_solar_absorption,
-                eps_i_k=boundary.spec.outside_emissivity,
-                ho_i_k_n=a23.get_ho_i_k_n(boundary.spec.outside_heat_transfer_resistance),
-                i_inc_d=i_inc_d,
-                i_inc_sky=i_inc_sky,
-                i_inc_ref=i_inc_ref,
-                r_n_is_i_j_n=r_n_is_i_j_n
-            )
-
-            return T
-
-        # 日射が当たらない場合
-        else:
-
-            return np.zeros(24 * 365 * 4)
-
-    # 透明な開口部の場合
-    elif boundary.boundary_type == 'external_transparent_part':
-
-        if boundary.is_sun_striked_outside:
-            # 室iの境界kの傾斜面の方位角, rad
-            # 室iの境界kの傾斜面の傾斜角, rad
-            w_alpha_i_j, w_beta_i_j = x_19.get_w_alpha_i_j_w_beta_i_j(direction_i_j=boundary.direction)
-
-            r_n_is_i_j_n = x_07.get_r_n_is_i_j_n(r_n_ns=r_n_ns, w_beta_i_j=w_beta_i_j)
-
-            T = a9.get_Te_n_2(
-                To_n=theta_o_ns,
-                eps_i_k=boundary.spec.outside_emissivity,
-                ho_i_k_n=a23.get_ho_i_k_n(boundary.spec.outside_heat_transfer_resistance),
-                r_n_is_i_j_n=r_n_is_i_j_n
-            )
-
-            return T
-
-        else:
-
-            # もともとこのケースは考えられていなかった。
-            # とりあえず、ゼロにするが、概念的には、外気温の方が正しいと思う。
-            return np.zeros(24 * 365 * 4)
-
-    elif boundary.boundary_type == 'ground':
-
-        return np.full(24 * 365 * 4, np.average(theta_o_ns))
-
-    else:
-
-        raise ValueError()
 
 
 def is_solar_radiation_transmitted(boundary: Boundary):

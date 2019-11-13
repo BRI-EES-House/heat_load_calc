@@ -39,14 +39,14 @@ def test(boundaries: List[Boundary], i_dn_ns, i_sky_ns, h_sun_ns, a_sun_ns):
         # 室iの境界jの傾斜面の傾斜角, rad
         w_alpha_i_j, w_beta_i_j = x_19.get_w_alpha_i_j_w_beta_i_j(direction_i_j=b.direction)
 
-        # ステップnの室iの境界jにおける傾斜面に入射する太陽の入射角 * 365 * 24 * 4
-        theta_aoi_i_k_n = x_07.get_theta_aoi_i_j_n(
+        # ステップnの室iの境界jにおける傾斜面に入射する太陽の入射角, rad, [365*24*4]
+        theta_aoi_i_j_n = x_07.get_theta_aoi_i_j_n(
             h_sun_ns=h_sun_ns, a_sun_ns=a_sun_ns, w_alpha_i_j=w_alpha_i_j, w_beta_i_j=w_beta_i_j)
 
         # ステップnにおける室iの境界jにおける傾斜面の日射量のうち直達成分, W / m2K
         # ステップnにおける室iの境界jにおける傾斜面の日射量のうち天空成分, W / m2K
         # ステップnにおける室iの境界jにおける傾斜面の日射量のうち地盤反射成分, W / m2K
-        i_inc_d, i_inc_sky, i_inc_ref = x_07.get_i_is_i_j_n(
+        i_inc_d, i_inc_sky, i_inc_ref = x_07.get_i_is_i_j_ns(
             i_dn_ns=i_dn_ns,
             i_sky_ns=i_sky_ns,
             h_sun_ns=h_sun_ns,
@@ -56,7 +56,7 @@ def test(boundaries: List[Boundary], i_dn_ns, i_sky_ns, h_sun_ns, a_sun_ns):
         )
 
         qgt = calc_QGT_i_k_n(
-            theta_aoi_i_k=theta_aoi_i_k_n,
+            theta_aoi_i_k=theta_aoi_i_j_n,
             incident_angle_characteristics_i_ks=b.spec.incident_angle_characteristics,
             i_inc_d_i_k_n=i_inc_d,
             FSDW_i_k_n=FSDW_i_k_n,
