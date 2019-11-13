@@ -14,7 +14,7 @@ class SunbrkType:
         :param WH: 開口部高さ[m]
         """
         # 日除けの有無（True:あり）
-        self.existance = d_sun_break['existance']
+        self.existance = d_sun_break['existence']
 
         # 日除けがある場合のみ
         if self.existance:

@@ -86,6 +86,7 @@ def get_solpos(dtmDate, coeff, d0, SinD0, CosPhi, SinPhi, LLs, lngN) -> defSolpo
         dblA = dblTemp * math.acos(dblCosA)
         dblSs = dblCosh * dblCosA
         dblSw = dblCosh * dblSinA
+        # print(dtmDate, 'h=', dblh, 'A=', dblA)
     else:
         dblSs = 0.0
         dblSw = 0.0

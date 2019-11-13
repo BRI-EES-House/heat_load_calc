@@ -119,7 +119,7 @@ def calc_Hload(cdata, weather):
             # 太陽位置の計算
             # print(dtmNow)
             Solpos = weather.Solpos(dtmNow)
-            # print(Solpos.Sh, Solpos.Sw, Solpos.Ss)
+            # print('h=', Solpos.h, 'A=', Solpos.A)
             for space in spaces.values():
                 # 室温、熱負荷の計算
                 space.calcHload(
@@ -195,7 +195,8 @@ def calc_Hload(cdata, weather):
 
 if __name__ == '__main__':
     # js = open('1RCase1_最初の外壁削除.json', 'r', encoding='utf-8')
-    js = open('1RCase1.json', 'r', encoding='utf-8')
+    # js = open('1RCase1.json', 'r', encoding='utf-8')
+    js = open('test.json', 'r', encoding='utf-8')
     # js = open('input_residential.json', 'r', encoding='utf-8')
     # js = open('検証用.json', 'r', encoding='utf-8')
     d = json.load(js)

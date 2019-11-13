@@ -2,6 +2,9 @@
 	"folders": [
 		{
 			"path": "."
+		},
+		{
+			"path": "C:\\Users\\satoh\\Documents\\sourcetree\\kiseisokue7\\e7_inputdataconvert\\heatload_calc\\non_residential_python"
 		}
 	],
 	"settings": {}

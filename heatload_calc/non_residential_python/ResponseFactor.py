@@ -2,7 +2,7 @@ import math
 import numpy as np
 from Wall import Wall, Layer
 from typing import List
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 
 # ラプラス変数の設定
 def get_laps(alp: List[float]) -> List[float]:

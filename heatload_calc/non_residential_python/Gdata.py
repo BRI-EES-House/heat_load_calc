@@ -19,7 +19,7 @@ class Gdata:
         :param options: その他のオプション
         """
         # 地域区分
-        self.__Region = options["region"]
+        self.__Region = int(options["region"])
 
         # 住宅計算／非住宅計算（Trueなら住宅）
         self.is_residential = options["is_residential"]
