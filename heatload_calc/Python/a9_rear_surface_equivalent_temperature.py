@@ -94,9 +94,10 @@ def get_theta_o_sol_i_j_n(boundary_i_j, theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, a
                     theta_o_ns=theta_o_ns,
                     a_s_i_j=boundary_i_j.spec.outside_solar_absorption,
                     eps_r_i_j=boundary_i_j.spec.outside_emissivity,
-                    ho_i_k_n=a23.get_ho_i_k_n(boundary_i_j.spec.outside_heat_transfer_resistance),
                     i_is_d_i_j_ns=i_is_d_i_j_ns, i_is_sky_i_j_ns=i_is_sky_i_j_ns, i_is_ref_i_j_ns=i_is_ref_i_j_ns,
-                    r_n_is_i_j_ns=r_n_is_i_j_ns)
+                    r_n_is_i_j_ns=r_n_is_i_j_ns,
+                    r_surf_o_i_j=boundary_i_j.spec.outside_heat_transfer_resistance
+                )
 
             # 透明な開口部の場合
             elif boundary_i_j.boundary_type == 'external_transparent_part':
@@ -106,8 +107,8 @@ def get_theta_o_sol_i_j_n(boundary_i_j, theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, a
                 return get_theta_o_sol_i_j_n_2(
                     theta_o_ns=theta_o_ns,
                     eps_r_i_j=boundary_i_j.spec.outside_emissivity,
-                    ho_i_k_n=a23.get_ho_i_k_n(boundary_i_j.spec.outside_heat_transfer_resistance),
-                    r_n_is_i_j_ns=r_n_is_i_j_ns
+                    r_n_is_i_j_ns=r_n_is_i_j_ns,
+                    r_surf_o_i_j=boundary_i_j.spec.outside_heat_transfer_resistance
                 )
 
         # 日射が当たらない場合
@@ -129,7 +130,7 @@ def get_theta_o_sol_i_j_n(boundary_i_j, theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, a
 # 傾斜面の相当外気温度の計算
 # 日射の当たる外皮_一般部位, 日射の当たる外皮_不透明な開口部
 def get_theta_o_sol_i_j_n_1(theta_o_ns: np.ndarray, a_s_i_j: float, eps_r_i_j: float,
-                            ho_i_k_n: float, i_is_d_i_j_ns, i_is_sky_i_j_ns, i_is_ref_i_j_ns, r_n_is_i_j_ns) -> np.ndarray:
+                            i_is_d_i_j_ns, i_is_sky_i_j_ns, i_is_ref_i_j_ns, r_n_is_i_j_ns, r_surf_o_i_j) -> np.ndarray:
     """
     :param a_s_i_j: 日射吸収率 [-]
     :param ho_i_k_n: 外表面の総合熱伝達率[W/m2K]
@@ -139,14 +140,14 @@ def get_theta_o_sol_i_j_n_1(theta_o_ns: np.ndarray, a_s_i_j: float, eps_r_i_j: f
     :return: 傾斜面の相当外気温度 [℃]
     """
 
-    Te_n = theta_o_ns + (a_s_i_j * (i_is_d_i_j_ns + i_is_sky_i_j_ns + i_is_ref_i_j_ns) - eps_r_i_j * r_n_is_i_j_ns) / ho_i_k_n
+    Te_n = theta_o_ns + (a_s_i_j * (i_is_d_i_j_ns + i_is_sky_i_j_ns + i_is_ref_i_j_ns) - eps_r_i_j * r_n_is_i_j_ns) * r_surf_o_i_j
 
     return Te_n
 
 # 傾斜面の相当外気温度の計算
 # 外皮_透明な開口部
 def get_theta_o_sol_i_j_n_2(theta_o_ns: np.ndarray, eps_r_i_j: float,
-                            ho_i_k_n: float, r_n_is_i_j_ns) -> np.ndarray:
+                            r_n_is_i_j_ns, r_surf_o_i_j) -> np.ndarray:
     """
     :param ho_i_k_n: 外表面の総合熱伝達率[W/m2K]
     :param eps_r_i_j: 外表面の放射率[-]
@@ -154,7 +155,7 @@ def get_theta_o_sol_i_j_n_2(theta_o_ns: np.ndarray, eps_r_i_j: float,
     :param RN_n: 夜間放射量[W/m2]
     :return: 傾斜面の相当外気温度 [℃]
     """
-    Te_n = theta_o_ns + (- eps_r_i_j * r_n_is_i_j_ns) / ho_i_k_n
+    Te_n = theta_o_ns + (- eps_r_i_j * r_n_is_i_j_ns) * r_surf_o_i_j
 
     return Te_n
 

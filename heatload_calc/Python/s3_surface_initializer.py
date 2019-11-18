@@ -32,7 +32,6 @@ Initialized_Surface = namedtuple('Initialized_Surface', [
     # ----- 以下は計算した結果の保存用 ----
     'Teolist',
     'hi_i_k_n',
-    'ho_i_k_n',
     'RFT0',
     'RFA0',
     'RFT1',
@@ -279,9 +278,6 @@ def init_surface(
             (N_surf_i, 12)), \
         np.zeros((N_surf_i, 12)), np.zeros(N_surf_i, dtype=np.int64)
 
-    # 室外側表面総合熱伝達率 [W/m2K] 式(121)
-    ho_i_k_n = np.array([a23.get_ho_i_k_n(r_o_i_k) if r_o_i_k is not None else None for r_o_i_k in r_o_i_ks])
-
     # ********** 応答係数 **********
 
     # 1) 非一般部位
@@ -339,7 +335,6 @@ def init_surface(
         U=u_i_ks,
         Teolist=theta_o_sol_i_j_n,
         hi_i_k_n=h_i_i_ks,
-        ho_i_k_n=ho_i_k_n,
         RFT0=RFT0,
         RFA0=RFA0,
         RFT1=RFT1,

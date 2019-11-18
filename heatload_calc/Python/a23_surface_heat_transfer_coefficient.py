@@ -17,11 +17,6 @@ def calc_surface_transfer_coefficient(eps_m, FF_m, hi_i_k_n):
     return hr_i_k_n, hc_i_k_n
 
 
-# 室外側表面総合熱伝達率 式(121)
-def get_ho_i_k_n(Ro_i_k_n):
-    return 1.0 / Ro_i_k_n
-
-
 # 室内側表面総合熱伝達率 式(122)
 def get_h_i_i_ks(Ri_i_k_n):
     return 1.0 / Ri_i_k_n
