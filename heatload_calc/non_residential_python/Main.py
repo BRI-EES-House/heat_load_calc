@@ -2,6 +2,7 @@ import csv
 import datetime
 import json
 import common
+import os
 from Gdata import Gdata
 from Weather import enmWeatherComponent, Weather
 from Sunbrk import SunbrkType
@@ -30,9 +31,9 @@ def calc_Hload(cdata, weather):
     # 計算完了日数
     lngNnow = 0
 
-    print('計算開始：', cdata.ApDate)
-    print('計算終了：', cdata.EnDate)
-    print('１日の計算ステップ数：', lngNtime)
+    # print('計算開始：', cdata.ApDate)
+    # print('計算終了：', cdata.EnDate)
+    # print('１日の計算ステップ数：', lngNtime)
 
     # 助走計算開始日
     apDate = cdata.ApDate
@@ -114,8 +115,8 @@ def calc_Hload(cdata, weather):
                 rowlist.append(str(dtmNow))
                 rowlist.append('{0:.1f}'.format(weather.WeaData(enmWeatherComponent.Ta, dtmNow)))
                 rowlist.append('{0:.4f}'.format(weather.WeaData(enmWeatherComponent.x, dtmNow) / 1000.0))
-                if lngTloop == 0:
-                    print(dtmNow)
+                # if lngTloop == 0:
+                #     print(dtmNow)
             # 太陽位置の計算
             # print(dtmNow)
             Solpos = weather.Solpos(dtmNow)
@@ -193,9 +194,17 @@ def calc_Hload(cdata, weather):
     dataWriter.writerows(OutList)
     f.close()
 
+    # 年間負荷の出力
+    for space in spaces.values():
+        print(space.name, space.AnnualLoadcCs, space.AnnualLoadcHs, space.AnnualLoadcCl, space.AnnualLoadcHl)
+
 if __name__ == '__main__':
     # js = open('1RCase1_最初の外壁削除.json', 'r', encoding='utf-8')
     # js = open('1RCase1.json', 'r', encoding='utf-8')
+    # js = open('input_non_residential.json', 'r', encoding='utf-8')
+    
+    print(os.getcwd())
+
     js = open('test.json', 'r', encoding='utf-8')
     # js = open('input_residential.json', 'r', encoding='utf-8')
     # js = open('検証用.json', 'r', encoding='utf-8')

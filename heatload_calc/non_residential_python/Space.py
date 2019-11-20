@@ -74,16 +74,16 @@ class Space:
         self.name = d_room['name']                  # 室名称
         if Gdata.is_residential:
             self.__room_type = d_room['room_type']      # 室用途（1:主たる居室、2:その他居室、3:非居室）
-        self.__AnnualLoadcCs = 0.0                  # 年間顕熱冷房熱負荷（主暖房）
-        self.__AnnualLoadcHs = 0.0                  # 年間顕熱暖房熱負荷（対流成分）
-        self.__AnnualLoadcCl = 0.0                  # 年間潜熱冷房熱負荷（対流成分）
-        self.__AnnualLoadcHl = 0.0                  # 年間潜熱暖房熱負荷（対流成分）
-        self.__Annual_un_LoadcCs = 0.0              # 年間未処理顕熱冷房熱負荷（対流成分）
-        self.__Annual_un_LoadcHs = 0.0              # 年間未処理顕熱暖房熱負荷（対流成分）
-        self.__AnnualLoadrCs = 0.0                  # 年間顕熱冷房熱負荷（放射成分）
-        self.__AnnualLoadrHs = 0.0                  # 年間顕熱暖房熱負荷（放射成分）
-        self.__AnnualLoadrCl = 0.0                  # 年間潜熱冷房熱負荷（放射成分）
-        self.__AnnualLoadrHl = 0.0                  # 年間潜熱暖房熱負荷（放射成分）
+        self.AnnualLoadcCs = 0.0                  # 年間顕熱冷房熱負荷（主暖房）
+        self.AnnualLoadcHs = 0.0                  # 年間顕熱暖房熱負荷（対流成分）
+        self.AnnualLoadcCl = 0.0                  # 年間潜熱冷房熱負荷（対流成分）
+        self.AnnualLoadcHl = 0.0                  # 年間潜熱暖房熱負荷（対流成分）
+        self.Annual_un_LoadcCs = 0.0              # 年間未処理顕熱冷房熱負荷（対流成分）
+        self.Annual_un_LoadcHs = 0.0              # 年間未処理顕熱暖房熱負荷（対流成分）
+        self.AnnualLoadrCs = 0.0                  # 年間顕熱冷房熱負荷（放射成分）
+        self.AnnualLoadrHs = 0.0                  # 年間顕熱暖房熱負荷（放射成分）
+        self.AnnualLoadrCl = 0.0                  # 年間潜熱冷房熱負荷（放射成分）
+        self.AnnualLoadrHl = 0.0                  # 年間潜熱暖房熱負荷（放射成分）
         self.Lrs = self.Lrl = self.Lcl = self.Lcl = 0.0
         self.Tr = 15.0                              # 室温の初期化
         self.__oldTr = 15.0                         # 前時刻の室温の初期化
@@ -879,35 +879,35 @@ class Space:
         if Gdata.FlgOrig(dtmNow) == True:
             # 対流式空調（顕熱）の積算
             if self.Lcs > 0.0:
-                self.__AnnualLoadcHs += self.Lcs * Gdata.DTime * 0.000000001
+                self.AnnualLoadcHs += self.Lcs * Gdata.DTime * 0.000000001
             else:
-                self.__AnnualLoadcCs += self.Lcs * Gdata.DTime * 0.000000001
+                self.AnnualLoadcCs += self.Lcs * Gdata.DTime * 0.000000001
             
             # 当面未処理負荷は0
             self.un_Lcs = 0.0
             # 対流式空調（顕熱未処理）の積算
             if self.un_Lcs > 0.0:
-                self.__Annual_un_LoadcHs += self.un_Lcs * Gdata.DTime * 0.000000001
+                self.Annual_un_LoadcHs += self.un_Lcs * Gdata.DTime * 0.000000001
             else:
-                self.__Annual_un_LoadcCs += self.un_Lcs * Gdata.DTime * 0.000000001
+                self.Annual_un_LoadcCs += self.un_Lcs * Gdata.DTime * 0.000000001
             
             # 対流式空調（潜熱）の積算
             if self.Lcl > 0.0:
-                self.__AnnualLoadcHl += self.Lcl * Gdata.DTime * 0.000000001
+                self.AnnualLoadcHl += self.Lcl * Gdata.DTime * 0.000000001
             else:
-                self.__AnnualLoadcCs += self.Lcl * Gdata.DTime * 0.000000001
+                self.AnnualLoadcCl += self.Lcl * Gdata.DTime * 0.000000001
 
             # 放射式空調（顕熱）の積算
             if self.Lrs > 0.0:
-                self.__AnnualLoadrHs += self.Lrs * Gdata.DTime * 0.000000001
+                self.AnnualLoadrHs += self.Lrs * Gdata.DTime * 0.000000001
             else:
-                self.__AnnualLoadrCs += self.Lrs * Gdata.DTime * 0.000000001
+                self.AnnualLoadrCs += self.Lrs * Gdata.DTime * 0.000000001
 
             # 放射式空調（潜熱）の積算
             if self.Lrl > 0.0:
-                self.__AnnualLoadrHl += self.Lrl * Gdata.DTime * 0.000000001
+                self.AnnualLoadrHl += self.Lrl * Gdata.DTime * 0.000000001
             else:
-                self.__AnnualLoadrCl += self.Lrl * Gdata.DTime * 0.000000001
+                self.AnnualLoadrCl += self.Lrl * Gdata.DTime * 0.000000001
 
         # PMVの計算
         self.PMV = calcPMV(self.Tr, self.MRT, self.RH, self.Vel, self.Met, self.Wme, self.Clo)
