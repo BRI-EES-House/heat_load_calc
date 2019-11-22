@@ -302,7 +302,7 @@ def init_surface(
 
     # 室iの境界jの傾斜面のステップnにおける相当外気温度, ℃, [8760*4]
     theta_o_sol_i_j_n = np.array([
-        a9.get_theta_o_sol_i_j_n(
+        a9.get_theta_o_sol_i_j_ns(
             boundary_i_j=b,
             theta_o_ns=theta_o_ns,
             i_dn_ns=i_dn_ns, i_sky_ns=i_sky_ns, r_n_ns=r_n_ns, a_sun_ns=a_sun_ns, h_sun_ns=h_sun_ns)

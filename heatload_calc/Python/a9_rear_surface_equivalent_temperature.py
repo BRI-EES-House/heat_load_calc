@@ -39,7 +39,19 @@ def calc_Teo(surfG_i, To_n: float, oldTr: float, spaces: List['s3_space_initiali
     return Teo_i_k_n
 
 
-def get_theta_o_sol_i_j_n(boundary_i_j, theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, a_sun_ns, h_sun_ns):
+# 温度差係数を設定した隣室温度 ( 日射が当たらない外皮_一般部位 )
+def get_NextRoom_fromR(a_i_k: float, Ta: float, Tr: float) -> float:
+    Te = a_i_k * Ta + (1.0 - a_i_k) * Tr
+    return Te
+
+
+# 前時刻の隣室温度の場合
+def get_oldNextRoom(nextroomname: str, spaces: List['s3_space_initializer'], sequence_number: int) -> float:
+    Te = spaces[nextroomname].Tr_i_n[sequence_number - 1]
+    return Te
+
+
+def get_theta_o_sol_i_j_ns(boundary_i_j, theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, a_sun_ns, h_sun_ns):
     """
     相当外気温度を計算する。
 
@@ -78,6 +90,7 @@ def get_theta_o_sol_i_j_n(boundary_i_j, theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, a
             # ステップnにおける室iの境界jにおける傾斜面の夜間放射量, W/m2, [8760 * 4]
             r_n_is_i_j_ns = x_07.get_r_n_is_i_j_ns(r_n_ns=r_n_ns, w_beta_i_j=w_beta_i_j)
 
+            # 一般部位・不透明な部位の場合
             if (boundary_i_j.boundary_type == 'external_general_part') \
                     or (boundary_i_j.boundary_type == 'external_opaque_part'):
 
@@ -90,26 +103,26 @@ def get_theta_o_sol_i_j_n(boundary_i_j, theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, a
 
                 # 室iの境界jの傾斜面のステップnにおける相当外気温度, ℃, [8760*4]
                 # 一般部位・不透明な開口部の場合、日射・長波長放射を考慮する。
-                return get_theta_o_sol_i_j_n_1(
-                    theta_o_ns=theta_o_ns,
+                return get_theta_o_sol_i_j_ns_with_solar(
                     a_s_i_j=boundary_i_j.spec.outside_solar_absorption,
                     eps_r_i_j=boundary_i_j.spec.outside_emissivity,
-                    i_is_d_i_j_ns=i_is_d_i_j_ns, i_is_sky_i_j_ns=i_is_sky_i_j_ns, i_is_ref_i_j_ns=i_is_ref_i_j_ns,
-                    r_n_is_i_j_ns=r_n_is_i_j_ns,
-                    r_surf_o_i_j=boundary_i_j.spec.outside_heat_transfer_resistance
-                )
+                    r_surf_o_i_j=boundary_i_j.spec.outside_heat_transfer_resistance,
+                    theta_o_ns=theta_o_ns,
+                    i_is_d_i_j_ns=i_is_d_i_j_ns,
+                    i_is_sky_i_j_ns=i_is_sky_i_j_ns,
+                    i_is_ref_i_j_ns=i_is_ref_i_j_ns,
+                    r_n_is_i_j_ns=r_n_is_i_j_ns)
 
             # 透明な開口部の場合
             elif boundary_i_j.boundary_type == 'external_transparent_part':
 
                 # 室iの境界jの傾斜面のステップnにおける相当外気温度, ℃, [8760*4]
                 # 透明な開口部の場合、日射はガラス面への透過・吸収の項で扱うため、ここでは長波長放射のみ考慮する。
-                return get_theta_o_sol_i_j_n_2(
-                    theta_o_ns=theta_o_ns,
+                return get_theta_o_sol_i_j_ns_without_solar(
                     eps_r_i_j=boundary_i_j.spec.outside_emissivity,
-                    r_n_is_i_j_ns=r_n_is_i_j_ns,
-                    r_surf_o_i_j=boundary_i_j.spec.outside_heat_transfer_resistance
-                )
+                    r_surf_o_i_j=boundary_i_j.spec.outside_heat_transfer_resistance,
+                    theta_o_ns=theta_o_ns,
+                    r_n_is_i_j_ns=r_n_is_i_j_ns)
 
         # 日射が当たらない場合
         else:
@@ -126,47 +139,52 @@ def get_theta_o_sol_i_j_n(boundary_i_j, theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, a
         raise ValueError()
 
 
-#get_theta_o_sol_i_j_n
-# 傾斜面の相当外気温度の計算
-# 日射の当たる外皮_一般部位, 日射の当たる外皮_不透明な開口部
-def get_theta_o_sol_i_j_n_1(theta_o_ns: np.ndarray, a_s_i_j: float, eps_r_i_j: float,
-                            i_is_d_i_j_ns, i_is_sky_i_j_ns, i_is_ref_i_j_ns, r_n_is_i_j_ns, r_surf_o_i_j) -> np.ndarray:
+def get_theta_o_sol_i_j_ns_with_solar(
+        a_s_i_j: float, eps_r_i_j: float, r_surf_o_i_j,
+        theta_o_ns: np.ndarray, i_is_d_i_j_ns, i_is_sky_i_j_ns, i_is_ref_i_j_ns, r_n_is_i_j_ns
+) -> np.ndarray:
     """
-    :param a_s_i_j: 日射吸収率 [-]
-    :param ho_i_k_n: 外表面の総合熱伝達率[W/m2K]
-    :param eps_r_i_j: 外表面の放射率[-]
-    :param theta_o_ns: 外気温度[℃]
-    :param RN_n: 夜間放射量[W/m2]
-    :return: 傾斜面の相当外気温度 [℃]
+    日射の当たる一般部位・不透明な開口部における傾斜面の相当外気温度を計算する。
+
+    Args:
+        a_s_i_j: 室iの境界jにおける室外側日射吸収率
+        eps_r_i_j: 室iの境界jにおける室外側長波長放射率
+        r_surf_o_i_j: 室iの境界jにおける室外側熱伝達抵抗, m2K/W
+        theta_o_ns: ステップnにおける外気温度, ℃, [8760 * 4]
+        i_is_d_i_j_ns: ステップnにおける室iの境界jにおける傾斜面の日射量のうち直達成分, W/m2K [8760*4]
+        i_is_sky_i_j_ns: ステップnにおける室iの境界jにおける傾斜面の日射量のうち天空成分, W/m2K [8760*4]
+        i_is_ref_i_j_ns: ステップnにおける室iの境界jにおける傾斜面の日射量のうち地盤反射成分, W/m2K [8760*4]
+        r_n_is_i_j_ns: ステップnにおける室iの境界jにおける傾斜面の夜間放射量, W/m2 [8760 * 4]
+
+    Returns:
+        ステップnにおける室iの境界jにおける傾斜面の相当外気温度, ℃ [8760*4]
     """
 
-    Te_n = theta_o_ns + (a_s_i_j * (i_is_d_i_j_ns + i_is_sky_i_j_ns + i_is_ref_i_j_ns) - eps_r_i_j * r_n_is_i_j_ns) * r_surf_o_i_j
+    theta_o_sol_i_j_ns = theta_o_ns\
+        + (a_s_i_j * (i_is_d_i_j_ns + i_is_sky_i_j_ns + i_is_ref_i_j_ns) - eps_r_i_j * r_n_is_i_j_ns) * r_surf_o_i_j
 
-    return Te_n
+    return theta_o_sol_i_j_ns
 
-# 傾斜面の相当外気温度の計算
-# 外皮_透明な開口部
-def get_theta_o_sol_i_j_n_2(theta_o_ns: np.ndarray, eps_r_i_j: float,
-                            r_n_is_i_j_ns, r_surf_o_i_j) -> np.ndarray:
+
+def get_theta_o_sol_i_j_ns_without_solar(
+        eps_r_i_j: float, r_surf_o_i_j,
+        theta_o_ns: np.ndarray, r_n_is_i_j_ns
+) -> np.ndarray:
     """
-    :param ho_i_k_n: 外表面の総合熱伝達率[W/m2K]
-    :param eps_r_i_j: 外表面の放射率[-]
-    :param theta_o_ns: 外気温度[℃]
-    :param RN_n: 夜間放射量[W/m2]
-    :return: 傾斜面の相当外気温度 [℃]
+    日射の当たる透明な開口部における傾斜面の相当外気温度を計算する。
+
+    Args:
+        eps_r_i_j: 室iの境界jにおける室外側長波長放射率
+        r_surf_o_i_j: 室iの境界jにおける室外側熱伝達抵抗, m2K/W
+        theta_o_ns: ステップnにおける外気温度, ℃, [8760 * 4]
+        r_n_is_i_j_ns: ステップnにおける室iの境界jにおける傾斜面の夜間放射量, W/m2 [8760 * 4]
+
+    Returns:
+        ステップnにおける室iの境界jにおける傾斜面の相当外気温度, ℃ [8760*4]
     """
-    Te_n = theta_o_ns + (- eps_r_i_j * r_n_is_i_j_ns) * r_surf_o_i_j
 
-    return Te_n
+    theta_o_sol_i_j_ns = theta_o_ns + (- eps_r_i_j * r_n_is_i_j_ns) * r_surf_o_i_j
 
-
-# 温度差係数を設定した隣室温度 ( 日射が当たらない外皮_一般部位 )
-def get_NextRoom_fromR(a_i_k: float, Ta: float, Tr: float) -> float:
-    Te = a_i_k * Ta + (1.0 - a_i_k) * Tr
-    return Te
+    return theta_o_sol_i_j_ns
 
 
-# 前時刻の隣室温度の場合
-def get_oldNextRoom(nextroomname: str, spaces: List['s3_space_initializer'], sequence_number: int) -> float:
-    Te = spaces[nextroomname].Tr_i_n[sequence_number - 1]
-    return Te
