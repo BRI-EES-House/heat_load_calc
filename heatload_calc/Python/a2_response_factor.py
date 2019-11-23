@@ -31,31 +31,42 @@ def get_laps(alp: np.ndarray) -> np.ndarray:
     return np.array(laps)
 
 
-# 固定根の取得
-def get_alps(is_ground: bool) -> np.ndarray:
-    if is_ground == False:
+def get_alpha_m(is_ground: bool) -> np.ndarray:
+    """
+    固定根を取得する。
+
+    Args:
+        is_ground: 熱容量を持つ外皮が地盤かどうか。（地盤でない場合は、一般部位または間仕切り）
+
+    Returns:
+        固定根
+    """
+
+    # 地盤以外の場合
+    if is_ground:
         return np.array([
-            0.000002,
-            0.0000079,
-            0.000031205,
-            0.00012325975,
-            0.0004868760125,
-            0.001923160249375,
-            0.00759648298503125,
-            0.0300061077908735
-        ])
-    elif is_ground == True:
-        return np.array([
-            1.0597E-09,
-            4.2389E-09,
-            1.6956E-08,
-            6.7806E-08,
-            2.7128E-07,
-            1.0850E-06,
-            4.3417E-06,
-            1.7361E-05,
+            1.05970E-09,
+            4.23890E-09,
+            1.69560E-08,
+            6.78060E-08,
+            2.71280E-07,
+            1.08500E-06,
+            4.34170E-06,
+            1.73610E-05,
             6.94444E-05,
-            0.000277778
+            2.77778E-04
+        ])
+    # 地盤の場合
+    else:
+        return np.array([
+            2.0000E-06,
+            7.9000E-06,
+            3.1205E-05,  # ←仕様書と違う！！！
+            1.2325975E-04,  # ←仕様書と違う！！！
+            4.868760125E-04,  # ←仕様書と違う！！！
+            1.923160249375E-03,  # ←仕様書と違う！！！
+            7.59648298503125E-03,  # ←仕様書と違う！！！
+            3.00061077908735E-02  # ←仕様書と違う！！！
         ])
 
 
@@ -244,21 +255,21 @@ def calc_response_factor(is_ground: bool, C_i_k_p, R_i_k_p):
     NcalTime = 50  # 応答係数を作成する時間数[h]
     M = int(NcalTime * 3600 / 900) + 1  # 応答係数で作成する項数
 
-    # 固定根の設定
-    alps = get_alps(is_ground)
+    # 固定根, 一般部位の場合[8], 地盤の場合[10]
+    alpha_m = get_alpha_m(is_ground)
 
     # ラプラス変数の設定
-    laps = get_laps(alps)
+    laps = get_laps(alpha_m)
 
     # 単位応答の計算
-    AT0, AA0, AT, AA, ATstep, AAstep = get_step_reps_of_wall(C_i_k_p, R_i_k_p, laps, alps, M)
+    AT0, AA0, AT, AA, ATstep, AAstep = get_step_reps_of_wall(C_i_k_p, R_i_k_p, laps, alpha_m, M)
 
     # 二等辺三角波励振の応答係数、指数項別応答係数、公比の計算
-    RFT, RFA, RFT1, RFA1, Row = get_RFTRI(alps, AT0, AA0, AT, AA, M)
+    RFT, RFA, RFT1, RFA1, Row = get_RFTRI(alpha_m, AT0, AA0, AT, AA, M)
 
     RFT0 = RFT[0]  # 貫流応答係数の初項
     RFA0 = RFA[0]  # 吸熱応答係数の初項
-    Nroot = len(alps)  # 根の数
+    Nroot = len(alpha_m)  # 根の数
 
     RFT1_12 = np.zeros(12)
     RFA1_12 = np.zeros(12)
