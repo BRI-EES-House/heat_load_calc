@@ -2,9 +2,30 @@ import math
 import numpy as np
 from typing import List
 
+import a25_window as a25
+
+from s3_surface_loader import Boundary
+from s3_surface_loader import InternalPartSpec
+from s3_surface_loader import GeneralPartSpec
+from s3_surface_loader import TransparentOpeningPartSpec
+from s3_surface_loader import OpaqueOpeningPartSpec
+from s3_surface_loader import GroundSpec
+
 """
 付録2．応答係数の初項、指数項別応答係数、公比の計算
 """
+
+
+class ResponseFactor:
+
+    def __init__(self, rft0, rfa0, rft1, rfa1, row, n_root):
+        self.rft0 = rft0
+        self.rfa0 = rfa0
+        self.rft1 = rft1
+        self.rfa1 = rfa1
+        self.row = row
+        self.n_root = n_root
+
 
 
 # ラプラス変数の設定
@@ -279,3 +300,83 @@ def calc_response_factor(is_ground: bool, C_i_k_p, R_i_k_p):
     Row_12[:len(Row)] = Row
 
     return RFT0, RFA0, RFT1_12, RFA1_12, Row_12, Nroot
+
+
+def get_c_layer_i_k_ls(b: Boundary):
+
+    if type(b.spec) is InternalPartSpec:
+        c = [layer.thermal_capacity for layer in b.spec.layers]
+        c.append(0.0)
+        return np.array(c) * 1000.0
+    elif type(b.spec) is GeneralPartSpec:
+        c = [layer.thermal_capacity for layer in b.spec.layers]
+        c.append(0.0)
+        return np.array(c) * 1000.0
+    elif type(b.spec) is TransparentOpeningPartSpec:
+        return None
+    elif type(b.spec) is OpaqueOpeningPartSpec:
+        return None
+    elif type(b.spec) is GroundSpec:
+        c = [layer.thermal_capacity for layer in b.spec.layers]
+        c.append(3300.0 * 3.0)
+        return np.array(c) * 1000.0
+    else:
+        raise TypeError
+
+
+def get_r_layer_i_k_ls(b):
+    if type(b.spec) is InternalPartSpec:
+        r = [layer.thermal_resistance for layer in b.spec.layers]
+        r.append(b.spec.outside_heat_transfer_resistance)
+        return np.array(r)
+    elif type(b.spec) is GeneralPartSpec:
+        r = [layer.thermal_resistance for layer in b.spec.layers]
+        r.append(b.spec.outside_heat_transfer_resistance)
+        return np.array(r)
+    elif type(b.spec) is TransparentOpeningPartSpec:
+        return None
+    elif type(b.spec) is OpaqueOpeningPartSpec:
+        return None
+    elif type(b.spec) is GroundSpec:
+        r = [layer.thermal_resistance for layer in b.spec.layers]
+        r.append(3.0 / 1.0)
+        return np.array(r)
+    else:
+        raise TypeError
+
+
+def get_response_factors(b: Boundary) -> ResponseFactor:
+
+    if b.boundary_type in ['external_general_part', 'internal', 'ground']:
+
+        is_ground = b.boundary_type == 'ground'
+
+        c_layer_i_k_l = get_c_layer_i_k_ls(b)
+        r_layer_i_k_l = get_r_layer_i_k_ls(b)
+
+        # 応答係数
+        _RFT0, _RFA0, _RFT1, _RFA1, _Row, _n_root_i_js = \
+            calc_response_factor(is_ground, c_layer_i_k_l, r_layer_i_k_l)
+
+    elif b.boundary_type in ['external_transparent_part', 'external_opaque_part']:
+
+        # 室iの境界kの熱貫流率, W/m2K
+        # 定常で解く部位、つまり、透明な開口部・不透明な開口部で定義される。
+
+        # 室iの境界kの室内側熱伝達抵抗, m2K/W
+        # 室内側熱伝達抵抗は全ての part 種類において存在する
+        # 従って下記のコードは少し冗長であるがspecの1階層下で定義されているため、念の為かき分けておく。
+
+        # 開口部の室内表面から屋外までの熱貫流率[W / (m2･K)] 式(124)
+        _Uso = a25.get_Uso(u_w=b.spec.u_value, r_i_i_k_n=b.spec.inside_heat_transfer_resistance)
+
+        _RFT0, _RFA0, _RFT1, _RFA1, _Row, _n_root_i_js = \
+            1.0, 1.0 / _Uso, np.zeros(12), np.zeros(12), np.zeros(12), 0
+
+    else:
+
+        raise ValueError()
+
+    return ResponseFactor(rft0=_RFT0, rfa0=_RFA0, rft1=_RFT1, rfa1=_RFA1, row=_Row, n_root=_n_root_i_js)
+
+

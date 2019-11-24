@@ -4,5 +4,5 @@
 
 
 # 室内表面から裏面空気までの熱貫流率 式(124)
-def get_Uso(Uw, Ri_i_k_n):
-    return 1.0 / (1.0 / Uw - Ri_i_k_n)
+def get_Uso(u_w, r_i_i_k_n):
+    return 1.0 / (1.0 / u_w - r_i_i_k_n)
