@@ -6,7 +6,7 @@ import x_04_weather as x_04
 import x_05_solar_position as x_05
 import x_17_calculation_period as x_17
 
-from s3_space_initializer import init_spaces
+from s3_space_initializer import make_space
 from s3_space_loader import Space
 import s3_simulator as simulator
 import a33_results_exporting as exporter
@@ -51,8 +51,7 @@ def calc_heat_load(d: Dict):
     # スペースの読み取り
     spaces = []
     for room in d['rooms']:
-        space = Space(room)
-        init_spaces(space=space, i_dn_ns=i_dn_ns, i_sky_ns=i_sky_ns, r_n_ns=r_n_ns, theta_o_ns=theta_o_ns, h_sun_ns=h_sun_ns, a_sun_ns=a_sun_ns)
+        space = make_space(room=room, i_dn_ns=i_dn_ns, i_sky_ns=i_sky_ns, r_n_ns=r_n_ns, theta_o_ns=theta_o_ns, h_sun_ns=h_sun_ns, a_sun_ns=a_sun_ns)
         spaces.append(space)
 
     # 助走計算1(土壌のみ)

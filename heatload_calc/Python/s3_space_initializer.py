@@ -1,5 +1,6 @@
 import math
 import numpy as np
+from typing import Dict
 
 import a12_indoor_radiative_heat_transfer as a12
 import a13_Win_ACselect as a13
@@ -56,9 +57,11 @@ import s3_surface_initializer as s3
 # - RoomtoRoomVents:      室間換気量（list型、暖房・中間期・冷房、風上室名称）, m3/h
 # - d:             室内部位に関連するクラス, Surface
 
-def init_spaces(space: Space,
-                i_dn_ns: np.ndarray, i_sky_ns: np.ndarray, r_n_ns: np.ndarray, theta_o_ns: np.ndarray,
-                h_sun_ns: np.ndarray, a_sun_ns: np.ndarray):
+def make_space(room: Dict,
+               i_dn_ns: np.ndarray, i_sky_ns: np.ndarray, r_n_ns: np.ndarray, theta_o_ns: np.ndarray,
+               h_sun_ns: np.ndarray, a_sun_ns: np.ndarray):
+
+    space = Space(d_room=room)
 
     # 空調や通風などの需要があるかどうか, bool * 365 * 96
     space.air_conditioning_demand = space.is_upper_temp_limit_set_schedule | space.is_lower_temp_limit_set_schedule
@@ -167,3 +170,5 @@ def init_spaces(space: Space,
         A_i_k=space.surfG_i.A_i_g,
         hc_i_k_n=space.hc_i_g_n
     )
+
+    return space
