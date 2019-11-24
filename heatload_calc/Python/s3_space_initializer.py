@@ -64,12 +64,12 @@ def init_spaces(space: Space,
     space.air_conditioning_demand = space.is_upper_temp_limit_set_schedule | space.is_lower_temp_limit_set_schedule
 
     # i室の部位の初期化
-    space.surf_i = init_surface(
+    ib = init_surface(
         boundaries=space.d_boundary_i_ks,
         i_dn_ns=i_dn_ns, i_sky_ns=i_sky_ns, r_n_ns=r_n_ns, theta_o_ns=theta_o_ns, h_sun_ns=h_sun_ns, a_sun_ns=a_sun_ns)
 
     # i室の境界条件が同じ部位kを集約し、部位gを作成
-    space.surfG_i = a34.GroupedSurface(space.surf_i)
+    space.surfG_i = a34.GroupedSurface(integrated_boundaries=ib)
 
     # 透過日射熱取得の集約し、i室のn時点における透過日射熱取得 QGT_i_n を計算
     space.QGT_i_n = np.sum(

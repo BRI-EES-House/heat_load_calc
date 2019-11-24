@@ -206,7 +206,6 @@ class Space:
         # ********** 計算準備6 隣室間換気の読み込み **********
 
         self.QGT_i_n = np.zeros(24 * 365 * 4 * 3)
-        self.surf_i = None
         self.surfG_i = None
         self.NsurfG_i = 0
         self.Hhums = np.zeros(24 * 365 * 4 * 3)

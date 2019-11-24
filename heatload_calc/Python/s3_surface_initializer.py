@@ -2,9 +2,6 @@ from collections import namedtuple
 from typing import List
 import numpy as np
 
-import x_07_inclined_surface_solar_radiation as x_07
-import x_19_external_boundaries_direction as x_19
-
 import a11_opening_transmission_solar_radiation as a11
 import a23_surface_heat_transfer_coefficient as a23
 import a25_window as a25
@@ -19,48 +16,31 @@ from s3_surface_loader import GroundSpec
 import a34_building_part_summarize as a34
 
 
-Initialized_Surface = namedtuple('Initialized_Surface', [
-    'N_surf_i',
-    'boundary_type',
-    'is_sun_striked_outside',
-    'is_solar_absorbed_inside',
-    'a_i_k',
-    'A_i_k',
-    'Rnext_i_k',
-    'U',
-    # ----- 以上はデータを参照用に保持 ----
-    # ----- 以下は計算した結果の保存用 ----
-    'Teolist',
-    'hi_i_k_n',
-    'RFT0',
-    'RFA0',
-    'RFT1',
-    'RFA1',
-    'Row',
-    'Nroot',
-    'gp_idx',
-    'ib'
-])
-
-
 IntegratedBoundaries = namedtuple('IntegratedBoundaries', [
-    'name_i_iks',
-    'sub_name_i_iks',
-    'boundary_type_i_iks',
-    'a_i_iks',
-    'is_sun_striked_outside_i_iks',
-    'h_i_iks',
-    'next_room_type_i_iks',
-    'is_solar_absorbed_inside_i_ks',
-    'h_i_i_iks',
-    't_e_o_group'
+    'name_i_jstrs',
+    'sub_name_i_jstrs',
+    'boundary_type_i_jstrs',
+    'a_i_jstrs',
+    'is_sun_striked_outside_i_jstrs',
+    'h_i_jstrs',
+    'next_room_type_i_jstrs',
+    'is_solar_absorbed_inside_i_jstrs',
+    'h_i_i_jstrs',
+    'theta_o_sol_i_jstrs_ns',
+    'n_root_i_jstrs',
+    'Rows',
+    'RFT0s',
+    'RFA0s',
+    'RFT1s',
+    'RFA1s',
+    'NsurfG_i'
 ])
 
 
 def init_surface(
         boundaries: List[Boundary],
         i_dn_ns: np.ndarray, i_sky_ns: np.ndarray, r_n_ns: np.ndarray, theta_o_ns: np.ndarray,
-        h_sun_ns: np.ndarray, a_sun_ns: np.ndarray) -> Initialized_Surface:
+        h_sun_ns: np.ndarray, a_sun_ns: np.ndarray) -> IntegratedBoundaries:
 
     # 集約化可能な境界には同じIDを振り、境界ごとにそのIDを取得する。
     # boundaries の数のIDを持つndarray
@@ -71,20 +51,20 @@ def init_surface(
     # 先頭のインデックスのリスト
     first_idx = np.array([np.where(gp_idxs == k)[0][0] for k in np.unique(gp_idxs)], dtype=np.int)
 
-    # 室iの境界kの名前
-    name_i_ks = np.array([b.name for b in boundaries])
+    # 室iの境界jの名前, [j]
+    name_i_js = np.array([b.name for b in boundaries])
 
-    # 室iの境界kの種類 * k
-    boundary_type_i_ks = np.array([b.boundary_type for b in boundaries])
+    # 室iの境界jの種類, [j]
+    boundary_type_i_js = np.array([b.boundary_type for b in boundaries])
 
-    # 室iの境界kの面積, m2
-    a_i_ks = np.array([b.area for b in boundaries])
+    # 室iの境界jの面積, m2, [j]
+    a_i_js = np.array([b.area for b in boundaries])
 
-    # 室iの境界kの日射の有無 * k
-    is_sun_striked_outside_i_ks = np.array([b.is_sun_striked_outside for b in boundaries])
+    # 室iの境界jの日射の有無, [j]
+    is_sun_striked_outside_i_js = np.array([b.is_sun_striked_outside for b in boundaries])
 
-    # 室iの境界kの温度差係数 * k
-    h_i_ks = np.array([b.temp_dif_coef for b in boundaries])
+    # 室iの境界jの温度差係数, [j]
+    h_i_js = np.array([b.temp_dif_coef for b in boundaries])
 
     def convert_from_next_room_name_to_id(name):
         if name is not None:
@@ -97,12 +77,11 @@ def init_surface(
         else:
             return -1
 
-    # 室iの境界kの隣室タイプ * k
-    next_room_type_i_ks = np.array([b.next_room_type for b in boundaries])
-    next_room_type_i_ks = np.vectorize(convert_from_next_room_name_to_id)(next_room_type_i_ks)
+    # 室iの境界jの隣室タイプ, [j]
+    next_room_type_i_js = np.array([convert_from_next_room_name_to_id(b.next_room_type) for b in boundaries])
 
-    # 室iの境界kの床室内侵入日射吸収の有無 * k
-    is_solar_absorbed_inside_i_ks = np.array([b.is_solar_absorbed_inside for b in boundaries])
+    # 室iの境界jの床室内侵入日射吸収の有無, [j]
+    is_solar_absorbed_inside_i_js = np.array([b.is_solar_absorbed_inside for b in boundaries])
 
     # 室iの境界kの室内側熱伝達抵抗, m2K/W
     # 室内側熱伝達抵抗は全ての part 種類において存在する
@@ -123,23 +102,16 @@ def init_surface(
 
     r_i_i_ks = np.array([get_r_i_i_ks(b) for b in boundaries])
 
-    # 室iの境界kの室外側熱伝達抵抗, m2K/W
-    # 地盤以外（間仕切り・外皮_一般部位・外皮_透明な開口部・外皮_不透明な開口部）で定義される。
-    def get_r_o_i_ks(b):
-        if type(b.spec) is InternalPartSpec:
-            return b.spec.outside_heat_transfer_resistance
-        elif type(b.spec) is GeneralPartSpec:
-            return b.spec.outside_heat_transfer_resistance
-        elif type(b.spec) is TransparentOpeningPartSpec:
-            return b.spec.outside_heat_transfer_resistance
-        elif type(b.spec) is OpaqueOpeningPartSpec:
-            return b.spec.outside_heat_transfer_resistance
-        elif type(b.spec) is GroundSpec:
-            return None   # 地盤の場合は逆側が年間一定温度とする温度境界のため熱伝達抵抗の定義がない。
-        else:
-            raise TypeError
+    # 室iの境界jの室内側表面総合熱伝達率, W/m2K, [j]
+    h_i_i_js = a23.get_h_i_i_ks(r_i_i_ks)
 
-    r_o_i_ks = np.array([get_r_o_i_ks(b) for b in boundaries])
+    # 室iの境界jの傾斜面のステップnにおける相当外気温度, ℃, [8760*4]
+    theta_o_sol_i_js_ns = np.array([
+        a9.get_theta_o_sol_i_j_ns(
+            boundary_i_j=b,
+            theta_o_ns=theta_o_ns,
+            i_dn_ns=i_dn_ns, i_sky_ns=i_sky_ns, r_n_ns=r_n_ns, a_sun_ns=a_sun_ns, h_sun_ns=h_sun_ns)
+        for b in boundaries])
 
     # 室iの境界kの熱貫流率, W/m2K
     # 定常で解く部位、つまり、透明な開口部・不透明な開口部で定義される。
@@ -207,55 +179,8 @@ def init_surface(
     solar_shading_part_i_ks = [b.solar_shading_part for b in boundaries]
 
 
-    # 室内側表面総合熱伝達率 [W/m2K] 式(122)
-    h_i_i_ks = a23.get_h_i_i_ks(r_i_i_ks)
 
-###########################################################################
 
-    itg_bs = []
-
-    for i in np.unique(gp_idxs):
-        r_i_i_iks = r_i_i_ks[first_idx[i]]
-        r_o_i_iks = r_o_i_ks[first_idx[i]]
-        h_i_i_ik = h_i_i_ks[first_idx[i]]
-        itg_bs.append(IntegratedBoundaries(
-            name_i_iks='integrated_boundary' + str(i),
-            sub_name_i_iks='+'.join(name_i_ks[gp_idxs == i]),
-            boundary_type_i_iks=boundary_type_i_ks[first_idx[i]],
-            a_i_iks=sum(a_i_ks[gp_idxs == i]),
-            is_sun_striked_outside_i_iks=is_sun_striked_outside_i_ks[first_idx[i]],
-            h_i_iks=h_i_ks[first_idx[i]],
-            next_room_type_i_iks=next_room_type_i_ks[first_idx[i]],
-            is_solar_absorbed_inside_i_ks=is_solar_absorbed_inside_i_ks[first_idx[i]],
-            h_i_i_iks=h_i_i_ik,
-            t_e_o_group=None
-        ))
-
-    # 室iの統合された境界ikの名称
-    itg_name_i_iks = [itg_b.name_i_iks for itg_b in itg_bs]
-
-    # 室iの統合された境界ikの副名称（統合する前の境界の名前を'+'記号でつなげたもの）
-    itg_sub_name_i_iks = [itg_b.sub_name_i_iks for itg_b in itg_bs]
-
-    # 室iの統合された境界ikの種類
-    itg_boundary_type_i_iks = [itg_b.boundary_type_i_iks for itg_b in itg_bs]
-
-    # 室iの統合された境界ikの面積
-    itg_a_i_iks = np.array([itg_b.a_i_iks for itg_b in itg_bs])
-
-    # 室iの統合された境界ikの日射の有無
-    itg_is_sun_striked_outside_i_iks = np.array([itg_b.is_sun_striked_outside_i_iks for itg_b in itg_bs])
-
-    # 室iの統合された境界ikの温度差係数
-    itg_h_i_iks = np.array([itg_b.h_i_iks for itg_b in itg_bs])
-
-    # 室iの境界kの隣室タイプ * k
-    itg_next_room_type_i_iks = np.array([itg_b.next_room_type_i_iks for itg_b in itg_bs])
-
-    # 室iの境界kの床室内侵入日射吸収の有無 * k
-    itg_is_solar_absorbed_inside_i_ks = np.array([itg_b.is_solar_absorbed_inside_i_ks for itg_b in itg_bs])
-
-    h_i_i_iks = np.array([itg_b.h_i_i_iks for itg_b in itg_bs])
 
 
 
@@ -273,7 +198,7 @@ def init_surface(
 
     # 応答係数
     # ※応答係数の次数は最大12として確保しておく
-    RFT0, RFA0, RFT1, RFA1, Row, Nroot = \
+    RFT0, RFA0, RFT1, RFA1, Row, n_root_i_js = \
         np.zeros(N_surf_i), np.zeros(N_surf_i), np.zeros((N_surf_i, 12)), np.zeros(
             (N_surf_i, 12)), \
         np.zeros((N_surf_i, 12)), np.zeros(N_surf_i, dtype=np.int64)
@@ -281,81 +206,128 @@ def init_surface(
     # ********** 応答係数 **********
 
     # 1) 非一般部位
-    f = np.logical_not((boundary_type_i_ks == "external_general_part")
-                       | (boundary_type_i_ks == "internal")
-                       | (boundary_type_i_ks == "ground"))
+    f = np.logical_not((boundary_type_i_js == "external_general_part")
+                       | (boundary_type_i_js == "internal")
+                       | (boundary_type_i_js == "ground"))
 
     # 開口部の室内表面から屋外までの熱貫流率[W / (m2･K)] 式(124)
     Uso[f] = a25.get_Uso(u_i_ks[f], r_i_i_ks[f])
 
-    RFT0[f], RFA0[f], RFT1[f], RFA1[f], Row[f], Nroot[f] = \
+    RFT0[f], RFA0[f], RFT1[f], RFA1[f], Row[f], n_root_i_js[f] = \
         1.0, 1.0 / Uso[f], np.zeros(12), np.zeros(12), np.zeros(12), 0
 
     # 2) 一般部位
     for k in range(N_surf_i):
-        if boundary_type_i_ks[k] in ["external_general_part", "internal", "ground"]:
-            is_ground = boundary_type_i_ks[k] == "ground"
+        if boundary_type_i_js[k] in ["external_general_part", "internal", "ground"]:
+            is_ground = boundary_type_i_js[k] == "ground"
 
             # 応答係数
-            RFT0[k], RFA0[k], RFT1[k], RFA1[k], Row[k], Nroot[k] = \
+            RFT0[k], RFA0[k], RFT1[k], RFA1[k], Row[k], n_root_i_js[k] = \
                 a2.calc_response_factor(is_ground, c_layer_i_k_ls[k], r_layer_i_k_ls[k])
 
-    # 室iの境界jの傾斜面のステップnにおける相当外気温度, ℃, [8760*4]
-    theta_o_sol_i_j_n = np.array([
-        a9.get_theta_o_sol_i_j_ns(
-            boundary_i_j=b,
-            theta_o_ns=theta_o_ns,
-            i_dn_ns=i_dn_ns, i_sky_ns=i_sky_ns, r_n_ns=r_n_ns, a_sun_ns=a_sun_ns, h_sun_ns=h_sun_ns)
-        for b in boundaries])
 
-    t_e_o_group = get_grouped_t_e_o(theta_o_sol_i_j_n, a_i_ks, gp_idxs)
+
+
+    # 室iの統合された境界j*の名称, [j*]
+    name_i_jstrs = np.array(['integrated_boundary' + str(i) for i in np.unique(gp_idxs)])
+
+    # 室iの統合された境界j*の副名称（統合する前の境界の名前を'+'記号でつなげたもの）, [j*]
+    sub_name_i_jstrs = np.array(['+'.join(name_i_js[gp_idxs == i]) for i in np.unique(gp_idxs)])
+
+    # 室iの統合された境界j*の種類, [j*]
+    boundary_type_i_jstrs = [boundary_type_i_js[first_idx[i]] for i in np.unique(gp_idxs)]
+
+    # 室iの統合された境界j*の面積, [j*]
+    a_i_jstrs = np.array([np.sum(a_i_js[gp_idxs == i]) for i in np.unique(gp_idxs)])
+
+    # 室iの統合された境界j*の日射の有無, [j*]
+    is_sun_striked_outside_i_jstrs = np.array([is_sun_striked_outside_i_js[first_idx[i]] for i in np.unique(gp_idxs)])
+
+    # 室iの統合された境界j*の温度差係数, [j*]
+    h_i_jstrs = np.array([h_i_js[first_idx[i]] for i in np.unique(gp_idxs)])
+
+    # 室iの統合された境界j*の隣室タイプ, [j*]
+    next_room_type_i_jstrs = np.array([next_room_type_i_js[first_idx[i]] for i in np.unique(gp_idxs)])
+
+    # 室iの統合された境界j*の床室内侵入日射吸収の有無, [j*]
+    is_solar_absorbed_inside_i_jstrs = np.array([is_solar_absorbed_inside_i_js[first_idx[i]] for i in np.unique(gp_idxs)])
+
+    # 室iの統合された境界j*の室内側表面総合熱伝達率, W/m2K, [j*]
+    h_i_i_jstrs = np.array([h_i_i_js[first_idx[i]] for i in np.unique(gp_idxs)])
+
+    # 室iの統合された境界j*の傾斜面のステップnにおける相当外気温度, ℃, [j*, 8760*4]
+    theta_o_sol_i_jstrs_ns = np.array([
+        get_are_weighted_averaged_values(v=theta_o_sol_i_js_ns[gp_idxs == i], a=a_i_js[gp_idxs == i])
+        for i in np.unique(gp_idxs)])
+
+    # 室iの統合された境界j*の応答係数法（項別公比法）における根の数, [j*]
+    n_root_i_jstrs = np.array([n_root_i_js[first_idx[i]] for i in np.unique(gp_idxs)])
+
+    Rows = np.array([Row[first_idx[i]] for i in np.unique(gp_idxs)])
+
+    RFT0s = np.array([
+        get_area_weighted_averaged_values_one_dimention(v=RFT0[gp_idxs == i], a=a_i_js[gp_idxs == i])
+        for i in np.unique(gp_idxs)
+    ])
+
+    RFA0s = np.array([
+        get_area_weighted_averaged_values_one_dimention(v=RFA0[gp_idxs == i], a=a_i_js[gp_idxs == i])
+        for i in np.unique(gp_idxs)
+    ])
+
+    RFT1s = np.array([
+        get_are_weighted_averaged_values(v=RFT1[gp_idxs == i], a=a_i_js[gp_idxs == i]) for i in np.unique(gp_idxs)
+    ])
+
+    RFA1s = np.array([
+        get_are_weighted_averaged_values(v=RFA1[gp_idxs == i], a=a_i_js[gp_idxs == i]) for i in np.unique(gp_idxs)
+    ])
+
+    NsurfG_i = len(np.unique(gp_idxs))
 
     ib = IntegratedBoundaries(
-        name_i_iks=itg_name_i_iks,
-        sub_name_i_iks=itg_sub_name_i_iks,
-        boundary_type_i_iks=itg_boundary_type_i_iks,
-        a_i_iks=itg_a_i_iks,
-        is_sun_striked_outside_i_iks=itg_is_sun_striked_outside_i_iks,
-        h_i_iks=itg_h_i_iks,
-        next_room_type_i_iks=itg_next_room_type_i_iks,
-        is_solar_absorbed_inside_i_ks=itg_is_solar_absorbed_inside_i_ks,
-        h_i_i_iks=h_i_i_iks,
-        t_e_o_group=t_e_o_group
+        name_i_jstrs=name_i_jstrs,
+        sub_name_i_jstrs=sub_name_i_jstrs,
+        boundary_type_i_jstrs=boundary_type_i_jstrs,
+        a_i_jstrs=a_i_jstrs,
+        is_sun_striked_outside_i_jstrs=is_sun_striked_outside_i_jstrs,
+        h_i_jstrs=h_i_jstrs,
+        next_room_type_i_jstrs=next_room_type_i_jstrs,
+        is_solar_absorbed_inside_i_jstrs=is_solar_absorbed_inside_i_jstrs,
+        h_i_i_jstrs=h_i_i_jstrs,
+        theta_o_sol_i_jstrs_ns=theta_o_sol_i_jstrs_ns,
+        n_root_i_jstrs=n_root_i_jstrs,
+        Rows=Rows,
+        RFT0s=RFT0s,
+        RFA0s=RFA0s,
+        RFT1s=RFT1s,
+        RFA1s=RFA1s,
+        NsurfG_i=NsurfG_i
     )
 
-    return Initialized_Surface(
-        N_surf_i=N_surf_i,
-        boundary_type=boundary_type_i_ks,
-        is_sun_striked_outside=is_sun_striked_outside_i_ks,
-        is_solar_absorbed_inside=is_solar_absorbed_inside_i_ks,
-        a_i_k=h_i_ks,
-        A_i_k=a_i_ks,
-#        Rnext_i_k=np.vectorize(convert_from_next_room_name_to_id)(next_room_type_i_ks),
-        Rnext_i_k=next_room_type_i_ks,
-        U=u_i_ks,
-        Teolist=theta_o_sol_i_j_n,
-        hi_i_k_n=h_i_i_ks,
-        RFT0=RFT0,
-        RFA0=RFA0,
-        RFT1=RFT1,
-        RFA1=RFA1,
-        Row=Row,
-        Nroot=Nroot,
-        gp_idx=gp_idxs,
-        ib=ib
-    )
+    return ib
 
+def get_area_weighted_averaged_values_one_dimention(v, a):
+    return np.sum(v * a / np.sum(a))
 
-def get_grouped_t_e_o(Teolist, a_i_ks, gp_idxs):
-    t_e_o_group = []
-    for i in np.unique(gp_idxs):
-        t = Teolist[gp_idxs == i]
-        r = (a_i_ks[gp_idxs == i] / np.sum(a_i_ks[gp_idxs == i])).reshape(-1, 1)
-        result = np.sum(t * r, axis=0)
+def get_are_weighted_averaged_values(v: np.ndarray, a: np.ndarray) -> np.ndarray:
+    """
+    時系列データ等複数の値もつ1次元配列のデータを複数もつマトリックスを面積加重平均する。
 
-        t_e_o_group.append(result)
+    Args:
+        v: ベクトル（2次元） [m, n] （m=境界の数）
+        a: 面積, m2, [境界の数]
 
-    return np.array(t_e_o_group)
+    Returns:
+        面積荷重平均化された1次元配列の値 [n]
+    """
+
+    # 面積割合, [境界の数]　ただし、行列計算可能なように[m,1]の2次元配列としている。
+    r = (a / np.sum(a)).reshape(-1, 1)
+
+    result = np.sum(v * r, axis=0)
+
+    return result
 
 
 def is_solar_radiation_transmitted(boundary: Boundary):
