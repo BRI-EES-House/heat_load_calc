@@ -125,6 +125,26 @@ def make_space(room: Dict,
 
     x_r_i_initial = a18.get_xr_initial()
 
+    # スケジュールの読み込み
+    local_vent_amount_schedule = a29.read_local_vent_schedules_from_json(room)  # 局所換気
+    heat_generation_appliances_schedule, \
+        heat_generation_cooking_schedule, \
+        vapor_generation_cooking_schedule = a30.read_internal_heat_schedules_from_json(room) # 機器発熱
+    heat_generation_lighting_schedule = a31.read_lighting_schedules_from_json(room)  # 照明発熱
+    number_of_people_schedule = a32.read_resident_schedules_from_json(room)  # 在室人数
+    # 空調スケジュールの読み込み
+    #   設定温度上限値, degree C * 365* 96
+    #   設定温度下限値, degree C * 365* 96
+    #   PMV上限値, degree C * 365* 96
+    #   PMV下限値, degree C * 365* 96
+    is_upper_temp_limit_set_schedule, \
+        is_lower_temp_limit_set_schedule, \
+        pmv_upper_limit_schedule, \
+        pmv_lower_limit_schedule = a13.read_air_conditioning_schedules_from_json(room)
+
+    # 空調や通風などの需要があるかどうか, bool * 365 * 96
+    air_conditioning_demand = is_upper_temp_limit_set_schedule | is_lower_temp_limit_set_schedule
+
     space = Space(
         d_room=room,
         name_i=name_i,
@@ -153,11 +173,19 @@ def make_space(room: Dict,
         q_trs_sol_i_ns=q_trs_sol_i_ns,
         n_ntrl_vent_i=n_ntrl_vent_i,
         theta_r_i_initial=theta_r_i_initial,
-        x_r_i_initial=x_r_i_initial
+        x_r_i_initial=x_r_i_initial,
+        local_vent_amount_schedule=local_vent_amount_schedule,
+        heat_generation_appliances_schedule=heat_generation_appliances_schedule,
+        heat_generation_cooking_schedule=heat_generation_cooking_schedule,
+        vapor_generation_cooking_schedule=vapor_generation_cooking_schedule,
+        heat_generation_lighting_schedule=heat_generation_lighting_schedule,
+        number_of_people_schedule=number_of_people_schedule,
+        is_upper_temp_limit_set_schedule=is_upper_temp_limit_set_schedule,
+        is_lower_temp_limit_set_schedule=is_lower_temp_limit_set_schedule,
+        pmv_upper_limit_schedule=pmv_upper_limit_schedule,
+        pmv_lower_limit_schedule=pmv_lower_limit_schedule,
+        air_conditioning_demand=air_conditioning_demand
     )
-
-    # 空調や通風などの需要があるかどうか, bool * 365 * 96
-    space.air_conditioning_demand = space.is_upper_temp_limit_set_schedule | space.is_lower_temp_limit_set_schedule
 
     # 部位ごとの計算結果用変数
     space.Teo_i_k_n = np.full((space.n_bdry_i_jstrs, 24 * 365 * 4 * 4), a18.get_Teo_initial())  # i室の部位kにおけるn時点の裏面相当温度

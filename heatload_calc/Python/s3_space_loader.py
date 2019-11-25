@@ -86,7 +86,13 @@ class Space:
             is_solar_absorbed_inside_bdry_i_jstrs, h_i_bdry_i_jstrs, theta_o_sol_bdry_i_jstrs_ns, n_root_bdry_i_jstrs,
             row_bdry_i_jstrs, rft0_bdry_i_jstrs, rfa0_bdry_i_jstrs, rft1_bdry_i_jstrs, rfa1_bdry_i_jstrs, n_bdry_i_jstrs,
             q_trs_sol_i_ns: np.ndarray, n_ntrl_vent_i: float,
-            theta_r_i_initial: float, x_r_i_initial: float
+            theta_r_i_initial: float, x_r_i_initial: float, local_vent_amount_schedule: np.ndarray,
+            heat_generation_appliances_schedule: np.ndarray, heat_generation_cooking_schedule: np.ndarray,
+            vapor_generation_cooking_schedule: np.ndarray, heat_generation_lighting_schedule: np.ndarray,
+            number_of_people_schedule: np.ndarray,
+            is_upper_temp_limit_set_schedule: np.ndarray, is_lower_temp_limit_set_schedule: np.ndarray,
+            pmv_upper_limit_schedule: np.ndarray, pmv_lower_limit_schedule: np.ndarray,
+            air_conditioning_demand: np.ndarray
     ):
 
         self.name_i = name_i
@@ -120,29 +126,21 @@ class Space:
         self.q_trs_sol_i_ns = q_trs_sol_i_ns
         self.n_ntrl_vent_i = n_ntrl_vent_i
 
-        # 破棄してもよい？（要調査）
-        self.Lrs = 0.0
-        # 破棄してもよい？（要調査）
-        self.Ls = None
+        self.air_conditioning_demand = air_conditioning_demand  # 当該時刻の空調需要（0：なし、1：あり）
 
         self.theta_r_i_ns = np.full(24 * 365 * 4 * 3, theta_r_i_initial)  # i室のn時点における室温
         self.x_r_i_ns = np.full(24 * 365 * 4 * 3, x_r_i_initial)  # i室のn時点における室絶対湿度
+        self.RH_i_n = np.full(24 * 365 * 4 * 3, 50.0)  # i室のn時点における室相対湿度[%]
 
         self.OT_i_n = np.zeros(24 * 365 * 4 * 3)  # i室のn時点における室の作用温度
 
-        # 破棄してもよい？（要調査）
-        self.OTset = 0.0  # i室のn時点における室の空調設定作用温度(目標作用温度)
-
         # ステップnにおける室iの部位j*における室内側表面温度, degree C
         self.Ts_i_k_n = np.zeros((n_bdry_i_jstrs, 24 * 365 * 4 * 4))
-
-        self.RH_i_n = np.full(24 * 365 * 4 * 3, 50.0)  # i室のn時点における室相対湿度[%]
 
         self.Qfuns_i_n = np.zeros(24 * 365 * 4 * 3)
         self.rsolfun__i = math.nan  # 透過日射の内家具が吸収する割合[－]
         self.kc_i = s41.calc_kc_i()  # i室の人体表面における対流熱伝達率の総合熱伝達率に対する比
         self.kr_i = s41.calc_kr_i()  # i室の人体表面における放射熱伝達率の総合熱伝達率に対する比
-        self.air_conditioning_demand = False  # 当該時刻の空調需要（0：なし、1：あり）
         self.prev_air_conditioning_mode = 0  # 前時刻の空調運転状態（0：停止、正：暖房、負：冷房）
         self.is_prev_window_open = False  # 前時刻の窓状態（0：閉鎖、1：開放）
         self.now_air_conditioning_mode = np.full(24 * 365 * 4 * 3, 0)  # 当該時刻の空調運転状態（0：なし、正：暖房、負：冷房）
@@ -207,32 +205,17 @@ class Space:
 
         self.Beta_i = 0.0  # 放射暖房対流比率
 
-        # ********** 計算準備14 局所換気スケジュール、機器発熱スケジュール、
-        # 照明発熱スケジュール、人体発熱スケジュールの読み込み **********
-
-        # 局所換気スケジュールの読み込み
-        self.local_vent_amount_schedule = a29.read_local_vent_schedules_from_json(d_room)
-
-        # 機器発熱スケジュールの読み込み
-        self.heat_generation_appliances_schedule, \
-        self.heat_generation_cooking_schedule, \
-        self.vapor_generation_cooking_schedule = a30.read_internal_heat_schedules_from_json(d_room)
-
-        # 照明発熱スケジュールの読み込み
-        self.heat_generation_lighting_schedule = a31.read_lighting_schedules_from_json(d_room)
-
-        # 在室人数スケジュールの読み込み
-        self.number_of_people_schedule = a32.read_resident_schedules_from_json(d_room)
-
-        # 空調スケジュールの読み込み
-        #   設定温度上限値, degree C * 365* 96
-        #   設定温度下限値, degree C * 365* 96
-        #   PMV上限値, degree C * 365* 96
-        #   PMV下限値, degree C * 365* 96
-        self.is_upper_temp_limit_set_schedule, \
-            self.is_lower_temp_limit_set_schedule, \
-            self.pmv_upper_limit_schedule, \
-            self.pmv_lower_limit_schedule = a13.read_air_conditioning_schedules_from_json(d_room)
+        # スケジュール
+        self.local_vent_amount_schedule = local_vent_amount_schedule  # 局所換気
+        self.heat_generation_appliances_schedule = heat_generation_appliances_schedule  # 機器発熱
+        self.heat_generation_cooking_schedule = heat_generation_cooking_schedule  # 調理顕熱発熱
+        self.vapor_generation_cooking_schedule = vapor_generation_cooking_schedule  # 調理潜熱発熱
+        self.heat_generation_lighting_schedule = heat_generation_lighting_schedule  # 照明発熱
+        self.number_of_people_schedule = number_of_people_schedule  # 在室人数
+        self.is_upper_temp_limit_set_schedule = is_upper_temp_limit_set_schedule  # 設定温度上限値, degree C
+        self.is_lower_temp_limit_set_schedule = is_lower_temp_limit_set_schedule  # 設定温度下限値, degree C
+        self.pmv_upper_limit_schedule = pmv_upper_limit_schedule  # PMV上限値, degree C
+        self.pmv_lower_limit_schedule = pmv_lower_limit_schedule  # PMV下限値, degree C
 
         # ********** 計算準備6 隣室間換気の読み込み **********
 
