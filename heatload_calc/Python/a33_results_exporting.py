@@ -82,7 +82,7 @@ def append_tick_log(spaces: List[Space], log: List[List], To_n: float, n: int, x
         row.append(space.is_now_window_open_i_n[n])
         row.append(space.air_conditioning_demand[n])
         row.append('{0:.0f}'.format(space.now_air_conditioning_mode[n]))
-        row.append('{0:.2f}'.format(space.Tr_i_n[n]))
+        row.append('{0:.2f}'.format(space.theta_r_i_ns[n]))
         row.append('{0:.0f}'.format(space.RH_i_n[n]))
         row.append('{0:.4f}'.format(space.xr_i_n[n]))
         row.append('{0:.2f}'.format(space.MRT_i_n[n]))

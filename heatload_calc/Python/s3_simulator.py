@@ -49,14 +49,14 @@ def run_tick(spaces: List[Space], To_n: float, xo_n: float, n: int):
 
         # 裏面温度の計算
         s.Teo_i_k_n[:, n] = a9.calc_Teo(
-            To_n, s.Tr_i_n[n - 1], spaces, n, s.n_bdry_i_jstrs, s.boundary_type_i_jstrs,
+            To_n, s.theta_r_i_ns[n - 1], spaces, n, s.n_bdry_i_jstrs, s.boundary_type_i_jstrs,
             s.is_sun_striked_outside_bdry_i_jstrs, s.theta_o_sol_bdry_i_jstrs_ns, s.h_bdry_i_jstrs, s.next_room_type_bdry_i_jstrs
         )
 
         # ********** 人体発熱および、内部発熱・発湿の計算 **********
 
         # 人体発熱(W)・発湿(kg/s)
-        s.Hhums[n], s.Hhuml[n] = a3.calc_Hhums_and_Hhuml(s.Tr_i_n[n - 1], s.number_of_people_schedule[n])
+        s.Hhums[n], s.Hhuml[n] = a3.calc_Hhums_and_Hhuml(s.theta_r_i_ns[n - 1], s.number_of_people_schedule[n])
 
         # 内部発熱[W]
         Hn = (s.heat_generation_appliances_schedule[n] + s.heat_generation_lighting_schedule[n] +
@@ -90,7 +90,7 @@ def run_tick(spaces: List[Space], To_n: float, xo_n: float, n: int):
         # 室名が重複して指定された場合に破綻する。
         idxs = [[i for i, space in enumerate(spaces) if space.name_i == x][0] for x in s.name_vent_up_i_nis]
 #        print(str(i) + ':' + str(idxs))
-        Tr_next_i_j_nm1 = np.array([spaces[x].Tr_i_n[n - 1] for x in idxs])
+        Tr_next_i_j_nm1 = np.array([spaces[x].theta_r_i_ns[n - 1] for x in idxs])
         xr_next_i_j_nm1 = np.array([spaces[x].xr_i_n[n - 1] for x in idxs])
 #        print(str(i) + ': ' + str(Tr_next_i_j_nm1))
 
@@ -119,7 +119,7 @@ def run_tick(spaces: List[Space], To_n: float, xo_n: float, n: int):
             Infset=s.Infset,
             LocalVentset=s.local_vent_amount_schedule[n],
             Hcap=s.Hcap,
-            oldTr=s.Tr_i_n[n - 1],
+            oldTr=s.theta_r_i_ns[n - 1],
             Cap_fun_i=s.Capfun,
             C_fun_i=s.Cfun,
             Qsolfun=s.Qsolfun_i_n[n],
@@ -131,7 +131,7 @@ def run_tick(spaces: List[Space], To_n: float, xo_n: float, n: int):
         # 仮の窓開閉条件における通風量 NVot の計算
         ca = a18.get_ca()
         rhoa = a18.get_rhoa()
-        NVot = a13.get_NV(is_now_window_open, s.v_room_cap_i, s.Nventtime_i)
+        NVot = a13.get_NV(is_now_window_open, s.v_room_cap_i, s.n_ntrl_vent_i)
 
         # ********** 非空調(自然)作用温度、PMV の計算 **********
 
@@ -175,7 +175,7 @@ def run_tick(spaces: List[Space], To_n: float, xo_n: float, n: int):
                    s.pmv_upper_limit_schedule[n]][ac_mode]
 
         # 確定した窓開閉状態における通風量を計算
-        NV = a13.get_NV(s.is_now_window_open_i_n[n], s.v_room_cap_i, s.Nventtime_i)
+        NV = a13.get_NV(s.is_now_window_open_i_n[n], s.v_room_cap_i, s.n_ntrl_vent_i)
 
         # メモ: 窓開閉のいずれの条件で計算したBRM,BRCを採用しているだけに見える。
         #       ⇒両方計算して比較するように記述したほうがシンプル
@@ -208,14 +208,14 @@ def run_tick(spaces: List[Space], To_n: float, xo_n: float, n: int):
         # ********** 室温 Tr、家具温度 Tfun、表面温度 Ts_i_k_n、室内表面熱流 q の計算 **********
 
         # 自然室温 Tr を計算 式(14)
-        s.Tr_i_n[n] = s41.get_Tr_i_n(s.OT_i_n[n], s.Lrs_i_n[n], Xot, XLr, XC)
+        s.theta_r_i_ns[n] = s41.get_Tr_i_n(s.OT_i_n[n], s.Lrs_i_n[n], Xot, XLr, XC)
 
         # 家具の温度 Tfun を計算 式(15)
-        s.Tfun_i_n[n] = s41.get_Tfun_i_n(s.Capfun, s.Tfun_i_n[n - 1], s.Cfun, s.Tr_i_n[n], s.Qsolfun_i_n[n])
-        s.Qfuns_i_n[n] = s41.get_Qfuns(s.Cfun, s.Tr_i_n[n], s.Tfun_i_n[n])
+        s.Tfun_i_n[n] = s41.get_Tfun_i_n(s.Capfun, s.Tfun_i_n[n - 1], s.Cfun, s.theta_r_i_ns[n], s.Qsolfun_i_n[n])
+        s.Qfuns_i_n[n] = s41.get_Qfuns(s.Cfun, s.theta_r_i_ns[n], s.Tfun_i_n[n])
 
         # 表面温度の計算 式(23)
-        s.Ts_i_k_n[:, n] = a1.get_surface_temperature(s.WSR_i_k, s.WSB_i_k, WSC_i_k, WSV_i_k, s.Tr_i_n[n], s.Lrs_i_n[n])
+        s.Ts_i_k_n[:, n] = a1.get_surface_temperature(s.WSR_i_k, s.WSB_i_k, WSC_i_k, WSV_i_k, s.theta_r_i_ns[n], s.Lrs_i_n[n])
 
         # MRT_i_n、AST、平均放射温度の計算
         s.MRT_i_n[n] = get_MRT(s.Fot_i_g, s.Ts_i_k_n[:, n])
@@ -226,14 +226,14 @@ def run_tick(spaces: List[Space], To_n: float, xo_n: float, n: int):
 
         # 室内側等価温度の計算 式(29)
         s.Tei_i_k_n[:, n] = a1.calc_Tei(s.hc_i_g_n, s.h_i_bdry_i_jstrs, s.hr_i_g_n, s.Sol_i_g_n[:, n], s.flr_i_k,
-                                        s.a_bdry_i_jstrs, s.Tr_i_n[n], s.F_mrt_i_g, s.Ts_i_k_n[:, n], s.Lrs_i_n[n],
+                                        s.a_bdry_i_jstrs, s.theta_r_i_ns[n], s.F_mrt_i_g, s.Ts_i_k_n[:, n], s.Lrs_i_n[n],
                                         s.Beta_i)
 
         # 室内表面熱流の計算 式(28)
         s.Qc[:, n], s.Qr[:, n], s.Lr, s.RS, Qt, s.oldqi = a1.calc_qi(s.hc_i_g_n, s.a_bdry_i_jstrs, s.hr_i_g_n, s.Sol_i_g_n[:, n],
-                                                         s.flr_i_k,
-                                                         s.Ts_i_k_n[:, n], s.Tr_i_n[n], s.F_mrt_i_g, s.Lrs_i_n[n],
-                                                         s.Beta_i)
+                                                                     s.flr_i_k,
+                                                         s.Ts_i_k_n[:, n], s.theta_r_i_ns[n], s.F_mrt_i_g, s.Lrs_i_n[n],
+                                                                     s.Beta_i)
 
         # ********** 室湿度 xr、除湿量 G_hum、湿加湿熱量 Ll の計算 **********
 
@@ -271,7 +271,7 @@ def run_tick(spaces: List[Space], To_n: float, xo_n: float, n: int):
 
         # 空調の熱交換部飽和絶対湿度の計算
         s.Vac_n[n], s.xeout_i_n[n] = \
-            a16.calcVac_xeout(s.Lcs_i_n[n], s.Vmin_i, s.Vmax_i, s.qmin_c_i, s.qmax_c_i, s.Tr_i_n[n], BF, ac_mode)
+            a16.calcVac_xeout(s.Lcs_i_n[n], s.Vmin_i, s.Vmax_i, s.qmin_c_i, s.qmax_c_i, s.theta_r_i_ns[n], BF, ac_mode)
 
         # 空調機除湿の項 式(20)より
         RhoVac = get_RhoVac(s.Vac_n[n], BF)
@@ -310,7 +310,7 @@ def run_tick(spaces: List[Space], To_n: float, xo_n: float, n: int):
         s.Lrl_i_n[n] = get_Lrl()
 
         # 室相対湿度の計算 式(22)
-        s.RH_i_n[n] = rhtx(s.Tr_i_n[n], s.xr_i_n[n])
+        s.RH_i_n[n] = rhtx(s.theta_r_i_ns[n], s.xr_i_n[n])
 
         # ********** 備品類の絶対湿度 xf の計算 **********
 
@@ -320,7 +320,7 @@ def run_tick(spaces: List[Space], To_n: float, xo_n: float, n: int):
 
         # PMVの計算
         s.PMV_i_n[n] = \
-            a35.calc_PMV(s.Tr_i_n[n], s.MRT_i_n[n], s.RH_i_n[n], s.Vel_i_n[n], s.Met_i_n[n], s.Wme_i_n[n], s.Clo_i_n[n])
+            a35.calc_PMV(s.theta_r_i_ns[n], s.MRT_i_n[n], s.RH_i_n[n], s.Vel_i_n[n], s.Met_i_n[n], s.Wme_i_n[n], s.Clo_i_n[n])
 
         # ********** 窓開閉、空調発停の決定 **********
 

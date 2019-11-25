@@ -39,7 +39,7 @@ def calc_Teo(
     for g in range(NsurfG_i):
         # 内壁の場合（前時刻の室温）
         if boundary_type[g] == "internal":
-            Teo_i_k_n[g] = spaces[Rnext_i_g[g]].Tr_i_n[sequence_number - 1]
+            Teo_i_k_n[g] = spaces[Rnext_i_g[g]].theta_r_i_ns[sequence_number - 1]
 
     return Teo_i_k_n
 

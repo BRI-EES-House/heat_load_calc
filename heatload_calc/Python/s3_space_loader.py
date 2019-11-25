@@ -85,7 +85,8 @@ class Space:
             a_bdry_i_jstrs: np.ndarray, is_sun_striked_outside_bdry_i_jstrs, h_bdry_i_jstrs, next_room_type_bdry_i_jstrs,
             is_solar_absorbed_inside_bdry_i_jstrs, h_i_bdry_i_jstrs, theta_o_sol_bdry_i_jstrs_ns, n_root_bdry_i_jstrs,
             row_bdry_i_jstrs, rft0_bdry_i_jstrs, rfa0_bdry_i_jstrs, rft1_bdry_i_jstrs, rfa1_bdry_i_jstrs, n_bdry_i_jstrs,
-            q_trs_sol_i_ns: np.ndarray
+            q_trs_sol_i_ns: np.ndarray, n_ntrl_vent_i: float,
+            theta_r_i_initial: float
     ):
 
         self.name_i = name_i
@@ -117,17 +118,16 @@ class Space:
         # TODO: 相当隙間面積についてはからすきま風量を変換する部分については実装されていない。
         self.Inf = 0.0  # すきま風量（暫定値）
         self.q_trs_sol_i_ns = q_trs_sol_i_ns
-
-
-        # 室iの自然風利用時の換気回数, 1/h
-        self.Nventtime_i = d_room['natural_vent_time']
+        self.n_ntrl_vent_i = n_ntrl_vent_i
 
         # 破棄してもよい？（要調査）
         self.Lrs = 0.0
         # 破棄してもよい？（要調査）
         self.Ls = None
 
-        self.Tr_i_n = np.full(24 * 365 * 4 * 3, a18.get_Tr_initial())  # i室のn時点における室温
+#        self.theta_r_i_ns = np.full(24 * 365 * 4 * 3, a18.get_Tr_initial())  # i室のn時点における室温
+        self.theta_r_i_ns = np.full(24 * 365 * 4 * 3, theta_r_i_initial)  # i室のn時点における室温
+
         self.OT_i_n = np.zeros(24 * 365 * 4 * 3)  # i室のn時点における室の作用温度
         self.OTset = 0.0  # i室のn時点における室の空調設定作用温度(目標作用温度)
         self.Ts_i_k_n = np.zeros((0, 24 * 365 * 4 * 3))  # i室の部位kにおけるn時点の室内側表面温度 (max(k)が不明なのであとで初期化

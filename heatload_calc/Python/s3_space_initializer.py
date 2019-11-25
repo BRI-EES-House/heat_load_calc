@@ -117,6 +117,11 @@ def make_space(room: Dict,
             boundaries=d_boundary_i_ks, i_dn_ns=i_dn_ns, i_sky_ns=i_sky_ns, h_sun_ns=h_sun_ns, a_sun_ns=a_sun_ns
         ), axis=0)
 
+    # 室iの自然風利用時の換気回数, 1/h
+    n_ntrl_vent_i = room['natural_vent_time']
+
+    # 室iの初期温度, degree C
+    theta_r_i_initial = a18.get_Tr_initial()
 
     space = Space(
         d_room=room,
@@ -143,7 +148,9 @@ def make_space(room: Dict,
         rft1_bdry_i_jstrs=rft1_bdry_i_jstrs,
         rfa1_bdry_i_jstrs=rfa1_bdry_i_jstrs,
         n_bdry_i_jstrs=n_bdry_i_jstrs,
-        q_trs_sol_i_ns=q_trs_sol_i_ns
+        q_trs_sol_i_ns=q_trs_sol_i_ns,
+        n_ntrl_vent_i=n_ntrl_vent_i,
+        theta_r_i_initial=theta_r_i_initial
     )
 
     # 空調や通風などの需要があるかどうか, bool * 365 * 96
