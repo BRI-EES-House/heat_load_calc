@@ -18,9 +18,11 @@ import a31_lighting_schedule as a31
 import a32_resident_schedule as a32
 import a34_building_part_summarize as a34
 import s4_1_sensible_heat as s41
-from s3_surface_initializer import init_surface
+
 from s3_space_loader import Space
 import s3_surface_initializer as s3
+import s3_space_loader as s3sl
+import s3_surface_loader
 
 # # 室温・熱負荷を計算するクラス
 
@@ -61,49 +63,112 @@ def make_space(room: Dict,
                i_dn_ns: np.ndarray, i_sky_ns: np.ndarray, r_n_ns: np.ndarray, theta_o_ns: np.ndarray,
                h_sun_ns: np.ndarray, a_sun_ns: np.ndarray):
 
-    space = Space(d_room=room)
+    # 室iの名称
+    name_i = room['name']
 
-    # 空調や通風などの需要があるかどうか, bool * 365 * 96
-    space.air_conditioning_demand = space.is_upper_temp_limit_set_schedule | space.is_lower_temp_limit_set_schedule
+    # 室iのタイプ
+    #   main_occupant_room: 主たる居室
+    #   other_occupant_room: その他の居室
+    #   non_occupant_room: 非居室
+    #   underfloor: 床下空間
+    room_type_i = room['room_type']
+
+    # 室iの気積, m3
+    v_room_cap_i = room['volume']
+
+    # 室iの外気からの機械換気量, m3/h
+    v_vent_ex_i = room['vent']
+
+    # 室iの隣室からの機械換気量niの上流側の室の名称, [ni]
+    name_vent_up_i_nis = [next_vent['upstream_room_type'] for next_vent in room['next_vent']]
+
+    # 室iの隣室からの機械換気量niの換気量, m3/h, [ni]
+    v_vent_up_i_nis = np.array([next_vent['volume'] for next_vent in room['next_vent']])
+
+    # 室iの境界k
+    d_boundary_i_ks = s3_surface_loader.read_d_boundary_i_ks(input_dict_boundaries=room['boundaries'])
 
     # i室の部位の初期化
-    ib = init_surface(
-        boundaries=space.d_boundary_i_ks,
+    ib = s3.init_surface(
+        boundaries=d_boundary_i_ks,
         i_dn_ns=i_dn_ns, i_sky_ns=i_sky_ns, r_n_ns=r_n_ns, theta_o_ns=theta_o_ns, h_sun_ns=h_sun_ns, a_sun_ns=a_sun_ns)
 
-    # i室の境界条件が同じ部位kを集約し、部位gを作成
-    space.surfG_i = a34.GroupedSurface(integrated_boundaries=ib)
+    name_bdry_i_jstrs = ib.name_i_jstrs
+    sub_name_bdry_i_jstrs = ib.sub_name_i_jstrs
+    boundary_type_i_jstrs = ib.boundary_type_i_jstrs
+    a_bdry_i_jstrs = ib.a_i_jstrs
+    is_sun_striked_outside_bdry_i_jstrs = ib.is_sun_striked_outside_i_jstrs
+    h_bdry_i_jstrs = ib.h_i_jstrs
+    next_room_type_bdry_i_jstrs = ib.next_room_type_i_jstrs
+    is_solar_absorbed_inside_bdry_i_jstrs = ib.is_solar_absorbed_inside_i_jstrs
+    h_i_bdry_i_jstrs = ib.h_i_i_jstrs
+    theta_o_sol_bdry_i_jstrs_ns = ib.theta_o_sol_i_jstrs_ns
+    n_root_bdry_i_jstrs = ib.n_root_i_jstrs
+    row_bdry_i_jstrs = ib.Rows
+    rft0_bdry_i_jstrs = ib.RFT0s
+    rfa0_bdry_i_jstrs = ib.RFA0s
+    rft1_bdry_i_jstrs = ib.RFT1s
+    rfa1_bdry_i_jstrs = ib.RFA1s
+    n_bdry_i_jstrs = ib.NsurfG_i
+
+
+    space = Space(
+        d_room=room,
+        name_i=name_i,
+        room_type_i=room_type_i,
+        v_room_cap_i=v_room_cap_i,
+        v_vent_ex_i=v_vent_ex_i,
+        name_vent_up_i_nis=name_vent_up_i_nis,
+        v_vent_up_i_nis=v_vent_up_i_nis,
+        name_bdry_i_jstrs=name_bdry_i_jstrs,
+        sub_name_bdry_i_jstrs=sub_name_bdry_i_jstrs,
+        boundary_type_i_jstrs=boundary_type_i_jstrs,
+        a_bdry_i_jstrs=a_bdry_i_jstrs,
+        is_sun_striked_outside_bdry_i_jstrs=is_sun_striked_outside_bdry_i_jstrs,
+        h_bdry_i_jstrs=h_bdry_i_jstrs,
+        next_room_type_bdry_i_jstrs=next_room_type_bdry_i_jstrs,
+        is_solar_absorbed_inside_bdry_i_jstrs=is_solar_absorbed_inside_bdry_i_jstrs,
+        h_i_bdry_i_jstrs=h_i_bdry_i_jstrs,
+        theta_o_sol_bdry_i_jstrs_ns=theta_o_sol_bdry_i_jstrs_ns,
+        n_root_bdry_i_jstrs=n_root_bdry_i_jstrs,
+        row_bdry_i_jstrs=row_bdry_i_jstrs,
+        rft0_bdry_i_jstrs=rft0_bdry_i_jstrs,
+        rfa0_bdry_i_jstrs=rfa0_bdry_i_jstrs,
+        rft1_bdry_i_jstrs=rft1_bdry_i_jstrs,
+        rfa1_bdry_i_jstrs=rfa1_bdry_i_jstrs,
+        n_bdry_i_jstrs=n_bdry_i_jstrs
+    )
 
     # 透過日射熱取得の集約し、i室のn時点における透過日射熱取得 QGT_i_n を計算
     space.QGT_i_n = np.sum(
         s3.get_transmitted_solar_radiation(
-            boundaries=space.d_boundary_i_ks, i_dn_ns=i_dn_ns, i_sky_ns=i_sky_ns, h_sun_ns=h_sun_ns, a_sun_ns=a_sun_ns
+            boundaries=d_boundary_i_ks, i_dn_ns=i_dn_ns, i_sky_ns=i_sky_ns, h_sun_ns=h_sun_ns, a_sun_ns=a_sun_ns
         ), axis=0)
 
-    # i室の部位の面数(集約後)
-    space.NsurfG_i = space.surfG_i.NsurfG_i
+    # 空調や通風などの需要があるかどうか, bool * 365 * 96
+    space.air_conditioning_demand = space.is_upper_temp_limit_set_schedule | space.is_lower_temp_limit_set_schedule
 
     # 部位ごとの計算結果用変数
-    space.Ts_i_k_n = np.zeros((space.NsurfG_i, 24 * 365 * 4 * 4))
-    space.Teo_i_k_n = np.full((space.NsurfG_i, 24 * 365 * 4 * 4), a18.get_Teo_initial())  # i室の部位kにおけるn時点の裏面相当温度
-    space.Tei_i_k_n = np.zeros((space.NsurfG_i, 24 * 365 * 4 * 4))  # i室の部位kにおけるn時点の室内等価温度
-    space.TsdA_l_n_m = np.full((space.NsurfG_i, 24 * 365 * 4 * 4, 12), a18.get_TsdT_initial())  # （26）式中の〖CVL〗_(i,l)の計算式右辺
-    space.TsdT_l_n_m = np.full((space.NsurfG_i, 24 * 365 * 4 * 4, 12), a18.get_TsdT_initial())  # （26）式中の〖CVL〗_(i,l)の計算式右辺
-    space.Sol_i_g_n = np.zeros((space.NsurfG_i, 24 * 365 * 4 * 4))
-    space.Qc = np.zeros((space.NsurfG_i, 24 * 365 * 4 * 4))
-    space.Qr = np.zeros((space.NsurfG_i, 24 * 365 * 4 * 4))
-    space.oldqi = space.surfG_i.oldqi
-
+    space.Ts_i_k_n = np.zeros((space.n_bdry_i_jstrs, 24 * 365 * 4 * 4))
+    space.Teo_i_k_n = np.full((space.n_bdry_i_jstrs, 24 * 365 * 4 * 4), a18.get_Teo_initial())  # i室の部位kにおけるn時点の裏面相当温度
+    space.Tei_i_k_n = np.zeros((space.n_bdry_i_jstrs, 24 * 365 * 4 * 4))  # i室の部位kにおけるn時点の室内等価温度
+    space.TsdA_l_n_m = np.full((space.n_bdry_i_jstrs, 24 * 365 * 4 * 4, 12), a18.get_TsdT_initial())  # （26）式中の〖CVL〗_(i,l)の計算式右辺
+    space.TsdT_l_n_m = np.full((space.n_bdry_i_jstrs, 24 * 365 * 4 * 4, 12), a18.get_TsdT_initial())  # （26）式中の〖CVL〗_(i,l)の計算式右辺
+    space.Sol_i_g_n = np.zeros((space.n_bdry_i_jstrs, 24 * 365 * 4 * 4))
+    space.Qc = np.zeros((space.n_bdry_i_jstrs, 24 * 365 * 4 * 4))
+    space.Qr = np.zeros((space.n_bdry_i_jstrs, 24 * 365 * 4 * 4))
+    # 前時刻の室内側表面熱流
+    space.oldqi = np.zeros(space.n_bdry_i_jstrs)
     eps_m = a18.get_eps()
 
     # 部位の人体に対する形態係数を計算 表6
-    space.Fot_i_g = a12.calc_form_factor_for_human_body(space.surfG_i.A_i_g, space.surfG_i.is_solar_absorbed_inside)
+    space.Fot_i_g = a12.calc_form_factor_for_human_body(space.a_bdry_i_jstrs, space.is_solar_absorbed_inside_bdry_i_jstrs)
 
     # 合計面積の計算
-    space.A_total_i = np.sum(space.surfG_i.A_i_g)
+    space.A_total_i = np.sum(space.a_bdry_i_jstrs)
 
     # 合計床面積の計算
-    A_fs_i = np.sum(space.surfG_i.A_i_g * space.surfG_i.is_solar_absorbed_inside)
+    A_fs_i = np.sum(space.a_bdry_i_jstrs * space.is_solar_absorbed_inside_bdry_i_jstrs)
 
     # ルームエアコンの仕様の設定 式(107)-(111)
     space.qrtd_c_i = a15.get_qrtd_c(A_fs_i)
@@ -113,36 +178,37 @@ def make_space(room: Dict,
     space.Vmin_i = a15.get_Vmin(space.Vmax_i)
 
     # 放射暖房の発熱部位の設定（とりあえず床発熱） 表7
-    space.flr_i_k = a12.get_flr(space.surfG_i.A_i_g, A_fs_i, space.is_radiative_heating,
-                                space.surfG_i.is_solar_absorbed_inside)
+    space.flr_i_k = a12.get_flr(space.a_bdry_i_jstrs, A_fs_i, space.is_radiative_heating,
+                                space.is_solar_absorbed_inside_bdry_i_jstrs)
+
 
     # 微小点に対する室内部位の形態係数の計算（永田先生の方法） 式(94)
-    FF_m = a12.calc_form_factor_of_microbodies(space.name_i, space.surfG_i.A_i_g)
+    FF_m = a12.calc_form_factor_of_microbodies(space.name_i, space.a_bdry_i_jstrs)
 
     # 表面熱伝達率の計算 式(123) 表16
-    space.hr_i_g_n, space.hc_i_g_n = a23.calc_surface_transfer_coefficient(eps_m, FF_m, space.surfG_i.hi_i_g_n)
+    space.hr_i_g_n, space.hc_i_g_n = a23.calc_surface_transfer_coefficient(eps_m, FF_m, space.h_i_bdry_i_jstrs)
 
     # 平均放射温度計算時の各部位表面温度の重み計算 式(101)
-    space.F_mrt_i_g = a12.get_F_mrt_i_g(space.surfG_i.A_i_g, space.hr_i_g_n)
+    space.F_mrt_i_g = a12.get_F_mrt_i_g(space.a_bdry_i_jstrs, space.hr_i_g_n)
 
     # 日射吸収比率の計算
 
     # 床の室内部位表面吸収比率の設定 表(5) 床の場合
-    space.Rsol_floor_i_g = a12.get_SolR(space.surfG_i.A_i_g, space.surfG_i.is_solar_absorbed_inside, A_fs_i)
+    space.Rsol_floor_i_g = a12.get_SolR(space.a_bdry_i_jstrs, space.is_solar_absorbed_inside_bdry_i_jstrs, A_fs_i)
 
     space.Rsol_fun_i = a12.calc_absorption_ratio_of_transmitted_solar_radiation()
 
     # *********** 室内表面熱収支計算のための行列作成 ***********
 
     rhoa = a18.get_rhoa()
-    space.Ga = space.vol_i * rhoa  # 室空気の質量[kg]
+    space.Ga = space.v_room_cap_i * rhoa  # 室空気の質量[kg]
 
     # FIA, FLBの作成 式(26)
-    FIA_i_l = a1.get_FIA(space.surfG_i.RFA0, space.hc_i_g_n)
-    FLB_i_l = a1.get_FLB(space.surfG_i.RFA0, space.flr_i_k, space.Beta_i, space.surfG_i.A_i_g)
+    FIA_i_l = a1.get_FIA(space.rfa0_bdry_i_jstrs, space.hc_i_g_n)
+    FLB_i_l = a1.get_FLB(space.rfa0_bdry_i_jstrs, space.flr_i_k, space.Beta_i, space.a_bdry_i_jstrs)
 
     # 行列AX 式(25)
-    space.AX_k_l = a1.get_AX(space.surfG_i.RFA0, space.hr_i_g_n, space.F_mrt_i_g, space.surfG_i.hi_i_g_n, space.NsurfG_i)
+    space.AX_k_l = a1.get_AX(space.rfa0_bdry_i_jstrs, space.hr_i_g_n, space.F_mrt_i_g, space.h_i_bdry_i_jstrs, space.n_bdry_i_jstrs)
 
     # WSR, WSB の計算 式(24)
     space.WSR_i_k = a1.get_WSR(space.AX_k_l, FIA_i_l)
@@ -156,18 +222,18 @@ def make_space(room: Dict,
         WSR_i_k=space.WSR_i_k,
         Cap_fun_i=space.Capfun,
         C_fun_i=space.Cfun,
-        Vent=space.Vent,
+        Vent=space.v_vent_ex_i,
         local_vent_amount_schedule=space.local_vent_amount_schedule,
-        A_i_k=space.surfG_i.A_i_g,
+        A_i_k=space.a_bdry_i_jstrs,
         hc_i_k_n=space.hc_i_g_n,
-        V_nxt=space.Vnext_i_j
+        V_nxt=space.v_vent_up_i_nis
     )
 
     # BRLの計算 式(7)
     space.BRL_i = s41.get_BRL_i(
         Beta_i=space.Beta_i,
         WSB_i_k=space.WSB_i_k,
-        A_i_k=space.surfG_i.A_i_g,
+        A_i_k=space.a_bdry_i_jstrs,
         hc_i_k_n=space.hc_i_g_n
     )
 

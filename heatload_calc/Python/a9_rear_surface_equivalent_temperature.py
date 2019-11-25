@@ -13,28 +13,33 @@ import a23_surface_heat_transfer_coefficient as a23
 
 
 # 裏面の相当温度を計算する 表.4
-def calc_Teo(surfG_i, To_n: float, oldTr: float, spaces: List['s3_space_initializer'], sequence_number: int):
-    Teo_i_k_n = np.zeros(surfG_i.NsurfG_i)
+def calc_Teo(
+        To_n: float, oldTr: float, spaces: List['s3_space_initializer'], sequence_number: int,
+        NsurfG_i: int, boundary_type: np.ndarray, is_sun_striked_outside: np.ndarray, Teolist: np.ndarray,
+        a_i_g: np.ndarray, Rnext_i_g: np.ndarray
+):
 
-    for g in range(surfG_i.NsurfG_i):
+    Teo_i_k_n = np.zeros(NsurfG_i)
+
+    for g in range(NsurfG_i):
         # 日射の当たる一般部位または不透明部位の場合
-        if surfG_i.boundary_type[g] == "external_general_part" or surfG_i.boundary_type[g] == "external_opaque_part":
+        if boundary_type[g] == "external_general_part" or boundary_type[g] == "external_opaque_part":
             # 室外側に日射が当たる場合
-            if surfG_i.is_sun_striked_outside[g]:
-                Teo_i_k_n[g] = surfG_i.Teolist[g][sequence_number]
+            if is_sun_striked_outside[g]:
+                Teo_i_k_n[g] = Teolist[g][sequence_number]
             # 室外側に日射が当たらない場合
             else:
-                Teo_i_k_n[g] = get_NextRoom_fromR(surfG_i.a_i_g[g], To_n, oldTr)
+                Teo_i_k_n[g] = get_NextRoom_fromR(a_i_g[g], To_n, oldTr)
 
     # 窓,土壌の場合
-    for g in range(surfG_i.NsurfG_i):
-        if surfG_i.boundary_type[g] == "external_transparent_part" or surfG_i.boundary_type[g] == "ground":
-            Teo_i_k_n[g] = surfG_i.Teolist[g][sequence_number]
+    for g in range(NsurfG_i):
+        if boundary_type[g] == "external_transparent_part" or boundary_type[g] == "ground":
+            Teo_i_k_n[g] = Teolist[g][sequence_number]
 
-    for g in range(surfG_i.NsurfG_i):
+    for g in range(NsurfG_i):
         # 内壁の場合（前時刻の室温）
-        if surfG_i.boundary_type[g] == "internal":
-            Teo_i_k_n[g] = spaces[surfG_i.Rnext_i_g[g]].Tr_i_n[sequence_number - 1]
+        if boundary_type[g] == "internal":
+            Teo_i_k_n[g] = spaces[Rnext_i_g[g]].Tr_i_n[sequence_number - 1]
 
     return Teo_i_k_n
 

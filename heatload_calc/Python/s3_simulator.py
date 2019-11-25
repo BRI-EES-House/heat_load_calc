@@ -25,16 +25,16 @@ def run_tick_groundonly(spaces: List[Space], To_n: float, n: int):
     for s in spaces:
 
         # 配列の準備
-        Row = s.surfG_i.Row
+        Row = s.row_bdry_i_jstrs
 
-        Phi_A_i_k_0 = s.surfG_i.RFA0
-        hi_i_k = s.surfG_i.hi_i_g_n
+        Phi_A_i_k_0 = s.rfa0_bdry_i_jstrs
+        hi_i_k = s.h_i_bdry_i_jstrs
         a0 = a37.get_a0(To_n)
 
         # 畳み込み積分 式(27)
-        for g in range(s.NsurfG_i):
-            if s.surfG_i.boundary_type[g] == "ground":
-                s.TsdA_l_n_m[g, n] = s.oldqi[g] * s.surfG_i.RFA1[g] + Row[g] * s.TsdA_l_n_m[g, n - 1]
+        for g in range(s.n_bdry_i_jstrs):
+            if s.boundary_type_i_jstrs[g] == "ground":
+                s.TsdA_l_n_m[g, n] = s.oldqi[g] * s.rfa1_bdry_i_jstrs[g] + Row[g] * s.TsdA_l_n_m[g, n - 1]
                 s.Ts_i_k_n[g, n] = a37.get_Ts_i_n_k(Phi_A_i_k_0[g], hi_i_k[g], To_n, s.TsdA_l_n_m[g, n], a0)
                 # 室内表面熱流の計算 式(28)
                 s.oldqi[g] = hi_i_k[g] * (To_n - s.Ts_i_k_n[g, n])
@@ -48,7 +48,10 @@ def run_tick(spaces: List[Space], To_n: float, xo_n: float, n: int):
         # ********** 裏面相当温度の計算 **********
 
         # 裏面温度の計算
-        s.Teo_i_k_n[:, n] = a9.calc_Teo(s.surfG_i, To_n, s.Tr_i_n[n - 1], spaces, n)
+        s.Teo_i_k_n[:, n] = a9.calc_Teo(
+            To_n, s.Tr_i_n[n - 1], spaces, n, s.n_bdry_i_jstrs, s.boundary_type_i_jstrs,
+            s.is_sun_striked_outside_bdry_i_jstrs, s.theta_o_sol_bdry_i_jstrs_ns, s.h_bdry_i_jstrs, s.next_room_type_bdry_i_jstrs
+        )
 
         # ********** 人体発熱および、内部発熱・発湿の計算 **********
 
@@ -65,7 +68,7 @@ def run_tick(spaces: List[Space], To_n: float, xo_n: float, n: int):
         # **** 透過日射の家具、室内部位表面発熱量への分配 ****
 
         # 室の透過日射熱取得から室内各部位の吸収日射量 式(91)
-        s.Sol_i_g_n[:, n] = a12.get_Sol(s.QGT_i_n[n], s.Rsol_floor_i_g, s.surfG_i.A_i_g)
+        s.Sol_i_g_n[:, n] = a12.get_Sol(s.QGT_i_n[n], s.Rsol_floor_i_g, s.a_bdry_i_jstrs)
 
         # 家具の吸収日射量[W] 式(92)
         s.Qsolfun_i_n[n] = a12.get_Qsolfun(s.QGT_i_n[n], s.Rsol_fun_i)
@@ -78,29 +81,29 @@ def run_tick(spaces: List[Space], To_n: float, xo_n: float, n: int):
         is_now_window_open = s.is_now_window_open_i_n[n - 1] and s.air_conditioning_demand[n]
 
         # 配列の準備
-        Nroot = s.surfG_i.Nroot
-        Row = s.surfG_i.Row
+        Nroot = s.n_root_bdry_i_jstrs
+        Row = s.row_bdry_i_jstrs
 
 #        print([s.name_i for s in spaces])
 #        print(str(i) + ': ' + str(s.Rtype_i_j))
         # ここのコードはもう少し構造を考え直さないといけない
         # 室名が重複して指定された場合に破綻する。
-        idxs = [[i for i, space in enumerate(spaces) if space.name_i == x][0] for x in s.Rtype_i_j]
+        idxs = [[i for i, space in enumerate(spaces) if space.name_i == x][0] for x in s.name_vent_up_i_nis]
 #        print(str(i) + ':' + str(idxs))
         Tr_next_i_j_nm1 = np.array([spaces[x].Tr_i_n[n - 1] for x in idxs])
         xr_next_i_j_nm1 = np.array([spaces[x].xr_i_n[n - 1] for x in idxs])
 #        print(str(i) + ': ' + str(Tr_next_i_j_nm1))
 
         # 畳み込み積分 式(27)
-        for g in range(s.NsurfG_i):
-            s.TsdA_l_n_m[g, n] = s.oldqi[g] * s.surfG_i.RFA1[g] + Row[g] * s.TsdA_l_n_m[g, n - 1]
-            s.TsdT_l_n_m[g, n] = s.Teo_i_k_n[g, n - 1] * s.surfG_i.RFT1[g] + Row[g] * s.TsdT_l_n_m[g, n - 1]
+        for g in range(s.n_bdry_i_jstrs):
+            s.TsdA_l_n_m[g, n] = s.oldqi[g] * s.rfa1_bdry_i_jstrs[g] + Row[g] * s.TsdA_l_n_m[g, n - 1]
+            s.TsdT_l_n_m[g, n] = s.Teo_i_k_n[g, n - 1] * s.rft1_bdry_i_jstrs[g] + Row[g] * s.TsdT_l_n_m[g, n - 1]
 
         # 畳み込み演算 式(26)
         CVL_i_l = a1.get_CVL(s.TsdT_l_n_m[:, n, :], s.TsdA_l_n_m[:, n, :], Nroot)
 
         # 表面温度を計算するための各種係数  式(24)
-        CRX_i_j = a1.get_CRX(s.surfG_i.RFT0, s.Teo_i_k_n[:, n], s.Sol_i_g_n[:, n], s.surfG_i.RFA0)
+        CRX_i_j = a1.get_CRX(s.rft0_bdry_i_jstrs, s.Teo_i_k_n[:, n], s.Sol_i_g_n[:, n], s.rfa0_bdry_i_jstrs)
         WSC_i_k = a1.get_WSC(s.AX_k_l, CRX_i_j)
         WSV_i_k = a1.get_WSV(s.AX_k_l, CVL_i_l)
 
@@ -108,11 +111,11 @@ def run_tick(spaces: List[Space], To_n: float, xo_n: float, n: int):
         BRCnoncv = s41.get_BRC_i(
             WSC_i_k=WSC_i_k,
             WSV_i_k=WSV_i_k,
-            area=s.surfG_i.A_i_g,
+            area=s.a_bdry_i_jstrs,
             hc_i_k_n=s.hc_i_g_n,
             Ta=To_n,
             Hn=Hn,
-            Ventset=s.Vent,
+            Ventset=s.v_vent_ex_i,
             Infset=s.Infset,
             LocalVentset=s.local_vent_amount_schedule[n],
             Hcap=s.Hcap,
@@ -121,14 +124,14 @@ def run_tick(spaces: List[Space], To_n: float, xo_n: float, n: int):
             C_fun_i=s.Cfun,
             Qsolfun=s.Qsolfun_i_n[n],
             oldTfun=s.Tfun_i_n[n - 1],
-            Vnext_i_j=s.Vnext_i_j,
+            Vnext_i_j=s.v_vent_up_i_nis,
             Tr_next_i_j_nm1=Tr_next_i_j_nm1
         )
 
         # 仮の窓開閉条件における通風量 NVot の計算
         ca = a18.get_ca()
         rhoa = a18.get_rhoa()
-        NVot = a13.get_NV(is_now_window_open, s.vol_i, s.Nventtime_i)
+        NVot = a13.get_NV(is_now_window_open, s.v_room_cap_i, s.Nventtime_i)
 
         # ********** 非空調(自然)作用温度、PMV の計算 **********
 
@@ -172,7 +175,7 @@ def run_tick(spaces: List[Space], To_n: float, xo_n: float, n: int):
                    s.pmv_upper_limit_schedule[n]][ac_mode]
 
         # 確定した窓開閉状態における通風量を計算
-        NV = a13.get_NV(s.is_now_window_open_i_n[n], s.vol_i, s.Nventtime_i)
+        NV = a13.get_NV(s.is_now_window_open_i_n[n], s.v_room_cap_i, s.Nventtime_i)
 
         # メモ: 窓開閉のいずれの条件で計算したBRM,BRCを採用しているだけに見える。
         #       ⇒両方計算して比較するように記述したほうがシンプル
@@ -216,18 +219,18 @@ def run_tick(spaces: List[Space], To_n: float, xo_n: float, n: int):
 
         # MRT_i_n、AST、平均放射温度の計算
         s.MRT_i_n[n] = get_MRT(s.Fot_i_g, s.Ts_i_k_n[:, n])
-        _ = get_AST(s.surfG_i.A_i_g, s.Ts_i_k_n[:, n], s.A_total_i)
+        _ = get_AST(s.a_bdry_i_jstrs, s.Ts_i_k_n[:, n], s.A_total_i)
 
         # 平均放射温度の計算
         _ = a1.get_Tsx(s.F_mrt_i_g, s.Ts_i_k_n[:, n])
 
         # 室内側等価温度の計算 式(29)
-        s.Tei_i_k_n[:, n] = a1.calc_Tei(s.hc_i_g_n, s.surfG_i.hi_i_g_n, s.hr_i_g_n, s.Sol_i_g_n[:, n], s.flr_i_k,
-                                        s.surfG_i.A_i_g, s.Tr_i_n[n], s.F_mrt_i_g, s.Ts_i_k_n[:, n], s.Lrs_i_n[n],
+        s.Tei_i_k_n[:, n] = a1.calc_Tei(s.hc_i_g_n, s.h_i_bdry_i_jstrs, s.hr_i_g_n, s.Sol_i_g_n[:, n], s.flr_i_k,
+                                        s.a_bdry_i_jstrs, s.Tr_i_n[n], s.F_mrt_i_g, s.Ts_i_k_n[:, n], s.Lrs_i_n[n],
                                         s.Beta_i)
 
         # 室内表面熱流の計算 式(28)
-        s.Qc[:, n], s.Qr[:, n], s.Lr, s.RS, Qt, s.oldqi = a1.calc_qi(s.hc_i_g_n, s.surfG_i.A_i_g, s.hr_i_g_n, s.Sol_i_g_n[:, n],
+        s.Qc[:, n], s.Qr[:, n], s.Lr, s.RS, Qt, s.oldqi = a1.calc_qi(s.hc_i_g_n, s.a_bdry_i_jstrs, s.hr_i_g_n, s.Sol_i_g_n[:, n],
                                                          s.flr_i_k,
                                                          s.Ts_i_k_n[:, n], s.Tr_i_n[n], s.F_mrt_i_g, s.Lrs_i_n[n],
                                                          s.Beta_i)
@@ -236,24 +239,24 @@ def run_tick(spaces: List[Space], To_n: float, xo_n: float, n: int):
 
         # 式(17)
         BRMX_pre = s42.get_BRMX(
-            Ventset=s.Vent,
+            Ventset=s.v_vent_ex_i,
             Infset=s.Infset,
             LocalVentset=s.local_vent_amount_schedule[n],
             Gf=s.Gf_i,
             Cx=s.Cx_i,
-            volume=s.vol_i,
-            Vnext_i_j=s.Vnext_i_j
+            volume=s.v_room_cap_i,
+            Vnext_i_j=s.v_vent_up_i_nis
         )
 
         # 式(18)
         BRXC_pre = s42.get_BRXC(
-            Ventset=s.Vent,
+            Ventset=s.v_vent_ex_i,
             Infset=s.Infset,
             LocalVentset=s.local_vent_amount_schedule[n],
             Gf=s.Gf_i,
             Cx=s.Cx_i,
-            volume=s.vol_i,
-            Vnext_i_j=s.Vnext_i_j,
+            volume=s.v_room_cap_i,
+            Vnext_i_j=s.v_vent_up_i_nis,
             xr_next_i_j_nm1=xr_next_i_j_nm1,
             xr_i_nm1=s.xr_i_n[n - 1],
             xf_i_nm1=s.xf_i_n[n - 1],

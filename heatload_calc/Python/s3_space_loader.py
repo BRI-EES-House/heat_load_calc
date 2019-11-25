@@ -1,5 +1,6 @@
 import math
 import numpy as np
+from typing import List
 
 import a12_indoor_radiative_heat_transfer as a12
 import a13_Win_ACselect as a13
@@ -16,8 +17,9 @@ import a30_internal_heat_schedule as a30
 import a31_lighting_schedule as a31
 import a32_resident_schedule as a32
 import a34_building_part_summarize as a34
+
+import s3_surface_loader as s3
 import s4_1_sensible_heat as s41
-from s3_surface_loader import read_d_boundary_i_ks
 
 
 # # 室温・熱負荷を計算するクラス
@@ -57,44 +59,67 @@ from s3_surface_loader import read_d_boundary_i_ks
 
 # 空間に関する情報の保持
 class Space:
+    """室クラス。
+
+    室に関する情報を保持するクラス。
+
+    Attributes:
+        name_i: 名称
+        room_type_i: 室タイプ
+            main_occupant_room: 主たる居室
+            other_occupant_room: その他の居室
+            non_occupant_room: 非居室
+            underfloor: 床下空間
+        v_room_cap_i: 気積, m3
+        v_vent_ex_i: 外気からの機械換気量, m3/h
+        name_vent_up_i_nis: 隣室からの機械換気量niの上流側の室の名称
+        v_vent_up_i_nis: 隣室からの機械換気量niの換気量, m3/h
+    """
 
     FsolFlr = 0.5  # 床の日射吸収比率
 
-    # 初期化
-    def __init__(self, d_room):
+    def __init__(
+            self, d_room, name_i: str, room_type_i: str, v_room_cap_i: float, v_vent_ex_i,
+            name_vent_up_i_nis: List[str], v_vent_up_i_nis: np.ndarray,
+            name_bdry_i_jstrs: np.ndarray, sub_name_bdry_i_jstrs: np.ndarray, boundary_type_i_jstrs: np.ndarray,
+            a_bdry_i_jstrs: np.ndarray, is_sun_striked_outside_bdry_i_jstrs, h_bdry_i_jstrs, next_room_type_bdry_i_jstrs,
+            is_solar_absorbed_inside_bdry_i_jstrs, h_i_bdry_i_jstrs, theta_o_sol_bdry_i_jstrs_ns, n_root_bdry_i_jstrs,
+            row_bdry_i_jstrs, rft0_bdry_i_jstrs, rfa0_bdry_i_jstrs, rft1_bdry_i_jstrs, rfa1_bdry_i_jstrs, n_bdry_i_jstrs
+    ):
 
-        # 室iの名称
-        self.name_i = d_room['name']
+        self.name_i = name_i
+        self.room_type_i = room_type_i
+        self.v_room_cap_i = v_room_cap_i
+        self.v_vent_ex_i = v_vent_ex_i
+        self.name_vent_up_i_nis = name_vent_up_i_nis
+        self.v_vent_up_i_nis = v_vent_up_i_nis
 
-        # 室iの室タイプ
-        #   main_occupant_room: 主たる居室
-        #   other_occupant_room: その他の居室
-        #   non_occupant_room: 非居室
-        #   underfloor: 床下空間
-        self.room_type_i = d_room['room_type']
-
-        # 室iの気積, m3
-        self.vol_i = d_room['volume']
-
-        # 室iの外気からの機械換気量, m3/h
-        self.Vent = d_room['vent']
-
-        # 室iの隣室からの機械換気量jの上流側の室の名称
-        self.Rtype_i_j = [next_vent['upstream_room_type'] for next_vent in d_room['next_vent']]
-
-        # 室iの隣室からの機械換気量jの換気量, m3/h
-        self.Vnext_i_j = np.array([next_vent['volume'] for next_vent in d_room['next_vent']])
-
-        # 室iの境界k
-        self.d_boundary_i_ks = read_d_boundary_i_ks(input_dict_boundaries=d_room['boundaries'])
+        self.name_bdry_i_jstrs = name_bdry_i_jstrs
+        self.sub_name_bdry_i_jstrs = sub_name_bdry_i_jstrs
+        self.boundary_type_i_jstrs = boundary_type_i_jstrs
+        self.a_bdry_i_jstrs = a_bdry_i_jstrs
+        self.is_sun_striked_outside_bdry_i_jstrs = is_sun_striked_outside_bdry_i_jstrs
+        self.h_bdry_i_jstrs = h_bdry_i_jstrs
+        print(self.h_bdry_i_jstrs)
+        self.next_room_type_bdry_i_jstrs = next_room_type_bdry_i_jstrs
+        self.is_solar_absorbed_inside_bdry_i_jstrs = is_solar_absorbed_inside_bdry_i_jstrs
+        self.h_i_bdry_i_jstrs = h_i_bdry_i_jstrs
+        self.theta_o_sol_bdry_i_jstrs_ns = theta_o_sol_bdry_i_jstrs_ns
+        self.n_root_bdry_i_jstrs = n_root_bdry_i_jstrs
+        self.row_bdry_i_jstrs = row_bdry_i_jstrs
+        self.rft0_bdry_i_jstrs = rft0_bdry_i_jstrs
+        self.rfa0_bdry_i_jstrs = rfa0_bdry_i_jstrs
+        self.rft1_bdry_i_jstrs = rft1_bdry_i_jstrs
+        self.rfa1_bdry_i_jstrs = rfa1_bdry_i_jstrs
+        self.n_bdry_i_jstrs = n_bdry_i_jstrs
 
         # 室iの相当隙間面積（C値）,
         # TODO: 相当隙間面積についてはからすきま風量を変換する部分については実装されていない。
+        self.Inf = 0.0  # すきま風量（暫定値）
 
         # 室iの自然風利用時の換気回数, 1/h
         self.Nventtime_i = d_room['natural_vent_time']
 
-        self.Inf = 0.0  # すきま風量（暫定値）
 
         self.Lrs = 0.0
         self.Ls = None
@@ -154,12 +179,12 @@ class Space:
         # 家具の熱容量、湿気容量の計算
         # Capfun:家具熱容量[J/K]、Cfun:家具と室空気間の熱コンダクタンス[W/K]
         # Gf_i:湿気容量[kg/(kg/kg(DA))]、Cx_i:湿気コンダクタンス[kg/(s･kg/kg(DA))]
-        self.Capfun = a14.get_Capfun(self.vol_i)
+        self.Capfun = a14.get_Capfun(self.v_room_cap_i)
         self.Cfun = a14.get_Cfun(self.Capfun)
         self.Tfun_i_n = np.full(24 * 365 * 4 * 3, a18.get_Tfun_initial())  # i室のn時点における家具の温度
         self.Qfunl_i_n = np.zeros(24 * 365 * 4 * 3)  # i室のn時点における家具の日射吸収熱量
         self.Qsolfun_i_n = np.zeros(24 * 365 * 4 * 3)
-        self.Gf_i = a14.get_Gf(self.vol_i)  # i室の備品類の湿気容量
+        self.Gf_i = a14.get_Gf(self.v_room_cap_i)  # i室の備品類の湿気容量
         self.Cx_i = a14.get_Cx(self.Gf_i)  # i室の備品類と室空気間の湿気コンダクタンス
         self.xf_i_n = np.full(24 * 365 * 4 * 3, a18.get_xf_initial())  # i室のn時点における備品類の絶対湿度
         self.Ghum_i_n = np.zeros(24 * 365 * 4 * 3)
@@ -171,7 +196,7 @@ class Space:
         # 室空気の熱容量
         ca = a18.get_ca()
         rhoa = a18.get_rhoa()
-        self.Hcap = self.vol_i * rhoa * ca
+        self.Hcap = self.v_room_cap_i * rhoa * ca
         # print(self.Hcap)
 
         self.Beta_i = 0.0  # 放射暖房対流比率
@@ -206,8 +231,6 @@ class Space:
         # ********** 計算準備6 隣室間換気の読み込み **********
 
         self.QGT_i_n = np.zeros(24 * 365 * 4 * 3)
-        self.surfG_i = None
-        self.NsurfG_i = 0
         self.Hhums = np.zeros(24 * 365 * 4 * 3)
         self.Hhuml = np.zeros(24 * 365 * 4 * 3)
 

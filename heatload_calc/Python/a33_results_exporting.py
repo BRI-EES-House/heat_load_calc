@@ -39,21 +39,22 @@ def append_headers(spaces: List[Space]) -> List[List]:
         rowlist.append(space.name_i + "_家具吸収日射熱量[W]")
         rowlist.append(space.name_i + "_家具絶対湿度[kg/kg(DA)]")
         rowlist.append(space.name_i + "_家具取得水蒸気量[kg/s]")
+        n = space.n_bdry_i_jstrs
         if 1:
-            for g in range(space.surfG_i.NsurfG_i):
-                rowlist.append(space.name_i + "_" + space.surfG_i.name[g] + "_表面温度[℃]")
+            for g in range(n):
+                rowlist.append(space.name_i + "_" + space.name_bdry_i_jstrs[g] + "_表面温度[℃]")
         if 1:
-            for g in range(space.surfG_i.NsurfG_i):
-                rowlist.append(space.name_i + "_" + space.surfG_i.name[g] + "_等価室温[℃]")
+            for g in range(n):
+                rowlist.append(space.name_i + "_" + space.name_bdry_i_jstrs[g] + "_等価室温[℃]")
         if 1:
-            for g in range(space.surfG_i.NsurfG_i):
-                rowlist.append(space.name_i + "_" + space.surfG_i.name[g] + "_境界温度[℃]")
+            for g in range(n):
+                rowlist.append(space.name_i + "_" + space.name_bdry_i_jstrs[g] + "_境界温度[℃]")
         if 1:
-            for g in range(space.surfG_i.NsurfG_i):
-                rowlist.append(space.name_i + "_" + space.surfG_i.name[g] + "_表面放射熱流[W]")
+            for g in range(n):
+                rowlist.append(space.name_i + "_" + space.name_bdry_i_jstrs[g] + "_表面放射熱流[W]")
         if 1:
-            for g in range(space.surfG_i.NsurfG_i):
-                rowlist.append(space.name_i + "_" + space.surfG_i.name[g] + "_表面対流熱流[W]")
+            for g in range(n):
+                rowlist.append(space.name_i + "_" + space.name_bdry_i_jstrs[g] + "_表面対流熱流[W]")
 
     OutList.append(rowlist)
 
@@ -102,14 +103,15 @@ def append_tick_log(spaces: List[Space], log: List[List], To_n: float, n: int, x
         row.append('{0:.1f}'.format(space.Qsolfun_i_n[n]))
         row.append('{0:.5f}'.format(space.xf_i_n[n]))
         row.append('{0:.5f}'.format(space.Qfunl_i_n[n]))
-        for g in range(space.surfG_i.NsurfG_i):
+        n = space.n_bdry_i_jstrs
+        for g in range(n):
             row.append('{0:.2f}'.format(space.Ts_i_k_n[g, n]))
-        for g in range(space.surfG_i.NsurfG_i):
+        for g in range(n):
             row.append('{0:.2f}'.format(space.Tei_i_k_n[g, n]))
-        for g in range(space.surfG_i.NsurfG_i):
+        for g in range(n):
             row.append('{0:.2f}'.format(space.Teo_i_k_n[g, n]))
-        for g in range(space.surfG_i.NsurfG_i):
+        for g in range(n):
             row.append('{0:.2f}'.format(space.Qr[g, n]))
-        for g in range(space.surfG_i.NsurfG_i):
+        for g in range(n):
             row.append('{0:.2f}'.format(space.Qc[g, n]))
     log.append(row)

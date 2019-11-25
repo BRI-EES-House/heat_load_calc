@@ -326,35 +326,3 @@ def get_group_indices(boundaries: List[Boundary]) -> np.ndarray:
 
     return g_k
 
-
-# 部位の集約（同一境界条件の部位を集約する）
-class GroupedSurface:
-
-    def __init__(self, integrated_boundaries: IntegratedBoundaries):
-
-        self.NsurfG_i = integrated_boundaries.NsurfG_i
-        self.name = integrated_boundaries.name_i_jstrs  # 名称
-        self.sub_name = integrated_boundaries.sub_name_i_jstrs  # 副名称（統合する前の境界の名前を'+'記号でつなげたもの）
-        self.boundary_type = integrated_boundaries.boundary_type_i_jstrs  # 境界の種類
-        self.A_i_g = integrated_boundaries.a_i_jstrs  # 面積
-        self.is_sun_striked_outside = integrated_boundaries.is_sun_striked_outside_i_jstrs  # 日射の有無
-        self.a_i_g = integrated_boundaries.h_i_jstrs  # 温度差係数
-        self.Rnext_i_g = integrated_boundaries.next_room_type_i_jstrs  # 隣室タイプ
-        self.is_solar_absorbed_inside = integrated_boundaries.is_solar_absorbed_inside_i_jstrs  # 室内侵入日射吸収の有無
-        self.hi_i_g_n = integrated_boundaries.h_i_i_jstrs  # 16) 室内側熱伝達率
-        self.Teolist = integrated_boundaries.theta_o_sol_i_jstrs_ns  # 20) 裏面境界温度
-        self.Nroot = integrated_boundaries.n_root_i_jstrs  # 23) 根の数
-        self.Row = integrated_boundaries.Rows  # 24) 公比
-        self.RFA0 = integrated_boundaries.RFA0s  # 26) 吸熱応答係数の初項
-        self.RFT0 = integrated_boundaries.RFT0s  # 27) 貫流応答係数の初項
-        self.RFT1 = integrated_boundaries.RFT1s  # 28) 指数項別吸熱応答係数
-        self.RFA1 = integrated_boundaries.RFA1s  # 29) 指数項別貫流応答係数
-
-
-
-        # 21) 前時刻の裏面境界温度
-        self.oldTsd_t = np.zeros((self.NsurfG_i, 12))
-        # 22) 前時刻の室内表面熱流
-        self.oldTsd_a = np.zeros((self.NsurfG_i, 12))
-        self.oldqi = np.zeros(self.NsurfG_i)  # 前時刻の室内側表面熱流
-
