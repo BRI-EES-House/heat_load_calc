@@ -68,10 +68,10 @@ def run_tick(spaces: List[Space], To_n: float, xo_n: float, n: int):
         # **** 透過日射の家具、室内部位表面発熱量への分配 ****
 
         # 室の透過日射熱取得から室内各部位の吸収日射量 式(91)
-        s.Sol_i_g_n[:, n] = a12.get_Sol(s.QGT_i_n[n], s.Rsol_floor_i_g, s.a_bdry_i_jstrs)
+        s.Sol_i_g_n[:, n] = a12.get_Sol(s.q_trs_sol_i_ns[n], s.Rsol_floor_i_g, s.a_bdry_i_jstrs)
 
         # 家具の吸収日射量[W] 式(92)
-        s.Qsolfun_i_n[n] = a12.get_Qsolfun(s.QGT_i_n[n], s.Rsol_fun_i)
+        s.Qsolfun_i_n[n] = a12.get_Qsolfun(s.q_trs_sol_i_ns[n], s.Rsol_fun_i)
 
         # すきま風量未実装につき、とりあえず０とする
         s.Infset = 0.0

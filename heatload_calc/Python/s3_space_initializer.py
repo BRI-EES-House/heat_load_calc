@@ -111,6 +111,12 @@ def make_space(room: Dict,
     rfa1_bdry_i_jstrs = ib.RFA1s
     n_bdry_i_jstrs = ib.NsurfG_i
 
+    # 透過日射熱取得の集約し、i室のn時点における透過日射熱取得 QGT_i_n を計算
+    q_trs_sol_i_ns = np.sum(
+        s3.get_transmitted_solar_radiation(
+            boundaries=d_boundary_i_ks, i_dn_ns=i_dn_ns, i_sky_ns=i_sky_ns, h_sun_ns=h_sun_ns, a_sun_ns=a_sun_ns
+        ), axis=0)
+
 
     space = Space(
         d_room=room,
@@ -136,14 +142,9 @@ def make_space(room: Dict,
         rfa0_bdry_i_jstrs=rfa0_bdry_i_jstrs,
         rft1_bdry_i_jstrs=rft1_bdry_i_jstrs,
         rfa1_bdry_i_jstrs=rfa1_bdry_i_jstrs,
-        n_bdry_i_jstrs=n_bdry_i_jstrs
+        n_bdry_i_jstrs=n_bdry_i_jstrs,
+        q_trs_sol_i_ns=q_trs_sol_i_ns
     )
-
-    # 透過日射熱取得の集約し、i室のn時点における透過日射熱取得 QGT_i_n を計算
-    space.QGT_i_n = np.sum(
-        s3.get_transmitted_solar_radiation(
-            boundaries=d_boundary_i_ks, i_dn_ns=i_dn_ns, i_sky_ns=i_sky_ns, h_sun_ns=h_sun_ns, a_sun_ns=a_sun_ns
-        ), axis=0)
 
     # 空調や通風などの需要があるかどうか, bool * 365 * 96
     space.air_conditioning_demand = space.is_upper_temp_limit_set_schedule | space.is_lower_temp_limit_set_schedule

@@ -84,7 +84,8 @@ class Space:
             name_bdry_i_jstrs: np.ndarray, sub_name_bdry_i_jstrs: np.ndarray, boundary_type_i_jstrs: np.ndarray,
             a_bdry_i_jstrs: np.ndarray, is_sun_striked_outside_bdry_i_jstrs, h_bdry_i_jstrs, next_room_type_bdry_i_jstrs,
             is_solar_absorbed_inside_bdry_i_jstrs, h_i_bdry_i_jstrs, theta_o_sol_bdry_i_jstrs_ns, n_root_bdry_i_jstrs,
-            row_bdry_i_jstrs, rft0_bdry_i_jstrs, rfa0_bdry_i_jstrs, rft1_bdry_i_jstrs, rfa1_bdry_i_jstrs, n_bdry_i_jstrs
+            row_bdry_i_jstrs, rft0_bdry_i_jstrs, rfa0_bdry_i_jstrs, rft1_bdry_i_jstrs, rfa1_bdry_i_jstrs, n_bdry_i_jstrs,
+            q_trs_sol_i_ns: np.ndarray
     ):
 
         self.name_i = name_i
@@ -100,8 +101,8 @@ class Space:
         self.a_bdry_i_jstrs = a_bdry_i_jstrs
         self.is_sun_striked_outside_bdry_i_jstrs = is_sun_striked_outside_bdry_i_jstrs
         self.h_bdry_i_jstrs = h_bdry_i_jstrs
-        print(self.h_bdry_i_jstrs)
         self.next_room_type_bdry_i_jstrs = next_room_type_bdry_i_jstrs
+        # Spaceクラスで持つ必要はない変数の可能性あり（インスタンス終了後破棄可能）（要調査）
         self.is_solar_absorbed_inside_bdry_i_jstrs = is_solar_absorbed_inside_bdry_i_jstrs
         self.h_i_bdry_i_jstrs = h_i_bdry_i_jstrs
         self.theta_o_sol_bdry_i_jstrs_ns = theta_o_sol_bdry_i_jstrs_ns
@@ -112,16 +113,18 @@ class Space:
         self.rft1_bdry_i_jstrs = rft1_bdry_i_jstrs
         self.rfa1_bdry_i_jstrs = rfa1_bdry_i_jstrs
         self.n_bdry_i_jstrs = n_bdry_i_jstrs
-
         # 室iの相当隙間面積（C値）,
         # TODO: 相当隙間面積についてはからすきま風量を変換する部分については実装されていない。
         self.Inf = 0.0  # すきま風量（暫定値）
+        self.q_trs_sol_i_ns = q_trs_sol_i_ns
+
 
         # 室iの自然風利用時の換気回数, 1/h
         self.Nventtime_i = d_room['natural_vent_time']
 
-
+        # 破棄してもよい？（要調査）
         self.Lrs = 0.0
+        # 破棄してもよい？（要調査）
         self.Ls = None
 
         self.Tr_i_n = np.full(24 * 365 * 4 * 3, a18.get_Tr_initial())  # i室のn時点における室温
@@ -230,7 +233,6 @@ class Space:
 
         # ********** 計算準備6 隣室間換気の読み込み **********
 
-        self.QGT_i_n = np.zeros(24 * 365 * 4 * 3)
         self.Hhums = np.zeros(24 * 365 * 4 * 3)
         self.Hhuml = np.zeros(24 * 365 * 4 * 3)
 

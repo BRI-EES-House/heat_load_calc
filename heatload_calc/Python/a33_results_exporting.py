@@ -90,7 +90,7 @@ def append_tick_log(spaces: List[Space], log: List[List], To_n: float, n: int, x
         row.append('{0:.2f}'.format(space.PMV_i_n[n]))
         row.append('{0:.2f}'.format(space.Clo_i_n[n]))
         row.append('{0:.2f}'.format(space.Vel_i_n[n]))
-        row.append('{0:.2f}'.format(space.QGT_i_n[n]))
+        row.append('{0:.2f}'.format(space.q_trs_sol_i_ns[n]))
         row.append('{0:.2f}'.format(space.heat_generation_appliances_schedule[n]))
         row.append('{0:.2f}'.format(space.heat_generation_lighting_schedule[n]))
         row.append('{0:.2f}'.format(space.Hhums[n]))
