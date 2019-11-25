@@ -91,7 +91,7 @@ def run_tick(spaces: List[Space], To_n: float, xo_n: float, n: int):
         idxs = [[i for i, space in enumerate(spaces) if space.name_i == x][0] for x in s.name_vent_up_i_nis]
 #        print(str(i) + ':' + str(idxs))
         Tr_next_i_j_nm1 = np.array([spaces[x].theta_r_i_ns[n - 1] for x in idxs])
-        xr_next_i_j_nm1 = np.array([spaces[x].xr_i_n[n - 1] for x in idxs])
+        xr_next_i_j_nm1 = np.array([spaces[x].x_r_i_ns[n - 1] for x in idxs])
 #        print(str(i) + ': ' + str(Tr_next_i_j_nm1))
 
         # 畳み込み積分 式(27)
@@ -258,7 +258,7 @@ def run_tick(spaces: List[Space], To_n: float, xo_n: float, n: int):
             volume=s.v_room_cap_i,
             Vnext_i_j=s.v_vent_up_i_nis,
             xr_next_i_j_nm1=xr_next_i_j_nm1,
-            xr_i_nm1=s.xr_i_n[n - 1],
+            xr_i_nm1=s.x_r_i_ns[n - 1],
             xf_i_nm1=s.xf_i_n[n - 1],
             Lin=Lin,
             xo=xo_n
@@ -296,12 +296,12 @@ def run_tick(spaces: List[Space], To_n: float, xo_n: float, n: int):
             s.Va = 0.0
 
             # 室絶対湿度の計算 式(16)
-            s.xr_i_n[n] = s42.get_xr(BRXC_pre, BRMX_pre)
+            s.x_r_i_ns[n] = s42.get_xr(BRXC_pre, BRMX_pre)
         else:
             s.Ghum_i_n[n] = Ghum_base
             BRMX = BRMX_base
             BRXC = BRXC_base
-            s.xr_i_n[n] = xr_base
+            s.x_r_i_ns[n] = xr_base
 
         # 除湿量から室加湿熱量を計算 式(21)
         s.Lcl_i_n[n] = get_Lcl(s.Ghum_i_n[n])
@@ -310,13 +310,13 @@ def run_tick(spaces: List[Space], To_n: float, xo_n: float, n: int):
         s.Lrl_i_n[n] = get_Lrl()
 
         # 室相対湿度の計算 式(22)
-        s.RH_i_n[n] = rhtx(s.theta_r_i_ns[n], s.xr_i_n[n])
+        s.RH_i_n[n] = rhtx(s.theta_r_i_ns[n], s.x_r_i_ns[n])
 
         # ********** 備品類の絶対湿度 xf の計算 **********
 
         # 備品類の絶対湿度の計算
-        s.xf_i_n[n] = s42.get_xf(s.Gf_i, s.xf_i_n[n - 1], s.Cx_i, s.xr_i_n[n])
-        s.Qfunl_i_n[n] = s42.get_Qfunl(s.Cx_i, s.xr_i_n[n], s.xf_i_n[n])
+        s.xf_i_n[n] = s42.get_xf(s.Gf_i, s.xf_i_n[n - 1], s.Cx_i, s.x_r_i_ns[n])
+        s.Qfunl_i_n[n] = s42.get_Qfunl(s.Cx_i, s.x_r_i_ns[n], s.xf_i_n[n])
 
         # PMVの計算
         s.PMV_i_n[n] = \

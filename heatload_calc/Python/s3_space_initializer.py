@@ -123,6 +123,8 @@ def make_space(room: Dict,
     # 室iの初期温度, degree C
     theta_r_i_initial = a18.get_Tr_initial()
 
+    x_r_i_initial = a18.get_xr_initial()
+
     space = Space(
         d_room=room,
         name_i=name_i,
@@ -150,14 +152,14 @@ def make_space(room: Dict,
         n_bdry_i_jstrs=n_bdry_i_jstrs,
         q_trs_sol_i_ns=q_trs_sol_i_ns,
         n_ntrl_vent_i=n_ntrl_vent_i,
-        theta_r_i_initial=theta_r_i_initial
+        theta_r_i_initial=theta_r_i_initial,
+        x_r_i_initial=x_r_i_initial
     )
 
     # 空調や通風などの需要があるかどうか, bool * 365 * 96
     space.air_conditioning_demand = space.is_upper_temp_limit_set_schedule | space.is_lower_temp_limit_set_schedule
 
     # 部位ごとの計算結果用変数
-    space.Ts_i_k_n = np.zeros((space.n_bdry_i_jstrs, 24 * 365 * 4 * 4))
     space.Teo_i_k_n = np.full((space.n_bdry_i_jstrs, 24 * 365 * 4 * 4), a18.get_Teo_initial())  # i室の部位kにおけるn時点の裏面相当温度
     space.Tei_i_k_n = np.zeros((space.n_bdry_i_jstrs, 24 * 365 * 4 * 4))  # i室の部位kにおけるn時点の室内等価温度
     space.TsdA_l_n_m = np.full((space.n_bdry_i_jstrs, 24 * 365 * 4 * 4, 12), a18.get_TsdT_initial())  # （26）式中の〖CVL〗_(i,l)の計算式右辺

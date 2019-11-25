@@ -86,7 +86,7 @@ class Space:
             is_solar_absorbed_inside_bdry_i_jstrs, h_i_bdry_i_jstrs, theta_o_sol_bdry_i_jstrs_ns, n_root_bdry_i_jstrs,
             row_bdry_i_jstrs, rft0_bdry_i_jstrs, rfa0_bdry_i_jstrs, rft1_bdry_i_jstrs, rfa1_bdry_i_jstrs, n_bdry_i_jstrs,
             q_trs_sol_i_ns: np.ndarray, n_ntrl_vent_i: float,
-            theta_r_i_initial: float
+            theta_r_i_initial: float, x_r_i_initial: float
     ):
 
         self.name_i = name_i
@@ -125,14 +125,17 @@ class Space:
         # 破棄してもよい？（要調査）
         self.Ls = None
 
-#        self.theta_r_i_ns = np.full(24 * 365 * 4 * 3, a18.get_Tr_initial())  # i室のn時点における室温
         self.theta_r_i_ns = np.full(24 * 365 * 4 * 3, theta_r_i_initial)  # i室のn時点における室温
+        self.x_r_i_ns = np.full(24 * 365 * 4 * 3, x_r_i_initial)  # i室のn時点における室絶対湿度
 
         self.OT_i_n = np.zeros(24 * 365 * 4 * 3)  # i室のn時点における室の作用温度
-        self.OTset = 0.0  # i室のn時点における室の空調設定作用温度(目標作用温度)
-        self.Ts_i_k_n = np.zeros((0, 24 * 365 * 4 * 3))  # i室の部位kにおけるn時点の室内側表面温度 (max(k)が不明なのであとで初期化
 
-        self.xr_i_n = np.full(24 * 365 * 4 * 3, a18.get_xr_initial())  # i室のn時点における室絶対湿度
+        # 破棄してもよい？（要調査）
+        self.OTset = 0.0  # i室のn時点における室の空調設定作用温度(目標作用温度)
+
+        # ステップnにおける室iの部位j*における室内側表面温度, degree C
+        self.Ts_i_k_n = np.zeros((n_bdry_i_jstrs, 24 * 365 * 4 * 4))
+
         self.RH_i_n = np.full(24 * 365 * 4 * 3, 50.0)  # i室のn時点における室相対湿度[%]
 
         self.Qfuns_i_n = np.zeros(24 * 365 * 4 * 3)
