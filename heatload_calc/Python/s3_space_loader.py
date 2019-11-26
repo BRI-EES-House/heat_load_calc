@@ -76,13 +76,11 @@ class Space:
         v_vent_up_i_nis: 隣室からの機械換気量niの換気量, m3/h
     """
 
-    FsolFlr = 0.5  # 床の日射吸収比率
-
     def __init__(
             self, d_room, name_i: str, room_type_i: str, v_room_cap_i: float, v_vent_ex_i,
             name_vent_up_i_nis: List[str], v_vent_up_i_nis: np.ndarray,
             name_bdry_i_jstrs: np.ndarray, sub_name_bdry_i_jstrs: np.ndarray, boundary_type_i_jstrs: np.ndarray,
-            a_bdry_i_jstrs: np.ndarray, is_sun_striked_outside_bdry_i_jstrs, h_bdry_i_jstrs, next_room_type_bdry_i_jstrs,
+            a_bdry_i_jstrs: np.ndarray, h_bdry_i_jstrs, next_room_type_bdry_i_jstrs,
             is_solar_absorbed_inside_bdry_i_jstrs, h_i_bdry_i_jstrs, theta_o_sol_bdry_i_jstrs_ns, n_root_bdry_i_jstrs,
             row_bdry_i_jstrs, rft0_bdry_i_jstrs, rfa0_bdry_i_jstrs, rft1_bdry_i_jstrs, rfa1_bdry_i_jstrs, n_bdry_i_jstrs,
             q_trs_sol_i_ns: np.ndarray, n_ntrl_vent_i: float,
@@ -92,7 +90,18 @@ class Space:
             number_of_people_schedule: np.ndarray,
             is_upper_temp_limit_set_schedule: np.ndarray, is_lower_temp_limit_set_schedule: np.ndarray,
             pmv_upper_limit_schedule: np.ndarray, pmv_lower_limit_schedule: np.ndarray,
-            air_conditioning_demand: np.ndarray
+            air_conditioning_demand: np.ndarray, theta_rear_initial: float,
+            TsdA_initial: float, TsdT_initial: float, Fot_i_g: np.ndarray, A_total_i: float,
+            qmax_c_i: float, qmin_c_i: float, Vmax_i: float, Vmin_i: float,
+            is_radiative_heating: bool,
+            Lrcap_i: float, is_radiative_cooling: bool, radiative_cooling_max_capacity: float,
+            heat_exchanger_type, convective_cooling_rtd_capacity: float, flr_i_k,
+            hr_i_g_n, hc_i_g_n, F_mrt_i_g,
+            Rsol_floor_i_g, Rsol_fun_i,
+            Ga,
+            Beta_i,
+            AX_k_l, WSR_i_k, WSB_i_k,
+            BRMnoncv_i, BRL_i, Hcap, Capfun, Cfun
     ):
 
         self.name_i = name_i
@@ -106,7 +115,6 @@ class Space:
         self.sub_name_bdry_i_jstrs = sub_name_bdry_i_jstrs
         self.boundary_type_i_jstrs = boundary_type_i_jstrs
         self.a_bdry_i_jstrs = a_bdry_i_jstrs
-        self.is_sun_striked_outside_bdry_i_jstrs = is_sun_striked_outside_bdry_i_jstrs
         self.h_bdry_i_jstrs = h_bdry_i_jstrs
         self.next_room_type_bdry_i_jstrs = next_room_type_bdry_i_jstrs
         # Spaceクラスで持つ必要はない変数の可能性あり（インスタンス終了後破棄可能）（要調査）
@@ -126,6 +134,18 @@ class Space:
         self.q_trs_sol_i_ns = q_trs_sol_i_ns
         self.n_ntrl_vent_i = n_ntrl_vent_i
 
+        # スケジュール
+        self.local_vent_amount_schedule = local_vent_amount_schedule  # 局所換気
+        self.heat_generation_appliances_schedule = heat_generation_appliances_schedule  # 機器発熱
+        self.heat_generation_cooking_schedule = heat_generation_cooking_schedule  # 調理顕熱発熱
+        self.vapor_generation_cooking_schedule = vapor_generation_cooking_schedule  # 調理潜熱発熱
+        self.heat_generation_lighting_schedule = heat_generation_lighting_schedule  # 照明発熱
+        self.number_of_people_schedule = number_of_people_schedule  # 在室人数
+        self.is_upper_temp_limit_set_schedule = is_upper_temp_limit_set_schedule  # 設定温度上限値, degree C
+        self.is_lower_temp_limit_set_schedule = is_lower_temp_limit_set_schedule  # 設定温度下限値, degree C
+        self.pmv_upper_limit_schedule = pmv_upper_limit_schedule  # PMV上限値, degree C
+        self.pmv_lower_limit_schedule = pmv_lower_limit_schedule  # PMV下限値, degree C
+
         self.air_conditioning_demand = air_conditioning_demand  # 当該時刻の空調需要（0：なし、1：あり）
 
         self.theta_r_i_ns = np.full(24 * 365 * 4 * 3, theta_r_i_initial)  # i室のn時点における室温
@@ -137,6 +157,101 @@ class Space:
         # ステップnにおける室iの部位j*における室内側表面温度, degree C
         self.Ts_i_k_n = np.zeros((n_bdry_i_jstrs, 24 * 365 * 4 * 4))
 
+        # i室の部位kにおけるn時点の裏面相当温度
+        self.theta_rear_i_jstrs_ns = np.full((n_bdry_i_jstrs, 24 * 365 * 4 * 4), theta_rear_initial)
+
+        # i室の部位kにおけるn時点の室内等価温度
+        self.Tei_i_k_n = np.zeros((n_bdry_i_jstrs, 24 * 365 * 4 * 4))
+
+        # （26）式中の〖CVL〗_(i,l)の計算式右辺
+        self.TsdA_l_n_m = np.full((n_bdry_i_jstrs, 24 * 365 * 4 * 4, 12), TsdA_initial)
+        # （26）式中の〖CVL〗_(i,l)の計算式右辺
+        self.TsdT_l_n_m = np.full((n_bdry_i_jstrs, 24 * 365 * 4 * 4, 12), TsdT_initial)
+        self.Sol_i_g_n = np.zeros((n_bdry_i_jstrs, 24 * 365 * 4 * 4))
+        self.Qc = np.zeros((n_bdry_i_jstrs, 24 * 365 * 4 * 4))
+        self.Qr = np.zeros((n_bdry_i_jstrs, 24 * 365 * 4 * 4))
+
+        # 前時刻の室内側表面熱流
+        self.oldqi = np.zeros(n_bdry_i_jstrs)
+
+        # 合計面積の計算
+        self.A_total_i = A_total_i
+
+        # 部位の人体に対する形態係数を計算 表6
+        self.Fot_i_g = Fot_i_g
+
+        self.qmax_c_i = qmax_c_i
+        self.qmin_c_i = qmin_c_i
+        self.Vmax_i = Vmax_i
+        self.Vmin_i = Vmin_i
+
+        # 放射暖房有無（Trueなら放射暖房あり）
+        self.is_radiative_heating = is_radiative_heating
+
+        # 放射暖房最大能力[W]
+        self.Lrcap_i = Lrcap_i
+
+        # 冷房設備仕様の読み込み
+
+        # 放射冷房有無（Trueなら放射冷房あり）
+        self.is_radiative_cooling = is_radiative_cooling
+
+        # 放射冷房最大能力[W]
+        self.radiative_cooling_max_capacity = radiative_cooling_max_capacity
+
+        # 熱交換器種類
+        self.heat_exchanger_type = heat_exchanger_type
+
+        # 定格冷房能力[W]
+        self.convective_cooling_rtd_capacity = convective_cooling_rtd_capacity
+
+        self.flr_i_k = flr_i_k
+
+        # 表面熱伝達率の計算 式(123) 表16
+        self.hr_i_g_n = hr_i_g_n
+        self.hc_i_g_n = hc_i_g_n
+
+        # 平均放射温度計算時の各部位表面温度の重み計算 式(101)
+        self.F_mrt_i_g = F_mrt_i_g
+
+        # 日射吸収比率の計算
+        # 床の室内部位表面吸収比率の設定 表(5) 床の場合
+        self.Rsol_floor_i_g = Rsol_floor_i_g
+        self.Rsol_fun_i = Rsol_fun_i
+
+        # 室空気の質量[kg]
+        self.Ga = Ga
+
+        # 放射暖房対流比率
+        self.Beta_i = Beta_i
+
+        # 行列AX 式(25)
+        self.AX_k_l = AX_k_l
+
+        # WSR, WSB の計算 式(24)
+        self.WSR_i_k = WSR_i_k
+        self.WSB_i_k = WSB_i_k
+
+        # BRMの計算 式(5) ※ただし、通風なし
+        self.BRMnoncv_i = BRMnoncv_i
+
+        # BRLの計算 式(7)
+        self.BRL_i = BRL_i
+
+        # i室のn時点における窓開放時通風量
+        # 室空気の熱容量
+        self.Hcap = Hcap
+
+        # 家具の熱容量、湿気容量の計算
+        # Capfun:家具熱容量[J/K]、Cfun:家具と室空気間の熱コンダクタンス[W/K]
+        self.Capfun = Capfun
+        self.Cfun = Cfun
+
+        ##########################################################################
+        ##########################################################################
+        ##########################################################################
+        ##########################################################################
+        ##########################################################################
         self.Qfuns_i_n = np.zeros(24 * 365 * 4 * 3)
         self.rsolfun__i = math.nan  # 透過日射の内家具が吸収する割合[－]
         self.kc_i = s41.calc_kc_i()  # i室の人体表面における対流熱伝達率の総合熱伝達率に対する比
@@ -155,36 +270,10 @@ class Space:
         self.Lrs_i_n = np.zeros(24 * 365 * 4 * 3)  # i室のn時点における放射空調熱負荷
         self.Lcl_i_n = np.zeros(24 * 365 * 4 * 3)  # i室のn時点における室加湿熱量
         self.Lrl_i_n = np.zeros(24 * 365 * 4 * 3)  # i室のn時点における放射空調の潜熱
-        self.is_radiative_heating = False
-        self.Lrcap_i = 0.0  # 放射暖房最大能力
-
-        # 暖房設備仕様の読み込み
-
-        # 放射暖房有無（Trueなら放射暖房あり）
-        self.is_radiative_heating = a22.read_is_radiative_heating(d_room)
-
-        # 放射暖房最大能力[W]
-        self.Lrcap_i = a22.read_radiative_heating_max_capacity(d_room)
-
-        # 冷房設備仕様の読み込み
-
-        # 放射冷房有無（Trueなら放射冷房あり）
-        self.is_radiative_cooling = a22.read_is_radiative_cooling(d_room)
-
-        # 放射冷房最大能力[W]
-        self.radiative_cooling_max_capacity = a22.read_is_radiative_cooling(d_room)
-
-        # 熱交換器種類
-        self.heat_exchanger_type = a22.read_heat_exchanger_type(d_room)
-
-        # 定格冷房能力[W]
-        self.convective_cooling_rtd_capacity = a22.read_convective_cooling_rtd_capacity(d_room)
 
         # 家具の熱容量、湿気容量の計算
-        # Capfun:家具熱容量[J/K]、Cfun:家具と室空気間の熱コンダクタンス[W/K]
+
         # Gf_i:湿気容量[kg/(kg/kg(DA))]、Cx_i:湿気コンダクタンス[kg/(s･kg/kg(DA))]
-        self.Capfun = a14.get_Capfun(self.v_room_cap_i)
-        self.Cfun = a14.get_Cfun(self.Capfun)
         self.Tfun_i_n = np.full(24 * 365 * 4 * 3, a18.get_Tfun_initial())  # i室のn時点における家具の温度
         self.Qfunl_i_n = np.zeros(24 * 365 * 4 * 3)  # i室のn時点における家具の日射吸収熱量
         self.Qsolfun_i_n = np.zeros(24 * 365 * 4 * 3)
@@ -196,26 +285,7 @@ class Space:
         self.xeout_i_n = np.zeros(24 * 365 * 4 * 3)  # i室のn時点におけるルームエアコン熱交換器出口の絶対湿度
         self.Vac_n = np.zeros(24 * 365 * 4 * 3)  # i室のn時点におけるエアコンの風量[m3/s]
 
-        # i室のn時点における窓開放時通風量
-        # 室空気の熱容量
-        ca = a18.get_ca()
-        rhoa = a18.get_rhoa()
-        self.Hcap = self.v_room_cap_i * rhoa * ca
-        # print(self.Hcap)
 
-        self.Beta_i = 0.0  # 放射暖房対流比率
-
-        # スケジュール
-        self.local_vent_amount_schedule = local_vent_amount_schedule  # 局所換気
-        self.heat_generation_appliances_schedule = heat_generation_appliances_schedule  # 機器発熱
-        self.heat_generation_cooking_schedule = heat_generation_cooking_schedule  # 調理顕熱発熱
-        self.vapor_generation_cooking_schedule = vapor_generation_cooking_schedule  # 調理潜熱発熱
-        self.heat_generation_lighting_schedule = heat_generation_lighting_schedule  # 照明発熱
-        self.number_of_people_schedule = number_of_people_schedule  # 在室人数
-        self.is_upper_temp_limit_set_schedule = is_upper_temp_limit_set_schedule  # 設定温度上限値, degree C
-        self.is_lower_temp_limit_set_schedule = is_lower_temp_limit_set_schedule  # 設定温度下限値, degree C
-        self.pmv_upper_limit_schedule = pmv_upper_limit_schedule  # PMV上限値, degree C
-        self.pmv_lower_limit_schedule = pmv_lower_limit_schedule  # PMV下限値, degree C
 
         # ********** 計算準備6 隣室間換気の読み込み **********
 

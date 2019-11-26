@@ -48,9 +48,9 @@ def run_tick(spaces: List[Space], To_n: float, xo_n: float, n: int):
         # ********** 裏面相当温度の計算 **********
 
         # 裏面温度の計算
-        s.Teo_i_k_n[:, n] = a9.calc_Teo(
-            To_n, s.theta_r_i_ns[n - 1], spaces, n, s.n_bdry_i_jstrs, s.boundary_type_i_jstrs,
-            s.is_sun_striked_outside_bdry_i_jstrs, s.theta_o_sol_bdry_i_jstrs_ns, s.h_bdry_i_jstrs, s.next_room_type_bdry_i_jstrs
+        s.theta_rear_i_jstrs_ns[:, n] = a9.calc_Teo(
+            s.theta_r_i_ns[n - 1], spaces, n, s.n_bdry_i_jstrs, s.boundary_type_i_jstrs,
+            s.theta_o_sol_bdry_i_jstrs_ns, s.h_bdry_i_jstrs, s.next_room_type_bdry_i_jstrs
         )
 
         # ********** 人体発熱および、内部発熱・発湿の計算 **********
@@ -97,13 +97,13 @@ def run_tick(spaces: List[Space], To_n: float, xo_n: float, n: int):
         # 畳み込み積分 式(27)
         for g in range(s.n_bdry_i_jstrs):
             s.TsdA_l_n_m[g, n] = s.oldqi[g] * s.rfa1_bdry_i_jstrs[g] + Row[g] * s.TsdA_l_n_m[g, n - 1]
-            s.TsdT_l_n_m[g, n] = s.Teo_i_k_n[g, n - 1] * s.rft1_bdry_i_jstrs[g] + Row[g] * s.TsdT_l_n_m[g, n - 1]
+            s.TsdT_l_n_m[g, n] = s.theta_rear_i_jstrs_ns[g, n - 1] * s.rft1_bdry_i_jstrs[g] + Row[g] * s.TsdT_l_n_m[g, n - 1]
 
         # 畳み込み演算 式(26)
         CVL_i_l = a1.get_CVL(s.TsdT_l_n_m[:, n, :], s.TsdA_l_n_m[:, n, :], Nroot)
 
         # 表面温度を計算するための各種係数  式(24)
-        CRX_i_j = a1.get_CRX(s.rft0_bdry_i_jstrs, s.Teo_i_k_n[:, n], s.Sol_i_g_n[:, n], s.rfa0_bdry_i_jstrs)
+        CRX_i_j = a1.get_CRX(s.rft0_bdry_i_jstrs, s.theta_rear_i_jstrs_ns[:, n], s.Sol_i_g_n[:, n], s.rfa0_bdry_i_jstrs)
         WSC_i_k = a1.get_WSC(s.AX_k_l, CRX_i_j)
         WSV_i_k = a1.get_WSV(s.AX_k_l, CVL_i_l)
 

@@ -22,7 +22,6 @@ IntegratedBoundaries = namedtuple('IntegratedBoundaries', [
     'sub_name_i_jstrs',
     'boundary_type_i_jstrs',
     'a_i_jstrs',
-    'is_sun_striked_outside_i_jstrs',
     'h_i_jstrs',
     'next_room_type_i_jstrs',
     'is_solar_absorbed_inside_i_jstrs',
@@ -60,9 +59,6 @@ def init_surface(
 
     # 室iの境界jの面積, m2, [j]
     a_i_js = np.array([b.area for b in boundaries])
-
-    # 室iの境界jの日射の有無, [j]
-    is_sun_striked_outside_i_js = np.array([b.is_sun_striked_outside for b in boundaries])
 
     # 室iの境界jの温度差係数, [j]
     h_i_js = np.array([b.temp_dif_coef for b in boundaries])
@@ -138,9 +134,6 @@ def init_surface(
     # 室iの統合された境界j*の面積, [j*]
     a_i_jstrs = np.array([np.sum(a_i_js[gp_idxs == i]) for i in np.unique(gp_idxs)])
 
-    # 室iの統合された境界j*の日射の有無, [j*]
-    is_sun_striked_outside_i_jstrs = np.array([is_sun_striked_outside_i_js[first_idx[i]] for i in np.unique(gp_idxs)])
-
     # 室iの統合された境界j*の温度差係数, [j*]
     h_i_jstrs = np.array([h_i_js[first_idx[i]] for i in np.unique(gp_idxs)])
 
@@ -188,7 +181,6 @@ def init_surface(
         sub_name_i_jstrs=sub_name_i_jstrs,
         boundary_type_i_jstrs=boundary_type_i_jstrs,
         a_i_jstrs=a_i_jstrs,
-        is_sun_striked_outside_i_jstrs=is_sun_striked_outside_i_jstrs,
         h_i_jstrs=h_i_jstrs,
         next_room_type_i_jstrs=next_room_type_i_jstrs,
         is_solar_absorbed_inside_i_jstrs=is_solar_absorbed_inside_i_jstrs,

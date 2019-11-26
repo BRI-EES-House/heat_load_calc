@@ -109,7 +109,7 @@ def append_tick_log(spaces: List[Space], log: List[List], To_n: float, n: int, x
         for g in range(n):
             row.append('{0:.2f}'.format(space.Tei_i_k_n[g, n]))
         for g in range(n):
-            row.append('{0:.2f}'.format(space.Teo_i_k_n[g, n]))
+            row.append('{0:.2f}'.format(space.theta_rear_i_jstrs_ns[g, n]))
         for g in range(n):
             row.append('{0:.2f}'.format(space.Qr[g, n]))
         for g in range(n):

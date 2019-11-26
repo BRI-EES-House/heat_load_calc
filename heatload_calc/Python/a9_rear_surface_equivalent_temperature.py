@@ -14,34 +14,42 @@ import a23_surface_heat_transfer_coefficient as a23
 
 # 裏面の相当温度を計算する 表.4
 def calc_Teo(
-        To_n: float, oldTr: float, spaces: List['s3_space_initializer'], sequence_number: int,
-        NsurfG_i: int, boundary_type: np.ndarray, is_sun_striked_outside: np.ndarray, Teolist: np.ndarray,
+        oldTr: float, spaces: List['s3_space_initializer'], n: int,
+        NsurfG_i: int, boundary_type: np.ndarray, Teolist: np.ndarray,
         a_i_g: np.ndarray, Rnext_i_g: np.ndarray
 ):
 
-    Teo_i_k_n = np.zeros(NsurfG_i)
+    theta_rear_sol_i_j_ns = np.zeros(NsurfG_i)
 
     for g in range(NsurfG_i):
-        # 日射の当たる一般部位または不透明部位の場合
-        if boundary_type[g] == "external_general_part" or boundary_type[g] == "external_opaque_part":
-            # 室外側に日射が当たる場合
-            if is_sun_striked_outside[g]:
-                Teo_i_k_n[g] = Teolist[g][sequence_number]
-            # 室外側に日射が当たらない場合
-            else:
-                Teo_i_k_n[g] = get_NextRoom_fromR(a_i_g[g], To_n, oldTr)
 
-    # 窓,土壌の場合
-    for g in range(NsurfG_i):
-        if boundary_type[g] == "external_transparent_part" or boundary_type[g] == "ground":
-            Teo_i_k_n[g] = Teolist[g][sequence_number]
+        theta_rear_sol_i_j_ns[g] = get_theta_rear_i_jstr_n(
+            Rnext_i_g[g], Teolist[g][n], a_i_g[g], boundary_type[g], n, oldTr, spaces)
 
-    for g in range(NsurfG_i):
-        # 内壁の場合（前時刻の室温）
-        if boundary_type[g] == "internal":
-            Teo_i_k_n[g] = spaces[Rnext_i_g[g]].theta_r_i_ns[sequence_number - 1]
+    return theta_rear_sol_i_j_ns
 
-    return Teo_i_k_n
+
+def get_theta_rear_i_jstr_n(Rnext_i_g, Teolist, a_i_g, boundary_type, n, oldTr, spaces):
+
+    # 一般部位、不透明な開口部、透明な開口部の場合
+    if boundary_type == 'external_general_part' \
+            or boundary_type == 'external_opaque_part' \
+            or boundary_type == 'external_transparent_part':
+
+        return get_NextRoom_fromR(a_i_g, Teolist, oldTr)
+
+    # 内壁の場合（前時刻の室温）
+    elif boundary_type == "internal":
+
+        return spaces[Rnext_i_g].theta_r_i_ns[n - 1]
+
+    # 土壌の場合
+    elif boundary_type == 'ground':
+
+        return Teolist
+
+    else:
+        raise ValueError
 
 
 # 温度差係数を設定した隣室温度 ( 日射が当たらない外皮_一般部位 )
