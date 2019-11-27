@@ -82,6 +82,7 @@ def run_tick(spaces: List[Space], To_n: float, xo_n: float, n: int):
         s.logger.x_hum_i_ns[n] = x_hum_i_n
 
         # TODO: すきま風量未実装につき、とりあえず０とする
+        # すきま風量を決めるにあたってどういった変数が必要なのかを決めること。
         Infset = 0.0
 
         # ここのコードはもう少し構造を考え直さないといけない

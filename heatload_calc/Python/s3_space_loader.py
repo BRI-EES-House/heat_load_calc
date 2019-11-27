@@ -161,9 +161,6 @@ class Space:
         # 室iの統合された境界j*の数, [j*]
         self.n_bnd_i_jstrs = n_bnd_i_jstrs
 
-        # 室iの相当隙間面積（C値）,
-        # TODO: 相当隙間面積についてはからすきま風量を変換する部分については実装されていない。
-        self.Inf = 0.0  # すきま風量（暫定値）
         self.q_trs_sol_i_ns = q_trs_sol_i_ns
         self.n_ntrl_vent_i = n_ntrl_vent_i
 
