@@ -55,17 +55,24 @@ def calc_heat_load(d: Dict):
         spaces.append(space)
 
     # 助走計算1(土壌のみ)
-    for n in range(-n_step_run_up, -n_step_run_up_build):
-        simulator.run_tick_groundonly(spaces=spaces, To_n=theta_o_ns[n], n=n)
+#    for n in range(-n_step_run_up, -n_step_run_up_build):
+#        simulator.run_tick_groundonly(spaces=spaces, To_n=theta_o_ns[n], n=n)
+    print('助走計算1（土壌のみ）')
+    [simulator.run_tick_groundonly(spaces=spaces, To_n=theta_o_ns[n], n=n) for n in range(-n_step_run_up, -n_step_run_up_build)]
 
     # 助走計算2(室温、熱負荷)
-    for n in range(-n_step_run_up_build, 0):
-        simulator.run_tick(spaces=spaces, To_n=theta_o_ns[n], xo_n=x_o_ns[n], n=n)
+#    for n in range(-n_step_run_up_build, 0):
+#        simulator.run_tick(spaces=spaces, To_n=theta_o_ns[n], xo_n=x_o_ns[n], n=n)
+    print('助走計算1（建物全体）')
+    [simulator.run_tick(spaces=spaces, To_n=theta_o_ns[n], xo_n=x_o_ns[n], n=n) for n in range(-n_step_run_up_build, 0)]
 
     # 本計算(室温、熱負荷)
-    for n in range(0, n_step_main):
-        simulator.run_tick(spaces=spaces, To_n=theta_o_ns[n], xo_n=x_o_ns[n], n=n)
+#    for n in range(0, n_step_main):
+#        simulator.run_tick(spaces=spaces, To_n=theta_o_ns[n], xo_n=x_o_ns[n], n=n)
+    print('本計算')
+    [simulator.run_tick(spaces=spaces, To_n=theta_o_ns[n], xo_n=x_o_ns[n], n=n) for n in range(0, n_step_main)]
 
+    print('ログ作成')
     # log ヘッダーの作成
     log = exporter.append_headers(spaces=spaces)
 
