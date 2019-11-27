@@ -77,11 +77,11 @@ class Space:
     """
 
     def __init__(
-            self, d_room, name_i: str, room_type_i: str, v_room_cap_i: float, v_vent_ex_i,
+            self, name_i: str, room_type_i: str, v_room_cap_i: float, v_vent_ex_i,
             name_vent_up_i_nis: List[str], v_vent_up_i_nis: np.ndarray,
             name_bdry_i_jstrs: np.ndarray, sub_name_bdry_i_jstrs: np.ndarray, boundary_type_i_jstrs: np.ndarray,
             a_bdry_i_jstrs: np.ndarray, h_bdry_i_jstrs, next_room_type_bdry_i_jstrs,
-            is_solar_absorbed_inside_bdry_i_jstrs, h_i_bdry_i_jstrs, theta_o_sol_bdry_i_jstrs_ns, n_root_bdry_i_jstrs,
+            is_solar_absorbed_inside_bdry_i_jstrs, h_i_bdry_i_jstrs, theta_o_sol_bnd_i_jstrs_ns, n_root_bdry_i_jstrs,
             row_bdry_i_jstrs, rft0_bdry_i_jstrs, rfa0_bdry_i_jstrs, rft1_bdry_i_jstrs, rfa1_bdry_i_jstrs, n_bdry_i_jstrs,
             q_trs_sol_i_ns: np.ndarray, n_ntrl_vent_i: float,
             theta_r_i_initial: float, x_r_i_initial: float, local_vent_amount_schedule: np.ndarray,

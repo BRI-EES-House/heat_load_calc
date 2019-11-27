@@ -258,7 +258,6 @@ def make_space(room: Dict,
     )
 
     space = Space(
-        d_room=room,
         name_i=name_i,
         room_type_i=room_type_i,
         v_room_cap_i=v_room_cap_i,
