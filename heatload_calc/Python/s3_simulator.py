@@ -46,8 +46,12 @@ def run_tick(spaces: List[Space], To_n: float, xo_n: float, n: int):
     # ステップnの室iにおける室温, degree C, [i]
     # 室内壁の場合の裏面温度を計算する際に隣りの室の室温を持ちるために使用する。
     # 本当はこの式は n-1 ではなくて、nが正しい。
-    # 新しい室温を計算する部分が修正した後、最後に修正すること。
+    # TODO: 新しい室温を計算する部分が修正した後、最後に修正すること。
     theta_r_is_n = np.array([s.theta_r_i_ns[n-1] for s in spaces])
+    # ステップnの室iにおける絶対湿度
+    # TODO: 単位を明確化
+    # TODO: 新しい室温を計算する部分が修正した後、最後に修正すること。
+    x_r_is_n = np.array([s.x_r_i_ns[n-1] for s in spaces])
 
     for i, s in enumerate(spaces):
 
@@ -88,13 +92,17 @@ def run_tick(spaces: List[Space], To_n: float, xo_n: float, n: int):
         # ここのコードはもう少し構造を考え直さないといけない
         # 室名が重複して指定された場合に破綻する。
         idxs = [[i for i, space in enumerate(spaces) if space.name_i == x][0] for x in s.name_vent_up_i_nis]
-        Tr_next_i_j_nm1 = np.array([theta_r_is_n[x] for x in idxs])
-        xr_next_i_j_nm1 = np.array([spaces[x].x_r_i_ns[n - 1] for x in idxs])
+        theta_r_vent_up_i_nis_n = np.array([theta_r_is_n[x] for x in idxs])
+        x_r_vent_up_i_nis_n = np.array([x_r_is_n[x] for x in idxs])
 
+#        print(s.oldqi) # 11
+#        print(s.rfa1_bdry_i_jstrs) # 11 * 12
+#        print(s.row_bnd_i_jstrs) # 11 * 12
         # 畳み込み積分 式(27)
         for g in range(s.n_bnd_i_jstrs):
             s.TsdA_l_n_m[g, n] = s.oldqi[g] * s.rfa1_bdry_i_jstrs[g] + s.row_bnd_i_jstrs[g] * s.TsdA_l_n_m[g, n - 1]
             s.TsdT_l_n_m[g, n] = theta_rear_i_jstrs_n[g] * s.rft1_bdry_i_jstrs[g] + s.row_bnd_i_jstrs[g] * s.TsdT_l_n_m[g, n - 1]
+        print(s.TsdA_l_n_m.shape)  # 11 * 140160 * 12
 
         # 畳み込み演算 式(26)
         CVL_i_l = a1.get_CVL(s.TsdT_l_n_m[:, n, :], s.TsdA_l_n_m[:, n, :], s.n_root_bnd_i_jstrs)
@@ -122,7 +130,7 @@ def run_tick(spaces: List[Space], To_n: float, xo_n: float, n: int):
             Qsolfun=s.q_sol_frnt_i_ns[n],
             oldTfun=s.Tfun_i_n[n - 1],
             Vnext_i_j=s.v_vent_up_i_nis,
-            Tr_next_i_j_nm1=Tr_next_i_j_nm1
+            Tr_next_i_j_nm1=theta_r_vent_up_i_nis_n
         )
 
         # 自然室温計算時窓開閉条件の設定
@@ -258,7 +266,7 @@ def run_tick(spaces: List[Space], To_n: float, xo_n: float, n: int):
             Cx=s.Cx_i,
             volume=s.v_room_cap_i,
             Vnext_i_j=s.v_vent_up_i_nis,
-            xr_next_i_j_nm1=xr_next_i_j_nm1,
+            xr_next_i_j_nm1=x_r_vent_up_i_nis_n,
             xr_i_nm1=s.x_r_i_ns[n - 1],
             xf_i_nm1=s.xf_i_n[n - 1],
             Lin=x_gen_i_n,
