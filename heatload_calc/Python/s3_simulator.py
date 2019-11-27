@@ -32,7 +32,7 @@ def run_tick_groundonly(spaces: List[Space], To_n: float, n: int):
         a0 = a37.get_a0(To_n)
 
         # 畳み込み積分 式(27)
-        for g in range(s.n_bdry_i_jstrs):
+        for g in range(s.n_bnd_i_jstrs):
             if s.boundary_type_i_jstrs[g] == "ground":
                 s.TsdA_l_n_m[g, n] = s.oldqi[g] * s.rfa1_bdry_i_jstrs[g] + Row[g] * s.TsdA_l_n_m[g, n - 1]
                 s.Ts_i_k_n[g, n] = a37.get_Ts_i_n_k(Phi_A_i_k_0[g], hi_i_k[g], To_n, s.TsdA_l_n_m[g, n], a0)
@@ -43,7 +43,7 @@ def run_tick_groundonly(spaces: List[Space], To_n: float, n: int):
 # 室温、熱負荷の計算
 def run_tick(spaces: List[Space], To_n: float, xo_n: float, n: int):
 
-    # ステップnにおける室温, degree C, [i]
+    # ステップnの室iにおける室温, degree C, [i]
     # 室内壁の場合の裏面温度を計算する際に隣りの室の室温を持ちるために使用する。
     # 本当はこの式は n-1 ではなくて、nが正しい。
     # 新しい室温を計算する部分が修正した後、最後に修正すること。
@@ -56,16 +56,20 @@ def run_tick(spaces: List[Space], To_n: float, xo_n: float, n: int):
 
         # ステップnの室iの集約された境界j*の傾斜面における相当外気温度, degree C, [j*]
         theta_o_sol_bnd_i_jstrs_n = np.array(
-            [s.theta_o_sol_bnd_i_jstrs_ns[jstr][n] for jstr in range(s.n_bdry_i_jstrs)])
+            [s.theta_o_sol_bnd_i_jstrs_ns[jstr][n] for jstr in range(s.n_bnd_i_jstrs)])
 
         # ステップnの室iの集約された境界j*における裏面温度, degree C, [j*]
-        theta_rear_i_jstrs_n = a9.calc_Teo(
-            theta_r_i_n, s.n_bdry_i_jstrs, s.boundary_type_i_jstrs,
-            s.h_bdry_i_jstrs, s.next_room_type_bdry_i_jstrs, theta_r_is_n,
-            theta_o_sol_bnd_i_jstrs_n
+        theta_rear_i_jstrs_n = a9.get_theta_rear_i_jstrs_n(
+            theta_r_i_n=theta_r_i_n,
+            n_bnd_i_jstrs=s.n_bnd_i_jstrs,
+            boundary_type_i_jstrs=s.boundary_type_i_jstrs,
+            h_bnd_i_jstrs=s.h_bnd_i_jstrs,
+            next_room_type_bnd_i_jstrs=s.next_room_type_bnd_i_jstrs,
+            theta_r_is_n=theta_r_is_n,
+            theta_o_sol_bnd_i_jstrs_n=theta_o_sol_bnd_i_jstrs_n
         )
 
-        s.theta_rear_i_jstrs_ns[:, n] = theta_rear_i_jstrs_n
+        s.logger.theta_rear_i_jstrs_ns[:, n] = theta_rear_i_jstrs_n
 
         # ********** 人体発熱および、内部発熱・発湿の計算 **********
 
@@ -115,15 +119,15 @@ def run_tick(spaces: List[Space], To_n: float, xo_n: float, n: int):
 #        print(str(i) + ': ' + str(Tr_next_i_j_nm1))
 
         # 畳み込み積分 式(27)
-        for g in range(s.n_bdry_i_jstrs):
+        for g in range(s.n_bnd_i_jstrs):
             s.TsdA_l_n_m[g, n] = s.oldqi[g] * s.rfa1_bdry_i_jstrs[g] + Row[g] * s.TsdA_l_n_m[g, n - 1]
-            s.TsdT_l_n_m[g, n] = s.theta_rear_i_jstrs_ns[g, n - 1] * s.rft1_bdry_i_jstrs[g] + Row[g] * s.TsdT_l_n_m[g, n - 1]
+            s.TsdT_l_n_m[g, n] = theta_rear_i_jstrs_n[g] * s.rft1_bdry_i_jstrs[g] + Row[g] * s.TsdT_l_n_m[g, n - 1]
 
         # 畳み込み演算 式(26)
         CVL_i_l = a1.get_CVL(s.TsdT_l_n_m[:, n, :], s.TsdA_l_n_m[:, n, :], Nroot)
 
         # 表面温度を計算するための各種係数  式(24)
-        CRX_i_j = a1.get_CRX(s.rft0_bdry_i_jstrs, s.theta_rear_i_jstrs_ns[:, n], s.Sol_i_g_n[:, n], s.rfa0_bdry_i_jstrs)
+        CRX_i_j = a1.get_CRX(s.rft0_bdry_i_jstrs, theta_rear_i_jstrs_n, s.Sol_i_g_n[:, n], s.rfa0_bdry_i_jstrs)
         WSC_i_k = a1.get_WSC(s.AX_k_l, CRX_i_j)
         WSV_i_k = a1.get_WSV(s.AX_k_l, CVL_i_l)
 

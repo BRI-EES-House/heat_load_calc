@@ -59,9 +59,11 @@ import s4_1_sensible_heat as s41
 
 class Logger:
 
-    def __init__(self):
+    def __init__(self, n_bnd_i_jstrs):
 
-        pass
+        # ステップnの室iの集約された境界j*における裏面温度, degree C, [j*, 8760*4]
+        self.theta_rear_i_jstrs_ns = np.full((n_bnd_i_jstrs, 24 * 365 * 4 * 4), -99.9)
+
 
 # 空間に関する情報の保持
 class Space:
@@ -85,10 +87,10 @@ class Space:
     def __init__(
             self, name_i: str, room_type_i: str, v_room_cap_i: float, v_vent_ex_i,
             name_vent_up_i_nis: List[str], v_vent_up_i_nis: np.ndarray,
-            name_bdry_i_jstrs: np.ndarray, sub_name_bdry_i_jstrs: np.ndarray, boundary_type_i_jstrs: np.ndarray,
-            a_bdry_i_jstrs: np.ndarray, h_bdry_i_jstrs, next_room_type_bdry_i_jstrs,
-            is_solar_absorbed_inside_bdry_i_jstrs, h_i_bdry_i_jstrs, theta_o_sol_bnd_i_jstrs_ns, n_root_bdry_i_jstrs,
-            row_bdry_i_jstrs, rft0_bdry_i_jstrs, rfa0_bdry_i_jstrs, rft1_bdry_i_jstrs, rfa1_bdry_i_jstrs, n_bdry_i_jstrs,
+            name_bnd_i_jstrs: np.ndarray, sub_name_bnd_i_jstrs: np.ndarray, boundary_type_i_jstrs: np.ndarray,
+            a_bnd_i_jstrs: np.ndarray, h_bnd_i_jstrs, next_room_type_bnd_i_jstrs,
+            is_solar_absorbed_inside_bnd_i_jstrs, h_i_bnd_i_jstrs, theta_o_sol_bnd_i_jstrs_ns, n_root_bnd_i_jstrs,
+            row_bnd_i_jstrs, rft0_bnd_i_jstrs, rfa0_bnd_i_jstrs, rft1_bnd_i_jstrs, rfa1_bnd_i_jstrs, n_bnd_i_jstrs,
             q_trs_sol_i_ns: np.ndarray, n_ntrl_vent_i: float,
             theta_r_i_initial: float, x_r_i_initial: float, local_vent_amount_schedule: np.ndarray,
             heat_generation_appliances_schedule: np.ndarray, heat_generation_cooking_schedule: np.ndarray,
@@ -96,7 +98,7 @@ class Space:
             number_of_people_schedule: np.ndarray,
             is_upper_temp_limit_set_schedule: np.ndarray, is_lower_temp_limit_set_schedule: np.ndarray,
             pmv_upper_limit_schedule: np.ndarray, pmv_lower_limit_schedule: np.ndarray,
-            air_conditioning_demand: np.ndarray, theta_rear_initial: float,
+            air_conditioning_demand: np.ndarray,
             TsdA_initial: float, TsdT_initial: float, Fot_i_g: np.ndarray, A_total_i: float,
             qmax_c_i: float, qmin_c_i: float, Vmax_i: float, Vmin_i: float,
             is_radiative_heating: bool,
@@ -117,23 +119,33 @@ class Space:
         self.name_vent_up_i_nis = name_vent_up_i_nis
         self.v_vent_up_i_nis = v_vent_up_i_nis
 
-        self.name_bdry_i_jstrs = name_bdry_i_jstrs
-        self.sub_name_bdry_i_jstrs = sub_name_bdry_i_jstrs
+        self.name_bdry_i_jstrs = name_bnd_i_jstrs
+        self.sub_name_bdry_i_jstrs = sub_name_bnd_i_jstrs
+
+        # 室iの統合された境界j*の種類, [j*]
         self.boundary_type_i_jstrs = boundary_type_i_jstrs
-        self.a_bdry_i_jstrs = a_bdry_i_jstrs
-        self.h_bdry_i_jstrs = h_bdry_i_jstrs
-        self.next_room_type_bdry_i_jstrs = next_room_type_bdry_i_jstrs
+
+        self.a_bdry_i_jstrs = a_bnd_i_jstrs
+
+        # 室iの統合された境界j*の温度差係数, [j*]
+        self.h_bnd_i_jstrs = h_bnd_i_jstrs
+
+        # 室iの統合された境界j*の隣室タイプ, [j*]
+        self.next_room_type_bnd_i_jstrs = next_room_type_bnd_i_jstrs
         # Spaceクラスで持つ必要はない変数の可能性あり（インスタンス終了後破棄可能）（要調査）
-        self.is_solar_absorbed_inside_bdry_i_jstrs = is_solar_absorbed_inside_bdry_i_jstrs
-        self.h_i_bdry_i_jstrs = h_i_bdry_i_jstrs
+        self.is_solar_absorbed_inside_bdry_i_jstrs = is_solar_absorbed_inside_bnd_i_jstrs
+        self.h_i_bdry_i_jstrs = h_i_bnd_i_jstrs
         self.theta_o_sol_bnd_i_jstrs_ns = theta_o_sol_bnd_i_jstrs_ns
-        self.n_root_bdry_i_jstrs = n_root_bdry_i_jstrs
-        self.row_bdry_i_jstrs = row_bdry_i_jstrs
-        self.rft0_bdry_i_jstrs = rft0_bdry_i_jstrs
-        self.rfa0_bdry_i_jstrs = rfa0_bdry_i_jstrs
-        self.rft1_bdry_i_jstrs = rft1_bdry_i_jstrs
-        self.rfa1_bdry_i_jstrs = rfa1_bdry_i_jstrs
-        self.n_bdry_i_jstrs = n_bdry_i_jstrs
+        self.n_root_bdry_i_jstrs = n_root_bnd_i_jstrs
+        self.row_bdry_i_jstrs = row_bnd_i_jstrs
+        self.rft0_bdry_i_jstrs = rft0_bnd_i_jstrs
+        self.rfa0_bdry_i_jstrs = rfa0_bnd_i_jstrs
+        self.rft1_bdry_i_jstrs = rft1_bnd_i_jstrs
+        self.rfa1_bdry_i_jstrs = rfa1_bnd_i_jstrs
+
+        # 室iの統合された境界j*の数, [j*]
+        self.n_bnd_i_jstrs = n_bnd_i_jstrs
+
         # 室iの相当隙間面積（C値）,
         # TODO: 相当隙間面積についてはからすきま風量を変換する部分については実装されていない。
         self.Inf = 0.0  # すきま風量（暫定値）
@@ -161,24 +173,24 @@ class Space:
         self.OT_i_n = np.zeros(24 * 365 * 4 * 3)  # i室のn時点における室の作用温度
 
         # ステップnにおける室iの部位j*における室内側表面温度, degree C
-        self.Ts_i_k_n = np.zeros((n_bdry_i_jstrs, 24 * 365 * 4 * 4))
+        self.Ts_i_k_n = np.zeros((n_bnd_i_jstrs, 24 * 365 * 4 * 4))
 
-        # i室の部位kにおけるn時点の裏面相当温度
-        self.theta_rear_i_jstrs_ns = np.full((n_bdry_i_jstrs, 24 * 365 * 4 * 4), theta_rear_initial)
+        # 計算結果出力用ロガー
+        self.logger = Logger(n_bnd_i_jstrs=n_bnd_i_jstrs)
 
         # i室の部位kにおけるn時点の室内等価温度
-        self.Tei_i_k_n = np.zeros((n_bdry_i_jstrs, 24 * 365 * 4 * 4))
+        self.Tei_i_k_n = np.zeros((n_bnd_i_jstrs, 24 * 365 * 4 * 4))
 
         # （26）式中の〖CVL〗_(i,l)の計算式右辺
-        self.TsdA_l_n_m = np.full((n_bdry_i_jstrs, 24 * 365 * 4 * 4, 12), TsdA_initial)
+        self.TsdA_l_n_m = np.full((n_bnd_i_jstrs, 24 * 365 * 4 * 4, 12), TsdA_initial)
         # （26）式中の〖CVL〗_(i,l)の計算式右辺
-        self.TsdT_l_n_m = np.full((n_bdry_i_jstrs, 24 * 365 * 4 * 4, 12), TsdT_initial)
-        self.Sol_i_g_n = np.zeros((n_bdry_i_jstrs, 24 * 365 * 4 * 4))
-        self.Qc = np.zeros((n_bdry_i_jstrs, 24 * 365 * 4 * 4))
-        self.Qr = np.zeros((n_bdry_i_jstrs, 24 * 365 * 4 * 4))
+        self.TsdT_l_n_m = np.full((n_bnd_i_jstrs, 24 * 365 * 4 * 4, 12), TsdT_initial)
+        self.Sol_i_g_n = np.zeros((n_bnd_i_jstrs, 24 * 365 * 4 * 4))
+        self.Qc = np.zeros((n_bnd_i_jstrs, 24 * 365 * 4 * 4))
+        self.Qr = np.zeros((n_bnd_i_jstrs, 24 * 365 * 4 * 4))
 
         # 前時刻の室内側表面熱流
-        self.oldqi = np.zeros(n_bdry_i_jstrs)
+        self.oldqi = np.zeros(n_bnd_i_jstrs)
 
         # 合計面積の計算
         self.A_total_i = A_total_i

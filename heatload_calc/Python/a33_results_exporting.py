@@ -40,7 +40,7 @@ def append_headers(spaces: List[Space]) -> List[List]:
         rowlist.append(name + "_家具吸収日射熱量[W]")
         rowlist.append(name + "_家具絶対湿度[kg/kg(DA)]")
         rowlist.append(name + "_家具取得水蒸気量[kg/s]")
-        n = space.n_bdry_i_jstrs
+        n = space.n_bnd_i_jstrs
         if 1:
             for g in range(n):
                 rowlist.append(name + "_" + space.name_bdry_i_jstrs[g] + "_表面温度[℃]")
@@ -104,13 +104,13 @@ def append_tick_log(spaces: List[Space], log: List[List], To_n: float, n: int, x
         row.append('{0:.1f}'.format(space.Qsolfun_i_n[n]))
         row.append('{0:.5f}'.format(space.xf_i_n[n]))
         row.append('{0:.5f}'.format(space.Qfunl_i_n[n]))
-        n = space.n_bdry_i_jstrs
+        n = space.n_bnd_i_jstrs
         for g in range(n):
             row.append('{0:.2f}'.format(space.Ts_i_k_n[g, n]))
         for g in range(n):
             row.append('{0:.2f}'.format(space.Tei_i_k_n[g, n]))
         for g in range(n):
-            row.append('{0:.2f}'.format(space.theta_rear_i_jstrs_ns[g, n]))
+            row.append('{0:.2f}'.format(space.logger.theta_rear_i_jstrs_ns[g,n]))
         for g in range(n):
             row.append('{0:.2f}'.format(space.Qr[g, n]))
         for g in range(n):

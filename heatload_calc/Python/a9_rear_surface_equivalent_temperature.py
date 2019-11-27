@@ -4,62 +4,78 @@ import numpy as np
 import x_07_inclined_surface_solar_radiation as x_07
 import x_19_external_boundaries_direction as x_19
 
-import s3_space_initializer
-import a23_surface_heat_transfer_coefficient as a23
 
 """
 付録9．	裏面相当温度
 """
 
 
-# 裏面の相当温度を計算する 表.4
-def calc_Teo(
-        oldTr: float,
-        NsurfG_i: int, boundary_type: np.ndarray,
-        a_i_g: np.ndarray, Rnext_i_g: np.ndarray, theta_r_is, Teolist_g
+def get_theta_rear_i_jstrs_n(
+        theta_r_i_n: float, n_bnd_i_jstrs: int, boundary_type_i_jstrs: np.ndarray, h_bnd_i_jstrs: np.ndarray,
+        next_room_type_bnd_i_jstrs: np.ndarray, theta_r_is_n: np.ndarray, theta_o_sol_bnd_i_jstrs_n: np.ndarray
 ):
+    """境界の裏面温度を計算する。
+
+    Args:
+        theta_r_i_n: ステップnの室iにおける室温, degree C
+        n_bnd_i_jstrs: 室iの統合された境界j*の数, [j*]
+        boundary_type_i_jstrs: 室iの統合された境界j*の種類, [j*]
+        h_bnd_i_jstrs: 室iの統合された境界j*の温度差係数, [j*]
+        next_room_type_bnd_i_jstrs: 室iの統合された境界j*の隣室タイプ, [j*]
+        theta_r_is_n: ステップnの室iにおける室温, degree C, [i]
+        theta_o_sol_bnd_i_jstrs_n: ステップnの室iの集約された境界j*の傾斜面における相当外気温度, degree C, [j*]
+
+    Returns:
+        ステップnの室iの集約された境界j*における裏面温度, degree C, [j*]
+    """
 
     return np.array([
-        get_theta_rear_i_jstr_n(Teolist_g[g], a_i_g[g], boundary_type[g], oldTr, theta_r_is[Rnext_i_g[g]])
-        for g in range(NsurfG_i)
+        get_theta_rear_i_jstr_n(
+            theta_o_sol_bnd_i_jstrs_n=theta_o_sol_bnd_i_jstrs_n[g],
+            h_bnd_i_jstrs=h_bnd_i_jstrs[g],
+            boundary_type_i_jstrs=boundary_type_i_jstrs[g],
+            theta_r_i_n=theta_r_i_n,
+            theta_r_next_i_jstr_n=theta_r_is_n[next_room_type_bnd_i_jstrs[g]])
+        for g in range(n_bnd_i_jstrs)
     ])
 
-#    theta_rear_sol_i_j_ns = np.zeros(NsurfG_i)
 
-#    for g in range(NsurfG_i):
-#        theta_rear_sol_i_j_ns[g] = get_theta_rear_i_jstr_n(
-#            Teolist[g][n], a_i_g[g], boundary_type[g], oldTr, theta_r_is[Rnext_i_g[g]])
+def get_theta_rear_i_jstr_n(
+        theta_o_sol_bnd_i_jstrs_n: float, h_bnd_i_jstrs: float, boundary_type_i_jstrs: str, theta_r_i_n: float,
+        theta_r_next_i_jstr_n: float
+):
+    """
 
-#    return theta_rear_sol_i_j_ns
+    Args:
+        theta_o_sol_bnd_i_jstrs_n: ステップnの室iの集約された境界j*の傾斜面における相当外気温度, degree C
+        h_bnd_i_jstrs: 室iの統合された境界j*の温度差係数
+        boundary_type_i_jstrs: 室iの統合された境界j*の種類
+        theta_r_i_n: ステップnの室iにおける室温, degree C
+        theta_r_next_i_jstr_n: ステップnの室iの統合された境界j*における隣接する室の温度, degree C
 
-
-def get_theta_rear_i_jstr_n(Teolist, a_i_g, boundary_type, oldTr, theta_r_i_n):
+    Returns:
+        ステップnの室iの集約された境界j*における裏面温度, degree C
+    """
 
     # 一般部位、不透明な開口部、透明な開口部の場合
-    if boundary_type == 'external_general_part' \
-            or boundary_type == 'external_opaque_part' \
-            or boundary_type == 'external_transparent_part':
+    if boundary_type_i_jstrs == 'external_general_part' \
+            or boundary_type_i_jstrs == 'external_opaque_part' \
+            or boundary_type_i_jstrs == 'external_transparent_part':
 
-        return get_NextRoom_fromR(a_i_g, Teolist, oldTr)
+        return h_bnd_i_jstrs * theta_o_sol_bnd_i_jstrs_n + (1.0 - h_bnd_i_jstrs) * theta_r_i_n
 
     # 内壁の場合（前時刻の室温）
-    elif boundary_type == "internal":
+    elif boundary_type_i_jstrs == "internal":
 
-        return theta_r_i_n
+        return theta_r_next_i_jstr_n
 
     # 土壌の場合
-    elif boundary_type == 'ground':
+    elif boundary_type_i_jstrs == 'ground':
 
-        return Teolist
+        return theta_o_sol_bnd_i_jstrs_n
 
     else:
         raise ValueError
-
-
-# 温度差係数を設定した隣室温度 ( 日射が当たらない外皮_一般部位 )
-def get_NextRoom_fromR(a_i_k: float, Ta: float, Tr: float) -> float:
-    Te = a_i_k * Ta + (1.0 - a_i_k) * Tr
-    return Te
 
 
 def get_theta_o_sol_i_j_ns(boundary_i_j, theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, a_sun_ns, h_sun_ns):

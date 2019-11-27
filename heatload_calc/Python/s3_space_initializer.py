@@ -93,22 +93,22 @@ def make_space(room: Dict,
         boundaries=d_boundary_i_ks,
         i_dn_ns=i_dn_ns, i_sky_ns=i_sky_ns, r_n_ns=r_n_ns, theta_o_ns=theta_o_ns, h_sun_ns=h_sun_ns, a_sun_ns=a_sun_ns)
 
-    name_bdry_i_jstrs = ib.name_i_jstrs
-    sub_name_bdry_i_jstrs = ib.sub_name_i_jstrs
+    name_bnd_i_jstrs = ib.name_i_jstrs
+    sub_name_bnd_i_jstrs = ib.sub_name_i_jstrs
     boundary_type_i_jstrs = ib.boundary_type_i_jstrs
-    a_bdry_i_jstrs = ib.a_i_jstrs
-    h_bdry_i_jstrs = ib.h_i_jstrs
-    next_room_type_bdry_i_jstrs = ib.next_room_type_i_jstrs
-    is_solar_absorbed_inside_bdry_i_jstrs = ib.is_solar_absorbed_inside_i_jstrs
-    h_i_bdry_i_jstrs = ib.h_i_i_jstrs
+    a_bnd_i_jstrs = ib.a_i_jstrs
+    h_bnd_i_jstrs = ib.h_i_jstrs
+    next_room_type_bnd_i_jstrs = ib.next_room_type_i_jstrs
+    is_solar_absorbed_inside_bnd_i_jstrs = ib.is_solar_absorbed_inside_i_jstrs
+    h_i_bnd_i_jstrs = ib.h_i_i_jstrs
     theta_o_sol_bnd_i_jstrs_ns = ib.theta_o_sol_i_jstrs_ns
-    n_root_bdry_i_jstrs = ib.n_root_i_jstrs
-    row_bdry_i_jstrs = ib.Rows
-    rft0_bdry_i_jstrs = ib.RFT0s
-    rfa0_bdry_i_jstrs = ib.RFA0s
-    rft1_bdry_i_jstrs = ib.RFT1s
-    rfa1_bdry_i_jstrs = ib.RFA1s
-    n_bdry_i_jstrs = ib.NsurfG_i
+    n_root_bnd_i_jstrs = ib.n_root_i_jstrs
+    row_bnd_i_jstrs = ib.Rows
+    rft0_bnd_i_jstrs = ib.RFT0s
+    rfa0_bnd_i_jstrs = ib.RFA0s
+    rft1_bnd_i_jstrs = ib.RFT1s
+    rfa1_bnd_i_jstrs = ib.RFA1s
+    n_bnd_i_jstrs = ib.NsurfG_i
 
     # 透過日射熱取得の集約し、i室のn時点における透過日射熱取得 QGT_i_n を計算
     q_trs_sol_i_ns = np.sum(
@@ -150,13 +150,13 @@ def make_space(room: Dict,
     TsdT_initial = a18.get_TsdT_initial()
 
     # 部位の人体に対する形態係数を計算 表6
-    Fot_i_g = a12.calc_form_factor_for_human_body(a_bdry_i_jstrs, is_solar_absorbed_inside_bdry_i_jstrs)
+    Fot_i_g = a12.calc_form_factor_for_human_body(a_bnd_i_jstrs, is_solar_absorbed_inside_bnd_i_jstrs)
 
     # 合計面積の計算
-    A_total_i = np.sum(a_bdry_i_jstrs)
+    A_total_i = np.sum(a_bnd_i_jstrs)
 
     # 合計床面積の計算
-    A_fs_i = np.sum(a_bdry_i_jstrs * is_solar_absorbed_inside_bdry_i_jstrs)
+    A_fs_i = np.sum(a_bnd_i_jstrs * is_solar_absorbed_inside_bnd_i_jstrs)
 
     # ルームエアコンの仕様の設定 式(107)-(111)
     qrtd_c_i = a15.get_qrtd_c(A_fs_i)
@@ -187,23 +187,23 @@ def make_space(room: Dict,
     convective_cooling_rtd_capacity = a22.read_convective_cooling_rtd_capacity(room)
 
     # 放射暖房の発熱部位の設定（とりあえず床発熱） 表7
-    flr_i_k = a12.get_flr(a_bdry_i_jstrs, A_fs_i, is_radiative_heating,
-                                is_solar_absorbed_inside_bdry_i_jstrs)
+    flr_i_k = a12.get_flr(a_bnd_i_jstrs, A_fs_i, is_radiative_heating,
+                                is_solar_absorbed_inside_bnd_i_jstrs)
 
     eps_m = a18.get_eps()
 
     # 微小点に対する室内部位の形態係数の計算（永田先生の方法） 式(94)
-    FF_m = a12.calc_form_factor_of_microbodies(name_i, a_bdry_i_jstrs)
+    FF_m = a12.calc_form_factor_of_microbodies(name_i, a_bnd_i_jstrs)
 
     # 表面熱伝達率の計算 式(123) 表16
-    hr_i_g_n, hc_i_g_n = a23.calc_surface_transfer_coefficient(eps_m, FF_m, h_i_bdry_i_jstrs)
+    hr_i_g_n, hc_i_g_n = a23.calc_surface_transfer_coefficient(eps_m, FF_m, h_i_bnd_i_jstrs)
 
     # 平均放射温度計算時の各部位表面温度の重み計算 式(101)
-    F_mrt_i_g = a12.get_F_mrt_i_g(a_bdry_i_jstrs, hr_i_g_n)
+    F_mrt_i_g = a12.get_F_mrt_i_g(a_bnd_i_jstrs, hr_i_g_n)
 
     # 日射吸収比率の計算
     # 床の室内部位表面吸収比率の設定 表(5) 床の場合
-    Rsol_floor_i_g = a12.get_SolR(a_bdry_i_jstrs, is_solar_absorbed_inside_bdry_i_jstrs, A_fs_i)
+    Rsol_floor_i_g = a12.get_SolR(a_bnd_i_jstrs, is_solar_absorbed_inside_bnd_i_jstrs, A_fs_i)
     Rsol_fun_i = a12.calc_absorption_ratio_of_transmitted_solar_radiation()
 
     # *********** 室内表面熱収支計算のための行列作成 ***********
@@ -215,11 +215,11 @@ def make_space(room: Dict,
     Beta_i = 0.0  # 放射暖房対流比率
 
     # FIA, FLBの作成 式(26)
-    FIA_i_l = a1.get_FIA(rfa0_bdry_i_jstrs, hc_i_g_n)
-    FLB_i_l = a1.get_FLB(rfa0_bdry_i_jstrs, flr_i_k, Beta_i, a_bdry_i_jstrs)
+    FIA_i_l = a1.get_FIA(rfa0_bnd_i_jstrs, hc_i_g_n)
+    FLB_i_l = a1.get_FLB(rfa0_bnd_i_jstrs, flr_i_k, Beta_i, a_bnd_i_jstrs)
 
     # 行列AX 式(25)
-    AX_k_l = a1.get_AX(rfa0_bdry_i_jstrs, hr_i_g_n, F_mrt_i_g, h_i_bdry_i_jstrs, n_bdry_i_jstrs)
+    AX_k_l = a1.get_AX(rfa0_bnd_i_jstrs, hr_i_g_n, F_mrt_i_g, h_i_bnd_i_jstrs, n_bnd_i_jstrs)
 
     # WSR, WSB の計算 式(24)
     WSR_i_k = a1.get_WSR(AX_k_l, FIA_i_l)
@@ -244,7 +244,7 @@ def make_space(room: Dict,
         C_fun_i=Cfun,
         Vent=v_vent_ex_i,
         local_vent_amount_schedule=local_vent_amount_schedule,
-        A_i_k=a_bdry_i_jstrs,
+        A_i_k=a_bnd_i_jstrs,
         hc_i_k_n=hc_i_g_n,
         V_nxt=v_vent_up_i_nis
     )
@@ -253,7 +253,7 @@ def make_space(room: Dict,
     BRL_i = s41.get_BRL_i(
         Beta_i=Beta_i,
         WSB_i_k=WSB_i_k,
-        A_i_k=a_bdry_i_jstrs,
+        A_i_k=a_bnd_i_jstrs,
         hc_i_k_n=hc_i_g_n
     )
 
@@ -264,22 +264,22 @@ def make_space(room: Dict,
         v_vent_ex_i=v_vent_ex_i,
         name_vent_up_i_nis=name_vent_up_i_nis,
         v_vent_up_i_nis=v_vent_up_i_nis,
-        name_bdry_i_jstrs=name_bdry_i_jstrs,
-        sub_name_bdry_i_jstrs=sub_name_bdry_i_jstrs,
+        name_bnd_i_jstrs=name_bnd_i_jstrs,
+        sub_name_bnd_i_jstrs=sub_name_bnd_i_jstrs,
         boundary_type_i_jstrs=boundary_type_i_jstrs,
-        a_bdry_i_jstrs=a_bdry_i_jstrs,
-        h_bdry_i_jstrs=h_bdry_i_jstrs,
-        next_room_type_bdry_i_jstrs=next_room_type_bdry_i_jstrs,
-        is_solar_absorbed_inside_bdry_i_jstrs=is_solar_absorbed_inside_bdry_i_jstrs,
-        h_i_bdry_i_jstrs=h_i_bdry_i_jstrs,
+        a_bnd_i_jstrs=a_bnd_i_jstrs,
+        h_bnd_i_jstrs=h_bnd_i_jstrs,
+        next_room_type_bnd_i_jstrs=next_room_type_bnd_i_jstrs,
+        is_solar_absorbed_inside_bnd_i_jstrs=is_solar_absorbed_inside_bnd_i_jstrs,
+        h_i_bnd_i_jstrs=h_i_bnd_i_jstrs,
         theta_o_sol_bnd_i_jstrs_ns=theta_o_sol_bnd_i_jstrs_ns,
-        n_root_bdry_i_jstrs=n_root_bdry_i_jstrs,
-        row_bdry_i_jstrs=row_bdry_i_jstrs,
-        rft0_bdry_i_jstrs=rft0_bdry_i_jstrs,
-        rfa0_bdry_i_jstrs=rfa0_bdry_i_jstrs,
-        rft1_bdry_i_jstrs=rft1_bdry_i_jstrs,
-        rfa1_bdry_i_jstrs=rfa1_bdry_i_jstrs,
-        n_bdry_i_jstrs=n_bdry_i_jstrs,
+        n_root_bnd_i_jstrs=n_root_bnd_i_jstrs,
+        row_bnd_i_jstrs=row_bnd_i_jstrs,
+        rft0_bnd_i_jstrs=rft0_bnd_i_jstrs,
+        rfa0_bnd_i_jstrs=rfa0_bnd_i_jstrs,
+        rft1_bnd_i_jstrs=rft1_bnd_i_jstrs,
+        rfa1_bnd_i_jstrs=rfa1_bnd_i_jstrs,
+        n_bnd_i_jstrs=n_bnd_i_jstrs,
         q_trs_sol_i_ns=q_trs_sol_i_ns,
         n_ntrl_vent_i=n_ntrl_vent_i,
         theta_r_i_initial=theta_r_i_initial,
@@ -295,7 +295,6 @@ def make_space(room: Dict,
         pmv_upper_limit_schedule=pmv_upper_limit_schedule,
         pmv_lower_limit_schedule=pmv_lower_limit_schedule,
         air_conditioning_demand=air_conditioning_demand,
-        theta_rear_initial=theta_rear_initial,
         TsdA_initial=TsdA_initial,
         TsdT_initial=TsdT_initial,
         Fot_i_g=Fot_i_g,
