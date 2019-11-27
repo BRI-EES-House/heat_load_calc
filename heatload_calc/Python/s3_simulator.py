@@ -54,10 +54,6 @@ def run_tick(spaces: List[Space], To_n: float, xo_n: float, n: int):
         # ステップnの室iにおける室温, degree C
         theta_r_i_n = theta_r_is_n[i]
 
-        # ステップnの室iの集約された境界j*の傾斜面における相当外気温度, degree C, [j*]
-        theta_o_sol_bnd_i_jstrs_n = np.array(
-            [s.theta_o_sol_bnd_i_jstrs_ns[jstr][n] for jstr in range(s.n_bnd_i_jstrs)])
-
         # ステップnの室iの集約された境界j*における裏面温度, degree C, [j*]
         theta_rear_i_jstrs_n = a9.get_theta_rear_i_jstrs_n(
             theta_r_i_n=theta_r_i_n,
@@ -66,7 +62,7 @@ def run_tick(spaces: List[Space], To_n: float, xo_n: float, n: int):
             h_bnd_i_jstrs=s.h_bnd_i_jstrs,
             next_room_type_bnd_i_jstrs=s.next_room_type_bnd_i_jstrs,
             theta_r_is_n=theta_r_is_n,
-            theta_o_sol_bnd_i_jstrs_n=theta_o_sol_bnd_i_jstrs_n
+            theta_o_sol_bnd_i_jstrs_n=s.theta_o_sol_bnd_i_jstrs_ns[:, n]
         )
 
         # ステップnの室iにおける人体発熱, W
