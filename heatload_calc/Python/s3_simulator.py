@@ -81,8 +81,8 @@ def run_tick(spaces: List[Space], To_n: float, xo_n: float, n: int):
         s.logger.q_hum_i_ns[n] = q_hum_i_n
         s.logger.x_hum_i_ns[n] = x_hum_i_n
 
-        # すきま風量未実装につき、とりあえず０とする
-        s.Infset = 0.0
+        # TODO: すきま風量未実装につき、とりあえず０とする
+        Infset = 0.0
 
         # 自然室温計算時窓開閉条件の設定
         # 空調需要がなければ窓閉鎖、空調需要がある場合は前時刻の窓開閉状態
@@ -124,7 +124,7 @@ def run_tick(spaces: List[Space], To_n: float, xo_n: float, n: int):
             Ta=To_n,
             Hn=q_gen_i_n,
             Ventset=s.v_vent_ex_i,
-            Infset=s.Infset,
+            Infset=Infset,
             LocalVentset=s.local_vent_amount_schedule[n],
             Hcap=s.Hcap,
             oldTr=theta_r_i_n,
@@ -248,7 +248,7 @@ def run_tick(spaces: List[Space], To_n: float, xo_n: float, n: int):
         # 式(17)
         BRMX_pre = s42.get_BRMX(
             Ventset=s.v_vent_ex_i,
-            Infset=s.Infset,
+            Infset=Infset,
             LocalVentset=s.local_vent_amount_schedule[n],
             Gf=s.Gf_i,
             Cx=s.Cx_i,
@@ -259,7 +259,7 @@ def run_tick(spaces: List[Space], To_n: float, xo_n: float, n: int):
         # 式(18)
         BRXC_pre = s42.get_BRXC(
             Ventset=s.v_vent_ex_i,
-            Infset=s.Infset,
+            Infset=Infset,
             LocalVentset=s.local_vent_amount_schedule[n],
             Gf=s.Gf_i,
             Cx=s.Cx_i,
