@@ -110,7 +110,7 @@ def make_space(room: Dict,
     rfa1_bnd_i_jstrs = ib.RFA1s
     n_bnd_i_jstrs = ib.NsurfG_i
 
-    # 透過日射熱取得の集約し、i室のn時点における透過日射熱取得 QGT_i_n を計算
+    # ステップnの室iにおける窓の透過日射熱取得, W, [8760*4]
     q_trs_sol_i_ns = np.sum(
         s3.get_transmitted_solar_radiation(
             boundaries=d_boundary_i_ks, i_dn_ns=i_dn_ns, i_sky_ns=i_sky_ns, h_sun_ns=h_sun_ns, a_sun_ns=a_sun_ns
@@ -155,11 +155,11 @@ def make_space(room: Dict,
     # 合計面積の計算
     A_total_i = np.sum(a_bnd_i_jstrs)
 
-    # 合計床面積の計算
-    A_fs_i = np.sum(a_bnd_i_jstrs * is_solar_absorbed_inside_bnd_i_jstrs)
+    # 室iにおける床面積の合計, m2
+    a_floor_i = np.sum(a_bnd_i_jstrs * is_solar_absorbed_inside_bnd_i_jstrs)
 
     # ルームエアコンの仕様の設定 式(107)-(111)
-    qrtd_c_i = a15.get_qrtd_c(A_fs_i)
+    qrtd_c_i = a15.get_qrtd_c(a_floor_i)
     qmax_c_i = a15.get_qmax_c(qrtd_c_i)
     qmin_c_i = a15.get_qmin_c()
     Vmax_i = a15.get_Vmax(qrtd_c_i)
@@ -187,7 +187,7 @@ def make_space(room: Dict,
     convective_cooling_rtd_capacity = a22.read_convective_cooling_rtd_capacity(room)
 
     # 放射暖房の発熱部位の設定（とりあえず床発熱） 表7
-    flr_i_k = a12.get_flr(a_bnd_i_jstrs, A_fs_i, is_radiative_heating,
+    flr_i_k = a12.get_flr(a_bnd_i_jstrs, a_floor_i, is_radiative_heating,
                                 is_solar_absorbed_inside_bnd_i_jstrs)
 
     eps_m = a18.get_eps()
@@ -201,10 +201,14 @@ def make_space(room: Dict,
     # 平均放射温度計算時の各部位表面温度の重み計算 式(101)
     F_mrt_i_g = a12.get_F_mrt_i_g(a_bnd_i_jstrs, hr_i_g_n)
 
-    # 日射吸収比率の計算
-    # 床の室内部位表面吸収比率の設定 表(5) 床の場合
-    Rsol_floor_i_g = a12.get_SolR(a_bnd_i_jstrs, is_solar_absorbed_inside_bnd_i_jstrs, A_fs_i)
-    Rsol_fun_i = a12.calc_absorption_ratio_of_transmitted_solar_radiation()
+    # 室iの統合された境界j*における室の透過日射熱取得のうちの吸収日射量, W/m2, [j*, 8760*4]
+    q_sol_floor_i_jstrs_ns = a12.get_q_sol_floor_i_jstrs_ns(
+        q_trs_sol_i_ns=q_trs_sol_i_ns, a_bnd_i_jstrs=a_bnd_i_jstrs,
+        is_solar_absorbed_inside_bnd_i_jstrs=is_solar_absorbed_inside_bnd_i_jstrs, a_floor_i=a_floor_i
+    )
+
+    # ステップnの室iにおける家具の吸収日射量, W, [8760*4]
+    q_sol_frnt_i_ns = a12.get_q_sol_frnt_i_ns(q_trs_sol_i_ns=q_trs_sol_i_ns)
 
     # *********** 室内表面熱収支計算のための行列作成 ***********
 
@@ -315,8 +319,6 @@ def make_space(room: Dict,
         hr_i_g_n=hr_i_g_n,
         hc_i_g_n=hc_i_g_n,
         F_mrt_i_g=F_mrt_i_g,
-        Rsol_floor_i_g=Rsol_floor_i_g,
-        Rsol_fun_i=Rsol_fun_i,
         Ga=Ga,
         Beta_i=Beta_i,
         AX_k_l=AX_k_l,
@@ -327,7 +329,9 @@ def make_space(room: Dict,
         Hcap=Hcap,
         Capfun=Capfun,
         Cfun=Cfun,
-        q_gen_except_hum_i_ns=q_gen_i_ns
+        q_gen_except_hum_i_ns=q_gen_i_ns,
+        q_sol_floor_i_jstrs_ns=q_sol_floor_i_jstrs_ns,
+        q_sol_frnt_i_ns=q_sol_frnt_i_ns
     )
 
 

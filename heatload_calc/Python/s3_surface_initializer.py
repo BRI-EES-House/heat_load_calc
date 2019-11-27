@@ -77,7 +77,7 @@ def init_surface(
     # 室iの境界jの隣室タイプ, [j]
     next_room_type_i_js = np.array([convert_from_next_room_name_to_id(b.next_room_type) for b in boundaries])
 
-    # 室iの境界jの床室内侵入日射吸収の有無, [j]
+    # 室iの境界jの室内侵入日射吸収の有無, [j]
     is_solar_absorbed_inside_i_js = np.array([b.is_solar_absorbed_inside for b in boundaries])
 
     # 室iの境界kの室内側熱伝達抵抗, m2K/W
@@ -140,7 +140,7 @@ def init_surface(
     # 室iの統合された境界j*の隣室タイプ, [j*]
     next_room_type_i_jstrs = np.array([next_room_type_i_js[first_idx[i]] for i in np.unique(gp_idxs)])
 
-    # 室iの統合された境界j*の床室内侵入日射吸収の有無, [j*]
+    # 室iの統合された境界j*の室内侵入日射吸収の有無, [j*]
     is_solar_absorbed_inside_i_jstrs = np.array([is_solar_absorbed_inside_i_js[first_idx[i]] for i in np.unique(gp_idxs)])
 
     # 室iの統合された境界j*の室内側表面総合熱伝達率, W/m2K, [j*]

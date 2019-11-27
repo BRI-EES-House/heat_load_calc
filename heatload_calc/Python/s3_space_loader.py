@@ -118,12 +118,13 @@ class Space:
             Lrcap_i: float, is_radiative_cooling: bool, radiative_cooling_max_capacity: float,
             heat_exchanger_type, convective_cooling_rtd_capacity: float, flr_i_k,
             hr_i_g_n, hc_i_g_n, F_mrt_i_g,
-            Rsol_floor_i_g, Rsol_fun_i,
             Ga,
             Beta_i,
             AX_k_l, WSR_i_k, WSB_i_k,
             BRMnoncv_i, BRL_i, Hcap, Capfun, Cfun,
-            q_gen_except_hum_i_ns
+            q_gen_except_hum_i_ns,
+            q_sol_floor_i_jstrs_ns,
+            q_sol_frnt_i_ns
     ):
 
         self.name_i = name_i
@@ -139,7 +140,7 @@ class Space:
         # 室iの統合された境界j*の種類, [j*]
         self.boundary_type_i_jstrs = boundary_type_i_jstrs
 
-        self.a_bdry_i_jstrs = a_bnd_i_jstrs
+        self.a_bnd_i_jstrs = a_bnd_i_jstrs
 
         # 室iの統合された境界j*の温度差係数, [j*]
         self.h_bnd_i_jstrs = h_bnd_i_jstrs
@@ -208,7 +209,7 @@ class Space:
         self.TsdA_l_n_m = np.full((n_bnd_i_jstrs, 24 * 365 * 4 * 4, 12), TsdA_initial)
         # （26）式中の〖CVL〗_(i,l)の計算式右辺
         self.TsdT_l_n_m = np.full((n_bnd_i_jstrs, 24 * 365 * 4 * 4, 12), TsdT_initial)
-        self.Sol_i_g_n = np.zeros((n_bnd_i_jstrs, 24 * 365 * 4 * 4))
+
         self.Qc = np.zeros((n_bnd_i_jstrs, 24 * 365 * 4 * 4))
         self.Qr = np.zeros((n_bnd_i_jstrs, 24 * 365 * 4 * 4))
 
@@ -255,10 +256,10 @@ class Space:
         # 平均放射温度計算時の各部位表面温度の重み計算 式(101)
         self.F_mrt_i_g = F_mrt_i_g
 
-        # 日射吸収比率の計算
-        # 床の室内部位表面吸収比率の設定 表(5) 床の場合
-        self.Rsol_floor_i_g = Rsol_floor_i_g
-        self.Rsol_fun_i = Rsol_fun_i
+        # 室の透過日射熱取得から室内各部位の吸収日射量 式(91)
+        self.q_sol_floor_i_jstrs_ns = q_sol_floor_i_jstrs_ns
+        # 家具の吸収日射量[W] 式(92)
+        self.q_sol_frnt_i_ns = q_sol_frnt_i_ns
 
         # 室空気の質量[kg]
         self.Ga = Ga
@@ -317,7 +318,6 @@ class Space:
         # Gf_i:湿気容量[kg/(kg/kg(DA))]、Cx_i:湿気コンダクタンス[kg/(s･kg/kg(DA))]
         self.Tfun_i_n = np.full(24 * 365 * 4 * 3, a18.get_Tfun_initial())  # i室のn時点における家具の温度
         self.Qfunl_i_n = np.zeros(24 * 365 * 4 * 3)  # i室のn時点における家具の日射吸収熱量
-        self.Qsolfun_i_n = np.zeros(24 * 365 * 4 * 3)
         self.Gf_i = a14.get_Gf(self.v_room_cap_i)  # i室の備品類の湿気容量
         self.Cx_i = a14.get_Cx(self.Gf_i)  # i室の備品類と室空気間の湿気コンダクタンス
         self.xf_i_n = np.full(24 * 365 * 4 * 3, a18.get_xf_initial())  # i室のn時点における備品類の絶対湿度
@@ -325,11 +325,4 @@ class Space:
 
         self.xeout_i_n = np.zeros(24 * 365 * 4 * 3)  # i室のn時点におけるルームエアコン熱交換器出口の絶対湿度
         self.Vac_n = np.zeros(24 * 365 * 4 * 3)  # i室のn時点におけるエアコンの風量[m3/s]
-
-
-
-        # ********** 計算準備6 隣室間換気の読み込み **********
-
-        self.q_hum_i_ns = np.zeros(24 * 365 * 4 * 3)
-        self.x_hum_i_ns = np.zeros(24 * 365 * 4 * 3)
 

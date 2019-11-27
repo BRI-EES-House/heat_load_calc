@@ -85,14 +85,6 @@ def run_tick(spaces: List[Space], To_n: float, xo_n: float, n: int):
         s.logger.q_hum_i_ns[n] = q_hum_i_n
         s.logger.x_hum_i_ns[n] = x_hum_i_n
 
-        # **** 透過日射の家具、室内部位表面発熱量への分配 ****
-
-        # 室の透過日射熱取得から室内各部位の吸収日射量 式(91)
-        s.Sol_i_g_n[:, n] = a12.get_Sol(s.q_trs_sol_i_ns[n], s.Rsol_floor_i_g, s.a_bdry_i_jstrs)
-
-        # 家具の吸収日射量[W] 式(92)
-        s.Qsolfun_i_n[n] = a12.get_Qsolfun(s.q_trs_sol_i_ns[n], s.Rsol_fun_i)
-
         # すきま風量未実装につき、とりあえず０とする
         s.Infset = 0.0
 
@@ -123,7 +115,7 @@ def run_tick(spaces: List[Space], To_n: float, xo_n: float, n: int):
         CVL_i_l = a1.get_CVL(s.TsdT_l_n_m[:, n, :], s.TsdA_l_n_m[:, n, :], Nroot)
 
         # 表面温度を計算するための各種係数  式(24)
-        CRX_i_j = a1.get_CRX(s.rft0_bdry_i_jstrs, theta_rear_i_jstrs_n, s.Sol_i_g_n[:, n], s.rfa0_bdry_i_jstrs)
+        CRX_i_j = a1.get_CRX(s.rft0_bdry_i_jstrs, theta_rear_i_jstrs_n, s.q_sol_floor_i_jstrs_ns[:, n], s.rfa0_bdry_i_jstrs)
         WSC_i_k = a1.get_WSC(s.AX_k_l, CRX_i_j)
         WSV_i_k = a1.get_WSV(s.AX_k_l, CVL_i_l)
 
@@ -131,7 +123,7 @@ def run_tick(spaces: List[Space], To_n: float, xo_n: float, n: int):
         BRCnoncv = s41.get_BRC_i(
             WSC_i_k=WSC_i_k,
             WSV_i_k=WSV_i_k,
-            area=s.a_bdry_i_jstrs,
+            area=s.a_bnd_i_jstrs,
             hc_i_k_n=s.hc_i_g_n,
             Ta=To_n,
             Hn=q_gen_i_n,
@@ -142,7 +134,7 @@ def run_tick(spaces: List[Space], To_n: float, xo_n: float, n: int):
             oldTr=theta_r_i_n,
             Cap_fun_i=s.Capfun,
             C_fun_i=s.Cfun,
-            Qsolfun=s.Qsolfun_i_n[n],
+            Qsolfun=s.q_sol_frnt_i_ns[n],
             oldTfun=s.Tfun_i_n[n - 1],
             Vnext_i_j=s.v_vent_up_i_nis,
             Tr_next_i_j_nm1=Tr_next_i_j_nm1
@@ -231,7 +223,7 @@ def run_tick(spaces: List[Space], To_n: float, xo_n: float, n: int):
         s.theta_r_i_ns[n] = s41.get_Tr_i_n(s.OT_i_n[n], s.Lrs_i_n[n], Xot, XLr, XC)
 
         # 家具の温度 Tfun を計算 式(15)
-        s.Tfun_i_n[n] = s41.get_Tfun_i_n(s.Capfun, s.Tfun_i_n[n - 1], s.Cfun, s.theta_r_i_ns[n], s.Qsolfun_i_n[n])
+        s.Tfun_i_n[n] = s41.get_Tfun_i_n(s.Capfun, s.Tfun_i_n[n - 1], s.Cfun, s.theta_r_i_ns[n], s.q_sol_frnt_i_ns[n])
         s.Qfuns_i_n[n] = s41.get_Qfuns(s.Cfun, s.theta_r_i_ns[n], s.Tfun_i_n[n])
 
         # 表面温度の計算 式(23)
@@ -239,18 +231,18 @@ def run_tick(spaces: List[Space], To_n: float, xo_n: float, n: int):
 
         # MRT_i_n、AST、平均放射温度の計算
         s.MRT_i_n[n] = get_MRT(s.Fot_i_g, s.Ts_i_k_n[:, n])
-        _ = get_AST(s.a_bdry_i_jstrs, s.Ts_i_k_n[:, n], s.A_total_i)
+        _ = get_AST(s.a_bnd_i_jstrs, s.Ts_i_k_n[:, n], s.A_total_i)
 
         # 平均放射温度の計算
         _ = a1.get_Tsx(s.F_mrt_i_g, s.Ts_i_k_n[:, n])
 
         # 室内側等価温度の計算 式(29)
-        s.Tei_i_k_n[:, n] = a1.calc_Tei(s.hc_i_g_n, s.h_i_bdry_i_jstrs, s.hr_i_g_n, s.Sol_i_g_n[:, n], s.flr_i_k,
-                                        s.a_bdry_i_jstrs, s.theta_r_i_ns[n], s.F_mrt_i_g, s.Ts_i_k_n[:, n], s.Lrs_i_n[n],
+        s.Tei_i_k_n[:, n] = a1.calc_Tei(s.hc_i_g_n, s.h_i_bdry_i_jstrs, s.hr_i_g_n, s.q_sol_floor_i_jstrs_ns[:, n], s.flr_i_k,
+                                        s.a_bnd_i_jstrs, s.theta_r_i_ns[n], s.F_mrt_i_g, s.Ts_i_k_n[:, n], s.Lrs_i_n[n],
                                         s.Beta_i)
 
         # 室内表面熱流の計算 式(28)
-        s.Qc[:, n], s.Qr[:, n], s.Lr, s.RS, Qt, s.oldqi = a1.calc_qi(s.hc_i_g_n, s.a_bdry_i_jstrs, s.hr_i_g_n, s.Sol_i_g_n[:, n],
+        s.Qc[:, n], s.Qr[:, n], s.Lr, s.RS, Qt, s.oldqi = a1.calc_qi(s.hc_i_g_n, s.a_bnd_i_jstrs, s.hr_i_g_n, s.q_sol_floor_i_jstrs_ns[:, n],
                                                                      s.flr_i_k,
                                                          s.Ts_i_k_n[:, n], s.theta_r_i_ns[n], s.F_mrt_i_g, s.Lrs_i_n[n],
                                                                      s.Beta_i)

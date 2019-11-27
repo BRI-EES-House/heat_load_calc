@@ -175,7 +175,7 @@ def get_boundary(b: Dict) -> Boundary:
     else:
         next_room_type = None
 
-    # 床室内侵入日射吸収の有無
+    # 室内侵入日射吸収の有無
     # True: 吸収する
     # False: 吸収しない
     is_solar_absorbed_inside = bool(b['is_solar_absorbed_inside'])
