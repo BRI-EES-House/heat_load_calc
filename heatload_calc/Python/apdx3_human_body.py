@@ -19,32 +19,70 @@ def get_alpha_hm_r() -> float:
     return 4.9
 
 
-def get_q_hum_and_x_hum(theta_r: float) -> (float, float):
-    """
+def get_x_hum_psn_i_n(theta_r_i_n: float) -> float:
+    """1人あたりの人体発湿を計算する。
+
     Args:
-        theta_r: 室温, ℃
+        theta_r_i_n: ステップnの室iにおける室温, degree C
+
     Returns:
-        1人あたりの人体発熱, W
-        1人あたりの人体発湿, kg/s
+        ステップnの室iにおける1人あたりの人体発湿, kg/s
     """
 
     # 水の蒸発潜熱, J/kg
     l_wtr = a18.get_l_wtr()
 
-    q_hum = min(63.0 - 4.0 * (theta_r - 24.0), 119.0)
-    x_hum = (119.0 - q_hum) / l_wtr
+    # ステップnの室iにおける1人あたりの人体発熱, W
+    q_hum_psn_i_n = get_q_hum_psn_i_n(theta_r_i_n=theta_r_i_n)
 
-    return q_hum, x_hum
+    return (119.0 - q_hum_psn_i_n) / l_wtr
 
 
-def calc_Hhums_and_Hhuml(Tr: float, Nresi: int) -> (float, float):
-    # 1人あたりの人体発熱(W)・発湿(kg/s)
-    q_hum, x_hum = get_q_hum_and_x_hum(Tr)
+def get_q_hum_psn_i_n(theta_r_i_n: float) -> float:
+    """1人あたりの人体発湿を計算する。
 
-    # 人体顕熱[W]
-    Hhums = Nresi * q_hum
+    Args:
+        theta_r_i_n: ステップnの室iにおける室温, degree C
 
-    # 人体潜熱[kg/s]
-    Hhuml = Nresi * x_hum
+    Returns:
+        ステップnの室iにおける1人あたりの人体発熱, W
+    """
 
-    return Hhums, Hhuml
+    return min(63.0 - 4.0 * (theta_r_i_n - 24.0), 119.0)
+
+
+def get_q_hum_i_n(theta_r_i_n: float, n_hum_i_n: int) -> float:
+    """人体発熱を計算する。
+
+    Args:
+        theta_r_i_n: ステップnの室iにおける室温, degree C
+        n_hum_i_n: ステップnの室iにおける在室人数
+
+    Returns:
+        ステップnの室iにおける人体発熱, W
+    """
+
+    # ステップnの室iにおける1人あたりの人体発熱, W
+    q_hum_psn_i_n = get_q_hum_psn_i_n(theta_r_i_n=theta_r_i_n)
+
+    # ステップnの室iにおける人体発熱, W
+    return n_hum_i_n * q_hum_psn_i_n
+
+
+def get_x_hum_i_n(theta_r_i_n: float, n_hum_i_n: int) -> (float, float):
+    """人体発湿を計算する。
+
+    Args:
+        theta_r_i_n: ステップnの室iにおける室温, degree C
+        n_hum_i_n: ステップnの室iにおける在室人数
+
+    Returns:
+        ステップnの室iにおける人体発湿, kg/s
+    """
+
+    # ステップnの室iにおける1人あたりの人体発湿, kg/s
+    x_hum_psn_i_n = get_x_hum_psn_i_n(theta_r_i_n)
+
+    # ステップnの室iにおける人体潜熱, kg/s
+    return n_hum_i_n * x_hum_psn_i_n
+

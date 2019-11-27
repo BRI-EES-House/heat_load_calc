@@ -69,25 +69,23 @@ def run_tick(spaces: List[Space], To_n: float, xo_n: float, n: int):
             theta_o_sol_bnd_i_jstrs_n=theta_o_sol_bnd_i_jstrs_n
         )
 
-        s.logger.theta_rear_i_jstrs_ns[:, n] = theta_rear_i_jstrs_n
+        # ステップnの室iにおける人体発熱, W
+        q_hum_i_n = a3.get_q_hum_i_n(theta_r_i_n=theta_r_i_n, n_hum_i_n=s.n_hum_i_ns[n])
 
-        # ********** 人体発熱および、内部発熱・発湿の計算 **********
+        # ステップnの室iにおける人体発湿, kg/s
+        x_hum_i_n = a3.get_x_hum_i_n(theta_r_i_n=theta_r_i_n, n_hum_i_n=s.n_hum_i_ns[n])
 
-        # 人体発熱(W)・発湿(kg/s)
-        s.Hhums[n], s.Hhuml[n] = a3.calc_Hhums_and_Hhuml(theta_r_i_n, s.number_of_people_schedule[n])
-
-#        Hns = s.heat_generation_appliances_schedule + s.heat_generation_lighting_schedule + s.Hhums + s.heat_generation_cooking_schedule
-        # print(len(s.heat_generation_appliances_schedule)) # 35040 = 365 * 96
-        # print(len(s.heat_generation_lighting_schedule))
-#        print(len(s.Hhums)) # 105120
-#        print(len(s.heat_generation_cooking_schedule)) # 35040
         # 内部発熱[W]
         Hn = (s.heat_generation_appliances_schedule[n] + s.heat_generation_lighting_schedule[n] +
-              s.Hhums[n] + s.heat_generation_cooking_schedule[n])
+              q_hum_i_n + s.heat_generation_cooking_schedule[n])
 #        print(Hn == Hns[n])
 
         # 内部発湿[kg/s]
-        Lin = s.vapor_generation_cooking_schedule[n] / 1000.0 / 3600.0 + s.Hhuml[n]
+        Lin = s.vapor_generation_cooking_schedule[n] / 1000.0 / 3600.0 + x_hum_i_n
+
+        s.logger.theta_rear_i_jstrs_ns[:, n] = theta_rear_i_jstrs_n
+        s.logger.q_hum_i_ns[n] = q_hum_i_n
+        s.logger.x_hum_i_ns[n] = x_hum_i_n
 
         # **** 透過日射の家具、室内部位表面発熱量への分配 ****
 

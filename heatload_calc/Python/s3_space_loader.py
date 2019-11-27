@@ -64,6 +64,12 @@ class Logger:
         # ステップnの室iの集約された境界j*における裏面温度, degree C, [j*, 8760*4]
         self.theta_rear_i_jstrs_ns = np.full((n_bnd_i_jstrs, 24 * 365 * 4 * 4), -99.9)
 
+        # ステップnの室iにおける人体発熱, W
+        self.q_hum_i_ns = np.zeros(24 * 365 * 4 * 3)
+
+        # ステップnの室iにおける人体発湿, kg/s
+        self.x_hum_i_ns = np.zeros(24 * 365 * 4 * 3)
+
 
 # 空間に関する情報の保持
 class Space:
@@ -158,7 +164,8 @@ class Space:
         self.heat_generation_cooking_schedule = heat_generation_cooking_schedule  # 調理顕熱発熱
         self.vapor_generation_cooking_schedule = vapor_generation_cooking_schedule  # 調理潜熱発熱
         self.heat_generation_lighting_schedule = heat_generation_lighting_schedule  # 照明発熱
-        self.number_of_people_schedule = number_of_people_schedule  # 在室人数
+        # ステップnの室iにおける在室人数, [8760*4]
+        self.n_hum_i_ns = number_of_people_schedule
         self.is_upper_temp_limit_set_schedule = is_upper_temp_limit_set_schedule  # 設定温度上限値, degree C
         self.is_lower_temp_limit_set_schedule = is_lower_temp_limit_set_schedule  # 設定温度下限値, degree C
         self.pmv_upper_limit_schedule = pmv_upper_limit_schedule  # PMV上限値, degree C
@@ -307,6 +314,6 @@ class Space:
 
         # ********** 計算準備6 隣室間換気の読み込み **********
 
-        self.Hhums = np.zeros(24 * 365 * 4 * 3)
-        self.Hhuml = np.zeros(24 * 365 * 4 * 3)
+        self.q_hum_i_ns = np.zeros(24 * 365 * 4 * 3)
+        self.x_hum_i_ns = np.zeros(24 * 365 * 4 * 3)
 
