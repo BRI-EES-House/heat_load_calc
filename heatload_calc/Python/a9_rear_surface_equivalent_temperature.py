@@ -58,12 +58,6 @@ def get_NextRoom_fromR(a_i_k: float, Ta: float, Tr: float) -> float:
     return Te
 
 
-# 前時刻の隣室温度の場合
-def get_oldNextRoom(nextroomname: str, spaces: List['s3_space_initializer'], sequence_number: int) -> float:
-    Te = spaces[nextroomname].Tr_i_n[sequence_number - 1]
-    return Te
-
-
 def get_theta_o_sol_i_j_ns(boundary_i_j, theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, a_sun_ns, h_sun_ns):
     """
     相当外気温度を計算する。
