@@ -2,6 +2,7 @@ import datetime
 from typing import List
 
 from s3_space_loader import Space
+from s3_space_loader import Logger
 
 
 def append_headers(spaces: List[Space]) -> List[List]:
@@ -92,8 +93,8 @@ def append_tick_log(spaces: List[Space], log: List[List], To_n: float, n: int, x
         row.append('{0:.2f}'.format(space.Clo_i_n[n]))
         row.append('{0:.2f}'.format(space.Vel_i_n[n]))
         row.append('{0:.2f}'.format(space.q_trs_sol_i_ns[n]))
-        row.append('{0:.2f}'.format(space.heat_generation_appliances_schedule[n]))
-        row.append('{0:.2f}'.format(space.heat_generation_lighting_schedule[n]))
+        row.append('{0:.2f}'.format(space.logger.heat_generation_appliances_schedule[n]))
+        row.append('{0:.2f}'.format(space.logger.heat_generation_lighting_schedule[n]))
         row.append('{0:.2f}'.format(space.logger.q_hum_i_ns[n]))
         row.append('{0:.2f}'.format(space.logger.x_hum_i_ns[n]))
         row.append('{0:.1f}'.format(space.Lcs_i_n[n]))

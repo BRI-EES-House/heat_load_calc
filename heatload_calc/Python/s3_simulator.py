@@ -75,13 +75,11 @@ def run_tick(spaces: List[Space], To_n: float, xo_n: float, n: int):
         # ステップnの室iにおける人体発湿, kg/s
         x_hum_i_n = a3.get_x_hum_i_n(theta_r_i_n=theta_r_i_n, n_hum_i_n=s.n_hum_i_ns[n])
 
-        # 内部発熱[W]
-        Hn = (s.heat_generation_appliances_schedule[n] + s.heat_generation_lighting_schedule[n] +
-              q_hum_i_n + s.heat_generation_cooking_schedule[n])
-#        print(Hn == Hns[n])
+        # ステップnの室iにおける内部発熱, W
+        q_gen_i_n = s.q_gen_except_hum_i_ns[n] + q_hum_i_n
 
-        # 内部発湿[kg/s]
-        Lin = s.vapor_generation_cooking_schedule[n] / 1000.0 / 3600.0 + x_hum_i_n
+        # ステップnの室iにおける内部発湿, kg/s
+        x_gen_i_n = s.x_gen_except_hum_i_ns[n] + x_hum_i_n
 
         s.logger.theta_rear_i_jstrs_ns[:, n] = theta_rear_i_jstrs_n
         s.logger.q_hum_i_ns[n] = q_hum_i_n
@@ -136,7 +134,7 @@ def run_tick(spaces: List[Space], To_n: float, xo_n: float, n: int):
             area=s.a_bdry_i_jstrs,
             hc_i_k_n=s.hc_i_g_n,
             Ta=To_n,
-            Hn=Hn,
+            Hn=q_gen_i_n,
             Ventset=s.v_vent_ex_i,
             Infset=s.Infset,
             LocalVentset=s.local_vent_amount_schedule[n],
@@ -282,7 +280,7 @@ def run_tick(spaces: List[Space], To_n: float, xo_n: float, n: int):
             xr_next_i_j_nm1=xr_next_i_j_nm1,
             xr_i_nm1=s.x_r_i_ns[n - 1],
             xf_i_nm1=s.xf_i_n[n - 1],
-            Lin=Lin,
+            Lin=x_gen_i_n,
             xo=xo_n
         )
 

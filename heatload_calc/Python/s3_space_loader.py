@@ -61,6 +61,12 @@ class Logger:
 
     def __init__(self, n_bnd_i_jstrs):
 
+        # ステップnの室iにおける機器発熱, W
+        self.heat_generation_appliances_schedule = None
+
+        # ステップnの室iにおける照明発熱, W, [8760*4]
+        self.heat_generation_lighting_schedule = None
+
         # ステップnの室iの集約された境界j*における裏面温度, degree C, [j*, 8760*4]
         self.theta_rear_i_jstrs_ns = np.full((n_bnd_i_jstrs, 24 * 365 * 4 * 4), -99.9)
 
@@ -69,6 +75,7 @@ class Logger:
 
         # ステップnの室iにおける人体発湿, kg/s
         self.x_hum_i_ns = np.zeros(24 * 365 * 4 * 3)
+
 
 
 # 空間に関する情報の保持
@@ -100,7 +107,7 @@ class Space:
             q_trs_sol_i_ns: np.ndarray, n_ntrl_vent_i: float,
             theta_r_i_initial: float, x_r_i_initial: float, local_vent_amount_schedule: np.ndarray,
             heat_generation_appliances_schedule: np.ndarray, heat_generation_cooking_schedule: np.ndarray,
-            vapor_generation_cooking_schedule: np.ndarray, heat_generation_lighting_schedule: np.ndarray,
+            x_gen_except_hum_i_ns: np.ndarray, heat_generation_lighting_schedule: np.ndarray,
             number_of_people_schedule: np.ndarray,
             is_upper_temp_limit_set_schedule: np.ndarray, is_lower_temp_limit_set_schedule: np.ndarray,
             pmv_upper_limit_schedule: np.ndarray, pmv_lower_limit_schedule: np.ndarray,
@@ -115,7 +122,8 @@ class Space:
             Ga,
             Beta_i,
             AX_k_l, WSR_i_k, WSB_i_k,
-            BRMnoncv_i, BRL_i, Hcap, Capfun, Cfun
+            BRMnoncv_i, BRL_i, Hcap, Capfun, Cfun,
+            q_gen_except_hum_i_ns
     ):
 
         self.name_i = name_i
@@ -158,18 +166,28 @@ class Space:
         self.q_trs_sol_i_ns = q_trs_sol_i_ns
         self.n_ntrl_vent_i = n_ntrl_vent_i
 
+        # 計算結果出力用ロガー
+        self.logger = Logger(n_bnd_i_jstrs=n_bnd_i_jstrs)
+        # ステップnの室iにおける機器発熱, W
+        self.logger.heat_generation_appliances_schedule = heat_generation_appliances_schedule
+        # ステップnの室iにおける照明発熱, W
+        self.logger.heat_generation_lighting_schedule = heat_generation_lighting_schedule
+
         # スケジュール
+
+
         self.local_vent_amount_schedule = local_vent_amount_schedule  # 局所換気
-        self.heat_generation_appliances_schedule = heat_generation_appliances_schedule  # 機器発熱
-        self.heat_generation_cooking_schedule = heat_generation_cooking_schedule  # 調理顕熱発熱
-        self.vapor_generation_cooking_schedule = vapor_generation_cooking_schedule  # 調理潜熱発熱
-        self.heat_generation_lighting_schedule = heat_generation_lighting_schedule  # 照明発熱
         # ステップnの室iにおける在室人数, [8760*4]
         self.n_hum_i_ns = number_of_people_schedule
         self.is_upper_temp_limit_set_schedule = is_upper_temp_limit_set_schedule  # 設定温度上限値, degree C
         self.is_lower_temp_limit_set_schedule = is_lower_temp_limit_set_schedule  # 設定温度下限値, degree C
         self.pmv_upper_limit_schedule = pmv_upper_limit_schedule  # PMV上限値, degree C
         self.pmv_lower_limit_schedule = pmv_lower_limit_schedule  # PMV下限値, degree C
+
+        # ステップnの室iにおける人体発熱を除く内部発熱, W, [8760*4]
+        self.q_gen_except_hum_i_ns = q_gen_except_hum_i_ns
+        # ステップnの室iにおける人体発湿を除く内部発湿, kg/s, [8760*4]
+        self.x_gen_except_hum_i_ns = x_gen_except_hum_i_ns
 
         self.air_conditioning_demand = air_conditioning_demand  # 当該時刻の空調需要（0：なし、1：あり）
 
@@ -182,8 +200,6 @@ class Space:
         # ステップnにおける室iの部位j*における室内側表面温度, degree C
         self.Ts_i_k_n = np.zeros((n_bnd_i_jstrs, 24 * 365 * 4 * 4))
 
-        # 計算結果出力用ロガー
-        self.logger = Logger(n_bnd_i_jstrs=n_bnd_i_jstrs)
 
         # i室の部位kにおけるn時点の室内等価温度
         self.Tei_i_k_n = np.zeros((n_bnd_i_jstrs, 24 * 365 * 4 * 4))

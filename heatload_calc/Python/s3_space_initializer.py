@@ -257,6 +257,8 @@ def make_space(room: Dict,
         hc_i_k_n=hc_i_g_n
     )
 
+    q_gen_i_ns = heat_generation_appliances_schedule + heat_generation_lighting_schedule + heat_generation_cooking_schedule
+
     space = Space(
         name_i=name_i,
         room_type_i=room_type_i,
@@ -287,7 +289,7 @@ def make_space(room: Dict,
         local_vent_amount_schedule=local_vent_amount_schedule,
         heat_generation_appliances_schedule=heat_generation_appliances_schedule,
         heat_generation_cooking_schedule=heat_generation_cooking_schedule,
-        vapor_generation_cooking_schedule=vapor_generation_cooking_schedule,
+        x_gen_except_hum_i_ns=vapor_generation_cooking_schedule/1000.0/3600.0,
         heat_generation_lighting_schedule=heat_generation_lighting_schedule,
         number_of_people_schedule=number_of_people_schedule,
         is_upper_temp_limit_set_schedule=is_upper_temp_limit_set_schedule,
@@ -324,7 +326,8 @@ def make_space(room: Dict,
         BRL_i=BRL_i,
         Hcap=Hcap,
         Capfun=Capfun,
-        Cfun=Cfun
+        Cfun=Cfun,
+        q_gen_except_hum_i_ns=q_gen_i_ns
     )
 
 
