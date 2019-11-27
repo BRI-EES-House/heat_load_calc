@@ -25,7 +25,7 @@ def run_tick_groundonly(spaces: List[Space], To_n: float, n: int):
     for s in spaces:
 
         # 配列の準備
-        Row = s.row_bdry_i_jstrs
+        Row = s.row_bnd_i_jstrs
 
         Phi_A_i_k_0 = s.rfa0_bdry_i_jstrs
         hi_i_k = s.h_i_bdry_i_jstrs
@@ -84,27 +84,19 @@ def run_tick(spaces: List[Space], To_n: float, xo_n: float, n: int):
         # TODO: すきま風量未実装につき、とりあえず０とする
         Infset = 0.0
 
-        # 配列の準備
-        Nroot = s.n_root_bdry_i_jstrs
-        Row = s.row_bdry_i_jstrs
-
-#        print([s.name_i for s in spaces])
-#        print(str(i) + ': ' + str(s.Rtype_i_j))
         # ここのコードはもう少し構造を考え直さないといけない
         # 室名が重複して指定された場合に破綻する。
         idxs = [[i for i, space in enumerate(spaces) if space.name_i == x][0] for x in s.name_vent_up_i_nis]
-#        print(str(i) + ':' + str(idxs))
         Tr_next_i_j_nm1 = np.array([theta_r_is_n[x] for x in idxs])
         xr_next_i_j_nm1 = np.array([spaces[x].x_r_i_ns[n - 1] for x in idxs])
-#        print(str(i) + ': ' + str(Tr_next_i_j_nm1))
 
         # 畳み込み積分 式(27)
         for g in range(s.n_bnd_i_jstrs):
-            s.TsdA_l_n_m[g, n] = s.oldqi[g] * s.rfa1_bdry_i_jstrs[g] + Row[g] * s.TsdA_l_n_m[g, n - 1]
-            s.TsdT_l_n_m[g, n] = theta_rear_i_jstrs_n[g] * s.rft1_bdry_i_jstrs[g] + Row[g] * s.TsdT_l_n_m[g, n - 1]
+            s.TsdA_l_n_m[g, n] = s.oldqi[g] * s.rfa1_bdry_i_jstrs[g] + s.row_bnd_i_jstrs[g] * s.TsdA_l_n_m[g, n - 1]
+            s.TsdT_l_n_m[g, n] = theta_rear_i_jstrs_n[g] * s.rft1_bdry_i_jstrs[g] + s.row_bnd_i_jstrs[g] * s.TsdT_l_n_m[g, n - 1]
 
         # 畳み込み演算 式(26)
-        CVL_i_l = a1.get_CVL(s.TsdT_l_n_m[:, n, :], s.TsdA_l_n_m[:, n, :], Nroot)
+        CVL_i_l = a1.get_CVL(s.TsdT_l_n_m[:, n, :], s.TsdA_l_n_m[:, n, :], s.n_root_bnd_i_jstrs)
 
         # 表面温度を計算するための各種係数  式(24)
         CRX_i_j = a1.get_CRX(s.rft0_bdry_i_jstrs, theta_rear_i_jstrs_n, s.q_sol_floor_i_jstrs_ns[:, n], s.rfa0_bdry_i_jstrs)

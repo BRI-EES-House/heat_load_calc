@@ -151,8 +151,8 @@ class Space:
         self.is_solar_absorbed_inside_bdry_i_jstrs = is_solar_absorbed_inside_bnd_i_jstrs
         self.h_i_bdry_i_jstrs = h_i_bnd_i_jstrs
         self.theta_o_sol_bnd_i_jstrs_ns = theta_o_sol_bnd_i_jstrs_ns
-        self.n_root_bdry_i_jstrs = n_root_bnd_i_jstrs
-        self.row_bdry_i_jstrs = row_bnd_i_jstrs
+        self.n_root_bnd_i_jstrs = n_root_bnd_i_jstrs
+        self.row_bnd_i_jstrs = row_bnd_i_jstrs
         self.rft0_bdry_i_jstrs = rft0_bnd_i_jstrs
         self.rfa0_bdry_i_jstrs = rfa0_bnd_i_jstrs
         self.rft1_bdry_i_jstrs = rft1_bnd_i_jstrs
