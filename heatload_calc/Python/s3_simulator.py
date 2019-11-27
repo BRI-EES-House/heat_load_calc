@@ -43,10 +43,16 @@ def run_tick_groundonly(spaces: List[Space], To_n: float, n: int):
 # 室温、熱負荷の計算
 def run_tick(spaces: List[Space], To_n: float, xo_n: float, n: int):
 
-    # ステップnの室iにおける室温, degree C, [i]
-    theta_r_is_n = np.array([s.theta_r_i_ns[n - 1] for s in spaces])
+    # ステップnにおける室温, degree C, [i]
+    # 室内壁の場合の裏面温度を計算する際に隣りの室の室温を持ちるために使用する。
+    # 本当はこの式は n-1 ではなくて、nが正しい。
+    # 新しい室温を計算する部分が修正した後、最後に修正すること。
+    theta_r_is_n = np.array([s.theta_r_i_ns[n-1] for s in spaces])
 
     for i, s in enumerate(spaces):
+
+        # ステップnの室iにおける室温, degree C
+        theta_r_i_n = theta_r_is_n[i]
 
         # ステップnの室iの集約された境界j*の傾斜面における相当外気温度, degree C, [j*]
         theta_o_sol_bnd_i_jstrs_n = np.array(
@@ -54,7 +60,7 @@ def run_tick(spaces: List[Space], To_n: float, xo_n: float, n: int):
 
         # ステップnの室iの集約された境界j*における裏面温度, degree C, [j*]
         theta_rear_i_jstrs_n = a9.calc_Teo(
-            s.theta_r_i_ns[n - 1], s.n_bdry_i_jstrs, s.boundary_type_i_jstrs,
+            theta_r_i_n, s.n_bdry_i_jstrs, s.boundary_type_i_jstrs,
             s.h_bdry_i_jstrs, s.next_room_type_bdry_i_jstrs, theta_r_is_n,
             theta_o_sol_bnd_i_jstrs_n
         )
@@ -64,7 +70,7 @@ def run_tick(spaces: List[Space], To_n: float, xo_n: float, n: int):
         # ********** 人体発熱および、内部発熱・発湿の計算 **********
 
         # 人体発熱(W)・発湿(kg/s)
-        s.Hhums[n], s.Hhuml[n] = a3.calc_Hhums_and_Hhuml(s.theta_r_i_ns[n - 1], s.number_of_people_schedule[n])
+        s.Hhums[n], s.Hhuml[n] = a3.calc_Hhums_and_Hhuml(theta_r_i_n, s.number_of_people_schedule[n])
 
 #        Hns = s.heat_generation_appliances_schedule + s.heat_generation_lighting_schedule + s.Hhums + s.heat_generation_cooking_schedule
         # print(len(s.heat_generation_appliances_schedule)) # 35040 = 365 * 96
@@ -104,7 +110,7 @@ def run_tick(spaces: List[Space], To_n: float, xo_n: float, n: int):
         # 室名が重複して指定された場合に破綻する。
         idxs = [[i for i, space in enumerate(spaces) if space.name_i == x][0] for x in s.name_vent_up_i_nis]
 #        print(str(i) + ':' + str(idxs))
-        Tr_next_i_j_nm1 = np.array([spaces[x].theta_r_i_ns[n - 1] for x in idxs])
+        Tr_next_i_j_nm1 = np.array([theta_r_is_n[x] for x in idxs])
         xr_next_i_j_nm1 = np.array([spaces[x].x_r_i_ns[n - 1] for x in idxs])
 #        print(str(i) + ': ' + str(Tr_next_i_j_nm1))
 
@@ -133,7 +139,7 @@ def run_tick(spaces: List[Space], To_n: float, xo_n: float, n: int):
             Infset=s.Infset,
             LocalVentset=s.local_vent_amount_schedule[n],
             Hcap=s.Hcap,
-            oldTr=s.theta_r_i_ns[n - 1],
+            oldTr=theta_r_i_n,
             Cap_fun_i=s.Capfun,
             C_fun_i=s.Cfun,
             Qsolfun=s.Qsolfun_i_n[n],
