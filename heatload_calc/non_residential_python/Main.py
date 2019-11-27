@@ -205,7 +205,8 @@ if __name__ == '__main__':
     
     print(os.getcwd())
 
-    js = open('test.json', 'r', encoding='utf-8')
+    # js = open('test.json', 'r', encoding='utf-8')
+    js = open('test_6_001事務所等事務室_01.json', 'r', encoding='utf-8')   
     # js = open('input_residential.json', 'r', encoding='utf-8')
     # js = open('検証用.json', 'r', encoding='utf-8')
     d = json.load(js)
