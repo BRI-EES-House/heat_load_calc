@@ -203,6 +203,7 @@ class Space:
             # print(d_surface['name'])
             self.input_surfaces.append(Surface(d = d_surface, Gdata = Gdata))
         
+        """         
         # 部位のグループ化
         group_number = 0
         for surface in self.input_surfaces:
@@ -221,7 +222,7 @@ class Space:
                             comp_surface.is_grouping = True
                             comp_surface.group_number = group_number
                 # グループ番号を増やす
-                group_number += 1
+                group_number += 1 """
         
         # 部位のグループ化
         # self.surfaces = []

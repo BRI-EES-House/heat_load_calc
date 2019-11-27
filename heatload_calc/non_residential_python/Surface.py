@@ -57,6 +57,7 @@ class Surface:
             self.__is_ground = self.boundary_type == "ground"     # 壁体に土壌が含まれる場合True
             self.Ei = 0.9                                   # 室内側表面放射率
             self.Eo = 0.9
+            self.outside_solar_absorption = 0.8
 
             # 室内表面熱伝達率の初期化
             self.hi = 0.0
