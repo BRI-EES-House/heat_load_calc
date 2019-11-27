@@ -84,10 +84,6 @@ def run_tick(spaces: List[Space], To_n: float, xo_n: float, n: int):
         # TODO: すきま風量未実装につき、とりあえず０とする
         Infset = 0.0
 
-        # 自然室温計算時窓開閉条件の設定
-        # 空調需要がなければ窓閉鎖、空調需要がある場合は前時刻の窓開閉状態
-        is_now_window_open = s.is_now_window_open_i_n[n - 1] and s.air_conditioning_demand[n]
-
         # 配列の準備
         Nroot = s.n_root_bdry_i_jstrs
         Row = s.row_bdry_i_jstrs
@@ -135,6 +131,10 @@ def run_tick(spaces: List[Space], To_n: float, xo_n: float, n: int):
             Vnext_i_j=s.v_vent_up_i_nis,
             Tr_next_i_j_nm1=Tr_next_i_j_nm1
         )
+
+        # 自然室温計算時窓開閉条件の設定
+        # 空調需要がなければ窓閉鎖、空調需要がある場合は前時刻の窓開閉状態
+        is_now_window_open = s.is_now_window_open_i_n[n - 1] and s.air_conditioning_demand[n]
 
         # 仮の窓開閉条件における通風量 NVot の計算
         ca = a18.get_ca()
