@@ -14,22 +14,26 @@ import a23_surface_heat_transfer_coefficient as a23
 
 # 裏面の相当温度を計算する 表.4
 def calc_Teo(
-        oldTr: float, spaces: List['s3_space_initializer'], n: int,
-        NsurfG_i: int, boundary_type: np.ndarray, Teolist: np.ndarray,
-        a_i_g: np.ndarray, Rnext_i_g: np.ndarray
+        oldTr: float,
+        NsurfG_i: int, boundary_type: np.ndarray,
+        a_i_g: np.ndarray, Rnext_i_g: np.ndarray, theta_r_is, Teolist_g
 ):
 
-    theta_rear_sol_i_j_ns = np.zeros(NsurfG_i)
+    return np.array([
+        get_theta_rear_i_jstr_n(Teolist_g[g], a_i_g[g], boundary_type[g], oldTr, theta_r_is[Rnext_i_g[g]])
+        for g in range(NsurfG_i)
+    ])
 
-    for g in range(NsurfG_i):
+#    theta_rear_sol_i_j_ns = np.zeros(NsurfG_i)
 
-        theta_rear_sol_i_j_ns[g] = get_theta_rear_i_jstr_n(
-            Rnext_i_g[g], Teolist[g][n], a_i_g[g], boundary_type[g], n, oldTr, spaces)
+#    for g in range(NsurfG_i):
+#        theta_rear_sol_i_j_ns[g] = get_theta_rear_i_jstr_n(
+#            Teolist[g][n], a_i_g[g], boundary_type[g], oldTr, theta_r_is[Rnext_i_g[g]])
 
-    return theta_rear_sol_i_j_ns
+#    return theta_rear_sol_i_j_ns
 
 
-def get_theta_rear_i_jstr_n(Rnext_i_g, Teolist, a_i_g, boundary_type, n, oldTr, spaces):
+def get_theta_rear_i_jstr_n(Teolist, a_i_g, boundary_type, oldTr, theta_r_i_n):
 
     # 一般部位、不透明な開口部、透明な開口部の場合
     if boundary_type == 'external_general_part' \
@@ -41,7 +45,7 @@ def get_theta_rear_i_jstr_n(Rnext_i_g, Teolist, a_i_g, boundary_type, n, oldTr, 
     # 内壁の場合（前時刻の室温）
     elif boundary_type == "internal":
 
-        return spaces[Rnext_i_g].theta_r_i_ns[n - 1]
+        return theta_r_i_n
 
     # 土壌の場合
     elif boundary_type == 'ground':

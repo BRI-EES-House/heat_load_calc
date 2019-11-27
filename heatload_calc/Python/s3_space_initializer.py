@@ -101,7 +101,7 @@ def make_space(room: Dict,
     next_room_type_bdry_i_jstrs = ib.next_room_type_i_jstrs
     is_solar_absorbed_inside_bdry_i_jstrs = ib.is_solar_absorbed_inside_i_jstrs
     h_i_bdry_i_jstrs = ib.h_i_i_jstrs
-    theta_o_sol_bdry_i_jstrs_ns = ib.theta_o_sol_i_jstrs_ns
+    theta_o_sol_bnd_i_jstrs_ns = ib.theta_o_sol_i_jstrs_ns
     n_root_bdry_i_jstrs = ib.n_root_i_jstrs
     row_bdry_i_jstrs = ib.Rows
     rft0_bdry_i_jstrs = ib.RFT0s
@@ -272,7 +272,7 @@ def make_space(room: Dict,
         next_room_type_bdry_i_jstrs=next_room_type_bdry_i_jstrs,
         is_solar_absorbed_inside_bdry_i_jstrs=is_solar_absorbed_inside_bdry_i_jstrs,
         h_i_bdry_i_jstrs=h_i_bdry_i_jstrs,
-        theta_o_sol_bdry_i_jstrs_ns=theta_o_sol_bdry_i_jstrs_ns,
+        theta_o_sol_bnd_i_jstrs_ns=theta_o_sol_bnd_i_jstrs_ns,
         n_root_bdry_i_jstrs=n_root_bdry_i_jstrs,
         row_bdry_i_jstrs=row_bdry_i_jstrs,
         rft0_bdry_i_jstrs=rft0_bdry_i_jstrs,

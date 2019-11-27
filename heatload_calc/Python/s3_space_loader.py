@@ -57,6 +57,12 @@ import s4_1_sensible_heat as s41
 # - RoomtoRoomVents:      室間換気量（list型、暖房・中間期・冷房、風上室名称）, m3/h
 # - d:             室内部位に関連するクラス, Surface
 
+class Logger:
+
+    def __init__(self):
+
+        pass
+
 # 空間に関する情報の保持
 class Space:
     """室クラス。
@@ -120,7 +126,7 @@ class Space:
         # Spaceクラスで持つ必要はない変数の可能性あり（インスタンス終了後破棄可能）（要調査）
         self.is_solar_absorbed_inside_bdry_i_jstrs = is_solar_absorbed_inside_bdry_i_jstrs
         self.h_i_bdry_i_jstrs = h_i_bdry_i_jstrs
-        self.theta_o_sol_bdry_i_jstrs_ns = theta_o_sol_bdry_i_jstrs_ns
+        self.theta_o_sol_bnd_i_jstrs_ns = theta_o_sol_bnd_i_jstrs_ns
         self.n_root_bdry_i_jstrs = n_root_bdry_i_jstrs
         self.row_bdry_i_jstrs = row_bdry_i_jstrs
         self.rft0_bdry_i_jstrs = rft0_bdry_i_jstrs

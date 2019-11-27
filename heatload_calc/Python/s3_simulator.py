@@ -43,24 +43,38 @@ def run_tick_groundonly(spaces: List[Space], To_n: float, n: int):
 # 室温、熱負荷の計算
 def run_tick(spaces: List[Space], To_n: float, xo_n: float, n: int):
 
+    # ステップnの室iにおける室温, degree C, [i]
+    theta_r_is_n = np.array([s.theta_r_i_ns[n - 1] for s in spaces])
+
     for i, s in enumerate(spaces):
 
-        # ********** 裏面相当温度の計算 **********
+        # ステップnの室iの集約された境界j*の傾斜面における相当外気温度, degree C, [j*]
+        theta_o_sol_bnd_i_jstrs_n = np.array(
+            [s.theta_o_sol_bnd_i_jstrs_ns[jstr][n] for jstr in range(s.n_bdry_i_jstrs)])
 
-        # 裏面温度の計算
-        s.theta_rear_i_jstrs_ns[:, n] = a9.calc_Teo(
-            s.theta_r_i_ns[n - 1], spaces, n, s.n_bdry_i_jstrs, s.boundary_type_i_jstrs,
-            s.theta_o_sol_bdry_i_jstrs_ns, s.h_bdry_i_jstrs, s.next_room_type_bdry_i_jstrs
+        # ステップnの室iの集約された境界j*における裏面温度, degree C, [j*]
+        theta_rear_i_jstrs_n = a9.calc_Teo(
+            s.theta_r_i_ns[n - 1], s.n_bdry_i_jstrs, s.boundary_type_i_jstrs,
+            s.h_bdry_i_jstrs, s.next_room_type_bdry_i_jstrs, theta_r_is_n,
+            theta_o_sol_bnd_i_jstrs_n
         )
+
+        s.theta_rear_i_jstrs_ns[:, n] = theta_rear_i_jstrs_n
 
         # ********** 人体発熱および、内部発熱・発湿の計算 **********
 
         # 人体発熱(W)・発湿(kg/s)
         s.Hhums[n], s.Hhuml[n] = a3.calc_Hhums_and_Hhuml(s.theta_r_i_ns[n - 1], s.number_of_people_schedule[n])
 
+#        Hns = s.heat_generation_appliances_schedule + s.heat_generation_lighting_schedule + s.Hhums + s.heat_generation_cooking_schedule
+        # print(len(s.heat_generation_appliances_schedule)) # 35040 = 365 * 96
+        # print(len(s.heat_generation_lighting_schedule))
+#        print(len(s.Hhums)) # 105120
+#        print(len(s.heat_generation_cooking_schedule)) # 35040
         # 内部発熱[W]
         Hn = (s.heat_generation_appliances_schedule[n] + s.heat_generation_lighting_schedule[n] +
               s.Hhums[n] + s.heat_generation_cooking_schedule[n])
+#        print(Hn == Hns[n])
 
         # 内部発湿[kg/s]
         Lin = s.vapor_generation_cooking_schedule[n] / 1000.0 / 3600.0 + s.Hhuml[n]
