@@ -66,7 +66,7 @@ def calc_solar_position(region: int) -> (np.ndarray, np.ndarray):
     h_sun_ns = get_h_sun_ns(phi_loc=phi_loc, omega_ns=omega_ns, delta_ns=delta_ns)
 
     # 太陽方位角, rad * 8760 * 96
-    a_sun_ns = get_a_sun_ns(omega_ns=omega_ns, phi_loc=phi_loc, delta_ns=delta_ns, h_s_ns=h_sun_ns)
+    a_sun_ns = get_a_sun_ns(omega_ns=omega_ns, phi_loc=phi_loc, delta_ns=delta_ns, h_sun_ns=h_sun_ns)
 
     return h_sun_ns, a_sun_ns
 
@@ -141,9 +141,9 @@ def get_m_ns(d_ns: np.ndarray, d_0: float) -> np.ndarray:
     d_ay = 365.2596
 
     # ステップnにおける平均近点離角, rad * 365 * 96
-    m_n = 2 * math.pi * (d_ns - d_0) / d_ay
+    m_ns = 2 * math.pi * (d_ns - d_0) / d_ay
 
-    return m_n
+    return m_ns
 
 
 def get_epsilon_ns(m_ns: np.ndarray, n: int) -> np.ndarray:
@@ -185,7 +185,7 @@ def get_e_t_ns(m_ns: np.ndarray, epsilon_ns: np.ndarray, v_ns: np.ndarray) -> np
         ステップnにおける均時差, rad * 8760 * 96
     """
 
-    e_t_ns = (m_ns - v_ns) \
+    e_t_ns = (m_ns - v_ns)\
         - np.arctan(0.043 * np.sin(2.0 * (v_ns + epsilon_ns)) / (1.0 - 0.043 * np.cos(2.0 * (v_ns + epsilon_ns))))
 
     return e_t_ns
@@ -260,35 +260,35 @@ def get_h_sun_ns(phi_loc: float, omega_ns: np.ndarray, delta_ns: np.ndarray) -> 
         太陽高度はマイナスの値もとり得る。（太陽が沈んでいる場合）
     """
 
-    h_sun_n = np.arcsin(np.sin(phi_loc) * np.sin(delta_ns) + np.cos(phi_loc) * np.cos(delta_ns) * np.cos(omega_ns))
+    h_sun_ns = np.arcsin(np.sin(phi_loc) * np.sin(delta_ns) + np.cos(phi_loc) * np.cos(delta_ns) * np.cos(omega_ns))
 
-    return h_sun_n
+    return h_sun_ns
 
 
-def get_a_sun_ns(omega_ns: np.ndarray, phi_loc: float, delta_ns: np.ndarray, h_s_ns: np.ndarray) -> np.ndarray:
+def get_a_sun_ns(omega_ns: np.ndarray, phi_loc: float, delta_ns: np.ndarray, h_sun_ns: np.ndarray) -> np.ndarray:
     """
     Args:
         omega_ns: ステップnにおける時角, rad * 365 * 96
         phi_loc: 緯度, rad
         delta_ns: ステップnにおける赤緯, rad * 8760 * 96
-        h_s_ns: ステップnにおける太陽高度, rad * 8760 * 96
+        h_sun_ns: ステップnにおける太陽高度, rad * 8760 * 96
 
     Returns:
         太陽方位角, rad * 8760 * 96
     """
 
-    a_s_ns = np.full(len(h_s_ns), np.nan)
-    sin_a_s_ns = np.full(len(h_s_ns), np.nan)
-    cos_a_s_ns = np.full(len(h_s_ns), np.nan)
+    a_sun_ns = np.full(len(h_sun_ns), np.nan)
+    sin_a_sun_ns = np.full(len(h_sun_ns), np.nan)
+    cos_a_sun_ns = np.full(len(h_sun_ns), np.nan)
 
     # 太陽の位置が天頂にない場合をチェックする, 天頂にない場合がTrue * 365 * 96
-    f = h_s_ns != np.pi / 2
+    f = h_sun_ns != np.pi / 2
 
     # 太陽の方位角の正弦（太陽が天頂に無い場合のみ計算する）
-    sin_a_s_ns[f] = np.cos(delta_ns[f]) * np.sin(omega_ns[f]) / np.cos(h_s_ns[f])
+    sin_a_sun_ns[f] = np.cos(delta_ns[f]) * np.sin(omega_ns[f]) / np.cos(h_sun_ns[f])
 
     # 太陽の方位角の余弦（太陽が天頂に無い場合のみ計算する）
-    cos_a_s_ns[f] = (np.sin(h_s_ns[f]) * np.sin(phi_loc) - np.sin(delta_ns[f])) / (np.cos(h_s_ns[f]) * np.cos(phi_loc))
+    cos_a_sun_ns[f] = (np.sin(h_sun_ns[f]) * np.sin(phi_loc) - np.sin(delta_ns[f])) / (np.cos(h_sun_ns[f]) * np.cos(phi_loc))
 
     # 太陽の方位角, rad * 365 * 96（太陽が天頂に無い場合のみ計算する）
     # 太陽が天頂にある場合は最初に定義した「定義なし=np.nan」のままである。
@@ -301,6 +301,6 @@ def get_a_sun_ns(omega_ns: np.ndarray, phi_loc: float, delta_ns: np.ndarray, h_s
     # sin_a_s_ns が正 かつ cos_a_s_ns が正 の場合は第3象限（-π～-π/2）
     # sin_a_s_ns が正 かつ cos_a_s_ns が正 の場合は第4象限（-π/2～0）
     # である旨の注釈をつけておいてください。
-    a_s_ns[f] = np.arctan2(sin_a_s_ns[f], cos_a_s_ns[f])
+    a_sun_ns[f] = np.arctan2(sin_a_sun_ns[f], cos_a_sun_ns[f])
 
-    return a_s_ns
+    return a_sun_ns
