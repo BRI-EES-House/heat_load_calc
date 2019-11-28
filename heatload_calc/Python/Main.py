@@ -1,6 +1,8 @@
 from typing import Dict
 import csv
 import json
+import cProfile
+from line_profiler import LineProfiler
 
 import x_04_weather as x_04
 import x_05_solar_position as x_05
@@ -87,7 +89,7 @@ def calc_heat_load(d: Dict):
     f.close()
 
 
-if __name__ == '__main__':
+def run():
 
     # js = open('1RCase1_最初の外壁削除.json', 'r', encoding='utf-8')
     # js = open('input_non_residential.json', 'r', encoding='utf-8')
@@ -100,3 +102,12 @@ if __name__ == '__main__':
 
     # 熱負荷計算の実行
     calc_heat_load(d=d_json)
+
+
+if __name__ == '__main__':
+
+    prf = LineProfiler()
+    prf.add_function(simulator.run_tick)
+    prf.runcall(run)
+    prf.print_stats()
+    prf.dump_stats('line_profiler.prof')

@@ -102,7 +102,7 @@ def run_tick(spaces: List[Space], To_n: float, xo_n: float, n: int):
         for g in range(s.n_bnd_i_jstrs):
             s.TsdA_l_n_m[g, n] = s.oldqi[g] * s.rfa1_bdry_i_jstrs[g] + s.row_bnd_i_jstrs[g] * s.TsdA_l_n_m[g, n - 1]
             s.TsdT_l_n_m[g, n] = theta_rear_i_jstrs_n[g] * s.rft1_bdry_i_jstrs[g] + s.row_bnd_i_jstrs[g] * s.TsdT_l_n_m[g, n - 1]
-        print(s.TsdA_l_n_m.shape)  # 11 * 140160 * 12
+#        print(s.TsdA_l_n_m.shape)  # 11 * 140160 * 12
 
         # 畳み込み演算 式(26)
         CVL_i_l = a1.get_CVL(s.TsdT_l_n_m[:, n, :], s.TsdA_l_n_m[:, n, :], s.n_root_bnd_i_jstrs)
