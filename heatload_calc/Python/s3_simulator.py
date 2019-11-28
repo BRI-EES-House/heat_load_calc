@@ -152,6 +152,7 @@ def run_tick(spaces: List[Space], To_n: float, xo_n: float, n: int):
         # 自然作用温度の計算
         OT_without_ac = s41.get_OT_without_ac(BRCot_without_ac, BRMot_without_ac)
 
+        ##### ここが仮計算！！！！！！！！！！！！！（１回目）
         # 自然室温を計算 式(14)
         Tr_without_ac = s41.get_Tr_i_n(OT_without_ac, 0.0, Xot_without_ac, XLr_without_ac, XC_without_ac)
 
@@ -204,12 +205,14 @@ def run_tick(spaces: List[Space], To_n: float, xo_n: float, n: int):
         OTset, s.Met_i_n[n], s.Clo_i_n[n], s.Vel_i_n[n] = \
             a28.calc_OTset(ac_mode, s.is_radiative_heating, s.RH_i_n[n - 1], PMV_set)
 
+        ##### ここが仮計算！！！！！！！！！！！！！
         # 仮の作用温度、熱負荷の計算
         OT_tmp, Lcs_tmp, Lrs_tmp = s41.calc_heatload(ac_mode, s.is_radiative_heating, BRCot, BRMot, BRLot, 0.0, OTset)
 
         # 放射空調の過負荷状態をチェックする
         ac_mode = a13.reset_SW(ac_mode, Lcs_tmp, Lrs_tmp, s.is_radiative_heating, s.Lrcap_i)
 
+        ##### ここが最後の計算！！！！！！！！！！！！！
         # 最終作用温度・熱負荷の再計算
         s.OT_i_n[n], s.Lcs_i_n[n], s.Lrs_i_n[n] = \
             s41.calc_heatload(ac_mode, s.is_radiative_heating, BRCot, BRMot, BRLot, s.Lrcap_i, OTset)
