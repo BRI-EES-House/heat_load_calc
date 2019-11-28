@@ -20,7 +20,7 @@ def get_OTset(Met: float, Vel: float, RH: float, Clo: float, PMV_set: float) -> 
     # 定数部分があるので、ラムダ式で関数を包む
     # 右辺が0になるように式を変形する
     # 初期値は適当に0にした
-    OTset = fsolve(lambda OT: a35.calc_PMV(OT, OT, RH, Vel, Met, 0.0, Clo) - PMV_set, 0.0)
+    OTset = fsolve(lambda OT: a35.calc_PMV(Met, 0.0, OT, OT, Clo, Vel, RH) - PMV_set, 0.0)
 
     return OTset[0]
 

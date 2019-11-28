@@ -1,71 +1,153 @@
 import math
+from scipy.optimize import fsolve
+from scipy.optimize import newton
+from line_profiler import LineProfiler
 
-"""
-付録35．PMVの計算方法
-"""
+
+def calc_PMV(met_value, p_eff, t_a, t_r_bar, clo_value, v_ar, rh):
+    """calculate PMV
+
+    Args:
+        t_a: the air temperature, degree C
+        t_r_bar: the mean radiant temperature, degree C
+        rh: the relative humidity, %
+        v_ar: the relative air velocity, m/s
+        met_value: the metabolic rate, met
+        p_eff: the effective mechanical power, met
+        clo_value: the clothing insulation, clo
+
+    Returns:
+        PMV
+
+    Notes:
+        Reference: ISO 7730, 1994, 2005
+    """
+
+    # the water vapour partial pressure, Pa
+    p_a = get_p_a(rh, t_a)
+
+    # the clothing insulation, m2K/W
+    i_cl = convert_clo_to_m2kw(clo_value)
+
+    # the metabolic rate, W/m2
+    m = convert_met_to_wm2(met_value)
+
+    # the effective mechanical power, W/m2
+    w = convert_met_to_wm2(p_eff)
+
+    # the internal heat production in the human body, W/m2
+    mw = m - w
+
+    # the clothing surface area factor
+    f_cl = get_f_cl(i_cl)
+
+    t_cl = newton(lambda t: get_t_cl(f_cl, i_cl, mw, t_a, t, v_ar, t_r_bar) - t, 0.001)
+
+    h_c = max(12.1 * math.sqrt(v_ar), 2.38 * abs(t_cl - t_a) ** 0.25)
+
+    pmv = get_pmv(f_cl, h_c, m, p_a, t_a, t_cl, t_r_bar, w)
+
+    return pmv
 
 
-# PMVを計算する
-def calc_PMV(Ta, MRT, RH, V, Met, Wme, Clo):
-    # 水蒸気分圧[Pa]の計算
-    Pa = RH / 100. * FNPS(Ta) * 1000.0
-    # 着衣の熱抵抗[m2K/W]の計算
-    Icl = 0.155 * Clo
-    # 代謝量[W/m2]、外部仕事[W/m2]の計算
-    M = Met * 58.15
-    W = Wme * 58.15
-    # 人体内部での熱生産量[W/m2]
-    MW = M - W
-    # 着衣面積率
-    if Icl < 0.078:
-        fcl = 1.0 + 1.29 * Icl
+def get_t_cl(f_cl, i_cl, mw, t_a, t_cl, v_ar, t_r_bar):
+
+    h_c = max(12.1 * math.sqrt(v_ar), 2.38 * abs(t_cl - t_a) ** 0.25)
+
+    return 35.7 - 0.028 * mw - i_cl * (
+                3.96 * 10 ** (-8) * f_cl * ((t_cl + 273.0) ** 4.0 - (t_r_bar + 273.0) ** 4.0)
+                + f_cl * h_c * (t_cl - t_a)
+    )
+
+
+def get_pmv(f_cl, h_c, m, p_a, t_a, t_cl, t_r_bar, w):
+    """
+
+    Args:
+        f_cl: the clothing insulation, m2K/W
+        h_c: the convective heat transfer coefficient, W/m2K
+        m: the metabolic rate, W/m2
+        p_a: the water vapour partial pressure, Pa
+        t_a: the air temperature, degree C
+        t_cl: the clothing surface temperature, degree C
+        t_r_bar: the mean radiant temperature, degree C
+        w: the effective mechanical power, W/m2
+
+    Returns:
+        PMV
+
+    Notes:
+        equation (1)
+    """
+
+    return (0.303 * math.exp(-0.036 * m) + 0.028) * (
+            (m - w)
+            - 3.05 * 10 ** (-3) * (5733.0 - 6.99 * (m - w) - p_a)
+            - max(0.42 * ((m - w) - 58.15), 0.0)
+            - 1.7 * 10 ** (-5) * m * (5867.0 - p_a)
+            - 0.0014 * m * (34.0 - t_a)
+            - 3.96 * 10 ** (-8) * f_cl * ((t_cl + 273) ** 4.0 - (t_r_bar + 273.0) ** 4.0)
+            - f_cl * h_c * (t_cl - t_a))
+
+
+def get_p_a(rh: float, t_a: float) -> float:
+    """
+
+    Args:
+        rh: relative humidity, %
+        t_a: the air temperature, degree C
+
+    Returns:
+        the water vapour partial pressure, Pa
+
+    """
+
+    # TODO 飽和水蒸気圧の計算方法は省エネ基準で採用している方法（WMO?）に揃えた方が良い。
+    return rh / 100. * FNPS(t_a) * 1000.0
+
+
+def convert_clo_to_m2kw(clo):
+    """convert the unit of clo to m2K/W
+
+    Args:
+        clo: value, clo
+
+    Returns:
+        value, m2K/W
+    """
+    return clo * 0.155
+
+
+def convert_met_to_wm2(met):
+    """convert the unit of met to W/m2
+
+    Args:
+        met: value, met
+
+    Returns:
+        value, W/m2
+    """
+
+    return met * 58.15
+
+
+def get_f_cl(i_cl: float) -> float:
+    """calculate clothing surface area factor
+
+    Args:
+        i_cl: the clothing insulation, m2K/W
+
+    Returns:
+        the clothing surface area factor
+
+    Notes:
+        equation (4)
+    """
+
+    if i_cl <= 0.078:
+        return 1.00 + 1.290 * i_cl
     else:
-        fcl = 1.05 + 0.645 * Icl
-    # 強制対流熱伝達率の計算
-    Hcf = 12.1 * math.sqrt(V)
-    # 室温、MRTの絶対温度換算
-    Taa = Ta + 273.0
-    MRTa = MRT + 273.0
-
-    Tcla = Taa + (35.5 - Ta) / (3.5 * (6.45 * Icl + 0.1))
-    P1 = Icl * fcl
-    P2 = P1 * 3.96
-    P3 = P1 * 100.0
-    P4 = P1 * Taa
-    P5 = 308.7 - 0.028 * MW + P2 * (MRTa / 100.0) ** 4.0
-    XN = Tcla / 100.0
-    XF = XN
-    # N = 0
-    EPS = 0.00015
-    PMV = 99999.0
-    # 着衣の表面温度収束計算
-    for i in range(150):
-        XF = (XF + XN) / 2.0
-        # 自然対流熱伝達率
-        Hcn = 2.38 * abs(100.0 * XF - Taa) ** 0.25
-        Hc = max(Hcf, Hcn)
-        XN = (P5 + P4 * Hc - P2 * XF ** 4.0) / (100.0 + P3 * Hc)
-
-        if abs(XN - XF) < EPS:  # 式(138)
-            break
-    # 着衣の表面温度[℃]
-    Tcl = 100.0 * XN - 273.0
-
-    HL1 = 3.05 * (5733.0 - 6.99 * MW - Pa) / 1000.0
-    if MW > 58.15:
-        HL2 = 0.42 * (MW - 58.15)
-    else:
-        HL2 = 0.0
-
-    HL3 = 1.7 * M * (5867.0 - Pa) / 100000.0
-    HL4 = 14.0 * M * (34.0 - Ta) / 10000.0
-    HL5 = 3.96 * fcl * (XN ** 4.0 - (MRTa / 100.0) ** 4.0)
-    HL6 = fcl * Hc * (Tcl - Ta)
-
-    TS = 0.303 * math.exp(-0.036 * M) + 0.028
-    PMV = TS * (MW - HL1 - HL2 - HL3 - HL4 - HL5 - HL6)
-
-    return PMV
+        return 1.05 + 0.645 * i_cl
 
 
 # PPDを計算する
@@ -99,4 +181,27 @@ def get_I_cl(OT: float) -> float:
     return clothing
 
 
+if __name__ == '__main__':
 
+    pmv1 = calc_PMV(met_value=1.2, p_eff=0.0, t_a=22.0, t_r_bar=22.0, clo_value=0.5, v_ar=0.1, rh=60.0)
+    print(pmv1)
+
+    pmv2 = calc_PMV(met_value=1.2, p_eff=0.0, t_a=27.0, t_r_bar=27.0, clo_value=0.5, v_ar=0.1, rh=60.0)
+    print(pmv2)
+
+    pmv3 = calc_PMV(met_value=1.2, p_eff=0.0, t_a=23.5, t_r_bar=25.5, clo_value=0.5, v_ar=0.1, rh=60.0)
+    print(pmv3)
+
+    pmv4 = calc_PMV(met_value=1.2, p_eff=0.0, t_a=19.0, t_r_bar=19.0, clo_value=1.0, v_ar=0.1, rh=40.0)
+    print(pmv4)
+
+    pmv5 = calc_PMV(met_value=1.6, p_eff=0.0, t_a=27.0, t_r_bar=27.0, clo_value=0.5, v_ar=0.3, rh=60.0)
+    print(pmv5)
+
+    def test():
+        return calc_PMV(met_value=1.2, p_eff=0.0, t_a=22.0, t_r_bar=22.0, clo_value=0.5, v_ar=0.1, rh=60.0)
+
+    prf = LineProfiler()
+    prf.add_function(calc_PMV)
+    prf.runcall(test)
+    prf.print_stats()

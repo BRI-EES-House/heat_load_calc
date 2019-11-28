@@ -166,8 +166,8 @@ def run_tick(spaces: List[Space], To_n: float, xo_n: float, n: int):
         Met_without_ac = 1.0
         Vel_without_ac = 0.0 if not is_now_window_open else 0.1
         Wme_without_ac = 0.0
-        PMV_without_ac = a35.calc_PMV(Tr_without_ac, MRT_without_ac, s.RH_i_n[n - 1], Vel_without_ac, Met_without_ac, Wme_without_ac,
-                                   I_cl)
+        PMV_without_ac = a35.calc_PMV(Met_without_ac, Wme_without_ac, Tr_without_ac, MRT_without_ac, I_cl,
+                                      Vel_without_ac, s.RH_i_n[n - 1])
 
         # ********** 窓開閉、空調発停の決定 **********
 
@@ -332,7 +332,8 @@ def run_tick(spaces: List[Space], To_n: float, xo_n: float, n: int):
 
         # PMVの計算
         s.PMV_i_n[n] = \
-            a35.calc_PMV(s.theta_r_i_ns[n], s.MRT_i_n[n], s.RH_i_n[n], s.Vel_i_n[n], s.Met_i_n[n], s.Wme_i_n[n], s.Clo_i_n[n])
+            a35.calc_PMV(s.Met_i_n[n], s.Wme_i_n[n], s.theta_r_i_ns[n], s.MRT_i_n[n], s.Clo_i_n[n], s.Vel_i_n[n],
+                         s.RH_i_n[n])
 
         # ********** 窓開閉、空調発停の決定 **********
 
