@@ -163,11 +163,10 @@ def run_tick(spaces: List[Space], To_n: float, xo_n: float, n: int):
         I_cl = a35.get_I_cl(OT_without_ac)
 
         # 自然PMVを計算する
-        Met_without_ac = 1.0
         Vel_without_ac = 0.0 if not is_now_window_open else 0.1
-        Wme_without_ac = 0.0
-        PMV_without_ac = a35.calc_PMV(Met_without_ac, Wme_without_ac, Tr_without_ac, MRT_without_ac, I_cl,
-                                      Vel_without_ac, s.RH_i_n[n - 1])
+        PMV_without_ac = a35.calc_PMV(
+            t_a=Tr_without_ac, t_r_bar=MRT_without_ac, clo_value=I_cl,
+            v_ar=Vel_without_ac, rh=s.RH_i_n[n - 1])
 
         # ********** 窓開閉、空調発停の決定 **********
 
@@ -202,7 +201,7 @@ def run_tick(spaces: List[Space], To_n: float, xo_n: float, n: int):
         # ********** 空調設定温度の計算 **********
 
         # 前時刻の相対湿度を用い、PMV目標値を満たすような目標作用温度を求める
-        OTset, s.Met_i_n[n], s.Clo_i_n[n], s.Vel_i_n[n] = \
+        OTset, s.Clo_i_n[n], s.Vel_i_n[n] = \
             a28.calc_OTset(ac_mode, s.is_radiative_heating, s.RH_i_n[n - 1], PMV_set)
 
         ##### ここが仮計算！！！！！！！！！！！！！
@@ -319,7 +318,7 @@ def run_tick(spaces: List[Space], To_n: float, xo_n: float, n: int):
         s.Lcl_i_n[n] = get_Lcl(s.Ghum_i_n[n])
 
         # 当面は放射空調の潜熱は0
-        s.Lrl_i_n[n] = get_Lrl()
+        Lrl_i_n = get_Lrl()
 
         # 室相対湿度の計算 式(22)
         s.RH_i_n[n] = rhtx(s.theta_r_i_ns[n], s.x_r_i_ns[n])
@@ -331,9 +330,9 @@ def run_tick(spaces: List[Space], To_n: float, xo_n: float, n: int):
         s.Qfunl_i_n[n] = s42.get_Qfunl(s.Cx_i, s.x_r_i_ns[n], s.xf_i_n[n])
 
         # PMVの計算
-        s.PMV_i_n[n] = \
-            a35.calc_PMV(s.Met_i_n[n], s.Wme_i_n[n], s.theta_r_i_ns[n], s.MRT_i_n[n], s.Clo_i_n[n], s.Vel_i_n[n],
-                         s.RH_i_n[n])
+        s.logger.pmv_i_ns[n] = a35.calc_PMV(
+            t_a=s.theta_r_i_ns[n], t_r_bar=s.MRT_i_n[n], clo_value=s.Clo_i_n[n],
+            v_ar=s.Vel_i_n[n], rh=s.RH_i_n[n])
 
         # ********** 窓開閉、空調発停の決定 **********
 

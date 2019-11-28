@@ -4,7 +4,7 @@ from scipy.optimize import newton
 from line_profiler import LineProfiler
 
 
-def calc_PMV(met_value, p_eff, t_a, t_r_bar, clo_value, v_ar, rh):
+def calc_PMV(t_a, t_r_bar, clo_value, v_ar, rh):
     """calculate PMV
 
     Args:
@@ -12,7 +12,6 @@ def calc_PMV(met_value, p_eff, t_a, t_r_bar, clo_value, v_ar, rh):
         t_r_bar: the mean radiant temperature, degree C
         rh: the relative humidity, %
         v_ar: the relative air velocity, m/s
-        met_value: the metabolic rate, met
         p_eff: the effective mechanical power, met
         clo_value: the clothing insulation, clo
 
@@ -20,7 +19,8 @@ def calc_PMV(met_value, p_eff, t_a, t_r_bar, clo_value, v_ar, rh):
         PMV
 
     Notes:
-        Reference: ISO 7730, 1994, 2005
+        参考: ISO 7730, 1994, 2005
+        機械的仕事量は 0.0 W/m2 としたため、ISO中の'W'は省略してある。
     """
 
     # the water vapour partial pressure, Pa
@@ -29,14 +29,8 @@ def calc_PMV(met_value, p_eff, t_a, t_r_bar, clo_value, v_ar, rh):
     # the clothing insulation, m2K/W
     i_cl = convert_clo_to_m2kw(clo_value)
 
-    # the metabolic rate, W/m2
-    m = convert_met_to_wm2(met_value)
-
-    # the effective mechanical power, W/m2
-    w = convert_met_to_wm2(p_eff)
-
-    # the internal heat production in the human body, W/m2
-    mw = m - w
+    # 代謝量（人体内部発熱量）, W/m2
+    mw = get_met()
 
     # the clothing surface area factor
     f_cl = get_f_cl(i_cl)
@@ -45,7 +39,7 @@ def calc_PMV(met_value, p_eff, t_a, t_r_bar, clo_value, v_ar, rh):
 
     h_c = max(12.1 * math.sqrt(v_ar), 2.38 * abs(t_cl - t_a) ** 0.25)
 
-    pmv = get_pmv(f_cl, h_c, m, p_a, t_a, t_cl, t_r_bar, w)
+    pmv = get_pmv(f_cl, h_c, mw, p_a, t_a, t_cl, t_r_bar)
 
     return pmv
 
@@ -60,7 +54,7 @@ def get_t_cl(f_cl, i_cl, mw, t_a, t_cl, v_ar, t_r_bar):
     )
 
 
-def get_pmv(f_cl, h_c, m, p_a, t_a, t_cl, t_r_bar, w):
+def get_pmv(f_cl, h_c, m, p_a, t_a, t_cl, t_r_bar):
     """
 
     Args:
@@ -71,7 +65,6 @@ def get_pmv(f_cl, h_c, m, p_a, t_a, t_cl, t_r_bar, w):
         t_a: the air temperature, degree C
         t_cl: the clothing surface temperature, degree C
         t_r_bar: the mean radiant temperature, degree C
-        w: the effective mechanical power, W/m2
 
     Returns:
         PMV
@@ -81,9 +74,9 @@ def get_pmv(f_cl, h_c, m, p_a, t_a, t_cl, t_r_bar, w):
     """
 
     return (0.303 * math.exp(-0.036 * m) + 0.028) * (
-            (m - w)
-            - 3.05 * 10 ** (-3) * (5733.0 - 6.99 * (m - w) - p_a)
-            - max(0.42 * ((m - w) - 58.15), 0.0)
+            m
+            - 3.05 * 10 ** (-3) * (5733.0 - 6.99 * m - p_a)
+            - max(0.42 * (m - 58.15), 0.0)
             - 1.7 * 10 ** (-5) * m * (5867.0 - p_a)
             - 0.0014 * m * (34.0 - t_a)
             - 3.96 * 10 ** (-8) * f_cl * ((t_cl + 273) ** 4.0 - (t_r_bar + 273.0) ** 4.0)
@@ -118,15 +111,15 @@ def convert_clo_to_m2kw(clo):
     return clo * 0.155
 
 
-def convert_met_to_wm2(met):
-    """convert the unit of met to W/m2
-
-    Args:
-        met: value, met
+def get_met():
+    """代謝量を得る。
 
     Returns:
-        value, W/m2
+        代謝量, W/m2
     """
+
+    # 代謝量は1.0 met に固定とする。
+    met = 1.0
 
     return met * 58.15
 
@@ -148,17 +141,6 @@ def get_f_cl(i_cl: float) -> float:
         return 1.00 + 1.290 * i_cl
     else:
         return 1.05 + 0.645 * i_cl
-
-
-# PPDを計算する
-# PPD（Predicted Percentage of Dissatisfied,予測不快者率（その温熱環境に不満足・不快さを感じる人の割合）)
-# ref: https://www.jsrae.or.jp/annai/yougo/66.html
-def get_PPD(PMV: float) -> float:
-    if abs(PMV) > 3.0:
-        # TODO: -9999.0 の扱いは要検討
-        return -9999.0
-    else:
-        return 100.0 - 95.0 * math.exp(-0.03353 * PMV ** 4.0 - 0.2179 * PMV ** 2.0)
 
 
 # 飽和水蒸気圧[kPa]の計算（ASHRAE Standard 55-2013）
@@ -183,23 +165,23 @@ def get_I_cl(OT: float) -> float:
 
 if __name__ == '__main__':
 
-    pmv1 = calc_PMV(met_value=1.2, p_eff=0.0, t_a=22.0, t_r_bar=22.0, clo_value=0.5, v_ar=0.1, rh=60.0)
+    pmv1 = calc_PMV(t_a=22.0, t_r_bar=22.0, clo_value=0.5, v_ar=0.1, rh=60.0)
     print(pmv1)
 
-    pmv2 = calc_PMV(met_value=1.2, p_eff=0.0, t_a=27.0, t_r_bar=27.0, clo_value=0.5, v_ar=0.1, rh=60.0)
+    pmv2 = calc_PMV(t_a=27.0, t_r_bar=27.0, clo_value=0.5, v_ar=0.1, rh=60.0)
     print(pmv2)
 
-    pmv3 = calc_PMV(met_value=1.2, p_eff=0.0, t_a=23.5, t_r_bar=25.5, clo_value=0.5, v_ar=0.1, rh=60.0)
+    pmv3 = calc_PMV(t_a=23.5, t_r_bar=25.5, clo_value=0.5, v_ar=0.1, rh=60.0)
     print(pmv3)
 
-    pmv4 = calc_PMV(met_value=1.2, p_eff=0.0, t_a=19.0, t_r_bar=19.0, clo_value=1.0, v_ar=0.1, rh=40.0)
+    pmv4 = calc_PMV(t_a=19.0, t_r_bar=19.0, clo_value=1.0, v_ar=0.1, rh=40.0)
     print(pmv4)
 
-    pmv5 = calc_PMV(met_value=1.6, p_eff=0.0, t_a=27.0, t_r_bar=27.0, clo_value=0.5, v_ar=0.3, rh=60.0)
+    pmv5 = calc_PMV(t_a=27.0, t_r_bar=27.0, clo_value=0.5, v_ar=0.3, rh=60.0)
     print(pmv5)
 
     def test():
-        return calc_PMV(met_value=1.2, p_eff=0.0, t_a=22.0, t_r_bar=22.0, clo_value=0.5, v_ar=0.1, rh=60.0)
+        return calc_PMV(t_a=22.0, t_r_bar=22.0, clo_value=0.5, v_ar=0.1, rh=60.0)
 
     prf = LineProfiler()
     prf.add_function(calc_PMV)

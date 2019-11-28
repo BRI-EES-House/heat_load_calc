@@ -89,7 +89,7 @@ def append_tick_log(spaces: List[Space], log: List[List], To_n: float, n: int, x
         row.append('{0:.4f}'.format(space.x_r_i_ns[n]))
         row.append('{0:.2f}'.format(space.MRT_i_n[n]))
         row.append('{0:.2f}'.format(space.OT_i_n[n]))
-        row.append('{0:.2f}'.format(space.PMV_i_n[n]))
+        row.append('{0:.2f}'.format(space.logger.pmv_i_ns[n]))
         row.append('{0:.2f}'.format(space.Clo_i_n[n]))
         row.append('{0:.2f}'.format(space.Vel_i_n[n]))
         row.append('{0:.2f}'.format(space.q_trs_sol_i_ns[n]))
