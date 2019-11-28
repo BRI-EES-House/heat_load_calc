@@ -176,7 +176,7 @@ def get_theta_aoi_i_j_n(
     # h_sun_ns == 1.0 の場合は太陽が天頂にある時であり、太陽の方位角が定義されない。
     # その場合、cos(h_sun_ns)がゼロとなり、下式の第2項・第3項がゼロになる。
     cos_theta_aoi_i_j_n = np.where(
-        h_sun_ns == 1.0,
+        np.cos(h_sun_ns) == 0.0,
         np.sin(h_sun_ns) * np.cos(w_beta_i_j),
         np.sin(h_sun_ns) * np.cos(w_beta_i_j)
         + np.cos(h_sun_ns) * np.sin(a_sun_ns) * np.sin(w_beta_i_j) * np.sin(w_alpha_i_j)
