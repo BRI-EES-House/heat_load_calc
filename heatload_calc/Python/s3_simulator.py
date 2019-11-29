@@ -26,15 +26,21 @@ def run_tick_groundonly(spaces: List[Space], To_n: float, n: int, Tave: float):
 
         g = np.array(s.boundary_type_i_jstrs) == 'ground'  # [jstr]
 
-        TsdA_l_n_m = s.oldqi[g, np.newaxis] * s.rfa1_bnd_i_jstrs[g, :]\
-            + s.row_bnd_i_jstrs[g, :] * s.old_TsdA_l_n_m[g, :]
+        theta_srf_dsh_a_i_jstrs_npls_ms = a1.get_theta_srf_dsh_a_i_jstrs_npls_ms(q_srf_i_jstrs_n=s.q_srf_i_jstrs_n[g],
+                                                                                 phi_a_1_bnd_i_jstrs_ms=s.phi_a_1_bnd_i_jstrs_ms[
+                                                                                                        g, :],
+                                                                                 r_bnd_i_jstrs_ms=s.r_bnd_i_jstrs_ms[g,
+                                                                                                  :],
+                                                                                 theta_srf_dsh_a_i_jstrs_n_ms=s.theta_srf_dsh_a_i_jstrs_n_m[
+                                                                                                              g, :])
 
-        s.Ts_i_k_n[g, n] = (s.rfa0_bnd_i_jstrs[g] * s.h_i_bnd_i_jstrs[g] * To_n + np.sum(TsdA_l_n_m, axis=1) + Tave)\
-            / (1.0 + s.rfa0_bnd_i_jstrs[g] * s.h_i_bnd_i_jstrs[g])
+        s.Ts_i_k_n[g, n] = (s.phi_a_0_bnd_i_jstrs[g] * s.h_i_bnd_i_jstrs[g] * To_n
+                            + np.sum(theta_srf_dsh_a_i_jstrs_npls_ms, axis=1) + Tave)\
+            / (1.0 + s.phi_a_0_bnd_i_jstrs[g] * s.h_i_bnd_i_jstrs[g])
 
-        s.oldqi[g] = s.h_i_bnd_i_jstrs[g] * (To_n - s.Ts_i_k_n[g, n])
+        s.q_srf_i_jstrs_n[g] = s.h_i_bnd_i_jstrs[g] * (To_n - s.Ts_i_k_n[g, n])
 
-        s.old_TsdA_l_n_m[g, :] = TsdA_l_n_m
+        s.theta_srf_dsh_a_i_jstrs_n_m[g, :] = theta_srf_dsh_a_i_jstrs_npls_ms
 
 
 # 室温、熱負荷の計算
@@ -78,35 +84,54 @@ def run_tick(spaces: List[Space], To_n: float, xo_n: float, n: int):
         # ステップnの室iにおける内部発湿, kg/s
         x_gen_i_n = s.x_gen_except_hum_i_ns[n] + x_hum_i_n
 
-        s.logger.theta_rear_i_jstrs_ns[:, n] = theta_rear_i_jstrs_n
-        s.logger.q_hum_i_ns[n] = q_hum_i_n
-        s.logger.x_hum_i_ns[n] = x_hum_i_n
-
         # TODO: すきま風量未実装につき、とりあえず０とする
         # すきま風量を決めるにあたってどういった変数が必要なのかを決めること。
         Infset = 0.0
 
-        TsdA_l_n_m = s.oldqi[:, np.newaxis] * s.rfa1_bnd_i_jstrs + s.row_bnd_i_jstrs * s.old_TsdA_l_n_m
-        TsdT_l_n_m = theta_rear_i_jstrs_n[:, np.newaxis] * s.rft1_bdry_i_jstrs + s.row_bnd_i_jstrs * s.old_TsdT_l_n_m
+        # ステップn+1の室iの統合された境界j*における項別公比法の項mの吸熱応答に関する表面温度, degree C, [jstrs, 12]
+        theta_srf_dsh_a_i_jstrs_npls_ms = a1.get_theta_srf_dsh_a_i_jstrs_npls_ms(
+            q_srf_i_jstrs_n=s.q_srf_i_jstrs_n, phi_a_1_bnd_i_jstrs_ms=s.phi_a_1_bnd_i_jstrs_ms,
+            r_bnd_i_jstrs_ms=s.r_bnd_i_jstrs_ms, theta_srf_dsh_a_i_jstrs_n_ms=s.theta_srf_dsh_a_i_jstrs_n_m)
 
-        # 畳み込み演算 式(26)
-        CVL_i_l = a1.get_CVL(TsdT_l_n_m, TsdA_l_n_m)
+        # ステップn+1の室iの統合された境界j*における項別公比法の項mの貫流応答に関する表面温度, degree C, [jstrs, 12]
+        theta_srf_dsh_t_i_jstrs_npls_ms = a1.get_theta_srf_dsh_t_i_jstrs_npls_ms(
+            theta_rear_i_jstrs_n=theta_rear_i_jstrs_n, phi_t_1_bnd_i_jstrs_ms=s.phi_t_1_bnd_i_jstrs_ms,
+            r_bnd_i_jstrs_ms=s.r_bnd_i_jstrs_ms, theta_srf_dsh_t_i_jstrs_n_m=s.theta_srf_dsh_t_i_jstrs_n_m)
 
-        s.old_TsdA_l_n_m = TsdA_l_n_m
-        s.old_TsdT_l_n_m = TsdT_l_n_m
+        # ステップn+1の室iの統合された境界j*における係数CVL, degree C, [j*]
+        cvl_i_jstrs_npls = a1.get_cvl_i_jstrs_npls(
+            theta_srf_dsh_t_i_jstrs_npls_ms=theta_srf_dsh_t_i_jstrs_npls_ms,
+            theta_srf_dsh_a_i_jstrs_npls_ms=theta_srf_dsh_a_i_jstrs_npls_ms)
 
-        # 表面温度を計算するための各種係数  式(24)
-        CRX_i_j = a1.get_CRX(s.rft0_bdry_i_jstrs, theta_rear_i_jstrs_n, s.q_sol_floor_i_jstrs_ns[:, n], s.rfa0_bnd_i_jstrs)
-        WSC_i_k = a1.get_WSC(s.AX_k_l, CRX_i_j)
-        WSV_i_k = a1.get_WSV(s.AX_k_l, CVL_i_l)
+        # ステップn+1の室iの統合された境界j*における係数CRX, degree C, [j*]
+        crx_i_jstrs_npls = a1.get_crx_i_jstrs_npls(
+            phi_a_0_bnd_i_jstrs=s.phi_a_0_bnd_i_jstrs,
+            q_sol_floor_i_jstrs_n=s.q_sol_srf_i_jstrs_ns[:, n],
+            phi_t_0_bnd_i_jstrs=s.phi_t_0_bnd_i_jstrs,
+            theta_rear_i_jstrs_n=theta_rear_i_jstrs_n)
+
+        # ステップnの室i+1における係数WSC, degree C, [j*]
+        wsc_i_npls = a1.get_wsc_i_npls(ivs_x_i=s.ivs_x_i, crx_i_jstrs_npls=crx_i_jstrs_npls)
+
+        # ステップnの室i+1における係数WSV, degree C, [j*]
+        wsv_i_npls = a1.get_wsv_i_npls(ivs_x_i=s.ivs_x_i, cvl_i_jstrs_npls=cvl_i_jstrs_npls)
+
+        # 次の時刻に用いる変数の引き渡し
+        s.theta_srf_dsh_a_i_jstrs_n_m = theta_srf_dsh_a_i_jstrs_npls_ms
+        s.theta_srf_dsh_t_i_jstrs_n_m = theta_srf_dsh_t_i_jstrs_npls_ms
+
+        # ロギング
+        s.logger.theta_rear_i_jstrs_ns[:, n] = theta_rear_i_jstrs_n
+        s.logger.q_hum_i_ns[n] = q_hum_i_n
+        s.logger.x_hum_i_ns[n] = x_hum_i_n
 
         theta_r_vent_up_i_nis_n = np.array([theta_r_is_n[x] for x in s.next_room_idxs_i])
         x_r_vent_up_i_nis_n = np.array([x_r_is_n[x] for x in s.next_room_idxs_i])
 
         # 室温・熱負荷計算のための定数項BRCの計算 式(6) ※ただし、通風なし
         BRCnoncv = s41.get_BRC_i(
-            WSC_i_k=WSC_i_k,
-            WSV_i_k=WSV_i_k,
+            WSC_i_k=wsc_i_npls,
+            WSV_i_k=wsv_i_npls,
             area=s.a_bnd_i_jstrs,
             hc_i_k_n=s.hc_i_g_n,
             Ta=To_n,
@@ -137,7 +162,7 @@ def run_tick(spaces: List[Space], To_n: float, xo_n: float, n: int):
 
         BRMot_without_ac, BRCot_without_ac, _, Xot_without_ac, XLr_without_ac, XC_without_ac = s41.calc_OT_coeff(
             BRM_i=s.BRMnoncv_i[n] + ca * rhoa * NVot, BRC_i=BRCnoncv + ca * rhoa * NVot * To_n, BRL_i=s.BRL_i[n],
-            WSR_i_k=s.WSR_i_k, WSB_i_k=s.WSB_i_k, WSC_i_k=WSC_i_k, WSV_i_k=WSV_i_k, fot=s.Fot_i_g, kc_i=s.kc_i,
+            WSR_i_k=s.WSR_i_k, WSB_i_k=s.WSB_i_k, WSC_i_k=wsc_i_npls, WSV_i_k=wsv_i_npls, fot=s.Fot_i_g, kc_i=s.kc_i,
             kr_i=s.kr_i)
 
         # 自然作用温度の計算
@@ -186,7 +211,7 @@ def run_tick(spaces: List[Space], To_n: float, xo_n: float, n: int):
 
         # OT計算用の係数補正
         BRMot, BRCot, BRLot, Xot, XLr, XC = \
-            s41.calc_OT_coeff(BRM_i, BRC_i, s.BRL_i[n], s.WSR_i_k, s.WSB_i_k, WSC_i_k, WSV_i_k, s.Fot_i_g, s.kc_i,
+            s41.calc_OT_coeff(BRM_i, BRC_i, s.BRL_i[n], s.WSR_i_k, s.WSB_i_k, wsc_i_npls, wsv_i_npls, s.Fot_i_g, s.kc_i,
                               s.kr_i)
 
         # ********** 空調設定温度の計算 **********
@@ -217,7 +242,7 @@ def run_tick(spaces: List[Space], To_n: float, xo_n: float, n: int):
         s.Qfuns_i_n[n] = s41.get_Qfuns(s.Cfun, s.theta_r_i_ns[n], s.Tfun_i_n[n])
 
         # 表面温度の計算 式(23)
-        s.Ts_i_k_n[:, n] = a1.get_surface_temperature(s.WSR_i_k, s.WSB_i_k, WSC_i_k, WSV_i_k, s.theta_r_i_ns[n], s.Lrs_i_n[n])
+        s.Ts_i_k_n[:, n] = a1.get_surface_temperature(s.WSR_i_k, s.WSB_i_k, wsc_i_npls, wsv_i_npls, s.theta_r_i_ns[n], s.Lrs_i_n[n])
 
         # MRT_i_n、AST、平均放射温度の計算
         s.MRT_i_n[n] = get_MRT(s.Fot_i_g, s.Ts_i_k_n[:, n])
@@ -227,15 +252,15 @@ def run_tick(spaces: List[Space], To_n: float, xo_n: float, n: int):
         _ = a1.get_Tsx(s.F_mrt_i_g, s.Ts_i_k_n[:, n])
 
         # 室内側等価温度の計算 式(29)
-        s.Tei_i_k_n[:, n] = a1.calc_Tei(s.hc_i_g_n, s.h_i_bnd_i_jstrs, s.hr_i_g_n, s.q_sol_floor_i_jstrs_ns[:, n], s.flr_i_k,
+        s.Tei_i_k_n[:, n] = a1.calc_Tei(s.hc_i_g_n, s.h_i_bnd_i_jstrs, s.hr_i_g_n, s.q_sol_srf_i_jstrs_ns[:, n], s.flr_i_k,
                                         s.a_bnd_i_jstrs, s.theta_r_i_ns[n], s.F_mrt_i_g, s.Ts_i_k_n[:, n], s.Lrs_i_n[n],
                                         s.Beta_i)
 
         # 室内表面熱流の計算 式(28)
-        s.Qc[:, n], s.Qr[:, n], s.Lr, s.RS, Qt, s.oldqi = a1.calc_qi(s.hc_i_g_n, s.a_bnd_i_jstrs, s.hr_i_g_n, s.q_sol_floor_i_jstrs_ns[:, n],
-                                                                     s.flr_i_k,
+        s.Qc[:, n], s.Qr[:, n], s.Lr, s.RS, Qt, s.q_srf_i_jstrs_n = a1.calc_qi(s.hc_i_g_n, s.a_bnd_i_jstrs, s.hr_i_g_n, s.q_sol_srf_i_jstrs_ns[:, n],
+                                                                               s.flr_i_k,
                                                          s.Ts_i_k_n[:, n], s.theta_r_i_ns[n], s.F_mrt_i_g, s.Lrs_i_n[n],
-                                                                     s.Beta_i)
+                                                                               s.Beta_i)
 
         # ********** 室湿度 xr、除湿量 G_hum、湿加湿熱量 Ll の計算 **********
 

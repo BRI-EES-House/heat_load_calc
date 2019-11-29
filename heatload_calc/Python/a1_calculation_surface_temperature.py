@@ -24,15 +24,32 @@ def get_WSB(AX_k_l, FLB_i_l):
     return np.dot(AX_k_l, FLB_i_l)
 
 
-# 式(24)
-def get_WSC(matAX, matCRX):
-    # {WSC}=[XA]*{CRX}
-    return np.dot(matAX, matCRX)
+def get_wsc_i_npls(ivs_x_i: np.ndarray, crx_i_jstrs_npls: np.ndarray) -> np.ndarray:
+    """
+
+    Args:
+        ivs_x_i: 室iにおける行列X, [j*, j*]
+       crx_i_jstrs_npls: ステップn+1の室iの統合された境界j*における係数CRX, degree C, [j*]
+
+    Returns:
+        ステップnの室i+1における係数WSC, degree C, [j*]
+    """
+
+    return np.dot(ivs_x_i, crx_i_jstrs_npls)
 
 
-# {WSV}=[XA]*{CVL} 式(24)
-def get_WSV(matAX, matCVL):
-    return np.dot(matAX, matCVL)
+def get_wsv_i_npls(ivs_x_i: np.ndarray, cvl_i_jstrs_npls: np.ndarray) -> np.ndarray:
+    """
+
+    Args:
+        ivs_x_i: 室iにおける行列X, [j*, j*]
+        cvl_i_jstrs_npls: ステップn+1の室iの統合された境界j*における係数CVL, degree C, [j*]
+
+    Returns:
+        ステップnの室i+1における係数WSV, degree C, [j*]
+    """
+
+    return np.dot(ivs_x_i, cvl_i_jstrs_npls)
 
 
 # 式(25)中のAXはAXdの逆行列
@@ -65,25 +82,84 @@ def get_FLB(RFA0, flr, Beta, area):
     return RFA0 * flr * (1. - Beta) / area
 
 
-# 式(26)
-def get_CRX(RFT0, Teo, RSsol, RFA0):
-    return RFT0 * Teo + RSsol * RFA0
-
-
-# 畳み込み演算 式(26)
-def get_CVL(oldTsd_t, oldTsd_a):
+def get_crx_i_jstrs_npls(
+        phi_a_0_bnd_i_jstrs: np.ndarray,
+        q_sol_floor_i_jstrs_n: np.ndarray,
+        phi_t_0_bnd_i_jstrs: np.ndarray,
+        theta_rear_i_jstrs_n: np.ndarray
+) -> np.ndarray:
     """
 
     Args:
-        oldTsd_t: [istar, 12]
-        oldTsd_a: [istar, 12]
-        Nroot: [istar]
+        phi_a_0_bnd_i_jstrs: 室iの統合された境界j*における吸熱応答係数の初項, m2K/W, [j*]
+        q_sol_floor_i_jstrs_n:
+            ステップnの室iの統合された境界j*における透過日射熱取得量のうち表面に吸収される日射量, W/m2, [j*]
+        phi_t_0_bnd_i_jstrs: 室iの統合された境界j*における貫流応答係数の初項, [j*]
+        theta_rear_i_jstrs_n: ステップnの室iの統合された境界j*における裏面の温度, degree C, [j*]
 
     Returns:
-        [istar]
+        ステップn+1の室iの統合された境界j*における係数CRX, degree C, [j*]
+    """
+    return phi_t_0_bnd_i_jstrs * theta_rear_i_jstrs_n + q_sol_floor_i_jstrs_n * phi_a_0_bnd_i_jstrs
+
+
+def get_theta_srf_dsh_a_i_jstrs_npls_ms(
+        q_srf_i_jstrs_n: np.ndarray,
+        phi_a_1_bnd_i_jstrs_ms: np.ndarray,
+        r_bnd_i_jstrs_ms: np.ndarray,
+        theta_srf_dsh_a_i_jstrs_n_ms: np.ndarray
+) -> np.ndarray:
     """
 
-    return np.sum(oldTsd_t + oldTsd_a, axis=1)
+    Args:
+        q_srf_i_jstrs_n: ステップnの室iの統合された境界j*における表面熱流, W/m2, [jstrs]
+        phi_a_1_bnd_i_jstrs_ms: 室iの統合された境界j*における項別公比法の項mの吸熱応答係数の係数, m2K/W, [jstrs, 12]
+        r_bnd_i_jstrs_ms: 室iの統合された境界j*の項mにおける公比, [jstrs, 12]
+        theta_srf_dsh_a_i_jstrs_n_ms: ステップnの室iの統合された境界j*の項mにおける表面温度, degree C, [jstrs, 12]
+
+    Returns:
+        ステップn+1の室iの統合された境界j*における項別公比法の項mの吸熱応答に関する表面温度, degree C, [jstrs, 12]
+    """
+
+    return q_srf_i_jstrs_n[:, np.newaxis] * phi_a_1_bnd_i_jstrs_ms + r_bnd_i_jstrs_ms * theta_srf_dsh_a_i_jstrs_n_ms
+
+
+def get_theta_srf_dsh_t_i_jstrs_npls_ms(
+        theta_rear_i_jstrs_n: np.ndarray,
+        phi_t_1_bnd_i_jstrs_ms: np.ndarray,
+        r_bnd_i_jstrs_ms: np.ndarray,
+        theta_srf_dsh_t_i_jstrs_n_m: np.ndarray
+) -> np.ndarray:
+    """
+
+    Args:
+        theta_rear_i_jstrs_n: ステップnの室iの統合された境界j*における裏面の温度, degree C, [jstrs]
+        phi_t_1_bnd_i_jstrs_ms: 室iの統合された境界j*における項別公比法の項mの貫流応答の係数, [jstrs, 12]
+        r_bnd_i_jstrs_ms: 室iの統合された境界j*の項mにおける公比, [jstrs, 12]
+        theta_srf_dsh_t_i_jstrs_n_m: ステップnの室iの統合された境界j*の項mにおける表面温度, degree C, [jstrs, 12]
+
+    Returns:
+        ステップn+1の室iの統合された境界j*における項別公比法の項mの貫流応答に関する表面温度, degree C, [jstrs, 12]
+    """
+
+    return theta_rear_i_jstrs_n[:, np.newaxis] * phi_t_1_bnd_i_jstrs_ms + r_bnd_i_jstrs_ms * theta_srf_dsh_t_i_jstrs_n_m
+
+
+def get_cvl_i_jstrs_npls(
+        theta_srf_dsh_t_i_jstrs_npls_ms: np.ndarray, theta_srf_dsh_a_i_jstrs_npls_ms: np.ndarray) -> np.ndarray:
+    """
+
+    Args:
+        theta_srf_dsh_t_i_jstrs_npls_ms:
+            ステップn+1の室iの統合された境界j*における項別公比法の項mの貫流応答に関する表面温度, degree C, [j*, 12]
+        theta_srf_dsh_a_i_jstrs_npls_ms:
+            ステップn+1の室iの統合された境界j*における項別公比法の項mの吸熱応答に関する表面温度, degree C, [j*, 12]
+
+    Returns:
+        ステップn+1の室iの統合された境界j*における係数CVL, degree C, [i*]
+    """
+
+    return np.sum(theta_srf_dsh_t_i_jstrs_npls_ms + theta_srf_dsh_a_i_jstrs_npls_ms, axis=1)
 
 
 # 室内表面熱流の計算 式(28)

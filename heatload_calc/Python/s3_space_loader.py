@@ -125,7 +125,7 @@ class Space:
             AX_k_l, WSR_i_k, WSB_i_k,
             BRMnoncv_i, BRL_i, Hcap, Capfun, Cfun,
             q_gen_except_hum_i_ns,
-            q_sol_floor_i_jstrs_ns,
+            q_sol_srf_i_jstrs_ns,
             q_sol_frnt_i_ns,
             next_room_idxs_i
     ):
@@ -155,11 +155,11 @@ class Space:
         self.h_i_bnd_i_jstrs = h_i_bnd_i_jstrs
         self.theta_o_sol_bnd_i_jstrs_ns = theta_o_sol_bnd_i_jstrs_ns
         self.n_root_bnd_i_jstrs = n_root_bnd_i_jstrs
-        self.row_bnd_i_jstrs = row_bnd_i_jstrs
-        self.rft0_bdry_i_jstrs = rft0_bnd_i_jstrs
-        self.rfa0_bnd_i_jstrs = rfa0_bnd_i_jstrs
-        self.rft1_bdry_i_jstrs = rft1_bnd_i_jstrs
-        self.rfa1_bnd_i_jstrs = rfa1_bnd_i_jstrs
+        self.r_bnd_i_jstrs_ms = row_bnd_i_jstrs
+        self.phi_t_0_bnd_i_jstrs = rft0_bnd_i_jstrs
+        self.phi_a_0_bnd_i_jstrs = rfa0_bnd_i_jstrs
+        self.phi_t_1_bnd_i_jstrs_ms = rft1_bnd_i_jstrs
+        self.phi_a_1_bnd_i_jstrs_ms = rfa1_bnd_i_jstrs
 
         # 室iの統合された境界j*の数, [j*]
         self.n_bnd_i_jstrs = n_bnd_i_jstrs
@@ -206,16 +206,16 @@ class Space:
         self.Tei_i_k_n = np.zeros((n_bnd_i_jstrs, 24 * 365 * 4 * 4))
 
         # （26）式中の〖CVL〗_(i,l)の計算式右辺
-        self.old_TsdA_l_n_m = np.full((n_bnd_i_jstrs, 12), TsdA_initial)
+        self.theta_srf_dsh_a_i_jstrs_n_m = np.full((n_bnd_i_jstrs, 12), TsdA_initial)
 
         # （26）式中の〖CVL〗_(i,l)の計算式右辺
-        self.old_TsdT_l_n_m = np.full((n_bnd_i_jstrs, 12), TsdT_initial)
+        self.theta_srf_dsh_t_i_jstrs_n_m = np.full((n_bnd_i_jstrs, 12), TsdT_initial)
 
         self.Qc = np.zeros((n_bnd_i_jstrs, 24 * 365 * 4 * 4))
         self.Qr = np.zeros((n_bnd_i_jstrs, 24 * 365 * 4 * 4))
 
         # 前時刻の室内側表面熱流
-        self.oldqi = np.zeros(n_bnd_i_jstrs)
+        self.q_srf_i_jstrs_n = np.zeros(n_bnd_i_jstrs)
 
         # 合計面積の計算
         self.A_total_i = A_total_i
@@ -257,8 +257,8 @@ class Space:
         # 平均放射温度計算時の各部位表面温度の重み計算 式(101)
         self.F_mrt_i_g = F_mrt_i_g
 
-        # 室の透過日射熱取得から室内各部位の吸収日射量 式(91)
-        self.q_sol_floor_i_jstrs_ns = q_sol_floor_i_jstrs_ns
+        # ステップnの室iの統合された境界j*における透過日射熱取得量のうち表面に吸収される日射量, W/m2
+        self.q_sol_srf_i_jstrs_ns = q_sol_srf_i_jstrs_ns
         # 家具の吸収日射量[W] 式(92)
         self.q_sol_frnt_i_ns = q_sol_frnt_i_ns
 
@@ -269,7 +269,7 @@ class Space:
         self.Beta_i = Beta_i
 
         # 行列AX 式(25)
-        self.AX_k_l = AX_k_l
+        self.ivs_x_i = AX_k_l
 
         # WSR, WSB の計算 式(24)
         self.WSR_i_k = WSR_i_k

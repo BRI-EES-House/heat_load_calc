@@ -341,7 +341,7 @@ def make_space(room: Dict,
         Capfun=Capfun,
         Cfun=Cfun,
         q_gen_except_hum_i_ns=q_gen_i_ns,
-        q_sol_floor_i_jstrs_ns=q_sol_floor_i_jstrs_ns,
+        q_sol_srf_i_jstrs_ns=q_sol_floor_i_jstrs_ns,
         q_sol_frnt_i_ns=q_sol_frnt_i_ns,
         next_room_idxs_i=next_room_idxs_i
     )
