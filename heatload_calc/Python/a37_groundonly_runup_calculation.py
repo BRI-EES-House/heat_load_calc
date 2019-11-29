@@ -12,17 +12,6 @@ def get_Ts_i_n_k(Phi_A_i_k_0, hi_i_k, Tei_i_l_n, Ts_dash_A_l_n_m, a0):
     return Ts_i_n_k
 
 
-def calc_Tei_i_l_n(To_n):
-    a0 = get_a0(To_n)
-    a1 = get_a1(To_n)
-    b1 = get_b1(To_n)
-
-    To_d_bar = get_To_d_bar(a0, a1, b1)
-    Tei_i_l_n = get_Tei_i_l_n(To_d_bar)
-
-    return Tei_i_l_n
-
-
 def get_Tei_i_l_n(To_d_bar):
     return To_d_bar
 
