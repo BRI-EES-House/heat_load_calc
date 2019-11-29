@@ -20,25 +20,18 @@ from Psychrometrics import rhtx
 
 
 # 地盤の計算
-def run_tick_groundonly(spaces: List[Space], To_n: float, n: int):
+def run_tick_groundonly(spaces: List[Space], To_n: float, n: int, Tave: float):
 
     for s in spaces:
 
-        # 配列の準備
-        Row = s.row_bnd_i_jstrs
+        is_ground = np.array(s.boundary_type_i_jstrs) == 'ground'  # [jstr]
 
-        Phi_A_i_k_0 = s.rfa0_bdry_i_jstrs
-        hi_i_k = s.h_i_bdry_i_jstrs
-        a0 = a37.get_a0(To_n)
+        s.TsdA_l_n_m[is_ground, n, :] = s.oldqi[is_ground, np.newaxis] * s.rfa1_bdry_i_jstrs[is_ground, :]\
+            + s.row_bnd_i_jstrs[is_ground, :] * s.TsdA_l_n_m[is_ground, n-1, :]
 
-        print(s.boundary_type_i_jstrs == 'ground')
-        # 畳み込み積分 式(27)
-        for g in range(s.n_bnd_i_jstrs):
-            if s.boundary_type_i_jstrs[g] == "ground":
-                s.TsdA_l_n_m[g, n] = s.oldqi[g] * s.rfa1_bdry_i_jstrs[g] + Row[g] * s.TsdA_l_n_m[g, n - 1]
-                s.Ts_i_k_n[g, n] = a37.get_Ts_i_n_k(Phi_A_i_k_0[g], hi_i_k[g], To_n, s.TsdA_l_n_m[g, n], a0)
-                # 室内表面熱流の計算 式(28)
-                s.oldqi[g] = hi_i_k[g] * (To_n - s.Ts_i_k_n[g, n])
+        s.Ts_i_k_n[is_ground, n] = (s.rfa0_bdry_i_jstrs[is_ground] * s.h_i_bdry_i_jstrs[is_ground] * To_n + np.sum(s.TsdA_l_n_m[is_ground,n,:], axis=1) + Tave) /  (1.0 + s.rfa0_bdry_i_jstrs[is_ground] * s.h_i_bdry_i_jstrs[is_ground])
+
+        s.oldqi[is_ground] = s.h_i_bdry_i_jstrs[is_ground] * (To_n - s.Ts_i_k_n[is_ground, n])
 
 
 # 室温、熱負荷の計算

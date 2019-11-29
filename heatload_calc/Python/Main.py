@@ -12,7 +12,7 @@ from s3_space_initializer import make_space
 from s3_space_loader import Space
 import s3_simulator as simulator
 import a33_results_exporting as exporter
-
+import a37_groundonly_runup_calculation as a37
 
 # 熱負荷計算の実行
 def calc_heat_load(d: Dict):
@@ -60,7 +60,8 @@ def calc_heat_load(d: Dict):
 #    for n in range(-n_step_run_up, -n_step_run_up_build):
 #        simulator.run_tick_groundonly(spaces=spaces, To_n=theta_o_ns[n], n=n)
     print('助走計算1（土壌のみ）')
-    [simulator.run_tick_groundonly(spaces=spaces, To_n=theta_o_ns[n], n=n) for n in range(-n_step_run_up, -n_step_run_up_build)]
+    Tave = a37.get_a0(theta_o_ns)
+    [simulator.run_tick_groundonly(spaces=spaces, To_n=theta_o_ns[n], n=n, Tave=Tave) for n in range(-n_step_run_up, -n_step_run_up_build)]
 
     # 助走計算2(室温、熱負荷)
 #    for n in range(-n_step_run_up_build, 0):
@@ -108,6 +109,6 @@ if __name__ == '__main__':
 
     prf = LineProfiler()
     prf.add_function(simulator.run_tick)
+    prf.add_function(calc_heat_load)
     prf.runcall(run)
     prf.print_stats()
-    prf.dump_stats('line_profiler.prof')

@@ -207,6 +207,7 @@ class Space:
 
         # （26）式中の〖CVL〗_(i,l)の計算式右辺
         self.TsdA_l_n_m = np.full((n_bnd_i_jstrs, 24 * 365 * 4 * 4, 12), TsdA_initial)
+
         # （26）式中の〖CVL〗_(i,l)の計算式右辺
         self.TsdT_l_n_m = np.full((n_bnd_i_jstrs, 24 * 365 * 4 * 4, 12), TsdT_initial)
 
