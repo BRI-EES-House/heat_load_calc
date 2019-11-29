@@ -152,14 +152,14 @@ class Space:
         self.next_room_type_bnd_i_jstrs = next_room_type_bnd_i_jstrs
         # Spaceクラスで持つ必要はない変数の可能性あり（インスタンス終了後破棄可能）（要調査）
         self.is_solar_absorbed_inside_bdry_i_jstrs = is_solar_absorbed_inside_bnd_i_jstrs
-        self.h_i_bdry_i_jstrs = h_i_bnd_i_jstrs
+        self.h_i_bnd_i_jstrs = h_i_bnd_i_jstrs
         self.theta_o_sol_bnd_i_jstrs_ns = theta_o_sol_bnd_i_jstrs_ns
         self.n_root_bnd_i_jstrs = n_root_bnd_i_jstrs
         self.row_bnd_i_jstrs = row_bnd_i_jstrs
         self.rft0_bdry_i_jstrs = rft0_bnd_i_jstrs
-        self.rfa0_bdry_i_jstrs = rfa0_bnd_i_jstrs
+        self.rfa0_bnd_i_jstrs = rfa0_bnd_i_jstrs
         self.rft1_bdry_i_jstrs = rft1_bnd_i_jstrs
-        self.rfa1_bdry_i_jstrs = rfa1_bnd_i_jstrs
+        self.rfa1_bnd_i_jstrs = rfa1_bnd_i_jstrs
 
         # 室iの統合された境界j*の数, [j*]
         self.n_bnd_i_jstrs = n_bnd_i_jstrs
@@ -206,10 +206,10 @@ class Space:
         self.Tei_i_k_n = np.zeros((n_bnd_i_jstrs, 24 * 365 * 4 * 4))
 
         # （26）式中の〖CVL〗_(i,l)の計算式右辺
-        self.TsdA_l_n_m = np.full((n_bnd_i_jstrs, 24 * 365 * 4 * 4, 12), TsdA_initial)
+        self.old_TsdA_l_n_m = np.full((n_bnd_i_jstrs, 12), TsdA_initial)
 
         # （26）式中の〖CVL〗_(i,l)の計算式右辺
-        self.TsdT_l_n_m = np.full((n_bnd_i_jstrs, 24 * 365 * 4 * 4, 12), TsdT_initial)
+        self.old_TsdT_l_n_m = np.full((n_bnd_i_jstrs, 12), TsdT_initial)
 
         self.Qc = np.zeros((n_bnd_i_jstrs, 24 * 365 * 4 * 4))
         self.Qr = np.zeros((n_bnd_i_jstrs, 24 * 365 * 4 * 4))

@@ -24,14 +24,17 @@ def run_tick_groundonly(spaces: List[Space], To_n: float, n: int, Tave: float):
 
     for s in spaces:
 
-        is_ground = np.array(s.boundary_type_i_jstrs) == 'ground'  # [jstr]
+        g = np.array(s.boundary_type_i_jstrs) == 'ground'  # [jstr]
 
-        s.TsdA_l_n_m[is_ground, n, :] = s.oldqi[is_ground, np.newaxis] * s.rfa1_bdry_i_jstrs[is_ground, :]\
-            + s.row_bnd_i_jstrs[is_ground, :] * s.TsdA_l_n_m[is_ground, n-1, :]
+        TsdA_l_n_m = s.oldqi[g, np.newaxis] * s.rfa1_bnd_i_jstrs[g, :]\
+            + s.row_bnd_i_jstrs[g, :] * s.old_TsdA_l_n_m[g, :]
 
-        s.Ts_i_k_n[is_ground, n] = (s.rfa0_bdry_i_jstrs[is_ground] * s.h_i_bdry_i_jstrs[is_ground] * To_n + np.sum(s.TsdA_l_n_m[is_ground,n,:], axis=1) + Tave) /  (1.0 + s.rfa0_bdry_i_jstrs[is_ground] * s.h_i_bdry_i_jstrs[is_ground])
+        s.Ts_i_k_n[g, n] = (s.rfa0_bnd_i_jstrs[g] * s.h_i_bnd_i_jstrs[g] * To_n + np.sum(TsdA_l_n_m, axis=1) + Tave)\
+            / (1.0 + s.rfa0_bnd_i_jstrs[g] * s.h_i_bnd_i_jstrs[g])
 
-        s.oldqi[is_ground] = s.h_i_bdry_i_jstrs[is_ground] * (To_n - s.Ts_i_k_n[is_ground, n])
+        s.oldqi[g] = s.h_i_bnd_i_jstrs[g] * (To_n - s.Ts_i_k_n[g, n])
+
+        s.old_TsdA_l_n_m[g, :] = TsdA_l_n_m
 
 
 # 室温、熱負荷の計算
@@ -83,14 +86,17 @@ def run_tick(spaces: List[Space], To_n: float, xo_n: float, n: int):
         # すきま風量を決めるにあたってどういった変数が必要なのかを決めること。
         Infset = 0.0
 
-        s.TsdA_l_n_m[:, n, :] = s.oldqi[:, np.newaxis] * s.rfa1_bdry_i_jstrs + s.row_bnd_i_jstrs * s.TsdA_l_n_m[:, n-1, :]
-        s.TsdT_l_n_m[:, n, :] = theta_rear_i_jstrs_n[:, np.newaxis] * s.rft1_bdry_i_jstrs + s.row_bnd_i_jstrs * s.TsdT_l_n_m[:, n-1, :]
+        TsdA_l_n_m = s.oldqi[:, np.newaxis] * s.rfa1_bnd_i_jstrs + s.row_bnd_i_jstrs * s.old_TsdA_l_n_m
+        TsdT_l_n_m = theta_rear_i_jstrs_n[:, np.newaxis] * s.rft1_bdry_i_jstrs + s.row_bnd_i_jstrs * s.old_TsdT_l_n_m
 
         # 畳み込み演算 式(26)
-        CVL_i_l = a1.get_CVL(s.TsdT_l_n_m[:, n, :], s.TsdA_l_n_m[:, n, :])
+        CVL_i_l = a1.get_CVL(TsdT_l_n_m, TsdA_l_n_m)
+
+        s.old_TsdA_l_n_m = TsdA_l_n_m
+        s.old_TsdT_l_n_m = TsdT_l_n_m
 
         # 表面温度を計算するための各種係数  式(24)
-        CRX_i_j = a1.get_CRX(s.rft0_bdry_i_jstrs, theta_rear_i_jstrs_n, s.q_sol_floor_i_jstrs_ns[:, n], s.rfa0_bdry_i_jstrs)
+        CRX_i_j = a1.get_CRX(s.rft0_bdry_i_jstrs, theta_rear_i_jstrs_n, s.q_sol_floor_i_jstrs_ns[:, n], s.rfa0_bnd_i_jstrs)
         WSC_i_k = a1.get_WSC(s.AX_k_l, CRX_i_j)
         WSV_i_k = a1.get_WSV(s.AX_k_l, CVL_i_l)
 
@@ -221,7 +227,7 @@ def run_tick(spaces: List[Space], To_n: float, xo_n: float, n: int):
         _ = a1.get_Tsx(s.F_mrt_i_g, s.Ts_i_k_n[:, n])
 
         # 室内側等価温度の計算 式(29)
-        s.Tei_i_k_n[:, n] = a1.calc_Tei(s.hc_i_g_n, s.h_i_bdry_i_jstrs, s.hr_i_g_n, s.q_sol_floor_i_jstrs_ns[:, n], s.flr_i_k,
+        s.Tei_i_k_n[:, n] = a1.calc_Tei(s.hc_i_g_n, s.h_i_bnd_i_jstrs, s.hr_i_g_n, s.q_sol_floor_i_jstrs_ns[:, n], s.flr_i_k,
                                         s.a_bnd_i_jstrs, s.theta_r_i_ns[n], s.F_mrt_i_g, s.Ts_i_k_n[:, n], s.Lrs_i_n[n],
                                         s.Beta_i)
 
