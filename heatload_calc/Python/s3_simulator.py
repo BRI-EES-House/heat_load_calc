@@ -31,6 +31,7 @@ def run_tick_groundonly(spaces: List[Space], To_n: float, n: int):
         hi_i_k = s.h_i_bdry_i_jstrs
         a0 = a37.get_a0(To_n)
 
+        print(s.boundary_type_i_jstrs == 'ground')
         # 畳み込み積分 式(27)
         for g in range(s.n_bnd_i_jstrs):
             if s.boundary_type_i_jstrs[g] == "ground":
@@ -89,28 +90,19 @@ def run_tick(spaces: List[Space], To_n: float, xo_n: float, n: int):
         # すきま風量を決めるにあたってどういった変数が必要なのかを決めること。
         Infset = 0.0
 
-        # ここのコードはもう少し構造を考え直さないといけない
-        # 室名が重複して指定された場合に破綻する。
-        idxs = [[i for i, space in enumerate(spaces) if space.name_i == x][0] for x in s.name_vent_up_i_nis]
-        theta_r_vent_up_i_nis_n = np.array([theta_r_is_n[x] for x in idxs])
-        x_r_vent_up_i_nis_n = np.array([x_r_is_n[x] for x in idxs])
-
-#        print(s.oldqi) # 11
-#        print(s.rfa1_bdry_i_jstrs) # 11 * 12
-#        print(s.row_bnd_i_jstrs) # 11 * 12
-        # 畳み込み積分 式(27)
-        for g in range(s.n_bnd_i_jstrs):
-            s.TsdA_l_n_m[g, n] = s.oldqi[g] * s.rfa1_bdry_i_jstrs[g] + s.row_bnd_i_jstrs[g] * s.TsdA_l_n_m[g, n - 1]
-            s.TsdT_l_n_m[g, n] = theta_rear_i_jstrs_n[g] * s.rft1_bdry_i_jstrs[g] + s.row_bnd_i_jstrs[g] * s.TsdT_l_n_m[g, n - 1]
-#        print(s.TsdA_l_n_m.shape)  # 11 * 140160 * 12
+        s.TsdA_l_n_m[:, n, :] = s.oldqi[:, np.newaxis] * s.rfa1_bdry_i_jstrs + s.row_bnd_i_jstrs * s.TsdA_l_n_m[:, n-1, :]
+        s.TsdT_l_n_m[:, n, :] = theta_rear_i_jstrs_n[:, np.newaxis] * s.rft1_bdry_i_jstrs + s.row_bnd_i_jstrs * s.TsdT_l_n_m[:, n-1, :]
 
         # 畳み込み演算 式(26)
-        CVL_i_l = a1.get_CVL(s.TsdT_l_n_m[:, n, :], s.TsdA_l_n_m[:, n, :], s.n_root_bnd_i_jstrs)
+        CVL_i_l = a1.get_CVL(s.TsdT_l_n_m[:, n, :], s.TsdA_l_n_m[:, n, :])
 
         # 表面温度を計算するための各種係数  式(24)
         CRX_i_j = a1.get_CRX(s.rft0_bdry_i_jstrs, theta_rear_i_jstrs_n, s.q_sol_floor_i_jstrs_ns[:, n], s.rfa0_bdry_i_jstrs)
         WSC_i_k = a1.get_WSC(s.AX_k_l, CRX_i_j)
         WSV_i_k = a1.get_WSV(s.AX_k_l, CVL_i_l)
+
+        theta_r_vent_up_i_nis_n = np.array([theta_r_is_n[x] for x in s.next_room_idxs_i])
+        x_r_vent_up_i_nis_n = np.array([x_r_is_n[x] for x in s.next_room_idxs_i])
 
         # 室温・熱負荷計算のための定数項BRCの計算 式(6) ※ただし、通風なし
         BRCnoncv = s41.get_BRC_i(

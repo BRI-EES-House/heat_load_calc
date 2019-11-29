@@ -126,7 +126,8 @@ class Space:
             BRMnoncv_i, BRL_i, Hcap, Capfun, Cfun,
             q_gen_except_hum_i_ns,
             q_sol_floor_i_jstrs_ns,
-            q_sol_frnt_i_ns
+            q_sol_frnt_i_ns,
+            next_room_idxs_i
     ):
 
         self.name_i = name_i
@@ -320,4 +321,6 @@ class Space:
 
         self.xeout_i_n = np.zeros(24 * 365 * 4 * 3)  # i室のn時点におけるルームエアコン熱交換器出口の絶対湿度
         self.Vac_n = np.zeros(24 * 365 * 4 * 3)  # i室のn時点におけるエアコンの風量[m3/s]
+
+        self.next_room_idxs_i = next_room_idxs_i
 

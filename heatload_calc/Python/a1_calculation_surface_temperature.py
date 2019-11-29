@@ -71,8 +71,19 @@ def get_CRX(RFT0, Teo, RSsol, RFA0):
 
 
 # 畳み込み演算 式(26)
-def get_CVL(oldTsd_t, oldTsd_a, Nroot):
-    return [np.sum(oldTsd_t[i] + oldTsd_a[i]) for i in range(len(Nroot))]
+def get_CVL(oldTsd_t, oldTsd_a):
+    """
+
+    Args:
+        oldTsd_t: [istar, 12]
+        oldTsd_a: [istar, 12]
+        Nroot: [istar]
+
+    Returns:
+        [istar]
+    """
+
+    return np.sum(oldTsd_t + oldTsd_a, axis=1)
 
 
 # 室内表面熱流の計算 式(28)

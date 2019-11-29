@@ -263,6 +263,17 @@ def make_space(room: Dict,
 
     q_gen_i_ns = heat_generation_appliances_schedule + heat_generation_lighting_schedule + heat_generation_cooking_schedule
 
+    next_room_idxs_i = []
+    for x in name_vent_up_i_nis:
+        next_room_idxs_i.append(
+            {
+                'main_occupant_room': 0,
+                'other_occupant_room': 1,
+                'non_occupant_room': 2,
+                'underfloor': 3
+            }[x]
+        )
+
     space = Space(
         name_i=name_i,
         room_type_i=room_type_i,
@@ -331,7 +342,8 @@ def make_space(room: Dict,
         Cfun=Cfun,
         q_gen_except_hum_i_ns=q_gen_i_ns,
         q_sol_floor_i_jstrs_ns=q_sol_floor_i_jstrs_ns,
-        q_sol_frnt_i_ns=q_sol_frnt_i_ns
+        q_sol_frnt_i_ns=q_sol_frnt_i_ns,
+        next_room_idxs_i=next_room_idxs_i
     )
 
 
