@@ -98,22 +98,3 @@ def get_NV(is_now_window_open: bool, volume: float, Nventtime: float) -> float:
         return 0.0
 
 
-# JSONファイルから空調スケジュールを読み込む
-def read_air_conditioning_schedules_from_json(d_room: Dict) -> (np.ndarray, np.ndarray, np.ndarray, np.ndarray):
-
-    # 空調スケジュールの読み込み
-    # 設定温度／PMV上限値の設定
-    is_upper_temp_limit_set_schedule = np.repeat(d_room['schedule']['is_upper_temp_limit_set'], 4)
-    # 設定温度／PMV下限値の設定
-    is_lower_temp_limit_set_schedule = np.repeat(d_room['schedule']['is_lower_temp_limit_set'], 4)
-
-    # PMV上限値
-    pmv_upper_limit_schedule = np.repeat(d_room['schedule']['pmv_upper_limit'], 4)
-    # PMV下限値
-    pmv_lower_limit_schedule = np.repeat(d_room['schedule']['pmv_lower_limit'], 4)
-
-    return is_upper_temp_limit_set_schedule, \
-           is_lower_temp_limit_set_schedule, \
-           pmv_upper_limit_schedule, \
-           pmv_lower_limit_schedule
-

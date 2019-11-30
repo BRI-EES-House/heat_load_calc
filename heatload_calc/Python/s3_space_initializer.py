@@ -12,17 +12,14 @@ import a20_room_spec as a20
 import a21_next_vent_spec as a21
 import a22_radiative_heating_spec as a22
 import a23_surface_heat_transfer_coefficient as a23
-import a29_local_vent_schedule as a29
-import a30_internal_heat_schedule as a30
-import a31_lighting_schedule as a31
-import a32_resident_schedule as a32
 import a34_building_part_summarize as a34
-import s4_1_sensible_heat as s41
+import a38_schedule as a38
 
 from s3_space_loader import Space
 import s3_surface_initializer as s3
 import s3_space_loader as s3sl
 import s3_surface_loader
+import s4_1_sensible_heat as s41
 
 # # 室温・熱負荷を計算するクラス
 
@@ -125,12 +122,12 @@ def make_space(room: Dict,
     x_r_i_initial = a18.get_xr_initial()
 
     # スケジュールの読み込み
-    local_vent_amount_schedule = a29.read_local_vent_schedules_from_json(room)  # 局所換気
-    heat_generation_appliances_schedule, \
-        heat_generation_cooking_schedule, \
-        vapor_generation_cooking_schedule = a30.read_internal_heat_schedules_from_json(room) # 機器発熱
-    heat_generation_lighting_schedule = a31.read_lighting_schedules_from_json(room)  # 照明発熱
-    number_of_people_schedule = a32.read_resident_schedules_from_json(room)  # 在室人数
+    local_vent_amount_schedule = a38.get_local_vent_schedules(room)  # 局所換気
+    heat_generation_appliances_schedule = a38.get_heat_generation_of_appliances(room)
+    heat_generation_cooking_schedule = a38.get_latent_heat_generation_of_cooking(room)
+    vapor_generation_cooking_schedule = a38.get_sensible_heat_generation_of_cooking(room) # 機器発熱
+    heat_generation_lighting_schedule = a38.get_heat_generation_of_lighting(room)  # 照明発熱
+    number_of_people_schedule = a38.get_number_of_residents(room)  # 在室人数
 
     # 空調スケジュールの読み込み
     #   設定温度上限値, degree C * 365* 96
@@ -140,7 +137,7 @@ def make_space(room: Dict,
     is_upper_temp_limit_set_schedule, \
         is_lower_temp_limit_set_schedule, \
         pmv_upper_limit_schedule, \
-        pmv_lower_limit_schedule = a13.read_air_conditioning_schedules_from_json(room)
+        pmv_lower_limit_schedule = a38.get_air_conditioning_schedules(room)
 
     # 空調や通風などの需要があるかどうか, bool * 365 * 96
     air_conditioning_demand = is_upper_temp_limit_set_schedule | is_lower_temp_limit_set_schedule
@@ -303,12 +300,9 @@ def make_space(room: Dict,
         x_r_i_initial=x_r_i_initial,
         local_vent_amount_schedule=local_vent_amount_schedule,
         heat_generation_appliances_schedule=heat_generation_appliances_schedule,
-        heat_generation_cooking_schedule=heat_generation_cooking_schedule,
         x_gen_except_hum_i_ns=vapor_generation_cooking_schedule/1000.0/3600.0,
         heat_generation_lighting_schedule=heat_generation_lighting_schedule,
         number_of_people_schedule=number_of_people_schedule,
-        is_upper_temp_limit_set_schedule=is_upper_temp_limit_set_schedule,
-        is_lower_temp_limit_set_schedule=is_lower_temp_limit_set_schedule,
         pmv_upper_limit_schedule=pmv_upper_limit_schedule,
         pmv_lower_limit_schedule=pmv_lower_limit_schedule,
         air_conditioning_demand=air_conditioning_demand,
