@@ -46,12 +46,12 @@ def get_xf_initial() -> float:
 # ********** 表9 各種定数値 **********
 
 # 空気の比熱[J/kg K]
-def get_ca() -> float:
+def get_c_air() -> float:
     return 1005.0
 
 
 # 空気の密度[kg/m3]
-def get_rhoa() -> float:
+def get_rho_air() -> float:
     return 1.2
 
 

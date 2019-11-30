@@ -91,9 +91,20 @@ def reset_SW(ac_mode: int, Lcs: float, Lr: float, isRadiantHeater: bool, Lrcap: 
 
 
 # 窓開放時の通風量 式(102)
-def get_NV(is_now_window_open: bool, volume: float, Nventtime: float) -> float:
+def get_NV(is_now_window_open: bool, v_ntrl_vent_i: float) -> float:
+    """
+
+    Args:
+        is_now_window_open:
+        v_room_cap_i: 室iの容積, m3
+        n_ntrl_vent_i: 室iの自然風利用時の換気回数, 1/h
+        v_ntrl_vent_i: 室iの自然風利用時の換気量, m3/s
+
+    Returns:
+
+    """
     if is_now_window_open:
-        return volume * Nventtime / 3600
+        return v_ntrl_vent_i
     else:
         return 0.0
 

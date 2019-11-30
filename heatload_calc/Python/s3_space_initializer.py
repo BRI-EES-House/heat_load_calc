@@ -149,8 +149,8 @@ def make_space(room: Dict,
     # 部位の人体に対する形態係数を計算 表6
     Fot_i_g = a12.calc_form_factor_for_human_body(a_bnd_i_jstrs, is_solar_absorbed_inside_bnd_i_jstrs)
 
-    # 合計面積の計算
-    A_total_i = np.sum(a_bnd_i_jstrs)
+    # 合計面積の計算, m2
+    A_total_i = sum(a_bnd_i_jstrs)
 
     # 室iにおける床面積の合計, m2
     a_floor_i = np.sum(a_bnd_i_jstrs * is_solar_absorbed_inside_bnd_i_jstrs)
@@ -193,10 +193,10 @@ def make_space(room: Dict,
     FF_m = a12.calc_form_factor_of_microbodies(name_i, a_bnd_i_jstrs)
 
     # 表面熱伝達率の計算 式(123) 表16
-    hr_i_g_n, hc_i_g_n = a23.calc_surface_transfer_coefficient(eps_m, FF_m, h_i_bnd_i_jstrs)
+    h_r_bnd_i_jstrs, h_c_bnd_i_jstrs = a23.calc_surface_transfer_coefficient(eps_m, FF_m, h_i_bnd_i_jstrs=h_i_bnd_i_jstrs)
 
     # 平均放射温度計算時の各部位表面温度の重み計算 式(101)
-    F_mrt_i_g = a12.get_F_mrt_i_g(a_bnd_i_jstrs, hr_i_g_n)
+    F_mrt_i_g = a12.get_F_mrt_i_g(a_bnd_i_jstrs, h_r_bnd_i_jstrs)
 
     # 室iの統合された境界j*における室の透過日射熱取得のうちの吸収日射量, W/m2, [j*, 8760*4]
     q_sol_floor_i_jstrs_ns = a12.get_q_sol_floor_i_jstrs_ns(
@@ -209,18 +209,18 @@ def make_space(room: Dict,
 
     # *********** 室内表面熱収支計算のための行列作成 ***********
 
-    rhoa = a18.get_rhoa()
+    rhoa = a18.get_rho_air()
     # 室空気の質量[kg]
     Ga = v_room_cap_i * rhoa
 
     Beta_i = 0.0  # 放射暖房対流比率
 
     # FIA, FLBの作成 式(26)
-    FIA_i_l = a1.get_FIA(rfa0_bnd_i_jstrs, hc_i_g_n)
+    FIA_i_l = a1.get_FIA(rfa0_bnd_i_jstrs, h_c_bnd_i_jstrs)
     FLB_i_l = a1.get_FLB(rfa0_bnd_i_jstrs, flr_i_k, Beta_i, a_bnd_i_jstrs)
 
     # 行列AX 式(25)
-    AX_k_l = a1.get_AX(rfa0_bnd_i_jstrs, hr_i_g_n, F_mrt_i_g, h_i_bnd_i_jstrs, n_bnd_i_jstrs)
+    AX_k_l = a1.get_AX(rfa0_bnd_i_jstrs, h_r_bnd_i_jstrs, F_mrt_i_g, h_i_bnd_i_jstrs, n_bnd_i_jstrs)
 
     # WSR, WSB の計算 式(24)
     WSR_i_k = a1.get_WSR(AX_k_l, FIA_i_l)
@@ -228,25 +228,26 @@ def make_space(room: Dict,
 
     # i室のn時点における窓開放時通風量
     # 室空気の熱容量
-    ca = a18.get_ca()
-    rhoa = a18.get_rhoa()
-    Hcap = v_room_cap_i * rhoa * ca
+    ca = a18.get_c_air()
+    rhoa = a18.get_rho_air()
+    c_room_i = v_room_cap_i * rhoa * ca
 
     # 家具の熱容量、湿気容量の計算
     # Capfun:家具熱容量[J/K]、Cfun:家具と室空気間の熱コンダクタンス[W/K]
     Capfun = a14.get_Capfun(v_room_cap_i)
     Cfun = a14.get_Cfun(Capfun)
 
+
     # BRMの計算 式(5) ※ただし、通風なし
     BRMnoncv_i = s41.get_BRM_i(
-        Hcap=Hcap,
+        Hcap=c_room_i,
         WSR_i_k=WSR_i_k,
         Cap_fun_i=Capfun,
         C_fun_i=Cfun,
         Vent=v_vent_ex_i,
         local_vent_amount_schedule=local_vent_amount_schedule,
         A_i_k=a_bnd_i_jstrs,
-        hc_i_k_n=hc_i_g_n,
+        hc_i_k_n=h_c_bnd_i_jstrs,
         V_nxt=v_vent_up_i_nis
     )
 
@@ -255,7 +256,7 @@ def make_space(room: Dict,
         Beta_i=Beta_i,
         WSB_i_k=WSB_i_k,
         A_i_k=a_bnd_i_jstrs,
-        hc_i_k_n=hc_i_g_n
+        hc_i_k_n=h_c_bnd_i_jstrs
     )
 
     q_gen_i_ns = heat_generation_appliances_schedule + heat_generation_lighting_schedule + heat_generation_cooking_schedule
@@ -271,11 +272,16 @@ def make_space(room: Dict,
             }[x]
         )
 
+    # 室iの自然風利用時の換気量, m3/s
+    v_ntrl_vent_i = v_room_cap_i * n_ntrl_vent_i / 3600
+
+    # ステップnの室iにおける機械換気量（全般換気量+局所換気量）, m3/s
+    v_mec_vent_i_ns = (v_vent_ex_i + local_vent_amount_schedule) / 3600
+
     space = Space(
         name_i=name_i,
         room_type_i=room_type_i,
         v_room_cap_i=v_room_cap_i,
-        v_vent_ex_i=v_vent_ex_i,
         name_vent_up_i_nis=name_vent_up_i_nis,
         v_vent_up_i_nis=v_vent_up_i_nis,
         name_bnd_i_jstrs=name_bnd_i_jstrs,
@@ -295,10 +301,8 @@ def make_space(room: Dict,
         rfa1_bnd_i_jstrs=rfa1_bnd_i_jstrs,
         n_bnd_i_jstrs=n_bnd_i_jstrs,
         q_trs_sol_i_ns=q_trs_sol_i_ns,
-        n_ntrl_vent_i=n_ntrl_vent_i,
         theta_r_i_initial=theta_r_i_initial,
         x_r_i_initial=x_r_i_initial,
-        local_vent_amount_schedule=local_vent_amount_schedule,
         heat_generation_appliances_schedule=heat_generation_appliances_schedule,
         x_gen_except_hum_i_ns=vapor_generation_cooking_schedule/1000.0/3600.0,
         heat_generation_lighting_schedule=heat_generation_lighting_schedule,
@@ -321,8 +325,8 @@ def make_space(room: Dict,
         heat_exchanger_type = heat_exchanger_type,
         convective_cooling_rtd_capacity = convective_cooling_rtd_capacity,
         flr_i_k=flr_i_k,
-        hr_i_g_n=hr_i_g_n,
-        hc_i_g_n=hc_i_g_n,
+        h_r_bnd_i_jstrs=h_r_bnd_i_jstrs,
+        h_c_bnd_i_jstrs=h_c_bnd_i_jstrs,
         F_mrt_i_g=F_mrt_i_g,
         Ga=Ga,
         Beta_i=Beta_i,
@@ -331,13 +335,15 @@ def make_space(room: Dict,
         WSB_i_k=WSB_i_k,
         BRMnoncv_i=BRMnoncv_i,
         BRL_i=BRL_i,
-        Hcap=Hcap,
-        Capfun=Capfun,
-        Cfun=Cfun,
+        c_room_i=c_room_i,
+        c_cap_frnt_i=Capfun,
+        k_frnt_i=Cfun,
         q_gen_except_hum_i_ns=q_gen_i_ns,
         q_sol_srf_i_jstrs_ns=q_sol_floor_i_jstrs_ns,
         q_sol_frnt_i_ns=q_sol_frnt_i_ns,
-        next_room_idxs_i=next_room_idxs_i
+        next_room_idxs_i=next_room_idxs_i,
+        v_ntrl_vent_i=v_ntrl_vent_i,
+        v_mec_vent_i_ns=v_mec_vent_i_ns
     )
 
 

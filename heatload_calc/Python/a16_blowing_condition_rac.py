@@ -48,8 +48,8 @@ def get_Vac(Qs, Vmin, Vmax, qmin_c, qmax_c):
 
 # 熱交換器温度＝熱交換器部分吹出温度 式(113)
 def get_Teout(Qs, Tr, Vac, BF):
-    rhoa = a18.get_rhoa()
-    ca = a18.get_ca()
+    rhoa = a18.get_rho_air()
+    ca = a18.get_c_air()
     return Tr - Qs / (ca * rhoa * Vac * (1.0 - BF))
 
 

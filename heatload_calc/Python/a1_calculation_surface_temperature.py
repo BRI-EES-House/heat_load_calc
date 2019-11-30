@@ -24,7 +24,7 @@ def get_WSB(AX_k_l, FLB_i_l):
     return np.dot(AX_k_l, FLB_i_l)
 
 
-def get_wsc_i_npls(ivs_x_i: np.ndarray, crx_i_jstrs_npls: np.ndarray) -> np.ndarray:
+def get_wsc_i_jstrs_npls(ivs_x_i: np.ndarray, crx_i_jstrs_npls: np.ndarray) -> np.ndarray:
     """
 
     Args:
@@ -32,13 +32,13 @@ def get_wsc_i_npls(ivs_x_i: np.ndarray, crx_i_jstrs_npls: np.ndarray) -> np.ndar
        crx_i_jstrs_npls: ステップn+1の室iの統合された境界j*における係数CRX, degree C, [j*]
 
     Returns:
-        ステップnの室i+1における係数WSC, degree C, [j*]
+        ステップn+1の室iの断熱された境界j*における係数WSC, degree C, [j*]
     """
 
     return np.dot(ivs_x_i, crx_i_jstrs_npls)
 
 
-def get_wsv_i_npls(ivs_x_i: np.ndarray, cvl_i_jstrs_npls: np.ndarray) -> np.ndarray:
+def get_wsv_i_jstrs_npls(ivs_x_i: np.ndarray, cvl_i_jstrs_npls: np.ndarray) -> np.ndarray:
     """
 
     Args:
@@ -46,7 +46,7 @@ def get_wsv_i_npls(ivs_x_i: np.ndarray, cvl_i_jstrs_npls: np.ndarray) -> np.ndar
         cvl_i_jstrs_npls: ステップn+1の室iの統合された境界j*における係数CVL, degree C, [j*]
 
     Returns:
-        ステップnの室i+1における係数WSV, degree C, [j*]
+        ステップn+1の室iの統合された境界j*における係数WSV, degree C, [j*]
     """
 
     return np.dot(ivs_x_i, cvl_i_jstrs_npls)

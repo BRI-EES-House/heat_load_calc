@@ -44,7 +44,7 @@ def run_tick_groundonly(spaces: List[Space], To_n: float, n: int, Tave: float):
 
 
 # 室温、熱負荷の計算
-def run_tick(spaces: List[Space], To_n: float, xo_n: float, n: int):
+def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int):
 
     # ステップnの室iにおける室温, degree C, [i]
     # 室内壁の場合の裏面温度を計算する際に隣りの室の室温を持ちるために使用する。
@@ -86,7 +86,8 @@ def run_tick(spaces: List[Space], To_n: float, xo_n: float, n: int):
 
         # TODO: すきま風量未実装につき、とりあえず０とする
         # すきま風量を決めるにあたってどういった変数が必要なのかを決めること。
-        Infset = 0.0
+        # TODO: 単位は m3/s とすること。
+        v_reak_i_n = 0.0
 
         # ステップn+1の室iの統合された境界j*における項別公比法の項mの吸熱応答に関する表面温度, degree C, [jstrs, 12]
         theta_srf_dsh_a_i_jstrs_npls_ms = a1.get_theta_srf_dsh_a_i_jstrs_npls_ms(
@@ -110,11 +111,11 @@ def run_tick(spaces: List[Space], To_n: float, xo_n: float, n: int):
             phi_t_0_bnd_i_jstrs=s.phi_t_0_bnd_i_jstrs,
             theta_rear_i_jstrs_n=theta_rear_i_jstrs_n)
 
-        # ステップnの室i+1における係数WSC, degree C, [j*]
-        wsc_i_npls = a1.get_wsc_i_npls(ivs_x_i=s.ivs_x_i, crx_i_jstrs_npls=crx_i_jstrs_npls)
+        # ステップn+1の室iの断熱された境界j*における係数WSC, degree C, [j*]
+        wsc_i_jstrs_npls = a1.get_wsc_i_jstrs_npls(ivs_x_i=s.ivs_x_i, crx_i_jstrs_npls=crx_i_jstrs_npls)
 
-        # ステップnの室i+1における係数WSV, degree C, [j*]
-        wsv_i_npls = a1.get_wsv_i_npls(ivs_x_i=s.ivs_x_i, cvl_i_jstrs_npls=cvl_i_jstrs_npls)
+        # ステップn+1の室iの断熱された境界j*における係数WSV, degree C, [j*]
+        wsv_i_jstrs_npls = a1.get_wsv_i_jstrs_npls(ivs_x_i=s.ivs_x_i, cvl_i_jstrs_npls=cvl_i_jstrs_npls)
 
         # ステップnの室iにおける隣室i*からの室間換気の空気温度, degree C, [i*]
         theta_r_int_vent_i_istrs_n = np.array([theta_r_is_n[x] for x in s.next_room_idxs_i])
@@ -122,41 +123,31 @@ def run_tick(spaces: List[Space], To_n: float, xo_n: float, n: int):
         # ステップnの室iにおける隣室i*からの室間換気の絶対湿度, kg/kgDA, [i*]
         x_r_int_vent_i_istrs_n = np.array([x_r_is_n[x] for x in s.next_room_idxs_i])
 
-        # 室温・熱負荷計算のための定数項BRCの計算 式(6) ※ただし、通風なし
-        BRCnoncv = s41.get_BRC_i(
-            WSC_i_k=wsc_i_npls,
-            WSV_i_k=wsv_i_npls,
-            area=s.a_bnd_i_jstrs,
-            hc_i_k_n=s.hc_i_g_n,
-            Ta=To_n,
-            Hn=q_gen_i_n,
-            Ventset=s.v_vent_ex_i,
-            Infset=Infset,
-            LocalVentset=s.local_vent_amount_schedule[n],
-            Hcap=s.Hcap,
-            oldTr=theta_r_i_n,
-            Cap_fun_i=s.Capfun,
-            C_fun_i=s.Cfun,
-            Qsolfun=s.q_sol_frnt_i_ns[n],
-            oldTfun=s.Tfun_i_n[n - 1],
-            Vnext_i_j=s.v_vent_up_i_nis,
-            Tr_next_i_j_nm1=theta_r_int_vent_i_istrs_n
-        )
+        # ステップnの室iにおける係数BRC（通風なし）, W
+        # ステップnの室iにおける係数BRC（通風あり）, W
+        brc_non_ntrv_i_n, brc_ntrv_i_n = s41.get_brc_i_n(
+            c_room_i=s.c_room_i, deta_t=900.0, theta_r_i_n=theta_r_i_n, h_c_bnd_i_jstrs=s.h_c_bnd_i_jstrs,
+            a_bnd_i_jstrs=s.a_bnd_i_jstrs, wsc_i_jstrs_npls=wsc_i_jstrs_npls, wsv_i_jstrs_npls=wsv_i_jstrs_npls,
+            v_mec_vent_i_n=s.v_mec_vent_i_ns[n], v_reak_i_n=v_reak_i_n, v_int_vent_i_istrs=s.v_int_vent_i_istrs,
+            v_ntrl_vent_i=s.v_ntrl_vent_i, theta_o_n=theta_o_n, theta_r_int_vent_i_istrs_n=theta_r_int_vent_i_istrs_n,
+            q_gen_i_n=q_gen_i_n, c_cap_frnt_i=s.c_cap_frnt_i, k_frnt_i=s.k_frnt_i, q_sol_frnt_i_n=s.q_sol_frnt_i_ns[n],
+            theta_frnt_i_n=s.old_theta_frnt_i)
 
         # 自然室温計算時窓開閉条件の設定
         # 空調需要がなければ窓閉鎖、空調需要がある場合は前時刻の窓開閉状態
-        is_now_window_open = s.old_is_now_indow_open_i and s.air_conditioning_demand[n]
+        is_now_window_open = s.old_is_now_window_open_i and s.air_conditioning_demand[n]
 
         # 仮の窓開閉条件における通風量 NVot の計算
-        ca = a18.get_ca()
-        rhoa = a18.get_rhoa()
-        NVot = a13.get_NV(is_now_window_open, s.v_room_cap_i, s.n_ntrl_vent_i)
+        ca = a18.get_c_air()
+        rhoa = a18.get_rho_air()
+
+        NVot = a13.get_NV(is_now_window_open=is_now_window_open, v_ntrl_vent_i=s.v_ntrl_vent_i)
 
         # ********** 非空調(自然)作用温度、PMV の計算 **********
 
         BRMot_without_ac, BRCot_without_ac, _, Xot_without_ac, XLr_without_ac, XC_without_ac = s41.calc_OT_coeff(
-            BRM_i=s.BRMnoncv_i[n] + ca * rhoa * NVot, BRC_i=BRCnoncv + ca * rhoa * NVot * To_n, BRL_i=s.BRL_i[n],
-            WSR_i_k=s.WSR_i_k, WSB_i_k=s.WSB_i_k, WSC_i_k=wsc_i_npls, WSV_i_k=wsv_i_npls, fot=s.Fot_i_g, kc_i=s.kc_i,
+            BRM_i=s.BRMnoncv_i[n] + ca * rhoa * NVot, BRC_i=brc_non_ntrv_i_n + ca * rhoa * NVot * theta_o_n, BRL_i=s.BRL_i[n],
+            WSR_i_k=s.WSR_i_k, WSB_i_k=s.WSB_i_k, WSC_i_k=wsc_i_jstrs_npls, WSV_i_k=wsv_i_jstrs_npls, fot=s.Fot_i_g, kc_i=s.kc_i,
             kr_i=s.kr_i)
 
         # 自然作用温度の計算
@@ -194,18 +185,18 @@ def run_tick(spaces: List[Space], To_n: float, xo_n: float, n: int):
                    s.pmv_upper_limit_schedule[n]][ac_mode]
 
         # 確定した窓開閉状態における通風量を計算
-        NV = a13.get_NV(is_now_indow_open_i, s.v_room_cap_i, s.n_ntrl_vent_i)
+        NV = a13.get_NV(is_now_window_open=is_now_indow_open_i, v_ntrl_vent_i=s.v_ntrl_vent_i)
 
         # メモ: 窓開閉のいずれの条件で計算したBRM,BRCを採用しているだけに見える。
         #       ⇒両方計算して比較するように記述したほうがシンプル
 
         # 最終計算のための係数整備
         BRM_i = s.BRMnoncv_i[n] + ca * rhoa * NV
-        BRC_i = BRCnoncv + ca * rhoa * NV * To_n
+        BRC_i = brc_non_ntrv_i_n + ca * rhoa * NV * theta_o_n
 
         # OT計算用の係数補正
         BRMot, BRCot, BRLot, Xot, XLr, XC = \
-            s41.calc_OT_coeff(BRM_i, BRC_i, s.BRL_i[n], s.WSR_i_k, s.WSB_i_k, wsc_i_npls, wsv_i_npls, s.Fot_i_g, s.kc_i,
+            s41.calc_OT_coeff(BRM_i, BRC_i, s.BRL_i[n], s.WSR_i_k, s.WSB_i_k, wsc_i_jstrs_npls, wsv_i_jstrs_npls, s.Fot_i_g, s.kc_i,
                               s.kr_i)
 
         # ********** 空調設定温度の計算 **********
@@ -232,11 +223,11 @@ def run_tick(spaces: List[Space], To_n: float, xo_n: float, n: int):
         s.theta_r_i_ns[n] = s41.get_Tr_i_n(s.OT_i_n[n], s.Lrs_i_n[n], Xot, XLr, XC)
 
         # 家具の温度 Tfun を計算 式(15)
-        s.Tfun_i_n[n] = s41.get_Tfun_i_n(s.Capfun, s.Tfun_i_n[n - 1], s.Cfun, s.theta_r_i_ns[n], s.q_sol_frnt_i_ns[n])
-        s.Qfuns_i_n[n] = s41.get_Qfuns(s.Cfun, s.theta_r_i_ns[n], s.Tfun_i_n[n])
+        theta_frnt_i_n = s41.get_Tfun_i_n(s.c_cap_frnt_i, s.old_theta_frnt_i, s.k_frnt_i, s.theta_r_i_ns[n], s.q_sol_frnt_i_ns[n])
+        s.Qfuns_i_n[n] = s41.get_Qfuns(s.k_frnt_i, s.theta_r_i_ns[n], theta_frnt_i_n)
 
         # 表面温度の計算 式(23)
-        s.Ts_i_k_n[:, n] = a1.get_surface_temperature(s.WSR_i_k, s.WSB_i_k, wsc_i_npls, wsv_i_npls, s.theta_r_i_ns[n], s.Lrs_i_n[n])
+        s.Ts_i_k_n[:, n] = a1.get_surface_temperature(s.WSR_i_k, s.WSB_i_k, wsc_i_jstrs_npls, wsv_i_jstrs_npls, s.theta_r_i_ns[n], s.Lrs_i_n[n])
 
         # MRT_i_n、AST、平均放射温度の計算
         s.MRT_i_n[n] = get_MRT(s.Fot_i_g, s.Ts_i_k_n[:, n])
@@ -246,12 +237,12 @@ def run_tick(spaces: List[Space], To_n: float, xo_n: float, n: int):
         _ = a1.get_Tsx(s.F_mrt_i_g, s.Ts_i_k_n[:, n])
 
         # 室内側等価温度の計算 式(29)
-        s.Tei_i_k_n[:, n] = a1.calc_Tei(s.hc_i_g_n, s.h_i_bnd_i_jstrs, s.hr_i_g_n, s.q_sol_srf_i_jstrs_ns[:, n], s.flr_i_k,
+        s.Tei_i_k_n[:, n] = a1.calc_Tei(s.h_c_bnd_i_jstrs, s.h_i_bnd_i_jstrs, s.h_r_bnd_i_jstrs, s.q_sol_srf_i_jstrs_ns[:, n], s.flr_i_k,
                                         s.a_bnd_i_jstrs, s.theta_r_i_ns[n], s.F_mrt_i_g, s.Ts_i_k_n[:, n], s.Lrs_i_n[n],
                                         s.Beta_i)
 
         # 室内表面熱流の計算 式(28)
-        s.Qc[:, n], s.Qr[:, n], s.Lr, s.RS, Qt, s.q_srf_i_jstrs_n = a1.calc_qi(s.hc_i_g_n, s.a_bnd_i_jstrs, s.hr_i_g_n, s.q_sol_srf_i_jstrs_ns[:, n],
+        s.Qc[:, n], s.Qr[:, n], s.Lr, s.RS, Qt, s.q_srf_i_jstrs_n = a1.calc_qi(s.h_c_bnd_i_jstrs, s.a_bnd_i_jstrs, s.h_r_bnd_i_jstrs, s.q_sol_srf_i_jstrs_ns[:, n],
                                                                                s.flr_i_k,
                                                          s.Ts_i_k_n[:, n], s.theta_r_i_ns[n], s.F_mrt_i_g, s.Lrs_i_n[n],
                                                                                s.Beta_i)
@@ -260,29 +251,27 @@ def run_tick(spaces: List[Space], To_n: float, xo_n: float, n: int):
 
         # 式(17)
         BRMX_pre = s42.get_BRMX(
-            Ventset=s.v_vent_ex_i,
-            Infset=Infset,
-            LocalVentset=s.local_vent_amount_schedule[n],
+            v_reak_i_n=v_reak_i_n,
             Gf=s.Gf_i,
             Cx=s.Cx_i,
             volume=s.v_room_cap_i,
-            Vnext_i_j=s.v_vent_up_i_nis
+            v_int_vent_i_istrs=s.v_int_vent_i_istrs,
+            v_mec_vent_i_n=s.v_mec_vent_i_ns[n]
         )
 
         # 式(18)
         BRXC_pre = s42.get_BRXC(
-            Ventset=s.v_vent_ex_i,
-            Infset=Infset,
-            LocalVentset=s.local_vent_amount_schedule[n],
+            v_reak_i_n=v_reak_i_n,
             Gf=s.Gf_i,
             Cx=s.Cx_i,
             volume=s.v_room_cap_i,
-            Vnext_i_j=s.v_vent_up_i_nis,
+            v_int_vent_i_istrs=s.v_int_vent_i_istrs,
             xr_next_i_j_nm1=x_r_int_vent_i_istrs_n,
             xr_i_nm1=s.x_r_i_ns[n - 1],
             xf_i_nm1=s.xf_i_n[n - 1],
             Lin=x_gen_i_n,
-            xo=xo_n
+            xo=xo_n,
+            v_mec_vent_i_n=s.v_mec_vent_i_ns[n]
         )
 
         # ==== ルームエアコン吹出絶対湿度の計算 ====
@@ -349,13 +338,15 @@ def run_tick(spaces: List[Space], To_n: float, xo_n: float, n: int):
         # 次の時刻に用いる変数の引き渡し
         s.theta_srf_dsh_a_i_jstrs_n_m = theta_srf_dsh_a_i_jstrs_npls_ms
         s.theta_srf_dsh_t_i_jstrs_n_m = theta_srf_dsh_t_i_jstrs_npls_ms
-        s.old_is_now_indow_open_i = is_now_indow_open_i
+        s.old_is_now_window_open_i = is_now_indow_open_i
+        s.old_theta_frnt_i = theta_frnt_i_n
 
         # ロギング
         s.logger.theta_rear_i_jstrs_ns[:, n] = theta_rear_i_jstrs_n
         s.logger.q_hum_i_ns[n] = q_hum_i_n
         s.logger.x_hum_i_ns[n] = x_hum_i_n
         s.logger.is_now_window_open_i_n[n] = is_now_indow_open_i
+        s.logger.theta_frnt_i_ns[n] = theta_frnt_i_n
 
 
         # 当該時刻の空調状態、窓開閉状態を控える
@@ -394,5 +385,5 @@ def get_Lcl(Ghum: float):
 
 # 式(20)のうちの一部
 def get_RhoVac(Vac: float, BF: float):
-    rhoa = a18.get_rhoa()
+    rhoa = a18.get_rho_air()
     return rhoa * Vac * (1.0 - BF)

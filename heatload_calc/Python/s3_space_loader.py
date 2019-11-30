@@ -75,8 +75,11 @@ class Logger:
         # ステップnの室iにおけるPMV(Predicted Mean Vote,予測温冷感申告)
         self.pmv_i_ns = np.zeros(24 * 365 * 4 * 3)
 
-        # 当該時刻の窓状態（0：閉鎖、1：開放）
+        # ステップnの室iにおける窓の状態（0：閉鎖、1：開放）
         self.is_now_window_open_i_n = np.full(24 * 365 * 4 * 3, False)
+
+        # ステップnの室iにおける家具の温度, degree C
+        self.theta_frnt_i_ns = np.full(24 * 365 * 4 * 3, a18.get_Tfun_initial())
 
 
 # 空間に関する情報の保持
@@ -99,14 +102,14 @@ class Space:
     """
 
     def __init__(
-            self, name_i: str, room_type_i: str, v_room_cap_i: float, v_vent_ex_i,
+            self, name_i: str, room_type_i: str, v_room_cap_i: float,
             name_vent_up_i_nis: List[str], v_vent_up_i_nis: np.ndarray,
             name_bnd_i_jstrs: np.ndarray, sub_name_bnd_i_jstrs: np.ndarray, boundary_type_i_jstrs: np.ndarray,
             a_bnd_i_jstrs: np.ndarray, h_bnd_i_jstrs, next_room_type_bnd_i_jstrs,
             is_solar_absorbed_inside_bnd_i_jstrs, h_i_bnd_i_jstrs, theta_o_sol_bnd_i_jstrs_ns, n_root_bnd_i_jstrs,
             row_bnd_i_jstrs, rft0_bnd_i_jstrs, rfa0_bnd_i_jstrs, rft1_bnd_i_jstrs, rfa1_bnd_i_jstrs, n_bnd_i_jstrs,
-            q_trs_sol_i_ns: np.ndarray, n_ntrl_vent_i: float,
-            theta_r_i_initial: float, x_r_i_initial: float, local_vent_amount_schedule: np.ndarray,
+            q_trs_sol_i_ns: np.ndarray,
+            theta_r_i_initial: float, x_r_i_initial: float,
             heat_generation_appliances_schedule: np.ndarray,
             x_gen_except_hum_i_ns: np.ndarray, heat_generation_lighting_schedule: np.ndarray,
             number_of_people_schedule: np.ndarray,
@@ -117,23 +120,33 @@ class Space:
             is_radiative_heating: bool,
             Lrcap_i: float, is_radiative_cooling: bool, radiative_cooling_max_capacity: float,
             heat_exchanger_type, convective_cooling_rtd_capacity: float, flr_i_k,
-            hr_i_g_n, hc_i_g_n, F_mrt_i_g,
+            h_r_bnd_i_jstrs, h_c_bnd_i_jstrs, F_mrt_i_g,
             Ga,
             Beta_i,
             AX_k_l, WSR_i_k, WSB_i_k,
-            BRMnoncv_i, BRL_i, Hcap, Capfun, Cfun,
+            BRMnoncv_i, BRL_i, c_room_i, c_cap_frnt_i, k_frnt_i,
             q_gen_except_hum_i_ns,
             q_sol_srf_i_jstrs_ns,
             q_sol_frnt_i_ns,
-            next_room_idxs_i
+            next_room_idxs_i,
+            v_ntrl_vent_i,
+            v_mec_vent_i_ns,
     ):
 
         self.name_i = name_i
         self.room_type_i = room_type_i
+
+        # 室iの容積, m3
         self.v_room_cap_i = v_room_cap_i
-        self.v_vent_ex_i = v_vent_ex_i
+
+        # 室iの自然風利用時の換気量, m3/s
+        self.v_ntrl_vent_i = v_ntrl_vent_i
+
+        # ステップnの室iにおける機械換気量（全般換気量+局所換気量）, m3/s
+        self.v_mec_vent_i_ns = v_mec_vent_i_ns
+
         self.name_vent_up_i_nis = name_vent_up_i_nis
-        self.v_vent_up_i_nis = v_vent_up_i_nis
+        self.v_int_vent_i_istrs = v_vent_up_i_nis / 3600.0
 
         self.name_bdry_i_jstrs = name_bnd_i_jstrs
         self.sub_name_bdry_i_jstrs = sub_name_bnd_i_jstrs
@@ -163,7 +176,6 @@ class Space:
         self.n_bnd_i_jstrs = n_bnd_i_jstrs
 
         self.q_trs_sol_i_ns = q_trs_sol_i_ns
-        self.n_ntrl_vent_i = n_ntrl_vent_i
 
         # 計算結果出力用ロガー
         self.logger = Logger(n_bnd_i_jstrs=n_bnd_i_jstrs)
@@ -175,7 +187,6 @@ class Space:
         # スケジュール
 
 
-        self.local_vent_amount_schedule = local_vent_amount_schedule  # 局所換気
         # ステップnの室iにおける在室人数, [8760*4]
         self.n_hum_i_ns = number_of_people_schedule
         self.pmv_upper_limit_schedule = pmv_upper_limit_schedule  # PMV上限値, degree C
@@ -247,8 +258,8 @@ class Space:
         self.flr_i_k = flr_i_k
 
         # 表面熱伝達率の計算 式(123) 表16
-        self.hr_i_g_n = hr_i_g_n
-        self.hc_i_g_n = hc_i_g_n
+        self.h_r_bnd_i_jstrs = h_r_bnd_i_jstrs
+        self.h_c_bnd_i_jstrs = h_c_bnd_i_jstrs
 
         # 平均放射温度計算時の各部位表面温度の重み計算 式(101)
         self.F_mrt_i_g = F_mrt_i_g
@@ -277,14 +288,13 @@ class Space:
         # BRLの計算 式(7)
         self.BRL_i = BRL_i
 
-        # i室のn時点における窓開放時通風量
         # 室空気の熱容量
-        self.Hcap = Hcap
+        self.c_room_i = c_room_i
 
         # 家具の熱容量、湿気容量の計算
         # Capfun:家具熱容量[J/K]、Cfun:家具と室空気間の熱コンダクタンス[W/K]
-        self.Capfun = Capfun
-        self.Cfun = Cfun
+        self.c_cap_frnt_i = c_cap_frnt_i
+        self.k_frnt_i = k_frnt_i
 
         ##########################################################################
         ##########################################################################
@@ -299,7 +309,7 @@ class Space:
         self.is_prev_window_open = False  # 前時刻の窓状態（0：閉鎖、1：開放）
         self.now_air_conditioning_mode = np.full(24 * 365 * 4 * 3, 0)  # 当該時刻の空調運転状態（0：なし、正：暖房、負：冷房）
 
-        self.old_is_now_indow_open_i = False
+        self.old_is_now_window_open_i = False
         self.Vel_i_n = np.full(24 * 365 * 4 * 3, 0.1)  # i室のn時点における相対風速[m/s]
         self.Clo_i_n = np.ones(24 * 365 * 4 * 3)  # i室のn時点における着衣量[Clo]
         self.MRT_i_n = np.zeros(24 * 365 * 4 * 3)  # i室のn時点におけるMRV(平均放射温度)
@@ -310,7 +320,9 @@ class Space:
         # 家具の熱容量、湿気容量の計算
 
         # Gf_i:湿気容量[kg/(kg/kg(DA))]、Cx_i:湿気コンダクタンス[kg/(s･kg/kg(DA))]
-        self.Tfun_i_n = np.full(24 * 365 * 4 * 3, a18.get_Tfun_initial())  # i室のn時点における家具の温度
+
+        self.old_theta_frnt_i = a18.get_Tfun_initial()
+
         self.Qfunl_i_n = np.zeros(24 * 365 * 4 * 3)  # i室のn時点における家具の日射吸収熱量
         self.Gf_i = a14.get_Gf(self.v_room_cap_i)  # i室の備品類の湿気容量
         self.Cx_i = a14.get_Cx(self.Gf_i)  # i室の備品類と室空気間の湿気コンダクタンス
@@ -321,4 +333,5 @@ class Space:
         self.Vac_n = np.zeros(24 * 365 * 4 * 3)  # i室のn時点におけるエアコンの風量[m3/s]
 
         self.next_room_idxs_i = next_room_idxs_i
+
 

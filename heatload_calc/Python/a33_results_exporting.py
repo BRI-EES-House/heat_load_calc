@@ -100,7 +100,7 @@ def append_tick_log(spaces: List[Space], log: List[List], To_n: float, n: int, x
         row.append('{0:.1f}'.format(space.Lcs_i_n[n]))
         row.append('{0:.1f}'.format(space.Lrs_i_n[n]))
         row.append('{0:.1f}'.format(space.Lcl_i_n[n]))
-        row.append('{0:.2f}'.format(space.Tfun_i_n[n]))
+        row.append('{0:.2f}'.format(space.logger.theta_frnt_i_ns[n]))
         row.append('{0:.1f}'.format(space.Qfuns_i_n[n]))
         row.append('{0:.1f}'.format(space.q_sol_frnt_i_ns[n]))
         row.append('{0:.5f}'.format(space.xf_i_n[n]))

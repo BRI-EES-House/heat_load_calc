@@ -7,12 +7,12 @@ import a18_initial_value_constants as a18
 
 
 # 表面熱伝達率の計算 式(123) 表16
-def calc_surface_transfer_coefficient(eps_m, FF_m, hi_i_k_n):
+def calc_surface_transfer_coefficient(eps_m, FF_m, h_i_bnd_i_jstrs):
     # 室内側表面放射熱伝達率 式(123)
     hr_i_k_n = get_hr_i_k_n(eps_m, FF_m)
 
     # 室内側表面対流熱伝達率 表(16)より
-    hc_i_k_n = get_hc_i_k_n(hi_i_k_n, hr_i_k_n)
+    hc_i_k_n = get_hc_i_k_n(h_i_bnd_i_jstrs, hr_i_k_n)
 
     return hr_i_k_n, hc_i_k_n
 
