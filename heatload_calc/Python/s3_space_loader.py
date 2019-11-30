@@ -75,6 +75,9 @@ class Logger:
         # ステップnの室iにおけるPMV(Predicted Mean Vote,予測温冷感申告)
         self.pmv_i_ns = np.zeros(24 * 365 * 4 * 3)
 
+        # 当該時刻の窓状態（0：閉鎖、1：開放）
+        self.is_now_window_open_i_n = np.full(24 * 365 * 4 * 3, False)
+
 
 # 空間に関する情報の保持
 class Space:
@@ -295,7 +298,8 @@ class Space:
         self.prev_air_conditioning_mode = 0  # 前時刻の空調運転状態（0：停止、正：暖房、負：冷房）
         self.is_prev_window_open = False  # 前時刻の窓状態（0：閉鎖、1：開放）
         self.now_air_conditioning_mode = np.full(24 * 365 * 4 * 3, 0)  # 当該時刻の空調運転状態（0：なし、正：暖房、負：冷房）
-        self.is_now_window_open_i_n = np.full(24 * 365 * 4 * 3, False)  # 当該時刻の窓状態（0：閉鎖、1：開放）
+
+        self.old_is_now_indow_open_i = False
         self.Vel_i_n = np.full(24 * 365 * 4 * 3, 0.1)  # i室のn時点における相対風速[m/s]
         self.Clo_i_n = np.ones(24 * 365 * 4 * 3)  # i室のn時点における着衣量[Clo]
         self.MRT_i_n = np.zeros(24 * 365 * 4 * 3)  # i室のn時点におけるMRV(平均放射温度)

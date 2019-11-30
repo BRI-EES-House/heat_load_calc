@@ -116,17 +116,11 @@ def run_tick(spaces: List[Space], To_n: float, xo_n: float, n: int):
         # ステップnの室i+1における係数WSV, degree C, [j*]
         wsv_i_npls = a1.get_wsv_i_npls(ivs_x_i=s.ivs_x_i, cvl_i_jstrs_npls=cvl_i_jstrs_npls)
 
-        # 次の時刻に用いる変数の引き渡し
-        s.theta_srf_dsh_a_i_jstrs_n_m = theta_srf_dsh_a_i_jstrs_npls_ms
-        s.theta_srf_dsh_t_i_jstrs_n_m = theta_srf_dsh_t_i_jstrs_npls_ms
+        # ステップnの室iにおける隣室i*からの室間換気の空気温度, degree C, [i*]
+        theta_r_int_vent_i_istrs_n = np.array([theta_r_is_n[x] for x in s.next_room_idxs_i])
 
-        # ロギング
-        s.logger.theta_rear_i_jstrs_ns[:, n] = theta_rear_i_jstrs_n
-        s.logger.q_hum_i_ns[n] = q_hum_i_n
-        s.logger.x_hum_i_ns[n] = x_hum_i_n
-
-        theta_r_vent_up_i_nis_n = np.array([theta_r_is_n[x] for x in s.next_room_idxs_i])
-        x_r_vent_up_i_nis_n = np.array([x_r_is_n[x] for x in s.next_room_idxs_i])
+        # ステップnの室iにおける隣室i*からの室間換気の絶対湿度, kg/kgDA, [i*]
+        x_r_int_vent_i_istrs_n = np.array([x_r_is_n[x] for x in s.next_room_idxs_i])
 
         # 室温・熱負荷計算のための定数項BRCの計算 式(6) ※ただし、通風なし
         BRCnoncv = s41.get_BRC_i(
@@ -146,12 +140,12 @@ def run_tick(spaces: List[Space], To_n: float, xo_n: float, n: int):
             Qsolfun=s.q_sol_frnt_i_ns[n],
             oldTfun=s.Tfun_i_n[n - 1],
             Vnext_i_j=s.v_vent_up_i_nis,
-            Tr_next_i_j_nm1=theta_r_vent_up_i_nis_n
+            Tr_next_i_j_nm1=theta_r_int_vent_i_istrs_n
         )
 
         # 自然室温計算時窓開閉条件の設定
         # 空調需要がなければ窓閉鎖、空調需要がある場合は前時刻の窓開閉状態
-        is_now_window_open = s.is_now_window_open_i_n[n - 1] and s.air_conditioning_demand[n]
+        is_now_window_open = s.old_is_now_indow_open_i and s.air_conditioning_demand[n]
 
         # 仮の窓開閉条件における通風量 NVot の計算
         ca = a18.get_ca()
@@ -187,7 +181,7 @@ def run_tick(spaces: List[Space], To_n: float, xo_n: float, n: int):
         # ********** 窓開閉、空調発停の決定 **********
 
         # 窓の開閉と空調発停の切り替え判定
-        s.is_now_window_open_i_n[n], ac_mode \
+        is_now_indow_open_i, ac_mode \
             = a13.mode_select(s.air_conditioning_demand[n], s.prev_air_conditioning_mode, s.is_prev_window_open,
                               PMV_without_ac)
 
@@ -200,7 +194,7 @@ def run_tick(spaces: List[Space], To_n: float, xo_n: float, n: int):
                    s.pmv_upper_limit_schedule[n]][ac_mode]
 
         # 確定した窓開閉状態における通風量を計算
-        NV = a13.get_NV(s.is_now_window_open_i_n[n], s.v_room_cap_i, s.n_ntrl_vent_i)
+        NV = a13.get_NV(is_now_indow_open_i, s.v_room_cap_i, s.n_ntrl_vent_i)
 
         # メモ: 窓開閉のいずれの条件で計算したBRM,BRCを採用しているだけに見える。
         #       ⇒両方計算して比較するように記述したほうがシンプル
@@ -284,7 +278,7 @@ def run_tick(spaces: List[Space], To_n: float, xo_n: float, n: int):
             Cx=s.Cx_i,
             volume=s.v_room_cap_i,
             Vnext_i_j=s.v_vent_up_i_nis,
-            xr_next_i_j_nm1=x_r_vent_up_i_nis_n,
+            xr_next_i_j_nm1=x_r_int_vent_i_istrs_n,
             xr_i_nm1=s.x_r_i_ns[n - 1],
             xf_i_nm1=s.xf_i_n[n - 1],
             Lin=x_gen_i_n,
@@ -352,11 +346,24 @@ def run_tick(spaces: List[Space], To_n: float, xo_n: float, n: int):
 
         # ********** 窓開閉、空調発停の決定 **********
 
+        # 次の時刻に用いる変数の引き渡し
+        s.theta_srf_dsh_a_i_jstrs_n_m = theta_srf_dsh_a_i_jstrs_npls_ms
+        s.theta_srf_dsh_t_i_jstrs_n_m = theta_srf_dsh_t_i_jstrs_npls_ms
+        s.old_is_now_indow_open_i = is_now_indow_open_i
+
+        # ロギング
+        s.logger.theta_rear_i_jstrs_ns[:, n] = theta_rear_i_jstrs_n
+        s.logger.q_hum_i_ns[n] = q_hum_i_n
+        s.logger.x_hum_i_ns[n] = x_hum_i_n
+        s.logger.is_now_window_open_i_n[n] = is_now_indow_open_i
+
+
         # 当該時刻の空調状態、窓開閉状態を控える
         s.prev_air_conditioning_mode = ac_mode
 
         # 保存(4)
         s.now_air_conditioning_mode[n] = ac_mode
+
 
 
 # MRTの計算
