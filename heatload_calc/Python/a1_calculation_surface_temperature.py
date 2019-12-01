@@ -192,7 +192,7 @@ def calc_qi(hic, area, hir, RSsol, flr, Ts, Tr: float, Fmrt: float, Lr: float, B
     # 前時刻熱流の保持
     oldqi = get_qi(Qt, area)
 
-    return Qc, Qr, Lr, RS, Qt, oldqi
+    return Qc, Qr, oldqi
 
 
 # 室内表面熱流 - 対流成分 [W]

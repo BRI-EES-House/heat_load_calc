@@ -57,6 +57,13 @@ class Logger:
 
     def __init__(self, n_bnd_i_jstrs):
 
+        self.q_sol_frnt_i_ns = None
+
+        self.q_trs_sol_i_ns = None
+
+        # 当該時刻の空調需要
+        self.air_conditioning_demand = None
+
         # ステップnの室iにおける機器発熱, W
         self.heat_generation_appliances_schedule = None
 
@@ -80,6 +87,56 @@ class Logger:
 
         # ステップnの室iにおける家具の温度, degree C
         self.theta_frnt_i_ns = np.full(24 * 365 * 4 * 3, a18.get_Tfun_initial())
+
+        # i室のn時点における室温
+        self.theta_r_i_ns = np.zeros(24 * 365 * 4 * 3)
+
+        # i室のn時点における室の作用温度
+        self.OT_i_n = np.zeros(24 * 365 * 4 * 3)
+
+        self.Qfuns_i_n = np.zeros(24 * 365 * 4 * 3)
+
+        self.Qc = np.zeros((n_bnd_i_jstrs, 24 * 365 * 4 * 4))
+        self.Qr = np.zeros((n_bnd_i_jstrs, 24 * 365 * 4 * 4))
+
+        # ステップnにおける室iの部位j*における室内側表面温度, degree C
+        self.Ts_i_k_n = np.zeros((n_bnd_i_jstrs, 24 * 365 * 4 * 4))
+
+        # i室のn時点におけるMRV(平均放射温度)
+        self.MRT_i_n = np.zeros(24 * 365 * 4 * 3)
+
+        # i室の部位kにおけるn時点の室内等価温度
+        self.Tei_i_k_n = np.zeros((n_bnd_i_jstrs, 24 * 365 * 4 * 4))
+
+        # i室のn時点における放射空調熱負荷
+        self.Lrs_i_n = np.zeros(24 * 365 * 4 * 3)
+
+        # i室のn時点における対流空調熱負荷
+        self.Lcs_i_n = np.zeros(24 * 365 * 4 * 3)
+
+        # i室のn時点における室加湿熱量
+        self.Lcl_i_n = np.zeros(24 * 365 * 4 * 3)
+
+        # i室のn時点における備品類の絶対湿度
+        self.xf_i_n = np.full(24 * 365 * 4 * 3, a18.get_xf_initial())
+
+        # i室のn時点における家具の日射吸収熱量
+        self.Qfunl_i_n = np.zeros(24 * 365 * 4 * 3)
+
+        # i室のn時点における相対風速[m/s]
+        self.Vel_i_n = np.full(24 * 365 * 4 * 3, 0.1)
+
+        # i室のn時点における着衣量[Clo]
+        self.Clo_i_n = np.ones(24 * 365 * 4 * 3)
+
+        # 当該時刻の空調運転状態（0：なし、正：暖房、負：冷房）
+        self.now_air_conditioning_mode = np.full(24 * 365 * 4 * 3, 0)
+
+        # i室のn時点における室絶対湿度
+        self.x_r_i_ns = np.zeros(24 * 365 * 4 * 3)
+
+        # i室のn時点における室相対湿度[%]
+        self.RH_i_n = np.full(24 * 365 * 4 * 3, 50.0)
 
 
 # 空間に関する情報の保持
@@ -175,18 +232,6 @@ class Space:
         # 室iの統合された境界j*の数, [j*]
         self.n_bnd_i_jstrs = n_bnd_i_jstrs
 
-        self.q_trs_sol_i_ns = q_trs_sol_i_ns
-
-        # 計算結果出力用ロガー
-        self.logger = Logger(n_bnd_i_jstrs=n_bnd_i_jstrs)
-        # ステップnの室iにおける機器発熱, W
-        self.logger.heat_generation_appliances_schedule = heat_generation_appliances_schedule
-        # ステップnの室iにおける照明発熱, W
-        self.logger.heat_generation_lighting_schedule = heat_generation_lighting_schedule
-
-        # スケジュール
-
-
         # ステップnの室iにおける在室人数, [8760*4]
         self.n_hum_i_ns = number_of_people_schedule
         self.pmv_upper_limit_schedule = pmv_upper_limit_schedule  # PMV上限値, degree C
@@ -199,27 +244,17 @@ class Space:
 
         self.air_conditioning_demand = air_conditioning_demand  # 当該時刻の空調需要（0：なし、1：あり）
 
-        self.theta_r_i_ns = np.full(24 * 365 * 4 * 3, theta_r_i_initial)  # i室のn時点における室温
-        self.x_r_i_ns = np.full(24 * 365 * 4 * 3, x_r_i_initial)  # i室のn時点における室絶対湿度
-        self.RH_i_n = np.full(24 * 365 * 4 * 3, 50.0)  # i室のn時点における室相対湿度[%]
+        self.theta_r_i_npls = theta_r_i_initial
 
-        self.OT_i_n = np.zeros(24 * 365 * 4 * 3)  # i室のn時点における室の作用温度
+        self.x_r_i_npls = x_r_i_initial
 
-        # ステップnにおける室iの部位j*における室内側表面温度, degree C
-        self.Ts_i_k_n = np.zeros((n_bnd_i_jstrs, 24 * 365 * 4 * 4))
-
-
-        # i室の部位kにおけるn時点の室内等価温度
-        self.Tei_i_k_n = np.zeros((n_bnd_i_jstrs, 24 * 365 * 4 * 4))
+        self.RH_i_npls = 50.0
 
         # （26）式中の〖CVL〗_(i,l)の計算式右辺
         self.theta_srf_dsh_a_i_jstrs_n_m = np.full((n_bnd_i_jstrs, 12), TsdA_initial)
 
         # （26）式中の〖CVL〗_(i,l)の計算式右辺
         self.theta_srf_dsh_t_i_jstrs_n_m = np.full((n_bnd_i_jstrs, 12), TsdT_initial)
-
-        self.Qc = np.zeros((n_bnd_i_jstrs, 24 * 365 * 4 * 4))
-        self.Qr = np.zeros((n_bnd_i_jstrs, 24 * 365 * 4 * 4))
 
         # 前時刻の室内側表面熱流
         self.q_srf_i_jstrs_n = np.zeros(n_bnd_i_jstrs)
@@ -296,42 +331,35 @@ class Space:
         self.c_cap_frnt_i = c_cap_frnt_i
         self.k_frnt_i = k_frnt_i
 
-        ##########################################################################
-        ##########################################################################
-        ##########################################################################
-        ##########################################################################
-        ##########################################################################
-        self.Qfuns_i_n = np.zeros(24 * 365 * 4 * 3)
         self.rsolfun__i = math.nan  # 透過日射の内家具が吸収する割合[－]
         self.kc_i = s41.calc_kc_i()  # i室の人体表面における対流熱伝達率の総合熱伝達率に対する比
         self.kr_i = s41.calc_kr_i()  # i室の人体表面における放射熱伝達率の総合熱伝達率に対する比
-        self.prev_air_conditioning_mode = 0  # 前時刻の空調運転状態（0：停止、正：暖房、負：冷房）
-        self.is_prev_window_open = False  # 前時刻の窓状態（0：閉鎖、1：開放）
-        self.now_air_conditioning_mode = np.full(24 * 365 * 4 * 3, 0)  # 当該時刻の空調運転状態（0：なし、正：暖房、負：冷房）
 
+        # TODO Enum にすること
+        self.prev_air_conditioning_mode = 0  # 前時刻の空調運転状態（0：停止、正：暖房、負：冷房）
+
+        self.is_prev_window_open = False  # 前時刻の窓状態（0：閉鎖、1：開放）
         self.old_is_now_window_open_i = False
-        self.Vel_i_n = np.full(24 * 365 * 4 * 3, 0.1)  # i室のn時点における相対風速[m/s]
-        self.Clo_i_n = np.ones(24 * 365 * 4 * 3)  # i室のn時点における着衣量[Clo]
-        self.MRT_i_n = np.zeros(24 * 365 * 4 * 3)  # i室のn時点におけるMRV(平均放射温度)
-        self.Lcs_i_n = np.zeros(24 * 365 * 4 * 3)  # i室のn時点における対流空調熱負荷
-        self.Lrs_i_n = np.zeros(24 * 365 * 4 * 3)  # i室のn時点における放射空調熱負荷
-        self.Lcl_i_n = np.zeros(24 * 365 * 4 * 3)  # i室のn時点における室加湿熱量
 
         # 家具の熱容量、湿気容量の計算
 
         # Gf_i:湿気容量[kg/(kg/kg(DA))]、Cx_i:湿気コンダクタンス[kg/(s･kg/kg(DA))]
 
         self.old_theta_frnt_i = a18.get_Tfun_initial()
-
-        self.Qfunl_i_n = np.zeros(24 * 365 * 4 * 3)  # i室のn時点における家具の日射吸収熱量
         self.Gf_i = a14.get_Gf(self.v_room_cap_i)  # i室の備品類の湿気容量
         self.Cx_i = a14.get_Cx(self.Gf_i)  # i室の備品類と室空気間の湿気コンダクタンス
-        self.xf_i_n = np.full(24 * 365 * 4 * 3, a18.get_xf_initial())  # i室のn時点における備品類の絶対湿度
-        self.Ghum_i_n = np.zeros(24 * 365 * 4 * 3)
-
-        self.xeout_i_n = np.zeros(24 * 365 * 4 * 3)  # i室のn時点におけるルームエアコン熱交換器出口の絶対湿度
-        self.Vac_n = np.zeros(24 * 365 * 4 * 3)  # i室のn時点におけるエアコンの風量[m3/s]
-
+        self.xf_i_npls = a18.get_xf_initial()
         self.next_room_idxs_i = next_room_idxs_i
 
+        # 計算結果出力用ロガー
+        self.logger = Logger(n_bnd_i_jstrs=n_bnd_i_jstrs)
 
+        self.logger.air_conditioning_demand = air_conditioning_demand
+        # ステップnの室iにおける機器発熱, W
+        self.logger.heat_generation_appliances_schedule = heat_generation_appliances_schedule
+        # ステップnの室iにおける照明発熱, W
+        self.logger.heat_generation_lighting_schedule = heat_generation_lighting_schedule
+
+        self.logger.q_trs_sol_i_ns = q_trs_sol_i_ns
+
+        self.logger.q_sol_frnt_i_ns = q_sol_frnt_i_ns
