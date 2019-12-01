@@ -1,7 +1,8 @@
 import numpy as np
 import apdx3_human_body as a3
 import a18_initial_value_constants as a18
-
+from a39_global_parameters import ACMode
+import a13_Win_ACselect as a13
 
 # ********** 4.1 顕熱 **********
 
@@ -163,54 +164,73 @@ def calc_kc_i():
 
 # TODO: 空調運転モード3,4については未定義
 
-# 作用温度、室除去熱量の計算ルーティン
-def calc_heatload(ac_mode: int, is_radiative_heating: bool, BRCot: float, BRMot: float, BRLot: float,
-                  Lrcap: float, Tset: float) -> (float, float, float):
-    """
 
-    :param ac_mode:
-    :param is_radiative_heating:
-    :param BRCot:
-    :param BRMot:
-    :param BRLot:
-    :param Lrcap:
-    :param Tset:
-    :return: 室温、対流空調熱負荷、放射空調熱負荷を返す
-    """
+def calc_next_step(
+        ac_mode: int, is_radiative_heating: bool, BRCot: float, BRMot: float, BRLot: float, Tset: float, Lrcap_i
+) -> (float, float, float):
 
-    # 非空調時の室温計算
-    if ac_mode == 0:
-        Lrs = 0.0
-        Lcs = 0.0
-        OT = get_OT_without_ac(BRCot, BRMot)
+    # TODO 以下の式の定義を加えないといけない。
+    is_radiative_cooling = False
 
-    # 熱負荷計算（能力無制限）
-    elif ac_mode == 1 or ac_mode == -1 or ac_mode == 4:
-        # 対流式空調の場合
-        if (is_radiative_heating is not True) or (is_radiative_heating and ac_mode < 0):
-            Lrs = 0.0
-            Lcs = BRMot * Tset - BRCot
-        # 放射式空調
+    if ac_mode == ACMode.STOP:
+        return BRCot / BRMot, 0.0, 0.0
+
+    elif ac_mode == ACMode.COOLING:
+
+        if is_radiative_cooling:
+
+            # 仮の冷房負荷を計算
+            Lrs_temp = (BRMot * Tset - BRCot) / BRLot
+
+            # 加熱量がプラス、つまり冷房負荷がマイナスの場合は自然室温計算をする。
+            if Lrs_temp > 0.0:
+                return BRCot / BRMot, 0.0, 0.0
+            else:
+                # TODO ここの最大の冷房処理能力の部分の変数はLrcap_iとなっているが別の変数で定義しないといけない。
+                if Lrs_temp < Lrcap_i:
+                    return Tset, BRMot * Tset - BRCot - Lrcap_i * BRLot, Lrcap_i
+                else:
+                    return Tset, 0.0, Lrs_temp
+
         else:
-            Lcs = 0.0
-            Lrs = (BRMot * Tset - BRCot) / BRLot
-        # 室温の計算
-        OT = (BRCot + Lcs + BRLot * Lrs) / BRMot
+            # 仮の冷房負荷を計算
+            Lcs_temp = BRMot * Tset - BRCot
 
-    # 放射暖房最大能力運転（当面は暖房のみ）
-    elif ac_mode == 3 and Lrcap > 0.0:
-        Lrs = Lrcap
-        # 室温は対流式で維持する
-        Lcs = BRMot * Tset - BRCot - Lrs * BRLot
-        # 室温の計算
-        OT = (BRCot + Lcs + BRLot * Lrs) / BRMot
+            # 加熱量がプラス、つまり冷房負荷がマイナスの場合は自然室温計算をする。
+            if Lcs_temp > 0.0:
+                return BRCot / BRMot, 0.0, 0.0
+            else:
+                return Tset, Lcs_temp, 0.0
+
+    elif ac_mode == ACMode.HEATING:
+
+        if is_radiative_heating:
+
+            # 仮の暖房負荷を計算
+            Lrs_temp = (BRMot * Tset - BRCot) / BRLot
+
+            # 加熱量がマイナス、つまり暖房負荷がマイナスの場合は自然室温計算をする。
+            if Lrs_temp < 0.0:
+                return BRCot / BRMot, 0.0, 0.0
+            else:
+                if Lrs_temp > Lrcap_i:
+                    return Tset, BRMot * Tset - BRCot - Lrcap_i * BRLot, Lrcap_i
+                else:
+                    return Tset, 0.0, Lrs_temp
+
+        else:
+
+            # 仮の暖房負荷を計算
+            Lcs_temp = BRMot * Tset - BRCot
+
+            # 加熱量がマイナス、つまり暖房負荷がマイナスの場合は自然室温計算をする。
+            if Lcs_temp < 0.0:
+                return BRCot / BRMot, 0.0, 0.0
+            else:
+                return Tset, Lcs_temp, 0.0
 
     else:
-        Lrs = 0.0
-        Lcs = 0.0
-        OT = get_OT_without_ac(BRCot, BRMot)
-
-    return (OT, Lcs, Lrs)
+        ValueError()
 
 
 def get_OT_without_ac(BRCot, BRMot):
