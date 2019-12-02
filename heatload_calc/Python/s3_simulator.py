@@ -35,8 +35,11 @@ def run_tick_groundonly(spaces: List[Space], To_n: float, n: int, Tave: float):
                             + np.sum(theta_srf_dsh_a_i_jstrs_npls_ms, axis=1) + Tave)\
             / (1.0 + s.phi_a_0_bnd_i_jstrs[g] * s.h_i_bnd_i_jstrs[g])
 
-        s.q_srf_i_jstrs_n[g] = s.h_i_bnd_i_jstrs[g] * (To_n - Ts_i_k_n)
+        q_srf_i_jstrs_n = s.h_i_bnd_i_jstrs[g] * (To_n - Ts_i_k_n)
 
+        # 次の時刻のために保存する
+
+        s.q_srf_i_jstrs_n[g] = q_srf_i_jstrs_n
         s.theta_srf_dsh_a_i_jstrs_n_m[g, :] = theta_srf_dsh_a_i_jstrs_npls_ms
 
 
