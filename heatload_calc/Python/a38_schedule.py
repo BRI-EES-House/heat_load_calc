@@ -1,7 +1,7 @@
 import numpy as np
 
 
-def get_local_vent_schedules(room):
+def get_local_vent_schedules(room, n_p):
     """局所換気スケジュールを取得する。
 
     Args:
@@ -14,7 +14,7 @@ def get_local_vent_schedules(room):
     return np.repeat(room['schedule']['local_vent_amount'], 4)
 
 
-def get_sensible_heat_generation_of_cooking(room):
+def get_sensible_heat_generation_of_cooking(room, n_p):
     """調理潜熱発熱スケジュールを取得する。
 
     Args:
@@ -27,7 +27,7 @@ def get_sensible_heat_generation_of_cooking(room):
     return np.repeat(room['schedule']['vapor_generation_cooking'], 4)
 
 
-def get_latent_heat_generation_of_cooking(room):
+def get_latent_heat_generation_of_cooking(room, n_p):
     """調理発熱スケジュールを取得する。
 
     Args:
@@ -40,7 +40,7 @@ def get_latent_heat_generation_of_cooking(room):
     return np.repeat(room['schedule']['heat_generation_cooking'], 4)
 
 
-def get_heat_generation_of_appliances(room):
+def get_heat_generation_of_appliances(room, n_p):
     """機器発熱スケジュールを取得する。
 
     Args:
@@ -53,7 +53,7 @@ def get_heat_generation_of_appliances(room):
     return np.repeat(room['schedule']['heat_generation_appliances'], 4)
 
 
-def get_heat_generation_of_lighting(room):
+def get_heat_generation_of_lighting(room, n_p):
     """照明発熱スケジュールを取得する。
 
     Args:
@@ -66,7 +66,7 @@ def get_heat_generation_of_lighting(room):
     return np.repeat(room['schedule']['heat_generation_lighting'], 4)
 
 
-def get_number_of_residents(room):
+def get_number_of_residents(room, n_p):
     """在室人数スケジュールを取得する。
 
     Args:
@@ -79,7 +79,7 @@ def get_number_of_residents(room):
     return np.repeat(room['schedule']['number_of_people'], 4)
 
 
-def get_air_conditioning_schedules(room) -> (np.ndarray, np.ndarray, np.ndarray, np.ndarray):
+def get_air_conditioning_schedules(room, n_p) -> (np.ndarray, np.ndarray, np.ndarray, np.ndarray):
     """空調スケジュールを取得する。
 
     Args:

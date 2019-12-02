@@ -121,13 +121,16 @@ def make_space(room: Dict,
 
     x_r_i_initial = a18.get_xr_initial()
 
+    # TODO 居住人数。これは1～4の値（小数値。整数ではない。）が入る。床面積の合計から推定すること。
+    n_p = 4.0
+
     # スケジュールの読み込み
-    local_vent_amount_schedule = a38.get_local_vent_schedules(room)  # 局所換気
-    heat_generation_appliances_schedule = a38.get_heat_generation_of_appliances(room)
-    heat_generation_cooking_schedule = a38.get_latent_heat_generation_of_cooking(room)
-    vapor_generation_cooking_schedule = a38.get_sensible_heat_generation_of_cooking(room) # 機器発熱
-    heat_generation_lighting_schedule = a38.get_heat_generation_of_lighting(room)  # 照明発熱
-    number_of_people_schedule = a38.get_number_of_residents(room)  # 在室人数
+    local_vent_amount_schedule = a38.get_local_vent_schedules(room, n_p)  # 局所換気
+    heat_generation_appliances_schedule = a38.get_heat_generation_of_appliances(room, n_p)
+    heat_generation_cooking_schedule = a38.get_latent_heat_generation_of_cooking(room, n_p)
+    vapor_generation_cooking_schedule = a38.get_sensible_heat_generation_of_cooking(room, n_p) # 機器発熱
+    heat_generation_lighting_schedule = a38.get_heat_generation_of_lighting(room, n_p)  # 照明発熱
+    number_of_people_schedule = a38.get_number_of_residents(room, n_p)  # 在室人数
 
     # 空調スケジュールの読み込み
     #   設定温度上限値, degree C * 365* 96
@@ -137,7 +140,7 @@ def make_space(room: Dict,
     is_upper_temp_limit_set_schedule, \
         is_lower_temp_limit_set_schedule, \
         pmv_upper_limit_schedule, \
-        pmv_lower_limit_schedule = a38.get_air_conditioning_schedules(room)
+        pmv_lower_limit_schedule = a38.get_air_conditioning_schedules(room, n_p)
 
     # 空調や通風などの需要があるかどうか, bool * 365 * 96
     air_conditioning_demand = is_upper_temp_limit_set_schedule | is_lower_temp_limit_set_schedule
