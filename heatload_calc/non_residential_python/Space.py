@@ -345,6 +345,8 @@ class Space:
             # surface.hir = 5.0
             surface.hic = max(0.0, surface.hi - surface.hir)
             # print(surface.name, surface.hic, surface.hir, surface.hi)
+            # surface.hir = 4.5
+            # surface.hic = surface.hi - surface.hir
         
         # 平均放射温度計算のための各部位の比率計算
         total_area_hir = 0.0
