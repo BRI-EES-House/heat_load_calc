@@ -5,15 +5,14 @@ from line_profiler import LineProfiler
 
 
 def calc_PMV(t_a, t_r_bar, clo_value, v_ar, rh):
-    """calculate PMV
+    """PMVを計算する。
 
     Args:
-        t_a: the air temperature, degree C
-        t_r_bar: the mean radiant temperature, degree C
-        rh: the relative humidity, %
-        v_ar: the relative air velocity, m/s
-        p_eff: the effective mechanical power, met
-        clo_value: the clothing insulation, clo
+        t_a: 乾球温度, degree C
+        t_r_bar: 放射温度, degree C
+        rh: 相対湿度, %
+        v_ar: 相対気流速度, m/s
+        clo_value: 着衣量, clo
 
     Returns:
         PMV
@@ -23,48 +22,48 @@ def calc_PMV(t_a, t_r_bar, clo_value, v_ar, rh):
         機械的仕事量は 0.0 W/m2 としたため、ISO中の'W'は省略してある。
     """
 
-    # the water vapour partial pressure, Pa
+    # 水蒸気分圧, Pa
     p_a = get_p_a(rh, t_a)
 
-    # the clothing insulation, m2K/W
+    # 着衣抵抗, m2K/W
     i_cl = convert_clo_to_m2kw(clo_value)
 
     # 代謝量（人体内部発熱量）, W/m2
-    mw = get_met()
+    m = get_met()
 
-    # the clothing surface area factor
+    # 着衣面積率
     f_cl = get_f_cl(i_cl)
 
-    t_cl = newton(lambda t: get_t_cl(f_cl, i_cl, mw, t_a, t, v_ar, t_r_bar) - t, 0.001)
+    t_cl = newton(lambda t: get_t_cl(f_cl, i_cl, m, t_a, t, v_ar, t_r_bar) - t, 0.001)
 
     h_c = max(12.1 * math.sqrt(v_ar), 2.38 * abs(t_cl - t_a) ** 0.25)
 
-    pmv = get_pmv(f_cl, h_c, mw, p_a, t_a, t_cl, t_r_bar)
+    pmv = get_pmv(f_cl, h_c, m, p_a, t_a, t_cl, t_r_bar)
 
     return pmv
 
 
-def get_t_cl(f_cl, i_cl, mw, t_a, t_cl, v_ar, t_r_bar):
+def get_t_cl(f_cl, i_cl, m, t_a, t_cl, v_ar, t_r_bar):
 
     h_c = max(12.1 * math.sqrt(v_ar), 2.38 * abs(t_cl - t_a) ** 0.25)
 
-    return 35.7 - 0.028 * mw - i_cl * (
-                3.96 * 10 ** (-8) * f_cl * ((t_cl + 273.0) ** 4.0 - (t_r_bar + 273.0) ** 4.0)
-                + f_cl * h_c * (t_cl - t_a)
-    )
+    return 35.7 - 0.028 * m \
+        - i_cl * (
+            3.96 * 10 ** (-8) * f_cl * ((t_cl + 273.0) ** 4.0 - (t_r_bar + 273.0) ** 4.0) + f_cl * h_c * (t_cl - t_a)
+        )
 
 
 def get_pmv(f_cl, h_c, m, p_a, t_a, t_cl, t_r_bar):
     """
 
     Args:
-        f_cl: the clothing insulation, m2K/W
-        h_c: the convective heat transfer coefficient, W/m2K
-        m: the metabolic rate, W/m2
-        p_a: the water vapour partial pressure, Pa
-        t_a: the air temperature, degree C
-        t_cl: the clothing surface temperature, degree C
-        t_r_bar: the mean radiant temperature, degree C
+        f_cl: 着衣面積率
+        h_c: 対流熱伝達率, W/m2K
+        m: 活動量, W/m2
+        p_a: 水蒸気分圧, Pa
+        t_a: 乾球温度, degree C
+        t_cl: 着衣温度, degree C
+        t_r_bar: 放射温度, degree C
 
     Returns:
         PMV
@@ -74,20 +73,20 @@ def get_pmv(f_cl, h_c, m, p_a, t_a, t_cl, t_r_bar):
     """
 
     return (0.303 * math.exp(-0.036 * m) + 0.028) * (
-            m
-            - 3.05 * 10 ** (-3) * (5733.0 - 6.99 * m - p_a)
-            - max(0.42 * (m - 58.15), 0.0)
-            - 1.7 * 10 ** (-5) * m * (5867.0 - p_a)
-            - 0.0014 * m * (34.0 - t_a)
-            - 3.96 * 10 ** (-8) * f_cl * ((t_cl + 273) ** 4.0 - (t_r_bar + 273.0) ** 4.0)
-            - f_cl * h_c * (t_cl - t_a))
+            m  # 活動量, W/m2
+            - 3.05 * 10 ** (-3) * (5733.0 - 6.99 * m - p_a)  # 皮膚からの潜熱損失, W/m2
+            - max(0.42 * (m - 58.15), 0.0)  # 発汗熱損失, W/m2
+            - 1.7 * 10 ** (-5) * m * (5867.0 - p_a)  # 呼吸に伴う潜熱損失, W/m2
+            - 0.0014 * m * (34.0 - t_a)  # 呼吸に伴う顕熱損失, W/m2 ( = 呼吸量, (g/s)/m2 ✕ (34.0 - 室温)
+            - 3.96 * 10 ** (-8) * f_cl * ((t_cl + 273) ** 4.0 - (t_r_bar + 273.0) ** 4.0)  # 着衣からの放射熱損失
+            - f_cl * h_c * (t_cl - t_a))  # 着衣からの対流熱損失
 
 
 def get_p_a(rh: float, t_a: float) -> float:
     """
 
     Args:
-        rh: relative humidity, %
+        rh: 相対湿度, %
         t_a: the air temperature, degree C
 
     Returns:
@@ -107,7 +106,11 @@ def convert_clo_to_m2kw(clo):
 
     Returns:
         value, m2K/W
+
+    Notes:
+        1 clo = 0.155 m2K/W
     """
+
     return clo * 0.155
 
 
@@ -116,22 +119,24 @@ def get_met():
 
     Returns:
         代謝量, W/m2
+
+    Notes:
+        代謝量は1.0 met に固定とする。
+        1.0 met は、ISOにおける、Resting - Seated, quiet に相当
+        1 met = 58.15 W/m2
     """
 
-    # 代謝量は1.0 met に固定とする。
-    met = 1.0
-
-    return met * 58.15
+    return 58.15
 
 
 def get_f_cl(i_cl: float) -> float:
-    """calculate clothing surface area factor
+    """着衣面積率を計算する。
 
     Args:
-        i_cl: the clothing insulation, m2K/W
+        i_cl: 着衣抵抗, m2K/W
 
     Returns:
-        the clothing surface area factor
+        着衣面積率
 
     Notes:
         equation (4)
