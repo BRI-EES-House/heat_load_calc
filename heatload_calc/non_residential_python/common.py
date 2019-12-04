@@ -14,6 +14,7 @@ P = 101.325
 
 #室の家具の顕熱容量[kJ/m3 K]
 funiture_sensible_capacity = 12.6
+#funiture_sensible_capacity = 0.1
 #室の家具の潜熱容量[kg/(m3 kg/kg(DA))]
 funiture_latent_capacity = 16.8
 
