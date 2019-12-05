@@ -298,8 +298,8 @@ def get_a_sun_ns(omega_ns: np.ndarray, phi_loc: float, delta_ns: np.ndarray, h_s
     # 加えて、
     # sin_a_s_ns が正 かつ cos_a_s_ns が正 の場合は第1象限（0～π/2）
     # sin_a_s_ns が正 かつ cos_a_s_ns が負 の場合は第2象限（π/2～π）
-    # sin_a_s_ns が正 かつ cos_a_s_ns が正 の場合は第3象限（-π～-π/2）
-    # sin_a_s_ns が正 かつ cos_a_s_ns が正 の場合は第4象限（-π/2～0）
+    # sin_a_s_ns が負 かつ cos_a_s_ns が負 の場合は第3象限（-π～-π/2）
+    # sin_a_s_ns が負 かつ cos_a_s_ns が正 の場合は第4象限（-π/2～0）
     # である旨の注釈をつけておいてください。
     a_sun_ns[f] = np.arctan2(sin_a_sun_ns[f], cos_a_sun_ns[f])
 
