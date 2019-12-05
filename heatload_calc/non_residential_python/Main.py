@@ -9,7 +9,7 @@ from Sunbrk import SunbrkType
 from Space import create_spaces
 
 # 熱負荷計算の実行
-def calc_Hload(cdata, weather):
+def calc_Hload(cdata, weather, spaces):
     """
     :param cdata: シミュレーション全体の設定条件
     :param weather: 気象データ
@@ -196,17 +196,19 @@ def calc_Hload(cdata, weather):
 
     # 年間負荷の出力
     for space in spaces.values():
-        print(space.name, space.AnnualLoadcCs, space.AnnualLoadcHs, space.AnnualLoadcCl, space.AnnualLoadcHl)
+        return [space.name, space.AnnualLoadcCs, space.AnnualLoadcHs, space.AnnualLoadcCl, space.AnnualLoadcHl]
 
-if __name__ == '__main__':
+
+# 実行
+def execute(case_name):
     # js = open('1RCase1_最初の外壁削除.json', 'r', encoding='utf-8')
     # js = open('1RCase1.json', 'r', encoding='utf-8')
     # js = open('input_non_residential.json', 'r', encoding='utf-8')
     
-    print(os.getcwd())
+    # print(os.getcwd())
 
     # js = open('test.json', 'r', encoding='utf-8')
-    js = open('test_6_001事務所等事務室_01.json', 'r', encoding='utf-8')   
+    js = open('make_json/json/' + case_name + '.json', 'r', encoding='utf-8')
     # js = open('input_residential.json', 'r', encoding='utf-8')
     # js = open('検証用.json', 'r', encoding='utf-8')
     d = json.load(js)
@@ -224,10 +226,15 @@ if __name__ == '__main__':
     spaces = create_spaces(cdata, d['rooms'])
 
     # 気象データの読み込み
-    weather = Weather(cdata.Latitude, cdata.Longitude, cdata.StMeridian)
+    weather = Weather(cdata.wdfile, cdata.Latitude, cdata.Longitude, cdata.StMeridian)
 
     # スケジュールの初期化
     # schedule = Schedule()
 
     # 熱負荷計算の実行
-    calc_Hload(cdata, weather)
+    return calc_Hload(cdata, weather, spaces)
+
+
+if __name__ == '__main__':
+
+    execute('case_name')

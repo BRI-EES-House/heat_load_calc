@@ -122707,7 +122707,7 @@
 						]
 					},
 					"solar_shading_part": {
-						"existance": false
+						"existence": false
 					}
 				},
 				{
@@ -122727,7 +122727,7 @@
 						"incident_angle_characteristics": "1"
 					},
 					"solar_shading_part": {
-						"existance": false
+						"existence": false
 					}
 				},
 				{
@@ -122794,7 +122794,7 @@
 						]
 					},
 					"solar_shading_part": {
-						"existance": false
+						"existence": false
 					}
 				},
 				{
@@ -122814,7 +122814,7 @@
 						"incident_angle_characteristics": "1"
 					},
 					"solar_shading_part": {
-						"existance": false
+						"existence": false
 					}
 				}
 			]
