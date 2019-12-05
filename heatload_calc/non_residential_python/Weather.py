@@ -19,7 +19,7 @@ class enmWeatherComponent(IntEnum):
 class Weather:
 
     # 気象データの取得
-    def __init__(self, Lat, Lon, Ls):
+    def __init__(self, wdfile, Lat, Lon, Ls):
         # print('Weather initialize')
 
         # 太陽位置計算クラスの作成
@@ -29,7 +29,7 @@ class Weather:
         self.__AnnualTave = 0.0
 
         # 気象データの読み込み　→　dblWdata
-        with open('weatherdata.csv', encoding='utf-8') as f:
+        with open(wdfile, encoding='utf-8') as f:
             reader = csv.reader(f)
             _ = next(reader)
             _ = next(reader)

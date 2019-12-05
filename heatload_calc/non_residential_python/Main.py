@@ -226,7 +226,7 @@ def execute(case_name):
     spaces = create_spaces(cdata, d['rooms'])
 
     # 気象データの読み込み
-    weather = Weather(cdata.Latitude, cdata.Longitude, cdata.StMeridian)
+    weather = Weather(cdata.wdfile, cdata.Latitude, cdata.Longitude, cdata.StMeridian)
 
     # スケジュールの初期化
     # schedule = Schedule()
