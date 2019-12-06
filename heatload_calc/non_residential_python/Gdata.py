@@ -65,7 +65,7 @@ class Gdata:
         # 緯度、経度
         self.Latitude, self.Longitude = self.__calcLat_Lon(self.Region)
         # 気象データの設定
-        self.wdfile = set_wdfile(self.Region)
+        self.wdfile = self.set_wdfile(self.Region)
         # 標準子午線
         self.StMeridian = 135.0
 
@@ -74,31 +74,31 @@ class Gdata:
         return (self.StDate <= dtmDate)
 
     # 気象データファイルの設定
-    def set_wdfile(Region: int):
-        if Region = 1:
+    def set_wdfile(self, Region: int):
+        if Region == 1:
             # 1地域（北見）
-            wfile = 'weather_data\1_Kitami.csv'
-        elif Region = 2:
+            wfile = 'weather_data\\1_Kitami.csv'
+        elif Region == 2:
             # 2地域（岩見沢）
-            wfile = 'weather_data\2_Iwamizawa.csv'
-        elif Region = 3:
+            wfile = 'weather_data\\2_Iwamizawa.csv'
+        elif Region == 3:
             # 3地域（盛岡）
-            wfile = 'weather_data\3_Morioka.csv'
-        elif Region = 4:
+            wfile = 'weather_data\\3_Morioka.csv'
+        elif Region == 4:
             # 4地域（長野）
-            wfile = 'weather_data\4_Nagano.csv'
-        elif Region = 5:
+            wfile = 'weather_data\\4_Nagano.csv'
+        elif Region == 5:
             # 5地域（宇都宮）
-            wfile = 'weather_data\5_Utsunomiya.csv'
-        elif Region = 6:
+            wfile = 'weather_data\\5_Utsunomiya.csv'
+        elif Region == 6:
             # 6地域（岡山）
-            wfile = 'weather_data\6_Okayama.csv'
-        elif Region = 7:
+            wfile = 'weather_data\\6_Okayama.csv'
+        elif Region == 7:
             # 7地域（宮崎）
-            wfile = 'weather_data\7_Miyazaki.csv'
-        elif Region = ８:
+            wfile = 'weather_data\\7_Miyazaki.csv'
+        elif Region == 8:
             # 8地域（那覇）
-            wfile = 'weather_data\8_Naha.csv'
+            wfile = 'weather_data\\8_Naha.csv'
 
         return wfile
 
