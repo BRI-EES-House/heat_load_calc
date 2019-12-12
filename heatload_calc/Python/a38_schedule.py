@@ -1,5 +1,5 @@
 import numpy as np
-
+import json
 
 def get_local_vent_schedules(room, n_p):
     """局所換気スケジュールを取得する。
@@ -10,7 +10,10 @@ def get_local_vent_schedules(room, n_p):
     Returns:
         局所換気スケジュール
     """
-
+    js = open('schedules.json', 'r', encoding='utf-8')
+    d_json = json.load(js)
+    calendar = d_json['calendar']
+    daily_schedule = d_json['daily_schedule']
     return np.repeat(room['schedule']['local_vent_amount'], 4)
 
 
