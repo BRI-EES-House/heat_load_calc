@@ -298,31 +298,33 @@ class Space:
 
         # 面積比の計算
         # 面積比の最大値も同時に計算（ニュートン法の初期値計算用）
-        max_a = 0.0
-        for surface in self.input_surfaces:
-            surface.a = surface.area / self.__Atotal
-            max_a = max(max_a, surface.a)
-        
-        # 室のパラメータの計算（ニュートン法）
         # 初期値を設定
-        fbd = max_a * 4.0 + 1.e-4
+        m = 1.0e-5  # 式(99)
+        n = 100.0
+        m_n = (m + n) / 2.0
+        
         # 収束判定
         isConverge = False
         for i in range(50):
-            L = -1.0
-            Ld = 0.0
-            for surface in self.input_surfaces:
-                temp = math.sqrt(1.0 - 4.0 * surface.a / fbd)
-                L += 0.5 * (1.0 - temp)
-                Ld += surface.a / ((fbd ** 2.0) * temp)
-                # print(surface.name, 'a=', surface.a, 'L=', 0.5 * (1.0 - math.sqrt(temp)), 'Ld=', -0.25 * (1.0 + 4.0 * surface.a / fbd ** (2.0)) / temp)
-            fb = fbd + L / Ld
-            # print(i, 'fb=', fb, 'fbd=', fbd)
+            L_m = -1.0  # 式(96)の一部
+            L_n = -1.0
+            L_m_n = -1.0
+            for _a in a:
+                L_m += get_L(_a, m)  # 式(96)の一部
+                L_n += get_L(_a, n)
+                L_m_n += get_L(_a, m_n)
+            # print(i, 'm=', m, 'L_m=', L_m, 'n=', n, 'L_n=', L_n, 'm_n=', m_n, 'L_m_n=', L_m_n)
             # 収束判定
-            if abs(fb - fbd) < 1.e-4:
+            if abs(L_m_n) < 1.e-4:  # 式(100)
                 isConverge = True
                 break
-            fbd = fb
+
+            if np.sign(L_m_n) == np.sign(L_m):
+                m = m_n
+            else:
+                n = m_n
+            m_n = (m + n) / 2.0
+        fb = m_n
         
         # 収束しないときには警告を表示
         if not isConverge:
