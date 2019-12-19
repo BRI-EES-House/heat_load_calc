@@ -207,7 +207,7 @@ def execute(case_name):
     
     # print(os.getcwd())
 
-    # js = open('test.json', 'r', encoding='utf-8')
+    # js = open('input_room4.json', 'r', encoding='utf-8')
     js = open('make_json/json/' + case_name + '.json', 'r', encoding='utf-8')
     # js = open('input_residential.json', 'r', encoding='utf-8')
     # js = open('検証用.json', 'r', encoding='utf-8')

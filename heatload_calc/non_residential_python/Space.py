@@ -295,6 +295,9 @@ class Space:
         # 最大風量[m3/min]、最小風量[m3/min]の計算
         self.__Vmax = 11.076 * (self.__qrtd_c / 1000.0) ** 0.3432
         self.__Vmin = self.__Vmax * 0.55
+        
+        for surface in self.input_surfaces:
+            surface.a = surface.area / self.__Atotal
 
         # 面積比の計算
         # 面積比の最大値も同時に計算（ニュートン法の初期値計算用）
@@ -309,10 +312,10 @@ class Space:
             L_m = -1.0  # 式(96)の一部
             L_n = -1.0
             L_m_n = -1.0
-            for _a in a:
-                L_m += get_L(_a, m)  # 式(96)の一部
-                L_n += get_L(_a, n)
-                L_m_n += get_L(_a, m_n)
+            for surface in self.input_surfaces:
+                L_m += self.get_L(surface.a, m)  # 式(96)の一部
+                L_n += self.get_L(surface.a, n)
+                L_m_n += self.get_L(surface.a, m_n)
             # print(i, 'm=', m, 'L_m=', L_m, 'n=', n, 'L_n=', L_n, 'm_n=', m_n, 'L_m_n=', L_m_n)
             # 収束判定
             if abs(L_m_n) < 1.e-4:  # 式(100)
@@ -334,7 +337,7 @@ class Space:
         # 総和のチェック
         TotalFF = 0.0
         for surface in self.input_surfaces:
-            FF = 0.5 * (1.0 - math.sqrt(1.0 - 4.0 * surface.a / fb))
+            FF = 0.5 * (1.0 - np.sign(1.0 - 4.0 * surface.a / fb) * np.sqrt(abs(1.0 - 4.0 * surface.a / fb)))
             TotalFF += FF
             # print(self.name, surface.name, FF)
             surface.setFF(FF)
@@ -455,6 +458,9 @@ class Space:
     @property
     def oldxr(self):
         return self.__oldxr
+    
+    def get_L(self, a: float, fbd: float) -> float:
+        return 0.5 * (1.0 - np.sign(1.0 - 4.0 * a / fbd) * math.sqrt(abs(1.0 - 4.0 * a / fbd)))
 
     # 室温、熱負荷の計算
     def calcHload(self, Gdata, spaces, dtmNow, defSolpos, Weather):
