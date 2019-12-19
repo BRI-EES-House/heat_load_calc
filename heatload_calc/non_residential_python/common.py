@@ -13,10 +13,15 @@ Sgm = 5.67e-8
 P = 101.325
 
 #室の家具の顕熱容量[kJ/m3 K]
-funiture_sensible_capacity = 12.6
-#funiture_sensible_capacity = 0.1
+#funiture_sensible_capacity = 12.6
+funiture_sensible_capacity = 40/2.6
+#funiture_sensible_capacity = 80/2.6
+#funiture_sensible_capacity = 0.1/2.6
 #室の家具の潜熱容量[kg/(m3 kg/kg(DA))]
-funiture_latent_capacity = 16.8
+#funiture_latent_capacity = 16.8
+funiture_latent_capacity = 80*(10**6)/conra/2.6
+#funiture_latent_capacity = 160*(10**6)/conra/2.6
+#funiture_latent_capacity = 0.1*(10**6)/conra/2.6
 
 #ルームエアコンのバイパスファクター
 bypass_factor_rac = 0.2
