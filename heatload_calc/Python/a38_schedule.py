@@ -1,6 +1,7 @@
 import numpy as np
 import json
-import math
+from typing import Dict
+
 
 def get_local_vent_schedules(room, n_p):
     """局所換気スケジュールを取得する。
@@ -15,32 +16,61 @@ def get_local_vent_schedules(room, n_p):
     d_json = json.load(js)
     calendar = d_json['calendar']
     daily_schedule = d_json['daily_schedule']['local_vent_amount']
-    # 世帯人数切り上げ、切り下げ
-    ceil_np, floor_np = get_ceil_floor_np(n_p)
+
     local_vent_schedules = np.array([])
     for day in calendar:
-        local_vent_schedules = np.append(local_vent_schedules, interpolate_np(n_p, ceil_np, floor_np, daily_schedule[day][room['name']]))
+        local_vent_schedules = np.append(local_vent_schedules, interpolate_np(n_p, daily_schedule[day][room['name']]))
     return local_vent_schedules
 
-# 世帯人数から切り上げ、切り下げた人数を返す
-def get_ceil_floor_np(n_p: float):# 世帯人数切り上げ、切り下げ
-    if n_p >= 0.0 and n_p < 2.0:
+
+def get_ceil_floor_np(n_p: float) -> (int, int):
+    """世帯人数から切り上げ・切り下げた人数を整数値で返す
+
+    Args:
+        n_p: 世帯人数
+
+    Returns:
+        タプル：
+            切り上げた世帯人数
+            切り下げた世帯人数
+    """
+
+    if 1.0 <= n_p < 2.0:
         ceil_np = 2
         floor_np = 1
-    elif n_p >= 2.0 and n_p < 3.0:
+    elif 2.0 <= n_p < 3.0:
         ceil_np = 3
         floor_np = 2
-    elif n_p >= 3.0:
+    elif 3.0 <= n_p <= 4.0:
         ceil_np = 4
         floor_np = 3
-    return (ceil_np, floor_np)
+    else:
+        raise ValueError('The number of people is out of range.')
 
-# 世帯人数で線形補間してリストを返す
-def interpolate_np(n_p: float, ceil_np: int, floor_np: int, daily_schedule: dict):
+    return ceil_np, floor_np
+
+
+def interpolate_np(n_p: float, daily_schedule: Dict) -> np.ndarray:
+    """世帯人数で線形補間してリストを返す
+
+    Args:
+        n_p: 世帯人数
+        daily_schedule: スケジュール
+            Keyは必ず'1', '2', '3', '4'
+            Valueは96個のリスト形式の値
+    Returns:
+        線形補間したリスト, [96]
+    """
+
+    ceil_np, floor_np = get_ceil_floor_np(n_p)
+
     ceil_schedule = np.array(daily_schedule[str(ceil_np)])
     floor_schedule = np.array(daily_schedule[str(floor_np)])
+
     interpolate_np_schedule = ceil_schedule * (n_p - float(floor_np)) + floor_schedule * (float(ceil_np) - n_p)
+
     return interpolate_np_schedule
+
 
 def get_sensible_heat_generation_of_cooking(room, n_p):
     """調理潜熱発熱スケジュールを取得する。
@@ -60,7 +90,7 @@ def get_sensible_heat_generation_of_cooking(room, n_p):
     ceil_np, floor_np = get_ceil_floor_np(n_p)
     for day in calendar:
         sensible_heat_generation_of_cooking = np.append(sensible_heat_generation_of_cooking, \
-            interpolate_np(n_p, ceil_np, floor_np, daily_schedule[day][room['name']]))
+            interpolate_np(n_p, daily_schedule[day][room['name']]))
     return sensible_heat_generation_of_cooking
 
 
@@ -82,7 +112,7 @@ def get_latent_heat_generation_of_cooking(room, n_p):
     ceil_np, floor_np = get_ceil_floor_np(n_p)
     for day in calendar:
         latent_heat_generation_of_cooking = np.append(latent_heat_generation_of_cooking, \
-            interpolate_np(n_p, ceil_np, floor_np, daily_schedule[day][room['name']]))
+            interpolate_np(n_p, daily_schedule[day][room['name']]))
     return latent_heat_generation_of_cooking
 
 
@@ -105,7 +135,7 @@ def get_heat_generation_of_appliances(room, n_p):
     ceil_np, floor_np = get_ceil_floor_np(n_p)
     for day in calendar:
         heat_generation_of_appliances = np.append(heat_generation_of_appliances, \
-            interpolate_np(n_p, ceil_np, floor_np, daily_schedule[day][room['name']]))
+            interpolate_np(n_p, daily_schedule[day][room['name']]))
     return heat_generation_of_appliances
 
 
@@ -128,7 +158,7 @@ def get_heat_generation_of_lighting(room, n_p):
     for day in calendar:
         # 照明発熱は[W/m2]
         heat_generation_of_lighting = np.append(heat_generation_of_lighting, \
-            interpolate_np(n_p, ceil_np, floor_np, daily_schedule[day][room['name']]))
+            interpolate_np(n_p, daily_schedule[day][room['name']]))
     # 床面積を乗じる
     # TODO 床面積を乗じるのを忘れないように
     return heat_generation_of_lighting * 1.0
@@ -151,7 +181,7 @@ def get_number_of_residents(room, n_p):
     # 世帯人数切り上げ、切り下げ
     ceil_np, floor_np = get_ceil_floor_np(n_p)
     for day in calendar:
-        number_of_residents = np.append(number_of_residents, interpolate_np(n_p, ceil_np, floor_np, daily_schedule[day][room['name']]))
+        number_of_residents = np.append(number_of_residents, interpolate_np(n_p, daily_schedule[day][room['name']]))
     return number_of_residents
 
 
