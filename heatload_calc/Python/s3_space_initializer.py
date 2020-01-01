@@ -1,6 +1,7 @@
 import math
 import numpy as np
 from typing import Dict
+import json
 
 import a12_indoor_radiative_heat_transfer as a12
 import a13_Win_ACselect as a13
@@ -125,12 +126,27 @@ def make_space(room: Dict,
     n_p = 4.0
 
     # スケジュールの読み込み
-    local_vent_amount_schedule = a38.get_local_vent_schedules(room, n_p)  # 局所換気
-    heat_generation_appliances_schedule = a38.get_heat_generation_of_appliances(room, n_p)
-    heat_generation_cooking_schedule = a38.get_latent_heat_generation_of_cooking(room, n_p)
-    vapor_generation_cooking_schedule = a38.get_sensible_heat_generation_of_cooking(room, n_p) # 機器発熱
-    heat_generation_lighting_schedule = a38.get_heat_generation_of_lighting(room, n_p)  # 照明発熱
-    number_of_people_schedule = a38.get_number_of_residents(room, n_p)  # 在室人数
+    js = open('schedules.json', 'r', encoding='utf-8')
+    d_json = json.load(js)
+    calendar = np.array(d_json['calendar'])
+
+    # 局所換気
+    local_vent_amount_schedule = a38.get_schedule(
+        room_name=name_i, n_p=n_p, calendar=calendar, daily_schedule=d_json['daily_schedule']['local_vent_amount'])
+    heat_generation_appliances_schedule = a38.get_schedule(
+        room_name=name_i, n_p=n_p, calendar=calendar, daily_schedule=d_json['daily_schedule']['heat_generation_appliances'])
+    heat_generation_cooking_schedule = a38.get_schedule(
+        room_name=name_i, n_p=n_p, calendar=calendar, daily_schedule=d_json['daily_schedule']['vapor_generation_cooking'])
+    # 機器発熱
+    vapor_generation_cooking_schedule = a38.get_schedule(
+        room_name=name_i, n_p=n_p, calendar=calendar, daily_schedule=d_json['daily_schedule']['heat_generation_cooking'])
+    # 照明発熱
+    # TODO 床面積を乗じるのを忘れないように
+    heat_generation_lighting_schedule = a38.get_schedule(
+        room_name=name_i, n_p=n_p, calendar=calendar, daily_schedule=d_json['daily_schedule']['heat_generation_lighting'])
+    # 在室人数
+    number_of_people_schedule = a38.get_schedule(
+        room_name=name_i, n_p=n_p, calendar=calendar, daily_schedule=d_json['daily_schedule']['number_of_people'])
 
     # 空調スケジュールの読み込み
     #   設定温度上限値, degree C * 365* 96
