@@ -171,28 +171,3 @@ def get_I_cl(OT: float) -> float:
 
     return clothing
 
-
-if __name__ == '__main__':
-
-    pmv1 = calc_PMV(t_a=22.0, t_r_bar=22.0, clo_value=0.5, v_ar=0.1, rh=60.0)
-    print(pmv1)
-
-    pmv2 = calc_PMV(t_a=27.0, t_r_bar=27.0, clo_value=0.5, v_ar=0.1, rh=60.0)
-    print(pmv2)
-
-    pmv3 = calc_PMV(t_a=23.5, t_r_bar=25.5, clo_value=0.5, v_ar=0.1, rh=60.0)
-    print(pmv3)
-
-    pmv4 = calc_PMV(t_a=19.0, t_r_bar=19.0, clo_value=1.0, v_ar=0.1, rh=40.0)
-    print(pmv4)
-
-    pmv5 = calc_PMV(t_a=27.0, t_r_bar=27.0, clo_value=0.5, v_ar=0.3, rh=60.0)
-    print(pmv5)
-
-    def test():
-        return calc_PMV(t_a=22.0, t_r_bar=22.0, clo_value=0.5, v_ar=0.1, rh=60.0)
-
-    prf = LineProfiler()
-    prf.add_function(calc_PMV)
-    prf.runcall(test)
-    prf.print_stats()
