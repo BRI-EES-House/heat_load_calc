@@ -34,7 +34,7 @@ def calc_PMV(t_a, t_r_bar, clo_value, v_ar, rh):
     # 着衣面積率
     f_cl = get_f_cl(i_cl)
 
-    t_cl = get_t_cl(i_cl, t_a, v_ar, t_r_bar)
+    t_cl = get_t_cl(clo_value, t_a, v_ar, t_r_bar)
 
     h_c = get_h_c(t_a, t_cl, v_ar)
 
@@ -43,7 +43,10 @@ def calc_PMV(t_a, t_r_bar, clo_value, v_ar, rh):
     return pmv
 
 
-def get_t_cl(i_cl, t_a, v_ar, t_r_bar):
+def get_t_cl(clo, t_a, v_ar, t_r_bar):
+
+    # 着衣抵抗, m2K/W
+    i_cl = convert_clo_to_m2kw(clo)
 
     # 着衣面積率
     f_cl = get_f_cl(i_cl)

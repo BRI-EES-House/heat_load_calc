@@ -306,6 +306,7 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int):
         s.x_r_i_npls = x_r_i_ns
         s.mrt_i_n = mrt_i_n_pls
         s.v_hum_i_n = v_hum_i_n
+        s.clo_i_n = Clo_i_n
 
         # ロギング
         s.logger.theta_r_i_ns[n] = theta_r_i_npls
