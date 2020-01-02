@@ -290,6 +290,7 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int):
         xf_i_n = s42.get_xf(s.Gf_i, s.xf_i_npls, s.Cx_i, x_r_i_ns)
         Qfunl_i_n = s42.get_Qfunl(s.Cx_i, x_r_i_ns, xf_i_n)
         pmv_i_n = a35.calc_PMV(t_a=theta_r_i_npls, t_r_bar=mrt_i_n_pls, clo_value=Clo_i_n, v_ar=v_hum_i_n, rh=RH_i_n)
+        t_cl_i_n_pls = a35.get_t_cl(clo=Clo_i_n, t_a=theta_r_i_npls, v_ar=v_hum_i_n, t_r_bar=mrt_i_n_pls)
 
         # ********** 窓開閉、空調発停の決定 **********
 
@@ -307,6 +308,7 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int):
         s.mrt_i_n = mrt_i_n_pls
         s.v_hum_i_n = v_hum_i_n
         s.clo_i_n = Clo_i_n
+        s.t_cl_i_n = t_cl_i_n_pls
 
         # ロギング
         s.logger.theta_r_i_ns[n] = theta_r_i_npls
