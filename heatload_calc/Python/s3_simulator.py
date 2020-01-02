@@ -193,7 +193,7 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int):
         # ********** 空調設定温度の計算 **********
 
         # 前時刻の相対湿度を用い、PMV目標値を満たすような目標作用温度を求める
-        OTset, Clo_i_n, Vel_i_n = a28.calc_OTset(ac_mode, s.is_radiative_heating, s.RH_i_npls, PMV_set)
+        OTset, Clo_i_n, v_hum_i_n = a28.calc_OTset(ac_mode, s.is_radiative_heating, s.RH_i_npls, PMV_set)
 
         ot_i_n, lcs_i_n, lrs_i_n = s41.calc_next_step(
             ac_mode, s.is_radiative_heating, BRCot, BRMot, BRLot, OTset, s.Lrcap_i)
@@ -289,7 +289,7 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int):
         # 備品類の絶対湿度の計算
         xf_i_n = s42.get_xf(s.Gf_i, s.xf_i_npls, s.Cx_i, x_r_i_ns)
         Qfunl_i_n = s42.get_Qfunl(s.Cx_i, x_r_i_ns, xf_i_n)
-        pmv_i_n = a35.calc_PMV(t_a=theta_r_i_npls, t_r_bar=mrt_i_n_pls, clo_value=Clo_i_n, v_ar=Vel_i_n, rh=RH_i_n)
+        pmv_i_n = a35.calc_PMV(t_a=theta_r_i_npls, t_r_bar=mrt_i_n_pls, clo_value=Clo_i_n, v_ar=v_hum_i_n, rh=RH_i_n)
 
         # ********** 窓開閉、空調発停の決定 **********
 
@@ -305,6 +305,7 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int):
         s.RH_i_npls = RH_i_n
         s.x_r_i_npls = x_r_i_ns
         s.mrt_i_n = mrt_i_n_pls
+        s.v_hum_i_n = v_hum_i_n
 
         # ロギング
         s.logger.theta_r_i_ns[n] = theta_r_i_npls
@@ -329,7 +330,7 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int):
         s.logger.xf_i_n[n] = xf_i_n
         s.logger.Qfunl_i_n[n] = Qfunl_i_n
         s.logger.pmv_i_ns[n] = pmv_i_n
-        s.logger.Vel_i_n[n] = Vel_i_n
+        s.logger.Vel_i_n[n] = v_hum_i_n
         s.logger.Clo_i_n[n] = Clo_i_n
         s.logger.now_air_conditioning_mode[n] = ac_mode
         s.logger.RH_i_n[n] = RH_i_n
