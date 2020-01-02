@@ -245,6 +245,7 @@ class Space:
         self.air_conditioning_demand = air_conditioning_demand  # 当該時刻の空調需要（0：なし、1：あり）
 
         self.theta_r_i_npls = theta_r_i_initial
+        self.mrt_i_n = theta_r_i_initial
 
         self.x_r_i_npls = x_r_i_initial
 

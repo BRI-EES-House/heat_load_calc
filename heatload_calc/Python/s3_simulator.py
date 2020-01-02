@@ -301,6 +301,7 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int):
         s.prev_air_conditioning_mode = ac_mode
         s.RH_i_npls = RH_i_n
         s.x_r_i_npls = x_r_i_ns
+        s.mrt_i_n = MRT_i_n
 
         # ロギング
         s.logger.theta_r_i_ns[n] = theta_r_i_npls
