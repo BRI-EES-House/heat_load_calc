@@ -34,7 +34,7 @@ def calc_PMV(t_a, t_r_bar, clo_value, v_ar, rh):
     # 着衣面積率
     f_cl = get_f_cl(i_cl)
 
-    t_cl = newton(lambda t: get_t_cl(f_cl, i_cl, m, t_a, t, v_ar, t_r_bar) - t, 0.001)
+    t_cl = get_t_cl(i_cl, t_a, v_ar, t_r_bar)
 
     h_c = get_h_c(t_a, t_cl, v_ar)
 
@@ -43,14 +43,26 @@ def calc_PMV(t_a, t_r_bar, clo_value, v_ar, rh):
     return pmv
 
 
-def get_t_cl(f_cl, i_cl, m, t_a, t_cl, v_ar, t_r_bar):
+def get_t_cl(i_cl, t_a, v_ar, t_r_bar):
 
-    h_c = get_h_c(t_a, t_cl, v_ar)
+    # 着衣面積率
+    f_cl = get_f_cl(i_cl)
 
-    return 35.7 - 0.028 * m \
-        - i_cl * (
-            3.96 * 10 ** (-8) * f_cl * ((t_cl + 273.0) ** 4.0 - (t_r_bar + 273.0) ** 4.0) + f_cl * h_c * (t_cl - t_a)
-        )
+    # 代謝量（人体内部発熱量）, W/m2
+    m = get_met()
+
+    def f(t):
+
+        h_c = get_h_c(t_a, t, v_ar)
+
+        return 35.7 - 0.028 * m \
+            - i_cl * (
+                3.96 * 10 ** (-8) * f_cl * ((t + 273.0) ** 4.0 - (t_r_bar + 273.0) ** 4.0) + f_cl * h_c * (t - t_a)
+            )
+
+    t_cl = newton(lambda t: f(t) - t, 0.001)
+
+    return t_cl
 
 
 def get_h_c(t_a, t_cl, v_ar):

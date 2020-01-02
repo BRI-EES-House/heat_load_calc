@@ -246,6 +246,7 @@ class Space:
 
         self.theta_r_i_npls = theta_r_i_initial
         self.mrt_i_n = theta_r_i_initial
+        self.v_hum_i_n = 0.0
 
         self.x_r_i_npls = x_r_i_initial
 
