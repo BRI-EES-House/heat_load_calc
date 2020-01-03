@@ -54,8 +54,20 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int):
 
     for i, s in enumerate(spaces):
 
+        theta_srf_dsh_a_i_jstrs_n_m = s.theta_srf_dsh_a_i_jstrs_n_m
+        theta_srf_dsh_t_i_jstrs_n_m = s.theta_srf_dsh_t_i_jstrs_n_m
+        old_is_now_window_open_i = s.old_is_now_window_open_i
+        old_theta_frnt_i = s.old_theta_frnt_i
+        q_srf_i_jstrs_n = s.q_srf_i_jstrs_n
+        xf_i_npls = s.xf_i_npls
+        prev_air_conditioning_mode = s.prev_air_conditioning_mode
+        RH_i_npls = s.RH_i_npls
+        x_r_i_npls = s.x_r_i_npls
         # ステップnの室iにおける平均放射温度, degree C
         mrt_i_n = s.mrt_i_n
+        v_hum_i_n = s.v_hum_i_n
+        clo_i_n = s.clo_i_n
+        t_cl_i_n = s.t_cl_i_n
 
         # ステップnの室iにおける室温, degree C
         theta_r_i_n = theta_r_is_n[i]
@@ -90,13 +102,13 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int):
 
         # ステップn+1の室iの統合された境界j*における項別公比法の項mの吸熱応答に関する表面温度, degree C, [jstrs, 12]
         theta_srf_dsh_a_i_jstrs_npls_ms = a1.get_theta_srf_dsh_a_i_jstrs_npls_ms(
-            q_srf_i_jstrs_n=s.q_srf_i_jstrs_n, phi_a_1_bnd_i_jstrs_ms=s.phi_a_1_bnd_i_jstrs_ms,
-            r_bnd_i_jstrs_ms=s.r_bnd_i_jstrs_ms, theta_srf_dsh_a_i_jstrs_n_ms=s.theta_srf_dsh_a_i_jstrs_n_m)
+            q_srf_i_jstrs_n=q_srf_i_jstrs_n, phi_a_1_bnd_i_jstrs_ms=s.phi_a_1_bnd_i_jstrs_ms,
+            r_bnd_i_jstrs_ms=s.r_bnd_i_jstrs_ms, theta_srf_dsh_a_i_jstrs_n_ms=theta_srf_dsh_a_i_jstrs_n_m)
 
         # ステップn+1の室iの統合された境界j*における項別公比法の項mの貫流応答に関する表面温度, degree C, [jstrs, 12]
         theta_srf_dsh_t_i_jstrs_npls_ms = a1.get_theta_srf_dsh_t_i_jstrs_npls_ms(
             theta_rear_i_jstrs_n=theta_rear_i_jstrs_n, phi_t_1_bnd_i_jstrs_ms=s.phi_t_1_bnd_i_jstrs_ms,
-            r_bnd_i_jstrs_ms=s.r_bnd_i_jstrs_ms, theta_srf_dsh_t_i_jstrs_n_m=s.theta_srf_dsh_t_i_jstrs_n_m)
+            r_bnd_i_jstrs_ms=s.r_bnd_i_jstrs_ms, theta_srf_dsh_t_i_jstrs_n_m=theta_srf_dsh_t_i_jstrs_n_m)
 
         # ステップn+1の室iの統合された境界j*における係数CVL, degree C, [j*]
         cvl_i_jstrs_npls = a1.get_cvl_i_jstrs_npls(
@@ -130,14 +142,14 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int):
             v_mec_vent_i_n=s.v_mec_vent_i_ns[n], v_reak_i_n=v_reak_i_n, v_int_vent_i_istrs=s.v_int_vent_i_istrs,
             v_ntrl_vent_i=s.v_ntrl_vent_i, theta_o_n=theta_o_n, theta_r_int_vent_i_istrs_n=theta_r_int_vent_i_istrs_n,
             q_gen_i_n=q_gen_i_n, c_cap_frnt_i=s.c_cap_frnt_i, k_frnt_i=s.k_frnt_i, q_sol_frnt_i_n=s.q_sol_frnt_i_ns[n],
-            theta_frnt_i_n=s.old_theta_frnt_i)
+            theta_frnt_i_n=old_theta_frnt_i)
 
         brm_non_ntrv_i_n = s.BRMnoncv_i[n]
         brm_ntrv_i_n = brm_non_ntrv_i_n + a18.get_c_air() * a18.get_rho_air() * s.v_ntrl_vent_i
 
         # 自然室温計算時窓開閉条件の設定
         # 空調需要がなければ窓閉鎖、空調需要がある場合は前時刻の窓開閉状態
-        is_now_window_open_i_n = s.old_is_now_window_open_i and s.air_conditioning_demand[n]
+        is_now_window_open_i_n = old_is_now_window_open_i and s.air_conditioning_demand[n]
 
         brc_i_n = brc_ntrv_i_n if is_now_window_open_i_n else brc_non_ntrv_i_n
         brm_i_n = brm_ntrv_i_n if is_now_window_open_i_n else brm_non_ntrv_i_n
@@ -172,7 +184,7 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int):
 
         # 窓の開閉と空調発停の切り替え判定
         is_now_window_open_i_n, ac_mode = a13.mode_select(
-            s.air_conditioning_demand[n], s.prev_air_conditioning_mode, s.is_prev_window_open, PMV_without_ac)
+            s.air_conditioning_demand[n], prev_air_conditioning_mode, s.is_prev_window_open, PMV_without_ac)
 
         # 目標PMVの計算（冷房時は上限、暖房時は下限PMVを目標値とする）
         # 空調モード: -1=冷房, 0=停止, 1=暖房, 2=, 3=    ==>  [停止, 暖房, 暖房(1), 暖房(2), 冷房]
@@ -204,7 +216,7 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int):
         theta_r_i_npls = s41.get_Tr_i_n(ot_i_n, lrs_i_n, Xot, XLr, XC)
 
         # 家具の温度 Tfun を計算 式(15)
-        theta_frnt_i_n = s41.get_Tfun_i_n(s.c_cap_frnt_i, s.old_theta_frnt_i, s.k_frnt_i, theta_r_i_npls, s.q_sol_frnt_i_ns[n])
+        theta_frnt_i_n = s41.get_Tfun_i_n(s.c_cap_frnt_i, old_theta_frnt_i, s.k_frnt_i, theta_r_i_npls, s.q_sol_frnt_i_ns[n])
 
         # 表面温度の計算 式(23)
         Ts_i_k_n = a1.get_surface_temperature(s.WSR_i_k, s.WSB_i_k, wsc_i_jstrs_npls, wsv_i_jstrs_npls, theta_r_i_npls, lrs_i_n)
@@ -237,8 +249,8 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int):
             volume=s.v_room_cap_i,
             v_int_vent_i_istrs=s.v_int_vent_i_istrs,
             xr_next_i_j_nm1=x_r_int_vent_i_istrs_n,
-            xr_i_nm1=s.x_r_i_npls,
-            xf_i_nm1=s.xf_i_npls,
+            xr_i_nm1=x_r_i_npls,
+            xf_i_nm1=xf_i_npls,
             Lin=x_gen_i_n,
             xo=xo_n,
             v_mec_vent_i_n=s.v_mec_vent_i_ns[n]
@@ -287,14 +299,14 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int):
         # ********** 備品類の絶対湿度 xf の計算 **********
 
         # 備品類の絶対湿度の計算
-        xf_i_n = s42.get_xf(s.Gf_i, s.xf_i_npls, s.Cx_i, x_r_i_ns)
+        xf_i_n = s42.get_xf(s.Gf_i, xf_i_npls, s.Cx_i, x_r_i_ns)
         Qfunl_i_n = s42.get_Qfunl(s.Cx_i, x_r_i_ns, xf_i_n)
         pmv_i_n = a35.calc_PMV(t_a=theta_r_i_npls, t_r_bar=mrt_i_n_pls, clo_value=Clo_i_n, v_ar=v_hum_i_n, rh=RH_i_n)
         t_cl_i_n_pls = a35.get_t_cl(clo=Clo_i_n, t_a=theta_r_i_npls, v_ar=v_hum_i_n, t_r_bar=mrt_i_n_pls)
 
         # ********** 窓開閉、空調発停の決定 **********
 
-        # 次の時刻に用いる変数の引き渡し
+        # 前の時刻からの値
         s.theta_srf_dsh_a_i_jstrs_n_m = theta_srf_dsh_a_i_jstrs_npls_ms
         s.theta_srf_dsh_t_i_jstrs_n_m = theta_srf_dsh_t_i_jstrs_npls_ms
         s.old_is_now_window_open_i = is_now_window_open_i_n
@@ -303,12 +315,12 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int):
         s.q_srf_i_jstrs_n = q_srf_i_jstrs_n
         s.xf_i_npls = xf_i_n
         s.prev_air_conditioning_mode = ac_mode
-        s.RH_i_npls = RH_i_n
         s.x_r_i_npls = x_r_i_ns
         s.mrt_i_n = mrt_i_n_pls
         s.v_hum_i_n = v_hum_i_n
         s.clo_i_n = Clo_i_n
         s.t_cl_i_n = t_cl_i_n_pls
+        s.RH_i_npls = RH_i_npls
 
         # ロギング
         s.logger.theta_r_i_ns[n] = theta_r_i_npls
