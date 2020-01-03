@@ -25,9 +25,7 @@ def calc_PMV(t_a, t_r_bar, clo, v_ar, rh, h_c_i_n):
 
     t_cl = get_t_cl_i_n(clo, t_a, v_ar, t_r_bar, h_c_i_n)
 
-    h_c = get_h_c(t_a, t_cl, v_ar)
-
-    pmv = get_pmv(h_c, t_a, t_cl, t_r_bar, clo, rh)
+    pmv = get_pmv(h_c_i_n, t_a, t_cl, t_r_bar, clo, rh)
 
     return pmv
 
@@ -45,11 +43,9 @@ def get_t_cl_i_n(clo, t_a, v_ar, t_r_bar, h_c_i_n):
 
     def f(t):
 
-        h_c = get_h_c(t_a, t, v_ar)
-
         return 35.7 - 0.028 * m \
             - i_cl * (
-                3.96 * 10 ** (-8) * f_cl * ((t + 273.0) ** 4.0 - (t_r_bar + 273.0) ** 4.0) + f_cl * h_c * (t - t_a)
+                3.96 * 10 ** (-8) * f_cl * ((t + 273.0) ** 4.0 - (t_r_bar + 273.0) ** 4.0) + f_cl * h_c_i_n * (t - t_a)
             )
 
     t_cl = newton(lambda t: f(t) - t, 0.001)
