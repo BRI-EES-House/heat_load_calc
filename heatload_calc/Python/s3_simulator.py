@@ -191,7 +191,7 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int):
         # ********** 空調設定温度の計算 **********
 
         # 前時刻の相対湿度を用い、PMV目標値を満たすような目標作用温度を求める
-        OTset, Clo_i_n, v_hum_i_n = a28.calc_OTset(ac_mode, s.is_radiative_heating, rh_i_n, PMV_set, h_c_i_n)
+        OTset, Clo_i_n, v_hum_i_n = a28.calc_OTset(ac_mode, s.is_radiative_heating, rh_i_n, PMV_set, h_c_i_n, t_cl_i_n)
 
         ot_i_n, lcs_i_n, lrs_i_n = s41.calc_next_step(
             ac_mode, s.is_radiative_heating, BRCot, BRMot, BRLot, OTset, s.Lrcap_i)

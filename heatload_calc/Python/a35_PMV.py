@@ -4,7 +4,7 @@ from scipy.optimize import newton
 from line_profiler import LineProfiler
 
 
-def calc_PMV(t_a, t_r_bar, clo, v_ar, rh, h_c_i_n):
+def calc_PMV(t_a, t_r_bar, clo, v_ar, rh, h_c_i_n, t_cl_i_n):
     """PMVを計算する。
 
     Args:
@@ -23,9 +23,10 @@ def calc_PMV(t_a, t_r_bar, clo, v_ar, rh, h_c_i_n):
         機械的仕事量は 0.0 W/m2 としたため、ISO中の'W'は省略してある。
     """
 
-    t_cl = get_t_cl_i_n(clo, t_a, t_r_bar, h_c_i_n)
+#    t_cl = get_t_cl_i_n(clo, t_a, t_r_bar, h_c_i_n)
 
-    pmv = get_pmv(h_c_i_n, t_a, t_cl, t_r_bar, clo, rh)
+#    pmv = get_pmv(h_c_i_n, t_a, t_cl, t_r_bar, clo, rh)
+    pmv = get_pmv(h_c_i_n, t_a, t_cl_i_n, t_r_bar, clo, rh)
 
     return pmv
 
@@ -58,22 +59,22 @@ def get_h_c(t_a, t_cl, v_ar):
 
 
 def get_pmv(h_c, t_a, t_cl, t_r_bar, clo_value, rh):
-    """
+    """PMVを計算する
 
     Args:
-        f_cl: 着衣面積率
         h_c: 対流熱伝達率, W/m2K
-        m: 活動量, W/m2
-        p_a: 水蒸気分圧, Pa
         t_a: 乾球温度, degree C
         t_cl: 着衣温度, degree C
         t_r_bar: 放射温度, degree C
+        clo_value: Clo値
+        ｒｈ: 相対湿度, %
 
     Returns:
-        PMV
+        PMV: PMV
 
     Notes:
-        equation (1)
+        ISOで定める計算方法ではなく、前の時刻に求めた人体周りの熱伝達率、着衣温度を使用して収束計算が生じないようにしている。
+
     """
 
     # 水蒸気分圧, Pa
