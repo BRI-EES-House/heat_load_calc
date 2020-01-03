@@ -190,7 +190,7 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int):
         # ********** 空調設定温度の計算 **********
 
         # 前時刻の相対湿度を用い、PMV目標値を満たすような目標作用温度を求める
-        OTset, Clo_i_n, v_hum_i_n = a28.calc_OTset(ac_mode, s.is_radiative_heating, rh_i_n, PMV_set, h_c_i_n, theta_cl_i_n)
+        OTset, clo_i_n, v_hum_i_n = a28.calc_OTset(ac_mode, s.is_radiative_heating, rh_i_n, PMV_set, h_c_i_n, theta_cl_i_n)
 
         ot_i_n, lcs_i_n, lrs_i_n = s41.calc_next_step(
             ac_mode, s.is_radiative_heating, BRCot, BRMot, BRLot, OTset, s.Lrcap_i)
@@ -207,7 +207,7 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int):
         Ts_i_k_n = a1.get_surface_temperature(s.WSR_i_k, s.WSB_i_k, wsc_i_jstrs_npls, wsv_i_jstrs_npls, theta_r_i_npls, lrs_i_n)
 
         # MRT_i_n、AST、平均放射温度の計算
-        mrt_i_n_pls = get_MRT(s.Fot_i_g, Ts_i_k_n)
+        theta_mrt_i_n_pls = get_MRT(s.Fot_i_g, Ts_i_k_n)
 
         # 室内表面熱流の計算 式(28)
         Qc, Qr, q_srf_i_jstrs_n = a1.calc_qi(
@@ -287,7 +287,8 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int):
         xf_i_n = s42.get_xf(s.Gf_i, xf_i_npls, s.Cx_i, x_r_i_ns)
         Qfunl_i_n = s42.get_Qfunl(s.Cx_i, x_r_i_ns, xf_i_n)
 
-        t_cl_i_n_pls = a35.get_t_cl_i_n(clo_i_n=Clo_i_n, t_a=theta_r_i_npls, t_r_bar=mrt_i_n_pls, h_c_i_n=h_c_i_n, t_cl_i_n=theta_cl_i_n, h_r_i_n=h_r_i_n)
+        t_cl_i_n_pls = a35.get_t_cl_i_n(
+            clo_i_n=clo_i_n, theta_r_i_npls=theta_r_i_npls, theta_mrt_i_n_pls=theta_mrt_i_n_pls, h_c_i_n=h_c_i_n, h_r_i_n=h_r_i_n, ot_i_n=ot_i_n)
 
         # ********** 窓開閉、空調発停の決定 **********
 
@@ -301,9 +302,9 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int):
         s.xf_i_npls = xf_i_n
         s.prev_air_conditioning_mode = ac_mode
         s.x_r_i_npls = x_r_i_ns
-        s.mrt_i_n = mrt_i_n_pls
+        s.mrt_i_n = theta_mrt_i_n_pls
         s.v_hum_i_n = v_hum_i_n
-        s.clo_i_n = Clo_i_n
+        s.clo_i_n = clo_i_n
         s.t_cl_i_n = t_cl_i_n_pls
         s.rh_i_n = rh_i_n_pls
 
@@ -319,7 +320,7 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int):
         s.logger.Qc[:, n] = Qc
         s.logger.Qr[:, n] = Qr
         s.logger.Ts_i_k_n[:, n] = Ts_i_k_n
-        s.logger.MRT_i_n[n] = mrt_i_n_pls
+        s.logger.MRT_i_n[n] = theta_mrt_i_n_pls
         # 室内側等価温度の計算 式(29)
         s.logger.Tei_i_k_n[:, n] = a1.calc_Tei(
             s.h_c_bnd_i_jstrs, s.h_i_bnd_i_jstrs, s.h_r_bnd_i_jstrs, s.q_sol_srf_i_jstrs_ns[:, n], s.flr_i_k,
@@ -331,7 +332,7 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int):
         s.logger.Qfunl_i_n[n] = Qfunl_i_n
         s.logger.pmv_i_ns[n] = pmv_i_n
         s.logger.Vel_i_n[n] = v_hum_i_n
-        s.logger.Clo_i_n[n] = Clo_i_n
+        s.logger.Clo_i_n[n] = clo_i_n
         s.logger.now_air_conditioning_mode[n] = ac_mode
         s.logger.RH_i_n[n] = rh_i_n_pls
         s.logger.x_r_i_ns[n] = x_r_i_ns
