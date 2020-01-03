@@ -342,8 +342,8 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int):
 
 
 # MRTの計算
-def get_MRT(fot, Ts):
-    return np.sum(fot * Ts)
+def get_MRT(fot, Ts) -> float:
+    return float(np.sum(fot * Ts))
 
 
 # ASTの計算
