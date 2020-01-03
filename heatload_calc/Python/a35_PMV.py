@@ -67,7 +67,7 @@ def get_h_c_i_n(theta_r_i_n: float, t_cl_i_n: float, v_hum_i_n: float) -> float:
     return max(12.1 * math.sqrt(v_hum_i_n), 2.38 * abs(t_cl_i_n - theta_r_i_n) ** 0.25)
 
 
-def get_pmv(h_c, t_a, t_cl, t_r_bar, clo_value, rh):
+def get_pmv(h_c, t_a, t_cl, t_r_bar, clo_value, rh, h_r):
     """PMVを計算する
 
     Args:
@@ -104,7 +104,7 @@ def get_pmv(h_c, t_a, t_cl, t_r_bar, clo_value, rh):
             - max(0.42 * (m - 58.15), 0.0)  # 発汗熱損失, W/m2
             - 1.7 * 10 ** (-5) * m * (5867.0 - p_a)  # 呼吸に伴う潜熱損失, W/m2
             - 0.0014 * m * (34.0 - t_a)  # 呼吸に伴う顕熱損失, W/m2 ( = 呼吸量, (g/s)/m2 ✕ (34.0 - 室温)
-            - 3.96 * 10 ** (-8) * f_cl * ((t_cl + 273) ** 4.0 - (t_r_bar + 273.0) ** 4.0)  # 着衣からの放射熱損失
+            - h_r * f_cl * (t_cl - t_r_bar)  # 着衣からの放射熱損失
             - f_cl * h_c * (t_cl - t_a))  # 着衣からの対流熱損失
 
 
