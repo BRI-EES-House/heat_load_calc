@@ -51,11 +51,13 @@ def get_h_r_i_n(theta_cl_i_n: float, theta_mrt_i_n: float) -> float:
         ステップnの室iにおける人体周りの放射熱伝達率, W/m2K
     """
 
-    return 3.96 * 10 ** (-8) * ((theta_cl_i_n + 273.0) ** 3.0
-                                + (theta_cl_i_n + 273.0) ** 2.0 * (theta_mrt_i_n + 273.0)
-                                + (theta_cl_i_n + 273.0) * (theta_mrt_i_n + 273.0) ** 2.0
-                                + (theta_mrt_i_n + 273.0)
-                                )
+    # ステップnの室iにおける着衣温度, K
+    t_cl_i_n = theta_cl_i_n + 273.0
+
+    # ステップnの室iにおける平均放射温度, K
+    t_mrt_i_n = theta_mrt_i_n + 273.0
+
+    return 3.96 * 10 ** (-8) * (t_cl_i_n ** 3.0 + t_cl_i_n ** 2.0 * t_mrt_i_n + t_cl_i_n * t_mrt_i_n ** 2.0 + t_mrt_i_n)
 
 
 def get_h_c_i_n(theta_r_i_n: float, t_cl_i_n: float, v_hum_i_n: float) -> float:
