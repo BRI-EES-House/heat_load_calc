@@ -61,7 +61,7 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int):
         q_srf_i_jstrs_n = s.q_srf_i_jstrs_n
         xf_i_npls = s.xf_i_npls
         prev_air_conditioning_mode = s.prev_air_conditioning_mode
-        RH_i_npls = s.RH_i_npls
+        rh_i_n = s.rh_i_n
         x_r_i_npls = s.x_r_i_npls
         # ステップnの室iにおける平均放射温度, degree C
         mrt_i_n = s.mrt_i_n
@@ -74,6 +74,24 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int):
 
         # ステップnの室iにおける人体周りの対流熱伝達率, W/m2K
         h_c_i_n = a35.get_h_c(t_a=theta_r_i_n, t_cl=t_cl_i_n, v_ar=v_hum_i_n)
+
+        pmv_i_n = a35.get_pmv(h_c=h_c_i_n, t_a=theta_r_i_n, t_cl=t_cl_i_n, t_r_bar=mrt_i_n, clo_value=clo_i_n, rh=rh_i_n)
+
+        # 窓の開閉と空調発停の切り替え判定
+        is_now_window_open_i_n, ac_mode = a13.mode_select(
+            s.air_conditioning_demand[n], prev_air_conditioning_mode, s.is_prev_window_open, pmv_i_n)
+
+        # 自然室温計算時窓開閉条件の設定
+        # 空調需要がなければ窓閉鎖、空調需要がある場合は前時刻の窓開閉状態
+        is_now_window_open_i_n = old_is_now_window_open_i and s.air_conditioning_demand[n]
+
+        # 目標PMVの計算（冷房時は上限、暖房時は下限PMVを目標値とする）
+        # 空調モード: -1=冷房, 0=停止, 1=暖房, 2=, 3=    ==>  [停止, 暖房, 暖房(1), 暖房(2), 冷房]
+        PMV_set = [None,
+                   s.pmv_lower_limit_schedule[n],
+                   s.pmv_lower_limit_schedule[n],
+                   s.pmv_lower_limit_schedule[n],
+                   s.pmv_upper_limit_schedule[n]][ac_mode]
 
         # ステップnの室iの集約された境界j*における裏面温度, degree C, [j*]
         theta_rear_i_jstrs_n = a9.get_theta_rear_i_jstrs_n(
@@ -150,10 +168,6 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int):
         brm_non_ntrv_i_n = s.BRMnoncv_i[n]
         brm_ntrv_i_n = brm_non_ntrv_i_n + a18.get_c_air() * a18.get_rho_air() * s.v_ntrl_vent_i
 
-        # 自然室温計算時窓開閉条件の設定
-        # 空調需要がなければ窓閉鎖、空調需要がある場合は前時刻の窓開閉状態
-        is_now_window_open_i_n = old_is_now_window_open_i and s.air_conditioning_demand[n]
-
         brc_i_n = brc_ntrv_i_n if is_now_window_open_i_n else brc_non_ntrv_i_n
         brm_i_n = brm_ntrv_i_n if is_now_window_open_i_n else brm_non_ntrv_i_n
 
@@ -164,38 +178,7 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int):
             WSR_i_k=s.WSR_i_k, WSB_i_k=s.WSB_i_k, WSC_i_k=wsc_i_jstrs_npls, WSV_i_k=wsv_i_jstrs_npls, fot=s.Fot_i_g, kc_i=s.kc_i,
             kr_i=s.kr_i)
 
-        # 自然作用温度の計算
-        OT_without_ac = s41.get_OT_without_ac(BRCot_without_ac, BRMot_without_ac)
-
-        ##### ここが仮計算！！！！！！！！！！！！！（１回目）
-        # 自然室温を計算 式(14)
-        Tr_without_ac = s41.get_Tr_i_n(OT_without_ac, 0.0, Xot_without_ac, XLr_without_ac, XC_without_ac)
-
-        # 自然MRTを計算 TODO:仕様書内の場所不明
-        MRT_without_ac = (OT_without_ac - s.kc_i * Tr_without_ac) / s.kr_i
-
-        # 着衣量 式(128)
-        I_cl = a35.get_I_cl(OT_without_ac)
-
-        # 自然PMVを計算する
-        Vel_without_ac = 0.0 if not is_now_window_open_i_n else 0.1
-        PMV_without_ac = a35.calc_PMV(
-            t_a=Tr_without_ac, t_r_bar=MRT_without_ac, clo=I_cl,
-            v_ar=Vel_without_ac, rh=RH_i_npls, h_c_i_n=h_c_i_n)
-
         # ********** 窓開閉、空調発停の決定 **********
-
-        # 窓の開閉と空調発停の切り替え判定
-        is_now_window_open_i_n, ac_mode = a13.mode_select(
-            s.air_conditioning_demand[n], prev_air_conditioning_mode, s.is_prev_window_open, PMV_without_ac)
-
-        # 目標PMVの計算（冷房時は上限、暖房時は下限PMVを目標値とする）
-        # 空調モード: -1=冷房, 0=停止, 1=暖房, 2=, 3=    ==>  [停止, 暖房, 暖房(1), 暖房(2), 冷房]
-        PMV_set = [None,
-                   s.pmv_lower_limit_schedule[n],
-                   s.pmv_lower_limit_schedule[n],
-                   s.pmv_lower_limit_schedule[n],
-                   s.pmv_upper_limit_schedule[n]][ac_mode]
 
         # 最終計算のための係数整備
         brc_i_n = brc_ntrv_i_n if is_now_window_open_i_n else brc_non_ntrv_i_n
@@ -208,7 +191,7 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int):
         # ********** 空調設定温度の計算 **********
 
         # 前時刻の相対湿度を用い、PMV目標値を満たすような目標作用温度を求める
-        OTset, Clo_i_n, v_hum_i_n = a28.calc_OTset(ac_mode, s.is_radiative_heating, RH_i_npls, PMV_set, h_c_i_n)
+        OTset, Clo_i_n, v_hum_i_n = a28.calc_OTset(ac_mode, s.is_radiative_heating, rh_i_n, PMV_set, h_c_i_n)
 
         ot_i_n, lcs_i_n, lrs_i_n = s41.calc_next_step(
             ac_mode, s.is_radiative_heating, BRCot, BRMot, BRLot, OTset, s.Lrcap_i)
@@ -297,14 +280,14 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int):
         Lrl_i_n = get_Lrl()
 
         # 室相対湿度の計算 式(22)
-        RH_i_n = rhtx(theta_r_i_npls, x_r_i_ns)
+        rh_i_n_pls = rhtx(theta_r_i_npls, x_r_i_ns)
 
         # ********** 備品類の絶対湿度 xf の計算 **********
 
         # 備品類の絶対湿度の計算
         xf_i_n = s42.get_xf(s.Gf_i, xf_i_npls, s.Cx_i, x_r_i_ns)
         Qfunl_i_n = s42.get_Qfunl(s.Cx_i, x_r_i_ns, xf_i_n)
-        pmv_i_n = a35.calc_PMV(t_a=theta_r_i_npls, t_r_bar=mrt_i_n_pls, clo=Clo_i_n, v_ar=v_hum_i_n, rh=RH_i_n, h_c_i_n=h_c_i_n)
+
         t_cl_i_n_pls = a35.get_t_cl_i_n(clo=Clo_i_n, t_a=theta_r_i_npls, v_ar=v_hum_i_n, t_r_bar=mrt_i_n_pls, h_c_i_n=h_c_i_n)
 
         # ********** 窓開閉、空調発停の決定 **********
@@ -323,7 +306,7 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int):
         s.v_hum_i_n = v_hum_i_n
         s.clo_i_n = Clo_i_n
         s.t_cl_i_n = t_cl_i_n_pls
-        s.RH_i_npls = RH_i_npls
+        s.rh_i_n = rh_i_n_pls
 
         # ロギング
         s.logger.theta_r_i_ns[n] = theta_r_i_npls
@@ -351,7 +334,7 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int):
         s.logger.Vel_i_n[n] = v_hum_i_n
         s.logger.Clo_i_n[n] = Clo_i_n
         s.logger.now_air_conditioning_mode[n] = ac_mode
-        s.logger.RH_i_n[n] = RH_i_n
+        s.logger.RH_i_n[n] = rh_i_n_pls
         s.logger.x_r_i_ns[n] = x_r_i_ns
 
 

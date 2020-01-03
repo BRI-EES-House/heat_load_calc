@@ -252,7 +252,7 @@ class Space:
 
         self.x_r_i_npls = x_r_i_initial
 
-        self.RH_i_npls = 50.0
+        self.rh_i_n = 50.0
 
         # （26）式中の〖CVL〗_(i,l)の計算式右辺
         self.theta_srf_dsh_a_i_jstrs_n_m = np.full((n_bnd_i_jstrs, 12), TsdA_initial)
