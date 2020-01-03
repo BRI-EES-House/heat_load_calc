@@ -40,16 +40,37 @@ def get_t_cl_i_n(clo_i_n, t_a, t_r_bar, h_c_i_n, t_cl_i_n, h_r_i_n):
     return t_cl
 
 
-def get_h_r_i_n(t_cl_i_n, t_r_bar):
-    return 3.96 * 10 ** (-8) * ((t_cl_i_n + 273.0) ** 3.0
-                                + (t_cl_i_n + 273.0) ** 2.0 * (t_r_bar + 273.0)
-                                + (t_cl_i_n + 273.0) * (t_r_bar + 273.0) ** 2.0
-                                + (t_r_bar + 273.0)
+def get_h_r_i_n(theta_cl_i_n, theta_mrt_i_n):
+    """人体周りの放射熱伝達率を計算する。
+    
+    Args:
+        theta_cl_i_n: ステップnの室iにおける着衣温度, degree C
+        theta_mrt_i_n: ステップnの室iにおける平均放射温度, degree C
+
+    Returns:
+        ステップnの室iにおける人体周りの放射熱伝達率, W/m2K
+    """
+
+    return 3.96 * 10 ** (-8) * ((theta_cl_i_n + 273.0) ** 3.0
+                                + (theta_cl_i_n + 273.0) ** 2.0 * (theta_mrt_i_n + 273.0)
+                                + (theta_cl_i_n + 273.0) * (theta_mrt_i_n + 273.0) ** 2.0
+                                + (theta_mrt_i_n + 273.0)
                                 )
 
 
-def get_h_c(t_a, t_cl, v_ar):
-    return max(12.1 * math.sqrt(v_ar), 2.38 * abs(t_cl - t_a) ** 0.25)
+def get_h_c_i_n(theta_r_i_n: float, t_cl_i_n: float, v_hum_i_n: float) -> float:
+    """人体周りの対流熱伝達率を計算する。
+
+    Args:
+        theta_r_i_n: ステップnの室iにおける室温, degree C
+        t_cl_i_n: ステップnの室iにおける着衣温度, degree C
+        v_hum_i_n: ステップnの室iにおける人体周りの風速, m/s
+
+    Returns:
+        ステップnの室iにおける人体周りの対流熱伝達率, W/m2K
+    """
+
+    return max(12.1 * math.sqrt(v_hum_i_n), 2.38 * abs(t_cl_i_n - theta_r_i_n) ** 0.25)
 
 
 def get_pmv(h_c, t_a, t_cl, t_r_bar, clo_value, rh):
