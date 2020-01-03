@@ -23,14 +23,14 @@ def calc_PMV(t_a, t_r_bar, clo, v_ar, rh, h_c_i_n):
         機械的仕事量は 0.0 W/m2 としたため、ISO中の'W'は省略してある。
     """
 
-    t_cl = get_t_cl_i_n(clo, t_a, v_ar, t_r_bar, h_c_i_n)
+    t_cl = get_t_cl_i_n(clo, t_a, t_r_bar, h_c_i_n)
 
     pmv = get_pmv(h_c_i_n, t_a, t_cl, t_r_bar, clo, rh)
 
     return pmv
 
 
-def get_t_cl_i_n(clo, t_a, v_ar, t_r_bar, h_c_i_n):
+def get_t_cl_i_n(clo, t_a, t_r_bar, h_c_i_n):
 
     # 着衣抵抗, m2K/W
     i_cl = convert_clo_to_m2kw(clo)
