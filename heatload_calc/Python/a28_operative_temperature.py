@@ -7,7 +7,7 @@ from scipy.optimize import newton
 """
 
 
-def get_OTset(Vel: float, RH: float, Clo: float, PMV_set: float) -> float:
+def get_OTset(Vel: float, RH: float, Clo: float, PMV_set: float, h_c_i_n) -> float:
     """ 作用温度の計算
     指定条件(met, velocity, RH, Clo)条件下で指定PMVになる作用温度OTを求める
 
@@ -20,13 +20,13 @@ def get_OTset(Vel: float, RH: float, Clo: float, PMV_set: float) -> float:
     # 定数部分があるので、ラムダ式で関数を包む
     # 右辺が0になるように式を変形する
     # 初期値は適当に0にした
-    OTset = newton(lambda OT: a35.calc_PMV(t_a=OT, t_r_bar=OT, clo_value=Clo, v_ar=Vel, rh=RH) - PMV_set, 0.001)
+    OTset = newton(lambda OT: a35.calc_PMV(t_a=OT, t_r_bar=OT, clo=Clo, v_ar=Vel, rh=RH, h_c_i_n=h_c_i_n) - PMV_set, 0.001)
 
     return OTset
 
 
 # PMV_i_n=0条件から目標作用温度を計算する
-def calc_OTset(now_air_conditioning_mode: int, isRadiantHeater: bool, RH: float, PMV_set: float) -> float:
+def calc_OTset(now_air_conditioning_mode: int, isRadiantHeater: bool, RH: float, PMV_set: float, h_c_i_n) -> float:
     """
 
     :param now_air_conditioning_mode: 空調運転モード(-1:冷房, 0:停止, 1:暖房)
@@ -40,13 +40,13 @@ def calc_OTset(now_air_conditioning_mode: int, isRadiantHeater: bool, RH: float,
         # 代謝量1.0Met、風速0.2m/sを想定
         Vel = 0.2
         Clo = 1.1 if now_air_conditioning_mode > 0 else 0.3
-        OTset = get_OTset(Vel, RH, Clo, PMV_set)
+        OTset = get_OTset(Vel, RH, Clo, PMV_set, h_c_i_n)
     # 放射式空調時
     elif now_air_conditioning_mode != 0 and isRadiantHeater:
         # 代謝量1.0Met、風速0.0m/sを想定
         Vel = 0.0
         Clo = 1.1 if now_air_conditioning_mode > 0 else 0.3
-        OTset = get_OTset(Vel, RH, Clo, PMV_set)
+        OTset = get_OTset(Vel, RH, Clo, PMV_set, h_c_i_n)
     else:
         OTset = 0.0
         Clo = 0.7

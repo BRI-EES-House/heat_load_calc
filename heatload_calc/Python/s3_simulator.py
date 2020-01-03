@@ -72,6 +72,9 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int):
         # ステップnの室iにおける室温, degree C
         theta_r_i_n = theta_r_is_n[i]
 
+        # ステップnの室iにおける人体周りの対流熱伝達率, W/m2K
+        h_c_i_n = a35.get_h_c(t_a=theta_r_i_n, t_cl=t_cl_i_n, v_ar=v_hum_i_n)
+
         # ステップnの室iの集約された境界j*における裏面温度, degree C, [j*]
         theta_rear_i_jstrs_n = a9.get_theta_rear_i_jstrs_n(
             theta_r_i_n=theta_r_i_n,
@@ -177,8 +180,8 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int):
         # 自然PMVを計算する
         Vel_without_ac = 0.0 if not is_now_window_open_i_n else 0.1
         PMV_without_ac = a35.calc_PMV(
-            t_a=Tr_without_ac, t_r_bar=MRT_without_ac, clo_value=I_cl,
-            v_ar=Vel_without_ac, rh=s.RH_i_npls)
+            t_a=Tr_without_ac, t_r_bar=MRT_without_ac, clo=I_cl,
+            v_ar=Vel_without_ac, rh=RH_i_npls, h_c_i_n=h_c_i_n)
 
         # ********** 窓開閉、空調発停の決定 **********
 
@@ -205,7 +208,7 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int):
         # ********** 空調設定温度の計算 **********
 
         # 前時刻の相対湿度を用い、PMV目標値を満たすような目標作用温度を求める
-        OTset, Clo_i_n, v_hum_i_n = a28.calc_OTset(ac_mode, s.is_radiative_heating, s.RH_i_npls, PMV_set)
+        OTset, Clo_i_n, v_hum_i_n = a28.calc_OTset(ac_mode, s.is_radiative_heating, RH_i_npls, PMV_set, h_c_i_n)
 
         ot_i_n, lcs_i_n, lrs_i_n = s41.calc_next_step(
             ac_mode, s.is_radiative_heating, BRCot, BRMot, BRLot, OTset, s.Lrcap_i)
@@ -301,8 +304,8 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int):
         # 備品類の絶対湿度の計算
         xf_i_n = s42.get_xf(s.Gf_i, xf_i_npls, s.Cx_i, x_r_i_ns)
         Qfunl_i_n = s42.get_Qfunl(s.Cx_i, x_r_i_ns, xf_i_n)
-        pmv_i_n = a35.calc_PMV(t_a=theta_r_i_npls, t_r_bar=mrt_i_n_pls, clo_value=Clo_i_n, v_ar=v_hum_i_n, rh=RH_i_n)
-        t_cl_i_n_pls = a35.get_t_cl(clo=Clo_i_n, t_a=theta_r_i_npls, v_ar=v_hum_i_n, t_r_bar=mrt_i_n_pls)
+        pmv_i_n = a35.calc_PMV(t_a=theta_r_i_npls, t_r_bar=mrt_i_n_pls, clo=Clo_i_n, v_ar=v_hum_i_n, rh=RH_i_n, h_c_i_n=h_c_i_n)
+        t_cl_i_n_pls = a35.get_t_cl_i_n(clo=Clo_i_n, t_a=theta_r_i_npls, v_ar=v_hum_i_n, t_r_bar=mrt_i_n_pls, h_c_i_n=h_c_i_n)
 
         # ********** 窓開閉、空調発停の決定 **********
 

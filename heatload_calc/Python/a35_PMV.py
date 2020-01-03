@@ -4,7 +4,7 @@ from scipy.optimize import newton
 from line_profiler import LineProfiler
 
 
-def calc_PMV(t_a, t_r_bar, clo_value, v_ar, rh):
+def calc_PMV(t_a, t_r_bar, clo, v_ar, rh, h_c_i_n):
     """PMVを計算する。
 
     Args:
@@ -12,7 +12,8 @@ def calc_PMV(t_a, t_r_bar, clo_value, v_ar, rh):
         t_r_bar: 放射温度, degree C
         rh: 相対湿度, %
         v_ar: 相対気流速度, m/s
-        clo_value: 着衣量, clo
+        clo: 着衣量, clo
+        h_c_i_n:　ステップnの室iにおける人体周りの対流熱伝達率, W/m2K
 
     Returns:
         PMV
@@ -22,28 +23,16 @@ def calc_PMV(t_a, t_r_bar, clo_value, v_ar, rh):
         機械的仕事量は 0.0 W/m2 としたため、ISO中の'W'は省略してある。
     """
 
-    # 水蒸気分圧, Pa
-    p_a = get_p_a(rh, t_a)
-
-    # 着衣抵抗, m2K/W
-    i_cl = convert_clo_to_m2kw(clo_value)
-
-    # 代謝量（人体内部発熱量）, W/m2
-    m = get_met()
-
-    # 着衣面積率
-    f_cl = get_f_cl(i_cl)
-
-    t_cl = get_t_cl(clo_value, t_a, v_ar, t_r_bar)
+    t_cl = get_t_cl_i_n(clo, t_a, v_ar, t_r_bar, h_c_i_n)
 
     h_c = get_h_c(t_a, t_cl, v_ar)
 
-    pmv = get_pmv(f_cl, h_c, m, p_a, t_a, t_cl, t_r_bar)
+    pmv = get_pmv(h_c, t_a, t_cl, t_r_bar, clo, rh)
 
     return pmv
 
 
-def get_t_cl(clo, t_a, v_ar, t_r_bar):
+def get_t_cl_i_n(clo, t_a, v_ar, t_r_bar, h_c_i_n):
 
     # 着衣抵抗, m2K/W
     i_cl = convert_clo_to_m2kw(clo)
@@ -72,7 +61,7 @@ def get_h_c(t_a, t_cl, v_ar):
     return max(12.1 * math.sqrt(v_ar), 2.38 * abs(t_cl - t_a) ** 0.25)
 
 
-def get_pmv(f_cl, h_c, m, p_a, t_a, t_cl, t_r_bar):
+def get_pmv(h_c, t_a, t_cl, t_r_bar, clo_value, rh):
     """
 
     Args:
@@ -90,6 +79,18 @@ def get_pmv(f_cl, h_c, m, p_a, t_a, t_cl, t_r_bar):
     Notes:
         equation (1)
     """
+
+    # 水蒸気分圧, Pa
+    p_a = get_p_a(rh, t_a)
+
+    # 着衣抵抗, m2K/W
+    i_cl = convert_clo_to_m2kw(clo_value)
+
+    # 代謝量（人体内部発熱量）, W/m2
+    m = get_met()
+
+    # 着衣面積率
+    f_cl = get_f_cl(i_cl)
 
     return (0.303 * math.exp(-0.036 * m) + 0.028) * (
             m  # 活動量, W/m2
