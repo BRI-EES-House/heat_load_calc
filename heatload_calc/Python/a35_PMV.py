@@ -2,7 +2,7 @@ import math
 from scipy.optimize import newton
 
 
-def get_t_cl_i_n(clo_i_n, t_a, t_r_bar, h_c_i_n, t_cl_i_n):
+def get_t_cl_i_n(clo_i_n, t_a, t_r_bar, h_c_i_n, t_cl_i_n, h_r_i_n):
     """着衣温度を計算する。
     
     Args:
@@ -10,7 +10,8 @@ def get_t_cl_i_n(clo_i_n, t_a, t_r_bar, h_c_i_n, t_cl_i_n):
         t_a: 
         t_r_bar: 
         h_c_i_n: 
-        t_cl_i_n: 
+        t_cl_i_n:
+        h_r_i_n
 
     Returns:
 
@@ -25,7 +26,7 @@ def get_t_cl_i_n(clo_i_n, t_a, t_r_bar, h_c_i_n, t_cl_i_n):
     # 代謝量（人体内部発熱量）, W/m2
     m = get_met()
 
-    h_r_i_n = get_h_r_i_n(t_cl_i_n, t_r_bar)
+#    h_r_i_n = get_h_r_i_n(t_cl_i_n, t_r_bar)
 
     def f(t):
 

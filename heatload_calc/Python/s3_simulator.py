@@ -288,7 +288,9 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int):
         xf_i_n = s42.get_xf(s.Gf_i, xf_i_npls, s.Cx_i, x_r_i_ns)
         Qfunl_i_n = s42.get_Qfunl(s.Cx_i, x_r_i_ns, xf_i_n)
 
-        t_cl_i_n_pls = a35.get_t_cl_i_n(clo_i_n=Clo_i_n, t_a=theta_r_i_npls, t_r_bar=mrt_i_n_pls, h_c_i_n=h_c_i_n, t_cl_i_n=t_cl_i_n)
+        h_r_i_n = a35.get_h_r_i_n(t_cl_i_n=t_cl_i_n, t_r_bar=mrt_i_n_pls)
+
+        t_cl_i_n_pls = a35.get_t_cl_i_n(clo_i_n=Clo_i_n, t_a=theta_r_i_npls, t_r_bar=mrt_i_n_pls, h_c_i_n=h_c_i_n, t_cl_i_n=t_cl_i_n, h_r_i_n=h_r_i_n)
 
         # ********** 窓開閉、空調発停の決定 **********
 
