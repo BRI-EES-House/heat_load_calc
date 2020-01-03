@@ -19,8 +19,8 @@ def get_OTset(Vel: float, RH: float, Clo: float, PMV_set: float, h_c_i_n, t_cl_i
     """
     # 定数部分があるので、ラムダ式で関数を包む
     # 右辺が0になるように式を変形する
-    # 初期値は適当に0にした
-    OTset = newton(lambda OT: a35.calc_PMV(t_a=OT, t_r_bar=OT, clo=Clo, v_ar=Vel, rh=RH, h_c_i_n=h_c_i_n, t_cl_i_n=t_cl_i_n) - PMV_set, 0.001)
+
+    OTset = newton(lambda OT: a35.get_pmv(h_c=h_c_i_n, t_a=OT, t_cl=t_cl_i_n, t_r_bar=OT, clo_value=Clo, rh=RH) - PMV_set, 0.001)
 
     return OTset
 

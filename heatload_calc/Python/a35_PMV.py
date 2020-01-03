@@ -1,40 +1,23 @@
 import math
-from scipy.optimize import fsolve
 from scipy.optimize import newton
-from line_profiler import LineProfiler
 
 
-def calc_PMV(t_a, t_r_bar, clo, v_ar, rh, h_c_i_n, t_cl_i_n):
-    """PMVを計算する。
-
+def get_t_cl_i_n(clo_i_n, t_a, t_r_bar, h_c_i_n, t_cl_i_n):
+    """着衣温度を計算する。
+    
     Args:
-        t_a: 乾球温度, degree C
-        t_r_bar: 放射温度, degree C
-        rh: 相対湿度, %
-        v_ar: 相対気流速度, m/s
-        clo: 着衣量, clo
-        h_c_i_n:　ステップnの室iにおける人体周りの対流熱伝達率, W/m2K
+        clo_i_n: Clo値
+        t_a: 
+        t_r_bar: 
+        h_c_i_n: 
+        t_cl_i_n: 
 
     Returns:
-        PMV
 
-    Notes:
-        参考: ISO 7730, 1994, 2005
-        機械的仕事量は 0.0 W/m2 としたため、ISO中の'W'は省略してある。
     """
 
-#    t_cl = get_t_cl_i_n(clo, t_a, t_r_bar, h_c_i_n)
-
-#    pmv = get_pmv(h_c_i_n, t_a, t_cl, t_r_bar, clo, rh)
-    pmv = get_pmv(h_c_i_n, t_a, t_cl_i_n, t_r_bar, clo, rh)
-
-    return pmv
-
-
-def get_t_cl_i_n(clo, t_a, t_r_bar, h_c_i_n):
-
     # 着衣抵抗, m2K/W
-    i_cl = convert_clo_to_m2kw(clo)
+    i_cl = convert_clo_to_m2kw(clo_i_n)
 
     # 着衣面積率
     f_cl = get_f_cl(i_cl)
@@ -42,16 +25,26 @@ def get_t_cl_i_n(clo, t_a, t_r_bar, h_c_i_n):
     # 代謝量（人体内部発熱量）, W/m2
     m = get_met()
 
+    h_r_i_n = get_h_r_i_n(t_cl_i_n, t_r_bar)
+
     def f(t):
 
         return 35.7 - 0.028 * m \
             - i_cl * (
-                3.96 * 10 ** (-8) * f_cl * ((t + 273.0) ** 4.0 - (t_r_bar + 273.0) ** 4.0) + f_cl * h_c_i_n * (t - t_a)
+                h_r_i_n * f_cl * (t - t_r_bar) + f_cl * h_c_i_n * (t - t_a)
             )
 
     t_cl = newton(lambda t: f(t) - t, 0.001)
 
     return t_cl
+
+
+def get_h_r_i_n(t_cl_i_n, t_r_bar):
+    return 3.96 * 10 ** (-8) * ((t_cl_i_n + 273.0) ** 3.0
+                                + (t_cl_i_n + 273.0) ** 2.0 * (t_r_bar + 273.0)
+                                + (t_cl_i_n + 273.0) * (t_r_bar + 273.0) ** 2.0
+                                + (t_r_bar + 273.0)
+                                )
 
 
 def get_h_c(t_a, t_cl, v_ar):
