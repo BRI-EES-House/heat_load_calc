@@ -84,10 +84,6 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int):
         is_now_window_open_i_n, ac_mode = a13.mode_select(
             s.air_conditioning_demand[n], prev_air_conditioning_mode, s.is_prev_window_open, pmv_i_n)
 
-        # 自然室温計算時窓開閉条件の設定
-        # 空調需要がなければ窓閉鎖、空調需要がある場合は前時刻の窓開閉状態
-        is_now_window_open_i_n = old_is_now_window_open_i and s.air_conditioning_demand[n]
-
         # 目標PMVの計算（冷房時は上限、暖房時は下限PMVを目標値とする）
         # 空調モード: -1=冷房, 0=停止, 1=暖房, 2=, 3=    ==>  [停止, 暖房, 暖房(1), 暖房(2), 冷房]
         PMV_set = [None,
