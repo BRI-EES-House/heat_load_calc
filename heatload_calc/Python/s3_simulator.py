@@ -78,6 +78,7 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int):
         # ステップnの室iにおける人体周りの放射熱伝達率, W/m2K
         h_r_i_n = a35.get_h_r_i_n(theta_cl_i_n=theta_cl_i_n, theta_mrt_i_n=theta_mrt_i_n)
 
+        # ステップnの室iにおけるPMV
         pmv_i_n = a35.get_pmv(h_c=h_c_i_n, t_a=theta_r_i_n, t_cl=theta_cl_i_n, t_r_bar=theta_mrt_i_n, clo_value=clo_i_n, rh=rh_i_n)
 
         # 窓の開閉と空調発停の切り替え判定
