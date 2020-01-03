@@ -40,7 +40,7 @@ def get_t_cl_i_n(clo_i_n, t_a, t_r_bar, h_c_i_n, t_cl_i_n, h_r_i_n):
     return t_cl
 
 
-def get_h_r_i_n(theta_cl_i_n, theta_mrt_i_n):
+def get_h_r_i_n(theta_cl_i_n: float, theta_mrt_i_n: float) -> float:
     """人体周りの放射熱伝達率を計算する。
     
     Args:
