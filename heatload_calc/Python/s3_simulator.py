@@ -82,7 +82,7 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int):
         pmv_i_n = a35.get_pmv(h_c=h_c_i_n, t_a=theta_r_i_n, t_cl=theta_cl_i_n, t_r_bar=theta_mrt_i_n, clo_value=clo_i_n, rh=rh_i_n, h_r=h_r_i_n)
 
         # 窓の開閉と空調発停の切り替え判定
-        _, ac_mode, operation_mode = a13.mode_select(s.air_conditioning_demand[n], pmv_i_n, operation_mode_i_n_mns)
+        operation_mode = a13.mode_select(s.air_conditioning_demand[n], pmv_i_n, operation_mode_i_n_mns)
 
         # 目標PMVの計算（冷房時は上限、暖房時は下限PMVを目標値とする）
         # 空調モード: -1=冷房, 0=停止, 1=暖房, 2=, 3=    ==>  [停止, 暖房, 暖房(1), 暖房(2), 冷房]
