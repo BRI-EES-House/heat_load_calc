@@ -67,7 +67,7 @@ def get_h_c_i_n(theta_r_i_n: float, t_cl_i_n: float, v_hum_i_n: float) -> float:
     return max(12.1 * math.sqrt(v_hum_i_n), 2.38 * abs(t_cl_i_n - theta_r_i_n) ** 0.25)
 
 
-def get_pmv(h_c, t_a, t_cl, t_r_bar, clo_value, rh, h_r):
+def get_pmv(h_c, t_a, t_cl, t_r_bar, clo_value, h_r, p_a):
     """PMVを計算する
 
     Args:
@@ -76,7 +76,8 @@ def get_pmv(h_c, t_a, t_cl, t_r_bar, clo_value, rh, h_r):
         t_cl: 着衣温度, degree C
         t_r_bar: 放射温度, degree C
         clo_value: Clo値
-        rh: 相対湿度, %
+        h_r: 放射熱伝達率, W/m2K
+        p_a:　水蒸気圧, Pa
 
     Returns:
         PMV: PMV
@@ -85,9 +86,6 @@ def get_pmv(h_c, t_a, t_cl, t_r_bar, clo_value, rh, h_r):
         ISOで定める計算方法ではなく、前の時刻に求めた人体周りの熱伝達率、着衣温度を使用して収束計算が生じないようにしている。
 
     """
-
-    # 水蒸気分圧, Pa
-    p_a = get_p_a(rh, t_a)
 
     # 着衣抵抗, m2K/W
     i_cl = convert_clo_to_m2kw(clo_value)
