@@ -1,7 +1,7 @@
 import numpy as np
 from typing import Dict
 
-from a39_global_parameters import ACMode
+from a39_global_parameters import ACMode, OperationMode
 
 """
 付録13．窓の開閉と空調発停の切り替え
@@ -9,7 +9,7 @@ from a39_global_parameters import ACMode
 
 
 # 当該時刻の窓開閉、空調発停を判定する
-def mode_select(ac_demand: bool, prev_ac_mode: int, prev_is_window_open: bool, now_pmv: float) -> tuple:
+def mode_select(ac_demand: bool, now_pmv: float, operation_mode_i_n_mns) -> tuple:
 
     # 窓の開閉、空調の発停を決定する
     # 冷房開始PMV
@@ -24,58 +24,58 @@ def mode_select(ac_demand: bool, prev_ac_mode: int, prev_is_window_open: bool, n
     # 空調需要がある場合は、前の窓開閉状態で自然室温を計算
     if ac_demand:
 
-        if prev_ac_mode == ACMode.HEATING:  # 前時刻が暖房の場合
+        if operation_mode_i_n_mns == OperationMode.HEATING:  # 前時刻が暖房の場合
 
             if now_pmv >= occu_cooling_pmv:  # 冷房生起PMV以上の場合は冷房
-                return False, ACMode.COOLING
+                return False, ACMode.COOLING, OperationMode.COOLING
 
             elif now_pmv >= occu_window_open_pmv:  # 窓開放生起温度以上の場合は通風
-                return True, ACMode.STOP
+                return True, ACMode.STOP, OperationMode.STOP_OPEN
 
             else:
-                return False, ACMode.HEATING
+                return False, ACMode.HEATING, OperationMode.HEATING
 
-        elif prev_ac_mode == ACMode.COOLING:  # 前時刻が冷房の場合
+        elif operation_mode_i_n_mns == OperationMode.COOLING:  # 前時刻が冷房の場合
 
             if now_pmv >= occu_heating_pmv:  # 暖房生起PMV以上の場合は冷房
-                return False, ACMode.COOLING
+                return False, ACMode.COOLING, OperationMode.COOLING
 
             else:  # 暖房生起PMV未満の場合は暖房
-                return False, ACMode.HEATING
+                return False, ACMode.HEATING, OperationMode.HEATING
 
-        elif prev_ac_mode == ACMode.STOP:  # 前の時刻が空調停止の場合
+        elif operation_mode_i_n_mns in [OperationMode.STOP_OPEN, OperationMode.STOP_CLOSE]:  # 前の時刻が空調停止の場合
 
             if now_pmv >= occu_cooling_pmv:  # 冷房生起PMV以上の場合は冷房
-                return False, ACMode.COOLING
+                return False, ACMode.COOLING, OperationMode.COOLING
 
             elif now_pmv <= occu_heating_pmv:  # 暖房生起PMV以下の場合は暖房
-                return False, ACMode.HEATING
+                return False, ACMode.HEATING, OperationMode.HEATING
 
             else:
 
-                if prev_is_window_open:
+                if operation_mode_i_n_mns == OperationMode.STOP_OPEN:
 
                     if now_pmv <= occu_window_close_pmv:
-                        return False, ACMode.STOP
+                        return False, ACMode.STOP, OperationMode.STOP_CLOSE
 
                     else:
-                        return True, ACMode.STOP
+                        return True, ACMode.STOP, OperationMode.STOP_OPEN
 
                 else:
 
                     # 窓を開放する
                     if now_pmv >= occu_window_open_pmv:
-                        return True, ACMode.STOP
+                        return True, ACMode.STOP, OperationMode.STOP_OPEN
 
                     else:
-                        return False, ACMode.STOP
+                        return False, ACMode.STOP, OperationMode.STOP_CLOSE
 
         else:
             raise ValueError()
 
     # 空調需要がない場合（窓閉鎖、空調停止）
     else:
-        return False, ACMode.STOP
+        return False, ACMode.STOP, OperationMode.STOP_CLOSE
 
 
 # 最終の空調信号の計算（空調停止はこのルーチンに入らない）

@@ -1,5 +1,6 @@
 from Psychrometrics import Pws, x
 import a18_initial_value_constants as a18
+from a39_global_parameters import OperationMode
 
 """
 付録16．	ルームエアコン吹出絶対湿度の計算
@@ -7,7 +8,7 @@ import a18_initial_value_constants as a18
 
 
 # エアコンの熱交換部飽和絶対湿度の計算
-def calcVac_xeout(Lcs, Vmin, Vmax, qmin_c, qmax_c, Tr, BF, nowAC: bool):
+def calcVac_xeout(Lcs, Vmin, Vmax, qmin_c, qmax_c, Tr, BF, operation_mode):
     """
     :param nowAC: 当該時刻の空調運転状態（0：なし、正：暖房、負：冷房）
     :return:
@@ -16,7 +17,7 @@ def calcVac_xeout(Lcs, Vmin, Vmax, qmin_c, qmax_c, Tr, BF, nowAC: bool):
     # 加熱時は除湿ゼロ
     Qs = get_Qs(Lcs)
 
-    if nowAC == 0 or Qs <= 1.0e-3:
+    if operation_mode in [OperationMode.STOP_OPEN, OperationMode.STOP_CLOSE] or Qs <= 1.0e-3:
         Vac = 0.0
         xeout = 0.0
     else:

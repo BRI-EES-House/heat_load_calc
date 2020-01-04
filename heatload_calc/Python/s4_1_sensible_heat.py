@@ -1,7 +1,7 @@
 import numpy as np
 import apdx3_human_body as a3
 import a18_initial_value_constants as a18
-from a39_global_parameters import ACMode
+from a39_global_parameters import ACMode, OperationMode
 import a13_Win_ACselect as a13
 
 # ********** 4.1 顕熱 **********
@@ -166,16 +166,16 @@ def calc_kc_i():
 
 
 def calc_next_step(
-        ac_mode: int, is_radiative_heating: bool, BRCot: float, BRMot: float, BRLot: float, Tset: float, Lrcap_i
+        is_radiative_heating: bool, BRCot: float, BRMot: float, BRLot: float, Tset: float, Lrcap_i, operation_mode
 ) -> (float, float, float):
 
     # TODO 以下の式の定義を加えないといけない。
     is_radiative_cooling = False
 
-    if ac_mode == ACMode.STOP:
+    if operation_mode in [OperationMode.STOP_CLOSE, OperationMode.STOP_OPEN]:
         return BRCot / BRMot, 0.0, 0.0
 
-    elif ac_mode == ACMode.COOLING:
+    elif operation_mode == OperationMode.COOLING:
 
         if is_radiative_cooling:
 
@@ -202,7 +202,7 @@ def calc_next_step(
             else:
                 return Tset, Lcs_temp, 0.0
 
-    elif ac_mode == ACMode.HEATING:
+    elif operation_mode == OperationMode.HEATING:
 
         if is_radiative_heating:
 

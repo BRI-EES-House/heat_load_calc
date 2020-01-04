@@ -14,6 +14,7 @@ import a18_initial_value_constants as a18
 import a28_operative_temperature as a28
 import a35_PMV as a35
 import a37_groundonly_runup_calculation as a37
+from a39_global_parameters import OperationMode
 from s3_space_loader import Space
 
 from Psychrometrics import rhtx
@@ -56,11 +57,10 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int):
 
         theta_srf_dsh_a_i_jstrs_n_m = s.theta_srf_dsh_a_i_jstrs_n_m
         theta_srf_dsh_t_i_jstrs_n_m = s.theta_srf_dsh_t_i_jstrs_n_m
-        old_is_now_window_open_i = s.old_is_now_window_open_i
+        operation_mode_i_n_mns = s.operation_mode
         old_theta_frnt_i = s.old_theta_frnt_i
         q_srf_i_jstrs_n = s.q_srf_i_jstrs_n
         xf_i_npls = s.xf_i_npls
-        prev_air_conditioning_mode = s.prev_air_conditioning_mode
         rh_i_n = s.rh_i_n
         x_r_i_npls = s.x_r_i_npls
         # ステップnの室iにおける平均放射温度, degree C
@@ -82,16 +82,16 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int):
         pmv_i_n = a35.get_pmv(h_c=h_c_i_n, t_a=theta_r_i_n, t_cl=theta_cl_i_n, t_r_bar=theta_mrt_i_n, clo_value=clo_i_n, rh=rh_i_n, h_r=h_r_i_n)
 
         # 窓の開閉と空調発停の切り替え判定
-        is_now_window_open_i_n, ac_mode = a13.mode_select(
-            s.air_conditioning_demand[n], prev_air_conditioning_mode, old_is_now_window_open_i, pmv_i_n)
+        _, ac_mode, operation_mode = a13.mode_select(s.air_conditioning_demand[n], pmv_i_n, operation_mode_i_n_mns)
 
         # 目標PMVの計算（冷房時は上限、暖房時は下限PMVを目標値とする）
         # 空調モード: -1=冷房, 0=停止, 1=暖房, 2=, 3=    ==>  [停止, 暖房, 暖房(1), 暖房(2), 冷房]
-        PMV_set = [None,
-                   s.pmv_lower_limit_schedule[n],
-                   s.pmv_lower_limit_schedule[n],
-                   s.pmv_lower_limit_schedule[n],
-                   s.pmv_upper_limit_schedule[n]][ac_mode]
+        if operation_mode == OperationMode.HEATING:
+            PMV_set = s.pmv_lower_limit_schedule[n]
+        elif operation_mode == OperationMode.COOLING:
+            PMV_set = s.pmv_upper_limit_schedule[n]
+        elif operation_mode in [OperationMode.STOP_CLOSE, OperationMode.STOP_OPEN]:
+            PMV_set = None
 
         # ステップnの室iの集約された境界j*における裏面温度, degree C, [j*]
         theta_rear_i_jstrs_n = a9.get_theta_rear_i_jstrs_n(
@@ -164,12 +164,11 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int):
             v_ntrl_vent_i=s.v_ntrl_vent_i, theta_o_n=theta_o_n, theta_r_int_vent_i_istrs_n=theta_r_int_vent_i_istrs_n,
             q_gen_i_n=q_gen_i_n, c_cap_frnt_i=s.c_cap_frnt_i, k_frnt_i=s.k_frnt_i, q_sol_frnt_i_n=s.q_sol_frnt_i_ns[n],
             theta_frnt_i_n=old_theta_frnt_i)
+        brc_i_n = brc_ntrv_i_n if operation_mode == OperationMode.STOP_OPEN else brc_non_ntrv_i_n
 
         brm_non_ntrv_i_n = s.BRMnoncv_i[n]
         brm_ntrv_i_n = brm_non_ntrv_i_n + a18.get_c_air() * a18.get_rho_air() * s.v_ntrl_vent_i
-        # 最終計算のための係数整備
-        brc_i_n = brc_ntrv_i_n if is_now_window_open_i_n else brc_non_ntrv_i_n
-        brm_i_n = brm_ntrv_i_n if is_now_window_open_i_n else brm_non_ntrv_i_n
+        brm_i_n = brm_ntrv_i_n if operation_mode == OperationMode.STOP_OPEN else brm_non_ntrv_i_n
 
         # OT計算用の係数補正
         BRMot, BRCot, BRLot, Xot, XLr, XC = s41.calc_OT_coeff(
@@ -178,10 +177,10 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int):
         # ********** 空調設定温度の計算 **********
 
         # 前時刻の相対湿度を用い、PMV目標値を満たすような目標作用温度を求める
-        OTset, clo_i_n, v_hum_i_n = a28.calc_OTset(ac_mode, s.is_radiative_heating, rh_i_n, PMV_set, h_c_i_n, theta_cl_i_n, h_r_i_n)
+        OTset, clo_i_n, v_hum_i_n = a28.calc_OTset(s.is_radiative_heating, rh_i_n, PMV_set, h_c_i_n, theta_cl_i_n, h_r_i_n, operation_mode)
 
         ot_i_n, lcs_i_n, lrs_i_n = s41.calc_next_step(
-            ac_mode, s.is_radiative_heating, BRCot, BRMot, BRLot, OTset, s.Lrcap_i)
+            s.is_radiative_heating, BRCot, BRMot, BRLot, OTset, s.Lrcap_i, operation_mode)
 
         # ********** 室温 Tr、家具温度 Tfun、表面温度 Ts_i_k_n、室内表面熱流 q の計算 **********
 
@@ -237,7 +236,7 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int):
         # i室のn時点におけるエアコンの風量[m3/s]
         # 空調の熱交換部飽和絶対湿度の計算
         Vac_n, xeout_i_n = \
-            a16.calcVac_xeout(lcs_i_n, s.Vmin_i, s.Vmax_i, s.qmin_c_i, s.qmax_c_i, theta_r_i_npls, BF, ac_mode)
+            a16.calcVac_xeout(lcs_i_n, s.Vmin_i, s.Vmax_i, s.qmin_c_i, s.qmax_c_i, theta_r_i_npls, BF, operation_mode)
 
         # 空調機除湿の項 式(20)より
         RhoVac = get_RhoVac(Vac_n, BF)
@@ -282,12 +281,11 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int):
         # 前の時刻からの値
         s.theta_srf_dsh_a_i_jstrs_n_m = theta_srf_dsh_a_i_jstrs_npls_ms
         s.theta_srf_dsh_t_i_jstrs_n_m = theta_srf_dsh_t_i_jstrs_npls_ms
-        s.old_is_now_window_open_i = is_now_window_open_i_n
+        s.operation_mode = operation_mode
         s.old_theta_frnt_i = theta_frnt_i_n
         s.theta_r_i_npls = theta_r_i_npls
         s.q_srf_i_jstrs_n = q_srf_i_jstrs_n
         s.xf_i_npls = xf_i_n
-        s.prev_air_conditioning_mode = ac_mode
         s.x_r_i_npls = x_r_i_ns
         s.mrt_i_n = theta_mrt_i_n_pls
         s.v_hum_i_n = v_hum_i_n
@@ -300,7 +298,7 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int):
         s.logger.theta_rear_i_jstrs_ns[:, n] = theta_rear_i_jstrs_n
         s.logger.q_hum_i_ns[n] = q_hum_i_n
         s.logger.x_hum_i_ns[n] = x_hum_i_n
-        s.logger.is_now_window_open_i_n[n] = is_now_window_open_i_n
+        s.logger.operation_mode[n] = operation_mode
         s.logger.theta_frnt_i_ns[n] = theta_frnt_i_n
         s.logger.OT_i_n[n] = ot_i_n
         s.logger.Qfuns_i_n[n] = s41.get_Qfuns(s.k_frnt_i, theta_r_i_npls, theta_frnt_i_n)
@@ -320,7 +318,6 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int):
         s.logger.pmv_i_ns[n] = pmv_i_n
         s.logger.Vel_i_n[n] = v_hum_i_n
         s.logger.Clo_i_n[n] = clo_i_n
-        s.logger.now_air_conditioning_mode[n] = ac_mode
         s.logger.RH_i_n[n] = rh_i_n_pls
         s.logger.x_r_i_ns[n] = x_r_i_ns
 

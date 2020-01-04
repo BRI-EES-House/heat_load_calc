@@ -13,6 +13,7 @@ import a21_next_vent_spec as a21
 import a22_radiative_heating_spec as a22
 import a23_surface_heat_transfer_coefficient as a23
 import a34_building_part_summarize as a34
+from a39_global_parameters import OperationMode
 
 import s3_surface_loader as s3
 import s4_1_sensible_heat as s41
@@ -82,8 +83,8 @@ class Logger:
         # ステップnの室iにおけるPMV(Predicted Mean Vote,予測温冷感申告)
         self.pmv_i_ns = np.zeros(24 * 365 * 4 * 3)
 
-        # ステップnの室iにおける窓の状態（0：閉鎖、1：開放）
-        self.is_now_window_open_i_n = np.full(24 * 365 * 4 * 3, False)
+        # ステップnの室iにおける運転状態
+        self.operation_mode = np.empty(24 * 365 * 4 * 3, dtype=object)
 
         # ステップnの室iにおける家具の温度, degree C
         self.theta_frnt_i_ns = np.full(24 * 365 * 4 * 3, a18.get_Tfun_initial())
@@ -128,9 +129,6 @@ class Logger:
 
         # i室のn時点における着衣量[Clo]
         self.Clo_i_n = np.ones(24 * 365 * 4 * 3)
-
-        # 当該時刻の空調運転状態（0：なし、正：暖房、負：冷房）
-        self.now_air_conditioning_mode = np.full(24 * 365 * 4 * 3, 0)
 
         # i室のn時点における室絶対湿度
         self.x_r_i_ns = np.zeros(24 * 365 * 4 * 3)
@@ -340,12 +338,8 @@ class Space:
         self.kc_i = s41.calc_kc_i()  # i室の人体表面における対流熱伝達率の総合熱伝達率に対する比
         self.kr_i = s41.calc_kr_i()  # i室の人体表面における放射熱伝達率の総合熱伝達率に対する比
 
-        # TODO Enum にすること
-        self.prev_air_conditioning_mode = 0  # 前時刻の空調運転状態（0：停止、正：暖房、負：冷房）
-
-#        self.is_prev_window_open = False
-        # 前時刻の窓状態（0：閉鎖、1：開放）
-        self.old_is_now_window_open_i = False
+        # 前時刻の運転状態
+        self.operation_mode = OperationMode.STOP_CLOSE
 
         # 家具の熱容量、湿気容量の計算
 

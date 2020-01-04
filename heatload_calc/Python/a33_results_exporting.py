@@ -17,9 +17,8 @@ def append_headers(spaces: List[Space]) -> List[List]:
 
     for space in spaces:
         name = space.name_i
-        rowlist.append(name + "_窓開閉")
+        rowlist.append(name + "_運転状態")
         rowlist.append(name + "_在室状況")
-        rowlist.append(name + "_最終空調状態")
         rowlist.append(name + "_空気温度[℃]")
         rowlist.append(name + "_室相対湿度[%]")
         rowlist.append(name + "_室絶対湿度[kg/kg(DA)]")
@@ -81,9 +80,8 @@ def append_tick_log(spaces: List[Space], log: List[List], To_n: float, n: int, x
     ]
 
     for space in spaces:
-        row.append(space.logger.is_now_window_open_i_n[n])
+        row.append(space.logger.operation_mode[n])
         row.append(space.logger.air_conditioning_demand[n])
-        row.append('{0:.0f}'.format(space.logger.now_air_conditioning_mode[n]))
         row.append('{0:.2f}'.format(space.logger.theta_r_i_ns[n]))
         row.append('{0:.0f}'.format(space.logger.RH_i_n[n]))
         row.append('{0:.4f}'.format(space.logger.x_r_i_ns[n]))
