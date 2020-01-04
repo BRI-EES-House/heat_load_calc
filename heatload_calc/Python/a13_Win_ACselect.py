@@ -59,7 +59,7 @@ def mode_select(ac_demand: bool, prev_ac_mode: int, prev_is_window_open: bool, n
                         return False, ACMode.STOP
 
                     else:
-                        return True, ACMode.Stop
+                        return True, ACMode.STOP
 
                 else:
 

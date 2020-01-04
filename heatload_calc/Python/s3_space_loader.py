@@ -343,7 +343,8 @@ class Space:
         # TODO Enum にすること
         self.prev_air_conditioning_mode = 0  # 前時刻の空調運転状態（0：停止、正：暖房、負：冷房）
 
-        self.is_prev_window_open = False  # 前時刻の窓状態（0：閉鎖、1：開放）
+#        self.is_prev_window_open = False
+        # 前時刻の窓状態（0：閉鎖、1：開放）
         self.old_is_now_window_open_i = False
 
         # 家具の熱容量、湿気容量の計算
