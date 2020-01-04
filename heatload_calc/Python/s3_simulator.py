@@ -167,19 +167,6 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int):
 
         brm_non_ntrv_i_n = s.BRMnoncv_i[n]
         brm_ntrv_i_n = brm_non_ntrv_i_n + a18.get_c_air() * a18.get_rho_air() * s.v_ntrl_vent_i
-
-        brc_i_n = brc_ntrv_i_n if is_now_window_open_i_n else brc_non_ntrv_i_n
-        brm_i_n = brm_ntrv_i_n if is_now_window_open_i_n else brm_non_ntrv_i_n
-
-        # ********** 非空調(自然)作用温度、PMV の計算 **********
-
-        BRMot_without_ac, BRCot_without_ac, _, Xot_without_ac, XLr_without_ac, XC_without_ac = s41.calc_OT_coeff(
-            BRM_i=brm_i_n, BRC_i=brc_i_n, BRL_i=s.BRL_i[n],
-            WSR_i_k=s.WSR_i_k, WSB_i_k=s.WSB_i_k, WSC_i_k=wsc_i_jstrs_npls, WSV_i_k=wsv_i_jstrs_npls, fot=s.Fot_i_g, kc_i=s.kc_i,
-            kr_i=s.kr_i)
-
-        # ********** 窓開閉、空調発停の決定 **********
-
         # 最終計算のための係数整備
         brc_i_n = brc_ntrv_i_n if is_now_window_open_i_n else brc_non_ntrv_i_n
         brm_i_n = brm_ntrv_i_n if is_now_window_open_i_n else brm_non_ntrv_i_n
