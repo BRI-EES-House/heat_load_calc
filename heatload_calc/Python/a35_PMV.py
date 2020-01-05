@@ -1,4 +1,5 @@
 import math
+import numpy as np
 
 
 def get_t_cl_i_n(clo_i_n, h_c_i_n, h_r_i_n, ot_i_n):
@@ -32,42 +33,56 @@ def get_t_cl_i_n(clo_i_n, h_c_i_n, h_r_i_n, ot_i_n):
     return t_cl_i_n
 
 
-def get_h_r_i_n(theta_cl_i_n: float, theta_mrt_i_n: float) -> float:
+def get_h_hum_r_is_n(theta_cl_is_n: np.ndarray, theta_mrt_is_n: np.ndarray) -> np.ndarray:
     """人体周りの放射熱伝達率を計算する。
     
     Args:
-        theta_cl_i_n: ステップnの室iにおける着衣温度, degree C
-        theta_mrt_i_n: ステップnの室iにおける平均放射温度, degree C
+        theta_cl_is_n: ステップnの室iにおける着衣温度, degree C, [i]
+        theta_mrt_is_n: ステップnの室iにおける平均放射温度, degree C, [i]
 
     Returns:
-        ステップnの室iにおける人体周りの放射熱伝達率, W/m2K
+        ステップnの室iにおける人体周りの放射熱伝達率, W/m2K, [i]
     """
 
-    # ステップnの室iにおける着衣温度, K
-    t_cl_i_n = theta_cl_i_n + 273.0
+    # ステップnの室iにおける着衣温度, K, [i]
+    t_cl_is_n = theta_cl_is_n + 273.0
 
-    # ステップnの室iにおける平均放射温度, K
-    t_mrt_i_n = theta_mrt_i_n + 273.0
+    # ステップnの室iにおける平均放射温度, K, [i]
+    t_mrt_is_n = theta_mrt_is_n + 273.0
 
-    return 3.96 * 10 ** (-8) * (t_cl_i_n ** 3.0 + t_cl_i_n ** 2.0 * t_mrt_i_n + t_cl_i_n * t_mrt_i_n ** 2.0 + t_mrt_i_n)
+    return 3.96 * 10 ** (-8) * (t_cl_is_n ** 3.0 + t_cl_is_n ** 2.0 * t_mrt_is_n + t_cl_is_n * t_mrt_is_n ** 2.0 + t_mrt_is_n)
 
 
-def get_h_c_i_n(theta_r_i_n: float, t_cl_i_n: float, v_hum_i_n: float) -> float:
+def get_h_hum_c_is_n(theta_r_is_n: np.ndarray, t_cl_is_n: np.ndarray, v_hum_is_n: np.ndarray) -> np.ndarray:
     """人体周りの対流熱伝達率を計算する。
 
     Args:
-        theta_r_i_n: ステップnの室iにおける室温, degree C
-        t_cl_i_n: ステップnの室iにおける着衣温度, degree C
-        v_hum_i_n: ステップnの室iにおける人体周りの風速, m/s
+        theta_r_is_n: ステップnの室iにおける室温, degree C, [i]
+        t_cl_is_n: ステップnの室iにおける着衣温度, degree C, [i]
+        v_hum_is_n: ステップnの室iにおける人体周りの風速, m/s, [i]
 
     Returns:
         ステップnの室iにおける人体周りの対流熱伝達率, W/m2K
     """
 
-    return max(12.1 * math.sqrt(v_hum_i_n), 2.38 * abs(t_cl_i_n - theta_r_i_n) ** 0.25)
+    return np.maximum(12.1 * np.sqrt(v_hum_is_n), 2.38 * np.abs(t_cl_is_n - theta_r_is_n) ** 0.25)
 
 
-def get_pmv(h_c, t_a, t_cl, t_r_bar, clo_value, h_r, p_a):
+def get_h_hum_is_n(h_hum_r_is_n: np.ndarray, h_hum_c_is_n: np.ndarray) -> np.ndarray:
+    """人体周りの対流熱伝達率を計算する。
+
+    Args:
+        h_hum_r_is_n: ステップnの室iにおける人体周りの放射熱伝達率, W/m2K, [i]
+        h_hum_c_is_n: ステップnの室iにおける人体周りの対流熱伝達率, W/m2K, [i]
+
+    Returns:
+        ステップnの室iにおける人体周りの総合熱伝達率, W/m2K, [i]
+    """
+
+    return h_hum_r_is_n + h_hum_c_is_n
+
+
+def get_pmv(h_c, t_a, t_cl, t_r_bar, clo_value, h_r, p_a, h, ot):
     """PMVを計算する
 
     Args:
@@ -96,30 +111,15 @@ def get_pmv(h_c, t_a, t_cl, t_r_bar, clo_value, h_r, p_a):
     # 着衣面積率
     f_cl = get_f_cl(i_cl)
 
+    ot = (h_r * t_r_bar + h_c * t_a)/h
+
     return (0.303 * math.exp(-0.036 * m) + 0.028) * (
             m  # 活動量, W/m2
             - 3.05 * 10 ** (-3) * (5733.0 - 6.99 * m - p_a)  # 皮膚からの潜熱損失, W/m2
             - max(0.42 * (m - 58.15), 0.0)  # 発汗熱損失, W/m2
             - 1.7 * 10 ** (-5) * m * (5867.0 - p_a)  # 呼吸に伴う潜熱損失, W/m2
             - 0.0014 * m * (34.0 - t_a)  # 呼吸に伴う顕熱損失, W/m2 ( = 呼吸量, (g/s)/m2 ✕ (34.0 - 室温)
-            - h_r * f_cl * (t_cl - t_r_bar)  # 着衣からの放射熱損失
-            - f_cl * h_c * (t_cl - t_a))  # 着衣からの対流熱損失
-
-
-def get_p_a(rh: float, t_a: float) -> float:
-    """
-
-    Args:
-        rh: 相対湿度, %
-        t_a: the air temperature, degree C
-
-    Returns:
-        the water vapour partial pressure, Pa
-
-    """
-
-    # TODO 飽和水蒸気圧の計算方法は省エネ基準で採用している方法（WMO?）に揃えた方が良い。
-    return rh / 100. * FNPS(t_a) * 1000.0
+            - f_cl * h * (t_cl - ot))  # 着衣からの熱損失
 
 
 def convert_clo_to_m2kw(clo):
@@ -170,24 +170,4 @@ def get_f_cl(i_cl: float) -> float:
         return 1.00 + 1.290 * i_cl
     else:
         return 1.05 + 0.645 * i_cl
-
-
-# 飽和水蒸気圧[kPa]の計算（ASHRAE Standard 55-2013）
-def FNPS(T: float) -> float:
-    return math.exp(16.6536 - 4030.183 / (T + 235.0))
-
-
-# 着衣量 [clo] の計算（作用温度から求める） 式(128)
-def get_I_cl(OT: float) -> float:
-    # 冷房時の着衣量
-    if OT > 29.1:
-        clothing = 0.3
-    # 暖房時の着衣量
-    elif OT < 19.4:
-        clothing = 1.1
-    # 非空調時の着衣量（作用温度と線形関係で調節する）
-    else:
-        clothing = 1.1 + (0.3 - 1.1) / (29.1 - 19.4) * (OT - 19.4)
-
-    return clothing
 

@@ -45,10 +45,21 @@ def run_tick_groundonly(spaces: List[Space], To_n: float, n: int, Tave: float):
 def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int):
 
     # ステップnの室iにおける室温, degree C, [i]
-    # 室内壁の場合の裏面温度を計算する際に隣りの室の室温を持ちるために使用する。
     theta_r_is_n = np.array([s.theta_r_i_npls for s in spaces])
-    # ステップnの室iにおける絶対湿度
+    # ステップnの室iにおける絶対湿度, kg/kg(DA), [i]
     x_r_is_n = np.array([s.x_r_i_n for s in spaces])
+    # ステップnの室iにおける着衣温度, degree C, [i]
+    theta_cl_is_n = np.array([s.theta_cl_i_n for s in spaces])
+    # ステップnの室iにおける人体周りの風速, m/s, [i]
+    v_hum_is_n = np.array([s.v_hum_i_n for s in spaces])
+    # ステップnの室iにおける平均放射温度, degree C, [i]
+    theta_mrt_is_n = np.array([s.theta_mrt_i_n for s in spaces])
+
+    # ステップnの室iにおける人体周りの対流熱伝達率, W/m2K, [i]
+    h_hum_c_is_n = a35.get_h_hum_c_is_n(theta_r_is_n=theta_r_is_n, t_cl_is_n=theta_cl_is_n, v_hum_is_n=v_hum_is_n)
+
+    # ステップnの室iにおける人体周りの放射熱伝達率, W/m2K, [i]
+    h_hum_r_is_n = a35.get_h_hum_r_is_n(theta_cl_is_n=theta_cl_is_n, theta_mrt_is_n=theta_mrt_is_n)
 
     for i, s in enumerate(spaces):
 
@@ -60,30 +71,26 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int):
         xf_i_npls = s.xf_i_npls
         x_r_i_n = s.x_r_i_n
         # ステップnの室iにおける平均放射温度, degree C
-        theta_mrt_i_n = s.mrt_i_n
+        theta_mrt_i_n = s.theta_mrt_i_n
         v_hum_i_n = s.v_hum_i_n
         clo_i_n = s.clo_i_n
-        theta_cl_i_n = s.t_cl_i_n
+        theta_cl_i_n = s.theta_cl_i_n
         # ステップnの室iにおける水蒸気圧, Pa
         p_a_i_n = s.p_a_i_n
 
         # ステップnの室iにおける室温, degree C
         theta_r_i_n = theta_r_is_n[i]
 
-        # ステップnの室iにおける人体周りの対流熱伝達率, W/m2K
-        h_c_i_n = a35.get_h_c_i_n(theta_r_i_n=theta_r_i_n, t_cl_i_n=theta_cl_i_n, v_hum_i_n=v_hum_i_n)
-
-        # ステップnの室iにおける人体周りの放射熱伝達率, W/m2K
-        h_r_i_n = a35.get_h_r_i_n(theta_cl_i_n=theta_cl_i_n, theta_mrt_i_n=theta_mrt_i_n)
+        theta_ot_i_n = (h_hum_r_is_n[i] * theta_mrt_i_n + h_hum_c_is_n[i] * theta_r_i_n) / (h_hum_r_is_n[i] + h_hum_c_is_n[i])
 
         # ステップnの室iにおけるPMV
-        pmv_i_n = a35.get_pmv(h_c=h_c_i_n, t_a=theta_r_i_n, t_cl=theta_cl_i_n, t_r_bar=theta_mrt_i_n, clo_value=clo_i_n, h_r=h_r_i_n, p_a=p_a_i_n)
+        pmv_i_n = a35.get_pmv(h_c=h_hum_c_is_n[i], t_a=theta_r_i_n, t_cl=theta_cl_i_n, t_r_bar=theta_mrt_i_n, clo_value=clo_i_n, h_r=h_hum_r_is_n[i], p_a=p_a_i_n, h=h_hum_c_is_n[i]+h_hum_r_is_n[i], ot=theta_ot_i_n)
 
         # 窓の開閉と空調発停の切り替え判定
         operation_mode, PMV_set, clo_i_n = a13.mode_select(ac_demand_i_n=s.ac_demand[n], now_pmv=pmv_i_n, operation_mode_i_n_mns=operation_mode_i_n_mns)
 
         # 前時刻の相対湿度を用い、PMV目標値を満たすような目標作用温度を求める
-        OTset = a28.calc_OTset(s.is_radiative_heating, PMV_set, h_c_i_n, theta_cl_i_n, h_r_i_n, operation_mode, p_a_i_n, clo_i_n)
+        OTset = a28.calc_OTset(s.is_radiative_heating, PMV_set, h_hum_c_is_n[i], theta_cl_i_n, h_hum_r_is_n[i], operation_mode, p_a_i_n, clo_i_n)
 
         # ステップnの室iの集約された境界j*における裏面温度, degree C, [j*]
         theta_rear_i_jstrs_n = a9.get_theta_rear_i_jstrs_n(
@@ -267,7 +274,7 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int):
         xf_i_n = s42.get_xf(s.Gf_i, xf_i_npls, s.Cx_i, x_r_i_n_pls)
         Qfunl_i_n = s42.get_Qfunl(s.Cx_i, x_r_i_n_pls, xf_i_n)
 
-        t_cl_i_n_pls = a35.get_t_cl_i_n(clo_i_n=clo_i_n, h_c_i_n=h_c_i_n, h_r_i_n=h_r_i_n, ot_i_n=ot_i_n)
+        t_cl_i_n_pls = a35.get_t_cl_i_n(clo_i_n=clo_i_n, h_c_i_n=h_hum_c_is_n[i], h_r_i_n=h_hum_r_is_n[i], ot_i_n=ot_i_n)
 
         if operation_mode == OperationMode.HEATING:
             if s.is_radiative_heating:
@@ -293,10 +300,10 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int):
         s.q_srf_i_jstrs_n = q_srf_i_jstrs_n
         s.xf_i_npls = xf_i_n
         s.x_r_i_n = x_r_i_n_pls
-        s.mrt_i_n = theta_mrt_i_n_pls
+        s.theta_mrt_i_n = theta_mrt_i_n_pls
         s.v_hum_i_n = v_hum_i_n_pls
         s.clo_i_n = clo_i_n
-        s.t_cl_i_n = t_cl_i_n_pls
+        s.theta_cl_i_n = t_cl_i_n_pls
         s.p_a_i_n = p_v_i_n_pls
 
         # ロギング
