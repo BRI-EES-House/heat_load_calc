@@ -78,7 +78,8 @@ def get_brc_i_n(c_room_i: float, deta_t: float, theta_r_i_n: float, h_c_bnd_i_js
                 a_bnd_i_jstrs: np.ndarray, wsc_i_jstrs_npls: np.ndarray, wsv_i_jstrs_npls: np.ndarray,
                 v_mec_vent_i_n: float, v_reak_i_n: float, v_int_vent_i_istrs: np.ndarray, v_ntrl_vent_i: float,
                 theta_o_n: float, theta_r_int_vent_i_istrs_n: np.ndarray, q_gen_i_n: float,
-                c_cap_frnt_i: float, k_frnt_i: float, q_sol_frnt_i_n: float, theta_frnt_i_n: float):
+                c_cap_frnt_i: float, k_frnt_i: float, q_sol_frnt_i_n: float, theta_frnt_i_n: float,
+                operation_mode: OperationMode) -> np.ndarray:
     """係数BRC（通風なし）および係数BRC（通風あり）を取得する。
 
     Args:
@@ -102,9 +103,7 @@ def get_brc_i_n(c_room_i: float, deta_t: float, theta_r_i_n: float, h_c_bnd_i_js
         theta_frnt_i_n: ステップnの室iにおける家具の温度, degree C
 
     Returns:
-        タプル：
-            (1) ステップnの室iにおける係数BRC（通風なし）, W
-            (2) ステップnの室iにおける係数BRC（通風あり）, W
+        ステップnの室iにおける係数BRC, W
     """
 
     c_air = a18.get_c_air()
@@ -119,9 +118,10 @@ def get_brc_i_n(c_room_i: float, deta_t: float, theta_r_i_n: float, h_c_bnd_i_js
         + q_gen_i_n \
         + (c_cap_frnt_i / deta_t * theta_frnt_i_n + q_sol_frnt_i_n) / (c_cap_frnt_i / (deta_t * k_frnt_i) + 1.0)
 
-    brc_ntrv_i_n = brc_non_ntrv_i_n + c_air * rho_air * v_ntrl_vent_i * theta_o_n
-
-    return brc_non_ntrv_i_n, brc_ntrv_i_n
+    if operation_mode == OperationMode.STOP_OPEN:
+        return brc_non_ntrv_i_n + c_air * rho_air * v_ntrl_vent_i * theta_o_n
+    else:
+        return brc_non_ntrv_i_n
 
 
 # BRLの計算 式(7)

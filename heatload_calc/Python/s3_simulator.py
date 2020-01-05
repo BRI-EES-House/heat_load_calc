@@ -151,16 +151,14 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int):
         # ステップnの室iにおける隣室i*からの室間換気の絶対湿度, kg/kgDA, [i*]
         x_r_int_vent_i_istrs_n = np.array([x_r_is_n[x] for x in s.next_room_idxs_i])
 
-        # ステップnの室iにおける係数BRC（通風なし）, W
-        # ステップnの室iにおける係数BRC（通風あり）, W
-        brc_non_ntrv_i_n, brc_ntrv_i_n = s41.get_brc_i_n(
+        # ステップnの室iにおける係数BRC
+        brc_i_n = s41.get_brc_i_n(
             c_room_i=s.c_room_i, deta_t=900.0, theta_r_i_n=theta_r_i_n, h_c_bnd_i_jstrs=s.h_c_bnd_i_jstrs,
             a_bnd_i_jstrs=s.a_bnd_i_jstrs, wsc_i_jstrs_npls=wsc_i_jstrs_npls, wsv_i_jstrs_npls=wsv_i_jstrs_npls,
             v_mec_vent_i_n=s.v_mec_vent_i_ns[n], v_reak_i_n=v_reak_i_n, v_int_vent_i_istrs=s.v_int_vent_i_istrs,
             v_ntrl_vent_i=s.v_ntrl_vent_i, theta_o_n=theta_o_n, theta_r_int_vent_i_istrs_n=theta_r_int_vent_i_istrs_n,
             q_gen_i_n=q_gen_i_n, c_cap_frnt_i=s.c_cap_frnt_i, k_frnt_i=s.k_frnt_i, q_sol_frnt_i_n=s.q_sol_frnt_i_ns[n],
-            theta_frnt_i_n=old_theta_frnt_i)
-        brc_i_n = brc_ntrv_i_n if operation_mode == OperationMode.STOP_OPEN else brc_non_ntrv_i_n
+            theta_frnt_i_n=old_theta_frnt_i, operation_mode=operation_mode)
 
         brm_non_ntrv_i_n = s.BRMnoncv_i[n]
         brm_ntrv_i_n = brm_non_ntrv_i_n + a18.get_c_air() * a18.get_rho_air() * s.v_ntrl_vent_i
