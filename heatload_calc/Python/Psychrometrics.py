@@ -1,63 +1,101 @@
 import math
-import a18_initial_value_constants as a18
 
 
-# 湿り空気の状態値計算モジュール
+def get_h(p_v: float, p_vs: float) -> float:
+    """相対湿度を計算する。
 
-# 飽和水蒸気圧の計算（Wexler-Hylandの式）
-# T : 温度[℃]
-# Pws : 飽和水蒸気圧[kPa]
-def Pws(T):
-    tab = T + 273.15  # 絶対温度の計算
-    if T >= 0.:
-        Pws = math.exp(-5800.2206 / tab + 1.3914993 \
-                       - 0.048640239 * tab + 0.41764768 * 10. ** -4. * tab ** 2. \
-                       - 0.14452093 * 10. ** -7. * tab ** 3. + 6.5459673 * math.log(tab)) / 1000.
+    Args:
+        p_v: 水蒸気圧, Pa
+        p_vs: 飽和水蒸気圧, Pa
+
+    Returns:
+        相対湿度, %
+
+    Notes:
+        省エネ基準第11章「その他」第5節「湿り空気」式(1)
+    """
+
+    return p_v / p_vs * 100.0
+
+
+def get_x(p_v: float) -> float:
+    """水蒸気圧から絶対湿度を計算する。
+
+    Args:
+        p_v: 水蒸気圧, Pa
+
+    Returns:
+        絶対湿度, kg/kgDA
+
+    Notes:
+        省エネ基準第11章「その他」第5節「湿り空気」式(2)
+        ただし、省エネ基準の式は一部間違っていると考えられる。(2020/1/5時点)
+    """
+
+    # 大気圧, Pa
+    f = get_f()
+
+    return 0.622 * p_v / (f - p_v)
+
+
+def get_p_v(x: float) -> float:
+    """絶対湿度から水蒸気圧を求める。
+
+    Args:
+        x: 絶対湿度, kg/kgDA
+
+    Returns:
+        水蒸気圧, Pa
+
+    Notes:
+        省エネ基準第11章「その他」第5節「湿り空気」式(4)
+        ただし、省エネ基準の式は絶対湿度の単位として(g/kg(DA))を使用しているが、
+        ここでは、kg/kg(DA)に統一した。
+    """
+
+    # 大気圧, Pa
+    f = get_f()
+
+    return f * x / (x + 0.62198)
+
+
+def get_p_vs(theta: float) -> float:
+    """飽和水蒸気圧を計算する。
+
+    Args:
+        theta: 空気温度, degree C
+
+    Returns:
+        飽和水蒸気圧, Pa
+
+    Notes:
+        省エネ基準
+    """
+
+    t = theta + 273.15  # 絶対温度の計算
+
+    a_1 = -6096.9385
+    a_2 = 21.2409642
+    a_3 = -0.02711193
+    a_4 = 0.00001673952
+    a_5 = 2.433502
+    b_1 = -6024.5282
+    b_2 = 29.32707
+    b_3 = 0.010613863
+    b_4 = -0.000013198825
+    b_5 = -0.49382577
+
+    if theta >= 0.0:
+        return math.exp(a_1 / t + a_2 + a_3 * t + a_4 * t ** 2 + a_5 * math.log(t))
     else:
-        Pws = math.exp(-5674.5359 / tab + 6.3925247 \
-                       - 0.9677843 * 10. ** -2. * tab + 0.6215701 * 10. ** -6. * tab ** 2. \
-                       + 0.20747825 * 10. ** -8. * tab ** 3. - 0.9484024 * 10. ** -12. * tab ** 4. \
-                       + 4.1635019 * math.log(tab)) / 1000.
-
-    return Pws
+        return math.exp(b_1 / t + b_2 + b_3 * t + b_4 * t ** 2 + b_5 * math.log(t))
 
 
-# 水蒸気圧から絶対湿度を計算する（ダルトンの法則）
-# Pw : 水蒸気圧[kPa]
-# x : 絶対湿度[kg/kg(DA)]
-def x(Pw):
-    P = a18.get_P()
-    return 0.62198 * Pw / (P - Pw)
+def get_f() -> float:
+    """大気圧を求める。
 
+    Returns:
+        大気圧, Pa
+    """
 
-# 例題
-# for T in range(-20, 20, 5):
-#     print(T, Pws(T), x(Pws(T)))
-
-def xtrh(T, RH):
-    # 水蒸気分圧の計算[kPa]
-    Pw = Pws(T) * RH / 100.0
-    return x(Pw)
-
-
-# 絶対湿度から水蒸気圧を計算
-# x：絶対湿度[kg/kg(DA)]
-def Pwx(x):
-    P = a18.get_P()
-    return x * P / (x + 0.62198)
-
-
-# 乾球温度と水蒸気圧から相対湿度を計算
-# T：乾球温度[℃]
-# Pw：水蒸気圧[kPa]
-def rhtp(T, Pw):
-    return Pw / Pws(T) * 100.0
-
-
-# 乾球温度と絶対湿度から相対湿度を計算
-# T：乾球温度[℃]
-# x：絶対湿度[kg/kg(DA)]
-def rhtx(T, x):
-    return rhtp(T, Pwx(x))
-
-# print(xtrh(20.0, 40.0))
+    return 101325

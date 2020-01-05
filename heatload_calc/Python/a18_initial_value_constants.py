@@ -1,4 +1,4 @@
-from Psychrometrics import xtrh
+import Psychrometrics as psy
 
 """
 付録18．初期値と定数
@@ -34,13 +34,17 @@ def get_Tfun_initial() -> float:
 
 
 def get_xr_initial() -> float:
-    # return 0.00579618
-    return xtrh(20.0, 40.0)
+
+    p_v = psy.get_p_vs(theta=20.0) * 0.4
+
+    return psy.get_x(p_v)
 
 
 def get_xf_initial() -> float:
-    # return 0.00579618
-    return xtrh(20.0, 40.0)
+
+    p_v = psy.get_p_vs(theta=20.0) * 0.4
+
+    return psy.get_x(p_v)
 
 
 # ********** 表9 各種定数値 **********
@@ -58,11 +62,6 @@ def get_rho_air() -> float:
 # 蒸発潜熱[J/kg]
 def get_conra() -> float:
     return 2501000.0
-
-
-# 大気圧[kPa]
-def get_P() -> float:
-    return 101.325
 
 
 # ステファンボルツマン定数

@@ -8,11 +8,10 @@ from a39_global_parameters import OperationMode
 """
 
 
-def get_OTset(RH: float, Clo: float, PMV_set: float, h_c_i_n, t_cl_i_n, h_r, p_a) -> float:
+def get_OTset(Clo: float, PMV_set: float, h_c_i_n, t_cl_i_n, h_r, p_a) -> float:
     """ 作用温度の計算
     指定条件(met, velocity, RH, Clo)条件下で指定PMVになる作用温度OTを求める
 
-    :param RH: 室相対湿度[%]
     :param Clo: 着衣量 [Clo]
     :param PMV_set: 目標PMV
     :return: 作用温度 [℃]
@@ -26,7 +25,7 @@ def get_OTset(RH: float, Clo: float, PMV_set: float, h_c_i_n, t_cl_i_n, h_r, p_a
 
 
 # PMV_i_n=0条件から目標作用温度を計算する
-def calc_OTset(isRadiantHeater: bool, RH: float, PMV_set: float, h_c_i_n, t_cl_i_n, h_r, operation_mode_i_n, p_a, Clo) -> float:
+def calc_OTset(isRadiantHeater: bool, PMV_set: float, h_c_i_n, t_cl_i_n, h_r, operation_mode_i_n, p_a, Clo) -> float:
     """
 
     :param isRadiantHeater: 放射式空調時はTrue
@@ -38,11 +37,11 @@ def calc_OTset(isRadiantHeater: bool, RH: float, PMV_set: float, h_c_i_n, t_cl_i
         # 放射式空調時
         if isRadiantHeater:
             # 代謝量1.0Met、風速0.0m/sを想定
-            OTset = get_OTset(RH, Clo, PMV_set, h_c_i_n, t_cl_i_n, h_r, p_a)
+            OTset = get_OTset(Clo, PMV_set, h_c_i_n, t_cl_i_n, h_r, p_a)
         # 対流式空調時
         else:
             # 代謝量1.0Met、風速0.2m/sを想定
-            OTset = get_OTset(RH, Clo, PMV_set, h_c_i_n, t_cl_i_n, h_r, p_a)
+            OTset = get_OTset(Clo, PMV_set, h_c_i_n, t_cl_i_n, h_r, p_a)
     else:
         OTset = 0.0
 

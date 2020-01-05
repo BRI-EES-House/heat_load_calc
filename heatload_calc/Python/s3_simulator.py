@@ -7,18 +7,15 @@ import s4_2_latent_heat as s42
 import a1_calculation_surface_temperature as a1
 import apdx3_human_body as a3
 import a9_rear_surface_equivalent_temperature as a9
-import a12_indoor_radiative_heat_transfer as a12
 import a13_Win_ACselect as a13
 import a16_blowing_condition_rac as a16
 import a18_initial_value_constants as a18
 import a28_operative_temperature as a28
 import a35_PMV as a35
-import a37_groundonly_runup_calculation as a37
 from a39_global_parameters import OperationMode
 from s3_space_loader import Space
 
-from Psychrometrics import rhtx
-
+import Psychrometrics as psy
 
 # 地盤の計算
 def run_tick_groundonly(spaces: List[Space], To_n: float, n: int, Tave: float):
@@ -51,7 +48,7 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int):
     # 室内壁の場合の裏面温度を計算する際に隣りの室の室温を持ちるために使用する。
     theta_r_is_n = np.array([s.theta_r_i_npls for s in spaces])
     # ステップnの室iにおける絶対湿度
-    x_r_is_n = np.array([s.x_r_i_npls for s in spaces])
+    x_r_is_n = np.array([s.x_r_i_n for s in spaces])
 
     for i, s in enumerate(spaces):
 
@@ -61,13 +58,14 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int):
         old_theta_frnt_i = s.old_theta_frnt_i
         q_srf_i_jstrs_n = s.q_srf_i_jstrs_n
         xf_i_npls = s.xf_i_npls
-        rh_i_n = s.rh_i_n
-        x_r_i_npls = s.x_r_i_npls
+        x_r_i_n = s.x_r_i_n
         # ステップnの室iにおける平均放射温度, degree C
         theta_mrt_i_n = s.mrt_i_n
         v_hum_i_n = s.v_hum_i_n
         clo_i_n = s.clo_i_n
         theta_cl_i_n = s.t_cl_i_n
+        # ステップnの室iにおける水蒸気圧, Pa
+        p_a_i_n = s.p_a_i_n
 
         # ステップnの室iにおける室温, degree C
         theta_r_i_n = theta_r_is_n[i]
@@ -78,8 +76,6 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int):
         # ステップnの室iにおける人体周りの放射熱伝達率, W/m2K
         h_r_i_n = a35.get_h_r_i_n(theta_cl_i_n=theta_cl_i_n, theta_mrt_i_n=theta_mrt_i_n)
 
-        p_a_i_n = a35.get_p_a(rh_i_n, theta_r_i_n)
-
         # ステップnの室iにおけるPMV
         pmv_i_n = a35.get_pmv(h_c=h_c_i_n, t_a=theta_r_i_n, t_cl=theta_cl_i_n, t_r_bar=theta_mrt_i_n, clo_value=clo_i_n, h_r=h_r_i_n, p_a=p_a_i_n)
 
@@ -87,7 +83,7 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int):
         operation_mode, PMV_set, clo_i_n = a13.mode_select(ac_demand_i_n=s.ac_demand[n], now_pmv=pmv_i_n, operation_mode_i_n_mns=operation_mode_i_n_mns)
 
         # 前時刻の相対湿度を用い、PMV目標値を満たすような目標作用温度を求める
-        OTset = a28.calc_OTset(s.is_radiative_heating, rh_i_n, PMV_set, h_c_i_n, theta_cl_i_n, h_r_i_n, operation_mode, p_a_i_n, clo_i_n)
+        OTset = a28.calc_OTset(s.is_radiative_heating, PMV_set, h_c_i_n, theta_cl_i_n, h_r_i_n, operation_mode, p_a_i_n, clo_i_n)
 
         # ステップnの室iの集約された境界j*における裏面温度, degree C, [j*]
         theta_rear_i_jstrs_n = a9.get_theta_rear_i_jstrs_n(
@@ -212,7 +208,7 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int):
             volume=s.v_room_cap_i,
             v_int_vent_i_istrs=s.v_int_vent_i_istrs,
             xr_next_i_j_nm1=x_r_int_vent_i_istrs_n,
-            xr_i_nm1=x_r_i_npls,
+            xr_i_nm1=x_r_i_n,
             xf_i_nm1=xf_i_npls,
             Lin=x_gen_i_n,
             xo=xo_n,
@@ -245,10 +241,10 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int):
         # 除湿量が負値(加湿量が正)になった場合にはルームエアコン風量V_(ac,n)をゼロとして再度室湿度を計算する
         if Ghum_base > 0.0:
             Ghum_i_n = 0.0
-            x_r_i_ns = s42.get_xr(BRXC_pre, BRMX_pre)
+            x_r_i_n_pls = s42.get_xr(BRXC_pre, BRMX_pre)
         else:
             Ghum_i_n = Ghum_base
-            x_r_i_ns = xr_base
+            x_r_i_n_pls = xr_base
 
         # 除湿量から室加湿熱量を計算 式(21)
         Lcl_i_n = get_Lcl(Ghum_i_n)
@@ -256,14 +252,20 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int):
         # 当面は放射空調の潜熱は0
         Lrl_i_n = get_Lrl()
 
-        # 室相対湿度の計算 式(22)
-        rh_i_n_pls = rhtx(theta_r_i_npls, x_r_i_ns)
+        # ステップn+1の室iにおける飽和水蒸気圧, Pa
+        p_vs_i_n_pls = psy.get_p_vs(theta_r_i_npls)
+
+        # ステップn+1の室iにおける水蒸気圧, Pa
+        p_v_i_n_pls = psy.get_p_v(x_r_i_n_pls)
+
+        # ステップn+1の室iにおける相対湿度, %
+        rh_i_n_pls = psy.get_h(p_v=p_v_i_n_pls, p_vs=p_vs_i_n_pls)
 
         # ********** 備品類の絶対湿度 xf の計算 **********
 
         # 備品類の絶対湿度の計算
-        xf_i_n = s42.get_xf(s.Gf_i, xf_i_npls, s.Cx_i, x_r_i_ns)
-        Qfunl_i_n = s42.get_Qfunl(s.Cx_i, x_r_i_ns, xf_i_n)
+        xf_i_n = s42.get_xf(s.Gf_i, xf_i_npls, s.Cx_i, x_r_i_n_pls)
+        Qfunl_i_n = s42.get_Qfunl(s.Cx_i, x_r_i_n_pls, xf_i_n)
 
         t_cl_i_n_pls = a35.get_t_cl_i_n(clo_i_n=clo_i_n, h_c_i_n=h_c_i_n, h_r_i_n=h_r_i_n, ot_i_n=ot_i_n)
 
@@ -290,12 +292,12 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int):
         s.theta_r_i_npls = theta_r_i_npls
         s.q_srf_i_jstrs_n = q_srf_i_jstrs_n
         s.xf_i_npls = xf_i_n
-        s.x_r_i_npls = x_r_i_ns
+        s.x_r_i_n = x_r_i_n_pls
         s.mrt_i_n = theta_mrt_i_n_pls
         s.v_hum_i_n = v_hum_i_n_pls
         s.clo_i_n = clo_i_n
         s.t_cl_i_n = t_cl_i_n_pls
-        s.rh_i_n = rh_i_n_pls
+        s.p_a_i_n = p_v_i_n_pls
 
         # ロギング
         s.logger.theta_r_i_ns[n] = theta_r_i_npls
@@ -323,7 +325,7 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int):
         s.logger.Vel_i_n[n] = v_hum_i_n
         s.logger.Clo_i_n[n] = clo_i_n
         s.logger.RH_i_n[n] = rh_i_n_pls
-        s.logger.x_r_i_ns[n] = x_r_i_ns
+        s.logger.x_r_i_ns[n] = x_r_i_n_pls
 
 
 # MRTの計算

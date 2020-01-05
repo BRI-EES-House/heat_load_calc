@@ -18,6 +18,8 @@ from a39_global_parameters import OperationMode
 import s3_surface_loader as s3
 import s4_1_sensible_heat as s41
 
+import Psychrometrics as psy
+
 
 # # 室温・熱負荷を計算するクラス
 
@@ -246,9 +248,10 @@ class Space:
         # ステップnの室iにおける衣服の表面温度, degree C
         self.t_cl_i_n = theta_r_i_initial
 
-        self.x_r_i_npls = x_r_i_initial
+        self.x_r_i_n = x_r_i_initial
 
-        self.rh_i_n = 50.0
+        # 水蒸気圧, Pa
+        self.p_a_i_n = psy.get_p_vs(x_r_i_initial) * 0.5
 
         # （26）式中の〖CVL〗_(i,l)の計算式右辺
         self.theta_srf_dsh_a_i_jstrs_n_m = np.full((n_bnd_i_jstrs, 12), TsdA_initial)

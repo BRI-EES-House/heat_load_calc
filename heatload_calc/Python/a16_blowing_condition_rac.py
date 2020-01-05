@@ -1,4 +1,4 @@
-from Psychrometrics import Pws, x
+from Psychrometrics import get_p_vs, get_x
 import a18_initial_value_constants as a18
 from a39_global_parameters import OperationMode
 
@@ -31,7 +31,7 @@ def calcVac_xeout(Lcs, Vmin, Vmax, qmin_c, qmax_c, Tr, BF, operation_mode):
         Teout = get_Teout(Qs=Qs, Tr=Tr, Vac=Vac, BF=BF)
 
         # 熱交換器吹出部分は飽和状態 式(115)-(118)
-        xeout = x(Pws(Teout))
+        xeout = get_x(get_p_vs(Teout))
 
     # 風量[m3/s]の計算（線形補間）
 
