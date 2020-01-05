@@ -168,7 +168,6 @@ class Space:
             heat_generation_appliances_schedule: np.ndarray,
             x_gen_except_hum_i_ns: np.ndarray, heat_generation_lighting_schedule: np.ndarray,
             number_of_people_schedule: np.ndarray,
-            pmv_upper_limit_schedule: np.ndarray, pmv_lower_limit_schedule: np.ndarray,
             air_conditioning_demand: np.ndarray,
             TsdA_initial: float, TsdT_initial: float, Fot_i_g: np.ndarray, A_total_i: float,
             qmax_c_i: float, qmin_c_i: float, Vmax_i: float, Vmin_i: float,
@@ -232,8 +231,6 @@ class Space:
 
         # ステップnの室iにおける在室人数, [8760*4]
         self.n_hum_i_ns = number_of_people_schedule
-        self.pmv_upper_limit_schedule = pmv_upper_limit_schedule  # PMV上限値, degree C
-        self.pmv_lower_limit_schedule = pmv_lower_limit_schedule  # PMV下限値, degree C
 
         # ステップnの室iにおける人体発熱を除く内部発熱, W, [8760*4]
         self.q_gen_except_hum_i_ns = q_gen_except_hum_i_ns

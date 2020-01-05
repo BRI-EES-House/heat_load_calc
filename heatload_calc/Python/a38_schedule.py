@@ -71,7 +71,7 @@ def get_schedule(room_name, n_p, calendar, daily_schedule):
     return d
 
 
-def get_air_conditioning_schedules(room, n_p) -> (np.ndarray, np.ndarray, np.ndarray, np.ndarray):
+def get_air_conditioning_schedules(room, n_p) -> (np.ndarray, np.ndarray):
     """空調スケジュールを取得する。
 
     Args:
@@ -87,14 +87,6 @@ def get_air_conditioning_schedules(room, n_p) -> (np.ndarray, np.ndarray, np.nda
     # 設定温度／PMV下限値の設定
     is_lower_temp_limit_set_schedule = np.repeat(room['schedule']['is_lower_temp_limit_set'], 4)
 
-    # PMV上限値
-    pmv_upper_limit_schedule = np.repeat(room['schedule']['pmv_upper_limit'], 4)
-    # PMV下限値
-    pmv_lower_limit_schedule = np.repeat(room['schedule']['pmv_lower_limit'], 4)
-
-    return is_upper_temp_limit_set_schedule, \
-           is_lower_temp_limit_set_schedule, \
-           pmv_upper_limit_schedule, \
-           pmv_lower_limit_schedule
+    return is_upper_temp_limit_set_schedule, is_lower_temp_limit_set_schedule
 
 

@@ -153,10 +153,7 @@ def make_space(room: Dict,
     #   設定温度下限値, degree C * 365* 96
     #   PMV上限値, degree C * 365* 96
     #   PMV下限値, degree C * 365* 96
-    is_upper_temp_limit_set_schedule, \
-        is_lower_temp_limit_set_schedule, \
-        pmv_upper_limit_schedule, \
-        pmv_lower_limit_schedule = a38.get_air_conditioning_schedules(room, n_p)
+    is_upper_temp_limit_set_schedule, is_lower_temp_limit_set_schedule = a38.get_air_conditioning_schedules(room, n_p)
 
     # 空調や通風などの需要があるかどうか, bool * 365 * 96
     air_conditioning_demand = is_upper_temp_limit_set_schedule | is_lower_temp_limit_set_schedule
@@ -326,8 +323,6 @@ def make_space(room: Dict,
         x_gen_except_hum_i_ns=vapor_generation_cooking_schedule/1000.0/3600.0,
         heat_generation_lighting_schedule=heat_generation_lighting_schedule,
         number_of_people_schedule=number_of_people_schedule,
-        pmv_upper_limit_schedule=pmv_upper_limit_schedule,
-        pmv_lower_limit_schedule=pmv_lower_limit_schedule,
         air_conditioning_demand=air_conditioning_demand,
         TsdA_initial=TsdA_initial,
         TsdT_initial=TsdT_initial,
