@@ -26,7 +26,7 @@ def get_OTset(RH: float, Clo: float, PMV_set: float, h_c_i_n, t_cl_i_n, h_r, p_a
 
 
 # PMV_i_n=0条件から目標作用温度を計算する
-def calc_OTset(isRadiantHeater: bool, RH: float, PMV_set: float, h_c_i_n, t_cl_i_n, h_r, operation_mode_i_n, p_a) -> float:
+def calc_OTset(isRadiantHeater: bool, RH: float, PMV_set: float, h_c_i_n, t_cl_i_n, h_r, operation_mode_i_n, p_a, Clo) -> (float, float):
     """
 
     :param isRadiantHeater: 放射式空調時はTrue
@@ -39,17 +39,14 @@ def calc_OTset(isRadiantHeater: bool, RH: float, PMV_set: float, h_c_i_n, t_cl_i
         if isRadiantHeater:
             # 代謝量1.0Met、風速0.0m/sを想定
             Vel = 0.0
-            Clo = 1.1 if operation_mode_i_n == OperationMode.HEATING else 0.3
             OTset = get_OTset(RH, Clo, PMV_set, h_c_i_n, t_cl_i_n, h_r, p_a)
         # 対流式空調時
         else:
             # 代謝量1.0Met、風速0.2m/sを想定
             Vel = 0.2
-            Clo = 1.1 if operation_mode_i_n == OperationMode.HEATING else 0.3
             OTset = get_OTset(RH, Clo, PMV_set, h_c_i_n, t_cl_i_n, h_r, p_a)
     else:
         OTset = 0.0
-        Clo = 0.7
         Vel = 0.1
 
-    return OTset, Clo, Vel
+    return OTset, Vel

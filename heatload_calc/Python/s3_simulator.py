@@ -84,7 +84,7 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int):
         pmv_i_n = a35.get_pmv(h_c=h_c_i_n, t_a=theta_r_i_n, t_cl=theta_cl_i_n, t_r_bar=theta_mrt_i_n, clo_value=clo_i_n, h_r=h_r_i_n, p_a=p_a_i_n)
 
         # 窓の開閉と空調発停の切り替え判定
-        operation_mode = a13.mode_select(s.air_conditioning_demand[n], pmv_i_n, operation_mode_i_n_mns)
+        operation_mode = a13.mode_select(ac_demand_i_n=s.ac_demand[n], now_pmv=pmv_i_n, operation_mode_i_n_mns=operation_mode_i_n_mns)
 
         # 目標PMVの計算（冷房時は上限、暖房時は下限PMVを目標値とする）
         # 空調モード: -1=冷房, 0=停止, 1=暖房, 2=, 3=    ==>  [停止, 暖房, 暖房(1), 暖房(2), 冷房]
@@ -94,6 +94,13 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int):
             PMV_set = s.pmv_upper_limit_schedule[n]
         elif operation_mode in [OperationMode.STOP_CLOSE, OperationMode.STOP_OPEN]:
             PMV_set = None
+
+        if operation_mode == OperationMode.HEATING:
+            clo_i_n = 1.1
+        elif operation_mode == OperationMode.COOLING:
+            clo_i_n = 0.3
+        elif operation_mode in [OperationMode.STOP_OPEN, OperationMode.STOP_CLOSE]:
+            clo_i_n = 0.7
 
         # ステップnの室iの集約された境界j*における裏面温度, degree C, [j*]
         theta_rear_i_jstrs_n = a9.get_theta_rear_i_jstrs_n(
@@ -179,7 +186,7 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int):
         # ********** 空調設定温度の計算 **********
 
         # 前時刻の相対湿度を用い、PMV目標値を満たすような目標作用温度を求める
-        OTset, clo_i_n, v_hum_i_n = a28.calc_OTset(s.is_radiative_heating, rh_i_n, PMV_set, h_c_i_n, theta_cl_i_n, h_r_i_n, operation_mode, p_a_i_n)
+        OTset, v_hum_i_n = a28.calc_OTset(s.is_radiative_heating, rh_i_n, PMV_set, h_c_i_n, theta_cl_i_n, h_r_i_n, operation_mode, p_a_i_n, clo_i_n)
 
         ot_i_n, lcs_i_n, lrs_i_n = s41.calc_next_step(
             s.is_radiative_heating, BRCot, BRMot, BRLot, OTset, s.Lrcap_i, operation_mode)

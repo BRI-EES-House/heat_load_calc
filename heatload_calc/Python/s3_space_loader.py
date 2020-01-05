@@ -240,7 +240,7 @@ class Space:
         # ステップnの室iにおける人体発湿を除く内部発湿, kg/s, [8760*4]
         self.x_gen_except_hum_i_ns = x_gen_except_hum_i_ns
 
-        self.air_conditioning_demand = air_conditioning_demand  # 当該時刻の空調需要（0：なし、1：あり）
+        self.ac_demand = air_conditioning_demand  # 当該時刻の空調需要（0：なし、1：あり）
 
         self.theta_r_i_npls = theta_r_i_initial
         self.mrt_i_n = theta_r_i_initial

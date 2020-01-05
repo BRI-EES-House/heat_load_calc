@@ -9,7 +9,17 @@ from a39_global_parameters import ACMode, OperationMode
 
 
 # 当該時刻の窓開閉、空調発停を判定する
-def mode_select(ac_demand: bool, now_pmv: float, operation_mode_i_n_mns) -> OperationMode:
+def mode_select(ac_demand_i_n: bool, now_pmv: float, operation_mode_i_n_mns) -> OperationMode:
+    """
+
+    Args:
+        ac_demand_i_n: ステップnの室iにおける空調需要
+        now_pmv:
+        operation_mode_i_n_mns:
+
+    Returns:
+
+    """
 
     # 窓の開閉、空調の発停を決定する
     # 冷房開始PMV
@@ -22,7 +32,7 @@ def mode_select(ac_demand: bool, now_pmv: float, operation_mode_i_n_mns) -> Oper
     occu_window_close_pmv = -0.49
 
     # 空調需要がある場合は、前の窓開閉状態で自然室温を計算
-    if ac_demand:
+    if ac_demand_i_n:
 
         if operation_mode_i_n_mns == OperationMode.HEATING:  # 前時刻が暖房の場合
 
@@ -75,6 +85,7 @@ def mode_select(ac_demand: bool, now_pmv: float, operation_mode_i_n_mns) -> Oper
 
     # 空調需要がない場合（窓閉鎖、空調停止）
     else:
+
         return OperationMode.STOP_CLOSE
 
 
