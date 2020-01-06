@@ -13,7 +13,9 @@ import a35_PMV as a35
 # 当該時刻の窓開閉、空調発停を判定する
 def mode_select(
         ac_demand_i_n: bool, operation_mode_i_n_mns: OperationMode,
-        is_radiative_heating, p_a_i_n, theta_ot_i_n, theta_r_i_n, h_hum_i_n
+        is_radiative_heating, p_a_i_n, h_hum_i_n,
+        theta_cl11_i_n, theta_cl07_i_n, theta_cl03_i_n,
+        pmv11_i_n, pmv07_i_n, pmv03_i_n
 ) -> (OperationMode, float, float):
     """
 
@@ -25,14 +27,6 @@ def mode_select(
     Returns:
 
     """
-
-    theta_cl11_i_n = a35.get_t_cl_i_n(clo_i_n=1.1, ot_i_n=theta_ot_i_n, h_a_i_n=h_hum_i_n)
-    theta_cl07_i_n = a35.get_t_cl_i_n(clo_i_n=0.7, ot_i_n=theta_ot_i_n, h_a_i_n=h_hum_i_n)
-    theta_cl03_i_n = a35.get_t_cl_i_n(clo_i_n=0.3, ot_i_n=theta_ot_i_n, h_a_i_n=h_hum_i_n)
-
-    pmv11_i_n = a35.get_pmv(t_a=theta_r_i_n, t_cl=theta_cl11_i_n, clo_value=1.1, p_a=p_a_i_n, h=h_hum_i_n, ot=theta_ot_i_n)
-    pmv07_i_n = a35.get_pmv(t_a=theta_r_i_n, t_cl=theta_cl07_i_n, clo_value=0.7, p_a=p_a_i_n, h=h_hum_i_n, ot=theta_ot_i_n)
-    pmv03_i_n = a35.get_pmv(t_a=theta_r_i_n, t_cl=theta_cl03_i_n, clo_value=0.3, p_a=p_a_i_n, h=h_hum_i_n, ot=theta_ot_i_n)
 
     if ac_demand_i_n:  # 空調需要がある場合
 
@@ -94,51 +88,12 @@ def mode_select(
     # 前時刻の相対湿度を用い、PMV目標値を満たすような目標作用温度を求める
     if operation_mode == OperationMode.HEATING:
         target_pmv = -0.5
-        theta_ot_target = newton(lambda OT: a35.get_pmv(t_a=OT, t_cl=theta_cl11_i_n, clo_value=clo_i_n, p_a=p_a_i_n, h=h_hum_i_n, ot=OT) - target_pmv, 0.001)
+        theta_ot_target = a35.get_theta_ot_target(t_cl=theta_cl11_i_n, clo_value=clo_i_n, p_a=p_a_i_n, h=h_hum_i_n, pmv=target_pmv)
     elif operation_mode == OperationMode.COOLING:
         target_pmv = 0.5
-        theta_ot_target = newton(lambda OT: a35.get_pmv(t_a=OT, t_cl=theta_cl03_i_n, clo_value=clo_i_n, p_a=p_a_i_n, h=h_hum_i_n, ot=OT) - target_pmv, 0.001)
+        theta_ot_target = a35.get_theta_ot_target(t_cl=theta_cl03_i_n, clo_value=clo_i_n, p_a=p_a_i_n, h=h_hum_i_n, pmv=target_pmv)
     else:
         theta_ot_target = 0.0
 
     return operation_mode, clo_i_n, theta_ot_target
-
-
-# 最終の空調信号の計算（空調停止はこのルーチンに入らない）
-def reset_SW(ac_mode: int, Lcs: float, Lr: float, isRadiantHeater: bool, Lrcap: float) -> int:
-
-    # 「冷房時の暖房」、「暖房時の冷房」判定
-    if Lcs + Lr < 0.0:
-        return ACMode.STOP
-
-    # 放射暖房の過負荷状態
-    elif isRadiantHeater and Lrcap > 0.0 and Lr > Lrcap:
-        return 3
-
-    # 放射暖房の過負荷状態
-    elif isRadiantHeater and Lrcap <= 0.0:
-        return 4
-
-    else:
-        return ACMode.HEATING
-
-
-# 窓開放時の通風量 式(102)
-def get_NV(is_now_window_open: bool, v_ntrl_vent_i: float) -> float:
-    """
-
-    Args:
-        is_now_window_open:
-        v_room_cap_i: 室iの容積, m3
-        n_ntrl_vent_i: 室iの自然風利用時の換気回数, 1/h
-        v_ntrl_vent_i: 室iの自然風利用時の換気量, m3/s
-
-    Returns:
-
-    """
-    if is_now_window_open:
-        return v_ntrl_vent_i
-    else:
-        return 0.0
-
 

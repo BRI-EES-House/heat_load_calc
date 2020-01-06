@@ -53,6 +53,8 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int):
     v_hum_is_n = np.array([s.v_hum_i_n for s in spaces])
     # ステップnの室iにおける平均放射温度, degree C, [i]
     theta_mrt_is_n = np.array([s.theta_mrt_i_n for s in spaces])
+    # ステップnの室iにおける水蒸気圧, Pa
+    p_a_is_n = np.array([s.p_a_i_n for s in spaces])
 
     # ステップnの室iにおける人体周りの対流熱伝達率, W/m2K, [i]
     h_hum_c_is_n = a35.get_h_hum_c_is_n(theta_r_is_n=theta_r_is_n, t_cl_is_n=theta_cl_is_n, v_hum_is_n=v_hum_is_n)
@@ -67,6 +69,19 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int):
     theta_ot_is_n = s41.get_theta_ot_is_n(
         h_hum_c_is_n=h_hum_c_is_n, h_hum_r_is_n=h_hum_r_is_n, h_hum_is_n=h_hum_is_n, theta_r_is_n=theta_r_is_n,
         theta_mrt_is_n=theta_mrt_is_n)
+
+    # ステップnの室iにおける着衣温度(Clo値1.1の場合）, degree C, [i]
+    theta_cl_11_is_n = a35.get_t_cl_is_n(clo=1.1, theta_ot_is_n=theta_ot_is_n, h_hum_is_n=h_hum_is_n)
+
+    # ステップnの室iにおける着衣温度(Clo値0.7の場合）, degree C, [i]
+    theta_cl_07_is_n = a35.get_t_cl_is_n(clo=0.7, theta_ot_is_n=theta_ot_is_n, h_hum_is_n=h_hum_is_n)
+
+    # ステップnの室iにおける着衣温度(Clo値0.3の場合）, degree C, [i]
+    theta_cl_03_is_n = a35.get_t_cl_is_n(clo=0.3, theta_ot_is_n=theta_ot_is_n, h_hum_is_n=h_hum_is_n)
+
+    pmv11_is_n = a35.get_pmv(t_a=theta_r_is_n, t_cl=theta_cl_11_is_n, clo_value=1.1, p_a=p_a_is_n, h=h_hum_is_n, ot=theta_ot_is_n)
+    pmv07_is_n = a35.get_pmv(t_a=theta_r_is_n, t_cl=theta_cl_07_is_n, clo_value=0.7, p_a=p_a_is_n, h=h_hum_is_n, ot=theta_ot_is_n)
+    pmv03_is_n = a35.get_pmv(t_a=theta_r_is_n, t_cl=theta_cl_03_is_n, clo_value=0.3, p_a=p_a_is_n, h=h_hum_is_n, ot=theta_ot_is_n)
 
     for i, s in enumerate(spaces):
 
@@ -90,9 +105,13 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int):
             operation_mode_i_n_mns=operation_mode_i_n_mns,
             is_radiative_heating=s.is_radiative_heating,
             p_a_i_n=p_a_i_n,
-            theta_ot_i_n=theta_ot_is_n[i],
-            theta_r_i_n=theta_r_i_n,
-            h_hum_i_n=h_hum_is_n[i]
+            h_hum_i_n=h_hum_is_n[i],
+            theta_cl11_i_n=theta_cl_11_is_n[i],
+            theta_cl07_i_n=theta_cl_07_is_n[i],
+            theta_cl03_i_n=theta_cl_03_is_n[i],
+            pmv11_i_n=pmv11_is_n[i],
+            pmv07_i_n=pmv07_is_n[i],
+            pmv03_i_n=pmv03_is_n[i]
         )
 
         # ステップnの室iの集約された境界j*における裏面温度, degree C, [j*]

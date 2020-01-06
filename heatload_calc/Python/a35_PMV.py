@@ -3,6 +3,50 @@ import numpy as np
 from functools import lru_cache
 
 
+def get_t_cl_is_n(clo: float, theta_ot_is_n: np.ndarray, h_hum_is_n: np.ndarray) -> np.ndarray:
+    """着衣温度を計算する。
+
+    Args:
+        clo: ステップnの室iにおけるClo値
+        theta_ot_is_n: ステップnの室iにおける作用温度, degree C
+        h_hum_is_n: ステップnの室iにおける人体周りの総合熱伝達率, W/m2K
+
+    Returns:
+        ステップnの室iにおける着衣温度, degree C
+    """
+
+    # 着衣抵抗, m2K/W
+    i_cl = get_i_cl(clo)
+
+    # 着衣面積率
+    f_cl = get_f_cl(i_cl)
+
+    # 代謝量（人体内部発熱量）, W/m2
+    m = get_met()
+
+    # ステップnの室iにおける着衣温度, degree C
+    t_cl_i_n = (35.7 - 0.028 * m - theta_ot_is_n) / (1 + i_cl * f_cl * h_hum_is_n) + theta_ot_is_n
+
+    return t_cl_i_n
+
+
+@lru_cache(maxsize=None)
+def get_i_cl(clo: float) -> float:
+    """convert the unit of clo to m2K/W
+
+    Args:
+        clo: value, clo
+
+    Returns:
+        value, m2K/W
+
+    Notes:
+        1 clo = 0.155 m2K/W
+    """
+
+    return clo * 0.155
+
+
 def get_t_cl_i_n(clo_i_n, ot_i_n, h_a_i_n):
     """着衣温度を計算する。
     
@@ -79,7 +123,7 @@ def get_h_hum_is_n(h_hum_r_is_n: np.ndarray, h_hum_c_is_n: np.ndarray) -> np.nda
     return h_hum_r_is_n + h_hum_c_is_n
 
 
-def get_pmv(t_a, t_cl, clo_value, p_a, h, ot):
+def get_pmv(t_a: np.ndarray, t_cl: np.ndarray, clo_value: float, p_a: np.ndarray, h: np.ndarray, ot: np.ndarray):
     """PMVを計算する
 
     Args:
@@ -117,6 +161,44 @@ def get_pmv(t_a, t_cl, clo_value, p_a, h, ot):
             - f_cl * h * (t_cl - ot))  # 着衣からの熱損失
 
 
+def get_theta_ot_target(t_cl, clo_value, p_a, h, pmv):
+    """指定したPMVを満たすOTを計算する
+
+    Args:
+        h_c: 対流熱伝達率, W/m2K
+        t_a: 乾球温度, degree C
+        t_cl: 着衣温度, degree C
+        t_r_bar: 放射温度, degree C
+        clo_value: Clo値
+        h_r: 放射熱伝達率, W/m2K
+        p_a:　水蒸気圧, Pa
+
+    Returns:
+        目標OT
+
+    Notes:
+        ISOで定める計算方法ではなく、前の時刻に求めた人体周りの熱伝達率、着衣温度を使用して収束計算が生じないようにしている。
+
+    """
+
+    # 着衣抵抗, m2K/W
+    i_cl = convert_clo_to_m2kw(clo_value)
+
+    # 代謝量（人体内部発熱量）, W/m2
+    m = get_met()
+
+    # 着衣面積率
+    f_cl = get_f_cl(i_cl)
+
+    return (pmv / (0.303 * math.exp(-0.036 * m) + 0.028) - m
+            + 3.05 * 10 ** (-3) * (5733.0 - 6.99 * m - p_a)
+            + max(0.42 * (m - 58.15), 0.0)
+            + 1.7 * 10 ** (-5) * m * (5867.0 - p_a)
+            + 0.0014 * m * 34.0
+            + f_cl * h * t_cl
+            )/(0.0014 * m + f_cl * h)
+
+
 @lru_cache(maxsize = None)
 def convert_clo_to_m2kw(clo):
     """convert the unit of clo to m2K/W
@@ -150,7 +232,7 @@ def get_met():
     return 58.15
 
 
-@lru_cache(maxsize = None)
+@lru_cache(maxsize=None)
 def get_f_cl(i_cl: float) -> float:
     """着衣面積率を計算する。
 
