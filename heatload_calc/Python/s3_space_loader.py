@@ -82,9 +82,6 @@ class Logger:
         # ステップnの室iにおける人体発湿, kg/s
         self.x_hum_i_ns = np.zeros(24 * 365 * 4 * 3)
 
-        # ステップnの室iにおけるPMV(Predicted Mean Vote,予測温冷感申告)
-        self.pmv_i_ns = np.zeros(24 * 365 * 4 * 3)
-
         # ステップnの室iにおける運転状態
         self.operation_mode = np.empty(24 * 365 * 4 * 3, dtype=object)
 

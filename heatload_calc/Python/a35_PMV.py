@@ -2,7 +2,7 @@ import math
 import numpy as np
 
 
-def get_t_cl_i_n(clo_i_n, h_c_i_n, h_r_i_n, ot_i_n):
+def get_t_cl_i_n(clo_i_n, h_c_i_n, h_r_i_n, ot_i_n, h_a_i_n):
     """着衣温度を計算する。
     
     Args:
@@ -10,6 +10,7 @@ def get_t_cl_i_n(clo_i_n, h_c_i_n, h_r_i_n, ot_i_n):
         h_c_i_n: ステップnの室iにおける人体周りの対流熱伝達率, W/m2K
         h_r_i_n: ステップnの室iにおける人体周りの放射熱伝達率, W/m2K
         ot_i_n: ステップnの室iにおける作用温度, degree C
+        h_a_i_n: ステップnの室iにおける人体周りの総合熱伝達率, W/m2K
 
     Returns:
         ステップnの室iにおける着衣温度, degree C

@@ -86,15 +86,12 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int):
         # ステップnの室iにおける室温, degree C
         theta_r_i_n = theta_r_is_n[i]
 
-        # ステップnの室iにおけるPMV
-        pmv_i_n = a35.get_pmv(t_a=theta_r_i_n, t_cl=theta_cl_i_n, clo_value=clo_i_n, p_a=p_a_i_n, h=h_hum_is_n[i], ot=theta_ot_is_n[i])
-
         # 窓の開閉と空調発停の切り替え判定
         operation_mode, clo_i_n, OTset = a13.mode_select(
-            ac_demand_i_n=s.ac_demand[n], now_pmv=pmv_i_n, operation_mode_i_n_mns=operation_mode_i_n_mns,
+            ac_demand_i_n=s.ac_demand[n], operation_mode_i_n_mns=operation_mode_i_n_mns,
             is_radiative_heating=s.is_radiative_heating,
-            h_hum_c_i_n=h_hum_c_is_n[i],
-            theta_cl_i_n=theta_cl_is_n[i], h_hum_r_i_n=h_hum_r_is_n[i], p_a_i_n=p_a_i_n
+            h_hum_c_i_n=h_hum_c_is_n[i], h_hum_r_i_n=h_hum_r_is_n[i], p_a_i_n=p_a_i_n, clo_i_n=clo_i_n,
+            theta_ot_i_n=theta_ot_is_n[i], theta_r_i_n=theta_r_i_n
         )
 
         # ステップnの室iの集約された境界j*における裏面温度, degree C, [j*]
@@ -279,7 +276,7 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int):
         xf_i_n = s42.get_xf(s.Gf_i, xf_i_npls, s.Cx_i, x_r_i_n_pls)
         Qfunl_i_n = s42.get_Qfunl(s.Cx_i, x_r_i_n_pls, xf_i_n)
 
-        t_cl_i_n_pls = a35.get_t_cl_i_n(clo_i_n=clo_i_n, h_c_i_n=h_hum_c_is_n[i], h_r_i_n=h_hum_r_is_n[i], ot_i_n=ot_i_n)
+        t_cl_i_n_pls = a35.get_t_cl_i_n(clo_i_n=clo_i_n, h_c_i_n=h_hum_c_is_n[i], h_r_i_n=h_hum_r_is_n[i], ot_i_n=ot_i_n, h_a_i_n=h_hum_is_n[i])
 
         if operation_mode == OperationMode.HEATING:
             if s.is_radiative_heating:
@@ -333,7 +330,6 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int):
         s.logger.Lcl_i_n[n] = Lcl_i_n
         s.logger.xf_i_n[n] = xf_i_n
         s.logger.Qfunl_i_n[n] = Qfunl_i_n
-        s.logger.pmv_i_ns[n] = pmv_i_n
         s.logger.Vel_i_n[n] = v_hum_i_n
         s.logger.Clo_i_n[n] = clo_i_n
         s.logger.RH_i_n[n] = rh_i_n_pls
