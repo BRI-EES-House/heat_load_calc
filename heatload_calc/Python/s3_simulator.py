@@ -61,6 +61,9 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int):
     # ステップnの室iにおける人体周りの放射熱伝達率, W/m2K, [i]
     h_hum_r_is_n = a35.get_h_hum_r_is_n(theta_cl_is_n=theta_cl_is_n, theta_mrt_is_n=theta_mrt_is_n)
 
+    # ステップnの室iにおける人体周りの総合熱伝達率, W/m2K, [i]
+    h_hum_is_n = a35.get_h_hum_is_n(h_hum_r_is_n=h_hum_r_is_n, h_hum_c_is_n=h_hum_c_is_n)
+
     for i, s in enumerate(spaces):
 
         theta_srf_dsh_a_i_jstrs_n_m = s.theta_srf_dsh_a_i_jstrs_n_m
@@ -84,7 +87,7 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int):
         theta_ot_i_n = (h_hum_r_is_n[i] * theta_mrt_i_n + h_hum_c_is_n[i] * theta_r_i_n) / (h_hum_r_is_n[i] + h_hum_c_is_n[i])
 
         # ステップnの室iにおけるPMV
-        pmv_i_n = a35.get_pmv(h_c=h_hum_c_is_n[i], t_a=theta_r_i_n, t_cl=theta_cl_i_n, t_r_bar=theta_mrt_i_n, clo_value=clo_i_n, h_r=h_hum_r_is_n[i], p_a=p_a_i_n, h=h_hum_c_is_n[i]+h_hum_r_is_n[i], ot=theta_ot_i_n)
+        pmv_i_n = a35.get_pmv(t_a=theta_r_i_n, t_cl=theta_cl_i_n, clo_value=clo_i_n, p_a=p_a_i_n, h=h_hum_is_n[i], ot=theta_ot_i_n)
 
         # 窓の開閉と空調発停の切り替え判定
         operation_mode, PMV_set, clo_i_n = a13.mode_select(ac_demand_i_n=s.ac_demand[n], now_pmv=pmv_i_n, operation_mode_i_n_mns=operation_mode_i_n_mns)

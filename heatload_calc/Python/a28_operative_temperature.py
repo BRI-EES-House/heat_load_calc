@@ -20,7 +20,7 @@ def get_OTset(Clo: float, PMV_set: float, h_c_i_n, t_cl_i_n, h_r, p_a) -> float:
     # 右辺が0になるように式を変形する
     h = h_c_i_n + h_r
 
-    OTset = newton(lambda OT: a35.get_pmv(h_c=h_c_i_n, t_a=OT, t_cl=t_cl_i_n, t_r_bar=OT, clo_value=Clo, h_r=h_r, p_a=p_a, h=h, ot=OT) - PMV_set, 0.001)
+    OTset = newton(lambda OT: a35.get_pmv(t_a=OT, t_cl=t_cl_i_n, clo_value=Clo, p_a=p_a, h=h, ot=OT) - PMV_set, 0.001)
 
     return OTset
 

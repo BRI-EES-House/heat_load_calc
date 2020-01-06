@@ -82,7 +82,7 @@ def get_h_hum_is_n(h_hum_r_is_n: np.ndarray, h_hum_c_is_n: np.ndarray) -> np.nda
     return h_hum_r_is_n + h_hum_c_is_n
 
 
-def get_pmv(h_c, t_a, t_cl, t_r_bar, clo_value, h_r, p_a, h, ot):
+def get_pmv(t_a, t_cl, clo_value, p_a, h, ot):
     """PMVを計算する
 
     Args:
@@ -110,8 +110,6 @@ def get_pmv(h_c, t_a, t_cl, t_r_bar, clo_value, h_r, p_a, h, ot):
 
     # 着衣面積率
     f_cl = get_f_cl(i_cl)
-
-    ot = (h_r * t_r_bar + h_c * t_a)/h
 
     return (0.303 * math.exp(-0.036 * m) + 0.028) * (
             m  # 活動量, W/m2
