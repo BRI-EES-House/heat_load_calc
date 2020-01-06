@@ -1,7 +1,9 @@
 import numpy as np
 from typing import Dict
+from scipy.optimize import newton
 
 from a39_global_parameters import ACMode, OperationMode
+import a35_PMV as a35
 
 """
 付録13．窓の開閉と空調発停の切り替え
@@ -9,7 +11,10 @@ from a39_global_parameters import ACMode, OperationMode
 
 
 # 当該時刻の窓開閉、空調発停を判定する
-def mode_select(ac_demand_i_n: bool, now_pmv: float, operation_mode_i_n_mns) -> (OperationMode, float, float):
+def mode_select(
+        ac_demand_i_n: bool, now_pmv: float, operation_mode_i_n_mns,
+        is_radiative_heating, h_hum_c_i_n, theta_cl_i_n, h_hum_r_i_n, p_a_i_n
+) -> (OperationMode, float, float):
     """
 
     Args:
@@ -31,54 +36,52 @@ def mode_select(ac_demand_i_n: bool, now_pmv: float, operation_mode_i_n_mns) -> 
     # 窓を閉鎖するときのPMV
     occu_window_close_pmv = -0.49
 
-    # 空調需要がある場合は、前の窓開閉状態で自然室温を計算
-    if ac_demand_i_n:
+    if ac_demand_i_n:  # 空調需要がある場合
 
         if operation_mode_i_n_mns == OperationMode.HEATING:  # 前時刻が暖房の場合
-
             if now_pmv >= occu_cooling_pmv:  # 冷房生起PMV以上の場合は冷房
-                return OperationMode.COOLING, 0.5, 0.3
+                operation_mode, pmv_set, clo_i_n = OperationMode.COOLING, 0.5, 0.3
 
             elif now_pmv >= occu_window_open_pmv:  # 窓開放生起温度以上の場合は通風
-                return OperationMode.STOP_OPEN, None, 0.7
+                operation_mode, pmv_set, clo_i_n = OperationMode.STOP_OPEN, None, 0.7
 
             else:
-                return OperationMode.HEATING, -0.5, 1.1
+                operation_mode, pmv_set, clo_i_n = OperationMode.HEATING, -0.5, 1.1
 
         elif operation_mode_i_n_mns == OperationMode.COOLING:  # 前時刻が冷房の場合
 
             if now_pmv >= occu_heating_pmv:  # 暖房生起PMV以上の場合は冷房
-                return OperationMode.COOLING, 0.5, 0.3
+                operation_mode, pmv_set, clo_i_n = OperationMode.COOLING, 0.5, 0.3
 
             else:  # 暖房生起PMV未満の場合は暖房
-                return OperationMode.HEATING, -0.5, 1.1
+                operation_mode, pmv_set, clo_i_n = OperationMode.HEATING, -0.5, 1.1
 
         elif operation_mode_i_n_mns in [OperationMode.STOP_OPEN, OperationMode.STOP_CLOSE]:  # 前の時刻が空調停止の場合
 
             if now_pmv >= occu_cooling_pmv:  # 冷房生起PMV以上の場合は冷房
-                return OperationMode.COOLING, 0.5, 0.3
+                operation_mode, pmv_set, clo_i_n = OperationMode.COOLING, 0.5, 0.3
 
             elif now_pmv <= occu_heating_pmv:  # 暖房生起PMV以下の場合は暖房
-                return OperationMode.HEATING, -0.5, 1.1
+                operation_mode, pmv_set, clo_i_n = OperationMode.HEATING, -0.5, 1.1
 
             else:
 
                 if operation_mode_i_n_mns == OperationMode.STOP_OPEN:
 
                     if now_pmv <= occu_window_close_pmv:
-                        return OperationMode.STOP_CLOSE, None, 0.7
+                        operation_mode, pmv_set, clo_i_n = OperationMode.STOP_CLOSE, None, 0.7
 
                     else:
-                        return OperationMode.STOP_OPEN, None, 0.7
+                        operation_mode, pmv_set, clo_i_n = OperationMode.STOP_OPEN, None, 0.7
 
                 else:
 
                     # 窓を開放する
                     if now_pmv >= occu_window_open_pmv:
-                        return OperationMode.STOP_OPEN, None, 0.7
+                        operation_mode, pmv_set, clo_i_n = OperationMode.STOP_OPEN, None, 0.7
 
                     else:
-                        return OperationMode.STOP_CLOSE, None, 0.7
+                        operation_mode, pmv_set, clo_i_n = OperationMode.STOP_CLOSE, None, 0.7
 
         else:
             raise ValueError()
@@ -86,8 +89,17 @@ def mode_select(ac_demand_i_n: bool, now_pmv: float, operation_mode_i_n_mns) -> 
     # 空調需要がない場合（窓閉鎖、空調停止）
     else:
 
-        return OperationMode.STOP_CLOSE, None, 0.7
+        operation_mode, pmv_set, clo_i_n = OperationMode.STOP_CLOSE, None, 0.7
 
+    h_hum_i_n = h_hum_c_i_n + h_hum_r_i_n
+
+    # 前時刻の相対湿度を用い、PMV目標値を満たすような目標作用温度を求める
+    if operation_mode in [OperationMode.HEATING, OperationMode.COOLING]:
+        OTset = newton(lambda OT: a35.get_pmv(t_a=OT, t_cl=theta_cl_i_n, clo_value=clo_i_n, p_a=p_a_i_n, h=h_hum_i_n, ot=OT) - pmv_set, 0.001)
+    else:
+        OTset = 0.0
+
+    return operation_mode, clo_i_n, OTset
 
 # 最終の空調信号の計算（空調停止はこのルーチンに入らない）
 def reset_SW(ac_mode: int, Lcs: float, Lr: float, isRadiantHeater: bool, Lrcap: float) -> int:

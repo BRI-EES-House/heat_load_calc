@@ -10,7 +10,6 @@ import a9_rear_surface_equivalent_temperature as a9
 import a13_Win_ACselect as a13
 import a16_blowing_condition_rac as a16
 import a18_initial_value_constants as a18
-import a28_operative_temperature as a28
 import a35_PMV as a35
 from a39_global_parameters import OperationMode
 from s3_space_loader import Space
@@ -91,10 +90,12 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int):
         pmv_i_n = a35.get_pmv(t_a=theta_r_i_n, t_cl=theta_cl_i_n, clo_value=clo_i_n, p_a=p_a_i_n, h=h_hum_is_n[i], ot=theta_ot_is_n[i])
 
         # 窓の開閉と空調発停の切り替え判定
-        operation_mode, PMV_set, clo_i_n = a13.mode_select(ac_demand_i_n=s.ac_demand[n], now_pmv=pmv_i_n, operation_mode_i_n_mns=operation_mode_i_n_mns)
-
-        # 前時刻の相対湿度を用い、PMV目標値を満たすような目標作用温度を求める
-        OTset = a28.calc_OTset(s.is_radiative_heating, PMV_set, h_hum_c_is_n[i], theta_cl_i_n, h_hum_r_is_n[i], operation_mode, p_a_i_n, clo_i_n)
+        operation_mode, clo_i_n, OTset = a13.mode_select(
+            ac_demand_i_n=s.ac_demand[n], now_pmv=pmv_i_n, operation_mode_i_n_mns=operation_mode_i_n_mns,
+            is_radiative_heating=s.is_radiative_heating,
+            h_hum_c_i_n=h_hum_c_is_n[i],
+            theta_cl_i_n=theta_cl_is_n[i], h_hum_r_i_n=h_hum_r_is_n[i], p_a_i_n=p_a_i_n
+        )
 
         # ステップnの室iの集約された境界j*における裏面温度, degree C, [j*]
         theta_rear_i_jstrs_n = a9.get_theta_rear_i_jstrs_n(
