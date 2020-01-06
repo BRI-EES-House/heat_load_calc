@@ -1,14 +1,13 @@
 import math
 import numpy as np
+from functools import lru_cache
 
 
-def get_t_cl_i_n(clo_i_n, h_c_i_n, h_r_i_n, ot_i_n, h_a_i_n):
+def get_t_cl_i_n(clo_i_n, ot_i_n, h_a_i_n):
     """着衣温度を計算する。
     
     Args:
         clo_i_n: ステップnの室iにおけるClo値
-        h_c_i_n: ステップnの室iにおける人体周りの対流熱伝達率, W/m2K
-        h_r_i_n: ステップnの室iにおける人体周りの放射熱伝達率, W/m2K
         ot_i_n: ステップnの室iにおける作用温度, degree C
         h_a_i_n: ステップnの室iにおける人体周りの総合熱伝達率, W/m2K
 
@@ -24,9 +23,6 @@ def get_t_cl_i_n(clo_i_n, h_c_i_n, h_r_i_n, ot_i_n, h_a_i_n):
 
     # 代謝量（人体内部発熱量）, W/m2
     m = get_met()
-
-    # ステップnの室iにおける人体周りの総合熱伝達率, W/m2K
-    h_a_i_n = h_c_i_n + h_r_i_n
 
     # ステップnの室iにおける着衣温度, degree C
     t_cl_i_n = (35.7 - 0.028 * m - ot_i_n) / (1 + i_cl * f_cl * h_a_i_n) + ot_i_n
@@ -121,6 +117,7 @@ def get_pmv(t_a, t_cl, clo_value, p_a, h, ot):
             - f_cl * h * (t_cl - ot))  # 着衣からの熱損失
 
 
+@lru_cache(maxsize = None)
 def convert_clo_to_m2kw(clo):
     """convert the unit of clo to m2K/W
 
@@ -137,6 +134,7 @@ def convert_clo_to_m2kw(clo):
     return clo * 0.155
 
 
+@lru_cache(maxsize = None)
 def get_met():
     """代謝量を得る。
 
@@ -152,6 +150,7 @@ def get_met():
     return 58.15
 
 
+@lru_cache(maxsize = None)
 def get_f_cl(i_cl: float) -> float:
     """着衣面積率を計算する。
 

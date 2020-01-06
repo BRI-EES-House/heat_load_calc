@@ -241,7 +241,6 @@ class Space:
         self.theta_r_i_npls = theta_r_i_initial
         self.theta_mrt_i_n = theta_r_i_initial
         self.v_hum_i_n = 0.0
-        self.clo_i_n = 1.1
         # ステップnの室iにおける衣服の表面温度, degree C
         self.theta_cl_i_n = theta_r_i_initial
 
