@@ -83,31 +83,11 @@ def get_air_conditioning_schedules2(room_name, calendar, daily_schedule) -> (np.
 
     d_365_96 = np.full((365, 96), "", dtype=np.object)
 
-    d_365_96[calendar == '平日'] = daily_schedule['平日'][room_name]['4_persons']
-    d_365_96[calendar == '休日外'] = daily_schedule['休日外'][room_name]['4_persons']
-    d_365_96[calendar == '休日在'] = daily_schedule['休日在'][room_name]['4_persons']
+    d_365_96[calendar == '平日'] = daily_schedule['平日'][room_name]['4']
+    d_365_96[calendar == '休日外'] = daily_schedule['休日外'][room_name]['4']
+    d_365_96[calendar == '休日在'] = daily_schedule['休日在'][room_name]['4']
 
     d = d_365_96.flatten()
 
     return d
-
-
-def get_air_conditioning_schedules(room, n_p, room_name, calendar, daily_schedule) -> (np.ndarray, np.ndarray):
-    """空調スケジュールを取得する。
-
-    Args:
-        room:
-
-    Returns:
-        空調スケジュール
-    """
-
-    # 空調スケジュールの読み込み
-    # 設定温度／PMV上限値の設定
-    is_upper_temp_limit_set_schedule = np.repeat(room['schedule']['is_upper_temp_limit_set'], 4)
-    # 設定温度／PMV下限値の設定
-    is_lower_temp_limit_set_schedule = np.repeat(room['schedule']['is_lower_temp_limit_set'], 4)
-
-    return is_upper_temp_limit_set_schedule, is_lower_temp_limit_set_schedule
-
 
