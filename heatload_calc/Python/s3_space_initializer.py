@@ -153,10 +153,16 @@ def make_space(room: Dict,
     #   設定温度下限値, degree C * 365* 96
     #   PMV上限値, degree C * 365* 96
     #   PMV下限値, degree C * 365* 96
-    is_upper_temp_limit_set_schedule, is_lower_temp_limit_set_schedule = a38.get_air_conditioning_schedules(room, n_p)
+    is_upper_temp_limit_set_schedule, is_lower_temp_limit_set_schedule = a38.get_air_conditioning_schedules(
+        room=room, n_p=n_p, room_name=name_i, calendar=calendar, daily_schedule=d_json['daily_schedule']['is_temp_limit_set'])
+
+    air_conditioning_demand2 = a38.get_air_conditioning_schedules2(
+        room_name=name_i, calendar=calendar, daily_schedule=d_json['daily_schedule']['is_temp_limit_set'])
 
     # 空調や通風などの需要があるかどうか, bool * 365 * 96
-    air_conditioning_demand = is_upper_temp_limit_set_schedule | is_lower_temp_limit_set_schedule
+#    air_conditioning_demand = is_upper_temp_limit_set_schedule | is_lower_temp_limit_set_schedule
+
+    air_conditioning_demand = np.where(air_conditioning_demand2 == "on", True, False)
 
     theta_rear_initial = a18.get_Teo_initial()
     TsdA_initial = a18.get_TsdA_initial()

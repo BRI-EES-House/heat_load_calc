@@ -99,19 +99,21 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int):
         # ステップnの室iにおける室温, degree C
         theta_r_i_n = theta_r_is_n[i]
 
+        operation_mode_i_n = a13.get_operation_mode_i_n(
+            ac_demand_i_n=s.ac_demand[n], operation_mode_i_n_mns=operation_mode_i_n_mns,
+            pmv03_i_n=pmv03_is_n[i], pmv07_i_n=pmv07_is_n[i], pmv11_i_n=pmv11_is_n[i])
+
+        clo_i_n = a13.get_clo_i_n(operation_mode_i_n)
+
         # 窓の開閉と空調発停の切り替え判定
-        operation_mode, clo_i_n, OTset = a13.mode_select(
-            ac_demand_i_n=s.ac_demand[n],
-            operation_mode_i_n_mns=operation_mode_i_n_mns,
+        OTset = a13.get_theta_ot_target_i_n(
             is_radiative_heating=s.is_radiative_heating,
             p_a_i_n=p_a_i_n,
             h_hum_i_n=h_hum_is_n[i],
             theta_cl11_i_n=theta_cl_11_is_n[i],
-            theta_cl07_i_n=theta_cl_07_is_n[i],
             theta_cl03_i_n=theta_cl_03_is_n[i],
-            pmv11_i_n=pmv11_is_n[i],
-            pmv07_i_n=pmv07_is_n[i],
-            pmv03_i_n=pmv03_is_n[i]
+            operation_mode=operation_mode_i_n,
+            clo_i_n=clo_i_n
         )
 
         # ステップnの室iの集約された境界j*における裏面温度, degree C, [j*]
@@ -183,11 +185,11 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int):
             v_mec_vent_i_n=s.v_mec_vent_i_ns[n], v_reak_i_n=v_reak_i_n, v_int_vent_i_istrs=s.v_int_vent_i_istrs,
             v_ntrl_vent_i=s.v_ntrl_vent_i, theta_o_n=theta_o_n, theta_r_int_vent_i_istrs_n=theta_r_int_vent_i_istrs_n,
             q_gen_i_n=q_gen_i_n, c_cap_frnt_i=s.c_cap_frnt_i, k_frnt_i=s.k_frnt_i, q_sol_frnt_i_n=s.q_sol_frnt_i_ns[n],
-            theta_frnt_i_n=old_theta_frnt_i, operation_mode=operation_mode)
+            theta_frnt_i_n=old_theta_frnt_i, operation_mode=operation_mode_i_n)
 
         brm_non_ntrv_i_n = s.BRMnoncv_i[n]
         brm_ntrv_i_n = brm_non_ntrv_i_n + a18.get_c_air() * a18.get_rho_air() * s.v_ntrl_vent_i
-        brm_i_n = brm_ntrv_i_n if operation_mode == OperationMode.STOP_OPEN else brm_non_ntrv_i_n
+        brm_i_n = brm_ntrv_i_n if operation_mode_i_n == OperationMode.STOP_OPEN else brm_non_ntrv_i_n
 
         # OT計算用の係数補正
         BRMot, BRCot, BRLot, Xot, XLr, XC = s41.calc_OT_coeff(
@@ -196,7 +198,7 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int):
         # ********** 空調設定温度の計算 **********
 
         ot_i_n, lcs_i_n, lrs_i_n = s41.calc_next_step(
-            s.is_radiative_heating, BRCot, BRMot, BRLot, OTset, s.Lrcap_i, operation_mode)
+            s.is_radiative_heating, BRCot, BRMot, BRLot, OTset, s.Lrcap_i, operation_mode_i_n)
 
         # ********** 室温 Tr、家具温度 Tfun、表面温度 Ts_i_k_n、室内表面熱流 q の計算 **********
 
@@ -252,7 +254,7 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int):
         # i室のn時点におけるエアコンの風量[m3/s]
         # 空調の熱交換部飽和絶対湿度の計算
         Vac_n, xeout_i_n = \
-            a16.calcVac_xeout(lcs_i_n, s.Vmin_i, s.Vmax_i, s.qmin_c_i, s.qmax_c_i, theta_r_i_npls, BF, operation_mode)
+            a16.calcVac_xeout(lcs_i_n, s.Vmin_i, s.Vmax_i, s.qmin_c_i, s.qmax_c_i, theta_r_i_npls, BF, operation_mode_i_n)
 
         # 空調機除湿の項 式(20)より
         RhoVac = get_RhoVac(Vac_n, BF)
@@ -298,25 +300,25 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int):
 
         t_cl_i_n_pls = a35.get_t_cl_i_n(clo_i_n=clo_i_n, ot_i_n=ot_i_n, h_a_i_n=h_hum_is_n[i])
 
-        if operation_mode == OperationMode.HEATING:
+        if operation_mode_i_n == OperationMode.HEATING:
             if s.is_radiative_heating:
                 v_hum_i_n_pls = 0.0
             else:
                 v_hum_i_n_pls = 0.2
-        elif operation_mode == OperationMode.COOLING:
+        elif operation_mode_i_n == OperationMode.COOLING:
             if s.is_radiative_cooling:
                 v_hum_i_n_pls = 0.0
             else:
                 v_hum_i_n_pls = 0.2
-        elif operation_mode == OperationMode.STOP_CLOSE:
+        elif operation_mode_i_n == OperationMode.STOP_CLOSE:
             v_hum_i_n_pls = 0.0
-        elif operation_mode == OperationMode.STOP_OPEN:
+        elif operation_mode_i_n == OperationMode.STOP_OPEN:
             v_hum_i_n_pls = 0.1
 
         # 前の時刻からの値
         s.theta_srf_dsh_a_i_jstrs_n_m = theta_srf_dsh_a_i_jstrs_npls_ms
         s.theta_srf_dsh_t_i_jstrs_n_m = theta_srf_dsh_t_i_jstrs_npls_ms
-        s.operation_mode = operation_mode
+        s.operation_mode = operation_mode_i_n
         s.old_theta_frnt_i = theta_frnt_i_n
         s.theta_r_i_npls = theta_r_i_npls
         s.q_srf_i_jstrs_n = q_srf_i_jstrs_n
@@ -332,7 +334,7 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int):
         s.logger.theta_rear_i_jstrs_ns[:, n] = theta_rear_i_jstrs_n
         s.logger.q_hum_i_ns[n] = q_hum_i_n
         s.logger.x_hum_i_ns[n] = x_hum_i_n
-        s.logger.operation_mode[n] = operation_mode
+        s.logger.operation_mode[n] = operation_mode_i_n
         s.logger.theta_frnt_i_ns[n] = theta_frnt_i_n
         s.logger.OT_i_n[n] = ot_i_n
         s.logger.Qfuns_i_n[n] = s41.get_Qfuns(s.k_frnt_i, theta_r_i_npls, theta_frnt_i_n)
