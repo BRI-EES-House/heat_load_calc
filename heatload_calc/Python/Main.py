@@ -3,6 +3,7 @@ import csv
 import json
 import cProfile
 from line_profiler import LineProfiler
+import time
 
 import x_04_weather as x_04
 import x_05_solar_position as x_05
@@ -107,8 +108,7 @@ def run():
 
 if __name__ == '__main__':
 
-    prf = LineProfiler()
-    prf.add_function(simulator.run_tick)
-    prf.add_function(calc_heat_load)
-    prf.runcall(run)
-    prf.print_stats()
+    start = time.time()
+    run()
+    elapsed_time = time.time() - start
+    print("elapsed_time:{0}".format(elapsed_time) + "[sec]")

@@ -43,6 +43,8 @@ def run_tick_groundonly(spaces: List[Space], To_n: float, n: int, Tave: float):
 # 室温、熱負荷の計算
 def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int):
 
+    ac_demand_is_n = np.array([s.ac_demand[n] for s in spaces])
+
     # ステップnの室iにおける室温, degree C, [i]
     theta_r_is_n = np.array([s.theta_r_i_npls for s in spaces])
     # ステップnの室iにおける絶対湿度, kg/kg(DA), [i]
@@ -55,6 +57,7 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int):
     theta_mrt_is_n = np.array([s.theta_mrt_i_n for s in spaces])
     # ステップnの室iにおける水蒸気圧, Pa
     p_a_is_n = np.array([s.p_a_i_n for s in spaces])
+    operation_mode_is_n_mns = np.array([s.operation_mode for s in spaces])
 
     # ステップnの室iにおける人体周りの対流熱伝達率, W/m2K, [i]
     h_hum_c_is_n = a35.get_h_hum_c_is_n(theta_r_is_n=theta_r_is_n, t_cl_is_n=theta_cl_is_n, v_hum_is_n=v_hum_is_n)
@@ -67,54 +70,75 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int):
 
     # ステップnの室iにおける作用温度, degree C, [i]
     theta_ot_is_n = s41.get_theta_ot_is_n(
-        h_hum_c_is_n=h_hum_c_is_n, h_hum_r_is_n=h_hum_r_is_n, h_hum_is_n=h_hum_is_n, theta_r_is_n=theta_r_is_n,
-        theta_mrt_is_n=theta_mrt_is_n)
+        h_hum_c_is_n=h_hum_c_is_n,
+        h_hum_r_is_n=h_hum_r_is_n,
+        h_hum_is_n=h_hum_is_n,
+        theta_r_is_n=theta_r_is_n,
+        theta_mrt_is_n=theta_mrt_is_n
+    )
 
-    # ステップnの室iにおける着衣温度(Clo値1.1の場合）, degree C, [i]
-    theta_cl_11_is_n = a35.get_t_cl_is_n(clo=1.1, theta_ot_is_n=theta_ot_is_n, h_hum_is_n=h_hum_is_n)
+    # ステップnの室iにおける厚着・中間着・薄着をした場合のそれぞれの着衣温度, degree C, [i]
+    theta_cl_heavy_is_n, theta_cl_middle_is_n, theta_cl_light_is_n = a35.get_theta_cl_heavy_middle_light_is_n(
+        theta_ot_is_n=theta_ot_is_n,
+        h_hum_is_n=h_hum_is_n
+    )
 
-    # ステップnの室iにおける着衣温度(Clo値0.7の場合）, degree C, [i]
-    theta_cl_07_is_n = a35.get_t_cl_is_n(clo=0.7, theta_ot_is_n=theta_ot_is_n, h_hum_is_n=h_hum_is_n)
+    # ステップnの室iにおける厚着・中間着・薄着をした場合のそれぞれのPMV, [i]
+    pmv_heavy_is_n, pmv_middle_is_n, pmv_light_is_n = a35.get_pmv_heavy_middle_light_is_n(
+        theta_r_is_n=theta_r_is_n,
+        theta_cl_heavy_is_n=theta_cl_heavy_is_n,
+        theta_cl_middle_is_n=theta_cl_middle_is_n,
+        theta_cl_light_is_n=theta_cl_light_is_n,
+        p_a_is_n=p_a_is_n,
+        h_hum_is_n=h_hum_is_n,
+        theta_ot_is_n=theta_ot_is_n
+    )
 
-    # ステップnの室iにおける着衣温度(Clo値0.3の場合）, degree C, [i]
-    theta_cl_03_is_n = a35.get_t_cl_is_n(clo=0.3, theta_ot_is_n=theta_ot_is_n, h_hum_is_n=h_hum_is_n)
+    # ステップnの室iにおける運転モード, [i]
+    operation_mode_is_n = a13.get_operation_mode_is_n(
+        ac_demand_is_n=ac_demand_is_n,
+        operation_mode_is_n_mns=operation_mode_is_n_mns,
+        pmv_heavy_is_n=pmv_heavy_is_n,
+        pmv_middle_is_n=pmv_middle_is_n,
+        pmv_light_is_n=pmv_light_is_n
+    )
 
-    pmv11_is_n = a35.get_pmv(t_a=theta_r_is_n, t_cl=theta_cl_11_is_n, clo_value=1.1, p_a=p_a_is_n, h=h_hum_is_n, ot=theta_ot_is_n)
-    pmv07_is_n = a35.get_pmv(t_a=theta_r_is_n, t_cl=theta_cl_07_is_n, clo_value=0.7, p_a=p_a_is_n, h=h_hum_is_n, ot=theta_ot_is_n)
-    pmv03_is_n = a35.get_pmv(t_a=theta_r_is_n, t_cl=theta_cl_03_is_n, clo_value=0.3, p_a=p_a_is_n, h=h_hum_is_n, ot=theta_ot_is_n)
+    # ステップnの室iにおけるClo値, [i]
+    clo_is_n = a13.get_clo_is_n(operation_mode_is_n=operation_mode_is_n)
+
+    # ステップnの室iにおける着衣表面温度, degree C, [i]
+    theta_cl_is_n = a13.get_theta_cl_is_n(
+        operation_mode_is_n=operation_mode_is_n,
+        theta_cl_heavy_is_n=theta_cl_heavy_is_n,
+        theta_cl_middle_is_n=theta_cl_middle_is_n,
+        theta_cl_light_is_n=theta_cl_light_is_n
+    )
+
+    # ステップnの室iにおける目標作用温度, degree C, [i]
+    OTsets = a13.get_theta_ot_target_is_n(
+        p_a_is_n=p_a_is_n,
+        h_hum_is_n=h_hum_is_n,
+        operation_mode_is_n=operation_mode_is_n,
+        clo_is_n=clo_is_n,
+        theta_cl_is_n=theta_cl_is_n
+    )
 
     for i, s in enumerate(spaces):
 
         theta_srf_dsh_a_i_jstrs_n_m = s.theta_srf_dsh_a_i_jstrs_n_m
         theta_srf_dsh_t_i_jstrs_n_m = s.theta_srf_dsh_t_i_jstrs_n_m
-        operation_mode_i_n_mns = s.operation_mode
         old_theta_frnt_i = s.old_theta_frnt_i
         q_srf_i_jstrs_n = s.q_srf_i_jstrs_n
         xf_i_npls = s.xf_i_npls
         x_r_i_n = s.x_r_i_n
         v_hum_i_n = s.v_hum_i_n
-        # ステップnの室iにおける水蒸気圧, Pa
-        p_a_i_n = s.p_a_i_n
+
+        OTset = OTsets[i]
 
         # ステップnの室iにおける室温, degree C
         theta_r_i_n = theta_r_is_n[i]
 
-        operation_mode_i_n = a13.get_operation_mode_i_n(
-            ac_demand_i_n=s.ac_demand[n], operation_mode_i_n_mns=operation_mode_i_n_mns,
-            pmv03_i_n=pmv03_is_n[i], pmv07_i_n=pmv07_is_n[i], pmv11_i_n=pmv11_is_n[i])
-
-        clo_i_n = a13.get_clo_i_n(operation_mode_i_n)
-
-        # 窓の開閉と空調発停の切り替え判定
-        OTset = a13.get_theta_ot_target_i_n(
-            is_radiative_heating=s.is_radiative_heating,
-            p_a_i_n=p_a_i_n,
-            h_hum_i_n=h_hum_is_n[i],
-            theta_cl11_i_n=theta_cl_11_is_n[i],
-            theta_cl03_i_n=theta_cl_03_is_n[i],
-            operation_mode=operation_mode_i_n,
-            clo_i_n=clo_i_n
-        )
+        operation_mode_i_n = operation_mode_is_n[i]
 
         # ステップnの室iの集約された境界j*における裏面温度, degree C, [j*]
         theta_rear_i_jstrs_n = a9.get_theta_rear_i_jstrs_n(
@@ -298,7 +322,7 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int):
         xf_i_n = s42.get_xf(s.Gf_i, xf_i_npls, s.Cx_i, x_r_i_n_pls)
         Qfunl_i_n = s42.get_Qfunl(s.Cx_i, x_r_i_n_pls, xf_i_n)
 
-        t_cl_i_n_pls = a35.get_t_cl_i_n(clo_i_n=clo_i_n, ot_i_n=ot_i_n, h_a_i_n=h_hum_is_n[i])
+        t_cl_i_n_pls = a35.get_t_cl_i_n(clo_i_n=clo_is_n[i], ot_i_n=ot_i_n, h_a_i_n=h_hum_is_n[i])
 
         if operation_mode_i_n == OperationMode.HEATING:
             if s.is_radiative_heating:
@@ -352,7 +376,7 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int):
         s.logger.xf_i_n[n] = xf_i_n
         s.logger.Qfunl_i_n[n] = Qfunl_i_n
         s.logger.Vel_i_n[n] = v_hum_i_n
-        s.logger.Clo_i_n[n] = clo_i_n
+        s.logger.Clo_i_n[n] = clo_is_n[i]
         s.logger.RH_i_n[n] = rh_i_n_pls
         s.logger.x_r_i_ns[n] = x_r_i_n_pls
 

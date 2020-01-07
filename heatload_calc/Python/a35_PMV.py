@@ -1,9 +1,37 @@
 import math
 import numpy as np
 from functools import lru_cache
+from numba import jit
 
 
-def get_t_cl_is_n(clo: float, theta_ot_is_n: np.ndarray, h_hum_is_n: np.ndarray) -> np.ndarray:
+@jit
+def get_theta_cl_heavy_middle_light_is_n(
+        theta_ot_is_n: np.ndarray, h_hum_is_n: np.ndarray) -> (np.ndarray, np.ndarray, np.ndarray):
+    """厚着・中間着・薄着をした場合の着衣温度をそれぞれ計算する。
+
+    Args:
+        theta_ot_is_n: ステップnの室iにおける作用温度, degree C, [i]
+        h_hum_is_n: ステップnの室iにおける人体周りの総合熱伝達率, W/m2K, [i]
+
+    Returns:
+        以下の3つの変数
+            ステップnの室iにおける厚着をした場合の着衣温度, degree C, [i]
+            ステップnの室iにおける中間着をした場合の着衣温度, degree C, [i]
+            ステップnの室iにおける薄着をした場合の着衣温度, degree C, [i]
+    """
+
+    # 厚着・中間着・薄着をした場合のClo値
+    clo_heavy, clo_middle, clo_light = get_clo()
+
+    # 厚着・中間着・薄着をした場合の着衣温度, degree C, [i]
+    theta_cl_heavy_is_n = get_theta_cl_is_n(clo=clo_heavy, theta_ot_is_n=theta_ot_is_n, h_hum_is_n=h_hum_is_n)
+    theta_cl_middle_is_n = get_theta_cl_is_n(clo=clo_middle, theta_ot_is_n=theta_ot_is_n, h_hum_is_n=h_hum_is_n)
+    theta_cl_light_is_n = get_theta_cl_is_n(clo=clo_light, theta_ot_is_n=theta_ot_is_n, h_hum_is_n=h_hum_is_n)
+
+    return theta_cl_heavy_is_n, theta_cl_middle_is_n, theta_cl_light_is_n
+
+
+def get_theta_cl_is_n(clo: float, theta_ot_is_n: np.ndarray, h_hum_is_n: np.ndarray) -> np.ndarray:
     """着衣温度を計算する。
 
     Args:
@@ -22,29 +50,12 @@ def get_t_cl_is_n(clo: float, theta_ot_is_n: np.ndarray, h_hum_is_n: np.ndarray)
     f_cl = get_f_cl(i_cl)
 
     # 代謝量（人体内部発熱量）, W/m2
-    m = get_met()
+    m = get_m()
 
     # ステップnの室iにおける着衣温度, degree C
     t_cl_i_n = (35.7 - 0.028 * m - theta_ot_is_n) / (1 + i_cl * f_cl * h_hum_is_n) + theta_ot_is_n
 
     return t_cl_i_n
-
-
-@lru_cache(maxsize=None)
-def get_i_cl(clo: float) -> float:
-    """convert the unit of clo to m2K/W
-
-    Args:
-        clo: value, clo
-
-    Returns:
-        value, m2K/W
-
-    Notes:
-        1 clo = 0.155 m2K/W
-    """
-
-    return clo * 0.155
 
 
 def get_t_cl_i_n(clo_i_n, ot_i_n, h_a_i_n):
@@ -60,13 +71,13 @@ def get_t_cl_i_n(clo_i_n, ot_i_n, h_a_i_n):
     """
 
     # 着衣抵抗, m2K/W
-    i_cl = convert_clo_to_m2kw(clo_i_n)
+    i_cl = get_i_cl(clo_i_n)
 
     # 着衣面積率
     f_cl = get_f_cl(i_cl)
 
     # 代謝量（人体内部発熱量）, W/m2
-    m = get_met()
+    m = get_m()
 
     # ステップnの室iにおける着衣温度, degree C
     t_cl_i_n = (35.7 - 0.028 * m - ot_i_n) / (1 + i_cl * f_cl * h_a_i_n) + ot_i_n
@@ -74,6 +85,7 @@ def get_t_cl_i_n(clo_i_n, ot_i_n, h_a_i_n):
     return t_cl_i_n
 
 
+@jit
 def get_h_hum_r_is_n(theta_cl_is_n: np.ndarray, theta_mrt_is_n: np.ndarray) -> np.ndarray:
     """人体周りの放射熱伝達率を計算する。
     
@@ -94,6 +106,7 @@ def get_h_hum_r_is_n(theta_cl_is_n: np.ndarray, theta_mrt_is_n: np.ndarray) -> n
     return 3.96 * 10 ** (-8) * (t_cl_is_n ** 3.0 + t_cl_is_n ** 2.0 * t_mrt_is_n + t_cl_is_n * t_mrt_is_n ** 2.0 + t_mrt_is_n)
 
 
+@jit
 def get_h_hum_c_is_n(theta_r_is_n: np.ndarray, t_cl_is_n: np.ndarray, v_hum_is_n: np.ndarray) -> np.ndarray:
     """人体周りの対流熱伝達率を計算する。
 
@@ -109,6 +122,7 @@ def get_h_hum_c_is_n(theta_r_is_n: np.ndarray, t_cl_is_n: np.ndarray, v_hum_is_n
     return np.maximum(12.1 * np.sqrt(v_hum_is_n), 2.38 * np.abs(t_cl_is_n - theta_r_is_n) ** 0.25)
 
 
+@jit
 def get_h_hum_is_n(h_hum_r_is_n: np.ndarray, h_hum_c_is_n: np.ndarray) -> np.ndarray:
     """人体周りの対流熱伝達率を計算する。
 
@@ -123,20 +137,62 @@ def get_h_hum_is_n(h_hum_r_is_n: np.ndarray, h_hum_c_is_n: np.ndarray) -> np.nda
     return h_hum_r_is_n + h_hum_c_is_n
 
 
-def get_pmv(t_a: np.ndarray, t_cl: np.ndarray, clo_value: float, p_a: np.ndarray, h: np.ndarray, ot: np.ndarray):
+@jit
+def get_pmv_heavy_middle_light_is_n(
+        theta_r_is_n: np.ndarray,
+        theta_cl_heavy_is_n: np.ndarray, theta_cl_middle_is_n: np.ndarray, theta_cl_light_is_n: np.ndarray,
+        p_a_is_n: np.ndarray, h_hum_is_n: np.ndarray,
+        theta_ot_is_n: np.ndarray) -> (np.ndarray, np.ndarray, np.ndarray):
     """PMVを計算する
 
     Args:
-        h_c: 対流熱伝達率, W/m2K
-        t_a: 乾球温度, degree C
-        t_cl: 着衣温度, degree C
-        t_r_bar: 放射温度, degree C
-        clo_value: Clo値
-        h_r: 放射熱伝達率, W/m2K
-        p_a:　水蒸気圧, Pa
+        theta_r_is_n: ステップnの室iにおける室温, degree C, [i]
+        theta_cl_heavy_is_n: ステップnの室iにおける厚着の場合の着衣温度, degree C, [i]
+        theta_cl_middle_is_n: ステップnの室iにおける中間着の場合の着衣温度, degree C, [i]
+        theta_cl_light_is_n: ステップnの室iにおける薄着の場合の着衣温度, degree C, [i]
+        p_a_is_n:　ステップnの室iにおける水蒸気圧, Pa, [i]
+        h_hum_is_n: ステップnの室iにおける人体周りの総合熱伝達率, W/m2K, [i]
+        theta_ot_is_n: ステップnの室iにおける作用温度, degree C, [i]
 
     Returns:
-        PMV: PMV
+        以下の3つの値
+            ステップnの室iにおける厚着をした場合のPMV, [i]
+            ステップnの室iにおける中間着をした場合のPMV, [i]
+            ステップnの室iにおける薄着をした場合のPMV, [i]
+    """
+
+    # 厚着・中間着・薄着をした場合のClo値
+    clo_heavy, clo_middle, clo_light = get_clo()
+
+    pmv_heavy_is_n = get_pmv_is_n(
+        theta_r_is_n=theta_r_is_n, theta_cl_is_n=theta_cl_heavy_is_n, clo=clo_heavy, p_a_is_n=p_a_is_n,
+        h_hum_is_n=h_hum_is_n, theta_ot_is_n=theta_ot_is_n)
+    pmv_middle_is_n = get_pmv_is_n(
+        theta_r_is_n=theta_r_is_n, theta_cl_is_n=theta_cl_middle_is_n, clo=clo_heavy, p_a_is_n=p_a_is_n,
+        h_hum_is_n=h_hum_is_n, theta_ot_is_n=theta_ot_is_n)
+    pmv_light_is_n = get_pmv_is_n(
+        theta_r_is_n=theta_r_is_n, theta_cl_is_n=theta_cl_light_is_n, clo=clo_heavy, p_a_is_n=p_a_is_n,
+        h_hum_is_n=h_hum_is_n, theta_ot_is_n=theta_ot_is_n)
+
+    return pmv_heavy_is_n, pmv_middle_is_n, pmv_light_is_n
+
+
+@jit
+def get_pmv_is_n(
+        theta_r_is_n: np.ndarray, theta_cl_is_n: np.ndarray, clo: float, p_a_is_n: np.ndarray, h_hum_is_n: np.ndarray,
+        theta_ot_is_n: np.ndarray):
+    """PMVを計算する
+
+    Args:
+        theta_r_is_n: ステップnの室iにおける室温, degree C, [i]
+        theta_cl_is_n: ステップnの室iにおける着衣温度, degree C, [i]
+        clo: Clo値
+        p_a_is_n:　ステップnの室iにおける水蒸気圧, Pa, [i]
+        h_hum_is_n: ステップnの室iにおける人体周りの総合熱伝達率, W/m2K, [i]
+        theta_ot_is_n: ステップnの室iにおける作用温度, degree C, [i]
+
+    Returns:
+        ステップnの室iにおけるPMV, [i]
 
     Notes:
         ISOで定める計算方法ではなく、前の時刻に求めた人体周りの熱伝達率、着衣温度を使用して収束計算が生じないようにしている。
@@ -144,37 +200,38 @@ def get_pmv(t_a: np.ndarray, t_cl: np.ndarray, clo_value: float, p_a: np.ndarray
     """
 
     # 着衣抵抗, m2K/W
-    i_cl = convert_clo_to_m2kw(clo_value)
+    i_cl = get_i_cl(clo)
 
     # 代謝量（人体内部発熱量）, W/m2
-    m = get_met()
+    m = get_m()
 
     # 着衣面積率
     f_cl = get_f_cl(i_cl)
 
     return (0.303 * math.exp(-0.036 * m) + 0.028) * (
             m  # 活動量, W/m2
-            - 3.05 * 10 ** (-3) * (5733.0 - 6.99 * m - p_a)  # 皮膚からの潜熱損失, W/m2
+            - 3.05 * 10 ** (-3) * (5733.0 - 6.99 * m - p_a_is_n)  # 皮膚からの潜熱損失, W/m2
             - max(0.42 * (m - 58.15), 0.0)  # 発汗熱損失, W/m2
-            - 1.7 * 10 ** (-5) * m * (5867.0 - p_a)  # 呼吸に伴う潜熱損失, W/m2
-            - 0.0014 * m * (34.0 - t_a)  # 呼吸に伴う顕熱損失, W/m2 ( = 呼吸量, (g/s)/m2 ✕ (34.0 - 室温)
-            - f_cl * h * (t_cl - ot))  # 着衣からの熱損失
+            - 1.7 * 10 ** (-5) * m * (5867.0 - p_a_is_n)  # 呼吸に伴う潜熱損失, W/m2
+            - 0.0014 * m * (34.0 - theta_r_is_n)  # 呼吸に伴う顕熱損失, W/m2 ( = 呼吸量, (g/s)/m2 ✕ (34.0 - 室温)
+            - f_cl * h_hum_is_n * (theta_cl_is_n - theta_ot_is_n))  # 着衣からの熱損失
 
 
-def get_theta_ot_target(t_cl, clo_value, p_a, h, pmv):
+@jit
+def get_theta_ot_target(
+        theta_cl_is_n: np.ndarray, clo_is_n: np.ndarray, p_a_is_n: np.ndarray, h_hum_is_n: np.ndarray,
+        pmv_target_is_n: np.ndarray):
     """指定したPMVを満たすOTを計算する
 
     Args:
-        h_c: 対流熱伝達率, W/m2K
-        t_a: 乾球温度, degree C
-        t_cl: 着衣温度, degree C
-        t_r_bar: 放射温度, degree C
-        clo_value: Clo値
-        h_r: 放射熱伝達率, W/m2K
-        p_a:　水蒸気圧, Pa
+        theta_cl_is_n: ステップnの室iにおける着衣温度, degree C, [i]
+        clo_is_n: ステップnの室iにおけるClo値, [i]
+        p_a_is_n:　ステップnの室iにおける水蒸気圧, Pa
+        h_hum_is_n: ステップnの室iにおける人体周りの総合熱伝達率, W/m2K, [i]
+        pmv_target_is_n: ステップnの室iにおける目標PMV, [i]
 
     Returns:
-        目標OT
+        ステップnの室iにおける目標OT, [i]
 
     Notes:
         ISOで定める計算方法ではなく、前の時刻に求めた人体周りの熱伝達率、着衣温度を使用して収束計算が生じないようにしている。
@@ -182,32 +239,31 @@ def get_theta_ot_target(t_cl, clo_value, p_a, h, pmv):
     """
 
     # 着衣抵抗, m2K/W
-    i_cl = convert_clo_to_m2kw(clo_value)
+    i_cl = get_i_cl(clo_is_n)
 
     # 代謝量（人体内部発熱量）, W/m2
-    m = get_met()
+    m = get_m()
 
     # 着衣面積率
     f_cl = get_f_cl(i_cl)
 
-    return (pmv / (0.303 * math.exp(-0.036 * m) + 0.028) - m
-            + 3.05 * 10 ** (-3) * (5733.0 - 6.99 * m - p_a)
+    return (pmv_target_is_n / (0.303 * math.exp(-0.036 * m) + 0.028) - m
+            + 3.05 * 10 ** (-3) * (5733.0 - 6.99 * m - p_a_is_n)
             + max(0.42 * (m - 58.15), 0.0)
-            + 1.7 * 10 ** (-5) * m * (5867.0 - p_a)
+            + 1.7 * 10 ** (-5) * m * (5867.0 - p_a_is_n)
             + 0.0014 * m * 34.0
-            + f_cl * h * t_cl
-            )/(0.0014 * m + f_cl * h)
+            + f_cl * h_hum_is_n * theta_cl_is_n
+            )/(0.0014 * m + f_cl * h_hum_is_n)
 
 
-@lru_cache(maxsize = None)
-def convert_clo_to_m2kw(clo):
-    """convert the unit of clo to m2K/W
+def get_i_cl(clo: float) -> float:
+    """Clo値から着衣抵抗を計算する。
 
     Args:
-        clo: value, clo
+        clo: Clo値
 
     Returns:
-        value, m2K/W
+        着衣抵抗, m2K/W
 
     Notes:
         1 clo = 0.155 m2K/W
@@ -216,8 +272,7 @@ def convert_clo_to_m2kw(clo):
     return clo * 0.155
 
 
-@lru_cache(maxsize = None)
-def get_met():
+def get_m():
     """代謝量を得る。
 
     Returns:
@@ -232,7 +287,6 @@ def get_met():
     return 58.15
 
 
-@lru_cache(maxsize=None)
 def get_f_cl(i_cl: float) -> float:
     """着衣面積率を計算する。
 
@@ -246,8 +300,24 @@ def get_f_cl(i_cl: float) -> float:
         equation (4)
     """
 
-    if i_cl <= 0.078:
-        return 1.00 + 1.290 * i_cl
-    else:
-        return 1.05 + 0.645 * i_cl
+#    if i_cl <= 0.078:
+#        return 1.00 + 1.290 * i_cl
+#    else:
+#        return 1.05 + 0.645 * i_cl
+
+    return np.where(i_cl <= 0.078, 1.00 + 1.290 * i_cl, 1.05 + 0.645 * i_cl)
+
+
+def get_clo() -> (float, float, float):
+    """厚着・中間着・薄着をした場合のClo値をそれぞれ取得する。
+
+    Returns:
+        Clo値
+            厚着をした場合のClo値
+            中間着をした場合のClo値
+            薄着をした場合のClo値
+    """
+
+    return 1.1, 0.7, 0.3
+
 
