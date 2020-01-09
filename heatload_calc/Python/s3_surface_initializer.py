@@ -15,7 +15,7 @@ from s3_surface_loader import GeneralPartSpec
 from s3_surface_loader import TransparentOpeningPartSpec
 from s3_surface_loader import OpaqueOpeningPartSpec
 from s3_surface_loader import GroundSpec
-
+from a39_global_parameters import BoundaryType
 
 IntegratedBoundaries = namedtuple('IntegratedBoundaries', [
     'name_i_jstrs',
@@ -129,7 +129,7 @@ def init_surface(
     sub_name_i_jstrs = np.array(['+'.join(name_i_js[gp_idxs == i]) for i in np.unique(gp_idxs)])
 
     # 室iの統合された境界j*の種類, [j*]
-    boundary_type_i_jstrs = [boundary_type_i_js[first_idx[i]] for i in np.unique(gp_idxs)]
+    boundary_type_i_jstrs = np.array([boundary_type_i_js[first_idx[i]] for i in np.unique(gp_idxs)])
 
     # 室iの統合された境界j*の面積, [j*]
     a_i_jstrs = np.array([np.sum(a_i_js[gp_idxs == i]) for i in np.unique(gp_idxs)])
@@ -240,7 +240,7 @@ def get_transmitted_solar_radiation(boundaries: List[Boundary], i_dn_ns, i_sky_n
 
 def is_solar_radiation_transmitted(boundary: Boundary):
 
-    if boundary.boundary_type == 'external_transparent_part':
+    if boundary.boundary_type == BoundaryType.ExternalTransparentPart:
 
         if boundary.is_sun_striked_outside:
 

@@ -8,6 +8,7 @@ from s3_surface_loader import GeneralPartSpec
 from s3_surface_loader import TransparentOpeningPartSpec
 from s3_surface_loader import OpaqueOpeningPartSpec
 from s3_surface_loader import GroundSpec
+from a39_global_parameters import BoundaryType
 
 """
 付録34．境界条件が同じ部位の集約
@@ -31,27 +32,27 @@ def is_boundary_integratable(b1: Boundary, b2: Boundary) -> bool:
         return False
 
     # 境界の種類が間仕切りの場合
-    if b1.boundary_type == 'internal':
+    if b1.boundary_type == BoundaryType.Internal:
 
         return is_boundary_internals_integratable(bi1=b1.spec, bi2=b2.spec)
 
     # 境界の種類が一般部位の場合
-    elif b1.boundary_type == 'external_general_part':
+    elif b1.boundary_type == BoundaryType.ExternalGeneralPart:
 
         return is_boundary_generals_integratable(bg1=b1.spec, bg2=b2.spec)
 
     # 境界の種類が透明な開口部の場合
-    elif b1.boundary_type == 'external_transparent_part':
+    elif b1.boundary_type == BoundaryType.ExternalTransparentPart:
 
         return is_boundary_transparent_openings_integratable(bto1=b1.spec, bto2=b2.spec)
 
     # 境界の種類が非透明な開口部の場合
-    elif b1.boundary_type == 'external_opaque_part':
+    elif b1.boundary_type == BoundaryType.ExternalOpaquePart:
 
         return is_boundary_opaque_openings_integratable(boo1=b1.spec, boo2=b2.spec)
 
     # 境界の種類が地盤の場合
-    elif b1.boundary_type == 'ground':
+    elif b1.boundary_type == BoundaryType.Ground:
 
         return is_boundary_grounds_integratable(bg1=b1.spec, bg2=b2.spec)
 
@@ -108,9 +109,9 @@ def is_boundary_bodies_integratable(b1: Boundary, b2: Boundary) -> bool:
         return False
 
     # 境界の種類が「外皮_一般部位」、「外皮_透明な開口部」又は「外皮_不透明な開口部」の場合
-    if (b1.boundary_type == 'external_general_part') \
-            or (b1.boundary_type == 'external_transparent_part') \
-            or (b1.boundary_type == 'external_opaque_part'):
+    if (b1.boundary_type == BoundaryType.ExternalGeneralPart) \
+            or (b1.boundary_type == BoundaryType.ExternalTransparentPart) \
+            or (b1.boundary_type == BoundaryType.ExternalOpaquePart):
 
         # 日射の有無
         if b1.is_sun_striked_outside != b2.is_sun_striked_outside:
@@ -128,7 +129,7 @@ def is_boundary_bodies_integratable(b1: Boundary, b2: Boundary) -> bool:
                 return False
 
     # 境界の種類が間仕切りの場合
-    if b1.boundary_type == 'internal':
+    if b1.boundary_type == BoundaryType.Internal:
 
         # 隣室タイプ
         if b1.next_room_type != b2.next_room_type:

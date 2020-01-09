@@ -15,13 +15,14 @@ from a39_global_parameters import OperationMode
 from s3_space_loader import Space
 
 import Psychrometrics as psy
+from a39_global_parameters import BoundaryType
 
 # 地盤の計算
 def run_tick_groundonly(spaces: List[Space], To_n: float, Tave: float):
 
     for s in spaces:
 
-        g = np.array(s.boundary_type_i_jstrs) == 'ground'  # [jstr]
+        g = s.boundary_type_i_jstrs == BoundaryType.Ground  # [jstr]
 
         theta_srf_dsh_a_i_jstrs_npls_ms = a1.get_theta_srf_dsh_a_i_jstrs_npls_ms(
             q_srf_i_jstrs_n=s.q_srf_i_jstrs_n[g], phi_a_1_bnd_i_jstrs_ms=s.phi_a_1_bnd_i_jstrs_ms[g, :],

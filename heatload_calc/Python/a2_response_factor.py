@@ -10,6 +10,7 @@ from s3_surface_loader import GeneralPartSpec
 from s3_surface_loader import TransparentOpeningPartSpec
 from s3_surface_loader import OpaqueOpeningPartSpec
 from s3_surface_loader import GroundSpec
+from a39_global_parameters import BoundaryType
 
 """
 付録2．応答係数の初項、指数項別応答係数、公比の計算
@@ -347,9 +348,9 @@ def get_r_layer_i_k_ls(b):
 
 def get_response_factors(b: Boundary) -> ResponseFactor:
 
-    if b.boundary_type in ['external_general_part', 'internal', 'ground']:
+    if b.boundary_type in [BoundaryType.ExternalGeneralPart, BoundaryType.Internal, BoundaryType.Ground]:
 
-        is_ground = b.boundary_type == 'ground'
+        is_ground = b.boundary_type == BoundaryType.Ground
 
         c_layer_i_k_l = get_c_layer_i_k_ls(b)
         r_layer_i_k_l = get_r_layer_i_k_ls(b)
@@ -358,7 +359,7 @@ def get_response_factors(b: Boundary) -> ResponseFactor:
         _RFT0, _RFA0, _RFT1, _RFA1, _Row, _n_root_i_js = \
             calc_response_factor(is_ground, c_layer_i_k_l, r_layer_i_k_l)
 
-    elif b.boundary_type in ['external_transparent_part', 'external_opaque_part']:
+    elif b.boundary_type in [BoundaryType.ExternalTransparentPart, BoundaryType.ExternalOpaquePart]:
 
         # 室iの境界kの熱貫流率, W/m2K
         # 定常で解く部位、つまり、透明な開口部・不透明な開口部で定義される。

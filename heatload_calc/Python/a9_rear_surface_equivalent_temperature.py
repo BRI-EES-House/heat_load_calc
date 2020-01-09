@@ -3,7 +3,7 @@ import numpy as np
 
 import x_07_inclined_surface_solar_radiation as x_07
 import x_19_external_boundaries_direction as x_19
-
+from a39_global_parameters import BoundaryType
 
 """
 付録9．	裏面相当温度
@@ -28,22 +28,27 @@ def get_theta_rear_i_jstrs_n(
     Returns:
         ステップnの室iの集約された境界j*における裏面温度, degree C, [j*]
     """
-    boundary_type_i_jstrs = np.array(boundary_type_i_jstrs)
+
     theta_rear_i_jstrs_n = np.empty_like(theta_o_sol_bnd_i_jstrs_n)
 
     # 一般部位、不透明な開口部、透明な開口部の場合
-    is_external = (boundary_type_i_jstrs == 'external_general_part')\
-                  | (boundary_type_i_jstrs == 'external_opaque_part')\
-                  | (boundary_type_i_jstrs == 'external_transparent_part')
+#    is_external = (boundary_type_i_jstrs == 'external_general_part')\
+#                  | (boundary_type_i_jstrs == 'external_opaque_part')\
+#                  | (boundary_type_i_jstrs == 'external_transparent_part')
+    is_external = (boundary_type_i_jstrs == BoundaryType.ExternalGeneralPart)\
+        | (boundary_type_i_jstrs == BoundaryType.ExternalOpaquePart) \
+        | (boundary_type_i_jstrs == BoundaryType.ExternalTransparentPart)
     theta_rear_i_jstrs_n[is_external] = h_bnd_i_jstrs[is_external] * theta_o_sol_bnd_i_jstrs_n[is_external]\
                                         + (1.0 - h_bnd_i_jstrs[is_external]) * theta_r_i_n
 
     # 内壁の場合（前時刻の室温）
-    is_internal = boundary_type_i_jstrs == "internal"
+#    is_internal = boundary_type_i_jstrs == "internal"
+    is_internal = boundary_type_i_jstrs == BoundaryType.Internal
     theta_rear_i_jstrs_n[is_internal] = theta_r_is_n[next_room_type_bnd_i_jstrs][is_internal]
 
     # 土壌の場合
-    is_ground = boundary_type_i_jstrs == 'ground'
+#    is_ground = boundary_type_i_jstrs == 'ground'
+    is_ground = boundary_type_i_jstrs == BoundaryType.Ground
     theta_rear_i_jstrs_n[is_ground] = theta_o_sol_bnd_i_jstrs_n[is_ground]
 
     return theta_rear_i_jstrs_n
@@ -67,16 +72,16 @@ def get_theta_o_sol_i_j_ns(boundary_i_j, theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, 
     """
 
     # 間仕切りの場合
-    if boundary_i_j.boundary_type == 'internal':
+    if boundary_i_j.boundary_type == BoundaryType.Internal:
 
         # この値は使用しないのでNoneでもよいはず
         # 集約化する際にNoneだと変な挙動を示すかも知れないのでとりあえずゼロにしておく。
         return np.zeros(24 * 365 * 4)
 
     # 一般部位・透明な開口部・不透明な開口部の場合
-    elif (boundary_i_j.boundary_type == 'external_general_part') \
-            or (boundary_i_j.boundary_type == 'external_opaque_part') \
-            or (boundary_i_j.boundary_type == 'external_transparent_part'):
+    elif (boundary_i_j.boundary_type == BoundaryType.ExternalGeneralPart) \
+            or (boundary_i_j.boundary_type == BoundaryType.ExternalOpaquePart) \
+            or (boundary_i_j.boundary_type == BoundaryType.ExternalTransparentPart):
 
         # 日射が当たる場合
         if boundary_i_j.is_sun_striked_outside:
@@ -89,8 +94,8 @@ def get_theta_o_sol_i_j_ns(boundary_i_j, theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, 
             r_n_is_i_j_ns = x_07.get_r_n_is_i_j_ns(r_n_ns=r_n_ns, w_beta_i_j=w_beta_i_j)
 
             # 一般部位・不透明な部位の場合
-            if (boundary_i_j.boundary_type == 'external_general_part') \
-                    or (boundary_i_j.boundary_type == 'external_opaque_part'):
+            if (boundary_i_j.boundary_type == BoundaryType.ExternalGeneralPart) \
+                    or (boundary_i_j.boundary_type == BoundaryType.ExternalOpaquePart):
 
                 # ステップnにおける室iの境界jにおける傾斜面の日射量のうち直達成分, W/m2K [8760*4]
                 # ステップnにおける室iの境界jにおける傾斜面の日射量のうち天空成分, W/m2K [8760*4]
@@ -112,7 +117,7 @@ def get_theta_o_sol_i_j_ns(boundary_i_j, theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, 
                     r_n_is_i_j_ns=r_n_is_i_j_ns)
 
             # 透明な開口部の場合
-            elif boundary_i_j.boundary_type == 'external_transparent_part':
+            elif boundary_i_j.boundary_type == BoundaryType.ExternalTransparentPart:
 
                 # 室iの境界jの傾斜面のステップnにおける相当外気温度, ℃, [8760*4]
                 # 透明な開口部の場合、日射はガラス面への透過・吸収の項で扱うため、ここでは長波長放射のみ考慮する。
@@ -128,7 +133,7 @@ def get_theta_o_sol_i_j_ns(boundary_i_j, theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, 
             return theta_o_ns
 
     # 地盤の場合
-    elif boundary_i_j.boundary_type == 'ground':
+    elif boundary_i_j.boundary_type == BoundaryType.Ground:
 
         return np.full(24 * 365 * 4, np.average(theta_o_ns))
 

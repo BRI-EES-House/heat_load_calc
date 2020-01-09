@@ -1,8 +1,7 @@
 from collections import namedtuple
 from typing import Dict, List
 
-# import a24_wall_layer as a24
-
+from a39_global_parameters import BoundaryType
 
 Boundary = namedtuple('Boundary', [
     'name',
@@ -128,7 +127,14 @@ def get_boundary(b: Dict) -> Boundary:
     # 'external_transparent_part': 外皮_透明な開口部
     # 'external_opaque_part': 外皮_不透明な開口部
     # 'ground': 地盤
-    boundary_type = b['boundary_type']
+    # boundary_type = b['boundary_type']
+    boundary_type = {
+        'internal': BoundaryType.Internal,
+        'external_general_part': BoundaryType.ExternalGeneralPart,
+        'external_transparent_part': BoundaryType.ExternalTransparentPart,
+        'external_opaque_part': BoundaryType.ExternalOpaquePart,
+        'ground': BoundaryType.Ground
+    }[b['boundary_type']]
 
     # 面積, m2
     area = float(b['area'])
