@@ -151,7 +151,7 @@ def get_boundary(b: Dict) -> Boundary:
             or b['boundary_type'] == 'external_opaque_part':
         temp_dif_coef = float(b['temp_dif_coef'])
     else:
-        temp_dif_coef = None
+        temp_dif_coef = 0.0
 
     # 方位
     # 's', 'sw', 'w', 'nw', 'n', 'ne', 'e', 'se', 'top', 'bottom'

@@ -1,10 +1,8 @@
 import math
 import numpy as np
-from functools import lru_cache
 from numba import jit
 
 
-@jit
 def get_theta_cl_heavy_middle_light_is_n(
         theta_ot_is_n: np.ndarray, h_hum_is_n: np.ndarray) -> (np.ndarray, np.ndarray, np.ndarray):
     """厚着・中間着・薄着をした場合の着衣温度をそれぞれ計算する。
@@ -85,7 +83,6 @@ def get_t_cl_i_n(clo_i_n, ot_i_n, h_a_i_n):
     return t_cl_i_n
 
 
-@jit
 def get_h_hum_r_is_n(theta_cl_is_n: np.ndarray, theta_mrt_is_n: np.ndarray) -> np.ndarray:
     """人体周りの放射熱伝達率を計算する。
     
@@ -106,7 +103,7 @@ def get_h_hum_r_is_n(theta_cl_is_n: np.ndarray, theta_mrt_is_n: np.ndarray) -> n
     return 3.96 * 10 ** (-8) * (t_cl_is_n ** 3.0 + t_cl_is_n ** 2.0 * t_mrt_is_n + t_cl_is_n * t_mrt_is_n ** 2.0 + t_mrt_is_n)
 
 
-@jit
+@jit('f8[:](f8[:], f8[:], f8[:])', nopython=True)
 def get_h_hum_c_is_n(theta_r_is_n: np.ndarray, t_cl_is_n: np.ndarray, v_hum_is_n: np.ndarray) -> np.ndarray:
     """人体周りの対流熱伝達率を計算する。
 
@@ -122,7 +119,6 @@ def get_h_hum_c_is_n(theta_r_is_n: np.ndarray, t_cl_is_n: np.ndarray, v_hum_is_n
     return np.maximum(12.1 * np.sqrt(v_hum_is_n), 2.38 * np.abs(t_cl_is_n - theta_r_is_n) ** 0.25)
 
 
-@jit
 def get_h_hum_is_n(h_hum_r_is_n: np.ndarray, h_hum_c_is_n: np.ndarray) -> np.ndarray:
     """人体周りの対流熱伝達率を計算する。
 
@@ -137,7 +133,6 @@ def get_h_hum_is_n(h_hum_r_is_n: np.ndarray, h_hum_c_is_n: np.ndarray) -> np.nda
     return h_hum_r_is_n + h_hum_c_is_n
 
 
-@jit
 def get_pmv_heavy_middle_light_is_n(
         theta_r_is_n: np.ndarray,
         theta_cl_heavy_is_n: np.ndarray, theta_cl_middle_is_n: np.ndarray, theta_cl_light_is_n: np.ndarray,
@@ -177,7 +172,6 @@ def get_pmv_heavy_middle_light_is_n(
     return pmv_heavy_is_n, pmv_middle_is_n, pmv_light_is_n
 
 
-@jit
 def get_pmv_is_n(
         theta_r_is_n: np.ndarray, theta_cl_is_n: np.ndarray, clo: float, p_a_is_n: np.ndarray, h_hum_is_n: np.ndarray,
         theta_ot_is_n: np.ndarray):
@@ -217,7 +211,6 @@ def get_pmv_is_n(
             - f_cl * h_hum_is_n * (theta_cl_is_n - theta_ot_is_n))  # 着衣からの熱損失
 
 
-@jit
 def get_theta_ot_target(
         theta_cl_is_n: np.ndarray, clo_is_n: np.ndarray, p_a_is_n: np.ndarray, h_hum_is_n: np.ndarray,
         pmv_target_is_n: np.ndarray):

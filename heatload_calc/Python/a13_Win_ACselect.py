@@ -1,15 +1,13 @@
 import numpy as np
-from numba import jit
 
 from a39_global_parameters import OperationMode
 import a35_PMV as a35
 
 
-@jit
 def get_theta_ot_target_is_n(
         p_a_is_n: np.ndarray, h_hum_is_n: np.ndarray,
         operation_mode_is_n: np.ndarray, clo_is_n: np.ndarray, theta_cl_is_n: np.ndarray
-) -> (OperationMode, float, float):
+) -> np.ndarray:
     """目標作用温度を計算する。
 
     Args:
@@ -39,7 +37,6 @@ def get_theta_ot_target_is_n(
     )
 
 
-@jit
 def get_pmv_target_i_n(operation_mode_i_n):
     """運転モードから目標とするPMVを決定する。
 
@@ -59,7 +56,6 @@ def get_pmv_target_i_n(operation_mode_i_n):
     }[operation_mode_i_n]
 
 
-@jit
 def get_theta_cl_is_n(
         operation_mode_is_n: np.ndarray,
         theta_cl_heavy_is_n: np.ndarray, theta_cl_middle_is_n: np.ndarray, theta_cl_light_is_n: np.ndarray
@@ -80,7 +76,6 @@ def get_theta_cl_is_n(
         operation_mode_is_n, theta_cl_heavy_is_n, theta_cl_middle_is_n, theta_cl_light_is_n)
 
 
-@jit
 def get_theta_cl_i_n(
         operation_mode_i_n: OperationMode,
         theta_cl_heavy_i_n: float, theta_cl_middle_i_n: float, theta_cl_light_i_n: float
@@ -105,7 +100,6 @@ def get_theta_cl_i_n(
     }[operation_mode_i_n]
 
 
-@jit
 def get_clo_is_n(operation_mode_is_n: np.ndarray) -> np.ndarray:
     """運転モードに応じたClo値を決定する。
 
@@ -119,7 +113,6 @@ def get_clo_is_n(operation_mode_is_n: np.ndarray) -> np.ndarray:
     return np.vectorize(get_clo_i_n)(operation_mode_is_n)
 
 
-@jit
 def get_clo_i_n(operation_mode_i_n: OperationMode) -> float:
     """運転モードに応じたClo値を決定する。
 
@@ -138,7 +131,6 @@ def get_clo_i_n(operation_mode_i_n: OperationMode) -> float:
     }[operation_mode_i_n]
 
 
-@jit
 def get_operation_mode_is_n(
         ac_demand_is_n: np.ndarray,
         operation_mode_is_n_mns: np.ndarray,
@@ -163,7 +155,6 @@ def get_operation_mode_is_n(
         ac_demand_is_n, operation_mode_is_n_mns, pmv_heavy_is_n, pmv_middle_is_n, pmv_light_is_n)
 
 
-@jit
 def get_operation_mode_i_n(
         ac_demand_i_n: bool, operation_mode_i_n_mns: OperationMode,
         pmv_heavy_i_n: float, pmv_middle_i_n: float, pmv_light_i_n: float) -> OperationMode:

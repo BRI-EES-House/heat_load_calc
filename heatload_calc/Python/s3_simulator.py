@@ -17,7 +17,7 @@ from s3_space_loader import Space
 import Psychrometrics as psy
 
 # 地盤の計算
-def run_tick_groundonly(spaces: List[Space], To_n: float, n: int, Tave: float):
+def run_tick_groundonly(spaces: List[Space], To_n: float, Tave: float):
 
     for s in spaces:
 
@@ -125,6 +125,16 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int):
 
     for i, s in enumerate(spaces):
 
+        # ステップnの室iの集約された境界j*における裏面温度, degree C, [j*]
+        theta_rear_i_jstrs_n = a9.get_theta_rear_i_jstrs_n(
+            theta_r_i_n=theta_r_is_n[i],
+            boundary_type_i_jstrs=s.boundary_type_i_jstrs,
+            h_bnd_i_jstrs=s.h_bnd_i_jstrs,
+            next_room_type_bnd_i_jstrs=s.next_room_type_bnd_i_jstrs,
+            theta_r_is_n=theta_r_is_n,
+            theta_o_sol_bnd_i_jstrs_n=s.theta_o_sol_bnd_i_jstrs_ns[:, n]
+        )
+
         theta_srf_dsh_a_i_jstrs_n_m = s.theta_srf_dsh_a_i_jstrs_n_m
         theta_srf_dsh_t_i_jstrs_n_m = s.theta_srf_dsh_t_i_jstrs_n_m
         old_theta_frnt_i = s.old_theta_frnt_i
@@ -133,23 +143,12 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int):
         x_r_i_n = s.x_r_i_n
         v_hum_i_n = s.v_hum_i_n
 
-        OTset = OTsets[i]
-
         # ステップnの室iにおける室温, degree C
         theta_r_i_n = theta_r_is_n[i]
 
         operation_mode_i_n = operation_mode_is_n[i]
 
-        # ステップnの室iの集約された境界j*における裏面温度, degree C, [j*]
-        theta_rear_i_jstrs_n = a9.get_theta_rear_i_jstrs_n(
-            theta_r_i_n=theta_r_i_n,
-            n_bnd_i_jstrs=s.n_bnd_i_jstrs,
-            boundary_type_i_jstrs=s.boundary_type_i_jstrs,
-            h_bnd_i_jstrs=s.h_bnd_i_jstrs,
-            next_room_type_bnd_i_jstrs=s.next_room_type_bnd_i_jstrs,
-            theta_r_is_n=theta_r_is_n,
-            theta_o_sol_bnd_i_jstrs_n=s.theta_o_sol_bnd_i_jstrs_ns[:, n]
-        )
+        OTset = OTsets[i]
 
         # ステップnの室iにおける人体発熱, W
         q_hum_i_n = a3.get_q_hum_i_n(theta_r_i_n=theta_r_i_n, n_hum_i_n=s.n_hum_i_ns[n])

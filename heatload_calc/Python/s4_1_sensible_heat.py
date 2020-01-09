@@ -1,13 +1,10 @@
 import numpy as np
-from numba import jit
 
 import apdx3_human_body as a3
 import a18_initial_value_constants as a18
-from a39_global_parameters import ACMode, OperationMode
-import a13_Win_ACselect as a13
+from a39_global_parameters import OperationMode
 
 
-@jit
 def get_theta_ot_is_n(
         h_hum_c_is_n: np.ndarray, h_hum_r_is_n: np.ndarray, h_hum_is_n: np.ndarray,
         theta_r_is_n: np.ndarray, theta_mrt_is_n: np.ndarray) -> np.ndarray:
