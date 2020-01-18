@@ -17,6 +17,7 @@ from s3_space_loader import Space
 import Psychrometrics as psy
 from a39_global_parameters import BoundaryType
 
+
 # 地盤の計算
 def run_tick_groundonly(spaces: List[Space], To_n: float, Tave: float):
 
@@ -125,15 +126,17 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int):
     )
 
     for i, s in enumerate(spaces):
-
-        # ステップnの室iの集約された境界j*における裏面温度, degree C, [j*]
-        theta_rear_i_jstrs_n = a9.get_theta_rear_i_jstrs_n(
-            theta_r_i_n=theta_r_is_n[i],
+        m = a9.get_matrix(
             boundary_type_i_jstrs=s.boundary_type_i_jstrs,
             h_bnd_i_jstrs=s.h_bnd_i_jstrs,
-            next_room_type_bnd_i_jstrs=s.next_room_type_bnd_i_jstrs,
+            i=i,
+            next_room_type_bnd_i_jstrs=s.next_room_type_bnd_i_jstrs)
+        # ステップnの室iの集約された境界j*における裏面温度, degree C, [j*]
+        theta_rear_i_jstrs_n = a9.get_theta_rear_i_jstrs_n(
+            h_bnd_i_jstrs=s.h_bnd_i_jstrs,
             theta_r_is_n=theta_r_is_n,
-            theta_o_sol_bnd_i_jstrs_n=s.theta_o_sol_bnd_i_jstrs_ns[:, n]
+            theta_o_sol_bnd_i_jstrs_n=s.theta_o_sol_bnd_i_jstrs_ns[:, n],
+            m=m
         )
 
         theta_srf_dsh_a_i_jstrs_n_m = s.theta_srf_dsh_a_i_jstrs_n_m

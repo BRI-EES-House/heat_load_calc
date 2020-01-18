@@ -11,47 +11,54 @@ from a39_global_parameters import BoundaryType
 
 
 def get_theta_rear_i_jstrs_n(
-        theta_r_i_n: float, boundary_type_i_jstrs: np.ndarray, h_bnd_i_jstrs: np.ndarray,
-        next_room_type_bnd_i_jstrs: np.ndarray, theta_r_is_n: np.ndarray, theta_o_sol_bnd_i_jstrs_n: np.ndarray
+        h_bnd_i_jstrs: np.ndarray, theta_r_is_n: np.ndarray, theta_o_sol_bnd_i_jstrs_n: np.ndarray, m: np.ndarray
 ):
     """境界の裏面温度を計算する。
 
     Args:
-        theta_r_i_n: ステップnの室iにおける室温, degree C
-        n_bnd_i_jstrs: 室iの統合された境界j*の数, [j*]
         boundary_type_i_jstrs: 室iの統合された境界j*の種類, [j*]
         h_bnd_i_jstrs: 室iの統合された境界j*の温度差係数, [j*]
         next_room_type_bnd_i_jstrs: 室iの統合された境界j*の隣室タイプ, [j*]
         theta_r_is_n: ステップnの室iにおける室温, degree C, [i]
         theta_o_sol_bnd_i_jstrs_n: ステップnの室iの集約された境界j*の傾斜面における相当外気温度, degree C, [j*]
+        i: 室の番号
+        m: 室温が隣室温度に与える影響を表すマトリックス
 
     Returns:
         ステップnの室iの集約された境界j*における裏面温度, degree C, [j*]
     """
 
-    theta_rear_i_jstrs_n = np.empty_like(theta_o_sol_bnd_i_jstrs_n)
-
-    # 一般部位、不透明な開口部、透明な開口部の場合
-#    is_external = (boundary_type_i_jstrs == 'external_general_part')\
-#                  | (boundary_type_i_jstrs == 'external_opaque_part')\
-#                  | (boundary_type_i_jstrs == 'external_transparent_part')
-    is_external = (boundary_type_i_jstrs == BoundaryType.ExternalGeneralPart)\
-        | (boundary_type_i_jstrs == BoundaryType.ExternalOpaquePart) \
-        | (boundary_type_i_jstrs == BoundaryType.ExternalTransparentPart)
-    theta_rear_i_jstrs_n[is_external] = h_bnd_i_jstrs[is_external] * theta_o_sol_bnd_i_jstrs_n[is_external]\
-                                        + (1.0 - h_bnd_i_jstrs[is_external]) * theta_r_i_n
-
-    # 内壁の場合（前時刻の室温）
-#    is_internal = boundary_type_i_jstrs == "internal"
-    is_internal = boundary_type_i_jstrs == BoundaryType.Internal
-    theta_rear_i_jstrs_n[is_internal] = theta_r_is_n[next_room_type_bnd_i_jstrs][is_internal]
-
-    # 土壌の場合
-#    is_ground = boundary_type_i_jstrs == 'ground'
-    is_ground = boundary_type_i_jstrs == BoundaryType.Ground
-    theta_rear_i_jstrs_n[is_ground] = theta_o_sol_bnd_i_jstrs_n[is_ground]
+    theta_rear_i_jstrs_n = h_bnd_i_jstrs * theta_o_sol_bnd_i_jstrs_n + np.dot(m, theta_r_is_n.reshape(-1, 1)).ravel()
 
     return theta_rear_i_jstrs_n
+
+
+def get_matrix(boundary_type_i_jstrs, h_bnd_i_jstrs, i, next_room_type_bnd_i_jstrs):
+
+    m = []
+
+    for j in range(len(next_room_type_bnd_i_jstrs)):
+
+        if next_room_type_bnd_i_jstrs[j] == -1:
+            row = [0.0, 0.0, 0.0]
+        elif next_room_type_bnd_i_jstrs[j] == 0:
+            row = [1.0, 0.0, 0.0]
+        elif next_room_type_bnd_i_jstrs[j] == 1:
+            row = [0.0, 1.0, 0.0]
+        elif next_room_type_bnd_i_jstrs[j] == 2:
+            row = [0.0, 0.0, 1.0]
+        else:
+            raise ValueError()
+
+        if (boundary_type_i_jstrs[j] == BoundaryType.ExternalGeneralPart) \
+                or (boundary_type_i_jstrs[j] == BoundaryType.ExternalOpaquePart) \
+                or (boundary_type_i_jstrs[j] == BoundaryType.ExternalTransparentPart) \
+                or (boundary_type_i_jstrs[j] == BoundaryType.Ground):
+            row[i] = row[i] + (1.0 - h_bnd_i_jstrs[j])
+
+        m.append(row)
+
+    return np.array(m)
 
 
 def get_theta_o_sol_i_j_ns(boundary_i_j, theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, a_sun_ns, h_sun_ns):
