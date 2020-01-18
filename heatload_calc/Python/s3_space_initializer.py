@@ -59,7 +59,7 @@ import s4_1_sensible_heat as s41
 
 def make_space(room: Dict,
                i_dn_ns: np.ndarray, i_sky_ns: np.ndarray, r_n_ns: np.ndarray, theta_o_ns: np.ndarray,
-               h_sun_ns: np.ndarray, a_sun_ns: np.ndarray):
+               h_sun_ns: np.ndarray, a_sun_ns: np.ndarray, i: int):
 
     # 室iの名称
     name_i = room['name']
@@ -290,6 +290,7 @@ def make_space(room: Dict,
     v_mec_vent_i_ns = (v_vent_ex_i + local_vent_amount_schedule) / 3600
 
     space = Space(
+        i = i,
         name_i=name_i,
         room_type_i=room_type_i,
         v_room_cap_i=v_room_cap_i,

@@ -2,20 +2,11 @@ import math
 import numpy as np
 from typing import List
 
-import a12_indoor_radiative_heat_transfer as a12
-import a13_Win_ACselect as a13
+import a9_rear_surface_equivalent_temperature as a9
 import a14_furniture as a14
-import a15_air_flow_rate_rac as a15
 import a18_initial_value_constants as a18
-import a1_calculation_surface_temperature as a1
-import a20_room_spec as a20
-import a21_next_vent_spec as a21
-import a22_radiative_heating_spec as a22
-import a23_surface_heat_transfer_coefficient as a23
-import a34_building_part_summarize as a34
 from a39_global_parameters import OperationMode
 
-import s3_surface_loader as s3
 import s4_1_sensible_heat as s41
 
 import Psychrometrics as psy
@@ -156,7 +147,7 @@ class Space:
     """
 
     def __init__(
-            self, name_i: str, room_type_i: str, v_room_cap_i: float,
+            self, i: int, name_i: str, room_type_i: str, v_room_cap_i: float,
             name_vent_up_i_nis: List[str], v_vent_up_i_nis: np.ndarray,
             name_bnd_i_jstrs: np.ndarray, sub_name_bnd_i_jstrs: np.ndarray, boundary_type_i_jstrs: np.ndarray,
             a_bnd_i_jstrs: np.ndarray, h_bnd_i_jstrs, next_room_type_bnd_i_jstrs,
@@ -212,12 +203,23 @@ class Space:
         # 室iの統合された境界j*の温度差係数, [j*]
         self.h_bnd_i_jstrs = h_bnd_i_jstrs
 
+        # 室iの統合された境界j*の傾斜面のステップnにおける相当外気温度, ℃, [j*, 8760*4]
+        self.theta_o_sol_bnd_i_jstrs_ns = theta_o_sol_bnd_i_jstrs_ns
+
+        self.theta_o_sol_bnd_i_jstrs_ns_d = theta_o_sol_bnd_i_jstrs_ns * h_bnd_i_jstrs.reshape(-1, 1)
+
+        # 室温が裏面温度に与える影響を表すマトリクス, [j* * j*]
+        self.m = a9.get_matrix(
+            boundary_type_i_jstrs=boundary_type_i_jstrs,
+            h_bnd_i_jstrs=h_bnd_i_jstrs,
+            i=i,
+            next_room_type_bnd_i_jstrs=next_room_type_bnd_i_jstrs)
+
         # 室iの統合された境界j*の隣室タイプ, [j*]
         self.next_room_type_bnd_i_jstrs = next_room_type_bnd_i_jstrs
         # Spaceクラスで持つ必要はない変数の可能性あり（インスタンス終了後破棄可能）（要調査）
         self.is_solar_absorbed_inside_bdry_i_jstrs = is_solar_absorbed_inside_bnd_i_jstrs
         self.h_i_bnd_i_jstrs = h_i_bnd_i_jstrs
-        self.theta_o_sol_bnd_i_jstrs_ns = theta_o_sol_bnd_i_jstrs_ns
         self.n_root_bnd_i_jstrs = n_root_bnd_i_jstrs
         self.r_bnd_i_jstrs_ms = row_bnd_i_jstrs
         self.phi_t_0_bnd_i_jstrs = rft0_bnd_i_jstrs
@@ -294,6 +296,13 @@ class Space:
         # 表面熱伝達率の計算 式(123) 表16
         self.h_r_bnd_i_jstrs = h_r_bnd_i_jstrs
         self.h_c_bnd_i_jstrs = h_c_bnd_i_jstrs
+
+        self.m = a9.get_matrix(
+            boundary_type_i_jstrs=boundary_type_i_jstrs,
+            h_bnd_i_jstrs=h_bnd_i_jstrs,
+            i=i,
+            next_room_type_bnd_i_jstrs=next_room_type_bnd_i_jstrs
+        )
 
         # 平均放射温度計算時の各部位表面温度の重み計算 式(101)
         self.F_mrt_i_g = F_mrt_i_g

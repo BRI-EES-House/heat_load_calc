@@ -53,8 +53,8 @@ def calc_heat_load(d: Dict):
 
     # スペースの読み取り
     spaces = []
-    for room in d['rooms']:
-        space = make_space(room=room, i_dn_ns=i_dn_ns, i_sky_ns=i_sky_ns, r_n_ns=r_n_ns, theta_o_ns=theta_o_ns, h_sun_ns=h_sun_ns, a_sun_ns=a_sun_ns)
+    for i, room in enumerate(d['rooms']):
+        space = make_space(room=room, i_dn_ns=i_dn_ns, i_sky_ns=i_sky_ns, r_n_ns=r_n_ns, theta_o_ns=theta_o_ns, h_sun_ns=h_sun_ns, a_sun_ns=a_sun_ns, i=i)
         spaces.append(space)
 
     # 助走計算1(土壌のみ)

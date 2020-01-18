@@ -10,25 +10,19 @@ from a39_global_parameters import BoundaryType
 """
 
 
-def get_theta_rear_i_jstrs_n(
-        h_bnd_i_jstrs: np.ndarray, theta_r_is_n: np.ndarray, theta_o_sol_bnd_i_jstrs_n: np.ndarray, m: np.ndarray
-):
+def get_theta_rear_i_jstrs_n(theta_r_is_n: np.ndarray, m: np.ndarray, theta_dstrb_i_jstrs_n: np.ndarray) -> np.ndarray:
     """境界の裏面温度を計算する。
 
     Args:
-        boundary_type_i_jstrs: 室iの統合された境界j*の種類, [j*]
-        h_bnd_i_jstrs: 室iの統合された境界j*の温度差係数, [j*]
-        next_room_type_bnd_i_jstrs: 室iの統合された境界j*の隣室タイプ, [j*]
         theta_r_is_n: ステップnの室iにおける室温, degree C, [i]
-        theta_o_sol_bnd_i_jstrs_n: ステップnの室iの集約された境界j*の傾斜面における相当外気温度, degree C, [j*]
-        i: 室の番号
         m: 室温が隣室温度に与える影響を表すマトリックス
+        theta_dstrb_i_jstrs_n: ステップnの室iの集約された境界j*の外乱による裏面温度, degree C, [j*]
 
     Returns:
         ステップnの室iの集約された境界j*における裏面温度, degree C, [j*]
     """
 
-    theta_rear_i_jstrs_n = h_bnd_i_jstrs * theta_o_sol_bnd_i_jstrs_n + np.dot(m, theta_r_is_n.reshape(-1, 1)).ravel()
+    theta_rear_i_jstrs_n = theta_dstrb_i_jstrs_n + np.dot(m, theta_r_is_n.reshape(-1, 1)).ravel()
 
     return theta_rear_i_jstrs_n
 
