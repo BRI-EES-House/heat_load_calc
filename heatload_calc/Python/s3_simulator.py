@@ -160,14 +160,6 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int):
 
     for i, s in enumerate(spaces):
 
-        # ステップnの室iにおける内部発熱, W
-#        q_gen_i_n = s.q_gen_except_hum_i_ns[n] + q_hum_is_n[i]
-        q_gen_i_n = q_gen_is_n[i]
-
-        # ステップnの室iにおける内部発湿, kg/s
-#        x_gen_i_n = s.x_gen_except_hum_i_ns[n] + x_hum_is_n[i]
-        x_gen_i_n = x_gen_is_n[i]
-
         # ステップnの室iにおける室温, degree C
         theta_r_i_n = theta_r_is_n[i]
 
@@ -230,7 +222,7 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int):
             a_bnd_i_jstrs=s.a_bnd_i_jstrs, wsc_i_jstrs_npls=wsc_i_jstrs_npls, wsv_i_jstrs_npls=wsv_i_jstrs_npls,
             v_mec_vent_i_n=s.v_mec_vent_i_ns[n], v_reak_i_n=v_reak_i_n, v_int_vent_i_istrs=s.v_int_vent_i_istrs,
             v_ntrl_vent_i=s.v_ntrl_vent_i, theta_o_n=theta_o_n, theta_r_int_vent_i_istrs_n=theta_r_int_vent_i_istrs_n,
-            q_gen_i_n=q_gen_i_n, c_cap_frnt_i=s.c_cap_frnt_i, k_frnt_i=s.k_frnt_i, q_sol_frnt_i_n=s.q_sol_frnt_i_ns[n],
+            q_gen_i_n=q_gen_is_n[i], c_cap_frnt_i=s.c_cap_frnt_i, k_frnt_i=s.k_frnt_i, q_sol_frnt_i_n=s.q_sol_frnt_i_ns[n],
             theta_frnt_i_n=old_theta_frnt_i, operation_mode=operation_mode_i_n)
 
         brm_non_ntrv_i_n = s.BRMnoncv_i[n]
@@ -287,7 +279,7 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int):
             xr_next_i_j_nm1=x_r_int_vent_i_istrs_n,
             xr_i_nm1=x_r_i_n,
             xf_i_nm1=xf_i_npls,
-            Lin=x_gen_i_n,
+            Lin=x_gen_is_n[i],
             xo=xo_n,
             v_mec_vent_i_n=s.v_mec_vent_i_ns[n]
         )
