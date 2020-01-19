@@ -21,14 +21,42 @@ from a39_global_parameters import BoundaryType
 # 地盤の計算
 def run_tick_groundonly(spaces: List[Space], To_n: float, Tave: float):
 
-    for s in spaces:
+    number_of_bdry_is = np.array([s.number_of_boundary for s in spaces])
+
+    start_indices = []
+    indices = 0
+    for n_bdry in number_of_bdry_is:
+        indices = indices + n_bdry
+        start_indices.append(indices)
+    start_indices.pop(-1)
+
+    # 前時刻の室内側表面熱流
+    q_srf_is_jstrs_n = np.concatenate([s.q_srf_i_jstrs_n for s in spaces])
+
+    gs = np.concatenate([s.boundary_type_i_jstrs == BoundaryType.Ground for s in spaces])
+
+    phi_a_1_bnd_is_jstrs_ms = np.concatenate([s.phi_a_1_bnd_i_jstrs_ms for s in spaces])
+    r_bnd_is_jstrs_ms = np.concatenate([s.r_bnd_i_jstrs_ms for s in spaces])
+    theta_srf_dsh_a_is_jstrs_n_ms = np.concatenate([s.theta_srf_dsh_a_i_jstrs_n_m for s in spaces])
+
+    theta_srf_dsh_a_is_jstrs_npls_ms = a1.get_theta_srf_dsh_a_i_jstrs_npls_ms(
+        q_srf_i_jstrs_n=q_srf_is_jstrs_n[gs],
+        phi_a_1_bnd_i_jstrs_ms=phi_a_1_bnd_is_jstrs_ms[gs, :],
+        r_bnd_i_jstrs_ms=r_bnd_is_jstrs_ms[gs, :],
+        theta_srf_dsh_a_i_jstrs_n_ms=theta_srf_dsh_a_is_jstrs_n_ms[gs, :])
+
+    theta_srf_dsh_a_is_jstrs_n_ms[gs, :] = theta_srf_dsh_a_is_jstrs_npls_ms
+
+    for i, s in enumerate(spaces):
 
         g = s.boundary_type_i_jstrs == BoundaryType.Ground  # [jstr]
 
-        theta_srf_dsh_a_i_jstrs_npls_ms = a1.get_theta_srf_dsh_a_i_jstrs_npls_ms(
-            q_srf_i_jstrs_n=s.q_srf_i_jstrs_n[g], phi_a_1_bnd_i_jstrs_ms=s.phi_a_1_bnd_i_jstrs_ms[g, :],
-            r_bnd_i_jstrs_ms=s.r_bnd_i_jstrs_ms[g,:],
-            theta_srf_dsh_a_i_jstrs_n_ms=s.theta_srf_dsh_a_i_jstrs_n_m[g, :])
+#        theta_srf_dsh_a_i_jstrs_npls_ms = a1.get_theta_srf_dsh_a_i_jstrs_npls_ms(
+#            q_srf_i_jstrs_n=s.q_srf_i_jstrs_n[g], phi_a_1_bnd_i_jstrs_ms=s.phi_a_1_bnd_i_jstrs_ms[g, :],
+#            r_bnd_i_jstrs_ms=s.r_bnd_i_jstrs_ms[g,:],
+#            theta_srf_dsh_a_i_jstrs_n_ms=s.theta_srf_dsh_a_i_jstrs_n_m[g, :])
+
+        theta_srf_dsh_a_i_jstrs_npls_ms = (np.split(theta_srf_dsh_a_is_jstrs_n_ms, start_indices)[i])[g]
 
         Ts_i_k_n = (s.phi_a_0_bnd_i_jstrs[g] * s.h_i_bnd_i_jstrs[g] * To_n
                             + np.sum(theta_srf_dsh_a_i_jstrs_npls_ms, axis=1) + Tave)\
@@ -74,6 +102,8 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int):
     # ステップnの室iにおける水蒸気圧, Pa
     p_a_is_n = np.array([s.p_a_i_n for s in spaces])
     operation_mode_is_n_mns = np.array([s.operation_mode for s in spaces])
+    # 前時刻の室内側表面熱流
+#    q_srf_is_jstrs_n = np.array([s.q_srf_i_jstrs_n for s in spaces])
 
     # ステップnの室iにおける人体周りの対流熱伝達率, W/m2K, [i]
     h_hum_c_is_n = a35.get_h_hum_c_is_n(theta_r_is_n=theta_r_is_n, t_cl_is_n=theta_cl_is_n, v_hum_is_n=v_hum_is_n)
