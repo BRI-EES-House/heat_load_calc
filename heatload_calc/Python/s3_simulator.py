@@ -58,6 +58,8 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int):
     m_is = np.concatenate([s.m for s in spaces])
     theta_dstrb_is_jstrs_ns = np.concatenate([s.theta_dstrb_i_jstrs_ns[:, n] for s in spaces])
     n_hum_is_n = np.array([s.n_hum_i_ns[n] for s in spaces])
+    q_gen_except_hum_is_n = np.array([s.q_gen_except_hum_i_ns[n] for s in spaces])
+    x_gen_except_hum_is_n = np.array([s.x_gen_except_hum_i_ns[n] for s in spaces])
 
     # ステップnの室iにおける室温, degree C, [i]
     theta_r_is_n = np.array([s.theta_r_i_npls for s in spaces])
@@ -144,18 +146,30 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int):
         theta_dstrb_i_jstrs_n=theta_dstrb_is_jstrs_ns
     )
 
-    # ステップnの室iにおける人体発熱, W
+    # ステップnの室iにおける人体発熱, W, [i]
     q_hum_is_n = a3.get_q_hum_i_n(theta_r_i_n=theta_r_is_n, n_hum_i_n=n_hum_is_n)
 
-    # ステップnの室iにおける人体発湿, kg/s
+    # ステップnの室iにおける人体発湿, kg/s, [i]
     x_hum_is_n = a3.get_x_hum_i_n(theta_r_i_n=theta_r_is_n, n_hum_i_n=n_hum_is_n)
+
+    # ステップnの室iにおける内部発熱, W
+    q_gen_is_n = q_gen_except_hum_is_n + q_hum_is_n
+
+    # ステップnの室iにおける内部発湿, kg/s
+    x_gen_is_n = x_gen_except_hum_is_n + x_hum_is_n
 
     for i, s in enumerate(spaces):
 
+        # ステップnの室iにおける内部発熱, W
+#        q_gen_i_n = s.q_gen_except_hum_i_ns[n] + q_hum_is_n[i]
+        q_gen_i_n = q_gen_is_n[i]
+
+        # ステップnの室iにおける内部発湿, kg/s
+#        x_gen_i_n = s.x_gen_except_hum_i_ns[n] + x_hum_is_n[i]
+        x_gen_i_n = x_gen_is_n[i]
+
         # ステップnの室iにおける室温, degree C
         theta_r_i_n = theta_r_is_n[i]
-
-        q_hum_i_n = q_hum_is_n[i]
 
         theta_rear_i_jstrs_n = np.split(theta_rear_is_jstrs_n, start_indices)[i]
 
@@ -170,16 +184,6 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int):
         operation_mode_i_n = operation_mode_is_n[i]
 
         OTset = OTsets[i]
-
-        # ステップnの室iにおける人体発湿, kg/s
-        # x_hum_i_n = a3.get_x_hum_i_n(theta_r_i_n=theta_r_i_n, n_hum_i_n=s.n_hum_i_ns[n])
-        x_hum_i_n = x_hum_is_n[i]
-
-        # ステップnの室iにおける内部発熱, W
-        q_gen_i_n = s.q_gen_except_hum_i_ns[n] + q_hum_i_n
-
-        # ステップnの室iにおける内部発湿, kg/s
-        x_gen_i_n = s.x_gen_except_hum_i_ns[n] + x_hum_i_n
 
         # TODO: すきま風量未実装につき、とりあえず０とする
         # すきま風量を決めるにあたってどういった変数が必要なのかを決めること。
@@ -374,8 +378,8 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int):
         # ロギング
         s.logger.theta_r_i_ns[n] = theta_r_i_npls
         s.logger.theta_rear_i_jstrs_ns[:, n] = theta_rear_i_jstrs_n
-        s.logger.q_hum_i_ns[n] = q_hum_i_n
-        s.logger.x_hum_i_ns[n] = x_hum_i_n
+        s.logger.q_hum_i_ns[n] = q_hum_is_n[i]
+        s.logger.x_hum_i_ns[n] = x_hum_is_n[i]
         s.logger.operation_mode[n] = operation_mode_i_n
         s.logger.theta_frnt_i_ns[n] = theta_frnt_i_n
         s.logger.OT_i_n[n] = ot_i_n
