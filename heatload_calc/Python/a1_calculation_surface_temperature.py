@@ -121,7 +121,7 @@ def get_theta_srf_dsh_a_i_jstrs_npls_ms(
         ステップn+1の室iの統合された境界j*における項別公比法の項mの吸熱応答に関する表面温度, degree C, [jstrs, 12]
     """
 
-    return q_srf_i_jstrs_n[:, np.newaxis] * phi_a_1_bnd_i_jstrs_ms + r_bnd_i_jstrs_ms * theta_srf_dsh_a_i_jstrs_n_ms
+    return phi_a_1_bnd_i_jstrs_ms * q_srf_i_jstrs_n[:, np.newaxis] + r_bnd_i_jstrs_ms * theta_srf_dsh_a_i_jstrs_n_ms
 
 
 def get_theta_srf_dsh_t_i_jstrs_npls_ms(

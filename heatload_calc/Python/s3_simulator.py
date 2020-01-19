@@ -158,6 +158,11 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int):
     # ステップnの室iにおける内部発湿, kg/s
     x_gen_is_n = x_gen_except_hum_is_n + x_hum_is_n
 
+    # TODO: すきま風量未実装につき、とりあえず０とする
+    # すきま風量を決めるにあたってどういった変数が必要なのかを決めること。
+    # TODO: 単位は m3/s とすること。
+    v_reak_is_n = np.full(len(spaces), 0.0)
+
     for i, s in enumerate(spaces):
 
         # ステップnの室iにおける室温, degree C
@@ -173,15 +178,6 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int):
         x_r_i_n = s.x_r_i_n
         v_hum_i_n = s.v_hum_i_n
 
-        operation_mode_i_n = operation_mode_is_n[i]
-
-        OTset = OTsets[i]
-
-        # TODO: すきま風量未実装につき、とりあえず０とする
-        # すきま風量を決めるにあたってどういった変数が必要なのかを決めること。
-        # TODO: 単位は m3/s とすること。
-        v_reak_i_n = 0.0
-
         # ステップn+1の室iの統合された境界j*における項別公比法の項mの吸熱応答に関する表面温度, degree C, [jstrs, 12]
         theta_srf_dsh_a_i_jstrs_npls_ms = a1.get_theta_srf_dsh_a_i_jstrs_npls_ms(
             q_srf_i_jstrs_n=q_srf_i_jstrs_n, phi_a_1_bnd_i_jstrs_ms=s.phi_a_1_bnd_i_jstrs_ms,
@@ -191,6 +187,10 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int):
         theta_srf_dsh_t_i_jstrs_npls_ms = a1.get_theta_srf_dsh_t_i_jstrs_npls_ms(
             theta_rear_i_jstrs_n=theta_rear_i_jstrs_n, phi_t_1_bnd_i_jstrs_ms=s.phi_t_1_bnd_i_jstrs_ms,
             r_bnd_i_jstrs_ms=s.r_bnd_i_jstrs_ms, theta_srf_dsh_t_i_jstrs_n_m=theta_srf_dsh_t_i_jstrs_n_m)
+
+        operation_mode_i_n = operation_mode_is_n[i]
+
+        OTset = OTsets[i]
 
         # ステップn+1の室iの統合された境界j*における係数CVL, degree C, [j*]
         cvl_i_jstrs_npls = a1.get_cvl_i_jstrs_npls(
@@ -220,7 +220,7 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int):
         brc_i_n = s41.get_brc_i_n(
             c_room_i=s.c_room_i, deta_t=900.0, theta_r_i_n=theta_r_i_n, h_c_bnd_i_jstrs=s.h_c_bnd_i_jstrs,
             a_bnd_i_jstrs=s.a_bnd_i_jstrs, wsc_i_jstrs_npls=wsc_i_jstrs_npls, wsv_i_jstrs_npls=wsv_i_jstrs_npls,
-            v_mec_vent_i_n=s.v_mec_vent_i_ns[n], v_reak_i_n=v_reak_i_n, v_int_vent_i_istrs=s.v_int_vent_i_istrs,
+            v_mec_vent_i_n=s.v_mec_vent_i_ns[n], v_reak_i_n=v_reak_is_n[i], v_int_vent_i_istrs=s.v_int_vent_i_istrs,
             v_ntrl_vent_i=s.v_ntrl_vent_i, theta_o_n=theta_o_n, theta_r_int_vent_i_istrs_n=theta_r_int_vent_i_istrs_n,
             q_gen_i_n=q_gen_is_n[i], c_cap_frnt_i=s.c_cap_frnt_i, k_frnt_i=s.k_frnt_i, q_sol_frnt_i_n=s.q_sol_frnt_i_ns[n],
             theta_frnt_i_n=old_theta_frnt_i, operation_mode=operation_mode_i_n)
@@ -261,7 +261,7 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int):
 
         # 式(17)
         BRMX_pre = s42.get_BRMX(
-            v_reak_i_n=v_reak_i_n,
+            v_reak_i_n=v_reak_is_n[i],
             Gf=s.Gf_i,
             Cx=s.Cx_i,
             volume=s.v_room_cap_i,
@@ -271,7 +271,7 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int):
 
         # 式(18)
         BRXC_pre = s42.get_BRXC(
-            v_reak_i_n=v_reak_i_n,
+            v_reak_i_n=v_reak_is_n[i],
             Gf=s.Gf_i,
             Cx=s.Cx_i,
             volume=s.v_room_cap_i,
