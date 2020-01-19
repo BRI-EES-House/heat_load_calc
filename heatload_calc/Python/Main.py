@@ -10,7 +10,6 @@ import x_05_solar_position as x_05
 import x_17_calculation_period as x_17
 
 from s3_space_initializer import make_space
-from s3_space_loader import Space
 import s3_simulator as simulator
 import a33_results_exporting as exporter
 import a37_groundonly_runup_calculation as a37
@@ -57,24 +56,24 @@ def calc_heat_load(d: Dict):
         space = make_space(room=room, i_dn_ns=i_dn_ns, i_sky_ns=i_sky_ns, r_n_ns=r_n_ns, theta_o_ns=theta_o_ns, h_sun_ns=h_sun_ns, a_sun_ns=a_sun_ns, i=i)
         spaces.append(space)
 
+    start_indices = simulator.get_start_indices(spaces=spaces)
+
     # 助走計算1(土壌のみ)
     print('助走計算1（土壌のみ）')
     Tave = a37.get_a0(theta_o_ns)
 
     for n in range(-n_step_run_up, -n_step_run_up_build):
-        simulator.run_tick_groundonly(spaces=spaces, To_n=theta_o_ns[n], Tave=Tave)
-#    [simulator.run_tick_groundonly(spaces=spaces, To_n=theta_o_ns[n], Tave=Tave) for n in range(-n_step_run_up, -n_step_run_up_build)]
+        simulator.run_tick_groundonly(spaces=spaces, To_n=theta_o_ns[n], Tave=Tave, start_indices=start_indices)
 
     # 助走計算2(室温、熱負荷)
     print('助走計算1（建物全体）')
     for n in range(-n_step_run_up_build, 0):
-        simulator.run_tick(spaces=spaces, theta_o_n=theta_o_ns[n], xo_n=x_o_ns[n], n=n)
-#    [simulator.run_tick(spaces=spaces, theta_o_n=theta_o_ns[n], xo_n=x_o_ns[n], n=n) for n in range(-n_step_run_up_build, 0)]
+        simulator.run_tick(spaces=spaces, theta_o_n=theta_o_ns[n], xo_n=x_o_ns[n], n=n, start_indices=start_indices)
 
     # 本計算(室温、熱負荷)
     print('本計算')
     for n in range(0, n_step_main):
-        simulator.run_tick(spaces=spaces, theta_o_n=theta_o_ns[n], xo_n=x_o_ns[n], n=n)
+        simulator.run_tick(spaces=spaces, theta_o_n=theta_o_ns[n], xo_n=x_o_ns[n], n=n, start_indices=start_indices)
 #    [simulator.run_tick(spaces=spaces, theta_o_n=theta_o_ns[n], xo_n=x_o_ns[n], n=n) for n in range(0, n_step_main)]
 
     print('ログ作成')

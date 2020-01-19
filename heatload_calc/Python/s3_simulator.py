@@ -18,17 +18,21 @@ import Psychrometrics as psy
 from a39_global_parameters import BoundaryType
 
 
-# 地盤の計算
-def run_tick_groundonly(spaces: List[Space], To_n: float, Tave: float):
-
+def get_start_indices(spaces):
     number_of_bdry_is = np.array([s.number_of_boundary for s in spaces])
-
     start_indices = []
     indices = 0
     for n_bdry in number_of_bdry_is:
         indices = indices + n_bdry
         start_indices.append(indices)
     start_indices.pop(-1)
+    return start_indices
+
+
+# 地盤の計算
+def run_tick_groundonly(spaces: List[Space], To_n: float, Tave: float, start_indices: List[int]):
+
+#    start_indices = get_start_indices(spaces)
 
     # 前時刻の室内側表面熱流
     q_srf_is_jstrs_n = np.concatenate([s.q_srf_i_jstrs_n for s in spaces])
@@ -71,16 +75,9 @@ def run_tick_groundonly(spaces: List[Space], To_n: float, Tave: float):
 
 
 # 室温、熱負荷の計算
-def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int):
+def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_indices: List[int]):
 
-    number_of_bdry_is = np.array([s.number_of_boundary for s in spaces])
-
-    start_indices = []
-    indices = 0
-    for n_bdry in number_of_bdry_is:
-        indices = indices + n_bdry
-        start_indices.append(indices)
-    start_indices.pop(-1)
+#    start_indices = get_start_indices(spaces)
 
     ac_demand_is_n = np.array([s.ac_demand[n] for s in spaces])
     m_is = np.concatenate([s.m for s in spaces])
