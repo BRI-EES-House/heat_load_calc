@@ -45,7 +45,18 @@ def run_tick_groundonly(spaces: List[Space], To_n: float, Tave: float):
 # 室温、熱負荷の計算
 def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int):
 
+    number_of_bdry_is = np.array([s.number_of_boundary for s in spaces])
+
+    start_indices = []
+    indices = 0
+    for n_bdry in number_of_bdry_is:
+        indices = indices + n_bdry
+        start_indices.append(indices)
+    start_indices.pop(-1)
+
     ac_demand_is_n = np.array([s.ac_demand[n] for s in spaces])
+    m_is = np.concatenate([s.m for s in spaces])
+    theta_dstrb_is_jstrs_ns = np.concatenate([s.theta_dstrb_i_jstrs_ns[:, n] for s in spaces])
 
     # ステップnの室iにおける室温, degree C, [i]
     theta_r_is_n = np.array([s.theta_r_i_npls for s in spaces])
@@ -125,14 +136,22 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int):
         theta_cl_is_n=theta_cl_is_n
     )
 
+    # ステップnの室iの集約された境界j*における裏面温度, degree C, [j*]
+    theta_rear_is_jstrs_n = a9.get_theta_rear_i_jstrs_n(
+        theta_r_is_n=theta_r_is_n,
+        m=m_is,
+        theta_dstrb_i_jstrs_n=theta_dstrb_is_jstrs_ns
+    )
+
     for i, s in enumerate(spaces):
 
         # ステップnの室iの集約された境界j*における裏面温度, degree C, [j*]
         theta_rear_i_jstrs_n = a9.get_theta_rear_i_jstrs_n(
             theta_r_is_n=theta_r_is_n,
             m=s.m,
-            theta_dstrb_i_jstrs_n=s.theta_o_sol_bnd_i_jstrs_ns_d[:, n]
+            theta_dstrb_i_jstrs_n=s.theta_dstrb_i_jstrs_ns[:, n]
         )
+        theta_rear_i_jstrs_n = np.split(theta_rear_is_jstrs_n, start_indices)[i]
 
         theta_srf_dsh_a_i_jstrs_n_m = s.theta_srf_dsh_a_i_jstrs_n_m
         theta_srf_dsh_t_i_jstrs_n_m = s.theta_srf_dsh_t_i_jstrs_n_m

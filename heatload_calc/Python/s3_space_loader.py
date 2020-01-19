@@ -198,6 +198,9 @@ class Space:
         # 室iの統合された境界j*の種類, [j*]
         self.boundary_type_i_jstrs = boundary_type_i_jstrs
 
+        # 室iの統合された境界j*の数
+        self.number_of_boundary = len(boundary_type_i_jstrs)
+
         self.a_bnd_i_jstrs = a_bnd_i_jstrs
 
         # 室iの統合された境界j*の温度差係数, [j*]
@@ -206,7 +209,8 @@ class Space:
         # 室iの統合された境界j*の傾斜面のステップnにおける相当外気温度, ℃, [j*, 8760*4]
         self.theta_o_sol_bnd_i_jstrs_ns = theta_o_sol_bnd_i_jstrs_ns
 
-        self.theta_o_sol_bnd_i_jstrs_ns_d = theta_o_sol_bnd_i_jstrs_ns * h_bnd_i_jstrs.reshape(-1, 1)
+        # ステップnの室iの集約された境界j * の外乱による裏面温度, degree C, [j*, 8760*4]
+        self.theta_dstrb_i_jstrs_ns = theta_o_sol_bnd_i_jstrs_ns * h_bnd_i_jstrs.reshape(-1, 1)
 
         # 室温が裏面温度に与える影響を表すマトリクス, [j* * j*]
         self.m = a9.get_matrix(
