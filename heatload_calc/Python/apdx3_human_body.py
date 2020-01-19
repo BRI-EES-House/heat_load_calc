@@ -40,35 +40,34 @@ def get_x_hum_psn_i_n(theta_r_i_n: float) -> float:
     return (119.0 - q_hum_psn_i_n) / l_wtr
 
 
-def get_q_hum_psn_i_n(theta_r_i_n: float) -> float:
+def get_q_hum_psn_i_n(theta_r_i_n: np.ndarray) -> np.ndarray:
     """1人あたりの人体発湿を計算する。
 
     Args:
-        theta_r_i_n: ステップnの室iにおける室温, degree C
+        theta_r_i_n: ステップnの室iにおける室温, degree C, [i]
 
     Returns:
-        ステップnの室iにおける1人あたりの人体発熱, W
+        ステップnの室iにおける1人あたりの人体発熱, W, [i]
     """
 
-    # return min(63.0 - 4.0 * (theta_r_i_n - 24.0), 119.0)
     return np.minimum(63.0 - 4.0 * (theta_r_i_n - 24.0), 119.0)
 
 
-def get_q_hum_i_n(theta_r_i_n: float, n_hum_i_n: int) -> float:
+def get_q_hum_i_n(theta_r_i_n: np.ndarray, n_hum_i_n: np.ndarray) -> np.ndarray:
     """人体発熱を計算する。
 
     Args:
-        theta_r_i_n: ステップnの室iにおける室温, degree C
-        n_hum_i_n: ステップnの室iにおける在室人数
+        theta_r_i_n: ステップnの室iにおける室温, degree C, [i]
+        n_hum_i_n: ステップnの室iにおける在室人数, [i]
 
     Returns:
-        ステップnの室iにおける人体発熱, W
+        ステップnの室iにおける人体発熱, W, [i]
     """
 
-    # ステップnの室iにおける1人あたりの人体発熱, W
+    # ステップnの室iにおける1人あたりの人体発熱, W, [i]
     q_hum_psn_i_n = get_q_hum_psn_i_n(theta_r_i_n=theta_r_i_n)
 
-    # ステップnの室iにおける人体発熱, W
+    # ステップnの室iにおける人体発熱, W, [i]
     return n_hum_i_n * q_hum_psn_i_n
 
 
