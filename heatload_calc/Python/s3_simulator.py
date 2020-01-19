@@ -57,6 +57,7 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int):
     ac_demand_is_n = np.array([s.ac_demand[n] for s in spaces])
     m_is = np.concatenate([s.m for s in spaces])
     theta_dstrb_is_jstrs_ns = np.concatenate([s.theta_dstrb_i_jstrs_ns[:, n] for s in spaces])
+    n_hum_is_n = np.array([s.n_hum_i_ns[n] for s in spaces])
 
     # ステップnの室iにおける室温, degree C, [i]
     theta_r_is_n = np.array([s.theta_r_i_npls for s in spaces])
@@ -143,14 +144,16 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int):
         theta_dstrb_i_jstrs_n=theta_dstrb_is_jstrs_ns
     )
 
+    # ステップnの室iにおける人体発熱, W
+    q_hum_is_n = a3.get_q_hum_i_n(theta_r_i_n=theta_r_is_n, n_hum_i_n=n_hum_is_n)
+
     for i, s in enumerate(spaces):
 
-        # ステップnの室iの集約された境界j*における裏面温度, degree C, [j*]
-        theta_rear_i_jstrs_n = a9.get_theta_rear_i_jstrs_n(
-            theta_r_is_n=theta_r_is_n,
-            m=s.m,
-            theta_dstrb_i_jstrs_n=s.theta_dstrb_i_jstrs_ns[:, n]
-        )
+        # ステップnの室iにおける室温, degree C
+        theta_r_i_n = theta_r_is_n[i]
+
+        q_hum_i_n = q_hum_is_n[i]
+
         theta_rear_i_jstrs_n = np.split(theta_rear_is_jstrs_n, start_indices)[i]
 
         theta_srf_dsh_a_i_jstrs_n_m = s.theta_srf_dsh_a_i_jstrs_n_m
@@ -161,15 +164,9 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int):
         x_r_i_n = s.x_r_i_n
         v_hum_i_n = s.v_hum_i_n
 
-        # ステップnの室iにおける室温, degree C
-        theta_r_i_n = theta_r_is_n[i]
-
         operation_mode_i_n = operation_mode_is_n[i]
 
         OTset = OTsets[i]
-
-        # ステップnの室iにおける人体発熱, W
-        q_hum_i_n = a3.get_q_hum_i_n(theta_r_i_n=theta_r_i_n, n_hum_i_n=s.n_hum_i_ns[n])
 
         # ステップnの室iにおける人体発湿, kg/s
         x_hum_i_n = a3.get_x_hum_i_n(theta_r_i_n=theta_r_i_n, n_hum_i_n=s.n_hum_i_ns[n])

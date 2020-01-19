@@ -1,3 +1,5 @@
+import numpy as np
+
 import a18_initial_value_constants as a18
 
 
@@ -48,7 +50,8 @@ def get_q_hum_psn_i_n(theta_r_i_n: float) -> float:
         ステップnの室iにおける1人あたりの人体発熱, W
     """
 
-    return min(63.0 - 4.0 * (theta_r_i_n - 24.0), 119.0)
+    # return min(63.0 - 4.0 * (theta_r_i_n - 24.0), 119.0)
+    return np.minimum(63.0 - 4.0 * (theta_r_i_n - 24.0), 119.0)
 
 
 def get_q_hum_i_n(theta_r_i_n: float, n_hum_i_n: int) -> float:
