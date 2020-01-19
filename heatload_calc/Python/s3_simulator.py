@@ -147,6 +147,9 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int):
     # ステップnの室iにおける人体発熱, W
     q_hum_is_n = a3.get_q_hum_i_n(theta_r_i_n=theta_r_is_n, n_hum_i_n=n_hum_is_n)
 
+    # ステップnの室iにおける人体発湿, kg/s
+    x_hum_is_n = a3.get_x_hum_i_n(theta_r_i_n=theta_r_is_n, n_hum_i_n=n_hum_is_n)
+
     for i, s in enumerate(spaces):
 
         # ステップnの室iにおける室温, degree C
@@ -169,7 +172,8 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int):
         OTset = OTsets[i]
 
         # ステップnの室iにおける人体発湿, kg/s
-        x_hum_i_n = a3.get_x_hum_i_n(theta_r_i_n=theta_r_i_n, n_hum_i_n=s.n_hum_i_ns[n])
+        # x_hum_i_n = a3.get_x_hum_i_n(theta_r_i_n=theta_r_i_n, n_hum_i_n=s.n_hum_i_ns[n])
+        x_hum_i_n = x_hum_is_n[i]
 
         # ステップnの室iにおける内部発熱, W
         q_gen_i_n = s.q_gen_except_hum_i_ns[n] + q_hum_i_n
