@@ -1,9 +1,8 @@
 from typing import Dict
 import csv
 import json
-import cProfile
-from line_profiler import LineProfiler
 import time
+import numpy as np
 
 import x_04_weather as x_04
 import x_05_solar_position as x_05
@@ -62,8 +61,20 @@ def calc_heat_load(d: Dict):
     print('助走計算1（土壌のみ）')
     Tave = a37.get_a0(theta_o_ns)
 
+    theta_srf_dsh_a_is_jstrs_n_ms = np.concatenate([s.theta_srf_dsh_a_i_jstrs_n_m for s in spaces])
+    q_srf_is_jstrs_n = np.concatenate([s.q_srf_i_jstrs_n for s in spaces])
+
     for n in range(-n_step_run_up, -n_step_run_up_build):
-        simulator.run_tick_groundonly(spaces=spaces, To_n=theta_o_ns[n], Tave=Tave, start_indices=start_indices)
+        theta_srf_dsh_a_is_jstrs_n_ms, q_srf_is_jstrs_n = simulator.run_tick_groundonly(
+            spaces=spaces, To_n=theta_o_ns[n],
+            Tave=Tave,
+            theta_srf_dsh_a_is_jstrs_n_ms=theta_srf_dsh_a_is_jstrs_n_ms,
+            q_srf_is_jstrs_n=q_srf_is_jstrs_n
+        )
+
+    for i, s in enumerate(spaces):
+        s.theta_srf_dsh_a_i_jstrs_n_m = np.split(theta_srf_dsh_a_is_jstrs_n_ms, start_indices)[i]
+        s.q_srf_i_jstrs_n = np.split(q_srf_is_jstrs_n, start_indices)[i]
 
     # 助走計算2(室温、熱負荷)
     print('助走計算1（建物全体）')
