@@ -34,7 +34,7 @@ def run_tick_groundonly(spaces: List[Space], To_n: float, Tave: float, start_ind
 
 #    start_indices = get_start_indices(spaces)
 
-    # 前時刻の室内側表面熱流
+    # 前時刻の室内側表面熱流, W, [j*]
     q_srf_is_jstrs_n = np.concatenate([s.q_srf_i_jstrs_n for s in spaces])
 
     gs = np.concatenate([s.boundary_type_i_jstrs == BoundaryType.Ground for s in spaces])
@@ -85,6 +85,8 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
     n_hum_is_n = np.array([s.n_hum_i_ns[n] for s in spaces])
     q_gen_except_hum_is_n = np.array([s.q_gen_except_hum_i_ns[n] for s in spaces])
     x_gen_except_hum_is_n = np.array([s.x_gen_except_hum_i_ns[n] for s in spaces])
+    phi_a_1_bnd_is_jstrs_ms = np.concatenate([s.phi_a_1_bnd_i_jstrs_ms for s in spaces])
+    r_bnd_is_jstrs_ms = np.concatenate([s.r_bnd_i_jstrs_ms for s in spaces])
 
     # ステップnの室iにおける室温, degree C, [i]
     theta_r_is_n = np.array([s.theta_r_i_npls for s in spaces])
@@ -100,7 +102,8 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
     p_a_is_n = np.array([s.p_a_i_n for s in spaces])
     operation_mode_is_n_mns = np.array([s.operation_mode for s in spaces])
     # 前時刻の室内側表面熱流
-#    q_srf_is_jstrs_n = np.array([s.q_srf_i_jstrs_n for s in spaces])
+    q_srf_is_jstrs_n = np.concatenate([s.q_srf_i_jstrs_n for s in spaces])
+    theta_srf_dsh_a_is_jstrs_n_ms = np.concatenate([s.theta_srf_dsh_a_i_jstrs_n_m for s in spaces])
 
     # ステップnの室iにおける人体周りの対流熱伝達率, W/m2K, [i]
     h_hum_c_is_n = a35.get_h_hum_c_is_n(theta_r_is_n=theta_r_is_n, t_cl_is_n=theta_cl_is_n, v_hum_is_n=v_hum_is_n)
@@ -190,6 +193,14 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
     # TODO: 単位は m3/s とすること。
     v_reak_is_n = np.full(len(spaces), 0.0)
 
+    # ステップn+1の室iの統合された境界j*における項別公比法の項mの吸熱応答に関する表面温度, degree C, [jstrs, 12]
+    theta_srf_dsh_a_is_jstrs_npls_ms = a1.get_theta_srf_dsh_a_i_jstrs_npls_ms(
+        q_srf_i_jstrs_n=q_srf_is_jstrs_n,
+        phi_a_1_bnd_i_jstrs_ms=phi_a_1_bnd_is_jstrs_ms,
+        r_bnd_i_jstrs_ms=r_bnd_is_jstrs_ms,
+        theta_srf_dsh_a_i_jstrs_n_ms=theta_srf_dsh_a_is_jstrs_n_ms
+    )
+
     for i, s in enumerate(spaces):
 
         # ステップnの室iにおける室温, degree C
@@ -197,18 +208,13 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
 
         theta_rear_i_jstrs_n = np.split(theta_rear_is_jstrs_n, start_indices)[i]
 
-        theta_srf_dsh_a_i_jstrs_n_m = s.theta_srf_dsh_a_i_jstrs_n_m
         theta_srf_dsh_t_i_jstrs_n_m = s.theta_srf_dsh_t_i_jstrs_n_m
         old_theta_frnt_i = s.old_theta_frnt_i
-        q_srf_i_jstrs_n = s.q_srf_i_jstrs_n
         xf_i_npls = s.xf_i_npls
         x_r_i_n = s.x_r_i_n
         v_hum_i_n = s.v_hum_i_n
 
-        # ステップn+1の室iの統合された境界j*における項別公比法の項mの吸熱応答に関する表面温度, degree C, [jstrs, 12]
-        theta_srf_dsh_a_i_jstrs_npls_ms = a1.get_theta_srf_dsh_a_i_jstrs_npls_ms(
-            q_srf_i_jstrs_n=q_srf_i_jstrs_n, phi_a_1_bnd_i_jstrs_ms=s.phi_a_1_bnd_i_jstrs_ms,
-            r_bnd_i_jstrs_ms=s.r_bnd_i_jstrs_ms, theta_srf_dsh_a_i_jstrs_n_ms=theta_srf_dsh_a_i_jstrs_n_m)
+        theta_srf_dsh_a_i_jstrs_npls_ms = np.split(theta_srf_dsh_a_is_jstrs_npls_ms, start_indices)[i]
 
         # ステップn+1の室iの統合された境界j*における項別公比法の項mの貫流応答に関する表面温度, degree C, [jstrs, 12]
         theta_srf_dsh_t_i_jstrs_npls_ms = a1.get_theta_srf_dsh_t_i_jstrs_npls_ms(
