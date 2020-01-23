@@ -212,7 +212,7 @@ class Space:
         # ステップnの室iの集約された境界j * の外乱による裏面温度, degree C, [j*, 8760*4]
         self.theta_dstrb_i_jstrs_ns = theta_o_sol_bnd_i_jstrs_ns * h_bnd_i_jstrs.reshape(-1, 1)
 
-        # 室温が裏面温度に与える影響を表すマトリクス, [j* * j*]
+        # 室温が裏面温度に与える影響を表すマトリクス, [j* * i]
         self.m = a9.get_matrix(
             boundary_type_i_jstrs=boundary_type_i_jstrs,
             h_bnd_i_jstrs=h_bnd_i_jstrs,
@@ -301,13 +301,6 @@ class Space:
         self.h_r_bnd_i_jstrs = h_r_bnd_i_jstrs
         self.h_c_bnd_i_jstrs = h_c_bnd_i_jstrs
 
-        self.m = a9.get_matrix(
-            boundary_type_i_jstrs=boundary_type_i_jstrs,
-            h_bnd_i_jstrs=h_bnd_i_jstrs,
-            i=i,
-            next_room_type_bnd_i_jstrs=next_room_type_bnd_i_jstrs
-        )
-
         # 平均放射温度計算時の各部位表面温度の重み計算 式(101)
         self.F_mrt_i_g = F_mrt_i_g
 
@@ -372,3 +365,36 @@ class Space:
         self.logger.q_trs_sol_i_ns = q_trs_sol_i_ns
 
         self.logger.q_sol_frnt_i_ns = q_sol_frnt_i_ns
+
+
+class Spaces:
+
+    def __init__(self, spaces: List[Space]):
+
+        # ステップnの室iにおける空調需要, [i, 8760*4]
+        self.ac_demand_is_n = np.concatenate([[s.ac_demand] for s in spaces])
+
+        # 室温が裏面温度に与える影響を表すマトリクス, [j* * i]
+        self.m_is = np.concatenate([s.m for s in spaces])
+
+        # ステップnの集約された境界j*の外乱による裏面温度, degree C, [j*, 8760*4]
+        self.theta_dstrb_jstrs_ns = np.concatenate([s.theta_dstrb_i_jstrs_ns for s in spaces])
+
+        # ステップnの室iにおける在室人数, [i, 8760*4]
+        self.n_hum_is_n = np.concatenate([[s.n_hum_i_ns] for s in spaces])
+
+        # ステップnの室iにおける人体発熱を除く内部発熱, W, [i, 8760*4]
+        self.q_gen_except_hum_is_n = np.concatenate([[s.q_gen_except_hum_i_ns] for s in spaces])
+
+        # ステップnの室iにおける人体発湿を除く内部発湿, kg/s, [i, 8760*4]
+        self.x_gen_except_hum_is_n = np.concatenate([[s.x_gen_except_hum_i_ns] for s in spaces])
+
+        # 統合された境界j*の項別公比法における項mの吸熱応答係数の第一項 , m2K/W, [j*, 12]
+        self.phi_a_1_bnd_is_jstrs_ms = np.concatenate([s.phi_a_1_bnd_i_jstrs_ms for s in spaces])
+
+        # 境界j*の項別公比法における項mの公比, [j*, 12]
+        self.r_bnd_is_jstrs_ms = np.concatenate([s.r_bnd_i_jstrs_ms for s in spaces])
+
+        # 境界j*の項別公比法における項mの貫流応答係数の第一項, [j*,12]
+        self.phi_t_1_bnd_is_jstrs_ms = np.concatenate([s.phi_t_1_bnd_i_jstrs_ms for s in spaces])
+

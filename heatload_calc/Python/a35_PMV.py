@@ -83,6 +83,7 @@ def get_t_cl_i_n(clo_i_n, ot_i_n, h_a_i_n):
     return t_cl_i_n
 
 
+@jit('f8[:](f8[:], f8[:])', nopython=True)
 def get_h_hum_r_is_n(theta_cl_is_n: np.ndarray, theta_mrt_is_n: np.ndarray) -> np.ndarray:
     """人体周りの放射熱伝達率を計算する。
     

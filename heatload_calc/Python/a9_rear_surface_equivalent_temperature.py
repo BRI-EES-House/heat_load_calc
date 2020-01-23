@@ -32,7 +32,7 @@ def get_matrix(boundary_type_i_jstrs, h_bnd_i_jstrs, i, next_room_type_bnd_i_jst
     m = []
 
     for j in range(len(next_room_type_bnd_i_jstrs)):
-
+        # TODO 部屋数は3とは限らないので書き換える必要あり
         if next_room_type_bnd_i_jstrs[j] == -1:
             row = [0.0, 0.0, 0.0]
         elif next_room_type_bnd_i_jstrs[j] == 0:

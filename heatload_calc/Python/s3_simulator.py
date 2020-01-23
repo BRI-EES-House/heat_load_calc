@@ -12,7 +12,7 @@ import a16_blowing_condition_rac as a16
 import a18_initial_value_constants as a18
 import a35_PMV as a35
 from a39_global_parameters import OperationMode
-from s3_space_loader import Space
+from s3_space_loader import Space, Spaces
 
 import Psychrometrics as psy
 from a39_global_parameters import BoundaryType
@@ -30,19 +30,20 @@ def get_start_indices(spaces):
 
 
 # 地盤の計算
-def run_tick_groundonly(spaces: List[Space], To_n: float, Tave: float, theta_srf_dsh_a_is_jstrs_n_ms, q_srf_is_jstrs_n):
+def run_tick_groundonly(spaces: List[Space], To_n: float, Tave: float, theta_srf_dsh_a_is_jstrs_n_ms, q_srf_is_jstrs_n, ss: Spaces):
 
     gs = np.concatenate([s.boundary_type_i_jstrs == BoundaryType.Ground for s in spaces])
 
-    phi_a_1_bnd_is_jstrs_ms = np.concatenate([s.phi_a_1_bnd_i_jstrs_ms for s in spaces])
+#    phi_a_1_bnd_is_jstrs_ms = np.concatenate([s.phi_a_1_bnd_i_jstrs_ms for s in spaces])
     phi_a_0_bnd_is_jstrs = np.concatenate([s.phi_a_0_bnd_i_jstrs for s in spaces])
-    r_bnd_is_jstrs_ms = np.concatenate([s.r_bnd_i_jstrs_ms for s in spaces])
+#    r_bnd_is_jstrs_ms = np.concatenate([s.r_bnd_i_jstrs_ms for s in spaces])
+#    r_bnd_is_jstrs_ms = ss.r_bnd_is_jstrs_ms
     h_i_bnd_is_jstrs = np.concatenate([s.h_i_bnd_i_jstrs for s in spaces])
 
     theta_srf_dsh_a_is_jstrs_npls_ms = a1.get_theta_srf_dsh_a_i_jstrs_npls_ms(
         q_srf_i_jstrs_n=q_srf_is_jstrs_n[gs],
-        phi_a_1_bnd_i_jstrs_ms=phi_a_1_bnd_is_jstrs_ms[gs, :],
-        r_bnd_i_jstrs_ms=r_bnd_is_jstrs_ms[gs, :],
+        phi_a_1_bnd_i_jstrs_ms=ss.phi_a_1_bnd_is_jstrs_ms[gs, :],
+        r_bnd_i_jstrs_ms=ss.r_bnd_is_jstrs_ms[gs, :],
         theta_srf_dsh_a_i_jstrs_n_ms=theta_srf_dsh_a_is_jstrs_n_ms[gs, :])
 
     theta_srf_dsh_a_is_jstrs_n_ms[gs, :] = theta_srf_dsh_a_is_jstrs_npls_ms
@@ -57,16 +58,7 @@ def run_tick_groundonly(spaces: List[Space], To_n: float, Tave: float, theta_srf
 
 
 # 室温、熱負荷の計算
-def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_indices: List[int]):
-
-    ac_demand_is_n = np.array([s.ac_demand[n] for s in spaces])
-    m_is = np.concatenate([s.m for s in spaces])
-    theta_dstrb_is_jstrs_ns = np.concatenate([s.theta_dstrb_i_jstrs_ns[:, n] for s in spaces])
-    n_hum_is_n = np.array([s.n_hum_i_ns[n] for s in spaces])
-    q_gen_except_hum_is_n = np.array([s.q_gen_except_hum_i_ns[n] for s in spaces])
-    x_gen_except_hum_is_n = np.array([s.x_gen_except_hum_i_ns[n] for s in spaces])
-    phi_a_1_bnd_is_jstrs_ms = np.concatenate([s.phi_a_1_bnd_i_jstrs_ms for s in spaces])
-    r_bnd_is_jstrs_ms = np.concatenate([s.r_bnd_i_jstrs_ms for s in spaces])
+def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_indices: List[int], ss: Spaces):
 
     # ステップnの室iにおける室温, degree C, [i]
     theta_r_is_n = np.array([s.theta_r_i_npls for s in spaces])
@@ -84,6 +76,7 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
     # 前時刻の室内側表面熱流
     q_srf_is_jstrs_n = np.concatenate([s.q_srf_i_jstrs_n for s in spaces])
     theta_srf_dsh_a_is_jstrs_n_ms = np.concatenate([s.theta_srf_dsh_a_i_jstrs_n_m for s in spaces])
+    theta_srf_dsh_t_is_jstrs_n_m = np.concatenate([s.theta_srf_dsh_t_i_jstrs_n_m for s in spaces])
 
     # ステップnの室iにおける人体周りの対流熱伝達率, W/m2K, [i]
     h_hum_c_is_n = a35.get_h_hum_c_is_n(theta_r_is_n=theta_r_is_n, t_cl_is_n=theta_cl_is_n, v_hum_is_n=v_hum_is_n)
@@ -122,7 +115,7 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
 
     # ステップnの室iにおける運転モード, [i]
     operation_mode_is_n = a13.get_operation_mode_is_n(
-        ac_demand_is_n=ac_demand_is_n,
+        ac_demand_is_n=ss.ac_demand_is_n[:, n],
         operation_mode_is_n_mns=operation_mode_is_n_mns,
         pmv_heavy_is_n=pmv_heavy_is_n,
         pmv_middle_is_n=pmv_middle_is_n,
@@ -152,21 +145,21 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
     # ステップnの室iの集約された境界j*における裏面温度, degree C, [j*]
     theta_rear_is_jstrs_n = a9.get_theta_rear_i_jstrs_n(
         theta_r_is_n=theta_r_is_n,
-        m=m_is,
-        theta_dstrb_i_jstrs_n=theta_dstrb_is_jstrs_ns
+        m=ss.m_is,
+        theta_dstrb_i_jstrs_n=ss.theta_dstrb_jstrs_ns[:, n]
     )
 
     # ステップnの室iにおける人体発熱, W, [i]
-    q_hum_is_n = a3.get_q_hum_i_n(theta_r_i_n=theta_r_is_n, n_hum_i_n=n_hum_is_n)
+    q_hum_is_n = a3.get_q_hum_i_n(theta_r_i_n=theta_r_is_n, n_hum_i_n=ss.n_hum_is_n[:, n])
 
     # ステップnの室iにおける人体発湿, kg/s, [i]
-    x_hum_is_n = a3.get_x_hum_i_n(theta_r_i_n=theta_r_is_n, n_hum_i_n=n_hum_is_n)
+    x_hum_is_n = a3.get_x_hum_i_n(theta_r_i_n=theta_r_is_n, n_hum_i_n=ss.n_hum_is_n[:, n])
 
     # ステップnの室iにおける内部発熱, W
-    q_gen_is_n = q_gen_except_hum_is_n + q_hum_is_n
+    q_gen_is_n = ss.q_gen_except_hum_is_n[:, n] + q_hum_is_n
 
     # ステップnの室iにおける内部発湿, kg/s
-    x_gen_is_n = x_gen_except_hum_is_n + x_hum_is_n
+    x_gen_is_n = ss.x_gen_except_hum_is_n[:, n] + x_hum_is_n
 
     # TODO: すきま風量未実装につき、とりあえず０とする
     # すきま風量を決めるにあたってどういった変数が必要なのかを決めること。
@@ -176,18 +169,18 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
     # ステップn+1の室iの統合された境界j*における項別公比法の項mの吸熱応答に関する表面温度, degree C, [jstrs, 12]
     theta_srf_dsh_a_is_jstrs_npls_ms = a1.get_theta_srf_dsh_a_i_jstrs_npls_ms(
         q_srf_i_jstrs_n=q_srf_is_jstrs_n,
-        phi_a_1_bnd_i_jstrs_ms=phi_a_1_bnd_is_jstrs_ms,
-        r_bnd_i_jstrs_ms=r_bnd_is_jstrs_ms,
+        phi_a_1_bnd_i_jstrs_ms=ss.phi_a_1_bnd_is_jstrs_ms,
+        r_bnd_i_jstrs_ms=ss.r_bnd_is_jstrs_ms,
         theta_srf_dsh_a_i_jstrs_n_ms=theta_srf_dsh_a_is_jstrs_n_ms
     )
 
-    phi_t_1_bnd_is_jstrs_ms = np.concatenate([s.phi_t_1_bnd_i_jstrs_ms for s in spaces])
-    theta_srf_dsh_t_is_jstrs_n_m = np.concatenate([s.theta_srf_dsh_t_i_jstrs_n_m for s in spaces])
-
     # ステップn+1の室iの統合された境界j*における項別公比法の項mの貫流応答に関する表面温度, degree C, [jstrs, 12]
     theta_srf_dsh_t_is_jstrs_npls_ms = a1.get_theta_srf_dsh_t_i_jstrs_npls_ms(
-        theta_rear_i_jstrs_n=theta_rear_is_jstrs_n, phi_t_1_bnd_i_jstrs_ms=phi_t_1_bnd_is_jstrs_ms,
-        r_bnd_i_jstrs_ms=r_bnd_is_jstrs_ms, theta_srf_dsh_t_i_jstrs_n_m=theta_srf_dsh_t_is_jstrs_n_m)
+        theta_rear_i_jstrs_n=theta_rear_is_jstrs_n,
+        phi_t_1_bnd_i_jstrs_ms=ss.phi_t_1_bnd_is_jstrs_ms,
+        r_bnd_i_jstrs_ms=ss.r_bnd_is_jstrs_ms,
+        theta_srf_dsh_t_i_jstrs_n_m=theta_srf_dsh_t_is_jstrs_n_m
+    )
 
     for i, s in enumerate(spaces):
 

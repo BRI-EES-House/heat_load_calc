@@ -12,6 +12,7 @@ from s3_space_initializer import make_space
 import s3_simulator as simulator
 import a33_results_exporting as exporter
 import a37_groundonly_runup_calculation as a37
+from s3_space_loader import Spaces
 
 # 熱負荷計算の実行
 def calc_heat_load(d: Dict):
@@ -55,6 +56,7 @@ def calc_heat_load(d: Dict):
         space = make_space(room=room, i_dn_ns=i_dn_ns, i_sky_ns=i_sky_ns, r_n_ns=r_n_ns, theta_o_ns=theta_o_ns, h_sun_ns=h_sun_ns, a_sun_ns=a_sun_ns, i=i)
         spaces.append(space)
 
+    spaces2 = Spaces(spaces=spaces)
     start_indices = simulator.get_start_indices(spaces=spaces)
 
     # 助走計算1(土壌のみ)
@@ -69,7 +71,8 @@ def calc_heat_load(d: Dict):
             spaces=spaces, To_n=theta_o_ns[n],
             Tave=Tave,
             theta_srf_dsh_a_is_jstrs_n_ms=theta_srf_dsh_a_is_jstrs_n_ms,
-            q_srf_is_jstrs_n=q_srf_is_jstrs_n
+            q_srf_is_jstrs_n=q_srf_is_jstrs_n,
+            ss=spaces2
         )
 
     for i, s in enumerate(spaces):
@@ -79,12 +82,12 @@ def calc_heat_load(d: Dict):
     # 助走計算2(室温、熱負荷)
     print('助走計算1（建物全体）')
     for n in range(-n_step_run_up_build, 0):
-        simulator.run_tick(spaces=spaces, theta_o_n=theta_o_ns[n], xo_n=x_o_ns[n], n=n, start_indices=start_indices)
+        simulator.run_tick(spaces=spaces, theta_o_n=theta_o_ns[n], xo_n=x_o_ns[n], n=n, start_indices=start_indices, ss=spaces2)
 
     # 本計算(室温、熱負荷)
     print('本計算')
     for n in range(0, n_step_main):
-        simulator.run_tick(spaces=spaces, theta_o_n=theta_o_ns[n], xo_n=x_o_ns[n], n=n, start_indices=start_indices)
+        simulator.run_tick(spaces=spaces, theta_o_n=theta_o_ns[n], xo_n=x_o_ns[n], n=n, start_indices=start_indices, ss=spaces2)
 #    [simulator.run_tick(spaces=spaces, theta_o_n=theta_o_ns[n], xo_n=x_o_ns[n], n=n) for n in range(0, n_step_main)]
 
     print('ログ作成')
