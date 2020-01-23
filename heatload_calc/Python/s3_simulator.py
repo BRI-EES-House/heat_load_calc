@@ -59,8 +59,6 @@ def run_tick_groundonly(spaces: List[Space], To_n: float, Tave: float, theta_srf
 # 室温、熱負荷の計算
 def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_indices: List[int]):
 
-#    start_indices = get_start_indices(spaces)
-
     ac_demand_is_n = np.array([s.ac_demand[n] for s in spaces])
     m_is = np.concatenate([s.m for s in spaces])
     theta_dstrb_is_jstrs_ns = np.concatenate([s.theta_dstrb_i_jstrs_ns[:, n] for s in spaces])
@@ -183,6 +181,14 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
         theta_srf_dsh_a_i_jstrs_n_ms=theta_srf_dsh_a_is_jstrs_n_ms
     )
 
+    phi_t_1_bnd_is_jstrs_ms = np.concatenate([s.phi_t_1_bnd_i_jstrs_ms for s in spaces])
+    theta_srf_dsh_t_is_jstrs_n_m = np.concatenate([s.theta_srf_dsh_t_i_jstrs_n_m for s in spaces])
+
+    # ステップn+1の室iの統合された境界j*における項別公比法の項mの貫流応答に関する表面温度, degree C, [jstrs, 12]
+    theta_srf_dsh_t_is_jstrs_npls_ms = a1.get_theta_srf_dsh_t_i_jstrs_npls_ms(
+        theta_rear_i_jstrs_n=theta_rear_is_jstrs_n, phi_t_1_bnd_i_jstrs_ms=phi_t_1_bnd_is_jstrs_ms,
+        r_bnd_i_jstrs_ms=r_bnd_is_jstrs_ms, theta_srf_dsh_t_i_jstrs_n_m=theta_srf_dsh_t_is_jstrs_n_m)
+
     for i, s in enumerate(spaces):
 
         # ステップnの室iにおける室温, degree C
@@ -190,7 +196,6 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
 
         theta_rear_i_jstrs_n = np.split(theta_rear_is_jstrs_n, start_indices)[i]
 
-        theta_srf_dsh_t_i_jstrs_n_m = s.theta_srf_dsh_t_i_jstrs_n_m
         old_theta_frnt_i = s.old_theta_frnt_i
         xf_i_npls = s.xf_i_npls
         x_r_i_n = s.x_r_i_n
@@ -198,10 +203,7 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
 
         theta_srf_dsh_a_i_jstrs_npls_ms = np.split(theta_srf_dsh_a_is_jstrs_npls_ms, start_indices)[i]
 
-        # ステップn+1の室iの統合された境界j*における項別公比法の項mの貫流応答に関する表面温度, degree C, [jstrs, 12]
-        theta_srf_dsh_t_i_jstrs_npls_ms = a1.get_theta_srf_dsh_t_i_jstrs_npls_ms(
-            theta_rear_i_jstrs_n=theta_rear_i_jstrs_n, phi_t_1_bnd_i_jstrs_ms=s.phi_t_1_bnd_i_jstrs_ms,
-            r_bnd_i_jstrs_ms=s.r_bnd_i_jstrs_ms, theta_srf_dsh_t_i_jstrs_n_m=theta_srf_dsh_t_i_jstrs_n_m)
+        theta_srf_dsh_t_i_jstrs_npls_ms = np.split(theta_srf_dsh_t_is_jstrs_npls_ms, start_indices)[i]
 
         operation_mode_i_n = operation_mode_is_n[i]
 
