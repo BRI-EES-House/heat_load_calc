@@ -306,6 +306,7 @@ class Space:
 
         # ステップnの室iの統合された境界j*における透過日射熱取得量のうち表面に吸収される日射量, W/m2
         self.q_sol_srf_i_jstrs_ns = q_sol_srf_i_jstrs_ns
+
         # 家具の吸収日射量[W] 式(92)
         self.q_sol_frnt_i_ns = q_sol_frnt_i_ns
 
@@ -389,12 +390,23 @@ class Spaces:
         # ステップnの室iにおける人体発湿を除く内部発湿, kg/s, [i, 8760*4]
         self.x_gen_except_hum_is_n = np.concatenate([[s.x_gen_except_hum_i_ns] for s in spaces])
 
+        # 境界j*に関すること
+
+        # 統合された境界j*の吸熱応答係数の初項, m2K/W, [j*]
+        self.phi_a_0_bnd_jstrs = np.concatenate([s.phi_a_0_bnd_i_jstrs for s in spaces])
+
         # 統合された境界j*の項別公比法における項mの吸熱応答係数の第一項 , m2K/W, [j*, 12]
-        self.phi_a_1_bnd_is_jstrs_ms = np.concatenate([s.phi_a_1_bnd_i_jstrs_ms for s in spaces])
+        self.phi_a_1_bnd_jstrs_ms = np.concatenate([s.phi_a_1_bnd_i_jstrs_ms for s in spaces])
 
         # 境界j*の項別公比法における項mの公比, [j*, 12]
-        self.r_bnd_is_jstrs_ms = np.concatenate([s.r_bnd_i_jstrs_ms for s in spaces])
+        self.r_bnd_jstrs_ms = np.concatenate([s.r_bnd_i_jstrs_ms for s in spaces])
+
+        # 境界j*の貫流応答係数の初項, [j*]
+        self.phi_t_0_bnd_i_jstrs = np.concatenate([s.phi_t_0_bnd_i_jstrs for s in spaces])
 
         # 境界j*の項別公比法における項mの貫流応答係数の第一項, [j*,12]
-        self.phi_t_1_bnd_is_jstrs_ms = np.concatenate([s.phi_t_1_bnd_i_jstrs_ms for s in spaces])
+        self.phi_t_1_bnd_jstrs_ms = np.concatenate([s.phi_t_1_bnd_i_jstrs_ms for s in spaces])
+
+        # ステップnの統合された境界j*における透過日射熱取得量のうち表面に吸収される日射量, W/m2, [j*, 8760*4]
+        self.q_sol_srf_jstrs_ns = np.concatenate([s.q_sol_srf_i_jstrs_ns for s in spaces])
 

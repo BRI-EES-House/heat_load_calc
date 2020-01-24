@@ -34,23 +34,19 @@ def run_tick_groundonly(spaces: List[Space], To_n: float, Tave: float, theta_srf
 
     gs = np.concatenate([s.boundary_type_i_jstrs == BoundaryType.Ground for s in spaces])
 
-#    phi_a_1_bnd_is_jstrs_ms = np.concatenate([s.phi_a_1_bnd_i_jstrs_ms for s in spaces])
-    phi_a_0_bnd_is_jstrs = np.concatenate([s.phi_a_0_bnd_i_jstrs for s in spaces])
-#    r_bnd_is_jstrs_ms = np.concatenate([s.r_bnd_i_jstrs_ms for s in spaces])
-#    r_bnd_is_jstrs_ms = ss.r_bnd_is_jstrs_ms
     h_i_bnd_is_jstrs = np.concatenate([s.h_i_bnd_i_jstrs for s in spaces])
 
     theta_srf_dsh_a_is_jstrs_npls_ms = a1.get_theta_srf_dsh_a_i_jstrs_npls_ms(
         q_srf_i_jstrs_n=q_srf_is_jstrs_n[gs],
-        phi_a_1_bnd_i_jstrs_ms=ss.phi_a_1_bnd_is_jstrs_ms[gs, :],
-        r_bnd_i_jstrs_ms=ss.r_bnd_is_jstrs_ms[gs, :],
+        phi_a_1_bnd_i_jstrs_ms=ss.phi_a_1_bnd_jstrs_ms[gs, :],
+        r_bnd_i_jstrs_ms=ss.r_bnd_jstrs_ms[gs, :],
         theta_srf_dsh_a_i_jstrs_n_ms=theta_srf_dsh_a_is_jstrs_n_ms[gs, :])
 
     theta_srf_dsh_a_is_jstrs_n_ms[gs, :] = theta_srf_dsh_a_is_jstrs_npls_ms
 
-    Ts_is_k_n = (phi_a_0_bnd_is_jstrs[gs] * h_i_bnd_is_jstrs[gs] * To_n
-                + np.sum(theta_srf_dsh_a_is_jstrs_npls_ms, axis=1) + Tave) \
-               / (1.0 + phi_a_0_bnd_is_jstrs[gs] * h_i_bnd_is_jstrs[gs])
+    Ts_is_k_n = (ss.phi_a_0_bnd_jstrs[gs] * h_i_bnd_is_jstrs[gs] * To_n
+                 + np.sum(theta_srf_dsh_a_is_jstrs_npls_ms, axis=1) + Tave) \
+               / (1.0 + ss.phi_a_0_bnd_jstrs[gs] * h_i_bnd_is_jstrs[gs])
 
     q_srf_is_jstrs_n[gs] = h_i_bnd_is_jstrs[gs] * (To_n - Ts_is_k_n)
 
@@ -169,16 +165,16 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
     # ステップn+1の室iの統合された境界j*における項別公比法の項mの吸熱応答に関する表面温度, degree C, [jstrs, 12]
     theta_srf_dsh_a_is_jstrs_npls_ms = a1.get_theta_srf_dsh_a_i_jstrs_npls_ms(
         q_srf_i_jstrs_n=q_srf_is_jstrs_n,
-        phi_a_1_bnd_i_jstrs_ms=ss.phi_a_1_bnd_is_jstrs_ms,
-        r_bnd_i_jstrs_ms=ss.r_bnd_is_jstrs_ms,
+        phi_a_1_bnd_i_jstrs_ms=ss.phi_a_1_bnd_jstrs_ms,
+        r_bnd_i_jstrs_ms=ss.r_bnd_jstrs_ms,
         theta_srf_dsh_a_i_jstrs_n_ms=theta_srf_dsh_a_is_jstrs_n_ms
     )
 
     # ステップn+1の室iの統合された境界j*における項別公比法の項mの貫流応答に関する表面温度, degree C, [jstrs, 12]
     theta_srf_dsh_t_is_jstrs_npls_ms = a1.get_theta_srf_dsh_t_i_jstrs_npls_ms(
         theta_rear_i_jstrs_n=theta_rear_is_jstrs_n,
-        phi_t_1_bnd_i_jstrs_ms=ss.phi_t_1_bnd_is_jstrs_ms,
-        r_bnd_i_jstrs_ms=ss.r_bnd_is_jstrs_ms,
+        phi_t_1_bnd_i_jstrs_ms=ss.phi_t_1_bnd_jstrs_ms,
+        r_bnd_i_jstrs_ms=ss.r_bnd_jstrs_ms,
         theta_srf_dsh_t_i_jstrs_n_m=theta_srf_dsh_t_is_jstrs_n_m
     )
 
@@ -186,6 +182,14 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
     cvl_is_jstrs_npls = a1.get_cvl_i_jstrs_npls(
         theta_srf_dsh_t_i_jstrs_npls_ms=theta_srf_dsh_t_is_jstrs_npls_ms,
         theta_srf_dsh_a_i_jstrs_npls_ms=theta_srf_dsh_a_is_jstrs_npls_ms)
+
+    # ステップn+1の室iの統合された境界j*における係数CRX, degree C, [j*]
+    crx_is_jstrs_npls = a1.get_crx_i_jstrs_npls(
+        phi_a_0_bnd_i_jstrs=ss.phi_a_0_bnd_jstrs,
+        q_sol_floor_i_jstrs_n= ss.q_sol_srf_jstrs_ns[:, n],
+        phi_t_0_bnd_i_jstrs=ss.phi_t_0_bnd_i_jstrs,
+        theta_rear_i_jstrs_n=theta_rear_is_jstrs_n
+    )
 
     for i, s in enumerate(spaces):
 
@@ -209,12 +213,7 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
 
         cvl_i_jstrs_npls = np.split(cvl_is_jstrs_npls, start_indices)[i]
 
-        # ステップn+1の室iの統合された境界j*における係数CRX, degree C, [j*]
-        crx_i_jstrs_npls = a1.get_crx_i_jstrs_npls(
-            phi_a_0_bnd_i_jstrs=s.phi_a_0_bnd_i_jstrs,
-            q_sol_floor_i_jstrs_n=s.q_sol_srf_i_jstrs_ns[:, n],
-            phi_t_0_bnd_i_jstrs=s.phi_t_0_bnd_i_jstrs,
-            theta_rear_i_jstrs_n=theta_rear_i_jstrs_n)
+        crx_i_jstrs_npls = np.split(crx_is_jstrs_npls, start_indices)[i]
 
         # ステップn+1の室iの断熱された境界j*における係数WSC, degree C, [j*]
         wsc_i_jstrs_npls = a1.get_wsc_i_jstrs_npls(ivs_x_i=s.ivs_x_i, crx_i_jstrs_npls=crx_i_jstrs_npls)
