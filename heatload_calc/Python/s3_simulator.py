@@ -202,20 +202,9 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
         # ステップnの室iにおける室温, degree C
         theta_r_i_n = theta_r_is_n[i]
 
-        theta_rear_i_jstrs_n = np.split(theta_rear_is_jstrs_n, start_indices)[i]
-
         old_theta_frnt_i = s.old_theta_frnt_i
-        xf_i_npls = s.xf_i_npls
-        x_r_i_n = s.x_r_i_n
-        v_hum_i_n = s.v_hum_i_n
-
-        theta_srf_dsh_a_i_jstrs_npls_ms = np.split(theta_srf_dsh_a_is_jstrs_npls_ms, start_indices)[i]
-
-        theta_srf_dsh_t_i_jstrs_npls_ms = np.split(theta_srf_dsh_t_is_jstrs_npls_ms, start_indices)[i]
 
         operation_mode_i_n = operation_mode_is_n[i]
-
-        OTset = OTsets[i]
 
         wsc_i_jstrs_npls = np.split(wsc_is_jstrs_npls, start_indices)[i]
 
@@ -223,9 +212,6 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
 
         # ステップnの室iにおける隣室i*からの室間換気の空気温度, degree C, [i*]
         theta_r_int_vent_i_istrs_n = np.array([theta_r_is_n[x] for x in s.next_room_idxs_i])
-
-        # ステップnの室iにおける隣室i*からの室間換気の絶対湿度, kg/kgDA, [i*]
-        x_r_int_vent_i_istrs_n = np.array([x_r_is_n[x] for x in s.next_room_idxs_i])
 
         # ステップnの室iにおける係数BRC
         brc_i_n = s41.get_brc_i_n(
@@ -245,6 +231,8 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
             brm_i_n, brc_i_n, s.BRL_i[n], s.WSR_i_k, s.WSB_i_k, wsc_i_jstrs_npls, wsv_i_jstrs_npls,s.Fot_i_g, s.kc_i, s.kr_i)
 
         # ********** 空調設定温度の計算 **********
+
+        OTset = OTsets[i]
 
         ot_i_n, lcs_i_n, lrs_i_n = s41.calc_next_step(
             s.is_radiative_heating, BRCot, BRMot, BRLot, OTset, s.Lrcap_i, operation_mode_i_n)
@@ -279,6 +267,12 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
             v_int_vent_i_istrs=s.v_int_vent_i_istrs,
             v_mec_vent_i_n=s.v_mec_vent_i_ns[n]
         )
+
+        xf_i_npls = s.xf_i_npls
+        x_r_i_n = s.x_r_i_n
+
+        # ステップnの室iにおける隣室i*からの室間換気の絶対湿度, kg/kgDA, [i*]
+        x_r_int_vent_i_istrs_n = np.array([x_r_is_n[x] for x in s.next_room_idxs_i])
 
         # 式(18)
         BRXC_pre = s42.get_BRXC(
@@ -364,6 +358,10 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
         elif operation_mode_i_n == OperationMode.STOP_OPEN:
             v_hum_i_n_pls = 0.1
 
+        theta_srf_dsh_a_i_jstrs_npls_ms = np.split(theta_srf_dsh_a_is_jstrs_npls_ms, start_indices)[i]
+
+        theta_srf_dsh_t_i_jstrs_npls_ms = np.split(theta_srf_dsh_t_is_jstrs_npls_ms, start_indices)[i]
+
         # 前の時刻からの値
         s.theta_srf_dsh_a_i_jstrs_n_m = theta_srf_dsh_a_i_jstrs_npls_ms
         s.theta_srf_dsh_t_i_jstrs_n_m = theta_srf_dsh_t_i_jstrs_npls_ms
@@ -377,6 +375,9 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
         s.v_hum_i_n = v_hum_i_n_pls
         s.theta_cl_i_n = t_cl_i_n_pls
         s.p_a_i_n = p_v_i_n_pls
+
+        theta_rear_i_jstrs_n = np.split(theta_rear_is_jstrs_n, start_indices)[i]
+        v_hum_i_n = s.v_hum_i_n
 
         # ロギング
         s.logger.theta_r_i_ns[n] = theta_r_i_npls
