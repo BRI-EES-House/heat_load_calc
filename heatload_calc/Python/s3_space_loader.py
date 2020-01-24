@@ -410,19 +410,15 @@ class Spaces:
         # ステップnの統合された境界j*における透過日射熱取得量のうち表面に吸収される日射量, W/m2, [j*, 8760*4]
         self.q_sol_srf_jstrs_ns = np.concatenate([s.q_sol_srf_i_jstrs_ns for s in spaces])
 
-        s_idcs = get_start_indices2(spaces=spaces)
-        total_number_of_bdry_is = sum([s.number_of_boundary for s in spaces])
-        # 11, 12, 9
-        # 合計 32
-        # print(s_idcs) # [0,11,23,32]
+        s_idcs = get_start_indices2(spaces=spaces)  # [0, 11, 23, 32]
+        total_number_of_bdry_is = sum([s.number_of_boundary for s in spaces])  # 32
         self.ivs_x_is = np.zeros((total_number_of_bdry_is, total_number_of_bdry_is))
-
         for i, s in enumerate(spaces):
             self.ivs_x_is[s_idcs[i]:s_idcs[i+1], s_idcs[i]:s_idcs[i+1]] = s.ivs_x_i
 
-#        print(self.ivs_x_is[0:11, 0:11] == spaces[0].ivs_x_i)
-#        print(self.ivs_x_is[11:23, 11:23] == spaces[1].ivs_x_i)
-#        print(self.ivs_x_is[23:32, 23:32] == spaces[2].ivs_x_i)
+        # 統合された境界j*の種類, [j*]
+        self.boundary_type_jstrs = np.concatenate([s.boundary_type_i_jstrs for s in spaces])
+
 
 def get_start_indices2(spaces):
 
