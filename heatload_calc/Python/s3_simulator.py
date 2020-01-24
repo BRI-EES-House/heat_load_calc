@@ -200,10 +200,33 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
     # ステップn+1の室iの断熱された境界j*における係数WSV, degree C, [j*]
     wsv_is_jstrs_npls = a1.get_wsv_i_jstrs_npls(ivs_x_i=ss.ivs_x_is, cvl_i_jstrs_npls=cvl_is_jstrs_npls)
 
-    for i, s in enumerate(spaces):
+    old_theta_frnt_is = np.array([s.old_theta_frnt_i for s in spaces])
 
-        # ステップnの室iにおける室温, degree C
-        theta_r_i_n = theta_r_is_n[i]
+    v_ntrl_vent_is = np.where(operation_mode_is_n == OperationMode.STOP_OPEN, ss.v_ntrl_vent_is, 0.0)
+
+    # ステップnの室iにおける係数BRC
+    brc_i_n = s41.get_brc_i_n(
+        p=ss.p,
+        c_room_i=ss.c_room_is,
+        deta_t=900.0,
+        theta_r_i_n=theta_r_is_n,
+        h_c_bnd_i_jstrs=ss.h_c_bnd_jstrs,
+        a_bnd_i_jstrs=ss.a_bnd_jstrs,
+        wsc_i_jstrs_npls=wsc_is_jstrs_npls,
+        wsv_i_jstrs_npls=wsv_is_jstrs_npls,
+        v_mec_vent_i_n=ss.v_mec_vent_is_ns[:, n],
+        v_reak_i_n=v_reak_is_n,
+        v_ntrl_vent_i=v_ntrl_vent_is,
+        theta_o_n=theta_o_n,
+        q_gen_i_n=q_gen_is_n,
+        c_cap_frnt_i=ss.c_cap_frnt_is,
+        k_frnt_i=ss.c_fun_is,
+        q_sol_frnt_i_n=ss.q_sol_frnt_is_ns[:, n],
+        theta_frnt_i_n=old_theta_frnt_is,
+        v_int_vent_is=ss.v_int_vent_is
+    )
+
+    for i, s in enumerate(spaces):
 
         old_theta_frnt_i = s.old_theta_frnt_i
 
@@ -213,25 +236,11 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
 
         wsv_i_jstrs_npls = np.split(wsv_is_jstrs_npls, start_indices)[i]
 
-        # ステップnの室iにおける隣室i*からの室間換気の空気温度, degree C, [i*]
-        theta_r_int_vent_i_istrs_n = np.array([theta_r_is_n[x] for x in s.next_room_idxs_i])
-
-        # ステップnの室iにおける係数BRC
-        brc_i_n = s41.get_brc_i_n(
-            c_room_i=s.c_room_i, deta_t=900.0, theta_r_i_n=theta_r_i_n, h_c_bnd_i_jstrs=s.h_c_bnd_i_jstrs,
-            a_bnd_i_jstrs=s.a_bnd_i_jstrs, wsc_i_jstrs_npls=wsc_i_jstrs_npls, wsv_i_jstrs_npls=wsv_i_jstrs_npls,
-            v_mec_vent_i_n=s.v_mec_vent_i_ns[n], v_reak_i_n=v_reak_is_n[i], v_int_vent_i_istrs=s.v_int_vent_i_istrs,
-            v_ntrl_vent_i=s.v_ntrl_vent_i, theta_o_n=theta_o_n, theta_r_int_vent_i_istrs_n=theta_r_int_vent_i_istrs_n,
-            q_gen_i_n=q_gen_is_n[i], c_cap_frnt_i=s.c_cap_frnt_i, k_frnt_i=s.k_frnt_i, q_sol_frnt_i_n=s.q_sol_frnt_i_ns[n],
-            theta_frnt_i_n=old_theta_frnt_i, operation_mode=operation_mode_i_n)
-
-        brm_non_ntrv_i_n = s.BRMnoncv_i[n]
-        brm_ntrv_i_n = brm_non_ntrv_i_n + a18.get_c_air() * a18.get_rho_air() * s.v_ntrl_vent_i
-        brm_i_n = brm_ntrv_i_n if operation_mode_i_n == OperationMode.STOP_OPEN else brm_non_ntrv_i_n
+        brm_i_n = s.BRMnoncv_i[n] + a18.get_c_air() * a18.get_rho_air() * v_ntrl_vent_is[i]
 
         # OT計算用の係数補正
         BRMot, BRCot, BRLot, Xot, XLr, XC = s41.calc_OT_coeff(
-            brm_i_n, brc_i_n, s.BRL_i[n], s.WSR_i_k, s.WSB_i_k, wsc_i_jstrs_npls, wsv_i_jstrs_npls,s.Fot_i_g, s.kc_i, s.kr_i)
+            brm_i_n, brc_i_n[i], s.BRL_i[n], s.WSR_i_k, s.WSB_i_k, wsc_i_jstrs_npls, wsv_i_jstrs_npls,s.Fot_i_g, s.kc_i, s.kr_i)
 
         # ********** 空調設定温度の計算 **********
 
@@ -246,7 +255,7 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
         theta_r_i_npls = s41.get_Tr_i_n(ot_i_n, lrs_i_n, Xot, XLr, XC)
 
         # 家具の温度 Tfun を計算 式(15)
-        theta_frnt_i_n = s41.get_Tfun_i_n(s.c_cap_frnt_i, old_theta_frnt_i, s.k_frnt_i, theta_r_i_npls, s.q_sol_frnt_i_ns[n])
+        theta_frnt_i_n = s41.get_Tfun_i_n(s.c_cap_frnt_i, old_theta_frnt_i, s.c_fun_i, theta_r_i_npls, s.q_sol_frnt_i_ns[n])
 
         # 表面温度の計算 式(23)
         Ts_i_k_n = a1.get_surface_temperature(s.WSR_i_k, s.WSB_i_k, wsc_i_jstrs_npls, wsv_i_jstrs_npls, theta_r_i_npls, lrs_i_n)
@@ -390,7 +399,7 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
         s.logger.operation_mode[n] = operation_mode_i_n
         s.logger.theta_frnt_i_ns[n] = theta_frnt_i_n
         s.logger.OT_i_n[n] = ot_i_n
-        s.logger.Qfuns_i_n[n] = s41.get_Qfuns(s.k_frnt_i, theta_r_i_npls, theta_frnt_i_n)
+        s.logger.Qfuns_i_n[n] = s41.get_Qfuns(s.c_fun_i, theta_r_i_npls, theta_frnt_i_n)
         s.logger.Qc[:, n] = Qc
         s.logger.Qr[:, n] = Qr
         s.logger.Ts_i_k_n[:, n] = Ts_i_k_n

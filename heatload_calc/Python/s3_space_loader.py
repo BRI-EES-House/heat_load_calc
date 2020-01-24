@@ -168,7 +168,7 @@ class Space:
             Ga,
             Beta_i,
             AX_k_l, WSR_i_k, WSB_i_k,
-            BRMnoncv_i, BRL_i, c_room_i, c_cap_frnt_i, k_frnt_i,
+            BRMnoncv_i, BRL_i, c_room_i, c_cap_frnt_i, c_fun_i,
             q_gen_except_hum_i_ns,
             q_sol_srf_i_jstrs_ns,
             q_sol_frnt_i_ns,
@@ -190,7 +190,14 @@ class Space:
         self.v_mec_vent_i_ns = v_mec_vent_i_ns
 
         self.name_vent_up_i_nis = name_vent_up_i_nis
+
+        # 室iの隣室からの機械換気量niの換気量, m3/s, [ni]
         self.v_int_vent_i_istrs = v_vent_up_i_nis / 3600.0
+        self.next_room_idxs_i = next_room_idxs_i
+
+        # 室iの隣室からの機械換気量, m3/s, [i]
+        self.v_int_vent_i = np.array([0.0, 0.0, 0.0])
+        self.v_int_vent_i[self.next_room_idxs_i] = self.v_int_vent_i_istrs
 
         self.name_bdry_i_jstrs = name_bnd_i_jstrs
         self.sub_name_bdry_i_jstrs = sub_name_bnd_i_jstrs
@@ -329,13 +336,14 @@ class Space:
         # BRLの計算 式(7)
         self.BRL_i = BRL_i
 
-        # 室空気の熱容量
+        # 室iの熱容量, J/K
         self.c_room_i = c_room_i
 
-        # 家具の熱容量、湿気容量の計算
-        # Capfun:家具熱容量[J/K]、Cfun:家具と室空気間の熱コンダクタンス[W/K]
+        # 家具熱容量, J/K
         self.c_cap_frnt_i = c_cap_frnt_i
-        self.k_frnt_i = k_frnt_i
+
+        # 家具と空気間の熱コンダクタンス, W/K
+        self.c_fun_i = c_fun_i
 
         self.rsolfun__i = math.nan  # 透過日射の内家具が吸収する割合[－]
         self.kc_i = s41.calc_kc_i()  # i室の人体表面における対流熱伝達率の総合熱伝達率に対する比
@@ -352,7 +360,6 @@ class Space:
         self.Gf_i = a14.get_Gf(self.v_room_cap_i)  # i室の備品類の湿気容量
         self.Cx_i = a14.get_Cx(self.Gf_i)  # i室の備品類と室空気間の湿気コンダクタンス
         self.xf_i_npls = a18.get_xf_initial()
-        self.next_room_idxs_i = next_room_idxs_i
 
         # 計算結果出力用ロガー
         self.logger = Logger(n_bnd_i_jstrs=n_bnd_i_jstrs)
@@ -390,13 +397,28 @@ class Spaces:
         # ステップnの室iにおける人体発湿を除く内部発湿, kg/s, [i, 8760*4]
         self.x_gen_except_hum_is_n = np.concatenate([[s.x_gen_except_hum_i_ns] for s in spaces])
 
-        # 室iにおける室内側放射熱伝達率, W/m2K, [i]
-        self.h_r_bnd_jstrs = np.concatenate([s.h_r_bnd_i_jstrs for s in spaces])
+        # 室iの熱容量, J/K, [i]
+        self.c_room_is = np.array([s.c_room_i for s in spaces])
 
-        # 室iにおける室内側対流熱伝達率, W/m2K, [i]
-        self.h_c_bnd_jstrs = np.concatenate([s.h_c_bnd_i_jstrs for s in spaces])
+        # ステップnの室iにおける機械換気量（全般換気量+局所換気量）, m3/s
+        self.v_mec_vent_is_ns = np.concatenate([[s.v_mec_vent_i_ns] for s in spaces])
 
-        # 境界j*に関すること
+        # 室iの隣室からの機械換気量, m3/s, [i, i]
+        self.v_int_vent_is = np.concatenate([[s.v_int_vent_i] for s in spaces])
+
+        # 家具熱容量, J/K
+        self.c_cap_frnt_is = np.array([s.c_cap_frnt_i for s in spaces])
+
+        # 家具と空気間の熱コンダクタンス, W/K, [i]
+        self.c_fun_is = np.array([s.c_fun_i for s in spaces])
+
+        # 家具の吸収日射量, W, [i, 8760*4]
+        self.q_sol_frnt_is_ns = np.concatenate([[s.q_sol_frnt_i_ns] for s in spaces])
+
+        # 室iの自然風利用時の換気量, m3/s, [i]
+        self.v_ntrl_vent_is = np.array([s.v_ntrl_vent_i for s in spaces])
+
+        # === 境界j*に関すること ===
 
         # 統合された境界j*の吸熱応答係数の初項, m2K/W, [j*]
         self.phi_a_0_bnd_jstrs = np.concatenate([s.phi_a_0_bnd_i_jstrs for s in spaces])
@@ -404,13 +426,13 @@ class Spaces:
         # 統合された境界j*の項別公比法における項mの吸熱応答係数の第一項 , m2K/W, [j*, 12]
         self.phi_a_1_bnd_jstrs_ms = np.concatenate([s.phi_a_1_bnd_i_jstrs_ms for s in spaces])
 
-        # 境界j*の項別公比法における項mの公比, [j*, 12]
+        # 統合された境界j*の項別公比法における項mの公比, [j*, 12]
         self.r_bnd_jstrs_ms = np.concatenate([s.r_bnd_i_jstrs_ms for s in spaces])
 
-        # 境界j*の貫流応答係数の初項, [j*]
+        # 統合された境界j*の貫流応答係数の初項, [j*]
         self.phi_t_0_bnd_i_jstrs = np.concatenate([s.phi_t_0_bnd_i_jstrs for s in spaces])
 
-        # 境界j*の項別公比法における項mの貫流応答係数の第一項, [j*,12]
+        # 統合された境界j*の項別公比法における項mの貫流応答係数の第一項, [j*,12]
         self.phi_t_1_bnd_jstrs_ms = np.concatenate([s.phi_t_1_bnd_i_jstrs_ms for s in spaces])
 
         # ステップnの統合された境界j*における透過日射熱取得量のうち表面に吸収される日射量, W/m2, [j*, 8760*4]
@@ -422,8 +444,21 @@ class Spaces:
         for i, s in enumerate(spaces):
             self.ivs_x_is[s_idcs[i]:s_idcs[i+1], s_idcs[i]:s_idcs[i+1]] = s.ivs_x_i
 
+        self.p = np.zeros((len(spaces), total_number_of_bdry_is))
+        for i, s in enumerate(spaces):
+            self.p[i, s_idcs[i]:s_idcs[i+1]] = 1.0
+
         # 統合された境界j*の種類, [j*]
         self.boundary_type_jstrs = np.concatenate([s.boundary_type_i_jstrs for s in spaces])
+
+        # 統合された境界j*における室内側放射熱伝達率, W/m2K, [j*]
+        self.h_r_bnd_jstrs = np.concatenate([s.h_r_bnd_i_jstrs for s in spaces])
+
+        # 統合された境界j*における室内側対流熱伝達率, W/m2K, [j*]
+        self.h_c_bnd_jstrs = np.concatenate([s.h_c_bnd_i_jstrs for s in spaces])
+
+        # 統合された境界j*の面積, m2, [j*]
+        self.a_bnd_jstrs = np.concatenate([s.a_bnd_i_jstrs for s in spaces])
 
 
 def get_start_indices2(spaces):
