@@ -182,6 +182,11 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
         theta_srf_dsh_t_i_jstrs_n_m=theta_srf_dsh_t_is_jstrs_n_m
     )
 
+    # ステップn+1の室iの統合された境界j*における係数CVL, degree C, [j*]
+    cvl_is_jstrs_npls = a1.get_cvl_i_jstrs_npls(
+        theta_srf_dsh_t_i_jstrs_npls_ms=theta_srf_dsh_t_is_jstrs_npls_ms,
+        theta_srf_dsh_a_i_jstrs_npls_ms=theta_srf_dsh_a_is_jstrs_npls_ms)
+
     for i, s in enumerate(spaces):
 
         # ステップnの室iにおける室温, degree C
@@ -202,10 +207,7 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
 
         OTset = OTsets[i]
 
-        # ステップn+1の室iの統合された境界j*における係数CVL, degree C, [j*]
-        cvl_i_jstrs_npls = a1.get_cvl_i_jstrs_npls(
-            theta_srf_dsh_t_i_jstrs_npls_ms=theta_srf_dsh_t_i_jstrs_npls_ms,
-            theta_srf_dsh_a_i_jstrs_npls_ms=theta_srf_dsh_a_i_jstrs_npls_ms)
+        cvl_i_jstrs_npls = np.split(cvl_is_jstrs_npls, start_indices)[i]
 
         # ステップn+1の室iの統合された境界j*における係数CRX, degree C, [j*]
         crx_i_jstrs_npls = a1.get_crx_i_jstrs_npls(
