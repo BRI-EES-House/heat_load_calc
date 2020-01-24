@@ -390,6 +390,12 @@ class Spaces:
         # ステップnの室iにおける人体発湿を除く内部発湿, kg/s, [i, 8760*4]
         self.x_gen_except_hum_is_n = np.concatenate([[s.x_gen_except_hum_i_ns] for s in spaces])
 
+        # 室iにおける室内側放射熱伝達率, W/m2K, [i]
+        self.h_r_bnd_jstrs = np.concatenate([s.h_r_bnd_i_jstrs for s in spaces])
+
+        # 室iにおける室内側対流熱伝達率, W/m2K, [i]
+        self.h_c_bnd_jstrs = np.concatenate([s.h_c_bnd_i_jstrs for s in spaces])
+
         # 境界j*に関すること
 
         # 統合された境界j*の吸熱応答係数の初項, m2K/W, [j*]

@@ -68,7 +68,7 @@ def calc_heat_load(d: Dict):
 
     for n in range(-n_step_run_up, -n_step_run_up_build):
         theta_srf_dsh_a_is_jstrs_n_ms, q_srf_is_jstrs_n = simulator.run_tick_groundonly(
-            spaces=spaces, To_n=theta_o_ns[n],
+            To_n=theta_o_ns[n],
             Tave=Tave,
             theta_srf_dsh_a_is_jstrs_n_ms=theta_srf_dsh_a_is_jstrs_n_ms,
             q_srf_is_jstrs_n=q_srf_is_jstrs_n,

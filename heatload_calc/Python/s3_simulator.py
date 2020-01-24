@@ -30,16 +30,14 @@ def get_start_indices(spaces):
 
 
 # 地盤の計算
-def run_tick_groundonly(spaces: List[Space], To_n: float, Tave: float, theta_srf_dsh_a_is_jstrs_n_ms, q_srf_is_jstrs_n, ss: Spaces):
+def run_tick_groundonly(To_n: float, Tave: float, theta_srf_dsh_a_is_jstrs_n_ms, q_srf_is_jstrs_n, ss: Spaces):
 
     gs = ss.boundary_type_jstrs == BoundaryType.Ground
 
-#    h_i_bnd_is_jstrs = np.concatenate([s.h_i_bnd_i_jstrs for s in spaces])
+    h_r_bnd_jstrs = ss.h_r_bnd_jstrs
+    h_c_bnd_jstrs = ss.h_c_bnd_jstrs
 
-    h_r_bnd_i_jstrs = np.concatenate([s.h_r_bnd_i_jstrs for s in spaces])
-    h_c_bnd_i_jstrs = np.concatenate([s.h_c_bnd_i_jstrs for s in spaces])
-
-    h_i_bnd_is_jstrs = h_r_bnd_i_jstrs + h_c_bnd_i_jstrs
+    h_i_bnd_jstrs = h_r_bnd_jstrs + h_c_bnd_jstrs
 
     theta_srf_dsh_a_is_jstrs_npls_ms = a1.get_theta_srf_dsh_a_i_jstrs_npls_ms(
         q_srf_i_jstrs_n=q_srf_is_jstrs_n[gs],
@@ -49,11 +47,11 @@ def run_tick_groundonly(spaces: List[Space], To_n: float, Tave: float, theta_srf
 
     theta_srf_dsh_a_is_jstrs_n_ms[gs, :] = theta_srf_dsh_a_is_jstrs_npls_ms
 
-    Ts_is_k_n = (ss.phi_a_0_bnd_jstrs[gs] * h_i_bnd_is_jstrs[gs] * To_n
+    Ts_is_k_n = (ss.phi_a_0_bnd_jstrs[gs] * h_i_bnd_jstrs[gs] * To_n
                  + np.sum(theta_srf_dsh_a_is_jstrs_npls_ms, axis=1) + Tave) \
-               / (1.0 + ss.phi_a_0_bnd_jstrs[gs] * h_i_bnd_is_jstrs[gs])
+               / (1.0 + ss.phi_a_0_bnd_jstrs[gs] * h_i_bnd_jstrs[gs])
 
-    q_srf_is_jstrs_n[gs] = h_i_bnd_is_jstrs[gs] * (To_n - Ts_is_k_n)
+    q_srf_is_jstrs_n[gs] = h_i_bnd_jstrs[gs] * (To_n - Ts_is_k_n)
 
     return theta_srf_dsh_a_is_jstrs_n_ms, q_srf_is_jstrs_n
 
