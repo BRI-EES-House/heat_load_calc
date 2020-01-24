@@ -226,7 +226,7 @@ def get_qi(Qt, area):
 
 
 # 室内等価温度の計算 式(29)
-def calc_Tei(hic, hi, hir, RSsol, flr, area, Tr, Fmrt, Ts, Lr, Beta):
+def calc_Tei(hic, hir, RSsol, flr, area, Tr, Fmrt, Ts, Lr, Beta):
     """
     :param Tr: 室温
     :param Tsx: 形態係数加重平均表面温度
@@ -238,10 +238,10 @@ def calc_Tei(hic, hi, hir, RSsol, flr, area, Tr, Fmrt, Ts, Lr, Beta):
     # 平均放射温度の計算
     Tsx = get_Tsx(Fmrt, Ts)
 
-    return Tr * hic / hi \
-           + Tsx * hir / hi \
-           + RSsol / hi \
-           + flr * Lr * (1.0 - Beta) / hi / area
+    return Tr * hic / (hic + hir) \
+           + Tsx * hir / (hic + hir) \
+           + RSsol / (hic + hir) \
+           + flr * Lr * (1.0 - Beta) / (hic + hir) / area
 
 
 # 平均放射温度の計算

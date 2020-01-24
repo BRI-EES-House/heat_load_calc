@@ -151,7 +151,7 @@ class Space:
             name_vent_up_i_nis: List[str], v_vent_up_i_nis: np.ndarray,
             name_bnd_i_jstrs: np.ndarray, sub_name_bnd_i_jstrs: np.ndarray, boundary_type_i_jstrs: np.ndarray,
             a_bnd_i_jstrs: np.ndarray, h_bnd_i_jstrs, next_room_type_bnd_i_jstrs,
-            is_solar_absorbed_inside_bnd_i_jstrs, h_i_bnd_i_jstrs, theta_o_sol_bnd_i_jstrs_ns, n_root_bnd_i_jstrs,
+            is_solar_absorbed_inside_bnd_i_jstrs, theta_o_sol_bnd_i_jstrs_ns, n_root_bnd_i_jstrs,
             row_bnd_i_jstrs, rft0_bnd_i_jstrs, rfa0_bnd_i_jstrs, rft1_bnd_i_jstrs, rfa1_bnd_i_jstrs, n_bnd_i_jstrs,
             q_trs_sol_i_ns: np.ndarray,
             theta_r_i_initial: float, x_r_i_initial: float,
@@ -223,7 +223,7 @@ class Space:
         self.next_room_type_bnd_i_jstrs = next_room_type_bnd_i_jstrs
         # Spaceクラスで持つ必要はない変数の可能性あり（インスタンス終了後破棄可能）（要調査）
         self.is_solar_absorbed_inside_bdry_i_jstrs = is_solar_absorbed_inside_bnd_i_jstrs
-        self.h_i_bnd_i_jstrs = h_i_bnd_i_jstrs
+
         self.n_root_bnd_i_jstrs = n_root_bnd_i_jstrs
         self.r_bnd_i_jstrs_ms = row_bnd_i_jstrs
         self.phi_t_0_bnd_i_jstrs = rft0_bnd_i_jstrs
