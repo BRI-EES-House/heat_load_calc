@@ -246,12 +246,12 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
         ss.is_radiative_heating_is, BRCot_is, BRMot_is, BRLot_is, OTsets, ss.lrcap_is,
         operation_mode_is_n)
 
+    # 自然室温 Tr を計算 式(14)
+    theta_r_is_npls = s41.get_Tr_i_n(ot_is_n, lrs_is_n, Xot_is, XLr_is, XC_is)
+
     for i, s in enumerate(spaces):
 
-        # ********** 室温 Tr、家具温度 Tfun、表面温度 Ts_i_k_n、室内表面熱流 q の計算 **********
-
-        # 自然室温 Tr を計算 式(14)
-        theta_r_i_npls = s41.get_Tr_i_n(ot_is_n[i], lrs_is_n[i], Xot_is[i], XLr_is[i], XC_is[i])
+        theta_r_i_npls = theta_r_is_npls[i]
 
         old_theta_frnt_i = s.old_theta_frnt_i
 
