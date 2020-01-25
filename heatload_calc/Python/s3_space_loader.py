@@ -418,6 +418,9 @@ class Spaces:
         # 室iの自然風利用時の換気量, m3/s, [i]
         self.v_ntrl_vent_is = np.array([s.v_ntrl_vent_i for s in spaces])
 
+        # BRMの計算 式(5) ※ただし、通風なし
+        self.BRMnoncv_is = np.concatenate([[s.BRMnoncv_i] for s in spaces])
+
         # === 境界j*に関すること ===
 
         # 統合された境界j*の吸熱応答係数の初項, m2K/W, [j*]
