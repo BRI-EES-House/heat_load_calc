@@ -228,6 +228,20 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
 
     brm_is_n = ss.BRMnoncv_is[:, n] + a18.get_c_air() * a18.get_rho_air() * v_ntrl_vent_is
 
+    # OT計算用の係数補正
+    BRMot_is, BRCot_is, BRLot_is, Xot_is, XLr_is, XC_is = s41.calc_OT_coeff(
+        brm_is_n=brm_is_n,
+        brc_i_n=brc_i_n,
+        brl_is_n=ss.brl_is_ns[:, n],
+        wsr_jstrs=ss.wsr_jstrs,
+        wsb_jstrs=ss.wsb_jstrs,
+        wsc_is_jstrs_npls=wsc_is_jstrs_npls,
+        wsv_is_jstrs_npls=wsv_is_jstrs_npls,
+        fot_jstrs=ss.fot_jstrs,
+        kc_is=ss.kc_is,
+        kr_is=ss.kr_is,
+    )
+
     for i, s in enumerate(spaces):
 
         wsc_i_jstrs_npls = np.split(wsc_is_jstrs_npls, start_indices)[i]
@@ -235,8 +249,7 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
         wsv_i_jstrs_npls = np.split(wsv_is_jstrs_npls, start_indices)[i]
 
         # OT計算用の係数補正
-        BRMot, BRCot, BRLot, Xot, XLr, XC = s41.calc_OT_coeff(
-            brm_is_n[i], brc_i_n[i], s.BRL_i[n], s.WSR_i_k, s.WSB_i_k, wsc_i_jstrs_npls, wsv_i_jstrs_npls,s.Fot_i_g, s.kc_i, s.kr_i)
+        BRMot, BRCot, BRLot, Xot, XLr, XC = BRMot_is[i], BRCot_is[i], BRLot_is[i], Xot_is[i], XLr_is[i], XC_is[i]
 
         # ********** 空調設定温度の計算 **********
 

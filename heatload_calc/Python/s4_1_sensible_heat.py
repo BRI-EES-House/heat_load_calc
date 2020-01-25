@@ -25,27 +25,28 @@ def get_theta_ot_is_n(
 
 
 # 作用温度設定用係数への換算
-def calc_OT_coeff(BRM_i, BRC_i, BRL_i, WSR_i_k, WSB_i_k, WSC_i_k, WSV_i_k, fot, kc_i, kr_i):
+def calc_OT_coeff(brm_is_n, brc_i_n, brl_is_n, wsr_jstrs, wsb_jstrs, wsc_is_jstrs_npls, wsv_is_jstrs_npls, fot_jstrs, kc_is, kr_is):
+
     # Deno 式(11)
-    Deno = get_Deno(fot, kc_i, kr_i, WSR_i_k)
+    Deno = get_Deno(fot_jstrs, kc_is, kr_is, wsr_jstrs)
 
     # XLr 式(10)
-    XLr = get_XLr_i(Deno, fot, kr_i, WSB_i_k)
+    XLr = get_XLr_i(Deno, fot_jstrs, kr_is, wsb_jstrs)
 
     # XC 式(9)
-    XC = get_XC_i(Deno, fot, kr_i, WSC_i_k, WSV_i_k)
+    XC = get_XC_i(Deno, fot_jstrs, kr_is, wsc_is_jstrs_npls, wsv_is_jstrs_npls)
 
     # Xot 式(8)
     Xot = get_Xot_i(Deno)
 
     # BRMot 式(2)
-    BRMot = get_BRMot(BRM_i, Xot)
+    BRMot = get_BRMot(brm_is_n, Xot)
 
     # BRCot 式(3)
-    BRCot = get_BRCot(BRC_i, BRM_i, XC)
+    BRCot = get_BRCot(brc_i_n, brm_is_n, XC)
 
     # BRLot 式(4)
-    BRLot = get_BRLot(BRL_i, BRM_i, XLr)
+    BRLot = get_BRLot(brl_is_n, brm_is_n, XLr)
 
     return BRMot, BRCot, BRLot, Xot, XLr, XC
 
@@ -151,18 +152,21 @@ def get_Xot_i(Deno):
 
 
 # XC 式(9)
-def get_XC_i(Deno, Fot_i_k, kr_i, WSC_k, WSV_k):
-    return kr_i * np.sum(Fot_i_k * (WSC_k + WSV_k)) / Deno
+def get_XC_i(Deno, fot_jstrs, kr_is, wsc_is_jstrs_npls, wsv_is_jstrs_npls):
+
+    return (kr_is * np.dot(fot_jstrs, (wsc_is_jstrs_npls + wsv_is_jstrs_npls).reshape(-1, 1)).flatten() / Deno)
 
 
 # XLr 式(10)
-def get_XLr_i(Deno, Fot_i_k, kr_i, WSB_i_k):
-    return kr_i * np.sum(Fot_i_k * WSB_i_k) / Deno
+def get_XLr_i(Deno, fot_jstrs, kr_is, wsb_jstrs):
+
+    return (kr_is * np.dot(fot_jstrs, wsb_jstrs).flatten() / Deno)
 
 
 # Deno 式(11)
-def get_Deno(Fot_i_k, kc_i, kr_i, WSR_i_k):
-    return kc_i + kr_i * np.sum(Fot_i_k * WSR_i_k)
+def get_Deno(fot_jstrs, kc_is, kr_is, wsr_jstrs):
+
+    return kc_is + kr_is * np.dot(fot_jstrs, wsr_jstrs.reshape(-1, 1)).flatten()
 
 
 # kc_i 式(12)

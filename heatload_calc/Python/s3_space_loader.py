@@ -421,6 +421,15 @@ class Spaces:
         # BRMの計算 式(5) ※ただし、通風なし
         self.BRMnoncv_is = np.concatenate([[s.BRMnoncv_i] for s in spaces])
 
+        # BRLの計算 式(7)
+        self.brl_is_ns = np.concatenate([[s.BRL_i] for s in spaces])
+
+        # i室の人体表面における対流熱伝達率の総合熱伝達率に対する比
+        self.kc_is = np.array([s.kc_i for s in spaces])
+
+        # i室の人体表面における放射熱伝達率の総合熱伝達率に対する比
+        self.kr_is = np.array([s.kr_i for s in spaces])
+
         # === 境界j*に関すること ===
 
         # 統合された境界j*の吸熱応答係数の初項, m2K/W, [j*]
@@ -451,6 +460,11 @@ class Spaces:
         for i, s in enumerate(spaces):
             self.p[i, s_idcs[i]:s_idcs[i+1]] = 1.0
 
+        # 部位の人体に対する形態係数を計算 表6
+        self.fot_jstrs = np.zeros((len(spaces), total_number_of_bdry_is))
+        for i, s in enumerate(spaces):
+            self.fot_jstrs[i, s_idcs[i]:s_idcs[i+1]] = s.Fot_i_g
+
         # 統合された境界j*の種類, [j*]
         self.boundary_type_jstrs = np.concatenate([s.boundary_type_i_jstrs for s in spaces])
 
@@ -462,6 +476,11 @@ class Spaces:
 
         # 統合された境界j*の面積, m2, [j*]
         self.a_bnd_jstrs = np.concatenate([s.a_bnd_i_jstrs for s in spaces])
+
+        # WSR, WSB の計算 式(24)
+        self.wsr_jstrs = np.concatenate([s.WSR_i_k for s in spaces])
+        self.wsb_jstrs = np.concatenate([s.WSB_i_k for s in spaces])
+
 
 
 def get_start_indices2(spaces):
