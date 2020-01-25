@@ -430,6 +430,12 @@ class Spaces:
         # i室の人体表面における放射熱伝達率の総合熱伝達率に対する比
         self.kr_is = np.array([s.kr_i for s in spaces])
 
+        # 放射暖房最大能力, W, [i]
+        self.lrcap_is = np.array([s.Lrcap_i for s in spaces])
+
+        # 放射暖房有無（Trueなら放射暖房あり）
+        self.is_radiative_heating_is = np.array([s.is_radiative_heating for s in spaces])
+
         # === 境界j*に関すること ===
 
         # 統合された境界j*の吸熱応答係数の初項, m2K/W, [j*]

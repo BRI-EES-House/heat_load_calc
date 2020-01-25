@@ -242,10 +242,15 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
         kr_is=ss.kr_is,
     )
 
+    ot_is_n, lcs_is_n, lrs_is_n = s41.calc_next_steps(
+        ss.is_radiative_heating_is, BRCot_is, BRMot_is, BRLot_is, OTsets, ss.lrcap_is,
+        operation_mode_is_n)
+
     for i, s in enumerate(spaces):
 
-        ot_i_n, lcs_i_n, lrs_i_n = s41.calc_next_step(
-            s.is_radiative_heating, BRCot_is[i], BRMot_is[i], BRLot_is[i], OTsets[i], s.Lrcap_i, operation_mode_is_n[i])
+        ot_i_n = ot_is_n[i]
+        lcs_i_n = lcs_is_n[i]
+        lrs_i_n = lrs_is_n[i]
 
         # ********** 室温 Tr、家具温度 Tfun、表面温度 Ts_i_k_n、室内表面熱流 q の計算 **********
 

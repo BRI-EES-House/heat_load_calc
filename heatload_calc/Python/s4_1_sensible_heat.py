@@ -184,6 +184,10 @@ def calc_kc_i():
 # TODO: 空調運転モード3,4については未定義
 
 
+def calc_next_steps(is_radiative_heating_is, BRCot_is, BRMot_is, BRLot_is, OTsets, lrcap_is, operation_mode_is_n):
+
+    return np.vectorize(calc_next_step)(is_radiative_heating_is, BRCot_is,  BRMot_is, BRLot_is, OTsets, lrcap_is, operation_mode_is_n)
+
 def calc_next_step(
         is_radiative_heating: bool, BRCot: float, BRMot: float, BRLot: float, Tset: float, Lrcap_i, operation_mode
 ) -> (float, float, float):
