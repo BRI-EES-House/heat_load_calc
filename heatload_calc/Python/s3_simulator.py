@@ -248,14 +248,10 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
 
     for i, s in enumerate(spaces):
 
-        ot_i_n = ot_is_n[i]
-        lcs_i_n = lcs_is_n[i]
-        lrs_i_n = lrs_is_n[i]
-
         # ********** 室温 Tr、家具温度 Tfun、表面温度 Ts_i_k_n、室内表面熱流 q の計算 **********
 
         # 自然室温 Tr を計算 式(14)
-        theta_r_i_npls = s41.get_Tr_i_n(ot_i_n, lrs_i_n, Xot_is[i], XLr_is[i], XC_is[i])
+        theta_r_i_npls = s41.get_Tr_i_n(ot_is_n[i], lrs_is_n[i], Xot_is[i], XLr_is[i], XC_is[i])
 
         old_theta_frnt_i = s.old_theta_frnt_i
 
@@ -267,7 +263,7 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
         wsv_i_jstrs_npls = np.split(wsv_is_jstrs_npls, start_indices)[i]
 
         # 表面温度の計算 式(23)
-        Ts_i_k_n = a1.get_surface_temperature(s.WSR_i_k, s.WSB_i_k, wsc_i_jstrs_npls, wsv_i_jstrs_npls, theta_r_i_npls, lrs_i_n)
+        Ts_i_k_n = a1.get_surface_temperature(s.WSR_i_k, s.WSB_i_k, wsc_i_jstrs_npls, wsv_i_jstrs_npls, theta_r_i_npls, lrs_is_n[i])
 
         # MRT_i_n、AST、平均放射温度の計算
         theta_mrt_i_n_pls = get_MRT(s.Fot_i_g, Ts_i_k_n)
@@ -275,7 +271,7 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
         # 室内表面熱流の計算 式(28)
         Qc, Qr, q_srf_i_jstrs_n = a1.calc_qi(
             s.h_c_bnd_i_jstrs, s.a_bnd_i_jstrs, s.h_r_bnd_i_jstrs, s.q_sol_srf_i_jstrs_ns[:, n], s.flr_i_k,
-            Ts_i_k_n, theta_r_i_npls, s.F_mrt_i_g, lrs_i_n, s.Beta_i)
+            Ts_i_k_n, theta_r_i_npls, s.F_mrt_i_g, lrs_is_n[i], s.Beta_i)
 
         # ********** 室湿度 xr、除湿量 G_hum、湿加湿熱量 Ll の計算 **********
 
@@ -320,7 +316,7 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
         # i室のn時点におけるエアコンの風量[m3/s]
         # 空調の熱交換部飽和絶対湿度の計算
         Vac_n, xeout_i_n = \
-            a16.calcVac_xeout(lcs_i_n, s.Vmin_i, s.Vmax_i, s.qmin_c_i, s.qmax_c_i, theta_r_i_npls, BF, operation_mode_i_n)
+            a16.calcVac_xeout(lcs_is_n[i], s.Vmin_i, s.Vmax_i, s.qmin_c_i, s.qmax_c_i, theta_r_i_npls, BF, operation_mode_i_n)
 
         # 空調機除湿の項 式(20)より
         RhoVac = get_RhoVac(Vac_n, BF)
@@ -364,7 +360,7 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
         xf_i_n = s42.get_xf(s.Gf_i, xf_i_npls, s.Cx_i, x_r_i_n_pls)
         Qfunl_i_n = s42.get_Qfunl(s.Cx_i, x_r_i_n_pls, xf_i_n)
 
-        t_cl_i_n_pls = a35.get_t_cl_i_n(clo_i_n=clo_is_n[i], ot_i_n=ot_i_n, h_a_i_n=h_hum_is_n[i])
+        t_cl_i_n_pls = a35.get_t_cl_i_n(clo_i_n=clo_is_n[i], ot_i_n=ot_is_n[i], h_a_i_n=h_hum_is_n[i])
 
         if operation_mode_i_n == OperationMode.HEATING:
             if s.is_radiative_heating:
@@ -409,7 +405,7 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
         s.logger.x_hum_i_ns[n] = x_hum_is_n[i]
         s.logger.operation_mode[n] = operation_mode_i_n
         s.logger.theta_frnt_i_ns[n] = theta_frnt_i_n
-        s.logger.OT_i_n[n] = ot_i_n
+        s.logger.OT_i_n[n] = ot_is_n[i]
         s.logger.Qfuns_i_n[n] = s41.get_Qfuns(s.c_fun_i, theta_r_i_npls, theta_frnt_i_n)
         s.logger.Qc[:, n] = Qc
         s.logger.Qr[:, n] = Qr
@@ -418,9 +414,9 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
         # 室内側等価温度の計算 式(29)
         s.logger.Tei_i_k_n[:, n] = a1.calc_Tei(
             s.h_c_bnd_i_jstrs, s.h_r_bnd_i_jstrs, s.q_sol_srf_i_jstrs_ns[:, n], s.flr_i_k,
-            s.a_bnd_i_jstrs, theta_r_i_npls, s.F_mrt_i_g, Ts_i_k_n, lrs_i_n, s.Beta_i)
-        s.logger.Lrs_i_n[n] = lrs_i_n
-        s.logger.Lcs_i_n[n] = lcs_i_n
+            s.a_bnd_i_jstrs, theta_r_i_npls, s.F_mrt_i_g, Ts_i_k_n, lrs_is_n[i], s.Beta_i)
+        s.logger.Lrs_i_n[n] = lrs_is_n[i]
+        s.logger.Lcs_i_n[n] = lcs_is_n[i]
         s.logger.Lcl_i_n[n] = Lcl_i_n
         s.logger.xf_i_n[n] = xf_i_n
         s.logger.Qfunl_i_n[n] = Qfunl_i_n
