@@ -228,15 +228,11 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
 
     for i, s in enumerate(spaces):
 
-        old_theta_frnt_i = s.old_theta_frnt_i
-
-        operation_mode_i_n = operation_mode_is_n[i]
+        brm_i_n = s.BRMnoncv_i[n] + a18.get_c_air() * a18.get_rho_air() * v_ntrl_vent_is[i]
 
         wsc_i_jstrs_npls = np.split(wsc_is_jstrs_npls, start_indices)[i]
 
         wsv_i_jstrs_npls = np.split(wsv_is_jstrs_npls, start_indices)[i]
-
-        brm_i_n = s.BRMnoncv_i[n] + a18.get_c_air() * a18.get_rho_air() * v_ntrl_vent_is[i]
 
         # OT計算用の係数補正
         BRMot, BRCot, BRLot, Xot, XLr, XC = s41.calc_OT_coeff(
@@ -246,6 +242,8 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
 
         OTset = OTsets[i]
 
+        operation_mode_i_n = operation_mode_is_n[i]
+
         ot_i_n, lcs_i_n, lrs_i_n = s41.calc_next_step(
             s.is_radiative_heating, BRCot, BRMot, BRLot, OTset, s.Lrcap_i, operation_mode_i_n)
 
@@ -253,6 +251,8 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
 
         # 自然室温 Tr を計算 式(14)
         theta_r_i_npls = s41.get_Tr_i_n(ot_i_n, lrs_i_n, Xot, XLr, XC)
+
+        old_theta_frnt_i = s.old_theta_frnt_i
 
         # 家具の温度 Tfun を計算 式(15)
         theta_frnt_i_n = s41.get_Tfun_i_n(s.c_cap_frnt_i, old_theta_frnt_i, s.c_fun_i, theta_r_i_npls, s.q_sol_frnt_i_ns[n])
