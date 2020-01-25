@@ -244,31 +244,22 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
 
     for i, s in enumerate(spaces):
 
-        wsc_i_jstrs_npls = np.split(wsc_is_jstrs_npls, start_indices)[i]
-
-        wsv_i_jstrs_npls = np.split(wsv_is_jstrs_npls, start_indices)[i]
-
-        # OT計算用の係数補正
-        BRMot, BRCot, BRLot, Xot, XLr, XC = BRMot_is[i], BRCot_is[i], BRLot_is[i], Xot_is[i], XLr_is[i], XC_is[i]
-
-        # ********** 空調設定温度の計算 **********
-
-        OTset = OTsets[i]
-
-        operation_mode_i_n = operation_mode_is_n[i]
-
         ot_i_n, lcs_i_n, lrs_i_n = s41.calc_next_step(
-            s.is_radiative_heating, BRCot, BRMot, BRLot, OTset, s.Lrcap_i, operation_mode_i_n)
+            s.is_radiative_heating, BRCot_is[i], BRMot_is[i], BRLot_is[i], OTsets[i], s.Lrcap_i, operation_mode_is_n[i])
 
         # ********** 室温 Tr、家具温度 Tfun、表面温度 Ts_i_k_n、室内表面熱流 q の計算 **********
 
         # 自然室温 Tr を計算 式(14)
-        theta_r_i_npls = s41.get_Tr_i_n(ot_i_n, lrs_i_n, Xot, XLr, XC)
+        theta_r_i_npls = s41.get_Tr_i_n(ot_i_n, lrs_i_n, Xot_is[i], XLr_is[i], XC_is[i])
 
         old_theta_frnt_i = s.old_theta_frnt_i
 
         # 家具の温度 Tfun を計算 式(15)
         theta_frnt_i_n = s41.get_Tfun_i_n(s.c_cap_frnt_i, old_theta_frnt_i, s.c_fun_i, theta_r_i_npls, s.q_sol_frnt_i_ns[n])
+
+        wsc_i_jstrs_npls = np.split(wsc_is_jstrs_npls, start_indices)[i]
+
+        wsv_i_jstrs_npls = np.split(wsv_is_jstrs_npls, start_indices)[i]
 
         # 表面温度の計算 式(23)
         Ts_i_k_n = a1.get_surface_temperature(s.WSR_i_k, s.WSB_i_k, wsc_i_jstrs_npls, wsv_i_jstrs_npls, theta_r_i_npls, lrs_i_n)
@@ -318,6 +309,8 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
 
         # バイパスファクターBF 式(114)
         BF = a16.get_BF()
+
+        operation_mode_i_n = operation_mode_is_n[i]
 
         # i室のn時点におけるエアコンの風量[m3/s]
         # 空調の熱交換部飽和絶対湿度の計算
