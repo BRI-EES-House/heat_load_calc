@@ -288,17 +288,19 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
         p=ss.p
     )
 
+    # 式(17)
+    BRMX_pre_is = s42.get_BRMX(
+        v_reak_is_n=v_reak_is_n,
+        gf_is=ss.gf_is,
+        cx_is=ss.cx_is,
+        v_room_cap_is=ss.v_room_cap_is,
+        v_mec_vent_is_n=ss.v_mec_vent_is_ns[:, n],
+        v_int_vent_is=ss.v_int_vent_is
+    )
+
     for i, s in enumerate(spaces):
 
-        # 式(17)
-        BRMX_pre = s42.get_BRMX(
-            v_reak_i_n=v_reak_is_n[i],
-            Gf=s.Gf_i,
-            Cx=s.Cx_i,
-            volume=s.v_room_cap_i,
-            v_int_vent_i_istrs=s.v_int_vent_i_istrs,
-            v_mec_vent_i_n=s.v_mec_vent_i_ns[n]
-        )
+        BRMX_pre = BRMX_pre_is[i]
 
         xf_i_npls = s.xf_i_npls
         x_r_i_n = s.x_r_i_n

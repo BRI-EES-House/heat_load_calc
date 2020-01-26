@@ -439,6 +439,15 @@ class Spaces:
         # 放射暖房対流比率
         self.beta_is = np.array([s.Beta_i for s in spaces])
 
+        # i室の備品類の湿気容量
+        self.gf_is = np.array([s.Gf_i for s in spaces])
+
+        # i室の備品類と室空気間の湿気コンダクタンス
+        self.cx_is = np.array([s.Cx_i for s in spaces])
+
+        # 室iの容積, m3
+        self.v_room_cap_is = np.array([s.v_room_cap_i for s in spaces])
+
         # === 境界j*に関すること ===
 
         # 統合された境界j*の吸熱応答係数の初項, m2K/W, [j*]

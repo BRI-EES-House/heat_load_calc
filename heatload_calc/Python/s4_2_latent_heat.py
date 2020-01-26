@@ -21,24 +21,22 @@ def get_xr(BRXC_i, BRMX_i):
 
 
 # 式(17)
-def get_BRMX(v_reak_i_n, Gf, Cx, volume, v_int_vent_i_istrs, v_mec_vent_i_n):
+def get_BRMX(v_reak_is_n, gf_is, cx_is, v_room_cap_is, v_mec_vent_is_n, v_int_vent_is):
+
+    v_room_cap_i = v_room_cap_is
+
     # 外気の流入量
-    Voin = get_v_ex_i_n(v_reak_i_n=v_reak_i_n, v_mec_vent_i_n=v_mec_vent_i_n)
+    Voin = get_v_ex_i_n(v_reak_i_n=v_reak_is_n, v_mec_vent_i_n=v_mec_vent_is_n)
 
     # 湿気容量の項
-    temp = get_temp(Gf=Gf, Cx=Cx)
-
-    # 配列準備
-    next_volume = np.array(v_int_vent_i_istrs)
+    temp = get_temp(Gf=gf_is, Cx=cx_is)
 
     rhoa = a18.get_rho_air()
 
-    BRMX = (rhoa * (volume / 900 + Voin)
+    return (rhoa * (v_room_cap_i / 900 + Voin)
             + temp
-            + np.sum(rhoa * next_volume)
+            + rhoa * np.sum(v_int_vent_is,axis=1)
             )
-
-    return BRMX
 
 
 # 式(18)
