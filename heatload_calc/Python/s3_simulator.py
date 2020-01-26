@@ -300,8 +300,6 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
 
     for i, s in enumerate(spaces):
 
-        BRMX_pre = BRMX_pre_is[i]
-
         xf_i_npls = s.xf_i_npls
         x_r_i_n = s.x_r_i_n
 
@@ -338,6 +336,8 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
 
         # 空調機除湿の項 式(20)より
         RhoVac = get_RhoVac(Vac_n, BF)
+
+        BRMX_pre = BRMX_pre_is[i]
 
         # 室絶対湿度[kg/kg(DA)]の計算
         BRMX_base = BRMX_pre + RhoVac
