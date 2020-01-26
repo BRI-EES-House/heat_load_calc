@@ -249,24 +249,35 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
     # 自然室温 Tr を計算 式(14)
     theta_r_is_npls = s41.get_Tr_i_n(ot_is_n, lrs_is_n, Xot_is, XLr_is, XC_is)
 
+    # 家具の温度 Tfun を計算 式(15)
+    theta_frnt_is_n = s41.get_Tfun_i_n(
+        ss.c_cap_frnt_is,
+        old_theta_frnt_is,
+        ss.c_fun_is, theta_r_is_npls,
+        ss.q_sol_frnt_is_ns[:, n]
+    )
+
+    # 表面温度の計算 式(23)
+    ts_is_k_n = a1.get_surface_temperature(
+        wsr_jstrs=ss.wsr_jstrs,
+        wsb_jstrs=ss.wsb_jstrs,
+        wsc_is_jstrs_npls=wsc_is_jstrs_npls,
+        wsv_is_jstrs_npls=wsv_is_jstrs_npls,
+        theta_r_is_npls=theta_r_is_npls,
+        lrs_is_n=lrs_is_n,
+        p=ss.p
+    )
+
+    # MRT_i_n、AST、平均放射温度の計算
+    theta_mrt_is_n_pls = get_MRT(
+        fot_jstrs=ss.fot_jstrs,
+        ts_is_k_n=ts_is_k_n)
+
     for i, s in enumerate(spaces):
 
         theta_r_i_npls = theta_r_is_npls[i]
 
-        old_theta_frnt_i = s.old_theta_frnt_i
-
-        # 家具の温度 Tfun を計算 式(15)
-        theta_frnt_i_n = s41.get_Tfun_i_n(s.c_cap_frnt_i, old_theta_frnt_i, s.c_fun_i, theta_r_i_npls, s.q_sol_frnt_i_ns[n])
-
-        wsc_i_jstrs_npls = np.split(wsc_is_jstrs_npls, start_indices)[i]
-
-        wsv_i_jstrs_npls = np.split(wsv_is_jstrs_npls, start_indices)[i]
-
-        # 表面温度の計算 式(23)
-        Ts_i_k_n = a1.get_surface_temperature(s.WSR_i_k, s.WSB_i_k, wsc_i_jstrs_npls, wsv_i_jstrs_npls, theta_r_i_npls, lrs_is_n[i])
-
-        # MRT_i_n、AST、平均放射温度の計算
-        theta_mrt_i_n_pls = get_MRT(s.Fot_i_g, Ts_i_k_n)
+        Ts_i_k_n = np.split(ts_is_k_n, start_indices)[i]
 
         # 室内表面熱流の計算 式(28)
         Qc, Qr, q_srf_i_jstrs_n = a1.calc_qi(
@@ -385,12 +396,12 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
         s.theta_srf_dsh_a_i_jstrs_n_m = theta_srf_dsh_a_i_jstrs_npls_ms
         s.theta_srf_dsh_t_i_jstrs_n_m = theta_srf_dsh_t_i_jstrs_npls_ms
         s.operation_mode = operation_mode_i_n
-        s.old_theta_frnt_i = theta_frnt_i_n
+        s.old_theta_frnt_i = theta_frnt_is_n[i]
         s.theta_r_i_npls = theta_r_i_npls
         s.q_srf_i_jstrs_n = q_srf_i_jstrs_n
         s.xf_i_npls = xf_i_n
         s.x_r_i_n = x_r_i_n_pls
-        s.theta_mrt_i_n = theta_mrt_i_n_pls
+        s.theta_mrt_i_n = theta_mrt_is_n_pls[i]
         s.v_hum_i_n = v_hum_i_n_pls
         s.theta_cl_i_n = t_cl_i_n_pls
         s.p_a_i_n = p_v_i_n_pls
@@ -404,13 +415,13 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
         s.logger.q_hum_i_ns[n] = q_hum_is_n[i]
         s.logger.x_hum_i_ns[n] = x_hum_is_n[i]
         s.logger.operation_mode[n] = operation_mode_i_n
-        s.logger.theta_frnt_i_ns[n] = theta_frnt_i_n
+        s.logger.theta_frnt_i_ns[n] = theta_frnt_is_n[i]
         s.logger.OT_i_n[n] = ot_is_n[i]
-        s.logger.Qfuns_i_n[n] = s41.get_Qfuns(s.c_fun_i, theta_r_i_npls, theta_frnt_i_n)
+        s.logger.Qfuns_i_n[n] = s41.get_Qfuns(s.c_fun_i, theta_r_i_npls, theta_frnt_is_n[i])
         s.logger.Qc[:, n] = Qc
         s.logger.Qr[:, n] = Qr
         s.logger.Ts_i_k_n[:, n] = Ts_i_k_n
-        s.logger.MRT_i_n[n] = theta_mrt_i_n_pls
+        s.logger.MRT_i_n[n] = theta_mrt_is_n_pls[i]
         # 室内側等価温度の計算 式(29)
         s.logger.Tei_i_k_n[:, n] = a1.calc_Tei(
             s.h_c_bnd_i_jstrs, s.h_r_bnd_i_jstrs, s.q_sol_srf_i_jstrs_ns[:, n], s.flr_i_k,
@@ -427,8 +438,9 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
 
 
 # MRTの計算
-def get_MRT(fot, Ts) -> float:
-    return float(np.sum(fot * Ts))
+def get_MRT(fot_jstrs, ts_is_k_n) -> np.ndarray:
+
+    return np.dot(fot_jstrs, ts_is_k_n.reshape(-1, 1)).flatten()
 
 
 # ASTの計算

@@ -280,10 +280,11 @@ def get_Tfun_i_n(Capfun, Tfun_i_n_m1, Cfun, Tr, Qsolfun):
 
     delta_t = a18.get_delta_t()
 
-    if Capfun > 0.0:
-        return (Capfun / delta_t * Tfun_i_n_m1 + Cfun * Tr + Qsolfun) / (Capfun / delta_t + Cfun)
-    else:
-        return 0.0
+#    if Capfun > 0.0:
+#        return (Capfun / delta_t * Tfun_i_n_m1 + Cfun * Tr + Qsolfun) / (Capfun / delta_t + Cfun)
+#    else:
+#        return 0.0
+    return np.where(Capfun > 0.0, (Capfun / delta_t * Tfun_i_n_m1 + Cfun * Tr + Qsolfun) / (Capfun / delta_t + Cfun), 0.0)
 
 
 def get_Qfuns(Cfun, Tr, Tfun):
