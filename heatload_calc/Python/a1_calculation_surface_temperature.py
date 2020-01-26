@@ -8,9 +8,14 @@ import numpy as np
 # ********** 室内表面温度 **********
 
 # 表面温度の計算 式(23)
-def get_surface_temperature(matWSR, matWSB, matWSC, matWSV, Tr, Lrs):
-    return matWSR * Tr + matWSC + matWSV + matWSB * Lrs
+def get_surface_temperature(wsr_jstrs, wsb_jstrs, wsc_is_jstrs_npls, wsv_is_jstrs_npls, theta_r_is_npls, lrs_is_n, p):
 
+    return (
+        wsr_jstrs * np.dot(p.T, theta_r_is_npls.reshape(-1, 1)).flatten()
+        + wsc_is_jstrs_npls
+        + wsv_is_jstrs_npls
+        + wsb_jstrs * np.dot(p.T, lrs_is_n.reshape(-1, 1)).flatten()
+    )
 
 # ********** 表面温度を計算するための各種係数 **********
 
@@ -163,7 +168,9 @@ def get_cvl_i_jstrs_npls(
 
 
 # 室内表面熱流の計算 式(28)
-def calc_qi(hic, area, hir, RSsol, flr, Ts, Tr: float, Fmrt: float, Lr: float, Beta: float):
+def calc_qi(
+        h_c_bnd_jstrs, a_bnd_jstrs, h_r_bnd_jstrs, q_sol_srf_jstrs_n, flr_is_k,
+        ts_is_k_n, theta_r_is_npls: float, f_mrt_jstrs: float, lrs_is_n: float, beta_is: float, p):
     """
     :param Tr: 室温
     :param Tsx: 形態係数加重平均表面温度
@@ -171,53 +178,29 @@ def calc_qi(hic, area, hir, RSsol, flr, Ts, Tr: float, Fmrt: float, Lr: float, B
     :param Beta:
     :return:
     """
-    # 対流成分
-    Qc = get_Qc(hic, area, Tr, Ts)
+
+    # 対流成分, W
+    Qc = h_c_bnd_jstrs * a_bnd_jstrs * (np.dot(p.T, theta_r_is_npls).flatten() - ts_is_k_n)
 
     # 平均放射温度の計算
-    Tsx = get_Tsx(Fmrt, Ts)
+    Tsx = (np.dot(f_mrt_jstrs, ts_is_k_n.reshape(-1, 1)).flatten())
 
-    # 放射成分
-    Qr = get_Qr(hir, area, Tsx, Ts)
+    # 放射成分, W
+    Qr = h_r_bnd_jstrs * a_bnd_jstrs * (np.dot(p.T, Tsx.reshape(-1, 1)).flatten() - ts_is_k_n)
 
-    # 短波長熱取得成分
-    RS = get_RS(RSsol, area)
+    # 短波長熱取得成分, W
+    RS = q_sol_srf_jstrs_n * a_bnd_jstrs
 
-    # 放射暖房成分
-    Lr = get_Lr(flr, Lr, Beta)
+    # 放射暖房成分, W
+    Lr = flr_is_k * np.dot(p.T, (lrs_is_n * (1.0 - beta_is)).reshape(-1, 1)).flatten()
 
-    # 表面熱流合計
-    Qt = get_Qt(Qc, Qr, Lr, RS)
+    # 表面熱流合計, W
+    Qt = Qc + Qr + Lr + RS
 
     # 前時刻熱流の保持
-    oldqi = get_qi(Qt, area)
+    oldqi = Qt / a_bnd_jstrs
 
     return Qc, Qr, oldqi
-
-
-# 室内表面熱流 - 対流成分 [W]
-def get_Qc(hic, area, Tr, Ts):
-    return hic * area * (Tr - Ts)
-
-
-# 室内表面熱流 - 放射成分 [W]
-def get_Qr(hir, area, Tsx, Ts):
-    return hir * area * (Tsx - Ts)
-
-
-# 室内表面熱流 - 短波長熱取得成分 [W]
-def get_RS(RSsol, area):
-    return RSsol * area
-
-
-# 室内表面熱流 - 放射暖房成分 [W]
-def get_Lr(flr, Lr, Beta):
-    return flr * Lr * (1.0 - Beta)
-
-
-# 表面熱流合計 [W]
-def get_Qt(Qc, Qr, Lr, RS):
-    return Qc + Qr + Lr + RS
 
 
 # 室内表面熱流 [W/m2]

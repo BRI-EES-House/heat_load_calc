@@ -273,16 +273,30 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
         fot_jstrs=ss.fot_jstrs,
         ts_is_k_n=ts_is_k_n)
 
+    # 室内表面熱流の計算 式(28)
+    Qcs, Qrs, q_srf_is_jstrs_n = a1.calc_qi(
+        h_c_bnd_jstrs=ss.h_c_bnd_jstrs,
+        a_bnd_jstrs=ss.a_bnd_jstrs,
+        h_r_bnd_jstrs=ss.h_r_bnd_jstrs,
+        q_sol_srf_jstrs_n=ss.q_sol_srf_jstrs_ns[:, n],
+        flr_is_k=ss.flr_is_k,
+        ts_is_k_n=ts_is_k_n,
+        theta_r_is_npls=theta_r_is_npls,
+        f_mrt_jstrs=ss.f_mrt_jstrs,
+        lrs_is_n=lrs_is_n,
+        beta_is=ss.beta_is,
+        p=ss.p
+    )
+
     for i, s in enumerate(spaces):
 
+        Ts_i_k_n = np.split(ts_is_k_n, start_indices)[i]
         theta_r_i_npls = theta_r_is_npls[i]
 
-        Ts_i_k_n = np.split(ts_is_k_n, start_indices)[i]
 
-        # 室内表面熱流の計算 式(28)
-        Qc, Qr, q_srf_i_jstrs_n = a1.calc_qi(
-            s.h_c_bnd_i_jstrs, s.a_bnd_i_jstrs, s.h_r_bnd_i_jstrs, s.q_sol_srf_i_jstrs_ns[:, n], s.flr_i_k,
-            Ts_i_k_n, theta_r_i_npls, s.F_mrt_i_g, lrs_is_n[i], s.Beta_i)
+        Qc = np.split(Qcs, start_indices)[i]
+        Qr = np.split(Qrs, start_indices)[i]
+        q_srf_i_jstrs_n = np.split(q_srf_is_jstrs_n, start_indices)[i]
 
         # ********** 室湿度 xr、除湿量 G_hum、湿加湿熱量 Ll の計算 **********
 

@@ -436,6 +436,9 @@ class Spaces:
         # 放射暖房有無（Trueなら放射暖房あり）
         self.is_radiative_heating_is = np.array([s.is_radiative_heating for s in spaces])
 
+        # 放射暖房対流比率
+        self.beta_is = np.array([s.Beta_i for s in spaces])
+
         # === 境界j*に関すること ===
 
         # 統合された境界j*の吸熱応答係数の初項, m2K/W, [j*]
@@ -471,6 +474,11 @@ class Spaces:
         for i, s in enumerate(spaces):
             self.fot_jstrs[i, s_idcs[i]:s_idcs[i+1]] = s.Fot_i_g
 
+        # 平均放射温度計算時の各部位表面温度の重み計算 式(101)
+        self.f_mrt_jstrs = np.zeros((len(spaces), total_number_of_bdry_is))
+        for i, s in enumerate(spaces):
+            self.f_mrt_jstrs[i, s_idcs[i]:s_idcs[i+1]] = s.F_mrt_i_g
+
         # 統合された境界j*の種類, [j*]
         self.boundary_type_jstrs = np.concatenate([s.boundary_type_i_jstrs for s in spaces])
 
@@ -487,6 +495,8 @@ class Spaces:
         self.wsr_jstrs = np.concatenate([s.WSR_i_k for s in spaces])
         self.wsb_jstrs = np.concatenate([s.WSB_i_k for s in spaces])
 
+        # 床暖房の発熱部位？
+        self.flr_is_k = np.concatenate([s.flr_i_k for s in spaces])
 
 
 def get_start_indices2(spaces):
