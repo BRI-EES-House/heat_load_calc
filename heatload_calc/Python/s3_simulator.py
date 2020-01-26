@@ -290,16 +290,6 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
 
     for i, s in enumerate(spaces):
 
-        Ts_i_k_n = np.split(ts_is_k_n, start_indices)[i]
-        theta_r_i_npls = theta_r_is_npls[i]
-
-
-        Qc = np.split(Qcs, start_indices)[i]
-        Qr = np.split(Qrs, start_indices)[i]
-        q_srf_i_jstrs_n = np.split(q_srf_is_jstrs_n, start_indices)[i]
-
-        # ********** 室湿度 xr、除湿量 G_hum、湿加湿熱量 Ll の計算 **********
-
         # 式(17)
         BRMX_pre = s42.get_BRMX(
             v_reak_i_n=v_reak_is_n[i],
@@ -336,6 +326,7 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
         # バイパスファクターBF 式(114)
         BF = a16.get_BF()
 
+        theta_r_i_npls = theta_r_is_npls[i]
         operation_mode_i_n = operation_mode_is_n[i]
 
         # i室のn時点におけるエアコンの風量[m3/s]
@@ -406,6 +397,8 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
 
         theta_srf_dsh_t_i_jstrs_npls_ms = np.split(theta_srf_dsh_t_is_jstrs_npls_ms, start_indices)[i]
 
+        q_srf_i_jstrs_n = np.split(q_srf_is_jstrs_n, start_indices)[i]
+
         # 前の時刻からの値
         s.theta_srf_dsh_a_i_jstrs_n_m = theta_srf_dsh_a_i_jstrs_npls_ms
         s.theta_srf_dsh_t_i_jstrs_n_m = theta_srf_dsh_t_i_jstrs_npls_ms
@@ -420,8 +413,11 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
         s.theta_cl_i_n = t_cl_i_n_pls
         s.p_a_i_n = p_v_i_n_pls
 
+        Ts_i_k_n = np.split(ts_is_k_n, start_indices)[i]
         theta_rear_i_jstrs_n = np.split(theta_rear_is_jstrs_n, start_indices)[i]
         v_hum_i_n = s.v_hum_i_n
+        Qc = np.split(Qcs, start_indices)[i]
+        Qr = np.split(Qrs, start_indices)[i]
 
         # ロギング
         s.logger.theta_r_i_ns[n] = theta_r_i_npls
