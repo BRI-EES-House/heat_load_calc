@@ -548,10 +548,10 @@ def initialize_conditions(ss: Spaces):
     total_number_of_bdry = ss.total_number_of_bdry
 
     # ステップnの室iにおける空気温度, degree C, [i]
-    theta_r_is_n = np.full(total_number_of_spaces, a18.get_Tr_initial())
+    theta_r_is_n = np.full(total_number_of_spaces, a18.get_theta_r_initial())
 
     # ステップnの室iにおける衣服の表面温度, degree C
-    theta_cl_is_n = np.full(total_number_of_spaces, a18.get_Tr_initial())
+    theta_cl_is_n = np.full(total_number_of_spaces, a18.get_theta_r_initial())
 
     # ステップnの室iにおける人体周りの風速, m/s
     v_hum_is_n = np.zeros(total_number_of_spaces)

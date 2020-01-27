@@ -118,7 +118,7 @@ def make_space(room: Dict,
     n_ntrl_vent_i = room['natural_vent_time']
 
     # 室iの初期温度, degree C
-    theta_r_i_initial = a18.get_Tr_initial()
+    theta_r_i_initial = a18.get_theta_r_initial()
 
     x_r_i_initial = a18.get_xr_initial()
 

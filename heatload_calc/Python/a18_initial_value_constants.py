@@ -8,7 +8,7 @@ import Psychrometrics as psy
 # ********** 表8 各種変数の初期値 **********
 
 
-def get_Tr_initial() -> float:
+def get_theta_r_initial() -> float:
     return 15.0
 
 
