@@ -76,6 +76,7 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
     q_srf_is_jstrs_n = np.concatenate([s.q_srf_i_jstrs_n for s in spaces])
     theta_srf_dsh_a_is_jstrs_n_ms = np.concatenate([s.theta_srf_dsh_a_i_jstrs_n_m for s in spaces])
     theta_srf_dsh_t_is_jstrs_n_m = np.concatenate([s.theta_srf_dsh_t_i_jstrs_n_m for s in spaces])
+    xf_is_npls = np.array([s.xf_i_npls for s in spaces])
 
     # ステップnの室iにおける人体周りの対流熱伝達率, W/m2K, [i]
     h_hum_c_is_n = a35.get_h_hum_c_is_n(theta_r_is_n=theta_r_is_n, t_cl_is_n=theta_cl_is_n, v_hum_is_n=v_hum_is_n)
@@ -298,28 +299,25 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
         v_int_vent_is=ss.v_int_vent_is
     )
 
+    # 式(18)
+    BRXC_pre_is = s42.get_BRXC(
+        v_reak_is_n=v_reak_is_n,
+        gf_is=ss.gf_is,
+        cx_is=ss.cx_is,
+        v_room_cap_is=ss.v_room_cap_is,
+        x_r_is_n=x_r_is_n,
+        xf_is_npls=xf_is_npls,
+        x_gen_is_n=x_gen_is_n,
+        xo=xo_n,
+        v_mec_vent_is_n=ss.v_mec_vent_is_ns[:, n],
+        v_int_vent_is=ss.v_int_vent_is
+    )
+
     for i, s in enumerate(spaces):
 
-        xf_i_npls = s.xf_i_npls
-        x_r_i_n = s.x_r_i_n
+        BRXC_pre = BRXC_pre_is[i]
 
-        # ステップnの室iにおける隣室i*からの室間換気の絶対湿度, kg/kgDA, [i*]
-        x_r_int_vent_i_istrs_n = np.array([x_r_is_n[x] for x in s.next_room_idxs_i])
-
-        # 式(18)
-        BRXC_pre = s42.get_BRXC(
-            v_reak_i_n=v_reak_is_n[i],
-            Gf=s.Gf_i,
-            Cx=s.Cx_i,
-            volume=s.v_room_cap_i,
-            v_int_vent_i_istrs=s.v_int_vent_i_istrs,
-            xr_next_i_j_nm1=x_r_int_vent_i_istrs_n,
-            xr_i_nm1=x_r_i_n,
-            xf_i_nm1=xf_i_npls,
-            Lin=x_gen_is_n[i],
-            xo=xo_n,
-            v_mec_vent_i_n=s.v_mec_vent_i_ns[n]
-        )
+        xf_i_npls = xf_is_npls[i]
 
         # ==== ルームエアコン吹出絶対湿度の計算 ====
 

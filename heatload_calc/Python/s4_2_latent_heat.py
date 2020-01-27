@@ -40,21 +40,24 @@ def get_BRMX(v_reak_is_n, gf_is, cx_is, v_room_cap_is, v_mec_vent_is_n, v_int_ve
 
 
 # 式(18)
-def get_BRXC(v_reak_i_n, Gf, Cx, volume, xo, xr_i_nm1, xf_i_nm1, Lin, v_int_vent_i_istrs, xr_next_i_j_nm1, v_mec_vent_i_n):
-    # 外気の流入量
-    Voin = get_v_ex_i_n(v_reak_i_n=v_reak_i_n, v_mec_vent_i_n=v_mec_vent_i_n)
+def get_BRXC(
+        v_reak_is_n, gf_is, cx_is, v_room_cap_is, xo, x_r_is_n, xf_is_npls, x_gen_is_n,
+        v_mec_vent_is_n, v_int_vent_is):
+
+    # 外気の流入量, [i]
+    Voin = get_v_ex_i_n(v_reak_i_n=v_reak_is_n, v_mec_vent_i_n=v_mec_vent_is_n)
 
     # 湿気容量の項
-    temp = get_temp(Gf=Gf, Cx=Cx)
+    temp = get_temp(Gf=gf_is, Cx=cx_is)
 
     rhoa = a18.get_rho_air()
 
-    BRXC = rhoa * (volume / 900 * xr_i_nm1 + Voin * xo) \
-           + temp * xf_i_nm1 \
-           + Lin \
-           + np.sum([rhoa * v_int_vent_i_istrs * xr_next_i_j_nm1])
-
-    return BRXC
+    return (
+            rhoa * (v_room_cap_is / 900 * x_r_is_n + Voin * xo)
+            + temp * xf_is_npls
+            + x_gen_is_n
+            + rhoa * np.dot(v_int_vent_is, x_r_is_n.reshape(-1, 1)).flatten()
+            )
 
 
 # 式(19)
