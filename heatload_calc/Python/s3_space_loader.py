@@ -439,6 +439,9 @@ class Spaces:
         # 放射暖房有無（Trueなら放射暖房あり）
         self.is_radiative_heating_is = np.array([s.is_radiative_heating for s in spaces])
 
+        # 放射冷房有無（Trueなら放射冷房あり）
+        self.is_radiative_cooling_is = np.array([s.is_radiative_cooling for s in spaces])
+
         # 放射暖房対流比率
         self.beta_is = np.array([s.Beta_i for s in spaces])
 

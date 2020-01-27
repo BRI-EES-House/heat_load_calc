@@ -367,24 +367,11 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
 
     t_cl_i_n_pls = a35.get_t_cl_i_n(clo_i_n=clo_is_n, ot_i_n=ot_is_n, h_a_i_n=h_hum_is_n)
 
+    v_hum_i_n_pls = get_v_hum_is_n_pls(operation_mode_is_n, ss.is_radiative_heating_is, ss.is_radiative_cooling_is)
+
     for i, s in enumerate(spaces):
 
         operation_mode_i_n = operation_mode_is_n[i]
-
-        if operation_mode_i_n == OperationMode.HEATING:
-            if s.is_radiative_heating:
-                v_hum_i_n_pls = 0.0
-            else:
-                v_hum_i_n_pls = 0.2
-        elif operation_mode_i_n == OperationMode.COOLING:
-            if s.is_radiative_cooling:
-                v_hum_i_n_pls = 0.0
-            else:
-                v_hum_i_n_pls = 0.2
-        elif operation_mode_i_n == OperationMode.STOP_CLOSE:
-            v_hum_i_n_pls = 0.0
-        elif operation_mode_i_n == OperationMode.STOP_OPEN:
-            v_hum_i_n_pls = 0.1
 
         theta_srf_dsh_a_i_jstrs_npls_ms = np.split(theta_srf_dsh_a_is_jstrs_npls_ms, start_indices)[i]
 
@@ -406,7 +393,7 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
         s.xf_i_npls = xf_i_n[i]
         s.x_r_i_n = x_r_i_n_pls
         s.theta_mrt_i_n = theta_mrt_is_n_pls[i]
-        s.v_hum_i_n = v_hum_i_n_pls
+        s.v_hum_i_n = v_hum_i_n_pls[i]
         s.theta_cl_i_n = t_cl_i_n_pls[i]
         s.p_a_i_n = p_v_is_n_pls[i]
 
@@ -442,6 +429,29 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
         s.logger.Clo_i_n[n] = clo_is_n[i]
         s.logger.RH_i_n[n] = rh_i_n_pls[i]
         s.logger.x_r_i_ns[n] = x_r_i_n_pls
+
+
+def get_v_hum_is_n_pls(operation_mode_is_n, is_radiative_heating_is, is_radiative_cooling_is):
+
+    return np.vectorize(get_v_hum_i_n_pls)(operation_mode_is_n, is_radiative_heating_is, is_radiative_cooling_is)
+
+
+def get_v_hum_i_n_pls(operation_mode_i_n, is_radiative_heating, is_radiative_cooling):
+    if operation_mode_i_n == OperationMode.HEATING:
+        if is_radiative_heating:
+            v_hum_i_n_pls = 0.0
+        else:
+            v_hum_i_n_pls = 0.2
+    elif operation_mode_i_n == OperationMode.COOLING:
+        if is_radiative_cooling:
+            v_hum_i_n_pls = 0.0
+        else:
+            v_hum_i_n_pls = 0.2
+    elif operation_mode_i_n == OperationMode.STOP_CLOSE:
+        v_hum_i_n_pls = 0.0
+    elif operation_mode_i_n == OperationMode.STOP_OPEN:
+        v_hum_i_n_pls = 0.1
+    return v_hum_i_n_pls
 
 
 # MRTの計算
