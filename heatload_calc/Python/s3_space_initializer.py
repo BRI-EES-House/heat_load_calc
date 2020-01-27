@@ -154,7 +154,6 @@ def make_space(room: Dict,
     air_conditioning_demand = np.where(air_conditioning_demand2 == "on", True, False)
 
     theta_rear_initial = a18.get_Teo_initial()
-    TsdA_initial = a18.get_TsdA_initial()
     TsdT_initial = a18.get_TsdT_initial()
 
     # 部位の人体に対する形態係数を計算 表6
@@ -319,7 +318,6 @@ def make_space(room: Dict,
         heat_generation_lighting_schedule=heat_generation_lighting_schedule,
         number_of_people_schedule=number_of_people_schedule,
         air_conditioning_demand=air_conditioning_demand,
-        TsdA_initial=TsdA_initial,
         TsdT_initial=TsdT_initial,
         Fot_i_g=Fot_i_g,
         A_total_i=A_total_i,

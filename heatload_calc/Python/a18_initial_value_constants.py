@@ -12,7 +12,15 @@ def get_Tr_initial() -> float:
     return 15.0
 
 
-def get_TsdA_initial() -> float:
+def get_theta_dsh_srf_a_initial() -> float:
+    """
+    指数項mの吸熱応答の項別成分に初期値を与える。
+
+    Returns:
+        ステップnの統合された境界j*における指数項mの吸熱応答の項別成分, degree C
+    """
+
+    # 初期値を0.0℃とする。
     return 0.0
 
 

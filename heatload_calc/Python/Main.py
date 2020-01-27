@@ -12,7 +12,7 @@ from s3_space_initializer import make_space
 import s3_simulator as simulator
 import a33_results_exporting as exporter
 import a37_groundonly_runup_calculation as a37
-from s3_space_loader import Spaces
+from s3_space_loader import Spaces, initialize_conditions, Conditions
 
 # 熱負荷計算の実行
 def calc_heat_load(d: Dict):
@@ -59,35 +59,48 @@ def calc_heat_load(d: Dict):
     spaces2 = Spaces(spaces=spaces)
     start_indices = simulator.get_start_indices(spaces=spaces)
 
+    conditions_n = initialize_conditions(spaces=spaces, ss=spaces2)
+
     # 助走計算1(土壌のみ)
     print('助走計算1（土壌のみ）')
     Tave = a37.get_a0(theta_o_ns)
 
-    theta_srf_dsh_a_is_jstrs_n_ms = np.concatenate([s.theta_srf_dsh_a_i_jstrs_n_m for s in spaces])
-    q_srf_is_jstrs_n = np.concatenate([s.q_srf_i_jstrs_n for s in spaces])
-
     for n in range(-n_step_run_up, -n_step_run_up_build):
-        theta_srf_dsh_a_is_jstrs_n_ms, q_srf_is_jstrs_n = simulator.run_tick_groundonly(
+        conditions_n = simulator.run_tick_groundonly(
             To_n=theta_o_ns[n],
             Tave=Tave,
-            theta_srf_dsh_a_is_jstrs_n_ms=theta_srf_dsh_a_is_jstrs_n_ms,
-            q_srf_is_jstrs_n=q_srf_is_jstrs_n,
+            theta_srf_dsh_a_is_jstrs_n_ms=conditions_n.theta_dsh_srf_a_jstrs_n_ms,
+            q_srf_is_jstrs_n=conditions_n.q_srf_jstrs_n,
             ss=spaces2
         )
-
-    for i, s in enumerate(spaces):
-        s.theta_srf_dsh_a_i_jstrs_n_m = np.split(theta_srf_dsh_a_is_jstrs_n_ms, start_indices)[i]
-        s.q_srf_i_jstrs_n = np.split(q_srf_is_jstrs_n, start_indices)[i]
 
     # 助走計算2(室温、熱負荷)
     print('助走計算1（建物全体）')
     for n in range(-n_step_run_up_build, 0):
-        simulator.run_tick(spaces=spaces, theta_o_n=theta_o_ns[n], xo_n=x_o_ns[n], n=n, start_indices=start_indices, ss=spaces2)
+        conditions_n = simulator.run_tick(
+            spaces=spaces,
+            theta_o_n=theta_o_ns[n],
+            xo_n=x_o_ns[n],
+            n=n,
+            start_indices=start_indices,
+            ss=spaces2,
+            theta_srf_dsh_a_is_jstrs_n_ms=conditions_n.theta_dsh_srf_a_jstrs_n_ms,
+            q_srf_is_jstrs_n=conditions_n.q_srf_jstrs_n
+        )
 
     # 本計算(室温、熱負荷)
     print('本計算')
     for n in range(0, n_step_main):
-        simulator.run_tick(spaces=spaces, theta_o_n=theta_o_ns[n], xo_n=x_o_ns[n], n=n, start_indices=start_indices, ss=spaces2)
+        conditions_n = simulator.run_tick(
+            spaces=spaces,
+            theta_o_n=theta_o_ns[n],
+            xo_n=x_o_ns[n],
+            n=n,
+            start_indices=start_indices,
+            ss=spaces2,
+            theta_srf_dsh_a_is_jstrs_n_ms=conditions_n.theta_dsh_srf_a_jstrs_n_ms,
+            q_srf_is_jstrs_n=conditions_n.q_srf_jstrs_n
+        )
 #    [simulator.run_tick(spaces=spaces, theta_o_n=theta_o_ns[n], xo_n=x_o_ns[n], n=n) for n in range(0, n_step_main)]
 
     print('ログ作成')

@@ -12,7 +12,7 @@ import a16_blowing_condition_rac as a16
 import a18_initial_value_constants as a18
 import a35_PMV as a35
 from a39_global_parameters import OperationMode
-from s3_space_loader import Space, Spaces
+from s3_space_loader import Space, Spaces, Conditions
 
 import Psychrometrics as psy
 from a39_global_parameters import BoundaryType
@@ -53,11 +53,14 @@ def run_tick_groundonly(To_n: float, Tave: float, theta_srf_dsh_a_is_jstrs_n_ms,
 
     q_srf_is_jstrs_n[gs] = h_i_bnd_jstrs[gs] * (To_n - Ts_is_k_n)
 
-    return theta_srf_dsh_a_is_jstrs_n_ms, q_srf_is_jstrs_n
+    return Conditions(
+        theta_dsh_srf_a_jstrs_n_ms=theta_srf_dsh_a_is_jstrs_n_ms,
+        q_srf_jstrs_n=q_srf_is_jstrs_n
+    )
 
 
 # 室温、熱負荷の計算
-def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_indices: List[int], ss: Spaces):
+def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_indices: List[int], ss: Spaces, theta_srf_dsh_a_is_jstrs_n_ms, q_srf_is_jstrs_n):
 
     # ステップnの室iにおける室温, degree C, [i]
     theta_r_is_n = np.array([s.theta_r_i_npls for s in spaces])
@@ -73,9 +76,10 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
     p_a_is_n = np.array([s.p_a_i_n for s in spaces])
     operation_mode_is_n_mns = np.array([s.operation_mode for s in spaces])
     # 前時刻の室内側表面熱流
-    q_srf_is_jstrs_n = np.concatenate([s.q_srf_i_jstrs_n for s in spaces])
-    theta_srf_dsh_a_is_jstrs_n_ms = np.concatenate([s.theta_srf_dsh_a_i_jstrs_n_m for s in spaces])
+#    q_srf_is_jstrs_n = np.concatenate([s.q_srf_i_jstrs_n for s in spaces])
+#    theta_srf_dsh_a_is_jstrs_n_ms = np.concatenate([s.theta_srf_dsh_a_i_jstrs_n_m for s in spaces])
     theta_srf_dsh_t_is_jstrs_n_m = np.concatenate([s.theta_srf_dsh_t_i_jstrs_n_m for s in spaces])
+
     xf_is_npls = np.array([s.xf_i_npls for s in spaces])
 
     # ステップnの室iにおける人体周りの対流熱伝達率, W/m2K, [i]
@@ -373,23 +377,17 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
 
         operation_mode_i_n = operation_mode_is_n[i]
 
-        theta_srf_dsh_a_i_jstrs_npls_ms = np.split(theta_srf_dsh_a_is_jstrs_npls_ms, start_indices)[i]
-
         theta_srf_dsh_t_i_jstrs_npls_ms = np.split(theta_srf_dsh_t_is_jstrs_npls_ms, start_indices)[i]
 
         x_r_i_n_pls = x_r_i_ns_pls[i]
 
-        q_srf_i_jstrs_n = np.split(q_srf_is_jstrs_n, start_indices)[i]
-
         theta_r_i_npls = theta_r_is_npls[i]
 
         # 前の時刻からの値
-        s.theta_srf_dsh_a_i_jstrs_n_m = theta_srf_dsh_a_i_jstrs_npls_ms
         s.theta_srf_dsh_t_i_jstrs_n_m = theta_srf_dsh_t_i_jstrs_npls_ms
         s.operation_mode = operation_mode_i_n
         s.old_theta_frnt_i = theta_frnt_is_n[i]
         s.theta_r_i_npls = theta_r_i_npls
-        s.q_srf_i_jstrs_n = q_srf_i_jstrs_n
         s.xf_i_npls = xf_i_n[i]
         s.x_r_i_n = x_r_i_n_pls
         s.theta_mrt_i_n = theta_mrt_is_n_pls[i]
@@ -430,6 +428,10 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
         s.logger.RH_i_n[n] = rh_i_n_pls[i]
         s.logger.x_r_i_ns[n] = x_r_i_n_pls
 
+    return Conditions(
+        theta_dsh_srf_a_jstrs_n_ms=theta_srf_dsh_a_is_jstrs_npls_ms,
+        q_srf_jstrs_n=q_srf_is_jstrs_n
+    )
 
 def get_v_hum_is_n_pls(operation_mode_is_n, is_radiative_heating_is, is_radiative_cooling_is):
 
