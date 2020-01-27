@@ -445,21 +445,23 @@ def get_v_hum_is_n_pls(operation_mode_is_n, is_radiative_heating_is, is_radiativ
 
 
 def get_v_hum_i_n_pls(operation_mode_i_n, is_radiative_heating, is_radiative_cooling):
+
     if operation_mode_i_n == OperationMode.HEATING:
         if is_radiative_heating:
-            v_hum_i_n_pls = 0.0
+            return 0.0
         else:
-            v_hum_i_n_pls = 0.2
+            return 0.2
     elif operation_mode_i_n == OperationMode.COOLING:
         if is_radiative_cooling:
-            v_hum_i_n_pls = 0.0
+            return 0.0
         else:
-            v_hum_i_n_pls = 0.2
+            return 0.2
     elif operation_mode_i_n == OperationMode.STOP_CLOSE:
-        v_hum_i_n_pls = 0.0
+        return 0.0
     elif operation_mode_i_n == OperationMode.STOP_OPEN:
-        v_hum_i_n_pls = 0.1
-    return v_hum_i_n_pls
+        return 0.1
+    else:
+        raise ValueError()
 
 
 # MRTの計算
