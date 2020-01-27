@@ -24,7 +24,7 @@ def get_theta_dsh_srf_a_initial() -> float:
     return 0.0
 
 
-def get_TsdT_initial() -> float:
+def get_theta_dsh_srf_t_initial() -> float:
     # TODO: 仕様書は15.0になっているが、実装は0.0相当だった
     return 0.0
 

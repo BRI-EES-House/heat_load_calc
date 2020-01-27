@@ -59,7 +59,7 @@ def calc_heat_load(d: Dict):
     spaces2 = Spaces(spaces=spaces)
     start_indices = simulator.get_start_indices(spaces=spaces)
 
-    conditions_n = initialize_conditions(spaces=spaces, ss=spaces2)
+    conditions_n = initialize_conditions(ss=spaces2)
 
     # 助走計算1(土壌のみ)
     print('助走計算1（土壌のみ）')
@@ -69,8 +69,7 @@ def calc_heat_load(d: Dict):
         conditions_n = simulator.run_tick_groundonly(
             To_n=theta_o_ns[n],
             Tave=Tave,
-            theta_srf_dsh_a_is_jstrs_n_ms=conditions_n.theta_dsh_srf_a_jstrs_n_ms,
-            q_srf_is_jstrs_n=conditions_n.q_srf_jstrs_n,
+            conditions_n=conditions_n,
             ss=spaces2
         )
 
@@ -84,8 +83,7 @@ def calc_heat_load(d: Dict):
             n=n,
             start_indices=start_indices,
             ss=spaces2,
-            theta_srf_dsh_a_is_jstrs_n_ms=conditions_n.theta_dsh_srf_a_jstrs_n_ms,
-            q_srf_is_jstrs_n=conditions_n.q_srf_jstrs_n
+            conditions_n=conditions_n
         )
 
     # 本計算(室温、熱負荷)
@@ -98,8 +96,7 @@ def calc_heat_load(d: Dict):
             n=n,
             start_indices=start_indices,
             ss=spaces2,
-            theta_srf_dsh_a_is_jstrs_n_ms=conditions_n.theta_dsh_srf_a_jstrs_n_ms,
-            q_srf_is_jstrs_n=conditions_n.q_srf_jstrs_n
+            conditions_n = conditions_n
         )
 #    [simulator.run_tick(spaces=spaces, theta_o_n=theta_o_ns[n], xo_n=x_o_ns[n], n=n) for n in range(0, n_step_main)]
 

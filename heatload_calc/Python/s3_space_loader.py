@@ -161,7 +161,7 @@ class Space:
             x_gen_except_hum_i_ns: np.ndarray, heat_generation_lighting_schedule: np.ndarray,
             number_of_people_schedule: np.ndarray,
             air_conditioning_demand: np.ndarray,
-            TsdT_initial: float, Fot_i_g: np.ndarray, A_total_i: float,
+            Fot_i_g: np.ndarray, A_total_i: float,
             qmax_c_i: float, qmin_c_i: float, Vmax_i: float, Vmin_i: float,
             is_radiative_heating: bool,
             Lrcap_i: float, is_radiative_cooling: bool, radiative_cooling_max_capacity: float,
@@ -253,7 +253,6 @@ class Space:
 
         self.ac_demand = air_conditioning_demand  # 当該時刻の空調需要（0：なし、1：あり）
 
-        self.theta_r_i_npls = theta_r_i_initial
         self.theta_mrt_i_n = theta_r_i_initial
         self.v_hum_i_n = 0.0
         # ステップnの室iにおける衣服の表面温度, degree C
@@ -263,9 +262,6 @@ class Space:
 
         # 水蒸気圧, Pa
         self.p_a_i_n = psy.get_p_vs(x_r_i_initial) * 0.5
-
-        # （26）式中の〖CVL〗_(i,l)の計算式右辺
-        self.theta_srf_dsh_t_i_jstrs_n_m = np.full((n_bnd_i_jstrs, 12), TsdT_initial)
 
         # 合計面積の計算
         self.A_total_i = A_total_i
@@ -376,6 +372,9 @@ class Space:
 class Spaces:
 
     def __init__(self, spaces: List[Space]):
+
+        # 室の数
+        self.total_number_of_spaces = len(spaces)
 
         # ステップnの室iにおける空調需要, [i, 8760*4]
         self.ac_demand_is_n = np.concatenate([[s.ac_demand] for s in spaces])
@@ -537,23 +536,34 @@ def get_start_indices2(spaces):
 
 
 Conditions = namedtuple('Conditions', [
+    'theta_r_is_n',
     'theta_dsh_srf_a_jstrs_n_ms',
+    'theta_dsh_srf_t_jstrs_n_ms',
     'q_srf_jstrs_n'
 ])
 
 
-def initialize_conditions(spaces: List[Space], ss: Spaces):
+def initialize_conditions(ss: Spaces):
 
+    total_number_of_spaces = ss.total_number_of_spaces
     total_number_of_bdry = ss.total_number_of_bdry
+
+    # ステップnの室温, degree C, [i]
+    theta_r_is_n = np.full(total_number_of_spaces, a18.get_Tr_initial())
 
     # ステップnの統合された境界j*における指数項mの吸熱応答の項別成分, degree C, [j*, 12]
     theta_dsh_srf_a_jstrs_n_ms = np.full((total_number_of_bdry, 12), a18.get_theta_dsh_srf_a_initial())
+
+    # ステップnの統合された境界j*における指数項mの貫流応答の項別成分, degree C, [j*, 12]
+    theta_dsh_srf_t_jstrs_n_ms = np.full((total_number_of_bdry, 12), a18.get_theta_dsh_srf_t_initial())
 
     # ステップnの統合された境界j*における表面熱流（壁体吸熱を正とする）, W/m2, [j*]
     q_srf_jstrs_n = np.zeros(total_number_of_bdry)
 
     return Conditions(
+        theta_r_is_n=theta_r_is_n,
         theta_dsh_srf_a_jstrs_n_ms=theta_dsh_srf_a_jstrs_n_ms,
+        theta_dsh_srf_t_jstrs_n_ms=theta_dsh_srf_t_jstrs_n_ms,
         q_srf_jstrs_n=q_srf_jstrs_n
     )
 
