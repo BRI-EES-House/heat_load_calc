@@ -56,6 +56,7 @@ def run_tick_groundonly(To_n: float, Tave: float, conditions_n: Conditions, ss: 
 
     return Conditions(
         theta_r_is_n=conditions_n.theta_r_is_n,
+        theta_cl_is_n=conditions_n.theta_cl_is_n,
         theta_dsh_srf_a_jstrs_n_ms=theta_srf_dsh_a_is_jstrs_n_ms,
         theta_dsh_srf_t_jstrs_n_ms=conditions_n.theta_dsh_srf_t_jstrs_n_ms,
         q_srf_jstrs_n=q_srf_is_jstrs_n
@@ -72,12 +73,12 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
 
     # ステップnの室iにおける室温, degree C, [i]
     theta_r_is_n = conditions_n.theta_r_is_n
-#    theta_r_is_n = np.array([s.theta_r_i_npls for s in spaces])
+    # ステップnの室iにおける着衣温度, degree C, [i]
+#    theta_cl_is_n = np.array([s.theta_cl_i_n for s in spaces])
+    theta_cl_is_n = conditions_n.theta_cl_is_n
 
     # ステップnの室iにおける絶対湿度, kg/kg(DA), [i]
     x_r_is_n = np.array([s.x_r_i_n for s in spaces])
-    # ステップnの室iにおける着衣温度, degree C, [i]
-    theta_cl_is_n = np.array([s.theta_cl_i_n for s in spaces])
     # ステップnの室iにおける人体周りの風速, m/s, [i]
     v_hum_is_n = np.array([s.v_hum_i_n for s in spaces])
     # ステップnの室iにおける平均放射温度, degree C, [i]
@@ -394,7 +395,6 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
         s.x_r_i_n = x_r_i_n_pls
         s.theta_mrt_i_n = theta_mrt_is_n_pls[i]
         s.v_hum_i_n = v_hum_i_n_pls[i]
-        s.theta_cl_i_n = t_cl_i_n_pls[i]
         s.p_a_i_n = p_v_is_n_pls[i]
 
         Ts_i_k_n = np.split(ts_is_k_n, start_indices)[i]
@@ -432,6 +432,7 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
 
     return Conditions(
         theta_r_is_n=theta_r_is_npls,
+        theta_cl_is_n=t_cl_i_n_pls,
         theta_dsh_srf_a_jstrs_n_ms=theta_srf_dsh_a_is_jstrs_npls_ms,
         theta_dsh_srf_t_jstrs_n_ms=theta_srf_dsh_t_is_jstrs_npls_ms,
         q_srf_jstrs_n=q_srf_is_jstrs_n

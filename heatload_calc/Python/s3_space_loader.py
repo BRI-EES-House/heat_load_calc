@@ -255,8 +255,6 @@ class Space:
 
         self.theta_mrt_i_n = theta_r_i_initial
         self.v_hum_i_n = 0.0
-        # ステップnの室iにおける衣服の表面温度, degree C
-        self.theta_cl_i_n = theta_r_i_initial
 
         self.x_r_i_n = x_r_i_initial
 
@@ -537,6 +535,7 @@ def get_start_indices2(spaces):
 
 Conditions = namedtuple('Conditions', [
     'theta_r_is_n',
+    'theta_cl_is_n',
     'theta_dsh_srf_a_jstrs_n_ms',
     'theta_dsh_srf_t_jstrs_n_ms',
     'q_srf_jstrs_n'
@@ -548,8 +547,11 @@ def initialize_conditions(ss: Spaces):
     total_number_of_spaces = ss.total_number_of_spaces
     total_number_of_bdry = ss.total_number_of_bdry
 
-    # ステップnの室温, degree C, [i]
+    # ステップnの室iにおける空気温度, degree C, [i]
     theta_r_is_n = np.full(total_number_of_spaces, a18.get_Tr_initial())
+
+    # ステップnの室iにおける衣服の表面温度, degree C
+    theta_cl_is_n = np.full(total_number_of_spaces, a18.get_Tr_initial())
 
     # ステップnの統合された境界j*における指数項mの吸熱応答の項別成分, degree C, [j*, 12]
     theta_dsh_srf_a_jstrs_n_ms = np.full((total_number_of_bdry, 12), a18.get_theta_dsh_srf_a_initial())
@@ -562,6 +564,7 @@ def initialize_conditions(ss: Spaces):
 
     return Conditions(
         theta_r_is_n=theta_r_is_n,
+        theta_cl_is_n=theta_cl_is_n,
         theta_dsh_srf_a_jstrs_n_ms=theta_dsh_srf_a_jstrs_n_ms,
         theta_dsh_srf_t_jstrs_n_ms=theta_dsh_srf_t_jstrs_n_ms,
         q_srf_jstrs_n=q_srf_jstrs_n
