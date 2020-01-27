@@ -4,6 +4,7 @@ from typing import List
 
 import a9_rear_surface_equivalent_temperature as a9
 import a14_furniture as a14
+import a16_blowing_condition_rac as a16
 import a18_initial_value_constants as a18
 from a39_global_parameters import OperationMode
 
@@ -282,6 +283,8 @@ class Space:
         self.Vmax_i = Vmax_i
         self.Vmin_i = Vmin_i
 
+        self.get_vac_xeout = a16.make_get_vac_xeout_def(Vmin=Vmin_i, Vmax=Vmax_i, qmin_c=qmin_c_i, qmax_c=qmax_c_i)
+
         # 放射暖房有無（Trueなら放射暖房あり）
         self.is_radiative_heating = is_radiative_heating
 
@@ -447,6 +450,20 @@ class Spaces:
 
         # 室iの容積, m3
         self.v_room_cap_is = np.array([s.v_room_cap_i for s in spaces])
+
+        def get_vac_xeout_is(lcs_is_n, theta_r_is_npls, operation_mode_is_n):
+
+            vac_is_n = []
+            xeout_is_n = []
+
+            for s, lcs_i_n, theta_r_i_npls, operation_mode_i_n in zip(spaces, lcs_is_n, theta_r_is_npls, operation_mode_is_n):
+                Vac_n_i, xeout_i_n = s.get_vac_xeout(lcs_i_n, theta_r_i_npls, operation_mode_i_n)
+                vac_is_n.append(Vac_n_i)
+                xeout_is_n.append(xeout_i_n)
+
+            return np.array(vac_is_n), np.array(xeout_is_n)
+
+        self.get_vac_xeout_is = get_vac_xeout_is
 
         # === 境界j*に関すること ===
 

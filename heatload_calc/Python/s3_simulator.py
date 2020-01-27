@@ -313,70 +313,63 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
         v_int_vent_is=ss.v_int_vent_is
     )
 
+    # ==== ルームエアコン吹出絶対湿度の計算 ====
+
+    # i室のn時点におけるエアコンの（BFを考慮した）相当風量[m3/s]
+    # 空調の熱交換部飽和絶対湿度の計算
+    v_ac_is_n, x_e_out_is_n = ss.get_vac_xeout_is(
+        lcs_is_n=lcs_is_n,
+        theta_r_is_npls=theta_r_is_npls,
+        operation_mode_is_n=operation_mode_is_n
+    )
+
+    # 空調機除湿の項 式(20)より
+    RhoVac = a16.get_RhoVac(v_ac_is_n)
+
+    # 室絶対湿度[kg/kg(DA)]の計算
+    BRMX_base = BRMX_pre_is + RhoVac
+    BRXC_base = BRXC_pre_is + RhoVac * x_e_out_is_n
+
+    # 室絶対湿度の計算 式(16)
+    xr_base = s42.get_xr(BRXC_base, BRMX_base)
+
+    # 補正前の加湿量の計算 [ks/s] 式(20)
+    Ghum_base = s42.get_Ghum(RhoVac, x_e_out_is_n, xr_base)
+
+    # 除湿量が負値(加湿量が正)になった場合にはルームエアコン風量V_(ac,n)をゼロとして再度室湿度を計算する
+    Ghum_is_n = np.minimum(Ghum_base, 0.0)
+
+    # 除湿量が負値(加湿量が正)になった場合にはルームエアコン風量V_(ac,n)をゼロとして再度室湿度を計算する
+    x_r_i_ns_pls = np.where(Ghum_base > 0.0, s42.get_xr(BRXC_pre_is, BRMX_pre_is), xr_base)
+
+    # 除湿量から室加湿熱量を計算 式(21)
+    Lcl_i_n = get_Lcl(Ghum_is_n)
+
+    # 当面は放射空調の潜熱は0
+    # TODO: 配列にすること
+    Lrl_is_n = get_Lrl()
+
+    # ステップn+1の室iにおける飽和水蒸気圧, Pa
+    p_vs_is_n_pls = psy.get_p_vs_is(theta_r_is_npls)
+
+    # ステップn+1の室iにおける水蒸気圧, Pa
+    p_v_is_n_pls = psy.get_p_v(x_r_i_ns_pls)
+
+    # ステップn+1の室iにおける相対湿度, %
+    rh_i_n_pls = psy.get_h(p_v=p_v_is_n_pls, p_vs=p_vs_is_n_pls)
+
+    # ********** 備品類の絶対湿度 xf の計算 **********
+
+    # 備品類の絶対湿度の計算
+    xf_i_n = s42.get_xf(ss.gf_is, xf_is_npls, ss.cx_is, x_r_i_ns_pls)
+
+    Qfunl_i_n = s42.get_Qfunl(ss.cx_is, x_r_i_ns_pls, xf_i_n)
+
+    t_cl_i_n_pls = a35.get_t_cl_i_n(clo_i_n=clo_is_n, ot_i_n=ot_is_n, h_a_i_n=h_hum_is_n)
+
     for i, s in enumerate(spaces):
 
-        BRXC_pre = BRXC_pre_is[i]
-
-        xf_i_npls = xf_is_npls[i]
-
-        # ==== ルームエアコン吹出絶対湿度の計算 ====
-
-        # バイパスファクターBF 式(114)
-        BF = a16.get_BF()
-
-        theta_r_i_npls = theta_r_is_npls[i]
         operation_mode_i_n = operation_mode_is_n[i]
-
-        # i室のn時点におけるエアコンの風量[m3/s]
-        # 空調の熱交換部飽和絶対湿度の計算
-        Vac_n, xeout_i_n = \
-            a16.calcVac_xeout(lcs_is_n[i], s.Vmin_i, s.Vmax_i, s.qmin_c_i, s.qmax_c_i, theta_r_i_npls, BF, operation_mode_i_n)
-
-        # 空調機除湿の項 式(20)より
-        RhoVac = get_RhoVac(Vac_n, BF)
-
-        BRMX_pre = BRMX_pre_is[i]
-
-        # 室絶対湿度[kg/kg(DA)]の計算
-        BRMX_base = BRMX_pre + RhoVac
-        BRXC_base = BRXC_pre + RhoVac * xeout_i_n
-
-        # 室絶対湿度の計算 式(16)
-        xr_base = s42.get_xr(BRXC_base, BRMX_base)
-
-        # 補正前の加湿量の計算 [ks/s] 式(20)
-        Ghum_base = s42.get_Ghum(RhoVac, xeout_i_n, xr_base)
-
-        # 除湿量が負値(加湿量が正)になった場合にはルームエアコン風量V_(ac,n)をゼロとして再度室湿度を計算する
-        if Ghum_base > 0.0:
-            Ghum_i_n = 0.0
-            x_r_i_n_pls = s42.get_xr(BRXC_pre, BRMX_pre)
-        else:
-            Ghum_i_n = Ghum_base
-            x_r_i_n_pls = xr_base
-
-        # 除湿量から室加湿熱量を計算 式(21)
-        Lcl_i_n = get_Lcl(Ghum_i_n)
-
-        # 当面は放射空調の潜熱は0
-        Lrl_i_n = get_Lrl()
-
-        # ステップn+1の室iにおける飽和水蒸気圧, Pa
-        p_vs_i_n_pls = psy.get_p_vs(theta_r_i_npls)
-
-        # ステップn+1の室iにおける水蒸気圧, Pa
-        p_v_i_n_pls = psy.get_p_v(x_r_i_n_pls)
-
-        # ステップn+1の室iにおける相対湿度, %
-        rh_i_n_pls = psy.get_h(p_v=p_v_i_n_pls, p_vs=p_vs_i_n_pls)
-
-        # ********** 備品類の絶対湿度 xf の計算 **********
-
-        # 備品類の絶対湿度の計算
-        xf_i_n = s42.get_xf(s.Gf_i, xf_i_npls, s.Cx_i, x_r_i_n_pls)
-        Qfunl_i_n = s42.get_Qfunl(s.Cx_i, x_r_i_n_pls, xf_i_n)
-
-        t_cl_i_n_pls = a35.get_t_cl_i_n(clo_i_n=clo_is_n[i], ot_i_n=ot_is_n[i], h_a_i_n=h_hum_is_n[i])
 
         if operation_mode_i_n == OperationMode.HEATING:
             if s.is_radiative_heating:
@@ -397,7 +390,11 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
 
         theta_srf_dsh_t_i_jstrs_npls_ms = np.split(theta_srf_dsh_t_is_jstrs_npls_ms, start_indices)[i]
 
+        x_r_i_n_pls = x_r_i_ns_pls[i]
+
         q_srf_i_jstrs_n = np.split(q_srf_is_jstrs_n, start_indices)[i]
+
+        theta_r_i_npls = theta_r_is_npls[i]
 
         # 前の時刻からの値
         s.theta_srf_dsh_a_i_jstrs_n_m = theta_srf_dsh_a_i_jstrs_npls_ms
@@ -406,12 +403,12 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
         s.old_theta_frnt_i = theta_frnt_is_n[i]
         s.theta_r_i_npls = theta_r_i_npls
         s.q_srf_i_jstrs_n = q_srf_i_jstrs_n
-        s.xf_i_npls = xf_i_n
+        s.xf_i_npls = xf_i_n[i]
         s.x_r_i_n = x_r_i_n_pls
         s.theta_mrt_i_n = theta_mrt_is_n_pls[i]
         s.v_hum_i_n = v_hum_i_n_pls
-        s.theta_cl_i_n = t_cl_i_n_pls
-        s.p_a_i_n = p_v_i_n_pls
+        s.theta_cl_i_n = t_cl_i_n_pls[i]
+        s.p_a_i_n = p_v_is_n_pls[i]
 
         Ts_i_k_n = np.split(ts_is_k_n, start_indices)[i]
         theta_rear_i_jstrs_n = np.split(theta_rear_is_jstrs_n, start_indices)[i]
@@ -438,12 +435,12 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
             s.a_bnd_i_jstrs, theta_r_i_npls, s.F_mrt_i_g, Ts_i_k_n, lrs_is_n[i], s.Beta_i)
         s.logger.Lrs_i_n[n] = lrs_is_n[i]
         s.logger.Lcs_i_n[n] = lcs_is_n[i]
-        s.logger.Lcl_i_n[n] = Lcl_i_n
-        s.logger.xf_i_n[n] = xf_i_n
-        s.logger.Qfunl_i_n[n] = Qfunl_i_n
+        s.logger.Lcl_i_n[n] = Lcl_i_n[i]
+        s.logger.xf_i_n[n] = xf_i_n[i]
+        s.logger.Qfunl_i_n[n] = Qfunl_i_n[i]
         s.logger.Vel_i_n[n] = v_hum_i_n
         s.logger.Clo_i_n[n] = clo_is_n[i]
-        s.logger.RH_i_n[n] = rh_i_n_pls
+        s.logger.RH_i_n[n] = rh_i_n_pls[i]
         s.logger.x_r_i_ns[n] = x_r_i_n_pls
 
 

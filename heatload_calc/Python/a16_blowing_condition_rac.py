@@ -6,13 +6,23 @@ from a39_global_parameters import OperationMode
 付録16．	ルームエアコン吹出絶対湿度の計算
 """
 
+def make_get_vac_xeout_def(Vmin, Vmax, qmin_c, qmax_c):
+
+    def get_vac_xeout(Lcs, Tr, operation_mode):
+        return calcVac_xeout(Lcs, Vmin, Vmax, qmin_c, qmax_c, Tr, operation_mode)
+
+    return get_vac_xeout
+
 
 # エアコンの熱交換部飽和絶対湿度の計算
-def calcVac_xeout(Lcs, Vmin, Vmax, qmin_c, qmax_c, Tr, BF, operation_mode):
+def calcVac_xeout(Lcs, Vmin, Vmax, qmin_c, qmax_c, Tr, operation_mode):
     """
     :param nowAC: 当該時刻の空調運転状態（0：なし、正：暖房、負：冷房）
     :return:
     """
+
+    BF = get_BF()
+
     # Lcsは加熱が正
     # 加熱時は除湿ゼロ
     Qs = get_Qs(Lcs)
@@ -35,7 +45,7 @@ def calcVac_xeout(Lcs, Vmin, Vmax, qmin_c, qmax_c, Tr, BF, operation_mode):
 
     # 風量[m3/s]の計算（線形補間）
 
-    return Vac, xeout
+    return Vac*(1.0 - BF), xeout
 
 
 def get_Qs(Lcs):
@@ -57,3 +67,9 @@ def get_Teout(Qs, Tr, Vac, BF):
 # バイパスファクターBF 式(114)
 def get_BF():
     return 0.2
+
+# 式(20)のうちの一部
+def get_RhoVac(Vac: float):
+
+    rhoa = a18.get_rho_air()
+    return rhoa * Vac

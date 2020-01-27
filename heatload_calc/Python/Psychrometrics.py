@@ -1,4 +1,5 @@
 import math
+import numpy as np
 
 
 def get_h(p_v: float, p_vs: float) -> float:
@@ -57,6 +58,11 @@ def get_p_v(x: float) -> float:
     f = get_f()
 
     return f * x / (x + 0.62198)
+
+
+def get_p_vs_is(theta_is: np.ndarray) -> np.ndarray:
+
+    return np.vectorize(get_p_vs)(theta_is)
 
 
 def get_p_vs(theta: float) -> float:
