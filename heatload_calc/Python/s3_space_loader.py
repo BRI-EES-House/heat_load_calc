@@ -530,34 +530,53 @@ def get_start_indices2(spaces):
 
 
 Conditions = namedtuple('Conditions', [
+
+    # ステップnの室iにおける運転状態, [i]
+    # 列挙体 OperationMode で表される。
+    #     COOLING ： 冷房
+    #     HEATING : 暖房
+    #     STOP_OPEN : 暖房・冷房停止で窓「開」
+    #     STOP_CLOSE : 暖房・冷房停止で窓「閉」
     'operation_mode_is_n',
+
+    # ステップnの室iにおける空気温度, degree C, [i]
     'theta_r_is_n',
-    'theta_cl_is_n',
-    'v_hum_is_n',
+
+    # ステップnの統合された境界j*における指数項mの吸熱応答の項別成分, degree C, [j*, 12]
     'theta_dsh_srf_a_jstrs_n_ms',
+
+    # ステップnの統合された境界j*における指数項mの貫流応答の項別成分, degree C, [j*, 12]
     'theta_dsh_srf_t_jstrs_n_ms',
+
+    # ステップnの統合された境界j*における表面熱流（壁体吸熱を正とする）, W/m2, [j*]
     'q_srf_jstrs_n',
+
+    # ステップnの室iにおける人体周りの対流熱伝達率, W/m2K, [i]
+    # 本来であれば着衣温度と人体周りの対流・放射熱伝達率を未知数とした熱収支式を収束計算等を用いて時々刻々求めるのが望ましい。
+    # 今回、収束計算を回避するために前時刻の人体周りの対流熱伝達率を用いることにした。
     'h_hum_c_is_n',
+
+    # ステップnの室iにおける人体周りの放射熱伝達率, W/m2K, [i]
+    # 本来であれば着衣温度と人体周りの対流・放射熱伝達率を未知数とした熱収支式を収束計算等を用いて時々刻々求めるのが望ましい。
+    # 今回、収束計算を回避するために前時刻の人体周りの対流熱伝達率を用いることにした。
     'h_hum_r_is_n'
+
 ])
 
 
 def initialize_conditions(ss: Spaces):
 
+    # 空間iの数
     total_number_of_spaces = ss.total_number_of_spaces
+
+    # 統合された境界j*の数
     total_number_of_bdry = ss.total_number_of_bdry
 
-    # 前時刻の運転状態
+    # ステップnの室iにおける運転状態, [i]
     operation_mode_is_n = np.full(total_number_of_spaces, OperationMode.STOP_CLOSE)
 
     # ステップnの室iにおける空気温度, degree C, [i]
     theta_r_is_n = np.full(total_number_of_spaces, a18.get_theta_r_initial())
-
-    # ステップnの室iにおける衣服の表面温度, degree C
-    theta_cl_is_n = np.full(total_number_of_spaces, a18.get_theta_r_initial())
-
-    # ステップnの室iにおける人体周りの風速, m/s
-    v_hum_is_n = np.zeros(total_number_of_spaces)
 
     # ステップnの統合された境界j*における指数項mの吸熱応答の項別成分, degree C, [j*, 12]
     theta_dsh_srf_a_jstrs_n_ms = np.full((total_number_of_bdry, 12), a18.get_theta_dsh_srf_a_initial())
@@ -569,11 +588,12 @@ def initialize_conditions(ss: Spaces):
     q_srf_jstrs_n = np.zeros(total_number_of_bdry)
 
     # ステップnの室iにおける人体周りの対流熱伝達率, W/m2K, [i]
-    # TODO: モジュールa18に移動すること
+    # TODO: 初期値はモジュールa18できちんと定義すること
     # 新建築学体系 p.47 の室内側対流熱伝達率 3.5 kcal/m2h℃ を採用した。
     h_hum_c_is_n = np.full(total_number_of_spaces, 3.5*1.16)
 
     # ステップnの室iにおける人体周りの放射熱伝達率, W/m2K, [i]
+    # TODO: 初期値はモジュールa18できちんと定義すること
     # 新建築学体系 p.47 の室内側放射熱伝達率 4.4 kcal/m2h℃ を採用した。
     h_hum_r_is_n = np.full(total_number_of_spaces, 4.4*1.16)
 
@@ -581,8 +601,6 @@ def initialize_conditions(ss: Spaces):
     return Conditions(
         operation_mode_is_n=operation_mode_is_n,
         theta_r_is_n=theta_r_is_n,
-        theta_cl_is_n=theta_cl_is_n,
-        v_hum_is_n=v_hum_is_n,
         theta_dsh_srf_a_jstrs_n_ms=theta_dsh_srf_a_jstrs_n_ms,
         theta_dsh_srf_t_jstrs_n_ms=theta_dsh_srf_t_jstrs_n_ms,
         q_srf_jstrs_n=q_srf_jstrs_n,

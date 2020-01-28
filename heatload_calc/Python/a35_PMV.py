@@ -122,7 +122,7 @@ def get_h_hum_c_is_n(theta_r_is_n: np.ndarray, theta_cl_is_n: np.ndarray, v_hum_
 
 @jit('f8[:](f8[:],f8[:])', nopython=True)
 def get_h_hum_is_n(h_hum_r_is_n: np.ndarray, h_hum_c_is_n: np.ndarray) -> np.ndarray:
-    """人体周りの対流熱伝達率を計算する。
+    """人体周りの総合熱伝達率を計算する。
 
     Args:
         h_hum_r_is_n: ステップnの室iにおける人体周りの放射熱伝達率, W/m2K, [i]
@@ -133,6 +133,26 @@ def get_h_hum_is_n(h_hum_r_is_n: np.ndarray, h_hum_c_is_n: np.ndarray) -> np.nda
     """
 
     return h_hum_r_is_n + h_hum_c_is_n
+
+
+@jit('f8[:](f8[:],f8[:],f8[:],f8[:],f8[:])', nopython=True)
+def get_theta_ot_is_n(
+        h_hum_c_is_n: np.ndarray, h_hum_r_is_n: np.ndarray, h_hum_is_n: np.ndarray,
+        theta_r_is_n: np.ndarray, theta_mrt_is_n: np.ndarray) -> np.ndarray:
+    """作用温度を計算する。
+
+    Args:
+        h_hum_c_is_n: ステップnの室iにおける人体周りの対流熱伝達率, W/m2K, [i]
+        h_hum_r_is_n: ステップnの室iにおける人体周りの放射熱伝達率, W/m2K, [i]
+        h_hum_is_n: ステップnの室iにおける人体周りの総合熱伝達率, W/m2K, [i]
+        theta_r_is_n: ステップnの室iにおける室温, degree C, [i]
+        theta_mrt_is_n: ステップnの室iにおける平均放射温度, degree C, [i]
+
+    Returns:
+        ステップnの室iにおける作用温度
+    """
+
+    return (h_hum_r_is_n * theta_mrt_is_n + h_hum_c_is_n * theta_r_is_n) / h_hum_is_n
 
 
 def get_pmv_heavy_middle_light_is_n(

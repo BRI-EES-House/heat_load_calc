@@ -5,25 +5,6 @@ import a18_initial_value_constants as a18
 from a39_global_parameters import OperationMode
 
 
-def get_theta_ot_is_n(
-        h_hum_c_is_n: np.ndarray, h_hum_r_is_n: np.ndarray, h_hum_is_n: np.ndarray,
-        theta_r_is_n: np.ndarray, theta_mrt_is_n: np.ndarray) -> np.ndarray:
-    """作用温度を計算する。
-
-    Args:
-        h_hum_c_is_n: ステップnの室iにおける人体周りの対流熱伝達率, W/m2K, [i]
-        h_hum_r_is_n: ステップnの室iにおける人体周りの放射熱伝達率, W/m2K, [i]
-        h_hum_is_n: ステップnの室iにおける人体周りの総合熱伝達率, W/m2K, [i]
-        theta_r_is_n: ステップnの室iにおける室温, degree C, [i]
-        theta_mrt_is_n: ステップnの室iにおける平均放射温度, degree C, [i]
-
-    Returns:
-        ステップnの室iにおける作用温度
-    """
-
-    return (h_hum_r_is_n * theta_mrt_is_n + h_hum_c_is_n * theta_r_is_n) / h_hum_is_n
-
-
 # 作用温度設定用係数への換算
 def calc_OT_coeff(brm_is_n, brc_i_n, brl_is_n, wsr_jstrs, wsb_jstrs, wsc_is_jstrs_npls, wsv_is_jstrs_npls, fot_jstrs, kc_is, kr_is):
 

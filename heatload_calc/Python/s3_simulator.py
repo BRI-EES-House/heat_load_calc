@@ -58,8 +58,6 @@ def run_tick_groundonly(To_n: float, Tave: float, conditions_n: Conditions, ss: 
     return Conditions(
         operation_mode_is_n=conditions_n.operation_mode_is_n,
         theta_r_is_n=conditions_n.theta_r_is_n,
-        theta_cl_is_n=conditions_n.theta_cl_is_n,
-        v_hum_is_n=conditions_n.v_hum_is_n,
         theta_dsh_srf_a_jstrs_n_ms=theta_srf_dsh_a_is_jstrs_n_ms,
         theta_dsh_srf_t_jstrs_n_ms=conditions_n.theta_dsh_srf_t_jstrs_n_ms,
         q_srf_jstrs_n=q_srf_is_jstrs_n,
@@ -71,17 +69,30 @@ def run_tick_groundonly(To_n: float, Tave: float, conditions_n: Conditions, ss: 
 # 室温、熱負荷の計算
 def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_indices: List[int], ss: Spaces, conditions_n: Conditions):
 
-    # 前時刻からの引き継ぎ
+    # region 前時刻からの引き継ぎ
+
+    # ステップnの統合された境界j*における指数項mの吸熱応答の項別成分, degree C, [j*, 12]
     theta_srf_dsh_a_is_jstrs_n_ms = conditions_n.theta_dsh_srf_a_jstrs_n_ms
+
+    # ステップnの統合された境界j*における指数項mの貫流応答の項別成分, degree C, [j*, 12]
     theta_srf_dsh_t_is_jstrs_n_m = conditions_n.theta_dsh_srf_t_jstrs_n_ms
+
+    # ステップnの統合された境界j*における表面熱流（壁体吸熱を正とする）, W/m2, [j*]
     q_srf_is_jstrs_n = conditions_n.q_srf_jstrs_n
 
     # ステップnの室iにおける室温, degree C, [i]
     theta_r_is_n = conditions_n.theta_r_is_n
-    # ステップnの室iにおける着衣温度, degree C, [i]
-    theta_cl_is_n = conditions_n.theta_cl_is_n
-    # ステップnの室iにおける人体周りの風速, m/s, [i]
-    v_hum_is_n = conditions_n.v_hum_is_n
+
+    # 運転状態, [i]
+    operation_mode_is_n_mns = conditions_n.operation_mode_is_n
+
+    # ステップnの室iにおける人体周りの対流熱伝達率, W/m2K, [i]
+    h_hum_c_is_n = conditions_n.h_hum_c_is_n
+
+    # ステップnの室iにおける人体周りの放射熱伝達率, W/m2K, [i]
+    h_hum_r_is_n = conditions_n.h_hum_r_is_n
+
+    # endregion
 
     # ステップnの室iにおける絶対湿度, kg/kg(DA), [i]
     x_r_is_n = np.array([s.x_r_i_n for s in spaces])
@@ -90,23 +101,16 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
     # ステップnの室iにおける水蒸気圧, Pa
     p_a_is_n = np.array([s.p_a_i_n for s in spaces])
 
-    operation_mode_is_n_mns = conditions_n.operation_mode_is_n
-
     xf_is_npls = np.array([s.xf_i_npls for s in spaces])
 
-    # ステップnの室iにおける人体周りの対流熱伝達率, W/m2K, [i]
-#    h_hum_c_is_n = a35.get_h_hum_c_is_n(theta_r_is_n=theta_r_is_n, theta_cl_is_n=theta_cl_is_n, v_hum_is_n=v_hum_is_n)
-    h_hum_c_is_n = conditions_n.h_hum_c_is_n
-
-    # ステップnの室iにおける人体周りの放射熱伝達率, W/m2K, [i]
-#    h_hum_r_is_n = a35.get_h_hum_r_is_n(theta_cl_is_n=theta_cl_is_n, theta_mrt_is_n=theta_mrt_is_n)
-    h_hum_r_is_n = conditions_n.h_hum_r_is_n
-
     # ステップnの室iにおける人体周りの総合熱伝達率, W/m2K, [i]
-    h_hum_is_n = a35.get_h_hum_is_n(h_hum_r_is_n=h_hum_r_is_n, h_hum_c_is_n=h_hum_c_is_n)
+    h_hum_is_n = a35.get_h_hum_is_n(
+        h_hum_r_is_n=h_hum_r_is_n,
+        h_hum_c_is_n=h_hum_c_is_n
+    )
 
     # ステップnの室iにおける作用温度, degree C, [i]
-    theta_ot_is_n = s41.get_theta_ot_is_n(
+    theta_ot_is_n = a35.get_theta_ot_is_n(
         h_hum_c_is_n=h_hum_c_is_n,
         h_hum_r_is_n=h_hum_r_is_n,
         h_hum_is_n=h_hum_is_n,
@@ -383,8 +387,10 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
 
     Qfunl_i_n = s42.get_Qfunl(ss.cx_is, x_r_i_ns_pls, xf_i_n)
 
+    # ステップnの室iにおける着衣温度, degree C, [i]
     theta_cl_is_n_pls = a35.get_t_cl_i_n(clo_i_n=clo_is_n, ot_i_n=ot_is_n, h_a_i_n=h_hum_is_n)
 
+    # ステップnの室iにおける人体周りの風速, m/s, [i]
     v_hum_i_n_pls = get_v_hum_is_n_pls(operation_mode_is_n, ss.is_radiative_heating_is, ss.is_radiative_cooling_is)
 
     # ステップnの室iにおける人体周りの対流熱伝達率, W/m2K, [i]
@@ -400,19 +406,12 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
         theta_mrt_is_n=theta_mrt_is_n_pls
     )
 
-
     for i, s in enumerate(spaces):
-
-        operation_mode_i_n = operation_mode_is_n[i]
-
-        x_r_i_n_pls = x_r_i_ns_pls[i]
-
-        theta_r_i_npls = theta_r_is_n_pls[i]
 
         # 前の時刻からの値
         s.old_theta_frnt_i = theta_frnt_is_n[i]
         s.xf_i_npls = xf_i_n[i]
-        s.x_r_i_n = x_r_i_n_pls
+        s.x_r_i_n = x_r_i_ns_pls[i]
         s.theta_mrt_i_n = theta_mrt_is_n_pls[i]
         s.p_a_i_n = p_v_is_n_pls[i]
 
@@ -422,14 +421,14 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
         Qr = np.split(Qrs, start_indices)[i]
 
         # ロギング
-        s.logger.theta_r_i_ns[n] = theta_r_i_npls
+        s.logger.theta_r_i_ns[n] = theta_r_is_n_pls[i]
         s.logger.theta_rear_i_jstrs_ns[:, n] = theta_rear_i_jstrs_n
         s.logger.q_hum_i_ns[n] = q_hum_is_n[i]
         s.logger.x_hum_i_ns[n] = x_hum_is_n[i]
-        s.logger.operation_mode[n] = operation_mode_i_n
+        s.logger.operation_mode[n] = operation_mode_is_n[i]
         s.logger.theta_frnt_i_ns[n] = theta_frnt_is_n[i]
         s.logger.OT_i_n[n] = ot_is_n[i]
-        s.logger.Qfuns_i_n[n] = s41.get_Qfuns(s.c_fun_i, theta_r_i_npls, theta_frnt_is_n[i])
+        s.logger.Qfuns_i_n[n] = s41.get_Qfuns(s.c_fun_i, theta_r_is_n_pls[i], theta_frnt_is_n[i])
         s.logger.Qc[:, n] = Qc
         s.logger.Qr[:, n] = Qr
         s.logger.Ts_i_k_n[:, n] = Ts_i_k_n
@@ -437,7 +436,7 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
         # 室内側等価温度の計算 式(29)
         s.logger.Tei_i_k_n[:, n] = a1.calc_Tei(
             s.h_c_bnd_i_jstrs, s.h_r_bnd_i_jstrs, s.q_sol_srf_i_jstrs_ns[:, n], s.flr_i_k,
-            s.a_bnd_i_jstrs, theta_r_i_npls, s.F_mrt_i_g, Ts_i_k_n, lrs_is_n[i], s.Beta_i)
+            s.a_bnd_i_jstrs, theta_r_is_n_pls[i], s.F_mrt_i_g, Ts_i_k_n, lrs_is_n[i], s.Beta_i)
         s.logger.Lrs_i_n[n] = lrs_is_n[i]
         s.logger.Lcs_i_n[n] = lcs_is_n[i]
         s.logger.Lcl_i_n[n] = Lcl_i_n[i]
@@ -446,13 +445,11 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
         s.logger.Vel_i_n[n] = v_hum_i_n_pls[i]
         s.logger.Clo_i_n[n] = clo_is_n[i]
         s.logger.RH_i_n[n] = rh_i_n_pls[i]
-        s.logger.x_r_i_ns[n] = x_r_i_n_pls
+        s.logger.x_r_i_ns[n] = x_r_i_ns_pls[i]
 
     return Conditions(
         operation_mode_is_n=operation_mode_is_n,
         theta_r_is_n=theta_r_is_n_pls,
-        theta_cl_is_n=theta_cl_is_n_pls,
-        v_hum_is_n=v_hum_i_n_pls,
         theta_dsh_srf_a_jstrs_n_ms=theta_srf_dsh_a_is_jstrs_npls_ms,
         theta_dsh_srf_t_jstrs_n_ms=theta_srf_dsh_t_is_jstrs_npls_ms,
         q_srf_jstrs_n=q_srf_is_jstrs_n,
