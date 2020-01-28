@@ -165,10 +165,10 @@ def get_pmv_heavy_middle_light_is_n(
         theta_r_is_n=theta_r_is_n, theta_cl_is_n=theta_cl_heavy_is_n, clo=clo_heavy, p_a_is_n=p_a_is_n,
         h_hum_is_n=h_hum_is_n, theta_ot_is_n=theta_ot_is_n)
     pmv_middle_is_n = get_pmv_is_n(
-        theta_r_is_n=theta_r_is_n, theta_cl_is_n=theta_cl_middle_is_n, clo=clo_heavy, p_a_is_n=p_a_is_n,
+        theta_r_is_n=theta_r_is_n, theta_cl_is_n=theta_cl_middle_is_n, clo=clo_middle, p_a_is_n=p_a_is_n,
         h_hum_is_n=h_hum_is_n, theta_ot_is_n=theta_ot_is_n)
     pmv_light_is_n = get_pmv_is_n(
-        theta_r_is_n=theta_r_is_n, theta_cl_is_n=theta_cl_light_is_n, clo=clo_heavy, p_a_is_n=p_a_is_n,
+        theta_r_is_n=theta_r_is_n, theta_cl_is_n=theta_cl_light_is_n, clo=clo_light, p_a_is_n=p_a_is_n,
         h_hum_is_n=h_hum_is_n, theta_ot_is_n=theta_ot_is_n)
 
     return pmv_heavy_is_n, pmv_middle_is_n, pmv_light_is_n
