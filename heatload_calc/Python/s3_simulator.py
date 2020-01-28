@@ -56,6 +56,7 @@ def run_tick_groundonly(To_n: float, Tave: float, conditions_n: Conditions, ss: 
     q_srf_is_jstrs_n[gs] = h_i_bnd_jstrs[gs] * (To_n - Ts_is_k_n)
 
     return Conditions(
+        operation_mode_is_n=conditions_n.operation_mode_is_n,
         theta_r_is_n=conditions_n.theta_r_is_n,
         theta_cl_is_n=conditions_n.theta_cl_is_n,
         v_hum_is_n=conditions_n.v_hum_is_n,
@@ -86,7 +87,8 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
     theta_mrt_is_n = np.array([s.theta_mrt_i_n for s in spaces])
     # ステップnの室iにおける水蒸気圧, Pa
     p_a_is_n = np.array([s.p_a_i_n for s in spaces])
-    operation_mode_is_n_mns = np.array([s.operation_mode for s in spaces])
+
+    operation_mode_is_n_mns = conditions_n.operation_mode_is_n
 
     xf_is_npls = np.array([s.xf_i_npls for s in spaces])
 
@@ -390,7 +392,6 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
         theta_r_i_npls = theta_r_is_npls[i]
 
         # 前の時刻からの値
-        s.operation_mode = operation_mode_i_n
         s.old_theta_frnt_i = theta_frnt_is_n[i]
         s.xf_i_npls = xf_i_n[i]
         s.x_r_i_n = x_r_i_n_pls
@@ -430,6 +431,7 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
         s.logger.x_r_i_ns[n] = x_r_i_n_pls
 
     return Conditions(
+        operation_mode_is_n=operation_mode_is_n,
         theta_r_is_n=theta_r_is_npls,
         theta_cl_is_n=t_cl_i_n_pls,
         v_hum_is_n=v_hum_i_n_pls,

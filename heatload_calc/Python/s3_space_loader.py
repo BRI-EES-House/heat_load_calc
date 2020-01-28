@@ -340,9 +340,6 @@ class Space:
         self.kc_i = s41.calc_kc_i()  # i室の人体表面における対流熱伝達率の総合熱伝達率に対する比
         self.kr_i = s41.calc_kr_i()  # i室の人体表面における放射熱伝達率の総合熱伝達率に対する比
 
-        # 前時刻の運転状態
-        self.operation_mode = OperationMode.STOP_CLOSE
-
         # 家具の熱容量、湿気容量の計算
 
         # Gf_i:湿気容量[kg/(kg/kg(DA))]、Cx_i:湿気コンダクタンス[kg/(s･kg/kg(DA))]
@@ -533,6 +530,7 @@ def get_start_indices2(spaces):
 
 
 Conditions = namedtuple('Conditions', [
+    'operation_mode_is_n',
     'theta_r_is_n',
     'theta_cl_is_n',
     'v_hum_is_n',
@@ -546,6 +544,9 @@ def initialize_conditions(ss: Spaces):
 
     total_number_of_spaces = ss.total_number_of_spaces
     total_number_of_bdry = ss.total_number_of_bdry
+
+    # 前時刻の運転状態
+    operation_mode_is_n = np.full(total_number_of_spaces, OperationMode.STOP_CLOSE)
 
     # ステップnの室iにおける空気温度, degree C, [i]
     theta_r_is_n = np.full(total_number_of_spaces, a18.get_theta_r_initial())
@@ -566,6 +567,7 @@ def initialize_conditions(ss: Spaces):
     q_srf_jstrs_n = np.zeros(total_number_of_bdry)
 
     return Conditions(
+        operation_mode_is_n=operation_mode_is_n,
         theta_r_is_n=theta_r_is_n,
         theta_cl_is_n=theta_cl_is_n,
         v_hum_is_n=v_hum_is_n,

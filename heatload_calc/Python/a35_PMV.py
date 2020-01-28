@@ -120,6 +120,7 @@ def get_h_hum_c_is_n(theta_r_is_n: np.ndarray, t_cl_is_n: np.ndarray, v_hum_is_n
     return np.maximum(12.1 * np.sqrt(v_hum_is_n), 2.38 * np.abs(t_cl_is_n - theta_r_is_n) ** 0.25)
 
 
+@jit('f8[:](f8[:],f8[:])', nopython=True)
 def get_h_hum_is_n(h_hum_r_is_n: np.ndarray, h_hum_c_is_n: np.ndarray) -> np.ndarray:
     """人体周りの対流熱伝達率を計算する。
 
