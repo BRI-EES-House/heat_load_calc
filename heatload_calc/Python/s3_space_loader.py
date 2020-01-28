@@ -536,7 +536,9 @@ Conditions = namedtuple('Conditions', [
     'v_hum_is_n',
     'theta_dsh_srf_a_jstrs_n_ms',
     'theta_dsh_srf_t_jstrs_n_ms',
-    'q_srf_jstrs_n'
+    'q_srf_jstrs_n',
+    'h_hum_c_is_n',
+    'h_hum_r_is_n'
 ])
 
 
@@ -566,6 +568,16 @@ def initialize_conditions(ss: Spaces):
     # ステップnの統合された境界j*における表面熱流（壁体吸熱を正とする）, W/m2, [j*]
     q_srf_jstrs_n = np.zeros(total_number_of_bdry)
 
+    # ステップnの室iにおける人体周りの対流熱伝達率, W/m2K, [i]
+    # TODO: モジュールa18に移動すること
+    # 新建築学体系 p.47 の室内側対流熱伝達率 3.5 kcal/m2h℃ を採用した。
+    h_hum_c_is_n = np.full(total_number_of_spaces, 3.5*1.16)
+
+    # ステップnの室iにおける人体周りの放射熱伝達率, W/m2K, [i]
+    # 新建築学体系 p.47 の室内側放射熱伝達率 4.4 kcal/m2h℃ を採用した。
+    h_hum_r_is_n = np.full(total_number_of_spaces, 4.4*1.16)
+
+
     return Conditions(
         operation_mode_is_n=operation_mode_is_n,
         theta_r_is_n=theta_r_is_n,
@@ -573,6 +585,8 @@ def initialize_conditions(ss: Spaces):
         v_hum_is_n=v_hum_is_n,
         theta_dsh_srf_a_jstrs_n_ms=theta_dsh_srf_a_jstrs_n_ms,
         theta_dsh_srf_t_jstrs_n_ms=theta_dsh_srf_t_jstrs_n_ms,
-        q_srf_jstrs_n=q_srf_jstrs_n
+        q_srf_jstrs_n=q_srf_jstrs_n,
+        h_hum_c_is_n=h_hum_c_is_n,
+        h_hum_r_is_n=h_hum_r_is_n
     )
 
