@@ -105,19 +105,19 @@ def get_h_hum_r_is_n(theta_cl_is_n: np.ndarray, theta_mrt_is_n: np.ndarray) -> n
 
 
 @jit('f8[:](f8[:], f8[:], f8[:])', nopython=True)
-def get_h_hum_c_is_n(theta_r_is_n: np.ndarray, t_cl_is_n: np.ndarray, v_hum_is_n: np.ndarray) -> np.ndarray:
+def get_h_hum_c_is_n(theta_r_is_n: np.ndarray, theta_cl_is_n: np.ndarray, v_hum_is_n: np.ndarray) -> np.ndarray:
     """人体周りの対流熱伝達率を計算する。
 
     Args:
         theta_r_is_n: ステップnの室iにおける室温, degree C, [i]
-        t_cl_is_n: ステップnの室iにおける着衣温度, degree C, [i]
+        theta_cl_is_n: ステップnの室iにおける着衣温度, degree C, [i]
         v_hum_is_n: ステップnの室iにおける人体周りの風速, m/s, [i]
 
     Returns:
         ステップnの室iにおける人体周りの対流熱伝達率, W/m2K
     """
 
-    return np.maximum(12.1 * np.sqrt(v_hum_is_n), 2.38 * np.abs(t_cl_is_n - theta_r_is_n) ** 0.25)
+    return np.maximum(12.1 * np.sqrt(v_hum_is_n), 2.38 * np.abs(theta_cl_is_n - theta_r_is_n) ** 0.25)
 
 
 @jit('f8[:](f8[:],f8[:])', nopython=True)

@@ -62,7 +62,9 @@ def run_tick_groundonly(To_n: float, Tave: float, conditions_n: Conditions, ss: 
         v_hum_is_n=conditions_n.v_hum_is_n,
         theta_dsh_srf_a_jstrs_n_ms=theta_srf_dsh_a_is_jstrs_n_ms,
         theta_dsh_srf_t_jstrs_n_ms=conditions_n.theta_dsh_srf_t_jstrs_n_ms,
-        q_srf_jstrs_n=q_srf_is_jstrs_n
+        q_srf_jstrs_n=q_srf_is_jstrs_n,
+        h_hum_c_is_n=conditions_n.h_hum_c_is_n,
+        h_hum_r_is_n=conditions_n.h_hum_r_is_n
     )
 
 
@@ -93,10 +95,12 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
     xf_is_npls = np.array([s.xf_i_npls for s in spaces])
 
     # ステップnの室iにおける人体周りの対流熱伝達率, W/m2K, [i]
-    h_hum_c_is_n = a35.get_h_hum_c_is_n(theta_r_is_n=theta_r_is_n, t_cl_is_n=theta_cl_is_n, v_hum_is_n=v_hum_is_n)
+#    h_hum_c_is_n = a35.get_h_hum_c_is_n(theta_r_is_n=theta_r_is_n, theta_cl_is_n=theta_cl_is_n, v_hum_is_n=v_hum_is_n)
+    h_hum_c_is_n = conditions_n.h_hum_c_is_n
 
     # ステップnの室iにおける人体周りの放射熱伝達率, W/m2K, [i]
-    h_hum_r_is_n = a35.get_h_hum_r_is_n(theta_cl_is_n=theta_cl_is_n, theta_mrt_is_n=theta_mrt_is_n)
+#    h_hum_r_is_n = a35.get_h_hum_r_is_n(theta_cl_is_n=theta_cl_is_n, theta_mrt_is_n=theta_mrt_is_n)
+    h_hum_r_is_n = conditions_n.h_hum_r_is_n
 
     # ステップnの室iにおける人体周りの総合熱伝達率, W/m2K, [i]
     h_hum_is_n = a35.get_h_hum_is_n(h_hum_r_is_n=h_hum_r_is_n, h_hum_c_is_n=h_hum_c_is_n)
@@ -262,13 +266,13 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
         operation_mode_is_n)
 
     # 自然室温 Tr を計算 式(14)
-    theta_r_is_npls = s41.get_Tr_i_n(ot_is_n, lrs_is_n, Xot_is, XLr_is, XC_is)
+    theta_r_is_n_pls = s41.get_Tr_i_n(ot_is_n, lrs_is_n, Xot_is, XLr_is, XC_is)
 
     # 家具の温度 Tfun を計算 式(15)
     theta_frnt_is_n = s41.get_Tfun_i_n(
         ss.c_cap_frnt_is,
         old_theta_frnt_is,
-        ss.c_fun_is, theta_r_is_npls,
+        ss.c_fun_is, theta_r_is_n_pls,
         ss.q_sol_frnt_is_ns[:, n]
     )
 
@@ -278,7 +282,7 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
         wsb_jstrs=ss.wsb_jstrs,
         wsc_is_jstrs_npls=wsc_is_jstrs_npls,
         wsv_is_jstrs_npls=wsv_is_jstrs_npls,
-        theta_r_is_npls=theta_r_is_npls,
+        theta_r_is_npls=theta_r_is_n_pls,
         lrs_is_n=lrs_is_n,
         p=ss.p
     )
@@ -296,7 +300,7 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
         q_sol_srf_jstrs_n=ss.q_sol_srf_jstrs_ns[:, n],
         flr_is_k=ss.flr_is_k,
         ts_is_k_n=ts_is_k_n,
-        theta_r_is_npls=theta_r_is_npls,
+        theta_r_is_npls=theta_r_is_n_pls,
         f_mrt_jstrs=ss.f_mrt_jstrs,
         lrs_is_n=lrs_is_n,
         beta_is=ss.beta_is,
@@ -333,7 +337,7 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
     # 空調の熱交換部飽和絶対湿度の計算
     v_ac_is_n, x_e_out_is_n = ss.get_vac_xeout_is(
         lcs_is_n=lcs_is_n,
-        theta_r_is_npls=theta_r_is_npls,
+        theta_r_is_npls=theta_r_is_n_pls,
         operation_mode_is_n=operation_mode_is_n
     )
 
@@ -364,7 +368,7 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
     Lrl_is_n = get_Lrl()
 
     # ステップn+1の室iにおける飽和水蒸気圧, Pa
-    p_vs_is_n_pls = psy.get_p_vs_is(theta_r_is_npls)
+    p_vs_is_n_pls = psy.get_p_vs_is(theta_r_is_n_pls)
 
     # ステップn+1の室iにおける水蒸気圧, Pa
     p_v_is_n_pls = psy.get_p_v(x_r_i_ns_pls)
@@ -379,9 +383,23 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
 
     Qfunl_i_n = s42.get_Qfunl(ss.cx_is, x_r_i_ns_pls, xf_i_n)
 
-    t_cl_i_n_pls = a35.get_t_cl_i_n(clo_i_n=clo_is_n, ot_i_n=ot_is_n, h_a_i_n=h_hum_is_n)
+    theta_cl_is_n_pls = a35.get_t_cl_i_n(clo_i_n=clo_is_n, ot_i_n=ot_is_n, h_a_i_n=h_hum_is_n)
 
     v_hum_i_n_pls = get_v_hum_is_n_pls(operation_mode_is_n, ss.is_radiative_heating_is, ss.is_radiative_cooling_is)
+
+    # ステップnの室iにおける人体周りの対流熱伝達率, W/m2K, [i]
+    h_hum_c_is_n_pls = a35.get_h_hum_c_is_n(
+        theta_r_is_n=theta_r_is_n_pls,
+        theta_cl_is_n=theta_cl_is_n_pls,
+        v_hum_is_n=v_hum_i_n_pls
+    )
+
+    # ステップnの室iにおける人体周りの放射熱伝達率, W/m2K, [i]
+    h_hum_r_is_n_pls = a35.get_h_hum_r_is_n(
+        theta_cl_is_n=theta_cl_is_n_pls,
+        theta_mrt_is_n=theta_mrt_is_n_pls
+    )
+
 
     for i, s in enumerate(spaces):
 
@@ -389,7 +407,7 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
 
         x_r_i_n_pls = x_r_i_ns_pls[i]
 
-        theta_r_i_npls = theta_r_is_npls[i]
+        theta_r_i_npls = theta_r_is_n_pls[i]
 
         # 前の時刻からの値
         s.old_theta_frnt_i = theta_frnt_is_n[i]
@@ -432,12 +450,14 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
 
     return Conditions(
         operation_mode_is_n=operation_mode_is_n,
-        theta_r_is_n=theta_r_is_npls,
-        theta_cl_is_n=t_cl_i_n_pls,
+        theta_r_is_n=theta_r_is_n_pls,
+        theta_cl_is_n=theta_cl_is_n_pls,
         v_hum_is_n=v_hum_i_n_pls,
         theta_dsh_srf_a_jstrs_n_ms=theta_srf_dsh_a_is_jstrs_npls_ms,
         theta_dsh_srf_t_jstrs_n_ms=theta_srf_dsh_t_is_jstrs_npls_ms,
-        q_srf_jstrs_n=q_srf_is_jstrs_n
+        q_srf_jstrs_n=q_srf_is_jstrs_n,
+        h_hum_c_is_n=h_hum_c_is_n_pls,
+        h_hum_r_is_n=h_hum_r_is_n_pls
     )
 
 
