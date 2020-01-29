@@ -118,18 +118,49 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
         theta_mrt_is_n=theta_mrt_is_n
     )
 
+    # ステップnの室iにおける厚着・中間着・薄着をした場合のそれぞれのclo値, [i]
+    clo_heavy_is_n = np.full(ss.total_number_of_spaces, a35.get_clo_heavy())
+    clo_middle_is_n = np.full(ss.total_number_of_spaces, a35.get_clo_middle())
+    clo_light_is_n = np.full(ss.total_number_of_spaces, a35.get_clo_light())
+
     # ステップnの室iにおける厚着・中間着・薄着をした場合のそれぞれの着衣温度, degree C, [i]
-    theta_cl_heavy_is_n, theta_cl_middle_is_n, theta_cl_light_is_n = a35.get_theta_cl_heavy_middle_light_is_n(
+    theta_cl_heavy_is_n = a35.get_theta_cl_is_n(
+        clo_is_n=clo_heavy_is_n,
+        theta_ot_is_n=theta_ot_is_n,
+        h_hum_is_n=h_hum_is_n
+    )
+    theta_cl_middle_is_n = a35.get_theta_cl_is_n(
+        clo_is_n=clo_middle_is_n,
+        theta_ot_is_n=theta_ot_is_n,
+        h_hum_is_n=h_hum_is_n
+    )
+    theta_cl_light_is_n = a35.get_theta_cl_is_n(
+        clo_is_n=clo_light_is_n,
         theta_ot_is_n=theta_ot_is_n,
         h_hum_is_n=h_hum_is_n
     )
 
     # ステップnの室iにおける厚着・中間着・薄着をした場合のそれぞれのPMV, [i]
-    pmv_heavy_is_n, pmv_middle_is_n, pmv_light_is_n = a35.get_pmv_heavy_middle_light_is_n(
+    pmv_heavy_is_n = a35.get_pmv_is_n(
         theta_r_is_n=theta_r_is_n,
-        theta_cl_heavy_is_n=theta_cl_heavy_is_n,
-        theta_cl_middle_is_n=theta_cl_middle_is_n,
-        theta_cl_light_is_n=theta_cl_light_is_n,
+        theta_cl_is_n=theta_cl_heavy_is_n,
+        clo_is_n=clo_heavy_is_n,
+        p_a_is_n=p_a_is_n,
+        h_hum_is_n=h_hum_is_n,
+        theta_ot_is_n=theta_ot_is_n
+    )
+    pmv_middle_is_n = a35.get_pmv_is_n(
+        theta_r_is_n=theta_r_is_n,
+        theta_cl_is_n=theta_cl_middle_is_n,
+        clo_is_n=clo_middle_is_n,
+        p_a_is_n=p_a_is_n,
+        h_hum_is_n=h_hum_is_n,
+        theta_ot_is_n=theta_ot_is_n
+    )
+    pmv_light_is_n = a35.get_pmv_is_n(
+        theta_r_is_n=theta_r_is_n,
+        theta_cl_is_n=theta_cl_light_is_n,
+        clo_is_n=clo_light_is_n,
         p_a_is_n=p_a_is_n,
         h_hum_is_n=h_hum_is_n,
         theta_ot_is_n=theta_ot_is_n
@@ -145,7 +176,12 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
     )
 
     # ステップnの室iにおけるClo値, [i]
-    clo_is_n = a13.get_clo_is_n(operation_mode_is_n=operation_mode_is_n)
+    clo_is_n = a13.get_clo_is_n(
+        operation_mode_is_n=operation_mode_is_n,
+        clo_heavy_is_n=clo_heavy_is_n,
+        clo_middle_is_n=clo_middle_is_n,
+        clo_light_is_n=clo_light_is_n
+    )
 
     # ステップnの室iにおける着衣表面温度, degree C, [i]
     theta_cl_is_n = a13.get_theta_cl_is_n(
@@ -265,12 +301,12 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
         kr_is=ss.kr_is,
     )
 
-    ot_is_n, lcs_is_n, lrs_is_n = s41.calc_next_steps(
+    theta_ot_is_n, lcs_is_n, lrs_is_n = s41.calc_next_steps(
         ss.is_radiative_heating_is, BRCot_is, BRMot_is, BRLot_is, OTsets, ss.lrcap_is,
         operation_mode_is_n)
 
     # 自然室温 Tr を計算 式(14)
-    theta_r_is_n_pls = s41.get_Tr_i_n(ot_is_n, lrs_is_n, Xot_is, XLr_is, XC_is)
+    theta_r_is_n_pls = s41.get_Tr_i_n(theta_ot_is_n, lrs_is_n, Xot_is, XLr_is, XC_is)
 
     # 家具の温度 Tfun を計算 式(15)
     theta_frnt_is_n = s41.get_Tfun_i_n(
@@ -388,7 +424,7 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
     Qfunl_i_n = s42.get_Qfunl(ss.cx_is, x_r_i_ns_pls, xf_i_n)
 
     # ステップnの室iにおける着衣温度, degree C, [i]
-    theta_cl_is_n_pls = a35.get_t_cl_i_n(clo_i_n=clo_is_n, ot_i_n=ot_is_n, h_a_i_n=h_hum_is_n)
+    theta_cl_is_n_pls = a35.get_theta_cl_is_n(clo_is_n=clo_is_n, theta_ot_is_n=theta_ot_is_n, h_hum_is_n=h_hum_is_n)
 
     # ステップnの室iにおける人体周りの風速, m/s, [i]
     v_hum_i_n_pls = get_v_hum_is_n_pls(operation_mode_is_n, ss.is_radiative_heating_is, ss.is_radiative_cooling_is)
@@ -427,7 +463,7 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
         s.logger.x_hum_i_ns[n] = x_hum_is_n[i]
         s.logger.operation_mode[n] = operation_mode_is_n[i]
         s.logger.theta_frnt_i_ns[n] = theta_frnt_is_n[i]
-        s.logger.OT_i_n[n] = ot_is_n[i]
+        s.logger.OT_i_n[n] = theta_ot_is_n[i]
         s.logger.Qfuns_i_n[n] = s41.get_Qfuns(s.c_fun_i, theta_r_is_n_pls[i], theta_frnt_is_n[i])
         s.logger.Qc[:, n] = Qc
         s.logger.Qr[:, n] = Qr

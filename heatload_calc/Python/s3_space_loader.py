@@ -597,7 +597,6 @@ def initialize_conditions(ss: Spaces):
     # 新建築学体系 p.47 の室内側放射熱伝達率 4.4 kcal/m2h℃ を採用した。
     h_hum_r_is_n = np.full(total_number_of_spaces, 4.4*1.16)
 
-
     return Conditions(
         operation_mode_is_n=operation_mode_is_n,
         theta_r_is_n=theta_r_is_n,
