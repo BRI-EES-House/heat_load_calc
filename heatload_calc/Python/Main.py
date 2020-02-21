@@ -13,6 +13,7 @@ import s3_simulator as simulator
 import a33_results_exporting as exporter
 import a37_groundonly_runup_calculation as a37
 from s3_space_loader import Spaces, initialize_conditions, Conditions
+from a33_results_exporting import Logger2
 
 # 熱負荷計算の実行
 def calc_heat_load(d: Dict):
@@ -61,6 +62,9 @@ def calc_heat_load(d: Dict):
 
     conditions_n = initialize_conditions(ss=spaces2)
 
+    logger2 = Logger2(n_spaces=spaces2.total_number_of_spaces, n_bdrys=spaces2.total_number_of_bdry)
+    logger2.pre_logging(spaces2)
+
     # 助走計算1(土壌のみ)
     print('助走計算1（土壌のみ）')
     Tave = a37.get_a0(theta_o_ns)
@@ -83,7 +87,8 @@ def calc_heat_load(d: Dict):
             n=n,
             start_indices=start_indices,
             ss=spaces2,
-            c_n=conditions_n
+            c_n=conditions_n,
+            logger2=logger2
         )
 
     # 本計算(室温、熱負荷)
@@ -96,18 +101,19 @@ def calc_heat_load(d: Dict):
             n=n,
             start_indices=start_indices,
             ss=spaces2,
-            c_n= conditions_n
+            c_n=conditions_n,
+            logger2=logger2
         )
-#    [simulator.run_tick(spaces=spaces, theta_o_n=theta_o_ns[n], xo_n=x_o_ns[n], n=n) for n in range(0, n_step_main)]
+
+    logger2.post_logging(spaces2)
 
     print('ログ作成')
     # log ヘッダーの作成
     log = exporter.append_headers(spaces=spaces)
 
     # log の記録
-#    for n in range(0, n_step_main):
-#        exporter.append_tick_log(spaces=spaces, log=log, To_n=theta_o_ns, n=n, xo_n=x_o_ns)
-    [exporter.append_tick_log(spaces=spaces, log=log, To_n=theta_o_ns, n=n, xo_n=x_o_ns) for n in range(0, n_step_main)]
+    for n in range(0, n_step_main):
+        exporter.append_tick_log(spaces=spaces, log=log, To_n=theta_o_ns, n=n, xo_n=x_o_ns, logger2=logger2)
 
     # CSVファイルの出力
     f = open('simulatin_result.csv', 'w', encoding="utf_8_sig")

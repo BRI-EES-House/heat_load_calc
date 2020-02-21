@@ -11,43 +11,6 @@ from a39_global_parameters import OperationMode
 
 import s4_1_sensible_heat as s41
 
-import Psychrometrics as psy
-
-
-# # 室温・熱負荷を計算するクラス
-
-# ## １）室内部位に関連するクラス
-
-# 室内部位に関する情報を保持します。
-# 
-# - is_skin:      外皮フラグ, 外皮の場合True
-# - boundary:  方位・隣室名, string
-# - unsteady:  非定常フラグ, 非定常壁体の場合True
-# - name:      壁体・開口部名称, string
-# - A_i_g:      面積, m2
-# - sunbreak:  ひさし名称, string
-# - flr_i_k:       放射暖房吸収比率, －
-# - fot:       人体に対する形態係数, －
-
-# ## ４）空間に関するクラス
-
-# 空間に関する情報を保持します。
-# 
-# - roomname:      室区分, string
-# - roomdiv:       室名称, string
-# - HeatCcap:      最大暖房能力（対流）[W]
-# - HeatRcap:      最大暖房能力（放射）[W]
-# - CoolCcap:      最大冷房能力（対流）[W]
-# - CoolRcap:      最大冷房能力（放射）[W]
-# - Vol:           室気積, m3
-# - Fnt:           家具熱容量, kJ/m3K
-# - Vent:          計画換気量, m3/h
-# - Inf:           すきま風量[Season]（list型、暖房・中間期・冷房の順）, m3/h
-# - CrossVentRoom: 通風計算対象室, False
-# - is_radiative_heating:       放射暖房対象室フラグ, True
-# - Betat:         放射暖房対流比率, －
-# - RoomtoRoomVents:      室間換気量（list型、暖房・中間期・冷房、風上室名称）, m3/h
-# - d:             室内部位に関連するクラス, Surface
 
 class Logger:
 
@@ -55,10 +18,10 @@ class Logger:
 
         self.q_sol_frnt_i_ns = None
 
-        self.q_trs_sol_i_ns = None
+#        self.q_trs_sol_i_ns = None
 
         # 当該時刻の空調需要
-        self.air_conditioning_demand = None
+#        self.air_conditioning_demand = None
 
         # ステップnの室iにおける機器発熱, W
         self.heat_generation_appliances_schedule = None
@@ -76,7 +39,7 @@ class Logger:
         self.x_hum_i_ns = np.zeros(24 * 365 * 4 * 3)
 
         # ステップnの室iにおける運転状態
-        self.operation_mode = np.empty(24 * 365 * 4 * 3, dtype=object)
+#        self.operation_mode = np.empty(24 * 365 * 4 * 3, dtype=object)
 
         # ステップnの室iにおける家具の温度, degree C
         self.theta_frnt_i_ns = np.full(24 * 365 * 4 * 3, a18.get_Tfun_initial())
@@ -85,7 +48,7 @@ class Logger:
         self.theta_r_i_ns = np.zeros(24 * 365 * 4 * 3)
 
         # i室のn時点における室の作用温度
-        self.OT_i_n = np.zeros(24 * 365 * 4 * 3)
+        #self.OT_i_n = np.zeros(24 * 365 * 4 * 3)
 
         self.Qfuns_i_n = np.zeros(24 * 365 * 4 * 3)
 
@@ -96,7 +59,7 @@ class Logger:
         self.Ts_i_k_n = np.zeros((n_bnd_i_jstrs, 24 * 365 * 4 * 4))
 
         # i室のn時点におけるMRV(平均放射温度)
-        self.MRT_i_n = np.zeros(24 * 365 * 4 * 3)
+        #self.MRT_i_n = np.zeros(24 * 365 * 4 * 3)
 
         # i室の部位kにおけるn時点の室内等価温度
         self.Tei_i_k_n = np.zeros((n_bnd_i_jstrs, 24 * 365 * 4 * 4))
@@ -117,16 +80,16 @@ class Logger:
         self.Qfunl_i_n = np.zeros(24 * 365 * 4 * 3)
 
         # i室のn時点における相対風速[m/s]
-        self.Vel_i_n = np.full(24 * 365 * 4 * 3, 0.1)
+        #self.Vel_i_n = np.full(24 * 365 * 4 * 3, 0.1)
 
         # i室のn時点における着衣量[Clo]
         self.Clo_i_n = np.ones(24 * 365 * 4 * 3)
 
         # i室のn時点における室絶対湿度
-        self.x_r_i_ns = np.zeros(24 * 365 * 4 * 3)
+#        self.x_r_i_ns = np.zeros(24 * 365 * 4 * 3)
 
         # i室のn時点における室相対湿度[%]
-        self.RH_i_n = np.full(24 * 365 * 4 * 3, 50.0)
+        #self.RH_i_n = np.full(24 * 365 * 4 * 3, 50.0)
 
 
 # 空間に関する情報の保持
@@ -172,9 +135,9 @@ class Space:
             rfa1_bnd_i_jstrs,
             n_bnd_i_jstrs,
             q_trs_sol_i_ns: np.ndarray,
-            heat_generation_appliances_schedule: np.ndarray,
+            q_gen_app_i_ns: np.ndarray,
             x_gen_except_hum_i_ns: np.ndarray,
-            heat_generation_lighting_schedule: np.ndarray,
+            q_gen_lght_i_ns: np.ndarray,
             number_of_people_schedule: np.ndarray,
             air_conditioning_demand: np.ndarray,
             Fot_i_g: np.ndarray,
@@ -363,13 +326,13 @@ class Space:
         # 計算結果出力用ロガー
         self.logger = Logger(n_bnd_i_jstrs=n_bnd_i_jstrs)
 
-        self.logger.air_conditioning_demand = air_conditioning_demand
         # ステップnの室iにおける機器発熱, W
-        self.logger.heat_generation_appliances_schedule = heat_generation_appliances_schedule
+        self.logger.heat_generation_appliances_schedule = q_gen_app_i_ns
         # ステップnの室iにおける照明発熱, W
-        self.logger.heat_generation_lighting_schedule = heat_generation_lighting_schedule
+        self.logger.heat_generation_lighting_schedule = q_gen_lght_i_ns
 
-        self.logger.q_trs_sol_i_ns = q_trs_sol_i_ns
+#        self.logger.q_trs_sol_i_ns = q_trs_sol_i_ns
+        self.q_trs_sol_i_ns = q_trs_sol_i_ns
 
         self.logger.q_sol_frnt_i_ns = q_sol_frnt_i_ns
 
@@ -526,6 +489,9 @@ class Spaces:
 
         # 床暖房の発熱部位？
         self.flr_is_k = np.concatenate([s.flr_i_k for s in spaces])
+
+        # ステップnの室iにおける窓の透過日射熱取得, W, [8760*4]
+        self.q_trs_sol_is_ns = np.concatenate([[s.q_trs_sol_i_ns] for s in spaces])
 
 
 def get_start_indices2(spaces):

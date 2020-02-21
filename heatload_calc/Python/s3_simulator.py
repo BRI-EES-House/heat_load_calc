@@ -16,7 +16,7 @@ from s3_space_loader import Space, Spaces, Conditions
 
 import Psychrometrics as psy
 from a39_global_parameters import BoundaryType
-
+from a33_results_exporting import Logger2
 
 def get_start_indices(spaces):
     number_of_bdry_is = np.array([s.number_of_boundary for s in spaces])
@@ -71,7 +71,7 @@ def run_tick_groundonly(To_n: float, Tave: float, c_n: Conditions, ss: Spaces):
 
 
 # 室温、熱負荷の計算
-def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_indices: List[int], ss: Spaces, c_n: Conditions):
+def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_indices: List[int], ss: Spaces, c_n: Conditions, logger2: Logger2):
 
     # ステップn+1の室iにおける水蒸気圧, Pa
     p_v_r_is_n = psy.get_p_v_r(x_r_is_n=c_n.x_r_is_n)
@@ -380,13 +380,13 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
     Lrl_is_n = get_Lrl()
 
     # ステップn+1の室iにおける飽和水蒸気圧, Pa
-    p_vs_is_n_pls = psy.get_p_vs_is(theta_r_is_n_pls)
+#    p_vs_is_n_pls = psy.get_p_vs_is(theta_r_is_n_pls)
 
     # ステップn+1の室iにおける水蒸気圧, Pa
-    p_v_is_n_pls = psy.get_p_v_r(x_r_is_n=x_r_is_n_pls)
+#    p_v_is_n_pls = psy.get_p_v_r(x_r_is_n=x_r_is_n_pls)
 
     # ステップn+1の室iにおける相対湿度, %
-    rh_i_n_pls = psy.get_h(p_v=p_v_is_n_pls, p_vs=p_vs_is_n_pls)
+#    rh_i_n_pls = psy.get_h(p_v=p_v_is_n_pls, p_vs=p_vs_is_n_pls)
 
     # ********** 備品類の絶対湿度 xf の計算 **********
 
@@ -414,6 +414,14 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
         theta_mrt_is_n=theta_mrt_is_n_pls
     )
 
+    logger2.operation_mode[:, n] = operation_mode_is_n
+    logger2.theta_r[:, n] = theta_r_is_n_pls
+    logger2.x_r[:, n] = x_r_is_n_pls
+    logger2.theta_mrt[:, n] = theta_mrt_is_n_pls
+    logger2.theta_ot[:, n] = theta_ot_is_n
+    logger2.clo[:, n] = clo_is_n
+    logger2.v_hum[:, n] = v_hum_i_n_pls
+
     for i, s in enumerate(spaces):
 
         Ts_i_k_n = np.split(ts_is_k_n, start_indices)[i]
@@ -426,14 +434,14 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
         s.logger.theta_rear_i_jstrs_ns[:, n] = theta_rear_i_jstrs_n
         s.logger.q_hum_i_ns[n] = q_hum_is_n[i]
         s.logger.x_hum_i_ns[n] = x_hum_is_n[i]
-        s.logger.operation_mode[n] = operation_mode_is_n[i]
+#        s.logger.operation_mode[n] = operation_mode_is_n[i]
         s.logger.theta_frnt_i_ns[n] = theta_frnt_is_n[i]
-        s.logger.OT_i_n[n] = theta_ot_is_n[i]
+#        s.logger.OT_i_n[n] = theta_ot_is_n[i]
         s.logger.Qfuns_i_n[n] = s41.get_Qfuns(s.c_fun_i, theta_r_is_n_pls[i], theta_frnt_is_n[i])
         s.logger.Qc[:, n] = Qc
         s.logger.Qr[:, n] = Qr
         s.logger.Ts_i_k_n[:, n] = Ts_i_k_n
-        s.logger.MRT_i_n[n] = theta_mrt_is_n_pls[i]
+        #s.logger.MRT_i_n[n] = theta_mrt_is_n_pls[i]
         # 室内側等価温度の計算 式(29)
         s.logger.Tei_i_k_n[:, n] = a1.calc_Tei(
             s.h_c_bnd_i_jstrs, s.h_r_bnd_i_jstrs, s.q_sol_srf_i_jstrs_ns[:, n], s.flr_i_k,
@@ -443,10 +451,10 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
         s.logger.Lcl_i_n[n] = Lcl_i_n[i]
         s.logger.xf_i_n[n] = xf_i_n[i]
         s.logger.Qfunl_i_n[n] = Qfunl_i_n[i]
-        s.logger.Vel_i_n[n] = v_hum_i_n_pls[i]
+#        s.logger.Vel_i_n[n] = v_hum_i_n_pls[i]
         s.logger.Clo_i_n[n] = clo_is_n[i]
-        s.logger.RH_i_n[n] = rh_i_n_pls[i]
-        s.logger.x_r_i_ns[n] = x_r_is_n_pls[i]
+#        s.logger.RH_i_n[n] = rh_i_n_pls[i]
+#        s.logger.x_r_i_ns[n] = x_r_is_n_pls[i]
 
     return Conditions(
         operation_mode_is_n=operation_mode_is_n,

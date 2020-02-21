@@ -131,16 +131,16 @@ def make_space(room: Dict,
     # 局所換気
     local_vent_amount_schedule = a38.get_schedule(
         room_name=name_i, n_p=n_p, calendar=calendar, daily_schedule=d_json['daily_schedule']['local_vent_amount'])
-    heat_generation_appliances_schedule = a38.get_schedule(
+    q_gen_app_i_ns = a38.get_schedule(
         room_name=name_i, n_p=n_p, calendar=calendar, daily_schedule=d_json['daily_schedule']['heat_generation_appliances'])
-    heat_generation_cooking_schedule = a38.get_schedule(
+    q_gen_ckg_i_ns = a38.get_schedule(
         room_name=name_i, n_p=n_p, calendar=calendar, daily_schedule=d_json['daily_schedule']['vapor_generation_cooking'])
     # 機器発熱
     vapor_generation_cooking_schedule = a38.get_schedule(
         room_name=name_i, n_p=n_p, calendar=calendar, daily_schedule=d_json['daily_schedule']['heat_generation_cooking'])
     # 照明発熱
     # TODO 床面積を乗じるのを忘れないように
-    heat_generation_lighting_schedule = a38.get_schedule(
+    q_gen_lght_i_ns = a38.get_schedule(
         room_name=name_i, n_p=n_p, calendar=calendar, daily_schedule=d_json['daily_schedule']['heat_generation_lighting'])
     # 在室人数
     number_of_people_schedule = a38.get_schedule(
@@ -266,7 +266,7 @@ def make_space(room: Dict,
         hc_i_k_n=h_c_bnd_i_jstrs
     )
 
-    q_gen_i_ns = heat_generation_appliances_schedule + heat_generation_lighting_schedule + heat_generation_cooking_schedule
+    q_gen_i_ns = q_gen_app_i_ns + q_gen_lght_i_ns + q_gen_ckg_i_ns
 
     next_room_idxs_i = []
     for x in name_vent_up_i_nis:
@@ -308,9 +308,9 @@ def make_space(room: Dict,
         rfa1_bnd_i_jstrs=rfa1_bnd_i_jstrs,
         n_bnd_i_jstrs=n_bnd_i_jstrs,
         q_trs_sol_i_ns=q_trs_sol_i_ns,
-        heat_generation_appliances_schedule=heat_generation_appliances_schedule,
+        q_gen_app_i_ns=q_gen_app_i_ns,
         x_gen_except_hum_i_ns=vapor_generation_cooking_schedule/1000.0/3600.0,
-        heat_generation_lighting_schedule=heat_generation_lighting_schedule,
+        q_gen_lght_i_ns=q_gen_lght_i_ns,
         number_of_people_schedule=number_of_people_schedule,
         air_conditioning_demand=air_conditioning_demand,
         Fot_i_g=Fot_i_g,
