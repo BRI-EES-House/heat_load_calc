@@ -30,10 +30,10 @@ def get_start_indices(spaces):
 
 
 # 地盤の計算
-def run_tick_groundonly(To_n: float, Tave: float, conditions_n: Conditions, ss: Spaces):
+def run_tick_groundonly(To_n: float, Tave: float, c_n: Conditions, ss: Spaces):
 
-    theta_srf_dsh_a_is_jstrs_n_ms = conditions_n.theta_dsh_srf_a_jstrs_n_ms
-    q_srf_is_jstrs_n = conditions_n.q_srf_jstrs_n
+    theta_dsh_srf_a_jstrs_n_ms = c_n.theta_dsh_srf_a_jstrs_n_ms
+    q_srf_jstrs_n = c_n.q_srf_jstrs_n
     gs = ss.boundary_type_jstrs == BoundaryType.Ground
 
     h_r_bnd_jstrs = ss.h_r_bnd_jstrs
@@ -42,88 +42,53 @@ def run_tick_groundonly(To_n: float, Tave: float, conditions_n: Conditions, ss: 
     h_i_bnd_jstrs = h_r_bnd_jstrs + h_c_bnd_jstrs
 
     theta_srf_dsh_a_is_jstrs_npls_ms = a1.get_theta_srf_dsh_a_i_jstrs_npls_ms(
-        q_srf_i_jstrs_n=q_srf_is_jstrs_n[gs],
+        q_srf_jstrs_n=q_srf_jstrs_n[gs],
         phi_a_1_bnd_i_jstrs_ms=ss.phi_a_1_bnd_jstrs_ms[gs, :],
         r_bnd_i_jstrs_ms=ss.r_bnd_jstrs_ms[gs, :],
-        theta_srf_dsh_a_i_jstrs_n_ms=theta_srf_dsh_a_is_jstrs_n_ms[gs, :])
+        theta_dsh_srf_a_jstrs_n_ms=theta_dsh_srf_a_jstrs_n_ms[gs, :])
 
-    theta_srf_dsh_a_is_jstrs_n_ms[gs, :] = theta_srf_dsh_a_is_jstrs_npls_ms
+    theta_dsh_srf_a_jstrs_n_ms[gs, :] = theta_srf_dsh_a_is_jstrs_npls_ms
 
     Ts_is_k_n = (ss.phi_a_0_bnd_jstrs[gs] * h_i_bnd_jstrs[gs] * To_n
                  + np.sum(theta_srf_dsh_a_is_jstrs_npls_ms, axis=1) + Tave) \
                / (1.0 + ss.phi_a_0_bnd_jstrs[gs] * h_i_bnd_jstrs[gs])
 
-    q_srf_is_jstrs_n[gs] = h_i_bnd_jstrs[gs] * (To_n - Ts_is_k_n)
+    q_srf_jstrs_n[gs] = h_i_bnd_jstrs[gs] * (To_n - Ts_is_k_n)
 
     return Conditions(
-        operation_mode_is_n=conditions_n.operation_mode_is_n,
-        theta_r_is_n=conditions_n.theta_r_is_n,
-        theta_mrt_is_n=conditions_n.theta_mrt_is_n,
-        x_r_is_n=conditions_n.x_r_is_n,
-        theta_dsh_srf_a_jstrs_n_ms=theta_srf_dsh_a_is_jstrs_n_ms,
-        theta_dsh_srf_t_jstrs_n_ms=conditions_n.theta_dsh_srf_t_jstrs_n_ms,
-        q_srf_jstrs_n=q_srf_is_jstrs_n,
-        h_hum_c_is_n=conditions_n.h_hum_c_is_n,
-        h_hum_r_is_n=conditions_n.h_hum_r_is_n,
-        theta_frnt_is_n=conditions_n.theta_frnt_is_n,
-        x_frnt_is_n=conditions_n.x_frnt_is_n
+        operation_mode_is_n=c_n.operation_mode_is_n,
+        theta_r_is_n=c_n.theta_r_is_n,
+        theta_mrt_is_n=c_n.theta_mrt_is_n,
+        x_r_is_n=c_n.x_r_is_n,
+        theta_dsh_srf_a_jstrs_n_ms=theta_dsh_srf_a_jstrs_n_ms,
+        theta_dsh_srf_t_jstrs_n_ms=c_n.theta_dsh_srf_t_jstrs_n_ms,
+        q_srf_jstrs_n=q_srf_jstrs_n,
+        h_hum_c_is_n=c_n.h_hum_c_is_n,
+        h_hum_r_is_n=c_n.h_hum_r_is_n,
+        theta_frnt_is_n=c_n.theta_frnt_is_n,
+        x_frnt_is_n=c_n.x_frnt_is_n
     )
 
 
 # 室温、熱負荷の計算
-def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_indices: List[int], ss: Spaces, conditions_n: Conditions):
-
-    # region 前時刻からの引き継ぎ
-
-    # ステップnの統合された境界j*における指数項mの吸熱応答の項別成分, degree C, [j*, 12]
-    theta_srf_dsh_a_is_jstrs_n_ms = conditions_n.theta_dsh_srf_a_jstrs_n_ms
-
-    # ステップnの統合された境界j*における指数項mの貫流応答の項別成分, degree C, [j*, 12]
-    theta_srf_dsh_t_is_jstrs_n_m = conditions_n.theta_dsh_srf_t_jstrs_n_ms
-
-    # ステップnの統合された境界j*における表面熱流（壁体吸熱を正とする）, W/m2, [j*]
-    q_srf_is_jstrs_n = conditions_n.q_srf_jstrs_n
-
-    # ステップnの室iにおける室温, degree C, [i]
-    theta_r_is_n = conditions_n.theta_r_is_n
-
-    # ステップnの室iにおける絶対湿度, kg/kg(DA), [i]
-    x_r_is_n = conditions_n.x_r_is_n
-
-    # 運転状態, [i]
-    operation_mode_is_n_mns = conditions_n.operation_mode_is_n
-
-    # ステップnの室iにおける人体周りの対流熱伝達率, W/m2K, [i]
-    h_hum_c_is_n = conditions_n.h_hum_c_is_n
-
-    # ステップnの室iにおける人体周りの放射熱伝達率, W/m2K, [i]
-    h_hum_r_is_n = conditions_n.h_hum_r_is_n
-
-    # endregion
-
-    # ステップnの室iにおける平均放射温度, degree C, [i]
-#    theta_mrt_is_n = np.array([s.theta_mrt_i_n for s in spaces])
-    theta_mrt_is_n = conditions_n.theta_mrt_is_n
-
-#    xf_is_npls = np.array([s.xf_i_npls for s in spaces])
-    xf_is_npls = conditions_n.x_frnt_is_n
+def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_indices: List[int], ss: Spaces, c_n: Conditions):
 
     # ステップn+1の室iにおける水蒸気圧, Pa
-    p_v_r_is_n = psy.get_p_v_r(x_r_is_n=x_r_is_n)
+    p_v_r_is_n = psy.get_p_v_r(x_r_is_n=c_n.x_r_is_n)
 
     # ステップnの室iにおける人体周りの総合熱伝達率, W/m2K, [i]
     h_hum_is_n = a35.get_h_hum_is_n(
-        h_hum_r_is_n=h_hum_r_is_n,
-        h_hum_c_is_n=h_hum_c_is_n
+        h_hum_r_is_n=c_n.h_hum_r_is_n,
+        h_hum_c_is_n=c_n.h_hum_c_is_n
     )
 
     # ステップnの室iにおける作用温度, degree C, [i]
     theta_ot_is_n = a35.get_theta_ot_is_n(
-        h_hum_c_is_n=h_hum_c_is_n,
-        h_hum_r_is_n=h_hum_r_is_n,
+        h_hum_c_is_n=c_n.h_hum_c_is_n,
+        h_hum_r_is_n=c_n.h_hum_r_is_n,
         h_hum_is_n=h_hum_is_n,
-        theta_r_is_n=theta_r_is_n,
-        theta_mrt_is_n=theta_mrt_is_n
+        theta_r_is_n=c_n.theta_r_is_n,
+        theta_mrt_is_n=c_n.theta_mrt_is_n
     )
 
     # ステップnの室iにおける厚着・中間着・薄着をした場合のそれぞれのclo値, [i]
@@ -150,7 +115,7 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
 
     # ステップnの室iにおける厚着・中間着・薄着をした場合のそれぞれのPMV, [i]
     pmv_heavy_is_n = a35.get_pmv_is_n(
-        theta_r_is_n=theta_r_is_n,
+        theta_r_is_n=c_n.theta_r_is_n,
         theta_cl_is_n=theta_cl_heavy_is_n,
         clo_is_n=clo_heavy_is_n,
         p_a_is_n=p_v_r_is_n,
@@ -158,7 +123,7 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
         theta_ot_is_n=theta_ot_is_n
     )
     pmv_middle_is_n = a35.get_pmv_is_n(
-        theta_r_is_n=theta_r_is_n,
+        theta_r_is_n=c_n.theta_r_is_n,
         theta_cl_is_n=theta_cl_middle_is_n,
         clo_is_n=clo_middle_is_n,
         p_a_is_n=p_v_r_is_n,
@@ -166,7 +131,7 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
         theta_ot_is_n=theta_ot_is_n
     )
     pmv_light_is_n = a35.get_pmv_is_n(
-        theta_r_is_n=theta_r_is_n,
+        theta_r_is_n=c_n.theta_r_is_n,
         theta_cl_is_n=theta_cl_light_is_n,
         clo_is_n=clo_light_is_n,
         p_a_is_n=p_v_r_is_n,
@@ -177,7 +142,7 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
     # ステップnの室iにおける運転モード, [i]
     operation_mode_is_n = a13.get_operation_mode_is_n(
         ac_demand_is_n=ss.ac_demand_is_n[:, n],
-        operation_mode_is_n_mns=operation_mode_is_n_mns,
+        operation_mode_is_n_mns=c_n.operation_mode_is_n,
         pmv_heavy_is_n=pmv_heavy_is_n,
         pmv_middle_is_n=pmv_middle_is_n,
         pmv_light_is_n=pmv_light_is_n
@@ -210,16 +175,16 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
 
     # ステップnの室iの集約された境界j*における裏面温度, degree C, [j*]
     theta_rear_is_jstrs_n = a9.get_theta_rear_i_jstrs_n(
-        theta_r_is_n=theta_r_is_n,
+        theta_r_is_n=c_n.theta_r_is_n,
         m=ss.m_is,
         theta_dstrb_i_jstrs_n=ss.theta_dstrb_jstrs_ns[:, n]
     )
 
     # ステップnの室iにおける人体発熱, W, [i]
-    q_hum_is_n = a3.get_q_hum_i_n(theta_r_i_n=theta_r_is_n, n_hum_i_n=ss.n_hum_is_n[:, n])
+    q_hum_is_n = a3.get_q_hum_i_n(theta_r_is_n=c_n.theta_r_is_n, n_hum_i_n=ss.n_hum_is_n[:, n])
 
     # ステップnの室iにおける人体発湿, kg/s, [i]
-    x_hum_is_n = a3.get_x_hum_i_n(theta_r_i_n=theta_r_is_n, n_hum_i_n=ss.n_hum_is_n[:, n])
+    x_hum_is_n = a3.get_x_hum_i_n(theta_r_is_n=c_n.theta_r_is_n, n_hum_i_n=ss.n_hum_is_n[:, n])
 
     # ステップnの室iにおける内部発熱, W
     q_gen_is_n = ss.q_gen_except_hum_is_n[:, n] + q_hum_is_n
@@ -234,10 +199,10 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
 
     # ステップn+1の室iの統合された境界j*における項別公比法の項mの吸熱応答に関する表面温度, degree C, [jstrs, 12]
     theta_srf_dsh_a_is_jstrs_npls_ms = a1.get_theta_srf_dsh_a_i_jstrs_npls_ms(
-        q_srf_i_jstrs_n=q_srf_is_jstrs_n,
+        q_srf_jstrs_n=c_n.q_srf_jstrs_n,
         phi_a_1_bnd_i_jstrs_ms=ss.phi_a_1_bnd_jstrs_ms,
         r_bnd_i_jstrs_ms=ss.r_bnd_jstrs_ms,
-        theta_srf_dsh_a_i_jstrs_n_ms=theta_srf_dsh_a_is_jstrs_n_ms
+        theta_dsh_srf_a_jstrs_n_ms=c_n.theta_dsh_srf_a_jstrs_n_ms
     )
 
     # ステップn+1の室iの統合された境界j*における項別公比法の項mの貫流応答に関する表面温度, degree C, [jstrs, 12]
@@ -245,7 +210,7 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
         theta_rear_i_jstrs_n=theta_rear_is_jstrs_n,
         phi_t_1_bnd_i_jstrs_ms=ss.phi_t_1_bnd_jstrs_ms,
         r_bnd_i_jstrs_ms=ss.r_bnd_jstrs_ms,
-        theta_srf_dsh_t_i_jstrs_n_m=theta_srf_dsh_t_is_jstrs_n_m
+        theta_dsh_srft_jstrs_n_m=c_n.theta_dsh_srf_t_jstrs_n_ms
     )
 
     # ステップn+1の室iの統合された境界j*における係数CVL, degree C, [j*]
@@ -267,9 +232,6 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
     # ステップn+1の室iの断熱された境界j*における係数WSV, degree C, [j*]
     wsv_is_jstrs_npls = a1.get_wsv_i_jstrs_npls(ivs_x_i=ss.ivs_x_is, cvl_i_jstrs_npls=cvl_is_jstrs_npls)
 
-#    old_theta_frnt_is = np.array([s.old_theta_frnt_i for s in spaces])
-    old_theta_frnt_is = conditions_n.theta_frnt_is_n
-
     v_ntrl_vent_is = np.where(operation_mode_is_n == OperationMode.STOP_OPEN, ss.v_ntrl_vent_is, 0.0)
 
     # ステップnの室iにおける係数BRC
@@ -277,7 +239,7 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
         p=ss.p,
         c_room_i=ss.c_room_is,
         deta_t=900.0,
-        theta_r_i_n=theta_r_is_n,
+        theta_r_is_n=c_n.theta_r_is_n,
         h_c_bnd_i_jstrs=ss.h_c_bnd_jstrs,
         a_bnd_i_jstrs=ss.a_bnd_jstrs,
         wsc_i_jstrs_npls=wsc_is_jstrs_npls,
@@ -290,7 +252,7 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
         c_cap_frnt_i=ss.c_cap_frnt_is,
         k_frnt_i=ss.c_fun_is,
         q_sol_frnt_i_n=ss.q_sol_frnt_is_ns[:, n],
-        theta_frnt_i_n=old_theta_frnt_is,
+        theta_frnt_i_n=c_n.theta_frnt_is_n,
         v_int_vent_is=ss.v_int_vent_is
     )
 
@@ -320,7 +282,7 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
     # 家具の温度 Tfun を計算 式(15)
     theta_frnt_is_n = s41.get_Tfun_i_n(
         ss.c_cap_frnt_is,
-        old_theta_frnt_is,
+        c_n.theta_frnt_is_n,
         ss.c_fun_is, theta_r_is_n_pls,
         ss.q_sol_frnt_is_ns[:, n]
     )
@@ -342,6 +304,7 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
         ts_is_k_n=ts_is_k_n)
 
     # 室内表面熱流の計算 式(28)
+    # ステップnの統合された境界j*における表面熱流（壁体吸熱を正とする）, W/m2, [j*]
     Qcs, Qrs, q_srf_is_jstrs_n = a1.calc_qi(
         h_c_bnd_jstrs=ss.h_c_bnd_jstrs,
         a_bnd_jstrs=ss.a_bnd_jstrs,
@@ -372,8 +335,8 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
         gf_is=ss.gf_is,
         cx_is=ss.cx_is,
         v_room_cap_is=ss.v_room_cap_is,
-        x_r_is_n=x_r_is_n,
-        xf_is_npls=xf_is_npls,
+        x_r_is_n=c_n.x_r_is_n,
+        x_frnt_is_n=c_n.x_frnt_is_n,
         x_gen_is_n=x_gen_is_n,
         xo=xo_n,
         v_mec_vent_is_n=ss.v_mec_vent_is_ns[:, n],
@@ -428,7 +391,7 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
     # ********** 備品類の絶対湿度 xf の計算 **********
 
     # 備品類の絶対湿度の計算
-    xf_i_n = s42.get_xf(ss.gf_is, xf_is_npls, ss.cx_is, x_r_is_n_pls)
+    xf_i_n = s42.get_xf(ss.gf_is, c_n.x_frnt_is_n, ss.cx_is, x_r_is_n_pls)
 
     Qfunl_i_n = s42.get_Qfunl(ss.cx_is, x_r_is_n_pls, xf_i_n)
 
@@ -452,9 +415,6 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
     )
 
     for i, s in enumerate(spaces):
-
-        # 前の時刻からの値
-        s.xf_i_npls = xf_i_n[i]
 
         Ts_i_k_n = np.split(ts_is_k_n, start_indices)[i]
         theta_rear_i_jstrs_n = np.split(theta_rear_is_jstrs_n, start_indices)[i]

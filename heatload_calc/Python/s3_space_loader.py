@@ -359,7 +359,6 @@ class Space:
 
         self.Gf_i = a14.get_Gf(self.v_room_cap_i)  # i室の備品類の湿気容量
         self.Cx_i = a14.get_Cx(self.Gf_i)  # i室の備品類と室空気間の湿気コンダクタンス
-        self.xf_i_npls = a18.get_xf_initial()
 
         # 計算結果出力用ロガー
         self.logger = Logger(n_bnd_i_jstrs=n_bnd_i_jstrs)

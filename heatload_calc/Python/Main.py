@@ -69,7 +69,7 @@ def calc_heat_load(d: Dict):
         conditions_n = simulator.run_tick_groundonly(
             To_n=theta_o_ns[n],
             Tave=Tave,
-            conditions_n=conditions_n,
+            c_n=conditions_n,
             ss=spaces2
         )
 
@@ -83,7 +83,7 @@ def calc_heat_load(d: Dict):
             n=n,
             start_indices=start_indices,
             ss=spaces2,
-            conditions_n=conditions_n
+            c_n=conditions_n
         )
 
     # 本計算(室温、熱負荷)
@@ -96,7 +96,7 @@ def calc_heat_load(d: Dict):
             n=n,
             start_indices=start_indices,
             ss=spaces2,
-            conditions_n = conditions_n
+            c_n= conditions_n
         )
 #    [simulator.run_tick(spaces=spaces, theta_o_n=theta_o_ns[n], xo_n=x_o_ns[n], n=n) for n in range(0, n_step_main)]
 

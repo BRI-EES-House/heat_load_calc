@@ -41,8 +41,26 @@ def get_BRMX(v_reak_is_n, gf_is, cx_is, v_room_cap_is, v_mec_vent_is_n, v_int_ve
 
 # 式(18)
 def get_BRXC(
-        v_reak_is_n, gf_is, cx_is, v_room_cap_is, xo, x_r_is_n, xf_is_npls, x_gen_is_n,
+        v_reak_is_n, gf_is, cx_is, v_room_cap_is, xo,
+        x_r_is_n: np.ndarray, x_frnt_is_n, x_gen_is_n,
         v_mec_vent_is_n, v_int_vent_is):
+    """
+    
+    Args:
+        v_reak_is_n: 
+        gf_is: 
+        cx_is: 
+        v_room_cap_is: 
+        xo: 
+        x_r_is_n: ステップnの室iにおける絶対湿度, kg/kg(DA), [i]
+        x_frnt_is_n: 
+        x_gen_is_n: 
+        v_mec_vent_is_n: 
+        v_int_vent_is: 
+
+    Returns:
+
+    """
 
     # 外気の流入量, [i]
     Voin = get_v_ex_i_n(v_reak_i_n=v_reak_is_n, v_mec_vent_i_n=v_mec_vent_is_n)
@@ -54,7 +72,7 @@ def get_BRXC(
 
     return (
             rhoa * (v_room_cap_is / 900 * x_r_is_n + Voin * xo)
-            + temp * xf_is_npls
+            + temp * x_frnt_is_n
             + x_gen_is_n
             + rhoa * np.dot(v_int_vent_is, x_r_is_n.reshape(-1, 1)).flatten()
             )

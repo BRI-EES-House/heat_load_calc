@@ -43,8 +43,7 @@ def get_p_v_r(x_r_is_n: np.ndarray) -> np.ndarray:
     """絶対湿度から水蒸気圧を求める。
 
     Args:
-        x_r_is_n: 室iにおける絶対湿度, kg/kgDA, [i]
-
+        x_r_is_n: ステップnの室iにおける絶対湿度, kg/kgDA, [i]
     Returns:
         室iにおける水蒸気圧, Pa, [i]
 

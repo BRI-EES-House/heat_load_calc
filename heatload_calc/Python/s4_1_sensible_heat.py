@@ -74,7 +74,7 @@ def get_BRM_i(Hcap, WSR_i_k, Cap_fun_i, C_fun_i, Vent, local_vent_amount_schedul
     return BRM
 
 
-def get_brc_i_n(p, c_room_i: float, deta_t: float, theta_r_i_n: float, h_c_bnd_i_jstrs: np.ndarray,
+def get_brc_i_n(p, c_room_i: float, deta_t: float, theta_r_is_n: float, h_c_bnd_i_jstrs: np.ndarray,
                 a_bnd_i_jstrs: np.ndarray, wsc_i_jstrs_npls: np.ndarray, wsv_i_jstrs_npls: np.ndarray,
                 v_mec_vent_i_n: float, v_reak_i_n: float, v_ntrl_vent_i: float,
                 theta_o_n: float, q_gen_i_n: float,
@@ -85,7 +85,7 @@ def get_brc_i_n(p, c_room_i: float, deta_t: float, theta_r_i_n: float, h_c_bnd_i
     Args:
         c_room_i: 室iの熱容量, J/K
         deta_t: 時間刻み, s
-        theta_r_i_n: ステップnの室iにおける室温, degree C
+        theta_r_is_n: ステップnの室iにおける室温, degree C, [i]
         h_c_bnd_i_jstrs: 室iの統合された境界j*における対流熱伝達率, W/m2K
         a_bnd_i_jstrs: 室iの統合された境界j*における面積, m2
         wsc_i_jstrs_npls: ステップn+1の室iの統合された境界j*における係数WSC, degree C, [j*]
@@ -109,16 +109,16 @@ def get_brc_i_n(p, c_room_i: float, deta_t: float, theta_r_i_n: float, h_c_bnd_i
     c_air = a18.get_c_air()
     rho_air = a18.get_rho_air()
 
-    return (c_room_i / deta_t * theta_r_i_n
-        + np.dot(p, (h_c_bnd_i_jstrs * a_bnd_i_jstrs * (wsc_i_jstrs_npls + wsv_i_jstrs_npls)).reshape(-1, 1)).flatten() \
-        + c_air * rho_air * (
+    return (c_room_i / deta_t * theta_r_is_n
+            + np.dot(p, (h_c_bnd_i_jstrs * a_bnd_i_jstrs * (wsc_i_jstrs_npls + wsv_i_jstrs_npls)).reshape(-1, 1)).flatten() \
+            + c_air * rho_air * (
             (v_reak_i_n + v_mec_vent_i_n) * theta_o_n
-                + np.dot(v_int_vent_is, theta_r_i_n.reshape(-1, 1)).flatten()
+                + np.dot(v_int_vent_is, theta_r_is_n.reshape(-1, 1)).flatten()
             )
-        + q_gen_i_n
-        + (c_cap_frnt_i / deta_t * theta_frnt_i_n + q_sol_frnt_i_n) / (c_cap_frnt_i / (deta_t * k_frnt_i) + 1.0)
-        + c_air * rho_air * v_ntrl_vent_i * theta_o_n
-    )
+            + q_gen_i_n
+            + (c_cap_frnt_i / deta_t * theta_frnt_i_n + q_sol_frnt_i_n) / (c_cap_frnt_i / (deta_t * k_frnt_i) + 1.0)
+            + c_air * rho_air * v_ntrl_vent_i * theta_o_n
+            )
 
 
 # BRLの計算 式(7)
