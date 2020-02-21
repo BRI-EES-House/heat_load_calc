@@ -64,7 +64,8 @@ def run_tick_groundonly(To_n: float, Tave: float, conditions_n: Conditions, ss: 
         theta_dsh_srf_t_jstrs_n_ms=conditions_n.theta_dsh_srf_t_jstrs_n_ms,
         q_srf_jstrs_n=q_srf_is_jstrs_n,
         h_hum_c_is_n=conditions_n.h_hum_c_is_n,
-        h_hum_r_is_n=conditions_n.h_hum_r_is_n
+        h_hum_r_is_n=conditions_n.h_hum_r_is_n,
+        theta_frnt_is_n=conditions_n.theta_frnt_is_n
     )
 
 
@@ -264,7 +265,8 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
     # ステップn+1の室iの断熱された境界j*における係数WSV, degree C, [j*]
     wsv_is_jstrs_npls = a1.get_wsv_i_jstrs_npls(ivs_x_i=ss.ivs_x_is, cvl_i_jstrs_npls=cvl_is_jstrs_npls)
 
-    old_theta_frnt_is = np.array([s.old_theta_frnt_i for s in spaces])
+#    old_theta_frnt_is = np.array([s.old_theta_frnt_i for s in spaces])
+    old_theta_frnt_is = conditions_n.theta_frnt_is_n
 
     v_ntrl_vent_is = np.where(operation_mode_is_n == OperationMode.STOP_OPEN, ss.v_ntrl_vent_is, 0.0)
 
@@ -450,7 +452,6 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
     for i, s in enumerate(spaces):
 
         # 前の時刻からの値
-        s.old_theta_frnt_i = theta_frnt_is_n[i]
         s.xf_i_npls = xf_i_n[i]
 
         Ts_i_k_n = np.split(ts_is_k_n, start_indices)[i]
@@ -494,7 +495,8 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
         theta_dsh_srf_t_jstrs_n_ms=theta_srf_dsh_t_is_jstrs_npls_ms,
         q_srf_jstrs_n=q_srf_is_jstrs_n,
         h_hum_c_is_n=h_hum_c_is_n_pls,
-        h_hum_r_is_n=h_hum_r_is_n_pls
+        h_hum_r_is_n=h_hum_r_is_n_pls,
+        theta_frnt_is_n=theta_frnt_is_n
     )
 
 

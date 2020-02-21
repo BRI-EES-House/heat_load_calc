@@ -357,7 +357,6 @@ class Space:
 
         # Gf_i:湿気容量[kg/(kg/kg(DA))]、Cx_i:湿気コンダクタンス[kg/(s･kg/kg(DA))]
 
-        self.old_theta_frnt_i = a18.get_Tfun_initial()
         self.Gf_i = a14.get_Gf(self.v_room_cap_i)  # i室の備品類の湿気容量
         self.Cx_i = a14.get_Cx(self.Gf_i)  # i室の備品類と室空気間の湿気コンダクタンス
         self.xf_i_npls = a18.get_xf_initial()
@@ -578,7 +577,10 @@ Conditions = namedtuple('Conditions', [
     # ステップnの室iにおける人体周りの放射熱伝達率, W/m2K, [i]
     # 本来であれば着衣温度と人体周りの対流・放射熱伝達率を未知数とした熱収支式を収束計算等を用いて時々刻々求めるのが望ましい。
     # 今回、収束計算を回避するために前時刻の人体周りの対流熱伝達率を用いることにした。
-    'h_hum_r_is_n'
+    'h_hum_r_is_n',
+
+    # ステップnの室iにおける家具の温度, degree C, [i]
+    'theta_frnt_is_n'
 
 ])
 
@@ -623,6 +625,10 @@ def initialize_conditions(ss: Spaces):
     # 新建築学体系 p.47 の室内側放射熱伝達率 4.4 kcal/m2h℃ を採用した。
     h_hum_r_is_n = np.full(total_number_of_spaces, 4.4*1.16)
 
+    # ステップnの室iにおける家具の温度, degree C, [i]
+    # 初期値を15℃とする。
+    theta_frnt_is_n = np.full(total_number_of_spaces, 15.0)
+
     return Conditions(
         operation_mode_is_n=operation_mode_is_n,
         theta_r_is_n=theta_r_is_n,
@@ -632,6 +638,7 @@ def initialize_conditions(ss: Spaces):
         theta_dsh_srf_t_jstrs_n_ms=theta_dsh_srf_t_jstrs_n_ms,
         q_srf_jstrs_n=q_srf_jstrs_n,
         h_hum_c_is_n=h_hum_c_is_n,
-        h_hum_r_is_n=h_hum_r_is_n
+        h_hum_r_is_n=h_hum_r_is_n,
+        theta_frnt_is_n=theta_frnt_is_n
     )
 
