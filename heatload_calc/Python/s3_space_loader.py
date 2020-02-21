@@ -172,7 +172,6 @@ class Space:
             rfa1_bnd_i_jstrs,
             n_bnd_i_jstrs,
             q_trs_sol_i_ns: np.ndarray,
-            theta_r_i_initial: float,
             heat_generation_appliances_schedule: np.ndarray,
             x_gen_except_hum_i_ns: np.ndarray,
             heat_generation_lighting_schedule: np.ndarray,
@@ -273,8 +272,6 @@ class Space:
         self.x_gen_except_hum_i_ns = x_gen_except_hum_i_ns
 
         self.ac_demand = air_conditioning_demand  # 当該時刻の空調需要（0：なし、1：あり）
-
-        self.theta_mrt_i_n = theta_r_i_initial
 
         # 合計面積の計算
         self.A_total_i = A_total_i
@@ -558,6 +555,9 @@ Conditions = namedtuple('Conditions', [
     # ステップnの室iにおける空気温度, degree C, [i]
     'theta_r_is_n',
 
+    # ステップnの室iにおける平均放射温度, degree C, [i]
+    'theta_mrt_is_n',
+
     # ステップnの室iにおける絶対湿度, kg/kgDA, [i]
     'x_r_is_n',
 
@@ -597,6 +597,10 @@ def initialize_conditions(ss: Spaces):
     # ステップnの室iにおける空気温度, degree C, [i]
     theta_r_is_n = np.full(total_number_of_spaces, a18.get_theta_r_initial())
 
+    # ステップnの室iにおける平均放射温度, degree C, [i]
+    # 初期値を15℃と設定する。
+    theta_mrt_is_n = np.full(total_number_of_spaces, 15.0)
+
     # ステップnの室iにおける絶対湿度, kg/kgDA, [i]
     x_r_is_n = np.full(total_number_of_spaces, a18.get_xr_initial())
 
@@ -622,6 +626,7 @@ def initialize_conditions(ss: Spaces):
     return Conditions(
         operation_mode_is_n=operation_mode_is_n,
         theta_r_is_n=theta_r_is_n,
+        theta_mrt_is_n=theta_mrt_is_n,
         x_r_is_n=x_r_is_n,
         theta_dsh_srf_a_jstrs_n_ms=theta_dsh_srf_a_jstrs_n_ms,
         theta_dsh_srf_t_jstrs_n_ms=theta_dsh_srf_t_jstrs_n_ms,

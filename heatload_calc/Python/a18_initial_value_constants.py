@@ -11,7 +11,6 @@ import Psychrometrics as psy
 def get_theta_r_initial() -> float:
     return 15.0
 
-
 def get_theta_dsh_srf_a_initial() -> float:
     """
     指数項mの吸熱応答の項別成分に初期値を与える。
