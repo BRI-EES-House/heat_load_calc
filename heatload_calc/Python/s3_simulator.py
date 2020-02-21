@@ -98,10 +98,11 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
     x_r_is_n = np.array([s.x_r_i_n for s in spaces])
     # ステップnの室iにおける平均放射温度, degree C, [i]
     theta_mrt_is_n = np.array([s.theta_mrt_i_n for s in spaces])
-    # ステップnの室iにおける水蒸気圧, Pa
-    p_a_is_n = np.array([s.p_a_i_n for s in spaces])
 
     xf_is_npls = np.array([s.xf_i_npls for s in spaces])
+
+    # ステップn+1の室iにおける水蒸気圧, Pa
+    p_v_r_is_n = psy.get_p_v_r(x_r_is_n=x_r_is_n)
 
     # ステップnの室iにおける人体周りの総合熱伝達率, W/m2K, [i]
     h_hum_is_n = a35.get_h_hum_is_n(
@@ -145,7 +146,7 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
         theta_r_is_n=theta_r_is_n,
         theta_cl_is_n=theta_cl_heavy_is_n,
         clo_is_n=clo_heavy_is_n,
-        p_a_is_n=p_a_is_n,
+        p_a_is_n=p_v_r_is_n,
         h_hum_is_n=h_hum_is_n,
         theta_ot_is_n=theta_ot_is_n
     )
@@ -153,7 +154,7 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
         theta_r_is_n=theta_r_is_n,
         theta_cl_is_n=theta_cl_middle_is_n,
         clo_is_n=clo_middle_is_n,
-        p_a_is_n=p_a_is_n,
+        p_a_is_n=p_v_r_is_n,
         h_hum_is_n=h_hum_is_n,
         theta_ot_is_n=theta_ot_is_n
     )
@@ -161,7 +162,7 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
         theta_r_is_n=theta_r_is_n,
         theta_cl_is_n=theta_cl_light_is_n,
         clo_is_n=clo_light_is_n,
-        p_a_is_n=p_a_is_n,
+        p_a_is_n=p_v_r_is_n,
         h_hum_is_n=h_hum_is_n,
         theta_ot_is_n=theta_ot_is_n
     )
@@ -193,7 +194,7 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
 
     # ステップnの室iにおける目標作用温度, degree C, [i]
     OTsets = a13.get_theta_ot_target_is_n(
-        p_a_is_n=p_a_is_n,
+        p_a_is_n=p_v_r_is_n,
         h_hum_is_n=h_hum_is_n,
         operation_mode_is_n=operation_mode_is_n,
         clo_is_n=clo_is_n,
@@ -398,7 +399,7 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
     Ghum_is_n = np.minimum(Ghum_base, 0.0)
 
     # 除湿量が負値(加湿量が正)になった場合にはルームエアコン風量V_(ac,n)をゼロとして再度室湿度を計算する
-    x_r_i_ns_pls = np.where(Ghum_base > 0.0, s42.get_xr(BRXC_pre_is, BRMX_pre_is), xr_base)
+    x_r_is_n_pls = np.where(Ghum_base > 0.0, s42.get_xr(BRXC_pre_is, BRMX_pre_is), xr_base)
 
     # 除湿量から室加湿熱量を計算 式(21)
     Lcl_i_n = get_Lcl(Ghum_is_n)
@@ -411,7 +412,7 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
     p_vs_is_n_pls = psy.get_p_vs_is(theta_r_is_n_pls)
 
     # ステップn+1の室iにおける水蒸気圧, Pa
-    p_v_is_n_pls = psy.get_p_v(x_r_i_ns_pls)
+    p_v_is_n_pls = psy.get_p_v_r(x_r_is_n=x_r_is_n_pls)
 
     # ステップn+1の室iにおける相対湿度, %
     rh_i_n_pls = psy.get_h(p_v=p_v_is_n_pls, p_vs=p_vs_is_n_pls)
@@ -419,9 +420,9 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
     # ********** 備品類の絶対湿度 xf の計算 **********
 
     # 備品類の絶対湿度の計算
-    xf_i_n = s42.get_xf(ss.gf_is, xf_is_npls, ss.cx_is, x_r_i_ns_pls)
+    xf_i_n = s42.get_xf(ss.gf_is, xf_is_npls, ss.cx_is, x_r_is_n_pls)
 
-    Qfunl_i_n = s42.get_Qfunl(ss.cx_is, x_r_i_ns_pls, xf_i_n)
+    Qfunl_i_n = s42.get_Qfunl(ss.cx_is, x_r_is_n_pls, xf_i_n)
 
     # ステップnの室iにおける着衣温度, degree C, [i]
     theta_cl_is_n_pls = a35.get_theta_cl_is_n(clo_is_n=clo_is_n, theta_ot_is_n=theta_ot_is_n, h_hum_is_n=h_hum_is_n)
@@ -447,9 +448,8 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
         # 前の時刻からの値
         s.old_theta_frnt_i = theta_frnt_is_n[i]
         s.xf_i_npls = xf_i_n[i]
-        s.x_r_i_n = x_r_i_ns_pls[i]
+        s.x_r_i_n = x_r_is_n_pls[i]
         s.theta_mrt_i_n = theta_mrt_is_n_pls[i]
-        s.p_a_i_n = p_v_is_n_pls[i]
 
         Ts_i_k_n = np.split(ts_is_k_n, start_indices)[i]
         theta_rear_i_jstrs_n = np.split(theta_rear_is_jstrs_n, start_indices)[i]
@@ -481,7 +481,7 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
         s.logger.Vel_i_n[n] = v_hum_i_n_pls[i]
         s.logger.Clo_i_n[n] = clo_is_n[i]
         s.logger.RH_i_n[n] = rh_i_n_pls[i]
-        s.logger.x_r_i_ns[n] = x_r_i_ns_pls[i]
+        s.logger.x_r_i_ns[n] = x_r_is_n_pls[i]
 
     return Conditions(
         operation_mode_is_n=operation_mode_is_n,

@@ -257,9 +257,6 @@ class Space:
 
         self.x_r_i_n = x_r_i_initial
 
-        # 水蒸気圧, Pa
-        self.p_a_i_n = psy.get_p_vs(x_r_i_initial) * 0.5
-
         # 合計面積の計算
         self.A_total_i = A_total_i
 

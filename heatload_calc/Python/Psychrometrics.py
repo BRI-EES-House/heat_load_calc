@@ -39,14 +39,14 @@ def get_x(p_v: float) -> float:
     return 0.622 * p_v / (f - p_v)
 
 
-def get_p_v(x: float) -> float:
+def get_p_v_r(x_r_is_n: np.ndarray) -> np.ndarray:
     """絶対湿度から水蒸気圧を求める。
 
     Args:
-        x: 絶対湿度, kg/kgDA
+        x_r_is_n: 室iにおける絶対湿度, kg/kgDA, [i]
 
     Returns:
-        水蒸気圧, Pa
+        室iにおける水蒸気圧, Pa, [i]
 
     Notes:
         省エネ基準第11章「その他」第5節「湿り空気」式(4)
@@ -57,7 +57,7 @@ def get_p_v(x: float) -> float:
     # 大気圧, Pa
     f = get_f()
 
-    return f * x / (x + 0.62198)
+    return f * x_r_is_n / (x_r_is_n + 0.62198)
 
 
 def get_p_vs_is(theta_is: np.ndarray) -> np.ndarray:
