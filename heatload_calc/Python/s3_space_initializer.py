@@ -120,8 +120,6 @@ def make_space(room: Dict,
     # 室iの初期温度, degree C
     theta_r_i_initial = a18.get_theta_r_initial()
 
-    x_r_i_initial = a18.get_xr_initial()
-
     # TODO 居住人数。これは1～4の値（小数値。整数ではない。）が入る。床面積の合計から推定すること。
     n_p = 4.0
 
@@ -311,7 +309,6 @@ def make_space(room: Dict,
         n_bnd_i_jstrs=n_bnd_i_jstrs,
         q_trs_sol_i_ns=q_trs_sol_i_ns,
         theta_r_i_initial=theta_r_i_initial,
-        x_r_i_initial=x_r_i_initial,
         heat_generation_appliances_schedule=heat_generation_appliances_schedule,
         x_gen_except_hum_i_ns=vapor_generation_cooking_schedule/1000.0/3600.0,
         heat_generation_lighting_schedule=heat_generation_lighting_schedule,

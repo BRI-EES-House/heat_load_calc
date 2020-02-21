@@ -149,20 +149,41 @@ class Space:
     """
 
     def __init__(
-            self, i: int, name_i: str, room_type_i: str, v_room_cap_i: float,
-            name_vent_up_i_nis: List[str], v_vent_up_i_nis: np.ndarray,
-            name_bnd_i_jstrs: np.ndarray, sub_name_bnd_i_jstrs: np.ndarray, boundary_type_i_jstrs: np.ndarray,
-            a_bnd_i_jstrs: np.ndarray, h_bnd_i_jstrs, next_room_type_bnd_i_jstrs,
-            is_solar_absorbed_inside_bnd_i_jstrs, theta_o_sol_bnd_i_jstrs_ns, n_root_bnd_i_jstrs,
-            row_bnd_i_jstrs, rft0_bnd_i_jstrs, rfa0_bnd_i_jstrs, rft1_bnd_i_jstrs, rfa1_bnd_i_jstrs, n_bnd_i_jstrs,
+            self,
+            i: int,
+            name_i: str,
+            room_type_i: str,
+            v_room_cap_i: float,
+            name_vent_up_i_nis: List[str],
+            v_vent_up_i_nis: np.ndarray,
+            name_bnd_i_jstrs: np.ndarray,
+            sub_name_bnd_i_jstrs: np.ndarray,
+            boundary_type_i_jstrs: np.ndarray,
+            a_bnd_i_jstrs: np.ndarray,
+            h_bnd_i_jstrs,
+            next_room_type_bnd_i_jstrs,
+            is_solar_absorbed_inside_bnd_i_jstrs,
+            theta_o_sol_bnd_i_jstrs_ns,
+            n_root_bnd_i_jstrs,
+            row_bnd_i_jstrs,
+            rft0_bnd_i_jstrs,
+            rfa0_bnd_i_jstrs,
+            rft1_bnd_i_jstrs,
+            rfa1_bnd_i_jstrs,
+            n_bnd_i_jstrs,
             q_trs_sol_i_ns: np.ndarray,
-            theta_r_i_initial: float, x_r_i_initial: float,
+            theta_r_i_initial: float,
             heat_generation_appliances_schedule: np.ndarray,
-            x_gen_except_hum_i_ns: np.ndarray, heat_generation_lighting_schedule: np.ndarray,
+            x_gen_except_hum_i_ns: np.ndarray,
+            heat_generation_lighting_schedule: np.ndarray,
             number_of_people_schedule: np.ndarray,
             air_conditioning_demand: np.ndarray,
-            Fot_i_g: np.ndarray, A_total_i: float,
-            qmax_c_i: float, qmin_c_i: float, Vmax_i: float, Vmin_i: float,
+            Fot_i_g: np.ndarray,
+            A_total_i: float,
+            qmax_c_i: float,
+            qmin_c_i: float,
+            Vmax_i: float,
+            Vmin_i: float,
             is_radiative_heating: bool,
             Lrcap_i: float, is_radiative_cooling: bool, radiative_cooling_max_capacity: float,
             heat_exchanger_type, convective_cooling_rtd_capacity: float, flr_i_k,
@@ -254,8 +275,6 @@ class Space:
         self.ac_demand = air_conditioning_demand  # 当該時刻の空調需要（0：なし、1：あり）
 
         self.theta_mrt_i_n = theta_r_i_initial
-
-        self.x_r_i_n = x_r_i_initial
 
         # 合計面積の計算
         self.A_total_i = A_total_i
@@ -539,6 +558,9 @@ Conditions = namedtuple('Conditions', [
     # ステップnの室iにおける空気温度, degree C, [i]
     'theta_r_is_n',
 
+    # ステップnの室iにおける絶対湿度, kg/kgDA, [i]
+    'x_r_is_n',
+
     # ステップnの統合された境界j*における指数項mの吸熱応答の項別成分, degree C, [j*, 12]
     'theta_dsh_srf_a_jstrs_n_ms',
 
@@ -575,6 +597,9 @@ def initialize_conditions(ss: Spaces):
     # ステップnの室iにおける空気温度, degree C, [i]
     theta_r_is_n = np.full(total_number_of_spaces, a18.get_theta_r_initial())
 
+    # ステップnの室iにおける絶対湿度, kg/kgDA, [i]
+    x_r_is_n = np.full(total_number_of_spaces, a18.get_xr_initial())
+
     # ステップnの統合された境界j*における指数項mの吸熱応答の項別成分, degree C, [j*, 12]
     theta_dsh_srf_a_jstrs_n_ms = np.full((total_number_of_bdry, 12), a18.get_theta_dsh_srf_a_initial())
 
@@ -597,6 +622,7 @@ def initialize_conditions(ss: Spaces):
     return Conditions(
         operation_mode_is_n=operation_mode_is_n,
         theta_r_is_n=theta_r_is_n,
+        x_r_is_n=x_r_is_n,
         theta_dsh_srf_a_jstrs_n_ms=theta_dsh_srf_a_jstrs_n_ms,
         theta_dsh_srf_t_jstrs_n_ms=theta_dsh_srf_t_jstrs_n_ms,
         q_srf_jstrs_n=q_srf_jstrs_n,
