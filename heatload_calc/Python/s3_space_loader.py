@@ -580,7 +580,10 @@ Conditions = namedtuple('Conditions', [
     'h_hum_r_is_n',
 
     # ステップnの室iにおける家具の温度, degree C, [i]
-    'theta_frnt_is_n'
+    'theta_frnt_is_n',
+
+    # ステップnの室iにおける家具の絶対湿度, kg/kgDA, [i]
+    'x_frnt_is_n'
 
 ])
 
@@ -629,6 +632,9 @@ def initialize_conditions(ss: Spaces):
     # 初期値を15℃とする。
     theta_frnt_is_n = np.full(total_number_of_spaces, 15.0)
 
+    # ステップnの室iにおける家具の絶対湿度, kg/kgDA, [i]
+    x_frnt_is_n = np.full(total_number_of_spaces, a18.get_xf_initial())
+
     return Conditions(
         operation_mode_is_n=operation_mode_is_n,
         theta_r_is_n=theta_r_is_n,
@@ -639,6 +645,7 @@ def initialize_conditions(ss: Spaces):
         q_srf_jstrs_n=q_srf_jstrs_n,
         h_hum_c_is_n=h_hum_c_is_n,
         h_hum_r_is_n=h_hum_r_is_n,
-        theta_frnt_is_n=theta_frnt_is_n
+        theta_frnt_is_n=theta_frnt_is_n,
+        x_frnt_is_n=x_frnt_is_n
     )
 

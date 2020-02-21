@@ -65,7 +65,8 @@ def run_tick_groundonly(To_n: float, Tave: float, conditions_n: Conditions, ss: 
         q_srf_jstrs_n=q_srf_is_jstrs_n,
         h_hum_c_is_n=conditions_n.h_hum_c_is_n,
         h_hum_r_is_n=conditions_n.h_hum_r_is_n,
-        theta_frnt_is_n=conditions_n.theta_frnt_is_n
+        theta_frnt_is_n=conditions_n.theta_frnt_is_n,
+        x_frnt_is_n=conditions_n.x_frnt_is_n
     )
 
 
@@ -104,7 +105,8 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
 #    theta_mrt_is_n = np.array([s.theta_mrt_i_n for s in spaces])
     theta_mrt_is_n = conditions_n.theta_mrt_is_n
 
-    xf_is_npls = np.array([s.xf_i_npls for s in spaces])
+#    xf_is_npls = np.array([s.xf_i_npls for s in spaces])
+    xf_is_npls = conditions_n.x_frnt_is_n
 
     # ステップn+1の室iにおける水蒸気圧, Pa
     p_v_r_is_n = psy.get_p_v_r(x_r_is_n=x_r_is_n)
@@ -496,7 +498,8 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
         q_srf_jstrs_n=q_srf_is_jstrs_n,
         h_hum_c_is_n=h_hum_c_is_n_pls,
         h_hum_r_is_n=h_hum_r_is_n_pls,
-        theta_frnt_is_n=theta_frnt_is_n
+        theta_frnt_is_n=theta_frnt_is_n,
+        x_frnt_is_n=xf_i_n
     )
 
 
