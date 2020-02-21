@@ -24,10 +24,10 @@ class Logger:
 #        self.air_conditioning_demand = None
 
         # ステップnの室iにおける機器発熱, W
-        self.heat_generation_appliances_schedule = None
+        #self.heat_generation_appliances_schedule = None
 
         # ステップnの室iにおける照明発熱, W, [8760*4]
-        self.heat_generation_lighting_schedule = None
+        #self.heat_generation_lighting_schedule = None
 
         # ステップnの室iの集約された境界j*における裏面温度, degree C, [j*, 8760*4]
         self.theta_rear_i_jstrs_ns = np.full((n_bnd_i_jstrs, 24 * 365 * 4 * 4), -99.9)
@@ -135,9 +135,7 @@ class Space:
             rfa1_bnd_i_jstrs,
             n_bnd_i_jstrs,
             q_trs_sol_i_ns: np.ndarray,
-            q_gen_app_i_ns: np.ndarray,
             x_gen_except_hum_i_ns: np.ndarray,
-            q_gen_lght_i_ns: np.ndarray,
             number_of_people_schedule: np.ndarray,
             air_conditioning_demand: np.ndarray,
             Fot_i_g: np.ndarray,
@@ -154,7 +152,7 @@ class Space:
             Beta_i,
             AX_k_l, WSR_i_k, WSB_i_k,
             BRMnoncv_i, BRL_i, c_room_i, c_cap_frnt_i, c_fun_i,
-            q_gen_except_hum_i_ns,
+            q_gen_i_ns,
             q_sol_srf_i_jstrs_ns,
             q_sol_frnt_i_ns,
             next_room_idxs_i,
@@ -230,9 +228,9 @@ class Space:
         self.n_hum_i_ns = number_of_people_schedule
 
         # ステップnの室iにおける人体発熱を除く内部発熱, W, [8760*4]
-        self.q_gen_except_hum_i_ns = q_gen_except_hum_i_ns
+        self.q_gen_i_ns = q_gen_i_ns
         # ステップnの室iにおける人体発湿を除く内部発湿, kg/s, [8760*4]
-        self.x_gen_except_hum_i_ns = x_gen_except_hum_i_ns
+        self.x_gen_i_ns = x_gen_except_hum_i_ns
 
         self.ac_demand = air_conditioning_demand  # 当該時刻の空調需要（0：なし、1：あり）
 
@@ -326,12 +324,6 @@ class Space:
         # 計算結果出力用ロガー
         self.logger = Logger(n_bnd_i_jstrs=n_bnd_i_jstrs)
 
-        # ステップnの室iにおける機器発熱, W
-        self.logger.heat_generation_appliances_schedule = q_gen_app_i_ns
-        # ステップnの室iにおける照明発熱, W
-        self.logger.heat_generation_lighting_schedule = q_gen_lght_i_ns
-
-#        self.logger.q_trs_sol_i_ns = q_trs_sol_i_ns
         self.q_trs_sol_i_ns = q_trs_sol_i_ns
 
         self.logger.q_sol_frnt_i_ns = q_sol_frnt_i_ns
@@ -357,10 +349,10 @@ class Spaces:
         self.n_hum_is_n = np.concatenate([[s.n_hum_i_ns] for s in spaces])
 
         # ステップnの室iにおける人体発熱を除く内部発熱, W, [i, 8760*4]
-        self.q_gen_except_hum_is_n = np.concatenate([[s.q_gen_except_hum_i_ns] for s in spaces])
+        self.q_gen_is_ns = np.concatenate([[s.q_gen_i_ns] for s in spaces])
 
         # ステップnの室iにおける人体発湿を除く内部発湿, kg/s, [i, 8760*4]
-        self.x_gen_except_hum_is_n = np.concatenate([[s.x_gen_except_hum_i_ns] for s in spaces])
+        self.x_gen_is_ns = np.concatenate([[s.x_gen_i_ns] for s in spaces])
 
         # 室iの熱容量, J/K, [i]
         self.c_room_is = np.array([s.c_room_i for s in spaces])

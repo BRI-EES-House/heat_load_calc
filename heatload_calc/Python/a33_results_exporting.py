@@ -40,13 +40,27 @@ class Logger2:
         # ステップnの室iにおける着衣温度, degree C, [i, n]
         self.v_hum = np.zeros((n_spaces, 24 * 365 * 4 * 3))
 
-        # ステップnの室iにおける窓の透過日射熱取得, W, [8760*4]
+        # ステップnの室iにおける窓の透過日射熱取得, W, [i, n]
         self.q_trs_sol = None
+
+        # ステップnの室iにおける人体発熱を除く内部発熱, W, [i, n]
+        self.q_gen = None
+
+        # ステップnの室iにおける人体発湿を除く内部発湿, kg/s, [i, n]
+        self.x_gen = None
+
+        # ステップnの室iにおける人体発熱, W, [i, n]
+        self.q_hum = np.zeros((n_spaces, 24 * 365 * 4 * 3))
+
+        # ステップnの室iにおける人体発湿, kg/s, [i, n]
+        self.x_hum = np.zeros((n_spaces, 24 * 365 * 4 * 3))
 
     def pre_logging(self, ss: Spaces):
 
         self.ac_demand = ss.ac_demand_is_n
         self.q_trs_sol = ss.q_trs_sol_is_ns
+        self.q_gen = ss.q_gen_is_ns
+        self.x_gen = ss.x_gen_is_ns
 
     def post_logging(self, ss: Spaces):
 
@@ -82,8 +96,8 @@ def append_headers(spaces: List[Space]) -> List[List]:
         headder1.append(name + "_着衣量[clo]")
         headder1.append(name + "_風速[m/s]")
         headder1.append(name + "_透過日射熱取得[W]")
-        headder1.append(name + "_機器顕熱発熱[W]")
-        headder1.append(name + "_照明発熱[W]")
+        headder1.append(name + "_人体発熱を除く内部発熱[W]")
+        headder1.append(name + "_人体発湿を除く内部発湿[kg/s]")
         headder1.append(name + "_人体顕熱発熱[W]")
         headder1.append(name + "_人体潜熱発熱[W]")
         headder1.append(name + "_対流空調顕熱負荷[W]")
@@ -147,10 +161,11 @@ def append_tick_log(spaces: List[Space], log: List[List], To_n: float, n: int, x
         row.append('{0:.2f}'.format(logger2.clo[i, n]))
         row.append('{0:.2f}'.format(logger2.v_hum[i, n]))
         row.append('{0:.2f}'.format(logger2.q_trs_sol[i, n]))
+        row.append('{0:.2f}'.format(logger2.q_gen[i, n]))
+        row.append('{0:.2f}'.format(logger2.x_gen[i, n]))
+        row.append('{0:.2f}'.format(logger2.q_hum[i, n]))
+        row.append('{0:.2f}'.format(logger2. space.logger.x_hum_i_ns[n]))
 
-#        row.append('{0:.2f}'.format(space.logger.q_trs_sol_i_ns[n]))
-        row.append('{0:.2f}'.format(space.logger.heat_generation_appliances_schedule[n]))
-        row.append('{0:.2f}'.format(space.logger.heat_generation_lighting_schedule[n]))
         row.append('{0:.2f}'.format(space.logger.q_hum_i_ns[n]))
         row.append('{0:.2f}'.format(space.logger.x_hum_i_ns[n]))
         row.append('{0:.1f}'.format(space.logger.Lcs_i_n[n]))

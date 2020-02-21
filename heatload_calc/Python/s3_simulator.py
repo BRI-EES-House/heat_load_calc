@@ -187,10 +187,10 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
     x_hum_is_n = a3.get_x_hum_i_n(theta_r_is_n=c_n.theta_r_is_n, n_hum_i_n=ss.n_hum_is_n[:, n])
 
     # ステップnの室iにおける内部発熱, W
-    q_gen_is_n = ss.q_gen_except_hum_is_n[:, n] + q_hum_is_n
+    q_gen_is_n = ss.q_gen_is_ns[:, n] + q_hum_is_n
 
     # ステップnの室iにおける内部発湿, kg/s
-    x_gen_is_n = ss.x_gen_except_hum_is_n[:, n] + x_hum_is_n
+    x_gen_is_n = ss.x_gen_is_ns[:, n] + x_hum_is_n
 
     # TODO: すきま風量未実装につき、とりあえず０とする
     # すきま風量を決めるにあたってどういった変数が必要なのかを決めること。
@@ -421,6 +421,8 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
     logger2.theta_ot[:, n] = theta_ot_is_n
     logger2.clo[:, n] = clo_is_n
     logger2.v_hum[:, n] = v_hum_i_n_pls
+    logger2.q_hum[:, n] = q_hum_is_n
+    logger2.x_hum[:, n] = x_hum_is_n
 
     for i, s in enumerate(spaces):
 
