@@ -113,7 +113,7 @@ def calc_heat_load(d: Dict):
 
     # log の記録
     for n in range(0, n_step_main):
-        exporter.append_tick_log(spaces=spaces, log=log, To_n=theta_o_ns, n=n, xo_n=x_o_ns, logger2=logger2)
+        exporter.append_tick_log(spaces=spaces, log=log, To_n=theta_o_ns, n=n, xo_n=x_o_ns, logger2=logger2, start_indices=start_indices)
 
     # CSVファイルの出力
     f = open('simulatin_result.csv', 'w', encoding="utf_8_sig")

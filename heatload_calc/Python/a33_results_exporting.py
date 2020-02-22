@@ -5,6 +5,7 @@ import numpy as np
 from s3_space_loader import Space
 from s3_space_loader import Logger
 from s3_space_loader import Spaces
+import s4_1_sensible_heat as s41
 
 import Psychrometrics as psy
 
@@ -55,23 +56,66 @@ class Logger2:
         # ステップnの室iにおける人体発湿, kg/s, [i, n]
         self.x_hum = np.zeros((n_spaces, 24 * 365 * 4 * 3))
 
+        # ステップnの室iにおける対流空調顕熱負荷, W, [i, n]
+        self.l_cs = np.zeros((n_spaces, 24 * 365 * 4 * 3))
+
+        # ステップnの室iにおける放射空調顕熱負荷, W, [i, n]
+        self.l_rs = np.zeros((n_spaces, 24 * 365 * 4 * 3))
+
+        # ステップnの室iにおける対流空調潜熱負荷（加湿側を正とする）, W, [i, n]
+        self.l_cl = np.zeros((n_spaces, 24 * 365 * 4 * 3))
+
+        # ステップnの室iにおける家具の温度, degree C, [i, n]
+        self.theta_frnt = np.zeros((n_spaces, 24 * 365 * 4 * 3))
+
+        # ステップnの室iにおける家具取得熱量, W, [i, n]
+        self.q_frnt = np.zeros((n_spaces, 24 * 365 * 4 * 3))
+
+        # ステップnの室iにおける家具吸収日射熱量, W, [i, n]
+        self.q_sol_frnt = np.zeros((n_spaces, 24 * 365 * 4 * 3))
+
+        # ステップnの室iにおける家具の絶対湿度, kg/kgDA, [i, n]
+        self.x_frnt = np.zeros((n_spaces, 24 * 365 * 4 * 3))
+
+        # ステップnの室iにおける家具取得水蒸気量, kg/s, [i, n]
+        self.q_l_frnt = np.zeros((n_spaces, 24 * 365 * 4 * 3))
+
+        # ステップnの統合された境界j*の室内側表面温度, degree C, [j*, n]
+        self.theta_s = np.zeros((n_bdrys, 24 * 365 * 4 * 3))
+
+        # ステップnの統合された境界j*の室内等価室温, degree C, [j*, n]
+        self.theta_e = np.zeros((n_bdrys, 24 * 365 * 4 * 3))
+
+        # ステップnの統合された境界j*の裏面温度, degree C, [j*, n]
+        self.theta_rear = np.zeros((n_bdrys, 24 * 365 * 4 * 3))
+
+        # ステップnの統合された境界j*の表面放射熱流, W, [j*, n]
+        self.qr = np.zeros((n_bdrys, 24 * 365 * 4 * 3))
+
+        # ステップnの統合された境界j*の表面対流熱流, W, [j*, n]
+        self.qc = np.zeros((n_bdrys, 24 * 365 * 4 * 3))
+
     def pre_logging(self, ss: Spaces):
 
         self.ac_demand = ss.ac_demand_is_n
         self.q_trs_sol = ss.q_trs_sol_is_ns
         self.q_gen = ss.q_gen_is_ns
         self.x_gen = ss.x_gen_is_ns
+        self.q_sol_frnt = ss.q_sol_frnt_is_ns
 
     def post_logging(self, ss: Spaces):
 
         # ステップnの室iにおける飽和水蒸気圧, Pa, [i, n]
         p_vs = psy.get_p_vs_is(theta_is=self.theta_r)
 
-        # ステップn+1の室iにおける水蒸気圧, Pa, [i, n]
+        # ステップnの室iにおける水蒸気圧, Pa, [i, n]
         p_v = psy.get_p_v_r(x_r_is_n=self.x_r)
 
-        # ステップn+1の室iにおける相対湿度, %
+        # ステップnの室iにおける相対湿度, %, [i, n]
         self.rh = psy.get_h(p_v=p_v, p_vs=p_vs)
+
+        # ステップnの室iにおける家具取得熱量, W, [i, n]
+        self.q_frnt = s41.get_Qfuns(ss.c_fun_is, self.theta_r, self.theta_frnt)
 
 
 def append_headers(spaces: List[Space]) -> List[List]:
@@ -133,7 +177,15 @@ def append_headers(spaces: List[Space]) -> List[List]:
     return OutList
 
 
-def append_tick_log(spaces: List[Space], log: List[List], To_n: float, n: int, xo_n: float, logger2: Logger2):
+def append_tick_log(
+        spaces: List[Space],
+        log: List[List],
+        To_n: float,
+        n: int,
+        xo_n: float,
+        logger2: Logger2,
+        start_indices
+):
 
     # DTMは1989年1月1日始まりとする
     start_date = datetime.datetime(1989, 1, 1)
@@ -164,20 +216,15 @@ def append_tick_log(spaces: List[Space], log: List[List], To_n: float, n: int, x
         row.append('{0:.2f}'.format(logger2.q_gen[i, n]))
         row.append('{0:.2f}'.format(logger2.x_gen[i, n]))
         row.append('{0:.2f}'.format(logger2.q_hum[i, n]))
-        row.append('{0:.2f}'.format(logger2. space.logger.x_hum_i_ns[n]))
-
-        row.append('{0:.2f}'.format(space.logger.q_hum_i_ns[n]))
-        row.append('{0:.2f}'.format(space.logger.x_hum_i_ns[n]))
-        row.append('{0:.1f}'.format(space.logger.Lcs_i_n[n]))
-        row.append('{0:.1f}'.format(space.logger.Lrs_i_n[n]))
-        row.append('{0:.1f}'.format(space.logger.Lcl_i_n[n]))
-        row.append('{0:.2f}'.format(space.logger.theta_frnt_i_ns[n]))
-        row.append('{0:.1f}'.format(space.logger.Qfuns_i_n[n]))
-        row.append('{0:.1f}'.format(space.logger.q_sol_frnt_i_ns[n]))
-        row.append('{0:.5f}'.format(space.logger.xf_i_n[n]))
-        row.append('{0:.5f}'.format(space.logger.Qfunl_i_n[n]))
-        n = space.n_bnd_i_jstrs
-        for g in range(n):
+        row.append('{0:.2f}'.format(logger2.x_hum[i, n]))
+        row.append('{0:.1f}'.format(logger2.l_cs[i, n]))
+        row.append('{0:.1f}'.format(logger2.l_rs[i, n]))
+        row.append('{0:.1f}'.format(logger2.l_cl[i, n]))
+        row.append('{0:.2f}'.format(logger2.theta_frnt[i, n]))
+        row.append('{0:.1f}'.format(logger2.q_frnt[i, n]))
+        row.append('{0:.1f}'.format(logger2.q_sol_frnt[i, n]))
+        row.append('{0:.5f}'.format(logger2.x_frnt[i, n]))
+        row.append('{0:.5f}'.format(logger2.q_l_frnt[i, n]))
             row.append('{0:.2f}'.format(space.logger.Ts_i_k_n[g, n]))
         for g in range(n):
             row.append('{0:.2f}'.format(space.logger.Tei_i_k_n[g, n]))

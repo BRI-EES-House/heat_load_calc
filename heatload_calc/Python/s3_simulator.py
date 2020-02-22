@@ -393,6 +393,7 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
     # 備品類の絶対湿度の計算
     xf_i_n = s42.get_xf(ss.gf_is, c_n.x_frnt_is_n, ss.cx_is, x_r_is_n_pls)
 
+    # kg/s
     Qfunl_i_n = s42.get_Qfunl(ss.cx_is, x_r_is_n_pls, xf_i_n)
 
     # ステップnの室iにおける着衣温度, degree C, [i]
@@ -423,6 +424,17 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
     logger2.v_hum[:, n] = v_hum_i_n_pls
     logger2.q_hum[:, n] = q_hum_is_n
     logger2.x_hum[:, n] = x_hum_is_n
+    logger2.l_cs[:, n] = lcs_is_n
+    logger2.l_rs[:, n] = lrs_is_n
+    logger2.l_cl[:, n] = Lcl_i_n
+    logger2.theta_frnt[:, n] = theta_frnt_is_n
+    logger2.x_frnt[:, n] = xf_i_n
+    logger2.q_l_frnt[:, n] = Qfunl_i_n
+    logger2.theta_s[:, n] = ts_is_k_n
+    logger2.theta_e = None
+    logger2.theta_rear = None
+    logger2.qr = None
+    logger2.qc = None
 
     for i, s in enumerate(spaces):
 
@@ -432,31 +444,14 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
         Qr = np.split(Qrs, start_indices)[i]
 
         # ロギング
-        s.logger.theta_r_i_ns[n] = theta_r_is_n_pls[i]
         s.logger.theta_rear_i_jstrs_ns[:, n] = theta_rear_i_jstrs_n
-        s.logger.q_hum_i_ns[n] = q_hum_is_n[i]
-        s.logger.x_hum_i_ns[n] = x_hum_is_n[i]
-#        s.logger.operation_mode[n] = operation_mode_is_n[i]
-        s.logger.theta_frnt_i_ns[n] = theta_frnt_is_n[i]
-#        s.logger.OT_i_n[n] = theta_ot_is_n[i]
-        s.logger.Qfuns_i_n[n] = s41.get_Qfuns(s.c_fun_i, theta_r_is_n_pls[i], theta_frnt_is_n[i])
         s.logger.Qc[:, n] = Qc
         s.logger.Qr[:, n] = Qr
         s.logger.Ts_i_k_n[:, n] = Ts_i_k_n
-        #s.logger.MRT_i_n[n] = theta_mrt_is_n_pls[i]
         # 室内側等価温度の計算 式(29)
         s.logger.Tei_i_k_n[:, n] = a1.calc_Tei(
             s.h_c_bnd_i_jstrs, s.h_r_bnd_i_jstrs, s.q_sol_srf_i_jstrs_ns[:, n], s.flr_i_k,
             s.a_bnd_i_jstrs, theta_r_is_n_pls[i], s.F_mrt_i_g, Ts_i_k_n, lrs_is_n[i], s.Beta_i)
-        s.logger.Lrs_i_n[n] = lrs_is_n[i]
-        s.logger.Lcs_i_n[n] = lcs_is_n[i]
-        s.logger.Lcl_i_n[n] = Lcl_i_n[i]
-        s.logger.xf_i_n[n] = xf_i_n[i]
-        s.logger.Qfunl_i_n[n] = Qfunl_i_n[i]
-#        s.logger.Vel_i_n[n] = v_hum_i_n_pls[i]
-        s.logger.Clo_i_n[n] = clo_is_n[i]
-#        s.logger.RH_i_n[n] = rh_i_n_pls[i]
-#        s.logger.x_r_i_ns[n] = x_r_is_n_pls[i]
 
     return Conditions(
         operation_mode_is_n=operation_mode_is_n,

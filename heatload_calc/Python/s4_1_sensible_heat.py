@@ -276,4 +276,4 @@ def get_Qfuns(Cfun, Tr, Tfun):
     :param Tfun: i室の家具の温度 [℃]
     :return:
     """
-    return Cfun * (Tr - Tfun)
+    return Cfun[:, np.newaxis] * (Tr - Tfun)
