@@ -225,13 +225,19 @@ def append_tick_log(
         row.append('{0:.1f}'.format(logger2.q_sol_frnt[i, n]))
         row.append('{0:.5f}'.format(logger2.x_frnt[i, n]))
         row.append('{0:.5f}'.format(logger2.q_l_frnt[i, n]))
+
+#        for t in np.split(logger2.theta_s, start_indices)[i]:
+#            row.append('{0:.2f}'.format(t[n]))
+
+        j = space.n_bnd_i_jstrs
+        for g in range(j):
             row.append('{0:.2f}'.format(space.logger.Ts_i_k_n[g, n]))
-        for g in range(n):
+        for g in range(j):
             row.append('{0:.2f}'.format(space.logger.Tei_i_k_n[g, n]))
-        for g in range(n):
+        for g in range(j):
             row.append('{0:.2f}'.format(space.logger.theta_rear_i_jstrs_ns[g,n]))
-        for g in range(n):
+        for g in range(j):
             row.append('{0:.2f}'.format(space.logger.Qr[g, n]))
-        for g in range(n):
+        for g in range(j):
             row.append('{0:.2f}'.format(space.logger.Qc[g, n]))
     log.append(row)
