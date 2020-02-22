@@ -16,17 +16,6 @@ class Logger:
 
     def __init__(self, n_bnd_i_jstrs):
 
-        self.q_sol_frnt_i_ns = None
-
-        # ステップnの室iの集約された境界j*における裏面温度, degree C, [j*, 8760*4]
-        self.theta_rear_i_jstrs_ns = np.full((n_bnd_i_jstrs, 24 * 365 * 4 * 4), -99.9)
-
-        self.Qc = np.zeros((n_bnd_i_jstrs, 24 * 365 * 4 * 4))
-        self.Qr = np.zeros((n_bnd_i_jstrs, 24 * 365 * 4 * 4))
-
-        # ステップnにおける室iの部位j*における室内側表面温度, degree C
-        self.Ts_i_k_n = np.zeros((n_bnd_i_jstrs, 24 * 365 * 4 * 4))
-
         # i室の部位kにおけるn時点の室内等価温度
         self.Tei_i_k_n = np.zeros((n_bnd_i_jstrs, 24 * 365 * 4 * 4))
 
@@ -266,8 +255,6 @@ class Space:
         self.logger = Logger(n_bnd_i_jstrs=n_bnd_i_jstrs)
 
         self.q_trs_sol_i_ns = q_trs_sol_i_ns
-
-        self.logger.q_sol_frnt_i_ns = q_sol_frnt_i_ns
 
 
 class Spaces:

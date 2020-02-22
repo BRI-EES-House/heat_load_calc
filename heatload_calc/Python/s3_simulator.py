@@ -431,23 +431,15 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
     logger2.x_frnt[:, n] = xf_i_n
     logger2.q_l_frnt[:, n] = Qfunl_i_n
     logger2.theta_s[:, n] = ts_is_k_n
-    logger2.theta_e = None
-    logger2.theta_rear = None
-    logger2.qr = None
-    logger2.qc = None
+    logger2.theta_e[:, n] = None
+    logger2.theta_rear[:, n] = theta_rear_is_jstrs_n
+    logger2.qr[:, n] = Qrs
+    logger2.qc[:, n] = Qcs
 
     for i, s in enumerate(spaces):
 
         Ts_i_k_n = np.split(ts_is_k_n, start_indices)[i]
-        theta_rear_i_jstrs_n = np.split(theta_rear_is_jstrs_n, start_indices)[i]
-        Qc = np.split(Qcs, start_indices)[i]
-        Qr = np.split(Qrs, start_indices)[i]
 
-        # ロギング
-        s.logger.theta_rear_i_jstrs_ns[:, n] = theta_rear_i_jstrs_n
-        s.logger.Qc[:, n] = Qc
-        s.logger.Qr[:, n] = Qr
-        s.logger.Ts_i_k_n[:, n] = Ts_i_k_n
         # 室内側等価温度の計算 式(29)
         s.logger.Tei_i_k_n[:, n] = a1.calc_Tei(
             s.h_c_bnd_i_jstrs, s.h_r_bnd_i_jstrs, s.q_sol_srf_i_jstrs_ns[:, n], s.flr_i_k,
