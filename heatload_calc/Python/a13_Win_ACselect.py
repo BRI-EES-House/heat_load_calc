@@ -160,8 +160,12 @@ def get_operation_mode_is_n(
 
 
 def get_operation_mode_i_n(
-        ac_demand_i_n: bool, operation_mode_i_n_mns: OperationMode,
-        pmv_heavy_i_n: float, pmv_middle_i_n: float, pmv_light_i_n: float) -> OperationMode:
+        ac_demand_i_n: bool,
+        operation_mode_i_n_mns: OperationMode,
+        pmv_heavy_i_n: float,
+        pmv_middle_i_n: float,
+        pmv_light_i_n: float
+) -> OperationMode:
     """運転モードを決定する。
 
     Args:

@@ -7,6 +7,7 @@ import a9_rear_surface_equivalent_temperature as a9
 import a14_furniture as a14
 import a16_blowing_condition_rac as a16
 import a18_initial_value_constants as a18
+import a35_PMV as a35
 from a39_global_parameters import OperationMode
 
 import s4_1_sensible_heat as s41
@@ -412,6 +413,11 @@ class Spaces:
 
         # ステップnの室iにおける窓の透過日射熱取得, W, [8760*4]
         self.q_trs_sol_is_ns = np.concatenate([[s.q_trs_sol_i_ns] for s in spaces])
+
+        # 室iにおける厚着・中間着・薄着をした場合のそれぞれのclo値, [i]
+        self.clo_heavy_is_n = np.full(self.total_number_of_spaces, a35.get_clo_heavy())
+        self.clo_middle_is_n = np.full(self.total_number_of_spaces, a35.get_clo_middle())
+        self.clo_light_is_n = np.full(self.total_number_of_spaces, a35.get_clo_light())
 
 
 def get_start_indices2(spaces):

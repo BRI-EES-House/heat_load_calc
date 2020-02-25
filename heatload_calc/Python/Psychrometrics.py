@@ -1,6 +1,6 @@
 import math
 import numpy as np
-
+from numba import jit
 
 def get_h(p_v: np.ndarray, p_vs: np.ndarray) -> np.ndarray:
     """相対湿度を計算する。

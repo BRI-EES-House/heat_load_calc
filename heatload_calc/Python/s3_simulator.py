@@ -43,7 +43,7 @@ def run_tick_groundonly(To_n: float, Tave: float, c_n: Conditions, ss: Spaces):
 
     theta_srf_dsh_a_is_jstrs_npls_ms = a1.get_theta_srf_dsh_a_i_jstrs_npls_ms(
         q_srf_jstrs_n=q_srf_jstrs_n[gs],
-        phi_a_1_bnd_i_jstrs_ms=ss.phi_a_1_bnd_jstrs_ms[gs, :],
+        phi_a_1_bnd_jstrs_ms=ss.phi_a_1_bnd_jstrs_ms[gs, :],
         r_bnd_i_jstrs_ms=ss.r_bnd_jstrs_ms[gs, :],
         theta_dsh_srf_a_jstrs_n_ms=theta_dsh_srf_a_jstrs_n_ms[gs, :])
 
@@ -91,24 +91,19 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
         theta_mrt_is_n=c_n.theta_mrt_is_n
     )
 
-    # ステップnの室iにおける厚着・中間着・薄着をした場合のそれぞれのclo値, [i]
-    clo_heavy_is_n = np.full(ss.total_number_of_spaces, a35.get_clo_heavy())
-    clo_middle_is_n = np.full(ss.total_number_of_spaces, a35.get_clo_middle())
-    clo_light_is_n = np.full(ss.total_number_of_spaces, a35.get_clo_light())
-
     # ステップnの室iにおける厚着・中間着・薄着をした場合のそれぞれの着衣温度, degree C, [i]
     theta_cl_heavy_is_n = a35.get_theta_cl_is_n(
-        clo_is_n=clo_heavy_is_n,
+        clo_is_n=ss.clo_heavy_is_n,
         theta_ot_is_n=theta_ot_is_n,
         h_hum_is_n=h_hum_is_n
     )
     theta_cl_middle_is_n = a35.get_theta_cl_is_n(
-        clo_is_n=clo_middle_is_n,
+        clo_is_n=ss.clo_middle_is_n,
         theta_ot_is_n=theta_ot_is_n,
         h_hum_is_n=h_hum_is_n
     )
     theta_cl_light_is_n = a35.get_theta_cl_is_n(
-        clo_is_n=clo_light_is_n,
+        clo_is_n=ss.clo_light_is_n,
         theta_ot_is_n=theta_ot_is_n,
         h_hum_is_n=h_hum_is_n
     )
@@ -117,7 +112,7 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
     pmv_heavy_is_n = a35.get_pmv_is_n(
         theta_r_is_n=c_n.theta_r_is_n,
         theta_cl_is_n=theta_cl_heavy_is_n,
-        clo_is_n=clo_heavy_is_n,
+        clo_is_n=ss.clo_heavy_is_n,
         p_a_is_n=p_v_r_is_n,
         h_hum_is_n=h_hum_is_n,
         theta_ot_is_n=theta_ot_is_n
@@ -125,7 +120,7 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
     pmv_middle_is_n = a35.get_pmv_is_n(
         theta_r_is_n=c_n.theta_r_is_n,
         theta_cl_is_n=theta_cl_middle_is_n,
-        clo_is_n=clo_middle_is_n,
+        clo_is_n=ss.clo_middle_is_n,
         p_a_is_n=p_v_r_is_n,
         h_hum_is_n=h_hum_is_n,
         theta_ot_is_n=theta_ot_is_n
@@ -133,7 +128,7 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
     pmv_light_is_n = a35.get_pmv_is_n(
         theta_r_is_n=c_n.theta_r_is_n,
         theta_cl_is_n=theta_cl_light_is_n,
-        clo_is_n=clo_light_is_n,
+        clo_is_n=ss.clo_light_is_n,
         p_a_is_n=p_v_r_is_n,
         h_hum_is_n=h_hum_is_n,
         theta_ot_is_n=theta_ot_is_n
@@ -151,9 +146,9 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
     # ステップnの室iにおけるClo値, [i]
     clo_is_n = a13.get_clo_is_n(
         operation_mode_is_n=operation_mode_is_n,
-        clo_heavy_is_n=clo_heavy_is_n,
-        clo_middle_is_n=clo_middle_is_n,
-        clo_light_is_n=clo_light_is_n
+        clo_heavy_is_n=ss.clo_heavy_is_n,
+        clo_middle_is_n=ss.clo_middle_is_n,
+        clo_light_is_n=ss.clo_light_is_n
     )
 
     # ステップnの室iにおける着衣表面温度, degree C, [i]
@@ -200,7 +195,7 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
     # ステップn+1の室iの統合された境界j*における項別公比法の項mの吸熱応答に関する表面温度, degree C, [jstrs, 12]
     theta_srf_dsh_a_is_jstrs_npls_ms = a1.get_theta_srf_dsh_a_i_jstrs_npls_ms(
         q_srf_jstrs_n=c_n.q_srf_jstrs_n,
-        phi_a_1_bnd_i_jstrs_ms=ss.phi_a_1_bnd_jstrs_ms,
+        phi_a_1_bnd_jstrs_ms=ss.phi_a_1_bnd_jstrs_ms,
         r_bnd_i_jstrs_ms=ss.r_bnd_jstrs_ms,
         theta_dsh_srf_a_jstrs_n_ms=c_n.theta_dsh_srf_a_jstrs_n_ms
     )
