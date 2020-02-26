@@ -72,9 +72,44 @@ def run_tick_groundonly(To_n: float, Tave: float, c_n: Conditions, ss: Spaces):
 
 # 室温、熱負荷の計算
 def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_indices: List[int], ss: Spaces, c_n: Conditions, logger2: Logger2):
+    """
 
-    # ステップn+1の室iにおける水蒸気圧, Pa
-    p_v_r_is_n = psy.get_p_v_r(x_r_is_n=c_n.x_r_is_n)
+    Args:
+        spaces:
+        theta_o_n:
+        xo_n:
+        n:
+        start_indices:
+        ss:
+        c_n: 前の時刻からの状態量
+            operation_mode_is_n: ステップnの室iにおける運転状態, [i]
+                列挙体 OperationMode で表される。
+                    COOLING ： 冷房
+                    HEATING : 暖房
+                    STOP_OPEN : 暖房・冷房停止で窓「開」
+                    STOP_CLOSE : 暖房・冷房停止で窓「閉」
+            theta_r_is_n: ステップnの室iにおける空気温度, degree C, [i]
+            theta_mrt_is_n: ステップnの室iにおける平均放射温度, degree C, [i]
+            x_r_is_n: ステップnの室iにおける絶対湿度, kg/kgDA, [i]
+            theta_dsh_srf_a_jstrs_n_ms: ステップnの統合された境界j*における指数項mの吸熱応答の項別成分, degree C, [j*, 12]
+            theta_dsh_srf_t_jstrs_n_ms: ステップnの統合された境界j*における指数項mの貫流応答の項別成分, degree C, [j*, 12]
+            q_srf_jstrs_n: ステップnの統合された境界j*における表面熱流（壁体吸熱を正とする）, W/m2, [j*]
+            h_hum_c_is_n: ステップnの室iにおける人体周りの対流熱伝達率, W/m2K, [i]
+                本来であれば着衣温度と人体周りの対流・放射熱伝達率を未知数とした熱収支式を収束計算等を用いて時々刻々求めるのが望ましい。
+                今回、収束計算を回避するために前時刻の人体周りの対流熱伝達率を用いることにした。
+            h_hum_r_is_n: ステップnの室iにおける人体周りの放射熱伝達率, W/m2K, [i]
+                本来であれば着衣温度と人体周りの対流・放射熱伝達率を未知数とした熱収支式を収束計算等を用いて時々刻々求めるのが望ましい。
+                今回、収束計算を回避するために前時刻の人体周りの対流熱伝達率を用いることにした。
+            theta_frnt_is_n: ステップnの室iにおける家具の温度, degree C, [i]
+            x_frnt_is_n: ステップnの室iにおける家具の絶対湿度, kg/kgDA, [i]
+        logger2:
+
+    Returns:
+
+    """
+
+    # ステップnにおける室iの水蒸気圧, Pa
+    p_v_r_is_n = psy.get_p_v_r_is_n(x_r_is_n=c_n.x_r_is_n)
 
     # ステップnの室iにおける人体周りの総合熱伝達率, W/m2K, [i]
     h_hum_is_n = a35.get_h_hum_is_n(

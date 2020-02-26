@@ -109,7 +109,7 @@ class Logger2:
         p_vs = psy.get_p_vs_is(theta_is=self.theta_r)
 
         # ステップnの室iにおける水蒸気圧, Pa, [i, n]
-        p_v = psy.get_p_v_r(x_r_is_n=self.x_r)
+        p_v = psy.get_p_v_r_is_n(x_r_is_n=self.x_r)
 
         # ステップnの室iにおける相対湿度, %, [i, n]
         self.rh = psy.get_h(p_v=p_v, p_vs=p_vs)

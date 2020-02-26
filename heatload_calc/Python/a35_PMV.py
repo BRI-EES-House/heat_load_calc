@@ -11,11 +11,11 @@ def get_h_hum_is_n(
     """人体周りの総合熱伝達率を計算する。
 
     Args:
-        h_hum_r_is_n: ステップnの室iにおける人体周りの放射熱伝達率, W/m2K, [i]
-        h_hum_c_is_n: ステップnの室iにおける人体周りの対流熱伝達率, W/m2K, [i]
+        h_hum_r_is_n: ステップnにおける室iの人体周りの放射熱伝達率, W/m2K, [i]
+        h_hum_c_is_n: ステップnにおける室iの人体周りの対流熱伝達率, W/m2K, [i]
 
     Returns:
-        ステップnの室iにおける人体周りの総合熱伝達率, W/m2K, [i]
+        ステップnにおける室iの人体周りの総合熱伝達率, W/m2K, [i]
     """
 
     return h_hum_r_is_n + h_hum_c_is_n
@@ -32,14 +32,14 @@ def get_theta_ot_is_n(
     """作用温度を計算する。
 
     Args:
-        h_hum_c_is_n: ステップnの室iにおける人体周りの対流熱伝達率, W/m2K, [i]
-        h_hum_r_is_n: ステップnの室iにおける人体周りの放射熱伝達率, W/m2K, [i]
-        h_hum_is_n: ステップnの室iにおける人体周りの総合熱伝達率, W/m2K, [i]
-        theta_r_is_n: ステップnの室iにおける室温, degree C, [i]
-        theta_mrt_is_n: ステップnの室iにおける平均放射温度, degree C, [i]
+        h_hum_c_is_n: ステップnにおける室iの人体周りの対流熱伝達率, W/m2K, [i]
+        h_hum_r_is_n: ステップnにおける室iの人体周りの放射熱伝達率, W/m2K, [i]
+        h_hum_is_n: ステップnにおける室iの人体周りの総合熱伝達率, W/m2K, [i]
+        theta_r_is_n: ステップnにおける室iの室温, degree C, [i]
+        theta_mrt_is_n: ステップnにおける室iの平均放射温度, degree C, [i]
 
     Returns:
-        ステップnの室iにおける作用温度
+        ステップnにおける室iの作用温度, degree C, [i]
     """
 
     return (h_hum_r_is_n * theta_mrt_is_n + h_hum_c_is_n * theta_r_is_n) / h_hum_is_n
