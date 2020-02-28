@@ -4,7 +4,6 @@ from typing import Dict
 import json
 
 import a12_indoor_radiative_heat_transfer as a12
-import a13_Win_ACselect as a13
 import a14_furniture as a14
 import a15_air_flow_rate_rac as a15
 import a18_initial_value_constants as a18

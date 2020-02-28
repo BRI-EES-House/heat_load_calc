@@ -7,7 +7,6 @@ import s4_2_latent_heat as s42
 import a1_calculation_surface_temperature as a1
 import apdx3_human_body as a3
 import a9_rear_surface_equivalent_temperature as a9
-import a13_Win_ACselect as a13
 import a16_blowing_condition_rac as a16
 import a18_initial_value_constants as a18
 import a35_PMV as a35
