@@ -3,7 +3,6 @@ from typing import List
 import numpy as np
 
 from s3_space_loader import Space
-from s3_space_loader import Logger
 from s3_space_loader import Spaces
 import s4_1_sensible_heat as s41
 
@@ -37,9 +36,6 @@ class Logger2:
 
         # ステップnの室iにおけるClo値, [i, n]
         self.clo = np.zeros((n_spaces, 24 * 365 * 4 * 3))
-
-        # ステップnの室iにおける着衣温度, degree C, [i, n]
-        self.v_hum = np.zeros((n_spaces, 24 * 365 * 4 * 3))
 
         # ステップnの室iにおける窓の透過日射熱取得, W, [i, n]
         self.q_trs_sol = None
@@ -138,7 +134,6 @@ def append_headers(spaces: List[Space]) -> List[List]:
         headder1.append(name + "_室MRT[℃]")
         headder1.append(name + "_室作用温度[℃]")
         headder1.append(name + "_着衣量[clo]")
-        headder1.append(name + "_風速[m/s]")
         headder1.append(name + "_透過日射熱取得[W]")
         headder1.append(name + "_人体発熱を除く内部発熱[W]")
         headder1.append(name + "_人体発湿を除く内部発湿[kg/s]")
@@ -211,7 +206,6 @@ def append_tick_log(
         row.append('{0:.2f}'.format(logger2.theta_mrt[i, n]))
         row.append('{0:.2f}'.format(logger2.theta_ot[i, n]))
         row.append('{0:.2f}'.format(logger2.clo[i, n]))
-        row.append('{0:.2f}'.format(logger2.v_hum[i, n]))
         row.append('{0:.2f}'.format(logger2.q_trs_sol[i, n]))
         row.append('{0:.2f}'.format(logger2.q_gen[i, n]))
         row.append('{0:.2f}'.format(logger2.x_gen[i, n]))

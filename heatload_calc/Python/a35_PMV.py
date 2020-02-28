@@ -1,6 +1,34 @@
 import math
 import numpy as np
 from numba import jit
+from typing import Union
+
+from a39_global_parameters import OperationMode
+
+
+def get_v_hum_is_n(operation_mode_is_n, is_radiative_heating_is, is_radiative_cooling_is):
+
+    return np.vectorize(get_v_hum_i_n_pls)(operation_mode_is_n, is_radiative_heating_is, is_radiative_cooling_is)
+
+
+def get_v_hum_i_n_pls(operation_mode_i_n, is_radiative_heating, is_radiative_cooling):
+
+    if operation_mode_i_n == OperationMode.HEATING:
+        if is_radiative_heating:
+            return 0.0
+        else:
+            return 0.2
+    elif operation_mode_i_n == OperationMode.COOLING:
+        if is_radiative_cooling:
+            return 0.0
+        else:
+            return 0.2
+    elif operation_mode_i_n == OperationMode.STOP_CLOSE:
+        return 0.0
+    elif operation_mode_i_n == OperationMode.STOP_OPEN:
+        return 0.1
+    else:
+        raise ValueError()
 
 
 @jit('f8[:](f8[:],f8[:])', nopython=True)
@@ -29,7 +57,7 @@ def get_theta_ot_is_n(
         theta_r_is_n: np.ndarray,
         theta_mrt_is_n: np.ndarray
 ) -> np.ndarray:
-    """作用温度を計算する。
+    """在室者の作用温度を計算する。
 
     Args:
         h_hum_c_is_n: ステップnにおける室iの人体周りの対流熱伝達率, W/m2K, [i]
@@ -39,33 +67,92 @@ def get_theta_ot_is_n(
         theta_mrt_is_n: ステップnにおける室iの平均放射温度, degree C, [i]
 
     Returns:
-        ステップnにおける室iの作用温度, degree C, [i]
+        ステップnにおける室iの在室者の作用温度, degree C, [i]
     """
 
     return (h_hum_r_is_n * theta_mrt_is_n + h_hum_c_is_n * theta_r_is_n) / h_hum_is_n
 
 
-#@jit('f8[:](f8[:],f8[:],f8[:])', nopython=True)
+def get_theta_cl_heavy_is_n(theta_ot_is_n: np.ndarray, h_hum_is_n: np.ndarray) -> np.ndarray:
+    """厚着をした場合の在室者の着衣温度を計算する。
+
+    Args:
+        theta_ot_is_n: ステップnにおける室iの在室者の作用温度, degree C, [i]
+        h_hum_is_n: ステップnにおける室iの人体周りの総合熱伝達率, W/m2K, [i]
+
+    Returns:
+        ステップnにおける室iの厚着をした場合の在室者の着衣温度, degree C, [i]
+    """
+
+    # 厚着時のClo値
+    clo_heavy = get_clo_heavy()
+
+    # 厚着をした場合の在室者の着衣温度, degree C, [i]
+    theta_cl_heavy_is_n = get_theta_cl_is_n(clo_is_n=clo_heavy, theta_ot_is_n=theta_ot_is_n, h_hum_is_n=h_hum_is_n)
+
+    return theta_cl_heavy_is_n
+
+
+def get_theta_cl_middle_is_n(theta_ot_is_n: np.ndarray, h_hum_is_n: np.ndarray) -> np.ndarray:
+    """中間着をした場合の在室者の着衣温度を計算する。
+
+    Args:
+        theta_ot_is_n: ステップnにおける室iの在室者の作用温度, degree C, [i]
+        h_hum_is_n: ステップnにおける室iの人体周りの総合熱伝達率, W/m2K, [i]
+
+    Returns:
+        ステップnにおける室iの中間着をした場合の在室者の着衣温度, degree C, [i]
+    """
+
+    # 中間着時のClo値
+    clo_middle = get_clo_middle()
+
+    # 中間着をした場合の在室者の着衣温度, degree C, [i]
+    theta_cl_middle_is_n = get_theta_cl_is_n(clo_is_n=clo_middle, theta_ot_is_n=theta_ot_is_n, h_hum_is_n=h_hum_is_n)
+
+    return theta_cl_middle_is_n
+
+
+def get_theta_cl_light_is_n(theta_ot_is_n: np.ndarray, h_hum_is_n: np.ndarray) -> np.ndarray:
+    """薄着をした場合の在室者の着衣温度を計算する。
+
+    Args:
+        theta_ot_is_n: ステップnにおける室iの在室者の作用温度, degree C, [i]
+        h_hum_is_n: ステップnにおける室iの人体周りの総合熱伝達率, W/m2K, [i]
+
+    Returns:
+        ステップnにおける室iの薄着をした場合の在室者の着衣温度, degree C, [i]
+    """
+
+    # 薄着時のClo値
+    clo_light = get_clo_light()
+
+    # 薄着をした場合の在室者の着衣温度, degree C, [i]
+    theta_cl_light_is_n = get_theta_cl_is_n(clo_is_n=clo_light, theta_ot_is_n=theta_ot_is_n, h_hum_is_n=h_hum_is_n)
+
+    return theta_cl_light_is_n
+
+
 def get_theta_cl_is_n(
-        clo_is_n: np.ndarray,
+        clo_is_n: Union[np.ndarray, float],
         theta_ot_is_n: np.ndarray,
         h_hum_is_n: np.ndarray
 ) -> np.ndarray:
     """着衣温度を計算する。
 
     Args:
-        clo_is_n: ステップnの室iにおけるClo値, [i]
-        theta_ot_is_n: ステップnの室iにおける作用温度, degree C, [i]
-        h_hum_is_n: ステップnの室iにおける人体周りの総合熱伝達率, W/m2K, [i]
+        clo_is_n: ステップnにおける室iの在室者のClo値, [i]　又は、（厚着・中間着・薄着時の）Clo値（定数）
+        theta_ot_is_n: ステップnにおける室iの在室者の作用温度, degree C, [i]
+        h_hum_is_n: ステップnにおける室iの人体周りの総合熱伝達率, W/m2K, [i]
 
     Returns:
-        ステップnの室iにおける着衣温度, degree C, [i]
+        ステップnにおける室iの着衣温度, degree C, [i]
     """
 
-    # ステップnの室iにおける着衣抵抗, m2K/W, [i]
+    # ステップnにおける室iの着衣抵抗, m2K/W, [i]
     i_cl_is_n = get_i_cl_is_n(clo_is_n=clo_is_n)
 
-    # 着衣面積率
+    # ステップnにおける室iの着衣面積率, [i]
     f_cl_is_n = get_f_cl_is_n(i_cl_is_n=i_cl_is_n)
 
     # 代謝量（人体内部発熱量）, W/m2
@@ -146,7 +233,7 @@ def get_pmv_is_n(
     # 代謝量（人体内部発熱量）, W/m2
     m = get_m()
 
-    # 着衣面積率
+    # ステップnにおける室iの着衣面積率, [i]
     f_cl = get_f_cl_is_n(i_cl_is_n=i_cl)
 
     return (0.303 * math.exp(-0.036 * m) + 0.028) * (
@@ -184,7 +271,7 @@ def get_theta_ot_target(
     # 代謝量（人体内部発熱量）, W/m2
     m = get_m()
 
-    # 着衣面積率
+    # ステップnにおける室iの着衣面積率, [i]
     f_cl = get_f_cl_is_n(i_cl_is_n=i_cl)
 
     return (pmv_target_is_n / (0.303 * math.exp(-0.036 * m) + 0.028) - m
@@ -196,7 +283,70 @@ def get_theta_ot_target(
             )/(0.0014 * m + f_cl * h_hum_is_n)
 
 
-@jit('f8[:](f8[:])', nopython=True)
+@jit('f8()', nopython=True)
+def get_clo_heavy() -> float:
+    """厚着をした場合の在室者のclo値を取得する。
+
+    Returns:
+        厚着をした場合の在室者のclo値
+    """
+
+    return 1.1
+
+
+@jit('f8()', nopython=True)
+def get_clo_middle() -> float:
+    """中間着をした場合の在室者のclo値を取得する。
+
+    Returns:
+        中間着をした場合の在室者のclo値
+    """
+
+    return 0.7
+
+
+@jit('f8()', nopython=True)
+def get_clo_light() -> float:
+    """薄着をした場合の在室者のclo値を取得する。
+
+    Returns:
+        薄着をした場合の在室者のclo値
+    """
+
+    return 0.3
+
+
+# region 本モジュール内でのみ参照される関数
+
+def get_f_cl_is_n(i_cl_is_n: np.ndarray) -> np.ndarray:
+    """着衣面積率を計算する。
+
+    Args:
+        i_cl_is_n: ステップnにおける室iの着衣抵抗, m2K/W, [i]
+
+    Returns:
+        ステップnにおける室iの着衣面積率, [i]
+
+    """
+
+    return np.where(i_cl_is_n <= 0.078, 1.00 + 1.290 * i_cl_is_n, 1.05 + 0.645 * i_cl_is_n)
+
+
+def get_m():
+    """代謝量を得る。
+
+    Returns:
+        代謝量, W/m2
+
+    Notes:
+        代謝量は1.0 met に固定とする。
+        1.0 met は、ISOにおける、Resting - Seated, quiet に相当
+        1 met = 58.15 W/m2
+    """
+
+    return 58.15
+
+
 def get_i_cl_is_n(clo_is_n: np.ndarray) -> np.ndarray:
     """Clo値から着衣抵抗を計算する。
 
@@ -213,65 +363,4 @@ def get_i_cl_is_n(clo_is_n: np.ndarray) -> np.ndarray:
     return clo_is_n * 0.155
 
 
-@jit('f8()', nopython=True)
-def get_m():
-    """代謝量を得る。
-
-    Returns:
-        代謝量, W/m2
-
-    Notes:
-        代謝量は1.0 met に固定とする。
-        1.0 met は、ISOにおける、Resting - Seated, quiet に相当
-        1 met = 58.15 W/m2
-    """
-
-    return 58.15
-
-
-@jit('f8[:](f8[:])', nopython=True)
-def get_f_cl_is_n(i_cl_is_n: np.ndarray) -> np.ndarray:
-    """着衣面積率を計算する。
-
-    Args:
-        i_cl_is_n: ステップnの室iにおける着衣抵抗, m2K/W, [i]
-
-    Returns:
-        ステップnの室iにおける着衣面積率, [i]
-
-    """
-
-    return np.where(i_cl_is_n <= 0.078, 1.00 + 1.290 * i_cl_is_n, 1.05 + 0.645 * i_cl_is_n)
-
-
-@jit('f8()', nopython=True)
-def get_clo_heavy() -> float:
-    """厚着をした場合のclo値を取得する。
-
-    Returns:
-        厚着をした場合のclo値
-    """
-
-    return 1.1
-
-
-@jit('f8()', nopython=True)
-def get_clo_middle() -> float:
-    """中間着をした場合のclo値を取得する。
-
-    Returns:
-        中間着をした場合のclo値
-    """
-
-    return 0.7
-
-
-@jit('f8()', nopython=True)
-def get_clo_light() -> float:
-    """薄着をした場合のclo値を取得する。
-
-    Returns:
-        薄着をした場合のclo値
-    """
-
-    return 0.3
+# endregion

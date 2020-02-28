@@ -101,22 +101,22 @@ def get_theta_cl_i_n(
 
 
 def get_clo_is_n(
-        operation_mode_is_n: np.ndarray, clo_heavy_is_n: np.ndarray, clo_middle_is_n: np.ndarray, clo_light_is_n: np.ndarray
+        operation_mode_is_n: np.ndarray
 ) -> np.ndarray:
-    """運転モードに応じたClo値を決定する。
+    """運転モードに応じた在室者のClo値を決定する。
 
     Args:
         operation_mode_is_n: ステップnの室iにおける運転モード, [i]
 
     Returns:
-        ステップnの室iにおけるClo値, [i]
+        ステップnの室iにおける在室者のClo値, [i]
     """
 
-    return np.vectorize(get_clo_i_n)(operation_mode_is_n, clo_heavy_is_n, clo_middle_is_n, clo_light_is_n)
+    return np.vectorize(get_clo_i_n)(operation_mode_is_n)
 
 
 def get_clo_i_n(
-        operation_mode_i_n: OperationMode, clo_heavy_is_n: float, clo_middle_is_n: float, clo_light_is_n: float
+        operation_mode_i_n: OperationMode
 ) -> float:
     """運転モードに応じたClo値を決定する。
 
@@ -128,10 +128,10 @@ def get_clo_i_n(
     """
 
     return {
-        OperationMode.HEATING: clo_heavy_is_n,
-        OperationMode.COOLING: clo_light_is_n,
-        OperationMode.STOP_OPEN: clo_middle_is_n,
-        OperationMode.STOP_CLOSE: clo_middle_is_n
+        OperationMode.HEATING: a35.get_clo_heavy(),
+        OperationMode.COOLING: a35.get_clo_light(),
+        OperationMode.STOP_OPEN: a35.get_clo_middle(),
+        OperationMode.STOP_CLOSE: a35.get_clo_middle()
     }[operation_mode_i_n]
 
 

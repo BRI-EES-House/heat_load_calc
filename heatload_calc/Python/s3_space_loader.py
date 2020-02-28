@@ -414,7 +414,7 @@ class Spaces:
         # ステップnの室iにおける窓の透過日射熱取得, W, [8760*4]
         self.q_trs_sol_is_ns = np.concatenate([[s.q_trs_sol_i_ns] for s in spaces])
 
-        # 室iにおける厚着・中間着・薄着をした場合のそれぞれのclo値, [i]
+        # 室iにおける厚着・中間着・薄着をした場合のそれぞれの在室者のclo値, [i]
         self.clo_heavy_is_n = np.full(self.total_number_of_spaces, a35.get_clo_heavy())
         self.clo_middle_is_n = np.full(self.total_number_of_spaces, a35.get_clo_middle())
         self.clo_light_is_n = np.full(self.total_number_of_spaces, a35.get_clo_light())
@@ -460,21 +460,16 @@ Conditions = namedtuple('Conditions', [
     # ステップnの統合された境界j*における表面熱流（壁体吸熱を正とする）, W/m2, [j*]
     'q_srf_jstrs_n',
 
-    # ステップnの室iにおける人体周りの対流熱伝達率, W/m2K, [i]
-    # 本来であれば着衣温度と人体周りの対流・放射熱伝達率を未知数とした熱収支式を収束計算等を用いて時々刻々求めるのが望ましい。
-    # 今回、収束計算を回避するために前時刻の人体周りの対流熱伝達率を用いることにした。
-    'h_hum_c_is_n',
-
-    # ステップnの室iにおける人体周りの放射熱伝達率, W/m2K, [i]
-    # 本来であれば着衣温度と人体周りの対流・放射熱伝達率を未知数とした熱収支式を収束計算等を用いて時々刻々求めるのが望ましい。
-    # 今回、収束計算を回避するために前時刻の人体周りの対流熱伝達率を用いることにした。
-    'h_hum_r_is_n',
-
     # ステップnの室iにおける家具の温度, degree C, [i]
     'theta_frnt_is_n',
 
     # ステップnの室iにおける家具の絶対湿度, kg/kgDA, [i]
-    'x_frnt_is_n'
+    'x_frnt_is_n',
+
+    # ステップnの室iにおける着衣温度, degree C, [i]
+    # 本来であれば着衣温度と人体周りの対流・放射熱伝達率を未知数とした熱収支式を収束計算等を用いて時々刻々求めるのが望ましい。
+    # 今回、収束計算を回避するために前時刻の着衣温度を用いることにした。
+    'theta_cl_is_n'
 
 ])
 
@@ -492,6 +487,9 @@ def initialize_conditions(ss: Spaces):
 
     # ステップnの室iにおける空気温度, degree C, [i]
     theta_r_is_n = np.full(total_number_of_spaces, a18.get_theta_r_initial())
+
+    # ステップnの室iにおける着衣温度, degree C, [i]
+    theta_cl_is_n = np.full(total_number_of_spaces, a18.get_theta_r_initial())
 
     # ステップnの室iにおける平均放射温度, degree C, [i]
     # 初期値を15℃と設定する。
@@ -512,12 +510,12 @@ def initialize_conditions(ss: Spaces):
     # ステップnの室iにおける人体周りの対流熱伝達率, W/m2K, [i]
     # TODO: 初期値はモジュールa18できちんと定義すること
     # 新建築学体系 p.47 の室内側対流熱伝達率 3.5 kcal/m2h℃ を採用した。
-    h_hum_c_is_n = np.full(total_number_of_spaces, 3.5*1.16)
+#    h_hum_c_is_n = np.full(total_number_of_spaces, 3.5*1.16)
 
     # ステップnの室iにおける人体周りの放射熱伝達率, W/m2K, [i]
     # TODO: 初期値はモジュールa18できちんと定義すること
     # 新建築学体系 p.47 の室内側放射熱伝達率 4.4 kcal/m2h℃ を採用した。
-    h_hum_r_is_n = np.full(total_number_of_spaces, 4.4*1.16)
+#    h_hum_r_is_n = np.full(total_number_of_spaces, 4.4*1.16)
 
     # ステップnの室iにおける家具の温度, degree C, [i]
     # 初期値を15℃とする。
@@ -534,9 +532,10 @@ def initialize_conditions(ss: Spaces):
         theta_dsh_srf_a_jstrs_n_ms=theta_dsh_srf_a_jstrs_n_ms,
         theta_dsh_srf_t_jstrs_n_ms=theta_dsh_srf_t_jstrs_n_ms,
         q_srf_jstrs_n=q_srf_jstrs_n,
-        h_hum_c_is_n=h_hum_c_is_n,
-        h_hum_r_is_n=h_hum_r_is_n,
+#        h_hum_c_is_n=h_hum_c_is_n,
+#        h_hum_r_is_n=h_hum_r_is_n,
         theta_frnt_is_n=theta_frnt_is_n,
-        x_frnt_is_n=x_frnt_is_n
+        x_frnt_is_n=x_frnt_is_n,
+        theta_cl_is_n=theta_cl_is_n
     )
 

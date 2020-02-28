@@ -63,10 +63,11 @@ def run_tick_groundonly(To_n: float, Tave: float, c_n: Conditions, ss: Spaces):
         theta_dsh_srf_a_jstrs_n_ms=theta_dsh_srf_a_jstrs_n_ms,
         theta_dsh_srf_t_jstrs_n_ms=c_n.theta_dsh_srf_t_jstrs_n_ms,
         q_srf_jstrs_n=q_srf_jstrs_n,
-        h_hum_c_is_n=c_n.h_hum_c_is_n,
-        h_hum_r_is_n=c_n.h_hum_r_is_n,
+#        h_hum_c_is_n=c_n.h_hum_c_is_n,
+#        h_hum_r_is_n=c_n.h_hum_r_is_n,
         theta_frnt_is_n=c_n.theta_frnt_is_n,
-        x_frnt_is_n=c_n.x_frnt_is_n
+        x_frnt_is_n=c_n.x_frnt_is_n,
+        theta_cl_is_n=c_n.theta_cl_is_n
     )
 
 
@@ -94,15 +95,12 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
             theta_dsh_srf_a_jstrs_n_ms: ステップnの統合された境界j*における指数項mの吸熱応答の項別成分, degree C, [j*, 12]
             theta_dsh_srf_t_jstrs_n_ms: ステップnの統合された境界j*における指数項mの貫流応答の項別成分, degree C, [j*, 12]
             q_srf_jstrs_n: ステップnの統合された境界j*における表面熱流（壁体吸熱を正とする）, W/m2, [j*]
-            h_hum_c_is_n: ステップnの室iにおける人体周りの対流熱伝達率, W/m2K, [i]
-                本来であれば着衣温度と人体周りの対流・放射熱伝達率を未知数とした熱収支式を収束計算等を用いて時々刻々求めるのが望ましい。
-                今回、収束計算を回避するために前時刻の人体周りの対流熱伝達率を用いることにした。
-            h_hum_r_is_n: ステップnの室iにおける人体周りの放射熱伝達率, W/m2K, [i]
-                本来であれば着衣温度と人体周りの対流・放射熱伝達率を未知数とした熱収支式を収束計算等を用いて時々刻々求めるのが望ましい。
-                今回、収束計算を回避するために前時刻の人体周りの対流熱伝達率を用いることにした。
             theta_frnt_is_n: ステップnの室iにおける家具の温度, degree C, [i]
             x_frnt_is_n: ステップnの室iにおける家具の絶対湿度, kg/kgDA, [i]
-        logger2:
+            theta_cl_is_n: ステップnの室iにおける着衣温度, degree C, [i]
+                本来であれば着衣温度と人体周りの対流・放射熱伝達率を未知数とした熱収支式を収束計算等を用いて時々刻々求めるのが望ましい。
+                今回、収束計算を回避するために前時刻の着衣温度を用いることにした。
+         logger2:
 
     Returns:
 
@@ -111,34 +109,51 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
     # ステップnにおける室iの水蒸気圧, Pa
     p_v_r_is_n = psy.get_p_v_r_is_n(x_r_is_n=c_n.x_r_is_n)
 
-    # ステップnの室iにおける人体周りの総合熱伝達率, W/m2K, [i]
-    h_hum_is_n = a35.get_h_hum_is_n(
-        h_hum_r_is_n=c_n.h_hum_r_is_n,
-        h_hum_c_is_n=c_n.h_hum_c_is_n
+    # ステップnにおける室iの在室者周りの風速, m/s, [i]
+    v_hum_i_n = a35.get_v_hum_is_n(
+        operation_mode_is_n=c_n.operation_mode_is_n,
+        is_radiative_heating_is=ss.is_radiative_heating_is,
+        is_radiative_cooling_is=ss.is_radiative_cooling_is
     )
 
-    # ステップnの室iにおける作用温度, degree C, [i]
+    # ステップnにおける室iの在室者周りの対流熱伝達率, W/m2K, [i]
+    h_hum_c_is_n = a35.get_h_hum_c_is_n(
+        theta_r_is_n=c_n.theta_r_is_n,
+        theta_cl_is_n=c_n.theta_cl_is_n,
+        v_hum_is_n=v_hum_i_n
+    )
+
+    # ステップnの室iにおける人体周りの放射熱伝達率, W/m2K, [i]
+    h_hum_r_is_n = a35.get_h_hum_r_is_n(
+        theta_cl_is_n=c_n.theta_cl_is_n,
+        theta_mrt_is_n=c_n.theta_mrt_is_n
+    )
+
+    # ステップnの室iにおける人体周りの総合熱伝達率, W/m2K, [i]
+    h_hum_is_n = a35.get_h_hum_is_n(
+        h_hum_r_is_n=h_hum_r_is_n,
+        h_hum_c_is_n=h_hum_c_is_n
+    )
+
+    # ステップnの室iにおける在室者の作用温度, degree C, [i]
     theta_ot_is_n = a35.get_theta_ot_is_n(
-        h_hum_c_is_n=c_n.h_hum_c_is_n,
-        h_hum_r_is_n=c_n.h_hum_r_is_n,
+        h_hum_c_is_n=h_hum_c_is_n,
+        h_hum_r_is_n=h_hum_r_is_n,
         h_hum_is_n=h_hum_is_n,
         theta_r_is_n=c_n.theta_r_is_n,
         theta_mrt_is_n=c_n.theta_mrt_is_n
     )
 
     # ステップnの室iにおける厚着・中間着・薄着をした場合のそれぞれの着衣温度, degree C, [i]
-    theta_cl_heavy_is_n = a35.get_theta_cl_is_n(
-        clo_is_n=ss.clo_heavy_is_n,
+    theta_cl_heavy_is_n = a35.get_theta_cl_heavy_is_n(
         theta_ot_is_n=theta_ot_is_n,
         h_hum_is_n=h_hum_is_n
     )
-    theta_cl_middle_is_n = a35.get_theta_cl_is_n(
-        clo_is_n=ss.clo_middle_is_n,
+    theta_cl_middle_is_n = a35.get_theta_cl_middle_is_n(
         theta_ot_is_n=theta_ot_is_n,
         h_hum_is_n=h_hum_is_n
     )
-    theta_cl_light_is_n = a35.get_theta_cl_is_n(
-        clo_is_n=ss.clo_light_is_n,
+    theta_cl_light_is_n = a35.get_theta_cl_light_is_n(
         theta_ot_is_n=theta_ot_is_n,
         h_hum_is_n=h_hum_is_n
     )
@@ -180,10 +195,7 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
 
     # ステップnの室iにおけるClo値, [i]
     clo_is_n = a13.get_clo_is_n(
-        operation_mode_is_n=operation_mode_is_n,
-        clo_heavy_is_n=ss.clo_heavy_is_n,
-        clo_middle_is_n=ss.clo_middle_is_n,
-        clo_light_is_n=ss.clo_light_is_n
+        operation_mode_is_n=operation_mode_is_n
     )
 
     # ステップnの室iにおける着衣表面温度, degree C, [i]
@@ -429,29 +441,12 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
     # ステップnの室iにおける着衣温度, degree C, [i]
     theta_cl_is_n_pls = a35.get_theta_cl_is_n(clo_is_n=clo_is_n, theta_ot_is_n=theta_ot_is_n, h_hum_is_n=h_hum_is_n)
 
-    # ステップnの室iにおける人体周りの風速, m/s, [i]
-    v_hum_i_n_pls = get_v_hum_is_n_pls(operation_mode_is_n, ss.is_radiative_heating_is, ss.is_radiative_cooling_is)
-
-    # ステップnの室iにおける人体周りの対流熱伝達率, W/m2K, [i]
-    h_hum_c_is_n_pls = a35.get_h_hum_c_is_n(
-        theta_r_is_n=theta_r_is_n_pls,
-        theta_cl_is_n=theta_cl_is_n_pls,
-        v_hum_is_n=v_hum_i_n_pls
-    )
-
-    # ステップnの室iにおける人体周りの放射熱伝達率, W/m2K, [i]
-    h_hum_r_is_n_pls = a35.get_h_hum_r_is_n(
-        theta_cl_is_n=theta_cl_is_n_pls,
-        theta_mrt_is_n=theta_mrt_is_n_pls
-    )
-
     logger2.operation_mode[:, n] = operation_mode_is_n
     logger2.theta_r[:, n] = theta_r_is_n_pls
     logger2.x_r[:, n] = x_r_is_n_pls
     logger2.theta_mrt[:, n] = theta_mrt_is_n_pls
     logger2.theta_ot[:, n] = theta_ot_is_n
     logger2.clo[:, n] = clo_is_n
-    logger2.v_hum[:, n] = v_hum_i_n_pls
     logger2.q_hum[:, n] = q_hum_is_n
     logger2.x_hum[:, n] = x_hum_is_n
     logger2.l_cs[:, n] = lcs_is_n
@@ -483,36 +478,12 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
         theta_dsh_srf_a_jstrs_n_ms=theta_srf_dsh_a_is_jstrs_npls_ms,
         theta_dsh_srf_t_jstrs_n_ms=theta_srf_dsh_t_is_jstrs_npls_ms,
         q_srf_jstrs_n=q_srf_is_jstrs_n,
-        h_hum_c_is_n=h_hum_c_is_n_pls,
-        h_hum_r_is_n=h_hum_r_is_n_pls,
+#        h_hum_c_is_n=h_hum_c_is_n_pls,
+#        h_hum_r_is_n=h_hum_r_is_n_pls,
         theta_frnt_is_n=theta_frnt_is_n,
-        x_frnt_is_n=xf_i_n
+        x_frnt_is_n=xf_i_n,
+        theta_cl_is_n=theta_cl_is_n_pls
     )
-
-
-def get_v_hum_is_n_pls(operation_mode_is_n, is_radiative_heating_is, is_radiative_cooling_is):
-
-    return np.vectorize(get_v_hum_i_n_pls)(operation_mode_is_n, is_radiative_heating_is, is_radiative_cooling_is)
-
-
-def get_v_hum_i_n_pls(operation_mode_i_n, is_radiative_heating, is_radiative_cooling):
-
-    if operation_mode_i_n == OperationMode.HEATING:
-        if is_radiative_heating:
-            return 0.0
-        else:
-            return 0.2
-    elif operation_mode_i_n == OperationMode.COOLING:
-        if is_radiative_cooling:
-            return 0.0
-        else:
-            return 0.2
-    elif operation_mode_i_n == OperationMode.STOP_CLOSE:
-        return 0.0
-    elif operation_mode_i_n == OperationMode.STOP_OPEN:
-        return 0.1
-    else:
-        raise ValueError()
 
 
 # MRTの計算
