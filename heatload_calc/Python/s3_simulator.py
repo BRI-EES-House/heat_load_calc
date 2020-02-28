@@ -91,7 +91,7 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
                     STOP_CLOSE : 暖房・冷房停止で窓「閉」
             theta_r_is_n: ステップnの室iにおける空気温度, degree C, [i]
             theta_mrt_is_n: ステップnの室iにおける平均放射温度, degree C, [i]
-            x_r_is_n: ステップnの室iにおける絶対湿度, kg/kgDA, [i]
+            x_r_is_n: ステップnにおける室iの絶対湿度, kg/kgDA, [i]
             theta_dsh_srf_a_jstrs_n_ms: ステップnの統合された境界j*における指数項mの吸熱応答の項別成分, degree C, [j*, 12]
             theta_dsh_srf_t_jstrs_n_ms: ステップnの統合された境界j*における指数項mの貫流応答の項別成分, degree C, [j*, 12]
             q_srf_jstrs_n: ステップnの統合された境界j*における表面熱流（壁体吸熱を正とする）, W/m2, [j*]
@@ -106,113 +106,19 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
 
     """
 
-    # ステップnにおける室iの水蒸気圧, Pa
-    p_v_r_is_n = psy.get_p_v_r_is_n(x_r_is_n=c_n.x_r_is_n)
+    # ステップnの室iにおける着衣温度, degree C, [i]
+#    theta_cl_is_n_pls = a35.get_theta_cl_is_n(clo_is_n=clo_is_n, theta_ot_is_n=theta_ot_is_n, h_hum_is_n=h_hum_is_n)
 
-    # ステップnにおける室iの在室者周りの風速, m/s, [i]
-    v_hum_i_n = a35.get_v_hum_is_n(
+    # ステップnにおける室iの運転状況を取得する
+    h_hum_is_n, operation_mode_is_n, clo_is_n, OTsets = a35.calc_operation(
+        x_r_is_n=c_n.x_r_is_n,
         operation_mode_is_n=c_n.operation_mode_is_n,
         is_radiative_heating_is=ss.is_radiative_heating_is,
-        is_radiative_cooling_is=ss.is_radiative_cooling_is
-    )
-
-    # ステップnにおける室iの在室者周りの対流熱伝達率, W/m2K, [i]
-    h_hum_c_is_n = a35.get_h_hum_c_is_n(
+        is_radiative_cooling_is=ss.is_radiative_cooling_is,
         theta_r_is_n=c_n.theta_r_is_n,
         theta_cl_is_n=c_n.theta_cl_is_n,
-        v_hum_is_n=v_hum_i_n
-    )
-
-    # ステップnの室iにおける人体周りの放射熱伝達率, W/m2K, [i]
-    h_hum_r_is_n = a35.get_h_hum_r_is_n(
-        theta_cl_is_n=c_n.theta_cl_is_n,
-        theta_mrt_is_n=c_n.theta_mrt_is_n
-    )
-
-    # ステップnの室iにおける人体周りの総合熱伝達率, W/m2K, [i]
-    h_hum_is_n = a35.get_h_hum_is_n(
-        h_hum_r_is_n=h_hum_r_is_n,
-        h_hum_c_is_n=h_hum_c_is_n
-    )
-
-    # ステップnの室iにおける在室者の作用温度, degree C, [i]
-    theta_ot_is_n = a35.get_theta_ot_is_n(
-        h_hum_c_is_n=h_hum_c_is_n,
-        h_hum_r_is_n=h_hum_r_is_n,
-        h_hum_is_n=h_hum_is_n,
-        theta_r_is_n=c_n.theta_r_is_n,
-        theta_mrt_is_n=c_n.theta_mrt_is_n
-    )
-
-    # ステップnの室iにおける厚着・中間着・薄着をした場合のそれぞれの着衣温度, degree C, [i]
-    theta_cl_heavy_is_n = a35.get_theta_cl_heavy_is_n(
-        theta_ot_is_n=theta_ot_is_n,
-        h_hum_is_n=h_hum_is_n
-    )
-    theta_cl_middle_is_n = a35.get_theta_cl_middle_is_n(
-        theta_ot_is_n=theta_ot_is_n,
-        h_hum_is_n=h_hum_is_n
-    )
-    theta_cl_light_is_n = a35.get_theta_cl_light_is_n(
-        theta_ot_is_n=theta_ot_is_n,
-        h_hum_is_n=h_hum_is_n
-    )
-
-    # ステップnの室iにおける厚着・中間着・薄着をした場合のそれぞれのPMV, [i]
-    pmv_heavy_is_n = a35.get_pmv_is_n(
-        theta_r_is_n=c_n.theta_r_is_n,
-        theta_cl_is_n=theta_cl_heavy_is_n,
-        clo_is_n=ss.clo_heavy_is_n,
-        p_a_is_n=p_v_r_is_n,
-        h_hum_is_n=h_hum_is_n,
-        theta_ot_is_n=theta_ot_is_n
-    )
-    pmv_middle_is_n = a35.get_pmv_is_n(
-        theta_r_is_n=c_n.theta_r_is_n,
-        theta_cl_is_n=theta_cl_middle_is_n,
-        clo_is_n=ss.clo_middle_is_n,
-        p_a_is_n=p_v_r_is_n,
-        h_hum_is_n=h_hum_is_n,
-        theta_ot_is_n=theta_ot_is_n
-    )
-    pmv_light_is_n = a35.get_pmv_is_n(
-        theta_r_is_n=c_n.theta_r_is_n,
-        theta_cl_is_n=theta_cl_light_is_n,
-        clo_is_n=ss.clo_light_is_n,
-        p_a_is_n=p_v_r_is_n,
-        h_hum_is_n=h_hum_is_n,
-        theta_ot_is_n=theta_ot_is_n
-    )
-
-    # ステップnの室iにおける運転モード, [i]
-    operation_mode_is_n = a13.get_operation_mode_is_n(
+        theta_mrt_is_n=c_n.theta_mrt_is_n,
         ac_demand_is_n=ss.ac_demand_is_n[:, n],
-        operation_mode_is_n_mns=c_n.operation_mode_is_n,
-        pmv_heavy_is_n=pmv_heavy_is_n,
-        pmv_middle_is_n=pmv_middle_is_n,
-        pmv_light_is_n=pmv_light_is_n
-    )
-
-    # ステップnの室iにおけるClo値, [i]
-    clo_is_n = a13.get_clo_is_n(
-        operation_mode_is_n=operation_mode_is_n
-    )
-
-    # ステップnの室iにおける着衣表面温度, degree C, [i]
-    theta_cl_is_n = a13.get_theta_cl_is_n(
-        operation_mode_is_n=operation_mode_is_n,
-        theta_cl_heavy_is_n=theta_cl_heavy_is_n,
-        theta_cl_middle_is_n=theta_cl_middle_is_n,
-        theta_cl_light_is_n=theta_cl_light_is_n
-    )
-
-    # ステップnの室iにおける目標作用温度, degree C, [i]
-    OTsets = a13.get_theta_ot_target_is_n(
-        p_a_is_n=p_v_r_is_n,
-        h_hum_is_n=h_hum_is_n,
-        operation_mode_is_n=operation_mode_is_n,
-        clo_is_n=clo_is_n,
-        theta_cl_is_n=theta_cl_is_n
     )
 
     # ステップnの室iの集約された境界j*における裏面温度, degree C, [j*]

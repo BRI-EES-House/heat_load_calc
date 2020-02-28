@@ -11,6 +11,7 @@ import a35_PMV as a35
 from a39_global_parameters import OperationMode
 
 import s4_1_sensible_heat as s41
+import Psychrometrics as psy
 
 
 class Logger:
@@ -415,9 +416,9 @@ class Spaces:
         self.q_trs_sol_is_ns = np.concatenate([[s.q_trs_sol_i_ns] for s in spaces])
 
         # 室iにおける厚着・中間着・薄着をした場合のそれぞれの在室者のclo値, [i]
-        self.clo_heavy_is_n = np.full(self.total_number_of_spaces, a35.get_clo_heavy())
-        self.clo_middle_is_n = np.full(self.total_number_of_spaces, a35.get_clo_middle())
-        self.clo_light_is_n = np.full(self.total_number_of_spaces, a35.get_clo_light())
+#        self.clo_heavy_is_n = np.full(self.total_number_of_spaces, a35.get_clo_heavy())
+#        self.clo_middle_is_n = np.full(self.total_number_of_spaces, a35.get_clo_middle())
+#        self.clo_light_is_n = np.full(self.total_number_of_spaces, a35.get_clo_light())
 
 
 def get_start_indices2(spaces):
@@ -448,7 +449,7 @@ Conditions = namedtuple('Conditions', [
     # ステップnの室iにおける平均放射温度, degree C, [i]
     'theta_mrt_is_n',
 
-    # ステップnの室iにおける絶対湿度, kg/kgDA, [i]
+    # ステップnにおける室iの絶対湿度, kg/kgDA, [i]
     'x_r_is_n',
 
     # ステップnの統合された境界j*における指数項mの吸熱応答の項別成分, degree C, [j*, 12]
@@ -483,46 +484,44 @@ def initialize_conditions(ss: Spaces):
     total_number_of_bdry = ss.total_number_of_bdry
 
     # ステップnの室iにおける運転状態, [i]
+    # 初期値を暖房・冷房停止で窓「閉」とする。
     operation_mode_is_n = np.full(total_number_of_spaces, OperationMode.STOP_CLOSE)
 
     # ステップnの室iにおける空気温度, degree C, [i]
-    theta_r_is_n = np.full(total_number_of_spaces, a18.get_theta_r_initial())
+    # 初期値を15℃とする。
+    theta_r_is_n = np.full(total_number_of_spaces, 15.0)
 
     # ステップnの室iにおける着衣温度, degree C, [i]
-    theta_cl_is_n = np.full(total_number_of_spaces, a18.get_theta_r_initial())
+    # 初期値を15℃とする。
+    theta_cl_is_n = np.full(total_number_of_spaces, 15.0)
 
     # ステップnの室iにおける平均放射温度, degree C, [i]
     # 初期値を15℃と設定する。
     theta_mrt_is_n = np.full(total_number_of_spaces, 15.0)
 
-    # ステップnの室iにおける絶対湿度, kg/kgDA, [i]
-    x_r_is_n = np.full(total_number_of_spaces, a18.get_xr_initial())
+    # ステップnにおける室iの絶対湿度, kg/kgDA, [i]
+    # 初期値を空気温度20℃相対湿度40%の時の値とする。
+    x_r_is_n = np.full(total_number_of_spaces, psy.get_x(psy.get_p_vs(theta=20.0) * 0.4))
 
     # ステップnの統合された境界j*における指数項mの吸熱応答の項別成分, degree C, [j*, 12]
-    theta_dsh_srf_a_jstrs_n_ms = np.full((total_number_of_bdry, 12), a18.get_theta_dsh_srf_a_initial())
+    # 初期値を0.0℃とする。
+    theta_dsh_srf_a_jstrs_n_ms = np.full((total_number_of_bdry, 12), 0.0)
 
     # ステップnの統合された境界j*における指数項mの貫流応答の項別成分, degree C, [j*, 12]
-    theta_dsh_srf_t_jstrs_n_ms = np.full((total_number_of_bdry, 12), a18.get_theta_dsh_srf_t_initial())
+    # 初期値を0.0℃とする。
+    theta_dsh_srf_t_jstrs_n_ms = np.full((total_number_of_bdry, 12), 0.0)
 
     # ステップnの統合された境界j*における表面熱流（壁体吸熱を正とする）, W/m2, [j*]
+    # 初期値を0.0W/m2とする。
     q_srf_jstrs_n = np.zeros(total_number_of_bdry)
-
-    # ステップnの室iにおける人体周りの対流熱伝達率, W/m2K, [i]
-    # TODO: 初期値はモジュールa18できちんと定義すること
-    # 新建築学体系 p.47 の室内側対流熱伝達率 3.5 kcal/m2h℃ を採用した。
-#    h_hum_c_is_n = np.full(total_number_of_spaces, 3.5*1.16)
-
-    # ステップnの室iにおける人体周りの放射熱伝達率, W/m2K, [i]
-    # TODO: 初期値はモジュールa18できちんと定義すること
-    # 新建築学体系 p.47 の室内側放射熱伝達率 4.4 kcal/m2h℃ を採用した。
-#    h_hum_r_is_n = np.full(total_number_of_spaces, 4.4*1.16)
 
     # ステップnの室iにおける家具の温度, degree C, [i]
     # 初期値を15℃とする。
     theta_frnt_is_n = np.full(total_number_of_spaces, 15.0)
 
     # ステップnの室iにおける家具の絶対湿度, kg/kgDA, [i]
-    x_frnt_is_n = np.full(total_number_of_spaces, a18.get_xf_initial())
+    # 初期値を空気温度20℃相対湿度40%の時の値とする。
+    x_frnt_is_n = np.full(total_number_of_spaces, psy.get_x(psy.get_p_vs(theta=20.0) * 0.4))
 
     return Conditions(
         operation_mode_is_n=operation_mode_is_n,

@@ -117,9 +117,6 @@ def make_space(room: Dict,
     # 室iの自然風利用時の換気回数, 1/h
     n_ntrl_vent_i = room['natural_vent_time']
 
-    # 室iの初期温度, degree C
-    theta_r_i_initial = a18.get_theta_r_initial()
-
     # TODO 居住人数。これは1～4の値（小数値。整数ではない。）が入る。床面積の合計から推定すること。
     n_p = 4.0
 
@@ -150,8 +147,6 @@ def make_space(room: Dict,
         room_name=name_i, calendar=calendar, daily_schedule=d_json['daily_schedule']['is_temp_limit_set'])
 
     air_conditioning_demand = np.where(air_conditioning_demand2 == "on", True, False)
-
-    theta_rear_initial = a18.get_Teo_initial()
 
     # 部位の人体に対する形態係数を計算 表6
     Fot_i_g = a12.calc_form_factor_for_human_body(a_bnd_i_jstrs, is_solar_absorbed_inside_bnd_i_jstrs)

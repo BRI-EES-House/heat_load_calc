@@ -52,7 +52,7 @@ def get_BRXC(
         cx_is: 
         v_room_cap_is: 
         xo: 
-        x_r_is_n: ステップnの室iにおける絶対湿度, kg/kg(DA), [i]
+        x_r_is_n: ステップnにおける室iの絶対湿度, kg/kg(DA), [i]
         x_frnt_is_n: 
         x_gen_is_n: 
         v_mec_vent_is_n: 
