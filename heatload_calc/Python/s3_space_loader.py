@@ -11,7 +11,7 @@ import a35_PMV as a35
 from a39_global_parameters import OperationMode
 
 import s4_1_sensible_heat as s41
-import Psychrometrics as psy
+import psychrometrics as psy
 
 
 class Logger:
@@ -266,7 +266,7 @@ class Spaces:
         # 室の数
         self.total_number_of_spaces = len(spaces)
 
-        # ステップnの室iにおける空調需要, [i, 8760*4]
+        # ステップnにおける室iの空調需要, [i, 8760*4]
         self.ac_demand_is_n = np.concatenate([[s.ac_demand] for s in spaces])
 
         # 室温が裏面温度に与える影響を表すマトリクス, [j* * i]
@@ -435,7 +435,7 @@ def get_start_indices2(spaces):
 
 Conditions = namedtuple('Conditions', [
 
-    # ステップnの室iにおける運転状態, [i]
+    # ステップnにおける室iの運転状態, [i]
     # 列挙体 OperationMode で表される。
     #     COOLING ： 冷房
     #     HEATING : 暖房
@@ -443,10 +443,10 @@ Conditions = namedtuple('Conditions', [
     #     STOP_CLOSE : 暖房・冷房停止で窓「閉」
     'operation_mode_is_n',
 
-    # ステップnの室iにおける空気温度, degree C, [i]
+    # ステップnにおける室iの空気温度, degree C, [i]
     'theta_r_is_n',
 
-    # ステップnの室iにおける平均放射温度, degree C, [i]
+    # ステップnにおける室iの在室者の平均放射温度, degree C, [i]
     'theta_mrt_is_n',
 
     # ステップnにおける室iの絶対湿度, kg/kgDA, [i]
@@ -467,7 +467,7 @@ Conditions = namedtuple('Conditions', [
     # ステップnの室iにおける家具の絶対湿度, kg/kgDA, [i]
     'x_frnt_is_n',
 
-    # ステップnの室iにおける着衣温度, degree C, [i]
+    # ステップnにおける室iの在室者の着衣温度, degree C, [i]
     # 本来であれば着衣温度と人体周りの対流・放射熱伝達率を未知数とした熱収支式を収束計算等を用いて時々刻々求めるのが望ましい。
     # 今回、収束計算を回避するために前時刻の着衣温度を用いることにした。
     'theta_cl_is_n'
@@ -483,19 +483,19 @@ def initialize_conditions(ss: Spaces):
     # 統合された境界j*の数
     total_number_of_bdry = ss.total_number_of_bdry
 
-    # ステップnの室iにおける運転状態, [i]
+    # ステップnにおける室iの運転状態, [i]
     # 初期値を暖房・冷房停止で窓「閉」とする。
     operation_mode_is_n = np.full(total_number_of_spaces, OperationMode.STOP_CLOSE)
 
-    # ステップnの室iにおける空気温度, degree C, [i]
+    # ステップnにおける室iの空気温度, degree C, [i]
     # 初期値を15℃とする。
     theta_r_is_n = np.full(total_number_of_spaces, 15.0)
 
-    # ステップnの室iにおける着衣温度, degree C, [i]
+    # ステップnにおける室iの在室者の着衣温度, degree C, [i]
     # 初期値を15℃とする。
     theta_cl_is_n = np.full(total_number_of_spaces, 15.0)
 
-    # ステップnの室iにおける平均放射温度, degree C, [i]
+    # ステップnにおける室iの在室者の平均放射温度, degree C, [i]
     # 初期値を15℃と設定する。
     theta_mrt_is_n = np.full(total_number_of_spaces, 15.0)
 

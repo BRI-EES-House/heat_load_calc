@@ -1,4 +1,4 @@
-from Psychrometrics import get_p_vs, get_x
+from psychrometrics import get_p_vs, get_x
 import a18_initial_value_constants as a18
 from a39_global_parameters import OperationMode
 

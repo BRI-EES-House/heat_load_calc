@@ -14,7 +14,7 @@ def get_theta_rear_i_jstrs_n(theta_r_is_n: np.ndarray, m: np.ndarray, theta_dstr
     """境界の裏面温度を計算する。
 
     Args:
-        theta_r_is_n: ステップnの室iにおける室温, degree C, [i]
+        theta_r_is_n: ステップnにおける室iの空気温度, degree C, [i]
         m: 室温が隣室温度に与える影響を表すマトリックス
         theta_dstrb_i_jstrs_n: ステップnの室iの集約された境界j*の外乱による裏面温度, degree C, [j*]
 

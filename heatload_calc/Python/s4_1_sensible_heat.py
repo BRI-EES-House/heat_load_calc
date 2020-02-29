@@ -85,7 +85,7 @@ def get_brc_i_n(p, c_room_i: float, deta_t: float, theta_r_is_n: float, h_c_bnd_
     Args:
         c_room_i: 室iの熱容量, J/K
         deta_t: 時間刻み, s
-        theta_r_is_n: ステップnの室iにおける室温, degree C, [i]
+        theta_r_is_n: ステップnにおける室iの空気温度, degree C, [i]
         h_c_bnd_i_jstrs: 室iの統合された境界j*における対流熱伝達率, W/m2K
         a_bnd_i_jstrs: 室iの統合された境界j*における面積, m2
         wsc_i_jstrs_npls: ステップn+1の室iの統合された境界j*における係数WSC, degree C, [j*]

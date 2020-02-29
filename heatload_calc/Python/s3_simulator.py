@@ -13,7 +13,7 @@ import a35_PMV as a35
 from a39_global_parameters import OperationMode
 from s3_space_loader import Space, Spaces, Conditions
 
-import Psychrometrics as psy
+import psychrometrics as psy
 from a39_global_parameters import BoundaryType
 from a33_results_exporting import Logger2
 
@@ -82,21 +82,21 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
         start_indices:
         ss:
         c_n: 前の時刻からの状態量
-            operation_mode_is_n: ステップnの室iにおける運転状態, [i]
+            operation_mode_is_n: ステップnにおける室iの運転状態, [i]
                 列挙体 OperationMode で表される。
                     COOLING ： 冷房
                     HEATING : 暖房
                     STOP_OPEN : 暖房・冷房停止で窓「開」
                     STOP_CLOSE : 暖房・冷房停止で窓「閉」
-            theta_r_is_n: ステップnの室iにおける空気温度, degree C, [i]
-            theta_mrt_is_n: ステップnの室iにおける平均放射温度, degree C, [i]
+            theta_r_is_n: ステップnにおける室iの空気温度, degree C, [i]
+            theta_mrt_is_n: ステップnにおける室iの在室者の平均放射温度, degree C, [i]
             x_r_is_n: ステップnにおける室iの絶対湿度, kg/kgDA, [i]
             theta_dsh_srf_a_jstrs_n_ms: ステップnの統合された境界j*における指数項mの吸熱応答の項別成分, degree C, [j*, 12]
             theta_dsh_srf_t_jstrs_n_ms: ステップnの統合された境界j*における指数項mの貫流応答の項別成分, degree C, [j*, 12]
             q_srf_jstrs_n: ステップnの統合された境界j*における表面熱流（壁体吸熱を正とする）, W/m2, [j*]
             theta_frnt_is_n: ステップnの室iにおける家具の温度, degree C, [i]
             x_frnt_is_n: ステップnの室iにおける家具の絶対湿度, kg/kgDA, [i]
-            theta_cl_is_n: ステップnの室iにおける着衣温度, degree C, [i]
+            theta_cl_is_n: ステップnにおける室iの在室者の着衣温度, degree C, [i]
                 本来であれば着衣温度と人体周りの対流・放射熱伝達率を未知数とした熱収支式を収束計算等を用いて時々刻々求めるのが望ましい。
                 今回、収束計算を回避するために前時刻の着衣温度を用いることにした。
          logger2:
@@ -105,13 +105,10 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
 
     """
 
-    # ステップnの室iにおける着衣温度, degree C, [i]
-#    theta_cl_is_n_pls = a35.get_theta_cl_is_n(clo_is_n=clo_is_n, theta_ot_is_n=theta_ot_is_n, h_hum_is_n=h_hum_is_n)
-
-    # ステップnにおける室iの運転状況を取得する
-    h_hum_is_n, operation_mode_is_n, clo_is_n, OTsets = a35.calc_operation(
+    # ステップnにおける室iの状況（在室者周りの総合熱伝達率・運転状態・Clo値・目標とする作用温度）を取得する
+    h_hum_is_n, operation_mode_is_n, clo_is_n, theta_ot_target_is_n = a35.calc_operation(
         x_r_is_n=c_n.x_r_is_n,
-        operation_mode_is_n=c_n.operation_mode_is_n,
+        operation_mode_is_n_mns=c_n.operation_mode_is_n,
         is_radiative_heating_is=ss.is_radiative_heating_is,
         is_radiative_cooling_is=ss.is_radiative_cooling_is,
         theta_r_is_n=c_n.theta_r_is_n,
@@ -220,7 +217,7 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
     )
 
     theta_ot_is_n, lcs_is_n, lrs_is_n = s41.calc_next_steps(
-        ss.is_radiative_heating_is, BRCot_is, BRMot_is, BRLot_is, OTsets, ss.lrcap_is,
+        ss.is_radiative_heating_is, BRCot_is, BRMot_is, BRLot_is, theta_ot_target_is_n, ss.lrcap_is,
         operation_mode_is_n)
 
     # 自然室温 Tr を計算 式(14)
@@ -343,7 +340,7 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
     # kg/s
     Qfunl_i_n = s42.get_Qfunl(ss.cx_is, x_r_is_n_pls, xf_i_n)
 
-    # ステップnの室iにおける着衣温度, degree C, [i]
+    # ステップnにおける室iの在室者の着衣温度, degree C, [i]
     theta_cl_is_n_pls = a35.get_theta_cl_is_n(clo_is_n=clo_is_n, theta_ot_is_n=theta_ot_is_n, h_hum_is_n=h_hum_is_n)
 
     logger2.operation_mode[:, n] = operation_mode_is_n

@@ -57,7 +57,7 @@ def get_q_hum_i_n(theta_r_is_n: np.ndarray, n_hum_i_n: np.ndarray) -> np.ndarray
     """人体発熱を計算する。
 
     Args:
-        theta_r_is_n: ステップnの室iにおける室温, degree C, [i]
+        theta_r_is_n: ステップnにおける室iの空気温度, degree C, [i]
         n_hum_i_n: ステップnの室iにおける在室人数, [i]
 
     Returns:
@@ -75,7 +75,7 @@ def get_x_hum_i_n(theta_r_is_n: np.ndarray, n_hum_i_n: np.ndarray) -> np.ndarray
     """人体発湿を計算する。
 
     Args:
-        theta_r_is_n: ステップnの室iにおける室温, degree C, [i]
+        theta_r_is_n: ステップnにおける室iの空気温度, degree C, [i]
         n_hum_i_n: ステップnの室iにおける在室人数, [i]
 
     Returns:
