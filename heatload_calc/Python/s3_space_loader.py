@@ -14,14 +14,6 @@ import s4_1_sensible_heat as s41
 import psychrometrics as psy
 
 
-#class Logger:
-#
-#    def __init__(self, n_bnd_i_jstrs):
-#
-#        # i室の部位kにおけるn時点の室内等価温度
-#        self.Tei_i_k_n = np.zeros((n_bnd_i_jstrs, 24 * 365 * 4 * 4))
-
-
 # 空間に関する情報の保持
 class Space:
     """室クラス。
@@ -263,6 +255,18 @@ class Spaces:
         # 室の数
         self.total_number_of_spaces = len(spaces)
 
+        # 境界の数（リスト）
+        self.number_of_boundaries = np.array([s.number_of_boundary for s in spaces])
+
+        # 室の名前
+        self.names = np.array([s.name_i for s in spaces])
+
+        # 統合された境界j*の名前, [j*]
+        self.boundary_names = np.concatenate([s.name_bdry_i_jstrs for s in spaces])
+
+        # 境界のリスト形式を室ごとのリスト形式に切るためのインデックス（不要になったら消すこと）
+        self.start_indices = get_start_indices(spaces2=self)
+
         # ステップnにおける室iの空調需要, [i, 8760*4]
         self.ac_demand_is_n = np.concatenate([[s.ac_demand] for s in spaces])
 
@@ -411,6 +415,18 @@ class Spaces:
 
         # ステップnの室iにおける窓の透過日射熱取得, W, [8760*4]
         self.q_trs_sol_is_ns = np.concatenate([[s.q_trs_sol_i_ns] for s in spaces])
+
+
+def get_start_indices(spaces2: Spaces):
+
+    number_of_bdry_is = spaces2.number_of_boundaries
+    start_indices = []
+    indices = 0
+    for n_bdry in number_of_bdry_is:
+        indices = indices + n_bdry
+        start_indices.append(indices)
+    start_indices.pop(-1)
+    return start_indices
 
 
 def get_start_indices2(spaces):

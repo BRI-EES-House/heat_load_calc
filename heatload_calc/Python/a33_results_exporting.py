@@ -9,7 +9,7 @@ import s4_1_sensible_heat as s41
 import psychrometrics as psy
 
 
-class Logger2:
+class Logger:
 
     def __init__(self, n_spaces: int, n_bdrys: int):
 
@@ -117,7 +117,7 @@ class Logger2:
         self.q_frnt = s41.get_Qfuns(ss.c_fun_is, self.theta_r, self.theta_frnt)
 
 
-def append_headers(spaces: List[Space]) -> List[List]:
+def append_headers(spaces2: Spaces) -> List[List]:
 
     headder1 = []
 
@@ -127,8 +127,14 @@ def append_headers(spaces: List[Space]) -> List[List]:
 
     headder1.append('外気絶対湿度[kg/kg(DA)]')
 
-    for space in spaces:
-        name = space.name_i
+    for i in range(spaces2.total_number_of_spaces):
+
+        name = spaces2.names[i]
+
+        n = spaces2.number_of_boundaries[i]
+
+        boundary_names = np.split(spaces2.boundary_names, spaces2.start_indices)[i]
+
         headder1.append(name + "_運転状態")
         headder1.append(name + "_在室状況")
         headder1.append(name + "_空気温度[℃]")
@@ -150,22 +156,17 @@ def append_headers(spaces: List[Space]) -> List[List]:
         headder1.append(name + "_家具吸収日射熱量[W]")
         headder1.append(name + "_家具絶対湿度[kg/kg(DA)]")
         headder1.append(name + "_家具取得水蒸気量[kg/s]")
-        n = space.n_bnd_i_jstrs
-        if 1:
-            for g in range(n):
-                headder1.append(name + "_" + space.name_bdry_i_jstrs[g] + "_表面温度[℃]")
-        if 1:
-            for g in range(n):
-                headder1.append(name + "_" + space.name_bdry_i_jstrs[g] + "_等価室温[℃]")
-        if 1:
-            for g in range(n):
-                headder1.append(name + "_" + space.name_bdry_i_jstrs[g] + "_境界温度[℃]")
-        if 1:
-            for g in range(n):
-                headder1.append(name + "_" + space.name_bdry_i_jstrs[g] + "_表面放射熱流[W]")
-        if 1:
-            for g in range(n):
-                headder1.append(name + "_" + space.name_bdry_i_jstrs[g] + "_表面対流熱流[W]")
+
+        for g in range(n):
+            headder1.append(name + "_" + boundary_names[g] + "_表面温度[℃]")
+        for g in range(n):
+            headder1.append(name + "_" + boundary_names[g] + "_等価室温[℃]")
+        for g in range(n):
+            headder1.append(name + "_" + boundary_names[g] + "_境界温度[℃]")
+        for g in range(n):
+            headder1.append(name + "_" + boundary_names[g] + "_表面放射熱流[W]")
+        for g in range(n):
+            headder1.append(name + "_" + boundary_names[g] + "_表面対流熱流[W]")
 
     # 出力リスト
     OutList = []
@@ -176,13 +177,13 @@ def append_headers(spaces: List[Space]) -> List[List]:
 
 
 def append_tick_log(
-        spaces: List[Space],
         log: List[List],
         To_n: float,
         n: int,
         xo_n: float,
-        logger2: Logger2,
-        start_indices
+        logger: Logger,
+        start_indices,
+        number_of_spaces
 ):
 
     # DTMは1989年1月1日始まりとする
@@ -200,42 +201,42 @@ def append_tick_log(
         '{0:.4f}'.format(xo_n[n])
     ]
 
-    for i, space in enumerate(spaces):
-        row.append(logger2.operation_mode[i, n])
-        row.append(logger2.ac_demand[i, n])
-        row.append('{0:.2f}'.format(logger2.theta_r[i, n]))
-        row.append('{0:.0f}'.format(logger2.rh[i, n]))
-        row.append('{0:.4f}'.format(logger2.x_r[i, n]))
-        row.append('{0:.2f}'.format(logger2.theta_mrt[i, n]))
-        row.append('{0:.2f}'.format(logger2.theta_ot[i, n]))
-        row.append('{0:.2f}'.format(logger2.clo[i, n]))
-        row.append('{0:.2f}'.format(logger2.q_trs_sol[i, n]))
-        row.append('{0:.2f}'.format(logger2.q_gen[i, n]))
-        row.append('{0:.2f}'.format(logger2.x_gen[i, n]))
-        row.append('{0:.2f}'.format(logger2.q_hum[i, n]))
-        row.append('{0:.2f}'.format(logger2.x_hum[i, n]))
-        row.append('{0:.1f}'.format(logger2.l_cs[i, n]))
-        row.append('{0:.1f}'.format(logger2.l_rs[i, n]))
-        row.append('{0:.1f}'.format(logger2.l_cl[i, n]))
-        row.append('{0:.2f}'.format(logger2.theta_frnt[i, n]))
-        row.append('{0:.1f}'.format(logger2.q_frnt[i, n]))
-        row.append('{0:.1f}'.format(logger2.q_sol_frnt[i, n]))
-        row.append('{0:.5f}'.format(logger2.x_frnt[i, n]))
-        row.append('{0:.5f}'.format(logger2.q_l_frnt[i, n]))
+    for i in range(number_of_spaces):
+        row.append(logger.operation_mode[i, n])
+        row.append(logger.ac_demand[i, n])
+        row.append('{0:.2f}'.format(logger.theta_r[i, n]))
+        row.append('{0:.0f}'.format(logger.rh[i, n]))
+        row.append('{0:.4f}'.format(logger.x_r[i, n]))
+        row.append('{0:.2f}'.format(logger.theta_mrt[i, n]))
+        row.append('{0:.2f}'.format(logger.theta_ot[i, n]))
+        row.append('{0:.2f}'.format(logger.clo[i, n]))
+        row.append('{0:.2f}'.format(logger.q_trs_sol[i, n]))
+        row.append('{0:.2f}'.format(logger.q_gen[i, n]))
+        row.append('{0:.2f}'.format(logger.x_gen[i, n]))
+        row.append('{0:.2f}'.format(logger.q_hum[i, n]))
+        row.append('{0:.2f}'.format(logger.x_hum[i, n]))
+        row.append('{0:.1f}'.format(logger.l_cs[i, n]))
+        row.append('{0:.1f}'.format(logger.l_rs[i, n]))
+        row.append('{0:.1f}'.format(logger.l_cl[i, n]))
+        row.append('{0:.2f}'.format(logger.theta_frnt[i, n]))
+        row.append('{0:.1f}'.format(logger.q_frnt[i, n]))
+        row.append('{0:.1f}'.format(logger.q_sol_frnt[i, n]))
+        row.append('{0:.5f}'.format(logger.x_frnt[i, n]))
+        row.append('{0:.5f}'.format(logger.q_l_frnt[i, n]))
 
-        for t in np.split(logger2.theta_s, start_indices)[i]:
+        for t in np.split(logger.theta_s, start_indices)[i]:
             row.append('{0:.2f}'.format(t[n]))
 
-        for t in np.split(logger2.theta_ei, start_indices)[i]:
+        for t in np.split(logger.theta_ei, start_indices)[i]:
             row.append('{0:.2f}'.format(t[n]))
 
-        for t in np.split(logger2.theta_rear, start_indices)[i]:
+        for t in np.split(logger.theta_rear, start_indices)[i]:
             row.append('{0:.2f}'.format(t[n]))
 
-        for t in np.split(logger2.qr, start_indices)[i]:
+        for t in np.split(logger.qr, start_indices)[i]:
             row.append('{0:.2f}'.format(t[n]))
 
-        for t in np.split(logger2.qc, start_indices)[i]:
+        for t in np.split(logger.qc, start_indices)[i]:
             row.append('{0:.2f}'.format(t[n]))
 
     log.append(row)

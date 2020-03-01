@@ -13,7 +13,8 @@ import s3_simulator as simulator
 import a33_results_exporting as exporter
 import a37_groundonly_runup_calculation as a37
 from s3_space_loader import Spaces, initialize_conditions, Conditions
-from a33_results_exporting import Logger2
+import s3_space_loader as space_loader
+from a33_results_exporting import Logger
 
 # 熱負荷計算の実行
 def calc_heat_load(d: Dict):
@@ -52,18 +53,19 @@ def calc_heat_load(d: Dict):
     h_sun_ns, a_sun_ns = x_05.calc_solar_position(region=region)
 
     # スペースの読み取り
-    spaces = []
-    for i, room in enumerate(d['rooms']):
-        space = make_space(room=room, i_dn_ns=i_dn_ns, i_sky_ns=i_sky_ns, r_n_ns=r_n_ns, theta_o_ns=theta_o_ns, h_sun_ns=h_sun_ns, a_sun_ns=a_sun_ns, i=i)
-        spaces.append(space)
+#    spaces = []
+#    for i, room in enumerate(d['rooms']):
+#        space = make_space(room=room, i_dn_ns=i_dn_ns, i_sky_ns=i_sky_ns, r_n_ns=r_n_ns, theta_o_ns=theta_o_ns, h_sun_ns=h_sun_ns, a_sun_ns=a_sun_ns, i=i)
+#        spaces.append(space)
 
-    spaces2 = Spaces(spaces=spaces)
-    start_indices = simulator.get_start_indices(spaces=spaces)
+#    spaces2 = Spaces(spaces=spaces)
+    
+    spaces2 = make_house(d=d, i_dn_ns=i_dn_ns, i_sky_ns=i_sky_ns, r_n_ns=r_n_ns, theta_o_ns=theta_o_ns, h_sun_ns=h_sun_ns, a_sun_ns=a_sun_ns)
 
     conditions_n = initialize_conditions(ss=spaces2)
 
-    logger2 = Logger2(n_spaces=spaces2.total_number_of_spaces, n_bdrys=spaces2.total_number_of_bdry)
-    logger2.pre_logging(spaces2)
+    logger = Logger(n_spaces=spaces2.total_number_of_spaces, n_bdrys=spaces2.total_number_of_bdry)
+    logger.pre_logging(spaces2)
 
     # 助走計算1(土壌のみ)
     print('助走計算1（土壌のみ）')
@@ -86,7 +88,7 @@ def calc_heat_load(d: Dict):
             n=n,
             ss=spaces2,
             c_n=conditions_n,
-            logger2=logger2
+            logger=logger
         )
 
     # 本計算(室温、熱負荷)
@@ -98,24 +100,45 @@ def calc_heat_load(d: Dict):
             n=n,
             ss=spaces2,
             c_n=conditions_n,
-            logger2=logger2
+            logger=logger
         )
 
-    logger2.post_logging(spaces2)
+    logger.post_logging(spaces2)
 
     print('ログ作成')
     # log ヘッダーの作成
-    log = exporter.append_headers(spaces=spaces)
+    log = exporter.append_headers(
+        spaces2=spaces2
+    )
 
     # log の記録
     for n in range(0, n_step_main):
-        exporter.append_tick_log(spaces=spaces, log=log, To_n=theta_o_ns, n=n, xo_n=x_o_ns, logger2=logger2, start_indices=start_indices)
+        exporter.append_tick_log(
+            log=log,
+            To_n=theta_o_ns,
+            n=n, xo_n=x_o_ns,
+            logger=logger,
+            start_indices=spaces2.start_indices,
+            number_of_spaces=spaces2.total_number_of_spaces
+        )
 
     # CSVファイルの出力
     f = open('simulatin_result.csv', 'w', encoding="utf_8_sig")
     dataWriter = csv.writer(f, lineterminator='\n')
     dataWriter.writerows(log)
     f.close()
+
+
+def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
+
+    spaces = []
+    for i, room in enumerate(d['rooms']):
+        space = make_space(room=room, i_dn_ns=i_dn_ns, i_sky_ns=i_sky_ns, r_n_ns=r_n_ns, theta_o_ns=theta_o_ns, h_sun_ns=h_sun_ns, a_sun_ns=a_sun_ns, i=i)
+        spaces.append(space)
+
+    spaces2 = Spaces(spaces=spaces)
+
+    return spaces2
 
 
 def run():

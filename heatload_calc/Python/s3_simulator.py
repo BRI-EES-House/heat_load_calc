@@ -15,17 +15,7 @@ from s3_space_loader import Space, Spaces, Conditions
 
 import psychrometrics as psy
 from a39_global_parameters import BoundaryType
-from a33_results_exporting import Logger2
-
-def get_start_indices(spaces):
-    number_of_bdry_is = np.array([s.number_of_boundary for s in spaces])
-    start_indices = []
-    indices = 0
-    for n_bdry in number_of_bdry_is:
-        indices = indices + n_bdry
-        start_indices.append(indices)
-    start_indices.pop(-1)
-    return start_indices
+from a33_results_exporting import Logger
 
 
 # 地盤の計算
@@ -71,7 +61,7 @@ def run_tick_groundonly(To_n: float, Tave: float, c_n: Conditions, ss: Spaces):
 
 
 # 室温、熱負荷の計算
-def run_tick(theta_o_n: float, xo_n: float, n: int, ss: Spaces, c_n: Conditions, logger2: Logger2):
+def run_tick(theta_o_n: float, xo_n: float, n: int, ss: Spaces, c_n: Conditions, logger: Logger):
     """
 
     Args:
@@ -97,7 +87,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: Spaces, c_n: Conditions,
             theta_cl_is_n: ステップnにおける室iの在室者の着衣温度, degree C, [i]
                 本来であれば着衣温度と人体周りの対流・放射熱伝達率を未知数とした熱収支式を収束計算等を用いて時々刻々求めるのが望ましい。
                 今回、収束計算を回避するために前時刻の着衣温度を用いることにした。
-        logger2:
+        logger:
 
     Returns:
 
@@ -341,26 +331,25 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: Spaces, c_n: Conditions,
     # ステップnにおける室iの在室者の着衣温度, degree C, [i]
     theta_cl_is_n_pls = a35.get_theta_cl_is_n(clo_is_n=clo_is_n, theta_ot_is_n=theta_ot_is_n, h_hum_is_n=h_hum_is_n)
 
-    logger2.operation_mode[:, n] = operation_mode_is_n
-    logger2.theta_r[:, n] = theta_r_is_n_pls
-    logger2.x_r[:, n] = x_r_is_n_pls
-    logger2.theta_mrt[:, n] = theta_mrt_hum_is_n_pls
-    logger2.theta_ot[:, n] = theta_ot_is_n
-    logger2.clo[:, n] = clo_is_n
-    logger2.q_hum[:, n] = q_hum_is_n
-    logger2.x_hum[:, n] = x_hum_is_n
-    logger2.l_cs[:, n] = lcs_is_n
-    logger2.l_rs[:, n] = lrs_is_n
-    logger2.l_cl[:, n] = Lcl_i_n
-    logger2.theta_frnt[:, n] = theta_frnt_is_n
-    logger2.x_frnt[:, n] = xf_i_n
-    logger2.q_l_frnt[:, n] = Qfunl_i_n
-    logger2.theta_s[:, n] = theta_s_jstrs_n
-#    logger2.theta_e[:, n] = None
-    logger2.theta_rear[:, n] = theta_rear_is_jstrs_n
-    logger2.qr[:, n] = Qrs
-    logger2.qc[:, n] = Qcs
-    logger2.theta_ei[:, n] = theta_ei_jstrs_n
+    logger.operation_mode[:, n] = operation_mode_is_n
+    logger.theta_r[:, n] = theta_r_is_n_pls
+    logger.x_r[:, n] = x_r_is_n_pls
+    logger.theta_mrt[:, n] = theta_mrt_hum_is_n_pls
+    logger.theta_ot[:, n] = theta_ot_is_n
+    logger.clo[:, n] = clo_is_n
+    logger.q_hum[:, n] = q_hum_is_n
+    logger.x_hum[:, n] = x_hum_is_n
+    logger.l_cs[:, n] = lcs_is_n
+    logger.l_rs[:, n] = lrs_is_n
+    logger.l_cl[:, n] = Lcl_i_n
+    logger.theta_frnt[:, n] = theta_frnt_is_n
+    logger.x_frnt[:, n] = xf_i_n
+    logger.q_l_frnt[:, n] = Qfunl_i_n
+    logger.theta_s[:, n] = theta_s_jstrs_n
+    logger.theta_rear[:, n] = theta_rear_is_jstrs_n
+    logger.qr[:, n] = Qrs
+    logger.qc[:, n] = Qcs
+    logger.theta_ei[:, n] = theta_ei_jstrs_n
 
     return Conditions(
         operation_mode_is_n=operation_mode_is_n,
