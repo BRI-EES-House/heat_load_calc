@@ -57,7 +57,7 @@ def run_tick_groundonly(To_n: float, Tave: float, c_n: Conditions, ss: Spaces):
     return Conditions(
         operation_mode_is_n=c_n.operation_mode_is_n,
         theta_r_is_n=c_n.theta_r_is_n,
-        theta_mrt_is_n=c_n.theta_mrt_is_n,
+        theta_mrt_hum_is_n=c_n.theta_mrt_hum_is_n,
         x_r_is_n=c_n.x_r_is_n,
         theta_dsh_srf_a_jstrs_n_ms=theta_dsh_srf_a_jstrs_n_ms,
         theta_dsh_srf_t_jstrs_n_ms=c_n.theta_dsh_srf_t_jstrs_n_ms,
@@ -71,15 +71,13 @@ def run_tick_groundonly(To_n: float, Tave: float, c_n: Conditions, ss: Spaces):
 
 
 # 室温、熱負荷の計算
-def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_indices: List[int], ss: Spaces, c_n: Conditions, logger2: Logger2):
+def run_tick(theta_o_n: float, xo_n: float, n: int, ss: Spaces, c_n: Conditions, logger2: Logger2):
     """
 
     Args:
-        spaces:
         theta_o_n:
         xo_n:
         n:
-        start_indices:
         ss:
         c_n: 前の時刻からの状態量
             operation_mode_is_n: ステップnにおける室iの運転状態, [i]
@@ -99,7 +97,7 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
             theta_cl_is_n: ステップnにおける室iの在室者の着衣温度, degree C, [i]
                 本来であれば着衣温度と人体周りの対流・放射熱伝達率を未知数とした熱収支式を収束計算等を用いて時々刻々求めるのが望ましい。
                 今回、収束計算を回避するために前時刻の着衣温度を用いることにした。
-         logger2:
+        logger2:
 
     Returns:
 
@@ -113,7 +111,7 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
         is_radiative_cooling_is=ss.is_radiative_cooling_is,
         theta_r_is_n=c_n.theta_r_is_n,
         theta_cl_is_n=c_n.theta_cl_is_n,
-        theta_mrt_is_n=c_n.theta_mrt_is_n,
+        theta_mrt_is_n=c_n.theta_mrt_hum_is_n,
         ac_demand_is_n=ss.ac_demand_is_n[:, n],
     )
 
@@ -139,7 +137,7 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
     # TODO: すきま風量未実装につき、とりあえず０とする
     # すきま風量を決めるにあたってどういった変数が必要なのかを決めること。
     # TODO: 単位は m3/s とすること。
-    v_reak_is_n = np.full(len(spaces), 0.0)
+    v_reak_is_n = np.full(ss.total_number_of_spaces, 0.0)
 
     # ステップn+1の室iの統合された境界j*における項別公比法の項mの吸熱応答に関する表面温度, degree C, [jstrs, 12]
     theta_srf_dsh_a_is_jstrs_npls_ms = a1.get_theta_srf_dsh_a_i_jstrs_npls_ms(
@@ -231,8 +229,8 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
         ss.q_sol_frnt_is_ns[:, n]
     )
 
-    # 表面温度の計算 式(23)
-    ts_is_k_n = a1.get_surface_temperature(
+    # ステップnにおける境界j*の表面温度, degree C, [j*]
+    theta_s_jstrs_n = a1.get_surface_temperature(
         wsr_jstrs=ss.wsr_jstrs,
         wsb_jstrs=ss.wsb_jstrs,
         wsc_is_jstrs_npls=wsc_is_jstrs_npls,
@@ -243,21 +241,21 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
     )
 
     # MRT_i_n、AST、平均放射温度の計算
-    theta_mrt_is_n_pls = get_MRT(
+    theta_mrt_hum_is_n_pls = a1.get_theta_mrt_hum_is_n(
         fot_jstrs=ss.fot_jstrs,
-        ts_is_k_n=ts_is_k_n)
+        ts_is_k_n=theta_s_jstrs_n)
 
     # 室内表面熱流の計算 式(28)
     # ステップnの統合された境界j*における表面熱流（壁体吸熱を正とする）, W/m2, [j*]
-    Qcs, Qrs, q_srf_is_jstrs_n = a1.calc_qi(
+    Qcs, Qrs, q_srf_is_jstrs_n, theta_ei_jstrs_n = a1.calc_qi(
         h_c_bnd_jstrs=ss.h_c_bnd_jstrs,
         a_bnd_jstrs=ss.a_bnd_jstrs,
         h_r_bnd_jstrs=ss.h_r_bnd_jstrs,
         q_sol_srf_jstrs_n=ss.q_sol_srf_jstrs_ns[:, n],
         flr_is_k=ss.flr_is_k,
-        ts_is_k_n=ts_is_k_n,
+        theta_s_jstrs_n=theta_s_jstrs_n,
         theta_r_is_npls=theta_r_is_n_pls,
-        f_mrt_jstrs=ss.f_mrt_jstrs,
+        f_mrt_jstrs_jstrs=ss.f_mrt_jstrs,
         lrs_is_n=lrs_is_n,
         beta_is=ss.beta_is,
         p=ss.p
@@ -346,7 +344,7 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
     logger2.operation_mode[:, n] = operation_mode_is_n
     logger2.theta_r[:, n] = theta_r_is_n_pls
     logger2.x_r[:, n] = x_r_is_n_pls
-    logger2.theta_mrt[:, n] = theta_mrt_is_n_pls
+    logger2.theta_mrt[:, n] = theta_mrt_hum_is_n_pls
     logger2.theta_ot[:, n] = theta_ot_is_n
     logger2.clo[:, n] = clo_is_n
     logger2.q_hum[:, n] = q_hum_is_n
@@ -357,41 +355,25 @@ def run_tick(spaces: List[Space], theta_o_n: float, xo_n: float, n: int, start_i
     logger2.theta_frnt[:, n] = theta_frnt_is_n
     logger2.x_frnt[:, n] = xf_i_n
     logger2.q_l_frnt[:, n] = Qfunl_i_n
-    logger2.theta_s[:, n] = ts_is_k_n
-    logger2.theta_e[:, n] = None
+    logger2.theta_s[:, n] = theta_s_jstrs_n
+#    logger2.theta_e[:, n] = None
     logger2.theta_rear[:, n] = theta_rear_is_jstrs_n
     logger2.qr[:, n] = Qrs
     logger2.qc[:, n] = Qcs
-
-    for i, s in enumerate(spaces):
-
-        Ts_i_k_n = np.split(ts_is_k_n, start_indices)[i]
-
-        # 室内側等価温度の計算 式(29)
-        s.logger.Tei_i_k_n[:, n] = a1.calc_Tei(
-            s.h_c_bnd_i_jstrs, s.h_r_bnd_i_jstrs, s.q_sol_srf_i_jstrs_ns[:, n], s.flr_i_k,
-            s.a_bnd_i_jstrs, theta_r_is_n_pls[i], s.F_mrt_i_g, Ts_i_k_n, lrs_is_n[i], s.Beta_i)
+    logger2.theta_ei[:, n] = theta_ei_jstrs_n
 
     return Conditions(
         operation_mode_is_n=operation_mode_is_n,
         theta_r_is_n=theta_r_is_n_pls,
-        theta_mrt_is_n=theta_mrt_is_n_pls,
+        theta_mrt_hum_is_n=theta_mrt_hum_is_n_pls,
         x_r_is_n=x_r_is_n_pls,
         theta_dsh_srf_a_jstrs_n_ms=theta_srf_dsh_a_is_jstrs_npls_ms,
         theta_dsh_srf_t_jstrs_n_ms=theta_srf_dsh_t_is_jstrs_npls_ms,
         q_srf_jstrs_n=q_srf_is_jstrs_n,
-#        h_hum_c_is_n=h_hum_c_is_n_pls,
-#        h_hum_r_is_n=h_hum_r_is_n_pls,
         theta_frnt_is_n=theta_frnt_is_n,
         x_frnt_is_n=xf_i_n,
         theta_cl_is_n=theta_cl_is_n_pls
     )
-
-
-# MRTの計算
-def get_MRT(fot_jstrs, ts_is_k_n) -> np.ndarray:
-
-    return np.dot(fot_jstrs, ts_is_k_n.reshape(-1, 1)).flatten()
 
 
 # ASTの計算

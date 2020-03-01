@@ -165,40 +165,56 @@ def get_cvl_i_jstrs_npls(
     return np.sum(theta_srf_dsh_t_i_jstrs_npls_ms + theta_srf_dsh_a_i_jstrs_npls_ms, axis=1)
 
 
+# MRTの計算
+def get_theta_mrt_hum_is_n(fot_jstrs, ts_is_k_n) -> np.ndarray:
+
+    return np.dot(fot_jstrs, ts_is_k_n.reshape(-1, 1)).flatten()
+
+
 # 室内表面熱流の計算 式(28)
 def calc_qi(
         h_c_bnd_jstrs, a_bnd_jstrs, h_r_bnd_jstrs, q_sol_srf_jstrs_n, flr_is_k,
-        ts_is_k_n, theta_r_is_npls: float, f_mrt_jstrs: float, lrs_is_n: float, beta_is: float, p):
+        theta_s_jstrs_n, theta_r_is_npls: float,
+        f_mrt_jstrs_jstrs: float, lrs_is_n: float, beta_is: np.ndarray, p):
     """
-    :param Tr: 室温
-    :param Tsx: 形態係数加重平均表面温度
-    :param Lr:
-    :param Beta:
-    :return:
+
+    Args:
+        h_c_bnd_jstrs:
+        a_bnd_jstrs:
+        h_r_bnd_jstrs:
+        q_sol_srf_jstrs_n:
+        flr_is_k:
+        theta_s_jstrs_n: ステップnにおける境界j*の表面温度, degree C, [j*]
+        theta_r_is_npls:
+        f_mrt_jstrs_jstrs:
+        lrs_is_n:
+        beta_is:
+        p:
+
+    Returns:
+
     """
 
     # 対流成分, W
-    Qc = h_c_bnd_jstrs * a_bnd_jstrs * (np.dot(p.T, theta_r_is_npls).flatten() - ts_is_k_n)
+    Qc = h_c_bnd_jstrs * a_bnd_jstrs * (np.dot(p.T, theta_r_is_npls).flatten() - theta_s_jstrs_n)
 
     # 平均放射温度の計算
-    Tsx = (np.dot(f_mrt_jstrs, ts_is_k_n.reshape(-1, 1)).flatten())
+    Tsx = (np.dot(f_mrt_jstrs_jstrs, theta_s_jstrs_n.reshape(-1, 1)).flatten())
 
     # 放射成分, W
-    Qr = h_r_bnd_jstrs * a_bnd_jstrs * (np.dot(p.T, Tsx.reshape(-1, 1)).flatten() - ts_is_k_n)
+    Qr = h_r_bnd_jstrs * a_bnd_jstrs * (np.dot(p.T, Tsx.reshape(-1, 1)).flatten() - theta_s_jstrs_n)
 
-    # 短波長熱取得成分, W
-    RS = q_sol_srf_jstrs_n * a_bnd_jstrs
+    # ステップnにおける境界j*の等価温度（対流成分）
+    theta_ei_jstrs_n = (
+        h_c_bnd_jstrs * np.dot(p.T, theta_r_is_npls).flatten()
+        + h_r_bnd_jstrs * np.dot(p.T, Tsx.reshape(-1, 1)).flatten()
+        + q_sol_srf_jstrs_n
+        + flr_is_k * np.dot(p.T, (lrs_is_n * (1.0 - beta_is)).reshape(-1, 1)).flatten() / a_bnd_jstrs
+                       ) / (h_c_bnd_jstrs + h_r_bnd_jstrs)
 
-    # 放射暖房成分, W
-    Lr = flr_is_k * np.dot(p.T, (lrs_is_n * (1.0 - beta_is)).reshape(-1, 1)).flatten()
+    oldqi = (theta_ei_jstrs_n - theta_s_jstrs_n) * (h_c_bnd_jstrs + h_r_bnd_jstrs)
 
-    # 表面熱流合計, W
-    Qt = Qc + Qr + Lr + RS
-
-    # 前時刻熱流の保持
-    oldqi = Qt / a_bnd_jstrs
-
-    return Qc, Qr, oldqi
+    return Qc, Qr, oldqi, theta_ei_jstrs_n
 
 
 # 室内表面熱流 [W/m2]
@@ -207,22 +223,22 @@ def get_qi(Qt, area):
 
 
 # 室内等価温度の計算 式(29)
-def calc_Tei(hic, hir, RSsol, flr, area, Tr, Fmrt, Ts, Lr, Beta):
+def calc_Tei(h_c_bnd_i_jstrs, h_r_bnd_i_jstrs, q_sol_srf_i_jstrs_ns, flr_i_k, a_bnd_i_jstrs, theta_r_is_n, f_mrt_jstrs_jstrs, Ts_i_k_n, lrs_is_n, beta_is):
     """
-    :param Tr: 室温
+    :param theta_r_is_n: 室温
     :param Tsx: 形態係数加重平均表面温度
-    :param Lr:
-    :param Beta:
+    :param lrs_is_n:
+    :param beta_is:
     :return:
     """
 
     # 平均放射温度の計算
-    Tsx = get_Tsx(Fmrt, Ts)
+    Tsx = get_Tsx(f_mrt_jstrs_jstrs, Ts_i_k_n)
 
-    return Tr * hic / (hic + hir) \
-           + Tsx * hir / (hic + hir) \
-           + RSsol / (hic + hir) \
-           + flr * Lr * (1.0 - Beta) / (hic + hir) / area
+    return theta_r_is_n * h_c_bnd_i_jstrs / (h_c_bnd_i_jstrs + h_r_bnd_i_jstrs) \
+           + Tsx * h_r_bnd_i_jstrs / (h_c_bnd_i_jstrs + h_r_bnd_i_jstrs) \
+           + q_sol_srf_i_jstrs_ns / (h_c_bnd_i_jstrs + h_r_bnd_i_jstrs) \
+           + flr_i_k * lrs_is_n * (1.0 - beta_is) / (h_c_bnd_i_jstrs + h_r_bnd_i_jstrs) / a_bnd_i_jstrs
 
 
 # 平均放射温度の計算

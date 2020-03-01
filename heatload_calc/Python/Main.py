@@ -81,11 +81,9 @@ def calc_heat_load(d: Dict):
     print('助走計算1（建物全体）')
     for n in range(-n_step_run_up_build, 0):
         conditions_n = simulator.run_tick(
-            spaces=spaces,
             theta_o_n=theta_o_ns[n],
             xo_n=x_o_ns[n],
             n=n,
-            start_indices=start_indices,
             ss=spaces2,
             c_n=conditions_n,
             logger2=logger2
@@ -95,11 +93,9 @@ def calc_heat_load(d: Dict):
     print('本計算')
     for n in range(0, n_step_main):
         conditions_n = simulator.run_tick(
-            spaces=spaces,
             theta_o_n=theta_o_ns[n],
             xo_n=x_o_ns[n],
             n=n,
-            start_indices=start_indices,
             ss=spaces2,
             c_n=conditions_n,
             logger2=logger2

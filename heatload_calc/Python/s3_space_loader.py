@@ -14,12 +14,12 @@ import s4_1_sensible_heat as s41
 import psychrometrics as psy
 
 
-class Logger:
-
-    def __init__(self, n_bnd_i_jstrs):
-
-        # i室の部位kにおけるn時点の室内等価温度
-        self.Tei_i_k_n = np.zeros((n_bnd_i_jstrs, 24 * 365 * 4 * 4))
+#class Logger:
+#
+#    def __init__(self, n_bnd_i_jstrs):
+#
+#        # i室の部位kにおけるn時点の室内等価温度
+#        self.Tei_i_k_n = np.zeros((n_bnd_i_jstrs, 24 * 365 * 4 * 4))
 
 
 # 空間に関する情報の保持
@@ -253,9 +253,6 @@ class Space:
         # kg/(s･kg/kgDA)
         self.Cx_i = a14.get_Cx(self.Gf_i)  # i室の備品類と室空気間の湿気コンダクタンス
 
-        # 計算結果出力用ロガー
-        self.logger = Logger(n_bnd_i_jstrs=n_bnd_i_jstrs)
-
         self.q_trs_sol_i_ns = q_trs_sol_i_ns
 
 
@@ -415,11 +412,6 @@ class Spaces:
         # ステップnの室iにおける窓の透過日射熱取得, W, [8760*4]
         self.q_trs_sol_is_ns = np.concatenate([[s.q_trs_sol_i_ns] for s in spaces])
 
-        # 室iにおける厚着・中間着・薄着をした場合のそれぞれの在室者のclo値, [i]
-#        self.clo_heavy_is_n = np.full(self.total_number_of_spaces, a35.get_clo_heavy())
-#        self.clo_middle_is_n = np.full(self.total_number_of_spaces, a35.get_clo_middle())
-#        self.clo_light_is_n = np.full(self.total_number_of_spaces, a35.get_clo_light())
-
 
 def get_start_indices2(spaces):
 
@@ -447,7 +439,7 @@ Conditions = namedtuple('Conditions', [
     'theta_r_is_n',
 
     # ステップnにおける室iの在室者の平均放射温度, degree C, [i]
-    'theta_mrt_is_n',
+    'theta_mrt_hum_is_n',
 
     # ステップnにおける室iの絶対湿度, kg/kgDA, [i]
     'x_r_is_n',
@@ -497,7 +489,7 @@ def initialize_conditions(ss: Spaces):
 
     # ステップnにおける室iの在室者の平均放射温度, degree C, [i]
     # 初期値を15℃と設定する。
-    theta_mrt_is_n = np.full(total_number_of_spaces, 15.0)
+    theta_mrt_hum_is_n = np.full(total_number_of_spaces, 15.0)
 
     # ステップnにおける室iの絶対湿度, kg/kgDA, [i]
     # 初期値を空気温度20℃相対湿度40%の時の値とする。
@@ -526,7 +518,7 @@ def initialize_conditions(ss: Spaces):
     return Conditions(
         operation_mode_is_n=operation_mode_is_n,
         theta_r_is_n=theta_r_is_n,
-        theta_mrt_is_n=theta_mrt_is_n,
+        theta_mrt_hum_is_n=theta_mrt_hum_is_n,
         x_r_is_n=x_r_is_n,
         theta_dsh_srf_a_jstrs_n_ms=theta_dsh_srf_a_jstrs_n_ms,
         theta_dsh_srf_t_jstrs_n_ms=theta_dsh_srf_t_jstrs_n_ms,

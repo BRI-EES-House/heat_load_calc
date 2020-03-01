@@ -80,7 +80,7 @@ class Logger2:
         self.theta_s = np.zeros((n_bdrys, 24 * 365 * 4 * 3))
 
         # ステップnの統合された境界j*の室内等価室温, degree C, [j*, n]
-        self.theta_e = np.zeros((n_bdrys, 24 * 365 * 4 * 3))
+#        self.theta_e = np.zeros((n_bdrys, 24 * 365 * 4 * 3))
 
         # ステップnの統合された境界j*の裏面温度, degree C, [j*, n]
         self.theta_rear = np.zeros((n_bdrys, 24 * 365 * 4 * 3))
@@ -90,6 +90,9 @@ class Logger2:
 
         # ステップnの統合された境界j*の表面対流熱流, W, [j*, n]
         self.qc = np.zeros((n_bdrys, 24 * 365 * 4 * 3))
+
+        # ステップnの統合された境界j*の等価温度, degree C, [j*, n]
+        self.theta_ei = np.zeros((n_bdrys, 24 * 365 * 4 * 3))
 
     def pre_logging(self, ss: Spaces):
 
@@ -223,22 +226,16 @@ def append_tick_log(
         for t in np.split(logger2.theta_s, start_indices)[i]:
             row.append('{0:.2f}'.format(t[n]))
 
-        j = space.n_bnd_i_jstrs
-
-        for g in range(j):
-            row.append('{0:.2f}'.format(space.logger.Tei_i_k_n[g, n]))
+        for t in np.split(logger2.theta_ei, start_indices)[i]:
+            row.append('{0:.2f}'.format(t[n]))
 
         for t in np.split(logger2.theta_rear, start_indices)[i]:
             row.append('{0:.2f}'.format(t[n]))
 
         for t in np.split(logger2.qr, start_indices)[i]:
             row.append('{0:.2f}'.format(t[n]))
-#        for g in range(j):
-#            row.append('{0:.2f}'.format(space.logger.Qr[g, n]))
 
         for t in np.split(logger2.qc, start_indices)[i]:
             row.append('{0:.2f}'.format(t[n]))
-#        for g in range(j):
-#            row.append('{0:.2f}'.format(space.logger.Qc[g, n]))
 
     log.append(row)
