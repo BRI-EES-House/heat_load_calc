@@ -1,6 +1,6 @@
 import math
 import numpy as np
-from typing import Dict
+from typing import Dict, List
 import json
 
 import a12_indoor_radiative_heat_transfer as a12
@@ -14,70 +14,76 @@ import a22_radiative_heating_spec as a22
 import a23_surface_heat_transfer_coefficient as a23
 import a34_building_part_summarize as a34
 import a38_schedule as a38
+from a39_global_parameters import SpaceType
 
-from s3_space_loader import Space
+from s3_space_loader import Space, Spaces
 import s3_surface_initializer as s3
 import s3_space_loader as s3sl
 import s3_surface_loader
 import s4_1_sensible_heat as s41
 
-# # 室温・熱負荷を計算するクラス
 
-# ## １）室内部位に関連するクラス
+def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
 
-# 室内部位に関する情報を保持します。
-# 
-# - is_skin:      外皮フラグ, 外皮の場合True
-# - boundary:  方位・隣室名, string
-# - unsteady:  非定常フラグ, 非定常壁体の場合True
-# - name:      壁体・開口部名称, string
-# - A_i_g:      面積, m2
-# - sunbreak:  ひさし名称, string
-# - flr_i_k:       放射暖房吸収比率, －
-# - fot:       人体に対する形態係数, －
+    # 空気の比熱, J/kg K
+    ca = a18.get_c_air()
 
-# ## ４）空間に関するクラス
+    # 空気の密度, kg/m3
+    rhoa = a18.get_rho_air()
 
-# 空間に関する情報を保持します。
-# 
-# - roomname:      室区分, string
-# - roomdiv:       室名称, string
-# - HeatCcap:      最大暖房能力（対流）[W]
-# - HeatRcap:      最大暖房能力（放射）[W]
-# - CoolCcap:      最大冷房能力（対流）[W]
-# - CoolRcap:      最大冷房能力（放射）[W]
-# - Vol:           室気積, m3
-# - Fnt:           家具熱容量, kJ/m3K
-# - Vent:          計画換気量, m3/h
-# - Inf:           すきま風量[Season]（list型、暖房・中間期・冷房の順）, m3/h
-# - CrossVentRoom: 通風計算対象室, False
-# - is_radiative_heating:       放射暖房対象室フラグ, True
-# - Betat:         放射暖房対流比率, －
-# - RoomtoRoomVents:      室間換気量（list型、暖房・中間期・冷房、風上室名称）, m3/h
-# - d:             室内部位に関連するクラス, Surface
+    rooms = d['rooms']
+
+    # 室の数
+    number_of_spaces = len(rooms)
+
+    # 室iの名称, [i]
+    space_names = np.array([r['name'] for r in rooms])
+
+    # 室iの気積, m3, [i]
+    v_room_cap_is = np.array([r['volume'] for r in rooms])
+
+    # 室iの空気の熱容量, J/K
+    c_room_is = v_room_cap_is * rhoa * ca
+
+    # 室iの家具等の熱容量, J/K
+    c_cap_frnt_is = a14.get_c_cap_frnt_is(v_room_cap_is)
+
+    # 室iの家具等と空気間の熱コンダクタンス, W/K, [i]
+    c_frnt_is = a14.get_Cfun(c_cap_frnt_is)
+
+    # 室iの家具等の湿気容量, kg/m3 kg/kgDA, [i]
+    g_f_is = a14.get_g_f_is(v_room_cap_is)  # i室の備品類の湿気容量
+
+    # 室iの家具等と空気間の湿気コンダクタンス, kg/s kg/kgDA
+    c_x_is = a14.get_c_x_is(g_f_is)
+
+    # 室iの気積, m3, [i, i]
+    v_int_vent_is = get_v_int_vent_is(rooms)
+
+    spaces = []
+    for i, room in enumerate(rooms):
+        space = make_space(room=room, i_dn_ns=i_dn_ns, i_sky_ns=i_sky_ns, r_n_ns=r_n_ns, theta_o_ns=theta_o_ns, h_sun_ns=h_sun_ns, a_sun_ns=a_sun_ns, i=i)
+        spaces.append(space)
+
+    spaces2 = Spaces(
+        spaces=spaces,
+        number_of_spaces=number_of_spaces,
+        space_names=space_names,
+        v_room_cap_is=v_room_cap_is,
+        g_f_is=g_f_is,
+        c_x_is=c_x_is,
+        c_room_is=c_room_is,
+        c_cap_frnt_is=c_cap_frnt_is,
+        c_frnt_is=c_frnt_is,
+        v_int_vent_is=v_int_vent_is
+    )
+
+    return spaces2
+
 
 def make_space(room: Dict,
                i_dn_ns: np.ndarray, i_sky_ns: np.ndarray, r_n_ns: np.ndarray, theta_o_ns: np.ndarray,
                h_sun_ns: np.ndarray, a_sun_ns: np.ndarray, i: int):
-
-    # 室iの名称
-    name_i = room['name']
-
-    # 室iのタイプ
-    #   main_occupant_room: 主たる居室
-    #   other_occupant_room: その他の居室
-    #   non_occupant_room: 非居室
-    #   underfloor: 床下空間
-    room_type_i = room['room_type']
-
-    # 室iの気積, m3
-    v_room_cap_i = room['volume']
-
-    # 室iの外気からの機械換気量, m3/h
-    v_vent_ex_i = room['vent']
-
-    # 室iの隣室からの機械換気量niの上流側の室の名称, [ni]
-    name_vent_up_i_nis = [next_vent['upstream_room_type'] for next_vent in room['next_vent']]
 
     # 室iの隣室からの機械換気量niの換気量, m3/h, [ni]
     v_vent_up_i_nis = np.array([next_vent['volume'] for next_vent in room['next_vent']])
@@ -123,6 +129,21 @@ def make_space(room: Dict,
     js = open('schedules.json', 'r', encoding='utf-8')
     d_json = json.load(js)
     calendar = np.array(d_json['calendar'])
+
+    # 室iの名称
+    name_i = room['name']
+
+    # 室iのタイプ
+    #   main_occupant_room: 主たる居室
+    #   other_occupant_room: その他の居室
+    #   non_occupant_room: 非居室
+    #   underfloor: 床下空間
+    room_type_is = {
+        1: SpaceType.MAIN_HABITABLE_ROOM,
+        2: SpaceType.OTHER_HABITABLE_ROOM,
+        3: SpaceType.NON_HABITABLE_ROOM,
+        4: SpaceType.UNDERFLOOR
+    }[room['room_type']]
 
     # 局所換気
     local_vent_amount_schedule = a38.get_schedule(
@@ -210,10 +231,6 @@ def make_space(room: Dict,
 
     # *********** 室内表面熱収支計算のための行列作成 ***********
 
-    rhoa = a18.get_rho_air()
-    # 室空気の質量[kg]
-    Ga = v_room_cap_i * rhoa
-
     Beta_i = 0.0  # 放射暖房対流比率
 
     # FIA, FLBの作成 式(26)
@@ -229,15 +246,25 @@ def make_space(room: Dict,
 
     # i室のn時点における窓開放時通風量
     # 室空気の熱容量
+
+    # 空気の比熱[J/kg K]
     ca = a18.get_c_air()
+
+    # 空気の密度[kg/m3]
     rhoa = a18.get_rho_air()
+
+    # 室iの気積, m3
+    v_room_cap_i = room['volume']
+
     c_room_i = v_room_cap_i * rhoa * ca
 
     # 家具の熱容量、湿気容量の計算
     # Capfun:家具熱容量[J/K]、Cfun:家具と室空気間の熱コンダクタンス[W/K]
-    Capfun = a14.get_Capfun(v_room_cap_i)
+    Capfun = a14.get_c_cap_frnt_is(v_room_cap_i)
     Cfun = a14.get_Cfun(Capfun)
 
+    # 室iの外気からの機械換気量, m3/h
+    v_vent_ex_i = room['vent']
 
     # BRMの計算 式(5) ※ただし、通風なし
     BRMnoncv_i = s41.get_BRM_i(
@@ -262,17 +289,6 @@ def make_space(room: Dict,
 
     q_gen_i_ns = q_gen_app_i_ns + q_gen_lght_i_ns + q_gen_ckg_i_ns
 
-    next_room_idxs_i = []
-    for x in name_vent_up_i_nis:
-        next_room_idxs_i.append(
-            {
-                'main_occupant_room': 0,
-                'other_occupant_room': 1,
-                'non_occupant_room': 2,
-                'underfloor': 3
-            }[x]
-        )
-
     # 室iの自然風利用時の換気量, m3/s
     v_ntrl_vent_i = v_room_cap_i * n_ntrl_vent_i / 3600
 
@@ -280,12 +296,7 @@ def make_space(room: Dict,
     v_mec_vent_i_ns = (v_vent_ex_i + local_vent_amount_schedule) / 3600
 
     space = Space(
-        i = i,
-        name_i=name_i,
-        room_type_i=room_type_i,
-        v_room_cap_i=v_room_cap_i,
-        name_vent_up_i_nis=name_vent_up_i_nis,
-        v_vent_up_i_nis=v_vent_up_i_nis,
+        i=i,
         name_bnd_i_jstrs=name_bnd_i_jstrs,
         sub_name_bnd_i_jstrs=sub_name_bnd_i_jstrs,
         boundary_type_i_jstrs=boundary_type_i_jstrs,
@@ -321,23 +332,104 @@ def make_space(room: Dict,
         h_r_bnd_i_jstrs=h_r_bnd_i_jstrs,
         h_c_bnd_i_jstrs=h_c_bnd_i_jstrs,
         F_mrt_i_g=F_mrt_i_g,
-        Ga=Ga,
         Beta_i=Beta_i,
         AX_k_l=AX_k_l,
         WSR_i_k=WSR_i_k,
         WSB_i_k=WSB_i_k,
         BRMnoncv_i=BRMnoncv_i,
         BRL_i=BRL_i,
-        c_room_i=c_room_i,
-        c_cap_frnt_i=Capfun,
-        c_fun_i=Cfun,
         q_gen_i_ns=q_gen_i_ns,
         q_sol_srf_i_jstrs_ns=q_sol_floor_i_jstrs_ns,
         q_sol_frnt_i_ns=q_sol_frnt_i_ns,
-        next_room_idxs_i=next_room_idxs_i,
         v_ntrl_vent_i=v_ntrl_vent_i,
         v_mec_vent_i_ns=v_mec_vent_i_ns
     )
 
 
     return space
+
+
+def get_v_int_vent_is(rooms: List[Dict]) -> np.ndarray:
+    """
+
+    Args:
+        rooms: 部屋（入力）（辞書型）
+
+    Returns:
+        隣室iから室iへの機械換気量マトリクス, m3/s, [i, i]
+            例えば、
+                室0→室1:3.0
+                室0→室2:4.0
+                室1→室2:3.0
+                室3→室1:1.5
+                室3→室2:1.0
+            の場合、
+                [[0.0, 0.0, 0.0, 0.0],
+                 [3.0, 0.0, 0.0, 1.5],
+                 [4.0, 3.0, 0.0, 1.0],
+                 [0.0, 0.0, 0.0, 0.0]]
+    """
+
+    # 室の数
+    number_of_rooms = len(rooms)
+
+    # 隣室iから室iへの機械換気量, m3/s, [i, i]
+    v_int_vent_is = np.concatenate([[
+        get_v_int_vent_i(
+            next_vents=r['next_vent'],
+            number_of_rooms=number_of_rooms
+        )
+    ] for r in rooms])
+
+    return v_int_vent_is
+
+
+def get_v_int_vent_i(next_vents: List[Dict], number_of_rooms: int) -> np.ndarray:
+    """隣室から室への機械換気量の配列を取得する。
+
+    Args:
+        next_vents: 隣室からの機械換気量
+            辞書型：
+                上流側の室の名称
+                換気量, m3/h
+        number_of_rooms: 部屋の数
+
+    Returns:
+        隣室から室への機械換気量の配列, m3/s, [i]
+            例えば、
+                室インデックス0からの換気量が 10.0
+                室インデックス1からの換気量が  0.0
+                室インデックス2からの換気量が  8.0
+                室インデックス3からの換気量が  6.0
+            の場合は、
+            [10.0, 0.0, 8.0, 6.0]
+
+    Notes:
+        室インデックスが重なって指定された場合はそこで指定された換気量は加算される。
+            例えば、
+                室インデックス0からの換気量が 10.0
+                室インデックス1からの換気量が  0.0
+                室インデックス2からの換気量が  8.0
+                室インデックス3からの換気量が  6.0
+                室インデックス0からの換気量が  2.0
+            の場合は、
+            [12.0, 0.0, 8.0, 6.0]
+
+    """
+
+    # 室iの隣室からの機械換気量, m3/s, [i]
+    v_int_vent_i = np.zeros(number_of_rooms)
+
+    for next_vent in next_vents:
+
+        idx = {
+            'main_occupant_room': 0,
+            'other_occupant_room': 1,
+            'non_occupant_room': 2,
+            'underfloor': 3
+        }[next_vent['upstream_room_type']]
+
+        # m3/hからm3/sへの単位変換を行っている
+        v_int_vent_i[idx] = v_int_vent_i[idx] + next_vent['volume'] / 3600.0
+
+    return v_int_vent_i

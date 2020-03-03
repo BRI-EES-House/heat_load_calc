@@ -4,7 +4,7 @@
 
 
 # 家具熱容量[J/K] 式(103)
-def get_Capfun(Vol):
+def get_c_cap_frnt_is(Vol):
     """
 
     :param Vol: 室気積
@@ -20,7 +20,7 @@ def get_Capfun(Vol):
 
 
 # 家具類の湿気容量[kg]  式(104)
-def get_Gf(Vol):
+def get_g_f_is(Vol):
     """
 
     :param Vol: 室気積
@@ -41,5 +41,5 @@ def get_Cfun(Capfun):
 
 
 # 室空気と家具類間の湿気コンダクタンス[kg/(s･kg/kg(DA))]  式(106)
-def get_Cx(Gf):
+def get_c_x_is(Gf):
     return 0.0018 * Gf

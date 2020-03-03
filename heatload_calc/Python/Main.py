@@ -8,7 +8,7 @@ import x_04_weather as x_04
 import x_05_solar_position as x_05
 import x_17_calculation_period as x_17
 
-from s3_space_initializer import make_space
+from s3_space_initializer import make_house
 import s3_simulator as simulator
 import a33_results_exporting as exporter
 import a37_groundonly_runup_calculation as a37
@@ -53,13 +53,6 @@ def calc_heat_load(d: Dict):
     h_sun_ns, a_sun_ns = x_05.calc_solar_position(region=region)
 
     # スペースの読み取り
-#    spaces = []
-#    for i, room in enumerate(d['rooms']):
-#        space = make_space(room=room, i_dn_ns=i_dn_ns, i_sky_ns=i_sky_ns, r_n_ns=r_n_ns, theta_o_ns=theta_o_ns, h_sun_ns=h_sun_ns, a_sun_ns=a_sun_ns, i=i)
-#        spaces.append(space)
-
-#    spaces2 = Spaces(spaces=spaces)
-    
     spaces2 = make_house(d=d, i_dn_ns=i_dn_ns, i_sky_ns=i_sky_ns, r_n_ns=r_n_ns, theta_o_ns=theta_o_ns, h_sun_ns=h_sun_ns, a_sun_ns=a_sun_ns)
 
     conditions_n = initialize_conditions(ss=spaces2)
@@ -127,18 +120,6 @@ def calc_heat_load(d: Dict):
     dataWriter = csv.writer(f, lineterminator='\n')
     dataWriter.writerows(log)
     f.close()
-
-
-def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
-
-    spaces = []
-    for i, room in enumerate(d['rooms']):
-        space = make_space(room=room, i_dn_ns=i_dn_ns, i_sky_ns=i_sky_ns, r_n_ns=r_n_ns, theta_o_ns=theta_o_ns, h_sun_ns=h_sun_ns, a_sun_ns=a_sun_ns, i=i)
-        spaces.append(space)
-
-    spaces2 = Spaces(spaces=spaces)
-
-    return spaces2
 
 
 def run():

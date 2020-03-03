@@ -27,20 +27,11 @@ class Space:
             other_occupant_room: その他の居室
             non_occupant_room: 非居室
             underfloor: 床下空間
-        v_room_cap_i: 気積, m3
-        v_vent_ex_i: 外気からの機械換気量, m3/h
-        name_vent_up_i_nis: 隣室からの機械換気量niの上流側の室の名称
-        v_vent_up_i_nis: 隣室からの機械換気量niの換気量, m3/h
     """
 
     def __init__(
             self,
             i: int,
-            name_i: str,
-            room_type_i: str,
-            v_room_cap_i: float,
-            name_vent_up_i_nis: List[str],
-            v_vent_up_i_nis: np.ndarray,
             name_bnd_i_jstrs: np.ndarray,
             sub_name_bnd_i_jstrs: np.ndarray,
             boundary_type_i_jstrs: np.ndarray,
@@ -70,39 +61,21 @@ class Space:
             Lrcap_i: float, is_radiative_cooling: bool, radiative_cooling_max_capacity: float,
             heat_exchanger_type, convective_cooling_rtd_capacity: float, flr_i_k,
             h_r_bnd_i_jstrs, h_c_bnd_i_jstrs, F_mrt_i_g,
-            Ga,
             Beta_i,
             AX_k_l, WSR_i_k, WSB_i_k,
-            BRMnoncv_i, BRL_i, c_room_i, c_cap_frnt_i, c_fun_i,
+            BRMnoncv_i, BRL_i,
             q_gen_i_ns,
             q_sol_srf_i_jstrs_ns,
             q_sol_frnt_i_ns,
-            next_room_idxs_i,
             v_ntrl_vent_i,
-            v_mec_vent_i_ns,
+            v_mec_vent_i_ns
     ):
-
-        self.name_i = name_i
-        self.room_type_i = room_type_i
-
-        # 室iの容積, m3
-        self.v_room_cap_i = v_room_cap_i
 
         # 室iの自然風利用時の換気量, m3/s
         self.v_ntrl_vent_i = v_ntrl_vent_i
 
         # ステップnの室iにおける機械換気量（全般換気量+局所換気量）, m3/s
         self.v_mec_vent_i_ns = v_mec_vent_i_ns
-
-        self.name_vent_up_i_nis = name_vent_up_i_nis
-
-        # 室iの隣室からの機械換気量niの換気量, m3/s, [ni]
-        self.v_int_vent_i_istrs = v_vent_up_i_nis / 3600.0
-        self.next_room_idxs_i = next_room_idxs_i
-
-        # 室iの隣室からの機械換気量, m3/s, [i]
-        self.v_int_vent_i = np.array([0.0, 0.0, 0.0])
-        self.v_int_vent_i[self.next_room_idxs_i] = self.v_int_vent_i_istrs
 
         self.name_bdry_i_jstrs = name_bnd_i_jstrs
         self.sub_name_bdry_i_jstrs = sub_name_bnd_i_jstrs
@@ -204,9 +177,6 @@ class Space:
         # 家具の吸収日射量[W] 式(92)
         self.q_sol_frnt_i_ns = q_sol_frnt_i_ns
 
-        # 室空気の質量[kg]
-        self.Ga = Ga
-
         # 放射暖房対流比率
         self.Beta_i = Beta_i
 
@@ -223,49 +193,71 @@ class Space:
         # BRLの計算 式(7)
         self.BRL_i = BRL_i
 
-        # 室iの熱容量, J/K
-        self.c_room_i = c_room_i
-
-        # 家具熱容量, J/K
-        self.c_cap_frnt_i = c_cap_frnt_i
-
-        # 家具と空気間の熱コンダクタンス, W/K
-        self.c_fun_i = c_fun_i
-
         self.rsolfun__i = math.nan  # 透過日射の内家具が吸収する割合[－]
         self.kc_i = s41.calc_kc_i()  # i室の人体表面における対流熱伝達率の総合熱伝達率に対する比
         self.kr_i = s41.calc_kr_i()  # i室の人体表面における放射熱伝達率の総合熱伝達率に対する比
-
-        # 家具の熱容量、湿気容量の計算
-
-        # Gf_i:湿気容量[kg/(kg/kg(DA))]、Cx_i:湿気コンダクタンス[kg/(s･kg/kg(DA))]
-
-        self.Gf_i = a14.get_Gf(self.v_room_cap_i)  # i室の備品類の湿気容量
-
-        # kg/(s･kg/kgDA)
-        self.Cx_i = a14.get_Cx(self.Gf_i)  # i室の備品類と室空気間の湿気コンダクタンス
 
         self.q_trs_sol_i_ns = q_trs_sol_i_ns
 
 
 class Spaces:
 
-    def __init__(self, spaces: List[Space]):
+    def __init__(
+            self,
+            spaces: List[Space],
+            number_of_spaces,
+            space_names,
+            v_room_cap_is,
+            g_f_is,
+            c_x_is,
+            c_room_is,
+            c_cap_frnt_is,
+            c_frnt_is,
+            v_int_vent_is
+    ):
 
         # 室の数
-        self.total_number_of_spaces = len(spaces)
+        self.total_number_of_spaces = number_of_spaces
+
+        # 室の名前
+        self.names = space_names
+
+        # 室iの容積, m3
+        self.v_room_cap_is = v_room_cap_is
+
+        # 室iの家具等の湿気容量, kg/m3 kg/kgDA, [i]
+        self.gf_is = g_f_is
+
+        # 室iの家具等と空気間の湿気コンダクタンス, kg/s kg/kgDA
+        self.cx_is = c_x_is
+
+        # 室iの熱容量, J/K, [i]
+        self.c_room_is = c_room_is
+
+        # 室iの家具等の熱容量, J/K
+        self.c_cap_frnt_is = c_cap_frnt_is
+
+        # 室iの家具等と空気間の熱コンダクタンス, W/K, [i]
+        self.c_frnt_is = c_frnt_is
+
+        # 室iの隣室からの機械換気量, m3/s, [i, i]
+#        self.v_int_vent_is = np.concatenate([[s.v_int_vent_i] for s in spaces])
+        self.v_int_vent_is = v_int_vent_is
+
+
+
+
+
+
 
         # 境界の数（リスト）
         self.number_of_boundaries = np.array([s.number_of_boundary for s in spaces])
-
-        # 室の名前
-        self.names = np.array([s.name_i for s in spaces])
 
         # 統合された境界j*の名前, [j*]
         self.boundary_names = np.concatenate([s.name_bdry_i_jstrs for s in spaces])
 
         # 境界のリスト形式を室ごとのリスト形式に切るためのインデックス（不要になったら消すこと）
-        self.start_indices = get_start_indices(spaces2=self)
+        self.start_indices = get_start_indices(number_of_boundaries=self.number_of_boundaries)
 
         # ステップnにおける室iの空調需要, [i, 8760*4]
         self.ac_demand_is_n = np.concatenate([[s.ac_demand] for s in spaces])
@@ -285,20 +277,8 @@ class Spaces:
         # ステップnの室iにおける人体発湿を除く内部発湿, kg/s, [i, 8760*4]
         self.x_gen_is_ns = np.concatenate([[s.x_gen_i_ns] for s in spaces])
 
-        # 室iの熱容量, J/K, [i]
-        self.c_room_is = np.array([s.c_room_i for s in spaces])
-
         # ステップnの室iにおける機械換気量（全般換気量+局所換気量）, m3/s
         self.v_mec_vent_is_ns = np.concatenate([[s.v_mec_vent_i_ns] for s in spaces])
-
-        # 室iの隣室からの機械換気量, m3/s, [i, i]
-        self.v_int_vent_is = np.concatenate([[s.v_int_vent_i] for s in spaces])
-
-        # 家具熱容量, J/K
-        self.c_cap_frnt_is = np.array([s.c_cap_frnt_i for s in spaces])
-
-        # 家具と空気間の熱コンダクタンス, W/K, [i]
-        self.c_fun_is = np.array([s.c_fun_i for s in spaces])
 
         # 家具の吸収日射量, W, [i, 8760*4]
         self.q_sol_frnt_is_ns = np.concatenate([[s.q_sol_frnt_i_ns] for s in spaces])
@@ -329,15 +309,6 @@ class Spaces:
 
         # 放射暖房対流比率
         self.beta_is = np.array([s.Beta_i for s in spaces])
-
-        # i室の備品類の湿気容量
-        self.gf_is = np.array([s.Gf_i for s in spaces])
-
-        # i室の備品類と室空気間の湿気コンダクタンス, kg/(s･kg/kgDA)
-        self.cx_is = np.array([s.Cx_i for s in spaces])
-
-        # 室iの容積, m3
-        self.v_room_cap_is = np.array([s.v_room_cap_i for s in spaces])
 
         def get_vac_xeout_is(lcs_is_n, theta_r_is_npls, operation_mode_is_n):
 
@@ -417,12 +388,11 @@ class Spaces:
         self.q_trs_sol_is_ns = np.concatenate([[s.q_trs_sol_i_ns] for s in spaces])
 
 
-def get_start_indices(spaces2: Spaces):
+def get_start_indices(number_of_boundaries: np.ndarray):
 
-    number_of_bdry_is = spaces2.number_of_boundaries
     start_indices = []
     indices = 0
-    for n_bdry in number_of_bdry_is:
+    for n_bdry in number_of_boundaries:
         indices = indices + n_bdry
         start_indices.append(indices)
     start_indices.pop(-1)

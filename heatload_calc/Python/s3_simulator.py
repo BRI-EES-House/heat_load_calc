@@ -182,7 +182,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: Spaces, c_n: Conditions,
         theta_o_n=theta_o_n,
         q_gen_i_n=q_gen_is_n,
         c_cap_frnt_i=ss.c_cap_frnt_is,
-        k_frnt_i=ss.c_fun_is,
+        k_frnt_i=ss.c_frnt_is,
         q_sol_frnt_i_n=ss.q_sol_frnt_is_ns[:, n],
         theta_frnt_i_n=c_n.theta_frnt_is_n,
         v_int_vent_is=ss.v_int_vent_is
@@ -215,7 +215,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: Spaces, c_n: Conditions,
     theta_frnt_is_n = s41.get_Tfun_i_n(
         ss.c_cap_frnt_is,
         c_n.theta_frnt_is_n,
-        ss.c_fun_is, theta_r_is_n_pls,
+        ss.c_frnt_is, theta_r_is_n_pls,
         ss.q_sol_frnt_is_ns[:, n]
     )
 
