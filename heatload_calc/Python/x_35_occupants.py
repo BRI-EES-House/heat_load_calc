@@ -4,6 +4,7 @@ import math
 import numpy as np
 from typing import Union
 
+import a39_global_parameters as a39
 from a39_global_parameters import OperationMode
 import psychrometrics as psy
 
@@ -207,6 +208,38 @@ def get_theta_cl_is_n(
     t_cl_i_n = (35.7 - 0.028 * m - theta_ot_is_n) / (1 + i_cl_is_n * f_cl_is_n * h_hum_is_n) + theta_ot_is_n
 
     return t_cl_i_n
+
+
+def get_x_hum_psn_is_n(theta_r_is_n: np.ndarray) -> np.ndarray:
+    """1人あたりの人体発湿を計算する。
+
+    Args:
+        theta_r_is_n: ステップnの室iにおける室温, degree C, [i]
+
+    Returns:
+        ステップnの室iにおける1人あたりの人体発湿, kg/s, [i]
+    """
+
+    # 水の蒸発潜熱, J/kg
+    l_wtr = a39.get_l_wtr()
+
+    # ステップnの室iにおける1人あたりの人体発熱, W, [i]
+    q_hum_psn_is_n = get_q_hum_psn_is_n(theta_r_is_n=theta_r_is_n)
+
+    return (119.0 - q_hum_psn_is_n) / l_wtr
+
+
+def get_q_hum_psn_is_n(theta_r_is_n: np.ndarray) -> np.ndarray:
+    """1人あたりの人体発湿を計算する。
+
+    Args:
+        theta_r_is_n: ステップnの室iにおける室温, degree C, [i]
+
+    Returns:
+        ステップnの室iにおける1人あたりの人体発熱, W, [i]
+    """
+
+    return np.minimum(63.0 - 4.0 * (theta_r_is_n - 24.0), 119.0)
 
 
 # region 本モジュール内でのみ参照される関数

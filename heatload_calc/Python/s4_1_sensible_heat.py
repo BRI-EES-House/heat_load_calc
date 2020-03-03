@@ -150,16 +150,6 @@ def get_Deno(fot_jstrs, kc_is, kr_is, wsr_jstrs):
     return kc_is + kr_is * np.dot(fot_jstrs, wsr_jstrs.reshape(-1, 1)).flatten()
 
 
-# kc_i 式(12)
-def calc_kr_i():
-    return a3.get_alpha_hm_r() / (a3.get_alpha_hm_r() + a3.get_alpha_hm_c())
-
-
-# kc_i 式(13)
-def calc_kc_i():
-    return a3.get_alpha_hm_c() / (a3.get_alpha_hm_r() + a3.get_alpha_hm_c())
-
-
 # ********** （1）式から作用温度、室除去熱量を計算する方法 **********
 
 # TODO: 空調運転モード3,4については未定義

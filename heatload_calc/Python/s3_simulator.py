@@ -189,6 +189,12 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: Spaces, c_n: Conditions,
 
     brm_is_n = ss.BRMnoncv_is[:, n] + a18.get_c_air() * a18.get_rho_air() * v_ntrl_vent_is
 
+    # 室iの在室者表面における対流熱伝達率の総合熱伝達率に対する比, [i]
+    kc_is = h_hum_c_is_n / h_hum_is_n
+
+    # 室iの在室者表面における放射熱伝達率の総合熱伝達率に対する比, [i]
+    kr_is = h_hum_r_is_n / h_hum_is_n
+
     # OT計算用の係数補正
     BRMot_is, BRCot_is, BRLot_is, Xot_is, XLr_is, XC_is = s41.calc_OT_coeff(
         brm_is_n=brm_is_n,
@@ -199,8 +205,8 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: Spaces, c_n: Conditions,
         wsc_is_jstrs_npls=wsc_is_jstrs_npls,
         wsv_is_jstrs_npls=wsv_is_jstrs_npls,
         fot_jstrs=ss.fot_jstrs,
-        kc_is=ss.kc_is,
-        kr_is=ss.kr_is,
+        kc_is=kc_is,
+        kr_is=kr_is,
     )
 
     theta_ot_is_n, lcs_is_n, lrs_is_n = s41.calc_next_steps(

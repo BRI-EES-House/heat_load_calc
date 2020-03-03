@@ -7,7 +7,6 @@ import a9_rear_surface_equivalent_temperature as a9
 import a14_furniture as a14
 import a16_blowing_condition_rac as a16
 import a18_initial_value_constants as a18
-import a35_PMV as a35
 from a39_global_parameters import OperationMode
 
 import s4_1_sensible_heat as s41
@@ -194,8 +193,6 @@ class Space:
         self.BRL_i = BRL_i
 
         self.rsolfun__i = math.nan  # 透過日射の内家具が吸収する割合[－]
-        self.kc_i = s41.calc_kc_i()  # i室の人体表面における対流熱伝達率の総合熱伝達率に対する比
-        self.kr_i = s41.calc_kr_i()  # i室の人体表面における放射熱伝達率の総合熱伝達率に対する比
 
         self.q_trs_sol_i_ns = q_trs_sol_i_ns
 
@@ -291,12 +288,6 @@ class Spaces:
 
         # BRLの計算 式(7)
         self.brl_is_ns = np.concatenate([[s.BRL_i] for s in spaces])
-
-        # i室の人体表面における対流熱伝達率の総合熱伝達率に対する比
-        self.kc_is = np.array([s.kc_i for s in spaces])
-
-        # i室の人体表面における放射熱伝達率の総合熱伝達率に対する比
-        self.kr_is = np.array([s.kr_i for s in spaces])
 
         # 放射暖房最大能力, W, [i]
         self.lrcap_is = np.array([s.Lrcap_i for s in spaces])
