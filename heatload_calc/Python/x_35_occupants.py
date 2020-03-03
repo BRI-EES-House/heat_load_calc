@@ -1,3 +1,5 @@
+# 附属書X35 在室者に関する情報を定義する。
+
 import math
 import numpy as np
 from typing import Union
@@ -37,6 +39,8 @@ def calc_operation(
 
     Returns:
         ステップnの室iにおける人体周りの総合熱伝達率, W/m2K, [i]
+        ステップnにおける室iの在室者周りの対流熱伝達率, W/m2K, [i]
+        ステップnにおける室iの在室者周りの放射熱伝達率, W/m2K, [i]
         ステップnの室iにおける運転モード, [i]
         ステップnの室iにおけるClo値, [i]
         ステップnの室iにおける目標作用温度, degree C, [i]
@@ -171,7 +175,7 @@ def calc_operation(
         theta_cl_is_n=theta_cl_is_n
     )
 
-    return h_hum_is_n, operation_mode_is_n, clo_is_n, theta_ot_target_is_n
+    return h_hum_is_n, h_hum_c_is_n, h_hum_r_is_n, operation_mode_is_n, clo_is_n, theta_ot_target_is_n
 
 
 def get_theta_cl_is_n(

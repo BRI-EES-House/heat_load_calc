@@ -1,6 +1,6 @@
 import numpy as np
 
-import a18_initial_value_constants as a18
+import a39_global_parameters as a39
 
 
 def get_alpha_hm_c() -> float:
@@ -32,7 +32,7 @@ def get_x_hum_psn_i_n(theta_r_i_n: np.ndarray) -> np.ndarray:
     """
 
     # 水の蒸発潜熱, J/kg
-    l_wtr = a18.get_l_wtr()
+    l_wtr = a39.get_l_wtr()
 
     # ステップnの室iにおける1人あたりの人体発熱, W, [i]
     q_hum_psn_i_n = get_q_hum_psn_i_n(theta_r_i_n=theta_r_i_n)

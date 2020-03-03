@@ -51,3 +51,12 @@ class SpaceType(Enum):
     # 床下空間
     UNDERFLOOR = auto()
 
+
+def get_l_wtr() -> float:
+    """
+    Returns:
+         水の蒸発潜熱, J/kg
+    """
+    return 2501000.0
+
+

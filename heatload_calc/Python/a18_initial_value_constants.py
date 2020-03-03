@@ -18,14 +18,6 @@ def get_Sgm() -> float:
     return 5.67e-8
 
 
-def get_l_wtr() -> float:
-    """
-    Returns:
-         水の蒸発潜熱, J/kg
-    """
-    return 2501000.0
-
-
 def get_delta_t():
     return 900
 

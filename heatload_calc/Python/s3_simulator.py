@@ -9,11 +9,10 @@ import apdx3_human_body as a3
 import a9_rear_surface_equivalent_temperature as a9
 import a16_blowing_condition_rac as a16
 import a18_initial_value_constants as a18
-import a35_PMV as a35
+import x_35_occupants as x_35
 from a39_global_parameters import OperationMode
 from s3_space_loader import Space, Spaces, Conditions
 
-import psychrometrics as psy
 from a39_global_parameters import BoundaryType
 from a33_results_exporting import Logger
 
@@ -94,7 +93,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: Spaces, c_n: Conditions,
     """
 
     # ステップnにおける室iの状況（在室者周りの総合熱伝達率・運転状態・Clo値・目標とする作用温度）を取得する
-    h_hum_is_n, operation_mode_is_n, clo_is_n, theta_ot_target_is_n = a35.calc_operation(
+    h_hum_is_n, h_hum_c_is_n, h_hum_r_is_n, operation_mode_is_n, clo_is_n, theta_ot_target_is_n = x_35.calc_operation(
         x_r_is_n=c_n.x_r_is_n,
         operation_mode_is_n_mns=c_n.operation_mode_is_n,
         is_radiative_heating_is=ss.is_radiative_heating_is,
@@ -329,7 +328,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: Spaces, c_n: Conditions,
     Qfunl_i_n = s42.get_Qfunl(ss.cx_is, x_r_is_n_pls, xf_i_n)
 
     # ステップnにおける室iの在室者の着衣温度, degree C, [i]
-    theta_cl_is_n_pls = a35.get_theta_cl_is_n(clo_is_n=clo_is_n, theta_ot_is_n=theta_ot_is_n, h_hum_is_n=h_hum_is_n)
+    theta_cl_is_n_pls = x_35.get_theta_cl_is_n(clo_is_n=clo_is_n, theta_ot_is_n=theta_ot_is_n, h_hum_is_n=h_hum_is_n)
 
     logger.operation_mode[:, n] = operation_mode_is_n
     logger.theta_r[:, n] = theta_r_is_n_pls
