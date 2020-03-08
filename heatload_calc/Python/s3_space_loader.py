@@ -31,8 +31,6 @@ class Space:
     def __init__(
             self,
             i: int,
-            name_bnd_i_jstrs: np.ndarray,
-            sub_name_bnd_i_jstrs: np.ndarray,
             boundary_type_i_jstrs: np.ndarray,
             a_bnd_i_jstrs: np.ndarray,
             h_bnd_i_jstrs,
@@ -76,9 +74,6 @@ class Space:
         # ステップnの室iにおける機械換気量（全般換気量+局所換気量）, m3/s
         self.v_mec_vent_i_ns = v_mec_vent_i_ns
 
-        self.name_bdry_i_jstrs = name_bnd_i_jstrs
-        self.sub_name_bdry_i_jstrs = sub_name_bnd_i_jstrs
-
         # 室iの統合された境界j*の種類, [j*]
         self.boundary_type_i_jstrs = boundary_type_i_jstrs
 
@@ -88,7 +83,7 @@ class Space:
         self.a_bnd_i_jstrs = a_bnd_i_jstrs
 
         # 室iの統合された境界j*の温度差係数, [j*]
-        self.h_bnd_i_jstrs = h_bnd_i_jstrs
+#        self.h_bnd_i_jstrs = h_bnd_i_jstrs
 
         # 室iの統合された境界j*の傾斜面のステップnにおける相当外気温度, ℃, [j*, 8760*4]
         self.theta_o_sol_bnd_i_jstrs_ns = theta_o_sol_bnd_i_jstrs_ns
@@ -210,7 +205,12 @@ class Spaces:
             c_room_is,
             c_cap_frnt_is,
             c_frnt_is,
-            v_int_vent_is
+            v_int_vent_is,
+            name_bdry_jstrs,
+            sub_name_bdry_jstrs,
+            type_bdry_jstrs,
+            a_bdry_jstrs,
+            h_bdry_jstrs
     ):
 
         # 室の数
@@ -238,20 +238,25 @@ class Spaces:
         self.c_frnt_is = c_frnt_is
 
         # 室iの隣室からの機械換気量, m3/s, [i, i]
-#        self.v_int_vent_is = np.concatenate([[s.v_int_vent_i] for s in spaces])
         self.v_int_vent_is = v_int_vent_is
 
+        # 統合された境界j*の名前, [j*]
+        self.name_bdry_jstrs = name_bdry_jstrs
 
+        # 統合された境界j*の名前2, [j*]
+        self.sub_name_bdry_jstrs = sub_name_bdry_jstrs
 
+        # 統合された境界j*の種類, [j*]
+        self.boundary_type_jstrs = type_bdry_jstrs
+
+        # 統合された境界j*の面積, m2, [j*]
+        self.a_bdry_jstrs = a_bdry_jstrs
 
 
 
 
         # 境界の数（リスト）
         self.number_of_boundaries = np.array([s.number_of_boundary for s in spaces])
-
-        # 統合された境界j*の名前, [j*]
-        self.boundary_names = np.concatenate([s.name_bdry_i_jstrs for s in spaces])
 
         # 境界のリスト形式を室ごとのリスト形式に切るためのインデックス（不要になったら消すこと）
         self.start_indices = get_start_indices(number_of_boundaries=self.number_of_boundaries)
@@ -356,17 +361,11 @@ class Spaces:
         for i, s in enumerate(spaces):
             self.f_mrt_jstrs[i, s_idcs[i]:s_idcs[i+1]] = s.F_mrt_i_g
 
-        # 統合された境界j*の種類, [j*]
-        self.boundary_type_jstrs = np.concatenate([s.boundary_type_i_jstrs for s in spaces])
-
         # 統合された境界j*における室内側放射熱伝達率, W/m2K, [j*]
         self.h_r_bnd_jstrs = np.concatenate([s.h_r_bnd_i_jstrs for s in spaces])
 
         # 統合された境界j*における室内側対流熱伝達率, W/m2K, [j*]
         self.h_c_bnd_jstrs = np.concatenate([s.h_c_bnd_i_jstrs for s in spaces])
-
-        # 統合された境界j*の面積, m2, [j*]
-        self.a_bnd_jstrs = np.concatenate([s.a_bnd_i_jstrs for s in spaces])
 
         # WSR, WSB の計算 式(24)
         self.wsr_jstrs = np.concatenate([s.WSR_i_k for s in spaces])

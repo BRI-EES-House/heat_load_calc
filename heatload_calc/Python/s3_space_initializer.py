@@ -17,7 +17,9 @@ import a38_schedule as a38
 from a39_global_parameters import SpaceType
 
 from s3_space_loader import Space, Spaces
+from s3_surface_loader import Boundary
 import s3_surface_initializer as s3
+from s3_surface_initializer import IntegratedBoundaries
 import s3_space_loader as s3sl
 import s3_surface_loader
 import s4_1_sensible_heat as s41
@@ -37,7 +39,7 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
     number_of_spaces = len(rooms)
 
     # 室iの名称, [i]
-    space_names = np.array([r['name'] for r in rooms])
+    room_names = [r['name'] for r in rooms]
 
     # 室iの気積, m3, [i]
     v_room_cap_is = np.array([r['volume'] for r in rooms])
@@ -60,22 +62,58 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
     # 室iの気積, m3, [i, i]
     v_int_vent_is = get_v_int_vent_is(rooms)
 
+    # 室iの境界k,　boundaryクラスのリスト, [i, k]
+    d_bdry_is_ks = [s3_surface_loader.read_d_boundary_i_ks(input_dict_boundaries=r['boundaries']) for r in rooms]
+
+    # 室iの統合された境界j*, IntegratedBoundaryクラス, [j*]
+    ibs = [s3.init_surface(
+        boundaries=d_boundary_i_ks,
+        i_dn_ns=i_dn_ns,
+        i_sky_ns=i_sky_ns,
+        r_n_ns=r_n_ns,
+        theta_o_ns=theta_o_ns,
+        h_sun_ns=h_sun_ns,
+        a_sun_ns=a_sun_ns) for d_boundary_i_ks in d_bdry_is_ks]
+
+    # 統合された境界j*の名前, [j*]
+    name_bdry_jstrs = np.concatenate([ib.name_i_jstrs for ib in ibs])
+
+    # 統合された境界j*の名前2, [j*]
+    sub_name_bdry_jstrs = np.concatenate([ib.sub_name_i_jstrs for ib in ibs])
+
+    # 統合された境界j*の種類, [j*]
+    type_bdry_jstrs = np.concatenate([ib.boundary_type_i_jstrs for ib in ibs])
+
+    # 統合された境界j*の面積, m2, [j*]
+    a_bdry_jstrs = np.concatenate([ib.a_i_jstrs for ib in ibs])
+
+    # 室iの統合された境界j*の温度差係数, [j*]
+    h_bdry_jstrs = np.concatenate([ib.h_i_jstrs for ib in ibs])
+
+
+
+
     spaces = []
     for i, room in enumerate(rooms):
-        space = make_space(room=room, i_dn_ns=i_dn_ns, i_sky_ns=i_sky_ns, r_n_ns=r_n_ns, theta_o_ns=theta_o_ns, h_sun_ns=h_sun_ns, a_sun_ns=a_sun_ns, i=i)
+        space = make_space(room=room, i_dn_ns=i_dn_ns, i_sky_ns=i_sky_ns, r_n_ns=r_n_ns, theta_o_ns=theta_o_ns, h_sun_ns=h_sun_ns, a_sun_ns=a_sun_ns, i=i, d_bdry_is_ks=d_bdry_is_ks, ibs=ibs)
         spaces.append(space)
 
     spaces2 = Spaces(
         spaces=spaces,
         number_of_spaces=number_of_spaces,
-        space_names=space_names,
+        space_names=room_names,
         v_room_cap_is=v_room_cap_is,
         g_f_is=g_f_is,
         c_x_is=c_x_is,
         c_room_is=c_room_is,
         c_cap_frnt_is=c_cap_frnt_is,
         c_frnt_is=c_frnt_is,
-        v_int_vent_is=v_int_vent_is
+        v_int_vent_is=v_int_vent_is,
+        name_bdry_jstrs=name_bdry_jstrs,
+        sub_name_bdry_jstrs=sub_name_bdry_jstrs,
+        type_bdry_jstrs=type_bdry_jstrs,
+        a_bdry_jstrs=a_bdry_jstrs,
+        h_bdry_jstrs=h_bdry_jstrs
     )
 
     return spaces2
@@ -83,35 +121,38 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
 
 def make_space(room: Dict,
                i_dn_ns: np.ndarray, i_sky_ns: np.ndarray, r_n_ns: np.ndarray, theta_o_ns: np.ndarray,
-               h_sun_ns: np.ndarray, a_sun_ns: np.ndarray, i: int):
-
-    # 室iの隣室からの機械換気量niの換気量, m3/h, [ni]
-    v_vent_up_i_nis = np.array([next_vent['volume'] for next_vent in room['next_vent']])
+               h_sun_ns: np.ndarray, a_sun_ns: np.ndarray, i: int, d_bdry_is_ks: List[Boundary], ibs: List[IntegratedBoundaries]):
 
     # 室iの境界k
-    d_boundary_i_ks = s3_surface_loader.read_d_boundary_i_ks(input_dict_boundaries=room['boundaries'])
+    d_boundary_i_ks = d_bdry_is_ks[i]
 
-    # i室の部位の初期化
-    ib = s3.init_surface(
-        boundaries=d_boundary_i_ks,
-        i_dn_ns=i_dn_ns, i_sky_ns=i_sky_ns, r_n_ns=r_n_ns, theta_o_ns=theta_o_ns, h_sun_ns=h_sun_ns, a_sun_ns=a_sun_ns)
+    boundary_type_i_jstrs = ibs[i].boundary_type_i_jstrs  # 済
+    a_bnd_i_jstrs = ibs[i].a_i_jstrs  # 済
 
-    name_bnd_i_jstrs = ib.name_i_jstrs
-    sub_name_bnd_i_jstrs = ib.sub_name_i_jstrs
-    boundary_type_i_jstrs = ib.boundary_type_i_jstrs
-    a_bnd_i_jstrs = ib.a_i_jstrs
-    h_bnd_i_jstrs = ib.h_i_jstrs
-    next_room_type_bnd_i_jstrs = ib.next_room_type_i_jstrs
-    is_solar_absorbed_inside_bnd_i_jstrs = ib.is_solar_absorbed_inside_i_jstrs
-    h_i_bnd_i_jstrs = ib.h_i_i_jstrs
-    theta_o_sol_bnd_i_jstrs_ns = ib.theta_o_sol_i_jstrs_ns
-    n_root_bnd_i_jstrs = ib.n_root_i_jstrs
-    row_bnd_i_jstrs = ib.Rows
-    rft0_bnd_i_jstrs = ib.RFT0s
-    rfa0_bnd_i_jstrs = ib.RFA0s
-    rft1_bnd_i_jstrs = ib.RFT1s
-    rfa1_bnd_i_jstrs = ib.RFA1s
-    n_bnd_i_jstrs = ib.NsurfG_i
+    # 室iの統合された境界j*の温度差係数, [j*]
+    h_bnd_i_jstrs = ibs[i].h_i_jstrs  # 済
+
+    # 室iの統合された境界j*の隣室タイプ, [j*]
+    next_room_type_bnd_i_jstrs = ibs[i].next_room_type_i_jstrs
+
+    # 室iの統合された境界j*の室内侵入日射吸収の有無, [j*]
+    is_solar_absorbed_inside_bnd_i_jstrs = ibs[i].is_solar_absorbed_inside_i_jstrs
+
+    # 室iの統合された境界j*の室内側表面総合熱伝達率, W/m2K, [j*]
+    h_i_bnd_i_jstrs = ibs[i].h_i_i_jstrs
+
+    # 室iの統合された境界j*の傾斜面のステップnにおける相当外気温度, ℃, [j*, 8760*4]
+    theta_o_sol_bnd_i_jstrs_ns = ibs[i].theta_o_sol_i_jstrs_ns
+
+    # 室iの統合された境界j*の応答係数法（項別公比法）における根の数, [j*]
+    n_root_bnd_i_jstrs = ibs[i].n_root_i_jstrs
+
+    row_bnd_i_jstrs = ibs[i].Rows
+    rft0_bnd_i_jstrs = ibs[i].RFT0s
+    rfa0_bnd_i_jstrs = ibs[i].RFA0s
+    rft1_bnd_i_jstrs = ibs[i].RFT1s
+    rfa1_bnd_i_jstrs = ibs[i].RFA1s
+    n_bnd_i_jstrs = ibs[i].NsurfG_i
 
     # ステップnの室iにおける窓の透過日射熱取得, W, [8760*4]
     q_trs_sol_i_ns = np.sum(
@@ -266,6 +307,9 @@ def make_space(room: Dict,
     # 室iの外気からの機械換気量, m3/h
     v_vent_ex_i = room['vent']
 
+    # 室iの隣室からの機械換気量niの換気量, m3/h, [ni]
+    v_vent_up_i_nis = np.array([next_vent['volume'] for next_vent in room['next_vent']])
+
     # BRMの計算 式(5) ※ただし、通風なし
     BRMnoncv_i = s41.get_BRM_i(
         Hcap=c_room_i,
@@ -297,8 +341,6 @@ def make_space(room: Dict,
 
     space = Space(
         i=i,
-        name_bnd_i_jstrs=name_bnd_i_jstrs,
-        sub_name_bnd_i_jstrs=sub_name_bnd_i_jstrs,
         boundary_type_i_jstrs=boundary_type_i_jstrs,
         a_bnd_i_jstrs=a_bnd_i_jstrs,
         h_bnd_i_jstrs=h_bnd_i_jstrs,
