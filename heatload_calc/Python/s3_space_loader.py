@@ -32,10 +32,10 @@ class Space:
             self,
             is_solar_absorbed_inside_bnd_i_jstrs,
             r_bdry_i_jstrs_ms,
-            rft0_bnd_i_jstrs,
-            rfa0_bnd_i_jstrs,
-            rft1_bnd_i_jstrs,
-            rfa1_bnd_i_jstrs,
+            phi_t0_bdry_i_jstrs,
+            phi_a0_bdry_i_jstrs,
+            phi_t1_bdry_i_jstrs_ms,
+            phi_a1_bdry_i_jstrs_ms,
             n_bnd_i_jstrs,
             q_trs_sol_i_ns: np.ndarray,
             air_conditioning_demand: np.ndarray,
@@ -62,10 +62,10 @@ class Space:
         self.is_solar_absorbed_inside_bdry_i_jstrs = is_solar_absorbed_inside_bnd_i_jstrs
 
         self.r_bdry_i_jstrs_ms = r_bdry_i_jstrs_ms
-        self.phi_t_0_bnd_i_jstrs = rft0_bnd_i_jstrs
-        self.phi_a_0_bnd_i_jstrs = rfa0_bnd_i_jstrs
-        self.phi_t_1_bnd_i_jstrs_ms = rft1_bnd_i_jstrs
-        self.phi_a_1_bnd_i_jstrs_ms = rfa1_bnd_i_jstrs
+        self.phi_t0_bdry_i_jstrs = phi_t0_bdry_i_jstrs
+        self.phi_a0_bdry_i_jstrs = phi_a0_bdry_i_jstrs
+        self.phi_t1_bdry_i_jstrs_ms = phi_t1_bdry_i_jstrs_ms
+        self.phi_a1_bdry_i_jstrs_ms = phi_a1_bdry_i_jstrs_ms
 
         # 室iの統合された境界j*の数, [j*]
         self.n_bnd_i_jstrs = n_bnd_i_jstrs
@@ -277,19 +277,19 @@ class Spaces:
         # === 境界j*に関すること ===
 
         # 統合された境界j*の吸熱応答係数の初項, m2K/W, [j*]
-        self.phi_a_0_bnd_jstrs = np.concatenate([s.phi_a_0_bnd_i_jstrs for s in spaces])
+        self.phi_a0_bdry_jstrs = np.concatenate([s.phi_a0_bdry_i_jstrs for s in spaces])
 
         # 統合された境界j*の項別公比法における項mの吸熱応答係数の第一項 , m2K/W, [j*, 12]
-        self.phi_a_1_bnd_jstrs_ms = np.concatenate([s.phi_a_1_bnd_i_jstrs_ms for s in spaces])
+        self.phi_a1_bdry_jstrs_ms = np.concatenate([s.phi_a1_bdry_i_jstrs_ms for s in spaces])
 
         # 統合された境界j*の項別公比法における項mの公比, [j*, 12]
         self.r_bdry_jstrs_ms = np.concatenate([s.r_bdry_i_jstrs_ms for s in spaces])
 
         # 統合された境界j*の貫流応答係数の初項, [j*]
-        self.phi_t_0_bnd_i_jstrs = np.concatenate([s.phi_t_0_bnd_i_jstrs for s in spaces])
+        self.phi_t0_bdry_jstrs = np.concatenate([s.phi_t0_bdry_i_jstrs for s in spaces])
 
         # 統合された境界j*の項別公比法における項mの貫流応答係数の第一項, [j*,12]
-        self.phi_t_1_bnd_jstrs_ms = np.concatenate([s.phi_t_1_bnd_i_jstrs_ms for s in spaces])
+        self.phi_t1_bdry_jstrs_ms = np.concatenate([s.phi_t1_bdry_i_jstrs_ms for s in spaces])
 
         # ステップnの統合された境界j*における透過日射熱取得量のうち表面に吸収される日射量, W/m2, [j*, 8760*4]
         self.q_sol_srf_jstrs_ns = np.concatenate([s.q_sol_srf_i_jstrs_ns for s in spaces])

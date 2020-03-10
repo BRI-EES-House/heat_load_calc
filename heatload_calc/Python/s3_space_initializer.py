@@ -272,10 +272,10 @@ def make_space(
 ):
 
     r_bdry_i_jstrs_ms = ibs[i].Rows
-    rft0_bnd_i_jstrs = ibs[i].RFT0s
-    rfa0_bnd_i_jstrs = ibs[i].RFA0s
-    rft1_bnd_i_jstrs = ibs[i].RFT1s
-    rfa1_bnd_i_jstrs = ibs[i].RFA1s
+    phi_t0_bdry_i_jstrs = ibs[i].RFT0s
+    phi_a0_bdry_i_jstrs = ibs[i].RFA0s
+    phi_t1_bdry_i_jstrs = ibs[i].RFT1s
+    phi_a1_bdry_i_jstrs = ibs[i].RFA1s
     n_bnd_i_jstrs = ibs[i].NsurfG_i
 
     # ステップnの室iにおける窓の透過日射熱取得, W, [8760*4]
@@ -375,11 +375,11 @@ def make_space(
     Beta_i = 0.0  # 放射暖房対流比率
 
     # FIA, FLBの作成 式(26)
-    FIA_i_l = a1.get_FIA(rfa0_bnd_i_jstrs, h_c_bnd_i_jstrs)
-    FLB_i_l = a1.get_FLB(rfa0_bnd_i_jstrs, flr_i_k, Beta_i, a_bdry_i_jstrs)
+    FIA_i_l = a1.get_FIA(phi_a0_bdry_i_jstrs, h_c_bnd_i_jstrs)
+    FLB_i_l = a1.get_FLB(phi_a0_bdry_i_jstrs, flr_i_k, Beta_i, a_bdry_i_jstrs)
 
     # 行列AX 式(25)
-    AX_k_l = a1.get_AX(rfa0_bnd_i_jstrs, h_r_bnd_i_jstrs, F_mrt_i_g, h_i_bnd_i_jstrs, n_bnd_i_jstrs)
+    AX_k_l = a1.get_AX(phi_a0_bdry_i_jstrs, h_r_bnd_i_jstrs, F_mrt_i_g, h_i_bnd_i_jstrs, n_bnd_i_jstrs)
 
     # WSR, WSB の計算 式(24)
     WSR_i_k = a1.get_WSR(AX_k_l, FIA_i_l)
@@ -437,10 +437,10 @@ def make_space(
     space = Space(
         is_solar_absorbed_inside_bnd_i_jstrs=is_solar_absorbed_inside_bdry_i_jstrs,
         r_bdry_i_jstrs_ms=r_bdry_i_jstrs_ms,
-        rft0_bnd_i_jstrs=rft0_bnd_i_jstrs,
-        rfa0_bnd_i_jstrs=rfa0_bnd_i_jstrs,
-        rft1_bnd_i_jstrs=rft1_bnd_i_jstrs,
-        rfa1_bnd_i_jstrs=rfa1_bnd_i_jstrs,
+        phi_t0_bdry_i_jstrs=phi_t0_bdry_i_jstrs,
+        phi_a0_bdry_i_jstrs=phi_a0_bdry_i_jstrs,
+        phi_t1_bdry_i_jstrs_ms=phi_t1_bdry_i_jstrs,
+        phi_a1_bdry_i_jstrs_ms=phi_a1_bdry_i_jstrs,
         n_bnd_i_jstrs=n_bnd_i_jstrs,
         q_trs_sol_i_ns=q_trs_sol_i_ns,
         air_conditioning_demand=air_conditioning_demand,
