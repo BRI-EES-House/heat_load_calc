@@ -131,7 +131,7 @@ def append_headers(spaces2: Spaces) -> List[List]:
 
         name = spaces2.names[i]
 
-        n = spaces2.number_of_boundaries[i]
+        n = spaces2.number_of_bdry_is[i]
 
         boundary_names = np.split(spaces2.name_bdry_jstrs, spaces2.start_indices)[i]
 

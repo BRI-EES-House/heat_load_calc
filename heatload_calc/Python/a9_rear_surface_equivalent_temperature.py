@@ -3,56 +3,77 @@ import numpy as np
 
 import x_07_inclined_surface_solar_radiation as x_07
 import x_19_external_boundaries_direction as x_19
-from a39_global_parameters import BoundaryType
+from a39_global_parameters import BoundaryType, SpaceType
 
 """
 付録9．	裏面相当温度
 """
 
 
-def get_theta_rear_i_jstrs_n(theta_r_is_n: np.ndarray, m: np.ndarray, theta_dstrb_i_jstrs_n: np.ndarray) -> np.ndarray:
+def get_theta_rear_i_jstrs_n(theta_r_is_n: np.ndarray, k_ei_is: np.ndarray, theta_dstrb_i_jstrs_n: np.ndarray) -> np.ndarray:
     """境界の裏面温度を計算する。
 
     Args:
         theta_r_is_n: ステップnにおける室iの空気温度, degree C, [i]
-        m: 室温が隣室温度に与える影響を表すマトリックス
+        k_ei_is: 境界の裏面温度に室の空気温度が与える影響
         theta_dstrb_i_jstrs_n: ステップnの室iの集約された境界j*の外乱による裏面温度, degree C, [j*]
 
     Returns:
         ステップnの室iの集約された境界j*における裏面温度, degree C, [j*]
     """
 
-    theta_rear_i_jstrs_n = theta_dstrb_i_jstrs_n + np.dot(m, theta_r_is_n.reshape(-1, 1)).ravel()
+    theta_rear_i_jstrs_n = theta_dstrb_i_jstrs_n + np.dot(k_ei_is, theta_r_is_n.reshape(-1, 1)).ravel()
 
     return theta_rear_i_jstrs_n
 
 
-def get_matrix(boundary_type_i_jstrs, h_bnd_i_jstrs, i, next_room_type_bnd_i_jstrs):
+def get_k_ei_i(
+        boundary_type_i_jstrs,
+        h_bnd_i_jstrs,
+        i,
+        next_room_type_bnd_i_jstrs,
+        number_of_boundaries,
+        number_of_spaces
+):
+    # 室iの統合された境界j*の種類, [j*]
+    # 室iの統合された境界j*の温度差係数, [j*]
+    # 室iの統合された境界j*の隣室タイプ, [j*]
 
-    m = []
+    next_room_type_bdry_jstrs = [
+        {
+            -1: None,
+            0: SpaceType.MAIN_HABITABLE_ROOM,
+            1: SpaceType.OTHER_HABITABLE_ROOM,
+            2: SpaceType.NON_HABITABLE_ROOM,
+            3: SpaceType.UNDERFLOOR
+        }[next_room_type_bnd_i_jstr] for next_room_type_bnd_i_jstr in next_room_type_bnd_i_jstrs
+    ]
 
-    for j in range(len(next_room_type_bnd_i_jstrs)):
-        # TODO 部屋数は3とは限らないので書き換える必要あり
-        if next_room_type_bnd_i_jstrs[j] == -1:
-            row = [0.0, 0.0, 0.0]
-        elif next_room_type_bnd_i_jstrs[j] == 0:
-            row = [1.0, 0.0, 0.0]
-        elif next_room_type_bnd_i_jstrs[j] == 1:
-            row = [0.0, 1.0, 0.0]
-        elif next_room_type_bnd_i_jstrs[j] == 2:
-            row = [0.0, 0.0, 1.0]
-        else:
-            raise ValueError()
+    k_ei_i = np.zeros((number_of_boundaries, number_of_spaces))
 
-        if (boundary_type_i_jstrs[j] == BoundaryType.ExternalGeneralPart) \
+    for j in range(number_of_boundaries):
+
+        if next_room_type_bdry_jstrs[j] != None:
+
+            idx = {
+                SpaceType.MAIN_HABITABLE_ROOM: 0,
+                SpaceType.OTHER_HABITABLE_ROOM: 1,
+                SpaceType.NON_HABITABLE_ROOM: 2,
+                SpaceType.UNDERFLOOR: 3
+            }[next_room_type_bdry_jstrs[j]]
+
+            k_ei_i[j, idx] = 1.0
+
+    for j in range(number_of_boundaries):
+
+        if (boundary_type_i_jstrs[j] == BoundaryType.ExternalGeneralPart)\
                 or (boundary_type_i_jstrs[j] == BoundaryType.ExternalOpaquePart) \
                 or (boundary_type_i_jstrs[j] == BoundaryType.ExternalTransparentPart) \
                 or (boundary_type_i_jstrs[j] == BoundaryType.Ground):
-            row[i] = row[i] + (1.0 - h_bnd_i_jstrs[j])
+            k_ei_i[j, i] = k_ei_i[j, i] + (1.0 - h_bnd_i_jstrs[j])
 
-        m.append(row)
 
-    return np.array(m)
+    return k_ei_i
 
 
 def get_theta_o_sol_i_j_ns(boundary_i_j, theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, a_sun_ns, h_sun_ns):

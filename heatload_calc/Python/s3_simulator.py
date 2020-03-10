@@ -32,7 +32,7 @@ def run_tick_groundonly(To_n: float, Tave: float, c_n: Conditions, ss: Spaces):
     theta_srf_dsh_a_is_jstrs_npls_ms = a1.get_theta_srf_dsh_a_i_jstrs_npls_ms(
         q_srf_jstrs_n=q_srf_jstrs_n[gs],
         phi_a_1_bnd_jstrs_ms=ss.phi_a_1_bnd_jstrs_ms[gs, :],
-        r_bnd_i_jstrs_ms=ss.r_bnd_jstrs_ms[gs, :],
+        r_bnd_i_jstrs_ms=ss.r_bdry_jstrs_ms[gs, :],
         theta_dsh_srf_a_jstrs_n_ms=theta_dsh_srf_a_jstrs_n_ms[gs, :])
 
     theta_dsh_srf_a_jstrs_n_ms[gs, :] = theta_srf_dsh_a_is_jstrs_npls_ms
@@ -107,7 +107,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: Spaces, c_n: Conditions,
     # ステップnの室iの集約された境界j*における裏面温度, degree C, [j*]
     theta_rear_is_jstrs_n = a9.get_theta_rear_i_jstrs_n(
         theta_r_is_n=c_n.theta_r_is_n,
-        m=ss.m_is,
+        k_ei_is=ss.k_ei_is,
         theta_dstrb_i_jstrs_n=ss.theta_dstrb_jstrs_ns[:, n]
     )
 
@@ -132,7 +132,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: Spaces, c_n: Conditions,
     theta_srf_dsh_a_is_jstrs_npls_ms = a1.get_theta_srf_dsh_a_i_jstrs_npls_ms(
         q_srf_jstrs_n=c_n.q_srf_jstrs_n,
         phi_a_1_bnd_jstrs_ms=ss.phi_a_1_bnd_jstrs_ms,
-        r_bnd_i_jstrs_ms=ss.r_bnd_jstrs_ms,
+        r_bnd_i_jstrs_ms=ss.r_bdry_jstrs_ms,
         theta_dsh_srf_a_jstrs_n_ms=c_n.theta_dsh_srf_a_jstrs_n_ms
     )
 
@@ -140,7 +140,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: Spaces, c_n: Conditions,
     theta_srf_dsh_t_is_jstrs_npls_ms = a1.get_theta_srf_dsh_t_i_jstrs_npls_ms(
         theta_rear_i_jstrs_n=theta_rear_is_jstrs_n,
         phi_t_1_bnd_i_jstrs_ms=ss.phi_t_1_bnd_jstrs_ms,
-        r_bnd_i_jstrs_ms=ss.r_bnd_jstrs_ms,
+        r_bnd_i_jstrs_ms=ss.r_bdry_jstrs_ms,
         theta_dsh_srft_jstrs_n_m=c_n.theta_dsh_srf_t_jstrs_n_ms
     )
 

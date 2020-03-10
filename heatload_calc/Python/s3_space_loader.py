@@ -30,26 +30,15 @@ class Space:
 
     def __init__(
             self,
-            i: int,
-            boundary_type_i_jstrs: np.ndarray,
-            a_bnd_i_jstrs: np.ndarray,
-            h_bnd_i_jstrs,
-            next_room_type_bnd_i_jstrs,
             is_solar_absorbed_inside_bnd_i_jstrs,
-            theta_o_sol_bnd_i_jstrs_ns,
-            n_root_bnd_i_jstrs,
-            row_bnd_i_jstrs,
+            r_bdry_i_jstrs_ms,
             rft0_bnd_i_jstrs,
             rfa0_bnd_i_jstrs,
             rft1_bnd_i_jstrs,
             rfa1_bnd_i_jstrs,
             n_bnd_i_jstrs,
             q_trs_sol_i_ns: np.ndarray,
-            x_gen_except_hum_i_ns: np.ndarray,
-            number_of_people_schedule: np.ndarray,
             air_conditioning_demand: np.ndarray,
-            Fot_i_g: np.ndarray,
-            A_total_i: float,
             qmax_c_i: float,
             qmin_c_i: float,
             Vmax_i: float,
@@ -61,50 +50,18 @@ class Space:
             Beta_i,
             AX_k_l, WSR_i_k, WSB_i_k,
             BRMnoncv_i, BRL_i,
-            q_gen_i_ns,
             q_sol_srf_i_jstrs_ns,
             q_sol_frnt_i_ns,
-            v_ntrl_vent_i,
-            v_mec_vent_i_ns
+            v_ntrl_vent_i
     ):
 
         # 室iの自然風利用時の換気量, m3/s
         self.v_ntrl_vent_i = v_ntrl_vent_i
 
-        # ステップnの室iにおける機械換気量（全般換気量+局所換気量）, m3/s
-        self.v_mec_vent_i_ns = v_mec_vent_i_ns
-
-        # 室iの統合された境界j*の種類, [j*]
-        self.boundary_type_i_jstrs = boundary_type_i_jstrs
-
-        # 室iの統合された境界j*の数
-        self.number_of_boundary = len(boundary_type_i_jstrs)
-
-        self.a_bnd_i_jstrs = a_bnd_i_jstrs
-
-        # 室iの統合された境界j*の温度差係数, [j*]
-#        self.h_bnd_i_jstrs = h_bnd_i_jstrs
-
-        # 室iの統合された境界j*の傾斜面のステップnにおける相当外気温度, ℃, [j*, 8760*4]
-        self.theta_o_sol_bnd_i_jstrs_ns = theta_o_sol_bnd_i_jstrs_ns
-
-        # ステップnの室iの集約された境界j * の外乱による裏面温度, degree C, [j*, 8760*4]
-        self.theta_dstrb_i_jstrs_ns = theta_o_sol_bnd_i_jstrs_ns * h_bnd_i_jstrs.reshape(-1, 1)
-
-        # 室温が裏面温度に与える影響を表すマトリクス, [j* * i]
-        self.m = a9.get_matrix(
-            boundary_type_i_jstrs=boundary_type_i_jstrs,
-            h_bnd_i_jstrs=h_bnd_i_jstrs,
-            i=i,
-            next_room_type_bnd_i_jstrs=next_room_type_bnd_i_jstrs)
-
-        # 室iの統合された境界j*の隣室タイプ, [j*]
-        self.next_room_type_bnd_i_jstrs = next_room_type_bnd_i_jstrs
         # Spaceクラスで持つ必要はない変数の可能性あり（インスタンス終了後破棄可能）（要調査）
         self.is_solar_absorbed_inside_bdry_i_jstrs = is_solar_absorbed_inside_bnd_i_jstrs
 
-        self.n_root_bnd_i_jstrs = n_root_bnd_i_jstrs
-        self.r_bnd_i_jstrs_ms = row_bnd_i_jstrs
+        self.r_bdry_i_jstrs_ms = r_bdry_i_jstrs_ms
         self.phi_t_0_bnd_i_jstrs = rft0_bnd_i_jstrs
         self.phi_a_0_bnd_i_jstrs = rfa0_bnd_i_jstrs
         self.phi_t_1_bnd_i_jstrs_ms = rft1_bnd_i_jstrs
@@ -113,21 +70,7 @@ class Space:
         # 室iの統合された境界j*の数, [j*]
         self.n_bnd_i_jstrs = n_bnd_i_jstrs
 
-        # ステップnの室iにおける在室人数, [8760*4]
-        self.n_hum_i_ns = number_of_people_schedule
-
-        # ステップnの室iにおける人体発熱を除く内部発熱, W, [8760*4]
-        self.q_gen_i_ns = q_gen_i_ns
-        # ステップnの室iにおける人体発湿を除く内部発湿, kg/s, [8760*4]
-        self.x_gen_i_ns = x_gen_except_hum_i_ns
-
         self.ac_demand = air_conditioning_demand  # 当該時刻の空調需要（0：なし、1：あり）
-
-        # 合計面積の計算
-        self.A_total_i = A_total_i
-
-        # 部位の人体に対する形態係数を計算 表6
-        self.Fot_i_g = Fot_i_g
 
         self.qmax_c_i = qmax_c_i
         self.qmin_c_i = qmin_c_i
@@ -210,7 +153,15 @@ class Spaces:
             sub_name_bdry_jstrs,
             type_bdry_jstrs,
             a_bdry_jstrs,
-            h_bdry_jstrs
+            v_mec_vent_is_ns,
+            q_gen_is_ns,
+            number_of_people_schedules,
+            x_gen_is_ns,
+            k_ei_is,
+            number_of_bdry_is,
+            idx_bdry_is,
+            f_mrt_hum_jstrs,
+            theta_dstrb_is_jstrs_ns
     ):
 
         # 室の数
@@ -252,35 +203,38 @@ class Spaces:
         # 統合された境界j*の面積, m2, [j*]
         self.a_bdry_jstrs = a_bdry_jstrs
 
+        # 境界の数（リスト）, [i]
+        self.number_of_bdry_is = number_of_bdry_is
+
+        # 境界の数（総数）
+        total_number_of_bdry = np.sum(number_of_bdry_is)
 
 
-
-        # 境界の数（リスト）
-        self.number_of_boundaries = np.array([s.number_of_boundary for s in spaces])
 
         # 境界のリスト形式を室ごとのリスト形式に切るためのインデックス（不要になったら消すこと）
-        self.start_indices = get_start_indices(number_of_boundaries=self.number_of_boundaries)
+        self.start_indices = get_start_indices(number_of_boundaries=self.number_of_bdry_is)
 
         # ステップnにおける室iの空調需要, [i, 8760*4]
         self.ac_demand_is_n = np.concatenate([[s.ac_demand] for s in spaces])
 
         # 室温が裏面温度に与える影響を表すマトリクス, [j* * i]
-        self.m_is = np.concatenate([s.m for s in spaces])
+        self.k_ei_is = k_ei_is
 
         # ステップnの集約された境界j*の外乱による裏面温度, degree C, [j*, 8760*4]
-        self.theta_dstrb_jstrs_ns = np.concatenate([s.theta_dstrb_i_jstrs_ns for s in spaces])
+        self.theta_dstrb_jstrs_ns = theta_dstrb_is_jstrs_ns
 
         # ステップnの室iにおける在室人数, [i, 8760*4]
-        self.n_hum_is_n = np.concatenate([[s.n_hum_i_ns] for s in spaces])
+        self.n_hum_is_n = number_of_people_schedules
 
         # ステップnの室iにおける人体発熱を除く内部発熱, W, [i, 8760*4]
-        self.q_gen_is_ns = np.concatenate([[s.q_gen_i_ns] for s in spaces])
+        self.q_gen_is_ns = q_gen_is_ns
 
         # ステップnの室iにおける人体発湿を除く内部発湿, kg/s, [i, 8760*4]
-        self.x_gen_is_ns = np.concatenate([[s.x_gen_i_ns] for s in spaces])
+        self.x_gen_is_ns = x_gen_is_ns
 
         # ステップnの室iにおける機械換気量（全般換気量+局所換気量）, m3/s
-        self.v_mec_vent_is_ns = np.concatenate([[s.v_mec_vent_i_ns] for s in spaces])
+        self.v_mec_vent_is_ns = v_mec_vent_is_ns
+
 
         # 家具の吸収日射量, W, [i, 8760*4]
         self.q_sol_frnt_is_ns = np.concatenate([[s.q_sol_frnt_i_ns] for s in spaces])
@@ -329,7 +283,7 @@ class Spaces:
         self.phi_a_1_bnd_jstrs_ms = np.concatenate([s.phi_a_1_bnd_i_jstrs_ms for s in spaces])
 
         # 統合された境界j*の項別公比法における項mの公比, [j*, 12]
-        self.r_bnd_jstrs_ms = np.concatenate([s.r_bnd_i_jstrs_ms for s in spaces])
+        self.r_bdry_jstrs_ms = np.concatenate([s.r_bdry_i_jstrs_ms for s in spaces])
 
         # 統合された境界j*の貫流応答係数の初項, [j*]
         self.phi_t_0_bnd_i_jstrs = np.concatenate([s.phi_t_0_bnd_i_jstrs for s in spaces])
@@ -340,24 +294,22 @@ class Spaces:
         # ステップnの統合された境界j*における透過日射熱取得量のうち表面に吸収される日射量, W/m2, [j*, 8760*4]
         self.q_sol_srf_jstrs_ns = np.concatenate([s.q_sol_srf_i_jstrs_ns for s in spaces])
 
-        s_idcs = get_start_indices2(spaces=spaces)  # [0, 11, 23, 32]
-        total_number_of_bdry_is = sum([s.number_of_boundary for s in spaces])  # 32
-        self.total_number_of_bdry = total_number_of_bdry_is
-        self.ivs_x_is = np.zeros((total_number_of_bdry_is, total_number_of_bdry_is))
+        s_idcs = idx_bdry_is
+
+        self.total_number_of_bdry = total_number_of_bdry
+        self.ivs_x_is = np.zeros((total_number_of_bdry, total_number_of_bdry))
         for i, s in enumerate(spaces):
             self.ivs_x_is[s_idcs[i]:s_idcs[i+1], s_idcs[i]:s_idcs[i+1]] = s.ivs_x_i
 
-        self.p = np.zeros((len(spaces), total_number_of_bdry_is))
+        self.p = np.zeros((len(spaces), total_number_of_bdry))
         for i, s in enumerate(spaces):
             self.p[i, s_idcs[i]:s_idcs[i+1]] = 1.0
 
-        # 部位の人体に対する形態係数を計算 表6
-        self.fot_jstrs = np.zeros((len(spaces), total_number_of_bdry_is))
-        for i, s in enumerate(spaces):
-            self.fot_jstrs[i, s_idcs[i]:s_idcs[i+1]] = s.Fot_i_g
+        # 室iの在室者に対する境界j*の形態係数
+        self.fot_jstrs = f_mrt_hum_jstrs
 
         # 平均放射温度計算時の各部位表面温度の重み計算 式(101)
-        self.f_mrt_jstrs = np.zeros((len(spaces), total_number_of_bdry_is))
+        self.f_mrt_jstrs = np.zeros((len(spaces), total_number_of_bdry))
         for i, s in enumerate(spaces):
             self.f_mrt_jstrs[i, s_idcs[i]:s_idcs[i+1]] = s.F_mrt_i_g
 
@@ -386,18 +338,6 @@ def get_start_indices(number_of_boundaries: np.ndarray):
         indices = indices + n_bdry
         start_indices.append(indices)
     start_indices.pop(-1)
-    return start_indices
-
-
-def get_start_indices2(spaces):
-
-    number_of_bdry_is = np.array([s.number_of_boundary for s in spaces])
-    start_indices = [0]
-    indices = 0
-    for n_bdry in number_of_bdry_is:
-        indices = indices + n_bdry
-        start_indices.append(indices)
-
     return start_indices
 
 
