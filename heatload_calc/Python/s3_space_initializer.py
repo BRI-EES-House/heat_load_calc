@@ -7,6 +7,7 @@ import a9_rear_surface_equivalent_temperature as a9
 import a12_indoor_radiative_heat_transfer as a12
 import a14_furniture as a14
 import a15_air_flow_rate_rac as a15
+import a16_blowing_condition_rac as a16
 import a18_initial_value_constants as a18
 import a1_calculation_surface_temperature as a1
 import a20_room_spec as a20
@@ -17,7 +18,7 @@ import a34_building_part_summarize as a34
 import a38_schedule as a38
 from a39_global_parameters import SpaceType
 
-from s3_space_loader import Space, Spaces
+from s3_space_loader import Spaces
 from s3_surface_loader import Boundary
 import s3_surface_initializer as s3
 from s3_surface_initializer import IntegratedBoundaries
@@ -50,6 +51,10 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
 
     # 室iの自然風利用時の換気回数, 1/h, [i]
     n_ntrl_vent_is = np.array([r['natural_vent_time'] for r in rooms])
+
+    # 室iの自然風利用時の換気量, m3/s, [i]
+    v_ntrl_vent_is = v_room_cap_is * n_ntrl_vent_is / 3600
+
 
     # 室iの空気の熱容量, J/K
     c_room_is = v_room_cap_is * rhoa * ca
@@ -99,6 +104,21 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
 
     # 室iの統合された境界j*の温度差係数, [j*]
     h_bdry_jstrs = np.concatenate([ib.h_i_jstrs for ib in ibs])
+
+    # 統合された境界j*の項別公比法における項mの公比, [j*, 12]
+    r_bdry_jstrs_ms = np.concatenate([ib.Rows for ib in ibs])
+
+    # 統合された境界j*の貫流応答係数の初項, [j*]
+    phi_t0_bdry_jstrs = np.concatenate([ib.RFT0s for ib in ibs])
+
+    # 統合された境界j*の吸熱応答係数の初項, m2K/W, [j*]
+    phi_a0_bdry_jstrs = np.concatenate([ib.RFA0s for ib in ibs])
+
+    # 統合された境界j*の項別公比法における項mの貫流応答係数の第一項, [j*,12]
+    phi_t1_bdry_jstrs_ms = np.concatenate([ib.RFT1s for ib in ibs])
+
+    # 統合された境界j*の項別公比法における項mの吸熱応答係数の第一項 , m2K/W, [j*, 12]
+    phi_a1_bdry_jstrs_ms = np.concatenate([ib.RFA1s for ib in ibs])
 
     # ステップnの室iにおける窓の透過日射熱取得, W, [8760*4]
     q_trs_sol_is_ns = np.concatenate([[
@@ -166,6 +186,16 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
             daily_schedule=d_json['daily_schedule']['heat_generation_lighting']
         )] for room_name in room_names])
 
+    air_conditioning_demand2_is_ns = np.concatenate([[
+        a38.get_air_conditioning_schedules2(
+            room_name=room_name,
+            calendar=calendar,
+            daily_schedule=d_json['daily_schedule']['is_temp_limit_set']
+        )] for room_name in room_names])
+
+    air_conditioning_demand_is_ns = np.where(air_conditioning_demand2_is_ns == "on", True, False)
+
+
     # 内部発熱, W
     q_gen_is_ns = q_gen_app_is_ns + q_gen_ckg_is_ns + q_gen_lght_is_ns
 
@@ -216,23 +246,194 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
         ib.theta_o_sol_i_jstrs_ns * ib.h_i_jstrs.reshape(-1, 1)
         for ib in ibs])
 
-    spaces = []
-    for i, room in enumerate(rooms):
-        space = make_space(
-            room=room,
-            i=i,
-            ibs=ibs,
-            d_json=d_json,
-            calendar=calendar,
-            local_vent_amount_schedules=local_vent_amount_schedules,
-            v_vent_ex_is=v_vent_ex_is,
-            q_trs_sol_is_ns=q_trs_sol_is_ns,
-            a_floor_i=a_floor_is[i]
-        )
-        spaces.append(space)
+    # 微小点に対する室内部位の形態係数の計算（永田先生の方法） 式(94)
+    FF_m_is = np.concatenate([
+        a12.calc_form_factor_of_microbodies(area_i_jstrs=ib.a_i_jstrs)
+        for ib in ibs])
 
+    split_indices = np.cumsum(number_of_bdry_is)[0:-1]
+
+    # 室iのタイプ
+    #   main_occupant_room: 主たる居室
+    #   other_occupant_room: その他の居室
+    #   non_occupant_room: 非居室
+    #   underfloor: 床下空間
+    room_type_is = [{
+        1: SpaceType.MAIN_HABITABLE_ROOM,
+        2: SpaceType.OTHER_HABITABLE_ROOM,
+        3: SpaceType.NON_HABITABLE_ROOM,
+        4: SpaceType.UNDERFLOOR
+    }[room['room_type']] for room in rooms]
+
+    qrtd_c_is = np.array([a15.get_qrtd_c(a_floor_i) for a_floor_i in a_floor_is])
+    qmax_c_is = np.array([a15.get_qmax_c(qrtd_c_i) for qrtd_c_i in qrtd_c_is])
+    qmin_c_is = np.array([a15.get_qmin_c() for qrtd_c_i in qrtd_c_is])
+    Vmax_is = np.array([a15.get_Vmax(qrtd_c_i) for qrtd_c_i in qrtd_c_is])
+    Vmin_is = np.array([a15.get_Vmin(Vmax_i) for Vmax_i in Vmax_is])
+
+    get_vac_xeout_def_is = [
+        a16.make_get_vac_xeout_def(Vmin=Vmin_i, Vmax=Vmax_i, qmin_c=qmin_c_i, qmax_c=qmax_c_i)
+        for Vmin_i, Vmax_i, qmin_c_i, qmax_c_i in zip(Vmin_is, Vmax_is, qmin_c_is, qmax_c_is)
+    ]
+
+    # 暖房設備仕様の読み込み
+    # 放射暖房有無（Trueなら放射暖房あり）
+    is_radiative_heating_is = [a22.read_is_radiative_heating(room) for room in rooms]
+
+    # 放射暖房最大能力[W]
+    Lrcap_is = np.array([a22.read_radiative_heating_max_capacity(room) for room in rooms])
+
+    # 冷房設備仕様の読み込み
+
+    # 放射冷房有無（Trueなら放射冷房あり）
+    is_radiative_cooling_is = [a22.read_is_radiative_cooling(room) for room in rooms]
+
+    # 放射冷房最大能力[W]
+    radiative_cooling_max_capacity_is = np.array([a22.read_is_radiative_cooling(room) for room in rooms])
+
+    # 熱交換器種類
+    heat_exchanger_type_is = [a22.read_heat_exchanger_type(room) for room in rooms]
+
+    # 放射暖房の発熱部位の設定（とりあえず床発熱） 表7
+    flr_jstrs = np.concatenate([
+        a12.get_flr(
+            A_i_g=ib.a_i_jstrs,
+            A_fs_i=a_floor_is[i],
+            is_radiative_heating=is_radiative_heating_is[i],
+            is_solar_absorbed_inside=ib.is_solar_absorbed_inside_i_jstrs
+        ) for i, ib in enumerate(ibs)])
+
+    # 室iの統合された境界j*の室内側表面総合熱伝達率, W/m2K, [j*]
+    h_i_bnd_jstrs = np.concatenate([ib.h_i_i_jstrs for ib in ibs])
+
+    eps_m = a18.get_eps()
+
+    # 室内側表面放射熱伝達率 式(123)
+    h_r_bnd_jstrs = np.concatenate([
+        a23.get_hr_i_k_n(eps_m=eps_m, FF_m=FF_m_i)
+        for FF_m_i in np.split(FF_m_is, split_indices)
+        ])
+
+    # 室内側表面対流熱伝達率 表(16)より
+    h_c_bnd_jstrs = np.concatenate([
+        a23.get_hc_i_k_n(
+            hi_i_k_n=np.split(h_i_bnd_jstrs, split_indices)[i],
+            hr_i_k_n=np.split(h_r_bnd_jstrs, split_indices)[i])
+        for i in range(number_of_spaces)])
+
+    # 平均放射温度計算時の各部位表面温度の重み計算 式(101)
+    F_mrt_is_g = [
+        a12.get_F_mrt_i_g(area=ib.a_i_jstrs, hir=np.split(h_r_bnd_jstrs, split_indices)[i])
+        for i, ib in enumerate(ibs)
+    ]
+
+    # 平均放射温度計算時の各部位表面温度の重み計算 式(101)
+    f_mrt_jstrs = np.zeros((number_of_spaces, sum(number_of_bdry_is)))
+    for i, F_mrt_i_g in enumerate(F_mrt_is_g):
+        f_mrt_jstrs[i, idx_bdry_is[i]:idx_bdry_is[i + 1]] = F_mrt_i_g
+
+    is_solar_absorbed_inside_is_jstrs = [ib.is_solar_absorbed_inside_i_jstrs for ib in ibs]
+
+    # 室iの統合された境界j*における室の透過日射熱取得のうちの吸収日射量, W/m2, [j*, 8760*4]
+    q_sol_floor_jstrs_ns = np.concatenate([
+        a12.get_q_sol_floor_i_jstrs_ns(
+            q_trs_sol_i_ns=q_trs_sol_is_ns[i],
+            a_bnd_i_jstrs=np.split(a_bdry_jstrs, split_indices)[i],
+            is_solar_absorbed_inside_bnd_i_jstrs=is_solar_absorbed_inside_is_jstrs[i]
+        ) for i in range(len(rooms))])
+
+    # ステップnの室iにおける家具の吸収日射量, W, [i, 8760*4]
+    q_sol_frnt_is_ns = np.concatenate([[
+        a12.get_q_sol_frnt_i_ns(q_trs_sol_i_ns=q_trs_sol_is_ns[i])
+    ] for i in range(len(rooms))
+    ])
+
+    # FIA, FLBの作成 式(26)
+    FIA_is_l = np.concatenate([
+        a1.get_FIA(np.split(phi_a0_bdry_jstrs, split_indices)[i], np.split(h_c_bnd_jstrs, split_indices)[i])
+        for i in range(len(rooms))
+        ])
+
+    Beta_i = 0.0  # 放射暖房対流比率
+
+    Beta_is = np.full(len(rooms), Beta_i)
+
+    FLB_is_l = np.concatenate([
+        a1.get_FLB(
+            np.split(phi_a0_bdry_jstrs, split_indices)[i],
+            np.split(flr_jstrs, split_indices)[i],
+            Beta_i,
+            np.split(a_bdry_jstrs, split_indices)[i]
+        ) for i in range(len(rooms))
+    ])
+
+    # 行列AX 式(25)
+    AX_k_l_is = [
+        a1.get_AX(
+            RFA0=np.split(phi_a0_bdry_jstrs, split_indices)[i],
+            hir=np.split(h_r_bnd_jstrs, split_indices)[i],
+            Fmrt=F_mrt_is_g[i],
+            hi=np.split(h_i_bnd_jstrs, split_indices)[i],
+            Nsurf=number_of_bdry_is[i]
+        ) for i in range(len(rooms))
+        ]
+
+    # WSR, WSB の計算 式(24)
+    WSR_is_k = np.concatenate([
+        a1.get_WSR(
+            AX_k_l=AX_k_l_is[i],
+            FIA_i_l=np.split(FIA_is_l, split_indices)[i]
+        ) for i in range(len(rooms))
+    ])
+
+    WSB_is_k = np.concatenate([
+        a1.get_WSB(
+            AX_k_l=AX_k_l_is[i],
+            FLB_i_l=np.split(FLB_is_l, split_indices)[i]
+        ) for i in range(len(rooms))
+    ])
+
+    # 室iの気積, m3
+    v_room_cap_is = np.array([room['volume'] for room in rooms])
+
+    # 室iの隣室からの機械換気量niの換気量, m3/h, [ni]
+    v_vent_up_is_nis = [
+        np.array([next_vent['volume'] for next_vent in room['next_vent']])
+        for room in rooms]
+
+    # BRMの計算 式(5) ※ただし、通風なし
+    BRMnoncv_is = np.concatenate([[s41.get_BRM_i(
+        Hcap=c_room_is[i],
+        WSR_i_k=np.split(WSR_is_k, split_indices)[i],
+        Cap_fun_i=c_cap_frnt_is[i],
+        C_fun_i=c_frnt_is[i],
+        Vent=v_vent_ex_is[i],
+        local_vent_amount_schedule=local_vent_amount_schedules[i],
+        A_i_k=np.split(a_bdry_jstrs, split_indices)[i],
+        hc_i_k_n=np.split(h_c_bnd_jstrs, split_indices)[i],
+        V_nxt=v_vent_up_is_nis[i]
+    )] for i in range(len(rooms))])
+
+    ivs_x_is = np.zeros((sum(number_of_bdry_is), sum(number_of_bdry_is)))
+    for i in range(len(rooms)):
+        ivs_x_is[idx_bdry_is[i]:idx_bdry_is[i + 1], idx_bdry_is[i]:idx_bdry_is[i + 1]] = AX_k_l_is[i]
+
+    # BRLの計算 式(7)
+    BRL_is = np.concatenate([[
+        s41.get_BRL_i(
+            Beta_i=Beta_is[i],
+            WSB_i_k=np.split(WSB_is_k, split_indices)[i],
+            A_i_k=np.split(a_bdry_jstrs, split_indices)[i],
+            hc_i_k_n=np.split(h_c_bnd_jstrs, split_indices)[i]
+        )] for i in range(len(rooms))
+    ])
+
+    p = np.zeros((number_of_spaces, sum(number_of_bdry_is)))
+    for i in range(number_of_spaces):
+        p[i, idx_bdry_is[i]:idx_bdry_is[i + 1]] = 1.0
+
+    # region Spacesへの引き渡し
     spaces2 = Spaces(
-        spaces=spaces,
         number_of_spaces=number_of_spaces,
         space_names=room_names,
         v_room_cap_is=v_room_cap_is,
@@ -252,225 +453,38 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
         x_gen_is_ns=x_gen_is_ns,
         k_ei_is=k_ei_is,
         number_of_bdry_is=number_of_bdry_is,
-        idx_bdry_is=idx_bdry_is,
         f_mrt_hum_jstrs=f_mrt_hum_jstrs,
-        theta_dstrb_is_jstrs_ns=theta_dstrb_is_jstrs_ns
+        theta_dstrb_is_jstrs_ns=theta_dstrb_is_jstrs_ns,
+        r_bdry_jstrs_ms=r_bdry_jstrs_ms,
+        phi_t0_bdry_jstrs=phi_t0_bdry_jstrs,
+        phi_a0_bdry_jstrs=phi_a0_bdry_jstrs,
+        phi_t1_bdry_jstrs_ms=phi_t1_bdry_jstrs_ms,
+        phi_a1_bdry_jstrs_ms=phi_a1_bdry_jstrs_ms,
+        q_trs_sol_is_ns=q_trs_sol_is_ns,
+        v_ntrl_vent_is=v_ntrl_vent_is,
+        air_conditioning_demand_is_ns=air_conditioning_demand_is_ns,
+        get_vac_xeout_def_is=get_vac_xeout_def_is,
+        is_radiative_heating_is=is_radiative_heating_is,
+        is_radiative_cooling_is=is_radiative_cooling_is,
+        Lrcap_is=Lrcap_is,
+        radiative_cooling_max_capacity_is=radiative_cooling_max_capacity_is,
+        flr_jstrs=flr_jstrs,
+        h_r_bnd_jstrs=h_r_bnd_jstrs,
+        h_c_bnd_jstrs=h_c_bnd_jstrs,
+        f_mrt_jstrs=f_mrt_jstrs,
+        q_sol_floor_jstrs_ns=q_sol_floor_jstrs_ns,
+        q_sol_frnt_is_ns=q_sol_frnt_is_ns,
+        Beta_is=Beta_is,
+        WSR_is_k=WSR_is_k,
+        WSB_is_k=WSB_is_k,
+        BRMnoncv_is=BRMnoncv_is,
+        ivs_x_is=ivs_x_is,
+        BRL_is=BRL_is,
+        p=p
     )
+    # endregion
 
     return spaces2
-
-
-def make_space(
-        room: Dict,
-        i: int,
-        ibs: List[IntegratedBoundaries],
-        d_json, calendar,
-        local_vent_amount_schedules,
-        v_vent_ex_is,
-        q_trs_sol_is_ns,
-        a_floor_i
-):
-
-    r_bdry_i_jstrs_ms = ibs[i].Rows
-    phi_t0_bdry_i_jstrs = ibs[i].RFT0s
-    phi_a0_bdry_i_jstrs = ibs[i].RFA0s
-    phi_t1_bdry_i_jstrs = ibs[i].RFT1s
-    phi_a1_bdry_i_jstrs = ibs[i].RFA1s
-    n_bnd_i_jstrs = ibs[i].NsurfG_i
-
-    # ステップnの室iにおける窓の透過日射熱取得, W, [8760*4]
-    q_trs_sol_i_ns = q_trs_sol_is_ns[i]
-
-    # 室iの自然風利用時の換気回数, 1/h
-    n_ntrl_vent_i = room['natural_vent_time']
-
-    # 室iの統合された境界j*の面積, m2, [j*]
-    a_bdry_i_jstrs = ibs[i].a_i_jstrs  # 済
-
-    # TODO 居住人数。これは1～4の値（小数値。整数ではない。）が入る。床面積の合計から推定すること。
-    n_p = 4.0
-
-    # 室iの名称
-    name_i = room['name']
-
-    # 室iのタイプ
-    #   main_occupant_room: 主たる居室
-    #   other_occupant_room: その他の居室
-    #   non_occupant_room: 非居室
-    #   underfloor: 床下空間
-    room_type_is = {
-        1: SpaceType.MAIN_HABITABLE_ROOM,
-        2: SpaceType.OTHER_HABITABLE_ROOM,
-        3: SpaceType.NON_HABITABLE_ROOM,
-        4: SpaceType.UNDERFLOOR
-    }[room['room_type']]
-
-    local_vent_amount_schedule = local_vent_amount_schedules[i]
-
-    air_conditioning_demand2 = a38.get_air_conditioning_schedules2(
-        room_name=name_i, calendar=calendar, daily_schedule=d_json['daily_schedule']['is_temp_limit_set'])
-
-    air_conditioning_demand = np.where(air_conditioning_demand2 == "on", True, False)
-
-    # ルームエアコンの仕様の設定 式(107)-(111)
-    qrtd_c_i = a15.get_qrtd_c(a_floor_i)
-    qmax_c_i = a15.get_qmax_c(qrtd_c_i)
-    qmin_c_i = a15.get_qmin_c()
-    Vmax_i = a15.get_Vmax(qrtd_c_i)
-    Vmin_i = a15.get_Vmin(Vmax_i)
-
-    # 暖房設備仕様の読み込み
-    # 放射暖房有無（Trueなら放射暖房あり）
-    is_radiative_heating = a22.read_is_radiative_heating(room)
-
-    # 放射暖房最大能力[W]
-    Lrcap_i = a22.read_radiative_heating_max_capacity(room)
-
-    # 冷房設備仕様の読み込み
-
-    # 放射冷房有無（Trueなら放射冷房あり）
-    is_radiative_cooling = a22.read_is_radiative_cooling(room)
-
-    # 放射冷房最大能力[W]
-    radiative_cooling_max_capacity = a22.read_is_radiative_cooling(room)
-
-    # 熱交換器種類
-    heat_exchanger_type = a22.read_heat_exchanger_type(room)
-
-    # 定格冷房能力[W]
-    convective_cooling_rtd_capacity = a22.read_convective_cooling_rtd_capacity(room)
-
-    # 室iの統合された境界j*の室内侵入日射吸収の有無, [j*]
-    is_solar_absorbed_inside_bdry_i_jstrs = ibs[i].is_solar_absorbed_inside_i_jstrs
-
-    # 放射暖房の発熱部位の設定（とりあえず床発熱） 表7
-    flr_i_k = a12.get_flr(a_bdry_i_jstrs, a_floor_i, is_radiative_heating,
-                                is_solar_absorbed_inside_bdry_i_jstrs)
-
-    eps_m = a18.get_eps()
-
-    # 微小点に対する室内部位の形態係数の計算（永田先生の方法） 式(94)
-    FF_m = a12.calc_form_factor_of_microbodies(name_i, a_bdry_i_jstrs)
-
-    # 室iの統合された境界j*の室内側表面総合熱伝達率, W/m2K, [j*]
-    h_i_bnd_i_jstrs = ibs[i].h_i_i_jstrs
-
-    # 表面熱伝達率の計算 式(123) 表16
-    h_r_bnd_i_jstrs, h_c_bnd_i_jstrs = a23.calc_surface_transfer_coefficient(eps_m, FF_m, h_i_bnd_i_jstrs=h_i_bnd_i_jstrs)
-
-    # 平均放射温度計算時の各部位表面温度の重み計算 式(101)
-    F_mrt_i_g = a12.get_F_mrt_i_g(a_bdry_i_jstrs, h_r_bnd_i_jstrs)
-
-    # 室iの統合された境界j*における室の透過日射熱取得のうちの吸収日射量, W/m2, [j*, 8760*4]
-    q_sol_floor_i_jstrs_ns = a12.get_q_sol_floor_i_jstrs_ns(
-        q_trs_sol_i_ns=q_trs_sol_i_ns, a_bnd_i_jstrs=a_bdry_i_jstrs,
-        is_solar_absorbed_inside_bnd_i_jstrs=is_solar_absorbed_inside_bdry_i_jstrs, a_floor_i=a_floor_i
-    )
-
-    # ステップnの室iにおける家具の吸収日射量, W, [8760*4]
-    q_sol_frnt_i_ns = a12.get_q_sol_frnt_i_ns(q_trs_sol_i_ns=q_trs_sol_i_ns)
-
-    # *********** 室内表面熱収支計算のための行列作成 ***********
-
-    Beta_i = 0.0  # 放射暖房対流比率
-
-    # FIA, FLBの作成 式(26)
-    FIA_i_l = a1.get_FIA(phi_a0_bdry_i_jstrs, h_c_bnd_i_jstrs)
-    FLB_i_l = a1.get_FLB(phi_a0_bdry_i_jstrs, flr_i_k, Beta_i, a_bdry_i_jstrs)
-
-    # 行列AX 式(25)
-    AX_k_l = a1.get_AX(phi_a0_bdry_i_jstrs, h_r_bnd_i_jstrs, F_mrt_i_g, h_i_bnd_i_jstrs, n_bnd_i_jstrs)
-
-    # WSR, WSB の計算 式(24)
-    WSR_i_k = a1.get_WSR(AX_k_l, FIA_i_l)
-    WSB_i_k = a1.get_WSB(AX_k_l, FLB_i_l)
-
-    # i室のn時点における窓開放時通風量
-    # 室空気の熱容量
-
-    # 空気の比熱[J/kg K]
-    ca = a18.get_c_air()
-
-    # 空気の密度[kg/m3]
-    rhoa = a18.get_rho_air()
-
-    # 室iの気積, m3
-    v_room_cap_i = room['volume']
-
-    c_room_i = v_room_cap_i * rhoa * ca
-
-    # 家具の熱容量、湿気容量の計算
-    # Capfun:家具熱容量[J/K]、Cfun:家具と室空気間の熱コンダクタンス[W/K]
-    Capfun = a14.get_c_cap_frnt_is(v_room_cap_i)
-    Cfun = a14.get_Cfun(Capfun)
-
-    # 室iの外気からの機械換気量, m3/h
-    v_vent_ex_i = v_vent_ex_is[i]
-
-    # 室iの隣室からの機械換気量niの換気量, m3/h, [ni]
-    v_vent_up_i_nis = np.array([next_vent['volume'] for next_vent in room['next_vent']])
-
-    # BRMの計算 式(5) ※ただし、通風なし
-    BRMnoncv_i = s41.get_BRM_i(
-        Hcap=c_room_i,
-        WSR_i_k=WSR_i_k,
-        Cap_fun_i=Capfun,
-        C_fun_i=Cfun,
-        Vent=v_vent_ex_i,
-        local_vent_amount_schedule=local_vent_amount_schedule,
-        A_i_k=a_bdry_i_jstrs,
-        hc_i_k_n=h_c_bnd_i_jstrs,
-        V_nxt=v_vent_up_i_nis
-    )
-
-    # BRLの計算 式(7)
-    BRL_i = s41.get_BRL_i(
-        Beta_i=Beta_i,
-        WSB_i_k=WSB_i_k,
-        A_i_k=a_bdry_i_jstrs,
-        hc_i_k_n=h_c_bnd_i_jstrs
-    )
-
-    # 室iの自然風利用時の換気量, m3/s
-    v_ntrl_vent_i = v_room_cap_i * n_ntrl_vent_i / 3600
-
-    space = Space(
-        is_solar_absorbed_inside_bnd_i_jstrs=is_solar_absorbed_inside_bdry_i_jstrs,
-        r_bdry_i_jstrs_ms=r_bdry_i_jstrs_ms,
-        phi_t0_bdry_i_jstrs=phi_t0_bdry_i_jstrs,
-        phi_a0_bdry_i_jstrs=phi_a0_bdry_i_jstrs,
-        phi_t1_bdry_i_jstrs_ms=phi_t1_bdry_i_jstrs,
-        phi_a1_bdry_i_jstrs_ms=phi_a1_bdry_i_jstrs,
-        n_bnd_i_jstrs=n_bnd_i_jstrs,
-        q_trs_sol_i_ns=q_trs_sol_i_ns,
-        air_conditioning_demand=air_conditioning_demand,
-        qmax_c_i = qmax_c_i,
-        qmin_c_i = qmin_c_i,
-        Vmax_i = Vmax_i,
-        Vmin_i = Vmin_i,
-        is_radiative_heating=is_radiative_heating,
-        Lrcap_i = Lrcap_i,
-        is_radiative_cooling = is_radiative_cooling,
-        radiative_cooling_max_capacity = radiative_cooling_max_capacity,
-        heat_exchanger_type = heat_exchanger_type,
-        convective_cooling_rtd_capacity = convective_cooling_rtd_capacity,
-        flr_i_k=flr_i_k,
-        h_r_bnd_i_jstrs=h_r_bnd_i_jstrs,
-        h_c_bnd_i_jstrs=h_c_bnd_i_jstrs,
-        F_mrt_i_g=F_mrt_i_g,
-        Beta_i=Beta_i,
-        AX_k_l=AX_k_l,
-        WSR_i_k=WSR_i_k,
-        WSB_i_k=WSB_i_k,
-        BRMnoncv_i=BRMnoncv_i,
-        BRL_i=BRL_i,
-        q_sol_srf_i_jstrs_ns=q_sol_floor_i_jstrs_ns,
-        q_sol_frnt_i_ns=q_sol_frnt_i_ns,
-        v_ntrl_vent_i=v_ntrl_vent_i
-    )
-
-
-    return space
 
 
 def get_v_int_vent_is(rooms: List[Dict]) -> np.ndarray:
@@ -568,3 +582,4 @@ def get_idx_bdry_is(number_of_bdry_is):
         start_indices.append(indices)
 
     return start_indices
+

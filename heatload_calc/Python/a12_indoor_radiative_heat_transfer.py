@@ -7,24 +7,24 @@ import numpy as np
 
 
 # 微小体に対する部位の形態係数の計算 式(94)
-def calc_form_factor_of_microbodies(space_name, area):
+def calc_form_factor_of_microbodies(area_i_jstrs):
+
     # 面積比 式(95)
-    a_k = get_a_k(area)
+    a_k = get_a_k(area_i_jstrs)
 
     # 面積比の最大値 （ニュートン法の初期値計算用）
     max_a = get_max_a(a_k)
 
-    # 非線形方程式L(f̅)=0の解
-    fb = get_fb(max_a, space_name, a_k)
+    # 非線形方程式L(f̅)=0の解, float
+    fb = get_fb(a_k)
 
     # 式（123）で示す放射伝熱計算で使用する微小球に対する部位の形態係数 [-] 式(94)
     FF_m = get_FF_m(fb, a_k)
-    # print(FF_m)
 
     # 総和のチェック
     FF = np.sum(FF_m)
     if abs(FF - 1.0) > 1.0e-3:
-        print('形態係数の合計値が不正 name=', space_name, 'TotalFF=', FF)
+        print('形態係数の合計値が不正 TotalFF=', FF)
 
     return FF_m
 
@@ -46,7 +46,7 @@ def get_FF_m(fb, a):
 
 
 # 非線形方程式L(f̅)=0の解
-def get_fb(max_a, space_name, a):
+def get_fb(a):
     # 室のパラメータの計算（ニュートン法）
     # 初期値を設定
     m = 1.0e-5  # 式(99)
@@ -77,9 +77,10 @@ def get_fb(max_a, space_name, a):
             
     # 収束しないときには警告を表示
     if not isConverge:
-        print(space_name, '形態係数パラメータが収束しませんでした。')
+        print('形態係数パラメータが収束しませんでした。')
 
     return m_n
+
 
 def get_L(a: float, fbd: float) -> float:
     return 0.5 * (1.0 - np.sign(1.0 - 4.0 * a / fbd) * math.sqrt(abs(1.0 - 4.0 * a / fbd)))
@@ -156,14 +157,16 @@ def get_f_mrt_hum_is(
 
 
 def get_q_sol_floor_i_jstrs_ns(
-        q_trs_sol_i_ns: np.ndarray, a_bnd_i_jstrs: np.ndarray, is_solar_absorbed_inside_bnd_i_jstrs, a_floor_i):
+        q_trs_sol_i_ns: np.ndarray,
+        a_bnd_i_jstrs: np.ndarray,
+        is_solar_absorbed_inside_bnd_i_jstrs
+):
     """統合された境界における室の透過日射熱取得のうちの吸収日射量を計算する。
 
     Args:
         q_trs_sol_i_ns: ステップnの室iにおける窓の透過日射熱取得, W, [8760*4]
         a_bnd_i_jstrs: 室iの統合された境界j*の面積, [j*]
         is_solar_absorbed_inside_bnd_i_jstrs: 室iの統合された境界j*の床室内侵入日射吸収の有無, [j*]
-        a_floor_i: 室iの床面積の合計, m2, [j*]
 
     Returns:
         室iの統合された境界j*における室の透過日射熱取得のうちの吸収日射量, W/m2, [j*, 8760*4]

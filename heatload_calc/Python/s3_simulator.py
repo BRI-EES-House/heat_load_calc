@@ -11,7 +11,7 @@ import a16_blowing_condition_rac as a16
 import a18_initial_value_constants as a18
 import x_35_occupants as x_35
 from a39_global_parameters import OperationMode
-from s3_space_loader import Space, Spaces, Conditions
+from s3_space_loader import Spaces, Conditions
 
 from a39_global_parameters import BoundaryType
 from a33_results_exporting import Logger

@@ -2,7 +2,6 @@ import datetime
 from typing import List
 import numpy as np
 
-from s3_space_loader import Space
 from s3_space_loader import Spaces
 import s4_1_sensible_heat as s41
 
