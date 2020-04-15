@@ -222,7 +222,9 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
         ) for i, ib in enumerate(ibs)
     ])
 
-    idx_bdry_is = get_idx_bdry_is(number_of_bdry_is=number_of_bdry_is)
+    idx_bdry_is = np.insert(np.cumsum(number_of_bdry_is), 0, 0)
+
+    split_indices = np.cumsum(number_of_bdry_is)[0:-1]
 
     # 室iの在室者に対する境界j*の形態係数
     f_mrt_hum_is = [
@@ -250,8 +252,6 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
     FF_m_is = np.concatenate([
         a12.calc_form_factor_of_microbodies(area_i_jstrs=ib.a_i_jstrs)
         for ib in ibs])
-
-    split_indices = np.cumsum(number_of_bdry_is)[0:-1]
 
     # 室iのタイプ
     #   main_occupant_room: 主たる居室
@@ -571,15 +571,4 @@ def get_v_int_vent_i(next_vents: List[Dict], number_of_rooms: int) -> np.ndarray
         v_int_vent_i[idx] = v_int_vent_i[idx] + next_vent['volume'] / 3600.0
 
     return v_int_vent_i
-
-
-def get_idx_bdry_is(number_of_bdry_is):
-
-    start_indices = [0]
-    indices = 0
-    for n_bdry in number_of_bdry_is:
-        indices = indices + n_bdry
-        start_indices.append(indices)
-
-    return start_indices
 
