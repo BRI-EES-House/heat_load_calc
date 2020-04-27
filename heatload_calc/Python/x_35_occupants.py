@@ -337,7 +337,7 @@ def get_h_hum_r_is_n(
     t_mrt_is_n = theta_mrt_is_n + 273.0
 
     return 3.96 * 10 ** (-8) * (
-                t_cl_is_n ** 3.0 + t_cl_is_n ** 2.0 * t_mrt_is_n + t_cl_is_n * t_mrt_is_n ** 2.0 + t_mrt_is_n)
+                t_cl_is_n ** 3.0 + t_cl_is_n ** 2.0 * t_mrt_is_n + t_cl_is_n * t_mrt_is_n ** 2.0 + t_mrt_is_n ** 3.0)
 
 
 def get_h_hum_is_n(
