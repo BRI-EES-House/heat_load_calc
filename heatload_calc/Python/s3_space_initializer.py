@@ -1,7 +1,5 @@
-import math
 import numpy as np
 from typing import Dict, List
-import json
 
 import a9_rear_surface_equivalent_temperature as a9
 import a12_indoor_radiative_heat_transfer as a12
@@ -126,85 +124,32 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
     # TODO 居住人数。これは1～4の値（小数値。整数ではない。）が入る。床面積の合計から推定すること。
     n_p = 4.0
 
-
-
-    # スケジュールの読み込み
-    js = open('schedules.json', 'r', encoding='utf-8')
-    d_json = json.load(js)
-    calendar = np.array(d_json['calendar'])
-
-    # 局所換気
-    local_vent_amount_schedules = np.concatenate([[
-        a38.get_schedule(
-            room_name_i=room_name,
-            n_p=n_p,
-            calendar=calendar,
-            daily_schedule=d_json['daily_schedule']['local_vent_amount']
-        )] for room_name in room_names])
+    # 以下のスケジュールの取得, [i, 365*96]
+    #   局所換気量, m3/s
+    #   機器発熱, W
+    #   調理発熱, W
+    #   調理発湿, kg/s
+    #   照明発熱, W/m2
+    #   TODO 床面積を乗じるのを忘れないように
+    #   ステップnの室iにおける在室人数, [8760*4]
+    #   ON/OFF
+    v_mec_vent_local_is_ns,\
+    q_gen_app_is_ns,\
+    q_gen_ckg_is_ns,\
+    x_gen_ckg_is_ns,\
+    q_gen_lght_is_ns,\
+    n_hum_is_ns,\
+    ac_demand_is_ns = a38.get_v_mec_vent_local_is_ns(n_p=n_p, room_name_is=room_names)
 
     # ステップnの室iにおける機械換気量（全般換気量+局所換気量）, m3/s
-    v_mec_vent_is_ns = (v_vent_ex_is.reshape(-1, 1) + local_vent_amount_schedules) / 3600
-
-
-    q_gen_app_is_ns = np.concatenate([[
-        a38.get_schedule(
-            room_name_i=room_name,
-            n_p=n_p,
-            calendar=calendar,
-            daily_schedule=d_json['daily_schedule']['heat_generation_appliances']
-        )] for room_name in room_names])
-
-    q_gen_ckg_is_ns = np.concatenate([[
-        a38.get_schedule(
-            room_name_i=room_name,
-            n_p=n_p,
-            calendar=calendar,
-            daily_schedule=d_json['daily_schedule']['vapor_generation_cooking']
-        )] for room_name in room_names])
-
-    # 機器発熱
-    vapor_generation_cooking_schedules = np.concatenate([[
-        a38.get_schedule(
-            room_name_i=room_name,
-            n_p=n_p,
-            calendar=calendar,
-            daily_schedule=d_json['daily_schedule']['heat_generation_cooking']
-        )] for room_name in room_names])
-
-    # 照明発熱
-    # TODO 床面積を乗じるのを忘れないように
-    q_gen_lght_is_ns = np.concatenate([[
-        a38.get_schedule(
-            room_name_i=room_name,
-            n_p=n_p,
-            calendar=calendar,
-            daily_schedule=d_json['daily_schedule']['heat_generation_lighting']
-        )] for room_name in room_names])
-
-    air_conditioning_demand2_is_ns = np.concatenate([[
-        a38.get_air_conditioning_schedules2(
-            room_name=room_name,
-            calendar=calendar,
-            daily_schedule=d_json['daily_schedule']['is_temp_limit_set']
-        )] for room_name in room_names])
-
-    air_conditioning_demand_is_ns = np.where(air_conditioning_demand2_is_ns == "on", True, False)
-
+    v_mec_vent_is_ns = (v_vent_ex_is.reshape(-1, 1) + v_mec_vent_local_is_ns) / 3600
 
     # 内部発熱, W
     q_gen_is_ns = q_gen_app_is_ns + q_gen_ckg_is_ns + q_gen_lght_is_ns
 
     # ステップnの室iにおける人体発湿を除く内部発湿, kg/s, [8760*4]
-    x_gen_is_ns = vapor_generation_cooking_schedules / 1000.0 / 3600.0
-
-    # ステップnの室iにおける在室人数, [8760*4]
-    number_of_people_schedules = np.concatenate([[
-        a38.get_schedule(
-            room_name_i=room_name,
-            n_p=n_p,
-            calendar=calendar,
-            daily_schedule=d_json['daily_schedule']['number_of_people']
-        )] for room_name in room_names])
+#    x_gen_is_ns = x_gen_ckg_is_ns / 1000.0 / 3600.0
+    x_gen_is_ns = x_gen_ckg_is_ns
 
     k_ei_is = np.concatenate([
         a9.get_k_ei_i(
@@ -403,7 +348,7 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
         Cap_fun_i=c_cap_frnt_is[i],
         C_fun_i=c_frnt_is[i],
         Vent=v_vent_ex_is[i],
-        local_vent_amount_schedule=local_vent_amount_schedules[i],
+        local_vent_amount_schedule=v_mec_vent_local_is_ns[i],
         A_i_k=np.split(a_bdry_jstrs, split_indices)[i],
         hc_i_k_n=np.split(h_c_bnd_jstrs, split_indices)[i],
         V_nxt=v_vent_up_is_nis[i]
@@ -444,7 +389,7 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
         a_bdry_jstrs=a_bdry_jstrs,
         v_mec_vent_is_ns=v_mec_vent_is_ns,
         q_gen_is_ns=q_gen_is_ns,
-        number_of_people_schedules=number_of_people_schedules,
+        n_hum_is_ns=n_hum_is_ns,
         x_gen_is_ns=x_gen_is_ns,
         k_ei_is=k_ei_is,
         number_of_bdry_is=number_of_bdry_is,
@@ -457,7 +402,7 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
         phi_a1_bdry_jstrs_ms=phi_a1_bdry_jstrs_ms,
         q_trs_sol_is_ns=q_trs_sol_is_ns,
         v_ntrl_vent_is=v_ntrl_vent_is,
-        air_conditioning_demand_is_ns=air_conditioning_demand_is_ns,
+        ac_demand_is_ns=ac_demand_is_ns,
         get_vac_xeout_def_is=get_vac_xeout_def_is,
         is_radiative_heating_is=is_radiative_heating_is,
         is_radiative_cooling_is=is_radiative_cooling_is,

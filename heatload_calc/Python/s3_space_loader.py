@@ -27,7 +27,7 @@ class Spaces:
             a_bdry_jstrs,
             v_mec_vent_is_ns,
             q_gen_is_ns,
-            number_of_people_schedules,
+            n_hum_is_ns,
             x_gen_is_ns,
             k_ei_is,
             number_of_bdry_is,
@@ -40,7 +40,7 @@ class Spaces:
             phi_a1_bdry_jstrs_ms,
             q_trs_sol_is_ns,
             v_ntrl_vent_is,
-            air_conditioning_demand_is_ns,
+            ac_demand_is_ns,
             get_vac_xeout_def_is,
             is_radiative_heating_is,
             is_radiative_cooling_is,
@@ -112,7 +112,7 @@ class Spaces:
         self.start_indices = get_start_indices(number_of_boundaries=self.number_of_bdry_is)
 
         # ステップnにおける室iの空調需要, [i, 8760*4]
-        self.ac_demand_is_n = air_conditioning_demand_is_ns
+        self.ac_demand_is_n = ac_demand_is_ns
 
         # 室温が裏面温度に与える影響を表すマトリクス, [j* * i]
         self.k_ei_is = k_ei_is
@@ -121,7 +121,7 @@ class Spaces:
         self.theta_dstrb_jstrs_ns = theta_dstrb_is_jstrs_ns
 
         # ステップnの室iにおける在室人数, [i, 8760*4]
-        self.n_hum_is_n = number_of_people_schedules
+        self.n_hum_is_n = n_hum_is_ns
 
         # ステップnの室iにおける人体発熱を除く内部発熱, W, [i, 8760*4]
         self.q_gen_is_ns = q_gen_is_ns
