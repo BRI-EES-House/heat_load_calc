@@ -30,9 +30,6 @@ import s4_1_sensible_heat as s41
 
 def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
 
-    # 空気の密度, kg/m3
-    rhoa = a18.get_rho_air()
-
     rooms = d['rooms']
 
     # 室の数
@@ -55,7 +52,7 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
 
 
     # 室iの空気の熱容量, J/K
-    c_room_is = v_room_cap_is * rhoa * a39.get_c_air()
+    c_room_is = v_room_cap_is * a39.get_rho_air() * a39.get_c_air()
 
     # 室iの家具等の熱容量, J/K
     c_cap_frnt_is = a14.get_c_cap_frnt_is(v_room_cap_is)

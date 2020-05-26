@@ -66,3 +66,11 @@ def get_c_air() -> float:
         空気の比熱, J/kg K
     """
     return 1005.0
+
+
+def get_rho_air() -> float:
+    """
+    Returns:
+        空気の密度, kg/m3
+    """
+    return 1.2
