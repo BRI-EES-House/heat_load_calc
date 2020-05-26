@@ -372,6 +372,18 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
     for i in range(number_of_spaces):
         p[i, idx_bdry_is[i]:idx_bdry_is[i + 1]] = 1.0
 
+    def get_vac_xeout_is(lcs_is_n, theta_r_is_npls, operation_mode_is_n):
+
+        vac_is_n = []
+        xeout_is_n = []
+
+        for lcs_i_n, theta_r_i_npls, operation_mode_i_n, get_vac_xeout_def_i in zip(lcs_is_n, theta_r_is_npls, operation_mode_is_n, get_vac_xeout_def_is):
+            Vac_n_i, xeout_i_n = get_vac_xeout_def_i(lcs_i_n, theta_r_i_npls, operation_mode_i_n)
+            vac_is_n.append(Vac_n_i)
+            xeout_is_n.append(xeout_i_n)
+
+        return np.array(vac_is_n), np.array(xeout_is_n)
+
     # region Spacesへの引き渡し
     spaces2 = Spaces(
         number_of_spaces=number_of_spaces,
@@ -420,7 +432,8 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
         BRMnoncv_is=BRMnoncv_is,
         ivs_x_is=ivs_x_is,
         BRL_is=BRL_is,
-        p=p
+        p=p,
+        get_vac_xeout_is=get_vac_xeout_is
     )
     # endregion
 
