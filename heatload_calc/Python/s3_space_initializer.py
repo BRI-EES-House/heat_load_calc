@@ -17,6 +17,7 @@ import a23_surface_heat_transfer_coefficient as a23
 import a34_building_part_summarize as a34
 import a38_schedule as a38
 from a39_global_parameters import SpaceType
+import a39_global_parameters as a39
 
 from s3_space_loader import Spaces
 from s3_surface_loader import Boundary
@@ -28,9 +29,6 @@ import s4_1_sensible_heat as s41
 
 
 def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
-
-    # 空気の比熱, J/kg K
-    ca = a18.get_c_air()
 
     # 空気の密度, kg/m3
     rhoa = a18.get_rho_air()
@@ -57,7 +55,7 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
 
 
     # 室iの空気の熱容量, J/K
-    c_room_is = v_room_cap_is * rhoa * ca
+    c_room_is = v_room_cap_is * rhoa * a39.get_c_air()
 
     # 室iの家具等の熱容量, J/K
     c_cap_frnt_is = a14.get_c_cap_frnt_is(v_room_cap_is)

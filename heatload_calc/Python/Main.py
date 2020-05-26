@@ -16,6 +16,7 @@ from s3_space_loader import Spaces, initialize_conditions, Conditions
 import s3_space_loader as space_loader
 from a33_results_exporting import Logger
 
+
 # 熱負荷計算の実行
 def calc_heat_load(d: Dict):
     """

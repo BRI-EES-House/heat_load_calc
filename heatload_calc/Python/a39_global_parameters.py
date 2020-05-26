@@ -60,3 +60,9 @@ def get_l_wtr() -> float:
     return 2501000.0
 
 
+def get_c_air() -> float:
+    """
+    Returns:
+        空気の比熱, J/kg K
+    """
+    return 1005.0
