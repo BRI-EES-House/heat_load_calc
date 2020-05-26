@@ -1,22 +1,24 @@
 import numpy as np
 import json
-from typing import Dict
+from typing import Dict, List
 
 
-def get_schedule(room_name, n_p, calendar, daily_schedule):
-    """局所換気スケジュールを取得する。
+def get_schedule(room_name_i: str, n_p: float, calendar: List[str], daily_schedule):
+    """スケジュールを取得する。
 
     Args:
-        room:
-
+        room_name_i: 室iの名称
+        n_p: 居住人数
+        calendar: 日にちの種類（'平日', '休日外', '休日在'), [365]
+        daily_schedule: スケジュール（辞書型）
     Returns:
-        局所換気スケジュール[m3/h]
+        スケジュール, [365*96]
     """
 
     d_365_96 = np.full((365, 96), -1.0)
-    d_365_96[calendar == '平日'] = get_interpolated_schedule(n_p, daily_schedule['平日'][room_name])
-    d_365_96[calendar == '休日外'] = get_interpolated_schedule(n_p, daily_schedule['休日外'][room_name])
-    d_365_96[calendar == '休日在'] = get_interpolated_schedule(n_p, daily_schedule['休日在'][room_name])
+    d_365_96[calendar == '平日'] = get_interpolated_schedule(n_p, daily_schedule['平日'][room_name_i])
+    d_365_96[calendar == '休日外'] = get_interpolated_schedule(n_p, daily_schedule['休日外'][room_name_i])
+    d_365_96[calendar == '休日在'] = get_interpolated_schedule(n_p, daily_schedule['休日在'][room_name_i])
     d = d_365_96.flatten()
 
     return d

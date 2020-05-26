@@ -136,7 +136,7 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
     # 局所換気
     local_vent_amount_schedules = np.concatenate([[
         a38.get_schedule(
-            room_name=room_name,
+            room_name_i=room_name,
             n_p=n_p,
             calendar=calendar,
             daily_schedule=d_json['daily_schedule']['local_vent_amount']
@@ -148,7 +148,7 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
 
     q_gen_app_is_ns = np.concatenate([[
         a38.get_schedule(
-            room_name=room_name,
+            room_name_i=room_name,
             n_p=n_p,
             calendar=calendar,
             daily_schedule=d_json['daily_schedule']['heat_generation_appliances']
@@ -156,7 +156,7 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
 
     q_gen_ckg_is_ns = np.concatenate([[
         a38.get_schedule(
-            room_name=room_name,
+            room_name_i=room_name,
             n_p=n_p,
             calendar=calendar,
             daily_schedule=d_json['daily_schedule']['vapor_generation_cooking']
@@ -165,7 +165,7 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
     # 機器発熱
     vapor_generation_cooking_schedules = np.concatenate([[
         a38.get_schedule(
-            room_name=room_name,
+            room_name_i=room_name,
             n_p=n_p,
             calendar=calendar,
             daily_schedule=d_json['daily_schedule']['heat_generation_cooking']
@@ -175,7 +175,7 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
     # TODO 床面積を乗じるのを忘れないように
     q_gen_lght_is_ns = np.concatenate([[
         a38.get_schedule(
-            room_name=room_name,
+            room_name_i=room_name,
             n_p=n_p,
             calendar=calendar,
             daily_schedule=d_json['daily_schedule']['heat_generation_lighting']
@@ -200,7 +200,7 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
     # ステップnの室iにおける在室人数, [8760*4]
     number_of_people_schedules = np.concatenate([[
         a38.get_schedule(
-            room_name=room_name,
+            room_name_i=room_name,
             n_p=n_p,
             calendar=calendar,
             daily_schedule=d_json['daily_schedule']['number_of_people']
