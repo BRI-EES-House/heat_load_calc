@@ -3,6 +3,47 @@ import json
 from typing import Dict
 
 
+def get_schedule(room_name, n_p, calendar, daily_schedule):
+    """局所換気スケジュールを取得する。
+
+    Args:
+        room:
+
+    Returns:
+        局所換気スケジュール[m3/h]
+    """
+
+    d_365_96 = np.full((365, 96), -1.0)
+    d_365_96[calendar == '平日'] = get_interpolated_schedule(n_p, daily_schedule['平日'][room_name])
+    d_365_96[calendar == '休日外'] = get_interpolated_schedule(n_p, daily_schedule['休日外'][room_name])
+    d_365_96[calendar == '休日在'] = get_interpolated_schedule(n_p, daily_schedule['休日在'][room_name])
+    d = d_365_96.flatten()
+
+    return d
+
+
+def get_interpolated_schedule(n_p: float, daily_schedule: Dict) -> np.ndarray:
+    """世帯人数で線形補間してリストを返す
+
+    Args:
+        n_p: 世帯人数
+        daily_schedule: スケジュール
+            Keyは必ず'1', '2', '3', '4'
+            Valueは96個のリスト形式の値
+    Returns:
+        線形補間したリスト, [96]
+    """
+
+    ceil_np, floor_np = get_ceil_floor_np(n_p)
+
+    ceil_schedule = np.array(daily_schedule[str(ceil_np)])
+    floor_schedule = np.array(daily_schedule[str(floor_np)])
+
+    interpolate_np_schedule = ceil_schedule * (n_p - float(floor_np)) + floor_schedule * (float(ceil_np) - n_p)
+
+    return interpolate_np_schedule
+
+
 def get_ceil_floor_np(n_p: float) -> (int, int):
     """世帯人数から切り上げ・切り下げた人数を整数値で返す
 
@@ -28,47 +69,6 @@ def get_ceil_floor_np(n_p: float) -> (int, int):
         raise ValueError('The number of people is out of range.')
 
     return ceil_np, floor_np
-
-
-def get_interpolated_schedule(n_p: float, daily_schedule: Dict) -> np.ndarray:
-    """世帯人数で線形補間してリストを返す
-
-    Args:
-        n_p: 世帯人数
-        daily_schedule: スケジュール
-            Keyは必ず'1', '2', '3', '4'
-            Valueは96個のリスト形式の値
-    Returns:
-        線形補間したリスト, [96]
-    """
-
-    ceil_np, floor_np = get_ceil_floor_np(n_p)
-
-    ceil_schedule = np.array(daily_schedule[str(ceil_np)])
-    floor_schedule = np.array(daily_schedule[str(floor_np)])
-
-    interpolate_np_schedule = ceil_schedule * (n_p - float(floor_np)) + floor_schedule * (float(ceil_np) - n_p)
-
-    return interpolate_np_schedule
-
-
-def get_schedule(room_name, n_p, calendar, daily_schedule):
-    """局所換気スケジュールを取得する。
-
-    Args:
-        room:
-
-    Returns:
-        局所換気スケジュール[m3/h]
-    """
-
-    d_365_96 = np.full((365, 96), -1.0)
-    d_365_96[calendar == '平日'] = get_interpolated_schedule(n_p, daily_schedule['平日'][room_name])
-    d_365_96[calendar == '休日外'] = get_interpolated_schedule(n_p, daily_schedule['休日外'][room_name])
-    d_365_96[calendar == '休日在'] = get_interpolated_schedule(n_p, daily_schedule['休日在'][room_name])
-    d = d_365_96.flatten()
-
-    return d
 
 
 def get_air_conditioning_schedules2(room_name, calendar, daily_schedule) -> (np.ndarray, np.ndarray):
