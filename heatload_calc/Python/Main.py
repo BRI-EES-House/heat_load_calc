@@ -58,7 +58,7 @@ def calc_heat_load(d: Dict):
 
     conditions_n = initialize_conditions(ss=spaces2)
 
-    logger = Logger(n_spaces=spaces2.total_number_of_spaces, n_bdrys=spaces2.total_number_of_bdry)
+    logger = Logger(n_spaces=spaces2.number_of_spaces, n_bdrys=spaces2.total_number_of_bdry)
     logger.pre_logging(spaces2)
 
     # 助走計算1(土壌のみ)
@@ -113,7 +113,7 @@ def calc_heat_load(d: Dict):
             n=n, xo_n=x_o_ns,
             logger=logger,
             start_indices=spaces2.start_indices,
-            number_of_spaces=spaces2.total_number_of_spaces
+            number_of_spaces=spaces2.number_of_spaces
         )
 
     # CSVファイルの出力

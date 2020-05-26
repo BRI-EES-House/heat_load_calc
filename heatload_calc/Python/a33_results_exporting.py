@@ -126,9 +126,9 @@ def append_headers(spaces2: Spaces) -> List[List]:
 
     headder1.append('外気絶対湿度[kg/kg(DA)]')
 
-    for i in range(spaces2.total_number_of_spaces):
+    for i in range(spaces2.number_of_spaces):
 
-        name = spaces2.names[i]
+        name = spaces2.space_names[i]
 
         n = spaces2.number_of_bdry_is[i]
 

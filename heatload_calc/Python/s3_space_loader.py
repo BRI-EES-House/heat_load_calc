@@ -61,29 +61,57 @@ class Spaces:
             p
     ):
 
-        # 室の数
-        self.total_number_of_spaces = number_of_spaces
+        # region 室に関すること
 
-        # 室の名前
-        self.names = space_names
+        # 室の数, [i]
+        self.number_of_spaces = number_of_spaces
 
-        # 室iの容積, m3
+        # 室の名前, [i]
+        self.space_names = space_names
+
+        # 室iの容積, m3, [i]
         self.v_room_cap_is = v_room_cap_is
 
         # 室iの家具等の湿気容量, kg/m3 kg/kgDA, [i]
-        self.gf_is = g_f_is
+        self.g_f_is = g_f_is
 
-        # 室iの家具等と空気間の湿気コンダクタンス, kg/s kg/kgDA
-        self.cx_is = c_x_is
+        # 室iの家具等と空気間の湿気コンダクタンス, kg/s kg/kgDA, [i]
+        self.c_x_is = c_x_is
 
         # 室iの熱容量, J/K, [i]
         self.c_room_is = c_room_is
 
-        # 室iの家具等の熱容量, J/K
+        # 室iの家具等の熱容量, J/K, [i]
         self.c_cap_frnt_is = c_cap_frnt_is
 
         # 室iの家具等と空気間の熱コンダクタンス, W/K, [i]
         self.c_frnt_is = c_frnt_is
+
+        # ステップnにおける室iの空調需要, [i, 8760*4]
+        self.ac_demand_is_n = ac_demand_is_ns
+
+        # ステップnの室iにおける在室人数, [i, 8760*4]
+        self.n_hum_is_n = n_hum_is_ns
+
+        # ステップnの室iにおける人体発熱を除く内部発熱, W, [i, 8760*4]
+        self.q_gen_is_ns = q_gen_is_ns
+
+        # ステップnの室iにおける人体発湿を除く内部発湿, kg/s, [i, 8760*4]
+        self.x_gen_is_ns = x_gen_is_ns
+
+        # ステップnの室iにおける機械換気量（全般換気量+局所換気量）, m3/s, [i, 8760*4]
+        self.v_mec_vent_is_ns = v_mec_vent_is_ns
+
+        # 家具の吸収日射量, W, [i, 8760*4]
+        self.q_sol_frnt_is_ns = q_sol_frnt_is_ns
+
+        # 室iの自然風利用時の換気量, m3/s, [i]
+        self.v_ntrl_vent_is = v_ntrl_vent_is
+
+        # ステップnの室iにおける窓の透過日射熱取得, W, [8760*4]
+        self.q_trs_sol_is_ns = q_trs_sol_is_ns
+
+        # endregion
 
         # 室iの隣室からの機械換気量, m3/s, [i, i]
         self.v_int_vent_is = v_int_vent_is
@@ -95,7 +123,7 @@ class Spaces:
         self.sub_name_bdry_jstrs = sub_name_bdry_jstrs
 
         # 統合された境界j*の種類, [j*]
-        self.boundary_type_jstrs = type_bdry_jstrs
+        self.type_bdry_jstrs = type_bdry_jstrs
 
         # 統合された境界j*の面積, m2, [j*]
         self.a_bdry_jstrs = a_bdry_jstrs
@@ -111,33 +139,11 @@ class Spaces:
         # 境界のリスト形式を室ごとのリスト形式に切るためのインデックス（不要になったら消すこと）
         self.start_indices = get_start_indices(number_of_boundaries=self.number_of_bdry_is)
 
-        # ステップnにおける室iの空調需要, [i, 8760*4]
-        self.ac_demand_is_n = ac_demand_is_ns
-
         # 室温が裏面温度に与える影響を表すマトリクス, [j* * i]
         self.k_ei_is = k_ei_is
 
         # ステップnの集約された境界j*の外乱による裏面温度, degree C, [j*, 8760*4]
         self.theta_dstrb_jstrs_ns = theta_dstrb_is_jstrs_ns
-
-        # ステップnの室iにおける在室人数, [i, 8760*4]
-        self.n_hum_is_n = n_hum_is_ns
-
-        # ステップnの室iにおける人体発熱を除く内部発熱, W, [i, 8760*4]
-        self.q_gen_is_ns = q_gen_is_ns
-
-        # ステップnの室iにおける人体発湿を除く内部発湿, kg/s, [i, 8760*4]
-        self.x_gen_is_ns = x_gen_is_ns
-
-        # ステップnの室iにおける機械換気量（全般換気量+局所換気量）, m3/s
-        self.v_mec_vent_is_ns = v_mec_vent_is_ns
-
-
-        # 家具の吸収日射量, W, [i, 8760*4]
-        self.q_sol_frnt_is_ns = q_sol_frnt_is_ns
-
-        # 室iの自然風利用時の換気量, m3/s, [i]
-        self.v_ntrl_vent_is = v_ntrl_vent_is
 
         # BRMの計算 式(5) ※ただし、通風なし
         self.BRMnoncv_is = BRMnoncv_is
@@ -218,9 +224,6 @@ class Spaces:
         # 床暖房の発熱部位？
         self.flr_is_k = flr_jstrs
 
-        # ステップnの室iにおける窓の透過日射熱取得, W, [8760*4]
-        self.q_trs_sol_is_ns = q_trs_sol_is_ns
-
 
 def get_start_indices(number_of_boundaries: np.ndarray):
 
@@ -278,7 +281,7 @@ Conditions = namedtuple('Conditions', [
 def initialize_conditions(ss: Spaces):
 
     # 空間iの数
-    total_number_of_spaces = ss.total_number_of_spaces
+    total_number_of_spaces = ss.number_of_spaces
 
     # 統合された境界j*の数
     total_number_of_bdry = ss.total_number_of_bdry

@@ -22,7 +22,7 @@ def run_tick_groundonly(To_n: float, Tave: float, c_n: Conditions, ss: Spaces):
 
     theta_dsh_srf_a_jstrs_n_ms = c_n.theta_dsh_srf_a_jstrs_n_ms
     q_srf_jstrs_n = c_n.q_srf_jstrs_n
-    gs = ss.boundary_type_jstrs == BoundaryType.Ground
+    gs = ss.type_bdry_jstrs == BoundaryType.Ground
 
     h_r_bnd_jstrs = ss.h_r_bnd_jstrs
     h_c_bnd_jstrs = ss.h_c_bnd_jstrs
@@ -126,7 +126,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: Spaces, c_n: Conditions,
     # TODO: すきま風量未実装につき、とりあえず０とする
     # すきま風量を決めるにあたってどういった変数が必要なのかを決めること。
     # TODO: 単位は m3/s とすること。
-    v_reak_is_n = np.full(ss.total_number_of_spaces, 0.0)
+    v_reak_is_n = np.full(ss.number_of_spaces, 0.0)
 
     # ステップn+1の室iの統合された境界j*における項別公比法の項mの吸熱応答に関する表面温度, degree C, [jstrs, 12]
     theta_srf_dsh_a_is_jstrs_npls_ms = a1.get_theta_srf_dsh_a_i_jstrs_npls_ms(
@@ -259,8 +259,8 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: Spaces, c_n: Conditions,
     # 式(17)
     BRMX_pre_is = s42.get_BRMX(
         v_reak_is_n=v_reak_is_n,
-        gf_is=ss.gf_is,
-        cx_is=ss.cx_is,
+        gf_is=ss.g_f_is,
+        cx_is=ss.c_x_is,
         v_room_cap_is=ss.v_room_cap_is,
         v_mec_vent_is_n=ss.v_mec_vent_is_ns[:, n],
         v_int_vent_is=ss.v_int_vent_is
@@ -269,8 +269,8 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: Spaces, c_n: Conditions,
     # 式(18)
     BRXC_pre_is = s42.get_BRXC(
         v_reak_is_n=v_reak_is_n,
-        gf_is=ss.gf_is,
-        cx_is=ss.cx_is,
+        gf_is=ss.g_f_is,
+        cx_is=ss.c_x_is,
         v_room_cap_is=ss.v_room_cap_is,
         x_r_is_n=c_n.x_r_is_n,
         x_frnt_is_n=c_n.x_frnt_is_n,
@@ -328,10 +328,10 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: Spaces, c_n: Conditions,
     # ********** 備品類の絶対湿度 xf の計算 **********
 
     # 備品類の絶対湿度の計算
-    xf_i_n = s42.get_xf(ss.gf_is, c_n.x_frnt_is_n, ss.cx_is, x_r_is_n_pls)
+    xf_i_n = s42.get_xf(ss.g_f_is, c_n.x_frnt_is_n, ss.c_x_is, x_r_is_n_pls)
 
     # kg/s
-    Qfunl_i_n = s42.get_Qfunl(ss.cx_is, x_r_is_n_pls, xf_i_n)
+    Qfunl_i_n = s42.get_Qfunl(ss.c_x_is, x_r_is_n_pls, xf_i_n)
 
     # ステップnにおける室iの在室者の着衣温度, degree C, [i]
     theta_cl_is_n_pls = x_35.get_theta_cl_is_n(clo_is_n=clo_is_n, theta_ot_is_n=theta_ot_is_n, h_hum_is_n=h_hum_is_n)
