@@ -36,18 +36,41 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
     # 室iの名称, [i]
     room_names = [r['name'] for r in rooms]
 
+    # 室iのタイプ
+    #   main_occupant_room: 主たる居室
+    #   other_occupant_room: その他の居室
+    #   non_occupant_room: 非居室
+    #   underfloor: 床下空間
+    # jsonファイルではstr型を読み込んで、列挙型に変換をかけている。
+    room_type_is = [{
+        1: SpaceType.MAIN_HABITABLE_ROOM,
+        2: SpaceType.OTHER_HABITABLE_ROOM,
+        3: SpaceType.NON_HABITABLE_ROOM,
+        4: SpaceType.UNDERFLOOR
+    }[room['room_type']] for room in rooms]
+
     # 室iの気積, m3, [i]
     v_room_cap_is = np.array([r['volume'] for r in rooms])
 
     # 室iの外気からの機械換気量, m3/h, [i]
     v_vent_ex_is = np.array([r['vent'] for r in rooms])
 
+    # 室iの隣室からの機械換気量niの換気量, m3/h, [ni]
+    v_vent_up_is_nis = [
+        np.array([next_vent['volume'] for next_vent in room['next_vent']])
+        for room in rooms]
+
+    # 室iのC値, [i]
+    c_value_is = np.array([r['c_value'] for r in rooms])
+
     # 室iの自然風利用時の換気回数, 1/h, [i]
     n_ntrl_vent_is = np.array([r['natural_vent_time'] for r in rooms])
 
+    # 室iの気積, m3, [i, i]
+    v_int_vent_is = get_v_int_vent_is(rooms)
+
     # 室iの自然風利用時の換気量, m3/s, [i]
     v_ntrl_vent_is = v_room_cap_is * n_ntrl_vent_is / 3600
-
 
     # 室iの空気の熱容量, J/K
     c_room_is = v_room_cap_is * a39.get_rho_air() * a39.get_c_air()
@@ -63,9 +86,6 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
 
     # 室iの家具等と空気間の湿気コンダクタンス, kg/s kg/kgDA
     c_x_is = a14.get_c_x_is(g_f_is)
-
-    # 室iの気積, m3, [i, i]
-    v_int_vent_is = get_v_int_vent_is(rooms)
 
     # 室iの境界k,　boundaryクラスのリスト, [i, k]
     d_bdry_is_ks = [s3_surface_loader.read_d_boundary_i_ks(input_dict_boundaries=r['boundaries']) for r in rooms]
@@ -192,18 +212,6 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
     FF_m_is = np.concatenate([
         a12.calc_form_factor_of_microbodies(area_i_jstrs=ib.a_i_jstrs)
         for ib in ibs])
-
-    # 室iのタイプ
-    #   main_occupant_room: 主たる居室
-    #   other_occupant_room: その他の居室
-    #   non_occupant_room: 非居室
-    #   underfloor: 床下空間
-    room_type_is = [{
-        1: SpaceType.MAIN_HABITABLE_ROOM,
-        2: SpaceType.OTHER_HABITABLE_ROOM,
-        3: SpaceType.NON_HABITABLE_ROOM,
-        4: SpaceType.UNDERFLOOR
-    }[room['room_type']] for room in rooms]
 
     qrtd_c_is = np.array([a15.get_qrtd_c(a_floor_i) for a_floor_i in a_floor_is])
     qmax_c_is = np.array([a15.get_qmax_c(qrtd_c_i) for qrtd_c_i in qrtd_c_is])
@@ -332,14 +340,6 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
             FLB_i_l=np.split(FLB_is_l, split_indices)[i]
         ) for i in range(len(rooms))
     ])
-
-    # 室iの気積, m3
-    v_room_cap_is = np.array([room['volume'] for room in rooms])
-
-    # 室iの隣室からの機械換気量niの換気量, m3/h, [ni]
-    v_vent_up_is_nis = [
-        np.array([next_vent['volume'] for next_vent in room['next_vent']])
-        for room in rooms]
 
     # BRMの計算 式(5) ※ただし、通風なし
     BRMnoncv_is = np.concatenate([[s41.get_BRM_i(
