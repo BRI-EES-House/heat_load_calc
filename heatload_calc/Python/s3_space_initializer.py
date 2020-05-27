@@ -25,6 +25,8 @@ import s3_space_loader as s3sl
 import s3_surface_loader
 import s4_1_sensible_heat as s41
 
+import x_35_occupants as x35
+
 
 def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
 
@@ -186,17 +188,25 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
 
     split_indices = np.cumsum(number_of_bdry_is)[0:-1]
 
+    space_idx_bdry_jstrs = np.zeros(sum(number_of_bdry_is))
+    for i, ib in enumerate(ibs):
+        space_idx_bdry_jstrs[idx_bdry_is[i]:idx_bdry_is[i+1]] = i
+
     # 室iの在室者に対する境界j*の形態係数
     f_mrt_hum_is = [
-        a12.get_f_mrt_hum_is(
+        x35.get_f_mrt_hum_is(
             a_bdry_i_jstrs=ib.a_i_jstrs,
             is_solar_absorbed_inside_bdry_i_jstrs=ib.is_solar_absorbed_inside_i_jstrs
         ) for ib in ibs]
 
     # 平均放射温度計算時の各部位表面温度の重み計算 式(101)
+#    f_mrt_hum_jstrs = np.zeros((number_of_spaces, sum(number_of_bdry_is)))
+#    for i, f_mrt_hum_i in enumerate(f_mrt_hum_is):
+#        f_mrt_hum_jstrs[i, idx_bdry_is[i]:idx_bdry_is[i+1]] = f_mrt_hum_i
+
     f_mrt_hum_jstrs = np.zeros((number_of_spaces, sum(number_of_bdry_is)))
     for i, f_mrt_hum_i in enumerate(f_mrt_hum_is):
-        f_mrt_hum_jstrs[i, idx_bdry_is[i]:idx_bdry_is[i+1]] = f_mrt_hum_i
+        f_mrt_hum_jstrs[i, space_idx_bdry_jstrs==i] = f_mrt_hum_i
 
     # 室iの床面積の合計, m2, [i]
     a_floor_is = np.array([

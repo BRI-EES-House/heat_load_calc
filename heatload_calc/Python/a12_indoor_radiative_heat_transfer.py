@@ -125,37 +125,6 @@ def get_r_sol_bnd_i_jstrs(a_bnd_i_jstrs: np.ndarray, is_solar_absorbed_inside_bn
         / np.sum(a_bnd_i_jstrs * is_solar_absorbed_inside_bnd_i_jstrs)
 
 
-def get_f_mrt_hum_is(
-        a_bdry_i_jstrs: np.array,
-        is_solar_absorbed_inside_bdry_i_jstrs: np.array
-):
-    """室iの在室者に対する境界j*の形態係数
-
-    Args:
-        a_bdry_i_jstrs: 室iの統合された境界j*の面積, m2, [j*]
-        is_solar_absorbed_inside_bdry_i_jstrs: 室iの統合された境界j*の室内侵入日射吸収の有無, [j*]
-
-    Returns:
-        室iの在室者に対する境界j*の形態係数
-    """
-
-    # 室iの下向き部位（床）全体の形態係数
-    f_mrt_hum_floor = 0.45
-
-    # 人体に対する部位の形態係数の計算
-    f_mrt_hum_is = np.zeros(len(a_bdry_i_jstrs), dtype=np.float)
-
-    # 下向き部位（床）
-    f1 = is_solar_absorbed_inside_bdry_i_jstrs
-    f_mrt_hum_is[f1] = a_bdry_i_jstrs[f1] / np.sum(a_bdry_i_jstrs[f1]) * f_mrt_hum_floor
-
-    # 床以外
-    f2 = np.logical_not(is_solar_absorbed_inside_bdry_i_jstrs)
-    f_mrt_hum_is[f2] = a_bdry_i_jstrs[f2] / np.sum(a_bdry_i_jstrs[f2]) * (1.0 - f_mrt_hum_floor)
-
-    return f_mrt_hum_is
-
-
 def get_q_sol_floor_i_jstrs_ns(
         q_trs_sol_i_ns: np.ndarray,
         a_bnd_i_jstrs: np.ndarray,
