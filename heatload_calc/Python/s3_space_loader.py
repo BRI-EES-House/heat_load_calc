@@ -8,7 +8,7 @@ from a39_global_parameters import OperationMode
 import psychrometrics as psy
 
 
-class Spaces:
+class PreCalcParameters:
 
     def __init__(
             self,
@@ -267,7 +267,7 @@ Conditions = namedtuple('Conditions', [
 ])
 
 
-def initialize_conditions(ss: Spaces):
+def initialize_conditions(ss: PreCalcParameters):
 
     # 空間iの数
     total_number_of_spaces = ss.number_of_spaces

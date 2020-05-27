@@ -11,14 +11,14 @@ import a16_blowing_condition_rac as a16
 import a18_initial_value_constants as a18
 import x_35_occupants as x_35
 from a39_global_parameters import OperationMode
-from s3_space_loader import Spaces, Conditions
+from s3_space_loader import PreCalcParameters, Conditions
 
 from a39_global_parameters import BoundaryType
 from a33_results_exporting import Logger
 
 
 # 地盤の計算
-def run_tick_groundonly(To_n: float, Tave: float, c_n: Conditions, ss: Spaces):
+def run_tick_groundonly(To_n: float, Tave: float, c_n: Conditions, ss: PreCalcParameters):
 
     theta_dsh_srf_a_jstrs_n_ms = c_n.theta_dsh_srf_a_jstrs_n_ms
     q_srf_jstrs_n = c_n.q_srf_jstrs_n
@@ -60,7 +60,7 @@ def run_tick_groundonly(To_n: float, Tave: float, c_n: Conditions, ss: Spaces):
 
 
 # 室温、熱負荷の計算
-def run_tick(theta_o_n: float, xo_n: float, n: int, ss: Spaces, c_n: Conditions, logger: Logger):
+def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: Conditions, logger: Logger):
     """
 
     Args:

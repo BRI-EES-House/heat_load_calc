@@ -17,7 +17,7 @@ import a38_schedule as a38
 from a39_global_parameters import SpaceType
 import a39_global_parameters as a39
 
-from s3_space_loader import Spaces
+from s3_space_loader import PreCalcParameters
 from s3_surface_loader import Boundary
 import s3_surface_initializer as s3
 from s3_surface_initializer import IntegratedBoundaries
@@ -395,7 +395,7 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
         return np.array(vac_is_n), np.array(xeout_is_n)
 
     # region Spacesへの引き渡し
-    spaces2 = Spaces(
+    spaces2 = PreCalcParameters(
         number_of_spaces=number_of_spaces,
         space_names=room_names,
         v_room_cap_is=v_room_cap_is,

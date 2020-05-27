@@ -2,7 +2,7 @@ import datetime
 from typing import List
 import numpy as np
 
-from s3_space_loader import Spaces
+from s3_space_loader import PreCalcParameters
 import s4_1_sensible_heat as s41
 
 import psychrometrics as psy
@@ -93,7 +93,7 @@ class Logger:
         # ステップnの統合された境界j*の等価温度, degree C, [j*, n]
         self.theta_ei = np.zeros((n_bdrys, 24 * 365 * 4 * 3))
 
-    def pre_logging(self, ss: Spaces):
+    def pre_logging(self, ss: PreCalcParameters):
 
         self.ac_demand = ss.ac_demand_is_n
         self.q_trs_sol = ss.q_trs_sol_is_ns
@@ -101,7 +101,7 @@ class Logger:
         self.x_gen = ss.x_gen_is_ns
         self.q_sol_frnt = ss.q_sol_frnt_is_ns
 
-    def post_logging(self, ss: Spaces):
+    def post_logging(self, ss: PreCalcParameters):
 
         # ステップnの室iにおける飽和水蒸気圧, Pa, [i, n]
         p_vs = psy.get_p_vs_is(theta_is=self.theta_r)
@@ -116,7 +116,7 @@ class Logger:
         self.q_frnt = s41.get_Qfuns(ss.c_frnt_is, self.theta_r, self.theta_frnt)
 
 
-def append_headers(spaces2: Spaces) -> List[List]:
+def append_headers(spaces2: PreCalcParameters) -> List[List]:
 
     headder1 = []
 

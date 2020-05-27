@@ -12,7 +12,7 @@ from s3_space_initializer import make_house
 import s3_simulator as simulator
 import a33_results_exporting as exporter
 import a37_groundonly_runup_calculation as a37
-from s3_space_loader import Spaces, initialize_conditions, Conditions
+from s3_space_loader import PreCalcParameters, initialize_conditions, Conditions
 import s3_space_loader as space_loader
 from a33_results_exporting import Logger
 
