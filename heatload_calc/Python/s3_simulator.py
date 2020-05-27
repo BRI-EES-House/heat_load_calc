@@ -242,18 +242,49 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: Spaces, c_n: Conditions,
 
     # 室内表面熱流の計算 式(28)
     # ステップnの統合された境界j*における表面熱流（壁体吸熱を正とする）, W/m2, [j*]
-    Qcs, Qrs, q_srf_is_jstrs_n, theta_ei_jstrs_n = a1.calc_qi(
+    Tsx = a1.get_Tsx2(
+        theta_s_jstrs_n=theta_s_jstrs_n,
+        f_mrt_jstrs_jstrs=ss.f_mrt_jstrs
+    )
+
+    # 室内表面熱流の計算 式(28)
+    # ステップnの統合された境界j*における表面熱流（壁体吸熱を正とする）, W/m2, [j*]
+    theta_ei_jstrs_n = a1.get_theta_ei_jstrs_n(
         h_c_bnd_jstrs=ss.h_c_bnd_jstrs,
         a_bnd_jstrs=ss.a_bdry_jstrs,
         h_r_bnd_jstrs=ss.h_r_bnd_jstrs,
         q_sol_srf_jstrs_n=ss.q_sol_srf_jstrs_ns[:, n],
         flr_is_k=ss.flr_is_k,
-        theta_s_jstrs_n=theta_s_jstrs_n,
         theta_r_is_npls=theta_r_is_n_pls,
-        f_mrt_jstrs_jstrs=ss.f_mrt_jstrs,
         lrs_is_n=lrs_is_n,
         beta_is=ss.beta_is,
-        p=ss.p
+        p=ss.p,
+        Tsx=Tsx
+    )
+
+    Qcs = a1.get_Qc(
+        h_c_bnd_jstrs=ss.h_c_bnd_jstrs,
+        a_bnd_jstrs=ss.a_bdry_jstrs,
+        theta_s_jstrs_n=theta_s_jstrs_n,
+        theta_r_is_npls=theta_r_is_n_pls,
+        p=ss.p,
+    )
+
+    Qrs = a1.get_Qr(
+        a_bnd_jstrs=ss.a_bdry_jstrs,
+        h_r_bnd_jstrs=ss.h_r_bnd_jstrs,
+        theta_s_jstrs_n=theta_s_jstrs_n,
+        p=ss.p,
+        Tsx=Tsx
+    )
+
+    # 室内表面熱流の計算 式(28)
+    # ステップnの統合された境界j*における表面熱流（壁体吸熱を正とする）, W/m2, [j*]
+    q_srf_is_jstrs_n = a1.calc_qi(
+        h_c_bnd_jstrs=ss.h_c_bnd_jstrs,
+        h_r_bnd_jstrs=ss.h_r_bnd_jstrs,
+        theta_s_jstrs_n=theta_s_jstrs_n,
+        theta_ei_jstrs_n=theta_ei_jstrs_n,
     )
 
     # 式(17)
