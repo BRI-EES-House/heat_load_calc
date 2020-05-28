@@ -435,12 +435,12 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
         q_sol_floor_jstrs_ns,
         q_sol_frnt_is_ns,
         Beta_is,
-        WSR_is_k,
         BRMnoncv_is,
         ivs_x_is,
         p,
         get_vac_xeout_is,
-        FLB_is_l
+        FLB_is_l,
+        FIA_is_l
     )
     # endregion
 
@@ -480,12 +480,12 @@ def make_pre_calc_parameters(
         q_sol_floor_jstrs_ns,
         q_sol_frnt_is_ns,
         Beta_is,
-        WSR_is_k,
         BRMnoncv_is,
         ivs_x_is,
         p,
         get_vac_xeout_is,
-        FLB_is_l
+        FLB_is_l,
+        FIA_is_l
     ):
 
     with open('house.json') as f:
@@ -539,6 +539,9 @@ def make_pre_calc_parameters(
     # CRX, W, [j, 8760*4]
     crx_js_ns = phi_t0_js[:, np.newaxis] * theta_dstrb_is_jstrs_ns + q_sol_floor_jstrs_ns * phi_a0_js[:, np.newaxis]
 
+    # WSR, [j]
+    wsr_js = np.dot(ivs_x_is, FIA_is_l.reshape(-1, 1)).flatten()
+
     # WSC, W, [j, 8760*4]
     wsc_js_ns = np.dot(ivs_x_is, crx_js_ns)
 
@@ -589,7 +592,7 @@ def make_pre_calc_parameters(
         q_sol_floor_jstrs_ns=q_sol_floor_jstrs_ns,
         q_sol_frnt_is_ns=q_sol_frnt_is_ns,
         Beta_is=Beta_is,
-        WSR_is_k=WSR_is_k,
+        WSR_is_k=wsr_js,
         WSB_is_k=wsb_js,
         BRMnoncv_is=BRMnoncv_is,
         ivs_x_is=ivs_x_is,
