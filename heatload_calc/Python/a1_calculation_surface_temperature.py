@@ -24,11 +24,6 @@ def get_WSR(AX_k_l, FIA_i_l):
     return np.dot(AX_k_l, FIA_i_l)
 
 
-# 式(24)
-def get_WSB(AX_k_l, FLB_i_l):
-    return np.dot(AX_k_l, FLB_i_l)
-
-
 def get_wsv_i_jstrs_npls(ivs_x_i: np.ndarray, cvl_i_jstrs_npls: np.ndarray) -> np.ndarray:
     """
 

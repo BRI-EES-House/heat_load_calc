@@ -343,13 +343,6 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
         ) for i in range(len(rooms))
     ])
 
-    WSB_is_k = np.concatenate([
-        a1.get_WSB(
-            AX_k_l=AX_k_l_is[i],
-            FLB_i_l=np.split(FLB_is_l, split_indices)[i]
-        ) for i in range(len(rooms))
-    ])
-
     # BRMの計算 式(5) ※ただし、通風なし
     BRMnoncv_is = np.concatenate([[s41.get_BRM_i(
         Hcap=c_room_is[i],
@@ -443,11 +436,11 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
         q_sol_frnt_is_ns,
         Beta_is,
         WSR_is_k,
-        WSB_is_k,
         BRMnoncv_is,
         ivs_x_is,
         p,
-        get_vac_xeout_is
+        get_vac_xeout_is,
+        FLB_is_l
     )
     # endregion
 
@@ -488,11 +481,12 @@ def make_pre_calc_parameters(
         q_sol_frnt_is_ns,
         Beta_is,
         WSR_is_k,
-        WSB_is_k,
         BRMnoncv_is,
         ivs_x_is,
         p,
-        get_vac_xeout_is):
+        get_vac_xeout_is,
+        FLB_is_l
+    ):
 
     with open('house.json') as f:
         rd = json.load(f)
@@ -548,8 +542,11 @@ def make_pre_calc_parameters(
     # WSC, W, [j, 8760*4]
     wsc_js_ns = np.dot(ivs_x_is, crx_js_ns)
 
-    # BRL, [j]
-    brl_is = (p * (h_c_bnd_jstrs * a_srf_js * WSB_is_k)[np.newaxis, :]).sum(axis=1) + Beta_is
+    # WSB, K/W, [j]
+    wsb_js = np.dot(ivs_x_is, FLB_is_l.reshape(-1, 1)).flatten()
+
+    # BRL, [i]
+    brl_is = np.dot(p, (h_c_bnd_jstrs * a_srf_js * wsb_js).reshape(-1, 1)).flatten() + Beta_is
 
     pre_calc_parameters = PreCalcParameters(
         number_of_spaces=number_of_spaces,
@@ -593,7 +590,7 @@ def make_pre_calc_parameters(
         q_sol_frnt_is_ns=q_sol_frnt_is_ns,
         Beta_is=Beta_is,
         WSR_is_k=WSR_is_k,
-        WSB_is_k=WSB_is_k,
+        WSB_is_k=wsb_js,
         BRMnoncv_is=BRMnoncv_is,
         ivs_x_is=ivs_x_is,
         brl_is=brl_is,
