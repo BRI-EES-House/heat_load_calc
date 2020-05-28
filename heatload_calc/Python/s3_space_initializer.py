@@ -367,16 +367,6 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
     for i in range(len(rooms)):
         ivs_x_is[idx_bdry_is[i]:idx_bdry_is[i + 1], idx_bdry_is[i]:idx_bdry_is[i + 1]] = AX_k_l_is[i]
 
-    # BRLの計算 式(7)
-    BRL_is = np.concatenate([[
-        s41.get_BRL_i(
-            Beta_i=Beta_is[i],
-            WSB_i_k=np.split(WSB_is_k, split_indices)[i],
-            A_i_k=np.split(a_bdry_jstrs, split_indices)[i],
-            hc_i_k_n=np.split(h_c_bnd_jstrs, split_indices)[i]
-        )] for i in range(len(rooms))
-    ])
-
     p = np.zeros((number_of_spaces, sum(number_of_bdry_is)))
     for i in range(number_of_spaces):
         p[i, idx_bdry_is[i]:idx_bdry_is[i + 1]] = 1.0
@@ -456,7 +446,6 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
         WSB_is_k,
         BRMnoncv_is,
         ivs_x_is,
-        BRL_is,
         p,
         get_vac_xeout_is
     )
@@ -502,7 +491,6 @@ def make_pre_calc_parameters(
         WSB_is_k,
         BRMnoncv_is,
         ivs_x_is,
-        BRL_is,
         p,
         get_vac_xeout_is):
 
@@ -560,6 +548,9 @@ def make_pre_calc_parameters(
     # WSC, W, [j, 8760*4]
     wsc_js_ns = np.dot(ivs_x_is, crx_js_ns)
 
+    # BRL, [j]
+    brl_is = (p * (h_c_bnd_jstrs * a_srf_js * WSB_is_k)[np.newaxis, :]).sum(axis=1) + Beta_is
+
     pre_calc_parameters = PreCalcParameters(
         number_of_spaces=number_of_spaces,
         space_names=room_names,
@@ -605,7 +596,7 @@ def make_pre_calc_parameters(
         WSB_is_k=WSB_is_k,
         BRMnoncv_is=BRMnoncv_is,
         ivs_x_is=ivs_x_is,
-        BRL_is=BRL_is,
+        brl_is=brl_is,
         p=p,
         get_vac_xeout_is=get_vac_xeout_is,
         is_ground_js=is_ground_js,

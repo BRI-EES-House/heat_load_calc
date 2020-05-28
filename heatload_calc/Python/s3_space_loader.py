@@ -57,7 +57,7 @@ class PreCalcParameters:
             WSB_is_k,
             BRMnoncv_is,
             ivs_x_is,
-            BRL_is,
+            brl_is,
             p,
             get_vac_xeout_is,
             is_ground_js,
@@ -153,7 +153,7 @@ class PreCalcParameters:
 
         # BRLの計算 式(7)
         # self.brl_is_ns = np.concatenate([[s.BRL_i] for s in spaces])
-        self.brl_is_ns = BRL_is
+        self.brl_is = brl_is
 
         # 放射暖房最大能力, W, [i]
         self.lrcap_is = Lrcap_is
