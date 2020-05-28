@@ -29,20 +29,6 @@ def get_WSB(AX_k_l, FLB_i_l):
     return np.dot(AX_k_l, FLB_i_l)
 
 
-def get_wsc_i_jstrs_npls(ivs_x_i: np.ndarray, crx_i_jstrs_npls: np.ndarray) -> np.ndarray:
-    """
-
-    Args:
-        ivs_x_i: 室iにおける行列X, [j*, j*]
-       crx_i_jstrs_npls: ステップn+1の室iの統合された境界j*における係数CRX, degree C, [j*]
-
-    Returns:
-        ステップn+1の室iの断熱された境界j*における係数WSC, degree C, [j*]
-    """
-
-    return np.dot(ivs_x_i, crx_i_jstrs_npls)
-
-
 def get_wsv_i_jstrs_npls(ivs_x_i: np.ndarray, cvl_i_jstrs_npls: np.ndarray) -> np.ndarray:
     """
 
@@ -85,27 +71,6 @@ def get_FIA(RFA0, hic):
 # FLB=φA0×flr_i_k×(1-Beta_i) 式(26)
 def get_FLB(RFA0, flr, Beta, area):
     return RFA0 * flr * (1. - Beta) / area
-
-
-def get_crx_i_jstrs_npls(
-        phi_a_0_bnd_i_jstrs: np.ndarray,
-        q_sol_floor_i_jstrs_n: np.ndarray,
-        phi_t_0_bnd_i_jstrs: np.ndarray,
-        theta_rear_i_jstrs_n: np.ndarray
-) -> np.ndarray:
-    """
-
-    Args:
-        phi_a_0_bnd_i_jstrs: 室iの統合された境界j*における吸熱応答係数の初項, m2K/W, [j*]
-        q_sol_floor_i_jstrs_n:
-            ステップnの室iの統合された境界j*における透過日射熱取得量のうち表面に吸収される日射量, W/m2, [j*]
-        phi_t_0_bnd_i_jstrs: 室iの統合された境界j*における貫流応答係数の初項, [j*]
-        theta_rear_i_jstrs_n: ステップnの室iの統合された境界j*における裏面の温度, degree C, [j*]
-
-    Returns:
-        ステップn+1の室iの統合された境界j*における係数CRX, degree C, [j*]
-    """
-    return phi_t_0_bnd_i_jstrs * theta_rear_i_jstrs_n + q_sol_floor_i_jstrs_n * phi_a_0_bnd_i_jstrs
 
 
 def get_theta_srf_dsh_a_i_jstrs_npls_ms(

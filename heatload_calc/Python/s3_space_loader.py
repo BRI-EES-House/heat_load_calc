@@ -60,7 +60,8 @@ class PreCalcParameters:
             BRL_is,
             p,
             get_vac_xeout_is,
-            is_ground_js
+            is_ground_js,
+            wsc_js_ns
     ):
 
         # region 室に関すること
@@ -214,7 +215,7 @@ class PreCalcParameters:
         # 床暖房の発熱部位？
         self.flr_is_k = flr_jstrs
 
-        self.crx_is_jstrs = self.phi_t0_bdry_jstrs[:, np.newaxis] * self.theta_dstrb_jstrs_ns + self.q_sol_srf_jstrs_ns * self.phi_a0_bdry_jstrs[:, np.newaxis]
+        self.wsc_js_ns = wsc_js_ns
 
 
 def get_start_indices(number_of_boundaries: np.ndarray):

@@ -149,25 +149,8 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
         theta_srf_dsh_t_i_jstrs_npls_ms=theta_srf_dsh_t_is_jstrs_npls_ms,
         theta_srf_dsh_a_i_jstrs_npls_ms=theta_srf_dsh_a_is_jstrs_npls_ms)
 
-    # ステップn+1の室iの統合された境界j*における係数CRX, degree C, [j*]
-#    crx_is_jstrs_npls = a1. get_crx_i_jstrs_npls(
-#        phi_a_0_bnd_i_jstrs=ss.phi_a0_bdry_jstrs,
-#        q_sol_floor_i_jstrs_n=ss.q_sol_srf_jstrs_ns[:, n],
-#        phi_t_0_bnd_i_jstrs=ss.phi_t0_bdry_jstrs,
-#        theta_rear_i_jstrs_n=ss.theta_dstrb_jstrs_ns[:, n]
-#    )
-#    print(ss.phi_a0_bdry_jstrs)  # [32]
-#    print(ss.q_sol_srf_jstrs_ns)  # [32, 8760*4]
-#    print(ss.q_sol_srf_jstrs_ns[:, n])  # [32]
-#    print(ss.phi_t0_bdry_jstrs)  # [32]
-#    print(theta_rear_is_jstrs_n)  # [32]
-#    print(ss.theta_dstrb_jstrs_ns[:, n])
-
-#    crx_is_jstrs = ss.phi_t0_bdry_jstrs[:, np.newaxis] * ss.theta_dstrb_jstrs_ns + ss.q_sol_srf_jstrs_ns * ss.phi_a0_bdry_jstrs[:, np.newaxis]
-    crx_is_jstrs_npls = ss.crx_is_jstrs[:, n]
-
     # ステップn+1の室iの断熱された境界j*における係数WSC, degree C, [j*]
-    wsc_is_jstrs_npls = a1.get_wsc_i_jstrs_npls(ivs_x_i=ss.ivs_x_is, crx_i_jstrs_npls=crx_is_jstrs_npls)
+    wsc_is_jstrs_npls = ss.wsc_js_ns[:, n]
 
     # ステップn+1の室iの断熱された境界j*における係数WSV, degree C, [j*]
     wsv_is_jstrs_npls = a1.get_wsv_i_jstrs_npls(ivs_x_i=ss.ivs_x_is, cvl_i_jstrs_npls=cvl_is_jstrs_npls)

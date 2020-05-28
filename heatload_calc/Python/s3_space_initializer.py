@@ -554,6 +554,12 @@ def make_pre_calc_parameters(
     # 室内側表面放射熱伝達率 式(123)
     h_r_bnd_jstrs = a12.get_hr_i_k_n(a_bdry_jstrs=a_srf_js, space_idx_bdry_jstrs=connected_space_id_js, number_of_spaces=ROOM_NUMBER)
 
+    # CRX, W, [j, 8760*4]
+    crx_js_ns = phi_t0_js[:, np.newaxis] * theta_dstrb_is_jstrs_ns + q_sol_floor_jstrs_ns * phi_a0_js[:, np.newaxis]
+
+    # WSC, W, [j, 8760*4]
+    wsc_js_ns = np.dot(ivs_x_is, crx_js_ns)
+
     pre_calc_parameters = PreCalcParameters(
         number_of_spaces=number_of_spaces,
         space_names=room_names,
@@ -602,7 +608,8 @@ def make_pre_calc_parameters(
         BRL_is=BRL_is,
         p=p,
         get_vac_xeout_is=get_vac_xeout_is,
-        is_ground_js=is_ground_js
+        is_ground_js=is_ground_js,
+        wsc_js_ns=wsc_js_ns
     )
 
     return pre_calc_parameters
