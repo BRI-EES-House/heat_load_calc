@@ -335,27 +335,6 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
         ) for i in range(len(rooms))
         ]
 
-    # WSR, WSB の計算 式(24)
-    WSR_is_k = np.concatenate([
-        a1.get_WSR(
-            AX_k_l=AX_k_l_is[i],
-            FIA_i_l=np.split(FIA_is_l, split_indices)[i]
-        ) for i in range(len(rooms))
-    ])
-
-    # BRMの計算 式(5) ※ただし、通風なし
-    BRMnoncv_is = np.concatenate([[s41.get_BRM_i(
-        Hcap=c_room_is[i],
-        WSR_i_k=np.split(WSR_is_k, split_indices)[i],
-        Cap_fun_i=c_cap_frnt_is[i],
-        C_fun_i=c_frnt_is[i],
-        Vent=v_vent_ex_is[i],
-        local_vent_amount_schedule=v_mec_vent_local_is_ns[i],
-        A_i_k=np.split(a_bdry_jstrs, split_indices)[i],
-        hc_i_k_n=np.split(h_c_bnd_jstrs, split_indices)[i],
-        V_nxt=v_vent_up_is_nis[i]
-    )] for i in range(len(rooms))])
-
     ivs_x_is = np.zeros((sum(number_of_bdry_is), sum(number_of_bdry_is)))
     for i in range(len(rooms)):
         ivs_x_is[idx_bdry_is[i]:idx_bdry_is[i + 1], idx_bdry_is[i]:idx_bdry_is[i + 1]] = AX_k_l_is[i]
@@ -435,7 +414,6 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
         q_sol_floor_jstrs_ns,
         q_sol_frnt_is_ns,
         Beta_is,
-        BRMnoncv_is,
         ivs_x_is,
         p,
         get_vac_xeout_is,
@@ -480,7 +458,6 @@ def make_pre_calc_parameters(
         q_sol_floor_jstrs_ns,
         q_sol_frnt_is_ns,
         Beta_is,
-        BRMnoncv_is,
         ivs_x_is,
         p,
         get_vac_xeout_is,
@@ -551,6 +528,14 @@ def make_pre_calc_parameters(
     # BRL, [i]
     brl_is = np.dot(p, (h_c_bnd_jstrs * a_srf_js * wsb_js).reshape(-1, 1)).flatten() + Beta_is
 
+    # BRM(通風なし), W/K, [i]
+    brm_noncv_is = (
+            c_room_is/900
+            + np.dot(p, (a_srf_js * h_c_bnd_jstrs * (1.0 - wsr_js)).reshape(-1, 1)).flatten()
+            + v_int_vent_is.sum(axis=1) * a18.get_c_air() * a18.get_rho_air()
+            + c_cap_frnt_is * c_frnt_is / (c_cap_frnt_is + c_frnt_is * 900)
+    )[:, np.newaxis] + v_mec_vent_is_ns * a18.get_c_air() * a18.get_rho_air()
+
     pre_calc_parameters = PreCalcParameters(
         number_of_spaces=number_of_spaces,
         space_names=room_names,
@@ -594,7 +579,7 @@ def make_pre_calc_parameters(
         Beta_is=Beta_is,
         WSR_is_k=wsr_js,
         WSB_is_k=wsb_js,
-        BRMnoncv_is=BRMnoncv_is,
+        BRMnoncv_is=brm_noncv_is,
         ivs_x_is=ivs_x_is,
         brl_is=brl_is,
         p=p,

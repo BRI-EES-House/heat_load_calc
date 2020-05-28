@@ -47,35 +47,6 @@ def get_BRLot(BRL, BRM, XLr):
     return BRL + BRM * XLr
 
 
-# BRMの計算 式(5)
-def get_BRM_i(Hcap, WSR_i_k, Cap_fun_i, C_fun_i, Vent, local_vent_amount_schedule, A_i_k, hc_i_k_n, V_nxt):
-    ca = a18.get_c_air()
-    rhoa = a18.get_rho_air()
-
-    # 第1項
-    BRM_0 = Hcap / 900
-
-    # 第2項
-    BRM_0 += np.sum(A_i_k * hc_i_k_n * (1.0 - WSR_i_k))
-
-    # 空間換気
-    BRM_0 += np.sum(ca * rhoa * V_nxt / 3600.0)
-
-    # 家具からの熱取得
-    BRM_0 += 1. / (900 / Cap_fun_i + 1. / C_fun_i) if Cap_fun_i > 0.0 else 0.0
-
-    # 外気導入項の計算（3項目の0.0はすきま風量）
-    # ※ここで、BRMがスカラー値(BRM_0)から1時間ごとの1次元配列(BRM_h)へ
-#    BRM_h = BRM_0 + ca * rhoa * (Vent + 0.0 + np.array(local_vent_amount_schedule[::4])) / 3600.0
-    BRM_h = BRM_0 + ca * rhoa * (Vent + 0.0 + np.array(local_vent_amount_schedule)) / 3600.0
-
-    # 1時間当たり4ステップなので、配列を4倍に拡張
-#    BRM = np.repeat(BRM_h, 4)
-    BRM = BRM_h
-
-    return BRM
-
-
 def get_brc_i_n(p, c_room_i: float, deta_t: float, theta_r_is_n: float, h_c_bnd_i_jstrs: np.ndarray,
                 a_bnd_i_jstrs: np.ndarray, wsc_i_jstrs_npls: np.ndarray, wsv_i_jstrs_npls: np.ndarray,
                 v_mec_vent_i_n: float, v_reak_i_n: float, v_ntrl_vent_i: float,
