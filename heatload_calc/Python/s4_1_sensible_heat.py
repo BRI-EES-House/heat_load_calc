@@ -66,10 +66,12 @@ def get_BRM_i(Hcap, WSR_i_k, Cap_fun_i, C_fun_i, Vent, local_vent_amount_schedul
 
     # 外気導入項の計算（3項目の0.0はすきま風量）
     # ※ここで、BRMがスカラー値(BRM_0)から1時間ごとの1次元配列(BRM_h)へ
-    BRM_h = BRM_0 + ca * rhoa * (Vent + 0.0 + np.array(local_vent_amount_schedule[::4])) / 3600.0
+#    BRM_h = BRM_0 + ca * rhoa * (Vent + 0.0 + np.array(local_vent_amount_schedule[::4])) / 3600.0
+    BRM_h = BRM_0 + ca * rhoa * (Vent + 0.0 + np.array(local_vent_amount_schedule)) / 3600.0
 
     # 1時間当たり4ステップなので、配列を4倍に拡張
-    BRM = np.repeat(BRM_h, 4)
+#    BRM = np.repeat(BRM_h, 4)
+    BRM = BRM_h
 
     return BRM
 
