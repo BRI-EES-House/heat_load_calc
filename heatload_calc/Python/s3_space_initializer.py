@@ -315,15 +315,6 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
 
     Beta_is = np.full(len(rooms), Beta_i)
 
-    FLB_is_l = np.concatenate([
-        a1.get_FLB(
-            np.split(phi_a0_bdry_jstrs, split_indices)[i],
-            np.split(flr_jstrs, split_indices)[i],
-            Beta_i,
-            np.split(a_bdry_jstrs, split_indices)[i]
-        ) for i in range(len(rooms))
-    ])
-
     # 行列AX 式(25)
     AX_k_l_is = [
         a1.get_AX(
@@ -417,7 +408,6 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
         ivs_x_is,
         p,
         get_vac_xeout_is,
-        FLB_is_l,
         FIA_is_l
     )
     # endregion
@@ -461,7 +451,6 @@ def make_pre_calc_parameters(
         ivs_x_is,
         p,
         get_vac_xeout_is,
-        FLB_is_l,
         FIA_is_l
     ):
 
@@ -516,6 +505,9 @@ def make_pre_calc_parameters(
     # CRX, W, [j, 8760*4]
     crx_js_ns = phi_t0_js[:, np.newaxis] * theta_dstrb_is_jstrs_ns + q_sol_floor_jstrs_ns * phi_a0_js[:, np.newaxis]
 
+    # FLB, K/W, [j]
+    flb_js = phi_a0_js * flr_jstrs * (1.0 - np.dot(p.T, Beta_is.reshape(-1, 1)).flatten()) / a_srf_js
+
     # WSR, [j]
     wsr_js = np.dot(ivs_x_is, FIA_is_l.reshape(-1, 1)).flatten()
 
@@ -523,7 +515,7 @@ def make_pre_calc_parameters(
     wsc_js_ns = np.dot(ivs_x_is, crx_js_ns)
 
     # WSB, K/W, [j]
-    wsb_js = np.dot(ivs_x_is, FLB_is_l.reshape(-1, 1)).flatten()
+    wsb_js = np.dot(ivs_x_is, flb_js.reshape(-1, 1)).flatten()
 
     # BRL, [i]
     brl_is = np.dot(p, (h_c_bnd_jstrs * a_srf_js * wsb_js).reshape(-1, 1)).flatten() + Beta_is
