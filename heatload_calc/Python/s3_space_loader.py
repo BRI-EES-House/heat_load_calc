@@ -4,6 +4,7 @@ from typing import List
 from collections import namedtuple
 
 from a39_global_parameters import OperationMode
+from a39_global_parameters import BoundaryType
 
 import psychrometrics as psy
 
@@ -23,7 +24,6 @@ class PreCalcParameters:
             v_int_vent_is,
             name_bdry_jstrs,
             sub_name_bdry_jstrs,
-            type_bdry_jstrs,
             a_bdry_jstrs,
             v_mec_vent_is_ns,
             q_gen_is_ns,
@@ -59,7 +59,8 @@ class PreCalcParameters:
             ivs_x_is,
             BRL_is,
             p,
-            get_vac_xeout_is
+            get_vac_xeout_is,
+            is_ground_js
     ):
 
         # region 室に関すること
@@ -123,8 +124,8 @@ class PreCalcParameters:
         # 統合された境界j*の名前2, [j*]
         self.sub_name_bdry_jstrs = sub_name_bdry_jstrs
 
-        # 統合された境界j*の種類, [j*]
-        self.type_bdry_jstrs = type_bdry_jstrs
+        # 境界jが地盤かどうか, [j]
+        self.is_ground_js = is_ground_js
 
         # 統合された境界j*の面積, m2, [j*]
         self.a_bdry_jstrs = a_bdry_jstrs
@@ -143,7 +144,7 @@ class PreCalcParameters:
         # 室温が裏面温度に与える影響を表すマトリクス, [j* * i]
         self.k_ei_is = k_ei_is
 
-        # ステップnの集約された境界j*の外乱による裏面温度, degree C, [j*, 8760*4]
+        # ステップnの集約境界j*における外気側等価温度の外乱成分, degree C, [j*, 8760*4]
         self.theta_dstrb_jstrs_ns = theta_dstrb_is_jstrs_ns
 
         # BRMの計算 式(5) ※ただし、通風なし
@@ -212,6 +213,8 @@ class PreCalcParameters:
 
         # 床暖房の発熱部位？
         self.flr_is_k = flr_jstrs
+
+        self.crx_is_jstrs = self.phi_t0_bdry_jstrs[:, np.newaxis] * self.theta_dstrb_jstrs_ns + self.q_sol_srf_jstrs_ns * self.phi_a0_bdry_jstrs[:, np.newaxis]
 
 
 def get_start_indices(number_of_boundaries: np.ndarray):

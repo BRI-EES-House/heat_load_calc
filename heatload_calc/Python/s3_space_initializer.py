@@ -1,5 +1,6 @@
 import numpy as np
 from typing import Dict, List
+import json
 
 import a9_rear_surface_equivalent_temperature as a9
 import a12_indoor_radiative_heat_transfer as a12
@@ -15,6 +16,8 @@ import a23_surface_heat_transfer_coefficient as a23
 import a34_building_part_summarize as a34
 import a38_schedule as a38
 from a39_global_parameters import SpaceType
+from a39_global_parameters import BoundaryType
+
 import a39_global_parameters as a39
 
 from s3_space_loader import PreCalcParameters
@@ -108,11 +111,16 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
     # 統合された境界j*の名前, [j*]
     name_bdry_jstrs = np.concatenate([ib.name_i_jstrs for ib in ibs])
 
+    # 統合された境界j*の総数
+    total_number = len(name_bdry_jstrs)
+
     # 統合された境界j*の名前2, [j*]
     sub_name_bdry_jstrs = np.concatenate([ib.sub_name_i_jstrs for ib in ibs])
 
     # 統合された境界j*の種類, [j*]
     type_bdry_jstrs = np.concatenate([ib.boundary_type_i_jstrs for ib in ibs])
+
+    is_ground_jstrs = type_bdry_jstrs == BoundaryType.Ground
 
     # 統合された境界j*の面積, m2, [j*]
     a_bdry_jstrs = np.concatenate([ib.a_i_jstrs for ib in ibs])
@@ -218,11 +226,6 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
         ib.theta_o_sol_i_jstrs_ns * ib.h_i_jstrs.reshape(-1, 1)
         for ib in ibs])
 
-    # 微小点に対する室内部位の形態係数の計算（永田先生の方法） 式(94)
-    FF_m_is = np.concatenate([
-        a12.calc_form_factor_of_microbodies(area_i_jstrs=ib.a_i_jstrs)
-        for ib in ibs])
-
     qrtd_c_is = np.array([a15.get_qrtd_c(a_floor_i) for a_floor_i in a_floor_is])
     qmax_c_is = np.array([a15.get_qmax_c(qrtd_c_i) for qrtd_c_i in qrtd_c_is])
     qmin_c_is = np.array([a15.get_qmin_c() for qrtd_c_i in qrtd_c_is])
@@ -264,26 +267,22 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
     # 室iの統合された境界j*の室内側表面総合熱伝達率, W/m2K, [j*]
     h_i_bnd_jstrs = np.concatenate([ib.h_i_i_jstrs for ib in ibs])
 
-    eps_m = a18.get_eps()
-
-    # 室内側表面放射熱伝達率 式(123)
-    h_r_bnd_jstrs = np.concatenate([
-        a23.get_hr_i_k_n(eps_m=eps_m, FF_m=FF_m_i)
-        for FF_m_i in np.split(FF_m_is, split_indices)
-        ])
+    # 微小球に対する室内側表面放射熱伝達率 式(123)
+    h_r_bnd_jstrs = a12.get_hr_i_k_n(
+        a_bdry_jstrs=a_bdry_jstrs, space_idx_bdry_jstrs=space_idx_bdry_jstrs, number_of_spaces=number_of_spaces)
 
     # 室内側表面対流熱伝達率 表(16)より
-    h_c_bnd_jstrs = np.concatenate([
-        a23.get_hc_i_k_n(
-            hi_i_k_n=np.split(h_i_bnd_jstrs, split_indices)[i],
-            hr_i_k_n=np.split(h_r_bnd_jstrs, split_indices)[i])
-        for i in range(number_of_spaces)])
+    h_c_bnd_jstrs = a23.get_hc_i_k_n(hi_i_k_n=h_i_bnd_jstrs, hr_i_k_n=h_r_bnd_jstrs)
 
     # 平均放射温度計算時の各部位表面温度の重み計算 式(101)
     F_mrt_is_g = [
         a12.get_F_mrt_i_g(area=ib.a_i_jstrs, hir=np.split(h_r_bnd_jstrs, split_indices)[i])
         for i, ib in enumerate(ibs)
     ]
+#    print(F_mrt_is_g)
+
+#    f_mrt_is_g2 = [a12.get_F_mrt_i_g(area=a_bdry_jstrs[space_idx_bdry_jstrs==i], hir=h_r_bnd_jstrs[space_idx_bdry_jstrs==i]) for i in range(number_of_spaces)]
+#    print(f_mrt_is_g2)
 
     # 平均放射温度計算時の各部位表面温度の重み計算 式(101)
     f_mrt_jstrs = np.zeros((number_of_spaces, sum(number_of_bdry_is)))
@@ -394,8 +393,168 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
 
         return np.array(vac_is_n), np.array(xeout_is_n)
 
+    bdrs = []
+    for i in range(total_number):
+        bdrs.append({
+            'id': i,
+            'name': name_bdry_jstrs[i],
+            'sub_name': sub_name_bdry_jstrs[i],
+            'type': str(type_bdry_jstrs[i]),
+            'is_ground': {True: 'true', False: 'false'}[is_ground_jstrs[i]],
+            'connected_space_id': int(space_idx_bdry_jstrs[i]),
+            'area': a_bdry_jstrs[i],
+            'phi_a0': phi_a0_bdry_jstrs[i],
+            'phi_a1': list(phi_a1_bdry_jstrs_ms[i]),
+            'phi_t0': phi_t0_bdry_jstrs[i],
+            'phi_t1': list(phi_t1_bdry_jstrs_ms[i]),
+            'r': list(r_bdry_jstrs_ms[i]),
+            'h_i': h_i_bnd_jstrs[i]
+        })
+
+    wd = {
+        'boundaries': bdrs
+    }
+
+    with open('house.json', 'w') as f:
+        json.dump(wd, f, indent=4)
+
     # region Spacesへの引き渡し
-    spaces2 = PreCalcParameters(
+    spaces2 = make_pre_calc_parameters(
+        number_of_spaces,
+        room_names,
+        v_room_cap_is,
+        g_f_is,
+        c_x_is,
+        c_room_is,
+        c_cap_frnt_is,
+        c_frnt_is,
+        v_int_vent_is,
+        v_mec_vent_is_ns,
+        q_gen_is_ns,
+        n_hum_is_ns,
+        x_gen_is_ns,
+        k_ei_is,
+        number_of_bdry_is,
+        f_mrt_hum_jstrs,
+        theta_dstrb_is_jstrs_ns,
+        q_trs_sol_is_ns,
+        v_ntrl_vent_is,
+        ac_demand_is_ns,
+        get_vac_xeout_def_is,
+        is_radiative_heating_is,
+        is_radiative_cooling_is,
+        Lrcap_is,
+        radiative_cooling_max_capacity_is,
+        flr_jstrs,
+        h_r_bnd_jstrs,
+        h_c_bnd_jstrs,
+        f_mrt_jstrs,
+        q_sol_floor_jstrs_ns,
+        q_sol_frnt_is_ns,
+        Beta_is,
+        WSR_is_k,
+        WSB_is_k,
+        BRMnoncv_is,
+        ivs_x_is,
+        BRL_is,
+        p,
+        get_vac_xeout_is
+    )
+    # endregion
+
+    return spaces2
+
+
+def make_pre_calc_parameters(
+        number_of_spaces,
+        room_names,
+        v_room_cap_is,
+        g_f_is,
+        c_x_is,
+        c_room_is,
+        c_cap_frnt_is,
+        c_frnt_is,
+        v_int_vent_is,
+        v_mec_vent_is_ns,
+        q_gen_is_ns,
+        n_hum_is_ns,
+        x_gen_is_ns,
+        k_ei_is,
+        number_of_bdry_is,
+        f_mrt_hum_jstrs,
+        theta_dstrb_is_jstrs_ns,
+        q_trs_sol_is_ns,
+        v_ntrl_vent_is,
+        ac_demand_is_ns,
+        get_vac_xeout_def_is,
+        is_radiative_heating_is,
+        is_radiative_cooling_is,
+        Lrcap_is,
+        radiative_cooling_max_capacity_is,
+        flr_jstrs,
+        h_r_bnd_jstrs,
+        h_c_bnd_jstrs,
+        f_mrt_jstrs,
+        q_sol_floor_jstrs_ns,
+        q_sol_frnt_is_ns,
+        Beta_is,
+        WSR_is_k,
+        WSB_is_k,
+        BRMnoncv_is,
+        ivs_x_is,
+        BRL_is,
+        p,
+        get_vac_xeout_is):
+
+    with open('house.json') as f:
+        rd = json.load(f)
+
+    # TODO: 後で書き換えること
+    ROOM_NUMBER = 3
+
+    # boundaries の取り出し
+    bs = rd['boundaries']
+
+    # id, [j]
+    id_js = [b['id'] for b in bs]
+
+    # 名前, [j]
+    name_bdry_js = [b['name'] for b in bs]
+
+    # 名前2, [j]
+    sub_name_bdry_js= [b['sub_name'] for b in bs]
+
+    # 地盤かどうか, [j]
+    is_ground_js = [{'true': True, 'false': False}[b['is_ground']] for b in bs]
+
+    # 隣接する空間のID, [j]
+    connected_space_id_js = np.array([b['connected_space_id'] for b in bs])
+
+    # 境界jの面積, m2, [j]
+    a_srf_js = np.array([b['area'] for b in bs])
+
+    # 境界jの吸熱応答係数の初項, m2K/W, [j]
+    phi_a0_js = np.array([b['phi_a0'] for b in bs])
+
+    # 境界jの項別公比法における項mの吸熱応答係数の第一項 , m2K/W, [j, 12]
+    phi_a1_js_ms = np.array([b['phi_a1'] for b in bs])
+
+    # 境界jの貫流応答係数の初項, [j]
+    phi_t0_js = np.array([b['phi_t0'] for b in bs])
+
+    # 境界jの項別公比法における項mの貫流応答係数の第一項, [j, 12]
+    phi_t1_js_ms = np.array([b['phi_t1'] for b in bs])
+
+    # 境界jの項別公比法における項mの公比, [j, 12]
+    r_js_ms = np.array([b['r'] for b in bs])
+
+    # 境界jの室内側表面総合熱伝達率, W/m2K, [j]
+    h_i_js = np.array([b['h_i'] for b in bs])
+
+    # 室内側表面放射熱伝達率 式(123)
+    h_r_bnd_jstrs = a12.get_hr_i_k_n(a_bdry_jstrs=a_srf_js, space_idx_bdry_jstrs=connected_space_id_js, number_of_spaces=ROOM_NUMBER)
+
+    pre_calc_parameters = PreCalcParameters(
         number_of_spaces=number_of_spaces,
         space_names=room_names,
         v_room_cap_is=v_room_cap_is,
@@ -405,10 +564,9 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
         c_cap_frnt_is=c_cap_frnt_is,
         c_frnt_is=c_frnt_is,
         v_int_vent_is=v_int_vent_is,
-        name_bdry_jstrs=name_bdry_jstrs,
-        sub_name_bdry_jstrs=sub_name_bdry_jstrs,
-        type_bdry_jstrs=type_bdry_jstrs,
-        a_bdry_jstrs=a_bdry_jstrs,
+        name_bdry_jstrs=name_bdry_js,
+        sub_name_bdry_jstrs=sub_name_bdry_js,
+        a_bdry_jstrs=a_srf_js,
         v_mec_vent_is_ns=v_mec_vent_is_ns,
         q_gen_is_ns=q_gen_is_ns,
         n_hum_is_ns=n_hum_is_ns,
@@ -417,11 +575,11 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
         number_of_bdry_is=number_of_bdry_is,
         f_mrt_hum_jstrs=f_mrt_hum_jstrs,
         theta_dstrb_is_jstrs_ns=theta_dstrb_is_jstrs_ns,
-        r_bdry_jstrs_ms=r_bdry_jstrs_ms,
-        phi_t0_bdry_jstrs=phi_t0_bdry_jstrs,
-        phi_a0_bdry_jstrs=phi_a0_bdry_jstrs,
-        phi_t1_bdry_jstrs_ms=phi_t1_bdry_jstrs_ms,
-        phi_a1_bdry_jstrs_ms=phi_a1_bdry_jstrs_ms,
+        r_bdry_jstrs_ms=r_js_ms,
+        phi_t0_bdry_jstrs=phi_t0_js,
+        phi_a0_bdry_jstrs=phi_a0_js,
+        phi_t1_bdry_jstrs_ms=phi_t1_js_ms,
+        phi_a1_bdry_jstrs_ms=phi_a1_js_ms,
         q_trs_sol_is_ns=q_trs_sol_is_ns,
         v_ntrl_vent_is=v_ntrl_vent_is,
         ac_demand_is_ns=ac_demand_is_ns,
@@ -443,11 +601,11 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
         ivs_x_is=ivs_x_is,
         BRL_is=BRL_is,
         p=p,
-        get_vac_xeout_is=get_vac_xeout_is
+        get_vac_xeout_is=get_vac_xeout_is,
+        is_ground_js=is_ground_js
     )
-    # endregion
 
-    return spaces2
+    return pre_calc_parameters
 
 
 def get_v_int_vent_is(rooms: List[Dict]) -> np.ndarray:

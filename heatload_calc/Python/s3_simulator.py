@@ -22,7 +22,7 @@ def run_tick_groundonly(To_n: float, Tave: float, c_n: Conditions, ss: PreCalcPa
 
     theta_dsh_srf_a_jstrs_n_ms = c_n.theta_dsh_srf_a_jstrs_n_ms
     q_srf_jstrs_n = c_n.q_srf_jstrs_n
-    gs = ss.type_bdry_jstrs == BoundaryType.Ground
+    gs = ss.is_ground_js
 
     h_r_bnd_jstrs = ss.h_r_bnd_jstrs
     h_c_bnd_jstrs = ss.h_c_bnd_jstrs
@@ -128,7 +128,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
     # TODO: 単位は m3/s とすること。
     v_reak_is_n = np.full(ss.number_of_spaces, 0.0)
 
-    # ステップn+1の室iの統合された境界j*における項別公比法の項mの吸熱応答に関する表面温度, degree C, [jstrs, 12]
+    # ステップn+1の統合された境界j*における項別公比法の指数項mの吸熱応答の項別成分, degree C, [jstrs, 12]
     theta_srf_dsh_a_is_jstrs_npls_ms = a1.get_theta_srf_dsh_a_i_jstrs_npls_ms(
         q_srf_jstrs_n=c_n.q_srf_jstrs_n,
         phi_a_1_bnd_jstrs_ms=ss.phi_a1_bdry_jstrs_ms,
@@ -136,7 +136,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
         theta_dsh_srf_a_jstrs_n_ms=c_n.theta_dsh_srf_a_jstrs_n_ms
     )
 
-    # ステップn+1の室iの統合された境界j*における項別公比法の項mの貫流応答に関する表面温度, degree C, [jstrs, 12]
+    # ステップn+1の統合された境界j*における項別公比法の指数項mの貫流応答の項別成分, degree C, [jstrs, 12]
     theta_srf_dsh_t_is_jstrs_npls_ms = a1.get_theta_srf_dsh_t_i_jstrs_npls_ms(
         theta_rear_i_jstrs_n=theta_rear_is_jstrs_n,
         phi_t_1_bnd_i_jstrs_ms=ss.phi_t1_bdry_jstrs_ms,
@@ -150,12 +150,21 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
         theta_srf_dsh_a_i_jstrs_npls_ms=theta_srf_dsh_a_is_jstrs_npls_ms)
 
     # ステップn+1の室iの統合された境界j*における係数CRX, degree C, [j*]
-    crx_is_jstrs_npls = a1.get_crx_i_jstrs_npls(
-        phi_a_0_bnd_i_jstrs=ss.phi_a0_bdry_jstrs,
-        q_sol_floor_i_jstrs_n=ss.q_sol_srf_jstrs_ns[:, n],
-        phi_t_0_bnd_i_jstrs=ss.phi_t0_bdry_jstrs,
-        theta_rear_i_jstrs_n=theta_rear_is_jstrs_n
-    )
+#    crx_is_jstrs_npls = a1. get_crx_i_jstrs_npls(
+#        phi_a_0_bnd_i_jstrs=ss.phi_a0_bdry_jstrs,
+#        q_sol_floor_i_jstrs_n=ss.q_sol_srf_jstrs_ns[:, n],
+#        phi_t_0_bnd_i_jstrs=ss.phi_t0_bdry_jstrs,
+#        theta_rear_i_jstrs_n=ss.theta_dstrb_jstrs_ns[:, n]
+#    )
+#    print(ss.phi_a0_bdry_jstrs)  # [32]
+#    print(ss.q_sol_srf_jstrs_ns)  # [32, 8760*4]
+#    print(ss.q_sol_srf_jstrs_ns[:, n])  # [32]
+#    print(ss.phi_t0_bdry_jstrs)  # [32]
+#    print(theta_rear_is_jstrs_n)  # [32]
+#    print(ss.theta_dstrb_jstrs_ns[:, n])
+
+#    crx_is_jstrs = ss.phi_t0_bdry_jstrs[:, np.newaxis] * ss.theta_dstrb_jstrs_ns + ss.q_sol_srf_jstrs_ns * ss.phi_a0_bdry_jstrs[:, np.newaxis]
+    crx_is_jstrs_npls = ss.crx_is_jstrs[:, n]
 
     # ステップn+1の室iの断熱された境界j*における係数WSC, degree C, [j*]
     wsc_is_jstrs_npls = a1.get_wsc_i_jstrs_npls(ivs_x_i=ss.ivs_x_is, crx_i_jstrs_npls=crx_is_jstrs_npls)

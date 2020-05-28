@@ -11,28 +11,6 @@ def get_h_i_i_ks(Ri_i_k_n):
     return 1.0 / Ri_i_k_n
 
 
-# 放射熱伝達率 式(123)
-def get_hr_i_k_n(eps_m, FF_m):
-    """
-    :param eps_m: 放射率 [-]
-    :param FF_m: 形態係数 [-]
-    :param MRT: 平均放射温度 [℃]
-    :return:
-    """
-    MRT = get_MRT()
-
-    Sgm = a18.get_Sgm()
-
-    hr_i_k_n = eps_m / (1.0 - eps_m * FF_m) * 4.0 * Sgm * (MRT + 273.15) ** 3.0
-
-    return hr_i_k_n
-
-
-# 平均放射温度MRT
-def get_MRT():
-    return 20.0
-
-
 # 室内側表面対流熱伝達率 表16より
 def get_hc_i_k_n(hi_i_k_n, hr_i_k_n):
     return np.clip(hi_i_k_n - hr_i_k_n, 0, None)

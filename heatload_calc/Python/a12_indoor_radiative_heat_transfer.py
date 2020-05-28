@@ -1,6 +1,9 @@
 import math
 import numpy as np
 
+import a18_initial_value_constants as a18
+
+
 """
 付録12．	室内表面の吸収日射量、形態係数、放射暖房放射成分吸収比率
 """
@@ -169,3 +172,34 @@ def get_q_sol_frnt_i_ns(q_trs_sol_i_ns):
 # 放射暖房放射成分吸収比率 表7
 def get_flr(A_i_g, A_fs_i, is_radiative_heating, is_solar_absorbed_inside):
     return (A_i_g / A_fs_i) * is_radiative_heating * is_solar_absorbed_inside
+
+
+# 放射熱伝達率 式(123)
+def get_hr_i_k_n(a_bdry_jstrs, space_idx_bdry_jstrs, number_of_spaces):
+    """
+    :param eps_m: 放射率 [-]
+    :param FF_m: 形態係数 [-]
+    :param MRT: 平均放射温度 [℃]
+    :return:
+    """
+
+    # 微小点に対する境界jの形態係数
+    # 永田先生の方法
+    FF_m = np.concatenate([
+        calc_form_factor_of_microbodies(area_i_jstrs=a_bdry_jstrs[space_idx_bdry_jstrs == i])
+        for i in range(number_of_spaces)])
+
+    eps_m = a18.get_eps()
+
+    MRT = get_MRT()
+
+    Sgm = a18.get_Sgm()
+
+    hr_i_k_n = eps_m / (1.0 - eps_m * FF_m) * 4.0 * Sgm * (MRT + 273.15) ** 3.0
+
+    return hr_i_k_n
+
+
+# 平均放射温度MRT
+def get_MRT():
+    return 20.0
