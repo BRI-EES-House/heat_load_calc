@@ -191,7 +191,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
     BRMot_is, BRCot_is, BRLot_is, Xot_is, XLr_is, XC_is = s41.calc_OT_coeff(
         brm_is_n=brm_is_n,
         brc_i_n=brc_i_n,
-        brl_is_n=ss.brl_is_ns[:, n],
+        brl_is_n=ss.brl_is_ns,
         wsr_jstrs=ss.wsr_jstrs,
         wsb_jstrs=ss.wsb_jstrs,
         wsc_is_jstrs_npls=wsc_is_jstrs_npls,

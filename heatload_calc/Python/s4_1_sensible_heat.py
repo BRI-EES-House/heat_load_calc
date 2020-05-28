@@ -124,7 +124,8 @@ def get_brc_i_n(p, c_room_i: float, deta_t: float, theta_r_is_n: float, h_c_bnd_
 # BRLの計算 式(7)
 def get_BRL_i(Beta_i, WSB_i_k, A_i_k, hc_i_k_n):
     BRL = np.sum(A_i_k * hc_i_k_n * WSB_i_k) + Beta_i
-    return np.repeat([BRL], 8760 * 4)
+#    return np.repeat([BRL], 8760 * 4)
+    return BRL
 
 
 # Xot 式(8)
