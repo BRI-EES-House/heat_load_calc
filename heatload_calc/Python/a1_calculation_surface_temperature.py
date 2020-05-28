@@ -58,16 +58,6 @@ def get_AX(RFA0, hir, Fmrt, hi, Nsurf):
     return np.linalg.inv(matAXd)
 
 
-# matFIAの作成 式(26)
-def get_FIA(RFA0, hic):
-    return RFA0 * hic
-
-
-# FLB=φA0×flr_i_k×(1-Beta_i) 式(26)
-def get_FLB(RFA0, flr, Beta, area):
-    return RFA0 * flr * (1. - Beta) / area
-
-
 def get_theta_srf_dsh_a_i_jstrs_npls_ms(
         q_srf_jstrs_n: np.ndarray,
         phi_a_1_bnd_jstrs_ms: np.ndarray,

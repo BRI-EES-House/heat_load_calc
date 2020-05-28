@@ -305,12 +305,6 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
     ] for i in range(len(rooms))
     ])
 
-    # FIA, FLBの作成 式(26)
-    FIA_is_l = np.concatenate([
-        a1.get_FIA(np.split(phi_a0_bdry_jstrs, split_indices)[i], np.split(h_c_bnd_jstrs, split_indices)[i])
-        for i in range(len(rooms))
-        ])
-
     Beta_i = 0.0  # 放射暖房対流比率
 
     Beta_is = np.full(len(rooms), Beta_i)
@@ -407,8 +401,7 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
         Beta_is,
         ivs_x_is,
         p,
-        get_vac_xeout_is,
-        FIA_is_l
+        get_vac_xeout_is
     )
     # endregion
 
@@ -450,8 +443,7 @@ def make_pre_calc_parameters(
         Beta_is,
         ivs_x_is,
         p,
-        get_vac_xeout_is,
-        FIA_is_l
+        get_vac_xeout_is
     ):
 
     with open('house.json') as f:
@@ -502,6 +494,9 @@ def make_pre_calc_parameters(
     # 室内側表面放射熱伝達率 式(123)
     h_r_bnd_jstrs = a12.get_hr_i_k_n(a_bdry_jstrs=a_srf_js, space_idx_bdry_jstrs=connected_space_id_js, number_of_spaces=ROOM_NUMBER)
 
+    # FIA, [j]
+    fia_js = phi_a0_js * h_c_bnd_jstrs
+
     # CRX, W, [j, 8760*4]
     crx_js_ns = phi_t0_js[:, np.newaxis] * theta_dstrb_is_jstrs_ns + q_sol_floor_jstrs_ns * phi_a0_js[:, np.newaxis]
 
@@ -509,7 +504,7 @@ def make_pre_calc_parameters(
     flb_js = phi_a0_js * flr_jstrs * (1.0 - np.dot(p.T, Beta_is.reshape(-1, 1)).flatten()) / a_srf_js
 
     # WSR, [j]
-    wsr_js = np.dot(ivs_x_is, FIA_is_l.reshape(-1, 1)).flatten()
+    wsr_js = np.dot(ivs_x_is, fia_js.reshape(-1, 1)).flatten()
 
     # WSC, W, [j, 8760*4]
     wsc_js_ns = np.dot(ivs_x_is, crx_js_ns)
