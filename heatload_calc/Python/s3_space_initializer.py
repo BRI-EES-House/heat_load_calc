@@ -309,21 +309,6 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
 
     Beta_is = np.full(len(rooms), Beta_i)
 
-    # 行列AX 式(25)
-    AX_k_l_is = [
-        a1.get_AX(
-            RFA0=np.split(phi_a0_bdry_jstrs, split_indices)[i],
-            hir=np.split(h_r_bnd_jstrs, split_indices)[i],
-            Fmrt=F_mrt_is_g[i],
-            hi=np.split(h_i_bnd_jstrs, split_indices)[i],
-            Nsurf=number_of_bdry_is[i]
-        ) for i in range(len(rooms))
-        ]
-
-    ivs_x_is = np.zeros((sum(number_of_bdry_is), sum(number_of_bdry_is)))
-    for i in range(len(rooms)):
-        ivs_x_is[idx_bdry_is[i]:idx_bdry_is[i + 1], idx_bdry_is[i]:idx_bdry_is[i + 1]] = AX_k_l_is[i]
-
     p = np.zeros((number_of_spaces, sum(number_of_bdry_is)))
     for i in range(number_of_spaces):
         p[i, idx_bdry_is[i]:idx_bdry_is[i + 1]] = 1.0
@@ -399,7 +384,6 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
         q_sol_floor_jstrs_ns,
         q_sol_frnt_is_ns,
         Beta_is,
-        ivs_x_is,
         p,
         get_vac_xeout_is
     )
@@ -441,7 +425,6 @@ def make_pre_calc_parameters(
         q_sol_floor_jstrs_ns,
         q_sol_frnt_is_ns,
         Beta_is,
-        ivs_x_is,
         p,
         get_vac_xeout_is
     ):
@@ -493,6 +476,12 @@ def make_pre_calc_parameters(
 
     # 室内側表面放射熱伝達率 式(123)
     h_r_bnd_jstrs = a12.get_hr_i_k_n(a_bdry_jstrs=a_srf_js, space_idx_bdry_jstrs=connected_space_id_js, number_of_spaces=ROOM_NUMBER)
+
+    # AX, [j, j]
+    ax_js = np.diag(1.0 + phi_a0_js * h_i_js) - np.dot(p.T * (phi_a0_js * h_r_bnd_jstrs).reshape(-1,1), f_mrt_jstrs)
+
+    # AX^-1, [j, j]
+    ivs_x_is = np.linalg.inv(ax_js)
 
     # FIA, [j]
     fia_js = phi_a0_js * h_c_bnd_jstrs

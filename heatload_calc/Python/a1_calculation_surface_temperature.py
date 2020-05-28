@@ -38,26 +38,6 @@ def get_wsv_i_jstrs_npls(ivs_x_i: np.ndarray, cvl_i_jstrs_npls: np.ndarray) -> n
     return np.dot(ivs_x_i, cvl_i_jstrs_npls)
 
 
-# 式(25)中のAXはAXdの逆行列
-def get_AX(matAXd):
-    return np.linalg.inv(matAXd)
-
-
-# 行列AX 式(25)
-def get_AX(RFA0, hir, Fmrt, hi, Nsurf):
-    # 単位行列の準備
-    eye = np.eye(Nsurf)
-
-    # 対角要素以外 式(25)上段
-    matAXd = - RFA0[:, np.newaxis] * hir[:, np.newaxis] * Fmrt[np.newaxis, :]
-
-    # 対角要素 式(25)下段
-    matAXd[eye == 1] = 1. + RFA0 * hi - RFA0 * hir * Fmrt
-
-    # 逆行列の計算
-    return np.linalg.inv(matAXd)
-
-
 def get_theta_srf_dsh_a_i_jstrs_npls_ms(
         q_srf_jstrs_n: np.ndarray,
         phi_a_1_bnd_jstrs_ms: np.ndarray,
