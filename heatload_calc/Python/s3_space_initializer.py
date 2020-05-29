@@ -148,7 +148,8 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
     n_p = 4.0
 
     # 以下のスケジュールの取得, [i, 365*96]
-    #   局所換気量, m3/s
+    #   局所換気量, m3/h
+    #   TODO: 単位を確認する
     #   機器発熱, W
     #   調理発熱, W
     #   調理発湿, kg/s
@@ -342,21 +343,38 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
     with open('mid_data_house.json', 'w') as f:
         json.dump(wd, f, indent=4)
 
+    # ステップnの室iにおける局所換気量, m3/s, [i, 8760*4]
     with open('mid_data_local_vent.csv', 'w') as f:
         w = csv.writer(f, lineterminator='\n')
         w.writerows((v_mec_vent_local_is_ns / 3600.0).T.tolist())
 
+    # ステップnの室iにおける内部発熱, W, [8760*4]
+    with open('mid_data_heat_generation.csv', 'w') as f:
+        w = csv.writer(f, lineterminator='\n')
+        w.writerows(q_gen_is_ns.T.tolist())
+
+    # ステップnの室iにおける人体発湿を除く内部発湿, kg/s, [8760*4]
+    with open('mid_data_moisture_generation.csv', 'w') as f:
+        w = csv.writer(f, lineterminator='\n')
+        w.writerows(x_gen_is_ns.T.tolist())
+
+    # ステップnの室iにおける在室人数, [8760*4]
+    with open('mid_data_occupants.csv', 'w') as f:
+        w = csv.writer(f, lineterminator='\n')
+        w.writerows(n_hum_is_ns.T.tolist())
+
+    # ステップnの室iにおける空調需要, [8760*4]
+    with open('mid_data_ac_demand.csv', 'w') as f:
+        w = csv.writer(f, lineterminator='\n')
+        w.writerows(ac_demand_is_ns.T.tolist())
+
     # region Spacesへの引き渡し
     spaces2 = make_pre_calc_parameters(
-        q_gen_is_ns,
-        n_hum_is_ns,
-        x_gen_is_ns,
         k_ei_is,
         number_of_bdry_is,
         f_mrt_hum_jstrs,
         theta_dstrb_is_jstrs_ns,
         q_trs_sol_is_ns,
-        ac_demand_is_ns,
         get_vac_xeout_def_is,
         is_radiative_heating_is,
         is_radiative_cooling_is,
@@ -373,15 +391,11 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
 
 
 def make_pre_calc_parameters(
-    q_gen_is_ns,
-    n_hum_is_ns,
-    x_gen_is_ns,
     k_ei_is,
     number_of_bdry_is,
     f_mrt_hum_jstrs,
     theta_dstrb_is_jstrs_ns,
     q_trs_sol_is_ns,
-    ac_demand_is_ns,
     get_vac_xeout_def_is,
     is_radiative_heating_is,
     is_radiative_cooling_is,
@@ -483,9 +497,36 @@ def make_pre_calc_parameters(
 
     # endregion
 
+    # region スケジュール化されたデータの読み込み
+
+    # ステップnの室iにおける局所換気量, m3/s, [i, 8760*4]
     with open('mid_data_local_vent.csv', 'r') as f:
         r = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
-        v_mec_vent_local_is_ns = np.array([row for row in r])
+        v_mec_vent_local_is_ns = np.array([row for row in r]).T
+
+    # ステップnの室iにおける内部発熱, W, [8760*4]
+    with open('mid_data_heat_generation.csv', 'r') as f:
+        r = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
+        q_gen_is_ns = np.array([row for row in r]).T
+
+    # ステップnの室iにおける人体発湿を除く内部発湿, kg/s, [8760*4]
+    with open('mid_data_moisture_generation.csv', 'r') as f:
+        r = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
+        x_gen_is_ns = np.array([row for row in r]).T
+
+    # ステップnの室iにおける在室人数, [8760*4]
+    with open('mid_data_occupants.csv', 'r') as f:
+        r = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
+        n_hum_is_ns = np.array([row for row in r]).T
+
+    # ステップnの室iにおける空調需要, [8760*4]
+    with open('mid_data_ac_demand.csv', 'r') as f:
+        r = csv.reader(f)
+        ac_demand_is_ns2 = np.array([row for row in r]).T
+    # ｓｔｒ型からbool型に変更
+    ac_demand_is_ns = np.vectorize(lambda x: {'True': True, 'False': False}[x])(ac_demand_is_ns2)
+
+    # endregion
 
     # region 読み込んだ値から新たに係数を作成する
 
@@ -505,7 +546,7 @@ def make_pre_calc_parameters(
     h_c_js = np.clip(h_i_js - h_r_js, 0, None)
 
     # ステップnの室iにおける機械換気量（全般換気量+局所換気量）, m3/s
-    v_mec_vent_is_ns = v_vent_ex_is[:, np.newaxis] + v_mec_vent_local_is_ns.T
+    v_mec_vent_is_ns = v_vent_ex_is[:, np.newaxis] + v_mec_vent_local_is_ns
 
     # AX, [j, j]
     ax_js_js = np.diag(1.0 + phi_a0_js * h_i_js) - np.dot(p.T * (phi_a0_js * h_r_js).reshape(-1,1), f_mrt_is_js)

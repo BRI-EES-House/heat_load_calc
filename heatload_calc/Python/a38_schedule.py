@@ -12,7 +12,8 @@ def get_v_mec_vent_local_is_ns(n_p: float, room_name_is: List[str])\
         room_name_is: 室iの名称, [i]
 
     Returns:
-        局所換気量, m3/s, [i, 365*96]
+        局所換気量, m3/h, [i, 365*96]
+        TODO: 単位を確認すること
         機器発熱, W, [i, 365*96]
         調理発熱, W, [i, 365*96]
         調理発湿, kg/s, [i, 365*96]
