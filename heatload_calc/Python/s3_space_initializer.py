@@ -1,6 +1,7 @@
 import numpy as np
 from typing import Dict, List
 import json
+import csv
 
 import a9_rear_surface_equivalent_temperature as a9
 import a12_indoor_radiative_heat_transfer as a12
@@ -162,9 +163,6 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
     q_gen_lght_is_ns,\
     n_hum_is_ns,\
     ac_demand_is_ns = a38.get_v_mec_vent_local_is_ns(n_p=n_p, room_name_is=room_names)
-
-    # ステップnの室iにおける機械換気量（全般換気量+局所換気量）, m3/s
-    v_mec_vent_is_ns = (v_vent_ex_is.reshape(-1, 1) + v_mec_vent_local_is_ns) / 3600
 
     # 内部発熱, W
     q_gen_is_ns = q_gen_app_is_ns + q_gen_ckg_is_ns + q_gen_lght_is_ns
@@ -341,12 +339,15 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
         'boundaries': bdrs
     }
 
-    with open('house.json', 'w') as f:
+    with open('mid_data_house.json', 'w') as f:
         json.dump(wd, f, indent=4)
+
+    with open('mid_data_local_vent.csv', 'w') as f:
+        w = csv.writer(f, lineterminator='\n')
+        w.writerows((v_mec_vent_local_is_ns / 3600.0).T.tolist())
 
     # region Spacesへの引き渡し
     spaces2 = make_pre_calc_parameters(
-        v_mec_vent_is_ns,
         q_gen_is_ns,
         n_hum_is_ns,
         x_gen_is_ns,
@@ -372,7 +373,6 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
 
 
 def make_pre_calc_parameters(
-    v_mec_vent_is_ns,
     q_gen_is_ns,
     n_hum_is_ns,
     x_gen_is_ns,
@@ -393,7 +393,7 @@ def make_pre_calc_parameters(
     get_vac_xeout_is
 ):
 
-    with open('house.json') as f:
+    with open('mid_data_house.json') as f:
         rd = json.load(f)
 
     # region spaces の読み込み
@@ -483,12 +483,16 @@ def make_pre_calc_parameters(
 
     # endregion
 
+    with open('mid_data_local_vent.csv', 'r') as f:
+        r = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
+        v_mec_vent_local_is_ns = np.array([row for row in r])
+
     # region 読み込んだ値から新たに係数を作成する
 
     # Spaceの数
     number_of_spaces = len(ss)
 
-    #　室iの空気の熱容量, J/K
+    # 室iの空気の熱容量, J/K
     c_room_is = v_room_cap_is * a39.get_rho_air() * a39.get_c_air()
 
     # 境界jの室内側表面放射熱伝達率, W/m2K, [j]
@@ -499,6 +503,9 @@ def make_pre_calc_parameters(
 
     # 境界jの室内側表面対流熱伝達率, W/m2K, [j]
     h_c_js = np.clip(h_i_js - h_r_js, 0, None)
+
+    # ステップnの室iにおける機械換気量（全般換気量+局所換気量）, m3/s
+    v_mec_vent_is_ns = v_vent_ex_is[:, np.newaxis] + v_mec_vent_local_is_ns.T
 
     # AX, [j, j]
     ax_js_js = np.diag(1.0 + phi_a0_js * h_i_js) - np.dot(p.T * (phi_a0_js * h_r_js).reshape(-1,1), f_mrt_is_js)
