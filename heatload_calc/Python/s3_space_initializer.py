@@ -77,9 +77,6 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
     # 室iの自然風利用時の換気量, m3/s, [i]
     v_ntrl_vent_is = v_room_cap_is * n_ntrl_vent_is / 3600
 
-    # 室iの空気の熱容量, J/K
-    c_room_is = v_room_cap_is * a39.get_rho_air() * a39.get_c_air()
-
     # 室iの家具等の熱容量, J/K
     c_cap_frnt_is = a14.get_c_cap_frnt_is(v_room_cap_is)
 
@@ -345,7 +342,6 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
     spaces2 = make_pre_calc_parameters(
         g_f_is,
         c_x_is,
-        c_room_is,
         c_cap_frnt_is,
         c_frnt_is,
         v_int_vent_is,
@@ -378,7 +374,6 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
 def make_pre_calc_parameters(
         g_f_is,
         c_x_is,
-        c_room_is,
         c_cap_frnt_is,
         c_frnt_is,
         v_int_vent_is,
@@ -471,6 +466,9 @@ def make_pre_calc_parameters(
 
     # Spaceの数
     number_of_spaces = len(ss)
+
+    #　室iの空気の熱容量, J/K
+    c_room_is = v_room_cap_is * a39.get_rho_air() * a39.get_c_air()
 
     # 境界jの室内側表面放射熱伝達率, W/m2K, [j]
     h_r_js = a12.get_hr_i_k_n(a_bdry_jstrs=a_srf_js, space_idx_bdry_jstrs=connected_space_id_js, number_of_spaces=number_of_spaces)
