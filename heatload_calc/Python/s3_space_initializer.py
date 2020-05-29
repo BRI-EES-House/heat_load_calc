@@ -310,7 +310,8 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
             'name': room_names[i],
             'type': str(room_type_is[i]),
             'volume': v_room_cap_is[i],
-            'c_value': c_value_is[i]
+            'c_value': c_value_is[i],
+            'beta': Beta_is[i]
         })
 
     bdrs = []
@@ -367,7 +368,6 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
         radiative_cooling_max_capacity_is,
         q_sol_floor_jstrs_ns,
         q_sol_frnt_is_ns,
-        Beta_is,
         p,
         get_vac_xeout_is
     )
@@ -402,7 +402,6 @@ def make_pre_calc_parameters(
         radiative_cooling_max_capacity_is,
         q_sol_floor_jstrs_ns,
         q_sol_frnt_is_ns,
-        Beta_is,
         p,
         get_vac_xeout_is
     ):
@@ -427,6 +426,9 @@ def make_pre_calc_parameters(
 
     # 空間iのC値, [i]
     c_value_is = np.array([s['c_value'] for s in ss])
+
+    # 室iに設置された放射暖房の対流成分比率, [i]
+    Beta_is = np.array([s['beta'] for s in ss])
 
     # boundaries の取り出し
     bs = rd['boundaries']
@@ -468,7 +470,7 @@ def make_pre_calc_parameters(
     h_i_js = np.array([b['h_i'] for b in bs])
 
     # 境界jの室に設置された放射暖房の放熱量のうち放射成分に対する境界jの室内側吸収比率
-    flr_jstrs = np.array([b['flr'] for b in bs])
+    flr_js = np.array([b['flr'] for b in bs])
 
     # 境界jの室内側表面放射熱伝達率, W/m2K, [j]
     h_r_js = a12.get_hr_i_k_n(a_bdry_jstrs=a_srf_js, space_idx_bdry_jstrs=connected_space_id_js, number_of_spaces=ROOM_NUMBER)
@@ -492,7 +494,7 @@ def make_pre_calc_parameters(
     crx_js_ns = phi_t0_js[:, np.newaxis] * theta_dstrb_is_jstrs_ns + q_sol_floor_jstrs_ns * phi_a0_js[:, np.newaxis]
 
     # FLB, K/W, [j]
-    flb_js = phi_a0_js * flr_jstrs * (1.0 - np.dot(p.T, Beta_is.reshape(-1, 1)).flatten()) / a_srf_js
+    flb_js = phi_a0_js * flr_js * (1.0 - np.dot(p.T, Beta_is.reshape(-1, 1)).flatten()) / a_srf_js
 
     # WSR, [j]
     wsr_js = np.dot(ivs_x_js_js, fia_js.reshape(-1, 1)).flatten()
@@ -548,7 +550,7 @@ def make_pre_calc_parameters(
         is_radiative_cooling_is=is_radiative_cooling_is,
         Lrcap_is=Lrcap_is,
         radiative_cooling_max_capacity_is=radiative_cooling_max_capacity_is,
-        flr_jstrs=flr_jstrs,
+        flr_jstrs=flr_js,
         h_r_bnd_jstrs=h_r_js,
         h_c_bnd_jstrs=h_c_js,
         f_mrt_jstrs=f_mrt_is_js,
