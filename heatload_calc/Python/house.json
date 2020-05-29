@@ -1,4 +1,27 @@
 {
+    "spaces": [
+        {
+            "id": 0,
+            "name": "main_occupant_room",
+            "type": "SpaceType.MAIN_HABITABLE_ROOM",
+            "volume": 70.92,
+            "c_value": 2.0
+        },
+        {
+            "id": 1,
+            "name": "other_occupant_room",
+            "type": "SpaceType.OTHER_HABITABLE_ROOM",
+            "volume": 123.22,
+            "c_value": 2.0
+        },
+        {
+            "id": 2,
+            "name": "non_occupant_room",
+            "type": "SpaceType.NON_HABITABLE_ROOM",
+            "volume": 94.88,
+            "c_value": 2.0
+        }
+    ],
     "boundaries": [
         {
             "id": 0,

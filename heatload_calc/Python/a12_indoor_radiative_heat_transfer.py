@@ -99,6 +99,11 @@ def get_F_mrt_i_g(area, hir):
     return F_mrt_i_k
 
 
+def get_f_mrt_is_js(a_bdry_jstrs, h_r_bnd_jstrs, p):
+    ah = a_bdry_jstrs * h_r_bnd_jstrs
+    return p * ah[np.newaxis, :] / np.dot(p, ah.reshape(-1, 1))
+
+
 def get_r_sol_frnt() -> float:
     """室内侵入日射のうち家具に吸収される割合を計算する。
 

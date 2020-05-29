@@ -112,7 +112,7 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
     name_bdry_jstrs = np.concatenate([ib.name_i_jstrs for ib in ibs])
 
     # 統合された境界j*の総数
-    total_number = len(name_bdry_jstrs)
+    number_of_boundaries = len(name_bdry_jstrs)
 
     # 統合された境界j*の名前2, [j*]
     sub_name_bdry_jstrs = np.concatenate([ib.sub_name_i_jstrs for ib in ibs])
@@ -267,28 +267,6 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
     # 室iの統合された境界j*の室内側表面総合熱伝達率, W/m2K, [j*]
     h_i_bnd_jstrs = np.concatenate([ib.h_i_i_jstrs for ib in ibs])
 
-    # 微小球に対する室内側表面放射熱伝達率 式(123)
-    h_r_bnd_jstrs = a12.get_hr_i_k_n(
-        a_bdry_jstrs=a_bdry_jstrs, space_idx_bdry_jstrs=space_idx_bdry_jstrs, number_of_spaces=number_of_spaces)
-
-    # 室内側表面対流熱伝達率 表(16)より
-    h_c_bnd_jstrs = a23.get_hc_i_k_n(hi_i_k_n=h_i_bnd_jstrs, hr_i_k_n=h_r_bnd_jstrs)
-
-    # 平均放射温度計算時の各部位表面温度の重み計算 式(101)
-    F_mrt_is_g = [
-        a12.get_F_mrt_i_g(area=ib.a_i_jstrs, hir=np.split(h_r_bnd_jstrs, split_indices)[i])
-        for i, ib in enumerate(ibs)
-    ]
-#    print(F_mrt_is_g)
-
-#    f_mrt_is_g2 = [a12.get_F_mrt_i_g(area=a_bdry_jstrs[space_idx_bdry_jstrs==i], hir=h_r_bnd_jstrs[space_idx_bdry_jstrs==i]) for i in range(number_of_spaces)]
-#    print(f_mrt_is_g2)
-
-    # 平均放射温度計算時の各部位表面温度の重み計算 式(101)
-    f_mrt_jstrs = np.zeros((number_of_spaces, sum(number_of_bdry_is)))
-    for i, F_mrt_i_g in enumerate(F_mrt_is_g):
-        f_mrt_jstrs[i, idx_bdry_is[i]:idx_bdry_is[i + 1]] = F_mrt_i_g
-
     is_solar_absorbed_inside_is_jstrs = [ib.is_solar_absorbed_inside_i_jstrs for ib in ibs]
 
     # 室iの統合された境界j*における室の透過日射熱取得のうちの吸収日射量, W/m2, [j*, 8760*4]
@@ -325,8 +303,18 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
 
         return np.array(vac_is_n), np.array(xeout_is_n)
 
+    spaces = []
+    for i in range(number_of_spaces):
+        spaces.append({
+            'id': i,
+            'name': room_names[i],
+            'type': str(room_type_is[i]),
+            'volume': v_room_cap_is[i],
+            'c_value': c_value_is[i]
+        })
+
     bdrs = []
-    for i in range(total_number):
+    for i in range(number_of_boundaries):
         bdrs.append({
             'id': i,
             'name': name_bdry_jstrs[i],
@@ -344,6 +332,7 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
         })
 
     wd = {
+        'spaces': spaces,
         'boundaries': bdrs
     }
 
@@ -353,8 +342,6 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
     # region Spacesへの引き渡し
     spaces2 = make_pre_calc_parameters(
         number_of_spaces,
-        room_names,
-        v_room_cap_is,
         g_f_is,
         c_x_is,
         c_room_is,
@@ -378,9 +365,6 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
         Lrcap_is,
         radiative_cooling_max_capacity_is,
         flr_jstrs,
-        h_r_bnd_jstrs,
-        h_c_bnd_jstrs,
-        f_mrt_jstrs,
         q_sol_floor_jstrs_ns,
         q_sol_frnt_is_ns,
         Beta_is,
@@ -394,8 +378,6 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
 
 def make_pre_calc_parameters(
         number_of_spaces,
-        room_names,
-        v_room_cap_is,
         g_f_is,
         c_x_is,
         c_room_is,
@@ -419,9 +401,6 @@ def make_pre_calc_parameters(
         Lrcap_is,
         radiative_cooling_max_capacity_is,
         flr_jstrs,
-        h_r_bnd_jstrs,
-        h_c_bnd_jstrs,
-        f_mrt_jstrs,
         q_sol_floor_jstrs_ns,
         q_sol_frnt_is_ns,
         Beta_is,
@@ -435,11 +414,26 @@ def make_pre_calc_parameters(
     # TODO: 後で書き換えること
     ROOM_NUMBER = 3
 
+    # spaces の取り出し
+    ss = rd['spaces']
+
+    # id, [i]
+    spaces_id_is = [s['id'] for s in ss]
+
+    # 空間iの名前, [i]
+    room_names = [s['name'] for s in ss]
+
+    # 空間iの気積, m3, [i]
+    v_room_cap_is = np.array([s['volume'] for s in ss])
+
+    # 空間iのC値, [i]
+    c_value_is = np.array([s['c_value'] for s in ss])
+
     # boundaries の取り出し
     bs = rd['boundaries']
 
     # id, [j]
-    id_js = [b['id'] for b in bs]
+    bdry_id_js = [b['id'] for b in bs]
 
     # 名前, [j]
     name_bdry_js = [b['name'] for b in bs]
@@ -476,6 +470,12 @@ def make_pre_calc_parameters(
 
     # 室内側表面放射熱伝達率 式(123)
     h_r_bnd_jstrs = a12.get_hr_i_k_n(a_bdry_jstrs=a_srf_js, space_idx_bdry_jstrs=connected_space_id_js, number_of_spaces=ROOM_NUMBER)
+
+    # 平均放射温度計算時の各部位表面温度の重み
+    f_mrt_jstrs =a12.get_f_mrt_is_js(a_bdry_jstrs=a_srf_js, h_r_bnd_jstrs=h_r_bnd_jstrs, p=p)
+
+    # 境界jの室内側表面対流熱伝達率, W/m2K
+    h_c_bnd_jstrs = np.clip(h_i_js - h_r_bnd_jstrs, 0, None)
 
     # AX, [j, j]
     ax_js = np.diag(1.0 + phi_a0_js * h_i_js) - np.dot(p.T * (phi_a0_js * h_r_bnd_jstrs).reshape(-1,1), f_mrt_jstrs)

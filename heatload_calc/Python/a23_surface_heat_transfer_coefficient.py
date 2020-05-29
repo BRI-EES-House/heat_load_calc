@@ -10,7 +10,3 @@ import a18_initial_value_constants as a18
 def get_h_i_i_ks(Ri_i_k_n):
     return 1.0 / Ri_i_k_n
 
-
-# 室内側表面対流熱伝達率 表16より
-def get_hc_i_k_n(hi_i_k_n, hr_i_k_n):
-    return np.clip(hi_i_k_n - hr_i_k_n, 0, None)
