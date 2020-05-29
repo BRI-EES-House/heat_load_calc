@@ -328,7 +328,8 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
             'phi_t0': phi_t0_bdry_jstrs[i],
             'phi_t1': list(phi_t1_bdry_jstrs_ms[i]),
             'r': list(r_bdry_jstrs_ms[i]),
-            'h_i': h_i_bnd_jstrs[i]
+            'h_i': h_i_bnd_jstrs[i],
+            'flr': flr_jstrs[i]
         })
 
     wd = {
@@ -364,7 +365,6 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
         is_radiative_cooling_is,
         Lrcap_is,
         radiative_cooling_max_capacity_is,
-        flr_jstrs,
         q_sol_floor_jstrs_ns,
         q_sol_frnt_is_ns,
         Beta_is,
@@ -400,7 +400,6 @@ def make_pre_calc_parameters(
         is_radiative_cooling_is,
         Lrcap_is,
         radiative_cooling_max_capacity_is,
-        flr_jstrs,
         q_sol_floor_jstrs_ns,
         q_sol_frnt_is_ns,
         Beta_is,
@@ -467,6 +466,9 @@ def make_pre_calc_parameters(
 
     # 境界jの室内側表面総合熱伝達率, W/m2K, [j]
     h_i_js = np.array([b['h_i'] for b in bs])
+
+    # 境界jの室に設置された放射暖房の放熱量のうち放射成分に対する境界jの室内側吸収比率
+    flr_jstrs = np.array([b['flr'] for b in bs])
 
     # 境界jの室内側表面放射熱伝達率, W/m2K, [j]
     h_r_js = a12.get_hr_i_k_n(a_bdry_jstrs=a_srf_js, space_idx_bdry_jstrs=connected_space_id_js, number_of_spaces=ROOM_NUMBER)
