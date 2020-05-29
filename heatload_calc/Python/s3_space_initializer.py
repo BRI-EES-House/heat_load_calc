@@ -192,20 +192,11 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
         space_idx_bdry_jstrs[idx_bdry_is[i]:idx_bdry_is[i+1]] = i
 
     # 室iの在室者に対する境界j*の形態係数
-    f_mrt_hum_is = [
+    f_mrt_hum_is = np.concatenate([
         x35.get_f_mrt_hum_is(
             a_bdry_i_jstrs=ib.a_i_jstrs,
             is_solar_absorbed_inside_bdry_i_jstrs=ib.is_solar_absorbed_inside_i_jstrs
-        ) for ib in ibs]
-
-    # 平均放射温度計算時の各部位表面温度の重み計算 式(101)
-#    f_mrt_hum_jstrs = np.zeros((number_of_spaces, sum(number_of_bdry_is)))
-#    for i, f_mrt_hum_i in enumerate(f_mrt_hum_is):
-#        f_mrt_hum_jstrs[i, idx_bdry_is[i]:idx_bdry_is[i+1]] = f_mrt_hum_i
-
-    f_mrt_hum_jstrs = np.zeros((number_of_spaces, sum(number_of_bdry_is)))
-    for i, f_mrt_hum_i in enumerate(f_mrt_hum_is):
-        f_mrt_hum_jstrs[i, space_idx_bdry_jstrs==i] = f_mrt_hum_i
+        ) for ib in ibs])
 
     # 室iの床面積の合計, m2, [i]
     a_floor_is = np.array([
@@ -259,14 +250,6 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
     h_i_bnd_jstrs = np.concatenate([ib.h_i_i_jstrs for ib in ibs])
 
     is_solar_absorbed_inside_is_jstrs = np.concatenate([ib.is_solar_absorbed_inside_i_jstrs for ib in ibs])
-
-    # 室iの統合された境界j*における室の透過日射熱取得のうちの吸収日射量, W/m2, [j*, 8760*4]
-    q_sol_floor_jstrs_ns = np.concatenate([
-        a12.get_q_sol_floor_i_jstrs_ns(
-            q_trs_sol_i_ns=q_trs_sol_is_ns[i],
-            a_bnd_i_jstrs=np.split(a_bdry_jstrs, split_indices)[i],
-            is_solar_absorbed_inside_bnd_i_jstrs=np.split(is_solar_absorbed_inside_is_jstrs, split_indices)[i]
-        ) for i in range(len(rooms))])
 
     Beta_i = 0.0  # 放射暖房対流比率
 
@@ -327,7 +310,8 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
             'r': list(r_bdry_jstrs_ms[i]),
             'h_i': h_i_bnd_jstrs[i],
             'flr': flr_jstrs[i],
-            'is_solar_absorbed': str(is_solar_absorbed_inside_is_jstrs[i])
+            'is_solar_absorbed': str(is_solar_absorbed_inside_is_jstrs[i]),
+            'f_mrt_hum': f_mrt_hum_is[i]
         })
 
     wd = {
@@ -367,7 +351,6 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
     spaces2 = make_pre_calc_parameters(
         k_ei_is,
         number_of_bdry_is,
-        f_mrt_hum_jstrs,
         theta_dstrb_is_jstrs_ns,
         q_trs_sol_is_ns,
         get_vac_xeout_def_is,
@@ -386,7 +369,6 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
 def make_pre_calc_parameters(
     k_ei_is,
     number_of_bdry_is,
-    f_mrt_hum_jstrs,
     theta_dstrb_is_jstrs_ns,
     q_trs_sol_is_ns,
     get_vac_xeout_def_is,
@@ -489,6 +471,9 @@ def make_pre_calc_parameters(
     # 境界jの日射吸収の有無
     is_solar_abs_js = np.array([{'True': True, 'False': False}[b['is_solar_absorbed']] for b in bs])
 
+    # 境界jの室に設置された放射暖房の放熱量のうち放射成分に対する境界jの室内側吸収比率
+    f_mrt_hum_is = np.array([b['f_mrt_hum'] for b in bs])
+
     # endregion
 
     # region スケジュール化されたデータの読み込み
@@ -551,6 +536,9 @@ def make_pre_calc_parameters(
     # ステップnの境界jにおける透過日射吸収熱量, W/m2, [j]
     q_sol_js_ns = np.dot(p.T, q_trs_sol_is_ns / a_srf_abs_is[:, np.newaxis])\
         * is_solar_abs_js[:, np.newaxis] * (1.0 - a12.get_r_sol_frnt())
+
+    # 室iの在室者に対する境界j*の形態係数, [i, j]
+    f_mrt_hum_jstrs = p * f_mrt_hum_is[np.newaxis, :]
 
     # AX, [j, j]
     ax_js_js = np.diag(1.0 + phi_a0_js * h_i_js) - np.dot(p.T * (phi_a0_js * h_r_js).reshape(-1,1), f_mrt_is_js)

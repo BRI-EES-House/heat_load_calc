@@ -125,7 +125,8 @@
             ],
             "h_i": 9.090909090909092,
             "flr": 0.0,
-            "is_solar_absorbed": "False"
+            "is_solar_absorbed": "False",
+            "f_mrt_hum": 0.027134347293875108
         },
         {
             "id": 1,
@@ -181,7 +182,8 @@
             ],
             "h_i": 9.090909090909092,
             "flr": 0.0,
-            "is_solar_absorbed": "False"
+            "is_solar_absorbed": "False",
+            "f_mrt_hum": 0.00883126923477201
         },
         {
             "id": 2,
@@ -237,7 +239,8 @@
             ],
             "h_i": 9.090909090909092,
             "flr": 0.0,
-            "is_solar_absorbed": "False"
+            "is_solar_absorbed": "False",
+            "f_mrt_hum": 0.09802708850596929
         },
         {
             "id": 3,
@@ -293,7 +296,8 @@
             ],
             "h_i": 9.090909090909092,
             "flr": 0.0,
-            "is_solar_absorbed": "False"
+            "is_solar_absorbed": "False",
+            "f_mrt_hum": 0.017062884385701475
         },
         {
             "id": 4,
@@ -349,7 +353,8 @@
             ],
             "h_i": 9.090909090909092,
             "flr": 0.0,
-            "is_solar_absorbed": "False"
+            "is_solar_absorbed": "False",
+            "f_mrt_hum": 0.05567788168478019
         },
         {
             "id": 5,
@@ -405,7 +410,8 @@
             ],
             "h_i": 9.090909090909092,
             "flr": 0.0,
-            "is_solar_absorbed": "False"
+            "is_solar_absorbed": "False",
+            "f_mrt_hum": 0.03783272128970231
         },
         {
             "id": 6,
@@ -461,7 +467,8 @@
             ],
             "h_i": 6.666666666666667,
             "flr": 0.0,
-            "is_solar_absorbed": "True"
+            "is_solar_absorbed": "True",
+            "f_mrt_hum": 0.45
         },
         {
             "id": 7,
@@ -517,7 +524,8 @@
             ],
             "h_i": 11.11111111111111,
             "flr": 0.0,
-            "is_solar_absorbed": "False"
+            "is_solar_absorbed": "False",
+            "f_mrt_hum": 0.022568799155528466
         },
         {
             "id": 8,
@@ -573,7 +581,8 @@
             ],
             "h_i": 9.090909090909092,
             "flr": 0.0,
-            "is_solar_absorbed": "False"
+            "is_solar_absorbed": "False",
+            "f_mrt_hum": 0.11781839897315434
         },
         {
             "id": 9,
@@ -629,7 +638,8 @@
             ],
             "h_i": 11.11111111111111,
             "flr": 0.0,
-            "is_solar_absorbed": "False"
+            "is_solar_absorbed": "False",
+            "f_mrt_hum": 0.11742317241789449
         },
         {
             "id": 10,
@@ -685,7 +695,8 @@
             ],
             "h_i": 9.090909090909092,
             "flr": 0.0,
-            "is_solar_absorbed": "False"
+            "is_solar_absorbed": "False",
+            "f_mrt_hum": 0.04762343705862239
         },
         {
             "id": 11,
@@ -741,7 +752,8 @@
             ],
             "h_i": 9.090909090909092,
             "flr": 0.0,
-            "is_solar_absorbed": "False"
+            "is_solar_absorbed": "False",
+            "f_mrt_hum": 0.09596653774397484
         },
         {
             "id": 12,
@@ -797,7 +809,8 @@
             ],
             "h_i": 9.090909090909092,
             "flr": 0.0,
-            "is_solar_absorbed": "False"
+            "is_solar_absorbed": "False",
+            "f_mrt_hum": 0.04667821760775798
         },
         {
             "id": 13,
@@ -853,7 +866,8 @@
             ],
             "h_i": 9.090909090909092,
             "flr": 0.0,
-            "is_solar_absorbed": "False"
+            "is_solar_absorbed": "False",
+            "f_mrt_hum": 0.07094650096276317
         },
         {
             "id": 14,
@@ -909,7 +923,8 @@
             ],
             "h_i": 9.090909090909092,
             "flr": 0.0,
-            "is_solar_absorbed": "False"
+            "is_solar_absorbed": "False",
+            "f_mrt_hum": 0.003621585848877774
         },
         {
             "id": 15,
@@ -965,7 +980,8 @@
             ],
             "h_i": 11.11111111111111,
             "flr": 0.0,
-            "is_solar_absorbed": "False"
+            "is_solar_absorbed": "False",
+            "f_mrt_hum": 0.1393761826689325
         },
         {
             "id": 16,
@@ -1021,7 +1037,8 @@
             ],
             "h_i": 9.090909090909092,
             "flr": 0.0,
-            "is_solar_absorbed": "False"
+            "is_solar_absorbed": "False",
+            "f_mrt_hum": 0.11584684915379935
         },
         {
             "id": 17,
@@ -1077,7 +1094,8 @@
             ],
             "h_i": 6.666666666666667,
             "flr": 0.0,
-            "is_solar_absorbed": "True"
+            "is_solar_absorbed": "True",
+            "f_mrt_hum": 0.25440944881889765
         },
         {
             "id": 18,
@@ -1133,7 +1151,8 @@
             ],
             "h_i": 9.090909090909092,
             "flr": 0.0,
-            "is_solar_absorbed": "False"
+            "is_solar_absorbed": "False",
+            "f_mrt_hum": 0.03353807986112266
         },
         {
             "id": 19,
@@ -1189,7 +1208,8 @@
             ],
             "h_i": 9.090909090909092,
             "flr": 0.0,
-            "is_solar_absorbed": "False"
+            "is_solar_absorbed": "False",
+            "f_mrt_hum": 0.0024143905659185162
         },
         {
             "id": 20,
@@ -1245,7 +1265,8 @@
             ],
             "h_i": 9.090909090909092,
             "flr": 0.0,
-            "is_solar_absorbed": "False"
+            "is_solar_absorbed": "False",
+            "f_mrt_hum": 0.009653904096149945
         },
         {
             "id": 21,
@@ -1301,7 +1322,8 @@
             ],
             "h_i": 6.666666666666667,
             "flr": 0.0,
-            "is_solar_absorbed": "True"
+            "is_solar_absorbed": "True",
+            "f_mrt_hum": 0.19559055118110238
         },
         {
             "id": 22,
@@ -1357,7 +1379,8 @@
             ],
             "h_i": 9.090909090909092,
             "flr": 0.0,
-            "is_solar_absorbed": "False"
+            "is_solar_absorbed": "False",
+            "f_mrt_hum": 0.03195775149070327
         },
         {
             "id": 23,
@@ -1413,7 +1436,8 @@
             ],
             "h_i": 9.090909090909092,
             "flr": 0.0,
-            "is_solar_absorbed": "False"
+            "is_solar_absorbed": "False",
+            "f_mrt_hum": 0.16253307579228063
         },
         {
             "id": 24,
@@ -1469,7 +1493,8 @@
             ],
             "h_i": 9.090909090909092,
             "flr": 0.0,
-            "is_solar_absorbed": "False"
+            "is_solar_absorbed": "False",
+            "f_mrt_hum": 0.013876448668421594
         },
         {
             "id": 25,
@@ -1525,7 +1550,8 @@
             ],
             "h_i": 9.090909090909092,
             "flr": 0.0,
-            "is_solar_absorbed": "False"
+            "is_solar_absorbed": "False",
+            "f_mrt_hum": 0.018479368226727293
         },
         {
             "id": 26,
@@ -1581,7 +1607,8 @@
             ],
             "h_i": 9.090909090909092,
             "flr": 0.0,
-            "is_solar_absorbed": "False"
+            "is_solar_absorbed": "False",
+            "f_mrt_hum": 0.04700693993367749
         },
         {
             "id": 27,
@@ -1637,7 +1664,8 @@
             ],
             "h_i": 9.090909090909092,
             "flr": 0.0,
-            "is_solar_absorbed": "False"
+            "is_solar_absorbed": "False",
+            "f_mrt_hum": 0.011168848928241772
         },
         {
             "id": 28,
@@ -1693,7 +1721,8 @@
             ],
             "h_i": 6.666666666666667,
             "flr": 0.0,
-            "is_solar_absorbed": "True"
+            "is_solar_absorbed": "True",
+            "f_mrt_hum": 0.45
         },
         {
             "id": 29,
@@ -1749,7 +1778,8 @@
             ],
             "h_i": 11.11111111111111,
             "flr": 0.0,
-            "is_solar_absorbed": "False"
+            "is_solar_absorbed": "False",
+            "f_mrt_hum": 0.09657105739974703
         },
         {
             "id": 30,
@@ -1805,7 +1835,8 @@
             ],
             "h_i": 9.090909090909092,
             "flr": 0.0,
-            "is_solar_absorbed": "False"
+            "is_solar_absorbed": "False",
+            "f_mrt_hum": 0.08127499914532837
         },
         {
             "id": 31,
@@ -1861,7 +1892,8 @@
             ],
             "h_i": 9.090909090909092,
             "flr": 0.0,
-            "is_solar_absorbed": "False"
+            "is_solar_absorbed": "False",
+            "f_mrt_hum": 0.1190892619055759
         }
     ]
 }
