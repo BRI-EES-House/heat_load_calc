@@ -468,23 +468,23 @@ def make_pre_calc_parameters(
     # 境界jの室内側表面総合熱伝達率, W/m2K, [j]
     h_i_js = np.array([b['h_i'] for b in bs])
 
-    # 室内側表面放射熱伝達率 式(123)
-    h_r_bnd_jstrs = a12.get_hr_i_k_n(a_bdry_jstrs=a_srf_js, space_idx_bdry_jstrs=connected_space_id_js, number_of_spaces=ROOM_NUMBER)
+    # 境界jの室内側表面放射熱伝達率, W/m2K, [j]
+    h_r_js = a12.get_hr_i_k_n(a_bdry_jstrs=a_srf_js, space_idx_bdry_jstrs=connected_space_id_js, number_of_spaces=ROOM_NUMBER)
 
-    # 平均放射温度計算時の各部位表面温度の重み
-    f_mrt_jstrs =a12.get_f_mrt_is_js(a_bdry_jstrs=a_srf_js, h_r_bnd_jstrs=h_r_bnd_jstrs, p=p)
+    # 平均放射温度計算時の各部位表面温度の重み, [i, j]
+    f_mrt_is_js =a12.get_f_mrt_is_js(a_bdry_jstrs=a_srf_js, h_r_bnd_jstrs=h_r_js, p=p)
 
-    # 境界jの室内側表面対流熱伝達率, W/m2K
-    h_c_bnd_jstrs = np.clip(h_i_js - h_r_bnd_jstrs, 0, None)
+    # 境界jの室内側表面対流熱伝達率, W/m2K, [j]
+    h_c_js = np.clip(h_i_js - h_r_js, 0, None)
 
     # AX, [j, j]
-    ax_js = np.diag(1.0 + phi_a0_js * h_i_js) - np.dot(p.T * (phi_a0_js * h_r_bnd_jstrs).reshape(-1,1), f_mrt_jstrs)
+    ax_js_js = np.diag(1.0 + phi_a0_js * h_i_js) - np.dot(p.T * (phi_a0_js * h_r_js).reshape(-1,1), f_mrt_is_js)
 
     # AX^-1, [j, j]
-    ivs_x_is = np.linalg.inv(ax_js)
+    ivs_x_js_js = np.linalg.inv(ax_js_js)
 
     # FIA, [j]
-    fia_js = phi_a0_js * h_c_bnd_jstrs
+    fia_js = phi_a0_js * h_c_js
 
     # CRX, W, [j, 8760*4]
     crx_js_ns = phi_t0_js[:, np.newaxis] * theta_dstrb_is_jstrs_ns + q_sol_floor_jstrs_ns * phi_a0_js[:, np.newaxis]
@@ -493,21 +493,21 @@ def make_pre_calc_parameters(
     flb_js = phi_a0_js * flr_jstrs * (1.0 - np.dot(p.T, Beta_is.reshape(-1, 1)).flatten()) / a_srf_js
 
     # WSR, [j]
-    wsr_js = np.dot(ivs_x_is, fia_js.reshape(-1, 1)).flatten()
+    wsr_js = np.dot(ivs_x_js_js, fia_js.reshape(-1, 1)).flatten()
 
     # WSC, W, [j, 8760*4]
-    wsc_js_ns = np.dot(ivs_x_is, crx_js_ns)
+    wsc_js_ns = np.dot(ivs_x_js_js, crx_js_ns)
 
     # WSB, K/W, [j]
-    wsb_js = np.dot(ivs_x_is, flb_js.reshape(-1, 1)).flatten()
+    wsb_js = np.dot(ivs_x_js_js, flb_js.reshape(-1, 1)).flatten()
 
     # BRL, [i]
-    brl_is = np.dot(p, (h_c_bnd_jstrs * a_srf_js * wsb_js).reshape(-1, 1)).flatten() + Beta_is
+    brl_is = np.dot(p, (h_c_js * a_srf_js * wsb_js).reshape(-1, 1)).flatten() + Beta_is
 
     # BRM(通風なし), W/K, [i]
     brm_noncv_is = (
             c_room_is/900
-            + np.dot(p, (a_srf_js * h_c_bnd_jstrs * (1.0 - wsr_js)).reshape(-1, 1)).flatten()
+            + np.dot(p, (a_srf_js * h_c_js * (1.0 - wsr_js)).reshape(-1, 1)).flatten()
             + v_int_vent_is.sum(axis=1) * a18.get_c_air() * a18.get_rho_air()
             + c_cap_frnt_is * c_frnt_is / (c_cap_frnt_is + c_frnt_is * 900)
     )[:, np.newaxis] + v_mec_vent_is_ns * a18.get_c_air() * a18.get_rho_air()
@@ -547,16 +547,16 @@ def make_pre_calc_parameters(
         Lrcap_is=Lrcap_is,
         radiative_cooling_max_capacity_is=radiative_cooling_max_capacity_is,
         flr_jstrs=flr_jstrs,
-        h_r_bnd_jstrs=h_r_bnd_jstrs,
-        h_c_bnd_jstrs=h_c_bnd_jstrs,
-        f_mrt_jstrs=f_mrt_jstrs,
+        h_r_bnd_jstrs=h_r_js,
+        h_c_bnd_jstrs=h_c_js,
+        f_mrt_jstrs=f_mrt_is_js,
         q_sol_floor_jstrs_ns=q_sol_floor_jstrs_ns,
         q_sol_frnt_is_ns=q_sol_frnt_is_ns,
         Beta_is=Beta_is,
         WSR_is_k=wsr_js,
         WSB_is_k=wsb_js,
         BRMnoncv_is=brm_noncv_is,
-        ivs_x_is=ivs_x_is,
+        ivs_x_is=ivs_x_js_js,
         brl_is=brl_is,
         p=p,
         get_vac_xeout_is=get_vac_xeout_is,
