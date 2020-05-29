@@ -545,8 +545,11 @@ def make_pre_calc_parameters(
     # ステップnの室iにおける家具の吸収日射量, W, [i, 8760*4]
     q_sol_frnt_is_ns = q_trs_sol_is_ns * a12.get_r_sol_frnt()
 
+    #　室iにおける日射が吸収される境界の面積の合計, m2, [i]
     a_srf_abs_is = np.dot(p, (a_srf_js * is_solar_abs_js).reshape(-1, 1)).flatten()
-    q_sol_floor_jstrs_ns = np.dot(p.T, q_trs_sol_is_ns / a_srf_abs_is[:, np.newaxis])\
+
+    # ステップnの境界jにおける透過日射吸収熱量, W/m2, [j]
+    q_sol_js_ns = np.dot(p.T, q_trs_sol_is_ns / a_srf_abs_is[:, np.newaxis])\
         * is_solar_abs_js[:, np.newaxis] * (1.0 - a12.get_r_sol_frnt())
 
     # AX, [j, j]
@@ -559,7 +562,7 @@ def make_pre_calc_parameters(
     fia_js = phi_a0_js * h_c_js
 
     # CRX, W, [j, 8760*4]
-    crx_js_ns = phi_t0_js[:, np.newaxis] * theta_dstrb_is_jstrs_ns + q_sol_floor_jstrs_ns * phi_a0_js[:, np.newaxis]
+    crx_js_ns = phi_t0_js[:, np.newaxis] * theta_dstrb_is_jstrs_ns + q_sol_js_ns * phi_a0_js[:, np.newaxis]
 
     # FLB, K/W, [j]
     flb_js = phi_a0_js * flr_js * (1.0 - np.dot(p.T, beta_is.reshape(-1, 1)).flatten()) / a_srf_js
@@ -624,7 +627,7 @@ def make_pre_calc_parameters(
         h_r_bnd_jstrs=h_r_js,
         h_c_bnd_jstrs=h_c_js,
         f_mrt_jstrs=f_mrt_is_js,
-        q_sol_floor_jstrs_ns=q_sol_floor_jstrs_ns,
+        q_sol_floor_jstrs_ns=q_sol_js_ns,
         q_sol_frnt_is_ns=q_sol_frnt_is_ns,
         Beta_is=beta_is,
         WSR_is_k=wsr_js,
