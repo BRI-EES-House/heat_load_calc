@@ -6,7 +6,22 @@
             "type": "SpaceType.MAIN_HABITABLE_ROOM",
             "volume": 70.92,
             "c_value": 2.0,
-            "beta": 0.0
+            "beta": 0.0,
+            "ventilation": {
+                "mechanical": 0.016666666666666666,
+                "next_spaces": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "natural": 0.0985
+            },
+            "furniture": {
+                "heat_capacity": 893592.0,
+                "heat_cond": 196.59024,
+                "moisture_capacity": 1191.4560000000001,
+                "moisture_cond": 2.1446208
+            }
         },
         {
             "id": 1,
@@ -14,7 +29,22 @@
             "type": "SpaceType.OTHER_HABITABLE_ROOM",
             "volume": 123.22,
             "c_value": 2.0,
-            "beta": 0.0
+            "beta": 0.0,
+            "ventilation": {
+                "mechanical": 0.027777777777777776,
+                "next_spaces": [
+                    0.0,
+                    0.0,
+                    0.005555555555555556
+                ],
+                "natural": 0.1711388888888889
+            },
+            "furniture": {
+                "heat_capacity": 1552572.0,
+                "heat_cond": 341.56584000000004,
+                "moisture_capacity": 2070.096,
+                "moisture_cond": 3.7261728
+            }
         },
         {
             "id": 2,
@@ -22,7 +52,22 @@
             "type": "SpaceType.NON_HABITABLE_ROOM",
             "volume": 94.88,
             "c_value": 2.0,
-            "beta": 0.0
+            "beta": 0.0,
+            "ventilation": {
+                "mechanical": 0.0,
+                "next_spaces": [
+                    0.016666666666666666,
+                    0.027777777777777776,
+                    0.0
+                ],
+                "natural": 0.13177777777777777
+            },
+            "furniture": {
+                "heat_capacity": 1195487.9999999998,
+                "heat_cond": 263.00735999999995,
+                "moisture_capacity": 1593.984,
+                "moisture_cond": 2.8691712
+            }
         }
     ],
     "boundaries": [

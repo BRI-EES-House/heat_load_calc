@@ -60,18 +60,13 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
     # 室iの外気からの機械換気量, m3/h, [i]
     v_vent_ex_is = np.array([r['vent'] for r in rooms])
 
-    # 室iの隣室からの機械換気量niの換気量, m3/h, [ni]
-    v_vent_up_is_nis = [
-        np.array([next_vent['volume'] for next_vent in room['next_vent']])
-        for room in rooms]
-
     # 室iのC値, [i]
     c_value_is = np.array([r['c_value'] for r in rooms])
 
     # 室iの自然風利用時の換気回数, 1/h, [i]
     n_ntrl_vent_is = np.array([r['natural_vent_time'] for r in rooms])
 
-    # 室iの気積, m3, [i, i]
+    # 室iの隣室からの機会書き量, m3/h, [i, i]
     v_int_vent_is = get_v_int_vent_is(rooms)
 
     # 室iの自然風利用時の換気量, m3/s, [i]
@@ -308,7 +303,18 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
             'type': str(room_type_is[i]),
             'volume': v_room_cap_is[i],
             'c_value': c_value_is[i],
-            'beta': Beta_is[i]
+            'beta': Beta_is[i],
+            'ventilation': {
+                'mechanical': v_vent_ex_is[i]/3600,
+                'next_spaces': v_int_vent_is.tolist()[i],
+                'natural': v_ntrl_vent_is[i]
+            },
+            'furniture': {
+                'heat_capacity': c_cap_frnt_is[i],
+                'heat_cond': c_frnt_is[i],
+                'moisture_capacity': g_f_is[i],
+                'moisture_cond': c_x_is[i]
+            }
         })
 
     bdrs = []
@@ -340,11 +346,6 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
 
     # region Spacesへの引き渡し
     spaces2 = make_pre_calc_parameters(
-        g_f_is,
-        c_x_is,
-        c_cap_frnt_is,
-        c_frnt_is,
-        v_int_vent_is,
         v_mec_vent_is_ns,
         q_gen_is_ns,
         n_hum_is_ns,
@@ -354,7 +355,6 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
         f_mrt_hum_jstrs,
         theta_dstrb_is_jstrs_ns,
         q_trs_sol_is_ns,
-        v_ntrl_vent_is,
         ac_demand_is_ns,
         get_vac_xeout_def_is,
         is_radiative_heating_is,
@@ -372,35 +372,31 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
 
 
 def make_pre_calc_parameters(
-        g_f_is,
-        c_x_is,
-        c_cap_frnt_is,
-        c_frnt_is,
-        v_int_vent_is,
-        v_mec_vent_is_ns,
-        q_gen_is_ns,
-        n_hum_is_ns,
-        x_gen_is_ns,
-        k_ei_is,
-        number_of_bdry_is,
-        f_mrt_hum_jstrs,
-        theta_dstrb_is_jstrs_ns,
-        q_trs_sol_is_ns,
-        v_ntrl_vent_is,
-        ac_demand_is_ns,
-        get_vac_xeout_def_is,
-        is_radiative_heating_is,
-        is_radiative_cooling_is,
-        Lrcap_is,
-        radiative_cooling_max_capacity_is,
-        q_sol_floor_jstrs_ns,
-        q_sol_frnt_is_ns,
-        p,
-        get_vac_xeout_is
-    ):
+    v_mec_vent_is_ns,
+    q_gen_is_ns,
+    n_hum_is_ns,
+    x_gen_is_ns,
+    k_ei_is,
+    number_of_bdry_is,
+    f_mrt_hum_jstrs,
+    theta_dstrb_is_jstrs_ns,
+    q_trs_sol_is_ns,
+    ac_demand_is_ns,
+    get_vac_xeout_def_is,
+    is_radiative_heating_is,
+    is_radiative_cooling_is,
+    Lrcap_is,
+    radiative_cooling_max_capacity_is,
+    q_sol_floor_jstrs_ns,
+    q_sol_frnt_is_ns,
+    p,
+    get_vac_xeout_is
+):
 
     with open('house.json') as f:
         rd = json.load(f)
+
+    # region spaces の読み込み
 
     # spaces の取り出し
     ss = rd['spaces']
@@ -419,6 +415,29 @@ def make_pre_calc_parameters(
 
     # 室iに設置された放射暖房の対流成分比率, [i]
     beta_is = np.array([s['beta'] for s in ss])
+
+    # 室iの機械換気量（局所換気を除く）, m3/h, [i]
+    v_vent_ex_is = np.array([s['ventilation']['mechanical'] for s in ss])
+
+    v_int_vent_is = np.array([s['ventilation']['next_spaces'] for s in ss])
+
+    v_ntrl_vent_is = np.array([s['ventilation']['natural'] for s in ss])
+
+    # 室iの家具等の熱容量, J/K
+    c_cap_frnt_is = np.array([s['furniture']['heat_capacity'] for s in ss])
+
+    # 室iの家具等と空気間の熱コンダクタンス, W/K, [i]
+    c_frnt_is = np.array([s['furniture']['heat_cond'] for s in ss])
+
+    # 室iの家具等の湿気容量, kg/m3 kg/kgDA, [i]
+    g_f_is = np.array([s['furniture']['moisture_capacity'] for s in ss])
+
+    # 室iの家具等と空気間の湿気コンダクタンス, kg/s kg/kgDA
+    c_x_is = np.array([s['furniture']['moisture_cond'] for s in ss])
+
+    # endregion
+
+    # region boundaries の読み込み
 
     # boundaries の取り出し
     bs = rd['boundaries']
@@ -461,6 +480,8 @@ def make_pre_calc_parameters(
 
     # 境界jの室に設置された放射暖房の放熱量のうち放射成分に対する境界jの室内側吸収比率
     flr_js = np.array([b['flr'] for b in bs])
+
+    # endregion
 
     # region 読み込んだ値から新たに係数を作成する
 
