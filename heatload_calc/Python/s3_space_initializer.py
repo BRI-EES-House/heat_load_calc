@@ -343,7 +343,6 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
 
     # region Spacesへの引き渡し
     spaces2 = make_pre_calc_parameters(
-        number_of_spaces,
         g_f_is,
         c_x_is,
         c_room_is,
@@ -377,7 +376,6 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
 
 
 def make_pre_calc_parameters(
-        number_of_spaces,
         g_f_is,
         c_x_is,
         c_room_is,
@@ -409,9 +407,6 @@ def make_pre_calc_parameters(
     with open('house.json') as f:
         rd = json.load(f)
 
-    # TODO: 後で書き換えること
-    ROOM_NUMBER = 3
-
     # spaces の取り出し
     ss = rd['spaces']
 
@@ -428,7 +423,7 @@ def make_pre_calc_parameters(
     c_value_is = np.array([s['c_value'] for s in ss])
 
     # 室iに設置された放射暖房の対流成分比率, [i]
-    Beta_is = np.array([s['beta'] for s in ss])
+    beta_is = np.array([s['beta'] for s in ss])
 
     # boundaries の取り出し
     bs = rd['boundaries']
@@ -472,8 +467,13 @@ def make_pre_calc_parameters(
     # 境界jの室に設置された放射暖房の放熱量のうち放射成分に対する境界jの室内側吸収比率
     flr_js = np.array([b['flr'] for b in bs])
 
+    # region 読み込んだ値から新たに係数を作成する
+
+    # Spaceの数
+    number_of_spaces = len(ss)
+
     # 境界jの室内側表面放射熱伝達率, W/m2K, [j]
-    h_r_js = a12.get_hr_i_k_n(a_bdry_jstrs=a_srf_js, space_idx_bdry_jstrs=connected_space_id_js, number_of_spaces=ROOM_NUMBER)
+    h_r_js = a12.get_hr_i_k_n(a_bdry_jstrs=a_srf_js, space_idx_bdry_jstrs=connected_space_id_js, number_of_spaces=number_of_spaces)
 
     # 平均放射温度計算時の各部位表面温度の重み, [i, j]
     f_mrt_is_js =a12.get_f_mrt_is_js(a_bdry_jstrs=a_srf_js, h_r_bnd_jstrs=h_r_js, p=p)
@@ -494,7 +494,7 @@ def make_pre_calc_parameters(
     crx_js_ns = phi_t0_js[:, np.newaxis] * theta_dstrb_is_jstrs_ns + q_sol_floor_jstrs_ns * phi_a0_js[:, np.newaxis]
 
     # FLB, K/W, [j]
-    flb_js = phi_a0_js * flr_js * (1.0 - np.dot(p.T, Beta_is.reshape(-1, 1)).flatten()) / a_srf_js
+    flb_js = phi_a0_js * flr_js * (1.0 - np.dot(p.T, beta_is.reshape(-1, 1)).flatten()) / a_srf_js
 
     # WSR, [j]
     wsr_js = np.dot(ivs_x_js_js, fia_js.reshape(-1, 1)).flatten()
@@ -506,7 +506,7 @@ def make_pre_calc_parameters(
     wsb_js = np.dot(ivs_x_js_js, flb_js.reshape(-1, 1)).flatten()
 
     # BRL, [i]
-    brl_is = np.dot(p, (h_c_js * a_srf_js * wsb_js).reshape(-1, 1)).flatten() + Beta_is
+    brl_is = np.dot(p, (h_c_js * a_srf_js * wsb_js).reshape(-1, 1)).flatten() + beta_is
 
     # BRM(通風なし), W/K, [i]
     brm_noncv_is = (
@@ -515,6 +515,8 @@ def make_pre_calc_parameters(
             + v_int_vent_is.sum(axis=1) * a18.get_c_air() * a18.get_rho_air()
             + c_cap_frnt_is * c_frnt_is / (c_cap_frnt_is + c_frnt_is * 900)
     )[:, np.newaxis] + v_mec_vent_is_ns * a18.get_c_air() * a18.get_rho_air()
+
+    # endregion
 
     pre_calc_parameters = PreCalcParameters(
         number_of_spaces=number_of_spaces,
@@ -556,7 +558,7 @@ def make_pre_calc_parameters(
         f_mrt_jstrs=f_mrt_is_js,
         q_sol_floor_jstrs_ns=q_sol_floor_jstrs_ns,
         q_sol_frnt_is_ns=q_sol_frnt_is_ns,
-        Beta_is=Beta_is,
+        Beta_is=beta_is,
         WSR_is_k=wsr_js,
         WSB_is_k=wsb_js,
         BRMnoncv_is=brm_noncv_is,
