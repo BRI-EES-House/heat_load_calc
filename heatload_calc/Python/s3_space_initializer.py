@@ -208,6 +208,11 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
         ib.theta_o_sol_i_jstrs_ns * ib.h_i_jstrs.reshape(-1, 1)
         for ib in ibs])
 
+    theta_o_sol_js_ns = np.concatenate([ib.theta_o_sol_i_jstrs_ns for ib in ibs])
+    h_def_js = np.concatenate([ib.h_i_jstrs for ib in ibs])
+
+    theta_dstrb_is_jstrs_ns = theta_o_sol_js_ns * h_def_js[:, np.newaxis]
+
     qrtd_c_is = np.array([a15.get_qrtd_c(a_floor_i) for a_floor_i in a_floor_is])
     qmax_c_is = np.array([a15.get_qmax_c(qrtd_c_i) for qrtd_c_i in qrtd_c_is])
     qmin_c_is = np.array([a15.get_qmin_c() for qrtd_c_i in qrtd_c_is])
