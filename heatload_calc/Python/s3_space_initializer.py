@@ -347,12 +347,16 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
         w = csv.writer(f, lineterminator='\n')
         w.writerows(ac_demand_is_ns.T.tolist())
 
+    # ステップnの室iにおける窓の透過日射熱取得, W, [8760*4]
+    with open('mid_data_q_trs_sol.csv', 'w') as f:
+        w = csv.writer(f, lineterminator='\n')
+        w.writerows(q_trs_sol_is_ns.T.tolist())
+
     # region Spacesへの引き渡し
     spaces2 = make_pre_calc_parameters(
         k_ei_is,
         number_of_bdry_is,
         theta_dstrb_is_jstrs_ns,
-        q_trs_sol_is_ns,
         get_vac_xeout_def_is,
         is_radiative_heating_is,
         is_radiative_cooling_is,
@@ -370,7 +374,6 @@ def make_pre_calc_parameters(
     k_ei_is,
     number_of_bdry_is,
     theta_dstrb_is_jstrs_ns,
-    q_trs_sol_is_ns,
     get_vac_xeout_def_is,
     is_radiative_heating_is,
     is_radiative_cooling_is,
@@ -504,6 +507,11 @@ def make_pre_calc_parameters(
         ac_demand_is_ns2 = np.array([row for row in r]).T
     # ｓｔｒ型からbool型に変更
     ac_demand_is_ns = np.vectorize(lambda x: {'True': True, 'False': False}[x])(ac_demand_is_ns2)
+
+    # ステップnの室iにおける窓の透過日射熱取得, W, [8760*4]
+    with open('mid_data_q_trs_sol.csv', 'r') as f:
+        r = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
+        q_trs_sol_is_ns = np.array([row for row in r]).T
 
     # endregion
 
