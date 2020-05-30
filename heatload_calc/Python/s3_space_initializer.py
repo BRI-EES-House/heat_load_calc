@@ -203,15 +203,9 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
         np.sum(ib.a_i_jstrs[ib.is_solar_absorbed_inside_i_jstrs])
         for ib in ibs])
 
-    # ステップnの室iの集約された境界j*の外乱による裏面温度, degree C, [j*, 8760*4]
-    theta_dstrb_is_jstrs_ns = np.concatenate([
-        ib.theta_o_sol_i_jstrs_ns * ib.h_i_jstrs.reshape(-1, 1)
-        for ib in ibs])
-
     theta_o_sol_js_ns = np.concatenate([ib.theta_o_sol_i_jstrs_ns for ib in ibs])
-    h_def_js = np.concatenate([ib.h_i_jstrs for ib in ibs])
 
-    theta_dstrb_is_jstrs_ns = theta_o_sol_js_ns * h_def_js[:, np.newaxis]
+    h_def_js = np.concatenate([ib.h_i_jstrs for ib in ibs])
 
     qrtd_c_is = np.array([a15.get_qrtd_c(a_floor_i) for a_floor_i in a_floor_is])
     qmax_c_is = np.array([a15.get_qmax_c(qrtd_c_i) for qrtd_c_i in qrtd_c_is])
@@ -316,7 +310,8 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
             'h_i': h_i_bnd_jstrs[i],
             'flr': flr_jstrs[i],
             'is_solar_absorbed': str(is_solar_absorbed_inside_is_jstrs[i]),
-            'f_mrt_hum': f_mrt_hum_is[i]
+            'f_mrt_hum': f_mrt_hum_is[i],
+            'k_outside': h_def_js[i]
         })
 
     wd = {
@@ -357,11 +352,21 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
         w = csv.writer(f, lineterminator='\n')
         w.writerows(q_trs_sol_is_ns.T.tolist())
 
+    # ステップnの室iにおける窓の透過日射熱取得, W, [8760*4]
+    with open('mid_data_q_trs_sol.csv', 'w') as f:
+        w = csv.writer(f, lineterminator='\n')
+        w.writerows(q_trs_sol_is_ns.T.tolist())
+
+    # ステップnの境界jにおける裏面等価温度, ℃, [j, 8760*4]
+    with open('mid_data_theta_o_sol.csv', 'w') as f:
+        w = csv.writer(f, lineterminator='\n')
+        w.writerows(theta_o_sol_js_ns.T.tolist())
+
+
     # region Spacesへの引き渡し
     spaces2 = make_pre_calc_parameters(
         k_ei_is,
         number_of_bdry_is,
-        theta_dstrb_is_jstrs_ns,
         get_vac_xeout_def_is,
         is_radiative_heating_is,
         is_radiative_cooling_is,
@@ -378,7 +383,6 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
 def make_pre_calc_parameters(
     k_ei_is,
     number_of_bdry_is,
-    theta_dstrb_is_jstrs_ns,
     get_vac_xeout_def_is,
     is_radiative_heating_is,
     is_radiative_cooling_is,
@@ -482,6 +486,9 @@ def make_pre_calc_parameters(
     # 境界jの室に設置された放射暖房の放熱量のうち放射成分に対する境界jの室内側吸収比率
     f_mrt_hum_is = np.array([b['f_mrt_hum'] for b in bs])
 
+    # 境界の裏面温度に屋外側等価温度が与える影響, [j]
+    h_def_js = np.array([b['k_outside'] for b in bs])
+
     # endregion
 
     # region スケジュール化されたデータの読み込み
@@ -518,6 +525,11 @@ def make_pre_calc_parameters(
         r = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
         q_trs_sol_is_ns = np.array([row for row in r]).T
 
+    # ステップnの境界jにおける裏面等価温度, ℃, [j, 8760*4]
+    with open('mid_data_theta_o_sol.csv', 'r') as f:
+        r = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
+        theta_o_sol_js_ns = np.array([row for row in r]).T
+
     # endregion
 
     # region 読み込んだ値から新たに係数を作成する
@@ -552,6 +564,9 @@ def make_pre_calc_parameters(
 
     # 室iの在室者に対する境界j*の形態係数, [i, j]
     f_mrt_hum_jstrs = p * f_mrt_hum_is[np.newaxis, :]
+
+    # ステップnの境界jにおける外気側等価温度の外乱成分, ℃
+    theta_dstrb_is_jstrs_ns = theta_o_sol_js_ns * h_def_js[:, np.newaxis]
 
     # AX, [j, j]
     ax_js_js = np.diag(1.0 + phi_a0_js * h_i_js) - np.dot(p.T * (phi_a0_js * h_r_js).reshape(-1,1), f_mrt_is_js)
