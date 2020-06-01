@@ -421,7 +421,7 @@ def make_pre_calc_parameters(
     spaces_id_is = [s['id'] for s in ss]
 
     # 空間iの名前, [i]
-    room_names = [s['name'] for s in ss]
+    space_name_is = [s['name'] for s in ss]
 
     # 空間iの気積, m3, [i]
     v_room_cap_is = np.array([s['volume'] for s in ss])
@@ -644,7 +644,7 @@ def make_pre_calc_parameters(
 
     pre_calc_parameters = PreCalcParameters(
         number_of_spaces=number_of_spaces,
-        space_names=room_names,
+        space_name_is=space_name_is,
         v_room_cap_is=v_room_cap_is,
         g_f_is=g_f_is,
         c_x_is=c_x_is,

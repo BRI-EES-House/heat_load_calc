@@ -14,7 +14,7 @@ class PreCalcParameters:
     def __init__(
             self,
             number_of_spaces,
-            space_names,
+            space_name_is,
             v_room_cap_is,
             g_f_is,
             c_x_is,
@@ -70,7 +70,7 @@ class PreCalcParameters:
         self.number_of_spaces = number_of_spaces
 
         # 室の名前, [i]
-        self.space_names = space_names
+        self.space_name_is = space_name_is
 
         # 室iの容積, m3, [i]
         self.v_room_cap_is = v_room_cap_is

@@ -128,7 +128,7 @@ def append_headers(spaces2: PreCalcParameters) -> List[List]:
 
     for i in range(spaces2.number_of_spaces):
 
-        name = spaces2.space_names[i]
+        name = spaces2.space_name_is[i]
 
         n = spaces2.number_of_bdry_is[i]
 
