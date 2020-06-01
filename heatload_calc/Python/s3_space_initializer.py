@@ -183,6 +183,22 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
         ) for i, ib in enumerate(ibs)
     ])
 
+    # TODO: この係数は本来であれば入力ファイルに書かれないといけない。
+    # 裏面がどの境界の表面に属するのかを表す
+    k_ei_id_js_js = [
+        None, None, None, None, None, None, 6, None, 30, 17,
+        22, None, None, None, None, None, 31, 9, None, None,
+        None, 21, 10, None, None, None, None, None, 28, None,
+        8, 16
+    ]
+    #　ある境界表面が境界の裏面に与える影響
+    k_ei_coef_js_js = [
+        None, None, None, None, None, None, 0.3, None, 1.0, 1.0,
+        1.0, None, None, None, None, None, 1.0, 1.0, None, None,
+        None, 0.3, 1.0, None, None, None, None, None, 0.3, None,
+        1.0, 1.0
+    ]
+
     idx_bdry_is = np.insert(np.cumsum(number_of_bdry_is), 0, 0)
 
     split_indices = np.cumsum(number_of_bdry_is)[0:-1]
@@ -311,7 +327,9 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
             'flr': flr_jstrs[i],
             'is_solar_absorbed': str(is_solar_absorbed_inside_is_jstrs[i]),
             'f_mrt_hum': f_mrt_hum_is[i],
-            'k_outside': h_def_js[i]
+            'k_outside': h_def_js[i],
+            'k_inside_id': k_ei_id_js_js[i],
+            'k_inside_coef': k_ei_coef_js_js[i]
         })
 
     wd = {
@@ -361,7 +379,6 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
     with open('mid_data_theta_o_sol.csv', 'w') as f:
         w = csv.writer(f, lineterminator='\n')
         w.writerows(theta_o_sol_js_ns.T.tolist())
-
 
     # region Spacesへの引き渡し
     spaces2 = make_pre_calc_parameters(
@@ -487,7 +504,13 @@ def make_pre_calc_parameters(
     f_mrt_hum_is = np.array([b['f_mrt_hum'] for b in bs])
 
     # 境界の裏面温度に屋外側等価温度が与える影響, [j]
-    h_def_js = np.array([b['k_outside'] for b in bs])
+    k_eo_js = np.array([b['k_outside'] for b in bs])
+
+    # 境界jの裏面に相当する境界のID
+    k_ei_id_js = [b['k_inside_id'] for b in bs]
+
+    # 境界jの裏面に相当する境界が与える影響
+    k_ei_coef_js = [b['k_inside_coef'] for b in bs]
 
     # endregion
 
@@ -537,6 +560,9 @@ def make_pre_calc_parameters(
     # Spaceの数
     number_of_spaces = len(ss)
 
+    # 境界の数
+    number_of_bdries = len(bs)
+
     # 室iの空気の熱容量, J/K
     c_room_is = v_room_cap_is * a39.get_rho_air() * a39.get_c_air()
 
@@ -565,8 +591,19 @@ def make_pre_calc_parameters(
     # 室iの在室者に対する境界j*の形態係数, [i, j]
     f_mrt_hum_jstrs = p * f_mrt_hum_is[np.newaxis, :]
 
+    # 境界jの裏面温度に他の境界の等価温度が与える影響, [j, j]
+    k_ei_js_js = []
+    for k_ei_id_j, k_ei_coef_j in zip(k_ei_id_js, k_ei_coef_js):
+        k_ei_js = [0.0] * number_of_bdries
+        if k_ei_id_j is None:
+            pass
+        else:
+            k_ei_js[k_ei_id_j] = k_ei_coef_j
+        k_ei_js_js.append(k_ei_js)
+    k_ei_js_js = np.array(k_ei_js_js)
+
     # ステップnの境界jにおける外気側等価温度の外乱成分, ℃
-    theta_dstrb_is_jstrs_ns = theta_o_sol_js_ns * h_def_js[:, np.newaxis]
+    theta_dstrb_is_jstrs_ns = theta_o_sol_js_ns * k_eo_js[:, np.newaxis]
 
     # AX, [j, j]
     ax_js_js = np.diag(1.0 + phi_a0_js * h_i_js) - np.dot(p.T * (phi_a0_js * h_r_js).reshape(-1,1), f_mrt_is_js)
