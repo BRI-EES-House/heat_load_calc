@@ -641,7 +641,7 @@ def make_pre_calc_parameters(
     # BRL, [i]
     brl_is = np.dot(p, (h_c_js * a_srf_js * wsb_js).reshape(-1, 1)).flatten() + beta_is
 
-    # BRM(通風なし), W/K, [i]
+    # BRM(通風なし), W/K, [i, n]
     brm_noncv_is = (
             c_room_is/900
             + np.dot(p, (a_srf_js * h_c_js * (1.0 - wsr_js)).reshape(-1, 1)).flatten()
