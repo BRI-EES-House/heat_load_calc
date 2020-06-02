@@ -496,6 +496,8 @@ def make_pre_calc_parameters(
 
     # 境界jの室に設置された放射暖房の放熱量のうち放射成分に対する境界jの室内側吸収比率
     flr_js = np.array([b['flr'] for b in bs])
+    # 室iに設置された放射暖房の放熱量のうち放射成分に対する境界jの室内側吸収比率, [j, i]
+    flr_js_is = p.T * flr_js[:, np.newaxis]
 
     # 境界jの日射吸収の有無
     is_solar_abs_js = np.array([{'True': True, 'False': False}[b['is_solar_absorbed']] for b in bs])
@@ -623,7 +625,7 @@ def make_pre_calc_parameters(
         + phi_t0_js[:, np.newaxis] * theta_dstrb_js_ns
 
     # FLB, K/W, [j]
-    flb_js = phi_a0_js * flr_js * (1.0 - np.dot(p.T, beta_is.reshape(-1, 1)).flatten()) / a_srf_js
+    flb_js = phi_a0_js * np.dot(flr_js_is, (1.0 - beta_is).reshape(-1, 1)).flatten() / a_srf_js
 
     # WSR, [j]
     wsr_js = np.sum(np.dot(ivs_x_js_js, fia_js_is), axis=1)
@@ -681,7 +683,7 @@ def make_pre_calc_parameters(
         is_radiative_cooling_is=is_radiative_cooling_is,
         Lrcap_is=Lrcap_is,
         radiative_cooling_max_capacity_is=radiative_cooling_max_capacity_is,
-        flr_jstrs=flr_js,
+        flr_js_is=flr_js_is,
         h_r_bnd_jstrs=h_r_js,
         h_c_bnd_jstrs=h_c_js,
         f_mrt_jstrs=f_mrt_is_js,

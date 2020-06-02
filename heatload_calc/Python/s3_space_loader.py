@@ -46,7 +46,7 @@ class PreCalcParameters:
             is_radiative_cooling_is,
             Lrcap_is,
             radiative_cooling_max_capacity_is,
-            flr_jstrs,
+            flr_js_is,
             h_r_bnd_jstrs,
             h_c_bnd_jstrs,
             f_mrt_jstrs,
@@ -213,7 +213,7 @@ class PreCalcParameters:
         self.wsb_jstrs = WSB_is_k
 
         # 床暖房の発熱部位？
-        self.flr_is_k = flr_jstrs
+        self.flr_js_is = flr_js_is
 
         self.wsc_js_ns = wsc_js_ns
 

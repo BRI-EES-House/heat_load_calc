@@ -246,7 +246,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
         a_bnd_jstrs=ss.a_bdry_jstrs,
         h_r_bnd_jstrs=ss.h_r_bnd_jstrs,
         q_sol_srf_jstrs_n=ss.q_sol_srf_jstrs_ns[:, n],
-        flr_is_k=ss.flr_is_k,
+        flr_is_k=np.sum(ss.flr_js_is, axis=1),
         theta_r_is_npls=theta_r_is_n_pls,
         lrs_is_n=lrs_is_n,
         beta_is=ss.beta_is,
