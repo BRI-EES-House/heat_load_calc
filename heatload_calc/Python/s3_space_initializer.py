@@ -606,7 +606,9 @@ def make_pre_calc_parameters(
     theta_dstrb_js_ns = theta_o_sol_js_ns * k_eo_js[:, np.newaxis]
 
     # AX, [j, j]
-    ax_js_js = np.diag(1.0 + phi_a0_js * h_i_js) - np.dot(p.T * (phi_a0_js * h_r_js).reshape(-1,1), f_mrt_is_js)
+    ax_js_js = np.diag(1.0 + phi_a0_js * h_i_js)\
+        - np.dot(p.T, f_mrt_is_js) * h_r_js[:, np.newaxis] * phi_a0_js[:, np.newaxis]\
+        - np.dot(k_ei_js_js, np.dot(p.T, f_mrt_is_js)) * (h_r_js / h_i_js * phi_t0_js)[:, np.newaxis]
 
     # AX^-1, [j, j]
     ivs_x_js_js = np.linalg.inv(ax_js_js)
