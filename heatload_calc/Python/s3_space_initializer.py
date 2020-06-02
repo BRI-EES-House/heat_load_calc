@@ -625,7 +625,8 @@ def make_pre_calc_parameters(
         + phi_t0_js[:, np.newaxis] * theta_dstrb_js_ns
 
     # FLB, K/W, [j, i]
-    flb_js_is = flr_js_is * (1.0 - beta_is)[np.newaxis, :] * (phi_a0_js / a_srf_js)[:, np.newaxis]
+    flb_js_is = flr_js_is * (1.0 - beta_is)[np.newaxis, :] * (phi_a0_js / a_srf_js)[:, np.newaxis]\
+        + np.dot(k_ei_js_js, flr_js_is) * (1.0 - beta_is)[np.newaxis, :] * (phi_t0_js / h_i_js / a_srf_js)[:, np.newaxis]
 
     # WSR, [j]
     wsr_js = np.sum(np.dot(ivs_x_js_js, fia_js_is), axis=1)
