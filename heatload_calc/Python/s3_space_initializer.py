@@ -614,7 +614,7 @@ def make_pre_calc_parameters(
     ivs_x_js_js = np.linalg.inv(ax_js_js)
 
     # FIA, [j, i]
-    fia_js = (phi_a0_js * h_c_js)[:, np.newaxis] * p.T\
+    fia_js_is = (phi_a0_js * h_c_js)[:, np.newaxis] * p.T\
         + np.dot(k_ei_js_js, p.T) * (phi_t0_js * h_c_js / h_i_js)[:, np.newaxis]
 
     # CRX, W, [j, 8760*4]
@@ -626,7 +626,7 @@ def make_pre_calc_parameters(
     flb_js = phi_a0_js * flr_js * (1.0 - np.dot(p.T, beta_is.reshape(-1, 1)).flatten()) / a_srf_js
 
     # WSR, [j]
-    wsr_js = np.sum(np.dot(ivs_x_js_js, fia_js), axis=1)
+    wsr_js = np.sum(np.dot(ivs_x_js_js, fia_js_is), axis=1)
 
     # WSC, W, [j, 8760*4]
     wsc_js_ns = np.dot(ivs_x_js_js, crx_js_ns)
