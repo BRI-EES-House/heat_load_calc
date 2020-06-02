@@ -602,8 +602,8 @@ def make_pre_calc_parameters(
         k_ei_js_js.append(k_ei_js)
     k_ei_js_js = np.array(k_ei_js_js)
 
-    # ステップnの境界jにおける外気側等価温度の外乱成分, ℃
-    theta_dstrb_is_jstrs_ns = theta_o_sol_js_ns * k_eo_js[:, np.newaxis]
+    # ステップnの境界jにおける外気側等価温度の外乱成分, ℃, [j, n]
+    theta_dstrb_js_ns = theta_o_sol_js_ns * k_eo_js[:, np.newaxis]
 
     # AX, [j, j]
     ax_js_js = np.diag(1.0 + phi_a0_js * h_i_js) - np.dot(p.T * (phi_a0_js * h_r_js).reshape(-1,1), f_mrt_is_js)
@@ -615,7 +615,7 @@ def make_pre_calc_parameters(
     fia_js = phi_a0_js * h_c_js
 
     # CRX, W, [j, 8760*4]
-    crx_js_ns = phi_t0_js[:, np.newaxis] * theta_dstrb_is_jstrs_ns + q_sol_js_ns * phi_a0_js[:, np.newaxis]
+    crx_js_ns = phi_t0_js[:, np.newaxis] * theta_dstrb_js_ns + q_sol_js_ns * phi_a0_js[:, np.newaxis]
 
     # FLB, K/W, [j]
     flb_js = phi_a0_js * flr_js * (1.0 - np.dot(p.T, beta_is.reshape(-1, 1)).flatten()) / a_srf_js
@@ -662,7 +662,7 @@ def make_pre_calc_parameters(
         k_ei_is=k_ei_is,
         number_of_bdry_is=number_of_bdry_is,
         f_mrt_hum_jstrs=f_mrt_hum_jstrs,
-        theta_dstrb_is_jstrs_ns=theta_dstrb_is_jstrs_ns,
+        theta_dstrb_is_jstrs_ns=theta_dstrb_js_ns,
         r_bdry_jstrs_ms=r_js_ms,
         phi_t0_bdry_jstrs=phi_t0_js,
         phi_a0_bdry_jstrs=phi_a0_js,
