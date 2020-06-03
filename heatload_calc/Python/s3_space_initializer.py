@@ -628,8 +628,8 @@ def make_pre_calc_parameters(
     flb_js_is = flr_js_is * (1.0 - beta_is)[np.newaxis, :] * (phi_a0_js / a_srf_js)[:, np.newaxis]\
         + np.dot(k_ei_js_js, flr_js_is) * (1.0 - beta_is)[np.newaxis, :] * (phi_t0_js / h_i_js / a_srf_js)[:, np.newaxis]
 
-    # WSR, [j]
-    wsr_js = np.sum(np.dot(ivs_x_js_js, fia_js_is), axis=1)
+    # WSR, [j, i]
+    wsr_js_is = np.dot(ivs_x_js_js, fia_js_is)
 
     # WSC, W, [j, 8760*4]
     wsc_js_ns = np.dot(ivs_x_js_js, crx_js_ns)
@@ -644,7 +644,7 @@ def make_pre_calc_parameters(
     # BRM(通風なし), W/K, [i, n]
     brm_noncv_is = (
             c_room_is/900
-            + np.dot(p, (a_srf_js * h_c_js * (1.0 - wsr_js)).reshape(-1, 1)).flatten()
+            + np.sum(np.dot(p, (p.T - wsr_js_is) * (a_srf_js * h_c_js)[:, np.newaxis]), axis=1)
             + v_int_vent_is.sum(axis=1) * a18.get_c_air() * a18.get_rho_air()
             + c_cap_frnt_is * c_frnt_is / (c_cap_frnt_is + c_frnt_is * 900)
     )[:, np.newaxis] + v_mec_vent_is_ns * a18.get_c_air() * a18.get_rho_air()
@@ -692,7 +692,7 @@ def make_pre_calc_parameters(
         q_sol_floor_jstrs_ns=q_sol_js_ns,
         q_sol_frnt_is_ns=q_sol_frnt_is_ns,
         Beta_is=beta_is,
-        WSR_is_k=wsr_js,
+        wsr_js_is=wsr_js_is,
         WSB_is_k=wsb_js,
         BRMnoncv_is=brm_noncv_is,
         ivs_x_is=ivs_x_js_js,

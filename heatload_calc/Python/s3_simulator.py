@@ -192,7 +192,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
         brm_is_n=brm_is_n,
         brc_i_n=brc_i_n,
         brl_is_n=ss.brl_is,
-        wsr_jstrs=ss.wsr_jstrs,
+        wsr_jstrs=np.sum(ss.wsr_js_is, axis=1),
         wsb_jstrs=ss.wsb_jstrs,
         wsc_is_jstrs_npls=wsc_is_jstrs_npls,
         wsv_is_jstrs_npls=wsv_is_jstrs_npls,
@@ -218,7 +218,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
 
     # ステップnにおける境界j*の表面温度, degree C, [j*]
     theta_s_jstrs_n = a1.get_surface_temperature(
-        wsr_jstrs=ss.wsr_jstrs,
+        wsr_jstrs=np.sum(ss.wsr_js_is, axis=1),
         wsb_jstrs=ss.wsb_jstrs,
         wsc_is_jstrs_npls=wsc_is_jstrs_npls,
         wsv_is_jstrs_npls=wsv_is_jstrs_npls,
