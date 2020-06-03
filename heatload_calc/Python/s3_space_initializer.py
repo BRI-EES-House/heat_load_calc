@@ -609,7 +609,7 @@ def make_pre_calc_parameters(
 
     # AX, [j, j]
     ax_js_js = np.diag(1.0 + phi_a0_js * h_i_js)\
-        - np.dot(p.T, f_mrt_is_js) * h_r_js[:, np.newaxis] * phi_a0_js[:, np.newaxis]\
+        - np.dot(p.T, f_mrt_is_js) * (h_r_js * phi_a0_js)[:, np.newaxis]\
         - np.dot(k_ei_js_js, np.dot(p.T, f_mrt_is_js)) * (h_r_js / h_i_js * phi_t0_js)[:, np.newaxis]
 
     # AX^-1, [j, j]
