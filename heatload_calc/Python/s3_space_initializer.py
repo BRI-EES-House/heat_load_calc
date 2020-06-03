@@ -577,7 +577,7 @@ def make_pre_calc_parameters(
     # 境界jの室内側表面対流熱伝達率, W/m2K, [j]
     h_c_js = np.clip(h_i_js - h_r_js, 0, None)
 
-    # ステップnの室iにおける機械換気量（全般換気量+局所換気量）, m3/s
+    # ステップnの室iにおける機械換気量（全般換気量+局所換気量）, m3/s, [i, n]
     v_mec_vent_is_ns = v_vent_ex_is[:, np.newaxis] + v_mec_vent_local_is_ns
 
     # ステップnの室iにおける家具の吸収日射量, W, [i, 8760*4]
