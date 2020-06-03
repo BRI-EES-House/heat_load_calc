@@ -637,8 +637,8 @@ def make_pre_calc_parameters(
     # WSB, K/W, [j, i]
     wsb_js_is = np.dot(ivs_x_js_js, flb_js_is)
 
-    # BRL, [i]
-    brl_is = np.sum(np.dot(p, wsb_js_is * (h_c_js * a_srf_js)[:, np.newaxis]), axis=1) + beta_is
+    # BRL, [i, i]
+    brl_is_is = np.dot(p, wsb_js_is * (h_c_js * a_srf_js)[:, np.newaxis]) + np.diag(beta_is)
 
     # BRM(通風なし), W/K, [i, n]
     brm_noncv_is = (
@@ -695,7 +695,7 @@ def make_pre_calc_parameters(
         wsb_js_is=wsb_js_is,
         BRMnoncv_is=brm_noncv_is,
         ivs_x_is=ivs_x_js_js,
-        brl_is=brl_is,
+        brl_is_is=brl_is_is,
         p=p,
         get_vac_xeout_is=get_vac_xeout_is,
         is_ground_js=is_ground_js,
