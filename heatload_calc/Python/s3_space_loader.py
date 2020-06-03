@@ -54,7 +54,7 @@ class PreCalcParameters:
             q_sol_frnt_is_ns,
             Beta_is,
             wsr_js_is,
-            WSB_is_k,
+            wsb_js_is,
             BRMnoncv_is,
             ivs_x_is,
             brl_is,
@@ -210,7 +210,8 @@ class PreCalcParameters:
 
         # WSR, WSB の計算 式(24)
         self.wsr_js_is = wsr_js_is
-        self.wsb_jstrs = WSB_is_k
+        self.wsb_jstrs = np.sum(wsb_js_is, axis=1)
+        self.wsb_js_is = wsb_js_is
 
         # 床暖房の発熱部位？
         self.flr_js_is = flr_js_is

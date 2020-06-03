@@ -634,12 +634,11 @@ def make_pre_calc_parameters(
     # WSC, W, [j, 8760*4]
     wsc_js_ns = np.dot(ivs_x_js_js, crx_js_ns)
 
-    # WSB, K/W, [j]
-    wsb_js2 = np.dot(ivs_x_js_js, flb_js_is)
-    wsb_js = np.sum(wsb_js2, axis=1)
+    # WSB, K/W, [j, i]
+    wsb_js_is = np.dot(ivs_x_js_js, flb_js_is)
 
     # BRL, [i]
-    brl_is = np.dot(p, (h_c_js * a_srf_js * wsb_js).reshape(-1, 1)).flatten() + beta_is
+    brl_is = np.sum(np.dot(p, wsb_js_is * (h_c_js * a_srf_js)[:, np.newaxis]), axis=1) + beta_is
 
     # BRM(通風なし), W/K, [i, n]
     brm_noncv_is = (
@@ -693,7 +692,7 @@ def make_pre_calc_parameters(
         q_sol_frnt_is_ns=q_sol_frnt_is_ns,
         Beta_is=beta_is,
         wsr_js_is=wsr_js_is,
-        WSB_is_k=wsb_js,
+        wsb_js_is=wsb_js_is,
         BRMnoncv_is=brm_noncv_is,
         ivs_x_is=ivs_x_js_js,
         brl_is=brl_is,
