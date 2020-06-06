@@ -55,7 +55,8 @@ def run_tick_groundonly(To_n: float, Tave: float, c_n: Conditions, ss: PreCalcPa
 #        h_hum_r_is_n=c_n.h_hum_r_is_n,
         theta_frnt_is_n=c_n.theta_frnt_is_n,
         x_frnt_is_n=c_n.x_frnt_is_n,
-        theta_cl_is_n=c_n.theta_cl_is_n
+        theta_cl_is_n=c_n.theta_cl_is_n,
+        theta_ei_js_n=c_n.theta_ei_js_n
     )
 
 
@@ -389,7 +390,8 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
         q_srf_jstrs_n=q_srf_is_jstrs_n,
         theta_frnt_is_n=theta_frnt_is_n,
         x_frnt_is_n=xf_i_n,
-        theta_cl_is_n=theta_cl_is_n_pls
+        theta_cl_is_n=theta_cl_is_n_pls,
+        theta_ei_js_n=theta_ei_jstrs_n
     )
 
 

@@ -268,7 +268,9 @@ Conditions = namedtuple('Conditions', [
     # ステップnにおける室iの在室者の着衣温度, degree C, [i]
     # 本来であれば着衣温度と人体周りの対流・放射熱伝達率を未知数とした熱収支式を収束計算等を用いて時々刻々求めるのが望ましい。
     # 今回、収束計算を回避するために前時刻の着衣温度を用いることにした。
-    'theta_cl_is_n'
+    'theta_cl_is_n',
+
+    'theta_ei_js_n'
 
 ])
 
@@ -333,6 +335,7 @@ def initialize_conditions(ss: PreCalcParameters):
 #        h_hum_r_is_n=h_hum_r_is_n,
         theta_frnt_is_n=theta_frnt_is_n,
         x_frnt_is_n=x_frnt_is_n,
-        theta_cl_is_n=theta_cl_is_n
+        theta_cl_is_n=theta_cl_is_n,
+        theta_ei_js_n=np.full(total_number_of_bdry, 15.0)
     )
 
