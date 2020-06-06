@@ -289,6 +289,7 @@ class Conditions:
         # 今回、収束計算を回避するために前時刻の着衣温度を用いることにした。
         self.theta_cl_is_n = theta_cl_is_n
 
+        # [i, 1]
         self.theta_ei_js_n = theta_ei_js_n
 
 
@@ -353,6 +354,6 @@ def initialize_conditions(ss: PreCalcParameters):
         theta_frnt_is_n=theta_frnt_is_n,
         x_frnt_is_n=x_frnt_is_n,
         theta_cl_is_n=theta_cl_is_n,
-        theta_ei_js_n=np.full(total_number_of_bdry, 15.0)
+        theta_ei_js_n=np.full(total_number_of_bdry, 15.0).reshape(-1, 1)
     )
 
