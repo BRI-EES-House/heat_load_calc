@@ -501,8 +501,16 @@ def make_pre_calc_parameters(
     # 室iに設置された放射暖房の放熱量のうち放射成分に対する境界jの室内側吸収比率, [j, i]
     flr_js_is = p.T * flr_js[:, np.newaxis]
 
-    # 境界jの日射吸収の有無
-    is_solar_abs_js = np.array([{'True': True, 'False': False}[b['is_solar_absorbed']] for b in bs])
+    # 境界jの日射吸収の有無, [j, 1]
+    is_solar_abs_js = np.array(
+        [
+            {
+                'True': True,
+                'False': False
+            }[b['is_solar_absorbed']]
+            for b in bs
+        ]
+    ).reshape(-1, 1)
 
     # 境界jの室に設置された放射暖房の放熱量のうち放射成分に対する境界jの室内側吸収比率
     f_mrt_hum_is = np.array([b['f_mrt_hum'] for b in bs])
@@ -585,12 +593,12 @@ def make_pre_calc_parameters(
     # ステップnの室iにおける家具の吸収日射量, W, [i, n]
     q_sol_frnt_is_ns = q_trs_sol_is_ns * a12.get_r_sol_frnt()
 
-    # 室iにおける日射が吸収される境界の面積の合計, m2, [i]
-    a_srf_abs_is = np.dot(p, (a_srf_js * is_solar_abs_js).reshape(-1, 1)).flatten()
+    # 室iにおける日射が吸収される境界の面積の合計, m2, [i, 1]
+    a_srf_abs_is = np.dot(p, (a_srf_js).reshape(-1, 1) * is_solar_abs_js)
 
     # ステップnの境界jにおける透過日射吸収熱量, W/m2, [j, n]
-    q_sol_js_ns = np.dot(p.T, q_trs_sol_is_ns / a_srf_abs_is[:, np.newaxis])\
-        * is_solar_abs_js[:, np.newaxis] * (1.0 - a12.get_r_sol_frnt())
+    q_sol_js_ns = np.dot(p.T, q_trs_sol_is_ns / a_srf_abs_is)\
+        * is_solar_abs_js * (1.0 - a12.get_r_sol_frnt())
 
     # 室iの在室者に対する境界j*の形態係数, [i, j]
     f_mrt_hum_is_js = p * f_mrt_hum_is[np.newaxis, :]
