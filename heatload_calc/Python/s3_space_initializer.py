@@ -589,6 +589,9 @@ def make_pre_calc_parameters(
     # 室iに設置された放射暖房の放熱量のうち放射成分に対する境界jの室内側吸収比率, [j, i]
     flr_js_is = k_js_is * flr_js[:, np.newaxis]
 
+    # 室iの在室者に対する境界j*の形態係数, [i, j]
+    f_mrt_hum_is_js = k_is_js * f_mrt_hum_is[np.newaxis, :]
+
     # 室iの空気の熱容量, J/K, [i]
     c_room_is = v_room_cap_is * a39.get_rho_air() * a39.get_c_air()
 
@@ -613,9 +616,6 @@ def make_pre_calc_parameters(
     # ステップnの境界jにおける透過日射吸収熱量, W/m2, [j, n]
     q_sol_js_ns = np.dot(k_js_is, q_trs_sol_is_ns / a_srf_abs_is)\
         * is_solar_abs_js * (1.0 - a12.get_r_sol_frnt())
-
-    # 室iの在室者に対する境界j*の形態係数, [i, j]
-    f_mrt_hum_is_js = k_is_js * f_mrt_hum_is[np.newaxis, :]
 
     # 境界jの裏面温度に他の境界の等価温度が与える影響, [j, j]
     k_ei_js_js = []
