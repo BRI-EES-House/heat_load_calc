@@ -593,7 +593,7 @@ def make_pre_calc_parameters(
     c_room_is = v_room_cap_is * a39.get_rho_air() * a39.get_c_air()
 
     # 境界jの室内側表面放射熱伝達率, W/m2K, [j]
-    h_r_js = a12.get_hr_i_k_n(a_srf_js=a_srf_js, space_idx_bdry_jstrs=connected_space_id_js, number_of_spaces=number_of_spaces)
+    h_r_js = a12.get_h_r_js(a_srf_js=a_srf_js, k_js_is=k_js_is)
 
     # 平均放射温度計算時の各部位表面温度の重み, [i, j]
     f_mrt_is_js =a12.get_f_mrt_is_js(a_srf_js=a_srf_js, h_r_bnd_jstrs=h_r_js, p=k_is_js)

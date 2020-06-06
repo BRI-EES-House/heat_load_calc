@@ -180,7 +180,7 @@ def get_flr(A_i_g, A_fs_i, is_radiative_heating, is_solar_absorbed_inside):
 
 
 # 放射熱伝達率 式(123)
-def get_hr_i_k_n(a_srf_js, space_idx_bdry_jstrs, number_of_spaces):
+def get_h_r_js(a_srf_js, k_js_is):
     """
     :param eps_m: 放射率 [-]
     :param FF_m: 形態係数 [-]
@@ -191,8 +191,8 @@ def get_hr_i_k_n(a_srf_js, space_idx_bdry_jstrs, number_of_spaces):
     # 微小点に対する境界jの形態係数
     # 永田先生の方法
     FF_m = np.concatenate([
-        calc_form_factor_of_microbodies(area_i_jstrs=a_srf_js.flatten()[space_idx_bdry_jstrs == i])
-        for i in range(number_of_spaces)])
+        calc_form_factor_of_microbodies(area_i_jstrs=(a_srf_js * k_js_is)[:, i][k_js_is[:, i] == 1])
+        for i in range(k_js_is.shape[1])])
 
     eps_m = a18.get_eps()
 
