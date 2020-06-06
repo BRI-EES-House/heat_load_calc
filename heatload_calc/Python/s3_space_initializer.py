@@ -511,8 +511,8 @@ def make_pre_calc_parameters(
     # 境界jの室に設置された放射暖房の放熱量のうち放射成分に対する境界jの室内側吸収比率
     f_mrt_hum_is = np.array([b['f_mrt_hum'] for b in bs])
 
-    # 境界の裏面温度に屋外側等価温度が与える影響, [j]
-    k_eo_js = np.array([b['k_outside'] for b in bs])
+    # 境界の裏面温度に屋外側等価温度が与える影響, [j, 1]
+    k_eo_js = np.array([b['k_outside'] for b in bs]).reshape(-1, 1)
 
     # 境界jの裏面に相当する境界のID
     k_ei_id_js = [b['k_inside_id'] for b in bs]
@@ -634,7 +634,7 @@ def make_pre_calc_parameters(
         * is_solar_abs_js * (1.0 - a12.get_r_sol_frnt())
 
     # ステップnの境界jにおける外気側等価温度の外乱成分, ℃, [j, n]
-    theta_dstrb_js_ns = theta_o_sol_js_ns * k_eo_js[:, np.newaxis]
+    theta_dstrb_js_ns = theta_o_sol_js_ns * k_eo_js
 
     # AX, [j, j]
     ax_js_js = np.diag(1.0 + phi_a0_js.flatten() * h_i_js.flatten())\
