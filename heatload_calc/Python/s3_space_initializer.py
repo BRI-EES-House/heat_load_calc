@@ -403,7 +403,7 @@ def make_pre_calc_parameters(
     get_vac_xeout_def_is,
     is_radiative_heating_is,
     is_radiative_cooling_is,
-    Lrcap_is,
+    lrcap_is,
     radiative_cooling_max_capacity_is,
     p,
     get_vac_xeout_is
@@ -593,7 +593,7 @@ def make_pre_calc_parameters(
         * is_solar_abs_js[:, np.newaxis] * (1.0 - a12.get_r_sol_frnt())
 
     # 室iの在室者に対する境界j*の形態係数, [i, j]
-    f_mrt_hum_jstrs = p * f_mrt_hum_is[np.newaxis, :]
+    f_mrt_hum_is_js = p * f_mrt_hum_is[np.newaxis, :]
 
     # 境界jの裏面温度に他の境界の等価温度が与える影響, [j, j]
     k_ei_js_js = []
@@ -615,7 +615,7 @@ def make_pre_calc_parameters(
         - np.dot(k_ei_js_js, np.dot(p.T, f_mrt_is_js)) * (h_r_js / h_i_js * phi_t0_js)[:, np.newaxis]
 
     # AX^-1, [j, j]
-    ivs_x_js_js = np.linalg.inv(ax_js_js)
+    ivs_ax_js_js = np.linalg.inv(ax_js_js)
 
     # FIA, [j, i]
     fia_js_is = (phi_a0_js * h_c_js)[:, np.newaxis] * p.T\
@@ -631,13 +631,13 @@ def make_pre_calc_parameters(
         + np.dot(k_ei_js_js, flr_js_is) * (1.0 - beta_is)[np.newaxis, :] * (phi_t0_js / h_i_js / a_srf_js)[:, np.newaxis]
 
     # WSR, [j, i]
-    wsr_js_is = np.dot(ivs_x_js_js, fia_js_is)
+    wsr_js_is = np.dot(ivs_ax_js_js, fia_js_is)
 
     # WSC, W, [j, n]
-    wsc_js_ns = np.dot(ivs_x_js_js, crx_js_ns)
+    wsc_js_ns = np.dot(ivs_ax_js_js, crx_js_ns)
 
     # WSB, K/W, [j, i]
-    wsb_js_is = np.dot(ivs_x_js_js, flb_js_is)
+    wsb_js_is = np.dot(ivs_ax_js_js, flb_js_is)
 
     # BRL, [i, i]
     brl_is_is = np.dot(p, wsb_js_is * (h_c_js * a_srf_js)[:, np.newaxis]) + np.diag(beta_is)
@@ -662,41 +662,41 @@ def make_pre_calc_parameters(
         c_cap_frnt_is=c_cap_frnt_is,
         c_frnt_is=c_frnt_is,
         v_int_vent_is=v_int_vent_is_is,
-        name_bdry_jstrs=name_bdry_js,
-        sub_name_bdry_jstrs=sub_name_bdry_js,
-        a_bdry_jstrs=a_srf_js,
+        name_bdry_js=name_bdry_js,
+        sub_name_bdry_js=sub_name_bdry_js,
+        a_srf_js=a_srf_js,
         v_mec_vent_is_ns=v_mec_vent_is_ns,
         q_gen_is_ns=q_gen_is_ns,
         n_hum_is_ns=n_hum_is_ns,
         x_gen_is_ns=x_gen_is_ns,
         k_ei_is=k_ei_is,
         number_of_bdry_is=number_of_bdry_is,
-        f_mrt_hum_jstrs=f_mrt_hum_jstrs,
-        theta_dstrb_is_jstrs_ns=theta_dstrb_js_ns,
-        r_bdry_jstrs_ms=r_js_ms,
-        phi_t0_bdry_jstrs=phi_t0_js,
-        phi_a0_bdry_jstrs=phi_a0_js,
-        phi_t1_bdry_jstrs_ms=phi_t1_js_ms,
-        phi_a1_bdry_jstrs_ms=phi_a1_js_ms,
+        f_mrt_hum_is_js=f_mrt_hum_is_js,
+        theta_dstrb_js_ns=theta_dstrb_js_ns,
+        r_js_ms=r_js_ms,
+        phi_t0_js=phi_t0_js,
+        phi_a0_js=phi_a0_js,
+        phi_t1_js_ms=phi_t1_js_ms,
+        phi_a1_js_ms=phi_a1_js_ms,
         q_trs_sol_is_ns=q_trs_sol_is_ns,
         v_ntrl_vent_is=v_ntrl_vent_is,
         ac_demand_is_ns=ac_demand_is_ns,
         get_vac_xeout_def_is=get_vac_xeout_def_is,
         is_radiative_heating_is=is_radiative_heating_is,
         is_radiative_cooling_is=is_radiative_cooling_is,
-        Lrcap_is=Lrcap_is,
+        lrcap_is=lrcap_is,
         radiative_cooling_max_capacity_is=radiative_cooling_max_capacity_is,
         flr_js_is=flr_js_is,
-        h_r_bnd_jstrs=h_r_js,
-        h_c_bnd_jstrs=h_c_js,
-        f_mrt_jstrs=f_mrt_is_js,
-        q_sol_floor_jstrs_ns=q_sol_js_ns,
+        h_r_js=h_r_js,
+        h_c_js=h_c_js,
+        f_mrt_is_js=f_mrt_is_js,
+        q_sol_js_ns=q_sol_js_ns,
         q_sol_frnt_is_ns=q_sol_frnt_is_ns,
-        Beta_is=beta_is,
+        beta_is=beta_is,
         wsr_js_is=wsr_js_is,
         wsb_js_is=wsb_js_is,
-        BRMnoncv_is=brm_noncv_is,
-        ivs_x_is=ivs_x_js_js,
+        brm_noncv_is=brm_noncv_is,
+        ivs_ax_js_js=ivs_ax_js_js,
         brl_is_is=brl_is_is,
         p=p,
         get_vac_xeout_is=get_vac_xeout_is,

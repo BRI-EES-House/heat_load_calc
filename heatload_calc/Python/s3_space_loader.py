@@ -22,41 +22,41 @@ class PreCalcParameters:
             c_cap_frnt_is,
             c_frnt_is,
             v_int_vent_is,
-            name_bdry_jstrs,
-            sub_name_bdry_jstrs,
-            a_bdry_jstrs,
+            name_bdry_js,
+            sub_name_bdry_js,
+            a_srf_js,
             v_mec_vent_is_ns,
             q_gen_is_ns,
             n_hum_is_ns,
             x_gen_is_ns,
             k_ei_is,
             number_of_bdry_is,
-            f_mrt_hum_jstrs,
-            theta_dstrb_is_jstrs_ns,
-            r_bdry_jstrs_ms,
-            phi_t0_bdry_jstrs,
-            phi_a0_bdry_jstrs,
-            phi_t1_bdry_jstrs_ms,
-            phi_a1_bdry_jstrs_ms,
+            f_mrt_hum_is_js,
+            theta_dstrb_js_ns,
+            r_js_ms,
+            phi_t0_js,
+            phi_a0_js,
+            phi_t1_js_ms,
+            phi_a1_js_ms,
             q_trs_sol_is_ns,
             v_ntrl_vent_is,
             ac_demand_is_ns,
             get_vac_xeout_def_is,
             is_radiative_heating_is,
             is_radiative_cooling_is,
-            Lrcap_is,
+            lrcap_is,
             radiative_cooling_max_capacity_is,
             flr_js_is,
-            h_r_bnd_jstrs,
-            h_c_bnd_jstrs,
-            f_mrt_jstrs,
-            q_sol_floor_jstrs_ns,
+            h_r_js,
+            h_c_js,
+            f_mrt_is_js,
+            q_sol_js_ns,
             q_sol_frnt_is_ns,
-            Beta_is,
+            beta_is,
             wsr_js_is,
             wsb_js_is,
-            BRMnoncv_is,
-            ivs_x_is,
+            brm_noncv_is,
+            ivs_ax_js_js,
             brl_is_is,
             p,
             get_vac_xeout_is,
@@ -94,7 +94,7 @@ class PreCalcParameters:
         self.ac_demand_is_n = ac_demand_is_ns
 
         # ステップnの室iにおける在室人数, [i, 8760*4]
-        self.n_hum_is_n = n_hum_is_ns
+        self.n_hum_is_ns = n_hum_is_ns
 
         # ステップnの室iにおける人体発熱を除く内部発熱, W, [i, 8760*4]
         self.q_gen_is_ns = q_gen_is_ns
@@ -120,16 +120,16 @@ class PreCalcParameters:
         self.v_int_vent_is = v_int_vent_is
 
         # 統合された境界j*の名前, [j*]
-        self.name_bdry_jstrs = name_bdry_jstrs
+        self.name_bdry_js = name_bdry_js
 
         # 統合された境界j*の名前2, [j*]
-        self.sub_name_bdry_jstrs = sub_name_bdry_jstrs
+        self.sub_name_bdry_js = sub_name_bdry_js
 
         # 境界jが地盤かどうか, [j]
         self.is_ground_js = is_ground_js
 
         # 統合された境界j*の面積, m2, [j*]
-        self.a_bdry_jstrs = a_bdry_jstrs
+        self.a_srf_js = a_srf_js
 
         # 境界の数（リスト）, [i]
         self.number_of_bdry_is = number_of_bdry_is
@@ -146,16 +146,16 @@ class PreCalcParameters:
         self.k_ei_is = k_ei_is
 
         # ステップnの集約境界j*における外気側等価温度の外乱成分, degree C, [j*, 8760*4]
-        self.theta_dstrb_jstrs_ns = theta_dstrb_is_jstrs_ns
+        self.theta_dstrb_js_ns = theta_dstrb_js_ns
 
         # BRMの計算 式(5) ※ただし、通風なし
-        self.BRMnoncv_is = BRMnoncv_is
+        self.brm_noncv_is = brm_noncv_is
 
         # BRLの計算 式(7)
         self.brl_is_is = brl_is_is
 
         # 放射暖房最大能力, W, [i]
-        self.lrcap_is = Lrcap_is
+        self.lrcap_is = lrcap_is
 
 #        radiative_cooling_max_capacity_is
 
@@ -166,50 +166,50 @@ class PreCalcParameters:
         self.is_radiative_cooling_is = is_radiative_cooling_is
 
         # 放射暖房対流比率
-        self.beta_is = Beta_is
+        self.beta_is = beta_is
 
         self.get_vac_xeout_is = get_vac_xeout_is
 
         # === 境界j*に関すること ===
 
         # 統合された境界j*の項別公比法における項mの公比, [j*, 12]
-        self.r_bdry_jstrs_ms = r_bdry_jstrs_ms
+        self.r_js_ms = r_js_ms
 
         # 統合された境界j*の貫流応答係数の初項, [j*]
-        self.phi_t0_bdry_jstrs = phi_t0_bdry_jstrs
+        self.phi_t0_js = phi_t0_js
 
         # 統合された境界j*の吸熱応答係数の初項, m2K/W, [j*]
-        self.phi_a0_bdry_jstrs = phi_a0_bdry_jstrs
+        self.phi_a0_js = phi_a0_js
 
         # 統合された境界j*の項別公比法における項mの貫流応答係数の第一項, [j*,12]
-        self.phi_t1_bdry_jstrs_ms = phi_t1_bdry_jstrs_ms
+        self.phi_t1_js_ms = phi_t1_js_ms
 
         # 統合された境界j*の項別公比法における項mの吸熱応答係数の第一項 , m2K/W, [j*, 12]
-        self.phi_a1_bdry_jstrs_ms = phi_a1_bdry_jstrs_ms
+        self.phi_a1_js_ms = phi_a1_js_ms
 
         # ステップnの統合された境界j*における透過日射熱取得量のうち表面に吸収される日射量, W/m2, [j*, 8760*4]
-        self.q_sol_srf_jstrs_ns = q_sol_floor_jstrs_ns
+        self.q_sol_js_ns = q_sol_js_ns
 
         self.total_number_of_bdry = total_number_of_bdry
-        self.ivs_x_is = ivs_x_is
+        self.ivs_ax_js_js = ivs_ax_js_js
 
         self.p = p
 
         # 室iの在室者に対する境界j*の形態係数
-        self.fot_jstrs = f_mrt_hum_jstrs
+        self.f_mrt_hum_is_js = f_mrt_hum_is_js
 
         # 平均放射温度計算時の各部位表面温度の重み計算 式(101)
-        self.f_mrt_jstrs = f_mrt_jstrs
+        self.f_mrt_is_js = f_mrt_is_js
 
         # 統合された境界j*における室内側放射熱伝達率, W/m2K, [j*]
-        self.h_r_bnd_jstrs = h_r_bnd_jstrs
+        self.h_r_js = h_r_js
 
         # 統合された境界j*における室内側対流熱伝達率, W/m2K, [j*]
-        self.h_c_bnd_jstrs = h_c_bnd_jstrs
+        self.h_c_js = h_c_js
 
         # WSR, WSB の計算 式(24)
         self.wsr_js_is = wsr_js_is
-        self.wsb_jstrs = np.sum(wsb_js_is, axis=1)
+        self.wsb_js = np.sum(wsb_js_is, axis=1)
         self.wsb_js_is = wsb_js_is
 
         # 床暖房の発熱部位？

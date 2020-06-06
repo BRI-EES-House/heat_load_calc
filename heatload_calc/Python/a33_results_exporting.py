@@ -132,7 +132,7 @@ def append_headers(spaces2: PreCalcParameters) -> List[List]:
 
         n = spaces2.number_of_bdry_is[i]
 
-        boundary_names = np.split(spaces2.name_bdry_jstrs, spaces2.start_indices)[i]
+        boundary_names = np.split(spaces2.name_bdry_js, spaces2.start_indices)[i]
 
         headder1.append(name + "_運転状態")
         headder1.append(name + "_在室状況")

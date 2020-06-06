@@ -24,22 +24,22 @@ def run_tick_groundonly(To_n: float, Tave: float, c_n: Conditions, ss: PreCalcPa
     q_srf_jstrs_n = c_n.q_srf_jstrs_n
     gs = ss.is_ground_js
 
-    h_r_bnd_jstrs = ss.h_r_bnd_jstrs
-    h_c_bnd_jstrs = ss.h_c_bnd_jstrs
+    h_r_bnd_jstrs = ss.h_r_js
+    h_c_bnd_jstrs = ss.h_c_js
 
     h_i_bnd_jstrs = h_r_bnd_jstrs + h_c_bnd_jstrs
 
     theta_srf_dsh_a_is_jstrs_npls_ms = a1.get_theta_srf_dsh_a_i_jstrs_npls_ms(
         q_srf_jstrs_n=q_srf_jstrs_n[gs],
-        phi_a_1_bnd_jstrs_ms=ss.phi_a1_bdry_jstrs_ms[gs, :],
-        r_bnd_i_jstrs_ms=ss.r_bdry_jstrs_ms[gs, :],
+        phi_a_1_bnd_jstrs_ms=ss.phi_a1_js_ms[gs, :],
+        r_bnd_i_jstrs_ms=ss.r_js_ms[gs, :],
         theta_dsh_srf_a_jstrs_n_ms=theta_dsh_srf_a_jstrs_n_ms[gs, :])
 
     theta_dsh_srf_a_jstrs_n_ms[gs, :] = theta_srf_dsh_a_is_jstrs_npls_ms
 
-    Ts_is_k_n = (ss.phi_a0_bdry_jstrs[gs] * h_i_bnd_jstrs[gs] * To_n
+    Ts_is_k_n = (ss.phi_a0_js[gs] * h_i_bnd_jstrs[gs] * To_n
                  + np.sum(theta_srf_dsh_a_is_jstrs_npls_ms, axis=1) + Tave) \
-               / (1.0 + ss.phi_a0_bdry_jstrs[gs] * h_i_bnd_jstrs[gs])
+               / (1.0 + ss.phi_a0_js[gs] * h_i_bnd_jstrs[gs])
 
     q_srf_jstrs_n[gs] = h_i_bnd_jstrs[gs] * (To_n - Ts_is_k_n)
 
@@ -108,14 +108,14 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
     theta_rear_is_jstrs_n = a9.get_theta_rear_i_jstrs_n(
         theta_r_is_n=c_n.theta_r_is_n,
         k_ei_is=ss.k_ei_is,
-        theta_dstrb_i_jstrs_n=ss.theta_dstrb_jstrs_ns[:, n]
+        theta_dstrb_i_jstrs_n=ss.theta_dstrb_js_ns[:, n]
     )
 
     # ステップnの室iにおける人体発熱, W, [i]
-    q_hum_is_n = a3.get_q_hum_i_n(theta_r_is_n=c_n.theta_r_is_n, n_hum_i_n=ss.n_hum_is_n[:, n])
+    q_hum_is_n = a3.get_q_hum_i_n(theta_r_is_n=c_n.theta_r_is_n, n_hum_i_n=ss.n_hum_is_ns[:, n])
 
     # ステップnの室iにおける人体発湿, kg/s, [i]
-    x_hum_is_n = a3.get_x_hum_i_n(theta_r_is_n=c_n.theta_r_is_n, n_hum_i_n=ss.n_hum_is_n[:, n])
+    x_hum_is_n = a3.get_x_hum_i_n(theta_r_is_n=c_n.theta_r_is_n, n_hum_i_n=ss.n_hum_is_ns[:, n])
 
     # ステップnの室iにおける内部発熱, W
     q_gen_is_n = ss.q_gen_is_ns[:, n] + q_hum_is_n
@@ -131,16 +131,16 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
     # ステップn+1の統合された境界j*における項別公比法の指数項mの吸熱応答の項別成分, degree C, [jstrs, 12]
     theta_srf_dsh_a_is_jstrs_npls_ms = a1.get_theta_srf_dsh_a_i_jstrs_npls_ms(
         q_srf_jstrs_n=c_n.q_srf_jstrs_n,
-        phi_a_1_bnd_jstrs_ms=ss.phi_a1_bdry_jstrs_ms,
-        r_bnd_i_jstrs_ms=ss.r_bdry_jstrs_ms,
+        phi_a_1_bnd_jstrs_ms=ss.phi_a1_js_ms,
+        r_bnd_i_jstrs_ms=ss.r_js_ms,
         theta_dsh_srf_a_jstrs_n_ms=c_n.theta_dsh_srf_a_jstrs_n_ms
     )
 
     # ステップn+1の統合された境界j*における項別公比法の指数項mの貫流応答の項別成分, degree C, [jstrs, 12]
     theta_srf_dsh_t_is_jstrs_npls_ms = a1.get_theta_srf_dsh_t_i_jstrs_npls_ms(
         theta_rear_i_jstrs_n=theta_rear_is_jstrs_n,
-        phi_t_1_bnd_i_jstrs_ms=ss.phi_t1_bdry_jstrs_ms,
-        r_bnd_i_jstrs_ms=ss.r_bdry_jstrs_ms,
+        phi_t_1_bnd_i_jstrs_ms=ss.phi_t1_js_ms,
+        r_bnd_i_jstrs_ms=ss.r_js_ms,
         theta_dsh_srft_jstrs_n_m=c_n.theta_dsh_srf_t_jstrs_n_ms
     )
 
@@ -153,7 +153,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
     wsc_is_jstrs_npls = ss.wsc_js_ns[:, n]
 
     # ステップn+1の室iの断熱された境界j*における係数WSV, degree C, [j*]
-    wsv_is_jstrs_npls = a1.get_wsv_i_jstrs_npls(ivs_x_i=ss.ivs_x_is, cvl_i_jstrs_npls=cvl_is_jstrs_npls)
+    wsv_is_jstrs_npls = a1.get_wsv_i_jstrs_npls(ivs_x_i=ss.ivs_ax_js_js, cvl_i_jstrs_npls=cvl_is_jstrs_npls)
 
     v_ntrl_vent_is = np.where(operation_mode_is_n == OperationMode.STOP_OPEN, ss.v_ntrl_vent_is, 0.0)
 
@@ -163,8 +163,8 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
         c_room_i=ss.c_room_is,
         deta_t=900.0,
         theta_r_is_n=c_n.theta_r_is_n,
-        h_c_bnd_i_jstrs=ss.h_c_bnd_jstrs,
-        a_bnd_i_jstrs=ss.a_bdry_jstrs,
+        h_c_bnd_i_jstrs=ss.h_c_js,
+        a_bnd_i_jstrs=ss.a_srf_js,
         wsc_i_jstrs_npls=wsc_is_jstrs_npls,
         wsv_i_jstrs_npls=wsv_is_jstrs_npls,
         v_mec_vent_i_n=ss.v_mec_vent_is_ns[:, n],
@@ -179,7 +179,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
         v_int_vent_is=ss.v_int_vent_is
     )
 
-    brm_is_n = ss.BRMnoncv_is[:, n] + a18.get_c_air() * a18.get_rho_air() * v_ntrl_vent_is
+    brm_is_n = ss.brm_noncv_is[:, n] + a18.get_c_air() * a18.get_rho_air() * v_ntrl_vent_is
 
     # 室iの在室者表面における対流熱伝達率の総合熱伝達率に対する比, [i]
     kc_is = h_hum_c_is_n / h_hum_is_n
@@ -196,7 +196,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
         wsb_jstrs=np.sum(ss.wsb_js_is, axis=1),
         wsc_is_jstrs_npls=wsc_is_jstrs_npls,
         wsv_is_jstrs_npls=wsv_is_jstrs_npls,
-        fot_jstrs=ss.fot_jstrs,
+        fot_jstrs=ss.f_mrt_hum_is_js,
         kc_is=kc_is,
         kr_is=kr_is,
     )
@@ -229,23 +229,23 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
 
     # MRT_i_n、AST、平均放射温度の計算
     theta_mrt_hum_is_n_pls = a1.get_theta_mrt_hum_is_n(
-        fot_jstrs=ss.fot_jstrs,
+        fot_jstrs=ss.f_mrt_hum_is_js,
         ts_is_k_n=theta_s_jstrs_n)
 
     # 室内表面熱流の計算 式(28)
     # ステップnの統合された境界j*における表面熱流（壁体吸熱を正とする）, W/m2, [j*]
     Tsx = a1.get_Tsx2(
         theta_s_jstrs_n=theta_s_jstrs_n,
-        f_mrt_jstrs_jstrs=ss.f_mrt_jstrs
+        f_mrt_jstrs_jstrs=ss.f_mrt_is_js
     )
 
     # 室内表面熱流の計算 式(28)
     # ステップnの統合された境界j*における表面熱流（壁体吸熱を正とする）, W/m2, [j*]
     theta_ei_jstrs_n = a1.get_theta_ei_jstrs_n(
-        h_c_bnd_jstrs=ss.h_c_bnd_jstrs,
-        a_bnd_jstrs=ss.a_bdry_jstrs,
-        h_r_bnd_jstrs=ss.h_r_bnd_jstrs,
-        q_sol_srf_jstrs_n=ss.q_sol_srf_jstrs_ns[:, n],
+        h_c_bnd_jstrs=ss.h_c_js,
+        a_bnd_jstrs=ss.a_srf_js,
+        h_r_bnd_jstrs=ss.h_r_js,
+        q_sol_srf_jstrs_n=ss.q_sol_js_ns[:, n],
         flr_is_k=np.sum(ss.flr_js_is, axis=1),
         theta_r_is_npls=theta_r_is_n_pls,
         lrs_is_n=lrs_is_n,
@@ -255,16 +255,16 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
     )
 
     Qcs = a1.get_Qc(
-        h_c_bnd_jstrs=ss.h_c_bnd_jstrs,
-        a_bnd_jstrs=ss.a_bdry_jstrs,
+        h_c_bnd_jstrs=ss.h_c_js,
+        a_bnd_jstrs=ss.a_srf_js,
         theta_s_jstrs_n=theta_s_jstrs_n,
         theta_r_is_npls=theta_r_is_n_pls,
         p=ss.p,
     )
 
     Qrs = a1.get_Qr(
-        a_bnd_jstrs=ss.a_bdry_jstrs,
-        h_r_bnd_jstrs=ss.h_r_bnd_jstrs,
+        a_bnd_jstrs=ss.a_srf_js,
+        h_r_bnd_jstrs=ss.h_r_js,
         theta_s_jstrs_n=theta_s_jstrs_n,
         p=ss.p,
         Tsx=Tsx
@@ -273,8 +273,8 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
     # 室内表面熱流の計算 式(28)
     # ステップnの統合された境界j*における表面熱流（壁体吸熱を正とする）, W/m2, [j*]
     q_srf_is_jstrs_n = a1.calc_qi(
-        h_c_bnd_jstrs=ss.h_c_bnd_jstrs,
-        h_r_bnd_jstrs=ss.h_r_bnd_jstrs,
+        h_c_bnd_jstrs=ss.h_c_js,
+        h_r_bnd_jstrs=ss.h_r_js,
         theta_s_jstrs_n=theta_s_jstrs_n,
         theta_ei_jstrs_n=theta_ei_jstrs_n,
     )
