@@ -10,23 +10,6 @@ from a39_global_parameters import BoundaryType, SpaceType
 """
 
 
-def get_theta_rear_i_jstrs_n(theta_r_is_n: np.ndarray, k_ei_is: np.ndarray, theta_dstrb_i_jstrs_n: np.ndarray) -> np.ndarray:
-    """境界の裏面温度を計算する。
-
-    Args:
-        theta_r_is_n: ステップnにおける室iの空気温度, degree C, [i]
-        k_ei_is: 境界の裏面温度に室の空気温度が与える影響
-        theta_dstrb_i_jstrs_n: ステップnの室iの集約された境界j*の外乱による裏面温度, degree C, [j*]
-
-    Returns:
-        ステップnの室iの集約された境界j*における裏面温度, degree C, [j*]
-    """
-
-    theta_rear_i_jstrs_n = theta_dstrb_i_jstrs_n + np.dot(k_ei_is, theta_r_is_n.reshape(-1, 1)).ravel()
-
-    return theta_rear_i_jstrs_n
-
-
 def get_k_ei_i(
         boundary_type_i_jstrs,
         h_bnd_i_jstrs,

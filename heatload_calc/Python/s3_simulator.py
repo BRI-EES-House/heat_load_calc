@@ -106,11 +106,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
     )
 
     # ステップnの室iの集約された境界j*における裏面温度, degree C, [j*]
-    theta_rear_is_jstrs_n = a9.get_theta_rear_i_jstrs_n(
-        theta_r_is_n=c_n.theta_r_is_n,
-        k_ei_is=ss.k_ei_is,
-        theta_dstrb_i_jstrs_n=ss.theta_dstrb_js_ns[:, n]
-    )
+    theta_rear_is_jstrs_n = (np.dot(ss.k_ei_js_js, c_n.theta_ei_js_n.reshape(-1, 1)) + ss.theta_dstrb_js_ns[:, n].reshape(-1, 1)).flatten()
 
     # ステップnの室iにおける人体発熱, W, [i]
     q_hum_is_n = a3.get_q_hum_i_n(theta_r_is_n=c_n.theta_r_is_n, n_hum_i_n=ss.n_hum_is_ns[:, n])
