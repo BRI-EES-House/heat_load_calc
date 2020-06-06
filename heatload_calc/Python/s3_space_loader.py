@@ -235,48 +235,61 @@ def get_start_indices(number_of_boundaries: np.ndarray):
     return start_indices
 
 
-Conditions = namedtuple('Conditions', [
+class Conditions:
 
-    # ステップnにおける室iの運転状態, [i]
-    # 列挙体 OperationMode で表される。
-    #     COOLING ： 冷房
-    #     HEATING : 暖房
-    #     STOP_OPEN : 暖房・冷房停止で窓「開」
-    #     STOP_CLOSE : 暖房・冷房停止で窓「閉」
-    'operation_mode_is_n',
+    def __init__(
+            self,
+            operation_mode_is_n,
+            theta_r_is_n,
+            theta_mrt_hum_is_n,
+            x_r_is_n,
+            theta_dsh_srf_a_jstrs_n_ms,
+            theta_dsh_srf_t_jstrs_n_ms,
+            q_srf_jstrs_n,
+            theta_frnt_is_n,
+            x_frnt_is_n,
+            theta_cl_is_n,
+            theta_ei_js_n
+    ):
 
-    # ステップnにおける室iの空気温度, degree C, [i]
-    'theta_r_is_n',
+        # ステップnにおける室iの運転状態, [i]
+        # 列挙体 OperationMode で表される。
+        #     COOLING ： 冷房
+        #     HEATING : 暖房
+        #     STOP_OPEN : 暖房・冷房停止で窓「開」
+        #     STOP_CLOSE : 暖房・冷房停止で窓「閉」
+        self.operation_mode_is_n = operation_mode_is_n
 
-    # ステップnにおける室iの在室者の平均放射温度, degree C, [i]
-    'theta_mrt_hum_is_n',
+        # ステップnにおける室iの空気温度, degree C, [i]
+        self.theta_r_is_n = theta_r_is_n
 
-    # ステップnにおける室iの絶対湿度, kg/kgDA, [i]
-    'x_r_is_n',
+        # ステップnにおける室iの在室者の平均放射温度, degree C, [i]
+        self.theta_mrt_hum_is_n = theta_mrt_hum_is_n
 
-    # ステップnの統合された境界j*における指数項mの吸熱応答の項別成分, degree C, [j*, 12]
-    'theta_dsh_srf_a_jstrs_n_ms',
+        # ステップnにおける室iの絶対湿度, kg/kgDA, [i]
+        self.x_r_is_n = x_r_is_n
 
-    # ステップnの統合された境界j*における指数項mの貫流応答の項別成分, degree C, [j*, 12]
-    'theta_dsh_srf_t_jstrs_n_ms',
+        # ステップnの統合された境界j*における指数項mの吸熱応答の項別成分, degree C, [j*, 12]
+        self.theta_dsh_srf_a_jstrs_n_ms = theta_dsh_srf_a_jstrs_n_ms
 
-    # ステップnの統合された境界j*における表面熱流（壁体吸熱を正とする）, W/m2, [j*]
-    'q_srf_jstrs_n',
+        # ステップnの統合された境界j*における指数項mの貫流応答の項別成分, degree C, [j*, 12]
+        self.theta_dsh_srf_t_jstrs_n_ms = theta_dsh_srf_t_jstrs_n_ms
 
-    # ステップnの室iにおける家具の温度, degree C, [i]
-    'theta_frnt_is_n',
+        # ステップnの統合された境界j*における表面熱流（壁体吸熱を正とする）, W/m2, [j*]
+        self.q_srf_jstrs_n = q_srf_jstrs_n
 
-    # ステップnの室iにおける家具の絶対湿度, kg/kgDA, [i]
-    'x_frnt_is_n',
+        # ステップnの室iにおける家具の温度, degree C, [i]
+        self.theta_frnt_is_n = theta_frnt_is_n
 
-    # ステップnにおける室iの在室者の着衣温度, degree C, [i]
-    # 本来であれば着衣温度と人体周りの対流・放射熱伝達率を未知数とした熱収支式を収束計算等を用いて時々刻々求めるのが望ましい。
-    # 今回、収束計算を回避するために前時刻の着衣温度を用いることにした。
-    'theta_cl_is_n',
+        # ステップnの室iにおける家具の絶対湿度, kg/kgDA, [i]
+        self.x_frnt_is_n = x_frnt_is_n
 
-    'theta_ei_js_n'
+        # ステップnにおける室iの在室者の着衣温度, degree C, [i]
+        # 本来であれば着衣温度と人体周りの対流・放射熱伝達率を未知数とした熱収支式を収束計算等を用いて時々刻々求めるのが望ましい。
+        # 今回、収束計算を回避するために前時刻の着衣温度を用いることにした。
+        self.theta_cl_is_n = theta_cl_is_n
 
-])
+        self.theta_ei_js_n = theta_ei_js_n
 
 
 def initialize_conditions(ss: PreCalcParameters):
