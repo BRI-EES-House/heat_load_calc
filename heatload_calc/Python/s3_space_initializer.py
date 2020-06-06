@@ -492,7 +492,7 @@ def make_pre_calc_parameters(
     r_js_ms = np.array([b['r'] for b in bs])
 
     # 境界jの室内側表面総合熱伝達率, W/m2K, [j]
-    h_i_js = np.array([b['h_i'] for b in bs])
+    h_i_js = np.array([b['h_i'] for b in bs]).reshape(-1, 1)
 
     # 境界jの室に設置された放射暖房の放熱量のうち放射成分に対する境界jの室内側吸収比率
     flr_js = np.array([b['flr'] for b in bs])
@@ -599,7 +599,7 @@ def make_pre_calc_parameters(
     f_mrt_is_js =a12.get_f_mrt_is_js(a_srf_js=a_srf_js, h_r_bnd_jstrs=h_r_js, p=k_is_js)
 
     # 境界jの室内側表面対流熱伝達率, W/m2K, [j]
-    h_c_js = np.clip(h_i_js - h_r_js, 0, None)
+    h_c_js = np.clip(h_i_js.flatten() - h_r_js, 0, None)
 
     # ステップnの室iにおける機械換気量（全般換気量+局所換気量）, m3/s, [i, n]
     v_mec_vent_is_ns = v_vent_ex_is[:, np.newaxis] + v_mec_vent_local_is_ns
@@ -632,25 +632,25 @@ def make_pre_calc_parameters(
     theta_dstrb_js_ns = theta_o_sol_js_ns * k_eo_js[:, np.newaxis]
 
     # AX, [j, j]
-    ax_js_js = np.diag(1.0 + phi_a0_js * h_i_js)\
+    ax_js_js = np.diag(1.0 + phi_a0_js * h_i_js.flatten())\
         - np.dot(k_js_is, f_mrt_is_js) * (h_r_js * phi_a0_js)[:, np.newaxis]\
-        - np.dot(k_ei_js_js, np.dot(k_js_is, f_mrt_is_js)) * (h_r_js / h_i_js * phi_t0_js)[:, np.newaxis]
+        - np.dot(k_ei_js_js, np.dot(k_js_is, f_mrt_is_js)) * (h_r_js * phi_t0_js)[:, np.newaxis] / h_i_js
 
     # AX^-1, [j, j]
     ivs_ax_js_js = np.linalg.inv(ax_js_js)
 
     # FIA, [j, i]
     fia_js_is = (phi_a0_js * h_c_js)[:, np.newaxis] * k_js_is\
-        + np.dot(k_ei_js_js, k_js_is) * (phi_t0_js * h_c_js / h_i_js)[:, np.newaxis]
+        + np.dot(k_ei_js_js, k_js_is) * (phi_t0_js * h_c_js)[:, np.newaxis] / h_i_js
 
     # CRX, W, [j, n]
     crx_js_ns = phi_a0_js[:, np.newaxis] * q_sol_js_ns\
-        + (phi_t0_js / h_i_js)[:, np.newaxis] * np.dot(k_ei_js_js, q_sol_js_ns)\
+        + phi_t0_js[:, np.newaxis] / h_i_js * np.dot(k_ei_js_js, q_sol_js_ns)\
         + phi_t0_js[:, np.newaxis] * theta_dstrb_js_ns
 
     # FLB, K/W, [j, i]
     flb_js_is = flr_js_is * (1.0 - beta_is)[np.newaxis, :] * (phi_a0_js)[:, np.newaxis] / a_srf_js\
-        + np.dot(k_ei_js_js, flr_js_is) * (1.0 - beta_is)[np.newaxis, :] * (phi_t0_js / h_i_js)[:, np.newaxis] / a_srf_js
+        + np.dot(k_ei_js_js, flr_js_is) * (1.0 - beta_is)[np.newaxis, :] * phi_t0_js[:, np.newaxis] / h_i_js / a_srf_js
 
     # WSR, [j, i]
     wsr_js_is = np.dot(ivs_ax_js_js, fia_js_is)
