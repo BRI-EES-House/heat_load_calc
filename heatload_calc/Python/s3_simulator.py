@@ -160,7 +160,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
 
     # ステップnの室iにおける係数BRC
     brc_i_n = s41.get_brc_i_n(
-        p=ss.k_is_js,
+        p=ss.p_is_js,
         c_room_i=ss.c_room_is,
         deta_t=900.0,
         theta_r_is_n=c_n.theta_r_is_n,
@@ -225,7 +225,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
         wsv_is_jstrs_npls=wsv_is_jstrs_npls,
         theta_r_is_npls=theta_r_is_n_pls,
         lrs_is_n=lrs_is_n,
-        p=ss.k_is_js
+        p=ss.p_is_js
     )
 
     # MRT_i_n、AST、平均放射温度の計算
@@ -251,7 +251,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
         theta_r_is_npls=theta_r_is_n_pls,
         lrs_is_n=lrs_is_n,
         beta_is=ss.beta_is.flatten(),
-        p=ss.k_is_js,
+        p=ss.p_is_js,
         Tsx=Tsx
     )
 
@@ -260,14 +260,14 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
         a_bnd_jstrs=ss.a_srf_js.flatten(),
         theta_s_jstrs_n=theta_s_jstrs_n,
         theta_r_is_npls=theta_r_is_n_pls,
-        p=ss.k_is_js,
+        p=ss.p_is_js,
     )
 
     Qrs = a1.get_Qr(
         a_bnd_jstrs=ss.a_srf_js.flatten(),
         h_r_bnd_jstrs=ss.h_r_js.flatten(),
         theta_s_jstrs_n=theta_s_jstrs_n,
-        p=ss.k_is_js,
+        p=ss.p_is_js,
         Tsx=Tsx
     )
 

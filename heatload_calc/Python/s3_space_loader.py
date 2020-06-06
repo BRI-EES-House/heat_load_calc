@@ -58,8 +58,8 @@ class PreCalcParameters:
             brm_noncv_is,
             ivs_ax_js_js,
             brl_is_is,
-            k_is_js,
-            k_js_is,
+            p_is_js,
+            p_js_is,
             get_vac_xeout_is,
             is_ground_js,
             wsc_js_ns
@@ -194,8 +194,8 @@ class PreCalcParameters:
         self.total_number_of_bdry = total_number_of_bdry
         self.ivs_ax_js_js = ivs_ax_js_js
 
-        self.k_is_js = k_is_js
-        self.k_js_is = k_js_is
+        self.p_is_js = p_is_js
+        self.p_js_is = p_js_is
 
         # 室iの在室者に対する境界j*の形態係数
         self.f_mrt_hum_is_js = f_mrt_hum_is_js
