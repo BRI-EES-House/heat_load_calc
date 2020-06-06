@@ -637,7 +637,7 @@ def make_pre_calc_parameters(
     theta_dstrb_js_ns = theta_o_sol_js_ns * k_eo_js
 
     # AX, [j, j]
-    ax_js_js = np.diag(1.0 + phi_a0_js.flatten() * h_i_js.flatten())\
+    ax_js_js = np.diag(1.0 + (phi_a0_js * h_i_js).flatten())\
         - np.dot(k_js_is, f_mrt_is_js) * h_r_js * phi_a0_js\
         - np.dot(k_ei_js_js, np.dot(k_js_is, f_mrt_is_js)) * h_r_js * phi_t0_js / h_i_js
 
