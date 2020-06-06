@@ -106,7 +106,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
     )
 
     # ステップnの境界jにおける裏面温度, degree C, [j]
-    theta_rear_js_n = (np.dot(ss.k_ei_js_js, c_n.theta_ei_js_n.reshape(-1, 1)) + ss.theta_dstrb_js_ns[:, n].reshape(-1, 1)).flatten()
+    theta_rear_js_n = (np.dot(ss.k_ei_js_js, c_n.theta_ei_js_n.reshape(-1, 1)) + ss.theta_dstrb_js_ns[:, n].reshape(-1, 1))
 
     # ステップnの室iにおける人体発熱, W, [i]
     q_hum_is_n = a3.get_q_hum_i_n(theta_r_is_n=c_n.theta_r_is_n, n_hum_i_n=ss.n_hum_is_ns[:, n])
@@ -135,7 +135,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
 
     # ステップn+1の統合された境界j*における項別公比法の指数項mの貫流応答の項別成分, degree C, [jstrs, 12]
     theta_srf_dsh_t_is_jstrs_npls_ms = a1.get_theta_srf_dsh_t_i_jstrs_npls_ms(
-        theta_rear_i_jstrs_n=theta_rear_js_n,
+        theta_rear_i_jstrs_n=theta_rear_js_n.flatten(),
         phi_t_1_bnd_i_jstrs_ms=ss.phi_t1_js_ms,
         r_bnd_i_jstrs_ms=ss.r_js_ms,
         theta_dsh_srft_jstrs_n_m=c_n.theta_dsh_srf_t_jstrs_n_ms
@@ -371,7 +371,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
     logger.x_frnt[:, n] = xf_i_n
     logger.q_l_frnt[:, n] = Qfunl_i_n
     logger.theta_s[:, n] = theta_s_jstrs_n
-    logger.theta_rear[:, n] = theta_rear_js_n
+    logger.theta_rear[:, n] = theta_rear_js_n.flatten()
     logger.qr[:, n] = Qrs
     logger.qc[:, n] = Qcs
     logger.theta_ei[:, n] = theta_ei_jstrs_n
