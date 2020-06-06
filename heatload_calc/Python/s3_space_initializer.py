@@ -482,8 +482,8 @@ def make_pre_calc_parameters(
     # 境界jの項別公比法における項mの吸熱応答係数の第一項 , m2K/W, [j, 12]
     phi_a1_js_ms = np.array([b['phi_a1'] for b in bs])
 
-    # 境界jの貫流応答係数の初項, [j]
-    phi_t0_js = np.array([b['phi_t0'] for b in bs])
+    # 境界jの貫流応答係数の初項, [j, 1]
+    phi_t0_js = np.array([b['phi_t0'] for b in bs]).reshape(-1, 1)
 
     # 境界jの項別公比法における項mの貫流応答係数の第一項, [j, 12]
     phi_t1_js_ms = np.array([b['phi_t1'] for b in bs])
@@ -639,23 +639,23 @@ def make_pre_calc_parameters(
     # AX, [j, j]
     ax_js_js = np.diag(1.0 + phi_a0_js.flatten() * h_i_js.flatten())\
         - np.dot(k_js_is, f_mrt_is_js) * h_r_js * phi_a0_js\
-        - np.dot(k_ei_js_js, np.dot(k_js_is, f_mrt_is_js)) * h_r_js * phi_t0_js[:, np.newaxis] / h_i_js
+        - np.dot(k_ei_js_js, np.dot(k_js_is, f_mrt_is_js)) * h_r_js * phi_t0_js / h_i_js
 
     # AX^-1, [j, j]
     ivs_ax_js_js = np.linalg.inv(ax_js_js)
 
     # FIA, [j, i]
     fia_js_is = phi_a0_js * h_c_js * k_js_is\
-        + np.dot(k_ei_js_js, k_js_is) * phi_t0_js[:, np.newaxis] * h_c_js / h_i_js
+        + np.dot(k_ei_js_js, k_js_is) * phi_t0_js * h_c_js / h_i_js
 
     # CRX, W, [j, n]
     crx_js_ns = phi_a0_js * q_sol_js_ns\
-        + phi_t0_js[:, np.newaxis] / h_i_js * np.dot(k_ei_js_js, q_sol_js_ns)\
-        + phi_t0_js[:, np.newaxis] * theta_dstrb_js_ns
+        + phi_t0_js / h_i_js * np.dot(k_ei_js_js, q_sol_js_ns)\
+        + phi_t0_js * theta_dstrb_js_ns
 
     # FLB, K/W, [j, i]
     flb_js_is = flr_js_is * (1.0 - beta_is)[np.newaxis, :] * phi_a0_js / a_srf_js\
-        + np.dot(k_ei_js_js, flr_js_is) * (1.0 - beta_is)[np.newaxis, :] * phi_t0_js[:, np.newaxis] / h_i_js / a_srf_js
+        + np.dot(k_ei_js_js, flr_js_is) * (1.0 - beta_is)[np.newaxis, :] * phi_t0_js / h_i_js / a_srf_js
 
     # WSR, [j, i]
     wsr_js_is = np.dot(ivs_ax_js_js, fia_js_is)
