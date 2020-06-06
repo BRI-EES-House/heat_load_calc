@@ -565,7 +565,7 @@ def make_pre_calc_parameters(
     # 境界の数
     number_of_bdries = len(bs)
 
-    # 室iの空気の熱容量, J/K
+    # 室iの空気の熱容量, J/K, [i]
     c_room_is = v_room_cap_is * a39.get_rho_air() * a39.get_c_air()
 
     # 境界jの室内側表面放射熱伝達率, W/m2K, [j]
@@ -580,10 +580,10 @@ def make_pre_calc_parameters(
     # ステップnの室iにおける機械換気量（全般換気量+局所換気量）, m3/s, [i, n]
     v_mec_vent_is_ns = v_vent_ex_is[:, np.newaxis] + v_mec_vent_local_is_ns
 
-    # ステップnの室iにおける家具の吸収日射量, W, [i, 8760*4]
+    # ステップnの室iにおける家具の吸収日射量, W, [i, n]
     q_sol_frnt_is_ns = q_trs_sol_is_ns * a12.get_r_sol_frnt()
 
-    #　室iにおける日射が吸収される境界の面積の合計, m2, [i]
+    # 室iにおける日射が吸収される境界の面積の合計, m2, [i]
     a_srf_abs_is = np.dot(p, (a_srf_js * is_solar_abs_js).reshape(-1, 1)).flatten()
 
     # ステップnの境界jにおける透過日射吸収熱量, W/m2, [j, n]
@@ -619,7 +619,7 @@ def make_pre_calc_parameters(
     fia_js_is = (phi_a0_js * h_c_js)[:, np.newaxis] * p.T\
         + np.dot(k_ei_js_js, p.T) * (phi_t0_js * h_c_js / h_i_js)[:, np.newaxis]
 
-    # CRX, W, [j, 8760*4]
+    # CRX, W, [j, n]
     crx_js_ns = phi_a0_js[:, np.newaxis] * q_sol_js_ns\
         + (phi_t0_js / h_i_js)[:, np.newaxis] * np.dot(k_ei_js_js, q_sol_js_ns)\
         + phi_t0_js[:, np.newaxis] * theta_dstrb_js_ns
@@ -631,7 +631,7 @@ def make_pre_calc_parameters(
     # WSR, [j, i]
     wsr_js_is = np.dot(ivs_x_js_js, fia_js_is)
 
-    # WSC, W, [j, 8760*4]
+    # WSC, W, [j, n]
     wsc_js_ns = np.dot(ivs_x_js_js, crx_js_ns)
 
     # WSB, K/W, [j, i]
@@ -642,10 +642,10 @@ def make_pre_calc_parameters(
 
     # BRM(通風なし), W/K, [i, n]
     brm_noncv_is = (
-            c_room_is/900
-            + np.sum(np.dot(p, (p.T - wsr_js_is) * (a_srf_js * h_c_js)[:, np.newaxis]), axis=1)
-            + v_int_vent_is.sum(axis=1) * a18.get_c_air() * a18.get_rho_air()
-            + c_cap_frnt_is * c_frnt_is / (c_cap_frnt_is + c_frnt_is * 900)
+        c_room_is/900
+        + np.sum(np.dot(p, (p.T - wsr_js_is) * (a_srf_js * h_c_js)[:, np.newaxis]), axis=1)
+        + v_int_vent_is.sum(axis=1) * a18.get_c_air() * a18.get_rho_air()
+        + c_cap_frnt_is * c_frnt_is / (c_cap_frnt_is + c_frnt_is * 900)
     )[:, np.newaxis] + v_mec_vent_is_ns * a18.get_c_air() * a18.get_rho_air()
 
     # endregion
