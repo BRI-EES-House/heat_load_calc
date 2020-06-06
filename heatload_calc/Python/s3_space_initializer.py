@@ -389,7 +389,6 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
         is_radiative_cooling_is,
         Lrcap_is,
         radiative_cooling_max_capacity_is,
-        p,
         get_vac_xeout_is
     )
     # endregion
@@ -405,7 +404,6 @@ def make_pre_calc_parameters(
     is_radiative_cooling_is,
     lrcap_is,
     radiative_cooling_max_capacity_is,
-    p,
     get_vac_xeout_is
 ):
 
@@ -498,8 +496,6 @@ def make_pre_calc_parameters(
 
     # 境界jの室に設置された放射暖房の放熱量のうち放射成分に対する境界jの室内側吸収比率
     flr_js = np.array([b['flr'] for b in bs])
-    # 室iに設置された放射暖房の放熱量のうち放射成分に対する境界jの室内側吸収比率, [j, i]
-    flr_js_is = p.T * flr_js[:, np.newaxis]
 
     # 境界jの日射吸収の有無, [j, 1]
     is_solar_abs_js = np.array(
@@ -574,6 +570,17 @@ def make_pre_calc_parameters(
 
     # 境界の数
     number_of_bdries = len(bs)
+
+    # 境界jと室iとの関係を表す係数
+    # [[p_0_0 ... p_0_j]
+    #  [ ...  ...  ... ]
+    #  [p_i_0 ... p_i_j]]
+    p = np.zeros((number_of_spaces, number_of_bdries), dtype=int)
+    for i in range(number_of_spaces):
+        p[i, connected_space_id_js == i] = 1
+
+    # 室iに設置された放射暖房の放熱量のうち放射成分に対する境界jの室内側吸収比率, [j, i]
+    flr_js_is = p.T * flr_js[:, np.newaxis]
 
     # 室iの空気の熱容量, J/K, [i]
     c_room_is = v_room_cap_is * a39.get_rho_air() * a39.get_c_air()
