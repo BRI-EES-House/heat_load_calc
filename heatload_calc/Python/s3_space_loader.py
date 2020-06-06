@@ -62,7 +62,8 @@ class PreCalcParameters:
             p_js_is,
             get_vac_xeout_is,
             is_ground_js,
-            wsc_js_ns
+            wsc_js_ns,
+            k_ei_js_js
     ):
 
         # region 室に関すること
@@ -218,6 +219,9 @@ class PreCalcParameters:
         self.flr_js_is = flr_js_is
 
         self.wsc_js_ns = wsc_js_ns
+
+        # 境界jの裏面温度に他の境界の等価温度が与える影響, [j, j]
+        self.k_ei_js_js = k_ei_js_js
 
 
 def get_start_indices(number_of_boundaries: np.ndarray):

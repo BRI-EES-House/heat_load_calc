@@ -729,7 +729,8 @@ def make_pre_calc_parameters(
         p_js_is=p_js_is,
         get_vac_xeout_is=get_vac_xeout_is,
         is_ground_js=is_ground_js,
-        wsc_js_ns=wsc_js_ns
+        wsc_js_ns=wsc_js_ns,
+        k_ei_js_js=k_ei_js_js
     )
 
     return pre_calc_parameters
