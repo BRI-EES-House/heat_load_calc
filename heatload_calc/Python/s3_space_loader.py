@@ -203,10 +203,10 @@ class PreCalcParameters:
         # 平均放射温度計算時の各部位表面温度の重み計算 式(101)
         self.f_mrt_is_js = f_mrt_is_js
 
-        # 境界j*における室内側放射熱伝達率, W/m2K, [j, 1]
+        # 境界jにおける室内側放射熱伝達率, W/m2K, [j, 1]
         self.h_r_js = h_r_js
 
-        # 統合された境界j*における室内側対流熱伝達率, W/m2K, [j*]
+        # 境界jにおける室内側対流熱伝達率, W/m2K, [j, 1]
         self.h_c_js = h_c_js
 
         # WSR, WSB の計算 式(24)

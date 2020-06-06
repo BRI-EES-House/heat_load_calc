@@ -598,8 +598,8 @@ def make_pre_calc_parameters(
     # 平均放射温度計算時の各部位表面温度の重み, [i, j]
     f_mrt_is_js = a12.get_f_mrt_is_js(a_srf_js=a_srf_js, h_r_js=h_r_js, k_is_js=k_is_js)
 
-    # 境界jの室内側表面対流熱伝達率, W/m2K, [j]
-    h_c_js = np.clip(h_i_js.flatten() - h_r_js.flatten(), 0, None)
+    # 境界jの室内側表面対流熱伝達率, W/m2K, [j, 1]
+    h_c_js = np.clip(h_i_js - h_r_js, 0.0, None)
 
     # ステップnの室iにおける機械換気量（全般換気量+局所換気量）, m3/s, [i, n]
     v_mec_vent_is_ns = v_vent_ex_is[:, np.newaxis] + v_mec_vent_local_is_ns
@@ -640,8 +640,8 @@ def make_pre_calc_parameters(
     ivs_ax_js_js = np.linalg.inv(ax_js_js)
 
     # FIA, [j, i]
-    fia_js_is = (phi_a0_js * h_c_js)[:, np.newaxis] * k_js_is\
-        + np.dot(k_ei_js_js, k_js_is) * (phi_t0_js * h_c_js)[:, np.newaxis] / h_i_js
+    fia_js_is = (phi_a0_js)[:, np.newaxis] * h_c_js * k_js_is\
+        + np.dot(k_ei_js_js, k_js_is) * phi_t0_js[:, np.newaxis] * h_c_js / h_i_js
 
     # CRX, W, [j, n]
     crx_js_ns = phi_a0_js[:, np.newaxis] * q_sol_js_ns\
@@ -662,12 +662,12 @@ def make_pre_calc_parameters(
     wsb_js_is = np.dot(ivs_ax_js_js, flb_js_is)
 
     # BRL, [i, i]
-    brl_is_is = np.dot(k_is_js, wsb_js_is * (h_c_js)[:, np.newaxis] * a_srf_js) + np.diag(beta_is)
+    brl_is_is = np.dot(k_is_js, wsb_js_is * h_c_js * a_srf_js) + np.diag(beta_is)
 
     # BRM(通風なし), W/K, [i, n]
     brm_noncv_is = (
         c_room_is/900
-        + np.sum(np.dot(k_is_js, (k_js_is - wsr_js_is) * a_srf_js * (h_c_js)[:, np.newaxis]), axis=1)
+        + np.sum(np.dot(k_is_js, (k_js_is - wsr_js_is) * a_srf_js * h_c_js), axis=1)
         + v_int_vent_is_is.sum(axis=1) * a18.get_c_air() * a18.get_rho_air()
         + c_cap_frnt_is * c_frnt_is / (c_cap_frnt_is + c_frnt_is * 900)
     )[:, np.newaxis] + v_mec_vent_is_ns * a18.get_c_air() * a18.get_rho_air()
