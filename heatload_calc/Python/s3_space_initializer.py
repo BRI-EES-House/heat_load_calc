@@ -436,7 +436,7 @@ def make_pre_calc_parameters(
     v_vent_ex_is = np.array([s['ventilation']['mechanical'] for s in ss])
 
     # 室iの隣室iからの機械換気量, m3/s, [i, i]
-    v_int_vent_is = np.array([s['ventilation']['next_spaces'] for s in ss])
+    v_int_vent_is_is = np.array([s['ventilation']['next_spaces'] for s in ss])
 
     # 室iの自然風利用時の換気量, m3/s, [i]
     v_ntrl_vent_is = np.array([s['ventilation']['natural'] for s in ss])
@@ -646,7 +646,7 @@ def make_pre_calc_parameters(
     brm_noncv_is = (
         c_room_is/900
         + np.sum(np.dot(p, (p.T - wsr_js_is) * (a_srf_js * h_c_js)[:, np.newaxis]), axis=1)
-        + v_int_vent_is.sum(axis=1) * a18.get_c_air() * a18.get_rho_air()
+        + v_int_vent_is_is.sum(axis=1) * a18.get_c_air() * a18.get_rho_air()
         + c_cap_frnt_is * c_frnt_is / (c_cap_frnt_is + c_frnt_is * 900)
     )[:, np.newaxis] + v_mec_vent_is_ns * a18.get_c_air() * a18.get_rho_air()
 
@@ -661,7 +661,7 @@ def make_pre_calc_parameters(
         c_room_is=c_room_is,
         c_cap_frnt_is=c_cap_frnt_is,
         c_frnt_is=c_frnt_is,
-        v_int_vent_is=v_int_vent_is,
+        v_int_vent_is=v_int_vent_is_is,
         name_bdry_jstrs=name_bdry_js,
         sub_name_bdry_jstrs=sub_name_bdry_js,
         a_bdry_jstrs=a_srf_js,
