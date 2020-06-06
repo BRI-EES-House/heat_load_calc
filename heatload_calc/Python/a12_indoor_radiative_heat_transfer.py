@@ -99,9 +99,11 @@ def get_F_mrt_i_g(area, hir):
     return F_mrt_i_k
 
 
-def get_f_mrt_is_js(a_srf_js, h_r_bnd_jstrs, p):
-    ah = a_srf_js.flatten() * h_r_bnd_jstrs
-    return p * ah[np.newaxis, :] / np.dot(p, ah.reshape(-1, 1))
+def get_f_mrt_is_js(a_srf_js, h_r_js, k_is_js):
+
+    ah = a_srf_js * h_r_js
+
+    return k_is_js * ah.T / np.dot(k_is_js, ah)
 
 
 def get_r_sol_frnt() -> float:

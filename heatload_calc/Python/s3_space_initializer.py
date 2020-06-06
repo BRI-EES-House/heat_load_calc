@@ -596,7 +596,7 @@ def make_pre_calc_parameters(
     h_r_js = a12.get_h_r_js(a_srf_js=a_srf_js, k_js_is=k_js_is)
 
     # 平均放射温度計算時の各部位表面温度の重み, [i, j]
-    f_mrt_is_js =a12.get_f_mrt_is_js(a_srf_js=a_srf_js, h_r_bnd_jstrs=h_r_js.flatten(), p=k_is_js)
+    f_mrt_is_js = a12.get_f_mrt_is_js(a_srf_js=a_srf_js, h_r_js=h_r_js, k_is_js=k_is_js)
 
     # 境界jの室内側表面対流熱伝達率, W/m2K, [j]
     h_c_js = np.clip(h_i_js.flatten() - h_r_js.flatten(), 0, None)
