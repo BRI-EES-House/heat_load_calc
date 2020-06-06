@@ -105,8 +105,8 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
         ac_demand_is_n=ss.ac_demand_is_n[:, n],
     )
 
-    # ステップnの境界jにおける裏面温度, degree C, [j]
-    theta_rear_js_n = (np.dot(ss.k_ei_js_js, c_n.theta_ei_js_n) + ss.theta_dstrb_js_ns[:, n].reshape(-1, 1))
+    # ステップnの境界jにおける裏面温度, degree C, [j, i]
+    theta_rear_js_n = np.dot(ss.k_ei_js_js, c_n.theta_ei_js_n) + ss.theta_dstrb_js_ns[:, n][:, np.newaxis]
 
     # ステップnの室iにおける人体発熱, W, [i]
     q_hum_is_n = a3.get_q_hum_i_n(theta_r_is_n=c_n.theta_r_is_n, n_hum_i_n=ss.n_hum_is_ns[:, n])
