@@ -67,7 +67,7 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
     # 室iの自然風利用時の換気回数, 1/h, [i]
     n_ntrl_vent_is = np.array([r['natural_vent_time'] for r in rooms])
 
-    # 室iの隣室からの機会書き量, m3/h, [i, i]
+    # 室iの隣室からの機会換気量, m3/h, [i, i]
     v_int_vent_is = get_v_int_vent_is(rooms)
 
     # 室iの自然風利用時の換気量, m3/s, [i]
@@ -435,8 +435,10 @@ def make_pre_calc_parameters(
     # 室iの機械換気量（局所換気を除く）, m3/h, [i]
     v_vent_ex_is = np.array([s['ventilation']['mechanical'] for s in ss])
 
+    # 室iの隣室iからの機械換気量, m3/s, [i, i]
     v_int_vent_is = np.array([s['ventilation']['next_spaces'] for s in ss])
 
+    # 室iの自然風利用時の換気量, m3/s, [i]
     v_ntrl_vent_is = np.array([s['ventilation']['natural'] for s in ss])
 
     # 室iの家具等の熱容量, J/K
