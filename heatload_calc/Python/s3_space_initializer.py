@@ -563,7 +563,7 @@ def make_pre_calc_parameters(
 
     # endregion
 
-    # region 読み込んだ値から新たに係数を作成する
+    # region 読み込んだ変数をベクトル表記に変換する
 
     # Spaceの数
     number_of_spaces = len(ss)
@@ -602,6 +602,10 @@ def make_pre_calc_parameters(
 
     # 室iの在室者に対する境界j*の形態係数, [i, j]
     f_mrt_hum_is_js = k_is_js * f_mrt_hum_is[np.newaxis, :]
+
+    # endregion
+
+    # region 読み込んだ値から新たに係数を作成する
 
     # 室iの空気の熱容量, J/K, [i]
     c_room_is = v_room_cap_is * a39.get_rho_air() * a39.get_c_air()
