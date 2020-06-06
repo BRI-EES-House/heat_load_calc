@@ -37,9 +37,9 @@ def run_tick_groundonly(To_n: float, Tave: float, c_n: Conditions, ss: PreCalcPa
 
     theta_dsh_srf_a_jstrs_n_ms[gs, :] = theta_srf_dsh_a_is_jstrs_npls_ms
 
-    Ts_is_k_n = (ss.phi_a0_js[gs] * h_i_bnd_jstrs[gs] * To_n
+    Ts_is_k_n = (ss.phi_a0_js.flatten()[gs] * h_i_bnd_jstrs[gs] * To_n
                  + np.sum(theta_srf_dsh_a_is_jstrs_npls_ms, axis=1) + Tave) \
-               / (1.0 + ss.phi_a0_js[gs] * h_i_bnd_jstrs[gs])
+               / (1.0 + ss.phi_a0_js.flatten()[gs] * h_i_bnd_jstrs[gs])
 
     q_srf_jstrs_n[gs] = h_i_bnd_jstrs[gs] * (To_n - Ts_is_k_n)
 
