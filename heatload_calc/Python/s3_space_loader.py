@@ -128,7 +128,7 @@ class PreCalcParameters:
         # 境界jが地盤かどうか, [j]
         self.is_ground_js = is_ground_js
 
-        # 統合された境界j*の面積, m2, [j*]
+        # 統合された境界j*の面積, m2, [j, 1]
         self.a_srf_js = a_srf_js
 
         # 境界の数（リスト）, [i]

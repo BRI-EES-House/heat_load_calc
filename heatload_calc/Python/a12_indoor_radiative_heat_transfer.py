@@ -99,8 +99,8 @@ def get_F_mrt_i_g(area, hir):
     return F_mrt_i_k
 
 
-def get_f_mrt_is_js(a_bdry_jstrs, h_r_bnd_jstrs, p):
-    ah = a_bdry_jstrs * h_r_bnd_jstrs
+def get_f_mrt_is_js(a_srf_js, h_r_bnd_jstrs, p):
+    ah = a_srf_js.flatten() * h_r_bnd_jstrs
     return p * ah[np.newaxis, :] / np.dot(p, ah.reshape(-1, 1))
 
 
@@ -180,7 +180,7 @@ def get_flr(A_i_g, A_fs_i, is_radiative_heating, is_solar_absorbed_inside):
 
 
 # 放射熱伝達率 式(123)
-def get_hr_i_k_n(a_bdry_jstrs, space_idx_bdry_jstrs, number_of_spaces):
+def get_hr_i_k_n(a_srf_js, space_idx_bdry_jstrs, number_of_spaces):
     """
     :param eps_m: 放射率 [-]
     :param FF_m: 形態係数 [-]
@@ -191,7 +191,7 @@ def get_hr_i_k_n(a_bdry_jstrs, space_idx_bdry_jstrs, number_of_spaces):
     # 微小点に対する境界jの形態係数
     # 永田先生の方法
     FF_m = np.concatenate([
-        calc_form_factor_of_microbodies(area_i_jstrs=a_bdry_jstrs[space_idx_bdry_jstrs == i])
+        calc_form_factor_of_microbodies(area_i_jstrs=a_srf_js.flatten()[space_idx_bdry_jstrs == i])
         for i in range(number_of_spaces)])
 
     eps_m = a18.get_eps()

@@ -164,7 +164,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
         deta_t=900.0,
         theta_r_is_n=c_n.theta_r_is_n,
         h_c_bnd_i_jstrs=ss.h_c_js,
-        a_bnd_i_jstrs=ss.a_srf_js,
+        a_bnd_i_jstrs=ss.a_srf_js.flatten(),
         wsc_i_jstrs_npls=wsc_is_jstrs_npls,
         wsv_i_jstrs_npls=wsv_is_jstrs_npls,
         v_mec_vent_i_n=ss.v_mec_vent_is_ns[:, n],
@@ -243,7 +243,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
     # ステップnの統合された境界j*における表面熱流（壁体吸熱を正とする）, W/m2, [j*]
     theta_ei_jstrs_n = a1.get_theta_ei_jstrs_n(
         h_c_bnd_jstrs=ss.h_c_js,
-        a_bnd_jstrs=ss.a_srf_js,
+        a_bnd_jstrs=ss.a_srf_js.flatten(),
         h_r_bnd_jstrs=ss.h_r_js,
         q_sol_srf_jstrs_n=ss.q_sol_js_ns[:, n],
         flr_is_k=np.sum(ss.flr_js_is, axis=1),
@@ -256,14 +256,14 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
 
     Qcs = a1.get_Qc(
         h_c_bnd_jstrs=ss.h_c_js,
-        a_bnd_jstrs=ss.a_srf_js,
+        a_bnd_jstrs=ss.a_srf_js.flatten(),
         theta_s_jstrs_n=theta_s_jstrs_n,
         theta_r_is_npls=theta_r_is_n_pls,
         p=ss.p,
     )
 
     Qrs = a1.get_Qr(
-        a_bnd_jstrs=ss.a_srf_js,
+        a_bnd_jstrs=ss.a_srf_js.flatten(),
         h_r_bnd_jstrs=ss.h_r_js,
         theta_s_jstrs_n=theta_s_jstrs_n,
         p=ss.p,
