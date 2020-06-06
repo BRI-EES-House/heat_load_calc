@@ -564,6 +564,7 @@ def make_pre_calc_parameters(
     # endregion
 
     # region 読み込んだ変数をベクトル表記に変換する
+    # ただし、1次元配列を縦ベクトルに変換する処理等は読み込み時に np.reshape を適用して変換している。
 
     # Spaceの数
     number_of_spaces = len(ss)
