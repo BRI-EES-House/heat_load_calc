@@ -586,7 +586,7 @@ def make_pre_calc_parameters(
     #　室iにおける日射が吸収される境界の面積の合計, m2, [i]
     a_srf_abs_is = np.dot(p, (a_srf_js * is_solar_abs_js).reshape(-1, 1)).flatten()
 
-    # ステップnの境界jにおける透過日射吸収熱量, W/m2, [j]
+    # ステップnの境界jにおける透過日射吸収熱量, W/m2, [j, n]
     q_sol_js_ns = np.dot(p.T, q_trs_sol_is_ns / a_srf_abs_is[:, np.newaxis])\
         * is_solar_abs_js[:, np.newaxis] * (1.0 - a12.get_r_sol_frnt())
 
