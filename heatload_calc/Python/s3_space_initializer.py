@@ -571,16 +571,16 @@ def make_pre_calc_parameters(
     # 境界の数
     number_of_bdries = len(bs)
 
-    # 境界jと室iとの関係を表す係数
-    # [[p_0_0 ... p_0_j]
+    # 室iと境界jの関係を表す係数（境界jから室iへの変換）
+    # [[k_0_0 ... k_0_j]
     #  [ ...  ...  ... ]
-    #  [p_i_0 ... p_i_j]]
-    p = np.zeros((number_of_spaces, number_of_bdries), dtype=int)
+    #  [k_i_0 ... k_i_j]]
+    k_is_js = np.zeros((number_of_spaces, number_of_bdries), dtype=int)
     for i in range(number_of_spaces):
-        p[i, connected_space_id_js == i] = 1
+        k_is_js[i, connected_space_id_js == i] = 1
 
     # 室iに設置された放射暖房の放熱量のうち放射成分に対する境界jの室内側吸収比率, [j, i]
-    flr_js_is = p.T * flr_js[:, np.newaxis]
+    flr_js_is = k_is_js.T * flr_js[:, np.newaxis]
 
     # 室iの空気の熱容量, J/K, [i]
     c_room_is = v_room_cap_is * a39.get_rho_air() * a39.get_c_air()
@@ -589,7 +589,7 @@ def make_pre_calc_parameters(
     h_r_js = a12.get_hr_i_k_n(a_srf_js=a_srf_js, space_idx_bdry_jstrs=connected_space_id_js, number_of_spaces=number_of_spaces)
 
     # 平均放射温度計算時の各部位表面温度の重み, [i, j]
-    f_mrt_is_js =a12.get_f_mrt_is_js(a_srf_js=a_srf_js, h_r_bnd_jstrs=h_r_js, p=p)
+    f_mrt_is_js =a12.get_f_mrt_is_js(a_srf_js=a_srf_js, h_r_bnd_jstrs=h_r_js, p=k_is_js)
 
     # 境界jの室内側表面対流熱伝達率, W/m2K, [j]
     h_c_js = np.clip(h_i_js - h_r_js, 0, None)
@@ -601,14 +601,14 @@ def make_pre_calc_parameters(
     q_sol_frnt_is_ns = q_trs_sol_is_ns * a12.get_r_sol_frnt()
 
     # 室iにおける日射が吸収される境界の面積の合計, m2, [i, 1]
-    a_srf_abs_is = np.dot(p, a_srf_js * is_solar_abs_js)
+    a_srf_abs_is = np.dot(k_is_js, a_srf_js * is_solar_abs_js)
 
     # ステップnの境界jにおける透過日射吸収熱量, W/m2, [j, n]
-    q_sol_js_ns = np.dot(p.T, q_trs_sol_is_ns / a_srf_abs_is)\
+    q_sol_js_ns = np.dot(k_is_js.T, q_trs_sol_is_ns / a_srf_abs_is)\
         * is_solar_abs_js * (1.0 - a12.get_r_sol_frnt())
 
     # 室iの在室者に対する境界j*の形態係数, [i, j]
-    f_mrt_hum_is_js = p * f_mrt_hum_is[np.newaxis, :]
+    f_mrt_hum_is_js = k_is_js * f_mrt_hum_is[np.newaxis, :]
 
     # 境界jの裏面温度に他の境界の等価温度が与える影響, [j, j]
     k_ei_js_js = []
@@ -626,15 +626,15 @@ def make_pre_calc_parameters(
 
     # AX, [j, j]
     ax_js_js = np.diag(1.0 + phi_a0_js * h_i_js)\
-        - np.dot(p.T, f_mrt_is_js) * (h_r_js * phi_a0_js)[:, np.newaxis]\
-        - np.dot(k_ei_js_js, np.dot(p.T, f_mrt_is_js)) * (h_r_js / h_i_js * phi_t0_js)[:, np.newaxis]
+        - np.dot(k_is_js.T, f_mrt_is_js) * (h_r_js * phi_a0_js)[:, np.newaxis]\
+        - np.dot(k_ei_js_js, np.dot(k_is_js.T, f_mrt_is_js)) * (h_r_js / h_i_js * phi_t0_js)[:, np.newaxis]
 
     # AX^-1, [j, j]
     ivs_ax_js_js = np.linalg.inv(ax_js_js)
 
     # FIA, [j, i]
-    fia_js_is = (phi_a0_js * h_c_js)[:, np.newaxis] * p.T\
-        + np.dot(k_ei_js_js, p.T) * (phi_t0_js * h_c_js / h_i_js)[:, np.newaxis]
+    fia_js_is = (phi_a0_js * h_c_js)[:, np.newaxis] * k_is_js.T\
+        + np.dot(k_ei_js_js, k_is_js.T) * (phi_t0_js * h_c_js / h_i_js)[:, np.newaxis]
 
     # CRX, W, [j, n]
     crx_js_ns = phi_a0_js[:, np.newaxis] * q_sol_js_ns\
@@ -655,12 +655,12 @@ def make_pre_calc_parameters(
     wsb_js_is = np.dot(ivs_ax_js_js, flb_js_is)
 
     # BRL, [i, i]
-    brl_is_is = np.dot(p, wsb_js_is * (h_c_js)[:, np.newaxis] * a_srf_js) + np.diag(beta_is)
+    brl_is_is = np.dot(k_is_js, wsb_js_is * (h_c_js)[:, np.newaxis] * a_srf_js) + np.diag(beta_is)
 
     # BRM(通風なし), W/K, [i, n]
     brm_noncv_is = (
         c_room_is/900
-        + np.sum(np.dot(p, (p.T - wsr_js_is) * a_srf_js * (h_c_js)[:, np.newaxis]), axis=1)
+        + np.sum(np.dot(k_is_js, (k_is_js.T - wsr_js_is) * a_srf_js * (h_c_js)[:, np.newaxis]), axis=1)
         + v_int_vent_is_is.sum(axis=1) * a18.get_c_air() * a18.get_rho_air()
         + c_cap_frnt_is * c_frnt_is / (c_cap_frnt_is + c_frnt_is * 900)
     )[:, np.newaxis] + v_mec_vent_is_ns * a18.get_c_air() * a18.get_rho_air()
@@ -713,7 +713,7 @@ def make_pre_calc_parameters(
         brm_noncv_is=brm_noncv_is,
         ivs_ax_js_js=ivs_ax_js_js,
         brl_is_is=brl_is_is,
-        p=p,
+        p=k_is_js,
         get_vac_xeout_is=get_vac_xeout_is,
         is_ground_js=is_ground_js,
         wsc_js_ns=wsc_js_ns
