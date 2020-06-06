@@ -166,7 +166,7 @@ class PreCalcParameters:
         # 放射冷房有無（Trueなら放射冷房あり）
         self.is_radiative_cooling_is = is_radiative_cooling_is
 
-        # 放射暖房対流比率
+        # 放射暖房対流比率, [i, 1]
         self.beta_is = beta_is
 
         self.get_vac_xeout_is = get_vac_xeout_is

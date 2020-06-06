@@ -427,8 +427,8 @@ def make_pre_calc_parameters(
     # 空間iのC値, [i]
     c_value_is = np.array([s['c_value'] for s in ss])
 
-    # 室iに設置された放射暖房の対流成分比率, [i]
-    beta_is = np.array([s['beta'] for s in ss])
+    # 室iに設置された放射暖房の対流成分比率, [i, 1]
+    beta_is = np.array([s['beta'] for s in ss]).reshape(-1, 1)
 
     # 室iの機械換気量（局所換気を除く）, m3/h, [i]
     v_vent_ex_is = np.array([s['ventilation']['mechanical'] for s in ss])
@@ -654,8 +654,8 @@ def make_pre_calc_parameters(
         + phi_t0_js * theta_dstrb_js_ns
 
     # FLB, K/W, [j, i]
-    flb_js_is = flr_js_is * (1.0 - beta_is)[np.newaxis, :] * phi_a0_js / a_srf_js\
-        + np.dot(k_ei_js_js, flr_js_is) * (1.0 - beta_is)[np.newaxis, :] * phi_t0_js / h_i_js / a_srf_js
+    flb_js_is = np.dot(flr_js_is, (1.0 - beta_is)) * phi_a0_js / a_srf_js\
+        + np.dot(k_ei_js_js, np.dot(flr_js_is, (1.0 - beta_is))) * phi_t0_js / h_i_js / a_srf_js
 
     # WSR, [j, i]
     wsr_js_is = np.dot(ivs_ax_js_js, fia_js_is)
@@ -667,7 +667,7 @@ def make_pre_calc_parameters(
     wsb_js_is = np.dot(ivs_ax_js_js, flb_js_is)
 
     # BRL, [i, i]
-    brl_is_is = np.dot(k_is_js, wsb_js_is * h_c_js * a_srf_js) + np.diag(beta_is)
+    brl_is_is = np.dot(k_is_js, wsb_js_is * h_c_js * a_srf_js) + np.diag(beta_is.flatten())
 
     # BRM(通風なし), W/K, [i, n]
     brm_noncv_is = (
