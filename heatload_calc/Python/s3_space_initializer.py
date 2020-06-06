@@ -572,15 +572,22 @@ def make_pre_calc_parameters(
     number_of_bdries = len(bs)
 
     # 室iと境界jの関係を表す係数（境界jから室iへの変換）
-    # [[k_0_0 ... k_0_j]
-    #  [ ...  ...  ... ]
-    #  [k_i_0 ... k_i_j]]
+    # [[k_0_0 ... ... k_0_j]
+    #  [ ...  ... ...  ... ]
+    #  [k_i_0 ... ... k_i_j]]
     k_is_js = np.zeros((number_of_spaces, number_of_bdries), dtype=int)
     for i in range(number_of_spaces):
         k_is_js[i, connected_space_id_js == i] = 1
 
+    # 室iと境界jの関係を表す係数（室iから境界jへの変換）
+    # [[k_0_0 ... k_i_0]
+    #  [ ...  ...  ... ]
+    #  [ ...  ...  ... ]
+    #  [k_0_j ... k_i_j]]
+    k_js_is = k_is_js.T
+
     # 室iに設置された放射暖房の放熱量のうち放射成分に対する境界jの室内側吸収比率, [j, i]
-    flr_js_is = k_is_js.T * flr_js[:, np.newaxis]
+    flr_js_is = k_js_is * flr_js[:, np.newaxis]
 
     # 室iの空気の熱容量, J/K, [i]
     c_room_is = v_room_cap_is * a39.get_rho_air() * a39.get_c_air()
@@ -604,7 +611,7 @@ def make_pre_calc_parameters(
     a_srf_abs_is = np.dot(k_is_js, a_srf_js * is_solar_abs_js)
 
     # ステップnの境界jにおける透過日射吸収熱量, W/m2, [j, n]
-    q_sol_js_ns = np.dot(k_is_js.T, q_trs_sol_is_ns / a_srf_abs_is)\
+    q_sol_js_ns = np.dot(k_js_is, q_trs_sol_is_ns / a_srf_abs_is)\
         * is_solar_abs_js * (1.0 - a12.get_r_sol_frnt())
 
     # 室iの在室者に対する境界j*の形態係数, [i, j]
@@ -626,15 +633,15 @@ def make_pre_calc_parameters(
 
     # AX, [j, j]
     ax_js_js = np.diag(1.0 + phi_a0_js * h_i_js)\
-        - np.dot(k_is_js.T, f_mrt_is_js) * (h_r_js * phi_a0_js)[:, np.newaxis]\
-        - np.dot(k_ei_js_js, np.dot(k_is_js.T, f_mrt_is_js)) * (h_r_js / h_i_js * phi_t0_js)[:, np.newaxis]
+        - np.dot(k_js_is, f_mrt_is_js) * (h_r_js * phi_a0_js)[:, np.newaxis]\
+        - np.dot(k_ei_js_js, np.dot(k_js_is, f_mrt_is_js)) * (h_r_js / h_i_js * phi_t0_js)[:, np.newaxis]
 
     # AX^-1, [j, j]
     ivs_ax_js_js = np.linalg.inv(ax_js_js)
 
     # FIA, [j, i]
-    fia_js_is = (phi_a0_js * h_c_js)[:, np.newaxis] * k_is_js.T\
-        + np.dot(k_ei_js_js, k_is_js.T) * (phi_t0_js * h_c_js / h_i_js)[:, np.newaxis]
+    fia_js_is = (phi_a0_js * h_c_js)[:, np.newaxis] * k_js_is\
+        + np.dot(k_ei_js_js, k_js_is) * (phi_t0_js * h_c_js / h_i_js)[:, np.newaxis]
 
     # CRX, W, [j, n]
     crx_js_ns = phi_a0_js[:, np.newaxis] * q_sol_js_ns\
@@ -660,7 +667,7 @@ def make_pre_calc_parameters(
     # BRM(通風なし), W/K, [i, n]
     brm_noncv_is = (
         c_room_is/900
-        + np.sum(np.dot(k_is_js, (k_is_js.T - wsr_js_is) * a_srf_js * (h_c_js)[:, np.newaxis]), axis=1)
+        + np.sum(np.dot(k_is_js, (k_js_is - wsr_js_is) * a_srf_js * (h_c_js)[:, np.newaxis]), axis=1)
         + v_int_vent_is_is.sum(axis=1) * a18.get_c_air() * a18.get_rho_air()
         + c_cap_frnt_is * c_frnt_is / (c_cap_frnt_is + c_frnt_is * 900)
     )[:, np.newaxis] + v_mec_vent_is_ns * a18.get_c_air() * a18.get_rho_air()
@@ -713,7 +720,8 @@ def make_pre_calc_parameters(
         brm_noncv_is=brm_noncv_is,
         ivs_ax_js_js=ivs_ax_js_js,
         brl_is_is=brl_is_is,
-        p=k_is_js,
+        k_is_js=k_is_js,
+        k_js_is=k_js_is,
         get_vac_xeout_is=get_vac_xeout_is,
         is_ground_js=is_ground_js,
         wsc_js_ns=wsc_js_ns
