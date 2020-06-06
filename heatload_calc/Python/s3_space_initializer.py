@@ -491,7 +491,7 @@ def make_pre_calc_parameters(
     # 境界jの項別公比法における項mの公比, [j, 12]
     r_js_ms = np.array([b['r'] for b in bs])
 
-    # 境界jの室内側表面総合熱伝達率, W/m2K, [j]
+    # 境界jの室内側表面総合熱伝達率, W/m2K, [j, 1]
     h_i_js = np.array([b['h_i'] for b in bs]).reshape(-1, 1)
 
     # 境界jの室に設置された放射暖房の放熱量のうち放射成分に対する境界jの室内側吸収比率
