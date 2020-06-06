@@ -24,7 +24,7 @@ def run_tick_groundonly(To_n: float, Tave: float, c_n: Conditions, ss: PreCalcPa
     q_srf_jstrs_n = c_n.q_srf_jstrs_n
     gs = ss.is_ground_js
 
-    h_r_bnd_jstrs = ss.h_r_js
+    h_r_bnd_jstrs = ss.h_r_js.flatten()
     h_c_bnd_jstrs = ss.h_c_js
 
     h_i_bnd_jstrs = h_r_bnd_jstrs + h_c_bnd_jstrs
@@ -244,7 +244,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
     theta_ei_jstrs_n = a1.get_theta_ei_jstrs_n(
         h_c_bnd_jstrs=ss.h_c_js,
         a_bnd_jstrs=ss.a_srf_js.flatten(),
-        h_r_bnd_jstrs=ss.h_r_js,
+        h_r_bnd_jstrs=ss.h_r_js.flatten(),
         q_sol_srf_jstrs_n=ss.q_sol_js_ns[:, n],
         flr_is_k=np.sum(ss.flr_js_is, axis=1),
         theta_r_is_npls=theta_r_is_n_pls,
@@ -264,7 +264,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
 
     Qrs = a1.get_Qr(
         a_bnd_jstrs=ss.a_srf_js.flatten(),
-        h_r_bnd_jstrs=ss.h_r_js,
+        h_r_bnd_jstrs=ss.h_r_js.flatten(),
         theta_s_jstrs_n=theta_s_jstrs_n,
         p=ss.k_is_js,
         Tsx=Tsx
@@ -274,7 +274,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
     # ステップnの統合された境界j*における表面熱流（壁体吸熱を正とする）, W/m2, [j*]
     q_srf_is_jstrs_n = a1.calc_qi(
         h_c_bnd_jstrs=ss.h_c_js,
-        h_r_bnd_jstrs=ss.h_r_js,
+        h_r_bnd_jstrs=ss.h_r_js.flatten(),
         theta_s_jstrs_n=theta_s_jstrs_n,
         theta_ei_jstrs_n=theta_ei_jstrs_n,
     )

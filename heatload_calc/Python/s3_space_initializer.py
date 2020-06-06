@@ -592,14 +592,14 @@ def make_pre_calc_parameters(
     # 室iの空気の熱容量, J/K, [i]
     c_room_is = v_room_cap_is * a39.get_rho_air() * a39.get_c_air()
 
-    # 境界jの室内側表面放射熱伝達率, W/m2K, [j]
+    # 境界jの室内側表面放射熱伝達率, W/m2K, [j, 1]
     h_r_js = a12.get_h_r_js(a_srf_js=a_srf_js, k_js_is=k_js_is)
 
     # 平均放射温度計算時の各部位表面温度の重み, [i, j]
-    f_mrt_is_js =a12.get_f_mrt_is_js(a_srf_js=a_srf_js, h_r_bnd_jstrs=h_r_js, p=k_is_js)
+    f_mrt_is_js =a12.get_f_mrt_is_js(a_srf_js=a_srf_js, h_r_bnd_jstrs=h_r_js.flatten(), p=k_is_js)
 
     # 境界jの室内側表面対流熱伝達率, W/m2K, [j]
-    h_c_js = np.clip(h_i_js.flatten() - h_r_js, 0, None)
+    h_c_js = np.clip(h_i_js.flatten() - h_r_js.flatten(), 0, None)
 
     # ステップnの室iにおける機械換気量（全般換気量+局所換気量）, m3/s, [i, n]
     v_mec_vent_is_ns = v_vent_ex_is[:, np.newaxis] + v_mec_vent_local_is_ns
@@ -633,8 +633,8 @@ def make_pre_calc_parameters(
 
     # AX, [j, j]
     ax_js_js = np.diag(1.0 + phi_a0_js * h_i_js.flatten())\
-        - np.dot(k_js_is, f_mrt_is_js) * (h_r_js * phi_a0_js)[:, np.newaxis]\
-        - np.dot(k_ei_js_js, np.dot(k_js_is, f_mrt_is_js)) * (h_r_js * phi_t0_js)[:, np.newaxis] / h_i_js
+        - np.dot(k_js_is, f_mrt_is_js) * h_r_js * phi_a0_js[:, np.newaxis]\
+        - np.dot(k_ei_js_js, np.dot(k_js_is, f_mrt_is_js)) * h_r_js * phi_t0_js[:, np.newaxis] / h_i_js
 
     # AX^-1, [j, j]
     ivs_ax_js_js = np.linalg.inv(ax_js_js)

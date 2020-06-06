@@ -202,7 +202,7 @@ def get_h_r_js(a_srf_js, k_js_is):
 
     hr_i_k_n = eps_m / (1.0 - eps_m * FF_m) * 4.0 * Sgm * (MRT + 273.15) ** 3.0
 
-    return hr_i_k_n
+    return hr_i_k_n.reshape(-1, 1)
 
 
 # 平均放射温度MRT
