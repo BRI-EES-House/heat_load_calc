@@ -586,6 +586,17 @@ def make_pre_calc_parameters(
     #  [k_0_j ... k_i_j]]
     k_js_is = k_is_js.T
 
+    # 境界jの裏面温度に他の境界の等価温度が与える影響, [j, j]
+    k_ei_js_js = []
+    for k_ei_id_j, k_ei_coef_j in zip(k_ei_id_js, k_ei_coef_js):
+        k_ei_js = [0.0] * number_of_bdries
+        if k_ei_id_j is None:
+            pass
+        else:
+            k_ei_js[k_ei_id_j] = k_ei_coef_j
+        k_ei_js_js.append(k_ei_js)
+    k_ei_js_js = np.array(k_ei_js_js)
+
     # 室iに設置された放射暖房の放熱量のうち放射成分に対する境界jの室内側吸収比率, [j, i]
     flr_js_is = k_js_is * flr_js[:, np.newaxis]
 
@@ -616,17 +627,6 @@ def make_pre_calc_parameters(
     # ステップnの境界jにおける透過日射吸収熱量, W/m2, [j, n]
     q_sol_js_ns = np.dot(k_js_is, q_trs_sol_is_ns / a_srf_abs_is)\
         * is_solar_abs_js * (1.0 - a12.get_r_sol_frnt())
-
-    # 境界jの裏面温度に他の境界の等価温度が与える影響, [j, j]
-    k_ei_js_js = []
-    for k_ei_id_j, k_ei_coef_j in zip(k_ei_id_js, k_ei_coef_js):
-        k_ei_js = [0.0] * number_of_bdries
-        if k_ei_id_j is None:
-            pass
-        else:
-            k_ei_js[k_ei_id_j] = k_ei_coef_j
-        k_ei_js_js.append(k_ei_js)
-    k_ei_js_js = np.array(k_ei_js_js)
 
     # ステップnの境界jにおける外気側等価温度の外乱成分, ℃, [j, n]
     theta_dstrb_js_ns = theta_o_sol_js_ns * k_eo_js[:, np.newaxis]
