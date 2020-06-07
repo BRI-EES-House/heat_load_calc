@@ -20,7 +20,7 @@ from a33_results_exporting import Logger
 # 地盤の計算
 def run_tick_groundonly(To_n: float, Tave: float, c_n: Conditions, ss: PreCalcParameters):
 
-    theta_dsh_srf_a_jstrs_n_ms = c_n.theta_dsh_srf_a_jstrs_n_ms
+    theta_dsh_srf_a_jstrs_n_ms = c_n.theta_dsh_s_a_js_ms_n
     q_srf_jstrs_n = c_n.q_srf_jstrs_n
     gs = ss.is_ground_js
 
@@ -48,7 +48,7 @@ def run_tick_groundonly(To_n: float, Tave: float, c_n: Conditions, ss: PreCalcPa
         theta_r_is_n=c_n.theta_r_is_n,
         theta_mrt_hum_is_n=c_n.theta_mrt_hum_is_n,
         x_r_is_n=c_n.x_r_is_n,
-        theta_dsh_srf_a_jstrs_n_ms=theta_dsh_srf_a_jstrs_n_ms,
+        theta_dsh_s_a_js_ms_n=theta_dsh_srf_a_jstrs_n_ms,
         theta_dsh_srf_t_jstrs_n_ms=c_n.theta_dsh_srf_t_jstrs_n_ms,
         q_srf_jstrs_n=q_srf_jstrs_n,
 #        h_hum_c_is_n=c_n.h_hum_c_is_n,
@@ -126,7 +126,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
     v_reak_is_n = np.full(ss.number_of_spaces, 0.0)
 
     # ステップn+1の境界jにおける項別公比法の指数項mの吸熱応答の項別成分, degree C, [j, m] (m=12)
-    theta_s_dsh_a_js_npls_ms = ss.phi_a1_js_ms * c_n.q_srf_jstrs_n[:, np.newaxis] + ss.r_js_ms * c_n.theta_dsh_srf_a_jstrs_n_ms
+    theta_dsh_s_a_js_ms_npls = ss.phi_a1_js_ms * c_n.q_srf_jstrs_n[:, np.newaxis] + ss.r_js_ms * c_n.theta_dsh_s_a_js_ms_n
 
     # ステップn+1の統合された境界j*における項別公比法の指数項mの貫流応答の項別成分, degree C, [jstrs, 12]
     theta_srf_dsh_t_is_jstrs_npls_ms = a1.get_theta_srf_dsh_t_i_jstrs_npls_ms(
@@ -139,7 +139,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
     # ステップn+1の室iの統合された境界j*における係数CVL, degree C, [j*]
     cvl_is_jstrs_npls = a1.get_cvl_i_jstrs_npls(
         theta_srf_dsh_t_i_jstrs_npls_ms=theta_srf_dsh_t_is_jstrs_npls_ms,
-        theta_srf_dsh_a_i_jstrs_npls_ms=theta_s_dsh_a_js_npls_ms)
+        theta_srf_dsh_a_i_jstrs_npls_ms=theta_dsh_s_a_js_ms_npls)
 
     # ステップn+1の室iの断熱された境界j*における係数WSC, degree C, [j*]
     wsc_is_jstrs_npls = ss.wsc_js_ns[:, n]
@@ -376,7 +376,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
         theta_r_is_n=theta_r_is_n_pls,
         theta_mrt_hum_is_n=theta_mrt_hum_is_n_pls,
         x_r_is_n=x_r_is_n_pls,
-        theta_dsh_srf_a_jstrs_n_ms=theta_s_dsh_a_js_npls_ms,
+        theta_dsh_s_a_js_ms_n=theta_dsh_s_a_js_ms_npls,
         theta_dsh_srf_t_jstrs_n_ms=theta_srf_dsh_t_is_jstrs_npls_ms,
         q_srf_jstrs_n=q_srf_is_jstrs_n,
         theta_frnt_is_n=theta_frnt_is_n,
