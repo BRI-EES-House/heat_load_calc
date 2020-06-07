@@ -275,7 +275,7 @@ class Conditions:
         # ステップnの統合された境界j*における指数項mの貫流応答の項別成分, degree C, [j*, 12]
         self.theta_dsh_srf_t_jstrs_n_ms = theta_dsh_srf_t_jstrs_n_ms
 
-        # ステップnの統合された境界j*における表面熱流（壁体吸熱を正とする）, W/m2, [j*]
+        # ステップnの境界jにおける表面熱流（壁体吸熱を正とする）, W/m2, [j, 1]
         self.q_srf_js_n = q_srf_js_n.reshape(-1, 1)
 
         # ステップnの室iにおける家具の温度, degree C, [i]
