@@ -126,12 +126,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
     v_reak_is_n = np.full(ss.number_of_spaces, 0.0)
 
     # ステップn+1の統合された境界j*における項別公比法の指数項mの吸熱応答の項別成分, degree C, [jstrs, 12]
-    theta_s_dsh_a_js_npls_ms = a1.get_theta_srf_dsh_a_i_jstrs_npls_ms(
-        q_srf_jstrs_n=c_n.q_srf_jstrs_n,
-        phi_a_1_bnd_jstrs_ms=ss.phi_a1_js_ms,
-        r_bnd_i_jstrs_ms=ss.r_js_ms,
-        theta_dsh_srf_a_jstrs_n_ms=c_n.theta_dsh_srf_a_jstrs_n_ms
-    )
+    theta_s_dsh_a_js_npls_ms = ss.phi_a1_js_ms * c_n.q_srf_jstrs_n[:, np.newaxis] + ss.r_js_ms * c_n.theta_dsh_srf_a_jstrs_n_ms
 
     # ステップn+1の統合された境界j*における項別公比法の指数項mの貫流応答の項別成分, degree C, [jstrs, 12]
     theta_srf_dsh_t_is_jstrs_npls_ms = a1.get_theta_srf_dsh_t_i_jstrs_npls_ms(
