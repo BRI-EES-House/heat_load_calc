@@ -114,10 +114,10 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
     # ステップnの室iにおける人体発湿, kg/s, [i]
     x_hum_is_n = a3.get_x_hum_i_n(theta_r_is_n=c_n.theta_r_is_n, n_hum_i_n=ss.n_hum_is_ns[:, n])
 
-    # ステップnの室iにおける内部発熱, W
+    # ステップnの室iにおける内部発熱, W, [j]
     q_gen_is_n = ss.q_gen_is_ns[:, n] + q_hum_is_n
 
-    # ステップnの室iにおける内部発湿, kg/s
+    # ステップnの室iにおける内部発湿, kg/s, [j]
     x_gen_is_n = ss.x_gen_is_ns[:, n] + x_hum_is_n
 
     # TODO: すきま風量未実装につき、とりあえず０とする
