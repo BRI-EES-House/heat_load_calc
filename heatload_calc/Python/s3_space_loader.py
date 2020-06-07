@@ -269,7 +269,7 @@ class Conditions:
         # ステップnにおける室iの絶対湿度, kg/kgDA, [i]
         self.x_r_is_n = x_r_is_n
 
-        # ステップnの統合された境界j*における指数項mの吸熱応答の項別成分, degree C, [j*, 12]
+        # ステップnの境界jにおける項別公比法の指数項mの吸熱応答の項別成分, degree C, [j, m] (m=12)
         self.theta_dsh_srf_a_jstrs_n_ms = theta_dsh_srf_a_jstrs_n_ms
 
         # ステップnの統合された境界j*における指数項mの貫流応答の項別成分, degree C, [j*, 12]
