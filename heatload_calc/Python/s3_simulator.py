@@ -263,13 +263,13 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
     )
 
     # 室内表面熱流の計算 式(28)
-    # ステップnの統合された境界j*における表面熱流（壁体吸熱を正とする）, W/m2, [j*]
-    q_srf_is_jstrs_n = a1.calc_qi(
+    # ステップnの境界jにおける表面熱流（壁体吸熱を正とする）, W/m2, [j, 1]
+    q_srf_js_n = a1.calc_qi(
         h_c_bnd_jstrs=ss.h_c_js.flatten(),
         h_r_bnd_jstrs=ss.h_r_js.flatten(),
         theta_s_jstrs_n=theta_s_jstrs_n,
         theta_ei_jstrs_n=theta_ei_jstrs_n,
-    )
+    ).reshape(-1, 1)
 
     # 式(17)
     BRMX_pre_is = s42.get_BRMX(
@@ -378,7 +378,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
         x_r_is_n=x_r_is_n_pls,
         theta_dsh_s_a_js_ms_n=theta_dsh_s_a_js_ms_npls,
         theta_dsh_srf_t_jstrs_n_ms=theta_srf_dsh_t_is_jstrs_npls_ms,
-        q_srf_js_n=q_srf_is_jstrs_n.reshape(-1, 1),
+        q_srf_js_n=q_srf_js_n,
         theta_frnt_is_n=theta_frnt_is_n,
         x_frnt_is_n=xf_i_n,
         theta_cl_is_n=theta_cl_is_n_pls,
