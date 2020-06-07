@@ -21,7 +21,7 @@ from a33_results_exporting import Logger
 def run_tick_groundonly(To_n: float, Tave: float, c_n: Conditions, ss: PreCalcParameters):
 
     theta_dsh_srf_a_jstrs_n_ms = c_n.theta_dsh_s_a_js_ms_n
-    q_srf_jstrs_n = c_n.q_srf_jstrs_n
+    q_srf_jstrs_n = c_n.q_srf_jstrs_n.flatten()
     gs = ss.is_ground_js
 
     h_r_bnd_jstrs = ss.h_r_js.flatten()
@@ -126,7 +126,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
     v_reak_is_n = np.full(ss.number_of_spaces, 0.0)
 
     # ステップn+1の境界jにおける項別公比法の指数項mの吸熱応答の項別成分, degree C, [j, m] (m=12)
-    theta_dsh_s_a_js_ms_npls = ss.phi_a1_js_ms * c_n.q_srf_jstrs_n[:, np.newaxis] + ss.r_js_ms * c_n.theta_dsh_s_a_js_ms_n
+    theta_dsh_s_a_js_ms_npls = ss.phi_a1_js_ms * c_n.q_srf_jstrs_n + ss.r_js_ms * c_n.theta_dsh_s_a_js_ms_n
 
     # ステップn+1の統合された境界j*における項別公比法の指数項mの貫流応答の項別成分, degree C, [jstrs, 12]
     theta_srf_dsh_t_is_jstrs_npls_ms = a1.get_theta_srf_dsh_t_i_jstrs_npls_ms(

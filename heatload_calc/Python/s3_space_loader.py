@@ -276,7 +276,7 @@ class Conditions:
         self.theta_dsh_srf_t_jstrs_n_ms = theta_dsh_srf_t_jstrs_n_ms
 
         # ステップnの統合された境界j*における表面熱流（壁体吸熱を正とする）, W/m2, [j*]
-        self.q_srf_jstrs_n = q_srf_jstrs_n
+        self.q_srf_jstrs_n = q_srf_jstrs_n.reshape(-1, 1)
 
         # ステップnの室iにおける家具の温度, degree C, [i]
         self.theta_frnt_is_n = theta_frnt_is_n
