@@ -439,8 +439,8 @@ def make_pre_calc_parameters(
     # 室iの自然風利用時の換気量, m3/s, [i]
     v_ntrl_vent_is = np.array([s['ventilation']['natural'] for s in ss])
 
-    # 室iの家具等の熱容量, J/K
-    c_cap_frnt_is = np.array([s['furniture']['heat_capacity'] for s in ss])
+    # 室iの家具等の熱容量, J/K, [i, 1]
+    c_cap_frnt_is = np.array([s['furniture']['heat_capacity'] for s in ss]).reshape(-1, 1)
 
     # 室iの家具等と空気間の熱コンダクタンス, W/K, [i]
     c_frnt_is = np.array([s['furniture']['heat_cond'] for s in ss])
@@ -674,7 +674,7 @@ def make_pre_calc_parameters(
         c_room_is.flatten()/900
         + np.sum(np.dot(p_is_js, (p_js_is - wsr_js_is) * a_srf_js * h_c_js), axis=1)
         + v_int_vent_is_is.sum(axis=1) * a18.get_c_air() * a18.get_rho_air()
-        + c_cap_frnt_is * c_frnt_is / (c_cap_frnt_is + c_frnt_is * 900)
+        + c_cap_frnt_is.flatten() * c_frnt_is / (c_cap_frnt_is.flatten() + c_frnt_is * 900)
     )[:, np.newaxis] + v_mec_vent_is_ns * a18.get_c_air() * a18.get_rho_air()
 
     # endregion

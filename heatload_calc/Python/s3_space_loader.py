@@ -86,7 +86,7 @@ class PreCalcParameters:
         # 室iの熱容量, J/K, [i, 1]
         self.c_room_is = c_room_is
 
-        # 室iの家具等の熱容量, J/K, [i]
+        # 室iの家具等の熱容量, J/K, [i, 1]
         self.c_cap_frnt_is = c_cap_frnt_is
 
         # 室iの家具等と空気間の熱コンダクタンス, W/K, [i]
