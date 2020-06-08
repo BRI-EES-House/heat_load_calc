@@ -670,12 +670,11 @@ def make_pre_calc_parameters(
     brl_is_is = np.dot(p_is_js, wsb_js_is * h_c_js * a_srf_js) + np.diag(beta_is.flatten())
 
     # BRM(通風なし), W/K, [i, n]
-    brm_noncv_is = (
-        c_room_is.flatten()/900
-        + np.sum(np.dot(p_is_js, (p_js_is - wsr_js_is) * a_srf_js * h_c_js), axis=1)
-        + v_int_vent_is_is.sum(axis=1) * a18.get_c_air() * a18.get_rho_air()
-        + c_cap_frnt_is.flatten() * c_frnt_is.flatten() / (c_cap_frnt_is.flatten() + c_frnt_is.flatten() * 900)
-    )[:, np.newaxis] + v_mec_vent_is_ns * a18.get_c_air() * a18.get_rho_air()
+    brm_noncv_is = c_room_is / 900.0\
+        + np.sum(np.dot(p_is_js, (p_js_is - wsr_js_is) * a_srf_js * h_c_js), axis=1, keepdims=True)\
+        + v_int_vent_is_is.sum(axis=1, keepdims=True) * a18.get_c_air() * a18.get_rho_air()\
+        + c_cap_frnt_is * c_frnt_is / (c_cap_frnt_is + c_frnt_is * 900.0)\
+        + v_mec_vent_is_ns * a18.get_c_air() * a18.get_rho_air()
 
     # endregion
 
