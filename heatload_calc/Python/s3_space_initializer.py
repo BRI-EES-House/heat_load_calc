@@ -436,8 +436,8 @@ def make_pre_calc_parameters(
     # 室iの隣室iからの機械換気量, m3/s, [i, i]
     v_int_vent_is_is = np.array([s['ventilation']['next_spaces'] for s in ss])
 
-    # 室iの自然風利用時の換気量, m3/s, [i]
-    v_ntrl_vent_is = np.array([s['ventilation']['natural'] for s in ss])
+    # 室iの自然風利用時の換気量, m3/s, [i, 1]
+    v_ntrl_vent_is = np.array([s['ventilation']['natural'] for s in ss]).reshape(-1, 1)
 
     # 室iの家具等の熱容量, J/K, [i, 1]
     c_cap_frnt_is = np.array([s['furniture']['heat_capacity'] for s in ss]).reshape(-1, 1)

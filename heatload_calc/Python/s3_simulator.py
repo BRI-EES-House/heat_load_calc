@@ -143,7 +143,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
 
     # 室iの自然風利用による換気量, m3/s, [i]
     # 自然風を利用していない場合は、0.0 m3/s になる。
-    v_ntrl_vent_is = np.where(operation_mode_is_n == OperationMode.STOP_OPEN, ss.v_ntrl_vent_is, 0.0)
+    v_ntrl_vent_is = np.where(operation_mode_is_n == OperationMode.STOP_OPEN, ss.v_ntrl_vent_is.flatten(), 0.0)
 
     # ステップnの室iにおける係数BRC
     brc_i_n = (ss.c_room_is.flatten() / 900.0 * c_n.theta_r_is_n

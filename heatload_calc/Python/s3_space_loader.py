@@ -110,7 +110,7 @@ class PreCalcParameters:
         # 家具の吸収日射量, W, [i, 8760*4]
         self.q_sol_frnt_is_ns = q_sol_frnt_is_ns
 
-        # 室iの自然風利用時の換気量, m3/s, [i]
+        # 室iの自然風利用時の換気量, m3/s, [i, 1]
         self.v_ntrl_vent_is = v_ntrl_vent_is
 
         # ステップnの室iにおける窓の透過日射熱取得, W, [8760*4]
