@@ -152,7 +152,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
                 + np.dot(ss.v_int_vent_is, c_n.theta_r_is_n.reshape(-1, 1)).flatten()
                )
         + q_gen_is_n
-        + (ss.c_cap_frnt_is.flatten() / 900.0 * c_n.theta_frnt_is_n + ss.q_sol_frnt_is_ns[:, n]) / (ss.c_cap_frnt_is.flatten() / (900.0 * ss.c_frnt_is) + 1.0)
+        + (ss.c_cap_frnt_is.flatten() / 900.0 * c_n.theta_frnt_is_n + ss.q_sol_frnt_is_ns[:, n]) / (ss.c_cap_frnt_is.flatten() / (900.0 * ss.c_frnt_is.flatten()) + 1.0)
         + a18.get_c_air() * a18.get_rho_air() * v_ntrl_vent_is * theta_o_n
     )
 
@@ -189,7 +189,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
     theta_frnt_is_n = s41.get_Tfun_i_n(
         ss.c_cap_frnt_is.flatten(),
         c_n.theta_frnt_is_n,
-        ss.c_frnt_is, theta_r_is_n_pls,
+        ss.c_frnt_is.flatten(), theta_r_is_n_pls,
         ss.q_sol_frnt_is_ns[:, n]
     )
 

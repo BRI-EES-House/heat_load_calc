@@ -113,7 +113,7 @@ class Logger:
         self.rh = psy.get_h(p_v=p_v, p_vs=p_vs)
 
         # ステップnの室iにおける家具取得熱量, W, [i, n]
-        self.q_frnt = s41.get_Qfuns(ss.c_frnt_is, self.theta_r, self.theta_frnt)
+        self.q_frnt = s41.get_Qfuns(ss.c_frnt_is.flatten(), self.theta_r, self.theta_frnt)
 
 
 def append_headers(spaces2: PreCalcParameters) -> List[List]:
