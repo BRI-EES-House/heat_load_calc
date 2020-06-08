@@ -218,6 +218,7 @@ class PreCalcParameters:
         # 床暖房の発熱部位？
         self.flr_js_is = flr_js_is
 
+        # WSC, W, [j, n]
         self.wsc_js_ns = wsc_js_ns
 
         # 境界jの裏面温度に他の境界の等価温度が与える影響, [j, j]
