@@ -47,53 +47,6 @@ def get_BRLot(BRL, BRM, XLr):
     return BRL + BRM * XLr
 
 
-def get_brc_i_n(p, c_room_i: float, deta_t: float, theta_r_is_n: float, h_c_bnd_i_jstrs: np.ndarray,
-                a_bnd_i_jstrs: np.ndarray, wsc_i_jstrs_npls: np.ndarray, wsv_i_jstrs_npls: np.ndarray,
-                v_mec_vent_i_n: float, v_reak_i_n: float, v_ntrl_vent_i: float,
-                theta_o_n: float, q_gen_i_n: float,
-                c_cap_frnt_i: float, k_frnt_i: float, q_sol_frnt_i_n: float, theta_frnt_i_n: float,
-                v_int_vent_is) -> np.ndarray:
-    """係数BRC（通風なし）および係数BRC（通風あり）を取得する。
-
-    Args:
-        c_room_i: 室iの熱容量, J/K
-        deta_t: 時間刻み, s
-        theta_r_is_n: ステップnにおける室iの空気温度, degree C, [i]
-        h_c_bnd_i_jstrs: 室iの統合された境界j*における対流熱伝達率, W/m2K
-        a_bnd_i_jstrs: 室iの統合された境界j*における面積, m2
-        wsc_i_jstrs_npls: ステップn+1の室iの統合された境界j*における係数WSC, degree C, [j*]
-        wsv_i_jstrs_npls: ステップn+1の室iの統合された境界j*における係数WSV, degree C, [j*]
-        v_mec_vent_i_n: ステップnの室iにおける機械換気量（全般換気量+局所換気量）, m3/s
-        v_reak_i_n: ステップnの室iにおけるすきま風量, m3/s
-        v_int_vent_i_istrs: 室iにおける隣室i*からの室間換気量, m3/s, [j*]
-        v_ntrl_vent_i: 室iの自然風利用時の換気量, m3/s
-        theta_o_n: ステップnにおける外気温度, ℃, [8760 * 4]
-        theta_r_int_vent_i_istrs_n: ステップnの室iにおける隣室i*からの室間換気の空気温度, degree C, [i*]
-        q_gen_i_n: ステップnの室iにおける内部発熱, W
-        c_cap_frnt_i: 室iにおける家具の熱容量, J/K
-        k_frnt_i: 室iにおける家具と室空気間の熱コンダクタンス, W/K
-        q_sol_frnt_i_n: ステップnの室iにおける家具の吸収日射量, W, [8760*4]
-        theta_frnt_i_n: ステップnの室iにおける家具の温度, degree C
-
-    Returns:
-        ステップnの室iにおける係数BRC, W
-    """
-
-    c_air = a18.get_c_air()
-    rho_air = a18.get_rho_air()
-
-    return (c_room_i / deta_t * theta_r_is_n
-            + np.dot(p, (h_c_bnd_i_jstrs * a_bnd_i_jstrs * (wsc_i_jstrs_npls + wsv_i_jstrs_npls)).reshape(-1, 1)).flatten() \
-            + c_air * rho_air * (
-            (v_reak_i_n + v_mec_vent_i_n) * theta_o_n
-                + np.dot(v_int_vent_is, theta_r_is_n.reshape(-1, 1)).flatten()
-            )
-            + q_gen_i_n
-            + (c_cap_frnt_i / deta_t * theta_frnt_i_n + q_sol_frnt_i_n) / (c_cap_frnt_i / (deta_t * k_frnt_i) + 1.0)
-            + c_air * rho_air * v_ntrl_vent_i * theta_o_n
-            )
-
-
 # Xot 式(8)
 def get_Xot_i(Deno):
     return 1.0 / Deno

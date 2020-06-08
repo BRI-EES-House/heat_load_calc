@@ -135,7 +135,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
     cvl_js_npls = np.sum(theta_dsh_srf_t_js_ms_npls + theta_dsh_srf_a_js_ms_npls, axis=1, keepdims=True)
 
     # ステップn+1の室iの断熱された境界j*における係数WSC, degree C, [j*]
-    wsc_is_jstrs_npls = ss.wsc_js_ns[:, n]
+    wsc_js_npls = ss.wsc_js_ns[:, n]
 
     # ステップn+1の境界jにおける係数WSV, degree C, [j, 1]
     wsv_js_npls = np.dot(ss.ivs_ax_js_js, cvl_js_npls)
@@ -143,25 +143,15 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
     v_ntrl_vent_is = np.where(operation_mode_is_n == OperationMode.STOP_OPEN, ss.v_ntrl_vent_is, 0.0)
 
     # ステップnの室iにおける係数BRC
-    brc_i_n = s41.get_brc_i_n(
-        p=ss.p_is_js,
-        c_room_i=ss.c_room_is,
-        deta_t=900.0,
-        theta_r_is_n=c_n.theta_r_is_n,
-        h_c_bnd_i_jstrs=ss.h_c_js.flatten(),
-        a_bnd_i_jstrs=ss.a_srf_js.flatten(),
-        wsc_i_jstrs_npls=wsc_is_jstrs_npls,
-        wsv_i_jstrs_npls=wsv_js_npls.flatten(),
-        v_mec_vent_i_n=ss.v_mec_vent_is_ns[:, n],
-        v_reak_i_n=v_reak_is_n,
-        v_ntrl_vent_i=v_ntrl_vent_is,
-        theta_o_n=theta_o_n,
-        q_gen_i_n=q_gen_is_n,
-        c_cap_frnt_i=ss.c_cap_frnt_is,
-        k_frnt_i=ss.c_frnt_is,
-        q_sol_frnt_i_n=ss.q_sol_frnt_is_ns[:, n],
-        theta_frnt_i_n=c_n.theta_frnt_is_n,
-        v_int_vent_is=ss.v_int_vent_is
+    brc_i_n = (ss.c_room_is / 900.0 * c_n.theta_r_is_n
+        + np.dot(ss.p_is_js, (ss.h_c_js.flatten() * ss.a_srf_js.flatten() * (wsc_js_npls + wsv_js_npls.flatten())).reshape(-1, 1)).flatten() \
+        + a18.get_c_air() * a18.get_rho_air() * (
+            (v_reak_is_n + ss.v_mec_vent_is_ns[:, n]) * theta_o_n
+                + np.dot(ss.v_int_vent_is, c_n.theta_r_is_n.reshape(-1, 1)).flatten()
+               )
+        + q_gen_is_n
+        + (ss.c_cap_frnt_is / 900.0 * c_n.theta_frnt_is_n + ss.q_sol_frnt_is_ns[:, n]) / (ss.c_cap_frnt_is / (900.0 * ss.c_frnt_is) + 1.0)
+        + a18.get_c_air() * a18.get_rho_air() * v_ntrl_vent_is * theta_o_n
     )
 
     brm_is_n = ss.brm_noncv_is[:, n] + a18.get_c_air() * a18.get_rho_air() * v_ntrl_vent_is
@@ -179,7 +169,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
         brl_is_n=np.sum(ss.brl_is_is, axis=1),
         wsr_jstrs=np.sum(ss.wsr_js_is, axis=1),
         wsb_jstrs=np.sum(ss.wsb_js_is, axis=1),
-        wsc_is_jstrs_npls=wsc_is_jstrs_npls,
+        wsc_is_jstrs_npls=wsc_js_npls,
         wsv_is_jstrs_npls=wsv_js_npls.flatten(),
         fot_jstrs=ss.f_mrt_hum_is_js,
         kc_is=kc_is,
@@ -205,7 +195,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
     theta_s_jstrs_n = a1.get_surface_temperature(
         wsr_jstrs=np.sum(ss.wsr_js_is, axis=1),
         wsb_jstrs=np.sum(ss.wsb_js_is, axis=1),
-        wsc_is_jstrs_npls=wsc_is_jstrs_npls,
+        wsc_is_jstrs_npls=wsc_js_npls,
         wsv_is_jstrs_npls=wsv_js_npls.flatten(),
         theta_r_is_npls=theta_r_is_n_pls,
         lrs_is_n=lrs_is_n,
