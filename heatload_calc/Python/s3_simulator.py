@@ -261,7 +261,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
         v_reak_is_n=v_reak_is_n,
         gf_is=ss.g_f_is,
         cx_is=ss.c_x_is,
-        v_room_cap_is=ss.v_room_cap_is,
+        v_room_cap_is=ss.v_room_cap_is.flatten(),
         v_mec_vent_is_n=ss.v_mec_vent_is_ns[:, n],
         v_int_vent_is=ss.v_int_vent_is
     )
@@ -271,7 +271,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
         v_reak_is_n=v_reak_is_n,
         gf_is=ss.g_f_is,
         cx_is=ss.c_x_is,
-        v_room_cap_is=ss.v_room_cap_is,
+        v_room_cap_is=ss.v_room_cap_is.flatten(),
         x_r_is_n=c_n.x_r_is_n,
         x_frnt_is_n=c_n.x_frnt_is_n,
         x_gen_is_n=x_gen_is_n,
