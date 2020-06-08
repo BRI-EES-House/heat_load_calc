@@ -131,14 +131,14 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
     # ステップn+1の境界jにおける項別公比法の指数項mの貫流応答の項別成分, degree C, [j, m] (m=12)
     theta_dsh_srf_t_js_ms_npls = theta_rear_js_n * ss.phi_t1_js_ms + ss.r_js_ms * c_n.theta_dsh_srf_t_js_ms_n
 
-    # ステップn+1の境界jにおける係数CVL, degree C, [j]
-    cvl_js_npls = np.sum(theta_dsh_srf_t_js_ms_npls + theta_dsh_srf_a_js_ms_npls, axis=1)
+    # ステップn+1の境界jにおける係数CVL, degree C, [j, 1]
+    cvl_js_npls = np.sum(theta_dsh_srf_t_js_ms_npls + theta_dsh_srf_a_js_ms_npls, axis=1, keepdims=True)
 
     # ステップn+1の室iの断熱された境界j*における係数WSC, degree C, [j*]
     wsc_is_jstrs_npls = ss.wsc_js_ns[:, n]
 
     # ステップn+1の室iの断熱された境界j*における係数WSV, degree C, [j*]
-    wsv_is_jstrs_npls = a1.get_wsv_i_jstrs_npls(ivs_x_i=ss.ivs_ax_js_js, cvl_i_jstrs_npls=cvl_js_npls)
+    wsv_is_jstrs_npls = a1.get_wsv_i_jstrs_npls(ivs_x_i=ss.ivs_ax_js_js, cvl_i_jstrs_npls=cvl_js_npls.flatten())
 
     v_ntrl_vent_is = np.where(operation_mode_is_n == OperationMode.STOP_OPEN, ss.v_ntrl_vent_is, 0.0)
 
