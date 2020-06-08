@@ -129,12 +129,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
     theta_dsh_srf_a_js_ms_npls = ss.phi_a1_js_ms * c_n.q_srf_js_n + ss.r_js_ms * c_n.theta_dsh_srf_a_js_ms_n
 
     # ステップn+1の境界jにおける項別公比法の指数項mの貫流応答の項別成分, degree C, [j, m] (m=12)
-    theta_dsh_srf_t_js_ms_npls = a1.get_theta_srf_dsh_t_i_jstrs_npls_ms(
-        theta_rear_i_jstrs_n=theta_rear_js_n.flatten(),
-        phi_t_1_bnd_i_jstrs_ms=ss.phi_t1_js_ms,
-        r_bnd_i_jstrs_ms=ss.r_js_ms,
-        theta_dsh_srft_jstrs_n_m=c_n.theta_dsh_srf_t_js_ms_n
-    )
+    theta_dsh_srf_t_js_ms_npls = theta_rear_js_n * ss.phi_t1_js_ms + ss.r_js_ms * c_n.theta_dsh_srf_t_js_ms_n
 
     # ステップn+1の室iの統合された境界j*における係数CVL, degree C, [j*]
     cvl_is_jstrs_npls = a1.get_cvl_i_jstrs_npls(

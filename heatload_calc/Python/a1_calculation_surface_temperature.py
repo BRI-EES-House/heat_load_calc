@@ -58,26 +58,6 @@ def get_theta_srf_dsh_a_i_jstrs_npls_ms(
     return phi_a_1_bnd_jstrs_ms * q_srf_jstrs_n[:, np.newaxis] + r_bnd_i_jstrs_ms * theta_dsh_srf_a_jstrs_n_ms
 
 
-def get_theta_srf_dsh_t_i_jstrs_npls_ms(
-        theta_rear_i_jstrs_n: np.ndarray,
-        phi_t_1_bnd_i_jstrs_ms: np.ndarray,
-        r_bnd_i_jstrs_ms: np.ndarray,
-        theta_dsh_srft_jstrs_n_m: np.ndarray
-) -> np.ndarray:
-    """
-
-    Args:
-        theta_rear_i_jstrs_n: ステップnの室iの統合された境界j*における裏面の温度, degree C, [jstrs]
-        phi_t_1_bnd_i_jstrs_ms: 室iの統合された境界j*における項別公比法の項mの貫流応答の係数, [jstrs, 12]
-        r_bnd_i_jstrs_ms: 室iの統合された境界j*の項mにおける公比, [jstrs, 12]
-        theta_dsh_srft_jstrs_n_m: ステップnの統合された境界j*における指数項mの貫流応答の項別成分, degree C, [j*, 12]
-    Returns:
-        ステップn+1の室iの統合された境界j*における項別公比法の項mの貫流応答に関する表面温度, degree C, [jstrs, 12]
-    """
-
-    return theta_rear_i_jstrs_n[:, np.newaxis] * phi_t_1_bnd_i_jstrs_ms + r_bnd_i_jstrs_ms * theta_dsh_srft_jstrs_n_m
-
-
 def get_cvl_i_jstrs_npls(
         theta_srf_dsh_t_i_jstrs_npls_ms: np.ndarray, theta_srf_dsh_a_i_jstrs_npls_ms: np.ndarray) -> np.ndarray:
     """
