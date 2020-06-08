@@ -608,8 +608,8 @@ def make_pre_calc_parameters(
 
     # region 読み込んだ値から新たに係数を作成する
 
-    # 室iの空気の熱容量, J/K, [i]
-    c_room_is = v_room_cap_is.flatten() * a39.get_rho_air() * a39.get_c_air()
+    # 室iの空気の熱容量, J/K, [i, 1]
+    c_room_is = v_room_cap_is * a39.get_rho_air() * a39.get_c_air()
 
     # 境界jの室内側表面放射熱伝達率, W/m2K, [j, 1]
     h_r_js = a12.get_h_r_js(a_srf_js=a_srf_js, k_js_is=p_js_is)
@@ -671,7 +671,7 @@ def make_pre_calc_parameters(
 
     # BRM(通風なし), W/K, [i, n]
     brm_noncv_is = (
-        c_room_is/900
+        c_room_is.flatten()/900
         + np.sum(np.dot(p_is_js, (p_js_is - wsr_js_is) * a_srf_js * h_c_js), axis=1)
         + v_int_vent_is_is.sum(axis=1) * a18.get_c_air() * a18.get_rho_air()
         + c_cap_frnt_is * c_frnt_is / (c_cap_frnt_is + c_frnt_is * 900)

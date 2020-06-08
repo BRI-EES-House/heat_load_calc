@@ -83,7 +83,7 @@ class PreCalcParameters:
         # 室iの家具等と空気間の湿気コンダクタンス, kg/s kg/kgDA, [i]
         self.c_x_is = c_x_is
 
-        # 室iの熱容量, J/K, [i]
+        # 室iの熱容量, J/K, [i, 1]
         self.c_room_is = c_room_is
 
         # 室iの家具等の熱容量, J/K, [i]

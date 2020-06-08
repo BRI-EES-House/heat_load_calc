@@ -145,7 +145,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
     v_ntrl_vent_is = np.where(operation_mode_is_n == OperationMode.STOP_OPEN, ss.v_ntrl_vent_is, 0.0)
 
     # ステップnの室iにおける係数BRC
-    brc_i_n = (ss.c_room_is / 900.0 * c_n.theta_r_is_n
+    brc_i_n = (ss.c_room_is.flatten() / 900.0 * c_n.theta_r_is_n
         + np.dot(ss.p_is_js, (ss.h_c_js.flatten() * ss.a_srf_js.flatten() * (wsc_js_npls + wsv_js_npls.flatten())).reshape(-1, 1)).flatten() \
         + a18.get_c_air() * a18.get_rho_air() * (
             (v_reak_is_n + ss.v_mec_vent_is_ns[:, n]) * theta_o_n
