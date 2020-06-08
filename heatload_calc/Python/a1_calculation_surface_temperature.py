@@ -58,23 +58,6 @@ def get_theta_srf_dsh_a_i_jstrs_npls_ms(
     return phi_a_1_bnd_jstrs_ms * q_srf_jstrs_n[:, np.newaxis] + r_bnd_i_jstrs_ms * theta_dsh_srf_a_jstrs_n_ms
 
 
-def get_cvl_i_jstrs_npls(
-        theta_srf_dsh_t_i_jstrs_npls_ms: np.ndarray, theta_srf_dsh_a_i_jstrs_npls_ms: np.ndarray) -> np.ndarray:
-    """
-
-    Args:
-        theta_srf_dsh_t_i_jstrs_npls_ms:
-            ステップn+1の室iの統合された境界j*における項別公比法の項mの貫流応答に関する表面温度, degree C, [j*, 12]
-        theta_srf_dsh_a_i_jstrs_npls_ms:
-            ステップn+1の室iの統合された境界j*における項別公比法の項mの吸熱応答に関する表面温度, degree C, [j*, 12]
-
-    Returns:
-        ステップn+1の室iの統合された境界j*における係数CVL, degree C, [i*]
-    """
-
-    return np.sum(theta_srf_dsh_t_i_jstrs_npls_ms + theta_srf_dsh_a_i_jstrs_npls_ms, axis=1)
-
-
 # MRTの計算
 def get_theta_mrt_hum_is_n(fot_jstrs, ts_is_k_n) -> np.ndarray:
 
