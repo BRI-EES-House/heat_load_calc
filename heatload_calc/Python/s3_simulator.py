@@ -138,7 +138,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
     wsc_is_jstrs_npls = ss.wsc_js_ns[:, n]
 
     # ステップn+1の室iの断熱された境界j*における係数WSV, degree C, [j*]
-    wsv_is_jstrs_npls = a1.get_wsv_i_jstrs_npls(ivs_x_i=ss.ivs_ax_js_js, cvl_i_jstrs_npls=cvl_js_npls.flatten())
+    wsv_is_jstrs_npls = np.dot(ss.ivs_ax_js_js, cvl_js_npls).flatten()
 
     v_ntrl_vent_is = np.where(operation_mode_is_n == OperationMode.STOP_OPEN, ss.v_ntrl_vent_is, 0.0)
 

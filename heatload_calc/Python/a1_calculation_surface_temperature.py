@@ -24,20 +24,6 @@ def get_WSR(AX_k_l, FIA_i_l):
     return np.dot(AX_k_l, FIA_i_l)
 
 
-def get_wsv_i_jstrs_npls(ivs_x_i: np.ndarray, cvl_i_jstrs_npls: np.ndarray) -> np.ndarray:
-    """
-
-    Args:
-        ivs_x_i: 室iにおける行列X, [j*, j*]
-        cvl_i_jstrs_npls: ステップn+1の室iの統合された境界j*における係数CVL, degree C, [j*]
-
-    Returns:
-        ステップn+1の室iの統合された境界j*における係数WSV, degree C, [j*]
-    """
-
-    return np.dot(ivs_x_i, cvl_i_jstrs_npls)
-
-
 def get_theta_srf_dsh_a_i_jstrs_npls_ms(
         q_srf_jstrs_n: np.ndarray,
         phi_a_1_bnd_jstrs_ms: np.ndarray,
