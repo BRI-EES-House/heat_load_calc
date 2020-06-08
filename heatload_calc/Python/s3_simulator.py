@@ -137,8 +137,8 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
     # ステップn+1の室iの断熱された境界j*における係数WSC, degree C, [j*]
     wsc_is_jstrs_npls = ss.wsc_js_ns[:, n]
 
-    # ステップn+1の境界jにおける係数WSV, degree C, [j]
-    wsv_js_npls = np.dot(ss.ivs_ax_js_js, cvl_js_npls).flatten()
+    # ステップn+1の境界jにおける係数WSV, degree C, [j, 1]
+    wsv_js_npls = np.dot(ss.ivs_ax_js_js, cvl_js_npls)
 
     v_ntrl_vent_is = np.where(operation_mode_is_n == OperationMode.STOP_OPEN, ss.v_ntrl_vent_is, 0.0)
 
@@ -151,7 +151,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
         h_c_bnd_i_jstrs=ss.h_c_js.flatten(),
         a_bnd_i_jstrs=ss.a_srf_js.flatten(),
         wsc_i_jstrs_npls=wsc_is_jstrs_npls,
-        wsv_i_jstrs_npls=wsv_js_npls,
+        wsv_i_jstrs_npls=wsv_js_npls.flatten(),
         v_mec_vent_i_n=ss.v_mec_vent_is_ns[:, n],
         v_reak_i_n=v_reak_is_n,
         v_ntrl_vent_i=v_ntrl_vent_is,
@@ -180,7 +180,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
         wsr_jstrs=np.sum(ss.wsr_js_is, axis=1),
         wsb_jstrs=np.sum(ss.wsb_js_is, axis=1),
         wsc_is_jstrs_npls=wsc_is_jstrs_npls,
-        wsv_is_jstrs_npls=wsv_js_npls,
+        wsv_is_jstrs_npls=wsv_js_npls.flatten(),
         fot_jstrs=ss.f_mrt_hum_is_js,
         kc_is=kc_is,
         kr_is=kr_is,
@@ -206,7 +206,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
         wsr_jstrs=np.sum(ss.wsr_js_is, axis=1),
         wsb_jstrs=np.sum(ss.wsb_js_is, axis=1),
         wsc_is_jstrs_npls=wsc_is_jstrs_npls,
-        wsv_is_jstrs_npls=wsv_js_npls,
+        wsv_is_jstrs_npls=wsv_js_npls.flatten(),
         theta_r_is_npls=theta_r_is_n_pls,
         lrs_is_n=lrs_is_n,
         p=ss.p_is_js
