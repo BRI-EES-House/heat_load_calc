@@ -135,6 +135,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
     cvl_js_npls = np.sum(theta_dsh_srf_t_js_ms_npls + theta_dsh_srf_a_js_ms_npls, axis=1, keepdims=True)
 
     # ステップn+1の室iの断熱された境界j*における係数WSC, degree C, [j*]
+    # TODO: WSC n+1 にもかかわらず、n の値が代入されている。n+1 を代入すべきではないのか？その場合、計算の最終ステップの計算はどうする？
     wsc_js_npls = ss.wsc_js_ns[:, n]
 
     # ステップn+1の境界jにおける係数WSV, degree C, [j, 1]
