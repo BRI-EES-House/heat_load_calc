@@ -49,7 +49,7 @@ def run_tick_groundonly(To_n: float, Tave: float, c_n: Conditions, ss: PreCalcPa
         theta_mrt_hum_is_n=c_n.theta_mrt_hum_is_n,
         x_r_is_n=c_n.x_r_is_n,
         theta_dsh_srf_a_js_ms_n=theta_dsh_srf_a_jstrs_n_ms,
-        theta_dsh_srf_t_jstrs_n_ms=c_n.theta_dsh_srf_t_jstrs_n_ms,
+        theta_dsh_srf_t_js_ms_n=c_n.theta_dsh_srf_t_js_ms_n,
         q_srf_js_n=q_srf_jstrs_n.reshape(-1, 1),
 #        h_hum_c_is_n=c_n.h_hum_c_is_n,
 #        h_hum_r_is_n=c_n.h_hum_r_is_n,
@@ -133,7 +133,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
         theta_rear_i_jstrs_n=theta_rear_js_n.flatten(),
         phi_t_1_bnd_i_jstrs_ms=ss.phi_t1_js_ms,
         r_bnd_i_jstrs_ms=ss.r_js_ms,
-        theta_dsh_srft_jstrs_n_m=c_n.theta_dsh_srf_t_jstrs_n_ms
+        theta_dsh_srft_jstrs_n_m=c_n.theta_dsh_srf_t_js_ms_n
     )
 
     # ステップn+1の室iの統合された境界j*における係数CVL, degree C, [j*]
@@ -377,7 +377,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
         theta_mrt_hum_is_n=theta_mrt_hum_is_n_pls,
         x_r_is_n=x_r_is_n_pls,
         theta_dsh_srf_a_js_ms_n=theta_dsh_srf_a_js_ms_npls,
-        theta_dsh_srf_t_jstrs_n_ms=theta_dsh_srf_t_js_ms_npls,
+        theta_dsh_srf_t_js_ms_n=theta_dsh_srf_t_js_ms_npls,
         q_srf_js_n=q_srf_js_n,
         theta_frnt_is_n=theta_frnt_is_n,
         x_frnt_is_n=xf_i_n,

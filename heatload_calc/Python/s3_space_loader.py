@@ -244,7 +244,7 @@ class Conditions:
             theta_mrt_hum_is_n,
             x_r_is_n,
             theta_dsh_srf_a_js_ms_n,
-            theta_dsh_srf_t_jstrs_n_ms,
+            theta_dsh_srf_t_js_ms_n,
             q_srf_js_n,
             theta_frnt_is_n,
             x_frnt_is_n,
@@ -272,8 +272,8 @@ class Conditions:
         # ステップnの境界jにおける項別公比法の指数項mの吸熱応答の項別成分, degree C, [j, m] (m=12)
         self.theta_dsh_srf_a_js_ms_n = theta_dsh_srf_a_js_ms_n
 
-        # ステップnの統合された境界j*における指数項mの貫流応答の項別成分, degree C, [j*, 12]
-        self.theta_dsh_srf_t_jstrs_n_ms = theta_dsh_srf_t_jstrs_n_ms
+        # ステップnの境界jにおける項別公比法の指数項mの貫流応答の項別成分, degree C, [j, m] (m=12)
+        self.theta_dsh_srf_t_js_ms_n = theta_dsh_srf_t_js_ms_n
 
         # ステップnの境界jにおける表面熱流（壁体吸熱を正とする）, W/m2, [j, 1]
         self.q_srf_js_n = q_srf_js_n
@@ -347,7 +347,7 @@ def initialize_conditions(ss: PreCalcParameters):
         theta_mrt_hum_is_n=theta_mrt_hum_is_n,
         x_r_is_n=x_r_is_n,
         theta_dsh_srf_a_js_ms_n=theta_dsh_srf_a_jstrs_n_ms,
-        theta_dsh_srf_t_jstrs_n_ms=theta_dsh_srf_t_jstrs_n_ms,
+        theta_dsh_srf_t_js_ms_n=theta_dsh_srf_t_jstrs_n_ms,
         q_srf_js_n=q_srf_jstrs_n,
 #        h_hum_c_is_n=h_hum_c_is_n,
 #        h_hum_r_is_n=h_hum_r_is_n,
