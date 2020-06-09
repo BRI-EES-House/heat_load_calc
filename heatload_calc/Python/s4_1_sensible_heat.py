@@ -6,7 +6,7 @@ from a39_global_parameters import OperationMode
 
 
 # 作用温度設定用係数への換算
-def calc_OT_coeff(brm_is_n, brc_i_n, brl_is_n, wsb_jstrs, wsc_is_jstrs_npls, wsv_is_jstrs_npls, fot_jstrs, kr_is, Deno):
+def calc_OT_coeff(brm_is_n, brc_i_n, brl_is_n, wsb_jstrs, wsc_is_jstrs_npls, wsv_is_jstrs_npls, fot_jstrs, kr_is, Deno, Xot):
 
     # XLr 式(10)
     XLr = get_XLr_i(Deno, fot_jstrs, kr_is, wsb_jstrs)
@@ -14,8 +14,8 @@ def calc_OT_coeff(brm_is_n, brc_i_n, brl_is_n, wsb_jstrs, wsc_is_jstrs_npls, wsv
     # XC 式(9)
     XC = get_XC_i(Deno, fot_jstrs, kr_is, wsc_is_jstrs_npls, wsv_is_jstrs_npls)
 
-    # Xot 式(8)
-    Xot = get_Xot_i(Deno)
+#    # Xot 式(8)
+#    Xot = get_Xot_i(Deno)
 
     # BRMot 式(2)
     BRMot = get_BRMot(brm_is_n, Xot)
@@ -42,11 +42,6 @@ def get_BRCot(BRC, BRM, XC):
 # BRLot 式(4)
 def get_BRLot(BRL, BRM, XLr):
     return BRL + BRM * XLr
-
-
-# Xot 式(8)
-def get_Xot_i(Deno):
-    return 1.0 / Deno
 
 
 # XC 式(9)
