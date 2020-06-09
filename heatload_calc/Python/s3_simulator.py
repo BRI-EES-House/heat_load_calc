@@ -185,11 +185,6 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
         brm_is_n=brm_is_n.flatten(),
         brc_i_n=brc_i_n.flatten(),
         brl_is_n=np.sum(ss.brl_is_is, axis=1),
-        wsc_is_jstrs_npls=wsc_js_npls.flatten(),
-        wsv_is_jstrs_npls=wsv_js_npls.flatten(),
-        fot_jstrs=ss.f_mrt_hum_is_js,
-        kr_is=kr_is_n.flatten(),
-        Deno=Deno,
         Xot=Xot,
         XLr=XLr,
         XC=XC
