@@ -52,7 +52,7 @@ def calc_operation(
 
     # ステップnにおける室iの在室者周りの風速, m/s, [i]
     v_hum_is_n = get_v_hum_is_n(
-        operation_mode_is_n=operation_mode_is_n_mns,
+        operation_mode_is_n=operation_mode_is_n_mns.flatten(),
         is_radiative_heating_is=is_radiative_heating_is,
         is_radiative_cooling_is=is_radiative_cooling_is
     )
@@ -148,7 +148,7 @@ def calc_operation(
     # ステップnにおける室iの運転状態, [i]
     operation_mode_is_n = get_operation_mode_is_n(
         ac_demand_is_n=ac_demand_is_n,
-        operation_mode_is_n_mns=operation_mode_is_n_mns,
+        operation_mode_is_n_mns=operation_mode_is_n_mns.flatten(),
         pmv_heavy_is_n=pmv_heavy_is_n,
         pmv_middle_is_n=pmv_middle_is_n,
         pmv_light_is_n=pmv_light_is_n
@@ -176,7 +176,7 @@ def calc_operation(
         theta_cl_is_n=theta_cl_is_n
     )
 
-    return h_hum_is_n, h_hum_c_is_n, h_hum_r_is_n, operation_mode_is_n, clo_is_n, theta_ot_target_is_n
+    return h_hum_is_n, h_hum_c_is_n, h_hum_r_is_n, operation_mode_is_n.reshape(-1, 1), clo_is_n, theta_ot_target_is_n
 
 
 def get_theta_cl_is_n(

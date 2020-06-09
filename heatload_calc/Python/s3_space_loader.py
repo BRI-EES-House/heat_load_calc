@@ -253,7 +253,7 @@ class Conditions:
             theta_ei_js_n
     ):
 
-        # ステップnにおける室iの運転状態, [i]
+        # ステップnにおける室iの運転状態, [i, 1]
         # 列挙体 OperationMode で表される。
         #     COOLING ： 冷房
         #     HEATING : 暖房
@@ -302,9 +302,9 @@ def initialize_conditions(ss: PreCalcParameters):
     # 統合された境界j*の数
     total_number_of_bdry = ss.total_number_of_bdry
 
-    # ステップnにおける室iの運転状態, [i]
+    # ステップnにおける室iの運転状態, [i, 1]
     # 初期値を暖房・冷房停止で窓「閉」とする。
-    operation_mode_is_n = np.full(total_number_of_spaces, OperationMode.STOP_CLOSE)
+    operation_mode_is_n = np.full((total_number_of_spaces, 1), OperationMode.STOP_CLOSE)
 
     # ステップnにおける室iの空気温度, degree C, [i]
     # 初期値を15℃とする。

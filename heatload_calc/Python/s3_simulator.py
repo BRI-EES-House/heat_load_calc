@@ -94,6 +94,12 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
     """
 
     # ステップnにおける室iの状況（在室者周りの総合熱伝達率・運転状態・Clo値・目標とする作用温度）を取得する
+    #     ステップnの室iにおける人体周りの総合熱伝達率, W / m2K, [i]
+    #     ステップnにおける室iの在室者周りの対流熱伝達率, W / m2K, [i]
+    #     ステップnにおける室iの在室者周りの放射熱伝達率, W / m2K, [i]
+    #     ステップnの室iにおける運転モード, [i, 1]
+    #     ステップnの室iにおけるClo値, [i]
+    #     ステップnの室iにおける目標作用温度, degree C, [i]
     h_hum_is_n, h_hum_c_is_n, h_hum_r_is_n, operation_mode_is_n, clo_is_n, theta_ot_target_is_n = x_35.calc_operation(
         x_r_is_n=c_n.x_r_is_n,
         operation_mode_is_n_mns=c_n.operation_mode_is_n,
@@ -143,7 +149,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
 
     # 室iの自然風利用による換気量, m3/s, [i]
     # 自然風を利用していない場合は、0.0 m3/s になる。
-    v_ntrl_vent_is = np.where(operation_mode_is_n == OperationMode.STOP_OPEN, ss.v_ntrl_vent_is.flatten(), 0.0)
+    v_ntrl_vent_is = np.where(operation_mode_is_n.flatten() == OperationMode.STOP_OPEN, ss.v_ntrl_vent_is.flatten(), 0.0)
 
     # ステップnの室iにおける係数BRC
     brc_i_n = (ss.c_room_is.flatten() / 900.0 * c_n.theta_r_is_n
@@ -181,7 +187,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
 
     theta_ot_is_n, lcs_is_n, lrs_is_n = s41.calc_next_steps(
         ss.is_radiative_heating_is, BRCot_is, BRMot_is, BRLot_is, theta_ot_target_is_n, ss.lrcap_is,
-        operation_mode_is_n)
+        operation_mode_is_n.flatten())
 
     # 自然室温 Tr を計算 式(14)
     theta_r_is_n_pls = s41.get_Tr_i_n(theta_ot_is_n, lrs_is_n, Xot_is, XLr_is, XC_is)
@@ -288,7 +294,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
     v_ac_is_n, x_e_out_is_n = ss.get_vac_xeout_is(
         lcs_is_n=lcs_is_n,
         theta_r_is_npls=theta_r_is_n_pls,
-        operation_mode_is_n=operation_mode_is_n
+        operation_mode_is_n=operation_mode_is_n.flatten()
     )
 
     # 空調機除湿の項 式(20)より
@@ -337,7 +343,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
     # ステップnにおける室iの在室者の着衣温度, degree C, [i]
     theta_cl_is_n_pls = x_35.get_theta_cl_is_n(clo_is_n=clo_is_n, theta_ot_is_n=theta_ot_is_n, h_hum_is_n=h_hum_is_n)
 
-    logger.operation_mode[:, n] = operation_mode_is_n
+    logger.operation_mode[:, n] = operation_mode_is_n.flatten()
     logger.theta_r[:, n] = theta_r_is_n_pls
     logger.x_r[:, n] = x_r_is_n_pls
     logger.theta_mrt[:, n] = theta_mrt_hum_is_n_pls
