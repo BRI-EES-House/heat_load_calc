@@ -152,11 +152,15 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
     # 自然風を利用していない場合は、0.0 m3/s になる。
     v_ntrl_vent_is = np.where(operation_mode_is_n == OperationMode.STOP_OPEN, ss.v_ntrl_vent_is, 0.0)
 
+    # ステップnにおける室iの外からの換気量, m3/s, [i, 1]
+    # 機械換気量とすきま風量との合計である。
+    v_out_vent_is_ns = v_reak_is_n + ss.v_mec_vent_is_ns[:, n].reshape(-1, 1)
+
     # ステップnの室iにおける係数BRC
     brc_i_n = ss.c_room_is / 900.0 * c_n.theta_r_is_n\
         + np.dot(ss.p_is_js, ss.h_c_js * ss.a_srf_js * (wsc_js_npls + wsv_js_npls))\
         + (a18.get_c_air() * a18.get_rho_air() * (
-            (v_reak_is_n.flatten() + ss.v_mec_vent_is_ns[:, n]) * theta_o_n
+            (v_out_vent_is_ns.flatten()) * theta_o_n
                 + np.dot(ss.v_int_vent_is, c_n.theta_r_is_n).flatten()
                )
         + q_gen_is_n
