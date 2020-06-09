@@ -129,7 +129,8 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
     # TODO: すきま風量未実装につき、とりあえず０とする
     # すきま風量を決めるにあたってどういった変数が必要なのかを決めること。
     # TODO: 単位は m3/s とすること。
-    v_reak_is_n = np.full(ss.number_of_spaces, 0.0)
+    # ステップnの室iにおけるすきま風量, m3/s, [j, 1]
+    v_reak_is_n = np.full((ss.number_of_spaces, 1), 0.0)
 
     # ステップn+1の境界jにおける項別公比法の指数項mの吸熱応答の項別成分, degree C, [j, m] (m=12)
     theta_dsh_srf_a_js_ms_npls = ss.phi_a1_js_ms * c_n.q_srf_js_n + ss.r_js_ms * c_n.theta_dsh_srf_a_js_ms_n
@@ -153,9 +154,9 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
 
     # ステップnの室iにおける係数BRC
     brc_i_n = ss.c_room_is / 900.0 * c_n.theta_r_is_n\
-        + (np.dot(ss.p_is_js, (ss.h_c_js.flatten() * ss.a_srf_js.flatten() * (wsc_js_npls.flatten() + wsv_js_npls.flatten())).reshape(-1, 1)).flatten() \
-        + a18.get_c_air() * a18.get_rho_air() * (
-            (v_reak_is_n + ss.v_mec_vent_is_ns[:, n]) * theta_o_n
+        + np.dot(ss.p_is_js, ss.h_c_js * ss.a_srf_js * (wsc_js_npls + wsv_js_npls))\
+        + (a18.get_c_air() * a18.get_rho_air() * (
+            (v_reak_is_n.flatten() + ss.v_mec_vent_is_ns[:, n]) * theta_o_n
                 + np.dot(ss.v_int_vent_is, c_n.theta_r_is_n).flatten()
                )
         + q_gen_is_n
@@ -266,7 +267,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
 
     # 式(17)
     BRMX_pre_is = s42.get_BRMX(
-        v_reak_is_n=v_reak_is_n,
+        v_reak_is_n=v_reak_is_n.flatten(),
         gf_is=ss.g_f_is,
         cx_is=ss.c_x_is,
         v_room_cap_is=ss.v_room_cap_is.flatten(),
@@ -276,7 +277,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
 
     # 式(18)
     BRXC_pre_is = s42.get_BRXC(
-        v_reak_is_n=v_reak_is_n,
+        v_reak_is_n=v_reak_is_n.flatten(),
         gf_is=ss.g_f_is,
         cx_is=ss.c_x_is,
         v_room_cap_is=ss.v_room_cap_is.flatten(),
