@@ -6,10 +6,7 @@ from a39_global_parameters import OperationMode
 
 
 # 作用温度設定用係数への換算
-def calc_OT_coeff(brm_is_n, brc_i_n, brl_is_n, wsc_is_jstrs_npls, wsv_is_jstrs_npls, fot_jstrs, kr_is, Deno, Xot, XLr):
-
-    # XC 式(9)
-    XC = get_XC_i(Deno, fot_jstrs, kr_is, wsc_is_jstrs_npls, wsv_is_jstrs_npls)
+def calc_OT_coeff(brm_is_n, brc_i_n, brl_is_n, wsc_is_jstrs_npls, wsv_is_jstrs_npls, fot_jstrs, kr_is, Deno, Xot, XLr, XC):
 
     # BRMot 式(2)
     BRMot = get_BRMot(brm_is_n, Xot)

@@ -179,6 +179,8 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
 
     XLr = kr_is_n.flatten() * np.dot(ss.f_mrt_hum_is_js, np.sum(ss.wsb_js_is, axis=1)).flatten() / Deno
 
+    XC = s41.get_XC_i(Deno, ss.f_mrt_hum_is_js, kr_is_n.flatten(), wsc_js_npls.flatten(), wsv_js_npls.flatten())
+
     BRMot_is, BRCot_is, BRLot_is, Xot_is, XLr_is, XC_is = s41.calc_OT_coeff(
         brm_is_n=brm_is_n.flatten(),
         brc_i_n=brc_i_n.flatten(),
@@ -189,7 +191,8 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
         kr_is=kr_is_n.flatten(),
         Deno=Deno,
         Xot=Xot,
-        XLr=XLr
+        XLr=XLr,
+        XC=XC
     )
 
     theta_ot_is_n, lcs_is_n, lrs_is_n = s41.calc_next_steps(
