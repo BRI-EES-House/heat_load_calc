@@ -5,21 +5,6 @@ import a18_initial_value_constants as a18
 from a39_global_parameters import OperationMode
 
 
-# 作用温度設定用係数への換算
-def calc_OT_coeff(brm_is_n, brc_i_n, brl_is_n, Xot, XLr, XC):
-
-    # BRMot 式(2)
-    BRMot = get_BRMot(brm_is_n, Xot)
-
-    # BRCot 式(3)
-    BRCot = get_BRCot(brc_i_n, brm_is_n, XC)
-
-    # BRLot 式(4)
-    BRLot = get_BRLot(brl_is_n, brm_is_n, XLr)
-
-    return BRMot, BRCot, BRLot, Xot, XLr, XC
-
-
 # BRMot 式(2)
 def get_BRMot(BRM, Xot):
     return BRM * Xot

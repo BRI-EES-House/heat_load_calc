@@ -179,14 +179,20 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
 
     XC = kr_is_n.flatten() * np.dot(ss.f_mrt_hum_is_js, (wsc_js_npls.flatten() + wsv_js_npls.flatten()).reshape(-1, 1)).flatten() * Xot
 
-    BRMot_is, BRCot_is, BRLot_is, Xot_is, XLr_is, XC_is = s41.calc_OT_coeff(
-        brm_is_n=brm_is_n.flatten(),
-        brc_i_n=brc_i_n.flatten(),
-        brl_is_n=np.sum(ss.brl_is_is, axis=1),
-        Xot=Xot,
-        XLr=XLr,
-        XC=XC
-    )
+    # BRMot 式(2)
+    BRMot_is = s41.get_BRMot(brm_is_n.flatten(), Xot)
+
+    # BRLot 式(4)
+    BRLot_is = s41.get_BRLot(np.sum(ss.brl_is_is, axis=1), brm_is_n.flatten(), XLr)
+
+    # BRCot 式(3)
+    BRCot_is = s41.get_BRCot(brc_i_n.flatten(), brm_is_n.flatten(), XC)
+
+    Xot_is = Xot
+
+    XLr_is = XLr
+
+    XC_is = XC
 
     theta_ot_is_n, lcs_is_n, lrs_is_n = s41.calc_next_steps(
         ss.is_radiative_heating_is, BRCot_is, BRMot_is, BRLot_is, theta_ot_target_is_n, ss.lrcap_is,
