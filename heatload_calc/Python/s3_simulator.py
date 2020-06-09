@@ -173,22 +173,20 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
     kr_is_n = h_hum_r_is_n / h_hum_is_n
 
     # ステップnにおける室iの係数 XOT, [i, 1]
-    Xot = 1.0 / (kc_is_n + kr_is_n * np.dot(ss.f_mrt_hum_is_js, np.sum(ss.wsr_js_is, axis=1, keepdims=True)))
+    xot_is_n = 1.0 / (kc_is_n + kr_is_n * np.dot(ss.f_mrt_hum_is_js, np.sum(ss.wsr_js_is, axis=1, keepdims=True)))
 
-    XLr = kr_is_n.flatten() * np.dot(ss.f_mrt_hum_is_js, np.sum(ss.wsb_js_is, axis=1)).flatten() * Xot.flatten()
+    XLr = kr_is_n.flatten() * np.dot(ss.f_mrt_hum_is_js, np.sum(ss.wsb_js_is, axis=1)).flatten() * xot_is_n.flatten()
 
-    XC = kr_is_n.flatten() * np.dot(ss.f_mrt_hum_is_js, (wsc_js_npls.flatten() + wsv_js_npls.flatten()).reshape(-1, 1)).flatten() * Xot.flatten()
+    XC = kr_is_n.flatten() * np.dot(ss.f_mrt_hum_is_js, (wsc_js_npls.flatten() + wsv_js_npls.flatten()).reshape(-1, 1)).flatten() * xot_is_n.flatten()
 
     # BRMot 式(2)
-    BRMot_is = brm_is_n.flatten() * Xot.flatten()
+    BRMot_is = brm_is_n.flatten() * xot_is_n.flatten()
 
     # BRLot 式(4)
     BRLot_is = s41.get_BRLot(np.sum(ss.brl_is_is, axis=1), brm_is_n.flatten(), XLr)
 
     # BRCot 式(3)
     BRCot_is = s41.get_BRCot(brc_i_n.flatten(), brm_is_n.flatten(), XC)
-
-    Xot_is = Xot.flatten()
 
     XLr_is = XLr
 
@@ -199,7 +197,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
         operation_mode_is_n.flatten())
 
     # 自然室温 Tr を計算 式(14)
-    theta_r_is_n_pls = s41.get_Tr_i_n(theta_ot_is_n, lrs_is_n, Xot_is, XLr_is, XC_is)
+    theta_r_is_n_pls = s41.get_Tr_i_n(theta_ot_is_n, lrs_is_n, xot_is_n.flatten(), XLr_is, XC_is)
 
     # 家具の温度 Tfun を計算 式(15)
     theta_frnt_is_n = s41.get_Tfun_i_n(
