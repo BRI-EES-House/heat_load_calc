@@ -670,7 +670,7 @@ def make_pre_calc_parameters(
     brl_is_is = np.dot(p_is_js, wsb_js_is * h_c_js * a_srf_js) + np.diag(beta_is.flatten())
 
     # BRM(換気なし), W/K, [i, 1]
-    brm_noncv_is = c_room_is / 900.0\
+    brm_non_vent_is = c_room_is / 900.0\
         + np.sum(np.dot(p_is_js, (p_js_is - wsr_js_is) * a_srf_js * h_c_js), axis=1, keepdims=True)\
         + c_cap_frnt_is * c_frnt_is / (c_cap_frnt_is + c_frnt_is * 900.0)
 
@@ -719,7 +719,7 @@ def make_pre_calc_parameters(
         beta_is=beta_is,
         wsr_js_is=wsr_js_is,
         wsb_js_is=wsb_js_is,
-        brm_noncv_is=brm_noncv_is,
+        brm_non_vent_is=brm_non_vent_is,
         ivs_ax_js_js=ivs_ax_js_js,
         brl_is_is=brl_is_is,
         p_is_js=p_is_js,

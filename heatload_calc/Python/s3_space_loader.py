@@ -55,7 +55,7 @@ class PreCalcParameters:
             beta_is,
             wsr_js_is,
             wsb_js_is,
-            brm_noncv_is,
+            brm_non_vent_is,
             ivs_ax_js_js,
             brl_is_is,
             p_is_js,
@@ -151,7 +151,7 @@ class PreCalcParameters:
         self.theta_dstrb_js_ns = theta_dstrb_js_ns
 
         # BRM(換気なし), W/K, [i, 1]
-        self.brm_noncv_is = brm_noncv_is
+        self.brm_non_vent_is = brm_non_vent_is
 
         # BRLの計算 式(7)
         self.brl_is_is = brl_is_is
