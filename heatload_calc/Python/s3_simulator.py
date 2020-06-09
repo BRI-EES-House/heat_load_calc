@@ -166,14 +166,14 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
     # ステップnにおける係数 BRM, W/K, [j, 1]
     brm_is_n = ss.brm_non_vent_is + a18.get_c_air() * a18.get_rho_air() * (v_out_vent_is_n + ss.v_int_vent_is_is.sum(axis=1, keepdims=True))
 
-    # 室iの在室者表面における対流熱伝達率の総合熱伝達率に対する比, [i]
-    kc_is = h_hum_c_is_n.flatten() / h_hum_is_n.flatten()
+    # ステップnにおける室iの在室者表面における対流熱伝達率の総合熱伝達率に対する比, [i, 1]
+    kc_is_n = h_hum_c_is_n / h_hum_is_n
 
-    # 室iの在室者表面における放射熱伝達率の総合熱伝達率に対する比, [i]
-    kr_is = h_hum_r_is_n.flatten() / h_hum_is_n.flatten()
+    # ステップnにおける室iの在室者表面における放射熱伝達率の総合熱伝達率に対する比, [i, 1]
+    kr_is_n = h_hum_r_is_n / h_hum_is_n
 
     # OT計算用の係数補正
-    Deno = kc_is + kr_is * np.dot(ss.f_mrt_hum_is_js, np.sum(ss.wsr_js_is, axis=1, keepdims=True)).flatten()
+    Deno = kc_is_n.flatten() + kr_is_n.flatten() * np.dot(ss.f_mrt_hum_is_js, np.sum(ss.wsr_js_is, axis=1, keepdims=True)).flatten()
 
     BRMot_is, BRCot_is, BRLot_is, Xot_is, XLr_is, XC_is = s41.calc_OT_coeff(
         brm_is_n=brm_is_n.flatten(),
@@ -183,7 +183,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
         wsc_is_jstrs_npls=wsc_js_npls.flatten(),
         wsv_is_jstrs_npls=wsv_js_npls.flatten(),
         fot_jstrs=ss.f_mrt_hum_is_js,
-        kr_is=kr_is,
+        kr_is=kr_is_n.flatten(),
         Deno=Deno
     )
 
