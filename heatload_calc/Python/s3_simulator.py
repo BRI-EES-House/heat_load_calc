@@ -140,9 +140,9 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
     # ステップn+1の境界jにおける係数CVL, degree C, [j, 1]
     cvl_js_npls = np.sum(theta_dsh_srf_t_js_ms_npls + theta_dsh_srf_a_js_ms_npls, axis=1, keepdims=True)
 
-    # ステップn+1の室iの断熱された境界j*における係数WSC, degree C, [j*]
+    # ステップn+1の境界jにおける係数 WSC, degree C, [j, 1]
     # TODO: WSC n+1 にもかかわらず、n の値が代入されている。n+1 を代入すべきではないのか？その場合、計算の最終ステップの計算はどうする？
-    wsc_js_npls = ss.wsc_js_ns[:, n]
+    wsc_js_npls = ss.wsc_js_ns[:, n].reshape(-1, 1)
 
     # ステップn+1の境界jにおける係数WSV, degree C, [j, 1]
     wsv_js_npls = np.dot(ss.ivs_ax_js_js, cvl_js_npls)
@@ -152,8 +152,8 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
     v_ntrl_vent_is = np.where(operation_mode_is_n == OperationMode.STOP_OPEN, ss.v_ntrl_vent_is, 0.0)
 
     # ステップnの室iにおける係数BRC
-    brc_i_n = (ss.c_room_is.flatten() / 900.0 * c_n.theta_r_is_n.flatten()
-        + np.dot(ss.p_is_js, (ss.h_c_js.flatten() * ss.a_srf_js.flatten() * (wsc_js_npls + wsv_js_npls.flatten())).reshape(-1, 1)).flatten() \
+    brc_i_n = ss.c_room_is / 900.0 * c_n.theta_r_is_n\
+        + (np.dot(ss.p_is_js, (ss.h_c_js.flatten() * ss.a_srf_js.flatten() * (wsc_js_npls.flatten() + wsv_js_npls.flatten())).reshape(-1, 1)).flatten() \
         + a18.get_c_air() * a18.get_rho_air() * (
             (v_reak_is_n + ss.v_mec_vent_is_ns[:, n]) * theta_o_n
                 + np.dot(ss.v_int_vent_is, c_n.theta_r_is_n).flatten()
@@ -161,7 +161,8 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
         + q_gen_is_n
         + (ss.c_cap_frnt_is.flatten() / 900.0 * c_n.theta_frnt_is_n + ss.q_sol_frnt_is_ns[:, n]) / (ss.c_cap_frnt_is.flatten() / (900.0 * ss.c_frnt_is.flatten()) + 1.0)
         + a18.get_c_air() * a18.get_rho_air() * v_ntrl_vent_is.flatten() * theta_o_n
-    )
+    ).reshape(-1, 1)
+    brc_i_n = brc_i_n.flatten()
 
     brm_is_n = ss.brm_noncv_is[:, n] + a18.get_c_air() * a18.get_rho_air() * v_ntrl_vent_is.flatten()
 
@@ -178,7 +179,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
         brl_is_n=np.sum(ss.brl_is_is, axis=1),
         wsr_jstrs=np.sum(ss.wsr_js_is, axis=1),
         wsb_jstrs=np.sum(ss.wsb_js_is, axis=1),
-        wsc_is_jstrs_npls=wsc_js_npls,
+        wsc_is_jstrs_npls=wsc_js_npls.flatten(),
         wsv_is_jstrs_npls=wsv_js_npls.flatten(),
         fot_jstrs=ss.f_mrt_hum_is_js,
         kc_is=kc_is,
@@ -204,7 +205,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
     theta_s_jstrs_n = a1.get_surface_temperature(
         wsr_jstrs=np.sum(ss.wsr_js_is, axis=1),
         wsb_jstrs=np.sum(ss.wsb_js_is, axis=1),
-        wsc_is_jstrs_npls=wsc_js_npls,
+        wsc_is_jstrs_npls=wsc_js_npls.flatten(),
         wsv_is_jstrs_npls=wsv_js_npls.flatten(),
         theta_r_is_npls=theta_r_is_n_pls,
         lrs_is_n=lrs_is_n,
