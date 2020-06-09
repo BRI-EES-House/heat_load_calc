@@ -18,7 +18,7 @@ def calc_operation(
         theta_cl_is_n: np.ndarray,
         theta_mrt_is_n: np.ndarray,
         ac_demand_is_n: np.ndarray
-) -> (np.ndarray, np.ndarray, np.ndarray, np.ndarray):
+) -> (np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray):
     """
 
     Args:
@@ -39,10 +39,10 @@ def calc_operation(
         ac_demand_is_n: ステップnにおける室iの空調需要の有無, [i]
 
     Returns:
-        ステップnの室iにおける人体周りの総合熱伝達率, W/m2K, [i]
-        ステップnにおける室iの在室者周りの対流熱伝達率, W/m2K, [i]
-        ステップnにおける室iの在室者周りの放射熱伝達率, W/m2K, [i]
-        ステップnの室iにおける運転モード, [i]
+        ステップnの室iにおける人体周りの総合熱伝達率, W/m2K, [i, 1]
+        ステップnにおける室iの在室者周りの対流熱伝達率, W/m2K, [i, 1]
+        ステップnにおける室iの在室者周りの放射熱伝達率, W/m2K, [i, 1]
+        ステップnの室iにおける運転モード, [i, 1]
         ステップnの室iにおけるClo値, [i]
         ステップnの室iにおける目標作用温度, degree C, [i]
     """
@@ -176,7 +176,7 @@ def calc_operation(
         theta_cl_is_n=theta_cl_is_n
     )
 
-    return h_hum_is_n, h_hum_c_is_n, h_hum_r_is_n, operation_mode_is_n.reshape(-1, 1), clo_is_n, theta_ot_target_is_n
+    return h_hum_is_n.reshape(-1, 1), h_hum_c_is_n.reshape(-1, 1), h_hum_r_is_n.reshape(-1, 1), operation_mode_is_n.reshape(-1, 1), clo_is_n, theta_ot_target_is_n
 
 
 def get_theta_cl_is_n(
