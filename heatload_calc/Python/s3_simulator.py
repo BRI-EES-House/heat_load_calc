@@ -172,7 +172,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
     # ステップnにおける室iの在室者表面における放射熱伝達率の総合熱伝達率に対する比, [i, 1]
     kr_is_n = h_hum_r_is_n / h_hum_is_n
 
-    # OT計算用の係数補正
+    # ステップnにおける室iの係数 XOT, [i, 1]
     Xot = 1.0 / (kc_is_n + kr_is_n * np.dot(ss.f_mrt_hum_is_js, np.sum(ss.wsr_js_is, axis=1, keepdims=True)))
 
     XLr = kr_is_n.flatten() * np.dot(ss.f_mrt_hum_is_js, np.sum(ss.wsb_js_is, axis=1)).flatten() * Xot.flatten()
