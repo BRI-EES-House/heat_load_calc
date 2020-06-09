@@ -147,9 +147,9 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
     # ステップn+1の境界jにおける係数WSV, degree C, [j, 1]
     wsv_js_npls = np.dot(ss.ivs_ax_js_js, cvl_js_npls)
 
-    # 室iの自然風利用による換気量, m3/s, [i]
+    # 室iの自然風利用による換気量, m3/s, [i, 1]
     # 自然風を利用していない場合は、0.0 m3/s になる。
-    v_ntrl_vent_is = np.where(operation_mode_is_n.flatten() == OperationMode.STOP_OPEN, ss.v_ntrl_vent_is.flatten(), 0.0)
+    v_ntrl_vent_is = np.where(operation_mode_is_n == OperationMode.STOP_OPEN, ss.v_ntrl_vent_is, 0.0)
 
     # ステップnの室iにおける係数BRC
     brc_i_n = (ss.c_room_is.flatten() / 900.0 * c_n.theta_r_is_n
@@ -160,10 +160,10 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
                )
         + q_gen_is_n
         + (ss.c_cap_frnt_is.flatten() / 900.0 * c_n.theta_frnt_is_n + ss.q_sol_frnt_is_ns[:, n]) / (ss.c_cap_frnt_is.flatten() / (900.0 * ss.c_frnt_is.flatten()) + 1.0)
-        + a18.get_c_air() * a18.get_rho_air() * v_ntrl_vent_is * theta_o_n
+        + a18.get_c_air() * a18.get_rho_air() * v_ntrl_vent_is.flatten() * theta_o_n
     )
 
-    brm_is_n = ss.brm_noncv_is[:, n] + a18.get_c_air() * a18.get_rho_air() * v_ntrl_vent_is
+    brm_is_n = ss.brm_noncv_is[:, n] + a18.get_c_air() * a18.get_rho_air() * v_ntrl_vent_is.flatten()
 
     # 室iの在室者表面における対流熱伝達率の総合熱伝達率に対する比, [i]
     kc_is = h_hum_c_is_n / h_hum_is_n
