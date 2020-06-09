@@ -154,17 +154,17 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
 
     # ステップnにおける室iの外からの換気量, m3/s, [i, 1]
     # 機械換気量・すきま風量・自然風利用時の換気量との合計である。
-    v_out_vent_is_ns = v_reak_is_n + ss.v_mec_vent_is_ns[:, n].reshape(-1, 1) + v_ntrl_vent_is
+    v_out_vent_is_n = v_reak_is_n + ss.v_mec_vent_is_ns[:, n].reshape(-1, 1) + v_ntrl_vent_is
 
     # ステップnの室iにおける係数 BRC, W, [i, 1]
     brc_i_n = ss.c_room_is / 900.0 * c_n.theta_r_is_n\
         + np.dot(ss.p_is_js, ss.h_c_js * ss.a_srf_js * (wsc_js_npls + wsv_js_npls))\
-        + a18.get_c_air() * a18.get_rho_air() * v_out_vent_is_ns * theta_o_n\
+        + a18.get_c_air() * a18.get_rho_air() * v_out_vent_is_n * theta_o_n\
         + q_gen_is_n\
         + ss.c_frnt_is * (ss.c_cap_frnt_is * c_n.theta_frnt_is_n + ss.q_sol_frnt_is_ns[:, n].reshape(-1, 1) * 900.0) / (ss.c_cap_frnt_is + 900.0 * ss.c_frnt_is)
 
     # ステップnにおける係数 BRM, W/K, [j, 1]
-    brm_is_n = ss.brm_non_vent_is + a18.get_c_air() * a18.get_rho_air() * (v_out_vent_is_ns + ss.v_int_vent_is_is.sum(axis=1, keepdims=True))
+    brm_is_n = ss.brm_non_vent_is + a18.get_c_air() * a18.get_rho_air() * (v_out_vent_is_n + ss.v_int_vent_is_is.sum(axis=1, keepdims=True))
 
     # 室iの在室者表面における対流熱伝達率の総合熱伝達率に対する比, [i]
     kc_is = h_hum_c_is_n / h_hum_is_n
