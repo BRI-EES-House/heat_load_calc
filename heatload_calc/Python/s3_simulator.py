@@ -173,17 +173,18 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
     kr_is = h_hum_r_is_n / h_hum_is_n
 
     # OT計算用の係数補正
+    Deno = kc_is + kr_is * np.dot(ss.f_mrt_hum_is_js, np.sum(ss.wsr_js_is, axis=1, keepdims=True)).flatten()
+
     BRMot_is, BRCot_is, BRLot_is, Xot_is, XLr_is, XC_is = s41.calc_OT_coeff(
         brm_is_n=brm_is_n.flatten(),
         brc_i_n=brc_i_n.flatten(),
         brl_is_n=np.sum(ss.brl_is_is, axis=1),
-        wsr_jstrs=np.sum(ss.wsr_js_is, axis=1),
         wsb_jstrs=np.sum(ss.wsb_js_is, axis=1),
         wsc_is_jstrs_npls=wsc_js_npls.flatten(),
         wsv_is_jstrs_npls=wsv_js_npls.flatten(),
         fot_jstrs=ss.f_mrt_hum_is_js,
-        kc_is=kc_is,
         kr_is=kr_is,
+        Deno=Deno
     )
 
     theta_ot_is_n, lcs_is_n, lrs_is_n = s41.calc_next_steps(

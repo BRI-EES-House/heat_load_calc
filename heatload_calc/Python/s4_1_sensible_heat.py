@@ -6,10 +6,7 @@ from a39_global_parameters import OperationMode
 
 
 # 作用温度設定用係数への換算
-def calc_OT_coeff(brm_is_n, brc_i_n, brl_is_n, wsr_jstrs, wsb_jstrs, wsc_is_jstrs_npls, wsv_is_jstrs_npls, fot_jstrs, kc_is, kr_is):
-
-    # Deno 式(11)
-    Deno = get_Deno(fot_jstrs, kc_is, kr_is, wsr_jstrs)
+def calc_OT_coeff(brm_is_n, brc_i_n, brl_is_n, wsb_jstrs, wsc_is_jstrs_npls, wsv_is_jstrs_npls, fot_jstrs, kr_is, Deno):
 
     # XLr 式(10)
     XLr = get_XLr_i(Deno, fot_jstrs, kr_is, wsb_jstrs)
@@ -62,12 +59,6 @@ def get_XC_i(Deno, fot_jstrs, kr_is, wsc_is_jstrs_npls, wsv_is_jstrs_npls):
 def get_XLr_i(Deno, fot_jstrs, kr_is, wsb_jstrs):
 
     return (kr_is * np.dot(fot_jstrs, wsb_jstrs).flatten() / Deno)
-
-
-# Deno 式(11)
-def get_Deno(fot_jstrs, kc_is, kr_is, wsr_jstrs):
-
-    return kc_is + kr_is * np.dot(fot_jstrs, wsr_jstrs.reshape(-1, 1)).flatten()
 
 
 # ********** （1）式から作用温度、室除去熱量を計算する方法 **********
