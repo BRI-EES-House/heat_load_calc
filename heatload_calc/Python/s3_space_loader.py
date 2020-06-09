@@ -150,7 +150,7 @@ class PreCalcParameters:
         # ステップnの集約境界j*における外気側等価温度の外乱成分, degree C, [j*, 8760*4]
         self.theta_dstrb_js_ns = theta_dstrb_js_ns
 
-        # BRMの計算 式(5) ※ただし、通風なし
+        # BRM(換気なし), W/K, [i, 1]
         self.brm_noncv_is = brm_noncv_is
 
         # BRLの計算 式(7)
