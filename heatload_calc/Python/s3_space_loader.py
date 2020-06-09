@@ -261,7 +261,7 @@ class Conditions:
         #     STOP_CLOSE : 暖房・冷房停止で窓「閉」
         self.operation_mode_is_n = operation_mode_is_n
 
-        # ステップnにおける室iの空気温度, degree C, [i]
+        # ステップnにおける室iの空気温度, degree C, [i, 1]
         self.theta_r_is_n = theta_r_is_n
 
         # ステップnにおける室iの在室者の平均放射温度, degree C, [i]
@@ -306,9 +306,9 @@ def initialize_conditions(ss: PreCalcParameters):
     # 初期値を暖房・冷房停止で窓「閉」とする。
     operation_mode_is_n = np.full((total_number_of_spaces, 1), OperationMode.STOP_CLOSE)
 
-    # ステップnにおける室iの空気温度, degree C, [i]
+    # ステップnにおける室iの空気温度, degree C, [i, 1]
     # 初期値を15℃とする。
-    theta_r_is_n = np.full(total_number_of_spaces, 15.0)
+    theta_r_is_n = np.full((total_number_of_spaces, 1), 15.0)
 
     # ステップnにおける室iの在室者の着衣温度, degree C, [i]
     # 初期値を15℃とする。

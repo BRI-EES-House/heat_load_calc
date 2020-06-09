@@ -105,7 +105,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
         operation_mode_is_n_mns=c_n.operation_mode_is_n,
         is_radiative_heating_is=ss.is_radiative_heating_is,
         is_radiative_cooling_is=ss.is_radiative_cooling_is,
-        theta_r_is_n=c_n.theta_r_is_n,
+        theta_r_is_n=c_n.theta_r_is_n.flatten(),
         theta_cl_is_n=c_n.theta_cl_is_n,
         theta_mrt_is_n=c_n.theta_mrt_hum_is_n,
         ac_demand_is_n=ss.ac_demand_is_n[:, n],
@@ -115,10 +115,10 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
     theta_rear_js_n = np.dot(ss.k_ei_js_js, c_n.theta_ei_js_n) + ss.theta_dstrb_js_ns[:, n][:, np.newaxis]
 
     # ステップnの室iにおける人体発熱, W, [i]
-    q_hum_is_n = a3.get_q_hum_i_n(theta_r_is_n=c_n.theta_r_is_n, n_hum_i_n=ss.n_hum_is_ns[:, n])
+    q_hum_is_n = a3.get_q_hum_i_n(theta_r_is_n=c_n.theta_r_is_n.flatten(), n_hum_i_n=ss.n_hum_is_ns[:, n])
 
     # ステップnの室iにおける人体発湿, kg/s, [i]
-    x_hum_is_n = a3.get_x_hum_i_n(theta_r_is_n=c_n.theta_r_is_n, n_hum_i_n=ss.n_hum_is_ns[:, n])
+    x_hum_is_n = a3.get_x_hum_i_n(theta_r_is_n=c_n.theta_r_is_n.flatten(), n_hum_i_n=ss.n_hum_is_ns[:, n])
 
     # ステップnの室iにおける内部発熱, W, [j]
     q_gen_is_n = ss.q_gen_is_ns[:, n] + q_hum_is_n
@@ -152,11 +152,11 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
     v_ntrl_vent_is = np.where(operation_mode_is_n == OperationMode.STOP_OPEN, ss.v_ntrl_vent_is, 0.0)
 
     # ステップnの室iにおける係数BRC
-    brc_i_n = (ss.c_room_is.flatten() / 900.0 * c_n.theta_r_is_n
+    brc_i_n = (ss.c_room_is.flatten() / 900.0 * c_n.theta_r_is_n.flatten()
         + np.dot(ss.p_is_js, (ss.h_c_js.flatten() * ss.a_srf_js.flatten() * (wsc_js_npls + wsv_js_npls.flatten())).reshape(-1, 1)).flatten() \
         + a18.get_c_air() * a18.get_rho_air() * (
             (v_reak_is_n + ss.v_mec_vent_is_ns[:, n]) * theta_o_n
-                + np.dot(ss.v_int_vent_is, c_n.theta_r_is_n.reshape(-1, 1)).flatten()
+                + np.dot(ss.v_int_vent_is, c_n.theta_r_is_n).flatten()
                )
         + q_gen_is_n
         + (ss.c_cap_frnt_is.flatten() / 900.0 * c_n.theta_frnt_is_n + ss.q_sol_frnt_is_ns[:, n]) / (ss.c_cap_frnt_is.flatten() / (900.0 * ss.c_frnt_is.flatten()) + 1.0)
@@ -365,7 +365,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
 
     return Conditions(
         operation_mode_is_n=operation_mode_is_n,
-        theta_r_is_n=theta_r_is_n_pls,
+        theta_r_is_n=theta_r_is_n_pls.reshape(-1, 1),
         theta_mrt_hum_is_n=theta_mrt_hum_is_n_pls,
         x_r_is_n=x_r_is_n_pls,
         theta_dsh_srf_a_js_ms_n=theta_dsh_srf_a_js_ms_npls,
