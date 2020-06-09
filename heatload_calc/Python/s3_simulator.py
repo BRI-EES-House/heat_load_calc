@@ -159,9 +159,9 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
     # ステップnの室iにおける係数 BRC, W, [i, 1]
     brc_i_n = ss.c_room_is / 900.0 * c_n.theta_r_is_n\
         + np.dot(ss.p_is_js, ss.h_c_js * ss.a_srf_js * (wsc_js_npls + wsv_js_npls))\
-        + a18.get_c_air() * a18.get_rho_air() * (v_out_vent_is_ns * theta_o_n + np.dot(ss.v_int_vent_is, c_n.theta_r_is_n))\
+        + a18.get_c_air() * a18.get_rho_air() * v_out_vent_is_ns * theta_o_n\
         + q_gen_is_n\
-        + ss.c_frnt_is * (ss.c_cap_frnt_is * c_n.theta_frnt_is_n + ss.q_sol_frnt_is_ns[:, n].reshape(-1, 1) * 900.0) / (ss.c_cap_frnt_is + 900.0 * ss.c_frnt_is) \
+        + ss.c_frnt_is * (ss.c_cap_frnt_is * c_n.theta_frnt_is_n + ss.q_sol_frnt_is_ns[:, n].reshape(-1, 1) * 900.0) / (ss.c_cap_frnt_is + 900.0 * ss.c_frnt_is)
 
     brm_is_n = ss.brm_noncv_is[:, n] + a18.get_c_air() * a18.get_rho_air() * v_ntrl_vent_is.flatten()
 
