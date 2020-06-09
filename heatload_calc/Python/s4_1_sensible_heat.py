@@ -50,12 +50,6 @@ def get_XC_i(Deno, fot_jstrs, kr_is, wsc_is_jstrs_npls, wsv_is_jstrs_npls):
     return (kr_is * np.dot(fot_jstrs, (wsc_is_jstrs_npls + wsv_is_jstrs_npls).reshape(-1, 1)).flatten() / Deno)
 
 
-# XLr 式(10)
-def get_XLr_i(Deno, fot_jstrs, kr_is, wsb_jstrs):
-
-    return (kr_is * np.dot(fot_jstrs, wsb_jstrs).flatten() / Deno)
-
-
 # ********** （1）式から作用温度、室除去熱量を計算する方法 **********
 
 # TODO: 空調運転モード3,4については未定義
