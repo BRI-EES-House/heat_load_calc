@@ -164,7 +164,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
         + ss.c_frnt_is * (ss.c_cap_frnt_is * c_n.theta_frnt_is_n + ss.q_sol_frnt_is_ns[:, n].reshape(-1, 1) * 900.0) / (ss.c_cap_frnt_is + 900.0 * ss.c_frnt_is)
 
     # ステップnにおける係数 BRM, W/K, [j, 1]
-    brm_is_n = ss.brm_noncv_is + a18.get_c_air() * a18.get_rho_air() * v_out_vent_is_ns
+    brm_is_n = ss.brm_noncv_is + a18.get_c_air() * a18.get_rho_air() * (v_out_vent_is_ns + ss.v_int_vent_is_is.sum(axis=1, keepdims=True))
 
     # 室iの在室者表面における対流熱伝達率の総合熱伝達率に対する比, [i]
     kc_is = h_hum_c_is_n / h_hum_is_n
@@ -271,7 +271,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
         cx_is=ss.c_x_is,
         v_room_cap_is=ss.v_room_cap_is.flatten(),
         v_mec_vent_is_n=ss.v_mec_vent_is_ns[:, n],
-        v_int_vent_is=ss.v_int_vent_is
+        v_int_vent_is=ss.v_int_vent_is_is
     )
 
     # 式(18)
@@ -285,7 +285,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
         x_gen_is_n=x_gen_is_n,
         xo=xo_n,
         v_mec_vent_is_n=ss.v_mec_vent_is_ns[:, n],
-        v_int_vent_is=ss.v_int_vent_is
+        v_int_vent_is=ss.v_int_vent_is_is
     )
 
     # ==== ルームエアコン吹出絶対湿度の計算 ====

@@ -21,7 +21,7 @@ class PreCalcParameters:
             c_room_is,
             c_cap_frnt_is,
             c_frnt_is,
-            v_int_vent_is,
+            v_int_vent_is_is,
             name_bdry_js,
             sub_name_bdry_js,
             a_srf_js,
@@ -119,7 +119,7 @@ class PreCalcParameters:
         # endregion
 
         # 室iの隣室からの機械換気量, m3/s, [i, i]
-        self.v_int_vent_is = v_int_vent_is
+        self.v_int_vent_is_is = v_int_vent_is_is
 
         # 統合された境界j*の名前, [j*]
         self.name_bdry_js = name_bdry_js
