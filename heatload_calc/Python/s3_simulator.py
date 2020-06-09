@@ -153,8 +153,8 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
     v_ntrl_vent_is = np.where(operation_mode_is_n == OperationMode.STOP_OPEN, ss.v_ntrl_vent_is, 0.0)
 
     # ステップnにおける室iの外からの換気量, m3/s, [i, 1]
-    # 機械換気量とすきま風量との合計である。
-    v_out_vent_is_ns = v_reak_is_n + ss.v_mec_vent_is_ns[:, n].reshape(-1, 1)
+    # 機械換気量・すきま風量・自然風利用時の換気量との合計である。
+    v_out_vent_is_ns = v_reak_is_n + ss.v_mec_vent_is_ns[:, n].reshape(-1, 1) + v_ntrl_vent_is
 
     # ステップnの室iにおける係数 BRC, W, [i, 1]
     brc_i_n = ss.c_room_is / 900.0 * c_n.theta_r_is_n\
@@ -162,7 +162,6 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
         + a18.get_c_air() * a18.get_rho_air() * (v_out_vent_is_ns * theta_o_n + np.dot(ss.v_int_vent_is, c_n.theta_r_is_n))\
         + q_gen_is_n\
         + ss.c_frnt_is * (ss.c_cap_frnt_is * c_n.theta_frnt_is_n + ss.q_sol_frnt_is_ns[:, n].reshape(-1, 1) * 900.0) / (ss.c_cap_frnt_is + 900.0 * ss.c_frnt_is) \
-        + a18.get_c_air() * a18.get_rho_air() * v_ntrl_vent_is * theta_o_n
 
     brm_is_n = ss.brm_noncv_is[:, n] + a18.get_c_air() * a18.get_rho_air() * v_ntrl_vent_is.flatten()
 
