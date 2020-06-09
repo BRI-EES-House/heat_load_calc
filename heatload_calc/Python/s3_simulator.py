@@ -173,14 +173,14 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
     kr_is_n = h_hum_r_is_n / h_hum_is_n
 
     # OT計算用の係数補正
-    Xot = 1.0 / (kc_is_n.flatten() + kr_is_n.flatten() * np.dot(ss.f_mrt_hum_is_js, np.sum(ss.wsr_js_is, axis=1, keepdims=True)).flatten())
+    Xot = 1.0 / (kc_is_n + kr_is_n * np.dot(ss.f_mrt_hum_is_js, np.sum(ss.wsr_js_is, axis=1, keepdims=True)))
 
-    XLr = kr_is_n.flatten() * np.dot(ss.f_mrt_hum_is_js, np.sum(ss.wsb_js_is, axis=1)).flatten() * Xot
+    XLr = kr_is_n.flatten() * np.dot(ss.f_mrt_hum_is_js, np.sum(ss.wsb_js_is, axis=1)).flatten() * Xot.flatten()
 
-    XC = kr_is_n.flatten() * np.dot(ss.f_mrt_hum_is_js, (wsc_js_npls.flatten() + wsv_js_npls.flatten()).reshape(-1, 1)).flatten() * Xot
+    XC = kr_is_n.flatten() * np.dot(ss.f_mrt_hum_is_js, (wsc_js_npls.flatten() + wsv_js_npls.flatten()).reshape(-1, 1)).flatten() * Xot.flatten()
 
     # BRMot 式(2)
-    BRMot_is = s41.get_BRMot(brm_is_n.flatten(), Xot)
+    BRMot_is = brm_is_n.flatten() * Xot.flatten()
 
     # BRLot 式(4)
     BRLot_is = s41.get_BRLot(np.sum(ss.brl_is_is, axis=1), brm_is_n.flatten(), XLr)
@@ -188,7 +188,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
     # BRCot 式(3)
     BRCot_is = s41.get_BRCot(brc_i_n.flatten(), brm_is_n.flatten(), XC)
 
-    Xot_is = Xot
+    Xot_is = Xot.flatten()
 
     XLr_is = XLr
 

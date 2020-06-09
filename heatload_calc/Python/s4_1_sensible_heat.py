@@ -5,11 +5,6 @@ import a18_initial_value_constants as a18
 from a39_global_parameters import OperationMode
 
 
-# BRMot 式(2)
-def get_BRMot(BRM, Xot):
-    return BRM * Xot
-
-
 # BRCot 式(3)
 def get_BRCot(BRC, BRM, XC):
     return BRC + BRM * XC
