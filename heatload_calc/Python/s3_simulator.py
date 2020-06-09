@@ -156,15 +156,13 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
     # 機械換気量とすきま風量との合計である。
     v_out_vent_is_ns = v_reak_is_n + ss.v_mec_vent_is_ns[:, n].reshape(-1, 1)
 
-    # ステップnの室iにおける係数BRC
+    # ステップnの室iにおける係数 BRC, W, [i, 1]
     brc_i_n = ss.c_room_is / 900.0 * c_n.theta_r_is_n\
         + np.dot(ss.p_is_js, ss.h_c_js * ss.a_srf_js * (wsc_js_npls + wsv_js_npls))\
         + a18.get_c_air() * a18.get_rho_air() * (v_out_vent_is_ns * theta_o_n + np.dot(ss.v_int_vent_is, c_n.theta_r_is_n))\
         + q_gen_is_n\
-        + ((ss.c_cap_frnt_is.flatten() / 900.0 * c_n.theta_frnt_is_n.flatten() + ss.q_sol_frnt_is_ns[:, n]) / (ss.c_cap_frnt_is.flatten() / (900.0 * ss.c_frnt_is.flatten()) + 1.0)
-        + a18.get_c_air() * a18.get_rho_air() * v_ntrl_vent_is.flatten() * theta_o_n
-    ).reshape(-1, 1)
-    brc_i_n = brc_i_n.flatten()
+        + ss.c_frnt_is * (ss.c_cap_frnt_is * c_n.theta_frnt_is_n + ss.q_sol_frnt_is_ns[:, n].reshape(-1, 1) * 900.0) / (ss.c_cap_frnt_is + 900.0 * ss.c_frnt_is) \
+        + a18.get_c_air() * a18.get_rho_air() * v_ntrl_vent_is * theta_o_n
 
     brm_is_n = ss.brm_noncv_is[:, n] + a18.get_c_air() * a18.get_rho_air() * v_ntrl_vent_is.flatten()
 
@@ -177,7 +175,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
     # OT計算用の係数補正
     BRMot_is, BRCot_is, BRLot_is, Xot_is, XLr_is, XC_is = s41.calc_OT_coeff(
         brm_is_n=brm_is_n,
-        brc_i_n=brc_i_n,
+        brc_i_n=brc_i_n.flatten(),
         brl_is_n=np.sum(ss.brl_is_is, axis=1),
         wsr_jstrs=np.sum(ss.wsr_js_is, axis=1),
         wsb_jstrs=np.sum(ss.wsb_js_is, axis=1),
