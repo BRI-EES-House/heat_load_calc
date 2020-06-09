@@ -279,7 +279,7 @@ class Conditions:
         # ステップnの境界jにおける表面熱流（壁体吸熱を正とする）, W/m2, [j, 1]
         self.q_srf_js_n = q_srf_js_n
 
-        # ステップnの室iにおける家具の温度, degree C, [i]
+        # ステップnの室iにおける家具の温度, degree C, [i, 1]
         self.theta_frnt_is_n = theta_frnt_is_n
 
         # ステップnの室iにおける家具の絶対湿度, kg/kgDA, [i]
@@ -352,7 +352,7 @@ def initialize_conditions(ss: PreCalcParameters):
         q_srf_js_n=q_srf_jstrs_n,
 #        h_hum_c_is_n=h_hum_c_is_n,
 #        h_hum_r_is_n=h_hum_r_is_n,
-        theta_frnt_is_n=theta_frnt_is_n,
+        theta_frnt_is_n=theta_frnt_is_n.reshape(-1, 1),
         x_frnt_is_n=x_frnt_is_n,
         theta_cl_is_n=theta_cl_is_n,
         theta_ei_js_n=np.full(total_number_of_bdry, 15.0).reshape(-1, 1)

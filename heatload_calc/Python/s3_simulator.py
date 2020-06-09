@@ -161,7 +161,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
         + np.dot(ss.p_is_js, ss.h_c_js * ss.a_srf_js * (wsc_js_npls + wsv_js_npls))\
         + a18.get_c_air() * a18.get_rho_air() * (v_out_vent_is_ns * theta_o_n + np.dot(ss.v_int_vent_is, c_n.theta_r_is_n))\
         + q_gen_is_n\
-        + ((ss.c_cap_frnt_is.flatten() / 900.0 * c_n.theta_frnt_is_n + ss.q_sol_frnt_is_ns[:, n]) / (ss.c_cap_frnt_is.flatten() / (900.0 * ss.c_frnt_is.flatten()) + 1.0)
+        + ((ss.c_cap_frnt_is.flatten() / 900.0 * c_n.theta_frnt_is_n.flatten() + ss.q_sol_frnt_is_ns[:, n]) / (ss.c_cap_frnt_is.flatten() / (900.0 * ss.c_frnt_is.flatten()) + 1.0)
         + a18.get_c_air() * a18.get_rho_air() * v_ntrl_vent_is.flatten() * theta_o_n
     ).reshape(-1, 1)
     brc_i_n = brc_i_n.flatten()
@@ -198,7 +198,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
     # 家具の温度 Tfun を計算 式(15)
     theta_frnt_is_n = s41.get_Tfun_i_n(
         ss.c_cap_frnt_is.flatten(),
-        c_n.theta_frnt_is_n,
+        c_n.theta_frnt_is_n.flatten(),
         ss.c_frnt_is.flatten(), theta_r_is_n_pls,
         ss.q_sol_frnt_is_ns[:, n]
     )
@@ -374,7 +374,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
         theta_dsh_srf_a_js_ms_n=theta_dsh_srf_a_js_ms_npls,
         theta_dsh_srf_t_js_ms_n=theta_dsh_srf_t_js_ms_npls,
         q_srf_js_n=q_srf_js_n,
-        theta_frnt_is_n=theta_frnt_is_n,
+        theta_frnt_is_n=theta_frnt_is_n.reshape(-1, 1),
         x_frnt_is_n=xf_i_n,
         theta_cl_is_n=theta_cl_is_n_pls,
         theta_ei_js_n=theta_ei_jstrs_n.reshape(-1, 1)
