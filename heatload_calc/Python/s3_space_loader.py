@@ -55,7 +55,7 @@ class PreCalcParameters:
             beta_is,
             wsr_js_is,
             wsb_js_is,
-            brm_non_vent_is,
+            brm_non_vent_is_is,
             ivs_ax_js_js,
             brl_is_is,
             p_is_js,
@@ -150,8 +150,8 @@ class PreCalcParameters:
         # ステップnの集約境界j*における外気側等価温度の外乱成分, degree C, [j*, 8760*4]
         self.theta_dstrb_js_ns = theta_dstrb_js_ns
 
-        # BRM(換気なし), W/K, [i, 1]
-        self.brm_non_vent_is = brm_non_vent_is
+        # BRM(換気なし), W/K, [i, i]
+        self.brm_non_vent_is_is = brm_non_vent_is_is
 
         # BRLの計算 式(7)
         self.brl_is_is = brl_is_is

@@ -164,7 +164,11 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
         + ss.c_frnt_is * (ss.c_cap_frnt_is * c_n.theta_frnt_is_n + ss.q_sol_frnt_is_ns[:, n].reshape(-1, 1) * 900.0) / (ss.c_cap_frnt_is + 900.0 * ss.c_frnt_is)
 
     # ステップnにおける係数 BRM, W/K, [j, 1]
-    brm_is_n = ss.brm_non_vent_is + a18.get_c_air() * a18.get_rho_air() * (v_out_vent_is_n + ss.v_int_vent_is_is.sum(axis=1, keepdims=True))
+    brm_is_n = np.sum(
+        ss.brm_non_vent_is_is
+        + a18.get_c_air() * a18.get_rho_air() * (np.diag(v_out_vent_is_n.flatten()) + ss.v_int_vent_is_is),
+        axis=1, keepdims=True
+    )
 
     # ステップnにおける室iの在室者表面における対流熱伝達率の総合熱伝達率に対する比, [i, 1]
     kc_is_n = h_hum_c_is_n / h_hum_is_n
