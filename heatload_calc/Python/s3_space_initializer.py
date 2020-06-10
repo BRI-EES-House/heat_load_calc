@@ -313,7 +313,6 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
             'id': i,
             'name': name_bdry_jstrs[i],
             'sub_name': sub_name_bdry_jstrs[i],
-            'type': str(type_bdry_jstrs[i]),
             'is_ground': {True: 'true', False: 'false'}[is_ground_jstrs[i]],
             'connected_space_id': int(space_idx_bdry_jstrs[i]),
             'area': a_bdry_jstrs[i],
