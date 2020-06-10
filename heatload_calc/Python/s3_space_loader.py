@@ -212,7 +212,6 @@ class PreCalcParameters:
 
         # WSR, WSB の計算 式(24)
         self.wsr_js_is = wsr_js_is
-        self.wsb_js = np.sum(wsb_js_is, axis=1)
         self.wsb_js_is = wsb_js_is
 
         # 床暖房の発熱部位？
