@@ -198,6 +198,40 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
         None, 0.3, 1.0, None, None, None, None, None, 0.3, None,
         1.0, 1.0
     ]
+    k_ei_js = [
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        {'id': 6, 'coef': 0.3},
+        None,
+        {'id': 30, 'coef': 1.0},
+        {'id': 17, 'coef': 1.0},
+        {'id': 22, 'coef': 1.0},
+        None,
+        None,
+        None,
+        None,
+        None,
+        {'id': 31, 'coef': 1.0},
+        {'id': 9, 'coef': 1.0},
+        None,
+        None,
+        None,
+        {'id': 21, 'coef': 0.3},
+        {'id': 10, 'coef': 1.0},
+        None,
+        None,
+        None,
+        None,
+        None,
+        {'id': 28, 'coef': 0.3},
+        None,
+        {'id': 8, 'coef': 1.0},
+        {'id': 16, 'coef': 1.0},
+    ]
 
     idx_bdry_is = np.insert(np.cumsum(number_of_bdry_is), 0, 0)
 
@@ -326,8 +360,7 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
             'is_solar_absorbed': str(is_solar_absorbed_inside_is_jstrs[i]),
             'f_mrt_hum': f_mrt_hum_is[i],
             'k_outside': h_def_js[i],
-            'k_inside_id': k_ei_id_js_js[i],
-            'k_inside_coef': k_ei_coef_js_js[i]
+            'k_inside': k_ei_js[i]
         })
 
     wd = {
@@ -512,11 +545,23 @@ def make_pre_calc_parameters(
     # 境界の裏面温度に屋外側等価温度が与える影響, [j, 1]
     k_eo_js = np.array([b['k_outside'] for b in bs]).reshape(-1, 1)
 
+    k_ei_id_js = []
+    k_ei_coef_js = []
+    for b in bs:
+        if b['k_inside'] is None:
+            k_ei_id_j = None
+            k_ei_coef_j = None
+        else:
+            k_ei_id_j = b['k_inside']['id']
+            k_ei_coef_j = b['k_inside']['coef']
+        k_ei_id_js.append(k_ei_id_j)
+        k_ei_coef_js.append(k_ei_coef_j)
+
     # 境界jの裏面に相当する境界のID
-    k_ei_id_js = [b['k_inside_id'] for b in bs]
+#    k_ei_id_js = [b['k_inside']['id'] for b in bs]
 
     # 境界jの裏面に相当する境界が与える影響
-    k_ei_coef_js = [b['k_inside_coef'] for b in bs]
+#    k_ei_coef_js = [b['k_inside']['coef'] for b in bs]
 
     # endregion
 
