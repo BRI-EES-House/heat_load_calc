@@ -173,6 +173,8 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
     kr_is_n = h_hum_r_is_n / h_hum_is_n
 
     # ステップnにおける室iの係数 XOT, [i, 1]
+    # TODO: バグ　本来であれば逆数を求めるのではなく、逆行列を求める計算としなければならない。
+    # 1次元配列にすべきか、[i, i] のマトリクスにすべきかを見直すこと。
     xot_is_n = 1.0 / (kc_is_n + kr_is_n * np.dot(ss.f_mrt_hum_is_js, np.sum(ss.wsr_js_is, axis=1, keepdims=True)))
 
     XLr = kr_is_n.flatten() * np.dot(ss.f_mrt_hum_is_js, np.sum(ss.wsb_js_is, axis=1)).flatten() * xot_is_n.flatten()
