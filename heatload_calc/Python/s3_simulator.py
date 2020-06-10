@@ -163,12 +163,9 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
         + q_gen_is_n\
         + ss.c_frnt_is * (ss.c_cap_frnt_is * c_n.theta_frnt_is_n + ss.q_sol_frnt_is_ns[:, n].reshape(-1, 1) * 900.0) / (ss.c_cap_frnt_is + 900.0 * ss.c_frnt_is)
 
-    # ステップnにおける係数 BRM, W/K, [j, 1]
-    brm_is_n = np.sum(
-        ss.brm_non_vent_is_is
-        + a18.get_c_air() * a18.get_rho_air() * (np.diag(v_out_vent_is_n.flatten()) + ss.v_int_vent_is_is),
-        axis=1, keepdims=True
-    )
+    # ステップnにおける係数 BRM, W/K, [i, i]
+    brm_is_is_n = ss.brm_non_vent_is_is\
+        + a18.get_c_air() * a18.get_rho_air() * (np.diag(v_out_vent_is_n.flatten()) + ss.v_int_vent_is_is)
 
     # ステップnにおける室iの在室者表面における対流熱伝達率の総合熱伝達率に対する比, [i, 1]
     kc_is_n = h_hum_c_is_n / h_hum_is_n
@@ -176,23 +173,25 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
     # ステップnにおける室iの在室者表面における放射熱伝達率の総合熱伝達率に対する比, [i, 1]
     kr_is_n = h_hum_r_is_n / h_hum_is_n
 
-    # ステップnにおける室iの係数 XOT, [i, 1]
-    # TODO: バグ　本来であれば逆数を求めるのではなく、逆行列を求める計算としなければならない。
-    # 1次元配列にすべきか、[i, i] のマトリクスにすべきかを見直すこと。
-    xot_is_n = 1.0 / (kc_is_n + kr_is_n * np.dot(ss.f_mrt_hum_is_js, np.sum(ss.wsr_js_is, axis=1, keepdims=True)))
+    def v_diag(v_matrix):
+        arr = v_matrix.flatten()
+        return np.diag(arr)
 
-    XLr = kr_is_n.flatten() * np.dot(ss.f_mrt_hum_is_js, np.sum(ss.wsb_js_is, axis=1)).flatten() * xot_is_n.flatten()
+    # ステップnにおける室iの係数 XOT, [i, i]
+    xot_is_is_n = np.linalg.inv(v_diag(kc_is_n) + kr_is_n * np.dot(ss.f_mrt_hum_is_js, ss.wsr_js_is))
 
-    XC = kr_is_n.flatten() * np.dot(ss.f_mrt_hum_is_js, (wsc_js_npls.flatten() + wsv_js_npls.flatten()).reshape(-1, 1)).flatten() * xot_is_n.flatten()
+    XLr = kr_is_n.flatten() * np.dot(ss.f_mrt_hum_is_js, np.sum(ss.wsb_js_is, axis=1)).flatten() * np.sum(xot_is_is_n, axis=1, keepdims=True).flatten()
+
+    XC = kr_is_n.flatten() * np.dot(ss.f_mrt_hum_is_js, (wsc_js_npls.flatten() + wsv_js_npls.flatten()).reshape(-1, 1)).flatten() * np.sum(xot_is_is_n, axis=1, keepdims=True).flatten()
 
     # BRMot 式(2)
-    BRMot_is = brm_is_n.flatten() * xot_is_n.flatten()
+    BRMot_is = np.sum(brm_is_is_n, axis=1, keepdims=True).flatten() * np.sum(xot_is_is_n, axis=1, keepdims=True).flatten()
 
     # BRLot 式(4)
-    BRLot_is = s41.get_BRLot(np.sum(ss.brl_is_is, axis=1), brm_is_n.flatten(), XLr)
+    BRLot_is = s41.get_BRLot(np.sum(ss.brl_is_is, axis=1), np.sum(brm_is_is_n, axis=1, keepdims=True).flatten(), XLr)
 
     # BRCot 式(3)
-    BRCot_is = s41.get_BRCot(brc_i_n.flatten(), brm_is_n.flatten(), XC)
+    BRCot_is = s41.get_BRCot(brc_i_n.flatten(), np.sum(brm_is_is_n, axis=1, keepdims=True).flatten(), XC)
 
     XLr_is = XLr
 
@@ -203,7 +202,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
         operation_mode_is_n.flatten())
 
     # 自然室温 Tr を計算 式(14)
-    theta_r_is_n_pls = s41.get_Tr_i_n(theta_ot_is_n, lrs_is_n, xot_is_n.flatten(), XLr_is, XC_is)
+    theta_r_is_n_pls = s41.get_Tr_i_n(theta_ot_is_n, lrs_is_n, np.sum(xot_is_is_n, axis=1, keepdims=True).flatten(), XLr_is, XC_is)
 
     # 家具の温度 Tfun を計算 式(15)
     theta_frnt_is_n = s41.get_Tfun_i_n(
