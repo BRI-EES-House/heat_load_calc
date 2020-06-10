@@ -129,7 +129,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
     # TODO: すきま風量未実装につき、とりあえず０とする
     # すきま風量を決めるにあたってどういった変数が必要なのかを決めること。
     # TODO: 単位は m3/s とすること。
-    # ステップnの室iにおけるすきま風量, m3/s, [j, 1]
+    # ステップnの室iにおけるすきま風量, m3/s, [i, 1]
     v_reak_is_n = np.full((ss.number_of_spaces, 1), 0.0)
 
     # ステップn+1の境界jにおける項別公比法の指数項mの吸熱応答の項別成分, degree C, [j, m] (m=12)
