@@ -291,7 +291,6 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
         spaces.append({
             'id': i,
             'name': room_names[i],
-            'type': str(room_type_is[i]),
             'volume': v_room_cap_is[i],
             'c_value': c_value_is[i],
             'beta': Beta_is[i],
