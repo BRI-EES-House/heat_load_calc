@@ -186,8 +186,8 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
     # ステップn+1における室iの係数 XC, [i, 1]
     xc_is_npls = kr_is_n * np.dot(xot_is_is_n, np.dot(ss.f_mrt_hum_is_js, (wsc_js_npls + wsv_js_npls)))
 
-    # BRMot 式(2)
-    BRMot_is = np.sum(brm_is_is_n, axis=1, keepdims=True).flatten() * np.sum(xot_is_is_n, axis=1, keepdims=True).flatten()
+    # ステップnにおける係数 BRMOT, W/K, [i, i]
+    brm_ot_is_is_n = np.dot(brm_is_is_n, xot_is_is_n)
 
     # BRLot 式(4)
     BRLot_is = s41.get_BRLot(np.sum(ss.brl_is_is, axis=1), np.sum(brm_is_is_n, axis=1, keepdims=True).flatten(), np.sum(xlr_is_is_npls, axis=1))
@@ -196,7 +196,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
     BRCot_is = s41.get_BRCot(brc_i_n.flatten(), np.sum(brm_is_is_n, axis=1, keepdims=True).flatten(), xc_is_npls.flatten())
 
     theta_ot_is_n, lcs_is_n, lrs_is_n = s41.calc_next_steps(
-        ss.is_radiative_heating_is, BRCot_is, BRMot_is, BRLot_is, theta_ot_target_is_n, ss.lrcap_is,
+        ss.is_radiative_heating_is, BRCot_is, brm_ot_is_is_n.sum(axis=1), BRLot_is, theta_ot_target_is_n, ss.lrcap_is,
         operation_mode_is_n.flatten())
 
     # 自然室温 Tr を計算 式(14)
