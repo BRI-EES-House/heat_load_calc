@@ -172,17 +172,6 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
 #    x_gen_is_ns = x_gen_ckg_is_ns / 1000.0 / 3600.0
     x_gen_is_ns = x_gen_ckg_is_ns
 
-    k_ei_is = np.concatenate([
-        a9.get_k_ei_i(
-            boundary_type_i_jstrs=ib.boundary_type_i_jstrs,
-            h_bnd_i_jstrs=ib.h_i_jstrs,
-            i=i,
-            next_room_type_bnd_i_jstrs=ib.next_room_type_i_jstrs,
-            number_of_boundaries=number_of_bdry_is[i],
-            number_of_spaces=number_of_spaces
-        ) for i, ib in enumerate(ibs)
-    ])
-
     # TODO: この係数は本来であれば入力ファイルに書かれないといけない。
     # 裏面がどの境界の表面に属するのかを表す
     k_ei_id_js_js = [
@@ -413,7 +402,6 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
 
     # region Spacesへの引き渡し
     spaces2 = make_pre_calc_parameters(
-        k_ei_is,
         number_of_bdry_is,
         get_vac_xeout_def_is,
         is_radiative_heating_is,
@@ -428,7 +416,6 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
 
 
 def make_pre_calc_parameters(
-    k_ei_is,
     number_of_bdry_is,
     get_vac_xeout_def_is,
     is_radiative_heating_is,
@@ -736,7 +723,6 @@ def make_pre_calc_parameters(
         q_gen_is_ns=q_gen_is_ns,
         n_hum_is_ns=n_hum_is_ns,
         x_gen_is_ns=x_gen_is_ns,
-        k_ei_is=k_ei_is,
         number_of_bdry_is=number_of_bdry_is,
         f_mrt_hum_is_js=f_mrt_hum_is_js,
         theta_dstrb_js_ns=theta_dstrb_js_ns,

@@ -29,7 +29,6 @@ class PreCalcParameters:
             q_gen_is_ns,
             n_hum_is_ns,
             x_gen_is_ns,
-            k_ei_is,
             number_of_bdry_is,
             f_mrt_hum_is_js,
             theta_dstrb_js_ns,
@@ -143,9 +142,6 @@ class PreCalcParameters:
 
         # 境界のリスト形式を室ごとのリスト形式に切るためのインデックス（不要になったら消すこと）
         self.start_indices = get_start_indices(number_of_boundaries=self.number_of_bdry_is)
-
-        # 室温が裏面温度に与える影響を表すマトリクス, [j* * i]
-        self.k_ei_is = k_ei_is
 
         # ステップnの集約境界j*における外気側等価温度の外乱成分, degree C, [j*, 8760*4]
         self.theta_dstrb_js_ns = theta_dstrb_js_ns
