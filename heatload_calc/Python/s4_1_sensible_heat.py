@@ -5,11 +5,6 @@ import a18_initial_value_constants as a18
 from a39_global_parameters import OperationMode
 
 
-# BRCot 式(3)
-def get_BRCot(BRC, BRM, XC):
-    return BRC + BRM * XC
-
-
 # ********** （1）式から作用温度、室除去熱量を計算する方法 **********
 
 # TODO: 空調運転モード3,4については未定義
