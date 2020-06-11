@@ -157,7 +157,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
     v_out_vent_is_n = v_reak_is_n + ss.v_mec_vent_is_ns[:, n].reshape(-1, 1) + v_ntrl_vent_is
 
     # ステップnの室iにおける係数 BRC, W, [i, 1]
-    brc_i_n = ss.c_room_is / 900.0 * c_n.theta_r_is_n\
+    brc_is_n = ss.c_room_is / 900.0 * c_n.theta_r_is_n\
         + np.dot(ss.p_is_js, ss.h_c_js * ss.a_srf_js * (wsc_js_npls + wsv_js_npls))\
         + a18.get_c_air() * a18.get_rho_air() * v_out_vent_is_n * theta_o_n\
         + q_gen_is_n\
@@ -193,7 +193,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
     brl_ot_is_is_n = ss.brl_is_is + np.dot(brm_is_is_n, xlr_is_is_npls)
 
     # ステップnにおける係数 BRCOT, [i, 1]
-    brc_ot_is_n = brc_i_n + np.dot(brm_is_is_n, xc_is_npls)
+    brc_ot_is_n = brc_is_n + np.dot(brm_is_is_n, xc_is_npls)
 
     theta_ot_is_n, lcs_is_n, lrs_is_n = s41.calc_next_steps(
         ss.is_radiative_heating_is, np.sum(brc_ot_is_n, axis=1), brm_ot_is_is_n.sum(axis=1), np.sum(brl_ot_is_is_n, axis=1), theta_ot_target_is_n, ss.lrcap_is,
