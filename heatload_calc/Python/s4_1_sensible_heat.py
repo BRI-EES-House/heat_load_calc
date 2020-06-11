@@ -10,11 +10,6 @@ def get_BRCot(BRC, BRM, XC):
     return BRC + BRM * XC
 
 
-# BRLot 式(4)
-def get_BRLot(BRL, BRM, XLr):
-    return BRL + BRM * XLr
-
-
 # ********** （1）式から作用温度、室除去熱量を計算する方法 **********
 
 # TODO: 空調運転モード3,4については未定義
