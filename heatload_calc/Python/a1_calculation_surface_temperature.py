@@ -20,24 +20,3 @@ def get_theta_srf_dsh_a_i_jstrs_npls_ms(
 
     return phi_a_1_bnd_jstrs_ms * q_srf_jstrs_n[:, np.newaxis] + r_bnd_i_jstrs_ms * theta_dsh_srf_a_jstrs_n_ms
 
-
-# 室内表面熱流の計算 式(28)
-def calc_qi(
-        h_c_bnd_jstrs, h_r_bnd_jstrs,
-        theta_s_jstrs_n, theta_ei_jstrs_n):
-    """
-
-    Args:
-        h_c_bnd_jstrs:
-        h_r_bnd_jstrs:
-        theta_s_jstrs_n: ステップnにおける境界j*の表面温度, degree C, [j*]
-        theta_r_is_npls:
-        theta_ei_jstrs_n:
-    Returns:
-
-    """
-
-    oldqi = (theta_ei_jstrs_n - theta_s_jstrs_n) * (h_c_bnd_jstrs + h_r_bnd_jstrs)
-
-    return oldqi
-
