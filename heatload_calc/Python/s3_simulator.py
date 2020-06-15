@@ -248,6 +248,8 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
         p=ss.p_is_js,
         Tsx=Tsx
     )
+    Qrs = ss.h_r_js * ss.a_srf_js * (np.dot(np.dot(ss.p_js_is, ss.f_mrt_is_js), theta_s_js_n) - theta_s_js_n)
+
 
     # 室内表面熱流の計算 式(28)
     # ステップnの境界jにおける表面熱流（壁体吸熱を正とする）, W/m2, [j, 1]
@@ -354,7 +356,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
     logger.q_l_frnt[:, n] = Qfunl_i_n
     logger.theta_s[:, n] = theta_s_js_n.flatten()
     logger.theta_rear[:, n] = theta_rear_js_n.flatten()
-    logger.qr[:, n] = Qrs
+    logger.qr[:, n] = Qrs.flatten()
     logger.qc[:, n] = Qcs.flatten()
     logger.theta_ei[:, n] = theta_ei_js_npls.flatten()
 
