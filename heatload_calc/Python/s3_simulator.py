@@ -98,13 +98,13 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
     #     ステップnにおける室iの在室者周りの対流熱伝達率, W / m2K, [i, 1]
     #     ステップnにおける室iの在室者周りの放射熱伝達率, W / m2K, [i, 1]
     #     ステップnの室iにおける運転モード, [i, 1]
-    #     ステップnの室iにおけるClo値, [i]
-    #     ステップnの室iにおける目標作用温度, degree C, [i]
+    #     ステップnの室iにおけるClo値, [i, 1]
+    #     ステップnの室iにおける目標作用温度, degree C, [i, 1]
     h_hum_is_n, h_hum_c_is_n, h_hum_r_is_n, operation_mode_is_n, clo_is_n, theta_ot_target_is_n = x_35.calc_operation(
         x_r_is_n=c_n.x_r_is_n,
         operation_mode_is_n_mns=c_n.operation_mode_is_n,
-        is_radiative_heating_is=ss.is_radiative_heating_is,
-        is_radiative_cooling_is=ss.is_radiative_cooling_is,
+        is_radiative_heating_is=ss.is_radiative_heating_is.flatten(),
+        is_radiative_cooling_is=ss.is_radiative_cooling_is.flatten(),
         theta_r_is_n=c_n.theta_r_is_n.flatten(),
         theta_cl_is_n=c_n.theta_cl_is_n,
         theta_mrt_is_n=c_n.theta_mrt_hum_is_n,
@@ -195,12 +195,21 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
     # ステップnにおける係数 BRCOT, [i, 1]
     brc_ot_is_n = brc_is_n + np.dot(brm_is_is_n, xc_is_npls)
 
-    theta_ot_is_n, lcs_is_n, lrs_is_n = s41.calc_next_steps(
-        ss.is_radiative_heating_is, np.sum(brc_ot_is_n, axis=1), brm_ot_is_is_n.sum(axis=1), np.sum(brl_ot_is_is_n, axis=1), theta_ot_target_is_n, ss.lrcap_is,
-        operation_mode_is_n.flatten())
+    # ステップ n+1 における室 i の室温, degree C, [i, 1]
+    # ステップ n+1 における室 i に設置された対流暖房の放熱量, W, [i, 1]
+    # ステップ n+1 における室 i に設置された放射暖房の放熱量, W, [i, 1]
+    theta_ot_is_npls, lc_is_npls, lr_is_npls = s41.calc_next_temp_and_load(
+        is_radiative_heating_is=ss.is_radiative_heating_is,
+        brc_ot_is_n=brc_ot_is_n,
+        brm_ot_is_is_n=brm_ot_is_is_n,
+        brl_ot_is_is_n=brl_ot_is_is_n,
+        theta_ot_target_is_n=theta_ot_target_is_n,
+        lrcap_is=ss.lrcap_is,
+        operation_mode_is_n=operation_mode_is_n
+    )
 
     # 自然室温 Tr を計算 式(14)
-    theta_r_is_n_pls = s41.get_Tr_i_n(theta_ot_is_n, lrs_is_n, np.sum(xot_is_is_n, axis=1, keepdims=True).flatten(), np.sum(xlr_is_is_npls, axis=1), xc_is_npls.flatten())
+    theta_r_is_n_pls = s41.get_Tr_i_n(theta_ot_is_npls.flatten(), lr_is_npls.flatten(), np.sum(xot_is_is_n, axis=1, keepdims=True).flatten(), np.sum(xlr_is_is_npls, axis=1), xc_is_npls.flatten())
 
     # 家具の温度 Tfun を計算 式(15)
     theta_frnt_is_n = s41.get_Tfun_i_n(
@@ -217,7 +226,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
         wsc_is_jstrs_npls=wsc_js_npls.flatten(),
         wsv_is_jstrs_npls=wsv_js_npls.flatten(),
         theta_r_is_npls=theta_r_is_n_pls,
-        lrs_is_n=lrs_is_n,
+        lrs_is_n=lr_is_npls.flatten(),
         p=ss.p_is_js
     )
 
@@ -242,7 +251,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
         q_sol_srf_jstrs_n=ss.q_sol_js_ns[:, n],
         flr_is_k=np.sum(ss.flr_js_is, axis=1),
         theta_r_is_npls=theta_r_is_n_pls,
-        lrs_is_n=lrs_is_n,
+        lrs_is_n=lr_is_npls.flatten(),
         beta_is=ss.beta_is.flatten(),
         p=ss.p_is_js,
         Tsx=Tsx
@@ -302,7 +311,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
     # i室のn時点におけるエアコンの（BFを考慮した）相当風量[m3/s]
     # 空調の熱交換部飽和絶対湿度の計算
     v_ac_is_n, x_e_out_is_n = ss.get_vac_xeout_is(
-        lcs_is_n=lcs_is_n,
+        lcs_is_n=lc_is_npls.flatten(),
         theta_r_is_npls=theta_r_is_n_pls,
         operation_mode_is_n=operation_mode_is_n.flatten()
     )
@@ -351,18 +360,18 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
     Qfunl_i_n = s42.get_Qfunl(ss.c_x_is, x_r_is_n_pls, xf_i_n)
 
     # ステップnにおける室iの在室者の着衣温度, degree C, [i]
-    theta_cl_is_n_pls = x_35.get_theta_cl_is_n(clo_is_n=clo_is_n, theta_ot_is_n=theta_ot_is_n, h_hum_is_n=h_hum_is_n.flatten())
+    theta_cl_is_n_pls = x_35.get_theta_cl_is_n(clo_is_n=clo_is_n.flatten(), theta_ot_is_n=theta_ot_is_npls.flatten(), h_hum_is_n=h_hum_is_n.flatten())
 
     logger.operation_mode[:, n] = operation_mode_is_n.flatten()
     logger.theta_r[:, n] = theta_r_is_n_pls
     logger.x_r[:, n] = x_r_is_n_pls
     logger.theta_mrt[:, n] = theta_mrt_hum_is_n_pls
-    logger.theta_ot[:, n] = theta_ot_is_n
-    logger.clo[:, n] = clo_is_n
+    logger.theta_ot[:, n] = theta_ot_is_npls.flatten()
+    logger.clo[:, n] = clo_is_n.flatten()
     logger.q_hum[:, n] = q_hum_is_n
     logger.x_hum[:, n] = x_hum_is_n
-    logger.l_cs[:, n] = lcs_is_n
-    logger.l_rs[:, n] = lrs_is_n
+    logger.l_cs[:, n] = lc_is_npls.flatten()
+    logger.l_rs[:, n] = lr_is_npls.flatten()
     logger.l_cl[:, n] = Lcl_i_n
     logger.theta_frnt[:, n] = theta_frnt_is_n
     logger.x_frnt[:, n] = xf_i_n

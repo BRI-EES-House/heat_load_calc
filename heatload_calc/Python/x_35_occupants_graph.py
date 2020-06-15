@@ -159,8 +159,8 @@ def get_graph_data(d):
         # 運転モード, 着衣量, 目標作用温度のデータ格納
         d_graph_data[key] = {
             'operation_mode': copy.deepcopy([om.value for om in arr[3].flatten()]),
-            'clo': copy.deepcopy(arr[4]),
-            'theta_ot_target': copy.deepcopy(arr[5])
+            'clo': copy.deepcopy(arr[4].flatten()),
+            'theta_ot_target': copy.deepcopy(arr[5].flatten())
         }
 
     return d_graph_data

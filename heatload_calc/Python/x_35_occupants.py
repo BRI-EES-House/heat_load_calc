@@ -176,7 +176,7 @@ def calc_operation(
         theta_cl_is_n=theta_cl_is_n
     )
 
-    return h_hum_is_n.reshape(-1, 1), h_hum_c_is_n.reshape(-1, 1), h_hum_r_is_n.reshape(-1, 1), operation_mode_is_n.reshape(-1, 1), clo_is_n, theta_ot_target_is_n
+    return h_hum_is_n.reshape(-1, 1), h_hum_c_is_n.reshape(-1, 1), h_hum_r_is_n.reshape(-1, 1), operation_mode_is_n.reshape(-1, 1), clo_is_n.reshape(-1, 1), theta_ot_target_is_n.reshape(-1, 1)
 
 
 def get_theta_cl_is_n(
