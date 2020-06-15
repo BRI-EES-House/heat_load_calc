@@ -238,13 +238,8 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
         + np.dot(ss.flr_js_is, (1.0 - ss.beta_is) * lr_is_npls) / ss.a_srf_js
     ) / (ss.h_c_js + ss.h_r_js)
 
-    Qcs = a1.get_Qc(
-        h_c_bnd_jstrs=ss.h_c_js.flatten(),
-        a_bnd_jstrs=ss.a_srf_js.flatten(),
-        theta_s_jstrs_n=theta_s_js_n.flatten(),
-        theta_r_is_npls=theta_r_is_n_pls.flatten(),
-        p=ss.p_is_js,
-    )
+    Qcs = ss.h_c_js * ss.a_srf_js * (np.dot(ss.p_js_is, theta_r_is_n_pls) - theta_s_js_n)
+
 
     Qrs = a1.get_Qr(
         a_bnd_jstrs=ss.a_srf_js.flatten(),
@@ -360,7 +355,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
     logger.theta_s[:, n] = theta_s_js_n.flatten()
     logger.theta_rear[:, n] = theta_rear_js_n.flatten()
     logger.qr[:, n] = Qrs
-    logger.qc[:, n] = Qcs
+    logger.qc[:, n] = Qcs.flatten()
     logger.theta_ei[:, n] = theta_ei_js_npls.flatten()
 
     return Conditions(
