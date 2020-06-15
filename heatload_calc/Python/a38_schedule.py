@@ -88,12 +88,13 @@ def get_all_schedules(n_p: float, room_name_is: List[str])\
     # 空調のON/OFF, bool型, [i, 365*96]
     # jsonファイルでは、ｓｔｒ（”on", "off")で示されているため、次の行でbool型に変換を行っている。
     ac_demand_is_ns_on_off = np.concatenate([[
-        get_schedule2(
+        get_schedule(
             room_name_i=room_name,
+            n_p=n_p,
             calendar=calendar,
             daily_schedule=d['daily_schedule']['is_temp_limit_set']
         )] for room_name in room_name_is])
-    ad_demand_is_ns = np.where(ac_demand_is_ns_on_off == "on", True, False)
+    ad_demand_is_ns = np.where(ac_demand_is_ns_on_off == 1, True, False)
 
     return v_mec_vent_local_is_ns, q_gen_app_is_ns, q_gen_ckg_is_ns, x_gen_ckg_is_ns, q_gen_lght_is_ns, n_hum_is_ns, ad_demand_is_ns
 
