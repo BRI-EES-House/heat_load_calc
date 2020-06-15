@@ -217,15 +217,15 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
         ) / (ss.c_cap_frnt_is + 900.0 * ss.c_frnt_is)
 
     # ステップ n+1 における境界 j の表面温度, degree C, [j, 1]
-    theta_s_jstrs_n = np.dot(ss.wsr_js_is, theta_r_is_n_pls) + wsc_js_npls + np.dot(ss.wsb_js_is, lr_is_npls) + wsv_js_npls
+    theta_s_js_n = np.dot(ss.wsr_js_is, theta_r_is_n_pls) + wsc_js_npls + np.dot(ss.wsb_js_is, lr_is_npls) + wsv_js_npls
 
     # ステップn+1における室iの人体に対する平均放射温度, degree C, [i, 1]
-    theta_mrt_hum_is_n_pls = np.dot(ss.f_mrt_hum_is_js, theta_s_jstrs_n)
+    theta_mrt_hum_is_n_pls = np.dot(ss.f_mrt_hum_is_js, theta_s_js_n)
 
     # 室内表面熱流の計算 式(28)
     # ステップnの統合された境界j*における表面熱流（壁体吸熱を正とする）, W/m2, [j*]
     Tsx = a1.get_Tsx2(
-        theta_s_jstrs_n=theta_s_jstrs_n.flatten(),
+        theta_s_jstrs_n=theta_s_js_n.flatten(),
         f_mrt_jstrs_jstrs=ss.f_mrt_is_js
     )
 
@@ -233,7 +233,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
     # ステップn+1の境界jにおける等価温度, degree C, [j, 1]
     theta_ei_js_npls = (
         ss.h_c_js * np.dot(ss.p_js_is, theta_r_is_n_pls)
-        + ss.h_r_js * np.dot(np.dot(ss.p_js_is, ss.f_mrt_is_js), theta_s_jstrs_n)
+        + ss.h_r_js * np.dot(np.dot(ss.p_js_is, ss.f_mrt_is_js), theta_s_js_n)
         + ss.q_sol_js_ns[:, n].reshape(-1, 1)
         + np.dot(ss.flr_js_is, (1.0 - ss.beta_is) * lr_is_npls) / ss.a_srf_js
     ) / (ss.h_c_js + ss.h_r_js)
@@ -241,7 +241,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
     Qcs = a1.get_Qc(
         h_c_bnd_jstrs=ss.h_c_js.flatten(),
         a_bnd_jstrs=ss.a_srf_js.flatten(),
-        theta_s_jstrs_n=theta_s_jstrs_n.flatten(),
+        theta_s_jstrs_n=theta_s_js_n.flatten(),
         theta_r_is_npls=theta_r_is_n_pls.flatten(),
         p=ss.p_is_js,
     )
@@ -249,7 +249,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
     Qrs = a1.get_Qr(
         a_bnd_jstrs=ss.a_srf_js.flatten(),
         h_r_bnd_jstrs=ss.h_r_js.flatten(),
-        theta_s_jstrs_n=theta_s_jstrs_n.flatten(),
+        theta_s_jstrs_n=theta_s_js_n.flatten(),
         p=ss.p_is_js,
         Tsx=Tsx
     )
@@ -259,7 +259,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
     q_srf_js_n = a1.calc_qi(
         h_c_bnd_jstrs=ss.h_c_js.flatten(),
         h_r_bnd_jstrs=ss.h_r_js.flatten(),
-        theta_s_jstrs_n=theta_s_jstrs_n.flatten(),
+        theta_s_jstrs_n=theta_s_js_n.flatten(),
         theta_ei_jstrs_n=theta_ei_js_npls.flatten(),
     ).reshape(-1, 1)
 
@@ -357,7 +357,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
     logger.theta_frnt[:, n] = theta_frnt_is_n.flatten()
     logger.x_frnt[:, n] = xf_i_n
     logger.q_l_frnt[:, n] = Qfunl_i_n
-    logger.theta_s[:, n] = theta_s_jstrs_n.flatten()
+    logger.theta_s[:, n] = theta_s_js_n.flatten()
     logger.theta_rear[:, n] = theta_rear_js_n.flatten()
     logger.qr[:, n] = Qrs
     logger.qc[:, n] = Qcs
