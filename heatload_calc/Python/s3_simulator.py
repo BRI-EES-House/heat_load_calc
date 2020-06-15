@@ -223,13 +223,6 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
     theta_mrt_hum_is_n_pls = np.dot(ss.f_mrt_hum_is_js, theta_s_js_n)
 
     # 室内表面熱流の計算 式(28)
-    # ステップnの統合された境界j*における表面熱流（壁体吸熱を正とする）, W/m2, [j*]
-    Tsx = a1.get_Tsx2(
-        theta_s_jstrs_n=theta_s_js_n.flatten(),
-        f_mrt_jstrs_jstrs=ss.f_mrt_is_js
-    )
-
-    # 室内表面熱流の計算 式(28)
     # ステップn+1の境界jにおける等価温度, degree C, [j, 1]
     theta_ei_js_npls = (
         ss.h_c_js * np.dot(ss.p_js_is, theta_r_is_n_pls)
@@ -240,16 +233,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
 
     Qcs = ss.h_c_js * ss.a_srf_js * (np.dot(ss.p_js_is, theta_r_is_n_pls) - theta_s_js_n)
 
-
-    Qrs = a1.get_Qr(
-        a_bnd_jstrs=ss.a_srf_js.flatten(),
-        h_r_bnd_jstrs=ss.h_r_js.flatten(),
-        theta_s_jstrs_n=theta_s_js_n.flatten(),
-        p=ss.p_is_js,
-        Tsx=Tsx
-    )
     Qrs = ss.h_r_js * ss.a_srf_js * (np.dot(np.dot(ss.p_js_is, ss.f_mrt_is_js), theta_s_js_n) - theta_s_js_n)
-
 
     # 室内表面熱流の計算 式(28)
     # ステップnの境界jにおける表面熱流（壁体吸熱を正とする）, W/m2, [j, 1]
