@@ -231,8 +231,6 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
         + np.dot(ss.flr_js_is, (1.0 - ss.beta_is) * lr_is_npls) / ss.a_srf_js
     ) / (ss.h_c_js + ss.h_r_js)
 
-    Qrs = ss.h_r_js * ss.a_srf_js * (np.dot(np.dot(ss.p_js_is, ss.f_mrt_is_js), theta_s_js_n) - theta_s_js_n)
-
     # ステップnの境界jにおける表面熱流（壁体吸熱を正とする）, W/m2, [j, 1]
     q_srf_js_n = (theta_ei_js_npls - theta_s_js_n) * (ss.h_c_js + ss.h_r_js)
 
@@ -332,7 +330,6 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
     logger.q_l_frnt[:, n] = Qfunl_i_n
     logger.theta_s[:, n] = theta_s_js_n.flatten()
     logger.theta_rear[:, n] = theta_rear_js_n.flatten()
-    logger.qr[:, n] = Qrs.flatten()
     logger.theta_ei[:, n] = theta_ei_js_npls.flatten()
 
     return Conditions(
