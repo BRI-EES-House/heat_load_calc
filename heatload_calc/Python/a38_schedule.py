@@ -3,7 +3,7 @@ import json
 from typing import Dict, List
 
 
-def get_v_mec_vent_local_is_ns(n_p: float, room_name_is: List[str])\
+def get_all_schedules(n_p: float, room_name_is: List[str])\
         -> (np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray):
     """スケジュールを取得する。
 
