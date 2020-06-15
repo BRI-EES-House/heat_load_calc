@@ -5,24 +5,7 @@ import numpy as np
 """
 
 
-# ********** 室内表面温度 **********
-
-# 表面温度の計算 式(23)
-def get_surface_temperature(wsr_jstrs, wsb_jstrs, wsc_is_jstrs_npls, wsv_is_jstrs_npls, theta_r_is_npls, lrs_is_n, p):
-
-    return (
-        wsr_jstrs * np.dot(p.T, theta_r_is_npls.reshape(-1, 1)).flatten()
-        + wsc_is_jstrs_npls
-        + wsv_is_jstrs_npls
-        + wsb_jstrs * np.dot(p.T, lrs_is_n.reshape(-1, 1)).flatten()
-    )
-
 # ********** 表面温度を計算するための各種係数 **********
-
-# 式(24)
-def get_WSR(AX_k_l, FIA_i_l):
-    return np.dot(AX_k_l, FIA_i_l)
-
 
 def get_theta_srf_dsh_a_i_jstrs_npls_ms(
         q_srf_jstrs_n: np.ndarray,
