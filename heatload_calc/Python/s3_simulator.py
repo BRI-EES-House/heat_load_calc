@@ -230,19 +230,13 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
     )
 
     # 室内表面熱流の計算 式(28)
-    # ステップnの統合された境界j*における表面熱流（壁体吸熱を正とする）, W/m2, [j*]
-    theta_ei_jstrs_n = a1.get_theta_ei_jstrs_n(
-        h_c_bnd_jstrs=ss.h_c_js.flatten(),
-        a_bnd_jstrs=ss.a_srf_js.flatten(),
-        h_r_bnd_jstrs=ss.h_r_js.flatten(),
-        q_sol_srf_jstrs_n=ss.q_sol_js_ns[:, n],
-        flr_is_k=np.sum(ss.flr_js_is, axis=1),
-        theta_r_is_npls=theta_r_is_n_pls.flatten(),
-        lrs_is_n=lr_is_npls.flatten(),
-        beta_is=ss.beta_is.flatten(),
-        p=ss.p_is_js,
-        Tsx=Tsx
-    )
+    # ステップn+1の境界jにおける等価温度, degree C, [j, 1]
+    theta_ei_js_npls = (
+        ss.h_c_js * np.dot(ss.p_js_is, theta_r_is_n_pls)
+        + ss.h_r_js * np.dot(np.dot(ss.p_js_is, ss.f_mrt_is_js), theta_s_jstrs_n)
+        + ss.q_sol_js_ns[:, n].reshape(-1, 1)
+        + np.dot(ss.flr_js_is, (1.0 - ss.beta_is) * lr_is_npls) / ss.a_srf_js
+    ) / (ss.h_c_js + ss.h_r_js)
 
     Qcs = a1.get_Qc(
         h_c_bnd_jstrs=ss.h_c_js.flatten(),
@@ -266,7 +260,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
         h_c_bnd_jstrs=ss.h_c_js.flatten(),
         h_r_bnd_jstrs=ss.h_r_js.flatten(),
         theta_s_jstrs_n=theta_s_jstrs_n.flatten(),
-        theta_ei_jstrs_n=theta_ei_jstrs_n,
+        theta_ei_jstrs_n=theta_ei_js_npls.flatten(),
     ).reshape(-1, 1)
 
     # 式(17)
@@ -367,7 +361,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
     logger.theta_rear[:, n] = theta_rear_js_n.flatten()
     logger.qr[:, n] = Qrs
     logger.qc[:, n] = Qcs
-    logger.theta_ei[:, n] = theta_ei_jstrs_n
+    logger.theta_ei[:, n] = theta_ei_js_npls.flatten()
 
     return Conditions(
         operation_mode_is_n=operation_mode_is_n,
@@ -380,7 +374,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
         theta_frnt_is_n=theta_frnt_is_n,
         x_frnt_is_n=xf_i_n,
         theta_cl_is_n=theta_cl_is_n_pls,
-        theta_ei_js_n=theta_ei_jstrs_n.reshape(-1, 1)
+        theta_ei_js_n=theta_ei_js_npls
     )
 
 

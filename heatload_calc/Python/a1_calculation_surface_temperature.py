@@ -27,38 +27,6 @@ def get_theta_srf_dsh_a_i_jstrs_npls_ms(
     return phi_a_1_bnd_jstrs_ms * q_srf_jstrs_n[:, np.newaxis] + r_bnd_i_jstrs_ms * theta_dsh_srf_a_jstrs_n_ms
 
 
-def get_theta_ei_jstrs_n(
-        h_c_bnd_jstrs, a_bnd_jstrs, h_r_bnd_jstrs, q_sol_srf_jstrs_n, flr_is_k,
-        theta_r_is_npls: float,
-        lrs_is_n: float, beta_is: np.ndarray, p, Tsx):
-    """
-
-    Args:
-        h_c_bnd_jstrs:
-        a_bnd_jstrs:
-        h_r_bnd_jstrs:
-        q_sol_srf_jstrs_n:
-        flr_is_k:
-        theta_r_is_npls:
-        lrs_is_n:
-        beta_is:
-        p:
-        Tsx:
-    Returns:
-
-    """
-
-    # ステップnにおける境界j*の等価温度
-    theta_ei_jstrs_n = (
-        h_c_bnd_jstrs * np.dot(p.T, theta_r_is_npls).flatten()
-        + h_r_bnd_jstrs * np.dot(p.T, Tsx.reshape(-1, 1)).flatten()
-        + q_sol_srf_jstrs_n
-        + flr_is_k * np.dot(p.T, (lrs_is_n * (1.0 - beta_is)).reshape(-1, 1)).flatten() / a_bnd_jstrs
-                       ) / (h_c_bnd_jstrs + h_r_bnd_jstrs)
-
-    return theta_ei_jstrs_n
-
-
 def get_Qc(
         h_c_bnd_jstrs, a_bnd_jstrs,
         theta_s_jstrs_n, theta_r_is_npls: float,
