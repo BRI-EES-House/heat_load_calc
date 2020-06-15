@@ -27,12 +27,6 @@ def get_theta_srf_dsh_a_i_jstrs_npls_ms(
     return phi_a_1_bnd_jstrs_ms * q_srf_jstrs_n[:, np.newaxis] + r_bnd_i_jstrs_ms * theta_dsh_srf_a_jstrs_n_ms
 
 
-# MRTの計算
-def get_theta_mrt_hum_is_n(fot_jstrs, ts_is_k_n) -> np.ndarray:
-
-    return np.dot(fot_jstrs, ts_is_k_n.reshape(-1, 1)).flatten()
-
-
 def get_theta_ei_jstrs_n(
         h_c_bnd_jstrs, a_bnd_jstrs, h_r_bnd_jstrs, q_sol_srf_jstrs_n, flr_is_k,
         theta_r_is_npls: float,

@@ -219,10 +219,8 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
     # ステップ n+1 における境界 j の表面温度, degree C, [j, 1]
     theta_s_jstrs_n = np.dot(ss.wsr_js_is, theta_r_is_n_pls) + wsc_js_npls + np.dot(ss.wsb_js_is, lr_is_npls) + wsv_js_npls
 
-    # MRT_i_n、AST、平均放射温度の計算
-    theta_mrt_hum_is_n_pls = a1.get_theta_mrt_hum_is_n(
-        fot_jstrs=ss.f_mrt_hum_is_js,
-        ts_is_k_n=theta_s_jstrs_n.flatten())
+    # ステップn+1における室iの人体に対する平均放射温度, degree C, [i, 1]
+    theta_mrt_hum_is_n_pls = np.dot(ss.f_mrt_hum_is_js, theta_s_jstrs_n)
 
     # 室内表面熱流の計算 式(28)
     # ステップnの統合された境界j*における表面熱流（壁体吸熱を正とする）, W/m2, [j*]
@@ -354,7 +352,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
     logger.operation_mode[:, n] = operation_mode_is_n.flatten()
     logger.theta_r[:, n] = theta_r_is_n_pls.flatten()
     logger.x_r[:, n] = x_r_is_n_pls
-    logger.theta_mrt[:, n] = theta_mrt_hum_is_n_pls
+    logger.theta_mrt[:, n] = theta_mrt_hum_is_n_pls.flatten()
     logger.theta_ot[:, n] = theta_ot_is_npls.flatten()
     logger.clo[:, n] = clo_is_n.flatten()
     logger.q_hum[:, n] = q_hum_is_n
@@ -374,7 +372,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
     return Conditions(
         operation_mode_is_n=operation_mode_is_n,
         theta_r_is_n=theta_r_is_n_pls,
-        theta_mrt_hum_is_n=theta_mrt_hum_is_n_pls,
+        theta_mrt_hum_is_n=theta_mrt_hum_is_n_pls.flatten(),
         x_r_is_n=x_r_is_n_pls,
         theta_dsh_srf_a_js_ms_n=theta_dsh_srf_a_js_ms_npls,
         theta_dsh_srf_t_js_ms_n=theta_dsh_srf_t_js_ms_npls,
