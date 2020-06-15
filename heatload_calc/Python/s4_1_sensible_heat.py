@@ -4,27 +4,6 @@ import a18_initial_value_constants as a18
 from a39_global_parameters import OperationMode
 
 
-# 家具の温度 式(15)
-def get_Tfun_i_n(Capfun, Tfun_i_n_m1, Cfun, Tr, Qsolfun):
-    """
-
-    :param Capfun: i室の家具の熱容量（付録14．による） [J/K]
-    :param Tfun_i_n_m1: i室の家具の15分前の温度 [℃]
-    :param Cfun: i室の家具と室空気間の熱コンダクタンス（付録14．による）
-    :param Tr: 室温 [℃]
-    :param Qsolfun: i室のn時点における家具の日射吸収熱量 [W]
-    :return: 家具の温度 [℃]
-    """
-
-    delta_t = a18.get_delta_t()
-
-#    if Capfun > 0.0:
-#        return (Capfun / delta_t * Tfun_i_n_m1 + Cfun * Tr + Qsolfun) / (Capfun / delta_t + Cfun)
-#    else:
-#        return 0.0
-    return np.where(Capfun > 0.0, (Capfun / delta_t * Tfun_i_n_m1 + Cfun * Tr + Qsolfun) / (Capfun / delta_t + Cfun), 0.0)
-
-
 def get_Qfuns(Cfun, Tr, Tfun):
     """
 

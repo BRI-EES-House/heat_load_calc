@@ -211,13 +211,10 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
     # ステップ n+1 における室 i の室温, degree C, [i, 1]
     theta_r_is_n_pls = np.dot(xot_is_is_n, theta_ot_is_npls) - np.dot(xlr_is_is_npls, lr_is_npls) - xc_is_npls
 
-    # 家具の温度 Tfun を計算 式(15)
-    theta_frnt_is_n = s41.get_Tfun_i_n(
-        ss.c_cap_frnt_is.flatten(),
-        c_n.theta_frnt_is_n.flatten(),
-        ss.c_frnt_is.flatten(), theta_r_is_n_pls.flatten(),
-        ss.q_sol_frnt_is_ns[:, n]
-    )
+    # ステップ n+1 における室 i　の家具の温度, degree C, [i, 1]
+    theta_frnt_is_n = (
+        ss.c_cap_frnt_is * c_n.theta_frnt_is_n + 900.0 * ss.c_frnt_is * theta_r_is_n_pls + ss.q_sol_frnt_is_ns[:, n].reshape(-1, 1) * 900.0
+        ) / (ss.c_cap_frnt_is + 900.0 * ss.c_frnt_is)
 
     # ステップnにおける境界j*の表面温度, degree C, [j*]
     theta_s_jstrs_n = a1.get_surface_temperature(
@@ -373,7 +370,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
     logger.l_cs[:, n] = lc_is_npls.flatten()
     logger.l_rs[:, n] = lr_is_npls.flatten()
     logger.l_cl[:, n] = Lcl_i_n
-    logger.theta_frnt[:, n] = theta_frnt_is_n
+    logger.theta_frnt[:, n] = theta_frnt_is_n.flatten()
     logger.x_frnt[:, n] = xf_i_n
     logger.q_l_frnt[:, n] = Qfunl_i_n
     logger.theta_s[:, n] = theta_s_jstrs_n
@@ -390,7 +387,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
         theta_dsh_srf_a_js_ms_n=theta_dsh_srf_a_js_ms_npls,
         theta_dsh_srf_t_js_ms_n=theta_dsh_srf_t_js_ms_npls,
         q_srf_js_n=q_srf_js_n,
-        theta_frnt_is_n=theta_frnt_is_n.reshape(-1, 1),
+        theta_frnt_is_n=theta_frnt_is_n,
         x_frnt_is_n=xf_i_n,
         theta_cl_is_n=theta_cl_is_n_pls,
         theta_ei_js_n=theta_ei_jstrs_n.reshape(-1, 1)
