@@ -195,7 +195,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
     # ステップnにおける係数 BRCOT, [i, 1]
     brc_ot_is_n = brc_is_n + np.dot(brm_is_is_n, xc_is_npls)
 
-    # ステップ n+1 における室 i の室温, degree C, [i, 1]
+    # ステップ n+1 における室 i の作用温度, degree C, [i, 1]
     # ステップ n+1 における室 i に設置された対流暖房の放熱量, W, [i, 1]
     # ステップ n+1 における室 i に設置された放射暖房の放熱量, W, [i, 1]
     theta_ot_is_npls, lc_is_npls, lr_is_npls = s41.calc_next_temp_and_load(
@@ -208,14 +208,14 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
         operation_mode_is_n=operation_mode_is_n
     )
 
-    # 自然室温 Tr を計算 式(14)
-    theta_r_is_n_pls = s41.get_Tr_i_n(theta_ot_is_npls.flatten(), lr_is_npls.flatten(), np.sum(xot_is_is_n, axis=1, keepdims=True).flatten(), np.sum(xlr_is_is_npls, axis=1), xc_is_npls.flatten())
+    # ステップ n+1 における室 i の室温, degree C, [i, 1]
+    theta_r_is_n_pls = np.dot(xot_is_is_n, theta_ot_is_npls) - np.dot(xlr_is_is_npls, lr_is_npls) - xc_is_npls
 
     # 家具の温度 Tfun を計算 式(15)
     theta_frnt_is_n = s41.get_Tfun_i_n(
         ss.c_cap_frnt_is.flatten(),
         c_n.theta_frnt_is_n.flatten(),
-        ss.c_frnt_is.flatten(), theta_r_is_n_pls,
+        ss.c_frnt_is.flatten(), theta_r_is_n_pls.flatten(),
         ss.q_sol_frnt_is_ns[:, n]
     )
 
@@ -225,7 +225,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
         wsb_jstrs=np.sum(ss.wsb_js_is, axis=1),
         wsc_is_jstrs_npls=wsc_js_npls.flatten(),
         wsv_is_jstrs_npls=wsv_js_npls.flatten(),
-        theta_r_is_npls=theta_r_is_n_pls,
+        theta_r_is_npls=theta_r_is_n_pls.flatten(),
         lrs_is_n=lr_is_npls.flatten(),
         p=ss.p_is_js
     )
@@ -250,7 +250,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
         h_r_bnd_jstrs=ss.h_r_js.flatten(),
         q_sol_srf_jstrs_n=ss.q_sol_js_ns[:, n],
         flr_is_k=np.sum(ss.flr_js_is, axis=1),
-        theta_r_is_npls=theta_r_is_n_pls,
+        theta_r_is_npls=theta_r_is_n_pls.flatten(),
         lrs_is_n=lr_is_npls.flatten(),
         beta_is=ss.beta_is.flatten(),
         p=ss.p_is_js,
@@ -261,7 +261,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
         h_c_bnd_jstrs=ss.h_c_js.flatten(),
         a_bnd_jstrs=ss.a_srf_js.flatten(),
         theta_s_jstrs_n=theta_s_jstrs_n,
-        theta_r_is_npls=theta_r_is_n_pls,
+        theta_r_is_npls=theta_r_is_n_pls.flatten(),
         p=ss.p_is_js,
     )
 
@@ -312,7 +312,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
     # 空調の熱交換部飽和絶対湿度の計算
     v_ac_is_n, x_e_out_is_n = ss.get_vac_xeout_is(
         lcs_is_n=lc_is_npls.flatten(),
-        theta_r_is_npls=theta_r_is_n_pls,
+        theta_r_is_npls=theta_r_is_n_pls.flatten(),
         operation_mode_is_n=operation_mode_is_n.flatten()
     )
 
@@ -363,7 +363,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
     theta_cl_is_n_pls = x_35.get_theta_cl_is_n(clo_is_n=clo_is_n.flatten(), theta_ot_is_n=theta_ot_is_npls.flatten(), h_hum_is_n=h_hum_is_n.flatten())
 
     logger.operation_mode[:, n] = operation_mode_is_n.flatten()
-    logger.theta_r[:, n] = theta_r_is_n_pls
+    logger.theta_r[:, n] = theta_r_is_n_pls.flatten()
     logger.x_r[:, n] = x_r_is_n_pls
     logger.theta_mrt[:, n] = theta_mrt_hum_is_n_pls
     logger.theta_ot[:, n] = theta_ot_is_npls.flatten()
@@ -384,7 +384,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
 
     return Conditions(
         operation_mode_is_n=operation_mode_is_n,
-        theta_r_is_n=theta_r_is_n_pls.reshape(-1, 1),
+        theta_r_is_n=theta_r_is_n_pls,
         theta_mrt_hum_is_n=theta_mrt_hum_is_n_pls,
         x_r_is_n=x_r_is_n_pls,
         theta_dsh_srf_a_js_ms_n=theta_dsh_srf_a_js_ms_npls,

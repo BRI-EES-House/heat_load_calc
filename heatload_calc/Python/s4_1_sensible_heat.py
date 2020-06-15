@@ -4,16 +4,6 @@ import a18_initial_value_constants as a18
 from a39_global_parameters import OperationMode
 
 
-# ********** （1）式から作用温度、室除去熱量を計算する方法 **********
-
-# TODO: 空調運転モード3,4については未定義
-
-
-# 自然室温を計算 式(14)
-def get_Tr_i_n(OT, Lrs, Xot, XLr, XC):
-    return Xot * OT - XLr * Lrs - XC
-
-
 # 家具の温度 式(15)
 def get_Tfun_i_n(Capfun, Tfun_i_n_m1, Cfun, Tr, Qsolfun):
     """
