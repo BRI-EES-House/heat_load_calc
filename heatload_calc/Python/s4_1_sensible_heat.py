@@ -1,18 +1,6 @@
 import numpy as np
 
-import a18_initial_value_constants as a18
 from a39_global_parameters import OperationMode
-
-
-def get_Qfuns(Cfun, Tr, Tfun):
-    """
-
-    :param Cfun: i室の家具と室空気間の熱コンダクタンス（付録14．による）
-    :param Tr:
-    :param Tfun: i室の家具の温度 [℃]
-    :return:
-    """
-    return Cfun[:, np.newaxis] * (Tr - Tfun)
 
 
 def calc_next_temp_and_load(

@@ -113,7 +113,7 @@ class Logger:
         self.rh = psy.get_h(p_v=p_v, p_vs=p_vs)
 
         # ステップnの室iにおける家具取得熱量, W, [i, n]
-        self.q_frnt = s41.get_Qfuns(ss.c_frnt_is.flatten(), self.theta_r, self.theta_frnt)
+        self.q_frnt = ss.c_frnt_is * (self.theta_r - self.theta_frnt)
 
         # ステップnの境界jにおける表面熱流（壁体吸熱を正とする）のうち対流成分, W, [j, n]
         self.qc = ss.h_c_js * ss.a_srf_js * (np.dot(ss.p_js_is, self.theta_r) - self.theta_s)
