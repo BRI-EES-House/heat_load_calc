@@ -1,0 +1,13 @@
+﻿階層1,階層2,階層3,階層4,階層5,階層6,項目名,key,入力必須条件 ○：必須項目 △：上位項目が必須の場合において必須項目,ID:value,ID:意味,型,単位,備考
+〇,,,,,,カレンダー,calendar,〇,1:平日 2:休日在 3:休日外,1:平日 2:休日在 3:休日外,List[str],－,365日分のリスト
+〇,,,,,,日スケジュール,daily_schedule,〇,,,,,
+,〇,,,,,世帯人数,number_of_households,〇,1:1 2:2 3:3 4:4,1:1人世帯 2:2人世帯 3:3人世帯 4:4人世帯,,,
+,,〇,,,,室名,room_name,〇,－,－,,,
+,,,〇,,,曜日,week,〇,1:平日 2:休日在 3:休日外,1:平日 2:休日在 3:休日外,,,
+,,,,〇,,在室人員,number_of_people,〇,,,List[float],人,24時間×4のリスト
+,,,,〇,,機器内部発熱,heat_generation_appliances,〇,,,List[float],W,24時間×4のリスト
+,,,,〇,,照明内部発熱,heat_generation_lighting,〇,,,List[float],W/m2,24時間×4のリスト
+,,,,〇,,調理内部発熱,heat_generation_cooking,〇,,,List[float],W,24時間×4のリスト
+,,,,〇,,調理内部発湿,vapor_generation_cooking,〇,,,List[float],g/h,24時間×4のリスト
+,,,,〇,,局所換気量,local_vent_amount,〇,,,List[float],m3/h,24時間×4のリスト
+,,,,〇,,空調発停,is_temp_limit_set,〇,,,List[float],m3/h,24時間×4のリスト
