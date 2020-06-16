@@ -29,8 +29,8 @@ def calc_operation(
                 HEATING : 暖房
                 STOP_OPEN : 暖房・冷房停止で窓「開」
                 STOP_CLOSE : 暖房・冷房停止で窓「閉」
-        is_radiative_heating_is:　放射暖房の有無, [i]
-        is_radiative_cooling_is: 放射冷房の有無, [i]
+        is_radiative_heating_is:　放射暖房の有無, [i, 1]
+        is_radiative_cooling_is: 放射冷房の有無, [i, 1]
         theta_r_is_n: ステップnにおける室iの空気温度, degree C, [i]
         theta_cl_is_n: ステップnにおける室iの在室者の着衣温度, degree C, [i]
             本来であれば着衣温度と人体周りの対流・放射熱伝達率を未知数とした熱収支式を収束計算等を用いて時々刻々求めるのが望ましい。
@@ -53,8 +53,8 @@ def calc_operation(
     # ステップnにおける室iの在室者周りの風速, m/s, [i]
     v_hum_is_n = get_v_hum_is_n(
         operation_mode_is_n=operation_mode_is_n_mns.flatten(),
-        is_radiative_heating_is=is_radiative_heating_is,
-        is_radiative_cooling_is=is_radiative_cooling_is
+        is_radiative_heating_is=is_radiative_heating_is.flatten(),
+        is_radiative_cooling_is=is_radiative_cooling_is.flatten()
     )
 
     # ステップnにおける室iの在室者周りの対流熱伝達率, W/m2K, [i]
