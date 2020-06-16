@@ -291,43 +291,21 @@ def get_v_hum_is_n(
         ステップnにおける室iの在室者周りの風速, m/s, [i, 1]
     """
 
-    v_hum_is_n = np.vectorize(get_v_hum_i_n)(operation_mode_is_n.flatten(), is_radiative_heating_is.flatten(), is_radiative_cooling_is.flatten())
+    # 在室者周りの風速はデフォルトで 0.0 m/s とおく
+    v_hum_is_n = np.zeros_like(operation_mode_is_n, dtype=float)
 
-    return v_hum_is_n.reshape(-1, 1)
+    # 暖房をしてかつそれが放射暖房ではない場合の風速を 0.2 m/s とする
+    v_hum_is_n[(operation_mode_is_n == OperationMode.HEATING) & np.logical_not(is_radiative_heating_is)] = 0.2
 
+    # 冷房をしてかつそれが放射冷房ではない場合の風速を 0.2 m/s とする
+    v_hum_is_n[(operation_mode_is_n == OperationMode.COOLING) & np.logical_not(is_radiative_cooling_is)] = 0.2
 
-def get_v_hum_i_n(
-        operation_mode_i_n: OperationMode,
-        is_radiative_heating_i: bool,
-        is_radiative_cooling_i: bool
-) -> float:
-    """在室者周りの風速を求める。
+    # 暖冷房をせずに窓を開けている時の風速を 0.1 m/s とする
+    v_hum_is_n[operation_mode_is_n == OperationMode.STOP_OPEN] = 0.1
 
-    Args:
-        operation_mode_i_n: ステップnにおける室iの運転状態
-        is_radiative_heating_i: 放射暖房の有無
-        is_radiative_cooling_i: 放射冷房の有無
+    # 上記に当てはまらない場合の風速は 0.0 m/s のままである。
 
-    Returns:
-        ステップnにおける室iの在室者周りの風速, m/s
-    """
-
-    if operation_mode_i_n == OperationMode.HEATING:
-        if is_radiative_heating_i:
-            return 0.0
-        else:
-            return 0.2
-    elif operation_mode_i_n == OperationMode.COOLING:
-        if is_radiative_cooling_i:
-            return 0.0
-        else:
-            return 0.2
-    elif operation_mode_i_n == OperationMode.STOP_CLOSE:
-        return 0.0
-    elif operation_mode_i_n == OperationMode.STOP_OPEN:
-        return 0.1
-    else:
-        raise ValueError()
+    return v_hum_is_n
 
 
 def get_h_hum_c_is_n(
