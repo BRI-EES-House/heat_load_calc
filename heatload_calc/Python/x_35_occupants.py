@@ -50,18 +50,18 @@ def calc_operation(
     # ステップnにおける室iの水蒸気圧, Pa, [i, 1]
     p_v_r_is_n = psy.get_p_v_r_is_n(x_r_is_n=x_r_is_n)
 
-    # ステップnにおける室iの在室者周りの風速, m/s, [i]
+    # ステップnにおける室iの在室者周りの風速, m/s, [i, 1]
     v_hum_is_n = get_v_hum_is_n(
-        operation_mode_is_n=operation_mode_is_n_mns.flatten(),
-        is_radiative_heating_is=is_radiative_heating_is.flatten(),
-        is_radiative_cooling_is=is_radiative_cooling_is.flatten()
+        operation_mode_is_n=operation_mode_is_n_mns,
+        is_radiative_heating_is=is_radiative_heating_is,
+        is_radiative_cooling_is=is_radiative_cooling_is
     )
 
     # ステップnにおける室iの在室者周りの対流熱伝達率, W/m2K, [i]
     h_hum_c_is_n = get_h_hum_c_is_n(
         theta_r_is_n=theta_r_is_n.flatten(),
         theta_cl_is_n=theta_cl_is_n.flatten(),
-        v_hum_is_n=v_hum_is_n
+        v_hum_is_n=v_hum_is_n.flatten()
     )
 
     # ステップnにおける室iの在室者周りの放射熱伝達率, W/m2K, [i]
@@ -283,15 +283,17 @@ def get_v_hum_is_n(
     """在室者周りの風速を求める。
 
     Args:
-        operation_mode_is_n: ステップnにおける室iの運転状態, [i]
-        is_radiative_heating_is: 放射暖房の有無, [i]
-        is_radiative_cooling_is: 放射冷房の有無, [i]
+        operation_mode_is_n: ステップnにおける室iの運転状態, [i, 1]
+        is_radiative_heating_is: 放射暖房の有無, [i, 1]
+        is_radiative_cooling_is: 放射冷房の有無, [i, 1]
 
     Returns:
-        ステップnにおける室iの在室者周りの風速, m/s, [i]
+        ステップnにおける室iの在室者周りの風速, m/s, [i, 1]
     """
 
-    return np.vectorize(get_v_hum_i_n)(operation_mode_is_n, is_radiative_heating_is, is_radiative_cooling_is)
+    v_hum_is_n = np.vectorize(get_v_hum_i_n)(operation_mode_is_n.flatten(), is_radiative_heating_is.flatten(), is_radiative_cooling_is.flatten())
+
+    return v_hum_is_n.reshape(-1, 1)
 
 
 def get_v_hum_i_n(
