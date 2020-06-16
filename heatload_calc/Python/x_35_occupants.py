@@ -23,7 +23,7 @@ def calc_operation(
 
     Args:
         x_r_is_n: ステップnにおける室iの絶対湿度, kg/kgDA, [i, 1]
-        operation_mode_is_n_mns: ステップn-1における室iの運転状態, [i]
+        operation_mode_is_n_mns: ステップn-1における室iの運転状態, [i, 1]
             列挙体 OperationMode で表される。
                 COOLING ： 冷房
                 HEATING : 暖房
