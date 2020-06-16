@@ -1,0 +1,36 @@
+﻿階層1,階層2,階層3,階層4,階層5,階層6,項目名,key,入力必須条件 ○：必須項目 △：上位項目が必須の場合において必須項目,ID:value,ID:意味,型,単位,備考
+〇,,,,,,空間,spaces,〇,－,－,－,－,
+,〇,,,,,室通し番号,id,〇,－,－,int,－,
+,〇,,,,,室名,name,〇,－,－,str,－,
+,〇,,,,,室気積,volume,〇,－,－,float,m3,
+,〇,,,,,相当隙間面積,c_value,〇,－,－,float,cm2/m2,
+,〇,,,,,放射暖房の対流放熱比率,beta,〇,－,－,float,－,
+,〇,,,,,換気,ventilation,〇,－,－,－,－,
+,,〇,,,,機械換気流入量,mechanical,〇,－,－,float,m3/sec,
+,,〇,,,,隣室間換気流入量,next_spaces,〇,－,－,List[float],m3/sec,配列番号と室id番号が対応している
+,,〇,,,,自然風利用時の換気量,natural,〇,－,－,float,m3/sec,
+,〇,,,,,家具,furniture,〇,－,－,－,－,
+,,〇,,,,家具等の熱容量,heat_capacity,〇,－,－,float,J/K,12.6kJ/(m3･K)
+,,〇,,,,家具等と空気間の熱コンダクタンス,heat_cond,〇,－,－,float,W/K,0.00022[1/s]
+,,〇,,,,家具等の湿気容量,moisture_capacity,〇,－,－,float,kg/(kg/kgDA),16.8 kg/(m3･(kg/kgDA))
+,,〇,,,,家具等と空気間の湿気コンダクタンス,moisture_cond,〇,－,－,float,kg/(s･kg/kgDA)),0.0018 [1/s]
+〇,,,,,,境界,boundaries,〇,－,－,－,－,
+,〇,,,,,境界通し番号,id,〇,－,－,int,,
+,〇,,,,,境界名称,name,〇,－,－,str,－,ex:integrated_boundary0
+,〇,,,,,境界の副名称,sub_name,〇,－,－,str,－,ex:north_exterior_wall
+,〇,,,,,土壌の有無,is_ground,〇,1:true 2:false,1:土壌あり 2:土壌なし,boolean,－,
+,〇,,,,,隣接する空間のID,connected_space_id,〇,,,,,
+,〇,,,,,面積,area,〇,－,－,float,m2,
+,〇,,,,,吸熱応答係数の初項,phi_a0,〇,－,－,float,m2･K/W,
+,〇,,,,,指数項別吸熱応答係数,phi_a1,〇,－,－,List[float],m2･K/W,
+,〇,,,,,貫流応答係数の初項,phi_t0,〇,－,－,float,－,
+,〇,,,,,指数項別貫流応答係数,phi_t1,〇,－,－,List[float],－,
+,〇,,,,,公比,r,〇,－,－,List[float],－,
+,〇,,,,,室内側総合熱伝達率,h_i,〇,－,－,float,W/(m2・K),
+,〇,,,,,放射暖房熱量の室内側吸収比率,flr,〇,－,－,float,－,
+,〇,,,,,室内侵入日射吸収の有無,is_solar_absorbed,〇,－,－,boolean,－,
+,〇,,,,,部位の人体に対する形態係数,f_mrt_hum,〇,－,－,float,－,
+,〇,,,,,隣室温度差係数（室外側相当外気温度基準）,k_outside,〇,－,－,float,－,
+,〇,,,,,隣室の影響,k_inside,〇,,,,,隣室がない場合はk_insideがnullとなる
+,,〇,,,,裏面の境界通し番号,id,k_insideがnullでない場合に定義される,－,－,int,－,
+,,〇,,,,裏面の境界の影響を表す係数,coef,k_insideがnullでない場合に定義される,－,－,float,－,

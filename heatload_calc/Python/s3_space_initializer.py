@@ -163,7 +163,7 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
     x_gen_ckg_is_ns,\
     q_gen_lght_is_ns,\
     n_hum_is_ns,\
-    ac_demand_is_ns = a38.get_v_mec_vent_local_is_ns(n_p=n_p, room_name_is=room_names)
+    ac_demand_is_ns = a38.get_all_schedules(n_p=n_p, room_name_is=room_names)
 
     # 内部発熱, W
     q_gen_is_ns = q_gen_app_is_ns + q_gen_ckg_is_ns + q_gen_lght_is_ns
