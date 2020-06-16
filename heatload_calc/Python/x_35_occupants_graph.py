@@ -146,7 +146,7 @@ def get_graph_data(d):
 
         # 人体周りの総合熱伝達率, 対流熱伝達率, 放射熱伝達率, 運転モード, 着衣量, 目標作用温度の取得
         arr = occupants.calc_operation(
-            x_r_is_n=np.array(d[key]['x_r']),
+            x_r_is_n=np.array(d[key]['x_r']).reshape(-1, 1),
             operation_mode_is_n_mns=np.array(d[key]['operation_mode']).reshape(-1, 1),
             is_radiative_heating_is=np.array(d[key]['radiative_heating']),
             is_radiative_cooling_is=np.array(d[key]['radiative_cooling']),

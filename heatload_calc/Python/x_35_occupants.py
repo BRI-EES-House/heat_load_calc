@@ -22,7 +22,7 @@ def calc_operation(
     """
 
     Args:
-        x_r_is_n: ステップnにおける室iの絶対湿度, kg/kgDA, [i]
+        x_r_is_n: ステップnにおける室iの絶対湿度, kg/kgDA, [i, 1]
         operation_mode_is_n_mns: ステップn-1における室iの運転状態, [i]
             列挙体 OperationMode で表される。
                 COOLING ： 冷房
@@ -48,7 +48,7 @@ def calc_operation(
     """
 
     # ステップnにおける室iの水蒸気圧, Pa
-    p_v_r_is_n = psy.get_p_v_r_is_n(x_r_is_n=x_r_is_n)
+    p_v_r_is_n = psy.get_p_v_r_is_n(x_r_is_n=x_r_is_n.flatten())
 
     # ステップnにおける室iの在室者周りの風速, m/s, [i]
     v_hum_is_n = get_v_hum_is_n(
