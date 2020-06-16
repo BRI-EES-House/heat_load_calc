@@ -35,7 +35,7 @@ def calc_operation(
         theta_cl_is_n: ステップnにおける室iの在室者の着衣温度, degree C, [i, 1]
             本来であれば着衣温度と人体周りの対流・放射熱伝達率を未知数とした熱収支式を収束計算等を用いて時々刻々求めるのが望ましい。
             今回、収束計算を回避するために前時刻の着衣温度を用いることにした。
-        theta_mrt_is_n: ステップnにおける室iの在室者の平均放射温度, degree C, [i]
+        theta_mrt_is_n: ステップnにおける室iの在室者の平均放射温度, degree C, [i, 1]
         ac_demand_is_n: ステップnにおける室iの空調需要の有無, [i]
 
     Returns:
@@ -67,7 +67,7 @@ def calc_operation(
     # ステップnにおける室iの在室者周りの放射熱伝達率, W/m2K, [i]
     h_hum_r_is_n = get_h_hum_r_is_n(
         theta_cl_is_n=theta_cl_is_n.flatten(),
-        theta_mrt_is_n=theta_mrt_is_n
+        theta_mrt_is_n=theta_mrt_is_n.flatten()
     )
 
     # ステップnにおける室iの在室者周りの総合熱伝達率, W/m2K, [i]
@@ -82,7 +82,7 @@ def calc_operation(
         h_hum_r_is_n=h_hum_r_is_n,
         h_hum_is_n=h_hum_is_n,
         theta_r_is_n=theta_r_is_n.flatten(),
-        theta_mrt_is_n=theta_mrt_is_n
+        theta_mrt_is_n=theta_mrt_is_n.flatten()
     )
 
     # 厚着時のClo値
