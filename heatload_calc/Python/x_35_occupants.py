@@ -36,7 +36,7 @@ def calc_operation(
             本来であれば着衣温度と人体周りの対流・放射熱伝達率を未知数とした熱収支式を収束計算等を用いて時々刻々求めるのが望ましい。
             今回、収束計算を回避するために前時刻の着衣温度を用いることにした。
         theta_mrt_is_n: ステップnにおける室iの在室者の平均放射温度, degree C, [i, 1]
-        ac_demand_is_n: ステップnにおける室iの空調需要の有無, [i]
+        ac_demand_is_n: ステップnにおける室iの空調需要の有無, [i, 1]
 
     Returns:
         ステップnの室iにおける人体周りの総合熱伝達率, W/m2K, [i, 1]
@@ -147,7 +147,7 @@ def calc_operation(
 
     # ステップnにおける室iの運転状態, [i]
     operation_mode_is_n = get_operation_mode_is_n(
-        ac_demand_is_n=ac_demand_is_n,
+        ac_demand_is_n=ac_demand_is_n.flatten(),
         operation_mode_is_n_mns=operation_mode_is_n_mns.flatten(),
         pmv_heavy_is_n=pmv_heavy_is_n,
         pmv_middle_is_n=pmv_middle_is_n,

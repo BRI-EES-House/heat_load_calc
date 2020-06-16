@@ -152,8 +152,8 @@ def get_graph_data(d):
             is_radiative_cooling_is=np.array(d[key]['radiative_cooling']).reshape(-1, 1),
             theta_r_is_n=np.array(d[key]['theta_r']).reshape(-1, 1),
             theta_cl_is_n=np.array(d[key]['theta_cl']).reshape(-1, 1),
-            theta_mrt_is_n=np.array(d[key]['theta_mrt'].reshape(-1, 1)),
-            ac_demand_is_n=np.array(d[key]['ac_demand'])
+            theta_mrt_is_n=np.array(d[key]['theta_mrt']).reshape(-1, 1),
+            ac_demand_is_n=np.array(d[key]['ac_demand']).reshape(-1, 1)
         )
 
         # 運転モード, 着衣量, 目標作用温度のデータ格納
