@@ -34,7 +34,8 @@ def get_all_schedules(n_p: float, room_name_is: List[str])\
             room_name_i=room_name,
             n_p=n_p,
             calendar=calendar,
-            daily_schedule=d['daily_schedule']['local_vent_amount']
+            daily_schedule=d['daily_schedule'],
+            schedule_type='local_vent_amount'
         )] for room_name in room_name_is])
 
     # 機器発熱, W, [i, 365*96]
@@ -43,7 +44,8 @@ def get_all_schedules(n_p: float, room_name_is: List[str])\
             room_name_i=room_name,
             n_p=n_p,
             calendar=calendar,
-            daily_schedule=d['daily_schedule']['heat_generation_appliances']
+            daily_schedule=d['daily_schedule'],
+            schedule_type='heat_generation_appliances'
         )] for room_name in room_name_is])
 
     # 調理発熱, W, [i, 365*96]
@@ -52,7 +54,8 @@ def get_all_schedules(n_p: float, room_name_is: List[str])\
             room_name_i=room_name,
             n_p=n_p,
             calendar=calendar,
-            daily_schedule=d['daily_schedule']['vapor_generation_cooking']
+            daily_schedule=d['daily_schedule'],
+            schedule_type='vapor_generation_cooking'
         )] for room_name in room_name_is])
 
     # 調理発湿, kg/s, [i, 365*96]
@@ -62,7 +65,8 @@ def get_all_schedules(n_p: float, room_name_is: List[str])\
             room_name_i=room_name,
             n_p=n_p,
             calendar=calendar,
-            daily_schedule=d['daily_schedule']['heat_generation_cooking']
+            daily_schedule=d['daily_schedule'],
+            schedule_type='heat_generation_cooking'
         )] for room_name in room_name_is]) / 1000.0 / 3600.0
 
     # 照明発熱, W/m2, [i, 365*96]
@@ -72,7 +76,8 @@ def get_all_schedules(n_p: float, room_name_is: List[str])\
             room_name_i=room_name,
             n_p=n_p,
             calendar=calendar,
-            daily_schedule=d['daily_schedule']['heat_generation_lighting']
+            daily_schedule=d['daily_schedule'],
+            schedule_type='heat_generation_lighting'
         )] for room_name in room_name_is])
 
     # 在室人数, [i, 365*96]
@@ -82,7 +87,8 @@ def get_all_schedules(n_p: float, room_name_is: List[str])\
             room_name_i=room_name,
             n_p=n_p,
             calendar=calendar,
-            daily_schedule=d['daily_schedule']['number_of_people']
+            daily_schedule=d['daily_schedule'],
+            schedule_type='number_of_people'
         )] for room_name in room_name_is])
 
     # 空調のON/OFF, bool型, [i, 365*96]
@@ -92,7 +98,8 @@ def get_all_schedules(n_p: float, room_name_is: List[str])\
             room_name_i=room_name,
             n_p=n_p,
             calendar=calendar,
-            daily_schedule=d['daily_schedule']['is_temp_limit_set']
+            daily_schedule=d['daily_schedule'],
+            schedule_type='is_temp_limit_set'
         )] for room_name in room_name_is])
     ad_demand_is_ns = np.where(ac_demand_is_ns_on_off == 1, True, False)
 
@@ -107,7 +114,7 @@ def load_schedule() -> Dict:
     return d_json
 
 
-def get_schedule(room_name_i: str, n_p: float, calendar: np.ndarray, daily_schedule: Dict) -> np.ndarray:
+def get_schedule(room_name_i: str, n_p: float, calendar: np.ndarray, daily_schedule: Dict, schedule_type: str) -> np.ndarray:
     """スケジュールを取得する。
 
     Args:
@@ -119,10 +126,22 @@ def get_schedule(room_name_i: str, n_p: float, calendar: np.ndarray, daily_sched
         スケジュール, [365*96]
     """
 
+    def convert_schedule(day_type: str):
+        return {
+            '1': daily_schedule['1'][room_name_i][day_type][schedule_type],
+            '2': daily_schedule['2'][room_name_i][day_type][schedule_type],
+            '3': daily_schedule['3'][room_name_i][day_type][schedule_type],
+            '4': daily_schedule['4'][room_name_i][day_type][schedule_type],
+        }
+
+    d_weekday = convert_schedule(day_type='平日')
+    d_holiday_out = convert_schedule(day_type='休日外')
+    d_holiday_in = convert_schedule(day_type='休日在')
+    
     d_365_96 = np.full((365, 96), -1.0)
-    d_365_96[calendar == '平日'] = get_interpolated_schedule(n_p, daily_schedule['平日'][room_name_i])
-    d_365_96[calendar == '休日外'] = get_interpolated_schedule(n_p, daily_schedule['休日外'][room_name_i])
-    d_365_96[calendar == '休日在'] = get_interpolated_schedule(n_p, daily_schedule['休日在'][room_name_i])
+    d_365_96[calendar == '平日'] = get_interpolated_schedule(n_p, d_weekday)
+    d_365_96[calendar == '休日外'] = get_interpolated_schedule(n_p, d_holiday_out)
+    d_365_96[calendar == '休日在'] = get_interpolated_schedule(n_p, d_holiday_in)
     d = d_365_96.flatten()
 
     return d
