@@ -47,8 +47,8 @@ def calc_operation(
         ステップnの室iにおける目標作用温度, degree C, [i]
     """
 
-    # ステップnにおける室iの水蒸気圧, Pa
-    p_v_r_is_n = psy.get_p_v_r_is_n(x_r_is_n=x_r_is_n.flatten())
+    # ステップnにおける室iの水蒸気圧, Pa, [i, 1]
+    p_v_r_is_n = psy.get_p_v_r_is_n(x_r_is_n=x_r_is_n)
 
     # ステップnにおける室iの在室者周りの風速, m/s, [i]
     v_hum_is_n = get_v_hum_is_n(
@@ -120,7 +120,7 @@ def calc_operation(
         theta_r_is_n=theta_r_is_n.flatten(),
         theta_cl_is_n=theta_cl_heavy_is_n,
         clo_is_n=clo_heavy,
-        p_a_is_n=p_v_r_is_n,
+        p_a_is_n=p_v_r_is_n.flatten(),
         h_hum_is_n=h_hum_is_n,
         theta_ot_is_n=theta_ot_is_n
     )
@@ -130,7 +130,7 @@ def calc_operation(
         theta_r_is_n=theta_r_is_n.flatten(),
         theta_cl_is_n=theta_cl_middle_is_n,
         clo_is_n=clo_middle,
-        p_a_is_n=p_v_r_is_n,
+        p_a_is_n=p_v_r_is_n.flatten(),
         h_hum_is_n=h_hum_is_n,
         theta_ot_is_n=theta_ot_is_n
     )
@@ -140,7 +140,7 @@ def calc_operation(
         theta_r_is_n=theta_r_is_n.flatten(),
         theta_cl_is_n=theta_cl_light_is_n,
         clo_is_n=clo_light,
-        p_a_is_n=p_v_r_is_n,
+        p_a_is_n=p_v_r_is_n.flatten(),
         h_hum_is_n=h_hum_is_n,
         theta_ot_is_n=theta_ot_is_n
     )
@@ -169,7 +169,7 @@ def calc_operation(
 
     # ステップnにおける室iの目標作用温度, degree C, [i]
     theta_ot_target_is_n = get_theta_ot_target_is_n(
-        p_v_r_is_n=p_v_r_is_n,
+        p_v_r_is_n=p_v_r_is_n.flatten(),
         h_hum_is_n=h_hum_is_n,
         operation_mode_is_n=operation_mode_is_n,
         clo_is_n=clo_is_n,
