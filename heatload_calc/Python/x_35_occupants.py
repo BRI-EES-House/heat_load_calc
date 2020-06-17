@@ -529,16 +529,18 @@ def get_theta_ot_target_is_n(
         ステップnにおける室iの目標作用温度, degree C, [i, 1]
     """
 
-    return np.where(
-        (operation_mode_is_n == OperationMode.HEATING) | (operation_mode_is_n == OperationMode.COOLING),
-        get_theta_ot_target(
-            clo_is_n=clo_is_n,
-            p_a_is_n=p_v_r_is_n,
-            h_hum_is_n=h_hum_is_n,
-            pmv_target_is_n=pmv_target_is_n
-        ),
-        0.0
+    theta_ot_target_is_n = np.zeros_like(operation_mode_is_n, dtype=float)
+
+    f = (operation_mode_is_n == OperationMode.HEATING) | (operation_mode_is_n == OperationMode.COOLING)
+
+    theta_ot_target_is_n[f] = get_theta_ot_target(
+        clo_is_n=clo_is_n[f],
+        p_a_is_n=p_v_r_is_n[f],
+        h_hum_is_n=h_hum_is_n[f],
+        pmv_target_is_n=pmv_target_is_n[f]
     )
+
+    return theta_ot_target_is_n
 
 
 def get_pmv_target_is_n(
