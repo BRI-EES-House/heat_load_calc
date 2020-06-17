@@ -487,53 +487,22 @@ def get_clo_is_n(
         ステップnにおける室iの在室者のClo値, [i, 1]
     """
 
-    return np.vectorize(get_clo_i_n)(operation_mode_is_n)
+    # ステップnにおける室iの在室者のClo値, [i, 1]
+    clo_is_n = np.zeros_like(operation_mode_is_n, dtype=float)
 
+    # 運転方法に応じてclo値の設定を決定する。
 
-def get_clo_i_n(
-        operation_mode_i_n: OperationMode
-) -> float:
-    """運転モードに応じたClo値を決定する。
+    # 暖房運転時の場合は厚着とする。
+    clo_is_n[operation_mode_is_n == OperationMode.HEATING] = get_clo_heavy()
 
-    Args:
-        operation_mode_i_n: ステップnにおける室iの運転状況
+    # 冷房運転時の場合は薄着とする。
+    clo_is_n[operation_mode_is_n == OperationMode.COOLING] = get_clo_light()
 
-    Returns:
-        ステップnにおける室iの在室者のClo値
-    """
+    # 暖冷房停止時は、窓の開閉によらず中間着とする。
+    clo_is_n[operation_mode_is_n == OperationMode.STOP_OPEN] = get_clo_middle()
+    clo_is_n[operation_mode_is_n == OperationMode.STOP_CLOSE] = get_clo_middle()
 
-    return {
-        OperationMode.HEATING: get_clo_heavy(),
-        OperationMode.COOLING: get_clo_light(),
-        OperationMode.STOP_OPEN: get_clo_middle(),
-        OperationMode.STOP_CLOSE: get_clo_middle()
-    }[operation_mode_i_n]
-
-
-def select_theta_cl_i_n(
-        operation_mode_i_n: OperationMode,
-        theta_cl_heavy_i_n: float,
-        theta_cl_middle_i_n: float,
-        theta_cl_light_i_n: float
-) -> float:
-    """運転モードから着衣温度を決定する。
-
-    Args:
-        operation_mode_i_n: ステップnにおける室iの運転状態
-        theta_cl_heavy_i_n: ステップnにおける室iの厚着時の在室者の着衣温度, degree C
-        theta_cl_middle_i_n: ステップnにおける室iの中間着時の在室者の着衣温度, degree C
-        theta_cl_light_i_n: ステップnにおける室iの薄着時の在室者の着衣温度, degree C
-
-    Returns:
-        ステップnにおける室iの在室者の着衣温度, degree C
-    """
-
-    return {
-        OperationMode.HEATING: theta_cl_heavy_i_n,
-        OperationMode.COOLING: theta_cl_light_i_n,
-        OperationMode.STOP_OPEN: theta_cl_middle_i_n,
-        OperationMode.STOP_CLOSE: theta_cl_middle_i_n
-    }[operation_mode_i_n]
+    return clo_is_n
 
 
 def get_theta_ot_target_is_n(
