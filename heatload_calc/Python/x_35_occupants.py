@@ -563,27 +563,6 @@ def get_pmv_target_is_n(
     return pmv_target_is_n
 
 
-def get_pmv_target_i_n(
-        operation_mode_i_n: OperationMode
-) -> float:
-    """運転モードから目標とするPMVを決定する。
-
-    Args:
-        operation_mode_i_n: ステップnの室iにおける運転状況
-
-
-    Returns:
-        ステップnの室iにおける目標PMV
-    """
-
-    return {
-        OperationMode.HEATING: -0.5,
-        OperationMode.COOLING: 0.5,
-        OperationMode.STOP_OPEN: 0.0,
-        OperationMode.STOP_CLOSE: 0.0
-    }[operation_mode_i_n]
-
-
 def get_theta_ot_target(
         clo_is_n: np.ndarray,
         p_a_is_n: np.ndarray,
