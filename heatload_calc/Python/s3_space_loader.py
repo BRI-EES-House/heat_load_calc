@@ -280,7 +280,7 @@ class Conditions:
         # ステップnの室iにおける家具の絶対湿度, kg/kgDA, [i]
         self.x_frnt_is_n = x_frnt_is_n
 
-        # ステップnにおける室iの在室者の着衣温度, degree C, [i]
+        # ステップnにおける室iの在室者の着衣温度, degree C, [i, 1]
         # 本来であれば着衣温度と人体周りの対流・放射熱伝達率を未知数とした熱収支式を収束計算等を用いて時々刻々求めるのが望ましい。
         # 今回、収束計算を回避するために前時刻の着衣温度を用いることにした。
         self.theta_cl_is_n = theta_cl_is_n
@@ -305,9 +305,9 @@ def initialize_conditions(ss: PreCalcParameters):
     # 初期値を15℃とする。
     theta_r_is_n = np.full((total_number_of_spaces, 1), 15.0)
 
-    # ステップnにおける室iの在室者の着衣温度, degree C, [i]
+    # ステップnにおける室iの在室者の着衣温度, degree C, [i, 1]
     # 初期値を15℃とする。
-    theta_cl_is_n = np.full(total_number_of_spaces, 15.0)
+    theta_cl_is_n = np.full((total_number_of_spaces, 1), 15.0)
 
     # ステップnにおける室iの在室者の平均放射温度, degree C, [i]
     # 初期値を15℃と設定する。
