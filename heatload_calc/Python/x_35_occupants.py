@@ -85,40 +85,40 @@ def calc_operation(
     # 薄着時のClo値
     clo_light = get_clo_light()
 
-    # ステップnにおける室iの在室者の厚着時のPMV, [i]
+    # ステップnにおける室iの在室者の厚着時のPMV, [i, 1]
     pmv_heavy_is_n = get_pmv_is_n(
-        theta_r_is_n=theta_r_is_n.flatten(),
+        theta_r_is_n=theta_r_is_n,
         clo_is_n=clo_heavy,
-        p_a_is_n=p_v_r_is_n.flatten(),
-        h_hum_is_n=h_hum_is_n.flatten(),
-        theta_ot_is_n=theta_ot_is_n.flatten()
+        p_a_is_n=p_v_r_is_n,
+        h_hum_is_n=h_hum_is_n,
+        theta_ot_is_n=theta_ot_is_n
     )
 
-    # ステップnにおける室iの在室者の中間着時のPMV, [i]
+    # ステップnにおける室iの在室者の中間着時のPMV, [i, 1]
     pmv_middle_is_n = get_pmv_is_n(
-        theta_r_is_n=theta_r_is_n.flatten(),
+        theta_r_is_n=theta_r_is_n,
         clo_is_n=clo_middle,
-        p_a_is_n=p_v_r_is_n.flatten(),
-        h_hum_is_n=h_hum_is_n.flatten(),
-        theta_ot_is_n=theta_ot_is_n.flatten()
+        p_a_is_n=p_v_r_is_n,
+        h_hum_is_n=h_hum_is_n,
+        theta_ot_is_n=theta_ot_is_n
     )
 
-    # ステップnにおける室iの在室者の薄着時のPMV, [i]
+    # ステップnにおける室iの在室者の薄着時のPMV, [i, 1]
     pmv_light_is_n = get_pmv_is_n(
-        theta_r_is_n=theta_r_is_n.flatten(),
+        theta_r_is_n=theta_r_is_n,
         clo_is_n=clo_light,
-        p_a_is_n=p_v_r_is_n.flatten(),
-        h_hum_is_n=h_hum_is_n.flatten(),
-        theta_ot_is_n=theta_ot_is_n.flatten()
+        p_a_is_n=p_v_r_is_n,
+        h_hum_is_n=h_hum_is_n,
+        theta_ot_is_n=theta_ot_is_n
     )
 
     # ステップnにおける室iの運転状態, [i]
     operation_mode_is_n = get_operation_mode_is_n(
         ac_demand_is_n=ac_demand_is_n.flatten(),
         operation_mode_is_n_mns=operation_mode_is_n_mns.flatten(),
-        pmv_heavy_is_n=pmv_heavy_is_n,
-        pmv_middle_is_n=pmv_middle_is_n,
-        pmv_light_is_n=pmv_light_is_n
+        pmv_heavy_is_n=pmv_heavy_is_n.flatten(),
+        pmv_middle_is_n=pmv_middle_is_n.flatten(),
+        pmv_light_is_n=pmv_light_is_n.flatten()
     )
 
     # ステップnの室iにおけるClo値, [i]
@@ -349,27 +349,27 @@ def get_pmv_is_n(
     """PMVを計算する
 
     Args:
-        theta_r_is_n: ステップnにおける室iの空気温度, degree C, [i]
+        theta_r_is_n: ステップnにおける室iの空気温度, degree C, [i, 1]
         clo_is_n: （厚着・中間着・薄着時の）Clo値
-        p_a_is_n:　ステップnにおける室iの水蒸気圧, Pa, [i]
-        h_hum_is_n: ステップnにおける室iの在室者周りの総合熱伝達率, W/m2K, [i]
-        theta_ot_is_n: ステップnにおける室iの在室者の作用温度, degree C, [i]
+        p_a_is_n:　ステップnにおける室iの水蒸気圧, Pa, [i, 1]
+        h_hum_is_n: ステップnにおける室iの在室者周りの総合熱伝達率, W/m2K, [i, 1]
+        theta_ot_is_n: ステップnにおける室iの在室者の作用温度, degree C, [i, 1]
 
     Returns:
-        ステップnにおける室iの在室者のPMV, [i]
+        ステップnにおける室iの在室者のPMV, [i, 1]
 
     Notes:
         ISOで定める計算方法ではなく、前の時刻に求めた人体周りの熱伝達率、着衣温度を使用して収束計算が生じないようにしている。
 
     """
 
-    # ステップnにおける室iの在室者の着衣抵抗, m2K/W, [i]
+    # ステップnにおける室iの在室者の着衣抵抗, m2K/W, [i, 1]
     i_cl_is_n = get_i_cl_is_n(clo_is_n=clo_is_n)
 
     # 代謝量（人体内部発熱量）, W/m2
     m = get_m()
 
-    # ステップnにおける室iの在室者の着衣面積率, [i]
+    # ステップnにおける室iの在室者の着衣面積率, [i, 1]
     f_cl_is_n = get_f_cl_is_n(i_cl_is_n=i_cl_is_n)
 
     return (0.303 * math.exp(-0.036 * m) + 0.028) * (
@@ -634,10 +634,10 @@ def get_f_cl_is_n(i_cl_is_n: np.ndarray) -> np.ndarray:
     """着衣面積率を計算する。
 
     Args:
-        i_cl_is_n: ステップnにおける室iの在室者の着衣抵抗, m2K/W, [i]
+        i_cl_is_n: ステップnにおける室iの在室者の着衣抵抗, m2K/W, [i, 1]
 
     Returns:
-        ステップnにおける室iの在室者の着衣面積率, [i]
+        ステップnにおける室iの在室者の着衣面積率, [i, 1]
     """
 
     return np.where(i_cl_is_n <= 0.078, 1.00 + 1.290 * i_cl_is_n, 1.05 + 0.645 * i_cl_is_n)
@@ -662,10 +662,10 @@ def get_i_cl_is_n(clo_is_n: Union[np.ndarray, float]) -> np.ndarray:
     """Clo値から着衣抵抗を計算する。
 
     Args:
-        clo_is_n: ステップnにおける室iの在室者のClo値, [i]
+        clo_is_n: ステップnにおける室iの在室者のClo値, [i, 1]
 
     Returns:
-        ステップnにおける室iの在室者の着衣抵抗, m2K/W, [i]
+        ステップnにおける室iの在室者の着衣抵抗, m2K/W, [i, 1]
 
     Notes:
         1 clo = 0.155 m2K/W
