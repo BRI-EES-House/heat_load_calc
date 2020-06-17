@@ -73,14 +73,8 @@ def calc_operation(
     # ステップnにおける室iの在室者周りの総合熱伝達率, W/m2K, [i, 1]
     h_hum_is_n = h_hum_r_is_n + h_hum_c_is_n
 
-    # ステップnにおける室iの在室者の作用温度, degree C, [i]
-    theta_ot_is_n = get_theta_ot_is_n(
-        h_hum_c_is_n=h_hum_c_is_n.flatten(),
-        h_hum_r_is_n=h_hum_r_is_n.flatten(),
-        h_hum_is_n=h_hum_is_n.flatten(),
-        theta_r_is_n=theta_r_is_n.flatten(),
-        theta_mrt_is_n=theta_mrt_is_n.flatten()
-    )
+    # ステップnにおける室iの在室者の作用温度, degree C, [i, 1]
+    theta_ot_is_n = (h_hum_r_is_n * theta_mrt_is_n + h_hum_c_is_n * theta_r_is_n) / h_hum_is_n
 
     # 厚着時のClo値
     clo_heavy = get_clo_heavy()
@@ -97,7 +91,7 @@ def calc_operation(
         clo_is_n=clo_heavy,
         p_a_is_n=p_v_r_is_n.flatten(),
         h_hum_is_n=h_hum_is_n.flatten(),
-        theta_ot_is_n=theta_ot_is_n
+        theta_ot_is_n=theta_ot_is_n.flatten()
     )
 
     # ステップnにおける室iの在室者の中間着時のPMV, [i]
@@ -106,7 +100,7 @@ def calc_operation(
         clo_is_n=clo_middle,
         p_a_is_n=p_v_r_is_n.flatten(),
         h_hum_is_n=h_hum_is_n.flatten(),
-        theta_ot_is_n=theta_ot_is_n
+        theta_ot_is_n=theta_ot_is_n.flatten()
     )
 
     # ステップnにおける室iの在室者の薄着時のPMV, [i]
@@ -115,7 +109,7 @@ def calc_operation(
         clo_is_n=clo_light,
         p_a_is_n=p_v_r_is_n.flatten(),
         h_hum_is_n=h_hum_is_n.flatten(),
-        theta_ot_is_n=theta_ot_is_n
+        theta_ot_is_n=theta_ot_is_n.flatten()
     )
 
     # ステップnにおける室iの運転状態, [i]
@@ -313,29 +307,6 @@ def get_h_hum_r_is_n(
 
     return 3.96 * 10 ** (-8) * (
                 t_cl_is_n ** 3.0 + t_cl_is_n ** 2.0 * t_mrt_is_n + t_cl_is_n * t_mrt_is_n ** 2.0 + t_mrt_is_n ** 3.0)
-
-
-def get_theta_ot_is_n(
-        h_hum_c_is_n: np.ndarray,
-        h_hum_r_is_n: np.ndarray,
-        h_hum_is_n: np.ndarray,
-        theta_r_is_n: np.ndarray,
-        theta_mrt_is_n: np.ndarray
-) -> np.ndarray:
-    """在室者の作用温度を計算する。
-
-    Args:
-        h_hum_c_is_n: ステップnにおける室iの在室者周りの対流熱伝達率, W/m2K, [i]
-        h_hum_r_is_n: ステップnにおける室iの在室者周りの放射熱伝達率, W/m2K, [i]
-        h_hum_is_n: ステップnにおける室iの在室者周りの総合熱伝達率, W/m2K, [i]
-        theta_r_is_n: ステップnにおける室iの空気温度, degree C, [i]
-        theta_mrt_is_n: ステップnにおける室iの在室者の平均放射温度, degree C, [i]
-
-    Returns:
-        ステップnにおける室iの在室者の作用温度, degree C, [i]
-    """
-
-    return (h_hum_r_is_n * theta_mrt_is_n + h_hum_c_is_n * theta_r_is_n) / h_hum_is_n
 
 
 def get_clo_heavy() -> float:
