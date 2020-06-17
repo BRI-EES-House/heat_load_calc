@@ -528,9 +528,13 @@ def get_theta_ot_target_is_n(
     Returns:
         ステップnにおける室iの目標作用温度, degree C, [i, 1]
     """
-    
+
+    # ステップnにおける室iの目標作用温度, degree C, [i, 1]
     theta_ot_target_is_n = np.zeros_like(operation_mode_is_n, dtype=float)
 
+    # 目標作用温度を計算する必要の有無（必要あり = True, 必要なし = False)
+    # 計算する必要がない場合は、0.0（初期値）とする。
+    # 計算する必要がある場合は、上書きする。
     f = (operation_mode_is_n == OperationMode.HEATING) | (operation_mode_is_n == OperationMode.COOLING)
 
     theta_ot_target_is_n[f] = get_theta_ot_target(
