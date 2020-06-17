@@ -121,7 +121,7 @@ def calc_operation(
         pmv_light_is_n=pmv_light_is_n
     )
 
-    # ステップnの室iにおけるClo値, [i]
+    # ステップnの室iにおけるClo値, [i, 1]
     clo_is_n = get_clo_is_n(
         operation_mode_is_n=operation_mode_is_n.flatten()
     )
@@ -131,10 +131,10 @@ def calc_operation(
         p_v_r_is_n=p_v_r_is_n.flatten(),
         h_hum_is_n=h_hum_is_n.flatten(),
         operation_mode_is_n=operation_mode_is_n.flatten(),
-        clo_is_n=clo_is_n,
+        clo_is_n=clo_is_n.flatten(),
     )
 
-    return h_hum_is_n, h_hum_c_is_n, h_hum_r_is_n, operation_mode_is_n, clo_is_n.reshape(-1, 1), theta_ot_target_is_n.reshape(-1, 1)
+    return h_hum_is_n, h_hum_c_is_n, h_hum_r_is_n, operation_mode_is_n, clo_is_n, theta_ot_target_is_n.reshape(-1, 1)
 
 
 def get_theta_cl_is_n(
@@ -481,10 +481,10 @@ def get_clo_is_n(
     """運転モードに応じた在室者のClo値を決定する。
 
     Args:
-        operation_mode_is_n: ステップnにおける室iの運転状態, [i]
+        operation_mode_is_n: ステップnにおける室iの運転状態, [i, 1]
 
     Returns:
-        ステップnにおける室iの在室者のClo値, [i]
+        ステップnにおける室iの在室者のClo値, [i, 1]
     """
 
     return np.vectorize(get_clo_i_n)(operation_mode_is_n)
