@@ -107,7 +107,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
         is_radiative_cooling_is=ss.is_radiative_cooling_is,
         theta_r_is_n=c_n.theta_r_is_n,
         theta_cl_is_n=c_n.theta_cl_is_n,
-        theta_mrt_is_n=c_n.theta_mrt_hum_is_n.reshape(-1, 1),
+        theta_mrt_is_n=c_n.theta_mrt_hum_is_n,
         ac_demand_is_n=(ss.ac_demand_is_n[:, n]).reshape(-1, 1),
     )
 
@@ -335,7 +335,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
     return Conditions(
         operation_mode_is_n=operation_mode_is_n,
         theta_r_is_n=theta_r_is_n_pls,
-        theta_mrt_hum_is_n=theta_mrt_hum_is_n_pls.flatten(),
+        theta_mrt_hum_is_n=theta_mrt_hum_is_n_pls,
         x_r_is_n=x_r_is_n_pls.reshape(-1, 1),
         theta_dsh_srf_a_js_ms_n=theta_dsh_srf_a_js_ms_npls,
         theta_dsh_srf_t_js_ms_n=theta_dsh_srf_t_js_ms_npls,

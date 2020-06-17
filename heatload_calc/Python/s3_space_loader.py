@@ -259,7 +259,7 @@ class Conditions:
         # ステップnにおける室iの空気温度, degree C, [i, 1]
         self.theta_r_is_n = theta_r_is_n
 
-        # ステップnにおける室iの在室者の平均放射温度, degree C, [i]
+        # ステップnにおける室iの在室者の平均放射温度, degree C, [i, 1]
         self.theta_mrt_hum_is_n = theta_mrt_hum_is_n
 
         # ステップnにおける室iの絶対湿度, kg/kgDA, [i, 1]
@@ -309,9 +309,9 @@ def initialize_conditions(ss: PreCalcParameters):
     # 初期値を15℃とする。
     theta_cl_is_n = np.full((total_number_of_spaces, 1), 15.0)
 
-    # ステップnにおける室iの在室者の平均放射温度, degree C, [i]
+    # ステップnにおける室iの在室者の平均放射温度, degree C, [i, 1]
     # 初期値を15℃と設定する。
-    theta_mrt_hum_is_n = np.full(total_number_of_spaces, 15.0)
+    theta_mrt_hum_is_n = np.full((total_number_of_spaces, 1), 15.0)
 
     # ステップnにおける室iの絶対湿度, kg/kgDA, [i, 1]
     # 初期値を空気温度20℃相対湿度40%の時の値とする。
