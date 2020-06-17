@@ -126,12 +126,16 @@ def calc_operation(
         operation_mode_is_n=operation_mode_is_n
     )
 
+    # ステップnの室iにおける目標PMV, [i, 1]
+    pmv_target_is_n = np.vectorize(get_pmv_target_i_n)(operation_mode_is_n)
+
     # ステップnにおける室iの目標作用温度, degree C, [i]
     theta_ot_target_is_n = get_theta_ot_target_is_n(
         p_v_r_is_n=p_v_r_is_n.flatten(),
         h_hum_is_n=h_hum_is_n.flatten(),
         operation_mode_is_n=operation_mode_is_n.flatten(),
         clo_is_n=clo_is_n.flatten(),
+        pmv_target_is_n=pmv_target_is_n.flatten()
     )
 
     return h_hum_is_n, h_hum_c_is_n, h_hum_r_is_n, operation_mode_is_n, clo_is_n, theta_ot_target_is_n.reshape(-1, 1)
@@ -510,6 +514,7 @@ def get_theta_ot_target_is_n(
         h_hum_is_n: np.ndarray,
         operation_mode_is_n: np.ndarray,
         clo_is_n: np.ndarray,
+        pmv_target_is_n: np.ndarray
 ) -> np.ndarray:
     """目標作用温度を計算する。
 
@@ -518,13 +523,11 @@ def get_theta_ot_target_is_n(
         h_hum_is_n: ステップnにおける室iの在室者周りの総合熱伝達率, W/m2K, [i]
         operation_mode_is_n: ステップnにおける室iの運転状態, [i]
         clo_is_n: ステップnにおける室iのClo値, [i]
+        pmv_target_is_n: ステップnの室iにおける目標PMV, [i]
 
     Returns:
         ステップnにおける室iの目標作用温度, degree C, [i]
     """
-
-    # ステップnの室iにおける目標PMV, [i]
-    pmv_target_is_n = np.vectorize(get_pmv_target_i_n)(operation_mode_is_n)
 
     return np.where(
         (operation_mode_is_n == OperationMode.HEATING) | (operation_mode_is_n == OperationMode.COOLING),
