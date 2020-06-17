@@ -129,16 +129,16 @@ def calc_operation(
     # ステップnの室iにおける目標PMV, [i, 1]
     pmv_target_is_n = get_pmv_target_is_n(operation_mode_is_n)
 
-    # ステップnにおける室iの目標作用温度, degree C, [i]
+    # ステップnにおける室iの目標作用温度, degree C, [i, 1]
     theta_ot_target_is_n = get_theta_ot_target_is_n(
-        p_v_r_is_n=p_v_r_is_n.flatten(),
-        h_hum_is_n=h_hum_is_n.flatten(),
-        operation_mode_is_n=operation_mode_is_n.flatten(),
-        clo_is_n=clo_is_n.flatten(),
-        pmv_target_is_n=pmv_target_is_n.flatten()
+        p_v_r_is_n=p_v_r_is_n,
+        h_hum_is_n=h_hum_is_n,
+        operation_mode_is_n=operation_mode_is_n,
+        clo_is_n=clo_is_n,
+        pmv_target_is_n=pmv_target_is_n
     )
 
-    return h_hum_is_n, h_hum_c_is_n, h_hum_r_is_n, operation_mode_is_n, clo_is_n, theta_ot_target_is_n.reshape(-1, 1)
+    return h_hum_is_n, h_hum_c_is_n, h_hum_r_is_n, operation_mode_is_n, clo_is_n, theta_ot_target_is_n
 
 
 def get_theta_cl_is_n(
@@ -519,14 +519,14 @@ def get_theta_ot_target_is_n(
     """目標作用温度を計算する。
 
     Args:
-        p_v_r_is_n: ステップnにおける室iの水蒸気圧, Pa
-        h_hum_is_n: ステップnにおける室iの在室者周りの総合熱伝達率, W/m2K, [i]
-        operation_mode_is_n: ステップnにおける室iの運転状態, [i]
-        clo_is_n: ステップnにおける室iのClo値, [i]
-        pmv_target_is_n: ステップnの室iにおける目標PMV, [i]
+        p_v_r_is_n: ステップnにおける室iの水蒸気圧, Pa, [i, 1]
+        h_hum_is_n: ステップnにおける室iの在室者周りの総合熱伝達率, W/m2K, [i, 1]
+        operation_mode_is_n: ステップnにおける室iの運転状態, [i, 1]
+        clo_is_n: ステップnにおける室iのClo値, [i, 1]
+        pmv_target_is_n: ステップnの室iにおける目標PMV, [i, 1]
 
     Returns:
-        ステップnにおける室iの目標作用温度, degree C, [i]
+        ステップnにおける室iの目標作用温度, degree C, [i, 1]
     """
 
     return np.where(
