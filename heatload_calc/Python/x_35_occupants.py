@@ -528,7 +528,7 @@ def get_theta_ot_target_is_n(
     Returns:
         ステップnにおける室iの目標作用温度, degree C, [i, 1]
     """
-
+    
     theta_ot_target_is_n = np.zeros_like(operation_mode_is_n, dtype=float)
 
     f = (operation_mode_is_n == OperationMode.HEATING) | (operation_mode_is_n == OperationMode.COOLING)
@@ -574,26 +574,26 @@ def get_theta_ot_target(
     """指定したPMVを満たすOTを計算する
 
     Args:
-        clo_is_n: ステップnにおける室iの在室者のClo値, [i]
-        p_a_is_n:　ステップnにおける室iの水蒸気圧, Pa
-        h_hum_is_n: ステップnにおける室iの在室者周りの総合熱伝達率, W/m2K, [i]
-        pmv_target_is_n: ステップnにおける室iの在室者の目標PMV, [i]
+        clo_is_n: ステップnにおける室iの在室者のClo値, [i, 1]
+        p_a_is_n:　ステップnにおける室iの水蒸気圧, Pa, [i, 1]
+        h_hum_is_n: ステップnにおける室iの在室者周りの総合熱伝達率, W/m2K, [i, 1]
+        pmv_target_is_n: ステップnにおける室iの在室者の目標PMV, [i, 1]
 
     Returns:
-        ステップnにおける室iの在室者の目標OT, [i]
+        ステップnにおける室iの在室者の目標OT, [i, 1]
 
     Notes:
         ISOで定める計算方法ではなく、前の時刻に求めた人体周りの熱伝達率、着衣温度を使用して収束計算が生じないようにしている。
 
     """
 
-    # 着衣抵抗, m2K/W
+    # 着衣抵抗, m2K/W, [i, 1]
     i_cl_is_n = get_i_cl_is_n(clo_is_n=clo_is_n)
 
     # 代謝量（人体内部発熱量）, W/m2
     m = get_m()
 
-    # ステップnにおける室iの着衣面積率, [i]
+    # ステップnにおける室iの着衣面積率, [i, 1]
     f_cl_is_n = get_f_cl_is_n(i_cl_is_n=i_cl_is_n)
 
     return (pmv_target_is_n / (0.303 * math.exp(-0.036 * m) + 0.028) - m
