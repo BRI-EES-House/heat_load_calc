@@ -262,7 +262,7 @@ class Conditions:
         # ステップnにおける室iの在室者の平均放射温度, degree C, [i]
         self.theta_mrt_hum_is_n = theta_mrt_hum_is_n
 
-        # ステップnにおける室iの絶対湿度, kg/kgDA, [i]
+        # ステップnにおける室iの絶対湿度, kg/kgDA, [i, 1]
         self.x_r_is_n = x_r_is_n
 
         # ステップnの境界jにおける項別公比法の指数項mの吸熱応答の項別成分, degree C, [j, m] (m=12)
@@ -313,9 +313,9 @@ def initialize_conditions(ss: PreCalcParameters):
     # 初期値を15℃と設定する。
     theta_mrt_hum_is_n = np.full(total_number_of_spaces, 15.0)
 
-    # ステップnにおける室iの絶対湿度, kg/kgDA, [i]
+    # ステップnにおける室iの絶対湿度, kg/kgDA, [i, 1]
     # 初期値を空気温度20℃相対湿度40%の時の値とする。
-    x_r_is_n = np.full(total_number_of_spaces, psy.get_x(psy.get_p_vs(theta=20.0) * 0.4))
+    x_r_is_n = np.full((total_number_of_spaces, 1), psy.get_x(psy.get_p_vs(theta=20.0) * 0.4))
 
     # ステップnの統合された境界j*における指数項mの吸熱応答の項別成分, degree C, [j*, 12]
     # 初期値を0.0℃とする。

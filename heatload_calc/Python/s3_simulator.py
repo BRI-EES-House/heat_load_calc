@@ -101,7 +101,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
     #     ステップnの室iにおけるClo値, [i, 1]
     #     ステップnの室iにおける目標作用温度, degree C, [i, 1]
     h_hum_is_n, h_hum_c_is_n, h_hum_r_is_n, operation_mode_is_n, clo_is_n, theta_ot_target_is_n = x_35.calc_operation(
-        x_r_is_n=c_n.x_r_is_n.reshape(-1, 1),
+        x_r_is_n=c_n.x_r_is_n,
         operation_mode_is_n_mns=c_n.operation_mode_is_n,
         is_radiative_heating_is=ss.is_radiative_heating_is,
         is_radiative_cooling_is=ss.is_radiative_cooling_is,
@@ -250,7 +250,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
         gf_is=ss.g_f_is,
         cx_is=ss.c_x_is,
         v_room_cap_is=ss.v_room_cap_is.flatten(),
-        x_r_is_n=c_n.x_r_is_n,
+        x_r_is_n=c_n.x_r_is_n.flatten(),
         x_frnt_is_n=c_n.x_frnt_is_n,
         x_gen_is_n=x_gen_is_n,
         xo=xo_n,
@@ -336,7 +336,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
         operation_mode_is_n=operation_mode_is_n,
         theta_r_is_n=theta_r_is_n_pls,
         theta_mrt_hum_is_n=theta_mrt_hum_is_n_pls.flatten(),
-        x_r_is_n=x_r_is_n_pls,
+        x_r_is_n=x_r_is_n_pls.reshape(-1, 1),
         theta_dsh_srf_a_js_ms_n=theta_dsh_srf_a_js_ms_npls,
         theta_dsh_srf_t_js_ms_n=theta_dsh_srf_t_js_ms_npls,
         q_srf_js_n=q_srf_js_n,
