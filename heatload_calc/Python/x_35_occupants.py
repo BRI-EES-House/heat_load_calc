@@ -712,8 +712,8 @@ def get_theta_ot_target(
             + max(0.42 * (m - 58.15), 0.0)
             + 1.7 * 10 ** (-5) * m * (5867.0 - p_a_is_n)
             + 0.0014 * m * 34.0
-            + f_cl_is_n * h_hum_is_n * theta_cl_is_n
-            )/(0.0014 * m + f_cl_is_n * h_hum_is_n)
+            + f_cl_is_n * h_hum_is_n * (35.7 - 0.028 * m) / (1 + i_cl_is_n * f_cl_is_n * h_hum_is_n)
+            )/(0.0014 * m + f_cl_is_n * h_hum_is_n / (1 + i_cl_is_n * f_cl_is_n * h_hum_is_n))
 
 
 def get_f_cl_is_n(i_cl_is_n: np.ndarray) -> np.ndarray:
