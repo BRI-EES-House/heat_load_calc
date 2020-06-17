@@ -115,7 +115,6 @@ def calc_operation(
     # ステップnにおける室iの在室者の厚着時のPMV, [i]
     pmv_heavy_is_n = get_pmv_is_n(
         theta_r_is_n=theta_r_is_n.flatten(),
-        theta_cl_is_n=theta_cl_heavy_is_n,
         clo_is_n=clo_heavy,
         p_a_is_n=p_v_r_is_n.flatten(),
         h_hum_is_n=h_hum_is_n.flatten(),
@@ -125,7 +124,6 @@ def calc_operation(
     # ステップnにおける室iの在室者の中間着時のPMV, [i]
     pmv_middle_is_n = get_pmv_is_n(
         theta_r_is_n=theta_r_is_n.flatten(),
-        theta_cl_is_n=theta_cl_middle_is_n,
         clo_is_n=clo_middle,
         p_a_is_n=p_v_r_is_n.flatten(),
         h_hum_is_n=h_hum_is_n.flatten(),
@@ -135,7 +133,6 @@ def calc_operation(
     # ステップnにおける室iの在室者の薄着時のPMV, [i]
     pmv_light_is_n = get_pmv_is_n(
         theta_r_is_n=theta_r_is_n.flatten(),
-        theta_cl_is_n=theta_cl_light_is_n,
         clo_is_n=clo_light,
         p_a_is_n=p_v_r_is_n.flatten(),
         h_hum_is_n=h_hum_is_n.flatten(),
@@ -403,7 +400,6 @@ def get_clo_light() -> float:
 
 def get_pmv_is_n(
         theta_r_is_n: np.ndarray,
-        theta_cl_is_n: np.ndarray,
         clo_is_n: float,
         p_a_is_n: np.ndarray,
         h_hum_is_n: np.ndarray,
@@ -413,7 +409,6 @@ def get_pmv_is_n(
 
     Args:
         theta_r_is_n: ステップnにおける室iの空気温度, degree C, [i]
-        theta_cl_is_n: ステップnにおける室iの在室者の着衣温度, degree C, [i]
         clo_is_n: （厚着・中間着・薄着時の）Clo値
         p_a_is_n:　ステップnにおける室iの水蒸気圧, Pa, [i]
         h_hum_is_n: ステップnにおける室iの在室者周りの総合熱伝達率, W/m2K, [i]
@@ -442,7 +437,7 @@ def get_pmv_is_n(
             - max(0.42 * (m - 58.15), 0.0)  # 発汗熱損失, W/m2
             - 1.7 * 10 ** (-5) * m * (5867.0 - p_a_is_n)  # 呼吸に伴う潜熱損失, W/m2
             - 0.0014 * m * (34.0 - theta_r_is_n)  # 呼吸に伴う顕熱損失, W/m2 ( = 呼吸量, (g/s)/m2 ✕ (34.0 - 室温)
-            - f_cl_is_n * h_hum_is_n * (theta_cl_is_n - theta_ot_is_n))  # 着衣からの熱損失
+            - f_cl_is_n * h_hum_is_n * (35.7 - 0.028 * m - theta_ot_is_n) / (1 + i_cl_is_n * f_cl_is_n * h_hum_is_n))  # 着衣からの熱損失
 
 
 def get_operation_mode_is_n(
