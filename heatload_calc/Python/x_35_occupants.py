@@ -64,23 +64,20 @@ def calc_operation(
         v_hum_is_n=v_hum_is_n
     )
 
-    # ステップnにおける室iの在室者周りの放射熱伝達率, W/m2K, [i]
+    # ステップnにおける室iの在室者周りの放射熱伝達率, W/m2K, [i, 1]
     h_hum_r_is_n = get_h_hum_r_is_n(
-        theta_cl_is_n=theta_cl_is_n.flatten(),
-        theta_mrt_is_n=theta_mrt_is_n.flatten()
+        theta_cl_is_n=theta_cl_is_n,
+        theta_mrt_is_n=theta_mrt_is_n
     )
 
-    # ステップnにおける室iの在室者周りの総合熱伝達率, W/m2K, [i]
-    h_hum_is_n = get_h_hum_is_n(
-        h_hum_r_is_n=h_hum_r_is_n,
-        h_hum_c_is_n=h_hum_c_is_n.flatten()
-    )
+    # ステップnにおける室iの在室者周りの総合熱伝達率, W/m2K, [i, 1]
+    h_hum_is_n = h_hum_r_is_n + h_hum_c_is_n
 
     # ステップnにおける室iの在室者の作用温度, degree C, [i]
     theta_ot_is_n = get_theta_ot_is_n(
         h_hum_c_is_n=h_hum_c_is_n.flatten(),
-        h_hum_r_is_n=h_hum_r_is_n,
-        h_hum_is_n=h_hum_is_n,
+        h_hum_r_is_n=h_hum_r_is_n.flatten(),
+        h_hum_is_n=h_hum_is_n.flatten(),
         theta_r_is_n=theta_r_is_n.flatten(),
         theta_mrt_is_n=theta_mrt_is_n.flatten()
     )
@@ -98,21 +95,21 @@ def calc_operation(
     theta_cl_heavy_is_n = get_theta_cl_is_n(
         clo_is_n=clo_heavy,
         theta_ot_is_n=theta_ot_is_n,
-        h_hum_is_n=h_hum_is_n
+        h_hum_is_n=h_hum_is_n.flatten()
     )
 
     # ステップnにおける室iの中間着時の在室者の着衣温度, degree C, [i]
     theta_cl_middle_is_n = get_theta_cl_is_n(
         clo_is_n=clo_middle,
         theta_ot_is_n=theta_ot_is_n,
-        h_hum_is_n=h_hum_is_n
+        h_hum_is_n=h_hum_is_n.flatten()
     )
 
     # ステップnにおける室iの薄着時の在室者の着衣温度, degree C, [i]
     theta_cl_light_is_n = get_theta_cl_is_n(
         clo_is_n=clo_light,
         theta_ot_is_n=theta_ot_is_n,
-        h_hum_is_n=h_hum_is_n
+        h_hum_is_n=h_hum_is_n.flatten()
     )
 
     # ステップnにおける室iの在室者の厚着時のPMV, [i]
@@ -121,7 +118,7 @@ def calc_operation(
         theta_cl_is_n=theta_cl_heavy_is_n,
         clo_is_n=clo_heavy,
         p_a_is_n=p_v_r_is_n.flatten(),
-        h_hum_is_n=h_hum_is_n,
+        h_hum_is_n=h_hum_is_n.flatten(),
         theta_ot_is_n=theta_ot_is_n
     )
 
@@ -131,7 +128,7 @@ def calc_operation(
         theta_cl_is_n=theta_cl_middle_is_n,
         clo_is_n=clo_middle,
         p_a_is_n=p_v_r_is_n.flatten(),
-        h_hum_is_n=h_hum_is_n,
+        h_hum_is_n=h_hum_is_n.flatten(),
         theta_ot_is_n=theta_ot_is_n
     )
 
@@ -141,7 +138,7 @@ def calc_operation(
         theta_cl_is_n=theta_cl_light_is_n,
         clo_is_n=clo_light,
         p_a_is_n=p_v_r_is_n.flatten(),
-        h_hum_is_n=h_hum_is_n,
+        h_hum_is_n=h_hum_is_n.flatten(),
         theta_ot_is_n=theta_ot_is_n
     )
 
@@ -170,13 +167,13 @@ def calc_operation(
     # ステップnにおける室iの目標作用温度, degree C, [i]
     theta_ot_target_is_n = get_theta_ot_target_is_n(
         p_v_r_is_n=p_v_r_is_n.flatten(),
-        h_hum_is_n=h_hum_is_n,
+        h_hum_is_n=h_hum_is_n.flatten(),
         operation_mode_is_n=operation_mode_is_n,
         clo_is_n=clo_is_n,
         theta_cl_is_n=theta_cl_is_n
     )
 
-    return h_hum_is_n.reshape(-1, 1), h_hum_c_is_n, h_hum_r_is_n.reshape(-1, 1), operation_mode_is_n.reshape(-1, 1), clo_is_n.reshape(-1, 1), theta_ot_target_is_n.reshape(-1, 1)
+    return h_hum_is_n, h_hum_c_is_n, h_hum_r_is_n, operation_mode_is_n.reshape(-1, 1), clo_is_n.reshape(-1, 1), theta_ot_target_is_n.reshape(-1, 1)
 
 
 def get_theta_cl_is_n(
@@ -334,38 +331,21 @@ def get_h_hum_r_is_n(
     """在室者周りの放射熱伝達率を計算する。
 
     Args:
-        theta_cl_is_n: ステップnにおける室iの在室者の着衣温度, degree C, [i]
-        theta_mrt_is_n: ステップnにおける室iの在室者の平均放射温度, degree C, [i]
+        theta_cl_is_n: ステップnにおける室iの在室者の着衣温度, degree C, [i, 1]
+        theta_mrt_is_n: ステップnにおける室iの在室者の平均放射温度, degree C, [i, 1]
 
     Returns:
-        ステップnにおける室iの在室者周りの放射熱伝達率, W/m2K, [i]
+        ステップnにおける室iの在室者周りの放射熱伝達率, W/m2K, [i, 1]
     """
 
-    # ステップnにおける室iの在室者の着衣温度, K, [i]
+    # ステップnにおける室iの在室者の着衣温度, K, [i, 1]
     t_cl_is_n = theta_cl_is_n + 273.0
 
-    # ステップnにおける室iの在室者の平均放射温度, K, [i]
+    # ステップnにおける室iの在室者の平均放射温度, K, [i, 1]
     t_mrt_is_n = theta_mrt_is_n + 273.0
 
     return 3.96 * 10 ** (-8) * (
                 t_cl_is_n ** 3.0 + t_cl_is_n ** 2.0 * t_mrt_is_n + t_cl_is_n * t_mrt_is_n ** 2.0 + t_mrt_is_n ** 3.0)
-
-
-def get_h_hum_is_n(
-        h_hum_r_is_n: np.ndarray,
-        h_hum_c_is_n: np.ndarray
-) -> np.ndarray:
-    """在室者周りの総合熱伝達率を計算する。
-
-    Args:
-        h_hum_r_is_n: ステップnにおける室iの在室者周りの放射熱伝達率, W/m2K, [i]
-        h_hum_c_is_n: ステップnにおける室iの在室者周りの対流熱伝達率, W/m2K, [i]
-
-    Returns:
-        ステップnにおける室iの在室者周りの総合熱伝達率, W/m2K, [i]
-    """
-
-    return h_hum_r_is_n + h_hum_c_is_n
 
 
 def get_theta_ot_is_n(
