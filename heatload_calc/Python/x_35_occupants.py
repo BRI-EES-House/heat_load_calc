@@ -127,7 +127,7 @@ def calc_operation(
     )
 
     # ステップnの室iにおける目標PMV, [i, 1]
-    pmv_target_is_n = np.vectorize(get_pmv_target_i_n)(operation_mode_is_n)
+    pmv_target_is_n = get_pmv_target_is_n(operation_mode_is_n)
 
     # ステップnにおける室iの目標作用温度, degree C, [i]
     theta_ot_target_is_n = get_theta_ot_target_is_n(
@@ -539,6 +539,28 @@ def get_theta_ot_target_is_n(
         ),
         0.0
     )
+
+
+def get_pmv_target_is_n(
+        operation_mode_is_n: np.ndarray
+) -> np.ndarray:
+    """運転モードから目標とするPMVを決定する。
+
+    Args:
+        operation_mode_is_n: ステップnの室iにおける運転状況, [i, 1]
+
+    Returns:
+        ステップnの室iにおける目標PMV, [i, 1]
+    """
+
+    pmv_target_is_n = np.zeros_like(operation_mode_is_n, dtype=float)
+
+    pmv_target_is_n[operation_mode_is_n == OperationMode.HEATING] = -0.5
+    pmv_target_is_n[operation_mode_is_n == OperationMode.COOLING] = 0.5
+    pmv_target_is_n[operation_mode_is_n == OperationMode.STOP_OPEN] = 0.0
+    pmv_target_is_n[operation_mode_is_n == OperationMode.STOP_CLOSE] = 0.0
+
+    return pmv_target_is_n
 
 
 def get_pmv_target_i_n(
