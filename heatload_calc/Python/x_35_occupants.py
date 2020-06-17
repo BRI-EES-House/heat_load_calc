@@ -123,7 +123,7 @@ def calc_operation(
 
     # ステップnの室iにおけるClo値, [i, 1]
     clo_is_n = get_clo_is_n(
-        operation_mode_is_n=operation_mode_is_n.flatten()
+        operation_mode_is_n=operation_mode_is_n
     )
 
     # ステップnにおける室iの目標作用温度, degree C, [i]
