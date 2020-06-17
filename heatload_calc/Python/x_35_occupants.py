@@ -91,27 +91,6 @@ def calc_operation(
     # 薄着時のClo値
     clo_light = get_clo_light()
 
-    # ステップnにおける室iの厚着時の在室者の着衣温度, degree C, [i]
-    theta_cl_heavy_is_n = get_theta_cl_is_n(
-        clo_is_n=clo_heavy,
-        theta_ot_is_n=theta_ot_is_n,
-        h_hum_is_n=h_hum_is_n.flatten()
-    )
-
-    # ステップnにおける室iの中間着時の在室者の着衣温度, degree C, [i]
-    theta_cl_middle_is_n = get_theta_cl_is_n(
-        clo_is_n=clo_middle,
-        theta_ot_is_n=theta_ot_is_n,
-        h_hum_is_n=h_hum_is_n.flatten()
-    )
-
-    # ステップnにおける室iの薄着時の在室者の着衣温度, degree C, [i]
-    theta_cl_light_is_n = get_theta_cl_is_n(
-        clo_is_n=clo_light,
-        theta_ot_is_n=theta_ot_is_n,
-        h_hum_is_n=h_hum_is_n.flatten()
-    )
-
     # ステップnにおける室iの在室者の厚着時のPMV, [i]
     pmv_heavy_is_n = get_pmv_is_n(
         theta_r_is_n=theta_r_is_n.flatten(),
@@ -153,21 +132,12 @@ def calc_operation(
         operation_mode_is_n=operation_mode_is_n
     )
 
-    # ステップnにおける室iの在室者の着衣温度, degree C, [i]
-    theta_cl_is_n = select_theta_cl_is_n(
-        operation_mode_is_n=operation_mode_is_n,
-        theta_cl_heavy_is_n=theta_cl_heavy_is_n,
-        theta_cl_middle_is_n=theta_cl_middle_is_n,
-        theta_cl_light_is_n=theta_cl_light_is_n
-    )
-
     # ステップnにおける室iの目標作用温度, degree C, [i]
     theta_ot_target_is_n = get_theta_ot_target_is_n(
         p_v_r_is_n=p_v_r_is_n.flatten(),
         h_hum_is_n=h_hum_is_n.flatten(),
         operation_mode_is_n=operation_mode_is_n,
         clo_is_n=clo_is_n,
-        theta_cl_is_n=theta_cl_is_n
     )
 
     return h_hum_is_n, h_hum_c_is_n, h_hum_r_is_n, operation_mode_is_n.reshape(-1, 1), clo_is_n.reshape(-1, 1), theta_ot_target_is_n.reshape(-1, 1)
@@ -569,28 +539,6 @@ def get_clo_i_n(
     }[operation_mode_i_n]
 
 
-def select_theta_cl_is_n(
-        operation_mode_is_n: np.ndarray,
-        theta_cl_heavy_is_n: np.ndarray,
-        theta_cl_middle_is_n: np.ndarray,
-        theta_cl_light_is_n: np.ndarray
-) -> np.ndarray:
-    """運転モードから着衣温度を決定する。
-
-    Args:
-        operation_mode_is_n: ステップnにおける室iの運転状態, [i]
-        theta_cl_heavy_is_n: ステップnにおける室iの厚着時の在室者の着衣温度, degree C, [i]
-        theta_cl_middle_is_n: ステップnにおける室iの中間着時の在室者の着衣温度, degree C , [i]
-        theta_cl_light_is_n: ステップnにおける室iの薄着時の在室者の着衣温度, degree C, [i]
-
-    Returns:
-        ステップnにおける室iの在室者の着衣温度, degree C, [i]
-    """
-
-    return np.vectorize(select_theta_cl_i_n)(
-        operation_mode_is_n, theta_cl_heavy_is_n, theta_cl_middle_is_n, theta_cl_light_is_n)
-
-
 def select_theta_cl_i_n(
         operation_mode_i_n: OperationMode,
         theta_cl_heavy_i_n: float,
@@ -622,7 +570,6 @@ def get_theta_ot_target_is_n(
         h_hum_is_n: np.ndarray,
         operation_mode_is_n: np.ndarray,
         clo_is_n: np.ndarray,
-        theta_cl_is_n: np.ndarray
 ) -> np.ndarray:
     """目標作用温度を計算する。
 
@@ -631,7 +578,6 @@ def get_theta_ot_target_is_n(
         h_hum_is_n: ステップnにおける室iの在室者周りの総合熱伝達率, W/m2K, [i]
         operation_mode_is_n: ステップnにおける室iの運転状態, [i]
         clo_is_n: ステップnにおける室iのClo値, [i]
-        theta_cl_is_n: ステップnにおける室iの在室者の着衣温度, degree C [i]
 
     Returns:
         ステップnにおける室iの目標作用温度, degree C, [i]
@@ -643,7 +589,6 @@ def get_theta_ot_target_is_n(
     return np.where(
         (operation_mode_is_n == OperationMode.HEATING) | (operation_mode_is_n == OperationMode.COOLING),
         get_theta_ot_target(
-            theta_cl_is_n=theta_cl_is_n,
             clo_is_n=clo_is_n,
             p_a_is_n=p_v_r_is_n,
             h_hum_is_n=h_hum_is_n,
@@ -675,7 +620,6 @@ def get_pmv_target_i_n(
 
 
 def get_theta_ot_target(
-        theta_cl_is_n: np.ndarray,
         clo_is_n: np.ndarray,
         p_a_is_n: np.ndarray,
         h_hum_is_n: np.ndarray,
@@ -684,7 +628,6 @@ def get_theta_ot_target(
     """指定したPMVを満たすOTを計算する
 
     Args:
-        theta_cl_is_n: ステップnにおける室iの在室者の着衣温度, degree C, [i]
         clo_is_n: ステップnにおける室iの在室者のClo値, [i]
         p_a_is_n:　ステップnにおける室iの水蒸気圧, Pa
         h_hum_is_n: ステップnにおける室iの在室者周りの総合熱伝達率, W/m2K, [i]
