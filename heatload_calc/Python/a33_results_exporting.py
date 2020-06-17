@@ -95,7 +95,7 @@ class Logger:
 
     def pre_logging(self, ss: PreCalcParameters):
 
-        self.ac_demand = ss.ac_demand_is_n
+        self.ac_demand = ss.ac_demand_is_ns
         self.q_trs_sol = ss.q_trs_sol_is_ns
         self.q_gen = ss.q_gen_is_ns
         self.x_gen = ss.x_gen_is_ns

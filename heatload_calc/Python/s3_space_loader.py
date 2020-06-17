@@ -92,7 +92,7 @@ class PreCalcParameters:
         self.c_frnt_is = c_frnt_is
 
         # ステップnにおける室iの空調需要, [i, 8760*4]
-        self.ac_demand_is_n = ac_demand_is_ns
+        self.ac_demand_is_ns = ac_demand_is_ns
 
         # ステップnの室iにおける在室人数, [i, 8760*4]
         self.n_hum_is_ns = n_hum_is_ns

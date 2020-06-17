@@ -93,6 +93,13 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
 
     """
 
+    # 時刻 n, n+1 におけるデータの切り出し
+    # [i, n] のベクトルを[:, n] 又は[:, n+1] で切り出す。
+    # numpy の仕様として、切り出した時にある次元の配列数が1の場合に、次元を1つ減らすため、
+    # [:, n] 又は [:, n+1] で切り出した場合、[i] 又は [j] の1次元配列になる。
+    # ベクトル計算に都合の良いように、[i, 1] 又は [j, 1] の列ベクトルになおすために、 np.reshape(-1, 1)の操作をしている。
+    ac_demand_is_n = (ss.ac_demand_is_ns[:, n]).reshape(-1, 1)
+
     # ステップnにおける室iの状況（在室者周りの総合熱伝達率・運転状態・Clo値・目標とする作用温度）を取得する
     #     ステップnの室iにおける人体周りの総合熱伝達率, W / m2K, [i, 1]
     #     ステップnにおける室iの在室者周りの対流熱伝達率, W / m2K, [i, 1]
@@ -108,7 +115,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
         theta_r_is_n=c_n.theta_r_is_n,
         theta_cl_is_n=c_n.theta_cl_is_n,
         theta_mrt_is_n=c_n.theta_mrt_hum_is_n,
-        ac_demand_is_n=(ss.ac_demand_is_n[:, n]).reshape(-1, 1),
+        ac_demand_is_n=ac_demand_is_n,
     )
 
     # ステップnの境界jにおける裏面温度, degree C, [j, 1]
