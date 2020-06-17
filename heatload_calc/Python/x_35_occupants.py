@@ -112,29 +112,29 @@ def calc_operation(
         theta_ot_is_n=theta_ot_is_n
     )
 
-    # ステップnにおける室iの運転状態, [i]
+    # ステップnにおける室iの運転状態, [i, 1]
     operation_mode_is_n = get_operation_mode_is_n(
-        ac_demand_is_n=ac_demand_is_n.flatten(),
-        operation_mode_is_n_mns=operation_mode_is_n_mns.flatten(),
-        pmv_heavy_is_n=pmv_heavy_is_n.flatten(),
-        pmv_middle_is_n=pmv_middle_is_n.flatten(),
-        pmv_light_is_n=pmv_light_is_n.flatten()
+        ac_demand_is_n=ac_demand_is_n,
+        operation_mode_is_n_mns=operation_mode_is_n_mns,
+        pmv_heavy_is_n=pmv_heavy_is_n,
+        pmv_middle_is_n=pmv_middle_is_n,
+        pmv_light_is_n=pmv_light_is_n
     )
 
     # ステップnの室iにおけるClo値, [i]
     clo_is_n = get_clo_is_n(
-        operation_mode_is_n=operation_mode_is_n
+        operation_mode_is_n=operation_mode_is_n.flatten()
     )
 
     # ステップnにおける室iの目標作用温度, degree C, [i]
     theta_ot_target_is_n = get_theta_ot_target_is_n(
         p_v_r_is_n=p_v_r_is_n.flatten(),
         h_hum_is_n=h_hum_is_n.flatten(),
-        operation_mode_is_n=operation_mode_is_n,
+        operation_mode_is_n=operation_mode_is_n.flatten(),
         clo_is_n=clo_is_n,
     )
 
-    return h_hum_is_n, h_hum_c_is_n, h_hum_r_is_n, operation_mode_is_n.reshape(-1, 1), clo_is_n.reshape(-1, 1), theta_ot_target_is_n.reshape(-1, 1)
+    return h_hum_is_n, h_hum_c_is_n, h_hum_r_is_n, operation_mode_is_n, clo_is_n.reshape(-1, 1), theta_ot_target_is_n.reshape(-1, 1)
 
 
 def get_theta_cl_is_n(
@@ -391,14 +391,14 @@ def get_operation_mode_is_n(
     """運転モードを決定する。
 
     Args:
-        ac_demand_is_n: ステップnにおける室iの空調需要の有無, [i]
-        operation_mode_is_n_mns: ステップn-1における室iの運転状態, [i]
-        pmv_heavy_is_n: ステップnにおける室iの厚着時のPMV, [i]
-        pmv_middle_is_n: ステップnにおける室iの中間着時のPMV, [i]
-        pmv_light_is_n: ステップnにおける室iの薄着時のPMV, [i]
+        ac_demand_is_n: ステップnにおける室iの空調需要の有無, [i, 1]
+        operation_mode_is_n_mns: ステップn-1における室iの運転状態, [i, 1]
+        pmv_heavy_is_n: ステップnにおける室iの厚着時のPMV, [i, 1]
+        pmv_middle_is_n: ステップnにおける室iの中間着時のPMV, [i, 1]
+        pmv_light_is_n: ステップnにおける室iの薄着時のPMV, [i, 1]
 
     Returns:
-        ステップnの室iにおける運転状態, [i]
+        ステップnの室iにおける運転状態, [i, 1]
     """
 
     return np.vectorize(get_operation_mode_i_n)(
