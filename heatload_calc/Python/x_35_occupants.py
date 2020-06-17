@@ -57,11 +57,11 @@ def calc_operation(
         is_radiative_cooling_is=is_radiative_cooling_is
     )
 
-    # ステップnにおける室iの在室者周りの対流熱伝達率, W/m2K, [i]
+    # ステップnにおける室iの在室者周りの対流熱伝達率, W/m2K, [i, 1]
     h_hum_c_is_n = get_h_hum_c_is_n(
-        theta_r_is_n=theta_r_is_n.flatten(),
-        theta_cl_is_n=theta_cl_is_n.flatten(),
-        v_hum_is_n=v_hum_is_n.flatten()
+        theta_r_is_n=theta_r_is_n,
+        theta_cl_is_n=theta_cl_is_n,
+        v_hum_is_n=v_hum_is_n
     )
 
     # ステップnにおける室iの在室者周りの放射熱伝達率, W/m2K, [i]
@@ -73,12 +73,12 @@ def calc_operation(
     # ステップnにおける室iの在室者周りの総合熱伝達率, W/m2K, [i]
     h_hum_is_n = get_h_hum_is_n(
         h_hum_r_is_n=h_hum_r_is_n,
-        h_hum_c_is_n=h_hum_c_is_n
+        h_hum_c_is_n=h_hum_c_is_n.flatten()
     )
 
     # ステップnにおける室iの在室者の作用温度, degree C, [i]
     theta_ot_is_n = get_theta_ot_is_n(
-        h_hum_c_is_n=h_hum_c_is_n,
+        h_hum_c_is_n=h_hum_c_is_n.flatten(),
         h_hum_r_is_n=h_hum_r_is_n,
         h_hum_is_n=h_hum_is_n,
         theta_r_is_n=theta_r_is_n.flatten(),
@@ -176,7 +176,7 @@ def calc_operation(
         theta_cl_is_n=theta_cl_is_n
     )
 
-    return h_hum_is_n.reshape(-1, 1), h_hum_c_is_n.reshape(-1, 1), h_hum_r_is_n.reshape(-1, 1), operation_mode_is_n.reshape(-1, 1), clo_is_n.reshape(-1, 1), theta_ot_target_is_n.reshape(-1, 1)
+    return h_hum_is_n.reshape(-1, 1), h_hum_c_is_n, h_hum_r_is_n.reshape(-1, 1), operation_mode_is_n.reshape(-1, 1), clo_is_n.reshape(-1, 1), theta_ot_target_is_n.reshape(-1, 1)
 
 
 def get_theta_cl_is_n(
@@ -316,12 +316,12 @@ def get_h_hum_c_is_n(
     """人体周りの対流熱伝達率を計算する。
 
     Args:
-        theta_r_is_n: ステップnにおける室iの空気温度, degree C, [i]
-        theta_cl_is_n: ステップnにおける室iの在室者の着衣温度, degree C, [i]
-        v_hum_is_n: ステップnにおける室iの在室者周りの風速, m/s, [i]
+        theta_r_is_n: ステップnにおける室iの空気温度, degree C, [i, 1]
+        theta_cl_is_n: ステップnにおける室iの在室者の着衣温度, degree C, [i, 1]
+        v_hum_is_n: ステップnにおける室iの在室者周りの風速, m/s, [i, 1]
 
     Returns:
-        ステップnの室iにおける在室者周りの対流熱伝達率, W/m2K, [i]
+        ステップnの室iにおける在室者周りの対流熱伝達率, W/m2K, [i, 1]
     """
 
     return np.maximum(12.1 * np.sqrt(v_hum_is_n), 2.38 * np.abs(theta_cl_is_n - theta_r_is_n) ** 0.25)
