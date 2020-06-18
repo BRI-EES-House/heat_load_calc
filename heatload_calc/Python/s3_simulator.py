@@ -97,19 +97,26 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
 
     # ステップnにおける室iの空調需要, [i, 8760*4]
     ac_demand_is_n = ss.ac_demand_is_ns[:, n].reshape(-1, 1)
+
     # ステップnの集約境界j*における外気側等価温度の外乱成分, degree C, [j*, 8760*4]
     theta_dstrb_js_n = ss.theta_dstrb_js_ns[:, n].reshape(-1, 1)
+
     # ステップnの室iにおける在室人数, [i, 8760*4]
     n_hum_is_n = ss.n_hum_is_ns[:, n].reshape(-1, 1)
+
     # ステップnの室iにおける人体発熱を除く内部発熱, W, [i, 8760*4]
     q_gen_is_n = ss.q_gen_is_ns[:, n].reshape(-1, 1)
+
     # ステップnの室iにおける人体発湿を除く内部発湿, kg/s, [i, 8760*4]
     x_gen_is_n = ss.x_gen_is_ns[:, n].reshape(-1, 1)
+
     # ステップn+1の境界jにおける係数 WSC, degree C, [j, 1]
     # TODO: WSC n+1 にもかかわらず、n の値が代入されている。n+1 を代入すべきではないのか？その場合、計算の最終ステップの計算はどうする？
     wsc_js_npls = ss.wsc_js_ns[:, n].reshape(-1, 1)
+
     # ステップnの室iにおける機械換気量（全般換気量+局所換気量）, m3/s, [i, 8760*4]
     v_mec_vent_is_n = ss.v_mec_vent_is_ns[:, n].reshape(-1, 1)
+
     # 家具の吸収日射量, W, [i, 8760*4]
     q_sol_frnt_is_n = ss.q_sol_frnt_is_ns[:, n].reshape(-1, 1)
 
@@ -230,7 +237,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
     # ステップ n+1 における室 i　の家具の温度, degree C, [i, 1]
     theta_frnt_is_n = (
         ss.c_cap_frnt_is * c_n.theta_frnt_is_n + 900.0 * ss.c_frnt_is * theta_r_is_n_pls + q_sol_frnt_is_n * 900.0
-        ) / (ss.c_cap_frnt_is + 900.0 * ss.c_frnt_is)
+    ) / (ss.c_cap_frnt_is + 900.0 * ss.c_frnt_is)
 
     # ステップ n+1 における境界 j の表面温度, degree C, [j, 1]
     theta_s_js_n = np.dot(ss.wsr_js_is, theta_r_is_n_pls) + wsc_js_npls + np.dot(ss.wsb_js_is, lr_is_npls) + wsv_js_npls
