@@ -96,6 +96,9 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
     # ベクトル計算に都合の良いように、[i, 1] 又は [j, 1] の列ベクトルになおすために、 np.reshape(-1, 1)の操作をしている。
     ac_demand_is_n = ss.ac_demand_is_ns[:, n].reshape(-1, 1)
     theta_dstrb_js_n = ss.theta_dstrb_js_ns[:, n].reshape(-1, 1)
+    n_hum_is_n = ss.n_hum_is_ns[:, n].reshape(-1, 1)
+    q_gen_is_n = ss.q_gen_is_ns[:, n].reshape(-1, 1)
+    x_gen_is_n = ss.x_gen_is_ns[:, n].reshape(-1, 1)
 
     # ステップnにおける室iの状況（在室者周りの総合熱伝達率・運転状態・Clo値・目標とする作用温度）を取得する
     #     ステップnの室iにおける人体周りの総合熱伝達率, W / m2K, [i, 1]
@@ -122,19 +125,19 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
     q_hum_psn_is_n = x_35.get_q_hum_psn_is_n(theta_r_is_n=c_n.theta_r_is_n)
 
     # ステップnの室iにおける人体発熱, W, [i, 1]
-    q_hum_is_n = q_hum_psn_is_n * ss.n_hum_is_ns[:, n].reshape(-1, 1)
+    q_hum_is_n = q_hum_psn_is_n * n_hum_is_n
 
     # ステップnの室iにおける1人あたりの人体発湿, kg/s, [i, 1]
     x_hum_psn_is_n = x_35.get_x_hum_psn_is_n(theta_r_is_n=c_n.theta_r_is_n)
 
     # ステップnの室iにおける人体発湿, kg/s, [i, 1]
-    x_hum_is_n = x_hum_psn_is_n * ss.n_hum_is_ns[:, n].reshape(-1, 1)
+    x_hum_is_n = x_hum_psn_is_n * n_hum_is_n
 
     # ステップnの室iにおける内部発熱, W, [j, 1]
-    q_gen_is_n = ss.q_gen_is_ns[:, n].reshape(-1, 1) + q_hum_is_n
+    q_gen_is_n = q_gen_is_n + q_hum_is_n
 
     # ステップnの室iにおける内部発湿, kg/s, [j, 1]
-    x_gen_is_n = ss.x_gen_is_ns[:, n].reshape(-1, 1) + x_hum_is_n
+    x_gen_is_n = x_gen_is_n + x_hum_is_n
 
     # TODO: すきま風量未実装につき、とりあえず０とする
     # すきま風量を決めるにあたってどういった変数が必要なのかを決めること。
