@@ -133,12 +133,6 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
     # ステップnの室iにおける人体発湿, kg/s, [i, 1]
     x_hum_is_n = x_hum_psn_is_n * n_hum_is_n
 
-    # ステップnの室iにおける内部発熱, W, [j, 1]
-    q_gen_is_n = q_gen_is_n + q_hum_is_n
-
-    # ステップnの室iにおける内部発湿, kg/s, [j, 1]
-    x_gen_is_n = x_gen_is_n + x_hum_is_n
-
     # TODO: すきま風量未実装につき、とりあえず０とする
     # すきま風量を決めるにあたってどういった変数が必要なのかを決めること。
     # TODO: 単位は m3/s とすること。
@@ -173,7 +167,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
     brc_is_n = ss.c_room_is / 900.0 * c_n.theta_r_is_n\
         + np.dot(ss.p_is_js, ss.h_c_js * ss.a_srf_js * (wsc_js_npls + wsv_js_npls))\
         + a18.get_c_air() * a18.get_rho_air() * v_out_vent_is_n * theta_o_n\
-        + q_gen_is_n\
+        + q_gen_is_n + q_hum_is_n\
         + ss.c_frnt_is * (ss.c_cap_frnt_is * c_n.theta_frnt_is_n + ss.q_sol_frnt_is_ns[:, n].reshape(-1, 1) * 900.0) / (ss.c_cap_frnt_is + 900.0 * ss.c_frnt_is)
 
     # ステップnにおける係数 BRM, W/K, [i, i]
@@ -265,7 +259,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
         v_room_cap_is=ss.v_room_cap_is.flatten(),
         x_r_is_n=c_n.x_r_is_n.flatten(),
         x_frnt_is_n=c_n.x_frnt_is_n,
-        x_gen_is_n=x_gen_is_n.flatten(),
+        x_gen_is_n=(x_gen_is_n + x_hum_is_n).flatten(),
         xo=xo_n,
         v_mec_vent_is_n=ss.v_mec_vent_is_ns[:, n],
         v_int_vent_is=ss.v_int_vent_is_is
