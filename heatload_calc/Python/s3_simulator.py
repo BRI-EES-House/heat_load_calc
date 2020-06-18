@@ -122,14 +122,17 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
     # ステップnの境界jにおける裏面温度, degree C, [j, 1]
     theta_rear_js_n = np.dot(ss.k_ei_js_js, c_n.theta_ei_js_n) + theta_dstrb_js_n
 
-    # ステップnの室iにおける人体発熱, W, [i]
-    q_hum_is_n = a3.get_q_hum_i_n(theta_r_is_n=c_n.theta_r_is_n.flatten(), n_hum_i_n=ss.n_hum_is_ns[:, n])
+    # ステップnの室iにおける1人あたりの人体発熱, W, [i, 1]
+    q_hum_psn_is_n = x_35.get_q_hum_psn_is_n(theta_r_is_n=c_n.theta_r_is_n)
+
+    # ステップnの室iにおける人体発熱, W, [i, 1]
+    q_hum_is_n = q_hum_psn_is_n * ss.n_hum_is_ns[:, n].reshape(-1, 1)
 
     # ステップnの室iにおける人体発湿, kg/s, [i]
     x_hum_is_n = a3.get_x_hum_i_n(theta_r_is_n=c_n.theta_r_is_n.flatten(), n_hum_i_n=ss.n_hum_is_ns[:, n])
 
     # ステップnの室iにおける内部発熱, W, [j, 1]
-    q_gen_is_n = (ss.q_gen_is_ns[:, n] + q_hum_is_n).reshape(-1, 1)
+    q_gen_is_n = ss.q_gen_is_ns[:, n].reshape(-1, 1) + q_hum_is_n
 
     # ステップnの室iにおける内部発湿, kg/s, [j]
     x_gen_is_n = ss.x_gen_is_ns[:, n] + x_hum_is_n
@@ -328,7 +331,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
     logger.theta_mrt[:, n] = theta_mrt_hum_is_n_pls.flatten()
     logger.theta_ot[:, n] = theta_ot_is_npls.flatten()
     logger.clo[:, n] = clo_is_n.flatten()
-    logger.q_hum[:, n] = q_hum_is_n
+    logger.q_hum[:, n] = q_hum_is_n.flatten()
     logger.x_hum[:, n] = x_hum_is_n
     logger.l_cs[:, n] = lc_is_npls.flatten()
     logger.l_rs[:, n] = lr_is_npls.flatten()
