@@ -5,15 +5,11 @@ import s4_1_sensible_heat as s41
 import s4_2_latent_heat as s42
 
 import a1_calculation_surface_temperature as a1
-import apdx3_human_body as a3
-import a9_rear_surface_equivalent_temperature as a9
 import a16_blowing_condition_rac as a16
 import a18_initial_value_constants as a18
 import x_35_occupants as x_35
 from a39_global_parameters import OperationMode
 from s3_space_loader import PreCalcParameters, Conditions
-
-from a39_global_parameters import BoundaryType
 from a33_results_exporting import Logger
 
 
@@ -128,14 +124,17 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
     # ステップnの室iにおける人体発熱, W, [i, 1]
     q_hum_is_n = q_hum_psn_is_n * ss.n_hum_is_ns[:, n].reshape(-1, 1)
 
-    # ステップnの室iにおける人体発湿, kg/s, [i]
-    x_hum_is_n = a3.get_x_hum_i_n(theta_r_is_n=c_n.theta_r_is_n.flatten(), n_hum_i_n=ss.n_hum_is_ns[:, n])
+    # ステップnの室iにおける1人あたりの人体発湿, kg/s, [i, 1]
+    x_hum_psn_is_n = x_35.get_x_hum_psn_is_n(theta_r_is_n=c_n.theta_r_is_n)
+
+    # ステップnの室iにおける人体発湿, kg/s, [i, 1]
+    x_hum_is_n = x_hum_psn_is_n * ss.n_hum_is_ns[:, n].reshape(-1, 1)
 
     # ステップnの室iにおける内部発熱, W, [j, 1]
     q_gen_is_n = ss.q_gen_is_ns[:, n].reshape(-1, 1) + q_hum_is_n
 
-    # ステップnの室iにおける内部発湿, kg/s, [j]
-    x_gen_is_n = ss.x_gen_is_ns[:, n] + x_hum_is_n
+    # ステップnの室iにおける内部発湿, kg/s, [j, 1]
+    x_gen_is_n = ss.x_gen_is_ns[:, n].reshape(-1, 1) + x_hum_is_n
 
     # TODO: すきま風量未実装につき、とりあえず０とする
     # すきま風量を決めるにあたってどういった変数が必要なのかを決めること。
@@ -263,7 +262,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
         v_room_cap_is=ss.v_room_cap_is.flatten(),
         x_r_is_n=c_n.x_r_is_n.flatten(),
         x_frnt_is_n=c_n.x_frnt_is_n,
-        x_gen_is_n=x_gen_is_n,
+        x_gen_is_n=x_gen_is_n.flatten(),
         xo=xo_n,
         v_mec_vent_is_n=ss.v_mec_vent_is_ns[:, n],
         v_int_vent_is=ss.v_int_vent_is_is
@@ -332,7 +331,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
     logger.theta_ot[:, n] = theta_ot_is_npls.flatten()
     logger.clo[:, n] = clo_is_n.flatten()
     logger.q_hum[:, n] = q_hum_is_n.flatten()
-    logger.x_hum[:, n] = x_hum_is_n
+    logger.x_hum[:, n] = x_hum_is_n.flatten()
     logger.l_cs[:, n] = lc_is_npls.flatten()
     logger.l_rs[:, n] = lr_is_npls.flatten()
     logger.l_cl[:, n] = Lcl_i_n
