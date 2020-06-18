@@ -110,6 +110,8 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
     wsc_js_npls = ss.wsc_js_ns[:, n].reshape(-1, 1)
     # ステップnの室iにおける機械換気量（全般換気量+局所換気量）, m3/s, [i, 8760*4]
     v_mec_vent_is_n = ss.v_mec_vent_is_ns[:, n].reshape(-1, 1)
+    # 家具の吸収日射量, W, [i, 8760*4]
+    q_sol_frnt_is_n = ss.q_sol_frnt_is_ns[:, n].reshape(-1, 1)
 
     # ステップnにおける室iの状況（在室者周りの総合熱伝達率・運転状態・Clo値・目標とする作用温度）を取得する
     #     ステップnの室iにおける人体周りの総合熱伝達率, W / m2K, [i, 1]
@@ -227,7 +229,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
 
     # ステップ n+1 における室 i　の家具の温度, degree C, [i, 1]
     theta_frnt_is_n = (
-        ss.c_cap_frnt_is * c_n.theta_frnt_is_n + 900.0 * ss.c_frnt_is * theta_r_is_n_pls + ss.q_sol_frnt_is_ns[:, n].reshape(-1, 1) * 900.0
+        ss.c_cap_frnt_is * c_n.theta_frnt_is_n + 900.0 * ss.c_frnt_is * theta_r_is_n_pls + q_sol_frnt_is_n * 900.0
         ) / (ss.c_cap_frnt_is + 900.0 * ss.c_frnt_is)
 
     # ステップ n+1 における境界 j の表面温度, degree C, [j, 1]
