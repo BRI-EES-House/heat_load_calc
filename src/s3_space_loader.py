@@ -40,7 +40,6 @@ class PreCalcParameters:
             q_trs_sol_is_ns,
             v_ntrl_vent_is,
             ac_demand_is_ns,
-            get_vac_xeout_def_is,
             is_radiative_heating_is,
             is_radiative_cooling_is,
             lrcap_is,

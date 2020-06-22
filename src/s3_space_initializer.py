@@ -402,7 +402,6 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
 
     # region Spacesへの引き渡し
     spaces2 = make_pre_calc_parameters(
-        get_vac_xeout_def_is,
         is_radiative_heating_is,
         is_radiative_cooling_is,
         Lrcap_is,
@@ -415,7 +414,6 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
 
 
 def make_pre_calc_parameters(
-    get_vac_xeout_def_is,
     is_radiative_heating_is,
     is_radiative_cooling_is,
     lrcap_is,
@@ -732,7 +730,6 @@ def make_pre_calc_parameters(
         q_trs_sol_is_ns=q_trs_sol_is_ns,
         v_ntrl_vent_is=v_ntrl_vent_is,
         ac_demand_is_ns=ac_demand_is_ns,
-        get_vac_xeout_def_is=get_vac_xeout_def_is,
         is_radiative_heating_is=np.array(is_radiative_heating_is).reshape(-1, 1),
         is_radiative_cooling_is=np.array(is_radiative_cooling_is).reshape(-1, 1),
         lrcap_is=lrcap_is,
