@@ -15,7 +15,7 @@ class PreCalcParameters:
             self,
             number_of_spaces,
             space_name_is,
-            v_room_cap_is,
+            v_room_is,
             g_f_is,
             c_x_is,
             c_room_is,
@@ -74,7 +74,7 @@ class PreCalcParameters:
         self.space_name_is = space_name_is
 
         # 室iの容積, m3, [i, 1]
-        self.v_room_cap_is = v_room_cap_is
+        self.v_room_is = v_room_is
 
         # 室iの家具等の湿気容量, kg/m3 kg/kgDA, [i]
         self.g_f_is = g_f_is

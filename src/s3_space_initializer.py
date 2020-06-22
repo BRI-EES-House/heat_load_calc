@@ -440,7 +440,7 @@ def make_pre_calc_parameters(
     space_name_is = [s['name'] for s in ss]
 
     # 空間iの気積, m3, [i, 1]
-    v_room_cap_is = np.array([s['volume'] for s in ss]).reshape(-1, 1)
+    v_room_is = np.array([s['volume'] for s in ss]).reshape(-1, 1)
 
     # 空間iのC値, [i]
     c_value_is = np.array([s['c_value'] for s in ss])
@@ -639,7 +639,7 @@ def make_pre_calc_parameters(
     # region 読み込んだ値から新たに係数を作成する
 
     # 室iの空気の熱容量, J/K, [i, 1]
-    c_room_is = v_room_cap_is * a39.get_rho_air() * a39.get_c_air()
+    c_room_is = v_room_is * a39.get_rho_air() * a39.get_c_air()
 
     # 境界jの室内側表面放射熱伝達率, W/m2K, [j, 1]
     h_r_js = a12.get_h_r_js(a_srf_js=a_srf_js, k_js_is=p_js_is)
@@ -709,7 +709,7 @@ def make_pre_calc_parameters(
     pre_calc_parameters = PreCalcParameters(
         number_of_spaces=number_of_spaces,
         space_name_is=space_name_is,
-        v_room_cap_is=v_room_cap_is,
+        v_room_is=v_room_is,
         g_f_is=g_f_is,
         c_x_is=c_x_is,
         c_room_is=c_room_is,

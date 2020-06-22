@@ -257,29 +257,19 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
     # ステップnの境界jにおける表面熱流（壁体吸熱を正とする）, W/m2, [j, 1]
     q_srf_js_n = (theta_ei_js_npls - theta_s_js_n) * (ss.h_c_js + ss.h_r_js)
 
-    # 式(17)
-    BRMX_pre_is = s42.get_BRMX(
-        v_reak_is_n=v_reak_is_n.flatten(),
-        gf_is=ss.g_f_is,
-        cx_is=ss.c_x_is,
-        v_room_cap_is=ss.v_room_cap_is.flatten(),
-        v_mec_vent_is_n=ss.v_mec_vent_is_ns[:, n],
-        v_int_vent_is=ss.v_int_vent_is_is
-    )
+    # ステップnの室iにおける係数 BRMX_pre, [i]
+    BRMX_pre_is = a18.get_rho_air() * (
+        ss.v_room_is.flatten() / 900
+        + v_mec_vent_is_n.flatten()
+        + v_reak_is_n.flatten() / 3600.0
+        + np.sum(ss.v_int_vent_is_is, axis=1)
+    ) +ss.g_f_is * ss.c_x_is / (ss.g_f_is + 900 * ss.c_x_is)
 
-    # 式(18)
-    BRXC_pre_is = s42.get_BRXC(
-        v_reak_is_n=v_reak_is_n.flatten(),
-        gf_is=ss.g_f_is,
-        cx_is=ss.c_x_is,
-        v_room_cap_is=ss.v_room_cap_is.flatten(),
-        x_r_is_n=c_n.x_r_is_n.flatten(),
-        x_frnt_is_n=c_n.x_frnt_is_n,
-        x_gen_is_n=(x_gen_is_n + x_hum_is_n).flatten(),
-        xo=xo_n,
-        v_mec_vent_is_n=ss.v_mec_vent_is_ns[:, n],
-        v_int_vent_is=ss.v_int_vent_is_is
-    )
+    # ステップnの室iにおける係数 BRXC_pre, [i]
+    BRXC_pre_is = a18.get_rho_air() * (
+        ss.v_room_is.flatten() / 900 * c_n.x_r_is_n.flatten() + (ss.v_mec_vent_is_ns[:, n] + v_reak_is_n.flatten() / 3600.) * xo_n
+        + np.dot(ss.v_int_vent_is_is, c_n.x_r_is_n).flatten()
+    ) + ss.g_f_is * ss.c_x_is / (ss.g_f_is + 900 * ss.c_x_is) * c_n.x_frnt_is_n + (x_gen_is_n + x_hum_is_n).flatten()
 
     # ==== ルームエアコン吹出絶対湿度の計算 ====
 
