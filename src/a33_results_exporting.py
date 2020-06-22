@@ -155,17 +155,18 @@ def record(theta_o_ns: np.ndarray, x_o_ns: np.ndarray, pps: PreCalcParameters, l
         dd[name + '_家具絶対湿度[kg/kg(DA)]'] = logger.x_frnt[i][0:365*96]
         dd[name + '_家具取得水蒸気量[kg/s]'] = logger.q_l_frnt[i][0:365*96]
 
-        boundary_names = np.split(pps.name_bdry_js, pps.start_indices)[i]
+        selected = pps.p_is_js[i] == 1
+        boundary_names = pps.name_bdry_js[selected]
 
-        for j, t in enumerate(np.split(logger.theta_s, pps.start_indices)[i]):
+        for j, t in enumerate(logger.theta_s[selected, :]):
             dd[name + '_' + boundary_names[j] + '_表面温度[℃]'] = t[0:365*96]
-        for j, t in enumerate(np.split(logger.theta_ei, pps.start_indices)[i]):
+        for j, t in enumerate(logger.theta_ei[selected, :]):
             dd[name + '_' + boundary_names[j] + '_等価室温[℃]'] = t[0:365*96]
-        for j, t in enumerate(np.split(logger.theta_rear, pps.start_indices)[i]):
+        for j, t in enumerate(logger.theta_rear[selected, :]):
             dd[name + '_' + boundary_names[j] + '_境界温度[℃]'] = t[0:365*96]
-        for j, t in enumerate(np.split(logger.qr, pps.start_indices)[i]):
+        for j, t in enumerate(logger.qr[selected, :]):
             dd[name + '_' + boundary_names[j] + '_表面放射熱流[W]'] = t[0:365*96]
-        for j, t in enumerate(np.split(logger.qc, pps.start_indices)[i]):
+        for j, t in enumerate(logger.qc[selected, :]):
             dd[name + '_' + boundary_names[j] + '_表面対流熱流[W]'] = t[0:365*96]
 
     dd.to_csv('result_detail.csv', encoding='cp932')

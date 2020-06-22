@@ -480,7 +480,7 @@ def make_pre_calc_parameters(
     bdry_id_js = [b['id'] for b in bs]
 
     # 名前, [j]
-    name_bdry_js = [b['name'] for b in bs]
+    name_bdry_js = np.array([b['name'] for b in bs])
 
     # 名前2, [j]
     sub_name_bdry_js= [b['sub_name'] for b in bs]

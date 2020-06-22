@@ -132,16 +132,8 @@ class PreCalcParameters:
         # 統合された境界j*の面積, m2, [j, 1]
         self.a_srf_js = a_srf_js
 
-        # 境界の数（リスト）, [i]
-        self.number_of_bdry_is = number_of_bdry_is
-
         # 境界の数（総数）
         total_number_of_bdry = np.sum(number_of_bdry_is)
-
-
-
-        # 境界のリスト形式を室ごとのリスト形式に切るためのインデックス（不要になったら消すこと）
-        self.start_indices = get_start_indices(number_of_boundaries=self.number_of_bdry_is)
 
         # ステップnの集約境界j*における外気側等価温度の外乱成分, degree C, [j*, 8760*4]
         self.theta_dstrb_js_ns = theta_dstrb_js_ns
