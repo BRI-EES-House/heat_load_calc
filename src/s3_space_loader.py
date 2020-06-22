@@ -16,11 +16,11 @@ class PreCalcParameters:
             number_of_spaces,
             space_name_is,
             v_room_is,
-            g_f_is,
-            c_x_is,
+            c_cap_w_frt_is,
+            c_w_frt_is,
             c_room_is,
-            c_cap_frnt_is,
-            c_frnt_is,
+            c_cap_h_frt_is,
+            c_h_frt_is,
             v_int_vent_is_is,
             name_bdry_js,
             sub_name_bdry_js,
@@ -76,20 +76,20 @@ class PreCalcParameters:
         # 室iの容積, m3, [i, 1]
         self.v_room_is = v_room_is
 
-        # 室iの家具等の湿気容量, kg/m3 kg/kgDA, [i]
-        self.g_f_is = g_f_is
-
-        # 室iの家具等と空気間の湿気コンダクタンス, kg/s kg/kgDA, [i]
-        self.c_x_is = c_x_is
-
         # 室iの熱容量, J/K, [i, 1]
         self.c_room_is = c_room_is
 
         # 室iの家具等の熱容量, J/K, [i, 1]
-        self.c_cap_frnt_is = c_cap_frnt_is
+        self.c_cap_h_frt_is = c_cap_h_frt_is
+
+        # 室iの家具等の湿気容量, kg/m3 (kg/kgDA), [i, 1]
+        self.c_cap_w_frt_is = c_cap_w_frt_is
 
         # 室iの家具等と空気間の熱コンダクタンス, W/K, [i, 1]
-        self.c_frnt_is = c_frnt_is
+        self.c_h_frt_is = c_h_frt_is
+
+        # 室iの家具等と空気間の湿気コンダクタンス, kg/s (kg/kgDA), [i, 1]
+        self.c_w_frt_is = c_w_frt_is
 
         # ステップnにおける室iの空調需要, [i, 8760*4]
         self.ac_demand_is_ns = ac_demand_is_ns
@@ -277,7 +277,7 @@ class Conditions:
         # ステップnの室iにおける家具の温度, degree C, [i, 1]
         self.theta_frnt_is_n = theta_frnt_is_n
 
-        # ステップnの室iにおける家具の絶対湿度, kg/kgDA, [i]
+        # ステップnの室iにおける家具の絶対湿度, kg/kgDA, [i, 1]
         self.x_frnt_is_n = x_frnt_is_n
 
         # ステップnにおける室iの在室者の着衣温度, degree C, [i, 1]
@@ -333,9 +333,9 @@ def initialize_conditions(ss: PreCalcParameters):
     # 初期値を15℃とする。
     theta_frnt_is_n = np.full(total_number_of_spaces, 15.0)
 
-    # ステップnの室iにおける家具の絶対湿度, kg/kgDA, [i]
+    # ステップnの室iにおける家具の絶対湿度, kg/kgDA, [i, 1]
     # 初期値を空気温度20℃相対湿度40%の時の値とする。
-    x_frnt_is_n = np.full(total_number_of_spaces, psy.get_x(psy.get_p_vs(theta=20.0) * 0.4))
+    x_frnt_is_n = np.full((total_number_of_spaces, 1), psy.get_x(psy.get_p_vs(theta=20.0) * 0.4))
 
     return Conditions(
         operation_mode_is_n=operation_mode_is_n,

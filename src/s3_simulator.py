@@ -57,12 +57,12 @@ def run_tick_groundonly(To_n: float, Tave: float, c_n: Conditions, ss: PreCalcPa
 
 
 # 室温、熱負荷の計算
-def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: Conditions, logger: Logger):
+def run_tick(theta_o_n: float, x_o_n: float, n: int, ss: PreCalcParameters, c_n: Conditions, logger: Logger):
     """
 
     Args:
         theta_o_n:
-        xo_n:
+        x_o_n:
         n:
         ss:
         c_n: 前の時刻からの状態量
@@ -180,11 +180,11 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
     v_out_vent_is_n = v_reak_is_n + v_mec_vent_is_n + v_ntrl_vent_is
 
     # ステップnの室iにおける係数 BRC, W, [i, 1]
-    brc_is_n = ss.c_room_is / 900.0 * c_n.theta_r_is_n\
-        + np.dot(ss.p_is_js, ss.h_c_js * ss.a_srf_js * (wsc_js_npls + wsv_js_npls))\
-        + a18.get_c_air() * a18.get_rho_air() * v_out_vent_is_n * theta_o_n\
-        + q_gen_is_n + q_hum_is_n\
-        + ss.c_frnt_is * (ss.c_cap_frnt_is * c_n.theta_frnt_is_n + ss.q_sol_frnt_is_ns[:, n].reshape(-1, 1) * 900.0) / (ss.c_cap_frnt_is + 900.0 * ss.c_frnt_is)
+    brc_is_n = ss.c_room_is / 900.0 * c_n.theta_r_is_n \
+               + np.dot(ss.p_is_js, ss.h_c_js * ss.a_srf_js * (wsc_js_npls + wsv_js_npls)) \
+               + a18.get_c_air() * a18.get_rho_air() * v_out_vent_is_n * theta_o_n \
+               + q_gen_is_n + q_hum_is_n \
+               + ss.c_h_frt_is * (ss.c_cap_h_frt_is * c_n.theta_frnt_is_n + ss.q_sol_frnt_is_ns[:, n].reshape(-1, 1) * 900.0) / (ss.c_cap_h_frt_is + 900.0 * ss.c_h_frt_is)
 
     # ステップnにおける係数 BRM, W/K, [i, i]
     brm_is_is_n = ss.brm_non_vent_is_is\
@@ -236,8 +236,8 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
 
     # ステップ n+1 における室 i　の家具の温度, degree C, [i, 1]
     theta_frnt_is_n = (
-        ss.c_cap_frnt_is * c_n.theta_frnt_is_n + 900.0 * ss.c_frnt_is * theta_r_is_n_pls + q_sol_frnt_is_n * 900.0
-    ) / (ss.c_cap_frnt_is + 900.0 * ss.c_frnt_is)
+                              ss.c_cap_h_frt_is * c_n.theta_frnt_is_n + 900.0 * ss.c_h_frt_is * theta_r_is_n_pls + q_sol_frnt_is_n * 900.0
+    ) / (ss.c_cap_h_frt_is + 900.0 * ss.c_h_frt_is)
 
     # ステップ n+1 における境界 j の表面温度, degree C, [j, 1]
     theta_s_js_n = np.dot(ss.wsr_js_is, theta_r_is_n_pls) + wsc_js_npls + np.dot(ss.wsb_js_is, lr_is_npls) + wsv_js_npls
@@ -257,19 +257,19 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
     # ステップnの境界jにおける表面熱流（壁体吸熱を正とする）, W/m2, [j, 1]
     q_srf_js_n = (theta_ei_js_npls - theta_s_js_n) * (ss.h_c_js + ss.h_r_js)
 
-    # ステップnの室iにおける係数 BRMX_pre, [i]
-    BRMX_pre_is = a18.get_rho_air() * (
-        ss.v_room_is.flatten() / 900
-        + v_mec_vent_is_n.flatten()
-        + v_reak_is_n.flatten() / 3600.0
-        + np.sum(ss.v_int_vent_is_is, axis=1)
-    ) +ss.g_f_is * ss.c_x_is / (ss.g_f_is + 900 * ss.c_x_is)
+    # ステップnの室iにおける係数 brmx_pre, [i, 1]
+    brmx_pre_is = a18.get_rho_air() * (
+            ss.v_room_is / 900
+            + v_out_vent_is_n
+            + np.sum(ss.v_int_vent_is_is, axis=1, keepdims=True)
+    ) + ss.c_cap_w_frt_is * ss.c_w_frt_is / (ss.c_cap_w_frt_is + 900 * ss.c_w_frt_is)
 
-    # ステップnの室iにおける係数 BRXC_pre, [i]
-    BRXC_pre_is = a18.get_rho_air() * (
-        ss.v_room_is.flatten() / 900 * c_n.x_r_is_n.flatten() + (ss.v_mec_vent_is_ns[:, n] + v_reak_is_n.flatten() / 3600.) * xo_n
-        + np.dot(ss.v_int_vent_is_is, c_n.x_r_is_n).flatten()
-    ) + ss.g_f_is * ss.c_x_is / (ss.g_f_is + 900 * ss.c_x_is) * c_n.x_frnt_is_n + (x_gen_is_n + x_hum_is_n).flatten()
+    # ステップnの室iにおける係数 brxc_pre, [i, 1]
+    brxc_pre_is = a18.get_rho_air() * (
+            ss.v_room_is / 900 * c_n.x_r_is_n
+            + v_out_vent_is_n * x_o_n
+            + np.dot(ss.v_int_vent_is_is, c_n.x_r_is_n)
+    ) + ss.c_cap_w_frt_is * ss.c_w_frt_is / (ss.c_cap_w_frt_is + 900 * ss.c_w_frt_is) * c_n.x_frnt_is_n + (x_gen_is_n + x_hum_is_n)
 
     # ==== ルームエアコン吹出絶対湿度の計算 ====
 
@@ -285,8 +285,8 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
     RhoVac = a16.get_RhoVac(v_ac_is_n)
 
     # 室絶対湿度[kg/kg(DA)]の計算
-    BRMX_base = BRMX_pre_is + RhoVac
-    BRXC_base = BRXC_pre_is + RhoVac * x_e_out_is_n
+    BRMX_base = brmx_pre_is.flatten() + RhoVac
+    BRXC_base = brxc_pre_is.flatten() + RhoVac * x_e_out_is_n
 
     # 室絶対湿度の計算 式(16)
     xr_base = s42.get_xr(BRXC_base, BRMX_base)
@@ -298,7 +298,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
     Ghum_is_n = np.minimum(Ghum_base, 0.0)
 
     # 除湿量が負値(加湿量が正)になった場合にはルームエアコン風量V_(ac,n)をゼロとして再度室湿度を計算する
-    x_r_is_n_pls = np.where(Ghum_base > 0.0, s42.get_xr(BRXC_pre_is, BRMX_pre_is), xr_base)
+    x_r_is_n_pls = np.where(Ghum_base > 0.0, s42.get_xr(brxc_pre_is.flatten(), brmx_pre_is.flatten()), xr_base)
 
     # 除湿量から室加湿熱量を計算 式(21)
     Lcl_i_n = get_Lcl(Ghum_is_n)
@@ -319,10 +319,10 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
     # ********** 備品類の絶対湿度 xf の計算 **********
 
     # 備品類の絶対湿度の計算
-    xf_i_n = s42.get_xf(ss.g_f_is, c_n.x_frnt_is_n, ss.c_x_is, x_r_is_n_pls)
+    xf_i_n = s42.get_xf(ss.c_cap_w_frt_is.flatten(), c_n.x_frnt_is_n.flatten(), ss.c_w_frt_is.flatten(), x_r_is_n_pls)
 
     # kg/s
-    Qfunl_i_n = s42.get_Qfunl(ss.c_x_is, x_r_is_n_pls, xf_i_n)
+    Qfunl_i_n = s42.get_Qfunl(ss.c_w_frt_is.flatten(), x_r_is_n_pls, xf_i_n)
 
     # ステップnにおける室iの在室者の着衣温度, degree C, [i]
     theta_cl_is_n_pls = x_35.get_theta_cl_is_n(clo_is_n=clo_is_n.flatten(), theta_ot_is_n=theta_ot_is_npls.flatten(), h_hum_is_n=h_hum_is_n.flatten())
@@ -354,7 +354,7 @@ def run_tick(theta_o_n: float, xo_n: float, n: int, ss: PreCalcParameters, c_n: 
         theta_dsh_srf_t_js_ms_n=theta_dsh_srf_t_js_ms_npls,
         q_srf_js_n=q_srf_js_n,
         theta_frnt_is_n=theta_frnt_is_n,
-        x_frnt_is_n=xf_i_n,
+        x_frnt_is_n=xf_i_n.reshape(-1, 1),
         theta_cl_is_n=theta_cl_is_n_pls.reshape(-1, 1),
         theta_ei_js_n=theta_ei_js_npls
     )

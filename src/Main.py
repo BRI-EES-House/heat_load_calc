@@ -3,6 +3,7 @@ import csv
 import json
 import time
 import numpy as np
+import pandas as pd
 
 import x_04_weather as x_04
 import x_05_solar_position as x_05
@@ -78,7 +79,7 @@ def calc_heat_load(d: Dict):
     for n in range(-n_step_run_up_build, 0):
         conditions_n = simulator.run_tick(
             theta_o_n=theta_o_ns[n],
-            xo_n=x_o_ns[n],
+            x_o_n=x_o_ns[n],
             n=n,
             ss=spaces2,
             c_n=conditions_n,
@@ -90,7 +91,7 @@ def calc_heat_load(d: Dict):
     for n in range(0, n_step_main):
         conditions_n = simulator.run_tick(
             theta_o_n=theta_o_ns[n],
-            xo_n=x_o_ns[n],
+            x_o_n=x_o_ns[n],
             n=n,
             ss=spaces2,
             c_n=conditions_n,
@@ -100,27 +101,8 @@ def calc_heat_load(d: Dict):
     logger.post_logging(spaces2)
 
     print('ログ作成')
-    # log ヘッダーの作成
-    log = exporter.append_headers(
-        spaces2=spaces2
-    )
 
-    # log の記録
-    for n in range(0, n_step_main):
-        exporter.append_tick_log(
-            log=log,
-            To_n=theta_o_ns,
-            n=n, xo_n=x_o_ns,
-            logger=logger,
-            start_indices=spaces2.start_indices,
-            number_of_spaces=spaces2.number_of_spaces
-        )
-
-    # CSVファイルの出力
-    f = open('simulatin_result.csv', 'w', encoding="utf_8_sig")
-    dataWriter = csv.writer(f, lineterminator='\n')
-    dataWriter.writerows(log)
-    f.close()
+    exporter.record(theta_o_ns=theta_o_ns, x_o_ns=x_o_ns, pps=spaces2, logger=logger)
 
 
 def run():

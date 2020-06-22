@@ -1,10 +1,8 @@
-import datetime
 from typing import List
 import numpy as np
+import pandas as pd
 
 from s3_space_loader import PreCalcParameters
-import s4_1_sensible_heat as s41
-
 import psychrometrics as psy
 
 
@@ -113,7 +111,7 @@ class Logger:
         self.rh = psy.get_h(p_v=p_v, p_vs=p_vs)
 
         # ステップnの室iにおける家具取得熱量, W, [i, n]
-        self.q_frnt = ss.c_frnt_is * (self.theta_r - self.theta_frnt)
+        self.q_frnt = ss.c_h_frt_is * (self.theta_r - self.theta_frnt)
 
         # ステップnの境界jにおける表面熱流（壁体吸熱を正とする）のうち対流成分, W, [j, n]
         self.qc = ss.h_c_js * ss.a_srf_js * (np.dot(ss.p_js_is, self.theta_r) - self.theta_s)
@@ -122,127 +120,74 @@ class Logger:
         self.qr = ss.h_r_js * ss.a_srf_js * (np.dot(np.dot(ss.p_js_is, ss.f_mrt_is_js), self.theta_s) - self.theta_s)
 
 
+def record(theta_o_ns: np.ndarray, x_o_ns: np.ndarray, pps: PreCalcParameters, logger: Logger):
 
-def append_headers(spaces2: PreCalcParameters) -> List[List]:
+    date_index_15min = pd.date_range(start='1/1/1989', periods=365*96, freq='15min')
 
-    headder1 = []
+    dd = pd.DataFrame(index=date_index_15min)
 
-    headder1.append('日時')
+    dd['外気温度[℃]'] = theta_o_ns
+    dd['外気絶対湿度[kg/kg(DA)]'] = x_o_ns
 
-    headder1.append('外気温度[℃]')
+    for i in range(pps.number_of_spaces):
 
-    headder1.append('外気絶対湿度[kg/kg(DA)]')
+        name = pps.space_name_is[i]
 
-    for i in range(spaces2.number_of_spaces):
+        dd[name + '_運転状態'] = logger.operation_mode[i][0:365*96]
+        dd[name + '_在室状況'] = logger.ac_demand[i][0:365*96]
+        dd[name + '_空気温度[℃]'] = logger.theta_r[i][0:365*96]
+        dd[name + '_室相対湿度[%]'] = logger.rh[i][0:365*96]
+        dd[name + '_室絶対湿度[kg/kg(DA)]'] = logger.x_r[i][0:365*96]
+        dd[name + '_室MRT[℃]'] = logger.theta_mrt[i][0:365*96]
+        dd[name + '_室作用温度[℃]'] = logger.theta_ot[i][0:365*96]
+        dd[name + '_着衣量[clo]'] = logger.clo[i][0:365*96]
+        dd[name + '_透過日射熱取得[W]'] = logger.q_trs_sol[i][0:365*96]
+        dd[name + '_人体発熱を除く内部発熱[W]'] = logger.q_gen[i][0:365*96]
+        dd[name + '_人体発湿を除く内部発湿[kg/s]'] = logger.x_gen[i][0:365*96]
+        dd[name + '_人体顕熱発熱[W]'] = logger.q_hum[i][0:365*96]
+        dd[name + '_人体潜熱発熱[W]'] = logger.x_hum[i][0:365*96]
+        dd[name + '_対流空調顕熱負荷[W]'] = logger.l_cs[i][0:365*96]
+        dd[name + '_放射空調顕熱負荷[W]'] = logger.l_rs[i][0:365*96]
+        dd[name + '_対流空調潜熱負荷[W]'] = logger.l_cl[i][0:365*96]
+        dd[name + '_家具温度[℃]'] = logger.theta_frnt[i][0:365*96]
+        dd[name + '_家具取得熱量[W]'] = logger.q_frnt[i][0:365*96]
+        dd[name + '_家具吸収日射熱量[W]'] = logger.q_sol_frnt[i][0:365*96]
+        dd[name + '_家具絶対湿度[kg/kg(DA)]'] = logger.x_frnt[i][0:365*96]
+        dd[name + '_家具取得水蒸気量[kg/s]'] = logger.q_l_frnt[i][0:365*96]
 
-        name = spaces2.space_name_is[i]
+        boundary_names = np.split(pps.name_bdry_js, pps.start_indices)[i]
 
-        n = spaces2.number_of_bdry_is[i]
+        for j, t in enumerate(np.split(logger.theta_s, pps.start_indices)[i]):
+            dd[name + '_' + boundary_names[j] + '_表面温度[℃]'] = t[0:365*96]
+        for j, t in enumerate(np.split(logger.theta_ei, pps.start_indices)[i]):
+            dd[name + '_' + boundary_names[j] + '_等価室温[℃]'] = t[0:365*96]
+        for j, t in enumerate(np.split(logger.theta_rear, pps.start_indices)[i]):
+            dd[name + '_' + boundary_names[j] + '_境界温度[℃]'] = t[0:365*96]
+        for j, t in enumerate(np.split(logger.qr, pps.start_indices)[i]):
+            dd[name + '_' + boundary_names[j] + '_表面放射熱流[W]'] = t[0:365*96]
+        for j, t in enumerate(np.split(logger.qc, pps.start_indices)[i]):
+            dd[name + '_' + boundary_names[j] + '_表面対流熱流[W]'] = t[0:365*96]
 
-        boundary_names = np.split(spaces2.name_bdry_js, spaces2.start_indices)[i]
+    dd.to_csv('result_detail.csv', encoding='cp932')
 
-        headder1.append(name + "_運転状態")
-        headder1.append(name + "_在室状況")
-        headder1.append(name + "_空気温度[℃]")
-        headder1.append(name + "_室相対湿度[%]")
-        headder1.append(name + "_室絶対湿度[kg/kg(DA)]")
-        headder1.append(name + "_室MRT[℃]")
-        headder1.append(name + "_室作用温度[℃]")
-        headder1.append(name + "_着衣量[clo]")
-        headder1.append(name + "_透過日射熱取得[W]")
-        headder1.append(name + "_人体発熱を除く内部発熱[W]")
-        headder1.append(name + "_人体発湿を除く内部発湿[kg/s]")
-        headder1.append(name + "_人体顕熱発熱[W]")
-        headder1.append(name + "_人体潜熱発熱[W]")
-        headder1.append(name + "_対流空調顕熱負荷[W]")
-        headder1.append(name + "_放射空調顕熱負荷[W]")
-        headder1.append(name + "_対流空調潜熱負荷[W]")
-        headder1.append(name + "_家具温度[℃]")
-        headder1.append(name + "_家具取得熱量[W]")
-        headder1.append(name + "_家具吸収日射熱量[W]")
-        headder1.append(name + "_家具絶対湿度[kg/kg(DA)]")
-        headder1.append(name + "_家具取得水蒸気量[kg/s]")
+    date_index_1h = pd.date_range(start='1/1/1989', periods=365*24, freq='H')
 
-        for g in range(n):
-            headder1.append(name + "_" + boundary_names[g] + "_表面温度[℃]")
-        for g in range(n):
-            headder1.append(name + "_" + boundary_names[g] + "_等価室温[℃]")
-        for g in range(n):
-            headder1.append(name + "_" + boundary_names[g] + "_境界温度[℃]")
-        for g in range(n):
-            headder1.append(name + "_" + boundary_names[g] + "_表面放射熱流[W]")
-        for g in range(n):
-            headder1.append(name + "_" + boundary_names[g] + "_表面対流熱流[W]")
+    ds = pd.DataFrame(index=date_index_1h)
 
-    # 出力リスト
-    OutList = []
+    ds['外気温度[℃]'] = dd['外気温度[℃]'].resample('H').mean().round(2)
+    ds['外気絶対湿度[kg/kg(DA)]'] = dd['外気絶対湿度[kg/kg(DA)]'].resample('H').mean().round(2)
 
-    OutList.append(headder1)
+    for i in range(pps.number_of_spaces):
 
-    return OutList
+        name = pps.space_name_is[i]
 
+        ds[name + '_運転状態'] = dd[name + '_運転状態'].asfreq('H')
+        ds[name + '_空気温度[℃]'] = dd[name + '_空気温度[℃]'].resample('H').mean().round(2)
+        ds[name + '_室絶対湿度[kg/kg(DA)]'] = dd[name + '_室絶対湿度[kg/kg(DA)]'].resample('H').mean().round(4)
+        ds[name + '_室作用温度[℃]'] = dd[name + '_室作用温度[℃]'].resample('H').mean().round(2)
+        ds[name + '_対流空調顕熱負荷[W]'] = dd[name + '_対流空調顕熱負荷[W]'].resample('H').sum().round(0)
+        ds[name + '_放射空調顕熱負荷[W]'] = dd[name + '_放射空調顕熱負荷[W]'].resample('H').sum().round(0)
+        ds[name + '_対流空調潜熱負荷[W]'] = dd[name + '_対流空調潜熱負荷[W]'].resample('H').sum().round(0)
 
-def append_tick_log(
-        log: List[List],
-        To_n: float,
-        n: int,
-        xo_n: float,
-        logger: Logger,
-        start_indices,
-        number_of_spaces
-):
+    ds.to_csv('result_digest.csv', encoding='cp932')
 
-    # DTMは1989年1月1日始まりとする
-    start_date = datetime.datetime(1989, 1, 1)
-
-    # 1/1 0:00 からの時間　単位はday
-    delta_day = float(n) / float(96)
-
-    # 1/1 0:00 からの時刻, datetime 型
-    dtm = start_date + datetime.timedelta(days=delta_day)
-
-    row = [
-        str(dtm),
-        '{0:.1f}'.format(To_n[n]),
-        '{0:.4f}'.format(xo_n[n])
-    ]
-
-    for i in range(number_of_spaces):
-        row.append(logger.operation_mode[i, n])
-        row.append(logger.ac_demand[i, n])
-        row.append('{0:.2f}'.format(logger.theta_r[i, n]))
-        row.append('{0:.0f}'.format(logger.rh[i, n]))
-        row.append('{0:.4f}'.format(logger.x_r[i, n]))
-        row.append('{0:.2f}'.format(logger.theta_mrt[i, n]))
-        row.append('{0:.2f}'.format(logger.theta_ot[i, n]))
-        row.append('{0:.2f}'.format(logger.clo[i, n]))
-        row.append('{0:.2f}'.format(logger.q_trs_sol[i, n]))
-        row.append('{0:.2f}'.format(logger.q_gen[i, n]))
-        row.append('{0:.2f}'.format(logger.x_gen[i, n]))
-        row.append('{0:.2f}'.format(logger.q_hum[i, n]))
-        row.append('{0:.2f}'.format(logger.x_hum[i, n]))
-        row.append('{0:.1f}'.format(logger.l_cs[i, n]))
-        row.append('{0:.1f}'.format(logger.l_rs[i, n]))
-        row.append('{0:.1f}'.format(logger.l_cl[i, n]))
-        row.append('{0:.2f}'.format(logger.theta_frnt[i, n]))
-        row.append('{0:.1f}'.format(logger.q_frnt[i, n]))
-        row.append('{0:.1f}'.format(logger.q_sol_frnt[i, n]))
-        row.append('{0:.5f}'.format(logger.x_frnt[i, n]))
-        row.append('{0:.5f}'.format(logger.q_l_frnt[i, n]))
-
-        for t in np.split(logger.theta_s, start_indices)[i]:
-            row.append('{0:.2f}'.format(t[n]))
-
-        for t in np.split(logger.theta_ei, start_indices)[i]:
-            row.append('{0:.2f}'.format(t[n]))
-
-        for t in np.split(logger.theta_rear, start_indices)[i]:
-            row.append('{0:.2f}'.format(t[n]))
-
-        for t in np.split(logger.qr, start_indices)[i]:
-            row.append('{0:.2f}'.format(t[n]))
-
-        for t in np.split(logger.qc, start_indices)[i]:
-            row.append('{0:.2f}'.format(t[n]))
-
-    log.append(row)

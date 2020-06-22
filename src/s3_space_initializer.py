@@ -458,16 +458,16 @@ def make_pre_calc_parameters(
     v_ntrl_vent_is = np.array([s['ventilation']['natural'] for s in ss]).reshape(-1, 1)
 
     # 室iの家具等の熱容量, J/K, [i, 1]
-    c_cap_frnt_is = np.array([s['furniture']['heat_capacity'] for s in ss]).reshape(-1, 1)
+    c_cap_h_frt_is = np.array([s['furniture']['heat_capacity'] for s in ss]).reshape(-1, 1)
 
     # 室iの家具等と空気間の熱コンダクタンス, W/K, [i, 1]
-    c_frnt_is = np.array([s['furniture']['heat_cond'] for s in ss]).reshape(-1, 1)
+    c_h_frt_is = np.array([s['furniture']['heat_cond'] for s in ss]).reshape(-1, 1)
 
-    # 室iの家具等の湿気容量, kg/m3 kg/kgDA, [i]
-    g_f_is = np.array([s['furniture']['moisture_capacity'] for s in ss])
+    # 室iの家具等の湿気容量, kg/m3 kg/kgDA, [i, 1]
+    c_cap_w_frt_is = np.array([s['furniture']['moisture_capacity'] for s in ss]).reshape(-1, 1)
 
-    # 室iの家具等と空気間の湿気コンダクタンス, kg/s kg/kgDA
-    c_x_is = np.array([s['furniture']['moisture_cond'] for s in ss])
+    # 室iの家具等と空気間の湿気コンダクタンス, kg/s (kg/kgDA), [i, 1]
+    c_w_frt_is = np.array([s['furniture']['moisture_cond'] for s in ss]).reshape(-1, 1)
 
     # endregion
 
@@ -702,7 +702,7 @@ def make_pre_calc_parameters(
     # BRM(換気なし), W/K, [i, i]
     brm_non_vent_is_is = np.diag(c_room_is.flatten() / 900.0)\
         + np.dot(p_is_js, (p_js_is - wsr_js_is) * a_srf_js * h_c_js)\
-        + np.diag((c_cap_frnt_is * c_frnt_is / (c_cap_frnt_is + c_frnt_is * 900.0)).flatten())
+        + np.diag((c_cap_h_frt_is * c_h_frt_is / (c_cap_h_frt_is + c_h_frt_is * 900.0)).flatten())
 
     # endregion
 
@@ -710,11 +710,11 @@ def make_pre_calc_parameters(
         number_of_spaces=number_of_spaces,
         space_name_is=space_name_is,
         v_room_is=v_room_is,
-        g_f_is=g_f_is,
-        c_x_is=c_x_is,
+        c_cap_w_frt_is=c_cap_w_frt_is,
+        c_w_frt_is=c_w_frt_is,
         c_room_is=c_room_is,
-        c_cap_frnt_is=c_cap_frnt_is,
-        c_frnt_is=c_frnt_is,
+        c_cap_h_frt_is=c_cap_h_frt_is,
+        c_h_frt_is=c_h_frt_is,
         v_int_vent_is_is=v_int_vent_is_is,
         name_bdry_js=name_bdry_js,
         sub_name_bdry_js=sub_name_bdry_js,
