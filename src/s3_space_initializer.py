@@ -402,7 +402,6 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
 
     # region Spacesへの引き渡し
     spaces2 = make_pre_calc_parameters(
-        number_of_bdry_is,
         get_vac_xeout_def_is,
         is_radiative_heating_is,
         is_radiative_cooling_is,
@@ -416,7 +415,6 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
 
 
 def make_pre_calc_parameters(
-    number_of_bdry_is,
     get_vac_xeout_def_is,
     is_radiative_heating_is,
     is_radiative_cooling_is,
@@ -708,6 +706,7 @@ def make_pre_calc_parameters(
 
     pre_calc_parameters = PreCalcParameters(
         number_of_spaces=number_of_spaces,
+        number_of_bdries=number_of_bdries,
         space_name_is=space_name_is,
         v_room_is=v_room_is,
         c_cap_w_frt_is=c_cap_w_frt_is,
@@ -723,7 +722,6 @@ def make_pre_calc_parameters(
         q_gen_is_ns=q_gen_is_ns,
         n_hum_is_ns=n_hum_is_ns,
         x_gen_is_ns=x_gen_is_ns,
-        number_of_bdry_is=number_of_bdry_is,
         f_mrt_hum_is_js=f_mrt_hum_is_js,
         theta_dstrb_js_ns=theta_dstrb_js_ns,
         r_js_ms=r_js_ms,

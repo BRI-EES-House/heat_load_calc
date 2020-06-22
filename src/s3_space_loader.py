@@ -14,6 +14,7 @@ class PreCalcParameters:
     def __init__(
             self,
             number_of_spaces,
+            number_of_bdries,
             space_name_is,
             v_room_is,
             c_cap_w_frt_is,
@@ -29,7 +30,6 @@ class PreCalcParameters:
             q_gen_is_ns,
             n_hum_is_ns,
             x_gen_is_ns,
-            number_of_bdry_is,
             f_mrt_hum_is_js,
             theta_dstrb_js_ns,
             r_js_ms,
@@ -132,9 +132,6 @@ class PreCalcParameters:
         # 統合された境界j*の面積, m2, [j, 1]
         self.a_srf_js = a_srf_js
 
-        # 境界の数（総数）
-        total_number_of_bdry = np.sum(number_of_bdry_is)
-
         # ステップnの集約境界j*における外気側等価温度の外乱成分, degree C, [j*, 8760*4]
         self.theta_dstrb_js_ns = theta_dstrb_js_ns
 
@@ -180,7 +177,7 @@ class PreCalcParameters:
         # ステップnの統合された境界j*における透過日射熱取得量のうち表面に吸収される日射量, W/m2, [j*, 8760*4]
         self.q_sol_js_ns = q_sol_js_ns
 
-        self.total_number_of_bdry = total_number_of_bdry
+        self.total_number_of_bdry = number_of_bdries
         self.ivs_ax_js_js = ivs_ax_js_js
 
         self.p_is_js = p_is_js
