@@ -1,0 +1,150 @@
+:stem: latexmath
+
+=== 湿度計算のバランス式
+
+==== 1. 概要
+
+室の湿度バランス式を連立させて、次時刻の室の湿度を計算する式を導出する。
+
+==== 2. 記号説明
+
+[cols="^.^1,<.^7", stripes=none, options="header"]
+|===
+
+^.^| 記号
+^.^| 説明
+
+| stem:[\rho_a] | 空気の密度, kg/m^3^
+
+| stem:[V_{room}]
+| 室stem:[i]の容積, m^3^ +
+stem:[\begin{pmatrix}
+  V_{room,0} \\
+  \vdots \\
+  V_{room, i-1}
+\end{pmatrix}]
+で表されるベクトル
+
+| stem:[X_{r,n}]
+| ステップ stem:[ n ] における室stem:[i]の絶対湿度, kg/kg(DA) +
+stem:[\begin{pmatrix}
+  X_{r,0,n} \\
+  \vdots \\
+  X_{r,i-1,n}
+\end{pmatrix}]
+で表されるベクトル
+
+| stem:[ t ] | 時間, s
+
+| stem:[V_{out,vent,n}]
+| ステップ stem:[n]における室stem:[i]の外からの換気量, m^3^/s +
+（機械換気量・すきま風量・自然風利用時の換気量との合計である。） +
+stem:[\begin{pmatrix}
+  V_{out,vent,0,n} \\
+  \vdots \\
+  V_{out,vent,i-1,n}
+\end{pmatrix}]
+で表されるベクトル
+
+| stem:[X_{o,n}]
+| ステップ stem:[n] における外気絶対湿度, kg/kg(DA) +
+stem:[\begin{pmatrix}
+  X_{o,0,n} \\
+  \vdots \\
+  X_{o,i-1,n}
+\end{pmatrix}]
+で表されるベクトル
+
+| stem:[X_{gen,n}]
+| ステップ stem:[n] の室 stem:[i] における人体発湿を除く内部発湿, kg/s +
+stem:[\begin{pmatrix}
+  X_{gen,0,n} \\
+  \vdots \\
+  X_{gen,i-1,n}
+\end{pmatrix}]
+で表されるベクトル
+
+| stem:[X_{hum,n}]
+| ステップ stem:[n] の室 stem:[i] における人体発湿, kg/s +
+stem:[\begin{pmatrix}
+  X_{hum,0,n} \\
+  \vdots \\
+  X_{hum,i-1,n}
+\end{pmatrix}]
+で表されるベクトル
+
+| stem:[X_{frt,n}]
+| ステップ stem:[ n ] における室 stem:[i] 家具等と空気間の湿気コンダクタンス, kg/s (kg/kg(DA)) +
+stem:[\begin{pmatrix}
+  X_{frt,0,n} \\
+  \vdots \\
+  X_{frt,i-1,n}
+\end{pmatrix}]
+で表されるベクトル
+
+| stem:[C_{w,frt}]
+| 室 stem:[i] の家具等と空気間の湿気コンダクタンス, kg/(s kg/kg(DA)) +
+stem:[\begin{pmatrix}
+  C_{w,frt,0} \\
+  \vdots \\
+  C_{w,frt,i-1}
+\end{pmatrix}]
+で表されるベクトル
+
+| stem:[V_{int,vent,n}]
+| ステップ stem:[n] の隣室 stem:[i] から室 stem:[i] への機械換気量, m^3^/s +
+stem:[\begin{pmatrix}
+  V_{int,vent,0,0,n} & \ldots & V_{int,vent,0,i-1,n} \\
+  \vdots & \ddots & \vdots \\
+  V_{int,vent,i-1,0,n} & \ldots & V_{int,vent,i-1,i-1,n}
+\end{pmatrix}]
+で表されるベクトル
+
+| stem:[ V ] | 換気・すきま風による外気の流入量, m^3^/s
+| stem:[ G_{hum,n} ] | ステップ stem:[ n ] における空調除湿量, kg/s
+| stem:[ Vnxt ] | ステップ stem:[ n ] における隣接室からの流入風量, m^3^/s
+| stem:[ NV ] | ステップ stem:[ n ] における通風量, m^3^/s
+| stem:[ Nin ] | ステップ stem:[ n ] における備品等の絶対湿度, kg/kg(DA)
+| stem:[ Vin ] | ????
+| stem:[ V_{ac} ] | 空調風量, m^3^/s
+| stem:[ BF ] | バイパスファクター
+| stem:[ xe_{out,n} ] | ステップ stem:[ n ] におけるルームエアコンディショナー室内機熱交換器表面における飽和絶対湿度, kg/kg(DA)
+| stem:[ G_f ] | 備品等の湿気容量, kg/(kg/kg(DA))
+
+|===
+
+==== 2. 室空気の水分収支
+
+室空気の水分収支は式(1)で表される。
+
+[stem]
+++++
+
+\begin{align}
+\rho_a \cdot V_{room} \otimes \frac{d{X_{r,n}}}{dt} &= \rho_a \cdot V_{out,vent,n} \otimes (X_{o,n} - X_{r,n}) \\
+&+ X_{gen,n} + X_{hum,n} \\
+&- G_{hum,n} \\
+&+ C_{w,frt} \otimes (X_{frt,n} - X_{r,n}) \\
+&+ \rho_a \cdot V_{int,vent,n} \: X_{r,n}
+\end{align} \tag{1}
+
+++++
+
+
+空調除湿量はルームエアコンの場合、次式となる。
+
+[stem]
+++++
+
+G_{hum,n} = \max [\rho_a \cdot V_{ac} \cdot (1 - BF) \cdot (xr_n - xe_(out,n)), 0.0)] \tag{2}
+
+++++
+
+備品の水分収支式は室空気との物質移動だけを考慮すればよいため、次式で表すことができる。
+
+[stem]
+++++
+
+G_f \cdot \frac{dxf_n}{dt} = C_x \cdot (xr_n - xf_n)
+
+++++
