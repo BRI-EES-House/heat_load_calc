@@ -2,17 +2,6 @@ from psychrometrics import get_p_vs, get_x
 import a18_initial_value_constants as a18
 from a39_global_parameters import OperationMode
 
-"""
-付録16．	ルームエアコン吹出絶対湿度の計算
-"""
-
-def make_get_vac_xeout_def(Vmin, Vmax, qmin_c, qmax_c):
-
-    def get_vac_xeout(Lcs, Tr, operation_mode):
-        return calcVac_xeout(Lcs, Vmin, Vmax, qmin_c, qmax_c, Tr, operation_mode)
-
-    return get_vac_xeout
-
 
 # エアコンの熱交換部飽和絶対湿度の計算
 def calcVac_xeout(Lcs, Vmin, Vmax, qmin_c, qmax_c, Tr, operation_mode):
