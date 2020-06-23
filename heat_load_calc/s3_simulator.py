@@ -8,10 +8,10 @@ import a1_calculation_surface_temperature as a1
 import a16_blowing_condition_rac as a16
 import a18_initial_value_constants as a18
 import x_35_occupants as x_35
-from s3_space_loader import Conditions
 from a33_results_exporting import Logger
 from heat_load_calc.core.operation_mode import OperationMode
 from heat_load_calc.core.pre_calc_parameters import PreCalcParameters
+from heat_load_calc.core.conditions import Conditions
 
 
 # 地盤の計算

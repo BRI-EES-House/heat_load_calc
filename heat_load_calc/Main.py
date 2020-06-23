@@ -13,12 +13,12 @@ from s3_space_initializer import make_house
 import s3_simulator as simulator
 import a33_results_exporting as exporter
 import a37_groundonly_runup_calculation as a37
-from s3_space_loader import initialize_conditions, Conditions
 import s3_space_loader as space_loader
 from a33_results_exporting import Logger
 import heat_load_calc.s3_space_initializer as s3
 from heat_load_calc.core.pre_calc_parameters import PreCalcParameters
-
+from heat_load_calc.core import conditions
+from heat_load_calc.core.conditions import Conditions
 
 # 熱負荷計算の実行
 def calc_heat_load(d: Dict):
@@ -61,7 +61,7 @@ def calc_heat_load(d: Dict):
 
     spaces2 = s3.make_pre_calc_parameters()
 
-    conditions_n = initialize_conditions(ss=spaces2)
+    conditions_n = conditions.initialize_conditions(ss=spaces2)
 
     logger = Logger(n_spaces=spaces2.number_of_spaces, n_bdrys=spaces2.total_number_of_bdry)
     logger.pre_logging(spaces2)
