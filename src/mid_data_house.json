@@ -25,11 +25,18 @@
                 "heating": {
                     "radiative": {
                         "installed": false
-                    }
+                    },
+                    "convective": {}
                 },
                 "cooling": {
                     "radiative": {
                         "installed": false
+                    },
+                    "convective": {
+                        "q_min": 0.0,
+                        "q_max": 0.0,
+                        "v_min": 0.0,
+                        "v_max": 0.0
                     }
                 }
             }
@@ -59,11 +66,18 @@
                 "heating": {
                     "radiative": {
                         "installed": false
-                    }
+                    },
+                    "convective": {}
                 },
                 "cooling": {
                     "radiative": {
                         "installed": false
+                    },
+                    "convective": {
+                        "q_min": 0.0,
+                        "q_max": 0.0,
+                        "v_min": 0.0,
+                        "v_max": 0.0
                     }
                 }
             }
@@ -93,11 +107,18 @@
                 "heating": {
                     "radiative": {
                         "installed": false
-                    }
+                    },
+                    "convective": {}
                 },
                 "cooling": {
                     "radiative": {
                         "installed": false
+                    },
+                    "convective": {
+                        "q_min": 0.0,
+                        "q_max": 0.0,
+                        "v_min": 0.0,
+                        "v_max": 0.0
                     }
                 }
             }

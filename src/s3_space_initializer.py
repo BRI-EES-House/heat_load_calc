@@ -263,16 +263,12 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
     for i, is_radiative in enumerate(is_radiative_heating_is):
         if is_radiative:
             equip_heating_radiative.append({
-                'radiative': {
-                    'installed': True,
-                    'max_capacity': Lrcap_is[i]
-                }
+                'installed': True,
+                'max_capacity': Lrcap_is[i]
             })
         else:
             equip_heating_radiative.append({
-                'radiative': {
-                    'installed': False
-                }
+                'installed': False
             })
 
     # 冷房設備仕様の読み込み
@@ -287,16 +283,12 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
     for i, is_radiative in enumerate(is_radiative_cooling_is):
         if is_radiative:
             equip_cooling_radiative.append({
-                'radiative': {
-                    'installed': True,
-                    'max_capacity': radiative_cooling_max_capacity_is[i]
-                }
+                'installed': True,
+                'max_capacity': radiative_cooling_max_capacity_is[i]
             })
         else:
             equip_cooling_radiative.append({
-                'radiative': {
-                    'installed': False
-                }
+                'installed': False
             })
 
     # 熱交換器種類
@@ -357,8 +349,19 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
                 'moisture_cond': c_x_is[i]
             },
             'equipment': {
-                'heating': equip_heating_radiative[i],
-                'cooling': equip_cooling_radiative[i]
+                'heating': {
+                    'radiative': equip_heating_radiative[i],
+                    'convective': {}
+                },
+                'cooling': {
+                    'radiative': equip_cooling_radiative[i],
+                    'convective': {
+                        'q_min': qmin_c_is,
+                        'q_max': qmax_c_is,
+                        'v_min': Vmin_is,
+                        'v_max': Vmax_is
+                    }
+                }
             }
         })
 
