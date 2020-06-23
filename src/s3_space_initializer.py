@@ -520,6 +520,11 @@ def make_pre_calc_parameters(
     is_radiative_cooling_is = np.array(is_radiative_cooling_is_list)
     radiative_cooling_max_capacity_is = np.array(radiative_cooling_max_capacity_is_list)
 
+    qmin_c_is = np.array([s['equipment']['cooling']['convective']['q_min'] for s in ss])
+    qmax_c_is = np.array([s['equipment']['cooling']['convective']['q_max'] for s in ss])
+    Vmin_is = np.array([s['equipment']['cooling']['convective']['v_min'] for s in ss])
+    Vmax_is = np.array([s['equipment']['cooling']['convective']['v_max'] for s in ss])
+
     # endregion
 
     # region boundaries の読み込み
@@ -756,6 +761,19 @@ def make_pre_calc_parameters(
         + np.diag((c_cap_h_frt_is * c_h_frt_is / (c_cap_h_frt_is + c_h_frt_is * 900.0)).flatten())
 
     # endregion
+
+    def get_vac_xeout_is(lcs_is_n, theta_r_is_npls, operation_mode_is_n):
+
+        vac_is_n = []
+        xeout_is_n = []
+
+        for lcs_i_n, theta_r_i_npls, operation_mode_i_n, Vmin_i, Vmax_i, qmin_c_i, qmax_c_i \
+            in zip(lcs_is_n, theta_r_is_npls, operation_mode_is_n, Vmin_is, Vmax_is, qmin_c_is, qmax_c_is):
+            Vac_n_i, xeout_i_n = a16.calcVac_xeout(Lcs=lcs_i_n, Vmin=Vmin_i, Vmax=Vmax_i, qmin_c=qmin_c_i, qmax_c=qmax_c_i, Tr=theta_r_i_npls, operation_mode=operation_mode_i_n)
+            vac_is_n.append(Vac_n_i)
+            xeout_is_n.append(xeout_i_n)
+
+        return np.array(vac_is_n), np.array(xeout_is_n)
 
     pre_calc_parameters = PreCalcParameters(
         number_of_spaces=number_of_spaces,
