@@ -6,12 +6,12 @@ import s4_2_latent_heat as s42
 
 import a1_calculation_surface_temperature as a1
 import a16_blowing_condition_rac as a16
-import a18_initial_value_constants as a18
 import x_35_occupants as x_35
 from a33_results_exporting import Logger
 from heat_load_calc.core.operation_mode import OperationMode
 from heat_load_calc.core.pre_calc_parameters import PreCalcParameters
 from heat_load_calc.core.conditions import Conditions
+from heat_load_calc.external.global_number import get_c_air, get_rho_air, get_l_wtr
 
 
 # 地盤の計算
@@ -183,13 +183,13 @@ def run_tick(theta_o_n: float, x_o_n: float, n: int, ss: PreCalcParameters, c_n:
     # ステップnの室iにおける係数 BRC, W, [i, 1]
     brc_is_n = ss.c_room_is / 900.0 * c_n.theta_r_is_n \
                + np.dot(ss.p_is_js, ss.h_c_js * ss.a_srf_js * (wsc_js_npls + wsv_js_npls)) \
-               + a18.get_c_air() * a18.get_rho_air() * v_out_vent_is_n * theta_o_n \
+               + get_c_air() * get_rho_air() * v_out_vent_is_n * theta_o_n \
                + q_gen_is_n + q_hum_is_n \
                + ss.c_h_frt_is * (ss.c_cap_h_frt_is * c_n.theta_frnt_is_n + ss.q_sol_frnt_is_ns[:, n].reshape(-1, 1) * 900.0) / (ss.c_cap_h_frt_is + 900.0 * ss.c_h_frt_is)
 
     # ステップnにおける係数 BRM, W/K, [i, i]
     brm_is_is_n = ss.brm_non_vent_is_is\
-        + a18.get_c_air() * a18.get_rho_air() * (np.diag(v_out_vent_is_n.flatten()) + ss.v_int_vent_is_is)
+        + get_c_air() * get_rho_air() * (np.diag(v_out_vent_is_n.flatten()) + ss.v_int_vent_is_is)
 
     # ステップnにおける室iの在室者表面における対流熱伝達率の総合熱伝達率に対する比, [i, 1]
     kc_is_n = h_hum_c_is_n / h_hum_is_n
@@ -259,14 +259,14 @@ def run_tick(theta_o_n: float, x_o_n: float, n: int, ss: PreCalcParameters, c_n:
     q_srf_js_n = (theta_ei_js_npls - theta_s_js_n) * (ss.h_c_js + ss.h_r_js)
 
     # ステップnの室iにおける係数 brmx_pre, [i, 1]
-    brmx_pre_is = a18.get_rho_air() * (
+    brmx_pre_is = get_rho_air() * (
             ss.v_room_is / 900
             + v_out_vent_is_n
             + np.sum(ss.v_int_vent_is_is, axis=1, keepdims=True)
     ) + ss.c_cap_w_frt_is * ss.c_w_frt_is / (ss.c_cap_w_frt_is + 900 * ss.c_w_frt_is)
 
     # ステップnの室iにおける係数 brxc_pre, [i, 1]
-    brxc_pre_is = a18.get_rho_air() * (
+    brxc_pre_is = get_rho_air() * (
             ss.v_room_is / 900 * c_n.x_r_is_n
             + v_out_vent_is_n * x_o_n
             + np.dot(ss.v_int_vent_is_is, c_n.x_r_is_n)
@@ -378,11 +378,11 @@ def get_Lcl(Ghum: float):
     :param Ghum: i室のn時点における除湿量 [ks/s]
     :return:
     """
-    conra = a18.get_conra()
+    conra = get_l_wtr()
     return Ghum * conra
 
 
 # 式(20)のうちの一部
 def get_RhoVac(Vac: float, BF: float):
-    rhoa = a18.get_rho_air()
+    rhoa = get_rho_air()
     return rhoa * Vac * (1.0 - BF)

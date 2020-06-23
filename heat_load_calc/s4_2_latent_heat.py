@@ -1,5 +1,4 @@
 import numpy as np
-import a18_initial_value_constants as a18
 
 
 # *********** 4.2 潜熱 **********

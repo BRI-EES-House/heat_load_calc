@@ -4,11 +4,9 @@ import math
 import numpy as np
 from typing import Union
 
-import a39_global_parameters as a39
-
 from heat_load_calc.core.operation_mode import OperationMode
 from heat_load_calc.external import psychrometrics as psy
-
+from heat_load_calc.external.global_number import get_l_wtr
 
 def calc_operation(
         x_r_is_n: np.ndarray,
@@ -184,7 +182,7 @@ def get_x_hum_psn_is_n(theta_r_is_n: np.ndarray) -> np.ndarray:
     """
 
     # 水の蒸発潜熱, J/kg
-    l_wtr = a39.get_l_wtr()
+    l_wtr = get_l_wtr()
 
     # ステップnの室iにおける1人あたりの人体発熱, W, [i]
     q_hum_psn_is_n = get_q_hum_psn_is_n(theta_r_is_n=theta_r_is_n)

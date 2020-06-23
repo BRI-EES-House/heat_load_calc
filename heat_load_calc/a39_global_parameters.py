@@ -36,26 +36,3 @@ class SpaceType(Enum):
     # 床下空間
     UNDERFLOOR = auto()
 
-
-def get_l_wtr() -> float:
-    """
-    Returns:
-         水の蒸発潜熱, J/kg
-    """
-    return 2501000.0
-
-
-def get_c_air() -> float:
-    """
-    Returns:
-        空気の比熱, J/kg K
-    """
-    return 1005.0
-
-
-def get_rho_air() -> float:
-    """
-    Returns:
-        空気の密度, kg/m3
-    """
-    return 1.2

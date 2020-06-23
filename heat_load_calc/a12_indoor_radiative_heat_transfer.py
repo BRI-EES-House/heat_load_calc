@@ -1,7 +1,7 @@
 import math
 import numpy as np
 
-import a18_initial_value_constants as a18
+from heat_load_calc.external.global_number import get_Sgm, get_eps
 
 
 """
@@ -196,11 +196,11 @@ def get_h_r_js(a_srf_js, k_js_is):
         calc_form_factor_of_microbodies(area_i_jstrs=(a_srf_js * k_js_is)[:, i][k_js_is[:, i] == 1])
         for i in range(k_js_is.shape[1])])
 
-    eps_m = a18.get_eps()
+    eps_m = get_eps()
 
     MRT = get_MRT()
 
-    Sgm = a18.get_Sgm()
+    Sgm = get_Sgm()
 
     hr_i_k_n = eps_m / (1.0 - eps_m * FF_m) * 4.0 * Sgm * (MRT + 273.15) ** 3.0
 

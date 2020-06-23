@@ -8,7 +8,6 @@ import a12_indoor_radiative_heat_transfer as a12
 import a14_furniture as a14
 import a15_air_flow_rate_rac as a15
 import a16_blowing_condition_rac as a16
-import a18_initial_value_constants as a18
 import a1_calculation_surface_temperature as a1
 import a20_room_spec as a20
 import a21_next_vent_spec as a21
@@ -30,6 +29,7 @@ import s4_1_sensible_heat as s41
 
 import x_35_occupants as x35
 from heat_load_calc.core.pre_calc_parameters import PreCalcParameters
+from heat_load_calc.external.global_number import get_c_air, get_rho_air
 
 
 def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
@@ -685,7 +685,7 @@ def make_pre_calc_parameters():
     # region 読み込んだ値から新たに係数を作成する
 
     # 室iの空気の熱容量, J/K, [i, 1]
-    c_room_is = v_room_is * a39.get_rho_air() * a39.get_c_air()
+    c_room_is = v_room_is * get_rho_air() * get_c_air()
 
     # 境界jの室内側表面放射熱伝達率, W/m2K, [j, 1]
     h_r_js = a12.get_h_r_js(a_srf_js=a_srf_js, k_js_is=p_js_is)

@@ -1,7 +1,7 @@
-import a18_initial_value_constants as a18
 from heat_load_calc.core.operation_mode import OperationMode
 from heat_load_calc.external import psychrometrics as psy
 from heat_load_calc.external.psychrometrics import get_p_vs, get_x
+from heat_load_calc.external.global_number import get_c_air, get_rho_air
 
 
 # エアコンの熱交換部飽和絶対湿度の計算
@@ -49,8 +49,8 @@ def get_Vac(Qs, Vmin, Vmax, qmin_c, qmax_c):
 
 # 熱交換器温度＝熱交換器部分吹出温度 式(113)
 def get_Teout(Qs, Tr, Vac, BF):
-    rhoa = a18.get_rho_air()
-    ca = a18.get_c_air()
+    rhoa = get_rho_air()
+    ca = get_c_air()
     return Tr - Qs / (ca * rhoa * Vac * (1.0 - BF))
 
 
@@ -61,5 +61,5 @@ def get_BF():
 # 式(20)のうちの一部
 def get_RhoVac(Vac: float):
 
-    rhoa = a18.get_rho_air()
+    rhoa = get_rho_air()
     return rhoa * Vac
