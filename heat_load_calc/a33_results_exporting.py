@@ -2,9 +2,8 @@ from typing import List
 import numpy as np
 import pandas as pd
 
-import psychrometrics as psy
 from heat_load_calc.core.pre_calc_parameters import PreCalcParameters
-
+from heat_load_calc.external import psychrometrics as psy
 
 class Logger:
 

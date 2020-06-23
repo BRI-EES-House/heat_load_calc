@@ -6,8 +6,7 @@ from collections import namedtuple
 from a39_global_parameters import BoundaryType
 from heat_load_calc.core.operation_mode import OperationMode
 from heat_load_calc.core.pre_calc_parameters import PreCalcParameters
-
-import psychrometrics as psy
+from heat_load_calc.external import psychrometrics as psy
 
 
 def get_start_indices(number_of_boundaries: np.ndarray):

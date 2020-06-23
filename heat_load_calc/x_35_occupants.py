@@ -5,8 +5,9 @@ import numpy as np
 from typing import Union
 
 import a39_global_parameters as a39
-import psychrometrics as psy
+
 from heat_load_calc.core.operation_mode import OperationMode
+from heat_load_calc.external import psychrometrics as psy
 
 
 def calc_operation(

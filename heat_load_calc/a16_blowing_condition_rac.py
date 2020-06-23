@@ -1,6 +1,7 @@
-from psychrometrics import get_p_vs, get_x
 import a18_initial_value_constants as a18
 from heat_load_calc.core.operation_mode import OperationMode
+from heat_load_calc.external import psychrometrics as psy
+from heat_load_calc.external.psychrometrics import get_p_vs, get_x
 
 
 # エアコンの熱交換部飽和絶対湿度の計算
