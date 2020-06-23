@@ -3,8 +3,8 @@ import numpy as np
 from typing import List
 from collections import namedtuple
 
-from a39_global_parameters import OperationMode
 from a39_global_parameters import BoundaryType
+from heat_load_calc.core.operation_mode import OperationMode
 
 import psychrometrics as psy
 

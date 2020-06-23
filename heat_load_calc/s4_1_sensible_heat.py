@@ -1,6 +1,6 @@
 import numpy as np
 
-from a39_global_parameters import OperationMode
+from heat_load_calc.core.operation_mode import OperationMode
 
 
 def calc_next_temp_and_load(
