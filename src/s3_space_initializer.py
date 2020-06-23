@@ -264,6 +264,13 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
     # 放射暖房最大能力[W]
     Lrcap_is = np.array([a22.read_radiative_heating_max_capacity(room) for room in rooms])
 
+    equip_heating = []
+    for i, is_radiative in enumerate(is_radiative_heating_is):
+        if is_radiative:
+            equip_heating.append({'trans_type': 'radiative', 'max_capacity': Lrcap_is[i]})
+        else:
+            equip_heating.append({'trans_type': 'convective'})
+
     # 冷房設備仕様の読み込み
 
     # 放射冷房有無（Trueなら放射冷房あり）
@@ -271,6 +278,13 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
 
     # 放射冷房最大能力[W]
     radiative_cooling_max_capacity_is = np.array([a22.read_is_radiative_cooling(room) for room in rooms])
+
+    equip_cooling = []
+    for i, is_radiative in enumerate(is_radiative_cooling_is):
+        if is_radiative:
+            equip_cooling.append({'trans_type': 'radiative', 'max_capacity': radiative_cooling_max_capacity_is[i]})
+        else:
+            equip_cooling.append({'trans_type': 'convective'})
 
     # 熱交換器種類
     heat_exchanger_type_is = [a22.read_heat_exchanger_type(room) for room in rooms]
@@ -327,6 +341,10 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
                 'heat_cond': c_frnt_is[i],
                 'moisture_capacity': g_f_is[i],
                 'moisture_cond': c_x_is[i]
+            },
+            'equipment': {
+                'heating': equip_heating[i],
+                'cooling': equip_cooling[i]
             }
         })
 
@@ -402,10 +420,6 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
 
     # region Spacesへの引き渡し
     spaces2 = make_pre_calc_parameters(
-        is_radiative_heating_is,
-        is_radiative_cooling_is,
-        Lrcap_is,
-        radiative_cooling_max_capacity_is,
         get_vac_xeout_is
     )
     # endregion
@@ -414,10 +428,6 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
 
 
 def make_pre_calc_parameters(
-    is_radiative_heating_is,
-    is_radiative_cooling_is,
-    lrcap_is,
-    radiative_cooling_max_capacity_is,
     get_vac_xeout_is
 ):
 
@@ -464,6 +474,32 @@ def make_pre_calc_parameters(
 
     # 室iの家具等と空気間の湿気コンダクタンス, kg/s (kg/kgDA), [i, 1]
     c_w_frt_is = np.array([s['furniture']['moisture_cond'] for s in ss]).reshape(-1, 1)
+
+    # 室iの暖房方式が放射空調か否か
+    is_radiative_heating_is = np.array([
+        {'radiative': True, 'convective': False}[s['equipment']['heating']['trans_type']]
+        for s in ss])
+
+    lrcap_is_list = []
+    for i, s in enumerate(ss):
+        if is_radiative_heating_is[i]:
+            lrcap_is_list.append(s['equipment']['heating']['max_capacity'])
+        else:
+            lrcap_is_list.append(0.0)
+    lrcap_is = np.array(lrcap_is_list)
+
+    # 室iの冷房方式が放射空調か否か
+    is_radiative_cooling_is = np.array([
+        {'radiative': True, 'convective': False}[s['equipment']['cooling']['trans_type']]
+        for s in ss])
+
+    radiative_cooling_max_capacity_is_list = []
+    for i, s in enumerate(ss):
+        if is_radiative_cooling_is[i]:
+            radiative_cooling_max_capacity_is_list.append(s['equipment']['cooling']['max_capacity'])
+        else:
+            radiative_cooling_max_capacity_is_list.append(0.0)
+    radiative_cooling_max_capacity_is = np.array(radiative_cooling_max_capacity_is_list)
 
     # endregion
 

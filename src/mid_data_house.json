@@ -20,6 +20,14 @@
                 "heat_cond": 196.59024,
                 "moisture_capacity": 1191.4560000000001,
                 "moisture_cond": 2.1446208
+            },
+            "equipment": {
+                "heating": {
+                    "trans_type": "convective"
+                },
+                "cooling": {
+                    "trans_type": "convective"
+                }
             }
         },
         {
@@ -42,6 +50,14 @@
                 "heat_cond": 341.56584000000004,
                 "moisture_capacity": 2070.096,
                 "moisture_cond": 3.7261728
+            },
+            "equipment": {
+                "heating": {
+                    "trans_type": "convective"
+                },
+                "cooling": {
+                    "trans_type": "convective"
+                }
             }
         },
         {
@@ -64,6 +80,14 @@
                 "heat_cond": 263.00735999999995,
                 "moisture_capacity": 1593.984,
                 "moisture_cond": 2.8691712
+            },
+            "equipment": {
+                "heating": {
+                    "trans_type": "convective"
+                },
+                "cooling": {
+                    "trans_type": "convective"
+                }
             }
         }
     ],
