@@ -2,4 +2,4 @@
 __pycache__
 .idea/
 convert/.pytest_cache/
-src/result_detail.csv
+heat_load_calc/result_detail.csv

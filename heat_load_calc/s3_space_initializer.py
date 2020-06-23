@@ -435,18 +435,8 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
         w = csv.writer(f, lineterminator='\n')
         w.writerows(theta_o_sol_js_ns.T.tolist())
 
-    # region Spacesへの引き渡し
-    spaces2 = make_pre_calc_parameters(
-        get_vac_xeout_is
-    )
-    # endregion
 
-    return spaces2
-
-
-def make_pre_calc_parameters(
-    get_vac_xeout_is
-):
+def make_pre_calc_parameters():
 
     with open('mid_data_house.json') as f:
         rd = json.load(f)
