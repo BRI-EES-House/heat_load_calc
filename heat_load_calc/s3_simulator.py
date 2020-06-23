@@ -381,8 +381,3 @@ def get_Lcl(Ghum: float):
     conra = get_l_wtr()
     return Ghum * conra
 
-
-# 式(20)のうちの一部
-def get_RhoVac(Vac: float, BF: float):
-    rhoa = get_rho_air()
-    return rhoa * Vac * (1.0 - BF)
