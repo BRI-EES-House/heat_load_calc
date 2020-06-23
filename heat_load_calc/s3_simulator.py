@@ -283,7 +283,7 @@ def run_tick(theta_o_n: float, x_o_n: float, n: int, ss: PreCalcParameters, c_n:
     )
 
     # 空調機除湿の項 式(20)より
-    RhoVac = a16.get_RhoVac(v_ac_is_n)
+    RhoVac = get_rho_air() * v_ac_is_n
 
     # 室絶対湿度[kg/kg(DA)]の計算
     BRMX_base = brmx_pre_is.flatten() + RhoVac

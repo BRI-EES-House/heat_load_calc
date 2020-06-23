@@ -58,8 +58,3 @@ def get_Teout(Qs, Tr, Vac, BF):
 def get_BF():
     return 0.2
 
-# 式(20)のうちの一部
-def get_RhoVac(Vac: float):
-
-    rhoa = get_rho_air()
-    return rhoa * Vac
