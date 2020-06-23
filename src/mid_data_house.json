@@ -23,10 +23,14 @@
             },
             "equipment": {
                 "heating": {
-                    "trans_type": "convective"
+                    "radiative": {
+                        "installed": false
+                    }
                 },
                 "cooling": {
-                    "trans_type": "convective"
+                    "radiative": {
+                        "installed": false
+                    }
                 }
             }
         },
@@ -53,10 +57,14 @@
             },
             "equipment": {
                 "heating": {
-                    "trans_type": "convective"
+                    "radiative": {
+                        "installed": false
+                    }
                 },
                 "cooling": {
-                    "trans_type": "convective"
+                    "radiative": {
+                        "installed": false
+                    }
                 }
             }
         },
@@ -83,10 +91,14 @@
             },
             "equipment": {
                 "heating": {
-                    "trans_type": "convective"
+                    "radiative": {
+                        "installed": false
+                    }
                 },
                 "cooling": {
-                    "trans_type": "convective"
+                    "radiative": {
+                        "installed": false
+                    }
                 }
             }
         }

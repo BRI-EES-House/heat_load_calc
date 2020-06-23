@@ -259,12 +259,21 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
     # 放射暖房最大能力[W]
     Lrcap_is = np.array([a22.read_radiative_heating_max_capacity(room) for room in rooms])
 
-    equip_heating = []
+    equip_heating_radiative = []
     for i, is_radiative in enumerate(is_radiative_heating_is):
         if is_radiative:
-            equip_heating.append({'trans_type': 'radiative', 'max_capacity': Lrcap_is[i]})
+            equip_heating_radiative.append({
+                'radiative': {
+                    'installed': True,
+                    'max_capacity': Lrcap_is[i]
+                }
+            })
         else:
-            equip_heating.append({'trans_type': 'convective'})
+            equip_heating_radiative.append({
+                'radiative': {
+                    'installed': False
+                }
+            })
 
     # 冷房設備仕様の読み込み
 
@@ -274,12 +283,21 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
     # 放射冷房最大能力[W]
     radiative_cooling_max_capacity_is = np.array([a22.read_is_radiative_cooling(room) for room in rooms])
 
-    equip_cooling = []
+    equip_cooling_radiative = []
     for i, is_radiative in enumerate(is_radiative_cooling_is):
         if is_radiative:
-            equip_cooling.append({'trans_type': 'radiative', 'max_capacity': radiative_cooling_max_capacity_is[i]})
+            equip_cooling_radiative.append({
+                'radiative': {
+                    'installed': True,
+                    'max_capacity': radiative_cooling_max_capacity_is[i]
+                }
+            })
         else:
-            equip_cooling.append({'trans_type': 'convective'})
+            equip_cooling_radiative.append({
+                'radiative': {
+                    'installed': False
+                }
+            })
 
     # 熱交換器種類
     heat_exchanger_type_is = [a22.read_heat_exchanger_type(room) for room in rooms]
@@ -339,8 +357,8 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
                 'moisture_cond': c_x_is[i]
             },
             'equipment': {
-                'heating': equip_heating[i],
-                'cooling': equip_cooling[i]
+                'heating': equip_heating_radiative[i],
+                'cooling': equip_cooling_radiative[i]
             }
         })
 
@@ -471,30 +489,32 @@ def make_pre_calc_parameters(
     # 室iの家具等と空気間の湿気コンダクタンス, kg/s (kg/kgDA), [i, 1]
     c_w_frt_is = np.array([s['furniture']['moisture_cond'] for s in ss]).reshape(-1, 1)
 
-    # 室iの暖房方式が放射空調か否か
-    is_radiative_heating_is = np.array([
-        {'radiative': True, 'convective': False}[s['equipment']['heating']['trans_type']]
-        for s in ss])
-
+    # 室iの暖房方式として放射空調が設置されているかどうか。  bool値, [i, 1]
+    # 室iの暖房方式として放射空調が設置されている場合の、放射暖房最大能力, W, [i, 1]
+    is_radiative_heating_is_list = []
     lrcap_is_list = []
     for i, s in enumerate(ss):
-        if is_radiative_heating_is[i]:
-            lrcap_is_list.append(s['equipment']['heating']['max_capacity'])
+        if s['equipment']['heating']['radiative']['installed']:
+            is_radiative_heating_is_list.append(True)
+            lrcap_is_list.append(s['equipment']['heating']['radiative']['max_capacity'])
         else:
+            is_radiative_heating_is_list.append(False)
             lrcap_is_list.append(0.0)
+    is_radiative_heating_is = np.array(is_radiative_heating_is_list)
     lrcap_is = np.array(lrcap_is_list)
 
-    # 室iの冷房方式が放射空調か否か
-    is_radiative_cooling_is = np.array([
-        {'radiative': True, 'convective': False}[s['equipment']['cooling']['trans_type']]
-        for s in ss])
-
+    # 室iの冷房方式として放射空調が設置されているかどうか。  bool値, [i, 1]
+    # 室iの冷房方式として放射空調が設置されている場合の、放射冷房最大能力, W, [i, 1]
+    is_radiative_cooling_is_list = []
     radiative_cooling_max_capacity_is_list = []
     for i, s in enumerate(ss):
-        if is_radiative_cooling_is[i]:
+        if s['equipment']['cooling']['radiative']['installed']:
+            is_radiative_cooling_is_list.append(True)
             radiative_cooling_max_capacity_is_list.append(s['equipment']['cooling']['max_capacity'])
         else:
+            is_radiative_cooling_is_list.append(False)
             radiative_cooling_max_capacity_is_list.append(0.0)
+    is_radiative_cooling_is = np.array(is_radiative_cooling_is_list)
     radiative_cooling_max_capacity_is = np.array(radiative_cooling_max_capacity_is_list)
 
     # endregion
