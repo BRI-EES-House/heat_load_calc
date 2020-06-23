@@ -356,10 +356,10 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
                 'cooling': {
                     'radiative': equip_cooling_radiative[i],
                     'convective': {
-                        'q_min': qmin_c_is,
-                        'q_max': qmax_c_is,
-                        'v_min': Vmin_is,
-                        'v_max': Vmax_is
+                        'q_min': qmin_c_is[i],
+                        'q_max': qmax_c_is[i],
+                        'v_min': Vmin_is[i],
+                        'v_max': Vmax_is[i]
                     }
                 }
             }
