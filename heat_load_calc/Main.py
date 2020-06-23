@@ -13,10 +13,11 @@ from s3_space_initializer import make_house
 import s3_simulator as simulator
 import a33_results_exporting as exporter
 import a37_groundonly_runup_calculation as a37
-from s3_space_loader import PreCalcParameters, initialize_conditions, Conditions
+from s3_space_loader import initialize_conditions, Conditions
 import s3_space_loader as space_loader
 from a33_results_exporting import Logger
 import heat_load_calc.s3_space_initializer as s3
+from heat_load_calc.core.pre_calc_parameters import PreCalcParameters
 
 
 # 熱負荷計算の実行

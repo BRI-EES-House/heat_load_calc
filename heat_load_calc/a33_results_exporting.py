@@ -2,8 +2,8 @@ from typing import List
 import numpy as np
 import pandas as pd
 
-from s3_space_loader import PreCalcParameters
 import psychrometrics as psy
+from heat_load_calc.core.pre_calc_parameters import PreCalcParameters
 
 
 class Logger:
