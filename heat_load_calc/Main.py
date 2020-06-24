@@ -1,27 +1,13 @@
 from typing import Dict
-import csv
 import json
 import time
-import numpy as np
-import pandas as pd
 
 import x_04_weather as x_04
 import x_05_solar_position as x_05
 
 from s3_space_initializer import make_house
-import s3_simulator as simulator
-import a37_groundonly_runup_calculation as a37
-import s3_space_loader as space_loader
-import heat_load_calc.s3_space_initializer as s3
-from heat_load_calc.core import pre_calc_parameters
-from heat_load_calc.core.pre_calc_parameters import PreCalcParameters
-from heat_load_calc.core import conditions
-from heat_load_calc.core.conditions import Conditions
 
-from heat_load_calc.core.log import Logger
-from heat_load_calc.core import log
 from heat_load_calc.core import core
-from heat_load_calc.core import sequence
 
 # 熱負荷計算の実行
 def calc_heat_load(d: Dict):
@@ -53,47 +39,7 @@ def calc_heat_load(d: Dict):
     # スペースの読み取り
     make_house(d=d, i_dn_ns=i_dn_ns, i_sky_ns=i_sky_ns, r_n_ns=r_n_ns, theta_o_ns=theta_o_ns, h_sun_ns=h_sun_ns, a_sun_ns=a_sun_ns, x_o_ns=x_o_ns)
 
-    n_step_main, n_step_run_up, n_step_run_up_build, spaces2, conditions_n, logger = core.calc()
-
-#    conditions_n = conditions.initialize_conditions(ss=spaces2)
-
-#    logger = Logger(n_spaces=spaces2.number_of_spaces, n_bdrys=spaces2.total_number_of_bdry)
-#    logger.pre_logging(spaces2)
-
-    # 助走計算1(土壌のみ)
-    print('助走計算1（土壌のみ）')
-    for n in range(-n_step_run_up, -n_step_run_up_build):
-        conditions_n = sequence.run_tick_groundonly(
-            c_n=conditions_n,
-            ss=spaces2,
-            n=n
-        )
-
-    # 助走計算2(室温、熱負荷)
-    print('助走計算1（建物全体）')
-    for n in range(-n_step_run_up_build, 0):
-        conditions_n = sequence.run_tick(
-            n=n,
-            ss=spaces2,
-            c_n=conditions_n,
-            logger=logger
-        )
-
-    # 本計算(室温、熱負荷)
-    print('本計算')
-    for n in range(0, n_step_main):
-        conditions_n = sequence.run_tick(
-            n=n,
-            ss=spaces2,
-            c_n=conditions_n,
-            logger=logger
-        )
-
-    logger.post_logging(spaces2)
-
-    print('ログ作成')
-
-    log.record(pps=spaces2, logger=logger)
+    core.calc()
 
 
 def run():
