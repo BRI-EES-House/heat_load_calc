@@ -1,7 +1,5 @@
 import numpy as np
 
-import heat_load_calc.s4_2_latent_heat as s42
-
 import a1_calculation_surface_temperature as a1
 import x_35_occupants as x_35
 
@@ -289,16 +287,16 @@ def run_tick(n: int, ss: PreCalcParameters, c_n: Conditions, logger: Logger):
     BRXC_base = brxc_pre_is.flatten() + RhoVac * x_e_out_is_n
 
     # 室絶対湿度の計算 式(16)
-    xr_base = s42.get_xr(BRXC_base, BRMX_base)
+    xr_base = BRXC_base / BRMX_base
 
     # 補正前の加湿量の計算 [ks/s] 式(20)
-    Ghum_base = s42.get_Ghum(RhoVac, x_e_out_is_n, xr_base)
+    Ghum_base = RhoVac * (x_e_out_is_n - xr_base)
 
     # 除湿量が負値(加湿量が正)になった場合にはルームエアコン風量V_(ac,n)をゼロとして再度室湿度を計算する
     Ghum_is_n = np.minimum(Ghum_base, 0.0)
 
     # 除湿量が負値(加湿量が正)になった場合にはルームエアコン風量V_(ac,n)をゼロとして再度室湿度を計算する
-    x_r_is_n_pls = np.where(Ghum_base > 0.0, s42.get_xr(brxc_pre_is.flatten(), brmx_pre_is.flatten()), xr_base)
+    x_r_is_n_pls = np.where(Ghum_base > 0.0, brxc_pre_is.flatten() / brmx_pre_is.flatten(), xr_base)
 
     # 除湿量から室加湿熱量を計算 式(21)
     Lcl_i_n = get_Lcl(Ghum_is_n)
@@ -319,10 +317,10 @@ def run_tick(n: int, ss: PreCalcParameters, c_n: Conditions, logger: Logger):
     # ********** 備品類の絶対湿度 xf の計算 **********
 
     # 備品類の絶対湿度の計算
-    xf_i_n = s42.get_xf(ss.c_cap_w_frt_is.flatten(), c_n.x_frnt_is_n.flatten(), ss.c_w_frt_is.flatten(), x_r_is_n_pls)
+    xf_i_n = (ss.c_cap_w_frt_is.flatten() / 900 * c_n.x_frnt_is_n.flatten() + ss.c_w_frt_is.flatten() * x_r_is_n_pls) / (ss.c_cap_w_frt_is.flatten() / 900 + ss.c_w_frt_is.flatten())
 
     # kg/s
-    Qfunl_i_n = s42.get_Qfunl(ss.c_w_frt_is.flatten(), x_r_is_n_pls, xf_i_n)
+    Qfunl_i_n = ss.c_w_frt_is.flatten() * (x_r_is_n_pls - xf_i_n)
 
     # ステップnにおける室iの在室者の着衣温度, degree C, [i]
     theta_cl_is_n_pls = x_35.get_theta_cl_is_n(clo_is_n=clo_is_n.flatten(), theta_ot_is_n=theta_ot_is_npls.flatten(), h_hum_is_n=h_hum_is_n.flatten())
