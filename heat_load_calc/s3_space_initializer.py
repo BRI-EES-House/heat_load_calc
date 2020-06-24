@@ -7,7 +7,6 @@ import a9_rear_surface_equivalent_temperature as a9
 import heat_load_calc.a12_indoor_radiative_heat_transfer as a12
 import a14_furniture as a14
 import a15_air_flow_rate_rac as a15
-import a1_calculation_surface_temperature as a1
 import a20_room_spec as a20
 import a21_next_vent_spec as a21
 import a22_radiative_heating_spec as a22
