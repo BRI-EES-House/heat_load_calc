@@ -32,7 +32,7 @@ from heat_load_calc.core.pre_calc_parameters import PreCalcParameters
 from heat_load_calc.external.global_number import get_c_air, get_rho_air
 
 
-def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
+def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns, x_o_ns):
 
     rooms = d['rooms']
 
@@ -381,6 +381,17 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns):
 
     with open('mid_data_house.json', 'w') as f:
         json.dump(wd, f, indent=4)
+
+    # ステップnにおける外気温度, degree C, [i, 8760*4]
+    with open('mid_data_outside_temp.csv', 'w') as f:
+        w = csv.writer(f, lineterminator='\n')
+        w.writerows(theta_o_ns.reshape(-1, 1).tolist())
+
+    # ステップnにおける外気絶対湿度, [i, 8760*4]
+    # TODO: 単位を確認すること
+    with open('mid_data_outside_abs_humidity.csv', 'w') as f:
+        w = csv.writer(f, lineterminator='\n')
+        w.writerows(x_o_ns.reshape(-1, 1).tolist())
 
     # ステップnの室iにおける局所換気量, m3/s, [i, 8760*4]
     with open('mid_data_local_vent.csv', 'w') as f:

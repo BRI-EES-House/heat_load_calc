@@ -59,7 +59,7 @@ def calc_heat_load(d: Dict):
     h_sun_ns, a_sun_ns = x_05.calc_solar_position(region=region)
 
     # スペースの読み取り
-    make_house(d=d, i_dn_ns=i_dn_ns, i_sky_ns=i_sky_ns, r_n_ns=r_n_ns, theta_o_ns=theta_o_ns, h_sun_ns=h_sun_ns, a_sun_ns=a_sun_ns)
+    make_house(d=d, i_dn_ns=i_dn_ns, i_sky_ns=i_sky_ns, r_n_ns=r_n_ns, theta_o_ns=theta_o_ns, h_sun_ns=h_sun_ns, a_sun_ns=a_sun_ns, x_o_ns=x_o_ns)
 
     spaces2 = pre_calc_parameters.make_pre_calc_parameters()
 
