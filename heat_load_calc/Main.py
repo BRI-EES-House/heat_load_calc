@@ -16,6 +16,7 @@ import a37_groundonly_runup_calculation as a37
 import s3_space_loader as space_loader
 from a33_results_exporting import Logger
 import heat_load_calc.s3_space_initializer as s3
+from heat_load_calc.core import pre_calc_parameters
 from heat_load_calc.core.pre_calc_parameters import PreCalcParameters
 from heat_load_calc.core import conditions
 from heat_load_calc.core.conditions import Conditions
@@ -59,7 +60,7 @@ def calc_heat_load(d: Dict):
     # スペースの読み取り
     make_house(d=d, i_dn_ns=i_dn_ns, i_sky_ns=i_sky_ns, r_n_ns=r_n_ns, theta_o_ns=theta_o_ns, h_sun_ns=h_sun_ns, a_sun_ns=a_sun_ns)
 
-    spaces2 = s3.make_pre_calc_parameters()
+    spaces2 = pre_calc_parameters.make_pre_calc_parameters()
 
     conditions_n = conditions.initialize_conditions(ss=spaces2)
 
