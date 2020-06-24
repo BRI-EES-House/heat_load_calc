@@ -6,11 +6,12 @@ import s4_2_latent_heat as s42
 
 import a1_calculation_surface_temperature as a1
 import x_35_occupants as x_35
-from a33_results_exporting import Logger
+
 from heat_load_calc.core.operation_mode import OperationMode
 from heat_load_calc.core.pre_calc_parameters import PreCalcParameters
 from heat_load_calc.core.conditions import Conditions
 from heat_load_calc.external.global_number import get_c_air, get_rho_air, get_l_wtr
+from heat_load_calc.core.log import Logger
 
 
 # 地盤の計算

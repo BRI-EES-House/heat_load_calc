@@ -1,9 +1,9 @@
-from typing import List
 import numpy as np
 import pandas as pd
 
 from heat_load_calc.core.pre_calc_parameters import PreCalcParameters
 from heat_load_calc.external import psychrometrics as psy
+
 
 class Logger:
 
