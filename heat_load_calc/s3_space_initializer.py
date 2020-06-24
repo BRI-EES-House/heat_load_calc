@@ -25,7 +25,6 @@ import s3_surface_initializer as s3
 from s3_surface_initializer import IntegratedBoundaries
 import s3_space_loader as s3sl
 import s3_surface_loader
-import s4_1_sensible_heat as s41
 
 import x_35_occupants as x35
 from heat_load_calc.core.pre_calc_parameters import PreCalcParameters

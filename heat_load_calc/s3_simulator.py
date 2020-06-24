@@ -1,7 +1,5 @@
 import numpy as np
-from typing import List
 
-import s4_1_sensible_heat as s41
 import s4_2_latent_heat as s42
 
 import a1_calculation_surface_temperature as a1
@@ -12,6 +10,7 @@ from heat_load_calc.core.pre_calc_parameters import PreCalcParameters
 from heat_load_calc.core.conditions import Conditions
 from heat_load_calc.external.global_number import get_c_air, get_rho_air, get_l_wtr
 from heat_load_calc.core.log import Logger
+from heat_load_calc.core import next_condition
 
 
 # 地盤の計算
@@ -222,7 +221,7 @@ def run_tick(n: int, ss: PreCalcParameters, c_n: Conditions, logger: Logger):
     # ステップ n+1 における室 i の作用温度, degree C, [i, 1]
     # ステップ n+1 における室 i に設置された対流暖房の放熱量, W, [i, 1]
     # ステップ n+1 における室 i に設置された放射暖房の放熱量, W, [i, 1]
-    theta_ot_is_npls, lc_is_npls, lr_is_npls = s41.calc_next_temp_and_load(
+    theta_ot_is_npls, lc_is_npls, lr_is_npls = next_condition.calc_next_temp_and_load(
         is_radiative_heating_is=ss.is_radiative_heating_is,
         brc_ot_is_n=brc_ot_is_n,
         brm_ot_is_is_n=brm_ot_is_is_n,
