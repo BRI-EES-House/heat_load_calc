@@ -44,7 +44,7 @@ def load_weather_data(region: int) -> (np.ndarray, np.ndarray, np.ndarray, np.nd
     # ステップnにおける夜間放射量, W/m2
     r_n_ns = interpolate(weather[3])
 
-    # ステップnにおける外気絶対湿度, g/kgDA
+    # ステップnにおける外気絶対湿度, kg/kgDA
     x_o_ns = interpolate(weather[4]) / 1000.
 
     return theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, x_o_ns

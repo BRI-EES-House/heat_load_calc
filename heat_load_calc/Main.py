@@ -50,7 +50,7 @@ def calc_heat_load(d: Dict):
     #   (2)ステップnにおける法線面直達日射量, W/m2, [8760 * 4]
     #   (3)ステップnにおける水平面天空日射量, W/m2, [8760 * 4]
     #   (4)ステップnにおける夜間放射量, W/m2, [8760 * 4]
-    #   (5)ステップnにおける外気絶対湿度, g/kgDA, [8760 * 4]
+    #   (5)ステップnにおける外気絶対湿度, kg/kgDA, [8760 * 4]
     theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, x_o_ns = x_04.load_weather_data(region=region)
 
     # 太陽位置
