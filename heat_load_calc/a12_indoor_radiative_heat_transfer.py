@@ -1,7 +1,7 @@
 import math
 import numpy as np
 
-from heat_load_calc.external.global_number import get_Sgm, get_eps
+from heat_load_calc.external.global_number import get_sgm, get_eps
 
 
 """
@@ -10,13 +10,10 @@ from heat_load_calc.external.global_number import get_Sgm, get_eps
 
 
 # 微小体に対する部位の形態係数の計算 式(94)
-def calc_form_factor_of_microbodies(area_i_jstrs):
+def calc_form_factor_of_microbodies(area_i_js):
 
     # 面積比 式(95)
-    a_k = get_a_k(area_i_jstrs)
-
-    # 面積比の最大値 （ニュートン法の初期値計算用）
-    max_a = get_max_a(a_k)
+    a_k = area_i_js / sum(area_i_js)
 
     # 非線形方程式L(f̅)=0の解, float
     fb = get_fb(a_k)
@@ -30,17 +27,6 @@ def calc_form_factor_of_microbodies(area_i_jstrs):
         print('形態係数の合計値が不正 TotalFF=', FF)
 
     return FF_m
-
-
-# 面積比 [-] 式(95)
-def get_a_k(A_i_k):
-    A_i = sum(A_i_k)
-    a_k = A_i_k / A_i
-    return a_k
-
-
-def get_max_a(a):
-    return max(a)
 
 
 # 式（123）で示す放射伝熱計算で使用する微小球に対する部位の形態係数 [-] 式(94)
@@ -182,31 +168,30 @@ def get_flr(A_i_g, A_fs_i, is_radiative_heating, is_solar_absorbed_inside):
 
 
 # 放射熱伝達率 式(123)
-def get_h_r_js(a_srf_js, k_js_is):
+def get_h_r_js(a_srf_js, p_js_is):
     """
-    :param eps_m: 放射率 [-]
-    :param FF_m: 形態係数 [-]
-    :param MRT: 平均放射温度 [℃]
-    :return:
+
+    Args:
+        a_srf_js: 境界jの面積, m2, [j, 1]
+        p_js_is: 室iと境界jの関係を表す係数（室iから境界jへの変換）
+    　　　　　　　[[p_0_0 ... p_i_0]
+    　　　　　　　　[ ...  ...  ... ]
+    　　　　　　　　[ ...  ...  ... ]
+    　　　　　　　　[p_0_j ... p_i_j]]
+    Returns:
+
     """
 
     # 微小点に対する境界jの形態係数
     # 永田先生の方法
     FF_m = np.concatenate([
-        calc_form_factor_of_microbodies(area_i_jstrs=(a_srf_js * k_js_is)[:, i][k_js_is[:, i] == 1])
-        for i in range(k_js_is.shape[1])])
+        calc_form_factor_of_microbodies(area_i_js=(a_srf_js * p_js_is)[:, i][p_js_is[:, i] == 1])
+        for i in range(p_js_is.shape[1])])
 
-    eps_m = get_eps()
+    # 境界間の放射熱伝達率を決定する際、平均放射温度を20℃固定値であるとして計算する。
+    MRT = 20.0
 
-    MRT = get_MRT()
-
-    Sgm = get_Sgm()
-
-    hr_i_k_n = eps_m / (1.0 - eps_m * FF_m) * 4.0 * Sgm * (MRT + 273.15) ** 3.0
+    hr_i_k_n = get_eps() / (1.0 - get_eps() * FF_m) * 4.0 * get_sgm() * (MRT + 273.15) ** 3.0
 
     return hr_i_k_n.reshape(-1, 1)
 
-
-# 平均放射温度MRT
-def get_MRT():
-    return 20.0

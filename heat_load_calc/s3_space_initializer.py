@@ -4,7 +4,7 @@ import json
 import csv
 
 import a9_rear_surface_equivalent_temperature as a9
-import a12_indoor_radiative_heat_transfer as a12
+import heat_load_calc.a12_indoor_radiative_heat_transfer as a12
 import a14_furniture as a14
 import a15_air_flow_rate_rac as a15
 import a16_blowing_condition_rac as a16
@@ -688,7 +688,7 @@ def make_pre_calc_parameters():
     c_room_is = v_room_is * get_rho_air() * get_c_air()
 
     # 境界jの室内側表面放射熱伝達率, W/m2K, [j, 1]
-    h_r_js = a12.get_h_r_js(a_srf_js=a_srf_js, k_js_is=p_js_is)
+    h_r_js = a12.get_h_r_js(a_srf_js=a_srf_js, p_js_is=p_js_is)
 
     # 平均放射温度計算時の各部位表面温度の重み, [i, j]
     f_mrt_is_js = a12.get_f_mrt_is_js(a_srf_js=a_srf_js, h_r_js=h_r_js, k_is_js=p_is_js)

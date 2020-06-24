@@ -25,7 +25,7 @@ def get_l_wtr() -> float:
     return 2501000.0
 
 
-def get_Sgm() -> float:
+def get_sgm() -> float:
     """
     Returns:
         ステファンボルツマン定数
