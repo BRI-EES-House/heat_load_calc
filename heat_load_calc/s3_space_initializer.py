@@ -17,6 +17,7 @@ import a34_building_part_summarize as a34
 import a38_schedule as a38
 from a39_global_parameters import SpaceType
 from a39_global_parameters import BoundaryType
+from heat_load_calc.core import shape_factor
 
 import a39_global_parameters as a39
 
@@ -688,7 +689,7 @@ def make_pre_calc_parameters():
     c_room_is = v_room_is * get_rho_air() * get_c_air()
 
     # 境界jの室内側表面放射熱伝達率, W/m2K, [j, 1]
-    h_r_js = a12.get_h_r_js(a_srf_js=a_srf_js, p_js_is=p_js_is)
+    h_r_js = shape_factor.get_h_r_js(a_srf_js=a_srf_js, p_js_is=p_js_is)
 
     # 平均放射温度計算時の各部位表面温度の重み, [i, j]
     f_mrt_is_js = a12.get_f_mrt_is_js(a_srf_js=a_srf_js, h_r_js=h_r_js, k_is_js=p_is_js)
