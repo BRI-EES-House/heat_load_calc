@@ -59,7 +59,9 @@ class PreCalcParameters:
             get_vac_xeout_is,
             is_ground_js,
             wsc_js_ns,
-            k_ei_js_js
+            k_ei_js_js,
+            theta_o_ns,
+            x_o_ns
     ):
 
         # region 室に関すること
@@ -204,6 +206,12 @@ class PreCalcParameters:
 
         # 境界jの裏面温度に他の境界の等価温度が与える影響, [j, j]
         self.k_ei_js_js = k_ei_js_js
+
+        # ステップnの外気温度, degree C, [n]
+        self.theta_o_ns = theta_o_ns
+
+        # ステップnの外気絶対湿度, kg/kg(DA), [n]
+        self.x_o_ns = x_o_ns
 
 
 def make_pre_calc_parameters():
@@ -369,6 +377,16 @@ def make_pre_calc_parameters():
     # endregion
 
     # region スケジュール化されたデータの読み込み
+
+    # ステップnにおける外気温度, degree C, [8760*4]
+    with open('mid_data_outside_temp.csv', 'r') as f:
+        r = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
+        theta_o_ns = np.array([row for row in r]).flatten()
+
+    # ステップnにおける外気絶対湿度, kg/kg(DA), [8760*4]
+    with open('mid_data_outside_abs_humidity.csv', 'r') as f:
+        r = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
+        x_o_ns = np.array([row for row in r]).flatten()
 
     # ステップnの室iにおける局所換気量, m3/s, [i, 8760*4]
     with open('mid_data_local_vent.csv', 'r') as f:
@@ -587,7 +605,9 @@ def make_pre_calc_parameters():
         get_vac_xeout_is=get_vac_xeout_is,
         is_ground_js=is_ground_js,
         wsc_js_ns=wsc_js_ns,
-        k_ei_js_js=k_ei_js_js
+        k_ei_js_js=k_ei_js_js,
+        theta_o_ns=theta_o_ns,
+        x_o_ns=x_o_ns
     )
 
     return pre_calc_parameters

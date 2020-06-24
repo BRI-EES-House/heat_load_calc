@@ -183,7 +183,7 @@ def run_tick(theta_o_n: float, x_o_n: float, n: int, ss: PreCalcParameters, c_n:
     # ステップnの室iにおける係数 BRC, W, [i, 1]
     brc_is_n = ss.c_room_is / 900.0 * c_n.theta_r_is_n \
                + np.dot(ss.p_is_js, ss.h_c_js * ss.a_srf_js * (wsc_js_npls + wsv_js_npls)) \
-               + get_c_air() * get_rho_air() * v_out_vent_is_n * theta_o_n \
+               + get_c_air() * get_rho_air() * v_out_vent_is_n * ss.theta_o_ns[n] \
                + q_gen_is_n + q_hum_is_n \
                + ss.c_h_frt_is * (ss.c_cap_h_frt_is * c_n.theta_frnt_is_n + ss.q_sol_frnt_is_ns[:, n].reshape(-1, 1) * 900.0) / (ss.c_cap_h_frt_is + 900.0 * ss.c_h_frt_is)
 
@@ -268,7 +268,7 @@ def run_tick(theta_o_n: float, x_o_n: float, n: int, ss: PreCalcParameters, c_n:
     # ステップnの室iにおける係数 brxc_pre, [i, 1]
     brxc_pre_is = get_rho_air() * (
             ss.v_room_is / 900 * c_n.x_r_is_n
-            + v_out_vent_is_n * x_o_n
+            + v_out_vent_is_n * ss.x_o_ns[n]
             + np.dot(ss.v_int_vent_is_is, c_n.x_r_is_n)
     ) + ss.c_cap_w_frt_is * ss.c_w_frt_is / (ss.c_cap_w_frt_is + 900 * ss.c_w_frt_is) * c_n.x_frnt_is_n + (x_gen_is_n + x_hum_is_n)
 
