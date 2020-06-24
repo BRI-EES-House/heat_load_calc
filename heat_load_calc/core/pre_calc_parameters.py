@@ -61,7 +61,8 @@ class PreCalcParameters:
             wsc_js_ns,
             k_ei_js_js,
             theta_o_ns,
-            x_o_ns
+            x_o_ns,
+            theta_o_ave
     ):
 
         # region 室に関すること
@@ -212,6 +213,9 @@ class PreCalcParameters:
 
         # ステップnの外気絶対湿度, kg/kg(DA), [n]
         self.x_o_ns = x_o_ns
+
+        # 年平均外気温度, degree C
+        self.theta_o_ave = theta_o_ave
 
 
 def make_pre_calc_parameters():
@@ -541,6 +545,10 @@ def make_pre_calc_parameters():
         + np.dot(p_is_js, (p_js_is - wsr_js_is) * a_srf_js * h_c_js)\
         + np.diag((c_cap_h_frt_is * c_h_frt_is / (c_cap_h_frt_is + c_h_frt_is * 900.0)).flatten())
 
+    # 年平均外気温度, degree C
+    # 地盤計算の時の深部温度に用いる
+    theta_o_ave = np.average(theta_o_ns)
+
     # endregion
 
     def get_vac_xeout_is(lcs_is_n, theta_r_is_npls, operation_mode_is_n):
@@ -607,7 +615,8 @@ def make_pre_calc_parameters():
         wsc_js_ns=wsc_js_ns,
         k_ei_js_js=k_ei_js_js,
         theta_o_ns=theta_o_ns,
-        x_o_ns=x_o_ns
+        x_o_ns=x_o_ns,
+        theta_o_ave=theta_o_ave
     )
 
     return pre_calc_parameters
