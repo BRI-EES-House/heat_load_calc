@@ -21,6 +21,7 @@ from heat_load_calc.core.conditions import Conditions
 from heat_load_calc.core.log import Logger
 from heat_load_calc.core import log
 from heat_load_calc.core import core
+from heat_load_calc.core import sequence
 
 # 熱負荷計算の実行
 def calc_heat_load(d: Dict):
@@ -62,7 +63,7 @@ def calc_heat_load(d: Dict):
     # 助走計算1(土壌のみ)
     print('助走計算1（土壌のみ）')
     for n in range(-n_step_run_up, -n_step_run_up_build):
-        conditions_n = simulator.run_tick_groundonly(
+        conditions_n = sequence.run_tick_groundonly(
             c_n=conditions_n,
             ss=spaces2,
             n=n
@@ -71,7 +72,7 @@ def calc_heat_load(d: Dict):
     # 助走計算2(室温、熱負荷)
     print('助走計算1（建物全体）')
     for n in range(-n_step_run_up_build, 0):
-        conditions_n = simulator.run_tick(
+        conditions_n = sequence.run_tick(
             n=n,
             ss=spaces2,
             c_n=conditions_n,
@@ -81,7 +82,7 @@ def calc_heat_load(d: Dict):
     # 本計算(室温、熱負荷)
     print('本計算')
     for n in range(0, n_step_main):
-        conditions_n = simulator.run_tick(
+        conditions_n = sequence.run_tick(
             n=n,
             ss=spaces2,
             c_n=conditions_n,
