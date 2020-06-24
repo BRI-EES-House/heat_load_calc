@@ -92,6 +92,8 @@ class Logger:
 
     def pre_logging(self, ss: PreCalcParameters):
 
+        self.theta_o = ss.theta_o_ns
+        self.x_o = ss.x_o_ns
         self.ac_demand = ss.ac_demand_is_ns
         self.q_trs_sol = ss.q_trs_sol_is_ns
         self.q_gen = ss.q_gen_is_ns
@@ -119,14 +121,14 @@ class Logger:
         self.qr = ss.h_r_js * ss.a_srf_js * (np.dot(np.dot(ss.p_js_is, ss.f_mrt_is_js), self.theta_s) - self.theta_s)
 
 
-def record(theta_o_ns: np.ndarray, x_o_ns: np.ndarray, pps: PreCalcParameters, logger: Logger):
+def record(pps: PreCalcParameters, logger: Logger):
 
     date_index_15min = pd.date_range(start='1/1/1989', periods=365*96, freq='15min')
 
     dd = pd.DataFrame(index=date_index_15min)
 
-    dd['外気温度[℃]'] = theta_o_ns
-    dd['外気絶対湿度[kg/kg(DA)]'] = x_o_ns
+    dd['外気温度[℃]'] = logger.theta_o
+    dd['外気絶対湿度[kg/kg(DA)]'] = logger.x_o
 
     for i in range(pps.number_of_spaces):
 

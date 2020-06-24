@@ -104,7 +104,7 @@ def calc_heat_load(d: Dict):
 
     print('ログ作成')
 
-    log.record(theta_o_ns=theta_o_ns, x_o_ns=x_o_ns, pps=spaces2, logger=logger)
+    log.record(pps=spaces2, logger=logger)
 
 
 def run():
