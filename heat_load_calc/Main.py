@@ -7,7 +7,6 @@ import pandas as pd
 
 import x_04_weather as x_04
 import x_05_solar_position as x_05
-import x_17_calculation_period as x_17
 
 from s3_space_initializer import make_house
 import s3_simulator as simulator
@@ -21,6 +20,7 @@ from heat_load_calc.core.conditions import Conditions
 
 from heat_load_calc.core.log import Logger
 from heat_load_calc.core import log
+from heat_load_calc.core import core
 
 # 熱負荷計算の実行
 def calc_heat_load(d: Dict):
@@ -32,15 +32,6 @@ def calc_heat_load(d: Dict):
     Returns:
 
     """
-
-    # 本計算のステップ数
-    n_step_main = x_17.get_n_step_main()
-
-    # 助走計算のステップ数
-    n_step_run_up = x_17.get_n_step_run_up()
-
-    # 助走計算の日数のうち建物全体を解く日数, d
-    n_step_run_up_build = x_17.get_n_step_run_up_build()
 
     # 地域の区分
     region = d['common']['region']
@@ -61,23 +52,20 @@ def calc_heat_load(d: Dict):
     # スペースの読み取り
     make_house(d=d, i_dn_ns=i_dn_ns, i_sky_ns=i_sky_ns, r_n_ns=r_n_ns, theta_o_ns=theta_o_ns, h_sun_ns=h_sun_ns, a_sun_ns=a_sun_ns, x_o_ns=x_o_ns)
 
-    spaces2 = pre_calc_parameters.make_pre_calc_parameters()
+    n_step_main, n_step_run_up, n_step_run_up_build, spaces2, conditions_n, logger = core.calc()
 
-    conditions_n = conditions.initialize_conditions(ss=spaces2)
+#    conditions_n = conditions.initialize_conditions(ss=spaces2)
 
-    logger = Logger(n_spaces=spaces2.number_of_spaces, n_bdrys=spaces2.total_number_of_bdry)
-    logger.pre_logging(spaces2)
+#    logger = Logger(n_spaces=spaces2.number_of_spaces, n_bdrys=spaces2.total_number_of_bdry)
+#    logger.pre_logging(spaces2)
 
     # 助走計算1(土壌のみ)
     print('助走計算1（土壌のみ）')
-    Tave = a37.get_a0(theta_o_ns)
-
     for n in range(-n_step_run_up, -n_step_run_up_build):
         conditions_n = simulator.run_tick_groundonly(
-            To_n=theta_o_ns[n],
-            Tave=Tave,
             c_n=conditions_n,
-            ss=spaces2
+            ss=spaces2,
+            n=n
         )
 
     # 助走計算2(室温、熱負荷)

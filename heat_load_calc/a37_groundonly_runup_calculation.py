@@ -22,11 +22,6 @@ def get_To_d_bar(a0, a1, b1):
     return To_d_bar
 
 
-def get_a0(To_n):
-    a0 = np.average(To_n)
-    return a0
-
-
 def get_a1(To_n):
     n = np.arange(1, 8761)
     a1 = np.average(To_n * np.cos(2 * math.pi * n / 8760))

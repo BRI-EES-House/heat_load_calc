@@ -15,7 +15,7 @@ from heat_load_calc.core.log import Logger
 
 
 # 地盤の計算
-def run_tick_groundonly(To_n: float, Tave: float, c_n: Conditions, ss: PreCalcParameters):
+def run_tick_groundonly(c_n: Conditions, ss: PreCalcParameters, n: int):
 
     theta_dsh_srf_a_jstrs_n_ms = c_n.theta_dsh_srf_a_js_ms_n
     q_srf_jstrs_n = c_n.q_srf_js_n.flatten()
@@ -34,11 +34,11 @@ def run_tick_groundonly(To_n: float, Tave: float, c_n: Conditions, ss: PreCalcPa
 
     theta_dsh_srf_a_jstrs_n_ms[gs, :] = theta_srf_dsh_a_is_jstrs_npls_ms
 
-    Ts_is_k_n = (ss.phi_a0_js.flatten()[gs] * h_i_bnd_jstrs[gs] * To_n
+    Ts_is_k_n = (ss.phi_a0_js.flatten()[gs] * h_i_bnd_jstrs[gs] * ss.theta_o_ns[n]
                  + np.sum(theta_srf_dsh_a_is_jstrs_npls_ms, axis=1) + ss.theta_o_ave) \
                / (1.0 + ss.phi_a0_js.flatten()[gs] * h_i_bnd_jstrs[gs])
 
-    q_srf_jstrs_n[gs] = h_i_bnd_jstrs[gs] * (To_n - Ts_is_k_n)
+    q_srf_jstrs_n[gs] = h_i_bnd_jstrs[gs] * (ss.theta_o_ns[n] - Ts_is_k_n)
 
     return Conditions(
         operation_mode_is_n=c_n.operation_mode_is_n,
