@@ -58,7 +58,7 @@ def run_tick_groundonly(To_n: float, Tave: float, c_n: Conditions, ss: PreCalcPa
 
 
 # 室温、熱負荷の計算
-def run_tick(theta_o_n: float, x_o_n: float, n: int, ss: PreCalcParameters, c_n: Conditions, logger: Logger):
+def run_tick(n: int, ss: PreCalcParameters, c_n: Conditions, logger: Logger):
     """
 
     Args:
