@@ -5,8 +5,8 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
 
-import x_35_occupants as occupants
-from a39_global_parameters import OperationMode
+import heat_load_calc.x_35_occupants as occupants
+from heat_load_calc.core.operation_mode import OperationMode
 
 
 # グラフ作成用辞書の取得

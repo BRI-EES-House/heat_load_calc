@@ -1,6 +1,6 @@
 import numpy as np
 
-import x_35_occupants as x_35
+import heat_load_calc.x_35_occupants as x_35
 
 from heat_load_calc.core.operation_mode import OperationMode
 from heat_load_calc.core.pre_calc_parameters import PreCalcParameters
