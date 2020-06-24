@@ -2,10 +2,10 @@ from typing import Dict
 import json
 import time
 
-import x_04_weather as x_04
-import x_05_solar_position as x_05
+import heat_load_calc.x_04_weather as x_04
+import heat_load_calc.x_05_solar_position as x_05
 
-from s3_space_initializer import make_house
+from heat_load_calc.s3_space_initializer import make_house
 
 from heat_load_calc.core import core
 
