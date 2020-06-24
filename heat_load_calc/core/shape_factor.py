@@ -32,6 +32,13 @@ def get_h_r_js(a_srf_js, p_js_is):
     return hr_i_k_n.reshape(-1, 1)
 
 
+def get_f_mrt_is_js(a_srf_js, h_r_js, p_is_js):
+
+    ah = a_srf_js * h_r_js
+
+    return p_is_js * ah.T / np.dot(p_is_js, ah)
+
+
 def calc_form_factor_of_microbodies(area_i_js):
     """
     微小体に対する部位の形態係数の計算
