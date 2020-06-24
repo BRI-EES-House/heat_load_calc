@@ -1,13 +1,12 @@
 import numpy as np
 
-import heat_load_calc.x_35_occupants as x_35
-
 from heat_load_calc.core.operation_mode import OperationMode
 from heat_load_calc.core.pre_calc_parameters import PreCalcParameters
 from heat_load_calc.core.conditions import Conditions
 from heat_load_calc.external.global_number import get_c_air, get_rho_air, get_l_wtr
 from heat_load_calc.core.log import Logger
 from heat_load_calc.core import next_condition
+from heat_load_calc.core import occupants
 
 
 # 地盤の計算
@@ -125,7 +124,7 @@ def run_tick(n: int, ss: PreCalcParameters, c_n: Conditions, logger: Logger):
     #     ステップnの室iにおける運転モード, [i, 1]
     #     ステップnの室iにおけるClo値, [i, 1]
     #     ステップnの室iにおける目標作用温度, degree C, [i, 1]
-    h_hum_is_n, h_hum_c_is_n, h_hum_r_is_n, operation_mode_is_n, clo_is_n, theta_ot_target_is_n = x_35.calc_operation(
+    h_hum_is_n, h_hum_c_is_n, h_hum_r_is_n, operation_mode_is_n, clo_is_n, theta_ot_target_is_n = occupants.calc_operation(
         x_r_is_n=c_n.x_r_is_n,
         operation_mode_is_n_mns=c_n.operation_mode_is_n,
         is_radiative_heating_is=ss.is_radiative_heating_is,
@@ -140,13 +139,13 @@ def run_tick(n: int, ss: PreCalcParameters, c_n: Conditions, logger: Logger):
     theta_rear_js_n = np.dot(ss.k_ei_js_js, c_n.theta_ei_js_n) + theta_dstrb_js_n
 
     # ステップnの室iにおける1人あたりの人体発熱, W, [i, 1]
-    q_hum_psn_is_n = x_35.get_q_hum_psn_is_n(theta_r_is_n=c_n.theta_r_is_n)
+    q_hum_psn_is_n = occupants.get_q_hum_psn_is_n(theta_r_is_n=c_n.theta_r_is_n)
 
     # ステップnの室iにおける人体発熱, W, [i, 1]
     q_hum_is_n = q_hum_psn_is_n * n_hum_is_n
 
     # ステップnの室iにおける1人あたりの人体発湿, kg/s, [i, 1]
-    x_hum_psn_is_n = x_35.get_x_hum_psn_is_n(theta_r_is_n=c_n.theta_r_is_n)
+    x_hum_psn_is_n = occupants.get_x_hum_psn_is_n(theta_r_is_n=c_n.theta_r_is_n)
 
     # ステップnの室iにおける人体発湿, kg/s, [i, 1]
     x_hum_is_n = x_hum_psn_is_n * n_hum_is_n
@@ -299,11 +298,11 @@ def run_tick(n: int, ss: PreCalcParameters, c_n: Conditions, logger: Logger):
     x_r_is_n_pls = np.where(Ghum_base > 0.0, brxc_pre_is.flatten() / brmx_pre_is.flatten(), xr_base)
 
     # 除湿量から室加湿熱量を計算 式(21)
-    Lcl_i_n = get_Lcl(Ghum_is_n)
+    Lcl_i_n = Ghum_is_n * get_l_wtr()
 
     # 当面は放射空調の潜熱は0
     # TODO: 配列にすること
-    Lrl_is_n = get_Lrl()
+    Lrl_is_n = 0.0
 
     # ステップn+1の室iにおける飽和水蒸気圧, Pa
 #    p_vs_is_n_pls = psy.get_p_vs_is(theta_r_is_n_pls)
@@ -323,7 +322,7 @@ def run_tick(n: int, ss: PreCalcParameters, c_n: Conditions, logger: Logger):
     Qfunl_i_n = ss.c_w_frt_is.flatten() * (x_r_is_n_pls - xf_i_n)
 
     # ステップnにおける室iの在室者の着衣温度, degree C, [i]
-    theta_cl_is_n_pls = x_35.get_theta_cl_is_n(clo_is_n=clo_is_n.flatten(), theta_ot_is_n=theta_ot_is_npls.flatten(), h_hum_is_n=h_hum_is_n.flatten())
+    theta_cl_is_n_pls = occupants.get_theta_cl_is_n(clo_is_n=clo_is_n.flatten(), theta_ot_is_n=theta_ot_is_npls.flatten(), h_hum_is_n=h_hum_is_n.flatten())
 
     logger.operation_mode[:, n] = operation_mode_is_n.flatten()
     logger.theta_r[:, n] = theta_r_is_n_pls.flatten()
@@ -356,25 +355,4 @@ def run_tick(n: int, ss: PreCalcParameters, c_n: Conditions, logger: Logger):
         theta_cl_is_n=theta_cl_is_n_pls.reshape(-1, 1),
         theta_ei_js_n=theta_ei_js_npls
     )
-
-
-# ASTの計算
-def get_AST(area, Ts, Atotal):
-    return np.sum(area * Ts / Atotal)
-
-
-# 当面は放射空調の潜熱は0
-def get_Lrl():
-    return 0.0
-
-
-# 除湿量から室加湿熱量を計算 式(21)
-def get_Lcl(Ghum: float):
-    """除湿量から室加湿熱量を計算
-
-    :param Ghum: i室のn時点における除湿量 [ks/s]
-    :return:
-    """
-    conra = get_l_wtr()
-    return Ghum * conra
 
