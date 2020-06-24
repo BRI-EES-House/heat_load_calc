@@ -1,13 +1,3 @@
-import numpy as np
-
-
-# *********** 4.2 潜熱 **********
-
-# 湿気容量の項
-def get_temp(g_f_is, c_x_is):
-    temp = g_f_is * c_x_is / (g_f_is + 900 * c_x_is)
-    return temp
-
 
 # 室絶対湿度の計算 式(16)
 def get_xr(BRXC_i, BRMX_i):

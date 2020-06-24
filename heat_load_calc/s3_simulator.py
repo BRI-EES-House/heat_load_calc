@@ -1,6 +1,6 @@
 import numpy as np
 
-import s4_2_latent_heat as s42
+import heat_load_calc.s4_2_latent_heat as s42
 
 import a1_calculation_surface_temperature as a1
 import x_35_occupants as x_35
