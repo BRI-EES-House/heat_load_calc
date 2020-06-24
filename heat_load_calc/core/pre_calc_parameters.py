@@ -4,7 +4,7 @@ import csv
 
 from heat_load_calc.external.global_number import get_c_air, get_rho_air
 from heat_load_calc.core import shape_factor
-import heat_load_calc.a16_blowing_condition_rac as a16
+from heat_load_calc.core import heat_exchanger
 
 
 class PreCalcParameters:
@@ -532,7 +532,7 @@ def make_pre_calc_parameters():
 
         for lcs_i_n, theta_r_i_npls, operation_mode_i_n, Vmin_i, Vmax_i, qmin_c_i, qmax_c_i \
             in zip(lcs_is_n, theta_r_is_npls, operation_mode_is_n, Vmin_is, Vmax_is, qmin_c_is, qmax_c_is):
-            Vac_n_i, xeout_i_n = a16.calcVac_xeout(Lcs=lcs_i_n, Vmin=Vmin_i, Vmax=Vmax_i, qmin_c=qmin_c_i, qmax_c=qmax_c_i, Tr=theta_r_i_npls, operation_mode=operation_mode_i_n)
+            Vac_n_i, xeout_i_n = heat_exchanger.calcVac_xeout(Lcs=lcs_i_n, Vmin=Vmin_i, Vmax=Vmax_i, qmin_c=qmin_c_i, qmax_c=qmax_c_i, Tr=theta_r_i_npls, operation_mode=operation_mode_i_n)
             vac_is_n.append(Vac_n_i)
             xeout_is_n.append(xeout_i_n)
 

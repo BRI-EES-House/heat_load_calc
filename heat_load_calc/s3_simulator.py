@@ -5,7 +5,6 @@ import s4_1_sensible_heat as s41
 import s4_2_latent_heat as s42
 
 import a1_calculation_surface_temperature as a1
-import a16_blowing_condition_rac as a16
 import x_35_occupants as x_35
 from a33_results_exporting import Logger
 from heat_load_calc.core.operation_mode import OperationMode
