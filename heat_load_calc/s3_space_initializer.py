@@ -700,15 +700,18 @@ def make_pre_calc_parameters():
     # ステップnの室iにおける機械換気量（全般換気量+局所換気量）, m3/s, [i, n]
     v_mec_vent_is_ns = v_vent_ex_is[:, np.newaxis] + v_mec_vent_local_is_ns
 
+    # 室内侵入日射のうち家具に吸収される割合
+    r_sol_fnt = 0.5
+
     # ステップnの室iにおける家具の吸収日射量, W, [i, n]
-    q_sol_frnt_is_ns = q_trs_sol_is_ns * a12.get_r_sol_frnt()
+    q_sol_frnt_is_ns = q_trs_sol_is_ns * r_sol_fnt
 
     # 室iにおける日射が吸収される境界の面積の合計, m2, [i, 1]
     a_srf_abs_is = np.dot(p_is_js, a_srf_js * is_solar_abs_js)
 
     # ステップnの境界jにおける透過日射吸収熱量, W/m2, [j, n]
     q_sol_js_ns = np.dot(p_js_is, q_trs_sol_is_ns / a_srf_abs_is)\
-        * is_solar_abs_js * (1.0 - a12.get_r_sol_frnt())
+        * is_solar_abs_js * (1.0 - r_sol_fnt)
 
     # ステップnの境界jにおける外気側等価温度の外乱成分, ℃, [j, n]
     theta_dstrb_js_ns = theta_o_sol_js_ns * k_eo_js
