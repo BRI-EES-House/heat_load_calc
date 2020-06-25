@@ -5,7 +5,7 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
 
-import heat_load_calc.x_35_occupants as occupants
+from heat_load_calc.core import occupants
 from heat_load_calc.core.operation_mode import OperationMode
 
 
