@@ -4,7 +4,7 @@
 import math
 import numpy as np
 
-import x_36_region_location as x_36
+import heat_load_calc.x_36_region_location as x_36
 
 
 def calc_solar_position(region: int) -> (np.ndarray, np.ndarray):

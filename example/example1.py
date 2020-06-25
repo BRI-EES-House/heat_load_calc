@@ -4,14 +4,12 @@ import time
 
 import heat_load_calc.x_04_weather as x_04
 import heat_load_calc.x_05_solar_position as x_05
-
 from heat_load_calc.s3_space_initializer import make_house
-
 from heat_load_calc.core import core
 
-# 熱負荷計算の実行
+
 def calc_heat_load(d: Dict):
-    """
+    """熱負荷計算の実行
 
     Args:
         d: 入力情報（辞書形式）
@@ -37,23 +35,19 @@ def calc_heat_load(d: Dict):
     h_sun_ns, a_sun_ns = x_05.calc_solar_position(region=region)
 
     # スペースの読み取り
-    make_house(d=d, i_dn_ns=i_dn_ns, i_sky_ns=i_sky_ns, r_n_ns=r_n_ns, theta_o_ns=theta_o_ns, h_sun_ns=h_sun_ns, a_sun_ns=a_sun_ns, x_o_ns=x_o_ns)
+    make_house(
+        d=d, i_dn_ns=i_dn_ns, i_sky_ns=i_sky_ns, r_n_ns=r_n_ns, theta_o_ns=theta_o_ns, h_sun_ns=h_sun_ns, a_sun_ns=a_sun_ns, x_o_ns=x_o_ns,
+        data_directory='data_example1')
 
-    core.calc()
+    core.calc(input_data_dir='data_example1', output_data_dir='data_example1', show_detail_result=False)
 
 
 def run():
 
-    # js = open('1RCase1_最初の外壁削除.json', 'r', encoding='utf-8')
-    # js = open('input_non_residential.json', 'r', encoding='utf-8')
-    js = open('input_residential.json', 'r', encoding='utf-8')
-    # js = open('input_residential_include_ground.json', 'r', encoding='utf-8')
+    js = open('data_example1/input_residential.json', 'r', encoding='utf-8')
 
-    # js = open('input_simple_residential.json', 'r', encoding='utf-8')
-    # js = open('検証用.json', 'r', encoding='utf-8')
     d_json = json.load(js)
 
-    # 熱負荷計算の実行
     calc_heat_load(d=d_json)
 
 

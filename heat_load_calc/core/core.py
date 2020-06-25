@@ -5,7 +5,7 @@ from heat_load_calc.core import log
 from heat_load_calc.core import sequence
 
 
-def calc():
+def calc(input_data_dir: str, output_data_dir: str, show_detail_result: bool):
 
     # 本計算のステップ数
     n_step_main = period.get_n_step_main()
@@ -18,7 +18,7 @@ def calc():
 
     # json, csv ファイルからパラメータをロードする。
     # （ループ計算する必要の無い）事前計算を行い, クラス PreCalcParameters に必要な変数を格納する。
-    pps = pre_calc_parameters.make_pre_calc_parameters()
+    pps = pre_calc_parameters.make_pre_calc_parameters(data_directory=input_data_dir)
 
     c_n = conditions.initialize_conditions(ss=pps)
 
@@ -41,4 +41,4 @@ def calc():
 
     print('ログ作成')
 
-    log.record(pps=pps, logger=logger)
+    log.record(pps=pps, logger=logger, output_data_dir=output_data_dir, show_detail_result=show_detail_result)

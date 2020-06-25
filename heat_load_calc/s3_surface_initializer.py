@@ -2,20 +2,19 @@ from collections import namedtuple
 from typing import List
 import numpy as np
 
-import a2_response_factor as a2
-import a9_rear_surface_equivalent_temperature as a9
-import a11_opening_transmission_solar_radiation as a11
-import a23_surface_heat_transfer_coefficient as a23
-import a34_building_part_summarize as a34
-from a2_response_factor import ResponseFactor
+import heat_load_calc.a2_response_factor as a2
+import heat_load_calc.a9_rear_surface_equivalent_temperature as a9
+import heat_load_calc.a11_opening_transmission_solar_radiation as a11
+import heat_load_calc.a23_surface_heat_transfer_coefficient as a23
+import heat_load_calc.a34_building_part_summarize as a34
+from heat_load_calc.s3_surface_loader import Boundary
+from heat_load_calc.s3_surface_loader import InternalPartSpec
+from heat_load_calc.s3_surface_loader import GeneralPartSpec
+from heat_load_calc.s3_surface_loader import TransparentOpeningPartSpec
+from heat_load_calc.s3_surface_loader import OpaqueOpeningPartSpec
+from heat_load_calc.s3_surface_loader import GroundSpec
+from heat_load_calc.a39_global_parameters import BoundaryType
 
-from s3_surface_loader import Boundary
-from s3_surface_loader import InternalPartSpec
-from s3_surface_loader import GeneralPartSpec
-from s3_surface_loader import TransparentOpeningPartSpec
-from s3_surface_loader import OpaqueOpeningPartSpec
-from s3_surface_loader import GroundSpec
-from a39_global_parameters import BoundaryType
 
 IntegratedBoundaries = namedtuple('IntegratedBoundaries', [
     'name_i_jstrs',

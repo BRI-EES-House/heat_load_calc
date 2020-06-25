@@ -3,34 +3,19 @@ from typing import Dict, List
 import json
 import csv
 
-import a9_rear_surface_equivalent_temperature as a9
 import heat_load_calc.a12_indoor_radiative_heat_transfer as a12
-import a14_furniture as a14
-import a15_air_flow_rate_rac as a15
-import a20_room_spec as a20
-import a21_next_vent_spec as a21
-import a22_radiative_heating_spec as a22
-import a23_surface_heat_transfer_coefficient as a23
-import a34_building_part_summarize as a34
-import a38_schedule as a38
-from a39_global_parameters import SpaceType
-from a39_global_parameters import BoundaryType
-from heat_load_calc.core import shape_factor
-
-import a39_global_parameters as a39
-
-from s3_surface_loader import Boundary
-import s3_surface_initializer as s3
-from s3_surface_initializer import IntegratedBoundaries
-import s3_space_loader as s3sl
-import s3_surface_loader
-
-import x_35_occupants as x35
-from heat_load_calc.core.pre_calc_parameters import PreCalcParameters
-from heat_load_calc.external.global_number import get_c_air, get_rho_air
+import heat_load_calc.a14_furniture as a14
+import heat_load_calc.a15_air_flow_rate_rac as a15
+import heat_load_calc.a22_radiative_heating_spec as a22
+import heat_load_calc.a38_schedule as a38
+from heat_load_calc.a39_global_parameters import SpaceType
+from heat_load_calc.a39_global_parameters import BoundaryType
+import heat_load_calc.s3_surface_initializer as s3
+import heat_load_calc.x_35_occupants as x35
+import heat_load_calc.s3_surface_loader as s3_loader
 
 
-def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns, x_o_ns):
+def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns, x_o_ns, data_directory):
 
     rooms = d['rooms']
 
@@ -84,7 +69,7 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns, x_o
     c_x_is = a14.get_c_x_is(g_f_is)
 
     # 室iの境界k,　boundaryクラスのリスト, [i, k]
-    d_bdry_is_ks = [s3_surface_loader.read_d_boundary_i_ks(input_dict_boundaries=r['boundaries']) for r in rooms]
+    d_bdry_is_ks = [s3_loader.read_d_boundary_i_ks(input_dict_boundaries=r['boundaries']) for r in rooms]
 
     # 室iの統合された境界j*, IntegratedBoundaryクラス, [j*]
     ibs = [s3.init_surface(
@@ -377,56 +362,56 @@ def make_house(d, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, h_sun_ns, a_sun_ns, x_o
         'boundaries': bdrs
     }
 
-    with open('mid_data_house.json', 'w') as f:
+    with open(data_directory + '\\mid_data_house.json', 'w') as f:
         json.dump(wd, f, indent=4)
 
     # ステップnにおける外気温度, degree C, [i, 8760*4]
-    with open('mid_data_outside_temp.csv', 'w') as f:
+    with open(data_directory + '\\mid_data_outside_temp.csv', 'w') as f:
         w = csv.writer(f, lineterminator='\n')
         w.writerows(theta_o_ns.reshape(-1, 1).tolist())
 
     # ステップnにおける外気絶対湿度, kg/kg(DA), [i, 8760*4]
-    with open('mid_data_outside_abs_humidity.csv', 'w') as f:
+    with open(data_directory + '\\mid_data_outside_abs_humidity.csv', 'w') as f:
         w = csv.writer(f, lineterminator='\n')
         w.writerows(x_o_ns.reshape(-1, 1).tolist())
 
     # ステップnの室iにおける局所換気量, m3/s, [i, 8760*4]
-    with open('mid_data_local_vent.csv', 'w') as f:
+    with open(data_directory + '\\mid_data_local_vent.csv', 'w') as f:
         w = csv.writer(f, lineterminator='\n')
         w.writerows((v_mec_vent_local_is_ns / 3600.0).T.tolist())
 
     # ステップnの室iにおける内部発熱, W, [8760*4]
-    with open('mid_data_heat_generation.csv', 'w') as f:
+    with open(data_directory + '\\mid_data_heat_generation.csv', 'w') as f:
         w = csv.writer(f, lineterminator='\n')
         w.writerows(q_gen_is_ns.T.tolist())
 
     # ステップnの室iにおける人体発湿を除く内部発湿, kg/s, [8760*4]
-    with open('mid_data_moisture_generation.csv', 'w') as f:
+    with open(data_directory + '\\mid_data_moisture_generation.csv', 'w') as f:
         w = csv.writer(f, lineterminator='\n')
         w.writerows(x_gen_is_ns.T.tolist())
 
     # ステップnの室iにおける在室人数, [8760*4]
-    with open('mid_data_occupants.csv', 'w') as f:
+    with open(data_directory + '\\mid_data_occupants.csv', 'w') as f:
         w = csv.writer(f, lineterminator='\n')
         w.writerows(n_hum_is_ns.T.tolist())
 
     # ステップnの室iにおける空調需要, [8760*4]
-    with open('mid_data_ac_demand.csv', 'w') as f:
+    with open(data_directory + '\\mid_data_ac_demand.csv', 'w') as f:
         w = csv.writer(f, lineterminator='\n')
         w.writerows(ac_demand_is_ns.T.tolist())
 
     # ステップnの室iにおける窓の透過日射熱取得, W, [8760*4]
-    with open('mid_data_q_trs_sol.csv', 'w') as f:
+    with open(data_directory + '\\mid_data_q_trs_sol.csv', 'w') as f:
         w = csv.writer(f, lineterminator='\n')
         w.writerows(q_trs_sol_is_ns.T.tolist())
 
     # ステップnの室iにおける窓の透過日射熱取得, W, [8760*4]
-    with open('mid_data_q_trs_sol.csv', 'w') as f:
+    with open(data_directory + '\\mid_data_q_trs_sol.csv', 'w') as f:
         w = csv.writer(f, lineterminator='\n')
         w.writerows(q_trs_sol_is_ns.T.tolist())
 
     # ステップnの境界jにおける裏面等価温度, ℃, [j, 8760*4]
-    with open('mid_data_theta_o_sol.csv', 'w') as f:
+    with open(data_directory + '\\mid_data_theta_o_sol.csv', 'w') as f:
         w = csv.writer(f, lineterminator='\n')
         w.writerows(theta_o_sol_js_ns.T.tolist())
 

@@ -3,7 +3,7 @@
 # そのデータを15分間隔のデータに補間する方法について説明する。
 
 import numpy as np
-
+import os
 
 def load_weather_data(region: int) -> (np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray):
     """
@@ -25,7 +25,7 @@ def load_weather_data(region: int) -> (np.ndarray, np.ndarray, np.ndarray, np.nd
     weather_data_filename = get_filename(region)
 
     # ファイル読み込み
-    path_and_filename = "weather_data\\" + weather_data_filename
+    path_and_filename = str(os.path.dirname(__file__)) + '\\weather_data\\' + weather_data_filename
     data = np.loadtxt(path_and_filename, delimiter=",", skiprows=2, usecols=(2, 3, 4, 5, 6), encoding="utf-8")
 
     # 扱いにくいので転地（列：項目・行：時刻　→　列：時刻・行：項目

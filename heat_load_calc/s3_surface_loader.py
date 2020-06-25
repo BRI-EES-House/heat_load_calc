@@ -1,7 +1,7 @@
 from collections import namedtuple
 from typing import Dict, List
 
-from a39_global_parameters import BoundaryType
+from heat_load_calc.a39_global_parameters import BoundaryType
 
 Boundary = namedtuple('Boundary', [
     'name',

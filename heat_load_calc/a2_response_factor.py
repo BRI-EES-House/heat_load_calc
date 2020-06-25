@@ -2,15 +2,15 @@ import math
 import numpy as np
 from typing import List
 
-import a25_window as a25
+import heat_load_calc.a25_window as a25
 
-from s3_surface_loader import Boundary
-from s3_surface_loader import InternalPartSpec
-from s3_surface_loader import GeneralPartSpec
-from s3_surface_loader import TransparentOpeningPartSpec
-from s3_surface_loader import OpaqueOpeningPartSpec
-from s3_surface_loader import GroundSpec
-from a39_global_parameters import BoundaryType
+from heat_load_calc.s3_surface_loader import Boundary
+from heat_load_calc.s3_surface_loader import InternalPartSpec
+from heat_load_calc.s3_surface_loader import GeneralPartSpec
+from heat_load_calc.s3_surface_loader import TransparentOpeningPartSpec
+from heat_load_calc.s3_surface_loader import OpaqueOpeningPartSpec
+from heat_load_calc.s3_surface_loader import GroundSpec
+from heat_load_calc.a39_global_parameters import BoundaryType
 
 """
 付録2．応答係数の初項、指数項別応答係数、公比の計算

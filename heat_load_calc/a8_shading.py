@@ -1,6 +1,6 @@
 import numpy as np
 
-import x_19_external_boundaries_direction as x_19
+import heat_load_calc.x_19_external_boundaries_direction as x_19
 
 
 """

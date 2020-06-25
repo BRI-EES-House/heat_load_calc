@@ -1,13 +1,13 @@
 import numpy as np
 from typing import List
 
-import x_07_inclined_surface_solar_radiation as x_07
-import x_19_external_boundaries_direction as x_19
+import heat_load_calc.x_07_inclined_surface_solar_radiation as x_07
+import heat_load_calc.x_19_external_boundaries_direction as x_19
 
-from apdx10_oblique_incidence_characteristics import get_taud_i_k_n
-import apdx10_oblique_incidence_characteristics as a10
-from s3_surface_loader import Boundary
-import a8_shading as a8
+from heat_load_calc.apdx10_oblique_incidence_characteristics import get_taud_i_k_n
+import heat_load_calc.apdx10_oblique_incidence_characteristics as a10
+from heat_load_calc.s3_surface_loader import Boundary
+import heat_load_calc.a8_shading as a8
 
 """
 付録11．窓の透過日射熱取得の計算
