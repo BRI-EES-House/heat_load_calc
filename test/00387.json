@@ -1,0 +1,348 @@
+{
+    "common": {
+        "region": 1,
+        "main_occupant_room_floor_area": 29.81,
+        "other_occupant_room_floor_area": 51.34,
+        "total_floor_area": 120.08,
+        "house_type": "detached"
+    },
+    "envelope": {
+        "input_method": "detail_without_room_usage",
+        "general_parts": [
+            {
+                "name": "GP1",
+                "general_part_type": "roof",
+                "next_space": "outdoor",
+                "direction": "top",
+                "area": 1,
+                "spec": {
+                    "structure": "wood",
+                    "u_value_input_method_wood": "u_value_directly",
+                    "u_value_wood": 1,
+                    "is_sunshade_input": true,
+                    "sunshade": {
+                        "existence": true,
+                        "input_method": "simple",
+                        "depth": 1,
+                        "d_h": 1,
+                        "d_e": 1
+                    }
+                }
+            },
+            {
+                "name": "GP2",
+                "general_part_type": "roof",
+                "next_space": "outdoor",
+                "direction": "top",
+                "area": 1,
+                "spec": {
+                    "structure": "wood",
+                    "u_value_input_method_wood": "u_value_directly",
+                    "u_value_wood": 1,
+                    "is_sunshade_input": true,
+                    "sunshade": {
+                        "existence": true,
+                        "input_method": "simple",
+                        "depth": 1,
+                        "d_h": 1,
+                        "d_e": 1
+                    }
+                }
+            },
+            {
+                "name": "GP3",
+                "general_part_type": "roof",
+                "next_space": "outdoor",
+                "direction": "top",
+                "area": 1,
+                "spec": {
+                    "structure": "wood",
+                    "u_value_input_method_wood": "u_value_directly",
+                    "u_value_wood": 1,
+                    "is_sunshade_input": true,
+                    "sunshade": {
+                        "existence": true,
+                        "input_method": "simple",
+                        "depth": 1,
+                        "d_h": 1,
+                        "d_e": 1
+                    }
+                }
+            }
+        ],
+        "windows": [
+            {
+                "name": "WND1",
+                "next_space": "outdoor",
+                "direction": "s",
+                "area": 1,
+                "spec": {
+                    "window_type": "single",
+                    "windows": [
+                        {
+                            "u_value_input_method": "u_value_directly",
+                            "u_vaue": 1,
+                            "eta_value_input_method": "eta_d_value_directly",
+                            "eta_d_value": 1,
+                            "glass_type": "single"
+                        }
+                    ],
+                    "attachment_type": "none",
+                    "is_windbreak_room_attached": true,
+                    "is_sunshade_input": true,
+                    "sunshade": {
+                        "existence": true,
+                        "input_method": "simple",
+                        "depth": 1,
+                        "d_h": 1,
+                        "d_e": 1
+                    }
+                }
+            },
+            {
+                "name": "WND2",
+                "next_space": "outdoor",
+                "direction": "s",
+                "area": 1,
+                "spec": {
+                    "window_type": "single",
+                    "windows": [
+                        {
+                            "u_value_input_method": "u_value_directly",
+                            "u_vaue": 1,
+                            "eta_value_input_method": "eta_d_value_directly",
+                            "eta_d_value": 1,
+                            "glass_type": "single"
+                        }
+                    ],
+                    "attachment_type": "none",
+                    "is_windbreak_room_attached": true,
+                    "is_sunshade_input": true,
+                    "sunshade": {
+                        "existence": true,
+                        "input_method": "simple",
+                        "depth": 1,
+                        "d_h": 1,
+                        "d_e": 1
+                    }
+                }
+            },
+            {
+                "name": "WND3",
+                "next_space": "outdoor",
+                "direction": "s",
+                "area": 1,
+                "spec": {
+                    "window_type": "single",
+                    "windows": [
+                        {
+                            "u_value_input_method": "u_value_directly",
+                            "u_vaue": 1,
+                            "eta_value_input_method": "eta_d_value_directly",
+                            "eta_d_value": 1,
+                            "glass_type": "single"
+                        }
+                    ],
+                    "attachment_type": "none",
+                    "is_windbreak_room_attached": true,
+                    "is_sunshade_input": true,
+                    "sunshade": {
+                        "existence": true,
+                        "input_method": "simple",
+                        "depth": 1,
+                        "d_h": 1,
+                        "d_e": 1
+                    }
+                }
+            }
+        ],
+        "doors": [
+            {
+                "name": "DR1",
+                "next_space": "outdoor",
+                "direction": "top",
+                "area": 1,
+                "spec": {
+                    "u_vaue": 1,
+                    "is_sunshade_input": true,
+                    "sunshade": {
+                        "existence": true,
+                        "input_method": "simple",
+                        "depth": 1,
+                        "d_h": 1,
+                        "d_e": 1
+                    }
+                }
+            },
+            {
+                "name": "DR2",
+                "next_space": "outdoor",
+                "direction": "top",
+                "area": 1,
+                "spec": {
+                    "u_vaue": 1,
+                    "is_sunshade_input": true,
+                    "sunshade": {
+                        "existence": true,
+                        "input_method": "simple",
+                        "depth": 1,
+                        "d_h": 1,
+                        "d_e": 1
+                    }
+                }
+            },
+            {
+                "name": "DR3",
+                "next_space": "outdoor",
+                "direction": "top",
+                "area": 1,
+                "spec": {
+                    "u_vaue": 1,
+                    "is_sunshade_input": true,
+                    "sunshade": {
+                        "existence": true,
+                        "input_method": "simple",
+                        "depth": 1,
+                        "d_h": 1,
+                        "d_e": 1
+                    }
+                }
+            }
+        ],
+        "earthfloor_perimeters": [
+            {
+                "name": "EFP1",
+                "next_space": "outdoor",
+                "length": 1,
+                "spec": {
+                    "psi_value": 1
+                }
+            },
+            {
+                "name": "EFP2",
+                "next_space": "outdoor",
+                "length": 1,
+                "spec": {
+                    "psi_value": 1
+                }
+            },
+            {
+                "name": "EFP3",
+                "next_space": "outdoor",
+                "length": 1,
+                "spec": {
+                    "psi_value": 1
+                }
+            }
+        ],
+        "earthfloor_centers": [
+            {
+                "name": "EFC1",
+                "area": 1,
+                "layers": {
+                    "is_layers_input": true,
+                    "layers": [
+                        {
+                            "name": "LYR1",
+                            "heat_resistance_input_method": "conductivity",
+                            "thermal_conductivity": 1,
+                            "thickness": 1,
+                            "volumetric_specific_heat": 1
+                        },
+                        {
+                            "name": "LYR2",
+                            "heat_resistance_input_method": "conductivity",
+                            "thermal_conductivity": 1,
+                            "thickness": 1,
+                            "volumetric_specific_heat": 1
+                        },
+                        {
+                            "name": "LYR3",
+                            "heat_resistance_input_method": "conductivity",
+                            "thermal_conductivity": 1,
+                            "thickness": 1,
+                            "volumetric_specific_heat": 1
+                        }
+                    ]
+                }
+            },
+            {
+                "name": "EFC2",
+                "area": 1,
+                "layers": {
+                    "is_layers_input": true,
+                    "layers": [
+                        {
+                            "name": "LYR1",
+                            "heat_resistance_input_method": "conductivity",
+                            "thermal_conductivity": 1,
+                            "thickness": 1,
+                            "volumetric_specific_heat": 1
+                        },
+                        {
+                            "name": "LYR2",
+                            "heat_resistance_input_method": "conductivity",
+                            "thermal_conductivity": 1,
+                            "thickness": 1,
+                            "volumetric_specific_heat": 1
+                        },
+                        {
+                            "name": "LYR3",
+                            "heat_resistance_input_method": "conductivity",
+                            "thermal_conductivity": 1,
+                            "thickness": 1,
+                            "volumetric_specific_heat": 1
+                        }
+                    ]
+                }
+            },
+            {
+                "name": "EFC3",
+                "area": 1,
+                "layers": {
+                    "is_layers_input": true,
+                    "layers": [
+                        {
+                            "name": "LYR1",
+                            "heat_resistance_input_method": "conductivity",
+                            "thermal_conductivity": 1,
+                            "thickness": 1,
+                            "volumetric_specific_heat": 1
+                        },
+                        {
+                            "name": "LYR2",
+                            "heat_resistance_input_method": "conductivity",
+                            "thermal_conductivity": 1,
+                            "thickness": 1,
+                            "volumetric_specific_heat": 1
+                        },
+                        {
+                            "name": "LYR3",
+                            "heat_resistance_input_method": "conductivity",
+                            "thermal_conductivity": 1,
+                            "thickness": 1,
+                            "volumetric_specific_heat": 1
+                        }
+                    ]
+                }
+            }
+        ]
+    },
+    "ventilation": {
+        "air_change_rate": 1
+    },
+    "natural_vent": {
+        "main_occupant_room_natural_vent_time": "0ACH",
+        "other_occupant_room_natural_vent_time": "0ACH"
+    },
+    "heating_equipment": {
+        "is_radiative_heating": false
+    },
+    "cooling_equipment": {
+        "is_radiative_cooling": false,
+        "convective_cooling": {
+            "heat_exchanger_type": "cooling"
+        }
+    },
+    "target_key": "direction"
+}
