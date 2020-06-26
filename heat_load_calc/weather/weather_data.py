@@ -66,7 +66,7 @@ def interpolate(weather_data: np.ndarray) -> np.ndarray:
     alpha = np.array([1.0, 0.75, 0.5, 0.25])
 
     # 補間元データ1, 補間元データ2
-    data1 = np.roll(weather_data, 1)     #0時=24時のため、1回分前のデータを参照
+    data1 = np.roll(weather_data, 1)     # 0時=24時のため、1回分前のデータを参照
     data2 = weather_data
 
     # 直線補完 8760×4 の2次元配列

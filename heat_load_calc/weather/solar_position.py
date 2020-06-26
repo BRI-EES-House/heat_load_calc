@@ -284,7 +284,8 @@ def get_a_sun_ns(omega_ns: np.ndarray, phi_loc: float, delta_ns: np.ndarray, h_s
     sin_a_sun_ns[f] = np.cos(delta_ns[f]) * np.sin(omega_ns[f]) / np.cos(h_sun_ns[f])
 
     # 太陽の方位角の余弦（太陽が天頂に無い場合のみ計算する）
-    cos_a_sun_ns[f] = (np.sin(h_sun_ns[f]) * np.sin(phi_loc) - np.sin(delta_ns[f])) / (np.cos(h_sun_ns[f]) * np.cos(phi_loc))
+    cos_a_sun_ns[f] = (np.sin(h_sun_ns[f]) * np.sin(phi_loc) - np.sin(delta_ns[f]))\
+        / (np.cos(h_sun_ns[f]) * np.cos(phi_loc))
 
     # 太陽の方位角, rad * 365 * 96（太陽が天頂に無い場合のみ計算する）
     # 太陽が天頂にある場合は最初に定義した「定義なし=np.nan」のままである。
