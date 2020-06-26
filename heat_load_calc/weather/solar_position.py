@@ -4,15 +4,14 @@
 import math
 import numpy as np
 
-import heat_load_calc.x_36_region_location as x_36
 
-
-def calc_solar_position(region: int) -> (np.ndarray, np.ndarray):
+def calc_solar_position(phi_loc: float, lambda_loc: float) -> (np.ndarray, np.ndarray):
     """
     太陽位置を計算する
 
     Args:
-        region: 地域の区分
+        phi_loc: 緯度, rad
+        lambda_loc: 経度, rad
 
     Returns:
         タプル
@@ -24,9 +23,6 @@ def calc_solar_position(region: int) -> (np.ndarray, np.ndarray):
     # arcsin は、単射ではありません。
     # ここでの計算方法は、求まる角度を 0～π としています。従って、先頭は大文字とし、Arcsin としてください。
     # arccos も同様に、求まる角度を -π/2～π/2 としています。従って、先頭は大文字とし、Arccos としてください。
-
-    # 緯度, rad & 経度, rad
-    phi_loc, lambda_loc = x_36.get_phi_loc_and_lambda_loc(region=region)
 
     # 標準子午線(meridian), rad
     lambda_loc_mer = get_lambda_loc_mer()
