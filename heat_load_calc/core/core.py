@@ -5,7 +5,7 @@ from heat_load_calc.core import log
 from heat_load_calc.core import sequence
 
 
-def calc(input_data_dir: str, output_data_dir: str, show_detail_result: bool):
+def calc(input_data_dir: str, output_data_dir: str, show_detail_result: bool = False):
 
     # 本計算のステップ数
     n_step_main = period.get_n_step_main()
