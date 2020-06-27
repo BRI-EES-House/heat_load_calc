@@ -5,7 +5,7 @@ import csv
 from heat_load_calc.external.global_number import get_c_air, get_rho_air
 from heat_load_calc.core import shape_factor
 from heat_load_calc.core import heat_exchanger
-
+from heat_load_calc.core import operation_mode
 
 class PreCalcParameters:
 
@@ -553,12 +553,23 @@ def make_pre_calc_parameters(data_directory: str):
 
     def get_vac_xeout_is(lcs_is_n, theta_r_is_npls, operation_mode_is_n):
 
+#        vac_is_n = np.zeros_like(operation_mode_is_n, dtype=float)
         vac_is_n = []
         xeout_is_n = []
 
         for lcs_i_n, theta_r_i_npls, operation_mode_i_n, Vmin_i, Vmax_i, qmin_c_i, qmax_c_i \
             in zip(lcs_is_n, theta_r_is_npls, operation_mode_is_n, Vmin_is, Vmax_is, qmin_c_is, qmax_c_is):
-            Vac_n_i, xeout_i_n = heat_exchanger.calcVac_xeout(Lcs=lcs_i_n, Vmin=Vmin_i, Vmax=Vmax_i, qmin_c=qmin_c_i, qmax_c=qmax_c_i, Tr=theta_r_i_npls, operation_mode=operation_mode_i_n)
+
+            Qs = - lcs_i_n
+
+            if (operation_mode_i_n == operation_mode.OperationMode.COOLING) and (Qs > 1.0e-3):
+                Vac = ((Vmin_i + (Vmax_i - Vmin_i) / (qmax_c_i - qmin_c_i) * (Qs - qmin_c_i)) / 60.0)
+            elif (operation_mode_i_n == operation_mode.OperationMode.HEATING) and (Qs > 1.0e-3):
+                Vac = ((Vmin_i + (Vmax_i - Vmin_i) / (qmax_c_i - qmin_c_i) * (Qs - qmin_c_i)) / 60.0)
+            else:
+                Vac = 0.0
+
+            Vac_n_i, xeout_i_n = heat_exchanger.calcVac_xeout(Lcs=lcs_i_n, Tr=theta_r_i_npls, operation_mode=operation_mode_i_n, Vac=Vac)
             vac_is_n.append(Vac_n_i)
             xeout_is_n.append(xeout_i_n)
 
