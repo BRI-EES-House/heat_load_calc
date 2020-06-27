@@ -57,13 +57,13 @@ class PreCalcParameters:
             brl_is_is,
             p_is_js,
             p_js_is,
-            get_vac_xeout_is,
             is_ground_js,
             wsc_js_ns,
             k_ei_js_js,
             theta_o_ns,
             x_o_ns,
-            theta_o_ave
+            theta_o_ave,
+            rac_spec
     ):
 
         # region 室に関すること
@@ -156,8 +156,6 @@ class PreCalcParameters:
         # 放射暖房対流比率, [i, 1]
         self.beta_is = beta_is
 
-        self.get_vac_xeout_is = get_vac_xeout_is
-
         # === 境界j*に関すること ===
 
         # 統合された境界j*の項別公比法における項mの公比, [j*, 12]
@@ -217,6 +215,8 @@ class PreCalcParameters:
 
         # 年平均外気温度, degree C
         self.theta_o_ave = theta_o_ave
+
+        self.rac_spec = rac_spec
 
 
 def make_pre_calc_parameters(data_directory: str):
@@ -552,34 +552,12 @@ def make_pre_calc_parameters(data_directory: str):
 
     # endregion
 
-    def get_vac_xeout_is(lcs_is_n, theta_r_is_npls, operation_mode_is_n):
-
-        # Lcsは加熱が正で表される。
-        # 加熱時は除湿しない。
-        # 以下の取り扱いを簡単にするため（冷房負荷を正とするため）、正負を反転させる
-        qs_is_n = -lcs_is_n
-
-        does_dehumidify1_is_n = np.logical_and(operation_mode_is_n == operation_mode.OperationMode.COOLING, qs_is_n > 1.0e-3)
-        does_dehumidify2_is_n = np.logical_and(operation_mode_is_n == operation_mode.OperationMode.HEATING, qs_is_n > 1.0e-3)
-        dh = np.logical_or(does_dehumidify1_is_n, does_dehumidify2_is_n)
-
-        vac_is_n = np.zeros_like(operation_mode_is_n)
-        vac_is_n[dh] = (
-            (Vmin_is[dh] + (Vmax_is[dh] - Vmin_is[dh]) / (qmax_c_is[dh] - qmin_c_is[dh]) * (qs_is_n[dh] -qmin_c_is[dh])) / 60.0)
-
-        BF = 0.2
-
-        Teout_is = np.zeros_like(operation_mode_is_n, dtype=float)
-        # 熱交換器温度＝熱交換器部分吹出温度 式(113)
-        Teout_is[dh] = theta_r_is_npls[dh] - qs_is_n[dh] / (get_c_air() * get_rho_air() * vac_is_n[dh] * (1.0 - BF))
-
-        xeout_is_n = np.zeros_like(operation_mode_is_n, dtype=float)
-
-        xeout_is_n[dh] = get_x(get_p_vs_is2(Teout_is[dh]))
-
-        vac_is_n = vac_is_n * (1 - BF)
-
-        return np.array(vac_is_n), np.array(xeout_is_n)
+    rac_spec = {
+        'v_min': Vmin_is,
+        'v_max': Vmax_is,
+        'q_min': qmin_c_is,
+        'q_max': qmax_c_is
+    }
 
     pre_calc_parameters = PreCalcParameters(
         number_of_spaces=number_of_spaces,
@@ -627,13 +605,13 @@ def make_pre_calc_parameters(data_directory: str):
         brl_is_is=brl_is_is,
         p_is_js=p_is_js,
         p_js_is=p_js_is,
-        get_vac_xeout_is=get_vac_xeout_is,
         is_ground_js=is_ground_js,
         wsc_js_ns=wsc_js_ns,
         k_ei_js_js=k_ei_js_js,
         theta_o_ns=theta_o_ns,
         x_o_ns=x_o_ns,
-        theta_o_ave=theta_o_ave
+        theta_o_ave=theta_o_ave,
+        rac_spec=rac_spec
     )
 
     return pre_calc_parameters

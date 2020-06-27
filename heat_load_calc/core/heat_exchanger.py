@@ -1,32 +1,37 @@
+import numpy as np
+
 from heat_load_calc.core.operation_mode import OperationMode
-from heat_load_calc.external.psychrometrics import get_p_vs, get_x
+from heat_load_calc.external.psychrometrics import get_p_vs, get_x, get_p_vs_is2
 from heat_load_calc.external.global_number import get_c_air, get_rho_air
 
 
-# エアコンの熱交換部飽和絶対湿度の計算
-def calcVac_xeout(theta_r_i_npls, operation_mode_i_n, vac_i_n, qs_i_n):
-    """
-    :param nowAC: 当該時刻の空調運転状態（0：なし、正：暖房、負：冷房）
-    :return:
-    """
+def get_vac_xeout_is(lcs_is_n, theta_r_is_npls, operation_mode_is_n, rac_spec):
+    # Lcsは加熱が正で表される。
+    # 加熱時は除湿しない。
+    # 以下の取り扱いを簡単にするため（冷房負荷を正とするため）、正負を反転させる
+    qs_is_n = -lcs_is_n
 
-    # バイパスファクター
-    # バイパスファクターは　0.2 とする。
+    does_dehumidify1_is_n = np.logical_and(operation_mode_is_n == OperationMode.COOLING,
+                                           qs_is_n > 1.0e-3)
+    does_dehumidify2_is_n = np.logical_and(operation_mode_is_n == OperationMode.HEATING,
+                                           qs_is_n > 1.0e-3)
+    dh = np.logical_or(does_dehumidify1_is_n, does_dehumidify2_is_n)
+
+    vac_is_n = np.zeros_like(operation_mode_is_n)
+    vac_is_n[dh] = (
+            (rac_spec['v_min'][dh] + (rac_spec['v_max'][dh] - rac_spec['v_min'][dh]) / (
+                        rac_spec['q_max'][dh] - rac_spec['q_min'][dh]) * (qs_is_n[dh] - rac_spec['q_min'][dh])) / 60.0)
+
     BF = 0.2
 
-    if operation_mode_i_n in [OperationMode.STOP_OPEN, OperationMode.STOP_CLOSE] or qs_i_n <= 1.0e-3:
-        xeout = 0.0
-    else:
+    Teout_is = np.zeros_like(operation_mode_is_n, dtype=float)
+    # 熱交換器温度＝熱交換器部分吹出温度 式(113)
+    Teout_is[dh] = theta_r_is_npls[dh] - qs_is_n[dh] / (get_c_air() * get_rho_air() * vac_is_n[dh] * (1.0 - BF))
 
-        # --- 熱交換器温度　Teoutを求める ---
+    xeout_is_n = np.zeros_like(operation_mode_is_n, dtype=float)
 
-        # 熱交換器温度＝熱交換器部分吹出温度 式(113)
-        Teout = theta_r_i_npls - qs_i_n / (get_c_air() * get_rho_air() * vac_i_n * (1.0 - BF))
+    xeout_is_n[dh] = get_x(get_p_vs_is2(Teout_is[dh]))
 
-        # 熱交換器吹出部分は飽和状態 式(115)-(118)
-        xeout = get_x(get_p_vs(Teout))
+    vac_is_n = vac_is_n * (1 - BF)
 
-    # 風量[m3/s]の計算（線形補間）
-
-    return vac_i_n * (1.0 - BF), xeout
-
+    return np.array(vac_is_n), np.array(xeout_is_n)

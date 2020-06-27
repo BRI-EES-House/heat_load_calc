@@ -7,6 +7,7 @@ from heat_load_calc.external.global_number import get_c_air, get_rho_air, get_l_
 from heat_load_calc.core.log import Logger
 from heat_load_calc.core import next_condition
 from heat_load_calc.core import occupants
+from heat_load_calc.core import heat_exchanger
 
 
 # 地盤の計算
@@ -233,7 +234,7 @@ def run_tick(n: int, ss: PreCalcParameters, c_n: Conditions, logger: Logger):
 
     # ステップ n+1 における室 i　の家具の温度, degree C, [i, 1]
     theta_frnt_is_n = (
-                              ss.c_cap_h_frt_is * c_n.theta_frnt_is_n + 900.0 * ss.c_h_frt_is * theta_r_is_n_pls + q_sol_frnt_is_n * 900.0
+        ss.c_cap_h_frt_is * c_n.theta_frnt_is_n + 900.0 * ss.c_h_frt_is * theta_r_is_n_pls + q_sol_frnt_is_n * 900.0
     ) / (ss.c_cap_h_frt_is + 900.0 * ss.c_h_frt_is)
 
     # ステップ n+1 における境界 j の表面温度, degree C, [j, 1]
@@ -272,10 +273,11 @@ def run_tick(n: int, ss: PreCalcParameters, c_n: Conditions, logger: Logger):
 
     # i室のn時点におけるエアコンの（BFを考慮した）相当風量[m3/s]
     # 空調の熱交換部飽和絶対湿度の計算
-    v_ac_is_n, x_e_out_is_n = ss.get_vac_xeout_is(
+    v_ac_is_n, x_e_out_is_n = heat_exchanger.get_vac_xeout_is(
         lcs_is_n=lc_is_npls.flatten(),
         theta_r_is_npls=theta_r_is_n_pls.flatten(),
-        operation_mode_is_n=operation_mode_is_n.flatten()
+        operation_mode_is_n=operation_mode_is_n.flatten(),
+        rac_spec=ss.rac_spec
     )
 
     # 空調機除湿の項 式(20)より
