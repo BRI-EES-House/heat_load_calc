@@ -6,6 +6,7 @@ from heat_load_calc.external.global_number import get_c_air, get_rho_air
 from heat_load_calc.core import shape_factor
 from heat_load_calc.core import heat_exchanger
 from heat_load_calc.core import operation_mode
+from heat_load_calc.external.psychrometrics import get_p_vs, get_x
 
 class PreCalcParameters:
 
@@ -553,25 +554,41 @@ def make_pre_calc_parameters(data_directory: str):
 
     def get_vac_xeout_is(lcs_is_n, theta_r_is_npls, operation_mode_is_n):
 
-#        vac_is_n = np.zeros_like(operation_mode_is_n, dtype=float)
-        vac_is_n = []
         xeout_is_n = []
 
-        for lcs_i_n, theta_r_i_npls, operation_mode_i_n, Vmin_i, Vmax_i, qmin_c_i, qmax_c_i \
-            in zip(lcs_is_n, theta_r_is_npls, operation_mode_is_n, Vmin_is, Vmax_is, qmin_c_is, qmax_c_is):
+        # Lcsは加熱が正で表される。
+        # 加熱時は除湿しない。
+        # 以下の取り扱いを簡単にするため（冷房負荷を正とするため）、正負を反転させる
+        qs_is_n = -lcs_is_n
 
-            Qs = - lcs_i_n
+        does_dehumidify1_is_n = np.logical_and(operation_mode_is_n == operation_mode.OperationMode.COOLING, qs_is_n > 1.0e-3)
+        does_dehumidify2_is_n = np.logical_and(operation_mode_is_n == operation_mode.OperationMode.HEATING, qs_is_n > 1.0e-3)
+        dh = np.logical_or(does_dehumidify1_is_n, does_dehumidify2_is_n)
 
-            if (operation_mode_i_n == operation_mode.OperationMode.COOLING) and (Qs > 1.0e-3):
-                Vac = ((Vmin_i + (Vmax_i - Vmin_i) / (qmax_c_i - qmin_c_i) * (Qs - qmin_c_i)) / 60.0)
-            elif (operation_mode_i_n == operation_mode.OperationMode.HEATING) and (Qs > 1.0e-3):
-                Vac = ((Vmin_i + (Vmax_i - Vmin_i) / (qmax_c_i - qmin_c_i) * (Qs - qmin_c_i)) / 60.0)
+        vac_is_n = np.zeros_like(operation_mode_is_n)
+        vac_is_n[dh] = (
+            (Vmin_is[dh] + (Vmax_is[dh] - Vmin_is[dh]) / (qmax_c_is[dh] - qmin_c_is[dh]) * (qs_is_n[dh] -qmin_c_is[dh])) / 60.0)
+
+        BF = 0.2
+
+        Teout_is = np.zeros_like(operation_mode_is_n)
+        # 熱交換器温度＝熱交換器部分吹出温度 式(113)
+        Teout_is[dh] = theta_r_is_npls[dh] - qs_is_n[dh] / (get_c_air() * get_rho_air() * vac_is_n[dh] * (1.0 - BF))
+
+        for does_dehumidify_i_n, Teout in zip(dh, Teout_is):
+
+            if does_dehumidify_i_n:
+
+                # 熱交換器吹出部分は飽和状態 式(115)-(118)
+                xeout = get_x(get_p_vs(Teout))
+
             else:
-                Vac = 0.0
+                xeout = 0.0
 
-            Vac_n_i, xeout_i_n = heat_exchanger.calcVac_xeout(Lcs=lcs_i_n, Tr=theta_r_i_npls, operation_mode=operation_mode_i_n, Vac=Vac)
-            vac_is_n.append(Vac_n_i)
-            xeout_is_n.append(xeout_i_n)
+#            Vac_n_i, xeout_i_n = heat_exchanger.calcVac_xeout(theta_r_i_npls=theta_r_i_npls, operation_mode_i_n=operation_mode_i_n, vac_i_n=vac_i_n, qs_i_n=qs_i_n)
+            xeout_is_n.append(xeout)
+
+        vac_is_n = vac_is_n * (1 - BF)
 
         return np.array(vac_is_n), np.array(xeout_is_n)
 
