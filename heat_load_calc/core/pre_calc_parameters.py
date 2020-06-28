@@ -293,10 +293,10 @@ def make_pre_calc_parameters(data_directory: str):
     is_radiative_cooling_is = np.array(is_radiative_cooling_is_list)
     radiative_cooling_max_capacity_is = np.array(radiative_cooling_max_capacity_is_list)
 
-    qmin_c_is = np.array([s['equipment']['cooling']['convective']['q_min'] for s in ss])
-    qmax_c_is = np.array([s['equipment']['cooling']['convective']['q_max'] for s in ss])
-    Vmin_is = np.array([s['equipment']['cooling']['convective']['v_min'] for s in ss])
-    Vmax_is = np.array([s['equipment']['cooling']['convective']['v_max'] for s in ss])
+    qmin_c_is = np.array([s['equipment']['cooling']['convective']['q_min'] for s in ss]).reshape(-1, 1)
+    qmax_c_is = np.array([s['equipment']['cooling']['convective']['q_max'] for s in ss]).reshape(-1, 1)
+    Vmin_is = np.array([s['equipment']['cooling']['convective']['v_min'] for s in ss]).reshape(-1, 1)
+    Vmax_is = np.array([s['equipment']['cooling']['convective']['v_max'] for s in ss]).reshape(-1, 1)
 
     # endregion
 

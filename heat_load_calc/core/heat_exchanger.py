@@ -8,11 +8,11 @@ def get_v_ac_x_e_out_is(lcs_is_n, theta_r_is_npls, rac_spec):
     # Lcsは加熱が正で表される。
     # 加熱時は除湿しない。
     # 以下の取り扱いを簡単にするため（冷房負荷を正とするため）、正負を反転させる
-    qs_is_n = -lcs_is_n.flatten()
+    qs_is_n = -lcs_is_n
 
     dh = qs_is_n > 1.0e-3
 
-    vac_is_n = np.zeros_like(lcs_is_n, dtype=float).flatten()
+    vac_is_n = np.zeros_like(lcs_is_n, dtype=float)
 
     vac_is_n[dh] = get_vac_is_n(
         q_max=rac_spec['q_max'][dh],
@@ -24,25 +24,25 @@ def get_v_ac_x_e_out_is(lcs_is_n, theta_r_is_npls, rac_spec):
 
     bf = 0.2
 
-    x_e_out_is_n = np.zeros_like(lcs_is_n, dtype=float).flatten()
+    x_e_out_is_n = np.zeros_like(lcs_is_n, dtype=float)
 
     x_e_out_is_n[dh] = get_x_e_out_is_n(
         bf=bf,
         qs_is_n=qs_is_n[dh],
         theta_r_is_npls=theta_r_is_npls[dh],
-        vac_is_n2=vac_is_n[dh]
+        vac_is_n=vac_is_n[dh]
     )
 
     vac_is_n = vac_is_n * (1 - bf)
 
-    return np.array(vac_is_n), np.array(x_e_out_is_n)
+    return vac_is_n, x_e_out_is_n
 
 
-def get_x_e_out_is_n(bf, qs_is_n, theta_r_is_npls, vac_is_n2):
+def get_x_e_out_is_n(bf, qs_is_n, theta_r_is_npls, vac_is_n):
 
     # 熱交換器温度＝熱交換器部分吹出温度 式(113)
 
-    theta_e_out_is_n = theta_r_is_npls - qs_is_n / (get_c_air() * get_rho_air() * vac_is_n2 * (1.0 - bf))
+    theta_e_out_is_n = theta_r_is_npls - qs_is_n / (get_c_air() * get_rho_air() * vac_is_n * (1.0 - bf))
 
     x_e_out_is_n = get_x(get_p_vs_is2(theta_e_out_is_n))
 
