@@ -273,10 +273,9 @@ def run_tick(n: int, ss: PreCalcParameters, c_n: Conditions, logger: Logger):
 
     # i室のn時点におけるエアコンの（BFを考慮した）相当風量[m3/s]
     # 空調の熱交換部飽和絶対湿度の計算
-    v_ac_is_n, x_e_out_is_n = heat_exchanger.get_vac_xeout_is(
-        lcs_is_n=lc_is_npls.flatten(),
+    v_ac_is_n, x_e_out_is_n = heat_exchanger.get_v_ac_x_e_out_is(
+        lcs_is_n=lc_is_npls,
         theta_r_is_npls=theta_r_is_n_pls.flatten(),
-        operation_mode_is_n=operation_mode_is_n.flatten(),
         rac_spec=ss.rac_spec
     )
 
