@@ -280,23 +280,23 @@ def run_tick(n: int, ss: PreCalcParameters, c_n: Conditions, logger: Logger):
     )
 
     # 空調機除湿の項 式(20)より
-    RhoVac = get_rho_air() * v_ac_is_n.flatten()
+    RhoVac = get_rho_air() * v_ac_is_n
 
     # 室絶対湿度[kg/kg(DA)]の計算
-    BRMX_base = brmx_pre_is.flatten() + RhoVac
-    BRXC_base = brxc_pre_is.flatten() + RhoVac * x_e_out_is_n.flatten()
+    BRMX_base = brmx_pre_is + RhoVac
+    BRXC_base = brxc_pre_is + RhoVac * x_e_out_is_n
 
     # 室絶対湿度の計算 式(16)
     xr_base = BRXC_base / BRMX_base
 
     # 補正前の加湿量の計算 [ks/s] 式(20)
-    Ghum_base = RhoVac * (x_e_out_is_n.flatten() - xr_base)
+    Ghum_base = RhoVac * (x_e_out_is_n - xr_base)
 
     # 除湿量が負値(加湿量が正)になった場合にはルームエアコン風量V_(ac,n)をゼロとして再度室湿度を計算する
     Ghum_is_n = np.minimum(Ghum_base, 0.0)
 
     # 除湿量が負値(加湿量が正)になった場合にはルームエアコン風量V_(ac,n)をゼロとして再度室湿度を計算する
-    x_r_is_n_pls = np.where(Ghum_base > 0.0, brxc_pre_is.flatten() / brmx_pre_is.flatten(), xr_base)
+    x_r_is_n_pls = np.where(Ghum_base > 0.0, brxc_pre_is / brmx_pre_is, xr_base)
 
     # 除湿量から室加湿熱量を計算 式(21)
     Lcl_i_n = Ghum_is_n * get_l_wtr()
@@ -317,17 +317,17 @@ def run_tick(n: int, ss: PreCalcParameters, c_n: Conditions, logger: Logger):
     # ********** 備品類の絶対湿度 xf の計算 **********
 
     # 備品類の絶対湿度の計算
-    xf_i_n = (ss.c_cap_w_frt_is.flatten() / 900 * c_n.x_frnt_is_n.flatten() + ss.c_w_frt_is.flatten() * x_r_is_n_pls) / (ss.c_cap_w_frt_is.flatten() / 900 + ss.c_w_frt_is.flatten())
+    xf_i_n = (ss.c_cap_w_frt_is / 900 * c_n.x_frnt_is_n + ss.c_w_frt_is * x_r_is_n_pls) / (ss.c_cap_w_frt_is / 900 + ss.c_w_frt_is)
 
     # kg/s
-    Qfunl_i_n = ss.c_w_frt_is.flatten() * (x_r_is_n_pls - xf_i_n)
+    Qfunl_i_n = ss.c_w_frt_is * (x_r_is_n_pls - xf_i_n)
 
     # ステップnにおける室iの在室者の着衣温度, degree C, [i]
     theta_cl_is_n_pls = occupants.get_theta_cl_is_n(clo_is_n=clo_is_n.flatten(), theta_ot_is_n=theta_ot_is_npls.flatten(), h_hum_is_n=h_hum_is_n.flatten())
 
     logger.operation_mode[:, n] = operation_mode_is_n.flatten()
     logger.theta_r[:, n] = theta_r_is_n_pls.flatten()
-    logger.x_r[:, n] = x_r_is_n_pls
+    logger.x_r[:, n] = x_r_is_n_pls.flatten()
     logger.theta_mrt[:, n] = theta_mrt_hum_is_n_pls.flatten()
     logger.theta_ot[:, n] = theta_ot_is_npls.flatten()
     logger.clo[:, n] = clo_is_n.flatten()
@@ -335,10 +335,10 @@ def run_tick(n: int, ss: PreCalcParameters, c_n: Conditions, logger: Logger):
     logger.x_hum[:, n] = x_hum_is_n.flatten()
     logger.l_cs[:, n] = lc_is_npls.flatten()
     logger.l_rs[:, n] = lr_is_npls.flatten()
-    logger.l_cl[:, n] = Lcl_i_n
+    logger.l_cl[:, n] = Lcl_i_n.flatten()
     logger.theta_frnt[:, n] = theta_frnt_is_n.flatten()
-    logger.x_frnt[:, n] = xf_i_n
-    logger.q_l_frnt[:, n] = Qfunl_i_n
+    logger.x_frnt[:, n] = xf_i_n.flatten()
+    logger.q_l_frnt[:, n] = Qfunl_i_n.flatten()
     logger.theta_s[:, n] = theta_s_js_n.flatten()
     logger.theta_rear[:, n] = theta_rear_js_n.flatten()
     logger.theta_ei[:, n] = theta_ei_js_npls.flatten()
@@ -347,12 +347,12 @@ def run_tick(n: int, ss: PreCalcParameters, c_n: Conditions, logger: Logger):
         operation_mode_is_n=operation_mode_is_n,
         theta_r_is_n=theta_r_is_n_pls,
         theta_mrt_hum_is_n=theta_mrt_hum_is_n_pls,
-        x_r_is_n=x_r_is_n_pls.reshape(-1, 1),
+        x_r_is_n=x_r_is_n_pls,
         theta_dsh_srf_a_js_ms_n=theta_dsh_srf_a_js_ms_npls,
         theta_dsh_srf_t_js_ms_n=theta_dsh_srf_t_js_ms_npls,
         q_srf_js_n=q_srf_js_n,
         theta_frnt_is_n=theta_frnt_is_n,
-        x_frnt_is_n=xf_i_n.reshape(-1, 1),
+        x_frnt_is_n=xf_i_n,
         theta_cl_is_n=theta_cl_is_n_pls.reshape(-1, 1),
         theta_ei_js_n=theta_ei_js_npls
     )
