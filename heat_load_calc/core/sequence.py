@@ -194,10 +194,6 @@ def run_tick(n: int, ss: PreCalcParameters, c_n: Conditions, logger: Logger):
     # ステップnにおける室iの在室者表面における放射熱伝達率の総合熱伝達率に対する比, [i, 1]
     kr_is_n = h_hum_r_is_n / h_hum_is_n
 
-    def v_diag(v_matrix):
-        arr = v_matrix.flatten()
-        return np.diag(arr)
-
     # ステップnにおける室iの係数 XOT, [i, i]
     xot_is_is_n = np.linalg.inv(v_diag(kc_is_n) + kr_is_n * np.dot(ss.f_mrt_hum_is_js, ss.wsr_js_is))
 
@@ -256,18 +252,17 @@ def run_tick(n: int, ss: PreCalcParameters, c_n: Conditions, logger: Logger):
     q_srf_js_n = (theta_ei_js_npls - theta_s_js_n) * (ss.h_c_js + ss.h_r_js)
 
     # ステップnの室iにおける係数 brmx_pre, [i, 1]
-    brmx_pre_is = get_rho_air() * (
-            ss.v_room_is / 900
-            + v_out_vent_is_n
-            + np.sum(ss.v_int_vent_is_is, axis=1, keepdims=True)
-    ) + ss.c_cap_w_frt_is * ss.c_w_frt_is / (ss.c_cap_w_frt_is + 900 * ss.c_w_frt_is)
+    brmx_non_dh_is = get_rho_air() * (v_diag(ss.v_room_is / 900 + v_out_vent_is_n) - ss.v_int_vent_is_is)\
+        + v_diag(ss.c_cap_w_frt_is * ss.c_w_frt_is / (ss.c_cap_w_frt_is + 900 * ss.c_w_frt_is))
 
     # ステップnの室iにおける係数 brxc_pre, [i, 1]
-    brxc_pre_is = get_rho_air() * (
+    brxc_non_dh_is = get_rho_air() * (
             ss.v_room_is / 900 * c_n.x_r_is_n
             + v_out_vent_is_n * ss.x_o_ns[n]
-            + np.dot(ss.v_int_vent_is_is, c_n.x_r_is_n)
-    ) + ss.c_cap_w_frt_is * ss.c_w_frt_is / (ss.c_cap_w_frt_is + 900 * ss.c_w_frt_is) * c_n.x_frnt_is_n + (x_gen_is_n + x_hum_is_n)
+    ) + ss.c_cap_w_frt_is * ss.c_w_frt_is / (ss.c_cap_w_frt_is + 900 * ss.c_w_frt_is) * c_n.x_frnt_is_n\
+        + x_gen_is_n + x_hum_is_n
+
+    x_r_non_dh_is_n = np.dot(np.linalg.inv(brmx_non_dh_is), brxc_non_dh_is)
 
     # ==== ルームエアコン吹出絶対湿度の計算 ====
 
@@ -279,24 +274,18 @@ def run_tick(n: int, ss: PreCalcParameters, c_n: Conditions, logger: Logger):
         rac_spec=ss.rac_spec
     )
 
-    # 空調機除湿の項 式(20)より
-    RhoVac = get_rho_air() * v_ac_is_n
-
     # 室絶対湿度[kg/kg(DA)]の計算
-    BRMX_base = brmx_pre_is + RhoVac
-    BRXC_base = brxc_pre_is + RhoVac * x_e_out_is_n
+    BRMX_base = brmx_non_dh_is + v_diag(get_rho_air() * v_ac_is_n)
+    BRXC_base = brxc_non_dh_is + get_rho_air() * v_ac_is_n * x_e_out_is_n
 
     # 室絶対湿度の計算 式(16)
-    xr_base = BRXC_base / BRMX_base
-
-    # 補正前の加湿量の計算 [ks/s] 式(20)
-    Ghum_base = RhoVac * (x_e_out_is_n - xr_base)
+    xr_base = np.dot(np.linalg.inv(BRMX_base), BRXC_base)
 
     # 除湿量が負値(加湿量が正)になった場合にはルームエアコン風量V_(ac,n)をゼロとして再度室湿度を計算する
-    Ghum_is_n = np.minimum(Ghum_base, 0.0)
+    x_r_is_n_pls = np.where(x_e_out_is_n > xr_base, x_r_non_dh_is_n, xr_base)
 
     # 除湿量が負値(加湿量が正)になった場合にはルームエアコン風量V_(ac,n)をゼロとして再度室湿度を計算する
-    x_r_is_n_pls = np.where(Ghum_base > 0.0, brxc_pre_is / brmx_pre_is, xr_base)
+    Ghum_is_n = np.minimum(get_rho_air() * v_ac_is_n * (x_e_out_is_n - xr_base), 0.0)
 
     # 除湿量から室加湿熱量を計算 式(21)
     Lcl_i_n = Ghum_is_n * get_l_wtr()
@@ -356,4 +345,8 @@ def run_tick(n: int, ss: PreCalcParameters, c_n: Conditions, logger: Logger):
         theta_cl_is_n=theta_cl_is_n_pls.reshape(-1, 1),
         theta_ei_js_n=theta_ei_js_npls
     )
+
+def v_diag(v_matrix):
+    arr = v_matrix.flatten()
+    return np.diag(arr)
 
