@@ -5,7 +5,7 @@ from heat_load_calc.external.global_number import get_c_air, get_rho_air
 from heat_load_calc.core.matrix_method import v_diag
 
 
-def get_v_ac_x_e_out_is(lcs_is_n, theta_r_is_npls, rac_spec):
+def get_v_ac_x_e_out_is(lcs_is_n, theta_r_is_npls, rac_spec, x_r_non_dh_is_n):
     # Lcsは加熱が正で表される。
     # 加熱時は除湿しない。
     # 以下の取り扱いを簡単にするため（冷房負荷を正とするため）、正負を反転させる
@@ -39,7 +39,10 @@ def get_v_ac_x_e_out_is(lcs_is_n, theta_r_is_npls, rac_spec):
     brmx_rac_is = v_diag(get_rho_air() * v_ac_is_n)
     brxc_rac_is = get_rho_air() * v_ac_is_n * x_e_out_is_n
 
-    return v_ac_is_n, x_e_out_is_n, brmx_rac_is, brxc_rac_is
+    brmx_rac_is = v_diag(np.where(x_e_out_is_n > x_r_non_dh_is_n, 0.0, np.diag(brmx_rac_is).reshape(-1, 1)))
+    brxc_rac_is = np.where(x_e_out_is_n > x_r_non_dh_is_n, 0.0, brxc_rac_is)
+
+    return x_e_out_is_n, brmx_rac_is, brxc_rac_is
 
 
 def get_x_e_out_is_n(bf, qs_is_n, theta_r_is_npls, vac_is_n):

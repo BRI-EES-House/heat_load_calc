@@ -269,24 +269,22 @@ def run_tick(n: int, ss: PreCalcParameters, c_n: Conditions, logger: Logger):
 
     # i室のn時点におけるエアコンの（BFを考慮した）相当風量[m3/s]
     # 空調の熱交換部飽和絶対湿度の計算
-    v_ac_is_n, x_e_out_is_n, brmx_rac_is, brxc_rac_is = heat_exchanger.get_v_ac_x_e_out_is(
+    x_e_out_is_n, brmx_rac_is, brxc_rac_is = heat_exchanger.get_v_ac_x_e_out_is(
         lcs_is_n=lc_is_npls,
         theta_r_is_npls=theta_r_is_n_pls,
-        rac_spec=ss.rac_spec
+        rac_spec=ss.rac_spec,
+        x_r_non_dh_is_n=x_r_non_dh_is_n
     )
 
     # 室絶対湿度[kg/kg(DA)]の計算
-    BRMX_base = brmx_non_dh_is + brmx_rac_is
-    BRXC_base = brxc_non_dh_is + brxc_rac_is
+    BRMX_base2 = brmx_non_dh_is + brmx_rac_is
+    BRXC_base2 = brxc_non_dh_is + brxc_rac_is
 
     # 室絶対湿度の計算 式(16)
-    xr_base = np.dot(np.linalg.inv(BRMX_base), BRXC_base)
+    x_r_is_n_pls = np.dot(np.linalg.inv(BRMX_base2), BRXC_base2)
 
     # 除湿量が負値(加湿量が正)になった場合にはルームエアコン風量V_(ac,n)をゼロとして再度室湿度を計算する
-    x_r_is_n_pls = np.where(x_e_out_is_n > xr_base, x_r_non_dh_is_n, xr_base)
-
-    # 除湿量が負値(加湿量が正)になった場合にはルームエアコン風量V_(ac,n)をゼロとして再度室湿度を計算する
-    Ghum_is_n = np.minimum(get_rho_air() * v_ac_is_n * (x_e_out_is_n - xr_base), 0.0)
+    Ghum_is_n = - np.minimum((np.dot(brmx_rac_is, x_r_is_n_pls) - brxc_rac_is), 0.0)
 
     # 除湿量から室加湿熱量を計算 式(21)
     Lcl_i_n = Ghum_is_n * get_l_wtr()
