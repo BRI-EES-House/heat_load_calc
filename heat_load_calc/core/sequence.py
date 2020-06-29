@@ -8,6 +8,7 @@ from heat_load_calc.core.log import Logger
 from heat_load_calc.core import next_condition
 from heat_load_calc.core import occupants
 from heat_load_calc.core import heat_exchanger
+from heat_load_calc.core.matrix_method import v_diag
 
 
 # 地盤の計算
@@ -268,15 +269,15 @@ def run_tick(n: int, ss: PreCalcParameters, c_n: Conditions, logger: Logger):
 
     # i室のn時点におけるエアコンの（BFを考慮した）相当風量[m3/s]
     # 空調の熱交換部飽和絶対湿度の計算
-    v_ac_is_n, x_e_out_is_n = heat_exchanger.get_v_ac_x_e_out_is(
+    v_ac_is_n, x_e_out_is_n, brmx_rac_is, brxc_rac_is = heat_exchanger.get_v_ac_x_e_out_is(
         lcs_is_n=lc_is_npls,
         theta_r_is_npls=theta_r_is_n_pls,
         rac_spec=ss.rac_spec
     )
 
     # 室絶対湿度[kg/kg(DA)]の計算
-    BRMX_base = brmx_non_dh_is + v_diag(get_rho_air() * v_ac_is_n)
-    BRXC_base = brxc_non_dh_is + get_rho_air() * v_ac_is_n * x_e_out_is_n
+    BRMX_base = brmx_non_dh_is + brmx_rac_is
+    BRXC_base = brxc_non_dh_is + brxc_rac_is
 
     # 室絶対湿度の計算 式(16)
     xr_base = np.dot(np.linalg.inv(BRMX_base), BRXC_base)
@@ -346,7 +347,4 @@ def run_tick(n: int, ss: PreCalcParameters, c_n: Conditions, logger: Logger):
         theta_ei_js_n=theta_ei_js_npls
     )
 
-def v_diag(v_matrix):
-    arr = v_matrix.flatten()
-    return np.diag(arr)
 

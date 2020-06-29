@@ -2,6 +2,7 @@ import numpy as np
 
 from heat_load_calc.external.psychrometrics import get_p_vs, get_x, get_p_vs_is2
 from heat_load_calc.external.global_number import get_c_air, get_rho_air
+from heat_load_calc.core.matrix_method import v_diag
 
 
 def get_v_ac_x_e_out_is(lcs_is_n, theta_r_is_npls, rac_spec):
@@ -12,9 +13,9 @@ def get_v_ac_x_e_out_is(lcs_is_n, theta_r_is_npls, rac_spec):
 
     dh = qs_is_n > 1.0e-3
 
-    vac_is_n = np.zeros_like(lcs_is_n, dtype=float)
+    v_ac_is_n = np.zeros_like(lcs_is_n, dtype=float)
 
-    vac_is_n[dh] = get_vac_is_n(
+    v_ac_is_n[dh] = get_vac_is_n(
         q_max=rac_spec['q_max'][dh],
         q_min=rac_spec['q_min'][dh],
         qs_is_n=qs_is_n[dh],
@@ -30,12 +31,15 @@ def get_v_ac_x_e_out_is(lcs_is_n, theta_r_is_npls, rac_spec):
         bf=bf,
         qs_is_n=qs_is_n[dh],
         theta_r_is_npls=theta_r_is_npls[dh],
-        vac_is_n=vac_is_n[dh]
+        vac_is_n=v_ac_is_n[dh]
     )
 
-    vac_is_n = vac_is_n * (1 - bf)
+    v_ac_is_n = v_ac_is_n * (1 - bf)
 
-    return vac_is_n, x_e_out_is_n
+    brmx_rac_is = v_diag(get_rho_air() * v_ac_is_n)
+    brxc_rac_is = get_rho_air() * v_ac_is_n * x_e_out_is_n
+
+    return v_ac_is_n, x_e_out_is_n, brmx_rac_is, brxc_rac_is
 
 
 def get_x_e_out_is_n(bf, qs_is_n, theta_r_is_npls, vac_is_n):
