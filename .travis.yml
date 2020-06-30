@@ -1,0 +1,10 @@
+language: python
+
+python:
+  - "3.6"
+
+install:
+  - pip install numpy pandas
+
+script:
+  - cd test && python -m unittest discover
