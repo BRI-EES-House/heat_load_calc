@@ -1,3 +1,7 @@
+# Heat Load Calculation
+
+[![Build Status](https://travis-ci.com/BRI-EES-House/heat_load_calc.svg?branch=master)](https://travis-ci.com/BRI-EES-House/heat_load_calc)
+
 外皮に関する入力情報の変換の仕方について記述しています。
 
 外皮に関する入力情報として、入力情報の多さ等の観点から、下記のようにいくつかのレベルを設定しています。
