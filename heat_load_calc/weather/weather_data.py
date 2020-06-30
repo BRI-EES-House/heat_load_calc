@@ -26,7 +26,7 @@ def load(region: int) -> (np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.nda
     weather_data_filename = get_filename(region)
 
     # ファイル読み込み
-    path_and_filename = str(os.path.dirname(__file__)) + '\\expanded_amedas\\' + weather_data_filename
+    path_and_filename = str(os.path.dirname(__file__)) + '/expanded_amedas/' + weather_data_filename
     data = np.loadtxt(path_and_filename, delimiter=",", skiprows=2, usecols=(2, 3, 4, 5, 6), encoding="utf-8")
 
     # 扱いにくいので転地（列：項目・行：時刻　→　列：時刻・行：項目

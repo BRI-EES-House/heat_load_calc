@@ -10,7 +10,7 @@ class MyTestCase(unittest.TestCase):
     # 関数の名前も何でも良いので、 test_xxxxx(self): の形で適当に変更してください。
     def test_something1(self):
 
-        data_dir = str(os.path.dirname(__file__)) + '\\data'
+        data_dir = str(os.path.dirname(__file__)) + '/data'
 
         ds, dd = core.calc(input_data_dir=data_dir, output_data_dir=data_dir)
 

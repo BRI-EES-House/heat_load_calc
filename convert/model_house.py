@@ -1,5 +1,5 @@
 from typing import Optional, List, Dict, Union, Tuple
-from general_functions import round_num
+from convert.general_functions import round_num
 
 
 def get_a_f(house_type: str, a_f_total: float, r_fa: Optional[float]) -> List[float]:

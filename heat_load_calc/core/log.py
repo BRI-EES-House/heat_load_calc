@@ -171,7 +171,7 @@ def record(pps: PreCalcParameters, logger: Logger, output_data_dir: str, show_si
             dd[name + '_' + boundary_names[j] + '_表面対流熱流[W]'] = t[0:365*96]
 
     if show_detail_result:
-        dd.to_csv(output_data_dir + '\\result_detail.csv', encoding='cp932')
+        dd.to_csv(output_data_dir + '/result_detail.csv', encoding='cp932')
 
     date_index_1h = pd.date_range(start='1/1/1989', periods=365*24, freq='H')
 
@@ -193,6 +193,6 @@ def record(pps: PreCalcParameters, logger: Logger, output_data_dir: str, show_si
         ds[name + '_対流空調潜熱負荷[W]'] = dd[name + '_対流空調潜熱負荷[W]'].resample('H').sum().round(0)
 
     if show_simple_result:
-        ds.to_csv(output_data_dir + '\\result_digest.csv', encoding='cp932')
+        ds.to_csv(output_data_dir + '/result_digest.csv', encoding='cp932')
 
     return ds, dd

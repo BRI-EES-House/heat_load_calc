@@ -110,7 +110,7 @@ def get_all_schedules(n_p: float, room_name_is: List[str])\
 def load_schedule() -> Dict:
     """スケジュールを読み込む
     """
-    js = open(str(os.path.dirname(__file__)) + '\\schedules.json', 'r', encoding='utf-8')
+    js = open(str(os.path.dirname(__file__)) + '/schedules.json', 'r', encoding='utf-8')
     d_json = json.load(js)
     return d_json
 

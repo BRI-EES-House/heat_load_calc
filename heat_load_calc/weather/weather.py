@@ -32,4 +32,4 @@ def make_weather(region: int, output_data_dir: str):
     dd['sun altitude [rad]'] = h_sun_ns
     dd['sun azimuth [rad]'] = a_sun_ns
 
-    dd.to_csv(output_data_dir + '\\weather.csv', encoding='utf-8')
+    dd.to_csv(output_data_dir + '/weather.csv', encoding='utf-8')
