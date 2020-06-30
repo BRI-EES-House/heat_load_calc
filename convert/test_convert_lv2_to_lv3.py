@@ -1,6 +1,6 @@
 import unittest
 
-import convert_lv2_to_lv3 as nb
+import convert.convert_lv2_to_lv3 as nb
 
 
 class TestLV2toLV3(unittest.TestCase):

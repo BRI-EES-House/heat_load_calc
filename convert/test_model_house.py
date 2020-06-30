@@ -1,5 +1,5 @@
 import unittest
-import model_house as mh
+import convert.model_house as mh
 
 
 class TestModelHouseShapeFactor(unittest.TestCase):

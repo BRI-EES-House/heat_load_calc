@@ -1,5 +1,5 @@
 import unittest
-import convert_model_house_to_house_dict as cmhhd
+import convert.convert_model_house_to_house_dict as cmhhd
 
 
 class ConvertModelHouseToHouseDict(unittest.TestCase):

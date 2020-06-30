@@ -7,4 +7,4 @@ install:
   - pip install numpy pandas
 
 script:
-  - python test.discover.py
+  - python -m unittest discover
