@@ -1,0 +1,5 @@
+{
+  "test1_1.py::MyTestCase::test_something1": true,
+  "test1_1.py::MyTestCase::test_something2": true,
+  "test1_1.py::MyTestCase::test_something3": true
+}
