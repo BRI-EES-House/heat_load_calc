@@ -5,7 +5,7 @@ from heat_load_calc.core import log
 from heat_load_calc.core import sequence
 
 
-def calc(input_data_dir: str, output_data_dir: str, show_detail_result: bool = False):
+def calc(input_data_dir: str, output_data_dir: str, show_simple_result: bool = False, show_detail_result: bool = False):
 
     # 本計算のステップ数
     n_step_main = period.get_n_step_main()
@@ -41,4 +41,14 @@ def calc(input_data_dir: str, output_data_dir: str, show_detail_result: bool = F
 
     print('ログ作成')
 
-    log.record(pps=pps, logger=logger, output_data_dir=output_data_dir, show_detail_result=show_detail_result)
+    # ds: data simple, 1時間間隔で主要なパラメータのみを抽出した pd.DataFrame
+    # dd: data detail, 15分間隔のすべてのパラメータ pd.DataFrame
+    ds, dd = log.record(
+        pps=pps,
+        logger=logger,
+        output_data_dir=output_data_dir,
+        show_simple_result=show_simple_result,
+        show_detail_result=show_detail_result
+    )
+
+    return ds, dd

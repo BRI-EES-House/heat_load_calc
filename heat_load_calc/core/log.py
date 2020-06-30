@@ -121,7 +121,7 @@ class Logger:
         self.qr = ss.h_r_js * ss.a_srf_js * (np.dot(np.dot(ss.p_js_is, ss.f_mrt_is_js), self.theta_s) - self.theta_s)
 
 
-def record(pps: PreCalcParameters, logger: Logger, output_data_dir: str, show_detail_result: bool):
+def record(pps: PreCalcParameters, logger: Logger, output_data_dir: str, show_simple_result: bool, show_detail_result: bool):
 
     date_index_15min = pd.date_range(start='1/1/1989', periods=365*96, freq='15min')
 
@@ -192,5 +192,7 @@ def record(pps: PreCalcParameters, logger: Logger, output_data_dir: str, show_de
         ds[name + '_放射空調顕熱負荷[W]'] = dd[name + '_放射空調顕熱負荷[W]'].resample('H').sum().round(0)
         ds[name + '_対流空調潜熱負荷[W]'] = dd[name + '_対流空調潜熱負荷[W]'].resample('H').sum().round(0)
 
-    ds.to_csv(output_data_dir + '\\result_digest.csv', encoding='cp932')
+    if show_simple_result:
+        ds.to_csv(output_data_dir + '\\result_digest.csv', encoding='cp932')
 
+    return ds, dd

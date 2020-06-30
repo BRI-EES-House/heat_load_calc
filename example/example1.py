@@ -16,7 +16,7 @@ def run():
 
     s3_space_initializer.make_house(d=d, input_data_dir='data_example1', output_data_dir='data_example1')
 
-    core.calc(input_data_dir='data_example1', output_data_dir='data_example1')
+    core.calc(input_data_dir='data_example1', output_data_dir='data_example1', show_simple_result=True)
 
 
 if __name__ == '__main__':
