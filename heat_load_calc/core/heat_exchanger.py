@@ -1,41 +1,63 @@
-from heat_load_calc.core.operation_mode import OperationMode
-from heat_load_calc.external.psychrometrics import get_p_vs, get_x
+import numpy as np
+
+from heat_load_calc.external.psychrometrics import get_p_vs, get_x, get_p_vs_is2
 from heat_load_calc.external.global_number import get_c_air, get_rho_air
+from heat_load_calc.core.matrix_method import v_diag
 
 
-# エアコンの熱交換部飽和絶対湿度の計算
-def calcVac_xeout(Lcs, Vmin, Vmax, qmin_c, qmax_c, Tr, operation_mode):
-    """
-    :param nowAC: 当該時刻の空調運転状態（0：なし、正：暖房、負：冷房）
-    :return:
-    """
+def get_v_ac_x_e_out_is(lcs_is_n, theta_r_is_npls, rac_spec, x_r_non_dh_is_n):
+    # Lcsは加熱が正で表される。
+    # 加熱時は除湿しない。
+    # 以下の取り扱いを簡単にするため（冷房負荷を正とするため）、正負を反転させる
+    qs_is_n = -lcs_is_n
 
-    # バイパスファクター
-    # バイパスファクターは　0.2 とする。
-    BF = 0.2
+    dh = qs_is_n > 1.0e-3
 
-    # Lcsは加熱が正
-    # 加熱時は除湿ゼロ
-    # 正負を反転させる
-    Qs = - Lcs
+    v_ac_is_n = np.zeros_like(lcs_is_n, dtype=float)
 
-    if operation_mode in [OperationMode.STOP_OPEN, OperationMode.STOP_CLOSE] or Qs <= 1.0e-3:
-        Vac = 0.0
-        xeout = 0.0
-    else:
+    v_ac_is_n[dh] = get_vac_is_n(
+        q_max=rac_spec['q_max'][dh],
+        q_min=rac_spec['q_min'][dh],
+        qs_is_n=qs_is_n[dh],
+        v_max=rac_spec['v_max'][dh],
+        v_min=rac_spec['v_min'][dh]
+    )
 
-        # --- 熱交換器温度　Teoutを求める ---
+    bf = 0.2
 
-        # 風量[m3/s]の計算（線形補間）
-        Vac = ((Vmin + (Vmax - Vmin) / (qmax_c - qmin_c) * (Qs - qmin_c)) / 60.0)
+    x_e_out_is_n = np.zeros_like(lcs_is_n, dtype=float)
 
-        # 熱交換器温度＝熱交換器部分吹出温度 式(113)
-        Teout = Tr - Qs / (get_c_air() * get_rho_air() * Vac * (1.0 - BF))
+    x_e_out_is_n[dh] = get_x_e_out_is_n(
+        bf=bf,
+        qs_is_n=qs_is_n[dh],
+        theta_r_is_npls=theta_r_is_npls[dh],
+        vac_is_n=v_ac_is_n[dh]
+    )
 
-        # 熱交換器吹出部分は飽和状態 式(115)-(118)
-        xeout = get_x(get_p_vs(Teout))
+    v_ac_is_n = v_ac_is_n * (1 - bf)
 
-    # 風量[m3/s]の計算（線形補間）
+    brmx_rac_is = v_diag(get_rho_air() * v_ac_is_n)
+    brxc_rac_is = get_rho_air() * v_ac_is_n * x_e_out_is_n
 
-    return Vac*(1.0 - BF), xeout
+    brmx_rac_is = v_diag(np.where(x_e_out_is_n > x_r_non_dh_is_n, 0.0, np.diag(brmx_rac_is).reshape(-1, 1)))
+    brxc_rac_is = np.where(x_e_out_is_n > x_r_non_dh_is_n, 0.0, brxc_rac_is)
+
+    return brmx_rac_is, brxc_rac_is
+
+
+def get_x_e_out_is_n(bf, qs_is_n, theta_r_is_npls, vac_is_n):
+
+    # 熱交換器温度＝熱交換器部分吹出温度 式(113)
+
+    theta_e_out_is_n = theta_r_is_npls - qs_is_n / (get_c_air() * get_rho_air() * vac_is_n * (1.0 - bf))
+
+    x_e_out_is_n = get_x(get_p_vs_is2(theta_e_out_is_n))
+
+    return x_e_out_is_n
+
+
+def get_vac_is_n(q_max, q_min, qs_is_n, v_max, v_min):
+
+    # TODO 最小値・最大値処理がないような気がする
+    return (v_min + (v_max - v_min) / (q_max - q_min) * (qs_is_n - q_min)) / 60.0
 

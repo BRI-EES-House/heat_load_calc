@@ -7,6 +7,8 @@ from heat_load_calc.external.global_number import get_c_air, get_rho_air, get_l_
 from heat_load_calc.core.log import Logger
 from heat_load_calc.core import next_condition
 from heat_load_calc.core import occupants
+from heat_load_calc.core import heat_exchanger
+from heat_load_calc.core.matrix_method import v_diag
 
 
 # 地盤の計算
@@ -193,10 +195,6 @@ def run_tick(n: int, ss: PreCalcParameters, c_n: Conditions, logger: Logger):
     # ステップnにおける室iの在室者表面における放射熱伝達率の総合熱伝達率に対する比, [i, 1]
     kr_is_n = h_hum_r_is_n / h_hum_is_n
 
-    def v_diag(v_matrix):
-        arr = v_matrix.flatten()
-        return np.diag(arr)
-
     # ステップnにおける室iの係数 XOT, [i, i]
     xot_is_is_n = np.linalg.inv(v_diag(kc_is_n) + kr_is_n * np.dot(ss.f_mrt_hum_is_js, ss.wsr_js_is))
 
@@ -233,7 +231,7 @@ def run_tick(n: int, ss: PreCalcParameters, c_n: Conditions, logger: Logger):
 
     # ステップ n+1 における室 i　の家具の温度, degree C, [i, 1]
     theta_frnt_is_n = (
-                              ss.c_cap_h_frt_is * c_n.theta_frnt_is_n + 900.0 * ss.c_h_frt_is * theta_r_is_n_pls + q_sol_frnt_is_n * 900.0
+        ss.c_cap_h_frt_is * c_n.theta_frnt_is_n + 900.0 * ss.c_h_frt_is * theta_r_is_n_pls + q_sol_frnt_is_n * 900.0
     ) / (ss.c_cap_h_frt_is + 900.0 * ss.c_h_frt_is)
 
     # ステップ n+1 における境界 j の表面温度, degree C, [j, 1]
@@ -255,47 +253,38 @@ def run_tick(n: int, ss: PreCalcParameters, c_n: Conditions, logger: Logger):
     q_srf_js_n = (theta_ei_js_npls - theta_s_js_n) * (ss.h_c_js + ss.h_r_js)
 
     # ステップnの室iにおける係数 brmx_pre, [i, 1]
-    brmx_pre_is = get_rho_air() * (
-            ss.v_room_is / 900
-            + v_out_vent_is_n
-            + np.sum(ss.v_int_vent_is_is, axis=1, keepdims=True)
-    ) + ss.c_cap_w_frt_is * ss.c_w_frt_is / (ss.c_cap_w_frt_is + 900 * ss.c_w_frt_is)
+    brmx_non_dh_is = get_rho_air() * (v_diag(ss.v_room_is / 900 + v_out_vent_is_n) - ss.v_int_vent_is_is)\
+        + v_diag(ss.c_cap_w_frt_is * ss.c_w_frt_is / (ss.c_cap_w_frt_is + 900 * ss.c_w_frt_is))
 
     # ステップnの室iにおける係数 brxc_pre, [i, 1]
-    brxc_pre_is = get_rho_air() * (
+    brxc_non_dh_is = get_rho_air() * (
             ss.v_room_is / 900 * c_n.x_r_is_n
             + v_out_vent_is_n * ss.x_o_ns[n]
-            + np.dot(ss.v_int_vent_is_is, c_n.x_r_is_n)
-    ) + ss.c_cap_w_frt_is * ss.c_w_frt_is / (ss.c_cap_w_frt_is + 900 * ss.c_w_frt_is) * c_n.x_frnt_is_n + (x_gen_is_n + x_hum_is_n)
+    ) + ss.c_cap_w_frt_is * ss.c_w_frt_is / (ss.c_cap_w_frt_is + 900 * ss.c_w_frt_is) * c_n.x_frnt_is_n\
+        + x_gen_is_n + x_hum_is_n
+
+    x_r_non_dh_is_n = np.dot(np.linalg.inv(brmx_non_dh_is), brxc_non_dh_is)
 
     # ==== ルームエアコン吹出絶対湿度の計算 ====
 
     # i室のn時点におけるエアコンの（BFを考慮した）相当風量[m3/s]
     # 空調の熱交換部飽和絶対湿度の計算
-    v_ac_is_n, x_e_out_is_n = ss.get_vac_xeout_is(
-        lcs_is_n=lc_is_npls.flatten(),
-        theta_r_is_npls=theta_r_is_n_pls.flatten(),
-        operation_mode_is_n=operation_mode_is_n.flatten()
+    brmx_rac_is, brxc_rac_is = heat_exchanger.get_v_ac_x_e_out_is(
+        lcs_is_n=lc_is_npls,
+        theta_r_is_npls=theta_r_is_n_pls,
+        rac_spec=ss.rac_spec,
+        x_r_non_dh_is_n=x_r_non_dh_is_n
     )
 
-    # 空調機除湿の項 式(20)より
-    RhoVac = get_rho_air() * v_ac_is_n
-
     # 室絶対湿度[kg/kg(DA)]の計算
-    BRMX_base = brmx_pre_is.flatten() + RhoVac
-    BRXC_base = brxc_pre_is.flatten() + RhoVac * x_e_out_is_n
+    BRMX_base2 = brmx_non_dh_is + brmx_rac_is
+    BRXC_base2 = brxc_non_dh_is + brxc_rac_is
 
     # 室絶対湿度の計算 式(16)
-    xr_base = BRXC_base / BRMX_base
-
-    # 補正前の加湿量の計算 [ks/s] 式(20)
-    Ghum_base = RhoVac * (x_e_out_is_n - xr_base)
+    x_r_is_n_pls = np.dot(np.linalg.inv(BRMX_base2), BRXC_base2)
 
     # 除湿量が負値(加湿量が正)になった場合にはルームエアコン風量V_(ac,n)をゼロとして再度室湿度を計算する
-    Ghum_is_n = np.minimum(Ghum_base, 0.0)
-
-    # 除湿量が負値(加湿量が正)になった場合にはルームエアコン風量V_(ac,n)をゼロとして再度室湿度を計算する
-    x_r_is_n_pls = np.where(Ghum_base > 0.0, brxc_pre_is.flatten() / brmx_pre_is.flatten(), xr_base)
+    Ghum_is_n = - np.minimum((np.dot(brmx_rac_is, x_r_is_n_pls) - brxc_rac_is), 0.0)
 
     # 除湿量から室加湿熱量を計算 式(21)
     Lcl_i_n = Ghum_is_n * get_l_wtr()
@@ -316,17 +305,17 @@ def run_tick(n: int, ss: PreCalcParameters, c_n: Conditions, logger: Logger):
     # ********** 備品類の絶対湿度 xf の計算 **********
 
     # 備品類の絶対湿度の計算
-    xf_i_n = (ss.c_cap_w_frt_is.flatten() / 900 * c_n.x_frnt_is_n.flatten() + ss.c_w_frt_is.flatten() * x_r_is_n_pls) / (ss.c_cap_w_frt_is.flatten() / 900 + ss.c_w_frt_is.flatten())
+    xf_i_n = (ss.c_cap_w_frt_is / 900 * c_n.x_frnt_is_n + ss.c_w_frt_is * x_r_is_n_pls) / (ss.c_cap_w_frt_is / 900 + ss.c_w_frt_is)
 
     # kg/s
-    Qfunl_i_n = ss.c_w_frt_is.flatten() * (x_r_is_n_pls - xf_i_n)
+    Qfunl_i_n = ss.c_w_frt_is * (x_r_is_n_pls - xf_i_n)
 
     # ステップnにおける室iの在室者の着衣温度, degree C, [i]
     theta_cl_is_n_pls = occupants.get_theta_cl_is_n(clo_is_n=clo_is_n.flatten(), theta_ot_is_n=theta_ot_is_npls.flatten(), h_hum_is_n=h_hum_is_n.flatten())
 
     logger.operation_mode[:, n] = operation_mode_is_n.flatten()
     logger.theta_r[:, n] = theta_r_is_n_pls.flatten()
-    logger.x_r[:, n] = x_r_is_n_pls
+    logger.x_r[:, n] = x_r_is_n_pls.flatten()
     logger.theta_mrt[:, n] = theta_mrt_hum_is_n_pls.flatten()
     logger.theta_ot[:, n] = theta_ot_is_npls.flatten()
     logger.clo[:, n] = clo_is_n.flatten()
@@ -334,10 +323,10 @@ def run_tick(n: int, ss: PreCalcParameters, c_n: Conditions, logger: Logger):
     logger.x_hum[:, n] = x_hum_is_n.flatten()
     logger.l_cs[:, n] = lc_is_npls.flatten()
     logger.l_rs[:, n] = lr_is_npls.flatten()
-    logger.l_cl[:, n] = Lcl_i_n
+    logger.l_cl[:, n] = Lcl_i_n.flatten()
     logger.theta_frnt[:, n] = theta_frnt_is_n.flatten()
-    logger.x_frnt[:, n] = xf_i_n
-    logger.q_l_frnt[:, n] = Qfunl_i_n
+    logger.x_frnt[:, n] = xf_i_n.flatten()
+    logger.q_l_frnt[:, n] = Qfunl_i_n.flatten()
     logger.theta_s[:, n] = theta_s_js_n.flatten()
     logger.theta_rear[:, n] = theta_rear_js_n.flatten()
     logger.theta_ei[:, n] = theta_ei_js_npls.flatten()
@@ -346,13 +335,14 @@ def run_tick(n: int, ss: PreCalcParameters, c_n: Conditions, logger: Logger):
         operation_mode_is_n=operation_mode_is_n,
         theta_r_is_n=theta_r_is_n_pls,
         theta_mrt_hum_is_n=theta_mrt_hum_is_n_pls,
-        x_r_is_n=x_r_is_n_pls.reshape(-1, 1),
+        x_r_is_n=x_r_is_n_pls,
         theta_dsh_srf_a_js_ms_n=theta_dsh_srf_a_js_ms_npls,
         theta_dsh_srf_t_js_ms_n=theta_dsh_srf_t_js_ms_npls,
         q_srf_js_n=q_srf_js_n,
         theta_frnt_is_n=theta_frnt_is_n,
-        x_frnt_is_n=xf_i_n.reshape(-1, 1),
+        x_frnt_is_n=xf_i_n,
         theta_cl_is_n=theta_cl_is_n_pls.reshape(-1, 1),
         theta_ei_js_n=theta_ei_js_npls
     )
+
 

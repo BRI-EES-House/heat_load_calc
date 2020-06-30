@@ -5,7 +5,8 @@ import csv
 from heat_load_calc.external.global_number import get_c_air, get_rho_air
 from heat_load_calc.core import shape_factor
 from heat_load_calc.core import heat_exchanger
-
+from heat_load_calc.core import operation_mode
+from heat_load_calc.external.psychrometrics import get_p_vs, get_x, get_p_vs_is, get_p_vs_is2
 
 class PreCalcParameters:
 
@@ -56,13 +57,13 @@ class PreCalcParameters:
             brl_is_is,
             p_is_js,
             p_js_is,
-            get_vac_xeout_is,
             is_ground_js,
             wsc_js_ns,
             k_ei_js_js,
             theta_o_ns,
             x_o_ns,
-            theta_o_ave
+            theta_o_ave,
+            rac_spec
     ):
 
         # region 室に関すること
@@ -155,8 +156,6 @@ class PreCalcParameters:
         # 放射暖房対流比率, [i, 1]
         self.beta_is = beta_is
 
-        self.get_vac_xeout_is = get_vac_xeout_is
-
         # === 境界j*に関すること ===
 
         # 統合された境界j*の項別公比法における項mの公比, [j*, 12]
@@ -216,6 +215,8 @@ class PreCalcParameters:
 
         # 年平均外気温度, degree C
         self.theta_o_ave = theta_o_ave
+
+        self.rac_spec = rac_spec
 
 
 def make_pre_calc_parameters(data_directory: str):
@@ -292,10 +293,10 @@ def make_pre_calc_parameters(data_directory: str):
     is_radiative_cooling_is = np.array(is_radiative_cooling_is_list)
     radiative_cooling_max_capacity_is = np.array(radiative_cooling_max_capacity_is_list)
 
-    qmin_c_is = np.array([s['equipment']['cooling']['convective']['q_min'] for s in ss])
-    qmax_c_is = np.array([s['equipment']['cooling']['convective']['q_max'] for s in ss])
-    Vmin_is = np.array([s['equipment']['cooling']['convective']['v_min'] for s in ss])
-    Vmax_is = np.array([s['equipment']['cooling']['convective']['v_max'] for s in ss])
+    qmin_c_is = np.array([s['equipment']['cooling']['convective']['q_min'] for s in ss]).reshape(-1, 1)
+    qmax_c_is = np.array([s['equipment']['cooling']['convective']['q_max'] for s in ss]).reshape(-1, 1)
+    Vmin_is = np.array([s['equipment']['cooling']['convective']['v_min'] for s in ss]).reshape(-1, 1)
+    Vmax_is = np.array([s['equipment']['cooling']['convective']['v_max'] for s in ss]).reshape(-1, 1)
 
     # endregion
 
@@ -551,18 +552,12 @@ def make_pre_calc_parameters(data_directory: str):
 
     # endregion
 
-    def get_vac_xeout_is(lcs_is_n, theta_r_is_npls, operation_mode_is_n):
-
-        vac_is_n = []
-        xeout_is_n = []
-
-        for lcs_i_n, theta_r_i_npls, operation_mode_i_n, Vmin_i, Vmax_i, qmin_c_i, qmax_c_i \
-            in zip(lcs_is_n, theta_r_is_npls, operation_mode_is_n, Vmin_is, Vmax_is, qmin_c_is, qmax_c_is):
-            Vac_n_i, xeout_i_n = heat_exchanger.calcVac_xeout(Lcs=lcs_i_n, Vmin=Vmin_i, Vmax=Vmax_i, qmin_c=qmin_c_i, qmax_c=qmax_c_i, Tr=theta_r_i_npls, operation_mode=operation_mode_i_n)
-            vac_is_n.append(Vac_n_i)
-            xeout_is_n.append(xeout_i_n)
-
-        return np.array(vac_is_n), np.array(xeout_is_n)
+    rac_spec = {
+        'v_min': Vmin_is,
+        'v_max': Vmax_is,
+        'q_min': qmin_c_is,
+        'q_max': qmax_c_is
+    }
 
     pre_calc_parameters = PreCalcParameters(
         number_of_spaces=number_of_spaces,
@@ -610,13 +605,13 @@ def make_pre_calc_parameters(data_directory: str):
         brl_is_is=brl_is_is,
         p_is_js=p_is_js,
         p_js_is=p_js_is,
-        get_vac_xeout_is=get_vac_xeout_is,
         is_ground_js=is_ground_js,
         wsc_js_ns=wsc_js_ns,
         k_ei_js_js=k_ei_js_js,
         theta_o_ns=theta_o_ns,
         x_o_ns=x_o_ns,
-        theta_o_ave=theta_o_ave
+        theta_o_ave=theta_o_ave,
+        rac_spec=rac_spec
     )
 
     return pre_calc_parameters
