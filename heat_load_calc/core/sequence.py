@@ -286,13 +286,11 @@ def run_tick(n: int, ss: PreCalcParameters, c_n: Conditions, logger: Logger):
     # 除湿量
     l_cl_i_n = - (np.dot(brmx_rac_is_n_pls, x_r_is_npls) - brxc_rac_is_n_pls) * get_l_wtr()
 
-    # ********** 備品類の絶対湿度 xf の計算 **********
-
     # 備品類の絶対湿度の計算
     x_frt_is_npls = (ss.c_cap_w_frt_is * c_n.x_frt_is_n + 900 * ss.c_w_frt_is * x_r_is_npls) / (ss.c_cap_w_frt_is + 900 * ss.c_w_frt_is)
 
-    # ステップnにおける室iの在室者の着衣温度, degree C, [i]
-    theta_cl_is_n_pls = occupants.get_theta_cl_is_n(clo_is_n=clo_is_n.flatten(), theta_ot_is_n=theta_ot_is_npls.flatten(), h_hum_is_n=h_hum_is_n.flatten())
+    # ステップnにおける室iの在室者の着衣温度, degree C, [i, 1]
+    theta_cl_is_n_pls = occupants.get_theta_cl_is_n(clo_is_n=clo_is_n, theta_ot_is_n=theta_ot_is_npls, h_hum_is_n=h_hum_is_n)
 
     logger.operation_mode[:, n] = operation_mode_is_n.flatten()
     logger.theta_r[:, n] = theta_r_is_npls.flatten()
@@ -321,7 +319,7 @@ def run_tick(n: int, ss: PreCalcParameters, c_n: Conditions, logger: Logger):
         q_srf_js_n=q_srf_js_n,
         theta_frnt_is_n=theta_frt_is_npls,
         x_frnt_is_n=x_frt_is_npls,
-        theta_cl_is_n=theta_cl_is_n_pls.reshape(-1, 1),
+        theta_cl_is_n=theta_cl_is_n_pls,
         theta_ei_js_n=theta_ei_js_npls
     )
 

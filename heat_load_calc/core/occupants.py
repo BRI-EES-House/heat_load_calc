@@ -141,22 +141,22 @@ def calc_operation(
 
 
 def get_theta_cl_is_n(
-        clo_is_n: Union[np.ndarray, float],
+        clo_is_n: np.ndarray,
         theta_ot_is_n: np.ndarray,
         h_hum_is_n: np.ndarray
 ) -> np.ndarray:
     """着衣温度を計算する。
 
     Args:
-        clo_is_n: ステップnにおける室iの在室者のClo値, [i]　又は、（厚着・中間着・薄着時の）Clo値（定数）
-        theta_ot_is_n: ステップnにおける室iの在室者の作用温度, degree C, [i]
-        h_hum_is_n: ステップnにおける室iの在室者周りの総合熱伝達率, W/m2K, [i]
+        clo_is_n: ステップnにおける室iの在室者のClo値, [i, 1]　又は、（厚着・中間着・薄着時の）Clo値（定数）
+        theta_ot_is_n: ステップnにおける室iの在室者の作用温度, degree C, [i, 1]
+        h_hum_is_n: ステップnにおける室iの在室者周りの総合熱伝達率, W/m2K, [i, 1]
 
     Returns:
-        ステップnにおける室iの着衣温度, degree C, [i]
+        ステップnにおける室iの着衣温度, degree C, [i, 1]
     """
 
-    # ステップnにおける室iの在室者の着衣抵抗, m2K/W, [i]
+    # ステップnにおける室iの在室者の着衣抵抗, m2K/W, [i, 1]
     i_cl_is_n = get_i_cl_is_n(clo_is_n=clo_is_n)
 
     # ステップnにおける室iの在室者の着衣面積率, [i]
@@ -605,7 +605,7 @@ def get_m():
     return 58.15
 
 
-def get_i_cl_is_n(clo_is_n: Union[np.ndarray, float]) -> np.ndarray:
+def get_i_cl_is_n(clo_is_n: np.ndarray) -> np.ndarray:
     """Clo値から着衣抵抗を計算する。
 
     Args:
