@@ -5,7 +5,7 @@ from heat_load_calc.external.global_number import get_c_air, get_rho_air
 from heat_load_calc.core.matrix_method import v_diag
 
 
-def get_v_ac_x_e_out_is(lcs_is_n, theta_r_is_npls, rac_spec, x_r_non_dh_is_n):
+def get_dehumid_coeff(lcs_is_n, theta_r_is_npls, rac_spec, x_r_non_dh_is_n):
     # Lcsは加熱が正で表される。
     # 加熱時は除湿しない。
     # 以下の取り扱いを簡単にするため（冷房負荷を正とするため）、正負を反転させる
