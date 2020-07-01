@@ -52,7 +52,7 @@ class Conditions:
         self.theta_frnt_is_n = theta_frnt_is_n
 
         # ステップnの室iにおける家具の絶対湿度, kg/kgDA, [i, 1]
-        self.x_frnt_is_n = x_frnt_is_n
+        self.x_frt_is_n = x_frnt_is_n
 
         # ステップnにおける室iの在室者の着衣温度, degree C, [i, 1]
         # 本来であれば着衣温度と人体周りの対流・放射熱伝達率を未知数とした熱収支式を収束計算等を用いて時々刻々求めるのが望ましい。
