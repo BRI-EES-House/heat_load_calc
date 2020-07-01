@@ -283,11 +283,8 @@ def run_tick(n: int, ss: PreCalcParameters, c_n: Conditions, logger: Logger):
     # 室絶対湿度の計算 式(16)
     x_r_is_n_pls = np.dot(np.linalg.inv(brmx_is_n_pls), brxc_is_n_pls)
 
-    # 除湿量が負値(加湿量が正)になった場合にはルームエアコン風量V_(ac,n)をゼロとして再度室湿度を計算する
-    Ghum_is_n = - np.minimum((np.dot(brmx_rac_is_n_pls, x_r_is_n_pls) - brxc_rac_is_n_pls), 0.0)
-
-    # 除湿量から室加湿熱量を計算 式(21)
-    Lcl_i_n = Ghum_is_n * get_l_wtr()
+    # 除湿量
+    Lcl_i_n = - (np.dot(brmx_rac_is_n_pls, x_r_is_n_pls) - brxc_rac_is_n_pls) * get_l_wtr()
 
     # 当面は放射空調の潜熱は0
     # TODO: 配列にすること
