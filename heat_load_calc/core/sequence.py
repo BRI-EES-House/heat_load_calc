@@ -1,7 +1,7 @@
 import numpy as np
 
 from heat_load_calc.core.operation_mode import OperationMode
-from heat_load_calc.core.pre_calc_parameters import PreCalcParameters
+from heat_load_calc.core.pre_calc_parameters import PreCalcParameters, PreCalcParametersGround
 from heat_load_calc.core.conditions import Conditions, GroundConditions
 from heat_load_calc.external.global_number import get_c_air, get_rho_air, get_l_wtr
 from heat_load_calc.core.log import Logger
@@ -12,29 +12,22 @@ from heat_load_calc.core.matrix_method import v_diag
 
 
 # 地盤の計算
-def run_tick_groundonly(gc_n: GroundConditions, ss: PreCalcParameters, n: int):
+def run_tick_groundonly(gc_n: GroundConditions, ss: PreCalcParametersGround, n: int):
 
-    # 境界jが地盤かどうか, [j]
-    gs = ss.is_ground_js.flatten()
+    h_i_js = ss.h_r_js + ss.h_c_js
 
-    h_r_bnd_jstrs = ss.h_r_js.flatten()
-    h_c_bnd_jstrs = ss.h_c_js.flatten()
+    theta_dsh_srf_a_js_ms_npls = ss.phi_a1_js_ms * gc_n.q_srf_js_n + ss.r_js_ms * gc_n.theta_dsh_srf_a_js_ms_n
 
-    h_i_bnd_jstrs = h_r_bnd_jstrs + h_c_bnd_jstrs
+    theta_s_js_npls = (ss.phi_a0_js * h_i_js * ss.theta_o_ns[n]
+        + np.sum(theta_dsh_srf_a_js_ms_npls, axis=1, keepdims=True) + ss.theta_o_ave) \
+        / (1.0 + ss.phi_a0_js * h_i_js)
 
-    theta_srf_dsh_a_is_jstrs_npls_ms = ss.phi_a1_js_ms[gs, :] * gc_n.q_srf_js_n + ss.r_js_ms[gs, :] * gc_n.theta_dsh_srf_a_js_ms_n
-
-    theta_dsh_srf_a_js_ms_n = theta_srf_dsh_a_is_jstrs_npls_ms
-
-    Ts_is_k_n = (ss.phi_a0_js.flatten()[gs] * h_i_bnd_jstrs[gs] * ss.theta_o_ns[n]
-                 + np.sum(theta_srf_dsh_a_is_jstrs_npls_ms, axis=1) + ss.theta_o_ave) \
-               / (1.0 + ss.phi_a0_js.flatten()[gs] * h_i_bnd_jstrs[gs])
-
-    q_srf_js_n = h_i_bnd_jstrs[gs] * (ss.theta_o_ns[n] - Ts_is_k_n)
+    # TODO: ここの外気温度は n+1 を使用する必要があるのではないか。
+    q_srf_js_n = h_i_js * (ss.theta_o_ns[n] - theta_s_js_npls)
 
     return GroundConditions(
-        theta_dsh_srf_a_js_ms_n=theta_dsh_srf_a_js_ms_n,
-        q_srf_js_n=q_srf_js_n.reshape(-1, 1),
+        theta_dsh_srf_a_js_ms_n=theta_dsh_srf_a_js_ms_npls,
+        q_srf_js_n=q_srf_js_n,
     )
 
 
@@ -139,7 +132,7 @@ def run_tick(n: int, ss: PreCalcParameters, c_n: Conditions, logger: Logger):
     # すきま風量を決めるにあたってどういった変数が必要なのかを決めること。
     # TODO: 単位は m3/s とすること。
     # ステップnの室iにおけるすきま風量, m3/s, [i, 1]
-    v_reak_is_n = np.full((ss.number_of_spaces, 1), 0.0)
+    v_reak_is_n = np.full((ss.n_spaces, 1), 0.0)
 
     # ステップn+1の境界jにおける項別公比法の指数項mの吸熱応答の項別成分, degree C, [j, m] (m=12)
     theta_dsh_srf_a_js_ms_npls = ss.phi_a1_js_ms * c_n.q_srf_js_n + ss.r_js_ms * c_n.theta_dsh_srf_a_js_ms_n

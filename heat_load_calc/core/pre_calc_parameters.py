@@ -4,9 +4,7 @@ import csv
 
 from heat_load_calc.external.global_number import get_c_air, get_rho_air
 from heat_load_calc.core import shape_factor
-from heat_load_calc.core import heat_exchanger
-from heat_load_calc.core import operation_mode
-from heat_load_calc.external.psychrometrics import get_p_vs, get_x, get_p_vs_is, get_p_vs_is2
+
 
 class PreCalcParameters:
 
@@ -67,12 +65,12 @@ class PreCalcParameters:
             rac_spec
     ):
 
-        self.number_of_grounds = number_of_grounds
+        self.n_grounds = number_of_grounds
 
         # region 室に関すること
 
         # 室の数, [i]
-        self.number_of_spaces = number_of_spaces
+        self.n_spaces = number_of_spaces
 
         # 室の名前, [i]
         self.space_name_is = space_name_is
@@ -179,7 +177,7 @@ class PreCalcParameters:
         # ステップnの統合された境界j*における透過日射熱取得量のうち表面に吸収される日射量, W/m2, [j*, 8760*4]
         self.q_sol_js_ns = q_sol_js_ns
 
-        self.total_number_of_bdry = number_of_bdries
+        self.n_bdries = number_of_bdries
         self.ivs_ax_js_js = ivs_ax_js_js
 
         self.p_is_js = p_is_js
@@ -222,7 +220,45 @@ class PreCalcParameters:
         self.rac_spec = rac_spec
 
 
-def make_pre_calc_parameters(data_directory: str):
+class PreCalcParametersGround:
+
+    def __init__(
+            self,
+            n_grounds,
+            r_js_ms,
+            phi_a0_js,
+            phi_a1_js_ms,
+            h_r_js,
+            h_c_js,
+            theta_o_ns,
+            theta_o_ave,
+    ):
+
+        self.n_grounds = n_grounds
+
+        # 地盤jの項別公比法における項mの公比, [j, 12]
+        self.r_js_ms = r_js_ms
+
+        # 地盤jの吸熱応答係数の初項, m2K/W, [j]
+        self.phi_a0_js = phi_a0_js
+
+        # 地盤jの項別公比法における項mの吸熱応答係数の第一項 , m2K/W, [j*, 12]
+        self.phi_a1_js_ms = phi_a1_js_ms
+
+        # 地盤jにおける室内側放射熱伝達率, W/m2K, [j, 1]
+        self.h_r_js = h_r_js
+
+        # 地盤jにおける室内側対流熱伝達率, W/m2K, [j, 1]
+        self.h_c_js = h_c_js
+
+        # ステップnの外気温度, degree C, [n]
+        self.theta_o_ns = theta_o_ns
+
+        # 年平均外気温度, degree C
+        self.theta_o_ave = theta_o_ave
+
+
+def make_pre_calc_parameters(data_directory: str) -> (PreCalcParameters, PreCalcParametersGround):
 
     with open(data_directory + '/mid_data_house.json') as f:
         rd = json.load(f)
@@ -445,7 +481,7 @@ def make_pre_calc_parameters(data_directory: str):
     number_of_bdries = len(bs)
 
     # 地盤の数
-    number_of_grounds = np.count_nonzero(is_ground_js)
+    n_grounds = np.count_nonzero(is_ground_js)
 
     # 室iと境界jの関係を表す係数（境界jから室iへの変換）
     # [[p_0_0 ... ... p_0_j]
@@ -568,7 +604,7 @@ def make_pre_calc_parameters(data_directory: str):
     pre_calc_parameters = PreCalcParameters(
         number_of_spaces=number_of_spaces,
         number_of_bdries=number_of_bdries,
-        number_of_grounds=number_of_grounds,
+        number_of_grounds=n_grounds,
         space_name_is=space_name_is,
         v_room_is=v_room_is,
         c_cap_w_frt_is=c_cap_w_frt_is,
@@ -621,5 +657,16 @@ def make_pre_calc_parameters(data_directory: str):
         rac_spec=rac_spec
     )
 
-    return pre_calc_parameters
+    pre_calc_parameters_ground = PreCalcParametersGround(
+        n_grounds=n_grounds,
+        r_js_ms=r_js_ms[is_ground_js.flatten(), :],
+        phi_a0_js=phi_a0_js[is_ground_js.flatten(), :],
+        phi_a1_js_ms=phi_a1_js_ms[is_ground_js.flatten(), :],
+        h_r_js=h_r_js[is_ground_js.flatten(), :],
+        h_c_js=h_c_js[is_ground_js.flatten(), :],
+        theta_o_ns=theta_o_ns,
+        theta_o_ave=theta_o_ave,
+    )
+
+    return pre_calc_parameters, pre_calc_parameters_ground
 

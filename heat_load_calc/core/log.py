@@ -7,7 +7,7 @@ from heat_load_calc.external import psychrometrics as psy
 
 class Logger:
 
-    def __init__(self, n_spaces: int, n_bdrys: int):
+    def __init__(self, n_spaces: int, n_bdries: int):
 
         # ステップnの室iにおける運転状態, [i, n]
         self.operation_mode = np.empty((n_spaces, 24 * 365 * 4 * 3), dtype=object)
@@ -73,22 +73,22 @@ class Logger:
         self.q_l_frnt = np.zeros((n_spaces, 24 * 365 * 4 * 3))
 
         # ステップnの統合された境界j*の室内側表面温度, degree C, [j*, n]
-        self.theta_s = np.zeros((n_bdrys, 24 * 365 * 4 * 3))
+        self.theta_s = np.zeros((n_bdries, 24 * 365 * 4 * 3))
 
         # ステップnの統合された境界j*の室内等価室温, degree C, [j*, n]
 #        self.theta_e = np.zeros((n_bdrys, 24 * 365 * 4 * 3))
 
         # ステップnの統合された境界j*の裏面温度, degree C, [j*, n]
-        self.theta_rear = np.zeros((n_bdrys, 24 * 365 * 4 * 3))
+        self.theta_rear = np.zeros((n_bdries, 24 * 365 * 4 * 3))
 
         # ステップnの統合された境界j*の表面放射熱流, W, [j*, n]
-        self.qr = np.zeros((n_bdrys, 24 * 365 * 4 * 3))
+        self.qr = np.zeros((n_bdries, 24 * 365 * 4 * 3))
 
         # ステップnの統合された境界j*の表面対流熱流, W, [j*, n]
-        self.qc = np.zeros((n_bdrys, 24 * 365 * 4 * 3))
+        self.qc = np.zeros((n_bdries, 24 * 365 * 4 * 3))
 
         # ステップnの統合された境界j*の等価温度, degree C, [j*, n]
-        self.theta_ei = np.zeros((n_bdrys, 24 * 365 * 4 * 3))
+        self.theta_ei = np.zeros((n_bdries, 24 * 365 * 4 * 3))
 
     def pre_logging(self, ss: PreCalcParameters):
 
@@ -133,7 +133,7 @@ def record(pps: PreCalcParameters, logger: Logger, output_data_dir: str, show_si
     dd['外気温度[℃]'] = logger.theta_o
     dd['外気絶対湿度[kg/kg(DA)]'] = logger.x_o
 
-    for i in range(pps.number_of_spaces):
+    for i in range(pps.n_spaces):
 
         name = pps.space_name_is[i]
 
@@ -183,7 +183,7 @@ def record(pps: PreCalcParameters, logger: Logger, output_data_dir: str, show_si
     ds['外気温度[℃]'] = dd['外気温度[℃]'].resample('H').mean().round(2)
     ds['外気絶対湿度[kg/kg(DA)]'] = dd['外気絶対湿度[kg/kg(DA)]'].resample('H').mean().round(2)
 
-    for i in range(pps.number_of_spaces):
+    for i in range(pps.n_spaces):
 
         name = pps.space_name_is[i]
 
