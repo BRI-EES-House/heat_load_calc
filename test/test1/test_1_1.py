@@ -12,7 +12,7 @@ class MyTestCase(unittest.TestCase):
 
         data_dir = str(os.path.dirname(__file__)) + '/data'
 
-        ds, dd = core.calc(input_data_dir=data_dir, output_data_dir=data_dir)
+        ds, dd = core.calc(input_data_dir=data_dir)
 
         # 1/1 0:00の外気温度があっているかどうか？
         self.assertEqual(2.3, dd['外気温度[℃]']['1989-01-01 00:00:00'])
