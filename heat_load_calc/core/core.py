@@ -30,7 +30,7 @@ def calc(input_data_dir: str, output_data_dir: str, show_simple_result: bool = F
     logger.pre_logging(pps)
 
     # 建物を計算するにあたって初期値を与える
-    c_n = conditions.initialize_conditions(ss=pps)
+    c_n = conditions.initialize_conditions(n_spaces=pps.number_of_spaces, n_bdries=pps.total_number_of_bdry)
 
     # 地盤計算の結果（項別公比法の指数項mの吸熱応答の項別成分・表面熱流）を建物の計算に引き継ぐ
     c_n = conditions.update_conditions_by_ground_conditions(

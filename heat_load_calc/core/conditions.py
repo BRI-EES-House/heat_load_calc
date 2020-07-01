@@ -74,13 +74,13 @@ class GroundConditions:
         self.q_srf_js_n = q_srf_js_n
 
 
-def initialize_conditions(ss: PreCalcParameters):
+def initialize_conditions(n_spaces: int, n_bdries: int):
 
     # 空間iの数
-    total_number_of_spaces = ss.number_of_spaces
+    total_number_of_spaces = n_spaces
 
     # 統合された境界j*の数
-    total_number_of_bdry = ss.total_number_of_bdry
+    total_number_of_bdry = n_bdries
 
     # ステップnにおける室iの運転状態, [i, 1]
     # 初期値を暖房・冷房停止で窓「閉」とする。
