@@ -93,21 +93,21 @@ def get_filename(region: int) -> str:
 
     weather_data_filename = {
         # 1地域（北見）
-        1: '1_Kitami.csv',
+        1: '01_kitami.csv',
         # 2地域（岩見沢）
-        2: '2_Iwamizawa.csv',
+        2: '02_iwamizawa.csv',
         # 3地域（盛岡）
-        3: '3_Morioka.csv',
+        3: '03_morioka.csv',
         # 4地域（長野）
-        4: '4_Nagano.csv',
+        4: '04_nagano.csv',
         # 5地域（宇都宮）
-        5: '5_Utsunomiya.csv',
+        5: '05_utsunomiya.csv',
         # 6地域（岡山）
-        6: '6_Okayama.csv',
+        6: '06_okayama.csv',
         # 7地域（宮崎）
-        7: '7_Miyazaki.csv',
+        7: '07_miyazaki.csv',
         # 8地域（那覇）
-        8: '8_Naha.csv'
+        8: '08_naha.csv'
     }[region]
 
     return weather_data_filename
