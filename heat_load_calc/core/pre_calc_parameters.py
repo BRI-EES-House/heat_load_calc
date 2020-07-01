@@ -14,6 +14,7 @@ class PreCalcParameters:
             self,
             number_of_spaces,
             number_of_bdries,
+            number_of_grounds,
             space_name_is,
             v_room_is,
             c_cap_w_frt_is,
@@ -65,6 +66,8 @@ class PreCalcParameters:
             theta_o_ave,
             rac_spec
     ):
+
+        self.number_of_grounds = number_of_grounds
 
         # region 室に関すること
 
@@ -127,7 +130,7 @@ class PreCalcParameters:
         # 統合された境界j*の名前2, [j*]
         self.sub_name_bdry_js = sub_name_bdry_js
 
-        # 境界jが地盤かどうか, [j]
+        # 境界jが地盤かどうか, [j, 1]
         self.is_ground_js = is_ground_js
 
         # 統合された境界j*の面積, m2, [j, 1]
@@ -314,8 +317,8 @@ def make_pre_calc_parameters(data_directory: str):
     # 名前2, [j]
     sub_name_bdry_js= [b['sub_name'] for b in bs]
 
-    # 地盤かどうか, [j]
-    is_ground_js = [{'true': True, 'false': False}[b['is_ground']] for b in bs]
+    # 地盤かどうか, [j, 1]
+    is_ground_js = np.array([{'true': True, 'false': False}[b['is_ground']] for b in bs]).reshape(-1, 1)
 
     # 隣接する空間のID, [j]
     connected_space_id_js = np.array([b['connected_space_id'] for b in bs])
@@ -441,6 +444,9 @@ def make_pre_calc_parameters(data_directory: str):
     # 境界の数
     number_of_bdries = len(bs)
 
+    # 地盤の数
+    number_of_grounds = np.count_nonzero(is_ground_js)
+
     # 室iと境界jの関係を表す係数（境界jから室iへの変換）
     # [[p_0_0 ... ... p_0_j]
     #  [ ...  ... ...  ... ]
@@ -562,6 +568,7 @@ def make_pre_calc_parameters(data_directory: str):
     pre_calc_parameters = PreCalcParameters(
         number_of_spaces=number_of_spaces,
         number_of_bdries=number_of_bdries,
+        number_of_grounds=number_of_grounds,
         space_name_is=space_name_is,
         v_room_is=v_room_is,
         c_cap_w_frt_is=c_cap_w_frt_is,

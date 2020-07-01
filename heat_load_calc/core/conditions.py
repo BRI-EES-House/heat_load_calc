@@ -63,6 +63,17 @@ class Conditions:
         self.theta_ei_js_n = theta_ei_js_n
 
 
+class GroundConditions:
+
+    def __init__(self, theta_dsh_srf_a_js_ms_n, q_srf_js_n):
+
+        # ステップnの境界jにおける項別公比法の指数項mの吸熱応答の項別成分, degree C, [j, m] (m=12)
+        self.theta_dsh_srf_a_js_ms_n = theta_dsh_srf_a_js_ms_n
+
+        # ステップnの境界jにおける表面熱流（壁体吸熱を正とする）, W/m2, [j, 1]
+        self.q_srf_js_n = q_srf_js_n
+
+
 def initialize_conditions(ss: PreCalcParameters):
 
     # 空間iの数
@@ -119,11 +130,33 @@ def initialize_conditions(ss: PreCalcParameters):
         theta_dsh_srf_a_js_ms_n=theta_dsh_srf_a_js_ms_n0,
         theta_dsh_srf_t_js_ms_n=theta_dsh_srf_t_js_ms_n0,
         q_srf_js_n=q_srf_jstrs_n,
-#        h_hum_c_is_n=h_hum_c_is_n,
-#        h_hum_r_is_n=h_hum_r_is_n,
         theta_frnt_is_n=theta_frnt_is_n.reshape(-1, 1),
         x_frnt_is_n=x_frnt_is_n,
         theta_cl_is_n=theta_cl_is_n,
         theta_ei_js_n=np.full(total_number_of_bdry, 15.0).reshape(-1, 1)
     )
 
+
+def initialize_ground_conditions(n_gound: int):
+
+    # ステップnの統合された境界j*における指数項mの吸熱応答の項別成分, degree C, [j*, 12]
+    # 初期値を0.0℃とする。
+    theta_dsh_srf_a_js_ms_n0 = np.full((n_gound, 12), 0.0)
+
+    # ステップnの境界jにおける表面熱流（壁体吸熱を正とする）, W/m2, [j, 1]
+    # 初期値を0.0W/m2とする。
+    q_srf_jstrs_n = np.zeros((n_gound, 1), dtype=float)
+
+    return GroundConditions(
+        theta_dsh_srf_a_js_ms_n=theta_dsh_srf_a_js_ms_n0,
+        q_srf_js_n=q_srf_jstrs_n
+    )
+
+
+def update_conditions_by_ground_conditions(is_ground: np.array, c: Conditions, gc: GroundConditions):
+
+    c.theta_dsh_srf_a_js_ms_n[is_ground, :] = gc.theta_dsh_srf_a_js_ms_n
+
+    c.q_srf_js_n[is_ground, :] = gc.q_srf_js_n
+
+    return c

@@ -2,7 +2,7 @@ import numpy as np
 
 from heat_load_calc.core.operation_mode import OperationMode
 from heat_load_calc.core.pre_calc_parameters import PreCalcParameters
-from heat_load_calc.core.conditions import Conditions
+from heat_load_calc.core.conditions import Conditions, GroundConditions
 from heat_load_calc.external.global_number import get_c_air, get_rho_air, get_l_wtr
 from heat_load_calc.core.log import Logger
 from heat_load_calc.core import next_condition
@@ -12,46 +12,29 @@ from heat_load_calc.core.matrix_method import v_diag
 
 
 # 地盤の計算
-def run_tick_groundonly(c_n: Conditions, ss: PreCalcParameters, n: int):
+def run_tick_groundonly(gc_n: GroundConditions, ss: PreCalcParameters, n: int):
 
-    theta_dsh_srf_a_js_ms_n = c_n.theta_dsh_srf_a_js_ms_n
-    q_srf_js_n = c_n.q_srf_js_n.flatten()
-    gs = ss.is_ground_js
+    # 境界jが地盤かどうか, [j]
+    gs = ss.is_ground_js.flatten()
 
     h_r_bnd_jstrs = ss.h_r_js.flatten()
     h_c_bnd_jstrs = ss.h_c_js.flatten()
 
     h_i_bnd_jstrs = h_r_bnd_jstrs + h_c_bnd_jstrs
 
-#    theta_srf_dsh_a_is_jstrs_npls_ms = a1.get_theta_srf_dsh_a_i_jstrs_npls_ms(
-#        q_srf_js_n=q_srf_js_n[gs],
-#        phi_a1_js_ms=ss.phi_a1_js_ms[gs, :],
-#        r_js_ms=ss.r_js_ms[gs, :],
-#        theta_dsh_srf_a_js_ms_n=theta_dsh_srf_a_js_ms_n[gs, :])
-    theta_srf_dsh_a_is_jstrs_npls_ms = ss.phi_a1_js_ms[gs, :] * q_srf_js_n[gs, np.newaxis] + ss.r_js_ms[gs, :] * theta_dsh_srf_a_js_ms_n[gs, :]
+    theta_srf_dsh_a_is_jstrs_npls_ms = ss.phi_a1_js_ms[gs, :] * gc_n.q_srf_js_n + ss.r_js_ms[gs, :] * gc_n.theta_dsh_srf_a_js_ms_n
 
-    theta_dsh_srf_a_js_ms_n[gs, :] = theta_srf_dsh_a_is_jstrs_npls_ms
+    theta_dsh_srf_a_js_ms_n = theta_srf_dsh_a_is_jstrs_npls_ms
 
     Ts_is_k_n = (ss.phi_a0_js.flatten()[gs] * h_i_bnd_jstrs[gs] * ss.theta_o_ns[n]
                  + np.sum(theta_srf_dsh_a_is_jstrs_npls_ms, axis=1) + ss.theta_o_ave) \
                / (1.0 + ss.phi_a0_js.flatten()[gs] * h_i_bnd_jstrs[gs])
 
-    q_srf_js_n[gs] = h_i_bnd_jstrs[gs] * (ss.theta_o_ns[n] - Ts_is_k_n)
+    q_srf_js_n = h_i_bnd_jstrs[gs] * (ss.theta_o_ns[n] - Ts_is_k_n)
 
-    return Conditions(
-        operation_mode_is_n=c_n.operation_mode_is_n,
-        theta_r_is_n=c_n.theta_r_is_n,
-        theta_mrt_hum_is_n=c_n.theta_mrt_hum_is_n,
-        x_r_is_n=c_n.x_r_is_n,
+    return GroundConditions(
         theta_dsh_srf_a_js_ms_n=theta_dsh_srf_a_js_ms_n,
-        theta_dsh_srf_t_js_ms_n=c_n.theta_dsh_srf_t_js_ms_n,
         q_srf_js_n=q_srf_js_n.reshape(-1, 1),
-#        h_hum_c_is_n=c_n.h_hum_c_is_n,
-#        h_hum_r_is_n=c_n.h_hum_r_is_n,
-        theta_frnt_is_n=c_n.theta_frnt_is_n,
-        x_frnt_is_n=c_n.x_frt_is_n,
-        theta_cl_is_n=c_n.theta_cl_is_n,
-        theta_ei_js_n=c_n.theta_ei_js_n
     )
 
 
