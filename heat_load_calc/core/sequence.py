@@ -291,9 +291,6 @@ def run_tick(n: int, ss: PreCalcParameters, c_n: Conditions, logger: Logger):
     # 備品類の絶対湿度の計算
     x_frt_is_npls = (ss.c_cap_w_frt_is * c_n.x_frt_is_n + 900 * ss.c_w_frt_is * x_r_is_npls) / (ss.c_cap_w_frt_is + 900 * ss.c_w_frt_is)
 
-    # kg/s
-    q_l_frnt_is_n = ss.c_w_frt_is * (x_r_is_npls - x_frt_is_npls)
-
     # ステップnにおける室iの在室者の着衣温度, degree C, [i]
     theta_cl_is_n_pls = occupants.get_theta_cl_is_n(clo_is_n=clo_is_n.flatten(), theta_ot_is_n=theta_ot_is_npls.flatten(), h_hum_is_n=h_hum_is_n.flatten())
 
@@ -310,7 +307,6 @@ def run_tick(n: int, ss: PreCalcParameters, c_n: Conditions, logger: Logger):
     logger.l_cl[:, n] = l_cl_i_n.flatten()
     logger.theta_frnt[:, n] = theta_frt_is_npls.flatten()
     logger.x_frnt[:, n] = x_frt_is_npls.flatten()
-    logger.q_l_frnt[:, n] = q_l_frnt_is_n.flatten()
     logger.theta_s[:, n] = theta_s_js_npls.flatten()
     logger.theta_rear[:, n] = theta_rear_js_npls.flatten()
     logger.theta_ei[:, n] = theta_ei_js_npls.flatten()

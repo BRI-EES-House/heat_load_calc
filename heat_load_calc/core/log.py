@@ -120,6 +120,9 @@ class Logger:
         # ステップnの境界jにおける表面熱流（壁体吸熱を正とする）のうち放射成分, W, [j, n]
         self.qr = ss.h_r_js * ss.a_srf_js * (np.dot(np.dot(ss.p_js_is, ss.f_mrt_is_js), self.theta_s) - self.theta_s)
 
+        # ステップnの室iの家具等から空気への水分流, kg/s, [i, n]
+        self.q_l_frnt = ss.c_w_frt_is * (self.x_r - self.x_frnt)
+
 
 def record(pps: PreCalcParameters, logger: Logger, output_data_dir: str, show_simple_result: bool, show_detail_result: bool):
 
