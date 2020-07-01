@@ -1,6 +1,6 @@
 import unittest
 
-import heat_load_calc.weather.weather_data as t
+from heat_load_calc.weather import weather_data as t
 
 
 class TestWeatherData(unittest.TestCase):
