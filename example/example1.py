@@ -12,7 +12,7 @@ def run():
 
     d = json.load(js)
 
-    weather.make_weather(region=d['common']['region'], output_data_dir='data_example1')
+    weather.make_weather(region=d['common']['region'], output_data_dir='data_example1', csv_output=True)
 
     s3_space_initializer.make_house(d=d, input_data_dir='data_example1', output_data_dir='data_example1')
 

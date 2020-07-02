@@ -5,7 +5,7 @@ from heat_load_calc.weather import region_location
 from heat_load_calc.weather import solar_position
 
 
-def make_weather(region: int, output_data_dir: str):
+def make_weather(region: int, output_data_dir: str = None, csv_output: bool = False):
 
     # 気象データの読み込み
     #   (1)ステップnにおける外気温度, ℃, [8760 * 4]
@@ -32,4 +32,7 @@ def make_weather(region: int, output_data_dir: str):
     dd['sun altitude [rad]'] = h_sun_ns
     dd['sun azimuth [rad]'] = a_sun_ns
 
-    dd.to_csv(output_data_dir + '/weather.csv', encoding='utf-8')
+    if csv_output:
+        dd.to_csv(output_data_dir + '/weather.csv', encoding='utf-8')
+
+    return dd
