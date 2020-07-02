@@ -31,7 +31,7 @@ class TestWeatherData(unittest.TestCase):
 
         theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, x_o_ns = t.load(region=1)
 
-        # 時刻 12 時のデータ
+        # 時刻 13 時のデータ
         time = 13 * 4
 
         # 外気温度
@@ -56,7 +56,7 @@ class TestWeatherData(unittest.TestCase):
 
         theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, x_o_ns = t.load(region=1)
 
-        # 時刻 12 時のデータ
+        # 時刻 13 時 15 分のデータ
         time = 12 * 4 + 1
 
         # 外気温度
