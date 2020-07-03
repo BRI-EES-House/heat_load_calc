@@ -3,6 +3,7 @@ from heat_load_calc.core import pre_calc_parameters
 from heat_load_calc.core import conditions
 from heat_load_calc.core import log
 from heat_load_calc.core import sequence
+from heat_load_calc.core import sequence_ground
 from heat_load_calc.core.pre_calc_parameters import PreCalcParameters, PreCalcParametersGround
 
 
@@ -25,7 +26,7 @@ def calc(input_data_dir: str, output_data_dir: str = None, show_simple_result: b
 
     print('助走計算（土壌のみ）')
     for n in range(-n_step_run_up, -n_step_run_up_build):
-        gc_n = sequence.run_tick_groundonly(gc_n=gc_n, ss=ppg, n=n)
+        gc_n = sequence_ground.run_tick(gc_n=gc_n, ss=ppg, n=n)
 
     logger = log.Logger(n_spaces=pp.n_spaces, n_bdries=pp.n_bdries)
     logger.pre_logging(pp)

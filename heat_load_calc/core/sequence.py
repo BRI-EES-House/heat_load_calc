@@ -1,34 +1,14 @@
 import numpy as np
 
 from heat_load_calc.core.operation_mode import OperationMode
-from heat_load_calc.core.pre_calc_parameters import PreCalcParameters, PreCalcParametersGround
-from heat_load_calc.core.conditions import Conditions, GroundConditions
+from heat_load_calc.core.pre_calc_parameters import PreCalcParameters
+from heat_load_calc.core.conditions import Conditions
 from heat_load_calc.external.global_number import get_c_air, get_rho_air, get_l_wtr
 from heat_load_calc.core.log import Logger
 from heat_load_calc.core import next_condition
 from heat_load_calc.core import occupants
 from heat_load_calc.core import heat_exchanger
 from heat_load_calc.core.matrix_method import v_diag
-
-
-# 地盤の計算
-def run_tick_groundonly(gc_n: GroundConditions, ss: PreCalcParametersGround, n: int):
-
-    h_i_js = ss.h_r_js + ss.h_c_js
-
-    theta_dsh_srf_a_js_ms_npls = ss.phi_a1_js_ms * gc_n.q_srf_js_n + ss.r_js_ms * gc_n.theta_dsh_srf_a_js_ms_n
-
-    theta_s_js_npls = (ss.phi_a0_js * h_i_js * ss.theta_o_ns[n]
-        + np.sum(theta_dsh_srf_a_js_ms_npls, axis=1, keepdims=True) + ss.theta_o_ave) \
-        / (1.0 + ss.phi_a0_js * h_i_js)
-
-    # TODO: ここの外気温度は n+1 を使用する必要があるのではないか。
-    q_srf_js_n = h_i_js * (ss.theta_o_ns[n] - theta_s_js_npls)
-
-    return GroundConditions(
-        theta_dsh_srf_a_js_ms_n=theta_dsh_srf_a_js_ms_npls,
-        q_srf_js_n=q_srf_js_n,
-    )
 
 
 # 室温、熱負荷の計算
