@@ -1,6 +1,7 @@
 import json
 import numpy as np
 import csv
+import pandas as pd
 
 from heat_load_calc.external.global_number import get_c_air, get_rho_air
 from heat_load_calc.core import shape_factor
@@ -422,15 +423,10 @@ def make_pre_calc_parameters(data_directory: str) -> (PreCalcParameters, PreCalc
 
     # region スケジュール化されたデータの読み込み
 
-    # ステップnにおける外気温度, degree C, [8760*4]
-    with open(data_directory + '/mid_data_outside_temp.csv', 'r') as f:
-        r = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
-        theta_o_ns = np.array([row for row in r]).flatten()
+    pp = pd.read_csv(data_directory + '/weather.csv', index_col=0, engine='python')
 
-    # ステップnにおける外気絶対湿度, kg/kg(DA), [8760*4]
-    with open(data_directory + '/mid_data_outside_abs_humidity.csv', 'r') as f:
-        r = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
-        x_o_ns = np.array([row for row in r]).flatten()
+    theta_o_ns = pp['temperature [degree C]'].values
+    x_o_ns = pp['absolute humidity [kg/kg(DA)]'].values
 
     # ステップnの室iにおける局所換気量, m3/s, [i, 8760*4]
     with open(data_directory + '/mid_data_local_vent.csv', 'r') as f:

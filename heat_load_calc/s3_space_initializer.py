@@ -366,16 +366,6 @@ def make_house(d, input_data_dir, output_data_dir):
     with open(output_data_dir + '/mid_data_house.json', 'w') as f:
         json.dump(wd, f, indent=4)
 
-    # ステップnにおける外気温度, degree C, [i, 8760*4]
-    with open(output_data_dir + '/mid_data_outside_temp.csv', 'w') as f:
-        w = csv.writer(f, lineterminator='\n')
-        w.writerows(theta_o_ns.reshape(-1, 1).tolist())
-
-    # ステップnにおける外気絶対湿度, kg/kg(DA), [i, 8760*4]
-    with open(output_data_dir + '/mid_data_outside_abs_humidity.csv', 'w') as f:
-        w = csv.writer(f, lineterminator='\n')
-        w.writerows(x_o_ns.reshape(-1, 1).tolist())
-
     # ステップnの室iにおける局所換気量, m3/s, [i, 8760*4]
     with open(output_data_dir + '/mid_data_local_vent.csv', 'w') as f:
         w = csv.writer(f, lineterminator='\n')
