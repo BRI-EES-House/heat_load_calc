@@ -15,6 +15,7 @@ import heat_load_calc.x_35_occupants as x35
 import heat_load_calc.s3_surface_loader as s3_loader
 
 from heat_load_calc.initializer import schedule_loader
+from heat_load_calc.initializer import residents_number
 
 
 def make_house(d, input_data_dir, output_data_dir):
@@ -145,10 +146,11 @@ def make_house(d, input_data_dir, output_data_dir):
         for ib in ibs])
 
     # 床面積の合計, m2
-    a_floor_total = np.sum(a_floor_is)
+    a_floor_total = float(np.sum(a_floor_is))
 
-    # TODO 居住人数。これは1～4の値（小数値。整数ではない。）が入る。床面積の合計から推定すること。
-    n_p = 4.0
+    # 居住人数
+    n_p = residents_number.get_total_number_of_residents(a_floor_total=a_floor_total)
+#    n_p = 4.0
 
     # 以下のスケジュールの取得, [i, 365*96]
     #   ステップnの室iにおける人体発熱を除く内部発熱, W, [i, 8760*4]
