@@ -15,6 +15,7 @@ import heat_load_calc.x_35_occupants as x35
 import heat_load_calc.s3_surface_loader as s3_loader
 
 from heat_load_calc.initializer import schedule_loader
+from heat_load_calc.initializer import residents_number
 
 
 def make_house(d, input_data_dir, output_data_dir):
@@ -139,8 +140,17 @@ def make_house(d, input_data_dir, output_data_dir):
             ), axis=0)
     ] for d_bdry_i_ks in d_bdry_is_ks])
 
-    # TODO 居住人数。これは1～4の値（小数値。整数ではない。）が入る。床面積の合計から推定すること。
-    n_p = 4.0
+    # 室iの床面積, m2, [i]
+    a_floor_is = np.array([
+        np.sum(ib.a_i_jstrs[ib.is_solar_absorbed_inside_i_jstrs])
+        for ib in ibs])
+
+    # 床面積の合計, m2
+    a_floor_total = float(np.sum(a_floor_is))
+
+    # 居住人数
+    n_p = residents_number.get_total_number_of_residents(a_floor_total=a_floor_total)
+#    n_p = 4.0
 
     # 以下のスケジュールの取得, [i, 365*96]
     #   ステップnの室iにおける人体発熱を除く内部発熱, W, [i, 8760*4]
@@ -215,11 +225,6 @@ def make_house(d, input_data_dir, output_data_dir):
             a_bdry_i_jstrs=ib.a_i_jstrs,
             is_solar_absorbed_inside_bdry_i_jstrs=ib.is_solar_absorbed_inside_i_jstrs
         ) for ib in ibs])
-
-    # 室iの床面積の合計, m2, [i]
-    a_floor_is = np.array([
-        np.sum(ib.a_i_jstrs[ib.is_solar_absorbed_inside_i_jstrs])
-        for ib in ibs])
 
     theta_o_sol_js_ns = np.concatenate([ib.theta_o_sol_i_jstrs_ns for ib in ibs])
 
