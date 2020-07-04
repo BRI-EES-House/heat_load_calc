@@ -8,12 +8,13 @@ import heat_load_calc.a12_indoor_radiative_heat_transfer as a12
 import heat_load_calc.a14_furniture as a14
 import heat_load_calc.a15_air_flow_rate_rac as a15
 import heat_load_calc.a22_radiative_heating_spec as a22
-import heat_load_calc.a38_schedule as a38
 from heat_load_calc.a39_global_parameters import SpaceType
 from heat_load_calc.a39_global_parameters import BoundaryType
 import heat_load_calc.s3_surface_initializer as s3
 import heat_load_calc.x_35_occupants as x35
 import heat_load_calc.s3_surface_loader as s3_loader
+
+from heat_load_calc.initializer import schedule_loader
 
 
 def make_house(d, input_data_dir, output_data_dir):
@@ -142,8 +143,7 @@ def make_house(d, input_data_dir, output_data_dir):
     n_p = 4.0
 
     # 以下のスケジュールの取得, [i, 365*96]
-    #   局所換気量, m3/h
-    #   TODO: 単位を確認する
+    #   局所換気量, m3/s
     #   機器発熱, W
     #   調理発熱, W
     #   調理発湿, kg/s
@@ -157,7 +157,7 @@ def make_house(d, input_data_dir, output_data_dir):
     x_gen_ckg_is_ns,\
     q_gen_lght_is_ns,\
     n_hum_is_ns,\
-    ac_demand_is_ns = a38.get_all_schedules(n_p=n_p, room_name_is=room_names)
+    ac_demand_is_ns = schedule_loader.get_schedules(n_p=n_p, room_name_is=room_names)
 
     # 内部発熱, W
     q_gen_is_ns = q_gen_app_is_ns + q_gen_ckg_is_ns + q_gen_lght_is_ns
@@ -389,7 +389,7 @@ def make_house(d, input_data_dir, output_data_dir):
     # ステップnの室iにおける局所換気量, m3/s, [i, 8760*4]
     with open(output_data_dir + '/mid_data_local_vent.csv', 'w') as f:
         w = csv.writer(f, lineterminator='\n')
-        w.writerows((v_mec_vent_local_is_ns / 3600.0).T.tolist())
+        w.writerows(v_mec_vent_local_is_ns.T.tolist())
 
     # ステップnの室iにおける内部発熱, W, [8760*4]
     with open(output_data_dir + '/mid_data_heat_generation.csv', 'w') as f:
