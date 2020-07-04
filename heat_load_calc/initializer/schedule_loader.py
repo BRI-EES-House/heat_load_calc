@@ -4,7 +4,50 @@ from typing import Dict, List
 import os
 
 
-def get_schedules(n_p: float, room_name_is: List[str])\
+def get_compiled_schedules(
+        n_p: float, room_name_is: List[str]
+) -> (np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray):
+    """
+    各種スケジュールを取得する。
+
+    Args:
+        n_p: 居住人数
+        room_name_is: 室iの名称, [i]
+
+    Returns:
+        ステップnの室iにおける人体発熱を除く内部発熱, W
+        ステップnの室iにおける人体発湿を除く内部発湿, kg/s, [8760*4]
+        ステップnの室iにおける局所換気量, m3/s, [i, 365*96]
+        ステップnの室iにおける在室人数, [i, 365*96]
+        ステップnの室iにおける空調割合, float型, [i, 365*96]
+    """
+
+    # 変数
+    #   局所換気量, m3/s, [i, 365*96]
+    #   機器発熱, W, [i, 365*96]
+    #   調理発熱, W, [i, 365*96]
+    #   調理発湿, kg/s, [i, 365*96]
+    #   照明発熱, W/m2, [i, 365*96]
+    #   在室人数, [i, 365*96]
+    #   空調割合, float型, [i, 365*96]
+    v_mec_vent_local_is_ns,\
+    q_gen_app_is_ns,\
+    q_gen_ckg_is_ns,\
+    x_gen_ckg_is_ns,\
+    q_gen_lght_is_ns,\
+    n_hum_is_ns,\
+    ac_demand_is_ns = get_each_schedules(n_p=n_p, room_name_is=room_name_is)
+
+    # ステップnの室iにおける人体発熱を除く内部発熱, W
+    # TODO: 照明は W/m2 なのに、床面積をかけわすれている。
+    q_gen_is_ns = q_gen_app_is_ns + q_gen_ckg_is_ns + q_gen_lght_is_ns
+    # ステップnの室iにおける人体発湿を除く内部発湿, kg/s, [8760*4]
+    x_gen_is_ns = x_gen_ckg_is_ns
+
+    return q_gen_is_ns, x_gen_is_ns, v_mec_vent_local_is_ns, n_hum_is_ns, ac_demand_is_ns
+
+
+def get_each_schedules(n_p: float, room_name_is: List[str])\
         -> (np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray):
     """スケジュールを取得する。
 
@@ -92,9 +135,8 @@ def get_schedules(n_p: float, room_name_is: List[str])\
             schedule_type='number_of_people'
         )] for room_name in room_name_is])
 
-    # 空調のON/OFF, bool型, [i, 365*96]
-    # jsonファイルでは、ｓｔｒ（”on", "off")で示されているため、次の行でbool型に変換を行っている。
-    ac_demand_is_ns_on_off = np.concatenate([[
+    # 空調割合, float型, [i, 365*96]
+    ac_demand_is_ns = np.concatenate([[
         get_schedule(
             room_name_i=room_name,
             n_p=n_p,
@@ -102,9 +144,8 @@ def get_schedules(n_p: float, room_name_is: List[str])\
             daily_schedule=d['daily_schedule'],
             schedule_type='is_temp_limit_set'
         )] for room_name in room_name_is])
-    ad_demand_is_ns = np.where(ac_demand_is_ns_on_off == 1, True, False)
 
-    return v_mec_vent_local_is_ns, q_gen_app_is_ns, q_gen_ckg_is_ns, x_gen_ckg_is_ns, q_gen_lght_is_ns, n_hum_is_ns, ad_demand_is_ns
+    return v_mec_vent_local_is_ns, q_gen_app_is_ns, q_gen_ckg_is_ns, x_gen_ckg_is_ns, q_gen_lght_is_ns, n_hum_is_ns, ac_demand_is_ns
 
 
 def load_schedule() -> Dict:

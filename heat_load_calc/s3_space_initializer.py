@@ -143,28 +143,13 @@ def make_house(d, input_data_dir, output_data_dir):
     n_p = 4.0
 
     # 以下のスケジュールの取得, [i, 365*96]
-    #   局所換気量, m3/s
-    #   機器発熱, W
-    #   調理発熱, W
-    #   調理発湿, kg/s
-    #   照明発熱, W/m2
-    #   TODO 床面積を乗じるのを忘れないように
-    #   ステップnの室iにおける在室人数, [8760*4]
-    #   ON/OFF
-    v_mec_vent_local_is_ns,\
-    q_gen_app_is_ns,\
-    q_gen_ckg_is_ns,\
-    x_gen_ckg_is_ns,\
-    q_gen_lght_is_ns,\
-    n_hum_is_ns,\
-    ac_demand_is_ns = schedule_loader.get_schedules(n_p=n_p, room_name_is=room_names)
-
-    # 内部発熱, W
-    q_gen_is_ns = q_gen_app_is_ns + q_gen_ckg_is_ns + q_gen_lght_is_ns
-
-    # ステップnの室iにおける人体発湿を除く内部発湿, kg/s, [8760*4]
-#    x_gen_is_ns = x_gen_ckg_is_ns / 1000.0 / 3600.0
-    x_gen_is_ns = x_gen_ckg_is_ns
+    #   ステップnの室iにおける人体発熱を除く内部発熱, W, [i, 8760*4]
+    # 　　ステップnの室iにおける人体発湿を除く内部発湿, kg/s, [i, 8760*4]
+    #   ステップnの室iにおける局所換気量, m3/s, [i, 8760*4]
+    #   ステップnの室iにおける在室人数, [i, 8760*4]
+    #   ステップnの室iにおける空調割合, [i, 8760*4]
+    q_gen_is_ns, x_gen_is_ns, v_mec_vent_local_is_ns, n_hum_is_ns, ac_demand_is_ns = schedule_loader.get_compiled_schedules(n_p=n_p, room_name_is=room_names)
+    ac_demand_is_ns = np.where(ac_demand_is_ns == 1, True, False)
 
     # TODO: この係数は本来であれば入力ファイルに書かれないといけない。
     # 裏面がどの境界の表面に属するのかを表す
