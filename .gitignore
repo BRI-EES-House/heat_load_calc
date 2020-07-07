@@ -4,3 +4,4 @@ __pycache__
 convert/.pytest_cache/
 heat_load_calc/result_detail.csv
 test/test1/.pytest_cache/
+venv/
