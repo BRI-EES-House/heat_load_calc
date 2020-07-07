@@ -10,7 +10,7 @@ from heat_load_calc.s3_surface_loader import GeneralPartSpec
 from heat_load_calc.s3_surface_loader import TransparentOpeningPartSpec
 from heat_load_calc.s3_surface_loader import OpaqueOpeningPartSpec
 from heat_load_calc.s3_surface_loader import GroundSpec
-from heat_load_calc.a39_global_parameters import BoundaryType
+from heat_load_calc.initializer.boundary_type import BoundaryType
 
 """
 付録2．応答係数の初項、指数項別応答係数、公比の計算

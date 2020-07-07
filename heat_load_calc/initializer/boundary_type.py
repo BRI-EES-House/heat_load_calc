@@ -3,7 +3,7 @@ from enum import Enum, auto
 
 class BoundaryType(Enum):
     """
-        境界の種類
+    境界の種類
     """
 
     # 'internal': 間仕切り
@@ -20,19 +20,4 @@ class BoundaryType(Enum):
 
     # 'ground': 地盤
     Ground = auto()
-
-
-class SpaceType(Enum):
-
-    # 主たる居室
-    MAIN_HABITABLE_ROOM = auto()
-
-    # その他の居室
-    OTHER_HABITABLE_ROOM = auto()
-
-    # 非居室
-    NON_HABITABLE_ROOM = auto()
-
-    # 床下空間
-    UNDERFLOOR = auto()
 

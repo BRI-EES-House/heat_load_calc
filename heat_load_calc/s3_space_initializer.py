@@ -8,8 +8,7 @@ import heat_load_calc.a12_indoor_radiative_heat_transfer as a12
 import heat_load_calc.a14_furniture as a14
 import heat_load_calc.a15_air_flow_rate_rac as a15
 import heat_load_calc.a22_radiative_heating_spec as a22
-from heat_load_calc.a39_global_parameters import SpaceType
-from heat_load_calc.a39_global_parameters import BoundaryType
+from heat_load_calc.initializer.boundary_type import BoundaryType
 import heat_load_calc.s3_surface_initializer as s3
 import heat_load_calc.x_35_occupants as x35
 import heat_load_calc.s3_surface_loader as s3_loader
@@ -37,19 +36,6 @@ def make_house(d, input_data_dir, output_data_dir):
 
     # 室iの名称, [i]
     room_names = [r['name'] for r in rooms]
-
-    # 室iのタイプ
-    #   main_occupant_room: 主たる居室
-    #   other_occupant_room: その他の居室
-    #   non_occupant_room: 非居室
-    #   underfloor: 床下空間
-    # jsonファイルではstr型を読み込んで、列挙型に変換をかけている。
-    room_type_is = [{
-        1: SpaceType.MAIN_HABITABLE_ROOM,
-        2: SpaceType.OTHER_HABITABLE_ROOM,
-        3: SpaceType.NON_HABITABLE_ROOM,
-        4: SpaceType.UNDERFLOOR
-    }[room['room_type']] for room in rooms]
 
     # 室iの気積, m3, [i]
     v_room_cap_is = np.array([r['volume'] for r in rooms])

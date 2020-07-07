@@ -1,9 +1,8 @@
-from typing import List
 import numpy as np
 
 import heat_load_calc.x_07_inclined_surface_solar_radiation as x_07
 import heat_load_calc.x_19_external_boundaries_direction as x_19
-from heat_load_calc.a39_global_parameters import BoundaryType, SpaceType
+from heat_load_calc.initializer.boundary_type import BoundaryType
 
 """
 付録9．	裏面相当温度

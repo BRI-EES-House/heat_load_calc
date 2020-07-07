@@ -7,7 +7,7 @@ from heat_load_calc.s3_surface_loader import GeneralPartSpec
 from heat_load_calc.s3_surface_loader import TransparentOpeningPartSpec
 from heat_load_calc.s3_surface_loader import OpaqueOpeningPartSpec
 from heat_load_calc.s3_surface_loader import GroundSpec
-from heat_load_calc.a39_global_parameters import BoundaryType
+from heat_load_calc.initializer.boundary_type import BoundaryType
 
 """
 付録34．境界条件が同じ部位の集約
