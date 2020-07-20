@@ -3,19 +3,27 @@ import math
 
 
 def get_infiltration(c_value: float, v_room_cap_is: np.ndarray, story: int, vent_type: int,
-                     delta_theta: float) -> np.ndarray:
+                     theta_r_is_n: np.ndarray, theta_o_npls: float) -> np.ndarray:
     """すきま風量を取得する。
 
     Args:
-        c_value: 相当隙間面積, cm2/m2, [i, 1]
+        c_value: 相当隙間面積, cm2/m2
         v_room_cap_is: 室気積, m3, [i,1]
         story: 階
         vent_type: 換気方式, 第?種換気
-        delta_theta: 内外温度差, degree C
+        theta_r_is_n: 時刻nの室温, degree C, [i,1]
+        theta_o_npls: 時刻n+1の外気温度, degree C
 
     Returns:
         すきま風量, m3/s, [i,1]
     """
+    # 室気積の合計値, m3, float
+    total_air_volume = np.sum(v_room_cap_is)
+    # 室気積加重平均室温theta_r_nの計算, degree C, float
+    theta_average_r_n = np.average(theta_r_is_n, weights=v_room_cap_is)
+
+    # 室内外温度差の計算, degree C, float
+    delta_theta = abs(theta_average_r_n-theta_o_npls)
 
     # 係数aの計算, 回/(h (cm2/m2 K^0.5))
     a = {
@@ -52,18 +60,20 @@ def get_infiltration(c_value: float, v_room_cap_is: np.ndarray, story: int, vent
 
     return infiltration
 
+if __name__ == '__main__':
 
-def test():
-    c_value = np.array([2.0, 0.5, 1.0])
-    v_room_cap_is = np.array([50.0, 20.0, 60.0])
+    c_value = 2.0
+    v_room_cap_is = np.array([[50.0], [20.0], [60.0]])
     story = 2
     vent_type = 3
-    delta_theta = 20.
+    theta_r = np.array([[20.0], [18.0], [15.0]])
+    theta_o = 0.0
     print(get_infiltration(
         c_value=c_value,
         v_room_cap_is=v_room_cap_is,
         story=story,
         vent_type=vent_type,
-        delta_theta=delta_theta
+        theta_r_is_n=theta_r,
+        theta_o_npls=theta_o
     )
     )
