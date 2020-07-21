@@ -470,14 +470,12 @@ def get_solar_shading_part(b: Dict) -> SolarShadingPart:
 
     ssp = b['solar_shading_part']
 
-    # 仕様書としては、この key は 'existence'
-    # json 入力の key が 'existance' になっているため修正する必要がある。
-    existence = ssp['existance']
+    existence = ssp['existence']
 
-    # 仕様書としては、この key は 'existence'
-    # json 入力の key が 'existance' になっているため修正する必要がある。
-    if ssp['existance']:
+    if existence:
+
         input_method = ssp['input_method']
+
         if ssp['input_method'] == 'simple':
 
             return SolarShadingPart(

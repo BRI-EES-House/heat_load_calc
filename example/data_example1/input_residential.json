@@ -71,7 +71,7 @@
 						]
 					},
 					"solar_shading_part": {
-						"existance": false
+						"existence": false
 					}
 				},
 				{
@@ -90,7 +90,7 @@
 						"u_value": 4.65
 					},
 					"solar_shading_part": {
-						"existance": false
+						"existence": false
 					}
 				},
 				{
@@ -135,7 +135,7 @@
 						]
 					},
 					"solar_shading_part": {
-						"existance": false
+						"existence": false
 					}
 				},
 				{
@@ -156,7 +156,7 @@
 						"u_value": 4.65
 					},
 					"solar_shading_part": {
-						"existance": false
+						"existence": false
 					}
 				},
 				{
@@ -201,7 +201,7 @@
 						]
 					},
 					"solar_shading_part": {
-						"existance": false
+						"existence": false
 					}
 				},
 				{
@@ -222,7 +222,7 @@
 						"u_value": 4.65
 					},
 					"solar_shading_part": {
-						"existance": true,
+						"existence": true,
 						"input_method": "simple",
 						"depth": 0.91,
 						"d_h": 2.1,
@@ -255,7 +255,7 @@
 						]
 					},
 					"solar_shading_part": {
-						"existance": false
+						"existence": false
 					}
 				},
 				{
@@ -285,7 +285,7 @@
 						]
 					},
 					"solar_shading_part": {
-						"existance": false
+						"existence": false
 					}
 				},
 				{
@@ -318,7 +318,7 @@
 						]
 					},
 					"solar_shading_part": {
-						"existance": false
+						"existence": false
 					}
 				},
 				{
@@ -351,7 +351,7 @@
 						]
 					},
 					"solar_shading_part": {
-						"existance": false
+						"existence": false
 					}
 				},
 				{
@@ -384,7 +384,7 @@
 						]
 					},
 					"solar_shading_part": {
-						"existance": false
+						"existence": false
 					}
 				},
 				{
@@ -417,7 +417,7 @@
 						]
 					},
 					"solar_shading_part": {
-						"existance": false
+						"existence": false
 					}
 				}
 			]
@@ -488,7 +488,7 @@
 						]
 					},
 					"solar_shading_part": {
-						"existance": false
+						"existence": false
 					}
 				},
 				{
@@ -509,7 +509,7 @@
 						"u_value": 4.65
 					},
 					"solar_shading_part": {
-						"existance": true,
+						"existence": true,
 						"input_method": "simple",
 						"depth": 0.65,
 						"d_h": 1.05,
@@ -558,7 +558,7 @@
 						]
 					},
 					"solar_shading_part": {
-						"existance": false
+						"existence": false
 					}
 				},
 				{
@@ -579,7 +579,7 @@
 						"u_value": 4.65
 					},
 					"solar_shading_part": {
-						"existance": false
+						"existence": false
 					}
 				},
 				{
@@ -609,7 +609,7 @@
 						]
 					},
 					"solar_shading_part": {
-						"existance": false
+						"existence": false
 					}
 				},
 				{
@@ -642,7 +642,7 @@
 						]
 					},
 					"solar_shading_part": {
-						"existance": false
+						"existence": false
 					}
 				},
 				{
@@ -687,7 +687,7 @@
 						]
 					},
 					"solar_shading_part": {
-						"existance": false
+						"existence": false
 					}
 				},
 				{
@@ -708,7 +708,7 @@
 						"u_value": 4.65
 					},
 					"solar_shading_part": {
-						"existance": true,
+						"existence": true,
 						"input_method": "simple",
 						"depth": 0.65,
 						"d_h": 1.95,
@@ -742,7 +742,7 @@
 						]
 					},
 					"solar_shading_part": {
-						"existance": false
+						"existence": false
 					}
 				},
 				{
@@ -775,7 +775,7 @@
 						]
 					},
 					"solar_shading_part": {
-						"existance": false
+						"existence": false
 					}
 				},
 				{
@@ -808,7 +808,7 @@
 						]
 					},
 					"solar_shading_part": {
-						"existance": false
+						"existence": false
 					}
 				},
 				{
@@ -853,7 +853,7 @@
 						]
 					},
 					"solar_shading_part": {
-						"existance": false
+						"existence": false
 					}
 				},
 				{
@@ -874,7 +874,7 @@
 						"u_value": 4.65
 					},
 					"solar_shading_part": {
-						"existance": false
+						"existence": false
 					}
 				},
 				{
@@ -919,7 +919,7 @@
 						]
 					},
 					"solar_shading_part": {
-						"existance": false
+						"existence": false
 					}
 				},
 				{
@@ -940,7 +940,7 @@
 						"u_value": 4.65
 					},
 					"solar_shading_part": {
-						"existance": true,
+						"existence": true,
 						"input_method": "simple",
 						"depth": 0.65,
 						"d_h": 1.95,
@@ -974,7 +974,7 @@
 						]
 					},
 					"solar_shading_part": {
-						"existance": false
+						"existence": false
 					}
 				},
 				{
@@ -1007,7 +1007,7 @@
 						]
 					},
 					"solar_shading_part": {
-						"existance": false
+						"existence": false
 					}
 				},
 				{
@@ -1040,7 +1040,7 @@
 						]
 					},
 					"solar_shading_part": {
-						"existance": false
+						"existence": false
 					}
 				},
 				{
@@ -1085,7 +1085,7 @@
 						]
 					},
 					"solar_shading_part": {
-						"existance": false
+						"existence": false
 					}
 				},
 				{
@@ -1130,7 +1130,7 @@
 						]
 					},
 					"solar_shading_part": {
-						"existance": false
+						"existence": false
 					}
 				},
 				{
@@ -1151,7 +1151,7 @@
 						"u_value": 4.65
 					},
 					"solar_shading_part": {
-						"existance": false
+						"existence": false
 					}
 				},
 				{
@@ -1196,7 +1196,7 @@
 						]
 					},
 					"solar_shading_part": {
-						"existance": false
+						"existence": false
 					}
 				},
 				{
@@ -1225,7 +1225,7 @@
 						]
 					},
 					"solar_shading_part": {
-						"existance": false
+						"existence": false
 					}
 				},
 				{
@@ -1255,7 +1255,7 @@
 						]
 					},
 					"solar_shading_part": {
-						"existance": false
+						"existence": false
 					}
 				},
 				{
@@ -1288,7 +1288,7 @@
 						]
 					},
 					"solar_shading_part": {
-						"existance": false
+						"existence": false
 					}
 				},
 				{
@@ -1321,7 +1321,7 @@
 						]
 					},
 					"solar_shading_part": {
-						"existance": false
+						"existence": false
 					}
 				}
 			]
@@ -1396,7 +1396,7 @@
 						]
 					},
 					"solar_shading_part": {
-						"existance": false
+						"existence": false
 					}
 				},
 				{
@@ -1417,7 +1417,7 @@
 						"u_value": 4.65
 					},
 					"solar_shading_part": {
-						"existance": false
+						"existence": false
 					}
 				},
 				{
@@ -1462,7 +1462,7 @@
 						]
 					},
 					"solar_shading_part": {
-						"existance": false
+						"existence": false
 					}
 				},
 				{
@@ -1507,7 +1507,7 @@
 						]
 					},
 					"solar_shading_part": {
-						"existance": false
+						"existence": false
 					}
 				},
 				{
@@ -1528,7 +1528,7 @@
 						"u_value": 4.65
 					},
 					"solar_shading_part": {
-						"existance": false
+						"existence": false
 					}
 				},
 				{
@@ -1557,7 +1557,7 @@
 						]
 					},
 					"solar_shading_part": {
-						"existance": false
+						"existence": false
 					}
 				},
 				{
@@ -1587,7 +1587,7 @@
 						]
 					},
 					"solar_shading_part": {
-						"existance": false
+						"existence": false
 					}
 				},
 				{
@@ -1620,7 +1620,7 @@
 						]
 					},
 					"solar_shading_part": {
-						"existance": false
+						"existence": false
 					}
 				},
 				{
@@ -1653,7 +1653,7 @@
 						]
 					},
 					"solar_shading_part": {
-						"existance": false
+						"existence": false
 					}
 				},
 				{
@@ -1686,7 +1686,7 @@
 						]
 					},
 					"solar_shading_part": {
-						"existance": false
+						"existence": false
 					}
 				},
 				{
@@ -1719,7 +1719,7 @@
 						]
 					},
 					"solar_shading_part": {
-						"existance": false
+						"existence": false
 					}
 				},
 				{
@@ -1752,7 +1752,7 @@
 						]
 					},
 					"solar_shading_part": {
-						"existance": false
+						"existence": false
 					}
 				}
 			]
