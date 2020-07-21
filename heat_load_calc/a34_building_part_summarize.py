@@ -8,13 +8,55 @@ from heat_load_calc.s3_surface_loader import TransparentOpeningPartSpec
 from heat_load_calc.s3_surface_loader import OpaqueOpeningPartSpec
 from heat_load_calc.s3_surface_loader import GroundSpec
 from heat_load_calc.initializer.boundary_type import BoundaryType
+from heat_load_calc.initializer.boundary_simple import BoundarySimple
 
 """
 付録34．境界条件が同じ部位の集約
 """
 
 
-def is_boundary_integratable(b1: Boundary, b2: Boundary) -> bool:
+def get_group_indices(boundaries: List[Boundary], bss: np.ndarray) -> np.ndarray:
+    """
+    集約化できるBoundaryには共通のIDをふっていく。
+
+    Args:
+        boundaries: 室iにおける境界kのリスト
+        bss: 室iにおける境界k
+
+    Returns:
+        グループ番号 * 境界の数
+
+    Notes:
+        例えば、境界の種類が擬似的に、
+        [A,B,C,B,A,C,D,E,F,D,E]
+        だった場合は、Aからグループ番号を振り、
+        [0,1,2,1,0,2,3,4,5,3,4]
+        となる。
+    """
+
+    n = len(bss)
+
+    # 部位番号とグループ番号の対応表 (-1は未割当)
+    g_k = np.full(n, -1, dtype=int)
+
+    # 部位のグループ化
+    for k in range(n):
+
+        # 同じ境界条件の部位を探す
+        gs_index = np.array(
+            [
+                l for l in range(n)
+                if g_k[l] < 0 and is_boundary_integratable(b1=boundaries[k], b2=boundaries[l], b3=bss[k], b4=bss[l])
+            ], dtype=np.int64
+        )
+
+        # 部位番号とグループ番号の対応表に新しいグループ番号を記述
+        g_k[gs_index] = np.max(g_k) + 1
+
+    return g_k
+
+
+def is_boundary_integratable(b1: Boundary, b2: Boundary, b3: BoundarySimple, b4: BoundarySimple) -> bool:
     """
     境界1と境界2が同じであるかを判定する。
 
@@ -27,31 +69,31 @@ def is_boundary_integratable(b1: Boundary, b2: Boundary) -> bool:
     """
 
     # 境界のメイン部分の整合性をチェックし、同じでなければFalseを返して終了。
-    if not is_boundary_bodies_integratable(b1, b2):
+    if not is_boundary_bodies_integratable(b1=b1, b2=b2, b3=b3, b4=b4):
         return False
 
     # 境界の種類が間仕切りの場合
-    if b1.boundary_type == BoundaryType.Internal:
+    if b3.boundary_type == BoundaryType.Internal:
 
         return is_boundary_internals_integratable(bi1=b1.spec, bi2=b2.spec)
 
     # 境界の種類が一般部位の場合
-    elif b1.boundary_type == BoundaryType.ExternalGeneralPart:
+    elif b3.boundary_type == BoundaryType.ExternalGeneralPart:
 
         return is_boundary_generals_integratable(bg1=b1.spec, bg2=b2.spec)
 
     # 境界の種類が透明な開口部の場合
-    elif b1.boundary_type == BoundaryType.ExternalTransparentPart:
+    elif b3.boundary_type == BoundaryType.ExternalTransparentPart:
 
         return is_boundary_transparent_openings_integratable(bto1=b1.spec, bto2=b2.spec)
 
     # 境界の種類が非透明な開口部の場合
-    elif b1.boundary_type == BoundaryType.ExternalOpaquePart:
+    elif b3.boundary_type == BoundaryType.ExternalOpaquePart:
 
         return is_boundary_opaque_openings_integratable(boo1=b1.spec, boo2=b2.spec)
 
     # 境界の種類が地盤の場合
-    elif b1.boundary_type == BoundaryType.Ground:
+    elif b3.boundary_type == BoundaryType.Ground:
 
         return is_boundary_grounds_integratable(bg1=b1.spec, bg2=b2.spec)
 
@@ -59,24 +101,7 @@ def is_boundary_integratable(b1: Boundary, b2: Boundary) -> bool:
         raise ValueError()
 
 
-def is_almost_equal(v1: float, v2: float) -> bool:
-    """
-    境界条件が同じかどうかを判定する際に値が同じであるかを判定する時に、プログラム上の誤差を拾わないために、
-    少し余裕を見て10**(-5) 以内の差であれば、同じ値であるとみなすことにする。
-    この部分はプログラムテクニックの部分であるため、仕様書には書く必要はない。
-
-    Args:
-        v1: 比較する値1
-        v2: 比較する値2
-
-    Returns:
-        同じか否かの判定結果
-    """
-
-    return abs(v1 - v2) < 1.0E-5
-
-
-def is_boundary_bodies_integratable(b1: Boundary, b2: Boundary) -> bool:
+def is_boundary_bodies_integratable(b1: Boundary, b2: Boundary, b3: BoundarySimple, b4: BoundarySimple) -> bool:
     """
     Boundary のメイン部分が統合可能であるかを判断する。
 
@@ -100,24 +125,24 @@ def is_boundary_bodies_integratable(b1: Boundary, b2: Boundary) -> bool:
     """
 
     # 境界の種類
-    if b1.boundary_type != b2.boundary_type:
+    if b3.boundary_type != b4.boundary_type:
         return False
 
     # 室内侵入日射吸収の有無
-    if b1.is_solar_absorbed_inside != b2.is_solar_absorbed_inside:
+    if b3.is_solar_absorbed_inside != b4.is_solar_absorbed_inside:
         return False
 
     # 境界の種類が「外皮_一般部位」、「外皮_透明な開口部」又は「外皮_不透明な開口部」の場合
-    if (b1.boundary_type == BoundaryType.ExternalGeneralPart) \
-            or (b1.boundary_type == BoundaryType.ExternalTransparentPart) \
-            or (b1.boundary_type == BoundaryType.ExternalOpaquePart):
+    if (b3.boundary_type == BoundaryType.ExternalGeneralPart) \
+            or (b3.boundary_type == BoundaryType.ExternalTransparentPart) \
+            or (b3.boundary_type == BoundaryType.ExternalOpaquePart):
 
         # 日射の有無
         if b1.is_sun_striked_outside != b2.is_sun_striked_outside:
             return False
 
         # 温度差係数
-        if not is_almost_equal(b1.temp_dif_coef, b2.temp_dif_coef):
+        if not is_almost_equal(b3.h_td, b4.h_td):
             return False
 
         # 日射の有無が当たるの場合
@@ -128,7 +153,7 @@ def is_boundary_bodies_integratable(b1: Boundary, b2: Boundary) -> bool:
                 return False
 
     # 境界の種類が間仕切りの場合
-    if b1.boundary_type == BoundaryType.Internal:
+    if b3.boundary_type == BoundaryType.Internal:
 
         # 隣室タイプ
         if b1.next_room_type != b2.next_room_type:
@@ -290,39 +315,19 @@ def is_boundary_grounds_integratable(bg1: GroundSpec, bg2: GroundSpec) -> bool:
     return is_almost_equal(bg1.inside_heat_transfer_resistance, bg2.inside_heat_transfer_resistance)
 
 
-def get_group_indices(boundaries: List[Boundary]) -> np.ndarray:
+def is_almost_equal(v1: float, v2: float) -> bool:
     """
-    集約化できるBoundaryには共通のIDをふっていく。
+    境界条件が同じかどうかを判定する際に値が同じであるかを判定する時に、プログラム上の誤差を拾わないために、
+    少し余裕を見て10**(-5) 以内の差であれば、同じ値であるとみなすことにする。
+    この部分はプログラムテクニックの部分であるため、仕様書には書く必要はない。
 
     Args:
-        boundaries: 室iにおける境界kのリスト
+        v1: 比較する値1
+        v2: 比較する値2
 
     Returns:
-        グループ番号 * 境界の数
-
-    Notes:
-        例えば、境界の種類が擬似的に、
-        [A,B,C,B,A,C,D,E,F,D,E]
-        だった場合は、Aからグループ番号を振り、
-        [0,1,2,1,0,2,3,4,5,3,4]
-        となる。
+        同じか否かの判定結果
     """
 
-    n = len(boundaries)
-
-    # 部位番号とグループ番号の対応表 (-1は未割当)
-    g_k = np.zeros(n, dtype=np.int64) - 1
-
-    # 部位のグループ化
-    for k in range(n):
-
-        # 同じ境界条件の部位を探す
-        gs_index = np.array(
-            [l for l in range(n)
-             if g_k[l] < 0 and is_boundary_integratable(boundaries[k], boundaries[l])], dtype=np.int64)
-
-        # 部位番号とグループ番号の対応表に新しいグループ番号を記述
-        g_k[gs_index] = np.max(g_k) + 1
-
-    return g_k
+    return abs(v1 - v2) < 1.0E-5
 
