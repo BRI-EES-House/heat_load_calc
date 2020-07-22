@@ -132,6 +132,10 @@ def is_boundary_bodies_integratable(b1: Boundary, b2: Boundary, b3: BoundarySimp
     if b3.is_solar_absorbed_inside != b4.is_solar_absorbed_inside:
         return False
 
+    # 室内側熱伝達抵抗
+    if not is_almost_equal(b1.inside_heat_transfer_resistance, b2.inside_heat_transfer_resistance):
+        return False
+
     # 境界の種類が「外皮_一般部位」、「外皮_透明な開口部」又は「外皮_不透明な開口部」の場合
     if (b3.boundary_type == BoundaryType.ExternalGeneralPart) \
             or (b3.boundary_type == BoundaryType.ExternalTransparentPart) \
@@ -179,7 +183,7 @@ def is_boundary_internals_integratable(bi1: InternalPartSpec, bi2: InternalPartS
         (1) 室内側熱伝達抵抗
     """
 
-    return is_almost_equal(bi1.inside_heat_transfer_resistance, bi2.inside_heat_transfer_resistance)
+    return True
 
 
 def is_boundary_generals_integratable(bg1: GeneralPartSpec, bg2: GeneralPartSpec) -> bool:
@@ -207,10 +211,6 @@ def is_boundary_generals_integratable(bg1: GeneralPartSpec, bg2: GeneralPartSpec
 
     # 室外側日射吸収率
     if not is_almost_equal(bg1.outside_solar_absorption, bg2.outside_solar_absorption):
-        return False
-
-    # 室内側熱伝達抵抗
-    if not is_almost_equal(bg1.inside_heat_transfer_resistance, bg2.inside_heat_transfer_resistance):
         return False
 
     # 室外側熱伝達抵抗
@@ -242,10 +242,6 @@ def is_boundary_transparent_openings_integratable(
 
     # 室外側長波長放射率
     if not is_almost_equal(bto1.outside_emissivity, bto2.outside_emissivity):
-        return False
-
-    # 室内側熱伝達抵抗
-    if not is_almost_equal(bto1.inside_heat_transfer_resistance, bto2.inside_heat_transfer_resistance):
         return False
 
     # 室外側熱伝達抵抗
@@ -284,10 +280,6 @@ def is_boundary_opaque_openings_integratable(boo1: OpaqueOpeningPartSpec, boo2: 
     if not is_almost_equal(boo1.outside_solar_absorption, boo2.outside_solar_absorption):
         return False
 
-    # 室内側熱伝達抵抗
-    if not is_almost_equal(boo1.inside_heat_transfer_resistance, boo2.inside_heat_transfer_resistance):
-        return False
-
     # 室外側熱伝達抵抗
     if not is_almost_equal(boo1.outside_heat_transfer_resistance, boo2.outside_heat_transfer_resistance):
         return False
@@ -312,7 +304,7 @@ def is_boundary_grounds_integratable(bg1: GroundSpec, bg2: GroundSpec) -> bool:
         (1) 室内側熱伝達抵抗
     """
 
-    return is_almost_equal(bg1.inside_heat_transfer_resistance, bg2.inside_heat_transfer_resistance)
+    return True
 
 
 def is_almost_equal(v1: float, v2: float) -> bool:

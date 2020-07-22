@@ -49,28 +49,10 @@ def convert_from_next_room_name_to_id(name):
         return -1
 
 
-# 室iの境界kの室内側熱伝達抵抗, m2K/W
-# 室内側熱伝達抵抗は全ての part 種類において存在する
-# 従って下記のコードは少し冗長であるがspecの1階層下で定義されているため、念の為かき分けておく。
-def get_r_i_i_ks(b: Boundary):
-    if type(b.spec) is InternalPartSpec:
-        return b.spec.inside_heat_transfer_resistance
-    elif type(b.spec) is GeneralPartSpec:
-        return b.spec.inside_heat_transfer_resistance
-    elif type(b.spec) is TransparentOpeningPartSpec:
-        return b.spec.inside_heat_transfer_resistance
-    elif type(b.spec) is OpaqueOpeningPartSpec:
-        return b.spec.inside_heat_transfer_resistance
-    elif type(b.spec) is GroundSpec:
-        return b.spec.inside_heat_transfer_resistance
-    else:
-        raise TypeError
-
-
 def get_boundary_simple(b: Boundary, theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, a_sun_ns, h_sun_ns):
 
     # 室内側熱伝達抵抗, m2K/W
-    r_i = get_r_i_i_ks(b)
+    r_i = b.inside_heat_transfer_resistance
 
     # 室内側表面総合熱伝達率, W/m2K
     h_i = a23.get_h_i_i_ks(r_i)
