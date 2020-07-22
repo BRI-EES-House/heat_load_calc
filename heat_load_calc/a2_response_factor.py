@@ -369,7 +369,7 @@ def get_response_factors(b: Boundary) -> ResponseFactor:
         # 従って下記のコードは少し冗長であるがspecの1階層下で定義されているため、念の為かき分けておく。
 
         # 開口部の室内表面から屋外までの熱貫流率[W / (m2･K)] 式(124)
-        _Uso = a25.get_Uso(u_w=b.spec.u_value, r_i_i_k_n=b.spec.inside_heat_transfer_resistance)
+        _Uso = a25.get_Uso(u_w=b.spec.u_value, r_i_i_k_n=b.inside_heat_transfer_resistance)
 
         _RFT0, _RFA0, _RFT1, _RFA1, _Row, _n_root_i_js = \
             1.0, 1.0 / _Uso, np.zeros(12), np.zeros(12), np.zeros(12), 0

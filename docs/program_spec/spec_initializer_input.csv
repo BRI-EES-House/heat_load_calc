@@ -113,8 +113,8 @@ s, sw, w, nw, n, ne, e, se, top, bottom"
 ,,○,,,室内侵入日射吸収の有無,is_solar_absorbed_inside,△,"1:True
 2:False","1:吸収する
 2:吸収しない",boolean,－,,必ず室1つにつき1箇所は指定すること。
+,,○,,,室内側熱伝達抵抗,inside_heat_transfer_resistance,△,,,float,m2K/W,,
 ,,▼,,,間仕切りの仕様,internal_part_spec,[境界の種類]=[間仕切り],,,,,,
-,,,○,,室内側熱伝達抵抗,inside_heat_transfer_resistance,△,,,float,m2K/W,,
 ,,,○,,室外側熱伝達抵抗,outside_heat_transfer_resistance,△,,,float,m2K/W,,
 ,,,▽,,層,layers,△（複数）,,,,,,"対象室側から並べる
 室内外の熱伝達抵抗は含まない"
@@ -123,10 +123,9 @@ s, sw, w, nw, n, ne, e, se, top, bottom"
 ,,,,○,熱容量,thermal_capacity,△,,,float,kJ/m2K,,
 ,,,△,,,,,,,,,,
 ,,▲,,,,,,,,,,,
-,,▼,,,一般部位の仕様general_part_spec,general_part_spec,[境界の種類]=[外皮_一般部位],,,,,,
+,,▼,,,一般部位の仕様,general_part_spec,[境界の種類]=[外皮_一般部位],,,,,,
 ,,,○,,室外側長波長放射率,outside_emissivity,△,,,float,－,,
 ,,,○,,室外側日射吸収率,outside_solar_absorption,△,,,float,－,,
-,,,○,,室内側熱伝達抵抗,inside_heat_transfer_resistance,△,,,float,m2K/W,,
 ,,,○,,室外側熱伝達抵抗,outside_heat_transfer_resistance,△,,,float,m2K/W,,
 ,,,▽,,層,layers,△（複数）,,,,,,"室内側から並べる
 室内外の熱伝達抵抗は含まない"
@@ -139,7 +138,6 @@ s, sw, w, nw, n, ne, e, se, top, bottom"
 ,,,○,,日射熱取得率,eta_value,△,,,float,－,,
 ,,,○,,熱貫流率,u_value,△,,,float,W/m2K,,
 ,,,○,,室外側長波長放射率,outside_emissivity,△,,,float,－,,
-,,,○,,室内側熱伝達抵抗,inside_heat_transfer_resistance,△,,,float,m2K/W,,
 ,,,○,,室外側熱伝達抵抗,outside_heat_transfer_resistance,△,,,float,m2K/W,,
 ,,,○,,ガラスの入射角特性タイプ,incident_angle_characteristics,△,"1:single
 2:multiple","1:単層
@@ -148,12 +146,10 @@ s, sw, w, nw, n, ne, e, se, top, bottom"
 ,,▼,,,不透明な開口部の仕様,opaque_opening_part_spec,[境界の種類]=[外皮_不透明な開口部],,,,,,
 ,,,○,,室外側長波長放射率,outside_emissivity,△,,,float,－,,
 ,,,○,,室外側日射吸収率,outside_solar_absorption,△,,,float,－,,
-,,,○,,室内側熱伝達抵抗,inside_heat_transfer_resistance,△,,,float,m2K/W,,
 ,,,○,,室外側熱伝達抵抗,outside_heat_transfer_resistance,△,,,float,m2K/W,,
 ,,,○,,熱貫流率,u_value,△,,,float,W/m2K,,
 ,,▲,,,,,,,,,,,
 ,,▼,,,地盤,ground_spec,[境界の種類]=[地盤],,,,,,
-,,,○,,室内側熱伝達抵抗,inside_heat_transfer_resistance,△,,,float,m2K/W,,
 ,,,▽,,層,layers,△（複数）,,,,,,"対象室側から並べる
 室内外の熱伝達抵抗は含まない"
 ,,,,○,名称,name,△,,,str,,,

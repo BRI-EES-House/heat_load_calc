@@ -13,11 +13,12 @@ Boundary = namedtuple('Boundary', [
     'next_room_type',
     'is_solar_absorbed_inside',
     'spec',
-    'solar_shading_part'
+    'solar_shading_part',
+    'inside_heat_transfer_resistance'
+
 ])
 
 InternalPartSpec = namedtuple('InternalPartSpec', [
-    'inside_heat_transfer_resistance',
     'outside_heat_transfer_resistance',
     'layers'
 ])
@@ -25,7 +26,6 @@ InternalPartSpec = namedtuple('InternalPartSpec', [
 GeneralPartSpec = namedtuple('GeneralPartSpec', [
     'outside_emissivity',
     'outside_solar_absorption',
-    'inside_heat_transfer_resistance',
     'outside_heat_transfer_resistance',
     'layers'
 ])
@@ -34,7 +34,6 @@ TransparentOpeningPartSpec = namedtuple('TransparentOpeningPartSpec', [
     'eta_value',
     'u_value',
     'outside_emissivity',
-    'inside_heat_transfer_resistance',
     'outside_heat_transfer_resistance',
     'incident_angle_characteristics'
 ])
@@ -42,13 +41,11 @@ TransparentOpeningPartSpec = namedtuple('TransparentOpeningPartSpec', [
 OpaqueOpeningPartSpec = namedtuple('OpaqueOpeningPartSpec', [
     'outside_emissivity',
     'outside_solar_absorption',
-    'inside_heat_transfer_resistance',
     'outside_heat_transfer_resistance',
     'u_value'
 ])
 
 GroundSpec = namedtuple('GroundSpec', [
-    'inside_heat_transfer_resistance',
     'layers'
 ])
 
@@ -186,6 +183,9 @@ def get_boundary(b: Dict) -> Boundary:
     # False: 吸収しない
     is_solar_absorbed_inside = bool(b['is_solar_absorbed_inside'])
 
+    # 室内側熱伝達抵抗, m2K/W
+    inside_heat_transfer_resistance = b['inside_heat_transfer_resistance']
+
     # spec
     # 境界の種類に応じて、それぞれ対応するクラスを取得する。
     if b['boundary_type'] == 'internal':
@@ -213,7 +213,8 @@ def get_boundary(b: Dict) -> Boundary:
         next_room_type=next_room_type,
         is_solar_absorbed_inside=is_solar_absorbed_inside,
         spec=spec,
-        solar_shading_part=solar_shading_part
+        solar_shading_part=solar_shading_part,
+        inside_heat_transfer_resistance=inside_heat_transfer_resistance
     )
 
 
@@ -233,16 +234,12 @@ def get_internal_part_spec(b: Dict) -> InternalPartSpec:
     # spec = b['internal_part_spec']
     spec = b['general_part_spec']
 
-    # 室内側熱伝達抵抗, m2K/W
-    inside_heat_transfer_resistance = float(spec['inside_heat_transfer_resistance'])
-
     # 室外側熱伝達抵抗, m2K/W
     outside_heat_transfer_resistance = float(spec['outside_heat_transfer_resistance'])
 
     layers = get_internal_part_spec_layers(b)
 
     return InternalPartSpec(
-        inside_heat_transfer_resistance=inside_heat_transfer_resistance,
         outside_heat_transfer_resistance=outside_heat_transfer_resistance,
         layers=layers
     )
@@ -267,9 +264,6 @@ def get_general_part_spec(b: Dict) -> GeneralPartSpec:
     # 室外側日射吸収率
     outside_solar_absorption = float(spec['outside_solar_absorption'])
 
-    # 室内側熱伝達抵抗, m2K/W
-    inside_heat_transfer_resistance = float(spec['inside_heat_transfer_resistance'])
-
     # 室外側熱伝達抵抗, m2K/W
     outside_heat_transfer_resistance = float(spec['outside_heat_transfer_resistance'])
 
@@ -278,7 +272,6 @@ def get_general_part_spec(b: Dict) -> GeneralPartSpec:
     return GeneralPartSpec(
         outside_emissivity=outside_emissivity,
         outside_solar_absorption=outside_solar_absorption,
-        inside_heat_transfer_resistance=inside_heat_transfer_resistance,
         outside_heat_transfer_resistance=outside_heat_transfer_resistance,
         layers=layers
     )
@@ -306,9 +299,6 @@ def get_transparent_opening_part_spec(b: Dict) -> TransparentOpeningPartSpec:
     # 室外側長波長放射率
     outside_emissivity = float(spec['outside_emissivity'])
 
-    # 室内側熱伝達抵抗, m2K/W
-    inside_heat_transfer_resistance = float(spec['inside_heat_transfer_resistance'])
-
     # 室外側熱伝達抵抗, m2K/W
     outside_heat_transfer_resistance = float(spec['outside_heat_transfer_resistance'])
 
@@ -321,7 +311,6 @@ def get_transparent_opening_part_spec(b: Dict) -> TransparentOpeningPartSpec:
         eta_value=eta_value,
         u_value=u_value,
         outside_emissivity=outside_emissivity,
-        inside_heat_transfer_resistance=inside_heat_transfer_resistance,
         outside_heat_transfer_resistance=outside_heat_transfer_resistance,
         incident_angle_characteristics=incident_angle_characteristics
     )
@@ -346,9 +335,6 @@ def get_opaque_opening_part_spec(b: Dict) -> OpaqueOpeningPartSpec:
     # 室外側日射吸収率
     outside_solar_absorption = float(spec['outside_solar_absorption'])
 
-    # 室内側熱伝達抵抗, m2K/W
-    inside_heat_transfer_resistance = float(spec['inside_heat_transfer_resistance'])
-
     # 室外側熱伝達抵抗, m2K/W
     outside_heat_transfer_resistance = float(spec['outside_heat_transfer_resistance'])
 
@@ -358,7 +344,6 @@ def get_opaque_opening_part_spec(b: Dict) -> OpaqueOpeningPartSpec:
     return OpaqueOpeningPartSpec(
         outside_emissivity=outside_emissivity,
         outside_solar_absorption=outside_solar_absorption,
-        inside_heat_transfer_resistance=inside_heat_transfer_resistance,
         outside_heat_transfer_resistance=outside_heat_transfer_resistance,
         u_value=u_value
     )
@@ -377,13 +362,9 @@ def get_ground_spec(b: Dict) -> GroundSpec:
 
     spec = b['ground_spec']
 
-    # 室内側熱伝達抵抗, m2K/W
-    inside_heat_transfer_resistance = float(spec['inside_heat_transfer_resistance'])
-
     layers = get_ground_spec_layers(b)
 
     return GroundSpec(
-        inside_heat_transfer_resistance=inside_heat_transfer_resistance,
         layers=layers
     )
 
