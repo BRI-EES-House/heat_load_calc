@@ -92,8 +92,8 @@ def is_boundary_integratable(b1: Boundary, b2: Boundary, b3: BoundarySimple, b4:
     if b3.is_solar_absorbed_inside != b4.is_solar_absorbed_inside:
         return False
 
-    # 室内側熱伝達抵抗
-    if not is_almost_equal(b1.inside_heat_transfer_resistance, b2.inside_heat_transfer_resistance):
+    # 室内側熱伝達率
+    if not is_almost_equal(b3.h_i, b4.h_i):
         return False
 
     # 境界の種類が「外皮_一般部位」、「外皮_透明な開口部」又は「外皮_不透明な開口部」の場合
