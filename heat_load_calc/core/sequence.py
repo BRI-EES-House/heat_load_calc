@@ -269,6 +269,10 @@ def run_tick(n: int, ss: PreCalcParameters, c_n: Conditions, logger: Logger):
     logger.theta_s[:, n] = theta_s_js_npls.flatten()
     logger.theta_rear[:, n] = theta_rear_js_npls.flatten()
     logger.theta_ei[:, n] = theta_ei_js_npls.flatten()
+    logger.qisol_s[:, n] = ss.q_sol_js_ns[:, n]
+    logger.qiall_s[:, n] = [q for q in q_srf_js_n]
+    logger.h_c_s[:, n] = [h for h in ss.h_c_js]
+    logger.h_r_s[:, n] = [h for h in ss.h_r_js]
 
     return Conditions(
         operation_mode_is_n=operation_mode_is_n,

@@ -102,6 +102,18 @@ class Logger:
         # ステップnの統合された境界j*の等価温度, degree C, [j*, n]
         self.theta_ei = np.zeros((n_bdries, 24 * 365 * 4 * 3))
 
+        # ステップnの統合された境界j*の表面日射熱流, W, [j*, n]
+        self.qisol_s = np.zeros((n_bdries, 24 * 365 * 4 * 3))
+
+        # ステップnの統合された境界j*の表面日射熱流, W, [j*, n]
+        self.qiall_s = np.zeros((n_bdries, 24 * 365 * 4 * 3))
+
+        # ステップnの統合された境界j*の表面対流熱伝達率, W/m2K, [j*, n]
+        self.h_c_s = np.zeros((n_bdries, 24 * 365 * 4 * 3))
+
+        # ステップnの統合された境界j*の表面放射熱伝達率, W/m2K, [j*, n]
+        self.h_r_s = np.zeros((n_bdries, 24 * 365 * 4 * 3))
+
     def pre_logging(self, ss: PreCalcParameters):
 
         self.theta_o = ss.theta_o_ns
@@ -184,10 +196,18 @@ def record(pps: PreCalcParameters, logger: Logger, output_data_dir: str, show_si
             dd[name + '_' + boundary_names[j] + '_t_e'] = t[0:365*96]
         for j, t in enumerate(logger.theta_rear[selected, :]):
             dd[name + '_' + boundary_names[j] + '_t_b'] = t[0:365*96]
+        for j, t in enumerate(logger.h_r_s[selected, :]):
+            dd[name + '_' + boundary_names[j] + '_hir_s'] = t[0:365*96]
         for j, t in enumerate(logger.qr[selected, :]):
             dd[name + '_' + boundary_names[j] + '_qir_s'] = t[0:365*96]
+        for j, t in enumerate(logger.h_c_s[selected, :]):
+            dd[name + '_' + boundary_names[j] + '_hic_s'] = t[0:365*96]
         for j, t in enumerate(logger.qc[selected, :]):
             dd[name + '_' + boundary_names[j] + '_qic_s'] = t[0:365*96]
+        for j, t in enumerate(logger.qisol_s[selected, :]):
+            dd[name + '_' + boundary_names[j] + '_qisol_s'] = t[0:365*96]
+        for j, t in enumerate(logger.qiall_s[selected, :]):
+            dd[name + '_' + boundary_names[j] + '_qiall_s'] = t[0:365*96]
 
     if show_detail_result:
         dd.to_csv(output_data_dir + '/result_detail.csv', encoding='cp932')
