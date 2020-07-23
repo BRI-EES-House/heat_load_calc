@@ -17,13 +17,13 @@ class MyTestCase(unittest.TestCase):
         ds, dd = core.calc(input_data_dir=data_dir)
 
         # 1/1 0:00の外気温度があっているかどうか？
-        self.assertEqual(2.3, dd['外気温度[℃]']['1989-01-01 00:00:00'])
+        self.assertEqual(2.3, dd['out_temp']['1989-01-01 00:00:00'])
 
         # 1/1 0:15の外気温度があっているかどうか？
-        self.assertEqual(2.375, dd['外気温度[℃]']['1989-01-01 00:15:00'])
+        self.assertEqual(2.375, dd['out_temp']['1989-01-01 00:15:00'])
 
         # 1/1 0:00の絶対湿度があっているかどうか？
-        self.assertEqual(0.0032, dd['外気絶対湿度[kg/kg(DA)]']['1989-01-01 00:00:00'])
+        self.assertEqual(0.0032, dd['out_abs_humid']['1989-01-01 00:00:00'])
 
 
 if __name__ == '__main__':

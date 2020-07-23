@@ -130,48 +130,48 @@ def record(pps: PreCalcParameters, logger: Logger, output_data_dir: str, show_si
 
     dd = pd.DataFrame(index=date_index_15min)
 
-    dd['外気温度[℃]'] = logger.theta_o
-    dd['外気絶対湿度[kg/kg(DA)]'] = logger.x_o
+    dd['out_temp'] = logger.theta_o
+    dd['out_abs_humid'] = logger.x_o
 
     for i in range(pps.n_spaces):
 
         name = pps.space_name_is[i]
 
-        dd[name + '_運転状態'] = logger.operation_mode[i][0:365*96]
-        dd[name + '_在室状況'] = logger.ac_demand[i][0:365*96]
-        dd[name + '_空気温度[℃]'] = logger.theta_r[i][0:365*96]
-        dd[name + '_室相対湿度[%]'] = logger.rh[i][0:365*96]
-        dd[name + '_室絶対湿度[kg/kg(DA)]'] = logger.x_r[i][0:365*96]
-        dd[name + '_室MRT[℃]'] = logger.theta_mrt[i][0:365*96]
-        dd[name + '_室作用温度[℃]'] = logger.theta_ot[i][0:365*96]
-        dd[name + '_着衣量[clo]'] = logger.clo[i][0:365*96]
-        dd[name + '_透過日射熱取得[W]'] = logger.q_trs_sol[i][0:365*96]
-        dd[name + '_人体発熱を除く内部発熱[W]'] = logger.q_gen[i][0:365*96]
-        dd[name + '_人体発湿を除く内部発湿[kg/s]'] = logger.x_gen[i][0:365*96]
-        dd[name + '_人体顕熱発熱[W]'] = logger.q_hum[i][0:365*96]
-        dd[name + '_人体潜熱発熱[W]'] = logger.x_hum[i][0:365*96]
-        dd[name + '_対流空調顕熱負荷[W]'] = logger.l_cs[i][0:365*96]
-        dd[name + '_放射空調顕熱負荷[W]'] = logger.l_rs[i][0:365*96]
-        dd[name + '_対流空調潜熱負荷[W]'] = logger.l_cl[i][0:365*96]
-        dd[name + '_家具温度[℃]'] = logger.theta_frnt[i][0:365*96]
-        dd[name + '_家具取得熱量[W]'] = logger.q_frnt[i][0:365*96]
-        dd[name + '_家具吸収日射熱量[W]'] = logger.q_sol_frnt[i][0:365*96]
-        dd[name + '_家具絶対湿度[kg/kg(DA)]'] = logger.x_frnt[i][0:365*96]
-        dd[name + '_家具取得水蒸気量[kg/s]'] = logger.q_l_frnt[i][0:365*96]
+        dd[name + '_ac_operate'] = logger.operation_mode[i][0:365*96]
+        dd[name + '_occupancy'] = logger.ac_demand[i][0:365*96]
+        dd[name + '_t_r'] = logger.theta_r[i][0:365*96]
+        dd[name + '_rh_r'] = logger.rh[i][0:365*96]
+        dd[name + '_x_r'] = logger.x_r[i][0:365*96]
+        dd[name + '_mrt'] = logger.theta_mrt[i][0:365*96]
+        dd[name + '_ot'] = logger.theta_ot[i][0:365*96]
+        dd[name + '_clo'] = logger.clo[i][0:365*96]
+        dd[name + '_q_sol_t'] = logger.q_trs_sol[i][0:365*96]
+        dd[name + '_q_s_except_hum'] = logger.q_gen[i][0:365*96]
+        dd[name + '_q_l_except_hum'] = logger.x_gen[i][0:365*96]
+        dd[name + '_q_hum_s'] = logger.q_hum[i][0:365*96]
+        dd[name + '_q_hum_l'] = logger.x_hum[i][0:365*96]
+        dd[name + '_l_s_c'] = logger.l_cs[i][0:365*96]
+        dd[name + '_l_s_r'] = logger.l_rs[i][0:365*96]
+        dd[name + '_l_l_c'] = logger.l_cl[i][0:365*96]
+        dd[name + '_t_fun'] = logger.theta_frnt[i][0:365*96]
+        dd[name + '_q_s_fun'] = logger.q_frnt[i][0:365*96]
+        dd[name + '_q_s_sol_fin'] = logger.q_sol_frnt[i][0:365*96]
+        dd[name + '_x_fun'] = logger.x_frnt[i][0:365*96]
+        dd[name + '_q_l_fun'] = logger.q_l_frnt[i][0:365*96]
 
         selected = pps.p_is_js[i] == 1
         boundary_names = pps.name_bdry_js[selected]
 
         for j, t in enumerate(logger.theta_s[selected, :]):
-            dd[name + '_' + boundary_names[j] + '_表面温度[℃]'] = t[0:365*96]
+            dd[name + '_' + boundary_names[j] + '_t_s'] = t[0:365*96]
         for j, t in enumerate(logger.theta_ei[selected, :]):
-            dd[name + '_' + boundary_names[j] + '_等価室温[℃]'] = t[0:365*96]
+            dd[name + '_' + boundary_names[j] + '_t_e'] = t[0:365*96]
         for j, t in enumerate(logger.theta_rear[selected, :]):
-            dd[name + '_' + boundary_names[j] + '_境界温度[℃]'] = t[0:365*96]
+            dd[name + '_' + boundary_names[j] + '_t_b'] = t[0:365*96]
         for j, t in enumerate(logger.qr[selected, :]):
-            dd[name + '_' + boundary_names[j] + '_表面放射熱流[W]'] = t[0:365*96]
+            dd[name + '_' + boundary_names[j] + '_qir_s'] = t[0:365*96]
         for j, t in enumerate(logger.qc[selected, :]):
-            dd[name + '_' + boundary_names[j] + '_表面対流熱流[W]'] = t[0:365*96]
+            dd[name + '_' + boundary_names[j] + '_qic_s'] = t[0:365*96]
 
     if show_detail_result:
         dd.to_csv(output_data_dir + '/result_detail.csv', encoding='cp932')
@@ -180,20 +180,20 @@ def record(pps: PreCalcParameters, logger: Logger, output_data_dir: str, show_si
 
     ds = pd.DataFrame(index=date_index_1h)
 
-    ds['外気温度[℃]'] = dd['外気温度[℃]'].resample('H').mean().round(2)
-    ds['外気絶対湿度[kg/kg(DA)]'] = dd['外気絶対湿度[kg/kg(DA)]'].resample('H').mean().round(2)
+    ds['out_temp'] = dd['out_temp'].resample('H').mean().round(2)
+    ds['out_abs_humid'] = dd['out_abs_humid'].resample('H').mean().round(2)
 
     for i in range(pps.n_spaces):
 
         name = pps.space_name_is[i]
 
-        ds[name + '_運転状態'] = dd[name + '_運転状態'].asfreq('H')
-        ds[name + '_空気温度[℃]'] = dd[name + '_空気温度[℃]'].resample('H').mean().round(2)
-        ds[name + '_室絶対湿度[kg/kg(DA)]'] = dd[name + '_室絶対湿度[kg/kg(DA)]'].resample('H').mean().round(4)
-        ds[name + '_室作用温度[℃]'] = dd[name + '_室作用温度[℃]'].resample('H').mean().round(2)
-        ds[name + '_対流空調顕熱負荷[W]'] = dd[name + '_対流空調顕熱負荷[W]'].resample('H').sum().round(0)
-        ds[name + '_放射空調顕熱負荷[W]'] = dd[name + '_放射空調顕熱負荷[W]'].resample('H').sum().round(0)
-        ds[name + '_対流空調潜熱負荷[W]'] = dd[name + '_対流空調潜熱負荷[W]'].resample('H').sum().round(0)
+        ds[name + '_ac_operate'] = dd[name + '_ac_operate'].asfreq('H')
+        ds[name + '_t_r'] = dd[name + '_t_r'].resample('H').mean().round(2)
+        ds[name + '_x_r'] = dd[name + '_x_r'].resample('H').mean().round(4)
+        ds[name + '_ot'] = dd[name + '_ot'].resample('H').mean().round(2)
+        ds[name + '_l_s_c'] = dd[name + '_l_s_c'].resample('H').sum().round(0)
+        ds[name + '_l_s_r'] = dd[name + '_l_s_r'].resample('H').sum().round(0)
+        ds[name + '_l_l_c'] = dd[name + '_l_l_c'].resample('H').sum().round(0)
 
     if show_simple_result:
         ds.to_csv(output_data_dir + '/result_digest.csv', encoding='cp932')
