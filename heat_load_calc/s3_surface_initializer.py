@@ -78,6 +78,8 @@ def get_boundary_simple(b: Boundary, theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, a_su
         h_td=b.temp_dif_coef,
         next_room_type=convert_from_next_room_name_to_id(b.next_room_type),
         is_solar_absorbed_inside=b.is_solar_absorbed_inside,
+        is_sun_striked_outside=b.is_sun_striked_outside,
+        direction=b.direction,
         h_i=h_i,
         theta_o_sol=theta_o_sol,
         n_root=rfs.n_root,
