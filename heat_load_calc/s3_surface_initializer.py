@@ -78,6 +78,8 @@ def get_boundary_simple(b: Boundary, theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, a_su
         h_td=b.temp_dif_coef,
         next_room_type=convert_from_next_room_name_to_id(b.next_room_type),
         is_solar_absorbed_inside=b.is_solar_absorbed_inside,
+        is_sun_striked_outside=b.is_sun_striked_outside,
+        direction=b.direction,
         h_i=h_i,
         theta_o_sol=theta_o_sol,
         n_root=rfs.n_root,
@@ -111,7 +113,7 @@ def init_surface(
     # boundaries の数のIDを持つndarray
     # 例
     # [ 0  1  2  3  4  5  0  1  4  5  6  7  8  0  1  4  5  6  9  0  1  2 10  4  5 11]
-    gp_idxs = a34.get_group_indices(boundaries=boundaries, bss=bss)
+    gp_idxs = a34.get_group_indices(bss=bss)
 
     # 先頭のインデックスのリスト
     first_idx = np.array([np.where(gp_idxs == k)[0][0] for k in np.unique(gp_idxs)], dtype=np.int)
