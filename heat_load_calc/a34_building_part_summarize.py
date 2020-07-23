@@ -14,17 +14,15 @@
 import numpy as np
 from typing import List
 
-from heat_load_calc.s3_surface_loader import Boundary
 from heat_load_calc.initializer.boundary_type import BoundaryType
 from heat_load_calc.initializer.boundary_simple import BoundarySimple
 
 
-def get_group_indices(boundaries: List[Boundary], bss: np.ndarray) -> np.ndarray:
+def get_group_indices(bss: np.ndarray) -> np.ndarray:
     """
     集約化できるBoundaryには共通のIDをふっていく。
 
     Args:
-        boundaries: 室iにおける境界kのリスト
         bss: 室iにおける境界k
 
     Returns:
@@ -50,7 +48,7 @@ def get_group_indices(boundaries: List[Boundary], bss: np.ndarray) -> np.ndarray
         gs_index = np.array(
             [
                 l for l in range(n)
-                if g_k[l] < 0 and is_boundary_integratable(b1=boundaries[k], b2=boundaries[l], b3=bss[k], b4=bss[l])
+                if g_k[l] < 0 and is_boundary_integratable(bs1=bss[k], bs2=bss[l])
             ], dtype=np.int64
         )
 
@@ -60,13 +58,13 @@ def get_group_indices(boundaries: List[Boundary], bss: np.ndarray) -> np.ndarray
     return g_k
 
 
-def is_boundary_integratable(b1: Boundary, b2: Boundary, b3: BoundarySimple, b4: BoundarySimple) -> bool:
+def is_boundary_integratable(bs1: BoundarySimple, bs2: BoundarySimple) -> bool:
     """
     境界1と境界2が同じであるかを判定する。
 
     Args:
-        b1: 境界1
-        b2: 境界2
+        bs1: 境界1
+        bs2: 境界2
 
     Returns:
         判定結果
@@ -85,42 +83,42 @@ def is_boundary_integratable(b1: Boundary, b2: Boundary, b3: BoundarySimple, b4:
     """
 
     # 境界の種類
-    if b3.boundary_type != b4.boundary_type:
+    if bs1.boundary_type != bs2.boundary_type:
         return False
 
     # 室内侵入日射吸収の有無
-    if b3.is_solar_absorbed_inside != b4.is_solar_absorbed_inside:
+    if bs1.is_solar_absorbed_inside != bs2.is_solar_absorbed_inside:
         return False
 
     # 室内側熱伝達率
-    if not is_almost_equal(b3.h_i, b4.h_i):
+    if not is_almost_equal(bs1.h_i, bs2.h_i):
         return False
 
     # 境界の種類が「外皮_一般部位」、「外皮_透明な開口部」又は「外皮_不透明な開口部」の場合
-    if (b3.boundary_type == BoundaryType.ExternalGeneralPart) \
-            or (b3.boundary_type == BoundaryType.ExternalTransparentPart) \
-            or (b3.boundary_type == BoundaryType.ExternalOpaquePart):
+    if (bs1.boundary_type == BoundaryType.ExternalGeneralPart) \
+            or (bs1.boundary_type == BoundaryType.ExternalTransparentPart) \
+            or (bs1.boundary_type == BoundaryType.ExternalOpaquePart):
 
         # 日射の有無
-        if b3.is_sun_striked_outside != b4.is_sun_striked_outside:
+        if bs1.is_sun_striked_outside != bs2.is_sun_striked_outside:
             return False
 
         # 温度差係数
-        if not is_almost_equal(b3.h_td, b4.h_td):
+        if not is_almost_equal(bs1.h_td, bs2.h_td):
             return False
 
         # 日射の有無が当たるの場合
-        if b3.is_sun_striked_outside:
+        if bs1.is_sun_striked_outside:
 
             # 向き
-            if b3.direction != b4.direction:
+            if bs1.direction != bs2.direction:
                 return False
 
     # 境界の種類が間仕切りの場合
-    if b3.boundary_type == BoundaryType.Internal:
+    if bs1.boundary_type == BoundaryType.Internal:
 
         # 隣室タイプ
-        if b3.next_room_type != b4.next_room_type:
+        if bs1.next_room_type != bs2.next_room_type:
             return False
 
     # 上記のチェックすべてでFalse判定がでなければ、それは同一であるとみなす。

@@ -113,7 +113,7 @@ def init_surface(
     # boundaries の数のIDを持つndarray
     # 例
     # [ 0  1  2  3  4  5  0  1  4  5  6  7  8  0  1  4  5  6  9  0  1  2 10  4  5 11]
-    gp_idxs = a34.get_group_indices(boundaries=boundaries, bss=bss)
+    gp_idxs = a34.get_group_indices(bss=bss)
 
     # 先頭のインデックスのリスト
     first_idx = np.array([np.where(gp_idxs == k)[0][0] for k in np.unique(gp_idxs)], dtype=np.int)
