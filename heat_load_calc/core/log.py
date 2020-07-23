@@ -135,7 +135,7 @@ def record(pps: PreCalcParameters, logger: Logger, output_data_dir: str, show_si
 
     for i in range(pps.n_spaces):
 
-        name = pps.space_name_is[i]
+        name = 'rm' + str(i)
 
         dd[name + '_ac_operate'] = logger.operation_mode[i][0:365*96]
         dd[name + '_occupancy'] = logger.ac_demand[i][0:365*96]
@@ -163,15 +163,15 @@ def record(pps: PreCalcParameters, logger: Logger, output_data_dir: str, show_si
         boundary_names = pps.name_bdry_js[selected]
 
         for j, t in enumerate(logger.theta_s[selected, :]):
-            dd[name + '_' + boundary_names[j] + '_t_s'] = t[0:365*96]
+            dd[name + '_' + 'b' + str(j) + '_t_s'] = t[0:365*96]
         for j, t in enumerate(logger.theta_ei[selected, :]):
-            dd[name + '_' + boundary_names[j] + '_t_e'] = t[0:365*96]
+            dd[name + '_' + 'b' + str(j) + '_t_e'] = t[0:365*96]
         for j, t in enumerate(logger.theta_rear[selected, :]):
-            dd[name + '_' + boundary_names[j] + '_t_b'] = t[0:365*96]
+            dd[name + '_' + 'b' + str(j) + '_t_b'] = t[0:365*96]
         for j, t in enumerate(logger.qr[selected, :]):
-            dd[name + '_' + boundary_names[j] + '_qir_s'] = t[0:365*96]
+            dd[name + '_' + 'b' + str(j) + '_qir_s'] = t[0:365*96]
         for j, t in enumerate(logger.qc[selected, :]):
-            dd[name + '_' + boundary_names[j] + '_qic_s'] = t[0:365*96]
+            dd[name + '_' + 'b' + str(j) + '_qic_s'] = t[0:365*96]
 
     if show_detail_result:
         dd.to_csv(output_data_dir + '/result_detail.csv', encoding='cp932')
@@ -185,7 +185,7 @@ def record(pps: PreCalcParameters, logger: Logger, output_data_dir: str, show_si
 
     for i in range(pps.n_spaces):
 
-        name = pps.space_name_is[i]
+        name = 'rm' + str(i)
 
         ds[name + '_ac_operate'] = dd[name + '_ac_operate'].asfreq('H')
         ds[name + '_t_r'] = dd[name + '_t_r'].resample('H').mean().round(2)
