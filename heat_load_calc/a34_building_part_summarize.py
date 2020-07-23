@@ -120,7 +120,7 @@ def is_boundary_integratable(b1: Boundary, b2: Boundary, b3: BoundarySimple, b4:
     if b3.boundary_type == BoundaryType.Internal:
 
         # 隣室タイプ
-        if b1.next_room_type != b2.next_room_type:
+        if b3.next_room_type != b4.next_room_type:
             return False
 
     # 上記のチェックすべてでFalse判定がでなければ、それは同一であるとみなす。
