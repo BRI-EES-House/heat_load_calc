@@ -155,7 +155,7 @@ def record(pps: PreCalcParameters, logger: Logger, output_data_dir: str, show_si
         dd[name + '_l_l_c'] = logger.l_cl[i][0:365*96]
         dd[name + '_t_fun'] = logger.theta_frnt[i][0:365*96]
         dd[name + '_q_s_fun'] = logger.q_frnt[i][0:365*96]
-        dd[name + '_q_s_sol_fin'] = logger.q_sol_frnt[i][0:365*96]
+        dd[name + '_q_s_sol_fun'] = logger.q_sol_frnt[i][0:365*96]
         dd[name + '_x_fun'] = logger.x_frnt[i][0:365*96]
         dd[name + '_q_l_fun'] = logger.q_l_frnt[i][0:365*96]
 
