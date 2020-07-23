@@ -102,7 +102,7 @@ def is_boundary_integratable(b1: Boundary, b2: Boundary, b3: BoundarySimple, b4:
             or (b3.boundary_type == BoundaryType.ExternalOpaquePart):
 
         # 日射の有無
-        if b1.is_sun_striked_outside != b2.is_sun_striked_outside:
+        if b3.is_sun_striked_outside != b4.is_sun_striked_outside:
             return False
 
         # 温度差係数
@@ -110,10 +110,10 @@ def is_boundary_integratable(b1: Boundary, b2: Boundary, b3: BoundarySimple, b4:
             return False
 
         # 日射の有無が当たるの場合
-        if b1.is_sun_striked_outside:
+        if b3.is_sun_striked_outside:
 
             # 向き
-            if b1.direction != b2.direction:
+            if b3.direction != b4.direction:
                 return False
 
     # 境界の種類が間仕切りの場合
