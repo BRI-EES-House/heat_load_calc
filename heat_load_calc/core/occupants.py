@@ -17,7 +17,7 @@ def calc_operation(
         theta_cl_is_n: np.ndarray,
         theta_mrt_is_n: np.ndarray,
         ac_demand_is_n: np.ndarray
-) -> (np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray):
+) -> (np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray):
     """
 
     Args:
@@ -43,6 +43,7 @@ def calc_operation(
         ステップnにおける室iの在室者周りの放射熱伝達率, W/m2K, [i, 1]
         ステップnの室iにおける運転モード, [i, 1]
         ステップnの室iにおける目標PMV, [i, 1]
+        ステップnの室iにおける人体近傍の風速, [i, 1]
         ステップnの室iにおけるClo値, [i]
         ステップnの室iにおける目標作用温度, degree C, [i]
     """
@@ -138,7 +139,7 @@ def calc_operation(
         pmv_target_is_n=pmv_target_is_n
     )
 
-    return h_hum_is_n, h_hum_c_is_n, h_hum_r_is_n, operation_mode_is_n, pmv_target_is_n, clo_is_n, theta_ot_target_is_n
+    return h_hum_is_n, h_hum_c_is_n, h_hum_r_is_n, operation_mode_is_n, pmv_target_is_n, v_hum_is_n, clo_is_n, theta_ot_target_is_n
 
 
 def get_theta_cl_is_n(
