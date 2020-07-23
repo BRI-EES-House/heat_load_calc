@@ -30,6 +30,9 @@ class Logger:
         # ステップnの室iにおける作用温度, degree C, [i, n]
         self.theta_ot = np.zeros((n_spaces, 24 * 365 * 4 * 3))
 
+        # ステップnの室iにおける目標PMV, -, [i, n]
+        self.pmv_target = np.zeros((n_spaces, 24 * 365 * 4 * 3))
+
         # ステップnの室iにおけるClo値, [i, n]
         self.clo = np.zeros((n_spaces, 24 * 365 * 4 * 3))
 
@@ -139,6 +142,7 @@ def record(pps: PreCalcParameters, logger: Logger, output_data_dir: str, show_si
 
         dd[name + '_ac_operate'] = logger.operation_mode[i][0:365*96]
         dd[name + '_occupancy'] = logger.ac_demand[i][0:365*96]
+        dd[name + '_pmv_target'] = logger.pmv_target[i][0:365*96]
         dd[name + '_t_r'] = logger.theta_r[i][0:365*96]
         dd[name + '_rh_r'] = logger.rh[i][0:365*96]
         dd[name + '_x_r'] = logger.x_r[i][0:365*96]

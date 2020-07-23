@@ -80,9 +80,10 @@ def run_tick(n: int, ss: PreCalcParameters, c_n: Conditions, logger: Logger):
     #     ステップnにおける室iの在室者周りの対流熱伝達率, W / m2K, [i, 1]
     #     ステップnにおける室iの在室者周りの放射熱伝達率, W / m2K, [i, 1]
     #     ステップnの室iにおける運転モード, [i, 1]
+    #     ステップnの室iにおける目標PMV, [i, 1]
     #     ステップnの室iにおけるClo値, [i, 1]
     #     ステップnの室iにおける目標作用温度, degree C, [i, 1]
-    h_hum_is_n, h_hum_c_is_n, h_hum_r_is_n, operation_mode_is_n, clo_is_n, theta_ot_target_is_n = occupants.calc_operation(
+    h_hum_is_n, h_hum_c_is_n, h_hum_r_is_n, operation_mode_is_n, pmv_target_is_n, clo_is_n, theta_ot_target_is_n = occupants.calc_operation(
         x_r_is_n=c_n.x_r_is_n,
         operation_mode_is_n_mns=c_n.operation_mode_is_n,
         is_radiative_heating_is=ss.is_radiative_heating_is,
@@ -253,6 +254,7 @@ def run_tick(n: int, ss: PreCalcParameters, c_n: Conditions, logger: Logger):
     logger.x_r[:, n] = x_r_is_npls.flatten()
     logger.theta_mrt[:, n] = theta_mrt_hum_is_npls.flatten()
     logger.theta_ot[:, n] = theta_ot_is_npls.flatten()
+    logger.pmv_target[:, n] = pmv_target_is_n.flatten()
     logger.clo[:, n] = clo_is_n.flatten()
     logger.q_hum[:, n] = q_hum_is_n.flatten()
     logger.x_hum[:, n] = x_hum_is_n.flatten()
