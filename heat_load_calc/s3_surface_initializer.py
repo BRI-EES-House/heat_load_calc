@@ -156,7 +156,10 @@ def init_surface(
 
     # 室iの統合された境界j*の傾斜面のステップnにおける相当外気温度, ℃, [j*, 8760*4]
     theta_o_sol_i_jstrs_ns = np.array([
-        get_area_weighted_averaged_values_two_dimension(v=np.array([bs.theta_o_sol for bs in bss[gp_idxs == i]]), a=a_i_js[gp_idxs == i])
+        get_area_weighted_averaged_values_two_dimension(
+            v=np.array([bs.theta_o_sol for bs in bss[gp_idxs == i]]),
+            a=np.array([bs.area for bs in bss[gp_idxs == i]])
+        )
         for i in np.unique(gp_idxs)])
 
     q_trs_sol_i_jstrs_ns = np.array([
@@ -170,21 +173,35 @@ def init_surface(
     Rows = np.array([bss[first_idx[i]].row for i in np.unique(gp_idxs)])
 
     RFT0s = np.array([
-        get_area_weighted_averaged_values_one_dimension(v=np.array([bs.rft0 for bs in bss[gp_idxs == i]]), a=a_i_js[gp_idxs == i])
+        get_area_weighted_averaged_values_one_dimension(
+            v=np.array([bs.rft0 for bs in bss[gp_idxs == i]]),
+            a=np.array([bs.area for bs in bss[gp_idxs == i]])
+        )
         for i in np.unique(gp_idxs)
     ])
 
     RFA0s = np.array([
-        get_area_weighted_averaged_values_one_dimension(v=np.array([bs.rfa0 for bs in bss[gp_idxs == i]]), a=a_i_js[gp_idxs == i])
+        get_area_weighted_averaged_values_one_dimension(
+            v=np.array([bs.rfa0 for bs in bss[gp_idxs == i]]),
+            a=np.array([bs.area for bs in bss[gp_idxs == i]])
+        )
         for i in np.unique(gp_idxs)
     ])
 
     RFT1s = np.array([
-        get_area_weighted_averaged_values_two_dimension(v=np.array([bs.rft1 for bs in bss[gp_idxs == i]]), a=a_i_js[gp_idxs == i]) for i in np.unique(gp_idxs)
+        get_area_weighted_averaged_values_two_dimension(
+            v=np.array([bs.rft1 for bs in bss[gp_idxs == i]]),
+            a=np.array([bs.area for bs in bss[gp_idxs == i]])
+        )
+        for i in np.unique(gp_idxs)
     ])
 
     RFA1s = np.array([
-        get_area_weighted_averaged_values_two_dimension(v=np.array([bs.rfa1 for bs in bss[gp_idxs == i]]), a=a_i_js[gp_idxs == i]) for i in np.unique(gp_idxs)
+        get_area_weighted_averaged_values_two_dimension(
+            v=np.array([bs.rfa1 for bs in bss[gp_idxs == i]]),
+            a=np.array([bs.area for bs in bss[gp_idxs == i]])
+        )
+        for i in np.unique(gp_idxs)
     ])
 
     NsurfG_i = len(np.unique(gp_idxs))
