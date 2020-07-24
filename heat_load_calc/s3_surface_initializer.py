@@ -33,7 +33,8 @@ IntegratedBoundaries = namedtuple('IntegratedBoundaries', [
     'RFA0s',
     'RFT1s',
     'RFA1s',
-    'NsurfG_i'
+    'NsurfG_i',
+    'q_trs_i_jstrs_ns'
 ])
 
 
@@ -68,6 +69,13 @@ def get_boundary_simple(b: Boundary, theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, a_su
         h_sun_ns=h_sun_ns
     )
 
+    # 透過日射量, W, [8760*4]
+    if is_solar_radiation_transmitted(b):
+        q_trs_sol = a11.get_qgt(a_sun_ns=a_sun_ns, b=b, h_sun_ns=h_sun_ns, i_dn_ns=i_dn_ns, i_sky_ns=i_sky_ns)
+    else:
+        q_trs_sol = np.zeros(8760*4, dtype=float)
+
+    # 応答係数
     rfs = a2.get_response_factors(b)
 
     return BoundarySimple(
@@ -82,6 +90,7 @@ def get_boundary_simple(b: Boundary, theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, a_su
         direction=b.direction,
         h_i=h_i,
         theta_o_sol=theta_o_sol,
+        q_trs_sol=q_trs_sol,
         n_root=rfs.n_root,
         row=rfs.row,
         rfa0=rfs.rfa0,
@@ -153,6 +162,11 @@ def init_surface(
         get_area_weighted_averaged_values_two_dimension(v=np.array([bs.theta_o_sol for bs in bss[gp_idxs == i]]), a=a_i_js[gp_idxs == i])
         for i in np.unique(gp_idxs)])
 
+    q_trs_sol_i_jstrs_ns = np.array([
+        np.sum([bs.q_trs_sol for bs in bss[gp_idxs == i]], axis=0)
+        for i in np.unique(gp_idxs)
+    ])
+
     # 室iの統合された境界j*の応答係数法（項別公比法）における根の数, [j*]
     n_root_i_jstrs = np.array([bss[first_idx[i]].n_root for i in np.unique(gp_idxs)])
 
@@ -194,7 +208,8 @@ def init_surface(
         RFA0s=RFA0s,
         RFT1s=RFT1s,
         RFA1s=RFA1s,
-        NsurfG_i=NsurfG_i
+        NsurfG_i=NsurfG_i,
+        q_trs_i_jstrs_ns=q_trs_sol_i_jstrs_ns
     )
 
 

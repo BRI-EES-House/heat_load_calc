@@ -126,6 +126,12 @@ def make_house(d, input_data_dir, output_data_dir):
             ), axis=0)
     ] for d_bdry_i_ks in d_bdry_is_ks])
 
+    print(np.array([np.sum(ib.q_trs_i_jstrs_ns, axis=0) for ib in ibs]))
+    print(q_trs_sol_is_ns)
+    print(np.sum(np.array([np.sum(ib.q_trs_i_jstrs_ns, axis=0) for ib in ibs]), axis=1))
+    print(np.sum(q_trs_sol_is_ns, axis=1))
+    q_trs_sol_is_ns = np.array([np.sum(ib.q_trs_i_jstrs_ns, axis=0) for ib in ibs])
+
     # 室iの床面積, m2, [i]
     a_floor_is = np.array([
         np.sum(ib.a_i_jstrs[ib.is_solar_absorbed_inside_i_jstrs])
