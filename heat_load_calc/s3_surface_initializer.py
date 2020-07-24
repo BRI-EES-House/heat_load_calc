@@ -130,9 +130,6 @@ def init_surface(
     # 室iの境界jの面積, m2, [j]
     a_i_js = np.array([b.area for b in boundaries])
 
-    # 室iの境界kの日除けの仕様 * k
-    solar_shading_part_i_ks = [b.solar_shading_part for b in boundaries]
-
     # 室iの統合された境界j*の名称, [j*]
     name_i_jstrs = np.array(['integrated_boundary' + str(i) for i in np.unique(gp_idxs)])
 

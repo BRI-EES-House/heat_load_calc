@@ -68,9 +68,12 @@ def make_house(d, input_data_dir, output_data_dir):
     c_x_is = a14.get_c_x_is(g_f_is)
 
     # 室iの境界k,　boundaryクラスのリスト, [i, k]
+    # メモ [[12], [26], [12]] の入れ子構造になったリスト
     d_bdry_is_ks = [s3_loader.read_d_boundary_i_ks(input_dict_boundaries=r['boundaries']) for r in rooms]
 
     # 室iの統合された境界j*, IntegratedBoundaryクラス, [j*]
+    # メモ　3つのIntegratedBoundariesクラスのリスト
+    # IntegratedBoundaries クラスが複数のパラメータをもつ
     ibs = [s3.init_surface(
         boundaries=d_boundary_i_ks,
         i_dn_ns=i_dn_ns,
@@ -119,17 +122,6 @@ def make_house(d, input_data_dir, output_data_dir):
     phi_a1_bdry_jstrs_ms = np.concatenate([ib.RFA1s for ib in ibs])
 
     # ステップnの室iにおける窓の透過日射熱取得, W, [8760*4]
-    q_trs_sol_is_ns = np.concatenate([[
-        np.sum(
-            s3.get_transmitted_solar_radiation(
-                boundaries=d_bdry_i_ks, i_dn_ns=i_dn_ns, i_sky_ns=i_sky_ns, h_sun_ns=h_sun_ns, a_sun_ns=a_sun_ns
-            ), axis=0)
-    ] for d_bdry_i_ks in d_bdry_is_ks])
-
-    print(np.array([np.sum(ib.q_trs_i_jstrs_ns, axis=0) for ib in ibs]))
-    print(q_trs_sol_is_ns)
-    print(np.sum(np.array([np.sum(ib.q_trs_i_jstrs_ns, axis=0) for ib in ibs]), axis=1))
-    print(np.sum(q_trs_sol_is_ns, axis=1))
     q_trs_sol_is_ns = np.array([np.sum(ib.q_trs_i_jstrs_ns, axis=0) for ib in ibs])
 
     # 室iの床面積, m2, [i]
