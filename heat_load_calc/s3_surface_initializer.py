@@ -100,23 +100,9 @@ def get_boundary_simple(b: Boundary, theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, a_su
     )
 
 
-def init_surface(
-        boundaries: List[Boundary],
-        i_dn_ns: np.ndarray, i_sky_ns: np.ndarray, r_n_ns: np.ndarray, theta_o_ns: np.ndarray,
-        h_sun_ns: np.ndarray, a_sun_ns: np.ndarray) -> IntegratedBoundaries:
+def init_surface(bss: List[BoundarySimple]) -> IntegratedBoundaries:
 
-    # 室iの境界j
-    bss = np.array([
-        get_boundary_simple(
-            b=b,
-            theta_o_ns=theta_o_ns,
-            i_dn_ns=i_dn_ns,
-            i_sky_ns=i_sky_ns,
-            r_n_ns=r_n_ns,
-            a_sun_ns=a_sun_ns,
-            h_sun_ns=h_sun_ns
-        ) for b in boundaries
-    ])
+    bss = np.array(bss)
 
     # 集約化可能な境界には同じIDを振り、境界ごとにそのIDを取得する。
     # boundaries の数のIDを持つndarray
@@ -126,9 +112,6 @@ def init_surface(
 
     # 先頭のインデックスのリスト
     first_idx = np.array([np.where(gp_idxs == k)[0][0] for k in np.unique(gp_idxs)], dtype=np.int)
-
-    # 室iの境界jの面積, m2, [j]
-    a_i_js = np.array([b.area for b in boundaries])
 
     # 室iの統合された境界j*の名称, [j*]
     name_i_jstrs = np.array(['integrated_boundary' + str(i) for i in np.unique(gp_idxs)])
