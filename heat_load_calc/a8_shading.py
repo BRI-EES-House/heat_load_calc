@@ -1,4 +1,6 @@
 import numpy as np
+from collections import namedtuple
+from typing import Dict
 
 import heat_load_calc.x_19_external_boundaries_direction as x_19
 
@@ -6,6 +8,107 @@ import heat_load_calc.x_19_external_boundaries_direction as x_19
 """
 付録8．ひさしの影面積の計算
 """
+
+SolarShadingPart = namedtuple('SolarShadingPart', [
+    'existence',
+    'input_method',
+    'depth',
+    'd_h',
+    'd_e',
+    'x1',
+    'x2',
+    'x3',
+    'y1',
+    'y2',
+    'y3',
+    'z_x_pls',
+    'z_x_mns',
+    'z_y_pls',
+    'z_y_mns'
+])
+
+
+
+
+def get_solar_shading_part(ssp: Dict) -> SolarShadingPart:
+    """
+    入力ファイルの辞書の'solar_shading_part'を読み込む。
+
+    Args:
+        ssp: 'solar shading part' の辞書
+
+    Returns:
+        SolarShadingPart クラス
+    """
+
+    existence = ssp['existence']
+
+    if existence:
+
+        input_method = ssp['input_method']
+
+        if ssp['input_method'] == 'simple':
+
+            return SolarShadingPart(
+                existence=existence,
+                input_method=input_method,
+                depth=ssp['depth'],
+                d_h=ssp['d_h'],
+                d_e=ssp['d_e'],
+                x1=None,
+                x2=None,
+                x3=None,
+                y1=None,
+                y2=None,
+                y3=None,
+                z_x_pls=None,
+                z_x_mns=None,
+                z_y_pls=None,
+                z_y_mns=None
+            )
+
+        elif ssp['input_method'] == 'detail':
+
+            return SolarShadingPart(
+                existence=existence,
+                input_method=input_method,
+                depth=None,
+                d_h=None,
+                d_e=None,
+                x1=ssp['x1'],
+                x2=ssp['x2'],
+                x3=ssp['x3'],
+                y1=ssp['y1'],
+                y2=ssp['y2'],
+                y3=ssp['y3'],
+                z_x_pls=ssp['z_x_pls'],
+                z_x_mns=ssp['z_x_mns'],
+                z_y_pls=ssp['z_y_pls'],
+                z_y_mns=ssp['z_y_mns']
+            )
+
+        else:
+            raise ValueError()
+
+    else:
+
+        return SolarShadingPart(
+            existence=existence,
+            input_method=None,
+            depth=None,
+            d_h=None,
+            d_e=None,
+            x1=None,
+            x2=None,
+            x3=None,
+            y1=None,
+            y2=None,
+            y3=None,
+            z_x_pls=None,
+            z_x_mns=None,
+            z_y_pls=None,
+            z_y_mns=None
+        )
 
 
 def get_FSDW_i_k_n2(h_sun_n, a_sun_n, direction_i_ks: str, solar_shading_part_i_ks):

@@ -14,33 +14,13 @@ import heat_load_calc.a8_shading as a8
 """
 
 
-def test(boundaries: List[Boundary], i_dn_ns, i_sky_ns, h_sun_ns, a_sun_ns):
-    """
+def get_qgt(direction, area, solar_shading_part, a_sun_ns, b, h_sun_ns, i_dn_ns, i_sky_ns):
 
-    Args:
-        boundaries: 境界
-        a_i_ks: 面積（境界数）
-        tau_i_k: 室iの境界kの日射熱取得率（境界数）
-        i_dn_ns: 直達日射（ステップn）
-        i_sky_ns: 天空放射（ステップn）
-        h_sun_ns: 太陽高度
-        a_sun_ns: 太陽方位角
-    Returns:
-
-    """
-
-    qgt_i_k_ns = np.array([get_qgt(a_sun_ns, b, h_sun_ns, i_dn_ns, i_sky_ns) for b in boundaries])
-
-    return qgt_i_k_ns
-
-
-def get_qgt(a_sun_ns, b, h_sun_ns, i_dn_ns, i_sky_ns):
-
-    FSDW_i_k_n = a8.get_FSDW_i_k_n2(h_sun_ns, a_sun_ns, b.direction, b.solar_shading_part)
+    FSDW_i_k_n = a8.get_FSDW_i_k_n2(h_sun_ns, a_sun_ns, direction, solar_shading_part)
     # 室iの境界jの傾斜面の方位角, rad
     # 室iの境界jの傾斜面の傾斜角, rad
 
-    w_alpha_i_j, w_beta_i_j = x_19.get_w_alpha_i_j_w_beta_i_j(direction_i_j=b.direction)
+    w_alpha_i_j, w_beta_i_j = x_19.get_w_alpha_i_j_w_beta_i_j(direction_i_j=direction)
     # ステップnの室iの境界jにおける傾斜面に入射する太陽の入射角, rad, [365*24*4]
 
     theta_aoi_i_j_n = x_07.get_theta_aoi_i_j_n(
@@ -65,7 +45,7 @@ def get_qgt(a_sun_ns, b, h_sun_ns, i_dn_ns, i_sky_ns):
         FSDW_i_k_n=FSDW_i_k_n,
         i_inc_sky_i_k_n=i_inc_sky,
         i_inc_ref_i_k_n=i_inc_ref,
-        a_i_ks=b.area,
+        a_i_ks=area,
         tau_i_k=b.spec.eta_value,
     )
     return qgt

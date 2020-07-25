@@ -2,6 +2,8 @@ from collections import namedtuple
 from typing import Dict, List
 
 from heat_load_calc.initializer.boundary_type import BoundaryType
+from heat_load_calc.a8_shading import SolarShadingPart
+from heat_load_calc import a8_shading as a8
 
 Boundary = namedtuple('Boundary', [
     'name',
@@ -65,24 +67,6 @@ GroundSpecLayers = namedtuple('GroundSpecLayers', [
     'name',
     'thermal_resistance',
     'thermal_capacity'
-])
-
-SolarShadingPart = namedtuple('SolarShadingPart', [
-    'existence',
-    'input_method',
-    'depth',
-    'd_h',
-    'd_e',
-    'x1',
-    'x2',
-    'x3',
-    'y1',
-    'y2',
-    'y3',
-    'z_x_pls',
-    'z_x_mns',
-    'z_y_pls',
-    'z_y_mns'
 ])
 
 
@@ -185,7 +169,7 @@ def get_boundary(b: Dict) -> Boundary:
     else:
         raise ValueError
 
-    solar_shading_part = get_solar_shading_part(b)
+    solar_shading_part = a8.get_solar_shading_part(ssp=b['solar_shading_part'])
 
     return Boundary(
         name=name,
@@ -421,85 +405,3 @@ def get_ground_spec_layers(b: Dict) -> List[GroundSpecLayers]:
         ) for layer in layers
     ]
 
-
-def get_solar_shading_part(b: Dict) -> SolarShadingPart:
-    """
-    入力ファイルの辞書の'solar_shading_part'を読み込む。
-
-    Args:
-        b: 'boundaries' キーの要素（リスト）のうちの1要素
-
-    Returns:
-        SolarShadingPart クラス
-    """
-
-    ssp = b['solar_shading_part']
-
-    existence = ssp['existence']
-
-    if existence:
-
-        input_method = ssp['input_method']
-
-        if ssp['input_method'] == 'simple':
-
-            return SolarShadingPart(
-                existence=existence,
-                input_method=input_method,
-                depth=ssp['depth'],
-                d_h=ssp['d_h'],
-                d_e=ssp['d_e'],
-                x1=None,
-                x2=None,
-                x3=None,
-                y1=None,
-                y2=None,
-                y3=None,
-                z_x_pls=None,
-                z_x_mns=None,
-                z_y_pls=None,
-                z_y_mns=None
-            )
-
-        elif ssp['input_method'] == 'detail':
-
-            return SolarShadingPart(
-                existence=existence,
-                input_method=input_method,
-                depth=None,
-                d_h=None,
-                d_e=None,
-                x1=ssp['x1'],
-                x2=ssp['x2'],
-                x3=ssp['x3'],
-                y1=ssp['y1'],
-                y2=ssp['y2'],
-                y3=ssp['y3'],
-                z_x_pls=ssp['z_x_pls'],
-                z_x_mns=ssp['z_x_mns'],
-                z_y_pls=ssp['z_y_pls'],
-                z_y_mns=ssp['z_y_mns']
-            )
-
-        else:
-            raise ValueError()
-
-    else:
-
-        return SolarShadingPart(
-            existence=existence,
-            input_method=None,
-            depth=None,
-            d_h=None,
-            d_e=None,
-            x1=None,
-            x2=None,
-            x3=None,
-            y1=None,
-            y2=None,
-            y3=None,
-            z_x_pls=None,
-            z_x_mns=None,
-            z_y_pls=None,
-            z_y_mns=None
-        )

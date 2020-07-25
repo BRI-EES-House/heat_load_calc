@@ -112,13 +112,31 @@ def get_boundary_simple(theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, a_sun_ns, h_sun_n
     # 室内側表面総合熱伝達率, W/m2K
     h_i = 1.0 / r_i
 
+    # spec
+    # 境界の種類に応じて、それぞれ対応するクラスを取得する。
+    if b['boundary_type'] == 'internal':
+        spec = s3_loader.get_internal_part_spec(b)
+    elif b['boundary_type'] == 'external_general_part':
+        spec = s3_loader.get_general_part_spec(b)
+    elif b['boundary_type'] == 'external_transparent_part':
+        spec = s3_loader.get_transparent_opening_part_spec(b)
+    elif b['boundary_type'] == 'external_opaque_part':
+        spec = s3_loader.get_opaque_opening_part_spec(b)
+    elif b['boundary_type'] == 'ground':
+        spec = s3_loader.get_ground_spec(b)
+    else:
+        raise ValueError
+
     # ===============================
 
     b = s3_loader.get_boundary(b)
 
     # 相当外気温度, degree C, [8760 * 4]
     theta_o_sol = a9.get_theta_o_sol_i_j_ns(
-        boundary_i_j=b,
+        boundary_type=b.boundary_type,
+        is_sun_striked_outside=b.is_sun_striked_outside,
+        direction=b.direction,
+        spec=spec,
         theta_o_ns=theta_o_ns,
         i_dn_ns=i_dn_ns,
         i_sky_ns=i_sky_ns,
@@ -128,10 +146,13 @@ def get_boundary_simple(theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, a_sun_ns, h_sun_n
     )
 
     # 透過日射量, W, [8760*4]
-    if is_solar_radiation_transmitted(b):
-        q_trs_sol = a11.get_qgt(a_sun_ns=a_sun_ns, b=b, h_sun_ns=h_sun_ns, i_dn_ns=i_dn_ns, i_sky_ns=i_sky_ns)
+    if boundary_type == BoundaryType.ExternalTransparentPart and is_sun_striked_outside:
+        q_trs_sol = a11.get_qgt(direction=direction, area=area, solar_shading_part=b.solar_shading_part, a_sun_ns=a_sun_ns, b=b, h_sun_ns=h_sun_ns, i_dn_ns=i_dn_ns, i_sky_ns=i_sky_ns)
     else:
         q_trs_sol = np.zeros(8760*4, dtype=float)
+
+
+
 
     # 応答係数
     rfs = a2.get_response_factors(b)
@@ -299,15 +320,6 @@ def get_area_weighted_averaged_values_two_dimension(v: np.ndarray, a: np.ndarray
     result = np.sum(v * r, axis=0)
 
     return result
-
-
-def get_transmitted_solar_radiation(boundaries: List[Boundary], i_dn_ns, i_sky_ns, h_sun_ns, a_sun_ns):
-
-    bs = [b for b in boundaries if is_solar_radiation_transmitted(b)]
-
-    q = a11.test(boundaries=bs, i_dn_ns=i_dn_ns, i_sky_ns=i_sky_ns, h_sun_ns=h_sun_ns, a_sun_ns=a_sun_ns)
-
-    return q
 
 
 def is_solar_radiation_transmitted(boundary: Boundary):
