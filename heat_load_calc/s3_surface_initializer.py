@@ -5,7 +5,6 @@ import numpy as np
 import heat_load_calc.a2_response_factor as a2
 import heat_load_calc.a9_rear_surface_equivalent_temperature as a9
 import heat_load_calc.a11_opening_transmission_solar_radiation as a11
-import heat_load_calc.a23_surface_heat_transfer_coefficient as a23
 import heat_load_calc.a34_building_part_summarize as a34
 from heat_load_calc.s3_surface_loader import Boundary
 from heat_load_calc.s3_surface_loader import InternalPartSpec
@@ -15,6 +14,7 @@ from heat_load_calc.s3_surface_loader import OpaqueOpeningPartSpec
 from heat_load_calc.s3_surface_loader import GroundSpec
 from heat_load_calc.initializer.boundary_type import BoundaryType
 from heat_load_calc.initializer.boundary_simple import BoundarySimple
+import heat_load_calc.s3_surface_loader as s3_loader
 
 
 IntegratedBoundaries = namedtuple('IntegratedBoundaries', [
@@ -38,25 +38,83 @@ IntegratedBoundaries = namedtuple('IntegratedBoundaries', [
 ])
 
 
-def convert_from_next_room_name_to_id(name):
-    if name is not None:
-        return {
-            'main_occupant_room': 0,
-            'other_occupant_room': 1,
-            'non_occupant_room': 2,
-            'underfloor': 3
-        }[name]
+def get_boundary_simple(theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, a_sun_ns, h_sun_ns, b):
+
+    # 名前
+    name = b['name']
+    sub_name = ''
+
+    # 境界の種類
+    # 'internal': 間仕切り
+    # 'external_general_part': 外皮_一般部位
+    # 'external_transparent_part': 外皮_透明な開口部
+    # 'external_opaque_part': 外皮_不透明な開口部
+    # 'ground': 地盤
+    # boundary_type = b['boundary_type']
+    boundary_type = {
+        'internal': BoundaryType.Internal,
+        'external_general_part': BoundaryType.ExternalGeneralPart,
+        'external_transparent_part': BoundaryType.ExternalTransparentPart,
+        'external_opaque_part': BoundaryType.ExternalOpaquePart,
+        'ground': BoundaryType.Ground
+    }[b['boundary_type']]
+
+    # 面積, m2
+    area = float(b['area'])
+
+    # 温度差係数
+    # 境界の種類が'external_general_part', 'external_transparent_part', 'external_opaque_part'の場合に定義される。
+    if b['boundary_type'] in ['external_general_part', 'external_transparent_part', 'external_opaque_part']:
+        h_td = float(b['temp_dif_coef'])
     else:
-        return -1
+        h_td = 0.0
 
+    # 隣室タイプ
+    # 境界の種類が'internal'の場合に定義される。
+    # 隣室タイプにひもづけて隣室のIDを取得している。
+    # 本来であれば、IDで直接指定する方が望ましい。
+    # TODO: ID指定に変更する。
+    next_room_type = {
+        'main_occupant_room': 0,
+        'other_occupant_room': 1,
+        'non_occupant_room': 2,
+        'underfloor': 3
+    }[b['next_room_type']] if b['boundary_type'] == 'internal' else -1
 
-def get_boundary_simple(b: Boundary, theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, a_sun_ns, h_sun_ns):
+    # 室内侵入日射吸収の有無
+    # True: 吸収する
+    # False: 吸収しない
+    is_solar_absorbed_inside = bool(b['is_solar_absorbed_inside'])
+
+    # 日射の有無
+    # True: 当たる
+    # False: 当たらない
+    # 境界の種類が'external_general_part', 'external_transparent_part', 'external_opaque_part'の場合に定義される。
+    if b['boundary_type'] in ['external_general_part', 'external_transparent_part', 'external_opaque_part']:
+        is_sun_striked_outside = bool(b['is_sun_striked_outside'])
+    else:
+        is_sun_striked_outside = None
+
+    # 方位
+    # 's', 'sw', 'w', 'nw', 'n', 'ne', 'e', 'se', 'top', 'bottom'
+    # 日射の有無が定義されている場合でかつその値がTrueの場合のみ定義される。
+    if 'is_sun_striked_outside' in b:
+        if b['is_sun_striked_outside']:
+            direction = b['direction']
+        else:
+            direction = None
+    else:
+        direction = None
 
     # 室内側熱伝達抵抗, m2K/W
-    r_i = b.inside_heat_transfer_resistance
+    r_i = b['inside_heat_transfer_resistance']
 
     # 室内側表面総合熱伝達率, W/m2K
-    h_i = a23.get_h_i_i_ks(r_i)
+    h_i = 1.0 / r_i
+
+    # ===============================
+
+    b = s3_loader.get_boundary(b)
 
     # 相当外気温度, degree C, [8760 * 4]
     theta_o_sol = a9.get_theta_o_sol_i_j_ns(
@@ -79,15 +137,15 @@ def get_boundary_simple(b: Boundary, theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, a_su
     rfs = a2.get_response_factors(b)
 
     return BoundarySimple(
-        name=b.name,
-        sub_name='',
-        boundary_type=b.boundary_type,
-        area=b.area,
-        h_td=b.temp_dif_coef,
-        next_room_type=convert_from_next_room_name_to_id(b.next_room_type),
-        is_solar_absorbed_inside=b.is_solar_absorbed_inside,
-        is_sun_striked_outside=b.is_sun_striked_outside,
-        direction=b.direction,
+        name=name,
+        sub_name=sub_name,
+        boundary_type=boundary_type,
+        area=area,
+        h_td=h_td,
+        next_room_type=next_room_type,
+        is_solar_absorbed_inside=is_solar_absorbed_inside,
+        is_sun_striked_outside=is_sun_striked_outside,
+        direction=direction,
         h_i=h_i,
         theta_o_sol=theta_o_sol,
         q_trs_sol=q_trs_sol,

@@ -86,22 +86,6 @@ SolarShadingPart = namedtuple('SolarShadingPart', [
 ])
 
 
-def read_d_boundary_i_ks(input_dict_boundaries: List[Dict]) -> List[Boundary]:
-    """
-    入力ファイルの辞書の'boundaries'を読み込む。
-
-    Args:
-        input_dict_boundaries: 入力ファイルの辞書の'boundaries'
-
-    Returns:
-        室iにおけるBoundary クラスのリスト
-    """
-
-    boundaries_is = [get_boundary(b) for b in input_dict_boundaries]
-
-    return boundaries_is
-
-
 def get_boundary(b: Dict) -> Boundary:
     """
     入力ファイルの辞書の'boundaries'を読み込む。

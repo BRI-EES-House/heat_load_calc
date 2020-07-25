@@ -67,23 +67,19 @@ def make_house(d, input_data_dir, output_data_dir):
     # 室iの家具等と空気間の湿気コンダクタンス, kg/s kg/kgDA
     c_x_is = a14.get_c_x_is(g_f_is)
 
-    # 室iの境界k,　boundaryクラスのリスト, [i, k]
-    # メモ [[12], [26], [12]] の入れ子構造になったリスト
-    d_bdry_is_ks = [s3_loader.read_d_boundary_i_ks(input_dict_boundaries=r['boundaries']) for r in rooms]
-
     # 室iの境界j
     bss = [
         [
             s3.get_boundary_simple(
-                b=b,
                 theta_o_ns=theta_o_ns,
                 i_dn_ns=i_dn_ns,
                 i_sky_ns=i_sky_ns,
                 r_n_ns=r_n_ns,
                 a_sun_ns=a_sun_ns,
-                h_sun_ns=h_sun_ns
-            ) for b in d_bdry_i_ks
-        ] for d_bdry_i_ks in d_bdry_is_ks
+                h_sun_ns=h_sun_ns,
+                b=b_dict
+            ) for b_dict in r['boundaries']
+        ] for r in rooms
     ]
 
     # 室iの統合された境界j*, IntegratedBoundaryクラス, [j*]
