@@ -1,3 +1,7 @@
+"""窓の透過日射熱取得の計算
+
+"""
+
 import numpy as np
 from typing import List
 
@@ -10,46 +14,104 @@ from heat_load_calc.s3_surface_loader import Boundary
 import heat_load_calc.a8_shading as a8
 from heat_load_calc.a8_shading import SolarShadingPart
 
-"""
-付録11．窓の透過日射熱取得の計算
-"""
+
+class TransmissionSolarRadiation():
+
+    def __init__(self):
+        pass
+
+    @classmethod
+    def create(cls, d: dict, solar_shading_part: SolarShadingPart):
+
+        if d['boundary_type'] == 'external_transparent_part':
+
+            if bool(d['is_sun_striked_outside']):
+
+                return TransmissionSolarRadiationTransparentSunStrike(
+                    direction=d['direction'],
+                    area=d['area'],
+                    solar_shading_part=solar_shading_part,
+                    incident_angle_characteristics=d['transparent_opening_part_spec']['incident_angle_characteristics'],
+                    eta_value=d['transparent_opening_part_spec']['eta_value'],
+                )
+
+            else:
+
+                return TransmissionSolarRadiationNot()
+
+        else:
+
+            return TransmissionSolarRadiationNot()
+
+    def get_qgt(self, a_sun_ns, h_sun_ns, i_dn_ns, i_sky_ns):
+
+        raise NotImplementedError()
 
 
-def get_qgt(direction, area, solar_shading_part: SolarShadingPart, a_sun_ns, b, h_sun_ns, i_dn_ns, i_sky_ns):
+class TransmissionSolarRadiationTransparentSunStrike(TransmissionSolarRadiation):
 
-    FSDW_i_k_n = solar_shading_part.get_FSDW_i_k_n2(h_sun_ns, a_sun_ns, direction)
-    # 室iの境界jの傾斜面の方位角, rad
-    # 室iの境界jの傾斜面の傾斜角, rad
+    def __init__(
+            self,
+            direction: str,
+            area: float,
+            solar_shading_part: SolarShadingPart,
+            incident_angle_characteristics: str,
+            eta_value: float
+    ):
 
-    w_alpha_i_j, w_beta_i_j = x_19.get_w_alpha_i_j_w_beta_i_j(direction_i_j=direction)
-    # ステップnの室iの境界jにおける傾斜面に入射する太陽の入射角, rad, [365*24*4]
+        super().__init__()
 
-    theta_aoi_i_j_n = x_07.get_theta_aoi_i_j_n(
-        h_sun_ns=h_sun_ns, a_sun_ns=a_sun_ns, w_alpha_i_j=w_alpha_i_j, w_beta_i_j=w_beta_i_j)
-    # ステップnにおける室iの境界jにおける傾斜面の日射量のうち直達成分, W / m2K
-    # ステップnにおける室iの境界jにおける傾斜面の日射量のうち天空成分, W / m2K
-    # ステップnにおける室iの境界jにおける傾斜面の日射量のうち地盤反射成分, W / m2K
+        self._direction = direction
+        self._area = area
+        self._solar_shading_part = solar_shading_part
+        self._incident_angle_characteristics = incident_angle_characteristics
+        self._eta_value = eta_value
 
-    i_inc_d, i_inc_sky, i_inc_ref = x_07.get_i_is_i_j_ns(
-        i_dn_ns=i_dn_ns,
-        i_sky_ns=i_sky_ns,
-        h_sun_ns=h_sun_ns,
-        a_sun_ns=a_sun_ns,
-        w_alpha_i_j=w_alpha_i_j,
-        w_beta_i_j=w_beta_i_j
-    )
+    def get_qgt(self, a_sun_ns, h_sun_ns, i_dn_ns, i_sky_ns):
 
-    qgt = calc_QGT_i_k_n(
-        theta_aoi_i_k=theta_aoi_i_j_n,
-        incident_angle_characteristics_i_ks=b.spec.incident_angle_characteristics,
-        i_inc_d_i_k_n=i_inc_d,
-        FSDW_i_k_n=FSDW_i_k_n,
-        i_inc_sky_i_k_n=i_inc_sky,
-        i_inc_ref_i_k_n=i_inc_ref,
-        a_i_ks=area,
-        tau_i_k=b.spec.eta_value,
-    )
-    return qgt
+        FSDW_i_k_n = self._solar_shading_part.get_FSDW_i_k_n2(h_sun_ns, a_sun_ns, self._direction)
+        # 室iの境界jの傾斜面の方位角, rad
+        # 室iの境界jの傾斜面の傾斜角, rad
+
+        w_alpha_i_j, w_beta_i_j = x_19.get_w_alpha_i_j_w_beta_i_j(direction_i_j=self._direction)
+        # ステップnの室iの境界jにおける傾斜面に入射する太陽の入射角, rad, [365*24*4]
+
+        theta_aoi_i_j_n = x_07.get_theta_aoi_i_j_n(
+            h_sun_ns=h_sun_ns, a_sun_ns=a_sun_ns, w_alpha_i_j=w_alpha_i_j, w_beta_i_j=w_beta_i_j)
+        # ステップnにおける室iの境界jにおける傾斜面の日射量のうち直達成分, W / m2K
+        # ステップnにおける室iの境界jにおける傾斜面の日射量のうち天空成分, W / m2K
+        # ステップnにおける室iの境界jにおける傾斜面の日射量のうち地盤反射成分, W / m2K
+
+        i_inc_d, i_inc_sky, i_inc_ref = x_07.get_i_is_i_j_ns(
+            i_dn_ns=i_dn_ns,
+            i_sky_ns=i_sky_ns,
+            h_sun_ns=h_sun_ns,
+            a_sun_ns=a_sun_ns,
+            w_alpha_i_j=w_alpha_i_j,
+            w_beta_i_j=w_beta_i_j
+        )
+
+        qgt = calc_QGT_i_k_n(
+            theta_aoi_i_k=theta_aoi_i_j_n,
+            incident_angle_characteristics_i_ks=self._incident_angle_characteristics,
+            i_inc_d_i_k_n=i_inc_d,
+            FSDW_i_k_n=FSDW_i_k_n,
+            i_inc_sky_i_k_n=i_inc_sky,
+            i_inc_ref_i_k_n=i_inc_ref,
+            a_i_ks=self._area,
+            tau_i_k=self._eta_value,
+        )
+        return qgt
+
+
+class TransmissionSolarRadiationNot(TransmissionSolarRadiation):
+
+    def __init__(self):
+        super().__init__()
+
+    def get_qgt(self, a_sun_ns, h_sun_ns, i_dn_ns, i_sky_ns):
+
+        return np.zeros(8760*4, dtype=float)
 
 
 # 透過日射量[W]、吸収日射量[W]の計算 式(90)

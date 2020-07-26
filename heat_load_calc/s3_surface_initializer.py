@@ -143,19 +143,19 @@ def get_boundary_simple(theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, a_sun_ns, h_sun_n
     )
 
 
+#    if boundary_type == BoundaryType.ExternalTransparentPart and is_sun_striked_outside:
+#        tsr = a11.TransmissionSolarRadiationTransparentSunStrike()
+#    else:
+#        tsr = a11.TransmissionSolarRadiationNot()
+
+    tsr = a11.TransmissionSolarRadiation.create(d=b, solar_shading_part=solar_shading_part)
+
+    # 透過日射量, W, [8760*4]
+    q_trs_sol = tsr.get_qgt(a_sun_ns=a_sun_ns, h_sun_ns=h_sun_ns, i_dn_ns=i_dn_ns, i_sky_ns=i_sky_ns)
 
     # ===============================
 
     b = s3_loader.get_boundary(b)
-
-    # 透過日射量, W, [8760*4]
-    if boundary_type == BoundaryType.ExternalTransparentPart and is_sun_striked_outside:
-        q_trs_sol = a11.get_qgt(direction=direction, area=area, solar_shading_part=solar_shading_part, a_sun_ns=a_sun_ns, b=b, h_sun_ns=h_sun_ns, i_dn_ns=i_dn_ns, i_sky_ns=i_sky_ns)
-    else:
-        q_trs_sol = np.zeros(8760*4, dtype=float)
-
-
-
 
     # 応答係数
     rfs = a2.get_response_factors(b)
