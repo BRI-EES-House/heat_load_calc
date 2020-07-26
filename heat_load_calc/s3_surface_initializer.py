@@ -130,17 +130,10 @@ def get_boundary_simple(theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, a_sun_ns, h_sun_n
 
     solar_shading_part = a8.SolarShadingPart.create(ssp=b['solar_shading_part'])
 
-
-    # ===============================
-
-    b = s3_loader.get_boundary(b)
+    oet = a9.OutsideEqvTemp.create(b)
 
     # 相当外気温度, degree C, [8760 * 4]
-    theta_o_sol = a9.get_theta_o_sol_i_j_ns(
-        boundary_type=b.boundary_type,
-        is_sun_striked_outside=b.is_sun_striked_outside,
-        direction=b.direction,
-        spec=spec,
+    theta_o_sol = oet.get_theta_o_sol_i_j_ns(
         theta_o_ns=theta_o_ns,
         i_dn_ns=i_dn_ns,
         i_sky_ns=i_sky_ns,
@@ -148,6 +141,12 @@ def get_boundary_simple(theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, a_sun_ns, h_sun_n
         a_sun_ns=a_sun_ns,
         h_sun_ns=h_sun_ns
     )
+
+
+
+    # ===============================
+
+    b = s3_loader.get_boundary(b)
 
     # 透過日射量, W, [8760*4]
     if boundary_type == BoundaryType.ExternalTransparentPart and is_sun_striked_outside:
