@@ -8,15 +8,16 @@ from heat_load_calc.apdx10_oblique_incidence_characteristics import get_taud_i_k
 import heat_load_calc.apdx10_oblique_incidence_characteristics as a10
 from heat_load_calc.s3_surface_loader import Boundary
 import heat_load_calc.a8_shading as a8
+from heat_load_calc.a8_shading import SolarShadingPart
 
 """
 付録11．窓の透過日射熱取得の計算
 """
 
 
-def get_qgt(direction, area, solar_shading_part, a_sun_ns, b, h_sun_ns, i_dn_ns, i_sky_ns):
+def get_qgt(direction, area, solar_shading_part: SolarShadingPart, a_sun_ns, b, h_sun_ns, i_dn_ns, i_sky_ns):
 
-    FSDW_i_k_n = a8.get_FSDW_i_k_n2(h_sun_ns, a_sun_ns, direction, solar_shading_part)
+    FSDW_i_k_n = solar_shading_part.get_FSDW_i_k_n2(h_sun_ns, a_sun_ns, direction)
     # 室iの境界jの傾斜面の方位角, rad
     # 室iの境界jの傾斜面の傾斜角, rad
 

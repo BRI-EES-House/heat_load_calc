@@ -169,7 +169,7 @@ def get_boundary(b: Dict) -> Boundary:
     else:
         raise ValueError
 
-    solar_shading_part = a8.get_solar_shading_part(ssp=b['solar_shading_part'])
+    solar_shading_part = a8.SolarShadingPart.create(ssp=b['solar_shading_part'])
 
     return Boundary(
         name=name,

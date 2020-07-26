@@ -15,6 +15,7 @@ from heat_load_calc.s3_surface_loader import GroundSpec
 from heat_load_calc.initializer.boundary_type import BoundaryType
 from heat_load_calc.initializer.boundary_simple import BoundarySimple
 import heat_load_calc.s3_surface_loader as s3_loader
+from heat_load_calc import a8_shading as a8
 
 
 IntegratedBoundaries = namedtuple('IntegratedBoundaries', [
@@ -127,6 +128,9 @@ def get_boundary_simple(theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, a_sun_ns, h_sun_n
     else:
         raise ValueError
 
+    solar_shading_part = a8.SolarShadingPart.create(ssp=b['solar_shading_part'])
+
+
     # ===============================
 
     b = s3_loader.get_boundary(b)
@@ -147,7 +151,7 @@ def get_boundary_simple(theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, a_sun_ns, h_sun_n
 
     # 透過日射量, W, [8760*4]
     if boundary_type == BoundaryType.ExternalTransparentPart and is_sun_striked_outside:
-        q_trs_sol = a11.get_qgt(direction=direction, area=area, solar_shading_part=b.solar_shading_part, a_sun_ns=a_sun_ns, b=b, h_sun_ns=h_sun_ns, i_dn_ns=i_dn_ns, i_sky_ns=i_sky_ns)
+        q_trs_sol = a11.get_qgt(direction=direction, area=area, solar_shading_part=solar_shading_part, a_sun_ns=a_sun_ns, b=b, h_sun_ns=h_sun_ns, i_dn_ns=i_dn_ns, i_sky_ns=i_sky_ns)
     else:
         q_trs_sol = np.zeros(8760*4, dtype=float)
 
