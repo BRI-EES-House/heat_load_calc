@@ -1,5 +1,7 @@
 """裏面相当温度を計算するモジュール
 
+TODO:
+    配列の数が 8760 * 4 に固定されている。
 """
 
 import numpy as np
@@ -61,10 +63,17 @@ class OutsideEqvTemp:
 
         else:
 
-            return OutsideEqvTemp()
+            raise KeyError()
 
-    def get_theta_o_sol_i_j_ns(self,
-            theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, a_sun_ns, h_sun_ns):
+    def get_theta_o_sol_i_j_ns(
+            self,
+            theta_o_ns: np.ndarray,
+            i_dn_ns: np.ndarray,
+            i_sky_ns: np.ndarray,
+            r_n_ns: np.ndarray,
+            a_sun_ns: np.ndarray,
+            h_sun_ns: np.ndarray
+    ):
         """相当外気温度を計算する。
         本関数はアブストラクトメソッド。継承されたクラスによりオーバーライドされる。
 
@@ -73,8 +82,8 @@ class OutsideEqvTemp:
             i_dn_ns: ステップnにおける法線面直達日射量, W/m2, [8760 * 4]
             i_sky_ns: ステップnにおける水平面天空日射量, W/m2, [8760 * 4]
             r_n_ns: ステップnにおける夜間放射量, W/m2, [8760 * 4]
-            a_sun_ns: ステップnにおける太陽高度, deg, [8760*4]
-            h_sun_ns: ステップnにおける太陽方位, deg, [8760*4]
+            a_sun_ns: ステップnにおける太陽高度, deg, [8760 * 4]
+            h_sun_ns: ステップnにおける太陽方位, deg, [8760 * 4]
 
         Returns:
             室iの境界jの傾斜面のステップnにおける相当外気温度, ℃, [8760*4]
@@ -89,8 +98,15 @@ class OutsideEqvTempInternal(OutsideEqvTemp):
         super().__init__()
         pass
 
-    def get_theta_o_sol_i_j_ns(self,
-            theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, a_sun_ns, h_sun_ns):
+    def get_theta_o_sol_i_j_ns(
+            self,
+            theta_o_ns: np.ndarray,
+            i_dn_ns: np.ndarray,
+            i_sky_ns: np.ndarray,
+            r_n_ns: np.ndarray,
+            a_sun_ns: np.ndarray,
+            h_sun_ns: np.ndarray
+    ):
         """
         相当外気温度を計算する。
 
@@ -99,11 +115,11 @@ class OutsideEqvTempInternal(OutsideEqvTemp):
             i_dn_ns: ステップnにおける法線面直達日射量, W/m2, [8760 * 4]
             i_sky_ns: ステップnにおける水平面天空日射量, W/m2, [8760 * 4]
             r_n_ns: ステップnにおける夜間放射量, W/m2, [8760 * 4]
-            a_sun_ns: ステップnにおける太陽高度, deg, [8760*4]
-            h_sun_ns: ステップnにおける太陽方位, deg, [8760*4]
+            a_sun_ns: ステップnにおける太陽高度, deg, [8760 * 4]
+            h_sun_ns: ステップnにおける太陽方位, deg, [8760 * 4]
 
         Returns:
-            室iの境界jの傾斜面のステップnにおける相当外気温度, ℃, [8760*4]
+            室iの境界jの傾斜面のステップnにおける相当外気温度, ℃, [8760 * 4]
         """
 
         # この値は使用しないのでNoneでもよいはず
@@ -128,8 +144,15 @@ class OutsideEqvTempExternalGeneralPartAndExternalOpaquePart(OutsideEqvTemp):
         self._eps_r = eps_r
         self._r_surf = r_surf
 
-    def get_theta_o_sol_i_j_ns(self,
-            theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, a_sun_ns, h_sun_ns):
+    def get_theta_o_sol_i_j_ns(
+            self,
+            theta_o_ns: np.ndarray,
+            i_dn_ns: np.ndarray,
+            i_sky_ns: np.ndarray,
+            r_n_ns: np.ndarray,
+            a_sun_ns: np.ndarray,
+            h_sun_ns: np.ndarray
+    ):
         """
         相当外気温度を計算する。
 
@@ -138,11 +161,11 @@ class OutsideEqvTempExternalGeneralPartAndExternalOpaquePart(OutsideEqvTemp):
             i_dn_ns: ステップnにおける法線面直達日射量, W/m2, [8760 * 4]
             i_sky_ns: ステップnにおける水平面天空日射量, W/m2, [8760 * 4]
             r_n_ns: ステップnにおける夜間放射量, W/m2, [8760 * 4]
-            a_sun_ns: ステップnにおける太陽高度, deg, [8760*4]
-            h_sun_ns: ステップnにおける太陽方位, deg, [8760*4]
+            a_sun_ns: ステップnにおける太陽高度, deg, [8760 * 4]
+            h_sun_ns: ステップnにおける太陽方位, deg, [8760 * 4]
 
         Returns:
-            室iの境界jの傾斜面のステップnにおける相当外気温度, ℃, [8760*4]
+            室iの境界jの傾斜面のステップnにおける相当外気温度, ℃, [8760 * 4]
         """
 
         # 室iの境界jの傾斜面の方位角, rad
@@ -183,8 +206,15 @@ class OutsideEqvTempExternalTransparentPart(OutsideEqvTemp):
         self._eps_r = eps_r
         self._r_surf_o = r_surf_o
 
-    def get_theta_o_sol_i_j_ns(self,
-            theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, a_sun_ns, h_sun_ns):
+    def get_theta_o_sol_i_j_ns(
+            self,
+            theta_o_ns: np.ndarray,
+            i_dn_ns: np.ndarray,
+            i_sky_ns: np.ndarray,
+            r_n_ns: np.ndarray,
+            a_sun_ns: np.ndarray,
+            h_sun_ns: np.ndarray
+    ):
         """
         相当外気温度を計算する。
 
@@ -193,11 +223,11 @@ class OutsideEqvTempExternalTransparentPart(OutsideEqvTemp):
             i_dn_ns: ステップnにおける法線面直達日射量, W/m2, [8760 * 4]
             i_sky_ns: ステップnにおける水平面天空日射量, W/m2, [8760 * 4]
             r_n_ns: ステップnにおける夜間放射量, W/m2, [8760 * 4]
-            a_sun_ns: ステップnにおける太陽高度, deg, [8760*4]
-            h_sun_ns: ステップnにおける太陽方位, deg, [8760*4]
+            a_sun_ns: ステップnにおける太陽高度, deg, [8760 * 4]
+            h_sun_ns: ステップnにおける太陽方位, deg, [8760 * 4]
 
         Returns:
-            室iの境界jの傾斜面のステップnにおける相当外気温度, ℃, [8760*4]
+            室iの境界jの傾斜面のステップnにおける相当外気温度, ℃, [8760 * 4]
         """
 
         # 室iの境界jの傾斜面の方位角, rad
@@ -217,8 +247,15 @@ class OutsideEqvTempExternalNotSunStriked(OutsideEqvTemp):
     def __init__(self):
         super().__init__()
 
-    def get_theta_o_sol_i_j_ns(self,
-            theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, a_sun_ns, h_sun_ns):
+    def get_theta_o_sol_i_j_ns(
+            self,
+            theta_o_ns: np.ndarray,
+            i_dn_ns: np.ndarray,
+            i_sky_ns: np.ndarray,
+            r_n_ns: np.ndarray,
+            a_sun_ns: np.ndarray,
+            h_sun_ns: np.ndarray
+    ):
         """
         相当外気温度を計算する。
 
@@ -227,11 +264,11 @@ class OutsideEqvTempExternalNotSunStriked(OutsideEqvTemp):
             i_dn_ns: ステップnにおける法線面直達日射量, W/m2, [8760 * 4]
             i_sky_ns: ステップnにおける水平面天空日射量, W/m2, [8760 * 4]
             r_n_ns: ステップnにおける夜間放射量, W/m2, [8760 * 4]
-            a_sun_ns: ステップnにおける太陽高度, deg, [8760*4]
-            h_sun_ns: ステップnにおける太陽方位, deg, [8760*4]
+            a_sun_ns: ステップnにおける太陽高度, deg, [8760 * 4]
+            h_sun_ns: ステップnにおける太陽方位, deg, [8760 * 4]
 
         Returns:
-            室iの境界jの傾斜面のステップnにおける相当外気温度, ℃, [8760*4]
+            室iの境界jの傾斜面のステップnにおける相当外気温度, ℃, [8760 * 4]
         """
 
         return theta_o_ns
@@ -243,8 +280,15 @@ class OutsideEqvTempGround(OutsideEqvTemp):
         super().__init__()
         pass
 
-    def get_theta_o_sol_i_j_ns(self,
-            theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, a_sun_ns, h_sun_ns):
+    def get_theta_o_sol_i_j_ns(
+            self,
+            theta_o_ns: np.ndarray,
+            i_dn_ns: np.ndarray,
+            i_sky_ns: np.ndarray,
+            r_n_ns: np.ndarray,
+            a_sun_ns: np.ndarray,
+            h_sun_ns: np.ndarray
+    ):
         """
         相当外気温度を計算する。
 
@@ -253,14 +297,11 @@ class OutsideEqvTempGround(OutsideEqvTemp):
             i_dn_ns: ステップnにおける法線面直達日射量, W/m2, [8760 * 4]
             i_sky_ns: ステップnにおける水平面天空日射量, W/m2, [8760 * 4]
             r_n_ns: ステップnにおける夜間放射量, W/m2, [8760 * 4]
-            a_sun_ns: ステップnにおける太陽高度, deg, [8760*4]
-            h_sun_ns: ステップnにおける太陽方位, deg, [8760*4]
+            a_sun_ns: ステップnにおける太陽高度, deg, [8760 * 4]
+            h_sun_ns: ステップnにおける太陽方位, deg, [8760 * 4]
 
         Returns:
-            室iの境界jの傾斜面のステップnにおける相当外気温度, ℃, [8760*4]
+            室iの境界jの傾斜面のステップnにおける相当外気温度, ℃, [8760 * 4]
         """
-
-        # この値は使用しないのでNoneでもよいはず
-        # 集約化する際にNoneだと変な挙動を示すかも知れないのでとりあえずゼロにしておく。
 
         return np.full(24 * 365 * 4, np.average(theta_o_ns))
