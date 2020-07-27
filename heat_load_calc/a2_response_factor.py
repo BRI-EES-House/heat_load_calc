@@ -6,8 +6,6 @@ import math
 import numpy as np
 from typing import List, Dict
 
-import heat_load_calc.a25_window as a25
-
 from heat_load_calc.initializer.boundary_type import BoundaryType
 
 
@@ -408,7 +406,7 @@ class ResponseFactorFactorySteady(ResponseFactorFactory):
     def get_response_factors(self) -> ResponseFactor:
 
         # 開口部の室内表面から屋外までの熱貫流率[W / (m2･K)] 式(124)
-        _Uso = a25.get_Uso(u_w=self._u_w, r_i_i_k_n=self._r_i)
+        _Uso = 1.0 / (1.0 / self._u_w - self._r_i)
 
         _RFT0, _RFA0, _RFT1, _RFA1, _Row, _n_root_i_js = \
             1.0, 1.0 / _Uso, np.zeros(12), np.zeros(12), np.zeros(12), 0
