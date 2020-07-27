@@ -7,8 +7,6 @@ import numpy as np
 from typing import List, Dict
 from dataclasses import dataclass
 
-from heat_load_calc.initializer.boundary_type import BoundaryType
-
 
 @dataclass()
 class ResponseFactor:
@@ -315,20 +313,32 @@ class ResponseFactorFactory:
     def create(cls, d: Dict):
 
         if d['boundary_type'] == 'external_general_part':
+
+            layers = d['general_part_spec']['layers']
+
             return ResponseFactorFactoryTransientEnvelope(
-                layers=d['general_part_spec']['layers'],
-                r_o=d['general_part_spec']['outside_heat_transfer_resistance']
+                cs=[float(layer['thermal_capacity']) for layer in layers],
+                rs=[float(layer['thermal_resistance']) for layer in layers],
+                r_o=float(d['general_part_spec']['outside_heat_transfer_resistance'])
             )
 
         elif d['boundary_type'] == 'internal':
+
+            layers = d['general_part_spec']['layers']
+
             return ResponseFactorFactoryTransientEnvelope(
-                layers=d['general_part_spec']['layers'],
-                r_o=d['general_part_spec']['outside_heat_transfer_resistance']
+                cs=[float(layer['thermal_capacity']) for layer in layers],
+                rs=[float(layer['thermal_resistance']) for layer in layers],
+                r_o=float(d['general_part_spec']['outside_heat_transfer_resistance'])
             )
 
         elif d['boundary_type'] == 'ground':
+
+            layers = d['general_part_spec']['layers']
+
             return ResponseFactorFactoryTransientGround(
-                layers=d['general_part_spec']['layers'],
+                cs=[float(layer['thermal_capacity']) for layer in layers],
+                rs=[float(layer['thermal_resistance']) for layer in layers],
                 r_o=d['general_part_spec']['outside_heat_transfer_resistance']
             )
 
@@ -354,21 +364,29 @@ class ResponseFactorFactory:
 
 class ResponseFactorFactoryTransientEnvelope(ResponseFactorFactory):
 
-    def __init__(self, layers, r_o):
+    def __init__(self, cs: List[float], rs: List[float], r_o: float):
+        """
+
+        Args:
+            cs: 熱容量, kJ/m2K, [layer数]
+            rs: 熱抵抗, m2K/W, [layer数]
+            r_o: 室外側熱伝達抵抗, m2K/W
+        """
 
         super().__init__()
-        self._layers = layers
+        self._cs = cs
+        self._rs = rs
         self._r_o = r_o
 
     def get_response_factors(self) -> ResponseFactor:
 
         is_ground = False
 
-        c = [layer['thermal_capacity'] for layer in self._layers]
+        c = self._cs
         c.append(0.0)
         c_layer_i_k_l = np.array(c) * 1000.0
 
-        r = [layer['thermal_resistance'] for layer in self._layers]
+        r = self._rs
         r.append(self._r_o)
         r_layer_i_k_l = np.array(r)
 
@@ -381,21 +399,29 @@ class ResponseFactorFactoryTransientEnvelope(ResponseFactorFactory):
 
 class ResponseFactorFactoryTransientGround(ResponseFactorFactory):
 
-    def __init__(self, layers, r_o):
+    def __init__(self, cs: List[float], rs: List[float], r_o):
+        """
+
+        Args:
+            cs: 熱容量, kJ/m2K, [layer数]
+            rs: 熱抵抗, m2K/W, [layer数]
+            r_o: 室外側熱伝達抵抗, m2K/W
+        """
 
         super().__init__()
-        self._layers = layers
+        self._cs = cs
+        self._rs = rs
         self._r_o = r_o
 
     def get_response_factors(self) -> ResponseFactor:
 
         is_ground = True
 
-        c = [layer['thermal_capacity'] for layer in self._layers]
+        c = self._cs
         c.append(3300.0 * 3.0)
         c_layer_i_k_l = np.array(c) * 1000.0
 
-        r = [layer['thermal_resistance'] for layer in self._layers]
+        r = self._rs
         r.append(3.0 / 1.0)
         r_layer_i_k_l = np.array(r)
 
@@ -408,7 +434,13 @@ class ResponseFactorFactoryTransientGround(ResponseFactorFactory):
 
 class ResponseFactorFactorySteady(ResponseFactorFactory):
 
-    def __init__(self, u_w, r_i):
+    def __init__(self, u_w: float, r_i: float):
+        """
+
+        Args:
+            u_w: 熱貫流率, W/m2K
+            r_i: 室内側熱伝達抵抗, m2K/W
+        """
 
         super().__init__()
         self._u_w = u_w
@@ -416,12 +448,16 @@ class ResponseFactorFactorySteady(ResponseFactorFactory):
 
     def get_response_factors(self) -> ResponseFactor:
 
-        # 開口部の室内表面から屋外までの熱貫流率[W / (m2･K)] 式(124)
-        _Uso = 1.0 / (1.0 / self._u_w - self._r_i)
+        # 開口部の室内表面から屋外までの熱貫流率, W/m2K
+        u_so = 1.0 / (1.0 / self._u_w - self._r_i)
 
-        _RFT0, _RFA0, _RFT1, _RFA1, _Row, _n_root_i_js = \
-            1.0, 1.0 / _Uso, np.zeros(12), np.zeros(12), np.zeros(12), 0
-
-        return ResponseFactor(rft0=_RFT0, rfa0=_RFA0, rft1=_RFT1, rfa1=_RFA1, row=_Row, n_root=_n_root_i_js)
+        return ResponseFactor(
+            rft0=1.0,
+            rfa0=1.0 / u_so,
+            rft1=np.zeros(12, dtype=float),
+            rfa1=np.zeros(12, dtype=float),
+            row=np.zeros(12, dtype=float),
+            n_root=0
+        )
 
 

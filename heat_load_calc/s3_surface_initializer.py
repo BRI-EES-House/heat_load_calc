@@ -2,7 +2,7 @@ from collections import namedtuple
 from typing import List
 import numpy as np
 
-import heat_load_calc.a2_response_factor as a2
+from heat_load_calc.initializer import response_factor
 import heat_load_calc.a9_rear_surface_equivalent_temperature as a9
 import heat_load_calc.a11_opening_transmission_solar_radiation as a11
 import heat_load_calc.a34_building_part_summarize as a34
@@ -124,7 +124,7 @@ def get_boundary_simple(theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, a_sun_ns, h_sun_n
     q_trs_sol = tsr.get_qgt(a_sun_ns=a_sun_ns, h_sun_ns=h_sun_ns, i_dn_ns=i_dn_ns, i_sky_ns=i_sky_ns)
 
     # 応答係数
-    rff = a2.ResponseFactorFactory.create(b)
+    rff = response_factor.ResponseFactorFactory.create(b)
     rfs = rff.get_response_factors()
 
     return BoundarySimple(
