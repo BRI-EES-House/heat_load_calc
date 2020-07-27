@@ -5,20 +5,31 @@
 import math
 import numpy as np
 from typing import List, Dict
+from dataclasses import dataclass
 
 from heat_load_calc.initializer.boundary_type import BoundaryType
 
 
+@dataclass()
 class ResponseFactor:
 
-    def __init__(self, rft0, rfa0, rft1, rfa1, row, n_root):
-        self.rft0 = rft0
-        self.rfa0 = rfa0
-        self.rft1 = rft1
-        self.rfa1 = rfa1
-        self.row = row
-        self.n_root = n_root
+    # 貫流応答係数の初項
+    rft0: float
 
+    # 吸熱応答係数の初項
+    rfa0: float
+
+    # 貫流応答係数
+    rft1: np.ndarray
+
+    # 吸熱応答係数
+    rfa1: np.ndarray
+
+    # 公比
+    row: np.ndarray
+
+    # 根の数
+    n_root: int
 
 
 # ラプラス変数の設定
