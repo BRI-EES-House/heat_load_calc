@@ -38,10 +38,10 @@
 					"direction": "n",
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.11,
+					"outside_heat_transfer_resistance": 0.04,
 					"general_part_spec": {
 						"outside_emissivity": 0.9,
 						"outside_solar_absorption": 0.8,
-						"outside_heat_transfer_resistance": 0.04,
 						"layers": [
 							{
 								"name": "plaster_board",
@@ -83,10 +83,10 @@
 					"direction": "n",
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.11,
+					"outside_heat_transfer_resistance": 0.04,
 					"opaque_opening_part_spec": {
 						"outside_emissivity": 0.9,
 						"outside_solar_absorption": 0.8,
-						"outside_heat_transfer_resistance": 0.04,
 						"u_value": 4.65
 					},
 					"solar_shading_part": {
@@ -102,10 +102,10 @@
 					"direction": "e",
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.11,
+					"outside_heat_transfer_resistance": 0.04,
 					"general_part_spec": {
 						"outside_emissivity": 0.9,
 						"outside_solar_absorption": 0.8,
-						"outside_heat_transfer_resistance": 0.04,
 						"layers": [
 							{
 								"name": "plaster_board",
@@ -147,10 +147,10 @@
 					"direction": "e",
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.11,
+					"outside_heat_transfer_resistance": 0.04,
 					"transparent_opening_part_spec": {
 						"outside_emissivity": 0.9,
 						"outside_solar_absorption": 0.8,
-						"outside_heat_transfer_resistance": 0.04,
 						"incident_angle_characteristics": "multiple",
 						"eta_value": 0.792,
 						"u_value": 4.65
@@ -168,10 +168,10 @@
 					"direction": "s",
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.11,
+					"outside_heat_transfer_resistance": 0.04,
 					"general_part_spec": {
 						"outside_emissivity": 0.9,
 						"outside_solar_absorption": 0.8,
-						"outside_heat_transfer_resistance": 0.04,
 						"layers": [
 							{
 								"name": "plaster_board",
@@ -213,10 +213,10 @@
 					"direction": "s",
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.11,
+					"outside_heat_transfer_resistance": 0.04,
 					"transparent_opening_part_spec": {
 						"outside_emissivity": 0.9,
 						"outside_solar_absorption": 0.8,
-						"outside_heat_transfer_resistance": 0.04,
 						"incident_angle_characteristics": "multiple",
 						"eta_value": 0.792,
 						"u_value": 4.65
@@ -237,9 +237,9 @@
 					"temp_dif_coef": 0.7,
 					"is_solar_absorbed_inside": true,
 					"inside_heat_transfer_resistance": 0.15,
+					"outside_heat_transfer_resistance": 0.15,
 					"general_part_spec": {
 						"outside_emissivity": 0.9,
-						"outside_heat_transfer_resistance": 0.15,
 						"outside_solar_absorption": 0.8,
 						"layers": [
 							{
@@ -267,10 +267,10 @@
 					"direction": "top",
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.09,
+					"outside_heat_transfer_resistance": 0.09,
 					"general_part_spec": {
 						"outside_emissivity": 0.9,
 						"outside_solar_absorption": 0.8,
-						"outside_heat_transfer_resistance": 0.09,
 						"layers": [
 							{
 								"name": "plaster_board",
@@ -297,8 +297,8 @@
 					"next_room_type": "non_occupant_room",
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.11,
+					"outside_heat_transfer_resistance": 0.11,
 					"general_part_spec": {
-						"outside_heat_transfer_resistance": 0.11,
 						"layers": [
 							{
 								"name": "plaster_board",
@@ -330,8 +330,8 @@
 					"next_room_type": "other_occupant_room",
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.09,
+					"outside_heat_transfer_resistance": 0.15,
 					"general_part_spec": {
-						"outside_heat_transfer_resistance": 0.15,
 						"layers": [
 							{
 								"name": "plaster_board",
@@ -363,8 +363,8 @@
 					"next_room_type": "other_occupant_room",
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.09,
+					"outside_heat_transfer_resistance": 0.15,
 					"general_part_spec": {
-						"outside_heat_transfer_resistance": 0.15,
 						"layers": [
 							{
 								"name": "plaster_board",
@@ -396,8 +396,8 @@
 					"next_room_type": "other_occupant_room",
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.11,
+					"outside_heat_transfer_resistance": 0.11,
 					"general_part_spec": {
-						"outside_heat_transfer_resistance": 0.11,
 						"layers": [
 							{
 								"name": "plaster_board",
@@ -455,10 +455,10 @@
 					"direction": "s",
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.11,
+					"outside_heat_transfer_resistance": 0.04,
 					"general_part_spec": {
 						"outside_emissivity": 0.9,
 						"outside_solar_absorption": 0.8,
-						"outside_heat_transfer_resistance": 0.04,
 						"layers": [
 							{
 								"name": "plaster_board",
@@ -500,10 +500,10 @@
 					"direction": "s",
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.11,
+					"outside_heat_transfer_resistance": 0.04,
 					"transparent_opening_part_spec": {
 						"outside_emissivity": 0.9,
 						"outside_solar_absorption": 0.8,
-						"outside_heat_transfer_resistance": 0.04,
 						"incident_angle_characteristics": "multiple",
 						"eta_value": 0.792,
 						"u_value": 4.65
@@ -525,10 +525,10 @@
 					"direction": "w",
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.11,
+					"outside_heat_transfer_resistance": 0.04,
 					"general_part_spec": {
 						"outside_emissivity": 0.9,
 						"outside_solar_absorption": 0.8,
-						"outside_heat_transfer_resistance": 0.04,
 						"layers": [
 							{
 								"name": "plaster_board",
@@ -570,10 +570,10 @@
 					"direction": "w",
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.11,
+					"outside_heat_transfer_resistance": 0.04,
 					"transparent_opening_part_spec": {
 						"outside_emissivity": 0.9,
 						"outside_solar_absorption": 0.8,
-						"outside_heat_transfer_resistance": 0.04,
 						"incident_angle_characteristics": "multiple",
 						"eta_value": 0.792,
 						"u_value": 4.65
@@ -591,10 +591,10 @@
 					"direction": "top",
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.09,
+					"outside_heat_transfer_resistance": 0.09,
 					"general_part_spec": {
 						"outside_emissivity": 0.9,
 						"outside_solar_absorption": 0.8,
-						"outside_heat_transfer_resistance": 0.09,
 						"layers": [
 							{
 								"name": "plaster_board",
@@ -621,8 +621,8 @@
 					"next_room_type": "non_occupant_room",
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.11,
+					"outside_heat_transfer_resistance": 0.11,
 					"general_part_spec": {
-						"outside_heat_transfer_resistance": 0.11,
 						"layers": [
 							{
 								"name": "plaster_board",
@@ -654,10 +654,10 @@
 					"direction": "s",
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.11,
+					"outside_heat_transfer_resistance": 0.04,
 					"general_part_spec": {
 						"outside_emissivity": 0.9,
 						"outside_solar_absorption": 0.8,
-						"outside_heat_transfer_resistance": 0.04,
 						"layers": [
 							{
 								"name": "plaster_board",
@@ -699,10 +699,10 @@
 					"direction": "s",
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.11,
+					"outside_heat_transfer_resistance": 0.04,
 					"transparent_opening_part_spec": {
 						"outside_emissivity": 0.9,
 						"outside_solar_absorption": 0.8,
-						"outside_heat_transfer_resistance": 0.04,
 						"incident_angle_characteristics": "multiple",
 						"eta_value": 0.792,
 						"u_value": 4.65
@@ -724,10 +724,10 @@
 					"direction": "top",
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.09,
+					"outside_heat_transfer_resistance": 0.09,
 					"general_part_spec": {
 						"outside_emissivity": 0.9,
 						"outside_solar_absorption": 0.8,
-						"outside_heat_transfer_resistance": 0.09,
 						"layers": [
 							{
 								"name": "plaster_board",
@@ -754,8 +754,8 @@
 					"next_room_type": "non_occupant_room",
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.11,
+					"outside_heat_transfer_resistance": 0.11,
 					"general_part_spec": {
-						"outside_heat_transfer_resistance": 0.11,
 						"layers": [
 							{
 								"name": "plaster_board",
@@ -787,8 +787,8 @@
 					"next_room_type": "main_occupant_room",
 					"is_solar_absorbed_inside": true,
 					"inside_heat_transfer_resistance": 0.15,
+					"outside_heat_transfer_resistance": 0.09,
 					"general_part_spec": {
-						"outside_heat_transfer_resistance": 0.09,
 						"layers": [
 							{
 								"name": "plywood",
@@ -820,10 +820,10 @@
 					"direction": "e",
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.11,
+					"outside_heat_transfer_resistance": 0.04,
 					"general_part_spec": {
 						"outside_emissivity": 0.9,
 						"outside_solar_absorption": 0.8,
-						"outside_heat_transfer_resistance": 0.04,
 						"layers": [
 							{
 								"name": "plaster_board",
@@ -865,10 +865,10 @@
 					"direction": "e",
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.11,
+					"outside_heat_transfer_resistance": 0.04,
 					"transparent_opening_part_spec": {
 						"outside_emissivity": 0.9,
 						"outside_solar_absorption": 0.8,
-						"outside_heat_transfer_resistance": 0.04,
 						"incident_angle_characteristics": "multiple",
 						"eta_value": 0.792,
 						"u_value": 4.65
@@ -886,10 +886,10 @@
 					"direction": "s",
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.11,
+					"outside_heat_transfer_resistance": 0.04,
 					"general_part_spec": {
 						"outside_emissivity": 0.9,
 						"outside_solar_absorption": 0.8,
-						"outside_heat_transfer_resistance": 0.04,
 						"layers": [
 							{
 								"name": "plaster_board",
@@ -931,10 +931,10 @@
 					"direction": "s",
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.11,
+					"outside_heat_transfer_resistance": 0.04,
 					"transparent_opening_part_spec": {
 						"outside_emissivity": 0.9,
 						"outside_solar_absorption": 0.8,
-						"outside_heat_transfer_resistance": 0.04,
 						"incident_angle_characteristics": "multiple",
 						"eta_value": 0.792,
 						"u_value": 4.65
@@ -956,10 +956,10 @@
 					"direction": "top",
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.09,
+					"outside_heat_transfer_resistance": 0.09,
 					"general_part_spec": {
 						"outside_emissivity": 0.9,
 						"outside_solar_absorption": 0.8,
-						"outside_heat_transfer_resistance": 0.09,
 						"layers": [
 							{
 								"name": "plaster_board",
@@ -986,8 +986,8 @@
 					"next_room_type": "non_occupant_room",
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.11,
+					"outside_heat_transfer_resistance": 0.11,
 					"general_part_spec": {
-						"outside_heat_transfer_resistance": 0.11,
 						"layers": [
 							{
 								"name": "plaster_board",
@@ -1019,8 +1019,8 @@
 					"next_room_type": "main_occupant_room",
 					"is_solar_absorbed_inside": true,
 					"inside_heat_transfer_resistance": 0.15,
+					"outside_heat_transfer_resistance": 0.09,
 					"general_part_spec": {
-						"outside_heat_transfer_resistance": 0.09,
 						"layers": [
 							{
 								"name": "plywood",
@@ -1052,10 +1052,10 @@
 					"direction": "n",
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.11,
+					"outside_heat_transfer_resistance": 0.04,
 					"general_part_spec": {
 						"outside_emissivity": 0.9,
 						"outside_solar_absorption": 0.8,
-						"outside_heat_transfer_resistance": 0.04,
 						"layers": [
 							{
 								"name": "plaster_board",
@@ -1097,10 +1097,10 @@
 					"direction": "s",
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.11,
+					"outside_heat_transfer_resistance": 0.04,
 					"general_part_spec": {
 						"outside_emissivity": 0.9,
 						"outside_solar_absorption": 0.8,
-						"outside_heat_transfer_resistance": 0.04,
 						"layers": [
 							{
 								"name": "plaster_board",
@@ -1142,10 +1142,10 @@
 					"direction": "s",
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.11,
+					"outside_heat_transfer_resistance": 0.04,
 					"transparent_opening_part_spec": {
 						"outside_emissivity": 0.9,
 						"outside_solar_absorption": 0.8,
-						"outside_heat_transfer_resistance": 0.04,
 						"incident_angle_characteristics": "multiple",
 						"eta_value": 0.792,
 						"u_value": 4.65
@@ -1163,10 +1163,10 @@
 					"direction": "w",
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.11,
+					"outside_heat_transfer_resistance": 0.04,
 					"general_part_spec": {
 						"outside_emissivity": 0.9,
 						"outside_solar_absorption": 0.8,
-						"outside_heat_transfer_resistance": 0.04,
 						"layers": [
 							{
 								"name": "plaster_board",
@@ -1207,9 +1207,9 @@
 					"temp_dif_coef": 0.7,
 					"is_solar_absorbed_inside": true,
 					"inside_heat_transfer_resistance": 0.15,
+					"outside_heat_transfer_resistance": 0.15,
 					"general_part_spec": {
 						"outside_emissivity": 0.9,
-						"outside_heat_transfer_resistance": 0.15,
 						"outside_solar_absorption": 0.8,
 						"layers": [
 							{
@@ -1237,10 +1237,10 @@
 					"direction": "top",
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.09,
+					"outside_heat_transfer_resistance": 0.09,
 					"general_part_spec": {
 						"outside_emissivity": 0.9,
 						"outside_solar_absorption": 0.8,
-						"outside_heat_transfer_resistance": 0.09,
 						"layers": [
 							{
 								"name": "plaster_board",
@@ -1267,8 +1267,8 @@
 					"next_room_type": "non_occupant_room",
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.11,
+					"outside_heat_transfer_resistance": 0.11,
 					"general_part_spec": {
-						"outside_heat_transfer_resistance": 0.11,
 						"layers": [
 							{
 								"name": "plaster_board",
@@ -1300,8 +1300,8 @@
 					"next_room_type": "main_occupant_room",
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.11,
+					"outside_heat_transfer_resistance": 0.11,
 					"general_part_spec": {
-						"outside_heat_transfer_resistance": 0.11,
 						"layers": [
 							{
 								"name": "plaster_board",
@@ -1363,10 +1363,10 @@
 					"direction": "n",
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.11,
+					"outside_heat_transfer_resistance": 0.04,
 					"general_part_spec": {
 						"outside_emissivity": 0.9,
 						"outside_solar_absorption": 0.8,
-						"outside_heat_transfer_resistance": 0.04,
 						"layers": [
 							{
 								"name": "plaster_board",
@@ -1408,10 +1408,10 @@
 					"direction": "n",
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.11,
+					"outside_heat_transfer_resistance": 0.04,
 					"transparent_opening_part_spec": {
 						"outside_emissivity": 0.9,
 						"outside_solar_absorption": 0.8,
-						"outside_heat_transfer_resistance": 0.04,
 						"incident_angle_characteristics": "multiple",
 						"eta_value": 0.792,
 						"u_value": 4.65
@@ -1429,10 +1429,10 @@
 					"direction": "e",
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.11,
+					"outside_heat_transfer_resistance": 0.04,
 					"general_part_spec": {
 						"outside_emissivity": 0.9,
 						"outside_solar_absorption": 0.8,
-						"outside_heat_transfer_resistance": 0.04,
 						"layers": [
 							{
 								"name": "plaster_board",
@@ -1474,10 +1474,10 @@
 					"direction": "w",
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.11,
+					"outside_heat_transfer_resistance": 0.04,
 					"general_part_spec": {
 						"outside_emissivity": 0.9,
 						"outside_solar_absorption": 0.8,
-						"outside_heat_transfer_resistance": 0.04,
 						"layers": [
 							{
 								"name": "plaster_board",
@@ -1519,10 +1519,10 @@
 					"direction": "w",
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.11,
+					"outside_heat_transfer_resistance": 0.04,
 					"transparent_opening_part_spec": {
 						"outside_emissivity": 0.9,
 						"outside_solar_absorption": 0.8,
-						"outside_heat_transfer_resistance": 0.04,
 						"incident_angle_characteristics": "multiple",
 						"eta_value": 0.792,
 						"u_value": 4.65
@@ -1539,9 +1539,9 @@
 					"temp_dif_coef": 0.7,
 					"is_solar_absorbed_inside": true,
 					"inside_heat_transfer_resistance": 0.15,
+					"outside_heat_transfer_resistance": 0.15,
 					"general_part_spec": {
 						"outside_emissivity": 0.9,
-						"outside_heat_transfer_resistance": 0.15,
 						"outside_solar_absorption": 0.8,
 						"layers": [
 							{
@@ -1569,10 +1569,10 @@
 					"direction": "top",
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.09,
+					"outside_heat_transfer_resistance": 0.09,
 					"general_part_spec": {
 						"outside_emissivity": 0.9,
 						"outside_solar_absorption": 0.8,
-						"outside_heat_transfer_resistance": 0.09,
 						"layers": [
 							{
 								"name": "plaster_board",
@@ -1599,8 +1599,8 @@
 					"next_room_type": "main_occupant_room",
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.11,
+					"outside_heat_transfer_resistance": 0.11,
 					"general_part_spec": {
-						"outside_heat_transfer_resistance": 0.11,
 						"layers": [
 							{
 								"name": "plaster_board",
@@ -1632,8 +1632,8 @@
 					"next_room_type": "other_occupant_room",
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.11,
+					"outside_heat_transfer_resistance": 0.11,
 					"general_part_spec": {
-						"outside_heat_transfer_resistance": 0.11,
 						"layers": [
 							{
 								"name": "plaster_board",
@@ -1665,8 +1665,8 @@
 					"next_room_type": "other_occupant_room",
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.11,
+					"outside_heat_transfer_resistance": 0.11,
 					"general_part_spec": {
-						"outside_heat_transfer_resistance": 0.11,
 						"layers": [
 							{
 								"name": "plaster_board",
@@ -1698,8 +1698,8 @@
 					"next_room_type": "other_occupant_room",
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.11,
+					"outside_heat_transfer_resistance": 0.11,
 					"general_part_spec": {
-						"outside_heat_transfer_resistance": 0.11,
 						"layers": [
 							{
 								"name": "plaster_board",
@@ -1731,8 +1731,8 @@
 					"next_room_type": "other_occupant_room",
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.11,
+					"outside_heat_transfer_resistance": 0.11,
 					"general_part_spec": {
-						"outside_heat_transfer_resistance": 0.11,
 						"layers": [
 							{
 								"name": "plaster_board",

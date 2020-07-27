@@ -319,17 +319,17 @@ class ResponseFactorFactory:
             return ResponseFactorFactoryTransientEnvelope(
                 cs=[float(layer['thermal_capacity']) for layer in layers],
                 rs=[float(layer['thermal_resistance']) for layer in layers],
-                r_o=float(d['general_part_spec']['outside_heat_transfer_resistance'])
+                r_o=float(d['outside_heat_transfer_resistance'])
             )
 
         elif d['boundary_type'] == 'internal':
 
             layers = d['general_part_spec']['layers']
-
+            print(d['name'])
             return ResponseFactorFactoryTransientEnvelope(
                 cs=[float(layer['thermal_capacity']) for layer in layers],
                 rs=[float(layer['thermal_resistance']) for layer in layers],
-                r_o=float(d['general_part_spec']['outside_heat_transfer_resistance'])
+                r_o=float(d['outside_heat_transfer_resistance'])
             )
 
         elif d['boundary_type'] == 'ground':

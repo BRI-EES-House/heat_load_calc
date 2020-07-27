@@ -37,7 +37,7 @@ class OutsideEqvTemp:
                     direction=b['direction'],
                     a_s=float(spec['outside_solar_absorption']),
                     eps_r=float(spec['outside_emissivity']),
-                    r_surf=float(spec['outside_heat_transfer_resistance'])
+                    r_surf=float(b['outside_heat_transfer_resistance'])
 
                 )
             else:
@@ -52,7 +52,7 @@ class OutsideEqvTemp:
                 return OutsideEqvTempExternalTransparentPart(
                     direction=b['direction'],
                     eps_r=float(spec['outside_emissivity']),
-                    r_surf_o=float(spec['outside_heat_transfer_resistance'])
+                    r_surf_o=float(b['outside_heat_transfer_resistance'])
                 )
             else:
                 return OutsideEqvTempExternalNotSunStriked()
