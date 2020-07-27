@@ -49,6 +49,9 @@ class BoundarySimple:
     # 相当外気温度, ℃, [8760 * 4]
     theta_o_sol: np.ndarray
 
+    # 透過日射熱取得, W, [8760*4]
+    q_trs_sol: np.ndarray
+
     # 応答係数法（項別公比法）における根の数
     n_root: int
 

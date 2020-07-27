@@ -1,32 +1,35 @@
+"""応答係数の初項、指数項別応答係数、公比の計算
+
+"""
+
 import math
 import numpy as np
-from typing import List
+from typing import List, Dict
+from dataclasses import dataclass
 
-import heat_load_calc.a25_window as a25
-
-from heat_load_calc.s3_surface_loader import Boundary
-from heat_load_calc.s3_surface_loader import InternalPartSpec
-from heat_load_calc.s3_surface_loader import GeneralPartSpec
-from heat_load_calc.s3_surface_loader import TransparentOpeningPartSpec
-from heat_load_calc.s3_surface_loader import OpaqueOpeningPartSpec
-from heat_load_calc.s3_surface_loader import GroundSpec
 from heat_load_calc.initializer.boundary_type import BoundaryType
 
-"""
-付録2．応答係数の初項、指数項別応答係数、公比の計算
-"""
 
-
+@dataclass()
 class ResponseFactor:
 
-    def __init__(self, rft0, rfa0, rft1, rfa1, row, n_root):
-        self.rft0 = rft0
-        self.rfa0 = rfa0
-        self.rft1 = rft1
-        self.rfa1 = rfa1
-        self.row = row
-        self.n_root = n_root
+    # 貫流応答係数の初項
+    rft0: float
 
+    # 吸熱応答係数の初項
+    rfa0: float
+
+    # 貫流応答係数
+    rft1: np.ndarray
+
+    # 吸熱応答係数
+    rfa1: np.ndarray
+
+    # 公比
+    row: np.ndarray
+
+    # 根の数
+    n_root: int
 
 
 # ラプラス変数の設定
@@ -303,81 +306,122 @@ def calc_response_factor(is_ground: bool, C_i_k_p, R_i_k_p):
     return RFT0, RFA0, RFT1_12, RFA1_12, Row_12, Nroot
 
 
-def get_c_layer_i_k_ls(b: Boundary):
+class ResponseFactorFactory:
 
-    if type(b.spec) is InternalPartSpec:
-        c = [layer.thermal_capacity for layer in b.spec.layers]
+    def __init__(self):
+        pass
+
+    @classmethod
+    def create(cls, d: Dict):
+
+        if d['boundary_type'] == 'external_general_part':
+            return ResponseFactorFactoryTransientEnvelope(
+                layers=d['general_part_spec']['layers'],
+                r_o=d['general_part_spec']['outside_heat_transfer_resistance']
+            )
+
+        elif d['boundary_type'] == 'internal':
+            return ResponseFactorFactoryTransientEnvelope(
+                layers=d['general_part_spec']['layers'],
+                r_o=d['general_part_spec']['outside_heat_transfer_resistance']
+            )
+
+        elif d['boundary_type'] == 'ground':
+            return ResponseFactorFactoryTransientGround(
+                layers=d['general_part_spec']['layers'],
+                r_o=d['general_part_spec']['outside_heat_transfer_resistance']
+            )
+
+        elif d['boundary_type'] == 'external_transparent_part':
+            return ResponseFactorFactorySteady(
+                u_w=d['transparent_opening_part_spec']['u_value'],
+                r_i=d['inside_heat_transfer_resistance']
+            )
+
+        elif d['boundary_type'] == 'external_opaque_part':
+            return ResponseFactorFactorySteady(
+                u_w=d['opaque_opening_part_spec']['u_value'],
+                r_i=d['inside_heat_transfer_resistance']
+            )
+
+        else:
+            raise KeyError()
+
+    def get_response_factors(self) -> ResponseFactor:
+
+        raise NotImplementedError()
+
+
+class ResponseFactorFactoryTransientEnvelope(ResponseFactorFactory):
+
+    def __init__(self, layers, r_o):
+
+        super().__init__()
+        self._layers = layers
+        self._r_o = r_o
+
+    def get_response_factors(self) -> ResponseFactor:
+
+        is_ground = False
+
+        c = [layer['thermal_capacity'] for layer in self._layers]
         c.append(0.0)
-        return np.array(c) * 1000.0
-    elif type(b.spec) is GeneralPartSpec:
-        c = [layer.thermal_capacity for layer in b.spec.layers]
-        c.append(0.0)
-        return np.array(c) * 1000.0
-    elif type(b.spec) is TransparentOpeningPartSpec:
-        return None
-    elif type(b.spec) is OpaqueOpeningPartSpec:
-        return None
-    elif type(b.spec) is GroundSpec:
-        c = [layer.thermal_capacity for layer in b.spec.layers]
-        c.append(3300.0 * 3.0)
-        return np.array(c) * 1000.0
-    else:
-        raise TypeError
+        c_layer_i_k_l = np.array(c) * 1000.0
 
-
-def get_r_layer_i_k_ls(b):
-    if type(b.spec) is InternalPartSpec:
-        r = [layer.thermal_resistance for layer in b.spec.layers]
-        r.append(b.spec.outside_heat_transfer_resistance)
-        return np.array(r)
-    elif type(b.spec) is GeneralPartSpec:
-        r = [layer.thermal_resistance for layer in b.spec.layers]
-        r.append(b.spec.outside_heat_transfer_resistance)
-        return np.array(r)
-    elif type(b.spec) is TransparentOpeningPartSpec:
-        return None
-    elif type(b.spec) is OpaqueOpeningPartSpec:
-        return None
-    elif type(b.spec) is GroundSpec:
-        r = [layer.thermal_resistance for layer in b.spec.layers]
-        r.append(3.0 / 1.0)
-        return np.array(r)
-    else:
-        raise TypeError
-
-
-def get_response_factors(b: Boundary) -> ResponseFactor:
-
-    if b.boundary_type in [BoundaryType.ExternalGeneralPart, BoundaryType.Internal, BoundaryType.Ground]:
-
-        is_ground = b.boundary_type == BoundaryType.Ground
-
-        c_layer_i_k_l = get_c_layer_i_k_ls(b)
-        r_layer_i_k_l = get_r_layer_i_k_ls(b)
+        r = [layer['thermal_resistance'] for layer in self._layers]
+        r.append(self._r_o)
+        r_layer_i_k_l = np.array(r)
 
         # 応答係数
         _RFT0, _RFA0, _RFT1, _RFA1, _Row, _n_root_i_js = \
             calc_response_factor(is_ground, c_layer_i_k_l, r_layer_i_k_l)
 
-    elif b.boundary_type in [BoundaryType.ExternalTransparentPart, BoundaryType.ExternalOpaquePart]:
+        return ResponseFactor(rft0=_RFT0, rfa0=_RFA0, rft1=_RFT1, rfa1=_RFA1, row=_Row, n_root=_n_root_i_js)
 
-        # 室iの境界kの熱貫流率, W/m2K
-        # 定常で解く部位、つまり、透明な開口部・不透明な開口部で定義される。
 
-        # 室iの境界kの室内側熱伝達抵抗, m2K/W
-        # 室内側熱伝達抵抗は全ての part 種類において存在する
-        # 従って下記のコードは少し冗長であるがspecの1階層下で定義されているため、念の為かき分けておく。
+class ResponseFactorFactoryTransientGround(ResponseFactorFactory):
+
+    def __init__(self, layers, r_o):
+
+        super().__init__()
+        self._layers = layers
+        self._r_o = r_o
+
+    def get_response_factors(self) -> ResponseFactor:
+
+        is_ground = True
+
+        c = [layer['thermal_capacity'] for layer in self._layers]
+        c.append(3300.0 * 3.0)
+        c_layer_i_k_l = np.array(c) * 1000.0
+
+        r = [layer['thermal_resistance'] for layer in self._layers]
+        r.append(3.0 / 1.0)
+        r_layer_i_k_l = np.array(r)
+
+        # 応答係数
+        _RFT0, _RFA0, _RFT1, _RFA1, _Row, _n_root_i_js = \
+            calc_response_factor(is_ground, c_layer_i_k_l, r_layer_i_k_l)
+
+        return ResponseFactor(rft0=_RFT0, rfa0=_RFA0, rft1=_RFT1, rfa1=_RFA1, row=_Row, n_root=_n_root_i_js)
+
+
+class ResponseFactorFactorySteady(ResponseFactorFactory):
+
+    def __init__(self, u_w, r_i):
+
+        super().__init__()
+        self._u_w = u_w
+        self._r_i = r_i
+
+    def get_response_factors(self) -> ResponseFactor:
 
         # 開口部の室内表面から屋外までの熱貫流率[W / (m2･K)] 式(124)
-        _Uso = a25.get_Uso(u_w=b.spec.u_value, r_i_i_k_n=b.inside_heat_transfer_resistance)
+        _Uso = 1.0 / (1.0 / self._u_w - self._r_i)
 
         _RFT0, _RFA0, _RFT1, _RFA1, _Row, _n_root_i_js = \
             1.0, 1.0 / _Uso, np.zeros(12), np.zeros(12), np.zeros(12), 0
 
-    else:
-
-        raise ValueError()
-
-    return ResponseFactor(rft0=_RFT0, rfa0=_RFA0, rft1=_RFT1, rfa1=_RFA1, row=_Row, n_root=_n_root_i_js)
+        return ResponseFactor(rft0=_RFT0, rfa0=_RFA0, rft1=_RFT1, rfa1=_RFA1, row=_Row, n_root=_n_root_i_js)
 
 

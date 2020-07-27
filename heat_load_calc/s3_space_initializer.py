@@ -11,7 +11,6 @@ import heat_load_calc.a22_radiative_heating_spec as a22
 from heat_load_calc.initializer.boundary_type import BoundaryType
 import heat_load_calc.s3_surface_initializer as s3
 import heat_load_calc.x_35_occupants as x35
-import heat_load_calc.s3_surface_loader as s3_loader
 
 from heat_load_calc.initializer import schedule_loader
 from heat_load_calc.initializer import residents_number
@@ -67,18 +66,25 @@ def make_house(d, input_data_dir, output_data_dir):
     # 室iの家具等と空気間の湿気コンダクタンス, kg/s kg/kgDA
     c_x_is = a14.get_c_x_is(g_f_is)
 
-    # 室iの境界k,　boundaryクラスのリスト, [i, k]
-    d_bdry_is_ks = [s3_loader.read_d_boundary_i_ks(input_dict_boundaries=r['boundaries']) for r in rooms]
+    # 室iの境界j
+    bss = [
+        [
+            s3.get_boundary_simple(
+                theta_o_ns=theta_o_ns,
+                i_dn_ns=i_dn_ns,
+                i_sky_ns=i_sky_ns,
+                r_n_ns=r_n_ns,
+                a_sun_ns=a_sun_ns,
+                h_sun_ns=h_sun_ns,
+                b=b_dict
+            ) for b_dict in r['boundaries']
+        ] for r in rooms
+    ]
 
     # 室iの統合された境界j*, IntegratedBoundaryクラス, [j*]
-    ibs = [s3.init_surface(
-        boundaries=d_boundary_i_ks,
-        i_dn_ns=i_dn_ns,
-        i_sky_ns=i_sky_ns,
-        r_n_ns=r_n_ns,
-        theta_o_ns=theta_o_ns,
-        h_sun_ns=h_sun_ns,
-        a_sun_ns=a_sun_ns) for d_boundary_i_ks in d_bdry_is_ks]
+    # メモ　3つのIntegratedBoundariesクラスのリスト
+    # IntegratedBoundaries クラスが複数のパラメータをもつ
+    ibs = [s3.init_surface(bss=bs) for bs in bss]
 
     # 統合された境界j*の数, [j*]
     number_of_bdry_is = np.array([len(ib.name_i_jstrs) for ib in ibs])
@@ -119,12 +125,7 @@ def make_house(d, input_data_dir, output_data_dir):
     phi_a1_bdry_jstrs_ms = np.concatenate([ib.RFA1s for ib in ibs])
 
     # ステップnの室iにおける窓の透過日射熱取得, W, [8760*4]
-    q_trs_sol_is_ns = np.concatenate([[
-        np.sum(
-            s3.get_transmitted_solar_radiation(
-                boundaries=d_bdry_i_ks, i_dn_ns=i_dn_ns, i_sky_ns=i_sky_ns, h_sun_ns=h_sun_ns, a_sun_ns=a_sun_ns
-            ), axis=0)
-    ] for d_bdry_i_ks in d_bdry_is_ks])
+    q_trs_sol_is_ns = np.array([np.sum(ib.q_trs_i_jstrs_ns, axis=0) for ib in ibs])
 
     # 室iの床面積, m2, [i]
     a_floor_is = np.array([
