@@ -113,21 +113,6 @@ def get_boundary_simple(theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, a_sun_ns, h_sun_n
     # 室内側表面総合熱伝達率, W/m2K
     h_i = 1.0 / r_i
 
-    # spec
-    # 境界の種類に応じて、それぞれ対応するクラスを取得する。
-    if b['boundary_type'] == 'internal':
-        spec = s3_loader.get_internal_part_spec(b)
-    elif b['boundary_type'] == 'external_general_part':
-        spec = s3_loader.get_general_part_spec(b)
-    elif b['boundary_type'] == 'external_transparent_part':
-        spec = s3_loader.get_transparent_opening_part_spec(b)
-    elif b['boundary_type'] == 'external_opaque_part':
-        spec = s3_loader.get_opaque_opening_part_spec(b)
-    elif b['boundary_type'] == 'ground':
-        spec = s3_loader.get_ground_spec(b)
-    else:
-        raise ValueError
-
     solar_shading_part = a8.SolarShadingPart.create(ssp=b['solar_shading_part'])
 
     oet = a9.OutsideEqvTemp.create(b)
@@ -142,12 +127,6 @@ def get_boundary_simple(theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, a_sun_ns, h_sun_n
         h_sun_ns=h_sun_ns
     )
 
-
-#    if boundary_type == BoundaryType.ExternalTransparentPart and is_sun_striked_outside:
-#        tsr = a11.TransmissionSolarRadiationTransparentSunStrike()
-#    else:
-#        tsr = a11.TransmissionSolarRadiationNot()
-
     tsr = a11.TransmissionSolarRadiation.create(d=b, solar_shading_part=solar_shading_part)
 
     # 透過日射量, W, [8760*4]
@@ -155,10 +134,12 @@ def get_boundary_simple(theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, a_sun_ns, h_sun_n
 
     # ===============================
 
-    b = s3_loader.get_boundary(b)
+    rff = a2.ResponseFactorFactory.create(b)
 
     # 応答係数
-    rfs = a2.get_response_factors(b)
+    rfs = rff.get_response_factors()
+
+    b = s3_loader.get_boundary(b)
 
     return BoundarySimple(
         name=name,
