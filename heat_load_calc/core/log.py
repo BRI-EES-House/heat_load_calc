@@ -30,6 +30,18 @@ class Logger:
         # ステップnの室iにおける作用温度, degree C, [i, n]
         self.theta_ot = np.zeros((n_spaces, 24 * 365 * 4 * 3))
 
+        # ステップnの室iにおける目標PMV, -, [i, n]
+        self.pmv_target = np.zeros((n_spaces, 24 * 365 * 4 * 3))
+
+        # ステップnの室iにおける人体周辺対流熱伝達率, W/m2K, [i, n]
+        self.h_hum_c_is_n = np.zeros((n_spaces, 24 * 365 * 4 * 3))
+
+        # ステップnの室iにおける人体放射熱伝達率, W/m2K, [i, n]
+        self.h_hum_r_is_n = np.zeros((n_spaces, 24 * 365 * 4 * 3))
+
+        # ステップnの室iにおける人体まわりの風速, m/s, [i, n]
+        self.v_hum_is_n = np.zeros((n_spaces, 24 * 365 * 4 * 3))
+
         # ステップnの室iにおけるClo値, [i, n]
         self.clo = np.zeros((n_spaces, 24 * 365 * 4 * 3))
 
@@ -90,6 +102,18 @@ class Logger:
         # ステップnの統合された境界j*の等価温度, degree C, [j*, n]
         self.theta_ei = np.zeros((n_bdries, 24 * 365 * 4 * 3))
 
+        # ステップnの統合された境界j*の表面日射熱流, W, [j*, n]
+        self.qisol_s = np.zeros((n_bdries, 24 * 365 * 4 * 3))
+
+        # ステップnの統合された境界j*の表面日射熱流, W, [j*, n]
+        self.qiall_s = np.zeros((n_bdries, 24 * 365 * 4 * 3))
+
+        # ステップnの統合された境界j*の表面対流熱伝達率, W/m2K, [j*, n]
+        self.h_c_s = np.zeros((n_bdries, 24 * 365 * 4 * 3))
+
+        # ステップnの統合された境界j*の表面放射熱伝達率, W/m2K, [j*, n]
+        self.h_r_s = np.zeros((n_bdries, 24 * 365 * 4 * 3))
+
     def pre_logging(self, ss: PreCalcParameters):
 
         self.theta_o = ss.theta_o_ns
@@ -139,11 +163,15 @@ def record(pps: PreCalcParameters, logger: Logger, output_data_dir: str, show_si
 
         dd[name + '_ac_operate'] = logger.operation_mode[i][0:365*96]
         dd[name + '_occupancy'] = logger.ac_demand[i][0:365*96]
+        dd[name + '_pmv_target'] = logger.pmv_target[i][0:365*96]
+        dd[name + '_hc_hum'] = logger.h_hum_c_is_n[i][0:365*96]
+        dd[name + '_hr_hum'] = logger.h_hum_r_is_n[i][0:365*96]
         dd[name + '_t_r'] = logger.theta_r[i][0:365*96]
         dd[name + '_rh_r'] = logger.rh[i][0:365*96]
         dd[name + '_x_r'] = logger.x_r[i][0:365*96]
         dd[name + '_mrt'] = logger.theta_mrt[i][0:365*96]
         dd[name + '_ot'] = logger.theta_ot[i][0:365*96]
+        dd[name + '_v_hum'] = logger.v_hum_is_n[i][0:365*96]
         dd[name + '_clo'] = logger.clo[i][0:365*96]
         dd[name + '_q_sol_t'] = logger.q_trs_sol[i][0:365*96]
         dd[name + '_q_s_except_hum'] = logger.q_gen[i][0:365*96]
@@ -168,10 +196,18 @@ def record(pps: PreCalcParameters, logger: Logger, output_data_dir: str, show_si
             dd[name + '_' + boundary_names[j] + '_t_e'] = t[0:365*96]
         for j, t in enumerate(logger.theta_rear[selected, :]):
             dd[name + '_' + boundary_names[j] + '_t_b'] = t[0:365*96]
+        for j, t in enumerate(logger.h_r_s[selected, :]):
+            dd[name + '_' + boundary_names[j] + '_hir_s'] = t[0:365*96]
         for j, t in enumerate(logger.qr[selected, :]):
             dd[name + '_' + boundary_names[j] + '_qir_s'] = t[0:365*96]
+        for j, t in enumerate(logger.h_c_s[selected, :]):
+            dd[name + '_' + boundary_names[j] + '_hic_s'] = t[0:365*96]
         for j, t in enumerate(logger.qc[selected, :]):
             dd[name + '_' + boundary_names[j] + '_qic_s'] = t[0:365*96]
+        for j, t in enumerate(logger.qisol_s[selected, :]):
+            dd[name + '_' + boundary_names[j] + '_qisol_s'] = t[0:365*96]
+        for j, t in enumerate(logger.qiall_s[selected, :]):
+            dd[name + '_' + boundary_names[j] + '_qiall_s'] = t[0:365*96]
 
     if show_detail_result:
         dd.to_csv(output_data_dir + '/result_detail.csv', encoding='cp932')
