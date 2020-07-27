@@ -325,7 +325,7 @@ class ResponseFactorFactory:
         elif d['boundary_type'] == 'internal':
 
             layers = d['general_part_spec']['layers']
-            print(d['name'])
+
             return ResponseFactorFactoryTransientEnvelope(
                 cs=[float(layer['thermal_capacity']) for layer in layers],
                 rs=[float(layer['thermal_resistance']) for layer in layers],

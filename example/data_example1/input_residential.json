@@ -39,8 +39,8 @@
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.11,
 					"outside_heat_transfer_resistance": 0.04,
+					"outside_emissivity": 0.9,
 					"general_part_spec": {
-						"outside_emissivity": 0.9,
 						"outside_solar_absorption": 0.8,
 						"layers": [
 							{
@@ -84,8 +84,8 @@
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.11,
 					"outside_heat_transfer_resistance": 0.04,
+					"outside_emissivity": 0.9,
 					"opaque_opening_part_spec": {
-						"outside_emissivity": 0.9,
 						"outside_solar_absorption": 0.8,
 						"u_value": 4.65
 					},
@@ -103,8 +103,8 @@
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.11,
 					"outside_heat_transfer_resistance": 0.04,
+					"outside_emissivity": 0.9,
 					"general_part_spec": {
-						"outside_emissivity": 0.9,
 						"outside_solar_absorption": 0.8,
 						"layers": [
 							{
@@ -148,8 +148,8 @@
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.11,
 					"outside_heat_transfer_resistance": 0.04,
+					"outside_emissivity": 0.9,
 					"transparent_opening_part_spec": {
-						"outside_emissivity": 0.9,
 						"outside_solar_absorption": 0.8,
 						"incident_angle_characteristics": "multiple",
 						"eta_value": 0.792,
@@ -169,8 +169,8 @@
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.11,
 					"outside_heat_transfer_resistance": 0.04,
+					"outside_emissivity": 0.9,
 					"general_part_spec": {
-						"outside_emissivity": 0.9,
 						"outside_solar_absorption": 0.8,
 						"layers": [
 							{
@@ -214,8 +214,8 @@
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.11,
 					"outside_heat_transfer_resistance": 0.04,
+					"outside_emissivity": 0.9,
 					"transparent_opening_part_spec": {
-						"outside_emissivity": 0.9,
 						"outside_solar_absorption": 0.8,
 						"incident_angle_characteristics": "multiple",
 						"eta_value": 0.792,
@@ -238,8 +238,8 @@
 					"is_solar_absorbed_inside": true,
 					"inside_heat_transfer_resistance": 0.15,
 					"outside_heat_transfer_resistance": 0.15,
+					"outside_emissivity": 0.9,
 					"general_part_spec": {
-						"outside_emissivity": 0.9,
 						"outside_solar_absorption": 0.8,
 						"layers": [
 							{
@@ -268,8 +268,8 @@
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.09,
 					"outside_heat_transfer_resistance": 0.09,
+					"outside_emissivity": 0.9,
 					"general_part_spec": {
-						"outside_emissivity": 0.9,
 						"outside_solar_absorption": 0.8,
 						"layers": [
 							{
@@ -456,8 +456,8 @@
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.11,
 					"outside_heat_transfer_resistance": 0.04,
+					"outside_emissivity": 0.9,
 					"general_part_spec": {
-						"outside_emissivity": 0.9,
 						"outside_solar_absorption": 0.8,
 						"layers": [
 							{
@@ -501,8 +501,8 @@
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.11,
 					"outside_heat_transfer_resistance": 0.04,
+					"outside_emissivity": 0.9,
 					"transparent_opening_part_spec": {
-						"outside_emissivity": 0.9,
 						"outside_solar_absorption": 0.8,
 						"incident_angle_characteristics": "multiple",
 						"eta_value": 0.792,
@@ -526,8 +526,8 @@
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.11,
 					"outside_heat_transfer_resistance": 0.04,
+					"outside_emissivity": 0.9,
 					"general_part_spec": {
-						"outside_emissivity": 0.9,
 						"outside_solar_absorption": 0.8,
 						"layers": [
 							{
@@ -571,8 +571,8 @@
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.11,
 					"outside_heat_transfer_resistance": 0.04,
+					"outside_emissivity": 0.9,
 					"transparent_opening_part_spec": {
-						"outside_emissivity": 0.9,
 						"outside_solar_absorption": 0.8,
 						"incident_angle_characteristics": "multiple",
 						"eta_value": 0.792,
@@ -592,8 +592,8 @@
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.09,
 					"outside_heat_transfer_resistance": 0.09,
+					"outside_emissivity": 0.9,
 					"general_part_spec": {
-						"outside_emissivity": 0.9,
 						"outside_solar_absorption": 0.8,
 						"layers": [
 							{
@@ -655,8 +655,8 @@
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.11,
 					"outside_heat_transfer_resistance": 0.04,
+					"outside_emissivity": 0.9,
 					"general_part_spec": {
-						"outside_emissivity": 0.9,
 						"outside_solar_absorption": 0.8,
 						"layers": [
 							{
@@ -700,8 +700,8 @@
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.11,
 					"outside_heat_transfer_resistance": 0.04,
+					"outside_emissivity": 0.9,
 					"transparent_opening_part_spec": {
-						"outside_emissivity": 0.9,
 						"outside_solar_absorption": 0.8,
 						"incident_angle_characteristics": "multiple",
 						"eta_value": 0.792,
@@ -725,8 +725,8 @@
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.09,
 					"outside_heat_transfer_resistance": 0.09,
+					"outside_emissivity": 0.9,
 					"general_part_spec": {
-						"outside_emissivity": 0.9,
 						"outside_solar_absorption": 0.8,
 						"layers": [
 							{
@@ -821,8 +821,8 @@
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.11,
 					"outside_heat_transfer_resistance": 0.04,
+					"outside_emissivity": 0.9,
 					"general_part_spec": {
-						"outside_emissivity": 0.9,
 						"outside_solar_absorption": 0.8,
 						"layers": [
 							{
@@ -866,8 +866,8 @@
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.11,
 					"outside_heat_transfer_resistance": 0.04,
+					"outside_emissivity": 0.9,
 					"transparent_opening_part_spec": {
-						"outside_emissivity": 0.9,
 						"outside_solar_absorption": 0.8,
 						"incident_angle_characteristics": "multiple",
 						"eta_value": 0.792,
@@ -887,8 +887,8 @@
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.11,
 					"outside_heat_transfer_resistance": 0.04,
+					"outside_emissivity": 0.9,
 					"general_part_spec": {
-						"outside_emissivity": 0.9,
 						"outside_solar_absorption": 0.8,
 						"layers": [
 							{
@@ -932,8 +932,8 @@
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.11,
 					"outside_heat_transfer_resistance": 0.04,
+					"outside_emissivity": 0.9,
 					"transparent_opening_part_spec": {
-						"outside_emissivity": 0.9,
 						"outside_solar_absorption": 0.8,
 						"incident_angle_characteristics": "multiple",
 						"eta_value": 0.792,
@@ -957,8 +957,8 @@
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.09,
 					"outside_heat_transfer_resistance": 0.09,
+					"outside_emissivity": 0.9,
 					"general_part_spec": {
-						"outside_emissivity": 0.9,
 						"outside_solar_absorption": 0.8,
 						"layers": [
 							{
@@ -1053,8 +1053,8 @@
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.11,
 					"outside_heat_transfer_resistance": 0.04,
+					"outside_emissivity": 0.9,
 					"general_part_spec": {
-						"outside_emissivity": 0.9,
 						"outside_solar_absorption": 0.8,
 						"layers": [
 							{
@@ -1098,8 +1098,8 @@
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.11,
 					"outside_heat_transfer_resistance": 0.04,
+					"outside_emissivity": 0.9,
 					"general_part_spec": {
-						"outside_emissivity": 0.9,
 						"outside_solar_absorption": 0.8,
 						"layers": [
 							{
@@ -1143,8 +1143,8 @@
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.11,
 					"outside_heat_transfer_resistance": 0.04,
+					"outside_emissivity": 0.9,
 					"transparent_opening_part_spec": {
-						"outside_emissivity": 0.9,
 						"outside_solar_absorption": 0.8,
 						"incident_angle_characteristics": "multiple",
 						"eta_value": 0.792,
@@ -1164,8 +1164,8 @@
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.11,
 					"outside_heat_transfer_resistance": 0.04,
+					"outside_emissivity": 0.9,
 					"general_part_spec": {
-						"outside_emissivity": 0.9,
 						"outside_solar_absorption": 0.8,
 						"layers": [
 							{
@@ -1208,8 +1208,8 @@
 					"is_solar_absorbed_inside": true,
 					"inside_heat_transfer_resistance": 0.15,
 					"outside_heat_transfer_resistance": 0.15,
+					"outside_emissivity": 0.9,
 					"general_part_spec": {
-						"outside_emissivity": 0.9,
 						"outside_solar_absorption": 0.8,
 						"layers": [
 							{
@@ -1238,8 +1238,8 @@
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.09,
 					"outside_heat_transfer_resistance": 0.09,
+					"outside_emissivity": 0.9,
 					"general_part_spec": {
-						"outside_emissivity": 0.9,
 						"outside_solar_absorption": 0.8,
 						"layers": [
 							{
@@ -1364,8 +1364,8 @@
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.11,
 					"outside_heat_transfer_resistance": 0.04,
+					"outside_emissivity": 0.9,
 					"general_part_spec": {
-						"outside_emissivity": 0.9,
 						"outside_solar_absorption": 0.8,
 						"layers": [
 							{
@@ -1409,8 +1409,8 @@
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.11,
 					"outside_heat_transfer_resistance": 0.04,
+					"outside_emissivity": 0.9,
 					"transparent_opening_part_spec": {
-						"outside_emissivity": 0.9,
 						"outside_solar_absorption": 0.8,
 						"incident_angle_characteristics": "multiple",
 						"eta_value": 0.792,
@@ -1430,8 +1430,8 @@
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.11,
 					"outside_heat_transfer_resistance": 0.04,
+					"outside_emissivity": 0.9,
 					"general_part_spec": {
-						"outside_emissivity": 0.9,
 						"outside_solar_absorption": 0.8,
 						"layers": [
 							{
@@ -1475,8 +1475,8 @@
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.11,
 					"outside_heat_transfer_resistance": 0.04,
+					"outside_emissivity": 0.9,
 					"general_part_spec": {
-						"outside_emissivity": 0.9,
 						"outside_solar_absorption": 0.8,
 						"layers": [
 							{
@@ -1520,8 +1520,8 @@
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.11,
 					"outside_heat_transfer_resistance": 0.04,
+					"outside_emissivity": 0.9,
 					"transparent_opening_part_spec": {
-						"outside_emissivity": 0.9,
 						"outside_solar_absorption": 0.8,
 						"incident_angle_characteristics": "multiple",
 						"eta_value": 0.792,
@@ -1540,8 +1540,8 @@
 					"is_solar_absorbed_inside": true,
 					"inside_heat_transfer_resistance": 0.15,
 					"outside_heat_transfer_resistance": 0.15,
+					"outside_emissivity": 0.9,
 					"general_part_spec": {
-						"outside_emissivity": 0.9,
 						"outside_solar_absorption": 0.8,
 						"layers": [
 							{
@@ -1570,8 +1570,8 @@
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.09,
 					"outside_heat_transfer_resistance": 0.09,
+					"outside_emissivity": 0.9,
 					"general_part_spec": {
-						"outside_emissivity": 0.9,
 						"outside_solar_absorption": 0.8,
 						"layers": [
 							{
