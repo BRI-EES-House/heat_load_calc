@@ -5,7 +5,7 @@ import os
 
 
 def get_compiled_schedules(
-        n_p: float, room_name_is: List[str]
+        n_p: float, room_name_is: List[str], a_floor_is: np.array
 ) -> (np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray):
     """
     各種スケジュールを取得する。
@@ -13,6 +13,7 @@ def get_compiled_schedules(
     Args:
         n_p: 居住人数
         room_name_is: 室iの名称, [i]
+        a_floor_is: 床面積, m2, [i]
 
     Returns:
         ステップnの室iにおける人体発熱を除く内部発熱, W
@@ -39,8 +40,8 @@ def get_compiled_schedules(
     ac_demand_is_ns = get_each_schedules(n_p=n_p, room_name_is=room_name_is)
 
     # ステップnの室iにおける人体発熱を除く内部発熱, W
-    # TODO: 照明は W/m2 なのに、床面積をかけわすれている。
-    q_gen_is_ns = q_gen_app_is_ns + q_gen_ckg_is_ns + q_gen_lght_is_ns
+    q_gen_is_ns = q_gen_app_is_ns + q_gen_ckg_is_ns + q_gen_lght_is_ns * a_floor_is[:, np.newaxis]
+
     # ステップnの室iにおける人体発湿を除く内部発湿, kg/s, [8760*4]
     x_gen_is_ns = x_gen_ckg_is_ns
 

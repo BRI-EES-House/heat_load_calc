@@ -145,7 +145,12 @@ def make_house(d, input_data_dir, output_data_dir):
     #   ステップnの室iにおける局所換気量, m3/s, [i, 8760*4]
     #   ステップnの室iにおける在室人数, [i, 8760*4]
     #   ステップnの室iにおける空調割合, [i, 8760*4]
-    q_gen_is_ns, x_gen_is_ns, v_mec_vent_local_is_ns, n_hum_is_ns, ac_demand_is_ns = schedule_loader.get_compiled_schedules(n_p=n_p, room_name_is=room_names)
+    q_gen_is_ns, x_gen_is_ns, v_mec_vent_local_is_ns, n_hum_is_ns, ac_demand_is_ns\
+        = schedule_loader.get_compiled_schedules(
+            n_p=n_p,
+            room_name_is=room_names,
+            a_floor_is=a_floor_is
+        )
     ac_demand_is_ns = np.where(ac_demand_is_ns == 1, True, False)
 
     # TODO: この係数は本来であれば入力ファイルに書かれないといけない。
