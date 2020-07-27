@@ -6,15 +6,8 @@ import heat_load_calc.a2_response_factor as a2
 import heat_load_calc.a9_rear_surface_equivalent_temperature as a9
 import heat_load_calc.a11_opening_transmission_solar_radiation as a11
 import heat_load_calc.a34_building_part_summarize as a34
-from heat_load_calc.s3_surface_loader import Boundary
-from heat_load_calc.s3_surface_loader import InternalPartSpec
-from heat_load_calc.s3_surface_loader import GeneralPartSpec
-from heat_load_calc.s3_surface_loader import TransparentOpeningPartSpec
-from heat_load_calc.s3_surface_loader import OpaqueOpeningPartSpec
-from heat_load_calc.s3_surface_loader import GroundSpec
 from heat_load_calc.initializer.boundary_type import BoundaryType
 from heat_load_calc.initializer.boundary_simple import BoundarySimple
-import heat_load_calc.s3_surface_loader as s3_loader
 from heat_load_calc import a8_shading as a8
 
 
@@ -115,9 +108,8 @@ def get_boundary_simple(theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, a_sun_ns, h_sun_n
 
     solar_shading_part = a8.SolarShadingPart.create(ssp=b['solar_shading_part'])
 
-    oet = a9.OutsideEqvTemp.create(b)
-
     # 相当外気温度, degree C, [8760 * 4]
+    oet = a9.OutsideEqvTemp.create(b)
     theta_o_sol = oet.get_theta_o_sol_i_j_ns(
         theta_o_ns=theta_o_ns,
         i_dn_ns=i_dn_ns,
@@ -127,19 +119,13 @@ def get_boundary_simple(theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, a_sun_ns, h_sun_n
         h_sun_ns=h_sun_ns
     )
 
-    tsr = a11.TransmissionSolarRadiation.create(d=b, solar_shading_part=solar_shading_part)
-
     # 透過日射量, W, [8760*4]
+    tsr = a11.TransmissionSolarRadiation.create(d=b, solar_shading_part=solar_shading_part)
     q_trs_sol = tsr.get_qgt(a_sun_ns=a_sun_ns, h_sun_ns=h_sun_ns, i_dn_ns=i_dn_ns, i_sky_ns=i_sky_ns)
 
-    # ===============================
-
-    rff = a2.ResponseFactorFactory.create(b)
-
     # 応答係数
+    rff = a2.ResponseFactorFactory.create(b)
     rfs = rff.get_response_factors()
-
-    b = s3_loader.get_boundary(b)
 
     return BoundarySimple(
         name=name,
@@ -304,22 +290,4 @@ def get_area_weighted_averaged_values_two_dimension(v: np.ndarray, a: np.ndarray
     result = np.sum(v * r, axis=0)
 
     return result
-
-
-def is_solar_radiation_transmitted(boundary: Boundary):
-
-    if boundary.boundary_type == BoundaryType.ExternalTransparentPart:
-
-        if boundary.is_sun_striked_outside:
-
-            return True
-
-        else:
-
-            return False
-    else:
-
-        return False
-
-
 

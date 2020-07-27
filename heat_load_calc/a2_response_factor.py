@@ -8,12 +8,6 @@ from typing import List, Dict
 
 import heat_load_calc.a25_window as a25
 
-from heat_load_calc.s3_surface_loader import Boundary
-from heat_load_calc.s3_surface_loader import InternalPartSpec
-from heat_load_calc.s3_surface_loader import GeneralPartSpec
-from heat_load_calc.s3_surface_loader import TransparentOpeningPartSpec
-from heat_load_calc.s3_surface_loader import OpaqueOpeningPartSpec
-from heat_load_calc.s3_surface_loader import GroundSpec
 from heat_load_calc.initializer.boundary_type import BoundaryType
 
 

@@ -11,7 +11,6 @@ import heat_load_calc.a22_radiative_heating_spec as a22
 from heat_load_calc.initializer.boundary_type import BoundaryType
 import heat_load_calc.s3_surface_initializer as s3
 import heat_load_calc.x_35_occupants as x35
-import heat_load_calc.s3_surface_loader as s3_loader
 
 from heat_load_calc.initializer import schedule_loader
 from heat_load_calc.initializer import residents_number

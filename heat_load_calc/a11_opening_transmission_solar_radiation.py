@@ -10,7 +10,6 @@ import heat_load_calc.x_19_external_boundaries_direction as x_19
 
 from heat_load_calc.apdx10_oblique_incidence_characteristics import get_taud_i_k_n
 import heat_load_calc.apdx10_oblique_incidence_characteristics as a10
-from heat_load_calc.s3_surface_loader import Boundary
 import heat_load_calc.a8_shading as a8
 from heat_load_calc.a8_shading import SolarShadingPart
 
