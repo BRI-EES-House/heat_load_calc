@@ -26,35 +26,30 @@ class OutsideEqvTemp:
 
             if b['is_sun_striked_outside']:
 
-                if b['boundary_type'] == 'external_general_part':
-                    spec = b['general_part_spec']
-                elif b['boundary_type'] == 'external_opaque_part':
-                    spec = b['opaque_opening_part_spec']
-                else:
-                    raise ValueError()
-
                 return OutsideEqvTempExternalGeneralPartAndExternalOpaquePart(
                     direction=b['direction'],
-                    a_s=float(spec['outside_solar_absorption']),
-                    eps_r=float(spec['outside_emissivity']),
-                    r_surf=float(spec['outside_heat_transfer_resistance'])
+                    a_s=float(b['outside_solar_absorption']),
+                    eps_r=float(b['outside_emissivity']),
+                    r_surf=float(b['outside_heat_transfer_resistance'])
 
                 )
+
             else:
+
                 return OutsideEqvTempExternalNotSunStriked()
 
         elif b['boundary_type'] == 'external_transparent_part':
 
             if b['is_sun_striked_outside']:
 
-                spec = b['transparent_opening_part_spec']
-
                 return OutsideEqvTempExternalTransparentPart(
                     direction=b['direction'],
-                    eps_r=float(spec['outside_emissivity']),
-                    r_surf_o=float(spec['outside_heat_transfer_resistance'])
+                    eps_r=float(b['outside_emissivity']),
+                    r_surf_o=float(b['outside_heat_transfer_resistance'])
                 )
+
             else:
+
                 return OutsideEqvTempExternalNotSunStriked()
 
         elif b['boundary_type'] == 'ground':

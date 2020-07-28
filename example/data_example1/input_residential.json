@@ -38,38 +38,36 @@
 					"direction": "n",
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.11,
-					"general_part_spec": {
-						"outside_emissivity": 0.9,
-						"outside_solar_absorption": 0.8,
-						"outside_heat_transfer_resistance": 0.04,
-						"layers": [
-							{
-								"name": "plaster_board",
-								"thermal_resistance": 0.0432,
-								"thermal_capacity": 7.885
-							},
-							{
-								"name": "non-hermetic_air_layer",
-								"thermal_resistance": 0.09,
-								"thermal_capacity": 0.0
-							},
-							{
-								"name": "glass_wool_10K",
-								"thermal_resistance": 1.28,
-								"thermal_capacity": 0.512
-							},
-							{
-								"name": "plywood",
-								"thermal_resistance": 0.075,
-								"thermal_capacity": 8.64
-							},
-							{
-								"name": "wood-wool_and_flake_boards",
-								"thermal_resistance": 0.0882,
-								"thermal_capacity": 25.1789
-							}
-						]
-					},
+					"outside_heat_transfer_resistance": 0.04,
+					"outside_emissivity": 0.9,
+					"outside_solar_absorption": 0.8,
+					"layers": [
+						{
+							"name": "plaster_board",
+							"thermal_resistance": 0.0432,
+							"thermal_capacity": 7.885
+						},
+						{
+							"name": "non-hermetic_air_layer",
+							"thermal_resistance": 0.09,
+							"thermal_capacity": 0.0
+						},
+						{
+							"name": "glass_wool_10K",
+							"thermal_resistance": 1.28,
+							"thermal_capacity": 0.512
+						},
+						{
+							"name": "plywood",
+							"thermal_resistance": 0.075,
+							"thermal_capacity": 8.64
+						},
+						{
+							"name": "wood-wool_and_flake_boards",
+							"thermal_resistance": 0.0882,
+							"thermal_capacity": 25.1789
+						}
+					],
 					"solar_shading_part": {
 						"existence": false
 					}
@@ -83,12 +81,10 @@
 					"direction": "n",
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.11,
-					"opaque_opening_part_spec": {
-						"outside_emissivity": 0.9,
-						"outside_solar_absorption": 0.8,
-						"outside_heat_transfer_resistance": 0.04,
-						"u_value": 4.65
-					},
+					"outside_heat_transfer_resistance": 0.04,
+					"outside_emissivity": 0.9,
+					"outside_solar_absorption": 0.8,
+					"u_value": 4.65,
 					"solar_shading_part": {
 						"existence": false
 					}
@@ -102,38 +98,36 @@
 					"direction": "e",
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.11,
-					"general_part_spec": {
-						"outside_emissivity": 0.9,
-						"outside_solar_absorption": 0.8,
-						"outside_heat_transfer_resistance": 0.04,
-						"layers": [
-							{
-								"name": "plaster_board",
-								"thermal_resistance": 0.0432,
-								"thermal_capacity": 7.885
-							},
-							{
-								"name": "non-hermetic_air_layer",
-								"thermal_resistance": 0.09,
-								"thermal_capacity": 0.0
-							},
-							{
-								"name": "glass_wool_10K",
-								"thermal_resistance": 1.28,
-								"thermal_capacity": 0.512
-							},
-							{
-								"name": "plywood",
-								"thermal_resistance": 0.075,
-								"thermal_capacity": 8.64
-							},
-							{
-								"name": "wood-wool_and_flake_boards",
-								"thermal_resistance": 0.0882,
-								"thermal_capacity": 25.1789
-							}
-						]
-					},
+					"outside_heat_transfer_resistance": 0.04,
+					"outside_emissivity": 0.9,
+					"outside_solar_absorption": 0.8,
+					"layers": [
+						{
+							"name": "plaster_board",
+							"thermal_resistance": 0.0432,
+							"thermal_capacity": 7.885
+						},
+						{
+							"name": "non-hermetic_air_layer",
+							"thermal_resistance": 0.09,
+							"thermal_capacity": 0.0
+						},
+						{
+							"name": "glass_wool_10K",
+							"thermal_resistance": 1.28,
+							"thermal_capacity": 0.512
+						},
+						{
+							"name": "plywood",
+							"thermal_resistance": 0.075,
+							"thermal_capacity": 8.64
+						},
+						{
+							"name": "wood-wool_and_flake_boards",
+							"thermal_resistance": 0.0882,
+							"thermal_capacity": 25.1789
+						}
+					],
 					"solar_shading_part": {
 						"existence": false
 					}
@@ -147,14 +141,11 @@
 					"direction": "e",
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.11,
-					"transparent_opening_part_spec": {
-						"outside_emissivity": 0.9,
-						"outside_solar_absorption": 0.8,
-						"outside_heat_transfer_resistance": 0.04,
-						"incident_angle_characteristics": "multiple",
-						"eta_value": 0.792,
-						"u_value": 4.65
-					},
+					"outside_heat_transfer_resistance": 0.04,
+					"outside_emissivity": 0.9,
+					"incident_angle_characteristics": "multiple",
+					"eta_value": 0.792,
+					"u_value": 4.65,
 					"solar_shading_part": {
 						"existence": false
 					}
@@ -168,38 +159,36 @@
 					"direction": "s",
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.11,
-					"general_part_spec": {
-						"outside_emissivity": 0.9,
-						"outside_solar_absorption": 0.8,
-						"outside_heat_transfer_resistance": 0.04,
-						"layers": [
-							{
-								"name": "plaster_board",
-								"thermal_resistance": 0.0432,
-								"thermal_capacity": 7.885
-							},
-							{
-								"name": "non-hermetic_air_layer",
-								"thermal_resistance": 0.09,
-								"thermal_capacity": 0.0
-							},
-							{
-								"name": "glass_wool_10K",
-								"thermal_resistance": 1.28,
-								"thermal_capacity": 0.512
-							},
-							{
-								"name": "plywood",
-								"thermal_resistance": 0.075,
-								"thermal_capacity": 8.64
-							},
-							{
-								"name": "wood-wool_and_flake_boards",
-								"thermal_resistance": 0.0882,
-								"thermal_capacity": 25.1789
-							}
-						]
-					},
+					"outside_heat_transfer_resistance": 0.04,
+					"outside_emissivity": 0.9,
+					"outside_solar_absorption": 0.8,
+					"layers": [
+						{
+							"name": "plaster_board",
+							"thermal_resistance": 0.0432,
+							"thermal_capacity": 7.885
+						},
+						{
+							"name": "non-hermetic_air_layer",
+							"thermal_resistance": 0.09,
+							"thermal_capacity": 0.0
+						},
+						{
+							"name": "glass_wool_10K",
+							"thermal_resistance": 1.28,
+							"thermal_capacity": 0.512
+						},
+						{
+							"name": "plywood",
+							"thermal_resistance": 0.075,
+							"thermal_capacity": 8.64
+						},
+						{
+							"name": "wood-wool_and_flake_boards",
+							"thermal_resistance": 0.0882,
+							"thermal_capacity": 25.1789
+						}
+					],
 					"solar_shading_part": {
 						"existence": false
 					}
@@ -213,14 +202,11 @@
 					"direction": "s",
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.11,
-					"transparent_opening_part_spec": {
-						"outside_emissivity": 0.9,
-						"outside_solar_absorption": 0.8,
-						"outside_heat_transfer_resistance": 0.04,
-						"incident_angle_characteristics": "multiple",
-						"eta_value": 0.792,
-						"u_value": 4.65
-					},
+					"outside_heat_transfer_resistance": 0.04,
+					"outside_emissivity": 0.9,
+					"incident_angle_characteristics": "multiple",
+					"eta_value": 0.792,
+					"u_value": 4.65,
 					"solar_shading_part": {
 						"existence": true,
 						"input_method": "simple",
@@ -237,23 +223,21 @@
 					"temp_dif_coef": 0.7,
 					"is_solar_absorbed_inside": true,
 					"inside_heat_transfer_resistance": 0.15,
-					"general_part_spec": {
-						"outside_emissivity": 0.9,
-						"outside_heat_transfer_resistance": 0.15,
-						"outside_solar_absorption": 0.8,
-						"layers": [
-							{
-								"name": "plywood",
-								"thermal_resistance": 0.075,
-								"thermal_capacity": 8.64
-							},
-							{
-								"name": "glass_wool_10K",
-								"thermal_resistance": 1.28,
-								"thermal_capacity": 0.512
-							}
-						]
-					},
+					"outside_heat_transfer_resistance": 0.15,
+					"outside_emissivity": 0.9,
+					"outside_solar_absorption": 0.8,
+					"layers": [
+						{
+							"name": "plywood",
+							"thermal_resistance": 0.075,
+							"thermal_capacity": 8.64
+						},
+						{
+							"name": "glass_wool_10K",
+							"thermal_resistance": 1.28,
+							"thermal_capacity": 0.512
+						}
+					],
 					"solar_shading_part": {
 						"existence": false
 					}
@@ -267,11 +251,10 @@
 					"direction": "top",
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.09,
-					"general_part_spec": {
-						"outside_emissivity": 0.9,
-						"outside_solar_absorption": 0.8,
-						"outside_heat_transfer_resistance": 0.09,
-						"layers": [
+					"outside_heat_transfer_resistance": 0.09,
+					"outside_emissivity": 0.9,
+					"outside_solar_absorption": 0.8,
+					"layers": [
 							{
 								"name": "plaster_board",
 								"thermal_resistance": 0.0432,
@@ -282,8 +265,7 @@
 								"thermal_resistance": 3.42,
 								"thermal_capacity": 1.368
 							}
-						]
-					},
+						],
 					"solar_shading_part": {
 						"existence": false
 					}
@@ -297,26 +279,24 @@
 					"next_room_type": "non_occupant_room",
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.11,
-					"general_part_spec": {
-						"outside_heat_transfer_resistance": 0.11,
-						"layers": [
-							{
-								"name": "plaster_board",
-								"thermal_resistance": 0.0568,
-								"thermal_capacity": 10.375
-							},
-							{
-								"name": "non-hermetic_air_layer",
-								"thermal_resistance": 0.09,
-								"thermal_capacity": 0.0
-							},
-							{
-								"name": "plaster_board",
-								"thermal_resistance": 0.0568,
-								"thermal_capacity": 10.375
-							}
-						]
-					},
+					"outside_heat_transfer_resistance": 0.11,
+					"layers": [
+						{
+							"name": "plaster_board",
+							"thermal_resistance": 0.0568,
+							"thermal_capacity": 10.375
+						},
+						{
+							"name": "non-hermetic_air_layer",
+							"thermal_resistance": 0.09,
+							"thermal_capacity": 0.0
+						},
+						{
+							"name": "plaster_board",
+							"thermal_resistance": 0.0568,
+							"thermal_capacity": 10.375
+						}
+					],
 					"solar_shading_part": {
 						"existence": false
 					}
@@ -330,26 +310,24 @@
 					"next_room_type": "other_occupant_room",
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.09,
-					"general_part_spec": {
-						"outside_heat_transfer_resistance": 0.15,
-						"layers": [
-							{
-								"name": "plaster_board",
-								"thermal_resistance": 0.0568,
-								"thermal_capacity": 10.375
-							},
-							{
-								"name": "non-hermetic_air_layer",
-								"thermal_resistance": 0.07,
-								"thermal_capacity": 0.0
-							},
-							{
-								"name": "plywood",
-								"thermal_resistance": 0.075,
-								"thermal_capacity": 8.64
-							}
-						]
-					},
+					"outside_heat_transfer_resistance": 0.15,
+					"layers": [
+						{
+							"name": "plaster_board",
+							"thermal_resistance": 0.0568,
+							"thermal_capacity": 10.375
+						},
+						{
+							"name": "non-hermetic_air_layer",
+							"thermal_resistance": 0.07,
+							"thermal_capacity": 0.0
+						},
+						{
+							"name": "plywood",
+							"thermal_resistance": 0.075,
+							"thermal_capacity": 8.64
+						}
+					],
 					"solar_shading_part": {
 						"existence": false
 					}
@@ -363,26 +341,24 @@
 					"next_room_type": "other_occupant_room",
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.09,
-					"general_part_spec": {
-						"outside_heat_transfer_resistance": 0.15,
-						"layers": [
-							{
-								"name": "plaster_board",
-								"thermal_resistance": 0.0568,
-								"thermal_capacity": 10.375
-							},
-							{
-								"name": "non-hermetic_air_layer",
-								"thermal_resistance": 0.07,
-								"thermal_capacity": 0.0
-							},
-							{
-								"name": "plywood",
-								"thermal_resistance": 0.075,
-								"thermal_capacity": 8.64
-							}
-						]
-					},
+					"outside_heat_transfer_resistance": 0.15,
+					"layers": [
+						{
+							"name": "plaster_board",
+							"thermal_resistance": 0.0568,
+							"thermal_capacity": 10.375
+						},
+						{
+							"name": "non-hermetic_air_layer",
+							"thermal_resistance": 0.07,
+							"thermal_capacity": 0.0
+						},
+						{
+							"name": "plywood",
+							"thermal_resistance": 0.075,
+							"thermal_capacity": 8.64
+						}
+					],
 					"solar_shading_part": {
 						"existence": false
 					}
@@ -396,26 +372,24 @@
 					"next_room_type": "other_occupant_room",
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.11,
-					"general_part_spec": {
-						"outside_heat_transfer_resistance": 0.11,
-						"layers": [
-							{
-								"name": "plaster_board",
-								"thermal_resistance": 0.0568,
-								"thermal_capacity": 10.375
-							},
-							{
-								"name": "non-hermetic_air_layer",
-								"thermal_resistance": 0.09,
-								"thermal_capacity": 0.0
-							},
-							{
-								"name": "plaster_board",
-								"thermal_resistance": 0.0568,
-								"thermal_capacity": 10.375
-							}
-						]
-					},
+					"outside_heat_transfer_resistance": 0.11,
+					"layers": [
+						{
+							"name": "plaster_board",
+							"thermal_resistance": 0.0568,
+							"thermal_capacity": 10.375
+						},
+						{
+							"name": "non-hermetic_air_layer",
+							"thermal_resistance": 0.09,
+							"thermal_capacity": 0.0
+						},
+						{
+							"name": "plaster_board",
+							"thermal_resistance": 0.0568,
+							"thermal_capacity": 10.375
+						}
+					],
 					"solar_shading_part": {
 						"existence": false
 					}
@@ -455,38 +429,36 @@
 					"direction": "s",
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.11,
-					"general_part_spec": {
-						"outside_emissivity": 0.9,
-						"outside_solar_absorption": 0.8,
-						"outside_heat_transfer_resistance": 0.04,
-						"layers": [
-							{
-								"name": "plaster_board",
-								"thermal_resistance": 0.0432,
-								"thermal_capacity": 7.885
-							},
-							{
-								"name": "non-hermetic_air_layer",
-								"thermal_resistance": 0.09,
-								"thermal_capacity": 0.0
-							},
-							{
-								"name": "glass_wool_10K",
-								"thermal_resistance": 1.28,
-								"thermal_capacity": 0.512
-							},
-							{
-								"name": "plywood",
-								"thermal_resistance": 0.075,
-								"thermal_capacity": 8.64
-							},
-							{
-								"name": "wood-wool_and_flake_boards",
-								"thermal_resistance": 0.0882,
-								"thermal_capacity": 25.1789
-							}
-						]
-					},
+					"outside_heat_transfer_resistance": 0.04,
+					"outside_emissivity": 0.9,
+					"outside_solar_absorption": 0.8,
+					"layers": [
+						{
+							"name": "plaster_board",
+							"thermal_resistance": 0.0432,
+							"thermal_capacity": 7.885
+						},
+						{
+							"name": "non-hermetic_air_layer",
+							"thermal_resistance": 0.09,
+							"thermal_capacity": 0.0
+						},
+						{
+							"name": "glass_wool_10K",
+							"thermal_resistance": 1.28,
+							"thermal_capacity": 0.512
+						},
+						{
+							"name": "plywood",
+							"thermal_resistance": 0.075,
+							"thermal_capacity": 8.64
+						},
+						{
+							"name": "wood-wool_and_flake_boards",
+							"thermal_resistance": 0.0882,
+							"thermal_capacity": 25.1789
+						}
+					],
 					"solar_shading_part": {
 						"existence": false
 					}
@@ -500,14 +472,11 @@
 					"direction": "s",
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.11,
-					"transparent_opening_part_spec": {
-						"outside_emissivity": 0.9,
-						"outside_solar_absorption": 0.8,
-						"outside_heat_transfer_resistance": 0.04,
-						"incident_angle_characteristics": "multiple",
-						"eta_value": 0.792,
-						"u_value": 4.65
-					},
+					"outside_heat_transfer_resistance": 0.04,
+					"outside_emissivity": 0.9,
+					"incident_angle_characteristics": "multiple",
+					"eta_value": 0.792,
+					"u_value": 4.65,
 					"solar_shading_part": {
 						"existence": true,
 						"input_method": "simple",
@@ -525,38 +494,36 @@
 					"direction": "w",
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.11,
-					"general_part_spec": {
-						"outside_emissivity": 0.9,
-						"outside_solar_absorption": 0.8,
-						"outside_heat_transfer_resistance": 0.04,
-						"layers": [
-							{
-								"name": "plaster_board",
-								"thermal_resistance": 0.0432,
-								"thermal_capacity": 7.885
-							},
-							{
-								"name": "non-hermetic_air_layer",
-								"thermal_resistance": 0.09,
-								"thermal_capacity": 0.0
-							},
-							{
-								"name": "glass_wool_10K",
-								"thermal_resistance": 1.28,
-								"thermal_capacity": 0.512
-							},
-							{
-								"name": "plywood",
-								"thermal_resistance": 0.075,
-								"thermal_capacity": 8.64
-							},
-							{
-								"name": "wood-wool_and_flake_boards",
-								"thermal_resistance": 0.0882,
-								"thermal_capacity": 25.1789
-							}
-						]
-					},
+					"outside_heat_transfer_resistance": 0.04,
+					"outside_emissivity": 0.9,
+					"outside_solar_absorption": 0.8,
+					"layers": [
+						{
+							"name": "plaster_board",
+							"thermal_resistance": 0.0432,
+							"thermal_capacity": 7.885
+						},
+						{
+							"name": "non-hermetic_air_layer",
+							"thermal_resistance": 0.09,
+							"thermal_capacity": 0.0
+						},
+						{
+							"name": "glass_wool_10K",
+							"thermal_resistance": 1.28,
+							"thermal_capacity": 0.512
+						},
+						{
+							"name": "plywood",
+							"thermal_resistance": 0.075,
+							"thermal_capacity": 8.64
+						},
+						{
+							"name": "wood-wool_and_flake_boards",
+							"thermal_resistance": 0.0882,
+							"thermal_capacity": 25.1789
+						}
+					],
 					"solar_shading_part": {
 						"existence": false
 					}
@@ -570,14 +537,12 @@
 					"direction": "w",
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.11,
-					"transparent_opening_part_spec": {
-						"outside_emissivity": 0.9,
-						"outside_solar_absorption": 0.8,
-						"outside_heat_transfer_resistance": 0.04,
-						"incident_angle_characteristics": "multiple",
-						"eta_value": 0.792,
-						"u_value": 4.65
-					},
+					"outside_heat_transfer_resistance": 0.04,
+					"outside_emissivity": 0.9,
+					"outside_solar_absorption": 0.8,
+					"incident_angle_characteristics": "multiple",
+					"eta_value": 0.792,
+					"u_value": 4.65,
 					"solar_shading_part": {
 						"existence": false
 					}
@@ -591,23 +556,21 @@
 					"direction": "top",
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.09,
-					"general_part_spec": {
-						"outside_emissivity": 0.9,
-						"outside_solar_absorption": 0.8,
-						"outside_heat_transfer_resistance": 0.09,
-						"layers": [
-							{
-								"name": "plaster_board",
-								"thermal_resistance": 0.0432,
-								"thermal_capacity": 7.885
-							},
-							{
-								"name": "glass_wool_10K",
-								"thermal_resistance": 3.42,
-								"thermal_capacity": 1.368
-							}
-						]
-					},
+					"outside_heat_transfer_resistance": 0.09,
+					"outside_emissivity": 0.9,
+					"outside_solar_absorption": 0.8,
+					"layers": [
+						{
+							"name": "plaster_board",
+							"thermal_resistance": 0.0432,
+							"thermal_capacity": 7.885
+						},
+						{
+							"name": "glass_wool_10K",
+							"thermal_resistance": 3.42,
+							"thermal_capacity": 1.368
+						}
+					],
 					"solar_shading_part": {
 						"existence": false
 					}
@@ -621,26 +584,24 @@
 					"next_room_type": "non_occupant_room",
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.11,
-					"general_part_spec": {
-						"outside_heat_transfer_resistance": 0.11,
-						"layers": [
-							{
-								"name": "plaster_board",
-								"thermal_resistance": 0.0568,
-								"thermal_capacity": 10.375
-							},
-							{
-								"name": "non-hermetic_air_layer",
-								"thermal_resistance": 0.09,
-								"thermal_capacity": 0.0
-							},
-							{
-								"name": "plaster_board",
-								"thermal_resistance": 0.0568,
-								"thermal_capacity": 10.375
-							}
-						]
-					},
+					"outside_heat_transfer_resistance": 0.11,
+					"layers": [
+						{
+							"name": "plaster_board",
+							"thermal_resistance": 0.0568,
+							"thermal_capacity": 10.375
+						},
+						{
+							"name": "non-hermetic_air_layer",
+							"thermal_resistance": 0.09,
+							"thermal_capacity": 0.0
+						},
+						{
+							"name": "plaster_board",
+							"thermal_resistance": 0.0568,
+							"thermal_capacity": 10.375
+						}
+					],
 					"solar_shading_part": {
 						"existence": false
 					}
@@ -654,38 +615,36 @@
 					"direction": "s",
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.11,
-					"general_part_spec": {
-						"outside_emissivity": 0.9,
-						"outside_solar_absorption": 0.8,
-						"outside_heat_transfer_resistance": 0.04,
-						"layers": [
-							{
-								"name": "plaster_board",
-								"thermal_resistance": 0.0432,
-								"thermal_capacity": 7.885
-							},
-							{
-								"name": "non-hermetic_air_layer",
-								"thermal_resistance": 0.09,
-								"thermal_capacity": 0.0
-							},
-							{
-								"name": "glass_wool_10K",
-								"thermal_resistance": 1.28,
-								"thermal_capacity": 0.512
-							},
-							{
-								"name": "plywood",
-								"thermal_resistance": 0.075,
-								"thermal_capacity": 8.64
-							},
-							{
-								"name": "wood-wool_and_flake_boards",
-								"thermal_resistance": 0.0882,
-								"thermal_capacity": 25.1789
-							}
-						]
-					},
+					"outside_heat_transfer_resistance": 0.04,
+					"outside_emissivity": 0.9,
+					"outside_solar_absorption": 0.8,
+					"layers": [
+						{
+							"name": "plaster_board",
+							"thermal_resistance": 0.0432,
+							"thermal_capacity": 7.885
+						},
+						{
+							"name": "non-hermetic_air_layer",
+							"thermal_resistance": 0.09,
+							"thermal_capacity": 0.0
+						},
+						{
+							"name": "glass_wool_10K",
+							"thermal_resistance": 1.28,
+							"thermal_capacity": 0.512
+						},
+						{
+							"name": "plywood",
+							"thermal_resistance": 0.075,
+							"thermal_capacity": 8.64
+						},
+						{
+							"name": "wood-wool_and_flake_boards",
+							"thermal_resistance": 0.0882,
+							"thermal_capacity": 25.1789
+						}
+					],
 					"solar_shading_part": {
 						"existence": false
 					}
@@ -699,14 +658,11 @@
 					"direction": "s",
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.11,
-					"transparent_opening_part_spec": {
-						"outside_emissivity": 0.9,
-						"outside_solar_absorption": 0.8,
-						"outside_heat_transfer_resistance": 0.04,
-						"incident_angle_characteristics": "multiple",
-						"eta_value": 0.792,
-						"u_value": 4.65
-					},
+					"outside_heat_transfer_resistance": 0.04,
+					"outside_emissivity": 0.9,
+					"incident_angle_characteristics": "multiple",
+					"eta_value": 0.792,
+					"u_value": 4.65,
 					"solar_shading_part": {
 						"existence": true,
 						"input_method": "simple",
@@ -724,23 +680,21 @@
 					"direction": "top",
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.09,
-					"general_part_spec": {
-						"outside_emissivity": 0.9,
-						"outside_solar_absorption": 0.8,
-						"outside_heat_transfer_resistance": 0.09,
-						"layers": [
-							{
-								"name": "plaster_board",
-								"thermal_resistance": 0.0432,
-								"thermal_capacity": 7.885
-							},
-							{
-								"name": "glass_wool_10K",
-								"thermal_resistance": 3.42,
-								"thermal_capacity": 1.368
-							}
-						]
-					},
+					"outside_heat_transfer_resistance": 0.09,
+					"outside_emissivity": 0.9,
+					"outside_solar_absorption": 0.8,
+					"layers": [
+						{
+							"name": "plaster_board",
+							"thermal_resistance": 0.0432,
+							"thermal_capacity": 7.885
+						},
+						{
+							"name": "glass_wool_10K",
+							"thermal_resistance": 3.42,
+							"thermal_capacity": 1.368
+						}
+					],
 					"solar_shading_part": {
 						"existence": false
 					}
@@ -754,26 +708,24 @@
 					"next_room_type": "non_occupant_room",
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.11,
-					"general_part_spec": {
-						"outside_heat_transfer_resistance": 0.11,
-						"layers": [
-							{
-								"name": "plaster_board",
-								"thermal_resistance": 0.0568,
-								"thermal_capacity": 10.375
-							},
-							{
-								"name": "non-hermetic_air_layer",
-								"thermal_resistance": 0.09,
-								"thermal_capacity": 0.0
-							},
-							{
-								"name": "plaster_board",
-								"thermal_resistance": 0.0568,
-								"thermal_capacity": 10.375
-							}
-						]
-					},
+					"outside_heat_transfer_resistance": 0.11,
+					"layers": [
+						{
+							"name": "plaster_board",
+							"thermal_resistance": 0.0568,
+							"thermal_capacity": 10.375
+						},
+						{
+							"name": "non-hermetic_air_layer",
+							"thermal_resistance": 0.09,
+							"thermal_capacity": 0.0
+						},
+						{
+							"name": "plaster_board",
+							"thermal_resistance": 0.0568,
+							"thermal_capacity": 10.375
+						}
+					],
 					"solar_shading_part": {
 						"existence": false
 					}
@@ -787,26 +739,24 @@
 					"next_room_type": "main_occupant_room",
 					"is_solar_absorbed_inside": true,
 					"inside_heat_transfer_resistance": 0.15,
-					"general_part_spec": {
-						"outside_heat_transfer_resistance": 0.09,
-						"layers": [
-							{
-								"name": "plywood",
-								"thermal_resistance": 0.075,
-								"thermal_capacity": 8.64
-							},
-							{
-								"name": "non-hermetic_air_layer",
-								"thermal_resistance": 0.07,
-								"thermal_capacity": 0.0
-							},
-							{
-								"name": "plaster_board",
-								"thermal_resistance": 0.0568,
-								"thermal_capacity": 10.375
-							}
-						]
-					},
+					"outside_heat_transfer_resistance": 0.09,
+					"layers": [
+						{
+							"name": "plywood",
+							"thermal_resistance": 0.075,
+							"thermal_capacity": 8.64
+						},
+						{
+							"name": "non-hermetic_air_layer",
+							"thermal_resistance": 0.07,
+							"thermal_capacity": 0.0
+						},
+						{
+							"name": "plaster_board",
+							"thermal_resistance": 0.0568,
+							"thermal_capacity": 10.375
+						}
+					],
 					"solar_shading_part": {
 						"existence": false
 					}
@@ -820,38 +770,36 @@
 					"direction": "e",
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.11,
-					"general_part_spec": {
-						"outside_emissivity": 0.9,
-						"outside_solar_absorption": 0.8,
-						"outside_heat_transfer_resistance": 0.04,
-						"layers": [
-							{
-								"name": "plaster_board",
-								"thermal_resistance": 0.0432,
-								"thermal_capacity": 7.885
-							},
-							{
-								"name": "non-hermetic_air_layer",
-								"thermal_resistance": 0.09,
-								"thermal_capacity": 0.0
-							},
-							{
-								"name": "glass_wool_10K",
-								"thermal_resistance": 1.28,
-								"thermal_capacity": 0.512
-							},
-							{
-								"name": "plywood",
-								"thermal_resistance": 0.075,
-								"thermal_capacity": 8.64
-							},
-							{
-								"name": "wood-wool_and_flake_boards",
-								"thermal_resistance": 0.0882,
-								"thermal_capacity": 25.1789
-							}
-						]
-					},
+					"outside_heat_transfer_resistance": 0.04,
+					"outside_emissivity": 0.9,
+					"outside_solar_absorption": 0.8,
+					"layers": [
+						{
+							"name": "plaster_board",
+							"thermal_resistance": 0.0432,
+							"thermal_capacity": 7.885
+						},
+						{
+							"name": "non-hermetic_air_layer",
+							"thermal_resistance": 0.09,
+							"thermal_capacity": 0.0
+						},
+						{
+							"name": "glass_wool_10K",
+							"thermal_resistance": 1.28,
+							"thermal_capacity": 0.512
+						},
+						{
+							"name": "plywood",
+							"thermal_resistance": 0.075,
+							"thermal_capacity": 8.64
+						},
+						{
+							"name": "wood-wool_and_flake_boards",
+							"thermal_resistance": 0.0882,
+							"thermal_capacity": 25.1789
+						}
+					],
 					"solar_shading_part": {
 						"existence": false
 					}
@@ -865,14 +813,11 @@
 					"direction": "e",
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.11,
-					"transparent_opening_part_spec": {
-						"outside_emissivity": 0.9,
-						"outside_solar_absorption": 0.8,
-						"outside_heat_transfer_resistance": 0.04,
-						"incident_angle_characteristics": "multiple",
-						"eta_value": 0.792,
-						"u_value": 4.65
-					},
+					"outside_heat_transfer_resistance": 0.04,
+					"outside_emissivity": 0.9,
+					"incident_angle_characteristics": "multiple",
+					"eta_value": 0.792,
+					"u_value": 4.65,
 					"solar_shading_part": {
 						"existence": false
 					}
@@ -886,38 +831,36 @@
 					"direction": "s",
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.11,
-					"general_part_spec": {
-						"outside_emissivity": 0.9,
-						"outside_solar_absorption": 0.8,
-						"outside_heat_transfer_resistance": 0.04,
-						"layers": [
-							{
-								"name": "plaster_board",
-								"thermal_resistance": 0.0432,
-								"thermal_capacity": 7.885
-							},
-							{
-								"name": "non-hermetic_air_layer",
-								"thermal_resistance": 0.09,
-								"thermal_capacity": 0.0
-							},
-							{
-								"name": "glass_wool_10K",
-								"thermal_resistance": 1.28,
-								"thermal_capacity": 0.512
-							},
-							{
-								"name": "plywood",
-								"thermal_resistance": 0.075,
-								"thermal_capacity": 8.64
-							},
-							{
-								"name": "wood-wool_and_flake_boards",
-								"thermal_resistance": 0.0882,
-								"thermal_capacity": 25.1789
-							}
-						]
-					},
+					"outside_heat_transfer_resistance": 0.04,
+					"outside_emissivity": 0.9,
+					"outside_solar_absorption": 0.8,
+					"layers": [
+						{
+							"name": "plaster_board",
+							"thermal_resistance": 0.0432,
+							"thermal_capacity": 7.885
+						},
+						{
+							"name": "non-hermetic_air_layer",
+							"thermal_resistance": 0.09,
+							"thermal_capacity": 0.0
+						},
+						{
+							"name": "glass_wool_10K",
+							"thermal_resistance": 1.28,
+							"thermal_capacity": 0.512
+						},
+						{
+							"name": "plywood",
+							"thermal_resistance": 0.075,
+							"thermal_capacity": 8.64
+						},
+						{
+							"name": "wood-wool_and_flake_boards",
+							"thermal_resistance": 0.0882,
+							"thermal_capacity": 25.1789
+						}
+					],
 					"solar_shading_part": {
 						"existence": false
 					}
@@ -931,14 +874,11 @@
 					"direction": "s",
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.11,
-					"transparent_opening_part_spec": {
-						"outside_emissivity": 0.9,
-						"outside_solar_absorption": 0.8,
-						"outside_heat_transfer_resistance": 0.04,
-						"incident_angle_characteristics": "multiple",
-						"eta_value": 0.792,
-						"u_value": 4.65
-					},
+					"outside_heat_transfer_resistance": 0.04,
+					"outside_emissivity": 0.9,
+					"incident_angle_characteristics": "multiple",
+					"eta_value": 0.792,
+					"u_value": 4.65,
 					"solar_shading_part": {
 						"existence": true,
 						"input_method": "simple",
@@ -956,23 +896,21 @@
 					"direction": "top",
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.09,
-					"general_part_spec": {
-						"outside_emissivity": 0.9,
-						"outside_solar_absorption": 0.8,
-						"outside_heat_transfer_resistance": 0.09,
-						"layers": [
-							{
-								"name": "plaster_board",
-								"thermal_resistance": 0.0432,
-								"thermal_capacity": 7.885
-							},
-							{
-								"name": "glass_wool_10K",
-								"thermal_resistance": 3.42,
-								"thermal_capacity": 1.368
-							}
-						]
-					},
+					"outside_heat_transfer_resistance": 0.09,
+					"outside_emissivity": 0.9,
+					"outside_solar_absorption": 0.8,
+					"layers": [
+						{
+							"name": "plaster_board",
+							"thermal_resistance": 0.0432,
+							"thermal_capacity": 7.885
+						},
+						{
+							"name": "glass_wool_10K",
+							"thermal_resistance": 3.42,
+							"thermal_capacity": 1.368
+						}
+					],
 					"solar_shading_part": {
 						"existence": false
 					}
@@ -986,26 +924,24 @@
 					"next_room_type": "non_occupant_room",
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.11,
-					"general_part_spec": {
-						"outside_heat_transfer_resistance": 0.11,
-						"layers": [
-							{
-								"name": "plaster_board",
-								"thermal_resistance": 0.0568,
-								"thermal_capacity": 10.375
-							},
-							{
-								"name": "non-hermetic_air_layer",
-								"thermal_resistance": 0.09,
-								"thermal_capacity": 0.0
-							},
-							{
-								"name": "plaster_board",
-								"thermal_resistance": 0.0568,
-								"thermal_capacity": 10.375
-							}
-						]
-					},
+					"outside_heat_transfer_resistance": 0.11,
+					"layers": [
+						{
+							"name": "plaster_board",
+							"thermal_resistance": 0.0568,
+							"thermal_capacity": 10.375
+						},
+						{
+							"name": "non-hermetic_air_layer",
+							"thermal_resistance": 0.09,
+							"thermal_capacity": 0.0
+						},
+						{
+							"name": "plaster_board",
+							"thermal_resistance": 0.0568,
+							"thermal_capacity": 10.375
+						}
+					],
 					"solar_shading_part": {
 						"existence": false
 					}
@@ -1019,26 +955,24 @@
 					"next_room_type": "main_occupant_room",
 					"is_solar_absorbed_inside": true,
 					"inside_heat_transfer_resistance": 0.15,
-					"general_part_spec": {
-						"outside_heat_transfer_resistance": 0.09,
-						"layers": [
-							{
-								"name": "plywood",
-								"thermal_resistance": 0.075,
-								"thermal_capacity": 8.64
-							},
-							{
-								"name": "non-hermetic_air_layer",
-								"thermal_resistance": 0.07,
-								"thermal_capacity": 0.0
-							},
-							{
-								"name": "plaster_board",
-								"thermal_resistance": 0.0568,
-								"thermal_capacity": 10.375
-							}
-						]
-					},
+					"outside_heat_transfer_resistance": 0.09,
+					"layers": [
+						{
+							"name": "plywood",
+							"thermal_resistance": 0.075,
+							"thermal_capacity": 8.64
+						},
+						{
+							"name": "non-hermetic_air_layer",
+							"thermal_resistance": 0.07,
+							"thermal_capacity": 0.0
+						},
+						{
+							"name": "plaster_board",
+							"thermal_resistance": 0.0568,
+							"thermal_capacity": 10.375
+						}
+					],
 					"solar_shading_part": {
 						"existence": false
 					}
@@ -1052,38 +986,36 @@
 					"direction": "n",
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.11,
-					"general_part_spec": {
-						"outside_emissivity": 0.9,
-						"outside_solar_absorption": 0.8,
-						"outside_heat_transfer_resistance": 0.04,
-						"layers": [
-							{
-								"name": "plaster_board",
-								"thermal_resistance": 0.0432,
-								"thermal_capacity": 7.885
-							},
-							{
-								"name": "non-hermetic_air_layer",
-								"thermal_resistance": 0.09,
-								"thermal_capacity": 0.0
-							},
-							{
-								"name": "glass_wool_10K",
-								"thermal_resistance": 1.28,
-								"thermal_capacity": 0.512
-							},
-							{
-								"name": "plywood",
-								"thermal_resistance": 0.075,
-								"thermal_capacity": 8.64
-							},
-							{
-								"name": "wood-wool_and_flake_boards",
-								"thermal_resistance": 0.0882,
-								"thermal_capacity": 25.1789
-							}
-						]
-					},
+					"outside_heat_transfer_resistance": 0.04,
+					"outside_emissivity": 0.9,
+					"outside_solar_absorption": 0.8,
+					"layers": [
+						{
+							"name": "plaster_board",
+							"thermal_resistance": 0.0432,
+							"thermal_capacity": 7.885
+						},
+						{
+							"name": "non-hermetic_air_layer",
+							"thermal_resistance": 0.09,
+							"thermal_capacity": 0.0
+						},
+						{
+							"name": "glass_wool_10K",
+							"thermal_resistance": 1.28,
+							"thermal_capacity": 0.512
+						},
+						{
+							"name": "plywood",
+							"thermal_resistance": 0.075,
+							"thermal_capacity": 8.64
+						},
+						{
+							"name": "wood-wool_and_flake_boards",
+							"thermal_resistance": 0.0882,
+							"thermal_capacity": 25.1789
+						}
+					],
 					"solar_shading_part": {
 						"existence": false
 					}
@@ -1097,38 +1029,36 @@
 					"direction": "s",
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.11,
-					"general_part_spec": {
-						"outside_emissivity": 0.9,
-						"outside_solar_absorption": 0.8,
-						"outside_heat_transfer_resistance": 0.04,
-						"layers": [
-							{
-								"name": "plaster_board",
-								"thermal_resistance": 0.0432,
-								"thermal_capacity": 7.885
-							},
-							{
-								"name": "non-hermetic_air_layer",
-								"thermal_resistance": 0.09,
-								"thermal_capacity": 0.0
-							},
-							{
-								"name": "glass_wool_10K",
-								"thermal_resistance": 1.28,
-								"thermal_capacity": 0.512
-							},
-							{
-								"name": "plywood",
-								"thermal_resistance": 0.075,
-								"thermal_capacity": 8.64
-							},
-							{
-								"name": "wood-wool_and_flake_boards",
-								"thermal_resistance": 0.0882,
-								"thermal_capacity": 25.1789
-							}
-						]
-					},
+					"outside_heat_transfer_resistance": 0.04,
+					"outside_emissivity": 0.9,
+					"outside_solar_absorption": 0.8,
+					"layers": [
+						{
+							"name": "plaster_board",
+							"thermal_resistance": 0.0432,
+							"thermal_capacity": 7.885
+						},
+						{
+							"name": "non-hermetic_air_layer",
+							"thermal_resistance": 0.09,
+							"thermal_capacity": 0.0
+						},
+						{
+							"name": "glass_wool_10K",
+							"thermal_resistance": 1.28,
+							"thermal_capacity": 0.512
+						},
+						{
+							"name": "plywood",
+							"thermal_resistance": 0.075,
+							"thermal_capacity": 8.64
+						},
+						{
+							"name": "wood-wool_and_flake_boards",
+							"thermal_resistance": 0.0882,
+							"thermal_capacity": 25.1789
+						}
+					],
 					"solar_shading_part": {
 						"existence": false
 					}
@@ -1142,14 +1072,11 @@
 					"direction": "s",
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.11,
-					"transparent_opening_part_spec": {
-						"outside_emissivity": 0.9,
-						"outside_solar_absorption": 0.8,
-						"outside_heat_transfer_resistance": 0.04,
-						"incident_angle_characteristics": "multiple",
-						"eta_value": 0.792,
-						"u_value": 4.65
-					},
+					"outside_heat_transfer_resistance": 0.04,
+					"outside_emissivity": 0.9,
+					"incident_angle_characteristics": "multiple",
+					"eta_value": 0.792,
+					"u_value": 4.65,
 					"solar_shading_part": {
 						"existence": false
 					}
@@ -1163,38 +1090,36 @@
 					"direction": "w",
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.11,
-					"general_part_spec": {
-						"outside_emissivity": 0.9,
-						"outside_solar_absorption": 0.8,
-						"outside_heat_transfer_resistance": 0.04,
-						"layers": [
-							{
-								"name": "plaster_board",
-								"thermal_resistance": 0.0432,
-								"thermal_capacity": 7.885
-							},
-							{
-								"name": "non-hermetic_air_layer",
-								"thermal_resistance": 0.09,
-								"thermal_capacity": 0.0
-							},
-							{
-								"name": "glass_wool_10K",
-								"thermal_resistance": 1.28,
-								"thermal_capacity": 0.512
-							},
-							{
-								"name": "plywood",
-								"thermal_resistance": 0.075,
-								"thermal_capacity": 8.64
-							},
-							{
-								"name": "wood-wool_and_flake_boards",
-								"thermal_resistance": 0.0882,
-								"thermal_capacity": 25.1789
-							}
-						]
-					},
+					"outside_heat_transfer_resistance": 0.04,
+					"outside_emissivity": 0.9,
+					"outside_solar_absorption": 0.8,
+					"layers": [
+						{
+							"name": "plaster_board",
+							"thermal_resistance": 0.0432,
+							"thermal_capacity": 7.885
+						},
+						{
+							"name": "non-hermetic_air_layer",
+							"thermal_resistance": 0.09,
+							"thermal_capacity": 0.0
+						},
+						{
+							"name": "glass_wool_10K",
+							"thermal_resistance": 1.28,
+							"thermal_capacity": 0.512
+						},
+						{
+							"name": "plywood",
+							"thermal_resistance": 0.075,
+							"thermal_capacity": 8.64
+						},
+						{
+							"name": "wood-wool_and_flake_boards",
+							"thermal_resistance": 0.0882,
+							"thermal_capacity": 25.1789
+						}
+					],
 					"solar_shading_part": {
 						"existence": false
 					}
@@ -1207,23 +1132,21 @@
 					"temp_dif_coef": 0.7,
 					"is_solar_absorbed_inside": true,
 					"inside_heat_transfer_resistance": 0.15,
-					"general_part_spec": {
-						"outside_emissivity": 0.9,
-						"outside_heat_transfer_resistance": 0.15,
-						"outside_solar_absorption": 0.8,
-						"layers": [
-							{
-								"name": "plywood",
-								"thermal_resistance": 0.075,
-								"thermal_capacity": 8.64
-							},
-							{
-								"name": "glass_wool_10K",
-								"thermal_resistance": 1.28,
-								"thermal_capacity": 0.512
-							}
-						]
-					},
+					"outside_heat_transfer_resistance": 0.15,
+					"outside_emissivity": 0.9,
+					"outside_solar_absorption": 0.8,
+					"layers": [
+						{
+							"name": "plywood",
+							"thermal_resistance": 0.075,
+							"thermal_capacity": 8.64
+						},
+						{
+							"name": "glass_wool_10K",
+							"thermal_resistance": 1.28,
+							"thermal_capacity": 0.512
+						}
+					],
 					"solar_shading_part": {
 						"existence": false
 					}
@@ -1237,23 +1160,21 @@
 					"direction": "top",
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.09,
-					"general_part_spec": {
-						"outside_emissivity": 0.9,
-						"outside_solar_absorption": 0.8,
-						"outside_heat_transfer_resistance": 0.09,
-						"layers": [
-							{
-								"name": "plaster_board",
-								"thermal_resistance": 0.0432,
-								"thermal_capacity": 7.885
-							},
-							{
-								"name": "glass_wool_10K",
-								"thermal_resistance": 3.42,
-								"thermal_capacity": 1.368
-							}
-						]
-					},
+					"outside_heat_transfer_resistance": 0.09,
+					"outside_emissivity": 0.9,
+					"outside_solar_absorption": 0.8,
+					"layers": [
+						{
+							"name": "plaster_board",
+							"thermal_resistance": 0.0432,
+							"thermal_capacity": 7.885
+						},
+						{
+							"name": "glass_wool_10K",
+							"thermal_resistance": 3.42,
+							"thermal_capacity": 1.368
+						}
+					],
 					"solar_shading_part": {
 						"existence": false
 					}
@@ -1267,26 +1188,24 @@
 					"next_room_type": "non_occupant_room",
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.11,
-					"general_part_spec": {
-						"outside_heat_transfer_resistance": 0.11,
-						"layers": [
-							{
-								"name": "plaster_board",
-								"thermal_resistance": 0.0568,
-								"thermal_capacity": 10.375
-							},
-							{
-								"name": "non-hermetic_air_layer",
-								"thermal_resistance": 0.09,
-								"thermal_capacity": 0.0
-							},
-							{
-								"name": "plaster_board",
-								"thermal_resistance": 0.0568,
-								"thermal_capacity": 10.375
-							}
-						]
-					},
+					"outside_heat_transfer_resistance": 0.11,
+					"layers": [
+						{
+							"name": "plaster_board",
+							"thermal_resistance": 0.0568,
+							"thermal_capacity": 10.375
+						},
+						{
+							"name": "non-hermetic_air_layer",
+							"thermal_resistance": 0.09,
+							"thermal_capacity": 0.0
+						},
+						{
+							"name": "plaster_board",
+							"thermal_resistance": 0.0568,
+							"thermal_capacity": 10.375
+						}
+					],
 					"solar_shading_part": {
 						"existence": false
 					}
@@ -1300,26 +1219,24 @@
 					"next_room_type": "main_occupant_room",
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.11,
-					"general_part_spec": {
-						"outside_heat_transfer_resistance": 0.11,
-						"layers": [
-							{
-								"name": "plaster_board",
-								"thermal_resistance": 0.0568,
-								"thermal_capacity": 10.375
-							},
-							{
-								"name": "non-hermetic_air_layer",
-								"thermal_resistance": 0.09,
-								"thermal_capacity": 0.0
-							},
-							{
-								"name": "plaster_board",
-								"thermal_resistance": 0.0568,
-								"thermal_capacity": 10.375
-							}
-						]
-					},
+					"outside_heat_transfer_resistance": 0.11,
+					"layers": [
+						{
+							"name": "plaster_board",
+							"thermal_resistance": 0.0568,
+							"thermal_capacity": 10.375
+						},
+						{
+							"name": "non-hermetic_air_layer",
+							"thermal_resistance": 0.09,
+							"thermal_capacity": 0.0
+						},
+						{
+							"name": "plaster_board",
+							"thermal_resistance": 0.0568,
+							"thermal_capacity": 10.375
+						}
+					],
 					"solar_shading_part": {
 						"existence": false
 					}
@@ -1363,38 +1280,36 @@
 					"direction": "n",
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.11,
-					"general_part_spec": {
-						"outside_emissivity": 0.9,
-						"outside_solar_absorption": 0.8,
-						"outside_heat_transfer_resistance": 0.04,
-						"layers": [
-							{
-								"name": "plaster_board",
-								"thermal_resistance": 0.0432,
-								"thermal_capacity": 7.885
-							},
-							{
-								"name": "non-hermetic_air_layer",
-								"thermal_resistance": 0.09,
-								"thermal_capacity": 0.0
-							},
-							{
-								"name": "glass_wool_10K",
-								"thermal_resistance": 1.28,
-								"thermal_capacity": 0.512
-							},
-							{
-								"name": "plywood",
-								"thermal_resistance": 0.075,
-								"thermal_capacity": 8.64
-							},
-							{
-								"name": "wood-wool_and_flake_boards",
-								"thermal_resistance": 0.0882,
-								"thermal_capacity": 25.1789
-							}
-						]
-					},
+					"outside_heat_transfer_resistance": 0.04,
+					"outside_emissivity": 0.9,
+					"outside_solar_absorption": 0.8,
+					"layers": [
+						{
+							"name": "plaster_board",
+							"thermal_resistance": 0.0432,
+							"thermal_capacity": 7.885
+						},
+						{
+							"name": "non-hermetic_air_layer",
+							"thermal_resistance": 0.09,
+							"thermal_capacity": 0.0
+						},
+						{
+							"name": "glass_wool_10K",
+							"thermal_resistance": 1.28,
+							"thermal_capacity": 0.512
+						},
+						{
+							"name": "plywood",
+							"thermal_resistance": 0.075,
+							"thermal_capacity": 8.64
+						},
+						{
+							"name": "wood-wool_and_flake_boards",
+							"thermal_resistance": 0.0882,
+							"thermal_capacity": 25.1789
+						}
+					],
 					"solar_shading_part": {
 						"existence": false
 					}
@@ -1408,14 +1323,11 @@
 					"direction": "n",
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.11,
-					"transparent_opening_part_spec": {
-						"outside_emissivity": 0.9,
-						"outside_solar_absorption": 0.8,
-						"outside_heat_transfer_resistance": 0.04,
-						"incident_angle_characteristics": "multiple",
-						"eta_value": 0.792,
-						"u_value": 4.65
-					},
+					"outside_heat_transfer_resistance": 0.04,
+					"outside_emissivity": 0.9,
+					"incident_angle_characteristics": "multiple",
+					"eta_value": 0.792,
+					"u_value": 4.65,
 					"solar_shading_part": {
 						"existence": false
 					}
@@ -1429,38 +1341,36 @@
 					"direction": "e",
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.11,
-					"general_part_spec": {
-						"outside_emissivity": 0.9,
-						"outside_solar_absorption": 0.8,
-						"outside_heat_transfer_resistance": 0.04,
-						"layers": [
-							{
-								"name": "plaster_board",
-								"thermal_resistance": 0.0432,
-								"thermal_capacity": 7.885
-							},
-							{
-								"name": "non-hermetic_air_layer",
-								"thermal_resistance": 0.09,
-								"thermal_capacity": 0.0
-							},
-							{
-								"name": "glass_wool_10K",
-								"thermal_resistance": 1.28,
-								"thermal_capacity": 0.512
-							},
-							{
-								"name": "plywood",
-								"thermal_resistance": 0.075,
-								"thermal_capacity": 8.64
-							},
-							{
-								"name": "wood-wool_and_flake_boards",
-								"thermal_resistance": 0.0882,
-								"thermal_capacity": 25.1789
-							}
-						]
-					},
+					"outside_heat_transfer_resistance": 0.04,
+					"outside_emissivity": 0.9,
+					"outside_solar_absorption": 0.8,
+					"layers": [
+						{
+							"name": "plaster_board",
+							"thermal_resistance": 0.0432,
+							"thermal_capacity": 7.885
+						},
+						{
+							"name": "non-hermetic_air_layer",
+							"thermal_resistance": 0.09,
+							"thermal_capacity": 0.0
+						},
+						{
+							"name": "glass_wool_10K",
+							"thermal_resistance": 1.28,
+							"thermal_capacity": 0.512
+						},
+						{
+							"name": "plywood",
+							"thermal_resistance": 0.075,
+							"thermal_capacity": 8.64
+						},
+						{
+							"name": "wood-wool_and_flake_boards",
+							"thermal_resistance": 0.0882,
+							"thermal_capacity": 25.1789
+						}
+					],
 					"solar_shading_part": {
 						"existence": false
 					}
@@ -1474,38 +1384,36 @@
 					"direction": "w",
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.11,
-					"general_part_spec": {
-						"outside_emissivity": 0.9,
-						"outside_solar_absorption": 0.8,
-						"outside_heat_transfer_resistance": 0.04,
-						"layers": [
-							{
-								"name": "plaster_board",
-								"thermal_resistance": 0.0432,
-								"thermal_capacity": 7.885
-							},
-							{
-								"name": "non-hermetic_air_layer",
-								"thermal_resistance": 0.09,
-								"thermal_capacity": 0.0
-							},
-							{
-								"name": "glass_wool_10K",
-								"thermal_resistance": 1.28,
-								"thermal_capacity": 0.512
-							},
-							{
-								"name": "plywood",
-								"thermal_resistance": 0.075,
-								"thermal_capacity": 8.64
-							},
-							{
-								"name": "wood-wool_and_flake_boards",
-								"thermal_resistance": 0.0882,
-								"thermal_capacity": 25.1789
-							}
-						]
-					},
+					"outside_heat_transfer_resistance": 0.04,
+					"outside_emissivity": 0.9,
+					"outside_solar_absorption": 0.8,
+					"layers": [
+						{
+							"name": "plaster_board",
+							"thermal_resistance": 0.0432,
+							"thermal_capacity": 7.885
+						},
+						{
+							"name": "non-hermetic_air_layer",
+							"thermal_resistance": 0.09,
+							"thermal_capacity": 0.0
+						},
+						{
+							"name": "glass_wool_10K",
+							"thermal_resistance": 1.28,
+							"thermal_capacity": 0.512
+						},
+						{
+							"name": "plywood",
+							"thermal_resistance": 0.075,
+							"thermal_capacity": 8.64
+						},
+						{
+							"name": "wood-wool_and_flake_boards",
+							"thermal_resistance": 0.0882,
+							"thermal_capacity": 25.1789
+						}
+					],
 					"solar_shading_part": {
 						"existence": false
 					}
@@ -1519,14 +1427,11 @@
 					"direction": "w",
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.11,
-					"transparent_opening_part_spec": {
-						"outside_emissivity": 0.9,
-						"outside_solar_absorption": 0.8,
-						"outside_heat_transfer_resistance": 0.04,
-						"incident_angle_characteristics": "multiple",
-						"eta_value": 0.792,
-						"u_value": 4.65
-					},
+					"outside_heat_transfer_resistance": 0.04,
+					"outside_emissivity": 0.9,
+					"incident_angle_characteristics": "multiple",
+					"eta_value": 0.792,
+					"u_value": 4.65,
 					"solar_shading_part": {
 						"existence": false
 					}
@@ -1539,23 +1444,21 @@
 					"temp_dif_coef": 0.7,
 					"is_solar_absorbed_inside": true,
 					"inside_heat_transfer_resistance": 0.15,
-					"general_part_spec": {
-						"outside_emissivity": 0.9,
-						"outside_heat_transfer_resistance": 0.15,
-						"outside_solar_absorption": 0.8,
-						"layers": [
-							{
-								"name": "plywood",
-								"thermal_resistance": 0.075,
-								"thermal_capacity": 8.64
-							},
-							{
-								"name": "glass_wool_10K",
-								"thermal_resistance": 1.28,
-								"thermal_capacity": 0.512
-							}
-						]
-					},
+					"outside_heat_transfer_resistance": 0.15,
+					"outside_emissivity": 0.9,
+					"outside_solar_absorption": 0.8,
+					"layers": [
+						{
+							"name": "plywood",
+							"thermal_resistance": 0.075,
+							"thermal_capacity": 8.64
+						},
+						{
+							"name": "glass_wool_10K",
+							"thermal_resistance": 1.28,
+							"thermal_capacity": 0.512
+						}
+					],
 					"solar_shading_part": {
 						"existence": false
 					}
@@ -1569,23 +1472,21 @@
 					"direction": "top",
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.09,
-					"general_part_spec": {
-						"outside_emissivity": 0.9,
-						"outside_solar_absorption": 0.8,
-						"outside_heat_transfer_resistance": 0.09,
-						"layers": [
-							{
-								"name": "plaster_board",
-								"thermal_resistance": 0.0432,
-								"thermal_capacity": 7.885
-							},
-							{
-								"name": "glass_wool_10K",
-								"thermal_resistance": 3.42,
-								"thermal_capacity": 1.368
-							}
-						]
-					},
+					"outside_heat_transfer_resistance": 0.09,
+					"outside_emissivity": 0.9,
+					"outside_solar_absorption": 0.8,
+					"layers": [
+						{
+							"name": "plaster_board",
+							"thermal_resistance": 0.0432,
+							"thermal_capacity": 7.885
+						},
+						{
+							"name": "glass_wool_10K",
+							"thermal_resistance": 3.42,
+							"thermal_capacity": 1.368
+						}
+					],
 					"solar_shading_part": {
 						"existence": false
 					}
@@ -1599,26 +1500,24 @@
 					"next_room_type": "main_occupant_room",
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.11,
-					"general_part_spec": {
-						"outside_heat_transfer_resistance": 0.11,
-						"layers": [
-							{
-								"name": "plaster_board",
-								"thermal_resistance": 0.0568,
-								"thermal_capacity": 10.375
-							},
-							{
-								"name": "non-hermetic_air_layer",
-								"thermal_resistance": 0.09,
-								"thermal_capacity": 0.0
-							},
-							{
-								"name": "plaster_board",
-								"thermal_resistance": 0.0568,
-								"thermal_capacity": 10.375
-							}
-						]
-					},
+					"outside_heat_transfer_resistance": 0.11,
+					"layers": [
+						{
+							"name": "plaster_board",
+							"thermal_resistance": 0.0568,
+							"thermal_capacity": 10.375
+						},
+						{
+							"name": "non-hermetic_air_layer",
+							"thermal_resistance": 0.09,
+							"thermal_capacity": 0.0
+						},
+						{
+							"name": "plaster_board",
+							"thermal_resistance": 0.0568,
+							"thermal_capacity": 10.375
+						}
+					],
 					"solar_shading_part": {
 						"existence": false
 					}
@@ -1632,26 +1531,24 @@
 					"next_room_type": "other_occupant_room",
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.11,
-					"general_part_spec": {
-						"outside_heat_transfer_resistance": 0.11,
-						"layers": [
-							{
-								"name": "plaster_board",
-								"thermal_resistance": 0.0568,
-								"thermal_capacity": 10.375
-							},
-							{
-								"name": "non-hermetic_air_layer",
-								"thermal_resistance": 0.09,
-								"thermal_capacity": 0.0
-							},
-							{
-								"name": "plaster_board",
-								"thermal_resistance": 0.0568,
-								"thermal_capacity": 10.375
-							}
-						]
-					},
+					"outside_heat_transfer_resistance": 0.11,
+					"layers": [
+						{
+							"name": "plaster_board",
+							"thermal_resistance": 0.0568,
+							"thermal_capacity": 10.375
+						},
+						{
+							"name": "non-hermetic_air_layer",
+							"thermal_resistance": 0.09,
+							"thermal_capacity": 0.0
+						},
+						{
+							"name": "plaster_board",
+							"thermal_resistance": 0.0568,
+							"thermal_capacity": 10.375
+						}
+					],
 					"solar_shading_part": {
 						"existence": false
 					}
@@ -1665,26 +1562,24 @@
 					"next_room_type": "other_occupant_room",
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.11,
-					"general_part_spec": {
-						"outside_heat_transfer_resistance": 0.11,
-						"layers": [
-							{
-								"name": "plaster_board",
-								"thermal_resistance": 0.0568,
-								"thermal_capacity": 10.375
-							},
-							{
-								"name": "non-hermetic_air_layer",
-								"thermal_resistance": 0.09,
-								"thermal_capacity": 0.0
-							},
-							{
-								"name": "plaster_board",
-								"thermal_resistance": 0.0568,
-								"thermal_capacity": 10.375
-							}
-						]
-					},
+					"outside_heat_transfer_resistance": 0.11,
+					"layers": [
+						{
+							"name": "plaster_board",
+							"thermal_resistance": 0.0568,
+							"thermal_capacity": 10.375
+						},
+						{
+							"name": "non-hermetic_air_layer",
+							"thermal_resistance": 0.09,
+							"thermal_capacity": 0.0
+						},
+						{
+							"name": "plaster_board",
+							"thermal_resistance": 0.0568,
+							"thermal_capacity": 10.375
+						}
+					],
 					"solar_shading_part": {
 						"existence": false
 					}
@@ -1698,26 +1593,24 @@
 					"next_room_type": "other_occupant_room",
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.11,
-					"general_part_spec": {
-						"outside_heat_transfer_resistance": 0.11,
-						"layers": [
-							{
-								"name": "plaster_board",
-								"thermal_resistance": 0.0568,
-								"thermal_capacity": 10.375
-							},
-							{
-								"name": "non-hermetic_air_layer",
-								"thermal_resistance": 0.09,
-								"thermal_capacity": 0.0
-							},
-							{
-								"name": "plaster_board",
-								"thermal_resistance": 0.0568,
-								"thermal_capacity": 10.375
-							}
-						]
-					},
+					"outside_heat_transfer_resistance": 0.11,
+					"layers": [
+						{
+							"name": "plaster_board",
+							"thermal_resistance": 0.0568,
+							"thermal_capacity": 10.375
+						},
+						{
+							"name": "non-hermetic_air_layer",
+							"thermal_resistance": 0.09,
+							"thermal_capacity": 0.0
+						},
+						{
+							"name": "plaster_board",
+							"thermal_resistance": 0.0568,
+							"thermal_capacity": 10.375
+						}
+					],
 					"solar_shading_part": {
 						"existence": false
 					}
@@ -1731,26 +1624,24 @@
 					"next_room_type": "other_occupant_room",
 					"is_solar_absorbed_inside": false,
 					"inside_heat_transfer_resistance": 0.11,
-					"general_part_spec": {
-						"outside_heat_transfer_resistance": 0.11,
-						"layers": [
-							{
-								"name": "plaster_board",
-								"thermal_resistance": 0.0568,
-								"thermal_capacity": 10.375
-							},
-							{
-								"name": "non-hermetic_air_layer",
-								"thermal_resistance": 0.09,
-								"thermal_capacity": 0.0
-							},
-							{
-								"name": "plaster_board",
-								"thermal_resistance": 0.0568,
-								"thermal_capacity": 10.375
-							}
-						]
-					},
+					"outside_heat_transfer_resistance": 0.11,
+					"layers": [
+						{
+							"name": "plaster_board",
+							"thermal_resistance": 0.0568,
+							"thermal_capacity": 10.375
+						},
+						{
+							"name": "non-hermetic_air_layer",
+							"thermal_resistance": 0.09,
+							"thermal_capacity": 0.0
+						},
+						{
+							"name": "plaster_board",
+							"thermal_resistance": 0.0568,
+							"thermal_capacity": 10.375
+						}
+					],
 					"solar_shading_part": {
 						"existence": false
 					}

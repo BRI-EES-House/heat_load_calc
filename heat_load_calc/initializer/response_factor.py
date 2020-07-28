@@ -312,45 +312,20 @@ class ResponseFactorFactory:
     @classmethod
     def create(cls, d: Dict):
 
-        if d['boundary_type'] == 'external_general_part':
+        if d['boundary_type'] in ['external_general_part', 'internal', 'ground']:
 
-            layers = d['general_part_spec']['layers']
-
-            return ResponseFactorFactoryTransientEnvelope(
-                cs=[float(layer['thermal_capacity']) for layer in layers],
-                rs=[float(layer['thermal_resistance']) for layer in layers],
-                r_o=float(d['general_part_spec']['outside_heat_transfer_resistance'])
-            )
-
-        elif d['boundary_type'] == 'internal':
-
-            layers = d['general_part_spec']['layers']
+            layers = d['layers']
 
             return ResponseFactorFactoryTransientEnvelope(
                 cs=[float(layer['thermal_capacity']) for layer in layers],
                 rs=[float(layer['thermal_resistance']) for layer in layers],
-                r_o=float(d['general_part_spec']['outside_heat_transfer_resistance'])
+                r_o=float(d['outside_heat_transfer_resistance'])
             )
 
-        elif d['boundary_type'] == 'ground':
+        elif d['boundary_type'] in ['external_transparent_part', 'external_opaque_part']:
 
-            layers = d['general_part_spec']['layers']
-
-            return ResponseFactorFactoryTransientGround(
-                cs=[float(layer['thermal_capacity']) for layer in layers],
-                rs=[float(layer['thermal_resistance']) for layer in layers],
-                r_o=d['general_part_spec']['outside_heat_transfer_resistance']
-            )
-
-        elif d['boundary_type'] == 'external_transparent_part':
             return ResponseFactorFactorySteady(
-                u_w=d['transparent_opening_part_spec']['u_value'],
-                r_i=d['inside_heat_transfer_resistance']
-            )
-
-        elif d['boundary_type'] == 'external_opaque_part':
-            return ResponseFactorFactorySteady(
-                u_w=d['opaque_opening_part_spec']['u_value'],
+                u_w=d['u_value'],
                 r_i=d['inside_heat_transfer_resistance']
             )
 
