@@ -40,8 +40,8 @@
 					"inside_heat_transfer_resistance": 0.11,
 					"outside_heat_transfer_resistance": 0.04,
 					"outside_emissivity": 0.9,
+					"outside_solar_absorption": 0.8,
 					"general_part_spec": {
-						"outside_solar_absorption": 0.8,
 						"layers": [
 							{
 								"name": "plaster_board",
@@ -85,8 +85,8 @@
 					"inside_heat_transfer_resistance": 0.11,
 					"outside_heat_transfer_resistance": 0.04,
 					"outside_emissivity": 0.9,
+					"outside_solar_absorption": 0.8,
 					"opaque_opening_part_spec": {
-						"outside_solar_absorption": 0.8,
 						"u_value": 4.65
 					},
 					"solar_shading_part": {
@@ -104,8 +104,8 @@
 					"inside_heat_transfer_resistance": 0.11,
 					"outside_heat_transfer_resistance": 0.04,
 					"outside_emissivity": 0.9,
+					"outside_solar_absorption": 0.8,
 					"general_part_spec": {
-						"outside_solar_absorption": 0.8,
 						"layers": [
 							{
 								"name": "plaster_board",
@@ -150,7 +150,6 @@
 					"outside_heat_transfer_resistance": 0.04,
 					"outside_emissivity": 0.9,
 					"transparent_opening_part_spec": {
-						"outside_solar_absorption": 0.8,
 						"incident_angle_characteristics": "multiple",
 						"eta_value": 0.792,
 						"u_value": 4.65
@@ -170,8 +169,8 @@
 					"inside_heat_transfer_resistance": 0.11,
 					"outside_heat_transfer_resistance": 0.04,
 					"outside_emissivity": 0.9,
+					"outside_solar_absorption": 0.8,
 					"general_part_spec": {
-						"outside_solar_absorption": 0.8,
 						"layers": [
 							{
 								"name": "plaster_board",
@@ -216,7 +215,6 @@
 					"outside_heat_transfer_resistance": 0.04,
 					"outside_emissivity": 0.9,
 					"transparent_opening_part_spec": {
-						"outside_solar_absorption": 0.8,
 						"incident_angle_characteristics": "multiple",
 						"eta_value": 0.792,
 						"u_value": 4.65
@@ -239,8 +237,8 @@
 					"inside_heat_transfer_resistance": 0.15,
 					"outside_heat_transfer_resistance": 0.15,
 					"outside_emissivity": 0.9,
+					"outside_solar_absorption": 0.8,
 					"general_part_spec": {
-						"outside_solar_absorption": 0.8,
 						"layers": [
 							{
 								"name": "plywood",
@@ -269,8 +267,8 @@
 					"inside_heat_transfer_resistance": 0.09,
 					"outside_heat_transfer_resistance": 0.09,
 					"outside_emissivity": 0.9,
+					"outside_solar_absorption": 0.8,
 					"general_part_spec": {
-						"outside_solar_absorption": 0.8,
 						"layers": [
 							{
 								"name": "plaster_board",
@@ -457,8 +455,8 @@
 					"inside_heat_transfer_resistance": 0.11,
 					"outside_heat_transfer_resistance": 0.04,
 					"outside_emissivity": 0.9,
+					"outside_solar_absorption": 0.8,
 					"general_part_spec": {
-						"outside_solar_absorption": 0.8,
 						"layers": [
 							{
 								"name": "plaster_board",
@@ -503,7 +501,6 @@
 					"outside_heat_transfer_resistance": 0.04,
 					"outside_emissivity": 0.9,
 					"transparent_opening_part_spec": {
-						"outside_solar_absorption": 0.8,
 						"incident_angle_characteristics": "multiple",
 						"eta_value": 0.792,
 						"u_value": 4.65
@@ -527,8 +524,8 @@
 					"inside_heat_transfer_resistance": 0.11,
 					"outside_heat_transfer_resistance": 0.04,
 					"outside_emissivity": 0.9,
+					"outside_solar_absorption": 0.8,
 					"general_part_spec": {
-						"outside_solar_absorption": 0.8,
 						"layers": [
 							{
 								"name": "plaster_board",
@@ -572,8 +569,8 @@
 					"inside_heat_transfer_resistance": 0.11,
 					"outside_heat_transfer_resistance": 0.04,
 					"outside_emissivity": 0.9,
+					"outside_solar_absorption": 0.8,
 					"transparent_opening_part_spec": {
-						"outside_solar_absorption": 0.8,
 						"incident_angle_characteristics": "multiple",
 						"eta_value": 0.792,
 						"u_value": 4.65
@@ -593,8 +590,8 @@
 					"inside_heat_transfer_resistance": 0.09,
 					"outside_heat_transfer_resistance": 0.09,
 					"outside_emissivity": 0.9,
+					"outside_solar_absorption": 0.8,
 					"general_part_spec": {
-						"outside_solar_absorption": 0.8,
 						"layers": [
 							{
 								"name": "plaster_board",
@@ -656,8 +653,8 @@
 					"inside_heat_transfer_resistance": 0.11,
 					"outside_heat_transfer_resistance": 0.04,
 					"outside_emissivity": 0.9,
+					"outside_solar_absorption": 0.8,
 					"general_part_spec": {
-						"outside_solar_absorption": 0.8,
 						"layers": [
 							{
 								"name": "plaster_board",
@@ -702,7 +699,6 @@
 					"outside_heat_transfer_resistance": 0.04,
 					"outside_emissivity": 0.9,
 					"transparent_opening_part_spec": {
-						"outside_solar_absorption": 0.8,
 						"incident_angle_characteristics": "multiple",
 						"eta_value": 0.792,
 						"u_value": 4.65
@@ -726,8 +722,8 @@
 					"inside_heat_transfer_resistance": 0.09,
 					"outside_heat_transfer_resistance": 0.09,
 					"outside_emissivity": 0.9,
+					"outside_solar_absorption": 0.8,
 					"general_part_spec": {
-						"outside_solar_absorption": 0.8,
 						"layers": [
 							{
 								"name": "plaster_board",
@@ -822,8 +818,8 @@
 					"inside_heat_transfer_resistance": 0.11,
 					"outside_heat_transfer_resistance": 0.04,
 					"outside_emissivity": 0.9,
+					"outside_solar_absorption": 0.8,
 					"general_part_spec": {
-						"outside_solar_absorption": 0.8,
 						"layers": [
 							{
 								"name": "plaster_board",
@@ -868,7 +864,6 @@
 					"outside_heat_transfer_resistance": 0.04,
 					"outside_emissivity": 0.9,
 					"transparent_opening_part_spec": {
-						"outside_solar_absorption": 0.8,
 						"incident_angle_characteristics": "multiple",
 						"eta_value": 0.792,
 						"u_value": 4.65
@@ -888,8 +883,8 @@
 					"inside_heat_transfer_resistance": 0.11,
 					"outside_heat_transfer_resistance": 0.04,
 					"outside_emissivity": 0.9,
+					"outside_solar_absorption": 0.8,
 					"general_part_spec": {
-						"outside_solar_absorption": 0.8,
 						"layers": [
 							{
 								"name": "plaster_board",
@@ -934,7 +929,6 @@
 					"outside_heat_transfer_resistance": 0.04,
 					"outside_emissivity": 0.9,
 					"transparent_opening_part_spec": {
-						"outside_solar_absorption": 0.8,
 						"incident_angle_characteristics": "multiple",
 						"eta_value": 0.792,
 						"u_value": 4.65
@@ -958,8 +952,8 @@
 					"inside_heat_transfer_resistance": 0.09,
 					"outside_heat_transfer_resistance": 0.09,
 					"outside_emissivity": 0.9,
+					"outside_solar_absorption": 0.8,
 					"general_part_spec": {
-						"outside_solar_absorption": 0.8,
 						"layers": [
 							{
 								"name": "plaster_board",
@@ -1054,8 +1048,8 @@
 					"inside_heat_transfer_resistance": 0.11,
 					"outside_heat_transfer_resistance": 0.04,
 					"outside_emissivity": 0.9,
+					"outside_solar_absorption": 0.8,
 					"general_part_spec": {
-						"outside_solar_absorption": 0.8,
 						"layers": [
 							{
 								"name": "plaster_board",
@@ -1099,8 +1093,8 @@
 					"inside_heat_transfer_resistance": 0.11,
 					"outside_heat_transfer_resistance": 0.04,
 					"outside_emissivity": 0.9,
+					"outside_solar_absorption": 0.8,
 					"general_part_spec": {
-						"outside_solar_absorption": 0.8,
 						"layers": [
 							{
 								"name": "plaster_board",
@@ -1145,7 +1139,6 @@
 					"outside_heat_transfer_resistance": 0.04,
 					"outside_emissivity": 0.9,
 					"transparent_opening_part_spec": {
-						"outside_solar_absorption": 0.8,
 						"incident_angle_characteristics": "multiple",
 						"eta_value": 0.792,
 						"u_value": 4.65
@@ -1165,8 +1158,8 @@
 					"inside_heat_transfer_resistance": 0.11,
 					"outside_heat_transfer_resistance": 0.04,
 					"outside_emissivity": 0.9,
+					"outside_solar_absorption": 0.8,
 					"general_part_spec": {
-						"outside_solar_absorption": 0.8,
 						"layers": [
 							{
 								"name": "plaster_board",
@@ -1209,8 +1202,8 @@
 					"inside_heat_transfer_resistance": 0.15,
 					"outside_heat_transfer_resistance": 0.15,
 					"outside_emissivity": 0.9,
+					"outside_solar_absorption": 0.8,
 					"general_part_spec": {
-						"outside_solar_absorption": 0.8,
 						"layers": [
 							{
 								"name": "plywood",
@@ -1239,8 +1232,8 @@
 					"inside_heat_transfer_resistance": 0.09,
 					"outside_heat_transfer_resistance": 0.09,
 					"outside_emissivity": 0.9,
+					"outside_solar_absorption": 0.8,
 					"general_part_spec": {
-						"outside_solar_absorption": 0.8,
 						"layers": [
 							{
 								"name": "plaster_board",
@@ -1365,8 +1358,8 @@
 					"inside_heat_transfer_resistance": 0.11,
 					"outside_heat_transfer_resistance": 0.04,
 					"outside_emissivity": 0.9,
+					"outside_solar_absorption": 0.8,
 					"general_part_spec": {
-						"outside_solar_absorption": 0.8,
 						"layers": [
 							{
 								"name": "plaster_board",
@@ -1411,7 +1404,6 @@
 					"outside_heat_transfer_resistance": 0.04,
 					"outside_emissivity": 0.9,
 					"transparent_opening_part_spec": {
-						"outside_solar_absorption": 0.8,
 						"incident_angle_characteristics": "multiple",
 						"eta_value": 0.792,
 						"u_value": 4.65
@@ -1431,8 +1423,8 @@
 					"inside_heat_transfer_resistance": 0.11,
 					"outside_heat_transfer_resistance": 0.04,
 					"outside_emissivity": 0.9,
+					"outside_solar_absorption": 0.8,
 					"general_part_spec": {
-						"outside_solar_absorption": 0.8,
 						"layers": [
 							{
 								"name": "plaster_board",
@@ -1476,8 +1468,8 @@
 					"inside_heat_transfer_resistance": 0.11,
 					"outside_heat_transfer_resistance": 0.04,
 					"outside_emissivity": 0.9,
+					"outside_solar_absorption": 0.8,
 					"general_part_spec": {
-						"outside_solar_absorption": 0.8,
 						"layers": [
 							{
 								"name": "plaster_board",
@@ -1522,7 +1514,6 @@
 					"outside_heat_transfer_resistance": 0.04,
 					"outside_emissivity": 0.9,
 					"transparent_opening_part_spec": {
-						"outside_solar_absorption": 0.8,
 						"incident_angle_characteristics": "multiple",
 						"eta_value": 0.792,
 						"u_value": 4.65
@@ -1541,8 +1532,8 @@
 					"inside_heat_transfer_resistance": 0.15,
 					"outside_heat_transfer_resistance": 0.15,
 					"outside_emissivity": 0.9,
+					"outside_solar_absorption": 0.8,
 					"general_part_spec": {
-						"outside_solar_absorption": 0.8,
 						"layers": [
 							{
 								"name": "plywood",
@@ -1571,8 +1562,8 @@
 					"inside_heat_transfer_resistance": 0.09,
 					"outside_heat_transfer_resistance": 0.09,
 					"outside_emissivity": 0.9,
+					"outside_solar_absorption": 0.8,
 					"general_part_spec": {
-						"outside_solar_absorption": 0.8,
 						"layers": [
 							{
 								"name": "plaster_board",

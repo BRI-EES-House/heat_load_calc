@@ -116,6 +116,7 @@ s, sw, w, nw, n, ne, e, se, top, bottom"
 ,,○,,,室内側熱伝達抵抗,inside_heat_transfer_resistance,△,,,float,m2K/W,,
 ,,○,,,室外側熱伝達抵抗,outside_heat_transfer_resistance,"[境界の種類]=[間仕切り], [外皮_一般部位], [外皮_透明な開口部] or [外皮_不透明な開口部]",,,float,m2K/W,,
 ,,○,,,室外側長波長放射率,outside_emissivity,"[境界の種類]=[外皮_一般部位], [外皮_透明な開口部] or [外皮_不透明な開口部]",,,float,－,,
+,,○,,,室外側日射吸収率,outside_solar_absorption,[境界の種類]=[外皮_一般部位] or [外皮_不透明な開口部],,,float,－,,
 ,,▼,,,間仕切りの仕様,internal_part_spec,[境界の種類]=[間仕切り],,,,,,
 ,,,▽,,層,layers,△（複数）,,,,,,"対象室側から並べる
 室内外の熱伝達抵抗は含まない"
@@ -125,7 +126,6 @@ s, sw, w, nw, n, ne, e, se, top, bottom"
 ,,,△,,,,,,,,,,
 ,,▲,,,,,,,,,,,
 ,,▼,,,一般部位の仕様,general_part_spec,[境界の種類]=[外皮_一般部位],,,,,,
-,,,○,,室外側日射吸収率,outside_solar_absorption,△,,,float,－,,
 ,,,▽,,層,layers,△（複数）,,,,,,"室内側から並べる
 室内外の熱伝達抵抗は含まない"
 ,,,,○,名称,name,△,,,str,,,
@@ -141,7 +141,6 @@ s, sw, w, nw, n, ne, e, se, top, bottom"
 2:複層",str,,,
 ,,▲,,,,,,,,,,,
 ,,▼,,,不透明な開口部の仕様,opaque_opening_part_spec,[境界の種類]=[外皮_不透明な開口部],,,,,,
-,,,○,,室外側日射吸収率,outside_solar_absorption,△,,,float,－,,
 ,,,○,,熱貫流率,u_value,△,,,float,W/m2K,,
 ,,▲,,,,,,,,,,,
 ,,▼,,,地盤,ground_spec,[境界の種類]=[地盤],,,,,,
