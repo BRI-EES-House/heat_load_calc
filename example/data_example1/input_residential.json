@@ -31,6 +31,7 @@
 			"natural_vent_time": 5.0,
 			"boundaries": [
 				{
+					"id": 0,
 					"name": "north_exterior_wall",
 					"boundary_type": "external_general_part",
 					"area": 4.9775,
@@ -74,6 +75,7 @@
 					}
 				},
 				{
+					"id": 1,
 					"name": "north_exterior_door",
 					"boundary_type": "external_opaque_part",
 					"area": 1.62,
@@ -91,6 +93,7 @@
 					}
 				},
 				{
+					"id": 2,
 					"name": "east_exterior_wall",
 					"boundary_type": "external_general_part",
 					"area": 17.982,
@@ -134,6 +137,7 @@
 					}
 				},
 				{
+					"id": 3,
 					"name": "east_exterior_window",
 					"boundary_type": "external_transparent_part",
 					"area": 3.13,
@@ -152,6 +156,7 @@
 					}
 				},
 				{
+					"id": 4,
 					"name": "south_exterior_wall",
 					"boundary_type": "external_general_part",
 					"area": 10.2135,
@@ -195,6 +200,7 @@
 					}
 				},
 				{
+					"id": 5,
 					"name": "south_exterior_window",
 					"boundary_type": "external_transparent_part",
 					"area": 6.94,
@@ -217,6 +223,7 @@
 					}
 				},
 				{
+					"id": 6,
 					"name": "exterior_floor",
 					"boundary_type": "external_general_part",
 					"area": 29.81,
@@ -244,6 +251,7 @@
 					}
 				},
 				{
+					"id": 7,
 					"name": "exterior_ceiling",
 					"boundary_type": "external_general_part",
 					"area": 4.14,
@@ -272,6 +280,7 @@
 					}
 				},
 				{
+					"id": 8,
 					"name": "internal_wall_non_occupant",
 					"boundary_type": "internal",
 					"area": 21.6125,
@@ -303,6 +312,7 @@
 					}
 				},
 				{
+					"id": 9,
 					"name": "internal_ceiling_other_occupant",
 					"boundary_type": "internal",
 					"area": 10.77,
@@ -334,6 +344,7 @@
 					}
 				},
 				{
+					"id": 10,
 					"name": "internal_ceiling_other_occupant",
 					"boundary_type": "internal",
 					"area": 10.77,
@@ -365,6 +376,7 @@
 					}
 				},
 				{
+					"id": 11,
 					"name": "internal_wall_other_occupant",
 					"boundary_type": "internal",
 					"area": 8.736,
@@ -423,6 +435,7 @@
 			"natural_vent_time": 5.0,
 			"boundaries": [
 				{
+					"id": 12,
 					"name": "south_exterior_wall",
 					"boundary_type": "external_general_part",
 					"area": 8.098,
@@ -466,6 +479,7 @@
 					}
 				},
 				{
+					"id": 13,
 					"name": "south_exterior_window",
 					"boundary_type": "external_transparent_part",
 					"area": 1.73,
@@ -488,6 +502,7 @@
 					}
 				},
 				{
+					"id": 14,
 					"name": "west_exterior_wall",
 					"boundary_type": "external_general_part",
 					"area": 8.838,
@@ -531,6 +546,7 @@
 					}
 				},
 				{
+					"id": 15,
 					"name": "west_exterior_window",
 					"boundary_type": "external_transparent_part",
 					"area": 0.99,
@@ -550,6 +566,7 @@
 					}
 				},
 				{
+					"id": 16,
 					"name": "exterior_ceiling",
 					"boundary_type": "external_general_part",
 					"area": 13.25,
@@ -578,6 +595,7 @@
 					}
 				},
 				{
+					"id": 17,
 					"name": "internal_wall_non_occupant",
 					"boundary_type": "internal",
 					"area": 8.736,
@@ -609,6 +627,7 @@
 					}
 				},
 				{
+					"id": 18,
 					"name": "south_exterior_wall",
 					"boundary_type": "external_general_part",
 					"area": 4.76525,
@@ -652,6 +671,7 @@
 					}
 				},
 				{
+					"id": 19,
 					"name": "south_exterior_window",
 					"boundary_type": "external_transparent_part",
 					"area": 3.22,
@@ -674,6 +694,7 @@
 					}
 				},
 				{
+					"id": 20,
 					"name": "exterior_ceiling",
 					"boundary_type": "external_general_part",
 					"area": 10.77,
@@ -702,6 +723,7 @@
 					}
 				},
 				{
+					"id": 21,
 					"name": "internal_wall_non_occupant",
 					"boundary_type": "internal",
 					"area": 7.098,
@@ -733,6 +755,7 @@
 					}
 				},
 				{
+					"id": 22,
 					"name": "internal_floor_main_occupant",
 					"boundary_type": "internal",
 					"area": 10.77,
@@ -764,6 +787,7 @@
 					}
 				},
 				{
+					"id": 23,
 					"name": "east_exterior_wall",
 					"boundary_type": "external_general_part",
 					"area": 9.168,
@@ -807,6 +831,7 @@
 					}
 				},
 				{
+					"id": 24,
 					"name": "east_exterior_window",
 					"boundary_type": "external_transparent_part",
 					"area": 0.66,
@@ -825,6 +850,7 @@
 					}
 				},
 				{
+					"id": 25,
 					"name": "south_exterior_wall",
 					"boundary_type": "external_general_part",
 					"area": 4.76525,
@@ -868,6 +894,7 @@
 					}
 				},
 				{
+					"id": 26,
 					"name": "south_exterior_window",
 					"boundary_type": "external_transparent_part",
 					"area": 3.22,
@@ -890,6 +917,7 @@
 					}
 				},
 				{
+					"id": 27,
 					"name": "exterior_ceiling",
 					"boundary_type": "external_general_part",
 					"area": 10.77,
@@ -918,6 +946,7 @@
 					}
 				},
 				{
+					"id": 28,
 					"name": "internal_wall_non_occupant",
 					"boundary_type": "internal",
 					"area": 7.098,
@@ -949,6 +978,7 @@
 					}
 				},
 				{
+					"id": 29,
 					"name": "internal_floor_main_occupant",
 					"boundary_type": "internal",
 					"area": 10.77,
@@ -980,6 +1010,7 @@
 					}
 				},
 				{
+					"id": 30,
 					"name": "north_exterior_wall",
 					"boundary_type": "external_general_part",
 					"area": 2.639,
@@ -1023,6 +1054,7 @@
 					}
 				},
 				{
+					"id": 31,
 					"name": "south_exterior_wall",
 					"boundary_type": "external_general_part",
 					"area": 8.605,
@@ -1066,6 +1098,7 @@
 					}
 				},
 				{
+					"id": 32,
 					"name": "south_exterior_window",
 					"boundary_type": "external_transparent_part",
 					"area": 4.59,
@@ -1084,6 +1117,7 @@
 					}
 				},
 				{
+					"id": 33,
 					"name": "west_exterior_wall",
 					"boundary_type": "external_general_part",
 					"area": 10.556,
@@ -1127,6 +1161,7 @@
 					}
 				},
 				{
+					"id": 34,
 					"name": "exterior_floor",
 					"boundary_type": "external_general_part",
 					"area": 16.56,
@@ -1154,6 +1189,7 @@
 					}
 				},
 				{
+					"id": 35,
 					"name": "exterior_ceiling",
 					"boundary_type": "external_general_part",
 					"area": 3.31,
@@ -1182,6 +1218,7 @@
 					}
 				},
 				{
+					"id": 36,
 					"name": "internal_wall_non_occupant",
 					"boundary_type": "internal",
 					"area": 8.736,
@@ -1213,6 +1250,7 @@
 					}
 				},
 				{
+					"id": 37,
 					"name": "internal_wall_main_occupant",
 					"boundary_type": "internal",
 					"area": 8.736,
@@ -1275,6 +1313,7 @@
 			"natural_vent_time": 5.0,
 			"boundaries": [
 				{
+					"id": 38,
 					"name": "north_exterior_wall",
 					"boundary_type": "external_general_part",
 					"area": 43.2205,
@@ -1318,6 +1357,7 @@
 					}
 				},
 				{
+					"id": 39,
 					"name": "north_exterior_window",
 					"boundary_type": "external_transparent_part",
 					"area": 3.69,
@@ -1336,6 +1376,7 @@
 					}
 				},
 				{
+					"id": 40,
 					"name": "east_exterior_wall",
 					"boundary_type": "external_general_part",
 					"area": 4.914,
@@ -1379,6 +1420,7 @@
 					}
 				},
 				{
+					"id": 41,
 					"name": "west_exterior_wall",
 					"boundary_type": "external_general_part",
 					"area": 12.5,
@@ -1422,6 +1464,7 @@
 					}
 				},
 				{
+					"id": 42,
 					"name": "west_exterior_window",
 					"boundary_type": "external_transparent_part",
 					"area": 2.97,
@@ -1440,6 +1483,7 @@
 					}
 				},
 				{
+					"id": 43,
 					"name": "exterior_floor",
 					"boundary_type": "external_general_part",
 					"area": 21.52,
@@ -1467,6 +1511,7 @@
 					}
 				},
 				{
+					"id": 44,
 					"name": "exterior_ceiling",
 					"boundary_type": "external_general_part",
 					"area": 25.68,
@@ -1495,6 +1540,7 @@
 					}
 				},
 				{
+					"id": 45,
 					"name": "internal_wall_main_occupant",
 					"boundary_type": "internal",
 					"area": 21.6125,
@@ -1526,6 +1572,7 @@
 					}
 				},
 				{
+					"id": 46,
 					"name": "internal_wall_other_occupant",
 					"boundary_type": "internal",
 					"area": 8.736,
@@ -1557,6 +1604,7 @@
 					}
 				},
 				{
+					"id": 47,
 					"name": "internal_wall_other_occupant",
 					"boundary_type": "internal",
 					"area": 7.098,
@@ -1588,6 +1636,7 @@
 					}
 				},
 				{
+					"id": 48,
 					"name": "internal_wall_other_occupant",
 					"boundary_type": "internal",
 					"area": 7.098,
@@ -1619,6 +1668,7 @@
 					}
 				},
 				{
+					"id": 49,
 					"name": "internal_wall_other_occupant",
 					"boundary_type": "internal",
 					"area": 8.736,

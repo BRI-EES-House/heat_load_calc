@@ -69,6 +69,7 @@
 ,,○,,,局所換気量,local_vent_amount,△,,,List[float],m3/h,,要素数8760のリスト型
 ,▲,,,,,,,,,,,,
 ,▽,,,,境界,boundaries,○（複数）,,,,,,
+,,○,,,ID,id,△,,,int,,,
 ,,○,,,名前,name,△,,,str,ー,,
 ,,○,,,境界の種類,boundary_type,△,"1:internal
 2:external_general_part
