@@ -34,6 +34,7 @@ def make_house(d, input_data_dir, output_data_dir):
     number_of_spaces = len(rooms)
 
     # 室のID
+    # TODO: ID が0始まりで1ずつ増え、一意であることのチェックを行うコードを追記する。
     room_ids = [int(r['id']) for r in rooms]
 
     # 室iの名称, [i]
