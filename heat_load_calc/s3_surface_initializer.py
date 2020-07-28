@@ -28,7 +28,8 @@ IntegratedBoundaries = namedtuple('IntegratedBoundaries', [
     'RFT1s',
     'RFA1s',
     'NsurfG_i',
-    'q_trs_i_jstrs_ns'
+    'q_trs_i_jstrs_ns',
+    'connected_room_id'
 ])
 
 
@@ -153,7 +154,7 @@ def get_boundary_simple(theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, a_sun_ns, h_sun_n
         rfa0=rfs.rfa0,
         rfa1=rfs.rfa1,
         rft0=rfs.rft0,
-        rft1=rfs.rft1
+        rft1=rfs.rft1,
     )
 
 
@@ -175,6 +176,9 @@ def init_surface(bss: List[BoundarySimple]) -> IntegratedBoundaries:
 
     # 室iの統合された境界j*の副名称（統合する前の境界の名前を'+'記号でつなげたもの）, [j*]
     sub_name_i_jstrs = np.array(['+'.join([bs.name for bs in bss[gp_idxs == i]]) for i in np.unique(gp_idxs)])
+
+    # 面する室のID
+    connected_room_ids = np.array([bss[first_idx[i]].connected_room_id for i in np.unique(gp_idxs)])
 
     # 室iの統合された境界j*の種類, [j*]
     boundary_type_i_jstrs = np.array([bss[first_idx[i]].boundary_type for i in np.unique(gp_idxs)])
@@ -263,7 +267,8 @@ def init_surface(bss: List[BoundarySimple]) -> IntegratedBoundaries:
         RFT1s=RFT1s,
         RFA1s=RFA1s,
         NsurfG_i=NsurfG_i,
-        q_trs_i_jstrs_ns=q_trs_sol_i_jstrs_ns
+        q_trs_i_jstrs_ns=q_trs_sol_i_jstrs_ns,
+        connected_room_id=connected_room_ids
     )
 
 

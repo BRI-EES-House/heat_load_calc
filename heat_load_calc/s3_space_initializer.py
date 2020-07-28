@@ -101,6 +101,9 @@ def make_house(d, input_data_dir, output_data_dir):
     # 統合された境界j*の名前2, [j*]
     sub_name_bdry_jstrs = np.concatenate([ib.sub_name_i_jstrs for ib in ibs])
 
+    # 統合された境界j*が接する室のID, [j*]
+    connected_room_ids = np.concatenate([ib.connected_room_id for ib in ibs])
+
     # 統合された境界j*の種類, [j*]
     type_bdry_jstrs = np.concatenate([ib.boundary_type_i_jstrs for ib in ibs])
 
@@ -209,10 +212,6 @@ def make_house(d, input_data_dir, output_data_dir):
     idx_bdry_is = np.insert(np.cumsum(number_of_bdry_is), 0, 0)
 
     split_indices = np.cumsum(number_of_bdry_is)[0:-1]
-
-    space_idx_bdry_jstrs = np.zeros(sum(number_of_bdry_is))
-    for i, ib in enumerate(ibs):
-        space_idx_bdry_jstrs[idx_bdry_is[i]:idx_bdry_is[i+1]] = i
 
     # 室iの在室者に対する境界j*の形態係数
     f_mrt_hum_is = np.concatenate([
@@ -340,7 +339,7 @@ def make_house(d, input_data_dir, output_data_dir):
             'name': name_bdry_jstrs[i],
             'sub_name': sub_name_bdry_jstrs[i],
             'is_ground': {True: 'true', False: 'false'}[is_ground_jstrs[i]],
-            'connected_space_id': int(space_idx_bdry_jstrs[i]),
+            'connected_space_id': int(connected_room_ids[i]),
             'area': a_bdry_jstrs[i],
             'phi_a0': phi_a0_bdry_jstrs[i],
             'phi_a1': list(phi_a1_bdry_jstrs_ms[i]),
