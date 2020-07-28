@@ -30,8 +30,8 @@ class TransmissionSolarRadiation():
                     direction=d['direction'],
                     area=d['area'],
                     solar_shading_part=solar_shading_part,
-                    incident_angle_characteristics=d['transparent_opening_part_spec']['incident_angle_characteristics'],
-                    eta_value=d['transparent_opening_part_spec']['eta_value'],
+                    incident_angle_characteristics=d['incident_angle_characteristics'],
+                    eta_value=d['eta_value'],
                 )
 
             else:
