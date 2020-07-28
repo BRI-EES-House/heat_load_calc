@@ -33,6 +33,7 @@
 				{
 					"id": 0,
 					"name": "north_exterior_wall",
+					"connected_room_id": 0,
 					"boundary_type": "external_general_part",
 					"area": 4.9775,
 					"is_sun_striked_outside": true,
@@ -77,6 +78,7 @@
 				{
 					"id": 1,
 					"name": "north_exterior_door",
+					"connected_room_id": 0,
 					"boundary_type": "external_opaque_part",
 					"area": 1.62,
 					"is_sun_striked_outside": true,
@@ -95,6 +97,7 @@
 				{
 					"id": 2,
 					"name": "east_exterior_wall",
+					"connected_room_id": 0,
 					"boundary_type": "external_general_part",
 					"area": 17.982,
 					"is_sun_striked_outside": true,
@@ -139,6 +142,7 @@
 				{
 					"id": 3,
 					"name": "east_exterior_window",
+					"connected_room_id": 0,
 					"boundary_type": "external_transparent_part",
 					"area": 3.13,
 					"is_sun_striked_outside": true,
@@ -158,6 +162,7 @@
 				{
 					"id": 4,
 					"name": "south_exterior_wall",
+					"connected_room_id": 0,
 					"boundary_type": "external_general_part",
 					"area": 10.2135,
 					"is_sun_striked_outside": true,
@@ -202,6 +207,7 @@
 				{
 					"id": 5,
 					"name": "south_exterior_window",
+					"connected_room_id": 0,
 					"boundary_type": "external_transparent_part",
 					"area": 6.94,
 					"is_sun_striked_outside": true,
@@ -225,6 +231,7 @@
 				{
 					"id": 6,
 					"name": "exterior_floor",
+					"connected_room_id": 0,
 					"boundary_type": "external_general_part",
 					"area": 29.81,
 					"is_sun_striked_outside": false,
@@ -253,6 +260,7 @@
 				{
 					"id": 7,
 					"name": "exterior_ceiling",
+					"connected_room_id": 0,
 					"boundary_type": "external_general_part",
 					"area": 4.14,
 					"is_sun_striked_outside": true,
@@ -282,6 +290,7 @@
 				{
 					"id": 8,
 					"name": "internal_wall_non_occupant",
+					"connected_room_id": 0,
 					"boundary_type": "internal",
 					"area": 21.6125,
 					"is_sun_striked_outside": false,
@@ -314,6 +323,7 @@
 				{
 					"id": 9,
 					"name": "internal_ceiling_other_occupant",
+					"connected_room_id": 0,
 					"boundary_type": "internal",
 					"area": 10.77,
 					"is_sun_striked_outside": false,
@@ -346,6 +356,7 @@
 				{
 					"id": 10,
 					"name": "internal_ceiling_other_occupant",
+					"connected_room_id": 0,
 					"boundary_type": "internal",
 					"area": 10.77,
 					"is_sun_striked_outside": false,
@@ -378,6 +389,7 @@
 				{
 					"id": 11,
 					"name": "internal_wall_other_occupant",
+					"connected_room_id": 0,
 					"boundary_type": "internal",
 					"area": 8.736,
 					"is_sun_striked_outside": false,
@@ -437,6 +449,7 @@
 				{
 					"id": 12,
 					"name": "south_exterior_wall",
+					"connected_room_id": 1,
 					"boundary_type": "external_general_part",
 					"area": 8.098,
 					"is_sun_striked_outside": true,
@@ -481,6 +494,7 @@
 				{
 					"id": 13,
 					"name": "south_exterior_window",
+					"connected_room_id": 1,
 					"boundary_type": "external_transparent_part",
 					"area": 1.73,
 					"is_sun_striked_outside": true,
@@ -504,6 +518,7 @@
 				{
 					"id": 14,
 					"name": "west_exterior_wall",
+					"connected_room_id": 1,
 					"boundary_type": "external_general_part",
 					"area": 8.838,
 					"is_sun_striked_outside": true,
@@ -548,6 +563,7 @@
 				{
 					"id": 15,
 					"name": "west_exterior_window",
+					"connected_room_id": 1,
 					"boundary_type": "external_transparent_part",
 					"area": 0.99,
 					"is_sun_striked_outside": true,
@@ -567,6 +583,7 @@
 				},
 				{
 					"id": 16,
+					"connected_room_id": 1,
 					"name": "exterior_ceiling",
 					"boundary_type": "external_general_part",
 					"area": 13.25,
@@ -597,6 +614,7 @@
 				{
 					"id": 17,
 					"name": "internal_wall_non_occupant",
+					"connected_room_id": 1,
 					"boundary_type": "internal",
 					"area": 8.736,
 					"is_sun_striked_outside": false,
@@ -629,6 +647,7 @@
 				{
 					"id": 18,
 					"name": "south_exterior_wall",
+					"connected_room_id": 1,
 					"boundary_type": "external_general_part",
 					"area": 4.76525,
 					"is_sun_striked_outside": true,
@@ -673,6 +692,7 @@
 				{
 					"id": 19,
 					"name": "south_exterior_window",
+					"connected_room_id": 1,
 					"boundary_type": "external_transparent_part",
 					"area": 3.22,
 					"is_sun_striked_outside": true,
@@ -696,6 +716,7 @@
 				{
 					"id": 20,
 					"name": "exterior_ceiling",
+					"connected_room_id": 1,
 					"boundary_type": "external_general_part",
 					"area": 10.77,
 					"is_sun_striked_outside": true,
@@ -725,6 +746,7 @@
 				{
 					"id": 21,
 					"name": "internal_wall_non_occupant",
+					"connected_room_id": 1,
 					"boundary_type": "internal",
 					"area": 7.098,
 					"is_sun_striked_outside": false,
@@ -757,6 +779,7 @@
 				{
 					"id": 22,
 					"name": "internal_floor_main_occupant",
+					"connected_room_id": 1,
 					"boundary_type": "internal",
 					"area": 10.77,
 					"is_sun_striked_outside": false,
@@ -789,6 +812,7 @@
 				{
 					"id": 23,
 					"name": "east_exterior_wall",
+					"connected_room_id": 1,
 					"boundary_type": "external_general_part",
 					"area": 9.168,
 					"is_sun_striked_outside": true,
@@ -833,6 +857,7 @@
 				{
 					"id": 24,
 					"name": "east_exterior_window",
+					"connected_room_id": 1,
 					"boundary_type": "external_transparent_part",
 					"area": 0.66,
 					"is_sun_striked_outside": true,
@@ -852,6 +877,7 @@
 				{
 					"id": 25,
 					"name": "south_exterior_wall",
+					"connected_room_id": 1,
 					"boundary_type": "external_general_part",
 					"area": 4.76525,
 					"is_sun_striked_outside": true,
@@ -896,6 +922,7 @@
 				{
 					"id": 26,
 					"name": "south_exterior_window",
+					"connected_room_id": 1,
 					"boundary_type": "external_transparent_part",
 					"area": 3.22,
 					"is_sun_striked_outside": true,
@@ -919,6 +946,7 @@
 				{
 					"id": 27,
 					"name": "exterior_ceiling",
+					"connected_room_id": 1,
 					"boundary_type": "external_general_part",
 					"area": 10.77,
 					"is_sun_striked_outside": true,
@@ -948,6 +976,7 @@
 				{
 					"id": 28,
 					"name": "internal_wall_non_occupant",
+					"connected_room_id": 1,
 					"boundary_type": "internal",
 					"area": 7.098,
 					"is_sun_striked_outside": false,
@@ -980,6 +1009,7 @@
 				{
 					"id": 29,
 					"name": "internal_floor_main_occupant",
+					"connected_room_id": 1,
 					"boundary_type": "internal",
 					"area": 10.77,
 					"is_sun_striked_outside": false,
@@ -1012,6 +1042,7 @@
 				{
 					"id": 30,
 					"name": "north_exterior_wall",
+					"connected_room_id": 1,
 					"boundary_type": "external_general_part",
 					"area": 2.639,
 					"is_sun_striked_outside": true,
@@ -1056,6 +1087,7 @@
 				{
 					"id": 31,
 					"name": "south_exterior_wall",
+					"connected_room_id": 1,
 					"boundary_type": "external_general_part",
 					"area": 8.605,
 					"is_sun_striked_outside": true,
@@ -1100,6 +1132,7 @@
 				{
 					"id": 32,
 					"name": "south_exterior_window",
+					"connected_room_id": 1,
 					"boundary_type": "external_transparent_part",
 					"area": 4.59,
 					"is_sun_striked_outside": true,
@@ -1119,6 +1152,7 @@
 				{
 					"id": 33,
 					"name": "west_exterior_wall",
+					"connected_room_id": 1,
 					"boundary_type": "external_general_part",
 					"area": 10.556,
 					"is_sun_striked_outside": true,
@@ -1163,6 +1197,7 @@
 				{
 					"id": 34,
 					"name": "exterior_floor",
+					"connected_room_id": 1,
 					"boundary_type": "external_general_part",
 					"area": 16.56,
 					"is_sun_striked_outside": false,
@@ -1191,6 +1226,7 @@
 				{
 					"id": 35,
 					"name": "exterior_ceiling",
+					"connected_room_id": 1,
 					"boundary_type": "external_general_part",
 					"area": 3.31,
 					"is_sun_striked_outside": true,
@@ -1220,6 +1256,7 @@
 				{
 					"id": 36,
 					"name": "internal_wall_non_occupant",
+					"connected_room_id": 1,
 					"boundary_type": "internal",
 					"area": 8.736,
 					"is_sun_striked_outside": false,
@@ -1252,6 +1289,7 @@
 				{
 					"id": 37,
 					"name": "internal_wall_main_occupant",
+					"connected_room_id": 1,
 					"boundary_type": "internal",
 					"area": 8.736,
 					"is_sun_striked_outside": false,
@@ -1315,6 +1353,7 @@
 				{
 					"id": 38,
 					"name": "north_exterior_wall",
+					"connected_room_id": 2,
 					"boundary_type": "external_general_part",
 					"area": 43.2205,
 					"is_sun_striked_outside": true,
@@ -1359,6 +1398,7 @@
 				{
 					"id": 39,
 					"name": "north_exterior_window",
+					"connected_room_id": 2,
 					"boundary_type": "external_transparent_part",
 					"area": 3.69,
 					"is_sun_striked_outside": true,
@@ -1378,6 +1418,7 @@
 				{
 					"id": 40,
 					"name": "east_exterior_wall",
+					"connected_room_id": 2,
 					"boundary_type": "external_general_part",
 					"area": 4.914,
 					"is_sun_striked_outside": true,
@@ -1422,6 +1463,7 @@
 				{
 					"id": 41,
 					"name": "west_exterior_wall",
+					"connected_room_id": 2,
 					"boundary_type": "external_general_part",
 					"area": 12.5,
 					"is_sun_striked_outside": true,
@@ -1466,6 +1508,7 @@
 				{
 					"id": 42,
 					"name": "west_exterior_window",
+					"connected_room_id": 2,
 					"boundary_type": "external_transparent_part",
 					"area": 2.97,
 					"is_sun_striked_outside": true,
@@ -1485,6 +1528,7 @@
 				{
 					"id": 43,
 					"name": "exterior_floor",
+					"connected_room_id": 2,
 					"boundary_type": "external_general_part",
 					"area": 21.52,
 					"is_sun_striked_outside": false,
@@ -1513,6 +1557,7 @@
 				{
 					"id": 44,
 					"name": "exterior_ceiling",
+					"connected_room_id": 2,
 					"boundary_type": "external_general_part",
 					"area": 25.68,
 					"is_sun_striked_outside": true,
@@ -1542,6 +1587,7 @@
 				{
 					"id": 45,
 					"name": "internal_wall_main_occupant",
+					"connected_room_id": 2,
 					"boundary_type": "internal",
 					"area": 21.6125,
 					"is_sun_striked_outside": false,
@@ -1574,6 +1620,7 @@
 				{
 					"id": 46,
 					"name": "internal_wall_other_occupant",
+					"connected_room_id": 2,
 					"boundary_type": "internal",
 					"area": 8.736,
 					"is_sun_striked_outside": false,
@@ -1606,6 +1653,7 @@
 				{
 					"id": 47,
 					"name": "internal_wall_other_occupant",
+					"connected_room_id": 2,
 					"boundary_type": "internal",
 					"area": 7.098,
 					"is_sun_striked_outside": false,
@@ -1638,6 +1686,7 @@
 				{
 					"id": 48,
 					"name": "internal_wall_other_occupant",
+					"connected_room_id": 2,
 					"boundary_type": "internal",
 					"area": 7.098,
 					"is_sun_striked_outside": false,
@@ -1670,6 +1719,7 @@
 				{
 					"id": 49,
 					"name": "internal_wall_other_occupant",
+					"connected_room_id": 2,
 					"boundary_type": "internal",
 					"area": 8.736,
 					"is_sun_striked_outside": false,

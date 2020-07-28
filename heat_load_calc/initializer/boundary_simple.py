@@ -7,11 +7,17 @@ from heat_load_calc.initializer.boundary_type import BoundaryType
 @dataclass
 class BoundarySimple:
 
+    # ID
+    id: int
+
     # 名称
     name: str
 
     # 副名称
     sub_name: str
+
+    # 接する室のID
+    connected_room_id: int
 
     # 境界の種類
     boundary_type: BoundaryType

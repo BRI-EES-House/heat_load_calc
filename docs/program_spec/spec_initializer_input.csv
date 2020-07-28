@@ -71,6 +71,7 @@
 ,▽,,,,境界,boundaries,○（複数）,,,,,,
 ,,○,,,ID,id,△,,,int,,,
 ,,○,,,名前,name,△,,,str,ー,,
+,,○,,,接する室のID,connected_room_id,△,,,int,,,
 ,,○,,,境界の種類,boundary_type,△,"1:internal
 2:external_general_part
 3:external_transparent_part

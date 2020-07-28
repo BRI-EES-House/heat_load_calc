@@ -34,9 +34,15 @@ IntegratedBoundaries = namedtuple('IntegratedBoundaries', [
 
 def get_boundary_simple(theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, a_sun_ns, h_sun_ns, b):
 
+    # ID
+    id = int(b['id'])
+
     # 名前
     name = b['name']
     sub_name = ''
+
+    # 接する室のID
+    connected_room_id = b['connected_room_id']
 
     # 境界の種類
     # 'internal': 間仕切り
@@ -128,8 +134,10 @@ def get_boundary_simple(theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, a_sun_ns, h_sun_n
     rfs = rff.get_response_factors()
 
     return BoundarySimple(
+        id=id,
         name=name,
         sub_name=sub_name,
+        connected_room_id=connected_room_id,
         boundary_type=boundary_type,
         area=area,
         h_td=h_td,
