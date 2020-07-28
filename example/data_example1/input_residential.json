@@ -6,6 +6,7 @@
 
 	"rooms": [
 		{
+			"id": 0,
 			"name": "main_occupant_room",
 			"room_type": 1,
 			"volume": 70.92,
@@ -397,6 +398,7 @@
 			]
 		},
 		{
+			"id": 1,
 			"name": "other_occupant_room",
 			"room_type": 2,
 			"volume": 123.22,
@@ -1244,6 +1246,7 @@
 			]
 		},
 		{
+			"id": 2,
 			"name": "non_occupant_room",
 			"room_type": 3,
 			"volume": 94.88,

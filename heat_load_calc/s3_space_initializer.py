@@ -33,6 +33,9 @@ def make_house(d, input_data_dir, output_data_dir):
     # 室の数
     number_of_spaces = len(rooms)
 
+    # 室のID
+    room_ids = [int(r['id']) for r in rooms]
+
     # 室iの名称, [i]
     room_names = [r['name'] for r in rooms]
 
@@ -292,10 +295,12 @@ def make_house(d, input_data_dir, output_data_dir):
     for i in range(number_of_spaces):
         p[i, idx_bdry_is[i]:idx_bdry_is[i + 1]] = 1.0
 
+    print(room_ids)
     spaces = []
     for i in range(number_of_spaces):
+        print(room_ids[i] == i)
         spaces.append({
-            'id': i,
+            'id': room_ids[i],
             'name': room_names[i],
             'volume': v_room_cap_is[i],
             'c_value': c_value_is[i],
