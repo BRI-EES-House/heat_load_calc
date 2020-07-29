@@ -174,19 +174,17 @@ def make_house(d, input_data_dir, output_data_dir):
         for i in np.unique(gp_idxs)
     ])
 
+    # ステップnの室iにおける窓の透過日射熱取得, W, [8760*4]
+    q_trs_sol_is_ns2 = np.array([
+        np.sum(np.array([bs.q_trs_sol for bs in bss2 if bs.connected_room_id == i]), axis=0)
+        for i in range(number_of_spaces)
+    ])
 
 
 
 
 
 
-
-
-
-#    q_trs_sol_i_jstrs_ns = np.array([
-#        np.sum([bs.q_trs_sol for bs in bss[gp_idxs == i]], axis=0)
-#        for i in np.unique(gp_idxs)
-#    ])
 
     # 室iの統合された境界j*の応答係数法（項別公比法）における根の数, [j*]
 #    n_root_i_jstrs = np.array([bss[first_idx[i]].n_root for i in np.unique(gp_idxs)])
@@ -253,6 +251,8 @@ def make_house(d, input_data_dir, output_data_dir):
 
     # ステップnの室iにおける窓の透過日射熱取得, W, [8760*4]
     q_trs_sol_is_ns = np.array([np.sum(ib.q_trs_i_jstrs_ns, axis=0) for ib in ibs])
+
+    q_trs_sol_is_ns = q_trs_sol_is_ns2
 
     # 室iの床面積, m2, [i]
     a_floor_is = np.array([
