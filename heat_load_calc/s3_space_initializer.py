@@ -11,6 +11,7 @@ import heat_load_calc.a22_radiative_heating_spec as a22
 from heat_load_calc.initializer.boundary_type import BoundaryType
 import heat_load_calc.s3_surface_initializer as s3
 import heat_load_calc.x_35_occupants as x35
+import heat_load_calc.a34_building_part_summarize as a34
 
 from heat_load_calc.initializer import schedule_loader
 from heat_load_calc.initializer import residents_number
@@ -71,6 +72,7 @@ def make_house(d, input_data_dir, output_data_dir):
     c_x_is = a14.get_c_x_is(g_f_is)
 
     # 室iの境界j
+    # メモ [12, 26, 12]
     bss = [
         [
             s3.get_boundary_simple(
@@ -85,19 +87,35 @@ def make_house(d, input_data_dir, output_data_dir):
         ] for r in rooms
     ]
 
+    # BoundarySimple をフラット化する。
+    bss2 = np.concatenate(bss)
+
+    # 集約化可能な境界には同じIDを振り、境界ごとにそのIDを取得する。
+    # BoundarySimple の数のIDを持つ ndarray
+    # 例
+    # [ 0  1  2  3  4  5  6  7  8  9  9 10 11 12 13 14 15 16 11 12 15 16 17 18
+    #  19 11 12 15 16 17 20 11 12 13 21 15 16 22 23 24 25 26 27 28 29 30 31 31
+    #  31 31]
+    gp_idxs = a34.get_group_indices(bss=bss2)
+
+    # 先頭のインデックスのリスト
+    # [ 0  1  2  3  4  5  6  7  8  9 11 12 13 14 15 16 17 22 23 24 30 34 37 38
+    #  39 40 41 42 43 44 45 46]
+    first_idx = np.array([np.where(gp_idxs == k)[0][0] for k in np.unique(gp_idxs)], dtype=np.int)
+
+    # 統合された境界j*の総数
+    bs_n = len(first_idx)
+
+    # 室iの統合された境界j*の名称, [j*]
+    bs_name = np.array(['integrated_boundary' + str(i) for i in np.unique(gp_idxs)])
+
     # 室iの統合された境界j*, IntegratedBoundaryクラス, [j*]
     # メモ　3つのIntegratedBoundariesクラスのリスト
     # IntegratedBoundaries クラスが複数のパラメータをもつ
     ibs = [s3.init_surface(bss=bs) for bs in bss]
 
-    # 統合された境界j*の数, [j*]
-    number_of_bdry_is = np.array([len(ib.name_i_jstrs) for ib in ibs])
-
     # 統合された境界j*の名前, [j*]
     name_bdry_jstrs = np.concatenate([ib.name_i_jstrs for ib in ibs])
-
-    # 統合された境界j*の総数
-    number_of_boundaries = len(name_bdry_jstrs)
 
     # 統合された境界j*の名前2, [j*]
     sub_name_bdry_jstrs = np.concatenate([ib.sub_name_i_jstrs for ib in ibs])
@@ -210,10 +228,6 @@ def make_house(d, input_data_dir, output_data_dir):
         {'id': 16, 'coef': 1.0},
     ]
 
-    idx_bdry_is = np.insert(np.cumsum(number_of_bdry_is), 0, 0)
-
-    split_indices = np.cumsum(number_of_bdry_is)[0:-1]
-
     # 室iの在室者に対する境界j*の形態係数
     f_mrt_hum_is = np.concatenate([
         x35.get_f_mrt_hum_is(
@@ -291,10 +305,6 @@ def make_house(d, input_data_dir, output_data_dir):
 
     Beta_is = np.full(len(rooms), Beta_i)
 
-    p = np.zeros((number_of_spaces, sum(number_of_bdry_is)))
-    for i in range(number_of_spaces):
-        p[i, idx_bdry_is[i]:idx_bdry_is[i + 1]] = 1.0
-
     spaces = []
 
     for i in range(number_of_spaces):
@@ -334,10 +344,10 @@ def make_house(d, input_data_dir, output_data_dir):
         })
 
     bdrs = []
-    for i in range(number_of_boundaries):
+    for i in range(bs_n):
         bdrs.append({
             'id': i,
-            'name': name_bdry_jstrs[i],
+            'name': bs_name[i],
             'sub_name': sub_name_bdry_jstrs[i],
             'is_ground': {True: 'true', False: 'false'}[is_ground_jstrs[i]],
             'connected_space_id': int(connected_room_ids[i]),
