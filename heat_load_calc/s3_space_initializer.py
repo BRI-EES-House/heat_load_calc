@@ -175,7 +175,7 @@ def make_house(d, input_data_dir, output_data_dir):
     ])
 
     # ステップnの室iにおける窓の透過日射熱取得, W, [8760*4]
-    q_trs_sol_is_ns2 = np.array([
+    q_trs_sol_is_ns = np.array([
         np.sum(np.array([bs.q_trs_sol for bs in bss2 if bs.connected_room_id == i]), axis=0)
         for i in range(number_of_spaces)
     ])
@@ -248,11 +248,6 @@ def make_house(d, input_data_dir, output_data_dir):
 
     # 統合された境界j*の項別公比法における項mの吸熱応答係数の第一項 , m2K/W, [j*, 12]
     phi_a1_bdry_jstrs_ms = np.concatenate([ib.RFA1s for ib in ibs])
-
-    # ステップnの室iにおける窓の透過日射熱取得, W, [8760*4]
-    q_trs_sol_is_ns = np.array([np.sum(ib.q_trs_i_jstrs_ns, axis=0) for ib in ibs])
-
-    q_trs_sol_is_ns = q_trs_sol_is_ns2
 
     # 室iの床面積, m2, [i]
     a_floor_is = np.array([
