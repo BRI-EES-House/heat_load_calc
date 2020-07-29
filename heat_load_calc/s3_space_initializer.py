@@ -180,16 +180,14 @@ def make_house(d, input_data_dir, output_data_dir):
         for i in range(number_of_spaces)
     ])
 
-
-
-
-
-
-
     # 室iの統合された境界j*の応答係数法（項別公比法）における根の数, [j*]
-#    n_root_i_jstrs = np.array([bss[first_idx[i]].n_root for i in np.unique(gp_idxs)])
+    # n_root_i_jstrs = np.array([bss[first_idx[i]].n_root for i in np.unique(gp_idxs)])
 
-#    Rows = np.array([bss[first_idx[i]].row for i in np.unique(gp_idxs)])
+    # 境界jの項別公比法における項mの公比, [j, 12]
+    rows_js = [list(bss2[first_idx[i]].row) for i in np.unique(gp_idxs)]
+
+
+
 
 #    RFT0s = np.array([
 #        get_area_weighted_averaged_values_one_dimension(
@@ -233,9 +231,6 @@ def make_house(d, input_data_dir, output_data_dir):
     # メモ　3つのIntegratedBoundariesクラスのリスト
     # IntegratedBoundaries クラスが複数のパラメータをもつ
     ibs = [s3.init_surface(bss=bs) for bs in bss]
-
-    # 統合された境界j*の項別公比法における項mの公比, [j*, 12]
-    r_bdry_jstrs_ms = np.concatenate([ib.Rows for ib in ibs])
 
     # 統合された境界j*の貫流応答係数の初項, [j*]
     phi_t0_bdry_jstrs = np.concatenate([ib.RFT0s for ib in ibs])
@@ -398,7 +393,7 @@ def make_house(d, input_data_dir, output_data_dir):
             'phi_a1': list(phi_a1_bdry_jstrs_ms[i]),
             'phi_t0': phi_t0_bdry_jstrs[i],
             'phi_t1': list(phi_t1_bdry_jstrs_ms[i]),
-            'r': list(r_bdry_jstrs_ms[i]),
+            'r': rows_js[i],
             'h_i': h_i_js[i],
             'flr': flr_jstrs[i],
             'is_solar_absorbed': str(is_solar_absorbed_inside_is_jstrs[i]),
