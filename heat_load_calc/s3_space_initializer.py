@@ -175,9 +175,6 @@ def make_house(d, input_data_dir, output_data_dir):
 
 
 
-    # 室iの統合された境界j*の室内側表面総合熱伝達率, W/m2K, [j*]
-#    h_i_i_jstrs = np.array([bss[first_idx[i]].h_i for i in np.unique(gp_idxs)])
-
     # 室iの統合された境界j*の傾斜面のステップnにおける相当外気温度, ℃, [j*, 8760*4]
 #    theta_o_sol_i_jstrs_ns = np.array([
 #        get_area_weighted_averaged_values_two_dimension(
@@ -250,10 +247,6 @@ def make_house(d, input_data_dir, output_data_dir):
     # メモ　3つのIntegratedBoundariesクラスのリスト
     # IntegratedBoundaries クラスが複数のパラメータをもつ
     ibs = [s3.init_surface(bss=bs) for bs in bss]
-
-    # 室iの統合された境界j*の室内側表面総合熱伝達率, W/m2K, [j*]
-    h_i_bnd_jstrs = np.concatenate([ib.h_i_i_jstrs for ib in ibs])
-    print(h_i_bnd_jstrs == h_i_js)
 
     # 統合された境界j*の項別公比法における項mの公比, [j*, 12]
     r_bdry_jstrs_ms = np.concatenate([ib.Rows for ib in ibs])
@@ -426,7 +419,7 @@ def make_house(d, input_data_dir, output_data_dir):
             'phi_t0': phi_t0_bdry_jstrs[i],
             'phi_t1': list(phi_t1_bdry_jstrs_ms[i]),
             'r': list(r_bdry_jstrs_ms[i]),
-            'h_i': h_i_bnd_jstrs[i],
+            'h_i': h_i_js[i],
             'flr': flr_jstrs[i],
             'is_solar_absorbed': str(is_solar_absorbed_inside_is_jstrs[i]),
             'f_mrt_hum': f_mrt_hum_is[i],
