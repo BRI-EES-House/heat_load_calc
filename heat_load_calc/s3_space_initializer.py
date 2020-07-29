@@ -125,7 +125,7 @@ def make_house(d, input_data_dir, output_data_dir):
     a_js = [sum([bs.area for bs in bss2[gp_idxs == i]]) for i in np.unique(gp_idxs)]
 
     # 境界jの温度差係数, [j]
-    h_i_js = [bss2[first_idx[i]].h_td for i in np.unique(gp_idxs)]
+    h_td_js = [bss2[first_idx[i]].h_td for i in np.unique(gp_idxs)]
 
     # 境界jの裏面の境界ID, [j]
     rear_surface_boundary_id_js = []
@@ -136,7 +136,7 @@ def make_house(d, input_data_dir, output_data_dir):
         id2 = None if id is None else gp_idxs[id]
         rear_surface_boundary_id_js.append(id2)
 
-    k_ei_js2 = []
+    k_ei_js = []
 
     for i in range(bs_n):
 
@@ -145,28 +145,35 @@ def make_house(d, input_data_dir, output_data_dir):
             BoundaryType.ExternalTransparentPart,
             BoundaryType.ExternalGeneralPart
         ]:
-            if h_i_js[i] < 1.0:
-                k_ei_js2.append({'id': i, 'coef': round(1.0 - h_i_js[i], 1)})
+            # 温度差係数が1.0でない場合はk_ei_jsに値を代入する。
+            # id は自分自身の境界IDとし、自分自身の表面の影響は1.0から温度差係数を減じた値になる。
+            if h_td_js[i] < 1.0:
+                k_ei_js.append({'id': i, 'coef': round(1.0 - h_td_js[i], 1)})
             else:
-                k_ei_js2.append(None)
+                # 温度差係数が1.0の場合はNoneとする。
+                k_ei_js.append(None)
         elif boundary_type_js[i] == BoundaryType.Internal:
-            k_ei_js2.append({'id': int(rear_surface_boundary_id_js[i]), 'coef': 1.0})
+            # 室内壁の場合にk_ei_jsを登録する。
+            k_ei_js.append({'id': int(rear_surface_boundary_id_js[i]), 'coef': 1.0})
         else:
-            k_ei_js2.append(None)
-
-
-
-
-
-
-
-
-
-
-
+            # 外皮に面していない場合、室内壁ではない場合（地盤の場合が該当）は、Noneとする。
+            k_ei_js.append(None)
 
     # 室iの統合された境界j*の室内侵入日射吸収の有無, [j*]
-#    is_solar_absorbed_inside_i_jstrs = np.array([bss[first_idx[i]].is_solar_absorbed_inside for i in np.unique(gp_idxs)])
+    # is_solar_absorbed_inside_i_jstrs = np.array([bss[first_idx[i]].is_solar_absorbed_inside for i in np.unique(gp_idxs)])
+
+    # 境界jの室内側表面総合熱伝達率, W/m2K, [j]
+    h_i_js = [bss2[first_idx[i]].h_i for i in np.unique(gp_idxs)]
+
+
+
+
+
+
+
+
+
+
 
     # 室iの統合された境界j*の室内側表面総合熱伝達率, W/m2K, [j*]
 #    h_i_i_jstrs = np.array([bss[first_idx[i]].h_i for i in np.unique(gp_idxs)])
@@ -244,6 +251,10 @@ def make_house(d, input_data_dir, output_data_dir):
     # IntegratedBoundaries クラスが複数のパラメータをもつ
     ibs = [s3.init_surface(bss=bs) for bs in bss]
 
+    # 室iの統合された境界j*の室内側表面総合熱伝達率, W/m2K, [j*]
+    h_i_bnd_jstrs = np.concatenate([ib.h_i_i_jstrs for ib in ibs])
+    print(h_i_bnd_jstrs == h_i_js)
+
     # 統合された境界j*の項別公比法における項mの公比, [j*, 12]
     r_bdry_jstrs_ms = np.concatenate([ib.Rows for ib in ibs])
 
@@ -287,58 +298,6 @@ def make_house(d, input_data_dir, output_data_dir):
             a_floor_is=a_floor_is
         )
     ac_demand_is_ns = np.where(ac_demand_is_ns == 1, True, False)
-
-    # TODO: この係数は本来であれば入力ファイルに書かれないといけない。
-    # 裏面がどの境界の表面に属するのかを表す
-    k_ei_id_js_js = [
-        None, None, None, None, None, None, 6, None, 30, 17,
-        22, None, None, None, None, None, 31, 9, None, None,
-        None, 21, 10, None, None, None, None, None, 28, None,
-        8, 16
-    ]
-    #　ある境界表面が境界の裏面に与える影響
-    k_ei_coef_js_js = [
-        None, None, None, None, None, None, 0.3, None, 1.0, 1.0,
-        1.0, None, None, None, None, None, 1.0, 1.0, None, None,
-        None, 0.3, 1.0, None, None, None, None, None, 0.3, None,
-        1.0, 1.0
-    ]
-    k_ei_js = [
-        None,
-        None,
-        None,
-        None,
-        None,
-        None,
-        {'id': 6, 'coef': 0.3},
-        None,
-        {'id': 30, 'coef': 1.0},
-        {'id': 17, 'coef': 1.0},
-        {'id': 22, 'coef': 1.0},
-        None,
-        None,
-        None,
-        None,
-        None,
-        {'id': 31, 'coef': 1.0},
-        {'id': 9, 'coef': 1.0},
-        None,
-        None,
-        None,
-        {'id': 21, 'coef': 0.3},
-        {'id': 10, 'coef': 1.0},
-        None,
-        None,
-        None,
-        None,
-        None,
-        {'id': 28, 'coef': 0.3},
-        None,
-        {'id': 8, 'coef': 1.0},
-        {'id': 16, 'coef': 1.0},
-    ]
-
-    k_ei_js = k_ei_js2
 
     # 室iの在室者に対する境界j*の形態係数
     f_mrt_hum_is = np.concatenate([
@@ -407,9 +366,6 @@ def make_house(d, input_data_dir, output_data_dir):
             is_radiative_heating=is_radiative_heating_is[i],
             is_solar_absorbed_inside=ib.is_solar_absorbed_inside_i_jstrs
         ) for i, ib in enumerate(ibs)])
-
-    # 室iの統合された境界j*の室内側表面総合熱伝達率, W/m2K, [j*]
-    h_i_bnd_jstrs = np.concatenate([ib.h_i_i_jstrs for ib in ibs])
 
     is_solar_absorbed_inside_is_jstrs = np.concatenate([ib.is_solar_absorbed_inside_i_jstrs for ib in ibs])
 
