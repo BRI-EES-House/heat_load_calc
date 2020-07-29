@@ -165,6 +165,14 @@ def make_house(d, input_data_dir, output_data_dir):
     # 境界jの室内側表面総合熱伝達率, W/m2K, [j]
     h_i_js = [bss2[first_idx[i]].h_i for i in np.unique(gp_idxs)]
 
+    # 境界jの傾斜面のステップnにおける相当外気温度, degree C, [j, 8760 * 4]
+    theta_o_sol_js_ns = np.array([
+        s3.get_area_weighted_averaged_values_two_dimension(
+            v=np.array([bs.theta_o_sol for bs in bss2[gp_idxs == i]]),
+            a=np.array([bs.area for bs in bss2[gp_idxs == i]])
+        )
+        for i in np.unique(gp_idxs)
+    ])
 
 
 
@@ -174,14 +182,6 @@ def make_house(d, input_data_dir, output_data_dir):
 
 
 
-
-    # 室iの統合された境界j*の傾斜面のステップnにおける相当外気温度, ℃, [j*, 8760*4]
-#    theta_o_sol_i_jstrs_ns = np.array([
-#        get_area_weighted_averaged_values_two_dimension(
-#            v=np.array([bs.theta_o_sol for bs in bss[gp_idxs == i]]),
-#            a=np.array([bs.area for bs in bss[gp_idxs == i]])
-#        )
-#        for i in np.unique(gp_idxs)])
 
 #    q_trs_sol_i_jstrs_ns = np.array([
 #        np.sum([bs.q_trs_sol for bs in bss[gp_idxs == i]], axis=0)
@@ -231,18 +231,6 @@ def make_house(d, input_data_dir, output_data_dir):
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
     # 室iの統合された境界j*, IntegratedBoundaryクラス, [j*]
     # メモ　3つのIntegratedBoundariesクラスのリスト
     # IntegratedBoundaries クラスが複数のパラメータをもつ
@@ -276,7 +264,6 @@ def make_house(d, input_data_dir, output_data_dir):
 
     # 居住人数
     n_p = residents_number.get_total_number_of_residents(a_floor_total=a_floor_total)
-#    n_p = 4.0
 
     # 以下のスケジュールの取得, [i, 365*96]
     #   ステップnの室iにおける人体発熱を除く内部発熱, W, [i, 8760*4]
@@ -298,8 +285,6 @@ def make_house(d, input_data_dir, output_data_dir):
             a_bdry_i_jstrs=ib.a_i_jstrs,
             is_solar_absorbed_inside_bdry_i_jstrs=ib.is_solar_absorbed_inside_i_jstrs
         ) for ib in ibs])
-
-    theta_o_sol_js_ns = np.concatenate([ib.theta_o_sol_i_jstrs_ns for ib in ibs])
 
     h_def_js = np.concatenate([ib.h_i_jstrs for ib in ibs])
 
