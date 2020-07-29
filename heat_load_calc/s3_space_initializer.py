@@ -204,16 +204,15 @@ def make_house(d, input_data_dir, output_data_dir):
         for i in np.unique(gp_idxs)
     ])
 
+    # 境界jの項別公比法における項mの貫流応答係数の第一項, [j, 12]
+    phi_t1_js = [
+        list(s3.get_area_weighted_averaged_values_two_dimension(
+            v=np.array([bs.rft1 for bs in bss2[gp_idxs == i]]),
+            a=np.array([bs.area for bs in bss2[gp_idxs == i]])
+        ))
+        for i in np.unique(gp_idxs)
+    ]
 
-
-
-#    RFT1s = np.array([
-#        get_area_weighted_averaged_values_two_dimension(
-#            v=np.array([bs.rft1 for bs in bss[gp_idxs == i]]),
-#            a=np.array([bs.area for bs in bss[gp_idxs == i]])
-#        )
-#        for i in np.unique(gp_idxs)
-#    ])
 
 #    RFA1s = np.array([
 #        get_area_weighted_averaged_values_two_dimension(
@@ -233,9 +232,6 @@ def make_house(d, input_data_dir, output_data_dir):
     # メモ　3つのIntegratedBoundariesクラスのリスト
     # IntegratedBoundaries クラスが複数のパラメータをもつ
     ibs = [s3.init_surface(bss=bs) for bs in bss]
-
-    # 統合された境界j*の項別公比法における項mの貫流応答係数の第一項, [j*,12]
-    phi_t1_bdry_jstrs_ms = np.concatenate([ib.RFT1s for ib in ibs])
 
     # 統合された境界j*の項別公比法における項mの吸熱応答係数の第一項 , m2K/W, [j*, 12]
     phi_a1_bdry_jstrs_ms = np.concatenate([ib.RFA1s for ib in ibs])
@@ -388,7 +384,7 @@ def make_house(d, input_data_dir, output_data_dir):
             'phi_a0': phi_a0_js[i],
             'phi_a1': list(phi_a1_bdry_jstrs_ms[i]),
             'phi_t0': phi_t0_js[i],
-            'phi_t1': list(phi_t1_bdry_jstrs_ms[i]),
+            'phi_t1': phi_t1_js[i],
             'r': rows_js[i],
             'h_i': h_i_js[i],
             'flr': flr_jstrs[i],
