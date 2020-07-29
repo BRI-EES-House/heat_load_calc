@@ -273,6 +273,8 @@ def run_tick(n: int, ss: PreCalcParameters, c_n: Conditions, logger: Logger):
     logger.qiall_s[:, n] = [q for q in q_srf_js_n]
     logger.h_c_s[:, n] = [h for h in ss.h_c_js]
     logger.h_r_s[:, n] = [h for h in ss.h_r_js]
+    logger.v_reak_is_ns[:, n] = [v for v in v_reak_is_n]
+    logger.v_ntrl_is_ns[:, n] = [v for v in v_ntrl_vent_is]
 
     return Conditions(
         operation_mode_is_n=operation_mode_is_n,
