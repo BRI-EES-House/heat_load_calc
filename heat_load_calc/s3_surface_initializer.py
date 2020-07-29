@@ -44,7 +44,7 @@ def get_boundary_simple(theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, a_sun_ns, h_sun_n
     sub_name = ''
 
     # 接する室のID
-    connected_room_id = b['connected_room_id']
+    connected_room_id = int(b['connected_room_id'])
 
     # 境界の種類
     # 'internal': 間仕切り

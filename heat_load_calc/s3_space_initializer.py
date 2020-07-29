@@ -106,33 +106,143 @@ def make_house(d, input_data_dir, output_data_dir):
     # 統合された境界j*の総数
     bs_n = len(first_idx)
 
-    # 室iの統合された境界j*の名称, [j*]
-    bs_name = np.array(['integrated_boundary' + str(i) for i in np.unique(gp_idxs)])
+    # 境界jの名称, [j]
+    name_js = ['integrated_boundary' + str(i) for i in np.unique(gp_idxs)]
+
+    # 境界jの副名称（統合する前の境界の名前を'+'記号でつなげたもの）, [j]
+    sub_name_js = ['+'.join([bs.name for bs in bss2[gp_idxs == i]]) for i in np.unique(gp_idxs)]
+
+    # 境界jの面する室のID, [j]
+    connected_room_id_js = [bss2[first_idx[i]].connected_room_id for i in np.unique(gp_idxs)]
+
+    # 境界jの種類, [j]
+    boundary_type_js = [bss2[first_idx[i]].boundary_type for i in np.unique(gp_idxs)]
+
+    # 境界ｊが地盤か否か, [j]
+    is_ground_js = [b == BoundaryType.Ground for b in boundary_type_js]
+
+    # 境界jの面積, m2, [j]
+    a_js = [sum([bs.area for bs in bss2[gp_idxs == i]]) for i in np.unique(gp_idxs)]
+
+    # 境界jの温度差係数, [j]
+    h_i_js = [bss2[first_idx[i]].h_td for i in np.unique(gp_idxs)]
+
+    # 境界jの裏面の境界ID, [j]
+    rear_surface_boundary_id_js = []
+    for i in np.unique(gp_idxs):
+        # 統合する前の裏面の境界id
+        id = bss2[first_idx[i]].rear_surface_boundary_id
+        # 統合後の裏面の境界id (None の場合は None を代入する。）
+        id2 = None if id is None else gp_idxs[id]
+        rear_surface_boundary_id_js.append(id2)
+
+    k_ei_js2 = []
+
+    for i in range(bs_n):
+
+        if boundary_type_js[i] in [
+            BoundaryType.ExternalOpaquePart,
+            BoundaryType.ExternalTransparentPart,
+            BoundaryType.ExternalGeneralPart
+        ]:
+            if h_i_js[i] < 1.0:
+                k_ei_js2.append({'id': i, 'coef': round(1.0 - h_i_js[i], 1)})
+            else:
+                k_ei_js2.append(None)
+        elif boundary_type_js[i] == BoundaryType.Internal:
+            k_ei_js2.append({'id': int(rear_surface_boundary_id_js[i]), 'coef': 1.0})
+        else:
+            k_ei_js2.append(None)
+
+
+
+
+
+
+
+
+
+
+
+
+    # 室iの統合された境界j*の室内侵入日射吸収の有無, [j*]
+#    is_solar_absorbed_inside_i_jstrs = np.array([bss[first_idx[i]].is_solar_absorbed_inside for i in np.unique(gp_idxs)])
+
+    # 室iの統合された境界j*の室内側表面総合熱伝達率, W/m2K, [j*]
+#    h_i_i_jstrs = np.array([bss[first_idx[i]].h_i for i in np.unique(gp_idxs)])
+
+    # 室iの統合された境界j*の傾斜面のステップnにおける相当外気温度, ℃, [j*, 8760*4]
+#    theta_o_sol_i_jstrs_ns = np.array([
+#        get_area_weighted_averaged_values_two_dimension(
+#            v=np.array([bs.theta_o_sol for bs in bss[gp_idxs == i]]),
+#            a=np.array([bs.area for bs in bss[gp_idxs == i]])
+#        )
+#        for i in np.unique(gp_idxs)])
+
+#    q_trs_sol_i_jstrs_ns = np.array([
+#        np.sum([bs.q_trs_sol for bs in bss[gp_idxs == i]], axis=0)
+#        for i in np.unique(gp_idxs)
+#    ])
+
+    # 室iの統合された境界j*の応答係数法（項別公比法）における根の数, [j*]
+#    n_root_i_jstrs = np.array([bss[first_idx[i]].n_root for i in np.unique(gp_idxs)])
+
+#    Rows = np.array([bss[first_idx[i]].row for i in np.unique(gp_idxs)])
+
+#    RFT0s = np.array([
+#        get_area_weighted_averaged_values_one_dimension(
+#            v=np.array([bs.rft0 for bs in bss[gp_idxs == i]]),
+#            a=np.array([bs.area for bs in bss[gp_idxs == i]])
+#        )
+#        for i in np.unique(gp_idxs)
+#    ])
+
+#    RFA0s = np.array([
+#        get_area_weighted_averaged_values_one_dimension(
+#            v=np.array([bs.rfa0 for bs in bss[gp_idxs == i]]),
+#            a=np.array([bs.area for bs in bss[gp_idxs == i]])
+#        )
+#        for i in np.unique(gp_idxs)
+#    ])
+
+#    RFT1s = np.array([
+#        get_area_weighted_averaged_values_two_dimension(
+#            v=np.array([bs.rft1 for bs in bss[gp_idxs == i]]),
+#            a=np.array([bs.area for bs in bss[gp_idxs == i]])
+#        )
+#        for i in np.unique(gp_idxs)
+#    ])
+
+#    RFA1s = np.array([
+#        get_area_weighted_averaged_values_two_dimension(
+#            v=np.array([bs.rfa1 for bs in bss[gp_idxs == i]]),
+#            a=np.array([bs.area for bs in bss[gp_idxs == i]])
+#        )
+#        for i in np.unique(gp_idxs)
+#    ])
+
+#    NsurfG_i = len(np.unique(gp_idxs))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     # 室iの統合された境界j*, IntegratedBoundaryクラス, [j*]
     # メモ　3つのIntegratedBoundariesクラスのリスト
     # IntegratedBoundaries クラスが複数のパラメータをもつ
     ibs = [s3.init_surface(bss=bs) for bs in bss]
-
-    # 統合された境界j*の名前, [j*]
-    name_bdry_jstrs = np.concatenate([ib.name_i_jstrs for ib in ibs])
-
-    # 統合された境界j*の名前2, [j*]
-    sub_name_bdry_jstrs = np.concatenate([ib.sub_name_i_jstrs for ib in ibs])
-
-    # 統合された境界j*が接する室のID, [j*]
-    connected_room_ids = np.concatenate([ib.connected_room_id for ib in ibs])
-
-    # 統合された境界j*の種類, [j*]
-    type_bdry_jstrs = np.concatenate([ib.boundary_type_i_jstrs for ib in ibs])
-
-    is_ground_jstrs = type_bdry_jstrs == BoundaryType.Ground
-
-    # 統合された境界j*の面積, m2, [j*]
-    a_bdry_jstrs = np.concatenate([ib.a_i_jstrs for ib in ibs])
-
-    # 室iの統合された境界j*の温度差係数, [j*]
-    h_bdry_jstrs = np.concatenate([ib.h_i_jstrs for ib in ibs])
 
     # 統合された境界j*の項別公比法における項mの公比, [j*, 12]
     r_bdry_jstrs_ms = np.concatenate([ib.Rows for ib in ibs])
@@ -227,6 +337,8 @@ def make_house(d, input_data_dir, output_data_dir):
         {'id': 8, 'coef': 1.0},
         {'id': 16, 'coef': 1.0},
     ]
+
+    k_ei_js = k_ei_js2
 
     # 室iの在室者に対する境界j*の形態係数
     f_mrt_hum_is = np.concatenate([
@@ -345,13 +457,14 @@ def make_house(d, input_data_dir, output_data_dir):
 
     bdrs = []
     for i in range(bs_n):
+
         bdrs.append({
             'id': i,
-            'name': bs_name[i],
-            'sub_name': sub_name_bdry_jstrs[i],
-            'is_ground': {True: 'true', False: 'false'}[is_ground_jstrs[i]],
-            'connected_space_id': int(connected_room_ids[i]),
-            'area': a_bdry_jstrs[i],
+            'name': name_js[i],
+            'sub_name': sub_name_js[i],
+            'is_ground': {True: 'true', False: 'false'}[is_ground_js[i]],
+            'connected_space_id': connected_room_id_js[i],
+            'area': a_js[i],
             'phi_a0': phi_a0_bdry_jstrs[i],
             'phi_a1': list(phi_a1_bdry_jstrs_ms[i]),
             'phi_t0': phi_t0_bdry_jstrs[i],
