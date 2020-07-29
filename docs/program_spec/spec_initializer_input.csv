@@ -115,6 +115,7 @@ s, sw, w, nw, n, ne, e, se, top, bottom"
 2:その他の居室
 3:非居室
 4:床下空間",str,－,住,非住宅の場合は、常に間仕切りの向こう側は等温制御にするため指定不要
+,,○,,,裏面境界ID,rear_surface_boundary_id ,[境界の種類]=[間仕切り],,,int,,,
 ,,○,,,室内侵入日射吸収の有無,is_solar_absorbed_inside,△,"1:True
 2:False","1:吸収する
 2:吸収しない",boolean,－,,必ず室1つにつき1箇所は指定すること。

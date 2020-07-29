@@ -35,6 +35,10 @@ class BoundarySimple:
     #   'underfloor': 3
     next_room_type: int
 
+    # 裏側表面の境界ID
+    # internal_wall の場合のみ定義される。
+    rear_surface_boundary_id: int
+
     # 室内侵入日射吸収の有無
     is_solar_absorbed_inside: bool
 

@@ -83,6 +83,11 @@ def get_boundary_simple(theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, a_sun_ns, h_sun_n
         'underfloor': 3
     }[b['next_room_type']] if b['boundary_type'] == 'internal' else -1
 
+    if b['boundary_type'] == 'internal':
+        rear_surface_boundary_id = int(b['rear_surface_boundary_id'])
+    else:
+        rear_surface_boundary_id = None
+
     # 室内侵入日射吸収の有無
     # True: 吸収する
     # False: 吸収しない
@@ -144,6 +149,7 @@ def get_boundary_simple(theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, a_sun_ns, h_sun_n
         area=area,
         h_td=h_td,
         next_room_type=next_room_type,
+        rear_surface_boundary_id=rear_surface_boundary_id,
         is_solar_absorbed_inside=is_solar_absorbed_inside,
         is_sun_striked_outside=is_sun_striked_outside,
         direction=direction,
@@ -192,6 +198,9 @@ def init_surface(bss: List[BoundarySimple]) -> IntegratedBoundaries:
 
     # 室iの統合された境界j*の隣室タイプ, [j*]
     next_room_type_i_jstrs = np.array([bss[first_idx[i]].next_room_type for i in np.unique(gp_idxs)])
+
+    # 裏面の境界ID
+    rear_surface_boundary_id = np.array([bss[first_idx[i]].rear_surface_boundary_id for i in np.unique(gp_idxs)])
 
     # 室iの統合された境界j*の室内侵入日射吸収の有無, [j*]
     is_solar_absorbed_inside_i_jstrs = np.array([bss[first_idx[i]].is_solar_absorbed_inside for i in np.unique(gp_idxs)])
