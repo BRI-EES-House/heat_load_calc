@@ -195,25 +195,17 @@ def make_house(d, input_data_dir, output_data_dir):
         for i in np.unique(gp_idxs)
     ])
 
-    # 統合された境界j*の貫流応答係数の初項, [j*]
-#    phi_t0_bdry_jstrs = np.concatenate([ib.RFT0s for ib in ibs])
+    # 境界jの吸熱応答係数の初項, m2K/W, [j]
+    phi_a0_js = np.array([
+        s3.get_area_weighted_averaged_values_one_dimension(
+            v=np.array([bs.rfa0 for bs in bss2[gp_idxs == i]]),
+            a=np.array([bs.area for bs in bss2[gp_idxs == i]])
+        )
+        for i in np.unique(gp_idxs)
+    ])
 
 
-#    RFT0s = np.array([
-#        get_area_weighted_averaged_values_one_dimension(
-#            v=np.array([bs.rft0 for bs in bss[gp_idxs == i]]),
-#            a=np.array([bs.area for bs in bss[gp_idxs == i]])
-#        )
-#        for i in np.unique(gp_idxs)
-#    ])
 
-#    RFA0s = np.array([
-#        get_area_weighted_averaged_values_one_dimension(
-#            v=np.array([bs.rfa0 for bs in bss[gp_idxs == i]]),
-#            a=np.array([bs.area for bs in bss[gp_idxs == i]])
-#        )
-#        for i in np.unique(gp_idxs)
-#    ])
 
 #    RFT1s = np.array([
 #        get_area_weighted_averaged_values_two_dimension(
@@ -241,15 +233,6 @@ def make_house(d, input_data_dir, output_data_dir):
     # メモ　3つのIntegratedBoundariesクラスのリスト
     # IntegratedBoundaries クラスが複数のパラメータをもつ
     ibs = [s3.init_surface(bss=bs) for bs in bss]
-
-    # 統合された境界j*の貫流応答係数の初項, [j*]
-    phi_t0_bdry_jstrs = np.concatenate([ib.RFT0s for ib in ibs])
-
-    phi_t0_bdry_jstrs = phi_t0_js
-
-
-    # 統合された境界j*の吸熱応答係数の初項, m2K/W, [j*]
-    phi_a0_bdry_jstrs = np.concatenate([ib.RFA0s for ib in ibs])
 
     # 統合された境界j*の項別公比法における項mの貫流応答係数の第一項, [j*,12]
     phi_t1_bdry_jstrs_ms = np.concatenate([ib.RFT1s for ib in ibs])
@@ -402,7 +385,7 @@ def make_house(d, input_data_dir, output_data_dir):
             'is_ground': {True: 'true', False: 'false'}[is_ground_js[i]],
             'connected_space_id': connected_room_id_js[i],
             'area': a_js[i],
-            'phi_a0': phi_a0_bdry_jstrs[i],
+            'phi_a0': phi_a0_js[i],
             'phi_a1': list(phi_a1_bdry_jstrs_ms[i]),
             'phi_t0': phi_t0_js[i],
             'phi_t1': list(phi_t1_bdry_jstrs_ms[i]),
