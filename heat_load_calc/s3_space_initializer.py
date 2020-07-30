@@ -226,6 +226,7 @@ def make_house(d, input_data_dir, output_data_dir):
     ]
 
     # 室iの床面積, m2, [i]
+    # TODO: is_solar_absorbed_inside_js を使用すべき。
     a_floor_is = np.array([
         np.sum(np.array([bs.area for bs in bss2 if bs.connected_room_id == i and bs.is_solar_absorbed_inside]))
         for i in range(number_of_spaces)
@@ -316,13 +317,14 @@ def make_house(d, input_data_dir, output_data_dir):
     heat_exchanger_type_is = [a22.read_heat_exchanger_type(room) for room in rooms]
 
     # 放射暖房の発熱部位の設定（とりあえず床発熱） 表7
+    # TODO: 発熱部位を指定して、面積按分するように変更すべき。
     flr_jstrs = np.concatenate([
         a12.get_flr(
-            A_i_g=ib.a_i_jstrs,
+            A_i_g=np.array([a_j for a_j, connected_room_id_j in zip(a_js, connected_room_id_js) if connected_room_id_j == i]),
             A_fs_i=a_floor_is[i],
             is_radiative_heating=is_radiative_heating_is[i],
-            is_solar_absorbed_inside=ib.is_solar_absorbed_inside_i_jstrs
-        ) for i, ib in enumerate(ibs)])
+            is_solar_absorbed_inside=np.array([is_solar_absorbed_inside_j for is_solar_absorbed_inside_j, connected_room_id_j in zip(is_solar_absorbed_inside_js, connected_room_id_js) if connected_room_id_j == i])
+        ) for i in range(number_of_spaces)])
 
     Beta_i = 0.0  # 放射暖房対流比率
 
