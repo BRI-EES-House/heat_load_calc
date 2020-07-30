@@ -127,6 +127,9 @@ def make_house(d, input_data_dir, output_data_dir):
     # 境界jの温度差係数, [j]
     h_td_js = [bss2[first_idx[i]].h_td for i in np.unique(gp_idxs)]
 
+    # 日射吸収の有無, [j]
+    is_solar_absorbed_inside_js = [bss2[first_idx[i]].is_solar_absorbed_inside for i in np.unique(gp_idxs)]
+
     # 境界jの裏面の境界ID, [j]
     rear_surface_boundary_id_js = []
     for i in np.unique(gp_idxs):
@@ -222,21 +225,11 @@ def make_house(d, input_data_dir, output_data_dir):
         for i in np.unique(gp_idxs)
     ]
 
-#    NsurfG_i = len(np.unique(gp_idxs))
-
-
-
-
-
-    # 室iの統合された境界j*, IntegratedBoundaryクラス, [j*]
-    # メモ　3つのIntegratedBoundariesクラスのリスト
-    # IntegratedBoundaries クラスが複数のパラメータをもつ
-    ibs = [s3.init_surface(bss=bs) for bs in bss]
-
     # 室iの床面積, m2, [i]
     a_floor_is = np.array([
-        np.sum(ib.a_i_jstrs[ib.is_solar_absorbed_inside_i_jstrs])
-        for ib in ibs])
+        np.sum(np.array([bs.area for bs in bss2 if bs.connected_room_id == i and bs.is_solar_absorbed_inside]))
+        for i in range(number_of_spaces)
+    ])
 
     # 床面積の合計, m2
     a_floor_total = float(np.sum(a_floor_is))
@@ -258,14 +251,21 @@ def make_house(d, input_data_dir, output_data_dir):
         )
     ac_demand_is_ns = np.where(ac_demand_is_ns == 1, True, False)
 
+
+
+
+
+    # 室iの統合された境界j*, IntegratedBoundaryクラス, [j*]
+    # メモ　3つのIntegratedBoundariesクラスのリスト
+    # IntegratedBoundaries クラスが複数のパラメータをもつ
+    ibs = [s3.init_surface(bss=bs) for bs in bss]
+
     # 室iの在室者に対する境界j*の形態係数
     f_mrt_hum_is = np.concatenate([
         x35.get_f_mrt_hum_is(
             a_bdry_i_jstrs=ib.a_i_jstrs,
             is_solar_absorbed_inside_bdry_i_jstrs=ib.is_solar_absorbed_inside_i_jstrs
         ) for ib in ibs])
-
-    h_def_js = np.concatenate([ib.h_i_jstrs for ib in ibs])
 
     qrtd_c_is = np.array([a15.get_qrtd_c(a_floor_i) for a_floor_i in a_floor_is])
     qmax_c_is = np.array([a15.get_qmax_c(qrtd_c_i) for qrtd_c_i in qrtd_c_is])
@@ -323,8 +323,6 @@ def make_house(d, input_data_dir, output_data_dir):
             is_radiative_heating=is_radiative_heating_is[i],
             is_solar_absorbed_inside=ib.is_solar_absorbed_inside_i_jstrs
         ) for i, ib in enumerate(ibs)])
-
-    is_solar_absorbed_inside_is_jstrs = np.concatenate([ib.is_solar_absorbed_inside_i_jstrs for ib in ibs])
 
     Beta_i = 0.0  # 放射暖房対流比率
 
@@ -385,9 +383,9 @@ def make_house(d, input_data_dir, output_data_dir):
             'r': rows_js[i],
             'h_i': h_i_js[i],
             'flr': flr_jstrs[i],
-            'is_solar_absorbed': str(is_solar_absorbed_inside_is_jstrs[i]),
+            'is_solar_absorbed': str(is_solar_absorbed_inside_js[i]),
             'f_mrt_hum': f_mrt_hum_is[i],
-            'k_outside': h_def_js[i],
+            'k_outside': h_td_js[i],
             'k_inside': k_ei_js[i]
         })
 
