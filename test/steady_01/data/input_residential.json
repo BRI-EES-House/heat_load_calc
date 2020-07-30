@@ -1,0 +1,184 @@
+{
+	"common": {
+		"region": 6,
+		"is_residential": true
+	},
+
+	"rooms": [
+		{
+			"name": "main_occupant_room",
+			"room_type": 1,
+			"volume": 1.0,
+			"vent": 0.0,
+			"cooling_equipment": {
+				"is_radiative_cooling": false,
+				"convective_cooling": {
+					"max_capacity": 0.0,
+					"heat_exchanger_type": "normal"
+				}
+			},
+			"heating_equipment": {
+				"is_radiative_heating": false,
+				"convective_heating": {
+					"max_capacity": 0.0,
+					"heat_exchanger_type": "normal"
+				}
+			},
+			"next_vent": [
+			],
+			"c_value": 0.0,
+			"natural_vent_time": 0.0,
+			"boundaries": [
+				{
+					"name": "north_exterior_wall",
+					"boundary_type": "external_general_part",
+					"area": 1.0,
+					"is_sun_striked_outside": true,
+					"temp_dif_coef": 1.0,
+					"direction": "n",
+					"is_solar_absorbed_inside": false,
+					"general_part_spec": {
+						"outside_emissivity": 0.9,
+						"outside_solar_absorption": 0.8,
+						"inside_heat_transfer_resistance": 0.11,
+						"outside_heat_transfer_resistance": 0.04,
+						"layers": [
+							{
+								"name": "plywood",
+								"thermal_resistance": 0.075,
+								"thermal_capacity": 8.64
+							}
+						]
+					},
+					"solar_shading_part": {
+						"existance": false
+					}
+				},
+				{
+					"name": "east_exterior_wall",
+					"boundary_type": "external_general_part",
+					"area": 1.0,
+					"is_sun_striked_outside": true,
+					"temp_dif_coef": 1.0,
+					"direction": "e",
+					"is_solar_absorbed_inside": false,
+					"general_part_spec": {
+						"outside_emissivity": 0.9,
+						"outside_solar_absorption": 0.8,
+						"inside_heat_transfer_resistance": 0.11,
+						"outside_heat_transfer_resistance": 0.04,
+						"layers": [
+							{
+								"name": "plywood",
+								"thermal_resistance": 0.075,
+								"thermal_capacity": 8.64
+							}
+						]
+					},
+					"solar_shading_part": {
+						"existance": false
+					}
+				},
+				{
+					"name": "south_exterior_wall",
+					"boundary_type": "external_general_part",
+					"area": 1.0,
+					"is_sun_striked_outside": true,
+					"temp_dif_coef": 1.0,
+					"direction": "s",
+					"is_solar_absorbed_inside": false,
+					"general_part_spec": {
+						"outside_emissivity": 0.9,
+						"outside_solar_absorption": 0.8,
+						"inside_heat_transfer_resistance": 0.11,
+						"outside_heat_transfer_resistance": 0.04,
+						"layers": [
+							{
+								"name": "plywood",
+								"thermal_resistance": 0.075,
+								"thermal_capacity": 8.64
+							}
+						]
+					},
+					"solar_shading_part": {
+						"existance": false
+					}
+				},
+				{
+					"name": "west_exterior_wall",
+					"boundary_type": "external_general_part",
+					"area": 1.0,
+					"is_sun_striked_outside": true,
+					"temp_dif_coef": 1.0,
+					"direction": "w",
+					"is_solar_absorbed_inside": false,
+					"general_part_spec": {
+						"outside_emissivity": 0.9,
+						"outside_solar_absorption": 0.8,
+						"inside_heat_transfer_resistance": 0.11,
+						"outside_heat_transfer_resistance": 0.04,
+						"layers": [
+							{
+								"name": "plywood",
+								"thermal_resistance": 0.075,
+								"thermal_capacity": 8.64
+							}
+						]
+					},
+					"solar_shading_part": {
+						"existance": false
+					}
+				},
+				{
+					"name": "exterior_floor",
+					"boundary_type": "external_general_part",
+					"area": 1.0,
+					"is_sun_striked_outside": false,
+					"temp_dif_coef": 1.0,
+					"is_solar_absorbed_inside": true,
+					"general_part_spec": {
+						"outside_emissivity": 0.9,
+						"inside_heat_transfer_resistance": 0.11,
+						"outside_heat_transfer_resistance": 0.04,
+						"outside_solar_absorption": 0.8,
+						"layers": [
+							{
+								"name": "plywood",
+								"thermal_resistance": 0.075,
+								"thermal_capacity": 8.64
+							}
+						]
+					},
+					"solar_shading_part": {
+						"existance": false
+					}
+				},
+				{
+					"name": "exterior_ceiling",
+					"boundary_type": "external_general_part",
+					"area": 1.0,
+					"is_sun_striked_outside": true,
+					"temp_dif_coef": 1.0,
+					"direction": "top",
+					"is_solar_absorbed_inside": false,
+					"general_part_spec": {
+						"outside_emissivity": 0.9,
+						"outside_solar_absorption": 0.8,
+						"inside_heat_transfer_resistance": 0.11,
+						"outside_heat_transfer_resistance": 0.04,
+						"layers": [
+							{
+								"name": "plywood",
+								"thermal_resistance": 0.075,
+								"thermal_capacity": 8.64
+							}
+						]
+					},
+					"solar_shading_part": {
+						"existance": false
+					}
+				}
+			]
+		}
+	]
+}
