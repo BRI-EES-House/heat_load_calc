@@ -73,22 +73,20 @@ def make_house(d, input_data_dir, output_data_dir):
 
     # 室iの境界j
     # メモ [12, 26, 12]
-    bss = [
-        [
-            s3.get_boundary_simple(
-                theta_o_ns=theta_o_ns,
-                i_dn_ns=i_dn_ns,
-                i_sky_ns=i_sky_ns,
-                r_n_ns=r_n_ns,
-                a_sun_ns=a_sun_ns,
-                h_sun_ns=h_sun_ns,
-                b=b_dict
-            ) for b_dict in r['boundaries']
-        ] for r in rooms
-    ]
+    bss = np.array([
+        s3.get_boundary_simple(
+            theta_o_ns=theta_o_ns,
+            i_dn_ns=i_dn_ns,
+            i_sky_ns=i_sky_ns,
+            r_n_ns=r_n_ns,
+            a_sun_ns=a_sun_ns,
+            h_sun_ns=h_sun_ns,
+            b=b_dict
+        ) for b_dict in d['boundaries']
+    ])
 
     # BoundarySimple をフラット化する。
-    bss2 = np.concatenate(bss)
+    bss2 = bss
 
     # 集約化可能な境界には同じIDを振り、境界ごとにそのIDを取得する。
     # BoundarySimple の数のIDを持つ ndarray
