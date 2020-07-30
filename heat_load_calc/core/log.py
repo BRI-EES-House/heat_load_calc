@@ -114,6 +114,12 @@ class Logger:
         # ステップnの統合された境界j*の表面放射熱伝達率, W/m2K, [j*, n]
         self.h_r_s = np.zeros((n_bdries, 24 * 365 * 4 * 3))
 
+        # ステップnのすきま風量, m3/s, [i, n]
+        self.v_reak_is_ns = np.zeros((n_spaces, 24 * 365 * 4 * 3))
+
+        # ステップnの自然換気量, m3/s, [i, n]
+        self.v_ntrl_is_ns = np.zeros((n_spaces, 24 * 365 * 4 * 3))
+
     def pre_logging(self, ss: PreCalcParameters):
 
         self.theta_o = ss.theta_o_ns
@@ -186,6 +192,8 @@ def record(pps: PreCalcParameters, logger: Logger, output_data_dir: str, show_si
         dd[name + '_q_s_sol_fun'] = logger.q_sol_frnt[i][0:365*96]
         dd[name + '_x_fun'] = logger.x_frnt[i][0:365*96]
         dd[name + '_q_l_fun'] = logger.q_l_frnt[i][0:365*96]
+        dd[name + '_v_reak'] = logger.v_reak_is_ns[i][0:365*96]
+        dd[name + '_v_ntrl'] = logger.v_ntrl_is_ns[i][0:365 * 96]
 
         selected = pps.p_is_js[i] == 1
         boundary_names = pps.name_bdry_js[selected]
