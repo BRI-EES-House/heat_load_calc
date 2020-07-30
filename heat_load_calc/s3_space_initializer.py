@@ -261,13 +261,6 @@ def make_house(d, input_data_dir, output_data_dir):
     # IntegratedBoundaries クラスが複数のパラメータをもつ
     ibs = [s3.init_surface(bss=bs) for bs in bss]
 
-    # 室iの在室者に対する境界j*の形態係数
-    f_mrt_hum_is = np.concatenate([
-        x35.get_f_mrt_hum_is(
-            a_bdry_i_jstrs=ib.a_i_jstrs,
-            is_solar_absorbed_inside_bdry_i_jstrs=ib.is_solar_absorbed_inside_i_jstrs
-        ) for ib in ibs])
-
     qrtd_c_is = np.array([a15.get_qrtd_c(a_floor_i) for a_floor_i in a_floor_is])
     qmax_c_is = np.array([a15.get_qmax_c(qrtd_c_i) for qrtd_c_i in qrtd_c_is])
     qmin_c_is = np.array([a15.get_qmin_c() for qrtd_c_i in qrtd_c_is])
@@ -315,6 +308,14 @@ def make_house(d, input_data_dir, output_data_dir):
 
     # 熱交換器種類
     heat_exchanger_type_is = [a22.read_heat_exchanger_type(room) for room in rooms]
+
+
+    # 室iの在室者に対する境界j*の形態係数
+    f_mrt_hum_is = np.concatenate([
+        x35.get_f_mrt_hum_is(
+            a_bdry_i_jstrs=np.array([a_j for a_j, connected_room_id_j in zip(a_js, connected_room_id_js) if connected_room_id_j == i]),
+            is_solar_absorbed_inside_bdry_i_jstrs=np.array([is_solar_absorbed_inside_j for is_solar_absorbed_inside_j, connected_room_id_j in zip(is_solar_absorbed_inside_js, connected_room_id_js) if connected_room_id_j == i])
+        ) for i in range(number_of_spaces)])
 
     # 放射暖房の発熱部位の設定（とりあえず床発熱） 表7
     # TODO: 発熱部位を指定して、面積按分するように変更すべき。
