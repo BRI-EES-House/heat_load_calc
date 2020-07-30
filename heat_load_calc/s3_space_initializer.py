@@ -253,14 +253,6 @@ def make_house(d, input_data_dir, output_data_dir):
     ac_demand_is_ns = np.where(ac_demand_is_ns == 1, True, False)
 
 
-
-
-
-    # 室iの統合された境界j*, IntegratedBoundaryクラス, [j*]
-    # メモ　3つのIntegratedBoundariesクラスのリスト
-    # IntegratedBoundaries クラスが複数のパラメータをもつ
-    ibs = [s3.init_surface(bss=bs) for bs in bss]
-
     qrtd_c_is = np.array([a15.get_qrtd_c(a_floor_i) for a_floor_i in a_floor_is])
     qmax_c_is = np.array([a15.get_qmax_c(qrtd_c_i) for qrtd_c_i in qrtd_c_is])
     qmin_c_is = np.array([a15.get_qmin_c() for qrtd_c_i in qrtd_c_is])
