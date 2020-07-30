@@ -777,7 +777,7 @@
         },
         {
             "id": 11,
-            "name": "integrated_boundary0",
+            "name": "integrated_boundary11",
             "sub_name": "south_exterior_wall+south_exterior_wall+south_exterior_wall+south_exterior_wall",
             "is_ground": "false",
             "connected_space_id": 1,
@@ -835,7 +835,7 @@
         },
         {
             "id": 12,
-            "name": "integrated_boundary1",
+            "name": "integrated_boundary12",
             "sub_name": "south_exterior_window+south_exterior_window+south_exterior_window+south_exterior_window",
             "is_ground": "false",
             "connected_space_id": 1,
@@ -893,7 +893,7 @@
         },
         {
             "id": 13,
-            "name": "integrated_boundary2",
+            "name": "integrated_boundary13",
             "sub_name": "west_exterior_wall+west_exterior_wall",
             "is_ground": "false",
             "connected_space_id": 1,
@@ -951,7 +951,7 @@
         },
         {
             "id": 14,
-            "name": "integrated_boundary3",
+            "name": "integrated_boundary14",
             "sub_name": "west_exterior_window",
             "is_ground": "false",
             "connected_space_id": 1,
@@ -1009,7 +1009,7 @@
         },
         {
             "id": 15,
-            "name": "integrated_boundary4",
+            "name": "integrated_boundary15",
             "sub_name": "exterior_ceiling+exterior_ceiling+exterior_ceiling+exterior_ceiling",
             "is_ground": "false",
             "connected_space_id": 1,
@@ -1067,7 +1067,7 @@
         },
         {
             "id": 16,
-            "name": "integrated_boundary5",
+            "name": "integrated_boundary16",
             "sub_name": "internal_wall_non_occupant+internal_wall_non_occupant+internal_wall_non_occupant+internal_wall_non_occupant",
             "is_ground": "false",
             "connected_space_id": 1,
@@ -1128,7 +1128,7 @@
         },
         {
             "id": 17,
-            "name": "integrated_boundary6",
+            "name": "integrated_boundary17",
             "sub_name": "internal_floor_main_occupant+internal_floor_main_occupant",
             "is_ground": "false",
             "connected_space_id": 1,
@@ -1189,7 +1189,7 @@
         },
         {
             "id": 18,
-            "name": "integrated_boundary7",
+            "name": "integrated_boundary18",
             "sub_name": "east_exterior_wall",
             "is_ground": "false",
             "connected_space_id": 1,
@@ -1247,7 +1247,7 @@
         },
         {
             "id": 19,
-            "name": "integrated_boundary8",
+            "name": "integrated_boundary19",
             "sub_name": "east_exterior_window",
             "is_ground": "false",
             "connected_space_id": 1,
@@ -1305,7 +1305,7 @@
         },
         {
             "id": 20,
-            "name": "integrated_boundary9",
+            "name": "integrated_boundary20",
             "sub_name": "north_exterior_wall",
             "is_ground": "false",
             "connected_space_id": 1,
@@ -1363,7 +1363,7 @@
         },
         {
             "id": 21,
-            "name": "integrated_boundary10",
+            "name": "integrated_boundary21",
             "sub_name": "exterior_floor",
             "is_ground": "false",
             "connected_space_id": 1,
@@ -1424,7 +1424,7 @@
         },
         {
             "id": 22,
-            "name": "integrated_boundary11",
+            "name": "integrated_boundary22",
             "sub_name": "internal_wall_main_occupant",
             "is_ground": "false",
             "connected_space_id": 1,
@@ -1485,7 +1485,7 @@
         },
         {
             "id": 23,
-            "name": "integrated_boundary0",
+            "name": "integrated_boundary23",
             "sub_name": "north_exterior_wall",
             "is_ground": "false",
             "connected_space_id": 2,
@@ -1543,7 +1543,7 @@
         },
         {
             "id": 24,
-            "name": "integrated_boundary1",
+            "name": "integrated_boundary24",
             "sub_name": "north_exterior_window",
             "is_ground": "false",
             "connected_space_id": 2,
@@ -1601,7 +1601,7 @@
         },
         {
             "id": 25,
-            "name": "integrated_boundary2",
+            "name": "integrated_boundary25",
             "sub_name": "east_exterior_wall",
             "is_ground": "false",
             "connected_space_id": 2,
@@ -1659,7 +1659,7 @@
         },
         {
             "id": 26,
-            "name": "integrated_boundary3",
+            "name": "integrated_boundary26",
             "sub_name": "west_exterior_wall",
             "is_ground": "false",
             "connected_space_id": 2,
@@ -1717,7 +1717,7 @@
         },
         {
             "id": 27,
-            "name": "integrated_boundary4",
+            "name": "integrated_boundary27",
             "sub_name": "west_exterior_window",
             "is_ground": "false",
             "connected_space_id": 2,
@@ -1775,7 +1775,7 @@
         },
         {
             "id": 28,
-            "name": "integrated_boundary5",
+            "name": "integrated_boundary28",
             "sub_name": "exterior_floor",
             "is_ground": "false",
             "connected_space_id": 2,
@@ -1836,7 +1836,7 @@
         },
         {
             "id": 29,
-            "name": "integrated_boundary6",
+            "name": "integrated_boundary29",
             "sub_name": "exterior_ceiling",
             "is_ground": "false",
             "connected_space_id": 2,
@@ -1894,7 +1894,7 @@
         },
         {
             "id": 30,
-            "name": "integrated_boundary7",
+            "name": "integrated_boundary30",
             "sub_name": "internal_wall_main_occupant",
             "is_ground": "false",
             "connected_space_id": 2,
@@ -1955,7 +1955,7 @@
         },
         {
             "id": 31,
-            "name": "integrated_boundary8",
+            "name": "integrated_boundary31",
             "sub_name": "internal_wall_other_occupant+internal_wall_other_occupant+internal_wall_other_occupant+internal_wall_other_occupant",
             "is_ground": "false",
             "connected_space_id": 2,

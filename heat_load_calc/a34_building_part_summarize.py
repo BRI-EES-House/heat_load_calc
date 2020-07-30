@@ -82,6 +82,10 @@ def is_boundary_integratable(bs1: BoundarySimple, bs2: BoundarySimple) -> bool:
         間仕切り・一般部位・透明な開口部・非透明な開口部・地盤などの仕様や、日除けの仕様を覗いた部分
     """
 
+    # 接する室のID
+    if bs1.connected_room_id != bs2.connected_room_id:
+        return False
+
     # 境界の種類
     if bs1.boundary_type != bs2.boundary_type:
         return False

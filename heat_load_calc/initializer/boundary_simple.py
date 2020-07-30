@@ -7,11 +7,17 @@ from heat_load_calc.initializer.boundary_type import BoundaryType
 @dataclass
 class BoundarySimple:
 
+    # ID
+    id: int
+
     # 名称
     name: str
 
     # 副名称
     sub_name: str
+
+    # 接する室のID
+    connected_room_id: int
 
     # 境界の種類
     boundary_type: BoundaryType
@@ -28,6 +34,10 @@ class BoundarySimple:
     #   'non_occupant_room': 2,
     #   'underfloor': 3
     next_room_type: int
+
+    # 裏側表面の境界ID
+    # internal_wall の場合のみ定義される。
+    rear_surface_boundary_id: int
 
     # 室内侵入日射吸収の有無
     is_solar_absorbed_inside: bool
