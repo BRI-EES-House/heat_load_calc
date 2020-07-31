@@ -1,6 +1,6 @@
 import numpy as np
 
-import heat_load_calc.a11_opening_transmission_solar_radiation as a11
+import heat_load_calc.initializer.transmission_solar_radiation as a11
 
 from heat_load_calc.initializer import outside_eqv_temp
 from heat_load_calc.initializer.boundary_type import BoundaryType

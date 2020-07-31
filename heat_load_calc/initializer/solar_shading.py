@@ -109,7 +109,7 @@ class SolarShading:
                 z_y_mns=None
             )
 
-    def get_FSDW_i_k_n2(self, h_sun_n, a_sun_n, direction_i_ks: str):
+    def get_f_sdw_j_ns(self, h_sun_n, a_sun_n, direction_i_ks: str):
 
         # 境界ｊの傾斜面の方位角, rad
         # 境界jの傾斜面の傾斜角, rad
