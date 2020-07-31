@@ -1,14 +1,12 @@
-from collections import namedtuple
-from typing import List
 import numpy as np
 
-from heat_load_calc.initializer import response_factor
-import heat_load_calc.a9_rear_surface_equivalent_temperature as a9
 import heat_load_calc.a11_opening_transmission_solar_radiation as a11
-import heat_load_calc.a34_building_part_summarize as a34
+
+from heat_load_calc.initializer import outside_eqv_temp
 from heat_load_calc.initializer.boundary_type import BoundaryType
 from heat_load_calc.initializer.boundary_simple import BoundarySimple
-from heat_load_calc import a8_shading as a8
+from heat_load_calc.initializer import solar_shading
+from heat_load_calc.initializer import response_factor
 
 
 def get_boundary_simple(theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, a_sun_ns, h_sun_ns, b):
@@ -97,10 +95,10 @@ def get_boundary_simple(theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, a_sun_ns, h_sun_n
     # 室内側表面総合熱伝達率, W/m2K
     h_i = 1.0 / r_i
 
-    solar_shading_part = a8.SolarShadingPart.create(ssp=b['solar_shading_part'])
+    solar_shading_part = solar_shading.SolarShading.create(ssp=b['solar_shading_part'])
 
     # 相当外気温度, degree C, [8760 * 4]
-    oet = a9.OutsideEqvTemp.create(b)
+    oet = outside_eqv_temp.OutsideEqvTemp.create(b)
     theta_o_sol = oet.get_theta_o_sol_i_j_ns(
         theta_o_ns=theta_o_ns,
         i_dn_ns=i_dn_ns,

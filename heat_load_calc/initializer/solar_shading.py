@@ -1,16 +1,14 @@
+"""ひさしの影面積の計算
+
+"""
+
 import numpy as np
-from collections import namedtuple
 from typing import Dict
 
-import heat_load_calc.x_19_external_boundaries_direction as x_19
+from heat_load_calc.initializer import external_boundaries_direction
 
 
-"""
-付録8．ひさしの影面積の計算
-"""
-
-
-class SolarShadingPart:
+class SolarShading:
 
     def __init__(self, existence, input_method, depth, d_h, d_e, x1, x2, x3, y1, y2, y3, z_x_pls, z_x_mns, z_y_pls, z_y_mns):
 
@@ -50,7 +48,7 @@ class SolarShadingPart:
 
             if ssp['input_method'] == 'simple':
 
-                return SolarShadingPart(
+                return SolarShading(
                     existence=existence,
                     input_method=input_method,
                     depth=ssp['depth'],
@@ -70,7 +68,7 @@ class SolarShadingPart:
 
             elif ssp['input_method'] == 'detail':
 
-                return SolarShadingPart(
+                return SolarShading(
                     existence=existence,
                     input_method=input_method,
                     depth=None,
@@ -93,7 +91,7 @@ class SolarShadingPart:
 
         else:
 
-            return SolarShadingPart(
+            return SolarShading(
                 existence=existence,
                 input_method=None,
                 depth=None,
@@ -113,38 +111,44 @@ class SolarShadingPart:
 
     def get_FSDW_i_k_n2(self, h_sun_n, a_sun_n, direction_i_ks: str):
 
-        # 室iの境界kの傾斜面の方位角, rad
-        # 室iの境界kの傾斜面の傾斜角, rad
-        w_alpha_i_k, _ = x_19.get_w_alpha_i_j_w_beta_i_j(direction_i_j=direction_i_ks)
+        # 境界ｊの傾斜面の方位角, rad
+        # 境界jの傾斜面の傾斜角, rad
+        w_alpha_j, _ = external_boundaries_direction.get_w_alpha_j_w_beta_j(direction_j=direction_i_ks)
 
         ###################################################################################
         h_s = np.where(h_sun_n > 0.0, h_sun_n, 0.0)
         a_s = np.where(h_sun_n > 0.0, a_sun_n, 0.0)
+
         # 日除けの日影面積率の計算
         if self.existence:
+
             if self.input_method == 'simple':
 
+                return self.calc_F_SDW_i_k_n(a_s_n=a_s, h_s_n=h_s, Wa_i_k=w_alpha_j)
 
-                return self.calc_F_SDW_i_k_n(
-                    a_s_n=a_s,
-                    h_s_n=h_s,
-                    Wa_i_k=w_alpha_i_k
-                )
             elif self.input_method == 'detailed':
+
                 raise NotImplementedError()
+
             else:
+
                 raise ValueError
+
         else:
+
             return np.full(len(h_sun_n), 1.0)
 
 
-    # 日除けの影面積を計算する（当面、簡易入力のみに対応）式(79)
     def calc_F_SDW_i_k_n(self, a_s_n: np.ndarray, h_s_n: np.ndarray, Wa_i_k: float) -> np.ndarray:
-        """
-        :param a_s_n: 太陽方位角 [rad]
-        :param h_s_n: 太陽高度 [rad]
-        :param Wa_i_k: 庇の設置してある窓の傾斜面方位角[rad]
-        :return: 日除けの影面積比率 [-]
+        """日除けの影面積を計算する（当面、簡易入力のみに対応）式(79)
+
+        Args:
+            a_s_n: 太陽方位角 [rad]
+            h_s_n: 太陽高度 [rad]
+            Wa_i_k: 庇の設置してある窓の傾斜面方位角[rad]
+
+        Returns:
+            日除けの影面積比率 [-]
         """
 
         # プロファイル角, tangent

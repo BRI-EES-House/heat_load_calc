@@ -3,15 +3,11 @@
 """
 
 import numpy as np
-from typing import List
 
-import heat_load_calc.x_07_inclined_surface_solar_radiation as x_07
-import heat_load_calc.x_19_external_boundaries_direction as x_19
-
-from heat_load_calc.apdx10_oblique_incidence_characteristics import get_taud_i_k_n
-import heat_load_calc.apdx10_oblique_incidence_characteristics as a10
-import heat_load_calc.a8_shading as a8
-from heat_load_calc.a8_shading import SolarShadingPart
+from heat_load_calc.initializer import external_boundaries_direction
+from heat_load_calc.initializer import inclined_surface_solar_radiation
+from heat_load_calc.initializer import solar_shading
+from heat_load_calc.initializer import oblique_incidence_charac
 
 
 class TransmissionSolarRadiation():
@@ -20,7 +16,7 @@ class TransmissionSolarRadiation():
         pass
 
     @classmethod
-    def create(cls, d: dict, solar_shading_part: SolarShadingPart):
+    def create(cls, d: dict, solar_shading_part: solar_shading.SolarShading):
 
         if d['boundary_type'] == 'external_transparent_part':
 
@@ -53,7 +49,7 @@ class TransmissionSolarRadiationTransparentSunStrike(TransmissionSolarRadiation)
             self,
             direction: str,
             area: float,
-            solar_shading_part: SolarShadingPart,
+            solar_shading_part: solar_shading.SolarShading,
             incident_angle_characteristics: str,
             eta_value: float
     ):
@@ -72,16 +68,16 @@ class TransmissionSolarRadiationTransparentSunStrike(TransmissionSolarRadiation)
 
         # 室iの境界jの傾斜面の方位角, rad
         # 室iの境界jの傾斜面の傾斜角, rad
-        w_alpha_i_j, w_beta_i_j = x_19.get_w_alpha_i_j_w_beta_i_j(direction_i_j=self._direction)
+        w_alpha_i_j, w_beta_i_j = external_boundaries_direction.get_w_alpha_j_w_beta_j(direction_j=self._direction)
 
         # ステップnの室iの境界jにおける傾斜面に入射する太陽の入射角, rad, [365*24*4]
-        theta_aoi_i_j_n = x_07.get_theta_aoi_i_j_n(
+        theta_aoi_i_j_n = inclined_surface_solar_radiation.get_theta_aoi_i_j_n(
             h_sun_ns=h_sun_ns, a_sun_ns=a_sun_ns, w_alpha_i_j=w_alpha_i_j, w_beta_i_j=w_beta_i_j)
 
         # ステップnにおける室iの境界jにおける傾斜面の日射量のうち直達成分, W / m2K
         # ステップnにおける室iの境界jにおける傾斜面の日射量のうち天空成分, W / m2K
         # ステップnにおける室iの境界jにおける傾斜面の日射量のうち地盤反射成分, W / m2K
-        i_inc_d, i_inc_sky, i_inc_ref = x_07.get_i_is_i_j_ns(
+        i_inc_d, i_inc_sky, i_inc_ref = inclined_surface_solar_radiation.get_i_is_i_j_ns(
             i_dn_ns=i_dn_ns,
             i_sky_ns=i_sky_ns,
             h_sun_ns=h_sun_ns,
@@ -126,10 +122,10 @@ def calc_QGT_i_k_n(
 ):
 
     # 室iの境界kにおける透明な開口部の拡散日射に対する基準化透過率
-    c_d_i_k = a10.get_c_d_i_k(incident_angle_characteristics_i_ks=incident_angle_characteristics_i_ks)
+    c_d_i_k = oblique_incidence_charac.get_c_d_i_k(incident_angle_characteristics_i_ks=incident_angle_characteristics_i_ks)
 
     # 直達日射の入射角特性の計算
-    taud_i_k_n = get_taud_i_k_n(
+    taud_i_k_n = oblique_incidence_charac.get_taud_i_k_n(
         theta_aoi_i_k=theta_aoi_i_k,
         incident_angle_characteristics_i_ks=incident_angle_characteristics_i_ks)
 

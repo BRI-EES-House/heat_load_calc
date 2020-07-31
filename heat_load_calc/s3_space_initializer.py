@@ -8,13 +8,14 @@ import heat_load_calc.a12_indoor_radiative_heat_transfer as a12
 import heat_load_calc.a14_furniture as a14
 import heat_load_calc.a15_air_flow_rate_rac as a15
 import heat_load_calc.a22_radiative_heating_spec as a22
-from heat_load_calc.initializer.boundary_type import BoundaryType
 import heat_load_calc.s3_surface_initializer as s3
-import heat_load_calc.x_35_occupants as x35
 import heat_load_calc.a34_building_part_summarize as a34
+
+from heat_load_calc.initializer.boundary_type import BoundaryType
 
 from heat_load_calc.initializer import schedule_loader
 from heat_load_calc.initializer import residents_number
+from heat_load_calc.initializer import occupants_form_factor
 
 
 def make_house(d, input_data_dir, output_data_dir):
@@ -302,7 +303,7 @@ def make_house(d, input_data_dir, output_data_dir):
 
     # 室iの在室者に対する境界j*の形態係数
     f_mrt_hum_is = np.concatenate([
-        x35.get_f_mrt_hum_is(
+        occupants_form_factor.get_f_mrt_hum_is(
             a_bdry_i_jstrs=np.array([a_j for a_j, connected_room_id_j in zip(a_js, connected_room_id_js) if connected_room_id_j == i]),
             is_solar_absorbed_inside_bdry_i_jstrs=np.array([is_solar_absorbed_inside_j for is_solar_absorbed_inside_j, connected_room_id_j in zip(is_solar_absorbed_inside_js, connected_room_id_js) if connected_room_id_j == i])
         ) for i in range(number_of_spaces)])

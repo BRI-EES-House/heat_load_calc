@@ -1,15 +1,16 @@
-# 附属書X19 傾斜面の方位角・傾斜角
-# 境界の向きから傾斜面の方位角・傾斜角を決定する。
+"""境界の向きから傾斜面の方位角・傾斜角を決定する。
+附属書X19 傾斜面の方位角・傾斜角
+"""
 
 import numpy as np
 
 
-def get_w_alpha_i_j_w_beta_i_j(direction_i_j: str) -> (float, float):
+def get_w_alpha_j_w_beta_j(direction_j: str) -> (float, float):
     """
     方向名称から傾斜面の方位角・傾斜角を求める。
 
     Args:
-        direction_i_j: 室iの境界jにおける方向
+        direction_j: 境界jにおける方向
 
     Returns:
         以下のタプル
@@ -17,7 +18,7 @@ def get_w_alpha_i_j_w_beta_i_j(direction_i_j: str) -> (float, float):
             (2) 室iの境界jの傾斜面の傾斜角, rad
     """
 
-    w_alpha_i_j_degree, w_beta_i_j_degree = {
+    w_alpha_j_degree, w_beta_j_degree = {
         's': (0.0, 90.0),
         'sw': (45.0, 90.0),
         'w': (90.0, 90.0),
@@ -28,9 +29,9 @@ def get_w_alpha_i_j_w_beta_i_j(direction_i_j: str) -> (float, float):
         'se': (-45.0, 90.0),
         'top': (0.0, 0.0),
         'bottom': (0.0, 180.0)
-    }[direction_i_j]
+    }[direction_j]
 
-    return np.radians(w_alpha_i_j_degree), np.radians(w_beta_i_j_degree)
+    return np.radians(w_alpha_j_degree), np.radians(w_beta_j_degree)
 
 
 

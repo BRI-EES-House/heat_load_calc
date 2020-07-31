@@ -6,8 +6,8 @@ TODO:
 
 import numpy as np
 
-import heat_load_calc.x_07_inclined_surface_solar_radiation as x_07
-import heat_load_calc.x_19_external_boundaries_direction as x_19
+from heat_load_calc.initializer import external_boundaries_direction
+from heat_load_calc.initializer import inclined_surface_solar_radiation
 
 
 class OutsideEqvTemp:
@@ -165,15 +165,15 @@ class OutsideEqvTempExternalGeneralPartAndExternalOpaquePart(OutsideEqvTemp):
 
         # 室iの境界jの傾斜面の方位角, rad
         # 室iの境界jの傾斜面の傾斜角, rad
-        w_alpha_i_j, w_beta_i_j = x_19.get_w_alpha_i_j_w_beta_i_j(direction_i_j=self._direction)
+        w_alpha_i_j, w_beta_i_j = external_boundaries_direction.get_w_alpha_j_w_beta_j(direction_j=self._direction)
 
         # ステップnにおける室iの境界jにおける傾斜面の夜間放射量, W/m2, [8760 * 4]
-        r_n_is_i_j_ns = x_07.get_r_n_is_i_j_ns(r_n_ns=r_n_ns, w_beta_i_j=w_beta_i_j)
+        r_n_is_i_j_ns = inclined_surface_solar_radiation.get_r_n_is_i_j_ns(r_n_ns=r_n_ns, w_beta_i_j=w_beta_i_j)
 
         # ステップnにおける室iの境界jにおける傾斜面の日射量のうち直達成分, W/m2K [8760*4]
         # ステップnにおける室iの境界jにおける傾斜面の日射量のうち天空成分, W/m2K [8760*4]
         # ステップnにおける室iの境界jにおける傾斜面の日射量のうち地盤反射成分, W/m2K [8760*4]
-        i_is_d_i_j_ns, i_is_sky_i_j_ns, i_is_ref_i_j_ns = x_07.get_i_is_i_j_ns(
+        i_is_d_i_j_ns, i_is_sky_i_j_ns, i_is_ref_i_j_ns = inclined_surface_solar_radiation.get_i_is_i_j_ns(
             i_dn_ns=i_dn_ns, i_sky_ns=i_sky_ns, h_sun_ns=h_sun_ns, a_sun_ns=a_sun_ns,
             w_alpha_i_j=w_alpha_i_j, w_beta_i_j=w_beta_i_j)
 
@@ -227,10 +227,10 @@ class OutsideEqvTempExternalTransparentPart(OutsideEqvTemp):
 
         # 室iの境界jの傾斜面の方位角, rad
         # 室iの境界jの傾斜面の傾斜角, rad
-        w_alpha_i_j, w_beta_i_j = x_19.get_w_alpha_i_j_w_beta_i_j(direction_i_j=self._direction)
+        w_alpha_i_j, w_beta_i_j = external_boundaries_direction.get_w_alpha_j_w_beta_j(direction_j=self._direction)
 
         # ステップnにおける室iの境界jにおける傾斜面の夜間放射量, W/m2, [8760 * 4]
-        r_n_is_i_j_ns = x_07.get_r_n_is_i_j_ns(r_n_ns=r_n_ns, w_beta_i_j=w_beta_i_j)
+        r_n_is_i_j_ns = inclined_surface_solar_radiation.get_r_n_is_i_j_ns(r_n_ns=r_n_ns, w_beta_i_j=w_beta_i_j)
 
         # 室iの境界jの傾斜面のステップnにおける相当外気温度, ℃, [8760*4]
         # 透明な開口部の場合、日射はガラス面への透過・吸収の項で扱うため、ここでは長波長放射のみ考慮する。
