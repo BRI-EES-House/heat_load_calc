@@ -8,7 +8,6 @@ import heat_load_calc.a12_indoor_radiative_heat_transfer as a12
 import heat_load_calc.a14_furniture as a14
 import heat_load_calc.a15_air_flow_rate_rac as a15
 import heat_load_calc.a22_radiative_heating_spec as a22
-import heat_load_calc.s3_surface_initializer as s3
 import heat_load_calc.a34_building_part_summarize as a34
 
 from heat_load_calc.initializer.boundary_type import BoundaryType
@@ -167,7 +166,7 @@ def make_house(d, input_data_dir, output_data_dir):
 
     # 境界jの傾斜面のステップnにおける相当外気温度, degree C, [j, 8760 * 4]
     theta_o_sol_js_ns = np.array([
-        s3.get_area_weighted_averaged_values_two_dimension(
+        a34.get_area_weighted_averaged_values_two_dimension(
             v=np.array([bs.theta_o_sol for bs in bss[gp_idxs == i]]),
             a=np.array([bs.area for bs in bss[gp_idxs == i]])
         )
@@ -188,7 +187,7 @@ def make_house(d, input_data_dir, output_data_dir):
 
     # 境界jの貫流応答係数の初項, [j]
     phi_t0_js = np.array([
-        s3.get_area_weighted_averaged_values_one_dimension(
+        a34.get_area_weighted_averaged_values_one_dimension(
             v=np.array([bs.rft0 for bs in bss[gp_idxs == i]]),
             a=np.array([bs.area for bs in bss[gp_idxs == i]])
         )
@@ -197,7 +196,7 @@ def make_house(d, input_data_dir, output_data_dir):
 
     # 境界jの吸熱応答係数の初項, m2K/W, [j]
     phi_a0_js = np.array([
-        s3.get_area_weighted_averaged_values_one_dimension(
+        a34.get_area_weighted_averaged_values_one_dimension(
             v=np.array([bs.rfa0 for bs in bss[gp_idxs == i]]),
             a=np.array([bs.area for bs in bss[gp_idxs == i]])
         )
@@ -206,7 +205,7 @@ def make_house(d, input_data_dir, output_data_dir):
 
     # 境界jの項別公比法における項mの貫流応答係数の第一項, [j, 12]
     phi_t1_js = [
-        list(s3.get_area_weighted_averaged_values_two_dimension(
+        list(a34.get_area_weighted_averaged_values_two_dimension(
             v=np.array([bs.rft1 for bs in bss[gp_idxs == i]]),
             a=np.array([bs.area for bs in bss[gp_idxs == i]])
         ))
@@ -215,7 +214,7 @@ def make_house(d, input_data_dir, output_data_dir):
 
     # 境界jの項別公比法における項mの吸熱応答係数の第一項 , m2K/W, [j, 12]
     phi_a1_js = [
-        list(s3.get_area_weighted_averaged_values_two_dimension(
+        list(a34.get_area_weighted_averaged_values_two_dimension(
             v=np.array([bs.rfa1 for bs in bss[gp_idxs == i]]),
             a=np.array([bs.area for bs in bss[gp_idxs == i]])
         ))
