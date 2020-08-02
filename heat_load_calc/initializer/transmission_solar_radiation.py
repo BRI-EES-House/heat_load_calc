@@ -16,7 +16,7 @@ class TransmissionSolarRadiation:
         pass
 
     @classmethod
-    def create(cls, d: dict, solar_shading_part: solar_shading.SolarShading):
+    def create(cls, d: dict, solar_shading_part: solar_shading.SolarShading2):
 
         if d['boundary_type'] == 'external_transparent_part':
 
@@ -49,7 +49,7 @@ class TransmissionSolarRadiationTransparentSunStrike(TransmissionSolarRadiation)
             self,
             direction: str,
             area: float,
-            solar_shading_part: solar_shading.SolarShading,
+            solar_shading_part: solar_shading.SolarShading2,
             glazing_type: str,
             eta_value: float
     ):

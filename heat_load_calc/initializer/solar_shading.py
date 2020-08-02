@@ -10,23 +10,8 @@ from heat_load_calc.initializer import external_boundaries_direction
 
 class SolarShading:
 
-    def __init__(self, existence, input_method, depth, d_h, d_e, x1, x2, x3, y1, y2, y3, z_x_pls, z_x_mns, z_y_pls, z_y_mns):
-
-        self.existence = existence
-        self.input_method = input_method
-        self.depth = depth
-        self.d_h = d_h
-        self.d_e = d_e
-        self.x1 = x1
-        self.x2 = x2
-        self.x3 = x3
-        self.y1 = y1
-        self.y2 = y2
-        self.y3 = y3
-        self.z_x_pls = z_x_pls
-        self.z_x_mns = z_x_mns
-        self.z_y_pls = z_y_pls
-        self.z_y_mns = z_y_mns
+    def __init__(self):
+        pass
 
     @classmethod
     def create(cls, ssp: Dict):
@@ -48,7 +33,7 @@ class SolarShading:
 
             if ssp['input_method'] == 'simple':
 
-                return SolarShading(
+                return SolarShading2(
                     existence=existence,
                     input_method=input_method,
                     depth=ssp['depth'],
@@ -68,7 +53,7 @@ class SolarShading:
 
             elif ssp['input_method'] == 'detail':
 
-                return SolarShading(
+                return SolarShading2(
                     existence=existence,
                     input_method=input_method,
                     depth=None,
@@ -91,7 +76,7 @@ class SolarShading:
 
         else:
 
-            return SolarShading(
+            return SolarShading2(
                 existence=existence,
                 input_method=None,
                 depth=None,
@@ -108,6 +93,31 @@ class SolarShading:
                 z_y_pls=None,
                 z_y_mns=None
             )
+
+    def get_f_sdw_j_ns(self, h_sun_n, a_sun_n, direction_i_ks: str):
+
+        raise NotImplementedError()
+
+
+class SolarShading2:
+
+    def __init__(self, existence, input_method, depth, d_h, d_e, x1, x2, x3, y1, y2, y3, z_x_pls, z_x_mns, z_y_pls, z_y_mns):
+
+        self.existence = existence
+        self.input_method = input_method
+        self.depth = depth
+        self.d_h = d_h
+        self.d_e = d_e
+        self.x1 = x1
+        self.x2 = x2
+        self.x3 = x3
+        self.y1 = y1
+        self.y2 = y2
+        self.y3 = y3
+        self.z_x_pls = z_x_pls
+        self.z_x_mns = z_x_mns
+        self.z_y_pls = z_y_pls
+        self.z_y_mns = z_y_mns
 
     def get_f_sdw_j_ns(self, h_sun_n, a_sun_n, direction_i_ks: str):
 
