@@ -14,16 +14,18 @@ class SolarShading:
         pass
 
     @classmethod
-    def create(cls, ssp: Dict):
+    def create(cls, b: Dict):
         """
         入力ファイルの辞書の'solar_shading_part'を読み込む。
 
         Args:
-            ssp: 'solar shading part' の辞書
+            b: 'boundary' の辞書
 
         Returns:
             SolarShadingPart クラス
         """
+
+        ssp = b['solar_shading_part']
 
         existence = ssp['existence']
 
