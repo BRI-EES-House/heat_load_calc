@@ -40,27 +40,15 @@ class SolarShading:
 
             input_method = ssp['input_method']
 
-            if ssp['input_method'] == 'simple':
+            if input_method == 'simple':
 
-                return SolarShading2(
-                    existence=existence,
-                    input_method=input_method,
+                return SolarShadingSimple(
                     depth=ssp['depth'],
                     d_h=ssp['d_h'],
-                    d_e=ssp['d_e'],
-                    x1=None,
-                    x2=None,
-                    x3=None,
-                    y1=None,
-                    y2=None,
-                    y3=None,
-                    z_x_pls=None,
-                    z_x_mns=None,
-                    z_y_pls=None,
-                    z_y_mns=None
+                    d_e=ssp['d_e']
                 )
 
-            elif ssp['input_method'] == 'detail':
+            elif input_method == 'detail':
 
                 return SolarShadingDetail(
                     x1=ssp['x1'],
@@ -87,25 +75,14 @@ class SolarShading:
         raise NotImplementedError()
 
 
-class SolarShading2:
+class SolarShadingSimple(SolarShading):
 
-    def __init__(self, existence, input_method, depth, d_h, d_e, x1, x2, x3, y1, y2, y3, z_x_pls, z_x_mns, z_y_pls, z_y_mns):
+    def __init__(self, depth, d_h, d_e):
 
-        self.existence = existence
-        self.input_method = input_method
+        super().__init__()
         self.depth = depth
         self.d_h = d_h
         self.d_e = d_e
-        self.x1 = x1
-        self.x2 = x2
-        self.x3 = x3
-        self.y1 = y1
-        self.y2 = y2
-        self.y3 = y3
-        self.z_x_pls = z_x_pls
-        self.z_x_mns = z_x_mns
-        self.z_y_pls = z_y_pls
-        self.z_y_mns = z_y_mns
 
     def get_f_sdw_j_ns(self, h_sun_n, a_sun_n, direction_i_ks: str):
 
@@ -117,17 +94,7 @@ class SolarShading2:
         h_s = np.where(h_sun_n > 0.0, h_sun_n, 0.0)
         a_s = np.where(h_sun_n > 0.0, a_sun_n, 0.0)
 
-        if self.input_method == 'simple':
-
-            return self.calc_F_SDW_i_k_n(a_s_n=a_s, h_s_n=h_s, Wa_i_k=w_alpha_j)
-
-        elif self.input_method == 'detailed':
-
-            raise NotImplementedError()
-
-        else:
-
-            raise ValueError
+        return self.calc_F_SDW_i_k_n(a_s_n=a_s, h_s_n=h_s, Wa_i_k=w_alpha_j)
 
 
     def calc_F_SDW_i_k_n(self, a_s_n: np.ndarray, h_s_n: np.ndarray, Wa_i_k: float) -> np.ndarray:
