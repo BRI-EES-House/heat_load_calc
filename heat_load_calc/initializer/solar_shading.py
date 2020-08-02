@@ -33,6 +33,8 @@ class SolarShading:
             is_sun_striked_outside = bool(b['is_sun_striked_outside'])
         elif b['boundary_type'] in ['internal', 'ground']:
             is_sun_striked_outside = False
+        else:
+            raise KeyError()
 
         if existence & is_sun_striked_outside:
 
@@ -60,7 +62,7 @@ class SolarShading:
 
             elif ssp['input_method'] == 'detail':
 
-                return SolarShading2(
+                return SolarShadingDetail(
                     existence=existence,
                     input_method=input_method,
                     depth=None,
@@ -160,6 +162,33 @@ class SolarShading2:
         F_SDW_i_k[h_s_n <= 0] = 0.0
 
         return F_SDW_i_k
+
+
+class SolarShadingDetail(SolarShading):
+
+    def __init__(self, existence, input_method, depth, d_h, d_e, x1, x2, x3, y1, y2, y3, z_x_pls, z_x_mns, z_y_pls, z_y_mns):
+
+        super().__init__()
+
+        self.existence = existence
+        self.input_method = input_method
+        self.depth = depth
+        self.d_h = d_h
+        self.d_e = d_e
+        self.x1 = x1
+        self.x2 = x2
+        self.x3 = x3
+        self.y1 = y1
+        self.y2 = y2
+        self.y3 = y3
+        self.z_x_pls = z_x_pls
+        self.z_x_mns = z_x_mns
+        self.z_y_pls = z_y_pls
+        self.z_y_mns = z_y_mns
+
+    def get_f_sdw_j_ns(self, h_sun_n, a_sun_n, direction_i_ks: str):
+
+        raise NotImplementedError()
 
 
 class SolarShadingNot(SolarShading):
