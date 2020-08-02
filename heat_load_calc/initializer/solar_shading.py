@@ -76,7 +76,11 @@ class SolarShading:
 
             return SolarShadingNot()
 
-    def get_f_sdw_j_ns(self, h_sun_n, a_sun_n):
+    def get_f_ss_d_j_ns(self, h_sun_n, a_sun_n):
+
+        raise NotImplementedError()
+
+    def get_f_ss_s_j_ns(self):
 
         raise NotImplementedError()
 
@@ -92,7 +96,7 @@ class SolarShadingSimple(SolarShading):
         self.d_h = d_h
         self.d_e = d_e
 
-    def get_f_sdw_j_ns(self, h_sun_n, a_sun_n):
+    def get_f_ss_d_j_ns(self, h_sun_n, a_sun_n):
 
         h_s_n = np.where(h_sun_n > 0.0, h_sun_n, 0.0)
         a_s_n = np.where(h_sun_n > 0.0, a_sun_n, 0.0)
@@ -114,6 +118,9 @@ class SolarShadingSimple(SolarShading):
 
         return F_SDW_i_k
 
+    def get_f_ss_s_j_ns(self):
+        raise NotImplementedError()
+
 
 class SolarShadingDetail(SolarShading):
 
@@ -133,8 +140,11 @@ class SolarShadingDetail(SolarShading):
         self.z_y_pls = z_y_pls
         self.z_y_mns = z_y_mns
 
-    def get_f_sdw_j_ns(self, h_sun_n, a_sun_n):
+    def get_f_ss_d_j_ns(self, h_sun_n, a_sun_n):
 
+        raise NotImplementedError()
+
+    def get_f_ss_s_j_ns(self):
         raise NotImplementedError()
 
 
@@ -144,7 +154,10 @@ class SolarShadingNot(SolarShading):
 
         super().__init__()
 
-    def get_f_sdw_j_ns(self, h_sun_n, a_sun_n):
+    def get_f_ss_d_j_ns(self, h_sun_n, a_sun_n):
 
+        # TODO: 要確認（ここは1.0ではなくて0.0が正しい？）
         return np.full(len(h_sun_n), 1.0)
 
+    def get_f_ss_s_j_ns(self):
+        raise NotImplementedError()
