@@ -91,26 +91,40 @@ class SolarShadingSimple(SolarShading):
         w_alpha_j, _ = external_boundaries_direction.get_w_alpha_j_w_beta_j(direction_j=direction_i_ks)
 
         ###################################################################################
-        h_s = np.where(h_sun_n > 0.0, h_sun_n, 0.0)
-        a_s = np.where(h_sun_n > 0.0, a_sun_n, 0.0)
+        h_s_n = np.where(h_sun_n > 0.0, h_sun_n, 0.0)
+        a_s_n = np.where(h_sun_n > 0.0, a_sun_n, 0.0)
 
-        return self.calc_F_SDW_i_k_n(a_s_n=a_s, h_s_n=h_s, Wa_i_k=w_alpha_j)
+        # プロファイル角, tangent
+        tan_fai = np.tan(h_s_n) / np.cos(a_s_n - w_alpha_j)
+
+        # 日よけにより日射が遮られる長さ（窓上端からの長さ）, m
+        DH_i_k = self.depth * tan_fai - self.d_e
+
+        # 日影面積率の計算 式(79)
+        #   マイナスの場合（日陰が窓上端にかからない場合）は 0.0 とする。
+        #   1.0を超える場合（日陰が窓下端よりも下になる場合）は 1.0 とする。
+        F_SDW_i_k = np.clip(DH_i_k / self.d_h, 0.0, 1.0)
+
+        # 日が出ていないときは 0.0 とする。
+        F_SDW_i_k[h_s_n <= 0] = 0.0
+
+        return F_SDW_i_k
 
 
-    def calc_F_SDW_i_k_n(self, a_s_n: np.ndarray, h_s_n: np.ndarray, Wa_i_k: float) -> np.ndarray:
+    def calc_F_SDW_i_k_n(self, a_s_n: np.ndarray, h_s_n: np.ndarray, w_alpha_j: float) -> np.ndarray:
         """日除けの影面積を計算する（当面、簡易入力のみに対応）式(79)
 
         Args:
             a_s_n: 太陽方位角 [rad]
             h_s_n: 太陽高度 [rad]
-            Wa_i_k: 庇の設置してある窓の傾斜面方位角[rad]
+            w_alpha_j: 庇の設置してある窓の傾斜面方位角[rad]
 
         Returns:
             日除けの影面積比率 [-]
         """
 
         # プロファイル角, tangent
-        tan_fai = np.tan(h_s_n) / np.cos(a_s_n - Wa_i_k)
+        tan_fai = np.tan(h_s_n) / np.cos(a_s_n - w_alpha_j)
 
         # 日よけにより日射が遮られる長さ（窓上端からの長さ）, m
         DH_i_k = self.depth * tan_fai - self.d_e
