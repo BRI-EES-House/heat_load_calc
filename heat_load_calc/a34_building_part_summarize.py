@@ -103,6 +103,13 @@ def integrate(bss: List[BoundarySimple]) -> List[BoundarySimple]:
         for i in np.unique(gp_idxs)
     ])
 
+    # ステップnの室iにおける窓の透過日射熱取得, W, [8760*4]
+    q_trs_sol_js_ns = np.array([
+        np.sum(np.array([bs.q_trs_sol for bs in bss[gp_idxs == i]]), axis=0)
+        for i in np.unique(gp_idxs)
+    ])
+
+
     return [
         BoundarySimple(
             id=j,
@@ -119,7 +126,7 @@ def integrate(bss: List[BoundarySimple]) -> List[BoundarySimple]:
             direction=direction_js[j],
             h_i=h_i_js[j],
             theta_o_sol=theta_o_sol_js_ns[j],
-            q_trs_sol=None,
+            q_trs_sol=q_trs_sol_js_ns[j],
             n_root=None,
             row=None,
             rft0=None,
