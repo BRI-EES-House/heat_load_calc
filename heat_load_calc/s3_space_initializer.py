@@ -126,15 +126,6 @@ def make_house(d, input_data_dir, output_data_dir):
             # 外皮に面していない場合、室内壁ではない場合（地盤の場合が該当）は、Noneとする。
             k_ei_js.append(None)
 
-    # 境界jの傾斜面のステップnにおける相当外気温度, degree C, [j, 8760 * 4]
-    theta_o_sol_js_ns = np.array([
-        a34.get_area_weighted_averaged_values_two_dimension(
-            v=np.array([bs.theta_o_sol for bs in bss[gp_idxs == i]]),
-            a=np.array([bs.area for bs in bss[gp_idxs == i]])
-        )
-        for i in np.unique(gp_idxs)
-    ])
-
     # ステップnの室iにおける窓の透過日射熱取得, W, [8760*4]
     q_trs_sol_is_ns = np.array([
         np.sum(np.array([bs.q_trs_sol for bs in bss if bs.connected_room_id == i]), axis=0)
@@ -388,7 +379,7 @@ def make_house(d, input_data_dir, output_data_dir):
     # ステップnの境界jにおける裏面等価温度, ℃, [j, 8760*4]
     with open(output_data_dir + '/mid_data_theta_o_sol.csv', 'w') as f:
         w = csv.writer(f, lineterminator='\n')
-        w.writerows(theta_o_sol_js_ns.T.tolist())
+        w.writerows(np.array([bs.theta_o_sol for bs in bss2]).T.tolist())
 
 
 def get_v_int_vent_is(rooms: List[Dict]) -> np.ndarray:

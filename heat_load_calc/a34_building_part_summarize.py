@@ -94,6 +94,14 @@ def integrate(bss: List[BoundarySimple]) -> List[BoundarySimple]:
     # 境界jの室内側表面総合熱伝達率, W/m2K, [j]
     h_i_js = [bss[first_idx[i]].h_i for i in np.unique(gp_idxs)]
 
+    # 境界jの傾斜面のステップnにおける相当外気温度, degree C, [j, 8760 * 4]
+    theta_o_sol_js_ns = np.array([
+        get_area_weighted_averaged_values_two_dimension(
+            v=np.array([bs.theta_o_sol for bs in bss[gp_idxs == i]]),
+            a=np.array([bs.area for bs in bss[gp_idxs == i]])
+        )
+        for i in np.unique(gp_idxs)
+    ])
 
     return [
         BoundarySimple(
@@ -110,7 +118,7 @@ def integrate(bss: List[BoundarySimple]) -> List[BoundarySimple]:
             is_sun_striked_outside=is_sun_striked_outside_js[j],
             direction=direction_js[j],
             h_i=h_i_js[j],
-            theta_o_sol=None,
+            theta_o_sol=theta_o_sol_js_ns[j],
             q_trs_sol=None,
             n_root=None,
             row=None,
