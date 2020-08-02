@@ -63,11 +63,6 @@ class SolarShading:
             elif ssp['input_method'] == 'detail':
 
                 return SolarShadingDetail(
-                    existence=existence,
-                    input_method=input_method,
-                    depth=None,
-                    d_h=None,
-                    d_e=None,
                     x1=ssp['x1'],
                     x2=ssp['x2'],
                     x3=ssp['x3'],
@@ -166,15 +161,10 @@ class SolarShading2:
 
 class SolarShadingDetail(SolarShading):
 
-    def __init__(self, existence, input_method, depth, d_h, d_e, x1, x2, x3, y1, y2, y3, z_x_pls, z_x_mns, z_y_pls, z_y_mns):
+    def __init__(self, x1, x2, x3, y1, y2, y3, z_x_pls, z_x_mns, z_y_pls, z_y_mns):
 
         super().__init__()
 
-        self.existence = existence
-        self.input_method = input_method
-        self.depth = depth
-        self.d_h = d_h
-        self.d_e = d_e
         self.x1 = x1
         self.x2 = x2
         self.x3 = x3
