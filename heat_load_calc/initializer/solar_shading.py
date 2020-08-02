@@ -10,70 +10,53 @@ from heat_load_calc.initializer import external_boundaries_direction
 
 class SolarShading:
 
-    def __init__(self, existence, input_method, depth, d_h, d_e, x1, x2, x3, y1, y2, y3, z_x_pls, z_x_mns, z_y_pls, z_y_mns):
-
-        self.existence = existence
-        self.input_method = input_method
-        self.depth = depth
-        self.d_h = d_h
-        self.d_e = d_e
-        self.x1 = x1
-        self.x2 = x2
-        self.x3 = x3
-        self.y1 = y1
-        self.y2 = y2
-        self.y3 = y3
-        self.z_x_pls = z_x_pls
-        self.z_x_mns = z_x_mns
-        self.z_y_pls = z_y_pls
-        self.z_y_mns = z_y_mns
+    def __init__(self):
+        pass
 
     @classmethod
-    def create(cls, ssp: Dict):
+    def create(cls, b: Dict):
         """
         入力ファイルの辞書の'solar_shading_part'を読み込む。
 
         Args:
-            ssp: 'solar shading part' の辞書
+            b: 'boundary' の辞書
 
         Returns:
             SolarShadingPart クラス
         """
 
+        ssp = b['solar_shading_part']
+
         existence = ssp['existence']
 
-        if existence:
+        if b['boundary_type'] in ['external_general_part', 'external_transparent_part', 'external_opaque_part']:
+            is_sun_striked_outside = bool(b['is_sun_striked_outside'])
+        elif b['boundary_type'] in ['internal', 'ground']:
+            is_sun_striked_outside = False
+        else:
+            raise KeyError()
+
+        if existence & is_sun_striked_outside:
 
             input_method = ssp['input_method']
 
-            if ssp['input_method'] == 'simple':
+            # 境界ｊの傾斜面の方位角, rad
+            # 境界jの傾斜面の傾斜角, rad
+            w_alpha_j, _ = external_boundaries_direction.get_w_alpha_j_w_beta_j(direction_j=b['direction'])
 
-                return SolarShading(
-                    existence=existence,
-                    input_method=input_method,
+            if input_method == 'simple':
+
+                return SolarShadingSimple(
+                    w_alpha=w_alpha_j,
                     depth=ssp['depth'],
                     d_h=ssp['d_h'],
-                    d_e=ssp['d_e'],
-                    x1=None,
-                    x2=None,
-                    x3=None,
-                    y1=None,
-                    y2=None,
-                    y3=None,
-                    z_x_pls=None,
-                    z_x_mns=None,
-                    z_y_pls=None,
-                    z_y_mns=None
+                    d_e=ssp['d_e']
                 )
 
-            elif ssp['input_method'] == 'detail':
+            elif input_method == 'detail':
 
-                return SolarShading(
-                    existence=existence,
-                    input_method=input_method,
-                    depth=None,
-                    d_h=None,
-                    d_e=None,
+                return SolarShadingDetail(
+                    w_alpha=w_alpha_j,
                     x1=ssp['x1'],
                     x2=ssp['x2'],
                     x3=ssp['x3'],
@@ -91,68 +74,36 @@ class SolarShading:
 
         else:
 
-            return SolarShading(
-                existence=existence,
-                input_method=None,
-                depth=None,
-                d_h=None,
-                d_e=None,
-                x1=None,
-                x2=None,
-                x3=None,
-                y1=None,
-                y2=None,
-                y3=None,
-                z_x_pls=None,
-                z_x_mns=None,
-                z_y_pls=None,
-                z_y_mns=None
-            )
+            return SolarShadingNot()
 
-    def get_f_sdw_j_ns(self, h_sun_n, a_sun_n, direction_i_ks: str):
+    def get_f_ss_d_j_ns(self, h_sun_n, a_sun_n):
 
-        # 境界ｊの傾斜面の方位角, rad
-        # 境界jの傾斜面の傾斜角, rad
-        w_alpha_j, _ = external_boundaries_direction.get_w_alpha_j_w_beta_j(direction_j=direction_i_ks)
+        raise NotImplementedError()
 
-        ###################################################################################
-        h_s = np.where(h_sun_n > 0.0, h_sun_n, 0.0)
-        a_s = np.where(h_sun_n > 0.0, a_sun_n, 0.0)
+    def get_f_ss_s_j_ns(self):
 
-        # 日除けの日影面積率の計算
-        if self.existence:
-
-            if self.input_method == 'simple':
-
-                return self.calc_F_SDW_i_k_n(a_s_n=a_s, h_s_n=h_s, Wa_i_k=w_alpha_j)
-
-            elif self.input_method == 'detailed':
-
-                raise NotImplementedError()
-
-            else:
-
-                raise ValueError
-
-        else:
-
-            return np.full(len(h_sun_n), 1.0)
+        raise NotImplementedError()
 
 
-    def calc_F_SDW_i_k_n(self, a_s_n: np.ndarray, h_s_n: np.ndarray, Wa_i_k: float) -> np.ndarray:
-        """日除けの影面積を計算する（当面、簡易入力のみに対応）式(79)
+class SolarShadingSimple(SolarShading):
 
-        Args:
-            a_s_n: 太陽方位角 [rad]
-            h_s_n: 太陽高度 [rad]
-            Wa_i_k: 庇の設置してある窓の傾斜面方位角[rad]
+    def __init__(self, w_alpha, depth, d_h, d_e):
 
-        Returns:
-            日除けの影面積比率 [-]
-        """
+        super().__init__()
+
+        self.w_alpha = w_alpha
+        self.depth = depth
+        self.d_h = d_h
+        self.d_e = d_e
+
+    def get_f_ss_d_j_ns(self, h_sun_n, a_sun_n):
+
+        h_s_n = np.where(h_sun_n > 0.0, h_sun_n, 0.0)
+        a_s_n = np.where(h_sun_n > 0.0, a_sun_n, 0.0)
 
         # プロファイル角, tangent
-        tan_fai = np.tan(h_s_n) / np.cos(a_s_n - Wa_i_k)
+        # TODO: cos が 0 になる可能性を整理して条件式を追加する必要あり。
+        tan_fai = np.tan(h_s_n) / np.cos(a_s_n - self.w_alpha)
 
         # 日よけにより日射が遮られる長さ（窓上端からの長さ）, m
         DH_i_k = self.depth * tan_fai - self.d_e
@@ -167,3 +118,46 @@ class SolarShading:
 
         return F_SDW_i_k
 
+    def get_f_ss_s_j_ns(self):
+        raise NotImplementedError()
+
+
+class SolarShadingDetail(SolarShading):
+
+    def __init__(self, w_alpha, x1, x2, x3, y1, y2, y3, z_x_pls, z_x_mns, z_y_pls, z_y_mns):
+
+        super().__init__()
+
+        self.w_alpha = w_alpha
+        self.x1 = x1
+        self.x2 = x2
+        self.x3 = x3
+        self.y1 = y1
+        self.y2 = y2
+        self.y3 = y3
+        self.z_x_pls = z_x_pls
+        self.z_x_mns = z_x_mns
+        self.z_y_pls = z_y_pls
+        self.z_y_mns = z_y_mns
+
+    def get_f_ss_d_j_ns(self, h_sun_n, a_sun_n):
+
+        raise NotImplementedError()
+
+    def get_f_ss_s_j_ns(self):
+        raise NotImplementedError()
+
+
+class SolarShadingNot(SolarShading):
+
+    def __init__(self):
+
+        super().__init__()
+
+    def get_f_ss_d_j_ns(self, h_sun_n, a_sun_n):
+
+        # TODO: 要確認（ここは1.0ではなくて0.0が正しい？）
+        return np.full(len(h_sun_n), 1.0)
+
+    def get_f_ss_s_j_ns(self):
+        raise NotImplementedError()

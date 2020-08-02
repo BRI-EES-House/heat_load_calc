@@ -163,7 +163,7 @@ def get_boundary_simple(theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, a_sun_ns, h_sun_n
     # 室内側表面総合熱伝達率, W/m2K
     h_i = 1.0 / r_i
 
-    solar_shading_part = solar_shading.SolarShading.create(ssp=b['solar_shading_part'])
+    solar_shading_part = solar_shading.SolarShading.create(b=b)
 
     # 相当外気温度, degree C, [8760 * 4]
     oet = outside_eqv_temp.OutsideEqvTemp.create(b)
