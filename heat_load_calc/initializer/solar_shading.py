@@ -95,35 +95,7 @@ class SolarShadingSimple(SolarShading):
         a_s_n = np.where(h_sun_n > 0.0, a_sun_n, 0.0)
 
         # プロファイル角, tangent
-        tan_fai = np.tan(h_s_n) / np.cos(a_s_n - w_alpha_j)
-
-        # 日よけにより日射が遮られる長さ（窓上端からの長さ）, m
-        DH_i_k = self.depth * tan_fai - self.d_e
-
-        # 日影面積率の計算 式(79)
-        #   マイナスの場合（日陰が窓上端にかからない場合）は 0.0 とする。
-        #   1.0を超える場合（日陰が窓下端よりも下になる場合）は 1.0 とする。
-        F_SDW_i_k = np.clip(DH_i_k / self.d_h, 0.0, 1.0)
-
-        # 日が出ていないときは 0.0 とする。
-        F_SDW_i_k[h_s_n <= 0] = 0.0
-
-        return F_SDW_i_k
-
-
-    def calc_F_SDW_i_k_n(self, a_s_n: np.ndarray, h_s_n: np.ndarray, w_alpha_j: float) -> np.ndarray:
-        """日除けの影面積を計算する（当面、簡易入力のみに対応）式(79)
-
-        Args:
-            a_s_n: 太陽方位角 [rad]
-            h_s_n: 太陽高度 [rad]
-            w_alpha_j: 庇の設置してある窓の傾斜面方位角[rad]
-
-        Returns:
-            日除けの影面積比率 [-]
-        """
-
-        # プロファイル角, tangent
+        # TODO: cos が 0 になる可能性を整理して条件式を追加する必要あり。
         tan_fai = np.tan(h_s_n) / np.cos(a_s_n - w_alpha_j)
 
         # 日よけにより日射が遮られる長さ（窓上端からの長さ）, m
