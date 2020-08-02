@@ -70,11 +70,14 @@ def integrate(bss: List[BoundarySimple]) -> List[BoundarySimple]:
     # 境界jの裏面の境界ID, [j]
     rear_surface_boundary_id_js = []
     for i in np.unique(gp_idxs):
+
         # 統合する前の裏面の境界id
-        id = bss[first_idx[i]].rear_surface_boundary_id
+        _id = bss[first_idx[i]].rear_surface_boundary_id
+
         # 統合後の裏面の境界id (None の場合は None を代入する。）
-        id2 = None if id is None else gp_idxs[id]
-        rear_surface_boundary_id_js.append(id2)
+        _id2 = None if _id is None else gp_idxs[_id]
+
+        rear_surface_boundary_id_js.append(_id2)
 
     # 日射吸収の有無, [j]
     is_solar_absorbed_inside_js = [bss[first_idx[i]].is_solar_absorbed_inside for i in np.unique(gp_idxs)]
@@ -109,6 +112,47 @@ def integrate(bss: List[BoundarySimple]) -> List[BoundarySimple]:
         for i in np.unique(gp_idxs)
     ])
 
+    # 応答係数法（項別公比法）における根の数, [j]
+    n_root_js = [bss[first_idx[i]].n_root for i in np.unique(gp_idxs)]
+
+    # 項別公比法における項mの公比, [j, 12]
+    rows_js = [bss[first_idx[i]].row for i in np.unique(gp_idxs)]
+
+    # 境界jの貫流応答係数の初項, [j]
+    phi_t0_js = [
+        float(get_area_weighted_averaged_values_one_dimension(
+            v=np.array([bs.rft0 for bs in bss[gp_idxs == i]]),
+            a=np.array([bs.area for bs in bss[gp_idxs == i]])
+        ))
+        for i in np.unique(gp_idxs)
+    ]
+
+    # 境界jの吸熱応答係数の初項, m2K/W, [j]
+    phi_a0_js = [
+        float(get_area_weighted_averaged_values_one_dimension(
+            v=np.array([bs.rfa0 for bs in bss[gp_idxs == i]]),
+            a=np.array([bs.area for bs in bss[gp_idxs == i]])
+        ))
+        for i in np.unique(gp_idxs)
+    ]
+
+    # 境界jの項別公比法における項mの貫流応答係数の第一項, [j, 12]
+    phi_t1_js = [
+        get_area_weighted_averaged_values_two_dimension(
+            v=np.array([bs.rft1 for bs in bss[gp_idxs == i]]),
+            a=np.array([bs.area for bs in bss[gp_idxs == i]])
+        )
+        for i in np.unique(gp_idxs)
+    ]
+
+    # 境界jの項別公比法における項mの吸熱応答係数の第一項 , m2K/W, [j, 12]
+    phi_a1_js = [
+        get_area_weighted_averaged_values_two_dimension(
+            v=np.array([bs.rfa1 for bs in bss[gp_idxs == i]]),
+            a=np.array([bs.area for bs in bss[gp_idxs == i]])
+        )
+        for i in np.unique(gp_idxs)
+    ]
 
     return [
         BoundarySimple(
@@ -127,12 +171,12 @@ def integrate(bss: List[BoundarySimple]) -> List[BoundarySimple]:
             h_i=h_i_js[j],
             theta_o_sol=theta_o_sol_js_ns[j],
             q_trs_sol=q_trs_sol_js_ns[j],
-            n_root=None,
-            row=None,
-            rft0=None,
-            rfa0=None,
-            rft1=None,
-            rfa1=None
+            n_root=n_root_js[j],
+            row=rows_js[j],
+            rft0=phi_t0_js[j],
+            rfa0=phi_a0_js[j],
+            rft1=phi_t1_js[j],
+            rfa1=phi_a1_js[j]
         )
         for j in range(bs_n)
     ]
@@ -276,6 +320,7 @@ def get_area_weighted_averaged_values_one_dimension(v: np.ndarray, a: np.ndarray
     Returns:
         面積荷重平均化された値
     """
+
     return np.sum(v * a / np.sum(a))
 
 

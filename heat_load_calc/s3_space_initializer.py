@@ -87,22 +87,6 @@ def make_house(d, input_data_dir, output_data_dir):
 
     bss2 = a34.integrate(bss=list(bss))
 
-    # 集約化可能な境界には同じIDを振り、境界ごとにそのIDを取得する。
-    # BoundarySimple の数のIDを持つ ndarray
-    # 例
-    # [ 0  1  2  3  4  5  6  7  8  9  9 10 11 12 13 14 15 16 11 12 15 16 17 18
-    #  19 11 12 15 16 17 20 11 12 13 21 15 16 22 23 24 25 26 27 28 29 30 31 31
-    #  31 31]
-    gp_idxs = a34.get_group_indices(bss=bss)
-
-    # 先頭のインデックスのリスト
-    # [ 0  1  2  3  4  5  6  7  8  9 11 12 13 14 15 16 17 22 23 24 30 34 37 38
-    #  39 40 41 42 43 44 45 46]
-    first_idx = np.array([np.where(gp_idxs == k)[0][0] for k in np.unique(gp_idxs)], dtype=np.int)
-
-    # 統合された境界j*の総数
-    bs_n = len(bss2)
-
     k_ei_js = []
 
     for bs in bss2:
@@ -126,57 +110,10 @@ def make_house(d, input_data_dir, output_data_dir):
             # 外皮に面していない場合、室内壁ではない場合（地盤の場合が該当）は、Noneとする。
             k_ei_js.append(None)
 
-    # ステップnの室iにおける窓の透過日射熱取得, W, [8760*4]
-#    q_trs_sol_is_ns = np.array([
-#        np.sum(np.array([bs.q_trs_sol for bs in bss if bs.connected_room_id == i]), axis=0)
-#        for i in range(number_of_spaces)
-#    ])
     q_trs_sol_is_ns = np.array([
         np.sum(np.array([bs.q_trs_sol for bs in bss if bs.connected_room_id == i]), axis=0)
         for i in range(number_of_spaces)
     ])
-
-    # 室iの統合された境界j*の応答係数法（項別公比法）における根の数, [j*]
-    # n_root_i_jstrs = np.array([bss[first_idx[i]].n_root for i in np.unique(gp_idxs)])
-
-    # 境界jの項別公比法における項mの公比, [j, 12]
-    rows_js = [list(bss[first_idx[i]].row) for i in np.unique(gp_idxs)]
-
-    # 境界jの貫流応答係数の初項, [j]
-    phi_t0_js = np.array([
-        a34.get_area_weighted_averaged_values_one_dimension(
-            v=np.array([bs.rft0 for bs in bss[gp_idxs == i]]),
-            a=np.array([bs.area for bs in bss[gp_idxs == i]])
-        )
-        for i in np.unique(gp_idxs)
-    ])
-
-    # 境界jの吸熱応答係数の初項, m2K/W, [j]
-    phi_a0_js = np.array([
-        a34.get_area_weighted_averaged_values_one_dimension(
-            v=np.array([bs.rfa0 for bs in bss[gp_idxs == i]]),
-            a=np.array([bs.area for bs in bss[gp_idxs == i]])
-        )
-        for i in np.unique(gp_idxs)
-    ])
-
-    # 境界jの項別公比法における項mの貫流応答係数の第一項, [j, 12]
-    phi_t1_js = [
-        list(a34.get_area_weighted_averaged_values_two_dimension(
-            v=np.array([bs.rft1 for bs in bss[gp_idxs == i]]),
-            a=np.array([bs.area for bs in bss[gp_idxs == i]])
-        ))
-        for i in np.unique(gp_idxs)
-    ]
-
-    # 境界jの項別公比法における項mの吸熱応答係数の第一項 , m2K/W, [j, 12]
-    phi_a1_js = [
-        list(a34.get_area_weighted_averaged_values_two_dimension(
-            v=np.array([bs.rfa1 for bs in bss[gp_idxs == i]]),
-            a=np.array([bs.area for bs in bss[gp_idxs == i]])
-        ))
-        for i in np.unique(gp_idxs)
-    ]
 
     # 室iの床面積, m2, [i]
     # TODO: is_solar_absorbed_inside_js を使用すべき。
@@ -324,11 +261,11 @@ def make_house(d, input_data_dir, output_data_dir):
             'is_ground': 'true' if bs.boundary_type == BoundaryType.Ground else 'false',
             'connected_space_id': bs.connected_room_id,
             'area': bs.area,
-            'phi_a0': phi_a0_js[i],
-            'phi_a1': phi_a1_js[i],
-            'phi_t0': phi_t0_js[i],
-            'phi_t1': phi_t1_js[i],
-            'r': rows_js[i],
+            'phi_a0': bs.rfa0,
+            'phi_a1': list(bs.rfa1),
+            'phi_t0': bs.rft0,
+            'phi_t1': list(bs.rft1),
+            'r': list(bs.row),
             'h_i': bs.h_i,
             'flr': flr_jstrs[i],
             'is_solar_absorbed': str(bs.is_solar_absorbed_inside),
