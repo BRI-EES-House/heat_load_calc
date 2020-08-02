@@ -98,19 +98,20 @@ def integrate(bss: List[BoundarySimple]) -> List[BoundarySimple]:
     h_i_js = [bss[first_idx[i]].h_i for i in np.unique(gp_idxs)]
 
     # 境界jの傾斜面のステップnにおける相当外気温度, degree C, [j, 8760 * 4]
-    theta_o_sol_js_ns = np.array([
-        get_area_weighted_averaged_values_two_dimension(
-            v=np.array([bs.theta_o_sol for bs in bss[gp_idxs == i]]),
-            a=np.array([bs.area for bs in bss[gp_idxs == i]])
+    theta_o_sol_js_ns = [
+        np.average(
+            a=np.array([bs.theta_o_sol for bs in bss[gp_idxs == i]]),
+            axis=0,
+            weights=np.array([bs.area for bs in bss[gp_idxs == i]])
         )
         for i in np.unique(gp_idxs)
-    ])
+    ]
 
     # ステップnの室iにおける窓の透過日射熱取得, W, [8760*4]
-    q_trs_sol_js_ns = np.array([
+    q_trs_sol_js_ns = [
         np.sum(np.array([bs.q_trs_sol for bs in bss[gp_idxs == i]]), axis=0)
         for i in np.unique(gp_idxs)
-    ])
+    ]
 
     # 応答係数法（項別公比法）における根の数, [j]
     n_root_js = [bss[first_idx[i]].n_root for i in np.unique(gp_idxs)]
@@ -120,36 +121,38 @@ def integrate(bss: List[BoundarySimple]) -> List[BoundarySimple]:
 
     # 境界jの貫流応答係数の初項, [j]
     phi_t0_js = [
-        float(get_area_weighted_averaged_values_one_dimension(
-            v=np.array([bs.rft0 for bs in bss[gp_idxs == i]]),
-            a=np.array([bs.area for bs in bss[gp_idxs == i]])
-        ))
+        np.average(
+            a=np.array([bs.rft0 for bs in bss[gp_idxs == i]]),
+            weights=np.array([bs.area for bs in bss[gp_idxs == i]])
+        )
         for i in np.unique(gp_idxs)
     ]
 
     # 境界jの吸熱応答係数の初項, m2K/W, [j]
     phi_a0_js = [
-        float(get_area_weighted_averaged_values_one_dimension(
-            v=np.array([bs.rfa0 for bs in bss[gp_idxs == i]]),
-            a=np.array([bs.area for bs in bss[gp_idxs == i]])
-        ))
+        np.average(
+            a=np.array([bs.rfa0 for bs in bss[gp_idxs == i]]),
+            weights=np.array([bs.area for bs in bss[gp_idxs == i]])
+        )
         for i in np.unique(gp_idxs)
     ]
 
     # 境界jの項別公比法における項mの貫流応答係数の第一項, [j, 12]
     phi_t1_js = [
-        get_area_weighted_averaged_values_two_dimension(
-            v=np.array([bs.rft1 for bs in bss[gp_idxs == i]]),
-            a=np.array([bs.area for bs in bss[gp_idxs == i]])
+        np.average(
+            a=np.array([bs.rft1 for bs in bss[gp_idxs == i]]),
+            axis=0,
+            weights=np.array([bs.area for bs in bss[gp_idxs == i]])
         )
         for i in np.unique(gp_idxs)
     ]
 
     # 境界jの項別公比法における項mの吸熱応答係数の第一項 , m2K/W, [j, 12]
     phi_a1_js = [
-        get_area_weighted_averaged_values_two_dimension(
-            v=np.array([bs.rfa1 for bs in bss[gp_idxs == i]]),
-            a=np.array([bs.area for bs in bss[gp_idxs == i]])
+        np.average(
+            a=np.array([bs.rfa1 for bs in bss[gp_idxs == i]]),
+            axis=0,
+            weights=np.array([bs.area for bs in bss[gp_idxs == i]])
         )
         for i in np.unique(gp_idxs)
     ]
@@ -308,38 +311,4 @@ def _is_almost_equal(v1: float, v2: float) -> bool:
     """
 
     return abs(v1 - v2) < 1.0E-5
-
-
-def get_area_weighted_averaged_values_one_dimension(v: np.ndarray, a: np.ndarray) -> np.ndarray:
-    """
-    あるデータを面積荷重平均する。
-    Args:
-        v: ベクトル（1次元）, [m] (m=境界の数）
-        a: 面積, m2, [m] (m=境界の数）
-
-    Returns:
-        面積荷重平均化された値
-    """
-
-    return np.sum(v * a / np.sum(a))
-
-
-def get_area_weighted_averaged_values_two_dimension(v: np.ndarray, a: np.ndarray) -> np.ndarray:
-    """
-    時系列データ等複数の値もつ1次元配列のデータを複数もつマトリックスを面積加重平均する。
-
-    Args:
-        v: ベクトル（2次元） [m, n] （m=境界の数）
-        a: 面積, m2, [境界の数]
-
-    Returns:
-        面積荷重平均化された1次元配列の値 [n]
-    """
-
-    # 面積割合, [境界の数]　ただし、行列計算可能なように[m,1]の2次元配列としている。
-    r = (a / np.sum(a)).reshape(-1, 1)
-
-    result = np.sum(v * r, axis=0)
-
-    return result
 
