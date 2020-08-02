@@ -8,7 +8,6 @@ import heat_load_calc.a12_indoor_radiative_heat_transfer as a12
 import heat_load_calc.a14_furniture as a14
 import heat_load_calc.a15_air_flow_rate_rac as a15
 import heat_load_calc.a22_radiative_heating_spec as a22
-import heat_load_calc.a34_building_part_summarize as a34
 
 from heat_load_calc.initializer.boundary_type import BoundaryType
 
@@ -16,6 +15,7 @@ from heat_load_calc.initializer import schedule_loader
 from heat_load_calc.initializer import residents_number
 from heat_load_calc.initializer import occupants_form_factor
 from heat_load_calc.initializer import boundary_simple
+from heat_load_calc.initializer import building_part_summarize
 
 
 def make_house(d, input_data_dir, output_data_dir):
@@ -85,7 +85,7 @@ def make_house(d, input_data_dir, output_data_dir):
         ) for b_dict in d['boundaries']
     ])
 
-    bss2 = a34.integrate(bss=list(bss))
+    bss2 = building_part_summarize.integrate(bss=list(bss))
 
     k_ei_js = []
 
@@ -141,7 +141,6 @@ def make_house(d, input_data_dir, output_data_dir):
             a_floor_is=a_floor_is
         )
     ac_demand_is_ns = np.where(ac_demand_is_ns == 1, True, False)
-
 
     qrtd_c_is = np.array([a15.get_qrtd_c(a_floor_i) for a_floor_i in a_floor_is])
     qmax_c_is = np.array([a15.get_qmax_c(qrtd_c_i) for qrtd_c_i in qrtd_c_is])

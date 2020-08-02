@@ -36,7 +36,7 @@ def integrate(bss: List[BoundarySimple]) -> List[BoundarySimple]:
     # [ 0  1  2  3  4  5  6  7  8  9  9 10 11 12 13 14 15 16 11 12 15 16 17 18
     #  19 11 12 15 16 17 20 11 12 13 21 15 16 22 23 24 25 26 27 28 29 30 31 31
     #  31 31]
-    gp_idxs = get_group_indices(bss=bss)
+    gp_idxs = _get_group_indices(bss=bss)
 
     # 先頭のインデックスのリスト
     # [ 0  1  2  3  4  5  6  7  8  9 11 12 13 14 15 16 17 22 23 24 30 34 37 38
@@ -185,7 +185,7 @@ def integrate(bss: List[BoundarySimple]) -> List[BoundarySimple]:
     ]
 
 
-def get_group_indices(bss: np.ndarray) -> np.ndarray:
+def _get_group_indices(bss: np.ndarray) -> np.ndarray:
     """
     集約化できるBoundaryには共通のIDをふっていく。
 
