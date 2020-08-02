@@ -29,7 +29,12 @@ class SolarShading:
 
         existence = ssp['existence']
 
-        if existence:
+        if b['boundary_type'] in ['external_general_part', 'external_transparent_part', 'external_opaque_part']:
+            is_sun_striked_outside = bool(b['is_sun_striked_outside'])
+        elif b['boundary_type'] in ['internal', 'ground']:
+            is_sun_striked_outside = False
+
+        if existence & is_sun_striked_outside:
 
             input_method = ssp['input_method']
 
