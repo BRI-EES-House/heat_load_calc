@@ -78,23 +78,7 @@ class SolarShading:
 
         else:
 
-            return SolarShading2(
-                existence=existence,
-                input_method=None,
-                depth=None,
-                d_h=None,
-                d_e=None,
-                x1=None,
-                x2=None,
-                x3=None,
-                y1=None,
-                y2=None,
-                y3=None,
-                z_x_pls=None,
-                z_x_mns=None,
-                z_y_pls=None,
-                z_y_mns=None
-            )
+            return SolarShadingNot()
 
     def get_f_sdw_j_ns(self, h_sun_n, a_sun_n, direction_i_ks: str):
 
@@ -178,4 +162,15 @@ class SolarShading2:
         F_SDW_i_k[h_s_n <= 0] = 0.0
 
         return F_SDW_i_k
+
+
+class SolarShadingNot(SolarShading):
+
+    def __init__(self):
+
+        super().__init__()
+
+    def get_f_sdw_j_ns(self, h_sun_n, a_sun_n, direction_i_ks: str):
+
+        return np.full(len(h_sun_n), 1.0)
 
