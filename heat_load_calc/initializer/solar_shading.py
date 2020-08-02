@@ -115,24 +115,17 @@ class SolarShading2:
         h_s = np.where(h_sun_n > 0.0, h_sun_n, 0.0)
         a_s = np.where(h_sun_n > 0.0, a_sun_n, 0.0)
 
-        # 日除けの日影面積率の計算
-        if self.existence:
+        if self.input_method == 'simple':
 
-            if self.input_method == 'simple':
+            return self.calc_F_SDW_i_k_n(a_s_n=a_s, h_s_n=h_s, Wa_i_k=w_alpha_j)
 
-                return self.calc_F_SDW_i_k_n(a_s_n=a_s, h_s_n=h_s, Wa_i_k=w_alpha_j)
+        elif self.input_method == 'detailed':
 
-            elif self.input_method == 'detailed':
-
-                raise NotImplementedError()
-
-            else:
-
-                raise ValueError
+            raise NotImplementedError()
 
         else:
 
-            return np.full(len(h_sun_n), 1.0)
+            raise ValueError
 
 
     def calc_F_SDW_i_k_n(self, a_s_n: np.ndarray, h_s_n: np.ndarray, Wa_i_k: float) -> np.ndarray:
