@@ -18,12 +18,117 @@ from heat_load_calc.initializer.boundary_type import BoundaryType
 from heat_load_calc.initializer.boundary_simple import BoundarySimple
 
 
+def integrate(bss: List[BoundarySimple]) -> List[BoundarySimple]:
+    """壁体を集約する。
+
+    Args:
+        bss: 境界, [j]
+
+    Returns:
+        集約された境界, [j*]
+    """
+
+    bss = np.array(bss)
+
+    # 集約化可能な境界には同じIDを振り、境界ごとにそのIDを取得する。
+    # BoundarySimple の数のIDを持つ ndarray
+    # 例
+    # [ 0  1  2  3  4  5  6  7  8  9  9 10 11 12 13 14 15 16 11 12 15 16 17 18
+    #  19 11 12 15 16 17 20 11 12 13 21 15 16 22 23 24 25 26 27 28 29 30 31 31
+    #  31 31]
+    gp_idxs = get_group_indices(bss=bss)
+
+    # 先頭のインデックスのリスト
+    # [ 0  1  2  3  4  5  6  7  8  9 11 12 13 14 15 16 17 22 23 24 30 34 37 38
+    #  39 40 41 42 43 44 45 46]
+    first_idx = np.array([np.where(gp_idxs == k)[0][0] for k in np.unique(gp_idxs)], dtype=np.int)
+
+    # 統合された境界j*の総数
+    bs_n = len(first_idx)
+
+    # 境界jの名称, [j]
+    name_js = ['integrated_boundary' + str(i) for i in np.unique(gp_idxs)]
+
+    # 境界jの副名称（統合する前の境界の名前を'+'記号でつなげたもの）, [j]
+    sub_name_js = ['+'.join([bs.name for bs in bss[gp_idxs == i]]) for i in np.unique(gp_idxs)]
+
+    # 境界jの面する室のID, [j]
+    connected_room_id_js = [bss[first_idx[i]].connected_room_id for i in np.unique(gp_idxs)]
+
+    # 境界jの種類, [j]
+    boundary_type_js = [bss[first_idx[i]].boundary_type for i in np.unique(gp_idxs)]
+
+    # 境界jの面積, m2, [j]
+    a_js = [sum([bs.area for bs in bss[gp_idxs == i]]) for i in np.unique(gp_idxs)]
+
+    # 境界jの温度差係数, [j]
+    h_td_js = [bss[first_idx[i]].h_td for i in np.unique(gp_idxs)]
+
+    # 隣接する室のタイプ(int), [j]
+    next_room_type_js = [bss[first_idx[i]].next_room_type for i in np.unique(gp_idxs)]
+
+    # 境界jの裏面の境界ID, [j]
+    rear_surface_boundary_id_js = []
+    for i in np.unique(gp_idxs):
+        # 統合する前の裏面の境界id
+        id = bss[first_idx[i]].rear_surface_boundary_id
+        # 統合後の裏面の境界id (None の場合は None を代入する。）
+        id2 = None if id is None else gp_idxs[id]
+        rear_surface_boundary_id_js.append(id2)
+
+    # 日射吸収の有無, [j]
+    is_solar_absorbed_inside_js = [bss[first_idx[i]].is_solar_absorbed_inside for i in np.unique(gp_idxs)]
+
+    # 室外側の日射の有無
+    # True: 当たる
+    # False: 当たらない
+    # 境界の種類が'external_general_part', 'external_transparent_part', 'external_opaque_part'の場合に定義される。
+    is_sun_striked_outside_js = [bss[first_idx[i]].is_sun_striked_outside for i in np.unique(gp_idxs)]
+
+    # 面する方位
+    # 's', 'sw', 'w', 'nw', 'n', 'ne', 'e', 'se', 'top', 'bottom'
+    # 日射の有無が定義されている場合でかつその値がTrueの場合のみ定義される。
+    direction_js = [bss[first_idx[i]].direction for i in np.unique(gp_idxs)]
+
+    # 室内側表面総合熱伝達率, W/m2K
+    # 境界jの室内側表面総合熱伝達率, W/m2K, [j]
+    h_i_js = [bss[first_idx[i]].h_i for i in np.unique(gp_idxs)]
+
+
+    return [
+        BoundarySimple(
+            id=j,
+            name=name_js[j],
+            sub_name=sub_name_js[j],
+            connected_room_id=connected_room_id_js[j],
+            boundary_type=boundary_type_js[j],
+            area=a_js[j],
+            h_td=h_td_js[j],
+            next_room_type=next_room_type_js[j],
+            rear_surface_boundary_id=rear_surface_boundary_id_js[j],
+            is_solar_absorbed_inside=is_solar_absorbed_inside_js[j],
+            is_sun_striked_outside=is_sun_striked_outside_js[j],
+            direction=direction_js[j],
+            h_i=h_i_js[j],
+            theta_o_sol=None,
+            q_trs_sol=None,
+            n_root=None,
+            row=None,
+            rft0=None,
+            rfa0=None,
+            rft1=None,
+            rfa1=None
+        )
+        for j in range(bs_n)
+    ]
+
+
 def get_group_indices(bss: np.ndarray) -> np.ndarray:
     """
     集約化できるBoundaryには共通のIDをふっていく。
 
     Args:
-        bss: 室iにおける境界k
+        bss: 境界j
 
     Returns:
         グループ番号 * 境界の数
@@ -48,7 +153,7 @@ def get_group_indices(bss: np.ndarray) -> np.ndarray:
         gs_index = np.array(
             [
                 l for l in range(n)
-                if g_k[l] < 0 and is_boundary_integratable(bs1=bss[k], bs2=bss[l])
+                if g_k[l] < 0 and _is_boundary_integratable(bs1=bss[k], bs2=bss[l])
             ], dtype=np.int64
         )
 
@@ -58,7 +163,7 @@ def get_group_indices(bss: np.ndarray) -> np.ndarray:
     return g_k
 
 
-def is_boundary_integratable(bs1: BoundarySimple, bs2: BoundarySimple) -> bool:
+def _is_boundary_integratable(bs1: BoundarySimple, bs2: BoundarySimple) -> bool:
     """
     境界1と境界2が同じであるかを判定する。
 
@@ -95,7 +200,7 @@ def is_boundary_integratable(bs1: BoundarySimple, bs2: BoundarySimple) -> bool:
         return False
 
     # 室内側熱伝達率
-    if not is_almost_equal(bs1.h_i, bs2.h_i):
+    if not _is_almost_equal(bs1.h_i, bs2.h_i):
         return False
 
     # 境界の種類が「外皮_一般部位」、「外皮_透明な開口部」又は「外皮_不透明な開口部」の場合
@@ -108,7 +213,7 @@ def is_boundary_integratable(bs1: BoundarySimple, bs2: BoundarySimple) -> bool:
             return False
 
         # 温度差係数
-        if not is_almost_equal(bs1.h_td, bs2.h_td):
+        if not _is_almost_equal(bs1.h_td, bs2.h_td):
             return False
 
         # 日射の有無が当たるの場合
@@ -129,7 +234,7 @@ def is_boundary_integratable(bs1: BoundarySimple, bs2: BoundarySimple) -> bool:
     return True
 
 
-def is_almost_equal(v1: float, v2: float) -> bool:
+def _is_almost_equal(v1: float, v2: float) -> bool:
     """
     境界条件が同じかどうかを判定する際に値が同じであるかを判定する時に、プログラム上の誤差を拾わないために、
     少し余裕を見て10**(-5) 以内の差であれば、同じ値であるとみなすことにする。
