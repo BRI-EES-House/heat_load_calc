@@ -40,9 +40,14 @@ class SolarShading:
 
             input_method = ssp['input_method']
 
+            # 境界ｊの傾斜面の方位角, rad
+            # 境界jの傾斜面の傾斜角, rad
+            w_alpha_j, _ = external_boundaries_direction.get_w_alpha_j_w_beta_j(direction_j=b['direction'])
+
             if input_method == 'simple':
 
                 return SolarShadingSimple(
+                    w_alpha=w_alpha_j,
                     depth=ssp['depth'],
                     d_h=ssp['d_h'],
                     d_e=ssp['d_e']
@@ -51,6 +56,7 @@ class SolarShading:
             elif input_method == 'detail':
 
                 return SolarShadingDetail(
+                    w_alpha=w_alpha_j,
                     x1=ssp['x1'],
                     x2=ssp['x2'],
                     x3=ssp['x3'],
@@ -70,33 +76,30 @@ class SolarShading:
 
             return SolarShadingNot()
 
-    def get_f_sdw_j_ns(self, h_sun_n, a_sun_n, direction_i_ks: str):
+    def get_f_sdw_j_ns(self, h_sun_n, a_sun_n):
 
         raise NotImplementedError()
 
 
 class SolarShadingSimple(SolarShading):
 
-    def __init__(self, depth, d_h, d_e):
+    def __init__(self, w_alpha, depth, d_h, d_e):
 
         super().__init__()
+
+        self.w_alpha = w_alpha
         self.depth = depth
         self.d_h = d_h
         self.d_e = d_e
 
-    def get_f_sdw_j_ns(self, h_sun_n, a_sun_n, direction_i_ks: str):
+    def get_f_sdw_j_ns(self, h_sun_n, a_sun_n):
 
-        # 境界ｊの傾斜面の方位角, rad
-        # 境界jの傾斜面の傾斜角, rad
-        w_alpha_j, _ = external_boundaries_direction.get_w_alpha_j_w_beta_j(direction_j=direction_i_ks)
-
-        ###################################################################################
         h_s_n = np.where(h_sun_n > 0.0, h_sun_n, 0.0)
         a_s_n = np.where(h_sun_n > 0.0, a_sun_n, 0.0)
 
         # プロファイル角, tangent
         # TODO: cos が 0 になる可能性を整理して条件式を追加する必要あり。
-        tan_fai = np.tan(h_s_n) / np.cos(a_s_n - w_alpha_j)
+        tan_fai = np.tan(h_s_n) / np.cos(a_s_n - self.w_alpha)
 
         # 日よけにより日射が遮られる長さ（窓上端からの長さ）, m
         DH_i_k = self.depth * tan_fai - self.d_e
@@ -114,10 +117,11 @@ class SolarShadingSimple(SolarShading):
 
 class SolarShadingDetail(SolarShading):
 
-    def __init__(self, x1, x2, x3, y1, y2, y3, z_x_pls, z_x_mns, z_y_pls, z_y_mns):
+    def __init__(self, w_alpha, x1, x2, x3, y1, y2, y3, z_x_pls, z_x_mns, z_y_pls, z_y_mns):
 
         super().__init__()
 
+        self.w_alpha = w_alpha
         self.x1 = x1
         self.x2 = x2
         self.x3 = x3
@@ -129,7 +133,7 @@ class SolarShadingDetail(SolarShading):
         self.z_y_pls = z_y_pls
         self.z_y_mns = z_y_mns
 
-    def get_f_sdw_j_ns(self, h_sun_n, a_sun_n, direction_i_ks: str):
+    def get_f_sdw_j_ns(self, h_sun_n, a_sun_n):
 
         raise NotImplementedError()
 
@@ -140,7 +144,7 @@ class SolarShadingNot(SolarShading):
 
         super().__init__()
 
-    def get_f_sdw_j_ns(self, h_sun_n, a_sun_n, direction_i_ks: str):
+    def get_f_sdw_j_ns(self, h_sun_n, a_sun_n):
 
         return np.full(len(h_sun_n), 1.0)
 
