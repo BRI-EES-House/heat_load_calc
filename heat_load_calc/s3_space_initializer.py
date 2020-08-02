@@ -8,13 +8,14 @@ import heat_load_calc.a12_indoor_radiative_heat_transfer as a12
 import heat_load_calc.a14_furniture as a14
 import heat_load_calc.a15_air_flow_rate_rac as a15
 import heat_load_calc.a22_radiative_heating_spec as a22
+
 from heat_load_calc.initializer.boundary_type import BoundaryType
-import heat_load_calc.s3_surface_initializer as s3
-import heat_load_calc.x_35_occupants as x35
-import heat_load_calc.a34_building_part_summarize as a34
 
 from heat_load_calc.initializer import schedule_loader
 from heat_load_calc.initializer import residents_number
+from heat_load_calc.initializer import occupants_form_factor
+from heat_load_calc.initializer import boundary_simple
+from heat_load_calc.initializer import building_part_summarize
 
 
 def make_house(d, input_data_dir, output_data_dir):
@@ -71,10 +72,9 @@ def make_house(d, input_data_dir, output_data_dir):
     # 室iの家具等と空気間の湿気コンダクタンス, kg/s kg/kgDA
     c_x_is = a14.get_c_x_is(g_f_is)
 
-    # 室iの境界j
-    # メモ [12, 26, 12]
+    # 境界j
     bss = np.array([
-        s3.get_boundary_simple(
+        boundary_simple.get_boundary_simple(
             theta_o_ns=theta_o_ns,
             i_dn_ns=i_dn_ns,
             i_sky_ns=i_sky_ns,
@@ -85,148 +85,40 @@ def make_house(d, input_data_dir, output_data_dir):
         ) for b_dict in d['boundaries']
     ])
 
-    # BoundarySimple をフラット化する。
-    bss2 = bss
-
-    # 集約化可能な境界には同じIDを振り、境界ごとにそのIDを取得する。
-    # BoundarySimple の数のIDを持つ ndarray
-    # 例
-    # [ 0  1  2  3  4  5  6  7  8  9  9 10 11 12 13 14 15 16 11 12 15 16 17 18
-    #  19 11 12 15 16 17 20 11 12 13 21 15 16 22 23 24 25 26 27 28 29 30 31 31
-    #  31 31]
-    gp_idxs = a34.get_group_indices(bss=bss2)
-
-    # 先頭のインデックスのリスト
-    # [ 0  1  2  3  4  5  6  7  8  9 11 12 13 14 15 16 17 22 23 24 30 34 37 38
-    #  39 40 41 42 43 44 45 46]
-    first_idx = np.array([np.where(gp_idxs == k)[0][0] for k in np.unique(gp_idxs)], dtype=np.int)
-
-    # 統合された境界j*の総数
-    bs_n = len(first_idx)
-
-    # 境界jの名称, [j]
-    name_js = ['integrated_boundary' + str(i) for i in np.unique(gp_idxs)]
-
-    # 境界jの副名称（統合する前の境界の名前を'+'記号でつなげたもの）, [j]
-    sub_name_js = ['+'.join([bs.name for bs in bss2[gp_idxs == i]]) for i in np.unique(gp_idxs)]
-
-    # 境界jの面する室のID, [j]
-    connected_room_id_js = [bss2[first_idx[i]].connected_room_id for i in np.unique(gp_idxs)]
-
-    # 境界jの種類, [j]
-    boundary_type_js = [bss2[first_idx[i]].boundary_type for i in np.unique(gp_idxs)]
-
-    # 境界ｊが地盤か否か, [j]
-    is_ground_js = [b == BoundaryType.Ground for b in boundary_type_js]
-
-    # 境界jの面積, m2, [j]
-    a_js = [sum([bs.area for bs in bss2[gp_idxs == i]]) for i in np.unique(gp_idxs)]
-
-    # 境界jの温度差係数, [j]
-    h_td_js = [bss2[first_idx[i]].h_td for i in np.unique(gp_idxs)]
-
-    # 日射吸収の有無, [j]
-    is_solar_absorbed_inside_js = [bss2[first_idx[i]].is_solar_absorbed_inside for i in np.unique(gp_idxs)]
-
-    # 境界jの裏面の境界ID, [j]
-    rear_surface_boundary_id_js = []
-    for i in np.unique(gp_idxs):
-        # 統合する前の裏面の境界id
-        id = bss2[first_idx[i]].rear_surface_boundary_id
-        # 統合後の裏面の境界id (None の場合は None を代入する。）
-        id2 = None if id is None else gp_idxs[id]
-        rear_surface_boundary_id_js.append(id2)
+    bss2 = building_part_summarize.integrate(bss=list(bss))
 
     k_ei_js = []
 
-    for i in range(bs_n):
+    for bs in bss2:
 
-        if boundary_type_js[i] in [
+        if bs.boundary_type in [
             BoundaryType.ExternalOpaquePart,
             BoundaryType.ExternalTransparentPart,
             BoundaryType.ExternalGeneralPart
         ]:
             # 温度差係数が1.0でない場合はk_ei_jsに値を代入する。
             # id は自分自身の境界IDとし、自分自身の表面の影響は1.0から温度差係数を減じた値になる。
-            if h_td_js[i] < 1.0:
-                k_ei_js.append({'id': i, 'coef': round(1.0 - h_td_js[i], 1)})
+            if bs.h_td < 1.0:
+                k_ei_js.append({'id': bs.id, 'coef': round(1.0 - bs.h_td, 1)})
             else:
                 # 温度差係数が1.0の場合はNoneとする。
                 k_ei_js.append(None)
-        elif boundary_type_js[i] == BoundaryType.Internal:
+        elif bs.boundary_type == BoundaryType.Internal:
             # 室内壁の場合にk_ei_jsを登録する。
-            k_ei_js.append({'id': int(rear_surface_boundary_id_js[i]), 'coef': 1.0})
+            k_ei_js.append({'id': int(bs.rear_surface_boundary_id), 'coef': 1.0})
         else:
             # 外皮に面していない場合、室内壁ではない場合（地盤の場合が該当）は、Noneとする。
             k_ei_js.append(None)
 
-    # 室iの統合された境界j*の室内侵入日射吸収の有無, [j*]
-    # is_solar_absorbed_inside_i_jstrs = np.array([bss[first_idx[i]].is_solar_absorbed_inside for i in np.unique(gp_idxs)])
-
-    # 境界jの室内側表面総合熱伝達率, W/m2K, [j]
-    h_i_js = [bss2[first_idx[i]].h_i for i in np.unique(gp_idxs)]
-
-    # 境界jの傾斜面のステップnにおける相当外気温度, degree C, [j, 8760 * 4]
-    theta_o_sol_js_ns = np.array([
-        s3.get_area_weighted_averaged_values_two_dimension(
-            v=np.array([bs.theta_o_sol for bs in bss2[gp_idxs == i]]),
-            a=np.array([bs.area for bs in bss2[gp_idxs == i]])
-        )
-        for i in np.unique(gp_idxs)
-    ])
-
-    # ステップnの室iにおける窓の透過日射熱取得, W, [8760*4]
     q_trs_sol_is_ns = np.array([
-        np.sum(np.array([bs.q_trs_sol for bs in bss2 if bs.connected_room_id == i]), axis=0)
+        np.sum(np.array([bs.q_trs_sol for bs in bss if bs.connected_room_id == i]), axis=0)
         for i in range(number_of_spaces)
     ])
-
-    # 室iの統合された境界j*の応答係数法（項別公比法）における根の数, [j*]
-    # n_root_i_jstrs = np.array([bss[first_idx[i]].n_root for i in np.unique(gp_idxs)])
-
-    # 境界jの項別公比法における項mの公比, [j, 12]
-    rows_js = [list(bss2[first_idx[i]].row) for i in np.unique(gp_idxs)]
-
-    # 境界jの貫流応答係数の初項, [j]
-    phi_t0_js = np.array([
-        s3.get_area_weighted_averaged_values_one_dimension(
-            v=np.array([bs.rft0 for bs in bss2[gp_idxs == i]]),
-            a=np.array([bs.area for bs in bss2[gp_idxs == i]])
-        )
-        for i in np.unique(gp_idxs)
-    ])
-
-    # 境界jの吸熱応答係数の初項, m2K/W, [j]
-    phi_a0_js = np.array([
-        s3.get_area_weighted_averaged_values_one_dimension(
-            v=np.array([bs.rfa0 for bs in bss2[gp_idxs == i]]),
-            a=np.array([bs.area for bs in bss2[gp_idxs == i]])
-        )
-        for i in np.unique(gp_idxs)
-    ])
-
-    # 境界jの項別公比法における項mの貫流応答係数の第一項, [j, 12]
-    phi_t1_js = [
-        list(s3.get_area_weighted_averaged_values_two_dimension(
-            v=np.array([bs.rft1 for bs in bss2[gp_idxs == i]]),
-            a=np.array([bs.area for bs in bss2[gp_idxs == i]])
-        ))
-        for i in np.unique(gp_idxs)
-    ]
-
-    # 境界jの項別公比法における項mの吸熱応答係数の第一項 , m2K/W, [j, 12]
-    phi_a1_js = [
-        list(s3.get_area_weighted_averaged_values_two_dimension(
-            v=np.array([bs.rfa1 for bs in bss2[gp_idxs == i]]),
-            a=np.array([bs.area for bs in bss2[gp_idxs == i]])
-        ))
-        for i in np.unique(gp_idxs)
-    ]
 
     # 室iの床面積, m2, [i]
     # TODO: is_solar_absorbed_inside_js を使用すべき。
     a_floor_is = np.array([
-        np.sum(np.array([bs.area for bs in bss2 if bs.connected_room_id == i and bs.is_solar_absorbed_inside]))
+        np.sum(np.array([bs.area for bs in bss if bs.connected_room_id == i and bs.is_solar_absorbed_inside]))
         for i in range(number_of_spaces)
     ])
 
@@ -249,7 +141,6 @@ def make_house(d, input_data_dir, output_data_dir):
             a_floor_is=a_floor_is
         )
     ac_demand_is_ns = np.where(ac_demand_is_ns == 1, True, False)
-
 
     qrtd_c_is = np.array([a15.get_qrtd_c(a_floor_i) for a_floor_i in a_floor_is])
     qmax_c_is = np.array([a15.get_qmax_c(qrtd_c_i) for qrtd_c_i in qrtd_c_is])
@@ -299,22 +190,22 @@ def make_house(d, input_data_dir, output_data_dir):
     # 熱交換器種類
     heat_exchanger_type_is = [a22.read_heat_exchanger_type(room) for room in rooms]
 
-
     # 室iの在室者に対する境界j*の形態係数
+    # TODO: 日射の吸収の有無ではなくて、床か否かで判定するように変更すべき。
     f_mrt_hum_is = np.concatenate([
-        x35.get_f_mrt_hum_is(
-            a_bdry_i_jstrs=np.array([a_j for a_j, connected_room_id_j in zip(a_js, connected_room_id_js) if connected_room_id_j == i]),
-            is_solar_absorbed_inside_bdry_i_jstrs=np.array([is_solar_absorbed_inside_j for is_solar_absorbed_inside_j, connected_room_id_j in zip(is_solar_absorbed_inside_js, connected_room_id_js) if connected_room_id_j == i])
+        occupants_form_factor.get_f_mrt_hum_is(
+            a_bdry_i_jstrs=np.array([bs.area for bs in bss2 if bs.connected_room_id == i]),
+            is_solar_absorbed_inside_bdry_i_jstrs=np.array([bs.is_solar_absorbed_inside for bs in bss2 if bs.connected_room_id == i])
         ) for i in range(number_of_spaces)])
 
     # 放射暖房の発熱部位の設定（とりあえず床発熱） 表7
     # TODO: 発熱部位を指定して、面積按分するように変更すべき。
     flr_jstrs = np.concatenate([
         a12.get_flr(
-            A_i_g=np.array([a_j for a_j, connected_room_id_j in zip(a_js, connected_room_id_js) if connected_room_id_j == i]),
+            A_i_g=np.array([bs.area for bs in bss2 if bs.connected_room_id == i]),
             A_fs_i=a_floor_is[i],
             is_radiative_heating=is_radiative_heating_is[i],
-            is_solar_absorbed_inside=np.array([is_solar_absorbed_inside_j for is_solar_absorbed_inside_j, connected_room_id_j in zip(is_solar_absorbed_inside_js, connected_room_id_js) if connected_room_id_j == i])
+            is_solar_absorbed_inside=np.array([bs.is_solar_absorbed_inside for bs in bss2 if bs.connected_room_id == i])
         ) for i in range(number_of_spaces)])
 
     Beta_i = 0.0  # 放射暖房対流比率
@@ -360,25 +251,25 @@ def make_house(d, input_data_dir, output_data_dir):
         })
 
     bdrs = []
-    for i in range(bs_n):
+    for i, bs in enumerate(bss2):
 
         bdrs.append({
-            'id': i,
-            'name': name_js[i],
-            'sub_name': sub_name_js[i],
-            'is_ground': {True: 'true', False: 'false'}[is_ground_js[i]],
-            'connected_space_id': connected_room_id_js[i],
-            'area': a_js[i],
-            'phi_a0': phi_a0_js[i],
-            'phi_a1': phi_a1_js[i],
-            'phi_t0': phi_t0_js[i],
-            'phi_t1': phi_t1_js[i],
-            'r': rows_js[i],
-            'h_i': h_i_js[i],
+            'id': bs.id,
+            'name': bs.name,
+            'sub_name': bs.sub_name,
+            'is_ground': 'true' if bs.boundary_type == BoundaryType.Ground else 'false',
+            'connected_space_id': bs.connected_room_id,
+            'area': bs.area,
+            'phi_a0': bs.rfa0,
+            'phi_a1': list(bs.rfa1),
+            'phi_t0': bs.rft0,
+            'phi_t1': list(bs.rft1),
+            'r': list(bs.row),
+            'h_i': bs.h_i,
             'flr': flr_jstrs[i],
-            'is_solar_absorbed': str(is_solar_absorbed_inside_js[i]),
+            'is_solar_absorbed': str(bs.is_solar_absorbed_inside),
             'f_mrt_hum': f_mrt_hum_is[i],
-            'k_outside': h_td_js[i],
+            'k_outside': bs.h_td,
             'k_inside': k_ei_js[i]
         })
 
@@ -428,7 +319,7 @@ def make_house(d, input_data_dir, output_data_dir):
     # ステップnの境界jにおける裏面等価温度, ℃, [j, 8760*4]
     with open(output_data_dir + '/mid_data_theta_o_sol.csv', 'w') as f:
         w = csv.writer(f, lineterminator='\n')
-        w.writerows(theta_o_sol_js_ns.T.tolist())
+        w.writerows(np.array([bs.theta_o_sol for bs in bss2]).T.tolist())
 
 
 def get_v_int_vent_is(rooms: List[Dict]) -> np.ndarray:
