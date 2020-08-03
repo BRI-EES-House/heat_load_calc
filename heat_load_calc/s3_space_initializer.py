@@ -311,11 +311,6 @@ def make_house(d, input_data_dir, output_data_dir):
         w = csv.writer(f, lineterminator='\n')
         w.writerows(q_trs_sol_is_ns.T.tolist())
 
-    # ステップnの室iにおける窓の透過日射熱取得, W, [8760*4]
-    with open(output_data_dir + '/mid_data_q_trs_sol.csv', 'w') as f:
-        w = csv.writer(f, lineterminator='\n')
-        w.writerows(q_trs_sol_is_ns.T.tolist())
-
     # ステップnの境界jにおける裏面等価温度, ℃, [j, 8760*4]
     with open(output_data_dir + '/mid_data_theta_o_sol.csv', 'w') as f:
         w = csv.writer(f, lineterminator='\n')
