@@ -24,13 +24,13 @@ def make_weather(region: int, output_data_dir: str = None, csv_output: bool = Fa
     h_sun_ns, a_sun_ns = solar_position.calc_solar_position(phi_loc=phi_loc, lambda_loc=lambda_loc)
 
     dd = pd.DataFrame(index=pd.date_range(start='1/1/1989', periods=365*96, freq='15min'))
-    dd['temperature [degree C]'] = theta_o_ns.round(3)
-    dd['absolute humidity [kg/kg(DA)]'] = x_o_ns.round(6)
-    dd['normal direct solar radiation [W/m2]'] = i_dn_ns
-    dd['horizontal sky solar radiation [W/m2]'] = i_sky_ns
-    dd['outward radiation [W/m2]'] = r_n_ns
-    dd['sun altitude [rad]'] = h_sun_ns
-    dd['sun azimuth [rad]'] = a_sun_ns
+    dd['temperature'] = theta_o_ns.round(3)
+    dd['absolute humidity'] = x_o_ns.round(6)
+    dd['normal direct solar radiation'] = i_dn_ns
+    dd['horizontal sky solar radiation'] = i_sky_ns
+    dd['outward radiation'] = r_n_ns
+    dd['sun altitude'] = h_sun_ns
+    dd['sun azimuth'] = a_sun_ns
 
     if csv_output:
         dd.to_csv(output_data_dir + '/weather.csv', encoding='utf-8')

@@ -425,8 +425,8 @@ def make_pre_calc_parameters(data_directory: str) -> (PreCalcParameters, PreCalc
 
     pp = pd.read_csv(data_directory + '/weather.csv', index_col=0, engine='python')
 
-    theta_o_ns = pp['temperature [degree C]'].values
-    x_o_ns = pp['absolute humidity [kg/kg(DA)]'].values
+    theta_o_ns = pp['temperature'].values
+    x_o_ns = pp['absolute humidity'].values
 
     # ステップnの室iにおける局所換気量, m3/s, [i, 8760*4]
     with open(data_directory + '/mid_data_local_vent.csv', 'r') as f:

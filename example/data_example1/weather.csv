@@ -1,4 +1,4 @@
-,temperature [degree C],absolute humidity [kg/kg(DA)],normal direct solar radiation [W/m2],horizontal sky solar radiation [W/m2],outward radiation [W/m2],sun altitude [rad],sun azimuth [rad]
+,temperature,absolute humidity,normal direct solar radiation,horizontal sky solar radiation,outward radiation,sun altitude,sun azimuth
 1989-01-01 00:00:00,2.3,0.0032,0.0,0.0,83.3333333333333,-1.365523233879938,2.9888437913063757
 1989-01-01 00:15:00,2.375,0.003225,0.0,0.0,82.63888888888884,-1.365761421273977,-2.997616590392288
 1989-01-01 00:30:00,2.45,0.00325,0.0,0.0,81.9444444444444,-1.3506351977026902,-2.7202631422176498

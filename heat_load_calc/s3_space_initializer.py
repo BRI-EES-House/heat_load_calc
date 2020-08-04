@@ -22,13 +22,13 @@ def make_house(d, input_data_dir, output_data_dir):
 
     pp = pd.read_csv(input_data_dir + '/weather.csv', index_col=0)
 
-    theta_o_ns = pp['temperature [degree C]'].values
-    x_o_ns = pp['absolute humidity [kg/kg(DA)]'].values
-    i_dn_ns = pp['normal direct solar radiation [W/m2]'].values
-    i_sky_ns = pp['horizontal sky solar radiation [W/m2]'].values
-    r_n_ns = pp['outward radiation [W/m2]'].values
-    h_sun_ns = pp['sun altitude [rad]'].values
-    a_sun_ns = pp['sun azimuth [rad]'].values
+    theta_o_ns = pp['temperature'].values
+    x_o_ns = pp['absolute humidity'].values
+    i_dn_ns = pp['normal direct solar radiation'].values
+    i_sky_ns = pp['horizontal sky solar radiation'].values
+    r_n_ns = pp['outward radiation'].values
+    h_sun_ns = pp['sun altitude'].values
+    a_sun_ns = pp['sun azimuth'].values
 
     rooms = d['rooms']
 
