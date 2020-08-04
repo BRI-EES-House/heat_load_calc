@@ -9,7 +9,7 @@ class MyTestCase(unittest.TestCase):
 
     # 関数の名前も何でも良いので、 test_xxxxx(self): の形で適当に変更してください。
     # ↓ このテストは時間がかかるので、skip して他のテストをサクッとまわしたいときは、次の行をアクティブにする。
-    # @unittest.skip('時間がかかるのでとりあえずskip')
+    @unittest.skip('時間がかかるのでとりあえずskip')
     def test_something1(self):
 
         data_dir = str(os.path.dirname(__file__)) + '/data'
