@@ -78,10 +78,26 @@ class SolarShading:
             return SolarShadingNot()
 
     def get_f_ss_d_j_ns(self, h_sun_n, a_sun_n):
+        """
+        直達日射に対する日よけの影面積比率を計算する。
+
+        Args:
+            h_sun_n: 太陽高度, rad, [8760*4]
+            a_sun_n: 太陽方位角, rad, [8760*4]
+
+        Returns:
+            直達日射に対する日除けの影面積比率, [8760*4]
+        """
 
         raise NotImplementedError()
 
     def get_f_ss_s_j_ns(self):
+        """
+        天空放射に対する日よけの影面積比率を計算する。
+
+        Returns:
+            天空放射に対する日除けの影面積比率
+        """
 
         raise NotImplementedError()
 
@@ -97,7 +113,17 @@ class SolarShadingSimple(SolarShading):
         self.d_h = d_h
         self.d_e = d_e
 
-    def get_f_ss_d_j_ns(self, h_sun_n, a_sun_n):
+    def get_f_ss_d_j_ns(self, h_sun_n: np.ndarray, a_sun_n: np.ndarray) -> np.ndarray:
+        """
+        無限に長い庇がある場合の直達日射に対する日よけの影面積比率を計算する。
+
+        Args:
+            h_sun_n: 太陽高度, rad, [8760*4]
+            a_sun_n: 太陽方位角, rad, [8760*4]
+
+        Returns:
+            直達日射に対する日除けの影面積比率, [8760*4]
+        """
 
         h_s_n = np.where(h_sun_n > 0.0, h_sun_n, 0.0)
         a_s_n = np.where(h_sun_n > 0.0, a_sun_n, 0.0)
@@ -121,10 +147,10 @@ class SolarShadingSimple(SolarShading):
 
     def get_f_ss_s_j_ns(self) -> float:
         """
-        無限に長い庇がある場合の天空に対する形態係数を計算する
+        無限に長い庇がある場合の天空放射に対する日よけの影面積比率を計算する。
 
         Returns:
-            影の割合
+            天空放射に対する日除けの影面積比率
         """
 
         # 庇の出幅
@@ -165,10 +191,27 @@ class SolarShadingDetail(SolarShading):
         self.z_y_mns = z_y_mns
 
     def get_f_ss_d_j_ns(self, h_sun_n, a_sun_n):
+        """
+        直達日射に対する日よけの影面積比率を計算する。
+
+        Args:
+            h_sun_n: 太陽高度, rad, [8760*4]
+            a_sun_n: 太陽方位角, rad, [8760*4]
+
+        Returns:
+            直達日射に対する日除けの影面積比率, [8760*4]
+        """
 
         raise NotImplementedError()
 
     def get_f_ss_s_j_ns(self):
+        """
+        天空放射に対する日よけの影面積比率を計算する。
+
+        Returns:
+            天空放射に対する日除けの影面積比率
+        """
+
         raise NotImplementedError()
 
 
@@ -179,9 +222,26 @@ class SolarShadingNot(SolarShading):
         super().__init__()
 
     def get_f_ss_d_j_ns(self, h_sun_n, a_sun_n):
+        """
+        直達日射に対する日よけの影面積比率を計算する。
+
+        Args:
+            h_sun_n: 太陽高度, rad, [8760*4]
+            a_sun_n: 太陽方位角, rad, [8760*4]
+
+        Returns:
+            直達日射に対する日除けの影面積比率, [8760*4]
+        """
 
         # TODO: 要確認（ここは1.0ではなくて0.0が正しい？）
         return np.full(len(h_sun_n), 1.0)
 
     def get_f_ss_s_j_ns(self):
+        """
+        天空放射に対する日よけの影面積比率を計算する。
+
+        Returns:
+            天空放射に対する日除けの影面積比率
+        """
+
         raise NotImplementedError()
