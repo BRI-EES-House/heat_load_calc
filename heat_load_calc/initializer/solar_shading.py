@@ -4,6 +4,7 @@
 
 import numpy as np
 from typing import Dict
+import math
 
 from heat_load_calc.initializer import external_boundaries_direction
 
