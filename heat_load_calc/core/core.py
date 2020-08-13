@@ -1,3 +1,5 @@
+from typing import Dict
+
 from heat_load_calc.core import period
 from heat_load_calc.core import pre_calc_parameters
 from heat_load_calc.core import conditions
@@ -7,7 +9,25 @@ from heat_load_calc.core import sequence_ground
 from heat_load_calc.core.pre_calc_parameters import PreCalcParameters, PreCalcParametersGround
 
 
-def calc(input_data_dir: str, output_data_dir: str = None, show_simple_result: bool = False, show_detail_result: bool = False):
+def calc(
+        input_data_dir: str,
+        output_data_dir: str = None,
+        show_simple_result: bool = False,
+        show_detail_result: bool = False
+) -> (Dict, Dict):
+    """coreメインプログラム
+
+    Args:
+        input_data_dir: 計算条件を記したファイルがあるディレクトリ（相対パスで指定）
+        output_data_dir: 計算結果を出力するディレクトリ（相対パスで指定）
+        show_simple_result: 簡易計算結果をファイル出力するか否か（指定しない場合はFalse=出力しない）
+        show_detail_result: 詳細計算結果をファイル出力するか否か（指定しない場合はFalse=出力しない）
+
+    Returns:
+        以下のタプル
+            (1) 計算結果（簡易版）をいれたDataFrame
+            (2) 計算結果（詳細版）をいれたDataFrame
+    """
 
     # 本計算のステップ数
     n_step_main = period.get_n_step_main()
