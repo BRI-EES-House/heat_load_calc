@@ -118,7 +118,35 @@ class SolarShadingSimple(SolarShading):
 
         return F_SDW_i_k
 
-    def get_f_ss_s_j_ns(self):
+    # 無限に長い庇がある場合の天空に対する形態係数を計算する
+    def get_f_ss_s_j_ns(self) -> float:
+        """
+
+            Args:   長さの寸法は統一されていれば[m]である必要はない
+            :param y1:  窓の上端から庇までの長さ[m]
+            :param yw:  窓の高さ[m]
+            :param z:   庇の出幅[m]
+            :return:    窓から庇を見る形態係数[－]
+            """
+
+        # 庇の出幅
+        z = self.depth
+
+        # 窓の高さ
+        yw = self.d_h
+
+        # 窓の上端から庇までの長さ
+        y1 = self.d_e
+
+        ac = y1 + yw
+        ab = z
+        ad = y1
+        dc = yw
+        bd = math.sqrt(ad ** 2.0 + ab ** 2.0)
+        bc = math.sqrt((ad + dc) ** 2.0 + ab ** 2.0)
+
+        return ((ac + bd) - (ad + bc)) / (2.0 * dc)
+
         raise NotImplementedError()
 
 
