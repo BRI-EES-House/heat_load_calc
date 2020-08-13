@@ -2,6 +2,7 @@ import json
 import numpy as np
 import csv
 import pandas as pd
+from dataclasses import dataclass
 
 from heat_load_calc.external.global_number import get_c_air, get_rho_air
 from heat_load_calc.core import shape_factor
@@ -13,7 +14,6 @@ class PreCalcParameters:
             self,
             number_of_spaces,
             number_of_bdries,
-            number_of_grounds,
             space_name_is,
             v_room_is,
             c_cap_w_frt_is,
@@ -65,8 +65,6 @@ class PreCalcParameters:
             theta_o_ave,
             rac_spec
     ):
-
-        self.n_grounds = number_of_grounds
 
         # region 室に関すること
 
@@ -221,42 +219,32 @@ class PreCalcParameters:
         self.rac_spec = rac_spec
 
 
+@dataclass
 class PreCalcParametersGround:
 
-    def __init__(
-            self,
-            n_grounds,
-            r_js_ms,
-            phi_a0_js,
-            phi_a1_js_ms,
-            h_r_js,
-            h_c_js,
-            theta_o_ns,
-            theta_o_ave,
-    ):
+    # 地盤の数
+    n_grounds: int
 
-        self.n_grounds = n_grounds
+    # 地盤jの項別公比法における項mの公比, [j, 12]
+    r_js_ms: np.ndarray
 
-        # 地盤jの項別公比法における項mの公比, [j, 12]
-        self.r_js_ms = r_js_ms
+    # 地盤jの吸熱応答係数の初項, m2K/W, [j, 1]
+    phi_a0_js: np.ndarray
 
-        # 地盤jの吸熱応答係数の初項, m2K/W, [j]
-        self.phi_a0_js = phi_a0_js
+    # 地盤jの項別公比法における項mの吸熱応答係数の第一項 , m2K/W, [j, 12]
+    phi_a1_js_ms: np.ndarray
 
-        # 地盤jの項別公比法における項mの吸熱応答係数の第一項 , m2K/W, [j*, 12]
-        self.phi_a1_js_ms = phi_a1_js_ms
+    # 地盤jにおける室内側放射熱伝達率, W/m2K, [j, 1]
+    h_r_js: np.ndarray
 
-        # 地盤jにおける室内側放射熱伝達率, W/m2K, [j, 1]
-        self.h_r_js = h_r_js
+    # 地盤jにおける室内側対流熱伝達率, W/m2K, [j, 1]
+    h_c_js: np.ndarray
 
-        # 地盤jにおける室内側対流熱伝達率, W/m2K, [j, 1]
-        self.h_c_js = h_c_js
+    # ステップnの外気温度, degree C, [n]
+    theta_o_ns: np.ndarray
 
-        # ステップnの外気温度, degree C, [n]
-        self.theta_o_ns = theta_o_ns
-
-        # 年平均外気温度, degree C
-        self.theta_o_ave = theta_o_ave
+    # 年平均外気温度, degree C
+    theta_o_ave: float
 
 
 def make_pre_calc_parameters(data_directory: str) -> (PreCalcParameters, PreCalcParametersGround):
@@ -352,7 +340,7 @@ def make_pre_calc_parameters(data_directory: str) -> (PreCalcParameters, PreCalc
     name_bdry_js = np.array([b['name'] for b in bs])
 
     # 名前2, [j]
-    sub_name_bdry_js= [b['sub_name'] for b in bs]
+    sub_name_bdry_js = [b['sub_name'] for b in bs]
 
     # 地盤かどうか, [j, 1]
     is_ground_js = np.array([{'true': True, 'false': False}[b['is_ground']] for b in bs]).reshape(-1, 1)
@@ -600,7 +588,6 @@ def make_pre_calc_parameters(data_directory: str) -> (PreCalcParameters, PreCalc
     pre_calc_parameters = PreCalcParameters(
         number_of_spaces=number_of_spaces,
         number_of_bdries=number_of_bdries,
-        number_of_grounds=n_grounds,
         space_name_is=space_name_is,
         v_room_is=v_room_is,
         c_cap_w_frt_is=c_cap_w_frt_is,
