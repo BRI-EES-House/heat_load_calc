@@ -13,7 +13,6 @@ class PreCalcParameters:
             self,
             number_of_spaces,
             number_of_bdries,
-            number_of_grounds,
             space_name_is,
             v_room_is,
             c_cap_w_frt_is,
@@ -65,8 +64,6 @@ class PreCalcParameters:
             theta_o_ave,
             rac_spec
     ):
-
-        self.n_grounds = number_of_grounds
 
         # region 室に関すること
 
@@ -600,7 +597,6 @@ def make_pre_calc_parameters(data_directory: str) -> (PreCalcParameters, PreCalc
     pre_calc_parameters = PreCalcParameters(
         number_of_spaces=number_of_spaces,
         number_of_bdries=number_of_bdries,
-        number_of_grounds=n_grounds,
         space_name_is=space_name_is,
         v_room_is=v_room_is,
         c_cap_w_frt_is=c_cap_w_frt_is,
