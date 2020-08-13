@@ -148,8 +148,6 @@ class SolarShadingSimple(SolarShading):
 
         return ((ac + bd) - (ad + bc)) / (2.0 * dc)
 
-        raise NotImplementedError()
-
 
 class SolarShadingDetail(SolarShading):
 
