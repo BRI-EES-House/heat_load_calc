@@ -352,7 +352,7 @@ def make_pre_calc_parameters(data_directory: str) -> (PreCalcParameters, PreCalc
     name_bdry_js = np.array([b['name'] for b in bs])
 
     # 名前2, [j]
-    sub_name_bdry_js= [b['sub_name'] for b in bs]
+    sub_name_bdry_js = [b['sub_name'] for b in bs]
 
     # 地盤かどうか, [j, 1]
     is_ground_js = np.array([{'true': True, 'false': False}[b['is_ground']] for b in bs]).reshape(-1, 1)
