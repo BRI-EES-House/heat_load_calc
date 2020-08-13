@@ -13,7 +13,7 @@ class MyTestCase(unittest.TestCase):
 
         data_dir = str(os.path.dirname(__file__)) + '/data'
 
-        ds, dd = core.calc(input_data_dir=data_dir)
+        ds, dd = core.calc(input_data_dir=data_dir, output_data_dir=data_dir, show_detail_result=True)
 
         cls._ds = ds
         cls._dd = dd
@@ -35,7 +35,7 @@ class MyTestCase(unittest.TestCase):
         # 1/1 0:00の絶対湿度があっているかどうか？
         self.assertEqual(0.0032, self._dd['out_abs_humid']['1989-01-01 00:00:00'])
 
-    def test_temp_change(self):
+    def test_air_heat_balance(self):
 
         t_r_old = self._dd['rm0_t_r']['1989-01-01 00:00:00']
         t_r_new = self._dd['rm0_t_r']['1989-01-01 00:15:00']
@@ -44,10 +44,70 @@ class MyTestCase(unittest.TestCase):
         c_air = 1005  # J/kg K
         rho_air = 1.2  # kg/m3
 
-        heat = (t_r_new - t_r_old) * volume * c_air * rho_air
+        heat_storage = (t_r_new - t_r_old) * volume * c_air * rho_air / 900.0   # W
 
-        self.assertAlmostEqual(-54808.782520573935, heat)
+        # 部位からの対流熱取得, [W]
+        conv_heat = self._dd.filter(regex='rm0_b*_qic_s')
+        sum_conv_heat = conv_heat.sum(axis=1)
+        surf_conv_heat = sum_conv_heat['1989-01-01 00:15:00']
 
+        # 家具からの対流熱取得, [W]
+        t_fun = self._dd['rm0_t_fun']['1989-01-01 00:15:00']
+        c_fun = self._mdh['spaces'][0]['furniture']['heat_cond']  # W/K
+        q_fun = c_fun * (t_fun - t_r_new)
+        self.assertAlmostEqual(q_fun, - self._dd['rm0_q_s_fun']['1989-01-01 00:15:00'])
+
+        # すきま風による熱取得, [W]
+        v_reak = self._dd['rm0_v_reak']['1989-01-01 00:15:00']  # m3/s
+        t_o = self._dd['out_temp']['1989-01-01 00:15:00']  # C
+        q_vent_reak = c_air * rho_air * v_reak * (t_o - t_r_new)
+
+        # 計画換気による熱取得, [W]
+        v_mechanical = self._mdh['spaces'][0]['ventilation']['mechanical']  # m3/s
+        q_vent_mecha = c_air * rho_air * v_mechanical * (t_o - t_r_new)
+
+        # 自然換気による熱取得, [W]
+        v_natural = self._dd['rm0_v_ntrl']['1989-01-01 00:15:00']  # m3/s
+        q_vent_natural = c_air * rho_air * v_natural * (t_o - t_r_new)
+
+        # 隣室間換気による熱取得, [W]
+        v_next_vent0 = self._mdh['spaces'][0]['ventilation']['next_spaces'][0]  # m3/s
+        v_next_vent1 = self._mdh['spaces'][0]['ventilation']['next_spaces'][1]  # m3/s
+        v_next_vent2 = self._mdh['spaces'][0]['ventilation']['next_spaces'][2]  # m3/s
+        t_r_0_new = self._dd['rm0_t_r']['1989-01-01 00:15:00']
+        t_r_1_new = self._dd['rm1_t_r']['1989-01-01 00:15:00']
+        t_r_2_new = self._dd['rm2_t_r']['1989-01-01 00:15:00']
+        q_next_vent = c_air * rho_air * (v_next_vent0 * t_r_0_new \
+                                         + v_next_vent1 * t_r_1_new \
+                                         + v_next_vent2 * t_r_2_new \
+                                         - (v_next_vent0 + v_next_vent1 + v_next_vent2) * t_r_new)
+
+        # 内部発熱顕熱, [W]
+        q_internal = self._dd['rm0_q_s_except_hum']['1989-01-01 00:15:00']\
+                     + self._dd['rm0_q_hum_s']['1989-01-01 00:15:00']
+
+        # 顕熱負荷, [W]
+        L_s = self._dd['rm0_l_s_c']['1989-01-01 00:15:00']
+
+        # 熱収支のテスト
+        print('heat_storage=', heat_storage)
+        print('surf_conv_heat=', surf_conv_heat)
+        print('q_fun=', q_fun)
+        print('q_vent_reak=', q_vent_reak)
+        print('q_vent_mecha=', q_vent_mecha)
+        print('q_vent_natural=', q_vent_natural)
+        print('q_next_vent=', q_next_vent)
+        print('q_internal=', q_internal)
+        print('L_s=', L_s)
+        self.assertAlmostEqual(heat_storage \
+                               - surf_conv_heat \
+                               - q_fun \
+                               - q_vent_reak \
+                               - q_vent_mecha \
+                               - q_vent_natural \
+                               - q_next_vent \
+                               - q_internal \
+                               - L_s, 0.0)
 
 
 if __name__ == '__main__':
