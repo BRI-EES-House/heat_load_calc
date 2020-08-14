@@ -1,6 +1,7 @@
 import unittest
 import os
 import json
+import csv
 
 from heat_load_calc.core import core
 
@@ -11,14 +12,14 @@ class MyTestCase(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
 
-        data_dir = str(os.path.dirname(__file__)) + '/data'
+        cls._data_dir = str(os.path.dirname(__file__)) + '/data'
 
-        ds, dd = core.calc(input_data_dir=data_dir, output_data_dir=data_dir, show_detail_result=True)
+        ds, dd = core.calc(input_data_dir=cls._data_dir, output_data_dir=cls._data_dir, show_detail_result=True)
 
         cls._ds = ds
         cls._dd = dd
 
-        with open(data_dir + '/mid_data_house.json') as f:
+        with open(cls._data_dir + '/mid_data_house.json') as f:
             mdh = json.load(f)
 
         cls._mdh = mdh
@@ -47,9 +48,9 @@ class MyTestCase(unittest.TestCase):
         heat_storage = (t_r_new - t_r_old) * volume * c_air * rho_air / 900.0   # W
 
         # 部位からの対流熱取得, [W]
-        conv_heat = self._dd.filter(regex='rm0_b*_qic_s')
-        sum_conv_heat = conv_heat.sum(axis=1)
-        surf_conv_heat = sum_conv_heat['1989-01-01 00:15:00']
+        surf_conv_heat = 0.0
+        for i in range(0, 10):
+            surf_conv_heat -= self._dd['rm0_b' + str(i) + '_qic_s']['1989-01-01 00:15:00']
 
         # 家具からの対流熱取得, [W]
         t_fun = self._dd['rm0_t_fun']['1989-01-01 00:15:00']
@@ -77,10 +78,17 @@ class MyTestCase(unittest.TestCase):
         t_r_0_new = self._dd['rm0_t_r']['1989-01-01 00:15:00']
         t_r_1_new = self._dd['rm1_t_r']['1989-01-01 00:15:00']
         t_r_2_new = self._dd['rm2_t_r']['1989-01-01 00:15:00']
-        q_next_vent = c_air * rho_air * (v_next_vent0 * t_r_0_new \
-                                         + v_next_vent1 * t_r_1_new \
-                                         + v_next_vent2 * t_r_2_new \
-                                         - (v_next_vent0 + v_next_vent1 + v_next_vent2) * t_r_new)
+        q_next_vent0 = c_air * rho_air * v_next_vent0 * (t_r_0_new - t_r_new)
+        q_next_vent1 = c_air * rho_air * v_next_vent1 * (t_r_1_new - t_r_new)
+        q_next_vent2 = c_air * rho_air * v_next_vent2 * (t_r_2_new - t_r_new)
+        q_next_vent = q_next_vent0 + q_next_vent1 + q_next_vent2
+
+        # 局所換気による熱取得, [W]
+        with open(self._data_dir + '/mid_data_local_vent.csv', 'r') as f:
+            r = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
+            l = [row for row in r]
+        v_local = l[1][0]
+        q_local_vent = c_air * rho_air * v_local * (t_o - t_r_new)
 
         # 内部発熱顕熱, [W]
         q_internal = self._dd['rm0_q_s_except_hum']['1989-01-01 00:15:00']\
@@ -97,17 +105,19 @@ class MyTestCase(unittest.TestCase):
         print('q_vent_mecha=', q_vent_mecha)
         print('q_vent_natural=', q_vent_natural)
         print('q_next_vent=', q_next_vent)
+        print('q_local_vent=', q_local_vent)
         print('q_internal=', q_internal)
         print('L_s=', L_s)
-        self.assertAlmostEqual(heat_storage \
-                               - surf_conv_heat \
-                               - q_fun \
-                               - q_vent_reak \
-                               - q_vent_mecha \
-                               - q_vent_natural \
-                               - q_next_vent \
-                               - q_internal \
-                               - L_s, 0.0)
+        self.assertAlmostEqual(heat_storage, \
+                               + surf_conv_heat \
+                               + q_fun \
+                               + q_vent_reak \
+                               + q_vent_mecha \
+                               + q_vent_natural \
+                               + q_next_vent \
+                               + q_local_vent \
+                               + q_internal \
+                               + L_s)
 
 
 if __name__ == '__main__':
