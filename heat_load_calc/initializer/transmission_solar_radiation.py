@@ -97,7 +97,7 @@ class TransmissionSolarRadiationTransparentSunStrike(TransmissionSolarRadiation)
         f_sdw_j_ns = self._solar_shading_part.get_f_ss_d_j_ns(h_sun_ns, a_sun_ns)
 
         # 天空放射に対する日よけの影面積比率
-        f_ss_s_j_ns = self._solar_shading_part.get_f_ss_s_j_ns()
+        f_ss_s_j_ns = self._solar_shading_part.get_f_ss_s_j()
 
         # 境界jにおける透明な開口部の拡散日射に対する基準化透過率
         c_d_j = oblique_incidence_charac.get_c_d_j(glazing_type_j=self._glazing_type)

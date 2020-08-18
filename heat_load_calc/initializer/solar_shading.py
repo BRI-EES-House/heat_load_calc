@@ -91,7 +91,7 @@ class SolarShading:
 
         raise NotImplementedError()
 
-    def get_f_ss_s_j_ns(self):
+    def get_f_ss_s_j(self):
         """
         天空放射に対する日よけの影面積比率を計算する。
 
@@ -145,7 +145,7 @@ class SolarShadingSimple(SolarShading):
 
         return F_SDW_i_k
 
-    def get_f_ss_s_j_ns(self) -> float:
+    def get_f_ss_s_j(self) -> float:
         """
         無限に長い庇がある場合の天空放射に対する日よけの影面積比率を計算する。
 
@@ -204,7 +204,7 @@ class SolarShadingDetail(SolarShading):
 
         raise NotImplementedError()
 
-    def get_f_ss_s_j_ns(self):
+    def get_f_ss_s_j(self):
         """
         天空放射に対する日よけの影面積比率を計算する。
 
@@ -236,7 +236,7 @@ class SolarShadingNot(SolarShading):
         # TODO: 要確認（ここは1.0ではなくて0.0が正しい？）
         return np.full(len(h_sun_n), 1.0)
 
-    def get_f_ss_s_j_ns(self):
+    def get_f_ss_s_j(self):
         """
         天空放射に対する日よけの影面積比率を計算する。
 
@@ -244,4 +244,4 @@ class SolarShadingNot(SolarShading):
             天空放射に対する日除けの影面積比率
         """
 
-        raise NotImplementedError()
+        raise 0.0
