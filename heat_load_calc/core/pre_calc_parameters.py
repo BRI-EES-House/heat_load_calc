@@ -2,261 +2,200 @@ import json
 import numpy as np
 import csv
 import pandas as pd
+from dataclasses import dataclass
+from typing import List, Dict, Any
 
 from heat_load_calc.external.global_number import get_c_air, get_rho_air
 from heat_load_calc.core import shape_factor
 
 
+@dataclass
 class PreCalcParameters:
 
-    def __init__(
-            self,
-            number_of_spaces,
-            number_of_bdries,
-            number_of_grounds,
-            space_name_is,
-            v_room_is,
-            c_cap_w_frt_is,
-            c_w_frt_is,
-            c_room_is,
-            c_cap_h_frt_is,
-            c_h_frt_is,
-            v_int_vent_is_is,
-            name_bdry_js,
-            sub_name_bdry_js,
-            a_srf_js,
-            v_mec_vent_is_ns,
-            q_gen_is_ns,
-            n_hum_is_ns,
-            x_gen_is_ns,
-            f_mrt_hum_is_js,
-            theta_dstrb_js_ns,
-            r_js_ms,
-            phi_t0_js,
-            phi_a0_js,
-            phi_t1_js_ms,
-            phi_a1_js_ms,
-            q_trs_sol_is_ns,
-            v_ntrl_vent_is,
-            ac_demand_is_ns,
-            is_radiative_heating_is,
-            is_radiative_cooling_is,
-            lrcap_is,
-            radiative_cooling_max_capacity_is,
-            flr_js_is,
-            h_r_js,
-            h_c_js,
-            f_mrt_is_js,
-            q_sol_js_ns,
-            q_sol_frnt_is_ns,
-            beta_is,
-            wsr_js_is,
-            wsb_js_is,
-            brm_non_vent_is_is,
-            ivs_ax_js_js,
-            brl_is_is,
-            p_is_js,
-            p_js_is,
-            is_ground_js,
-            wsc_js_ns,
-            k_ei_js_js,
-            theta_o_ns,
-            x_o_ns,
-            theta_o_ave,
-            rac_spec
-    ):
+    # region 空間に関すること
 
-        self.n_grounds = number_of_grounds
+    # 空間の数, [i]
+    n_spaces: int
 
-        # region 室に関すること
+    # 空間のID
+    id_space_is: List[int]
 
-        # 室の数, [i]
-        self.n_spaces = number_of_spaces
+    # 空間の名前, [i]
+    name_space_is: List[str]
 
-        # 室の名前, [i]
-        self.space_name_is = space_name_is
+    # 室iの容積, m3, [i, 1]
+    v_room_is: np.ndarray
 
-        # 室iの容積, m3, [i, 1]
-        self.v_room_is = v_room_is
+    # 室iの熱容量, J/K, [i, 1]
+    c_room_is: np.ndarray
 
-        # 室iの熱容量, J/K, [i, 1]
-        self.c_room_is = c_room_is
+    # 室iの家具等の熱容量, J/K, [i, 1]
+    c_cap_h_frt_is: np.ndarray
 
-        # 室iの家具等の熱容量, J/K, [i, 1]
-        self.c_cap_h_frt_is = c_cap_h_frt_is
+    # 室iの家具等の湿気容量, kg/m3 (kg/kgDA), [i, 1]
+    c_cap_w_frt_is: np.ndarray
 
-        # 室iの家具等の湿気容量, kg/m3 (kg/kgDA), [i, 1]
-        self.c_cap_w_frt_is = c_cap_w_frt_is
+    # 室iの家具等と空気間の熱コンダクタンス, W/K, [i, 1]
+    c_h_frt_is: np.ndarray
 
-        # 室iの家具等と空気間の熱コンダクタンス, W/K, [i, 1]
-        self.c_h_frt_is = c_h_frt_is
+    # 室iの家具等と空気間の湿気コンダクタンス, kg/s (kg/kgDA), [i, 1]
+    c_w_frt_is: np.ndarray
 
-        # 室iの家具等と空気間の湿気コンダクタンス, kg/s (kg/kgDA), [i, 1]
-        self.c_w_frt_is = c_w_frt_is
+    # ステップnにおける室iの空調需要, [i, 8760*4]
+    ac_demand_is_ns: np.ndarray
 
-        # ステップnにおける室iの空調需要, [i, 8760*4]
-        self.ac_demand_is_ns = ac_demand_is_ns
+    # ステップnの室iにおける在室人数, [i, 8760*4]
+    n_hum_is_ns: np.ndarray
 
-        # ステップnの室iにおける在室人数, [i, 8760*4]
-        self.n_hum_is_ns = n_hum_is_ns
+    # ステップnの室iにおける人体発熱を除く内部発熱, W, [i, 8760*4]
+    q_gen_is_ns: np.ndarray
 
-        # ステップnの室iにおける人体発熱を除く内部発熱, W, [i, 8760*4]
-        self.q_gen_is_ns = q_gen_is_ns
+    # ステップnの室iにおける人体発湿を除く内部発湿, kg/s, [i, 8760*4]
+    x_gen_is_ns: np.ndarray
 
-        # ステップnの室iにおける人体発湿を除く内部発湿, kg/s, [i, 8760*4]
-        self.x_gen_is_ns = x_gen_is_ns
+    # ステップnの室iにおける機械換気量（全般換気量+局所換気量）, m3/s, [i, 8760*4]
+    v_mec_vent_is_ns: np.ndarray
 
-        # ステップnの室iにおける機械換気量（全般換気量+局所換気量）, m3/s, [i, 8760*4]
-        self.v_mec_vent_is_ns = v_mec_vent_is_ns
+    # 家具の吸収日射量, W, [i, 8760*4]
+    q_sol_frnt_is_ns: np.ndarray
 
-        # 家具の吸収日射量, W, [i, 8760*4]
-        self.q_sol_frnt_is_ns = q_sol_frnt_is_ns
+    # 室iの自然風利用時の換気量, m3/s, [i, 1]
+    v_ntrl_vent_is: np.ndarray
 
-        # 室iの自然風利用時の換気量, m3/s, [i, 1]
-        self.v_ntrl_vent_is = v_ntrl_vent_is
+    # ステップnの室iにおける窓の透過日射熱取得, W, [8760*4]
+    q_trs_sol_is_ns: np.ndarray
 
-        # ステップnの室iにおける窓の透過日射熱取得, W, [8760*4]
-        self.q_trs_sol_is_ns = q_trs_sol_is_ns
+    # endregion
 
-        # endregion
+    # 室iの隣室からの機械換気量, m3/s, [i, i]
+    v_int_vent_is_is: np.ndarray
 
-        # 室iの隣室からの機械換気量, m3/s, [i, i]
-        self.v_int_vent_is_is = v_int_vent_is_is
+    # 境界jの名前, [j]
+    name_bdry_js: np.ndarray
 
-        # 統合された境界j*の名前, [j*]
-        self.name_bdry_js = name_bdry_js
+    # 境界jの名前2, [j]
+    sub_name_bdry_js: List[str]
 
-        # 統合された境界j*の名前2, [j*]
-        self.sub_name_bdry_js = sub_name_bdry_js
+    # 境界jが地盤かどうか, [j, 1]
+    is_ground_js: np.ndarray
 
-        # 境界jが地盤かどうか, [j, 1]
-        self.is_ground_js = is_ground_js
+    # 境界jの面積, m2, [j, 1]
+    a_srf_js: np.ndarray
 
-        # 統合された境界j*の面積, m2, [j, 1]
-        self.a_srf_js = a_srf_js
+    # ステップnの境界jにおける外気側等価温度の外乱成分, degree C, [j, 8760*4]
+    theta_dstrb_js_ns: np.ndarray
 
-        # ステップnの集約境界j*における外気側等価温度の外乱成分, degree C, [j*, 8760*4]
-        self.theta_dstrb_js_ns = theta_dstrb_js_ns
+    # BRM(換気なし), W/K, [i, i]
+    brm_non_vent_is_is: np.ndarray
 
-        # BRM(換気なし), W/K, [i, i]
-        self.brm_non_vent_is_is = brm_non_vent_is_is
+    # BRL, [i, i]
+    brl_is_is: np.ndarray
 
-        # BRLの計算 式(7)
-        self.brl_is_is = brl_is_is
+    # 放射暖房最大能力, W, [i]
+    lrcap_is: np.ndarray
 
-        # 放射暖房最大能力, W, [i]
-        self.lrcap_is = lrcap_is
+    # 放射冷房最大能力, W, [i]
+    radiative_cooling_max_capacity_is: np.ndarray
 
-#        radiative_cooling_max_capacity_is
+    # 放射暖房有無（Trueなら放射暖房あり）
+    is_radiative_heating_is: np.ndarray
 
-        # 放射暖房有無（Trueなら放射暖房あり）
-        self.is_radiative_heating_is = is_radiative_heating_is
+    # 放射冷房有無（Trueなら放射冷房あり）
+    is_radiative_cooling_is: np.ndarray
 
-        # 放射冷房有無（Trueなら放射冷房あり）
-        self.is_radiative_cooling_is = is_radiative_cooling_is
+    # 放射暖房対流比率, [i, 1]
+    beta_is: np.ndarray
 
-        # 放射暖房対流比率, [i, 1]
-        self.beta_is = beta_is
+    # === 境界jに関すること ===
 
-        # === 境界j*に関すること ===
+    # 境界jの項別公比法における項mの公比, [j, 12]
+    r_js_ms: np.ndarray
 
-        # 統合された境界j*の項別公比法における項mの公比, [j*, 12]
-        self.r_js_ms = r_js_ms
+    # 境界jの貫流応答係数の初項, [j]
+    phi_t0_js: np.ndarray
 
-        # 統合された境界j*の貫流応答係数の初項, [j*]
-        self.phi_t0_js = phi_t0_js
+    # 境界jの吸熱応答係数の初項, m2K/W, [j]
+    phi_a0_js: np.ndarray
 
-        # 統合された境界j*の吸熱応答係数の初項, m2K/W, [j*]
-        self.phi_a0_js = phi_a0_js
+    # 境界jの項別公比法における項mの貫流応答係数の第一項, [j,12]
+    phi_t1_js_ms: np.ndarray
 
-        # 統合された境界j*の項別公比法における項mの貫流応答係数の第一項, [j*,12]
-        self.phi_t1_js_ms = phi_t1_js_ms
+    # 境界jの項別公比法における項mの吸熱応答係数の第一項 , m2K/W, [j, 12]
+    phi_a1_js_ms: np.ndarray
 
-        # 統合された境界j*の項別公比法における項mの吸熱応答係数の第一項 , m2K/W, [j*, 12]
-        self.phi_a1_js_ms = phi_a1_js_ms
+    # ステップnの境界jにおける透過日射熱取得量のうち表面に吸収される日射量, W/m2, [j, 8760*4]
+    q_sol_js_ns: np.ndarray
 
-        # ステップnの統合された境界j*における透過日射熱取得量のうち表面に吸収される日射量, W/m2, [j*, 8760*4]
-        self.q_sol_js_ns = q_sol_js_ns
+    n_bdries: int
 
-        self.n_bdries = number_of_bdries
-        self.ivs_ax_js_js = ivs_ax_js_js
+    ivs_ax_js_js: np.ndarray
 
-        self.p_is_js = p_is_js
-        self.p_js_is = p_js_is
+    p_is_js: np.ndarray
+    p_js_is: np.ndarray
 
-        # 室iの在室者に対する境界j*の形態係数
-        self.f_mrt_hum_is_js = f_mrt_hum_is_js
+    # 室iの在室者に対する境界j*の形態係数
+    f_mrt_hum_is_js: np.ndarray
 
-        # 平均放射温度計算時の各部位表面温度の重み計算 式(101)
-        self.f_mrt_is_js = f_mrt_is_js
+    # 平均放射温度計算時の各部位表面温度の重み計算 式(101)
+    f_mrt_is_js: np.ndarray
 
-        # 境界jにおける室内側放射熱伝達率, W/m2K, [j, 1]
-        self.h_r_js = h_r_js
+    # 境界jにおける室内側放射熱伝達率, W/m2K, [j, 1]
+    h_r_js: np.ndarray
 
-        # 境界jにおける室内側対流熱伝達率, W/m2K, [j, 1]
-        self.h_c_js = h_c_js
+    # 境界jにおける室内側対流熱伝達率, W/m2K, [j, 1]
+    h_c_js: np.ndarray
 
-        # WSR, WSB の計算 式(24)
-        self.wsr_js_is = wsr_js_is
-        self.wsb_js_is = wsb_js_is
+    # WSR, WSB の計算 式(24)
+    wsr_js_is: np.ndarray
+    wsb_js_is: np.ndarray
 
-        # 床暖房の発熱部位？
-        self.flr_js_is = flr_js_is
+    # 床暖房の発熱部位？
+    flr_js_is: np.ndarray
 
-        # WSC, W, [j, n]
-        self.wsc_js_ns = wsc_js_ns
+    # WSC, W, [j, n]
+    wsc_js_ns: np.ndarray
 
-        # 境界jの裏面温度に他の境界の等価温度が与える影響, [j, j]
-        self.k_ei_js_js = k_ei_js_js
+    # 境界jの裏面温度に他の境界の等価温度が与える影響, [j, j]
+    k_ei_js_js: np.ndarray
 
-        # ステップnの外気温度, degree C, [n]
-        self.theta_o_ns = theta_o_ns
+    # ステップnの外気温度, degree C, [n]
+    theta_o_ns: np.ndarray
 
-        # ステップnの外気絶対湿度, kg/kg(DA), [n]
-        self.x_o_ns = x_o_ns
+    # ステップnの外気絶対湿度, kg/kg(DA), [n]
+    x_o_ns: np.ndarray
 
-        # 年平均外気温度, degree C
-        self.theta_o_ave = theta_o_ave
+    # 年平均外気温度, degree C
+    theta_o_ave: np.ndarray
 
-        self.rac_spec = rac_spec
+    rac_spec: Dict[str, Any]
 
 
+@dataclass
 class PreCalcParametersGround:
 
-    def __init__(
-            self,
-            n_grounds,
-            r_js_ms,
-            phi_a0_js,
-            phi_a1_js_ms,
-            h_r_js,
-            h_c_js,
-            theta_o_ns,
-            theta_o_ave,
-    ):
+    # 地盤の数
+    n_grounds: int
 
-        self.n_grounds = n_grounds
+    # 地盤jの項別公比法における項mの公比, [j, 12]
+    r_js_ms: np.ndarray
 
-        # 地盤jの項別公比法における項mの公比, [j, 12]
-        self.r_js_ms = r_js_ms
+    # 地盤jの吸熱応答係数の初項, m2K/W, [j, 1]
+    phi_a0_js: np.ndarray
 
-        # 地盤jの吸熱応答係数の初項, m2K/W, [j]
-        self.phi_a0_js = phi_a0_js
+    # 地盤jの項別公比法における項mの吸熱応答係数の第一項 , m2K/W, [j, 12]
+    phi_a1_js_ms: np.ndarray
 
-        # 地盤jの項別公比法における項mの吸熱応答係数の第一項 , m2K/W, [j*, 12]
-        self.phi_a1_js_ms = phi_a1_js_ms
+    # 地盤jにおける室内側放射熱伝達率, W/m2K, [j, 1]
+    h_r_js: np.ndarray
 
-        # 地盤jにおける室内側放射熱伝達率, W/m2K, [j, 1]
-        self.h_r_js = h_r_js
+    # 地盤jにおける室内側対流熱伝達率, W/m2K, [j, 1]
+    h_c_js: np.ndarray
 
-        # 地盤jにおける室内側対流熱伝達率, W/m2K, [j, 1]
-        self.h_c_js = h_c_js
+    # ステップnの外気温度, degree C, [n]
+    theta_o_ns: np.ndarray
 
-        # ステップnの外気温度, degree C, [n]
-        self.theta_o_ns = theta_o_ns
-
-        # 年平均外気温度, degree C
-        self.theta_o_ave = theta_o_ave
+    # 年平均外気温度, degree C
+    theta_o_ave: float
 
 
 def make_pre_calc_parameters(data_directory: str) -> (PreCalcParameters, PreCalcParametersGround):
@@ -269,14 +208,17 @@ def make_pre_calc_parameters(data_directory: str) -> (PreCalcParameters, PreCalc
     # spaces の取り出し
     ss = rd['spaces']
 
+    # Spaceの数
+    n_spaces = len(ss)
+
     # id, [i]
-    spaces_id_is = [s['id'] for s in ss]
+    id_space_is = [int(s['id']) for s in ss]
 
     # 空間iの名前, [i]
-    space_name_is = [s['name'] for s in ss]
+    name_space_is = [str(s['name']) for s in ss]
 
     # 空間iの気積, m3, [i, 1]
-    v_room_is = np.array([s['volume'] for s in ss]).reshape(-1, 1)
+    v_room_is = np.array([float(s['volume']) for s in ss]).reshape(-1, 1)
 
     # 空間iのC値, [i]
     c_value_is = np.array([s['c_value'] for s in ss])
@@ -294,16 +236,16 @@ def make_pre_calc_parameters(data_directory: str) -> (PreCalcParameters, PreCalc
     v_ntrl_vent_is = np.array([s['ventilation']['natural'] for s in ss]).reshape(-1, 1)
 
     # 室iの家具等の熱容量, J/K, [i, 1]
-    c_cap_h_frt_is = np.array([s['furniture']['heat_capacity'] for s in ss]).reshape(-1, 1)
+    c_cap_h_frt_is = np.array([float(s['furniture']['heat_capacity']) for s in ss]).reshape(-1, 1)
 
     # 室iの家具等と空気間の熱コンダクタンス, W/K, [i, 1]
-    c_h_frt_is = np.array([s['furniture']['heat_cond'] for s in ss]).reshape(-1, 1)
+    c_h_frt_is = np.array([float(s['furniture']['heat_cond']) for s in ss]).reshape(-1, 1)
 
     # 室iの家具等の湿気容量, kg/m3 kg/kgDA, [i, 1]
-    c_cap_w_frt_is = np.array([s['furniture']['moisture_capacity'] for s in ss]).reshape(-1, 1)
+    c_cap_w_frt_is = np.array([float(s['furniture']['moisture_capacity']) for s in ss]).reshape(-1, 1)
 
     # 室iの家具等と空気間の湿気コンダクタンス, kg/s (kg/kgDA), [i, 1]
-    c_w_frt_is = np.array([s['furniture']['moisture_cond'] for s in ss]).reshape(-1, 1)
+    c_w_frt_is = np.array([float(s['furniture']['moisture_cond']) for s in ss]).reshape(-1, 1)
 
     # 室iの暖房方式として放射空調が設置されているかどうか。  bool値, [i, 1]
     # 室iの暖房方式として放射空調が設置されている場合の、放射暖房最大能力, W, [i, 1]
@@ -349,10 +291,11 @@ def make_pre_calc_parameters(data_directory: str) -> (PreCalcParameters, PreCalc
     bdry_id_js = [b['id'] for b in bs]
 
     # 名前, [j]
-    name_bdry_js = np.array([b['name'] for b in bs])
+    name_bdry_js = np.array([str(b['name']) for b in bs])
 
     # 名前2, [j]
-    sub_name_bdry_js= [b['sub_name'] for b in bs]
+    # TODO: なぜこちらは np.ndarray にしていない？
+    sub_name_bdry_js = [b['sub_name'] for b in bs]
 
     # 地盤かどうか, [j, 1]
     is_ground_js = np.array([{'true': True, 'false': False}[b['is_ground']] for b in bs]).reshape(-1, 1)
@@ -470,9 +413,6 @@ def make_pre_calc_parameters(data_directory: str) -> (PreCalcParameters, PreCalc
     # region 読み込んだ変数をベクトル表記に変換する
     # ただし、1次元配列を縦ベクトルに変換する処理等は読み込み時に np.reshape を適用して変換している。
 
-    # Spaceの数
-    number_of_spaces = len(ss)
-
     # 境界の数
     number_of_bdries = len(bs)
 
@@ -483,8 +423,8 @@ def make_pre_calc_parameters(data_directory: str) -> (PreCalcParameters, PreCalc
     # [[p_0_0 ... ... p_0_j]
     #  [ ...  ... ...  ... ]
     #  [p_i_0 ... ... p_i_j]]
-    p_is_js = np.zeros((number_of_spaces, number_of_bdries), dtype=int)
-    for i in range(number_of_spaces):
+    p_is_js = np.zeros((n_spaces, number_of_bdries), dtype=int)
+    for i in range(n_spaces):
         p_is_js[i, connected_space_id_js == i] = 1
 
     # 室iと境界jの関係を表す係数（室iから境界jへの変換）
@@ -598,15 +538,14 @@ def make_pre_calc_parameters(data_directory: str) -> (PreCalcParameters, PreCalc
     }
 
     pre_calc_parameters = PreCalcParameters(
-        number_of_spaces=number_of_spaces,
-        number_of_bdries=number_of_bdries,
-        number_of_grounds=n_grounds,
-        space_name_is=space_name_is,
+        n_spaces=n_spaces,
+        id_space_is=id_space_is,
+        name_space_is=name_space_is,
         v_room_is=v_room_is,
-        c_cap_w_frt_is=c_cap_w_frt_is,
-        c_w_frt_is=c_w_frt_is,
         c_room_is=c_room_is,
         c_cap_h_frt_is=c_cap_h_frt_is,
+        c_cap_w_frt_is=c_cap_w_frt_is,
+        c_w_frt_is=c_w_frt_is,
         c_h_frt_is=c_h_frt_is,
         v_int_vent_is_is=v_int_vent_is_is,
         name_bdry_js=name_bdry_js,
@@ -618,6 +557,7 @@ def make_pre_calc_parameters(data_directory: str) -> (PreCalcParameters, PreCalc
         x_gen_is_ns=x_gen_is_ns,
         f_mrt_hum_is_js=f_mrt_hum_is_js,
         theta_dstrb_js_ns=theta_dstrb_js_ns,
+        n_bdries=number_of_bdries,
         r_js_ms=r_js_ms,
         phi_t0_js=phi_t0_js,
         phi_a0_js=phi_a0_js,
