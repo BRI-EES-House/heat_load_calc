@@ -244,4 +244,4 @@ class SolarShadingNot(SolarShading):
             天空放射に対する日除けの影面積比率
         """
 
-        raise 0.0
+        return 0.0
