@@ -93,7 +93,7 @@ class TransmissionSolarRadiationTransparentSunStrike(TransmissionSolarRadiation)
             w_beta_j=w_beta_j
         )
 
-        ##### 日よけの影面積比率
+        # ---日よけの影面積比率
 
         # 直達日射に対する日よけの影面積比率, [8760 * 4]
         f_ss_d_j_ns = self._solar_shading_part.get_f_ss_d_j_ns(h_sun_ns, a_sun_ns)
@@ -104,15 +104,16 @@ class TransmissionSolarRadiationTransparentSunStrike(TransmissionSolarRadiation)
         # 地面反射日射に対する日よけの影面積比率
         f_ss_r_j_ns = 0.0
 
-        ##### 基準透過率
+        # ---基準透過率
 
         # 境界jにおける透明な開口部の直達日射に対する基準化透過率, [8760 * 4]
-        tau_d_j_ns = oblique_incidence_charac.get_tau_d_j_ns(theta_aoi_j_ns=theta_aoi_j_ns, glazing_type_j=self._glazing_type)
+        tau_d_j_ns = oblique_incidence_charac.get_tau_d_j_ns(
+            theta_aoi_j_ns=theta_aoi_j_ns, glazing_type_j=self._glazing_type)
 
         # 境界jにおける透明な開口部の拡散日射に対する基準化透過率
         c_d_j = oblique_incidence_charac.get_c_d_j(glazing_type_j=self._glazing_type)
 
-        ##### 透過日射量, W/m2
+        # ---透過日射量, W/m2
 
         # 直達日射に対する透過日射量, W/m2, [8760 * 4]
         q_gt_d_j_ns = self._eta_value * (1.0 - f_ss_d_j_ns) * tau_d_j_ns * i_inc_d_j_ns
@@ -137,4 +138,3 @@ class TransmissionSolarRadiationNot(TransmissionSolarRadiation):
     def get_qgt(self, a_sun_ns, h_sun_ns, i_dn_ns, i_sky_ns):
 
         return np.zeros(8760*4, dtype=float)
-
