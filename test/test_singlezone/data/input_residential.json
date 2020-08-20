@@ -1,0 +1,74 @@
+{
+	"common": {
+		"region": 6,
+		"is_residential": true
+	},
+
+	"rooms": [
+		{
+			"id": 0,
+			"name": "main_occupant_room",
+			"room_type": 1,
+			"volume": 1.0,
+			"vent": 0.0,
+			"cooling_equipment": {
+				"is_radiative_cooling": false,
+				"convective_cooling": {
+					"max_capacity": 0.0,
+					"heat_exchanger_type": "normal"
+				}
+			},
+			"heating_equipment": {
+				"is_radiative_heating": false,
+				"convective_heating": {
+					"max_capacity": 0.0,
+					"heat_exchanger_type": "normal"
+				}
+			},
+			"next_vent": [
+			],
+			"c_value": 0.0,
+			"natural_vent_time": 0.0
+		}
+	],
+	"boundaries": [
+		{
+			"id": 0,
+			"name": "north_exterior_door",
+			"connected_room_id": 0,
+			"boundary_type": "external_opaque_part",
+			"area": 1.62,
+			"is_sun_striked_outside": true,
+			"temp_dif_coef": 1.0,
+			"direction": "n",
+			"is_solar_absorbed_inside": false,
+			"inside_heat_transfer_resistance": 0.11,
+			"outside_heat_transfer_resistance": 0.04,
+			"outside_emissivity": 0.9,
+			"outside_solar_absorption": 0.8,
+			"u_value": 4.65,
+			"solar_shading_part": {
+				"existence": false
+			}
+		},
+		{
+			"id": 1,
+			"name": "north_exterior_door",
+			"connected_room_id": 0,
+			"boundary_type": "external_opaque_part",
+			"area": 1.62,
+			"is_sun_striked_outside": true,
+			"temp_dif_coef": 1.0,
+			"direction": "s",
+			"is_solar_absorbed_inside": true,
+			"inside_heat_transfer_resistance": 0.11,
+			"outside_heat_transfer_resistance": 0.04,
+			"outside_emissivity": 0.9,
+			"outside_solar_absorption": 0.8,
+			"u_value": 4.65,
+			"solar_shading_part": {
+				"existence": false
+			}
+		}
+	]
+}
