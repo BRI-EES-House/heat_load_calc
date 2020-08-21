@@ -68,7 +68,7 @@ class MyTestCase(unittest.TestCase):
 
         # 部位からの対流熱取得, [W]
         surf_conv_heat = 0.0
-        for i in range(0, 5):
+        for i in range(0, 6):
             surf_conv_heat -= self._dd['rm0_b' + str(i) + '_qic_s']['1989-01-01 00:15:00']
 
         # 家具からの対流熱取得, [W]
