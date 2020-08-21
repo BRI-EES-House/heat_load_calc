@@ -36,6 +36,8 @@ class MyTestCase(unittest.TestCase):
         # 1/1 0:00の絶対湿度があっているかどうか？
         self.assertEqual(0.0032, self._dd['out_abs_humid']['1989-01-01 00:00:00'])
 
+
+    # 室空気の熱収支のテスト
     def test_air_heat_balance(self):
 
         t_r_old = self._dd['rm0_t_r']['1989-01-01 00:00:00']
@@ -49,7 +51,7 @@ class MyTestCase(unittest.TestCase):
 
         # 部位からの対流熱取得, [W]
         surf_conv_heat = 0.0
-        for i in range(0, 10):
+        for i in range(0, 11):
             surf_conv_heat -= self._dd['rm0_b' + str(i) + '_qic_s']['1989-01-01 00:15:00']
 
         # 家具からの対流熱取得, [W]
