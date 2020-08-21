@@ -276,6 +276,8 @@ def run_tick(n: int, ss: PreCalcParameters, c_n: Conditions, logger: Logger):
     logger.v_reak_is_ns[:, n] = [v for v in v_reak_is_n]
     logger.v_ntrl_is_ns[:, n] = [v for v in v_ntrl_vent_is]
 
+    # TODO: q_srf_js_nはq_srf_js_nplsへ変更
+
     return Conditions(
         operation_mode_is_n=operation_mode_is_n,
         theta_r_is_n=theta_r_is_npls,

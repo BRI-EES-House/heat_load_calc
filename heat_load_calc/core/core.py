@@ -66,6 +66,8 @@ def calc(
         c_n = sequence.run_tick(n=n, ss=pp, c_n=c_n, logger=logger)
 
     print('本計算')
+
+    # TODO: loggerに1/1 0:00の瞬時状態値を書き込む
     for n in range(0, n_step_main):
         c_n = sequence.run_tick(n=n, ss=pp, c_n=c_n, logger=logger)
 
