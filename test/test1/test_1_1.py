@@ -130,6 +130,20 @@ class MyTestCase(unittest.TestCase):
 
         self.assertAlmostEqual(surf_radiative_heat, 0.0)
 
+    # 家具の熱収支のテスト
+    def test_furniture_heat_balance(self):
+
+        t_r_new = self._dd['rm0_t_r']['1989-01-01 00:15:00']
+        t_fun_new = self._dd['rm0_t_fun']['1989-01-01 00:15:00']
+        t_fun_old = self._dd['rm0_t_fun']['1989-01-01 00:00:00']
+
+        # 家具と室の熱コンダクタンス
+        c_fun = self._mdh['spaces'][0]['furniture']['heat_cond']  # W/K
+        cap_fun = self._mdh['spaces'][0]['furniture']['heat_capacity']  # J/K
+        q_fun1 = c_fun * (t_r_new - t_fun_new)
+        q_fun2 = cap_fun * (t_fun_new - t_fun_old) / 900.0
+        self.assertAlmostEqual(q_fun1, q_fun2)
+
 
 if __name__ == '__main__':
 
