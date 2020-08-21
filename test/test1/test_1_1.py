@@ -36,7 +36,6 @@ class MyTestCase(unittest.TestCase):
         # 1/1 0:00の絶対湿度があっているかどうか？
         self.assertEqual(0.0032, self._dd['out_abs_humid']['1989-01-01 00:00:00'])
 
-
     # 室空気の熱収支のテスト
     def test_air_heat_balance(self):
 
@@ -89,7 +88,7 @@ class MyTestCase(unittest.TestCase):
         with open(self._data_dir + '/mid_data_local_vent.csv', 'r') as f:
             r = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
             l = [row for row in r]
-        v_local = l[1][0]
+        v_local = float(l[1][0])
         q_local_vent = c_air * rho_air * v_local * (t_o - t_r_new)
 
         # 内部発熱顕熱, [W]
@@ -110,7 +109,7 @@ class MyTestCase(unittest.TestCase):
         print('q_local_vent=', q_local_vent)
         print('q_internal=', q_internal)
         print('L_s=', L_s)
-        self.assertAlmostEqual(heat_storage, \
+        self.assertAlmostEqual(heat_storage,
                                + surf_conv_heat \
                                + q_fun \
                                + q_vent_reak \
@@ -120,6 +119,16 @@ class MyTestCase(unittest.TestCase):
                                + q_local_vent \
                                + q_internal \
                                + L_s)
+
+    # 室内放射熱量の熱収支の確認
+    def test_radiative_heat_balance(self):
+
+        # 部位の放射熱取得, [W]
+        surf_radiative_heat = 0.0
+        for i in range(0, 11):
+            surf_radiative_heat += self._dd['rm0_b' + str(i) + '_qir_s']['1989-01-01 00:15:00']
+
+        self.assertAlmostEqual(surf_radiative_heat, 0.0)
 
 
 if __name__ == '__main__':
