@@ -13,7 +13,11 @@ def calc(
         input_data_dir: str,
         output_data_dir: str = None,
         show_simple_result: bool = False,
-        show_detail_result: bool = False
+        show_detail_result: bool = False,
+        n_step_hourly: int = 4,
+        n_d_main: int = 365,
+        n_d_run_up: int = 365,
+        n_d_run_up_build: int = 183
 ) -> (Dict, Dict):
     """coreメインプログラム
 
@@ -22,24 +26,32 @@ def calc(
         output_data_dir: 計算結果を出力するディレクトリ（相対パスで指定）
         show_simple_result: 簡易計算結果をファイル出力するか否か（指定しない場合はFalse=出力しない）
         show_detail_result: 詳細計算結果をファイル出力するか否か（指定しない場合はFalse=出力しない）
+        n_step_hourly: 計算間隔（1時間を何分割するかどうか）（デフォルトは4（15分間隔））
+        n_d_main: 本計算を行う日数（デフォルトは365日（1年間））, d
+        n_d_run_up: 助走計算を行う日数（デフォルトは365日（1年間））, d
+        n_d_run_up_build: 助走計算のうち建物全体を解く日数（デフォルトは183日（およそ半年））, d
 
     Returns:
         以下のタプル
             (1) 計算結果（簡易版）をいれたDataFrame
             (2) 計算結果（詳細版）をいれたDataFrame
+
+    Notes:
+        「助走計算のうち建物全体を解く日数」は「助走計算を行う日数」で指定した値以下でないといけない。
     """
 
     # 本計算のステップ数
-    n_step_main = period.get_n_step_main()
-
     # 助走計算のステップ数
-    n_step_run_up = period.get_n_step_run_up()
-
-    # 助走計算の日数のうち建物全体を解く日数, d
-    n_step_run_up_build = period.get_n_step_run_up_build()
+    # 助走計算のうち建物全体を解くステップ数
+    n_step_main, n_step_run_up, n_step_run_up_build = period.get_n_step(
+        n_step_hourly=n_step_hourly,
+        n_d_main=n_d_main,
+        n_d_run_up=n_d_run_up,
+        n_d_run_up_build=n_d_run_up_build
+    )
 
     # json, csv ファイルからパラメータをロードする。
-    # （ループ計算する必要の無い）事前計算を行い, クラス PreCalcParameters に必要な変数を格納する。
+    # （ループ計算する必要の無い）事前計算を行い, クラス PreCalcParameters, PreCalcParametersGround に必要な変数を格納する。
     pp, ppg = pre_calc_parameters.make_pre_calc_parameters(data_directory=input_data_dir)
 
     gc_n = conditions.initialize_ground_conditions(n_grounds=ppg.n_grounds)
