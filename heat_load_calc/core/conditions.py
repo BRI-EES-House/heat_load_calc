@@ -92,7 +92,7 @@ def initialize_conditions(n_spaces: int, n_bdries: int):
 
     # ステップnにおける室iの在室者の着衣温度, degree C, [i, 1]
     # 初期値を15℃とする。
-    theta_cl_is_n = np.full((total_number_of_spaces, 1), 15.0)
+    theta_cl_is_n = np.full((total_number_of_spaces, 1), 16.0)
 
     # ステップnにおける室iの在室者の平均放射温度, degree C, [i, 1]
     # 初期値を15℃と設定する。

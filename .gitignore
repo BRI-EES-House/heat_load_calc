@@ -7,3 +7,4 @@ test/test1/.pytest_cache/
 venv/
 example/data_example1/result_detail.csv
 test\test1\data/result_detail.csv
+test\test_singlezone\data\result_detail.csv
