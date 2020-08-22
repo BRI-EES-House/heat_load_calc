@@ -36,7 +36,7 @@ class MyTestCase(unittest.TestCase):
         # 1/1 0:00の絶対湿度があっているかどうか？
         self.assertEqual(0.0032, self._dd['out_abs_humid']['1989-01-01 00:00:00'])
 
-    @unittest.skip('作業中')
+    # 室空気の熱収支のテスト
     def test_air_heat_balance(self):
 
         t_r_old = self._dd['rm0_t_r']['1989-01-01 00:00:00']
@@ -50,7 +50,7 @@ class MyTestCase(unittest.TestCase):
 
         # 部位からの対流熱取得, [W]
         surf_conv_heat = 0.0
-        for i in range(0, 10):
+        for i in range(0, 11):
             surf_conv_heat -= self._dd['rm0_b' + str(i) + '_qic_s']['1989-01-01 00:15:00']
 
         # 家具からの対流熱取得, [W]
@@ -88,7 +88,7 @@ class MyTestCase(unittest.TestCase):
         with open(self._data_dir + '/mid_data_local_vent.csv', 'r') as f:
             r = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
             l = [row for row in r]
-        v_local = l[1][0]
+        v_local = float(l[1][0])
         q_local_vent = c_air * rho_air * v_local * (t_o - t_r_new)
 
         # 内部発熱顕熱, [W]
@@ -109,7 +109,7 @@ class MyTestCase(unittest.TestCase):
         print('q_local_vent=', q_local_vent)
         print('q_internal=', q_internal)
         print('L_s=', L_s)
-        self.assertAlmostEqual(heat_storage, \
+        self.assertAlmostEqual(heat_storage,
                                + surf_conv_heat \
                                + q_fun \
                                + q_vent_reak \
@@ -119,6 +119,30 @@ class MyTestCase(unittest.TestCase):
                                + q_local_vent \
                                + q_internal \
                                + L_s)
+
+    # 室内放射熱量の熱収支の確認
+    def test_radiative_heat_balance(self):
+
+        # 部位の放射熱取得, [W]
+        surf_radiative_heat = 0.0
+        for i in range(0, 11):
+            surf_radiative_heat += self._dd['rm0_b' + str(i) + '_qir_s']['1989-01-01 00:15:00']
+
+        self.assertAlmostEqual(surf_radiative_heat, 0.0)
+
+    # 家具の熱収支のテスト
+    def test_furniture_heat_balance(self):
+
+        t_r_new = self._dd['rm0_t_r']['1989-01-01 00:15:00']
+        t_fun_new = self._dd['rm0_t_fun']['1989-01-01 00:15:00']
+        t_fun_old = self._dd['rm0_t_fun']['1989-01-01 00:00:00']
+
+        # 家具と室の熱コンダクタンス
+        c_fun = self._mdh['spaces'][0]['furniture']['heat_cond']  # W/K
+        cap_fun = self._mdh['spaces'][0]['furniture']['heat_capacity']  # J/K
+        q_fun1 = c_fun * (t_r_new - t_fun_new)
+        q_fun2 = cap_fun * (t_fun_new - t_fun_old) / 900.0
+        self.assertAlmostEqual(q_fun1, q_fun2)
 
 
 if __name__ == '__main__':
