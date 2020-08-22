@@ -36,6 +36,7 @@ class MyTestCase(unittest.TestCase):
         # 1/1 0:00の絶対湿度があっているかどうか？
         self.assertEqual(0.0032, self._dd['out_abs_humid']['1989-01-01 00:00:00'])
 
+    @unittest.skip('作業中')
     def test_air_heat_balance(self):
 
         t_r_old = self._dd['rm0_t_r']['1989-01-01 00:00:00']

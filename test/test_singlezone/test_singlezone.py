@@ -14,21 +14,15 @@ class MyTestCase(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
 
-        s_folder = 'data'
+        cls._data_dir = str(os.path.dirname(__file__)) + '/data'
 
-        bln_make_weather = True
-
-        bln_space_initialize = True
-
-        js = open(str(os.path.dirname(__file__)) + '/' + s_folder + '/input_residential.json', 'r', encoding='utf-8')
+        js = open(cls._data_dir + '/input_residential.json', 'r', encoding='utf-8')
 
         d = json.load(js)
 
-        if bln_make_weather:
-            weather.make_weather(region=d['common']['region'], output_data_dir=s_folder, csv_output=True)
+        weather.make_weather(region=d['common']['region'], output_data_dir=cls._data_dir, csv_output=True)
 
-        if bln_space_initialize:
-            s3_space_initializer.make_house(d=d, input_data_dir=s_folder, output_data_dir=s_folder)
+        s3_space_initializer.make_house(d=d, input_data_dir=cls._data_dir, output_data_dir=cls._data_dir)
 
         cls._data_dir = str(os.path.dirname(__file__)) + '/data'
 
@@ -42,18 +36,6 @@ class MyTestCase(unittest.TestCase):
             mdh = json.load(f)
 
         cls._mdh = mdh
-
-#    @unittest.skip('時間がかかるのでとりあえずskip')
-    def test_weather(self):
-
-        # 1/1 0:00の外気温度があっているかどうか？
-        self.assertEqual(2.3, self._dd['out_temp']['1989-01-01 00:00:00'])
-
-        # 1/1 0:15の外気温度があっているかどうか？
-        self.assertEqual(2.375, self._dd['out_temp']['1989-01-01 00:15:00'])
-
-        # 1/1 0:00の絶対湿度があっているかどうか？
-        self.assertEqual(0.0032, self._dd['out_abs_humid']['1989-01-01 00:00:00'])
 
     def test_air_heat_balance(self):
 
