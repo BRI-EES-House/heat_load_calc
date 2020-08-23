@@ -59,21 +59,3 @@ def get_infiltration(c_value: float, v_room_cap_is: np.ndarray, story: int, vent
     infiltration = infiltration_rate * v_room_cap_is / 3600.0
 
     return infiltration
-
-if __name__ == '__main__':
-
-    c_value = 2.0
-    v_room_cap_is = np.array([[50.0], [20.0], [60.0]])
-    story = 2
-    vent_type = 3
-    theta_r = np.array([[20.0], [18.0], [15.0]])
-    theta_o = 0.0
-    print(get_infiltration(
-        c_value=c_value,
-        v_room_cap_is=v_room_cap_is,
-        story=story,
-        vent_type=vent_type,
-        theta_r_is_n=theta_r,
-        theta_o_npls=theta_o
-    )
-    )
