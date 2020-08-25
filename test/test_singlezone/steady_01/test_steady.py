@@ -36,7 +36,9 @@ class TestSteadyState(unittest.TestCase):
                            show_simple_result=True, show_detail_result=True)
 
         # 対流熱伝達率を放射熱伝達率のユニットテストより求め、室温を計算する必要がある
-        self.assertAlmostEqual(0.0 + 100/(6/(1/3.0410886515065 + 0.075 + 0.04)), dd['rm0_t_r']['1989-12-31 00:00:00'])
+        # 対流熱伝達率の取得
+        hc = dd['rm0_b0_hic_s']['1989-12-31 00:00:00']
+        self.assertAlmostEqual(0.0 + 100/(6/(1/hc + 0.075 + 0.04)), dd['rm0_t_r']['1989-12-31 00:00:00'])
         self.assertAlmostEqual(100/6, dd['rm0_b0_qic_s']['1989-12-31 00:00:00'])
         self.assertAlmostEqual(0.0 + 100/6*(0.075 + 0.04), dd['rm0_b0_t_s']['1989-12-31 00:00:00'])
 
