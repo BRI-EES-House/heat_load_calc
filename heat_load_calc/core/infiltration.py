@@ -2,13 +2,19 @@ import numpy as np
 import math
 
 
-def get_infiltration(c_value: float, v_room_cap_is: np.ndarray, story: int, vent_type: int,
-                     theta_r_is_n: np.ndarray, theta_o_npls: float) -> np.ndarray:
+def get_infiltration(
+        c_value: float,
+        v_room_is: np.ndarray,
+        story: int,
+        vent_type: int,
+        theta_r_is_n: np.ndarray,
+        theta_o_npls: float
+) -> np.ndarray:
     """すきま風量を取得する。
 
     Args:
         c_value: 相当隙間面積, cm2/m2
-        v_room_cap_is: 室気積, m3, [i,1]
+        v_room_is: 室iの容積, m3, [i,1]
         story: 階
         vent_type: 換気方式, 第?種換気
         theta_r_is_n: 時刻nの室温, degree C, [i,1]
@@ -18,9 +24,9 @@ def get_infiltration(c_value: float, v_room_cap_is: np.ndarray, story: int, vent
         すきま風量, m3/s, [i,1]
     """
     # 室気積の合計値, m3, float
-    total_air_volume = np.sum(v_room_cap_is)
+    total_air_volume = np.sum(v_room_is)
     # 室気積加重平均室温theta_r_nの計算, degree C, float
-    theta_average_r_n = np.average(theta_r_is_n, weights=v_room_cap_is)
+    theta_average_r_n = np.average(theta_r_is_n, weights=v_room_is)
 
     # 室内外温度差の計算, degree C, float
     delta_theta = abs(theta_average_r_n-theta_o_npls)
@@ -56,6 +62,6 @@ def get_infiltration(c_value: float, v_room_cap_is: np.ndarray, story: int, vent
     infiltration_rate = np.maximum(a * (c_value * math.sqrt(delta_theta)) - b, 0)
 
     # すきま風量の計算
-    infiltration = infiltration_rate * v_room_cap_is / 3600.0
+    infiltration = infiltration_rate * v_room_is / 3600.0
 
     return infiltration
