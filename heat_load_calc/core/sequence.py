@@ -9,6 +9,7 @@ from heat_load_calc.core import next_condition
 from heat_load_calc.core import occupants
 from heat_load_calc.core import heat_exchanger
 from heat_load_calc.core.matrix_method import v_diag
+from heat_load_calc.core import infiltration
 
 
 # 室温、熱負荷の計算
@@ -113,6 +114,17 @@ def run_tick(n: int, ss: PreCalcParameters, c_n: Conditions, logger: Logger):
     # すきま風量を決めるにあたってどういった変数が必要なのかを決めること。
     # TODO: 単位は m3/s とすること。
     # ステップnの室iにおけるすきま風量, m3/s, [i, 1]
+    c_value: float = 0.0
+    story: int = 2
+    vent_type: int = 3
+    v_reak_is_n = infiltration.get_infiltration(
+        c_value=c_value,
+        v_room_is=ss.v_room_is,
+        story=story,
+        vent_type=vent_type,
+        theta_r_is_n=c_n.theta_r_is_n,
+        theta_o_npls=ss.theta_o_ns[n]
+    )
     v_reak_is_n = np.full((ss.n_spaces, 1), 0.0)
 
     # ステップn+1の境界jにおける項別公比法の指数項mの吸熱応答の項別成分, degree C, [j, m] (m=12)
