@@ -12,6 +12,20 @@ from heat_load_calc.core import shape_factor
 @dataclass
 class PreCalcParameters:
 
+    # region 建物全体に関すること
+
+    # 建物の階数
+    story: int
+
+    # 相当隙間面積（C値）, cm2/m2
+    c_value: float
+
+    # 室内の圧力
+    # 'positive', 'negative' or 'balanced'
+    inside_p: str
+
+    # endregion
+
     # region 空間に関すること
 
     # 空間の数, [i]
@@ -202,6 +216,21 @@ def make_pre_calc_parameters(data_directory: str) -> (PreCalcParameters, PreCalc
 
     with open(data_directory + '/mid_data_house.json') as f:
         rd = json.load(f)
+
+    # region building の読み込み
+
+    bdg = rd['building']
+
+    # 建物の階数
+    story = bdg['story']
+
+    # C値
+    c_value = bdg['c_value']
+
+    # 換気の種類
+    inside_p = bdg['inside_pressure']
+
+    # endregion
 
     # region spaces の読み込み
 
@@ -535,6 +564,9 @@ def make_pre_calc_parameters(data_directory: str) -> (PreCalcParameters, PreCalc
     }
 
     pre_calc_parameters = PreCalcParameters(
+        story=story,
+        c_value=c_value,
+        inside_p=inside_p,
         n_spaces=n_spaces,
         id_space_is=id_space_is,
         name_space_is=name_space_is,

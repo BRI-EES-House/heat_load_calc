@@ -2,8 +2,7 @@
 〇,,,,,,,building,建物,〇,dict,－,,
 ,〇,,,,,,story,建物の階数,〇,int,－,1又は2。,
 ,〇,,,,,,c_value,相当隙間面積,〇,float,cm2/m2,0以上。,
-,〇,,,,,,ventilation_system,換気設備,〇,dict,－,,
-,,〇,,,,,vent_type,換気の種類,〇,str,－,"type1', 'type2', 'type3', 又は 'type1_he'。",「第1種」「第2種」「第3種」「第1種熱交換あり」を表す。
+,〇,,,,,,inside_pressure,室内圧力,〇,str,－,"positive', 'negative' or 'balanced'",
 〇,,,,,,,spaces,空間,〇,list,－,,
 ,〇,,,,,,,,〇,dict,－,,
 ,,〇,,,,,id,室通し番号,〇,int,－,必ず0から順番に振ること。,

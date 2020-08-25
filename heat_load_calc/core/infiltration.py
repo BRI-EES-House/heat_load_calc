@@ -6,7 +6,7 @@ def get_infiltration(
         c_value: float,
         v_room_is: np.ndarray,
         story: int,
-        vent_type: int,
+        inside_pressure: str,
         theta_r_is_n: np.ndarray,
         theta_o_npls: float
 ) -> np.ndarray:
@@ -16,7 +16,10 @@ def get_infiltration(
         c_value: 相当隙間面積, cm2/m2
         v_room_is: 室iの容積, m3, [i,1]
         story: 階
-        vent_type: 換気方式, 第?種換気
+        inside_pressure: 室内側の圧力
+            'negative': 負圧
+            'positive': 正圧
+            'balanced': バランス圧力
         theta_r_is_n: 時刻nの室温, degree C, [i,1]
         theta_o_npls: 時刻n+1の外気温度, degree C
 
@@ -42,19 +45,19 @@ def get_infiltration(
     # 係数bの計算, 回/h
     # 階数と換気方式の組み合わせで決定する
     b = {
-        1: {
+        'balanced': {
             1: 0.00,
             2: 0.0
         }[story],
-        2: {
+        'positive': {
             1: 0.26,
             2: 0.14
         }[story],
-        3: {
+        'negative': {
             1: 0.28,
             2: 0.13
         }[story]
-    }[vent_type]
+    }[inside_pressure]
 
     # print(a, b)
     # 換気回数の計算

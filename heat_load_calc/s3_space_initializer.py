@@ -213,6 +213,13 @@ def make_house(d, input_data_dir, output_data_dir):
 
     Beta_is = np.full(len(rooms), Beta_i)
 
+    #TODO: initializer 入力から値をもってくるようにすること。
+    building = {
+        'story': 2,
+        'c_value': 2.0,
+        'inside_pressure': 'negative'
+    }
+
     spaces = []
 
     for i in range(number_of_spaces):
@@ -274,6 +281,7 @@ def make_house(d, input_data_dir, output_data_dir):
         })
 
     wd = {
+        'building': building,
         'spaces': spaces,
         'boundaries': bdrs
     }
