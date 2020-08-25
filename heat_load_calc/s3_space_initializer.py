@@ -49,6 +49,7 @@ def make_house(d, input_data_dir, output_data_dir):
     v_vent_ex_is = np.array([r['vent'] for r in rooms])
 
     # 室iのC値, [i]
+    # TODO: initializer の json から c_value を削除する。
     c_value_is = np.array([r['c_value'] for r in rooms])
 
     # 室iの自然風利用時の換気回数, 1/h, [i]
@@ -220,7 +221,6 @@ def make_house(d, input_data_dir, output_data_dir):
             'id': room_ids[i],
             'name': room_names[i],
             'volume': v_room_cap_is[i],
-            'c_value': c_value_is[i],
             'beta': Beta_is[i],
             'ventilation': {
                 'mechanical': v_vent_ex_is[i]/3600,

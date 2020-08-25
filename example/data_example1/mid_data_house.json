@@ -4,7 +4,6 @@
             "id": 0,
             "name": "main_occupant_room",
             "volume": 70.92,
-            "c_value": 2.0,
             "beta": 0.0,
             "ventilation": {
                 "mechanical": 0.016666666666666666,
@@ -45,7 +44,6 @@
             "id": 1,
             "name": "other_occupant_room",
             "volume": 123.22,
-            "c_value": 2.0,
             "beta": 0.0,
             "ventilation": {
                 "mechanical": 0.027777777777777776,
@@ -86,7 +84,6 @@
             "id": 2,
             "name": "non_occupant_room",
             "volume": 94.88,
-            "c_value": 2.0,
             "beta": 0.0,
             "ventilation": {
                 "mechanical": 0.0,

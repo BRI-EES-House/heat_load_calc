@@ -220,9 +220,6 @@ def make_pre_calc_parameters(data_directory: str) -> (PreCalcParameters, PreCalc
     # 空間iの気積, m3, [i, 1]
     v_room_is = np.array([float(s['volume']) for s in ss]).reshape(-1, 1)
 
-    # 空間iのC値, [i]
-    c_value_is = np.array([s['c_value'] for s in ss])
-
     # 室iに設置された放射暖房の対流成分比率, [i, 1]
     beta_is = np.array([s['beta'] for s in ss]).reshape(-1, 1)
 

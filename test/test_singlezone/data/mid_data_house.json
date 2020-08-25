@@ -4,7 +4,6 @@
             "id": 0,
             "name": "main_occupant_room",
             "volume": 1.0,
-            "c_value": 0.0,
             "beta": 0.0,
             "ventilation": {
                 "mechanical": 0.0,
