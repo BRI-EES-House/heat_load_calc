@@ -11,8 +11,8 @@ from heat_load_calc.core import core
 # 定常状態のテスト
 class TestSteadyState(unittest.TestCase):
 
-    # @unittest.skip('時間がかかるのでskip')
-    def test_case_01(self):
+    @classmethod
+    def setUpClass(cls):
 
         s_folder = 'data'
 
@@ -35,11 +35,24 @@ class TestSteadyState(unittest.TestCase):
         ds, dd = core.calc(input_data_dir=data_dir, output_data_dir=data_dir,
                            show_simple_result=True, show_detail_result=True)
 
+        cls._ds = ds
+        cls._dd = dd
+
+    def test_case_01_room_temp(self):
+
         # 対流熱伝達率を放射熱伝達率のユニットテストより求め、室温を計算する必要がある
         # 対流熱伝達率の取得
-        hc = dd['rm0_b0_hic_s']['1989-12-31 00:00:00']
-        self.assertAlmostEqual(0.0 + 100/(6/(1/hc + 0.075 + 0.04)), dd['rm0_t_r']['1989-12-31 00:00:00'])
-        self.assertAlmostEqual(100/6, dd['rm0_b0_qic_s']['1989-12-31 00:00:00'])
-        self.assertAlmostEqual(0.0 + 100/6*(0.075 + 0.04), dd['rm0_b0_t_s']['1989-12-31 00:00:00'])
+        hc = self._dd['rm0_b0_hic_s']['1989-12-31 00:00:00']
+        self.assertAlmostEqual(0.0 + 100/(6/(1/hc + 0.075 + 0.04)), self._dd['rm0_t_r']['1989-12-31 00:00:00'])
+
+    def test_case_01_heat_flow(self):
+
+        # 室内側表面熱流, W/m2 のテスト
+        self.assertAlmostEqual(100/6, self._dd['rm0_b0_qic_s']['1989-12-31 00:00:00'])
+
+    def test_case_01_surface_temp(self):
+
+        # 表面温度, C のテスト
+        self.assertAlmostEqual(0.0 + 100/6*(0.075 + 0.04), self._dd['rm0_b0_t_s']['1989-12-31 00:00:00'])
 
 
