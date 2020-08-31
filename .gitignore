@@ -2,6 +2,6 @@
 __pycache__
 .idea/
 convert/.pytest_cache/
-test/test1/.pytest_cache/
+test/test_multizone/.pytest_cache/
 venv/
 result_detail.csv
