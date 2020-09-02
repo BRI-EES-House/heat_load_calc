@@ -1,7 +1,6 @@
 .ipynb_checkpoints/
 __pycache__
 .idea/
-convert/.pytest_cache/
-test/test_multizone/.pytest_cache/
 venv/
 result_detail.csv
+/.pytest_cache/
