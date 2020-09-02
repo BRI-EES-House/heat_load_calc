@@ -55,8 +55,7 @@ class TestSteadyState(unittest.TestCase):
         shutil.rmtree(s_folder_temporary)
 
         # 計算実行
-        ds, dd = core.calc(input_data_dir=s_folder, output_data_dir=s_folder,
-                           show_simple_result=True, show_detail_result=True)
+        ds, dd = core.calc(input_data_dir=s_folder, output_data_dir=s_folder)
 
         # 計算結果格納
         cls._ds = ds
