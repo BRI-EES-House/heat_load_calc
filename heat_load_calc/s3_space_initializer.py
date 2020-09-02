@@ -113,7 +113,7 @@ def make_house(d, input_data_dir, output_data_dir):
             k_ei_js.append(None)
 
     q_trs_sol_is_ns = np.array([
-        np.sum(np.array([bs.q_trs_sol for bs in bss if bs.connected_room_id == i]), axis=0)
+        np.sum(np.array([bs.q_trs_sol for bs in bss2 if bs.connected_room_id == i]), axis=0)
         for i in range(number_of_spaces)
     ])
 
