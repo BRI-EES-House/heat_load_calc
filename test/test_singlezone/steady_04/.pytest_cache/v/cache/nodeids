@@ -1,0 +1,5 @@
+[
+  "test_steady.py::TestSteadyState::test_heat_flow",
+  "test_steady.py::TestSteadyState::test_room_temp",
+  "test_steady.py::TestSteadyState::test_surface_temp"
+]

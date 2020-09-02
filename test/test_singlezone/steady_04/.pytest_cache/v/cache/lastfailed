@@ -1,0 +1,6 @@
+{
+  "test_steady.py::TestSteadyState::test_case_01": true,
+  "test_steady.py::TestSteadyState::test_case_01_heat_flow": true,
+  "test_steady.py::TestSteadyState::test_case_01_room_temp": true,
+  "test_steady.py::TestSteadyState::test_case_01_surface_temp": true
+}
