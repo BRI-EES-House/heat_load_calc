@@ -9,7 +9,11 @@ from heat_load_calc.core import core
 
 
 # 定常状態のテスト
+# @unittest.skip('skip single zone steady 02')
 class TestSteadyState(unittest.TestCase):
+    """
+    ここにテストの目的を記述すること。
+    """
 
     @classmethod
     def setUpClass(cls):
