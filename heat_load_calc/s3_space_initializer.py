@@ -92,12 +92,7 @@ def make_house(d, input_data_dir, output_data_dir):
     # 熱交換器種類
     heat_exchanger_type_is = [a22.read_heat_exchanger_type(room) for room in rooms]
 
-    #TODO: initializer 入力から値をもってくるようにすること。
-    building = {
-        'story': 2,
-        'c_value': 2.0,
-        'inside_pressure': 'negative'
-    }
+    building = make_building()
 
     spaces = make_spaces(rooms=d['rooms'], a_floor_is=a_floor_is)
 
@@ -146,6 +141,71 @@ def make_house(d, input_data_dir, output_data_dir):
     with open(output_data_dir + '/mid_data_theta_o_sol.csv', 'w') as f:
         w = csv.writer(f, lineterminator='\n')
         w.writerows(np.array([bs.theta_o_sol for bs in bss2]).T.tolist())
+
+
+def make_house_for_test(d, input_data_dir, output_data_dir):
+
+    pp = pd.read_csv(input_data_dir + '/weather.csv', index_col=0)
+
+    theta_o_ns = pp['temperature'].values
+    x_o_ns = pp['absolute humidity'].values
+    i_dn_ns = pp['normal direct solar radiation'].values
+    i_sky_ns = pp['horizontal sky solar radiation'].values
+    r_n_ns = pp['outward radiation'].values
+    h_sun_ns = pp['sun altitude'].values
+    a_sun_ns = pp['sun azimuth'].values
+
+    rooms = d['rooms']
+
+    # 室の数
+    number_of_spaces = len(rooms)
+
+    # 境界j
+    bss = np.array([
+        boundary_simple.get_boundary_simple(
+            theta_o_ns=theta_o_ns,
+            i_dn_ns=i_dn_ns,
+            i_sky_ns=i_sky_ns,
+            r_n_ns=r_n_ns,
+            a_sun_ns=a_sun_ns,
+            h_sun_ns=h_sun_ns,
+            b=b_dict
+        ) for b_dict in d['boundaries']
+    ])
+
+    bss2 = building_part_summarize.integrate(bss=list(bss))
+
+    # 室iの床面積, m2, [i]
+    # TODO: is_solar_absorbed_inside_js を使用すべき。
+    a_floor_is = np.array([
+        np.sum(np.array([bs.area for bs in bss if bs.connected_room_id == i and bs.is_solar_absorbed_inside]))
+        for i in range(number_of_spaces)
+    ])
+
+    building = make_building()
+
+    spaces = make_spaces(rooms=d['rooms'], a_floor_is=a_floor_is)
+
+    bdrs = make_bdrs(bss2, rooms=d['rooms'], a_floor_is=a_floor_is)
+
+    wd = {
+        'building': building,
+        'spaces': spaces,
+        'boundaries': bdrs
+    }
+
+    with open(output_data_dir + '/mid_data_house.json', 'w') as f:
+        json.dump(wd, f, indent=4)
+
+
+def make_building():
+    # TODO: initializer 入力から値をもってくるようにすること。
+    building = {
+        'story': 2,
+        'c_value': 2.0,
+        'inside_pressure': 'negative'
+    }
+    return building
 
 
 def make_bdrs(bss2, rooms, a_floor_is):
