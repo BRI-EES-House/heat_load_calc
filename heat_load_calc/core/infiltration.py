@@ -2,15 +2,24 @@ import numpy as np
 import math
 
 
-def get_infiltration(c_value: float, v_room_cap_is: np.ndarray, story: int, vent_type: int,
-                     theta_r_is_n: np.ndarray, theta_o_npls: float) -> np.ndarray:
+def get_infiltration(
+        c_value: float,
+        v_room_is: np.ndarray,
+        story: int,
+        inside_pressure: str,
+        theta_r_is_n: np.ndarray,
+        theta_o_npls: float
+) -> np.ndarray:
     """すきま風量を取得する。
 
     Args:
         c_value: 相当隙間面積, cm2/m2
-        v_room_cap_is: 室気積, m3, [i,1]
+        v_room_is: 室iの容積, m3, [i,1]
         story: 階
-        vent_type: 換気方式, 第?種換気
+        inside_pressure: 室内側の圧力
+            'negative': 負圧
+            'positive': 正圧
+            'balanced': バランス圧力
         theta_r_is_n: 時刻nの室温, degree C, [i,1]
         theta_o_npls: 時刻n+1の外気温度, degree C
 
@@ -18,9 +27,9 @@ def get_infiltration(c_value: float, v_room_cap_is: np.ndarray, story: int, vent
         すきま風量, m3/s, [i,1]
     """
     # 室気積の合計値, m3, float
-    total_air_volume = np.sum(v_room_cap_is)
+    total_air_volume = np.sum(v_room_is)
     # 室気積加重平均室温theta_r_nの計算, degree C, float
-    theta_average_r_n = np.average(theta_r_is_n, weights=v_room_cap_is)
+    theta_average_r_n = np.average(theta_r_is_n, weights=v_room_is)
 
     # 室内外温度差の計算, degree C, float
     delta_theta = abs(theta_average_r_n-theta_o_npls)
@@ -36,19 +45,19 @@ def get_infiltration(c_value: float, v_room_cap_is: np.ndarray, story: int, vent
     # 係数bの計算, 回/h
     # 階数と換気方式の組み合わせで決定する
     b = {
-        1: {
+        'balanced': {
             1: 0.00,
             2: 0.0
         }[story],
-        2: {
+        'positive': {
             1: 0.26,
             2: 0.14
         }[story],
-        3: {
+        'negative': {
             1: 0.28,
             2: 0.13
         }[story]
-    }[vent_type]
+    }[inside_pressure]
 
     # print(a, b)
     # 換気回数の計算
@@ -56,24 +65,6 @@ def get_infiltration(c_value: float, v_room_cap_is: np.ndarray, story: int, vent
     infiltration_rate = np.maximum(a * (c_value * math.sqrt(delta_theta)) - b, 0)
 
     # すきま風量の計算
-    infiltration = infiltration_rate * v_room_cap_is / 3600.0
+    infiltration = infiltration_rate * v_room_is / 3600.0
 
     return infiltration
-
-if __name__ == '__main__':
-
-    c_value = 2.0
-    v_room_cap_is = np.array([[50.0], [20.0], [60.0]])
-    story = 2
-    vent_type = 3
-    theta_r = np.array([[20.0], [18.0], [15.0]])
-    theta_o = 0.0
-    print(get_infiltration(
-        c_value=c_value,
-        v_room_cap_is=v_room_cap_is,
-        story=story,
-        vent_type=vent_type,
-        theta_r_is_n=theta_r,
-        theta_o_npls=theta_o
-    )
-    )
