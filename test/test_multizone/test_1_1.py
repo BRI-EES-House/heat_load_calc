@@ -7,10 +7,13 @@ from heat_load_calc.core import core
 
 
 # クラスの名前は何でも良いので、　TestSurfaceHeatBalance のような形で名前を変更してください。
+# @unittest.skip('skip multi zone test_1_1')
 class MyTestCase(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
+
+        print('\n testing multi zone test 1 1')
 
         cls._data_dir = str(os.path.dirname(__file__)) + '/data'
 
@@ -24,7 +27,6 @@ class MyTestCase(unittest.TestCase):
 
         cls._mdh = mdh
 
-#    @unittest.skip('時間がかかるのでとりあえずskip')
     def test_weather(self):
 
         # 1/1 0:00の外気温度があっているかどうか？
