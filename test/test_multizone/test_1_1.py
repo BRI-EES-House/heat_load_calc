@@ -148,11 +148,11 @@ class MyTestCase(unittest.TestCase):
     def test_nagata_radiative_heat_transfer(self):
 
         h_i_r0 = self._dd['rm0_b0_hir_s']['1989-01-01 00:15:00']
-        self.assertAlmostEqual(first=h_i_r0, second=5.31039997771127, places=1)
+        self.assertAlmostEqual(first=h_i_r0, second=5.30103376821525)
         h_i_r1 = self._dd['rm0_b1_hir_s']['1989-01-01 00:15:00']
-        self.assertAlmostEqual(first=h_i_r1, second=5.20088026870219, places=1)
+        self.assertAlmostEqual(first=h_i_r1, second=5.19171875408622)
         h_i_r10 = self._dd['rm0_b10_hir_s']['1989-01-01 00:15:00']
-        self.assertAlmostEqual(first=h_i_r10, second=5.44578066231596, places=1)
+        self.assertAlmostEqual(first=h_i_r10, second=5.43615990094699)
 
 if __name__ == '__main__':
 
