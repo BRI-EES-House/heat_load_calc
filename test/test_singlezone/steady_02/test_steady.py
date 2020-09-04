@@ -8,7 +8,6 @@ from heat_load_calc.weather import weather
 from heat_load_calc.core import core
 
 
-# 定常状態のテスト
 # @unittest.skip('skip single zone steady 02')
 class TestSteadyState(unittest.TestCase):
     """
@@ -17,6 +16,9 @@ class TestSteadyState(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
+
+        print('\n testing single zone steady 02')
+
         # 計算用フォルダ
         s_folder = str(os.path.dirname(__file__)) + '/data'
 
