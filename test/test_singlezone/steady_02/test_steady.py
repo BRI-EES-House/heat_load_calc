@@ -30,7 +30,7 @@ class TestSteadyState(unittest.TestCase):
         s3_space_initializer.make_house_for_test(d=d, input_data_dir=s_folder, output_data_dir=s_folder)
 
         # 計算実行
-        ds, dd = core.calc(input_data_dir=s_folder, output_data_dir=s_folder, show_detail_result=True)
+        ds, dd = core.calc(input_data_dir=s_folder, output_data_dir=s_folder)
 
         # 計算結果格納
         cls._ds = ds
