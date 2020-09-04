@@ -108,6 +108,15 @@ def get_boundary_simple(theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, a_sun_ns, h_sun_n
     # 面積, m2
     area = float(b['area'])
 
+    # 日射の有無
+    # True: 当たる
+    # False: 当たらない
+    # 境界の種類が'external_general_part', 'external_transparent_part', 'external_opaque_part'の場合に定義される。
+    if b['boundary_type'] in ['external_general_part', 'external_transparent_part', 'external_opaque_part']:
+        is_sun_striked_outside = bool(b['is_sun_striked_outside'])
+    else:
+        is_sun_striked_outside = None
+
     # 温度差係数
     # 境界の種類が'external_general_part', 'external_transparent_part', 'external_opaque_part'の場合に定義される。
     if b['boundary_type'] in ['external_general_part', 'external_transparent_part', 'external_opaque_part']:
@@ -136,15 +145,6 @@ def get_boundary_simple(theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, a_sun_ns, h_sun_n
     # True: 吸収する
     # False: 吸収しない
     is_solar_absorbed_inside = bool(b['is_solar_absorbed_inside'])
-
-    # 日射の有無
-    # True: 当たる
-    # False: 当たらない
-    # 境界の種類が'external_general_part', 'external_transparent_part', 'external_opaque_part'の場合に定義される。
-    if b['boundary_type'] in ['external_general_part', 'external_transparent_part', 'external_opaque_part']:
-        is_sun_striked_outside = bool(b['is_sun_striked_outside'])
-    else:
-        is_sun_striked_outside = None
 
     # 方位
     # 's', 'sw', 'w', 'nw', 'n', 'ne', 'e', 'se', 'top', 'bottom'
