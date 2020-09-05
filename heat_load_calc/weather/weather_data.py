@@ -35,51 +35,70 @@ def load(region: int) -> (np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.nda
     # [8760, 5] -> [5, 8760]
     weather = data.T
 
-    # ステップnにおける外気温度, ℃
-    theta_o_ns = interpolate(weather[0])
+    # 時間間隔
+    interval = '15m'
+
+    # ステップnにおける外気温度, degree C
+    theta_o_ns = interpolate(weather_data=weather[0], interval=interval)
 
     # ステップnにおける法線面直達日射量, W/m2
-    i_dn_ns = interpolate(weather[1])
+    i_dn_ns = interpolate(weather_data=weather[1], interval=interval)
 
     # ステップnにおける水平面天空日射量, W/m2
-    i_sky_ns = interpolate(weather[2])
+    i_sky_ns = interpolate(weather_data=weather[2], interval=interval)
 
     # ステップnにおける夜間放射量, W/m2
-    r_n_ns = interpolate(weather[3])
+    r_n_ns = interpolate(weather_data=weather[3], interval=interval)
 
     # ステップnにおける外気絶対湿度, kg/kgDA
     # g/kgDA から kg/kgDA へ単位変換を行う。
-    x_o_ns = interpolate(weather[4]) / 1000.
+    x_o_ns = interpolate(weather_data=weather[4], interval=interval) / 1000.
 
     return theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, x_o_ns
 
 
-def interpolate(weather_data: np.ndarray) -> np.ndarray:
+def interpolate(weather_data: np.ndarray, interval: str) -> np.ndarray:
     """
-    1時間ごとの8760データを15分間隔の8760✕4のデータに補間する。
+    1時間ごとの8760データを指定された間隔のデータに補間する。
+    '1h': 1時間間隔の場合、 n = 8760
+    '30m': 30分間隔の場合、 n = 8760 * 2 = 17520
+    '15m': 15分間隔の場合、 n = 8760 * 4 = 35040
 
     Args:
         weather_data: 1時間ごとの気象データ [8760]
+        interval: 生成するデータの時間間隔であり、以下の文字列で指定する。
+            1h: 1時間間隔
+            30m: 30分間隔
+            15m: 15分間隔
 
     Returns:
-        15分間隔に補間された気象データ [8760*4]
+        指定する時間間隔に補間された気象データ [n]
     """
 
-    # 補間比率の係数(1時間分4点)  式(56)
-    alpha = np.array([1.0, 0.75, 0.5, 0.25])
+    if interval == '1h':
 
-    # 補間元データ1, 補間元データ2
-    # 拡張アメダスのデータが1月1日の1時から始まっているため1時間ずらして0時始まりのデータに修正する。
-    data1 = np.roll(weather_data, 1)     # 0時=24時のため、1回分前のデータを参照
-    data2 = weather_data
+        return weather_data
 
-    # 直線補完 8760×4 の2次元配列
-    data_interp_2d = alpha[np.newaxis, :] * data1[:, np.newaxis] + (1.0 - alpha[np.newaxis, :]) * data2[:, np.newaxis]
+    else:
 
-    # 1次元配列へ変換
-    data_interp_1d = data_interp_2d.flatten()
+        # 補間比率の係数
+        alpha = {
+            '30m': np.array([1.0, 0.5]),
+            '15m': np.array([1.0, 0.75, 0.5, 0.25])
+        }[interval]
 
-    return data_interp_1d
+        # 補間元データ1, 補間元データ2
+        # 拡張アメダスのデータが1月1日の1時から始まっているため1時間ずらして0時始まりのデータに修正する。
+        data1 = np.roll(weather_data, 1)     # 0時=24時のため、1回分前のデータを参照
+        data2 = weather_data
+
+        # 直線補完 8760×4 の2次元配列
+        data_interp_2d = alpha[np.newaxis, :] * data1[:, np.newaxis] + (1.0 - alpha[np.newaxis, :]) * data2[:, np.newaxis]
+
+        # 1次元配列へ変換
+        data_interp_1d = data_interp_2d.flatten()
+
+        return data_interp_1d
 
 
 def get_filename(region: int) -> str:
