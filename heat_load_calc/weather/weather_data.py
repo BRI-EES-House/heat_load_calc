@@ -83,7 +83,8 @@ def interpolate(weather_data: np.ndarray, interval: str) -> np.ndarray:
 
     if interval == '1h':
 
-        return weather_data
+        # 拡張アメダスのデータが1月1日の1時から始まっているため1時間ずらして0時始まりのデータに修正する。
+        return np.roll(weather_data, 1)
 
     else:
 
