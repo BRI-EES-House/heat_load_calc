@@ -6,20 +6,29 @@ import numpy as np
 import os
 
 
-def load(region: int) -> (np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray):
+def load(region: int, interval: str = '15m') -> (np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray):
     """
-    地域の区分に応じて気象データを読み込む。
+    地域の区分に応じて気象データを読み込み、指定された時間間隔で必要に応じて補間を行いデータを作成する。
 
     Args:
         region: 地域の区分
+        interval: 生成するデータの時間間隔であり、以下の文字列で指定する。
+            1h: 1時間間隔
+            30m: 30分間隔
+            15m: 15分間隔
 
     Returns:
         以下の5項目
-            (1) ステップnにおける外気温度, ℃ [8760*4]
-            (2) ステップnにおける法線面直達日射量, W/m2 [8760*4]
-            (3) ステップnにおける水平面天空日射量, W/m2 [8760*4]
-            (4) ステップnにおける夜間放射量, W/m2 [8760*4]
-            (5) ステップnにおける外気絶対湿度, g/kgDA [8760*4]
+            (1) ステップnにおける外気温度, degree C [n]
+            (2) ステップnにおける法線面直達日射量, W/m2 [n]
+            (3) ステップnにおける水平面天空日射量, W/m2 [n]
+            (4) ステップnにおける夜間放射量, W/m2 [n]
+            (5) ステップnにおける外気絶対湿度, g/kgDA [n]
+
+    Notes:
+        interval = '1h' -> n = 8760
+        interval = '30m' -> n = 8760 * 2
+        interval = '15m' -> n = 8760 * 4
     """
 
     # 地域の区分に応じたファイル名の取得
@@ -34,9 +43,6 @@ def load(region: int) -> (np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.nda
     # [5項目, 8760データ]
     # [8760, 5] -> [5, 8760]
     weather = data.T
-
-    # 時間間隔
-    interval = '15m'
 
     # ステップnにおける外気温度, degree C
     theta_o_ns = interpolate(weather_data=weather[0], interval=interval)
