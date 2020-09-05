@@ -3,11 +3,11 @@ import unittest
 from heat_load_calc.weather import weather_data as t
 
 
-class TestWeatherData(unittest.TestCase):
+class TestWeatherData15m(unittest.TestCase):
 
     def test_read_row_1_1_12(self):
 
-        theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, x_o_ns = t.load(region=1)
+        theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, x_o_ns = t.load(region=1, interval='15m')
 
         # 時刻 12 時のデータ
         time = 12 * 4
@@ -29,7 +29,7 @@ class TestWeatherData(unittest.TestCase):
 
     def test_read_row_1_1_13(self):
 
-        theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, x_o_ns = t.load(region=1)
+        theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, x_o_ns = t.load(region=1, interval='15m')
 
         # 時刻 13 時のデータ
         time = 13 * 4
@@ -54,7 +54,7 @@ class TestWeatherData(unittest.TestCase):
         按分のテスト
         """
 
-        theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, x_o_ns = t.load(region=1)
+        theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, x_o_ns = t.load(region=1, interval='15m')
 
         # 時刻 13 時 15 分のデータ
         time = 12 * 4 + 1
@@ -73,6 +73,53 @@ class TestWeatherData(unittest.TestCase):
 
         # 絶対湿度
         self.assertAlmostEqual(x_o_ns[time], 0.0015 * 0.75 + 0.0017 * 0.25, delta=0.00000001)
+
+
+class TestWeatherData1h(unittest.TestCase):
+
+    def test_read_row_1_1_12(self):
+
+        theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, x_o_ns = t.load(region=1, interval='1h')
+
+        # 時刻 12 時のデータ
+        time = 12
+
+        # 外気温度
+        self.assertEqual(theta_o_ns[time], -11.3)
+
+        # 法線面直達日射
+        self.assertEqual(i_dn_ns[time], 855.555555555556)
+
+        # 水平面天空日射
+        self.assertEqual(i_sky_ns[time], 55.5555555555556)
+
+        # 夜間放射量
+        self.assertEqual(r_n_ns[time], 88.8888888888889)
+
+        # 絶対湿度
+        self.assertEqual(x_o_ns[time], 0.0015)
+
+    def test_read_row_1_1_13(self):
+
+        theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, x_o_ns = t.load(region=1, interval='1h')
+
+        # 時刻 13 時のデータ
+        time = 13
+
+        # 外気温度
+        self.assertEqual(theta_o_ns[time], -9.4)
+
+        # 法線面直達日射
+        self.assertEqual(i_dn_ns[time], 791.666666666667)
+
+        # 水平面天空日射
+        self.assertEqual(i_sky_ns[time], 58.3333333333333)
+
+        # 夜間放射量
+        self.assertEqual(r_n_ns[time], 91.6666666666667)
+
+        # 絶対湿度
+        self.assertEqual(x_o_ns[time], 0.0017)
 
 
 if __name__ == '__main__':
