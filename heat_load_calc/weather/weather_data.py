@@ -32,6 +32,7 @@ def load(region: int) -> (np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.nda
 
     # 扱いにくいので転地（列：項目・行：時刻　→　列：時刻・行：項目
     # [5項目, 8760データ]
+    # [8760, 5] -> [5, 8760]
     weather = data.T
 
     # ステップnにおける外気温度, ℃
@@ -47,6 +48,7 @@ def load(region: int) -> (np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.nda
     r_n_ns = interpolate(weather[3])
 
     # ステップnにおける外気絶対湿度, kg/kgDA
+    # g/kgDA から kg/kgDA へ単位変換を行う。
     x_o_ns = interpolate(weather[4]) / 1000.
 
     return theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, x_o_ns
@@ -67,6 +69,7 @@ def interpolate(weather_data: np.ndarray) -> np.ndarray:
     alpha = np.array([1.0, 0.75, 0.5, 0.25])
 
     # 補間元データ1, 補間元データ2
+    # 拡張アメダスのデータが1月1日の1時から始まっているため1時間ずらして0時始まりのデータに修正する。
     data1 = np.roll(weather_data, 1)     # 0時=24時のため、1回分前のデータを参照
     data2 = weather_data
 
