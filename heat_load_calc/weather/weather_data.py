@@ -77,7 +77,7 @@ def interpolate(weather_data: np.ndarray) -> np.ndarray:
     data_interp_2d = alpha[np.newaxis, :] * data1[:, np.newaxis] + (1.0 - alpha[np.newaxis, :]) * data2[:, np.newaxis]
 
     # 1次元配列へ変換
-    data_interp_1d = np.reshape(data_interp_2d, (24 * 365 * 4))
+    data_interp_1d = data_interp_2d.flatten()
 
     return data_interp_1d
 
