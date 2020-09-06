@@ -7,13 +7,19 @@ from heat_load_calc.weather import solar_position
 
 def make_weather(region: int, output_data_dir: str = None, csv_output: bool = False):
 
+    interval = '15m'
+
     # 気象データの読み込み
-    #   (1)ステップnにおける外気温度, ℃, [8760 * 4]
-    #   (2)ステップnにおける法線面直達日射量, W/m2, [8760 * 4]
-    #   (3)ステップnにおける水平面天空日射量, W/m2, [8760 * 4]
-    #   (4)ステップnにおける夜間放射量, W/m2, [8760 * 4]
-    #   (5)ステップnにおける外気絶対湿度, kg/kgDA, [8760 * 4]
-    theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, x_o_ns = weather_data.load(region=region)
+    #   (1)ステップnにおける外気温度, degree C [n]
+    #   (2)ステップnにおける法線面直達日射量, W/m2 [n]
+    #   (3)ステップnにおける水平面天空日射量, W/m2 [n]
+    #   (4)ステップnにおける夜間放射量, W/m2 [n]
+    #   (5)ステップnにおける外気絶対湿度, kg/kgDA [n]
+    # インターバルごとの要素数について
+    #   interval = '1h' -> n = 8760
+    #   interval = '30m' -> n = 8760 * 2
+    #   interval = '15m' -> n = 8760 * 4
+    theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, x_o_ns = weather_data.load(region=region, interval=interval)
 
     # 緯度, rad & 経度, rad
     phi_loc, lambda_loc = region_location.get_phi_loc_and_lambda_loc(region=region)

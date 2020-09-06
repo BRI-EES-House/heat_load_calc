@@ -6,7 +6,7 @@ import numpy as np
 import os
 
 
-def load(region: int, interval: str = '15m') -> (np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray):
+def load(region: int, interval: str) -> (np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray):
     """
     地域の区分に応じて気象データを読み込み、指定された時間間隔で必要に応じて補間を行いデータを作成する。
 
