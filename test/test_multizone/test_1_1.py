@@ -17,7 +17,7 @@ class MyTestCase(unittest.TestCase):
 
         cls._data_dir = str(os.path.dirname(__file__)) + '/data'
 
-        ds, dd = core.calc(input_data_dir=cls._data_dir, output_data_dir=cls._data_dir, show_detail_result=True)
+        ds, dd = core.calc(input_data_dir=cls._data_dir, output_data_dir=cls._data_dir)
 
         cls._ds = ds
         cls._dd = dd
@@ -146,6 +146,15 @@ class MyTestCase(unittest.TestCase):
         q_fun2 = cap_fun * (t_fun_new - t_fun_old) / 900.0
         self.assertAlmostEqual(q_fun1, q_fun2)
 
+    # 放射熱伝達率の計算結果のテスト
+    def test_nagata_radiative_heat_transfer(self):
+
+        h_i_r0 = self._dd['rm0_b0_hir_s']['1989-01-01 00:15:00']
+        self.assertAlmostEqual(first=h_i_r0, second=5.30103376821525)
+        h_i_r1 = self._dd['rm0_b1_hir_s']['1989-01-01 00:15:00']
+        self.assertAlmostEqual(first=h_i_r1, second=5.19171875408622)
+        h_i_r10 = self._dd['rm0_b10_hir_s']['1989-01-01 00:15:00']
+        self.assertAlmostEqual(first=h_i_r10, second=5.43615990094699)
 
 if __name__ == '__main__':
 
