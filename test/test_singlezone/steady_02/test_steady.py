@@ -30,7 +30,7 @@ class TestSteadyState(unittest.TestCase):
         s3_space_initializer.make_house_for_test(d=d, input_data_dir=s_folder, output_data_dir=s_folder)
 
         # 計算実行
-        ds, dd = core.calc(input_data_dir=s_folder, output_data_dir=s_folder)
+        ds, dd = core.calc(input_data_dir=s_folder, output_data_dir=s_folder, show_detail_result=True)
 
         # 計算結果格納
         cls._ds = ds
@@ -39,8 +39,7 @@ class TestSteadyState(unittest.TestCase):
     # 室空気温[℃]のテスト
     def test_case_01_room_temp(self):
 
-        # 対流熱伝達率の取得
-        self.assertAlmostEqual(7.23138958337832, self._dd['rm0_t_r']['1989-12-31 00:00:00'])
+        self.assertAlmostEqual(7.23123507293773, self._dd['rm0_t_r']['1989-12-31 00:00:00'])
 
     # 室内側表面熱流[W/m2]のテスト
     def test_case_01_heat_flow(self):
