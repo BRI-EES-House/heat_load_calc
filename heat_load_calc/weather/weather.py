@@ -27,7 +27,7 @@ def make_weather(region: int, output_data_dir: str = None, csv_output: bool = Fa
     # 太陽位置
     #   (1) ステップnにおける太陽高度, rad, [8760 * 96]
     #   (2) ステップnにおける太陽方位角, rad, [8760 * 96]
-    h_sun_ns, a_sun_ns = solar_position.calc_solar_position(phi_loc=phi_loc, lambda_loc=lambda_loc)
+    h_sun_ns, a_sun_ns = solar_position.calc_solar_position(phi_loc=phi_loc, lambda_loc=lambda_loc, interval=interval)
 
     dd = pd.DataFrame(index=pd.date_range(start='1/1/1989', periods=365*96, freq='15min'))
     dd['temperature'] = theta_o_ns.round(3)

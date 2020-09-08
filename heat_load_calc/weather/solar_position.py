@@ -5,13 +5,17 @@ import math
 import numpy as np
 
 
-def calc_solar_position(phi_loc: float, lambda_loc: float) -> (np.ndarray, np.ndarray):
+def calc_solar_position(phi_loc: float, lambda_loc: float, interval: str) -> (np.ndarray, np.ndarray):
     """
     太陽位置を計算する
 
     Args:
         phi_loc: 緯度, rad
         lambda_loc: 経度, rad
+        interval: 生成するデータの時間間隔であり、以下の文字列で指定する。
+            1h: 1時間間隔
+            30m: 30分間隔
+            15m: 15分間隔
 
     Returns:
         タプル
