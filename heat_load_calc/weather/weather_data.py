@@ -1,6 +1,8 @@
-# 附属書X4 気象データの取得と15分間隔のデータへの補間方法
-# 地域の区分に応じて1時間ごとに定義される気象データ（8760データ）と、
-# そのデータを15分間隔のデータに補間する方法について説明する。
+"""
+附属書X4 気象データの取得と15分間隔のデータへの補間方法
+地域の区分に応じて1時間ごとに定義される気象データ（8760データ）と、
+そのデータを15分間隔のデータに補間する方法について説明する。
+"""
 
 import numpy as np
 import os
@@ -32,7 +34,7 @@ def load(region: int, interval: str) -> (np.ndarray, np.ndarray, np.ndarray, np.
     """
 
     # 地域の区分に応じたファイル名の取得
-    weather_data_filename = get_filename(region)
+    weather_data_filename = _get_filename(region)
 
     # ファイル読み込み
     path_and_filename = str(os.path.dirname(__file__)) + '/expanded_amedas/' + weather_data_filename
@@ -45,25 +47,25 @@ def load(region: int, interval: str) -> (np.ndarray, np.ndarray, np.ndarray, np.
     weather = data.T
 
     # ステップnにおける外気温度, degree C
-    theta_o_ns = interpolate(weather_data=weather[0], interval=interval)
+    theta_o_ns = _interpolate(weather_data=weather[0], interval=interval)
 
     # ステップnにおける法線面直達日射量, W/m2
-    i_dn_ns = interpolate(weather_data=weather[1], interval=interval)
+    i_dn_ns = _interpolate(weather_data=weather[1], interval=interval)
 
     # ステップnにおける水平面天空日射量, W/m2
-    i_sky_ns = interpolate(weather_data=weather[2], interval=interval)
+    i_sky_ns = _interpolate(weather_data=weather[2], interval=interval)
 
     # ステップnにおける夜間放射量, W/m2
-    r_n_ns = interpolate(weather_data=weather[3], interval=interval)
+    r_n_ns = _interpolate(weather_data=weather[3], interval=interval)
 
     # ステップnにおける外気絶対湿度, kg/kgDA
     # g/kgDA から kg/kgDA へ単位変換を行う。
-    x_o_ns = interpolate(weather_data=weather[4], interval=interval) / 1000.
+    x_o_ns = _interpolate(weather_data=weather[4], interval=interval) / 1000.
 
     return theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, x_o_ns
 
 
-def interpolate(weather_data: np.ndarray, interval: str) -> np.ndarray:
+def _interpolate(weather_data: np.ndarray, interval: str) -> np.ndarray:
     """
     1時間ごとの8760データを指定された間隔のデータに補間する。
     '1h': 1時間間隔の場合、 n = 8760
@@ -108,7 +110,7 @@ def interpolate(weather_data: np.ndarray, interval: str) -> np.ndarray:
         return data_interp_1d
 
 
-def get_filename(region: int) -> str:
+def _get_filename(region: int) -> str:
     """
     地域の区分に応じたファイル名を取得する。
 
