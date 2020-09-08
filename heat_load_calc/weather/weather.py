@@ -5,9 +5,23 @@ from heat_load_calc.weather import region_location
 from heat_load_calc.weather import solar_position
 
 
-def make_weather(region: int, output_data_dir: str = None, csv_output: bool = False):
-
-    interval = '15m'
+def make_weather(region: int, output_data_dir: str = None, csv_output: bool = False, interval: str = '15m'):
+    """
+    気象データを作成する。
+    Args:
+        region: 地域の区分
+        output_data_dir: 気象データを出力するディレクトリ名
+        csv_output: 気象データの出力の有無
+        interval: 生成するデータの時間間隔であり、以下の文字列で指定する。（デフォルト値は'15m'）
+            1h: 1時間間隔
+            30m: 30分間隔
+            15m: 15分間隔
+    Returns:
+        作成された気象データ（pandas DataFrame 形式）
+    Notes:
+        csv_output が True のときのみ、 output_data_dir を指定する。
+        output_data_dir で指定したディレクトリは実行ファイルがあるフォルダ内に作成される。
+    """
 
     # 気象データの読み込み
     #   (1)ステップnにおける外気温度, degree C [n]
@@ -29,7 +43,16 @@ def make_weather(region: int, output_data_dir: str = None, csv_output: bool = Fa
     #   (2) ステップnにおける太陽方位角, rad [n]
     h_sun_ns, a_sun_ns = solar_position.calc_solar_position(phi_loc=phi_loc, lambda_loc=lambda_loc, interval=interval)
 
-    dd = pd.DataFrame(index=pd.date_range(start='1/1/1989', periods=365*96, freq='15min'))
+    # インターバル指定文字をpandasのfreq引数に文字変換する。
+    freq = {
+        '15m': '15min',
+        '30m': '30min',
+        '1h': 'H'
+    }[interval]
+
+    # 時系列インデクスの作成
+    dd = pd.DataFrame(index=pd.date_range(start='1/1/1989', periods=365*96, freq=freq))
+
     dd['temperature'] = theta_o_ns.round(3)
     dd['absolute humidity'] = x_o_ns.round(6)
     dd['normal direct solar radiation'] = i_dn_ns
