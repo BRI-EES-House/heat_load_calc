@@ -4,6 +4,8 @@
 import math
 import numpy as np
 
+from heat_load_calc.weather import calc_interval
+
 
 def calc_solar_position(phi_loc: float, lambda_loc: float, interval: str) -> (np.ndarray, np.ndarray):
     """
@@ -107,7 +109,7 @@ def get_d_ns(interval: str) -> np.ndarray:
     """
 
     # 1時間を分割するステップ数
-    n_hour = get_n_hour(interval)
+    n_hour = calc_interval.get_n_hour(interval)
 
     return np.repeat(np.arange(365) + 1, 24 * n_hour)
 
@@ -241,7 +243,7 @@ def get_t_m_ns(interval: str) -> np.ndarray:
         ステップnにおける標準時, d [n]
     """
 
-    n_hour = get_n_hour(interval=interval)
+    n_hour = calc_interval.get_n_hour(interval=interval)
 
     int_interval = {
         '1h': 1.0,
@@ -333,26 +335,4 @@ def get_a_sun_ns(omega_ns: np.ndarray, phi_loc: float, delta_ns: np.ndarray, h_s
     a_sun_ns[f] = np.arctan2(sin_a_sun_ns[f], cos_a_sun_ns[f])
 
     return a_sun_ns
-
-
-def get_n_hour(interval):
-    """
-    1時間を分割するステップ数を求める。
-    Args:
-        interval: 生成するデータの時間間隔であり、以下の文字列で指定する。
-            1h: 1時間間隔
-            30m: 30分間隔
-            15m: 15分間隔
-    Returns:
-        1時間を分割するステップ数
-        1時間: 1
-        30分: 2
-        15分: 4
-    """
-
-    return {
-        '1h': 1,
-        '30m': 2,
-        '15m': 4
-    }[interval]
 

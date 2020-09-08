@@ -3,6 +3,7 @@ import pandas as pd
 from heat_load_calc.weather import weather_data
 from heat_load_calc.weather import region_location
 from heat_load_calc.weather import solar_position
+from heat_load_calc.weather import calc_interval
 
 
 def make_weather(region: int, output_data_dir: str = None, csv_output: bool = False, interval: str = '15m'):
@@ -50,8 +51,11 @@ def make_weather(region: int, output_data_dir: str = None, csv_output: bool = Fa
         '1h': 'H'
     }[interval]
 
+    # 1時間を何分割するのかを取得する。
+    n_hour = calc_interval.get_n_hour(interval=interval)
+
     # 時系列インデクスの作成
-    dd = pd.DataFrame(index=pd.date_range(start='1/1/1989', periods=365*96, freq=freq))
+    dd = pd.DataFrame(index=pd.date_range(start='1/1/1989', periods=8760*n_hour, freq=freq))
 
     dd['temperature'] = theta_o_ns.round(3)
     dd['absolute humidity'] = x_o_ns.round(6)
