@@ -25,8 +25,8 @@ def make_weather(region: int, output_data_dir: str = None, csv_output: bool = Fa
     phi_loc, lambda_loc = region_location.get_phi_loc_and_lambda_loc(region=region)
 
     # 太陽位置
-    #   (1) ステップnにおける太陽高度, rad, [8760 * 96]
-    #   (2) ステップnにおける太陽方位角, rad, [8760 * 96]
+    #   (1) ステップnにおける太陽高度, rad [n]
+    #   (2) ステップnにおける太陽方位角, rad [n]
     h_sun_ns, a_sun_ns = solar_position.calc_solar_position(phi_loc=phi_loc, lambda_loc=lambda_loc, interval=interval)
 
     dd = pd.DataFrame(index=pd.date_range(start='1/1/1989', periods=365*96, freq='15min'))
