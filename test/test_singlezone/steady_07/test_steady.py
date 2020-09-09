@@ -38,10 +38,29 @@ class TestSteadyState(unittest.TestCase):
     def test_pmv(self):
 
         theta_r = self._dd['rm0_t_r']['1989-12-31 00:00:00']
+        theta_ot = self._dd['rm0_ot']['1989-12-31 00:00:00']
         clo = self._dd['rm0_clo']['1989-12-31 00:00:00']
         p_a = psychrometrics.get_p_v_r_is_n(np.array([self._dd['out_abs_humid']['1989-12-31 00:00:00']]))
         h_hum = self._dd['rm0_hc_hum']['1989-12-31 00:00:00'] + self._dd['rm0_hr_hum']['1989-12-31 00:00:00']
-        theta_ot = self._dd['rm0_ot']['1989-12-31 00:00:00']
-        pmv = occupants.get_pmv_is_n(np.array([theta_r]), clo, p_a, np.array([h_hum]), np.array([theta_ot]))
 
-        self.assertAlmostEqual(self._dd['rm0_pmv_target']['1989-12-31 00:00:00'], pmv[0])
+        # 確認用PMV
+        # 室温の代わりに作用温度を使用
+        pmv_confirm = occupants.get_pmv_is_n(
+            np.array([theta_ot]),
+            np.array([clo]),
+            np.array([p_a]),
+            np.array([h_hum]),
+            np.array([theta_ot])
+        )
+
+        self.assertAlmostEqual(self._dd['rm0_pmv_target']['1989-12-31 00:00:00'], pmv_confirm[0][0])
+
+        # 実現PMV
+        pmv_practical = occupants.get_pmv_is_n(
+            np.array([theta_r]),
+            np.array([clo]),
+            np.array([p_a]),
+            np.array([h_hum]),
+            np.array([theta_ot]))
+
+        print(pmv_practical[0][0])
