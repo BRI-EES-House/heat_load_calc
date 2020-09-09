@@ -146,21 +146,21 @@ def get_graph_data(d):
 
         # 人体周りの総合熱伝達率, 対流熱伝達率, 放射熱伝達率, 運転モード, 着衣量, 目標作用温度の取得
         arr = occupants.calc_operation(
-            x_r_is_n=np.array(d[key]['x_r']).reshape(-1, 1),
-            operation_mode_is_n_mns=np.array(d[key]['operation_mode']).reshape(-1, 1),
-            is_radiative_heating_is=np.array(d[key]['radiative_heating']).reshape(-1, 1),
-            is_radiative_cooling_is=np.array(d[key]['radiative_cooling']).reshape(-1, 1),
-            theta_r_is_n=np.array(d[key]['theta_r']).reshape(-1, 1),
-            theta_cl_is_n=np.array(d[key]['theta_cl']).reshape(-1, 1),
-            theta_mrt_is_n=np.array(d[key]['theta_mrt']).reshape(-1, 1),
-            ac_demand_is_n=np.array(d[key]['ac_demand']).reshape(-1, 1)
+            x_r_is_n=np.array(d[key]['x_r']),
+            operation_mode_is_n_mns=np.array(d[key]['operation_mode']),
+            is_radiative_heating_is=np.array(d[key]['radiative_heating']),
+            is_radiative_cooling_is=np.array(d[key]['radiative_cooling']),
+            theta_r_is_n=np.array(d[key]['theta_r']),
+            theta_cl_is_n=np.array(d[key]['theta_cl']),
+            theta_mrt_is_n=np.array(d[key]['theta_mrt']),
+            ac_demand_is_n=np.array(d[key]['ac_demand'])
         )
 
         # 運転モード, 着衣量, 目標作用温度のデータ格納
         d_graph_data[key] = {
-            'operation_mode': copy.deepcopy([om.value for om in arr[3].flatten()]),
-            'clo': copy.deepcopy(arr[4].flatten()),
-            'theta_ot_target': copy.deepcopy(arr[5].flatten())
+            'operation_mode': copy.deepcopy([om.value for om in arr[3]]),
+            'clo': copy.deepcopy(arr[6]),
+            'theta_ot_target': copy.deepcopy(arr[7])
         }
 
     return d_graph_data
