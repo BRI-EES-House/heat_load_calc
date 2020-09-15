@@ -1,3 +1,8 @@
+"""
+方位係数を取得する。
+"""
+
+
 def get_nu(region: int, season: str, direction: str) -> float:
     """
     Args:

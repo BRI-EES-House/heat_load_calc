@@ -2,9 +2,10 @@ import numpy as np
 from collections import namedtuple
 from typing import Optional, List, Dict, Union, Tuple, Any
 
-import factor_nu  # 方位係数
 import factor_f  # 日射取得率補正係数
 from f_01_factor_h import get_factor_h  # 温度差係数
+
+from heat_load_calc.external import factor_nu
 
 PartType = namedtuple('PartType', [
     'roof',

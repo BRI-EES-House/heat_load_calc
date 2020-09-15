@@ -7,6 +7,8 @@ import get_u_psi_eta_from_u_a_and_eta_a as get_u_and_eta
 from f_01_factor_h import get_factor_h
 import factor_nu
 
+from heat_load_calc.external import factor_nu
+
 
 def convert(common: Dict, envelope: Dict):
 

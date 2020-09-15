@@ -4,9 +4,10 @@ import math
 import nbimporter
 import numpy
 
-import nu # 方位係数
 import f  # 日射取得率補正係数
 import H  # 温度差係数
+
+from heat_load_calc.external import factor_nu as nu
 
 
 class Parts:
