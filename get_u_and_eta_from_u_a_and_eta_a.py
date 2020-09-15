@@ -1,13 +1,11 @@
 import copy
 import math
 
-import nbimporter
 import numpy
 
-import f  # 日射取得率補正係数
-import H  # 温度差係数
-
 from heat_load_calc.external import factor_nu as nu
+from heat_load_calc.external import factor_h
+import factor_f_2 as f
 
 
 class Parts:
@@ -103,19 +101,20 @@ def get_max_U(ptype):    # 部位別の熱貫流率の上限値, W/m2 K
 
 
 def get_q_std_U(region, parts, l_target):
-    return sum((part.area * get_std_U(region, part.ptype) * H.get_H_by_nextspace(region,
+    return sum(
+        (part.area * get_std_U(region, part.ptype) * factor_h.get_h(region,
                                                                                  part.nextspace) if part.ptype in l_target else 0)
                for part in parts)
 
 
 def get_q_max_U(region, parts, l_target):
-    return sum((part.area * get_max_U(part.ptype) * H.get_H_by_nextspace(region,
+    return sum((part.area * get_max_U(part.ptype) * factor_h.get_h(region,
                                                                          part.nextspace) if part.ptype in l_target else 0)
                for part in parts)
 
 
 def get_q_min_U(region, parts, l_target):
-    return sum((part.area * get_min_U(part.ptype) * H.get_H_by_nextspace(region,
+    return sum((part.area * get_min_U(part.ptype) * factor_h.get_h(region,
                                                                          part.nextspace) if part.ptype in l_target else 0)
                for part in parts)
 
@@ -248,11 +247,11 @@ def check_UA_and_etaA(area_skin, l_general_parts, l_windows, l_doors, l_earthflo
     }
 
     # UA値検算
-    UA_check = (sum(x['area'] * part_U[x['general_part_type']] * H.get_H_by_nextspace(region, x['next_space'])
+    UA_check = (sum(x['area'] * part_U[x['general_part_type']] * factor_h.get_h(region, x['next_space'])
                     for x in l_general_parts) \
-                + sum(x['area'] * part_U['window'] * H.get_H_by_nextspace(region, x['next_space']) for x in l_windows) \
-                + sum(x['area'] * part_U['window'] * H.get_H_by_nextspace(region, x['next_space']) for x in l_doors) \
-                + sum(x['length'] * part_U['earthfloor_perimeter'] * H.get_H_by_nextspace(region, x['next_space'])
+                + sum(x['area'] * part_U['window'] * factor_h.get_h(region, x['next_space']) for x in l_windows) \
+                + sum(x['area'] * part_U['window'] * factor_h.get_h(region, x['next_space']) for x in l_doors) \
+                + sum(x['length'] * part_U['earthfloor_perimeter'] * factor_h.get_h(region, x['next_space'])
                       for x in l_earthfloor_perimeters)) / area_skin
 
     # ηA値検算

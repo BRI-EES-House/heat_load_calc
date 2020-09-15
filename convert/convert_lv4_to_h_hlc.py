@@ -7,6 +7,8 @@ import a_06_common_items
 from a_01_00_general_part import get_general_part_spec_hlc as a_01_00_get_general_part_spec_hlc
 from f_01_factor_h import get_factor_h as f_01_get_factor_h
 
+from heat_load_calc.external import factor_h
+
 # region common
 
 
@@ -310,7 +312,7 @@ def get_boundaries_general_part(region, general_parts):
                 'boundary_type': 'external_general_part',
                 'area': gp['area'] * r_a_hlc_i,
                 'is_sun_striked_outside': get_is_sun_striked_outside(gp['direction']),
-                'temp_dif_coef': f_01_get_factor_h(region=region, next_space=gp['next_space']),
+                'temp_dif_coef': factor_h.get_h(region=region, next_space=gp['next_space']),
                 'direction': get_direction(gp['direction']),
                 'is_solar_absorbed_inside': get_is_solar_absorbed_inside(general_part_type=gp['general_part_type']),
                 'general_part_spec': general_part_spec_hlc_i,

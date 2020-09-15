@@ -1,4 +1,4 @@
-def get_factor_h(region: int, next_space: str) -> float:
+def get_h(region: int, next_space: str) -> float:
     """
     Args:
         region: 地域の区分

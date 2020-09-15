@@ -4,10 +4,10 @@ import factor_f
 import model_house
 import convert_model_house_to_house_dict
 import get_u_psi_eta_from_u_a_and_eta_a as get_u_and_eta
-from f_01_factor_h import get_factor_h
 import factor_nu
 
 from heat_load_calc.external import factor_nu
+from heat_load_calc.external import factor_h
 
 
 def convert(common: Dict, envelope: Dict):
@@ -74,15 +74,15 @@ def check_u_a_and_eta_a(region, model_house_envelope, sunshade):
 
     a_evp_total = get_total_area(general_parts, windows, doors, earthfloor_centers)
 
-    q_general = sum(p['area'] * p['spec']['u_value_other'] * get_factor_h(region, p['next_space'])
+    q_general = sum(p['area'] * p['spec']['u_value_other'] * factor_h.get_h(region, p['next_space'])
                     for p in general_parts)
 
-    q_window = sum(p['area'] * p['spec']['windows'][0]['u_value'] * get_factor_h(region, p['next_space'])
+    q_window = sum(p['area'] * p['spec']['windows'][0]['u_value'] * factor_h.get_h(region, p['next_space'])
                    for p in windows)
 
-    q_door = sum(p['area'] * p['spec']['u_value'] * get_factor_h(region, p['next_space']) for p in doors)
+    q_door = sum(p['area'] * p['spec']['u_value'] * factor_h.get_h(region, p['next_space']) for p in doors)
 
-    q_earthfloor_perimeter = sum(p['length'] * p['spec']['psi_value'] * get_factor_h(region, p['next_space'])
+    q_earthfloor_perimeter = sum(p['length'] * p['spec']['psi_value'] * factor_h.get_h(region, p['next_space'])
                                  for p in earthfloor_perimeters)
 
     u_a = (q_general + q_window + q_door + q_earthfloor_perimeter) / a_evp_total
