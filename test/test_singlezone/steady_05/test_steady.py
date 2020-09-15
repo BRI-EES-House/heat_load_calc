@@ -41,13 +41,13 @@ class TestSteadyState(unittest.TestCase):
 
         self.assertAlmostEqual(15.3840945836677, self._dd['rm0_b1_qiall_s']['1989-12-31 00:00:00'])
         self.assertAlmostEqual(-31.1159054163324, self._dd['rm0_b2_qiall_s']['1989-12-31 00:00:00'])
-        self.assertAlmostEqual(-29.7404113895651, self._dd['rm0_b4_qiall_s']['1989-12-31 00:00:00'])
-        self.assertAlmostEqual(14.7040330548793, self._dd['rm0_b5_qiall_s']['1989-12-31 00:00:00'])
+        self.assertAlmostEqual(14.7040330548793, self._dd['rm0_b4_qiall_s']['1989-12-31 00:00:00'])
+        self.assertAlmostEqual(-29.7404113895651, self._dd['rm0_b5_qiall_s']['1989-12-31 00:00:00'])
 
     # 表面温度[℃]のテスト
     def test_surface_temp(self):
 
         self.assertAlmostEqual(1.61615703314501, self._dd['rm0_b1_t_s']['1989-12-31 00:00:00'])
         self.assertAlmostEqual(6.73115703314502, self._dd['rm0_b2_t_s']['1989-12-31 00:00:00'])
-        self.assertAlmostEqual(6.57985269020063, self._dd['rm0_b4_t_s']['1989-12-31 00:00:00'])
-        self.assertAlmostEqual(1.69096380131174, self._dd['rm0_b5_t_s']['1989-12-31 00:00:00'])
+        self.assertAlmostEqual(1.69096380131174, self._dd['rm0_b4_t_s']['1989-12-31 00:00:00'])
+        self.assertAlmostEqual(6.57985269020063, self._dd['rm0_b5_t_s']['1989-12-31 00:00:00'])
