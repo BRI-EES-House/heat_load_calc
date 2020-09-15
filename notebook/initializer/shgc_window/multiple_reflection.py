@@ -1,4 +1,5 @@
-"""複数の層で構成されたガラスの日射特性値を計算するモジュール
+"""
+複数の層で構成されたガラスの日射特性値を計算するモジュール
 
 このモジュールは複数の層で構成されたガラスの日射特性値を計算について記す。
 ガラスの日射特性値とは、
@@ -9,7 +10,6 @@
 - 各層における日射吸収率
 である。
 このモジュールの計算方法はJIS A2103に基づく。
-
 """
 
 from typing import List
@@ -23,7 +23,7 @@ class SolarSpecSingleLayer:
         SolarSpecMultiLayer クラスとの違いは、メンバに日射吸収率を含んでいるところ。
     """
 
-    def __init__(self, tau_f: float, tau_b: float, rho_f: float, rho_b:float):
+    def __init__(self, tau_f: float, tau_b: float, rho_f: float, rho_b: float):
 
         # 正面側からの入射光に対する日射透過率
         self.tau_f = tau_f
