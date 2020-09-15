@@ -11,7 +11,11 @@ from heat_load_calc.core import core
 # 定常状態のテスト
 class TestSteadyState(unittest.TestCase):
     """
-    ここにテストの目的を記述すること。
+    計算条件
+    屋根と床が合板12mm、壁が複層ガラスの1m角の立方体の単室モデル。
+    外気温度一定。日射、夜間放射は考慮なし。
+    内部発熱一定。
+
     """
 
     @classmethod
@@ -39,16 +43,16 @@ class TestSteadyState(unittest.TestCase):
     # 室空気温[℃]のテスト
     def test_case_01_room_temp(self):
 
-        self.assertAlmostEqual(7.28499366028948, self._dd['rm0_t_r']['1989-12-31 00:00:00'])
+        self.assertAlmostEqual(7.284839164623810, self._dd['rm0_t_r']['1989-12-31 00:00:00'])
 
     # 室内側表面熱流[W/m2]のテスト
     def test_case_01_heat_flow(self):
 
-        self.assertAlmostEqual(16.9159256263269, self._dd['rm0_b0_qiall_s']['1989-12-31 00:00:00'])
-        self.assertAlmostEqual(16.1681487468405, self._dd['rm0_b4_qiall_s']['1989-12-31 00:00:00'])
+        self.assertAlmostEqual(16.915925665416, self._dd['rm0_b0_qiall_s']['1989-12-31 00:00:00'])
+        self.assertAlmostEqual(16.168148793005, self._dd['rm0_b4_qiall_s']['1989-12-31 00:00:00'])
 
     # 表面温度[℃]のテスト
     def test_case_01_surface_temp(self):
 
-        self.assertAlmostEqual(1.77708164899979, self._dd['rm0_b0_t_s']['1989-12-31 00:00:00'])
-        self.assertAlmostEqual(1.85933710578008, self._dd['rm0_b4_t_s']['1989-12-31 00:00:00'])
+        self.assertAlmostEqual(1.77708166521, self._dd['rm0_b0_t_s']['1989-12-31 00:00:00'])
+        self.assertAlmostEqual(1.85933711630, self._dd['rm0_b4_t_s']['1989-12-31 00:00:00'])
