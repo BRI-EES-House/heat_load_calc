@@ -252,7 +252,7 @@ def make_pre_calc_parameters(data_directory: str) -> (PreCalcParameters, PreCalc
     # 室iに設置された放射暖房の対流成分比率, [i, 1]
     beta_is = np.array([s['beta'] for s in ss]).reshape(-1, 1)
 
-    # 室iの機械換気量（局所換気を除く）, m3/h, [i]
+    # 室iの機械換気量（局所換気を除く）, m3/s, [i]
     v_vent_ex_is = np.array([s['ventilation']['mechanical'] for s in ss])
 
     # 室iの隣室iからの機械換気量, m3/s, [i, i]
