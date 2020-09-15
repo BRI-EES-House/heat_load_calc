@@ -10,9 +10,14 @@ from heat_load_calc.core import core
 
 # 定常状態のテスト
 class TestSteadyState(unittest.TestCase):
+    """
+    ここにテストの目的を記述すること。
+    """
 
     @classmethod
     def setUpClass(cls):
+
+        print('\n testing single zone steady 04')
 
         # 計算用フォルダ
         s_folder = str(os.path.dirname(__file__)) + '/data'
