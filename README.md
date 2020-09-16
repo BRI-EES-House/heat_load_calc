@@ -1,6 +1,16 @@
 # Heat Load Calculation
 
+本リポジトリでは、暖冷房負荷計算の開発を行っています。  
+
 [![Build Status](https://travis-ci.com/BRI-EES-House/heat_load_calc.svg?branch=master)](https://travis-ci.com/BRI-EES-House/heat_load_calc)
+
+
+
+## 仕様書・根拠
+
+https://bri-ees-house.github.io/heat_load_calc/
+
+=== 以下、旧文章（修正中） ===
 
 外皮に関する入力情報の変換の仕方について記述しています。
 
