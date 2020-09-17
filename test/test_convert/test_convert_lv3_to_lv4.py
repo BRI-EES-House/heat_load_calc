@@ -1,6 +1,6 @@
 import unittest
 
-import convert.convert_lv3_to_lv4 as nb
+import heat_load_calc.convert.convert_lv3_to_lv4 as nb
 
 
 class TestLV3toLV4(unittest.TestCase):
