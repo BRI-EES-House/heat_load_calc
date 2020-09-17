@@ -1,10 +1,8 @@
 from typing import Dict
 
-import factor_f
-import model_house
-import convert_model_house_to_house_dict
-import get_u_psi_eta_from_u_a_and_eta_a as get_u_and_eta
-import factor_nu
+from convert import factor_f
+from convert import convert_model_house_to_house_dict
+from convert import get_u_psi_eta_from_u_a_and_eta_a as get_u_and_eta
 
 from heat_load_calc.external import factor_nu
 from heat_load_calc.external import factor_h
