@@ -1,22 +1,22 @@
 from typing import Dict, Tuple, List
 
-from a_01_01_general_part_u_value_directly \
+from heat_load_calc.convert.a_01_01_general_part_u_value_directly \
     import get_wood_general_part_spec_hlc as a_01_01_get_wood_general_part_spec_hlc
-from a_01_01_general_part_u_value_directly \
+from heat_load_calc.convert.a_01_01_general_part_u_value_directly \
     import get_steel_general_part_spec_hlc as a_01_01_get_steel_general_part_spec_hlc
-from a_01_01_general_part_u_value_directly \
+from heat_load_calc.convert.a_01_01_general_part_u_value_directly \
     import get_rc_general_part_spec_hlc as a_01_01_get_rc_general_part_spec_hlc
-from a_01_01_general_part_u_value_directly \
+from heat_load_calc.convert.a_01_01_general_part_u_value_directly \
     import get_other_general_part_spec_hlc as a_01_01_get_other_general_part_spec_hlc
-from a_01_02_general_part_detail_method \
+from heat_load_calc.convert.a_01_02_general_part_detail_method \
     import get_wood_general_part_spec_hlc as a_01_02_get_wood_general_part_spec_hlc
-from a_01_02_general_part_detail_method \
+from heat_load_calc.convert.a_01_02_general_part_detail_method \
     import get_rc_general_part_spec_hlc as a_01_02_get_rc_general_part_spec_hlc
-from a_01_02_general_part_detail_method \
+from heat_load_calc.convert.a_01_02_general_part_detail_method \
     import get_steel_general_part_spec_hlc as a_01_02_get_steel_general_part_spec_hlc
-from a_01_03_general_part_area_ratio_method \
+from heat_load_calc.convert.a_01_03_general_part_area_ratio_method \
     import get_wood_general_part_spec_hlc as a_01_03_get_wood_general_part_spec_hlc
-from a_06_common_items import get_r_surf as a_06_get_r_surf
+from heat_load_calc.convert.a_06_common_items import get_r_surf as a_06_get_r_surf
 
 
 def get_general_part_spec_hlc(gp: Dict) -> List[Tuple]:
