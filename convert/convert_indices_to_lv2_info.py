@@ -3,6 +3,7 @@ from typing import Dict
 from convert import factor_f
 from convert import convert_model_house_to_house_dict
 from convert import get_u_psi_eta_from_u_a_and_eta_a as get_u_and_eta
+from convert import model_house
 
 from heat_load_calc.external import factor_nu
 from heat_load_calc.external import factor_h

@@ -10,7 +10,7 @@ class TestStandardHouseArea(unittest.TestCase):
             a_f_total=120.0,
             a_f_mr=60.0,
             a_f_or=30.0,
-            a_evlp_total=360.0,
+            a_evp_total=360.0,
             house_type='condominium'
         )
 
