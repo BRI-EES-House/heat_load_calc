@@ -1,5 +1,5 @@
 import unittest
-import convert.model_house as mh
+import heat_load_calc.convert.model_house as mh
 
 
 class TestModelHouseShapeFactor(unittest.TestCase):

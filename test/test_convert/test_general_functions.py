@@ -1,6 +1,6 @@
 import unittest
 
-from convert import general_functions as gf
+from heat_load_calc.convert import general_functions as gf
 
 
 class TestRoundNumber(unittest.TestCase):

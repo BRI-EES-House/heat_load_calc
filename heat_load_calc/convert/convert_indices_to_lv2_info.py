@@ -1,21 +1,24 @@
 from typing import Dict
 
-from convert import factor_f
-from convert import convert_model_house_to_house_dict
-from convert import get_u_psi_eta_from_u_a_and_eta_a as get_u_and_eta
-from convert import model_house
+from heat_load_calc.convert import model_house, get_u_psi_eta_from_u_a_and_eta_a as get_u_and_eta, factor_f, \
+    convert_model_house_to_house_dict
 
 from heat_load_calc.external import factor_nu
 from heat_load_calc.external import factor_h
 
 
-def convert(common: Dict, envelope: Dict):
+def convert_spec(d: Dict):
+
+    common = d['common']
 
     region = common['region']
     house_type = common['house_type']
     a_f_total = common['total_floor_area']
 
+    envelope = d['envelope']
+
     indices = envelope['indices']
+
     u_a = indices['u_a']
     eta_a_h = indices['eta_a_h']
     eta_a_c = indices['eta_a_c']
@@ -314,7 +317,7 @@ if __name__ == '__main__':
     }
 
     print_target(indices=input_data_1['envelope']['indices'])
-    result1, sunshade1 = convert(common=input_data_1['common'], envelope=input_data_1['envelope'])
+    result1, sunshade1 = convert_spec(d=input_data_1)
 
     checked_u_a1, checked_eta_a_h1, checked_eta_a_c1 = check_u_a_and_eta_a(
         region=input_data_1['common']['region'], model_house_envelope=result1, sunshade=sunshade1)

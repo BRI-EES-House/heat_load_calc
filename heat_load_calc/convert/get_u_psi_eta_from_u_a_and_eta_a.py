@@ -1,8 +1,8 @@
 import numpy as np
 from collections import namedtuple
-from typing import Optional, List, Dict, Union, Tuple, Any
+from typing import List, Dict, Tuple
 
-from convert import factor_f  # 日射取得率補正係数
+from heat_load_calc.convert import factor_f
 from heat_load_calc.external.factor_h import get_h as get_factor_h  # 温度差係数
 
 from heat_load_calc.external import factor_nu
