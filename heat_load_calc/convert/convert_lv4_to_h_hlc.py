@@ -3,9 +3,8 @@ import copy
 
 import pprint
 
-import a_06_common_items
-from a_01_00_general_part import get_general_part_spec_hlc as a_01_00_get_general_part_spec_hlc
-from f_01_factor_h import get_factor_h as f_01_get_factor_h
+from heat_load_calc.convert import a_06_common_items
+from heat_load_calc.convert.a_01_00_general_part import get_general_part_spec_hlc as a_01_00_get_general_part_spec_hlc
 
 from heat_load_calc.external import factor_h
 
@@ -351,7 +350,7 @@ def get_boundaries_windows(region, d_windows):
             'boundary_type': 'external_transparent_part',
             'area': window['area'],
             'is_sun_striked_outside': get_is_sun_striked_outside(window['direction']),
-            'temp_dif_coef': f_01_get_factor_h(region=region, next_space=window['next_space']),
+            'temp_dif_coef': factor_h.get_h(region=region, next_space=window['next_space']),
             'direction': get_direction(window['direction']),
             'is_solar_absorbed_inside': False,
             'general_part_spec': transparent_opening_part_spec_hlc_i,

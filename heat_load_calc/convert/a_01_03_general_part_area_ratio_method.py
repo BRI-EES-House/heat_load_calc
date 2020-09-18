@@ -1,7 +1,7 @@
 from typing import Dict, List, Tuple
 
-from a_01_04_general_part_common_items import get_u_i as a_01_04_get_u_i
-from a_01_04_general_part_common_items import make_layer_hlc as a_01_04_make_layer_hlc
+from heat_load_calc.convert.a_01_04_general_part_common_items import get_u_i as a_01_04_get_u_i
+from heat_load_calc.convert.a_01_04_general_part_common_items import make_layer_hlc as a_01_04_make_layer_hlc
 
 
 def get_wood_general_part_spec_hlc(general_part_type: str, spec: Dict, r_surf_i: float, r_surf_o: float) -> List[Tuple]:

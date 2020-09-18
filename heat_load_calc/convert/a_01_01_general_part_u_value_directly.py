@@ -1,8 +1,8 @@
 from typing import List, Dict, Tuple
 
-from a_01_04_general_part_common_items import Layer
-from a_01_04_general_part_common_items import get_r_hlc_i as a_01_04_get_r_hlc_i
-from a_01_04_general_part_common_items import get_c_hlc_i as a_01_04_get_c_hlc_i
+from heat_load_calc.convert.a_01_04_general_part_common_items import Layer
+from heat_load_calc.convert.a_01_04_general_part_common_items import get_r_hlc_i as a_01_04_get_r_hlc_i
+from heat_load_calc.convert.a_01_04_general_part_common_items import get_c_hlc_i as a_01_04_get_c_hlc_i
 
 
 # region 木造

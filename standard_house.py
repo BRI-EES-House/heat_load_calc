@@ -1,6 +1,5 @@
 import copy
-import math
-import numpy
+from typing import Dict
 
 import standard_house_area
 import get_u_and_eta_from_u_a_and_eta_a as get_u_and_eta
@@ -27,19 +26,15 @@ def get_std_etaAC(house_type, region):
     }[house_type][region]
 
 
-def get_total_area(d):
+def get_total_area(envelope: Dict) -> float:
+
     d_area = []
+
     for parts in ['general_parts', 'windows', 'doors', 'earthfloors']:
-        if (parts in d['envelope']) == True:
-            d_area.extend(d['envelope'][parts])
+        if parts in envelope:
+            d_area.extend(envelope[parts])
 
     return sum(part['area'] for part in d_area)
-
-
-def convert_common(d, common):
-    d['common']['total_outer_skin_area'] = get_total_area(d)
-
-    return d['common']
 
 
 def get_area(d_envelope, area_type):
@@ -343,7 +338,8 @@ def get_list(area, area_type):
     return d['general_parts'], d['windows'], d['doors'], d['earthfloor_perimeters']
 
 
-def convert_parts(d, area_type):
+def convert_parts(d, area_type, a_evp_total, a_f_total, a_f_mr, a_f_or, house_type):
+
     standard_d = {}
 
     # 部位面積の取得
@@ -353,11 +349,7 @@ def convert_parts(d, area_type):
         d_standard_area = {'envelope': {}}
         d_standard_area['envelope']['general_parts'], d_standard_area['envelope'][
             'windows'], inner_walls = standard_house_area.get_area(
-            a_f_total=d['common']['total_floor_area'],
-            a_f_mr=d['common']['main_occupant_room_floor_area'],
-            a_f_or=d['common']['other_occupant_room_floor_area'],
-            a_evlp_total=d['common']['total_outer_skin_area'],
-            house_type=d['common']['house_type']
+            a_f_total=a_f_total, a_f_mr=a_f_mr, a_f_or=a_f_or, a_evp_total=a_evp_total, house_type=house_type
         )
         d_standard_area['envelope']['doors'], d_standard_area['envelope']['earthfloor_perimeters'] = [], []
 
@@ -397,6 +389,11 @@ def convert(d, area_type):
     common = d['common']
     house_type = common['house_type']
     region = common['region']
+    a_f_mr = common['main_occupant_room_floor_area']
+    a_f_or = common['other_occupant_room_floor_area']
+    a_f_total = common['total_floor_area']
+
+    envelope = d['envelope']
 
     indices = {
         'u_a': get_std_UA(house_type, region),
@@ -407,9 +404,27 @@ def convert(d, area_type):
     d['envelope']['index'] = indices
 
     standard_d = {'envelope': {}}
-    standard_d['common'] = convert_common(d, common)
 
-    rtn_general_parts, rtn_windows, rtn_doors, rtn_earthfloor_perimeters = convert_parts(d, area_type)
+    total_outer_skin_area = get_total_area(envelope=envelope)
+
+    standard_d['common'] = {
+        'region': region,
+        'house_type': house_type,
+        'main_occupant_room_floor_area': a_f_mr,
+        'other_occupant_room_floor_area': a_f_or,
+        'total_floor_area': a_f_total,
+        'total_outer_skin_area': total_outer_skin_area
+    }
+
+    rtn_general_parts, rtn_windows, rtn_doors, rtn_earthfloor_perimeters = convert_parts(
+        d=d,
+        area_type=area_type,
+        a_evp_total=total_outer_skin_area,
+        a_f_total=a_f_total,
+        a_f_mr=a_f_mr,
+        a_f_or=a_f_or,
+        house_type=house_type
+    )
 
     standard_d['envelope']['general_parts'] = rtn_general_parts
     standard_d['envelope']['windows'] = rtn_windows
@@ -424,7 +439,7 @@ def convert(d, area_type):
 
 if __name__ == '__main__':
 
-    d = {
+    d_example = {
         'common': {
             'region': 6,
             'house_type': 'condominium',  # 'detached','condominium'
@@ -462,10 +477,10 @@ if __name__ == '__main__':
         }
     }
 
-    result1 = convert(d, area_type='standard_house')
+    result1 = convert(d=d_example, area_type='standard_house')
     print(result1)
 
-    result2 = convert(d, area_type='design_house_with_room_usage')
+    result2 = convert(d=d_example, area_type='design_house_with_room_usage')
     print(result2)
 
 

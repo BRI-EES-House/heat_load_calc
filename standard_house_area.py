@@ -299,7 +299,7 @@ def get_area_attached(h_f, area_windows, a_f_mr, a_f_or, a_f_nr, a_f, r_a_f_mr, 
     }
 
 
-def get_area(a_f_total, a_f_mr, a_f_or, a_evlp_total, house_type):
+def get_area(a_f_total, a_f_mr, a_f_or, a_evp_total, house_type):
 
     # 非居室の床面積, m2
     a_f_nr = get_a_f_nr(a_f_total, a_f_mr, a_f_or)
@@ -323,7 +323,7 @@ def get_area(a_f_total, a_f_mr, a_f_or, a_evlp_total, house_type):
     #   短手方向, m
     #   長手方向, m
     #   周長の合計, m
-    l_short, l_long, l_total = get_geometry(a_evlp_total, a_f, h_total)
+    l_short, l_long, l_total = get_geometry(a_evp_total, a_f, h_total)
 
     # 基準住戸の総外皮面積の算出
     area_total_skin = l_total * h_total + 2 * a_f
@@ -375,6 +375,6 @@ def get_a_f_nr(a_f_total: float, a_f_mr: float, a_f_or: float) -> float:
 
 if __name__ == '__main__':
 
-    result = get_area(a_f_total=120.0, a_f_mr=60.0, a_f_or=30.0, a_evlp_total=360.0, house_type='detached')
+    result = get_area(a_f_total=120.0, a_f_mr=60.0, a_f_or=30.0, a_evp_total=360.0, house_type='detached')
 
     print(result)
