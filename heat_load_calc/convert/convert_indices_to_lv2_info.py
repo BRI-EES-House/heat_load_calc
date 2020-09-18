@@ -276,18 +276,6 @@ def add_spec(
     }
 
 
-def print_target(indices: Dict):
-    """
-        ターゲットとなる指標をプリントする
-    Args:
-        indices: UA値・ηAH値・ηAC値の辞書
-    """
-
-    print('目標UA値：' + str(indices['u_a']))
-    print('目標ηAH値：' + str(indices['eta_a_h']))
-    print('目標ηAC値：' + str(indices['eta_a_c']))
-
-
 def print_result(checked_u_a, checked_eta_a_h, checked_eta_a_c):
 
     print('計算UA値：' + str(checked_u_a))
@@ -316,7 +304,6 @@ if __name__ == '__main__':
         }
     }
 
-    print_target(indices=input_data_1['envelope']['indices'])
     result1, sunshade1 = convert_spec(d=input_data_1)
 
     checked_u_a1, checked_eta_a_h1, checked_eta_a_c1 = check_u_a_and_eta_a(
