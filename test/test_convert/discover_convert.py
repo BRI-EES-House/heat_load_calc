@@ -5,6 +5,7 @@ from test.test_convert import test_convert_lv3_to_lv4
 from test.test_convert import test_general_functions
 from test.test_convert import test_convert_model_house_to_house_dict
 from test.test_convert import test_model_house
+from test.test_convert import test_convert_indices_to_lv2_info
 
 
 def suite():
@@ -15,7 +16,8 @@ def suite():
         unittest.TestLoader().loadTestsFromTestCase(test_general_functions.TestRoundNumber),
         unittest.TestLoader().loadTestsFromTestCase(test_convert_model_house_to_house_dict.ConvertModelHouseToHouseDict),
         unittest.TestLoader().loadTestsFromTestCase(test_model_house.TestModelHouseResults),
-        unittest.TestLoader().loadTestsFromTestCase(test_model_house.TestModelHouseShapeFactor)
+        unittest.TestLoader().loadTestsFromTestCase(test_model_house.TestModelHouseShapeFactor),
+        unittest.TestLoader().loadTestsFromTestCase(test_convert_indices_to_lv2_info.TestConvertIndicesToLv2Info)
     ])
 
 

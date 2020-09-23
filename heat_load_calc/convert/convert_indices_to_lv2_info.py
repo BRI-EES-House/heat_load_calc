@@ -1,10 +1,11 @@
-from typing import Dict
+from typing import Dict, List
 
-from heat_load_calc.convert import model_house, get_u_psi_eta_from_u_a_and_eta_a as get_u_and_eta, factor_f, \
-    convert_model_house_to_house_dict
-
-from heat_load_calc.external import factor_nu
-from heat_load_calc.external import factor_h
+from heat_load_calc.convert import get_u_psi_eta_from_u_a_and_eta_a as get_u_and_eta
+from heat_load_calc.convert import model_house
+from heat_load_calc.convert import factor_f
+from heat_load_calc.convert import convert_model_house_to_house_dict
+from heat_load_calc.convert import check_ua_a_eta_a as cue
+from heat_load_calc.convert.ees_house import EesHouse, GeneralPart, Window, Door, EarthfloorPerimeter, EarthfloorCenter
 
 
 def convert_spec(d: Dict):
@@ -41,6 +42,7 @@ def convert_spec(d: Dict):
     model_house_envelope_no_spec = convert_model_house_to_house_dict.convert(**model_house_shape)
 
     sunshade = factor_f.Sunshade(
+        is_sunshade_input=True,
         existence=True, input_method='simple',
         depth=0.3, d_h=1.0, d_e=0.0,
         x1=None, x2=None, x3=None,
@@ -60,97 +62,6 @@ def convert_spec(d: Dict):
     model_house_envelope = add_spec(model_house_envelope_no_spec, u_psi, eta_d, eta_d_h, eta_d_c, sunshade)
 
     return model_house_envelope, sunshade
-
-
-def check_u_a_and_eta_a(region, model_house_envelope, sunshade):
-
-    general_parts = model_house_envelope['general_parts']
-
-    windows = model_house_envelope['windows']
-
-    doors = model_house_envelope['doors']
-
-    earthfloor_perimeters = model_house_envelope['earthfloor_perimeters']
-
-    earthfloor_centers = model_house_envelope['earthfloor_centers']
-
-    a_evp_total = get_total_area(general_parts, windows, doors, earthfloor_centers)
-
-    q_general = sum(p['area'] * p['spec']['u_value_other'] * factor_h.get_h(region, p['next_space'])
-                    for p in general_parts)
-
-    q_window = sum(p['area'] * p['spec']['windows'][0]['u_value'] * factor_h.get_h(region, p['next_space'])
-                   for p in windows)
-
-    q_door = sum(p['area'] * p['spec']['u_value'] * factor_h.get_h(region, p['next_space']) for p in doors)
-
-    q_earthfloor_perimeter = sum(p['length'] * p['spec']['psi_value'] * factor_h.get_h(region, p['next_space'])
-                                 for p in earthfloor_perimeters)
-
-    u_a = (q_general + q_window + q_door + q_earthfloor_perimeter) / a_evp_total
-
-    if region != 8:
-
-        m_h_general = sum(
-            p['area'] * 0.034 * p['spec']['u_value_other']
-            * factor_nu.get_nu(region=region, season='heating', direction=p['direction'])
-            for p in general_parts if p['next_space'] == 'outdoor')
-
-        m_h_door = sum(
-            p['area'] * 0.034 * p['spec']['u_value']
-            * factor_nu.get_nu(region=region, season='heating', direction=p['direction'])
-            for p in doors if p['next_space'] == 'outdoor')
-
-        m_h_window = sum(
-            p['spec']['windows'][0]['eta_d_h_value'] * p['area']
-            * factor_f.get_f(season='heating', region=region, direction=p['direction'], sunshade=sunshade)
-            * factor_nu.get_nu(season='heating', region=region, direction=p['direction'])
-            for p in windows)
-
-        eta_a_h = (m_h_general + m_h_door + m_h_window) / a_evp_total * 100
-
-    else:
-
-        eta_a_h = None
-
-    m_c_general = sum(
-        p['area'] * 0.034 * p['spec']['u_value_other']
-        * factor_nu.get_nu(region=region, season='cooling', direction=p['direction'])
-        for p in general_parts if p['next_space'] == 'outdoor')
-
-    m_c_door = sum(
-        p['area'] * 0.034 * p['spec']['u_value']
-        * factor_nu.get_nu(region=region, season='cooling', direction=p['direction'])
-        for p in doors if p['next_space'] == 'outdoor')
-
-    m_c_window = sum(
-        p['spec']['windows'][0]['eta_d_c_value'] * p['area']
-        * factor_f.get_f(season='cooling', region=region, direction=p['direction'], sunshade=sunshade)
-        * factor_nu.get_nu(season='cooling', region=region,direction=p['direction'])
-        for p in windows)
-
-    eta_a_c = (m_c_general + m_c_door + m_c_window) / a_evp_total * 100
-
-    return u_a, eta_a_h, eta_a_c
-
-
-def get_total_area(general_parts, windows, doors, earthfloor_centers):
-
-    d_area = []
-
-    if general_parts is not None:
-        d_area.extend(general_parts)
-
-    if windows is not None:
-        d_area.extend(windows)
-
-    if doors is not None:
-        d_area.extend(doors)
-
-    if earthfloor_centers is not None:
-        d_area.extend(earthfloor_centers)
-
-    return sum(d['area'] for d in d_area)
 
 
 def add_spec(
@@ -197,7 +108,7 @@ def add_spec(
                     {
                         'u_value_input_method': 'u_value_directly',
                         'u_value': get_u_and_eta.get_u_psi(u, 'window'),
-                        'eta_value_input_method': 'eta_value_directly',
+                        'eta_value_input_method': 'eta_d_value_directly',
                         'eta_d_value': eta_d,
                         'eta_d_h_value': eta_d_h,
                         'eta_d_c_value': eta_d_c,
@@ -306,8 +217,8 @@ if __name__ == '__main__':
 
     result1, sunshade1 = convert_spec(d=input_data_1)
 
-    checked_u_a1, checked_eta_a_h1, checked_eta_a_c1 = check_u_a_and_eta_a(
-        region=input_data_1['common']['region'], model_house_envelope=result1, sunshade=sunshade1)
+    checked_u_a1, checked_eta_a_h1, checked_eta_a_c1 = cue.check_u_a_and_eta_a(
+        region=input_data_1['common']['region'], model_house_envelope=result1)
 
     print_result(checked_u_a=checked_u_a1, checked_eta_a_h=checked_eta_a_h1, checked_eta_a_c=checked_eta_a_c1)
 

@@ -1,6 +1,7 @@
 import unittest
 
 import heat_load_calc.convert.convert_indices_to_lv2_info as t
+import heat_load_calc.convert.check_ua_a_eta_a as cue
 
 
 class TestConvertIndicesToLv2Info(unittest.TestCase):
@@ -153,7 +154,7 @@ class TestConvertIndicesToLv2Info(unittest.TestCase):
         self.assertEqual('single', spec['window_type'])
         self.assertEqual('u_value_directly', spec['windows'][0]['u_value_input_method'])
         self.assertEqual(4.66882912260438, spec['windows'][0]['u_value'])
-        self.assertEqual('eta_value_directly', spec['windows'][0]['eta_value_input_method'])
+        self.assertEqual('eta_d_value_directly', spec['windows'][0]['eta_value_input_method'])
         self.assertEqual(0.34657203976617956, spec['windows'][0]['eta_d_value'])
         self.assertEqual(0.5010751618181039, spec['windows'][0]['eta_d_h_value'])
         self.assertEqual(0.19206891771425533, spec['windows'][0]['eta_d_c_value'])
@@ -189,7 +190,7 @@ class TestConvertIndicesToLv2Info(unittest.TestCase):
         self.assertEqual('single', spec['window_type'])
         self.assertEqual('u_value_directly', spec['windows'][0]['u_value_input_method'])
         self.assertEqual(4.66882912260438, spec['windows'][0]['u_value'])
-        self.assertEqual('eta_value_directly', spec['windows'][0]['eta_value_input_method'])
+        self.assertEqual('eta_d_value_directly', spec['windows'][0]['eta_value_input_method'])
         self.assertEqual(0.34657203976617956, spec['windows'][0]['eta_d_value'])
         self.assertEqual(0.5010751618181039, spec['windows'][0]['eta_d_h_value'])
         self.assertEqual(0.19206891771425533, spec['windows'][0]['eta_d_c_value'])
@@ -225,7 +226,7 @@ class TestConvertIndicesToLv2Info(unittest.TestCase):
         self.assertEqual('single', spec['window_type'])
         self.assertEqual('u_value_directly', spec['windows'][0]['u_value_input_method'])
         self.assertEqual(4.66882912260438, spec['windows'][0]['u_value'])
-        self.assertEqual('eta_value_directly', spec['windows'][0]['eta_value_input_method'])
+        self.assertEqual('eta_d_value_directly', spec['windows'][0]['eta_value_input_method'])
         self.assertEqual(0.34657203976617956, spec['windows'][0]['eta_d_value'])
         self.assertEqual(0.5010751618181039, spec['windows'][0]['eta_d_h_value'])
         self.assertEqual(0.19206891771425533, spec['windows'][0]['eta_d_c_value'])
@@ -261,7 +262,7 @@ class TestConvertIndicesToLv2Info(unittest.TestCase):
         self.assertEqual('single', spec['window_type'])
         self.assertEqual('u_value_directly', spec['windows'][0]['u_value_input_method'])
         self.assertEqual(4.66882912260438, spec['windows'][0]['u_value'])
-        self.assertEqual('eta_value_directly', spec['windows'][0]['eta_value_input_method'])
+        self.assertEqual('eta_d_value_directly', spec['windows'][0]['eta_value_input_method'])
         self.assertEqual(0.34657203976617956, spec['windows'][0]['eta_d_value'])
         self.assertEqual(0.5010751618181039, spec['windows'][0]['eta_d_h_value'])
         self.assertEqual(0.19206891771425533, spec['windows'][0]['eta_d_c_value'])
@@ -342,6 +343,40 @@ class TestConvertIndicesToLv2Info(unittest.TestCase):
         self.assertEqual(None, ec['space_type'])
         spec = ec['spec']
         self.assertEqual(False, spec['is_layers_input'])
+
+    def test_check_u_a_eta_a(self):
+
+        input_data_1 = {
+            'common': {
+                'region': 6,
+                'house_type': 'detached',
+                'main_occupant_room_floor_area': 30.0,
+                'other_occupant_room_floor_area': 30.0,
+                'total_floor_area': 90.0,
+            },
+            'envelope': {
+                'input_method': 'index',
+                'indices': {
+                    'u_a': 0.87,
+                    'eta_a_h': 2.8,
+                    'eta_a_c': 1.4,
+                    'total_envelope_area': 266.0962919879752
+                }
+            }
+        }
+
+        result, sunshade = t.convert_spec(d=input_data_1)
+
+        checked_u_a1, checked_eta_a_h1, checked_eta_a_c1 = cue.check_u_a_and_eta_a(
+            region=input_data_1['common']['region'],
+            model_house_envelope=result
+        )
+
+        indices = input_data_1['envelope']['indices']
+
+        self.assertAlmostEqual(indices['u_a'], checked_u_a1)
+        self.assertAlmostEqual(indices['eta_a_h'], checked_eta_a_h1)
+        self.assertAlmostEqual(indices['eta_a_c'], checked_eta_a_c1)
 
 
 if __name__ == '__main__':

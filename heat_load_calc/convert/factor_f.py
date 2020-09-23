@@ -1,4 +1,3 @@
-from collections import namedtuple
 from typing import Optional, List, Dict, Union, Tuple
 
 # ⽇射取得率補正係数
@@ -15,23 +14,128 @@ from typing import Optional, List, Dict, Union, Tuple
 # データ「取得日射熱補正係数」 表 1(a) 屋根又は屋根の直下の天井に設置されている開口部の暖房期の取得日
 # 射熱補正係数 表 1(b) 屋根又は屋根の直下の天井に設置されている開口部の冷房期の取得日射熱補正係数
 
-Sunshade = namedtuple('Sunshade', [
-    'existence',
-    'input_method',
-    'depth',
-    'd_h',
-    'd_e',
-    'x1',
-    'x2',
-    'x3',
-    'y1',
-    'y2',
-    'y3',
-    'z_x_pls',
-    'z_x_mns',
-    'z_y_pls',
-    'z_y_mns',
-])
+
+class Sunshade:
+
+    def __init__(self, is_sunshade_input, existence, input_method, depth, d_h, d_e, x1, x2, x3, y1, y2, y3, z_x_pls, z_x_mns, z_y_pls, z_y_mns):
+        self._is_sunshade_input = is_sunshade_input
+        self._existence = existence
+        self._input_method = input_method
+        self._depth = depth
+        self._d_h = d_h
+        self._d_e = d_e
+        self._x1 = x1
+        self._x2 = x2
+        self._x3 = x3
+        self._y1 = y1
+        self._y2 = y2
+        self._y3 = y3
+        self._z_x_pls = z_x_pls
+        self._z_x_mns = z_x_mns
+        self._z_y_pls = z_y_pls
+        self._z_y_mns = z_y_mns
+
+    @classmethod
+    def make_sunshade(cls, is_sunshade_input: bool, d: Dict):
+        return Sunshade(
+            is_sunshade_input=is_sunshade_input,
+            existence=d['existence'],
+            input_method=d['input_method'],
+            depth=d['depth'],
+            d_h=d['d_h'],
+            d_e=d['d_e'],
+            x1=d['x1'],
+            x2=d['x2'],
+            x3=d['x3'],
+            y1=d['y1'],
+            y2=d['y2'],
+            y3=d['y3'],
+            z_x_pls=d['z_x_pls'],
+            z_x_mns=d['z_x_mns'],
+            z_y_pls=d['z_y_pls'],
+            z_y_mns=d['z_y_mns']
+        )
+
+    @property
+    def existence(self):
+        return self._existence
+
+    @property
+    def input_method(self):
+        return self._input_method
+
+    @property
+    def depth(self):
+        return self._depth
+
+    @property
+    def d_h(self):
+        return self._d_h
+
+    @property
+    def d_e(self):
+        return self._d_e
+
+    @property
+    def x1(self):
+        return self._x1
+
+    @property
+    def x2(self):
+        return self._x2
+
+    @property
+    def x3(self):
+        return self._x3
+
+    @property
+    def y1(self):
+        return self._y1
+
+    @property
+    def y2(self):
+        return self._y2
+
+    @property
+    def y3(self):
+        return self._y3
+
+    @property
+    def z_x_pls(self):
+        return self._z_x_pls
+
+    @property
+    def z_x_mns(self):
+        return
+        return self._z_x_mns
+
+    @property
+    def z_y_pls(self):
+        return self._z_y_pls
+
+    @property
+    def z_y_mns(self):
+        return self._z_y_mns
+
+
+
+# Sunshade = namedtuple('Sunshade', [
+#     'existence',
+#     'input_method',
+#     'depth',
+#     'd_h',
+#     'd_e',
+#     'x1',
+#     'x2',
+#     'x3',
+#     'y1',
+#     'y2',
+#     'y3',
+#     'z_x_pls',
+#     'z_x_mns',
+#     'z_y_pls',
+#     'z_y_mns',
+# ])
 
 
 def get_f_not_input(season: str, region: int) -> Optional[float]:
