@@ -18,11 +18,11 @@ class TestConvertIndicesToLv2Info(unittest.TestCase):
             },
             'envelope': {
                 'input_method': 'index',
+                'total_area': 266.0962919879752,
                 'indices': {
                     'u_a': 0.87,
                     'eta_a_h': 2.8,
-                    'eta_a_c': 1.4,
-                    'total_envelope_area': 266.0962919879752
+                    'eta_a_c': 1.4
                 }
             }
         }
@@ -356,11 +356,11 @@ class TestConvertIndicesToLv2Info(unittest.TestCase):
             },
             'envelope': {
                 'input_method': 'index',
+                'total_area': 266.0962919879752,
                 'indices': {
                     'u_a': 0.87,
                     'eta_a_h': 2.8,
-                    'eta_a_c': 1.4,
-                    'total_envelope_area': 266.0962919879752
+                    'eta_a_c': 1.4
                 }
             }
         }

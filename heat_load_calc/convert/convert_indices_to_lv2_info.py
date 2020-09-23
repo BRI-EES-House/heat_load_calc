@@ -18,12 +18,12 @@ def convert_spec(d: Dict):
 
     envelope = d['envelope']
 
+    a_env_total = envelope['total_area']
     indices = envelope['indices']
 
     u_a = indices['u_a']
     eta_a_h = indices['eta_a_h']
     eta_a_c = indices['eta_a_c']
-    a_env_total = indices['total_envelope_area']
 
     # 窓の開口部比率は10.0%とする。
     r_open = 0.1
@@ -206,12 +206,12 @@ if __name__ == '__main__':
         },
         'envelope': {
             'input_method': 'index',
+            'total_area': 266.0962919879752,
             'indices': {
                 'u_a': 0.87,
                 'eta_a_h': 2.8,
                 'eta_a_c': 1.4,
-                'total_envelope_area': 266.0962919879752
-            }
+            },
         }
     }
 
