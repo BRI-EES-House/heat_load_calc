@@ -125,8 +125,7 @@ def add_spec(
                     }
                 ],
                 attachment_type='none',
-                is_windbreak_room_attached='none',
-                is_sunshade_input=True,
+                is_windbreak_room_attached='none'
             )
         )
         for s in ws
@@ -169,7 +168,7 @@ def add_spec(
             name=s.name,
             area=s.area,
             space_type=s.space_type,
-            spec=EarthfloorCenterSpec(
+            earthfloor_center_spec=EarthfloorCenterSpec(
                 layers=[]
             )
         )

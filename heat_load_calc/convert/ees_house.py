@@ -4,6 +4,7 @@
 
 from typing import Dict, List
 import abc
+import math
 
 from heat_load_calc.external import factor_h
 from heat_load_calc.external import factor_nu
@@ -282,6 +283,10 @@ class GeneralPart(GeneralPartNoSpec, IArea, IGetQ, IGetM):
 
         return [GeneralPart.make_general_part(d) for d in ds]
 
+    @property
+    def general_part_spec(self):
+        return self._general_part_spec
+
     def get_u(self) -> float:
         """
         U値を取得する。
@@ -344,15 +349,15 @@ class WindowSpec:
             window_type: str,
             windows: List[Dict],
             attachment_type: str,
-            is_windbreak_room_attached,
-            is_sunshade_input
+            is_windbreak_room_attached
+#            is_sunshade_input
     ):
 
         self._window_type = window_type
         self._windows = windows
         self._attachment_type = attachment_type
         self._is_windbreak_room_attached = is_windbreak_room_attached
-        self._is_sunshade_input = is_sunshade_input
+#        self._is_sunshade_input = is_sunshade_input
 
     @classmethod
     def make_window_spec(cls, d: Dict):
@@ -361,8 +366,8 @@ class WindowSpec:
             window_type=d['window_type'],
             windows=d['windows'],
             attachment_type=d['attachment_type'],
-            is_windbreak_room_attached=d['is_windbreak_room_attached'],
-            is_sunshade_input=d['is_sunshade_input']
+            is_windbreak_room_attached=d['is_windbreak_room_attached']
+#            is_sunshade_input=d['is_sunshade_input']
         )
 
     def get_u(self):
@@ -397,7 +402,7 @@ class WindowSpec:
             'windows': self._windows,
             'attachment_type': self._attachment_type,
             'is_windbreak_room_attached': self._is_windbreak_room_attached,
-            'is_sunshade_input': self._is_sunshade_input
+#            'is_sunshade_input': self._is_sunshade_input
         }
 
 
@@ -594,6 +599,10 @@ class Window(WindowNoSpec, IArea, IGetQ, IGetM):
         """
 
         return [Window.make_window(d) for d in ds]
+
+    @property
+    def window_spec(self):
+        return self._window_spec
 
     def get_u(self):
         return self._window_spec.get_u()
@@ -830,6 +839,10 @@ class Door(DoorNoSpec, IArea, IGetQ, IGetM):
         """
         return [Door.make_door(d) for d in ds]
 
+    @property
+    def door_spec(self):
+        return self._door_spec
+
     def get_u(self):
         return self._door_spec.get_u()
 
@@ -947,6 +960,10 @@ class EarthfloorPerimeter(EarthfloorPerimeterNoSpec, IGetQ):
     def make_earthfloor_perimeters(cls, ds: List[Dict]):
         return [EarthfloorPerimeter.make_earthfloor_perimeter(d) for d in ds]
 
+    @property
+    def earthfloor_perimeter_spec(self):
+        return self._earthfloor_perimeter_spec
+
     def get_psi(self):
         return self._earthfloor_perimeter_spec.get_psi()
 
@@ -1025,18 +1042,18 @@ class EarthfloorCenterNoSpec(IArea):
 
 class EarthfloorCenter(EarthfloorCenterNoSpec, IArea):
 
-    def __init__(self, name: str, area: float, space_type: str, spec: EarthfloorCenterSpec):
+    def __init__(self, name: str, area: float, space_type: str, earthfloor_center_spec: EarthfloorCenterSpec):
         """
 
         Args:
             name: 名称
             area: 面積, m2
             space_type: 接する室の用途
-            spec:
+            earthfloor_center_spec:
         """
 
         super().__init__(name=name, area=area, space_type=space_type)
-        self._earthfloor_center_spec = spec
+        self._earthfloor_center_spec = earthfloor_center_spec
 
     @classmethod
     def make_earthfloor_center(cls, d: Dict):
@@ -1044,12 +1061,16 @@ class EarthfloorCenter(EarthfloorCenterNoSpec, IArea):
             name=d['name'],
             area=d['area'],
             space_type=d['space_type'],
-            spec=EarthfloorCenterSpec.make_earthfloor_center_spec(d=d['spec'])
+            earthfloor_center_spec=EarthfloorCenterSpec.make_earthfloor_center_spec(d=d['spec'])
         )
 
     @classmethod
     def make_earthfloor_centers(cls, ds: List[Dict]):
         return [EarthfloorCenter.make_earthfloor_center(d) for d in ds]
+
+    @property
+    def earthfloor_center_spec(self):
+        return self._earthfloor_center_spec
 
     def get_as_dict(self):
 
@@ -1059,3 +1080,198 @@ class EarthfloorCenter(EarthfloorCenterNoSpec, IArea):
             'space_type': self.space_type,
             'spec': self._earthfloor_center_spec.get_as_dict()
         }
+
+
+class HeatbridgeSpec:
+
+    def __init__(self, psi_value: float):
+
+        self._psi_value = psi_value
+
+    @classmethod
+    def make_heatbridge_spec(cls, d: Dict):
+
+        return HeatbridgeSpec(psi_value=d['psi_value'])
+
+    def get_psi(self):
+        return self._psi_value
+
+    def get_eta(self):
+        return 0.034 * self.get_psi()
+
+    def get_as_dict(self):
+
+        return {
+            'psi_value': self._psi_value
+        }
+
+
+class HeatbridgeNoSpec:
+
+    def __init__(self, name: str, next_spaces: List[str], directions: List[str], length: float, space_type: str):
+        """
+        Args:
+            name: 名称
+            next_space: 隣接する空間の種類
+            direction: 方位
+            length: 長さ, m
+            space_type: 接する室の名称
+        """
+        self._name = name
+        self._next_spaces = next_spaces
+        self._directions = directions
+        self._length = length
+        self._space_type = space_type
+
+    @property
+    def name(self):
+        return self._name
+
+    @property
+    def next_spaces(self):
+        return self._next_spaces
+
+    @property
+    def directions(self):
+        return self._directions
+
+    @property
+    def length(self):
+        return self._length
+
+    @property
+    def space_type(self):
+        return self._space_type
+
+    def get_hs(self, region: int):
+        return [factor_h.get_h(region=region, next_space=next_space) for next_space in self._next_spaces]
+
+    def get_nus(self, region: int, season: str) -> List[float]:
+        """
+        方位係数を取得する。
+        Args:
+            region: 地域の区分
+            season: 期間
+        Returns:
+            方位係数
+        """
+
+        def get_nu(next_space, direction):
+            if next_space == 'outdoor':
+                return factor_nu.get_nu(region=region, season=season, direction=direction)
+            else:
+                return 0.0
+
+        return [
+            get_nu(next_space=next_space, direction=direction)
+            for next_space, direction in zip(self._next_spaces, self._directions)
+        ]
+
+
+class Heatbridge(HeatbridgeNoSpec, IGetQ, IGetM):
+
+    def __init__(
+            self,
+            name: str,
+            next_spaces: List[str],
+            directions: List[str],
+            length: float,
+            space_type: str,
+            heatbridge_spec: HeatbridgeSpec
+    ):
+        """
+        Args:
+            name: 名称
+            next_spaces: 隣接する空間の種類
+            directions: 方位
+            length: 長さ, m
+            space_type: 接する室の名称
+            heatbridge_spec: 仕様
+        """
+
+        super().__init__(
+            name=name,
+            next_spaces=next_spaces,
+            directions=directions,
+            length=length,
+            space_type=space_type
+        )
+        self._heatbridge_spec = heatbridge_spec
+
+    @classmethod
+    def make_heatbridge(cls, d: Dict):
+        return Heatbridge(
+            name=d['name'],
+            next_spaces=d['next_spaces'],
+            directions=d['directions'],
+            length=d['length'],
+            space_type=d['space_type'],
+            heatbridge_spec=HeatbridgeSpec.make_heatbridge_spec(d=d['spec'])
+        )
+
+    @classmethod
+    def make_heatbridges(cls, ds: List[Dict]):
+        return [Heatbridge.make_heatbridge(d) for d in ds]
+
+    @property
+    def heatbridge_spec(self):
+        return self._heatbridge_spec
+
+    def get_psi(self):
+        return self._heatbridge_spec.get_psi()
+
+    def get_q(self, region: int):
+        hs = self.get_hs(region=region)
+        h = sum(hs) / len(hs)
+        return self.length * self.get_psi() * h
+
+    def get_eta(self) -> float:
+        """
+        η値を取得する。
+        Returns:
+            η値, (W/m)/(W/m2)
+        """
+
+        return self._heatbridge_spec.get_eta()
+
+    def get_m(self, region: int, season: str) -> float:
+        """
+        m値を取得する。
+        Args:
+            region: 地域の区分
+            season: 期間
+        Returns:
+            m値, W/(W/m2)
+        """
+
+        nus = self.get_nus(region=region, season=season)
+        nu = sum(nus) / len(nus)
+
+        return self.length * self.get_eta() * nu
+
+    def get_as_dict(self):
+
+        return {
+            'name': self.name,
+            'next_spaces': self.next_spaces,
+            'directions': self.directions,
+            'length': self.length,
+            'space_type': self.space_type,
+            'spec': self._heatbridge_spec.get_as_dict()
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
