@@ -1,4 +1,535 @@
 from typing import Optional, List, Dict
+from heat_load_calc.convert import ees_house
+from heat_load_calc.convert import factor_f
+
+
+def get_model_house_no_spec(
+        house_type: str, floor_ins_type: str,
+        a_evp_ef_total: float,
+        a_evp_f_total: float,
+        l_base_total_outside: (float, float, float, float),
+        l_base_total_inside: float,
+        a_evp_roof: float,
+        a_evp_base_total_outside: (float, float, float, float),
+        a_evp_base_total_inside: float,
+        a_evp_window: (float, float, float, float),
+        a_evp_door: (float, float, float, float),
+        a_evp_wall: (float, float, float, float),
+        **kwargs):
+    """
+    Args:
+        house_type: 住戸の種類(= 'detached' or 'attached')
+        floor_ins_type: 床の断熱の種類(= 'floor' or 'base')
+        a_evp_ef_total: 土間床の面積, m2
+        a_evp_f_total: （床下を持つ）床の面積, m2
+        l_base_total_outside: 土間床周辺部（外気側）の長さ, m
+        l_base_total_inside: 土間床周辺部（室内側）の長さ, m
+        a_evp_roof: 屋根の面積, m2
+        a_evp_base_total_outside: 基礎（外気側）の面積, m2
+        a_evp_base_total_inside: 基礎（室内側）の面積, m2
+        a_evp_window: 各方位の窓の面積, m2
+        a_evp_door: 各方位のドアの面積, m2
+        a_evp_wall: 各方位の壁の面積, m2
+        **kwargs:
+    Returns:
+        モデルハウスを表す辞書（spec = None）
+    """
+
+    # region roof
+
+    if house_type == 'detached':
+        roofs = [
+            ees_house.GeneralPartNoSpec(
+                name='roof',
+                general_part_type='ceiling',
+                next_space='outdoor',
+                direction='top',
+                area=a_evp_roof,
+                space_type='undefined',
+                sunshade=factor_f.SunshadeOpaqueNotInput()
+            )
+        ]
+    elif house_type == 'attached':
+        roofs = [
+            ees_house.GeneralPartNoSpec(
+                name='roof',
+                general_part_type='upward_boundary_floor',
+                next_space='air_conditioned',
+                direction='upward',
+                area=a_evp_roof,
+                space_type='undefined',
+                sunshade=factor_f.SunshadeOpaqueNotDefined()
+            )
+        ]
+    else:
+        raise Exception
+
+    # endregion
+
+    # region wall
+
+    if house_type == 'detached':
+        walls = [
+            ees_house.GeneralPartNoSpec(
+                name='wall_sw',
+                general_part_type='wall',
+                next_space='outdoor',
+                direction='sw',
+                area=a_evp_wall[0],
+                space_type='undefined',
+                sunshade=factor_f.SunshadeOpaqueNotInput()
+            ),
+            ees_house.GeneralPartNoSpec(
+                name='wall_nw',
+                general_part_type='wall',
+                next_space='outdoor',
+                direction='nw',
+                area=a_evp_wall[1],
+                space_type='undefined',
+                sunshade=factor_f.SunshadeOpaqueNotInput()
+            ),
+            ees_house.GeneralPartNoSpec(
+                name='wall_ne',
+                general_part_type='wall',
+                next_space='outdoor',
+                direction='ne',
+                area=a_evp_wall[2],
+                space_type='undefined',
+                sunshade=factor_f.SunshadeOpaqueNotInput()
+            ),
+            ees_house.GeneralPartNoSpec(
+                name='wall_se',
+                general_part_type='wall',
+                next_space='outdoor',
+                direction='se',
+                area=a_evp_wall[3],
+                space_type='undefined',
+                sunshade=factor_f.SunshadeOpaqueNotInput()
+            )
+        ]
+    elif house_type == 'attached':
+        walls = [
+            ees_house.GeneralPartNoSpec(
+                name='wall_sw',
+                general_part_type='wall',
+                next_space='outdoor',
+                direction='sw',
+                area=a_evp_wall[0],
+                space_type='undefined',
+                sunshade=factor_f.SunshadeOpaqueNotInput()
+            ),
+            ees_house.GeneralPartNoSpec(
+                name='wall_nw',
+                general_part_type='wall',
+                next_space='outdoor',
+                direction='nw',
+                area=a_evp_wall[1],
+                space_type='undefined',
+                sunshade=factor_f.SunshadeOpaqueNotInput()
+            ),
+            ees_house.GeneralPartNoSpec(
+                name='wall_ne',
+                general_part_type='wall',
+                next_space='open_space',
+                direction='horizontal',
+                area=a_evp_wall[2],
+                space_type='undefined',
+                sunshade=factor_f.SunshadeOpaqueNotDefined()
+            ),
+            ees_house.GeneralPartNoSpec(
+                name='wall_se',
+                general_part_type='boundary_wall',
+                next_space='air_conditioned',
+                direction='horizontal',
+                area=a_evp_wall[3],
+                space_type='undefined',
+                sunshade=factor_f.SunshadeOpaqueNotDefined()
+            )
+        ]
+    else:
+        raise Exception
+
+    # endregion
+
+    # region window
+
+    if house_type == 'detached':
+        windows = [
+            ees_house.WindowNoSpec(
+                name='window_sw',
+                next_space='outdoor',
+                direction='sw',
+                area=a_evp_window[0],
+                space_type='undefined',
+                sunshade=factor_f.SunshadeTransientExistSimple(depth=0.3, d_h=1.0, d_e=0.0)
+            ),
+            ees_house.WindowNoSpec(
+                name='window_nw',
+                next_space='outdoor',
+                direction='nw',
+                area=a_evp_window[1],
+                space_type='undefined',
+                sunshade=factor_f.SunshadeTransientExistSimple(depth=0.3, d_h=1.0, d_e=0.0)
+            ),
+            ees_house.WindowNoSpec(
+                name='window_ne',
+                next_space='outdoor',
+                direction='ne',
+                area=a_evp_window[2],
+                space_type='undefined',
+                sunshade=factor_f.SunshadeTransientExistSimple(depth=0.3, d_h=1.0, d_e=0.0)
+            ),
+            ees_house.WindowNoSpec(
+                name='window_se',
+                next_space='outdoor',
+                direction='se',
+                area=a_evp_window[3],
+                space_type='undefined',
+                sunshade=factor_f.SunshadeTransientExistSimple(depth=0.3, d_h=1.0, d_e=0.0)
+            )
+        ]
+    elif house_type == 'attached':
+        if a_evp_window[3] > 0.0:
+            raise Exception('集合住宅において、Direction 270 側に窓が設定（面積が0より大）されました。')
+        windows = [
+            ees_house.WindowNoSpec(
+                name='window_sw',
+                next_space='outdoor',
+                direction='sw',
+                area=a_evp_window[0],
+                space_type='undefined',
+                sunshade=factor_f.SunshadeTransientExistSimple(depth=0.3, d_h=1.0, d_e=0.0)
+            ),
+            ees_house.WindowNoSpec(
+                name='window_nw',
+                next_space='outdoor',
+                direction='nw',
+                area=a_evp_window[1],
+                space_type='undefined',
+                sunshade=factor_f.SunshadeTransientExistSimple(depth=0.3, d_h=1.0, d_e=0.0)
+            ),
+            ees_house.WindowNoSpec(
+                name='window_ne',
+                next_space='open_space',
+                direction='horizontal',
+                area=a_evp_window[2],
+                space_type='undefined',
+                sunshade=factor_f.SunshadeTransientExistSimple(depth=0.3, d_h=1.0, d_e=0.0)
+            )
+        ]
+    else:
+        raise Exception
+
+    # endregion
+
+    # region door
+
+    if house_type == 'detached':
+        if a_evp_door[0] > 0.0:
+            raise Exception('戸建て住宅において、Direction 0 側にドアが設定（面積が0より大）されました。')
+        if a_evp_door[3] > 0.0:
+            raise Exception('戸建て住宅において、Direction 270 側にドアが設定（面積が0より大）されました。')
+        doors = [
+            ees_house.DoorNoSpec(
+                name='door_nw',
+                next_space='outdoor',
+                direction='nw',
+                area=a_evp_door[1],
+                space_type='undefined',
+                sunshade=factor_f.SunshadeOpaqueNotInput()
+            ),
+            ees_house.DoorNoSpec(
+                name='door_ne',
+                next_space='outdoor',
+                direction='ne',
+                area=a_evp_door[2],
+                space_type='undefined',
+                sunshade=factor_f.SunshadeOpaqueNotInput()
+            )
+        ]
+    elif house_type == 'attached':
+        if a_evp_door[0] > 0.0:
+            raise Exception('集合住宅において、Direction 0 側にドアが設定（面積が0より大）されました。')
+        if a_evp_door[1] > 0.0:
+            raise Exception('集合住宅において、Direction 90 側にドアが設定（面積が0より大）されました。')
+        if a_evp_door[3] > 0.0:
+            raise Exception('集合住宅において、Direction 270 側にドアが設定（面積が0より大）されました。')
+        doors = [
+            ees_house.DoorNoSpec(
+                name='door_ne',
+                next_space='open_space',
+                direction='horizontal',
+                area=a_evp_door[2],
+                space_type='undefined',
+                sunshade=factor_f.SunshadeOpaqueNotDefined()
+            )
+        ]
+    else:
+        raise Exception
+
+    # endregion
+
+    # region earth_floor
+    if house_type == 'detached':
+        earth_floor_centers = [
+            ees_house.EarthfloorCenterNoSpec(name='earth_floor', area=a_evp_ef_total, space_type='undefined')
+        ]
+    elif house_type == 'attached':
+        if a_evp_ef_total > 0.0:
+            raise Exception('集合住宅において土間床が設定（面積が0より大）されました。')
+        earth_floor_centers = []
+    else:
+        raise Exception
+
+    # endregion
+
+    # region floor
+
+    if house_type == 'detached':
+        if floor_ins_type == 'floor':
+            floors = [
+                ees_house.GeneralPartNoSpec(
+                    name='floor',
+                    general_part_type='floor',
+                    next_space='open_underfloor',
+                    direction='downward',
+                    area=a_evp_f_total,
+                    space_type='undefined',
+                    sunshade=factor_f.SunshadeOpaqueNotDefined()
+                )
+            ]
+        elif floor_ins_type == 'base':
+            if a_evp_f_total > 0.0:
+                raise Exception('戸建住宅の基礎断熱住宅において床が設定（面積が0より大）されました。')
+            floors = []
+        else:
+            raise Exception
+    elif house_type == 'attached':
+        floors = [
+            ees_house.GeneralPartNoSpec(
+                name='floor',
+                general_part_type='downward_boundary_floor',
+                next_space='air_conditioned',
+                direction='downward',
+                area=a_evp_f_total,
+                space_type='undefined',
+                sunshade=factor_f.SunshadeOpaqueNotDefined()
+            )
+        ]
+    else:
+        raise Exception
+
+    # endregion
+
+    # region base outside
+
+    if house_type == 'detached':
+        if floor_ins_type == 'floor':
+            if a_evp_base_total_outside[0] > 0.0:
+                raise Exception('戸建住宅（床断熱）において、Direction 0 側に基礎が設定（面積が0より大）されました。')
+            if a_evp_base_total_outside[3] > 0.0:
+                raise Exception('戸建住宅（床断熱）において、Direction 270 側に基礎が設定（面積が0より大）されました。')
+            base_outsides = [
+                ees_house.GeneralPartNoSpec(
+                    name='base_outside_nw',
+                    general_part_type='wall',
+                    next_space='outdoor',
+                    direction='nw',
+                    area=a_evp_base_total_outside[1],
+                    space_type='undefined',
+                    sunshade=factor_f.SunshadeOpaqueNotInput()
+                ),
+                ees_house.GeneralPartNoSpec(
+                    name='base_outside_ne',
+                    general_part_type='wall',
+                    next_space='outdoor',
+                    direction='ne',
+                    area=a_evp_base_total_outside[2],
+                    space_type='undefined',
+                    sunshade=factor_f.SunshadeOpaqueNotInput()
+                )
+            ]
+        elif floor_ins_type == 'base':
+            base_outsides = [
+                ees_house.GeneralPartNoSpec(
+                    name='base_outside_sw',
+                    general_part_type='wall',
+                    next_space='outdoor',
+                    direction='sw',
+                    area=a_evp_base_total_outside[0],
+                    space_type='undefined',
+                    sunshade=factor_f.SunshadeOpaqueNotInput()
+                ),
+                ees_house.GeneralPartNoSpec(
+                    name='base_outside_nw',
+                    general_part_type='wall',
+                    next_space='outdoor',
+                    direction='nw',
+                    area=a_evp_base_total_outside[1],
+                    space_type='undefined',
+                    sunshade=factor_f.SunshadeOpaqueNotInput()
+                ),
+                ees_house.GeneralPartNoSpec(
+                    name='base_outside_ne',
+                    general_part_type='wall',
+                    next_space='outdoor',
+                    direction='ne',
+                    area=a_evp_base_total_outside[2],
+                    space_type='undefined',
+                    sunshade=factor_f.SunshadeOpaqueNotInput()
+                ),
+                ees_house.GeneralPartNoSpec(
+                    name='base_outside_se',
+                    general_part_type='wall',
+                    next_space='outdoor',
+                    direction='se',
+                    area=a_evp_base_total_outside[3],
+                    space_type='undefined',
+                    sunshade=factor_f.SunshadeOpaqueNotInput()
+                ),
+            ]
+        else:
+            raise Exception
+    elif house_type == 'attached':
+        if a_evp_base_total_outside[0] > 0.0:
+            raise Exception('集合住宅において、Direction 0 側に基礎が設定（面積が0より大）されました。')
+        if a_evp_base_total_outside[1] > 0.0:
+            raise Exception('集合住宅において、Direction 90 側に基礎が設定（面積が0より大）されました。')
+        if a_evp_base_total_outside[2] > 0.0:
+            raise Exception('集合住宅において、Direction 180 側に基礎が設定（面積が0より大）されました。')
+        if a_evp_base_total_outside[3] > 0.0:
+            raise Exception('集合住宅において、Direction 270 側に基礎が設定（面積が0より大）されました。')
+        base_outsides = []
+    else:
+        raise Exception
+
+    # endregion
+
+    # region base inside
+
+    if house_type == 'detached':
+        if floor_ins_type == 'floor':
+            base_insides = [
+                ees_house.GeneralPartNoSpec(
+                    name='base_inside',
+                    general_part_type='wall',
+                    next_space='open_underfloor',
+                    direction='horizontal',
+                    area=a_evp_base_total_inside,
+                    space_type='undefined',
+                    sunshade=factor_f.SunshadeOpaqueNotDefined()
+                )
+            ]
+        elif floor_ins_type == 'base':
+            if a_evp_base_total_inside > 0.0:
+                raise Exception('戸建住宅（基礎断熱）において、基礎（室内側）が設定（面積が0より大）されました。')
+            base_insides = []
+        else:
+            raise Exception
+    elif house_type == 'attached':
+        if a_evp_base_total_inside > 0.0:
+            raise Exception('集合住宅において、基礎（室内側）が設定（面積が0より大）されました。')
+        base_insides = []
+    else:
+        raise Exception
+
+    # endregion
+
+    # region earth floor perimeter outside
+
+    if house_type == 'detached':
+        if floor_ins_type == 'floor':
+            if l_base_total_outside[0] > 0.0:
+                raise Exception('戸建住宅（床断熱）において、Direction 0 側に土間床周辺部が設定（長さが0より大）されました。')
+            if l_base_total_outside[3] > 0.0:
+                raise Exception('戸建住宅（床断熱）において、Direction 270 側に土間床周辺部が設定（長さが0より大）されました。')
+            earth_floor_perimeters_outside = [
+                ees_house.EarthfloorPerimeterNoSpec(
+                    name='earth_floor_perimeter_nw',
+                    next_space='outdoor',
+                    length=l_base_total_outside[1],
+                    space_type='undefined'
+                ),
+                ees_house.EarthfloorPerimeterNoSpec(
+                    name='earth_floor_perimeter_ne',
+                    next_space='outdoor',
+                    length=l_base_total_outside[2],
+                    space_type='undefined'
+                )
+            ]
+        elif floor_ins_type == 'base':
+            earth_floor_perimeters_outside = [
+                ees_house.EarthfloorPerimeterNoSpec(
+                    name='earth_floor_perimeter_sw',
+                    next_space='outdoor',
+                    length=l_base_total_outside[0],
+                    space_type='undefined'
+                ),
+                ees_house.EarthfloorPerimeterNoSpec(
+                    name='earth_floor_perimeter_nw',
+                    next_space='outdoor',
+                    length=l_base_total_outside[1],
+                    space_type='undefined'
+                ),
+                ees_house.EarthfloorPerimeterNoSpec(
+                    name='earth_floor_perimeter_ne',
+                    next_space='outdoor',
+                    length=l_base_total_outside[2],
+                    space_type='undefined'
+                ),
+                ees_house.EarthfloorPerimeterNoSpec(
+                    name='earth_floor_perimeter_se',
+                    next_space='outdoor',
+                    length=l_base_total_outside[3],
+                    space_type='undefined'
+                )
+            ]
+        else:
+            raise Exception
+    elif house_type == 'attached':
+        if l_base_total_outside[0] > 0.0:
+            raise Exception('集合住宅において、Direction 0 側に土間床周辺部が設定（長さが0より大）されました。')
+        if l_base_total_outside[1] > 0.0:
+            raise Exception('集合住宅において、Direction 90 側に土間床周辺部が設定（長さが0より大）されました。')
+        if l_base_total_outside[2] > 0.0:
+            raise Exception('集合住宅において、Direction 180 側に土間床周辺部が設定（長さが0より大）されました。')
+        if l_base_total_outside[3] > 0.0:
+            raise Exception('集合住宅において、Direction 270 側に土間床周辺部が設定（長さが0より大）されました。')
+        earth_floor_perimeters_outside = []
+    else:
+        raise Exception
+
+    # endregion
+
+    # region earth floor perimeter inside
+
+    if house_type == 'detached':
+        if floor_ins_type == 'floor':
+            earth_floor_perimeters_inside = [
+                ees_house.EarthfloorPerimeterNoSpec(
+                    name='earth_floor_perimeter_inside',
+                    next_space='open_underfloor',
+                    length=l_base_total_inside,
+                    space_type='undefined'
+                )
+            ]
+        elif floor_ins_type == 'base':
+            if l_base_total_inside > 0.0:
+                raise Exception('戸建住宅（基礎断熱）において、土間床周辺部（室内側）が設定（長さが0より大）されました。')
+            earth_floor_perimeters_inside = []
+        else:
+            raise Exception
+    elif house_type == 'attached':
+        if l_base_total_inside > 0.0:
+            raise Exception('集合住宅において、土間床周辺部（室内側）が設定（長さが0より大）されました。')
+        earth_floor_perimeters_inside = []
+    else:
+        raise Exception
+
+    # endregion
+
+    return roofs + walls + floors + base_outsides + base_insides, windows, doors, earth_floor_perimeters_outside + earth_floor_perimeters_inside, earth_floor_centers
+
 
 
 def _get_a_f(house_type: str, a_f_total: float, r_fa: Optional[float]) -> List[float]:

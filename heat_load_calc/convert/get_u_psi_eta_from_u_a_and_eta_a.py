@@ -1,11 +1,13 @@
 import numpy as np
 from collections import namedtuple
-from typing import List, Dict, Tuple
+from typing import List, Dict
 
-from heat_load_calc.convert import factor_f
-from heat_load_calc.external.factor_h import get_h as get_factor_h  # 温度差係数
-
-from heat_load_calc.external import factor_nu
+from heat_load_calc.convert.ees_house import IArea
+from heat_load_calc.convert.ees_house import GeneralPartNoSpec
+from heat_load_calc.convert.ees_house import WindowNoSpec
+from heat_load_calc.convert.ees_house import DoorNoSpec
+from heat_load_calc.convert.ees_house import EarthfloorPerimeterNoSpec
+from heat_load_calc.convert.ees_house import EarthfloorCenterNoSpec
 
 PartType = namedtuple('PartType', [
     'roof',
@@ -42,126 +44,6 @@ def get_u_psi(u_psi: PartType, key: str) -> float:
         'door': u_psi.door,
         'earthfloor_perimeter': u_psi.earthfloor_perimeter,
     }[key]
-
-
-def get_a_evp_total(general_parts: Dict, windows: Dict, doors: Dict, earthfloor_centers: Dict) -> float:
-    """
-    Args:
-        general_parts: 一般部位
-        windows: 窓
-        doors: ドア
-        earthfloor_centers: 地盤中央部
-    Returns:
-        外皮の面積の合計, m2
-    """
-
-    d_area = []
-
-    if general_parts is not None:
-        d_area.extend(general_parts)
-
-    if windows is not None:
-        d_area.extend(windows)
-
-    if doors is not None:
-        d_area.extend(doors)
-
-    if earthfloor_centers is not None:
-        d_area.extend(earthfloor_centers)
-
-    return sum(d['area'] for d in d_area)
-
-
-def get_q(a_evp_total: float, u_a: float) -> float:
-    """
-    Args:
-        a_evp_total: 外皮の面積の合計, m2
-        u_a: UA値, W/m2K
-    Returns:
-        q値, W/K
-    """
-
-    return a_evp_total * u_a
-
-
-def get_m_h(a_evp_total: float, eta_a_h: float) -> float:
-    """
-    Args:
-        a_evp_total: 外皮の面積の合計, m2
-        eta_a_h: ηAH値, %
-    Returns:
-        mh値, W/(W/m2)
-    """
-
-    return eta_a_h / 100 * a_evp_total
-
-
-def get_m_c(a_evp_total: float, eta_a_c: float) -> float:
-    """
-    Args:
-        a_evp_total: 外皮の面積の合計, m2
-        eta_a_c: ηAc値, %
-    Returns:
-        mc値, W/(W/m2)
-    """
-
-    return eta_a_c / 100 * a_evp_total
-
-
-def get_general_parts_type() -> List[str]:
-    """
-    Returns:
-        一般部位の種類
-    """
-
-    return [
-        'roof',
-        'ceiling',
-        'wall',
-        'floor',
-        'boundary_ceiling',
-        'boundary_wall',
-        'boundary_floor'
-    ]
-
-
-def get_q_std(region: int, general_parts: Dict, windows: Dict, doors: Dict, earthfloor_perimeters: Dict) -> Dict:
-    """
-    Args:
-        region: 地域の区分
-        general_parts: 一般部位
-        windows: 窓
-        doors: ドア
-        earthfloor_perimeters: 地盤周辺部
-    Returns:
-        各部位の基準U値・ψ値に対するq値, W/K
-    """
-
-    def get_q_uah_std_in_general_parts(part_type):
-
-        return sum([
-            p['area'] * get_u_psi_std(region, p['general_part_type']) * get_factor_h(region, p['next_space'])
-            for p in general_parts if p['general_part_type'] == part_type
-        ])
-
-    general_parts_type = get_general_parts_type()
-
-    q_uah_std = {pt: get_q_uah_std_in_general_parts(pt) for pt in general_parts_type}
-
-    q_uah_std['window'] = sum([
-        p['area'] * get_u_psi_std(region, 'window') * get_factor_h(region, p['next_space']) for p in windows
-    ])
-
-    q_uah_std['door'] = sum([
-        p['area'] * get_u_psi_std(region, 'door') * get_factor_h(region, p['next_space']) for p in doors
-    ])
-
-    q_uah_std['earthfloor_perimeter'] = sum([
-        p['length'] * get_u_psi_std(region, 'earthfloor_perimeter') * get_factor_h(region, p['next_space'])
-        for p in earthfloor_perimeters
-    ])
-
-    return q_uah_std
 
 
 def get_u_psi_std(region: int, part_type: str) -> float:
@@ -292,40 +174,35 @@ def get_u_psi_value(region: int, f_u: Dict[str, float]) -> Dict[str, float]:
     return {pt: get_u_psi_std(region, pt) * f_u[pt] for pt in list(PartType._fields)}
 
 
-def get_m_opq(region: int, u_psi_value: Dict[str, float], general_parts: Dict, doors: Dict) -> (float, float):
+def get_m_opq(
+        region: int,
+        u_psi_value: Dict[str, float],
+        gps: List[GeneralPartNoSpec],
+        ds: List[DoorNoSpec]
+) -> (float, float):
     """
     Args:
         region: 地域の区分
         u_psi_value: 各部位のU値またはψ値, W/m2K or W/mK
-        general_parts: 一般部位
-        doors: ドア
+        gps: GeneralPartNoSpec クラスのリスト
+        ds: DoorNoSpec クラスのリスト
     Returns:
         不透明部位のm値の合計, W/K （暖房期・冷房期）
     """
 
-    general_parts_type = get_general_parts_type()
+    m_opq_h_general_part = sum(
+        s.area * 0.034 * u_psi_value[s.general_part_type] * s.get_nu(region=region, season='heating')
+        for s in gps if s.next_space == 'outdoor'
+    )
 
-    def get_m_opq_h_in_general_parts(pt):
-        return sum([
-            p['area'] * 0.034 * u_psi_value[pt] * factor_nu.get_nu(region, 'heating', p['direction'])
-            for p in general_parts if (p['general_part_type'] == pt and p['next_space'] == 'outdoor')
-        ])
+    m_opq_c_general_part = sum(
+        s.area * 0.034 * u_psi_value[s.general_part_type] * s.get_nu(region=region, season='cooling')
+        for s in gps if s.next_space == 'outdoor'
+    )
 
-    def get_m_opq_c_in_general_parts(pt):
-        return sum([
-            p['area'] * 0.034 * u_psi_value[pt] * factor_nu.get_nu(region, 'cooling', p['direction'])
-            for p in general_parts if (p['general_part_type'] == pt and p['next_space'] == 'outdoor')
-        ])
+    m_opq_h_door = sum([s.area * 0.034 * u_psi_value['door'] * s.get_nu(region=region, season='heating') for s in ds])
 
-    m_opq_h_general_part = sum(get_m_opq_h_in_general_parts(pt) for pt in general_parts_type)
-    m_opq_c_general_part = sum(get_m_opq_c_in_general_parts(pt) for pt in general_parts_type)
-
-    m_opq_h_door = sum([
-        p['area'] * 0.034 * u_psi_value['door'] * factor_nu.get_nu(region, 'heating', p['direction']) for p in doors
-    ])
-    m_opq_c_door = sum([
-        p['area'] * 0.034 * u_psi_value['door'] * factor_nu.get_nu(region, 'cooling', p['direction']) for p in doors
-    ])
+    m_opq_c_door = sum([s.area * 0.034 * u_psi_value['door'] * s.get_nu(region=region, season='cooling') for s in ds])
 
     m_opq_h = m_opq_h_general_part + m_opq_h_door
     m_opq_c = m_opq_c_general_part + m_opq_c_door
@@ -334,7 +211,8 @@ def get_m_opq(region: int, u_psi_value: Dict[str, float], general_parts: Dict, d
 
 
 def get_eta_d_each(
-        region: int, m_h: float, m_c: float, m_h_opq: float, m_c_opq: float, windows: Dict, sunshade: factor_f.Sunshade) -> Tuple[float, float]:
+        region: int, m_h: float, m_c: float, m_h_opq: float, m_c_opq: float, ws: List[WindowNoSpec]
+) -> (float, float):
     """
     Args:
         region: 地域の区分
@@ -342,26 +220,23 @@ def get_eta_d_each(
         m_c: m_c値, W/(W/m2)
         m_h_opq: 不透明部位のm_h値, W/(W/m2)
         m_c_opq: 不透明部位のm_c値, W/(W/m2)
-        windows: 窓
-        sunshade: 窓まわりの日除けの形状
+        ws: WindowNoSpec クラスのリスト
     Returns:
         η_d,h・η_d,c 値, (W/m2)/(W/m2)
     """
 
     sum_a_f_nu_h = sum(
-        p['area'] * factor_f.get_f(season='heating', region=region, direction=p['direction'], sunshade=sunshade)
-        * factor_nu.get_nu(region=region, season='heating', direction=p['direction']) for p in windows
+        s.area * s.get_f(region=region, season='heating') * s.get_nu(region=region, season='heating') for s in ws
     )
 
     sum_a_f_nu_c = sum(
-        p['area'] * factor_f.get_f(season='cooling', region=region, direction=p['direction'], sunshade=sunshade)
-        * factor_nu.get_nu(region=region, season='cooling', direction=p['direction']) for p in windows
+        s.area * s.get_f(region=region, season='cooling') * s.get_nu(region=region, season='cooling') for s in ws
     )
 
     eta_d_h = np.clip((m_h - m_h_opq) / sum_a_f_nu_h, 0.0, 0.88)
     eta_d_c = np.clip((m_c - m_c_opq) / sum_a_f_nu_c, 0.0, 0.88)
 
-    return eta_d_h, eta_d_c
+    return float(eta_d_h), float(eta_d_c)
 
 
 def get_eta_d(region: int, eta_d_h: float, eta_d_c: float) -> float:
@@ -383,43 +258,46 @@ def get_eta_d(region: int, eta_d_h: float, eta_d_c: float) -> float:
 
 
 def calc_parts_spec(
-        region: int, house_no_spec: Dict,
-        u_a_target: float, eta_a_h_target: float, eta_a_c_target: float, sunshade: factor_f.Sunshade
-) -> Tuple[PartType, float, float, float]:
+        region: int,
+        u_a_target: float, eta_a_h_target: float, eta_a_c_target: float,
+        gps: List[GeneralPartNoSpec],
+        ds: List[DoorNoSpec],
+        ws: List[WindowNoSpec],
+        eps: List[EarthfloorPerimeterNoSpec],
+        ecs: List[EarthfloorCenterNoSpec]
+) -> (PartType, float, float, float):
     """
     Args:
         region: 地域の区分
-        house_no_spec: 住宅辞書
         u_a_target: 目標とするUA値, W/k
         eta_a_h_target: 目標とするηAH値, W/(W/m2)
         eta_a_c_target: 目標とするηAC値, W/(W/m2)
+        gps: 一般部位（仕様なし）のリスト
+        ds: 大部分がガラスで構成されないドア等の開口部（仕様なし）のリスト
+        ws: 大部分がガラスで構成される窓等の開口部（仕様なし）のリスト
+        eps: 土間床等の外周部のリスト
+        ecs: 土間床等の中心部のリスト
     Returns:
         次の2変数
             (1) 部位の種類ごとのU値, W/m2K,
             (2) 透明な開口部のηd値, (W/m2)/(W/m2)
     """
 
-    general_parts = house_no_spec['general_parts']
-    windows = house_no_spec['windows']
-    doors = house_no_spec['doors']
-    earthfloor_perimeters = house_no_spec['earthfloor_perimeters']
-    earthfloor_centers = house_no_spec['earthfloor_centers']
-
     # 外皮の面積の合計, m2
-    a_evp_total = get_a_evp_total(general_parts, windows, doors, earthfloor_centers)
+    a_evp_total = _get_a_evp_total(gps=gps, ws=ws, ds=ds, ecs=ecs)
 
     # q値, W/K
-    q = get_q(a_evp_total, u_a_target)
+    q = _get_q(a_evp_total=a_evp_total, u_a=u_a_target)
 
     # m値, W/(W/m2)
-    m_h = get_m_h(a_evp_total, eta_a_h_target)
-    m_c = get_m_c(a_evp_total, eta_a_c_target)
+    m_h = _get_m_h(a_evp_total=a_evp_total, eta_a_h=eta_a_h_target)
+    m_c = _get_m_c(a_evp_total=a_evp_total, eta_a_c=eta_a_c_target)
 
     # 各部位の基準U値・ψ値に対するq値, W/K
-    q_std = get_q_std(region, general_parts, windows, doors, earthfloor_perimeters)
+    q_std = _get_q_std(region=region, gps=gps, ws=ws, ds=ds, eps=eps)
 
     # 部位の種類ごとの標準U値・ψ値に乗じる係数の最大値（ = 最大値 / 標準値 ）
-    f_u_psi_max_each_part = get_f_u_psi_max_each_part(region)
+    f_u_psi_max_each_part = get_f_u_psi_max_each_part(region=region)
 
     # q値を満たす部位の種類ごとのf_u値またはf_psi値（ = 標準U値・ψ値に乗じる係数）
     f_u_psi = get_f_u_psi(q_std=q_std, f_u_psi_max_each_part=f_u_psi_max_each_part, q=q)
@@ -428,10 +306,10 @@ def calc_parts_spec(
     u_psi_value = get_u_psi_value(region, f_u_psi)
 
     # 不透明部位のm値, W/(W/m2)
-    m_h_opq, m_c_opq = get_m_opq(region, u_psi_value, general_parts, doors)
+    m_h_opq, m_c_opq = get_m_opq(region, u_psi_value, gps=gps, ds=ds)
 
     # ηdの算出
-    eta_d_h, eta_d_c = get_eta_d_each(region, m_h, m_c, m_h_opq, m_c_opq, windows, sunshade)
+    eta_d_h, eta_d_c = get_eta_d_each(region, m_h, m_c, m_h_opq, m_c_opq, ws=ws)
 
     # ηd値（平均化）
     eta_d = get_eta_d(region=region, eta_d_h=eta_d_h, eta_d_c=eta_d_c)
@@ -445,12 +323,123 @@ def calc_parts_spec(
         boundary_wall=u_psi_value['boundary_wall'],
         boundary_floor=u_psi_value['boundary_floor'],
         window=u_psi_value['window'],
-        door= u_psi_value['door'],
+        door=u_psi_value['door'],
         earthfloor_perimeter=u_psi_value['earthfloor_perimeter']
     )
 
     return u_psi, eta_d, eta_d_h, eta_d_c
 
+
+def _get_a_evp_total(gps: List[IArea], ws: List[IArea], ds: List[IArea], ecs: List[IArea]) -> float:
+
+    return sum(s.area for s in gps + ws + ds + ecs)
+
+
+def _get_q(a_evp_total: float, u_a: float) -> float:
+    """
+    Args:
+        a_evp_total: 外皮の面積の合計, m2
+        u_a: UA値, W/m2K
+    Returns:
+        q値, W/K
+    """
+
+    return a_evp_total * u_a
+
+
+def _get_m_h(a_evp_total: float, eta_a_h: float) -> float:
+    """
+    Args:
+        a_evp_total: 外皮の面積の合計, m2
+        eta_a_h: ηAH値, %
+    Returns:
+        mh値, W/(W/m2)
+    """
+
+    return eta_a_h / 100 * a_evp_total
+
+
+def _get_m_c(a_evp_total: float, eta_a_c: float) -> float:
+    """
+    Args:
+        a_evp_total: 外皮の面積の合計, m2
+        eta_a_c: ηAc値, %
+    Returns:
+        mc値, W/(W/m2)
+    """
+
+    return eta_a_c / 100 * a_evp_total
+
+
+def _get_q_std(
+        region: int,
+        gps: List[GeneralPartNoSpec],
+        ws: List[WindowNoSpec],
+        ds: List[DoorNoSpec],
+        eps: List[EarthfloorPerimeterNoSpec]
+) -> Dict:
+    """
+    Args:
+        region: 地域の区分
+        gps: GeneralPartNoSpec クラスのリスト
+        ws: WindowNoSpec クラスのリスト
+        ds: DoorNoSpec クラスのリスト
+        eps: EarthfloorPerimeterNoSpec クラスのリスト
+    Returns:
+        各部位の基準U値・ψ値に対するq値, W/K
+    """
+
+    q_uah_std = {}
+
+    q_uah_std['roof'] = sum([
+        s.area * get_u_psi_std(region=region, part_type='roof') * s.get_h(region=region)
+        for s in gps if s.general_part_type == 'roof'
+    ])
+
+    q_uah_std['ceiling'] = sum([
+        s.area * get_u_psi_std(region=region, part_type='ceiling') * s.get_h(region=region)
+        for s in gps if s.general_part_type == 'ceiling'
+    ])
+
+    q_uah_std['wall'] = sum([
+        s.area * get_u_psi_std(region=region, part_type='wall') * s.get_h(region=region)
+        for s in gps if s.general_part_type == 'wall'
+    ])
+
+    q_uah_std['floor'] = sum([
+        s.area * get_u_psi_std(region=region, part_type='floor') * s.get_h(region=region)
+        for s in gps if s.general_part_type == 'floor'
+    ])
+
+    q_uah_std['boundary_ceiling'] = sum([
+        s.area * get_u_psi_std(region=region, part_type='boundary_ceiling') * s.get_h(region=region)
+        for s in gps if s.general_part_type == 'boundary_ceiling'
+    ])
+
+    q_uah_std['boundary_wall'] = sum([
+        s.area * get_u_psi_std(region=region, part_type='boundary_wall') * s.get_h(region=region)
+        for s in gps if s.general_part_type == 'boundary_wall'
+    ])
+
+    q_uah_std['boundary_floor'] = sum([
+        s.area * get_u_psi_std(region=region, part_type='boundary_floor') * s.get_h(region=region)
+        for s in gps if s.general_part_type == 'boundary_floor'
+    ])
+
+    q_uah_std['window'] = sum([
+        s.area * get_u_psi_std(region=region, part_type='window') * s.get_h(region=region) for s in ws
+    ])
+
+    q_uah_std['door'] = sum([
+        s.area * get_u_psi_std(region=region, part_type='door') * s.get_h(region=region) for s in ds
+    ])
+
+    q_uah_std['earthfloor_perimeter'] = sum([
+        s.length * get_u_psi_std(region=region, part_type='earthfloor_perimeter') * s.get_h(region=region)
+        for s in eps
+    ])
+
+    return q_uah_std
 
 
 
