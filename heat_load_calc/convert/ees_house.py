@@ -29,6 +29,101 @@ class IArea(metaclass=abc.ABCMeta):
         pass
 
 
+class UpperArealEnvelope(IArea):
+
+    def __init__(self, name: str, next_space: str, direction: str, area: float, space_type: str):
+        """
+
+        Args:
+            name: 名称
+            next_space: 隣接する空間の種類
+            direction: 方位
+            area: 面積, m2
+            space_type: 接する室の用途
+        """
+
+        self._name = name
+        self._next_space = next_space
+        self._direction = direction
+        self._area = area
+        self._space_type = space_type
+
+    @property
+    def name(self) -> str:
+        """
+        名前を取得する。
+        Returns:
+            名前
+        """
+        return self._name
+
+    @property
+    def next_space(self) -> str:
+        """
+        隣接する空間の種類を取得する。
+        Returns:
+            隣接する空間の種類
+        """
+
+        return self._next_space
+
+    @property
+    def direction(self) -> str:
+        """
+        方位を取得する。
+        Returns:
+            方位
+        """
+
+        return self._direction
+
+    @property
+    def area(self) -> float:
+        """
+        面積を取得する。
+        Returns:
+            面積, m2
+        """
+
+        return self._area
+
+    @property
+    def space_type(self) -> str:
+        """
+        接する室の用途を取得する。
+        Returns:
+            接する室の用途
+        """
+
+        return self._space_type
+
+    def get_h(self, region) -> float:
+        """
+        温度差係数を取得する。
+        Args:
+            region: 地域の区分
+        Returns:
+            温度差係数
+        """
+
+        return factor_h.get_h(region=region, next_space=self.next_space)
+
+    def get_nu(self, region: int, season: str):
+        """
+        方位係数を取得する。
+        Args:
+            region: 地域の区分
+            season: 期間
+        Returns:
+            方位係数
+        """
+
+        if self.next_space == 'outdoor':
+            return factor_nu.get_nu(region=region, season=season, direction=self._direction)
+        else:
+            return 0.0
+
+
 class IGetQ(metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
@@ -82,7 +177,7 @@ class GeneralPartSpec:
             raise NotImplementedError()
 
 
-class GeneralPartNoSpec(IArea):
+class GeneralPartNoSpec(UpperArealEnvelope):
     """
     「部位の仕様」情報を保持しない一般部位クラス
     """
@@ -108,22 +203,9 @@ class GeneralPartNoSpec(IArea):
             sunshade: 日よけ
         """
 
-        self._name = name
+        super().__init__(name=name, next_space=next_space, direction=direction, area=area, space_type=space_type)
         self._general_part_type = general_part_type
-        self._next_space = next_space
-        self._direction = direction
-        self._area = area
-        self._space_type = space_type
         self._sunshade = sunshade
-
-    @property
-    def name(self) -> str:
-        """
-        名前を取得する。
-        Returns:
-            名前
-        """
-        return self._name
 
     @property
     def general_part_type(self) -> str:
@@ -136,46 +218,6 @@ class GeneralPartNoSpec(IArea):
         return self._general_part_type
 
     @property
-    def next_space(self) -> str:
-        """
-        隣接する空間の種類を取得する。
-        Returns:
-            隣接する空間の種類
-        """
-
-        return self._next_space
-
-    @property
-    def direction(self) -> str:
-        """
-        方位を取得する。
-        Returns:
-            方位
-        """
-
-        return self._direction
-
-    @property
-    def area(self) -> float:
-        """
-        面積を取得する。
-        Returns:
-            面積, m2
-        """
-
-        return self._area
-
-    @property
-    def space_type(self) -> str:
-        """
-        接する室の用途を取得する。
-        Returns:
-            接する室の用途
-        """
-
-        return self._space_type
-
-    @property
     def sunshade(self) -> factor_f.SunshadeOpaque:
         """
         日よけ（不透明部位）を取得する。
@@ -184,34 +226,8 @@ class GeneralPartNoSpec(IArea):
         """
         return self._sunshade
 
-    def get_h(self, region) -> float:
-        """
-        温度差係数を取得する。
-        Args:
-            region: 地域の区分
-        Returns:
-            温度差係数
-        """
 
-        return factor_h.get_h(region=region, next_space=self._next_space)
-
-    def get_nu(self, region: int, season: str):
-        """
-        方位係数を取得する。
-        Args:
-            region: 地域の区分
-            season: 期間
-        Returns:
-            方位係数
-        """
-
-        if self._next_space == 'outdoor':
-            return factor_nu.get_nu(region=region, season=season, direction=self._direction)
-        else:
-            return 0.0
-
-
-class GeneralPart(GeneralPartNoSpec, IArea, IGetQ, IGetM):
+class GeneralPart(GeneralPartNoSpec, IGetQ, IGetM):
     """
     一般部位
     """
@@ -326,18 +342,22 @@ class GeneralPart(GeneralPartNoSpec, IArea, IGetQ, IGetM):
             m値, W/(W/m2)
         """
 
-        return self._area * self.get_eta() * self.get_nu(region=region, season=season)
+        if self.next_space == 'outdoor':
+            return self.area * self.get_eta() * self.get_nu(region=region, season=season) \
+                   * self.sunshade.get_f_sh(region=region, season=season)
+        else:
+            return 0.0
 
     def get_as_dict(self):
 
         return {
             'name': self._name,
-            'general_part_type': self._general_part_type,
-            'next_space': self._next_space,
-            'direction': self._direction,
-            'area': self._area,
+            'general_part_type': self.general_part_type,
+            'next_space': self.next_space,
+            'direction': self.direction,
+            'area': self.area,
             'space_type': self.space_type,
-            'spec': self._general_part_spec.get_as_dict(),
+            'spec': self.general_part_spec.get_as_dict(),
             'sunshade': self.sunshade.get_as_dict()
         }
 
@@ -406,7 +426,7 @@ class WindowSpec:
         }
 
 
-class WindowNoSpec(IArea):
+class WindowNoSpec(UpperArealEnvelope):
     """
     「部位の仕様」情報を保持しない大部分がガラスで構成される窓等の開口部
     """
@@ -430,61 +450,8 @@ class WindowNoSpec(IArea):
             sunshade: 日よけ
         """
 
-        self._name = name
-        self._next_space = next_space
-        self._direction = direction
-        self._area = area
-        self._space_type = space_type
+        super().__init__(name=name, next_space=next_space, direction=direction, area=area, space_type=space_type)
         self._sunshade = sunshade
-
-    @property
-    def name(self) -> str:
-        """
-        名前を取得する。
-        Returns:
-            名前
-        """
-        return self._name
-
-    @property
-    def next_space(self) -> str:
-        """
-        隣接する空間の種類を取得する。
-        Returns:
-            隣接する空間の種類
-        """
-
-        return self._next_space
-
-    @property
-    def direction(self) -> str:
-        """
-        方位を取得する。
-        Returns:
-            方位
-        """
-
-        return self._direction
-
-    @property
-    def area(self) -> float:
-        """
-        面積を取得する。
-        Returns:
-            面積, m2
-        """
-
-        return self._area
-
-    @property
-    def space_type(self) -> str:
-        """
-        接する室の用途を取得する。
-        Returns:
-            接する室の用途
-        """
-
-        return self._space_type
 
     @property
     def sunshade(self) -> factor_f.SunshadeTransient:
@@ -495,32 +462,6 @@ class WindowNoSpec(IArea):
         """
         return self._sunshade
 
-    def get_h(self, region: int):
-        """
-        温度差係数を取得する。
-        Args:
-            region: 地域の区分
-        Returns:
-            温度差係数
-        """
-
-        return factor_h.get_h(region=region, next_space=self._next_space)
-
-    def get_nu(self, region: int, season: str):
-        """
-        方位係数を取得する。
-        Args:
-            region: 地域の区分
-            season: 期間
-        Returns:
-            方位係数
-        """
-
-        if self._next_space == 'outdoor':
-            return factor_nu.get_nu(season=season, region=region, direction=self._direction)
-        else:
-            return 0.0
-
     def get_f(self, region: int, season: str):
         """
         日射熱取得補正係数を計算する。
@@ -529,11 +470,16 @@ class WindowNoSpec(IArea):
             season: 期間
         Returns:
             日射熱取得補正係数
+        TODO:
+        「指標->LV2」の変換においてガラスの構成が決まらない段階でf値を決定する必要があるため、WindowNoSpecクラスにこの関数を
+        おいておくが、本来であれば、ガラスの構成がわかった上でf値を計算するのが望ましい。
+        従って、この get_f 関数は、Window クラスでオーバーライドし、引数にガラスの構成を与えるようにすべき。
         """
-        return self._sunshade.get_f(region=region, season=season, direction=self._direction)
+
+        return self.sunshade.get_f(region=region, season=season, direction=self.direction)
 
 
-class Window(WindowNoSpec, IArea, IGetQ, IGetM):
+class Window(WindowNoSpec, IGetQ, IGetM):
     """
     大部分がガラスで構成される窓等の開口部
     """
@@ -616,19 +562,19 @@ class Window(WindowNoSpec, IArea, IGetQ, IGetM):
     def get_m(self, region: int, season: str) -> float:
         return self.get_eta_d(season=season) \
                * self.area \
-               * self.get_f(region=region, season=season) \
+               * self.sunshade.get_f(region=region, season=season, direction=self.direction) \
                * self.get_nu(region=region, season=season)
 
     def get_as_dict(self):
 
         return {
-            'name': self._name,
-            'next_space': self._next_space,
-            'direction': self._direction,
-            'area': self._area,
+            'name': self.name,
+            'next_space': self.next_space,
+            'direction': self.direction,
+            'area': self.area,
             'space_type': self.space_type,
             'sunshade': self.sunshade.get_as_dict(),
-            'spec': self._window_spec.get_as_dict()
+            'spec': self.window_spec.get_as_dict()
         }
 
 
@@ -657,7 +603,7 @@ class DoorSpec:
         }
 
 
-class DoorNoSpec(IArea):
+class DoorNoSpec(UpperArealEnvelope):
     """
     「部位の仕様」情報を保持しない大部分がガラスで構成されないドア等の開口部
     """
@@ -681,61 +627,8 @@ class DoorNoSpec(IArea):
             sunshade: 日よけ
         """
 
-        self._name = name
-        self._next_space = next_space
-        self._direction = direction
-        self._area = area
-        self._space_type = space_type
+        super().__init__(name=name, next_space=next_space, direction=direction, area=area, space_type=space_type)
         self._sunshade = sunshade
-
-    @property
-    def name(self) -> str:
-        """
-        名前を取得する。
-        Returns:
-            名前
-        """
-        return self._name
-
-    @property
-    def next_space(self) -> str:
-        """
-        隣接する空間の種類を取得する。
-        Returns:
-            隣接する空間の種類
-        """
-
-        return self._next_space
-
-    @property
-    def direction(self) -> str:
-        """
-        方位を取得する。
-        Returns:
-            方位
-        """
-
-        return self._direction
-
-    @property
-    def area(self) -> float:
-        """
-        面積を取得する。
-        Returns:
-            面積, m2
-        """
-
-        return self._area
-
-    @property
-    def space_type(self) -> str:
-        """
-        接する室の用途を取得する。
-        Returns:
-            接する室の用途
-        """
-
-        return self._space_type
 
     @property
     def sunshade(self) -> factor_f.SunshadeOpaque:
@@ -746,33 +639,8 @@ class DoorNoSpec(IArea):
         """
         return self._sunshade
 
-    def get_h(self, region: int):
-        """
-        温度差係数を取得する。
-        Args:
-            region: 地域の区分
-        Returns:
-            温度差係数
-        """
-        return factor_h.get_h(region=region, next_space=self._next_space)
 
-    def get_nu(self, region: int, season: str):
-        """
-        方位係数を取得する。
-        Args:
-            region: 地域の区分
-            season: 期間
-        Returns:
-            方位係数
-        """
-
-        if self._next_space == 'outdoor':
-            return factor_nu.get_nu(region=region, season=season, direction=self._direction)
-        else:
-            return 0.0
-
-
-class Door(DoorNoSpec, IArea, IGetQ, IGetM):
+class Door(DoorNoSpec, IGetQ, IGetM):
     """
     大部分がガラスで構成されないドア等の開口部
     """
@@ -853,7 +721,12 @@ class Door(DoorNoSpec, IArea, IGetQ, IGetM):
         return self._door_spec.get_eta()
 
     def get_m(self, region: int, season: str) -> float:
-        return self.area * self.get_eta() * self.get_nu(region=region, season=season)
+
+        if self.next_space == 'outdoor':
+            return self.area * self.get_eta() * self.get_nu(region=region, season=season) \
+                   * self.sunshade.get_f_sh(region=region, season=season)
+        else:
+            return 0.0
 
     def get_as_dict(self):
 
@@ -1040,7 +913,7 @@ class EarthfloorCenterNoSpec(IArea):
         return self._space_type
 
 
-class EarthfloorCenter(EarthfloorCenterNoSpec, IArea):
+class EarthfloorCenter(EarthfloorCenterNoSpec):
 
     def __init__(self, name: str, area: float, space_type: str, earthfloor_center_spec: EarthfloorCenterSpec):
         """
@@ -1261,8 +1134,100 @@ class Heatbridge(HeatbridgeNoSpec, IGetQ, IGetM):
         }
 
 
+class InnerFloor:
+
+    def __init__(
+            self,
+            name: str,
+            area: float,
+            upper_space_type: str,
+            lower_space_type,
+            inner_floor_spec: Dict
+    ):
+
+        self._name = name
+        self._area = area
+        self._upper_space_type = upper_space_type
+        self._lower_space_type = lower_space_type
+        self._inner_floor_spec = inner_floor_spec
+
+    @property
+    def name(self):
+        return self._name
+
+    @property
+    def area(self):
+        return self._area
+
+    @property
+    def upper_space_type(self):
+        return self._upper_space_type
+
+    @property
+    def lower_space_type(self):
+        return self._lower_space_type
+
+    @property
+    def inner_floor_spec(self):
+        return self._inner_floor_spec
+
+    def get_as_dict(self):
+
+        return {
+            'name': self.name,
+            'area': self.area,
+            'upper_space_type': self.upper_space_type,
+            'lower_space_type': self.lower_space_type,
+            'spec': self.inner_floor_spec
+        }
 
 
+class InnerWall:
+
+    def __init__(
+            self,
+            name: str,
+            area: float,
+            space_type_1: str,
+            space_type_2: str,
+            inner_wall_spec: Dict
+    ):
+
+        self._name = name
+        self._area = area
+        self._space_type_1 = space_type_1
+        self._space_type_2 = space_type_2
+        self._inner_wall_spec = inner_wall_spec
+
+    @property
+    def name(self):
+        return self._name
+
+    @property
+    def area(self):
+        return self._area
+
+    @property
+    def space_type_1(self):
+        return self._space_type_1
+
+    @property
+    def space_type_2(self):
+        return self._space_type_2
+
+    @property
+    def inner_wall_spec(self):
+        return self._inner_wall_spec
+
+    def get_as_dict(self):
+
+        return {
+            'name': self.name,
+            'area': self.area,
+            'space_type_1': self.space_type_1,
+            'space_type_2': self.space_type_2,
+            'spec': self.inner_wall_spec
+        }
 
 
 

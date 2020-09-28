@@ -531,7 +531,6 @@ def get_model_house_no_spec(
     return roofs + walls + floors + base_outsides + base_insides, windows, doors, earth_floor_perimeters_outside + earth_floor_perimeters_inside, earth_floor_centers
 
 
-
 def _get_a_f(house_type: str, a_f_total: float, r_fa: Optional[float]) -> List[float]:
     """
     Args:

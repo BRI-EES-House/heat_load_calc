@@ -1,5 +1,15 @@
-from typing import Dict, Tuple
+from typing import Dict, Tuple, List
 import copy
+
+from heat_load_calc.convert.ees_house import UpperArealEnvelope
+from heat_load_calc.convert.ees_house import GeneralPart
+from heat_load_calc.convert.ees_house import Window
+from heat_load_calc.convert.ees_house import Door
+from heat_load_calc.convert.ees_house import Heatbridge
+from heat_load_calc.convert.ees_house import EarthfloorPerimeter
+from heat_load_calc.convert.ees_house import EarthfloorCenter
+from heat_load_calc.convert.ees_house import InnerFloor
+from heat_load_calc.convert.ees_house import InnerWall
 
 
 def get_inner_floor_spec() -> Dict:
@@ -21,10 +31,16 @@ def get_inner_floor_spec() -> Dict:
     }
 
 
-def get_downward_envelope_total_area(envelope: Dict) -> Tuple[float, float, float]:
+def get_downward_envelope_total_area(
+        gps: List[UpperArealEnvelope],
+        ws: List[UpperArealEnvelope],
+        ds: List[UpperArealEnvelope]
+) -> Tuple[float, float, float]:
     """
     Args:
-        envelope: 外皮
+        gps:
+        ws:
+        ds:
     Returns:
         以下の3つの変数
             (1) 主たる居室に接する方位が下面である外皮の部位の面積の合計, m2
@@ -32,29 +48,30 @@ def get_downward_envelope_total_area(envelope: Dict) -> Tuple[float, float, floa
             (3) 非居室に接する方位が下面である外皮の部位の面積の合計, m2
     """
 
-    parts = []
+    ss = gps + ws + ds
 
-    if 'general_parts' in envelope:
-        parts.extend(envelope['general_parts'])
+    a_evlp_down_mr = sum([
+        s.area for s in ss
+        if s.space_type == 'main_occupant_room' and (s.direction == 'bottom' or s.direction == 'downward')
+    ])
 
-    if 'windows' in envelope:
-        parts.extend(envelope['windows'])
+    a_evlp_down_or = sum([
+        s.area for s in ss
+        if s.space_type == 'other_occupant_room' and (s.direction == 'bottom' or s.direction == 'downward')
+    ])
 
-    if 'doors' in envelope:
-        parts.extend(envelope['doors'])
+    a_evlp_down_nr = sum([
+        s.area for s in ss
+        if s.space_type == 'non_occupant_room' and (s.direction == 'bottom' or s.direction == 'downward')
+    ])
 
-    def f(space_type):
-        return sum(part['area'] for part in parts
-                   if part['space_type'] == space_type and (
-                               part['direction'] == 'bottom' or part['direction'] == 'downward'))
-
-    return f('main_occupant_room'), f('other_occupant_room'), f('non_occupant_room')
+    return a_evlp_down_mr, a_evlp_down_or, a_evlp_down_nr
 
 
-def get_earthfloor_total_area(envelope: Dict) -> Tuple[float, float, float, float]:
+def get_earthfloor_total_area(ecs: List[EarthfloorCenter]) -> (float, float, float, float):
     """
     Args:
-        envelope: 外皮
+        ecs:
     Returns:
         以下の4つの変数
             (1) 主たる居室に接する土間床等の中心部の面積の合計, m2
@@ -63,15 +80,12 @@ def get_earthfloor_total_area(envelope: Dict) -> Tuple[float, float, float, floa
             (4) 床下空間に接する土間床等の中心部の面積の合計, m2
     """
 
-    parts = []
+    a_ef_mr = sum([s.area for s in ecs if s.space_type == 'main_occupant_room'])
+    a_ef_or = sum([s.area for s in ecs if s.space_type == 'other_occupant_room'])
+    a_ef_nr = sum([s.area for s in ecs if s.space_type == 'non_occupant_room'])
+    a_ef_uf = sum([s.area for s in ecs if s.space_type == 'underfloor'])
 
-    if 'earthfloor_centers' in envelope:
-        parts.extend(envelope['earthfloor_centers'])
-
-    def f(space_type):
-        return sum(part['area'] for part in parts if part['space_type'] == space_type)
-
-    return f('main_occupant_room'), f('other_occupant_room'), f('non_occupant_room'), f('underfloor')
+    return a_ef_mr, a_ef_or, a_ef_nr, a_ef_uf
 
 
 def get_inner_floor_total_area(
@@ -227,10 +241,16 @@ def get_inner_wall_spec() -> Dict:
     }
 
 
-def get_horizontal_envelope_total_area(envelope: Dict) -> Tuple[float, float, float]:
+def get_horizontal_envelope_total_area(
+        gps: List[UpperArealEnvelope],
+        ws: List[UpperArealEnvelope],
+        ds: List[UpperArealEnvelope]
+) -> (float, float, float):
     """
     Args:
-        envelope: 外皮
+        gps:
+        ws:
+        ds:
     Returns:
         以下の3つの変数
             (1) 主たる居室に接する方位が水平である外皮の部位の面積の合計, m2
@@ -238,27 +258,16 @@ def get_horizontal_envelope_total_area(envelope: Dict) -> Tuple[float, float, fl
             (3) 非居室に接する方位が水平である外皮の部位の面積の合計, m2
     """
 
-    parts = []
+    ss = gps + ws + ds
 
-    if 'general_parts' in envelope:
-        parts.extend(envelope['general_parts'])
+    def is_horizontal(d):
+        return d in ['n', 'ne', 'e', 'se', 's', 'sw', 'w', 'nw', 'horizontal']
 
-    if 'windows' in envelope:
-        parts.extend(envelope['windows'])
+    a_ow_mr = sum([s.area for s in ss if s.space_type == 'main_occupant_room' and is_horizontal(s.direction)])
+    a_ow_or = sum([s.area for s in ss if s.space_type == 'other_occupant_room' and is_horizontal(s.direction)])
+    a_ow_nr = sum([s.area for s in ss if s.space_type == 'non_occupant_room' and is_horizontal(s.direction)])
 
-    if 'doors' in envelope:
-        parts.extend(envelope['doors'])
-
-    def is_horizontal(part):
-        d = part['direction']
-        return d == 'n' or d == 'ne' or d == 'e' or d == 'se' or \
-            d == 's' or d == 'sw' or d == 'w' or d == 'nw' or d == 'horizontal'
-
-    def f(space_type):
-        return sum(part['area'] for part in parts \
-                   if part['space_type'] == space_type and is_horizontal(part))
-
-    return f('main_occupant_room'), f('other_occupant_room'), f('non_occupant_room')
+    return a_ow_mr, a_ow_or, a_ow_nr
 
 
 def get_inner_wall_total_area(a_mr, a_or, a_a, a_evlp_hzt_mr, a_evlp_hzt_or, a_evlp_hzt_nr):
@@ -330,11 +339,20 @@ def get_inner_wall_total_area_between_rooms(
     return a_iw_mr_or, a_iw_mr_nr, a_iw_or_nr
 
 
-def make_inner_floors(common: Dict, envelope: Dict) -> Dict:
+def make_inner_floors(
+        common: Dict,
+        gps: List[GeneralPart],
+        ws: List[Window],
+        ds: List[Door],
+        ecs: List[EarthfloorCenter]
+) -> List[InnerFloor]:
     """
     Args:
         common: 共通項目
-        envelope: 外皮
+        gps:
+        ws:
+        ds:
+        ecs:
     Returns:
         室内床
     """
@@ -346,13 +364,13 @@ def make_inner_floors(common: Dict, envelope: Dict) -> Dict:
     # 主たる居室に接する方位が下面である外皮の部位の面積の合計, m2
     # その他の居室に接する方位が下面である外皮の部位の面積の合計, m2
     # 非居室に接する方位が下面である外皮の部位の面積の合計, m2
-    a_evlp_down_mr, a_evlp_down_or, a_evlp_down_nr = get_downward_envelope_total_area(envelope)
+    a_evlp_down_mr, a_evlp_down_or, a_evlp_down_nr = get_downward_envelope_total_area(gps=gps, ws=ws, ds=ds)
 
     # 主たる居室に接する土間床等の中心部の面積の合計, m2
     # その他の居室に接する土間床等の中心部の面積の合計, m2
     # 非居室に接する土間床等の中心部の面積の合計, m2
     # 床下空間に接する土間床等の中心部の面積の合計, m2
-    a_ef_mr, a_ef_or, a_ef_nr, a_ef_uf = get_earthfloor_total_area(envelope)
+    a_ef_mr, a_ef_or, a_ef_nr, a_ef_uf = get_earthfloor_total_area(ecs=ecs)
 
     # 床上側が主たる居室に接する間仕切り床の面積の合計, m2
     # 床上側がその他の居室に接する間仕切り床の面積の合計, m2
@@ -376,16 +394,22 @@ def make_inner_floors(common: Dict, envelope: Dict) -> Dict:
 
     ifs = []
 
-    def append_inner_floor(ifs, name, area, upper_space_type, lower_space_type):
+    def append_inner_floor(
+            ifs: List[InnerFloor],
+            name: str,
+            area: float,
+            upper_space_type: str,
+            lower_space_type: str
+    ) -> List[InnerFloor]:
         if area > 0.0:
             ifs.append(
-                {
-                    'name': name,
-                    'area': area,
-                    'upper_space_type': upper_space_type,
-                    'lower_space_type': lower_space_type,
-                    'spec': get_inner_floor_spec()
-                }
+                InnerFloor(
+                    name=name,
+                    area=area,
+                    upper_space_type=upper_space_type,
+                    lower_space_type=lower_space_type,
+                    inner_floor_spec=get_inner_floor_spec()
+                )
             )
 
     append_inner_floor(ifs, 'inner_floor_main_to_underfloor', a_if_mr_uf, 'main_occupant_room', 'underfloor')
@@ -401,11 +425,13 @@ def make_inner_floors(common: Dict, envelope: Dict) -> Dict:
     return ifs
 
 
-def make_inner_walls(common: Dict, envelope: Dict) -> Dict:
+def make_inner_walls(common: Dict, gps, ws, ds) -> List[InnerWall]:
     """
     Args:
         common: 共通項目
-        envelope: 外皮
+        gps:
+        ws:
+        ds:
     Returns:
         内壁
     """
@@ -417,7 +443,7 @@ def make_inner_walls(common: Dict, envelope: Dict) -> Dict:
     # 主たる居室に接する方位が水平である外皮の部位の面積の合計, m2
     # その他の居室に接する方位が水平である外皮の部位の面積の合計, m2
     # 非居室に接する方位が水平である外皮の部位の面積の合計, m2
-    a_ow_mr, a_ow_or, a_ow_nr = get_horizontal_envelope_total_area(envelope)
+    a_ow_mr, a_ow_or, a_ow_nr = get_horizontal_envelope_total_area(gps=gps, ws=ws, ds=ds)
 
     # 主たる居室に接する間仕切り壁の面積の合計, m2
     # その他の居室に接する間仕切り壁の面積の合計, m2
@@ -432,16 +458,28 @@ def make_inner_walls(common: Dict, envelope: Dict) -> Dict:
 
     iws = []
 
+    # def append_inner_wall(iws, name, area, space_type_1, space_type_2):
+    #     if area > 0.0:
+    #         iws.append(
+    #             {
+    #                 'name': name,
+    #                 'area': area,
+    #                 'space_type_1': space_type_1,
+    #                 'space_type_2': space_type_2,
+    #                 'spec': get_inner_wall_spec()
+    #             }
+    #         )
+    #
     def append_inner_wall(iws, name, area, space_type_1, space_type_2):
         if area > 0.0:
             iws.append(
-                {
-                    'name': name,
-                    'area': area,
-                    'space_type_1': space_type_1,
-                    'space_type_2': space_type_2,
-                    'spec': get_inner_wall_spec()
-                }
+                InnerWall(
+                    name=name,
+                    area=area,
+                    space_type_1=space_type_1,
+                    space_type_2=space_type_2,
+                    inner_wall_spec=get_inner_wall_spec()
+                )
             )
 
     append_inner_wall(iws, 'inner_wall_main_to_other', a_iw_mr_or, 'main_occupant_room', 'other_occupant_room')
@@ -451,63 +489,32 @@ def make_inner_walls(common: Dict, envelope: Dict) -> Dict:
     return iws
 
 
-def convert(common, envelope):
+def convert_spec(common, envelope):
 
-    envelope_out = {}
+    # 入力辞書データから外皮の部位のクラスに変換する。
+    gps = GeneralPart.make_general_parts(ds=envelope['general_parts'])
+    ws = Window.make_windows(ds=envelope['windows'])
+    ds = Door.make_doors(ds=envelope['doors'])
+    eps = EarthfloorPerimeter.make_earthfloor_perimeters(ds=envelope['earthfloor_perimeters'])
+    ecs = EarthfloorCenter.make_earthfloor_centers(ds=envelope['earthfloor_centers'])
+    hbs = Heatbridge.make_heatbridges(ds=envelope['heat_bridges'])
 
-    if ('general_parts' in envelope) == True:
-        envelope_out['general_parts'] = copy.deepcopy(envelope['general_parts'])
+    # 内壁床の作成
+    ifs = make_inner_floors(common=common, gps=gps, ws=ws, ds=ds, ecs=ecs)
 
-    if ('windows' in envelope) == True:
-        envelope_out['windows'] = copy.deepcopy(envelope['windows'])
+    # 内壁壁の作成
+    iws = make_inner_walls(common=common, gps=gps, ws=ws, ds=ds)
 
-    if ('doors' in envelope) == True:
-        envelope_out['doors'] = copy.deepcopy(envelope['doors'])
-
-    # if ('heat_bridges' in envelope) == True:
-    #     envelope_out['heat_bridges'] = copy.deepcopy(envelope['heat_bridges'])
-
-    if ('earthfloor_perimeters' in envelope) == True:
-        envelope_out['earthfloor_perimeters'] = copy.deepcopy(envelope['earthfloor_perimeters'])
-
-    if ('earthfloor_centers' in envelope) == True:
-        envelope_out['earthfloor_centers'] = copy.deepcopy(envelope['earthfloor_centers'])
-
-    envelope_out['inner_floors'] = make_inner_floors(common, envelope)
-
-    envelope_out['inner_walls'] = make_inner_walls(common, envelope)
+    envelope_out = {
+        'general_parts': [s.get_as_dict() for s in gps],
+        'windows': [s.get_as_dict() for s in ws],
+        'doors': [s.get_as_dict() for s in ds],
+        'earthfloor_perimeters': [s.get_as_dict() for s in eps],
+        'earthfloor_centers': [s.get_as_dict() for s in ecs],
+        'heat_bridges': [s.get_as_dict() for s in hbs],
+        'inner_floors': [s.get_as_dict() for s in ifs],
+        'inner_walls': [s.get_as_dict() for s in iws]
+    }
 
     return envelope_out
 
-
-if __name__ == '__main__':
-
-    input_data_1 = {
-        'common': {
-            'region': 6,
-            'main_occupant_room_floor_area': 30.0,
-            'other_occupant_room_floor_area': 60.0,
-            'total_floor_area': 120.0
-        },
-        'envelope': {
-            'general_parts': [
-                {
-                    'name': 'floor',
-                    'evlp_type': 'floor',
-                    'next_space': 'open_underfloor',
-                    'direction': 'bottom',
-                    'area': 60.0,
-                    'space_type': 'main',
-                    'spec': 'something'
-                },
-            ],
-            'earthfloor_centers': [
-                {'name': 'other', 'area': 5.0, 'space_type': 'underfloor'},
-                {'name': 'entrance', 'area': 5.0, 'space_type': 'underfloor'}
-            ]
-        }
-    }
-
-    result1 = convert(input_data_1['common'], input_data_1['envelope'])
-
-    print(result1)
