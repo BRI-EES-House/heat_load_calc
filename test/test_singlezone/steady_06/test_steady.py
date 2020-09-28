@@ -14,6 +14,16 @@ class TestSteadyState(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
 
+        '''
+        テスト条件
+        屋根と床が合板12mm、壁が複層ガラスの1m角の立方体の単室モデル。
+        相当外気温度が屋根と南壁10℃、他は0℃。
+        内部発熱なし。
+        透過日射熱取得は100W固定
+        '''
+
+        print('\n testing single zone steady 06')
+
         # 計算用フォルダ
         s_folder = str(os.path.dirname(__file__)) + '/data'
 
@@ -39,9 +49,9 @@ class TestSteadyState(unittest.TestCase):
     # 室内側表面熱流[W/m2]のテスト
     def test_heat_flow(self):
 
-        self.assertAlmostEqual(12.780921581686, self._dd['rm0_b1_qiall_s']['1989-12-31 00:00:00'])
-        self.assertAlmostEqual(36.6603790567287, self._dd['rm0_b4_qiall_s']['1989-12-31 00:00:00'])
-        self.assertAlmostEqual(12.2159346059803, self._dd['rm0_b5_qiall_s']['1989-12-31 00:00:00'])
+        self.assertAlmostEqual(12.7809215840823, self._dd['rm0_b1_qiall_s']['1989-12-31 00:00:00'])
+        self.assertAlmostEqual(36.6603790528621, self._dd['rm0_b4_qiall_s']['1989-12-31 00:00:00'])
+        self.assertAlmostEqual(12.2159346084176, self._dd['rm0_b5_qiall_s']['1989-12-31 00:00:00'])
 
     # 表面温度[℃]のテスト
     def test_surface_temp(self):
