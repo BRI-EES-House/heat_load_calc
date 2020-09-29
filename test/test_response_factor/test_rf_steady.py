@@ -5,6 +5,11 @@ from heat_load_calc.initializer import response_factor
 
 class MyTestCase(unittest.TestCase):
 
+    @classmethod
+    def setUpClass(cls):
+
+        print('\n testing single zone steady 05')
+
     def test_rf_steady(self):
 
         # NOTE: n_root は将来的に破棄する予定のためテストはしない。
