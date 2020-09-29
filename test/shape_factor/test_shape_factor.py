@@ -4,7 +4,7 @@ import numpy as np
 from heat_load_calc.core import shape_factor as sf
 
 
-class TestWeatherData15m(unittest.TestCase):
+class TestShapeFactor(unittest.TestCase):
 
     def test_hr(self):
 
