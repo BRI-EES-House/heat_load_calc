@@ -1,95 +1,28 @@
-from typing import Dict
+from typing import Dict, List
 import copy
 
 import pprint
 
 from heat_load_calc.convert import a_06_common_items
-from heat_load_calc.convert.a_01_00_general_part import get_general_part_spec_hlc as a_01_00_get_general_part_spec_hlc
+from heat_load_calc.convert import a_01_00_general_part
 
 from heat_load_calc.external import factor_h
 
-# region common
+from heat_load_calc.convert import convert_indices_to_lv2_info
+from heat_load_calc.convert import convert_lv2_to_lv3
+from heat_load_calc.convert import convert_lv3_to_lv4
 
-
-def make_common(region: int) -> Dict:
-    """
-    Args:
-        region: 地域の区分
-    Returns:
-        common ディクショナリ
-    """
-
-    return {
-        'region': region,
-        'calculation_type': 'residential'
-    }
-
-
-# endregion
-
+from heat_load_calc.convert.ees_house import UpperArealEnvelope
+from heat_load_calc.convert.ees_house import GeneralPart
+from heat_load_calc.convert.ees_house import Window
+from heat_load_calc.convert.ees_house import Door
+from heat_load_calc.convert.ees_house import Heatbridge
+from heat_load_calc.convert.ees_house import EarthfloorPerimeter
+from heat_load_calc.convert.ees_house import EarthfloorCenter
+from heat_load_calc.convert.ees_house import InnerFloor
+from heat_load_calc.convert.ees_house import InnerWall
 
 # region rooms
-
-
-def make_rooms(common, d, d_calc_input, envelope, equipment_main, equipment_other, region, ventilation, natural_vent):
-
-    # 外皮に関する辞書
-    gps = envelope['general_parts']    # 一般部位
-    gws = envelope['windows']    # 大部分がガラスで構成される窓等の開口部
-    gds = envelope['doors']    # 大部分がガラスで構成されないドア等の開口部
-    eps = envelope['earthfloor_perimeters']    # 土間床等の外周部
-    ecs = envelope['earthfloor_centers']    # 土間床等の中心部
-
-    # 床面積の合計, m2
-    a_a = common['total_floor_area']
-
-    # 主たる居室の床面積, m2
-    a_mr = common['main_occupant_room_floor_area']
-
-    # その他の居室の床面積, m2
-    a_or = common['other_occupant_room_floor_area']
-
-    # 非居室の床面積, m2
-    a_nr = a_a - a_mr - a_or
-
-    # 床下空間の床面積, m2
-    a_uf = get_a_uf(ecs=ecs)
-
-    # 換気回数
-    n = ventilation['air_change_rate']
-
-    # 自然風利用, 換気回数, 1/h
-    v_nv_mr = natural_vent['main_occupant_room_natural_vent_time']
-    v_nv_or = natural_vent['other_occupant_room_natural_vent_time']
-
-    room_mr, room_or, room_nr, room_uf = make_initial_rooms(
-        a_a=a_a, a_mr=a_mr, a_or=a_or, a_nr=a_nr, a_uf=a_uf, n=n, v_nv_mr=v_nv_mr, v_nv_or=v_nv_or)
-
-    boundaries_mr, boundaries_or, boundaries_nr, boundaries_uf = get_boundaries_general_part(region, gps)
-
-    room_mr['surface'].extend(boundaries_mr)
-    room_or['surface'].extend(boundaries_or)
-    room_nr['surface'].extend(boundaries_nr)
-    room_uf['surface'].extend(boundaries_uf)
-
-    boundaries_mr, boundaries_or, boundaries_nr, boundaries_uf = get_boundaries_windows(region, gws)
-
-    room_mr['surface'].extend(boundaries_mr)
-    room_or['surface'].extend(boundaries_or)
-    room_nr['surface'].extend(boundaries_nr)
-    room_uf['surface'].extend(boundaries_uf)
-
-    d_calc_input['Rooms'] = rooms
-
-    d_calc_input['Rooms'] = integrate_doors_to_rooms(region, gds, rooms)
-
-    d_calc_input['Rooms'] = integrate_earthfloorperimeters_to_rooms(region, eps, rooms)
-
-    d_calc_input['Rooms'] = integrate_earthfloors_to_rooms(region, ecs, rooms)
-
-    d_calc_input['Rooms'] = integrate_innerwalls_to_rooms(region, d['InnerWalls'], rooms)
-
-    d_calc_input['Rooms'] = integrate_equipments_to_rooms(a_mr, a_or, equipment_main, equipment_other, rooms)
 
 
 def get_a_uf(ecs: Dict) -> float:
@@ -291,34 +224,34 @@ def get_v_vent(v_vent_ex_mr: float, v_vent_ex_or: float) -> (float, float):
     return v_vent_mr_nr, v_vent_or_nr
 
 
-def get_boundaries_general_part(region, general_parts):
+def get_boundaries_general_part(region, gps_dict, gps: List[GeneralPart]):
 
     boundary_mr = []
     boundary_or = []
     boundary_nr = []
     boundary_uf = []
 
-    for gp in general_parts:
+    for gp_dict, gp in zip(gps_dict, gps):
 
-        parts = a_01_00_get_general_part_spec_hlc(gp)
+        parts = a_01_00_general_part.get_general_part_spec_hlc(gp_dict, gp)
 
         for part_i in parts:
 
             name_hlc_i, r_a_hlc_i, general_part_spec_hlc_i, u_i = part_i
 
             boundary = {
-                'name': gp['name'] + name_hlc_i,
+                'name': gp_dict['name'] + name_hlc_i,
                 'boundary_type': 'external_general_part',
-                'area': gp['area'] * r_a_hlc_i,
-                'is_sun_striked_outside': get_is_sun_striked_outside(gp['direction']),
-                'temp_dif_coef': factor_h.get_h(region=region, next_space=gp['next_space']),
-                'direction': get_direction(gp['direction']),
-                'is_solar_absorbed_inside': get_is_solar_absorbed_inside(general_part_type=gp['general_part_type']),
+                'area': gp_dict['area'] * r_a_hlc_i,
+                'is_sun_striked_outside': get_is_sun_striked_outside(gp_dict['direction']),
+                'temp_dif_coef': factor_h.get_h(region=region, next_space=gp_dict['next_space']),
+                'direction': get_direction(gp_dict['direction']),
+                'is_solar_absorbed_inside': get_is_solar_absorbed_inside(general_part_type=gp_dict['general_part_type']),
                 'general_part_spec': general_part_spec_hlc_i,
-                'solar_shading_part': copy.deepcopy(gp['spec']['sunshade'])
+                'solar_shading_part': copy.deepcopy(gp_dict['spec']['sunshade'])
             }
 
-            space_type = gp['space_type']
+            space_type = gp_dict['space_type']
 
             if space_type == 'main_occupant_room':
                 boundary_mr.append(boundary)
@@ -804,24 +737,117 @@ def integrate_equipments_to_rooms(area_main, area_other, equipment_main, equipme
 # endregion
 
 
-def convert(common, envelope, d, equipment_main, equipment_other, natural_vent):
+def convert_lv4_to_initializer(common, envelope, d, equipment_main, equipment_other, natural_vent):
 
     region = common['region']
 
+    # 床面積の合計, m2
+    a_a = common['total_floor_area']
+
+    # 主たる居室の床面積, m2
+    a_mr = common['main_occupant_room_floor_area']
+
+    # その他の居室の床面積, m2
+    a_or = common['other_occupant_room_floor_area']
+
+    # 非居室の床面積, m2
+    a_nr = a_a - a_mr - a_or
+
+    # 一般部位
+    gps = GeneralPart.make_general_parts(ds=envelope['general_parts'])
+
     ventilation = d['ventilation']
-    envelope = d['envelope']
 
     d_calc_input = {
-        'common': make_common(region=region)
+        'common': {
+            'region': region
+        }
     }
 
-    make_rooms(common, d, d_calc_input, envelope, equipment_main, equipment_other, region, ventilation, natural_vent)
+    make_rooms(d, d_calc_input, envelope, equipment_main, equipment_other, region, ventilation, natural_vent,
+               a_a=a_a, a_mr=a_mr, a_or=a_or, a_nr=a_nr, gps=gps)
 
     return d_calc_input
 
 
+def make_rooms(d, d_calc_input, envelope, equipment_main, equipment_other, region, ventilation, natural_vent, a_a, a_mr, a_or, a_nr, gps):
+
+    # 外皮に関する辞書
+    gps_dict = envelope['general_parts']    # 一般部位
+    gw_lists = envelope['windows']    # 大部分がガラスで構成される窓等の開口部
+    gd_lists = envelope['doors']    # 大部分がガラスで構成されないドア等の開口部
+    ep_lists = envelope['earthfloor_perimeters']    # 土間床等の外周部
+    ec_lists = envelope['earthfloor_centers']    # 土間床等の中心部
+
+    # 床下空間の床面積, m2
+    a_uf = get_a_uf(ecs=ec_lists)
+
+    # 換気回数
+    n = ventilation['air_change_rate']
+
+    # 自然風利用, 換気回数, 1/h
+    v_nv_mr = natural_vent['main_occupant_room_natural_vent_time']
+    v_nv_or = natural_vent['other_occupant_room_natural_vent_time']
+
+    room_mr, room_or, room_nr, room_uf = make_initial_rooms(
+        a_a=a_a, a_mr=a_mr, a_or=a_or, a_nr=a_nr, a_uf=a_uf, n=n, v_nv_mr=v_nv_mr, v_nv_or=v_nv_or)
+
+    boundaries_mr, boundaries_or, boundaries_nr, boundaries_uf = get_boundaries_general_part(region, gps_dict, gps)
+
+    room_mr['surface'].extend(boundaries_mr)
+    room_or['surface'].extend(boundaries_or)
+    room_nr['surface'].extend(boundaries_nr)
+    room_uf['surface'].extend(boundaries_uf)
+
+    boundaries_mr, boundaries_or, boundaries_nr, boundaries_uf = get_boundaries_windows(region, gw_lists)
+
+    room_mr['surface'].extend(boundaries_mr)
+    room_or['surface'].extend(boundaries_or)
+    room_nr['surface'].extend(boundaries_nr)
+    room_uf['surface'].extend(boundaries_uf)
+
+    d_calc_input['Rooms'] = rooms
+
+    d_calc_input['Rooms'] = integrate_doors_to_rooms(region, gd_lists, rooms)
+
+    d_calc_input['Rooms'] = integrate_earthfloorperimeters_to_rooms(region, ep_lists, rooms)
+
+    d_calc_input['Rooms'] = integrate_earthfloors_to_rooms(region, ec_lists, rooms)
+
+    d_calc_input['Rooms'] = integrate_innerwalls_to_rooms(region, d['InnerWalls'], rooms)
+
+    d_calc_input['Rooms'] = integrate_equipments_to_rooms(a_mr, a_or, equipment_main, equipment_other, rooms)
+
+
 if __name__ == '__main__':
 
+    d_indices = {
+        'common': {
+            'region': 6,
+            'house_type': 'detached',
+            'main_occupant_room_floor_area': 30.0,
+            'other_occupant_room_floor_area': 30.0,
+            'total_floor_area': 90.0,
+        },
+        'envelope': {
+            'input_method': 'index',
+            'total_area': 266.0962919879752,
+            'indices': {
+                'u_a': 0.87,
+                'eta_a_h': 2.8,
+                'eta_a_c': 1.4,
+            },
+        }
+    }
+
+    d_lv2 = convert_indices_to_lv2_info.convert_spec(d=d_indices)
+    print(d_lv2)
+    d_lv3 = convert_lv2_to_lv3.convert_spec(common=d_indices['common'], envelope=d_lv2)
+    print(d_lv3)
+    d_lv4 = convert_lv3_to_lv4.convert_spec(common=d_indices['common'], envelope=d_lv3)
+    print(d_lv4)
+
+    print('pass_OK')
     common = {
         'region': 6,
         'main_occupant_room_floor_area': 30.0,
@@ -833,228 +859,7 @@ if __name__ == '__main__':
         'ventilation': {
             'air_change_rate': 0.5,
         },
-        'envelope': {
-            'general_parts': [
-                {'name': 'Roof_other', 'next_space': 'OpenBackFloor', 'direction': 'Top', 'area': 16.95,
-                 'space': 'other_occupant_room', 'general_part_type': 'Roof',
-                 'structure': 'wood', 'InputMethod': 'InputUA', 'IsSunshadeInput': False, 'UA': 7.7},
-                {'name': 'Roof_nonliving', 'next_space': 'OpenBackFloor', 'direction': 'Top', 'area': 33.9,
-                 'space': 'non_occupant_room', 'general_part_type': 'Roof',
-                 'structure': 'wood', 'InputMethod': 'InputUA', 'IsSunshadeInput': False, 'UA': 7.7},
-                {'name': 'Wall_SW_main', 'next_space': 'OpenBackFloor', 'direction': 'SW', 'area': 10.1575,
-                 'space': 'main_occupant_room', 'general_part_type': 'Wall',
-                 'structure': 'wood', 'InputMethod': 'InputUA', 'IsSunshadeInput': False, 'UA': 6.67},
-                {'name': 'Wall_SW_other', 'next_space': 'OpenBackFloor', 'direction': 'SW', 'area': 10.1575,
-                 'space': 'other_occupant_room', 'general_part_type': 'Wall',
-                 'structure': 'wood', 'InputMethod': 'InputUA', 'IsSunshadeInput': False, 'UA': 6.67},
-                {'name': 'Wall_SW_nonliving', 'next_space': 'OpenBackFloor', 'direction': 'SW', 'area': 20.315,
-                 'space': 'non_occupant_room', 'general_part_type': 'Wall',
-                 'structure': 'wood', 'InputMethod': 'InputUA', 'IsSunshadeInput': False, 'UA': 6.67},
-                {'name': 'Wall_NW_main', 'next_space': 'OpenBackFloor', 'direction': 'NW', 'area': 7.4575,
-                 'space': 'main_occupant_room', 'general_part_type': 'Wall',
-                 'structure': 'wood', 'InputMethod': 'InputUA', 'IsSunshadeInput': False, 'UA': 6.67},
-                {'name': 'Wall_NW_other', 'next_space': 'OpenBackFloor', 'direction': 'NW', 'area': 7.4575,
-                 'space': 'other_occupant_room', 'general_part_type': 'Wall',
-                 'structure': 'wood', 'InputMethod': 'InputUA', 'IsSunshadeInput': False, 'UA': 6.67},
-                {'name': 'Wall_NW_nonliving', 'next_space': 'OpenBackFloor', 'direction': 'NW', 'area': 14.915,
-                 'space': 'non_occupant_room', 'general_part_type': 'Wall',
-                 'structure': 'wood', 'InputMethod': 'InputUA', 'IsSunshadeInput': False, 'UA': 6.67},
-                {'name': 'Wall_NE_main', 'next_space': 'OpenBackFloor', 'direction': 'NE', 'area': 15.9725,
-                 'space': 'main_occupant_room', 'general_part_type': 'Wall',
-                 'structure': 'wood', 'InputMethod': 'InputUA', 'IsSunshadeInput': False, 'UA': 6.67},
-                {'name': 'Wall_NE_other', 'next_space': 'OpenBackFloor', 'direction': 'NE', 'area': 15.9725,
-                 'space': 'other_occupant_room', 'general_part_type': 'Wall',
-                 'structure': 'wood', 'InputMethod': 'InputUA', 'IsSunshadeInput': False, 'UA': 6.67},
-                {'name': 'Wall_NE_nonliving', 'next_space': 'OpenBackFloor', 'direction': 'NE', 'area': 31.945,
-                 'space': 'non_occupant_room', 'general_part_type': 'Wall',
-                 'structure': 'wood', 'InputMethod': 'InputUA', 'IsSunshadeInput': False, 'UA': 6.67},
-                {'name': 'Wall_SE_main', 'next_space': 'OpenBackFloor', 'direction': 'SE', 'area': 7.4275,
-                 'space': 'main_occupant_room', 'general_part_type': 'Wall',
-                 'structure': 'wood', 'InputMethod': 'InputUA', 'IsSunshadeInput': False, 'UA': 6.67},
-                {'name': 'Wall_SE_other', 'next_space': 'OpenBackFloor', 'direction': 'SE', 'area': 7.4275,
-                 'space': 'other_occupant_room', 'general_part_type': 'Wall',
-                 'structure': 'wood', 'InputMethod': 'InputUA', 'IsSunshadeInput': False, 'UA': 6.67},
-                {'name': 'Wall_SE_nonliving', 'next_space': 'OpenBackFloor', 'direction': 'SE', 'area': 14.855,
-                 'space': 'non_occupant_room', 'general_part_type': 'Wall',
-                 'structure': 'wood', 'InputMethod': 'InputUA', 'IsSunshadeInput': False, 'UA': 6.67},
-                {'name': 'Floor_main', 'next_space': 'OpenBackFloor', 'direction': 'Bottom', 'area': 15.0175,
-                 'space': 'main_occupant_room', 'general_part_type': 'Floor',
-                 'structure': 'wood', 'InputMethod': 'InputUA', 'IsSunshadeInput': False, 'UA': 5.27},
-                {'name': 'Floor_other', 'next_space': 'OpenBackFloor', 'direction': 'Bottom', 'area': 15.0175,
-                 'space': 'other_occupant_room', 'general_part_type': 'Floor',
-                 'structure': 'wood', 'InputMethod': 'InputUA', 'IsSunshadeInput': False, 'UA': 5.27},
-                {'name': 'Floor_nonliving', 'next_space': 'OpenBackFloor', 'direction': 'Bottom', 'area': 30.035,
-                 'space': 'non_occupant_room', 'general_part_type': 'Floor',
-                 'structure': 'wood', 'InputMethod': 'InputUA', 'IsSunshadeInput': False, 'UA': 5.27},
-                {'name': 'Floor_bath_main', 'next_space': 'OpenBackFloor', 'direction': 'Bottom', 'area': 1.1025,
-                 'space': 'main_occupant_room', 'general_part_type': 'Floor',
-                 'structure': 'wood', 'InputMethod': 'InputUA', 'IsSunshadeInput': False, 'UA': 5.27},
-                {'name': 'Floor_bath_other', 'next_space': 'OpenBackFloor', 'direction': 'Bottom', 'area': 1.1025,
-                 'space': 'other_occupant_room', 'general_part_type': 'Floor',
-                 'structure': 'wood', 'InputMethod': 'InputUA', 'IsSunshadeInput': False, 'UA': 5.27},
-                {'name': 'Floor_bath_nonliving', 'next_space': 'OpenBackFloor', 'direction': 'Bottom', 'area': 2.205,
-                 'space': 'non_occupant_room', 'general_part_type': 'Floor',
-                 'structure': 'wood', 'InputMethod': 'InputUA', 'IsSunshadeInput': False, 'UA': 5.27},
-                {
-                    'name': 'Roof_main',
-                    'next_space': 'OpenBackFloor',
-                    'direction': 'Top',
-                    'IsInContactWithOutsideAir': True,
-                    'area': 16.95, 'space': 'main_occupant_room',
-                    'general_part_type': 'Roof',
-                    'structure': 'wood',
-                    'InputMethod': 'InputAllDetails',
-                    'Parts': [
-                        {'AreaRatio': 1.0, 'Layers': [{'name': 'wood', 'thick': 0.012, 'cond': 0.16, 'specH': None},
-                                                      {'name': 'wood', 'thick': 0.012, 'cond': 0.16, 'specH': 720}]}],
-                    'IsSunshadeInput': False, 'UA': 7.7
-                },
-            ],
-            'Windows': [
-                {'name': 'WindowSW_main', 'next_space': 'OpenBackFloor', 'direction': 'SW', 'area': 7.5625,
-                 'space': 'main_occupant_room', 'UW': 3.49,
-                 'IsSunshadeInput': True, 'TypeWindow': 'Single', 'EtaInputMethod': 'InputValue', 'Eta': 0.51,
-                 'TypeGlass': None,
-                 'Y1': 0, 'Y2': 1.1, 'Z': 0.348},
-                {'name': 'WindowSW_other', 'next_space': 'OpenBackFloor', 'direction': 'SW', 'area': 7.5625,
-                 'space': 'other_occupant_room', 'UW': 3.49,
-                 'IsSunshadeInput': True, 'TypeWindow': 'Single', 'EtaInputMethod': 'InputValue', 'Eta': 0.51,
-                 'TypeGlass': None,
-                 'Y1': 0, 'Y2': 1.1, 'Z': 0.348},
-                {'name': 'WindowSW_nonliving', 'next_space': 'OpenBackFloor', 'direction': 'SW', 'area': 15.125,
-                 'space': 'non_occupant_room', 'UW': 3.49,
-                 'IsSunshadeInput': True, 'TypeWindow': 'Single', 'EtaInputMethod': 'InputValue', 'Eta': 0.51,
-                 'TypeGlass': None,
-                 'Y1': 0, 'Y2': 1.1, 'Z': 0.348},
-                {'name': 'WindowNW_main', 'next_space': 'OpenBackFloor', 'direction': 'NW', 'area': 0.7925,
-                 'space': 'main_occupant_room', 'UW': 3.49,
-                 'IsSunshadeInput': True, 'TypeWindow': 'Single', 'EtaInputMethod': 'InputValue', 'Eta': 0.51,
-                 'TypeGlass': None,
-                 'Y1': 0, 'Y2': 1.1, 'Z': 0.316},
-                {'name': 'WindowNW_other', 'next_space': 'OpenBackFloor', 'direction': 'NW', 'area': 0.7925,
-                 'space': 'other_occupant_room', 'UW': 3.49,
-                 'IsSunshadeInput': True, 'TypeWindow': 'Single', 'EtaInputMethod': 'InputValue', 'Eta': 0.51,
-                 'TypeGlass': None,
-                 'Y1': 0, 'Y2': 1.1, 'Z': 0.316},
-                {'name': 'WindowNW_nonliving', 'next_space': 'OpenBackFloor', 'direction': 'NW', 'area': 1.585,
-                 'space': 'non_occupant_room', 'UW': 3.49,
-                 'IsSunshadeInput': True, 'TypeWindow': 'Single', 'EtaInputMethod': 'InputValue', 'Eta': 0.51,
-                 'TypeGlass': None,
-                 'Y1': 0, 'Y2': 1.1, 'Z': 0.316},
-                {'name': 'WindowNE_main', 'next_space': 'OpenBackFloor', 'direction': 'NE', 'area': 1.21,
-                 'space': 'main_occupant_room', 'UW': 3.49,
-                 'IsSunshadeInput': True, 'TypeWindow': 'Single', 'EtaInputMethod': 'InputValue', 'Eta': 0.51,
-                 'TypeGlass': None,
-                 'Y1': 0, 'Y2': 1.1, 'Z': 0.316},
-                {'name': 'WindowNE_other', 'next_space': 'OpenBackFloor', 'direction': 'NE', 'area': 1.21,
-                 'space': 'other_occupant_room', 'UW': 3.49,
-                 'IsSunshadeInput': True, 'TypeWindow': 'Single', 'EtaInputMethod': 'InputValue', 'Eta': 0.51,
-                 'TypeGlass': None,
-                 'Y1': 0, 'Y2': 1.1, 'Z': 0.316},
-                {'name': 'WindowNE_nonliving', 'next_space': 'OpenBackFloor', 'direction': 'NE', 'area': 2.42,
-                 'space': 'non_occupant_room', 'UW': 3.49,
-                 'IsSunshadeInput': True, 'TypeWindow': 'Single', 'EtaInputMethod': 'InputValue', 'Eta': 0.51,
-                 'TypeGlass': None,
-                 'Y1': 0, 'Y2': 1.1, 'Z': 0.316},
-                {'name': 'WindowSE_main', 'next_space': 'OpenBackFloor', 'direction': 'SE', 'area': 1.4575,
-                 'space': 'main_occupant_room', 'UW': 3.49,
-                 'IsSunshadeInput': True, 'TypeWindow': 'Single', 'EtaInputMethod': 'InputValue', 'Eta': 0.51,
-                 'TypeGlass': None,
-                 'Y1': 0, 'Y2': 1.1, 'Z': 0.348},
-                {'name': 'WindowSE_other', 'next_space': 'OpenBackFloor', 'direction': 'SE', 'area': 1.4575,
-                 'space': 'other_occupant_room', 'UW': 3.49,
-                 'IsSunshadeInput': True, 'TypeWindow': 'Single', 'EtaInputMethod': 'InputValue', 'Eta': 0.51,
-                 'TypeGlass': None,
-                 'Y1': 0, 'Y2': 1.1, 'Z': 0.348},
-                {'name': 'WindowSE_nonliving', 'next_space': 'OpenBackFloor', 'direction': 'SE', 'area': 2.915,
-                 'space': 'non_occupant_room', 'UW': 3.49,
-                 'IsSunshadeInput': True, 'TypeWindow': 'Single', 'EtaInputMethod': 'InputValue', 'Eta': 0.51,
-                 'TypeGlass': None,
-                 'Y1': 0, 'Y2': 1.1, 'Z': 0.348}
-            ],
-            'Doors': [
-                {'name': 'DoorNW_main', 'next_space': 'OpenBackFloor', 'direction': 'NW', 'area': 0.63,
-                 'space': 'main_occupant_room', 'U': 4.65, 'IsSunshadeInput': False},
-                {'name': 'DoorNW_other', 'next_space': 'OpenBackFloor', 'direction': 'NW', 'area': 0.63,
-                 'space': 'other_occupant_room', 'U': 4.65, 'IsSunshadeInput': False},
-                {'name': 'DoorNW_nonliving', 'next_space': 'OpenBackFloor', 'direction': 'NW', 'area': 1.26,
-                 'space': 'non_occupant_room', 'U': 4.65, 'IsSunshadeInput': False},
-                {'name': 'DoorNE_main', 'next_space': 'OpenBackFloor', 'direction': 'NE', 'area': 0.54,
-                 'space': 'main_occupant_room', 'U': 4.65, 'IsSunshadeInput': False},
-                {'name': 'DoorNE_other', 'next_space': 'OpenBackFloor', 'direction': 'NE', 'area': 0.54,
-                 'space': 'other_occupant_room', 'U': 4.65, 'IsSunshadeInput': False},
-                {'name': 'DoorNE_nonliving', 'next_space': 'OpenBackFloor', 'direction': 'NE', 'area': 1.08,
-                 'space': 'non_occupant_room', 'U': 4.65, 'IsSunshadeInput': False}
-            ],
-            'EarthfloorPerimeters': [
-                {'next_space': 'OpenBackFloor', 'direction': 'NW', 'length': 2.43, 'name': 'Entrance_NW', 'psi': 1.8,
-                 'space': 'underfloor'},
-                {'next_space': 'OpenBackFloor', 'direction': 'NE', 'length': 1.83, 'name': 'Entrance_NE', 'psi': 1.8,
-                 'space': 'underfloor'},
-                {'next_space': 'OpenBackFloor', 'direction': 'OpenBackFloor', 'length': 4.25, 'name': 'Entrance_floor',
-                 'psi': 1.8, 'space': 'underfloor'}
-            ],
-            'earthfloor_centers': [
-                {'name': 'earthfloor', 'area': 3.24, 'space_type': 'underfloor'}
-            ],
-            'InnerWalls': [
-                {'name': 'GroundFloor_main', 'type': 'GroundFloor', 'direction': 'Horizontal', 'area': 0.81,
-                 'Layers': [{'name': 'PED', 'cond': 0.16, 'thick': 0.012, 'specH': 720.0}],
-                 'space': 'main_occupant_room', 'next_space': 'underfloor'},
-                {'name': 'GroundFloor_main', 'type': 'GroundFloor', 'direction': 'Horizontal', 'area': 0.81,
-                 'Layers': [{'name': 'PED', 'cond': 0.16, 'thick': 0.012, 'specH': 720.0}],
-                 'space': 'underfloor', 'next_space': 'main_occupant_room'},
-                {'name': 'GroundFloor_other', 'type': 'GroundFloor', 'direction': 'Horizontal', 'area': 0.81,
-                 'Layers': [{'name': 'PED', 'cond': 0.16, 'thick': 0.012, 'specH': 720.0}],
-                 'space': 'other_occupant_room', 'next_space': 'underfloor'},
-                {'name': 'GroundFloor_other', 'type': 'GroundFloor', 'direction': 'Horizontal', 'area': 0.81,
-                 'Layers': [{'name': 'PED', 'cond': 0.16, 'thick': 0.012, 'specH': 720.0}],
-                 'space': 'underfloor', 'next_space': 'other_occupant_room'},
-                {'name': 'GroundFloor_nonliving', 'type': 'GroundFloor', 'direction': 'Horizontal', 'area': 1.62,
-                 'Layers': [{'name': 'PED', 'cond': 0.16, 'thick': 0.012, 'specH': 720.0}],
-                 'space': 'non_occupant_room', 'next_space': 'underfloor'},
-                {'name': 'GroundFloor_nonliving', 'type': 'GroundFloor', 'direction': 'Horizontal', 'area': 1.62,
-                 'Layers': [{'name': 'PED', 'cond': 0.16, 'thick': 0.012, 'specH': 720.0}],
-                 'space': 'underfloor', 'next_space': 'non_occupant_room'},
-                {'name': 'InnerFloor_main', 'type': 'InnerFloor', 'direction': 'Horizontal', 'area': 10.0,
-                 'Layers': [{'name': 'PED', 'cond': 0.16, 'thick': 0.012, 'specH': 720.0}],
-                 'space': 'main_occupant_room', 'next_space': 'other_occupant_room'},
-                {'name': 'InnerFloor_main', 'type': 'InnerFloor', 'direction': 'Horizontal', 'area': 20.0,
-                 'Layers': [{'name': 'PED', 'cond': 0.16, 'thick': 0.012, 'specH': 720.0}],
-                 'space': 'main_occupant_room', 'next_space': 'non_occupant_room'},
-                {'name': 'InnerFloor_other', 'type': 'InnerFloor', 'direction': 'Horizontal', 'area': 10.0,
-                 'Layers': [{'name': 'PED', 'cond': 0.16, 'thick': 0.012, 'specH': 720.0}],
-                 'space': 'other_occupant_room', 'next_space': 'main_occupant_room'},
-                {'name': 'InnerFloor_other', 'type': 'InnerFloor', 'direction': 'Horizontal', 'area': 20.0,
-                 'Layers': [{'name': 'PED', 'cond': 0.16, 'thick': 0.012, 'specH': 720.0}],
-                 'space': 'other_occupant_room', 'next_space': 'non_occupant_room'},
-                {'name': 'InnerFloor_nonliving', 'type': 'InnerFloor', 'direction': 'Horizontal', 'area': 30.0,
-                 'Layers': [{'name': 'PED', 'cond': 0.16, 'thick': 0.012, 'specH': 720.0}],
-                 'space': 'non_occupant_room', 'next_space': 'main_occupant_room'},
-                {'name': 'InnerFloor_nonliving', 'type': 'InnerFloor', 'direction': 'Horizontal', 'area': 30.0,
-                 'Layers': [{'name': 'PED', 'cond': 0.16, 'thick': 0.012, 'specH': 720.0}],
-                 'space': 'non_occupant_room', 'next_space': 'other_occupant_room'},
-                {'name': 'InnerCeiling_main', 'type': 'InnerCeiling', 'direction': 'Horizontal', 'area': 10.0,
-                 'Layers': [{'name': 'PED', 'cond': 0.16, 'thick': 0.012, 'specH': 720.0}],
-                 'space': 'main_occupant_room', 'next_space': 'other_occupant_room'},
-                {'name': 'InnerCeiling_main', 'type': 'InnerCeiling', 'direction': 'Horizontal', 'area': 20.0,
-                 'Layers': [{'name': 'PED', 'cond': 0.16, 'thick': 0.012, 'specH': 720.0}],
-                 'space': 'main_occupant_room', 'next_space': 'non_occupant_room'},
-                {'name': 'InnerCeiling_other', 'type': 'InnerCeiling', 'direction': 'Horizontal', 'area': 10.0,
-                 'Layers': [{'name': 'PED', 'cond': 0.16, 'thick': 0.012, 'specH':
-                     720.0}],
-                 'space': 'other_occupant_room', 'next_space': 'main_occupant_room'},
-                {'name': 'InnerCeiling_other', 'type': 'InnerCeiling', 'direction': 'Horizontal', 'area': 20.0,
-                 'Layers': [{'name': 'PED', 'cond': 0.16, 'thick': 0.012, 'specH': 720.0}],
-                 'space': 'other_occupant_room', 'next_space': 'non_occupant_room'},
-                {'name': 'InnerCeiling_nonliving', 'type': 'InnerCeiling', 'direction': 'Horizontal', 'area': 30.0,
-                 'Layers': [{'name': 'PED', 'cond': 0.16, 'thick': 0.012, 'specH': 720.0}],
-                 'space': 'non_occupant_room', 'next_space': 'main_occupant_room'},
-                {'name': 'InnerCeiling_nonliving', 'type': 'InnerCeiling', 'direction': 'Horizontal', 'area': 30.0,
-                 'Layers': [{'name': 'PED', 'cond': 0.16, 'thick': 0.012, 'specH': 720.0}],
-                 'space': 'non_occupant_room', 'next_space': 'other_occupant_room'}
-            ]
-        }
+        'envelope': d_lv4
     }
 
     equipment_main = {
@@ -1083,7 +888,7 @@ if __name__ == '__main__':
         'other_occupant_room_natural_vent_time': '5ACH'
     }
 
-    result1 = convert(
+    result1 = convert_lv4_to_initializer(
         common=common,
         envelope=d['envelope'],
         d=d,

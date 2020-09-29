@@ -18,11 +18,13 @@ from heat_load_calc.convert.a_01_03_general_part_area_ratio_method \
     import get_wood_general_part_spec_hlc as a_01_03_get_wood_general_part_spec_hlc
 from heat_load_calc.convert.a_06_common_items import get_r_surf as a_06_get_r_surf
 
+from heat_load_calc.convert import ees_house
 
-def get_general_part_spec_hlc(gp: Dict) -> List[Tuple]:
+def get_general_part_spec_hlc(gp_dict: Dict, gp: ees_house.GeneralPart) -> List[Tuple]:
     """
 
     Args:
+        gp_dict: 一般部位
         gp: 一般部位
 
     Returns:
@@ -33,9 +35,9 @@ def get_general_part_spec_hlc(gp: Dict) -> List[Tuple]:
             (4) U値, W/m2K
     """
 
-    gp_type = gp['general_part_type']
-    next_space = gp['next_space']
-    spec = gp['spec']
+    gp_type = gp_dict['general_part_type']
+    next_space = gp_dict['next_space']
+    spec = gp_dict['spec']
     structure = spec['structure']
 
     r_surf_i, r_surf_o = a_06_get_r_surf(general_part_type=gp_type, next_space=next_space)
@@ -95,7 +97,7 @@ def get_general_part_spec_hlc(gp: Dict) -> List[Tuple]:
         elif method_steel == 'detail_method':
 
             return a_01_02_get_steel_general_part_spec_hlc(
-                u_r_steel=gp['u_r_value_steel'], parts=spec['parts'], r_surf_i=r_surf_i, r_surf_o=r_surf_o)
+                u_r_steel=gp_dict['u_r_value_steel'], parts=spec['parts'], r_surf_i=r_surf_i, r_surf_o=r_surf_o)
 
         else:
 
