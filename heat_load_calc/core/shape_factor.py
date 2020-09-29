@@ -95,7 +95,7 @@ def get_fb(a):
             L_m_n += get_L(_a, m_n)
         # print(i, 'm=', m, 'L_m=', L_m, 'n=', n, 'L_n=', L_n, 'm_n=', m_n, 'L_m_n=', L_m_n)
         # 収束判定
-        if abs(L_m_n) < 1.e-4:  # 式(100)
+        if abs(L_m_n) < 1.e-8:  # 式(100)
             isConverge = True
             break
 

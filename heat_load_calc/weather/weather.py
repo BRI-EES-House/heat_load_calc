@@ -3,27 +3,60 @@ import pandas as pd
 from heat_load_calc.weather import weather_data
 from heat_load_calc.weather import region_location
 from heat_load_calc.weather import solar_position
+from heat_load_calc.weather import calc_interval
 
 
-def make_weather(region: int, output_data_dir: str = None, csv_output: bool = False):
+def make_weather(region: int, output_data_dir: str = None, csv_output: bool = False, interval: str = '15m'):
+    """
+    気象データを作成する。
+    Args:
+        region: 地域の区分
+        output_data_dir: 気象データを出力するディレクトリ名
+        csv_output: 気象データの出力の有無
+        interval: 生成するデータの時間間隔であり、以下の文字列で指定する。（デフォルト値は'15m'）
+            1h: 1時間間隔
+            30m: 30分間隔
+            15m: 15分間隔
+    Returns:
+        作成された気象データ（pandas DataFrame 形式）
+    Notes:
+        csv_output が True のときのみ、 output_data_dir を指定する。
+        output_data_dir で指定したディレクトリは実行ファイルがあるフォルダ内に作成される。
+    """
 
     # 気象データの読み込み
-    #   (1)ステップnにおける外気温度, ℃, [8760 * 4]
-    #   (2)ステップnにおける法線面直達日射量, W/m2, [8760 * 4]
-    #   (3)ステップnにおける水平面天空日射量, W/m2, [8760 * 4]
-    #   (4)ステップnにおける夜間放射量, W/m2, [8760 * 4]
-    #   (5)ステップnにおける外気絶対湿度, kg/kgDA, [8760 * 4]
-    theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, x_o_ns = weather_data.load(region=region)
+    #   (1)ステップnにおける外気温度, degree C [n]
+    #   (2)ステップnにおける法線面直達日射量, W/m2 [n]
+    #   (3)ステップnにおける水平面天空日射量, W/m2 [n]
+    #   (4)ステップnにおける夜間放射量, W/m2 [n]
+    #   (5)ステップnにおける外気絶対湿度, kg/kgDA [n]
+    # インターバルごとの要素数について
+    #   interval = '1h' -> n = 8760
+    #   interval = '30m' -> n = 8760 * 2
+    #   interval = '15m' -> n = 8760 * 4
+    theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, x_o_ns = weather_data.load(region=region, interval=interval)
 
     # 緯度, rad & 経度, rad
     phi_loc, lambda_loc = region_location.get_phi_loc_and_lambda_loc(region=region)
 
     # 太陽位置
-    #   (1) ステップnにおける太陽高度, rad, [8760 * 96]
-    #   (2) ステップnにおける太陽方位角, rad, [8760 * 96]
-    h_sun_ns, a_sun_ns = solar_position.calc_solar_position(phi_loc=phi_loc, lambda_loc=lambda_loc)
+    #   (1) ステップnにおける太陽高度, rad [n]
+    #   (2) ステップnにおける太陽方位角, rad [n]
+    h_sun_ns, a_sun_ns = solar_position.calc_solar_position(phi_loc=phi_loc, lambda_loc=lambda_loc, interval=interval)
 
-    dd = pd.DataFrame(index=pd.date_range(start='1/1/1989', periods=365*96, freq='15min'))
+    # インターバル指定文字をpandasのfreq引数に文字変換する。
+    freq = {
+        '15m': '15min',
+        '30m': '30min',
+        '1h': 'H'
+    }[interval]
+
+    # 1時間を何分割するのかを取得する。
+    n_hour = calc_interval.get_n_hour(interval=interval)
+
+    # 時系列インデクスの作成
+    dd = pd.DataFrame(index=pd.date_range(start='1/1/1989', periods=8760*n_hour, freq=freq))
+
     dd['temperature'] = theta_o_ns.round(3)
     dd['absolute humidity'] = x_o_ns.round(6)
     dd['normal direct solar radiation'] = i_dn_ns

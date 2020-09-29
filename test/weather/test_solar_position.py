@@ -53,29 +53,81 @@ class TestSolarPosition(unittest.TestCase):
 
         # endregion
 
-        # プログラムで計算された値
-        h_sun_ns, a_sun_ns = t.calc_solar_position(phi_loc=math.radians(43.82), lambda_loc=math.radians(143.91))
+        # プログラムで計算された値（1時間間隔）
+        h_sun_ns_1h, a_sun_ns_1h = t.calc_solar_position(
+            phi_loc=math.radians(43.82),
+            lambda_loc=math.radians(143.91),
+            interval='1h'
+        )
+
+        # プログラムで計算された値（15分間隔）
+        h_sun_ns_30m, a_sun_ns_30m = t.calc_solar_position(
+            phi_loc=math.radians(43.82),
+            lambda_loc=math.radians(143.91),
+            interval='30m'
+        )
+
+        # プログラムで計算された値（15分間隔）
+        h_sun_ns_15m, a_sun_ns_15m = t.calc_solar_position(
+            phi_loc=math.radians(43.82),
+            lambda_loc=math.radians(143.91),
+            interval='15m'
+        )
 
         # 1/1 0:00
-        self.assertAlmostEqual(h_sun[0], h_sun_ns[0], delta=0.00001)
-        self.assertAlmostEqual(a_sun[0], a_sun_ns[0], delta=0.00001)
+        self.assertAlmostEqual(h_sun[0], h_sun_ns_1h[0], delta=0.00001)
+        self.assertAlmostEqual(a_sun[0], a_sun_ns_1h[0], delta=0.00001)
+        self.assertAlmostEqual(h_sun[0], h_sun_ns_30m[0], delta=0.00001)
+        self.assertAlmostEqual(a_sun[0], a_sun_ns_30m[0], delta=0.00001)
+        self.assertAlmostEqual(h_sun[0], h_sun_ns_15m[0], delta=0.00001)
+        self.assertAlmostEqual(a_sun[0], a_sun_ns_15m[0], delta=0.00001)
 
         # 1/1 12:00
-        self.assertAlmostEqual(h_sun[1], h_sun_ns[48], delta=0.00001)
-        self.assertAlmostEqual(a_sun[1], a_sun_ns[48], delta=0.00001)
+        self.assertAlmostEqual(h_sun[1], h_sun_ns_1h[12], delta=0.00001)
+        self.assertAlmostEqual(a_sun[1], a_sun_ns_1h[12], delta=0.00001)
+        self.assertAlmostEqual(h_sun[1], h_sun_ns_30m[24], delta=0.00001)
+        self.assertAlmostEqual(a_sun[1], a_sun_ns_30m[24], delta=0.00001)
+        self.assertAlmostEqual(h_sun[1], h_sun_ns_15m[48], delta=0.00001)
+        self.assertAlmostEqual(a_sun[1], a_sun_ns_15m[48], delta=0.00001)
 
         # 1/2 12:00
-        self.assertAlmostEqual(h_sun[2], h_sun_ns[144], delta=0.00001)
-        self.assertAlmostEqual(a_sun[2], a_sun_ns[144], delta=0.00001)
+        self.assertAlmostEqual(h_sun[2], h_sun_ns_1h[36], delta=0.00001)
+        self.assertAlmostEqual(a_sun[2], a_sun_ns_1h[36], delta=0.00001)
+        self.assertAlmostEqual(h_sun[2], h_sun_ns_30m[72], delta=0.00001)
+        self.assertAlmostEqual(a_sun[2], a_sun_ns_30m[72], delta=0.00001)
+        self.assertAlmostEqual(h_sun[2], h_sun_ns_15m[144], delta=0.00001)
+        self.assertAlmostEqual(a_sun[2], a_sun_ns_15m[144], delta=0.00001)
 
     def test_solar_position_length(self):
 
         # プログラムで計算された値
-        h_sun_ns, a_sun_ns = t.calc_solar_position(phi_loc=math.radians(43.82), lambda_loc=math.radians(143.91))
+        h_sun_ns_1h, a_sun_ns_1h = t.calc_solar_position(
+            phi_loc=math.radians(43.82),
+            lambda_loc=math.radians(143.91),
+            interval='1h'
+        )
+        h_sun_ns_30m, a_sun_ns_30m = t.calc_solar_position(
+            phi_loc=math.radians(43.82),
+            lambda_loc=math.radians(143.91),
+            interval='30m'
+        )
+        h_sun_ns_15m, a_sun_ns_15m = t.calc_solar_position(
+            phi_loc=math.radians(43.82),
+            lambda_loc=math.radians(143.91),
+            interval='15m'
+        )
+
+        # 配列長さが、1時間間隔、8760 であることの確認
+        self.assertEqual(8760, len(h_sun_ns_1h))
+        self.assertEqual(8760, len(a_sun_ns_1h))
+
+        # 配列長さが、30分間隔、8760 * 2 であることの確認
+        self.assertEqual(8760 * 2, len(h_sun_ns_30m))
+        self.assertEqual(8760 * 2, len(a_sun_ns_30m))
 
         # 配列長さが、15分間隔、8760*4 であることの確認
-        self.assertEqual(8760*4, np.alen(h_sun_ns))
-        self.assertEqual(8760*4, np.alen(a_sun_ns))
+        self.assertEqual(8760 * 4, len(h_sun_ns_15m))
+        self.assertEqual(8760 * 4, len(a_sun_ns_15m))
 
 
 if __name__ == '__main__':

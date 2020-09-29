@@ -1,46 +1,49 @@
 import copy
 import math
 import numpy
+from typing import Dict
 
-from common import get_a_f_nr
 
-
-# 開口部比率, -
-def get_ratio_window(house_type):
+def get_ratio_window(house_type: str) -> (Dict, float):
+    """
+    開口部比率を取得する。
+    Args:
+        house_type: 住宅の種類
+            'detached': 戸建て
+            'condominium': 集合住宅
+    Returns:
+        以下のタプル
+            (1) 窓の方位別比率
+            (2) 窓の面積の合計値の外皮に対する比率
+    """
 
     ratio_window = {
-        'detached': {
-            'total': 0.11,
-            'direction': {'top': 0.000, 'n': 0.110, 's': 0.686, 'e': 0.132, 'w': 0.072}
-        },
-        'condominium': {
-            'total': 0.07,
-            'direction': {'top': 0.000, 'n': 0.215, 's': 0.633, 'e': 0.000, 'w': 0.152}
-        }
-    }
+        'detached': {'top': 0.000, 'n': 0.110, 's': 0.686, 'e': 0.132, 'w': 0.072},
+        'condominium': {'top': 0.000, 'n': 0.215, 's': 0.633, 'e': 0.000, 'w': 0.152}
+    }[house_type]
 
     total_ratio = {
         'detached': 0.11,
         'condominium': 0.07,
     }[house_type]
 
-    return ratio_window[house_type], total_ratio
+    return ratio_window, total_ratio
 
 
 def get_area_windows(house_type, area_total_skin):
 
-    # 開口部比率, -
+    # 方位別の開口部の比率, 開口部比率
     ratio_window, total_ratio = get_ratio_window(house_type)
 
     # 開口部面積, m
     area_window = total_ratio * area_total_skin
 
     area_windows = {
-        'top': area_window * ratio_window['direction']['top'],
-        'n': area_window * ratio_window['direction']['n'],
-        's': area_window * ratio_window['direction']['s'],
-        'e': area_window * ratio_window['direction']['e'],
-        'w': area_window * ratio_window['direction']['w'],
+        'top': area_window * ratio_window['top'],
+        'n': area_window * ratio_window['n'],
+        's': area_window * ratio_window['s'],
+        'e': area_window * ratio_window['e'],
+        'w': area_window * ratio_window['w'],
     }
 
     return area_windows
@@ -48,7 +51,7 @@ def get_area_windows(house_type, area_total_skin):
 
 def get_list_general_parts(area_general_parts):
     correspondence = {
-        'type': {'ceiling': 'ceiling', 'floor': 'floor', 'wall_n': 'wall', 'wall_s': 'wall', 'wall_e': 'Wall',
+        'type': {'ceiling': 'ceiling', 'floor': 'floor', 'wall_n': 'wall', 'wall_s': 'wall', 'wall_e': 'wall',
                  'wall_w': 'wall'},
         'direction': {'ceiling': 'top', 'floor': 'bottom', 'wall_n': 'n', 'wall_s': 's', 'wall_e': 'e', 'wall_w': 'w'}
     }
@@ -122,6 +125,24 @@ def get_a_d_wind(area, area_max):
 
 # 戸建住宅の面積算出
 def get_area_detached(h_f, area_windows, a_f_mr, a_f_or, a_f_nr, a_f, r_a_f_mr, r_a_f_or, r_a_f_nr, a_long, a_short):
+    """
+
+    Args:
+        h_f:
+        area_windows:
+        a_f_mr:
+        a_f_or:
+        a_f_nr:
+        a_f:
+        r_a_f_mr:
+        r_a_f_or:
+        r_a_f_nr:
+        a_long:
+        a_short:
+
+    Returns:
+
+    """
 
     n = len(h_f)
 
@@ -278,8 +299,9 @@ def get_area_attached(h_f, area_windows, a_f_mr, a_f_or, a_f_nr, a_f, r_a_f_mr, 
     }
 
 
-def get_area(a_f_total, a_f_mr, a_f_or, a_evlp_total, house_type):
+def get_area(a_f_total, a_f_mr, a_f_or, a_evp_total, house_type):
 
+    # 非居室の床面積, m2
     a_f_nr = get_a_f_nr(a_f_total, a_f_mr, a_f_or)
 
     # 階高
@@ -301,7 +323,7 @@ def get_area(a_f_total, a_f_mr, a_f_or, a_evlp_total, house_type):
     #   短手方向, m
     #   長手方向, m
     #   周長の合計, m
-    l_short, l_long, l_total = get_geometry(a_evlp_total, a_f, h_total)
+    l_short, l_long, l_total = get_geometry(a_evp_total, a_f, h_total)
 
     # 基準住戸の総外皮面積の算出
     area_total_skin = l_total * h_total + 2 * a_f
@@ -337,8 +359,22 @@ def get_area(a_f_total, a_f_mr, a_f_or, a_evlp_total, house_type):
     return general_parts, windows, inner_walls
 
 
+def get_a_f_nr(a_f_total: float, a_f_mr: float, a_f_or: float) -> float:
+    """
+    非居室の床面積を計算する。
+    Args:
+        a_f_total: 床面積の合計, m2
+        a_f_mr: 主たる居室の床面積, m2
+        a_f_or: その他の居室の床面積, m2
+    Returns:
+        非居室の床面積, m2
+    """
+
+    return a_f_total - a_f_mr - a_f_or
+
+
 if __name__ == '__main__':
 
-    result = get_area(a_f_total=120.0, a_f_mr=60.0, a_f_or=30.0, a_evlp_total=360.0, house_type='detached')
+    result = get_area(a_f_total=120.0, a_f_mr=60.0, a_f_or=30.0, a_evp_total=360.0, house_type='detached')
 
     print(result)

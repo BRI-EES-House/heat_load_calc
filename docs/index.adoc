@@ -25,6 +25,13 @@
 
 == 仕様書
 
+include::calc_spec/appendix_a.adoc[]
+include::calc_spec/appendix_b.adoc[]
+include::calc_spec/appendix_x03.adoc[]
+include::calc_spec/appendix_x05.adoc[]
+include::calc_spec/appendix_x06.adoc[]
+include::calc_spec/appendix_x10.adoc[]
+
 == 式の導出
 
 include::derivation/vapour_balance.adoc[]
