@@ -44,18 +44,18 @@ class TestSteadyState(unittest.TestCase):
     # 室空気温[℃]のテスト
     def test_room_temp(self):
 
-        self.assertAlmostEqual(4.57216538442016, self._dd['rm0_t_r']['1989-12-31 00:00:00'])
+        self.assertAlmostEqual(4.57208812799, self._dd['rm0_t_r']['1989-12-31 00:00:00'])
 
     # 室内側表面熱流[W/m2]のテスト
     def test_heat_flow(self):
 
-        self.assertAlmostEqual(12.7809215840823, self._dd['rm0_b1_qiall_s']['1989-12-31 00:00:00'])
-        self.assertAlmostEqual(36.6603790528621, self._dd['rm0_b4_qiall_s']['1989-12-31 00:00:00'])
-        self.assertAlmostEqual(12.2159346084176, self._dd['rm0_b5_qiall_s']['1989-12-31 00:00:00'])
+        self.assertAlmostEqual(12.7809215858034, self._dd['rm0_b1_qiall_s']['1989-12-31 00:00:00'])
+        self.assertAlmostEqual(36.6603790546126, self._dd['rm0_b4_qiall_s']['1989-12-31 00:00:00'])
+        self.assertAlmostEqual(12.2159346101681, self._dd['rm0_b5_qiall_s']['1989-12-31 00:00:00'])
 
     # 表面温度[℃]のテスト
     def test_surface_temp(self):
 
-        self.assertAlmostEqual(1.34268391303035, self._dd['rm0_b1_t_s']['1989-12-31 00:00:00'])
-        self.assertAlmostEqual(4.2159435914795, self._dd['rm0_b4_t_s']['1989-12-31 00:00:00'])
-        self.assertAlmostEqual(1.40483248036838, self._dd['rm0_b5_t_s']['1989-12-31 00:00:00'])
+        self.assertAlmostEqual(1.34268391264, self._dd['rm0_b1_t_s']['1989-12-31 00:00:00'])
+        self.assertAlmostEqual(4.21594359107, self._dd['rm0_b4_t_s']['1989-12-31 00:00:00'])
+        self.assertAlmostEqual(1.40483247996, self._dd['rm0_b5_t_s']['1989-12-31 00:00:00'])
