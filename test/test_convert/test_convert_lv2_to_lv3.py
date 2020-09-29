@@ -5,6 +5,11 @@ import heat_load_calc.convert.convert_lv2_to_lv3 as t
 
 class TestConvertLv2toLv3(unittest.TestCase):
 
+    @classmethod
+    def setUpClass(cls) -> None:
+
+        print('\n testing convert lv2 to lv3')
+
     def test_get_separated_areas(self):
 
         areas = t.get_separated_areas(75.0, 20.0, 50.0, 100.0)

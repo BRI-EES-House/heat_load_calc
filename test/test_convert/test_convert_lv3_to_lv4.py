@@ -5,6 +5,10 @@ import heat_load_calc.convert.convert_lv3_to_lv4 as nb
 
 class TestLV3toLV4(unittest.TestCase):
 
+    @classmethod
+    def setUpClass(cls) -> None:
+        print('\n testing convert lv3 to lv4')
+
     ### get_inner_floor_spec 関数のテスト ###
 
     def test_get_inner_floor_spec(self):

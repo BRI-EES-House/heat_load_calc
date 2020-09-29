@@ -4,6 +4,10 @@ import heat_load_calc.convert.model_house as mh
 
 class TestModelHouseShapeFactor(unittest.TestCase):
 
+    @classmethod
+    def setUpClass(cls) -> None:
+        print('\n testing convert model house shape factor')
+
     def setUp(self):
         self.dfb = mh.calc_area(
             house_type='detached', a_f_total=90.0, r_open=0.14, floor_ins_type='floor', bath_ins_type='base',
@@ -33,6 +37,10 @@ class TestModelHouseShapeFactor(unittest.TestCase):
 
 
 class TestModelHouseResults(unittest.TestCase):
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        print('\n testing convert model house results')
 
     def setUp(self):
 

@@ -7,6 +7,8 @@ class TestConvertIndicesToLv2Info(unittest.TestCase):
 
     def test_convert_spec(self):
 
+        print('\n testing convert indices to lv2')
+
         input_data_1 = {
             'common': {
                 'region': 6,
