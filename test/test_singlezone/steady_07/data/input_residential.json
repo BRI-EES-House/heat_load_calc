@@ -34,8 +34,8 @@
 	"boundaries": [
 		{
 			"id": 0,
-			"name": "north_exterior_wall",
-			"boundary_type": "external_general_part",
+			"name": "north_exterior_window",
+			"boundary_type": "external_transparent_part",
 			"connected_room_id": 0,
 			"area": 1.0,
 			"is_sun_striked_outside": true,
@@ -43,24 +43,19 @@
 			"direction": "n",
 			"is_solar_absorbed_inside": false,
 			"outside_emissivity": 0.9,
-			"outside_solar_absorption": 0.8,
 			"inside_heat_transfer_resistance": 0.11,
 			"outside_heat_transfer_resistance": 0.04,
-			"layers": [
-				{
-					"name": "plywood",
-					"thermal_resistance": 0.075,
-					"thermal_capacity": 8.64
-				}
-			],
+			"incident_angle_characteristics": "multiple",
+			"eta_value": 0.792,
+			"u_value": 4.65,
 			"solar_shading_part": {
 				"existence": false
 			}
 		},
 		{
 			"id": 1,
-			"name": "east_exterior_wall",
-			"boundary_type": "external_general_part",
+			"name": "east_exterior_window",
+			"boundary_type": "external_transparent_part",
 			"connected_room_id": 0,
 			"area": 1.0,
 			"is_sun_striked_outside": true,
@@ -68,24 +63,19 @@
 			"direction": "e",
 			"is_solar_absorbed_inside": false,
 			"outside_emissivity": 0.9,
-			"outside_solar_absorption": 0.8,
 			"inside_heat_transfer_resistance": 0.11,
 			"outside_heat_transfer_resistance": 0.04,
-			"layers": [
-				{
-					"name": "plywood",
-					"thermal_resistance": 0.075,
-					"thermal_capacity": 8.64
-				}
-			],
+			"incident_angle_characteristics": "multiple",
+			"eta_value": 0.792,
+			"u_value": 4.65,
 			"solar_shading_part": {
 				"existence": false
 			}
 		},
 		{
 			"id": 2,
-			"name": "south_exterior_wall",
-			"boundary_type": "external_general_part",
+			"name": "south_exterior_window",
+			"boundary_type": "external_transparent_part",
 			"connected_room_id": 0,
 			"area": 1.0,
 			"is_sun_striked_outside": true,
@@ -93,24 +83,19 @@
 			"direction": "s",
 			"is_solar_absorbed_inside": false,
 			"outside_emissivity": 0.9,
-			"outside_solar_absorption": 0.8,
 			"inside_heat_transfer_resistance": 0.11,
 			"outside_heat_transfer_resistance": 0.04,
-			"layers": [
-				{
-					"name": "plywood",
-					"thermal_resistance": 0.075,
-					"thermal_capacity": 8.64
-				}
-			],
+			"incident_angle_characteristics": "multiple",
+			"eta_value": 0.792,
+			"u_value": 4.65,
 			"solar_shading_part": {
 				"existence": false
 			}
 		},
 		{
 			"id": 3,
-			"name": "west_exterior_wall",
-			"boundary_type": "external_general_part",
+			"name": "west_exterior_window",
+			"boundary_type": "external_transparent_part",
 			"connected_room_id": 0,
 			"area": 1.0,
 			"is_sun_striked_outside": true,
@@ -118,16 +103,11 @@
 			"direction": "w",
 			"is_solar_absorbed_inside": false,
 			"outside_emissivity": 0.9,
-			"outside_solar_absorption": 0.8,
 			"inside_heat_transfer_resistance": 0.11,
 			"outside_heat_transfer_resistance": 0.04,
-			"layers": [
-				{
-					"name": "plywood",
-					"thermal_resistance": 0.075,
-					"thermal_capacity": 8.64
-				}
-			],
+			"incident_angle_characteristics": "multiple",
+			"eta_value": 0.792,
+			"u_value": 4.65,
 			"solar_shading_part": {
 				"existence": false
 			}

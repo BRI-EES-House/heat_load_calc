@@ -11,6 +11,10 @@ from heat_load_calc.convert import model_house
 
 class ConvertModelHouseToHouseDict(unittest.TestCase):
 
+    @classmethod
+    def setUpClass(cls) -> None:
+        print('\n testing convert model house')
+
     def setUp(self):
 
         mh1_input = {

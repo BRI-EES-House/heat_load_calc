@@ -7,6 +7,10 @@ from heat_load_calc.convert.ees_house import EarthfloorCenter, EarthfloorCenterS
 
 class TestLV3toLV4(unittest.TestCase):
 
+    @classmethod
+    def setUpClass(cls) -> None:
+        print('\n testing convert lv3 to lv4')
+
     ### get_inner_floor_spec 関数のテスト ###
 
     def test_get_inner_floor_spec(self):

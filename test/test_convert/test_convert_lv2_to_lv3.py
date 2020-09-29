@@ -6,6 +6,11 @@ from heat_load_calc.convert import ees_house
 
 class TestConvertLv2toLv3(unittest.TestCase):
 
+    @classmethod
+    def setUpClass(cls) -> None:
+
+        print('\n testing convert lv2 to lv3')
+
     def test_get_separated_areas(self):
 
         areas = t.get_separated_areas(75.0, 20.0, 50.0, 100.0)
