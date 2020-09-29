@@ -380,7 +380,6 @@ class ResponseFactorFactoryTransientGround(ResponseFactorFactory):
         Args:
             cs: 熱容量, kJ/m2K, [layer数]
             rs: 熱抵抗, m2K/W, [layer数]
-            r_o: 室外側熱伝達抵抗, m2K/W
         """
 
         super().__init__()
