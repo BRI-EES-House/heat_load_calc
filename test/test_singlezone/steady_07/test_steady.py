@@ -12,10 +12,13 @@ from heat_load_calc.external import psychrometrics
 
 
 # 定常状態のテスト
+@unittest.skip('TESTSKIP')
 class TestSteadyState(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
+
+        print('\n testing single zone steady 07')
 
         # 計算用フォルダ
         s_folder = str(os.path.dirname(__file__)) + '/data'
