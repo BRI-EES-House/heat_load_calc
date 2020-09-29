@@ -8,7 +8,7 @@ class MyTestCase(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
 
-        print('\n testing single zone steady 05')
+        print('\n testing response factor')
 
     def test_rf_steady(self):
 
