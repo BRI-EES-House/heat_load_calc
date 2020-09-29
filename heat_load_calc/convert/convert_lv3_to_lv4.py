@@ -458,18 +458,6 @@ def make_inner_walls(common: Dict, gps, ws, ds) -> List[InnerWall]:
 
     iws = []
 
-    # def append_inner_wall(iws, name, area, space_type_1, space_type_2):
-    #     if area > 0.0:
-    #         iws.append(
-    #             {
-    #                 'name': name,
-    #                 'area': area,
-    #                 'space_type_1': space_type_1,
-    #                 'space_type_2': space_type_2,
-    #                 'spec': get_inner_wall_spec()
-    #             }
-    #         )
-    #
     def append_inner_wall(iws, name, area, space_type_1, space_type_2):
         if area > 0.0:
             iws.append(

@@ -441,7 +441,7 @@ class TestConvertLv2toLv3(unittest.TestCase):
                         },
                     },
                 ],
-                'heatbridges': [
+                'heat_bridges': [
                     {
                         'name': 'test_part1',
                         'next_spaces': ['outdoor', 'outdoor'],
@@ -468,7 +468,6 @@ class TestConvertLv2toLv3(unittest.TestCase):
                         'name': 'test_part1',
                         'next_space': 'outdoor',
                         'length': 2.43,
-                        'space_type': 'undefined',
                         'space_type': 'undefined',
                         'spec': {
                             'psi_value': 1.5
@@ -645,7 +644,7 @@ class TestConvertLv2toLv3(unittest.TestCase):
         self.assertEqual('non_occupant_room', d['space_type'])
         self.assertEqual(2.0, d['spec']['u_value'])
 
-        h = tgt['heatbridges'][0]
+        h = tgt['heat_bridges'][0]
         self.assertEqual('test_part1_main_occupant_room', h['name'])
         self.assertEqual(['outdoor', 'outdoor'], h['next_spaces'])
         self.assertEqual(['s', 'w'], h['directions'])
@@ -653,7 +652,7 @@ class TestConvertLv2toLv3(unittest.TestCase):
         self.assertEqual(0.5, h['length'])
         self.assertEqual(0.7, h['spec']['psi_value'])
 
-        h = tgt['heatbridges'][1]
+        h = tgt['heat_bridges'][1]
         self.assertEqual('test_part1_other_occupant_room', h['name'])
         self.assertEqual(['outdoor', 'outdoor'], h['next_spaces'])
         self.assertEqual(['s', 'w'], h['directions'])
@@ -661,7 +660,7 @@ class TestConvertLv2toLv3(unittest.TestCase):
         self.assertEqual(1.0, h['length'])
         self.assertEqual(0.7, h['spec']['psi_value'])
 
-        h = tgt['heatbridges'][2]
+        h = tgt['heat_bridges'][2]
         self.assertEqual('test_part1_non_occupant_room', h['name'])
         self.assertEqual(['outdoor', 'outdoor'], h['next_spaces'])
         self.assertEqual(['s', 'w'], h['directions'])
@@ -669,7 +668,7 @@ class TestConvertLv2toLv3(unittest.TestCase):
         self.assertEqual(0.5, h['length'])
         self.assertEqual(0.7, h['spec']['psi_value'])
 
-        h = tgt['heatbridges'][3]
+        h = tgt['heat_bridges'][3]
         self.assertEqual('test_part2_main_occupant_room', h['name'])
         self.assertEqual(['outdoor', 'outdoor'], h['next_spaces'])
         self.assertEqual(['s', 'w'], h['directions'])
@@ -677,7 +676,7 @@ class TestConvertLv2toLv3(unittest.TestCase):
         self.assertEqual(0.5, h['length'])
         self.assertEqual(0.7, h['spec']['psi_value'])
 
-        h = tgt['heatbridges'][4]
+        h = tgt['heat_bridges'][4]
         self.assertEqual('test_part2_other_occupant_room', h['name'])
         self.assertEqual(['outdoor', 'outdoor'], h['next_spaces'])
         self.assertEqual(['s', 'w'], h['directions'])
@@ -685,7 +684,7 @@ class TestConvertLv2toLv3(unittest.TestCase):
         self.assertEqual(1.0, h['length'])
         self.assertEqual(0.7, h['spec']['psi_value'])
 
-        h = tgt['heatbridges'][5]
+        h = tgt['heat_bridges'][5]
         self.assertEqual('test_part2_non_occupant_room', h['name'])
         self.assertEqual(['outdoor', 'outdoor'], h['next_spaces'])
         self.assertEqual(['s', 'w'], h['directions'])

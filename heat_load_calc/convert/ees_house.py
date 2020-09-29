@@ -140,7 +140,11 @@ class IGetM(metaclass=abc.ABCMeta):
 
 class GeneralPartSpec:
 
-    def __init__(self, structure: str, u_value_other=None):
+    def __init__(
+            self,
+            structure: str,
+            u_value_other=None
+    ):
 
         self._structure = structure
         self._u_value_other = u_value_other
@@ -173,6 +177,13 @@ class GeneralPartSpec:
                 'structure': self._structure,
                 'u_value_other': self._u_value_other
             }
+        else:
+            raise NotImplementedError()
+
+    def get_external_surface_type(self):
+
+        if self._structure == 'other':
+            return 'outdoor'
         else:
             raise NotImplementedError()
 
@@ -370,7 +381,6 @@ class WindowSpec:
             windows: List[Dict],
             attachment_type: str,
             is_windbreak_room_attached
-#            is_sunshade_input
     ):
 
         self._window_type = window_type

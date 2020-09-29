@@ -183,7 +183,8 @@ def add_spec(
         'windows': windows,
         'doors': doors,
         'earthfloor_perimeters': earthfloor_perimeters,
-        'earthfloor_centers': earthfloor_centers
+        'earthfloor_centers': earthfloor_centers,
+        'heat_bridges': []
     }
 
 

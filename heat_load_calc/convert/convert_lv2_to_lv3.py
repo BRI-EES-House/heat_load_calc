@@ -217,7 +217,7 @@ def convert_spec(common, envelope):
 
     hbs_lv3 = get_heatbridges_lv3(
         a_f_mr=a_f_mr, a_f_or=a_f_or, a_f_total=a_f_total,
-        hbs=Heatbridge.make_heatbridges(ds=envelope['heatbridges'])
+        hbs=Heatbridge.make_heatbridges(ds=envelope['heat_bridges'])
     )
 
     eps_lv3 = get_earthfloor_perimeters_lv3(
@@ -233,7 +233,7 @@ def convert_spec(common, envelope):
         'general_parts': [r.get_as_dict() for r in gps_lv3],
         'windows': [w_lv3.get_as_dict() for w_lv3 in ws_lv3],
         'doors': [d_lv3.get_as_dict() for d_lv3 in ds_lv3],
-        'heatbridges': [hb_lv3.get_as_dict() for hb_lv3 in hbs_lv3],
+        'heat_bridges': [hb_lv3.get_as_dict() for hb_lv3 in hbs_lv3],
         'earthfloor_perimeters': [ep_lv3.get_as_dict() for ep_lv3 in eps_lv3],
         'earthfloor_centers': [ec_lv3.get_as_dict() for ec_lv3 in ecs_lv3]
     }
