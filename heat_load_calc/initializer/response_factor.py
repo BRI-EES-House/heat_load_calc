@@ -177,10 +177,10 @@ def get_step_reps_of_wall(C_i_k_p, R_i_k_p, laps: List[float], alp: List[float],
             matF[lngI, lngJ] = laps / (laps + root)
 
     # 最小二乗法のための係数行列を作成
-    # matU = np.zeros((self.__Nroot, self.__Nroot))
-    # for lngK in range(self.__Nroot):
-    #    for lngJ in range(self.__Nroot):
-    #        matU[lngK, lngJ] = np.sum([matF[:, lngK] * matF[:, lngJ]])
+    # matU = np.zeros((nroot, nroot))
+    # for lngK in range(nroot):
+    #    for lngJ in range(nroot):
+    #         matU[lngK, lngJ] = np.sum([matF[:, lngK] * matF[:, lngJ]])
     matU = np.dot(matF.T, matF)
 
     # 最小二乗法のための定数項行列を作成
@@ -374,19 +374,17 @@ class ResponseFactorFactoryTransientEnvelope(ResponseFactorFactory):
 
 class ResponseFactorFactoryTransientGround(ResponseFactorFactory):
 
-    def __init__(self, cs: List[float], rs: List[float], r_o):
+    def __init__(self, cs: List[float], rs: List[float]):
         """
 
         Args:
             cs: 熱容量, kJ/m2K, [layer数]
             rs: 熱抵抗, m2K/W, [layer数]
-            r_o: 室外側熱伝達抵抗, m2K/W
         """
 
         super().__init__()
         self._cs = cs
         self._rs = rs
-        self._r_o = r_o
 
     def get_response_factors(self) -> ResponseFactor:
 
