@@ -33,7 +33,7 @@ class MyTestCase(unittest.TestCase):
         rff = rf.ResponseFactorFactoryTransientEnvelope(cs=cs, rs=rs, r_o=0.04)
 
         # 応答係数の計算
-        rft: rf.ResponseFactorFactor = rff.get_response_factors()
+        rft: rf.ResponseFactor = rff.get_response_factors()
 
         # RFA0の確認
         self.assertAlmostEqual(0.0582434301679216, rft.rfa0)
@@ -82,10 +82,10 @@ class MyTestCase(unittest.TestCase):
         rs = [0.8823529412, 0.0750000000]
 
         # 応答係数を計算する工場を作成
-        rff = rf.ResponseFactorFactoryTransientGround(cs=cs, rs=rs, r_o=0.04)
+        rff = rf.ResponseFactorFactoryTransientGround(cs=cs, rs=rs)
 
         # 応答係数の計算
-        rft: rf.ResponseFactorFactor = rff.get_response_factors()
+        rft: rf.ResponseFactor = rff.get_response_factors()
 
         # RFA0の確認
         self.assertAlmostEqual(0.724907397092839, rft.rfa0)
