@@ -33,5 +33,6 @@ class TestWeatherData15m(unittest.TestCase):
         # 床の放射熱伝達率
         self.assertAlmostEqual(6.63019048, hr_js[4][0])
 
+
 if __name__ == '__main__':
     unittest.main()
