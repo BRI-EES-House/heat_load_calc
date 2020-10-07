@@ -1,4 +1,5 @@
 import unittest
+import copy
 import numpy as np
 
 from heat_load_calc.initializer import building_part_summarize as bps
@@ -48,7 +49,17 @@ class MyTestCase(unittest.TestCase):
         self.assertEqual(True, bps._is_boundary_integratable(bs1=bs1, bs2=bs1))
 
         # 部位情報のコピー
-        d2 = d1
+        d15 = copy.deepcopy(d1)
+        d15['id'] = 1
+        d15['name'] = 'bp15'
+        d15['area'] = 20.0
+        # BoundarySimpleクラスの作成
+        bs15 = bs.get_boundary_simple(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, d15)
+
+        self.assertEqual(True, bps._is_boundary_integratable(bs1=bs1, bs2=bs15))
+
+        # 部位情報のコピー
+        d2 = copy.deepcopy(d1)
         d2['id'] = 1
         d2['name'] = 'bp2'
         d2['connected_room_id'] = 1
@@ -57,24 +68,20 @@ class MyTestCase(unittest.TestCase):
         bs2 = bs.get_boundary_simple(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, d2)
 
         self.assertEqual(False, bps._is_boundary_integratable(bs1=bs1, bs2=bs2))
-        d2 = None
-        bs2 = None
 
         # 部位情報のコピー
-        d3 = d1
+        d3 = copy.deepcopy(d1)
         d3['id'] = 1
         d3['name'] = 'bp3'
-        d3['h_td'] = 0.3
+        d3['temp_dif_coef'] = 0.3
 
         # BoundarySimpleクラスの作成
         bs3 = bs.get_boundary_simple(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, d3)
 
         self.assertEqual(False, bps._is_boundary_integratable(bs1=bs1, bs2=bs3))
-        d3 = None
-        bs3 = None
 
         # 部位情報のコピー
-        d4 = d1
+        d4 = copy.deepcopy(d1)
         d4['id'] = 1
         d4['name'] = 'bp4'
         d4['is_solar_absorbed_inside'] = True
@@ -84,11 +91,8 @@ class MyTestCase(unittest.TestCase):
 
         self.assertEqual(False, bps._is_boundary_integratable(bs1=bs1, bs2=bs4))
 
-        d4 = None
-        bs4 = None
-
         # 部位情報のコピー
-        d5 = d1
+        d5 = copy.deepcopy(d1)
         d5['id'] = 1
         d5['name'] = 'bp5'
         d5['is_sun_striked_outside'] = False
@@ -98,11 +102,8 @@ class MyTestCase(unittest.TestCase):
 
         self.assertEqual(False, bps._is_boundary_integratable(bs1=bs1, bs2=bs5))
 
-        d5 = None
-        bs5 = None
-
         # 部位情報のコピー
-        d6 = d1
+        d6 = copy.deepcopy(d1)
         d6['id'] = 1
         d6['name'] = 'bp6'
         d6['direction'] = 'n'
@@ -112,22 +113,16 @@ class MyTestCase(unittest.TestCase):
 
         self.assertEqual(False, bps._is_boundary_integratable(bs1=bs1, bs2=bs6))
 
-        d6 = None
-        bs6 = None
-
         # 部位情報のコピー
-        d7 = d1
+        d7 = copy.deepcopy(d1)
         d7['id'] = 1
         d7['name'] = 'bp7'
-        d7['h_i'] = 6.7
+        d7['inside_heat_transfer_resistance'] = 6.7
 
         # BoundarySimpleクラスの作成
         bs7 = bs.get_boundary_simple(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, d7)
 
         self.assertEqual(False, bps._is_boundary_integratable(bs1=bs1, bs2=bs7))
-
-        d7 = None
-        bs7 = None
 
         # 部位情報の入力
         d8 = {
@@ -154,9 +149,6 @@ class MyTestCase(unittest.TestCase):
         bs8 = bs.get_boundary_simple(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, d8)
 
         self.assertEqual(False, bps._is_boundary_integratable(bs1=bs1, bs2=bs8))
-
-        d8 = None
-        bs8 = None
 
         # 部位情報の入力
         d9 = {
@@ -188,7 +180,7 @@ class MyTestCase(unittest.TestCase):
         bs9 = bs.get_boundary_simple(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, d9)
 
         # 部位情報の入力
-        d10 = d9
+        d10 = copy.deepcopy(d9)
         d10['id'] = 1
 
         # BoundarySimpleクラスの作成
@@ -196,11 +188,8 @@ class MyTestCase(unittest.TestCase):
 
         self.assertEqual(True, bps._is_boundary_integratable(bs1=bs9, bs2=bs10))
 
-        d10 = None
-        bs10 = None
-
         # 部位情報の入力
-        d11 = d9
+        d11 = copy.deepcopy(d9)
         d11['id'] = 1
         d11["next_room_type"] = 'other_occupant_room'
 
@@ -209,13 +198,13 @@ class MyTestCase(unittest.TestCase):
 
         self.assertEqual(False, bps._is_boundary_integratable(bs1=bs9, bs2=bs11))
 
-    def test_part_summarize(self):
+    def test_steady_part_summarize(self):
 
         '''
-        部位の集約結果のテスト
+        定常部位の集約結果のテスト
         '''
 
-        print('test_part_summarize')
+        print('test_steady_part_summarize')
 
         # 部位情報の入力
         d1 = {
@@ -289,6 +278,108 @@ class MyTestCase(unittest.TestCase):
 
         # 透過日射のテスト
         self.assertAlmostEqual(bs1.q_trs_sol[0] + bs2.q_trs_sol[0], bs3[0].q_trs_sol[0])
+
+
+    def test_unsteady_part_summarize(self):
+
+        '''
+        非定常部位の集約結果のテスト
+        '''
+
+        print('test_unsteady_part_summarize')
+
+        # 部位情報
+        d1 = {
+            "id": 4,
+            "name": "south_exterior_wall",
+            "connected_room_id": 0,
+            "boundary_type": "external_general_part",
+            "area": 10.0,
+            "is_sun_striked_outside": True,
+            "temp_dif_coef": 1.0,
+            "direction": "s",
+            "is_solar_absorbed_inside": False,
+            "inside_heat_transfer_resistance": 0.11,
+            "outside_heat_transfer_resistance": 0.04,
+            "outside_emissivity": 0.9,
+            "outside_solar_absorption": 0.8,
+            "layers": [
+                {
+                    "name": "plaster_board",
+                    "thermal_resistance": 0.0432,
+                    "thermal_capacity": 7.885
+                },
+                {
+                    "name": "non-hermetic_air_layer",
+                    "thermal_resistance": 0.09,
+                    "thermal_capacity": 0.0
+                },
+                {
+                    "name": "glass_wool_10K",
+                    "thermal_resistance": 1.28,
+                    "thermal_capacity": 0.512
+                },
+                {
+                    "name": "plywood",
+                    "thermal_resistance": 0.075,
+                    "thermal_capacity": 8.64
+                },
+                {
+                    "name": "wood-wool_and_flake_boards",
+                    "thermal_resistance": 0.0882,
+                    "thermal_capacity": 25.1789
+                }
+            ],
+            "solar_shading_part": {
+                "existence": False
+            }
+        }
+
+        d2 = {
+            "id": 5,
+            "name": "south_exterior_wall",
+            "connected_room_id": 0,
+            "boundary_type": "external_general_part",
+            "area": 20.0,
+            "is_sun_striked_outside": True,
+            "temp_dif_coef": 1.0,
+            "direction": "s",
+            "is_solar_absorbed_inside": False,
+            "inside_heat_transfer_resistance": 0.11,
+            "outside_heat_transfer_resistance": 0.04,
+            "outside_emissivity": 0.9,
+            "outside_solar_absorption": 0.8,
+            "layers": [
+                {
+                    "name": "plaster_board",
+                    "thermal_resistance": 0.0432,
+                    "thermal_capacity": 7.885
+                }
+            ],
+            "solar_shading_part": {
+                "existence": False
+            }
+        }
+
+        # BoundarySimpleの作成
+        bs1 = bs.get_boundary_simple(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, d1)
+        bs2 = bs.get_boundary_simple(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, d2)
+
+        # 部位の集約
+        bs3 = bps.integrate([bs1, bs2])
+
+        # 応答係数初稿のテスト
+        self.assertAlmostEqual((bs1.rft0 * bs1.area + bs2.rft0 * bs2.area)
+                               / (bs1.area + bs2.area), bs3[0].rft0)
+        self.assertAlmostEqual((bs1.rfa0 * bs1.area + bs2.rfa0 * bs2.area)
+                               / (bs1.area + bs2.area), bs3[0].rfa0)
+
+        # 指数項別応答係数のテスト
+        for i in range(10):
+            self.assertAlmostEqual((bs1.rft1[i] * bs1.area + bs2.rft1[i] * bs2.area)
+                                   / (bs1.area + bs2.area), bs3[0].rft1[i])
+            self.assertAlmostEqual((bs1.rfa1[i] * bs1.area + bs2.rfa1[i] * bs2.area)
+                                   / (bs1.area + bs2.area), bs3[0].rfa1[i])
 
 
 if __name__ == '__main__':
