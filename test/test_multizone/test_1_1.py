@@ -156,6 +156,28 @@ class MyTestCase(unittest.TestCase):
         h_i_r10 = self._dd['rm0_b10_hir_s']['1989-01-01 00:15:00']
         self.assertAlmostEqual(first=h_i_r10, second=5.43615990094699)
 
+    # 備品の水分収支のテスト
+    def test_funiture_humid_barlance(self):
+
+        '''
+        備品の水分収支のテスト
+        '''
+
+        date_now = '1989-08-01 00:15:00'
+        date_old = '1989-08-01 00:00:00'
+
+        # 備品からの湿気取得, [kg/s]
+        x_fun_now = self._dd['rm0_x_fun'][date_now]
+        x_fun_old = self._dd['rm0_x_fun'][date_old]
+        x_r_new = self._dd['rm0_x_r'][date_now]
+        cx_fun = self._mdh['spaces'][0]['furniture']['moisture_cond']  # kg/(s kg/kg(DA))
+        gf_fun = self._mdh['spaces'][0]['furniture']['moisture_capacity']   # kg
+        humid_fun = cx_fun * (x_r_new - x_fun_now)
+        humid_fun_storage = gf_fun * (x_fun_now - x_fun_old) / 900.0
+
+        self.assertAlmostEqual(humid_fun_storage, humid_fun)
+        
+
 if __name__ == '__main__':
 
     unittest.main()
