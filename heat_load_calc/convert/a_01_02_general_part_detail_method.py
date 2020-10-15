@@ -1,7 +1,8 @@
 from typing import List, Dict, Tuple
 
+from heat_load_calc.convert import a_01_04_general_part_common_items
+
 from heat_load_calc.convert.a_01_04_general_part_common_items import get_r_layers_i as a_01_04_get_r_layers_i
-from heat_load_calc.convert.a_01_04_general_part_common_items import get_u_i as a_01_04_get_u_i
 from heat_load_calc.convert.a_01_04_general_part_common_items import make_layer_hlc as a_01_04_make_layer_hlc
 
 
@@ -75,7 +76,7 @@ def get_steel_general_part_spec_hlc(
     r_layers_i = a_01_04_get_r_layers_i(layers_i=layers_i)
 
     # 部分iの熱貫流率, W/m2K
-    u_i = a_01_04_get_u_i(layers_i=layers_i, r_i=r_surf_i, r_o=r_surf_o)
+    u_i = a_01_04_general_part_common_items.get_u_i(layers_i=layers_i, r_i=r_surf_i, r_o=r_surf_o)
 
     # 部分iの補正熱貫流率を反映した熱貫流率, W/m2K
     u_steel_cor_i = get_u_steel_cor_i(u_i=u_i, u_r_steel=u_r_steel)
@@ -254,7 +255,7 @@ def get_general_part_spec_hlc(parts: List[dict], r_surf_i: float, r_surf_o: floa
     layers_i = part_i['layers']
 
     # 部分iの熱貫流率, W/m2K
-    u_i = a_01_04_get_u_i(layers_i=layers_i, r_i=r_surf_i, r_o=r_surf_o)
+    u_i = a_01_04_general_part_common_items.get_u_i(layers_i=layers_i, r_i=r_surf_i, r_o=r_surf_o)
 
     # 負荷計算用の境界iの層を作成する。
     # layer_i_j: 部分i の 層j

@@ -6,6 +6,7 @@ from test.test_convert import test_general_functions
 from test.test_convert import test_convert_model_house_to_house_dict
 from test.test_convert import test_model_house
 from test.test_convert import test_convert_indices_to_lv2_info
+from test.test_convert import test_ees_house
 
 
 def suite():
@@ -17,7 +18,10 @@ def suite():
         unittest.TestLoader().loadTestsFromTestCase(test_convert_model_house_to_house_dict.ConvertModelHouseToHouseDict),
         unittest.TestLoader().loadTestsFromTestCase(test_model_house.TestModelHouseResults),
         unittest.TestLoader().loadTestsFromTestCase(test_model_house.TestModelHouseShapeFactor),
-        unittest.TestLoader().loadTestsFromTestCase(test_convert_indices_to_lv2_info.TestConvertIndicesToLv2Info)
+        unittest.TestLoader().loadTestsFromTestCase(test_convert_indices_to_lv2_info.TestConvertIndicesToLv2Info),
+        unittest.TestLoader().loadTestsFromTestCase(test_ees_house.GeneralPartSpecTest),
+        unittest.TestLoader().loadTestsFromTestCase(test_ees_house.LayerTest),
+        unittest.TestLoader().loadTestsFromTestCase(test_ees_house.GeneralPartPartTest)
     ])
 
 
@@ -25,4 +29,5 @@ if __name__ == "__main__":
 
     suites = suite()
 
-    unittest.TextTestRunner(verbosity=3).run(suites)
+#    unittest.TextTestRunner(verbosity=3).run(suites)
+    unittest.TextTestRunner().run(suites)

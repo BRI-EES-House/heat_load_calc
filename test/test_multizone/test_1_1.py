@@ -156,6 +156,87 @@ class MyTestCase(unittest.TestCase):
         h_i_r10 = self._dd['rm0_b10_hir_s']['1989-01-01 00:15:00']
         self.assertAlmostEqual(first=h_i_r10, second=5.43615990094699)
 
+    # 室空気の水分収支のテスト
+    def test_air_humid_balance(self):
+
+        '''
+        室の空気の水分収支をテスト
+        '''
+
+        print('test air humid balance')
+
+        # テスト時刻を指定
+        date_now = '1989-08-08 12:00:00'
+        date_old = '1989-08-08 11:45:00'
+        schedule_row = 21072
+
+        # 室空気の蓄湿, [kg/s]
+        x_r_old = self._dd['rm0_x_r'][date_old]
+        x_r_new = self._dd['rm0_x_r'][date_now]
+        volume = self._mdh['spaces'][0]['volume']  # m3
+        rho_air = 1.2  # kg/m3
+        humid_storage = (x_r_new - x_r_old) * volume * rho_air / 900.0   # kg/s
+
+        # 備品からの湿気取得, [kg/s]
+        x_fun = self._dd['rm0_x_fun'][date_now]
+        cx_fun = self._mdh['spaces'][0]['furniture']['moisture_cond']  # kg/(s kg/kg(DA))
+        humid_fun = cx_fun * (x_fun - x_r_new)
+
+        # すきま風による湿気取得, [kg/s]
+        v_reak = self._dd['rm0_v_reak'][date_now]  # m3/s
+        x_o = self._dd['out_abs_humid'][date_now]  # kg/kg(DA)
+        humid_reak = rho_air * v_reak * (x_o - x_r_new)
+
+        # 計画換気による湿気取得, [kg/s]
+        v_mechanical = self._mdh['spaces'][0]['ventilation']['mechanical']  # m3/s
+        humid_mecha = rho_air * v_mechanical * (x_o - x_r_new)
+
+        # 自然換気による熱取得, [kg/s]
+        v_natural = self._dd['rm0_v_ntrl'][date_now]  # m3/s
+        humid_natural = rho_air * v_natural * (x_o - x_r_new)
+
+        # 隣室間換気による湿気取得, [kg/s]
+        v_next_vent0 = self._mdh['spaces'][0]['ventilation']['next_spaces'][0]  # m3/s
+        v_next_vent1 = self._mdh['spaces'][0]['ventilation']['next_spaces'][1]  # m3/s
+        v_next_vent2 = self._mdh['spaces'][0]['ventilation']['next_spaces'][2]  # m3/s
+        x_r_0_new = self._dd['rm0_x_r'][date_now]
+        x_r_1_new = self._dd['rm1_x_r'][date_now]
+        x_r_2_new = self._dd['rm2_x_r'][date_now]
+        humid_next_vent0 = rho_air * v_next_vent0 * (x_r_0_new - x_r_new)
+        humid_next_vent1 = rho_air * v_next_vent1 * (x_r_1_new - x_r_new)
+        humid_next_vent2 = rho_air * v_next_vent2 * (x_r_2_new - x_r_new)
+        humid_next_vent = humid_next_vent0 + humid_next_vent1 + humid_next_vent2
+
+        # 局所換気による湿気取得, [kg/s]
+        with open(self._data_dir + '/mid_data_local_vent.csv', 'r') as f:
+            r = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
+            l = [row for row in r]
+        v_local = float(l[schedule_row][0])
+        humid_local = rho_air * v_local * (x_o - x_r_new)
+
+        # 内部発湿, [kg/s]
+        humid_internal = self._dd['rm0_q_l_except_hum'][date_now] \
+                     + self._dd['rm0_q_hum_l'][date_now]
+
+        # 潜熱負荷, [kg/s]
+        L_l = self._dd['rm0_l_l_c'][date_now] / 2501000.0
+
+        print('humid_storage=', humid_storage)
+        print('humid_fun=', humid_fun)
+        print('humid_reak=', humid_reak)
+        print('humid_mecha=', humid_mecha)
+        print('humid_natural=', humid_natural)
+        print('humid_next_vent=', humid_next_vent)
+        print('humid_local=', humid_local)
+        print('humid_internal=', humid_internal)
+        print('L_l=', L_l)
+
+        self.assertAlmostEqual(humid_storage,
+                               humid_fun + humid_reak + humid_mecha
+                               + humid_natural + humid_next_vent
+                               + humid_local + humid_internal + L_l)
+
+
 if __name__ == '__main__':
 
     unittest.main()
