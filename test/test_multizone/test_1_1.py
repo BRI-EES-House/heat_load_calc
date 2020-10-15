@@ -157,7 +157,7 @@ class MyTestCase(unittest.TestCase):
         self.assertAlmostEqual(first=h_i_r10, second=5.43615990094699)
 
     # 備品の水分収支のテスト
-    def test_funiture_humid_barlance(self):
+    def test_furniture_humid_balance(self):
 
         '''
         備品の水分収支のテスト
