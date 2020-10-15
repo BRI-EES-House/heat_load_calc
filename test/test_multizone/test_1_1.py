@@ -156,6 +156,26 @@ class MyTestCase(unittest.TestCase):
         h_i_r10 = self._dd['rm0_b10_hir_s']['1989-01-01 00:15:00']
         self.assertAlmostEqual(first=h_i_r10, second=5.43615990094699)
 
+    def test_solar_heat_gain_balance(self):
+
+        '''
+        透過日射熱取得が家具と部位の吸収日射熱取得と一致する
+        '''
+
+        date_now = '1989-08-08 12:00:00'
+        # 透過日射熱取得, W
+        q_sol_trans = self._dd['rm0_q_sol_t'][date_now]
+
+        # 家具の吸収日射, W
+        q_sol_fun = self._dd['rm0_q_s_sol_fun'][date_now]
+
+        # 部位の吸収日射, W
+        surf_abs_sol = 0.0
+        for i in range(11):
+            surf_abs_sol += self._dd['rm0_b' + str(i) + '_qisol_s'][date_now]
+
+        self.assertAlmostEqual(q_sol_trans, q_sol_fun + surf_abs_sol)
+
     # 備品の水分収支のテスト
     def test_furniture_humid_balance(self):
 
