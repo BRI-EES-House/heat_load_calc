@@ -796,7 +796,8 @@ class TestLV3toLV4(unittest.TestCase):
                         },
                         'spec': {
                             'structure': 'other',
-                            'u_value_other': 2.0
+                            'u_value_other': 2.0,
+                            'weight': 'light'
                         }
                     },
                 ],
@@ -821,7 +822,7 @@ class TestLV3toLV4(unittest.TestCase):
         self.assertEqual(60.0, gp['area'])
         self.assertEqual('main_occupant_room', gp['space_type'])
         self.assertEqual({'is_defined': False}, gp['sunshade'])
-        self.assertEqual({'structure': 'other', 'u_value_other': 2.0}, gp['spec'])
+        self.assertEqual({'structure': 'other', 'u_value_other': 2.0, 'weight': 'light'}, gp['spec'])
 
         ws = t['windows']
         self.assertEqual([], ws)

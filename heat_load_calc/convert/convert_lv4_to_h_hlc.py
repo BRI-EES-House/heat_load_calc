@@ -237,7 +237,7 @@ def get_boundaries_general_part(region, gps_dict, gps: List[GeneralPart]):
 
         for part_i in parts:
 
-            name_hlc_i, r_a_hlc_i, general_part_spec_hlc_i, u_i = part_i
+            name_hlc_i, r_a_hlc_i, general_part_spec_hlc_i, _ = part_i
 
             boundary = {
                 'name': gp_dict['name'] + name_hlc_i,
@@ -847,7 +847,8 @@ if __name__ == '__main__':
     d_lv4 = convert_lv3_to_lv4.convert_spec(common=d_indices['common'], envelope=d_lv3)
     print(d_lv4)
 
-    print('pass_OK')
+    print('START')
+
     common = {
         'region': 6,
         'main_occupant_room_floor_area': 30.0,

@@ -48,7 +48,8 @@ class TestConvertLv2toLv3(unittest.TestCase):
                         },
                         'spec': {
                             'structure': 'other',
-                            'u_value_other': 1.2
+                            'u_value_other': 1.2,
+                            'weight': 'light'
                         },
                     }
                 ]
@@ -345,7 +346,8 @@ class TestConvertLv2toLv3(unittest.TestCase):
                         },
                         'spec': {
                             'structure': 'other',
-                            'u_value_other': 1.2
+                            'u_value_other': 1.2,
+                            'weight': 'light'
                         },
                     },
                     {
@@ -360,7 +362,8 @@ class TestConvertLv2toLv3(unittest.TestCase):
                         },
                         'spec': {
                             'structure': 'other',
-                            'u_value_other': 1.2
+                            'u_value_other': 1.2,
+                            'weight': 'light'
                         },
                     }
                 ],
