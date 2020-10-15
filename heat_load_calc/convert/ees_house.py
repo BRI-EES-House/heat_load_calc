@@ -2,13 +2,34 @@
 省エネ基準に基づく住宅情報を保持するクラス
 """
 
-from typing import Dict, List
+from typing import Dict, List, Union
 import abc
 import math
+from enum import Enum, auto
+from dataclasses import dataclass
+from copy import deepcopy
 
 from heat_load_calc.external import factor_h
 from heat_load_calc.external import factor_nu
 from heat_load_calc.convert import factor_f
+
+
+class HeatResistanceInputMethod(Enum):
+    CONDUCTIVITY = auto()
+    RESISTANCE = auto()
+
+    @classmethod
+    def make_from_str(cls, s: str):
+        return {
+            'conductivity': HeatResistanceInputMethod.CONDUCTIVITY,
+            'resistance': HeatResistanceInputMethod.RESISTANCE
+        }[s]
+
+    def get_as_str(self):
+        return {
+            HeatResistanceInputMethod.CONDUCTIVITY: 'conductivity',
+            HeatResistanceInputMethod.RESISTANCE: 'resistance'
+        }[self]
 
 
 class EesHouse:
@@ -19,6 +40,836 @@ class EesHouse:
     @classmethod
     def make_ees_house(cls, d: Dict):
         pass
+
+
+class Material:
+    """
+    物性値を持つクラス。
+    熱伝導率や熱容量をもつ。厚さのプロパティは持たない。
+    """
+
+    def __init__(
+            self,
+            material_name: str,
+            volumetric_specific_heat: float,
+            thermal_conductivity: float = 0.0
+    ):
+        """
+        Args:
+            material_name: 物性値の名称
+            volumetric_specific_heat: 容積比熱, J/LK
+            thermal_conductivity: 熱伝導率, W/mK
+        """
+
+        self._material_name = material_name
+        self._volumetric_specific_heat = volumetric_specific_heat
+        self._thermal_conductivity = thermal_conductivity
+
+    @property
+    def material_name(self):
+        """
+        物性値の名称を取得する。
+        Returns:
+            物性値の名称
+        """
+        return self._material_name
+
+    @property
+    def volumetric_specific_heat(self):
+        """
+        容積比熱を取得する。
+        Returns:
+            容積比熱, J/LK
+        """
+        return self._volumetric_specific_heat
+
+    @property
+    def thermal_conductivity(self):
+        """
+        熱伝導率を取得する。
+        Returns:
+            thermal_conductivity: 熱伝導率, W/mK
+        """
+        return self._thermal_conductivity
+
+
+class Layer:
+    """
+    外皮・間仕切りを構成する場合の層を持つクラス。
+    Materialクラスの物性値に加えて、厚さのプロパティを持つ。
+    """
+
+    def __init__(
+            self,
+            name: str,
+            heat_resistance_input_method: HeatResistanceInputMethod,
+            thickness: float,
+            volumetric_specific_heat: float,
+            thermal_conductivity: float = 0.0,
+            thermal_resistance: float = 0.0
+    ):
+        """
+        Args:
+            name: レイヤーの名称
+            heat_resistance_input_method: 熱抵抗の入力方法
+            thickness: 厚さ, m
+            volumetric_specific_heat: 容積比熱, J/LK
+            thermal_conductivity: 熱伝導率, W/mK
+            thermal_resistance: 熱抵抗, m2K/W
+        """
+
+        self._name = name
+        self._heat_resistance_input_method = heat_resistance_input_method
+        self._thickness = thickness
+        self._volumetric_specific_heat = volumetric_specific_heat
+        self._thermal_conductivity = thermal_conductivity
+        self._thermal_resistance = thermal_resistance
+
+    @property
+    def name(self):
+        """
+        名称を取得する。
+        Returns:
+            名称
+        """
+        return self._name
+
+    @property
+    def thickness(self):
+        """
+        厚さを取得する。
+        Returns:
+            厚さ, m
+        """
+        return self._thickness
+
+    @property
+    def volumetric_specific_heat(self):
+        """
+        容積比熱を取得する。
+        Returns:
+            容積比熱, J/LK
+        """
+        return self._volumetric_specific_heat
+
+    @property
+    def r(self) -> float:
+        """
+        熱抵抗を取得する。
+        Returns:
+            熱抵抗, m2K/W
+        """
+
+        if self._heat_resistance_input_method == HeatResistanceInputMethod.CONDUCTIVITY:
+            return self._thickness / self._thermal_conductivity
+        elif self._heat_resistance_input_method == HeatResistanceInputMethod.RESISTANCE:
+            return self._thermal_resistance
+        else:
+            raise KeyError()
+
+    @property
+    def c(self) -> float:
+        """
+        比熱を取得する
+        Returns:
+            比熱, kJ/m2K
+        """
+        return self._thickness * self._volumetric_specific_heat
+
+    @classmethod
+    def make_layer(cls, d: Dict):
+
+        hri = HeatResistanceInputMethod.make_from_str(s=d['heat_resistance_input_method'])
+        if hri == HeatResistanceInputMethod.CONDUCTIVITY:
+            return Layer(
+                name=d['name'],
+                heat_resistance_input_method=hri,
+                thickness=d['thickness'],
+                volumetric_specific_heat=d['volumetric_specific_heat'],
+                thermal_conductivity=d['thermal_conductivity']
+            )
+        elif hri == HeatResistanceInputMethod.RESISTANCE:
+            return Layer(
+                name=d['name'],
+                heat_resistance_input_method=hri,
+                thickness=d['thickness'],
+                volumetric_specific_heat=d['volumetric_specific_heat'],
+                thermal_resistance=d['thermal_resistance']
+            )
+        else:
+            raise KeyError()
+
+    @classmethod
+    def make_layers(cls, ds: List[Dict]):
+
+        return [Layer.make_layer(d) for d in ds]
+
+    def get_as_dict(self) -> Dict:
+        """
+        プロパティを辞書化する。
+        Returns:
+            辞書
+        """
+
+        if self._heat_resistance_input_method == HeatResistanceInputMethod.CONDUCTIVITY:
+            return {
+                'name': self._name,
+                'heat_resistance_input_method': 'conductivity',
+                'thickness': self._thickness,
+                'volumetric_specific_heat': self._volumetric_specific_heat,
+                'thermal_conductivity': self._thermal_conductivity
+            }
+        elif self._heat_resistance_input_method == HeatResistanceInputMethod.RESISTANCE:
+            return {
+                'name': self._name,
+                'heat_resistance_input_method': 'conductivity',
+                'thickness': self._thickness,
+                'volumetric_specific_heat': self._volumetric_specific_heat,
+                'thermal_resistance': self._thermal_resistance
+            }
+        else:
+            raise Exception()
+
+    def make_initializer_dict(self, r_res_sub: float):
+        """
+        initializer用の辞書を作成する。
+        Args:
+            r_res_sub: 熱抵抗割引率(0.0~1.0)
+        Returns:
+            initializer用辞書
+        Notes:
+            熱抵抗割引率とは、S造における面的な熱橋、および、S造・RC造における構造熱橋ψによる熱貫流率の減少分を反映させるための係数。
+            本layer構成が持っているR値（もともとのR値）と増加分のR値を用いて、
+            割増率 = ( もともとのR値 - 割引されるR値 ) / もともとのR値
+            で表される。
+        """
+        return {
+            'name': self._name,
+            'thermal_resistance': self.r * r_res_sub,
+            'thermal_capacity': self.c
+        }
+
+
+class GeneralPartPart:
+
+    def __init__(self, name: str, part_area_ratio: float, layers: List[Layer]):
+        """
+        Args:
+            name: 名称
+            part_area_ratio: 部分の面積比率（0.0～1.0）
+            layers: 層（リスト）
+        """
+
+        self._name = name
+        self._part_area_ratio = part_area_ratio
+        self._layers = layers
+
+    @classmethod
+    def make_general_part_part(cls, d: Dict):
+
+        return GeneralPartPart(
+            name=d['name'],
+            part_area_ratio=d['part_area_ratio'],
+            layers=Layer.make_layers(ds=d['layers'])
+        )
+
+    @classmethod
+    def make_general_part_parts(cls, ds: List[Dict]):
+
+        # part_area_ratio の合計値が1.0になるかどうかの確認
+        total_ratio = sum([d['part_area_ratio'] for d in ds])
+        if abs(total_ratio - 1.0) > 0.000001:
+            raise Exception('part_area_ratio の値は合計で1.0になるように設定してください。')
+
+        return [GeneralPartPart.make_general_part_part(d=d) for d in ds]
+
+    @property
+    def name(self) -> str:
+        """
+        部分の名称を取得する。
+        Returns:
+            部分の名称
+        """
+        return self._name
+
+    @property
+    def part_area_ratio(self) -> float:
+        """
+        部分の面積比率を取得する。
+        Returns:
+            部分の面積比率
+        Notes:
+            部分の面積比率は0.0から1.0の間の値をとる。
+        """
+        return self._part_area_ratio
+
+    @property
+    def layers(self) -> List[Layer]:
+        """
+        レイヤーのリストを取得する。
+        Returns:
+            レイヤーのリスト
+        """
+        return self._layers
+
+    def get_r_total(self):
+        """
+        熱抵抗の合計値を取得する。
+        Returns:
+            熱抵抗, m2K/W
+        """
+
+        return sum([layer.r for layer in self._layers])
+
+    def get_as_dict(self) -> Dict:
+
+        return {
+            'name': self.name,
+            'part_area_ratio': self.part_area_ratio,
+            'layers': [layer.get_as_dict() for layer in self.layers]
+        }
+
+    def make_initializer_dict(self, r_res_sub: float) -> List[Dict]:
+        """
+        initializer用の辞書を作成する。
+        Args:
+            r_res_sub: 熱抵抗割引率(0.0~1.0)
+        Returns:
+            initializer用辞書
+        Notes:
+            熱抵抗割引率とは、S造における面的な熱橋、および、S造・RC造における構造熱橋ψによる熱貫流率の減少分を反映させるための係数。
+            本layer構成が持っているR値（もともとのR値）と増加分のR値を用いて、
+            割増率 = ( もともとのR値 - 割引されるR値 ) / もともとのR値
+            で表される。
+        """
+        return [
+            layer.make_initializer_dict(r_res_sub=r_res_sub)
+            for layer in self.layers
+        ]
+
+
+class GeneralPartSpec:
+
+    def __init__(self):
+
+        pass
+
+    @classmethod
+    def make_general_part_spec(cls, d: Dict, general_part_type: str):
+
+        structure = d['structure']
+
+        if structure == 'wood':
+            return GeneralPartSpecDetailWood.make_from_dict(d=d)
+        elif structure == 'rc':
+            return GeneralPartSpecDetailRC.make_from_dict(d=d)
+        elif structure == 'steel':
+            return GeneralPartSpecDetailSteel.make_from_dict(d=d)
+        elif structure == 'other':
+            return GeneralPartSpecUValueOther.make_from_dict(general_part_type=general_part_type, d=d)
+        else:
+            raise NotImplementedError()
+
+    @property
+    @abc.abstractmethod
+    def r_srf_in(self) -> float:
+        """
+        室内側熱伝達抵抗を取得する。
+        Returns:
+            室内側熱伝達抵抗, m2K/W
+        """
+
+        pass
+
+    @property
+    @abc.abstractmethod
+    def r_srf_ex(self) -> float:
+        """
+        室外側熱伝達抵抗を取得する。
+        Returns:
+            室外側熱伝達抵抗, m2K/W
+        """
+
+        pass
+
+    @abc.abstractmethod
+    def get_u(self) -> float:
+        """
+        U値を取得する。
+        Returns:
+            U値, W/m2K
+        """
+
+        pass
+
+    def get_eta(self) -> float:
+        """
+        η値を取得する。
+        Returns:
+            η値, -
+        """
+
+        return 0.034 * self.get_u()
+
+    @abc.abstractmethod
+    def get_as_dict(self):
+
+        pass
+
+
+class GeneralPartSpecDetail(GeneralPartSpec):
+
+    def __init__(
+            self,
+            r_srf_in: float,
+            r_srf_ex: float,
+            parts: List[GeneralPartPart]
+    ):
+        """
+
+        Args:
+            r_srf_in: 室内側熱伝達抵抗, m2K/W
+            r_srf_ex: 室外側熱伝達抵抗, m2K/W
+            parts: 部分（リスト）
+        """
+
+        super().__init__()
+        self._r_srf_in = r_srf_in
+        self._r_srf_ex = r_srf_ex
+        self._parts = parts
+
+    @property
+    def r_srf_in(self) -> float:
+        """
+        室内側熱伝達抵抗を取得する。
+        Returns:
+            室内側熱伝達抵抗, m2K/W
+        """
+        return self._r_srf_in
+
+    @property
+    def r_srf_ex(self) -> float:
+        """
+        室外側熱伝達抵抗を取得する。
+        Returns:
+            室外側熱伝達抵抗, m2K/W
+        """
+        return self._r_srf_ex
+
+    @property
+    def parts(self) -> List[GeneralPartPart]:
+        return self._parts
+
+    def get_u_general_part(self) -> float:
+        """
+        U値を取得する。
+        Returns:
+            U値, W/m2K
+        Notes:
+            面的なU値を取得する。
+            木造・RC造についてはこの値がU値である。
+            S造についてはこの値に補正熱貫流率を加える。
+        """
+
+        return sum([p.part_area_ratio / (self.r_srf_in + p.get_r_total() + self.r_srf_ex) for p in self._parts])
+
+    @abc.abstractmethod
+    def get_as_dict(self):
+        pass
+
+    def make_initializer_dict(self, u_add: float) -> List[List[Dict]]:
+        """
+        U値増加分を考慮した補正後のinitializer用のレイヤーのリストを辞書形式で取得する。
+        Args:
+            u_add: U値増加分, W/m2K
+        Returns:
+            initializer用レイヤーのリスト
+        """
+
+        # part ごとのU値, W/m2K
+        us = [1 / (self.r_srf_in + p.get_r_total() + self.r_srf_ex) for p in self._parts]
+
+        # 補正したU値, W/m2K
+        us_dash = [u + u_add for u in us]
+
+        # 補正したR値（室外側熱伝達抵抗・室内側熱伝達抵抗を除く）, m2K/W
+        rs_dash = [1 / u_dash - self.r_srf_in - self.r_srf_ex for u_dash in us_dash]
+
+        # 熱抵抗割引率
+        rs_res_sub = [r_dash / p.get_r_total() for p, r_dash in zip(self._parts, rs_dash)]
+
+        return [part.make_initializer_dict(r_res_sub=r_res_sub) for part, r_res_sub in zip(self.parts, rs_res_sub)]
+
+
+class GeneralPartSpecDetailWood(GeneralPartSpecDetail):
+
+    def __init__(self, r_srf_in: float, r_srf_ex: float, parts: List[GeneralPartPart]):
+
+        super().__init__(r_srf_in=r_srf_in, r_srf_ex=r_srf_ex, parts=parts)
+
+    @classmethod
+    def make_from_dict(cls, d: Dict):
+
+        return GeneralPartSpecDetailWood(
+            r_srf_in=d['r_srf_in'],
+            r_srf_ex=d['r_srf_ex'],
+            parts=GeneralPartPart.make_general_part_parts(ds=d['parts'])
+        )
+
+    def get_u(self) -> float:
+        """
+        U値を取得する。
+        Returns:
+            U値, W/m2K
+        """
+
+        return self.get_u_general_part()
+
+    def get_as_dict(self):
+
+        return {
+            'structure': 'wood',
+            'r_srf_in': self.r_srf_in,
+            'r_srf_ex': self.r_srf_ex,
+            'parts': [part.get_as_dict() for part in self.parts]
+        }
+
+    def make_initializer_dict(self, u_add: float) -> List[List[Dict]]:
+        """
+        U値増加分を考慮した補正後のinitializer用のレイヤーのリストを辞書形式で取得する。
+        Args:
+            u_add: U値増加分, W/m2K
+        Returns:
+            initializer用レイヤーのリスト
+        """
+
+        return super().make_initializer_dict(u_add=u_add)
+
+
+class GeneralPartSpecDetailRC(GeneralPartSpecDetail):
+
+    def __init__(self, r_srf_in: float, r_srf_ex: float, parts: List[GeneralPartPart]):
+
+        super().__init__(r_srf_in=r_srf_in, r_srf_ex=r_srf_ex, parts=parts)
+
+    @classmethod
+    def make_from_dict(cls, d: Dict):
+
+        return GeneralPartSpecDetailRC(
+            r_srf_in=d['r_srf_in'],
+            r_srf_ex=d['r_srf_ex'],
+            parts=GeneralPartPart.make_general_part_parts(ds=d['parts'])
+        )
+
+    def get_u(self) -> float:
+        """
+        U値を取得する。
+        Returns:
+            U値, W/m2K
+        """
+
+        return self.get_u_general_part()
+
+    def get_as_dict(self):
+        return {
+            'structure': 'rc',
+            'r_srf_in': self.r_srf_in,
+            'r_srf_ex': self.r_srf_ex,
+            'parts': [part.get_as_dict() for part in self.parts]
+        }
+
+    def make_initializer_dict(self, u_add: float) -> List[List[Dict]]:
+        """
+        U値増加分を考慮した補正後のinitializer用のレイヤーのリストを辞書形式で取得する。
+        Args:
+            u_add: U値増加分, W/m2K
+        Returns:
+            initializer用レイヤーのリスト
+        """
+
+        return super().make_initializer_dict(u_add=u_add)
+
+
+class GeneralPartSpecDetailSteel(GeneralPartSpecDetail):
+
+    def __init__(self, u_r_value_steel: float, r_srf_in: float, r_srf_ex: float, parts: List[GeneralPartPart]):
+        """
+        Args:
+            u_r_value_steel: 補正熱貫流率, W/m2K
+            r_srf_in: 室内側熱伝達抵抗, m2K/W
+            r_srf_ex: 室外側熱伝達抵抗, m2K/W
+            parts:　部分（リスト）
+        """
+
+        super().__init__(r_srf_in=r_srf_in, r_srf_ex=r_srf_ex, parts=parts)
+        self._u_r_value_steel = u_r_value_steel
+
+    @classmethod
+    def make_from_dict(cls, d: Dict):
+
+        return GeneralPartSpecDetailSteel(
+            u_r_value_steel=d['u_r_value_steel'],
+            r_srf_in=d['r_srf_in'],
+            r_srf_ex=d['r_srf_ex'],
+            parts=GeneralPartPart.make_general_part_parts(ds=d['parts'])
+        )
+
+    def get_u(self) -> float:
+        """
+        U値を取得する。
+        Returns:
+            U値, W/m2K
+        """
+
+        return self.get_u_general_part() + self._u_r_value_steel
+
+    def get_as_dict(self):
+        return {
+            'structure': 'steel',
+            'u_r_value_steel': self._u_r_value_steel,
+            'r_srf_in': self.r_srf_in,
+            'r_srf_ex': self.r_srf_ex,
+            'parts': [part.get_as_dict() for part in self.parts]
+        }
+
+    def make_initializer_dict(self, u_add: float) -> List[List[Dict]]:
+        """
+        U値増加分を考慮した補正後のinitializer用のレイヤーのリストを辞書形式で取得する。
+        Args:
+            u_add: U値増加分, W/m2K
+        Returns:
+            initializer用レイヤーのリスト
+        """
+
+        return super().make_initializer_dict(u_add=u_add + self._u_r_value_steel)
+
+
+class GeneralPartSpecUValue(GeneralPartSpec):
+
+    def __init__(self, general_part_type: str, u_value: float, weight: str):
+
+        super().__init__()
+        self._u_value = u_value
+        self._weight = weight
+
+        # 室外側熱伝達抵抗を計算する際に使用するために GeneralPartSpec クラスでこのプロパティを保持しておく。
+        # get_as_dict には書き出さない。
+        self._general_part_type = general_part_type
+
+    @property
+    def general_part_type(self):
+        return self._general_part_type
+
+    def get_u(self) -> float:
+        """
+        U値を取得する。
+        Returns:
+            U値, W/m2K
+        """
+
+        return self._u_value
+
+    @property
+    def r_srf_in(self) -> float:
+        """
+        室内側熱伝達抵抗を取得する。
+        Returns:
+            室内側熱伝達抵抗, m2K/W
+        """
+
+        if self._general_part_type in ['roof', 'ceiling', 'upward_boundary_floor']:
+            return 0.09
+        elif self._general_part_type in ['wall', 'boundary_wall']:
+            return 0.11
+        elif self._general_part_type in ['floor', 'downward_boundary_floor']:
+            return 0.15
+        else:
+            raise ValueError()
+
+    @property
+    def r_srf_ex(self) -> float:
+        """
+        室外側熱伝達抵抗を取得する。
+        Returns:
+            室外側熱伝達抵抗, m2K/W
+        """
+
+        if self._general_part_type in ['roof', 'wall']:
+            return 0.04
+        elif self._general_part_type in ['ceiling', 'upward_boundary_floor']:
+            return 0.09
+        elif self._general_part_type in ['boundary_wall']:
+            return 0.11
+        elif self._general_part_type in ['floor', 'downward_boundary_floor']:
+            return 0.15
+        else:
+            raise ValueError()
+
+    @abc.abstractmethod
+    def get_as_dict(self):
+
+        pass
+
+    def convert_to_general_part_spec_detail(self):
+
+        gypsum_board9_5 = Layer(
+            name='gypsum_board',
+            heat_resistance_input_method=HeatResistanceInputMethod.CONDUCTIVITY,
+            thickness=0.0095,
+            volumetric_specific_heat=830.0,
+            thermal_conductivity=0.221
+        )
+
+        plywood12 = Layer(
+            name='plywood',
+            heat_resistance_input_method=HeatResistanceInputMethod.CONDUCTIVITY,
+            thickness=0.012,
+            volumetric_specific_heat=720.0,
+            thermal_conductivity=0.16
+        )
+
+        plywood24 = Layer(
+            name='plywood',
+            heat_resistance_input_method=HeatResistanceInputMethod.CONDUCTIVITY,
+            thickness=0.024,
+            volumetric_specific_heat=720.0,
+            thermal_conductivity=0.16
+        )
+
+        concrete120 = Layer(
+            name='concrete',
+            heat_resistance_input_method=HeatResistanceInputMethod.CONDUCTIVITY,
+            thickness=0.120,
+            volumetric_specific_heat=2000.0,
+            thermal_conductivity=1.6
+        )
+
+        insulation = Material(
+            material_name='default_insulation',
+            volumetric_specific_heat=13.0,
+            thermal_conductivity=0.045
+        )
+
+        default_layers = {
+            'light': {
+                # 屋根の場合：せっこうボード9.5mm + 断熱材
+                'roof': [gypsum_board9_5, insulation],
+                # 天井の場合：せっこうボード9.5mm + 断熱材
+                'ceiling': [gypsum_board9_5, insulation],
+                # 壁の場合：せっこうボード9.5mm + 断熱材 + 合板12mm
+                'wall': [gypsum_board9_5, insulation, plywood12],
+                # 床の場合：合板24mm + 断熱材
+                'floor': [plywood24, insulation],
+                # 間仕切り壁の場合：せっこうボード9.5mm + 断熱材 + せっこうボード9.5mm
+                'boundary_wall': [gypsum_board9_5, insulation, gypsum_board9_5],
+                # 間仕切り天井の場合：せっこうボード9.5mm + 断熱材 + 合板24mm
+                'upward_boundary_floor': [gypsum_board9_5, insulation, plywood24],
+                # 間仕切り床の場合： 合板24mm + 断熱材 + せっこうボード9.5mm
+                'downward_boundary_floor': [plywood24, insulation, gypsum_board9_5]
+            }[self.general_part_type],
+            'heavy': {
+                # 屋根の場合：せっこうボード9.5mm + 断熱材 + コンクリート120mm
+                'roof': [gypsum_board9_5, insulation, concrete120],
+                # 天井の場合：せっこうボード9.5mm + 断熱材 + コンクリート120mm
+                'ceiling': [gypsum_board9_5, insulation, concrete120],
+                # 壁の場合：せっこうボード9.5mm + 断熱材 + コンクリート120mm
+                'wall': [gypsum_board9_5, insulation, concrete120],
+                # 床の場合：合板24mm + 断熱材 + コンクリート120mm
+                'floor': [plywood24, insulation, concrete120],
+                # 間仕切り壁の場合：せっこうボード9.5mm + 断熱材 + 合板12mm
+                'boundary_wall': [gypsum_board9_5, insulation, gypsum_board9_5],
+                # 間仕切り天井の場合：せっこうボード9.5mm + コンクリート120mm + 断熱材 + 合板24mm
+                'upward_boundary_floor': [gypsum_board9_5, concrete120, insulation, plywood24],
+                # 間仕切り床の場合： 合板24mm + 断熱材 + コンクリート120mm + せっこうボード9.5mm
+                'downward_boundary_floor': [plywood24, insulation, concrete120, gypsum_board9_5]
+            }[self.general_part_type]
+        }[self._weight]
+
+        # 断熱材以外の熱抵抗の合計, m2K/W
+        # リスト要素がLayerクラスの場合に熱抵抗を合計する。
+        r_other = sum([layer.r for layer in default_layers if type(layer) == Layer])
+
+        # 目標とする層全体の熱抵抗（表面熱伝達抵抗を含む）, m2K/W
+        # 目標U値の逆数から目標R値をだす。
+        r_target = 1 / self._u_value
+
+        # 目標とする断熱材の熱抵抗, m2K/W
+        # 次に室内側と室外側の熱伝達抵抗、および断熱材を除く層の熱抵抗を減じ、目標とする断熱材の熱抵抗をだす。
+        # もし目標とする断熱材の熱抵抗値が0を下回っている場合は、目標とする断熱材の熱抵抗値を0とする。
+        # この場合、無断熱になることを意味する。
+        # また、目標とするU値を満たさないことになる。
+        r_ins_target = max(r_target - self.r_srf_ex - r_other - self.r_srf_in, 0.0)
+
+        # 断熱材の層は必ず1つであることを確認する。
+        if len([layer for layer in default_layers if type(layer) == Material]) != 1:
+            raise Exception
+
+        # 目標とする断熱材の厚さ, m
+        # 目標とする断熱材の熱抵抗(m2K/W)に熱伝導率(W/mK)を乗じて目標とする厚さ(m)をだす。
+        t_target = r_ins_target * insulation.thermal_conductivity
+
+        gps = GeneralPartSpecDetail(
+            r_srf_in=self.r_srf_in,
+            r_srf_ex=self.r_srf_ex,
+            parts=[
+                GeneralPartPart(
+                    name='sole_part',
+                    part_area_ratio=1.0,
+                    layers=[
+                        self._make_layers_from_default_layers(
+                            layer=layer,
+                            t_target=t_target
+                        ) for layer in default_layers
+                    ]
+                )
+            ]
+        )
+
+        return gps
+
+    @staticmethod
+    def _make_layers_from_default_layers(layer: Union[Layer, Material], t_target: float):
+
+        if type(layer) == Layer:
+            return deepcopy(layer)
+        elif type(layer) == Material:
+            return Layer(
+                name=layer.material_name,
+                heat_resistance_input_method=HeatResistanceInputMethod.CONDUCTIVITY,
+                thickness=t_target,
+                volumetric_specific_heat=layer.volumetric_specific_heat,
+                thermal_conductivity=layer.thermal_conductivity
+            )
+        else:
+            raise Exception()
+
+
+class GeneralPartSpecUValueOther(GeneralPartSpecUValue):
+
+    def __init__(self, general_part_type: str, u_value_other: float, weight:str):
+
+        super().__init__(
+            general_part_type=general_part_type,
+            u_value=u_value_other,
+            weight=weight
+        )
+
+    @classmethod
+    def make_from_dict(cls, general_part_type: str, d: Dict):
+
+        return GeneralPartSpecUValueOther(
+            general_part_type=general_part_type,
+            u_value_other=d['u_value_other'],
+            weight=d['weight']
+        )
+
+    def get_as_dict(self):
+
+        return {
+            'structure': 'other',
+            'u_value_other': self._u_value,
+            'weight': self._weight
+            }
 
 
 class IArea(metaclass=abc.ABCMeta):
@@ -138,56 +989,6 @@ class IGetM(metaclass=abc.ABCMeta):
         pass
 
 
-class GeneralPartSpec:
-
-    def __init__(
-            self,
-            structure: str,
-            u_value_other=None
-    ):
-
-        self._structure = structure
-        self._u_value_other = u_value_other
-
-    @classmethod
-    def make_general_part_spec(cls, d: Dict):
-
-        structure = d['structure']
-
-        if structure == 'other':
-            return GeneralPartSpec(structure=d['structure'], u_value_other=d['u_value_other'])
-        else:
-            return GeneralPartSpec(structure=d['structure'])
-
-    def get_u(self):
-
-        if self._structure == 'other':
-            return self._u_value_other
-        else:
-            raise NotImplementedError()
-
-    def get_eta(self):
-
-        return 0.034 * self.get_u()
-
-    def get_as_dict(self):
-
-        if self._structure == 'other':
-            return {
-                'structure': self._structure,
-                'u_value_other': self._u_value_other
-            }
-        else:
-            raise NotImplementedError()
-
-    def get_external_surface_type(self):
-
-        if self._structure == 'other':
-            return 'outdoor'
-        else:
-            raise NotImplementedError()
-
-
 class GeneralPartNoSpec(UpperArealEnvelope):
     """
     「部位の仕様」情報を保持しない一般部位クラス
@@ -295,7 +1096,10 @@ class GeneralPart(GeneralPartNoSpec, IGetQ, IGetM):
             area=d['area'],
             space_type=d['space_type'],
             sunshade=factor_f.SunshadeOpaque.make_sunshade_opaque(d=d['sunshade']),
-            general_part_spec=GeneralPartSpec.make_general_part_spec(d=d['spec'])
+            general_part_spec=GeneralPartSpec.make_general_part_spec(
+                d=d['spec'],
+                general_part_type=d['general_part_type']
+            )
         )
 
     @classmethod

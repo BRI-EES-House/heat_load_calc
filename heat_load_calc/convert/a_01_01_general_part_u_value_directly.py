@@ -4,6 +4,7 @@ from heat_load_calc.convert.a_01_04_general_part_common_items import Layer
 from heat_load_calc.convert.a_01_04_general_part_common_items import get_r_hlc_i as a_01_04_get_r_hlc_i
 from heat_load_calc.convert.a_01_04_general_part_common_items import get_c_hlc_i as a_01_04_get_c_hlc_i
 
+from heat_load_calc.convert import ees_house
 
 # region 木造
 
@@ -195,7 +196,7 @@ def get_rc_default_layers(general_part_type: str) -> List[Layer]:
 
 
 def get_other_general_part_spec_hlc(
-        general_part_type: str, u_target: float, r_surf_i: float, r_surf_o: float) -> List[Tuple]:
+        general_part_type: str, u_target: float, r_surf_i: float, r_surf_o: float, gp: ees_house.GeneralPart) -> List[Tuple]:
     """
     直接U値を指定する方法から負荷計算用の一般部位の仕様を取得する。
 
@@ -217,8 +218,10 @@ def get_other_general_part_spec_hlc(
     default_layers = get_other_default_layers(general_part_type=general_part_type)
 
     # 取得した層の構成をもとに負荷計算用の層構成を取得する
-    return get_general_part_spec_hlc(
+    v = get_general_part_spec_hlc(
         default_layers=default_layers, u_target=u_target, r_surf_i=r_surf_i, r_surf_o=r_surf_o)
+
+    return v
 
 
 def get_other_default_layers(general_part_type: str) -> List[Layer]:
