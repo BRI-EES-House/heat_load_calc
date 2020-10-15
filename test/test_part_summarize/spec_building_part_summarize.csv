@@ -1,0 +1,14 @@
+﻿BoundarySimpleのメンバ,BoundarySimpleのメンバ,型,test code,集約時のチェック,チェックの条件
+id,ID,int,,,
+name,名称,string,,,
+sub_name,副名称,string,,,
+connected_room_id,接する室のID,int,finish,〇,
+boundary_type,境界の種類,string,finish,〇,
+area,面積,float,,,
+h_td,温度差係数,float,finish,〇,boundary_typeが「外皮_一般部位」、「外皮_透明な開口部」又は「外皮_不透明な開口部」
+next_room_type,隣室タイプ,string,finish,〇,boundary_typeが「間仕切り」
+rear_surface_boundary_id,裏側表面の境界ID,int,,,
+is_solar_absorbed_inside,室内侵入日射吸収の有無,bool,finish,〇,
+is_sun_striked_outside,室外側の日射の有無,bool,finish,〇,boundary_typeが「外皮_一般部位」、「外皮_透明な開口部」又は「外皮_不透明な開口部」
+direction,面する方位,string,finish,〇,boundary_typeが「外皮_一般部位」、「外皮_透明な開口部」又は「外皮_不透明な開口部」かつis_sun_striked_outsideがTrue
+h_i,室内側表面総合熱伝達率,float,finish,〇,
