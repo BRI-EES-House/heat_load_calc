@@ -11,7 +11,7 @@ class LayerTest(unittest.TestCase):
 
         cls._layer1 = ees_house.Layer.make_layer(
             d={
-                'name': 'test_layer1',
+                'name': 'layer1',
                 'heat_resistance_input_method': 'conductivity',
                 'thermal_conductivity': 1.6,
                 'thickness': 0.12,
@@ -21,7 +21,7 @@ class LayerTest(unittest.TestCase):
 
         cls._layer2 = ees_house.Layer.make_layer(
             d={
-                'name': 'test_layer2',
+                'name': 'layer2',
                 'heat_resistance_input_method': 'resistance',
                 'thermal_resistance': 0.075,
                 'thickness': 0.12,
@@ -31,8 +31,8 @@ class LayerTest(unittest.TestCase):
 
     def test_name(self):
 
-        self.assertEqual('test_layer1', self._layer1.name)
-        self.assertEqual('test_layer2', self._layer2.name)
+        self.assertEqual('layer1', self._layer1.name)
+        self.assertEqual('layer2', self._layer2.name)
 
     def test_thickness(self):
 
@@ -59,11 +59,11 @@ class LayerTest(unittest.TestCase):
         d1 = self._layer1.make_initializer_dict(r_res_sub=0.9)
         d2 = self._layer2.make_initializer_dict(r_res_sub=0.9)
 
-        self.assertEqual('test_layer1', d1['name'])
+        self.assertEqual('layer1', d1['name'])
         self.assertAlmostEqual(0.0675, d1['thermal_resistance'])
         self.assertAlmostEqual(192.0, d1['thermal_capacity'])
 
-        self.assertEqual('test_layer2', d2['name'])
+        self.assertEqual('layer2', d2['name'])
         self.assertAlmostEqual(0.0675, d2['thermal_resistance'])
         self.assertAlmostEqual(192.0, d2['thermal_capacity'])
 
@@ -77,7 +77,7 @@ class GeneralPartPartTest(unittest.TestCase):
 
         cls._gpp1 = ees_house.GeneralPartPart.make_general_part_part(
             d={
-                'name': 'test_general_part_part1',
+                'name': 'test_part',
                 'part_area_ratio': 0.2,
                 'layers': [
                     {
@@ -123,7 +123,7 @@ class GeneralPartPartTest(unittest.TestCase):
 
     def test_name(self):
 
-        self.assertEqual('test_general_part_part1', self._gpp1.name)
+        self.assertEqual('test_part', self._gpp1.name)
         self.assertEqual('general', self._gpp2.name)
 
     def test_part_area_ratio(self):
@@ -187,23 +187,35 @@ class GeneralPartPartTest(unittest.TestCase):
 
     def test_make_initializer_dict(self):
 
-        ds = self._gpp1.make_initializer_dict(r_res_sub=0.7)
-        self.assertEqual(1, len(ds))
-        self.assertEqual('layer1', ds[0]['name'])
-        self.assertAlmostEqual(0.12 / 1.6 * 0.7, ds[0]['thermal_resistance'])
-        self.assertAlmostEqual(0.12 * 1600.0, ds[0]['thermal_capacity'])
+        ds = self._gpp1.make_initializer_dict(
+            general_part_name='test_general_part',
+            general_part_area=10.0,
+            r_res_sub=0.7
+        )
+        self.assertEqual('test_general_part_test_part', ds['name'])
+        self.assertAlmostEqual(2.0, ds['area'])
+        self.assertEqual(1, len(ds['layers']))
+        self.assertEqual('layer1', ds['layers'][0]['name'])
+        self.assertAlmostEqual(0.12 / 1.6 * 0.7, ds['layers'][0]['thermal_resistance'])
+        self.assertAlmostEqual(0.12 * 1600.0, ds['layers'][0]['thermal_capacity'])
 
-        ds = self._gpp2.make_initializer_dict(r_res_sub=0.7)
-        self.assertEqual(3, len(ds))
-        self.assertEqual('gypsum_board', ds[0]['name'])
-        self.assertAlmostEqual(0.0095 / 0.22 * 0.7, ds[0]['thermal_resistance'])
-        self.assertAlmostEqual(0.0095 * 830.0, ds[0]['thermal_capacity'])
-        self.assertEqual('GWHG14-38', ds[1]['name'])
-        self.assertAlmostEqual(0.105 / 0.038 * 0.7, ds[1]['thermal_resistance'])
-        self.assertAlmostEqual(0.105 * 14.0, ds[1]['thermal_capacity'])
-        self.assertEqual('plywood', ds[2]['name'])
-        self.assertAlmostEqual(0.012 / 0.16 * 0.7, ds[2]['thermal_resistance'])
-        self.assertAlmostEqual(0.012 * 720.0, ds[2]['thermal_capacity'])
+        ds = self._gpp2.make_initializer_dict(
+            general_part_name='test_general_part',
+            general_part_area=10.0,
+            r_res_sub=0.7
+        )
+        self.assertEqual('test_general_part_general', ds['name'])
+        self.assertAlmostEqual(8.3, ds['area'])
+        self.assertEqual(3, len(ds['layers']))
+        self.assertEqual('gypsum_board', ds['layers'][0]['name'])
+        self.assertAlmostEqual(0.0095 / 0.22 * 0.7, ds['layers'][0]['thermal_resistance'])
+        self.assertAlmostEqual(0.0095 * 830.0, ds['layers'][0]['thermal_capacity'])
+        self.assertEqual('GWHG14-38', ds['layers'][1]['name'])
+        self.assertAlmostEqual(0.105 / 0.038 * 0.7, ds['layers'][1]['thermal_resistance'])
+        self.assertAlmostEqual(0.105 * 14.0, ds['layers'][1]['thermal_capacity'])
+        self.assertEqual('plywood', ds['layers'][2]['name'])
+        self.assertAlmostEqual(0.012 / 0.16 * 0.7, ds['layers'][2]['thermal_resistance'])
+        self.assertAlmostEqual(0.012 * 720.0, ds['layers'][2]['thermal_capacity'])
 
 
 class GeneralPartSpecTest(unittest.TestCase):
@@ -539,86 +551,6 @@ class GeneralPartSpecTest(unittest.TestCase):
         self.assertAlmostEqual(0.051, self._gps_other_boundary_wall_light.get_eta())
         self.assertAlmostEqual(0.051, self._gps_other_downward_boundary_floor_light.get_eta())
 
-    def test_make_initializer_dict(self):
-
-        def get_r_res(r, r_in, r_ex, u_add):
-            u = 1.0 / (r + r_in + r_ex)
-            ud = u + u_add
-            rd = 1.0 / ud - r_in - r_ex
-            r_res = rd / r
-            return r_res
-
-        parts = self._gps_wood.make_initializer_dict(u_add=0.1)
-
-        layers = parts[0]
-        r_res = get_r_res(r=0.0095/0.22 + 0.105/0.038 + 0.012/0.16, r_in=0.11, r_ex=0.11, u_add=0.1)
-
-        layer = layers[0]
-        self.assertEqual('gypsum_board', layer['name'])
-        self.assertAlmostEqual(r_res * 0.0095/0.22, layer['thermal_resistance'])
-        self.assertAlmostEqual(0.0095*830.0, layer['thermal_capacity'])
-        layer = layers[1]
-        self.assertEqual('GWHG14-38', layer['name'])
-        self.assertAlmostEqual(r_res * 0.105/0.038, layer['thermal_resistance'])
-        self.assertAlmostEqual(0.105*14.0, layer['thermal_capacity'])
-        layer = layers[2]
-        self.assertEqual('plywood', layer['name'])
-        self.assertAlmostEqual(r_res * 0.012/0.16, layer['thermal_resistance'])
-        self.assertAlmostEqual(0.012*720.0, layer['thermal_capacity'])
-
-        layers = parts[1]
-        r_res = get_r_res(r=0.0095/0.22 + 0.105/0.12 + 0.012/0.16, r_in=0.11, r_ex=0.11, u_add=0.1)
-
-        layer = layers[0]
-        self.assertEqual('gypsum_board', layer['name'])
-        self.assertAlmostEqual(r_res * 0.0095/0.22, layer['thermal_resistance'])
-        self.assertAlmostEqual(0.0095*830.0, layer['thermal_capacity'])
-        layer = layers[1]
-        self.assertEqual('wood', layer['name'])
-        self.assertAlmostEqual(r_res * 0.105/0.12, layer['thermal_resistance'])
-        self.assertAlmostEqual(0.105*520.0, layer['thermal_capacity'])
-        layer = layers[2]
-        self.assertEqual('plywood', layer['name'])
-        self.assertAlmostEqual(r_res * 0.012/0.16, layer['thermal_resistance'])
-        self.assertAlmostEqual(0.012*720.0, layer['thermal_capacity'])
-
-        parts = self._gps_rc.make_initializer_dict(u_add=0.1)
-
-        layers = parts[0]
-        r_res = get_r_res(r=0.0095/0.22 + 0.105/0.038 + 0.150/1.6, r_in=0.11, r_ex=0.04, u_add=0.1)
-
-        layer = layers[0]
-        self.assertEqual('gypsum_board', layer['name'])
-        self.assertAlmostEqual(r_res * 0.0095/0.22, layer['thermal_resistance'])
-        self.assertAlmostEqual(0.0095*830.0, layer['thermal_capacity'])
-        layer = layers[1]
-        self.assertEqual('GWHG14-38', layer['name'])
-        self.assertAlmostEqual(r_res * 0.105/0.038, layer['thermal_resistance'])
-        self.assertAlmostEqual(0.105*14.0, layer['thermal_capacity'])
-        layer = layers[2]
-        self.assertEqual('concrete', layer['name'])
-        self.assertAlmostEqual(r_res * 0.150/1.6, layer['thermal_resistance'])
-        self.assertAlmostEqual(0.150*2000.0, layer['thermal_capacity'])
-
-        parts = self._gps_steel.make_initializer_dict(u_add=0.1)
-
-        layers = parts[0]
-        r_res = get_r_res(r=0.0095/0.22 + 0.105/0.038 + 0.012/0.16, r_in=0.11, r_ex=0.11, u_add=0.1+0.18)
-
-        layer = layers[0]
-        self.assertEqual('gypsum_board', layer['name'])
-        self.assertAlmostEqual(r_res * 0.0095/0.22, layer['thermal_resistance'])
-        self.assertAlmostEqual(0.0095*830.0, layer['thermal_capacity'])
-        layer = layers[1]
-        self.assertEqual('GWHG14-38', layer['name'])
-        self.assertAlmostEqual(r_res * 0.105/0.038, layer['thermal_resistance'])
-        self.assertAlmostEqual(0.105*14.0, layer['thermal_capacity'])
-        layer = layers[2]
-        self.assertEqual('plywood', layer['name'])
-        self.assertAlmostEqual(r_res * 0.012/0.16, layer['thermal_resistance'])
-        self.assertAlmostEqual(0.012*720.0, layer['thermal_capacity'])
-
-
     def test_get_as_dict(self):
 
         d_wood = self._gps_wood.get_as_dict()
@@ -680,6 +612,402 @@ class GeneralPartSpecTest(unittest.TestCase):
         self.assertAlmostEqual(0.09, self._gps_other_upward_boundary_floor_light.r_srf_ex)
         self.assertAlmostEqual(0.11, self._gps_other_boundary_wall_light.r_srf_ex)
         self.assertAlmostEqual(0.15, self._gps_other_downward_boundary_floor_light.r_srf_ex)
+
+    @staticmethod
+    def get_r_res(r: float, r_in: float, r_ex: float, u_add: float):
+        """
+        付加する熱伝達率と等価になるような部位の熱抵抗の割引率を計算する。
+        Args:
+            r: 部位の熱抵抗, m2K/W
+            r_in: 室内側熱伝達抵抗, m2K/W
+            r_ex: 室外側熱伝達抵抗, m2K/W
+            u_add: 付加する熱伝達率, W/m2K
+        Returns:
+            割引率
+        """
+
+        # （付加する熱伝達率を考慮する前の）U値, W/m2K
+        u = 1.0 / (r + r_in + r_ex)
+
+        # 付加後のU値, W/m2K
+        ud = u + u_add
+
+        # 付加する熱伝達率を考慮した際の外皮の熱伝達抵抗, m2K/W
+        rd = 1.0 / ud - r_in - r_ex
+
+        # 熱伝達抵抗の割引率
+        r_res = rd / r
+
+        return r_res
+
+    def test_make_initializer_dict_wood(self):
+
+        parts = self._gps_wood.make_initializer_dict(name='test_general_part_type', area=10.0, u_add=0.1)
+
+        part = parts[0]
+        r_res = self.get_r_res(r=0.0095/0.22 + 0.105/0.038 + 0.012/0.16, r_in=0.11, r_ex=0.11, u_add=0.1)
+        self.assertEqual('test_general_part_type_general', part['name'])
+        self.assertAlmostEqual(8.3, part['area'])
+        self.assertAlmostEqual(0.11, part['inside_heat_transfer_resistance'])
+        self.assertAlmostEqual(0.11, part['outside_heat_transfer_resistance'])
+        layer = part['layers'][0]
+        self.assertEqual('gypsum_board', layer['name'])
+        self.assertAlmostEqual(r_res * 0.0095/0.22, layer['thermal_resistance'])
+        self.assertAlmostEqual(0.0095*830.0, layer['thermal_capacity'])
+        layer = part['layers'][1]
+        self.assertEqual('GWHG14-38', layer['name'])
+        self.assertAlmostEqual(r_res * 0.105/0.038, layer['thermal_resistance'])
+        self.assertAlmostEqual(0.105*14.0, layer['thermal_capacity'])
+        layer = part['layers'][2]
+        self.assertEqual('plywood', layer['name'])
+        self.assertAlmostEqual(r_res * 0.012/0.16, layer['thermal_resistance'])
+        self.assertAlmostEqual(0.012*720.0, layer['thermal_capacity'])
+
+        part = parts[1]
+        r_res = self.get_r_res(r=0.0095/0.22 + 0.105/0.12 + 0.012/0.16, r_in=0.11, r_ex=0.11, u_add=0.1)
+        self.assertEqual('test_general_part_type_heat_bridge', part['name'])
+        self.assertAlmostEqual(1.7, part['area'])
+        self.assertAlmostEqual(0.11, part['inside_heat_transfer_resistance'])
+        self.assertAlmostEqual(0.11, part['outside_heat_transfer_resistance'])
+        layer = part['layers'][0]
+        self.assertEqual('gypsum_board', layer['name'])
+        self.assertAlmostEqual(r_res * 0.0095/0.22, layer['thermal_resistance'])
+        self.assertAlmostEqual(0.0095*830.0, layer['thermal_capacity'])
+        layer = part['layers'][1]
+        self.assertEqual('wood', layer['name'])
+        self.assertAlmostEqual(r_res * 0.105/0.12, layer['thermal_resistance'])
+        self.assertAlmostEqual(0.105*520.0, layer['thermal_capacity'])
+        layer = part['layers'][2]
+        self.assertEqual('plywood', layer['name'])
+        self.assertAlmostEqual(r_res * 0.012/0.16, layer['thermal_resistance'])
+        self.assertAlmostEqual(0.012*720.0, layer['thermal_capacity'])
+
+    def test_make_initializer_dict_rc(self):
+
+        parts = self._gps_rc.make_initializer_dict(name='test_general_part_type', area=10.0, u_add=0.1)
+
+        part = parts[0]
+        r_res = self.get_r_res(r=0.0095/0.22 + 0.105/0.038 + 0.150/1.6, r_in=0.11, r_ex=0.04, u_add=0.1)
+        self.assertEqual('test_general_part_type_general', part['name'])
+        self.assertAlmostEqual(10.0, part['area'])
+        self.assertAlmostEqual(0.11, part['inside_heat_transfer_resistance'])
+        self.assertAlmostEqual(0.04, part['outside_heat_transfer_resistance'])
+        layer = part['layers'][0]
+        self.assertEqual('gypsum_board', layer['name'])
+        self.assertAlmostEqual(r_res * 0.0095/0.22, layer['thermal_resistance'])
+        self.assertAlmostEqual(0.0095*830.0, layer['thermal_capacity'])
+        layer = part['layers'][1]
+        self.assertEqual('GWHG14-38', layer['name'])
+        self.assertAlmostEqual(r_res * 0.105/0.038, layer['thermal_resistance'])
+        self.assertAlmostEqual(0.105*14.0, layer['thermal_capacity'])
+        layer = part['layers'][2]
+        self.assertEqual('concrete', layer['name'])
+        self.assertAlmostEqual(r_res * 0.150/1.6, layer['thermal_resistance'])
+        self.assertAlmostEqual(0.150*2000.0, layer['thermal_capacity'])
+
+    def test_make_initializer_dict_steel(self):
+
+        parts = self._gps_steel.make_initializer_dict(name='test_general_part_type', area=10.0, u_add=0.1)
+
+        part = parts[0]
+        r_res = self.get_r_res(r=0.0095/0.22 + 0.105/0.038 + 0.012/0.16, r_in=0.11, r_ex=0.11, u_add=0.1+0.18)
+
+        self.assertEqual('test_general_part_type_general', part['name'])
+        self.assertAlmostEqual(10.0, part['area'])
+        self.assertAlmostEqual(0.11, part['inside_heat_transfer_resistance'])
+        self.assertAlmostEqual(0.11, part['outside_heat_transfer_resistance'])
+        layer = part['layers'][0]
+        self.assertEqual('gypsum_board', layer['name'])
+        self.assertAlmostEqual(r_res * 0.0095/0.22, layer['thermal_resistance'])
+        self.assertAlmostEqual(0.0095*830.0, layer['thermal_capacity'])
+        layer = part['layers'][1]
+        self.assertEqual('GWHG14-38', layer['name'])
+        self.assertAlmostEqual(r_res * 0.105/0.038, layer['thermal_resistance'])
+        self.assertAlmostEqual(0.105*14.0, layer['thermal_capacity'])
+        layer = part['layers'][2]
+        self.assertEqual('plywood', layer['name'])
+        self.assertAlmostEqual(r_res * 0.012/0.16, layer['thermal_resistance'])
+        self.assertAlmostEqual(0.012*720.0, layer['thermal_capacity'])
+
+    def test_make_initializer_dict_roof_light(self):
+
+        parts = self._gps_other_roof_light.make_initializer_dict(name='test_general_part_type', area=10.0, u_add=0.1)
+        self.assertEqual(1, len(parts))
+        part = parts[0]
+        r_res = self.get_r_res(r=1/1.5 - 0.09 - 0.04, r_in=0.09, r_ex=0.04, u_add=0.1)
+        self.assertEqual('test_general_part_type_sole_part', part['name'])
+        self.assertAlmostEqual(10.0, part['area'])
+        self.assertAlmostEqual(0.09, part['inside_heat_transfer_resistance'])
+        self.assertAlmostEqual(0.04, part['outside_heat_transfer_resistance'])
+        self.assertEqual(2, len(part['layers']))
+        layer = part['layers'][0]
+        self.assertEqual('gypsum_board', layer['name'])
+        self.assertAlmostEqual(r_res * 0.0095/0.221, layer['thermal_resistance'])
+        self.assertAlmostEqual(0.0095*830.0, layer['thermal_capacity'])
+        layer = part['layers'][1]
+        self.assertEqual('default_insulation', layer['name'])
+        self.assertAlmostEqual(r_res * (1 / 1.5 - 0.09 - 0.04 - 0.0095 / 0.221), layer['thermal_resistance'])
+        self.assertAlmostEqual((1 / 1.5 - 0.09 - 0.04 - 0.0095 / 0.221) * 0.045 * 13.0, layer['thermal_capacity'])
+
+    def test_make_initializer_dict_roof_heavy(self):
+
+        parts = self._gps_other_roof_heavy.make_initializer_dict(name='test_general_part_type', area=10.0, u_add=0.1)
+        self.assertEqual(1, len(parts))
+        part = parts[0]
+        r_res = self.get_r_res(r=1/1.5 - 0.09 - 0.04, r_in=0.09, r_ex=0.04, u_add=0.1)
+        self.assertEqual('test_general_part_type_sole_part', part['name'])
+        self.assertAlmostEqual(10.0, part['area'])
+        self.assertAlmostEqual(0.09, part['inside_heat_transfer_resistance'])
+        self.assertAlmostEqual(0.04, part['outside_heat_transfer_resistance'])
+        self.assertEqual(3, len(part['layers']))
+        layer = part['layers'][0]
+        self.assertEqual('gypsum_board', layer['name'])
+        self.assertAlmostEqual(r_res * 0.0095/0.221, layer['thermal_resistance'])
+        self.assertAlmostEqual(0.0095*830.0, layer['thermal_capacity'])
+        layer = part['layers'][1]
+        self.assertEqual('default_insulation', layer['name'])
+        self.assertAlmostEqual(r_res * (1/1.5 - 0.09 - 0.04 - 0.0095/0.221 - 0.120/1.6), layer['thermal_resistance'])
+        self.assertAlmostEqual((1/1.5 - 0.09 - 0.04 - 0.0095/0.221 - 0.120/1.6) * 0.045 * 13.0, layer['thermal_capacity'])
+        layer = part['layers'][2]
+        self.assertEqual('concrete', layer['name'])
+        self.assertAlmostEqual(r_res * 0.120/1.6, layer['thermal_resistance'])
+        self.assertAlmostEqual(0.120*2000.0, layer['thermal_capacity'])
+
+    def test_make_initializer_dict_ceiling_light(self):
+
+        parts = self._gps_other_ceiling_light.make_initializer_dict(name='test_general_part_type', area=10.0, u_add=0.1)
+        self.assertEqual(1, len(parts))
+        part = parts[0]
+        r_res = self.get_r_res(r=1/1.5 - 0.09 - 0.09, r_in=0.09, r_ex=0.09, u_add=0.1)
+        self.assertEqual('test_general_part_type_sole_part', part['name'])
+        self.assertAlmostEqual(10.0, part['area'])
+        self.assertAlmostEqual(0.09, part['inside_heat_transfer_resistance'])
+        self.assertAlmostEqual(0.09, part['outside_heat_transfer_resistance'])
+        self.assertEqual(2, len(part['layers']))
+        layer = part['layers'][0]
+        self.assertEqual('gypsum_board', layer['name'])
+        self.assertAlmostEqual(r_res * 0.0095/0.221, layer['thermal_resistance'])
+        self.assertAlmostEqual(0.0095*830.0, layer['thermal_capacity'])
+        layer = part['layers'][1]
+        self.assertEqual('default_insulation', layer['name'])
+        self.assertAlmostEqual(r_res * (1 / 1.5 - 0.09 - 0.09 - 0.0095 / 0.221), layer['thermal_resistance'])
+        self.assertAlmostEqual((1 / 1.5 - 0.09 - 0.09 - 0.0095 / 0.221) * 0.045 * 13.0, layer['thermal_capacity'])
+
+    def test_make_initializer_dict_ceiling_heavy(self):
+
+        parts = self._gps_other_ceiling_heavy.make_initializer_dict(name='test_general_part_type', area=10.0, u_add=0.1)
+        self.assertEqual(1, len(parts))
+        part = parts[0]
+        r_res = self.get_r_res(r=1/1.5 - 0.09 - 0.09, r_in=0.09, r_ex=0.09, u_add=0.1)
+        self.assertEqual('test_general_part_type_sole_part', part['name'])
+        self.assertAlmostEqual(10.0, part['area'])
+        self.assertAlmostEqual(0.09, part['inside_heat_transfer_resistance'])
+        self.assertAlmostEqual(0.09, part['outside_heat_transfer_resistance'])
+        self.assertEqual(3, len(part['layers']))
+        layer = part['layers'][0]
+        self.assertEqual('gypsum_board', layer['name'])
+        self.assertAlmostEqual(r_res * 0.0095/0.221, layer['thermal_resistance'])
+        self.assertAlmostEqual(0.0095*830.0, layer['thermal_capacity'])
+        layer = part['layers'][1]
+        self.assertEqual('default_insulation', layer['name'])
+        self.assertAlmostEqual(r_res * (1/1.5 - 0.09 - 0.09 - 0.0095/0.221 - 0.120/1.6), layer['thermal_resistance'])
+        self.assertAlmostEqual((1/1.5 - 0.09 - 0.09 - 0.0095/0.221 - 0.120/1.6) * 0.045 * 13.0, layer['thermal_capacity'])
+        layer = part['layers'][2]
+        self.assertEqual('concrete', layer['name'])
+        self.assertAlmostEqual(r_res * 0.120/1.6, layer['thermal_resistance'])
+        self.assertAlmostEqual(0.120*2000.0, layer['thermal_capacity'])
+
+    def test_make_initializer_dict_wall_light(self):
+
+        parts = self._gps_other_wall_light.make_initializer_dict(name='test_general_part_type', area=10.0, u_add=0.1)
+        self.assertEqual(1, len(parts))
+        part = parts[0]
+        r_res = self.get_r_res(r=1/1.5 - 0.11 - 0.04, r_in=0.11, r_ex=0.04, u_add=0.1)
+        self.assertEqual('test_general_part_type_sole_part', part['name'])
+        self.assertAlmostEqual(10.0, part['area'])
+        self.assertAlmostEqual(0.11, part['inside_heat_transfer_resistance'])
+        self.assertAlmostEqual(0.04, part['outside_heat_transfer_resistance'])
+        self.assertEqual(3, len(part['layers']))
+        layer = part['layers'][0]
+        self.assertEqual('gypsum_board', layer['name'])
+        self.assertAlmostEqual(r_res * 0.0095/0.221, layer['thermal_resistance'])
+        self.assertAlmostEqual(0.0095*830.0, layer['thermal_capacity'])
+        layer = part['layers'][1]
+        self.assertEqual('default_insulation', layer['name'])
+        self.assertAlmostEqual(r_res * (1/1.5 - 0.11 - 0.04 - 0.0095/0.221 - 0.012/0.16), layer['thermal_resistance'])
+        self.assertAlmostEqual((1/1.5 - 0.11 - 0.04 - 0.0095/0.221 - 0.012/0.16) * 0.045 * 13.0, layer['thermal_capacity'])
+        layer = part['layers'][2]
+        self.assertEqual('plywood', layer['name'])
+        self.assertAlmostEqual(r_res * 0.012/0.16, layer['thermal_resistance'])
+        self.assertAlmostEqual(0.012*720.0, layer['thermal_capacity'])
+
+    def test_make_initializer_dict_wall_heavy(self):
+
+        parts = self._gps_other_wall_heavy.make_initializer_dict(name='test_general_part_type', area=10.0, u_add=0.1)
+        self.assertEqual(1, len(parts))
+        part = parts[0]
+        r_res = self.get_r_res(r=1/1.5 - 0.11 - 0.04, r_in=0.11, r_ex=0.04, u_add=0.1)
+        self.assertEqual('test_general_part_type_sole_part', part['name'])
+        self.assertAlmostEqual(10.0, part['area'])
+        self.assertAlmostEqual(0.11, part['inside_heat_transfer_resistance'])
+        self.assertAlmostEqual(0.04, part['outside_heat_transfer_resistance'])
+        self.assertEqual(3, len(part['layers']))
+        layer = part['layers'][0]
+        self.assertEqual('gypsum_board', layer['name'])
+        self.assertAlmostEqual(r_res * 0.0095/0.221, layer['thermal_resistance'])
+        self.assertAlmostEqual(0.0095*830.0, layer['thermal_capacity'])
+        layer = part['layers'][1]
+        self.assertEqual('default_insulation', layer['name'])
+        self.assertAlmostEqual(r_res * (1/1.5 - 0.11 - 0.04 - 0.0095/0.221 - 0.120/1.6), layer['thermal_resistance'])
+        self.assertAlmostEqual((1/1.5 - 0.11 - 0.04 - 0.0095/0.221 - 0.120/1.6) * 0.045 * 13.0, layer['thermal_capacity'])
+        layer = part['layers'][2]
+        self.assertEqual('concrete', layer['name'])
+        self.assertAlmostEqual(r_res * 0.120/1.6, layer['thermal_resistance'])
+        self.assertAlmostEqual(0.120*2000.0, layer['thermal_capacity'])
+
+    def test_make_initializer_dict_floor_light(self):
+
+        parts = self._gps_other_floor_light.make_initializer_dict(name='test_general_part_type', area=10.0, u_add=0.1)
+        self.assertEqual(1, len(parts))
+        part = parts[0]
+        r_res = self.get_r_res(r=1/1.5 - 0.15 - 0.15, r_in=0.15, r_ex=0.15, u_add=0.1)
+        self.assertEqual('test_general_part_type_sole_part', part['name'])
+        self.assertAlmostEqual(10.0, part['area'])
+        self.assertAlmostEqual(0.15, part['inside_heat_transfer_resistance'])
+        self.assertAlmostEqual(0.15, part['outside_heat_transfer_resistance'])
+        self.assertEqual(2, len(part['layers']))
+        layer = part['layers'][0]
+        self.assertEqual('plywood', layer['name'])
+        self.assertAlmostEqual(r_res * 0.024/0.16, layer['thermal_resistance'])
+        self.assertAlmostEqual(0.024*720.0, layer['thermal_capacity'])
+        layer = part['layers'][1]
+        self.assertEqual('default_insulation', layer['name'])
+        self.assertAlmostEqual(r_res * (1 / 1.5 - 0.15 - 0.15 - 0.024 / 0.16), layer['thermal_resistance'])
+        self.assertAlmostEqual((1 / 1.5 - 0.15 - 0.15 - 0.024 / 0.16) * 0.045 * 13.0, layer['thermal_capacity'])
+
+    def test_make_initializer_dict_floor_heavy(self):
+
+        parts = self._gps_other_floor_heavy.make_initializer_dict(name='test_general_part_type', area=10.0, u_add=0.1)
+        self.assertEqual(1, len(parts))
+        part = parts[0]
+        r_res = self.get_r_res(r=1/1.5 - 0.15 - 0.15, r_in=0.15, r_ex=0.15, u_add=0.1)
+        self.assertEqual('test_general_part_type_sole_part', part['name'])
+        self.assertAlmostEqual(10.0, part['area'])
+        self.assertAlmostEqual(0.15, part['inside_heat_transfer_resistance'])
+        self.assertAlmostEqual(0.15, part['outside_heat_transfer_resistance'])
+        self.assertEqual(3, len(part['layers']))
+        layer = part['layers'][0]
+        self.assertEqual('plywood', layer['name'])
+        self.assertAlmostEqual(r_res * 0.024/0.16, layer['thermal_resistance'])
+        self.assertAlmostEqual(0.024*720.0, layer['thermal_capacity'])
+        layer = part['layers'][1]
+        self.assertEqual('default_insulation', layer['name'])
+        self.assertAlmostEqual(r_res * (1/1.5 - 0.15 - 0.15 - 0.024/0.16 - 0.120/1.6), layer['thermal_resistance'])
+        self.assertAlmostEqual((1/1.5 - 0.15 - 0.15 - 0.024/0.16 - 0.120/1.6) * 0.045 * 13.0, layer['thermal_capacity'])
+        layer = part['layers'][2]
+        self.assertEqual('concrete', layer['name'])
+        self.assertAlmostEqual(r_res * 0.120/1.6, layer['thermal_resistance'])
+        self.assertAlmostEqual(0.120*2000.0, layer['thermal_capacity'])
+
+    def test_make_initializer_dict_boundary_wall_light(self):
+
+        parts = self._gps_other_boundary_wall_light.make_initializer_dict(name='test_general_part_type', area=10.0, u_add=0.1)
+        self.assertEqual(1, len(parts))
+        part = parts[0]
+        r_res = self.get_r_res(r=1/1.5 - 0.11 - 0.11, r_in=0.11, r_ex=0.11, u_add=0.1)
+        self.assertEqual('test_general_part_type_sole_part', part['name'])
+        self.assertAlmostEqual(10.0, part['area'])
+        self.assertAlmostEqual(0.11, part['inside_heat_transfer_resistance'])
+        self.assertAlmostEqual(0.11, part['outside_heat_transfer_resistance'])
+        self.assertEqual(3, len(part['layers']))
+        layer = part['layers'][0]
+        self.assertEqual('gypsum_board', layer['name'])
+        self.assertAlmostEqual(r_res * 0.0095/0.221, layer['thermal_resistance'])
+        self.assertAlmostEqual(0.0095*830.0, layer['thermal_capacity'])
+        layer = part['layers'][1]
+        self.assertEqual('default_insulation', layer['name'])
+        self.assertAlmostEqual(r_res * (1/1.5 - 0.11 - 0.11 - 0.0095/0.221 - 0.0095/0.221), layer['thermal_resistance'])
+        self.assertAlmostEqual((1/1.5 - 0.11 - 0.11 - 0.0095/0.221 - 0.0095/0.221) * 0.045 * 13.0, layer['thermal_capacity'])
+        layer = part['layers'][2]
+        self.assertEqual('gypsum_board', layer['name'])
+        self.assertAlmostEqual(r_res * 0.0095/0.221, layer['thermal_resistance'])
+        self.assertAlmostEqual(0.0095*830.0, layer['thermal_capacity'])
+
+    def test_make_initializer_dict_boundary_wall_heavy(self):
+
+        parts = self._gps_other_boundary_wall_heavy.make_initializer_dict(name='test_general_part_type', area=10.0, u_add=0.1)
+        self.assertEqual(1, len(parts))
+        part = parts[0]
+        r_res = self.get_r_res(r=1/1.5 - 0.11 - 0.11, r_in=0.11, r_ex=0.11, u_add=0.1)
+        self.assertEqual('test_general_part_type_sole_part', part['name'])
+        self.assertAlmostEqual(10.0, part['area'])
+        self.assertAlmostEqual(0.11, part['inside_heat_transfer_resistance'])
+        self.assertAlmostEqual(0.11, part['outside_heat_transfer_resistance'])
+        self.assertEqual(3, len(part['layers']))
+        layer = part['layers'][0]
+        self.assertEqual('gypsum_board', layer['name'])
+        self.assertAlmostEqual(r_res * 0.0095/0.221, layer['thermal_resistance'])
+        self.assertAlmostEqual(0.0095*830.0, layer['thermal_capacity'])
+        layer = part['layers'][1]
+        self.assertEqual('default_insulation', layer['name'])
+        self.assertAlmostEqual(r_res * (1/1.5 - 0.11 - 0.11 - 0.0095/0.221 - 0.0095/0.221), layer['thermal_resistance'])
+        self.assertAlmostEqual((1/1.5 - 0.11 - 0.11 - 0.0095/0.221 - 0.0095/0.221) * 0.045 * 13.0, layer['thermal_capacity'])
+        layer = part['layers'][2]
+        self.assertEqual('gypsum_board', layer['name'])
+        self.assertAlmostEqual(r_res * 0.0095/0.221, layer['thermal_resistance'])
+        self.assertAlmostEqual(0.0095*830.0, layer['thermal_capacity'])
+
+    def test_make_initializer_dict_downward_boundary_floor_light(self):
+
+        parts = self._gps_other_downward_boundary_floor_light.make_initializer_dict(name='test_general_part_type', area=10.0, u_add=0.1)
+        self.assertEqual(1, len(parts))
+        part = parts[0]
+        r_res = self.get_r_res(r=1/1.5 - 0.15 - 0.15, r_in=0.15, r_ex=0.15, u_add=0.1)
+        self.assertEqual('test_general_part_type_sole_part', part['name'])
+        self.assertAlmostEqual(10.0, part['area'])
+        self.assertAlmostEqual(0.15, part['inside_heat_transfer_resistance'])
+        self.assertAlmostEqual(0.15, part['outside_heat_transfer_resistance'])
+        self.assertEqual(3, len(part['layers']))
+        layer = part['layers'][0]
+        self.assertEqual('plywood', layer['name'])
+        self.assertAlmostEqual(r_res * 0.024/0.16, layer['thermal_resistance'])
+        self.assertAlmostEqual(0.024*720.0, layer['thermal_capacity'])
+        layer = part['layers'][1]
+        self.assertEqual('default_insulation', layer['name'])
+        self.assertAlmostEqual(r_res * (1/1.5 - 0.15 - 0.15 - 0.024/0.16 - 0.0095/0.221), layer['thermal_resistance'])
+        self.assertAlmostEqual((1/1.5 - 0.15 - 0.15 - 0.024/0.16 - 0.0095/0.221) * 0.045 * 13.0, layer['thermal_capacity'])
+        layer = part['layers'][2]
+        self.assertEqual('gypsum_board', layer['name'])
+        self.assertAlmostEqual(r_res * 0.0095/0.221, layer['thermal_resistance'])
+        self.assertAlmostEqual(0.0095*830.0, layer['thermal_capacity'])
+
+    def test_make_initializer_dict_downward_boundary_floor_heavy(self):
+
+        parts = self._gps_other_downward_boundary_floor_heavy.make_initializer_dict(name='test_general_part_type', area=10.0, u_add=0.1)
+        self.assertEqual(1, len(parts))
+        part = parts[0]
+        r_res = self.get_r_res(r=1/1.5 - 0.15 - 0.15, r_in=0.15, r_ex=0.15, u_add=0.1)
+        self.assertEqual('test_general_part_type_sole_part', part['name'])
+        self.assertAlmostEqual(10.0, part['area'])
+        self.assertAlmostEqual(0.15, part['inside_heat_transfer_resistance'])
+        self.assertAlmostEqual(0.15, part['outside_heat_transfer_resistance'])
+        self.assertEqual(4, len(part['layers']))
+        layer = part['layers'][0]
+        self.assertEqual('plywood', layer['name'])
+        self.assertAlmostEqual(r_res * 0.024/0.16, layer['thermal_resistance'])
+        self.assertAlmostEqual(0.024*720.0, layer['thermal_capacity'])
+        layer = part['layers'][1]
+        self.assertEqual('default_insulation', layer['name'])
+        self.assertAlmostEqual(r_res * (1/1.5 - 0.15 - 0.15 - 0.024/0.16 - 0.120/1.6 - 0.0095/0.221), layer['thermal_resistance'])
+        self.assertAlmostEqual((1/1.5 - 0.15 - 0.15 - 0.024/0.16 - 0.120/1.6 - 0.0095/0.221) * 0.045 * 13.0, layer['thermal_capacity'])
+        layer = part['layers'][2]
+        self.assertEqual('concrete', layer['name'])
+        self.assertAlmostEqual(r_res * 0.120/1.6, layer['thermal_resistance'])
+        self.assertAlmostEqual(0.120*2000.0, layer['thermal_capacity'])
+        layer = part['layers'][3]
+        self.assertEqual('gypsum_board', layer['name'])
+        self.assertAlmostEqual(r_res * 0.0095/0.221, layer['thermal_resistance'])
+        self.assertAlmostEqual(0.0095*830.0, layer['thermal_capacity'])
 
     def test_convert_to_general_part_spec_detail_roof_light(self):
 
@@ -1135,6 +1463,35 @@ class GeneralPartSpecTest(unittest.TestCase):
         self.assertEqual(0.0095, layer.thickness)
         self.assertEqual(830.0, layer.volumetric_specific_heat)
         self.assertEqual(0.221, layer._thermal_conductivity)
+
+class GeneralPartTest(unittest.TestCase):
+
+    def test_make_initializer_dict(self):
+
+        print('\n testing EES house general part')
+
+        gp = ees_house.GeneralPart.make_general_part(
+            d={
+                'name': 'test_part',
+                'general_part_type': 'roof',
+                'next_space': 'outdoor',
+                'direction': 'top',
+                'area': 10.0,
+                'space_type': 'main_occupant_room',
+                'sunshade': {
+                    'is_defined': True,
+                    'input': 'simple',
+                    'depth': 0.3,
+                    'd_h': 1.0,
+                    'd_e': 0.05
+                },
+                'spec': {
+                    'structure': 'other',
+                    'weight': 'light',
+                    'u_value_other': 1.5
+                }
+            }
+        )
 
 
 if __name__ == '__main__':

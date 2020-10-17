@@ -329,10 +329,17 @@ class GeneralPartPart:
             'layers': [layer.get_as_dict() for layer in self.layers]
         }
 
-    def make_initializer_dict(self, r_res_sub: float) -> List[Dict]:
+    def make_initializer_dict(
+            self,
+            general_part_name: str,
+            general_part_area: float,
+            r_res_sub: float
+    ) -> Dict:
         """
         initializer用の辞書を作成する。
         Args:
+            general_part_name: 一般部位の名称
+            general_part_area: 一般部位の面積, m2
             r_res_sub: 熱抵抗割引率(0.0~1.0)
         Returns:
             initializer用辞書
@@ -342,10 +349,11 @@ class GeneralPartPart:
             割増率 = ( もともとのR値 - 割引されるR値 ) / もともとのR値
             で表される。
         """
-        return [
-            layer.make_initializer_dict(r_res_sub=r_res_sub)
-            for layer in self.layers
-        ]
+        return {
+            'name': general_part_name + '_' + self.name,
+            'area': general_part_area * self.part_area_ratio,
+            'layers': [layer.make_initializer_dict(r_res_sub=r_res_sub) for layer in self.layers]
+        }
 
 
 class GeneralPartSpec:
@@ -477,10 +485,12 @@ class GeneralPartSpecDetail(GeneralPartSpec):
     def get_as_dict(self):
         pass
 
-    def make_initializer_dict(self, u_add: float) -> List[List[Dict]]:
+    def make_initializer_dict(self, name: str, area: float, u_add: float) -> List[Dict]:
         """
         U値増加分を考慮した補正後のinitializer用のレイヤーのリストを辞書形式で取得する。
         Args:
+            name: 名称
+            area: 面積, m2
             u_add: U値増加分, W/m2K
         Returns:
             initializer用レイヤーのリスト
@@ -498,7 +508,21 @@ class GeneralPartSpecDetail(GeneralPartSpec):
         # 熱抵抗割引率
         rs_res_sub = [r_dash / p.get_r_total() for p, r_dash in zip(self._parts, rs_dash)]
 
-        return [part.make_initializer_dict(r_res_sub=r_res_sub) for part, r_res_sub in zip(self.parts, rs_res_sub)]
+        ds = [
+            part.make_initializer_dict(
+                general_part_name=name,
+                general_part_area=area,
+                r_res_sub=r_res_sub
+            ) for part, r_res_sub in zip(self.parts, rs_res_sub)
+        ]
+
+        for d in ds:
+            d.update(
+                inside_heat_transfer_resistance=self.r_srf_in,
+                outside_heat_transfer_resistance=self.r_srf_ex
+            )
+
+        return ds
 
 
 class GeneralPartSpecDetailWood(GeneralPartSpecDetail):
@@ -534,16 +558,18 @@ class GeneralPartSpecDetailWood(GeneralPartSpecDetail):
             'parts': [part.get_as_dict() for part in self.parts]
         }
 
-    def make_initializer_dict(self, u_add: float) -> List[List[Dict]]:
+    def make_initializer_dict(self, name: str, area: float, u_add: float) -> List[Dict]:
         """
         U値増加分を考慮した補正後のinitializer用のレイヤーのリストを辞書形式で取得する。
         Args:
+            name: 名称
+            area: 面積, m2
             u_add: U値増加分, W/m2K
         Returns:
             initializer用レイヤーのリスト
         """
 
-        return super().make_initializer_dict(u_add=u_add)
+        return super().make_initializer_dict(name=name, area=area, u_add=u_add)
 
 
 class GeneralPartSpecDetailRC(GeneralPartSpecDetail):
@@ -578,16 +604,18 @@ class GeneralPartSpecDetailRC(GeneralPartSpecDetail):
             'parts': [part.get_as_dict() for part in self.parts]
         }
 
-    def make_initializer_dict(self, u_add: float) -> List[List[Dict]]:
+    def make_initializer_dict(self, name: str, area: float, u_add: float) -> List[Dict]:
         """
         U値増加分を考慮した補正後のinitializer用のレイヤーのリストを辞書形式で取得する。
         Args:
+            name: 名称
+            area: 面積, m2
             u_add: U値増加分, W/m2K
         Returns:
             initializer用レイヤーのリスト
         """
 
-        return super().make_initializer_dict(u_add=u_add)
+        return super().make_initializer_dict(name=name, area=area, u_add=u_add)
 
 
 class GeneralPartSpecDetailSteel(GeneralPartSpecDetail):
@@ -632,16 +660,18 @@ class GeneralPartSpecDetailSteel(GeneralPartSpecDetail):
             'parts': [part.get_as_dict() for part in self.parts]
         }
 
-    def make_initializer_dict(self, u_add: float) -> List[List[Dict]]:
+    def make_initializer_dict(self, name: str, area: float, u_add: float) -> List[Dict]:
         """
         U値増加分を考慮した補正後のinitializer用のレイヤーのリストを辞書形式で取得する。
         Args:
+            name: 名称
+            area: 面積, m2
             u_add: U値増加分, W/m2K
         Returns:
             initializer用レイヤーのリスト
         """
 
-        return super().make_initializer_dict(u_add=u_add + self._u_r_value_steel)
+        return super().make_initializer_dict(name=name, area=area, u_add=u_add + self._u_r_value_steel)
 
 
 class GeneralPartSpecUValue(GeneralPartSpec):
@@ -710,7 +740,14 @@ class GeneralPartSpecUValue(GeneralPartSpec):
 
         pass
 
-    def convert_to_general_part_spec_detail(self):
+    def make_initializer_dict(self, name: str, area: float, u_add: float) -> List[Dict]:
+
+        # GeneralPartSpecDetail
+        gpsd = self.convert_to_general_part_spec_detail()
+
+        return gpsd.make_initializer_dict(name=name, area=area, u_add=u_add)
+
+    def convert_to_general_part_spec_detail(self) -> GeneralPartSpecDetail:
 
         gypsum_board9_5 = Layer(
             name='gypsum_board',
@@ -2042,15 +2079,4 @@ class InnerWall:
             'space_type_2': self.space_type_2,
             'spec': self.inner_wall_spec
         }
-
-
-
-
-
-
-
-
-
-
-
 
