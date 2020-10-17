@@ -1,0 +1,114 @@
+﻿種類,1,2,3,4,5,6,7,8,9,key,項目名,必須,条件,型,単位,入力,備考
+全体,〇,,,,,,,,,common,共通,〇,,dict,－,,
+,,〇,,,,,,,,region,地域の区分,〇,,int,－,1から8の値。,1から8の地域区分を表す。
+,,〇,,,,,,,,main_occupant_room_floor_area,主たる居室の床面積,〇,,float,m2,0.0以上。,
+,,〇,,,,,,,,other_occupant_room_floor_area,その他の居室の床面積,〇,,float,m2,0.0以上。,
+,,〇,,,,,,,,total_floor_area,床面積の合計,〇,,float,m2,0.0以上。,
+,,〇,,,,,,,,house_type,建て方,〇,,str,－,'detached' 又は 'attached',detached: 戸建て住宅、attached: 集合住宅
+,〇,,,,,,,,,envelope,外皮,〇,,dict,－,,
+,,〇,,,,,,,,with_room_usage,室用途の有無,〇,,bool,－,,外皮が接する室の用途の入力の有無
+,,〇,,,,,,,,general_parts,一般部位,〇,,list,－,,本項目は必須項目であり、部位が存在しない場合は空の配列として保持すること。
+,,,〇,,,,,,,,,〇,,dict,－,,
+,,,,〇,,,,,,name,名称,〇,,str,－,,
+,,,,〇,,,,,,general_part_type,種類,〇,,str,－,"{'roof', 'ceiling', 'wall', 'floor', 'boundary_wall', 'upward_boundary_floor', 'downward_boundary_floor'}",「屋根」「天井」「外壁」「床」「界壁」「上階側界床」「下界側界床」
+,,,,〇,,,,,,next_space,隣接空間の種類,〇,,str,－,"{'outdoor', 'open_space', 'closed_space', 'open_underfloor', 'air_conditioned', 'closed_underfloor'}",「外気」「外気に通じる空間」「外気に通じていない空間」「外気に通じる床裏」「住戸及び住戸と同様の熱的環境の空間」「外気に通じていない床裏」
+,,,,〇,,,,,,direction,方位,〇,,str,－,"{'top', 'n', 'ne', 'e', 'se', 's', 'sw', 'w', 'nw', 'bottom', 'upward', 'horizontal', 'downward'}",「外気上面」「外気北」「外気北東」「外気東」「外気南東」「外気南」「外気南西」「外気西」「外気北西」「外気下面」「外気以外上面」「外気以外鉛直面」「外気以外下面」
+,,,,〇,,,,,,area,面積,〇,,float,m2,,
+,,,,〇,,,,,,space_type,接する室の用途,〇,,str,－,"{'main_occupant_room', 'other_occupant_room', 'non_occupant_room', 'underfloor', 'undefined'}",「主たる居室」「その他の居室」「非居室」「床下」「未定義」
+,,,,〇,,,,,,sunshade,,,,sunshade,－,,
+,,,,〇,,,,,,spec,仕様,〇,,dict,－,,
+,,,,,〇,,,,,structure,構造種別,〇,,str,－,"{'wood', 'rc', 'steel', 'other'}",「木造」「鉄筋コンクリート造等」「鉄骨造」「その他／不明」
+,,,,,〇,,,,,u_r_value_steel,補正熱貫流率（Ur値）（鉄骨造）,△,{'structure': 'steel'},float,W/m2K,,
+,,,,,〇,,,,,u_value_other,熱貫流率（U値）（その他）,△,{'structure': 'other'},float,W/m2K,,
+,,,,,〇,,,,,weight,熱的重さ,△,{'structure': 'other'},str,－,"{'light', 'heavy'}",「（熱的に）軽い」「（熱的に）重い」
+,,,,,〇,,,,,r_srf_in,室内側熱伝達抵抗,△,"{'structure': 'wood'}, {'structure': 'rc'}, {'structure': 'steel'}",float,m2K/W,,
+,,,,,〇,,,,,r_srf_ex,室外側熱伝達抵抗,△,"{'structure': 'wood'}, {'structure': 'rc'}, {'structure': 'steel'}",float,m2K/W,,
+,,,,,〇,,,,,parts,部分,△,"{'structure': 'wood'}, {'structure': 'rc'}, {'structure': 'steel'}",list,－,,本項目は必須項目であり、部位が存在しない場合は空の配列として保持すること。
+,,,,,,〇,,,,,,〇,,dict,－,,
+,,,,,,,〇,,,name,名称,〇,,str,－,,
+,,,,,,,〇,,,part_area_ratio,部分の面積比率,〇,,float,－,,0.0から1.0の間の数字で表す。各部分のこの値の合計は1.0にならないといけない。
+,,,,,,,〇,,,layers,層,〇,,layers,－,,
+,,〇,,,,,,,,windows,大部分がガラスで構成される窓等の開口部,〇,,list,－,,本項目は必須項目であり、部位が存在しない場合は空の配列として保持すること。
+,,,〇,,,,,,,,,〇,,dict,－,,
+,,,,〇,,,,,,name,名称,〇,,str,－,,
+,,,,〇,,,,,,next_space,隣接空間の種類,〇,,str,－,"{'outdoor', 'open_space', 'closed_space', 'open_underfloor', 'air_conditioned', 'closed_underfloor'}",「外気」「外気に通じる空間」「外気に通じていない空間」「外気に通じる床裏」「住戸及び住戸と同様の熱的環境の空間」「外気に通じていない床裏」
+,,,,〇,,,,,,direction,方位,〇,,str,－,"{'top', 'n', 'ne', 'e', 'se', 's', 'sw', 'w', 'nw', 'bottom', 'upward', 'horizontal', 'downward'}",「外気上面」「外気北」「外気北東」「外気東」「外気南東」「外気南」「外気南西」「外気西」「外気北西」「外気下面」「外気以外上面」「外気以外鉛直面」「外気以外下面」
+,,,,〇,,,,,,area,面積,〇,,float,m2,,
+,,,,〇,,,,,,space_type,接する室の用途,〇,,str,－,"{'main_occupant_room', 'other_occupant_room', 'non_occupant_room', 'underfloor', 'undefined'}",「主たる居室」「その他の居室」「非居室」「床下」「未定義」
+,,,,〇,,,,,,sunshade,,,,sunshade,－,,
+,,,,〇,,,,,,spec,仕様,〇,,dict,－,,
+,,,,,〇,,,,,window_type,窓の種類,〇,,str,－,"'single', 'double'",「一重窓」「二重窓」
+,,,,,〇,,,,,windows,窓,〇,,list,－,,
+,,,,,,〇,,,,,,〇,,dict,－,,
+,,,,,,,〇,,,u_value_input_method,U値の入力方法,〇,,str,－,"'u_value_directly', 'ug_value_and_flame_type'",「U値を入力」「Ug値と建具の仕様を入力」
+,,,,,,,〇,,,u_vaue,U値,△,u_value_input_method=u_value_directly,float,－,,
+,,,,,,,〇,,,ug_value,Ug値,△,u_value_input_method=ug_value_and_flame_type,float,－,,
+,,,,,,,〇,,,eta_value_input_method,η値の入力方法,〇,,str,－,"'eta_d_value_directly', 'eta_g_value_and_flame_type'",「ηd値を入力」「ηg値と建具の仕様を入力」
+,,,,,,,〇,,,eta_d_h_value,暖房期ηd値,△,eta_value_input_method=eta_d_value_directly,float,－,,
+,,,,,,,〇,,,eta_d_c_value,冷房期ηd値,△,eta_value_input_method=eta_d_value_directly,float,－,,
+,,,,,,,〇,,,eta_g_h_value,暖房期ηg値,△,eta_value_input_method=eta_g_value_and_flame_type,float,－,,
+,,,,,,,〇,,,eta_g_c_value,冷房期ηg値,△,eta_value_input_method=eta_g_value_and_flame_type,float,－,,
+,,,,,,,〇,,,flame_type,建具の仕様,△,u_value_input_method=ug_value_and_flame_type or eta_value_input_methodeta_g_value_and_flame_type,str,－,"'wood_or_resin', 'mixed', 'metal'",「木製建具又は樹脂製建具」「木と金属の複合材料製建具又は樹脂と金属の複合材料製建具」「金属製」
+,,,,,,,〇,,,glass_type,ガラス種類,〇,,str,－,"'single', 'double', 'triple_and_more', 'unknown'",「単層」「二層複層」「三層複層以上」「不明」
+,,,,,〇,,,,,attachment_type,付属部材の種類,〇,,str,－,"'none', 'shutter', 'amado', 'shoji'",「付属部材なし」「シャッター」「雨戸」「障子」
+,,,,,〇,,,,,is_windbreak_room_attached,風除室の有無,〇,,bool,－,,
+,,〇,,,,,,,,doors,大部分がガラスで構成されないドア等の開口部,〇,,list,－,,本項目は必須項目であり、部位が存在しない場合は空の配列として保持すること。
+,,,〇,,,,,,,,,〇,,dict,－,,
+,,,,〇,,,,,,name,名称,〇,,str,－,,
+,,,,〇,,,,,,next_space,隣接空間の種類,〇,,str,－,"{'outdoor', 'open_space', 'closed_space', 'open_underfloor', 'air_conditioned', 'closed_underfloor'}",「外気」「外気に通じる空間」「外気に通じていない空間」「外気に通じる床裏」「住戸及び住戸と同様の熱的環境の空間」「外気に通じていない床裏」
+,,,,〇,,,,,,direction,方位,〇,,str,－,"{'top', 'n', 'ne', 'e', 'se', 's', 'sw', 'w', 'nw', 'bottom', 'upward', 'horizontal', 'downward'}",「外気上面」「外気北」「外気北東」「外気東」「外気南東」「外気南」「外気南西」「外気西」「外気北西」「外気下面」「外気以外上面」「外気以外鉛直面」「外気以外下面」
+,,,,〇,,,,,,area,面積,〇,,float,m2,,
+,,,,〇,,,,,,space_type,接する室の用途,〇,,str,－,"{'main_occupant_room', 'other_occupant_room', 'non_occupant_room', 'underfloor', 'undefined'}",「主たる居室」「その他の居室」「非居室」「床下」「未定義」
+,,,,〇,,,,,,sunshade,,,,sunshade,－,,
+,,,,〇,,,,,,spec,仕様,〇,,dict,－,,
+,,,,,〇,,,,,u_value,U値,〇,,float,W/m2K,,
+,,〇,,,,,,,,earthfloor_perimeters,土間床等の外周部,〇,,list,－,,本項目は必須項目であり、部位が存在しない場合は空の配列として保持すること。
+,,,〇,,,,,,,,,〇,,dict,－,,
+,,,,〇,,,,,,name,名称,〇,,str,－,,
+,,,,〇,,,,,,next_space,隣接空間の種類,〇,,str,－,"{'outdoor', 'open_space', 'closed_space', 'open_underfloor', 'air_conditioned', 'closed_underfloor'}",「外気」「外気に通じる空間」「外気に通じていない空間」「外気に通じる床裏」「住戸及び住戸と同様の熱的環境の空間」「外気に通じていない床裏」
+,,,,〇,,,,,,length,長さ,〇,,float,m,,
+,,,,〇,,,,,,space_type,接する室の用途,〇,,str,－,"{'main_occupant_room', 'other_occupant_room', 'non_occupant_room', 'underfloor', 'undefined'}",「主たる居室」「その他の居室」「非居室」「床下」「未定義」
+,,,,〇,,,,,,spec,仕様,〇,,dict,－,,
+,,,,,〇,,,,,psi_value,線熱貫流率,〇,,float,W/m2K,,
+,,〇,,,,,,,,earthfloor_centers,土間床等の中心部,〇,,list,－,,本項目は必須項目であり、部位が存在しない場合は空の配列として保持すること。
+,,,〇,,,,,,,,,〇,,dict,－,,
+,,,,〇,,,,,,name,名称,〇,,str,－,,
+,,,,〇,,,,,,area,面積,〇,,float,m2,,
+,,,,〇,,,,,,space_type,接する室の用途,〇,,str,－,"{'main_occupant_room', 'other_occupant_room', 'non_occupant_room', 'underfloor', 'undefined'}",「主たる居室」「その他の居室」「非居室」「床下」「未定義」
+,,,,〇,,,,,,spec,仕様,〇,,dict,－,,
+,,,,,〇,,,,,layers,層,〇,,layers,－,,
+,,〇,,,,,,,,heatbridges,熱橋,〇,,list,－,,本項目は必須項目であり、部位が存在しない場合は空の配列として保持すること。
+,,,〇,,,,,,,,,〇,,dict,－,,
+,,,,〇,,,,,,name,名称,〇,,str,－,,
+,,,,〇,,,,,,next_spaces,隣接空間の種類,〇,,list,－,,
+,,,,,〇,,,,,,,,,str,－,"{'outdoor', 'open_space', 'closed_space', 'open_underfloor', 'air_conditioned', 'closed_underfloor'}",「外気」「外気に通じる空間」「外気に通じていない空間」「外気に通じる床裏」「住戸及び住戸と同様の熱的環境の空間」「外気に通じていない床裏」
+,,,,〇,,,,,,directions,方位,〇,,list,－,,
+,,,,,〇,,,,,,,,,str,－,"'top', 'n', 'ne', 'e', 'se', 's', 'sw', 'w', 'nw', 'bottom', 'upward', 'horizontal', 'downward'",「外気上面」「外気北」「外気北東」「外気東」「外気南東」「外気南」「外気南西」「外気西」「外気北西」「外気下面」「外気以外上面」「外気以外鉛直面」「外気以外下面」
+,,,,〇,,,,,,length,長さ,〇,,float,m,,
+,,,,〇,,,,,,space_type,接する室の用途,〇,,str,－,"{'main_occupant_room', 'other_occupant_room', 'non_occupant_room', 'underfloor', 'undefined'}",「主たる居室」「その他の居室」「非居室」「床下」「未定義」
+,,,,〇,,,,,,spec,仕様,〇,,dict,－,,
+,,,,,〇,,,,,psi_value,線熱貫流率,〇,,float,W/m2K,,
+sunshade,〇,,,,,,,,,sunshade,日よけ,〇,,dict,,,
+,,〇,,,,,,,,is_defined,定義の有無,〇,,bool,,,
+,,〇,,,,,,,,input,入力方法,〇,{'is_defined': True},str,,"{'not_input', 'not_exist', 'simple', 'complex'}",
+,,〇,,,,,,,,depth,庇・軒の出幅,△,{'input_method': 'simple'},float,m,,
+,,〇,,,,,,,,d_h,窓の高さ,△,{'input_method': 'simple'},float,m,,
+,,〇,,,,,,,,d_e,窓の上端から庇までの距離,△,{'input_method': 'simple'},float,m,,
+,,〇,,,,,,,,x1,庇水平方向の出(左),△,{'input_method': 'detailed'},float,m,,
+,,〇,,,,,,,,x2,窓幅,△,{'input_method': 'detailed'},float,m,,
+,,〇,,,,,,,,x3,庇水平方向の出(右),△,{'input_method': 'detailed'},float,m,,
+,,〇,,,,,,,,y1,上部庇の窓上端からの距離,△,{'input_method': 'detailed'},float,m,,
+,,〇,,,,,,,,y2,窓高さ,△,{'input_method': 'detailed'},float,m,,
+,,〇,,,,,,,,y3,下部庇の窓下端からの距離,△,{'input_method': 'detailed'},float,m,,
+,,〇,,,,,,,,z_x_pls,側壁右の出幅,△,{'input_method': 'detailed'},float,m,,
+,,〇,,,,,,,,z_x_mns,側壁左の出幅,△,{'input_method': 'detailed'},float,m,,
+,,〇,,,,,,,,z_y_pls,上部庇の出幅,△,{'input_method': 'detailed'},float,m,,
+,,〇,,,,,,,,z_y_mns,下部庇の出幅,△,{'input_method': 'detailed'},float,m,,
+layers,〇,,,,,,,,,layers,層,〇,,list,,,
+,,〇,,,,,,,,,,,,dict,,,
+,,,〇,,,,,,,name,名称,〇,,str,,,
+,,,〇,,,,,,,heat_resistance_input_method,熱抵抗の入力方法,〇,,str,,"{'conductivity', 'resistance'}",
+,,,〇,,,,,,,thermal_conductivity,熱伝導率,△,{'heat_resistance_input_method': 'conductivity'},float,W/mK,,
+,,,〇,,,,,,,thermal_resistance,熱抵抗,△,{'heat_resistance_input_method': 'resistance'},float,m2K/W,,
+,,,〇,,,,,,,thickness,厚さ,〇,,float,m,,
+,,,〇,,,,,,,volumetric_specific_heat,容積比熱,〇,,float,J/LK,,
