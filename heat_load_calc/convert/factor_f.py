@@ -78,6 +78,46 @@ class SunshadeComplex:
             z_y_mns=d['z_y_mns']
         )
 
+    @property
+    def x1(self):
+        return self._x1
+
+    @property
+    def x2(self):
+        return self._x2
+
+    @property
+    def x3(self):
+        return self._x3
+
+    @property
+    def y1(self):
+        return self._y1
+
+    @property
+    def y2(self):
+        return self._y2
+
+    @property
+    def y3(self):
+        return self._y3
+
+    @property
+    def z_x_pls(self):
+        return self._z_x_pls
+
+    @property
+    def z_x_mns(self):
+        return self._z_x_mns
+
+    @property
+    def z_y_pls(self):
+        return self._z_y_pls
+
+    @property
+    def z_y_mns(self):
+        return self._z_y_mns
+
 
 class SunshadeOpaque:
 
@@ -99,8 +139,14 @@ class SunshadeOpaque:
                 return SunshadeOpaqueInput(
                     sunshade_complex=SunshadeComplex.make_sunshade_complex(d=d)
                 )
+            else:
+                raise ValueError('不透明部位における日よけの入力方法（input）に間違った値が指定されました。')
         else:
             return SunshadeOpaqueNotDefined()
+
+    @abc.abstractmethod
+    def make_initializer_dict(self):
+        pass
 
 
 class SunshadeOpaqueNotDefined(SunshadeOpaque):
@@ -117,6 +163,12 @@ class SunshadeOpaqueNotDefined(SunshadeOpaque):
 
         return {
             'is_defined': False
+        }
+
+    def make_initializer_dict(self):
+
+        return {
+            'existence': False
         }
 
 
@@ -137,6 +189,11 @@ class SunshadeOpaqueNotInput(SunshadeOpaque):
             'input': 'not_input'
         }
 
+    def make_initializer_dict(self):
+        return {
+            'existence': False
+        }
+
 
 class SunshadeOpaqueInput(SunshadeOpaque):
 
@@ -154,6 +211,22 @@ class SunshadeOpaqueInput(SunshadeOpaque):
             'is_defined': True,
             'input': 'complex',
             'spec': self._sunshade_complex.get_as_dict()
+        }
+
+    def make_initializer_dict(self):
+        return {
+            'existence': True,
+            'input_method': 'detailed',
+            'x1': self._sunshade_complex.x1,
+            'x2': self._sunshade_complex.x2,
+            'x3': self._sunshade_complex.x3,
+            'y1': self._sunshade_complex.y1,
+            'y2': self._sunshade_complex.y2,
+            'y3': self._sunshade_complex.y3,
+            'z_x_pls': self._sunshade_complex.z_x_pls,
+            'z_x_mns': self._sunshade_complex.z_x_mns,
+            'z_y_pls': self._sunshade_complex.z_y_pls,
+            'z_y_mns': self._sunshade_complex.z_y_mns
         }
 
 

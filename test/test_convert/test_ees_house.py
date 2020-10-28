@@ -1464,6 +1464,7 @@ class GeneralPartSpecTest(unittest.TestCase):
         self.assertEqual(830.0, layer.volumetric_specific_heat)
         self.assertEqual(0.221, layer._thermal_conductivity)
 
+
 class GeneralPartTest(unittest.TestCase):
 
     def test_make_initializer_dict(self):
@@ -1479,11 +1480,7 @@ class GeneralPartTest(unittest.TestCase):
                 'area': 10.0,
                 'space_type': 'main_occupant_room',
                 'sunshade': {
-                    'is_defined': True,
-                    'input': 'simple',
-                    'depth': 0.3,
-                    'd_h': 1.0,
-                    'd_e': 0.05
+                    'is_defined': False
                 },
                 'spec': {
                     'structure': 'other',
@@ -1492,6 +1489,8 @@ class GeneralPartTest(unittest.TestCase):
                 }
             }
         )
+
+        print(gp.make_initializer_dict(u_add=1.0, region=6))
 
 
 if __name__ == '__main__':

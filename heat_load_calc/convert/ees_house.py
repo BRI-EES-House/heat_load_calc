@@ -424,6 +424,10 @@ class GeneralPartSpec:
 
         pass
 
+    @abc.abstractmethod
+    def make_initializer_dict(self, name: str, area: float, u_add: float) -> List[Dict]:
+        pass
+
 
 class GeneralPartSpecDetail(GeneralPartSpec):
 
@@ -883,7 +887,7 @@ class GeneralPartSpecUValue(GeneralPartSpec):
 
 class GeneralPartSpecUValueOther(GeneralPartSpecUValue):
 
-    def __init__(self, general_part_type: str, u_value_other: float, weight:str):
+    def __init__(self, general_part_type: str, u_value_other: float, weight: str):
 
         super().__init__(
             general_part_type=general_part_type,
@@ -1212,6 +1216,65 @@ class GeneralPart(GeneralPartNoSpec, IGetQ, IGetM):
             'spec': self.general_part_spec.get_as_dict(),
             'sunshade': self.sunshade.get_as_dict()
         }
+
+    def make_initializer_dict(self, u_add: float, region: int):
+
+        gps_dicts = self.general_part_spec.make_initializer_dict(name=self.name, area=self.area, u_add=u_add)
+
+        connected_room_id = {
+            'main_occupant_room': 0,
+            'other_occupant_room': 1,
+            'non_occupant_room': 2,
+            'underfloor': 3
+        }[self.space_type]
+
+        is_sun_striked_outside = {
+            'outdoor': True,
+            'open_space': False,
+            'closed_space': False,
+            'open_underfloor': False,
+            'air_conditioned': False,
+            'closed_underfloor': False
+        }[self.next_space]
+
+        is_solar_absorbed_inside = {
+            'roof': False,
+            'ceiling': False,
+            'wall': False,
+            'floor': True,
+            'boundary_wall': False,
+            'upward_boundary_floor': False,
+            'downward_boundary_floor': True
+        }[self.general_part_type]
+
+        solar_shading_part = self.sunshade.make_initializer_dict()
+
+        gp_dicts = []
+
+        for gps_dict in gps_dicts:
+
+            d = {
+                'name': gps_dict['name'],
+                'connected_room_id': connected_room_id,
+                'boundary_type': 'external_general_part',
+                'area': gps_dict['area'],
+                'is_sun_striked_outside': is_sun_striked_outside,
+                'temp_dif_coef': self.get_h(region=region),
+                'is_solar_absorbed_inside': is_solar_absorbed_inside,
+                'inside_heat_transfer_resistance': gps_dict['inside_heat_transfer_resistance'],
+                'outside_heat_transfer_resistance': gps_dict['outside_heat_transfer_resistance'],
+                'outside_emissivity': 0.9,
+                'outside_solar_absorption': 0.8,
+                'layers': gps_dict['layers'],
+                'solar_shading_part': solar_shading_part
+            }
+
+            if is_sun_striked_outside:
+                d.update(direction=self.direction)
+
+            gp_dicts.append(d)
+
+        return gp_dicts
 
 
 class WindowSpec:
