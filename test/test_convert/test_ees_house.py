@@ -1490,7 +1490,35 @@ class GeneralPartTest(unittest.TestCase):
             }
         )
 
-        print(gp.make_initializer_dict(u_add=1.0, region=6))
+        ds = gp.make_initializer_dict(u_add=1.0, region=6)
+
+        self.assertEqual(1, len(ds))
+
+        d1 = ds[0]
+
+        self.assertEqual('test_part_sole_part', d1['name'])
+        self.assertEqual(0, d1['connected_room_id'])
+        self.assertEqual('external_general_part', d1['boundary_type'])
+        self.assertAlmostEqual(10.0, d1['area'])
+        self.assertEqual(True, d1['is_sun_striked_outside'])
+        self.assertAlmostEqual(1.0, d1['temp_dif_coef'])
+        self.assertEqual(False, d1['is_solar_absorbed_inside'])
+        self.assertAlmostEqual(0.09, d1['inside_heat_transfer_resistance'])
+        self.assertAlmostEqual(0.04, d1['outside_heat_transfer_resistance'])
+        self.assertAlmostEqual(0.9, d1['outside_emissivity'])
+        self.assertAlmostEqual(0.8, d1['outside_solar_absorption'])
+        layers = d1['layers']
+        self.assertEqual(2, len(layers))
+        layer0 = layers[0]
+        self.assertEqual('gypsum_board', layer0['name'])
+        self.assertAlmostEqual(0.02162671088502291, layer0['thermal_resistance'])
+        self.assertAlmostEqual(7.885, layer0['thermal_capacity'])
+        layer0 = layers[1]
+        self.assertEqual('default_insulation', layer0['name'])
+        self.assertAlmostEqual(0.24837328911497716, layer0['thermal_resistance'])
+        self.assertAlmostEqual(0.2888029411764706, layer0['thermal_capacity'])
+        self.assertEqual(False, d1['solar_shading_part']['existence'])
+        self.assertEqual('top', d1['direction'])
 
 
 if __name__ == '__main__':
