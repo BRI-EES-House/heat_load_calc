@@ -1490,12 +1490,15 @@ class GeneralPartTest(unittest.TestCase):
             }
         )
 
-        ds = gp.make_initializer_dict(u_add=1.0, region=6)
+        ds = gp.make_initializer_dict(gp_id=1, u_add=1.0, region=6)
+
+        print(ds)
 
         self.assertEqual(1, len(ds))
 
         d1 = ds[0]
 
+        self.assertEqual(1, d1['id'])
         self.assertEqual('test_part_sole_part', d1['name'])
         self.assertEqual(0, d1['connected_room_id'])
         self.assertEqual('external_general_part', d1['boundary_type'])
@@ -1503,6 +1506,7 @@ class GeneralPartTest(unittest.TestCase):
         self.assertEqual(True, d1['is_sun_striked_outside'])
         self.assertAlmostEqual(1.0, d1['temp_dif_coef'])
         self.assertEqual(False, d1['is_solar_absorbed_inside'])
+        self.assertEqual('top', d1['direction'])
         self.assertAlmostEqual(0.09, d1['inside_heat_transfer_resistance'])
         self.assertAlmostEqual(0.04, d1['outside_heat_transfer_resistance'])
         self.assertAlmostEqual(0.9, d1['outside_emissivity'])
@@ -1518,7 +1522,6 @@ class GeneralPartTest(unittest.TestCase):
         self.assertAlmostEqual(0.24837328911497716, layer0['thermal_resistance'])
         self.assertAlmostEqual(0.2888029411764706, layer0['thermal_capacity'])
         self.assertEqual(False, d1['solar_shading_part']['existence'])
-        self.assertEqual('top', d1['direction'])
 
 
 if __name__ == '__main__':

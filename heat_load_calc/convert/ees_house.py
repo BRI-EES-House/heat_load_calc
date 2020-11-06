@@ -4,9 +4,7 @@
 
 from typing import Dict, List, Union
 import abc
-import math
 from enum import Enum, auto
-from dataclasses import dataclass
 from copy import deepcopy
 
 from heat_load_calc.external import factor_h
@@ -126,7 +124,7 @@ class Layer:
         self._thermal_resistance = thermal_resistance
 
     @property
-    def name(self):
+    def name(self) -> str:
         """
         名称を取得する。
         Returns:
@@ -135,7 +133,7 @@ class Layer:
         return self._name
 
     @property
-    def thickness(self):
+    def thickness(self) -> float:
         """
         厚さを取得する。
         Returns:
@@ -144,7 +142,7 @@ class Layer:
         return self._thickness
 
     @property
-    def volumetric_specific_heat(self):
+    def volumetric_specific_heat(self) -> float:
         """
         容積比熱を取得する。
         Returns:
@@ -178,6 +176,13 @@ class Layer:
 
     @classmethod
     def make_layer(cls, d: Dict):
+        """
+        辞書からクラス Layer を生成する。
+        Args:
+            d: Layer を表す辞書。
+        Returns:
+            Layer クラス
+        """
 
         hri = HeatResistanceInputMethod.make_from_str(s=d['heat_resistance_input_method'])
         if hri == HeatResistanceInputMethod.CONDUCTIVITY:
@@ -201,7 +206,13 @@ class Layer:
 
     @classmethod
     def make_layers(cls, ds: List[Dict]):
-
+        """
+        Layer クラスのリストを作成する。
+        Args:
+            ds: Layer クラスを表す辞書のリスト
+        Returns:
+            Layer クラスのリスト
+        """
         return [Layer.make_layer(d) for d in ds]
 
     def get_as_dict(self) -> Dict:
@@ -230,7 +241,7 @@ class Layer:
         else:
             raise Exception()
 
-    def make_initializer_dict(self, r_res_sub: float):
+    def make_initializer_dict(self, r_res_sub: float) -> Dict:
         """
         initializer用の辞書を作成する。
         Args:
@@ -266,6 +277,13 @@ class GeneralPartPart:
 
     @classmethod
     def make_general_part_part(cls, d: Dict):
+        """
+        GeneralPartPart クラスを表す辞書から GeneralPartPart クラスを作成する。
+        Args:
+            d: GeneralPartPart クラスを表す辞書
+        Returns:
+            GeneralPartPart クラス
+        """
 
         return GeneralPartPart(
             name=d['name'],
@@ -275,6 +293,13 @@ class GeneralPartPart:
 
     @classmethod
     def make_general_part_parts(cls, ds: List[Dict]):
+        """
+        GeneralPartPart クラスを表す辞書のリストから GeneralPartPart クラスのリストを作成する。
+        Args:
+            ds: GeneralPartPart クラスを表す辞書のリスト
+        Returns:
+            GeneralPartPart クラスのリスト
+        """
 
         # part_area_ratio の合計値が1.0になるかどうかの確認
         total_ratio = sum([d['part_area_ratio'] for d in ds])
@@ -364,6 +389,25 @@ class GeneralPartSpec:
 
     @classmethod
     def make_general_part_spec(cls, d: Dict, general_part_type: str):
+        """
+        GeneralPartSpec クラスを表す辞書から GeneralPartSpec クラスを作成する。
+        Args:
+            d: GeneralPartSpec クラスを表す辞書
+            general_part_type: 一般部位の種類
+                'roof': 屋根
+                'ceiling': 天井
+                'wall': 壁
+                'floor': 床
+                'boundary_wall': 戸境壁
+                'upward_boundary_floor': 戸境床（上階側）
+                'downward_boundary_floor': 戸境床（下界側）
+        Returns:
+            GeneralPartSpec クラスを継承した以下のクラス
+                - GeneralPartSpecDetailWood
+                - GeneralPartSpecDetailRC
+                - GeneralPartSpecDetailSteel
+                - GeneralPartSpecUValueOther
+        """
 
         structure = d['structure']
 
@@ -1217,7 +1261,7 @@ class GeneralPart(GeneralPartNoSpec, IGetQ, IGetM):
             'sunshade': self.sunshade.get_as_dict()
         }
 
-    def make_initializer_dict(self, u_add: float, region: int):
+    def make_initializer_dict(self, gp_id: float, u_add: float, region: int):
 
         gps_dicts = self.general_part_spec.make_initializer_dict(name=self.name, area=self.area, u_add=u_add)
 
@@ -1254,6 +1298,7 @@ class GeneralPart(GeneralPartNoSpec, IGetQ, IGetM):
         for gps_dict in gps_dicts:
 
             d = {
+                'id': gp_id,
                 'name': gps_dict['name'],
                 'connected_room_id': connected_room_id,
                 'boundary_type': 'external_general_part',
