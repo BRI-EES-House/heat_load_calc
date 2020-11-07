@@ -2,6 +2,7 @@ import numpy as np
 from collections import namedtuple
 from typing import List, Dict
 
+from heat_load_calc.convert.ees_house import GeneralPartType
 from heat_load_calc.convert.ees_house import IArea
 from heat_load_calc.convert.ees_house import GeneralPartNoSpec
 from heat_load_calc.convert.ees_house import WindowNoSpec
@@ -191,12 +192,12 @@ def get_m_opq(
     """
 
     m_opq_h_general_part = sum(
-        s.area * 0.034 * u_psi_value[s.general_part_type] * s.get_nu(region=region, season='heating')
+        s.area * 0.034 * u_psi_value[s.general_part_type.value] * s.get_nu(region=region, season='heating')
         for s in gps if s.next_space == 'outdoor'
     )
 
     m_opq_c_general_part = sum(
-        s.area * 0.034 * u_psi_value[s.general_part_type] * s.get_nu(region=region, season='cooling')
+        s.area * 0.034 * u_psi_value[s.general_part_type.value] * s.get_nu(region=region, season='cooling')
         for s in gps if s.next_space == 'outdoor'
     )
 
@@ -393,37 +394,37 @@ def _get_q_std(
 
     q_uah_std['roof'] = sum([
         s.area * get_u_psi_std(region=region, part_type='roof') * s.get_h(region=region)
-        for s in gps if s.general_part_type == 'roof'
+        for s in gps if s.general_part_type == GeneralPartType.ROOF
     ])
 
     q_uah_std['ceiling'] = sum([
         s.area * get_u_psi_std(region=region, part_type='ceiling') * s.get_h(region=region)
-        for s in gps if s.general_part_type == 'ceiling'
+        for s in gps if s.general_part_type == GeneralPartType.CEILING
     ])
 
     q_uah_std['wall'] = sum([
         s.area * get_u_psi_std(region=region, part_type='wall') * s.get_h(region=region)
-        for s in gps if s.general_part_type == 'wall'
+        for s in gps if s.general_part_type == GeneralPartType.WALL
     ])
 
     q_uah_std['floor'] = sum([
         s.area * get_u_psi_std(region=region, part_type='floor') * s.get_h(region=region)
-        for s in gps if s.general_part_type == 'floor'
+        for s in gps if s.general_part_type == GeneralPartType.FLOOR
     ])
 
     q_uah_std['boundary_ceiling'] = sum([
         s.area * get_u_psi_std(region=region, part_type='boundary_ceiling') * s.get_h(region=region)
-        for s in gps if s.general_part_type == 'boundary_ceiling'
+        for s in gps if s.general_part_type == GeneralPartType.UPWARD_BOUNDARY_FLOOR
     ])
 
     q_uah_std['boundary_wall'] = sum([
         s.area * get_u_psi_std(region=region, part_type='boundary_wall') * s.get_h(region=region)
-        for s in gps if s.general_part_type == 'boundary_wall'
+        for s in gps if s.general_part_type == GeneralPartType.BOUNDARY_WALL
     ])
 
     q_uah_std['boundary_floor'] = sum([
         s.area * get_u_psi_std(region=region, part_type='boundary_floor') * s.get_h(region=region)
-        for s in gps if s.general_part_type == 'boundary_floor'
+        for s in gps if s.general_part_type == GeneralPartType.DOWNWARD_BOUNDARY_FLOOR
     ])
 
     q_uah_std['window'] = sum([

@@ -91,15 +91,15 @@ def add_spec(
     gps_spec = [
         GeneralPart(
             name=s.name,
-            general_part_type=GeneralPartType(s.general_part_type),
+            general_part_type=s.general_part_type,
             next_space=s.next_space,
             direction=s.direction,
             area=s.area,
             space_type=s.space_type,
             sunshade=s.sunshade,
             general_part_spec=GeneralPartSpecUValueOther(
-                general_part_type=GeneralPartType(s.general_part_type),
-                u_value_other=get_u_and_eta.get_u_psi(u, s.general_part_type),
+                general_part_type=s.general_part_type,
+                u_value_other=get_u_and_eta.get_u_psi(u, s.general_part_type.value),
                 weight='light'
             )
         )

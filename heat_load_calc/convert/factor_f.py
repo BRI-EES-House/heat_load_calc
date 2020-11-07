@@ -1,4 +1,4 @@
-from typing import Optional, List, Dict, Union, Tuple
+from typing import Dict
 import abc
 
 # ⽇射取得率補正係数
@@ -43,7 +43,7 @@ class SunshadeComplex:
         self._z_y_pls = z_y_pls
         self._z_y_mns = z_y_mns
 
-    def get_f_sh(self, region: str, season: str):
+    def get_f_sh(self, region: int, season: str):
 
         raise NotImplementedError()
 
@@ -122,7 +122,7 @@ class SunshadeComplex:
 class SunshadeOpaque:
 
     @abc.abstractmethod
-    def get_f_sh(self, region: str, season: str):
+    def get_f_sh(self, region: int, season: str):
         pass
 
     @abc.abstractmethod
@@ -155,7 +155,7 @@ class SunshadeOpaqueNotDefined(SunshadeOpaque):
 
         pass
 
-    def get_f_sh(self, region: str, season: str):
+    def get_f_sh(self, region: int, season: str):
 
         raise Exception('日よけが未定義にも関わらず日よけ効果係数の計算が呼び出されました。')
 
@@ -178,7 +178,7 @@ class SunshadeOpaqueNotInput(SunshadeOpaque):
 
         pass
 
-    def get_f_sh(self, region: str, season: str):
+    def get_f_sh(self, region: int, season: str):
 
         return 1.0
 
@@ -201,7 +201,7 @@ class SunshadeOpaqueInput(SunshadeOpaque):
 
         self._sunshade_complex = sunshade_complex
 
-    def get_f_sh(self, region: str, season: str):
+    def get_f_sh(self, region: int, season: str):
 
         return self._sunshade_complex.get_f_sh(region=region, season=season)
 
@@ -387,4 +387,3 @@ class SunshadeTransientExistSimple(SunshadeTransient):
             'd_h': self._d_h,
             'd_e': self._d_e
         }
-

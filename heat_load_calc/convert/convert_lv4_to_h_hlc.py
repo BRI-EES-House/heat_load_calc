@@ -4,7 +4,6 @@ import copy
 import pprint
 
 from heat_load_calc.convert import a_06_common_items
-from heat_load_calc.convert import a_01_00_general_part
 
 from heat_load_calc.external import factor_h
 
@@ -222,49 +221,6 @@ def get_v_vent(v_vent_ex_mr: float, v_vent_ex_or: float) -> (float, float):
     v_vent_or_nr = v_vent_ex_or
 
     return v_vent_mr_nr, v_vent_or_nr
-
-
-def get_boundaries_general_part(region, gps_dict, gps: List[GeneralPart]):
-
-    boundary_mr = []
-    boundary_or = []
-    boundary_nr = []
-    boundary_uf = []
-
-    for gp_dict, gp in zip(gps_dict, gps):
-
-        parts = a_01_00_general_part.get_general_part_spec_hlc(gp_dict, gp)
-
-        for part_i in parts:
-
-            name_hlc_i, r_a_hlc_i, general_part_spec_hlc_i, _ = part_i
-
-            boundary = {
-                'name': gp_dict['name'] + name_hlc_i,
-                'boundary_type': 'external_general_part',
-                'area': gp_dict['area'] * r_a_hlc_i,
-                'is_sun_striked_outside': get_is_sun_striked_outside(gp_dict['direction']),
-                'temp_dif_coef': factor_h.get_h(region=region, next_space=gp_dict['next_space']),
-                'direction': get_direction(gp_dict['direction']),
-                'is_solar_absorbed_inside': get_is_solar_absorbed_inside(general_part_type=gp_dict['general_part_type']),
-                'general_part_spec': general_part_spec_hlc_i,
-                'solar_shading_part': copy.deepcopy(gp_dict['spec']['sunshade'])
-            }
-
-            space_type = gp_dict['space_type']
-
-            if space_type == 'main_occupant_room':
-                boundary_mr.append(boundary)
-            elif space_type == 'other_occupant_room':
-                boundary_or.append(boundary)
-            elif space_type == 'non_occupant_room':
-                boundary_nr.append(boundary)
-            elif space_type == 'under_floor':
-                boundary_uf.append(boundary)
-            else:
-                raise ValueError()
-
-    return boundary_mr, boundary_or, boundary_nr, boundary_uf
 
 
 def get_boundaries_windows(region, d_windows):
@@ -763,7 +719,6 @@ def convert_lv4_to_initializer(common, envelope, d, equipment_main, equipment_ot
             'region': region
         }
     }
-
     make_rooms(d, d_calc_input, envelope, equipment_main, equipment_other, region, ventilation, natural_vent,
                a_a=a_a, a_mr=a_mr, a_or=a_or, a_nr=a_nr, gps=gps)
 
@@ -792,12 +747,12 @@ def make_rooms(d, d_calc_input, envelope, equipment_main, equipment_other, regio
     room_mr, room_or, room_nr, room_uf = make_initial_rooms(
         a_a=a_a, a_mr=a_mr, a_or=a_or, a_nr=a_nr, a_uf=a_uf, n=n, v_nv_mr=v_nv_mr, v_nv_or=v_nv_or)
 
-    boundaries_mr, boundaries_or, boundaries_nr, boundaries_uf = get_boundaries_general_part(region, gps_dict, gps)
+    print('START2')
+    boundaries = []
+    for gp in gps:
+        boundaries.extend(gp.make_initializer_dict(u_add=0.0, region=region))
+    print(boundaries)
 
-    room_mr['surface'].extend(boundaries_mr)
-    room_or['surface'].extend(boundaries_or)
-    room_nr['surface'].extend(boundaries_nr)
-    room_uf['surface'].extend(boundaries_uf)
 
     boundaries_mr, boundaries_or, boundaries_nr, boundaries_uf = get_boundaries_windows(region, gw_lists)
 
@@ -841,10 +796,13 @@ if __name__ == '__main__':
     }
 
     d_lv2 = convert_indices_to_lv2_info.convert_spec(d=d_indices)
+    print('d_lv2')
     print(d_lv2)
     d_lv3 = convert_lv2_to_lv3.convert_spec(common=d_indices['common'], envelope=d_lv2)
+    print('d_lv3')
     print(d_lv3)
     d_lv4 = convert_lv3_to_lv4.convert_spec(common=d_indices['common'], envelope=d_lv3)
+    print('d_lv4')
     print(d_lv4)
 
     print('START')

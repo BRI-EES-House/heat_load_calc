@@ -1,6 +1,7 @@
 import unittest
 from typing import List
 
+from heat_load_calc.convert.ees_house import GeneralPartType
 from heat_load_calc.convert.ees_house import GeneralPartNoSpec
 from heat_load_calc.convert.ees_house import DoorNoSpec
 from heat_load_calc.convert.ees_house import WindowNoSpec
@@ -574,7 +575,7 @@ class ConvertModelHouseToHouseDict(unittest.TestCase):
     def test_roof(self):
 
         def get_roof_number(gps: List[GeneralPartNoSpec]):
-            return len([s for s in gps if s.general_part_type == 'roof'])
+            return len([s for s in gps if s.general_part_type == GeneralPartType.ROOF])
 
         self.assertEqual(get_roof_number(self.gps1), 0)
         self.assertEqual(get_roof_number(self.gps2), 0)
@@ -590,7 +591,7 @@ class ConvertModelHouseToHouseDict(unittest.TestCase):
     def test_ceiling(self):
 
         def get_ceiling_number(gps: List[GeneralPartNoSpec]):
-            return len([s for s in gps if s.general_part_type == 'ceiling'])
+            return len([s for s in gps if s.general_part_type == GeneralPartType.CEILING])
 
         self.assertEqual(get_ceiling_number(self.gps1), 1)
         self.assertEqual(get_ceiling_number(self.gps2), 1)
@@ -604,7 +605,7 @@ class ConvertModelHouseToHouseDict(unittest.TestCase):
         self.assertEqual(get_ceiling_number(self.gps10), 0)
 
         def get_ceiling_next_space_number(gps: List[GeneralPartNoSpec], key):
-            return len([s for s in gps if s.general_part_type == 'ceiling' and s.next_space == key])
+            return len([s for s in gps if s.general_part_type == GeneralPartType.CEILING and s.next_space == key])
 
         self.assertEqual(get_ceiling_next_space_number(self.gps1, 'outdoor'), 1)
         self.assertEqual(get_ceiling_next_space_number(self.gps2, 'outdoor'), 1)
@@ -616,7 +617,7 @@ class ConvertModelHouseToHouseDict(unittest.TestCase):
         self.assertEqual(get_ceiling_next_space_number(self.gps9, 'outdoor'), 1)
 
         def get_ceiling_direction_number(gps: List[GeneralPartNoSpec], key):
-            return len([s for s in gps if s.general_part_type == 'ceiling' and s.direction == key])
+            return len([s for s in gps if s.general_part_type == GeneralPartType.CEILING and s.direction == key])
 
         self.assertEqual(get_ceiling_direction_number(self.gps1, 'top'), 1)
         self.assertEqual(get_ceiling_direction_number(self.gps2, 'top'), 1)
@@ -628,7 +629,7 @@ class ConvertModelHouseToHouseDict(unittest.TestCase):
         self.assertEqual(get_ceiling_direction_number(self.gps9, 'top'), 1)
 
         def get_ceiling_area(gps: List[GeneralPartNoSpec]):
-            return sorted([s.area for s in gps if s.general_part_type == 'ceiling'])
+            return sorted([s.area for s in gps if s.general_part_type == GeneralPartType.CEILING])
 
         self.assertAlmostEqual(get_ceiling_area(self.gps1)[0], 50.847457627118644)
         self.assertAlmostEqual(get_ceiling_area(self.gps2)[0], 50.847457627118644)
@@ -642,7 +643,7 @@ class ConvertModelHouseToHouseDict(unittest.TestCase):
     def test_wall(self):
 
         def get_wall_number(gps: List[GeneralPartNoSpec]):
-            return len([s for s in gps if s.general_part_type == 'wall'])
+            return len([s for s in gps if s.general_part_type == GeneralPartType.WALL])
 
         self.assertEqual(get_wall_number(self.gps1), 7)
         self.assertEqual(get_wall_number(self.gps2), 7)
@@ -656,7 +657,7 @@ class ConvertModelHouseToHouseDict(unittest.TestCase):
         self.assertEqual(get_wall_number(self.gps10), 3)
 
         def get_wall_next_space_number(gps: List[GeneralPartNoSpec], key):
-            return len([s for s in gps if s.general_part_type == 'wall' and s.next_space == key])
+            return len([s for s in gps if s.general_part_type == GeneralPartType.WALL and s.next_space == key])
 
         self.assertEqual(get_wall_next_space_number(self.gps1, 'outdoor'), 6)
         self.assertEqual(get_wall_next_space_number(self.gps1, 'open_underfloor'), 1)
@@ -678,7 +679,7 @@ class ConvertModelHouseToHouseDict(unittest.TestCase):
         self.assertEqual(get_wall_next_space_number(self.gps10, 'open_space'), 1)
 
         def get_wall_direction_number(gps: List[GeneralPartNoSpec], key):
-            return len([s for s in gps if s.general_part_type == 'wall' and s.direction == key])
+            return len([s for s in gps if s.general_part_type == GeneralPartType.WALL and s.direction == key])
 
         self.assertEqual(get_wall_direction_number(self.gps1, 'sw'), 1)
         self.assertEqual(get_wall_direction_number(self.gps1, 'nw'), 2)
@@ -726,7 +727,7 @@ class ConvertModelHouseToHouseDict(unittest.TestCase):
         self.assertEqual(get_wall_direction_number(self.gps10, 'horizontal'), 1)
 
         def get_wall_area_with_direction(gps: List[GeneralPartNoSpec], key):
-            return sorted([s.area for s in gps if s.general_part_type == 'wall' and s.direction == key])
+            return sorted([s.area for s in gps if s.general_part_type == GeneralPartType.WALL and s.direction == key])
 
         self.assertAlmostEqual(get_wall_area_with_direction(self.gps1, 'sw')[0], 30.473673540267082)
         self.assertAlmostEqual(get_wall_area_with_direction(self.gps1, 'nw')[0], 1.2376)
@@ -796,7 +797,7 @@ class ConvertModelHouseToHouseDict(unittest.TestCase):
     def test_floor(self):
 
         def get_floor_number(gps: List[GeneralPartNoSpec]):
-            return len([s for s in gps if s.general_part_type == 'floor'])
+            return len([s for s in gps if s.general_part_type == GeneralPartType.FLOOR])
 
         self.assertEqual(get_floor_number(self.gps1), 1)
         self.assertEqual(get_floor_number(self.gps2), 1)
@@ -810,7 +811,7 @@ class ConvertModelHouseToHouseDict(unittest.TestCase):
         self.assertEqual(get_floor_number(self.gps10), 0)
 
         def get_floor_next_space_number(gps: List[GeneralPartNoSpec], key):
-            return len([s for s in gps if s.general_part_type == 'floor' and s.next_space == key])
+            return len([s for s in gps if s.general_part_type == GeneralPartType.FLOOR and s.next_space == key])
 
         self.assertEqual(get_floor_next_space_number(self.gps1, 'open_underfloor'), 1)
         self.assertEqual(get_floor_next_space_number(self.gps2, 'open_underfloor'), 1)
@@ -820,7 +821,7 @@ class ConvertModelHouseToHouseDict(unittest.TestCase):
         self.assertEqual(get_floor_next_space_number(self.gps8, 'open_underfloor'), 1)
 
         def get_floor_direction_number(gps: List[GeneralPartNoSpec], key):
-            return len([s for s in gps if s.general_part_type == 'floor' and s.direction == key])
+            return len([s for s in gps if s.general_part_type == GeneralPartType.FLOOR and s.direction == key])
 
         self.assertEqual(get_floor_direction_number(self.gps1, 'downward'), 1)
         self.assertEqual(get_floor_direction_number(self.gps2, 'downward'), 1)
@@ -830,7 +831,7 @@ class ConvertModelHouseToHouseDict(unittest.TestCase):
         self.assertEqual(get_floor_direction_number(self.gps8, 'downward'), 1)
 
         def get_floor_area_with_direction(gps: List[GeneralPartNoSpec], key):
-            return sorted([s.area for s in gps if s.general_part_type == 'floor' and s.direction == key])
+            return sorted([s.area for s in gps if s.general_part_type == GeneralPartType.FLOOR and s.direction == key])
 
         self.assertAlmostEqual(get_floor_area_with_direction(self.gps1, 'downward')[0], 45.05075762711864)
         self.assertAlmostEqual(get_floor_area_with_direction(self.gps2, 'downward')[0], 48.36315762711864)
@@ -842,7 +843,7 @@ class ConvertModelHouseToHouseDict(unittest.TestCase):
     def test_boundary_wall(self):
 
         def get_boundary_wall_number(gps: List[GeneralPartNoSpec]):
-            return len([s for s in gps if s.general_part_type == 'boundary_wall'])
+            return len([s for s in gps if s.general_part_type == GeneralPartType.BOUNDARY_WALL])
 
         self.assertEqual(get_boundary_wall_number(self.gps1), 0)
         self.assertEqual(get_boundary_wall_number(self.gps2), 0)
@@ -856,19 +857,19 @@ class ConvertModelHouseToHouseDict(unittest.TestCase):
         self.assertEqual(get_boundary_wall_number(self.gps10), 1)
 
         def get_boundary_wall_next_space_number(gps: List[GeneralPartNoSpec], key):
-            return len([s for s in gps if s.general_part_type == 'boundary_wall' and s.next_space == key])
+            return len([s for s in gps if s.general_part_type == GeneralPartType.BOUNDARY_WALL and s.next_space == key])
 
         self.assertEqual(get_boundary_wall_next_space_number(self.gps5, 'air_conditioned'), 1)
         self.assertEqual(get_boundary_wall_next_space_number(self.gps10, 'air_conditioned'), 1)
 
         def get_boundary_wall_direction_number(gps: List[GeneralPartNoSpec], key):
-            return len([s for s in gps if s.general_part_type == 'boundary_wall' and s.direction == key])
+            return len([s for s in gps if s.general_part_type == GeneralPartType.BOUNDARY_WALL and s.direction == key])
 
         self.assertEqual(get_boundary_wall_direction_number(self.gps5, 'horizontal'), 1)
         self.assertEqual(get_boundary_wall_direction_number(self.gps10, 'horizontal'), 1)
 
         def get_boundary_wall_area_with_direction(gps: List[GeneralPartNoSpec], key):
-            return sorted([s.area for s in gps if s.general_part_type == 'boundary_wall' and s.direction == key])
+            return sorted([s.area for s in gps if s.general_part_type == GeneralPartType.BOUNDARY_WALL and s.direction == key])
 
         self.assertAlmostEqual(get_boundary_wall_area_with_direction(self.gps5, 'horizontal')[0], 31.913534161094855)
         self.assertAlmostEqual(get_boundary_wall_area_with_direction(self.gps10, 'horizontal')[0], 31.917820607336132)
@@ -876,7 +877,7 @@ class ConvertModelHouseToHouseDict(unittest.TestCase):
     def test_upward_boundary_floor(self):
 
         def get_upward_boundary_floor_number(gps: List[GeneralPartNoSpec]):
-            return len([s for s in gps if s.general_part_type == 'upward_boundary_floor'])
+            return len([s for s in gps if s.general_part_type == GeneralPartType.UPWARD_BOUNDARY_FLOOR])
 
         self.assertEqual(get_upward_boundary_floor_number(self.gps1), 0)
         self.assertEqual(get_upward_boundary_floor_number(self.gps2), 0)
@@ -890,19 +891,19 @@ class ConvertModelHouseToHouseDict(unittest.TestCase):
         self.assertEqual(get_upward_boundary_floor_number(self.gps10), 1)
 
         def get_upward_boundary_floor_next_space_number(gps: List[GeneralPartNoSpec], key):
-            return len([s for s in gps if s.general_part_type == 'upward_boundary_floor' and s.next_space == key])
+            return len([s for s in gps if s.general_part_type == GeneralPartType.UPWARD_BOUNDARY_FLOOR and s.next_space == key])
 
         self.assertEqual(get_upward_boundary_floor_next_space_number(self.gps5, 'air_conditioned'), 1)
         self.assertEqual(get_upward_boundary_floor_next_space_number(self.gps10, 'air_conditioned'), 1)
 
         def get_upward_boundary_floor_direction_number(gps: List[GeneralPartNoSpec], key):
-            return len([s for s in gps if s.general_part_type == 'upward_boundary_floor' and s.direction == key])
+            return len([s for s in gps if s.general_part_type == GeneralPartType.UPWARD_BOUNDARY_FLOOR and s.direction == key])
 
         self.assertEqual(get_upward_boundary_floor_direction_number(self.gps5, 'upward'), 1)
         self.assertEqual(get_upward_boundary_floor_direction_number(self.gps10, 'upward'), 1)
 
         def get_upward_boundary_floor_area_with_direction(gps: List[GeneralPartNoSpec], key):
-            return sorted([s.area for s in gps if s.general_part_type == 'upward_boundary_floor' and s.direction == key])
+            return sorted([s.area for s in gps if s.general_part_type == GeneralPartType.UPWARD_BOUNDARY_FLOOR and s.direction == key])
 
         self.assertAlmostEqual(get_upward_boundary_floor_area_with_direction(self.gps5, 'upward')[0], 70.0)
         self.assertAlmostEqual(get_upward_boundary_floor_area_with_direction(self.gps10, 'upward')[0], 70.0)
@@ -910,7 +911,7 @@ class ConvertModelHouseToHouseDict(unittest.TestCase):
     def test_downward_boundary_floor(self):
 
         def get_downward_boundary_floor_number(gps: List[GeneralPartNoSpec]):
-            return len([s for s in gps if s.general_part_type == 'downward_boundary_floor'])
+            return len([s for s in gps if s.general_part_type == GeneralPartType.DOWNWARD_BOUNDARY_FLOOR])
 
         self.assertEqual(get_downward_boundary_floor_number(self.gps1), 0)
         self.assertEqual(get_downward_boundary_floor_number(self.gps2), 0)
@@ -924,19 +925,19 @@ class ConvertModelHouseToHouseDict(unittest.TestCase):
         self.assertEqual(get_downward_boundary_floor_number(self.gps10), 1)
 
         def get_downward_boundary_floor_next_space_number(gps: List[GeneralPartNoSpec], key):
-            return len([s for s in gps if s.general_part_type == 'downward_boundary_floor' and s.next_space == key])
+            return len([s for s in gps if s.general_part_type == GeneralPartType.DOWNWARD_BOUNDARY_FLOOR and s.next_space == key])
 
         self.assertEqual(get_downward_boundary_floor_next_space_number(self.gps5, 'air_conditioned'), 1)
         self.assertEqual(get_downward_boundary_floor_next_space_number(self.gps10, 'air_conditioned'), 1)
 
         def get_downward_boundary_floor_direction_number(gps: List[GeneralPartNoSpec], key):
-            return len([s for s in gps if s.general_part_type == 'downward_boundary_floor' and s.direction == key])
+            return len([s for s in gps if s.general_part_type == GeneralPartType.DOWNWARD_BOUNDARY_FLOOR and s.direction == key])
 
         self.assertEqual(get_downward_boundary_floor_direction_number(self.gps5, 'downward'), 1)
         self.assertEqual(get_downward_boundary_floor_direction_number(self.gps10, 'downward'), 1)
 
         def get_downward_boundary_floor_area_with_direction(gps: List[GeneralPartNoSpec], key):
-            return sorted([s.area for s in gps if s.general_part_type == 'downward_boundary_floor' and s.direction == key])
+            return sorted([s.area for s in gps if s.general_part_type == GeneralPartType.DOWNWARD_BOUNDARY_FLOOR and s.direction == key])
 
         self.assertAlmostEqual(get_downward_boundary_floor_area_with_direction(self.gps5, 'downward')[0], 70.0)
         self.assertAlmostEqual(get_downward_boundary_floor_area_with_direction(self.gps10, 'downward')[0], 70.0)

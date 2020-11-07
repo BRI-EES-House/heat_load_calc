@@ -1497,7 +1497,7 @@ class GeneralPartTest(unittest.TestCase):
             }
         )
 
-        ds = gp.make_initializer_dict(gp_id=1, u_add=1.0, region=6)
+        ds = gp.make_initializer_dict(u_add=1.0, region=6)
 
         print(ds)
 
@@ -1505,7 +1505,6 @@ class GeneralPartTest(unittest.TestCase):
 
         d1 = ds[0]
 
-        self.assertEqual(1, d1['id'])
         self.assertEqual('test_part_sole_part', d1['name'])
         self.assertEqual(0, d1['connected_room_id'])
         self.assertEqual('external_general_part', d1['boundary_type'])

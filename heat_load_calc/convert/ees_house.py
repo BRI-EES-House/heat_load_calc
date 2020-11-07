@@ -4,7 +4,7 @@
 
 from typing import Dict, List, Union
 import abc
-from enum import Enum, auto
+from enum import Enum
 from copy import deepcopy
 
 from heat_load_calc.external import factor_h
@@ -762,7 +762,6 @@ class GeneralPartSpecUValue(GeneralPartSpec):
             GeneralPartType.DOWNWARD_BOUNDARY_FLOOR: 0.15
         }[self.general_part_type]
 
-
     @property
     def r_srf_ex(self) -> float:
         """
@@ -1099,11 +1098,11 @@ class GeneralPartNoSpec(UpperArealEnvelope):
         """
 
         super().__init__(name=name, next_space=next_space, direction=direction, area=area, space_type=space_type)
-        self._general_part_type = general_part_type.value
+        self._general_part_type = general_part_type
         self._sunshade = sunshade
 
     @property
-    def general_part_type(self) -> str:
+    def general_part_type(self) -> GeneralPartType:
         """
         種類を取得する。
         Returns:
@@ -1252,7 +1251,7 @@ class GeneralPart(GeneralPartNoSpec, IGetQ, IGetM):
 
         return {
             'name': self._name,
-            'general_part_type': self.general_part_type,
+            'general_part_type': self.general_part_type.value,
             'next_space': self.next_space,
             'direction': self.direction,
             'area': self.area,
@@ -1261,7 +1260,7 @@ class GeneralPart(GeneralPartNoSpec, IGetQ, IGetM):
             'sunshade': self.sunshade.get_as_dict()
         }
 
-    def make_initializer_dict(self, gp_id: float, u_add: float, region: int):
+    def make_initializer_dict(self, u_add: float, region: int):
 
         gps_dicts = self.general_part_spec.make_initializer_dict(name=self.name, area=self.area, u_add=u_add)
 
@@ -1282,13 +1281,13 @@ class GeneralPart(GeneralPartNoSpec, IGetQ, IGetM):
         }[self.next_space]
 
         is_solar_absorbed_inside = {
-            'roof': False,
-            'ceiling': False,
-            'wall': False,
-            'floor': True,
-            'boundary_wall': False,
-            'upward_boundary_floor': False,
-            'downward_boundary_floor': True
+            GeneralPartType.ROOF: False,
+            GeneralPartType.CEILING: False,
+            GeneralPartType.WALL: False,
+            GeneralPartType.FLOOR: True,
+            GeneralPartType.BOUNDARY_WALL: False,
+            GeneralPartType.UPWARD_BOUNDARY_FLOOR: False,
+            GeneralPartType.DOWNWARD_BOUNDARY_FLOOR: True
         }[self.general_part_type]
 
         solar_shading_part = self.sunshade.make_initializer_dict()
@@ -1298,7 +1297,6 @@ class GeneralPart(GeneralPartNoSpec, IGetQ, IGetM):
         for gps_dict in gps_dicts:
 
             d = {
-                'id': gp_id,
                 'name': gps_dict['name'],
                 'connected_room_id': connected_room_id,
                 'boundary_type': 'external_general_part',
@@ -1944,8 +1942,8 @@ class HeatbridgeNoSpec:
         """
         Args:
             name: 名称
-            next_space: 隣接する空間の種類
-            direction: 方位
+            next_spaces: 隣接する空間の種類
+            directions: 方位
             length: 長さ, m
             space_type: 接する室の名称
         """
