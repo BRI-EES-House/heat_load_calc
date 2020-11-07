@@ -1,5 +1,6 @@
 import unittest
 from heat_load_calc.convert import ees_house
+from heat_load_calc.convert.ees_house import GeneralPartType
 
 
 class LayerTest(unittest.TestCase):
@@ -288,7 +289,7 @@ class GeneralPartSpecTest(unittest.TestCase):
                     }
                 ]
             },
-            general_part_type='wall'
+            general_part_type=GeneralPartType.WALL
         )
 
         # RC造
@@ -327,7 +328,7 @@ class GeneralPartSpecTest(unittest.TestCase):
                     }
                 ]
             },
-            general_part_type='wall'
+            general_part_type=GeneralPartType.WALL
         )
 
         # S造
@@ -367,7 +368,7 @@ class GeneralPartSpecTest(unittest.TestCase):
                     }
                 ]
             },
-            general_part_type='wall'
+            general_part_type=GeneralPartType.WALL
         )
 
         # その他造（屋根） 軽い
@@ -377,7 +378,7 @@ class GeneralPartSpecTest(unittest.TestCase):
                 'u_value_other': 1.5,
                 'weight': 'light'
             },
-            general_part_type='roof'
+            general_part_type=GeneralPartType.ROOF
         )
 
         # その他造（屋根） 重い
@@ -387,7 +388,7 @@ class GeneralPartSpecTest(unittest.TestCase):
                 'u_value_other': 1.5,
                 'weight': 'heavy'
             },
-            general_part_type='roof'
+            general_part_type=GeneralPartType.ROOF
         )
 
         # その他造（天井） 軽い
@@ -397,7 +398,7 @@ class GeneralPartSpecTest(unittest.TestCase):
                 'u_value_other': 1.5,
                 'weight': 'light'
             },
-            general_part_type='ceiling'
+            general_part_type=GeneralPartType.CEILING
         )
 
         # その他造（天井） 重い
@@ -407,7 +408,7 @@ class GeneralPartSpecTest(unittest.TestCase):
                 'u_value_other': 1.5,
                 'weight': 'heavy'
             },
-            general_part_type='ceiling'
+            general_part_type=GeneralPartType.CEILING
         )
 
         # その他造（壁） 軽い
@@ -417,7 +418,7 @@ class GeneralPartSpecTest(unittest.TestCase):
                 'u_value_other': 1.5,
                 'weight': 'light'
             },
-            general_part_type='wall'
+            general_part_type=GeneralPartType.WALL
         )
 
         # その他造（壁） 重い
@@ -427,7 +428,7 @@ class GeneralPartSpecTest(unittest.TestCase):
                 'u_value_other': 1.5,
                 'weight': 'heavy'
             },
-            general_part_type='wall'
+            general_part_type=GeneralPartType.WALL
         )
 
         # その他造（床） 軽い
@@ -437,7 +438,7 @@ class GeneralPartSpecTest(unittest.TestCase):
                 'u_value_other': 1.5,
                 'weight': 'light'
             },
-            general_part_type='floor'
+            general_part_type=GeneralPartType.FLOOR
         )
 
         # その他造（床） 重い
@@ -447,7 +448,7 @@ class GeneralPartSpecTest(unittest.TestCase):
                 'u_value_other': 1.5,
                 'weight': 'heavy'
             },
-            general_part_type='floor'
+            general_part_type=GeneralPartType.FLOOR
         )
 
         # その他造（界床上側） 軽い
@@ -457,7 +458,7 @@ class GeneralPartSpecTest(unittest.TestCase):
                 'u_value_other': 1.5,
                 'weight': 'light'
             },
-            general_part_type='upward_boundary_floor'
+            general_part_type=GeneralPartType.UPWARD_BOUNDARY_FLOOR
         )
 
         # その他造（界床上側） 重い
@@ -467,7 +468,7 @@ class GeneralPartSpecTest(unittest.TestCase):
                 'u_value_other': 1.5,
                 'weight': 'heavy'
             },
-            general_part_type='upward_boundary_floor'
+            general_part_type=GeneralPartType.UPWARD_BOUNDARY_FLOOR
         )
 
         # その他造（界壁） 軽い
@@ -477,7 +478,7 @@ class GeneralPartSpecTest(unittest.TestCase):
                 'u_value_other': 1.5,
                 'weight': 'light'
             },
-            general_part_type='boundary_wall'
+            general_part_type=GeneralPartType.BOUNDARY_WALL
         )
 
         # その他造（界壁） 重い
@@ -487,7 +488,7 @@ class GeneralPartSpecTest(unittest.TestCase):
                 'u_value_other': 1.5,
                 'weight': 'heavy'
             },
-            general_part_type='boundary_wall'
+            general_part_type=GeneralPartType.BOUNDARY_WALL
         )
 
         # その他造（界床下側） 軽い
@@ -497,7 +498,7 @@ class GeneralPartSpecTest(unittest.TestCase):
                 'u_value_other': 1.5,
                 'weight': 'light'
             },
-            general_part_type='downward_boundary_floor'
+            general_part_type=GeneralPartType.DOWNWARD_BOUNDARY_FLOOR
         )
 
         # その他造（界床下側） 重い
@@ -507,7 +508,7 @@ class GeneralPartSpecTest(unittest.TestCase):
                 'u_value_other': 1.5,
                 'weight': 'heavy'
             },
-            general_part_type='downward_boundary_floor'
+            general_part_type=GeneralPartType.DOWNWARD_BOUNDARY_FLOOR
         )
 
     def test_u(self):
@@ -554,15 +555,21 @@ class GeneralPartSpecTest(unittest.TestCase):
     def test_get_as_dict(self):
 
         d_wood = self._gps_wood.get_as_dict()
-        d_wood2 = ees_house.GeneralPartSpec.make_general_part_spec(d=d_wood, general_part_type='wall').get_as_dict()
+        d_wood2 = ees_house.GeneralPartSpec.make_general_part_spec(
+            d=d_wood, general_part_type=GeneralPartType.WALL
+        ).get_as_dict()
         self.assertEqual(d_wood, d_wood2)
 
         d_rc = self._gps_rc.get_as_dict()
-        d_rc2 = ees_house.GeneralPartSpec.make_general_part_spec(d=d_rc, general_part_type='wall').get_as_dict()
+        d_rc2 = ees_house.GeneralPartSpec.make_general_part_spec(
+            d=d_rc, general_part_type=GeneralPartType.WALL
+        ).get_as_dict()
         self.assertEqual(d_rc, d_rc2)
 
         d_steel = self._gps_steel.get_as_dict()
-        d_steel2 = ees_house.GeneralPartSpec.make_general_part_spec(d=d_steel, general_part_type='wall').get_as_dict()
+        d_steel2 = ees_house.GeneralPartSpec.make_general_part_spec(
+            d=d_steel, general_part_type=GeneralPartType.WALL
+        ).get_as_dict()
         self.assertEqual(d_steel, d_steel2)
 
         d_other1 = self._gps_other_roof_light.get_as_dict()

@@ -3,6 +3,7 @@ from typing import Dict, List
 from heat_load_calc.convert import get_u_psi_eta_from_u_a_and_eta_a as get_u_and_eta
 from heat_load_calc.convert import model_house
 from heat_load_calc.convert import check_ua_a_eta_a as cue
+from heat_load_calc.convert.ees_house import GeneralPartType
 from heat_load_calc.convert.ees_house import GeneralPart, GeneralPartNoSpec, GeneralPartSpec, GeneralPartSpecUValueOther
 from heat_load_calc.convert.ees_house import Door, DoorNoSpec, DoorSpec
 from heat_load_calc.convert.ees_house import Window, WindowNoSpec, WindowSpec
@@ -90,14 +91,14 @@ def add_spec(
     gps_spec = [
         GeneralPart(
             name=s.name,
-            general_part_type=s.general_part_type,
+            general_part_type=GeneralPartType(s.general_part_type),
             next_space=s.next_space,
             direction=s.direction,
             area=s.area,
             space_type=s.space_type,
             sunshade=s.sunshade,
             general_part_spec=GeneralPartSpecUValueOther(
-                general_part_type=s.general_part_type,
+                general_part_type=GeneralPartType(s.general_part_type),
                 u_value_other=get_u_and_eta.get_u_psi(u, s.general_part_type),
                 weight='light'
             )

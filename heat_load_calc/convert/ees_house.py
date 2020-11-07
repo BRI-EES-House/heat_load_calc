@@ -13,21 +13,25 @@ from heat_load_calc.convert import factor_f
 
 
 class HeatResistanceInputMethod(Enum):
-    CONDUCTIVITY = auto()
-    RESISTANCE = auto()
+    CONDUCTIVITY = 'conductivity'
+    RESISTANCE = 'resistance'
 
-    @classmethod
-    def make_from_str(cls, s: str):
-        return {
-            'conductivity': HeatResistanceInputMethod.CONDUCTIVITY,
-            'resistance': HeatResistanceInputMethod.RESISTANCE
-        }[s]
 
-    def get_as_str(self):
-        return {
-            HeatResistanceInputMethod.CONDUCTIVITY: 'conductivity',
-            HeatResistanceInputMethod.RESISTANCE: 'resistance'
-        }[self]
+class GeneralPartType(Enum):
+    # 屋根
+    ROOF = 'roof'
+    # 天井
+    CEILING = 'ceiling'
+    # 壁
+    WALL = 'wall'
+    # 床
+    FLOOR = 'floor'
+    # 戸境壁
+    BOUNDARY_WALL = 'boundary_wall'
+    # 戸境床（上階側）
+    UPWARD_BOUNDARY_FLOOR = 'upward_boundary_floor'
+    # 戸境床（下界側）
+    DOWNWARD_BOUNDARY_FLOOR = 'downward_boundary_floor'
 
 
 class EesHouse:
@@ -184,7 +188,7 @@ class Layer:
             Layer クラス
         """
 
-        hri = HeatResistanceInputMethod.make_from_str(s=d['heat_resistance_input_method'])
+        hri = HeatResistanceInputMethod(d['heat_resistance_input_method'])
         if hri == HeatResistanceInputMethod.CONDUCTIVITY:
             return Layer(
                 name=d['name'],
@@ -225,7 +229,7 @@ class Layer:
         if self._heat_resistance_input_method == HeatResistanceInputMethod.CONDUCTIVITY:
             return {
                 'name': self._name,
-                'heat_resistance_input_method': 'conductivity',
+                'heat_resistance_input_method': self._heat_resistance_input_method.value,
                 'thickness': self._thickness,
                 'volumetric_specific_heat': self._volumetric_specific_heat,
                 'thermal_conductivity': self._thermal_conductivity
@@ -233,7 +237,7 @@ class Layer:
         elif self._heat_resistance_input_method == HeatResistanceInputMethod.RESISTANCE:
             return {
                 'name': self._name,
-                'heat_resistance_input_method': 'conductivity',
+                'heat_resistance_input_method': self._heat_resistance_input_method.value,
                 'thickness': self._thickness,
                 'volumetric_specific_heat': self._volumetric_specific_heat,
                 'thermal_resistance': self._thermal_resistance
@@ -388,19 +392,12 @@ class GeneralPartSpec:
         pass
 
     @classmethod
-    def make_general_part_spec(cls, d: Dict, general_part_type: str):
+    def make_general_part_spec(cls, d: Dict, general_part_type: GeneralPartType):
         """
         GeneralPartSpec クラスを表す辞書から GeneralPartSpec クラスを作成する。
         Args:
             d: GeneralPartSpec クラスを表す辞書
             general_part_type: 一般部位の種類
-                'roof': 屋根
-                'ceiling': 天井
-                'wall': 壁
-                'floor': 床
-                'boundary_wall': 戸境壁
-                'upward_boundary_floor': 戸境床（上階側）
-                'downward_boundary_floor': 戸境床（下界側）
         Returns:
             GeneralPartSpec クラスを継承した以下のクラス
                 - GeneralPartSpecDetailWood
@@ -724,7 +721,7 @@ class GeneralPartSpecDetailSteel(GeneralPartSpecDetail):
 
 class GeneralPartSpecUValue(GeneralPartSpec):
 
-    def __init__(self, general_part_type: str, u_value: float, weight: str):
+    def __init__(self, general_part_type: GeneralPartType, u_value: float, weight: str):
 
         super().__init__()
         self._u_value = u_value
@@ -755,14 +752,16 @@ class GeneralPartSpecUValue(GeneralPartSpec):
             室内側熱伝達抵抗, m2K/W
         """
 
-        if self._general_part_type in ['roof', 'ceiling', 'upward_boundary_floor']:
-            return 0.09
-        elif self._general_part_type in ['wall', 'boundary_wall']:
-            return 0.11
-        elif self._general_part_type in ['floor', 'downward_boundary_floor']:
-            return 0.15
-        else:
-            raise ValueError()
+        return {
+            GeneralPartType.ROOF: 0.09,
+            GeneralPartType.CEILING: 0.09,
+            GeneralPartType.WALL: 0.11,
+            GeneralPartType.FLOOR: 0.15,
+            GeneralPartType.BOUNDARY_WALL: 0.11,
+            GeneralPartType.UPWARD_BOUNDARY_FLOOR: 0.09,
+            GeneralPartType.DOWNWARD_BOUNDARY_FLOOR: 0.15
+        }[self.general_part_type]
+
 
     @property
     def r_srf_ex(self) -> float:
@@ -772,16 +771,15 @@ class GeneralPartSpecUValue(GeneralPartSpec):
             室外側熱伝達抵抗, m2K/W
         """
 
-        if self._general_part_type in ['roof', 'wall']:
-            return 0.04
-        elif self._general_part_type in ['ceiling', 'upward_boundary_floor']:
-            return 0.09
-        elif self._general_part_type in ['boundary_wall']:
-            return 0.11
-        elif self._general_part_type in ['floor', 'downward_boundary_floor']:
-            return 0.15
-        else:
-            raise ValueError()
+        return {
+            GeneralPartType.ROOF: 0.04,
+            GeneralPartType.CEILING: 0.09,
+            GeneralPartType.WALL: 0.04,
+            GeneralPartType.FLOOR: 0.15,
+            GeneralPartType.BOUNDARY_WALL: 0.11,
+            GeneralPartType.UPWARD_BOUNDARY_FLOOR: 0.09,
+            GeneralPartType.DOWNWARD_BOUNDARY_FLOOR: 0.15
+        }[self.general_part_type]
 
     @abc.abstractmethod
     def get_as_dict(self):
@@ -838,35 +836,35 @@ class GeneralPartSpecUValue(GeneralPartSpec):
         default_layers = {
             'light': {
                 # 屋根の場合：せっこうボード9.5mm + 断熱材
-                'roof': [gypsum_board9_5, insulation],
+                GeneralPartType.ROOF: [gypsum_board9_5, insulation],
                 # 天井の場合：せっこうボード9.5mm + 断熱材
-                'ceiling': [gypsum_board9_5, insulation],
+                GeneralPartType.CEILING: [gypsum_board9_5, insulation],
                 # 壁の場合：せっこうボード9.5mm + 断熱材 + 合板12mm
-                'wall': [gypsum_board9_5, insulation, plywood12],
+                GeneralPartType.WALL: [gypsum_board9_5, insulation, plywood12],
                 # 床の場合：合板24mm + 断熱材
-                'floor': [plywood24, insulation],
+                GeneralPartType.FLOOR: [plywood24, insulation],
                 # 間仕切り壁の場合：せっこうボード9.5mm + 断熱材 + せっこうボード9.5mm
-                'boundary_wall': [gypsum_board9_5, insulation, gypsum_board9_5],
+                GeneralPartType.BOUNDARY_WALL: [gypsum_board9_5, insulation, gypsum_board9_5],
                 # 間仕切り天井の場合：せっこうボード9.5mm + 断熱材 + 合板24mm
-                'upward_boundary_floor': [gypsum_board9_5, insulation, plywood24],
+                GeneralPartType.UPWARD_BOUNDARY_FLOOR: [gypsum_board9_5, insulation, plywood24],
                 # 間仕切り床の場合： 合板24mm + 断熱材 + せっこうボード9.5mm
-                'downward_boundary_floor': [plywood24, insulation, gypsum_board9_5]
+                GeneralPartType.DOWNWARD_BOUNDARY_FLOOR: [plywood24, insulation, gypsum_board9_5]
             }[self.general_part_type],
             'heavy': {
                 # 屋根の場合：せっこうボード9.5mm + 断熱材 + コンクリート120mm
-                'roof': [gypsum_board9_5, insulation, concrete120],
+                GeneralPartType.ROOF: [gypsum_board9_5, insulation, concrete120],
                 # 天井の場合：せっこうボード9.5mm + 断熱材 + コンクリート120mm
-                'ceiling': [gypsum_board9_5, insulation, concrete120],
+                GeneralPartType.CEILING: [gypsum_board9_5, insulation, concrete120],
                 # 壁の場合：せっこうボード9.5mm + 断熱材 + コンクリート120mm
-                'wall': [gypsum_board9_5, insulation, concrete120],
+                GeneralPartType.WALL: [gypsum_board9_5, insulation, concrete120],
                 # 床の場合：合板24mm + 断熱材 + コンクリート120mm
-                'floor': [plywood24, insulation, concrete120],
+                GeneralPartType.FLOOR: [plywood24, insulation, concrete120],
                 # 間仕切り壁の場合：せっこうボード9.5mm + 断熱材 + 合板12mm
-                'boundary_wall': [gypsum_board9_5, insulation, gypsum_board9_5],
+                GeneralPartType.BOUNDARY_WALL: [gypsum_board9_5, insulation, gypsum_board9_5],
                 # 間仕切り天井の場合：せっこうボード9.5mm + コンクリート120mm + 断熱材 + 合板24mm
-                'upward_boundary_floor': [gypsum_board9_5, concrete120, insulation, plywood24],
+                GeneralPartType.UPWARD_BOUNDARY_FLOOR: [gypsum_board9_5, concrete120, insulation, plywood24],
                 # 間仕切り床の場合： 合板24mm + 断熱材 + コンクリート120mm + せっこうボード9.5mm
-                'downward_boundary_floor': [plywood24, insulation, concrete120, gypsum_board9_5]
+                GeneralPartType.DOWNWARD_BOUNDARY_FLOOR: [plywood24, insulation, concrete120, gypsum_board9_5]
             }[self.general_part_type]
         }[self._weight]
 
@@ -931,7 +929,7 @@ class GeneralPartSpecUValue(GeneralPartSpec):
 
 class GeneralPartSpecUValueOther(GeneralPartSpecUValue):
 
-    def __init__(self, general_part_type: str, u_value_other: float, weight: str):
+    def __init__(self, general_part_type: GeneralPartType, u_value_other: float, weight: str):
 
         super().__init__(
             general_part_type=general_part_type,
@@ -940,7 +938,7 @@ class GeneralPartSpecUValueOther(GeneralPartSpecUValue):
         )
 
     @classmethod
-    def make_from_dict(cls, general_part_type: str, d: Dict):
+    def make_from_dict(cls, general_part_type: GeneralPartType, d: Dict):
 
         return GeneralPartSpecUValueOther(
             general_part_type=general_part_type,
@@ -1082,7 +1080,7 @@ class GeneralPartNoSpec(UpperArealEnvelope):
     def __init__(
             self,
             name: str,
-            general_part_type: str,
+            general_part_type: GeneralPartType,
             next_space: str,
             direction: str,
             area: float,
@@ -1101,7 +1099,7 @@ class GeneralPartNoSpec(UpperArealEnvelope):
         """
 
         super().__init__(name=name, next_space=next_space, direction=direction, area=area, space_type=space_type)
-        self._general_part_type = general_part_type
+        self._general_part_type = general_part_type.value
         self._sunshade = sunshade
 
     @property
@@ -1132,7 +1130,7 @@ class GeneralPart(GeneralPartNoSpec, IGetQ, IGetM):
     def __init__(
             self,
             name: str,
-            general_part_type: str,
+            general_part_type: GeneralPartType,
             next_space: str,
             direction: str,
             area: float,
@@ -1173,9 +1171,11 @@ class GeneralPart(GeneralPartNoSpec, IGetQ, IGetM):
             GeneralPart クラス
         """
 
+        general_part_type = GeneralPartType(d['general_part_type'])
+
         return GeneralPart(
             name=d['name'],
-            general_part_type=d['general_part_type'],
+            general_part_type=general_part_type,
             next_space=d['next_space'],
             direction=d['direction'],
             area=d['area'],
@@ -1183,7 +1183,7 @@ class GeneralPart(GeneralPartNoSpec, IGetQ, IGetM):
             sunshade=factor_f.SunshadeOpaque.make_sunshade_opaque(d=d['sunshade']),
             general_part_spec=GeneralPartSpec.make_general_part_spec(
                 d=d['spec'],
-                general_part_type=d['general_part_type']
+                general_part_type=general_part_type
             )
         )
 

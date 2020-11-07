@@ -1,6 +1,7 @@
 from typing import Optional, List, Dict
 from heat_load_calc.convert import ees_house
 from heat_load_calc.convert import factor_f
+from heat_load_calc.convert.ees_house import GeneralPartType
 
 
 def get_model_house_no_spec(
@@ -41,7 +42,7 @@ def get_model_house_no_spec(
         roofs = [
             ees_house.GeneralPartNoSpec(
                 name='roof',
-                general_part_type='ceiling',
+                general_part_type=GeneralPartType.CEILING,
                 next_space='outdoor',
                 direction='top',
                 area=a_evp_roof,
@@ -53,7 +54,7 @@ def get_model_house_no_spec(
         roofs = [
             ees_house.GeneralPartNoSpec(
                 name='roof',
-                general_part_type='upward_boundary_floor',
+                general_part_type=GeneralPartType.UPWARD_BOUNDARY_FLOOR,
                 next_space='air_conditioned',
                 direction='upward',
                 area=a_evp_roof,
@@ -72,7 +73,7 @@ def get_model_house_no_spec(
         walls = [
             ees_house.GeneralPartNoSpec(
                 name='wall_sw',
-                general_part_type='wall',
+                general_part_type=GeneralPartType.WALL,
                 next_space='outdoor',
                 direction='sw',
                 area=a_evp_wall[0],
@@ -81,7 +82,7 @@ def get_model_house_no_spec(
             ),
             ees_house.GeneralPartNoSpec(
                 name='wall_nw',
-                general_part_type='wall',
+                general_part_type=GeneralPartType.WALL,
                 next_space='outdoor',
                 direction='nw',
                 area=a_evp_wall[1],
@@ -90,7 +91,7 @@ def get_model_house_no_spec(
             ),
             ees_house.GeneralPartNoSpec(
                 name='wall_ne',
-                general_part_type='wall',
+                general_part_type=GeneralPartType.WALL,
                 next_space='outdoor',
                 direction='ne',
                 area=a_evp_wall[2],
@@ -99,7 +100,7 @@ def get_model_house_no_spec(
             ),
             ees_house.GeneralPartNoSpec(
                 name='wall_se',
-                general_part_type='wall',
+                general_part_type=GeneralPartType.WALL,
                 next_space='outdoor',
                 direction='se',
                 area=a_evp_wall[3],
@@ -111,7 +112,7 @@ def get_model_house_no_spec(
         walls = [
             ees_house.GeneralPartNoSpec(
                 name='wall_sw',
-                general_part_type='wall',
+                general_part_type=GeneralPartType.WALL,
                 next_space='outdoor',
                 direction='sw',
                 area=a_evp_wall[0],
@@ -120,7 +121,7 @@ def get_model_house_no_spec(
             ),
             ees_house.GeneralPartNoSpec(
                 name='wall_nw',
-                general_part_type='wall',
+                general_part_type=GeneralPartType.WALL,
                 next_space='outdoor',
                 direction='nw',
                 area=a_evp_wall[1],
@@ -129,7 +130,7 @@ def get_model_house_no_spec(
             ),
             ees_house.GeneralPartNoSpec(
                 name='wall_ne',
-                general_part_type='wall',
+                general_part_type=GeneralPartType.WALL,
                 next_space='open_space',
                 direction='horizontal',
                 area=a_evp_wall[2],
@@ -138,7 +139,7 @@ def get_model_house_no_spec(
             ),
             ees_house.GeneralPartNoSpec(
                 name='wall_se',
-                general_part_type='boundary_wall',
+                general_part_type=GeneralPartType.BOUNDARY_WALL,
                 next_space='air_conditioned',
                 direction='horizontal',
                 area=a_evp_wall[3],
@@ -290,7 +291,7 @@ def get_model_house_no_spec(
             floors = [
                 ees_house.GeneralPartNoSpec(
                     name='floor',
-                    general_part_type='floor',
+                    general_part_type=GeneralPartType.FLOOR,
                     next_space='open_underfloor',
                     direction='downward',
                     area=a_evp_f_total,
@@ -308,7 +309,7 @@ def get_model_house_no_spec(
         floors = [
             ees_house.GeneralPartNoSpec(
                 name='floor',
-                general_part_type='downward_boundary_floor',
+                general_part_type=GeneralPartType.DOWNWARD_BOUNDARY_FLOOR,
                 next_space='air_conditioned',
                 direction='downward',
                 area=a_evp_f_total,
@@ -332,7 +333,7 @@ def get_model_house_no_spec(
             base_outsides = [
                 ees_house.GeneralPartNoSpec(
                     name='base_outside_nw',
-                    general_part_type='wall',
+                    general_part_type=GeneralPartType.WALL,
                     next_space='outdoor',
                     direction='nw',
                     area=a_evp_base_total_outside[1],
@@ -341,7 +342,7 @@ def get_model_house_no_spec(
                 ),
                 ees_house.GeneralPartNoSpec(
                     name='base_outside_ne',
-                    general_part_type='wall',
+                    general_part_type=GeneralPartType.WALL,
                     next_space='outdoor',
                     direction='ne',
                     area=a_evp_base_total_outside[2],
@@ -353,7 +354,7 @@ def get_model_house_no_spec(
             base_outsides = [
                 ees_house.GeneralPartNoSpec(
                     name='base_outside_sw',
-                    general_part_type='wall',
+                    general_part_type=GeneralPartType.WALL,
                     next_space='outdoor',
                     direction='sw',
                     area=a_evp_base_total_outside[0],
@@ -362,7 +363,7 @@ def get_model_house_no_spec(
                 ),
                 ees_house.GeneralPartNoSpec(
                     name='base_outside_nw',
-                    general_part_type='wall',
+                    general_part_type=GeneralPartType.WALL,
                     next_space='outdoor',
                     direction='nw',
                     area=a_evp_base_total_outside[1],
@@ -371,7 +372,7 @@ def get_model_house_no_spec(
                 ),
                 ees_house.GeneralPartNoSpec(
                     name='base_outside_ne',
-                    general_part_type='wall',
+                    general_part_type=GeneralPartType.WALL,
                     next_space='outdoor',
                     direction='ne',
                     area=a_evp_base_total_outside[2],
@@ -380,7 +381,7 @@ def get_model_house_no_spec(
                 ),
                 ees_house.GeneralPartNoSpec(
                     name='base_outside_se',
-                    general_part_type='wall',
+                    general_part_type=GeneralPartType.WALL,
                     next_space='outdoor',
                     direction='se',
                     area=a_evp_base_total_outside[3],
@@ -412,7 +413,7 @@ def get_model_house_no_spec(
             base_insides = [
                 ees_house.GeneralPartNoSpec(
                     name='base_inside',
-                    general_part_type='wall',
+                    general_part_type=GeneralPartType.WALL,
                     next_space='open_underfloor',
                     direction='horizontal',
                     area=a_evp_base_total_inside,

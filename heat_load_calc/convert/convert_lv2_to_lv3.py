@@ -1,6 +1,7 @@
 from typing import Dict, List
 
 from heat_load_calc.convert import ees_house
+from heat_load_calc.convert.ees_house import GeneralPartType
 from heat_load_calc.convert.ees_house import GeneralPart
 from heat_load_calc.convert.ees_house import Window
 from heat_load_calc.convert.ees_house import Door
@@ -72,7 +73,7 @@ def get_general_part_lv3(gp: GeneralPart, space_type, area):
 
     return GeneralPart(
         name=gp.name + '_' + space_type,
-        general_part_type=gp.general_part_type,
+        general_part_type=GeneralPartType(gp.general_part_type),
         next_space=gp.next_space,
         direction=gp.direction,
         area=area,
