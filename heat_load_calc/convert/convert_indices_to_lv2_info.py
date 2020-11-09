@@ -3,10 +3,10 @@ from typing import Dict, List
 from heat_load_calc.convert import get_u_psi_eta_from_u_a_and_eta_a as get_u_and_eta
 from heat_load_calc.convert import model_house
 from heat_load_calc.convert import check_ua_a_eta_a as cue
-from heat_load_calc.convert.ees_house import GeneralPartType
+from heat_load_calc.convert.ees_house import GeneralPartType, WindowType
 from heat_load_calc.convert.ees_house import GeneralPart, GeneralPartNoSpec, GeneralPartSpec, GeneralPartSpecUValueOther
 from heat_load_calc.convert.ees_house import Door, DoorNoSpec, DoorSpec
-from heat_load_calc.convert.ees_house import Window, WindowNoSpec, WindowSpec
+from heat_load_calc.convert.ees_house import Window, WindowNoSpec, WindowSpec, WindowSpecSingle
 from heat_load_calc.convert.ees_house import EarthfloorPerimeter, EarthfloorPerimeterNoSpec, EarthfloorPerimeterSpec
 from heat_load_calc.convert.ees_house import EarthfloorCenter, EarthfloorCenterNoSpec, EarthfloorCenterSpec
 from heat_load_calc.convert.ees_house import EesHouse
@@ -117,7 +117,7 @@ def add_spec(
             space_type='undefined',
             sunshade=s.sunshade,
             window_spec=WindowSpec(
-                window_type='single',
+                window_type=WindowType.SINGLE,
                 windows=[
                     {
                         'u_value_input_method': 'u_value_directly',
@@ -130,7 +130,20 @@ def add_spec(
                     }
                 ],
                 attachment_type='none',
-                is_windbreak_room_attached='none'
+                is_windbreak_room_attached='none',
+                window_spec_singles=[
+                    WindowSpecSingle(
+                        spec={
+                            'u_value_input_method': 'u_value_directly',
+                            'u_value': get_u_and_eta.get_u_psi(u, 'window'),
+                            'eta_value_input_method': 'eta_d_value_directly',
+                            'eta_d_value': eta_d,
+                            'eta_d_h_value': eta_d_h,
+                            'eta_d_c_value': eta_d_c,
+                            'glass_type': 'single'
+                        }
+                    )
+                ]
             )
         )
         for s in ws

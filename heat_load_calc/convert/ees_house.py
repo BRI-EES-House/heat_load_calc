@@ -34,6 +34,13 @@ class GeneralPartType(Enum):
     DOWNWARD_BOUNDARY_FLOOR = 'downward_boundary_floor'
 
 
+class WindowType(Enum):
+    # 1重窓
+    SINGLE = 'single'
+    # 2重窓
+    DOUBLE = 'double'
+
+
 class EesHouse:
 
     def __init__(self):
@@ -137,6 +144,15 @@ class Layer:
         return self._name
 
     @property
+    def heat_resistance_input_method(self) -> HeatResistanceInputMethod:
+        """
+        熱抵抗の入力方法を取得する。
+        Returns:
+            熱抵抗の入力方法
+        """
+        return self._heat_resistance_input_method
+
+    @property
     def thickness(self) -> float:
         """
         厚さを取得する。
@@ -153,6 +169,24 @@ class Layer:
             容積比熱, J/LK
         """
         return self._volumetric_specific_heat
+
+    @property
+    def thermal_conductivity(self) -> float:
+        """
+        熱伝導率を取得する。
+        Returns:
+            熱伝導率, W/mK
+        """
+        return self._thermal_conductivity
+
+    @property
+    def thermal_resistance(self) -> float:
+        """
+        熱抵抗を取得する。
+        Returns:
+            熱抵抗, m2K/W
+        """
+        return self._thermal_resistance
 
     @property
     def r(self) -> float:
@@ -1320,36 +1354,66 @@ class GeneralPart(GeneralPartNoSpec, IGetQ, IGetM):
         return gp_dicts
 
 
+class WindowSpecSingle:
+
+    def __init__(self, spec: Dict):
+        self._spec = spec
+
+    @classmethod
+    def make_window_spec_single(cls, d: Dict):
+        return WindowSpecSingle(
+            spec=d
+        )
+
+    @classmethod
+    def make_window_spec_singles(cls, ds: List[Dict]):
+        return [cls.make_window_spec_single(d=d) for d in ds]
+
+    @property
+    def spec(self):
+        return self._spec
+
+
 class WindowSpec:
 
     def __init__(
             self,
-            window_type: str,
+            window_type: WindowType,
             windows: List[Dict],
             attachment_type: str,
-            is_windbreak_room_attached
+            is_windbreak_room_attached,
+            window_spec_singles
     ):
+        """
+
+        Args:
+            window_type: 窓の種類（1重窓, 2重窓）
+            windows:
+            attachment_type:
+            is_windbreak_room_attached:
+            window_spec_singles:
+        """
 
         self._window_type = window_type
         self._windows = windows
         self._attachment_type = attachment_type
         self._is_windbreak_room_attached = is_windbreak_room_attached
-#        self._is_sunshade_input = is_sunshade_input
+        self._window_spec_singles = window_spec_singles
 
     @classmethod
     def make_window_spec(cls, d: Dict):
 
         return WindowSpec(
-            window_type=d['window_type'],
+            window_type=WindowType(d['window_type']),
             windows=d['windows'],
             attachment_type=d['attachment_type'],
-            is_windbreak_room_attached=d['is_windbreak_room_attached']
-#            is_sunshade_input=d['is_sunshade_input']
+            is_windbreak_room_attached=d['is_windbreak_room_attached'],
+            window_spec_singles=WindowSpecSingle.make_window_spec_singles(ds=d['windows'])
         )
 
     def get_u(self):
 
-        if self._window_type == 'single':
+        if self._window_type == WindowType.SINGLE:
             window = self._windows[0]
             if window['u_value_input_method'] == 'u_value_directly':
                 return window['u_value']
@@ -1360,7 +1424,7 @@ class WindowSpec:
 
     def get_eta_d(self, season: str):
 
-        if self._window_type == 'single':
+        if self._window_type == WindowType.SINGLE:
             window = self._windows[0]
             if window['eta_value_input_method'] == 'eta_d_value_directly':
                 if season == 'heating':
@@ -1375,11 +1439,10 @@ class WindowSpec:
     def get_as_dict(self):
 
         return {
-            'window_type': self._window_type,
+            'window_type': self._window_type.value,
             'windows': self._windows,
             'attachment_type': self._attachment_type,
             'is_windbreak_room_attached': self._is_windbreak_room_attached,
-#            'is_sunshade_input': self._is_sunshade_input
         }
 
 
@@ -2099,14 +2162,28 @@ class InnerFloor:
             area: float,
             upper_space_type: str,
             lower_space_type,
-            inner_floor_spec: Dict
+            layers: List[Layer]
     ):
 
         self._name = name
         self._area = area
         self._upper_space_type = upper_space_type
         self._lower_space_type = lower_space_type
-        self._inner_floor_spec = inner_floor_spec
+        self._layers = layers
+
+    @classmethod
+    def make_inner_floor(cls, d: Dict):
+        return InnerFloor(
+            name=d['name'],
+            area=d['area'],
+            upper_space_type=d['upper_space_type'],
+            lower_space_type=d['lower_space_type'],
+            layers=Layer.make_layers(ds=d['spec']['layers'])
+        )
+
+    @classmethod
+    def make_inner_floors(cls, ds: List[Dict]):
+        return [cls.make_inner_floor(d=d) for d in ds]
 
     @property
     def name(self):
@@ -2124,10 +2201,6 @@ class InnerFloor:
     def lower_space_type(self):
         return self._lower_space_type
 
-    @property
-    def inner_floor_spec(self):
-        return self._inner_floor_spec
-
     def get_as_dict(self):
 
         return {
@@ -2135,7 +2208,9 @@ class InnerFloor:
             'area': self.area,
             'upper_space_type': self.upper_space_type,
             'lower_space_type': self.lower_space_type,
-            'spec': self.inner_floor_spec
+            'spec': {
+                'layers': [layer.get_as_dict() for layer in self._layers]
+            }
         }
 
 
@@ -2147,14 +2222,28 @@ class InnerWall:
             area: float,
             space_type_1: str,
             space_type_2: str,
-            inner_wall_spec: Dict
+            layers: List[Layer]
     ):
 
         self._name = name
         self._area = area
         self._space_type_1 = space_type_1
         self._space_type_2 = space_type_2
-        self._inner_wall_spec = inner_wall_spec
+        self._layers = layers
+
+    @classmethod
+    def make_inner_wall(cls, d: Dict):
+        return InnerWall(
+            name=d['name'],
+            area=d['area'],
+            space_type_1=d['space_type_1'],
+            space_type_2=d['space_type_2'],
+            layers=Layer.make_layers(ds=d['spec']['layers'])
+        )
+
+    @classmethod
+    def make_inner_walls(cls, ds: Dict):
+        return [cls.make_inner_wall(d=d) for d in ds]
 
     @property
     def name(self):
@@ -2172,10 +2261,6 @@ class InnerWall:
     def space_type_2(self):
         return self._space_type_2
 
-    @property
-    def inner_wall_spec(self):
-        return self._inner_wall_spec
-
     def get_as_dict(self):
 
         return {
@@ -2183,6 +2268,7 @@ class InnerWall:
             'area': self.area,
             'space_type_1': self.space_type_1,
             'space_type_2': self.space_type_2,
-            'spec': self.inner_wall_spec
+            'spec': {
+                'layers': [layer.get_as_dict() for layer in self._layers]
+            }
         }
-

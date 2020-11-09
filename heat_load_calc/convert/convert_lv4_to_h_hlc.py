@@ -712,6 +712,27 @@ def convert_lv4_to_initializer(common, envelope, d, equipment_main, equipment_ot
     # 一般部位
     gps = GeneralPart.make_general_parts(ds=envelope['general_parts'])
 
+    # 大部分がガラスで構成される窓等の開口部
+    ws = Window.make_windows(ds=envelope['windows'])
+
+    # 大部分がガラスで構成されないドア等の開口部
+    ds = Door.make_doors(ds=envelope['doors'])
+
+    # 土間床周辺部
+    efps = EarthfloorPerimeter.make_earthfloor_perimeters(ds=envelope['earthfloor_perimeters'])
+
+    # 土間床中央部
+    efcs = EarthfloorCenter.make_earthfloor_centers(ds=envelope['earthfloor_centers'])
+
+    # 熱橋
+    hbs = Heatbridge.make_heatbridges(ds=envelope['heat_bridges'])
+
+    # 室内床
+    ifs = InnerFloor.make_inner_floors(ds=envelope['inner_floors'])
+
+    # 室内壁
+    iws = InnerWall.make_inner_walls(ds=envelope['inner_walls'])
+
     ventilation = d['ventilation']
 
     d_calc_input = {
@@ -719,16 +740,23 @@ def convert_lv4_to_initializer(common, envelope, d, equipment_main, equipment_ot
             'region': region
         }
     }
-    make_rooms(d, d_calc_input, envelope, equipment_main, equipment_other, region, ventilation, natural_vent,
-               a_a=a_a, a_mr=a_mr, a_or=a_or, a_nr=a_nr, gps=gps)
+
+    make_rooms(
+        d, d_calc_input, envelope, equipment_main, equipment_other, region, ventilation, natural_vent,
+        a_a=a_a, a_mr=a_mr, a_or=a_or, a_nr=a_nr,
+        gps=gps,
+        ws=ws
+    )
 
     return d_calc_input
 
 
-def make_rooms(d, d_calc_input, envelope, equipment_main, equipment_other, region, ventilation, natural_vent, a_a, a_mr, a_or, a_nr, gps):
+def make_rooms(
+        d, d_calc_input, envelope, equipment_main, equipment_other, region, ventilation, natural_vent, a_a, a_mr, a_or, a_nr,
+        gps, ws
+):
 
     # 外皮に関する辞書
-    gps_dict = envelope['general_parts']    # 一般部位
     gw_lists = envelope['windows']    # 大部分がガラスで構成される窓等の開口部
     gd_lists = envelope['doors']    # 大部分がガラスで構成されないドア等の開口部
     ep_lists = envelope['earthfloor_perimeters']    # 土間床等の外周部

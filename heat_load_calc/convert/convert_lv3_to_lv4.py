@@ -10,25 +10,25 @@ from heat_load_calc.convert.ees_house import EarthfloorPerimeter
 from heat_load_calc.convert.ees_house import EarthfloorCenter
 from heat_load_calc.convert.ees_house import InnerFloor
 from heat_load_calc.convert.ees_house import InnerWall
+from heat_load_calc.convert.ees_house import Layer
+from heat_load_calc.convert.ees_house import HeatResistanceInputMethod
 
 
-def get_inner_floor_spec() -> Dict:
+def get_inner_floor_layers() -> List[Layer]:
     """
     Returns:
-        室内床
+        室内床に関するレイヤーのリスト
     """
 
-    return {
-        'layers': [
-            {
-                'name': 'plywood',
-                'thermal_resistance_input_method': 'conductivity',
-                'thermal_conductivity': 0.16,
-                'volumetric_specific_heat': 720.0,
-                'thickness': 0.024,
-            }
-        ]
-    }
+    return [
+        Layer(
+            name='plywood',
+            heat_resistance_input_method=HeatResistanceInputMethod.CONDUCTIVITY,
+            thickness=0.024,
+            volumetric_specific_heat=720.0,
+            thermal_conductivity=0.16
+        )
+    ]
 
 
 def get_downward_envelope_total_area(
@@ -209,36 +209,35 @@ def get_inner_floor_between_rooms(
     return a_if_mr_or, a_if_mr_nr, a_if_or_mr, a_if_or_nr, a_if_nr_mr, a_if_nr_or
 
 
-def get_inner_wall_spec() -> Dict:
+def get_inner_wall_layers() -> List[Layer]:
     """
     Returns:
-        室内壁
+        室内壁に関するレイヤーのリスト
     """
 
-    return {
-        'layers': [
-            {
-                'name': 'gpb',
-                'thermal_resistance_input_method': 'conductivity',
-                'thermal_conductivity': 0.22,
-                'thickness': 0.0125,
-                'volumetric_specific_heat': 830.0,
-            },
-            {
-                'name': 'air_layer',
-                'thermal_resistance_input_method': 'resistance',
-                'thermal_resistance': 0.09,
-                'volumetric_specific_heat': 0.0,
-            },
-            {
-                'name': 'gpb',
-                'thermal_resistance_input_method': 'conductivity',
-                'thermal_conductivity': 0.22,
-                'thickness': 0.0125,
-                'volumetric_specific_heat': 830.0,
-            },
-        ]
-    }
+    return [
+        Layer(
+            name='gpb',
+            heat_resistance_input_method=HeatResistanceInputMethod.CONDUCTIVITY,
+            thermal_conductivity=0.22,
+            thickness=0.0125,
+            volumetric_specific_heat=830.0
+        ),
+        Layer(
+            name='air_layer',
+            heat_resistance_input_method=HeatResistanceInputMethod.RESISTANCE,
+            thermal_resistance=0.09,
+            thickness=0.120,
+            volumetric_specific_heat=0.0
+        ),
+        Layer(
+            name='gpb',
+            heat_resistance_input_method=HeatResistanceInputMethod.CONDUCTIVITY,
+            thermal_conductivity=0.22,
+            thickness=0.0125,
+            volumetric_specific_heat=830.0
+        )
+    ]
 
 
 def get_horizontal_envelope_total_area(
@@ -400,7 +399,7 @@ def make_inner_floors(
             area: float,
             upper_space_type: str,
             lower_space_type: str
-    ) -> List[InnerFloor]:
+    ):
         if area > 0.0:
             ifs.append(
                 InnerFloor(
@@ -408,7 +407,7 @@ def make_inner_floors(
                     area=area,
                     upper_space_type=upper_space_type,
                     lower_space_type=lower_space_type,
-                    inner_floor_spec=get_inner_floor_spec()
+                    layers=get_inner_floor_layers()
                 )
             )
 
@@ -466,7 +465,7 @@ def make_inner_walls(common: Dict, gps, ws, ds) -> List[InnerWall]:
                     area=area,
                     space_type_1=space_type_1,
                     space_type_2=space_type_2,
-                    inner_wall_spec=get_inner_wall_spec()
+                    layers=get_inner_wall_layers()
                 )
             )
 

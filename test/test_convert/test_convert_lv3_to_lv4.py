@@ -3,6 +3,8 @@ import unittest
 import heat_load_calc.convert.convert_lv3_to_lv4 as nb
 from heat_load_calc.convert.ees_house import UpperArealEnvelope
 from heat_load_calc.convert.ees_house import EarthfloorCenter, EarthfloorCenterSpec
+from heat_load_calc.convert.ees_house import Layer
+from heat_load_calc.convert.ees_house import HeatResistanceInputMethod
 
 
 class TestLV3toLV4(unittest.TestCase):
@@ -14,27 +16,27 @@ class TestLV3toLV4(unittest.TestCase):
     ### get_inner_floor_spec 関数のテスト ###
 
     def test_get_inner_floor_spec(self):
-        result = nb.get_inner_floor_spec()
+        layers = nb.get_inner_floor_layers()
 
         # number of array test
-        self.assertEqual(1, len(result['layers']))
+        self.assertEqual(1, len(layers))
 
-        layer0 = result['layers'][0]
+        layer0: Layer = layers[0]
 
         # name test
-        self.assertEqual('plywood', layer0['name'])
+        self.assertEqual('plywood', layer0.name)
 
         # thermal resistance input method test
-        self.assertEqual('conductivity', layer0['thermal_resistance_input_method'])
+        self.assertEqual(HeatResistanceInputMethod.CONDUCTIVITY, layer0.heat_resistance_input_method)
 
         # thermal conductivity test
-        self.assertEqual(0.16, layer0['thermal_conductivity'])
+        self.assertEqual(0.16, layer0.thermal_conductivity)
 
         # volumetric specific heat test
-        self.assertEqual(720.0, layer0['volumetric_specific_heat'])
+        self.assertEqual(720.0, layer0.volumetric_specific_heat)
 
         # thickness test
-        self.assertEqual(0.024, layer0['thickness'])
+        self.assertEqual(0.024, layer0.thickness)
 
     ### get_downward_envelope_total_area 関数のテスト ###
 
@@ -282,7 +284,7 @@ class TestLV3toLV4(unittest.TestCase):
     ### get_inner_floor_total_area 関数のテスト ###
 
     # 答えが0より大きい場合のテスト
-    def test_1_get_inner_floor_total_area(self):
+    def test_1_get_inner_floor_total_area_upper0(self):
         a_if_mr, a_if_or, a_if_nr = nb.get_inner_floor_total_area(
             a_a=120.0, a_mr=50.0, a_or=40.0,
             a_evlp_down_mr=20.0, a_evlp_down_or=15.0, a_evlp_down_nr=10.0,
@@ -293,7 +295,7 @@ class TestLV3toLV4(unittest.TestCase):
         self.assertEqual(16.0, a_if_nr)
 
     # 答えが0より小さい場合のテスト
-    def test_1_get_inner_floor_total_area(self):
+    def test_1_get_inner_floor_total_area_lower0(self):
         a_if_mr, a_if_or, a_if_nr = nb.get_inner_floor_total_area(
             a_a=120.0, a_mr=50.0, a_or=40.0,
             a_evlp_down_mr=80.0, a_evlp_down_or=60.0, a_evlp_down_nr=40.0,
@@ -393,40 +395,40 @@ class TestLV3toLV4(unittest.TestCase):
     ### get_inner_wall_spec 関数のテスト ###
 
     def test_get_inner_wall_spec(self):
-        result = nb.get_inner_wall_spec()
+        layers = nb.get_inner_wall_layers()
 
         # number of array test
-        self.assertEqual(3, len(result['layers']))
+        self.assertEqual(3, len(layers))
 
-        layer0 = result['layers'][0]
-        layer1 = result['layers'][1]
-        layer2 = result['layers'][2]
+        layer0 = layers[0]
+        layer1 = layers[1]
+        layer2 = layers[2]
 
         # name test
-        self.assertEqual('gpb', layer0['name'])
-        self.assertEqual('air_layer', layer1['name'])
-        self.assertEqual('gpb', layer2['name'])
+        self.assertEqual('gpb', layer0.name)
+        self.assertEqual('air_layer', layer1.name)
+        self.assertEqual('gpb', layer2.name)
 
         # thermal resistance input method test
-        self.assertEqual('conductivity', layer0['thermal_resistance_input_method'])
-        self.assertEqual('resistance', layer1['thermal_resistance_input_method'])
-        self.assertEqual('conductivity', layer2['thermal_resistance_input_method'])
+        self.assertEqual(HeatResistanceInputMethod.CONDUCTIVITY, layer0.heat_resistance_input_method)
+        self.assertEqual(HeatResistanceInputMethod.RESISTANCE, layer1.heat_resistance_input_method)
+        self.assertEqual(HeatResistanceInputMethod.CONDUCTIVITY, layer2.heat_resistance_input_method)
 
         # thermal conductivity test
-        self.assertEqual(0.22, layer0['thermal_conductivity'])
-        self.assertEqual(0.22, layer2['thermal_conductivity'])
+        self.assertEqual(0.22, layer0.thermal_conductivity)
+        self.assertEqual(0.22, layer2.thermal_conductivity)
 
         # volumetric specific heat test
-        self.assertEqual(830.0, layer0['volumetric_specific_heat'])
-        self.assertEqual(0.0, layer1['volumetric_specific_heat'])
-        self.assertEqual(830.0, layer2['volumetric_specific_heat'])
+        self.assertEqual(830.0, layer0.volumetric_specific_heat)
+        self.assertEqual(0.0, layer1.volumetric_specific_heat)
+        self.assertEqual(830.0, layer2.volumetric_specific_heat)
 
         # thickness test
-        self.assertEqual(0.0125, layer0['thickness'])
-        self.assertEqual(0.0125, layer2['thickness'])
+        self.assertEqual(0.0125, layer0.thickness)
+        self.assertEqual(0.0125, layer2.thickness)
 
         # thermal resistance test
-        self.assertEqual(0.09, layer1['thermal_resistance'])
+        self.assertEqual(0.09, layer1.thermal_resistance)
 
     ### get_horizontal_envelope_total_area 関数のテスト ###
 
@@ -849,7 +851,7 @@ class TestLV3toLV4(unittest.TestCase):
             'layers': [
                 {
                     'name': 'plywood',
-                    'thermal_resistance_input_method': 'conductivity',
+                    'heat_resistance_input_method': 'conductivity',
                     'thermal_conductivity': 0.16,
                     'volumetric_specific_heat': 720.0,
                     'thickness': 0.024
@@ -899,20 +901,21 @@ class TestLV3toLV4(unittest.TestCase):
             'layers': [
                 {
                     'name': 'gpb',
-                    'thermal_resistance_input_method': 'conductivity',
+                    'heat_resistance_input_method': 'conductivity',
                     'thermal_conductivity': 0.22,
                     'thickness': 0.0125,
                     'volumetric_specific_heat': 830.0
                 },
                 {
                     'name': 'air_layer',
-                    'thermal_resistance_input_method': 'resistance',
+                    'heat_resistance_input_method': 'resistance',
                     'thermal_resistance': 0.09,
+                    'thickness': 0.120,
                     'volumetric_specific_heat': 0.0
                 },
                 {
                     'name': 'gpb',
-                    'thermal_resistance_input_method': 'conductivity',
+                    'heat_resistance_input_method': 'conductivity',
                     'thermal_conductivity': 0.22,
                     'thickness': 0.0125,
                     'volumetric_specific_heat': 830.0
