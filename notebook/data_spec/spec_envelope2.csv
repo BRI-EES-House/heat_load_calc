@@ -37,21 +37,11 @@
 ,,,,〇,,,,,,space_type,接する室の用途,〇,,str,－,"{'main_occupant_room', 'other_occupant_room', 'non_occupant_room', 'underfloor', 'undefined'}",「主たる居室」「その他の居室」「非居室」「床下」「未定義」
 ,,,,〇,,,,,,sunshade,,,,sunshade,－,,
 ,,,,〇,,,,,,spec,仕様,〇,,dict,－,,
-,,,,,〇,,,,,window_type,窓の種類,〇,,str,－,"'single', 'double'",「一重窓」「二重窓」
-,,,,,〇,,,,,windows,窓,〇,,list,－,,
-,,,,,,〇,,,,,,〇,,dict,－,,
-,,,,,,,〇,,,u_value_input_method,U値の入力方法,〇,,str,－,"'u_value_directly', 'ug_value_and_flame_type'",「U値を入力」「Ug値と建具の仕様を入力」
-,,,,,,,〇,,,u_vaue,U値,△,u_value_input_method=u_value_directly,float,－,,
-,,,,,,,〇,,,ug_value,Ug値,△,u_value_input_method=ug_value_and_flame_type,float,－,,
-,,,,,,,〇,,,eta_value_input_method,η値の入力方法,〇,,str,－,"'eta_d_value_directly', 'eta_g_value_and_flame_type'",「ηd値を入力」「ηg値と建具の仕様を入力」
-,,,,,,,〇,,,eta_d_h_value,暖房期ηd値,△,eta_value_input_method=eta_d_value_directly,float,－,,
-,,,,,,,〇,,,eta_d_c_value,冷房期ηd値,△,eta_value_input_method=eta_d_value_directly,float,－,,
-,,,,,,,〇,,,eta_g_h_value,暖房期ηg値,△,eta_value_input_method=eta_g_value_and_flame_type,float,－,,
-,,,,,,,〇,,,eta_g_c_value,冷房期ηg値,△,eta_value_input_method=eta_g_value_and_flame_type,float,－,,
-,,,,,,,〇,,,flame_type,建具の仕様,△,u_value_input_method=ug_value_and_flame_type or eta_value_input_methodeta_g_value_and_flame_type,str,－,"'wood_or_resin', 'mixed', 'metal'",「木製建具又は樹脂製建具」「木と金属の複合材料製建具又は樹脂と金属の複合材料製建具」「金属製」
-,,,,,,,〇,,,glass_type,ガラス種類,〇,,str,－,"'single', 'double', 'triple_and_more', 'unknown'",「単層」「二層複層」「三層複層以上」「不明」
-,,,,,〇,,,,,attachment_type,付属部材の種類,〇,,str,－,"'none', 'shutter', 'amado', 'shoji'",「付属部材なし」「シャッター」「雨戸」「障子」
-,,,,,〇,,,,,is_windbreak_room_attached,風除室の有無,〇,,bool,－,,
+,,,,,〇,,,,,u_vaue,U値,〇,,float,W/m2K,,
+,,,,,〇,,,,,eta_d_h_value,暖房期ηd値,〇,,float,(W/m2)/(W/m2),,
+,,,,,〇,,,,,eta_d_c_value,冷房期ηd値,〇,,float,(W/m2)/(W/m2),,
+,,,,,〇,,,,,glass_type,ガラス種類,〇,,str,－,"'single', 'double', 'triple_and_more', 'unknown'",「単層」「二層複層」「三層複層以上」「不明」
+,,,,,〇,,,,,flame_type,建具の仕様,〇,,str,－,"wood', 'resin', 'metal', 'wood_and_metal', 'resin_and_metal', 'unknown'",「木製建具」「樹脂製建具」「金属製建具」「木と金属の複合材料製建具」「樹脂と金属の複合材料製建具」「不明」
 ,,〇,,,,,,,,doors,大部分がガラスで構成されないドア等の開口部,〇,,list,－,,本項目は必須項目であり、部位が存在しない場合は空の配列として保持すること。
 ,,,〇,,,,,,,,,〇,,dict,－,,
 ,,,,〇,,,,,,name,名称,〇,,str,－,,

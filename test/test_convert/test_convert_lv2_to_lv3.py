@@ -107,18 +107,11 @@ class TestConvertLv2toLv3(unittest.TestCase):
                         },
                         'spec': {
                             'window_type': 'single',
-                            'windows': [
-                                {
-                                    'u_value_input_method': 'u_value_directly',
-                                    'u_value': 3.0,
-                                    'eta_value_input_method': 'eta_d_value_directly',
-                                    'eta_d_h_value': 0.5,
-                                    'eta_d_c_value': 0.5,
-                                    'glass_type': 'single'
-                                }
-                            ],
-                            'attachment_type': 'none',
-                            'is_windbreak_room_attached': False
+                            'u_value': 3.0,
+                            'eta_d_h_value': 0.5,
+                            'eta_d_c_value': 0.5,
+                            'glass_type': 'single',
+                            'flame_type': 'metal'
                         },
                     }
                 ]
@@ -147,9 +140,6 @@ class TestConvertLv2toLv3(unittest.TestCase):
         self.assertEqual(30.25 * 30.0 / 120.0, result[0]['area'])
         self.assertEqual(30.25 * 60.0 / 120.0, result[1]['area'])
         self.assertEqual(30.25 * 30.0 / 120.0, result[2]['area'])
-        self.assertEqual('single', result[0]['spec']['window_type'])
-        self.assertEqual('single', result[1]['spec']['window_type'])
-        self.assertEqual('single', result[2]['spec']['window_type'])
 
     def test_get_doors(self):
 
@@ -379,19 +369,11 @@ class TestConvertLv2toLv3(unittest.TestCase):
                             'input': 'not_input'
                         },
                         'spec': {
-                            'window_type': 'single',
-                            'windows': [
-                                {
-                                    'u_value_input_method': 'u_value_directly',
-                                    'u_value': 3.0,
-                                    'eta_value_input_method': 'eta_d_value_directly',
-                                    'eta_d_h_value': 0.5,
-                                    'eta_d_c_value': 0.5,
-                                    'glass_type': 'single'
-                                }
-                            ],
-                            'attachment_type': 'none',
-                            'is_windbreak_room_attached': False
+                            'u_value': 3.0,
+                            'eta_d_h_value': 0.5,
+                            'eta_d_c_value': 0.5,
+                            'glass_type': 'single',
+                            'flame_type': 'metal'
                         },
                     },
                     {
@@ -405,19 +387,11 @@ class TestConvertLv2toLv3(unittest.TestCase):
                             'input': 'not_input'
                         },
                         'spec': {
-                            'window_type': 'single',
-                            'windows': [
-                                {
-                                    'u_value_input_method': 'u_value_directly',
-                                    'u_value': 3.0,
-                                    'eta_value_input_method': 'eta_d_value_directly',
-                                    'eta_d_h_value': 0.5,
-                                    'eta_d_c_value': 0.5,
-                                    'glass_type': 'single'
-                                }
-                            ],
-                            'attachment_type': 'none',
-                            'is_windbreak_room_attached': False
+                            'u_value': 3.0,
+                            'eta_d_h_value': 0.5,
+                            'eta_d_c_value': 0.5,
+                            'glass_type': 'single',
+                            'flame_type': 'metal'
                         },
                     }
                 ],
@@ -562,7 +536,6 @@ class TestConvertLv2toLv3(unittest.TestCase):
         self.assertEqual('sw', w['direction'])
         self.assertEqual(7.5625, w['area'])
         self.assertEqual('main_occupant_room', w['space_type'])
-        self.assertEqual('single', w['spec']['window_type'])
 
         w = tgt['windows'][1]
         self.assertEqual('test_part1_other_occupant_room', w['name'])
@@ -570,7 +543,6 @@ class TestConvertLv2toLv3(unittest.TestCase):
         self.assertEqual('sw', w['direction'])
         self.assertEqual(15.125, w['area'])
         self.assertEqual('other_occupant_room', w['space_type'])
-        self.assertEqual('single', w['spec']['window_type'])
 
         w = tgt['windows'][2]
         self.assertEqual('test_part1_non_occupant_room', w['name'])
@@ -578,7 +550,6 @@ class TestConvertLv2toLv3(unittest.TestCase):
         self.assertEqual('sw', w['direction'])
         self.assertEqual(7.5625, w['area'])
         self.assertEqual('non_occupant_room', w['space_type'])
-        self.assertEqual('single', w['spec']['window_type'])
 
         w = tgt['windows'][3]
         self.assertEqual('test_part2_main_occupant_room', w['name'])
@@ -586,7 +557,6 @@ class TestConvertLv2toLv3(unittest.TestCase):
         self.assertEqual('sw', w['direction'])
         self.assertEqual(7.5625, w['area'])
         self.assertEqual('main_occupant_room', w['space_type'])
-        self.assertEqual('single', w['spec']['window_type'])
 
         w = tgt['windows'][4]
         self.assertEqual('test_part2_other_occupant_room', w['name'])
@@ -594,7 +564,6 @@ class TestConvertLv2toLv3(unittest.TestCase):
         self.assertEqual('sw', w['direction'])
         self.assertEqual(15.125, w['area'])
         self.assertEqual('other_occupant_room', w['space_type'])
-        self.assertEqual('single', w['spec']['window_type'])
 
         w = tgt['windows'][5]
         self.assertEqual('test_part2_non_occupant_room', w['name'])
@@ -602,7 +571,6 @@ class TestConvertLv2toLv3(unittest.TestCase):
         self.assertEqual('sw', w['direction'])
         self.assertEqual(7.5625, w['area'])
         self.assertEqual('non_occupant_room', w['space_type'])
-        self.assertEqual('single', w['spec']['window_type'])
 
         d = tgt['doors'][0]
         self.assertEqual('test_part1_main_occupant_room', d['name'])

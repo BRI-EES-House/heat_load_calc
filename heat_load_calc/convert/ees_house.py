@@ -34,11 +34,38 @@ class GeneralPartType(Enum):
     DOWNWARD_BOUNDARY_FLOOR = 'downward_boundary_floor'
 
 
-class WindowType(Enum):
-    # 1重窓
+class GlassType(Enum):
+    """
+    ガラスの層の数
+    """
+
+    # 単層
     SINGLE = 'single'
-    # 2重窓
+    # 2層複層
     DOUBLE = 'double'
+    # 3層以上複層
+    TRIPLE_AND_MORE = 'triple_and_more'
+    # 不明
+    UNKNOWN = 'unknown'
+
+
+class FlameType(Enum):
+    """
+    建具の種類
+    """
+
+    # 木製建具
+    WOOD = 'wood'
+    # 樹脂製建具
+    RESIN = 'resin'
+    # 金属製建具
+    METAL = 'metal'
+    # 木と金属の複合材料製建具
+    WOOD_AND_METAL = 'wood_and_metal'
+    # 樹脂と金属の複合材料製建具
+    RESIN_AND_METAL = 'resin_and_metal'
+    # 不明
+    UNKNOWN = 'unknown'
 
 
 class EesHouse:
@@ -1354,95 +1381,81 @@ class GeneralPart(GeneralPartNoSpec, IGetQ, IGetM):
         return gp_dicts
 
 
-class WindowSpecSingle:
-
-    def __init__(self, spec: Dict):
-        self._spec = spec
-
-    @classmethod
-    def make_window_spec_single(cls, d: Dict):
-        return WindowSpecSingle(
-            spec=d
-        )
-
-    @classmethod
-    def make_window_spec_singles(cls, ds: List[Dict]):
-        return [cls.make_window_spec_single(d=d) for d in ds]
-
-    @property
-    def spec(self):
-        return self._spec
-
-
 class WindowSpec:
 
     def __init__(
             self,
-            window_type: WindowType,
-            windows: List[Dict],
-            attachment_type: str,
-            is_windbreak_room_attached,
-            window_spec_singles
+            u: float,
+            eta_d_h: float,
+            eta_d_c: float,
+            glass_type: GlassType,
+            flame_type: FlameType
     ):
         """
-
         Args:
-            window_type: 窓の種類（1重窓, 2重窓）
-            windows:
-            attachment_type:
-            is_windbreak_room_attached:
-            window_spec_singles:
+            u: U値, W/m2K
+            eta_d_h: 暖房期のηd値, (W/m2)/(W/m2)
+            eta_d_c: 冷房期のηd値, (W/m2)/(W/m2)
+            glass_type: ガラスの層数
+            flame_type: 建具の種類
         """
 
-        self._window_type = window_type
-        self._windows = windows
-        self._attachment_type = attachment_type
-        self._is_windbreak_room_attached = is_windbreak_room_attached
-        self._window_spec_singles = window_spec_singles
+        self._u = u
+        self._eta_d_h = eta_d_h
+        self._eta_d_c = eta_d_c
+        self._glass_type = glass_type
+        self._flame_type = flame_type
 
     @classmethod
     def make_window_spec(cls, d: Dict):
+        """
+        窓の仕様を表す辞書から WindowSpec クラスを作成する。
+        Args:
+            d: 窓の仕様を表す辞書
+        Returns:
+            WindowSpec クラス
+        """
 
         return WindowSpec(
-            window_type=WindowType(d['window_type']),
-            windows=d['windows'],
-            attachment_type=d['attachment_type'],
-            is_windbreak_room_attached=d['is_windbreak_room_attached'],
-            window_spec_singles=WindowSpecSingle.make_window_spec_singles(ds=d['windows'])
+            u=d['u_value'],
+            eta_d_h=d['eta_d_h_value'],
+            eta_d_c=d['eta_d_c_value'],
+            glass_type=GlassType(d['glass_type']),
+            flame_type=FlameType(d['flame_type'])
         )
 
     def get_u(self):
-
-        if self._window_type == WindowType.SINGLE:
-            window = self._windows[0]
-            if window['u_value_input_method'] == 'u_value_directly':
-                return window['u_value']
-            else:
-                raise NotImplementedError()
-        else:
-            raise NotImplementedError()
+        """
+        U値を取得する。
+        Returns:
+            U値, W/m2K
+        """
+        return self._u
 
     def get_eta_d(self, season: str):
+        """
+        ηd値を取得する。
+        Args:
+            season: 暖冷房期間
+        Returns:
+            ηd値, (W/m2)/(W/m2)
+        """
 
-        if self._window_type == WindowType.SINGLE:
-            window = self._windows[0]
-            if window['eta_value_input_method'] == 'eta_d_value_directly':
-                if season == 'heating':
-                    return window['eta_d_h_value']
-                elif season == 'cooling':
-                    return window['eta_d_c_value']
-            else:
-                raise NotImplementedError()
+        if season == 'heating':
+            return self._eta_d_h
+        elif season == 'cooling':
+            return self._eta_d_c
         else:
-            raise NotImplementedError()
+            raise Exception
 
     def get_as_dict(self):
 
         return {
-            'window_type': self._window_type.value,
-            'windows': self._windows,
-            'attachment_type': self._attachment_type,
-            'is_windbreak_room_attached': self._is_windbreak_room_attached,
+            'u_value': self._u,
+            'eta_d_h_value': self._eta_d_h,
+            'eta_d_c_value': self._eta_d_c,
+            'glass_type': self._glass_type.value,
+            'flame_type': self._flame_type.value
         }
 
 
