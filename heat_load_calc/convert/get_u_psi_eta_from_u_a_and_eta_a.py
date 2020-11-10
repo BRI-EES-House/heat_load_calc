@@ -270,9 +270,9 @@ def calc_parts_spec(
     """
     Args:
         region: 地域の区分
-        u_a_target: 目標とするUA値, W/k
-        eta_a_h_target: 目標とするηAH値, W/(W/m2)
-        eta_a_c_target: 目標とするηAC値, W/(W/m2)
+        u_a_target: 目標とするUA値, W/m2k
+        eta_a_h_target: 目標とするηAH値, (W/m2)/(W/m2)
+        eta_a_c_target: 目標とするηAC値, (W/m2)/(W/m2)
         gps: 一般部位（仕様なし）のリスト
         ds: 大部分がガラスで構成されないドア等の開口部（仕様なし）のリスト
         ws: 大部分がガラスで構成される窓等の開口部（仕様なし）のリスト
