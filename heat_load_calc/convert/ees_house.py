@@ -402,7 +402,7 @@ class GeneralPartPart:
         """
         return self._layers
 
-    def get_r_total(self):
+    def get_r_total(self) -> float:
         """
         熱抵抗の合計値を取得する。
         Returns:
@@ -793,7 +793,7 @@ class GeneralPartSpecUValue(GeneralPartSpec):
         self._general_part_type = general_part_type
 
     @property
-    def general_part_type(self):
+    def general_part_type(self) -> GeneralPartType:
         return self._general_part_type
 
     def get_u(self) -> float:
@@ -842,18 +842,18 @@ class GeneralPartSpecUValue(GeneralPartSpec):
         }[self.general_part_type]
 
     @abc.abstractmethod
-    def get_as_dict(self):
+    def get_as_dict(self) -> Dict:
 
         pass
 
     def make_initializer_dict(self, name: str, area: float, u_add: float) -> List[Dict]:
 
         # GeneralPartSpecDetail
-        gpsd = self.convert_to_general_part_spec_detail()
+        gpsd = self._convert_to_general_part_spec_detail()
 
         return gpsd.make_initializer_dict(name=name, area=area, u_add=u_add)
 
-    def convert_to_general_part_spec_detail(self) -> GeneralPartSpecDetail:
+    def _convert_to_general_part_spec_detail(self) -> GeneralPartSpecDetail:
 
         gypsum_board9_5 = Layer(
             name='gypsum_board',
@@ -1019,7 +1019,7 @@ class IArea(metaclass=abc.ABCMeta):
 
     @property
     @abc.abstractmethod
-    def area(self):
+    def area(self) -> float:
         pass
 
 
@@ -1102,7 +1102,7 @@ class UpperArealEnvelope(IArea):
 
         return factor_h.get_h(region=region, next_space=self.next_space)
 
-    def get_nu(self, region: int, season: str):
+    def get_nu(self, region: int, season: str) -> float:
         """
         方位係数を取得する。
         Args:
@@ -1121,14 +1121,14 @@ class UpperArealEnvelope(IArea):
 class IGetQ(metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
-    def get_q(self, region: int):
+    def get_q(self, region: int) -> float:
         pass
 
 
 class IGetM(metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
-    def get_m(self, region: int, season: str):
+    def get_m(self, region: int, season: str) -> float:
         pass
 
 
@@ -1308,7 +1308,7 @@ class GeneralPart(GeneralPartNoSpec, IGetQ, IGetM):
         else:
             return 0.0
 
-    def get_as_dict(self):
+    def get_as_dict(self) -> Dict:
 
         return {
             'name': self._name,
@@ -1321,7 +1321,7 @@ class GeneralPart(GeneralPartNoSpec, IGetQ, IGetM):
             'sunshade': self.sunshade.get_as_dict()
         }
 
-    def make_initializer_dict(self, u_add: float, region: int):
+    def make_initializer_dict(self, u_add: float, region: int) -> List[Dict]:
 
         gps_dicts = self.general_part_spec.make_initializer_dict(name=self.name, area=self.area, u_add=u_add)
 
@@ -1350,6 +1350,8 @@ class GeneralPart(GeneralPartNoSpec, IGetQ, IGetM):
             GeneralPartType.UPWARD_BOUNDARY_FLOOR: False,
             GeneralPartType.DOWNWARD_BOUNDARY_FLOOR: True
         }[self.general_part_type]
+
+        # TODO: ここに　is_floor を新規追加し、仕様書（csv）の方も対応させて変更する。
 
         solar_shading_part = self.sunshade.make_initializer_dict()
 
@@ -1424,14 +1426,6 @@ class WindowSpec:
             flame_type=FlameType(d['flame_type'])
         )
 
-    def get_u(self):
-        """
-        U値を取得する。
-        Returns:
-            U値, W/m2K
-        """
-        return self._u
-
     def get_eta_d(self, season: str):
         """
         ηd値を取得する。
@@ -1448,7 +1442,7 @@ class WindowSpec:
         else:
             raise Exception
 
-    def get_as_dict(self):
+    def get_as_dict(self) -> Dict:
 
         return {
             'u_value': self._u,
@@ -1457,6 +1451,51 @@ class WindowSpec:
             'glass_type': self._glass_type.value,
             'flame_type': self._flame_type.value
         }
+
+    @property
+    def u(self) -> float:
+        """
+        U値を取得する。
+        Returns:
+            U値, W/m2K
+        """
+        return self._u
+
+    @property
+    def eta_d_h(self) -> float:
+        """
+        ηd_h値を取得する。
+        Returns:
+            ηd_h値, (W/m2)/(W/m2)
+        """
+        return self._eta_d_h
+
+    @property
+    def eta_d_c(self) -> float:
+        """
+        ηd_c値を取得する。
+        Returns:
+            ηd_c値, (W/m2)/(W/m2)
+        """
+        return self._eta_d_c
+
+    @property
+    def glass_type(self) -> GlassType:
+        """
+        ガラスの種類（枚数）を取得する。
+        Returns:
+            ガラスの種類（枚数）
+        """
+        return self._glass_type
+
+    @property
+    def flame_type(self) -> FlameType:
+        """
+        建具の種類を取得する。
+        Returns:
+            建具の種類
+        """
+        return self._flame_type
 
 
 class WindowNoSpec(UpperArealEnvelope):
@@ -1584,12 +1623,19 @@ class Window(WindowNoSpec, IGetQ, IGetM):
         return self._window_spec
 
     def get_u(self):
-        return self._window_spec.get_u()
+        return self._window_spec.u
 
     def get_q(self, region: int):
         return self.area * self.get_u() * self.get_h(region=region)
 
     def get_eta_d(self, season: str):
+        """
+        ηd値を取得する。
+        Args:
+            season: 暖冷房期間
+        Returns:
+            ηd値, (W/m2)/(W/m2)
+        """
         return self._window_spec.get_eta_d(season=season)
 
     def get_m(self, region: int, season: str) -> float:
@@ -1608,6 +1654,13 @@ class Window(WindowNoSpec, IGetQ, IGetM):
             'space_type': self.space_type,
             'sunshade': self.sunshade.get_as_dict(),
             'spec': self.window_spec.get_as_dict()
+        }
+
+    def make_initializer_dict(self):
+
+        return {
+            'name': self.name,
+
         }
 
 

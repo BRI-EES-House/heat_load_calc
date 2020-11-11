@@ -1018,7 +1018,7 @@ class GeneralPartSpecTest(unittest.TestCase):
 
     def test_convert_to_general_part_spec_detail_roof_light(self):
 
-        gpd = self._gps_other_roof_light.convert_to_general_part_spec_detail()
+        gpd = self._gps_other_roof_light._convert_to_general_part_spec_detail()
         self.assertAlmostEqual(0.09, gpd.r_srf_in)
         self.assertAlmostEqual(0.04, gpd.r_srf_ex)
         self.assertEqual(1, len(gpd.parts))
@@ -1044,7 +1044,7 @@ class GeneralPartSpecTest(unittest.TestCase):
 
     def test_convert_to_general_part_spec_detail_roof_heavy(self):
 
-        gpd = self._gps_other_roof_heavy.convert_to_general_part_spec_detail()
+        gpd = self._gps_other_roof_heavy._convert_to_general_part_spec_detail()
         self.assertAlmostEqual(0.09, gpd.r_srf_in)
         self.assertAlmostEqual(0.04, gpd.r_srf_ex)
         self.assertEqual(1, len(gpd.parts))
@@ -1077,7 +1077,7 @@ class GeneralPartSpecTest(unittest.TestCase):
 
     def test_convert_to_general_part_spec_detail_ceiling_light(self):
 
-        gpd = self._gps_other_ceiling_light.convert_to_general_part_spec_detail()
+        gpd = self._gps_other_ceiling_light._convert_to_general_part_spec_detail()
         self.assertAlmostEqual(0.09, gpd.r_srf_in)
         self.assertAlmostEqual(0.09, gpd.r_srf_ex)
         self.assertEqual(1, len(gpd.parts))
@@ -1103,7 +1103,7 @@ class GeneralPartSpecTest(unittest.TestCase):
 
     def test_convert_to_general_part_spec_detail_ceiling_heavy(self):
 
-        gpd = self._gps_other_ceiling_heavy.convert_to_general_part_spec_detail()
+        gpd = self._gps_other_ceiling_heavy._convert_to_general_part_spec_detail()
         self.assertAlmostEqual(0.09, gpd.r_srf_in)
         self.assertAlmostEqual(0.09, gpd.r_srf_ex)
         self.assertEqual(1, len(gpd.parts))
@@ -1136,7 +1136,7 @@ class GeneralPartSpecTest(unittest.TestCase):
 
     def test_convert_to_general_part_spec_detail_wall_light(self):
 
-        gpd = self._gps_other_wall_light.convert_to_general_part_spec_detail()
+        gpd = self._gps_other_wall_light._convert_to_general_part_spec_detail()
         self.assertAlmostEqual(0.11, gpd.r_srf_in)
         self.assertAlmostEqual(0.04, gpd.r_srf_ex)
         self.assertEqual(1, len(gpd.parts))
@@ -1169,7 +1169,7 @@ class GeneralPartSpecTest(unittest.TestCase):
 
     def test_convert_to_general_part_spec_detail_wall_heavy(self):
 
-        gpd = self._gps_other_wall_heavy.convert_to_general_part_spec_detail()
+        gpd = self._gps_other_wall_heavy._convert_to_general_part_spec_detail()
         self.assertAlmostEqual(0.11, gpd.r_srf_in)
         self.assertAlmostEqual(0.04, gpd.r_srf_ex)
         self.assertEqual(1, len(gpd.parts))
@@ -1202,7 +1202,7 @@ class GeneralPartSpecTest(unittest.TestCase):
 
     def test_convert_to_general_part_spec_detail_floor_light(self):
 
-        gpd = self._gps_other_floor_light.convert_to_general_part_spec_detail()
+        gpd = self._gps_other_floor_light._convert_to_general_part_spec_detail()
         self.assertAlmostEqual(0.15, gpd.r_srf_in)
         self.assertAlmostEqual(0.15, gpd.r_srf_ex)
         self.assertEqual(1, len(gpd.parts))
@@ -1228,7 +1228,7 @@ class GeneralPartSpecTest(unittest.TestCase):
 
     def test_convert_to_general_part_spec_detail_floor_heavy(self):
 
-        gpd = self._gps_other_floor_heavy.convert_to_general_part_spec_detail()
+        gpd = self._gps_other_floor_heavy._convert_to_general_part_spec_detail()
         self.assertAlmostEqual(0.15, gpd.r_srf_in)
         self.assertAlmostEqual(0.15, gpd.r_srf_ex)
         self.assertEqual(1, len(gpd.parts))
@@ -1261,7 +1261,7 @@ class GeneralPartSpecTest(unittest.TestCase):
 
     def test_convert_to_general_part_spec_detail_upward_boundary_floor_light(self):
 
-        gpd = self._gps_other_upward_boundary_floor_light.convert_to_general_part_spec_detail()
+        gpd = self._gps_other_upward_boundary_floor_light._convert_to_general_part_spec_detail()
         self.assertAlmostEqual(0.09, gpd.r_srf_in)
         self.assertAlmostEqual(0.09, gpd.r_srf_ex)
         self.assertEqual(1, len(gpd.parts))
@@ -1294,7 +1294,7 @@ class GeneralPartSpecTest(unittest.TestCase):
 
     def test_convert_to_general_part_spec_detail_upward_boundary_floor_heavy(self):
 
-        gpd = self._gps_other_upward_boundary_floor_heavy.convert_to_general_part_spec_detail()
+        gpd = self._gps_other_upward_boundary_floor_heavy._convert_to_general_part_spec_detail()
         self.assertAlmostEqual(0.09, gpd.r_srf_in)
         self.assertAlmostEqual(0.09, gpd.r_srf_ex)
         self.assertEqual(1, len(gpd.parts))
@@ -1334,7 +1334,7 @@ class GeneralPartSpecTest(unittest.TestCase):
 
     def test_convert_to_general_part_spec_detail_boundary_wall_light(self):
 
-        gpd = self._gps_other_boundary_wall_light.convert_to_general_part_spec_detail()
+        gpd = self._gps_other_boundary_wall_light._convert_to_general_part_spec_detail()
         self.assertAlmostEqual(0.11, gpd.r_srf_in)
         self.assertAlmostEqual(0.11, gpd.r_srf_ex)
         self.assertEqual(1, len(gpd.parts))
@@ -1367,7 +1367,7 @@ class GeneralPartSpecTest(unittest.TestCase):
 
     def test_convert_to_general_part_spec_detail_boundary_wall_heavy(self):
 
-        gpd = self._gps_other_boundary_wall_heavy.convert_to_general_part_spec_detail()
+        gpd = self._gps_other_boundary_wall_heavy._convert_to_general_part_spec_detail()
         self.assertAlmostEqual(0.11, gpd.r_srf_in)
         self.assertAlmostEqual(0.11, gpd.r_srf_ex)
         self.assertEqual(1, len(gpd.parts))
@@ -1400,7 +1400,7 @@ class GeneralPartSpecTest(unittest.TestCase):
 
     def test_convert_to_general_part_spec_detail_downward_boundary_floor_light(self):
 
-        gpd = self._gps_other_downward_boundary_floor_light.convert_to_general_part_spec_detail()
+        gpd = self._gps_other_downward_boundary_floor_light._convert_to_general_part_spec_detail()
         self.assertAlmostEqual(0.15, gpd.r_srf_in)
         self.assertAlmostEqual(0.15, gpd.r_srf_ex)
         self.assertEqual(1, len(gpd.parts))
@@ -1433,7 +1433,7 @@ class GeneralPartSpecTest(unittest.TestCase):
 
     def test_convert_to_general_part_spec_detail_downward_boundary_floor_heavy(self):
 
-        gpd = self._gps_other_downward_boundary_floor_heavy.convert_to_general_part_spec_detail()
+        gpd = self._gps_other_downward_boundary_floor_heavy._convert_to_general_part_spec_detail()
         self.assertAlmostEqual(0.15, gpd.r_srf_in)
         self.assertAlmostEqual(0.15, gpd.r_srf_ex)
         self.assertEqual(1, len(gpd.parts))
