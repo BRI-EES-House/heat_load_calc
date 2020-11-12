@@ -1,6 +1,7 @@
 import unittest
 
 import heat_load_calc.convert.convert_lv3_to_lv4 as nb
+from heat_load_calc.convert.ees_house import SpaceType
 from heat_load_calc.convert.ees_house import UpperArealEnvelope
 from heat_load_calc.convert.ees_house import EarthfloorCenter, EarthfloorCenterSpec
 from heat_load_calc.convert.ees_house import Layer
@@ -100,7 +101,7 @@ class TestLV3toLV4(unittest.TestCase):
                 next_space='outdoor',
                 direction=gp['direction'],
                 area=gp['area'],
-                space_type=gp['space_type']
+                space_type=SpaceType(gp['space_type'])
             ) for gp in envelope['general_parts']
         ]
 
@@ -110,7 +111,7 @@ class TestLV3toLV4(unittest.TestCase):
                 next_space='outdoor',
                 direction=w['direction'],
                 area=w['area'],
-                space_type=w['space_type']
+                space_type=SpaceType(w['space_type'])
             ) for w in envelope['windows']
         ]
 
@@ -120,7 +121,7 @@ class TestLV3toLV4(unittest.TestCase):
                 next_space='outdoor',
                 direction=d['direction'],
                 area=d['area'],
-                space_type=d['space_type']
+                space_type=SpaceType(d['space_type'])
             ) for d in envelope['doors']
         ]
 
@@ -162,7 +163,7 @@ class TestLV3toLV4(unittest.TestCase):
                 next_space='outdoor',
                 direction=gp['direction'],
                 area=gp['area'],
-                space_type=gp['space_type']
+                space_type=SpaceType(gp['space_type'])
             ) for gp in envelope['general_parts']
         ]
 
@@ -172,7 +173,7 @@ class TestLV3toLV4(unittest.TestCase):
                 next_space='outdoor',
                 direction=w['direction'],
                 area=w['area'],
-                space_type=w['space_type']
+                space_type=SpaceType(w['space_type'])
             ) for w in envelope['windows']
         ]
 
@@ -182,7 +183,7 @@ class TestLV3toLV4(unittest.TestCase):
                 next_space='outdoor',
                 direction=d['direction'],
                 area=d['area'],
-                space_type=d['space_type']
+                space_type=SpaceType(d['space_type'])
             ) for d in envelope['doors']
         ]
 
@@ -582,7 +583,7 @@ class TestLV3toLV4(unittest.TestCase):
                 next_space='outdoor',
                 direction=gp['direction'],
                 area=gp['area'],
-                space_type=gp['space_type']
+                space_type=SpaceType(gp['space_type'])
             ) for gp in envelope['general_parts']
         ]
 
@@ -592,7 +593,7 @@ class TestLV3toLV4(unittest.TestCase):
                 next_space='outdoor',
                 direction=w['direction'],
                 area=w['area'],
-                space_type=w['space_type']
+                space_type=SpaceType(w['space_type'])
             ) for w in envelope['windows']
         ]
 
@@ -602,7 +603,7 @@ class TestLV3toLV4(unittest.TestCase):
                 next_space='outdoor',
                 direction=d['direction'],
                 area=d['area'],
-                space_type=d['space_type']
+                space_type=SpaceType(d['space_type'])
             ) for d in envelope['doors']
         ]
 
@@ -644,7 +645,7 @@ class TestLV3toLV4(unittest.TestCase):
                 next_space='outdoor',
                 direction=gp['direction'],
                 area=gp['area'],
-                space_type=gp['space_type']
+                space_type=SpaceType(gp['space_type'])
             ) for gp in envelope['general_parts']
         ]
 
@@ -654,7 +655,7 @@ class TestLV3toLV4(unittest.TestCase):
                 next_space='outdoor',
                 direction=w['direction'],
                 area=w['area'],
-                space_type=w['space_type']
+                space_type=SpaceType(w['space_type'])
             ) for w in envelope['windows']
         ]
 
@@ -664,7 +665,7 @@ class TestLV3toLV4(unittest.TestCase):
                 next_space='outdoor',
                 direction=d['direction'],
                 area=d['area'],
-                space_type=d['space_type']
+                space_type=SpaceType(d['space_type'])
             ) for d in envelope['doors']
         ]
 

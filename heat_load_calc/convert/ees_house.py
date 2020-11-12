@@ -68,6 +68,36 @@ class FlameType(Enum):
     UNKNOWN = 'unknown'
 
 
+class SpaceType(Enum):
+    """
+    境界が隣接する空間の種類
+    """
+
+    # 主たる居室
+    MAIN_OCCUPANT_ROOM = 'main_occupant_room'
+    # その他の居室
+    OTHER_OCCUPANT_ROOM = 'other_occupant_room'
+    # 非居室
+    NON_OCCUPANT_ROOM = 'non_occupant_room'
+    # 床下
+    UNDERFLOOR = 'underfloor'
+    # 不明
+    UNDEFINED = 'undefined'
+
+    def get_connected_id(self) -> int:
+        if self == SpaceType.UNDEFINED:
+            raise ValueError('SpaceType が UNDEFINED のときにはID取得関数は呼び出せません。')
+        return {
+            SpaceType.MAIN_OCCUPANT_ROOM: 0,
+            SpaceType.OTHER_OCCUPANT_ROOM: 1,
+            SpaceType.NON_OCCUPANT_ROOM: 2,
+            SpaceType.UNDERFLOOR: 3
+        }[self]
+
+
+
+
+
 class EesHouse:
 
     def __init__(self):
@@ -1025,7 +1055,7 @@ class IArea(metaclass=abc.ABCMeta):
 
 class UpperArealEnvelope(IArea):
 
-    def __init__(self, name: str, next_space: str, direction: str, area: float, space_type: str):
+    def __init__(self, name: str, next_space: str, direction: str, area: float, space_type: SpaceType):
         """
 
         Args:
@@ -1082,13 +1112,12 @@ class UpperArealEnvelope(IArea):
         return self._area
 
     @property
-    def space_type(self) -> str:
+    def space_type(self) -> SpaceType:
         """
         接する室の用途を取得する。
         Returns:
             接する室の用途
         """
-
         return self._space_type
 
     def get_h(self, region) -> float:
@@ -1144,7 +1173,7 @@ class GeneralPartNoSpec(UpperArealEnvelope):
             next_space: str,
             direction: str,
             area: float,
-            space_type: str,
+            space_type: SpaceType,
             sunshade: factor_f.SunshadeOpaque
     ):
         """
@@ -1194,7 +1223,7 @@ class GeneralPart(GeneralPartNoSpec, IGetQ, IGetM):
             next_space: str,
             direction: str,
             area: float,
-            space_type: str,
+            space_type: SpaceType,
             sunshade: factor_f.SunshadeOpaque,
             general_part_spec: GeneralPartSpec
     ):
@@ -1239,7 +1268,7 @@ class GeneralPart(GeneralPartNoSpec, IGetQ, IGetM):
             next_space=d['next_space'],
             direction=d['direction'],
             area=d['area'],
-            space_type=d['space_type'],
+            space_type=SpaceType(d['space_type']),
             sunshade=factor_f.SunshadeOpaque.make_sunshade_opaque(d=d['sunshade']),
             general_part_spec=GeneralPartSpec.make_general_part_spec(
                 d=d['spec'],
@@ -1316,7 +1345,7 @@ class GeneralPart(GeneralPartNoSpec, IGetQ, IGetM):
             'next_space': self.next_space,
             'direction': self.direction,
             'area': self.area,
-            'space_type': self.space_type,
+            'space_type': self.space_type.value,
             'spec': self.general_part_spec.get_as_dict(),
             'sunshade': self.sunshade.get_as_dict()
         }
@@ -1325,12 +1354,7 @@ class GeneralPart(GeneralPartNoSpec, IGetQ, IGetM):
 
         gps_dicts = self.general_part_spec.make_initializer_dict(name=self.name, area=self.area, u_add=u_add)
 
-        connected_room_id = {
-            'main_occupant_room': 0,
-            'other_occupant_room': 1,
-            'non_occupant_room': 2,
-            'underfloor': 3
-        }[self.space_type]
+        connected_room_id = self.space_type.get_connected_id()
 
         is_sun_striked_outside = {
             'outdoor': True,
@@ -1509,7 +1533,7 @@ class WindowNoSpec(UpperArealEnvelope):
             next_space: str,
             direction: str,
             area: float,
-            space_type: str,
+            space_type: SpaceType,
             sunshade: factor_f.SunshadeTransient
     ):
         """
@@ -1562,7 +1586,7 @@ class Window(WindowNoSpec, IGetQ, IGetM):
             area: float,
             next_space: str,
             direction: str,
-            space_type: str,
+            space_type: SpaceType,
             sunshade: factor_f.SunshadeTransient,
             window_spec: WindowSpec
     ):
@@ -1601,7 +1625,7 @@ class Window(WindowNoSpec, IGetQ, IGetM):
             area=d['area'],
             next_space=d['next_space'],
             direction=d['direction'],
-            space_type=d['space_type'],
+            space_type=SpaceType(d['space_type']),
             sunshade=factor_f.SunshadeTransient.make_sunshade_transient(d=d['sunshade']),
             window_spec=WindowSpec.make_window_spec(d=d['spec'])
         )
@@ -1651,7 +1675,7 @@ class Window(WindowNoSpec, IGetQ, IGetM):
             'next_space': self.next_space,
             'direction': self.direction,
             'area': self.area,
-            'space_type': self.space_type,
+            'space_type': self.space_type.value,
             'sunshade': self.sunshade.get_as_dict(),
             'spec': self.window_spec.get_as_dict()
         }
@@ -1700,7 +1724,7 @@ class DoorNoSpec(UpperArealEnvelope):
             next_space: str,
             direction: str,
             area: float,
-            space_type: str,
+            space_type: SpaceType,
             sunshade: factor_f.SunshadeOpaque
     ):
         """
@@ -1737,7 +1761,7 @@ class Door(DoorNoSpec, IGetQ, IGetM):
             next_space: str,
             direction: str,
             area: float,
-            space_type: str,
+            space_type: SpaceType,
             sunshade: factor_f.SunshadeOpaque,
             door_spec: DoorSpec
     ):
@@ -1777,7 +1801,7 @@ class Door(DoorNoSpec, IGetQ, IGetM):
             next_space=d['next_space'],
             direction=d['direction'],
             area=d['area'],
-            space_type=d['space_type'],
+            space_type=SpaceType(d['space_type']),
             sunshade=factor_f.SunshadeOpaque.make_sunshade_opaque(d=d['sunshade']),
             door_spec=DoorSpec.make_door_spec(d=d['spec'])
         )
@@ -1821,7 +1845,7 @@ class Door(DoorNoSpec, IGetQ, IGetM):
             'next_space': self.next_space,
             'direction': self.direction,
             'area': self.area,
-            'space_type': self.space_type,
+            'space_type': self.space_type.value,
             'sunshade': self.sunshade.get_as_dict(),
             'spec': self._door_spec.get_as_dict()
         }

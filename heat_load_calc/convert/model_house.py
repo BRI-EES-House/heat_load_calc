@@ -2,6 +2,7 @@ from typing import Optional, List, Dict
 from heat_load_calc.convert import ees_house
 from heat_load_calc.convert import factor_f
 from heat_load_calc.convert.ees_house import GeneralPartType
+from heat_load_calc.convert.ees_house import SpaceType
 
 
 def get_model_house_no_spec(
@@ -46,7 +47,7 @@ def get_model_house_no_spec(
                 next_space='outdoor',
                 direction='top',
                 area=a_evp_roof,
-                space_type='undefined',
+                space_type=SpaceType.UNDEFINED,
                 sunshade=factor_f.SunshadeOpaqueNotInput()
             )
         ]
@@ -58,7 +59,7 @@ def get_model_house_no_spec(
                 next_space='air_conditioned',
                 direction='upward',
                 area=a_evp_roof,
-                space_type='undefined',
+                space_type=SpaceType.UNDEFINED,
                 sunshade=factor_f.SunshadeOpaqueNotDefined()
             )
         ]
@@ -77,7 +78,7 @@ def get_model_house_no_spec(
                 next_space='outdoor',
                 direction='sw',
                 area=a_evp_wall[0],
-                space_type='undefined',
+                space_type=SpaceType.UNDEFINED,
                 sunshade=factor_f.SunshadeOpaqueNotInput()
             ),
             ees_house.GeneralPartNoSpec(
@@ -86,7 +87,7 @@ def get_model_house_no_spec(
                 next_space='outdoor',
                 direction='nw',
                 area=a_evp_wall[1],
-                space_type='undefined',
+                space_type=SpaceType.UNDEFINED,
                 sunshade=factor_f.SunshadeOpaqueNotInput()
             ),
             ees_house.GeneralPartNoSpec(
@@ -95,7 +96,7 @@ def get_model_house_no_spec(
                 next_space='outdoor',
                 direction='ne',
                 area=a_evp_wall[2],
-                space_type='undefined',
+                space_type=SpaceType.UNDEFINED,
                 sunshade=factor_f.SunshadeOpaqueNotInput()
             ),
             ees_house.GeneralPartNoSpec(
@@ -104,7 +105,7 @@ def get_model_house_no_spec(
                 next_space='outdoor',
                 direction='se',
                 area=a_evp_wall[3],
-                space_type='undefined',
+                space_type=SpaceType.UNDEFINED,
                 sunshade=factor_f.SunshadeOpaqueNotInput()
             )
         ]
@@ -116,7 +117,7 @@ def get_model_house_no_spec(
                 next_space='outdoor',
                 direction='sw',
                 area=a_evp_wall[0],
-                space_type='undefined',
+                space_type=SpaceType.UNDEFINED,
                 sunshade=factor_f.SunshadeOpaqueNotInput()
             ),
             ees_house.GeneralPartNoSpec(
@@ -125,7 +126,7 @@ def get_model_house_no_spec(
                 next_space='outdoor',
                 direction='nw',
                 area=a_evp_wall[1],
-                space_type='undefined',
+                space_type=SpaceType.UNDEFINED,
                 sunshade=factor_f.SunshadeOpaqueNotInput()
             ),
             ees_house.GeneralPartNoSpec(
@@ -134,7 +135,7 @@ def get_model_house_no_spec(
                 next_space='open_space',
                 direction='horizontal',
                 area=a_evp_wall[2],
-                space_type='undefined',
+                space_type=SpaceType.UNDEFINED,
                 sunshade=factor_f.SunshadeOpaqueNotDefined()
             ),
             ees_house.GeneralPartNoSpec(
@@ -143,7 +144,7 @@ def get_model_house_no_spec(
                 next_space='air_conditioned',
                 direction='horizontal',
                 area=a_evp_wall[3],
-                space_type='undefined',
+                space_type=SpaceType.UNDEFINED,
                 sunshade=factor_f.SunshadeOpaqueNotDefined()
             )
         ]
@@ -161,7 +162,7 @@ def get_model_house_no_spec(
                 next_space='outdoor',
                 direction='sw',
                 area=a_evp_window[0],
-                space_type='undefined',
+                space_type=SpaceType.UNDEFINED,
                 sunshade=factor_f.SunshadeTransientExistSimple(depth=0.3, d_h=1.0, d_e=0.0)
             ),
             ees_house.WindowNoSpec(
@@ -169,7 +170,7 @@ def get_model_house_no_spec(
                 next_space='outdoor',
                 direction='nw',
                 area=a_evp_window[1],
-                space_type='undefined',
+                space_type=SpaceType.UNDEFINED,
                 sunshade=factor_f.SunshadeTransientExistSimple(depth=0.3, d_h=1.0, d_e=0.0)
             ),
             ees_house.WindowNoSpec(
@@ -177,7 +178,7 @@ def get_model_house_no_spec(
                 next_space='outdoor',
                 direction='ne',
                 area=a_evp_window[2],
-                space_type='undefined',
+                space_type=SpaceType.UNDEFINED,
                 sunshade=factor_f.SunshadeTransientExistSimple(depth=0.3, d_h=1.0, d_e=0.0)
             ),
             ees_house.WindowNoSpec(
@@ -185,7 +186,7 @@ def get_model_house_no_spec(
                 next_space='outdoor',
                 direction='se',
                 area=a_evp_window[3],
-                space_type='undefined',
+                space_type=SpaceType.UNDEFINED,
                 sunshade=factor_f.SunshadeTransientExistSimple(depth=0.3, d_h=1.0, d_e=0.0)
             )
         ]
@@ -198,7 +199,7 @@ def get_model_house_no_spec(
                 next_space='outdoor',
                 direction='sw',
                 area=a_evp_window[0],
-                space_type='undefined',
+                space_type=SpaceType.UNDEFINED,
                 sunshade=factor_f.SunshadeTransientExistSimple(depth=0.3, d_h=1.0, d_e=0.0)
             ),
             ees_house.WindowNoSpec(
@@ -206,7 +207,7 @@ def get_model_house_no_spec(
                 next_space='outdoor',
                 direction='nw',
                 area=a_evp_window[1],
-                space_type='undefined',
+                space_type=SpaceType.UNDEFINED,
                 sunshade=factor_f.SunshadeTransientExistSimple(depth=0.3, d_h=1.0, d_e=0.0)
             ),
             ees_house.WindowNoSpec(
@@ -214,7 +215,7 @@ def get_model_house_no_spec(
                 next_space='open_space',
                 direction='horizontal',
                 area=a_evp_window[2],
-                space_type='undefined',
+                space_type=SpaceType.UNDEFINED,
                 sunshade=factor_f.SunshadeTransientExistSimple(depth=0.3, d_h=1.0, d_e=0.0)
             )
         ]
@@ -236,7 +237,7 @@ def get_model_house_no_spec(
                 next_space='outdoor',
                 direction='nw',
                 area=a_evp_door[1],
-                space_type='undefined',
+                space_type=SpaceType.UNDEFINED,
                 sunshade=factor_f.SunshadeOpaqueNotInput()
             ),
             ees_house.DoorNoSpec(
@@ -244,7 +245,7 @@ def get_model_house_no_spec(
                 next_space='outdoor',
                 direction='ne',
                 area=a_evp_door[2],
-                space_type='undefined',
+                space_type=SpaceType.UNDEFINED,
                 sunshade=factor_f.SunshadeOpaqueNotInput()
             )
         ]
@@ -261,7 +262,7 @@ def get_model_house_no_spec(
                 next_space='open_space',
                 direction='horizontal',
                 area=a_evp_door[2],
-                space_type='undefined',
+                space_type=SpaceType.UNDEFINED,
                 sunshade=factor_f.SunshadeOpaqueNotDefined()
             )
         ]
@@ -295,7 +296,7 @@ def get_model_house_no_spec(
                     next_space='open_underfloor',
                     direction='downward',
                     area=a_evp_f_total,
-                    space_type='undefined',
+                    space_type=SpaceType.UNDEFINED,
                     sunshade=factor_f.SunshadeOpaqueNotDefined()
                 )
             ]
@@ -313,7 +314,7 @@ def get_model_house_no_spec(
                 next_space='air_conditioned',
                 direction='downward',
                 area=a_evp_f_total,
-                space_type='undefined',
+                space_type=SpaceType.UNDEFINED,
                 sunshade=factor_f.SunshadeOpaqueNotDefined()
             )
         ]
@@ -337,7 +338,7 @@ def get_model_house_no_spec(
                     next_space='outdoor',
                     direction='nw',
                     area=a_evp_base_total_outside[1],
-                    space_type='undefined',
+                    space_type=SpaceType.UNDEFINED,
                     sunshade=factor_f.SunshadeOpaqueNotInput()
                 ),
                 ees_house.GeneralPartNoSpec(
@@ -346,7 +347,7 @@ def get_model_house_no_spec(
                     next_space='outdoor',
                     direction='ne',
                     area=a_evp_base_total_outside[2],
-                    space_type='undefined',
+                    space_type=SpaceType.UNDEFINED,
                     sunshade=factor_f.SunshadeOpaqueNotInput()
                 )
             ]
@@ -358,7 +359,7 @@ def get_model_house_no_spec(
                     next_space='outdoor',
                     direction='sw',
                     area=a_evp_base_total_outside[0],
-                    space_type='undefined',
+                    space_type=SpaceType.UNDEFINED,
                     sunshade=factor_f.SunshadeOpaqueNotInput()
                 ),
                 ees_house.GeneralPartNoSpec(
@@ -367,7 +368,7 @@ def get_model_house_no_spec(
                     next_space='outdoor',
                     direction='nw',
                     area=a_evp_base_total_outside[1],
-                    space_type='undefined',
+                    space_type=SpaceType.UNDEFINED,
                     sunshade=factor_f.SunshadeOpaqueNotInput()
                 ),
                 ees_house.GeneralPartNoSpec(
@@ -376,7 +377,7 @@ def get_model_house_no_spec(
                     next_space='outdoor',
                     direction='ne',
                     area=a_evp_base_total_outside[2],
-                    space_type='undefined',
+                    space_type=SpaceType.UNDEFINED,
                     sunshade=factor_f.SunshadeOpaqueNotInput()
                 ),
                 ees_house.GeneralPartNoSpec(
@@ -385,7 +386,7 @@ def get_model_house_no_spec(
                     next_space='outdoor',
                     direction='se',
                     area=a_evp_base_total_outside[3],
-                    space_type='undefined',
+                    space_type=SpaceType.UNDEFINED,
                     sunshade=factor_f.SunshadeOpaqueNotInput()
                 ),
             ]
@@ -417,7 +418,7 @@ def get_model_house_no_spec(
                     next_space='open_underfloor',
                     direction='horizontal',
                     area=a_evp_base_total_inside,
-                    space_type='undefined',
+                    space_type=SpaceType.UNDEFINED,
                     sunshade=factor_f.SunshadeOpaqueNotDefined()
                 )
             ]
