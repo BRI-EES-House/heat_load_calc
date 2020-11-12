@@ -21,14 +21,14 @@ def estimate_c_value(ua_value: float, struct: Structure) -> float:
     :return: C値, cm2/m2
     '''
 
-    a, b = {
-        Structure.RC: (2.58, 2.68),        # RC造
-        Structure.SRC: (2.58, 2.68),        # SRC造
-        Structure.WOODEN: (4.40, 3.17),        # 木造
-        Structure.STEEL: (4.40, 3.17),        # 鉄骨造
+    a = {
+        Structure.RC: 4.07,       # RC造
+        Structure.SRC: 4.07,      # SRC造
+        Structure.WOODEN: 17.1,   # 木造
+        Structure.STEEL: 17.1,    # 鉄骨造
     }[struct]
 
-    return a * ua_value + b
+    return a * ua_value
 
 
 if __name__ == '__main__':
