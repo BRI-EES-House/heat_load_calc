@@ -7,9 +7,9 @@ import abc
 from enum import Enum
 from copy import deepcopy
 
-from heat_load_calc.external import factor_h
 from heat_load_calc.external import factor_nu
 from heat_load_calc.convert import factor_f
+from heat_load_calc.external.factor_h import NextSpace
 
 
 class HeatResistanceInputMethod(Enum):
@@ -139,10 +139,6 @@ class SpaceType(Enum):
             SpaceType.NON_OCCUPANT_ROOM: 2,
             SpaceType.UNDERFLOOR: 3
         }[self]
-
-
-
-
 
 
 class EesHouse:
@@ -1129,14 +1125,13 @@ class UpperArealEnvelope(IArea):
         return self._name
 
     @property
-    def next_space(self) -> str:
+    def next_space(self) -> NextSpace:
         """
         隣接する空間の種類を取得する。
         Returns:
             隣接する空間の種類
         """
-
-        return self._next_space
+        return NextSpace(self._next_space)
 
     @property
     def direction(self) -> str:
@@ -1167,7 +1162,7 @@ class UpperArealEnvelope(IArea):
         """
         return self._space_type
 
-    def get_h(self, region) -> float:
+    def get_h(self, region: int) -> float:
         """
         温度差係数を取得する。
         Args:
@@ -1176,7 +1171,7 @@ class UpperArealEnvelope(IArea):
             温度差係数
         """
 
-        return factor_h.get_h(region=region, next_space=self.next_space)
+        return self.next_space.get_h(region=region)
 
     def get_nu(self, region: int, season: str) -> float:
         """
@@ -1188,7 +1183,7 @@ class UpperArealEnvelope(IArea):
             方位係数
         """
 
-        if self.next_space == 'outdoor':
+        if self.next_space == NextSpace.OUTDOOR:
             return factor_nu.get_nu(region=region, season=season, direction=self._direction)
         else:
             return 0.0
@@ -1378,7 +1373,7 @@ class GeneralPart(GeneralPartNoSpec, IGetQ, IGetM):
             m値, W/(W/m2)
         """
 
-        if self.next_space == 'outdoor':
+        if self.next_space == NextSpace.OUTDOOR:
             return self.area * self.get_eta() * self.get_nu(region=region, season=season) \
                    * self.sunshade.get_f_sh(region=region, season=season)
         else:
@@ -1389,7 +1384,7 @@ class GeneralPart(GeneralPartNoSpec, IGetQ, IGetM):
         return {
             'name': self._name,
             'general_part_type': self.general_part_type.value,
-            'next_space': self.next_space,
+            'next_space': self.next_space.value,
             'direction': self.direction,
             'area': self.area,
             'space_type': self.space_type.value,
@@ -1404,14 +1399,8 @@ class GeneralPart(GeneralPartNoSpec, IGetQ, IGetM):
         # 隣接する室のID
         connected_room_id = self.space_type.get_connected_id()
 
-        is_sun_striked_outside = {
-            'outdoor': True,
-            'open_space': False,
-            'closed_space': False,
-            'open_underfloor': False,
-            'air_conditioned': False,
-            'closed_underfloor': False
-        }[self.next_space]
+        # 相手方空間に日射が当たるか否か
+        is_sun_striked_outside = self.next_space.get_is_sun_striked_outside()
 
         # 室内側表面で日射を吸収するかどうか
         is_solar_absorbed_inside = self.general_part_type.get_is_solar_absorbed_inside()
@@ -1715,7 +1704,7 @@ class Window(WindowNoSpec, IGetQ, IGetM):
 
         return {
             'name': self.name,
-            'next_space': self.next_space,
+            'next_space': self.next_space.value,
             'direction': self.direction,
             'area': self.area,
             'space_type': self.space_type.value,
@@ -1875,7 +1864,7 @@ class Door(DoorNoSpec, IGetQ, IGetM):
 
     def get_m(self, region: int, season: str) -> float:
 
-        if self.next_space == 'outdoor':
+        if self.next_space == NextSpace.OUTDOOR:
             return self.area * self.get_eta() * self.get_nu(region=region, season=season) \
                    * self.sunshade.get_f_sh(region=region, season=season)
         else:
@@ -1885,7 +1874,7 @@ class Door(DoorNoSpec, IGetQ, IGetM):
 
         return {
             'name': self.name,
-            'next_space': self.next_space,
+            'next_space': self.next_space.value,
             'direction': self.direction,
             'area': self.area,
             'space_type': self.space_type.value,
@@ -1948,7 +1937,7 @@ class EarthfloorPerimeterNoSpec:
         return self._space_type
 
     def get_h(self, region: int):
-        return factor_h.get_h(region=region, next_space=self._next_space)
+        return NextSpace(self._next_space).get_h(region=region)
 
 
 class EarthfloorPerimeter(EarthfloorPerimeterNoSpec, IGetQ):
@@ -2170,7 +2159,7 @@ class HeatbridgeNoSpec:
         return self._space_type
 
     def get_hs(self, region: int):
-        return [factor_h.get_h(region=region, next_space=next_space) for next_space in self._next_spaces]
+        return [NextSpace(next_space).get_h(region=region) for next_space in self._next_spaces]
 
     def get_nus(self, region: int, season: str) -> List[float]:
         """

@@ -6,6 +6,7 @@ import pprint
 from heat_load_calc.convert import a_06_common_items
 
 from heat_load_calc.external import factor_h
+from heat_load_calc.external.factor_h import NextSpace
 
 from heat_load_calc.convert import convert_indices_to_lv2_info
 from heat_load_calc.convert import convert_lv2_to_lv3
@@ -239,7 +240,7 @@ def get_boundaries_windows(region, d_windows):
             'boundary_type': 'external_transparent_part',
             'area': window['area'],
             'is_sun_striked_outside': get_is_sun_striked_outside(window['direction']),
-            'temp_dif_coef': factor_h.get_h(region=region, next_space=window['next_space']),
+            'temp_dif_coef': NextSpace(window['next_space']).get_h(region=region),
             'direction': get_direction(window['direction']),
             'is_solar_absorbed_inside': False,
             'general_part_spec': transparent_opening_part_spec_hlc_i,

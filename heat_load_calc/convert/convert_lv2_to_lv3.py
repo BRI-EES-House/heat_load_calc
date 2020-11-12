@@ -74,7 +74,7 @@ def get_general_part_lv3(gp: GeneralPart, space_type: SpaceType, area: float) ->
     return GeneralPart(
         name=gp.name + '_' + space_type.value,
         general_part_type=gp.general_part_type,
-        next_space=gp.next_space,
+        next_space=gp.next_space.value,
         direction=gp.direction,
         area=area,
         space_type=space_type,
@@ -103,7 +103,7 @@ def get_window_lv3(w: Window, space_type: SpaceType, area: float) -> Window:
     return Window(
         name=w.name + '_' + space_type.value,
         area=area,
-        next_space=w.next_space,
+        next_space=w.next_space.value,
         direction=w.direction,
         space_type=space_type,
         sunshade=w.sunshade,
@@ -130,7 +130,7 @@ def get_door_lv3(d: Door, space_type: SpaceType, area: float) -> Door:
 
     return Door(
         name=d.name + '_' + space_type.value,
-        next_space=d.next_space,
+        next_space=d.next_space.value,
         direction=d.direction,
         area=area,
         space_type=space_type,

@@ -9,6 +9,7 @@ from heat_load_calc.convert.ees_house import WindowNoSpec
 from heat_load_calc.convert.ees_house import DoorNoSpec
 from heat_load_calc.convert.ees_house import EarthfloorPerimeterNoSpec
 from heat_load_calc.convert.ees_house import EarthfloorCenterNoSpec
+from heat_load_calc.external.factor_h import NextSpace
 
 PartType = namedtuple('PartType', [
     'roof',
@@ -191,15 +192,15 @@ def get_m_opq(
         不透明部位のm値の合計, W/K （暖房期・冷房期）
     """
 
-    m_opq_h_general_part = sum(
+    m_opq_h_general_part = sum([
         s.area * 0.034 * u_psi_value[s.general_part_type.value] * s.get_nu(region=region, season='heating')
-        for s in gps if s.next_space == 'outdoor'
-    )
+        for s in gps
+    ])
 
-    m_opq_c_general_part = sum(
+    m_opq_c_general_part = sum([
         s.area * 0.034 * u_psi_value[s.general_part_type.value] * s.get_nu(region=region, season='cooling')
-        for s in gps if s.next_space == 'outdoor'
-    )
+        for s in gps
+    ])
 
     m_opq_h_door = sum([s.area * 0.034 * u_psi_value['door'] * s.get_nu(region=region, season='heating') for s in ds])
 

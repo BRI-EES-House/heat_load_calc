@@ -1,6 +1,7 @@
 import unittest
 from typing import List
 
+from heat_load_calc.external.factor_h import NextSpace
 from heat_load_calc.convert.ees_house import GeneralPartType
 from heat_load_calc.convert.ees_house import GeneralPartNoSpec
 from heat_load_calc.convert.ees_house import DoorNoSpec
@@ -607,14 +608,14 @@ class ConvertModelHouseToHouseDict(unittest.TestCase):
         def get_ceiling_next_space_number(gps: List[GeneralPartNoSpec], key):
             return len([s for s in gps if s.general_part_type == GeneralPartType.CEILING and s.next_space == key])
 
-        self.assertEqual(get_ceiling_next_space_number(self.gps1, 'outdoor'), 1)
-        self.assertEqual(get_ceiling_next_space_number(self.gps2, 'outdoor'), 1)
-        self.assertEqual(get_ceiling_next_space_number(self.gps3, 'outdoor'), 1)
-        self.assertEqual(get_ceiling_next_space_number(self.gps4, 'outdoor'), 1)
-        self.assertEqual(get_ceiling_next_space_number(self.gps6, 'outdoor'), 1)
-        self.assertEqual(get_ceiling_next_space_number(self.gps7, 'outdoor'), 1)
-        self.assertEqual(get_ceiling_next_space_number(self.gps8, 'outdoor'), 1)
-        self.assertEqual(get_ceiling_next_space_number(self.gps9, 'outdoor'), 1)
+        self.assertEqual(get_ceiling_next_space_number(self.gps1, NextSpace.OUTDOOR), 1)
+        self.assertEqual(get_ceiling_next_space_number(self.gps2, NextSpace.OUTDOOR), 1)
+        self.assertEqual(get_ceiling_next_space_number(self.gps3, NextSpace.OUTDOOR), 1)
+        self.assertEqual(get_ceiling_next_space_number(self.gps4, NextSpace.OUTDOOR), 1)
+        self.assertEqual(get_ceiling_next_space_number(self.gps6, NextSpace.OUTDOOR), 1)
+        self.assertEqual(get_ceiling_next_space_number(self.gps7, NextSpace.OUTDOOR), 1)
+        self.assertEqual(get_ceiling_next_space_number(self.gps8, NextSpace.OUTDOOR), 1)
+        self.assertEqual(get_ceiling_next_space_number(self.gps9, NextSpace.OUTDOOR), 1)
 
         def get_ceiling_direction_number(gps: List[GeneralPartNoSpec], key):
             return len([s for s in gps if s.general_part_type == GeneralPartType.CEILING and s.direction == key])
@@ -659,24 +660,24 @@ class ConvertModelHouseToHouseDict(unittest.TestCase):
         def get_wall_next_space_number(gps: List[GeneralPartNoSpec], key):
             return len([s for s in gps if s.general_part_type == GeneralPartType.WALL and s.next_space == key])
 
-        self.assertEqual(get_wall_next_space_number(self.gps1, 'outdoor'), 6)
-        self.assertEqual(get_wall_next_space_number(self.gps1, 'open_underfloor'), 1)
-        self.assertEqual(get_wall_next_space_number(self.gps2, 'outdoor'), 6)
-        self.assertEqual(get_wall_next_space_number(self.gps2, 'open_underfloor'), 1)
-        self.assertEqual(get_wall_next_space_number(self.gps3, 'outdoor'), 6)
-        self.assertEqual(get_wall_next_space_number(self.gps3, 'open_underfloor'), 1)
-        self.assertEqual(get_wall_next_space_number(self.gps4, 'outdoor'), 8)
-        self.assertEqual(get_wall_next_space_number(self.gps5, 'outdoor'), 2)
-        self.assertEqual(get_wall_next_space_number(self.gps5, 'open_space'), 1)
-        self.assertEqual(get_wall_next_space_number(self.gps6, 'outdoor'), 6)
-        self.assertEqual(get_wall_next_space_number(self.gps6, 'open_underfloor'), 1)
-        self.assertEqual(get_wall_next_space_number(self.gps7, 'outdoor'), 6)
-        self.assertEqual(get_wall_next_space_number(self.gps7, 'open_underfloor'), 1)
-        self.assertEqual(get_wall_next_space_number(self.gps8, 'outdoor'), 6)
-        self.assertEqual(get_wall_next_space_number(self.gps8, 'open_underfloor'), 1)
-        self.assertEqual(get_wall_next_space_number(self.gps9, 'outdoor'), 8)
-        self.assertEqual(get_wall_next_space_number(self.gps10, 'outdoor'), 2)
-        self.assertEqual(get_wall_next_space_number(self.gps10, 'open_space'), 1)
+        self.assertEqual(get_wall_next_space_number(self.gps1, NextSpace.OUTDOOR), 6)
+        self.assertEqual(get_wall_next_space_number(self.gps1, NextSpace.OPEN_UNDERFLOOR), 1)
+        self.assertEqual(get_wall_next_space_number(self.gps2, NextSpace.OUTDOOR), 6)
+        self.assertEqual(get_wall_next_space_number(self.gps2, NextSpace.OPEN_UNDERFLOOR), 1)
+        self.assertEqual(get_wall_next_space_number(self.gps3, NextSpace.OUTDOOR), 6)
+        self.assertEqual(get_wall_next_space_number(self.gps3, NextSpace.OPEN_UNDERFLOOR), 1)
+        self.assertEqual(get_wall_next_space_number(self.gps4, NextSpace.OUTDOOR), 8)
+        self.assertEqual(get_wall_next_space_number(self.gps5, NextSpace.OUTDOOR), 2)
+        self.assertEqual(get_wall_next_space_number(self.gps5, NextSpace.OPEN_SPACE), 1)
+        self.assertEqual(get_wall_next_space_number(self.gps6, NextSpace.OUTDOOR), 6)
+        self.assertEqual(get_wall_next_space_number(self.gps6, NextSpace.OPEN_UNDERFLOOR), 1)
+        self.assertEqual(get_wall_next_space_number(self.gps7, NextSpace.OUTDOOR), 6)
+        self.assertEqual(get_wall_next_space_number(self.gps7, NextSpace.OPEN_UNDERFLOOR), 1)
+        self.assertEqual(get_wall_next_space_number(self.gps8, NextSpace.OUTDOOR), 6)
+        self.assertEqual(get_wall_next_space_number(self.gps8, NextSpace.OPEN_UNDERFLOOR), 1)
+        self.assertEqual(get_wall_next_space_number(self.gps9, NextSpace.OUTDOOR), 8)
+        self.assertEqual(get_wall_next_space_number(self.gps10, NextSpace.OUTDOOR), 2)
+        self.assertEqual(get_wall_next_space_number(self.gps10, NextSpace.OPEN_SPACE), 1)
 
         def get_wall_direction_number(gps: List[GeneralPartNoSpec], key):
             return len([s for s in gps if s.general_part_type == GeneralPartType.WALL and s.direction == key])
@@ -813,12 +814,12 @@ class ConvertModelHouseToHouseDict(unittest.TestCase):
         def get_floor_next_space_number(gps: List[GeneralPartNoSpec], key):
             return len([s for s in gps if s.general_part_type == GeneralPartType.FLOOR and s.next_space == key])
 
-        self.assertEqual(get_floor_next_space_number(self.gps1, 'open_underfloor'), 1)
-        self.assertEqual(get_floor_next_space_number(self.gps2, 'open_underfloor'), 1)
-        self.assertEqual(get_floor_next_space_number(self.gps3, 'open_underfloor'), 1)
-        self.assertEqual(get_floor_next_space_number(self.gps6, 'open_underfloor'), 1)
-        self.assertEqual(get_floor_next_space_number(self.gps7, 'open_underfloor'), 1)
-        self.assertEqual(get_floor_next_space_number(self.gps8, 'open_underfloor'), 1)
+        self.assertEqual(get_floor_next_space_number(self.gps1, NextSpace.OPEN_UNDERFLOOR), 1)
+        self.assertEqual(get_floor_next_space_number(self.gps2, NextSpace.OPEN_UNDERFLOOR), 1)
+        self.assertEqual(get_floor_next_space_number(self.gps3, NextSpace.OPEN_UNDERFLOOR), 1)
+        self.assertEqual(get_floor_next_space_number(self.gps6, NextSpace.OPEN_UNDERFLOOR), 1)
+        self.assertEqual(get_floor_next_space_number(self.gps7, NextSpace.OPEN_UNDERFLOOR), 1)
+        self.assertEqual(get_floor_next_space_number(self.gps8, NextSpace.OPEN_UNDERFLOOR), 1)
 
         def get_floor_direction_number(gps: List[GeneralPartNoSpec], key):
             return len([s for s in gps if s.general_part_type == GeneralPartType.FLOOR and s.direction == key])
@@ -859,8 +860,8 @@ class ConvertModelHouseToHouseDict(unittest.TestCase):
         def get_boundary_wall_next_space_number(gps: List[GeneralPartNoSpec], key):
             return len([s for s in gps if s.general_part_type == GeneralPartType.BOUNDARY_WALL and s.next_space == key])
 
-        self.assertEqual(get_boundary_wall_next_space_number(self.gps5, 'air_conditioned'), 1)
-        self.assertEqual(get_boundary_wall_next_space_number(self.gps10, 'air_conditioned'), 1)
+        self.assertEqual(get_boundary_wall_next_space_number(self.gps5, NextSpace.AIR_CONDITIONED), 1)
+        self.assertEqual(get_boundary_wall_next_space_number(self.gps10, NextSpace.AIR_CONDITIONED), 1)
 
         def get_boundary_wall_direction_number(gps: List[GeneralPartNoSpec], key):
             return len([s for s in gps if s.general_part_type == GeneralPartType.BOUNDARY_WALL and s.direction == key])
@@ -893,8 +894,8 @@ class ConvertModelHouseToHouseDict(unittest.TestCase):
         def get_upward_boundary_floor_next_space_number(gps: List[GeneralPartNoSpec], key):
             return len([s for s in gps if s.general_part_type == GeneralPartType.UPWARD_BOUNDARY_FLOOR and s.next_space == key])
 
-        self.assertEqual(get_upward_boundary_floor_next_space_number(self.gps5, 'air_conditioned'), 1)
-        self.assertEqual(get_upward_boundary_floor_next_space_number(self.gps10, 'air_conditioned'), 1)
+        self.assertEqual(get_upward_boundary_floor_next_space_number(self.gps5, NextSpace.AIR_CONDITIONED), 1)
+        self.assertEqual(get_upward_boundary_floor_next_space_number(self.gps10, NextSpace.AIR_CONDITIONED), 1)
 
         def get_upward_boundary_floor_direction_number(gps: List[GeneralPartNoSpec], key):
             return len([s for s in gps if s.general_part_type == GeneralPartType.UPWARD_BOUNDARY_FLOOR and s.direction == key])
@@ -927,8 +928,8 @@ class ConvertModelHouseToHouseDict(unittest.TestCase):
         def get_downward_boundary_floor_next_space_number(gps: List[GeneralPartNoSpec], key):
             return len([s for s in gps if s.general_part_type == GeneralPartType.DOWNWARD_BOUNDARY_FLOOR and s.next_space == key])
 
-        self.assertEqual(get_downward_boundary_floor_next_space_number(self.gps5, 'air_conditioned'), 1)
-        self.assertEqual(get_downward_boundary_floor_next_space_number(self.gps10, 'air_conditioned'), 1)
+        self.assertEqual(get_downward_boundary_floor_next_space_number(self.gps5, NextSpace.AIR_CONDITIONED), 1)
+        self.assertEqual(get_downward_boundary_floor_next_space_number(self.gps10, NextSpace.AIR_CONDITIONED), 1)
 
         def get_downward_boundary_floor_direction_number(gps: List[GeneralPartNoSpec], key):
             return len([s for s in gps if s.general_part_type == GeneralPartType.DOWNWARD_BOUNDARY_FLOOR and s.direction == key])
@@ -961,18 +962,18 @@ class ConvertModelHouseToHouseDict(unittest.TestCase):
         def get_windows_next_space_number(ws: List[WindowNoSpec], key):
             return len([s for s in ws if s.next_space == key])
 
-        self.assertEqual(get_windows_next_space_number(self.ws1, 'outdoor'), 4)
-        self.assertEqual(get_windows_next_space_number(self.ws2, 'outdoor'), 4)
-        self.assertEqual(get_windows_next_space_number(self.ws3, 'outdoor'), 4)
-        self.assertEqual(get_windows_next_space_number(self.ws4, 'outdoor'), 4)
-        self.assertEqual(get_windows_next_space_number(self.ws5, 'outdoor'), 2)
-        self.assertEqual(get_windows_next_space_number(self.ws5, 'open_space'), 1)
-        self.assertEqual(get_windows_next_space_number(self.ws6, 'outdoor'), 4)
-        self.assertEqual(get_windows_next_space_number(self.ws7, 'outdoor'), 4)
-        self.assertEqual(get_windows_next_space_number(self.ws8, 'outdoor'), 4)
-        self.assertEqual(get_windows_next_space_number(self.ws9, 'outdoor'), 4)
-        self.assertEqual(get_windows_next_space_number(self.ws10, 'outdoor'), 2)
-        self.assertEqual(get_windows_next_space_number(self.ws10, 'open_space'), 1)
+        self.assertEqual(get_windows_next_space_number(self.ws1, NextSpace.OUTDOOR), 4)
+        self.assertEqual(get_windows_next_space_number(self.ws2, NextSpace.OUTDOOR), 4)
+        self.assertEqual(get_windows_next_space_number(self.ws3, NextSpace.OUTDOOR), 4)
+        self.assertEqual(get_windows_next_space_number(self.ws4, NextSpace.OUTDOOR), 4)
+        self.assertEqual(get_windows_next_space_number(self.ws5, NextSpace.OUTDOOR), 2)
+        self.assertEqual(get_windows_next_space_number(self.ws5, NextSpace.OPEN_SPACE), 1)
+        self.assertEqual(get_windows_next_space_number(self.ws6, NextSpace.OUTDOOR), 4)
+        self.assertEqual(get_windows_next_space_number(self.ws7, NextSpace.OUTDOOR), 4)
+        self.assertEqual(get_windows_next_space_number(self.ws8, NextSpace.OUTDOOR), 4)
+        self.assertEqual(get_windows_next_space_number(self.ws9, NextSpace.OUTDOOR), 4)
+        self.assertEqual(get_windows_next_space_number(self.ws10, NextSpace.OUTDOOR), 2)
+        self.assertEqual(get_windows_next_space_number(self.ws10, NextSpace.OPEN_SPACE), 1)
 
         def get_windows_direction_number(ws: List[WindowNoSpec], key):
             return len([s for s in ws if s.direction == key])
@@ -1043,16 +1044,16 @@ class ConvertModelHouseToHouseDict(unittest.TestCase):
         def get_doors_next_space_number(ds: List[DoorNoSpec], key):
             return len([s for s in ds if s.next_space == key])
 
-        self.assertEqual(get_doors_next_space_number(self.ds1, 'outdoor'), 2)
-        self.assertEqual(get_doors_next_space_number(self.ds2, 'outdoor'), 2)
-        self.assertEqual(get_doors_next_space_number(self.ds3, 'outdoor'), 2)
-        self.assertEqual(get_doors_next_space_number(self.ds4, 'outdoor'), 2)
-        self.assertEqual(get_doors_next_space_number(self.ds5, 'open_space'), 1)
-        self.assertEqual(get_doors_next_space_number(self.ds6, 'outdoor'), 2)
-        self.assertEqual(get_doors_next_space_number(self.ds7, 'outdoor'), 2)
-        self.assertEqual(get_doors_next_space_number(self.ds8, 'outdoor'), 2)
-        self.assertEqual(get_doors_next_space_number(self.ds9, 'outdoor'), 2)
-        self.assertEqual(get_doors_next_space_number(self.ds10, 'open_space'), 1)
+        self.assertEqual(get_doors_next_space_number(self.ds1, NextSpace.OUTDOOR), 2)
+        self.assertEqual(get_doors_next_space_number(self.ds2, NextSpace.OUTDOOR), 2)
+        self.assertEqual(get_doors_next_space_number(self.ds3, NextSpace.OUTDOOR), 2)
+        self.assertEqual(get_doors_next_space_number(self.ds4, NextSpace.OUTDOOR), 2)
+        self.assertEqual(get_doors_next_space_number(self.ds5, NextSpace.OPEN_SPACE), 1)
+        self.assertEqual(get_doors_next_space_number(self.ds6, NextSpace.OUTDOOR), 2)
+        self.assertEqual(get_doors_next_space_number(self.ds7, NextSpace.OUTDOOR), 2)
+        self.assertEqual(get_doors_next_space_number(self.ds8, NextSpace.OUTDOOR), 2)
+        self.assertEqual(get_doors_next_space_number(self.ds9, NextSpace.OUTDOOR), 2)
+        self.assertEqual(get_doors_next_space_number(self.ds10, NextSpace.OPEN_SPACE), 1)
 
         def get_windows_direction_number(ds: List[DoorNoSpec], key):
             return len([s for s in ds if s.direction == key])
