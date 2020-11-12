@@ -13,11 +13,23 @@ from heat_load_calc.convert import factor_f
 
 
 class HeatResistanceInputMethod(Enum):
+    """
+    Layer の熱抵抗の入力方法
+    熱伝導率と厚さを指定する方法と熱抵抗を指定する方法がある。
+    （ただし容積比熱を計算するために厚さが不要になるわけではない。）
+    """
+
+    # 熱伝導率と厚さから入力
     CONDUCTIVITY = 'conductivity'
+    # 熱抵抗から入力
     RESISTANCE = 'resistance'
 
 
 class GeneralPartType(Enum):
+    """
+    一般部位の種類
+    """
+
     # 屋根
     ROOF = 'roof'
     # 天井
@@ -32,6 +44,40 @@ class GeneralPartType(Enum):
     UPWARD_BOUNDARY_FLOOR = 'upward_boundary_floor'
     # 戸境床（下界側）
     DOWNWARD_BOUNDARY_FLOOR = 'downward_boundary_floor'
+
+    def get_is_solar_absorbed_inside(self) -> bool:
+        """
+        部位の種類から室内側表面で日射が吸収される部位なのかを判定する。
+        Returns:
+            日射が吸収されるか否か
+        """
+        return {
+            GeneralPartType.ROOF: False,
+            GeneralPartType.CEILING: False,
+            GeneralPartType.WALL: False,
+            GeneralPartType.FLOOR: True,
+            GeneralPartType.BOUNDARY_WALL: False,
+            GeneralPartType.UPWARD_BOUNDARY_FLOOR: False,
+            GeneralPartType.DOWNWARD_BOUNDARY_FLOOR: True
+        }[self]
+
+    def get_is_floor(self) -> bool:
+        """
+        部位の種類から床かどうかを判定する。
+        Returns:
+            床か否か
+        Notes:
+            負荷計算内で形態係数を計算する場合に使用される。
+        """
+        return {
+            GeneralPartType.ROOF: False,
+            GeneralPartType.CEILING: False,
+            GeneralPartType.WALL: False,
+            GeneralPartType.FLOOR: True,
+            GeneralPartType.BOUNDARY_WALL: False,
+            GeneralPartType.UPWARD_BOUNDARY_FLOOR: False,
+            GeneralPartType.DOWNWARD_BOUNDARY_FLOOR: True
+        }[self]
 
 
 class GlassType(Enum):
@@ -93,6 +139,7 @@ class SpaceType(Enum):
             SpaceType.NON_OCCUPANT_ROOM: 2,
             SpaceType.UNDERFLOOR: 3
         }[self]
+
 
 
 
@@ -1354,6 +1401,7 @@ class GeneralPart(GeneralPartNoSpec, IGetQ, IGetM):
 
         gps_dicts = self.general_part_spec.make_initializer_dict(name=self.name, area=self.area, u_add=u_add)
 
+        # 隣接する室のID
         connected_room_id = self.space_type.get_connected_id()
 
         is_sun_striked_outside = {
@@ -1365,17 +1413,12 @@ class GeneralPart(GeneralPartNoSpec, IGetQ, IGetM):
             'closed_underfloor': False
         }[self.next_space]
 
-        is_solar_absorbed_inside = {
-            GeneralPartType.ROOF: False,
-            GeneralPartType.CEILING: False,
-            GeneralPartType.WALL: False,
-            GeneralPartType.FLOOR: True,
-            GeneralPartType.BOUNDARY_WALL: False,
-            GeneralPartType.UPWARD_BOUNDARY_FLOOR: False,
-            GeneralPartType.DOWNWARD_BOUNDARY_FLOOR: True
-        }[self.general_part_type]
+        # 室内側表面で日射を吸収するかどうか
+        is_solar_absorbed_inside = self.general_part_type.get_is_solar_absorbed_inside()
 
         # TODO: ここに　is_floor を新規追加し、仕様書（csv）の方も対応させて変更する。
+        # 床かどうか（負荷計算内で形態係数を計算する場合に使用される。）
+        is_floor = self.general_part_type.get_is_floor()
 
         solar_shading_part = self.sunshade.make_initializer_dict()
 
