@@ -1,5 +1,6 @@
 import unittest
 
+from heat_load_calc.external.factor_h import NextSpace
 import heat_load_calc.convert.convert_lv3_to_lv4 as nb
 from heat_load_calc.convert.ees_house import SpaceType
 from heat_load_calc.convert.ees_house import UpperArealEnvelope
@@ -98,7 +99,7 @@ class TestLV3toLV4(unittest.TestCase):
         gps = [
             UpperArealEnvelope(
                 name='test',
-                next_space='outdoor',
+                next_space=NextSpace.OUTDOOR,
                 direction=gp['direction'],
                 area=gp['area'],
                 space_type=SpaceType(gp['space_type'])
@@ -108,7 +109,7 @@ class TestLV3toLV4(unittest.TestCase):
         ws = [
             UpperArealEnvelope(
                 name='test',
-                next_space='outdoor',
+                next_space=NextSpace.OUTDOOR,
                 direction=w['direction'],
                 area=w['area'],
                 space_type=SpaceType(w['space_type'])
@@ -118,7 +119,7 @@ class TestLV3toLV4(unittest.TestCase):
         ds = [
             UpperArealEnvelope(
                 name='test',
-                next_space='outdoor',
+                next_space=NextSpace.OUTDOOR,
                 direction=d['direction'],
                 area=d['area'],
                 space_type=SpaceType(d['space_type'])
@@ -160,7 +161,7 @@ class TestLV3toLV4(unittest.TestCase):
         gps = [
             UpperArealEnvelope(
                 name='test',
-                next_space='outdoor',
+                next_space=NextSpace.OUTDOOR,
                 direction=gp['direction'],
                 area=gp['area'],
                 space_type=SpaceType(gp['space_type'])
@@ -170,7 +171,7 @@ class TestLV3toLV4(unittest.TestCase):
         ws = [
             UpperArealEnvelope(
                 name='test',
-                next_space='outdoor',
+                next_space=NextSpace.OUTDOOR,
                 direction=w['direction'],
                 area=w['area'],
                 space_type=SpaceType(w['space_type'])
@@ -180,7 +181,7 @@ class TestLV3toLV4(unittest.TestCase):
         ds = [
             UpperArealEnvelope(
                 name='test',
-                next_space='outdoor',
+                next_space=NextSpace.OUTDOOR,
                 direction=d['direction'],
                 area=d['area'],
                 space_type=SpaceType(d['space_type'])
@@ -580,7 +581,7 @@ class TestLV3toLV4(unittest.TestCase):
         gps = [
             UpperArealEnvelope(
                 name='test',
-                next_space='outdoor',
+                next_space=NextSpace.OUTDOOR,
                 direction=gp['direction'],
                 area=gp['area'],
                 space_type=SpaceType(gp['space_type'])
@@ -590,7 +591,7 @@ class TestLV3toLV4(unittest.TestCase):
         ws = [
             UpperArealEnvelope(
                 name='test',
-                next_space='outdoor',
+                next_space=NextSpace.OUTDOOR,
                 direction=w['direction'],
                 area=w['area'],
                 space_type=SpaceType(w['space_type'])
@@ -600,7 +601,7 @@ class TestLV3toLV4(unittest.TestCase):
         ds = [
             UpperArealEnvelope(
                 name='test',
-                next_space='outdoor',
+                next_space=NextSpace.OUTDOOR,
                 direction=d['direction'],
                 area=d['area'],
                 space_type=SpaceType(d['space_type'])
@@ -642,7 +643,7 @@ class TestLV3toLV4(unittest.TestCase):
         gps = [
             UpperArealEnvelope(
                 name='test',
-                next_space='outdoor',
+                next_space=NextSpace.OUTDOOR,
                 direction=gp['direction'],
                 area=gp['area'],
                 space_type=SpaceType(gp['space_type'])
@@ -652,7 +653,7 @@ class TestLV3toLV4(unittest.TestCase):
         ws = [
             UpperArealEnvelope(
                 name='test',
-                next_space='outdoor',
+                next_space=NextSpace.OUTDOOR,
                 direction=w['direction'],
                 area=w['area'],
                 space_type=SpaceType(w['space_type'])
@@ -662,7 +663,7 @@ class TestLV3toLV4(unittest.TestCase):
         ds = [
             UpperArealEnvelope(
                 name='test',
-                next_space='outdoor',
+                next_space=NextSpace.OUTDOOR,
                 direction=d['direction'],
                 area=d['area'],
                 space_type=SpaceType(d['space_type'])

@@ -91,7 +91,7 @@ def add_spec_gps(gps: List[GeneralPartNoSpec], u: get_u_and_eta.PartType) -> Lis
         GeneralPart(
             name=s.name,
             general_part_type=s.general_part_type,
-            next_space=s.next_space.value,
+            next_space=s.next_space,
             direction=s.direction,
             area=s.area,
             space_type=s.space_type,
@@ -123,7 +123,7 @@ def add_spec_ws(
         Window(
             name=s.name,
             area=s.area,
-            next_space=s.next_space.value,
+            next_space=s.next_space,
             direction=s.direction,
             space_type=SpaceType.UNDEFINED,
             sunshade=s.sunshade,
@@ -144,7 +144,7 @@ def add_spec_ds(ds: List[DoorNoSpec], u: get_u_and_eta) -> List[Door]:
     ds_spec = [
         Door(
             name=s.name,
-            next_space=s.next_space.value,
+            next_space=s.next_space,
             direction=s.direction,
             area=s.area,
             space_type=s.space_type,

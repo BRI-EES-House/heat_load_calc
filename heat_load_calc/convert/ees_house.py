@@ -1098,7 +1098,7 @@ class IArea(metaclass=abc.ABCMeta):
 
 class UpperArealEnvelope(IArea):
 
-    def __init__(self, name: str, next_space: str, direction: str, area: float, space_type: SpaceType):
+    def __init__(self, name: str, next_space: NextSpace, direction: str, area: float, space_type: SpaceType):
         """
 
         Args:
@@ -1131,7 +1131,7 @@ class UpperArealEnvelope(IArea):
         Returns:
             隣接する空間の種類
         """
-        return NextSpace(self._next_space)
+        return self._next_space
 
     @property
     def direction(self) -> str:
@@ -1212,7 +1212,7 @@ class GeneralPartNoSpec(UpperArealEnvelope):
             self,
             name: str,
             general_part_type: GeneralPartType,
-            next_space: str,
+            next_space: NextSpace,
             direction: str,
             area: float,
             space_type: SpaceType,
@@ -1262,7 +1262,7 @@ class GeneralPart(GeneralPartNoSpec, IGetQ, IGetM):
             self,
             name: str,
             general_part_type: GeneralPartType,
-            next_space: str,
+            next_space: NextSpace,
             direction: str,
             area: float,
             space_type: SpaceType,
@@ -1307,7 +1307,7 @@ class GeneralPart(GeneralPartNoSpec, IGetQ, IGetM):
         return GeneralPart(
             name=d['name'],
             general_part_type=general_part_type,
-            next_space=d['next_space'],
+            next_space=NextSpace(d['next_space']),
             direction=d['direction'],
             area=d['area'],
             space_type=SpaceType(d['space_type']),
@@ -1562,7 +1562,7 @@ class WindowNoSpec(UpperArealEnvelope):
     def __init__(
             self,
             name: str,
-            next_space: str,
+            next_space: NextSpace,
             direction: str,
             area: float,
             space_type: SpaceType,
@@ -1616,7 +1616,7 @@ class Window(WindowNoSpec, IGetQ, IGetM):
             self,
             name: str,
             area: float,
-            next_space: str,
+            next_space: NextSpace,
             direction: str,
             space_type: SpaceType,
             sunshade: factor_f.SunshadeTransient,
@@ -1655,7 +1655,7 @@ class Window(WindowNoSpec, IGetQ, IGetM):
         return Window(
             name=d['name'],
             area=d['area'],
-            next_space=d['next_space'],
+            next_space=NextSpace(d['next_space']),
             direction=d['direction'],
             space_type=SpaceType(d['space_type']),
             sunshade=factor_f.SunshadeTransient.make_sunshade_transient(d=d['sunshade']),
@@ -1753,7 +1753,7 @@ class DoorNoSpec(UpperArealEnvelope):
     def __init__(
             self,
             name: str,
-            next_space: str,
+            next_space: NextSpace,
             direction: str,
             area: float,
             space_type: SpaceType,
@@ -1790,7 +1790,7 @@ class Door(DoorNoSpec, IGetQ, IGetM):
     def __init__(
             self,
             name: str,
-            next_space: str,
+            next_space: NextSpace,
             direction: str,
             area: float,
             space_type: SpaceType,
@@ -1830,7 +1830,7 @@ class Door(DoorNoSpec, IGetQ, IGetM):
 
         return Door(
             name=d['name'],
-            next_space=d['next_space'],
+            next_space=NextSpace(d['next_space']),
             direction=d['direction'],
             area=d['area'],
             space_type=SpaceType(d['space_type']),
