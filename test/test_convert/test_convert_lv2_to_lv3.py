@@ -210,7 +210,7 @@ class TestConvertLv2toLv3(unittest.TestCase):
                         'next_spaces': ['outdoor'],
                         'directions': ['top'],
                         'length': 2.0,
-                        'space_type': 'undefine',
+                        'space_type': 'undefined',
                         'spec': {
                             'psi_value': 1.5
                         },

@@ -10,6 +10,7 @@ from copy import deepcopy
 from heat_load_calc.external import factor_nu
 from heat_load_calc.convert import factor_f
 from heat_load_calc.external.factor_h import NextSpace
+from heat_load_calc.external.factor_nu import Direction
 
 
 class HeatResistanceInputMethod(Enum):
@@ -1098,7 +1099,7 @@ class IArea(metaclass=abc.ABCMeta):
 
 class UpperArealEnvelope(IArea):
 
-    def __init__(self, name: str, next_space: NextSpace, direction: str, area: float, space_type: SpaceType):
+    def __init__(self, name: str, next_space: NextSpace, direction: Direction, area: float, space_type: SpaceType):
         """
 
         Args:
@@ -1134,13 +1135,12 @@ class UpperArealEnvelope(IArea):
         return self._next_space
 
     @property
-    def direction(self) -> str:
+    def direction(self) -> Direction:
         """
         方位を取得する。
         Returns:
             方位
         """
-
         return self._direction
 
     @property
@@ -1184,7 +1184,7 @@ class UpperArealEnvelope(IArea):
         """
 
         if self.next_space == NextSpace.OUTDOOR:
-            return factor_nu.get_nu(region=region, season=season, direction=self._direction)
+            return self._direction.get_nu(region=region, season=season)
         else:
             return 0.0
 
@@ -1213,7 +1213,7 @@ class GeneralPartNoSpec(UpperArealEnvelope):
             name: str,
             general_part_type: GeneralPartType,
             next_space: NextSpace,
-            direction: str,
+            direction: Direction,
             area: float,
             space_type: SpaceType,
             sunshade: factor_f.SunshadeOpaque
@@ -1263,7 +1263,7 @@ class GeneralPart(GeneralPartNoSpec, IGetQ, IGetM):
             name: str,
             general_part_type: GeneralPartType,
             next_space: NextSpace,
-            direction: str,
+            direction: Direction,
             area: float,
             space_type: SpaceType,
             sunshade: factor_f.SunshadeOpaque,
@@ -1308,7 +1308,7 @@ class GeneralPart(GeneralPartNoSpec, IGetQ, IGetM):
             name=d['name'],
             general_part_type=general_part_type,
             next_space=NextSpace(d['next_space']),
-            direction=d['direction'],
+            direction=Direction(d['direction']),
             area=d['area'],
             space_type=SpaceType(d['space_type']),
             sunshade=factor_f.SunshadeOpaque.make_sunshade_opaque(d=d['sunshade']),
@@ -1385,7 +1385,7 @@ class GeneralPart(GeneralPartNoSpec, IGetQ, IGetM):
             'name': self._name,
             'general_part_type': self.general_part_type.value,
             'next_space': self.next_space.value,
-            'direction': self.direction,
+            'direction': self.direction.value,
             'area': self.area,
             'space_type': self.space_type.value,
             'spec': self.general_part_spec.get_as_dict(),
@@ -1432,7 +1432,7 @@ class GeneralPart(GeneralPartNoSpec, IGetQ, IGetM):
             }
 
             if is_sun_striked_outside:
-                d.update(direction=self.direction)
+                d.update(direction=self.direction.value)
 
             gp_dicts.append(d)
 
@@ -1563,7 +1563,7 @@ class WindowNoSpec(UpperArealEnvelope):
             self,
             name: str,
             next_space: NextSpace,
-            direction: str,
+            direction: Direction,
             area: float,
             space_type: SpaceType,
             sunshade: factor_f.SunshadeTransient
@@ -1604,7 +1604,7 @@ class WindowNoSpec(UpperArealEnvelope):
         従って、この get_f 関数は、Window クラスでオーバーライドし、引数にガラスの構成を与えるようにすべき。
         """
 
-        return self.sunshade.get_f(region=region, season=season, direction=self.direction)
+        return self.sunshade.get_f(region=region, season=season, direction=self.direction.value)
 
 
 class Window(WindowNoSpec, IGetQ, IGetM):
@@ -1617,7 +1617,7 @@ class Window(WindowNoSpec, IGetQ, IGetM):
             name: str,
             area: float,
             next_space: NextSpace,
-            direction: str,
+            direction: Direction,
             space_type: SpaceType,
             sunshade: factor_f.SunshadeTransient,
             window_spec: WindowSpec
@@ -1656,7 +1656,7 @@ class Window(WindowNoSpec, IGetQ, IGetM):
             name=d['name'],
             area=d['area'],
             next_space=NextSpace(d['next_space']),
-            direction=d['direction'],
+            direction=Direction(d['direction']),
             space_type=SpaceType(d['space_type']),
             sunshade=factor_f.SunshadeTransient.make_sunshade_transient(d=d['sunshade']),
             window_spec=WindowSpec.make_window_spec(d=d['spec'])
@@ -1697,7 +1697,7 @@ class Window(WindowNoSpec, IGetQ, IGetM):
     def get_m(self, region: int, season: str) -> float:
         return self.get_eta_d(season=season) \
                * self.area \
-               * self.sunshade.get_f(region=region, season=season, direction=self.direction) \
+               * self.sunshade.get_f(region=region, season=season, direction=self.direction.value) \
                * self.get_nu(region=region, season=season)
 
     def get_as_dict(self):
@@ -1705,7 +1705,7 @@ class Window(WindowNoSpec, IGetQ, IGetM):
         return {
             'name': self.name,
             'next_space': self.next_space.value,
-            'direction': self.direction,
+            'direction': self.direction.value,
             'area': self.area,
             'space_type': self.space_type.value,
             'sunshade': self.sunshade.get_as_dict(),
@@ -1754,7 +1754,7 @@ class DoorNoSpec(UpperArealEnvelope):
             self,
             name: str,
             next_space: NextSpace,
-            direction: str,
+            direction: Direction,
             area: float,
             space_type: SpaceType,
             sunshade: factor_f.SunshadeOpaque
@@ -1791,7 +1791,7 @@ class Door(DoorNoSpec, IGetQ, IGetM):
             self,
             name: str,
             next_space: NextSpace,
-            direction: str,
+            direction: Direction,
             area: float,
             space_type: SpaceType,
             sunshade: factor_f.SunshadeOpaque,
@@ -1831,7 +1831,7 @@ class Door(DoorNoSpec, IGetQ, IGetM):
         return Door(
             name=d['name'],
             next_space=NextSpace(d['next_space']),
-            direction=d['direction'],
+            direction=Direction(d['direction']),
             area=d['area'],
             space_type=SpaceType(d['space_type']),
             sunshade=factor_f.SunshadeOpaque.make_sunshade_opaque(d=d['sunshade']),
@@ -1875,7 +1875,7 @@ class Door(DoorNoSpec, IGetQ, IGetM):
         return {
             'name': self.name,
             'next_space': self.next_space.value,
-            'direction': self.direction,
+            'direction': self.direction.value,
             'area': self.area,
             'space_type': self.space_type.value,
             'sunshade': self.sunshade.get_as_dict(),
@@ -2123,7 +2123,7 @@ class HeatbridgeSpec:
 
 class HeatbridgeNoSpec:
 
-    def __init__(self, name: str, next_spaces: List[str], directions: List[str], length: float, space_type: str):
+    def __init__(self, name: str, next_spaces: List[NextSpace], directions: List[str], length: float, space_type: SpaceType):
         """
         Args:
             name: 名称
@@ -2143,7 +2143,7 @@ class HeatbridgeNoSpec:
         return self._name
 
     @property
-    def next_spaces(self):
+    def next_spaces(self) -> List[NextSpace]:
         return self._next_spaces
 
     @property
@@ -2155,11 +2155,11 @@ class HeatbridgeNoSpec:
         return self._length
 
     @property
-    def space_type(self):
+    def space_type(self) -> SpaceType:
         return self._space_type
 
     def get_hs(self, region: int):
-        return [NextSpace(next_space).get_h(region=region) for next_space in self._next_spaces]
+        return [next_space.get_h(region=region) for next_space in self.next_spaces]
 
     def get_nus(self, region: int, season: str) -> List[float]:
         """
@@ -2171,15 +2171,15 @@ class HeatbridgeNoSpec:
             方位係数
         """
 
-        def get_nu(next_space, direction):
+        def get_nu(next_space, direction: Direction):
             if next_space == 'outdoor':
-                return factor_nu.get_nu(region=region, season=season, direction=direction)
+                return direction.get_nu(region=region, season=season)
             else:
                 return 0.0
 
         return [
-            get_nu(next_space=next_space, direction=direction)
-            for next_space, direction in zip(self._next_spaces, self._directions)
+            get_nu(next_space=next_space.value, direction=Direction(direction))
+            for next_space, direction in zip(self.next_spaces, self._directions)
         ]
 
 
@@ -2188,10 +2188,10 @@ class Heatbridge(HeatbridgeNoSpec, IGetQ, IGetM):
     def __init__(
             self,
             name: str,
-            next_spaces: List[str],
+            next_spaces: List[NextSpace],
             directions: List[str],
             length: float,
-            space_type: str,
+            space_type: SpaceType,
             heatbridge_spec: HeatbridgeSpec
     ):
         """
@@ -2217,10 +2217,10 @@ class Heatbridge(HeatbridgeNoSpec, IGetQ, IGetM):
     def make_heatbridge(cls, d: Dict):
         return Heatbridge(
             name=d['name'],
-            next_spaces=d['next_spaces'],
+            next_spaces=[NextSpace(next_space) for next_space in d['next_spaces']],
             directions=d['directions'],
             length=d['length'],
-            space_type=d['space_type'],
+            space_type=SpaceType(d['space_type']),
             heatbridge_spec=HeatbridgeSpec.make_heatbridge_spec(d=d['spec'])
         )
 
@@ -2268,10 +2268,10 @@ class Heatbridge(HeatbridgeNoSpec, IGetQ, IGetM):
 
         return {
             'name': self.name,
-            'next_spaces': self.next_spaces,
+            'next_spaces': [next_space.value for next_space in self.next_spaces],
             'directions': self.directions,
             'length': self.length,
-            'space_type': self.space_type,
+            'space_type': self.space_type.value,
             'spec': self._heatbridge_spec.get_as_dict()
         }
 

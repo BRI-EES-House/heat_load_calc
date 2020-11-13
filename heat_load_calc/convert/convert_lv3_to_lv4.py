@@ -13,6 +13,7 @@ from heat_load_calc.convert.ees_house import InnerFloor
 from heat_load_calc.convert.ees_house import InnerWall
 from heat_load_calc.convert.ees_house import Layer
 from heat_load_calc.convert.ees_house import HeatResistanceInputMethod
+from heat_load_calc.external.factor_nu import Direction
 
 
 def get_inner_floor_layers() -> List[Layer]:
@@ -53,17 +54,17 @@ def get_downward_envelope_total_area(
 
     a_evlp_down_mr = sum([
         s.area for s in ss
-        if s.space_type == SpaceType.MAIN_OCCUPANT_ROOM and (s.direction == 'bottom' or s.direction == 'downward')
+        if s.space_type == SpaceType.MAIN_OCCUPANT_ROOM and (s.direction == Direction.BOTTOM or s.direction == Direction.DOWNWARD)
     ])
 
     a_evlp_down_or = sum([
         s.area for s in ss
-        if s.space_type == SpaceType.OTHER_OCCUPANT_ROOM and (s.direction == 'bottom' or s.direction == 'downward')
+        if s.space_type == SpaceType.OTHER_OCCUPANT_ROOM and (s.direction == Direction.BOTTOM or s.direction == Direction.DOWNWARD)
     ])
 
     a_evlp_down_nr = sum([
         s.area for s in ss
-        if s.space_type == SpaceType.NON_OCCUPANT_ROOM and (s.direction == 'bottom' or s.direction == 'downward')
+        if s.space_type == SpaceType.NON_OCCUPANT_ROOM and (s.direction == Direction.BOTTOM or s.direction == Direction.DOWNWARD)
     ])
 
     return a_evlp_down_mr, a_evlp_down_or, a_evlp_down_nr
@@ -260,12 +261,9 @@ def get_horizontal_envelope_total_area(
 
     ss = gps + ws + ds
 
-    def is_horizontal(d):
-        return d in ['n', 'ne', 'e', 'se', 's', 'sw', 'w', 'nw', 'horizontal']
-
-    a_ow_mr = sum([s.area for s in ss if s.space_type == SpaceType.MAIN_OCCUPANT_ROOM and is_horizontal(s.direction)])
-    a_ow_or = sum([s.area for s in ss if s.space_type == SpaceType.OTHER_OCCUPANT_ROOM and is_horizontal(s.direction)])
-    a_ow_nr = sum([s.area for s in ss if s.space_type == SpaceType.NON_OCCUPANT_ROOM and is_horizontal(s.direction)])
+    a_ow_mr = sum([s.area for s in ss if s.space_type == SpaceType.MAIN_OCCUPANT_ROOM and s.direction.is_horizontal()])
+    a_ow_or = sum([s.area for s in ss if s.space_type == SpaceType.OTHER_OCCUPANT_ROOM and s.direction.is_horizontal()])
+    a_ow_nr = sum([s.area for s in ss if s.space_type == SpaceType.NON_OCCUPANT_ROOM and s.direction.is_horizontal()])
 
     return a_ow_mr, a_ow_or, a_ow_nr
 

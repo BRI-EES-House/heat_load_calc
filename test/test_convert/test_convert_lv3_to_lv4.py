@@ -7,6 +7,7 @@ from heat_load_calc.convert.ees_house import UpperArealEnvelope
 from heat_load_calc.convert.ees_house import EarthfloorCenter, EarthfloorCenterSpec
 from heat_load_calc.convert.ees_house import Layer
 from heat_load_calc.convert.ees_house import HeatResistanceInputMethod
+from heat_load_calc.external.factor_nu import Direction
 
 
 class TestLV3toLV4(unittest.TestCase):
@@ -100,7 +101,7 @@ class TestLV3toLV4(unittest.TestCase):
             UpperArealEnvelope(
                 name='test',
                 next_space=NextSpace.OUTDOOR,
-                direction=gp['direction'],
+                direction=Direction(gp['direction']),
                 area=gp['area'],
                 space_type=SpaceType(gp['space_type'])
             ) for gp in envelope['general_parts']
@@ -110,7 +111,7 @@ class TestLV3toLV4(unittest.TestCase):
             UpperArealEnvelope(
                 name='test',
                 next_space=NextSpace.OUTDOOR,
-                direction=w['direction'],
+                direction=Direction(w['direction']),
                 area=w['area'],
                 space_type=SpaceType(w['space_type'])
             ) for w in envelope['windows']
@@ -120,7 +121,7 @@ class TestLV3toLV4(unittest.TestCase):
             UpperArealEnvelope(
                 name='test',
                 next_space=NextSpace.OUTDOOR,
-                direction=d['direction'],
+                direction=Direction(d['direction']),
                 area=d['area'],
                 space_type=SpaceType(d['space_type'])
             ) for d in envelope['doors']
@@ -162,7 +163,7 @@ class TestLV3toLV4(unittest.TestCase):
             UpperArealEnvelope(
                 name='test',
                 next_space=NextSpace.OUTDOOR,
-                direction=gp['direction'],
+                direction=Direction(gp['direction']),
                 area=gp['area'],
                 space_type=SpaceType(gp['space_type'])
             ) for gp in envelope['general_parts']
@@ -172,7 +173,7 @@ class TestLV3toLV4(unittest.TestCase):
             UpperArealEnvelope(
                 name='test',
                 next_space=NextSpace.OUTDOOR,
-                direction=w['direction'],
+                direction=Direction(w['direction']),
                 area=w['area'],
                 space_type=SpaceType(w['space_type'])
             ) for w in envelope['windows']
@@ -182,7 +183,7 @@ class TestLV3toLV4(unittest.TestCase):
             UpperArealEnvelope(
                 name='test',
                 next_space=NextSpace.OUTDOOR,
-                direction=d['direction'],
+                direction=Direction(d['direction']),
                 area=d['area'],
                 space_type=SpaceType(d['space_type'])
             ) for d in envelope['doors']
@@ -582,7 +583,7 @@ class TestLV3toLV4(unittest.TestCase):
             UpperArealEnvelope(
                 name='test',
                 next_space=NextSpace.OUTDOOR,
-                direction=gp['direction'],
+                direction=Direction(gp['direction']),
                 area=gp['area'],
                 space_type=SpaceType(gp['space_type'])
             ) for gp in envelope['general_parts']
@@ -592,7 +593,7 @@ class TestLV3toLV4(unittest.TestCase):
             UpperArealEnvelope(
                 name='test',
                 next_space=NextSpace.OUTDOOR,
-                direction=w['direction'],
+                direction=Direction(w['direction']),
                 area=w['area'],
                 space_type=SpaceType(w['space_type'])
             ) for w in envelope['windows']
@@ -602,7 +603,7 @@ class TestLV3toLV4(unittest.TestCase):
             UpperArealEnvelope(
                 name='test',
                 next_space=NextSpace.OUTDOOR,
-                direction=d['direction'],
+                direction=Direction(d['direction']),
                 area=d['area'],
                 space_type=SpaceType(d['space_type'])
             ) for d in envelope['doors']
@@ -644,7 +645,7 @@ class TestLV3toLV4(unittest.TestCase):
             UpperArealEnvelope(
                 name='test',
                 next_space=NextSpace.OUTDOOR,
-                direction=gp['direction'],
+                direction=Direction(gp['direction']),
                 area=gp['area'],
                 space_type=SpaceType(gp['space_type'])
             ) for gp in envelope['general_parts']
@@ -654,7 +655,7 @@ class TestLV3toLV4(unittest.TestCase):
             UpperArealEnvelope(
                 name='test',
                 next_space=NextSpace.OUTDOOR,
-                direction=w['direction'],
+                direction=Direction(w['direction']),
                 area=w['area'],
                 space_type=SpaceType(w['space_type'])
             ) for w in envelope['windows']
@@ -664,7 +665,7 @@ class TestLV3toLV4(unittest.TestCase):
             UpperArealEnvelope(
                 name='test',
                 next_space=NextSpace.OUTDOOR,
-                direction=d['direction'],
+                direction=Direction(d['direction']),
                 area=d['area'],
                 space_type=SpaceType(d['space_type'])
             ) for d in envelope['doors']

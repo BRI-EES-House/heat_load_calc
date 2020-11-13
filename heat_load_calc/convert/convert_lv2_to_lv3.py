@@ -147,17 +147,16 @@ def get_heatbridges_lv3(a_f_mr: float, a_f_or: float, a_f_total: float, hbs: Lis
 
         l_mr, l_or, l_nr = get_separated_lengths(l_evlp=hb.length, a_f_mr=a_f_mr, a_f_or=a_f_or, a_f_total=a_f_total)
 
-        hbs_lv3.append(get_heatbridge_lv3(hb=hb, space_type='main_occupant_room', length=l_mr))
-        hbs_lv3.append(get_heatbridge_lv3(hb=hb, space_type='other_occupant_room', length=l_or))
-        hbs_lv3.append(get_heatbridge_lv3(hb=hb, space_type='non_occupant_room', length=l_nr))
+        hbs_lv3.append(get_heatbridge_lv3(hb=hb, space_type=SpaceType.MAIN_OCCUPANT_ROOM, length=l_mr))
+        hbs_lv3.append(get_heatbridge_lv3(hb=hb, space_type=SpaceType.OTHER_OCCUPANT_ROOM, length=l_or))
+        hbs_lv3.append(get_heatbridge_lv3(hb=hb, space_type=SpaceType.NON_OCCUPANT_ROOM, length=l_nr))
 
     return hbs_lv3
 
 
-def get_heatbridge_lv3(hb: Heatbridge, space_type, length):
-
+def get_heatbridge_lv3(hb: Heatbridge, space_type: SpaceType, length: float) -> Heatbridge:
     return Heatbridge(
-        name=hb.name + '_' + space_type,
+        name=hb.name + '_' + space_type.value,
         next_spaces=hb.next_spaces,
         directions=hb.directions,
         length=length,

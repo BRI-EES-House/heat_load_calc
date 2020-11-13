@@ -16,7 +16,7 @@ import abc
 # 射熱補正係数 表 1(b) 屋根又は屋根の直下の天井に設置されている開口部の冷房期の取得日射熱補正係数
 
 
-class SunshadeComplex:
+class SunshadeComplexKernel:
 
     def __init__(
             self,
@@ -65,7 +65,7 @@ class SunshadeComplex:
     @classmethod
     def make_sunshade_complex(cls, d: Dict):
 
-        return SunshadeComplex(
+        return SunshadeComplexKernel(
             x1=d['x1'],
             x2=d['x2'],
             x3=d['x3'],
@@ -137,7 +137,7 @@ class SunshadeOpaque:
                 return SunshadeOpaqueNotInput()
             elif d['input'] == 'complex':
                 return SunshadeOpaqueInput(
-                    sunshade_complex=SunshadeComplex.make_sunshade_complex(d=d)
+                    sunshade_complex=SunshadeComplexKernel.make_sunshade_complex(d=d)
                 )
             else:
                 raise ValueError('不透明部位における日よけの入力方法（input）に間違った値が指定されました。')
@@ -197,7 +197,7 @@ class SunshadeOpaqueNotInput(SunshadeOpaque):
 
 class SunshadeOpaqueInput(SunshadeOpaque):
 
-    def __init__(self, sunshade_complex: SunshadeComplex):
+    def __init__(self, sunshade_complex: SunshadeComplexKernel):
 
         self._sunshade_complex = sunshade_complex
 

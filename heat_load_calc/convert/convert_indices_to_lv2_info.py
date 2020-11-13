@@ -10,6 +10,7 @@ from heat_load_calc.convert.ees_house import Window, WindowNoSpec, WindowSpec
 from heat_load_calc.convert.ees_house import EarthfloorPerimeter, EarthfloorPerimeterNoSpec, EarthfloorPerimeterSpec
 from heat_load_calc.convert.ees_house import EarthfloorCenter, EarthfloorCenterNoSpec, EarthfloorCenterSpec
 from heat_load_calc.convert.ees_house import EesHouse
+from heat_load_calc.external.factor_nu import Direction
 
 
 def convert_spec(d: Dict):
