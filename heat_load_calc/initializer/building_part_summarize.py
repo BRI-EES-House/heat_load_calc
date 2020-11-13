@@ -86,7 +86,7 @@ def integrate(bss: List[BoundarySimple]) -> List[BoundarySimple]:
     # True: 当たる
     # False: 当たらない
     # 境界の種類が'external_general_part', 'external_transparent_part', 'external_opaque_part'の場合に定義される。
-    is_sun_striked_outside_js = [bss[first_idx[i]].get_is_sun_striked_outside for i in np.unique(gp_idxs)]
+    is_sun_striked_outside_js = [bss[first_idx[i]].is_sun_striked_outside for i in np.unique(gp_idxs)]
 
     # 面する方位
     # 's', 'sw', 'w', 'nw', 'n', 'ne', 'e', 'se', 'top', 'bottom'
