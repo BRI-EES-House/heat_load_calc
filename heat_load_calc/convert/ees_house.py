@@ -4,31 +4,142 @@
 
 from typing import Dict, List, Union
 import abc
-import math
-from enum import Enum, auto
-from dataclasses import dataclass
+from enum import Enum
 from copy import deepcopy
+from dataclasses import dataclass
 
-from heat_load_calc.external import factor_h
 from heat_load_calc.external import factor_nu
 from heat_load_calc.convert import factor_f
+from heat_load_calc.external.factor_h import NextSpace
+from heat_load_calc.external.factor_nu import Direction
 
 
 class HeatResistanceInputMethod(Enum):
-    CONDUCTIVITY = auto()
-    RESISTANCE = auto()
+    """
+    Layer の熱抵抗の入力方法
+    熱伝導率と厚さを指定する方法と熱抵抗を指定する方法がある。
+    （ただし容積比熱を計算するために厚さが不要になるわけではない。）
+    """
 
-    @classmethod
-    def make_from_str(cls, s: str):
-        return {
-            'conductivity': HeatResistanceInputMethod.CONDUCTIVITY,
-            'resistance': HeatResistanceInputMethod.RESISTANCE
-        }[s]
+    # 熱伝導率と厚さから入力
+    CONDUCTIVITY = 'conductivity'
+    # 熱抵抗から入力
+    RESISTANCE = 'resistance'
 
-    def get_as_str(self):
+
+class GeneralPartType(Enum):
+    """
+    一般部位の種類
+    """
+
+    # 屋根
+    ROOF = 'roof'
+    # 天井
+    CEILING = 'ceiling'
+    # 壁
+    WALL = 'wall'
+    # 床
+    FLOOR = 'floor'
+    # 戸境壁
+    BOUNDARY_WALL = 'boundary_wall'
+    # 戸境床（上階側）
+    UPWARD_BOUNDARY_FLOOR = 'upward_boundary_floor'
+    # 戸境床（下界側）
+    DOWNWARD_BOUNDARY_FLOOR = 'downward_boundary_floor'
+
+    def get_is_solar_absorbed_inside(self) -> bool:
+        """
+        部位の種類から室内側表面で日射が吸収される部位なのかを判定する。
+        Returns:
+            日射が吸収されるか否か
+        """
         return {
-            HeatResistanceInputMethod.CONDUCTIVITY: 'conductivity',
-            HeatResistanceInputMethod.RESISTANCE: 'resistance'
+            GeneralPartType.ROOF: False,
+            GeneralPartType.CEILING: False,
+            GeneralPartType.WALL: False,
+            GeneralPartType.FLOOR: True,
+            GeneralPartType.BOUNDARY_WALL: False,
+            GeneralPartType.UPWARD_BOUNDARY_FLOOR: False,
+            GeneralPartType.DOWNWARD_BOUNDARY_FLOOR: True
+        }[self]
+
+    def get_is_floor(self) -> bool:
+        """
+        部位の種類から床かどうかを判定する。
+        Returns:
+            床か否か
+        Notes:
+            負荷計算内で形態係数を計算する場合に使用される。
+        """
+        return {
+            GeneralPartType.ROOF: False,
+            GeneralPartType.CEILING: False,
+            GeneralPartType.WALL: False,
+            GeneralPartType.FLOOR: True,
+            GeneralPartType.BOUNDARY_WALL: False,
+            GeneralPartType.UPWARD_BOUNDARY_FLOOR: False,
+            GeneralPartType.DOWNWARD_BOUNDARY_FLOOR: True
+        }[self]
+
+
+class GlassType(Enum):
+    """
+    ガラスの層の数
+    """
+
+    # 単層
+    SINGLE = 'single'
+    # 2層複層
+    DOUBLE = 'double'
+    # 3層以上複層
+    TRIPLE_AND_MORE = 'triple_and_more'
+    # 不明
+    UNKNOWN = 'unknown'
+
+
+class FlameType(Enum):
+    """
+    建具の種類
+    """
+
+    # 木製建具
+    WOOD = 'wood'
+    # 樹脂製建具
+    RESIN = 'resin'
+    # 金属製建具
+    METAL = 'metal'
+    # 木と金属の複合材料製建具
+    WOOD_AND_METAL = 'wood_and_metal'
+    # 樹脂と金属の複合材料製建具
+    RESIN_AND_METAL = 'resin_and_metal'
+    # 不明
+    UNKNOWN = 'unknown'
+
+
+class SpaceType(Enum):
+    """
+    境界が隣接する空間の種類
+    """
+
+    # 主たる居室
+    MAIN_OCCUPANT_ROOM = 'main_occupant_room'
+    # その他の居室
+    OTHER_OCCUPANT_ROOM = 'other_occupant_room'
+    # 非居室
+    NON_OCCUPANT_ROOM = 'non_occupant_room'
+    # 床下
+    UNDERFLOOR = 'underfloor'
+    # 不明
+    UNDEFINED = 'undefined'
+
+    def get_connected_id(self) -> int:
+        if self == SpaceType.UNDEFINED:
+            raise ValueError('SpaceType が UNDEFINED のときにはID取得関数は呼び出せません。')
+        return {
+            SpaceType.MAIN_OCCUPANT_ROOM: 0,
+            SpaceType.OTHER_OCCUPANT_ROOM: 1,
+            SpaceType.NON_OCCUPANT_ROOM: 2,
+            SpaceType.UNDERFLOOR: 3
         }[self]
 
 
@@ -126,7 +237,7 @@ class Layer:
         self._thermal_resistance = thermal_resistance
 
     @property
-    def name(self):
+    def name(self) -> str:
         """
         名称を取得する。
         Returns:
@@ -135,7 +246,16 @@ class Layer:
         return self._name
 
     @property
-    def thickness(self):
+    def heat_resistance_input_method(self) -> HeatResistanceInputMethod:
+        """
+        熱抵抗の入力方法を取得する。
+        Returns:
+            熱抵抗の入力方法
+        """
+        return self._heat_resistance_input_method
+
+    @property
+    def thickness(self) -> float:
         """
         厚さを取得する。
         Returns:
@@ -144,13 +264,31 @@ class Layer:
         return self._thickness
 
     @property
-    def volumetric_specific_heat(self):
+    def volumetric_specific_heat(self) -> float:
         """
         容積比熱を取得する。
         Returns:
             容積比熱, J/LK
         """
         return self._volumetric_specific_heat
+
+    @property
+    def thermal_conductivity(self) -> float:
+        """
+        熱伝導率を取得する。
+        Returns:
+            熱伝導率, W/mK
+        """
+        return self._thermal_conductivity
+
+    @property
+    def thermal_resistance(self) -> float:
+        """
+        熱抵抗を取得する。
+        Returns:
+            熱抵抗, m2K/W
+        """
+        return self._thermal_resistance
 
     @property
     def r(self) -> float:
@@ -178,8 +316,15 @@ class Layer:
 
     @classmethod
     def make_layer(cls, d: Dict):
+        """
+        辞書からクラス Layer を生成する。
+        Args:
+            d: Layer を表す辞書。
+        Returns:
+            Layer クラス
+        """
 
-        hri = HeatResistanceInputMethod.make_from_str(s=d['heat_resistance_input_method'])
+        hri = HeatResistanceInputMethod(d['heat_resistance_input_method'])
         if hri == HeatResistanceInputMethod.CONDUCTIVITY:
             return Layer(
                 name=d['name'],
@@ -201,7 +346,13 @@ class Layer:
 
     @classmethod
     def make_layers(cls, ds: List[Dict]):
-
+        """
+        Layer クラスのリストを作成する。
+        Args:
+            ds: Layer クラスを表す辞書のリスト
+        Returns:
+            Layer クラスのリスト
+        """
         return [Layer.make_layer(d) for d in ds]
 
     def get_as_dict(self) -> Dict:
@@ -214,7 +365,7 @@ class Layer:
         if self._heat_resistance_input_method == HeatResistanceInputMethod.CONDUCTIVITY:
             return {
                 'name': self._name,
-                'heat_resistance_input_method': 'conductivity',
+                'heat_resistance_input_method': self._heat_resistance_input_method.value,
                 'thickness': self._thickness,
                 'volumetric_specific_heat': self._volumetric_specific_heat,
                 'thermal_conductivity': self._thermal_conductivity
@@ -222,7 +373,7 @@ class Layer:
         elif self._heat_resistance_input_method == HeatResistanceInputMethod.RESISTANCE:
             return {
                 'name': self._name,
-                'heat_resistance_input_method': 'conductivity',
+                'heat_resistance_input_method': self._heat_resistance_input_method.value,
                 'thickness': self._thickness,
                 'volumetric_specific_heat': self._volumetric_specific_heat,
                 'thermal_resistance': self._thermal_resistance
@@ -230,7 +381,7 @@ class Layer:
         else:
             raise Exception()
 
-    def make_initializer_dict(self, r_res_sub: float):
+    def make_initializer_dict(self, r_res_sub: float) -> Dict:
         """
         initializer用の辞書を作成する。
         Args:
@@ -266,6 +417,13 @@ class GeneralPartPart:
 
     @classmethod
     def make_general_part_part(cls, d: Dict):
+        """
+        GeneralPartPart クラスを表す辞書から GeneralPartPart クラスを作成する。
+        Args:
+            d: GeneralPartPart クラスを表す辞書
+        Returns:
+            GeneralPartPart クラス
+        """
 
         return GeneralPartPart(
             name=d['name'],
@@ -275,6 +433,13 @@ class GeneralPartPart:
 
     @classmethod
     def make_general_part_parts(cls, ds: List[Dict]):
+        """
+        GeneralPartPart クラスを表す辞書のリストから GeneralPartPart クラスのリストを作成する。
+        Args:
+            ds: GeneralPartPart クラスを表す辞書のリスト
+        Returns:
+            GeneralPartPart クラスのリスト
+        """
 
         # part_area_ratio の合計値が1.0になるかどうかの確認
         total_ratio = sum([d['part_area_ratio'] for d in ds])
@@ -312,7 +477,7 @@ class GeneralPartPart:
         """
         return self._layers
 
-    def get_r_total(self):
+    def get_r_total(self) -> float:
         """
         熱抵抗の合計値を取得する。
         Returns:
@@ -329,10 +494,17 @@ class GeneralPartPart:
             'layers': [layer.get_as_dict() for layer in self.layers]
         }
 
-    def make_initializer_dict(self, r_res_sub: float) -> List[Dict]:
+    def make_initializer_dict(
+            self,
+            general_part_name: str,
+            general_part_area: float,
+            r_res_sub: float
+    ) -> Dict:
         """
         initializer用の辞書を作成する。
         Args:
+            general_part_name: 一般部位の名称
+            general_part_area: 一般部位の面積, m2
             r_res_sub: 熱抵抗割引率(0.0~1.0)
         Returns:
             initializer用辞書
@@ -342,10 +514,11 @@ class GeneralPartPart:
             割増率 = ( もともとのR値 - 割引されるR値 ) / もともとのR値
             で表される。
         """
-        return [
-            layer.make_initializer_dict(r_res_sub=r_res_sub)
-            for layer in self.layers
-        ]
+        return {
+            'name': general_part_name + '_' + self.name,
+            'area': general_part_area * self.part_area_ratio,
+            'layers': [layer.make_initializer_dict(r_res_sub=r_res_sub) for layer in self.layers]
+        }
 
 
 class GeneralPartSpec:
@@ -355,7 +528,19 @@ class GeneralPartSpec:
         pass
 
     @classmethod
-    def make_general_part_spec(cls, d: Dict, general_part_type: str):
+    def make_general_part_spec(cls, d: Dict, general_part_type: GeneralPartType):
+        """
+        GeneralPartSpec クラスを表す辞書から GeneralPartSpec クラスを作成する。
+        Args:
+            d: GeneralPartSpec クラスを表す辞書
+            general_part_type: 一般部位の種類
+        Returns:
+            GeneralPartSpec クラスを継承した以下のクラス
+                - GeneralPartSpecDetailWood
+                - GeneralPartSpecDetailRC
+                - GeneralPartSpecDetailSteel
+                - GeneralPartSpecUValueOther
+        """
 
         structure = d['structure']
 
@@ -414,6 +599,10 @@ class GeneralPartSpec:
     @abc.abstractmethod
     def get_as_dict(self):
 
+        pass
+
+    @abc.abstractmethod
+    def make_initializer_dict(self, name: str, area: float, u_add: float) -> List[Dict]:
         pass
 
 
@@ -477,10 +666,12 @@ class GeneralPartSpecDetail(GeneralPartSpec):
     def get_as_dict(self):
         pass
 
-    def make_initializer_dict(self, u_add: float) -> List[List[Dict]]:
+    def make_initializer_dict(self, name: str, area: float, u_add: float) -> List[Dict]:
         """
         U値増加分を考慮した補正後のinitializer用のレイヤーのリストを辞書形式で取得する。
         Args:
+            name: 名称
+            area: 面積, m2
             u_add: U値増加分, W/m2K
         Returns:
             initializer用レイヤーのリスト
@@ -498,7 +689,21 @@ class GeneralPartSpecDetail(GeneralPartSpec):
         # 熱抵抗割引率
         rs_res_sub = [r_dash / p.get_r_total() for p, r_dash in zip(self._parts, rs_dash)]
 
-        return [part.make_initializer_dict(r_res_sub=r_res_sub) for part, r_res_sub in zip(self.parts, rs_res_sub)]
+        ds = [
+            part.make_initializer_dict(
+                general_part_name=name,
+                general_part_area=area,
+                r_res_sub=r_res_sub
+            ) for part, r_res_sub in zip(self.parts, rs_res_sub)
+        ]
+
+        for d in ds:
+            d.update(
+                inside_heat_transfer_resistance=self.r_srf_in,
+                outside_heat_transfer_resistance=self.r_srf_ex
+            )
+
+        return ds
 
 
 class GeneralPartSpecDetailWood(GeneralPartSpecDetail):
@@ -534,16 +739,18 @@ class GeneralPartSpecDetailWood(GeneralPartSpecDetail):
             'parts': [part.get_as_dict() for part in self.parts]
         }
 
-    def make_initializer_dict(self, u_add: float) -> List[List[Dict]]:
+    def make_initializer_dict(self, name: str, area: float, u_add: float) -> List[Dict]:
         """
         U値増加分を考慮した補正後のinitializer用のレイヤーのリストを辞書形式で取得する。
         Args:
+            name: 名称
+            area: 面積, m2
             u_add: U値増加分, W/m2K
         Returns:
             initializer用レイヤーのリスト
         """
 
-        return super().make_initializer_dict(u_add=u_add)
+        return super().make_initializer_dict(name=name, area=area, u_add=u_add)
 
 
 class GeneralPartSpecDetailRC(GeneralPartSpecDetail):
@@ -578,16 +785,18 @@ class GeneralPartSpecDetailRC(GeneralPartSpecDetail):
             'parts': [part.get_as_dict() for part in self.parts]
         }
 
-    def make_initializer_dict(self, u_add: float) -> List[List[Dict]]:
+    def make_initializer_dict(self, name: str, area: float, u_add: float) -> List[Dict]:
         """
         U値増加分を考慮した補正後のinitializer用のレイヤーのリストを辞書形式で取得する。
         Args:
+            name: 名称
+            area: 面積, m2
             u_add: U値増加分, W/m2K
         Returns:
             initializer用レイヤーのリスト
         """
 
-        return super().make_initializer_dict(u_add=u_add)
+        return super().make_initializer_dict(name=name, area=area, u_add=u_add)
 
 
 class GeneralPartSpecDetailSteel(GeneralPartSpecDetail):
@@ -632,21 +841,23 @@ class GeneralPartSpecDetailSteel(GeneralPartSpecDetail):
             'parts': [part.get_as_dict() for part in self.parts]
         }
 
-    def make_initializer_dict(self, u_add: float) -> List[List[Dict]]:
+    def make_initializer_dict(self, name: str, area: float, u_add: float) -> List[Dict]:
         """
         U値増加分を考慮した補正後のinitializer用のレイヤーのリストを辞書形式で取得する。
         Args:
+            name: 名称
+            area: 面積, m2
             u_add: U値増加分, W/m2K
         Returns:
             initializer用レイヤーのリスト
         """
 
-        return super().make_initializer_dict(u_add=u_add + self._u_r_value_steel)
+        return super().make_initializer_dict(name=name, area=area, u_add=u_add + self._u_r_value_steel)
 
 
 class GeneralPartSpecUValue(GeneralPartSpec):
 
-    def __init__(self, general_part_type: str, u_value: float, weight: str):
+    def __init__(self, general_part_type: GeneralPartType, u_value: float, weight: str):
 
         super().__init__()
         self._u_value = u_value
@@ -657,7 +868,7 @@ class GeneralPartSpecUValue(GeneralPartSpec):
         self._general_part_type = general_part_type
 
     @property
-    def general_part_type(self):
+    def general_part_type(self) -> GeneralPartType:
         return self._general_part_type
 
     def get_u(self) -> float:
@@ -677,14 +888,15 @@ class GeneralPartSpecUValue(GeneralPartSpec):
             室内側熱伝達抵抗, m2K/W
         """
 
-        if self._general_part_type in ['roof', 'ceiling', 'upward_boundary_floor']:
-            return 0.09
-        elif self._general_part_type in ['wall', 'boundary_wall']:
-            return 0.11
-        elif self._general_part_type in ['floor', 'downward_boundary_floor']:
-            return 0.15
-        else:
-            raise ValueError()
+        return {
+            GeneralPartType.ROOF: 0.09,
+            GeneralPartType.CEILING: 0.09,
+            GeneralPartType.WALL: 0.11,
+            GeneralPartType.FLOOR: 0.15,
+            GeneralPartType.BOUNDARY_WALL: 0.11,
+            GeneralPartType.UPWARD_BOUNDARY_FLOOR: 0.09,
+            GeneralPartType.DOWNWARD_BOUNDARY_FLOOR: 0.15
+        }[self.general_part_type]
 
     @property
     def r_srf_ex(self) -> float:
@@ -694,23 +906,29 @@ class GeneralPartSpecUValue(GeneralPartSpec):
             室外側熱伝達抵抗, m2K/W
         """
 
-        if self._general_part_type in ['roof', 'wall']:
-            return 0.04
-        elif self._general_part_type in ['ceiling', 'upward_boundary_floor']:
-            return 0.09
-        elif self._general_part_type in ['boundary_wall']:
-            return 0.11
-        elif self._general_part_type in ['floor', 'downward_boundary_floor']:
-            return 0.15
-        else:
-            raise ValueError()
+        return {
+            GeneralPartType.ROOF: 0.04,
+            GeneralPartType.CEILING: 0.09,
+            GeneralPartType.WALL: 0.04,
+            GeneralPartType.FLOOR: 0.15,
+            GeneralPartType.BOUNDARY_WALL: 0.11,
+            GeneralPartType.UPWARD_BOUNDARY_FLOOR: 0.09,
+            GeneralPartType.DOWNWARD_BOUNDARY_FLOOR: 0.15
+        }[self.general_part_type]
 
     @abc.abstractmethod
-    def get_as_dict(self):
+    def get_as_dict(self) -> Dict:
 
         pass
 
-    def convert_to_general_part_spec_detail(self):
+    def make_initializer_dict(self, name: str, area: float, u_add: float) -> List[Dict]:
+
+        # GeneralPartSpecDetail
+        gpsd = self._convert_to_general_part_spec_detail()
+
+        return gpsd.make_initializer_dict(name=name, area=area, u_add=u_add)
+
+    def _convert_to_general_part_spec_detail(self) -> GeneralPartSpecDetail:
 
         gypsum_board9_5 = Layer(
             name='gypsum_board',
@@ -753,35 +971,35 @@ class GeneralPartSpecUValue(GeneralPartSpec):
         default_layers = {
             'light': {
                 # 屋根の場合：せっこうボード9.5mm + 断熱材
-                'roof': [gypsum_board9_5, insulation],
+                GeneralPartType.ROOF: [gypsum_board9_5, insulation],
                 # 天井の場合：せっこうボード9.5mm + 断熱材
-                'ceiling': [gypsum_board9_5, insulation],
+                GeneralPartType.CEILING: [gypsum_board9_5, insulation],
                 # 壁の場合：せっこうボード9.5mm + 断熱材 + 合板12mm
-                'wall': [gypsum_board9_5, insulation, plywood12],
+                GeneralPartType.WALL: [gypsum_board9_5, insulation, plywood12],
                 # 床の場合：合板24mm + 断熱材
-                'floor': [plywood24, insulation],
+                GeneralPartType.FLOOR: [plywood24, insulation],
                 # 間仕切り壁の場合：せっこうボード9.5mm + 断熱材 + せっこうボード9.5mm
-                'boundary_wall': [gypsum_board9_5, insulation, gypsum_board9_5],
+                GeneralPartType.BOUNDARY_WALL: [gypsum_board9_5, insulation, gypsum_board9_5],
                 # 間仕切り天井の場合：せっこうボード9.5mm + 断熱材 + 合板24mm
-                'upward_boundary_floor': [gypsum_board9_5, insulation, plywood24],
+                GeneralPartType.UPWARD_BOUNDARY_FLOOR: [gypsum_board9_5, insulation, plywood24],
                 # 間仕切り床の場合： 合板24mm + 断熱材 + せっこうボード9.5mm
-                'downward_boundary_floor': [plywood24, insulation, gypsum_board9_5]
+                GeneralPartType.DOWNWARD_BOUNDARY_FLOOR: [plywood24, insulation, gypsum_board9_5]
             }[self.general_part_type],
             'heavy': {
                 # 屋根の場合：せっこうボード9.5mm + 断熱材 + コンクリート120mm
-                'roof': [gypsum_board9_5, insulation, concrete120],
+                GeneralPartType.ROOF: [gypsum_board9_5, insulation, concrete120],
                 # 天井の場合：せっこうボード9.5mm + 断熱材 + コンクリート120mm
-                'ceiling': [gypsum_board9_5, insulation, concrete120],
+                GeneralPartType.CEILING: [gypsum_board9_5, insulation, concrete120],
                 # 壁の場合：せっこうボード9.5mm + 断熱材 + コンクリート120mm
-                'wall': [gypsum_board9_5, insulation, concrete120],
+                GeneralPartType.WALL: [gypsum_board9_5, insulation, concrete120],
                 # 床の場合：合板24mm + 断熱材 + コンクリート120mm
-                'floor': [plywood24, insulation, concrete120],
+                GeneralPartType.FLOOR: [plywood24, insulation, concrete120],
                 # 間仕切り壁の場合：せっこうボード9.5mm + 断熱材 + 合板12mm
-                'boundary_wall': [gypsum_board9_5, insulation, gypsum_board9_5],
+                GeneralPartType.BOUNDARY_WALL: [gypsum_board9_5, insulation, gypsum_board9_5],
                 # 間仕切り天井の場合：せっこうボード9.5mm + コンクリート120mm + 断熱材 + 合板24mm
-                'upward_boundary_floor': [gypsum_board9_5, concrete120, insulation, plywood24],
+                GeneralPartType.UPWARD_BOUNDARY_FLOOR: [gypsum_board9_5, concrete120, insulation, plywood24],
                 # 間仕切り床の場合： 合板24mm + 断熱材 + コンクリート120mm + せっこうボード9.5mm
-                'downward_boundary_floor': [plywood24, insulation, concrete120, gypsum_board9_5]
+                GeneralPartType.DOWNWARD_BOUNDARY_FLOOR: [plywood24, insulation, concrete120, gypsum_board9_5]
             }[self.general_part_type]
         }[self._weight]
 
@@ -846,7 +1064,7 @@ class GeneralPartSpecUValue(GeneralPartSpec):
 
 class GeneralPartSpecUValueOther(GeneralPartSpecUValue):
 
-    def __init__(self, general_part_type: str, u_value_other: float, weight:str):
+    def __init__(self, general_part_type: GeneralPartType, u_value_other: float, weight: str):
 
         super().__init__(
             general_part_type=general_part_type,
@@ -855,7 +1073,7 @@ class GeneralPartSpecUValueOther(GeneralPartSpecUValue):
         )
 
     @classmethod
-    def make_from_dict(cls, general_part_type: str, d: Dict):
+    def make_from_dict(cls, general_part_type: GeneralPartType, d: Dict):
 
         return GeneralPartSpecUValueOther(
             general_part_type=general_part_type,
@@ -876,13 +1094,13 @@ class IArea(metaclass=abc.ABCMeta):
 
     @property
     @abc.abstractmethod
-    def area(self):
+    def area(self) -> float:
         pass
 
 
 class UpperArealEnvelope(IArea):
 
-    def __init__(self, name: str, next_space: str, direction: str, area: float, space_type: str):
+    def __init__(self, name: str, next_space: NextSpace, direction: Direction, area: float, space_type: SpaceType):
         """
 
         Args:
@@ -909,23 +1127,21 @@ class UpperArealEnvelope(IArea):
         return self._name
 
     @property
-    def next_space(self) -> str:
+    def next_space(self) -> NextSpace:
         """
         隣接する空間の種類を取得する。
         Returns:
             隣接する空間の種類
         """
-
         return self._next_space
 
     @property
-    def direction(self) -> str:
+    def direction(self) -> Direction:
         """
         方位を取得する。
         Returns:
             方位
         """
-
         return self._direction
 
     @property
@@ -939,16 +1155,15 @@ class UpperArealEnvelope(IArea):
         return self._area
 
     @property
-    def space_type(self) -> str:
+    def space_type(self) -> SpaceType:
         """
         接する室の用途を取得する。
         Returns:
             接する室の用途
         """
-
         return self._space_type
 
-    def get_h(self, region) -> float:
+    def get_h(self, region: int) -> float:
         """
         温度差係数を取得する。
         Args:
@@ -957,9 +1172,9 @@ class UpperArealEnvelope(IArea):
             温度差係数
         """
 
-        return factor_h.get_h(region=region, next_space=self.next_space)
+        return self.next_space.get_h(region=region)
 
-    def get_nu(self, region: int, season: str):
+    def get_nu(self, region: int, season: str) -> float:
         """
         方位係数を取得する。
         Args:
@@ -969,8 +1184,8 @@ class UpperArealEnvelope(IArea):
             方位係数
         """
 
-        if self.next_space == 'outdoor':
-            return factor_nu.get_nu(region=region, season=season, direction=self._direction)
+        if self.next_space == NextSpace.OUTDOOR:
+            return self._direction.get_nu(region=region, season=season)
         else:
             return 0.0
 
@@ -978,14 +1193,14 @@ class UpperArealEnvelope(IArea):
 class IGetQ(metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
-    def get_q(self, region: int):
+    def get_q(self, region: int) -> float:
         pass
 
 
 class IGetM(metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
-    def get_m(self, region: int, season: str):
+    def get_m(self, region: int, season: str) -> float:
         pass
 
 
@@ -997,11 +1212,11 @@ class GeneralPartNoSpec(UpperArealEnvelope):
     def __init__(
             self,
             name: str,
-            general_part_type: str,
-            next_space: str,
-            direction: str,
+            general_part_type: GeneralPartType,
+            next_space: NextSpace,
+            direction: Direction,
             area: float,
-            space_type: str,
+            space_type: SpaceType,
             sunshade: factor_f.SunshadeOpaque
     ):
         """
@@ -1020,7 +1235,7 @@ class GeneralPartNoSpec(UpperArealEnvelope):
         self._sunshade = sunshade
 
     @property
-    def general_part_type(self) -> str:
+    def general_part_type(self) -> GeneralPartType:
         """
         種類を取得する。
         Returns:
@@ -1047,11 +1262,11 @@ class GeneralPart(GeneralPartNoSpec, IGetQ, IGetM):
     def __init__(
             self,
             name: str,
-            general_part_type: str,
-            next_space: str,
-            direction: str,
+            general_part_type: GeneralPartType,
+            next_space: NextSpace,
+            direction: Direction,
             area: float,
-            space_type: str,
+            space_type: SpaceType,
             sunshade: factor_f.SunshadeOpaque,
             general_part_spec: GeneralPartSpec
     ):
@@ -1088,17 +1303,19 @@ class GeneralPart(GeneralPartNoSpec, IGetQ, IGetM):
             GeneralPart クラス
         """
 
+        general_part_type = GeneralPartType(d['general_part_type'])
+
         return GeneralPart(
             name=d['name'],
-            general_part_type=d['general_part_type'],
-            next_space=d['next_space'],
-            direction=d['direction'],
+            general_part_type=general_part_type,
+            next_space=NextSpace(d['next_space']),
+            direction=Direction(d['direction']),
             area=d['area'],
-            space_type=d['space_type'],
+            space_type=SpaceType(d['space_type']),
             sunshade=factor_f.SunshadeOpaque.make_sunshade_opaque(d=d['sunshade']),
             general_part_spec=GeneralPartSpec.make_general_part_spec(
                 d=d['spec'],
-                general_part_type=d['general_part_type']
+                general_part_type=general_part_type
             )
         )
 
@@ -1157,87 +1374,185 @@ class GeneralPart(GeneralPartNoSpec, IGetQ, IGetM):
             m値, W/(W/m2)
         """
 
-        if self.next_space == 'outdoor':
+        if self.next_space == NextSpace.OUTDOOR:
             return self.area * self.get_eta() * self.get_nu(region=region, season=season) \
-                   * self.sunshade.get_f_sh(region=region, season=season)
+                   * self.sunshade.get_f_sh(region=region, season=season, direction=self.direction)
         else:
             return 0.0
 
-    def get_as_dict(self):
+    def get_as_dict(self) -> Dict:
 
         return {
             'name': self._name,
-            'general_part_type': self.general_part_type,
-            'next_space': self.next_space,
-            'direction': self.direction,
+            'general_part_type': self.general_part_type.value,
+            'next_space': self.next_space.value,
+            'direction': self.direction.value,
             'area': self.area,
-            'space_type': self.space_type,
+            'space_type': self.space_type.value,
             'spec': self.general_part_spec.get_as_dict(),
             'sunshade': self.sunshade.get_as_dict()
         }
+
+    def make_initializer_dict(self, u_add: float, region: int) -> List[Dict]:
+
+        gps_dicts = self.general_part_spec.make_initializer_dict(name=self.name, area=self.area, u_add=u_add)
+
+        # 隣接する室のID
+        connected_room_id = self.space_type.get_connected_id()
+
+        # 相手方空間に日射が当たるか否か
+        is_sun_striked_outside = self.next_space.get_is_sun_striked_outside()
+
+        # 室内側表面で日射を吸収するかどうか
+        is_solar_absorbed_inside = self.general_part_type.get_is_solar_absorbed_inside()
+
+        # TODO: ここに　is_floor を新規追加し、仕様書（csv）の方も対応させて変更する。
+        # 床かどうか（負荷計算内で形態係数を計算する場合に使用される。）
+        is_floor = self.general_part_type.get_is_floor()
+
+        solar_shading_part = self.sunshade.make_initializer_dict()
+
+        gp_dicts = []
+
+        for gps_dict in gps_dicts:
+
+            d = {
+                'name': gps_dict['name'],
+                'connected_room_id': connected_room_id,
+                'boundary_type': 'external_general_part',
+                'area': gps_dict['area'],
+                'is_sun_striked_outside': is_sun_striked_outside,
+                'temp_dif_coef': self.get_h(region=region),
+                'is_solar_absorbed_inside': is_solar_absorbed_inside,
+                'inside_heat_transfer_resistance': gps_dict['inside_heat_transfer_resistance'],
+                'outside_heat_transfer_resistance': gps_dict['outside_heat_transfer_resistance'],
+                'outside_emissivity': 0.9,
+                'outside_solar_absorption': 0.8,
+                'layers': gps_dict['layers'],
+                'solar_shading_part': solar_shading_part
+            }
+
+            if is_sun_striked_outside:
+                d.update(direction=self.direction.value)
+
+            gp_dicts.append(d)
+
+        return gp_dicts
 
 
 class WindowSpec:
 
     def __init__(
             self,
-            window_type: str,
-            windows: List[Dict],
-            attachment_type: str,
-            is_windbreak_room_attached
+            u: float,
+            eta_d_h: float,
+            eta_d_c: float,
+            glass_type: GlassType,
+            flame_type: FlameType
     ):
+        """
+        Args:
+            u: U値, W/m2K
+            eta_d_h: 暖房期のηd値, (W/m2)/(W/m2)
+            eta_d_c: 冷房期のηd値, (W/m2)/(W/m2)
+            glass_type: ガラスの層数
+            flame_type: 建具の種類
+        """
 
-        self._window_type = window_type
-        self._windows = windows
-        self._attachment_type = attachment_type
-        self._is_windbreak_room_attached = is_windbreak_room_attached
-#        self._is_sunshade_input = is_sunshade_input
+        self._u = u
+        self._eta_d_h = eta_d_h
+        self._eta_d_c = eta_d_c
+        self._glass_type = glass_type
+        self._flame_type = flame_type
 
     @classmethod
     def make_window_spec(cls, d: Dict):
+        """
+        窓の仕様を表す辞書から WindowSpec クラスを作成する。
+        Args:
+            d: 窓の仕様を表す辞書
+        Returns:
+            WindowSpec クラス
+        """
 
         return WindowSpec(
-            window_type=d['window_type'],
-            windows=d['windows'],
-            attachment_type=d['attachment_type'],
-            is_windbreak_room_attached=d['is_windbreak_room_attached']
-#            is_sunshade_input=d['is_sunshade_input']
+            u=d['u_value'],
+            eta_d_h=d['eta_d_h_value'],
+            eta_d_c=d['eta_d_c_value'],
+            glass_type=GlassType(d['glass_type']),
+            flame_type=FlameType(d['flame_type'])
         )
 
-    def get_u(self):
-
-        if self._window_type == 'single':
-            window = self._windows[0]
-            if window['u_value_input_method'] == 'u_value_directly':
-                return window['u_value']
-            else:
-                raise NotImplementedError()
-        else:
-            raise NotImplementedError()
-
     def get_eta_d(self, season: str):
+        """
+        ηd値を取得する。
+        Args:
+            season: 暖冷房期間
+        Returns:
+            ηd値, (W/m2)/(W/m2)
+        """
 
-        if self._window_type == 'single':
-            window = self._windows[0]
-            if window['eta_value_input_method'] == 'eta_d_value_directly':
-                if season == 'heating':
-                    return window['eta_d_h_value']
-                elif season == 'cooling':
-                    return window['eta_d_c_value']
-            else:
-                raise NotImplementedError()
+        if season == 'heating':
+            return self._eta_d_h
+        elif season == 'cooling':
+            return self._eta_d_c
         else:
-            raise NotImplementedError()
+            raise Exception
 
-    def get_as_dict(self):
+    def get_as_dict(self) -> Dict:
 
         return {
-            'window_type': self._window_type,
-            'windows': self._windows,
-            'attachment_type': self._attachment_type,
-            'is_windbreak_room_attached': self._is_windbreak_room_attached,
-#            'is_sunshade_input': self._is_sunshade_input
+            'u_value': self._u,
+            'eta_d_h_value': self._eta_d_h,
+            'eta_d_c_value': self._eta_d_c,
+            'glass_type': self._glass_type.value,
+            'flame_type': self._flame_type.value
         }
+
+    @property
+    def u(self) -> float:
+        """
+        U値を取得する。
+        Returns:
+            U値, W/m2K
+        """
+        return self._u
+
+    @property
+    def eta_d_h(self) -> float:
+        """
+        ηd_h値を取得する。
+        Returns:
+            ηd_h値, (W/m2)/(W/m2)
+        """
+        return self._eta_d_h
+
+    @property
+    def eta_d_c(self) -> float:
+        """
+        ηd_c値を取得する。
+        Returns:
+            ηd_c値, (W/m2)/(W/m2)
+        """
+        return self._eta_d_c
+
+    @property
+    def glass_type(self) -> GlassType:
+        """
+        ガラスの種類（枚数）を取得する。
+        Returns:
+            ガラスの種類（枚数）
+        """
+        return self._glass_type
+
+    @property
+    def flame_type(self) -> FlameType:
+        """
+        建具の種類を取得する。
+        Returns:
+            建具の種類
+        """
+        return self._flame_type
 
 
 class WindowNoSpec(UpperArealEnvelope):
@@ -1248,10 +1563,10 @@ class WindowNoSpec(UpperArealEnvelope):
     def __init__(
             self,
             name: str,
-            next_space: str,
-            direction: str,
+            next_space: NextSpace,
+            direction: Direction,
             area: float,
-            space_type: str,
+            space_type: SpaceType,
             sunshade: factor_f.SunshadeTransient
     ):
         """
@@ -1302,9 +1617,9 @@ class Window(WindowNoSpec, IGetQ, IGetM):
             self,
             name: str,
             area: float,
-            next_space: str,
-            direction: str,
-            space_type: str,
+            next_space: NextSpace,
+            direction: Direction,
+            space_type: SpaceType,
             sunshade: factor_f.SunshadeTransient,
             window_spec: WindowSpec
     ):
@@ -1341,9 +1656,9 @@ class Window(WindowNoSpec, IGetQ, IGetM):
         return Window(
             name=d['name'],
             area=d['area'],
-            next_space=d['next_space'],
-            direction=d['direction'],
-            space_type=d['space_type'],
+            next_space=NextSpace(d['next_space']),
+            direction=Direction(d['direction']),
+            space_type=SpaceType(d['space_type']),
             sunshade=factor_f.SunshadeTransient.make_sunshade_transient(d=d['sunshade']),
             window_spec=WindowSpec.make_window_spec(d=d['spec'])
         )
@@ -1365,12 +1680,19 @@ class Window(WindowNoSpec, IGetQ, IGetM):
         return self._window_spec
 
     def get_u(self):
-        return self._window_spec.get_u()
+        return self._window_spec.u
 
     def get_q(self, region: int):
         return self.area * self.get_u() * self.get_h(region=region)
 
     def get_eta_d(self, season: str):
+        """
+        ηd値を取得する。
+        Args:
+            season: 暖冷房期間
+        Returns:
+            ηd値, (W/m2)/(W/m2)
+        """
         return self._window_spec.get_eta_d(season=season)
 
     def get_m(self, region: int, season: str) -> float:
@@ -1383,38 +1705,52 @@ class Window(WindowNoSpec, IGetQ, IGetM):
 
         return {
             'name': self.name,
-            'next_space': self.next_space,
-            'direction': self.direction,
+            'next_space': self.next_space.value,
+            'direction': self.direction.value,
             'area': self.area,
-            'space_type': self.space_type,
+            'space_type': self.space_type.value,
             'sunshade': self.sunshade.get_as_dict(),
             'spec': self.window_spec.get_as_dict()
         }
 
+    def make_initializer_dict(self, region: int) -> Dict:
 
+        is_sun_striked_outside = self.next_space.get_is_sun_striked_outside()
+
+        # TODO: 下記の表面熱伝達抵抗や長波長放射率についてはきちんと整理しないといけない。
+        d = {
+            'name': self.name,
+            'connected_id': self.space_type.get_connected_id(),
+            'boundary_type': 'external_transparent_part',
+            'area': self.area,
+            'is_sun_striked_outside': is_sun_striked_outside,
+            'temp_dif_coef': self.next_space.get_h(region=region),
+            'is_solar_absorbed_inside': False,
+            'inside_heat_transfer_resistance': 0.13,
+            'outside_heat_transfer_resistance': 0.04,
+            'outside_emissivity': 0.9,
+            'eta_d_h_value': self.window_spec.eta_d_h,
+            'eta_d_c_value': self.window_spec.eta_d_c,
+            'u_value': self.window_spec.u,
+            'incident_angle_characteristics': self.window_spec.glass_type.value,
+            'solar_shading_part': self.sunshade.make_initializer_dict()
+        }
+
+        if is_sun_striked_outside:
+            d.update(direction=self.direction.value)
+
+        return d
+
+
+@dataclass()
 class DoorSpec:
 
-    def __init__(self, u_value: float):
+    # 熱還流率, W/m2K
+    u: float
 
-        self._u_value = u_value
-
-    @classmethod
-    def make_door_spec(cls, d: dict):
-
-        return DoorSpec(u_value=d['u_value'])
-
-    def get_u(self):
-        return self._u_value
-
-    def get_eta(self):
-
-        return 0.034 * self.get_u()
-
-    def get_as_dict(self):
-
-        return {
-            'u_value': self._u_value
-        }
+    @property
+    def eta(self):
+        return 0.034 * self.u
 
 
 class DoorNoSpec(UpperArealEnvelope):
@@ -1425,10 +1761,10 @@ class DoorNoSpec(UpperArealEnvelope):
     def __init__(
             self,
             name: str,
-            next_space: str,
-            direction: str,
+            next_space: NextSpace,
+            direction: Direction,
             area: float,
-            space_type: str,
+            space_type: SpaceType,
             sunshade: factor_f.SunshadeOpaque
     ):
         """
@@ -1462,10 +1798,10 @@ class Door(DoorNoSpec, IGetQ, IGetM):
     def __init__(
             self,
             name: str,
-            next_space: str,
-            direction: str,
+            next_space: NextSpace,
+            direction: Direction,
             area: float,
-            space_type: str,
+            space_type: SpaceType,
             sunshade: factor_f.SunshadeOpaque,
             door_spec: DoorSpec
     ):
@@ -1502,12 +1838,12 @@ class Door(DoorNoSpec, IGetQ, IGetM):
 
         return Door(
             name=d['name'],
-            next_space=d['next_space'],
-            direction=d['direction'],
+            next_space=NextSpace(d['next_space']),
+            direction=Direction(d['direction']),
             area=d['area'],
-            space_type=d['space_type'],
+            space_type=SpaceType(d['space_type']),
             sunshade=factor_f.SunshadeOpaque.make_sunshade_opaque(d=d['sunshade']),
-            door_spec=DoorSpec.make_door_spec(d=d['spec'])
+            door_spec=DoorSpec(u=d['spec']['u_value'])
         )
 
     @classmethod
@@ -1526,19 +1862,19 @@ class Door(DoorNoSpec, IGetQ, IGetM):
         return self._door_spec
 
     def get_u(self):
-        return self._door_spec.get_u()
+        return self.door_spec.u
 
     def get_q(self, region: int):
         return self.area * self.get_u() * self.get_h(region=region)
 
     def get_eta(self):
-        return self._door_spec.get_eta()
+        return self.door_spec.eta
 
     def get_m(self, region: int, season: str) -> float:
 
-        if self.next_space == 'outdoor':
+        if self.next_space == NextSpace.OUTDOOR:
             return self.area * self.get_eta() * self.get_nu(region=region, season=season) \
-                   * self.sunshade.get_f_sh(region=region, season=season)
+                   * self.sunshade.get_f_sh(region=region, season=season, direction=self.direction)
         else:
             return 0.0
 
@@ -1546,39 +1882,54 @@ class Door(DoorNoSpec, IGetQ, IGetM):
 
         return {
             'name': self.name,
-            'next_space': self.next_space,
-            'direction': self.direction,
+            'next_space': self.next_space.value,
+            'direction': self.direction.value,
             'area': self.area,
-            'space_type': self.space_type,
+            'space_type': self.space_type.value,
             'sunshade': self.sunshade.get_as_dict(),
-            'spec': self._door_spec.get_as_dict()
+            'spec': {
+                'u_value': self.door_spec.u
+            }
         }
 
+    def make_initializer_dict(self, region: int):
 
+        is_sun_striked_outside = self.next_space.get_is_sun_striked_outside()
+
+        # TODO: 下記の表面熱伝達抵抗や長波長放射率についてはきちんと整理しないといけない。
+        d = {
+            'name': self.name,
+            'connected_room_id': self.space_type.get_connected_id(),
+            'boundary_type': 'external_opaque_part',
+            'area': self.area,
+            'is_sun_striked_outside': is_sun_striked_outside,
+            'temp_dif_coef': self.next_space.get_h(region=region),
+            'is_solar_absorbed_inside': False,
+            'direction': self.direction.value,
+            'inside_heat_transfer_resistance': 0.13,
+            'outside_heat_transfer_resistance': 0.04,
+            'outside_emissivity': 0.9,
+            'outside_solar_absorption': 0.8,
+            'u_value': self.door_spec.u,
+            'solar_shading_part': self.sunshade.make_initializer_dict()
+        }
+
+        if is_sun_striked_outside:
+            d.update(direction=self.direction.value)
+
+        return d
+
+
+@dataclass()
 class EarthfloorPerimeterSpec:
 
-    def __init__(self, psi_value: float):
-
-        self._psi_value = psi_value
-
-    @classmethod
-    def make_earthfloor_spec(cls, d: Dict):
-
-        return EarthfloorPerimeterSpec(psi_value=d['psi_value'])
-
-    def get_psi(self):
-        return self._psi_value
-
-    def get_as_dict(self):
-
-        return {
-            'psi_value': self._psi_value
-        }
+    # 線熱還流率, W/mK
+    psi: float
 
 
 class EarthfloorPerimeterNoSpec:
 
-    def __init__(self, name: str, next_space: str, length: float, space_type: str):
+    def __init__(self, name: str, next_space: NextSpace, length: float, space_type: SpaceType):
         """
         Args:
             name: 名称
@@ -1593,23 +1944,23 @@ class EarthfloorPerimeterNoSpec:
         self._space_type = space_type
 
     @property
-    def name(self):
+    def name(self) -> str:
         return self._name
 
     @property
-    def next_space(self):
+    def next_space(self) -> NextSpace:
         return self._next_space
 
     @property
-    def length(self):
+    def length(self) -> float:
         return self._length
 
     @property
-    def space_type(self):
+    def space_type(self) -> SpaceType:
         return self._space_type
 
-    def get_h(self, region: int):
-        return factor_h.get_h(region=region, next_space=self._next_space)
+    def get_h(self, region: int) -> float:
+        return self.next_space.get_h(region=region)
 
 
 class EarthfloorPerimeter(EarthfloorPerimeterNoSpec, IGetQ):
@@ -1617,9 +1968,9 @@ class EarthfloorPerimeter(EarthfloorPerimeterNoSpec, IGetQ):
     def __init__(
             self,
             name: str,
-            next_space: str,
+            next_space: NextSpace,
             length: float,
-            space_type: str,
+            space_type: SpaceType,
             earthfloor_perimeter_spec: EarthfloorPerimeterSpec):
         """
         Args:
@@ -1637,10 +1988,10 @@ class EarthfloorPerimeter(EarthfloorPerimeterNoSpec, IGetQ):
     def make_earthfloor_perimeter(cls, d: Dict):
         return EarthfloorPerimeter(
             name=d['name'],
-            next_space=d['next_space'],
+            next_space=NextSpace(d['next_space']),
             length=d['length'],
-            space_type=d['space_type'],
-            earthfloor_perimeter_spec=EarthfloorPerimeterSpec.make_earthfloor_spec(d['spec'])
+            space_type=SpaceType(d['space_type']),
+            earthfloor_perimeter_spec=EarthfloorPerimeterSpec(psi=d['spec']['psi_value'])
         )
 
     @classmethod
@@ -1652,7 +2003,7 @@ class EarthfloorPerimeter(EarthfloorPerimeterNoSpec, IGetQ):
         return self._earthfloor_perimeter_spec
 
     def get_psi(self):
-        return self._earthfloor_perimeter_spec.get_psi()
+        return self._earthfloor_perimeter_spec.psi
 
     def get_q(self, region: int):
         return self.length * self.get_psi() * self.get_h(region=region)
@@ -1661,10 +2012,12 @@ class EarthfloorPerimeter(EarthfloorPerimeterNoSpec, IGetQ):
 
         return {
             'name': self._name,
-            'next_space': self._next_space,
+            'next_space': self.next_space.value,
             'length': self._length,
-            'space_type': self._space_type,
-            'spec': self._earthfloor_perimeter_spec.get_as_dict()
+            'space_type': self.space_type.value,
+            'spec': {
+                'psi_value': self.earthfloor_perimeter_spec.psi
+            }
         }
 
 
@@ -1795,12 +2148,12 @@ class HeatbridgeSpec:
 
 class HeatbridgeNoSpec:
 
-    def __init__(self, name: str, next_spaces: List[str], directions: List[str], length: float, space_type: str):
+    def __init__(self, name: str, next_spaces: List[NextSpace], directions: List[str], length: float, space_type: SpaceType):
         """
         Args:
             name: 名称
-            next_space: 隣接する空間の種類
-            direction: 方位
+            next_spaces: 隣接する空間の種類
+            directions: 方位
             length: 長さ, m
             space_type: 接する室の名称
         """
@@ -1815,7 +2168,7 @@ class HeatbridgeNoSpec:
         return self._name
 
     @property
-    def next_spaces(self):
+    def next_spaces(self) -> List[NextSpace]:
         return self._next_spaces
 
     @property
@@ -1827,11 +2180,11 @@ class HeatbridgeNoSpec:
         return self._length
 
     @property
-    def space_type(self):
+    def space_type(self) -> SpaceType:
         return self._space_type
 
     def get_hs(self, region: int):
-        return [factor_h.get_h(region=region, next_space=next_space) for next_space in self._next_spaces]
+        return [next_space.get_h(region=region) for next_space in self.next_spaces]
 
     def get_nus(self, region: int, season: str) -> List[float]:
         """
@@ -1843,15 +2196,15 @@ class HeatbridgeNoSpec:
             方位係数
         """
 
-        def get_nu(next_space, direction):
+        def get_nu(next_space, direction: Direction):
             if next_space == 'outdoor':
-                return factor_nu.get_nu(region=region, season=season, direction=direction)
+                return direction.get_nu(region=region, season=season)
             else:
                 return 0.0
 
         return [
-            get_nu(next_space=next_space, direction=direction)
-            for next_space, direction in zip(self._next_spaces, self._directions)
+            get_nu(next_space=next_space.value, direction=Direction(direction))
+            for next_space, direction in zip(self.next_spaces, self._directions)
         ]
 
 
@@ -1860,10 +2213,10 @@ class Heatbridge(HeatbridgeNoSpec, IGetQ, IGetM):
     def __init__(
             self,
             name: str,
-            next_spaces: List[str],
+            next_spaces: List[NextSpace],
             directions: List[str],
             length: float,
-            space_type: str,
+            space_type: SpaceType,
             heatbridge_spec: HeatbridgeSpec
     ):
         """
@@ -1889,10 +2242,10 @@ class Heatbridge(HeatbridgeNoSpec, IGetQ, IGetM):
     def make_heatbridge(cls, d: Dict):
         return Heatbridge(
             name=d['name'],
-            next_spaces=d['next_spaces'],
+            next_spaces=[NextSpace(next_space) for next_space in d['next_spaces']],
             directions=d['directions'],
             length=d['length'],
-            space_type=d['space_type'],
+            space_type=SpaceType(d['space_type']),
             heatbridge_spec=HeatbridgeSpec.make_heatbridge_spec(d=d['spec'])
         )
 
@@ -1940,10 +2293,10 @@ class Heatbridge(HeatbridgeNoSpec, IGetQ, IGetM):
 
         return {
             'name': self.name,
-            'next_spaces': self.next_spaces,
+            'next_spaces': [next_space.value for next_space in self.next_spaces],
             'directions': self.directions,
             'length': self.length,
-            'space_type': self.space_type,
+            'space_type': self.space_type.value,
             'spec': self._heatbridge_spec.get_as_dict()
         }
 
@@ -1956,14 +2309,28 @@ class InnerFloor:
             area: float,
             upper_space_type: str,
             lower_space_type,
-            inner_floor_spec: Dict
+            layers: List[Layer]
     ):
 
         self._name = name
         self._area = area
         self._upper_space_type = upper_space_type
         self._lower_space_type = lower_space_type
-        self._inner_floor_spec = inner_floor_spec
+        self._layers = layers
+
+    @classmethod
+    def make_inner_floor(cls, d: Dict):
+        return InnerFloor(
+            name=d['name'],
+            area=d['area'],
+            upper_space_type=d['upper_space_type'],
+            lower_space_type=d['lower_space_type'],
+            layers=Layer.make_layers(ds=d['spec']['layers'])
+        )
+
+    @classmethod
+    def make_inner_floors(cls, ds: List[Dict]):
+        return [cls.make_inner_floor(d=d) for d in ds]
 
     @property
     def name(self):
@@ -1981,10 +2348,6 @@ class InnerFloor:
     def lower_space_type(self):
         return self._lower_space_type
 
-    @property
-    def inner_floor_spec(self):
-        return self._inner_floor_spec
-
     def get_as_dict(self):
 
         return {
@@ -1992,7 +2355,9 @@ class InnerFloor:
             'area': self.area,
             'upper_space_type': self.upper_space_type,
             'lower_space_type': self.lower_space_type,
-            'spec': self.inner_floor_spec
+            'spec': {
+                'layers': [layer.get_as_dict() for layer in self._layers]
+            }
         }
 
 
@@ -2004,14 +2369,28 @@ class InnerWall:
             area: float,
             space_type_1: str,
             space_type_2: str,
-            inner_wall_spec: Dict
+            layers: List[Layer]
     ):
 
         self._name = name
         self._area = area
         self._space_type_1 = space_type_1
         self._space_type_2 = space_type_2
-        self._inner_wall_spec = inner_wall_spec
+        self._layers = layers
+
+    @classmethod
+    def make_inner_wall(cls, d: Dict):
+        return InnerWall(
+            name=d['name'],
+            area=d['area'],
+            space_type_1=d['space_type_1'],
+            space_type_2=d['space_type_2'],
+            layers=Layer.make_layers(ds=d['spec']['layers'])
+        )
+
+    @classmethod
+    def make_inner_walls(cls, ds: Dict):
+        return [cls.make_inner_wall(d=d) for d in ds]
 
     @property
     def name(self):
@@ -2029,10 +2408,6 @@ class InnerWall:
     def space_type_2(self):
         return self._space_type_2
 
-    @property
-    def inner_wall_spec(self):
-        return self._inner_wall_spec
-
     def get_as_dict(self):
 
         return {
@@ -2040,17 +2415,7 @@ class InnerWall:
             'area': self.area,
             'space_type_1': self.space_type_1,
             'space_type_2': self.space_type_2,
-            'spec': self.inner_wall_spec
+            'spec': {
+                'layers': [layer.get_as_dict() for layer in self._layers]
+            }
         }
-
-
-
-
-
-
-
-
-
-
-
-
