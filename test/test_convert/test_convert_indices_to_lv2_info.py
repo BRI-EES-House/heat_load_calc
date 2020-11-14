@@ -164,16 +164,11 @@ class TestConvertIndicesToLv2Info(unittest.TestCase):
         self.assertEqual(1.0, w['sunshade']['d_h'])
         self.assertEqual(0.0, w['sunshade']['d_e'])
         spec = w['spec']
-        self.assertEqual('single', spec['window_type'])
-        self.assertEqual('u_value_directly', spec['windows'][0]['u_value_input_method'])
-        self.assertEqual(4.66882912260438, spec['windows'][0]['u_value'])
-        self.assertEqual('eta_d_value_directly', spec['windows'][0]['eta_value_input_method'])
-        self.assertEqual(0.34657203976617956, spec['windows'][0]['eta_d_value'])
-        self.assertEqual(0.5010751618181039, spec['windows'][0]['eta_d_h_value'])
-        self.assertEqual(0.1920689177142553, spec['windows'][0]['eta_d_c_value'])
-        self.assertEqual('single', spec['windows'][0]['glass_type'])
-        self.assertEqual('none', spec['attachment_type'])
-        self.assertEqual('none', spec['is_windbreak_room_attached'])
+        self.assertEqual(4.66882912260438, spec['u_value'])
+        self.assertEqual(0.5010751618181039, spec['eta_d_h_value'])
+        self.assertEqual(0.1920689177142553, spec['eta_d_c_value'])
+        self.assertEqual('single', spec['glass_type'])
+        self.assertEqual('metal', spec['flame_type'])
 
         w = ws[1]
         self.assertEqual('window_nw', w['name'])
@@ -187,16 +182,11 @@ class TestConvertIndicesToLv2Info(unittest.TestCase):
         self.assertEqual(1.0, w['sunshade']['d_h'])
         self.assertEqual(0.0, w['sunshade']['d_e'])
         spec = w['spec']
-        self.assertEqual('single', spec['window_type'])
-        self.assertEqual('u_value_directly', spec['windows'][0]['u_value_input_method'])
-        self.assertEqual(4.66882912260438, spec['windows'][0]['u_value'])
-        self.assertEqual('eta_d_value_directly', spec['windows'][0]['eta_value_input_method'])
-        self.assertEqual(0.34657203976617956, spec['windows'][0]['eta_d_value'])
-        self.assertEqual(0.5010751618181039, spec['windows'][0]['eta_d_h_value'])
-        self.assertEqual(0.1920689177142553, spec['windows'][0]['eta_d_c_value'])
-        self.assertEqual('single', spec['windows'][0]['glass_type'])
-        self.assertEqual('none', spec['attachment_type'])
-        self.assertEqual('none', spec['is_windbreak_room_attached'])
+        self.assertEqual(4.66882912260438, spec['u_value'])
+        self.assertEqual(0.5010751618181039, spec['eta_d_h_value'])
+        self.assertEqual(0.1920689177142553, spec['eta_d_c_value'])
+        self.assertEqual('single', spec['glass_type'])
+        self.assertEqual('metal', spec['flame_type'])
 
         w = ws[2]
         self.assertEqual('window_ne', w['name'])
@@ -210,16 +200,11 @@ class TestConvertIndicesToLv2Info(unittest.TestCase):
         self.assertEqual(1.0, w['sunshade']['d_h'])
         self.assertEqual(0.0, w['sunshade']['d_e'])
         spec = w['spec']
-        self.assertEqual('single', spec['window_type'])
-        self.assertEqual('u_value_directly', spec['windows'][0]['u_value_input_method'])
-        self.assertEqual(4.66882912260438, spec['windows'][0]['u_value'])
-        self.assertEqual('eta_d_value_directly', spec['windows'][0]['eta_value_input_method'])
-        self.assertEqual(0.34657203976617956, spec['windows'][0]['eta_d_value'])
-        self.assertEqual(0.5010751618181039, spec['windows'][0]['eta_d_h_value'])
-        self.assertEqual(0.1920689177142553, spec['windows'][0]['eta_d_c_value'])
-        self.assertEqual('single', spec['windows'][0]['glass_type'])
-        self.assertEqual('none', spec['attachment_type'])
-        self.assertEqual('none', spec['is_windbreak_room_attached'])
+        self.assertEqual(4.66882912260438, spec['u_value'])
+        self.assertEqual(0.5010751618181039, spec['eta_d_h_value'])
+        self.assertEqual(0.1920689177142553, spec['eta_d_c_value'])
+        self.assertEqual('single', spec['glass_type'])
+        self.assertEqual('metal', spec['flame_type'])
 
         w = ws[3]
         self.assertEqual('window_se', w['name'])
@@ -233,16 +218,11 @@ class TestConvertIndicesToLv2Info(unittest.TestCase):
         self.assertEqual(1.0, w['sunshade']['d_h'])
         self.assertEqual(0.0, w['sunshade']['d_e'])
         spec = w['spec']
-        self.assertEqual('single', spec['window_type'])
-        self.assertEqual('u_value_directly', spec['windows'][0]['u_value_input_method'])
-        self.assertEqual(4.66882912260438, spec['windows'][0]['u_value'])
-        self.assertEqual('eta_d_value_directly', spec['windows'][0]['eta_value_input_method'])
-        self.assertEqual(0.34657203976617956, spec['windows'][0]['eta_d_value'])
-        self.assertEqual(0.5010751618181039, spec['windows'][0]['eta_d_h_value'])
-        self.assertEqual(0.1920689177142553, spec['windows'][0]['eta_d_c_value'])
-        self.assertEqual('single', spec['windows'][0]['glass_type'])
-        self.assertEqual('none', spec['attachment_type'])
-        self.assertEqual('none', spec['is_windbreak_room_attached'])
+        self.assertEqual(4.66882912260438, spec['u_value'])
+        self.assertEqual(0.5010751618181039, spec['eta_d_h_value'])
+        self.assertEqual(0.1920689177142553, spec['eta_d_c_value'])
+        self.assertEqual('single', spec['glass_type'])
+        self.assertEqual('metal', spec['flame_type'])
 
         ds = result['doors']
 

@@ -3,12 +3,14 @@ from typing import Dict, List
 from heat_load_calc.convert import get_u_psi_eta_from_u_a_and_eta_a as get_u_and_eta
 from heat_load_calc.convert import model_house
 from heat_load_calc.convert import check_ua_a_eta_a as cue
+from heat_load_calc.convert.ees_house import GeneralPartType, SpaceType, GlassType, FlameType
 from heat_load_calc.convert.ees_house import GeneralPart, GeneralPartNoSpec, GeneralPartSpec, GeneralPartSpecUValueOther
 from heat_load_calc.convert.ees_house import Door, DoorNoSpec, DoorSpec
 from heat_load_calc.convert.ees_house import Window, WindowNoSpec, WindowSpec
 from heat_load_calc.convert.ees_house import EarthfloorPerimeter, EarthfloorPerimeterNoSpec, EarthfloorPerimeterSpec
 from heat_load_calc.convert.ees_house import EarthfloorCenter, EarthfloorCenterNoSpec, EarthfloorCenterSpec
 from heat_load_calc.convert.ees_house import EesHouse
+from heat_load_calc.external.factor_nu import Direction
 
 
 def convert_spec(d: Dict):
@@ -56,37 +58,36 @@ def convert_spec(d: Dict):
         ecs=ecs
     )
 
-    model_house_envelope = add_spec(u_psi, eta_d, eta_d_h, eta_d_c, gps=gps, ws=ws, ds=ds, eps=eps, ecs=ecs)
+    gps_spec = add_spec_gps(gps, u_psi)
 
-    return model_house_envelope
+    ws_spec = add_spec_ws(ws, u_psi, eta_d, eta_d_c, eta_d_h)
+
+    ds_spec = add_spec_ds(ds, u_psi)
+
+    eps_spec = add_spec_eps(eps, u_psi)
+
+    ecs_spec = add_spec_ecs(ecs)
+
+    return {
+        'input_method': 'detail_without_room_usage',
+        'general_parts': [s.get_as_dict() for s in gps_spec],
+        'windows': [s.get_as_dict() for s in ws_spec],
+        'doors': [s.get_as_dict() for s in ds_spec],
+        'earthfloor_perimeters': [s.get_as_dict() for s in eps_spec],
+        'earthfloor_centers': [s.get_as_dict() for s in ecs_spec],
+        'heat_bridges': []
+    }
 
 
-def add_spec(
-        u: get_u_and_eta.PartType,
-        eta_d: float,
-        eta_d_h: float,
-        eta_d_c: float,
-        gps: List[GeneralPartNoSpec],
-        ws: List[WindowNoSpec],
-        ds: List[DoorNoSpec],
-        eps: List[EarthfloorPerimeterNoSpec],
-        ecs: List[EarthfloorCenterNoSpec]
-) -> Dict:
+def add_spec_gps(gps: List[GeneralPartNoSpec], u: get_u_and_eta.PartType) -> List[GeneralPart]:
     """
+
     Args:
-        u: U値を格納した辞書
-        eta_d: ηd値
-        eta_d_h: ηdh値
-        eta_d_c: ηdc値
         gps:
-        ws:
-        ds:
-        eps:
-        ecs:
+        u: U値を格納した辞書
     Returns:
-        U値やη値等の仕様を追加した住宅形状等の辞書
+        gps:
     """
-
     gps_spec = [
         GeneralPart(
             name=s.name,
@@ -98,45 +99,49 @@ def add_spec(
             sunshade=s.sunshade,
             general_part_spec=GeneralPartSpecUValueOther(
                 general_part_type=s.general_part_type,
-                u_value_other=get_u_and_eta.get_u_psi(u, s.general_part_type),
+                u_value_other=get_u_and_eta.get_u_psi(u, s.general_part_type.value),
                 weight='light'
             )
         )
         for s in gps
     ]
+    return gps_spec
 
-    general_parts = [s.get_as_dict() for s in gps_spec]
 
+def add_spec_ws(
+        ws: List[WindowNoSpec], u: get_u_and_eta.PartType, eta_d: float, eta_d_c: float, eta_d_h: float
+) -> List[Window]:
+    """
+    Args:
+        ws:
+        u: U値を格納した辞書
+        eta_d: ηd値
+        eta_d_h: ηdh値
+        eta_d_c: ηdc値
+    Returns:
+    """
     ws_spec = [
         Window(
             name=s.name,
             area=s.area,
             next_space=s.next_space,
             direction=s.direction,
-            space_type='undefined',
+            space_type=SpaceType.UNDEFINED,
             sunshade=s.sunshade,
             window_spec=WindowSpec(
-                window_type='single',
-                windows=[
-                    {
-                        'u_value_input_method': 'u_value_directly',
-                        'u_value': get_u_and_eta.get_u_psi(u, 'window'),
-                        'eta_value_input_method': 'eta_d_value_directly',
-                        'eta_d_value': eta_d,
-                        'eta_d_h_value': eta_d_h,
-                        'eta_d_c_value': eta_d_c,
-                        'glass_type': 'single'
-                    }
-                ],
-                attachment_type='none',
-                is_windbreak_room_attached='none'
+                u=get_u_and_eta.get_u_psi(u, 'window'),
+                eta_d_h=eta_d_h,
+                eta_d_c=eta_d_c,
+                glass_type=GlassType.SINGLE,
+                flame_type=FlameType.METAL
             )
         )
         for s in ws
     ]
+    return ws_spec
 
-    windows = [s.get_as_dict() for s in ws_spec]
 
+def add_spec_ds(ds: List[DoorNoSpec], u: get_u_and_eta) -> List[Door]:
     ds_spec = [
         Door(
             name=s.name,
@@ -145,13 +150,14 @@ def add_spec(
             area=s.area,
             space_type=s.space_type,
             sunshade=s.sunshade,
-            door_spec=DoorSpec(u_value=get_u_and_eta.get_u_psi(u, 'door'))
+            door_spec=DoorSpec(u=get_u_and_eta.get_u_psi(u, 'door'))
         )
         for s in ds
     ]
+    return ds_spec
 
-    doors = [s.get_as_dict() for s in ds_spec]
 
+def add_spec_eps(eps: List[EarthfloorPerimeterNoSpec], u: get_u_and_eta) -> List[EarthfloorPerimeter]:
     eps_spec = [
         EarthfloorPerimeter(
             name=ep.name,
@@ -159,14 +165,23 @@ def add_spec(
             length=ep.length,
             space_type=ep.space_type,
             earthfloor_perimeter_spec=EarthfloorPerimeterSpec(
-                psi_value=get_u_and_eta.get_u_psi(u, 'earthfloor_perimeter')
+                psi=get_u_and_eta.get_u_psi(u, 'earthfloor_perimeter')
             )
         )
         for ep in eps
     ]
+    return eps_spec
 
-    earthfloor_perimeters = [s.get_as_dict() for s in eps_spec]
 
+def add_spec_ecs(ecs: List[EarthfloorCenterNoSpec]) -> List[EarthfloorCenter]:
+    """
+
+    Args:
+        ecs:
+
+    Returns:
+
+    """
     ecs_spec = [
         EarthfloorCenter(
             name=s.name,
@@ -178,18 +193,7 @@ def add_spec(
         )
         for s in ecs
     ]
-
-    earthfloor_centers = [s.get_as_dict() for s in ecs_spec]
-
-    return {
-        'input_method': 'detail_without_room_usage',
-        'general_parts': general_parts,
-        'windows': windows,
-        'doors': doors,
-        'earthfloor_perimeters': earthfloor_perimeters,
-        'earthfloor_centers': earthfloor_centers,
-        'heat_bridges': []
-    }
+    return ecs_spec
 
 
 def print_result(checked_u_a, checked_eta_a_h, checked_eta_a_c):

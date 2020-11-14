@@ -1,6 +1,7 @@
 from typing import Dict, List
 
 from heat_load_calc.convert import ees_house
+from heat_load_calc.convert.ees_house import GeneralPartType, SpaceType
 from heat_load_calc.convert.ees_house import GeneralPart
 from heat_load_calc.convert.ees_house import Window
 from heat_load_calc.convert.ees_house import Door
@@ -61,17 +62,17 @@ def get_general_parts_lv3(a_f_mr: float, a_f_or: float, a_f_total: float, gps: L
 
         a_mr, a_or, a_nr = get_separated_areas(a_evlp=gp.area, a_f_mr=a_f_mr, a_f_or=a_f_or, a_f_total=a_f_total)
 
-        gps_lv3.append(get_general_part_lv3(gp=gp, space_type='main_occupant_room', area=a_mr))
-        gps_lv3.append(get_general_part_lv3(gp=gp, space_type='other_occupant_room', area=a_or))
-        gps_lv3.append(get_general_part_lv3(gp=gp, space_type='non_occupant_room', area=a_nr))
+        gps_lv3.append(get_general_part_lv3(gp=gp, space_type=SpaceType.MAIN_OCCUPANT_ROOM, area=a_mr))
+        gps_lv3.append(get_general_part_lv3(gp=gp, space_type=SpaceType.OTHER_OCCUPANT_ROOM, area=a_or))
+        gps_lv3.append(get_general_part_lv3(gp=gp, space_type=SpaceType.NON_OCCUPANT_ROOM, area=a_nr))
 
     return gps_lv3
 
 
-def get_general_part_lv3(gp: GeneralPart, space_type, area):
+def get_general_part_lv3(gp: GeneralPart, space_type: SpaceType, area: float) -> GeneralPart:
 
     return GeneralPart(
-        name=gp.name + '_' + space_type,
+        name=gp.name + '_' + space_type.value,
         general_part_type=gp.general_part_type,
         next_space=gp.next_space,
         direction=gp.direction,
@@ -90,17 +91,17 @@ def get_windows_lv3(a_f_mr: float, a_f_or: float, a_f_total: float, ws: List[Win
 
         a_mr, a_or, a_nr = get_separated_areas(a_evlp=w.area, a_f_mr=a_f_mr, a_f_or=a_f_or, a_f_total=a_f_total)
 
-        ws_lv3.append(get_window_lv3(w=w, space_type='main_occupant_room', area=a_mr))
-        ws_lv3.append(get_window_lv3(w=w, space_type='other_occupant_room', area=a_or))
-        ws_lv3.append(get_window_lv3(w=w, space_type='non_occupant_room', area=a_nr))
+        ws_lv3.append(get_window_lv3(w=w, space_type=SpaceType.MAIN_OCCUPANT_ROOM, area=a_mr))
+        ws_lv3.append(get_window_lv3(w=w, space_type=SpaceType.OTHER_OCCUPANT_ROOM, area=a_or))
+        ws_lv3.append(get_window_lv3(w=w, space_type=SpaceType.NON_OCCUPANT_ROOM, area=a_nr))
 
     return ws_lv3
 
 
-def get_window_lv3(w: Window, space_type, area):
+def get_window_lv3(w: Window, space_type: SpaceType, area: float) -> Window:
 
     return Window(
-        name=w.name + '_' + space_type,
+        name=w.name + '_' + space_type.value,
         area=area,
         next_space=w.next_space,
         direction=w.direction,
@@ -118,17 +119,17 @@ def get_doors_lv3(a_f_mr: float, a_f_or: float, a_f_total: float, ds: List[Door]
 
         a_mr, a_or, a_nr = get_separated_areas(a_evlp=d.area, a_f_mr=a_f_mr, a_f_or=a_f_or, a_f_total=a_f_total)
 
-        ds_lv3.append(get_door_lv3(d=d, space_type='main_occupant_room', area=a_mr))
-        ds_lv3.append(get_door_lv3(d=d, space_type='other_occupant_room', area=a_or))
-        ds_lv3.append(get_door_lv3(d=d, space_type='non_occupant_room', area=a_nr))
+        ds_lv3.append(get_door_lv3(d=d, space_type=SpaceType.MAIN_OCCUPANT_ROOM, area=a_mr))
+        ds_lv3.append(get_door_lv3(d=d, space_type=SpaceType.OTHER_OCCUPANT_ROOM, area=a_or))
+        ds_lv3.append(get_door_lv3(d=d, space_type=SpaceType.NON_OCCUPANT_ROOM, area=a_nr))
 
     return ds_lv3
 
 
-def get_door_lv3(d: Door, space_type, area):
+def get_door_lv3(d: Door, space_type: SpaceType, area: float) -> Door:
 
     return Door(
-        name=d.name + '_' + space_type,
+        name=d.name + '_' + space_type.value,
         next_space=d.next_space,
         direction=d.direction,
         area=area,
@@ -146,17 +147,16 @@ def get_heatbridges_lv3(a_f_mr: float, a_f_or: float, a_f_total: float, hbs: Lis
 
         l_mr, l_or, l_nr = get_separated_lengths(l_evlp=hb.length, a_f_mr=a_f_mr, a_f_or=a_f_or, a_f_total=a_f_total)
 
-        hbs_lv3.append(get_heatbridge_lv3(hb=hb, space_type='main_occupant_room', length=l_mr))
-        hbs_lv3.append(get_heatbridge_lv3(hb=hb, space_type='other_occupant_room', length=l_or))
-        hbs_lv3.append(get_heatbridge_lv3(hb=hb, space_type='non_occupant_room', length=l_nr))
+        hbs_lv3.append(get_heatbridge_lv3(hb=hb, space_type=SpaceType.MAIN_OCCUPANT_ROOM, length=l_mr))
+        hbs_lv3.append(get_heatbridge_lv3(hb=hb, space_type=SpaceType.OTHER_OCCUPANT_ROOM, length=l_or))
+        hbs_lv3.append(get_heatbridge_lv3(hb=hb, space_type=SpaceType.NON_OCCUPANT_ROOM, length=l_nr))
 
     return hbs_lv3
 
 
-def get_heatbridge_lv3(hb: Heatbridge, space_type, length):
-
+def get_heatbridge_lv3(hb: Heatbridge, space_type: SpaceType, length: float) -> Heatbridge:
     return Heatbridge(
-        name=hb.name + '_' + space_type,
+        name=hb.name + '_' + space_type.value,
         next_spaces=hb.next_spaces,
         directions=hb.directions,
         length=length,
@@ -172,7 +172,7 @@ def get_earthfloor_perimeters_lv3(eps: List[EarthfloorPerimeter]) -> List[Earthf
             name=s.name,
             next_space=s.next_space,
             length=s.length,
-            space_type='underfloor',
+            space_type=SpaceType.UNDERFLOOR,
             earthfloor_perimeter_spec=s.earthfloor_perimeter_spec
         ) for s in eps
     ]
