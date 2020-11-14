@@ -224,78 +224,6 @@ def get_v_vent(v_vent_ex_mr: float, v_vent_ex_or: float) -> (float, float):
     return v_vent_mr_nr, v_vent_or_nr
 
 
-def get_boundaries_windows(region, d_windows):
-
-    boundary_mr = []
-    boundary_or = []
-    boundary_nr = []
-    boundary_uf = []
-
-    for window in d_windows:
-
-        eta = get_eta(window)
-        transparent_opening_part_spec_hlc_i = None  # 未実装
-        boundary = {
-            'name': window['name'],
-            'boundary_type': 'external_transparent_part',
-            'area': window['area'],
-            'is_sun_striked_outside': get_is_sun_striked_outside(window['direction']),
-            'temp_dif_coef': NextSpace(window['next_space']).get_h(region=region),
-            'direction': get_direction(window['direction']),
-            'is_solar_absorbed_inside': False,
-            'general_part_spec': transparent_opening_part_spec_hlc_i,
-            'solar_shading_part': copy.deepcopy(window['spec']['sunshade'])
-        }
-
-        space_type = window['space_type']
-
-        if space_type == 'main_occupant_room':
-            boundary_mr.append(boundary)
-        elif space_type == 'other_occupant_room':
-            boundary_or.append(boundary)
-        elif space_type == 'non_occupant_room':
-            boundary_nr.append(boundary)
-        elif space_type == 'under_floor':
-            boundary_uf.append(boundary)
-        else:
-            raise ValueError()
-
-    return boundary_mr, boundary_or, boundary_nr, boundary_uf
-
-
-def get_is_solar_absorbed_inside(general_part_type):
-
-    return general_part_type == 'floor' or general_part_type == 'downward_boundary_floor'
-
-
-def get_is_sun_striked_outside(direction: str) -> bool:
-    """
-    日射の有無を判定する。
-
-    Args:
-        direction: 方位
-
-    Returns:
-        日射の有無
-    """
-
-    return {
-        'top': True,
-        'n': True,
-        'ne': True,
-        'e': True,
-        'se': True,
-        's': True,
-        'sw': True,
-        'w': True,
-        'nw': True,
-        'bottom': False,
-        'upward': False,
-        'horizontal': False,
-        'downward': False
-    }[direction]
-
-
 def get_direction(direction: str) -> str:
     """
     負荷計算用の方位を取得する。
@@ -746,7 +674,8 @@ def convert_lv4_to_initializer(common, envelope, d, equipment_main, equipment_ot
         d, d_calc_input, envelope, equipment_main, equipment_other, region, ventilation, natural_vent,
         a_a=a_a, a_mr=a_mr, a_or=a_or, a_nr=a_nr,
         gps=gps,
-        ws=ws
+        ws=ws,
+        ds=ds
     )
 
     return d_calc_input
@@ -754,11 +683,10 @@ def convert_lv4_to_initializer(common, envelope, d, equipment_main, equipment_ot
 
 def make_rooms(
         d, d_calc_input, envelope, equipment_main, equipment_other, region, ventilation, natural_vent, a_a, a_mr, a_or, a_nr,
-        gps, ws
+        gps: List[GeneralPart], ws: List[Window], ds: List[Door]
 ):
 
     # 外皮に関する辞書
-    gw_lists = envelope['windows']    # 大部分がガラスで構成される窓等の開口部
     gd_lists = envelope['doors']    # 大部分がガラスで構成されないドア等の開口部
     ep_lists = envelope['earthfloor_perimeters']    # 土間床等の外周部
     ec_lists = envelope['earthfloor_centers']    # 土間床等の中心部
@@ -778,17 +706,18 @@ def make_rooms(
 
     print('START2')
     boundaries = []
+
     for gp in gps:
         boundaries.extend(gp.make_initializer_dict(u_add=0.0, region=region))
+
+    for w in ws:
+        boundaries.append(w.make_initializer_dict(region=region))
+
+    for d in ds:
+        boundaries.append(d.make_initializer_dict(region=region))
+
     print(boundaries)
 
-
-    boundaries_mr, boundaries_or, boundaries_nr, boundaries_uf = get_boundaries_windows(region, gw_lists)
-
-    room_mr['surface'].extend(boundaries_mr)
-    room_or['surface'].extend(boundaries_or)
-    room_nr['surface'].extend(boundaries_nr)
-    room_uf['surface'].extend(boundaries_uf)
 
     d_calc_input['Rooms'] = rooms
 

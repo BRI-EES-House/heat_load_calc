@@ -1713,7 +1713,7 @@ class Window(WindowNoSpec, IGetQ, IGetM):
             'spec': self.window_spec.get_as_dict()
         }
 
-    def make_initializer_dict(self, region: int):
+    def make_initializer_dict(self, region: int) -> Dict:
 
         is_sun_striked_outside = self.next_space.get_is_sun_striked_outside()
 
@@ -1892,7 +1892,7 @@ class Door(DoorNoSpec, IGetQ, IGetM):
             }
         }
 
-    def make_initializer_dict(self):
+    def make_initializer_dict(self, region: int):
 
         is_sun_striked_outside = self.next_space.get_is_sun_striked_outside()
 
@@ -1903,7 +1903,7 @@ class Door(DoorNoSpec, IGetQ, IGetM):
             'boundary_type': 'external_opaque_part',
             'area': self.area,
             'is_sun_striked_outside': is_sun_striked_outside,
-            'temp_dif_coef': self.next_space.get_h(),
+            'temp_dif_coef': self.next_space.get_h(region=region),
             'is_solar_absorbed_inside': False,
             'direction': self.direction.value,
             'inside_heat_transfer_resistance': 0.13,
