@@ -172,7 +172,7 @@ def get_earthfloor_perimeters_lv3(eps: List[EarthfloorPerimeter]) -> List[Earthf
             name=s.name,
             next_space=s.next_space,
             length=s.length,
-            space_type='underfloor',
+            space_type=SpaceType.UNDERFLOOR,
             earthfloor_perimeter_spec=s.earthfloor_perimeter_spec
         ) for s in eps
     ]

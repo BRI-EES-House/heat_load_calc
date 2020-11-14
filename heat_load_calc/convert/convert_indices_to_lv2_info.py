@@ -150,7 +150,7 @@ def add_spec_ds(ds: List[DoorNoSpec], u: get_u_and_eta) -> List[Door]:
             area=s.area,
             space_type=s.space_type,
             sunshade=s.sunshade,
-            door_spec=DoorSpec(u_value=get_u_and_eta.get_u_psi(u, 'door'))
+            door_spec=DoorSpec(u=get_u_and_eta.get_u_psi(u, 'door'))
         )
         for s in ds
     ]
@@ -165,7 +165,7 @@ def add_spec_eps(eps: List[EarthfloorPerimeterNoSpec], u: get_u_and_eta) -> List
             length=ep.length,
             space_type=ep.space_type,
             earthfloor_perimeter_spec=EarthfloorPerimeterSpec(
-                psi_value=get_u_and_eta.get_u_psi(u, 'earthfloor_perimeter')
+                psi=get_u_and_eta.get_u_psi(u, 'earthfloor_perimeter')
             )
         )
         for ep in eps

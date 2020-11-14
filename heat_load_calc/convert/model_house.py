@@ -450,42 +450,42 @@ def get_model_house_no_spec(
             earth_floor_perimeters_outside = [
                 ees_house.EarthfloorPerimeterNoSpec(
                     name='earth_floor_perimeter_nw',
-                    next_space='outdoor',
+                    next_space=NextSpace.OUTDOOR,
                     length=l_base_total_outside[1],
-                    space_type='undefined'
+                    space_type=SpaceType.UNDEFINED
                 ),
                 ees_house.EarthfloorPerimeterNoSpec(
                     name='earth_floor_perimeter_ne',
-                    next_space='outdoor',
+                    next_space=NextSpace.OUTDOOR,
                     length=l_base_total_outside[2],
-                    space_type='undefined'
+                    space_type=SpaceType.UNDEFINED
                 )
             ]
         elif floor_ins_type == 'base':
             earth_floor_perimeters_outside = [
                 ees_house.EarthfloorPerimeterNoSpec(
                     name='earth_floor_perimeter_sw',
-                    next_space='outdoor',
+                    next_space=NextSpace.OUTDOOR,
                     length=l_base_total_outside[0],
-                    space_type='undefined'
+                    space_type=SpaceType.UNDEFINED
                 ),
                 ees_house.EarthfloorPerimeterNoSpec(
                     name='earth_floor_perimeter_nw',
-                    next_space='outdoor',
+                    next_space=NextSpace.OUTDOOR,
                     length=l_base_total_outside[1],
-                    space_type='undefined'
+                    space_type=SpaceType.UNDEFINED
                 ),
                 ees_house.EarthfloorPerimeterNoSpec(
                     name='earth_floor_perimeter_ne',
-                    next_space='outdoor',
+                    next_space=NextSpace.OUTDOOR,
                     length=l_base_total_outside[2],
-                    space_type='undefined'
+                    space_type=SpaceType.UNDEFINED
                 ),
                 ees_house.EarthfloorPerimeterNoSpec(
                     name='earth_floor_perimeter_se',
-                    next_space='outdoor',
+                    next_space=NextSpace.OUTDOOR,
                     length=l_base_total_outside[3],
-                    space_type='undefined'
+                    space_type=SpaceType.UNDEFINED
                 )
             ]
         else:
@@ -512,9 +512,9 @@ def get_model_house_no_spec(
             earth_floor_perimeters_inside = [
                 ees_house.EarthfloorPerimeterNoSpec(
                     name='earth_floor_perimeter_inside',
-                    next_space='open_underfloor',
+                    next_space=NextSpace.OPEN_UNDERFLOOR,
                     length=l_base_total_inside,
-                    space_type='undefined'
+                    space_type=SpaceType.UNDEFINED
                 )
             ]
         elif floor_ins_type == 'base':
