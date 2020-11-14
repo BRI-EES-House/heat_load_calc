@@ -6,6 +6,7 @@ from typing import Dict, List, Union
 import abc
 from enum import Enum
 from copy import deepcopy
+from dataclasses import dataclass
 
 from heat_load_calc.external import factor_nu
 from heat_load_calc.convert import factor_f
@@ -1375,7 +1376,7 @@ class GeneralPart(GeneralPartNoSpec, IGetQ, IGetM):
 
         if self.next_space == NextSpace.OUTDOOR:
             return self.area * self.get_eta() * self.get_nu(region=region, season=season) \
-                   * self.sunshade.get_f_sh(region=region, season=season)
+                   * self.sunshade.get_f_sh(region=region, season=season, direction=self.direction)
         else:
             return 0.0
 
@@ -1604,7 +1605,7 @@ class WindowNoSpec(UpperArealEnvelope):
         従って、この get_f 関数は、Window クラスでオーバーライドし、引数にガラスの構成を与えるようにすべき。
         """
 
-        return self.sunshade.get_f(region=region, season=season, direction=self.direction.value)
+        return self.sunshade.get_f(region=region, season=season, direction=self.direction)
 
 
 class Window(WindowNoSpec, IGetQ, IGetM):
@@ -1697,7 +1698,7 @@ class Window(WindowNoSpec, IGetQ, IGetM):
     def get_m(self, region: int, season: str) -> float:
         return self.get_eta_d(season=season) \
                * self.area \
-               * self.sunshade.get_f(region=region, season=season, direction=self.direction.value) \
+               * self.sunshade.get_f(region=region, season=season, direction=self.direction) \
                * self.get_nu(region=region, season=season)
 
     def get_as_dict(self):
@@ -1712,37 +1713,44 @@ class Window(WindowNoSpec, IGetQ, IGetM):
             'spec': self.window_spec.get_as_dict()
         }
 
-    def make_initializer_dict(self):
+    def make_initializer_dict(self, region: int):
 
-        return {
+        is_sun_striked_outside = self.next_space.get_is_sun_striked_outside()
+
+        # TODO: 下記の表面熱伝達抵抗や長波長放射率についてはきちんと整理しないといけない。
+        d = {
             'name': self.name,
-
+            'connected_id': self.space_type.get_connected_id(),
+            'boundary_type': 'external_transparent_part',
+            'area': self.area,
+            'is_sun_striked_outside': is_sun_striked_outside,
+            'temp_dif_coef': self.next_space.get_h(region=region),
+            'is_solar_absorbed_inside': False,
+            'inside_heat_transfer_resistance': 0.13,
+            'outside_heat_transfer_resistance': 0.04,
+            'outside_emissivity': 0.9,
+            'eta_d_h_value': self.window_spec.eta_d_h,
+            'eta_d_c_value': self.window_spec.eta_d_c,
+            'u_value': self.window_spec.u,
+            'incident_angle_characteristics': self.window_spec.glass_type.value,
+            'solar_shading_part': self.sunshade.make_initializer_dict()
         }
 
+        if is_sun_striked_outside:
+            d.update(direction=self.direction.value)
 
+        return d
+
+
+@dataclass()
 class DoorSpec:
 
-    def __init__(self, u_value: float):
+    # 熱還流率, W/m2K
+    u: float
 
-        self._u_value = u_value
-
-    @classmethod
-    def make_door_spec(cls, d: dict):
-
-        return DoorSpec(u_value=d['u_value'])
-
-    def get_u(self):
-        return self._u_value
-
-    def get_eta(self):
-
-        return 0.034 * self.get_u()
-
-    def get_as_dict(self):
-
-        return {
-            'u_value': self._u_value
-        }
+    @property
+    def eta(self):
+        return 0.034 * self.u
 
 
 class DoorNoSpec(UpperArealEnvelope):
@@ -1835,7 +1843,7 @@ class Door(DoorNoSpec, IGetQ, IGetM):
             area=d['area'],
             space_type=SpaceType(d['space_type']),
             sunshade=factor_f.SunshadeOpaque.make_sunshade_opaque(d=d['sunshade']),
-            door_spec=DoorSpec.make_door_spec(d=d['spec'])
+            door_spec=DoorSpec(u=d['spec']['u_value'])
         )
 
     @classmethod
@@ -1854,19 +1862,19 @@ class Door(DoorNoSpec, IGetQ, IGetM):
         return self._door_spec
 
     def get_u(self):
-        return self._door_spec.get_u()
+        return self.door_spec.u
 
     def get_q(self, region: int):
         return self.area * self.get_u() * self.get_h(region=region)
 
     def get_eta(self):
-        return self._door_spec.get_eta()
+        return self.door_spec.eta
 
     def get_m(self, region: int, season: str) -> float:
 
         if self.next_space == NextSpace.OUTDOOR:
             return self.area * self.get_eta() * self.get_nu(region=region, season=season) \
-                   * self.sunshade.get_f_sh(region=region, season=season)
+                   * self.sunshade.get_f_sh(region=region, season=season, direction=self.direction)
         else:
             return 0.0
 
@@ -1879,34 +1887,49 @@ class Door(DoorNoSpec, IGetQ, IGetM):
             'area': self.area,
             'space_type': self.space_type.value,
             'sunshade': self.sunshade.get_as_dict(),
-            'spec': self._door_spec.get_as_dict()
+            'spec': {
+                'u_value': self.door_spec.u
+            }
         }
 
+    def make_initializer_dict(self):
 
+        is_sun_striked_outside = self.next_space.get_is_sun_striked_outside()
+
+        # TODO: 下記の表面熱伝達抵抗や長波長放射率についてはきちんと整理しないといけない。
+        d = {
+            'name': self.name,
+            'connected_room_id': self.space_type.get_connected_id(),
+            'boundary_type': 'external_opaque_part',
+            'area': self.area,
+            'is_sun_striked_outside': is_sun_striked_outside,
+            'temp_dif_coef': self.next_space.get_h(),
+            'is_solar_absorbed_inside': False,
+            'direction': self.direction.value,
+            'inside_heat_transfer_resistance': 0.13,
+            'outside_heat_transfer_resistance': 0.04,
+            'outside_emissivity': 0.9,
+            'outside_solar_absorption': 0.8,
+            'u_value': self.door_spec.u,
+            'solar_shading_part': self.sunshade.make_initializer_dict()
+        }
+
+        if is_sun_striked_outside:
+            d.update(direction=self.direction.value)
+
+        return d
+
+
+@dataclass()
 class EarthfloorPerimeterSpec:
 
-    def __init__(self, psi_value: float):
-
-        self._psi_value = psi_value
-
-    @classmethod
-    def make_earthfloor_spec(cls, d: Dict):
-
-        return EarthfloorPerimeterSpec(psi_value=d['psi_value'])
-
-    def get_psi(self):
-        return self._psi_value
-
-    def get_as_dict(self):
-
-        return {
-            'psi_value': self._psi_value
-        }
+    # 線熱還流率, W/mK
+    psi: float
 
 
 class EarthfloorPerimeterNoSpec:
 
-    def __init__(self, name: str, next_space: str, length: float, space_type: str):
+    def __init__(self, name: str, next_space: NextSpace, length: float, space_type: SpaceType):
         """
         Args:
             name: 名称
@@ -1921,23 +1944,23 @@ class EarthfloorPerimeterNoSpec:
         self._space_type = space_type
 
     @property
-    def name(self):
+    def name(self) -> str:
         return self._name
 
     @property
-    def next_space(self):
+    def next_space(self) -> NextSpace:
         return self._next_space
 
     @property
-    def length(self):
+    def length(self) -> float:
         return self._length
 
     @property
-    def space_type(self):
+    def space_type(self) -> SpaceType:
         return self._space_type
 
-    def get_h(self, region: int):
-        return NextSpace(self._next_space).get_h(region=region)
+    def get_h(self, region: int) -> float:
+        return self.next_space.get_h(region=region)
 
 
 class EarthfloorPerimeter(EarthfloorPerimeterNoSpec, IGetQ):
@@ -1945,9 +1968,9 @@ class EarthfloorPerimeter(EarthfloorPerimeterNoSpec, IGetQ):
     def __init__(
             self,
             name: str,
-            next_space: str,
+            next_space: NextSpace,
             length: float,
-            space_type: str,
+            space_type: SpaceType,
             earthfloor_perimeter_spec: EarthfloorPerimeterSpec):
         """
         Args:
@@ -1965,10 +1988,10 @@ class EarthfloorPerimeter(EarthfloorPerimeterNoSpec, IGetQ):
     def make_earthfloor_perimeter(cls, d: Dict):
         return EarthfloorPerimeter(
             name=d['name'],
-            next_space=d['next_space'],
+            next_space=NextSpace(d['next_space']),
             length=d['length'],
-            space_type=d['space_type'],
-            earthfloor_perimeter_spec=EarthfloorPerimeterSpec.make_earthfloor_spec(d['spec'])
+            space_type=SpaceType(d['space_type']),
+            earthfloor_perimeter_spec=EarthfloorPerimeterSpec(psi=d['spec']['psi_value'])
         )
 
     @classmethod
@@ -1980,7 +2003,7 @@ class EarthfloorPerimeter(EarthfloorPerimeterNoSpec, IGetQ):
         return self._earthfloor_perimeter_spec
 
     def get_psi(self):
-        return self._earthfloor_perimeter_spec.get_psi()
+        return self._earthfloor_perimeter_spec.psi
 
     def get_q(self, region: int):
         return self.length * self.get_psi() * self.get_h(region=region)
@@ -1989,10 +2012,12 @@ class EarthfloorPerimeter(EarthfloorPerimeterNoSpec, IGetQ):
 
         return {
             'name': self._name,
-            'next_space': self._next_space,
+            'next_space': self.next_space.value,
             'length': self._length,
-            'space_type': self._space_type,
-            'spec': self._earthfloor_perimeter_spec.get_as_dict()
+            'space_type': self.space_type.value,
+            'spec': {
+                'psi_value': self.earthfloor_perimeter_spec.psi
+            }
         }
 
 

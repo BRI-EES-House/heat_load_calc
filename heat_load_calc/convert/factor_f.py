@@ -1,19 +1,55 @@
+"""
+日よけに関して定義する。
+日よけには、
+    ・壁やドアなどの不透明部位にかかる日よけ（軒・アマハジなど）
+    ・窓などの透明部位にかかる日よけ（ひさし）
+に大別される。
+
+＜壁やドアなどの不透明部位にかかる日よけ＞
+壁やドアなどの不透明部位にかかる日よけは、
+    ・間仕切り壁などの外気に面さない（日射のあたらない）不透明部位の外皮に見られるように日よけの有無が定義されない場合
+    ・外気に面する壁ではあるが日よけの有無や形状を指定しない（入力を省略する）場合
+    ・日よけの形状をきちんと入力する場合
+に大別され、それぞれ、
+    ・SunshadeOpaqueNotDefined
+    ・SunshadeOpaqueNotInput
+    ・SunshadeOpaqueInput
+で定義される。
+各クラスは、SunshadeOpaqueクラスで引数である辞書の内容に応じてデシリアライズ化される。
+各々のクラスは必ず以下の関数を持つ。
+    ・日よけ効果係数の計算 = get_f_sh
+    ・辞書形式にシリアライズ化 = get_as_dict
+    ・initializer用辞書形式にシリアライズ化 = make_initializer_dict
+ただし、SunshadeOpaqueNotDefined クラスにおいて、get_f_sh 関数が呼び出された場合は、
+日よけの効果係数は定義できないため必ずエラーが返る。
+
+＜窓などの透明部位にかかる日よけ＞
+窓などの透明部位にかかる日よけは、
+    ・共用部廊下に面した窓など外気に面さない（日射のあたらない）と東映部位の外皮に見られるように日よけの有無が定義されない場合
+    ・外気に面する窓ではあるが日よけの有無や形状を指定しない（入力を省略する）場合
+    ・外気に面する窓ではあり日よけが存在しない場合
+    ・日よけの形状をきちんと入力する場合で簡易法を用いる場合
+    ・日よけの形状をきちんと入力する場合で詳細法を用いる場合
+に大別され、それぞれ、
+    ・SunshadeTransientNotDefined
+    ・SunshadeTransientNotInput
+    ・SunshadeTransientExist
+    ・SunshadeTransientExistSimple
+    ・SunshadeTransientExistComplex
+で定義される。
+各クラスは、SunshadeTransientクラスで引数である辞書の内容に応じてデシリアライズ化される。
+各々のクラスは必ず以下の関数を持つ。
+    ・日射熱取得補正係数の計算 = get_f
+    ・辞書形式にシリアライズ化 = get_as_dict
+    ・initializer用辞書形式にシリアライズ化 = make_initializer_dict
+ただし、SunshadeOpaqueNotDefined クラスにおいて、get_f 関数が呼び出された場合は、
+日射熱取得補正係数は定義できないため必ずエラーが返る。
+なお、日射熱取得補正係数は、日よけの効果係数とガラスの斜入射特性の補正係数の積である。
+"""
+
 from typing import Dict
 import abc
-
-# ⽇射取得率補正係数
-# ガラスの仕様の区分は、区分1（単板ガラス）を想定する。
-# ⽅位が北・北東・東・南東・南・南⻄・⻄・北⻄の窓については、⽇除け下端から窓上端までの垂直⽅向の
-# 距離︓窓の開口高さ寸法：壁面からの日よけの張り出し寸法＝3:0:1とする。
-# 8地域の暖房期は、8地域の冷房期で代用。
-# 平成28年省エネルギー基準に準拠したエネルギー消費性能の評価に関する技術情報（住宅）
-# 2.エネルギー消費性能の算定⽅法
-# 2.2 算定⽅法
-# 第三章 暖冷房負荷と外皮性能
-# 第四節 日射熱取得
-# 付録 B 大部分がガラスで構成されている窓等の開口部における取得日射熱補正係数
-# データ「取得日射熱補正係数」 表 1(a) 屋根又は屋根の直下の天井に設置されている開口部の暖房期の取得日
-# 射熱補正係数 表 1(b) 屋根又は屋根の直下の天井に設置されている開口部の冷房期の取得日射熱補正係数
+from heat_load_calc.external.factor_nu import Direction
 
 
 class SunshadeComplexKernel:
@@ -43,40 +79,9 @@ class SunshadeComplexKernel:
         self._z_y_pls = z_y_pls
         self._z_y_mns = z_y_mns
 
-    def get_f_sh(self, region: int, season: str):
+    def get_f_sh(self, region: int, season: str, direction: Direction):
 
         raise NotImplementedError()
-
-    def get_as_dict(self):
-
-        return {
-            'x1': self._x1,
-            'x2': self._x2,
-            'x3': self._x3,
-            'y1': self._y1,
-            'y2': self._y2,
-            'y3': self._y3,
-            'z_x_pls': self._z_x_pls,
-            'z_x_mns': self._z_x_mns,
-            'z_y_pls': self._z_y_pls,
-            'z_y_mns': self._z_y_mns
-        }
-
-    @classmethod
-    def make_sunshade_complex(cls, d: Dict):
-
-        return SunshadeComplexKernel(
-            x1=d['x1'],
-            x2=d['x2'],
-            x3=d['x3'],
-            y1=d['y1'],
-            y2=d['y2'],
-            y3=d['y3'],
-            z_x_pls=d['z_x_pls'],
-            z_x_mns=d['z_x_mns'],
-            z_y_pls=d['z_y_pls'],
-            z_y_mns=d['z_y_mns']
-        )
 
     @property
     def x1(self):
@@ -122,7 +127,7 @@ class SunshadeComplexKernel:
 class SunshadeOpaque:
 
     @abc.abstractmethod
-    def get_f_sh(self, region: int, season: str):
+    def get_f_sh(self, region: int, season: str, direction: Direction):
         pass
 
     @abc.abstractmethod
@@ -137,7 +142,16 @@ class SunshadeOpaque:
                 return SunshadeOpaqueNotInput()
             elif d['input'] == 'complex':
                 return SunshadeOpaqueInput(
-                    sunshade_complex=SunshadeComplexKernel.make_sunshade_complex(d=d)
+                    x1=d['x1'],
+                    x2=d['x2'],
+                    x3=d['x3'],
+                    y1=d['y1'],
+                    y2=d['y2'],
+                    y3=d['y3'],
+                    z_x_pls=d['z_x_pls'],
+                    z_x_mns=d['z_x_mns'],
+                    z_y_pls=d['z_y_pls'],
+                    z_y_mns=d['z_y_mns']
                 )
             else:
                 raise ValueError('不透明部位における日よけの入力方法（input）に間違った値が指定されました。')
@@ -155,7 +169,7 @@ class SunshadeOpaqueNotDefined(SunshadeOpaque):
 
         pass
 
-    def get_f_sh(self, region: int, season: str):
+    def get_f_sh(self, region: int, season: str, direction: Direction):
 
         raise Exception('日よけが未定義にも関わらず日よけ効果係数の計算が呼び出されました。')
 
@@ -178,7 +192,7 @@ class SunshadeOpaqueNotInput(SunshadeOpaque):
 
         pass
 
-    def get_f_sh(self, region: int, season: str):
+    def get_f_sh(self, region: int, season: str, direction: Direction):
 
         return 1.0
 
@@ -197,47 +211,79 @@ class SunshadeOpaqueNotInput(SunshadeOpaque):
 
 class SunshadeOpaqueInput(SunshadeOpaque):
 
-    def __init__(self, sunshade_complex: SunshadeComplexKernel):
+    def __init__(
+            self,
+            x1: float, x2: float, x3: float,
+            y1: float, y2: float, y3: float,
+            z_x_pls: float, z_x_mns: float,
+            z_y_pls: float, z_y_mns: float
+    ):
 
-        self._sunshade_complex = sunshade_complex
+        self._sunshade_complex_kernel = SunshadeComplexKernel(
+            x1=x1,
+            x2=x2,
+            x3=x3,
+            y1=y1,
+            y2=y2,
+            y3=y3,
+            z_x_pls=z_x_pls,
+            z_x_mns=z_x_mns,
+            z_y_pls=z_y_pls,
+            z_y_mns=z_y_mns
+        )
 
-    def get_f_sh(self, region: int, season: str):
+    def get_f_sh(self, region: int, season: str, direction: Direction):
 
-        return self._sunshade_complex.get_f_sh(region=region, season=season)
+        return self._sunshade_complex_kernel.get_f_sh(region=region, season=season, direction=direction)
 
     def get_as_dict(self):
 
         return {
             'is_defined': True,
             'input': 'complex',
-            'spec': self._sunshade_complex.get_as_dict()
+            'spec': {
+                'x1': self._sunshade_complex_kernel.x1,
+                'x2': self._sunshade_complex_kernel.x2,
+                'x3': self._sunshade_complex_kernel.x3,
+                'y1': self._sunshade_complex_kernel.y1,
+                'y2': self._sunshade_complex_kernel.y2,
+                'y3': self._sunshade_complex_kernel.y3,
+                'z_x_pls': self._sunshade_complex_kernel.z_x_pls,
+                'z_x_mns': self._sunshade_complex_kernel.z_x_mns,
+                'z_y_pls': self._sunshade_complex_kernel.z_y_pls,
+                'z_y_mns': self._sunshade_complex_kernel.z_y_mns
+            }
         }
 
     def make_initializer_dict(self):
         return {
             'existence': True,
             'input_method': 'detailed',
-            'x1': self._sunshade_complex.x1,
-            'x2': self._sunshade_complex.x2,
-            'x3': self._sunshade_complex.x3,
-            'y1': self._sunshade_complex.y1,
-            'y2': self._sunshade_complex.y2,
-            'y3': self._sunshade_complex.y3,
-            'z_x_pls': self._sunshade_complex.z_x_pls,
-            'z_x_mns': self._sunshade_complex.z_x_mns,
-            'z_y_pls': self._sunshade_complex.z_y_pls,
-            'z_y_mns': self._sunshade_complex.z_y_mns
+            'x1': self._sunshade_complex_kernel.x1,
+            'x2': self._sunshade_complex_kernel.x2,
+            'x3': self._sunshade_complex_kernel.x3,
+            'y1': self._sunshade_complex_kernel.y1,
+            'y2': self._sunshade_complex_kernel.y2,
+            'y3': self._sunshade_complex_kernel.y3,
+            'z_x_pls': self._sunshade_complex_kernel.z_x_pls,
+            'z_x_mns': self._sunshade_complex_kernel.z_x_mns,
+            'z_y_pls': self._sunshade_complex_kernel.z_y_pls,
+            'z_y_mns': self._sunshade_complex_kernel.z_y_mns
         }
 
 
 class SunshadeTransient:
 
     @abc.abstractmethod
-    def get_f(self, region: int, season: str, direction: str):
+    def get_f(self, region: int, season: str, direction: Direction):
         pass
 
     @abc.abstractmethod
     def get_as_dict(self):
+        pass
+
+    @abc.abstractmethod
+    def make_initializer_dict(self):
         pass
 
     @classmethod
@@ -247,11 +293,22 @@ class SunshadeTransient:
             if d['input'] == 'not_input':
                 return SunshadeTransientNotInput()
             elif d['input'] == 'not_exist':
-                raise NotImplementedError
+                raise SunshadeTransientNotExist()
             elif d['input'] == 'simple':
                 return SunshadeTransientExistSimple(depth=d['depth'], d_h=d['d_h'], d_e=d['d_e'])
             elif d['input'] == 'complex':
-                raise NotImplementedError
+                raise SunshadeTransientExistDetail(
+                    x1=d['x1'],
+                    x2=d['x2'],
+                    x3=d['x3'],
+                    y1=d['y1'],
+                    y2=d['y2'],
+                    y3=d['y3'],
+                    z_x_pls=d['z_x_pls'],
+                    z_x_mns=d['z_x_mns'],
+                    z_y_pls=d['z_y_pls'],
+                    z_y_mns=d['z_y_mns']
+                )
             else:
                 raise KeyError()
         else:
@@ -264,7 +321,7 @@ class SunshadeTransientNotDefined(SunshadeTransient):
 
         pass
 
-    def get_f(self, region: int, season: str, direction: str):
+    def get_f(self, region: int, season: str, direction: Direction):
 
         raise Exception('日よけが未定義にも関わらず日よけ効果係数の計算が呼び出されました。')
 
@@ -274,6 +331,12 @@ class SunshadeTransientNotDefined(SunshadeTransient):
             'is_defined': False
         }
 
+    def make_initializer_dict(self):
+
+        return {
+            'existence': False
+        }
+
 
 class SunshadeTransientNotInput(SunshadeTransient):
 
@@ -281,7 +344,7 @@ class SunshadeTransientNotInput(SunshadeTransient):
 
         pass
 
-    def get_f(self, region: int, season: str, direction: str):
+    def get_f(self, region: int, season: str, direction: Direction):
 
         if season == 'heating':
             if region == 8:
@@ -300,13 +363,38 @@ class SunshadeTransientNotInput(SunshadeTransient):
             'input': 'not_input'
         }
 
+    def make_initializer_dict(self):
 
-# class SunshadeTransientNotExist
+        return {
+            'existence': True,
+            'input_method': 'default'
+        }
+
+
+class SunshadeTransientNotExist(SunshadeTransient):
+
+    def __init__(self):
+        pass
+
+    def get_f(self, region: int, season: str, direction: Direction):
+        raise NotImplementedError()
+
+    def get_as_dict(self):
+        return {
+            'is_defined': True,
+            'input': 'not_exist'
+        }
+
+    def make_initializer_dict(self):
+
+        return {
+            'existence': False
+        }
 
 
 class SunshadeTransientExistSimple(SunshadeTransient):
 
-    def __init__(self, depth, d_h, d_e):
+    def __init__(self, depth: float, d_h: float, d_e: float):
 
         self._depth = depth
         self._d_h = d_h
@@ -324,7 +412,7 @@ class SunshadeTransientExistSimple(SunshadeTransient):
     def d_e(self):
         return self._d_e
 
-    def get_f(self, region: int, season: str, direction: str):
+    def get_f(self, region: int, season: str, direction: Direction):
         """
 
         Args:
@@ -339,39 +427,37 @@ class SunshadeTransientExistSimple(SunshadeTransient):
             if region == 8:
                 raise Exception('8地域における暖房期間が定義されていません。')
             else:
-                if direction == 'sw' or direction == 's' or direction == 'se':
+                if direction in [Direction.SW, Direction.S, Direction.SE]:
                     return min(0.01 * (5 + 20 * (3 * self._d_e + self._d_h)/self._depth), 0.72)
-                elif (direction == 'n' or direction == 'ne' or direction == 'e'
-                      or direction == 'nw' or direction == 'w'):
+                elif direction in [Direction.N, Direction.NE, Direction.E, Direction.NW, Direction.W]:
                     return min(0.01 * (10 + 15 * (2 * self._d_e + self._d_h) / self._depth), 0.72)
-                elif direction == 'top':
+                elif direction == Direction.TOP:
                     return 1.0
-                elif direction == 'bottom':
+                elif direction == Direction.BOTTOM:
                     return 0.0
                 else:
                     raise ValueError()
         elif season == 'cooling':
             if region == 8:
-                if direction == 'sw' or direction == 's' or direction == 'se':
+                if direction in [Direction.SW, Direction.S, Direction.SE]:
                     return min(0.01 * (16 + 19 * (2 * self._d_e + self._d_h) / self._depth), 0.93)
-                elif (direction == 'n' or direction == 'ne' or direction == 'e'
-                      or direction == 'nw' or direction == 'w'):
+                elif direction in [Direction.N, Direction.NE, Direction.E, Direction.NW, Direction.W]:
                     return min(0.01 * (16 + 24 * (2 * self._d_e + self._d_h) / self._depth), 0.93)
-                elif direction == 'top':
+                elif direction == Direction.TOP:
                     return 1.0
-                elif direction == 'bottom':
+                elif direction == Direction.BOTTOM:
                     return 0.0
                 else:
                     raise ValueError()
             else:
-                if direction == 's':
+                if direction == Direction.S:
                     return min(0.01 * (24 + 9 * (3 * self._d_e + self._d_h) / self._depth), 0.93)
-                elif (direction == 'n' or direction == 'ne' or direction == 'e' or direction == 'se'
-                      or direction == 'nw' or direction == 'w' or direction == 'sw'):
+                elif direction in [Direction.N, Direction.NE, Direction.E, Direction.SE,
+                                   Direction.NW, Direction.W, Direction.SW]:
                     return min(0.01 * (16 + 24 * (2 * self._d_e + self._d_h) / self._depth), 0.93)
-                elif direction == 'top':
+                elif direction == Direction.TOP:
                     return 1.0
-                elif direction == 'bottom':
+                elif direction == Direction.BOTTOM:
                     return 0.0
                 else:
                     raise ValueError()
@@ -386,4 +472,87 @@ class SunshadeTransientExistSimple(SunshadeTransient):
             'depth': self._depth,
             'd_h': self._d_h,
             'd_e': self._d_e
+        }
+
+    def make_initializer_dict(self):
+
+        return {
+            'existence': True,
+            'input_method': 'simple',
+            'depth': self._depth,
+            'd_h': self._d_h,
+            'd_e': self._d_e
+        }
+
+
+class SunshadeTransientExistDetail(SunshadeTransient):
+
+    def __init__(
+            self,
+            x1: float, x2: float, x3: float,
+            y1: float, y2: float, y3: float,
+            z_x_pls: float, z_x_mns: float,
+            z_y_pls: float, z_y_mns: float
+    ):
+
+        self._sunshade_complex_kernel = SunshadeComplexKernel(
+            x1=x1,
+            x2=x2,
+            x3=x3,
+            y1=y1,
+            y2=y2,
+            y3=y3,
+            z_x_pls=z_x_pls,
+            z_x_mns=z_x_mns,
+            z_y_pls=z_y_pls,
+            z_y_mns=z_y_mns
+        )
+
+    def get_f(self, region: int, season: str, direction: str):
+        """
+
+        Args:
+            region: 地域の区分
+            season: 期間
+            direction: 方位
+        Returns:
+            f値
+        """
+
+        return self._sunshade_complex_kernel.get_f_sh(region=region, season=season)
+
+    def get_as_dict(self):
+
+        return {
+            'is_defined': True,
+            'input': 'complex',
+            'spec': {
+                'x1': self._sunshade_complex_kernel.x1,
+                'x2': self._sunshade_complex_kernel.x2,
+                'x3': self._sunshade_complex_kernel.x3,
+                'y1': self._sunshade_complex_kernel.y1,
+                'y2': self._sunshade_complex_kernel.y2,
+                'y3': self._sunshade_complex_kernel.y3,
+                'z_x_pls': self._sunshade_complex_kernel.z_x_pls,
+                'z_x_mns': self._sunshade_complex_kernel.z_x_mns,
+                'z_y_pls': self._sunshade_complex_kernel.z_y_pls,
+                'z_y_mns': self._sunshade_complex_kernel.z_y_mns
+            }
+        }
+
+    def make_initializer_dict(self):
+
+        return {
+            'existence': True,
+            'input_method': 'detailed',
+            'x1': self._sunshade_complex_kernel.x1,
+            'x2': self._sunshade_complex_kernel.x2,
+            'x3': self._sunshade_complex_kernel.x3,
+            'y1': self._sunshade_complex_kernel.y1,
+            'y2': self._sunshade_complex_kernel.y2,
+            'y3': self._sunshade_complex_kernel.y3,
+            'z_x_pls': self._sunshade_complex_kernel.z_x_pls,
+            'z_x_mns': self._sunshade_complex_kernel.z_x_mns,
+            'z_y_pls': self._sunshade_complex_kernel.z_y_pls,
+            'z_y_mns': self._sunshade_complex_kernel.z_y_mns
         }
