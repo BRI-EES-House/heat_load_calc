@@ -4,10 +4,10 @@ import json
 import csv
 import pandas as pd
 
-import heat_load_calc.a12_indoor_radiative_heat_transfer as a12
-import heat_load_calc.a14_furniture as a14
-import heat_load_calc.a15_air_flow_rate_rac as a15
-import heat_load_calc.a22_radiative_heating_spec as a22
+import heat_load_calc.initializer.a12_indoor_radiative_heat_transfer as a12
+import heat_load_calc.initializer.a14_furniture as a14
+import heat_load_calc.initializer.a15_air_flow_rate_rac as a15
+import heat_load_calc.initializer.a22_radiative_heating_spec as a22
 
 from heat_load_calc.initializer.boundary_type import BoundaryType
 
