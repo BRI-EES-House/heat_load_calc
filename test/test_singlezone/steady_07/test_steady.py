@@ -4,7 +4,7 @@ import os
 import shutil
 import unittest
 
-from heat_load_calc import s3_space_initializer
+from heat_load_calc import initializer
 from heat_load_calc.weather import weather
 from heat_load_calc.core import core
 from heat_load_calc.core import occupants
@@ -28,7 +28,7 @@ class TestSteadyState(unittest.TestCase):
         d = json.load(js)
 
         # 中間データ作成（建物のみ）
-        s3_space_initializer.make_house_for_test(d=d, input_data_dir=s_folder, output_data_dir=s_folder)
+        initializer.make_house_for_test(d=d, input_data_dir=s_folder, output_data_dir=s_folder)
 
         # 計算実行
         ds, dd = core.calc(input_data_dir=s_folder, output_data_dir=s_folder)
