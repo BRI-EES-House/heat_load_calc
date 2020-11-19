@@ -20,15 +20,15 @@ from heat_load_calc.initializer import building_part_summarize
 
 def make_house(d, input_data_dir, output_data_dir):
 
-    pp = pd.read_csv(input_data_dir + '/weather.csv', index_col=0)
-
-    theta_o_ns = pp['temperature'].values
-    x_o_ns = pp['absolute humidity'].values
-    i_dn_ns = pp['normal direct solar radiation'].values
-    i_sky_ns = pp['horizontal sky solar radiation'].values
-    r_n_ns = pp['outward radiation'].values
-    h_sun_ns = pp['sun altitude'].values
-    a_sun_ns = pp['sun azimuth'].values
+    # 以下の気象データの読み込み
+    # 外気温度, degree C
+    # 外気絶対湿度, kg/kg(DA)
+    # 法線面直達日射量, W/m2
+    # 水平面天空日射量, W/m2
+    # 夜間放射量, W/m2
+    # 太陽高度, rad
+    # 太陽方位角, rad
+    a_sun_ns, h_sun_ns, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns = _read_weather_data(input_data_dir=input_data_dir)
 
     rooms = d['rooms']
 
@@ -145,15 +145,15 @@ def make_house(d, input_data_dir, output_data_dir):
 
 def make_house_for_test(d, input_data_dir, output_data_dir):
 
-    pp = pd.read_csv(input_data_dir + '/weather.csv', index_col=0)
-
-    theta_o_ns = pp['temperature'].values
-    x_o_ns = pp['absolute humidity'].values
-    i_dn_ns = pp['normal direct solar radiation'].values
-    i_sky_ns = pp['horizontal sky solar radiation'].values
-    r_n_ns = pp['outward radiation'].values
-    h_sun_ns = pp['sun altitude'].values
-    a_sun_ns = pp['sun azimuth'].values
+    # 以下の気象データの読み込み
+    # 外気温度, degree C
+    # 外気絶対湿度, kg/kg(DA)
+    # 法線面直達日射量, W/m2
+    # 水平面天空日射量, W/m2
+    # 夜間放射量, W/m2
+    # 太陽高度, rad
+    # 太陽方位角, rad
+    a_sun_ns, h_sun_ns, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns = _read_weather_data(input_data_dir=input_data_dir)
 
     rooms = d['rooms']
 
@@ -196,6 +196,43 @@ def make_house_for_test(d, input_data_dir, output_data_dir):
 
     with open(output_data_dir + '/mid_data_house.json', 'w') as f:
         json.dump(wd, f, indent=4)
+
+
+def _read_weather_data(input_data_dir: str):
+    """
+    気象データを読み込む。
+    Args:
+        input_data_dir: 現在計算しているデータのパス
+    Returns:
+        外気温度, degree C
+        外気絶対湿度, kg/kg(DA)
+        法線面直達日射量, W/m2
+        水平面天空日射量, W/m2
+        夜間放射量, W/m2
+        太陽高度, rad
+        太陽方位角, rad
+    """
+
+    # 気象データ
+    pp = pd.read_csv(input_data_dir + '/weather.csv', index_col=0)
+
+    # 外気温度, degree C
+    theta_o_ns = pp['temperature'].values
+    # 外気絶対湿度, kg/kg(DA)
+    x_o_ns = pp['absolute humidity'].values
+    # 法線面直達日射量, W/m2
+    i_dn_ns = pp['normal direct solar radiation'].values
+    # 水平面天空日射量, W/m2
+    i_sky_ns = pp['horizontal sky solar radiation'].values
+    # 夜間放射量, W/m2
+    r_n_ns = pp['outward radiation'].values
+    # 太陽高度, rad
+    h_sun_ns = pp['sun altitude'].values
+    # 太陽方位角, rad
+    a_sun_ns = pp['sun azimuth'].values
+
+    return a_sun_ns, h_sun_ns, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns
+
 
 
 def make_building():
