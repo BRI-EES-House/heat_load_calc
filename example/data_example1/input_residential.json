@@ -1,7 +1,6 @@
 {
 	"common": {
-		"region": 6,
-		"is_residential": true
+		"region": 6
 	},
 
 	"rooms": [
