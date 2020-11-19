@@ -1,7 +1,7 @@
 import json
 import time
 
-from heat_load_calc import initializer
+from heat_load_calc.initializer import initializer
 from heat_load_calc.weather import weather
 from heat_load_calc.core import core
 
