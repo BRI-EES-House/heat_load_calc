@@ -41,6 +41,20 @@ class InsidePressure(Enum):
     BALANCED = 'balanced'
 
 
+class RoomType(Enum):
+    """
+    室のタイプ
+    """
+    # 主たる居室
+    MAIN_OCCUPANT_ROOM = 'main_occupant_room'
+    # その他の居室
+    OTHER_OCCUPANT_ROOM = 'other_occupant_room'
+    # 非居室
+    NON_OCCUPANT_ROOM = 'non_occupant_room'
+    # 床下
+    UNDERFLOOR = 'underfloor'
+
+
 def make_house(d, input_data_dir, output_data_dir):
 
     # 以下の気象データの読み込み
@@ -116,9 +130,10 @@ def make_house(d, input_data_dir, output_data_dir):
     heat_exchanger_type_is = [a22.read_heat_exchanger_type(room) for room in rooms]
 
     # json 出力 のうち、"building" に対応する辞書
-    building = make_building_dict(d=d['building'])
+    building = _make_building_dict(d=d['building'])
 
-    spaces = make_spaces(rooms=d['rooms'], a_floor_is=a_floor_is)
+    # json 出力のうち、"spaces" に対応する辞書
+    spaces = _make_spaces_dict(rooms=d['rooms'], a_floor_is=a_floor_is)
 
     bdrs = make_bdrs(bss2, rooms=d['rooms'], a_floor_is=a_floor_is)
 
@@ -206,9 +221,9 @@ def make_house_for_test(d, input_data_dir, output_data_dir):
         for i in range(number_of_spaces)
     ])
 
-    building = make_building_dict(d=d['building'])
+    building = _make_building_dict(d=d['building'])
 
-    spaces = make_spaces(rooms=d['rooms'], a_floor_is=a_floor_is)
+    spaces = _make_spaces_dict(rooms=d['rooms'], a_floor_is=a_floor_is)
 
     bdrs = make_bdrs(bss2, rooms=d['rooms'], a_floor_is=a_floor_is)
 
@@ -258,7 +273,7 @@ def _read_weather_data(input_data_dir: str):
     return a_sun_ns, h_sun_ns, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns
 
 
-def make_building_dict(d: Dict):
+def _make_building_dict(d: Dict):
     """
     出力する辞書のうち、　"building" に対応する辞書を作成する。
     Args:
@@ -283,93 +298,33 @@ def make_building_dict(d: Dict):
     }
 
 
-def make_bdrs(bss2, rooms, a_floor_is):
+def _make_spaces_dict(rooms: List[dict], a_floor_is: np.ndarray):
+    """
+    出力する辞書のうち、　"spaces" に対応する辞書を作成する。
+    Args:
+        rooms: 入力ファイルの "rooms" に対応する辞書（リスト形式）
+    Returns:
+        "spaces" に対応する辞書（リスト形式）
+    """
 
     # 室の数
     number_of_spaces = len(rooms)
 
-    k_ei_js = []
-
-    for bs in bss2:
-
-        if bs.boundary_type in [
-            BoundaryType.ExternalOpaquePart,
-            BoundaryType.ExternalTransparentPart,
-            BoundaryType.ExternalGeneralPart
-        ]:
-            # 温度差係数が1.0でない場合はk_ei_jsに値を代入する。
-            # id は自分自身の境界IDとし、自分自身の表面の影響は1.0から温度差係数を減じた値になる。
-            if bs.h_td < 1.0:
-                k_ei_js.append({'id': bs.id, 'coef': round(1.0 - bs.h_td, 1)})
-            else:
-                # 温度差係数が1.0の場合はNoneとする。
-                k_ei_js.append(None)
-        elif bs.boundary_type == BoundaryType.Internal:
-            # 室内壁の場合にk_ei_jsを登録する。
-            k_ei_js.append({'id': int(bs.rear_surface_boundary_id), 'coef': 1.0})
-        else:
-            # 外皮に面していない場合、室内壁ではない場合（地盤の場合が該当）は、Noneとする。
-            k_ei_js.append(None)
-
-    # 暖房設備仕様の読み込み
-    # 放射暖房有無（Trueなら放射暖房あり）
-    is_radiative_heating_is = [a22.read_is_radiative_heating(room) for room in rooms]
-
-    # 室iの在室者に対する境界j*の形態係数
-    # TODO: 日射の吸収の有無ではなくて、床か否かで判定するように変更すべき。
-    f_mrt_hum_is = np.concatenate([
-        occupants_form_factor.get_f_mrt_hum_is(
-            a_bdry_i_jstrs=np.array([bs.area for bs in bss2 if bs.connected_room_id == i]),
-            is_solar_absorbed_inside_bdry_i_jstrs=np.array([bs.is_solar_absorbed_inside for bs in bss2 if bs.connected_room_id == i])
-        ) for i in range(number_of_spaces)])
-
-    # 放射暖房の発熱部位の設定（とりあえず床発熱） 表7
-    # TODO: 発熱部位を指定して、面積按分するように変更すべき。
-    flr_jstrs = np.concatenate([
-        a12.get_flr(
-            A_i_g=np.array([bs.area for bs in bss2 if bs.connected_room_id == i]),
-            A_fs_i=a_floor_is[i],
-            is_radiative_heating=is_radiative_heating_is[i],
-            is_solar_absorbed_inside=np.array([bs.is_solar_absorbed_inside for bs in bss2 if bs.connected_room_id == i])
-        ) for i in range(number_of_spaces)])
-
-
-    bdrs = []
-
-    for i, bs in enumerate(bss2):
-        bdrs.append({
-            'id': bs.id,
-            'name': bs.name,
-            'sub_name': bs.sub_name,
-            'is_ground': 'true' if bs.boundary_type == BoundaryType.Ground else 'false',
-            'connected_space_id': bs.connected_room_id,
-            'area': bs.area,
-            'phi_a0': bs.rfa0,
-            'phi_a1': list(bs.rfa1),
-            'phi_t0': bs.rft0,
-            'phi_t1': list(bs.rft1),
-            'r': list(bs.row),
-            'h_i': bs.h_i,
-            'flr': flr_jstrs[i],
-            'is_solar_absorbed': str(bs.is_solar_absorbed_inside),
-            'f_mrt_hum': f_mrt_hum_is[i],
-            'k_outside': bs.h_td,
-            'k_inside': k_ei_js[i]
-        })
-    return bdrs
-
-
-def make_spaces(rooms: List[dict], a_floor_is: np.ndarray):
-
-    # 室の数
-    number_of_spaces = len(rooms)
-
-    # 室のID
-    # TODO: ID が0始まりで1ずつ増え、一意であることのチェックを行うコードを追記する。
-    room_ids = [int(r['id']) for r in rooms]
+    # 室のID, [i]
+    room_id_is = [int(r['id']) for r in rooms]
+    # ID が0始まりで1ずつ増え、一意であることをチェック
+    for i, room_id in enumerate(room_id_is):
+        if i != room_id:
+            raise ValueError('指定されたroomのIDは0からインクリメントする必要があります。')
 
     # 室iの名称, [i]
-    room_names = [r['name'] for r in rooms]
+    room_name_is = [r['name'] for r in rooms]
+
+    # 室iのタイプ, [i]
+    # 現在、室iのタイプについては使用していない。
+    # boundary が接する空間の識別は ID で行っているため。
+    # とはいえ、室i がどの種別の部屋なのかの情報は非常に重要であるため、当面の間、この入力項目は残しておく。
+    room_type_is = [RoomType(r['room_type']) for r in rooms]
 
     # 室iの気積, m3, [i]
     v_room_cap_is = np.array([r['volume'] for r in rooms])
@@ -451,8 +406,8 @@ def make_spaces(rooms: List[dict], a_floor_is: np.ndarray):
 
     for i in range(number_of_spaces):
         spaces.append({
-            'id': room_ids[i],
-            'name': room_names[i],
+            'id': room_id_is[i],
+            'name': room_name_is[i],
             'volume': v_room_cap_is[i],
             'beta': beta_is[i],
             'ventilation': {
@@ -482,7 +437,84 @@ def make_spaces(rooms: List[dict], a_floor_is: np.ndarray):
                 }
             }
         })
+
     return spaces
+
+
+def make_bdrs(bss2, rooms, a_floor_is):
+
+    # 室の数
+    number_of_spaces = len(rooms)
+
+    k_ei_js = []
+
+    for bs in bss2:
+
+        if bs.boundary_type in [
+            BoundaryType.ExternalOpaquePart,
+            BoundaryType.ExternalTransparentPart,
+            BoundaryType.ExternalGeneralPart
+        ]:
+            # 温度差係数が1.0でない場合はk_ei_jsに値を代入する。
+            # id は自分自身の境界IDとし、自分自身の表面の影響は1.0から温度差係数を減じた値になる。
+            if bs.h_td < 1.0:
+                k_ei_js.append({'id': bs.id, 'coef': round(1.0 - bs.h_td, 1)})
+            else:
+                # 温度差係数が1.0の場合はNoneとする。
+                k_ei_js.append(None)
+        elif bs.boundary_type == BoundaryType.Internal:
+            # 室内壁の場合にk_ei_jsを登録する。
+            k_ei_js.append({'id': int(bs.rear_surface_boundary_id), 'coef': 1.0})
+        else:
+            # 外皮に面していない場合、室内壁ではない場合（地盤の場合が該当）は、Noneとする。
+            k_ei_js.append(None)
+
+    # 暖房設備仕様の読み込み
+    # 放射暖房有無（Trueなら放射暖房あり）
+    is_radiative_heating_is = [a22.read_is_radiative_heating(room) for room in rooms]
+
+    # 室iの在室者に対する境界j*の形態係数
+    # TODO: 日射の吸収の有無ではなくて、床か否かで判定するように変更すべき。
+    f_mrt_hum_is = np.concatenate([
+        occupants_form_factor.get_f_mrt_hum_is(
+            a_bdry_i_jstrs=np.array([bs.area for bs in bss2 if bs.connected_room_id == i]),
+            is_solar_absorbed_inside_bdry_i_jstrs=np.array([bs.is_solar_absorbed_inside for bs in bss2 if bs.connected_room_id == i])
+        ) for i in range(number_of_spaces)])
+
+    # 放射暖房の発熱部位の設定（とりあえず床発熱） 表7
+    # TODO: 発熱部位を指定して、面積按分するように変更すべき。
+    flr_jstrs = np.concatenate([
+        a12.get_flr(
+            A_i_g=np.array([bs.area for bs in bss2 if bs.connected_room_id == i]),
+            A_fs_i=a_floor_is[i],
+            is_radiative_heating=is_radiative_heating_is[i],
+            is_solar_absorbed_inside=np.array([bs.is_solar_absorbed_inside for bs in bss2 if bs.connected_room_id == i])
+        ) for i in range(number_of_spaces)])
+
+
+    bdrs = []
+
+    for i, bs in enumerate(bss2):
+        bdrs.append({
+            'id': bs.id,
+            'name': bs.name,
+            'sub_name': bs.sub_name,
+            'is_ground': 'true' if bs.boundary_type == BoundaryType.Ground else 'false',
+            'connected_space_id': bs.connected_room_id,
+            'area': bs.area,
+            'phi_a0': bs.rfa0,
+            'phi_a1': list(bs.rfa1),
+            'phi_t0': bs.rft0,
+            'phi_t1': list(bs.rft1),
+            'r': list(bs.row),
+            'h_i': bs.h_i,
+            'flr': flr_jstrs[i],
+            'is_solar_absorbed': str(bs.is_solar_absorbed_inside),
+            'f_mrt_hum': f_mrt_hum_is[i],
+            'k_outside': bs.h_td,
+            'k_inside': k_ei_js[i]
+        })
+    return bdrs
 
 
 def get_v_int_vent_is(rooms: List[Dict]) -> np.ndarray:
