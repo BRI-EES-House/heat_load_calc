@@ -3,6 +3,7 @@ from typing import Dict, List
 import json
 import csv
 import pandas as pd
+from enum import Enum
 
 import heat_load_calc.initializer.a12_indoor_radiative_heat_transfer as a12
 import heat_load_calc.initializer.a14_furniture as a14
@@ -16,6 +17,28 @@ from heat_load_calc.initializer import residents_number
 from heat_load_calc.initializer import occupants_form_factor
 from heat_load_calc.initializer import boundary_simple
 from heat_load_calc.initializer import building_part_summarize
+
+
+class Story(Enum):
+    """
+    建物の階数（共同住宅の場合は住戸の階数）
+    """
+    # 1階
+    ONE = 1
+    # 2階（2階以上の階数の場合も2階とする。）
+    TWO = 2
+
+
+class InsidePressure(Enum):
+    """
+    室内圧力
+    """
+    # 正圧
+    POSITIVE = 'positive'
+    # 負圧
+    NEGATIVE = 'negative'
+    # ゼロバランス
+    BALANCED = 'balanced'
 
 
 def make_house(d, input_data_dir, output_data_dir):
@@ -92,7 +115,7 @@ def make_house(d, input_data_dir, output_data_dir):
     # 熱交換器種類
     heat_exchanger_type_is = [a22.read_heat_exchanger_type(room) for room in rooms]
 
-    building = make_building()
+    building = make_building(d=d['building'])
 
     spaces = make_spaces(rooms=d['rooms'], a_floor_is=a_floor_is)
 
@@ -182,7 +205,7 @@ def make_house_for_test(d, input_data_dir, output_data_dir):
         for i in range(number_of_spaces)
     ])
 
-    building = make_building()
+    building = make_building(d=d['building'])
 
     spaces = make_spaces(rooms=d['rooms'], a_floor_is=a_floor_is)
 
@@ -234,13 +257,18 @@ def _read_weather_data(input_data_dir: str):
     return a_sun_ns, h_sun_ns, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns
 
 
+def make_building(d: Dict):
 
-def make_building():
-    # TODO: initializer 入力から値をもってくるようにすること。
+    # 建物の階数
+    story = d['story']
+    c_value = d['c_value']
+    # 室内圧力 = POSITIVE, NEGATIVE, BALANCED
+    inside_pressure = InsidePressure(d['inside_pressure'])
+
     building = {
-        'story': 2,
-        'c_value': 2.0,
-        'inside_pressure': 'negative'
+        'story': d['story'],
+        'c_value': d['c_value'],
+        'inside_pressure': inside_pressure.value
     }
     return building
 

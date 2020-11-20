@@ -1,9 +1,12 @@
 {
 	"common": {
-		"region": 6,
-		"is_residential": true
+		"region": 6
 	},
-
+	"building": {
+		"story": 2,
+		"c_value": 2.0,
+		"inside_pressure": "negative"
+	},
 	"rooms": [
 		{
 			"id": 0,
