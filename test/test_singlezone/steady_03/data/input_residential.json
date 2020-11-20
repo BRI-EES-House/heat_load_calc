@@ -11,7 +11,7 @@
 		{
 			"id": 0,
 			"name": "main_occupant_room",
-			"room_type": 1,
+			"room_type": "main_occupant_room",
 			"volume": 1.0,
 			"vent": 0.0,
 			"cooling_equipment": {
