@@ -307,6 +307,8 @@ def _make_spaces_dict(rooms: List[dict], a_floor_is: np.ndarray):
         "spaces" に対応する辞書（リスト形式）
     """
 
+    # region 入力ファイル(space_initializer)の"rooms"部分の読み込み
+
     # 室の数
     number_of_spaces = len(rooms)
 
@@ -332,15 +334,11 @@ def _make_spaces_dict(rooms: List[dict], a_floor_is: np.ndarray):
     # 室iの外気からの機械換気量, m3/h, [i]
     v_vent_ex_is = np.array([r['vent'] for r in rooms])
 
-    # 室iの自然風利用時の換気回数, 1/h, [i]
-    # TODO:変数の使いまわし
-    n_ntrl_vent_is = np.array([r['natural_vent_time'] for r in rooms])
-
-    # 室iの自然風利用時の換気量, m3/s, [i]
-    v_ntrl_vent_is = v_room_cap_is * n_ntrl_vent_is / 3600
-
     # 室iの隣室からの機会換気量, m3/h, [i, i]
     v_int_vent_is = get_v_int_vent_is(rooms)
+
+    # 室iの自然風利用時の換気回数, 1/h, [i]
+    n_ntrl_vent_is = np.array([r['natural_vent_time'] for r in rooms])
 
     # 室iの家具等の熱容量, J/K
     c_cap_frnt_is = a14.get_c_cap_frnt_is(v_room_cap_is)
@@ -401,6 +399,11 @@ def _make_spaces_dict(rooms: List[dict], a_floor_is: np.ndarray):
     qmin_c_is = np.array([a15.get_qmin_c() for qrtd_c_i in qrtd_c_is])
     Vmax_is = np.array([a15.get_Vmax(qrtd_c_i) for qrtd_c_i in qrtd_c_is])
     Vmin_is = np.array([a15.get_Vmin(Vmax_i) for Vmax_i in Vmax_is])
+
+    # endregion
+
+    # 室iの自然風利用時の換気量, m3/s, [i]
+    v_ntrl_vent_is = v_room_cap_is * n_ntrl_vent_is / 3600
 
     spaces = []
 
