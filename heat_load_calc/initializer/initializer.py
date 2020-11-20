@@ -327,6 +327,16 @@ def _make_spaces_dict(rooms: List[dict], a_floor_is: np.ndarray):
     # boundary が接する空間の識別は ID で行っているため。
     # とはいえ、室i がどの種別の部屋なのかの情報は非常に重要であるため、当面の間、この入力項目は残しておく。
     room_type_is = [RoomType(r['room_type']) for r in rooms]
+    # 主たる居室が必ず指定されていることを確認する。
+    check_specifying_room_type(room_type_is=room_type_is, specified_type=RoomType.MAIN_OCCUPANT_ROOM)
+    # 主たる居室が複数回指定されていないかどうかを確認する。
+    check_not_specifying_multi_room_type(room_type_is=room_type_is, specified_type=RoomType.MAIN_OCCUPANT_ROOM)
+    # その他の居室が複数回指定されていないかどうかを確認する。
+    check_not_specifying_multi_room_type(room_type_is=room_type_is, specified_type=RoomType.OTHER_OCCUPANT_ROOM)
+    # 非居室が複数回指定されていないかどうかを確認する。
+    check_not_specifying_multi_room_type(room_type_is=room_type_is, specified_type=RoomType.NON_OCCUPANT_ROOM)
+    # 床下が複数回指定されていないかどうかを確認する。
+    check_not_specifying_multi_room_type(room_type_is=room_type_is, specified_type=RoomType.UNDERFLOOR)
 
     # 室iの気積, m3, [i]
     v_room_cap_is = np.array([r['volume'] for r in rooms])
@@ -442,6 +452,28 @@ def _make_spaces_dict(rooms: List[dict], a_floor_is: np.ndarray):
         })
 
     return spaces
+
+
+def check_specifying_room_type(room_type_is: List[RoomType], specified_type: RoomType):
+    """
+    specified_type で指定された RoomType が必ず1回指定されていることを確認する。
+    Args:
+        room_type_is: RoomType を格納したリスト
+        specified_type: 確認する RoomType
+    """
+    if room_type_is.count(specified_type) != 1:
+        raise ValueError("室タイプ " + specified_type.value + " は必ず指定されなければなりません。")
+
+
+def check_not_specifying_multi_room_type(room_type_is: List[RoomType], specified_type: RoomType):
+    """
+    specified_type で指定された RoomType が複数回指定されていないかどうかを確認する。
+    Args:
+        room_type_is: RoomType を格納したリスト
+        specified_type: 確認する RoomType
+    """
+    if room_type_is.count(specified_type) > 1:
+        raise ValueError("室タイプ " + specified_type.value + " が複数回指定されました。")
 
 
 def make_bdrs(bss2, rooms, a_floor_is):
