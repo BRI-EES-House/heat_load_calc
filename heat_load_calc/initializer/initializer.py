@@ -115,7 +115,8 @@ def make_house(d, input_data_dir, output_data_dir):
     # 熱交換器種類
     heat_exchanger_type_is = [a22.read_heat_exchanger_type(room) for room in rooms]
 
-    building = make_building(d=d['building'])
+    # json 出力 のうち、"building" に対応する辞書
+    building = make_building_dict(d=d['building'])
 
     spaces = make_spaces(rooms=d['rooms'], a_floor_is=a_floor_is)
 
@@ -205,7 +206,7 @@ def make_house_for_test(d, input_data_dir, output_data_dir):
         for i in range(number_of_spaces)
     ])
 
-    building = make_building(d=d['building'])
+    building = make_building_dict(d=d['building'])
 
     spaces = make_spaces(rooms=d['rooms'], a_floor_is=a_floor_is)
 
@@ -257,20 +258,29 @@ def _read_weather_data(input_data_dir: str):
     return a_sun_ns, h_sun_ns, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns
 
 
-def make_building(d: Dict):
+def make_building_dict(d: Dict):
+    """
+    出力する辞書のうち、　"building" に対応する辞書を作成する。
+    Args:
+        d: 入力ファイルの "building" に対応する辞書
+    Returns:
+        "building" に対応する辞書
+    """
 
     # 建物の階数
-    story = d['story']
+    story = Story(d['story'])
+
+    # 建物のC値
     c_value = d['c_value']
+
     # 室内圧力 = POSITIVE, NEGATIVE, BALANCED
     inside_pressure = InsidePressure(d['inside_pressure'])
 
-    building = {
-        'story': d['story'],
-        'c_value': d['c_value'],
+    return {
+        'story': story.value,
+        'c_value': c_value,
         'inside_pressure': inside_pressure.value
     }
-    return building
 
 
 def make_bdrs(bss2, rooms, a_floor_is):
