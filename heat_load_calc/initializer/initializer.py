@@ -55,6 +55,15 @@ class RoomType(Enum):
     UNDERFLOOR = 'underfloor'
 
 
+class HeatingEquipmentType(Enum):
+    # 設置なし
+    NOT_INSTALLED = 'not_installed'
+    # 対流暖房
+    CONVECTIVE = 'convective'
+    # 放射暖房
+    RADIATIVE = 'radiative'
+
+
 def make_house(d, input_data_dir, output_data_dir):
 
     # 以下の気象データの読み込み
@@ -368,29 +377,46 @@ def _make_spaces_dict(rooms: List[dict], a_floor_is: np.ndarray):
     # 室iの自然風利用時の換気回数, 1/h, [i]
     n_ntrl_vent_is = np.array([r['natural_vent_time'] for r in rooms])
 
-    # 暖房設備
+    # 暖房設備, [i]
     heating_equipment_is = [r['heating_equipment'] for r in rooms]
 
-    # 暖房形式
-    heating_equipment_type_is = [he['equipment_type'] for he in heating_equipment_is]
+    # 暖房形式, [i]
+    heating_equipment_type_is = [HeatingEquipmentType(he['equipment_type']) for he in heating_equipment_is]
 
-    # 放射暖房有無（Trueなら放射暖房あり）
-    is_radiative_heating_is = [a22.read_is_radiative_heating(room) for room in rooms]
+    # 暖房形式, [i]
+    # 暖房設備の仕様, [i]
+    heating_equipment_type_is = []
+    heating_equipment_spec_is = []
 
-    # 放射暖房最大能力[W]
-    Lrcap_is = np.array([a22.read_radiative_heating_max_capacity(room) for room in rooms])
+    for he in heating_equipment_is:
 
-    equip_heating_radiative = []
-    for i, is_radiative in enumerate(is_radiative_heating_is):
-        if is_radiative:
-            equip_heating_radiative.append({
-                'installed': True,
-                'max_capacity': Lrcap_is[i]
-            })
+        # 暖房形式
+        he_type = HeatingEquipmentType(he['equipment_type'])
+
+        # 暖房形式を追加する。
+        heating_equipment_type_is.append(he_type)
+
+        # 設置しない
+        if he_type == HeatingEquipmentType.NOT_INSTALLED:
+            heating_equipment_spec_is.append(None)
+
+        # 対流暖房方式
+        elif he_type == HeatingEquipmentType.CONVECTIVE:
+            heating_equipment_spec_is.append(None)
+
+        # 放射暖房方式
+        elif he_type == HeatingEquipmentType.RADIATIVE:
+            # 放射暖房方式における仕様
+            spec = he['radiative_heating']
+            # 以下の仕様をタプル形式で追加
+            # 最大能力, W/m2
+            # (放熱)面積, m2
+            heating_equipment_spec_is.append(
+                (spec['max_capacity'], spec['area'])
+            )
+
         else:
-            equip_heating_radiative.append({
-                'installed': False
-            })
+            raise Exception()
 
     # 冷房設備仕様の読み込み
 
@@ -412,11 +438,6 @@ def _make_spaces_dict(rooms: List[dict], a_floor_is: np.ndarray):
                 'installed': False
             })
 
-    qrtd_c_is = np.array([a15.get_qrtd_c(a_floor_i) for a_floor_i in a_floor_is])
-    qmax_c_is = np.array([a15.get_qmax_c(qrtd_c_i) for qrtd_c_i in qrtd_c_is])
-    qmin_c_is = np.array([a15.get_qmin_c() for qrtd_c_i in qrtd_c_is])
-    Vmax_is = np.array([a15.get_Vmax(qrtd_c_i) for qrtd_c_i in qrtd_c_is])
-    Vmin_is = np.array([a15.get_Vmin(Vmax_i) for Vmax_i in Vmax_is])
 
     # endregion
 
@@ -440,6 +461,35 @@ def _make_spaces_dict(rooms: List[dict], a_floor_is: np.ndarray):
 
     # 放射暖房対流比率
     beta_is = np.full(len(rooms), 0.0)
+
+    equip_heating_radiative = []
+    for he_type, he_spec in zip(heating_equipment_type_is, heating_equipment_spec_is):
+        if he_type == HeatingEquipmentType.NOT_INSTALLED:
+            equip_heating_radiative.append({
+                'installed': False
+            })
+        elif he_type == HeatingEquipmentType.CONVECTIVE:
+            equip_heating_radiative.append({
+                'installed': False
+            })
+        elif he_type == HeatingEquipmentType.RADIATIVE:
+            # 最大能力, W/m2
+            # (放熱)面積, m2
+            he_max_capacity, he_area = he_spec
+            # 放射暖房最大能力[W]
+            he_cap = he_max_capacity * he_area
+            equip_heating_radiative.append({
+                'installed': True,
+                'max_capacity': he_cap
+            })
+        else:
+            raise Exception()
+
+    qrtd_c_is = np.array([a15.get_qrtd_c(a_floor_i) for a_floor_i in a_floor_is])
+    qmax_c_is = np.array([a15.get_qmax_c(qrtd_c_i) for qrtd_c_i in qrtd_c_is])
+    qmin_c_is = np.array([a15.get_qmin_c() for qrtd_c_i in qrtd_c_is])
+    Vmax_is = np.array([a15.get_Vmax(qrtd_c_i) for qrtd_c_i in qrtd_c_is])
+    Vmin_is = np.array([a15.get_Vmin(Vmax_i) for Vmax_i in Vmax_is])
 
     spaces = []
 
