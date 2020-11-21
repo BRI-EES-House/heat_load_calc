@@ -1,5 +1,5 @@
 import numpy as np
-from typing import Dict, List
+from typing import Dict, List, Tuple
 import json
 import csv
 import pandas as pd
@@ -74,7 +74,7 @@ def make_house(d, input_data_dir, output_data_dir):
     c_value_is = np.array([r['c_value'] for r in rooms])
 
     # 室の数
-    number_of_spaces = len(rooms)
+    n_spaces = len(rooms)
 
     # 室iの名称, [i]
     room_names = [r['name'] for r in rooms]
@@ -96,14 +96,14 @@ def make_house(d, input_data_dir, output_data_dir):
 
     q_trs_sol_is_ns = np.array([
         np.sum(np.array([bs.q_trs_sol for bs in bss2 if bs.connected_room_id == i]), axis=0)
-        for i in range(number_of_spaces)
+        for i in range(n_spaces)
     ])
 
     # 室iの床面積, m2, [i]
     # TODO: is_solar_absorbed_inside_js を使用すべき。
     a_floor_is = np.array([
         np.sum(np.array([bs.area for bs in bss if bs.connected_room_id == i and bs.is_solar_absorbed_inside]))
-        for i in range(number_of_spaces)
+        for i in range(n_spaces)
     ])
 
     # 床面積の合計, m2
@@ -310,7 +310,7 @@ def _make_spaces_dict(rooms: List[dict], a_floor_is: np.ndarray):
     # region 入力ファイル(space_initializer)の"rooms"部分の読み込み
 
     # 室の数
-    number_of_spaces = len(rooms)
+    n_spaces = len(rooms)
 
     # 室のID, [i]
     room_id_is = [int(r['id']) for r in rooms]
@@ -344,8 +344,26 @@ def _make_spaces_dict(rooms: List[dict], a_floor_is: np.ndarray):
     # 室iの外気からの機械換気量, m3/h, [i]
     v_vent_ex_is = np.array([r['vent'] for r in rooms])
 
-    # 室iの隣室からの機会換気量, m3/h, [i, i]
-    v_int_vent_is = get_v_int_vent_is(rooms)
+    # 隣室からの機械換気
+    # 2重のリスト構造を持つ。
+    # 外側のリスト：室、（流入側の室を基準とする。）
+    # 内側のリスト：換気経路（数は任意であり、換気経路が無い（0: 空のリスト）場合もある。）
+    # 変数はタプル （流出側の室ID: int, 換気量（m3/h): float)
+    # next_vents = [
+    #     [
+    #         ({
+    #              'main_occupant_room': 0,
+    #              'other_occupant_room': 1,
+    #              'non_occupant_room': 2,
+    #              'underfloor': 3
+    #          }[next_vent['upstream_room_type']], next_vent['volume']) for next_vent in r['next_vent']
+    #     ] for r in rooms
+    # ]
+    next_vents = [
+        [
+            ([next_vent['upstream_room_id']], next_vent['volume']) for next_vent in r['next_vent']
+        ] for r in rooms
+    ]
 
     # 室iの自然風利用時の換気回数, 1/h, [i]
     n_ntrl_vent_is = np.array([r['natural_vent_time'] for r in rooms])
@@ -415,9 +433,12 @@ def _make_spaces_dict(rooms: List[dict], a_floor_is: np.ndarray):
     # 室iの自然風利用時の換気量, m3/s, [i]
     v_ntrl_vent_is = v_room_cap_is * n_ntrl_vent_is / 3600
 
+    # 室iの隣室からの機械換気量, m3/h, [i, i]
+    v_int_vent_is = _get_v_int_vent_is(next_vents, n_spaces)
+
     spaces = []
 
-    for i in range(number_of_spaces):
+    for i in range(n_spaces):
         spaces.append({
             'id': room_id_is[i],
             'name': room_name_is[i],
@@ -552,12 +573,16 @@ def make_bdrs(bss2, rooms, a_floor_is):
     return bdrs
 
 
-def get_v_int_vent_is(rooms: List[Dict]) -> np.ndarray:
+def _get_v_int_vent_is(next_vents: List[List[Tuple]], n_rooms: int) -> np.ndarray:
     """
-
+    隣室iから室iへの機械換気量マトリクスを生成する。
     Args:
-        rooms: 部屋（入力）（辞書型）
-
+        next_vents: 隣室からの機械換気
+                        2重のリスト構造を持つ。
+                        外側のリスト：室、（流入側の室を基準とする。）
+                        内側のリスト：換気経路（数は任意であり、換気経路が無い（0: 空のリスト）場合もある。）
+                        変数はタプル （流出側の室ID: int, 換気量（m3/h): float)
+        n_rooms: 室の数
     Returns:
         隣室iから室iへの機械換気量マトリクス, m3/s, [i, i]
             例えば、
@@ -573,67 +598,18 @@ def get_v_int_vent_is(rooms: List[Dict]) -> np.ndarray:
                  [0.0, 0.0, 0.0, 0.0]]
     """
 
-    # 室の数
-    number_of_rooms = len(rooms)
+    # 隣室iから室iへの換気量マトリックス, m3/s [i, i]
+    v_int_vent_is = np.zeros((n_rooms, n_rooms), dtype=float)
 
-    # 隣室iから室iへの機械換気量, m3/s, [i, i]
-    v_int_vent_is = np.concatenate([[
-        get_v_int_vent_i(
-            next_vents=r['next_vent'],
-            number_of_rooms=number_of_rooms
-        )
-    ] for r in rooms])
+    # 室iのループ
+    for i, next_vent_is in enumerate(next_vents):
+
+        # 室iにおける経路jのループ
+        # 取得するのは、(ID: int, 換気量(m3/h): float) のタプル
+        for (idx, volume) in next_vent_is:
+
+            # m3/hからm3/sへの単位変換を行っている
+            v_int_vent_is[i, idx] = v_int_vent_is[i, idx] + volume / 3600.0
 
     return v_int_vent_is
-
-
-def get_v_int_vent_i(next_vents: List[Dict], number_of_rooms: int) -> np.ndarray:
-    """隣室から室への機械換気量の配列を取得する。
-
-    Args:
-        next_vents: 隣室からの機械換気量
-            辞書型：
-                上流側の室の名称
-                換気量, m3/h
-        number_of_rooms: 部屋の数
-
-    Returns:
-        隣室から室への機械換気量の配列, m3/s, [i]
-            例えば、
-                室インデックス0からの換気量が 10.0
-                室インデックス1からの換気量が  0.0
-                室インデックス2からの換気量が  8.0
-                室インデックス3からの換気量が  6.0
-            の場合は、
-            [10.0, 0.0, 8.0, 6.0]
-
-    Notes:
-        室インデックスが重なって指定された場合はそこで指定された換気量は加算される。
-            例えば、
-                室インデックス0からの換気量が 10.0
-                室インデックス1からの換気量が  0.0
-                室インデックス2からの換気量が  8.0
-                室インデックス3からの換気量が  6.0
-                室インデックス0からの換気量が  2.0
-            の場合は、
-            [12.0, 0.0, 8.0, 6.0]
-
-    """
-
-    # 室iの隣室からの機械換気量, m3/s, [i]
-    v_int_vent_i = np.zeros(number_of_rooms)
-
-    for next_vent in next_vents:
-
-        idx = {
-            'main_occupant_room': 0,
-            'other_occupant_room': 1,
-            'non_occupant_room': 2,
-            'underfloor': 3
-        }[next_vent['upstream_room_type']]
-
-        # m3/hからm3/sへの単位変換を行っている
-        v_int_vent_i[idx] = v_int_vent_i[idx] + next_vent['volume'] / 3600.0
-
-    return v_int_vent_i
 
