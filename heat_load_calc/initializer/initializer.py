@@ -368,21 +368,6 @@ def _make_spaces_dict(rooms: List[dict], a_floor_is: np.ndarray):
     # 室iの自然風利用時の換気回数, 1/h, [i]
     n_ntrl_vent_is = np.array([r['natural_vent_time'] for r in rooms])
 
-    # 室iの家具等の熱容量, J/K
-    c_cap_frnt_is = a14.get_c_cap_frnt_is(v_room_cap_is)
-
-    # 室iの家具等と空気間の熱コンダクタンス, W/K, [i]
-    c_frnt_is = a14.get_Cfun(c_cap_frnt_is)
-
-    # 室iの家具等の湿気容量, kg/m3 kg/kgDA, [i]
-    g_f_is = a14.get_g_f_is(v_room_cap_is)  # i室の備品類の湿気容量
-
-    # 室iの家具等と空気間の湿気コンダクタンス, kg/s kg/kgDA
-    c_x_is = a14.get_c_x_is(g_f_is)
-
-    # 放射暖房対流比率
-    beta_is = np.full(len(rooms), 0.0)
-
     # 暖房設備仕様の読み込み
     # 放射暖房有無（Trueなら放射暖房あり）
     is_radiative_heating_is = [a22.read_is_radiative_heating(room) for room in rooms]
@@ -435,6 +420,21 @@ def _make_spaces_dict(rooms: List[dict], a_floor_is: np.ndarray):
 
     # 室iの隣室からの機械換気量, m3/h, [i, i]
     v_int_vent_is = _get_v_int_vent_is(next_vents, n_spaces)
+
+    # 室iの家具等の熱容量, J/K
+    c_cap_frnt_is = a14.get_c_cap_frnt_is(v_room_cap_is)
+
+    # 室iの家具等と空気間の熱コンダクタンス, W/K, [i]
+    c_frnt_is = a14.get_Cfun(c_cap_frnt_is)
+
+    # 室iの家具等の湿気容量, kg/m3 kg/kgDA, [i]
+    g_f_is = a14.get_g_f_is(v_room_cap_is)  # i室の備品類の湿気容量
+
+    # 室iの家具等と空気間の湿気コンダクタンス, kg/s kg/kgDA
+    c_x_is = a14.get_c_x_is(g_f_is)
+
+    # 放射暖房対流比率
+    beta_is = np.full(len(rooms), 0.0)
 
     spaces = []
 
