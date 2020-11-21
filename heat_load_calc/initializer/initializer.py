@@ -368,7 +368,9 @@ def _make_spaces_dict(rooms: List[dict], a_floor_is: np.ndarray):
     # 室iの自然風利用時の換気回数, 1/h, [i]
     n_ntrl_vent_is = np.array([r['natural_vent_time'] for r in rooms])
 
-    # 暖房設備仕様の読み込み
+    # 暖房設備
+    radiative_heating_is = [r['heating_equipment'] for r in rooms]
+
     # 放射暖房有無（Trueなら放射暖房あり）
     is_radiative_heating_is = [a22.read_is_radiative_heating(room) for room in rooms]
 

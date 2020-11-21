@@ -22,7 +22,7 @@
 				}
 			},
 			"heating_equipment": {
-				"is_radiative_heating": false,
+				"heating_type": "convective",
 				"convective_heating": {
 					"max_capacity": 4000.0,
 					"heat_exchanger_type": "normal"
@@ -47,7 +47,7 @@
 				}
 			},
 			"heating_equipment": {
-				"is_radiative_heating": false
+				"heating_type": "convective"
 			},
 			"next_vent": [
 				{
@@ -72,7 +72,7 @@
 				}
 			},
 			"heating_equipment": {
-				"is_radiative_heating": false
+				"heating_type": "convective"
 			},
 			"next_vent": [
 				{
