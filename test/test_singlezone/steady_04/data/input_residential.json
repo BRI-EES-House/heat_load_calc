@@ -22,7 +22,7 @@
 				}
 			},
 			"heating_equipment": {
-				"heating_type": "convective",
+				"equipment_type": "convective",
 				"convective_heating": {
 					"max_capacity": 0.0,
 					"heat_exchanger_type": "normal"
