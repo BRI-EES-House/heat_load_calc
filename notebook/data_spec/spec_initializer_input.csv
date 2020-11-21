@@ -14,7 +14,7 @@
 ,,,○,,,vent,外気からの機械換気量,○,,float,m3/h,,
 ,,,○,,,next_vent,隣室からの機械換気量,○,,"list, null",ー,,複数指定。Null も可能。
 ,,,,○,,,,○,,dict,ー,,
-,,,,,○,upstream_room_name,上流側の室の名称,○,,str,ー,"{'main_occupant_room', 'other_occupant_room', 'non_occupant_room', 'underfloor'}",
+,,,,,○,upstream_room_id,上流側の室の名称,○,,str,ー,"{'main_occupant_room', 'other_occupant_room', 'non_occupant_room', 'underfloor'}",
 ,,,,,○,volume,換気量,○,,float,m3/h,,
 ,,,○,,,natural_vent_time,自然風利用時の換気回数,○,,float,ー,,
 ,,,○,,,heating_equipment,暖房設備,○,,dict,ー,,
