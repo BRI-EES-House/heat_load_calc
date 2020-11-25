@@ -1,8 +1,9 @@
 import numpy as np
-from typing import Dict, List
+from typing import Dict, List, Tuple
 import json
 import csv
 import pandas as pd
+from enum import Enum
 
 import heat_load_calc.initializer.a12_indoor_radiative_heat_transfer as a12
 import heat_load_calc.initializer.a14_furniture as a14
@@ -17,6 +18,59 @@ from heat_load_calc.initializer import occupants_form_factor
 from heat_load_calc.initializer import boundary_simple
 from heat_load_calc.initializer import building_part_summarize
 
+
+class Story(Enum):
+    """
+    建物の階数（共同住宅の場合は住戸の階数）
+    """
+    # 1階
+    ONE = 1
+    # 2階（2階以上の階数の場合も2階とする。）
+    TWO = 2
+
+
+class InsidePressure(Enum):
+    """
+    室内圧力
+    """
+    # 正圧
+    POSITIVE = 'positive'
+    # 負圧
+    NEGATIVE = 'negative'
+    # ゼロバランス
+    BALANCED = 'balanced'
+
+
+class RoomType(Enum):
+    """
+    室のタイプ
+    """
+    # 主たる居室
+    MAIN_OCCUPANT_ROOM = 'main_occupant_room'
+    # その他の居室
+    OTHER_OCCUPANT_ROOM = 'other_occupant_room'
+    # 非居室
+    NON_OCCUPANT_ROOM = 'non_occupant_room'
+    # 床下
+    UNDERFLOOR = 'underfloor'
+
+
+class HeatingEquipmentType(Enum):
+    # 設置なし
+    NOT_INSTALLED = 'not_installed'
+    # 対流暖房
+    CONVECTIVE = 'convective'
+    # 放射暖房
+    RADIATIVE = 'radiative'
+
+
+class CoolingEquipmentType(Enum):
+    # 設置なし
+    NOT_INSTALLED = 'not_installed'
+    # 対流冷房
+    CONVECTIVE = 'convective'
+    # 放射冷房
+    RADIATIVE = 'radiative'
 
 def make_house(d, input_data_dir, output_data_dir):
 
@@ -37,7 +91,7 @@ def make_house(d, input_data_dir, output_data_dir):
     c_value_is = np.array([r['c_value'] for r in rooms])
 
     # 室の数
-    number_of_spaces = len(rooms)
+    n_spaces = len(rooms)
 
     # 室iの名称, [i]
     room_names = [r['name'] for r in rooms]
@@ -59,14 +113,14 @@ def make_house(d, input_data_dir, output_data_dir):
 
     q_trs_sol_is_ns = np.array([
         np.sum(np.array([bs.q_trs_sol for bs in bss2 if bs.connected_room_id == i]), axis=0)
-        for i in range(number_of_spaces)
+        for i in range(n_spaces)
     ])
 
     # 室iの床面積, m2, [i]
     # TODO: is_solar_absorbed_inside_js を使用すべき。
     a_floor_is = np.array([
         np.sum(np.array([bs.area for bs in bss if bs.connected_room_id == i and bs.is_solar_absorbed_inside]))
-        for i in range(number_of_spaces)
+        for i in range(n_spaces)
     ])
 
     # 床面積の合計, m2
@@ -92,9 +146,11 @@ def make_house(d, input_data_dir, output_data_dir):
     # 熱交換器種類
     heat_exchanger_type_is = [a22.read_heat_exchanger_type(room) for room in rooms]
 
-    building = make_building()
+    # json 出力 のうち、"building" に対応する辞書
+    building = _make_building_dict(d=d['building'])
 
-    spaces = make_spaces(rooms=d['rooms'], a_floor_is=a_floor_is)
+    # json 出力のうち、"spaces" に対応する辞書
+    spaces = _make_spaces_dict(rooms=d['rooms'], a_floor_is=a_floor_is)
 
     bdrs = make_bdrs(bss2, rooms=d['rooms'], a_floor_is=a_floor_is)
 
@@ -182,9 +238,9 @@ def make_house_for_test(d, input_data_dir, output_data_dir):
         for i in range(number_of_spaces)
     ])
 
-    building = make_building()
+    building = _make_building_dict(d=d['building'])
 
-    spaces = make_spaces(rooms=d['rooms'], a_floor_is=a_floor_is)
+    spaces = _make_spaces_dict(rooms=d['rooms'], a_floor_is=a_floor_is)
 
     bdrs = make_bdrs(bss2, rooms=d['rooms'], a_floor_is=a_floor_is)
 
@@ -234,15 +290,309 @@ def _read_weather_data(input_data_dir: str):
     return a_sun_ns, h_sun_ns, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns
 
 
+def _make_building_dict(d: Dict):
+    """
+    出力する辞書のうち、　"building" に対応する辞書を作成する。
+    Args:
+        d: 入力ファイルの "building" に対応する辞書
+    Returns:
+        "building" に対応する辞書
+    """
 
-def make_building():
-    # TODO: initializer 入力から値をもってくるようにすること。
-    building = {
-        'story': 2,
-        'c_value': 2.0,
-        'inside_pressure': 'negative'
+    # 建物の階数
+    story = Story(d['story'])
+
+    # 建物のC値
+    c_value = d['c_value']
+
+    # 室内圧力 = POSITIVE, NEGATIVE, BALANCED
+    inside_pressure = InsidePressure(d['inside_pressure'])
+
+    return {
+        'story': story.value,
+        'c_value': c_value,
+        'inside_pressure': inside_pressure.value
     }
-    return building
+
+
+def _make_spaces_dict(rooms: List[dict], a_floor_is: np.ndarray):
+    """
+    出力する辞書のうち、　"spaces" に対応する辞書を作成する。
+    Args:
+        rooms: 入力ファイルの "rooms" に対応する辞書（リスト形式）
+    Returns:
+        "spaces" に対応する辞書（リスト形式）
+    """
+
+    # region 入力ファイル(space_initializer)の"rooms"部分の読み込み
+
+    # 室の数
+    n_spaces = len(rooms)
+
+    # 室のID, [i]
+    room_id_is = [int(r['id']) for r in rooms]
+    # ID が0始まりで1ずつ増え、一意であることをチェック
+    for i, room_id in enumerate(room_id_is):
+        if i != room_id:
+            raise ValueError('指定されたroomのIDは0からインクリメントする必要があります。')
+
+    # 室iの名称, [i]
+    room_name_is = [r['name'] for r in rooms]
+
+    # 室iのタイプ, [i]
+    # 現在、室iのタイプについては使用していない。
+    # boundary が接する空間の識別は ID で行っているため。
+    # とはいえ、室i がどの種別の部屋なのかの情報は非常に重要であるため、当面の間、この入力項目は残しておく。
+    room_type_is = [RoomType(r['room_type']) for r in rooms]
+    # 主たる居室が必ず指定されていることを確認する。
+    check_specifying_room_type(room_type_is=room_type_is, specified_type=RoomType.MAIN_OCCUPANT_ROOM)
+    # 主たる居室が複数回指定されていないかどうかを確認する。
+    check_not_specifying_multi_room_type(room_type_is=room_type_is, specified_type=RoomType.MAIN_OCCUPANT_ROOM)
+    # その他の居室が複数回指定されていないかどうかを確認する。
+    check_not_specifying_multi_room_type(room_type_is=room_type_is, specified_type=RoomType.OTHER_OCCUPANT_ROOM)
+    # 非居室が複数回指定されていないかどうかを確認する。
+    check_not_specifying_multi_room_type(room_type_is=room_type_is, specified_type=RoomType.NON_OCCUPANT_ROOM)
+    # 床下が複数回指定されていないかどうかを確認する。
+    check_not_specifying_multi_room_type(room_type_is=room_type_is, specified_type=RoomType.UNDERFLOOR)
+
+    # 室iの気積, m3, [i]
+    v_room_cap_is = np.array([r['volume'] for r in rooms])
+
+    # 室iの外気からの機械換気量, m3/h, [i]
+    v_vent_ex_is = np.array([r['vent'] for r in rooms])
+
+    # 隣室からの機械換気
+    # 2重のリスト構造を持つ。
+    # 外側のリスト：室、（流入側の室を基準とする。）
+    # 内側のリスト：換気経路（数は任意であり、換気経路が無い（0: 空のリスト）場合もある。）
+    # 変数はタプル （流出側の室ID: int, 換気量（m3/h): float)
+    next_vents = [
+        [
+            ([next_vent['upstream_room_id']], next_vent['volume']) for next_vent in r['next_vent']
+        ] for r in rooms
+    ]
+
+    # 室iの自然風利用時の換気回数, 1/h, [i]
+    n_ntrl_vent_is = np.array([r['natural_vent_time'] for r in rooms])
+
+    # 暖房設備, [i]
+    heating_equipment_is = [r['heating_equipment'] for r in rooms]
+
+    # 暖房形式, [i]
+    # 暖房設備の仕様, [i]
+    heating_equipment_type_is = []
+    heating_equipment_spec_is = []
+
+    for he in heating_equipment_is:
+
+        # 暖房形式
+        he_type = HeatingEquipmentType(he['equipment_type'])
+
+        # 暖房形式を追加する。
+        heating_equipment_type_is.append(he_type)
+
+        # 設置しない
+        if he_type == HeatingEquipmentType.NOT_INSTALLED:
+            heating_equipment_spec_is.append(None)
+
+        # 対流暖房方式
+        elif he_type == HeatingEquipmentType.CONVECTIVE:
+            heating_equipment_spec_is.append(None)
+
+        # 放射暖房方式
+        elif he_type == HeatingEquipmentType.RADIATIVE:
+            # 放射暖房方式における仕様
+            spec = he['radiative_heating']
+            # 以下の仕様をタプル形式で追加
+            # 最大能力, W/m2
+            # (放熱)面積, m2
+            heating_equipment_spec_is.append(
+                (spec['max_capacity'], spec['area'])
+            )
+
+        else:
+            raise Exception()
+
+    # 冷房設備, [i]
+    cooling_equipment_is = [r['cooling_equipment'] for r in rooms]
+
+    # 冷房形式, [i]
+    # 冷房設備の仕様, [i]
+    cooling_equipment_type_is = []
+    cooling_equipment_spec_is = []
+
+    for ce in cooling_equipment_is:
+
+        # 冷房形式
+        ce_type = CoolingEquipmentType(ce['equipment_type'])
+
+        # 冷房形式を追加する。
+        cooling_equipment_type_is.append(ce_type)
+
+        # 設置しない
+        if ce_type == CoolingEquipmentType.NOT_INSTALLED:
+            cooling_equipment_spec_is.append(None)
+
+        # 対流冷房方式
+        elif ce_type == CoolingEquipmentType.CONVECTIVE:
+            cooling_equipment_spec_is.append(None)
+
+        # 放射冷房方式
+        elif ce_type == CoolingEquipmentType.RADIATIVE:
+            # 放射冷房方式における仕様
+            spec = ce['radiative_cooling']
+            # 以下の仕様をタプル形式で追加
+            # 最大能力, W/m2
+            # (放熱)面積, m2
+            cooling_equipment_spec_is.append(
+                (spec['max_capacity'], spec['area'])
+            )
+
+        else:
+            raise Exception()
+
+    # endregion
+
+    # 室iの自然風利用時の換気量, m3/s, [i]
+    v_ntrl_vent_is = v_room_cap_is * n_ntrl_vent_is / 3600
+
+    # 室iの隣室からの機械換気量, m3/h, [i, i]
+    v_int_vent_is = _get_v_int_vent_is(next_vents, n_spaces)
+
+    # 室iの家具等の熱容量, J/K
+    c_cap_frnt_is = a14.get_c_cap_frnt_is(v_room_cap_is)
+
+    # 室iの家具等と空気間の熱コンダクタンス, W/K, [i]
+    c_frnt_is = a14.get_Cfun(c_cap_frnt_is)
+
+    # 室iの家具等の湿気容量, kg/m3 kg/kgDA, [i]
+    g_f_is = a14.get_g_f_is(v_room_cap_is)  # i室の備品類の湿気容量
+
+    # 室iの家具等と空気間の湿気コンダクタンス, kg/s kg/kgDA
+    c_x_is = a14.get_c_x_is(g_f_is)
+
+    # 放射暖房対流比率
+    beta_is = np.full(len(rooms), 0.0)
+
+    equip_heating_radiative = []
+    for he_type, he_spec in zip(heating_equipment_type_is, heating_equipment_spec_is):
+        if he_type == HeatingEquipmentType.NOT_INSTALLED:
+            equip_heating_radiative.append({
+                'installed': False
+            })
+        elif he_type == HeatingEquipmentType.CONVECTIVE:
+            equip_heating_radiative.append({
+                'installed': False
+            })
+        elif he_type == HeatingEquipmentType.RADIATIVE:
+            # 最大能力, W/m2
+            # (放熱)面積, m2
+            he_max_capacity, he_area = he_spec
+            # 放射暖房最大能力[W]
+            he_cap = he_max_capacity * he_area
+            equip_heating_radiative.append({
+                'installed': True,
+                'max_capacity': he_cap
+            })
+        else:
+            raise Exception()
+
+    # 冷房設備仕様の読み込み
+
+    # 放射冷房有無（Trueなら放射冷房あり）
+#    is_radiative_cooling_is = [a22.read_is_radiative_cooling(room) for room in rooms]
+
+    # 放射冷房最大能力[W]
+#    radiative_cooling_max_capacity_is = np.array([a22.read_is_radiative_cooling(room) for room in rooms])
+
+    equip_cooling_radiative = []
+    for ce_type, ce_spec in zip(cooling_equipment_type_is, cooling_equipment_spec_is):
+        if ce_type == CoolingEquipmentType.NOT_INSTALLED:
+            equip_cooling_radiative.append({
+                'installed': False
+            })
+        elif ce_type == CoolingEquipmentType.CONVECTIVE:
+            equip_cooling_radiative.append({
+                'installed': False
+            })
+        elif ce_type == CoolingEquipmentType.RADIATIVE:
+            # 最大能力, W/m2
+            # (放熱)面積, m2
+            ce_max_capacity, ce_area = ce_spec
+            # 放射暖房最大能力[W]
+            ce_cap = ce_max_capacity * ce_area
+            equip_cooling_radiative.append({
+                'installed': True,
+                'max_capacity': ce_cap
+            })
+        else:
+            raise Exception()
+
+    qrtd_c_is = np.array([a15.get_qrtd_c(a_floor_i) for a_floor_i in a_floor_is])
+    qmax_c_is = np.array([a15.get_qmax_c(qrtd_c_i) for qrtd_c_i in qrtd_c_is])
+    qmin_c_is = np.array([a15.get_qmin_c() for qrtd_c_i in qrtd_c_is])
+    Vmax_is = np.array([a15.get_Vmax(qrtd_c_i) for qrtd_c_i in qrtd_c_is])
+    Vmin_is = np.array([a15.get_Vmin(Vmax_i) for Vmax_i in Vmax_is])
+
+    spaces = []
+
+    for i in range(n_spaces):
+        spaces.append({
+            'id': room_id_is[i],
+            'name': room_name_is[i],
+            'volume': v_room_cap_is[i],
+            'beta': beta_is[i],
+            'ventilation': {
+                'mechanical': v_vent_ex_is[i] / 3600,
+                'next_spaces': v_int_vent_is.tolist()[i],
+                'natural': v_ntrl_vent_is[i]
+            },
+            'furniture': {
+                'heat_capacity': c_cap_frnt_is[i],
+                'heat_cond': c_frnt_is[i],
+                'moisture_capacity': g_f_is[i],
+                'moisture_cond': c_x_is[i]
+            },
+            'equipment': {
+                'heating': {
+                    'radiative': equip_heating_radiative[i],
+                    'convective': {}
+                },
+                'cooling': {
+                    'radiative': equip_cooling_radiative[i],
+                    'convective': {
+                        'q_min': qmin_c_is[i],
+                        'q_max': qmax_c_is[i],
+                        'v_min': Vmin_is[i],
+                        'v_max': Vmax_is[i]
+                    }
+                }
+            }
+        })
+
+    return spaces
+
+
+def check_specifying_room_type(room_type_is: List[RoomType], specified_type: RoomType):
+    """
+    specified_type で指定された RoomType が必ず1回指定されていることを確認する。
+    Args:
+        room_type_is: RoomType を格納したリスト
+        specified_type: 確認する RoomType
+    """
+    if room_type_is.count(specified_type) != 1:
+        raise ValueError("室タイプ " + specified_type.value + " は必ず指定されなければなりません。")
+
+
+def check_not_specifying_multi_room_type(room_type_is: List[RoomType], specified_type: RoomType):
+    """
+    specified_type で指定された RoomType が複数回指定されていないかどうかを確認する。
+    Args:
+        room_type_is: RoomType を格納したリスト
+        specified_type: 確認する RoomType
+    """
+    if room_type_is.count(specified_type) > 1:
+        raise ValueError("室タイプ " + specified_type.value + " が複数回指定されました。")
 
 
 def make_bdrs(bss2, rooms, a_floor_is):
@@ -321,138 +671,16 @@ def make_bdrs(bss2, rooms, a_floor_is):
     return bdrs
 
 
-def make_spaces(rooms: List[dict], a_floor_is: np.ndarray):
-
-    # 室の数
-    number_of_spaces = len(rooms)
-
-    # 室のID
-    # TODO: ID が0始まりで1ずつ増え、一意であることのチェックを行うコードを追記する。
-    room_ids = [int(r['id']) for r in rooms]
-
-    # 室iの名称, [i]
-    room_names = [r['name'] for r in rooms]
-
-    # 室iの気積, m3, [i]
-    v_room_cap_is = np.array([r['volume'] for r in rooms])
-
-    # 室iの外気からの機械換気量, m3/h, [i]
-    v_vent_ex_is = np.array([r['vent'] for r in rooms])
-
-    # 室iの自然風利用時の換気回数, 1/h, [i]
-    # TODO:変数の使いまわし
-    n_ntrl_vent_is = np.array([r['natural_vent_time'] for r in rooms])
-
-    # 室iの自然風利用時の換気量, m3/s, [i]
-    v_ntrl_vent_is = v_room_cap_is * n_ntrl_vent_is / 3600
-
-    # 室iの隣室からの機会換気量, m3/h, [i, i]
-    v_int_vent_is = get_v_int_vent_is(rooms)
-
-    # 室iの家具等の熱容量, J/K
-    c_cap_frnt_is = a14.get_c_cap_frnt_is(v_room_cap_is)
-
-    # 室iの家具等と空気間の熱コンダクタンス, W/K, [i]
-    c_frnt_is = a14.get_Cfun(c_cap_frnt_is)
-
-    # 室iの家具等の湿気容量, kg/m3 kg/kgDA, [i]
-    g_f_is = a14.get_g_f_is(v_room_cap_is)  # i室の備品類の湿気容量
-
-    # 室iの家具等と空気間の湿気コンダクタンス, kg/s kg/kgDA
-    c_x_is = a14.get_c_x_is(g_f_is)
-
-    # 放射暖房対流比率
-    beta_is = np.full(len(rooms), 0.0)
-
-    # 暖房設備仕様の読み込み
-    # 放射暖房有無（Trueなら放射暖房あり）
-    is_radiative_heating_is = [a22.read_is_radiative_heating(room) for room in rooms]
-
-    # 放射暖房最大能力[W]
-    Lrcap_is = np.array([a22.read_radiative_heating_max_capacity(room) for room in rooms])
-
-    equip_heating_radiative = []
-    for i, is_radiative in enumerate(is_radiative_heating_is):
-        if is_radiative:
-            equip_heating_radiative.append({
-                'installed': True,
-                'max_capacity': Lrcap_is[i]
-            })
-        else:
-            equip_heating_radiative.append({
-                'installed': False
-            })
-
-    # 冷房設備仕様の読み込み
-
-    # 放射冷房有無（Trueなら放射冷房あり）
-    is_radiative_cooling_is = [a22.read_is_radiative_cooling(room) for room in rooms]
-
-    # 放射冷房最大能力[W]
-    radiative_cooling_max_capacity_is = np.array([a22.read_is_radiative_cooling(room) for room in rooms])
-
-    equip_cooling_radiative = []
-    for i, is_radiative in enumerate(is_radiative_cooling_is):
-        if is_radiative:
-            equip_cooling_radiative.append({
-                'installed': True,
-                'max_capacity': radiative_cooling_max_capacity_is[i]
-            })
-        else:
-            equip_cooling_radiative.append({
-                'installed': False
-            })
-
-    qrtd_c_is = np.array([a15.get_qrtd_c(a_floor_i) for a_floor_i in a_floor_is])
-    qmax_c_is = np.array([a15.get_qmax_c(qrtd_c_i) for qrtd_c_i in qrtd_c_is])
-    qmin_c_is = np.array([a15.get_qmin_c() for qrtd_c_i in qrtd_c_is])
-    Vmax_is = np.array([a15.get_Vmax(qrtd_c_i) for qrtd_c_i in qrtd_c_is])
-    Vmin_is = np.array([a15.get_Vmin(Vmax_i) for Vmax_i in Vmax_is])
-
-    spaces = []
-
-    for i in range(number_of_spaces):
-        spaces.append({
-            'id': room_ids[i],
-            'name': room_names[i],
-            'volume': v_room_cap_is[i],
-            'beta': beta_is[i],
-            'ventilation': {
-                'mechanical': v_vent_ex_is[i] / 3600,
-                'next_spaces': v_int_vent_is.tolist()[i],
-                'natural': v_ntrl_vent_is[i]
-            },
-            'furniture': {
-                'heat_capacity': c_cap_frnt_is[i],
-                'heat_cond': c_frnt_is[i],
-                'moisture_capacity': g_f_is[i],
-                'moisture_cond': c_x_is[i]
-            },
-            'equipment': {
-                'heating': {
-                    'radiative': equip_heating_radiative[i],
-                    'convective': {}
-                },
-                'cooling': {
-                    'radiative': equip_cooling_radiative[i],
-                    'convective': {
-                        'q_min': qmin_c_is[i],
-                        'q_max': qmax_c_is[i],
-                        'v_min': Vmin_is[i],
-                        'v_max': Vmax_is[i]
-                    }
-                }
-            }
-        })
-    return spaces
-
-
-def get_v_int_vent_is(rooms: List[Dict]) -> np.ndarray:
+def _get_v_int_vent_is(next_vents: List[List[Tuple]], n_rooms: int) -> np.ndarray:
     """
-
+    隣室iから室iへの機械換気量マトリクスを生成する。
     Args:
-        rooms: 部屋（入力）（辞書型）
-
+        next_vents: 隣室からの機械換気
+                        2重のリスト構造を持つ。
+                        外側のリスト：室、（流入側の室を基準とする。）
+                        内側のリスト：換気経路（数は任意であり、換気経路が無い（0: 空のリスト）場合もある。）
+                        変数はタプル （流出側の室ID: int, 換気量（m3/h): float)
+        n_rooms: 室の数
     Returns:
         隣室iから室iへの機械換気量マトリクス, m3/s, [i, i]
             例えば、
@@ -468,67 +696,18 @@ def get_v_int_vent_is(rooms: List[Dict]) -> np.ndarray:
                  [0.0, 0.0, 0.0, 0.0]]
     """
 
-    # 室の数
-    number_of_rooms = len(rooms)
+    # 隣室iから室iへの換気量マトリックス, m3/s [i, i]
+    v_int_vent_is = np.zeros((n_rooms, n_rooms), dtype=float)
 
-    # 隣室iから室iへの機械換気量, m3/s, [i, i]
-    v_int_vent_is = np.concatenate([[
-        get_v_int_vent_i(
-            next_vents=r['next_vent'],
-            number_of_rooms=number_of_rooms
-        )
-    ] for r in rooms])
+    # 室iのループ
+    for i, next_vent_is in enumerate(next_vents):
+
+        # 室iにおける経路jのループ
+        # 取得するのは、(ID: int, 換気量(m3/h): float) のタプル
+        for (idx, volume) in next_vent_is:
+
+            # m3/hからm3/sへの単位変換を行っている
+            v_int_vent_is[i, idx] = v_int_vent_is[i, idx] + volume / 3600.0
 
     return v_int_vent_is
-
-
-def get_v_int_vent_i(next_vents: List[Dict], number_of_rooms: int) -> np.ndarray:
-    """隣室から室への機械換気量の配列を取得する。
-
-    Args:
-        next_vents: 隣室からの機械換気量
-            辞書型：
-                上流側の室の名称
-                換気量, m3/h
-        number_of_rooms: 部屋の数
-
-    Returns:
-        隣室から室への機械換気量の配列, m3/s, [i]
-            例えば、
-                室インデックス0からの換気量が 10.0
-                室インデックス1からの換気量が  0.0
-                室インデックス2からの換気量が  8.0
-                室インデックス3からの換気量が  6.0
-            の場合は、
-            [10.0, 0.0, 8.0, 6.0]
-
-    Notes:
-        室インデックスが重なって指定された場合はそこで指定された換気量は加算される。
-            例えば、
-                室インデックス0からの換気量が 10.0
-                室インデックス1からの換気量が  0.0
-                室インデックス2からの換気量が  8.0
-                室インデックス3からの換気量が  6.0
-                室インデックス0からの換気量が  2.0
-            の場合は、
-            [12.0, 0.0, 8.0, 6.0]
-
-    """
-
-    # 室iの隣室からの機械換気量, m3/s, [i]
-    v_int_vent_i = np.zeros(number_of_rooms)
-
-    for next_vent in next_vents:
-
-        idx = {
-            'main_occupant_room': 0,
-            'other_occupant_room': 1,
-            'non_occupant_room': 2,
-            'underfloor': 3
-        }[next_vent['upstream_room_type']]
-
-        # m3/hからm3/sへの単位変換を行っている
-        v_int_vent_i[idx] = v_int_vent_i[idx] + next_vent['volume'] / 3600.0
-
-    return v_int_vent_i
 
