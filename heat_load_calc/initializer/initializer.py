@@ -500,18 +500,28 @@ def _make_spaces_dict(rooms: List[dict], a_floor_is: np.ndarray):
     # 室iの家具等と空気間の湿気コンダクタンス, kg/s kg/kgDA
     g_lh_frt_is = furniture.get_g_lh_frt_is(c_lh_frt_is=c_lh_frt_is)
 
+    equip_heating_convective = []
     equip_heating_radiative = []
 
     for he_type, he_spec in zip(heating_equipment_type_is, heating_equipment_spec_is):
         if he_type == HeatingEquipmentType.NOT_INSTALLED:
+            equip_heating_convective.append({
+                'installed': False
+            })
             equip_heating_radiative.append({
                 'installed': False
             })
         elif he_type == HeatingEquipmentType.CONVECTIVE:
+            equip_heating_convective.append({
+                'installed': True
+            })
             equip_heating_radiative.append({
                 'installed': False
             })
         elif he_type == HeatingEquipmentType.RADIATIVE:
+            equip_heating_convective.append({
+                'installed': False
+            })
             # 最大能力, W/m2
             # (放熱)面積, m2
             he_max_capacity, he_area = he_spec
@@ -597,12 +607,13 @@ def _make_spaces_dict(rooms: List[dict], a_floor_is: np.ndarray):
             'equipment': {
                 'heating': {
                     'radiative': equip_heating_radiative[i],
-                    'convective': {
-                        'q_min': q_min_h_is[i],
-                        'q_max': q_max_h_is[i],
-                        'v_min': v_min_h_is[i],
-                        'v_max': v_max_h_is[i]
-                    }
+                    # 'convective': {
+                    #     'q_min': q_min_h_is[i],
+                    #     'q_max': q_max_h_is[i],
+                    #     'v_min': v_min_h_is[i],
+                    #     'v_max': v_max_h_is[i]
+                    # }
+                    'convective': equip_heating_convective[i]
                 },
                 'cooling': {
                     'radiative': equip_cooling_radiative[i],
