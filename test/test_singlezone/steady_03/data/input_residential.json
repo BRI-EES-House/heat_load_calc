@@ -1,25 +1,28 @@
 {
 	"common": {
-		"region": 6,
-		"is_residential": true
+		"region": 6
 	},
-
+	"building": {
+		"story": 2,
+		"c_value": 2.0,
+		"inside_pressure": "negative"
+	},
 	"rooms": [
 		{
 			"id": 0,
 			"name": "main_occupant_room",
-			"room_type": 1,
+			"room_type": "main_occupant_room",
 			"volume": 1.0,
 			"vent": 0.0,
 			"cooling_equipment": {
-				"is_radiative_cooling": false,
+				"equipment_type": "convective",
 				"convective_cooling": {
 					"max_capacity": 0.0,
 					"heat_exchanger_type": "normal"
 				}
 			},
 			"heating_equipment": {
-				"is_radiative_heating": false,
+				"equipment_type": "convective",
 				"convective_heating": {
 					"max_capacity": 0.0,
 					"heat_exchanger_type": "normal"
