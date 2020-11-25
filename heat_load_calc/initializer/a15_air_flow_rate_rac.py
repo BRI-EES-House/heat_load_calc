@@ -46,8 +46,7 @@ def get_q_min_h():
     """
     最小能力を計算する。
     Returns:
-        以下のタプル
-            最小暖房能力, W, [i]
+        最小暖房能力, W, [i]
     Notes:
         とりあえず500Wで固定する。
     """
@@ -59,8 +58,7 @@ def get_q_min_c():
     """
     最小能力を計算する。
     Returns:
-        以下のタプル
-            最小冷房能力, W, [i]
+        最小冷房能力, W, [i]
     Notes:
         とりあえず500Wで固定する。
     """
@@ -68,23 +66,31 @@ def get_q_min_c():
     return 500.0
 
 
-# 最大風量[m3/min]の計算 式(107)
-def get_v_max(qrtd_c):
+def get_v_max(q_rtd_c):
     """
-    :param qrtd_c: 定格冷房能力[W]
-    :return:
+    最大風量を計算する。
+    Args:
+        q_rtd_c: 定格冷房能力, W
+    Returns:
+        最大風量, m3/min
     """
-    Vmax = 11.076 * (qrtd_c / 1000.0) ** 0.3432
-    return Vmax
+
+    v_max = 11.076 * (q_rtd_c / 1000.0) ** 0.3432
+
+    return v_max
 
 
-# 最小風量[m3/min]の計算 式(108)
-def get_v_min(Vmax):
+def get_v_min(v_max):
     """
-    :param Vmax: 最大風量[m3/min]
-    :return:
+    最小風量を計算する。
+    Args:
+        v_max: 最大風量, m3/min
+    Returns:
+        最小風量, m3/min
     """
-    Vmin = Vmax * 0.55
-    return Vmin
+
+    v_min = v_max * 0.55
+
+    return v_min
 
 
