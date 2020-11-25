@@ -6,7 +6,6 @@ import pandas as pd
 from enum import Enum
 
 import heat_load_calc.initializer.a12_indoor_radiative_heat_transfer as a12
-import heat_load_calc.initializer.a14_furniture as a14
 import heat_load_calc.initializer.a15_air_flow_rate_rac as a15
 import heat_load_calc.initializer.a22_radiative_heating_spec as a22
 
@@ -17,6 +16,7 @@ from heat_load_calc.initializer import residents_number
 from heat_load_calc.initializer import occupants_form_factor
 from heat_load_calc.initializer import boundary_simple
 from heat_load_calc.initializer import building_part_summarize
+from heat_load_calc.initializer import furniture
 
 
 class Story(Enum):
@@ -453,26 +453,39 @@ def _make_spaces_dict(rooms: List[dict], a_floor_is: np.ndarray):
 
     # endregion
 
-    # 室iの自然風利用時の換気量, m3/s, [i]
-    v_ntrl_vent_is = v_room_cap_is * n_ntrl_vent_is / 3600
+    # region 出力ファイルに必要なパラメータの作成（必要なもののみ）
+
+    # 放射暖房対流比率, [i]
+    beta_is = []
+    for he_type, he_spec in zip(heating_equipment_type_is, heating_equipment_spec_is):
+        if he_type == HeatingEquipmentType.NOT_INSTALLED:
+            beta_is.append(0.0)
+        elif he_type == HeatingEquipmentType.CONVECTIVE:
+            beta_is.append(0.0)
+        elif he_type == HeatingEquipmentType.RADIATIVE:
+            beta_is.append(0.0)
+        else:
+            raise Exception()
 
     # 室iの隣室からの機械換気量, m3/h, [i, i]
     v_int_vent_is = _get_v_int_vent_is(next_vents, n_spaces)
 
+    # 室iの自然風利用時の換気量, m3/s, [i]
+    v_ntrl_vent_is = v_room_cap_is * n_ntrl_vent_is / 3600
+
     # 室iの家具等の熱容量, J/K
-    c_cap_frnt_is = a14.get_c_cap_frnt_is(v_room_cap_is)
+    c_sh_frt_is = furniture.get_c_cap_frt_is(v_room_cap_is=v_room_cap_is)
 
     # 室iの家具等と空気間の熱コンダクタンス, W/K, [i]
-    c_frnt_is = a14.get_Cfun(c_cap_frnt_is)
+    g_sh_frt_is = furniture.get_g_sh_frt_is(c_sh_frt_is=c_sh_frt_is)
 
     # 室iの家具等の湿気容量, kg/m3 kg/kgDA, [i]
-    g_f_is = a14.get_g_f_is(v_room_cap_is)  # i室の備品類の湿気容量
+    c_lh_frt_is = furniture.get_c_lh_frt_is(v_room_cap_is)
 
     # 室iの家具等と空気間の湿気コンダクタンス, kg/s kg/kgDA
-    c_x_is = a14.get_c_x_is(g_f_is)
+    g_lh_frt_is = furniture.get_g_lh_frt_is(c_lh_frt_is=c_lh_frt_is)
 
-    # 放射暖房対流比率
-    beta_is = np.full(len(rooms), 0.0)
+
 
     equip_heating_radiative = []
     for he_type, he_spec in zip(heating_equipment_type_is, heating_equipment_spec_is):
@@ -534,6 +547,8 @@ def _make_spaces_dict(rooms: List[dict], a_floor_is: np.ndarray):
     Vmax_is = np.array([a15.get_Vmax(qrtd_c_i) for qrtd_c_i in qrtd_c_is])
     Vmin_is = np.array([a15.get_Vmin(Vmax_i) for Vmax_i in Vmax_is])
 
+    # endregion
+
     spaces = []
 
     for i in range(n_spaces):
@@ -548,10 +563,10 @@ def _make_spaces_dict(rooms: List[dict], a_floor_is: np.ndarray):
                 'natural': v_ntrl_vent_is[i]
             },
             'furniture': {
-                'heat_capacity': c_cap_frnt_is[i],
-                'heat_cond': c_frnt_is[i],
-                'moisture_capacity': g_f_is[i],
-                'moisture_cond': c_x_is[i]
+                'heat_capacity': c_sh_frt_is[i],
+                'heat_cond': g_sh_frt_is[i],
+                'moisture_capacity': c_lh_frt_is[i],
+                'moisture_cond': g_lh_frt_is[i]
             },
             'equipment': {
                 'heating': {
