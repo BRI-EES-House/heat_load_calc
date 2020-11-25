@@ -16,16 +16,20 @@
 			"vent": 0.0,
 			"cooling_equipment": {
 				"equipment_type": "convective",
-				"convective_cooling": {
-					"max_capacity": 0.0,
-					"heat_exchanger_type": "normal"
+				"convective": {
+					"q_min": 500.0,
+					"q_max": 2059.8888568540006,
+					"v_min": 3.508455287821144,
+					"v_max": 6.379009614220261
 				}
 			},
 			"heating_equipment": {
 				"equipment_type": "convective",
-				"convective_heating": {
-					"max_capacity": 0.0,
-					"heat_exchanger_type": "normal"
+				"convective": {
+					"q_min": 500.0,
+					"q_max": 1405.68782,
+					"v_min": 3.7118650574986343,
+					"v_max": 6.7488455590884255
 				}
 			},
 			"next_vent": [

@@ -42,6 +42,7 @@
                         "installed": false
                     },
                     "convective": {
+                        "installed": true,
                         "q_min": 500.0,
                         "q_max": 6049.891511,
                         "v_min": 11.086608037753514,
@@ -87,6 +88,7 @@
                         "installed": false
                     },
                     "convective": {
+                        "installed": true,
                         "q_min": 500.0,
                         "q_max": 7386.24863,
                         "v_min": 12.053482688294372,
@@ -132,6 +134,7 @@
                         "installed": false
                     },
                     "convective": {
+                        "installed": true,
                         "q_min": 500.0,
                         "q_max": 4713.534392,
                         "v_min": 9.923978398248305,

@@ -143,9 +143,6 @@ def make_house(d, input_data_dir, output_data_dir):
         )
     ac_demand_is_ns = np.where(ac_demand_is_ns == 1, True, False)
 
-    # 熱交換器種類
-    heat_exchanger_type_is = [a22.read_heat_exchanger_type(room) for room in rooms]
-
     # json 出力 のうち、"building" に対応する辞書
     building = _make_building_dict(d=d['building'])
 
@@ -397,12 +394,21 @@ def _make_spaces_dict(rooms: List[dict], a_floor_is: np.ndarray):
 
         # 対流暖房方式
         elif he_type == HeatingEquipmentType.CONVECTIVE:
-            heating_equipment_spec_is.append(None)
+            # 対流暖房方式における仕様
+            spec = he['convective']
+            # 以下の仕様をタプル形式で追加
+            # 最小暖房能力, W
+            # 最大暖房能力, W
+            # 暖房時最小風量, m3/min
+            # 暖房時最大風量, m3/min
+            heating_equipment_spec_is.append(
+                (spec['q_min'], spec['q_max'], spec['v_min'], spec['v_max'])
+            )
 
         # 放射暖房方式
         elif he_type == HeatingEquipmentType.RADIATIVE:
             # 放射暖房方式における仕様
-            spec = he['radiative_heating']
+            spec = he['radiative']
             # 以下の仕様をタプル形式で追加
             # 最大能力, W/m2
             # (放熱)面積, m2
@@ -435,12 +441,21 @@ def _make_spaces_dict(rooms: List[dict], a_floor_is: np.ndarray):
 
         # 対流冷房方式
         elif ce_type == CoolingEquipmentType.CONVECTIVE:
-            cooling_equipment_spec_is.append(None)
+            # 対流暖房方式における仕様
+            spec = ce['convective']
+            # 以下の仕様をタプル形式で追加
+            # 最小冷房能力, W
+            # 最大冷房能力, W
+            # 冷房時最小風量, m3/min
+            # 冷房時最大風量, m3/min
+            cooling_equipment_spec_is.append(
+                (spec['q_min'], spec['q_max'], spec['v_min'], spec['v_max'])
+            )
 
         # 放射冷房方式
         elif ce_type == CoolingEquipmentType.RADIATIVE:
             # 放射冷房方式における仕様
-            spec = ce['radiative_cooling']
+            spec = ce['radiative']
             # 以下の仕様をタプル形式で追加
             # 最大能力, W/m2
             # (放熱)面積, m2
@@ -485,9 +500,8 @@ def _make_spaces_dict(rooms: List[dict], a_floor_is: np.ndarray):
     # 室iの家具等と空気間の湿気コンダクタンス, kg/s kg/kgDA
     g_lh_frt_is = furniture.get_g_lh_frt_is(c_lh_frt_is=c_lh_frt_is)
 
-
-
     equip_heating_radiative = []
+
     for he_type, he_spec in zip(heating_equipment_type_is, heating_equipment_spec_is):
         if he_type == HeatingEquipmentType.NOT_INSTALLED:
             equip_heating_radiative.append({
@@ -510,25 +524,33 @@ def _make_spaces_dict(rooms: List[dict], a_floor_is: np.ndarray):
         else:
             raise Exception()
 
-    # 冷房設備仕様の読み込み
-
-    # 放射冷房有無（Trueなら放射冷房あり）
-#    is_radiative_cooling_is = [a22.read_is_radiative_cooling(room) for room in rooms]
-
-    # 放射冷房最大能力[W]
-#    radiative_cooling_max_capacity_is = np.array([a22.read_is_radiative_cooling(room) for room in rooms])
-
+    equip_cooling_convective = []
     equip_cooling_radiative = []
+
     for ce_type, ce_spec in zip(cooling_equipment_type_is, cooling_equipment_spec_is):
         if ce_type == CoolingEquipmentType.NOT_INSTALLED:
+            equip_cooling_convective.append({
+                'installed': False
+            })
             equip_cooling_radiative.append({
                 'installed': False
             })
         elif ce_type == CoolingEquipmentType.CONVECTIVE:
+            ce_q_min, ce_q_max, ce_v_min, ce_v_max = ce_spec
+            equip_cooling_convective.append({
+                'installed': True,
+                'q_min': ce_q_min,
+                'q_max': ce_q_max,
+                'v_min': ce_v_min,
+                'v_max': ce_v_max
+            })
             equip_cooling_radiative.append({
                 'installed': False
             })
         elif ce_type == CoolingEquipmentType.RADIATIVE:
+            equip_cooling_convective.append({
+                'installed': False
+            })
             # 最大能力, W/m2
             # (放熱)面積, m2
             ce_max_capacity, ce_area = ce_spec
@@ -584,12 +606,13 @@ def _make_spaces_dict(rooms: List[dict], a_floor_is: np.ndarray):
                 },
                 'cooling': {
                     'radiative': equip_cooling_radiative[i],
-                    'convective': {
-                        'q_min': q_min_c_is[i],
-                        'q_max': q_max_c_is[i],
-                        'v_min': v_min_c_is[i],
-                        'v_max': v_max_c_is[i]
-                    }
+                    # 'convective': {
+                    #     'q_min': q_min_c_is[i],
+                    #     'q_max': q_max_c_is[i],
+                    #     'v_min': v_min_c_is[i],
+                    #     'v_max': v_max_c_is[i]
+                    # }
+                    'convective': equip_cooling_convective[i]
                 }
             }
         })
