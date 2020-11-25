@@ -93,7 +93,7 @@ def make_house(d, input_data_dir, output_data_dir):
     room_name_is = [r['name'] for r in rooms]
 
     # 境界j
-    bss = np.array([
+    bss = [
         boundary_simple.get_boundary_simple(
             theta_o_ns=theta_o_ns,
             i_dn_ns=i_dn_ns,
@@ -103,9 +103,9 @@ def make_house(d, input_data_dir, output_data_dir):
             h_sun_ns=h_sun_ns,
             b=b_dict
         ) for b_dict in d['boundaries']
-    ])
+    ]
 
-    bss2 = building_part_summarize.integrate(bss=list(bss))
+    bss2 = building_part_summarize.integrate(bss=bss)
 
     q_trs_sol_is_ns = np.array([
         np.sum(np.array([bs.q_trs_sol for bs in bss2 if bs.connected_room_id == i]), axis=0)
