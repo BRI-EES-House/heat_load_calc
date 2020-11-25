@@ -143,7 +143,7 @@ def make_house(d, input_data_dir, output_data_dir):
     building = _make_building_dict(d=d['building'])
 
     # json 出力のうち、"spaces" に対応する辞書
-    spaces = _make_spaces_dict(rooms=d['rooms'], a_floor_is=a_floor_is)
+    spaces = _make_spaces_dict(rooms=d['rooms'])
 
     bdrs = make_bdrs(bss2, rooms=d['rooms'], a_floor_is=a_floor_is)
 
@@ -233,7 +233,7 @@ def make_house_for_test(d, input_data_dir, output_data_dir):
 
     building = _make_building_dict(d=d['building'])
 
-    spaces = _make_spaces_dict(rooms=d['rooms'], a_floor_is=a_floor_is)
+    spaces = _make_spaces_dict(rooms=d['rooms'])
 
     bdrs = make_bdrs(bss2, rooms=d['rooms'], a_floor_is=a_floor_is)
 
@@ -308,7 +308,7 @@ def _make_building_dict(d: Dict):
     }
 
 
-def _make_spaces_dict(rooms: List[dict], a_floor_is: np.ndarray):
+def _make_spaces_dict(rooms: List[dict]):
     """
     出力する辞書のうち、　"spaces" に対応する辞書を作成する。
     Args:

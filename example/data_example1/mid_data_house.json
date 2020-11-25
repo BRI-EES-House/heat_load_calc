@@ -31,10 +31,7 @@
                         "installed": false
                     },
                     "convective": {
-                        "q_min": 500.0,
-                        "q_max": 10232.294091906699,
-                        "v_min": 11.782658303908596,
-                        "v_max": 21.423015098015625
+                        "installed": true
                     }
                 },
                 "cooling": {
@@ -77,10 +74,7 @@
                         "installed": false
                     },
                     "convective": {
-                        "q_min": 500.0,
-                        "q_max": 12583.881714211,
-                        "v_min": 12.82206055738021,
-                        "v_max": 23.312837377054926
+                        "installed": true
                     }
                 },
                 "cooling": {
@@ -123,10 +117,7 @@
                         "installed": false
                     },
                     "convective": {
-                        "q_min": 500.0,
-                        "q_max": 7880.7064696024,
-                        "v_min": 10.5298400116303,
-                        "v_max": 19.145163657509634
+                        "installed": true
                     }
                 },
                 "cooling": {
