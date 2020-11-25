@@ -16,8 +16,7 @@ def get_q_rtd(a_floor_is: np.ndarray) -> (np.ndarray, np.ndarray):
             定格冷房能力, W, [i]
     """
 
-#    q_rtd_c = np.minimum(190.5 * a_floor_is + 45.6, 5600.0)
-    q_rtd_c = 190.5 * a_floor_is + 45.6
+    q_rtd_c = np.minimum(190.5 * a_floor_is + 45.6, 5600.0)
 
     q_rtd_h = 1.2090 * q_rtd_c - 85.1
 
@@ -36,11 +35,9 @@ def get_q_max(q_rtd_h_is: np.ndarray, q_rtd_c_is: np.ndarray) -> (np.ndarray, np
             最大冷房能力, W, [i]
     """
 
-#    q_max_c = np.maximum(0.8462 * q_rtd_c_is + 1205.9, q_rtd_c_is)
-    q_max_c = 0.8462 * q_rtd_c_is + 1205.9
+    q_max_c = np.maximum(0.8462 * q_rtd_c_is + 1205.9, q_rtd_c_is)
 
-#    q_max_h = np.maximum(1.7597 * q_max_c - 413.7, q_rtd_h_is)
-    q_max_h = 1.7597 * q_max_c - 413.7
+    q_max_h = np.maximum(1.7597 * q_max_c - 413.7, q_rtd_h_is)
 
     return q_max_h, q_max_c
 
