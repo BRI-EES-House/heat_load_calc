@@ -90,7 +90,7 @@ def make_house(d, input_data_dir, output_data_dir):
     n_spaces = len(rooms)
 
     # 室iの名称, [i]
-    room_names = [r['name'] for r in rooms]
+    room_name_is = [r['name'] for r in rooms]
 
     # 境界j
     bss = np.array([
@@ -134,7 +134,7 @@ def make_house(d, input_data_dir, output_data_dir):
     q_gen_is_ns, x_gen_is_ns, v_mec_vent_local_is_ns, n_hum_is_ns, ac_demand_is_ns\
         = schedule_loader.get_compiled_schedules(
             n_p=n_p,
-            room_name_is=room_names,
+            room_name_is=room_name_is,
             a_floor_is=a_floor_is
         )
     ac_demand_is_ns = np.where(ac_demand_is_ns == 1, True, False)
