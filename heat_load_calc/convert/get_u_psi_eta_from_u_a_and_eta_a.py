@@ -2,12 +2,14 @@ import numpy as np
 from collections import namedtuple
 from typing import List, Dict
 
+from heat_load_calc.convert.ees_house import GeneralPartType
 from heat_load_calc.convert.ees_house import IArea
 from heat_load_calc.convert.ees_house import GeneralPartNoSpec
 from heat_load_calc.convert.ees_house import WindowNoSpec
 from heat_load_calc.convert.ees_house import DoorNoSpec
 from heat_load_calc.convert.ees_house import EarthfloorPerimeterNoSpec
 from heat_load_calc.convert.ees_house import EarthfloorCenterNoSpec
+from heat_load_calc.external.factor_h import NextSpace
 
 PartType = namedtuple('PartType', [
     'roof',
@@ -190,15 +192,15 @@ def get_m_opq(
         不透明部位のm値の合計, W/K （暖房期・冷房期）
     """
 
-    m_opq_h_general_part = sum(
-        s.area * 0.034 * u_psi_value[s.general_part_type] * s.get_nu(region=region, season='heating')
-        for s in gps if s.next_space == 'outdoor'
-    )
+    m_opq_h_general_part = sum([
+        s.area * 0.034 * u_psi_value[s.general_part_type.value] * s.get_nu(region=region, season='heating')
+        for s in gps
+    ])
 
-    m_opq_c_general_part = sum(
-        s.area * 0.034 * u_psi_value[s.general_part_type] * s.get_nu(region=region, season='cooling')
-        for s in gps if s.next_space == 'outdoor'
-    )
+    m_opq_c_general_part = sum([
+        s.area * 0.034 * u_psi_value[s.general_part_type.value] * s.get_nu(region=region, season='cooling')
+        for s in gps
+    ])
 
     m_opq_h_door = sum([s.area * 0.034 * u_psi_value['door'] * s.get_nu(region=region, season='heating') for s in ds])
 
@@ -269,9 +271,9 @@ def calc_parts_spec(
     """
     Args:
         region: 地域の区分
-        u_a_target: 目標とするUA値, W/k
-        eta_a_h_target: 目標とするηAH値, W/(W/m2)
-        eta_a_c_target: 目標とするηAC値, W/(W/m2)
+        u_a_target: 目標とするUA値, W/m2k
+        eta_a_h_target: 目標とするηAH値, (W/m2)/(W/m2)
+        eta_a_c_target: 目標とするηAC値, (W/m2)/(W/m2)
         gps: 一般部位（仕様なし）のリスト
         ds: 大部分がガラスで構成されないドア等の開口部（仕様なし）のリスト
         ws: 大部分がガラスで構成される窓等の開口部（仕様なし）のリスト
@@ -393,37 +395,37 @@ def _get_q_std(
 
     q_uah_std['roof'] = sum([
         s.area * get_u_psi_std(region=region, part_type='roof') * s.get_h(region=region)
-        for s in gps if s.general_part_type == 'roof'
+        for s in gps if s.general_part_type == GeneralPartType.ROOF
     ])
 
     q_uah_std['ceiling'] = sum([
         s.area * get_u_psi_std(region=region, part_type='ceiling') * s.get_h(region=region)
-        for s in gps if s.general_part_type == 'ceiling'
+        for s in gps if s.general_part_type == GeneralPartType.CEILING
     ])
 
     q_uah_std['wall'] = sum([
         s.area * get_u_psi_std(region=region, part_type='wall') * s.get_h(region=region)
-        for s in gps if s.general_part_type == 'wall'
+        for s in gps if s.general_part_type == GeneralPartType.WALL
     ])
 
     q_uah_std['floor'] = sum([
         s.area * get_u_psi_std(region=region, part_type='floor') * s.get_h(region=region)
-        for s in gps if s.general_part_type == 'floor'
+        for s in gps if s.general_part_type == GeneralPartType.FLOOR
     ])
 
     q_uah_std['boundary_ceiling'] = sum([
         s.area * get_u_psi_std(region=region, part_type='boundary_ceiling') * s.get_h(region=region)
-        for s in gps if s.general_part_type == 'boundary_ceiling'
+        for s in gps if s.general_part_type == GeneralPartType.UPWARD_BOUNDARY_FLOOR
     ])
 
     q_uah_std['boundary_wall'] = sum([
         s.area * get_u_psi_std(region=region, part_type='boundary_wall') * s.get_h(region=region)
-        for s in gps if s.general_part_type == 'boundary_wall'
+        for s in gps if s.general_part_type == GeneralPartType.BOUNDARY_WALL
     ])
 
     q_uah_std['boundary_floor'] = sum([
         s.area * get_u_psi_std(region=region, part_type='boundary_floor') * s.get_h(region=region)
-        for s in gps if s.general_part_type == 'boundary_floor'
+        for s in gps if s.general_part_type == GeneralPartType.DOWNWARD_BOUNDARY_FLOOR
     ])
 
     q_uah_std['window'] = sum([
