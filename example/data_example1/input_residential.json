@@ -1,25 +1,28 @@
 {
 	"common": {
-		"region": 6,
-		"is_residential": true
+		"region": 6
 	},
-
+	"building": {
+		"story": 2,
+		"c_value": 2.0,
+		"inside_pressure": "negative"
+	},
 	"rooms": [
 		{
 			"id": 0,
 			"name": "main_occupant_room",
-			"room_type": 1,
+			"room_type": "main_occupant_room",
 			"volume": 70.92,
 			"vent": 60.0,
 			"cooling_equipment": {
-				"is_radiative_cooling": false,
+				"equipment_type": "convective",
 				"convective_cooling": {
 					"max_capacity": -4000.0,
 					"heat_exchanger_type": "normal"
 				}
 			},
 			"heating_equipment": {
-				"is_radiative_heating": false,
+				"equipment_type": "convective",
 				"convective_heating": {
 					"max_capacity": 4000.0,
 					"heat_exchanger_type": "normal"
@@ -33,22 +36,22 @@
 		{
 			"id": 1,
 			"name": "other_occupant_room",
-			"room_type": 2,
+			"room_type": "other_occupant_room",
 			"volume": 123.22,
 			"vent": 100.0,
 			"cooling_equipment": {
-				"is_radiative_cooling": false,
+				"equipment_type": "convective",
 				"convective_cooling": {
 					"max_capacity": -2500.0,
 					"heat_exchanger_type": "normal"
 				}
 			},
 			"heating_equipment": {
-				"is_radiative_heating": false
+				"equipment_type": "convective"
 			},
 			"next_vent": [
 				{
-					"upstream_room_type": "non_occupant_room",
+					"upstream_room_id": 2,
 					"volume": 20.0
 				}
 			],
@@ -58,26 +61,26 @@
 		{
 			"id": 2,
 			"name": "non_occupant_room",
-			"room_type": 3,
+			"room_type": "non_occupant_room",
 			"volume": 94.88,
 			"vent": 0,
 			"cooling_equipment": {
-				"is_radiative_cooling": false,
+				"equipment_type": "convective",
 				"convective_cooling": {
 					"max_capacity": 0.0,
 					"heat_exchanger_type": "normal"
 				}
 			},
 			"heating_equipment": {
-				"is_radiative_heating": false
+				"equipment_type": "convective"
 			},
 			"next_vent": [
 				{
-					"upstream_room_type": "main_occupant_room",
+					"upstream_room_id": 0,
 					"volume": 60.0
 				},
 				{
-					"upstream_room_type": "other_occupant_room",
+					"upstream_room_id": 1,
 					"volume": 100.0
 				}
 			],

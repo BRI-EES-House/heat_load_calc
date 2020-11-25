@@ -4,9 +4,9 @@ import copy
 import pprint
 
 from heat_load_calc.convert import a_06_common_items
-from heat_load_calc.convert import a_01_00_general_part
 
 from heat_load_calc.external import factor_h
+from heat_load_calc.external.factor_h import NextSpace
 
 from heat_load_calc.convert import convert_indices_to_lv2_info
 from heat_load_calc.convert import convert_lv2_to_lv3
@@ -222,121 +222,6 @@ def get_v_vent(v_vent_ex_mr: float, v_vent_ex_or: float) -> (float, float):
     v_vent_or_nr = v_vent_ex_or
 
     return v_vent_mr_nr, v_vent_or_nr
-
-
-def get_boundaries_general_part(region, gps_dict, gps: List[GeneralPart]):
-
-    boundary_mr = []
-    boundary_or = []
-    boundary_nr = []
-    boundary_uf = []
-
-    for gp_dict, gp in zip(gps_dict, gps):
-
-        parts = a_01_00_general_part.get_general_part_spec_hlc(gp_dict, gp)
-
-        for part_i in parts:
-
-            name_hlc_i, r_a_hlc_i, general_part_spec_hlc_i, _ = part_i
-
-            boundary = {
-                'name': gp_dict['name'] + name_hlc_i,
-                'boundary_type': 'external_general_part',
-                'area': gp_dict['area'] * r_a_hlc_i,
-                'is_sun_striked_outside': get_is_sun_striked_outside(gp_dict['direction']),
-                'temp_dif_coef': factor_h.get_h(region=region, next_space=gp_dict['next_space']),
-                'direction': get_direction(gp_dict['direction']),
-                'is_solar_absorbed_inside': get_is_solar_absorbed_inside(general_part_type=gp_dict['general_part_type']),
-                'general_part_spec': general_part_spec_hlc_i,
-                'solar_shading_part': copy.deepcopy(gp_dict['spec']['sunshade'])
-            }
-
-            space_type = gp_dict['space_type']
-
-            if space_type == 'main_occupant_room':
-                boundary_mr.append(boundary)
-            elif space_type == 'other_occupant_room':
-                boundary_or.append(boundary)
-            elif space_type == 'non_occupant_room':
-                boundary_nr.append(boundary)
-            elif space_type == 'under_floor':
-                boundary_uf.append(boundary)
-            else:
-                raise ValueError()
-
-    return boundary_mr, boundary_or, boundary_nr, boundary_uf
-
-
-def get_boundaries_windows(region, d_windows):
-
-    boundary_mr = []
-    boundary_or = []
-    boundary_nr = []
-    boundary_uf = []
-
-    for window in d_windows:
-
-        eta = get_eta(window)
-        transparent_opening_part_spec_hlc_i = None  # 未実装
-        boundary = {
-            'name': window['name'],
-            'boundary_type': 'external_transparent_part',
-            'area': window['area'],
-            'is_sun_striked_outside': get_is_sun_striked_outside(window['direction']),
-            'temp_dif_coef': factor_h.get_h(region=region, next_space=window['next_space']),
-            'direction': get_direction(window['direction']),
-            'is_solar_absorbed_inside': False,
-            'general_part_spec': transparent_opening_part_spec_hlc_i,
-            'solar_shading_part': copy.deepcopy(window['spec']['sunshade'])
-        }
-
-        space_type = window['space_type']
-
-        if space_type == 'main_occupant_room':
-            boundary_mr.append(boundary)
-        elif space_type == 'other_occupant_room':
-            boundary_or.append(boundary)
-        elif space_type == 'non_occupant_room':
-            boundary_nr.append(boundary)
-        elif space_type == 'under_floor':
-            boundary_uf.append(boundary)
-        else:
-            raise ValueError()
-
-    return boundary_mr, boundary_or, boundary_nr, boundary_uf
-
-
-def get_is_solar_absorbed_inside(general_part_type):
-
-    return general_part_type == 'floor' or general_part_type == 'downward_boundary_floor'
-
-
-def get_is_sun_striked_outside(direction: str) -> bool:
-    """
-    日射の有無を判定する。
-
-    Args:
-        direction: 方位
-
-    Returns:
-        日射の有無
-    """
-
-    return {
-        'top': True,
-        'n': True,
-        'ne': True,
-        'e': True,
-        'se': True,
-        's': True,
-        'sw': True,
-        'w': True,
-        'nw': True,
-        'bottom': False,
-        'upward': False,
-        'horizontal': False,
-        'downward': False
-    }[direction]
 
 
 def get_direction(direction: str) -> str:
@@ -756,6 +641,27 @@ def convert_lv4_to_initializer(common, envelope, d, equipment_main, equipment_ot
     # 一般部位
     gps = GeneralPart.make_general_parts(ds=envelope['general_parts'])
 
+    # 大部分がガラスで構成される窓等の開口部
+    ws = Window.make_windows(ds=envelope['windows'])
+
+    # 大部分がガラスで構成されないドア等の開口部
+    ds = Door.make_doors(ds=envelope['doors'])
+
+    # 土間床周辺部
+    efps = EarthfloorPerimeter.make_earthfloor_perimeters(ds=envelope['earthfloor_perimeters'])
+
+    # 土間床中央部
+    efcs = EarthfloorCenter.make_earthfloor_centers(ds=envelope['earthfloor_centers'])
+
+    # 熱橋
+    hbs = Heatbridge.make_heatbridges(ds=envelope['heat_bridges'])
+
+    # 室内床
+    ifs = InnerFloor.make_inner_floors(ds=envelope['inner_floors'])
+
+    # 室内壁
+    iws = InnerWall.make_inner_walls(ds=envelope['inner_walls'])
+
     ventilation = d['ventilation']
 
     d_calc_input = {
@@ -764,17 +670,23 @@ def convert_lv4_to_initializer(common, envelope, d, equipment_main, equipment_ot
         }
     }
 
-    make_rooms(d, d_calc_input, envelope, equipment_main, equipment_other, region, ventilation, natural_vent,
-               a_a=a_a, a_mr=a_mr, a_or=a_or, a_nr=a_nr, gps=gps)
+    make_rooms(
+        d, d_calc_input, envelope, equipment_main, equipment_other, region, ventilation, natural_vent,
+        a_a=a_a, a_mr=a_mr, a_or=a_or, a_nr=a_nr,
+        gps=gps,
+        ws=ws,
+        ds=ds
+    )
 
     return d_calc_input
 
 
-def make_rooms(d, d_calc_input, envelope, equipment_main, equipment_other, region, ventilation, natural_vent, a_a, a_mr, a_or, a_nr, gps):
+def make_rooms(
+        d, d_calc_input, envelope, equipment_main, equipment_other, region, ventilation, natural_vent, a_a, a_mr, a_or, a_nr,
+        gps: List[GeneralPart], ws: List[Window], ds: List[Door]
+):
 
     # 外皮に関する辞書
-    gps_dict = envelope['general_parts']    # 一般部位
-    gw_lists = envelope['windows']    # 大部分がガラスで構成される窓等の開口部
     gd_lists = envelope['doors']    # 大部分がガラスで構成されないドア等の開口部
     ep_lists = envelope['earthfloor_perimeters']    # 土間床等の外周部
     ec_lists = envelope['earthfloor_centers']    # 土間床等の中心部
@@ -792,19 +704,20 @@ def make_rooms(d, d_calc_input, envelope, equipment_main, equipment_other, regio
     room_mr, room_or, room_nr, room_uf = make_initial_rooms(
         a_a=a_a, a_mr=a_mr, a_or=a_or, a_nr=a_nr, a_uf=a_uf, n=n, v_nv_mr=v_nv_mr, v_nv_or=v_nv_or)
 
-    boundaries_mr, boundaries_or, boundaries_nr, boundaries_uf = get_boundaries_general_part(region, gps_dict, gps)
+    print('START2')
+    boundaries = []
 
-    room_mr['surface'].extend(boundaries_mr)
-    room_or['surface'].extend(boundaries_or)
-    room_nr['surface'].extend(boundaries_nr)
-    room_uf['surface'].extend(boundaries_uf)
+    for gp in gps:
+        boundaries.extend(gp.make_initializer_dict(u_add=0.0, region=region))
 
-    boundaries_mr, boundaries_or, boundaries_nr, boundaries_uf = get_boundaries_windows(region, gw_lists)
+    for w in ws:
+        boundaries.append(w.make_initializer_dict(region=region))
 
-    room_mr['surface'].extend(boundaries_mr)
-    room_or['surface'].extend(boundaries_or)
-    room_nr['surface'].extend(boundaries_nr)
-    room_uf['surface'].extend(boundaries_uf)
+    for d in ds:
+        boundaries.append(d.make_initializer_dict(region=region))
+
+    print(boundaries)
+
 
     d_calc_input['Rooms'] = rooms
 
@@ -841,10 +754,13 @@ if __name__ == '__main__':
     }
 
     d_lv2 = convert_indices_to_lv2_info.convert_spec(d=d_indices)
+    print('d_lv2')
     print(d_lv2)
     d_lv3 = convert_lv2_to_lv3.convert_spec(common=d_indices['common'], envelope=d_lv2)
+    print('d_lv3')
     print(d_lv3)
     d_lv4 = convert_lv3_to_lv4.convert_spec(common=d_indices['common'], envelope=d_lv3)
+    print('d_lv4')
     print(d_lv4)
 
     print('START')

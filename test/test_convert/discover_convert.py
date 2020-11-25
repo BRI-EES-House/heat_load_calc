@@ -19,9 +19,10 @@ def suite():
         unittest.TestLoader().loadTestsFromTestCase(test_model_house.TestModelHouseResults),
         unittest.TestLoader().loadTestsFromTestCase(test_model_house.TestModelHouseShapeFactor),
         unittest.TestLoader().loadTestsFromTestCase(test_convert_indices_to_lv2_info.TestConvertIndicesToLv2Info),
+        unittest.TestLoader().loadTestsFromTestCase(test_ees_house.GeneralPartTest),
         unittest.TestLoader().loadTestsFromTestCase(test_ees_house.GeneralPartSpecTest),
-        unittest.TestLoader().loadTestsFromTestCase(test_ees_house.LayerTest),
-        unittest.TestLoader().loadTestsFromTestCase(test_ees_house.GeneralPartPartTest)
+        unittest.TestLoader().loadTestsFromTestCase(test_ees_house.GeneralPartPartTest),
+        unittest.TestLoader().loadTestsFromTestCase(test_ees_house.LayerTest)
     ])
 
 
