@@ -10,7 +10,7 @@ def read_is_radiative_heating(d_room):
 
 # 放射冷房の有無
 def read_is_radiative_cooling(d_room):
-    return d_room['cooling_equipment']['is_radiative_cooling']
+    return d_room['cooling_equipment']['equipment_type'] == 'radiative'
 
 
 # 放射冷房最大能力 [W/m2]

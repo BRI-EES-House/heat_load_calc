@@ -15,7 +15,7 @@
 			"volume": 1.0,
 			"vent": 0.0,
 			"cooling_equipment": {
-				"is_radiative_cooling": false,
+				"equipment_type": "convective",
 				"convective_cooling": {
 					"max_capacity": 0.0,
 					"heat_exchanger_type": "normal"

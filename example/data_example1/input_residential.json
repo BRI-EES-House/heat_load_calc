@@ -15,7 +15,7 @@
 			"volume": 70.92,
 			"vent": 60.0,
 			"cooling_equipment": {
-				"is_radiative_cooling": false,
+				"equipment_type": "convective",
 				"convective_cooling": {
 					"max_capacity": -4000.0,
 					"heat_exchanger_type": "normal"
@@ -40,7 +40,7 @@
 			"volume": 123.22,
 			"vent": 100.0,
 			"cooling_equipment": {
-				"is_radiative_cooling": false,
+				"equipment_type": "convective",
 				"convective_cooling": {
 					"max_capacity": -2500.0,
 					"heat_exchanger_type": "normal"
@@ -65,7 +65,7 @@
 			"volume": 94.88,
 			"vent": 0,
 			"cooling_equipment": {
-				"is_radiative_cooling": false,
+				"equipment_type": "convective",
 				"convective_cooling": {
 					"max_capacity": 0.0,
 					"heat_exchanger_type": "normal"
