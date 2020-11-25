@@ -9,12 +9,10 @@ def get_compiled_schedules(
 ) -> (np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray):
     """
     各種スケジュールを取得する。
-
     Args:
         n_p: 居住人数
         room_name_is: 室iの名称, [i]
-        a_floor_is: 床面積, m2, [i]
-
+        a_floor_is: 室iの床面積, m2, [i]
     Returns:
         ステップnの室iにおける人体発熱を除く内部発熱, W
         ステップnの室iにおける人体発湿を除く内部発湿, kg/s, [8760*4]
