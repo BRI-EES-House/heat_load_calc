@@ -115,7 +115,7 @@ def make_house(d, input_data_dir, output_data_dir):
     # 室iの床面積, m2, [i]
     # TODO: is_solar_absorbed_inside_js を使用すべき。
     a_floor_is = np.array([
-        np.sum(np.array([bs.area for bs in bss if bs.connected_room_id == i and bs.is_solar_absorbed_inside]))
+        np.sum(np.array([bs.area for bs in bss2 if bs.connected_room_id == i and bs.is_solar_absorbed_inside]))
         for i in range(n_spaces)
     ])
 
