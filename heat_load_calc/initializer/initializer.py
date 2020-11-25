@@ -6,7 +6,6 @@ import pandas as pd
 from enum import Enum
 
 import heat_load_calc.initializer.a12_indoor_radiative_heat_transfer as a12
-import heat_load_calc.initializer.a15_air_flow_rate_rac as a15
 import heat_load_calc.initializer.a22_radiative_heating_spec as a22
 
 from heat_load_calc.initializer.boundary_type import BoundaryType
