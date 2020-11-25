@@ -19,8 +19,8 @@ def get_compiled_schedules(
         ステップnの室iにおける人体発熱を除く内部発熱, W
         ステップnの室iにおける人体発湿を除く内部発湿, kg/s, [8760*4]
         ステップnの室iにおける局所換気量, m3/s, [i, 365*96]
-        ステップnの室iにおける在室人数, [i, 365*96]
-        ステップnの室iにおける空調割合, float型, [i, 365*96]
+        ステップnの室iにおける在室人数(float型), [i, 365*96]
+        ステップnの室iにおける空調割合(float型), [i, 365*96]
     """
 
     # 変数
@@ -29,8 +29,8 @@ def get_compiled_schedules(
     #   調理発熱, W, [i, 365*96]
     #   調理発湿, kg/s, [i, 365*96]
     #   照明発熱, W/m2, [i, 365*96]
-    #   在室人数, [i, 365*96]
-    #   空調割合, float型, [i, 365*96]
+    #   在室人数(float型）, [i, 365*96]
+    #   空調割合(float型), [i, 365*96]
     v_mec_vent_local_is_ns,\
     q_gen_app_is_ns,\
     q_gen_ckg_is_ns,\
@@ -51,19 +51,17 @@ def get_compiled_schedules(
 def get_each_schedules(n_p: float, room_name_is: List[str])\
         -> (np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray):
     """スケジュールを取得する。
-
     Args:
         n_p: 居住人数（注意：小数　整数ではない。）
         room_name_is: 室iの名称, [i]
-
     Returns:
         局所換気量, m3/s, [i, 365*96]
         機器発熱, W, [i, 365*96]
         調理発熱, W, [i, 365*96]
         調理発湿, kg/s, [i, 365*96]
         照明発熱, W/m2, [i, 365*96]
-        在室人数, [i, 365*96]
-        空調のON/OFF, bool型, [i, 365*96]
+        在室人数(float型), [i, 365*96]
+        空調のON/OFF(float型）, [i, 365*96]
     """
 
     # スケジュールを記述した辞書の読み込み
