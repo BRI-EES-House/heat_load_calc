@@ -32,10 +32,10 @@
 ,,,,,〇,,max_capacity,放射冷房設備の最大暖房出力,△,float,W,0以上。,installedがTrueの場合に定義される。
 ,,,,〇,,,convective,対流冷房設備,〇,－,－,,
 ,,,,,〇,,installed,対流冷房設備の設置の有無,〇,bool,－,,
-,,,,,,〇,q_min,対流冷房設備の最小冷房能力,△,float,W,0以上。,installedがTrueの場合に定義される。
-,,,,,,〇,q_max,対流冷房設備の最大冷房能力,△,float,W,0以上。,installedがTrueの場合に定義される。
-,,,,,,〇,v_min,対流冷房設備の最小風量,△,float,－,0以上。,installedがTrueの場合に定義される。
-,,,,,,〇,v_max,対流冷房設備の最大風量,△,float,－,0以上。,installedがTrueの場合に定義される。
+,,,,,〇,,q_min,対流冷房設備の最小冷房能力,△,float,W,0以上。,installedがTrueの場合に定義される。
+,,,,,〇,,q_max,対流冷房設備の最大冷房能力,△,float,W,0以上。,installedがTrueの場合に定義される。
+,,,,,〇,,v_min,対流冷房設備の最小風量,△,float,－,0以上。,installedがTrueの場合に定義される。
+,,,,,〇,,v_max,対流冷房設備の最大風量,△,float,－,0以上。,installedがTrueの場合に定義される。
 〇,,,,,,,boundaries,境界,〇,－,－,,
 ,〇,,,,,,,,〇,dict,－,,
 ,,〇,,,,,id,境界通し番号,〇,int,－,必ず0から順番に振ること。,
