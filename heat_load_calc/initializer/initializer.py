@@ -85,10 +85,6 @@ def make_house(d, input_data_dir, output_data_dir):
 
     rooms = d['rooms']
 
-    # 室iのC値, [i]
-    # TODO: initializer の json から c_value を削除する。
-    c_value_is = np.array([r['c_value'] for r in rooms])
-
     # 室の数
     n_spaces = len(rooms)
 
