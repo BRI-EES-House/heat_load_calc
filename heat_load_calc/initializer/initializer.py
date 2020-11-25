@@ -573,16 +573,6 @@ def _make_spaces_dict(rooms: List[dict], a_floor_is: np.ndarray):
         else:
             raise Exception()
 
-#    qrtd_c_is = np.array([a15.get_qrtd_c(a_floor_i) for a_floor_i in a_floor_is])
-    q_rtd_h_is, q_rtd_c_is = a15.get_q_rtd(a_floor_is=a_floor_is)
-    q_max_h_is, q_max_c_is = a15.get_q_max(q_rtd_h_is=q_rtd_h_is, q_rtd_c_is=q_rtd_c_is)
-    q_min_h_is = np.array([a15.get_q_min_h() for q_rtd_c_i in q_rtd_c_is])
-    q_min_c_is = np.array([a15.get_q_min_c() for q_rtd_c_i in q_rtd_c_is])
-    v_max_h_is = np.array([a15.get_v_max(q_rtd_h_i) for q_rtd_h_i in q_rtd_h_is])
-    v_max_c_is = np.array([a15.get_v_max(q_rtd_c_i) for q_rtd_c_i in q_rtd_c_is])
-    v_min_h_is = np.array([a15.get_v_min(v_max_h_i) for v_max_h_i in v_max_h_is])
-    v_min_c_is = np.array([a15.get_v_min(v_max_c_i) for v_max_c_i in v_max_c_is])
-
     # endregion
 
     spaces = []
@@ -607,22 +597,10 @@ def _make_spaces_dict(rooms: List[dict], a_floor_is: np.ndarray):
             'equipment': {
                 'heating': {
                     'radiative': equip_heating_radiative[i],
-                    # 'convective': {
-                    #     'q_min': q_min_h_is[i],
-                    #     'q_max': q_max_h_is[i],
-                    #     'v_min': v_min_h_is[i],
-                    #     'v_max': v_max_h_is[i]
-                    # }
                     'convective': equip_heating_convective[i]
                 },
                 'cooling': {
                     'radiative': equip_cooling_radiative[i],
-                    # 'convective': {
-                    #     'q_min': q_min_c_is[i],
-                    #     'q_max': q_max_c_is[i],
-                    #     'v_min': v_min_c_is[i],
-                    #     'v_max': v_max_c_is[i]
-                    # }
                     'convective': equip_cooling_convective[i]
                 }
             }
