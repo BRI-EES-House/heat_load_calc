@@ -71,16 +71,17 @@ class CoolingEquipmentType(Enum):
     # 放射冷房
     RADIATIVE = 'radiative'
 
+
 def make_house(d, input_data_dir, output_data_dir):
 
     # 以下の気象データの読み込み
-    # 外気温度, degree C
-    # 外気絶対湿度, kg/kg(DA)
-    # 法線面直達日射量, W/m2
-    # 水平面天空日射量, W/m2
-    # 夜間放射量, W/m2
-    # 太陽高度, rad
-    # 太陽方位角, rad
+    # 外気温度, degree C, [n]
+    # 外気絶対湿度, kg/kg(DA), [n]
+    # 法線面直達日射量, W/m2, [n]
+    # 水平面天空日射量, W/m2, [n]
+    # 夜間放射量, W/m2, [n]
+    # 太陽高度, rad, [n]
+    # 太陽方位角, rad, [n]
     a_sun_ns, h_sun_ns, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns = _read_weather_data(input_data_dir=input_data_dir)
 
     rooms = d['rooms']
