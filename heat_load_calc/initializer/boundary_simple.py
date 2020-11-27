@@ -139,6 +139,9 @@ def get_boundary_simple(theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, a_sun_ns, h_sun_n
     # False: 吸収しない
     is_solar_absorbed_inside = bool(b['is_solar_absorbed_inside'])
 
+    is_floor = bool(b['is_floor'])
+    print(is_solar_absorbed_inside == is_floor)
+
     # 方位
     # 's', 'sw', 'w', 'nw', 'n', 'ne', 'e', 'se', 'top', 'bottom'
     # 日射の有無が定義されている場合でかつその値がTrueの場合のみ定義される。

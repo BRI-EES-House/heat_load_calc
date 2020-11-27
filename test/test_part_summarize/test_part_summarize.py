@@ -9,10 +9,9 @@ from heat_load_calc.initializer import boundary_simple as bs
 class MyTestCase(unittest.TestCase):
 
     def test_part_integratable(self):
-
-        '''
+        """
         部位が集約可能かどうかのテスト
-        '''
+        """
 
         print('test_part_integratable')
 
@@ -31,6 +30,7 @@ class MyTestCase(unittest.TestCase):
             'outside_emissivity': 0.9,
             'outside_solar_absorption': 0.8,
             'temp_dif_coef': 1.0,
+            'is_floor': False,
             'is_solar_absorbed_inside': False,
             'direction': 's',
             'inside_heat_transfer_resistance': 9.1,
@@ -139,6 +139,7 @@ class MyTestCase(unittest.TestCase):
             'outside_emissivity': 0.9,
             'outside_solar_absorption': 0.8,
             'temp_dif_coef': 1.0,
+            'is_floor': False,
             'is_solar_absorbed_inside': False,
             'direction': 's',
             'inside_heat_transfer_resistance': 9.1,
@@ -161,6 +162,7 @@ class MyTestCase(unittest.TestCase):
             "temp_dif_coef": 1.0,
             "next_room_type": "non_occupant_room",
             "rear_surface_boundary_id": 45,
+            "is_floor": False,
             "is_solar_absorbed_inside": False,
             "inside_heat_transfer_resistance": 0.11,
             "outside_heat_transfer_resistance": 0.11,
@@ -216,6 +218,7 @@ class MyTestCase(unittest.TestCase):
             "is_sun_striked_outside": True,
             "temp_dif_coef": 1.0,
             "direction": "s",
+            "is_floor": False,
             "is_solar_absorbed_inside": False,
             "inside_heat_transfer_resistance": 0.11,
             "outside_heat_transfer_resistance": 0.04,
@@ -241,6 +244,7 @@ class MyTestCase(unittest.TestCase):
             "is_sun_striked_outside": True,
             "temp_dif_coef": 1.0,
             "direction": "s",
+            "is_floor": False,
             "is_solar_absorbed_inside": False,
             "inside_heat_transfer_resistance": 0.11,
             "outside_heat_transfer_resistance": 0.04,
@@ -298,6 +302,7 @@ class MyTestCase(unittest.TestCase):
             "is_sun_striked_outside": True,
             "temp_dif_coef": 1.0,
             "direction": "s",
+            "is_floor": False,
             "is_solar_absorbed_inside": False,
             "inside_heat_transfer_resistance": 0.11,
             "outside_heat_transfer_resistance": 0.04,
@@ -344,6 +349,7 @@ class MyTestCase(unittest.TestCase):
             "is_sun_striked_outside": True,
             "temp_dif_coef": 1.0,
             "direction": "s",
+            "is_floor": False,
             "is_solar_absorbed_inside": False,
             "inside_heat_transfer_resistance": 0.11,
             "outside_heat_transfer_resistance": 0.04,
