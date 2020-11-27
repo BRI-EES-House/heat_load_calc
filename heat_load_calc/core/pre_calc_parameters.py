@@ -419,10 +419,11 @@ def make_pre_calc_parameters(data_directory: str) -> (PreCalcParameters, PreCalc
 
     # ステップnの室iにおける空調需要, [8760*4]
     with open(data_directory + '/mid_data_ac_demand.csv', 'r') as f:
-        r = csv.reader(f)
+        r = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
         ac_demand_is_ns2 = np.array([row for row in r]).T
     # ｓｔｒ型からbool型に変更
-    ac_demand_is_ns = np.vectorize(lambda x: {'True': True, 'False': False}[x])(ac_demand_is_ns2)
+
+    ac_demand_is_ns = np.vectorize(lambda x: x == 1.0)(ac_demand_is_ns2)
 
     # ステップnの室iにおける窓の透過日射熱取得, W, [8760*4]
     with open(data_directory + '/mid_data_q_trs_sol.csv', 'r') as f:

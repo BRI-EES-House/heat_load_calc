@@ -134,7 +134,6 @@ def make_house(d, input_data_dir, output_data_dir):
             room_name_is=room_name_is,
             a_floor_is=a_floor_is
         )
-    ac_demand_is_ns = np.where(ac_demand_is_ns == 1, True, False)
 
     # json 出力 のうち、"building" に対応する辞書
     building = _make_building_dict(d=d['building'])
