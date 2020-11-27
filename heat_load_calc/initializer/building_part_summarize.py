@@ -79,6 +79,9 @@ def integrate(bss: List[BoundarySimple]) -> List[BoundarySimple]:
 
         rear_surface_boundary_id_js.append(_id2)
 
+    # 床か否か, [j]
+    is_floor_js = [bss[first_idx[i]].is_floor for i in np.unique(gp_idxs)]
+
     # 日射吸収の有無, [j]
     is_solar_absorbed_inside_js = [bss[first_idx[i]].is_solar_absorbed_inside for i in np.unique(gp_idxs)]
 
@@ -168,6 +171,7 @@ def integrate(bss: List[BoundarySimple]) -> List[BoundarySimple]:
             h_td=h_td_js[j],
             next_room_type=next_room_type_js[j],
             rear_surface_boundary_id=rear_surface_boundary_id_js[j],
+            is_floor=is_floor_js[j],
             is_solar_absorbed_inside=is_solar_absorbed_inside_js[j],
             is_sun_striked_outside=is_sun_striked_outside_js[j],
             direction=direction_js[j],
