@@ -12,6 +12,7 @@
 			"id": 0,
 			"name": "main_occupant_room",
 			"room_type": "main_occupant_room",
+			"floor_area": 29.81,
 			"volume": 70.92,
 			"vent": 60.0,
 			"cooling_equipment": {
@@ -41,6 +42,7 @@
 			"id": 1,
 			"name": "other_occupant_room",
 			"room_type": "other_occupant_room",
+			"floor_area": 38.1,
 			"volume": 123.22,
 			"vent": 100.0,
 			"cooling_equipment": {
@@ -74,6 +76,7 @@
 			"id": 2,
 			"name": "non_occupant_room",
 			"room_type": "non_occupant_room",
+			"floor_area": 21.52,
 			"volume": 94.88,
 			"vent": 0,
 			"cooling_equipment": {

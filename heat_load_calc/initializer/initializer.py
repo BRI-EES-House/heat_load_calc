@@ -9,6 +9,7 @@ import heat_load_calc.initializer.a12_indoor_radiative_heat_transfer as a12
 import heat_load_calc.initializer.a22_radiative_heating_spec as a22
 
 from heat_load_calc.initializer.boundary_type import BoundaryType
+from heat_load_calc.initializer.boundary_simple import BoundarySimple
 
 from heat_load_calc.initializer import schedule_loader
 from heat_load_calc.initializer import residents_number
@@ -113,14 +114,10 @@ def make_house(d, input_data_dir, output_data_dir):
     ])
 
     # 室iの床面積, m2, [i]
-    # TODO: is_solar_absorbed_inside_js を使用すべき。
-    a_floor_is = np.array([
-        np.sum(np.array([bs.area for bs in bss2 if bs.connected_room_id == i and bs.is_solar_absorbed_inside]))
-        for i in range(n_spaces)
-    ])
+    a_floor_is = np.array([r['floor_area'] for r in rooms])
 
     # 床面積の合計, m2
-    a_floor_total = float(np.sum(a_floor_is))
+    a_floor_total = a_floor_is.sum()
 
     # 居住人数
     n_p = residents_number.get_total_number_of_residents(a_floor_total=a_floor_total)
@@ -145,12 +142,12 @@ def make_house(d, input_data_dir, output_data_dir):
     # json 出力のうち、"spaces" に対応する辞書
     spaces = _make_spaces_dict(rooms=d['rooms'])
 
-    bdrs = make_bdrs(bss2, rooms=d['rooms'], a_floor_is=a_floor_is)
+    boundaries = _make_boundaries(bss2=bss2, rooms=d['rooms'])
 
     wd = {
         'building': building,
         'spaces': spaces,
-        'boundaries': bdrs
+        'boundaries': boundaries
     }
 
     with open(output_data_dir + '/mid_data_house.json', 'w') as f:
@@ -207,10 +204,10 @@ def make_house_for_test(d, input_data_dir, output_data_dir):
     rooms = d['rooms']
 
     # 室の数
-    number_of_spaces = len(rooms)
+    n_spaces = len(rooms)
 
     # 境界j
-    bss = np.array([
+    bss = [
         boundary_simple.get_boundary_simple(
             theta_o_ns=theta_o_ns,
             i_dn_ns=i_dn_ns,
@@ -220,27 +217,20 @@ def make_house_for_test(d, input_data_dir, output_data_dir):
             h_sun_ns=h_sun_ns,
             b=b_dict
         ) for b_dict in d['boundaries']
-    ])
+    ]
 
-    bss2 = building_part_summarize.integrate(bss=list(bss))
-
-    # 室iの床面積, m2, [i]
-    # TODO: is_solar_absorbed_inside_js を使用すべき。
-    a_floor_is = np.array([
-        np.sum(np.array([bs.area for bs in bss if bs.connected_room_id == i and bs.is_solar_absorbed_inside]))
-        for i in range(number_of_spaces)
-    ])
+    bss2 = building_part_summarize.integrate(bss=bss)
 
     building = _make_building_dict(d=d['building'])
 
     spaces = _make_spaces_dict(rooms=d['rooms'])
 
-    bdrs = make_bdrs(bss2, rooms=d['rooms'], a_floor_is=a_floor_is)
+    boundaries = _make_boundaries(bss2=bss2, rooms=d['rooms'])
 
     wd = {
         'building': building,
         'spaces': spaces,
-        'boundaries': bdrs
+        'boundaries': boundaries
     }
 
     with open(output_data_dir + '/mid_data_house.json', 'w') as f:
@@ -627,10 +617,17 @@ def check_not_specifying_multi_room_type(room_type_is: List[RoomType], specified
         raise ValueError("室タイプ " + specified_type.value + " が複数回指定されました。")
 
 
-def make_bdrs(bss2, rooms, a_floor_is):
+def _make_boundaries(bss2: List[BoundarySimple], rooms: List[Dict]):
 
     # 室の数
-    number_of_spaces = len(rooms)
+    n_spaces = len(rooms)
+
+    # 室iの床面積, m2, [i]
+    # TODO: is_solar_absorbed_inside_js を使用すべき。
+    a_floor_is = np.array([
+        sum([bs.area for bs in bss2 if bs.connected_room_id == i and bs.is_solar_absorbed_inside])
+        for i in range(n_spaces)
+    ])
 
     k_ei_js = []
 
@@ -663,9 +660,9 @@ def make_bdrs(bss2, rooms, a_floor_is):
     # TODO: 日射の吸収の有無ではなくて、床か否かで判定するように変更すべき。
     f_mrt_hum_is = np.concatenate([
         occupants_form_factor.get_f_mrt_hum_is(
-            a_bdry_i_jstrs=np.array([bs.area for bs in bss2 if bs.connected_room_id == i]),
-            is_solar_absorbed_inside_bdry_i_jstrs=np.array([bs.is_solar_absorbed_inside for bs in bss2 if bs.connected_room_id == i])
-        ) for i in range(number_of_spaces)])
+            a_bdry_i_js=np.array([bs.area for bs in bss2 if bs.connected_room_id == i]),
+            is_solar_absorbed_inside_bdry_i_js=np.array([bs.is_solar_absorbed_inside for bs in bss2 if bs.connected_room_id == i])
+        ) for i in range(n_spaces)])
 
     # 放射暖房の発熱部位の設定（とりあえず床発熱） 表7
     # TODO: 発熱部位を指定して、面積按分するように変更すべき。
@@ -675,8 +672,7 @@ def make_bdrs(bss2, rooms, a_floor_is):
             A_fs_i=a_floor_is[i],
             is_radiative_heating=is_radiative_heating_is[i],
             is_solar_absorbed_inside=np.array([bs.is_solar_absorbed_inside for bs in bss2 if bs.connected_room_id == i])
-        ) for i in range(number_of_spaces)])
-
+        ) for i in range(n_spaces)])
 
     bdrs = []
 
