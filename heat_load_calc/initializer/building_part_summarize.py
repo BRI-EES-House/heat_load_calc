@@ -261,6 +261,10 @@ def _is_boundary_integratable(bs1: BoundarySimple, bs2: BoundarySimple) -> bool:
     if bs1.boundary_type != bs2.boundary_type:
         return False
 
+    # 床か否か
+    if bs1.is_floor != bs2.is_floor:
+        return False
+
     # 室内侵入日射吸収の有無
     if bs1.is_solar_absorbed_inside != bs2.is_solar_absorbed_inside:
         return False
