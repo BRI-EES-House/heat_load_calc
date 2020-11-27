@@ -622,13 +622,6 @@ def _make_boundaries(bss2: List[BoundarySimple], rooms: List[Dict]):
     # 室の数
     n_spaces = len(rooms)
 
-    # 室iの床面積, m2, [i]
-    # TODO: is_solar_absorbed_inside_js を使用すべき。
-    a_floor_is = np.array([
-        sum([bs.area for bs in bss2 if bs.connected_room_id == i and bs.is_solar_absorbed_inside])
-        for i in range(n_spaces)
-    ])
-
     k_ei_js = []
 
     for bs in bss2:
@@ -661,8 +654,15 @@ def _make_boundaries(bss2: List[BoundarySimple], rooms: List[Dict]):
     f_mrt_hum_is = np.concatenate([
         occupants_form_factor.get_f_mrt_hum_is(
             a_bdry_i_js=np.array([bs.area for bs in bss2 if bs.connected_room_id == i]),
-            is_solar_absorbed_inside_bdry_i_js=np.array([bs.is_solar_absorbed_inside for bs in bss2 if bs.connected_room_id == i])
+            is_solar_absorbed_inside_bdry_i_js=np.array([bs.is_floor for bs in bss2 if bs.connected_room_id == i])
         ) for i in range(n_spaces)])
+
+    # 室iの床面積, m2, [i]
+    # TODO: is_solar_absorbed_inside_js を使用すべき。
+    a_floor_is = np.array([
+        sum([bs.area for bs in bss2 if bs.connected_room_id == i and bs.is_solar_absorbed_inside])
+        for i in range(n_spaces)
+    ])
 
     # 放射暖房の発熱部位の設定（とりあえず床発熱） 表7
     # TODO: 発熱部位を指定して、面積按分するように変更すべき。
