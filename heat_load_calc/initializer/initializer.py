@@ -645,17 +645,19 @@ def _make_boundaries(bss2: List[BoundarySimple], rooms: List[Dict]):
             # 外皮に面していない場合、室内壁ではない場合（地盤の場合が該当）は、Noneとする。
             k_ei_js.append(None)
 
+    # 室iの在室者に対する境界jの形態係数
+    f_mrt_hum_is = np.zeros_like(bss2, dtype=float)
+    for i in range(n_spaces):
+        is_connected = np.array([bs.connected_room_id == i for bs in bss2])
+
+        f_mrt_hum_is[is_connected] = occupants_form_factor.get_f_mrt_hum_is(
+            a_bdry_i_js=np.array([bs.area for bs in np.array(bss2)[is_connected]]),
+            is_floor_bdry_i_js=np.array([bs.is_floor for bs in np.array(bss2)[is_connected]])
+        )
+
     # 暖房設備仕様の読み込み
     # 放射暖房有無（Trueなら放射暖房あり）
     is_radiative_heating_is = [a22.read_is_radiative_heating(room) for room in rooms]
-
-    # 室iの在室者に対する境界j*の形態係数
-    # TODO: 日射の吸収の有無ではなくて、床か否かで判定するように変更すべき。
-    f_mrt_hum_is = np.concatenate([
-        occupants_form_factor.get_f_mrt_hum_is(
-            a_bdry_i_js=np.array([bs.area for bs in bss2 if bs.connected_room_id == i]),
-            is_solar_absorbed_inside_bdry_i_js=np.array([bs.is_floor for bs in bss2 if bs.connected_room_id == i])
-        ) for i in range(n_spaces)])
 
     # 室iの床面積, m2, [i]
     # TODO: is_solar_absorbed_inside_js を使用すべき。
