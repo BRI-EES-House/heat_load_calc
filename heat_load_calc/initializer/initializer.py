@@ -668,13 +668,23 @@ def _make_boundaries(bss2: List[BoundarySimple], rooms: List[Dict]):
 
     # 放射暖房の発熱部位の設定（とりあえず床発熱） 表7
     # TODO: 発熱部位を指定して、面積按分するように変更すべき。
-    flr_jstrs = np.concatenate([
-        a12.get_flr(
-            A_i_g=np.array([bs.area for bs in bss2 if bs.connected_room_id == i]),
+    flr_js = np.zeros_like(bss2, dtype=float)
+    for i in range(n_spaces):
+        is_connected = np.array([bs.connected_room_id == i for bs in bss2])
+        flr_js[is_connected] = a12.get_flr(
+            A_i_g=np.array([bs.area for bs in np.array(bss2)[is_connected]]),
             A_fs_i=a_floor_is[i],
             is_radiative_heating=is_radiative_heating_is[i],
-            is_solar_absorbed_inside=np.array([bs.is_solar_absorbed_inside for bs in bss2 if bs.connected_room_id == i])
-        ) for i in range(n_spaces)])
+            is_solar_absorbed_inside=np.array([bs.is_floor for bs in np.array(bss2)[is_connected]])
+        )
+
+    # flr_jstrs = np.concatenate([
+    #     a12.get_flr(
+    #         A_i_g=np.array([bs.area for bs in bss2 if bs.connected_room_id == i]),
+    #         A_fs_i=a_floor_is[i],
+    #         is_radiative_heating=is_radiative_heating_is[i],
+    #         is_solar_absorbed_inside=np.array([bs.is_solar_absorbed_inside for bs in bss2 if bs.connected_room_id == i])
+    #     ) for i in range(n_spaces)])
 
     bdrs = []
 
@@ -692,7 +702,7 @@ def _make_boundaries(bss2: List[BoundarySimple], rooms: List[Dict]):
             'phi_t1': list(bs.rft1),
             'r': list(bs.row),
             'h_i': bs.h_i,
-            'flr': flr_jstrs[i],
+            'flr': flr_js[i],
             'is_solar_absorbed': str(bs.is_solar_absorbed_inside),
             'f_mrt_hum': f_mrt_hum_is[i],
             'k_outside': bs.h_td,
