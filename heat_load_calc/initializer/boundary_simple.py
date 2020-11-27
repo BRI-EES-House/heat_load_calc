@@ -43,6 +43,9 @@ class BoundarySimple:
     # internal_wall の場合のみ定義される。
     rear_surface_boundary_id: int
 
+    # 床か否か
+    is_floor: bool
+
     # 室内侵入日射吸収の有無
     is_solar_absorbed_inside: bool
 
@@ -139,6 +142,10 @@ def get_boundary_simple(theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, a_sun_ns, h_sun_n
     # False: 吸収しない
     is_solar_absorbed_inside = bool(b['is_solar_absorbed_inside'])
 
+    # 床か否か
+    # True: 床, False: 床以外
+    is_floor = bool(b['is_floor'])
+
     # 方位
     # 's', 'sw', 'w', 'nw', 'n', 'ne', 'e', 'se', 'top', 'bottom'
     # 日射の有無が定義されている場合でかつその値がTrueの場合のみ定義される。
@@ -187,6 +194,7 @@ def get_boundary_simple(theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, a_sun_ns, h_sun_n
         h_td=h_td,
         next_room_type=next_room_type,
         rear_surface_boundary_id=rear_surface_boundary_id,
+        is_floor=is_floor,
         is_solar_absorbed_inside=is_solar_absorbed_inside,
         is_sun_striked_outside=is_sun_striked_outside,
         direction=direction,

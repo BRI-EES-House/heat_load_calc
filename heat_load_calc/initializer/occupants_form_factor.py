@@ -1,12 +1,12 @@
 import numpy as np
 
 
-def get_f_mrt_hum_is(a_bdry_i_js: np.ndarray, is_solar_absorbed_inside_bdry_i_js: np.ndarray) -> np.ndarray:
+def get_f_mrt_hum_is(a_bdry_i_js: np.ndarray, is_floor_bdry_i_js: np.ndarray) -> np.ndarray:
     """
     室iの在室者に対する境界j*の形態係数
     Args:
         a_bdry_i_js: 室iの境界jの面積, m2, [j]
-        is_solar_absorbed_inside_bdry_i_js: 室iの境界jの室内侵入日射吸収の有無, [j]
+        is_floor_bdry_i_js: 室iの境界jが床か否か, [j]
     Returns:
         室iの在室者に対する境界jの形態係数
     Notes:
@@ -20,11 +20,11 @@ def get_f_mrt_hum_is(a_bdry_i_js: np.ndarray, is_solar_absorbed_inside_bdry_i_js
     f_mrt_hum_i_js = np.zeros(len(a_bdry_i_js), dtype=np.float)
 
     # 下向き部位（床）
-    f1 = is_solar_absorbed_inside_bdry_i_js
+    f1 = is_floor_bdry_i_js
     f_mrt_hum_i_js[f1] = a_bdry_i_js[f1] / np.sum(a_bdry_i_js[f1]) * f_mrt_hum_floor
 
     # 床以外
-    f2 = np.logical_not(is_solar_absorbed_inside_bdry_i_js)
+    f2 = np.logical_not(is_floor_bdry_i_js)
     f_mrt_hum_i_js[f2] = a_bdry_i_js[f2] / np.sum(a_bdry_i_js[f2]) * (1.0 - f_mrt_hum_floor)
 
     return f_mrt_hum_i_js
