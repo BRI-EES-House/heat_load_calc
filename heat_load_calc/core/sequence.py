@@ -51,29 +51,29 @@ def run_tick(n: int, ss: PreCalcParameters, c_n: Conditions, logger: Logger):
     # [:, n] 又は [:, n+1] で切り出した場合、[i] 又は [j] の1次元配列になる。
     # ベクトル計算に都合の良いように、[i, 1] 又は [j, 1] の列ベクトルになおすために、 np.reshape(-1, 1)の操作をしている。
 
-    # ステップnにおける室iの空調需要, [i, 8760*4]
+    # ステップnにおける室iの空調需要, [i, 1]
     ac_demand_is_n = ss.ac_demand_is_ns[:, n].reshape(-1, 1)
 
-    # ステップnの集約境界j*における外気側等価温度の外乱成分, degree C, [j*, 8760*4]
+    # ステップnの境界jにおける外気側等価温度の外乱成分, degree C, [j, 1]
     theta_dstrb_js_n = ss.theta_dstrb_js_ns[:, n].reshape(-1, 1)
 
-    # ステップnの室iにおける在室人数, [i, 8760*4]
+    # ステップnの室iにおける在室人数, [i, 1]
     n_hum_is_n = ss.n_hum_is_ns[:, n].reshape(-1, 1)
 
-    # ステップnの室iにおける人体発熱を除く内部発熱, W, [i, 8760*4]
+    # ステップnの室iにおける人体発熱を除く内部発熱, W, [i, 1]
     q_gen_is_n = ss.q_gen_is_ns[:, n].reshape(-1, 1)
 
-    # ステップnの室iにおける人体発湿を除く内部発湿, kg/s, [i, 8760*4]
+    # ステップnの室iにおける人体発湿を除く内部発湿, kg/s, [i, 1]
     x_gen_is_n = ss.x_gen_is_ns[:, n].reshape(-1, 1)
 
     # ステップn+1の境界jにおける係数 WSC, degree C, [j, 1]
     # TODO: WSC n+1 にもかかわらず、n の値が代入されている。n+1 を代入すべきではないのか？その場合、計算の最終ステップの計算はどうする？
     wsc_js_npls = ss.wsc_js_ns[:, n].reshape(-1, 1)
 
-    # ステップnの室iにおける機械換気量（全般換気量+局所換気量）, m3/s, [i, 8760*4]
+    # ステップnの室iにおける機械換気量（全般換気量+局所換気量）, m3/s, [i, 1]
     v_mec_vent_is_n = ss.v_mec_vent_is_ns[:, n].reshape(-1, 1)
 
-    # 家具の吸収日射量, W, [i, 8760*4]
+    # 家具の吸収日射量, W, [i, 1]
     q_sol_frnt_is_n = ss.q_sol_frnt_is_ns[:, n].reshape(-1, 1)
 
     # ステップnにおける室iの状況（在室者周りの総合熱伝達率・運転状態・Clo値・目標とする作用温度）を取得する
