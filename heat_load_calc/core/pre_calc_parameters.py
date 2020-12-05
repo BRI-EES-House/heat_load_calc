@@ -212,7 +212,7 @@ class PreCalcParametersGround:
     theta_o_ave: float
 
 
-def make_pre_calc_parameters(data_directory: str) -> (PreCalcParameters, PreCalcParametersGround):
+def make_pre_calc_parameters(delta_t: float, data_directory: str) -> (PreCalcParameters, PreCalcParametersGround):
 
     with open(data_directory + '/mid_data_house.json') as f:
         rd = json.load(f)
@@ -547,9 +547,9 @@ def make_pre_calc_parameters(data_directory: str) -> (PreCalcParameters, PreCalc
     brl_is_is = np.dot(p_is_js, wsb_js_is * h_c_js * a_srf_js) + np.diag(beta_is.flatten())
 
     # BRM(換気なし), W/K, [i, i]
-    brm_non_vent_is_is = np.diag(c_rm_is.flatten() / 900.0)\
+    brm_non_vent_is_is = np.diag(c_rm_is.flatten() / delta_t)\
         + np.dot(p_is_js, (p_js_is - wsr_js_is) * a_srf_js * h_c_js)\
-        + np.diag((c_sh_frt_is * g_sh_frt_is / (c_sh_frt_is + g_sh_frt_is * 900.0)).flatten())
+        + np.diag((c_sh_frt_is * g_sh_frt_is / (c_sh_frt_is + g_sh_frt_is * delta_t)).flatten())
 
     # 年平均外気温度, degree C
     # 地盤計算の時の深部温度に用いる
