@@ -13,7 +13,7 @@ from heat_load_calc.core import infiltration
 
 
 # 室温、熱負荷の計算
-def run_tick(n: int, ss: PreCalcParameters, c_n: Conditions, logger: Logger):
+def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, logger: Logger):
     """
 
     Args:
@@ -141,11 +141,11 @@ def run_tick(n: int, ss: PreCalcParameters, c_n: Conditions, logger: Logger):
     v_out_vent_is_n = v_reak_is_n + v_mec_vent_is_n + v_ntrl_vent_is
 
     # ステップnの室iにおける係数 BRC, W, [i, 1]
-    brc_is_n = ss.c_room_is / 900.0 * c_n.theta_r_is_n \
+    brc_is_n = ss.c_room_is / delta_t * c_n.theta_r_is_n \
                + np.dot(ss.p_is_js, ss.h_c_js * ss.a_srf_js * (wsc_js_npls + wsv_js_npls)) \
                + get_c_air() * get_rho_air() * v_out_vent_is_n * ss.theta_o_ns[n] \
                + q_gen_is_n + q_hum_is_n \
-               + ss.c_h_frt_is * (ss.c_cap_h_frt_is * c_n.theta_frnt_is_n + ss.q_sol_frnt_is_ns[:, n].reshape(-1, 1) * 900.0) / (ss.c_cap_h_frt_is + 900.0 * ss.c_h_frt_is)
+               + ss.c_h_frt_is * (ss.c_cap_h_frt_is * c_n.theta_frnt_is_n + ss.q_sol_frnt_is_ns[:, n].reshape(-1, 1) * delta_t) / (ss.c_cap_h_frt_is + delta_t * ss.c_h_frt_is)
 
     # ステップnにおける係数 BRM, W/K, [i, i]
     brm_is_is_n = ss.brm_non_vent_is_is\
@@ -193,8 +193,8 @@ def run_tick(n: int, ss: PreCalcParameters, c_n: Conditions, logger: Logger):
 
     # ステップ n+1 における室 i　の家具の温度, degree C, [i, 1]
     theta_frt_is_npls = (
-        ss.c_cap_h_frt_is * c_n.theta_frnt_is_n + 900.0 * ss.c_h_frt_is * theta_r_is_npls + q_sol_frnt_is_n * 900.0
-    ) / (ss.c_cap_h_frt_is + 900.0 * ss.c_h_frt_is)
+        ss.c_cap_h_frt_is * c_n.theta_frnt_is_n + delta_t * ss.c_h_frt_is * theta_r_is_npls + q_sol_frnt_is_n * delta_t
+    ) / (ss.c_cap_h_frt_is + delta_t * ss.c_h_frt_is)
 
     # ステップ n+1 における境界 j の表面温度, degree C, [j, 1]
     theta_s_js_npls = np.dot(ss.wsr_js_is, theta_r_is_npls) + wsc_js_npls + np.dot(ss.wsb_js_is, l_hs_is_n) + wsv_js_npls
@@ -215,14 +215,14 @@ def run_tick(n: int, ss: PreCalcParameters, c_n: Conditions, logger: Logger):
     q_srf_js_n = (theta_ei_js_npls - theta_s_js_npls) * (ss.h_c_js + ss.h_r_js)
 
     # ステップnの室iにおける係数 brmx_pre, [i, 1]
-    brmx_non_dh_is_n_pls = get_rho_air() * (v_diag(ss.v_room_is / 900 + v_out_vent_is_n) - ss.v_int_vent_is_is)\
-        + v_diag(ss.c_cap_w_frt_is * ss.c_w_frt_is / (ss.c_cap_w_frt_is + 900 * ss.c_w_frt_is))
+    brmx_non_dh_is_n_pls = get_rho_air() * (v_diag(ss.v_room_is / delta_t + v_out_vent_is_n) - ss.v_int_vent_is_is)\
+        + v_diag(ss.c_cap_w_frt_is * ss.c_w_frt_is / (ss.c_cap_w_frt_is + delta_t * ss.c_w_frt_is))
 
     # ステップnの室iにおける係数 brxc_pre, [i, 1]
     brxc_non_dh_is_n_pls = get_rho_air() * (
-            ss.v_room_is / 900 * c_n.x_r_is_n
+            ss.v_room_is / delta_t * c_n.x_r_is_n
             + v_out_vent_is_n * ss.x_o_ns[n]
-    ) + ss.c_cap_w_frt_is * ss.c_w_frt_is / (ss.c_cap_w_frt_is + 900 * ss.c_w_frt_is) * c_n.x_frt_is_n\
+    ) + ss.c_cap_w_frt_is * ss.c_w_frt_is / (ss.c_cap_w_frt_is + delta_t * ss.c_w_frt_is) * c_n.x_frt_is_n\
         + x_gen_is_n + x_hum_is_n
 
     x_r_non_dh_is_n_pls = np.dot(np.linalg.inv(brmx_non_dh_is_n_pls), brxc_non_dh_is_n_pls)
@@ -249,7 +249,7 @@ def run_tick(n: int, ss: PreCalcParameters, c_n: Conditions, logger: Logger):
     l_cl_i_n = - (np.dot(brmx_rac_is_n_pls, x_r_is_npls) - brxc_rac_is_n_pls) * get_l_wtr()
 
     # 備品類の絶対湿度の計算
-    x_frt_is_npls = (ss.c_cap_w_frt_is * c_n.x_frt_is_n + 900 * ss.c_w_frt_is * x_r_is_npls) / (ss.c_cap_w_frt_is + 900 * ss.c_w_frt_is)
+    x_frt_is_npls = (ss.c_cap_w_frt_is * c_n.x_frt_is_n + delta_t * ss.c_w_frt_is * x_r_is_npls) / (ss.c_cap_w_frt_is + delta_t * ss.c_w_frt_is)
 
     # ステップnにおける室iの在室者の着衣温度, degree C, [i, 1]
     theta_cl_is_n_pls = occupants.get_theta_cl_is_n(clo_is_n=clo_is_n, theta_ot_is_n=theta_ot_is_npls, h_hum_is_n=h_hum_is_n)
