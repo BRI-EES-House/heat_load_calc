@@ -262,16 +262,16 @@ def make_pre_calc_parameters(data_directory: str) -> (PreCalcParameters, PreCalc
     v_ntrl_vent_is = np.array([s['ventilation']['natural'] for s in ss]).reshape(-1, 1)
 
     # 室iの家具等の熱容量, J/K, [i, 1]
-    c_cap_h_frt_is = np.array([float(s['furniture']['heat_capacity']) for s in ss]).reshape(-1, 1)
+    c_sh_frt_is = np.array([float(s['furniture']['heat_capacity']) for s in ss]).reshape(-1, 1)
 
     # 室iの家具等と空気間の熱コンダクタンス, W/K, [i, 1]
-    c_h_frt_is = np.array([float(s['furniture']['heat_cond']) for s in ss]).reshape(-1, 1)
+    g_sh_frt_is = np.array([float(s['furniture']['heat_cond']) for s in ss]).reshape(-1, 1)
 
     # 室iの家具等の湿気容量, kg/m3 kg/kgDA, [i, 1]
-    c_cap_w_frt_is = np.array([float(s['furniture']['moisture_capacity']) for s in ss]).reshape(-1, 1)
+    c_lh_frt_is = np.array([float(s['furniture']['moisture_capacity']) for s in ss]).reshape(-1, 1)
 
     # 室iの家具等と空気間の湿気コンダクタンス, kg/s (kg/kgDA), [i, 1]
-    c_w_frt_is = np.array([float(s['furniture']['moisture_cond']) for s in ss]).reshape(-1, 1)
+    g_lh_frt_is = np.array([float(s['furniture']['moisture_cond']) for s in ss]).reshape(-1, 1)
 
     # 室iの暖房方式として放射空調が設置されているかどうか。  bool値, [i, 1]
     # 室iの暖房方式として放射空調が設置されている場合の、放射暖房最大能力, W, [i, 1]
@@ -441,7 +441,7 @@ def make_pre_calc_parameters(data_directory: str) -> (PreCalcParameters, PreCalc
     # ただし、1次元配列を縦ベクトルに変換する処理等は読み込み時に np.reshape を適用して変換している。
 
     # 境界の数
-    number_of_bdries = len(bs)
+    n_boundaries = len(bs)
 
     # 地盤の数
     n_grounds = np.count_nonzero(is_ground_js)
@@ -450,21 +450,21 @@ def make_pre_calc_parameters(data_directory: str) -> (PreCalcParameters, PreCalc
     # [[p_0_0 ... ... p_0_j]
     #  [ ...  ... ...  ... ]
     #  [p_i_0 ... ... p_i_j]]
-    p_is_js = np.zeros((n_spaces, number_of_bdries), dtype=int)
+    p_is_js = np.zeros((n_spaces, n_boundaries), dtype=int)
     for i in range(n_spaces):
         p_is_js[i, connected_space_id_js == i] = 1
 
     # 室iと境界jの関係を表す係数（室iから境界jへの変換）
-    # [[p_0_0 ... p_i_0]
+    # [[p_0_0 ... p_0_i]
     #  [ ...  ...  ... ]
     #  [ ...  ...  ... ]
-    #  [p_0_j ... p_i_j]]
+    #  [p_j_0 ... p_j_i]]
     p_js_is = p_is_js.T
 
     # 境界jの裏面温度に他の境界の等価温度が与える影響, [j, j]
     k_ei_js_js = []
     for k_ei_id_j, k_ei_coef_j in zip(k_ei_id_js, k_ei_coef_js):
-        k_ei_js = [0.0] * number_of_bdries
+        k_ei_js = [0.0] * n_boundaries
         if k_ei_id_j is None:
             pass
         else:
@@ -483,7 +483,7 @@ def make_pre_calc_parameters(data_directory: str) -> (PreCalcParameters, PreCalc
     # region 読み込んだ値から新たに係数を作成する
 
     # 室iの空気の熱容量, J/K, [i, 1]
-    c_room_is = v_room_is * get_rho_air() * get_c_air()
+    c_rm_is = v_room_is * get_rho_air() * get_c_air()
 
     # 境界jの室内側表面放射熱伝達率, W/m2K, [j, 1]
     h_r_js = shape_factor.get_h_r_js(a_srf_js=a_srf_js, p_js_is=p_js_is)
@@ -547,9 +547,9 @@ def make_pre_calc_parameters(data_directory: str) -> (PreCalcParameters, PreCalc
     brl_is_is = np.dot(p_is_js, wsb_js_is * h_c_js * a_srf_js) + np.diag(beta_is.flatten())
 
     # BRM(換気なし), W/K, [i, i]
-    brm_non_vent_is_is = np.diag(c_room_is.flatten() / 900.0)\
+    brm_non_vent_is_is = np.diag(c_rm_is.flatten() / 900.0)\
         + np.dot(p_is_js, (p_js_is - wsr_js_is) * a_srf_js * h_c_js)\
-        + np.diag((c_cap_h_frt_is * c_h_frt_is / (c_cap_h_frt_is + c_h_frt_is * 900.0)).flatten())
+        + np.diag((c_sh_frt_is * g_sh_frt_is / (c_sh_frt_is + g_sh_frt_is * 900.0)).flatten())
 
     # 年平均外気温度, degree C
     # 地盤計算の時の深部温度に用いる
@@ -572,11 +572,11 @@ def make_pre_calc_parameters(data_directory: str) -> (PreCalcParameters, PreCalc
         id_space_is=id_space_is,
         name_space_is=name_space_is,
         v_room_is=v_room_is,
-        c_room_is=c_room_is,
-        c_cap_h_frt_is=c_cap_h_frt_is,
-        c_cap_w_frt_is=c_cap_w_frt_is,
-        c_w_frt_is=c_w_frt_is,
-        c_h_frt_is=c_h_frt_is,
+        c_room_is=c_rm_is,
+        c_cap_h_frt_is=c_sh_frt_is,
+        c_cap_w_frt_is=c_lh_frt_is,
+        c_w_frt_is=g_lh_frt_is,
+        c_h_frt_is=g_sh_frt_is,
         v_int_vent_is_is=v_int_vent_is_is,
         name_bdry_js=name_bdry_js,
         sub_name_bdry_js=sub_name_bdry_js,
@@ -587,7 +587,7 @@ def make_pre_calc_parameters(data_directory: str) -> (PreCalcParameters, PreCalc
         x_gen_is_ns=x_gen_is_ns,
         f_mrt_hum_is_js=f_mrt_hum_is_js,
         theta_dstrb_js_ns=theta_dstrb_js_ns,
-        n_bdries=number_of_bdries,
+        n_bdries=n_boundaries,
         r_js_ms=r_js_ms,
         phi_t0_js=phi_t0_js,
         phi_a0_js=phi_a0_js,
