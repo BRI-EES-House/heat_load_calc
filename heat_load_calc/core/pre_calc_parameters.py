@@ -491,12 +491,17 @@ def make_pre_calc_parameters(delta_t: float, data_directory: str) -> (PreCalcPar
     # 平均放射温度計算時の各部位表面温度の重み, [i, j]
     f_mrt_is_js = shape_factor.get_f_mrt_is_js(a_srf_js=a_srf_js, h_r_js=h_r_js, p_is_js=p_is_js)
 
-    h_c_js_temporary = 0.0
-
     # この変数は入力を総合熱伝達率から対流熱伝達率に切り替える際に一時的に設けたもの。
     # テストが通るようになり次第、この変数は削除し、対流熱伝達率指定になるように変更する。
     shitei = 'sougou'
     # shitei = 'tairyuu'
+
+    # 境界jの室内側表面総合熱伝達率, W/m2K, [j, 1]
+    if shitei == 'tairyuu':
+        # 対流熱伝達率を指定する場合は、境界の中にキー 'h_c' として、対流熱伝達率を指定すること。
+        h_c_js_temporary = np.array([b['h_c'] for b in bs]).reshape(-1, 1)
+    else:
+        h_c_js_temporary = None
 
     # 境界jの室内側表面対流熱伝達率, W/m2K, [j, 1]
     if shitei == 'sougou':
