@@ -4,25 +4,27 @@ import numpy as np
 from heat_load_calc.external.global_number import get_sgm, get_eps
 
 
-def get_h_r_js(a_srf_js, p_js_is):
+def get_h_r_js(a_srf_js: np.ndarray, p_js_is: np.ndarray) -> np.ndarray:
     """ 放射熱伝達率
 
     Args:
         a_srf_js: 境界jの面積, m2, [j, 1]
         p_js_is: 室iと境界jの関係を表す係数（室iから境界jへの変換）
-    　　　　　　　[[p_0_0 ... p_i_0]
+    　　　　　　　[[p_0_0 ... p_0_i]
     　　　　　　　　[ ...  ...  ... ]
     　　　　　　　　[ ...  ...  ... ]
-    　　　　　　　　[p_0_j ... p_i_j]]
+    　　　　　　　　[p_j_0 ... p_j_i]]
     Returns:
-
+        放射熱伝達率, W/m2K, [j, 1]
     """
+
+    n_spaces = p_js_is.shape[1]
 
     # 微小点に対する境界jの形態係数
     # 永田先生の方法
     FF_m = np.concatenate([
-        calc_form_factor_of_microbodies(area_i_js=(a_srf_js * p_js_is)[:, i][p_js_is[:, i] == 1])
-        for i in range(p_js_is.shape[1])])
+        calc_form_factor_of_microbodies(a_srf_js=a_srf_js.flatten()[p_js_is[:, i] == 1])
+        for i in range(n_spaces)])
 
     # 境界間の放射熱伝達率を決定する際、平均放射温度を20℃固定値であるとして計算する。
     MRT = 20.0
@@ -39,19 +41,17 @@ def get_f_mrt_is_js(a_srf_js, h_r_js, p_is_js):
     return p_is_js * ah.T / np.dot(p_is_js, ah)
 
 
-def calc_form_factor_of_microbodies(area_i_js):
+def calc_form_factor_of_microbodies(a_srf_js: np.ndarray):
     """
     微小体に対する部位の形態係数の計算
-
     Args:
-        area_i_js:
-
+        a_srf_js: 境界の表面積, m2, [j]
     Returns:
 
     """
 
-    # 面積比 式(95)
-    a_k = area_i_js / sum(area_i_js)
+    # 面積比, [j]
+    a_k = a_srf_js / sum(a_srf_js)
 
     # 非線形方程式L(f̅)=0の解, float
     fb = get_fb(a_k)

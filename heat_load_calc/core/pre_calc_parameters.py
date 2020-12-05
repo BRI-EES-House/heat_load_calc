@@ -441,7 +441,7 @@ def make_pre_calc_parameters(data_directory: str) -> (PreCalcParameters, PreCalc
     # ただし、1次元配列を縦ベクトルに変換する処理等は読み込み時に np.reshape を適用して変換している。
 
     # 境界の数
-    number_of_bdries = len(bs)
+    n_boundaries = len(bs)
 
     # 地盤の数
     n_grounds = np.count_nonzero(is_ground_js)
@@ -450,21 +450,21 @@ def make_pre_calc_parameters(data_directory: str) -> (PreCalcParameters, PreCalc
     # [[p_0_0 ... ... p_0_j]
     #  [ ...  ... ...  ... ]
     #  [p_i_0 ... ... p_i_j]]
-    p_is_js = np.zeros((n_spaces, number_of_bdries), dtype=int)
+    p_is_js = np.zeros((n_spaces, n_boundaries), dtype=int)
     for i in range(n_spaces):
         p_is_js[i, connected_space_id_js == i] = 1
 
     # 室iと境界jの関係を表す係数（室iから境界jへの変換）
-    # [[p_0_0 ... p_i_0]
+    # [[p_0_0 ... p_0_i]
     #  [ ...  ...  ... ]
     #  [ ...  ...  ... ]
-    #  [p_0_j ... p_i_j]]
+    #  [p_j_0 ... p_j_i]]
     p_js_is = p_is_js.T
 
     # 境界jの裏面温度に他の境界の等価温度が与える影響, [j, j]
     k_ei_js_js = []
     for k_ei_id_j, k_ei_coef_j in zip(k_ei_id_js, k_ei_coef_js):
-        k_ei_js = [0.0] * number_of_bdries
+        k_ei_js = [0.0] * n_boundaries
         if k_ei_id_j is None:
             pass
         else:
@@ -587,7 +587,7 @@ def make_pre_calc_parameters(data_directory: str) -> (PreCalcParameters, PreCalc
         x_gen_is_ns=x_gen_is_ns,
         f_mrt_hum_is_js=f_mrt_hum_is_js,
         theta_dstrb_js_ns=theta_dstrb_js_ns,
-        n_bdries=number_of_bdries,
+        n_bdries=n_boundaries,
         r_js_ms=r_js_ms,
         phi_t0_js=phi_t0_js,
         phi_a0_js=phi_a0_js,
