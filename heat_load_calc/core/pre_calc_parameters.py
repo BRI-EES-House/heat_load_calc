@@ -262,16 +262,16 @@ def make_pre_calc_parameters(data_directory: str) -> (PreCalcParameters, PreCalc
     v_ntrl_vent_is = np.array([s['ventilation']['natural'] for s in ss]).reshape(-1, 1)
 
     # 室iの家具等の熱容量, J/K, [i, 1]
-    c_cap_h_frt_is = np.array([float(s['furniture']['heat_capacity']) for s in ss]).reshape(-1, 1)
+    c_sh_frt_is = np.array([float(s['furniture']['heat_capacity']) for s in ss]).reshape(-1, 1)
 
     # 室iの家具等と空気間の熱コンダクタンス, W/K, [i, 1]
-    c_h_frt_is = np.array([float(s['furniture']['heat_cond']) for s in ss]).reshape(-1, 1)
+    g_sh_frt_is = np.array([float(s['furniture']['heat_cond']) for s in ss]).reshape(-1, 1)
 
     # 室iの家具等の湿気容量, kg/m3 kg/kgDA, [i, 1]
-    c_cap_w_frt_is = np.array([float(s['furniture']['moisture_capacity']) for s in ss]).reshape(-1, 1)
+    c_lh_frt_is = np.array([float(s['furniture']['moisture_capacity']) for s in ss]).reshape(-1, 1)
 
     # 室iの家具等と空気間の湿気コンダクタンス, kg/s (kg/kgDA), [i, 1]
-    c_w_frt_is = np.array([float(s['furniture']['moisture_cond']) for s in ss]).reshape(-1, 1)
+    g_lh_frt_is = np.array([float(s['furniture']['moisture_cond']) for s in ss]).reshape(-1, 1)
 
     # 室iの暖房方式として放射空調が設置されているかどうか。  bool値, [i, 1]
     # 室iの暖房方式として放射空調が設置されている場合の、放射暖房最大能力, W, [i, 1]
@@ -549,7 +549,7 @@ def make_pre_calc_parameters(data_directory: str) -> (PreCalcParameters, PreCalc
     # BRM(換気なし), W/K, [i, i]
     brm_non_vent_is_is = np.diag(c_rm_is.flatten() / 900.0)\
         + np.dot(p_is_js, (p_js_is - wsr_js_is) * a_srf_js * h_c_js)\
-        + np.diag((c_cap_h_frt_is * c_h_frt_is / (c_cap_h_frt_is + c_h_frt_is * 900.0)).flatten())
+        + np.diag((c_sh_frt_is * g_sh_frt_is / (c_sh_frt_is + g_sh_frt_is * 900.0)).flatten())
 
     # 年平均外気温度, degree C
     # 地盤計算の時の深部温度に用いる
@@ -573,10 +573,10 @@ def make_pre_calc_parameters(data_directory: str) -> (PreCalcParameters, PreCalc
         name_space_is=name_space_is,
         v_room_is=v_room_is,
         c_room_is=c_rm_is,
-        c_cap_h_frt_is=c_cap_h_frt_is,
-        c_cap_w_frt_is=c_cap_w_frt_is,
-        c_w_frt_is=c_w_frt_is,
-        c_h_frt_is=c_h_frt_is,
+        c_cap_h_frt_is=c_sh_frt_is,
+        c_cap_w_frt_is=c_lh_frt_is,
+        c_w_frt_is=g_lh_frt_is,
+        c_h_frt_is=g_sh_frt_is,
         v_int_vent_is_is=v_int_vent_is_is,
         name_bdry_js=name_bdry_js,
         sub_name_bdry_js=sub_name_bdry_js,
