@@ -483,7 +483,7 @@ def make_pre_calc_parameters(data_directory: str) -> (PreCalcParameters, PreCalc
     # region 読み込んだ値から新たに係数を作成する
 
     # 室iの空気の熱容量, J/K, [i, 1]
-    c_room_is = v_room_is * get_rho_air() * get_c_air()
+    c_rm_is = v_room_is * get_rho_air() * get_c_air()
 
     # 境界jの室内側表面放射熱伝達率, W/m2K, [j, 1]
     h_r_js = shape_factor.get_h_r_js(a_srf_js=a_srf_js, p_js_is=p_js_is)
@@ -547,7 +547,7 @@ def make_pre_calc_parameters(data_directory: str) -> (PreCalcParameters, PreCalc
     brl_is_is = np.dot(p_is_js, wsb_js_is * h_c_js * a_srf_js) + np.diag(beta_is.flatten())
 
     # BRM(換気なし), W/K, [i, i]
-    brm_non_vent_is_is = np.diag(c_room_is.flatten() / 900.0)\
+    brm_non_vent_is_is = np.diag(c_rm_is.flatten() / 900.0)\
         + np.dot(p_is_js, (p_js_is - wsr_js_is) * a_srf_js * h_c_js)\
         + np.diag((c_cap_h_frt_is * c_h_frt_is / (c_cap_h_frt_is + c_h_frt_is * 900.0)).flatten())
 
@@ -572,7 +572,7 @@ def make_pre_calc_parameters(data_directory: str) -> (PreCalcParameters, PreCalc
         id_space_is=id_space_is,
         name_space_is=name_space_is,
         v_room_is=v_room_is,
-        c_room_is=c_room_is,
+        c_room_is=c_rm_is,
         c_cap_h_frt_is=c_cap_h_frt_is,
         c_cap_w_frt_is=c_cap_w_frt_is,
         c_w_frt_is=c_w_frt_is,
