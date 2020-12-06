@@ -49,7 +49,7 @@ class Conditions:
         self.q_srf_js_n = q_srf_js_n
 
         # ステップnの室iにおける家具の温度, degree C, [i, 1]
-        self.theta_frnt_is_n = theta_frnt_is_n
+        self.theta_frt_is_n = theta_frnt_is_n
 
         # ステップnの室iにおける家具の絶対湿度, kg/kgDA, [i, 1]
         self.x_frt_is_n = x_frnt_is_n

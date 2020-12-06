@@ -44,16 +44,16 @@ class PreCalcParameters:
     c_room_is: np.ndarray
 
     # 室iの家具等の熱容量, J/K, [i, 1]
-    c_cap_h_frt_is: np.ndarray
+    c_sh_frt_is: np.ndarray
 
     # 室iの家具等の湿気容量, kg/m3 (kg/kgDA), [i, 1]
-    c_cap_w_frt_is: np.ndarray
+    c_lh_frt_is: np.ndarray
 
     # 室iの家具等と空気間の熱コンダクタンス, W/K, [i, 1]
-    c_h_frt_is: np.ndarray
+    g_sh_frt_is: np.ndarray
 
     # 室iの家具等と空気間の湿気コンダクタンス, kg/s (kg/kgDA), [i, 1]
-    c_w_frt_is: np.ndarray
+    g_lh_frt_is: np.ndarray
 
     # ステップnにおける室iの空調需要, [i, 8760*4]
     ac_demand_is_ns: np.ndarray
@@ -71,7 +71,7 @@ class PreCalcParameters:
     v_mec_vent_is_ns: np.ndarray
 
     # 家具の吸収日射量, W, [i, 8760*4]
-    q_sol_frnt_is_ns: np.ndarray
+    q_sol_frt_is_ns: np.ndarray
 
     # 室iの自然風利用時の換気量, m3/s, [i, 1]
     v_ntrl_vent_is: np.ndarray
@@ -573,10 +573,10 @@ def make_pre_calc_parameters(delta_t: float, data_directory: str) -> (PreCalcPar
         name_space_is=name_space_is,
         v_room_is=v_room_is,
         c_room_is=c_rm_is,
-        c_cap_h_frt_is=c_sh_frt_is,
-        c_cap_w_frt_is=c_lh_frt_is,
-        c_w_frt_is=g_lh_frt_is,
-        c_h_frt_is=g_sh_frt_is,
+        c_sh_frt_is=c_sh_frt_is,
+        c_lh_frt_is=c_lh_frt_is,
+        g_sh_frt_is=g_sh_frt_is,
+        g_lh_frt_is=g_lh_frt_is,
         v_int_vent_is_is=v_int_vent_is_is,
         name_bdry_js=name_bdry_js,
         sub_name_bdry_js=sub_name_bdry_js,
@@ -605,7 +605,7 @@ def make_pre_calc_parameters(delta_t: float, data_directory: str) -> (PreCalcPar
         h_c_js=h_c_js,
         f_mrt_is_js=f_mrt_is_js,
         q_sol_js_ns=q_sol_js_ns,
-        q_sol_frnt_is_ns=q_sol_frnt_is_ns,
+        q_sol_frt_is_ns=q_sol_frnt_is_ns,
         beta_is=beta_is,
         wsr_js_is=wsr_js_is,
         wsb_js_is=wsb_js_is,

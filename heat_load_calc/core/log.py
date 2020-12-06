@@ -128,7 +128,7 @@ class Logger:
         self.q_trs_sol = ss.q_trs_sol_is_ns
         self.q_gen = ss.q_gen_is_ns
         self.x_gen = ss.x_gen_is_ns
-        self.q_sol_frnt = ss.q_sol_frnt_is_ns
+        self.q_sol_frnt = ss.q_sol_frt_is_ns
 
     def post_logging(self, ss: PreCalcParameters):
 
@@ -142,7 +142,7 @@ class Logger:
         self.rh = psy.get_h(p_v=p_v, p_vs=p_vs)
 
         # ステップnの室iにおける家具取得熱量, W, [i, n]
-        self.q_frnt = ss.c_h_frt_is * (self.theta_r - self.theta_frnt)
+        self.q_frnt = ss.g_sh_frt_is * (self.theta_r - self.theta_frnt)
 
         # ステップnの境界jにおける表面熱流（壁体吸熱を正とする）のうち対流成分, W, [j, n]
         self.qc = ss.h_c_js * ss.a_srf_js * (np.dot(ss.p_js_is, self.theta_r) - self.theta_s)
@@ -151,7 +151,7 @@ class Logger:
         self.qr = ss.h_r_js * ss.a_srf_js * (np.dot(np.dot(ss.p_js_is, ss.f_mrt_is_js), self.theta_s) - self.theta_s)
 
         # ステップnの室iの家具等から空気への水分流, kg/s, [i, n]
-        self.q_l_frnt = ss.c_w_frt_is * (self.x_r - self.x_frnt)
+        self.q_l_frnt = ss.g_lh_frt_is * (self.x_r - self.x_frnt)
 
 
 def record(pps: PreCalcParameters, logger: Logger, output_data_dir: str, show_simple_result: bool, show_detail_result: bool):
