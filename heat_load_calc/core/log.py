@@ -25,7 +25,7 @@ class Logger:
         self.x_r = np.zeros((n_spaces, 24 * 365 * 4 * 3))
 
         # ステップnの室iにおける平均放射温度, degree C, [i, n]
-        self.theta_mrt = np.zeros((n_spaces, 24 * 365 * 4 * 3))
+        self.theta_mrt_hum = np.zeros((n_spaces, 24 * 365 * 4 * 3))
 
         # ステップnの室iにおける作用温度, degree C, [i, n]
         self.theta_ot = np.zeros((n_spaces, 24 * 365 * 4 * 3))
@@ -175,7 +175,7 @@ def record(pps: PreCalcParameters, logger: Logger, output_data_dir: str, show_si
         dd[name + '_t_r'] = logger.theta_r[i][0:365*96]
         dd[name + '_rh_r'] = logger.rh[i][0:365*96]
         dd[name + '_x_r'] = logger.x_r[i][0:365*96]
-        dd[name + '_mrt'] = logger.theta_mrt[i][0:365*96]
+        dd[name + '_mrt'] = logger.theta_mrt_hum[i][0:365 * 96]
         dd[name + '_ot'] = logger.theta_ot[i][0:365*96]
         dd[name + '_v_hum'] = logger.v_hum_is_n[i][0:365*96]
         dd[name + '_clo'] = logger.clo[i][0:365*96]
