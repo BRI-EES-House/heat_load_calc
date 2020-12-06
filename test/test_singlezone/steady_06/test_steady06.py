@@ -35,7 +35,7 @@ class TestSteadyState(unittest.TestCase):
         initializer.make_house_for_test(d=d, input_data_dir=s_folder, output_data_dir=s_folder)
 
         # 計算実行
-        ds, dd = core.calc(input_data_dir=s_folder, output_data_dir=s_folder, show_detail_result=False, n_d_main=3)
+        ds, dd = core.calc(input_data_dir=s_folder, output_data_dir=s_folder, show_detail_result=False, n_d_main=1, n_d_run_up_build=90)
 
         # 計算結果格納
         cls._ds = ds
