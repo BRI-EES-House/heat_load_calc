@@ -150,7 +150,7 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
     xlr_is_is_n_pls = np.dot(xot_is_is_n_pls, kr_is_n * np.dot(ss.f_mrt_hum_is_js, ss.wsb_js_is))
 
     # ステップn+1における室iの係数 XC, [i, 1]
-    xc_is_n_pls = kr_is_n * np.dot(xot_is_is_n_pls, np.dot(ss.f_mrt_hum_is_js, (wsc_js_n_pls + wsv_js_n_pls)))
+    xc_is_n_pls = np.dot(xot_is_is_n_pls, kr_is_n * np.dot(ss.f_mrt_hum_is_js, (wsc_js_n_pls + wsv_js_n_pls)))
 
     # ステップnにおける係数 BRMOT, W/K, [i, i]
     brm_ot_is_is_n = np.dot(brm_is_is_n_pls, xot_is_is_n_pls)
@@ -188,6 +188,10 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
 
     # ステップ n+1 における室 i の人体に対する平均放射温度, degree C, [i, 1]
     theta_mrt_hum_is_n_pls = np.dot(ss.f_mrt_hum_is_js, theta_s_js_n_pls)
+
+#    t1 = theta_ot_is_n_pls
+#    t2 = kc_is_n * theta_r_is_n_pls + kr_is_n * theta_mrt_hum_is_n_pls
+#    print(np.abs(t1-t2)<0.00001)
 
     # ステップ n+1 の境界 j における等価温度, degree C, [j, 1]
     theta_ei_js_n_pls = (
