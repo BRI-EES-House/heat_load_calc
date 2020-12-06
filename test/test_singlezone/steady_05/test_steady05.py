@@ -33,7 +33,7 @@ class TestSteadyState(unittest.TestCase):
         initializer.make_house_for_test(d=d, input_data_dir=s_folder, output_data_dir=s_folder)
 
         # 計算実行
-        ds, dd = core.calc(input_data_dir=s_folder, output_data_dir=s_folder, show_detail_result=False)
+        ds, dd = core.calc(input_data_dir=s_folder, output_data_dir=s_folder, show_detail_result=False, n_d_main=1, n_d_run_up_build=90)
 
         # 計算結果格納
         cls._ds = ds
@@ -42,20 +42,20 @@ class TestSteadyState(unittest.TestCase):
     # 室空気温[℃]のテスト
     def test_room_temp(self):
 
-        self.assertAlmostEqual(3.30840743734952, self._dd['rm0_t_r']['1989-12-31 00:00:00'])
+        self.assertAlmostEqual(3.30840743734952, self._dd['rm0_t_r']['1989-1-1 12:00:00'])
 
     # 室内側表面熱流[W/m2]のテスト
     def test_heat_flow(self):
 
-        self.assertAlmostEqual(15.3840945836644, self._dd['rm0_b1_qiall_s']['1989-12-31 00:00:00'])
-        self.assertAlmostEqual(-31.1159054163356, self._dd['rm0_b2_qiall_s']['1989-12-31 00:00:00'])
-        self.assertAlmostEqual(14.704033054876, self._dd['rm0_b4_qiall_s']['1989-12-31 00:00:00'])
-        self.assertAlmostEqual(-29.7404113895684, self._dd['rm0_b5_qiall_s']['1989-12-31 00:00:00'])
+        self.assertAlmostEqual(15.3840945836644, self._dd['rm0_b1_qiall_s']['1989-1-1 12:00:00'])
+        self.assertAlmostEqual(-31.1159054163356, self._dd['rm0_b2_qiall_s']['1989-1-1 12:00:00'])
+        self.assertAlmostEqual(14.704033054876, self._dd['rm0_b4_qiall_s']['1989-1-1 12:00:00'])
+        self.assertAlmostEqual(-29.7404113895684, self._dd['rm0_b5_qiall_s']['1989-1-1 12:00:00'])
 
     # 表面温度[℃]のテスト
     def test_surface_temp(self):
 
-        self.assertAlmostEqual(1.61615703314442, self._dd['rm0_b1_t_s']['1989-12-31 00:00:00'])
-        self.assertAlmostEqual(6.73115703314443, self._dd['rm0_b2_t_s']['1989-12-31 00:00:00'])
-        self.assertAlmostEqual(1.69096380131112, self._dd['rm0_b4_t_s']['1989-12-31 00:00:00'])
-        self.assertAlmostEqual(6.57985269020001, self._dd['rm0_b5_t_s']['1989-12-31 00:00:00'])
+        self.assertAlmostEqual(1.61615703314442, self._dd['rm0_b1_t_s']['1989-1-1 12:00:00'])
+        self.assertAlmostEqual(6.73115703314443, self._dd['rm0_b2_t_s']['1989-1-1 12:00:00'])
+        self.assertAlmostEqual(1.69096380131112, self._dd['rm0_b4_t_s']['1989-1-1 12:00:00'])
+        self.assertAlmostEqual(6.57985269020001, self._dd['rm0_b5_t_s']['1989-1-1 12:00:00'])
