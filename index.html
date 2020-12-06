@@ -2502,7 +2502,7 @@ k_{EO,j} \cdot \theta_{EO,n}
 </div>
 <div class="stemblock">
 <div class="content">
-\[\begin{align}
+\[\begin{split}
 \boldsymbol{\theta}_{s,n+1} &amp;= \boldsymbol{\phi}_{A0} \cdot \boldsymbol{q}_{n+1} + \sum_{m=1}^{M}{\boldsymbol{\theta'}_{S,A,m,n+1}} + \boldsymbol{\phi}_{T0} \cdot \boldsymbol{\theta}_{rear,n+1} + \sum_{m=1}^{M}{\boldsymbol{\theta'}_{S,T,m,n+1}} \\
 &amp;= \boldsymbol{\phi}_{A0} \cdot \boldsymbol{h}_{i} \cdot ( \boldsymbol{\theta}_{EI,n+1} - \boldsymbol{\theta}_{S,n+1} ) \\
 &amp;+ \boldsymbol{\phi}_{T0} \cdot (\boldsymbol{k'}_{EI} \cdot \boldsymbol{\theta}_{EI,n+1} + \boldsymbol{k}_{EO} \cdot \theta_{EO,n+1}) \\
@@ -2527,7 +2527,7 @@ k_{EO,j} \cdot \theta_{EO,n}
 &amp;+ \boldsymbol{\phi}_{T0} \cdot \boldsymbol{k'}_{EI} \cdot \boldsymbol{A}^{-1} \cdot \boldsymbol{h}_{i}^{-1} \cdot (1 - \boldsymbol{\beta}) \cdot \boldsymbol{flr} \cdot \boldsymbol{Lr}_{n+1} \\
 &amp;+ \boldsymbol{\phi}_{T0} \cdot \boldsymbol{k}_{EO} \cdot \theta_{EO,n+1} \\
 &amp;+ \sum_{m=1}^{M}{\boldsymbol{\theta'}_{S,A,m,n+1}} + \sum_{m=1}^{M}{\boldsymbol{\theta'}_{S,T,m,n+1}} \\
-\end{align}
+\end{split}
 \tag{3.16}\]
 </div>
 </div>
@@ -2536,7 +2536,7 @@ k_{EO,j} \cdot \theta_{EO,n}
 </div>
 <div class="stemblock">
 <div class="content">
-\[\begin{align}
+\[\begin{split}
 &amp;\boldsymbol{\theta}_{s,n+1}
 - \boldsymbol{\phi}_{A0} \cdot \boldsymbol{h}_{r} \cdot \boldsymbol{p} \cdot \boldsymbol{F}_{mrt} \cdot \boldsymbol{\theta}_{S,n+1}
 + \boldsymbol{\phi}_{A0} \cdot \boldsymbol{h}_{i} \cdot \boldsymbol{\theta}_{S,n+1}
@@ -2550,7 +2550,7 @@ k_{EO,j} \cdot \theta_{EO,n}
 &amp;+ \boldsymbol{\phi}_{A0} \cdot \boldsymbol{A}^{-1} \cdot (1 - \boldsymbol{\beta}) \cdot \boldsymbol{flr} \cdot \boldsymbol{Lr}_{n+1}
 + \boldsymbol{\phi}_{T0} \cdot \boldsymbol{k'}_{EI} \cdot \boldsymbol{A}^{-1} \cdot \boldsymbol{h}_{i}^{-1} \cdot (1 - \boldsymbol{\beta}) \cdot \boldsymbol{flr} \cdot \boldsymbol{Lr}_{n+1} \\
 &amp;+ \sum_{m=1}^{M}{\boldsymbol{\theta'}_{S,A,m,n+1}} + \sum_{m=1}^{M}{\boldsymbol{\theta'}_{S,T,m,n+1}} \\
-\end{align}
+\end{split}
 \tag{3.17}\]
 </div>
 </div>
@@ -2627,7 +2627,7 @@ k_{EO,j} \cdot \theta_{EO,n}
 </div>
 <div class="stemblock">
 <div class="content">
-\[\begin{align}
+\[\begin{split}
 \boldsymbol{\theta}_{S,n+1}
 &amp;= \boldsymbol{AX}^{-1} \cdot \boldsymbol{FIA} \cdot \boldsymbol{\theta}_{r,n+1}
 + \boldsymbol{AX}^{-1} \cdot \boldsymbol{CRX}_{n+1}
@@ -2637,7 +2637,7 @@ k_{EO,j} \cdot \theta_{EO,n}
 + \boldsymbol{WSC}_{n+1}
 + \boldsymbol{WSB} \cdot \boldsymbol{LR}_{n+1}
 + \boldsymbol{WSV}_{n+1}
-\end{align}
+\end{split}
 \tag{3.24}\]
 </div>
 </div>
@@ -2686,15 +2686,15 @@ k_{EO,j} \cdot \theta_{EO,n}
 </div>
 <div class="stemblock">
 <div class="content">
-\[\begin{align}
+\[\begin{split}
 \boldsymbol{C}_{rm} \cdot \frac{d \boldsymbol{\theta}_{r,n}}{d t}
-&amp;= \boldsymbol{p}^{T} \cdot \boldsymbol{h}_c \cdot \boldsymbol{A} \cdot (\boldsymbol{\theta}_{S,n} - \boldsymbol{p} \cdot \boldsymbol{\theta}_{r,n})
-+ c_a \cdot \rho_a \cdot \boldsymbol{V}_n \cdot (\boldsymbol{\theta}_{o,n} - \boldsymbol{\theta}_{r,n})
+&amp; = \boldsymbol{p}^{T} \cdot \boldsymbol{h}_c \cdot \boldsymbol{A} \cdot (\boldsymbol{\theta}_{S,n} - \boldsymbol{p} \cdot \boldsymbol{\theta}_{r,n}) \\
+&amp; + c_a \cdot \rho_a \cdot \boldsymbol{V}_n \cdot (\boldsymbol{\theta}_{o,n} - \boldsymbol{\theta}_{r,n})
 + c_a \cdot \rho_a \cdot \boldsymbol{V}_{nxt,n} \cdot \boldsymbol{\theta}_{r,n} \\
-&amp;+ \boldsymbol{H}_n
+&amp; + \boldsymbol{H}_n
 + (\boldsymbol{LC}_n + \boldsymbol{\beta} \cdot \boldsymbol{Lr}_n)
 + \boldsymbol{G}_{frt} \cdot (\boldsymbol{\theta}_{frt,n} - \boldsymbol{\theta}_{r,n})
-\end{align}
+\end{split}
 \tag{4.1}\]
 </div>
 </div>
@@ -2811,15 +2811,15 @@ k_{EO,j} \cdot \theta_{EO,n}
 </div>
 <div class="stemblock">
 <div class="content">
-\[\begin{align}
+\[\begin{split}
 &amp;\boldsymbol{C}_{rm} \frac{\boldsymbol{\theta}_{r,n+1} - \boldsymbol{\theta}_{r,n}}{\Delta t} \\
-&amp;= \boldsymbol{p}^{T} \cdot \boldsymbol{h}_c \cdot \boldsymbol{A} \cdot (\boldsymbol{\theta}_{S,n+1} - \boldsymbol{p} \cdot \boldsymbol{\theta}_{r,n+1})
-+ c_a \cdot \rho_a \cdot \overline{\boldsymbol{V}_n} \cdot (\boldsymbol{\theta}_{o,n+1} - \boldsymbol{\theta}_{r,n+1})
+&amp; = \boldsymbol{p}^{T} \cdot \boldsymbol{h}_c \cdot \boldsymbol{A} \cdot (\boldsymbol{\theta}_{S,n+1} - \boldsymbol{p} \cdot \boldsymbol{\theta}_{r,n+1}) \\
+&amp; + c_a \cdot \rho_a \cdot \overline{\boldsymbol{V}_n} \cdot (\boldsymbol{\theta}_{o,n+1} - \boldsymbol{\theta}_{r,n+1})
 + c_a \cdot \rho_a \cdot \overline{\boldsymbol{V}_{nxt,n}} \cdot \boldsymbol{\theta}_{r,n+1} \\
-&amp;+ \overline{\boldsymbol{H}_n}
+&amp; + \overline{\boldsymbol{H}_n}
 + ( \overline{\boldsymbol{LC}_n} + \boldsymbol{\beta} \cdot \overline{\boldsymbol{Lr}_n} )
 + \boldsymbol{G}_{frt} \cdot (\boldsymbol{\theta}_{frt,n+1} - \boldsymbol{\theta}_{r,n+1})
-\end{align}
+\end{split}
 \tag{4.2}\]
 </div>
 </div>
@@ -2831,11 +2831,9 @@ k_{EO,j} \cdot \theta_{EO,n}
 </div>
 <div class="stemblock">
 <div class="content">
-\[\begin{align}
-\boldsymbol{C}_{frt} \cdot \frac{d \boldsymbol{\theta}_{frt,n}}{d t}
-&amp;= \boldsymbol{G}_{frt} \cdot (\boldsymbol{\theta}_{r,n} - \boldsymbol{\theta}_{frt,n})
+\[\boldsymbol{C}_{frt} \cdot \frac{d \boldsymbol{\theta}_{frt,n}}{d t}
+= \boldsymbol{G}_{frt} \cdot (\boldsymbol{\theta}_{r,n} - \boldsymbol{\theta}_{frt,n})
 + Q_{sol,frt,n}
-\end{align}
 \tag{4.3}\]
 </div>
 </div>
@@ -2872,11 +2870,9 @@ k_{EO,j} \cdot \theta_{EO,n}
 </div>
 <div class="stemblock">
 <div class="content">
-\[\begin{align}
-\boldsymbol{C}_{frt} \cdot \frac{\boldsymbol{\theta}_{frt,n+1} - \boldsymbol{\theta}_{frt,n}}{\Delta t}
-&amp;= \boldsymbol{G}_{frt} \cdot (\boldsymbol{\theta}_{r,n+1} - \boldsymbol{\theta}_{frt,n+1})
+\[\boldsymbol{C}_{frt} \cdot \frac{\boldsymbol{\theta}_{frt,n+1} - \boldsymbol{\theta}_{frt,n}}{\Delta t}
+= \boldsymbol{G}_{frt} \cdot (\boldsymbol{\theta}_{r,n+1} - \boldsymbol{\theta}_{frt,n+1})
 + \overline{Q_{sol,frt,n+1}}
-\end{align}
 \tag{4.4}\]
 </div>
 </div>
@@ -2885,16 +2881,14 @@ k_{EO,j} \cdot \theta_{EO,n}
 </div>
 <div class="stemblock">
 <div class="content">
-\[\begin{align}
-\boldsymbol{\theta}_{frt,n+1}
-&amp;= (\boldsymbol{C}_{frt} + \Delta t \cdot \boldsymbol{G}_{frt})^{-1}
+\[\boldsymbol{\theta}_{frt,n+1}
+= (\boldsymbol{C}_{frt} + \Delta t \cdot \boldsymbol{G}_{frt})^{-1}
 \cdot
 (
 \boldsymbol{C}_{frt} \cdot \boldsymbol{\theta}_{frt,n}
 + \Delta t \cdot \boldsymbol{G}_{frt} \cdot \boldsymbol{\theta}_{r,n+1}
 + \Delta t \cdot \overline{Q_{sol,frt,n+1}}
 )
-\end{align}
 \tag{4.5}\]
 </div>
 </div>
@@ -2909,7 +2903,7 @@ k_{EO,j} \cdot \theta_{EO,n}
 </div>
 <div class="stemblock">
 <div class="content">
-\[\begin{align}
+\[\begin{split}
 &amp;\boldsymbol{C}_{rm} \frac{\boldsymbol{\theta}_{r,n+1} - \boldsymbol{\theta}_{r,n}}{\Delta t} \\
 &amp;= \boldsymbol{p}^{T} \cdot \boldsymbol{h}_c \cdot \boldsymbol{A} \cdot
 (
@@ -2931,7 +2925,7 @@ k_{EO,j} \cdot \theta_{EO,n}
 + \Delta t \cdot \boldsymbol{G}_{frt} \cdot \boldsymbol{\theta}_{r,n+1}
 + \Delta t \cdot \overline{Q_{sol,frt,n+1}}
 ) - \boldsymbol{\theta}_{r,n+1})
-\end{align}
+\end{split}
 \tag{4.6}\]
 </div>
 </div>
@@ -2941,7 +2935,7 @@ k_{EO,j} \cdot \theta_{EO,n}
 </div>
 <div class="stemblock">
 <div class="content">
-\[\begin{align}
+\[\begin{split}
 &amp; \boldsymbol{C}_{rm} \cdot \frac{1}{\Delta t} \cdot \boldsymbol{\theta}_{r,n+1}
 + \boldsymbol{p}^{T} \cdot \boldsymbol{h}_c \cdot \boldsymbol{A} \cdot
 (\boldsymbol{p} - \boldsymbol{WSR}) \cdot \boldsymbol{\theta}_{r,n+1} \\
@@ -2966,7 +2960,7 @@ k_{EO,j} \cdot \theta_{EO,n}
 &amp; + \boldsymbol{p}^{T} \cdot \boldsymbol{h}_c \cdot \boldsymbol{A} \cdot
 \boldsymbol{WSB} \cdot \overline{\boldsymbol{Lr}_n}
 + \boldsymbol{\beta} \cdot \overline{\boldsymbol{Lr}_n}
-\end{align}
+\end{split}
 \tag{4.7}\]
 </div>
 </div>
@@ -2978,24 +2972,26 @@ k_{EO,j} \cdot \theta_{EO,n}
 </div>
 <div class="stemblock">
 <div class="content">
-\[\boldsymbol{BRM}_n
-= \boldsymbol{C}_{rm} \cdot \frac{1}{\Delta t}
+\[\begin{split}
+\boldsymbol{BRM}_n
+&amp; = \boldsymbol{C}_{rm} \cdot \frac{1}{\Delta t}
 + \boldsymbol{p}^{T} \cdot \boldsymbol{h}_c \cdot \boldsymbol{A} \cdot
-(\boldsymbol{p} - \boldsymbol{WSR})
-+ c_a \cdot \rho_a \cdot \overline{\boldsymbol{V}_n}
+(\boldsymbol{p} - \boldsymbol{WSR}) \\
+&amp; + c_a \cdot \rho_a \cdot \overline{\boldsymbol{V}_n}
 - c_a \cdot \rho_a \cdot \overline{\boldsymbol{V}_{nxt,n}}
 + \boldsymbol{G}_{frt} \cdot (\boldsymbol{C}_{frt} + \Delta t \cdot \boldsymbol{G}_{frt})^{-1} \cdot \boldsymbol{C}_{frt}
+\end{split}
 \tag{4.8}\]
 </div>
 </div>
 <div class="stemblock">
 <div class="content">
-\[\begin{align}
-&amp; \boldsymbol{BRC}_n
-= \boldsymbol{C}_{rm} \cdot \frac{1}{\Delta t} \cdot \boldsymbol{\theta}_{r,n}
+\[\begin{split}
+\boldsymbol{BRC}_n
+&amp; = \boldsymbol{C}_{rm} \cdot \frac{1}{\Delta t} \cdot \boldsymbol{\theta}_{r,n}
 + \boldsymbol{p}^{T} \cdot \boldsymbol{h}_c \cdot \boldsymbol{A} \cdot
-(\boldsymbol{WSC}_{n+1} + \boldsymbol{WSV}_{n+1})
-+ c_a \cdot \rho_a \cdot \overline{\boldsymbol{V}_n} \cdot \boldsymbol{\theta}_{o,n+1}
+(\boldsymbol{WSC}_{n+1} + \boldsymbol{WSV}_{n+1}) \\
+&amp; + c_a \cdot \rho_a \cdot \overline{\boldsymbol{V}_n} \cdot \boldsymbol{\theta}_{o,n+1}
 + \overline{\boldsymbol{H}_n} \\
 &amp; + \boldsymbol{G}_{frt} \cdot
 (\boldsymbol{C}_{frt} + \Delta t \cdot \boldsymbol{G}_{frt})^{-1}
@@ -3004,7 +3000,7 @@ k_{EO,j} \cdot \theta_{EO,n}
 \boldsymbol{C}_{frt} \cdot \boldsymbol{\theta}_{frt,n}
 + \Delta t \cdot \overline{Q_{sol,frt,n+1}}
 )
-\end{align}
+\end{split}
 \tag{4.9}\]
 </div>
 </div>
@@ -3129,19 +3125,19 @@ k_{EO,j} \cdot \theta_{EO,n}
 </div>
 <div class="stemblock">
 <div class="content">
-\[\begin{align}
+\[\begin{split}
 \boldsymbol{\theta}_{OT,n+1}
 &amp; = \boldsymbol{kc}_{n+1} \cdot \boldsymbol{\theta}_{r,n+1}
 + \boldsymbol{kr}_{n+1} \cdot \boldsymbol{\theta}_{MRT,hum,n+1} \\
-&amp; = \boldsymbol{kc}_{n+1} \cdot \boldsymbol{\theta}_{r,n+1}
-+ \boldsymbol{kr}_{n+1} \cdot \boldsymbol{F}_{mrt,hum} \cdot
+&amp; = \boldsymbol{kc}_{n+1} \cdot \boldsymbol{\theta}_{r,n+1} \\
+&amp; + \boldsymbol{kr}_{n+1} \cdot \boldsymbol{F}_{mrt,hum} \cdot
 (
 \boldsymbol{WSR} \cdot \boldsymbol{\theta}_{r,n+1}
 + \boldsymbol{WSC}_{n+1}
 + \boldsymbol{WSB} \cdot \boldsymbol{Lr}_{n+1}
 + \boldsymbol{WSV}_{n+1}
 )
-\end{align}
+\end{split}
 \tag{5.3}\]
 </div>
 </div>
@@ -3150,7 +3146,7 @@ k_{EO,j} \cdot \theta_{EO,n}
 </div>
 <div class="stemblock">
 <div class="content">
-\[\begin{align}
+\[\begin{split}
 &amp;(
 \boldsymbol{kc}_{n+1}
 + \boldsymbol{kr}_{n+1} \cdot \boldsymbol{F}_{mrt,hum} \cdot \boldsymbol{WSR}
@@ -3161,7 +3157,7 @@ k_{EO,j} \cdot \theta_{EO,n}
 \boldsymbol{WSB} \cdot \overline{\boldsymbol{Lr}_{n}}
 - \boldsymbol{kr}_{n+1} \cdot \boldsymbol{F}_{mrt,hum}
 \cdot ( \boldsymbol{WSC}_{n+1} + \boldsymbol{WSV}_{n+1} )
-\end{align}
+\end{split}
 \tag{5.4}\]
 </div>
 </div>
@@ -3224,14 +3220,16 @@ k_{EO,j} \cdot \theta_{EO,n}
 </div>
 <div class="stemblock">
 <div class="content">
-\[\boldsymbol{BRM}_n \cdot (
+\[&amp; \begin{split}
+\boldsymbol{BRM}_n \cdot (
 \boldsymbol{XOT}_{n+1} \cdot \boldsymbol{\theta}_{OT,n+1}
 + \boldsymbol{XLR}_{n+1} \cdot \overline{\boldsymbol{Lr}_{n}}
 + \boldsymbol{XC}_{n+1}
-)
-= \boldsymbol{BRC}_n
+) \\
+&amp; = \boldsymbol{BRC}_n
 + \overline{\boldsymbol{LC}_n}
 + \boldsymbol{BRL} \cdot \overline{\boldsymbol{Lr}_n}
+\end{split}
 \tag{6.1}\]
 </div>
 </div>
@@ -3240,7 +3238,7 @@ k_{EO,j} \cdot \theta_{EO,n}
 </div>
 <div class="stemblock">
 <div class="content">
-\[\begin{align}
+\[\begin{split}
 \boldsymbol{\theta}_{OT,n+1}
 &amp; = (\boldsymbol{BRM}_n \cdot \boldsymbol{XOT}_{n+1})^{-1} \cdot \overline{\boldsymbol{LC}_n} \\
 &amp; + (\boldsymbol{BRM}_n \cdot \boldsymbol{XOT}_{n+1})^{-1}
@@ -3254,7 +3252,7 @@ k_{EO,j} \cdot \theta_{EO,n}
 \boldsymbol{BRC}_n
 - \boldsymbol{BRM}_n \cdot \boldsymbol{XC}_{n+1}
 )
-\end{align}
+\end{split}
 \tag{6.2}\]
 </div>
 </div>
@@ -3622,7 +3620,7 @@ BRMC_{not-dh} &amp;= \rho_{a} \: \left( \frac{V_{room}}{\Delta t} \otimes X_{r,n
 <div id="footer">
 <div id="footer-text">
 Version 1.0.0(202006)<br>
-Last updated 2020-12-05 18:43:00 UTC
+Last updated 2020-12-06 03:10:45 UTC
 </div>
 </div>
 <script type="text/x-mathjax-config">

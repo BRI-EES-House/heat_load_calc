@@ -609,7 +609,7 @@ stem:[\begin{pmatrix}
 
 [stem]
 ++++
-\begin{align}
+\begin{split}
 \boldsymbol{\theta}_{s,n+1} &= \boldsymbol{\phi}_{A0} \cdot \boldsymbol{q}_{n+1} + \sum_{m=1}^{M}{\boldsymbol{\theta'}_{S,A,m,n+1}} + \boldsymbol{\phi}_{T0} \cdot \boldsymbol{\theta}_{rear,n+1} + \sum_{m=1}^{M}{\boldsymbol{\theta'}_{S,T,m,n+1}} \\
 &= \boldsymbol{\phi}_{A0} \cdot \boldsymbol{h}_{i} \cdot ( \boldsymbol{\theta}_{EI,n+1} - \boldsymbol{\theta}_{S,n+1} ) \\
 &+ \boldsymbol{\phi}_{T0} \cdot (\boldsymbol{k'}_{EI} \cdot \boldsymbol{\theta}_{EI,n+1} + \boldsymbol{k}_{EO} \cdot \theta_{EO,n+1}) \\
@@ -634,7 +634,7 @@ stem:[\begin{pmatrix}
 &+ \boldsymbol{\phi}_{T0} \cdot \boldsymbol{k'}_{EI} \cdot \boldsymbol{A}^{-1} \cdot \boldsymbol{h}_{i}^{-1} \cdot (1 - \boldsymbol{\beta}) \cdot \boldsymbol{flr} \cdot \boldsymbol{Lr}_{n+1} \\
 &+ \boldsymbol{\phi}_{T0} \cdot \boldsymbol{k}_{EO} \cdot \theta_{EO,n+1} \\
 &+ \sum_{m=1}^{M}{\boldsymbol{\theta'}_{S,A,m,n+1}} + \sum_{m=1}^{M}{\boldsymbol{\theta'}_{S,T,m,n+1}} \\
-\end{align}
+\end{split}
 \tag{3.16}
 ++++
 
@@ -642,7 +642,7 @@ stem:[\begin{pmatrix}
 
 [stem]
 ++++
-\begin{align}
+\begin{split}
 &\boldsymbol{\theta}_{s,n+1}
 - \boldsymbol{\phi}_{A0} \cdot \boldsymbol{h}_{r} \cdot \boldsymbol{p} \cdot \boldsymbol{F}_{mrt} \cdot \boldsymbol{\theta}_{S,n+1}
 + \boldsymbol{\phi}_{A0} \cdot \boldsymbol{h}_{i} \cdot \boldsymbol{\theta}_{S,n+1}
@@ -656,7 +656,7 @@ stem:[\begin{pmatrix}
 &+ \boldsymbol{\phi}_{A0} \cdot \boldsymbol{A}^{-1} \cdot (1 - \boldsymbol{\beta}) \cdot \boldsymbol{flr} \cdot \boldsymbol{Lr}_{n+1}
 + \boldsymbol{\phi}_{T0} \cdot \boldsymbol{k'}_{EI} \cdot \boldsymbol{A}^{-1} \cdot \boldsymbol{h}_{i}^{-1} \cdot (1 - \boldsymbol{\beta}) \cdot \boldsymbol{flr} \cdot \boldsymbol{Lr}_{n+1} \\
 &+ \sum_{m=1}^{M}{\boldsymbol{\theta'}_{S,A,m,n+1}} + \sum_{m=1}^{M}{\boldsymbol{\theta'}_{S,T,m,n+1}} \\
-\end{align}
+\end{split}
 \tag{3.17}
 ++++
 
@@ -729,7 +729,7 @@ stem:[\begin{pmatrix}
 
 [stem]
 ++++
-\begin{align}
+\begin{split}
 \boldsymbol{\theta}_{S,n+1}
 &= \boldsymbol{AX}^{-1} \cdot \boldsymbol{FIA} \cdot \boldsymbol{\theta}_{r,n+1}
 + \boldsymbol{AX}^{-1} \cdot \boldsymbol{CRX}_{n+1}
@@ -739,7 +739,7 @@ stem:[\begin{pmatrix}
 + \boldsymbol{WSC}_{n+1}
 + \boldsymbol{WSB} \cdot \boldsymbol{LR}_{n+1}
 + \boldsymbol{WSV}_{n+1}
-\end{align}
+\end{split}
 \tag{3.24}
 ++++
 
@@ -783,15 +783,15 @@ stem:[\begin{pmatrix}
 
 [stem]
 ++++
-\begin{align}
+\begin{split}
 \boldsymbol{C}_{rm} \cdot \frac{d \boldsymbol{\theta}_{r,n}}{d t}
-&= \boldsymbol{p}^{T} \cdot \boldsymbol{h}_c \cdot \boldsymbol{A} \cdot (\boldsymbol{\theta}_{S,n} - \boldsymbol{p} \cdot \boldsymbol{\theta}_{r,n})
-+ c_a \cdot \rho_a \cdot \boldsymbol{V}_n \cdot (\boldsymbol{\theta}_{o,n} - \boldsymbol{\theta}_{r,n})
+& = \boldsymbol{p}^{T} \cdot \boldsymbol{h}_c \cdot \boldsymbol{A} \cdot (\boldsymbol{\theta}_{S,n} - \boldsymbol{p} \cdot \boldsymbol{\theta}_{r,n}) \\
+& + c_a \cdot \rho_a \cdot \boldsymbol{V}_n \cdot (\boldsymbol{\theta}_{o,n} - \boldsymbol{\theta}_{r,n})
 + c_a \cdot \rho_a \cdot \boldsymbol{V}_{nxt,n} \cdot \boldsymbol{\theta}_{r,n} \\
-&+ \boldsymbol{H}_n
+& + \boldsymbol{H}_n
 + (\boldsymbol{LC}_n + \boldsymbol{\beta} \cdot \boldsymbol{Lr}_n)
 + \boldsymbol{G}_{frt} \cdot (\boldsymbol{\theta}_{frt,n} - \boldsymbol{\theta}_{r,n})
-\end{align}
+\end{split}
 \tag{4.1}
 ++++
 
@@ -886,15 +886,15 @@ stem:[\begin{pmatrix}
 
 [stem]
 ++++
-\begin{align}
+\begin{split}
 &\boldsymbol{C}_{rm} \frac{\boldsymbol{\theta}_{r,n+1} - \boldsymbol{\theta}_{r,n}}{\Delta t} \\
-&= \boldsymbol{p}^{T} \cdot \boldsymbol{h}_c \cdot \boldsymbol{A} \cdot (\boldsymbol{\theta}_{S,n+1} - \boldsymbol{p} \cdot \boldsymbol{\theta}_{r,n+1})
-+ c_a \cdot \rho_a \cdot \overline{\boldsymbol{V}_n} \cdot (\boldsymbol{\theta}_{o,n+1} - \boldsymbol{\theta}_{r,n+1})
+& = \boldsymbol{p}^{T} \cdot \boldsymbol{h}_c \cdot \boldsymbol{A} \cdot (\boldsymbol{\theta}_{S,n+1} - \boldsymbol{p} \cdot \boldsymbol{\theta}_{r,n+1}) \\
+& + c_a \cdot \rho_a \cdot \overline{\boldsymbol{V}_n} \cdot (\boldsymbol{\theta}_{o,n+1} - \boldsymbol{\theta}_{r,n+1})
 + c_a \cdot \rho_a \cdot \overline{\boldsymbol{V}_{nxt,n}} \cdot \boldsymbol{\theta}_{r,n+1} \\
-&+ \overline{\boldsymbol{H}_n}
+& + \overline{\boldsymbol{H}_n}
 + ( \overline{\boldsymbol{LC}_n} + \boldsymbol{\beta} \cdot \overline{\boldsymbol{Lr}_n} )
 + \boldsymbol{G}_{frt} \cdot (\boldsymbol{\theta}_{frt,n+1} - \boldsymbol{\theta}_{r,n+1})
-\end{align}
+\end{split}
 \tag{4.2}
 ++++
 
@@ -904,11 +904,9 @@ stem:[\begin{pmatrix}
 
 [stem]
 ++++
-\begin{align}
 \boldsymbol{C}_{frt} \cdot \frac{d \boldsymbol{\theta}_{frt,n}}{d t}
-&= \boldsymbol{G}_{frt} \cdot (\boldsymbol{\theta}_{r,n} - \boldsymbol{\theta}_{frt,n})
+= \boldsymbol{G}_{frt} \cdot (\boldsymbol{\theta}_{r,n} - \boldsymbol{\theta}_{frt,n})
 + Q_{sol,frt,n}
-\end{align}
 \tag{4.3}
 ++++
 
@@ -938,11 +936,9 @@ stem:[\begin{pmatrix}
 
 [stem]
 ++++
-\begin{align}
 \boldsymbol{C}_{frt} \cdot \frac{\boldsymbol{\theta}_{frt,n+1} - \boldsymbol{\theta}_{frt,n}}{\Delta t}
-&= \boldsymbol{G}_{frt} \cdot (\boldsymbol{\theta}_{r,n+1} - \boldsymbol{\theta}_{frt,n+1})
+= \boldsymbol{G}_{frt} \cdot (\boldsymbol{\theta}_{r,n+1} - \boldsymbol{\theta}_{frt,n+1})
 + \overline{Q_{sol,frt,n+1}}
-\end{align}
 \tag{4.4}
 ++++
 
@@ -950,16 +946,14 @@ stem:[\begin{pmatrix}
 
 [stem]
 ++++
-\begin{align}
 \boldsymbol{\theta}_{frt,n+1}
-&= (\boldsymbol{C}_{frt} + \Delta t \cdot \boldsymbol{G}_{frt})^{-1}
+= (\boldsymbol{C}_{frt} + \Delta t \cdot \boldsymbol{G}_{frt})^{-1}
 \cdot
 (
 \boldsymbol{C}_{frt} \cdot \boldsymbol{\theta}_{frt,n}
 + \Delta t \cdot \boldsymbol{G}_{frt} \cdot \boldsymbol{\theta}_{r,n+1}
 + \Delta t \cdot \overline{Q_{sol,frt,n+1}}
 )
-\end{align}
 \tag{4.5}
 ++++
 
@@ -971,7 +965,7 @@ stem:[\begin{pmatrix}
 
 [stem]
 ++++
-\begin{align}
+\begin{split}
 &\boldsymbol{C}_{rm} \frac{\boldsymbol{\theta}_{r,n+1} - \boldsymbol{\theta}_{r,n}}{\Delta t} \\
 &= \boldsymbol{p}^{T} \cdot \boldsymbol{h}_c \cdot \boldsymbol{A} \cdot
 (
@@ -993,7 +987,7 @@ stem:[\begin{pmatrix}
 + \Delta t \cdot \boldsymbol{G}_{frt} \cdot \boldsymbol{\theta}_{r,n+1}
 + \Delta t \cdot \overline{Q_{sol,frt,n+1}}
 ) - \boldsymbol{\theta}_{r,n+1})
-\end{align}
+\end{split}
 \tag{4.6}
 ++++
 
@@ -1002,7 +996,7 @@ stem:[\boldsymbol{\theta}_{n+1}] を左辺に移動させると、右辺は、st
 
 [stem]
 ++++
-\begin{align}
+\begin{split}
 & \boldsymbol{C}_{rm} \cdot \frac{1}{\Delta t} \cdot \boldsymbol{\theta}_{r,n+1}
 + \boldsymbol{p}^{T} \cdot \boldsymbol{h}_c \cdot \boldsymbol{A} \cdot
 (\boldsymbol{p} - \boldsymbol{WSR}) \cdot \boldsymbol{\theta}_{r,n+1} \\
@@ -1027,7 +1021,7 @@ stem:[\boldsymbol{\theta}_{n+1}] を左辺に移動させると、右辺は、st
 & + \boldsymbol{p}^{T} \cdot \boldsymbol{h}_c \cdot \boldsymbol{A} \cdot
 \boldsymbol{WSB} \cdot \overline{\boldsymbol{Lr}_n}
 + \boldsymbol{\beta} \cdot \overline{\boldsymbol{Lr}_n}
-\end{align}
+\end{split}
 \tag{4.7}
 ++++
 
@@ -1037,24 +1031,26 @@ stem:[\boldsymbol{\theta}_{n+1}] を左辺に移動させると、右辺は、st
 
 [stem]
 ++++
+\begin{split}
 \boldsymbol{BRM}_n
-= \boldsymbol{C}_{rm} \cdot \frac{1}{\Delta t}
+& = \boldsymbol{C}_{rm} \cdot \frac{1}{\Delta t}
 + \boldsymbol{p}^{T} \cdot \boldsymbol{h}_c \cdot \boldsymbol{A} \cdot
-(\boldsymbol{p} - \boldsymbol{WSR})
-+ c_a \cdot \rho_a \cdot \overline{\boldsymbol{V}_n}
+(\boldsymbol{p} - \boldsymbol{WSR}) \\
+& + c_a \cdot \rho_a \cdot \overline{\boldsymbol{V}_n}
 - c_a \cdot \rho_a \cdot \overline{\boldsymbol{V}_{nxt,n}}
 + \boldsymbol{G}_{frt} \cdot (\boldsymbol{C}_{frt} + \Delta t \cdot \boldsymbol{G}_{frt})^{-1} \cdot \boldsymbol{C}_{frt}
+\end{split}
 \tag{4.8}
 ++++
 
 [stem]
 ++++
-\begin{align}
-& \boldsymbol{BRC}_n
-= \boldsymbol{C}_{rm} \cdot \frac{1}{\Delta t} \cdot \boldsymbol{\theta}_{r,n}
+\begin{split}
+\boldsymbol{BRC}_n
+& = \boldsymbol{C}_{rm} \cdot \frac{1}{\Delta t} \cdot \boldsymbol{\theta}_{r,n}
 + \boldsymbol{p}^{T} \cdot \boldsymbol{h}_c \cdot \boldsymbol{A} \cdot
-(\boldsymbol{WSC}_{n+1} + \boldsymbol{WSV}_{n+1})
-+ c_a \cdot \rho_a \cdot \overline{\boldsymbol{V}_n} \cdot \boldsymbol{\theta}_{o,n+1}
+(\boldsymbol{WSC}_{n+1} + \boldsymbol{WSV}_{n+1}) \\
+& + c_a \cdot \rho_a \cdot \overline{\boldsymbol{V}_n} \cdot \boldsymbol{\theta}_{o,n+1}
 + \overline{\boldsymbol{H}_n} \\
 & + \boldsymbol{G}_{frt} \cdot
 (\boldsymbol{C}_{frt} + \Delta t \cdot \boldsymbol{G}_{frt})^{-1}
@@ -1063,7 +1059,7 @@ stem:[\boldsymbol{\theta}_{n+1}] を左辺に移動させると、右辺は、st
 \boldsymbol{C}_{frt} \cdot \boldsymbol{\theta}_{frt,n}
 + \Delta t \cdot \overline{Q_{sol,frt,n+1}}
 )
-\end{align}
+\end{split}
 \tag{4.9}
 ++++
 
@@ -1167,19 +1163,19 @@ stem:[\begin{pmatrix}
 
 [stem]
 ++++
-\begin{align}
+\begin{split}
 \boldsymbol{\theta}_{OT,n+1}
 & = \boldsymbol{kc}_{n+1} \cdot \boldsymbol{\theta}_{r,n+1}
 + \boldsymbol{kr}_{n+1} \cdot \boldsymbol{\theta}_{MRT,hum,n+1} \\
-& = \boldsymbol{kc}_{n+1} \cdot \boldsymbol{\theta}_{r,n+1}
-+ \boldsymbol{kr}_{n+1} \cdot \boldsymbol{F}_{mrt,hum} \cdot
+& = \boldsymbol{kc}_{n+1} \cdot \boldsymbol{\theta}_{r,n+1} \\
+& + \boldsymbol{kr}_{n+1} \cdot \boldsymbol{F}_{mrt,hum} \cdot
 (
 \boldsymbol{WSR} \cdot \boldsymbol{\theta}_{r,n+1}
 + \boldsymbol{WSC}_{n+1}
 + \boldsymbol{WSB} \cdot \boldsymbol{Lr}_{n+1}
 + \boldsymbol{WSV}_{n+1}
 )
-\end{align}
+\end{split}
 \tag{5.3}
 ++++
 
@@ -1187,7 +1183,7 @@ stem:[\begin{pmatrix}
 
 [stem]
 ++++
-\begin{align}
+\begin{split}
 &(
 \boldsymbol{kc}_{n+1}
 + \boldsymbol{kr}_{n+1} \cdot \boldsymbol{F}_{mrt,hum} \cdot \boldsymbol{WSR}
@@ -1198,7 +1194,7 @@ stem:[\begin{pmatrix}
 \boldsymbol{WSB} \cdot \overline{\boldsymbol{Lr}_{n}}
 - \boldsymbol{kr}_{n+1} \cdot \boldsymbol{F}_{mrt,hum}
 \cdot ( \boldsymbol{WSC}_{n+1} + \boldsymbol{WSV}_{n+1} )
-\end{align}
+\end{split}
 \tag{5.4}
 ++++
 
@@ -1254,14 +1250,16 @@ stem:[\begin{pmatrix}
 
 [stem]
 ++++
+& \begin{split}
 \boldsymbol{BRM}_n \cdot (
 \boldsymbol{XOT}_{n+1} \cdot \boldsymbol{\theta}_{OT,n+1}
 + \boldsymbol{XLR}_{n+1} \cdot \overline{\boldsymbol{Lr}_{n}}
 + \boldsymbol{XC}_{n+1}
-)
-= \boldsymbol{BRC}_n
+) \\
+& = \boldsymbol{BRC}_n
 + \overline{\boldsymbol{LC}_n}
 + \boldsymbol{BRL} \cdot \overline{\boldsymbol{Lr}_n}
+\end{split}
 \tag{6.1}
 ++++
 
@@ -1269,7 +1267,7 @@ stem:[\begin{pmatrix}
 
 [stem]
 ++++
-\begin{align}
+\begin{split}
 \boldsymbol{\theta}_{OT,n+1}
 & = (\boldsymbol{BRM}_n \cdot \boldsymbol{XOT}_{n+1})^{-1} \cdot \overline{\boldsymbol{LC}_n} \\
 & + (\boldsymbol{BRM}_n \cdot \boldsymbol{XOT}_{n+1})^{-1}
@@ -1283,7 +1281,7 @@ stem:[\begin{pmatrix}
 \boldsymbol{BRC}_n
 - \boldsymbol{BRM}_n \cdot \boldsymbol{XC}_{n+1}
 )
-\end{align}
+\end{split}
 \tag{6.2}
 ++++
 
