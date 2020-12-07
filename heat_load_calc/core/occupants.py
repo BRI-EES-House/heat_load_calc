@@ -3,10 +3,93 @@
 import math
 import numpy as np
 from typing import Union
+from scipy.optimize import newton
 
 from heat_load_calc.core.operation_mode import OperationMode
 from heat_load_calc.external import psychrometrics as psy
 from heat_load_calc.external.global_number import get_l_wtr
+
+
+def get_theta_cl(
+    operation_mode_is_n_mns: np.ndarray,
+    is_radiative_heating_is: np.ndarray,
+    is_radiative_cooling_is: np.ndarray,
+    theta_r_is_n: np.ndarray,
+    theta_mrt_is_n: np.ndarray,
+    clo_is_n: np.ndarray
+) -> (np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray):
+    """
+
+    Args:
+        operation_mode_is_n_mns: ステップn-1における室iの運転状態, [i, 1]
+            列挙体 OperationMode で表される。
+                COOLING ： 冷房
+                HEATING : 暖房
+                STOP_OPEN : 暖房・冷房停止で窓「開」
+                STOP_CLOSE : 暖房・冷房停止で窓「閉」
+        is_radiative_heating_is:　放射暖房の有無, [i, 1]
+        is_radiative_cooling_is: 放射冷房の有無, [i, 1]
+        theta_r_is_n: ステップnにおける室iの空気温度, degree C, [i, 1]
+        theta_mrt_is_n: ステップnにおける室iの在室者の平均放射温度, degree C, [i, 1]
+        clo_is_n:
+    Returns:
+        ステップnにおける室iの在室者の着衣温度, degree C, [i, 1]
+    """
+
+    # ステップnにおける室iの在室者周りの風速, m/s, [i, 1]
+    v_hum_is_n = get_v_hum_is_n(
+        operation_mode_is_n=operation_mode_is_n_mns,
+        is_radiative_heating_is=is_radiative_heating_is,
+        is_radiative_cooling_is=is_radiative_cooling_is
+    )
+
+    def f(t):
+
+        # ステップnにおける室iの在室者周りの対流熱伝達率, W/m2K, [i, 1]
+        h_hum_c_is_n = get_h_hum_c_is_n(
+            theta_r_is_n=theta_r_is_n,
+            theta_cl_is_n=t,
+            v_hum_is_n=v_hum_is_n
+        )
+
+        # ステップnにおける室iの在室者周りの放射熱伝達率, W/m2K, [i, 1]
+        h_hum_r_is_n = get_h_hum_r_is_n(
+            theta_cl_is_n=t,
+            theta_mrt_is_n=theta_mrt_is_n
+        )
+
+        # ステップnにおける室iの在室者周りの総合熱伝達率, W/m2K, [i, 1]
+        h_hum_is_n = h_hum_r_is_n + h_hum_c_is_n
+
+        # ステップnにおける室iの在室者の作用温度, degree C, [i, 1]
+        theta_ot_is_n = (h_hum_r_is_n * theta_mrt_is_n + h_hum_c_is_n * theta_r_is_n) / h_hum_is_n
+
+        return get_theta_cl_is_n(clo_is_n=clo_is_n, theta_ot_is_n=theta_ot_is_n, h_hum_is_n=h_hum_is_n)
+
+    # the clothing surface temperature, degree C
+    theta_cl_is_n = newton(lambda t: f(t) - t, np.zeros_like(operation_mode_is_n_mns, dtype=float) + 0.001)
+
+    # ステップnにおける室iの在室者周りの対流熱伝達率, W/m2K, [i, 1]
+    h_hum_c_is_n = get_h_hum_c_is_n(
+        theta_r_is_n=theta_r_is_n,
+        theta_cl_is_n=theta_cl_is_n,
+        v_hum_is_n=v_hum_is_n
+    )
+
+    # ステップnにおける室iの在室者周りの放射熱伝達率, W/m2K, [i, 1]
+    h_hum_r_is_n = get_h_hum_r_is_n(
+        theta_cl_is_n=theta_cl_is_n,
+        theta_mrt_is_n=theta_mrt_is_n
+    )
+
+    # ステップnにおける室iの在室者周りの総合熱伝達率, W/m2K, [i, 1]
+    h_hum_is_n = h_hum_r_is_n + h_hum_c_is_n
+
+    # ステップnにおける室iの在室者の作用温度, degree C, [i, 1]
+    theta_ot_is_n = (h_hum_r_is_n * theta_mrt_is_n + h_hum_c_is_n * theta_r_is_n) / h_hum_is_n
+
+    return theta_cl_is_n, theta_ot_is_n, h_hum_is_n, h_hum_c_is_n, h_hum_r_is_n,
+
 
 def calc_operation(
         x_r_is_n: np.ndarray,
@@ -58,25 +141,6 @@ def calc_operation(
         is_radiative_cooling_is=is_radiative_cooling_is
     )
 
-    # ステップnにおける室iの在室者周りの対流熱伝達率, W/m2K, [i, 1]
-    h_hum_c_is_n = get_h_hum_c_is_n(
-        theta_r_is_n=theta_r_is_n,
-        theta_cl_is_n=theta_cl_is_n,
-        v_hum_is_n=v_hum_is_n
-    )
-
-    # ステップnにおける室iの在室者周りの放射熱伝達率, W/m2K, [i, 1]
-    h_hum_r_is_n = get_h_hum_r_is_n(
-        theta_cl_is_n=theta_cl_is_n,
-        theta_mrt_is_n=theta_mrt_is_n
-    )
-
-    # ステップnにおける室iの在室者周りの総合熱伝達率, W/m2K, [i, 1]
-    h_hum_is_n = h_hum_r_is_n + h_hum_c_is_n
-
-    # ステップnにおける室iの在室者の作用温度, degree C, [i, 1]
-    theta_ot_is_n = (h_hum_r_is_n * theta_mrt_is_n + h_hum_c_is_n * theta_r_is_n) / h_hum_is_n
-
     # 厚着時のClo値
     clo_heavy = get_clo_heavy()
 
@@ -85,6 +149,16 @@ def calc_operation(
 
     # 薄着時のClo値
     clo_light = get_clo_light()
+
+    _, theta_ot_is_n, h_hum_is_n, h_hum_c_is_n, h_hum_r_is_n = get_theta_cl(
+        operation_mode_is_n_mns=operation_mode_is_n_mns,
+        is_radiative_heating_is=is_radiative_heating_is,
+        is_radiative_cooling_is=is_radiative_cooling_is,
+        theta_r_is_n=theta_r_is_n,
+        theta_mrt_is_n=theta_mrt_is_n,
+        clo_is_n=clo_heavy
+    )
+
 
     # ステップnにおける室iの在室者の厚着時のPMV, [i, 1]
     pmv_heavy_is_n = get_pmv_is_n(
@@ -95,6 +169,15 @@ def calc_operation(
         theta_ot_is_n=theta_ot_is_n
     )
 
+    _, theta_ot_is_n, h_hum_is_n, h_hum_c_is_n, h_hum_r_is_n = get_theta_cl(
+        operation_mode_is_n_mns=operation_mode_is_n_mns,
+        is_radiative_heating_is=is_radiative_heating_is,
+        is_radiative_cooling_is=is_radiative_cooling_is,
+        theta_r_is_n=theta_r_is_n,
+        theta_mrt_is_n=theta_mrt_is_n,
+        clo_is_n=clo_middle
+    )
+
     # ステップnにおける室iの在室者の中間着時のPMV, [i, 1]
     pmv_middle_is_n = get_pmv_is_n(
         theta_r_is_n=theta_r_is_n,
@@ -102,6 +185,15 @@ def calc_operation(
         p_a_is_n=p_v_r_is_n,
         h_hum_is_n=h_hum_is_n,
         theta_ot_is_n=theta_ot_is_n
+    )
+
+    _, theta_ot_is_n, h_hum_is_n, h_hum_c_is_n, h_hum_r_is_n = get_theta_cl(
+        operation_mode_is_n_mns=operation_mode_is_n_mns,
+        is_radiative_heating_is=is_radiative_heating_is,
+        is_radiative_cooling_is=is_radiative_cooling_is,
+        theta_r_is_n=theta_r_is_n,
+        theta_mrt_is_n=theta_mrt_is_n,
+        clo_is_n=clo_light
     )
 
     # ステップnにおける室iの在室者の薄着時のPMV, [i, 1]
