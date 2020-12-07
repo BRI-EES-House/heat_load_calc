@@ -151,7 +151,6 @@ def get_graph_data(d):
             is_radiative_heating_is=np.array(d[key]['radiative_heating']),
             is_radiative_cooling_is=np.array(d[key]['radiative_cooling']),
             theta_r_is_n=np.array(d[key]['theta_r']),
-            theta_cl_is_n=np.array(d[key]['theta_cl']),
             theta_mrt_is_n=np.array(d[key]['theta_mrt']),
             ac_demand_is_n=np.array(d[key]['ac_demand'])
         )

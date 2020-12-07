@@ -97,7 +97,6 @@ def calc_operation(
         is_radiative_heating_is: np.ndarray,
         is_radiative_cooling_is: np.ndarray,
         theta_r_is_n: np.ndarray,
-        theta_cl_is_n: np.ndarray,
         theta_mrt_is_n: np.ndarray,
         ac_demand_is_n: np.ndarray
 ) -> (np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray):

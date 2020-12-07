@@ -70,7 +70,6 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
         is_radiative_heating_is=ss.is_radiative_heating_is,
         is_radiative_cooling_is=ss.is_radiative_cooling_is,
         theta_r_is_n=c_n.theta_r_is_n,
-        theta_cl_is_n=c_n.theta_cl_is_n,
         theta_mrt_is_n=c_n.theta_mrt_hum_is_n,
         ac_demand_is_n=ac_demand_is_n,
     )
@@ -210,14 +209,14 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
     #     theta_ot_is_n=theta_ot_is_n_pls,
     #     h_hum_is_n=h_hum_is_n)
 
-    theta_cl_is_n_pls, _, _, _, _ = occupants.get_theta_cl(
-        operation_mode_is_n_mns=operation_mode_is_n,
-        is_radiative_heating_is=ss.is_radiative_heating_is,
-        is_radiative_cooling_is=ss.is_radiative_cooling_is,
-        theta_r_is_n=theta_r_is_n_pls,
-        theta_mrt_is_n=theta_mrt_hum_is_n_pls,
-        clo_is_n=clo_is_n
-    )
+    # theta_cl_is_n_pls, _, _, _, _ = occupants.get_theta_cl(
+    #     operation_mode_is_n_mns=operation_mode_is_n,
+    #     is_radiative_heating_is=ss.is_radiative_heating_is,
+    #     is_radiative_cooling_is=ss.is_radiative_cooling_is,
+    #     theta_r_is_n=theta_r_is_n_pls,
+    #     theta_mrt_is_n=theta_mrt_hum_is_n_pls,
+    #     clo_is_n=clo_is_n
+    # )
 
     # --- ここから、湿度の計算 ---
 
@@ -302,7 +301,6 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
         q_srf_js_n=q_srf_js_n_pls,
         theta_frnt_is_n=theta_frt_is_n_pls,
         x_frnt_is_n=x_frt_is_npls,
-        theta_cl_is_n=theta_cl_is_n_pls,
         theta_ei_js_n=theta_ei_js_n_pls
     )
 
