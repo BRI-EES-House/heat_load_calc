@@ -12,7 +12,7 @@ from heat_load_calc.core.matrix_method import v_diag
 from heat_load_calc.core import infiltration
 
 
-def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, logger: Logger) -> Conditions:
+def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, logger: Logger, run_up: bool) -> Conditions:
     """
     室の温湿度・熱負荷の計算
     Args:
@@ -21,6 +21,7 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
         ss: ループ計算前に計算可能なパラメータを含めたクラス
         c_n: 前の時刻からの状態量
         logger: ロギング用クラス
+        run_up: 助走計算か否か
     Returns:
         次の時刻にわたす状態量
     """
@@ -242,38 +243,39 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
     # 備品類の絶対湿度の計算
     x_frt_is_npls = (ss.c_lh_frt_is * c_n.x_frt_is_n + delta_t * ss.g_lh_frt_is * x_r_is_npls) / (ss.c_lh_frt_is + delta_t * ss.g_lh_frt_is)
 
-    # 次の時刻に引き渡す値
-    # 積算値
-    logger.operation_mode[:, n] = operation_mode_is_n.flatten()
-    # 瞬時値
-    logger.theta_r[:, n] = theta_r_is_n_pls.flatten()
-    logger.theta_mrt_hum[:, n] = theta_mrt_hum_is_n_pls.flatten()
-    logger.x_r[:, n] = x_r_is_npls.flatten()
-    logger.theta_frt[:, n] = theta_frt_is_n_pls.flatten()
-    logger.x_frt[:, n] = x_frt_is_npls.flatten()
-    logger.theta_ei[:, n] = theta_ei_js_n_pls.flatten()
+    if not run_up:
+        # 次の時刻に引き渡す値
+        # 積算値
+        logger.operation_mode[:, n] = operation_mode_is_n.flatten()
+        # 瞬時値
+        logger.theta_r[:, n] = theta_r_is_n_pls.flatten()
+        logger.theta_mrt_hum[:, n] = theta_mrt_hum_is_n_pls.flatten()
+        logger.x_r[:, n] = x_r_is_npls.flatten()
+        logger.theta_frt[:, n] = theta_frt_is_n_pls.flatten()
+        logger.x_frt[:, n] = x_frt_is_npls.flatten()
+        logger.theta_ei[:, n] = theta_ei_js_n_pls.flatten()
 
-    # 次の時刻に引き渡さない値
-    # 積算値
-    logger.q_hum[:, n] = q_hum_is_n.flatten()
-    logger.x_hum[:, n] = x_hum_is_n.flatten()
-    logger.l_cs[:, n] = l_cs_is_n.flatten()
-    logger.l_rs[:, n] = l_hs_is_n.flatten()
-    logger.l_cl[:, n] = l_cl_i_n.flatten()
-    # 平均値
-    logger.v_reak_is_ns[:, n] = v_leak_is_n.flatten()
-    logger.v_ntrl_is_ns[:, n] = v_ntrl_vent_is_n.flatten()
-    logger.h_hum_c_is_n[:, n] = h_hum_c_is_n.flatten()
-    logger.h_hum_r_is_n[:, n] = h_hum_r_is_n.flatten()
-    # 平均値（オプション）
-    logger.v_hum_is_n[:, n] = v_hum_is_n.flatten()
-    logger.clo[:, n] = clo_is_n.flatten()
-    # 瞬時値
-    logger.theta_ot[:, n] = theta_ot_is_n_pls.flatten()
-    logger.pmv_target[:, n] = pmv_target_is_n.flatten()
-    logger.theta_s[:, n] = theta_s_js_n_pls.flatten()
-    logger.theta_rear[:, n] = theta_rear_js_n.flatten()
-    logger.qiall_s[:, n] = q_srf_js_n_pls.flatten()
+        # 次の時刻に引き渡さない値
+        # 積算値
+        logger.q_hum[:, n] = q_hum_is_n.flatten()
+        logger.x_hum[:, n] = x_hum_is_n.flatten()
+        logger.l_cs[:, n] = l_cs_is_n.flatten()
+        logger.l_rs[:, n] = l_hs_is_n.flatten()
+        logger.l_cl[:, n] = l_cl_i_n.flatten()
+        # 平均値
+        logger.v_reak_is_ns[:, n] = v_leak_is_n.flatten()
+        logger.v_ntrl_is_ns[:, n] = v_ntrl_vent_is_n.flatten()
+        logger.h_hum_c_is_n[:, n] = h_hum_c_is_n.flatten()
+        logger.h_hum_r_is_n[:, n] = h_hum_r_is_n.flatten()
+        # 平均値（オプション）
+        logger.v_hum_is_n[:, n] = v_hum_is_n.flatten()
+        logger.clo[:, n] = clo_is_n.flatten()
+        # 瞬時値
+        logger.theta_ot[:, n] = theta_ot_is_n_pls.flatten()
+        logger.pmv_target[:, n] = pmv_target_is_n.flatten()
+        logger.theta_s[:, n] = theta_s_js_n_pls.flatten()
+        logger.theta_rear[:, n] = theta_rear_js_n.flatten()
+        logger.qiall_s[:, n] = q_srf_js_n_pls.flatten()
 
 
     return Conditions(
