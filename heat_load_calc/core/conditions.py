@@ -16,8 +16,8 @@ class Conditions:
             theta_dsh_srf_a_js_ms_n,
             theta_dsh_srf_t_js_ms_n,
             q_srf_js_n,
-            theta_frnt_is_n,
-            x_frnt_is_n,
+            theta_frt_is_n,
+            x_frt_is_n,
             theta_ei_js_n
     ):
 
@@ -48,10 +48,10 @@ class Conditions:
         self.q_srf_js_n = q_srf_js_n
 
         # ステップnの室iにおける家具の温度, degree C, [i, 1]
-        self.theta_frt_is_n = theta_frnt_is_n
+        self.theta_frt_is_n = theta_frt_is_n
 
         # ステップnの室iにおける家具の絶対湿度, kg/kgDA, [i, 1]
-        self.x_frt_is_n = x_frnt_is_n
+        self.x_frt_is_n = x_frt_is_n
 
         # [i, 1]
         self.theta_ei_js_n = theta_ei_js_n
@@ -120,8 +120,8 @@ def initialize_conditions(n_spaces: int, n_bdries: int):
         theta_dsh_srf_a_js_ms_n=theta_dsh_srf_a_js_ms_n0,
         theta_dsh_srf_t_js_ms_n=theta_dsh_srf_t_js_ms_n0,
         q_srf_js_n=q_srf_jstrs_n,
-        theta_frnt_is_n=theta_frnt_is_n.reshape(-1, 1),
-        x_frnt_is_n=x_frnt_is_n,
+        theta_frt_is_n=theta_frnt_is_n.reshape(-1, 1),
+        x_frt_is_n=x_frnt_is_n,
         theta_ei_js_n=np.full(total_number_of_bdry, 15.0).reshape(-1, 1)
     )
 

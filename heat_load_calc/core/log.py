@@ -7,13 +7,13 @@ from heat_load_calc.external import psychrometrics as psy
 
 class Logger:
 
-    def __init__(self, n_spaces: int, n_bdries: int):
+    def __init__(self, n_spaces: int, n_boundaries: int, n_step_main: int):
 
         # ステップnの室iにおける運転状態, [i, n]
         self.operation_mode = np.empty((n_spaces, 24 * 365 * 4 * 3), dtype=object)
 
         # ステップnの室iにおける当該時刻の空調需要, [i, n]
-        self.ac_demand = None
+        self.ac_demand_is_ns = None
 
         # ステップnの室iにおける室温, degree C, [i, n]
         self.theta_r = np.zeros((n_spaces, 24 * 365 * 4 * 3))
@@ -46,13 +46,13 @@ class Logger:
         self.clo = np.zeros((n_spaces, 24 * 365 * 4 * 3))
 
         # ステップnの室iにおける窓の透過日射熱取得, W, [i, n]
-        self.q_trs_sol = None
+        self.q_trs_sol_is_ns = None
 
         # ステップnの室iにおける人体発熱を除く内部発熱, W, [i, n]
-        self.q_gen = None
+        self.q_gen_is_ns = None
 
         # ステップnの室iにおける人体発湿を除く内部発湿, kg/s, [i, n]
-        self.x_gen = None
+        self.x_gen_is_ns = None
 
         # ステップnの室iにおける人体発熱, W, [i, n]
         self.q_hum = np.zeros((n_spaces, 24 * 365 * 4 * 3))
@@ -70,49 +70,49 @@ class Logger:
         self.l_cl = np.zeros((n_spaces, 24 * 365 * 4 * 3))
 
         # ステップnの室iにおける家具の温度, degree C, [i, n]
-        self.theta_frnt = np.zeros((n_spaces, 24 * 365 * 4 * 3))
+        self.theta_frt = np.zeros((n_spaces, 24 * 365 * 4 * 3))
 
         # ステップnの室iにおける家具取得熱量, W, [i, n]
         self.q_frnt = np.zeros((n_spaces, 24 * 365 * 4 * 3))
 
         # ステップnの室iにおける家具吸収日射熱量, W, [i, n]
-        self.q_sol_frnt = np.zeros((n_spaces, 24 * 365 * 4 * 3))
+        self.q_sol_frt_is_ns = np.zeros((n_spaces, 24 * 365 * 4 * 3))
 
         # ステップnの室iにおける家具の絶対湿度, kg/kgDA, [i, n]
-        self.x_frnt = np.zeros((n_spaces, 24 * 365 * 4 * 3))
+        self.x_frt = np.zeros((n_spaces, 24 * 365 * 4 * 3))
 
         # ステップnの室iにおける家具取得水蒸気量, kg/s, [i, n]
         self.q_l_frnt = np.zeros((n_spaces, 24 * 365 * 4 * 3))
 
         # ステップnの統合された境界j*の室内側表面温度, degree C, [j*, n]
-        self.theta_s = np.zeros((n_bdries, 24 * 365 * 4 * 3))
+        self.theta_s = np.zeros((n_boundaries, 24 * 365 * 4 * 3))
 
         # ステップnの統合された境界j*の室内等価室温, degree C, [j*, n]
 #        self.theta_e = np.zeros((n_bdrys, 24 * 365 * 4 * 3))
 
         # ステップnの統合された境界j*の裏面温度, degree C, [j*, n]
-        self.theta_rear = np.zeros((n_bdries, 24 * 365 * 4 * 3))
+        self.theta_rear = np.zeros((n_boundaries, 24 * 365 * 4 * 3))
 
         # ステップnの統合された境界j*の表面放射熱流, W, [j*, n]
-        self.qr = np.zeros((n_bdries, 24 * 365 * 4 * 3))
+        self.qr = np.zeros((n_boundaries, 24 * 365 * 4 * 3))
 
         # ステップnの統合された境界j*の表面対流熱流, W, [j*, n]
-        self.qc = np.zeros((n_bdries, 24 * 365 * 4 * 3))
+        self.qc = np.zeros((n_boundaries, 24 * 365 * 4 * 3))
 
         # ステップnの統合された境界j*の等価温度, degree C, [j*, n]
-        self.theta_ei = np.zeros((n_bdries, 24 * 365 * 4 * 3))
+        self.theta_ei = np.zeros((n_boundaries, 24 * 365 * 4 * 3))
 
         # ステップnの統合された境界j*の表面日射熱流, W, [j*, n]
-        self.qisol_s = np.zeros((n_bdries, 24 * 365 * 4 * 3))
+        self.qisol_s = np.zeros((n_boundaries, 24 * 365 * 4 * 3))
 
         # ステップnの統合された境界j*の表面日射熱流, W, [j*, n]
-        self.qiall_s = np.zeros((n_bdries, 24 * 365 * 4 * 3))
+        self.qiall_s = np.zeros((n_boundaries, 24 * 365 * 4 * 3))
 
         # ステップnの統合された境界j*の表面対流熱伝達率, W/m2K, [j*, n]
-        self.h_c_s = np.zeros((n_bdries, 24 * 365 * 4 * 3))
+        self.h_c_s = np.zeros((n_boundaries, 24 * 365 * 4 * 3))
 
         # ステップnの統合された境界j*の表面放射熱伝達率, W/m2K, [j*, n]
-        self.h_r_s = np.zeros((n_bdries, 24 * 365 * 4 * 3))
+        self.h_r_s = np.zeros((n_boundaries, 24 * 365 * 4 * 3))
 
         # ステップnのすきま風量, m3/s, [i, n]
         self.v_reak_is_ns = np.zeros((n_spaces, 24 * 365 * 4 * 3))
@@ -122,13 +122,18 @@ class Logger:
 
     def pre_logging(self, ss: PreCalcParameters):
 
-        self.theta_o = ss.theta_o_ns
-        self.x_o = ss.x_o_ns
-        self.ac_demand = ss.ac_demand_is_ns
-        self.q_trs_sol = ss.q_trs_sol_is_ns
-        self.q_gen = ss.q_gen_is_ns
-        self.x_gen = ss.x_gen_is_ns
-        self.q_sol_frnt = ss.q_sol_frt_is_ns
+        self.theta_o_ns = ss.theta_o_ns
+        self.x_o_ns = ss.x_o_ns
+        self.ac_demand_is_ns = ss.ac_demand_is_ns
+        self.q_trs_sol_is_ns = ss.q_trs_sol_is_ns
+        self.q_gen_is_ns = ss.q_gen_is_ns
+        self.x_gen_is_ns = ss.x_gen_is_ns
+        self.q_sol_frt_is_ns = ss.q_sol_frt_is_ns
+
+
+        self.qisol_s = ss.q_sol_js_ns * ss.a_srf_js
+        self.h_c_s = ss.h_c_js.repeat(24*365*4, axis=1)
+        self.h_r_s = ss.h_r_js.repeat(24*365*4, axis=1)
 
     def post_logging(self, ss: PreCalcParameters):
 
@@ -142,7 +147,7 @@ class Logger:
         self.rh = psy.get_h(p_v=p_v, p_vs=p_vs)
 
         # ステップnの室iにおける家具取得熱量, W, [i, n]
-        self.q_frnt = ss.g_sh_frt_is * (self.theta_r - self.theta_frnt)
+        self.q_frnt = ss.g_sh_frt_is * (self.theta_r - self.theta_frt)
 
         # ステップnの境界jにおける表面熱流（壁体吸熱を正とする）のうち対流成分, W, [j, n]
         self.qc = ss.h_c_js * ss.a_srf_js * (np.dot(ss.p_js_is, self.theta_r) - self.theta_s)
@@ -151,7 +156,7 @@ class Logger:
         self.qr = ss.h_r_js * ss.a_srf_js * (np.dot(np.dot(ss.p_js_is, ss.f_mrt_is_js), self.theta_s) - self.theta_s)
 
         # ステップnの室iの家具等から空気への水分流, kg/s, [i, n]
-        self.q_l_frnt = ss.g_lh_frt_is * (self.x_r - self.x_frnt)
+        self.q_l_frnt = ss.g_lh_frt_is * (self.x_r - self.x_frt)
 
 
 def record(pps: PreCalcParameters, logger: Logger, output_data_dir: str, show_simple_result: bool, show_detail_result: bool):
@@ -160,15 +165,15 @@ def record(pps: PreCalcParameters, logger: Logger, output_data_dir: str, show_si
 
     dd = pd.DataFrame(index=date_index_15min)
 
-    dd['out_temp'] = logger.theta_o
-    dd['out_abs_humid'] = logger.x_o
+    dd['out_temp'] = logger.theta_o_ns
+    dd['out_abs_humid'] = logger.x_o_ns
 
     for i in range(pps.n_spaces):
 
         name = 'rm' + str(i)
 
         dd[name + '_ac_operate'] = logger.operation_mode[i][0:365*96]
-        dd[name + '_occupancy'] = logger.ac_demand[i][0:365*96]
+        dd[name + '_occupancy'] = logger.ac_demand_is_ns[i][0:365 * 96]
         dd[name + '_pmv_target'] = logger.pmv_target[i][0:365*96]
         dd[name + '_hc_hum'] = logger.h_hum_c_is_n[i][0:365*96]
         dd[name + '_hr_hum'] = logger.h_hum_r_is_n[i][0:365*96]
@@ -179,18 +184,18 @@ def record(pps: PreCalcParameters, logger: Logger, output_data_dir: str, show_si
         dd[name + '_ot'] = logger.theta_ot[i][0:365*96]
         dd[name + '_v_hum'] = logger.v_hum_is_n[i][0:365*96]
         dd[name + '_clo'] = logger.clo[i][0:365*96]
-        dd[name + '_q_sol_t'] = logger.q_trs_sol[i][0:365*96]
-        dd[name + '_q_s_except_hum'] = logger.q_gen[i][0:365*96]
-        dd[name + '_q_l_except_hum'] = logger.x_gen[i][0:365*96]
+        dd[name + '_q_sol_t'] = logger.q_trs_sol_is_ns[i][0:365 * 96]
+        dd[name + '_q_s_except_hum'] = logger.q_gen_is_ns[i][0:365 * 96]
+        dd[name + '_q_l_except_hum'] = logger.x_gen_is_ns[i][0:365 * 96]
         dd[name + '_q_hum_s'] = logger.q_hum[i][0:365*96]
         dd[name + '_q_hum_l'] = logger.x_hum[i][0:365*96]
         dd[name + '_l_s_c'] = logger.l_cs[i][0:365*96]
         dd[name + '_l_s_r'] = logger.l_rs[i][0:365*96]
         dd[name + '_l_l_c'] = logger.l_cl[i][0:365*96]
-        dd[name + '_t_fun'] = logger.theta_frnt[i][0:365*96]
+        dd[name + '_t_fun'] = logger.theta_frt[i][0:365 * 96]
         dd[name + '_q_s_fun'] = logger.q_frnt[i][0:365*96]
-        dd[name + '_q_s_sol_fun'] = logger.q_sol_frnt[i][0:365*96]
-        dd[name + '_x_fun'] = logger.x_frnt[i][0:365*96]
+        dd[name + '_q_s_sol_fun'] = logger.q_sol_frt_is_ns[i][0:365 * 96]
+        dd[name + '_x_fun'] = logger.x_frt[i][0:365 * 96]
         dd[name + '_q_l_fun'] = logger.q_l_frnt[i][0:365*96]
         dd[name + '_v_reak'] = logger.v_reak_is_ns[i][0:365*96]
         dd[name + '_v_ntrl'] = logger.v_ntrl_is_ns[i][0:365 * 96]

@@ -247,34 +247,34 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
     logger.operation_mode[:, n] = operation_mode_is_n.flatten()
     # 瞬時値
     logger.theta_r[:, n] = theta_r_is_n_pls.flatten()
-    logger.x_r[:, n] = x_r_is_npls.flatten()
     logger.theta_mrt_hum[:, n] = theta_mrt_hum_is_n_pls.flatten()
+    logger.x_r[:, n] = x_r_is_npls.flatten()
+    logger.theta_frt[:, n] = theta_frt_is_n_pls.flatten()
+    logger.x_frt[:, n] = x_frt_is_npls.flatten()
+    logger.theta_ei[:, n] = theta_ei_js_n_pls.flatten()
 
-
-    logger.theta_ot[:, n] = theta_ot_is_n_pls.flatten()
-    logger.pmv_target[:, n] = pmv_target_is_n.flatten()
-    logger.h_hum_c_is_n[:, n] = h_hum_c_is_n.flatten()
-    logger.h_hum_r_is_n[:, n] = h_hum_r_is_n.flatten()
-    logger.v_hum_is_n[:, n] = v_hum_is_n.flatten()
-    logger.clo[:, n] = clo_is_n.flatten()
+    # 次の時刻に引き渡さない値
+    # 積算値
     logger.q_hum[:, n] = q_hum_is_n.flatten()
     logger.x_hum[:, n] = x_hum_is_n.flatten()
     logger.l_cs[:, n] = l_cs_is_n.flatten()
     logger.l_rs[:, n] = l_hs_is_n.flatten()
     logger.l_cl[:, n] = l_cl_i_n.flatten()
-    logger.theta_frnt[:, n] = theta_frt_is_n_pls.flatten()
-    logger.x_frnt[:, n] = x_frt_is_npls.flatten()
-    logger.theta_s[:, n] = theta_s_js_n_pls.flatten()
-    logger.theta_rear[:, n] = theta_rear_js_n.flatten()
-    logger.theta_ei[:, n] = theta_ei_js_n_pls.flatten()
-    logger.qisol_s[:, n] = ss.q_sol_js_ns[:, n].flatten() * ss.a_srf_js.flatten()
-    logger.qiall_s[:, n] = q_srf_js_n_pls.flatten()
-    logger.h_c_s[:, n] = ss.h_c_js.flatten()
-    logger.h_r_s[:, n] = ss.h_r_js.flatten()
+    # 平均値
     logger.v_reak_is_ns[:, n] = v_leak_is_n.flatten()
     logger.v_ntrl_is_ns[:, n] = v_ntrl_vent_is_n.flatten()
+    logger.h_hum_c_is_n[:, n] = h_hum_c_is_n.flatten()
+    logger.h_hum_r_is_n[:, n] = h_hum_r_is_n.flatten()
+    # 平均値（オプション）
+    logger.v_hum_is_n[:, n] = v_hum_is_n.flatten()
+    logger.clo[:, n] = clo_is_n.flatten()
+    # 瞬時値
+    logger.theta_ot[:, n] = theta_ot_is_n_pls.flatten()
+    logger.pmv_target[:, n] = pmv_target_is_n.flatten()
+    logger.theta_s[:, n] = theta_s_js_n_pls.flatten()
+    logger.theta_rear[:, n] = theta_rear_js_n.flatten()
+    logger.qiall_s[:, n] = q_srf_js_n_pls.flatten()
 
-    # TODO: q_srf_js_nはq_srf_js_nplsへ変更
 
     return Conditions(
         operation_mode_is_n=operation_mode_is_n,
@@ -284,8 +284,8 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
         theta_dsh_srf_a_js_ms_n=theta_dsh_srf_a_js_ms_n_pls,
         theta_dsh_srf_t_js_ms_n=theta_dsh_srf_t_js_ms_n_pls,
         q_srf_js_n=q_srf_js_n_pls,
-        theta_frnt_is_n=theta_frt_is_n_pls,
-        x_frnt_is_n=x_frt_is_npls,
+        theta_frt_is_n=theta_frt_is_n_pls,
+        x_frt_is_n=x_frt_is_npls,
         theta_ei_js_n=theta_ei_js_n_pls
     )
 
