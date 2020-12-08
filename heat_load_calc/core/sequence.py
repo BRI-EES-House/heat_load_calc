@@ -64,7 +64,7 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
     #     ステップnの室iにおける目標PMV, [i, 1]
     #     ステップnの室iにおけるClo値, [i, 1]
     #     ステップnの室iにおける目標作用温度, degree C, [i, 1]
-    h_hum_is_n, h_hum_c_is_n, h_hum_r_is_n, operation_mode_is_n, pmv_target_is_n, v_hum_is_n, clo_is_n, theta_ot_target_is_n = occupants.calc_operation(
+    h_hum_c_is_n, h_hum_r_is_n, operation_mode_is_n, pmv_target_is_n, v_hum_is_n, clo_is_n, theta_ot_target_is_n = occupants.calc_operation(
         x_r_is_n=c_n.x_r_is_n,
         operation_mode_is_n_mns=c_n.operation_mode_is_n,
         is_radiative_heating_is=ss.is_radiative_heating_is,
@@ -137,10 +137,10 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
     # ステップn+1計算用の値としてステップnから求めた値で代用する。
 
     # ステップnにおける室iの在室者表面における対流熱伝達率の総合熱伝達率に対する比, [i, 1]
-    kc_is_n = h_hum_c_is_n / h_hum_is_n
+    kc_is_n = h_hum_c_is_n / (h_hum_c_is_n + h_hum_r_is_n)
 
     # ステップnにおける室iの在室者表面における放射熱伝達率の総合熱伝達率に対する比, [i, 1]
-    kr_is_n = h_hum_r_is_n / h_hum_is_n
+    kr_is_n = h_hum_r_is_n / (h_hum_c_is_n + h_hum_r_is_n)
 
     # ステップn+1における室iの係数 XOT, [i, i]
     xot_is_is_n_pls = np.linalg.inv(v_diag(kc_is_n) + kr_is_n * np.dot(ss.f_mrt_hum_is_js, ss.wsr_js_is))

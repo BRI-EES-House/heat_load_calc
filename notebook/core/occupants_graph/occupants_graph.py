@@ -145,7 +145,7 @@ def get_graph_data(d):
     for key in d.keys():
 
         # 人体周りの総合熱伝達率, 対流熱伝達率, 放射熱伝達率, 運転モード, 着衣量, 目標作用温度の取得
-        arr = occupants.calc_operation(
+        _, _, operation_mode, _, _, clo, theta_ot_target = occupants.calc_operation(
             x_r_is_n=np.array(d[key]['x_r']),
             operation_mode_is_n_mns=np.array(d[key]['operation_mode']),
             is_radiative_heating_is=np.array(d[key]['radiative_heating']),
@@ -157,9 +157,9 @@ def get_graph_data(d):
 
         # 運転モード, 着衣量, 目標作用温度のデータ格納
         d_graph_data[key] = {
-            'operation_mode': copy.deepcopy([om.value for om in arr[3]]),
-            'clo': copy.deepcopy(arr[6]),
-            'theta_ot_target': copy.deepcopy(arr[7])
+            'operation_mode': copy.deepcopy([om.value for om in operation_mode]),
+            'clo': copy.deepcopy(clo),
+            'theta_ot_target': copy.deepcopy(theta_ot_target)
         }
 
     return d_graph_data
