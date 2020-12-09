@@ -4,7 +4,16 @@ from heat_load_calc.core.operation_mode import OperationMode
 
 
 def calc_next_temp_and_load(
-        is_radiative_heating_is, brc_ot_is_n, brm_ot_is_is_n, brl_ot_is_is_n, theta_ot_target_is_n, lrcap_is, operation_mode_is_n):
+        is_radiative_heating_is: np.ndarray,
+        is_radiative_cooling_is: np.ndarray,
+        brc_ot_is_n: np.ndarray,
+        brm_ot_is_is_n: np.ndarray,
+        brl_ot_is_is_n: np.ndarray,
+        theta_ot_target_is_n: np.ndarray,
+        lr_h_max_cap_is: np.ndarray,
+        lr_cs_max_cap_is: np.ndarray,
+        operation_mode_is_n: np.ndarray
+):
 
     # 室の配列の形, i ✕ 1　の行列
     room_shape = theta_ot_target_is_n.shape
@@ -23,9 +32,6 @@ def calc_next_temp_and_load(
 
     # 係数 k, W, [i, 1], float型
     k = brc_ot_is_n
-
-    # TODO: ここの処理は後でどうにかしないといけない
-    is_radiative_cooling_is = np.full(room_shape, False)
 
     # 室温指定を表す係数, [i, 1], int型
     # 指定する = 0, 指定しない = 1

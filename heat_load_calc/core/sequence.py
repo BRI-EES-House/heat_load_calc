@@ -179,11 +179,13 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
     # ステップ n における室 i に設置された放射暖房の放熱量, W, [i, 1]　(ステップn～ステップn+1までの平均値）
     theta_ot_is_n_pls, l_cs_is_n, l_hs_is_n = next_condition.calc_next_temp_and_load(
         is_radiative_heating_is=ss.is_radiative_heating_is,
+        is_radiative_cooling_is=ss.is_radiative_cooling_is,
         brc_ot_is_n=brc_ot_is_n,
         brm_ot_is_is_n=brm_ot_is_is_n,
         brl_ot_is_is_n=brl_ot_is_is_n,
         theta_ot_target_is_n=theta_ot_target_is_n,
-        lrcap_is=ss.lrcap_is,
+        lr_h_max_cap_is=ss.lr_h_max_cap_is,
+        lr_cs_max_cap_is=ss.lr_cs_max_cap_is,
         operation_mode_is_n=operation_mode_is_n
     )
 

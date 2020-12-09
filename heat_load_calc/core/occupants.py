@@ -17,7 +17,8 @@ def get_ot_target_and_h_hum_with_pmv(
         is_radiative_cooling_is: np.ndarray,
         theta_r_is_n: np.ndarray,
         theta_mrt_is_n: np.ndarray,
-        ac_demand_is_n: np.ndarray
+        ac_demand_is_n: np.ndarray,
+        method: str = 'convergence'
 ) -> (np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, (np.ndarray, np.ndarray, np.ndarray)):
     """
 
@@ -34,7 +35,7 @@ def get_ot_target_and_h_hum_with_pmv(
         theta_r_is_n: ステップnにおける室iの空気温度, degree C, [i, 1]
         theta_mrt_is_n: ステップnにおける室iの在室者の平均放射温度, degree C, [i, 1]
         ac_demand_is_n: ステップnにおける室iの空調需要の有無, [i, 1]
-
+        method: PMV計算時の熱伝達率計算に収束計算を行うか固定値を使用するか
     Returns:
         ステップnにおける室iの在室者周りの対流熱伝達率, W/m2K, [i, 1]
         ステップnにおける室iの在室者周りの放射熱伝達率, W/m2K, [i, 1]
@@ -70,7 +71,8 @@ def get_ot_target_and_h_hum_with_pmv(
         theta_r_is_n=theta_r_is_n,
         theta_mrt_is_n=theta_mrt_is_n,
         clo_is_n=clo_heavy,
-        v_hum_is_n=v_hum_is_n_mns
+        v_hum_is_n=v_hum_is_n_mns,
+        method=method
     )
 
     pmv_middle_is_n = _get_h_hum_and_pmv(
@@ -78,7 +80,8 @@ def get_ot_target_and_h_hum_with_pmv(
         theta_r_is_n=theta_r_is_n,
         theta_mrt_is_n=theta_mrt_is_n,
         clo_is_n=clo_middle,
-        v_hum_is_n=v_hum_is_n_mns
+        v_hum_is_n=v_hum_is_n_mns,
+        method=method
     )
 
     pmv_light_is_n = _get_h_hum_and_pmv(
@@ -86,7 +89,8 @@ def get_ot_target_and_h_hum_with_pmv(
         theta_r_is_n=theta_r_is_n,
         theta_mrt_is_n=theta_mrt_is_n,
         clo_is_n=clo_light,
-        v_hum_is_n=v_hum_is_n_mns
+        v_hum_is_n=v_hum_is_n_mns,
+        method=method
     )
 
     # ステップnにおける室iの運転状態, [i, 1]
@@ -109,7 +113,12 @@ def get_ot_target_and_h_hum_with_pmv(
     )
 
     h_hum_c_is_n, h_hum_r_is_n = _get_h_hum(
-        theta_mrt_is_n=theta_mrt_is_n, theta_r_is_n=theta_r_is_n, clo_is_n=clo_is_n, v_hum_is_n=v_hum_is_n, method='constant')
+        theta_mrt_is_n=theta_mrt_is_n,
+        theta_r_is_n=theta_r_is_n,
+        clo_is_n=clo_is_n,
+        v_hum_is_n=v_hum_is_n,
+        method=method
+    )
 
     h_hum_is_n = h_hum_c_is_n + h_hum_r_is_n
 
@@ -167,7 +176,8 @@ def _get_h_hum_and_pmv(
     theta_r_is_n: np.ndarray,
     theta_mrt_is_n: np.ndarray,
     clo_is_n: np.ndarray,
-    v_hum_is_n: np.ndarray
+    v_hum_is_n: np.ndarray,
+    method: str
 ) -> np.ndarray:
     """
 
@@ -177,6 +187,7 @@ def _get_h_hum_and_pmv(
         theta_mrt_is_n: ステップnにおける室iの在室者の平均放射温度, degree C, [i, 1]
         clo_is_n:
         v_hum_is_n: ステップnにおける室iの在室者周りの風速, m/s, [i, 1]
+        method: PMV計算時の熱伝達率計算に収束計算を行うか固定値を使用するか
     Returns:
         ステップnにおける室iの在室者のPMV, [i, 1]
     """
@@ -184,7 +195,7 @@ def _get_h_hum_and_pmv(
     # ステップnにおける室iの在室者周りの対流熱伝達率, W / m2K, [i, 1]
     # ステップnにおける室iの在室者周りの放射熱伝達率, W / m2K, [i, 1]
     h_hum_c_is_n, h_hum_r_is_n = _get_h_hum(
-        theta_mrt_is_n=theta_mrt_is_n, theta_r_is_n=theta_r_is_n, clo_is_n=clo_is_n, v_hum_is_n=v_hum_is_n, method='constant')
+        theta_mrt_is_n=theta_mrt_is_n, theta_r_is_n=theta_r_is_n, clo_is_n=clo_is_n, v_hum_is_n=v_hum_is_n, method=method)
 
     # ステップnにおける室iの在室者周りの総合熱伝達率, W/m2K, [i, 1]
     h_hum_is_n = h_hum_r_is_n + h_hum_c_is_n
@@ -204,7 +215,13 @@ def _get_h_hum_and_pmv(
     return pmv_is_n
 
 
-def _get_h_hum(theta_mrt_is_n: np.ndarray, theta_r_is_n: np.ndarray, clo_is_n: np.ndarray, v_hum_is_n: np.ndarray, method='convergence'):
+def _get_h_hum(
+        theta_mrt_is_n: np.ndarray,
+        theta_r_is_n: np.ndarray,
+        clo_is_n: np.ndarray,
+        v_hum_is_n: np.ndarray,
+        method: str
+):
     """
     在室者周りの熱伝達率を計算する。
     Args:
