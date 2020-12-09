@@ -571,7 +571,7 @@ def make_pre_calc_parameters(delta_t: float, data_directory: str) -> (PreCalcPar
         ac_demand_is_n: np.ndarray
     ):
 
-        return occupants.calc_operation(
+        return occupants.get_ot_target_and_h_hum_with_pmv(
             x_r_is_n=x_r_is_n,
             operation_mode_is_n_mns=operation_mode_is_n_mns,
             is_radiative_heating_is=np.array(is_radiative_heating_is).reshape(-1, 1),

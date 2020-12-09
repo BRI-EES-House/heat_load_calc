@@ -10,7 +10,7 @@ from heat_load_calc.external import psychrometrics as psy
 from heat_load_calc.external.global_number import get_l_wtr
 
 
-def calc_operation(
+def get_ot_target_and_h_hum_with_pmv(
         x_r_is_n: np.ndarray,
         operation_mode_is_n_mns: np.ndarray,
         is_radiative_heating_is: np.ndarray,
@@ -18,7 +18,7 @@ def calc_operation(
         theta_r_is_n: np.ndarray,
         theta_mrt_is_n: np.ndarray,
         ac_demand_is_n: np.ndarray
-) -> (np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray):
+) -> (np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, (np.ndarray, np.ndarray, np.ndarray)):
     """
 
     Args:
@@ -36,14 +36,14 @@ def calc_operation(
         ac_demand_is_n: ステップnにおける室iの空調需要の有無, [i, 1]
 
     Returns:
-        ステップnの室iにおける人体周りの総合熱伝達率, W/m2K, [i, 1]
         ステップnにおける室iの在室者周りの対流熱伝達率, W/m2K, [i, 1]
         ステップnにおける室iの在室者周りの放射熱伝達率, W/m2K, [i, 1]
         ステップnの室iにおける運転モード, [i, 1]
-        ステップnの室iにおける目標PMV, [i, 1]
-        ステップnの室iにおける人体近傍の風速, [i, 1]
-        ステップnの室iにおけるClo値, [i]
         ステップnの室iにおける目標作用温度, degree C, [i]
+        以下の備考情報を含むタプル
+            ステップnの室iにおける目標PMV, [i, 1]
+            ステップnの室iにおける人体近傍の風速, [i, 1]
+            ステップnの室iにおけるClo値, [i]
     """
 
     # ステップnにおける室iの水蒸気圧, Pa, [i, 1]
@@ -65,7 +65,7 @@ def calc_operation(
     # 薄着時のClo値
     clo_light = get_clo_light()
 
-    pmv_heavy_is_n = get_h_hum_and_pmv(
+    pmv_heavy_is_n = _get_h_hum_and_pmv(
         p_a_is_n=p_v_r_is_n,
         theta_r_is_n=theta_r_is_n,
         theta_mrt_is_n=theta_mrt_is_n,
@@ -73,7 +73,7 @@ def calc_operation(
         v_hum_is_n=v_hum_is_n_mns
     )
 
-    pmv_middle_is_n = get_h_hum_and_pmv(
+    pmv_middle_is_n = _get_h_hum_and_pmv(
         p_a_is_n=p_v_r_is_n,
         theta_r_is_n=theta_r_is_n,
         theta_mrt_is_n=theta_mrt_is_n,
@@ -81,7 +81,7 @@ def calc_operation(
         v_hum_is_n=v_hum_is_n_mns
     )
 
-    pmv_light_is_n = get_h_hum_and_pmv(
+    pmv_light_is_n = _get_h_hum_and_pmv(
         p_a_is_n=p_v_r_is_n,
         theta_r_is_n=theta_r_is_n,
         theta_mrt_is_n=theta_mrt_is_n,
@@ -108,7 +108,7 @@ def calc_operation(
         is_radiative_cooling_is=is_radiative_cooling_is
     )
 
-    h_hum_c_is_n, h_hum_r_is_n = get_h_hum(
+    h_hum_c_is_n, h_hum_r_is_n = _get_h_hum(
         theta_mrt_is_n=theta_mrt_is_n, theta_r_is_n=theta_r_is_n, clo_is_n=clo_is_n, v_hum_is_n=v_hum_is_n, method='constant')
 
     h_hum_is_n = h_hum_c_is_n + h_hum_r_is_n
@@ -126,131 +126,6 @@ def calc_operation(
     )
 
     return h_hum_c_is_n, h_hum_r_is_n, operation_mode_is_n, theta_ot_target_is_n, (pmv_target_is_n, v_hum_is_n, clo_is_n)
-
-
-def get_h_hum_and_pmv(
-    p_a_is_n: np.ndarray,
-    theta_r_is_n: np.ndarray,
-    theta_mrt_is_n: np.ndarray,
-    clo_is_n: np.ndarray,
-    v_hum_is_n: np.ndarray
-) -> np.ndarray:
-    """
-
-    Args:
-        p_a_is_n:　ステップnにおける室iの水蒸気圧, Pa, [i, 1]
-        theta_r_is_n: ステップnにおける室iの空気温度, degree C, [i, 1]
-        theta_mrt_is_n: ステップnにおける室iの在室者の平均放射温度, degree C, [i, 1]
-        clo_is_n:
-        v_hum_is_n: ステップnにおける室iの在室者周りの風速, m/s, [i, 1]
-    Returns:
-        ステップnにおける室iの在室者のPMV, [i, 1]
-    """
-
-    # ステップnにおける室iの在室者周りの対流熱伝達率, W / m2K, [i, 1]
-    # ステップnにおける室iの在室者周りの放射熱伝達率, W / m2K, [i, 1]
-    h_hum_c_is_n, h_hum_r_is_n = get_h_hum(
-        theta_mrt_is_n=theta_mrt_is_n, theta_r_is_n=theta_r_is_n, clo_is_n=clo_is_n, v_hum_is_n=v_hum_is_n, method='constant')
-
-    # ステップnにおける室iの在室者周りの総合熱伝達率, W/m2K, [i, 1]
-    h_hum_is_n = h_hum_r_is_n + h_hum_c_is_n
-
-    # ステップnにおける室iの在室者の作用温度, degree C, [i, 1]
-    theta_ot_is_n = (h_hum_r_is_n * theta_mrt_is_n + h_hum_c_is_n * theta_r_is_n) / h_hum_is_n
-
-    # ステップnにおける室iの在室者の厚着時のPMV, [i, 1]
-    pmv_is_n = get_pmv_is_n(
-        theta_r_is_n=theta_r_is_n,
-        clo_is_n=clo_is_n,
-        p_a_is_n=p_a_is_n,
-        h_hum_is_n=h_hum_is_n,
-        theta_ot_is_n=theta_ot_is_n
-    )
-
-    return pmv_is_n
-
-
-def get_h_hum(theta_mrt_is_n: np.ndarray, theta_r_is_n: np.ndarray, clo_is_n: np.ndarray, v_hum_is_n: np.ndarray, method='convergence'):
-    """
-    在室者周りの熱伝達率を計算する。
-    Args:
-        theta_mrt_is_n: ステップnにおける室iの在室者の平均放射温度, degree C, [i, 1]
-        theta_r_is_n: ステップnにおける室iの空気温度, degree C, [i, 1]
-        clo_is_n: CLO値, [i, 1]
-        v_hum_is_n: ステップnにおける室iの在室者周りの風速, m/s, [i, 1]
-    Returns:
-        以下のタプル
-            ステップnにおける室iの在室者周りの対流熱伝達率, W/m2K, [i, 1]
-            ステップnにおける室iの在室者周りの放射熱伝達率, W/m2K, [i, 1]
-    """
-
-    def f(t):
-
-        # ステップnにおける室iの在室者周りの対流熱伝達率, W/m2K, [i, 1]
-        h_hum_c = get_h_hum_c_is_n(theta_r_is_n=theta_r_is_n, theta_cl_is_n=t, v_hum_is_n=v_hum_is_n)
-
-        # ステップnにおける室iの在室者周りの放射熱伝達率, W/m2K, [i, 1]
-        h_hum_r = get_h_hum_r_is_n(theta_cl_is_n=t, theta_mrt_is_n=theta_mrt_is_n)
-
-        # ステップnにおける室iの在室者周りの総合熱伝達率, W/m2K, [i, 1]
-        h_hum = h_hum_r + h_hum_c
-
-        # ステップnにおける室iの在室者の作用温度, degree C, [i, 1]
-        theta_ot_is_n = (h_hum_r * theta_mrt_is_n + h_hum_c * theta_r_is_n) / h_hum
-
-        return get_theta_cl_is_n(clo_is_n=clo_is_n, theta_ot_is_n=theta_ot_is_n, h_hum_is_n=h_hum)
-
-    if method == 'convergence':
-        # ステップnにおける室iの在室者の着衣温度, degree C, [i, 1]
-        theta_cl_is_n = newton(lambda t: f(t) - t, np.zeros_like(theta_r_is_n, dtype=float) + 0.001)
-
-        # ステップnにおける室iの在室者周りの対流熱伝達率, W/m2K, [i, 1]
-        h_hum_c_is_n = get_h_hum_c_is_n(theta_r_is_n=theta_r_is_n, theta_cl_is_n=theta_cl_is_n, v_hum_is_n=v_hum_is_n)
-
-        # ステップnにおける室iの在室者周りの放射熱伝達率, W/m2K, [i, 1]
-        h_hum_r_is_n = get_h_hum_r_is_n(theta_cl_is_n=theta_cl_is_n, theta_mrt_is_n=theta_mrt_is_n)
-
-    elif method == 'constant':
-
-        h_hum_c_is_n = np.full_like(theta_r_is_n, 4.0)
-        h_hum_r_is_n = np.full_like(theta_r_is_n, 4 * 3.96 * 10 ** (-8) * (20.0 + 273.15) ** 3.0)
-
-    else:
-
-        raise Exception
-
-    return h_hum_c_is_n, h_hum_r_is_n
-
-
-def get_theta_cl_is_n(
-        clo_is_n: np.ndarray,
-        theta_ot_is_n: np.ndarray,
-        h_hum_is_n: np.ndarray
-) -> np.ndarray:
-    """着衣温度を計算する。
-
-    Args:
-        clo_is_n: ステップnにおける室iの在室者のClo値, [i, 1]　又は、（厚着・中間着・薄着時の）Clo値（定数）
-        theta_ot_is_n: ステップnにおける室iの在室者の作用温度, degree C, [i, 1]
-        h_hum_is_n: ステップnにおける室iの在室者周りの総合熱伝達率, W/m2K, [i, 1]
-
-    Returns:
-        ステップnにおける室iの着衣温度, degree C, [i, 1]
-    """
-
-    # ステップnにおける室iの在室者の着衣抵抗, m2K/W, [i, 1]
-    i_cl_is_n = get_i_cl_is_n(clo_is_n=clo_is_n)
-
-    # ステップnにおける室iの在室者の着衣面積率, [i]
-    f_cl_is_n = get_f_cl_is_n(i_cl_is_n=i_cl_is_n)
-
-    # 代謝量（人体内部発熱量）, W/m2
-    m = get_m()
-
-    # ステップnにおける室iの在室者の着衣温度, degree C
-    t_cl_i_n = (35.7 - 0.028 * m - theta_ot_is_n) / (1 + i_cl_is_n * f_cl_is_n * h_hum_is_n) + theta_ot_is_n
-
-    return t_cl_i_n
 
 
 def get_x_hum_psn_is_n(theta_r_is_n: np.ndarray) -> np.ndarray:
@@ -286,6 +161,131 @@ def get_q_hum_psn_is_n(theta_r_is_n: np.ndarray) -> np.ndarray:
 
 
 # region 本モジュール内でのみ参照される関数
+
+def _get_h_hum_and_pmv(
+    p_a_is_n: np.ndarray,
+    theta_r_is_n: np.ndarray,
+    theta_mrt_is_n: np.ndarray,
+    clo_is_n: np.ndarray,
+    v_hum_is_n: np.ndarray
+) -> np.ndarray:
+    """
+
+    Args:
+        p_a_is_n:　ステップnにおける室iの水蒸気圧, Pa, [i, 1]
+        theta_r_is_n: ステップnにおける室iの空気温度, degree C, [i, 1]
+        theta_mrt_is_n: ステップnにおける室iの在室者の平均放射温度, degree C, [i, 1]
+        clo_is_n:
+        v_hum_is_n: ステップnにおける室iの在室者周りの風速, m/s, [i, 1]
+    Returns:
+        ステップnにおける室iの在室者のPMV, [i, 1]
+    """
+
+    # ステップnにおける室iの在室者周りの対流熱伝達率, W / m2K, [i, 1]
+    # ステップnにおける室iの在室者周りの放射熱伝達率, W / m2K, [i, 1]
+    h_hum_c_is_n, h_hum_r_is_n = _get_h_hum(
+        theta_mrt_is_n=theta_mrt_is_n, theta_r_is_n=theta_r_is_n, clo_is_n=clo_is_n, v_hum_is_n=v_hum_is_n, method='constant')
+
+    # ステップnにおける室iの在室者周りの総合熱伝達率, W/m2K, [i, 1]
+    h_hum_is_n = h_hum_r_is_n + h_hum_c_is_n
+
+    # ステップnにおける室iの在室者の作用温度, degree C, [i, 1]
+    theta_ot_is_n = (h_hum_r_is_n * theta_mrt_is_n + h_hum_c_is_n * theta_r_is_n) / h_hum_is_n
+
+    # ステップnにおける室iの在室者の厚着時のPMV, [i, 1]
+    pmv_is_n = get_pmv_is_n(
+        theta_r_is_n=theta_r_is_n,
+        clo_is_n=clo_is_n,
+        p_a_is_n=p_a_is_n,
+        h_hum_is_n=h_hum_is_n,
+        theta_ot_is_n=theta_ot_is_n
+    )
+
+    return pmv_is_n
+
+
+def _get_h_hum(theta_mrt_is_n: np.ndarray, theta_r_is_n: np.ndarray, clo_is_n: np.ndarray, v_hum_is_n: np.ndarray, method='convergence'):
+    """
+    在室者周りの熱伝達率を計算する。
+    Args:
+        theta_mrt_is_n: ステップnにおける室iの在室者の平均放射温度, degree C, [i, 1]
+        theta_r_is_n: ステップnにおける室iの空気温度, degree C, [i, 1]
+        clo_is_n: CLO値, [i, 1]
+        v_hum_is_n: ステップnにおける室iの在室者周りの風速, m/s, [i, 1]
+    Returns:
+        以下のタプル
+            ステップnにおける室iの在室者周りの対流熱伝達率, W/m2K, [i, 1]
+            ステップnにおける室iの在室者周りの放射熱伝達率, W/m2K, [i, 1]
+    """
+
+    def f(t):
+
+        # ステップnにおける室iの在室者周りの対流熱伝達率, W/m2K, [i, 1]
+        h_hum_c = get_h_hum_c_is_n(theta_r_is_n=theta_r_is_n, theta_cl_is_n=t, v_hum_is_n=v_hum_is_n)
+
+        # ステップnにおける室iの在室者周りの放射熱伝達率, W/m2K, [i, 1]
+        h_hum_r = get_h_hum_r_is_n(theta_cl_is_n=t, theta_mrt_is_n=theta_mrt_is_n)
+
+        # ステップnにおける室iの在室者周りの総合熱伝達率, W/m2K, [i, 1]
+        h_hum = h_hum_r + h_hum_c
+
+        # ステップnにおける室iの在室者の作用温度, degree C, [i, 1]
+        theta_ot_is_n = (h_hum_r * theta_mrt_is_n + h_hum_c * theta_r_is_n) / h_hum
+
+        return _get_theta_cl_is_n(clo_is_n=clo_is_n, theta_ot_is_n=theta_ot_is_n, h_hum_is_n=h_hum)
+
+    if method == 'convergence':
+        # ステップnにおける室iの在室者の着衣温度, degree C, [i, 1]
+        theta_cl_is_n = newton(lambda t: f(t) - t, np.zeros_like(theta_r_is_n, dtype=float) + 0.001)
+
+        # ステップnにおける室iの在室者周りの対流熱伝達率, W/m2K, [i, 1]
+        h_hum_c_is_n = get_h_hum_c_is_n(theta_r_is_n=theta_r_is_n, theta_cl_is_n=theta_cl_is_n, v_hum_is_n=v_hum_is_n)
+
+        # ステップnにおける室iの在室者周りの放射熱伝達率, W/m2K, [i, 1]
+        h_hum_r_is_n = get_h_hum_r_is_n(theta_cl_is_n=theta_cl_is_n, theta_mrt_is_n=theta_mrt_is_n)
+
+    elif method == 'constant':
+
+        h_hum_c_is_n = np.full_like(theta_r_is_n, 4.0)
+        h_hum_r_is_n = np.full_like(theta_r_is_n, 4 * 3.96 * 10 ** (-8) * (20.0 + 273.15) ** 3.0)
+
+    else:
+
+        raise Exception
+
+    return h_hum_c_is_n, h_hum_r_is_n
+
+
+def _get_theta_cl_is_n(
+        clo_is_n: np.ndarray,
+        theta_ot_is_n: np.ndarray,
+        h_hum_is_n: np.ndarray
+) -> np.ndarray:
+    """着衣温度を計算する。
+
+    Args:
+        clo_is_n: ステップnにおける室iの在室者のClo値, [i, 1]　又は、（厚着・中間着・薄着時の）Clo値（定数）
+        theta_ot_is_n: ステップnにおける室iの在室者の作用温度, degree C, [i, 1]
+        h_hum_is_n: ステップnにおける室iの在室者周りの総合熱伝達率, W/m2K, [i, 1]
+
+    Returns:
+        ステップnにおける室iの着衣温度, degree C, [i, 1]
+    """
+
+    # ステップnにおける室iの在室者の着衣抵抗, m2K/W, [i, 1]
+    i_cl_is_n = get_i_cl_is_n(clo_is_n=clo_is_n)
+
+    # ステップnにおける室iの在室者の着衣面積率, [i]
+    f_cl_is_n = get_f_cl_is_n(i_cl_is_n=i_cl_is_n)
+
+    # 代謝量（人体内部発熱量）, W/m2
+    m = get_m()
+
+    # ステップnにおける室iの在室者の着衣温度, degree C
+    t_cl_i_n = (35.7 - 0.028 * m - theta_ot_is_n) / (1 + i_cl_is_n * f_cl_is_n * h_hum_is_n) + theta_ot_is_n
+
+    return t_cl_i_n
+
 
 def get_v_hum_is_n(
         operation_mode_is_n: np.ndarray,
