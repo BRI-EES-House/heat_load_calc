@@ -3,10 +3,12 @@ import numpy as np
 import csv
 import pandas as pd
 from dataclasses import dataclass
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Callable
 
 from heat_load_calc.external.global_number import get_c_air, get_rho_air
 from heat_load_calc.core import shape_factor
+from heat_load_calc.core import occupants
+from heat_load_calc.core.operation_mode import OperationMode
 
 
 @dataclass
@@ -180,6 +182,8 @@ class PreCalcParameters:
 
     # 年平均外気温度, degree C
     theta_o_ave: np.ndarray
+
+    get_ot_target_and_h_hum: Callable[[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray], tuple]
 
     rac_spec: Dict[str, Any]
 
@@ -584,6 +588,28 @@ def make_pre_calc_parameters(delta_t: float, data_directory: str) -> (PreCalcPar
 
     # endregion
 
+    # region 読み込んだ値から新たに関数を作成する
+
+    def get_ot_target_and_h_hum(
+        theta_r_is_n: np.ndarray,
+        theta_mrt_hum_is_n: np.ndarray,
+        x_r_is_n: np.ndarray,
+        operation_mode_is_n_mns: np.ndarray,
+        ac_demand_is_n: np.ndarray
+    ):
+
+        return occupants.calc_operation(
+            x_r_is_n=x_r_is_n,
+            operation_mode_is_n_mns=operation_mode_is_n_mns,
+            is_radiative_heating_is=np.array(is_radiative_heating_is).reshape(-1, 1),
+            is_radiative_cooling_is=np.array(is_radiative_cooling_is).reshape(-1, 1),
+            theta_r_is_n=theta_r_is_n,
+            theta_mrt_is_n=theta_mrt_hum_is_n,
+            ac_demand_is_n=ac_demand_is_n
+        )
+
+    # endregion
+
     rac_spec = {
         'v_min': Vmin_is,
         'v_max': Vmax_is,
@@ -647,7 +673,8 @@ def make_pre_calc_parameters(delta_t: float, data_directory: str) -> (PreCalcPar
         theta_o_ns=theta_o_ns,
         x_o_ns=x_o_ns,
         theta_o_ave=theta_o_ave,
-        rac_spec=rac_spec
+        rac_spec=rac_spec,
+        get_ot_target_and_h_hum=get_ot_target_and_h_hum
     )
 
     pre_calc_parameters_ground = PreCalcParametersGround(
