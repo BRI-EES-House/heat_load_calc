@@ -125,7 +125,7 @@ def calc_operation(
         pmv_target_is_n=pmv_target_is_n
     )
 
-    return h_hum_c_is_n, h_hum_r_is_n, operation_mode_is_n, pmv_target_is_n, v_hum_is_n, clo_is_n, theta_ot_target_is_n
+    return h_hum_c_is_n, h_hum_r_is_n, operation_mode_is_n, theta_ot_target_is_n, (pmv_target_is_n, v_hum_is_n, clo_is_n)
 
 
 def get_h_hum_and_pmv(
