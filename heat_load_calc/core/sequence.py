@@ -65,17 +65,6 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
     #     ステップnの室iの在室者周りの風速, m/s, [i, 1]
     #     ステップnの室iにおけるClo値, [i, 1]
     #     ステップnの室iにおける目標作用温度, degree C, [i, 1]
-    # h_hum_c_is_n, h_hum_r_is_n, operation_mode_is_n, pmv_target_is_n, v_hum_is_n, clo_is_n, theta_ot_target_is_n \
-    #     = occupants.calc_operation(
-    #         x_r_is_n=c_n.x_r_is_n,
-    #         operation_mode_is_n_mns=c_n.operation_mode_is_n,
-    #         is_radiative_heating_is=ss.is_radiative_heating_is,
-    #         is_radiative_cooling_is=ss.is_radiative_cooling_is,
-    #         theta_r_is_n=c_n.theta_r_is_n,
-    #         theta_mrt_is_n=c_n.theta_mrt_hum_is_n,
-    #         ac_demand_is_n=ac_demand_is_n,
-    #     )
-
     h_hum_c_is_n, h_hum_r_is_n, operation_mode_is_n, theta_ot_target_is_n, remarks \
         = ss.get_ot_target_and_h_hum(
             x_r_is_n=c_n.x_r_is_n,
@@ -86,7 +75,6 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
         )
 
     pmv_target_is_n, v_hum_is_n, clo_is_n = remarks
-
 
     # ステップnの境界jにおける裏面温度, degree C, [j, 1]
     theta_rear_js_n = np.dot(ss.k_ei_js_js, c_n.theta_ei_js_n) + theta_dstrb_js_n

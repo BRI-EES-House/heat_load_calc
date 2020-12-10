@@ -15,7 +15,7 @@ def calc_next_temp_and_load(
         operation_mode_is_n: np.ndarray
 ):
 
-    # 室の配列の形, i ✕ 1　の行列
+    # 室の配列の形, i✕1　の行列 を表すタプル
     room_shape = theta_ot_target_is_n.shape
 
     # 室の数
@@ -84,7 +84,29 @@ def calc_next_temp_and_load(
     # lr 放射空調負荷, W, [i, 1]
     theta, lc, lr = get_load_and_temp(kt, kc, kr, k, nt, theta_set, c, lc_set, r, lr_set)
 
-    # TODO: 放射暖房負荷が最大能力を超えたときの措置を記載していない。
+    # 計算された放射空調負荷が最大放熱量を上回る場合は、放熱量を最大放熱量に固定して、対流空調負荷を未知数として再計算する。
+    over_lr = lr > lr_h_max_cap_is
+
+    # 対流負荷を未知数とする。
+    c[over_lr] = 1
+
+    # 放射負荷を最大放熱量に指定する。
+    r[over_lr] = 0
+    lr_set[over_lr] = lr_h_max_cap_is[over_lr]
+
+    # 計算された放射空調負荷が最大放熱量を下回る場合は、放熱量を最大放熱量に固定して、対流空調負荷を未知数として再計算する。
+    # 注意：冷房の最大放熱量は正の値で指定される。一方、計算される負荷（lr）は、冷房の場合、負の値で指定される。
+    under_lr = lr < -lr_cs_max_cap_is
+
+    # 対流負荷を未知数とする。
+    c[under_lr] = 1
+
+    # 放射負荷を最大放熱量に指定する。
+    r[under_lr] = 0
+    lr_set[under_lr] = -lr_cs_max_cap_is[under_lr]
+
+    # 放射暖房を最大放熱量に指定して再計算する。
+    theta, lc, lr = get_load_and_temp(kt, kc, kr, k, nt, theta_set, c, lc_set, r, lr_set)
 
     return theta, lc, lr
 
