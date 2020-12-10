@@ -152,7 +152,7 @@ def get_graph_data(d):
             is_radiative_cooling_is=np.array(d[key]['radiative_cooling']),
             theta_r_is_n=np.array(d[key]['theta_r']),
             theta_mrt_is_n=np.array(d[key]['theta_mrt']),
-            ac_demand_is_n=np.array(d[key]['ac_demand'])
+            ac_demand_is_n=np.where(np.array(d[key]['ac_demand']), 1.0, 0.0)
         )
         _, _, clo = remarks
 

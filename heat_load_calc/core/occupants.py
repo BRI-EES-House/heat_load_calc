@@ -34,7 +34,7 @@ def get_ot_target_and_h_hum_with_pmv(
         is_radiative_cooling_is: 放射冷房の有無, [i, 1]
         theta_r_is_n: ステップnにおける室iの空気温度, degree C, [i, 1]
         theta_mrt_is_n: ステップnにおける室iの在室者の平均放射温度, degree C, [i, 1]
-        ac_demand_is_n: ステップnにおける室iの空調需要の有無, [i, 1]
+        ac_demand_is_n: ステップnにおける室iの空調需要の有無, 0.0～1.0, [i, 1]
         method: PMV計算時の熱伝達率計算に収束計算を行うか固定値を使用するか
     Returns:
         ステップnにおける室iの在室者周りの対流熱伝達率, W/m2K, [i, 1]
@@ -462,7 +462,7 @@ def get_operation_mode_is_n(
     """運転モードを決定する。
 
     Args:
-        ac_demand_is_n: ステップnにおける室iの空調需要の有無, [i, 1]
+        ac_demand_is_n: ステップnにおける室iの空調需要の有無, 0.0~1.0, [i, 1]
         operation_mode_is_n_mns: ステップn-1における室iの運転状態, [i, 1]
         pmv_heavy_is_n: ステップnにおける室iの厚着時のPMV, [i, 1]
         pmv_middle_is_n: ステップnにおける室iの中間着時のPMV, [i, 1]
@@ -477,7 +477,7 @@ def get_operation_mode_is_n(
 
 
 def get_operation_mode_i_n(
-        ac_demand_i_n: bool,
+        ac_demand_i_n: float,
         operation_mode_i_n_mns: OperationMode,
         pmv_heavy_i_n: float,
         pmv_middle_i_n: float,
@@ -486,7 +486,7 @@ def get_operation_mode_i_n(
     """運転モードを決定する。
 
     Args:
-        ac_demand_i_n: ステップnにおける室iの空調需要の有無
+        ac_demand_i_n: ステップnにおける室iの空調需要の有無, 0.0～1.0
         operation_mode_i_n_mns: ステップn-1における室iの運転状態
         pmv_heavy_i_n: ステップnにおける室iの厚着時のPMV
         pmv_middle_i_n: ステップnにおける室iの中間着時のPMV
@@ -496,7 +496,7 @@ def get_operation_mode_i_n(
         ステップnにおける室iの運転状態
     """
 
-    if ac_demand_i_n:  # 空調需要がある場合
+    if ac_demand_i_n > 0.0:  # 空調需要がある場合
 
         if operation_mode_i_n_mns == OperationMode.HEATING:
 
