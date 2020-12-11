@@ -150,6 +150,7 @@ def _load_schedule() -> Dict:
     """
     js = open(str(os.path.dirname(__file__)) + '/schedules.json', 'r', encoding='utf-8')
     d_json = json.load(js)
+    js.close()
     return d_json
 
 
