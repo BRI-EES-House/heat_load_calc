@@ -352,7 +352,7 @@ def make_pre_calc_parameters(delta_t: float, data_directory: str) -> (PreCalcPar
     r_js_ms = np.array([b['r'] for b in bs])
 
     # 境界jの室内側表面総合熱伝達率, W/m2K, [j, 1]
-    h_i_js_temporary = np.array([b['h_i'] for b in bs]).reshape(-1, 1)
+    # h_i_js_temporary = np.array([b['h_i'] for b in bs]).reshape(-1, 1)
 
     # 境界jの室に設置された放射暖房の放熱量のうち放射成分に対する境界jの室内側吸収比率
     flr_js = np.array([b['flr'] for b in bs])
@@ -497,8 +497,8 @@ def make_pre_calc_parameters(delta_t: float, data_directory: str) -> (PreCalcPar
 
     # この変数は入力を総合熱伝達率から対流熱伝達率に切り替える際に一時的に設けたもの。
     # テストが通るようになり次第、この変数は削除し、対流熱伝達率指定になるように変更する。
-    shitei = 'sougou'
-    # shitei = 'tairyuu'
+    # shitei = 'sougou'
+    shitei = 'tairyuu'
 
     # 境界jの室内側表面総合熱伝達率, W/m2K, [j, 1]
     if shitei == 'tairyuu':
