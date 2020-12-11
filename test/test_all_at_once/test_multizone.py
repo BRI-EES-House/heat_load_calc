@@ -30,8 +30,8 @@ class TestAllAtOnce(unittest.TestCase):
 
         ds, dd = core.calc(input_data_dir=data_dir, output_data_dir=data_dir)
 
-        self.assertAlmostEqual(16.557232386231025, dd['rm0_t_r']['1989-12-31  23:45:00'])
-        self.assertAlmostEqual(0.0038855630597287387, dd['rm0_x_r']['1989-12-31  23:45:00'])
+        self.assertAlmostEqual(16.845602930302867, dd['rm0_t_r']['1989-12-31  23:45:00'])
+        self.assertAlmostEqual(0.0038810140101473464, dd['rm0_x_r']['1989-12-31  23:45:00'])
 
 
 if __name__ == '__main__':
