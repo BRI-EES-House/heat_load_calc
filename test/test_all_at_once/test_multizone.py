@@ -24,6 +24,8 @@ class TestAllAtOnce(unittest.TestCase):
 
         d = json.load(js)
 
+        js.close()
+
         weather.make_weather(region=d['common']['region'], output_data_dir=data_dir, csv_output=True)
 
         initializer.make_house(d=d, input_data_dir=data_dir, output_data_dir=data_dir)

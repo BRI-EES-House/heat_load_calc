@@ -108,10 +108,10 @@ class PreCalcParameters:
     brl_is_is: np.ndarray
 
     # 放射暖房最大能力, W, [i]
-    lrcap_is: np.ndarray
+    lr_h_max_cap_is: np.ndarray
 
     # 放射冷房最大能力, W, [i]
-    radiative_cooling_max_capacity_is: np.ndarray
+    lr_cs_max_cap_is: np.ndarray
 
     # 放射暖房有無（Trueなら放射暖房あり）
     is_radiative_heating_is: np.ndarray
@@ -280,16 +280,14 @@ def make_pre_calc_parameters(delta_t: float, data_directory: str) -> (PreCalcPar
     # 室iの暖房方式として放射空調が設置されているかどうか。  bool値, [i, 1]
     # 室iの暖房方式として放射空調が設置されている場合の、放射暖房最大能力, W, [i, 1]
     is_radiative_heating_is_list = []
-    lrcap_is_list = []
+    radiative_heating_max_capacity_is_list = []
     for i, s in enumerate(ss):
         if s['equipment']['heating']['radiative']['installed']:
             is_radiative_heating_is_list.append(True)
-            lrcap_is_list.append(s['equipment']['heating']['radiative']['max_capacity'])
+            radiative_heating_max_capacity_is_list.append(s['equipment']['heating']['radiative']['max_capacity'])
         else:
             is_radiative_heating_is_list.append(False)
-            lrcap_is_list.append(0.0)
-    is_radiative_heating_is = np.array(is_radiative_heating_is_list)
-    lrcap_is = np.array(lrcap_is_list)
+            radiative_heating_max_capacity_is_list.append(0.0)
 
     # 室iの冷房方式として放射空調が設置されているかどうか。  bool値, [i, 1]
     # 室iの冷房方式として放射空調が設置されている場合の、放射冷房最大能力, W, [i, 1]
@@ -302,8 +300,11 @@ def make_pre_calc_parameters(delta_t: float, data_directory: str) -> (PreCalcPar
         else:
             is_radiative_cooling_is_list.append(False)
             radiative_cooling_max_capacity_is_list.append(0.0)
+
+    is_radiative_heating_is = np.array(is_radiative_heating_is_list)
+    lr_h_max_cap_is = np.array(radiative_heating_max_capacity_is_list)
     is_radiative_cooling_is = np.array(is_radiative_cooling_is_list)
-    radiative_cooling_max_capacity_is = np.array(radiative_cooling_max_capacity_is_list)
+    lr_cs_max_cap_is = np.array(radiative_cooling_max_capacity_is_list)
 
     qmin_c_is = np.array([s['equipment']['cooling']['convective']['q_min'] for s in ss]).reshape(-1, 1)
     qmax_c_is = np.array([s['equipment']['cooling']['convective']['q_max'] for s in ss]).reshape(-1, 1)
@@ -424,10 +425,7 @@ def make_pre_calc_parameters(delta_t: float, data_directory: str) -> (PreCalcPar
     # ステップnの室iにおける空調需要, [8760*4]
     with open(data_directory + '/mid_data_ac_demand.csv', 'r') as f:
         r = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
-        ac_demand_is_ns2 = np.array([row for row in r]).T
-    # ｓｔｒ型からbool型に変更
-
-    ac_demand_is_ns = np.vectorize(lambda x: x == 1.0)(ac_demand_is_ns2)
+        ac_demand_is_ns = np.array([row for row in r]).T
 
     # ステップnの室iにおける窓の透過日射熱取得, W, [8760*4]
     with open(data_directory + '/mid_data_q_trs_sol.csv', 'r') as f:
@@ -598,14 +596,17 @@ def make_pre_calc_parameters(delta_t: float, data_directory: str) -> (PreCalcPar
         ac_demand_is_n: np.ndarray
     ):
 
-        return occupants.calc_operation(
+        method = 'constant'
+
+        return occupants.get_ot_target_and_h_hum_with_pmv(
             x_r_is_n=x_r_is_n,
             operation_mode_is_n_mns=operation_mode_is_n_mns,
             is_radiative_heating_is=np.array(is_radiative_heating_is).reshape(-1, 1),
             is_radiative_cooling_is=np.array(is_radiative_cooling_is).reshape(-1, 1),
             theta_r_is_n=theta_r_is_n,
             theta_mrt_is_n=theta_mrt_hum_is_n,
-            ac_demand_is_n=ac_demand_is_n
+            ac_demand_is_n=ac_demand_is_n,
+            method=method
         )
 
     # endregion
@@ -651,8 +652,8 @@ def make_pre_calc_parameters(delta_t: float, data_directory: str) -> (PreCalcPar
         ac_demand_is_ns=ac_demand_is_ns,
         is_radiative_heating_is=np.array(is_radiative_heating_is).reshape(-1, 1),
         is_radiative_cooling_is=np.array(is_radiative_cooling_is).reshape(-1, 1),
-        lrcap_is=lrcap_is,
-        radiative_cooling_max_capacity_is=radiative_cooling_max_capacity_is,
+        lr_h_max_cap_is=np.array(lr_h_max_cap_is).reshape(-1, 1),
+        lr_cs_max_cap_is=np.array(lr_cs_max_cap_is).reshape(-1, 1),
         flr_js_is=flr_js_is,
         h_r_js=h_r_js,
         h_c_js=h_c_js,
