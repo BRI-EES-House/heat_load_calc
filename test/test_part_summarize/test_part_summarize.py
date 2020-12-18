@@ -34,6 +34,7 @@ class MyTestCase(unittest.TestCase):
             'is_solar_absorbed_inside': False,
             'direction': 's',
             'inside_heat_transfer_resistance': 9.1,
+            'h_c': 2.5,
             'layers': [
                 {
                     'name': 'plaster_board',
@@ -132,6 +133,7 @@ class MyTestCase(unittest.TestCase):
             'is_solar_absorbed_inside': False,
             'direction': 's',
             'inside_heat_transfer_resistance': 9.1,
+            'h_c': 2.5,
             'u_value': 4.65
         }
         bs8 = bs.get_boundary_simple(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, d8)
@@ -151,6 +153,7 @@ class MyTestCase(unittest.TestCase):
             "is_floor": False,
             "is_solar_absorbed_inside": False,
             "inside_heat_transfer_resistance": 0.11,
+            "h_c": 2.5,
             "outside_heat_transfer_resistance": 0.11,
             "layers": [
                 {
@@ -198,6 +201,7 @@ class MyTestCase(unittest.TestCase):
             "is_floor": False,
             "is_solar_absorbed_inside": False,
             "inside_heat_transfer_resistance": 0.11,
+            "h_c": 2.5,
             "outside_heat_transfer_resistance": 0.04,
             "outside_emissivity": 0.9,
             "incident_angle_characteristics": "multiple",
@@ -224,6 +228,7 @@ class MyTestCase(unittest.TestCase):
             "is_floor": False,
             "is_solar_absorbed_inside": False,
             "inside_heat_transfer_resistance": 0.11,
+            "h_c": 2.5,
             "outside_heat_transfer_resistance": 0.04,
             "outside_emissivity": 0.9,
             "incident_angle_characteristics": "multiple",
@@ -280,6 +285,7 @@ class MyTestCase(unittest.TestCase):
             "is_floor": False,
             "is_solar_absorbed_inside": False,
             "inside_heat_transfer_resistance": 0.11,
+            "h_c": 2.5,
             "outside_heat_transfer_resistance": 0.04,
             "outside_emissivity": 0.9,
             "outside_solar_absorption": 0.8,
@@ -327,6 +333,7 @@ class MyTestCase(unittest.TestCase):
             "is_floor": False,
             "is_solar_absorbed_inside": False,
             "inside_heat_transfer_resistance": 0.11,
+            "h_c": 2.5,
             "outside_heat_transfer_resistance": 0.04,
             "outside_emissivity": 0.9,
             "outside_solar_absorption": 0.8,
