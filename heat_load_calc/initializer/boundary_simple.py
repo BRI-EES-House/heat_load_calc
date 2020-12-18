@@ -63,6 +63,9 @@ class BoundarySimple:
     # 室内側表面総合熱伝達率, W/m2K
     h_i: float
 
+    # 室内側表面対流熱伝達率, W/m2K
+    h_c: float
+
     # 相当外気温度, ℃, [8760 * 4]
     theta_o_sol: np.ndarray
 
@@ -163,6 +166,9 @@ def get_boundary_simple(theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, a_sun_ns, h_sun_n
     # 室内側表面総合熱伝達率, W/m2K
     h_i = 1.0 / r_i
 
+    # 室内側表面対流熱伝達率, W/m2K
+    h_c = b['h_c']
+
     solar_shading_part = solar_shading.SolarShading.create(b=b)
 
     # 相当外気温度, degree C, [8760 * 4]
@@ -199,6 +205,7 @@ def get_boundary_simple(theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, a_sun_ns, h_sun_n
         is_sun_striked_outside=is_sun_striked_outside,
         direction=direction,
         h_i=h_i,
+        h_c=h_c,
         theta_o_sol=theta_o_sol,
         q_trs_sol=q_trs_sol,
         n_root=rfs.n_root,
