@@ -50,8 +50,8 @@
     "boundaries": [
         {
             "id": 0,
-            "name": "integrated_boundary0",
-            "sub_name": "north_exterior_window",
+            "name": "north_exterior_window",
+            "sub_name": "",
             "is_ground": "false",
             "connected_space_id": 0,
             "area": 1.0,
@@ -109,8 +109,8 @@
         },
         {
             "id": 1,
-            "name": "integrated_boundary1",
-            "sub_name": "east_exterior_window",
+            "name": "east_exterior_window",
+            "sub_name": "",
             "is_ground": "false",
             "connected_space_id": 0,
             "area": 1.0,
@@ -168,8 +168,8 @@
         },
         {
             "id": 2,
-            "name": "integrated_boundary2",
-            "sub_name": "south_exterior_window",
+            "name": "south_exterior_window",
+            "sub_name": "",
             "is_ground": "false",
             "connected_space_id": 0,
             "area": 1.0,
@@ -227,8 +227,8 @@
         },
         {
             "id": 3,
-            "name": "integrated_boundary3",
-            "sub_name": "west_exterior_window",
+            "name": "west_exterior_window",
+            "sub_name": "",
             "is_ground": "false",
             "connected_space_id": 0,
             "area": 1.0,
@@ -286,8 +286,8 @@
         },
         {
             "id": 4,
-            "name": "integrated_boundary4",
-            "sub_name": "exterior_floor",
+            "name": "exterior_floor",
+            "sub_name": "",
             "is_ground": "false",
             "connected_space_id": 0,
             "area": 1.0,
@@ -345,8 +345,8 @@
         },
         {
             "id": 5,
-            "name": "integrated_boundary5",
-            "sub_name": "exterior_ceiling",
+            "name": "exterior_ceiling",
+            "sub_name": "",
             "is_ground": "false",
             "connected_space_id": 0,
             "area": 1.0,

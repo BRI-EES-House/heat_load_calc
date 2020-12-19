@@ -218,7 +218,11 @@ def make_house_for_test(d, input_data_dir, output_data_dir):
         ) for b_dict in d['boundaries']
     ]
 
-    bss2 = building_part_summarize.integrate(bss=bss)
+    # 壁体の集約を行わない。
+    # layer のC値・R値を core に引き継ぐため
+    # C値・R値は集約ができないため
+    bss2 = bss
+#    bss2 = building_part_summarize.integrate(bss=bss)
 
     building = _make_building_dict(d=d['building'])
 
