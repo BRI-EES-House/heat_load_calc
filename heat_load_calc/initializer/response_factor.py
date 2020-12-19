@@ -312,7 +312,7 @@ class ResponseFactorFactory:
     @classmethod
     def create(cls, d: Dict):
 
-        if d['boundary_type'] in ['external_general_part', 'internal', 'ground']:
+        if d['boundary_type'] in ['external_general_part', 'internal']:
 
             layers = d['layers']
 
@@ -320,6 +320,15 @@ class ResponseFactorFactory:
                 cs=[float(layer['thermal_capacity']) for layer in layers],
                 rs=[float(layer['thermal_resistance']) for layer in layers],
                 r_o=float(d['outside_heat_transfer_resistance'])
+            )
+
+        elif d['boundary_type'] == 'ground':
+
+            layers = d['layers']
+
+            return ResponseFactorFactoryTransientGround(
+                cs=[float(layer['thermal_capacity']) for layer in layers],
+                rs=[float(layer['thermal_resistance']) for layer in layers]
             )
 
         elif d['boundary_type'] in ['external_transparent_part', 'external_opaque_part']:
