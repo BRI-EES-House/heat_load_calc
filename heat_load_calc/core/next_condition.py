@@ -33,6 +33,9 @@ def calc_next_temp_and_load(
     # 係数 k, W, [i, 1], float型
     k = brc_ot_is_n
 
+    # 暖冷房負荷が無い場合の自然作用温度を計算する。
+    theta_natural_is_n = np.dot(np.linalg.inv(kt), k)
+
     # 室温指定を表す係数, [i, 1], int型
     # 指定する = 0, 指定しない = 1
     # 室温を指定しない場合は、 operation_mode が STOP_CLOSE or STOP_OPEN の場合である。
