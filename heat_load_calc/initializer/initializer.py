@@ -707,36 +707,20 @@ def _get_boundary_spec(boundaries, bs) -> Dict:
 
     if bs.boundary_type in [BoundaryType.ExternalGeneralPart, BoundaryType.Internal]:
         return {
-            'input': 'spec',
-            # 'phi_a0': bs.rfa0,
-            # 'phi_a1': list(bs.rfa1),
-            # 'phi_t0': bs.rft0,
-            # 'phi_t1': list(bs.rft1),
-            # 'r': list(bs.row),
+            'method': 'layers',
             'boundary_type': bs.boundary_type.value,
             'layers': boundaries['layers'],
             'outside_heat_transfer_resistance': boundaries['outside_heat_transfer_resistance']
         }
     elif bs.boundary_type == BoundaryType.Ground:
         return {
-            'input': 'spec',
-            # 'phi_a0': bs.rfa0,
-            # 'phi_a1': list(bs.rfa1),
-            # 'phi_t0': bs.rft0,
-            # 'phi_t1': list(bs.rft1),
-            # 'r': list(bs.row),
+            'method': 'layers_ground',
             'boundary_type': bs.boundary_type.value,
             'layers': boundaries['layers']
         }
     elif bs.boundary_type in [BoundaryType.ExternalTransparentPart, BoundaryType.ExternalOpaquePart]:
-
         return {
-            'input': 'spec',
-            # 'phi_a0': bs.rfa0,
-            # 'phi_a1': list(bs.rfa1),
-            # 'phi_t0': bs.rft0,
-            # 'phi_t1': list(bs.rft1),
-            # 'r': list(bs.row),
+            'method': 'u_value',
             'boundary_type': bs.boundary_type.value,
             'u_value': boundaries['u_value'],
             'inside_heat_transfer_resistance': boundaries['inside_heat_transfer_resistance']
