@@ -715,7 +715,7 @@ def _get_boundary_spec(boundaries, bs) -> Dict:
             'r': list(bs.row),
             'boundary_type': bs.boundary_type.value,
             'layers': boundaries['layers'],
-            'r_o': boundaries['outside_heat_transfer_resistance']
+            'outside_heat_transfer_resistance': boundaries['outside_heat_transfer_resistance']
         }
     elif bs.boundary_type == BoundaryType.Ground:
         return {
@@ -739,7 +739,7 @@ def _get_boundary_spec(boundaries, bs) -> Dict:
             'r': list(bs.row),
             'boundary_type': bs.boundary_type.value,
             'u_value': boundaries['u_value'],
-            'r_i': boundaries['inside_heat_transfer_resistance']
+            'inside_heat_transfer_resistance': boundaries['inside_heat_transfer_resistance']
         }
     else:
         raise KeyError()
