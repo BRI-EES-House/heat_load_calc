@@ -10,6 +10,7 @@ from heat_load_calc.core import shape_factor
 from heat_load_calc.core import occupants
 from heat_load_calc.core.operation_mode import OperationMode
 from heat_load_calc.initializer import response_factor
+from heat_load_calc.core import infiltration
 
 
 @dataclass
@@ -185,6 +186,8 @@ class PreCalcParameters:
     theta_o_ave: np.ndarray
 
     get_ot_target_and_h_hum: Callable[[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray], tuple]
+
+    get_infiltration: Callable[[np.ndarray, float], np.ndarray]
 
     rac_spec: Dict[str, Any]
 
@@ -574,6 +577,16 @@ def make_pre_calc_parameters(delta_t: float, data_directory: str) -> (PreCalcPar
             method=method
         )
 
+    def get_infiltration(theta_r_is_n: np.ndarray, theta_o_n: float):
+
+        return infiltration.get_infiltration_residential(
+            c_value=c_value,
+            v_room_is=v_room_is,
+            story=story,
+            inside_pressure=inside_p,
+            theta_r_is_n=theta_r_is_n,
+            theta_o_npls=theta_o_n
+        )
 
     # endregion
 
@@ -641,7 +654,8 @@ def make_pre_calc_parameters(delta_t: float, data_directory: str) -> (PreCalcPar
         x_o_ns=x_o_ns,
         theta_o_ave=theta_o_ave,
         rac_spec=rac_spec,
-        get_ot_target_and_h_hum=get_ot_target_and_h_hum
+        get_ot_target_and_h_hum=get_ot_target_and_h_hum,
+        get_infiltration=get_infiltration
     )
 
     pre_calc_parameters_ground = PreCalcParametersGround(

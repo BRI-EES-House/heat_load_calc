@@ -92,14 +92,15 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
     x_hum_is_n = x_hum_psn_is_n * n_hum_is_n
 
     # ステップnの室iにおけるすきま風量, m3/s, [i, 1]
-    v_leak_is_n = infiltration.get_infiltration_residential(
-        c_value=ss.c_value,
-        v_room_is=ss.v_room_is,
-        story=ss.story,
-        inside_pressure=ss.inside_p,
-        theta_r_is_n=c_n.theta_r_is_n,
-        theta_o_npls=ss.theta_o_ns[n]
-    )
+    # v_leak_is_n = infiltration.get_infiltration_residential(
+    #     c_value=ss.c_value,
+    #     v_room_is=ss.v_room_is,
+    #     story=ss.story,
+    #     inside_pressure=ss.inside_p,
+    #     theta_r_is_n=c_n.theta_r_is_n,
+    #     theta_o_npls=ss.theta_o_ns[n]
+    # )
+    v_leak_is_n = ss.get_infiltration(theta_r_is_n=c_n.theta_r_is_n, theta_o_n=ss.theta_o_ns[n])
 
     # ステップn+1の境界jにおける項別公比法の指数項mの吸熱応答の項別成分, degree C, [j, m] (m=12)
     theta_dsh_srf_a_js_ms_n_pls = ss.phi_a1_js_ms * c_n.q_srf_js_n + ss.r_js_ms * c_n.theta_dsh_srf_a_js_ms_n
