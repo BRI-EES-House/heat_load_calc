@@ -337,20 +337,8 @@ def make_pre_calc_parameters(delta_t: float, data_directory: str) -> (PreCalcPar
     # 境界jの面積, m2, [j, 1]
     a_srf_js = np.array([b['area'] for b in bs]).reshape(-1, 1)
 
-    # 境界jの吸熱応答係数の初項, m2K/W, [j, 1]
-    phi_a0_js = np.array([b['phi_a0'] for b in bs]).reshape(-1, 1)
-
-    # 境界jの項別公比法における項mの吸熱応答係数の第一項 , m2K/W, [j, 12]
-    phi_a1_js_ms = np.array([b['phi_a1'] for b in bs])
-
-    # 境界jの貫流応答係数の初項, [j, 1]
-    phi_t0_js = np.array([b['phi_t0'] for b in bs]).reshape(-1, 1)
-
-    # 境界jの項別公比法における項mの貫流応答係数の第一項, [j, 12]
-    phi_t1_js_ms = np.array([b['phi_t1'] for b in bs])
-
-    # 境界jの項別公比法における項mの公比, [j, 12]
-    r_js_ms = np.array([b['r'] for b in bs])
+    # 応答係数を取得する。
+    phi_a0_js, phi_a1_js_ms, phi_t0_js, phi_t1_js_ms, r_js_ms = _get_responsfactors(bs)
 
     # 境界jの室内側表面総合熱伝達率, W/m2K, [j, 1]
     # h_i_js_temporary = np.array([b['h_i'] for b in bs]).reshape(-1, 1)
@@ -666,4 +654,46 @@ def make_pre_calc_parameters(delta_t: float, data_directory: str) -> (PreCalcPar
     )
 
     return pre_calc_parameters, pre_calc_parameters_ground
+
+
+def _get_responsfactors(bs):
+
+    # 境界jの吸熱応答係数の初項, m2K/W, [j, 1]
+    phi_a0_js = []
+    # 境界jの項別公比法における項mの吸熱応答係数の第一項 , m2K/W, [j, 12]
+    phi_a1_js_ms = []
+    # 境界jの貫流応答係数の初項, [j, 1]
+    phi_t0_js = []
+    # 境界jの項別公比法における項mの貫流応答係数の第一項, [j, 12]
+    phi_t1_js_ms = []
+    # 境界jの項別公比法における項mの公比, [j, 12]
+    r_js_ms = []
+
+    for b in bs:
+        if "spec" in b:
+            phi_a0_js.append(b['spec']['phi_a0'])
+            phi_a1_js_ms.append(b['spec']['phi_a1'])
+            phi_t0_js.append(b['spec']['phi_t0'])
+            phi_t1_js_ms.append(b['spec']['phi_t1'])
+            r_js_ms.append(b['spec']['r'])
+        else:
+            phi_a0_js.append(b['phi_a0'])
+            phi_a1_js_ms.append(b['phi_a1'])
+            phi_t0_js.append(b['phi_t0'])
+            phi_t1_js_ms.append(b['phi_t1'])
+            r_js_ms.append(b['r'])
+
+    phi_a0_js = np.array(phi_a0_js).reshape(-1, 1)
+    phi_a1_js_ms = np.array(phi_a1_js_ms)
+    phi_t0_js = np.array(phi_t0_js).reshape(-1, 1)
+    phi_t1_js_ms = np.array(phi_t1_js_ms)
+    r_js_ms = np.array(r_js_ms)
+
+#    phi_a0_js = np.array([b['phi_a0'] for b in bs]).reshape(-1, 1)
+#    phi_a1_js_ms = np.array([b['phi_a1'] for b in bs])
+#    phi_t0_js = np.array([b['phi_t0'] for b in bs]).reshape(-1, 1)
+#    phi_t1_js_ms = np.array([b['phi_t1'] for b in bs])
+#    r_js_ms = np.array([b['r'] for b in bs])
+
+    return phi_a0_js, phi_a1_js_ms, phi_t0_js, phi_t1_js_ms, r_js_ms
 
