@@ -2,7 +2,7 @@ import numpy as np
 import math
 
 
-def get_infiltration(
+def get_infiltration_residential(
         c_value: float,
         v_room_is: np.ndarray,
         story: int,

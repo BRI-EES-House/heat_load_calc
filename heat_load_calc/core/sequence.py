@@ -92,7 +92,7 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
     x_hum_is_n = x_hum_psn_is_n * n_hum_is_n
 
     # ステップnの室iにおけるすきま風量, m3/s, [i, 1]
-    v_leak_is_n = infiltration.get_infiltration(
+    v_leak_is_n = infiltration.get_infiltration_residential(
         c_value=ss.c_value,
         v_room_is=ss.v_room_is,
         story=ss.story,
