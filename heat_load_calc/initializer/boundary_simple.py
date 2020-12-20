@@ -72,16 +72,6 @@ class BoundarySimple:
     # 透過日射熱取得, W, [8760*4]
     q_trs_sol: np.ndarray
 
-    # 応答係数法（項別公比法）における根の数
-    n_root: int
-
-    n_root: int
-    row: np.ndarray
-    rft0: float
-    rfa0: float
-    rft1: np.ndarray
-    rfa1: np.ndarray
-
 
 def get_boundary_simple(theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, a_sun_ns, h_sun_ns, b):
 
@@ -186,10 +176,6 @@ def get_boundary_simple(theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, a_sun_ns, h_sun_n
     tsr = transmission_solar_radiation.TransmissionSolarRadiation.create(d=b, solar_shading_part=solar_shading_part)
     q_trs_sol = tsr.get_qgt(a_sun_ns=a_sun_ns, h_sun_ns=h_sun_ns, i_dn_ns=i_dn_ns, i_sky_ns=i_sky_ns)
 
-    # 応答係数
-    rff = response_factor.ResponseFactorFactory.create(b)
-    rfs = rff.get_response_factors()
-
     return BoundarySimple(
         id=boundary_id,
         name=name,
@@ -207,12 +193,6 @@ def get_boundary_simple(theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, a_sun_ns, h_sun_n
         h_i=h_i,
         h_c=h_c,
         theta_o_sol=theta_o_sol,
-        q_trs_sol=q_trs_sol,
-        n_root=rfs.n_root,
-        row=rfs.row,
-        rfa0=rfs.rfa0,
-        rfa1=rfs.rfa1,
-        rft0=rfs.rft0,
-        rft1=rfs.rft1,
+        q_trs_sol=q_trs_sol
     )
 
