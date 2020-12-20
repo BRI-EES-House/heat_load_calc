@@ -686,11 +686,11 @@ def _make_boundaries(bss2: List[BoundarySimple], rooms: List[Dict], boundaries: 
             'is_ground': 'true' if bs.boundary_type == BoundaryType.Ground else 'false',
             'connected_space_id': bs.connected_room_id,
             'area': bs.area,
-            'phi_a0': bs.rfa0,
-            'phi_a1': list(bs.rfa1),
-            'phi_t0': bs.rft0,
-            'phi_t1': list(bs.rft1),
-            'r': list(bs.row),
+            # 'phi_a0': bs.rfa0,
+            # 'phi_a1': list(bs.rfa1),
+            # 'phi_t0': bs.rft0,
+            # 'phi_t1': list(bs.rft1),
+            # 'r': list(bs.row),
             'h_i': bs.h_i,
             'h_c': bs.h_c,
             'flr': flr_js[i],
@@ -708,11 +708,11 @@ def _get_boundary_spec(boundaries, bs) -> Dict:
     if bs.boundary_type in [BoundaryType.ExternalGeneralPart, BoundaryType.Internal]:
         return {
             'input': 'spec',
-            'phi_a0': bs.rfa0,
-            'phi_a1': list(bs.rfa1),
-            'phi_t0': bs.rft0,
-            'phi_t1': list(bs.rft1),
-            'r': list(bs.row),
+            # 'phi_a0': bs.rfa0,
+            # 'phi_a1': list(bs.rfa1),
+            # 'phi_t0': bs.rft0,
+            # 'phi_t1': list(bs.rft1),
+            # 'r': list(bs.row),
             'boundary_type': bs.boundary_type.value,
             'layers': boundaries['layers'],
             'outside_heat_transfer_resistance': boundaries['outside_heat_transfer_resistance']
@@ -720,11 +720,11 @@ def _get_boundary_spec(boundaries, bs) -> Dict:
     elif bs.boundary_type == BoundaryType.Ground:
         return {
             'input': 'spec',
-            'phi_a0': bs.rfa0,
-            'phi_a1': list(bs.rfa1),
-            'phi_t0': bs.rft0,
-            'phi_t1': list(bs.rft1),
-            'r': list(bs.row),
+            # 'phi_a0': bs.rfa0,
+            # 'phi_a1': list(bs.rfa1),
+            # 'phi_t0': bs.rft0,
+            # 'phi_t1': list(bs.rft1),
+            # 'r': list(bs.row),
             'boundary_type': bs.boundary_type.value,
             'layers': boundaries['layers']
         }
@@ -732,11 +732,11 @@ def _get_boundary_spec(boundaries, bs) -> Dict:
 
         return {
             'input': 'spec',
-            'phi_a0': bs.rfa0,
-            'phi_a1': list(bs.rfa1),
-            'phi_t0': bs.rft0,
-            'phi_t1': list(bs.rft1),
-            'r': list(bs.row),
+            # 'phi_a0': bs.rfa0,
+            # 'phi_a1': list(bs.rfa1),
+            # 'phi_t0': bs.rft0,
+            # 'phi_t1': list(bs.rft1),
+            # 'r': list(bs.row),
             'boundary_type': bs.boundary_type.value,
             'u_value': boundaries['u_value'],
             'inside_heat_transfer_resistance': boundaries['inside_heat_transfer_resistance']
