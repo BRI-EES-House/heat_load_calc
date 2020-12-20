@@ -106,7 +106,8 @@ def make_house(d, input_data_dir, output_data_dir):
         ) for b_dict in d['boundaries']
     ]
 
-    bss2 = building_part_summarize.integrate(bss=bss)
+    bss2 = bss
+    # bss2 = building_part_summarize.integrate(bss=bss)
 
     q_trs_sol_is_ns = np.array([
         np.sum(np.array([bs.q_trs_sol for bs in bss2 if bs.connected_room_id == i]), axis=0)
@@ -141,7 +142,7 @@ def make_house(d, input_data_dir, output_data_dir):
     # json 出力のうち、"spaces" に対応する辞書
     spaces = _make_spaces_dict(rooms=d['rooms'])
 
-    boundaries = _make_boundaries(bss2=bss2, rooms=d['rooms'])
+    boundaries = _make_boundaries(bss2=bss2, rooms=d['rooms'], boundaries=d['boundaries'])
 
     wd = {
         'building': building,
@@ -228,7 +229,7 @@ def make_house_for_test(d, input_data_dir, output_data_dir):
 
     spaces = _make_spaces_dict(rooms=d['rooms'])
 
-    boundaries = _make_boundaries(bss2=bss2, rooms=d['rooms'])
+    boundaries = _make_boundaries(bss2=bss2, rooms=d['rooms'], boundaries=d['boundaries'])
 
     wd = {
         'building': building,
@@ -620,7 +621,7 @@ def check_not_specifying_multi_room_type(room_type_is: List[RoomType], specified
         raise ValueError("室タイプ " + specified_type.value + " が複数回指定されました。")
 
 
-def _make_boundaries(bss2: List[BoundarySimple], rooms: List[Dict]):
+def _make_boundaries(bss2: List[BoundarySimple], rooms: List[Dict], boundaries: List[Dict]):
 
     # 室の数
     n_spaces = len(rooms)
@@ -673,6 +674,8 @@ def _make_boundaries(bss2: List[BoundarySimple], rooms: List[Dict]):
             is_floor_i_js=np.array([bs.is_floor for bs in np.array(bss2)[is_connected]])
         )
 
+    specs = [_get_boundary_spec(boundary, bs) for boundary, bs in zip(boundaries, bss2)]
+
     bdrs = []
 
     for i, bs in enumerate(bss2):
@@ -694,9 +697,52 @@ def _make_boundaries(bss2: List[BoundarySimple], rooms: List[Dict]):
             'is_solar_absorbed': str(bs.is_solar_absorbed_inside),
             'f_mrt_hum': f_mrt_hum_is[i],
             'k_outside': bs.h_td,
-            'k_inside': k_ei_js[i]
+            'k_inside': k_ei_js[i],
+            'spec': specs[i]
         })
     return bdrs
+
+
+def _get_boundary_spec(boundaries, bs) -> Dict:
+
+    if bs.boundary_type in [BoundaryType.ExternalGeneralPart, BoundaryType.Internal]:
+        return {
+            'input': 'spec',
+            'phi_a0': bs.rfa0,
+            'phi_a1': list(bs.rfa1),
+            'phi_t0': bs.rft0,
+            'phi_t1': list(bs.rft1),
+            'r': list(bs.row),
+            'boundary_type': bs.boundary_type.value,
+            'layers': boundaries['layers'],
+            'r_o': boundaries['outside_heat_transfer_resistance']
+        }
+    elif bs.boundary_type == BoundaryType.Ground:
+        return {
+            'input': 'spec',
+            'phi_a0': bs.rfa0,
+            'phi_a1': list(bs.rfa1),
+            'phi_t0': bs.rft0,
+            'phi_t1': list(bs.rft1),
+            'r': list(bs.row),
+            'boundary_type': bs.boundary_type.value,
+            'layers': boundaries['layers']
+        }
+    elif bs.boundary_type in [BoundaryType.ExternalTransparentPart, BoundaryType.ExternalOpaquePart]:
+
+        return {
+            'input': 'spec',
+            'phi_a0': bs.rfa0,
+            'phi_a1': list(bs.rfa1),
+            'phi_t0': bs.rft0,
+            'phi_t1': list(bs.rft1),
+            'r': list(bs.row),
+            'boundary_type': bs.boundary_type.value,
+            'u_value': boundaries['u_value'],
+            'r_i': boundaries['inside_heat_transfer_resistance']
+        }
+    else:
+        raise KeyError()
 
 
 def _get_v_int_vent_is(next_vents: List[List[Tuple]], n_rooms: int) -> np.ndarray:
