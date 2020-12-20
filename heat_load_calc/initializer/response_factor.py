@@ -310,31 +310,74 @@ class ResponseFactorFactory:
         pass
 
     @classmethod
-    def create(cls, d: Dict):
+    def create(cls, spec: Dict):
 
-        if d['boundary_type'] in ['external_general_part', 'internal', 'ground']:
+        if spec['method'] == 'response_factor':
 
-            layers = d['layers']
-
-            return ResponseFactorFactoryTransientEnvelope(
-                cs=[float(layer['thermal_capacity']) for layer in layers],
-                rs=[float(layer['thermal_resistance']) for layer in layers],
-                r_o=float(d['outside_heat_transfer_resistance'])
-            )
-
-        elif d['boundary_type'] in ['external_transparent_part', 'external_opaque_part']:
-
-            return ResponseFactorFactorySteady(
-                u_w=d['u_value'],
-                r_i=d['inside_heat_transfer_resistance']
+            return ResponseFactorFactoryDirect(
+                rft0=spec['phi_t0'],
+                rfa0=spec['phi_a0'],
+                rft1=spec['phi_t1'],
+                rfa1=spec['phi_a1'],
+                row=spec['r'],
+                n_root=len(spec['phi_t1'])
             )
 
         else:
-            raise KeyError()
+            if spec['boundary_type'] in ['external_general_part', 'internal']:
+
+                layers = spec['layers']
+
+                return ResponseFactorFactoryTransientEnvelope(
+                    cs=[float(layer['thermal_capacity']) for layer in layers],
+                    rs=[float(layer['thermal_resistance']) for layer in layers],
+                    r_o=float(spec['outside_heat_transfer_resistance'])
+                )
+
+            elif spec['boundary_type'] == 'ground':
+
+                layers = spec['layers']
+
+                return ResponseFactorFactoryTransientGround(
+                    cs=[float(layer['thermal_capacity']) for layer in layers],
+                    rs=[float(layer['thermal_resistance']) for layer in layers]
+                )
+
+            elif spec['boundary_type'] in ['external_transparent_part', 'external_opaque_part']:
+
+                return ResponseFactorFactorySteady(
+                    u_w=spec['u_value'],
+                    r_i=spec['inside_heat_transfer_resistance']
+                )
+
+            else:
+                raise KeyError()
 
     def get_response_factors(self) -> ResponseFactor:
 
         raise NotImplementedError()
+
+
+class ResponseFactorFactoryDirect(ResponseFactorFactory):
+
+    def __init__(self, rft0, rfa0, rft1, rfa1, row, n_root):
+        self._rft0 = rft0
+        self._rfa0 = rfa0
+        self._rft1 = rft1
+        self._rfa1 = rfa1
+        self._row = row
+        self._n_root = n_root
+
+    def get_response_factors(self) -> ResponseFactor:
+
+        return ResponseFactor(
+            rft0=self._rft0,
+            rfa0=self._rfa0,
+            rft1=self._rft1,
+            rfa1=self._rfa1,
+            row=self._row,
+            n_root=self._n_root
+        )
 
 
 class ResponseFactorFactoryTransientEnvelope(ResponseFactorFactory):

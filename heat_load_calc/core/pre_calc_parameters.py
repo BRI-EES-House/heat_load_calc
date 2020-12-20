@@ -9,6 +9,7 @@ from heat_load_calc.external.global_number import get_c_air, get_rho_air
 from heat_load_calc.core import shape_factor
 from heat_load_calc.core import occupants
 from heat_load_calc.core.operation_mode import OperationMode
+from heat_load_calc.initializer import response_factor
 
 
 @dataclass
@@ -337,20 +338,8 @@ def make_pre_calc_parameters(delta_t: float, data_directory: str) -> (PreCalcPar
     # 境界jの面積, m2, [j, 1]
     a_srf_js = np.array([b['area'] for b in bs]).reshape(-1, 1)
 
-    # 境界jの吸熱応答係数の初項, m2K/W, [j, 1]
-    phi_a0_js = np.array([b['phi_a0'] for b in bs]).reshape(-1, 1)
-
-    # 境界jの項別公比法における項mの吸熱応答係数の第一項 , m2K/W, [j, 12]
-    phi_a1_js_ms = np.array([b['phi_a1'] for b in bs])
-
-    # 境界jの貫流応答係数の初項, [j, 1]
-    phi_t0_js = np.array([b['phi_t0'] for b in bs]).reshape(-1, 1)
-
-    # 境界jの項別公比法における項mの貫流応答係数の第一項, [j, 12]
-    phi_t1_js_ms = np.array([b['phi_t1'] for b in bs])
-
-    # 境界jの項別公比法における項mの公比, [j, 12]
-    r_js_ms = np.array([b['r'] for b in bs])
+    # 応答係数を取得する。
+    phi_a0_js, phi_a1_js_ms, phi_t0_js, phi_t1_js_ms, r_js_ms = _get_responsfactors(bs)
 
     # 境界jの室内側表面総合熱伝達率, W/m2K, [j, 1]
     # h_i_js_temporary = np.array([b['h_i'] for b in bs]).reshape(-1, 1)
@@ -493,35 +482,11 @@ def make_pre_calc_parameters(delta_t: float, data_directory: str) -> (PreCalcPar
     # 平均放射温度計算時の各部位表面温度の重み, [i, j]
     f_mrt_is_js = shape_factor.get_f_mrt_is_js(a_srf_js=a_srf_js, h_r_js=h_r_js, p_is_js=p_is_js)
 
-    # この変数は入力を総合熱伝達率から対流熱伝達率に切り替える際に一時的に設けたもの。
-    # テストが通るようになり次第、この変数は削除し、対流熱伝達率指定になるように変更する。
-    # shitei = 'sougou'
-    shitei = 'tairyuu'
+    # 境界jの室内側表面総合熱伝達率, W/m2K, [j, 1]
+    h_c_js = np.array([b['h_c'] for b in bs]).reshape(-1, 1)
 
     # 境界jの室内側表面総合熱伝達率, W/m2K, [j, 1]
-    if shitei == 'tairyuu':
-        # 対流熱伝達率を指定する場合は、境界の中にキー 'h_c' として、対流熱伝達率を指定すること。
-        h_c_js_temporary = np.array([b['h_c'] for b in bs]).reshape(-1, 1)
-    else:
-        h_c_js_temporary = None
-
-    # 境界jの室内側表面対流熱伝達率, W/m2K, [j, 1]
-    if shitei == 'sougou':
-        # 総合熱伝達率で指定する場合は総合熱伝達率から放射熱伝達率をひいたものを対流熱伝達率とする。
-        h_c_js = np.clip(h_i_js_temporary - h_r_js, 0.0, None)
-    elif shitei == 'tairyuu':
-        h_c_js = h_c_js_temporary
-    else:
-        raise Exception
-
-    # 境界jの室内側表面総合熱伝達率, W/m2K, [j, 1]
-    if shitei == 'sougou':
-        h_i_js = h_i_js_temporary
-    elif shitei == 'tairyuu':
-        # 対流熱伝達率で指定する場合は対流熱伝達率と放射熱伝達率の合計を総合熱伝達率とする。
-        h_i_js = h_c_js + h_r_js
-    else:
-        raise Exception
+    h_i_js = h_c_js + h_r_js
 
     # ステップnの室iにおける機械換気量（全般換気量+局所換気量）, m3/s, [i, n]
     v_mec_vent_is_ns = v_vent_ex_is[:, np.newaxis] + v_mec_vent_local_is_ns
@@ -690,4 +655,55 @@ def make_pre_calc_parameters(delta_t: float, data_directory: str) -> (PreCalcPar
     )
 
     return pre_calc_parameters, pre_calc_parameters_ground
+
+
+def _get_responsfactors(bs):
+
+    # 境界jの吸熱応答係数の初項, m2K/W, [j, 1]
+    phi_a0_js = []
+    # 境界jの項別公比法における項mの吸熱応答係数の第一項 , m2K/W, [j, 12]
+    phi_a1_js_ms = []
+    # 境界jの貫流応答係数の初項, [j, 1]
+    phi_t0_js = []
+    # 境界jの項別公比法における項mの貫流応答係数の第一項, [j, 12]
+    phi_t1_js_ms = []
+    # 境界jの項別公比法における項mの公比, [j, 12]
+    r_js_ms = []
+
+    for b in bs:
+        rff = response_factor.ResponseFactorFactory.create(spec=b['spec'])
+        rf = rff.get_response_factors()
+        phi_a0_js.append(rf.rfa0)
+        phi_a1_js_ms.append(rf.rfa1)
+        phi_t0_js.append(rf.rft0)
+        phi_t1_js_ms.append(rf.rft1)
+        r_js_ms.append(rf.row)
+        # if b['spec']['method'] == 'response_factor':
+        #     phi_a0_js.append(b['spec']['phi_a0'])
+        #     phi_a1_js_ms.append(b['spec']['phi_a1'])
+        #     phi_t0_js.append(b['spec']['phi_t0'])
+        #     phi_t1_js_ms.append(b['spec']['phi_t1'])
+        #     r_js_ms.append(b['spec']['r'])
+        # else:
+        #     rff = response_factor.ResponseFactorFactory.create(spec=b['spec'])
+        #     rf = rff.get_response_factors()
+        #     phi_a0_js.append(rf.rfa0)
+        #     phi_a1_js_ms.append(rf.rfa1)
+        #     phi_t0_js.append(rf.rft0)
+        #     phi_t1_js_ms.append(rf.rft1)
+        #     r_js_ms.append(rf.row)
+
+    phi_a0_js = np.array(phi_a0_js).reshape(-1, 1)
+    phi_a1_js_ms = np.array(phi_a1_js_ms)
+    phi_t0_js = np.array(phi_t0_js).reshape(-1, 1)
+    phi_t1_js_ms = np.array(phi_t1_js_ms)
+    r_js_ms = np.array(r_js_ms)
+
+#    phi_a0_js = np.array([b['phi_a0'] for b in bs]).reshape(-1, 1)
+#    phi_a1_js_ms = np.array([b['phi_a1'] for b in bs])
+#    phi_t0_js = np.array([b['phi_t0'] for b in bs]).reshape(-1, 1)
+#    phi_t1_js_ms = np.array([b['phi_t1'] for b in bs])
+#    r_js_ms = np.array([b['r'] for b in bs])
+
+    return phi_a0_js, phi_a1_js_ms, phi_t0_js, phi_t1_js_ms, r_js_ms
 

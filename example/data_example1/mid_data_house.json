@@ -138,404 +138,217 @@
     "boundaries": [
         {
             "id": 0,
-            "name": "integrated_boundary0",
-            "sub_name": "north_exterior_wall",
+            "name": "north_exterior_wall",
+            "sub_name": "",
             "is_ground": "false",
             "connected_space_id": 0,
             "area": 4.9775,
-            "phi_a0": 0.07082379236222458,
-            "phi_a1": [
-                4.507057985882911e-05,
-                -0.0009266420480683227,
-                0.015710747070284452,
-                0.1371664403861094,
-                -0.11163144218064561,
-                0.09174099947400259,
-                -0.022630779908299824,
-                0.003388529711372593,
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
-            "phi_t0": 0.001598173949854509,
-            "phi_t1": [
-                4.014649140609802e-05,
-                -0.0008192243722720102,
-                0.013605804259968006,
-                0.1088867059986907,
-                -0.19238689071678203,
-                0.10296731413100914,
-                -0.022435410952413436,
-                0.0029186857277683836,
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
-            "r": [
-                0.9982016190284373,
-                0.99291521625209,
-                0.9723062034557024,
-                0.8950058718522789,
-                0.6452076990440302,
-                0.17714441059303657,
-                0.0010735761574841769,
-                1.869406715200079e-12,
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
             "h_i": 9.090909090909092,
+            "h_c": 2.5,
             "flr": 0.0,
             "is_solar_absorbed": "False",
             "f_mrt_hum": 0.027134347293875108,
             "k_outside": 1.0,
-            "k_inside": null
+            "k_inside": null,
+            "spec": {
+                "method": "layers",
+                "boundary_type": "external_general_part",
+                "layers": [
+                    {
+                        "name": "plaster_board",
+                        "thermal_resistance": 0.0432,
+                        "thermal_capacity": 7.885
+                    },
+                    {
+                        "name": "non-hermetic_air_layer",
+                        "thermal_resistance": 0.09,
+                        "thermal_capacity": 0.0
+                    },
+                    {
+                        "name": "glass_wool_10K",
+                        "thermal_resistance": 1.28,
+                        "thermal_capacity": 0.512
+                    },
+                    {
+                        "name": "plywood",
+                        "thermal_resistance": 0.075,
+                        "thermal_capacity": 8.64
+                    },
+                    {
+                        "name": "wood-wool_and_flake_boards",
+                        "thermal_resistance": 0.0882,
+                        "thermal_capacity": 25.1789
+                    }
+                ],
+                "outside_heat_transfer_resistance": 0.04
+            }
         },
         {
             "id": 1,
-            "name": "integrated_boundary1",
-            "sub_name": "north_exterior_door",
+            "name": "north_exterior_door",
+            "sub_name": "",
             "is_ground": "false",
             "connected_space_id": 0,
             "area": 1.62,
-            "phi_a0": 0.10505376344086019,
-            "phi_a1": [
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
-            "phi_t0": 1.0,
-            "phi_t1": [
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
-            "r": [
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
             "h_i": 9.090909090909092,
+            "h_c": 2.5,
             "flr": 0.0,
             "is_solar_absorbed": "False",
             "f_mrt_hum": 0.00883126923477201,
             "k_outside": 1.0,
-            "k_inside": null
+            "k_inside": null,
+            "spec": {
+                "method": "u_value",
+                "boundary_type": "external_opaque_part",
+                "u_value": 4.65,
+                "inside_heat_transfer_resistance": 0.11
+            }
         },
         {
             "id": 2,
-            "name": "integrated_boundary2",
-            "sub_name": "east_exterior_wall",
+            "name": "east_exterior_wall",
+            "sub_name": "",
             "is_ground": "false",
             "connected_space_id": 0,
             "area": 17.982,
-            "phi_a0": 0.07082379236222458,
-            "phi_a1": [
-                4.507057985882911e-05,
-                -0.0009266420480683226,
-                0.015710747070284452,
-                0.1371664403861094,
-                -0.11163144218064561,
-                0.09174099947400259,
-                -0.022630779908299824,
-                0.0033885297113725936,
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
-            "phi_t0": 0.0015981739498545089,
-            "phi_t1": [
-                4.014649140609802e-05,
-                -0.0008192243722720102,
-                0.013605804259968005,
-                0.1088867059986907,
-                -0.19238689071678203,
-                0.10296731413100914,
-                -0.022435410952413436,
-                0.0029186857277683836,
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
-            "r": [
-                0.9982016190284373,
-                0.99291521625209,
-                0.9723062034557024,
-                0.8950058718522789,
-                0.6452076990440302,
-                0.17714441059303657,
-                0.0010735761574841769,
-                1.869406715200079e-12,
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
             "h_i": 9.090909090909092,
+            "h_c": 2.5,
             "flr": 0.0,
             "is_solar_absorbed": "False",
             "f_mrt_hum": 0.09802708850596929,
             "k_outside": 1.0,
-            "k_inside": null
+            "k_inside": null,
+            "spec": {
+                "method": "layers",
+                "boundary_type": "external_general_part",
+                "layers": [
+                    {
+                        "name": "plaster_board",
+                        "thermal_resistance": 0.0432,
+                        "thermal_capacity": 7.885
+                    },
+                    {
+                        "name": "non-hermetic_air_layer",
+                        "thermal_resistance": 0.09,
+                        "thermal_capacity": 0.0
+                    },
+                    {
+                        "name": "glass_wool_10K",
+                        "thermal_resistance": 1.28,
+                        "thermal_capacity": 0.512
+                    },
+                    {
+                        "name": "plywood",
+                        "thermal_resistance": 0.075,
+                        "thermal_capacity": 8.64
+                    },
+                    {
+                        "name": "wood-wool_and_flake_boards",
+                        "thermal_resistance": 0.0882,
+                        "thermal_capacity": 25.1789
+                    }
+                ],
+                "outside_heat_transfer_resistance": 0.04
+            }
         },
         {
             "id": 3,
-            "name": "integrated_boundary3",
-            "sub_name": "east_exterior_window",
+            "name": "east_exterior_window",
+            "sub_name": "",
             "is_ground": "false",
             "connected_space_id": 0,
             "area": 3.13,
-            "phi_a0": 0.10505376344086019,
-            "phi_a1": [
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
-            "phi_t0": 1.0,
-            "phi_t1": [
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
-            "r": [
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
             "h_i": 9.090909090909092,
+            "h_c": 2.5,
             "flr": 0.0,
             "is_solar_absorbed": "False",
             "f_mrt_hum": 0.017062884385701475,
             "k_outside": 1.0,
-            "k_inside": null
+            "k_inside": null,
+            "spec": {
+                "method": "u_value",
+                "boundary_type": "external_transparent_part",
+                "u_value": 4.65,
+                "inside_heat_transfer_resistance": 0.11
+            }
         },
         {
             "id": 4,
-            "name": "integrated_boundary4",
-            "sub_name": "south_exterior_wall",
+            "name": "south_exterior_wall",
+            "sub_name": "",
             "is_ground": "false",
             "connected_space_id": 0,
             "area": 10.2135,
-            "phi_a0": 0.07082379236222458,
-            "phi_a1": [
-                4.507057985882911e-05,
-                -0.0009266420480683226,
-                0.015710747070284452,
-                0.1371664403861094,
-                -0.11163144218064561,
-                0.09174099947400259,
-                -0.022630779908299824,
-                0.003388529711372593,
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
-            "phi_t0": 0.0015981739498545089,
-            "phi_t1": [
-                4.014649140609802e-05,
-                -0.0008192243722720102,
-                0.013605804259968003,
-                0.1088867059986907,
-                -0.19238689071678203,
-                0.10296731413100914,
-                -0.022435410952413436,
-                0.0029186857277683836,
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
-            "r": [
-                0.9982016190284373,
-                0.99291521625209,
-                0.9723062034557024,
-                0.8950058718522789,
-                0.6452076990440302,
-                0.17714441059303657,
-                0.0010735761574841769,
-                1.869406715200079e-12,
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
             "h_i": 9.090909090909092,
+            "h_c": 2.5,
             "flr": 0.0,
             "is_solar_absorbed": "False",
             "f_mrt_hum": 0.05567788168478019,
             "k_outside": 1.0,
-            "k_inside": null
+            "k_inside": null,
+            "spec": {
+                "method": "layers",
+                "boundary_type": "external_general_part",
+                "layers": [
+                    {
+                        "name": "plaster_board",
+                        "thermal_resistance": 0.0432,
+                        "thermal_capacity": 7.885
+                    },
+                    {
+                        "name": "non-hermetic_air_layer",
+                        "thermal_resistance": 0.09,
+                        "thermal_capacity": 0.0
+                    },
+                    {
+                        "name": "glass_wool_10K",
+                        "thermal_resistance": 1.28,
+                        "thermal_capacity": 0.512
+                    },
+                    {
+                        "name": "plywood",
+                        "thermal_resistance": 0.075,
+                        "thermal_capacity": 8.64
+                    },
+                    {
+                        "name": "wood-wool_and_flake_boards",
+                        "thermal_resistance": 0.0882,
+                        "thermal_capacity": 25.1789
+                    }
+                ],
+                "outside_heat_transfer_resistance": 0.04
+            }
         },
         {
             "id": 5,
-            "name": "integrated_boundary5",
-            "sub_name": "south_exterior_window",
+            "name": "south_exterior_window",
+            "sub_name": "",
             "is_ground": "false",
             "connected_space_id": 0,
             "area": 6.94,
-            "phi_a0": 0.10505376344086019,
-            "phi_a1": [
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
-            "phi_t0": 1.0,
-            "phi_t1": [
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
-            "r": [
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
             "h_i": 9.090909090909092,
+            "h_c": 2.5,
             "flr": 0.0,
             "is_solar_absorbed": "False",
             "f_mrt_hum": 0.03783272128970231,
             "k_outside": 1.0,
-            "k_inside": null
+            "k_inside": null,
+            "spec": {
+                "method": "u_value",
+                "boundary_type": "external_transparent_part",
+                "u_value": 4.65,
+                "inside_heat_transfer_resistance": 0.11
+            }
         },
         {
             "id": 6,
-            "name": "integrated_boundary6",
-            "sub_name": "exterior_floor",
+            "name": "exterior_floor",
+            "sub_name": "",
             "is_ground": "false",
             "connected_space_id": 0,
             "area": 29.81,
-            "phi_a0": 0.07611802817330339,
-            "phi_a1": [
-                4.0390062719694785e-05,
-                -0.0008275000163776864,
-                0.013810098660956747,
-                0.12963762533935966,
-                -0.10469329315318507,
-                0.08325520463210773,
-                -0.019479807043664806,
-                0.0032438469176248688,
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
-            "phi_t0": 0.019776877594807618,
-            "phi_t1": [
-                2.7794752880020197e-05,
-                -0.0005695310997039484,
-                0.00950799982442966,
-                0.08932745216819778,
-                -0.07232770435909913,
-                0.05827001556211491,
-                -0.018012504380072257,
-                0.002121182311884195,
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
-            "r": [
-                0.9982016190284373,
-                0.99291521625209,
-                0.9723062034557024,
-                0.8950058718522789,
-                0.6452076990440302,
-                0.17714441059303657,
-                0.0010735761574841769,
-                1.869406715200079e-12,
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
             "h_i": 6.666666666666667,
+            "h_c": 0.7,
             "flr": 0.0,
             "is_solar_absorbed": "True",
             "f_mrt_hum": 0.45,
@@ -543,1486 +356,1610 @@
             "k_inside": {
                 "id": 6,
                 "coef": 0.3
+            },
+            "spec": {
+                "method": "layers",
+                "boundary_type": "external_general_part",
+                "layers": [
+                    {
+                        "name": "plywood",
+                        "thermal_resistance": 0.075,
+                        "thermal_capacity": 8.64
+                    },
+                    {
+                        "name": "glass_wool_10K",
+                        "thermal_resistance": 1.28,
+                        "thermal_capacity": 0.512
+                    }
+                ],
+                "outside_heat_transfer_resistance": 0.15
             }
         },
         {
             "id": 7,
-            "name": "integrated_boundary7",
-            "sub_name": "exterior_ceiling",
+            "name": "exterior_ceiling",
+            "sub_name": "",
             "is_ground": "false",
             "connected_space_id": 0,
             "area": 4.14,
-            "phi_a0": 0.06985742760119118,
-            "phi_a1": [
-                3.4696261624602585e-05,
-                -0.0008394905109872877,
-                0.09398815831920576,
-                0.028388726585864162,
-                -0.04337779349785122,
-                0.040231224591508165,
-                -0.010042369965842745,
-                0.0017467124720621458,
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
-            "phi_t0": 0.001834139039679994,
-            "phi_t1": [
-                1.0138844564923634e-05,
-                -0.000245100119292273,
-                0.027383946153188673,
-                0.008224749727000023,
-                -0.012288633600430232,
-                -0.0032377790522766774,
-                -0.001795518878874575,
-                0.0003448850932034442,
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
-            "r": [
-                0.9982016190284373,
-                0.99291521625209,
-                0.9723062034557024,
-                0.8950058718522789,
-                0.6452076990440302,
-                0.17714441059303657,
-                0.0010735761574841769,
-                1.869406715200079e-12,
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
             "h_i": 11.11111111111111,
+            "h_c": 5.0,
             "flr": 0.0,
             "is_solar_absorbed": "False",
             "f_mrt_hum": 0.022568799155528466,
             "k_outside": 1.0,
-            "k_inside": null
+            "k_inside": null,
+            "spec": {
+                "method": "layers",
+                "boundary_type": "external_general_part",
+                "layers": [
+                    {
+                        "name": "plaster_board",
+                        "thermal_resistance": 0.0432,
+                        "thermal_capacity": 7.885
+                    },
+                    {
+                        "name": "glass_wool_10K",
+                        "thermal_resistance": 3.42,
+                        "thermal_capacity": 1.368
+                    }
+                ],
+                "outside_heat_transfer_resistance": 0.09
+            }
         },
         {
             "id": 8,
-            "name": "integrated_boundary8",
-            "sub_name": "internal_wall_non_occupant",
+            "name": "internal_wall_non_occupant",
+            "sub_name": "",
             "is_ground": "false",
             "connected_space_id": 0,
             "area": 21.6125,
-            "phi_a0": 0.05708723411022115,
-            "phi_a1": [
-                -4.906543303229977e-06,
-                9.043583185121112e-05,
-                -0.0010250963313425403,
-                0.013882597098025043,
-                0.06003070288750628,
-                -0.019635820391615044,
-                0.006241734730129093,
-                -0.00031593413994914296,
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
-            "phi_t0": 0.025112894604072622,
-            "phi_t1": [
-                -2.0755487161104307e-05,
-                0.00038311211217543963,
-                -0.004356975285015178,
-                0.05948696515147987,
-                0.26418001491646403,
-                -0.20006027909102528,
-                0.02436623417213383,
-                -0.002762331212247608,
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
-            "r": [
-                0.9982016190284373,
-                0.99291521625209,
-                0.9723062034557024,
-                0.8950058718522789,
-                0.6452076990440302,
-                0.17714441059303657,
-                0.0010735761574841769,
-                1.869406715200079e-12,
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
             "h_i": 9.090909090909092,
+            "h_c": 2.5,
             "flr": 0.0,
             "is_solar_absorbed": "False",
             "f_mrt_hum": 0.11781839897315434,
             "k_outside": 0.0,
             "k_inside": {
-                "id": 30,
+                "id": 45,
                 "coef": 1.0
+            },
+            "spec": {
+                "method": "layers",
+                "boundary_type": "internal",
+                "layers": [
+                    {
+                        "name": "plaster_board",
+                        "thermal_resistance": 0.0568,
+                        "thermal_capacity": 10.375
+                    },
+                    {
+                        "name": "non-hermetic_air_layer",
+                        "thermal_resistance": 0.09,
+                        "thermal_capacity": 0.0
+                    },
+                    {
+                        "name": "plaster_board",
+                        "thermal_resistance": 0.0568,
+                        "thermal_capacity": 10.375
+                    }
+                ],
+                "outside_heat_transfer_resistance": 0.11
             }
         },
         {
             "id": 9,
-            "name": "integrated_boundary9",
-            "sub_name": "internal_ceiling_other_occupant+internal_ceiling_other_occupant",
+            "name": "internal_ceiling_other_occupant",
+            "sub_name": "",
             "is_ground": "false",
             "connected_space_id": 0,
-            "area": 21.54,
-            "phi_a0": 0.05674975703692552,
-            "phi_a1": [
-                -6.057981576926658e-06,
-                0.00011260219712751908,
-                -0.0013085841836413994,
-                0.020469662146597557,
-                0.05502330353950169,
-                -0.0222035699637723,
-                0.007134861610183615,
-                -0.0004278162777644412,
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
-            "phi_t0": 0.023708485297162966,
-            "phi_t1": [
-                -2.106605538809289e-05,
-                0.00039280577741153286,
-                -0.004597934942903052,
-                0.07319494604294587,
-                0.207847878011668,
-                -0.16628677537262732,
-                0.02001566758261053,
-                -0.00232616679102087,
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
-            "r": [
-                0.9982016190284373,
-                0.99291521625209,
-                0.9723062034557024,
-                0.8950058718522789,
-                0.6452076990440302,
-                0.17714441059303657,
-                0.0010735761574841769,
-                1.869406715200079e-12,
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
+            "area": 10.77,
             "h_i": 11.11111111111111,
+            "h_c": 5.0,
             "flr": 0.0,
             "is_solar_absorbed": "False",
-            "f_mrt_hum": 0.11742317241789449,
+            "f_mrt_hum": 0.058711586208947245,
             "k_outside": 0.0,
             "k_inside": {
-                "id": 17,
+                "id": 22,
                 "coef": 1.0
+            },
+            "spec": {
+                "method": "layers",
+                "boundary_type": "internal",
+                "layers": [
+                    {
+                        "name": "plaster_board",
+                        "thermal_resistance": 0.0568,
+                        "thermal_capacity": 10.375
+                    },
+                    {
+                        "name": "non-hermetic_air_layer",
+                        "thermal_resistance": 0.07,
+                        "thermal_capacity": 0.0
+                    },
+                    {
+                        "name": "plywood",
+                        "thermal_resistance": 0.075,
+                        "thermal_capacity": 8.64
+                    }
+                ],
+                "outside_heat_transfer_resistance": 0.15
             }
         },
         {
             "id": 10,
-            "name": "integrated_boundary10",
-            "sub_name": "internal_wall_other_occupant",
+            "name": "internal_ceiling_other_occupant",
+            "sub_name": "",
+            "is_ground": "false",
+            "connected_space_id": 0,
+            "area": 10.77,
+            "h_i": 11.11111111111111,
+            "h_c": 5.0,
+            "flr": 0.0,
+            "is_solar_absorbed": "False",
+            "f_mrt_hum": 0.058711586208947245,
+            "k_outside": 0.0,
+            "k_inside": {
+                "id": 29,
+                "coef": 1.0
+            },
+            "spec": {
+                "method": "layers",
+                "boundary_type": "internal",
+                "layers": [
+                    {
+                        "name": "plaster_board",
+                        "thermal_resistance": 0.0568,
+                        "thermal_capacity": 10.375
+                    },
+                    {
+                        "name": "non-hermetic_air_layer",
+                        "thermal_resistance": 0.07,
+                        "thermal_capacity": 0.0
+                    },
+                    {
+                        "name": "plywood",
+                        "thermal_resistance": 0.075,
+                        "thermal_capacity": 8.64
+                    }
+                ],
+                "outside_heat_transfer_resistance": 0.15
+            }
+        },
+        {
+            "id": 11,
+            "name": "internal_wall_other_occupant",
+            "sub_name": "",
             "is_ground": "false",
             "connected_space_id": 0,
             "area": 8.736,
-            "phi_a0": 0.05708723411022115,
-            "phi_a1": [
-                -4.906543303229977e-06,
-                9.043583185121112e-05,
-                -0.0010250963313425403,
-                0.013882597098025041,
-                0.06003070288750628,
-                -0.019635820391615044,
-                0.006241734730129093,
-                -0.00031593413994914296,
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
-            "phi_t0": 0.025112894604072622,
-            "phi_t1": [
-                -2.0755487161104307e-05,
-                0.0003831121121754396,
-                -0.004356975285015178,
-                0.05948696515147986,
-                0.26418001491646403,
-                -0.20006027909102528,
-                0.02436623417213383,
-                -0.002762331212247608,
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
-            "r": [
-                0.9982016190284373,
-                0.99291521625209,
-                0.9723062034557024,
-                0.8950058718522789,
-                0.6452076990440302,
-                0.17714441059303657,
-                0.0010735761574841769,
-                1.869406715200079e-12,
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
             "h_i": 9.090909090909092,
+            "h_c": 2.5,
             "flr": 0.0,
             "is_solar_absorbed": "False",
             "f_mrt_hum": 0.04762343705862239,
             "k_outside": 0.0,
             "k_inside": {
-                "id": 22,
+                "id": 37,
                 "coef": 1.0
+            },
+            "spec": {
+                "method": "layers",
+                "boundary_type": "internal",
+                "layers": [
+                    {
+                        "name": "plaster_board",
+                        "thermal_resistance": 0.0568,
+                        "thermal_capacity": 10.375
+                    },
+                    {
+                        "name": "non-hermetic_air_layer",
+                        "thermal_resistance": 0.09,
+                        "thermal_capacity": 0.0
+                    },
+                    {
+                        "name": "plaster_board",
+                        "thermal_resistance": 0.0568,
+                        "thermal_capacity": 10.375
+                    }
+                ],
+                "outside_heat_transfer_resistance": 0.11
             }
         },
         {
-            "id": 11,
-            "name": "integrated_boundary11",
-            "sub_name": "south_exterior_wall+south_exterior_wall+south_exterior_wall+south_exterior_wall",
-            "is_ground": "false",
-            "connected_space_id": 1,
-            "area": 26.233500000000003,
-            "phi_a0": 0.07082379236222458,
-            "phi_a1": [
-                4.5070579858829105e-05,
-                -0.0009266420480683225,
-                0.015710747070284452,
-                0.13716644038610937,
-                -0.1116314421806456,
-                0.09174099947400259,
-                -0.022630779908299828,
-                0.0033885297113725936,
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
-            "phi_t0": 0.0015981739498545087,
-            "phi_t1": [
-                4.0146491406098015e-05,
-                -0.0008192243722720101,
-                0.013605804259968005,
-                0.10888670599869069,
-                -0.19238689071678203,
-                0.10296731413100914,
-                -0.022435410952413432,
-                0.002918685727768383,
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
-            "r": [
-                0.9982016190284373,
-                0.99291521625209,
-                0.9723062034557024,
-                0.8950058718522789,
-                0.6452076990440302,
-                0.17714441059303657,
-                0.0010735761574841769,
-                1.869406715200079e-12,
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
-            "h_i": 9.090909090909092,
-            "flr": 0.0,
-            "is_solar_absorbed": "False",
-            "f_mrt_hum": 0.09596653774397484,
-            "k_outside": 1.0,
-            "k_inside": null
-        },
-        {
             "id": 12,
-            "name": "integrated_boundary12",
-            "sub_name": "south_exterior_window+south_exterior_window+south_exterior_window+south_exterior_window",
+            "name": "south_exterior_wall",
+            "sub_name": "",
             "is_ground": "false",
             "connected_space_id": 1,
-            "area": 12.76,
-            "phi_a0": 0.1050537634408602,
-            "phi_a1": [
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
-            "phi_t0": 1.0,
-            "phi_t1": [
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
-            "r": [
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
+            "area": 8.098,
             "h_i": 9.090909090909092,
+            "h_c": 2.5,
             "flr": 0.0,
             "is_solar_absorbed": "False",
-            "f_mrt_hum": 0.04667821760775798,
+            "f_mrt_hum": 0.029623840610315373,
             "k_outside": 1.0,
-            "k_inside": null
+            "k_inside": null,
+            "spec": {
+                "method": "layers",
+                "boundary_type": "external_general_part",
+                "layers": [
+                    {
+                        "name": "plaster_board",
+                        "thermal_resistance": 0.0432,
+                        "thermal_capacity": 7.885
+                    },
+                    {
+                        "name": "non-hermetic_air_layer",
+                        "thermal_resistance": 0.09,
+                        "thermal_capacity": 0.0
+                    },
+                    {
+                        "name": "glass_wool_10K",
+                        "thermal_resistance": 1.28,
+                        "thermal_capacity": 0.512
+                    },
+                    {
+                        "name": "plywood",
+                        "thermal_resistance": 0.075,
+                        "thermal_capacity": 8.64
+                    },
+                    {
+                        "name": "wood-wool_and_flake_boards",
+                        "thermal_resistance": 0.0882,
+                        "thermal_capacity": 25.1789
+                    }
+                ],
+                "outside_heat_transfer_resistance": 0.04
+            }
         },
         {
             "id": 13,
-            "name": "integrated_boundary13",
-            "sub_name": "west_exterior_wall+west_exterior_wall",
+            "name": "south_exterior_window",
+            "sub_name": "",
             "is_ground": "false",
             "connected_space_id": 1,
-            "area": 19.394,
-            "phi_a0": 0.07082379236222458,
-            "phi_a1": [
-                4.507057985882911e-05,
-                -0.0009266420480683226,
-                0.015710747070284452,
-                0.1371664403861094,
-                -0.11163144218064561,
-                0.09174099947400259,
-                -0.022630779908299824,
-                0.003388529711372594,
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
-            "phi_t0": 0.0015981739498545089,
-            "phi_t1": [
-                4.014649140609802e-05,
-                -0.0008192243722720102,
-                0.013605804259968006,
-                0.1088867059986907,
-                -0.19238689071678203,
-                0.10296731413100914,
-                -0.022435410952413436,
-                0.002918685727768383,
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
-            "r": [
-                0.9982016190284373,
-                0.99291521625209,
-                0.9723062034557024,
-                0.8950058718522789,
-                0.6452076990440302,
-                0.17714441059303657,
-                0.0010735761574841769,
-                1.869406715200079e-12,
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
+            "area": 1.73,
             "h_i": 9.090909090909092,
+            "h_c": 2.5,
             "flr": 0.0,
             "is_solar_absorbed": "False",
-            "f_mrt_hum": 0.07094650096276317,
+            "f_mrt_hum": 0.006328629816725807,
             "k_outside": 1.0,
-            "k_inside": null
+            "k_inside": null,
+            "spec": {
+                "method": "u_value",
+                "boundary_type": "external_transparent_part",
+                "u_value": 4.65,
+                "inside_heat_transfer_resistance": 0.11
+            }
         },
         {
             "id": 14,
-            "name": "integrated_boundary14",
-            "sub_name": "west_exterior_window",
+            "name": "west_exterior_wall",
+            "sub_name": "",
+            "is_ground": "false",
+            "connected_space_id": 1,
+            "area": 8.838,
+            "h_i": 9.090909090909092,
+            "h_c": 2.5,
+            "flr": 0.0,
+            "is_solar_absorbed": "False",
+            "f_mrt_hum": 0.032330884578163396,
+            "k_outside": 1.0,
+            "k_inside": null,
+            "spec": {
+                "method": "layers",
+                "boundary_type": "external_general_part",
+                "layers": [
+                    {
+                        "name": "plaster_board",
+                        "thermal_resistance": 0.0432,
+                        "thermal_capacity": 7.885
+                    },
+                    {
+                        "name": "non-hermetic_air_layer",
+                        "thermal_resistance": 0.09,
+                        "thermal_capacity": 0.0
+                    },
+                    {
+                        "name": "glass_wool_10K",
+                        "thermal_resistance": 1.28,
+                        "thermal_capacity": 0.512
+                    },
+                    {
+                        "name": "plywood",
+                        "thermal_resistance": 0.075,
+                        "thermal_capacity": 8.64
+                    },
+                    {
+                        "name": "wood-wool_and_flake_boards",
+                        "thermal_resistance": 0.0882,
+                        "thermal_capacity": 25.1789
+                    }
+                ],
+                "outside_heat_transfer_resistance": 0.04
+            }
+        },
+        {
+            "id": 15,
+            "name": "west_exterior_window",
+            "sub_name": "",
             "is_ground": "false",
             "connected_space_id": 1,
             "area": 0.99,
-            "phi_a0": 0.10505376344086019,
-            "phi_a1": [
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
-            "phi_t0": 1.0,
-            "phi_t1": [
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
-            "r": [
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
             "h_i": 9.090909090909092,
+            "h_c": 2.5,
             "flr": 0.0,
             "is_solar_absorbed": "False",
             "f_mrt_hum": 0.003621585848877774,
             "k_outside": 1.0,
-            "k_inside": null
-        },
-        {
-            "id": 15,
-            "name": "integrated_boundary15",
-            "sub_name": "exterior_ceiling+exterior_ceiling+exterior_ceiling+exterior_ceiling",
-            "is_ground": "false",
-            "connected_space_id": 1,
-            "area": 38.1,
-            "phi_a0": 0.06985742760119118,
-            "phi_a1": [
-                3.4696261624602585e-05,
-                -0.0008394905109872877,
-                0.09398815831920576,
-                0.028388726585864162,
-                -0.04337779349785122,
-                0.040231224591508165,
-                -0.010042369965842743,
-                0.0017467124720621455,
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
-            "phi_t0": 0.001834139039679994,
-            "phi_t1": [
-                1.0138844564923634e-05,
-                -0.00024510011929227294,
-                0.02738394615318867,
-                0.008224749727000021,
-                -0.012288633600430234,
-                -0.0032377790522766774,
-                -0.001795518878874575,
-                0.00034488509320344416,
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
-            "r": [
-                0.9982016190284373,
-                0.99291521625209,
-                0.9723062034557024,
-                0.8950058718522789,
-                0.6452076990440302,
-                0.17714441059303657,
-                0.0010735761574841769,
-                1.869406715200079e-12,
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
-            "h_i": 11.11111111111111,
-            "flr": 0.0,
-            "is_solar_absorbed": "False",
-            "f_mrt_hum": 0.1393761826689325,
-            "k_outside": 1.0,
-            "k_inside": null
+            "k_inside": null,
+            "spec": {
+                "method": "u_value",
+                "boundary_type": "external_transparent_part",
+                "u_value": 4.65,
+                "inside_heat_transfer_resistance": 0.11
+            }
         },
         {
             "id": 16,
-            "name": "integrated_boundary16",
-            "sub_name": "internal_wall_non_occupant+internal_wall_non_occupant+internal_wall_non_occupant+internal_wall_non_occupant",
+            "name": "exterior_ceiling",
+            "sub_name": "",
             "is_ground": "false",
             "connected_space_id": 1,
-            "area": 31.668,
-            "phi_a0": 0.05708723411022115,
-            "phi_a1": [
-                -4.906543303229977e-06,
-                9.043583185121113e-05,
-                -0.0010250963313425405,
-                0.013882597098025041,
-                0.06003070288750628,
-                -0.019635820391615044,
-                0.006241734730129093,
-                -0.00031593413994914296,
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
-            "phi_t0": 0.025112894604072622,
-            "phi_t1": [
-                -2.0755487161104307e-05,
-                0.0003831121121754396,
-                -0.004356975285015178,
-                0.05948696515147987,
-                0.2641800149164641,
-                -0.20006027909102528,
-                0.02436623417213383,
-                -0.0027623312122476086,
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
-            "r": [
-                0.9982016190284373,
-                0.99291521625209,
-                0.9723062034557024,
-                0.8950058718522789,
-                0.6452076990440302,
-                0.17714441059303657,
-                0.0010735761574841769,
-                1.869406715200079e-12,
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
-            "h_i": 9.090909090909092,
+            "area": 13.25,
+            "h_i": 11.11111111111111,
+            "h_c": 5.0,
             "flr": 0.0,
             "is_solar_absorbed": "False",
-            "f_mrt_hum": 0.11584684915379935,
-            "k_outside": 0.0,
-            "k_inside": {
-                "id": 31,
-                "coef": 1.0
+            "f_mrt_hum": 0.04847071969457627,
+            "k_outside": 1.0,
+            "k_inside": null,
+            "spec": {
+                "method": "layers",
+                "boundary_type": "external_general_part",
+                "layers": [
+                    {
+                        "name": "plaster_board",
+                        "thermal_resistance": 0.0432,
+                        "thermal_capacity": 7.885
+                    },
+                    {
+                        "name": "glass_wool_10K",
+                        "thermal_resistance": 3.42,
+                        "thermal_capacity": 1.368
+                    }
+                ],
+                "outside_heat_transfer_resistance": 0.09
             }
         },
         {
             "id": 17,
-            "name": "integrated_boundary17",
-            "sub_name": "internal_floor_main_occupant+internal_floor_main_occupant",
-            "is_ground": "false",
-            "connected_space_id": 1,
-            "area": 21.54,
-            "phi_a0": 0.06983445745431302,
-            "phi_a1": [
-                -2.777158495711344e-06,
-                5.0436555713489605e-05,
-                -0.0005488914972048149,
-                0.006195014235437824,
-                0.0655143948703596,
-                -0.010295307643047459,
-                0.005082320574505144,
-                -2.4346500763203924e-05,
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
-            "phi_t0": 0.037946587722005876,
-            "phi_t1": [
-                -1.2217403103989623e-05,
-                0.00022345406968810925,
-                -0.00247098426638102,
-                0.028981419866454486,
-                0.34450620894083506,
-                -0.19121729491735642,
-                0.013190018673290508,
-                -0.0013265552428262104,
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
-            "r": [
-                0.9982016190284373,
-                0.99291521625209,
-                0.9723062034557024,
-                0.8950058718522789,
-                0.6452076990440302,
-                0.17714441059303657,
-                0.0010735761574841769,
-                1.869406715200079e-12,
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
-            "h_i": 6.666666666666667,
-            "flr": 0.0,
-            "is_solar_absorbed": "True",
-            "f_mrt_hum": 0.25440944881889765,
-            "k_outside": 0.0,
-            "k_inside": {
-                "id": 9,
-                "coef": 1.0
-            }
-        },
-        {
-            "id": 18,
-            "name": "integrated_boundary18",
-            "sub_name": "east_exterior_wall",
-            "is_ground": "false",
-            "connected_space_id": 1,
-            "area": 9.168,
-            "phi_a0": 0.07082379236222458,
-            "phi_a1": [
-                4.507057985882911e-05,
-                -0.0009266420480683227,
-                0.015710747070284452,
-                0.1371664403861094,
-                -0.11163144218064561,
-                0.09174099947400259,
-                -0.022630779908299824,
-                0.0033885297113725936,
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
-            "phi_t0": 0.0015981739498545089,
-            "phi_t1": [
-                4.014649140609802e-05,
-                -0.0008192243722720102,
-                0.013605804259968005,
-                0.1088867059986907,
-                -0.19238689071678203,
-                0.10296731413100914,
-                -0.022435410952413436,
-                0.0029186857277683836,
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
-            "r": [
-                0.9982016190284373,
-                0.99291521625209,
-                0.9723062034557024,
-                0.8950058718522789,
-                0.6452076990440302,
-                0.17714441059303657,
-                0.0010735761574841769,
-                1.869406715200079e-12,
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
-            "h_i": 9.090909090909092,
-            "flr": 0.0,
-            "is_solar_absorbed": "False",
-            "f_mrt_hum": 0.03353807986112266,
-            "k_outside": 1.0,
-            "k_inside": null
-        },
-        {
-            "id": 19,
-            "name": "integrated_boundary19",
-            "sub_name": "east_exterior_window",
-            "is_ground": "false",
-            "connected_space_id": 1,
-            "area": 0.66,
-            "phi_a0": 0.10505376344086019,
-            "phi_a1": [
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
-            "phi_t0": 1.0,
-            "phi_t1": [
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
-            "r": [
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
-            "h_i": 9.090909090909092,
-            "flr": 0.0,
-            "is_solar_absorbed": "False",
-            "f_mrt_hum": 0.0024143905659185162,
-            "k_outside": 1.0,
-            "k_inside": null
-        },
-        {
-            "id": 20,
-            "name": "integrated_boundary20",
-            "sub_name": "north_exterior_wall",
-            "is_ground": "false",
-            "connected_space_id": 1,
-            "area": 2.639,
-            "phi_a0": 0.07082379236222458,
-            "phi_a1": [
-                4.507057985882911e-05,
-                -0.0009266420480683226,
-                0.015710747070284452,
-                0.1371664403861094,
-                -0.11163144218064561,
-                0.09174099947400259,
-                -0.022630779908299824,
-                0.0033885297113725936,
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
-            "phi_t0": 0.0015981739498545089,
-            "phi_t1": [
-                4.014649140609802e-05,
-                -0.0008192243722720102,
-                0.013605804259968005,
-                0.10888670599869071,
-                -0.19238689071678203,
-                0.10296731413100914,
-                -0.022435410952413436,
-                0.0029186857277683836,
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
-            "r": [
-                0.9982016190284373,
-                0.99291521625209,
-                0.9723062034557024,
-                0.8950058718522789,
-                0.6452076990440302,
-                0.17714441059303657,
-                0.0010735761574841769,
-                1.869406715200079e-12,
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
-            "h_i": 9.090909090909092,
-            "flr": 0.0,
-            "is_solar_absorbed": "False",
-            "f_mrt_hum": 0.009653904096149945,
-            "k_outside": 1.0,
-            "k_inside": null
-        },
-        {
-            "id": 21,
-            "name": "integrated_boundary21",
-            "sub_name": "exterior_floor",
-            "is_ground": "false",
-            "connected_space_id": 1,
-            "area": 16.56,
-            "phi_a0": 0.07611802817330338,
-            "phi_a1": [
-                4.0390062719694785e-05,
-                -0.0008275000163776865,
-                0.013810098660956747,
-                0.12963762533935966,
-                -0.10469329315318507,
-                0.08325520463210773,
-                -0.019479807043664806,
-                0.0032438469176248688,
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
-            "phi_t0": 0.019776877594807618,
-            "phi_t1": [
-                2.7794752880020197e-05,
-                -0.0005695310997039484,
-                0.00950799982442966,
-                0.08932745216819779,
-                -0.07232770435909913,
-                0.05827001556211491,
-                -0.018012504380072257,
-                0.002121182311884195,
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
-            "r": [
-                0.9982016190284373,
-                0.99291521625209,
-                0.9723062034557024,
-                0.8950058718522789,
-                0.6452076990440302,
-                0.17714441059303657,
-                0.0010735761574841769,
-                1.869406715200079e-12,
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
-            "h_i": 6.666666666666667,
-            "flr": 0.0,
-            "is_solar_absorbed": "True",
-            "f_mrt_hum": 0.19559055118110238,
-            "k_outside": 0.7,
-            "k_inside": {
-                "id": 21,
-                "coef": 0.3
-            }
-        },
-        {
-            "id": 22,
-            "name": "integrated_boundary22",
-            "sub_name": "internal_wall_main_occupant",
+            "name": "internal_wall_non_occupant",
+            "sub_name": "",
             "is_ground": "false",
             "connected_space_id": 1,
             "area": 8.736,
-            "phi_a0": 0.05708723411022115,
-            "phi_a1": [
-                -4.906543303229977e-06,
-                9.043583185121112e-05,
-                -0.0010250963313425403,
-                0.013882597098025041,
-                0.06003070288750628,
-                -0.019635820391615044,
-                0.006241734730129093,
-                -0.00031593413994914296,
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
-            "phi_t0": 0.025112894604072622,
-            "phi_t1": [
-                -2.0755487161104307e-05,
-                0.0003831121121754396,
-                -0.004356975285015178,
-                0.05948696515147986,
-                0.26418001491646403,
-                -0.20006027909102528,
-                0.02436623417213383,
-                -0.002762331212247608,
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
-            "r": [
-                0.9982016190284373,
-                0.99291521625209,
-                0.9723062034557024,
-                0.8950058718522789,
-                0.6452076990440302,
-                0.17714441059303657,
-                0.0010735761574841769,
-                1.869406715200079e-12,
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
             "h_i": 9.090909090909092,
+            "h_c": 2.5,
             "flr": 0.0,
             "is_solar_absorbed": "False",
             "f_mrt_hum": 0.03195775149070327,
             "k_outside": 0.0,
             "k_inside": {
-                "id": 10,
+                "id": 49,
                 "coef": 1.0
+            },
+            "spec": {
+                "method": "layers",
+                "boundary_type": "internal",
+                "layers": [
+                    {
+                        "name": "plaster_board",
+                        "thermal_resistance": 0.0568,
+                        "thermal_capacity": 10.375
+                    },
+                    {
+                        "name": "non-hermetic_air_layer",
+                        "thermal_resistance": 0.09,
+                        "thermal_capacity": 0.0
+                    },
+                    {
+                        "name": "plaster_board",
+                        "thermal_resistance": 0.0568,
+                        "thermal_capacity": 10.375
+                    }
+                ],
+                "outside_heat_transfer_resistance": 0.11
+            }
+        },
+        {
+            "id": 18,
+            "name": "south_exterior_wall",
+            "sub_name": "",
+            "is_ground": "false",
+            "connected_space_id": 1,
+            "area": 4.76525,
+            "h_i": 9.090909090909092,
+            "h_c": 2.5,
+            "flr": 0.0,
+            "is_solar_absorbed": "False",
+            "f_mrt_hum": 0.017432082794307892,
+            "k_outside": 1.0,
+            "k_inside": null,
+            "spec": {
+                "method": "layers",
+                "boundary_type": "external_general_part",
+                "layers": [
+                    {
+                        "name": "plaster_board",
+                        "thermal_resistance": 0.0432,
+                        "thermal_capacity": 7.885
+                    },
+                    {
+                        "name": "non-hermetic_air_layer",
+                        "thermal_resistance": 0.09,
+                        "thermal_capacity": 0.0
+                    },
+                    {
+                        "name": "glass_wool_10K",
+                        "thermal_resistance": 1.28,
+                        "thermal_capacity": 0.512
+                    },
+                    {
+                        "name": "plywood",
+                        "thermal_resistance": 0.075,
+                        "thermal_capacity": 8.64
+                    },
+                    {
+                        "name": "wood-wool_and_flake_boards",
+                        "thermal_resistance": 0.0882,
+                        "thermal_capacity": 25.1789
+                    }
+                ],
+                "outside_heat_transfer_resistance": 0.04
+            }
+        },
+        {
+            "id": 19,
+            "name": "south_exterior_window",
+            "sub_name": "",
+            "is_ground": "false",
+            "connected_space_id": 1,
+            "area": 3.22,
+            "h_i": 9.090909090909092,
+            "h_c": 2.5,
+            "flr": 0.0,
+            "is_solar_absorbed": "False",
+            "f_mrt_hum": 0.011779299427663065,
+            "k_outside": 1.0,
+            "k_inside": null,
+            "spec": {
+                "method": "u_value",
+                "boundary_type": "external_transparent_part",
+                "u_value": 4.65,
+                "inside_heat_transfer_resistance": 0.11
+            }
+        },
+        {
+            "id": 20,
+            "name": "exterior_ceiling",
+            "sub_name": "",
+            "is_ground": "false",
+            "connected_space_id": 1,
+            "area": 10.77,
+            "h_i": 11.11111111111111,
+            "h_c": 5.0,
+            "flr": 0.0,
+            "is_solar_absorbed": "False",
+            "f_mrt_hum": 0.03939846423476123,
+            "k_outside": 1.0,
+            "k_inside": null,
+            "spec": {
+                "method": "layers",
+                "boundary_type": "external_general_part",
+                "layers": [
+                    {
+                        "name": "plaster_board",
+                        "thermal_resistance": 0.0432,
+                        "thermal_capacity": 7.885
+                    },
+                    {
+                        "name": "glass_wool_10K",
+                        "thermal_resistance": 3.42,
+                        "thermal_capacity": 1.368
+                    }
+                ],
+                "outside_heat_transfer_resistance": 0.09
+            }
+        },
+        {
+            "id": 21,
+            "name": "internal_wall_non_occupant",
+            "sub_name": "",
+            "is_ground": "false",
+            "connected_space_id": 1,
+            "area": 7.098,
+            "h_i": 9.090909090909092,
+            "h_c": 2.5,
+            "flr": 0.0,
+            "is_solar_absorbed": "False",
+            "f_mrt_hum": 0.025965673086196406,
+            "k_outside": 0.0,
+            "k_inside": {
+                "id": 47,
+                "coef": 1.0
+            },
+            "spec": {
+                "method": "layers",
+                "boundary_type": "internal",
+                "layers": [
+                    {
+                        "name": "plaster_board",
+                        "thermal_resistance": 0.0568,
+                        "thermal_capacity": 10.375
+                    },
+                    {
+                        "name": "non-hermetic_air_layer",
+                        "thermal_resistance": 0.09,
+                        "thermal_capacity": 0.0
+                    },
+                    {
+                        "name": "plaster_board",
+                        "thermal_resistance": 0.0568,
+                        "thermal_capacity": 10.375
+                    }
+                ],
+                "outside_heat_transfer_resistance": 0.11
+            }
+        },
+        {
+            "id": 22,
+            "name": "internal_floor_main_occupant",
+            "sub_name": "",
+            "is_ground": "false",
+            "connected_space_id": 1,
+            "area": 10.77,
+            "h_i": 6.666666666666667,
+            "h_c": 0.7,
+            "flr": 0.0,
+            "is_solar_absorbed": "True",
+            "f_mrt_hum": 0.12720472440944883,
+            "k_outside": 0.0,
+            "k_inside": {
+                "id": 9,
+                "coef": 1.0
+            },
+            "spec": {
+                "method": "layers",
+                "boundary_type": "internal",
+                "layers": [
+                    {
+                        "name": "plywood",
+                        "thermal_resistance": 0.075,
+                        "thermal_capacity": 8.64
+                    },
+                    {
+                        "name": "non-hermetic_air_layer",
+                        "thermal_resistance": 0.07,
+                        "thermal_capacity": 0.0
+                    },
+                    {
+                        "name": "plaster_board",
+                        "thermal_resistance": 0.0568,
+                        "thermal_capacity": 10.375
+                    }
+                ],
+                "outside_heat_transfer_resistance": 0.09
             }
         },
         {
             "id": 23,
-            "name": "integrated_boundary23",
-            "sub_name": "north_exterior_wall",
+            "name": "east_exterior_wall",
+            "sub_name": "",
             "is_ground": "false",
-            "connected_space_id": 2,
-            "area": 43.2205,
-            "phi_a0": 0.07082379236222458,
-            "phi_a1": [
-                4.507057985882911e-05,
-                -0.0009266420480683227,
-                0.015710747070284452,
-                0.1371664403861094,
-                -0.11163144218064562,
-                0.09174099947400259,
-                -0.022630779908299824,
-                0.003388529711372593,
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
-            "phi_t0": 0.0015981739498545089,
-            "phi_t1": [
-                4.014649140609802e-05,
-                -0.0008192243722720101,
-                0.013605804259968005,
-                0.1088867059986907,
-                -0.19238689071678203,
-                0.10296731413100912,
-                -0.022435410952413436,
-                0.002918685727768384,
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
-            "r": [
-                0.9982016190284373,
-                0.99291521625209,
-                0.9723062034557024,
-                0.8950058718522789,
-                0.6452076990440302,
-                0.17714441059303657,
-                0.0010735761574841769,
-                1.869406715200079e-12,
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
+            "connected_space_id": 1,
+            "area": 9.168,
             "h_i": 9.090909090909092,
+            "h_c": 2.5,
             "flr": 0.0,
             "is_solar_absorbed": "False",
-            "f_mrt_hum": 0.16253307579228063,
+            "f_mrt_hum": 0.03353807986112266,
             "k_outside": 1.0,
-            "k_inside": null
+            "k_inside": null,
+            "spec": {
+                "method": "layers",
+                "boundary_type": "external_general_part",
+                "layers": [
+                    {
+                        "name": "plaster_board",
+                        "thermal_resistance": 0.0432,
+                        "thermal_capacity": 7.885
+                    },
+                    {
+                        "name": "non-hermetic_air_layer",
+                        "thermal_resistance": 0.09,
+                        "thermal_capacity": 0.0
+                    },
+                    {
+                        "name": "glass_wool_10K",
+                        "thermal_resistance": 1.28,
+                        "thermal_capacity": 0.512
+                    },
+                    {
+                        "name": "plywood",
+                        "thermal_resistance": 0.075,
+                        "thermal_capacity": 8.64
+                    },
+                    {
+                        "name": "wood-wool_and_flake_boards",
+                        "thermal_resistance": 0.0882,
+                        "thermal_capacity": 25.1789
+                    }
+                ],
+                "outside_heat_transfer_resistance": 0.04
+            }
         },
         {
             "id": 24,
-            "name": "integrated_boundary24",
-            "sub_name": "north_exterior_window",
+            "name": "east_exterior_window",
+            "sub_name": "",
             "is_ground": "false",
-            "connected_space_id": 2,
-            "area": 3.69,
-            "phi_a0": 0.10505376344086019,
-            "phi_a1": [
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
-            "phi_t0": 1.0,
-            "phi_t1": [
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
-            "r": [
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
+            "connected_space_id": 1,
+            "area": 0.66,
             "h_i": 9.090909090909092,
+            "h_c": 2.5,
             "flr": 0.0,
             "is_solar_absorbed": "False",
-            "f_mrt_hum": 0.013876448668421594,
+            "f_mrt_hum": 0.0024143905659185162,
             "k_outside": 1.0,
-            "k_inside": null
+            "k_inside": null,
+            "spec": {
+                "method": "u_value",
+                "boundary_type": "external_transparent_part",
+                "u_value": 4.65,
+                "inside_heat_transfer_resistance": 0.11
+            }
         },
         {
             "id": 25,
-            "name": "integrated_boundary25",
-            "sub_name": "east_exterior_wall",
+            "name": "south_exterior_wall",
+            "sub_name": "",
             "is_ground": "false",
-            "connected_space_id": 2,
-            "area": 4.914,
-            "phi_a0": 0.07082379236222458,
-            "phi_a1": [
-                4.507057985882911e-05,
-                -0.0009266420480683226,
-                0.015710747070284452,
-                0.1371664403861094,
-                -0.11163144218064561,
-                0.09174099947400259,
-                -0.022630779908299824,
-                0.0033885297113725936,
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
-            "phi_t0": 0.0015981739498545087,
-            "phi_t1": [
-                4.014649140609802e-05,
-                -0.0008192243722720102,
-                0.013605804259968005,
-                0.1088867059986907,
-                -0.19238689071678203,
-                0.10296731413100914,
-                -0.022435410952413436,
-                0.0029186857277683836,
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
-            "r": [
-                0.9982016190284373,
-                0.99291521625209,
-                0.9723062034557024,
-                0.8950058718522789,
-                0.6452076990440302,
-                0.17714441059303657,
-                0.0010735761574841769,
-                1.869406715200079e-12,
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
+            "connected_space_id": 1,
+            "area": 4.76525,
             "h_i": 9.090909090909092,
+            "h_c": 2.5,
             "flr": 0.0,
             "is_solar_absorbed": "False",
-            "f_mrt_hum": 0.018479368226727293,
+            "f_mrt_hum": 0.017432082794307892,
             "k_outside": 1.0,
-            "k_inside": null
+            "k_inside": null,
+            "spec": {
+                "method": "layers",
+                "boundary_type": "external_general_part",
+                "layers": [
+                    {
+                        "name": "plaster_board",
+                        "thermal_resistance": 0.0432,
+                        "thermal_capacity": 7.885
+                    },
+                    {
+                        "name": "non-hermetic_air_layer",
+                        "thermal_resistance": 0.09,
+                        "thermal_capacity": 0.0
+                    },
+                    {
+                        "name": "glass_wool_10K",
+                        "thermal_resistance": 1.28,
+                        "thermal_capacity": 0.512
+                    },
+                    {
+                        "name": "plywood",
+                        "thermal_resistance": 0.075,
+                        "thermal_capacity": 8.64
+                    },
+                    {
+                        "name": "wood-wool_and_flake_boards",
+                        "thermal_resistance": 0.0882,
+                        "thermal_capacity": 25.1789
+                    }
+                ],
+                "outside_heat_transfer_resistance": 0.04
+            }
         },
         {
             "id": 26,
-            "name": "integrated_boundary26",
-            "sub_name": "west_exterior_wall",
+            "name": "south_exterior_window",
+            "sub_name": "",
             "is_ground": "false",
-            "connected_space_id": 2,
-            "area": 12.5,
-            "phi_a0": 0.07082379236222458,
-            "phi_a1": [
-                4.507057985882911e-05,
-                -0.0009266420480683226,
-                0.015710747070284452,
-                0.1371664403861094,
-                -0.11163144218064561,
-                0.09174099947400259,
-                -0.022630779908299824,
-                0.0033885297113725936,
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
-            "phi_t0": 0.0015981739498545089,
-            "phi_t1": [
-                4.014649140609802e-05,
-                -0.0008192243722720102,
-                0.013605804259968005,
-                0.1088867059986907,
-                -0.19238689071678203,
-                0.10296731413100915,
-                -0.022435410952413436,
-                0.0029186857277683836,
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
-            "r": [
-                0.9982016190284373,
-                0.99291521625209,
-                0.9723062034557024,
-                0.8950058718522789,
-                0.6452076990440302,
-                0.17714441059303657,
-                0.0010735761574841769,
-                1.869406715200079e-12,
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
+            "connected_space_id": 1,
+            "area": 3.22,
             "h_i": 9.090909090909092,
+            "h_c": 2.5,
             "flr": 0.0,
             "is_solar_absorbed": "False",
-            "f_mrt_hum": 0.04700693993367749,
+            "f_mrt_hum": 0.011779299427663065,
             "k_outside": 1.0,
-            "k_inside": null
+            "k_inside": null,
+            "spec": {
+                "method": "u_value",
+                "boundary_type": "external_transparent_part",
+                "u_value": 4.65,
+                "inside_heat_transfer_resistance": 0.11
+            }
         },
         {
             "id": 27,
-            "name": "integrated_boundary27",
-            "sub_name": "west_exterior_window",
+            "name": "exterior_ceiling",
+            "sub_name": "",
             "is_ground": "false",
-            "connected_space_id": 2,
-            "area": 2.97,
-            "phi_a0": 0.10505376344086018,
-            "phi_a1": [
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
-            "phi_t0": 1.0,
-            "phi_t1": [
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
-            "r": [
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
-            "h_i": 9.090909090909092,
+            "connected_space_id": 1,
+            "area": 10.77,
+            "h_i": 11.11111111111111,
+            "h_c": 5.0,
             "flr": 0.0,
             "is_solar_absorbed": "False",
-            "f_mrt_hum": 0.011168848928241772,
+            "f_mrt_hum": 0.03939846423476123,
             "k_outside": 1.0,
-            "k_inside": null
+            "k_inside": null,
+            "spec": {
+                "method": "layers",
+                "boundary_type": "external_general_part",
+                "layers": [
+                    {
+                        "name": "plaster_board",
+                        "thermal_resistance": 0.0432,
+                        "thermal_capacity": 7.885
+                    },
+                    {
+                        "name": "glass_wool_10K",
+                        "thermal_resistance": 3.42,
+                        "thermal_capacity": 1.368
+                    }
+                ],
+                "outside_heat_transfer_resistance": 0.09
+            }
         },
         {
             "id": 28,
-            "name": "integrated_boundary28",
-            "sub_name": "exterior_floor",
+            "name": "internal_wall_non_occupant",
+            "sub_name": "",
+            "is_ground": "false",
+            "connected_space_id": 1,
+            "area": 7.098,
+            "h_i": 9.090909090909092,
+            "h_c": 2.5,
+            "flr": 0.0,
+            "is_solar_absorbed": "False",
+            "f_mrt_hum": 0.025965673086196406,
+            "k_outside": 0.0,
+            "k_inside": {
+                "id": 48,
+                "coef": 1.0
+            },
+            "spec": {
+                "method": "layers",
+                "boundary_type": "internal",
+                "layers": [
+                    {
+                        "name": "plaster_board",
+                        "thermal_resistance": 0.0568,
+                        "thermal_capacity": 10.375
+                    },
+                    {
+                        "name": "non-hermetic_air_layer",
+                        "thermal_resistance": 0.09,
+                        "thermal_capacity": 0.0
+                    },
+                    {
+                        "name": "plaster_board",
+                        "thermal_resistance": 0.0568,
+                        "thermal_capacity": 10.375
+                    }
+                ],
+                "outside_heat_transfer_resistance": 0.11
+            }
+        },
+        {
+            "id": 29,
+            "name": "internal_floor_main_occupant",
+            "sub_name": "",
+            "is_ground": "false",
+            "connected_space_id": 1,
+            "area": 10.77,
+            "h_i": 6.666666666666667,
+            "h_c": 0.7,
+            "flr": 0.0,
+            "is_solar_absorbed": "True",
+            "f_mrt_hum": 0.12720472440944883,
+            "k_outside": 0.0,
+            "k_inside": {
+                "id": 10,
+                "coef": 1.0
+            },
+            "spec": {
+                "method": "layers",
+                "boundary_type": "internal",
+                "layers": [
+                    {
+                        "name": "plywood",
+                        "thermal_resistance": 0.075,
+                        "thermal_capacity": 8.64
+                    },
+                    {
+                        "name": "non-hermetic_air_layer",
+                        "thermal_resistance": 0.07,
+                        "thermal_capacity": 0.0
+                    },
+                    {
+                        "name": "plaster_board",
+                        "thermal_resistance": 0.0568,
+                        "thermal_capacity": 10.375
+                    }
+                ],
+                "outside_heat_transfer_resistance": 0.09
+            }
+        },
+        {
+            "id": 30,
+            "name": "north_exterior_wall",
+            "sub_name": "",
+            "is_ground": "false",
+            "connected_space_id": 1,
+            "area": 2.639,
+            "h_i": 9.090909090909092,
+            "h_c": 2.5,
+            "flr": 0.0,
+            "is_solar_absorbed": "False",
+            "f_mrt_hum": 0.009653904096149945,
+            "k_outside": 1.0,
+            "k_inside": null,
+            "spec": {
+                "method": "layers",
+                "boundary_type": "external_general_part",
+                "layers": [
+                    {
+                        "name": "plaster_board",
+                        "thermal_resistance": 0.0432,
+                        "thermal_capacity": 7.885
+                    },
+                    {
+                        "name": "non-hermetic_air_layer",
+                        "thermal_resistance": 0.09,
+                        "thermal_capacity": 0.0
+                    },
+                    {
+                        "name": "glass_wool_10K",
+                        "thermal_resistance": 1.28,
+                        "thermal_capacity": 0.512
+                    },
+                    {
+                        "name": "plywood",
+                        "thermal_resistance": 0.075,
+                        "thermal_capacity": 8.64
+                    },
+                    {
+                        "name": "wood-wool_and_flake_boards",
+                        "thermal_resistance": 0.0882,
+                        "thermal_capacity": 25.1789
+                    }
+                ],
+                "outside_heat_transfer_resistance": 0.04
+            }
+        },
+        {
+            "id": 31,
+            "name": "south_exterior_wall",
+            "sub_name": "",
+            "is_ground": "false",
+            "connected_space_id": 1,
+            "area": 8.605,
+            "h_i": 9.090909090909092,
+            "h_c": 2.5,
+            "flr": 0.0,
+            "is_solar_absorbed": "False",
+            "f_mrt_hum": 0.03147853154504369,
+            "k_outside": 1.0,
+            "k_inside": null,
+            "spec": {
+                "method": "layers",
+                "boundary_type": "external_general_part",
+                "layers": [
+                    {
+                        "name": "plaster_board",
+                        "thermal_resistance": 0.0432,
+                        "thermal_capacity": 7.885
+                    },
+                    {
+                        "name": "non-hermetic_air_layer",
+                        "thermal_resistance": 0.09,
+                        "thermal_capacity": 0.0
+                    },
+                    {
+                        "name": "glass_wool_10K",
+                        "thermal_resistance": 1.28,
+                        "thermal_capacity": 0.512
+                    },
+                    {
+                        "name": "plywood",
+                        "thermal_resistance": 0.075,
+                        "thermal_capacity": 8.64
+                    },
+                    {
+                        "name": "wood-wool_and_flake_boards",
+                        "thermal_resistance": 0.0882,
+                        "thermal_capacity": 25.1789
+                    }
+                ],
+                "outside_heat_transfer_resistance": 0.04
+            }
+        },
+        {
+            "id": 32,
+            "name": "south_exterior_window",
+            "sub_name": "",
+            "is_ground": "false",
+            "connected_space_id": 1,
+            "area": 4.59,
+            "h_i": 9.090909090909092,
+            "h_c": 2.5,
+            "flr": 0.0,
+            "is_solar_absorbed": "False",
+            "f_mrt_hum": 0.016790988935706044,
+            "k_outside": 1.0,
+            "k_inside": null,
+            "spec": {
+                "method": "u_value",
+                "boundary_type": "external_transparent_part",
+                "u_value": 4.65,
+                "inside_heat_transfer_resistance": 0.11
+            }
+        },
+        {
+            "id": 33,
+            "name": "west_exterior_wall",
+            "sub_name": "",
+            "is_ground": "false",
+            "connected_space_id": 1,
+            "area": 10.556,
+            "h_i": 9.090909090909092,
+            "h_c": 2.5,
+            "flr": 0.0,
+            "is_solar_absorbed": "False",
+            "f_mrt_hum": 0.03861561638459978,
+            "k_outside": 1.0,
+            "k_inside": null,
+            "spec": {
+                "method": "layers",
+                "boundary_type": "external_general_part",
+                "layers": [
+                    {
+                        "name": "plaster_board",
+                        "thermal_resistance": 0.0432,
+                        "thermal_capacity": 7.885
+                    },
+                    {
+                        "name": "non-hermetic_air_layer",
+                        "thermal_resistance": 0.09,
+                        "thermal_capacity": 0.0
+                    },
+                    {
+                        "name": "glass_wool_10K",
+                        "thermal_resistance": 1.28,
+                        "thermal_capacity": 0.512
+                    },
+                    {
+                        "name": "plywood",
+                        "thermal_resistance": 0.075,
+                        "thermal_capacity": 8.64
+                    },
+                    {
+                        "name": "wood-wool_and_flake_boards",
+                        "thermal_resistance": 0.0882,
+                        "thermal_capacity": 25.1789
+                    }
+                ],
+                "outside_heat_transfer_resistance": 0.04
+            }
+        },
+        {
+            "id": 34,
+            "name": "exterior_floor",
+            "sub_name": "",
+            "is_ground": "false",
+            "connected_space_id": 1,
+            "area": 16.56,
+            "h_i": 6.666666666666667,
+            "h_c": 0.7,
+            "flr": 0.0,
+            "is_solar_absorbed": "True",
+            "f_mrt_hum": 0.19559055118110238,
+            "k_outside": 0.7,
+            "k_inside": {
+                "id": 34,
+                "coef": 0.3
+            },
+            "spec": {
+                "method": "layers",
+                "boundary_type": "external_general_part",
+                "layers": [
+                    {
+                        "name": "plywood",
+                        "thermal_resistance": 0.075,
+                        "thermal_capacity": 8.64
+                    },
+                    {
+                        "name": "glass_wool_10K",
+                        "thermal_resistance": 1.28,
+                        "thermal_capacity": 0.512
+                    }
+                ],
+                "outside_heat_transfer_resistance": 0.15
+            }
+        },
+        {
+            "id": 35,
+            "name": "exterior_ceiling",
+            "sub_name": "",
+            "is_ground": "false",
+            "connected_space_id": 1,
+            "area": 3.31,
+            "h_i": 11.11111111111111,
+            "h_c": 5.0,
+            "flr": 0.0,
+            "is_solar_absorbed": "False",
+            "f_mrt_hum": 0.012108534504833771,
+            "k_outside": 1.0,
+            "k_inside": null,
+            "spec": {
+                "method": "layers",
+                "boundary_type": "external_general_part",
+                "layers": [
+                    {
+                        "name": "plaster_board",
+                        "thermal_resistance": 0.0432,
+                        "thermal_capacity": 7.885
+                    },
+                    {
+                        "name": "glass_wool_10K",
+                        "thermal_resistance": 3.42,
+                        "thermal_capacity": 1.368
+                    }
+                ],
+                "outside_heat_transfer_resistance": 0.09
+            }
+        },
+        {
+            "id": 36,
+            "name": "internal_wall_non_occupant",
+            "sub_name": "",
+            "is_ground": "false",
+            "connected_space_id": 1,
+            "area": 8.736,
+            "h_i": 9.090909090909092,
+            "h_c": 2.5,
+            "flr": 0.0,
+            "is_solar_absorbed": "False",
+            "f_mrt_hum": 0.03195775149070327,
+            "k_outside": 0.0,
+            "k_inside": {
+                "id": 46,
+                "coef": 1.0
+            },
+            "spec": {
+                "method": "layers",
+                "boundary_type": "internal",
+                "layers": [
+                    {
+                        "name": "plaster_board",
+                        "thermal_resistance": 0.0568,
+                        "thermal_capacity": 10.375
+                    },
+                    {
+                        "name": "non-hermetic_air_layer",
+                        "thermal_resistance": 0.09,
+                        "thermal_capacity": 0.0
+                    },
+                    {
+                        "name": "plaster_board",
+                        "thermal_resistance": 0.0568,
+                        "thermal_capacity": 10.375
+                    }
+                ],
+                "outside_heat_transfer_resistance": 0.11
+            }
+        },
+        {
+            "id": 37,
+            "name": "internal_wall_main_occupant",
+            "sub_name": "",
+            "is_ground": "false",
+            "connected_space_id": 1,
+            "area": 8.736,
+            "h_i": 9.090909090909092,
+            "h_c": 2.5,
+            "flr": 0.0,
+            "is_solar_absorbed": "False",
+            "f_mrt_hum": 0.03195775149070327,
+            "k_outside": 0.0,
+            "k_inside": {
+                "id": 11,
+                "coef": 1.0
+            },
+            "spec": {
+                "method": "layers",
+                "boundary_type": "internal",
+                "layers": [
+                    {
+                        "name": "plaster_board",
+                        "thermal_resistance": 0.0568,
+                        "thermal_capacity": 10.375
+                    },
+                    {
+                        "name": "non-hermetic_air_layer",
+                        "thermal_resistance": 0.09,
+                        "thermal_capacity": 0.0
+                    },
+                    {
+                        "name": "plaster_board",
+                        "thermal_resistance": 0.0568,
+                        "thermal_capacity": 10.375
+                    }
+                ],
+                "outside_heat_transfer_resistance": 0.11
+            }
+        },
+        {
+            "id": 38,
+            "name": "north_exterior_wall",
+            "sub_name": "",
+            "is_ground": "false",
+            "connected_space_id": 2,
+            "area": 43.2205,
+            "h_i": 9.090909090909092,
+            "h_c": 2.5,
+            "flr": 0.0,
+            "is_solar_absorbed": "False",
+            "f_mrt_hum": 0.1625330757922806,
+            "k_outside": 1.0,
+            "k_inside": null,
+            "spec": {
+                "method": "layers",
+                "boundary_type": "external_general_part",
+                "layers": [
+                    {
+                        "name": "plaster_board",
+                        "thermal_resistance": 0.0432,
+                        "thermal_capacity": 7.885
+                    },
+                    {
+                        "name": "non-hermetic_air_layer",
+                        "thermal_resistance": 0.09,
+                        "thermal_capacity": 0.0
+                    },
+                    {
+                        "name": "glass_wool_10K",
+                        "thermal_resistance": 1.28,
+                        "thermal_capacity": 0.512
+                    },
+                    {
+                        "name": "plywood",
+                        "thermal_resistance": 0.075,
+                        "thermal_capacity": 8.64
+                    },
+                    {
+                        "name": "wood-wool_and_flake_boards",
+                        "thermal_resistance": 0.0882,
+                        "thermal_capacity": 25.1789
+                    }
+                ],
+                "outside_heat_transfer_resistance": 0.04
+            }
+        },
+        {
+            "id": 39,
+            "name": "north_exterior_window",
+            "sub_name": "",
+            "is_ground": "false",
+            "connected_space_id": 2,
+            "area": 3.69,
+            "h_i": 9.090909090909092,
+            "h_c": 2.5,
+            "flr": 0.0,
+            "is_solar_absorbed": "False",
+            "f_mrt_hum": 0.013876448668421592,
+            "k_outside": 1.0,
+            "k_inside": null,
+            "spec": {
+                "method": "u_value",
+                "boundary_type": "external_transparent_part",
+                "u_value": 4.65,
+                "inside_heat_transfer_resistance": 0.11
+            }
+        },
+        {
+            "id": 40,
+            "name": "east_exterior_wall",
+            "sub_name": "",
+            "is_ground": "false",
+            "connected_space_id": 2,
+            "area": 4.914,
+            "h_i": 9.090909090909092,
+            "h_c": 2.5,
+            "flr": 0.0,
+            "is_solar_absorbed": "False",
+            "f_mrt_hum": 0.01847936822672729,
+            "k_outside": 1.0,
+            "k_inside": null,
+            "spec": {
+                "method": "layers",
+                "boundary_type": "external_general_part",
+                "layers": [
+                    {
+                        "name": "plaster_board",
+                        "thermal_resistance": 0.0432,
+                        "thermal_capacity": 7.885
+                    },
+                    {
+                        "name": "non-hermetic_air_layer",
+                        "thermal_resistance": 0.09,
+                        "thermal_capacity": 0.0
+                    },
+                    {
+                        "name": "glass_wool_10K",
+                        "thermal_resistance": 1.28,
+                        "thermal_capacity": 0.512
+                    },
+                    {
+                        "name": "plywood",
+                        "thermal_resistance": 0.075,
+                        "thermal_capacity": 8.64
+                    },
+                    {
+                        "name": "wood-wool_and_flake_boards",
+                        "thermal_resistance": 0.0882,
+                        "thermal_capacity": 25.1789
+                    }
+                ],
+                "outside_heat_transfer_resistance": 0.04
+            }
+        },
+        {
+            "id": 41,
+            "name": "west_exterior_wall",
+            "sub_name": "",
+            "is_ground": "false",
+            "connected_space_id": 2,
+            "area": 12.5,
+            "h_i": 9.090909090909092,
+            "h_c": 2.5,
+            "flr": 0.0,
+            "is_solar_absorbed": "False",
+            "f_mrt_hum": 0.04700693993367748,
+            "k_outside": 1.0,
+            "k_inside": null,
+            "spec": {
+                "method": "layers",
+                "boundary_type": "external_general_part",
+                "layers": [
+                    {
+                        "name": "plaster_board",
+                        "thermal_resistance": 0.0432,
+                        "thermal_capacity": 7.885
+                    },
+                    {
+                        "name": "non-hermetic_air_layer",
+                        "thermal_resistance": 0.09,
+                        "thermal_capacity": 0.0
+                    },
+                    {
+                        "name": "glass_wool_10K",
+                        "thermal_resistance": 1.28,
+                        "thermal_capacity": 0.512
+                    },
+                    {
+                        "name": "plywood",
+                        "thermal_resistance": 0.075,
+                        "thermal_capacity": 8.64
+                    },
+                    {
+                        "name": "wood-wool_and_flake_boards",
+                        "thermal_resistance": 0.0882,
+                        "thermal_capacity": 25.1789
+                    }
+                ],
+                "outside_heat_transfer_resistance": 0.04
+            }
+        },
+        {
+            "id": 42,
+            "name": "west_exterior_window",
+            "sub_name": "",
+            "is_ground": "false",
+            "connected_space_id": 2,
+            "area": 2.97,
+            "h_i": 9.090909090909092,
+            "h_c": 2.5,
+            "flr": 0.0,
+            "is_solar_absorbed": "False",
+            "f_mrt_hum": 0.01116884892824177,
+            "k_outside": 1.0,
+            "k_inside": null,
+            "spec": {
+                "method": "u_value",
+                "boundary_type": "external_transparent_part",
+                "u_value": 4.65,
+                "inside_heat_transfer_resistance": 0.11
+            }
+        },
+        {
+            "id": 43,
+            "name": "exterior_floor",
+            "sub_name": "",
             "is_ground": "false",
             "connected_space_id": 2,
             "area": 21.52,
-            "phi_a0": 0.07611802817330338,
-            "phi_a1": [
-                4.0390062719694785e-05,
-                -0.0008275000163776864,
-                0.013810098660956747,
-                0.12963762533935966,
-                -0.10469329315318507,
-                0.08325520463210773,
-                -0.019479807043664806,
-                0.0032438469176248688,
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
-            "phi_t0": 0.019776877594807618,
-            "phi_t1": [
-                2.7794752880020194e-05,
-                -0.0005695310997039484,
-                0.00950799982442966,
-                0.08932745216819779,
-                -0.07232770435909913,
-                0.05827001556211491,
-                -0.018012504380072257,
-                0.002121182311884195,
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
-            "r": [
-                0.9982016190284373,
-                0.99291521625209,
-                0.9723062034557024,
-                0.8950058718522789,
-                0.6452076990440302,
-                0.17714441059303657,
-                0.0010735761574841769,
-                1.869406715200079e-12,
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
             "h_i": 6.666666666666667,
+            "h_c": 0.7,
             "flr": 0.0,
             "is_solar_absorbed": "True",
             "f_mrt_hum": 0.45,
             "k_outside": 0.7,
             "k_inside": {
-                "id": 28,
+                "id": 43,
                 "coef": 0.3
+            },
+            "spec": {
+                "method": "layers",
+                "boundary_type": "external_general_part",
+                "layers": [
+                    {
+                        "name": "plywood",
+                        "thermal_resistance": 0.075,
+                        "thermal_capacity": 8.64
+                    },
+                    {
+                        "name": "glass_wool_10K",
+                        "thermal_resistance": 1.28,
+                        "thermal_capacity": 0.512
+                    }
+                ],
+                "outside_heat_transfer_resistance": 0.15
             }
         },
         {
-            "id": 29,
-            "name": "integrated_boundary29",
-            "sub_name": "exterior_ceiling",
+            "id": 44,
+            "name": "exterior_ceiling",
+            "sub_name": "",
             "is_ground": "false",
             "connected_space_id": 2,
             "area": 25.68,
-            "phi_a0": 0.06985742760119118,
-            "phi_a1": [
-                3.4696261624602585e-05,
-                -0.0008394905109872876,
-                0.09398815831920576,
-                0.028388726585864162,
-                -0.04337779349785122,
-                0.04023122459150817,
-                -0.010042369965842745,
-                0.0017467124720621458,
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
-            "phi_t0": 0.001834139039679994,
-            "phi_t1": [
-                1.0138844564923634e-05,
-                -0.000245100119292273,
-                0.027383946153188673,
-                0.008224749727000023,
-                -0.012288633600430232,
-                -0.003237779052276678,
-                -0.0017955188788745747,
-                0.0003448850932034442,
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
-            "r": [
-                0.9982016190284373,
-                0.99291521625209,
-                0.9723062034557024,
-                0.8950058718522789,
-                0.6452076990440302,
-                0.17714441059303657,
-                0.0010735761574841769,
-                1.869406715200079e-12,
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
             "h_i": 11.11111111111111,
+            "h_c": 5.0,
             "flr": 0.0,
             "is_solar_absorbed": "False",
-            "f_mrt_hum": 0.09657105739974703,
+            "f_mrt_hum": 0.09657105739974702,
             "k_outside": 1.0,
-            "k_inside": null
+            "k_inside": null,
+            "spec": {
+                "method": "layers",
+                "boundary_type": "external_general_part",
+                "layers": [
+                    {
+                        "name": "plaster_board",
+                        "thermal_resistance": 0.0432,
+                        "thermal_capacity": 7.885
+                    },
+                    {
+                        "name": "glass_wool_10K",
+                        "thermal_resistance": 3.42,
+                        "thermal_capacity": 1.368
+                    }
+                ],
+                "outside_heat_transfer_resistance": 0.09
+            }
         },
         {
-            "id": 30,
-            "name": "integrated_boundary30",
-            "sub_name": "internal_wall_main_occupant",
+            "id": 45,
+            "name": "internal_wall_main_occupant",
+            "sub_name": "",
             "is_ground": "false",
             "connected_space_id": 2,
             "area": 21.6125,
-            "phi_a0": 0.05708723411022115,
-            "phi_a1": [
-                -4.906543303229977e-06,
-                9.043583185121112e-05,
-                -0.0010250963313425403,
-                0.013882597098025043,
-                0.06003070288750628,
-                -0.019635820391615044,
-                0.006241734730129093,
-                -0.00031593413994914296,
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
-            "phi_t0": 0.025112894604072622,
-            "phi_t1": [
-                -2.0755487161104307e-05,
-                0.00038311211217543963,
-                -0.004356975285015178,
-                0.05948696515147987,
-                0.26418001491646403,
-                -0.20006027909102528,
-                0.02436623417213383,
-                -0.002762331212247608,
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
-            "r": [
-                0.9982016190284373,
-                0.99291521625209,
-                0.9723062034557024,
-                0.8950058718522789,
-                0.6452076990440302,
-                0.17714441059303657,
-                0.0010735761574841769,
-                1.869406715200079e-12,
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
             "h_i": 9.090909090909092,
+            "h_c": 2.5,
             "flr": 0.0,
             "is_solar_absorbed": "False",
-            "f_mrt_hum": 0.08127499914532837,
+            "f_mrt_hum": 0.08127499914532836,
             "k_outside": 0.0,
             "k_inside": {
                 "id": 8,
                 "coef": 1.0
+            },
+            "spec": {
+                "method": "layers",
+                "boundary_type": "internal",
+                "layers": [
+                    {
+                        "name": "plaster_board",
+                        "thermal_resistance": 0.0568,
+                        "thermal_capacity": 10.375
+                    },
+                    {
+                        "name": "non-hermetic_air_layer",
+                        "thermal_resistance": 0.09,
+                        "thermal_capacity": 0.0
+                    },
+                    {
+                        "name": "plaster_board",
+                        "thermal_resistance": 0.0568,
+                        "thermal_capacity": 10.375
+                    }
+                ],
+                "outside_heat_transfer_resistance": 0.11
             }
         },
         {
-            "id": 31,
-            "name": "integrated_boundary31",
-            "sub_name": "internal_wall_other_occupant+internal_wall_other_occupant+internal_wall_other_occupant+internal_wall_other_occupant",
+            "id": 46,
+            "name": "internal_wall_other_occupant",
+            "sub_name": "",
             "is_ground": "false",
             "connected_space_id": 2,
-            "area": 31.668,
-            "phi_a0": 0.05708723411022115,
-            "phi_a1": [
-                -4.906543303229977e-06,
-                9.043583185121113e-05,
-                -0.0010250963313425405,
-                0.013882597098025041,
-                0.06003070288750628,
-                -0.019635820391615044,
-                0.006241734730129093,
-                -0.00031593413994914296,
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
-            "phi_t0": 0.025112894604072622,
-            "phi_t1": [
-                -2.0755487161104307e-05,
-                0.0003831121121754396,
-                -0.004356975285015178,
-                0.05948696515147987,
-                0.2641800149164641,
-                -0.20006027909102528,
-                0.02436623417213383,
-                -0.0027623312122476086,
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
-            "r": [
-                0.9982016190284373,
-                0.99291521625209,
-                0.9723062034557024,
-                0.8950058718522789,
-                0.6452076990440302,
-                0.17714441059303657,
-                0.0010735761574841769,
-                1.869406715200079e-12,
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
+            "area": 8.736,
             "h_i": 9.090909090909092,
+            "h_c": 2.5,
             "flr": 0.0,
             "is_solar_absorbed": "False",
-            "f_mrt_hum": 0.1190892619055759,
+            "f_mrt_hum": 0.032852210180848516,
             "k_outside": 0.0,
             "k_inside": {
-                "id": 16,
+                "id": 36,
                 "coef": 1.0
+            },
+            "spec": {
+                "method": "layers",
+                "boundary_type": "internal",
+                "layers": [
+                    {
+                        "name": "plaster_board",
+                        "thermal_resistance": 0.0568,
+                        "thermal_capacity": 10.375
+                    },
+                    {
+                        "name": "non-hermetic_air_layer",
+                        "thermal_resistance": 0.09,
+                        "thermal_capacity": 0.0
+                    },
+                    {
+                        "name": "plaster_board",
+                        "thermal_resistance": 0.0568,
+                        "thermal_capacity": 10.375
+                    }
+                ],
+                "outside_heat_transfer_resistance": 0.11
+            }
+        },
+        {
+            "id": 47,
+            "name": "internal_wall_other_occupant",
+            "sub_name": "",
+            "is_ground": "false",
+            "connected_space_id": 2,
+            "area": 7.098,
+            "h_i": 9.090909090909092,
+            "h_c": 2.5,
+            "flr": 0.0,
+            "is_solar_absorbed": "False",
+            "f_mrt_hum": 0.026692420771939417,
+            "k_outside": 0.0,
+            "k_inside": {
+                "id": 21,
+                "coef": 1.0
+            },
+            "spec": {
+                "method": "layers",
+                "boundary_type": "internal",
+                "layers": [
+                    {
+                        "name": "plaster_board",
+                        "thermal_resistance": 0.0568,
+                        "thermal_capacity": 10.375
+                    },
+                    {
+                        "name": "non-hermetic_air_layer",
+                        "thermal_resistance": 0.09,
+                        "thermal_capacity": 0.0
+                    },
+                    {
+                        "name": "plaster_board",
+                        "thermal_resistance": 0.0568,
+                        "thermal_capacity": 10.375
+                    }
+                ],
+                "outside_heat_transfer_resistance": 0.11
+            }
+        },
+        {
+            "id": 48,
+            "name": "internal_wall_other_occupant",
+            "sub_name": "",
+            "is_ground": "false",
+            "connected_space_id": 2,
+            "area": 7.098,
+            "h_i": 9.090909090909092,
+            "h_c": 2.5,
+            "flr": 0.0,
+            "is_solar_absorbed": "False",
+            "f_mrt_hum": 0.026692420771939417,
+            "k_outside": 0.0,
+            "k_inside": {
+                "id": 28,
+                "coef": 1.0
+            },
+            "spec": {
+                "method": "layers",
+                "boundary_type": "internal",
+                "layers": [
+                    {
+                        "name": "plaster_board",
+                        "thermal_resistance": 0.0568,
+                        "thermal_capacity": 10.375
+                    },
+                    {
+                        "name": "non-hermetic_air_layer",
+                        "thermal_resistance": 0.09,
+                        "thermal_capacity": 0.0
+                    },
+                    {
+                        "name": "plaster_board",
+                        "thermal_resistance": 0.0568,
+                        "thermal_capacity": 10.375
+                    }
+                ],
+                "outside_heat_transfer_resistance": 0.11
+            }
+        },
+        {
+            "id": 49,
+            "name": "internal_wall_other_occupant",
+            "sub_name": "",
+            "is_ground": "false",
+            "connected_space_id": 2,
+            "area": 8.736,
+            "h_i": 9.090909090909092,
+            "h_c": 2.5,
+            "flr": 0.0,
+            "is_solar_absorbed": "False",
+            "f_mrt_hum": 0.032852210180848516,
+            "k_outside": 0.0,
+            "k_inside": {
+                "id": 17,
+                "coef": 1.0
+            },
+            "spec": {
+                "method": "layers",
+                "boundary_type": "internal",
+                "layers": [
+                    {
+                        "name": "plaster_board",
+                        "thermal_resistance": 0.0568,
+                        "thermal_capacity": 10.375
+                    },
+                    {
+                        "name": "non-hermetic_air_layer",
+                        "thermal_resistance": 0.09,
+                        "thermal_capacity": 0.0
+                    },
+                    {
+                        "name": "plaster_board",
+                        "thermal_resistance": 0.0568,
+                        "thermal_capacity": 10.375
+                    }
+                ],
+                "outside_heat_transfer_resistance": 0.11
             }
         }
     ]

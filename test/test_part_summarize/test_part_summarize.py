@@ -8,6 +8,7 @@ from heat_load_calc.initializer import boundary_simple as bs
 
 class MyTestCase(unittest.TestCase):
 
+    @unittest.skip("集約関係のテストは凍結")
     def test_part_integratable(self):
         """
         部位が集約可能かどうかのテスト
@@ -181,6 +182,7 @@ class MyTestCase(unittest.TestCase):
         bs11 = bs.get_boundary_simple(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, d11)
         self.assertEqual(False, bps._is_boundary_integratable(bs1=bs9, bs2=bs11))
 
+    @unittest.skip("集約関係のテストは凍結")
     def test_steady_part_summarize(self):
         """
         定常部位の集約結果のテスト
@@ -265,6 +267,7 @@ class MyTestCase(unittest.TestCase):
         # 透過日射のテスト
         self.assertAlmostEqual(bs1.q_trs_sol[0] + bs2.q_trs_sol[0], bs3[0].q_trs_sol[0])
 
+    @unittest.skip("集約関係のテストは凍結")
     def test_unsteady_part_summarize(self):
         """
         非定常部位の集約結果のテスト
