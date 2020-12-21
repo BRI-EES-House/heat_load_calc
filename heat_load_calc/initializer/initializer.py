@@ -296,6 +296,7 @@ def _make_building_dict(d: Dict):
     inside_pressure = InsidePressure(d['inside_pressure'])
 
     return {
+        'infiltration_method': 'balance_residential',
         'story': story.value,
         'c_value': c_value,
         'inside_pressure': inside_pressure.value

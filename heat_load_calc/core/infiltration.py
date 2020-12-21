@@ -15,33 +15,41 @@ def make_get_infiltration_function(rd: Dict) -> Callable[[np.ndarray, float], np
     # 建物全体に関すること
     bdg = rd['building']
 
-    # 建物の階数
-    story = bdg['story']
+    # 隙間風の計算方法
 
-    # C値
-    c_value = bdg['c_value']
+    if bdg['infiltration_method'] == 'balance_residential':
 
-    # 換気の種類
-    inside_p = bdg['inside_pressure']
+        # 建物の階数
+        story = bdg['story']
 
-    # spaces の取り出し
-    ss = rd['spaces']
+        # C値
+        c_value = bdg['c_value']
 
-    # 空間iの気積, m3, [i, 1]
-    v_room_is = np.array([float(s['volume']) for s in ss]).reshape(-1, 1)
+        # 換気の種類
+        inside_p = bdg['inside_pressure']
 
-    def get_infiltration(theta_r_is_n: np.ndarray, theta_o_n: float):
+        # spaces の取り出し
+        ss = rd['spaces']
 
-        return _get_infiltration_residential(
-            c_value=c_value,
-            v_room_is=v_room_is,
-            story=story,
-            inside_pressure=inside_p,
-            theta_r_is_n=theta_r_is_n,
-            theta_o_n=theta_o_n
-        )
+        # 空間iの気積, m3, [i, 1]
+        v_room_is = np.array([float(s['volume']) for s in ss]).reshape(-1, 1)
 
-    return get_infiltration
+        def get_infiltration(theta_r_is_n: np.ndarray, theta_o_n: float):
+
+            return _get_infiltration_residential(
+                c_value=c_value,
+                v_room_is=v_room_is,
+                story=story,
+                inside_pressure=inside_p,
+                theta_r_is_n=theta_r_is_n,
+                theta_o_n=theta_o_n
+            )
+
+        return get_infiltration
+
+    else:
+
+        raise Exception
 
 
 def _get_infiltration_residential(
@@ -52,8 +60,8 @@ def _get_infiltration_residential(
         theta_r_is_n: np.ndarray,
         theta_o_n: float
 ) -> np.ndarray:
-    """すきま風量を取得する。
-
+    """すきま風量を取得する関数（住宅用、圧力バランスを解いた近似式バージョン）
+    住宅を１つの空間に見立てて予め圧力バランスを解き、
     Args:
         c_value: 相当隙間面積, cm2/m2
         v_room_is: 室iの容積, m3, [i,1]
@@ -64,10 +72,10 @@ def _get_infiltration_residential(
             'balanced': バランス圧力
         theta_r_is_n: 時刻nの室温, degree C, [i,1]
         theta_o_n: 時刻n+1の外気温度, degree C
-
     Returns:
         すきま風量, m3/s, [i,1]
     """
+
     # 室気積の合計値, m3, float
     total_air_volume = np.sum(v_room_is)
     # 室気積加重平均室温theta_r_nの計算, degree C, float
