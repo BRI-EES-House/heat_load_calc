@@ -9,7 +9,6 @@ from heat_load_calc.core import next_condition
 from heat_load_calc.core import occupants
 from heat_load_calc.core import heat_exchanger
 from heat_load_calc.core.matrix_method import v_diag
-from heat_load_calc.core import infiltration
 
 
 def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, logger: Logger, run_up: bool) -> Conditions:
@@ -26,11 +25,11 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
         次の時刻にわたす状態量
     """
 
-    ##### 時刻 n, n+1 におけるデータの切り出し #####
-    # [i, n] のベクトルを[:, n] 又は[:, n+1] で切り出す。
-    # numpy の仕様として、切り出した時にある次元の配列数が1の場合に、次元を1つ減らすため、
-    # [:, n] 又は [:, n+1] で切り出した場合、[i] 又は [j] の1次元配列になる。
-    # ベクトル計算に都合の良いように、[i, 1] 又は [j, 1] の列ベクトルになおすために、 np.reshape(-1, 1)の操作をしている。
+    # 時刻 n, n+1 におけるデータの切り出し
+    #   [i, n] のベクトルを[:, n] 又は[:, n+1] で切り出す。
+    #   numpy の仕様として、切り出した時にある次元の配列数が1の場合に、次元を1つ減らすため、
+    #   [:, n] 又は [:, n+1] で切り出した場合、[i] 又は [j] の1次元配列になる。
+    #   ベクトル計算に都合の良いように、[i, 1] 又は [j, 1] の列ベクトルになおすために、 np.reshape(-1, 1)の操作をしている。
 
     # ステップnにおける室iの空調需要, [i, 1]
     ac_demand_is_n = ss.ac_demand_is_ns[:, n].reshape(-1, 1)
@@ -92,14 +91,6 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
     x_hum_is_n = x_hum_psn_is_n * n_hum_is_n
 
     # ステップnの室iにおけるすきま風量, m3/s, [i, 1]
-    # v_leak_is_n = infiltration.get_infiltration_residential(
-    #     c_value=ss.c_value,
-    #     v_room_is=ss.v_room_is,
-    #     story=ss.story,
-    #     inside_pressure=ss.inside_p,
-    #     theta_r_is_n=c_n.theta_r_is_n,
-    #     theta_o_npls=ss.theta_o_ns[n]
-    # )
     v_leak_is_n = ss.get_infiltration(theta_r_is_n=c_n.theta_r_is_n, theta_o_n=ss.theta_o_ns[n])
 
     # ステップn+1の境界jにおける項別公比法の指数項mの吸熱応答の項別成分, degree C, [j, m] (m=12)
@@ -193,10 +184,6 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
     # ステップ n+1 における室 i の人体に対する平均放射温度, degree C, [i, 1]
     theta_mrt_hum_is_n_pls = np.dot(ss.f_mrt_hum_is_js, theta_s_js_n_pls)
 
-#    t1 = theta_ot_is_n_pls
-#    t2 = kc_is_n * theta_r_is_n_pls + kr_is_n * theta_mrt_hum_is_n_pls
-#    print(np.abs(t1-t2)<0.00001)
-
     # ステップ n+1 の境界 j における等価温度, degree C, [j, 1]
     theta_ei_js_n_pls = (
         ss.h_c_js * np.dot(ss.p_js_is, theta_r_is_n_pls)
@@ -210,11 +197,11 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
 
     # --- ここから、湿度の計算 ---
 
-    # ステップnの室iにおける係数 brmx_pre, [i, 1]
+    # ステップnの室iにおける係数 brmx（除湿なし）, [i, 1]
     brmx_non_dh_is_n_pls = get_rho_air() * (v_diag(ss.v_room_is / delta_t + v_out_vent_is_n) - ss.v_int_vent_is_is)\
         + v_diag(ss.c_lh_frt_is * ss.g_lh_frt_is / (ss.c_lh_frt_is + delta_t * ss.g_lh_frt_is))
 
-    # ステップnの室iにおける係数 brxc_pre, [i, 1]
+    # ステップnの室iにおける係数 brxc（除湿なし）, [i, 1]
     brxc_non_dh_is_n_pls = get_rho_air() * (
             ss.v_room_is / delta_t * c_n.x_r_is_n
             + v_out_vent_is_n * ss.x_o_ns[n]
