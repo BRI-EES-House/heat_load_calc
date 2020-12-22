@@ -7,9 +7,10 @@ from typing import List, Dict, Any, Callable
 
 from heat_load_calc.external.global_number import get_c_air, get_rho_air
 from heat_load_calc.core import shape_factor
-from heat_load_calc.core import occupants
 from heat_load_calc.core.operation_mode import OperationMode
 from heat_load_calc.initializer import response_factor
+from heat_load_calc.core import infiltration
+from heat_load_calc.core import occupants
 
 
 @dataclass
@@ -17,15 +18,7 @@ class PreCalcParameters:
 
     # region 建物全体に関すること
 
-    # 建物の階数
-    story: int
-
-    # 相当隙間面積（C値）, cm2/m2
-    c_value: float
-
-    # 室内の圧力
-    # 'positive', 'negative' or 'balanced'
-    inside_p: str
+    # 該当なし
 
     # endregion
 
@@ -186,6 +179,8 @@ class PreCalcParameters:
 
     get_ot_target_and_h_hum: Callable[[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray], tuple]
 
+    get_infiltration: Callable[[np.ndarray, float], np.ndarray]
+
     rac_spec: Dict[str, Any]
 
 
@@ -221,21 +216,6 @@ def make_pre_calc_parameters(delta_t: float, data_directory: str) -> (PreCalcPar
 
     with open(data_directory + '/mid_data_house.json') as f:
         rd = json.load(f)
-
-    # region building の読み込み
-
-    bdg = rd['building']
-
-    # 建物の階数
-    story = bdg['story']
-
-    # C値
-    c_value = bdg['c_value']
-
-    # 換気の種類
-    inside_p = bdg['inside_pressure']
-
-    # endregion
 
     # region spaces の読み込み
 
@@ -553,26 +533,13 @@ def make_pre_calc_parameters(delta_t: float, data_directory: str) -> (PreCalcPar
 
     # region 読み込んだ値から新たに関数を作成する
 
-    def get_ot_target_and_h_hum(
-        theta_r_is_n: np.ndarray,
-        theta_mrt_hum_is_n: np.ndarray,
-        x_r_is_n: np.ndarray,
-        operation_mode_is_n_mns: np.ndarray,
-        ac_demand_is_n: np.ndarray
-    ):
+    get_ot_target_and_h_hum = occupants.make_get_ot_target_and_h_hum_function(
+        is_radiative_heating_is=is_radiative_heating_is,
+        is_radiative_cooling_is=is_radiative_cooling_is
+    )
 
-        method = 'constant'
-
-        return occupants.get_ot_target_and_h_hum_with_pmv(
-            x_r_is_n=x_r_is_n,
-            operation_mode_is_n_mns=operation_mode_is_n_mns,
-            is_radiative_heating_is=np.array(is_radiative_heating_is).reshape(-1, 1),
-            is_radiative_cooling_is=np.array(is_radiative_cooling_is).reshape(-1, 1),
-            theta_r_is_n=theta_r_is_n,
-            theta_mrt_is_n=theta_mrt_hum_is_n,
-            ac_demand_is_n=ac_demand_is_n,
-            method=method
-        )
+    # すきま風を計算する関数を作成する。
+    get_infiltration = infiltration.make_get_infiltration_function(rd=rd)
 
     # endregion
 
@@ -584,9 +551,6 @@ def make_pre_calc_parameters(delta_t: float, data_directory: str) -> (PreCalcPar
     }
 
     pre_calc_parameters = PreCalcParameters(
-        story=story,
-        c_value=c_value,
-        inside_p=inside_p,
         n_spaces=n_spaces,
         id_space_is=id_space_is,
         name_space_is=name_space_is,
@@ -640,7 +604,8 @@ def make_pre_calc_parameters(delta_t: float, data_directory: str) -> (PreCalcPar
         x_o_ns=x_o_ns,
         theta_o_ave=theta_o_ave,
         rac_spec=rac_spec,
-        get_ot_target_and_h_hum=get_ot_target_and_h_hum
+        get_ot_target_and_h_hum=get_ot_target_and_h_hum,
+        get_infiltration=get_infiltration
     )
 
     pre_calc_parameters_ground = PreCalcParametersGround(

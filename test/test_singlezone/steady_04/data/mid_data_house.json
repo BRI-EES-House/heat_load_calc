@@ -1,5 +1,6 @@
 {
     "building": {
+        "infiltration_method": "balance_residential",
         "story": 2,
         "c_value": 2.0,
         "inside_pressure": "negative"
