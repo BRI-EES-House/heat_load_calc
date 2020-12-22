@@ -3358,9 +3358,9 @@ k_{EO,j} \cdot \theta_{EO,n}
 <td class="tableblock halign-center valign-middle"><p class="tableblock">\(V_{room}\)</p></td>
 <td class="tableblock halign-left valign-middle"><p class="tableblock">室\(i\)の容積, m<sup>3</sup><br>
 \(\begin{pmatrix}
-  V_{room,0} \\
-  \vdots \\
-  V_{room, i-1}
+  V_{room,0} &amp; \ldots &amp; 0 \\
+  \vdots &amp; \ddots &amp; \vdots \\
+  0 &amp; \ldots &amp; V_{room, i-1}
 \end{pmatrix}\)
 で表されるベクトル</p></td>
 </tr>
@@ -3383,9 +3383,9 @@ k_{EO,j} \cdot \theta_{EO,n}
 <td class="tableblock halign-left valign-middle"><p class="tableblock">ステップ \(n\)における室\(i\)の外からの換気量, m<sup>3</sup>/s<br>
 （機械換気量・すきま風量・自然風利用時の換気量との合計である。）<br>
 \(\begin{pmatrix}
-  V_{out,vent,0,n} \\
-  \vdots \\
-  V_{out,vent,i-1,n}
+  V_{out,vent,0,n} &amp; \ldots &amp; 0 \\
+  \vdots &amp; \ddots &amp; \vdots \\
+  0 &amp; \ldots &amp; V_{out,vent,i-1,n}
 \end{pmatrix}\)
 で表されるベクトル</p></td>
 </tr>
@@ -3430,22 +3430,22 @@ k_{EO,j} \cdot \theta_{EO,n}
 で表されるベクトル</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-center valign-middle"><p class="tableblock">\(C_{cap,w,frt}\)</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">\(C_{w,frt}\)</p></td>
 <td class="tableblock halign-left valign-middle"><p class="tableblock">室 \(i\) の家具等の湿気容量, kg/(kg/kg(DA))<br>
 \(\begin{pmatrix}
-  C_{cap,w,frt,0} \\
-  \vdots \\
-  C_{cap,w,frt,i-1} \\
+  C_{w,frt,0} &amp; \ldots &amp; 0 \\
+  \vdots &amp; \ddots &amp; \vdots \\
+  0 &amp; \ldots &amp; C_{w,frt,i-1} \\
 \end{pmatrix}\)
 で表されるベクトル</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-center valign-middle"><p class="tableblock">\(C_{w,frt}\)</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">\(G_{w,frt}\)</p></td>
 <td class="tableblock halign-left valign-middle"><p class="tableblock">室 \(i\) の家具等と空気間の湿気コンダクタンス, kg/(s kg/kg(DA))<br>
 \(\begin{pmatrix}
-  C_{w,frt,0} \\
-  \vdots \\
-  C_{w,frt,i-1}
+  G_{w,frt,0} &amp; \ldots &amp; 0 \\
+  \vdots &amp; \ddots &amp; \vdots \\
+  0 &amp; \ldots &amp; G_{w,frt,i-1}
 \end{pmatrix}\)
 で表されるベクトル</p></td>
 </tr>
@@ -3485,7 +3485,13 @@ k_{EO,j} \cdot \theta_{EO,n}
 </div>
 <div class="stemblock">
 <div class="content">
-\[\rho_a \: V_{room} \otimes \frac{dX_r}{dt} = \rho_a \: V_{out,vent} \otimes (X_{o} - X_{r}) + X_{gen} + X_{hum} - G_{RAC} + C_{w,frt} \otimes (X_{frt} - X_{r}) + \rho_a \: V_{int,vent} \: X_{r} \tag{1}\]
+\[\begin{split}
+\rho_a \cdot V_{room} \cdot \frac{dX_r}{dt}
+&amp; = \rho_a \cdot V_{out,vent} \cdot (X_{o} - X_{r}) \\
+&amp; + X_{gen} + X_{hum} - G_{RAC} \\
+&amp; + G_{w,frt} \cdot (X_{frt} - X_{r}) \\
+&amp; + \rho_a \cdot V_{int,vent} \cdot X_{r}
+\end{split} \tag{1}\]
 </div>
 </div>
 <div class="paragraph">
@@ -3494,7 +3500,7 @@ k_{EO,j} \cdot \theta_{EO,n}
 <div class="stemblock">
 <div class="content">
 \[G_{RAC} = \left\{ \begin{array}{ll}
-  \rho_a \: V_{RAC} \: (1 - BF_{RAC}) \: (X_{r} - X_{RAC,ex}) &amp; (X_r \gt X_{RAC,ex})\\
+  \rho_a \cdot V_{RAC} \cdot (1 - BF_{RAC}) \cdot (X_{r} - X_{RAC,ex}) &amp; (X_r \gt X_{RAC,ex})\\
   0.0 &amp; (X_r \le X_{RAC,ex})
 \end{array} \right. \tag{2}\]
 </div>
@@ -3504,7 +3510,7 @@ k_{EO,j} \cdot \theta_{EO,n}
 </div>
 <div class="stemblock">
 <div class="content">
-\[C_{cap,w,frt} \otimes \frac{dX_{frt,n}}{dt} = C_{w,frt} \otimes (X_r - X_{frt}) \tag{3}\]
+\[C_{w,frt} \cdot \frac{dX_{frt,n}}{dt} = G_{w,frt} \cdot (X_r - X_{frt}) \tag{3}\]
 </div>
 </div>
 <div class="paragraph">
@@ -3513,25 +3519,26 @@ k_{EO,j} \cdot \theta_{EO,n}
 <div class="stemblock">
 <div class="content">
 \[\begin{split}
-\rho_a \: V_{room} \otimes \frac{X_{r,n+1} - {X_{r,n}}}{\Delta t} &amp;= \rho_a \: V_{out,vent,n} \otimes (X_{o,n+1} - X_{r,n+1}) \\
-&amp;+ X_{gen,n} + X_{hum,n} \\
-&amp;- G_{RAC,n} \\
-&amp;+ C_{w,frt} \otimes (X_{frt,n+1} - X_{r,n+1}) \\
-&amp;+ \rho_a \: V_{int,vent,n} \: X_{r,n+1}
+\rho_a \cdot V_{room} \cdot \frac{X_{r,n+1} - {X_{r,n}}}{\Delta t}
+&amp; = \rho_a \cdot V_{out,vent,n} \cdot (X_{o,n+1} - X_{r,n+1}) \\
+&amp; + X_{gen,n} + X_{hum,n} \\
+&amp; - G_{RAC,n} \\
+&amp; + G_{w,frt} \cdot (X_{frt,n+1} - X_{r,n+1}) \\
+&amp; + \rho_a \: V_{int,vent,n} \: X_{r,n+1}
 \end{split} \tag{4}\]
 </div>
 </div>
 <div class="stemblock">
 <div class="content">
 \[G_{RAC,n} = \left\{ \begin{array}{ll}
-  \rho_a \: V_{RAC,n} \: (1 - BF_{RAC}) \: (X_{r,n+1} - X_{RAC,ex,n+1}) &amp; (X_{r,n+1} \gt X_{RAC,ex,n+1})\\
+  \rho_a \cdot V_{RAC,n} \cdot (1 - BF_{RAC}) \cdot (X_{r,n+1} - X_{RAC,ex,n+1}) &amp; (X_{r,n+1} \gt X_{RAC,ex,n+1})\\
   0.0 &amp; (X_{r,n+1} \le X_{RAC,ex,n+1})
 \end{array} \right. \tag{5}\]
 </div>
 </div>
 <div class="stemblock">
 <div class="content">
-\[C_{cap,w,frt} \otimes \frac{X_{frt,n+1} - X_{frt,n}}{\Delta t} = C_{w,frt} \otimes (X_{r,n+1} - X_{frt,n+1}) \tag{6}\]
+\[C_{w,frt} \cdot \frac{X_{frt,n+1} - X_{frt,n}}{\Delta t} = G_{w,frt} \cdot (X_{r,n+1} - X_{frt,n+1}) \tag{6}\]
 </div>
 </div>
 <div class="paragraph">
@@ -3539,7 +3546,7 @@ k_{EO,j} \cdot \theta_{EO,n}
 </div>
 <div class="stemblock">
 <div class="content">
-\[X_{frt,n+1} = (\Delta t \: C_{w,frt} \otimes X_{r,n+1} + C_{cap,w,frt} \otimes X_{frt,n}) \otimes (C_{cap,w,frt} + \Delta t \: C_{w,frt})^{-1} \tag{7}\]
+\[X_{frt,n+1} = (C_{w,frt} + \Delta t \cdot G_{w,frt})^{-1} \cdot (\Delta t \cdot G_{w,frt} \cdot X_{r,n+1} + C_{w,frt} \cdot X_{frt,n}) \tag{7}\]
 </div>
 </div>
 <div class="paragraph">
@@ -3548,14 +3555,15 @@ k_{EO,j} \cdot \theta_{EO,n}
 <div class="stemblock">
 <div class="content">
 \[\begin{split}
-\rho_a \: V_{room} \otimes \frac{X_{r,n+1} - {X_{r,n}}}{\Delta t} &amp;= \rho_a \: V_{out,vent,n} \otimes (X_{o,n+1} - X_{r,n+1}) \\
-&amp;+ X_{gen,n} + X_{hum,n} \\
-&amp;- \left\{ \begin{array}{ll}
-  \rho_a \: V_{RAC,n} \: (1 - BF_{RAC}) \: (X_{r,n+1} - X_{RAC,ex,n+1}) &amp; (X_{r,n+1} \gt X_{RAC,ex,n+1})\\
+\rho_a \cdot V_{room} \cdot \frac{X_{r,n+1} - {X_{r,n}}}{\Delta t}
+&amp; = \rho_a \cdot V_{out,vent,n} \cdot (X_{o,n+1} - X_{r,n+1}) \\
+&amp; + X_{gen,n} + X_{hum,n} \\
+&amp; - \left\{ \begin{array}{ll}
+  \rho_a \cdot V_{RAC,n} \cdot (1 - BF_{RAC}) \cdot (X_{r,n+1} - X_{RAC,ex,n+1}) &amp; (X_{r,n+1} \gt X_{RAC,ex,n+1})\\
   0.0 &amp; (X_{r,n+1} \le X_{RAC,ex,n+1})
 \end{array} \right. \\
-&amp;+ C_{w,frt} \otimes C_{cap,w,frt} \otimes (X_{frt,n} - X_{r,n+1}) \otimes (C_{cap,w,frt} + \Delta t \: C_{w,frt})^{-1} \\
-&amp;+ \rho_a \: V_{int,vent,n} \: X_{r,n+1}
+&amp; + (C_{w,frt} + \Delta t \cdot G_{w,frt})^{-1} \cdot G_{w,frt} \cdot C_{w,frt} \cdot (X_{frt,n} - X_{r,n+1}) \\
+&amp; + \rho_a \cdot V_{int,vent,n} \cdot X_{r,n+1}
 \end{split} \tag{8}\]
 </div>
 </div>
@@ -3564,7 +3572,7 @@ k_{EO,j} \cdot \theta_{EO,n}
 </div>
 <div class="stemblock">
 <div class="content">
-\[BRMX \: X_{r,n+1} = BRMC\]
+\[BRMX \cdot X_{r,n+1} = BRMC \tag{9}\]
 </div>
 </div>
 <div class="paragraph">
@@ -3576,18 +3584,20 @@ k_{EO,j} \cdot \theta_{EO,n}
 <div class="stemblock">
 <div class="content">
 \[\begin{split}
-BRMX_{not-dh} &amp;= \rho_{a} \: \left( diag \left( \frac{V_{room}}{\Delta t} + V_{out,vent,n} \right) - V_{int,vent,n} \right) \\
-&amp;+ diag \left( C_{w,frt} \otimes C_{cap,w,frt} \otimes (C_{cap,w,frt} + \Delta t C_{w,frt})^{-1} \right)
-\end{split} \tag{8}\]
+BRMX_{not-dh}
+&amp; = \rho_{a} \cdot \left(\frac{V_{room}}{\Delta t} + V_{out,vent,n} - V_{int,vent,n} \right) \\
+&amp; + (C_{w,frt} + \Delta t \cdot G_{w,frt})^{-1} \cdot G_{w,frt} \cdot C_{w,frt}
+\end{split} \tag{10}\]
 </div>
 </div>
 <div class="stemblock">
 <div class="content">
 \[\begin{split}
-BRMC_{not-dh} &amp;= \rho_{a} \: \left( \frac{V_{room}}{\Delta t} \otimes X_{r,n} + V_{out,vent,n} \otimes X_{o,n+1} \right) \\
-&amp;+ X_{gen,n} + X_{hum,n} \\
-&amp;+ C_{w,frt} \otimes C_{cap,w,frt} \otimes X_{frt,n} \otimes (C_{cap,w,frt} + \Delta t C_{w,frt})^{-1}
-\end{split} \tag{9}\]
+BRMC_{not-dh}
+&amp; = \rho_{a} \cdot \left( \frac{V_{room}}{\Delta t} \cdot X_{r,n} + V_{out,vent,n} \cdot X_{o,n+1} \right) \\
+&amp; + X_{gen,n} + X_{hum,n} \\
+&amp; + (C_{w,frt} + \Delta t \cdot G_{w,frt})^{-1} \cdot G_{w,frt} \cdot C_{w,frt} \cdot X_{frt,n}
+\end{split} \tag{11}\]
 </div>
 </div>
 <div class="paragraph">
@@ -3595,16 +3605,16 @@ BRMC_{not-dh} &amp;= \rho_{a} \: \left( \frac{V_{room}}{\Delta t} \otimes X_{r,n
 </div>
 <div class="stemblock">
 <div class="content">
-\[BRMX_{dh} = BRMX_{not-dh} + \rho_{a} \: V_{RAC,n} \: (1 - BF_{RAC})\]
+\[BRMX_{dh} = BRMX_{not-dh} + \rho_{a} \cdot V_{RAC,n} \cdot (1 - BF_{RAC}) \tag{12}\]
 </div>
 </div>
 <div class="stemblock">
 <div class="content">
-\[BRMC_{dh} = BRMC_{not-dh} + \rho_{a} \: V_{RAC,n} \: (1 - BR_{RAC}) \: X_{RAC,ex,n+1}\]
+\[BRMC_{dh} = BRMC_{not-dh} + \rho_{a} \cdot V_{RAC,n} \cdot (1 - BR_{RAC}) \cdot X_{RAC,ex,n+1} \tag{13}\]
 </div>
 </div>
 <div class="paragraph">
-<p>ここで、除湿するかしないかの判断は \(n+1\) における絶対湿度に依存する。ここで除湿の有無が除湿をするか否かの判断の閾値を超えることがない（除湿無しで計算した結果、除湿ありの条件に入り、除湿ありで計算した結果、除湿なしの条件に入るような、ある種、振動するような玄象が生じない）ため、一度、除湿無しで計算をし、計算された絶対湿度から除湿の有無を判断することができる。</p>
+<p>ここで、除湿するかしないかの判断は \(n+1\) における絶対湿度に依存する。ここで除湿の有無が除湿をするか否かの判断の閾値を超えることがない（除湿無しで計算した結果、除湿ありの条件に入り、除湿ありで計算した結果、除湿なしの条件に入るような、ある種、振動するような現象が生じない）ため、一度、除湿無しで計算をし、計算された絶対湿度から除湿の有無を判断することができる。</p>
 </div>
 </div>
 </div>
@@ -3620,7 +3630,7 @@ BRMC_{not-dh} &amp;= \rho_{a} \: \left( \frac{V_{room}}{\Delta t} \otimes X_{r,n
 <div id="footer">
 <div id="footer-text">
 Version 1.0.0(202006)<br>
-Last updated 2020-12-19 04:55:31 UTC
+Last updated 2020-12-22 11:27:09 UTC
 </div>
 </div>
 <script type="text/x-mathjax-config">
