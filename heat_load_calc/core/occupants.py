@@ -33,7 +33,8 @@ def make_get_ot_target_and_h_hum_function(
                 ステップnにおける室iの在室者周りの対流熱伝達率, W/m2K, [i, 1]
                 ステップnにおける室iの在室者周りの放射熱伝達率, W/m2K, [i, 1]
                 ステップnの室iにおける運転モード, [i, 1]
-                ステップnの室iにおける目標作用温度, degree C, [i]
+                ステップnの室iにおける目標作用温度下限値, degree C, [i]
+                ステップnの室iにおける目標作用温度上限値, degree C, [i]
                 その他の備考情報を含むタプル（何の情報が含まれるかは関数の種類による。）
     """
 
@@ -56,7 +57,17 @@ def make_get_ot_target_and_h_hum_function(
                 method='constant'
             )
 
-        return h_hum_c_is_n, h_hum_r_is_n, operation_mode_is_n, theta_ot_target_is_n, remarks_n
+        theta_lower_target_is_n = np.zeros_like(operation_mode_is_n, dtype=float)
+        theta_lower_target_is_n[operation_mode_is_n == OperationMode.HEATING] \
+            = theta_ot_target_is_n[operation_mode_is_n == OperationMode.HEATING]
+
+        theta_upper_target_is_n = np.zeros_like(operation_mode_is_n, dtype=float)
+        theta_upper_target_is_n[operation_mode_is_n == OperationMode.COOLING] \
+            = theta_ot_target_is_n[operation_mode_is_n == OperationMode.COOLING]
+
+        return h_hum_c_is_n, h_hum_r_is_n, operation_mode_is_n, theta_lower_target_is_n, theta_upper_target_is_n,\
+            remarks_n
+
 
     return get_ot_target_and_h_hum
 

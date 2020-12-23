@@ -60,11 +60,12 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
     #     ステップnにおける室iの在室者周りの対流熱伝達率, W / m2K, [i, 1]
     #     ステップnにおける室iの在室者周りの放射熱伝達率, W / m2K, [i, 1]
     #     ステップnの室iにおける運転モード, [i, 1]
-    #     ステップnの室iにおける目標PMV, [i, 1]
+    #     ステップnの室iにおける目標作用温度下限値, [i, 1]
+    #     ステップnの室iにおける目標作用温度上限値, [i, 1]
     #     ステップnの室iの在室者周りの風速, m/s, [i, 1]
     #     ステップnの室iにおけるClo値, [i, 1]
     #     ステップnの室iにおける目標作用温度, degree C, [i, 1]
-    h_hum_c_is_n, h_hum_r_is_n, operation_mode_is_n, theta_ot_target_is_n, remarks \
+    h_hum_c_is_n, h_hum_r_is_n, operation_mode_is_n, theta_lower_target_is_n, theta_upper_target_is_n, remarks \
         = ss.get_ot_target_and_h_hum(
             x_r_is_n=c_n.x_r_is_n,
             operation_mode_is_n_mns=c_n.operation_mode_is_n,
@@ -163,7 +164,8 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
         brc_ot_is_n=brc_ot_is_n,
         brm_ot_is_is_n=brm_ot_is_is_n,
         brl_ot_is_is_n=brl_ot_is_is_n,
-        theta_ot_target_is_n=theta_ot_target_is_n,
+        theta_lower_target_is_n=theta_lower_target_is_n,
+        theta_upper_target_is_n=theta_upper_target_is_n,
         lr_h_max_cap_is=ss.lr_h_max_cap_is,
         lr_cs_max_cap_is=ss.lr_cs_max_cap_is,
         operation_mode_is_n=operation_mode_is_n

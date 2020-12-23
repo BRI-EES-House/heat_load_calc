@@ -9,14 +9,15 @@ def calc_next_temp_and_load(
         brc_ot_is_n: np.ndarray,
         brm_ot_is_is_n: np.ndarray,
         brl_ot_is_is_n: np.ndarray,
-        theta_ot_target_is_n: np.ndarray,
+        theta_lower_target_is_n,
+        theta_upper_target_is_n,
         lr_h_max_cap_is: np.ndarray,
         lr_cs_max_cap_is: np.ndarray,
         operation_mode_is_n: np.ndarray
 ):
 
     # 室の配列の形, i✕1　の行列 を表すタプル
-    room_shape = theta_ot_target_is_n.shape
+    room_shape = operation_mode_is_n.shape
 
     # 室の数
     n_room = room_shape[0]
@@ -37,8 +38,8 @@ def calc_next_temp_and_load(
     theta_natural_is_n = np.dot(np.linalg.inv(kt), k)
 
     # 実際に暖房が行われるかどうか。
-    is_heating = (operation_mode_is_n == OperationMode.HEATING) & (theta_ot_target_is_n < theta_natural_is_n)
-    is_cooling = (operation_mode_is_n == OperationMode.COOLING) & (theta_ot_target_is_n > theta_natural_is_n)
+    is_heating = (operation_mode_is_n == OperationMode.HEATING) & (theta_lower_target_is_n < theta_natural_is_n)
+    is_cooling = (operation_mode_is_n == OperationMode.COOLING) & (theta_upper_target_is_n > theta_natural_is_n)
 
     # 室温指定を表す係数, [i, 1], int型
     # 指定する = 0, 指定しない = 1
@@ -55,7 +56,8 @@ def calc_next_temp_and_load(
     # nt = 0 （室温を指定する） に対応する要素に、ターゲットとなるOTを代入する。
     # nt = 1 （室温を指定しない）場合は、theta_set は 0 にしなければならない。
     theta_set = np.zeros(room_shape, dtype=float)
-    theta_set[nt == 0] = theta_ot_target_is_n[nt == 0]
+    theta_set[is_heating] = theta_lower_target_is_n[is_heating]
+    theta_set[is_cooling] = theta_upper_target_is_n[is_cooling]
 
     # 対流空調指定を表す係数, [i, 1], int型
     # 指定する = 0, 指定しない = 1
