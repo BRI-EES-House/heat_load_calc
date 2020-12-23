@@ -227,7 +227,7 @@ def record(pps: PreCalcParameters, logger: Logger, output_data_dir: str, show_si
     if show_detail_result:
         dd.to_csv(output_data_dir + '/result_detail.csv', encoding='cp932')
 
-    date_index_1h = pd.date_range(start='1/1/1989', periods=n_d_main, freq='H')
+    date_index_1h = pd.date_range(start='1/1/1989', periods=n_d_main*24, freq='H')
 
     ds = pd.DataFrame(index=date_index_1h)
 
