@@ -38,8 +38,8 @@ def calc_next_temp_and_load(
     theta_natural_is_n = np.dot(np.linalg.inv(kt), k)
 
     # 実際に暖房が行われるかどうか。
-    is_heating = (operation_mode_is_n == OperationMode.HEATING) & (theta_lower_target_is_n < theta_natural_is_n)
-    is_cooling = (operation_mode_is_n == OperationMode.COOLING) & (theta_upper_target_is_n > theta_natural_is_n)
+    is_heating = (operation_mode_is_n == OperationMode.HEATING) & (theta_natural_is_n < theta_lower_target_is_n)
+    is_cooling = (operation_mode_is_n == OperationMode.COOLING) & (theta_upper_target_is_n < theta_natural_is_n)
 
     # 室温指定を表す係数, [i, 1], int型
     # 指定する = 0, 指定しない = 1
