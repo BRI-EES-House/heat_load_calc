@@ -44,18 +44,19 @@ def make_get_ot_target_and_h_hum_function(
             operation_mode_is_n_mns: np.ndarray,
             ac_demand_is_n: np.ndarray
     ):
-        method = 'constant'
+        h_hum_c_is_n, h_hum_r_is_n, operation_mode_is_n, theta_ot_target_is_n, remarks_n = \
+            _get_ot_target_and_h_hum_with_pmv(
+                x_r_is_n=x_r_is_n,
+                operation_mode_is_n_mns=operation_mode_is_n_mns,
+                is_radiative_heating_is=np.array(is_radiative_heating_is).reshape(-1, 1),
+                is_radiative_cooling_is=np.array(is_radiative_cooling_is).reshape(-1, 1),
+                theta_r_is_n=theta_r_is_n,
+                theta_mrt_is_n=theta_mrt_hum_is_n,
+                ac_demand_is_n=ac_demand_is_n,
+                method='constant'
+            )
 
-        return _get_ot_target_and_h_hum_with_pmv(
-            x_r_is_n=x_r_is_n,
-            operation_mode_is_n_mns=operation_mode_is_n_mns,
-            is_radiative_heating_is=np.array(is_radiative_heating_is).reshape(-1, 1),
-            is_radiative_cooling_is=np.array(is_radiative_cooling_is).reshape(-1, 1),
-            theta_r_is_n=theta_r_is_n,
-            theta_mrt_is_n=theta_mrt_hum_is_n,
-            ac_demand_is_n=ac_demand_is_n,
-            method=method
-        )
+        return h_hum_c_is_n, h_hum_r_is_n, operation_mode_is_n, theta_ot_target_is_n, remarks_n
 
     return get_ot_target_and_h_hum
 
