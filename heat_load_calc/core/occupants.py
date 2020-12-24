@@ -133,7 +133,14 @@ def _get_ot_target_and_h_hum_with_pmv(
         pmv_target_is_n=pmv_target_is_n
     )
 
-    return h_hum_c_is_n, h_hum_r_is_n, operation_mode_is_n, theta_ot_target_is_n, (pmv_target_is_n, v_hum_is_n, clo_is_n)
+    remarks = [{
+        'pmv_target': pmv_target_i_n,
+        'v_hum m/s': v_hum_i_n,
+        'clo': clo_i_n
+    } for pmv_target_i_n, v_hum_i_n, clo_i_n
+        in zip(pmv_target_is_n.flatten(), v_hum_is_n.flatten(), clo_is_n.flatten())]
+
+    return h_hum_c_is_n, h_hum_r_is_n, operation_mode_is_n, theta_ot_target_is_n, remarks
 
 
 def get_x_hum_psn_is_n(theta_r_is_n: np.ndarray) -> np.ndarray:

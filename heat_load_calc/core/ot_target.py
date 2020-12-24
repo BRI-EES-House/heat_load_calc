@@ -40,7 +40,7 @@ def make_get_ot_target_and_h_hum_function(
             operation_mode_is_n_mns: np.ndarray,
             ac_demand_is_n: np.ndarray
     ):
-        h_hum_c_is_n, h_hum_r_is_n, operation_mode_is_n, theta_ot_target_is_n, remarks_n = \
+        h_hum_c_is_n, h_hum_r_is_n, operation_mode_is_n, theta_ot_target_is_n, remarks_is_n = \
             occupants._get_ot_target_and_h_hum_with_pmv(
                 x_r_is_n=x_r_is_n,
                 operation_mode_is_n_mns=operation_mode_is_n_mns,
@@ -61,7 +61,7 @@ def make_get_ot_target_and_h_hum_function(
             = theta_ot_target_is_n[operation_mode_is_n == OperationMode.COOLING]
 
         return h_hum_c_is_n, h_hum_r_is_n, operation_mode_is_n, theta_lower_target_is_n, theta_upper_target_is_n,\
-            remarks_n
+            remarks_is_n
 
     return get_ot_target_and_h_hum
 

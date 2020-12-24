@@ -32,20 +32,11 @@ class Logger:
         # ステップnの室iにおける作用温度, degree C, [i, n]
         self.theta_ot = np.zeros((n_spaces, n_step_main), dtype=float)
 
-        # ステップnの室iにおける目標PMV, -, [i, n]
-        self.pmv_target = np.zeros((n_spaces, n_step_main), dtype=float)
-
         # ステップnの室iにおける人体周辺対流熱伝達率, W/m2K, [i, n]
         self.h_hum_c_is_n = np.zeros((n_spaces, n_step_main), dtype=float)
 
         # ステップnの室iにおける人体放射熱伝達率, W/m2K, [i, n]
         self.h_hum_r_is_n = np.zeros((n_spaces, n_step_main), dtype=float)
-
-        # ステップnの室iにおける人体まわりの風速, m/s, [i, n]
-        self.v_hum_is_n = np.zeros((n_spaces, n_step_main), dtype=float)
-
-        # ステップnの室iにおけるClo値, [i, n]
-        self.clo = np.zeros((n_spaces, n_step_main), dtype=float)
 
         # ステップnの室iにおける窓の透過日射熱取得, W, [i, n]
         self.q_trs_sol_is_ns = None
@@ -86,11 +77,11 @@ class Logger:
         # ステップnの室iにおける家具取得水蒸気量, kg/s, [i, n]
         self.q_l_frt = np.zeros((n_spaces, n_step_main), dtype=float)
 
+        # スペースの備考, [i, n]
+        self.space_remarks = np.full((n_spaces, n_step_main), '', dtype=object)
+
         # ステップnの統合された境界j*の室内側表面温度, degree C, [j*, n]
         self.theta_s = np.zeros((n_boundaries, n_step_main), dtype=float)
-
-        # ステップnの統合された境界j*の室内等価室温, degree C, [j*, n]
-#        self.theta_e = np.zeros((n_bdrys, n_step_main), dtype=float)
 
         # ステップnの統合された境界j*の裏面温度, degree C, [j*, n]
         self.theta_rear = np.zeros((n_boundaries, n_step_main), dtype=float)
@@ -176,7 +167,6 @@ def record(pps: PreCalcParameters, logger: Logger, output_data_dir: str, show_si
 
         dd[name + '_ac_operate'] = logger.operation_mode[i][0:n_step_main]
         dd[name + '_occupancy'] = logger.ac_demand_is_ns[i][0:n_step_main]
-        dd[name + '_pmv_target'] = logger.pmv_target[i][0:n_step_main]
         dd[name + '_hc_hum'] = logger.h_hum_c_is_n[i][0:n_step_main]
         dd[name + '_hr_hum'] = logger.h_hum_r_is_n[i][0:n_step_main]
         dd[name + '_t_r'] = logger.theta_r[i][0:n_step_main]
@@ -184,8 +174,6 @@ def record(pps: PreCalcParameters, logger: Logger, output_data_dir: str, show_si
         dd[name + '_x_r'] = logger.x_r[i][0:n_step_main]
         dd[name + '_mrt'] = logger.theta_mrt_hum[i][0:n_step_main]
         dd[name + '_ot'] = logger.theta_ot[i][0:n_step_main]
-        dd[name + '_v_hum'] = logger.v_hum_is_n[i][0:n_step_main]
-        dd[name + '_clo'] = logger.clo[i][0:n_step_main]
         dd[name + '_q_sol_t'] = logger.q_trs_sol_is_ns[i][0:n_step_main]
         dd[name + '_q_s_except_hum'] = logger.q_gen_is_ns[i][0:n_step_main]
         dd[name + '_q_l_except_hum'] = logger.x_gen_is_ns[i][0:n_step_main]
@@ -201,6 +189,7 @@ def record(pps: PreCalcParameters, logger: Logger, output_data_dir: str, show_si
         dd[name + '_q_l_fun'] = logger.q_l_frt[i][0:n_step_main]
         dd[name + '_v_reak'] = logger.v_reak_is_ns[i][0:n_step_main]
         dd[name + '_v_ntrl'] = logger.v_ntrl_is_ns[i][0:n_step_main]
+        dd[name + '_remarks'] = logger.space_remarks[i][0:n_step_main]
 
         selected = pps.p_is_js[i] == 1
         boundary_names = pps.name_bdry_js[selected]

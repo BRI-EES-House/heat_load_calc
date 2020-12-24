@@ -1,4 +1,5 @@
 import numpy as np
+import json
 
 from heat_load_calc.core.operation_mode import OperationMode
 from heat_load_calc.core.pre_calc_parameters import PreCalcParameters
@@ -65,7 +66,7 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
     #     ステップnの室iの在室者周りの風速, m/s, [i, 1]
     #     ステップnの室iにおけるClo値, [i, 1]
     #     ステップnの室iにおける目標作用温度, degree C, [i, 1]
-    h_hum_c_is_n, h_hum_r_is_n, operation_mode_is_n, theta_lower_target_is_n, theta_upper_target_is_n, remarks \
+    h_hum_c_is_n, h_hum_r_is_n, operation_mode_is_n, theta_lower_target_is_n, theta_upper_target_is_n, remarks_is_n \
         = ss.get_ot_target_and_h_hum(
             x_r_is_n=c_n.x_r_is_n,
             operation_mode_is_n_mns=c_n.operation_mode_is_n,
@@ -73,8 +74,6 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
             theta_mrt_hum_is_n=c_n.theta_mrt_hum_is_n,
             ac_demand_is_n=ac_demand_is_n,
         )
-
-    pmv_target_is_n, v_hum_is_n, clo_is_n = remarks
 
     # ステップnの境界jにおける裏面温度, degree C, [j, 1]
     theta_rear_js_n = np.dot(ss.k_ei_js_js, c_n.theta_ei_js_n) + theta_dstrb_js_n
@@ -261,16 +260,13 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
         logger.v_ntrl_is_ns[:, n] = v_ntrl_vent_is_n.flatten()
         logger.h_hum_c_is_n[:, n] = h_hum_c_is_n.flatten()
         logger.h_hum_r_is_n[:, n] = h_hum_r_is_n.flatten()
-        # 平均値（オプション）
-        logger.v_hum_is_n[:, n] = v_hum_is_n.flatten()
-        logger.clo[:, n] = clo_is_n.flatten()
         # 瞬時値
         logger.theta_ot[:, n] = theta_ot_is_n_pls.flatten()
-        logger.pmv_target[:, n] = pmv_target_is_n.flatten()
         logger.theta_s[:, n] = theta_s_js_n_pls.flatten()
         logger.theta_rear[:, n] = theta_rear_js_n.flatten()
         logger.qiall_s[:, n] = q_srf_js_n_pls.flatten()
 
+        logger.space_remarks[:, n] = np.array([json.dumps(remark) for remark in remarks_is_n])
 
     return Conditions(
         operation_mode_is_n=operation_mode_is_n,
