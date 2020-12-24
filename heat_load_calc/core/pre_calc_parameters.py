@@ -10,7 +10,6 @@ from heat_load_calc.core import shape_factor
 from heat_load_calc.core.operation_mode import OperationMode
 from heat_load_calc.initializer import response_factor
 from heat_load_calc.core import infiltration
-from heat_load_calc.core import occupants
 from heat_load_calc.core import ot_target
 
 

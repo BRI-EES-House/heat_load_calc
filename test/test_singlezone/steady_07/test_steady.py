@@ -7,7 +7,7 @@ import unittest
 from heat_load_calc import initializer
 from heat_load_calc.weather import weather
 from heat_load_calc.core import core
-from heat_load_calc.core import occupants
+from heat_load_calc.core import ot_target_pmv
 from heat_load_calc.external import psychrometrics
 
 
@@ -48,7 +48,7 @@ class TestSteadyState(unittest.TestCase):
 
         # 確認用PMV
         # 室温の代わりに作用温度を使用
-        pmv_confirm = occupants.get_pmv_is_n(
+        pmv_confirm = ot_target_pmv.get_pmv_is_n(
             np.array([theta_ot]),
             np.array([clo]),
             np.array([p_a]),
@@ -59,7 +59,7 @@ class TestSteadyState(unittest.TestCase):
         self.assertAlmostEqual(self._dd['rm0_pmv_target']['1989-12-31 00:00:00'], pmv_confirm[0][0])
 
         # 実現PMV
-        pmv_practical = occupants.get_pmv_is_n(
+        pmv_practical = ot_target_pmv.get_pmv_is_n(
             np.array([theta_r]),
             np.array([clo]),
             np.array([p_a]),

@@ -2,7 +2,7 @@ from typing import Tuple, Callable
 import numpy as np
 
 from heat_load_calc.core.operation_mode import OperationMode
-from heat_load_calc.core import occupants
+from heat_load_calc.core import ot_target_pmv
 
 
 def make_get_ot_target_and_h_hum_function(
@@ -41,7 +41,7 @@ def make_get_ot_target_and_h_hum_function(
             ac_demand_is_n: np.ndarray
     ):
         h_hum_c_is_n, h_hum_r_is_n, operation_mode_is_n, theta_ot_target_is_n, remarks_is_n = \
-            occupants._get_ot_target_and_h_hum_with_pmv(
+            ot_target_pmv.get_ot_target_and_h_hum_with_pmv(
                 x_r_is_n=x_r_is_n,
                 operation_mode_is_n_mns=operation_mode_is_n_mns,
                 is_radiative_heating_is=np.array(is_radiative_heating_is).reshape(-1, 1),

@@ -9,7 +9,7 @@ from heat_load_calc.external.global_number import get_l_wtr
 from heat_load_calc.external import psychrometrics as psy
 
 
-def _get_ot_target_and_h_hum_with_pmv(
+def get_ot_target_and_h_hum_with_pmv(
         x_r_is_n: np.ndarray,
         operation_mode_is_n_mns: np.ndarray,
         is_radiative_heating_is: np.ndarray,
