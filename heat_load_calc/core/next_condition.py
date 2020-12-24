@@ -13,7 +13,8 @@ def calc_next_temp_and_load(
         theta_upper_target_is_n,
         lr_h_max_cap_is: np.ndarray,
         lr_cs_max_cap_is: np.ndarray,
-        operation_mode_is_n: np.ndarray
+        operation_mode_is_n: np.ndarray,
+        ac_demand_is_n: np.ndarray
 ):
 
     # 室の配列の形, i✕1　の行列 を表すタプル

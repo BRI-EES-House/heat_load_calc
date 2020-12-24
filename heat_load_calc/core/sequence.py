@@ -168,7 +168,8 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
         theta_upper_target_is_n=theta_upper_target_is_n,
         lr_h_max_cap_is=ss.lr_h_max_cap_is,
         lr_cs_max_cap_is=ss.lr_cs_max_cap_is,
-        operation_mode_is_n=operation_mode_is_n
+        operation_mode_is_n=operation_mode_is_n,
+        ac_demand_is_n=ac_demand_is_n
     )
 
     # ステップ n+1 における室 i の室温, degree C, [i, 1]
