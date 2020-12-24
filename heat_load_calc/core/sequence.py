@@ -10,6 +10,7 @@ from heat_load_calc.core import next_condition
 from heat_load_calc.core import ot_target_pmv
 from heat_load_calc.core import heat_exchanger
 from heat_load_calc.core.matrix_method import v_diag
+from heat_load_calc.core import occupants
 
 
 def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, logger: Logger, run_up: bool) -> Conditions:
@@ -79,13 +80,13 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
     theta_rear_js_n = np.dot(ss.k_ei_js_js, c_n.theta_ei_js_n) + theta_dstrb_js_n
 
     # ステップnの室iにおける1人あたりの人体発熱, W, [i, 1]
-    q_hum_psn_is_n = ot_target_pmv.get_q_hum_psn_is_n(theta_r_is_n=c_n.theta_r_is_n)
+    q_hum_psn_is_n = occupants.get_q_hum_psn_is_n(theta_r_is_n=c_n.theta_r_is_n)
 
     # ステップnの室iにおける人体発熱, W, [i, 1]
     q_hum_is_n = q_hum_psn_is_n * n_hum_is_n
 
     # ステップnの室iにおける1人あたりの人体発湿, kg/s, [i, 1]
-    x_hum_psn_is_n = ot_target_pmv.get_x_hum_psn_is_n(theta_r_is_n=c_n.theta_r_is_n)
+    x_hum_psn_is_n = occupants.get_x_hum_psn_is_n(theta_r_is_n=c_n.theta_r_is_n)
 
     # ステップnの室iにおける人体発湿, kg/s, [i, 1]
     x_hum_is_n = x_hum_psn_is_n * n_hum_is_n
