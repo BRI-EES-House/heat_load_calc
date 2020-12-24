@@ -57,8 +57,10 @@ def calc_next_temp_and_load(
     # nt = 0 （室温を指定する） に対応する要素に、ターゲットとなるOTを代入する。
     # nt = 1 （室温を指定しない）場合は、theta_set は 0 にしなければならない。
     theta_set = np.zeros(room_shape, dtype=float)
-    theta_set[is_heating] = theta_lower_target_is_n[is_heating]
-    theta_set[is_cooling] = theta_upper_target_is_n[is_cooling]
+    theta_set[is_heating] = theta_lower_target_is_n[is_heating] * ac_demand_is_n[is_heating] \
+        + theta_natural_is_n[is_heating] * (1.0 - ac_demand_is_n[is_heating])
+    theta_set[is_cooling] = theta_upper_target_is_n[is_cooling] * ac_demand_is_n[is_cooling] \
+        + theta_natural_is_n[is_cooling] * (1.0 - ac_demand_is_n[is_cooling])
 
     # 対流空調指定を表す係数, [i, 1], int型
     # 指定する = 0, 指定しない = 1

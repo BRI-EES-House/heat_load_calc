@@ -11,6 +11,7 @@ from heat_load_calc.core.operation_mode import OperationMode
 from heat_load_calc.initializer import response_factor
 from heat_load_calc.core import infiltration
 from heat_load_calc.core import occupants
+from heat_load_calc.core import ot_target
 
 
 @dataclass
@@ -533,7 +534,7 @@ def make_pre_calc_parameters(delta_t: float, data_directory: str) -> (PreCalcPar
 
     # region 読み込んだ値から新たに関数を作成する
 
-    get_ot_target_and_h_hum = occupants.make_get_ot_target_and_h_hum_function(
+    get_ot_target_and_h_hum = ot_target.make_get_ot_target_and_h_hum_function(
         is_radiative_heating_is=is_radiative_heating_is,
         is_radiative_cooling_is=is_radiative_cooling_is
     )
