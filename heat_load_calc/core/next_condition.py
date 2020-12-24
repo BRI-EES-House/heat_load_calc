@@ -9,14 +9,16 @@ def calc_next_temp_and_load(
         brc_ot_is_n: np.ndarray,
         brm_ot_is_is_n: np.ndarray,
         brl_ot_is_is_n: np.ndarray,
-        theta_ot_target_is_n: np.ndarray,
+        theta_lower_target_is_n,
+        theta_upper_target_is_n,
         lr_h_max_cap_is: np.ndarray,
         lr_cs_max_cap_is: np.ndarray,
-        operation_mode_is_n: np.ndarray
+        operation_mode_is_n: np.ndarray,
+        ac_demand_is_n: np.ndarray
 ):
 
     # 室の配列の形, i✕1　の行列 を表すタプル
-    room_shape = theta_ot_target_is_n.shape
+    room_shape = operation_mode_is_n.shape
 
     # 室の数
     n_room = room_shape[0]
@@ -36,19 +38,29 @@ def calc_next_temp_and_load(
     # 暖冷房負荷が無い場合の自然作用温度を計算する。
     theta_natural_is_n = np.dot(np.linalg.inv(kt), k)
 
+    # 実際に暖房が行われるかどうか。
+    is_heating = (operation_mode_is_n == OperationMode.HEATING) & (theta_natural_is_n < theta_lower_target_is_n)
+    is_cooling = (operation_mode_is_n == OperationMode.COOLING) & (theta_upper_target_is_n < theta_natural_is_n)
+
     # 室温指定を表す係数, [i, 1], int型
     # 指定する = 0, 指定しない = 1
     # 室温を指定しない場合は、 operation_mode が STOP_CLOSE or STOP_OPEN の場合である。
     # 後で再計算する際に、負荷が機器容量を超えている場合は、最大暖房／冷房負荷で処理されることになるため、
     # 室温を指定しない場合は、この限りではない。
-    nt = np.zeros(room_shape, dtype=int)
-    nt[operation_mode_is_n == OperationMode.STOP_CLOSE] = 1
-    nt[operation_mode_is_n == OperationMode.STOP_OPEN] = 1
+#    nt = np.zeros(room_shape, dtype=int)
+#    nt[operation_mode_is_n == OperationMode.STOP_CLOSE] = 1
+#    nt[operation_mode_is_n == OperationMode.STOP_OPEN] = 1
+    nt = np.full(room_shape, 1, dtype=int)
+    nt[is_heating] = 0
+    nt[is_cooling] = 0
 
     # nt = 0 （室温を指定する） に対応する要素に、ターゲットとなるOTを代入する。
     # nt = 1 （室温を指定しない）場合は、theta_set は 0 にしなければならない。
     theta_set = np.zeros(room_shape, dtype=float)
-    theta_set[nt == 0] = theta_ot_target_is_n[nt == 0]
+    theta_set[is_heating] = theta_lower_target_is_n[is_heating] * ac_demand_is_n[is_heating] \
+        + theta_natural_is_n[is_heating] * (1.0 - ac_demand_is_n[is_heating])
+    theta_set[is_cooling] = theta_upper_target_is_n[is_cooling] * ac_demand_is_n[is_cooling] \
+        + theta_natural_is_n[is_cooling] * (1.0 - ac_demand_is_n[is_cooling])
 
     # 対流空調指定を表す係数, [i, 1], int型
     # 指定する = 0, 指定しない = 1
@@ -57,8 +69,10 @@ def calc_next_temp_and_load(
     #   operation_mode が COOLING でかつ、 is_radiative_cooling_is が false の場合
     # のどちらかである。
     c = np.zeros(room_shape, dtype=int)
-    c[(operation_mode_is_n == OperationMode.HEATING) & (np.logical_not(is_radiative_heating_is))] = 1
-    c[(operation_mode_is_n == OperationMode.COOLING) & (np.logical_not(is_radiative_cooling_is))] = 1
+#    c[(operation_mode_is_n == OperationMode.HEATING) & (np.logical_not(is_radiative_heating_is))] = 1
+#    c[(operation_mode_is_n == OperationMode.COOLING) & (np.logical_not(is_radiative_cooling_is))] = 1
+    c[is_heating & (np.logical_not(is_radiative_heating_is))] = 1
+    c[is_cooling & (np.logical_not(is_radiative_cooling_is))] = 1
 
     # c = 0 （対流空調を指定する）に対応する要素に、0.0 を代入する。
     # 対流空調を指定する場合は空調をしていないことに相当するため。ただし、後述する、最大能力で動く場合は、その値を代入することになる。
@@ -73,8 +87,10 @@ def calc_next_temp_and_load(
     #   operation_mode が COOLING でかつ、 is_radiative_cooling_is が true の場合
     # のどちらかである。
     r = np.zeros(room_shape, dtype=int)
-    r[(operation_mode_is_n == OperationMode.HEATING) & is_radiative_heating_is] = 1
-    r[(operation_mode_is_n == OperationMode.COOLING) & is_radiative_cooling_is] = 1
+#    r[(operation_mode_is_n == OperationMode.HEATING) & is_radiative_heating_is] = 1
+#    r[(operation_mode_is_n == OperationMode.COOLING) & is_radiative_cooling_is] = 1
+    r[is_heating & is_radiative_heating_is] = 1
+    r[is_cooling & is_radiative_cooling_is] = 1
 
     # r = 0 （放射空調を指定する）に対応する要素に、0.0 を代入する。
     # 放射空調を指定する場合は空調をしていないことに相当するため。ただし、後述する、最大能力で動く場合は、その値を代入することになる。

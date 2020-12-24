@@ -1,4 +1,5 @@
 import numpy as np
+import json
 
 from heat_load_calc.core.operation_mode import OperationMode
 from heat_load_calc.core.pre_calc_parameters import PreCalcParameters
@@ -6,10 +7,9 @@ from heat_load_calc.core.conditions import Conditions
 from heat_load_calc.external.global_number import get_c_air, get_rho_air, get_l_wtr
 from heat_load_calc.core.log import Logger
 from heat_load_calc.core import next_condition
-from heat_load_calc.core import occupants
+from heat_load_calc.core import ot_target_pmv
 from heat_load_calc.core import heat_exchanger
 from heat_load_calc.core.matrix_method import v_diag
-from heat_load_calc.core import infiltration
 
 
 def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, logger: Logger, run_up: bool) -> Conditions:
@@ -26,11 +26,11 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
         次の時刻にわたす状態量
     """
 
-    ##### 時刻 n, n+1 におけるデータの切り出し #####
-    # [i, n] のベクトルを[:, n] 又は[:, n+1] で切り出す。
-    # numpy の仕様として、切り出した時にある次元の配列数が1の場合に、次元を1つ減らすため、
-    # [:, n] 又は [:, n+1] で切り出した場合、[i] 又は [j] の1次元配列になる。
-    # ベクトル計算に都合の良いように、[i, 1] 又は [j, 1] の列ベクトルになおすために、 np.reshape(-1, 1)の操作をしている。
+    # 時刻 n, n+1 におけるデータの切り出し
+    #   [i, n] のベクトルを[:, n] 又は[:, n+1] で切り出す。
+    #   numpy の仕様として、切り出した時にある次元の配列数が1の場合に、次元を1つ減らすため、
+    #   [:, n] 又は [:, n+1] で切り出した場合、[i] 又は [j] の1次元配列になる。
+    #   ベクトル計算に都合の良いように、[i, 1] 又は [j, 1] の列ベクトルになおすために、 np.reshape(-1, 1)の操作をしている。
 
     # ステップnにおける室iの空調需要, [i, 1]
     ac_demand_is_n = ss.ac_demand_is_ns[:, n].reshape(-1, 1)
@@ -61,11 +61,12 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
     #     ステップnにおける室iの在室者周りの対流熱伝達率, W / m2K, [i, 1]
     #     ステップnにおける室iの在室者周りの放射熱伝達率, W / m2K, [i, 1]
     #     ステップnの室iにおける運転モード, [i, 1]
-    #     ステップnの室iにおける目標PMV, [i, 1]
+    #     ステップnの室iにおける目標作用温度下限値, [i, 1]
+    #     ステップnの室iにおける目標作用温度上限値, [i, 1]
     #     ステップnの室iの在室者周りの風速, m/s, [i, 1]
     #     ステップnの室iにおけるClo値, [i, 1]
     #     ステップnの室iにおける目標作用温度, degree C, [i, 1]
-    h_hum_c_is_n, h_hum_r_is_n, operation_mode_is_n, theta_ot_target_is_n, remarks \
+    h_hum_c_is_n, h_hum_r_is_n, operation_mode_is_n, theta_lower_target_is_n, theta_upper_target_is_n, remarks_is_n \
         = ss.get_ot_target_and_h_hum(
             x_r_is_n=c_n.x_r_is_n,
             operation_mode_is_n_mns=c_n.operation_mode_is_n,
@@ -74,32 +75,22 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
             ac_demand_is_n=ac_demand_is_n,
         )
 
-    pmv_target_is_n, v_hum_is_n, clo_is_n = remarks
-
     # ステップnの境界jにおける裏面温度, degree C, [j, 1]
     theta_rear_js_n = np.dot(ss.k_ei_js_js, c_n.theta_ei_js_n) + theta_dstrb_js_n
 
     # ステップnの室iにおける1人あたりの人体発熱, W, [i, 1]
-    q_hum_psn_is_n = occupants.get_q_hum_psn_is_n(theta_r_is_n=c_n.theta_r_is_n)
+    q_hum_psn_is_n = ot_target_pmv.get_q_hum_psn_is_n(theta_r_is_n=c_n.theta_r_is_n)
 
     # ステップnの室iにおける人体発熱, W, [i, 1]
     q_hum_is_n = q_hum_psn_is_n * n_hum_is_n
 
     # ステップnの室iにおける1人あたりの人体発湿, kg/s, [i, 1]
-    x_hum_psn_is_n = occupants.get_x_hum_psn_is_n(theta_r_is_n=c_n.theta_r_is_n)
+    x_hum_psn_is_n = ot_target_pmv.get_x_hum_psn_is_n(theta_r_is_n=c_n.theta_r_is_n)
 
     # ステップnの室iにおける人体発湿, kg/s, [i, 1]
     x_hum_is_n = x_hum_psn_is_n * n_hum_is_n
 
     # ステップnの室iにおけるすきま風量, m3/s, [i, 1]
-    # v_leak_is_n = infiltration.get_infiltration_residential(
-    #     c_value=ss.c_value,
-    #     v_room_is=ss.v_room_is,
-    #     story=ss.story,
-    #     inside_pressure=ss.inside_p,
-    #     theta_r_is_n=c_n.theta_r_is_n,
-    #     theta_o_npls=ss.theta_o_ns[n]
-    # )
     v_leak_is_n = ss.get_infiltration(theta_r_is_n=c_n.theta_r_is_n, theta_o_n=ss.theta_o_ns[n])
 
     # ステップn+1の境界jにおける項別公比法の指数項mの吸熱応答の項別成分, degree C, [j, m] (m=12)
@@ -172,10 +163,12 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
         brc_ot_is_n=brc_ot_is_n,
         brm_ot_is_is_n=brm_ot_is_is_n,
         brl_ot_is_is_n=brl_ot_is_is_n,
-        theta_ot_target_is_n=theta_ot_target_is_n,
+        theta_lower_target_is_n=theta_lower_target_is_n,
+        theta_upper_target_is_n=theta_upper_target_is_n,
         lr_h_max_cap_is=ss.lr_h_max_cap_is,
         lr_cs_max_cap_is=ss.lr_cs_max_cap_is,
-        operation_mode_is_n=operation_mode_is_n
+        operation_mode_is_n=operation_mode_is_n,
+        ac_demand_is_n=ac_demand_is_n
     )
 
     # ステップ n+1 における室 i の室温, degree C, [i, 1]
@@ -193,10 +186,6 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
     # ステップ n+1 における室 i の人体に対する平均放射温度, degree C, [i, 1]
     theta_mrt_hum_is_n_pls = np.dot(ss.f_mrt_hum_is_js, theta_s_js_n_pls)
 
-#    t1 = theta_ot_is_n_pls
-#    t2 = kc_is_n * theta_r_is_n_pls + kr_is_n * theta_mrt_hum_is_n_pls
-#    print(np.abs(t1-t2)<0.00001)
-
     # ステップ n+1 の境界 j における等価温度, degree C, [j, 1]
     theta_ei_js_n_pls = (
         ss.h_c_js * np.dot(ss.p_js_is, theta_r_is_n_pls)
@@ -210,11 +199,11 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
 
     # --- ここから、湿度の計算 ---
 
-    # ステップnの室iにおける係数 brmx_pre, [i, 1]
+    # ステップnの室iにおける係数 brmx（除湿なし）, [i, 1]
     brmx_non_dh_is_n_pls = get_rho_air() * (v_diag(ss.v_room_is / delta_t + v_out_vent_is_n) - ss.v_int_vent_is_is)\
         + v_diag(ss.c_lh_frt_is * ss.g_lh_frt_is / (ss.c_lh_frt_is + delta_t * ss.g_lh_frt_is))
 
-    # ステップnの室iにおける係数 brxc_pre, [i, 1]
+    # ステップnの室iにおける係数 brxc（除湿なし）, [i, 1]
     brxc_non_dh_is_n_pls = get_rho_air() * (
             ss.v_room_is / delta_t * c_n.x_r_is_n
             + v_out_vent_is_n * ss.x_o_ns[n]
@@ -271,16 +260,13 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
         logger.v_ntrl_is_ns[:, n] = v_ntrl_vent_is_n.flatten()
         logger.h_hum_c_is_n[:, n] = h_hum_c_is_n.flatten()
         logger.h_hum_r_is_n[:, n] = h_hum_r_is_n.flatten()
-        # 平均値（オプション）
-        logger.v_hum_is_n[:, n] = v_hum_is_n.flatten()
-        logger.clo[:, n] = clo_is_n.flatten()
         # 瞬時値
         logger.theta_ot[:, n] = theta_ot_is_n_pls.flatten()
-        logger.pmv_target[:, n] = pmv_target_is_n.flatten()
         logger.theta_s[:, n] = theta_s_js_n_pls.flatten()
         logger.theta_rear[:, n] = theta_rear_js_n.flatten()
         logger.qiall_s[:, n] = q_srf_js_n_pls.flatten()
 
+        logger.space_remarks[:, n] = np.array([json.dumps(remark) for remark in remarks_is_n])
 
     return Conditions(
         operation_mode_is_n=operation_mode_is_n,
