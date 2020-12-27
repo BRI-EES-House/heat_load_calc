@@ -11,6 +11,7 @@ from heat_load_calc.core.operation_mode import OperationMode
 from heat_load_calc.initializer import response_factor
 from heat_load_calc.core import infiltration
 from heat_load_calc.core import ot_target
+from heat_load_calc.core import next_condition
 
 
 @dataclass
@@ -101,18 +102,6 @@ class PreCalcParameters:
     # BRL, [i, i]
     brl_is_is: np.ndarray
 
-    # 放射暖房最大能力, W, [i]
-    lr_h_max_cap_is: np.ndarray
-
-    # 放射冷房最大能力, W, [i]
-    lr_cs_max_cap_is: np.ndarray
-
-    # 放射暖房有無（Trueなら放射暖房あり）
-    is_radiative_heating_is: np.ndarray
-
-    # 放射冷房有無（Trueなら放射冷房あり）
-    is_radiative_cooling_is: np.ndarray
-
     # 放射暖房対流比率, [i, 1]
     beta_is: np.ndarray
 
@@ -180,6 +169,8 @@ class PreCalcParameters:
     get_ot_target_and_h_hum: Callable[[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray], tuple]
 
     get_infiltration: Callable[[np.ndarray, float], np.ndarray]
+
+    calc_next_temp_and_load: Callable
 
     rac_spec: Dict[str, Any]
 
@@ -283,9 +274,9 @@ def make_pre_calc_parameters(delta_t: float, data_directory: str) -> (PreCalcPar
             radiative_cooling_max_capacity_is_list.append(0.0)
 
     is_radiative_heating_is = np.array(is_radiative_heating_is_list).reshape(-1, 1)
-    lr_h_max_cap_is = np.array(radiative_heating_max_capacity_is_list)
+    lr_h_max_cap_is = np.array(radiative_heating_max_capacity_is_list).reshape(-1, 1)
     is_radiative_cooling_is = np.array(is_radiative_cooling_is_list).reshape(-1, 1)
-    lr_cs_max_cap_is = np.array(radiative_cooling_max_capacity_is_list)
+    lr_cs_max_cap_is = np.array(radiative_cooling_max_capacity_is_list).reshape(-1, 1)
 
     qmin_c_is = np.array([s['equipment']['cooling']['convective']['q_min'] for s in ss]).reshape(-1, 1)
     qmax_c_is = np.array([s['equipment']['cooling']['convective']['q_max'] for s in ss]).reshape(-1, 1)
@@ -533,13 +524,22 @@ def make_pre_calc_parameters(delta_t: float, data_directory: str) -> (PreCalcPar
 
     # region 読み込んだ値から新たに関数を作成する
 
+    # 作用温度と人体周りの熱伝達率を計算する関数
     get_ot_target_and_h_hum = ot_target.make_get_ot_target_and_h_hum_function(
         is_radiative_heating_is=is_radiative_heating_is,
         is_radiative_cooling_is=is_radiative_cooling_is
     )
 
-    # すきま風を計算する関数を作成する。
+    # すきま風を計算する関数
     get_infiltration = infiltration.make_get_infiltration_function(rd=rd)
+
+    # 次のステップの室温と負荷を計算する関数
+    calc_next_temp_and_load = next_condition.make_get_next_temp_and_load_function(
+        is_radiative_heating_is=is_radiative_heating_is,
+        is_radiative_cooling_is=is_radiative_cooling_is,
+        lr_h_max_cap_is=lr_h_max_cap_is,
+        lr_cs_max_cap_is=lr_cs_max_cap_is
+    )
 
     # endregion
 
@@ -579,10 +579,6 @@ def make_pre_calc_parameters(delta_t: float, data_directory: str) -> (PreCalcPar
         q_trs_sol_is_ns=q_trs_sol_is_ns,
         v_ntrl_vent_is=v_ntrl_vent_is,
         ac_demand_is_ns=ac_demand_is_ns,
-        is_radiative_heating_is=is_radiative_heating_is,
-        is_radiative_cooling_is=is_radiative_cooling_is,
-        lr_h_max_cap_is=np.array(lr_h_max_cap_is).reshape(-1, 1),
-        lr_cs_max_cap_is=np.array(lr_cs_max_cap_is).reshape(-1, 1),
         flr_js_is=flr_js_is,
         h_r_js=h_r_js,
         h_c_js=h_c_js,
@@ -605,7 +601,8 @@ def make_pre_calc_parameters(delta_t: float, data_directory: str) -> (PreCalcPar
         theta_o_ave=theta_o_ave,
         rac_spec=rac_spec,
         get_ot_target_and_h_hum=get_ot_target_and_h_hum,
-        get_infiltration=get_infiltration
+        get_infiltration=get_infiltration,
+        calc_next_temp_and_load=calc_next_temp_and_load
     )
 
     pre_calc_parameters_ground = PreCalcParametersGround(
