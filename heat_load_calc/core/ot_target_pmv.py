@@ -11,11 +11,11 @@ from heat_load_calc.external import psychrometrics as psy
 def get_ot_target_and_h_hum_with_pmv(
         x_r_is_n: np.ndarray,
         operation_mode_is_n_mns: np.ndarray,
+        theta_r_is_n: np.ndarray,
+        theta_mrt_hum_is_n: np.ndarray,
+        ac_demand_is_n: np.ndarray,
         is_radiative_heating_is: np.ndarray,
         is_radiative_cooling_is: np.ndarray,
-        theta_r_is_n: np.ndarray,
-        theta_mrt_is_n: np.ndarray,
-        ac_demand_is_n: np.ndarray,
         method: str = 'convergence'
 ) -> (np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, (np.ndarray, np.ndarray, np.ndarray)):
     """
@@ -31,7 +31,7 @@ def get_ot_target_and_h_hum_with_pmv(
         is_radiative_heating_is:　放射暖房の有無, [i, 1]
         is_radiative_cooling_is: 放射冷房の有無, [i, 1]
         theta_r_is_n: ステップnにおける室iの空気温度, degree C, [i, 1]
-        theta_mrt_is_n: ステップnにおける室iの在室者の平均放射温度, degree C, [i, 1]
+        theta_mrt_hum_is_n: ステップnにおける室iの在室者の平均放射温度, degree C, [i, 1]
         ac_demand_is_n: ステップnにおける室iの空調需要の有無, 0.0～1.0, [i, 1]
         method: PMV計算時の熱伝達率計算に収束計算を行うか固定値を使用するか
     Returns:
@@ -67,7 +67,7 @@ def get_ot_target_and_h_hum_with_pmv(
     pmv_heavy_is_n = _get_h_hum_and_pmv(
         p_a_is_n=p_v_r_is_n,
         theta_r_is_n=theta_r_is_n,
-        theta_mrt_is_n=theta_mrt_is_n,
+        theta_mrt_is_n=theta_mrt_hum_is_n,
         clo_is_n=clo_heavy,
         v_hum_is_n=v_hum_is_n_mns,
         method=method
@@ -76,7 +76,7 @@ def get_ot_target_and_h_hum_with_pmv(
     pmv_middle_is_n = _get_h_hum_and_pmv(
         p_a_is_n=p_v_r_is_n,
         theta_r_is_n=theta_r_is_n,
-        theta_mrt_is_n=theta_mrt_is_n,
+        theta_mrt_is_n=theta_mrt_hum_is_n,
         clo_is_n=clo_middle,
         v_hum_is_n=v_hum_is_n_mns,
         method=method
@@ -85,7 +85,7 @@ def get_ot_target_and_h_hum_with_pmv(
     pmv_light_is_n = _get_h_hum_and_pmv(
         p_a_is_n=p_v_r_is_n,
         theta_r_is_n=theta_r_is_n,
-        theta_mrt_is_n=theta_mrt_is_n,
+        theta_mrt_is_n=theta_mrt_hum_is_n,
         clo_is_n=clo_light,
         v_hum_is_n=v_hum_is_n_mns,
         method=method
@@ -111,7 +111,7 @@ def get_ot_target_and_h_hum_with_pmv(
     )
 
     h_hum_c_is_n, h_hum_r_is_n = _get_h_hum(
-        theta_mrt_is_n=theta_mrt_is_n,
+        theta_mrt_is_n=theta_mrt_hum_is_n,
         theta_r_is_n=theta_r_is_n,
         clo_is_n=clo_is_n,
         v_hum_is_n=v_hum_is_n,
@@ -139,7 +139,15 @@ def get_ot_target_and_h_hum_with_pmv(
     } for pmv_target_i_n, v_hum_i_n, clo_i_n
         in zip(pmv_target_is_n.flatten(), v_hum_is_n.flatten(), clo_is_n.flatten())]
 
-    return h_hum_c_is_n, h_hum_r_is_n, operation_mode_is_n, theta_ot_target_is_n, remarks
+    theta_lower_target_is_n = np.zeros_like(operation_mode_is_n, dtype=float)
+    theta_lower_target_is_n[operation_mode_is_n == OperationMode.HEATING] \
+        = theta_ot_target_is_n[operation_mode_is_n == OperationMode.HEATING]
+
+    theta_upper_target_is_n = np.zeros_like(operation_mode_is_n, dtype=float)
+    theta_upper_target_is_n[operation_mode_is_n == OperationMode.COOLING] \
+        = theta_ot_target_is_n[operation_mode_is_n == OperationMode.COOLING]
+
+    return h_hum_c_is_n, h_hum_r_is_n, operation_mode_is_n, theta_lower_target_is_n, theta_upper_target_is_n, remarks
 
 
 # region 本モジュール内でのみ参照される関数

@@ -282,9 +282,9 @@ def make_pre_calc_parameters(delta_t: float, data_directory: str) -> (PreCalcPar
             is_radiative_cooling_is_list.append(False)
             radiative_cooling_max_capacity_is_list.append(0.0)
 
-    is_radiative_heating_is = np.array(is_radiative_heating_is_list)
+    is_radiative_heating_is = np.array(is_radiative_heating_is_list).reshape(-1, 1)
     lr_h_max_cap_is = np.array(radiative_heating_max_capacity_is_list)
-    is_radiative_cooling_is = np.array(is_radiative_cooling_is_list)
+    is_radiative_cooling_is = np.array(is_radiative_cooling_is_list).reshape(-1, 1)
     lr_cs_max_cap_is = np.array(radiative_cooling_max_capacity_is_list)
 
     qmin_c_is = np.array([s['equipment']['cooling']['convective']['q_min'] for s in ss]).reshape(-1, 1)
@@ -579,8 +579,8 @@ def make_pre_calc_parameters(delta_t: float, data_directory: str) -> (PreCalcPar
         q_trs_sol_is_ns=q_trs_sol_is_ns,
         v_ntrl_vent_is=v_ntrl_vent_is,
         ac_demand_is_ns=ac_demand_is_ns,
-        is_radiative_heating_is=np.array(is_radiative_heating_is).reshape(-1, 1),
-        is_radiative_cooling_is=np.array(is_radiative_cooling_is).reshape(-1, 1),
+        is_radiative_heating_is=is_radiative_heating_is,
+        is_radiative_cooling_is=is_radiative_cooling_is,
         lr_h_max_cap_is=np.array(lr_h_max_cap_is).reshape(-1, 1),
         lr_cs_max_cap_is=np.array(lr_cs_max_cap_is).reshape(-1, 1),
         flr_js_is=flr_js_is,
