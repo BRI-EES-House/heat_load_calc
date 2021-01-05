@@ -3495,14 +3495,55 @@ k_{EO,j} \cdot \theta_{EO,n}
 </div>
 </div>
 <div class="paragraph">
-<p>空調除湿量はルームエアコンの場合式(2)で表される。</p>
+<p>空調による除湿・加湿の方法として以下の3パターンを想定する。</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>固定値で除湿・加湿を行う方法（加湿器など）</p>
+</li>
+<li>
+<p>目標絶対湿度を満たすように除湿・加湿を行う方法（従来の負荷計算方法）</p>
+</li>
+<li>
+<p>室内の絶対湿度に応じて除湿を行う方法（放射パネルやエアコンなど除湿量を完全には制御しない方式）</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>これらを踏まえて、一般的に除湿量を以下の式で表す。</p>
 </div>
 <div class="stemblock">
 <div class="content">
-\[G_{RAC} = \left\{ \begin{array}{ll}
-  \rho_a \cdot V_{RAC} \cdot (1 - BF_{RAC}) \cdot (X_{r} - X_{RAC,ex}) &amp; (X_r \gt X_{RAC,ex})\\
-  0.0 &amp; (X_r \le X_{RAC,ex})
-\end{array} \right. \tag{2}\]
+\[L_L = L_a \cdot X_r + L_b \tag{2}\]
+</div>
+</div>
+<div class="paragraph">
+<p>固定値で除湿・加湿を行う方法の場合、\(L_a = 0\)とし、除湿・加湿量を\(L_b\)（ただし加湿を正とする）とすればよい。</p>
+</div>
+<div class="paragraph">
+<p>目標絶対湿度を満たすように除湿・加湿を行う方法の場合、\(L_a = 0\)とし、\(L_b\)を未知数として除湿・加湿量を求めれば良い。</p>
+</div>
+<div class="paragraph">
+<p>室内の絶対湿度に応じて除湿を行う方法の場合、室内の絶対湿度と除湿を行う表面の飽和絶対湿度との差によって除湿量が決定される場合が多い。その場合、以下のような式で表される。</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[L_L = \left\{ \begin{array}{ll}
+  - k_{l} \cdot (X_{r} - X_{srf,ex}) &amp; (X_r \gt X_{srf,ex})\\
+  0.0 &amp; (X_r \le X_{srf,ex})
+\end{array} \right. \tag{3}\]
+</div>
+</div>
+<div class="paragraph">
+<p>この場合、絶対湿度と熱交換器表面における飽和絶対湿度との大小関係によって除湿の有無が決定されるため、一旦、\(X_r &gt; X_{srf,ex}\)を仮定して潜熱負荷\(L_L\)を計算し、その値が正（加湿）だった場合は\(L_L=0\)として再計算するなど、何らかの数値解法的手法が求められる。</p>
+</div>
+<div class="paragraph">
+<p>なお、ルームエアコンの場合、\(k_l\)はバイパスファクターを使用して次のように表される。</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[k_l = \rho_a \cdot V_{RAC} \cdot (1 - BF_{RAC})\]
 </div>
 </div>
 <div class="paragraph">
@@ -3510,7 +3551,7 @@ k_{EO,j} \cdot \theta_{EO,n}
 </div>
 <div class="stemblock">
 <div class="content">
-\[C_{w,frt} \cdot \frac{dX_{frt,n}}{dt} = G_{w,frt} \cdot (X_r - X_{frt}) \tag{3}\]
+\[C_{w,frt} \cdot \frac{dX_{frt,n}}{dt} = G_{w,frt} \cdot (X_r - X_{frt}) \tag{4}\]
 </div>
 </div>
 <div class="paragraph">
@@ -3630,7 +3671,7 @@ BRMC_{not-dh}
 <div id="footer">
 <div id="footer-text">
 Version 1.0.0(202006)<br>
-Last updated 2020-12-28 05:34:04 UTC
+Last updated 2021-01-05 09:12:52 UTC
 </div>
 </div>
 <script type="text/x-mathjax-config">
