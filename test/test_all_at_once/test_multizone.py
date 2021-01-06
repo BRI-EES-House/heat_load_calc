@@ -24,14 +24,16 @@ class TestAllAtOnce(unittest.TestCase):
 
         d = json.load(js)
 
+        js.close()
+
         weather.make_weather(region=d['common']['region'], output_data_dir=data_dir, csv_output=True)
 
         initializer.make_house(d=d, input_data_dir=data_dir, output_data_dir=data_dir)
 
         ds, dd = core.calc(input_data_dir=data_dir, output_data_dir=data_dir)
 
-        self.assertAlmostEqual(16.6934191745073, dd['rm0_t_r']['1989-12-31  23:45:00'])
-        self.assertAlmostEqual(0.00391380896164113, dd['rm0_x_r']['1989-12-31  23:45:00'])
+        self.assertAlmostEqual(17.18026686359893, dd['rm0_t_r']['1989-12-31  23:45:00'])
+        self.assertAlmostEqual(0.01497309062626615, dd['rm0_x_r']['1989/8/24  16:00:00'])
 
 
 if __name__ == '__main__':

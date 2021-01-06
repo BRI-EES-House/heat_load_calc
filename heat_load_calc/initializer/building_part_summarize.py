@@ -79,6 +79,9 @@ def integrate(bss: List[BoundarySimple]) -> List[BoundarySimple]:
 
         rear_surface_boundary_id_js.append(_id2)
 
+    # 床か否か, [j]
+    is_floor_js = [bss[first_idx[i]].is_floor for i in np.unique(gp_idxs)]
+
     # 日射吸収の有無, [j]
     is_solar_absorbed_inside_js = [bss[first_idx[i]].is_solar_absorbed_inside for i in np.unique(gp_idxs)]
 
@@ -96,6 +99,9 @@ def integrate(bss: List[BoundarySimple]) -> List[BoundarySimple]:
     # 室内側表面総合熱伝達率, W/m2K
     # 境界jの室内側表面総合熱伝達率, W/m2K, [j]
     h_i_js = [bss[first_idx[i]].h_i for i in np.unique(gp_idxs)]
+
+    # 境界jの室内側表面対流熱伝達率, W/m2K, [j]
+    h_c_js = [bss[first_idx[i]].h_c for i in np.unique(gp_idxs)]
 
     # 境界jの傾斜面のステップnにおける相当外気温度, degree C, [j, 8760 * 4]
     theta_o_sol_js_ns = [
@@ -168,10 +174,12 @@ def integrate(bss: List[BoundarySimple]) -> List[BoundarySimple]:
             h_td=h_td_js[j],
             next_room_type=next_room_type_js[j],
             rear_surface_boundary_id=rear_surface_boundary_id_js[j],
+            is_floor=is_floor_js[j],
             is_solar_absorbed_inside=is_solar_absorbed_inside_js[j],
             is_sun_striked_outside=is_sun_striked_outside_js[j],
             direction=direction_js[j],
             h_i=h_i_js[j],
+            h_c=h_c_js[j],
             theta_o_sol=theta_o_sol_js_ns[j],
             q_trs_sol=q_trs_sol_js_ns[j],
             n_root=n_root_js[j],
@@ -255,6 +263,10 @@ def _is_boundary_integratable(bs1: BoundarySimple, bs2: BoundarySimple) -> bool:
 
     # 境界の種類
     if bs1.boundary_type != bs2.boundary_type:
+        return False
+
+    # 床か否か
+    if bs1.is_floor != bs2.is_floor:
         return False
 
     # 室内侵入日射吸収の有無

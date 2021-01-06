@@ -43,6 +43,9 @@ class BoundarySimple:
     # internal_wall の場合のみ定義される。
     rear_surface_boundary_id: int
 
+    # 床か否か
+    is_floor: bool
+
     # 室内侵入日射吸収の有無
     is_solar_absorbed_inside: bool
 
@@ -60,21 +63,14 @@ class BoundarySimple:
     # 室内側表面総合熱伝達率, W/m2K
     h_i: float
 
+    # 室内側表面対流熱伝達率, W/m2K
+    h_c: float
+
     # 相当外気温度, ℃, [8760 * 4]
     theta_o_sol: np.ndarray
 
     # 透過日射熱取得, W, [8760*4]
     q_trs_sol: np.ndarray
-
-    # 応答係数法（項別公比法）における根の数
-    n_root: int
-
-    n_root: int
-    row: np.ndarray
-    rft0: float
-    rfa0: float
-    rft1: np.ndarray
-    rfa1: np.ndarray
 
 
 def get_boundary_simple(theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, a_sun_ns, h_sun_ns, b):
@@ -96,14 +92,7 @@ def get_boundary_simple(theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, a_sun_ns, h_sun_n
     # 'external_transparent_part': 外皮_透明な開口部
     # 'external_opaque_part': 外皮_不透明な開口部
     # 'ground': 地盤
-    # boundary_type = b['boundary_type']
-    boundary_type = {
-        'internal': BoundaryType.Internal,
-        'external_general_part': BoundaryType.ExternalGeneralPart,
-        'external_transparent_part': BoundaryType.ExternalTransparentPart,
-        'external_opaque_part': BoundaryType.ExternalOpaquePart,
-        'ground': BoundaryType.Ground
-    }[b['boundary_type']]
+    boundary_type = BoundaryType(b['boundary_type'])
 
     # 面積, m2
     area = float(b['area'])
@@ -146,6 +135,10 @@ def get_boundary_simple(theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, a_sun_ns, h_sun_n
     # False: 吸収しない
     is_solar_absorbed_inside = bool(b['is_solar_absorbed_inside'])
 
+    # 床か否か
+    # True: 床, False: 床以外
+    is_floor = bool(b['is_floor'])
+
     # 方位
     # 's', 'sw', 'w', 'nw', 'n', 'ne', 'e', 'se', 'top', 'bottom'
     # 日射の有無が定義されている場合でかつその値がTrueの場合のみ定義される。
@@ -162,6 +155,9 @@ def get_boundary_simple(theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, a_sun_ns, h_sun_n
 
     # 室内側表面総合熱伝達率, W/m2K
     h_i = 1.0 / r_i
+
+    # 室内側表面対流熱伝達率, W/m2K
+    h_c = b['h_c']
 
     solar_shading_part = solar_shading.SolarShading.create(b=b)
 
@@ -180,10 +176,6 @@ def get_boundary_simple(theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, a_sun_ns, h_sun_n
     tsr = transmission_solar_radiation.TransmissionSolarRadiation.create(d=b, solar_shading_part=solar_shading_part)
     q_trs_sol = tsr.get_qgt(a_sun_ns=a_sun_ns, h_sun_ns=h_sun_ns, i_dn_ns=i_dn_ns, i_sky_ns=i_sky_ns)
 
-    # 応答係数
-    rff = response_factor.ResponseFactorFactory.create(b)
-    rfs = rff.get_response_factors()
-
     return BoundarySimple(
         id=boundary_id,
         name=name,
@@ -194,17 +186,13 @@ def get_boundary_simple(theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, a_sun_ns, h_sun_n
         h_td=h_td,
         next_room_type=next_room_type,
         rear_surface_boundary_id=rear_surface_boundary_id,
+        is_floor=is_floor,
         is_solar_absorbed_inside=is_solar_absorbed_inside,
         is_sun_striked_outside=is_sun_striked_outside,
         direction=direction,
         h_i=h_i,
+        h_c=h_c,
         theta_o_sol=theta_o_sol,
-        q_trs_sol=q_trs_sol,
-        n_root=rfs.n_root,
-        row=rfs.row,
-        rfa0=rfs.rfa0,
-        rfa1=rfs.rfa1,
-        rft0=rfs.rft0,
-        rft1=rfs.rft1,
+        q_trs_sol=q_trs_sol
     )
 

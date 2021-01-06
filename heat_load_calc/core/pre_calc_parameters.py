@@ -3,10 +3,15 @@ import numpy as np
 import csv
 import pandas as pd
 from dataclasses import dataclass
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Callable
 
 from heat_load_calc.external.global_number import get_c_air, get_rho_air
 from heat_load_calc.core import shape_factor
+from heat_load_calc.core.operation_mode import OperationMode
+from heat_load_calc.initializer import response_factor
+from heat_load_calc.core import infiltration
+from heat_load_calc.core import ot_target
+from heat_load_calc.core import next_condition
 
 
 @dataclass
@@ -14,15 +19,7 @@ class PreCalcParameters:
 
     # region 建物全体に関すること
 
-    # 建物の階数
-    story: int
-
-    # 相当隙間面積（C値）, cm2/m2
-    c_value: float
-
-    # 室内の圧力
-    # 'positive', 'negative' or 'balanced'
-    inside_p: str
+    # 該当なし
 
     # endregion
 
@@ -44,16 +41,16 @@ class PreCalcParameters:
     c_room_is: np.ndarray
 
     # 室iの家具等の熱容量, J/K, [i, 1]
-    c_cap_h_frt_is: np.ndarray
+    c_sh_frt_is: np.ndarray
 
     # 室iの家具等の湿気容量, kg/m3 (kg/kgDA), [i, 1]
-    c_cap_w_frt_is: np.ndarray
+    c_lh_frt_is: np.ndarray
 
     # 室iの家具等と空気間の熱コンダクタンス, W/K, [i, 1]
-    c_h_frt_is: np.ndarray
+    g_sh_frt_is: np.ndarray
 
     # 室iの家具等と空気間の湿気コンダクタンス, kg/s (kg/kgDA), [i, 1]
-    c_w_frt_is: np.ndarray
+    g_lh_frt_is: np.ndarray
 
     # ステップnにおける室iの空調需要, [i, 8760*4]
     ac_demand_is_ns: np.ndarray
@@ -71,7 +68,7 @@ class PreCalcParameters:
     v_mec_vent_is_ns: np.ndarray
 
     # 家具の吸収日射量, W, [i, 8760*4]
-    q_sol_frnt_is_ns: np.ndarray
+    q_sol_frt_is_ns: np.ndarray
 
     # 室iの自然風利用時の換気量, m3/s, [i, 1]
     v_ntrl_vent_is: np.ndarray
@@ -104,18 +101,6 @@ class PreCalcParameters:
 
     # BRL, [i, i]
     brl_is_is: np.ndarray
-
-    # 放射暖房最大能力, W, [i]
-    lrcap_is: np.ndarray
-
-    # 放射冷房最大能力, W, [i]
-    radiative_cooling_max_capacity_is: np.ndarray
-
-    # 放射暖房有無（Trueなら放射暖房あり）
-    is_radiative_heating_is: np.ndarray
-
-    # 放射冷房有無（Trueなら放射冷房あり）
-    is_radiative_cooling_is: np.ndarray
 
     # 放射暖房対流比率, [i, 1]
     beta_is: np.ndarray
@@ -181,6 +166,12 @@ class PreCalcParameters:
     # 年平均外気温度, degree C
     theta_o_ave: np.ndarray
 
+    get_ot_target_and_h_hum: Callable[[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray], tuple]
+
+    get_infiltration: Callable[[np.ndarray, float], np.ndarray]
+
+    calc_next_temp_and_load: Callable
+
     rac_spec: Dict[str, Any]
 
 
@@ -212,25 +203,10 @@ class PreCalcParametersGround:
     theta_o_ave: float
 
 
-def make_pre_calc_parameters(data_directory: str) -> (PreCalcParameters, PreCalcParametersGround):
+def make_pre_calc_parameters(delta_t: float, data_directory: str) -> (PreCalcParameters, PreCalcParametersGround):
 
     with open(data_directory + '/mid_data_house.json') as f:
         rd = json.load(f)
-
-    # region building の読み込み
-
-    bdg = rd['building']
-
-    # 建物の階数
-    story = bdg['story']
-
-    # C値
-    c_value = bdg['c_value']
-
-    # 換気の種類
-    inside_p = bdg['inside_pressure']
-
-    # endregion
 
     # region spaces の読み込み
 
@@ -262,30 +238,28 @@ def make_pre_calc_parameters(data_directory: str) -> (PreCalcParameters, PreCalc
     v_ntrl_vent_is = np.array([s['ventilation']['natural'] for s in ss]).reshape(-1, 1)
 
     # 室iの家具等の熱容量, J/K, [i, 1]
-    c_cap_h_frt_is = np.array([float(s['furniture']['heat_capacity']) for s in ss]).reshape(-1, 1)
+    c_sh_frt_is = np.array([float(s['furniture']['heat_capacity']) for s in ss]).reshape(-1, 1)
 
     # 室iの家具等と空気間の熱コンダクタンス, W/K, [i, 1]
-    c_h_frt_is = np.array([float(s['furniture']['heat_cond']) for s in ss]).reshape(-1, 1)
+    g_sh_frt_is = np.array([float(s['furniture']['heat_cond']) for s in ss]).reshape(-1, 1)
 
     # 室iの家具等の湿気容量, kg/m3 kg/kgDA, [i, 1]
-    c_cap_w_frt_is = np.array([float(s['furniture']['moisture_capacity']) for s in ss]).reshape(-1, 1)
+    c_lh_frt_is = np.array([float(s['furniture']['moisture_capacity']) for s in ss]).reshape(-1, 1)
 
     # 室iの家具等と空気間の湿気コンダクタンス, kg/s (kg/kgDA), [i, 1]
-    c_w_frt_is = np.array([float(s['furniture']['moisture_cond']) for s in ss]).reshape(-1, 1)
+    g_lh_frt_is = np.array([float(s['furniture']['moisture_cond']) for s in ss]).reshape(-1, 1)
 
     # 室iの暖房方式として放射空調が設置されているかどうか。  bool値, [i, 1]
     # 室iの暖房方式として放射空調が設置されている場合の、放射暖房最大能力, W, [i, 1]
     is_radiative_heating_is_list = []
-    lrcap_is_list = []
+    radiative_heating_max_capacity_is_list = []
     for i, s in enumerate(ss):
         if s['equipment']['heating']['radiative']['installed']:
             is_radiative_heating_is_list.append(True)
-            lrcap_is_list.append(s['equipment']['heating']['radiative']['max_capacity'])
+            radiative_heating_max_capacity_is_list.append(s['equipment']['heating']['radiative']['max_capacity'])
         else:
             is_radiative_heating_is_list.append(False)
-            lrcap_is_list.append(0.0)
-    is_radiative_heating_is = np.array(is_radiative_heating_is_list)
-    lrcap_is = np.array(lrcap_is_list)
+            radiative_heating_max_capacity_is_list.append(0.0)
 
     # 室iの冷房方式として放射空調が設置されているかどうか。  bool値, [i, 1]
     # 室iの冷房方式として放射空調が設置されている場合の、放射冷房最大能力, W, [i, 1]
@@ -298,8 +272,11 @@ def make_pre_calc_parameters(data_directory: str) -> (PreCalcParameters, PreCalc
         else:
             is_radiative_cooling_is_list.append(False)
             radiative_cooling_max_capacity_is_list.append(0.0)
-    is_radiative_cooling_is = np.array(is_radiative_cooling_is_list)
-    radiative_cooling_max_capacity_is = np.array(radiative_cooling_max_capacity_is_list)
+
+    is_radiative_heating_is = np.array(is_radiative_heating_is_list).reshape(-1, 1)
+    lr_h_max_cap_is = np.array(radiative_heating_max_capacity_is_list).reshape(-1, 1)
+    is_radiative_cooling_is = np.array(is_radiative_cooling_is_list).reshape(-1, 1)
+    lr_cs_max_cap_is = np.array(radiative_cooling_max_capacity_is_list).reshape(-1, 1)
 
     qmin_c_is = np.array([s['equipment']['cooling']['convective']['q_min'] for s in ss]).reshape(-1, 1)
     qmax_c_is = np.array([s['equipment']['cooling']['convective']['q_max'] for s in ss]).reshape(-1, 1)
@@ -332,23 +309,14 @@ def make_pre_calc_parameters(data_directory: str) -> (PreCalcParameters, PreCalc
     # 境界jの面積, m2, [j, 1]
     a_srf_js = np.array([b['area'] for b in bs]).reshape(-1, 1)
 
-    # 境界jの吸熱応答係数の初項, m2K/W, [j, 1]
-    phi_a0_js = np.array([b['phi_a0'] for b in bs]).reshape(-1, 1)
+    # 応答係数を取得する。
+    phi_a0_js, phi_a1_js_ms, phi_t0_js, phi_t1_js_ms, r_js_ms = _get_responsfactors(bs)
 
-    # 境界jの項別公比法における項mの吸熱応答係数の第一項 , m2K/W, [j, 12]
-    phi_a1_js_ms = np.array([b['phi_a1'] for b in bs])
-
-    # 境界jの貫流応答係数の初項, [j, 1]
-    phi_t0_js = np.array([b['phi_t0'] for b in bs]).reshape(-1, 1)
-
-    # 境界jの項別公比法における項mの貫流応答係数の第一項, [j, 12]
-    phi_t1_js_ms = np.array([b['phi_t1'] for b in bs])
-
-    # 境界jの項別公比法における項mの公比, [j, 12]
-    r_js_ms = np.array([b['r'] for b in bs])
+    # 境界jの室内側表面対流熱伝達率, W/m2K, [j, 1]
+    h_c_js = np.array([b['h_c'] for b in bs]).reshape(-1, 1)
 
     # 境界jの室内側表面総合熱伝達率, W/m2K, [j, 1]
-    h_i_js = np.array([b['h_i'] for b in bs]).reshape(-1, 1)
+    # h_i_js_temporary = np.array([b['h_i'] for b in bs]).reshape(-1, 1)
 
     # 境界jの室に設置された放射暖房の放熱量のうち放射成分に対する境界jの室内側吸収比率
     flr_js = np.array([b['flr'] for b in bs])
@@ -419,10 +387,8 @@ def make_pre_calc_parameters(data_directory: str) -> (PreCalcParameters, PreCalc
 
     # ステップnの室iにおける空調需要, [8760*4]
     with open(data_directory + '/mid_data_ac_demand.csv', 'r') as f:
-        r = csv.reader(f)
-        ac_demand_is_ns2 = np.array([row for row in r]).T
-    # ｓｔｒ型からbool型に変更
-    ac_demand_is_ns = np.vectorize(lambda x: {'True': True, 'False': False}[x])(ac_demand_is_ns2)
+        r = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
+        ac_demand_is_ns = np.array([row for row in r]).T
 
     # ステップnの室iにおける窓の透過日射熱取得, W, [8760*4]
     with open(data_directory + '/mid_data_q_trs_sol.csv', 'r') as f:
@@ -440,7 +406,7 @@ def make_pre_calc_parameters(data_directory: str) -> (PreCalcParameters, PreCalc
     # ただし、1次元配列を縦ベクトルに変換する処理等は読み込み時に np.reshape を適用して変換している。
 
     # 境界の数
-    number_of_bdries = len(bs)
+    n_boundaries = len(bs)
 
     # 地盤の数
     n_grounds = np.count_nonzero(is_ground_js)
@@ -449,21 +415,21 @@ def make_pre_calc_parameters(data_directory: str) -> (PreCalcParameters, PreCalc
     # [[p_0_0 ... ... p_0_j]
     #  [ ...  ... ...  ... ]
     #  [p_i_0 ... ... p_i_j]]
-    p_is_js = np.zeros((n_spaces, number_of_bdries), dtype=int)
+    p_is_js = np.zeros((n_spaces, n_boundaries), dtype=int)
     for i in range(n_spaces):
         p_is_js[i, connected_space_id_js == i] = 1
 
     # 室iと境界jの関係を表す係数（室iから境界jへの変換）
-    # [[p_0_0 ... p_i_0]
+    # [[p_0_0 ... p_0_i]
     #  [ ...  ...  ... ]
     #  [ ...  ...  ... ]
-    #  [p_0_j ... p_i_j]]
+    #  [p_j_0 ... p_j_i]]
     p_js_is = p_is_js.T
 
     # 境界jの裏面温度に他の境界の等価温度が与える影響, [j, j]
     k_ei_js_js = []
     for k_ei_id_j, k_ei_coef_j in zip(k_ei_id_js, k_ei_coef_js):
-        k_ei_js = [0.0] * number_of_bdries
+        k_ei_js = [0.0] * n_boundaries
         if k_ei_id_j is None:
             pass
         else:
@@ -482,7 +448,7 @@ def make_pre_calc_parameters(data_directory: str) -> (PreCalcParameters, PreCalc
     # region 読み込んだ値から新たに係数を作成する
 
     # 室iの空気の熱容量, J/K, [i, 1]
-    c_room_is = v_room_is * get_rho_air() * get_c_air()
+    c_rm_is = v_room_is * get_rho_air() * get_c_air()
 
     # 境界jの室内側表面放射熱伝達率, W/m2K, [j, 1]
     h_r_js = shape_factor.get_h_r_js(a_srf_js=a_srf_js, p_js_is=p_js_is)
@@ -490,8 +456,8 @@ def make_pre_calc_parameters(data_directory: str) -> (PreCalcParameters, PreCalc
     # 平均放射温度計算時の各部位表面温度の重み, [i, j]
     f_mrt_is_js = shape_factor.get_f_mrt_is_js(a_srf_js=a_srf_js, h_r_js=h_r_js, p_is_js=p_is_js)
 
-    # 境界jの室内側表面対流熱伝達率, W/m2K, [j, 1]
-    h_c_js = np.clip(h_i_js - h_r_js, 0.0, None)
+    # 境界jの室内側表面総合熱伝達率, W/m2K, [j, 1]
+    h_i_js = h_c_js + h_r_js
 
     # ステップnの室iにおける機械換気量（全般換気量+局所換気量）, m3/s, [i, n]
     v_mec_vent_is_ns = v_vent_ex_is[:, np.newaxis] + v_mec_vent_local_is_ns
@@ -546,13 +512,34 @@ def make_pre_calc_parameters(data_directory: str) -> (PreCalcParameters, PreCalc
     brl_is_is = np.dot(p_is_js, wsb_js_is * h_c_js * a_srf_js) + np.diag(beta_is.flatten())
 
     # BRM(換気なし), W/K, [i, i]
-    brm_non_vent_is_is = np.diag(c_room_is.flatten() / 900.0)\
+    brm_non_vent_is_is = np.diag(c_rm_is.flatten() / delta_t)\
         + np.dot(p_is_js, (p_js_is - wsr_js_is) * a_srf_js * h_c_js)\
-        + np.diag((c_cap_h_frt_is * c_h_frt_is / (c_cap_h_frt_is + c_h_frt_is * 900.0)).flatten())
+        + np.diag((c_sh_frt_is * g_sh_frt_is / (c_sh_frt_is + g_sh_frt_is * delta_t)).flatten())
 
     # 年平均外気温度, degree C
     # 地盤計算の時の深部温度に用いる
     theta_o_ave = np.average(theta_o_ns)
+
+    # endregion
+
+    # region 読み込んだ値から新たに関数を作成する
+
+    # 作用温度と人体周りの熱伝達率を計算する関数
+    get_ot_target_and_h_hum = ot_target.make_get_ot_target_and_h_hum_function(
+        is_radiative_heating_is=is_radiative_heating_is,
+        is_radiative_cooling_is=is_radiative_cooling_is
+    )
+
+    # すきま風を計算する関数
+    get_infiltration = infiltration.make_get_infiltration_function(rd=rd)
+
+    # 次のステップの室温と負荷を計算する関数
+    calc_next_temp_and_load = next_condition.make_get_next_temp_and_load_function(
+        is_radiative_heating_is=is_radiative_heating_is,
+        is_radiative_cooling_is=is_radiative_cooling_is,
+        lr_h_max_cap_is=lr_h_max_cap_is,
+        lr_cs_max_cap_is=lr_cs_max_cap_is
+    )
 
     # endregion
 
@@ -564,18 +551,15 @@ def make_pre_calc_parameters(data_directory: str) -> (PreCalcParameters, PreCalc
     }
 
     pre_calc_parameters = PreCalcParameters(
-        story=story,
-        c_value=c_value,
-        inside_p=inside_p,
         n_spaces=n_spaces,
         id_space_is=id_space_is,
         name_space_is=name_space_is,
         v_room_is=v_room_is,
-        c_room_is=c_room_is,
-        c_cap_h_frt_is=c_cap_h_frt_is,
-        c_cap_w_frt_is=c_cap_w_frt_is,
-        c_w_frt_is=c_w_frt_is,
-        c_h_frt_is=c_h_frt_is,
+        c_room_is=c_rm_is,
+        c_sh_frt_is=c_sh_frt_is,
+        c_lh_frt_is=c_lh_frt_is,
+        g_sh_frt_is=g_sh_frt_is,
+        g_lh_frt_is=g_lh_frt_is,
         v_int_vent_is_is=v_int_vent_is_is,
         name_bdry_js=name_bdry_js,
         sub_name_bdry_js=sub_name_bdry_js,
@@ -586,7 +570,7 @@ def make_pre_calc_parameters(data_directory: str) -> (PreCalcParameters, PreCalc
         x_gen_is_ns=x_gen_is_ns,
         f_mrt_hum_is_js=f_mrt_hum_is_js,
         theta_dstrb_js_ns=theta_dstrb_js_ns,
-        n_bdries=number_of_bdries,
+        n_bdries=n_boundaries,
         r_js_ms=r_js_ms,
         phi_t0_js=phi_t0_js,
         phi_a0_js=phi_a0_js,
@@ -595,16 +579,12 @@ def make_pre_calc_parameters(data_directory: str) -> (PreCalcParameters, PreCalc
         q_trs_sol_is_ns=q_trs_sol_is_ns,
         v_ntrl_vent_is=v_ntrl_vent_is,
         ac_demand_is_ns=ac_demand_is_ns,
-        is_radiative_heating_is=np.array(is_radiative_heating_is).reshape(-1, 1),
-        is_radiative_cooling_is=np.array(is_radiative_cooling_is).reshape(-1, 1),
-        lrcap_is=lrcap_is,
-        radiative_cooling_max_capacity_is=radiative_cooling_max_capacity_is,
         flr_js_is=flr_js_is,
         h_r_js=h_r_js,
         h_c_js=h_c_js,
         f_mrt_is_js=f_mrt_is_js,
         q_sol_js_ns=q_sol_js_ns,
-        q_sol_frnt_is_ns=q_sol_frnt_is_ns,
+        q_sol_frt_is_ns=q_sol_frnt_is_ns,
         beta_is=beta_is,
         wsr_js_is=wsr_js_is,
         wsb_js_is=wsb_js_is,
@@ -619,7 +599,10 @@ def make_pre_calc_parameters(data_directory: str) -> (PreCalcParameters, PreCalc
         theta_o_ns=theta_o_ns,
         x_o_ns=x_o_ns,
         theta_o_ave=theta_o_ave,
-        rac_spec=rac_spec
+        rac_spec=rac_spec,
+        get_ot_target_and_h_hum=get_ot_target_and_h_hum,
+        get_infiltration=get_infiltration,
+        calc_next_temp_and_load=calc_next_temp_and_load
     )
 
     pre_calc_parameters_ground = PreCalcParametersGround(
@@ -634,4 +617,55 @@ def make_pre_calc_parameters(data_directory: str) -> (PreCalcParameters, PreCalc
     )
 
     return pre_calc_parameters, pre_calc_parameters_ground
+
+
+def _get_responsfactors(bs):
+
+    # 境界jの吸熱応答係数の初項, m2K/W, [j, 1]
+    phi_a0_js = []
+    # 境界jの項別公比法における項mの吸熱応答係数の第一項 , m2K/W, [j, 12]
+    phi_a1_js_ms = []
+    # 境界jの貫流応答係数の初項, [j, 1]
+    phi_t0_js = []
+    # 境界jの項別公比法における項mの貫流応答係数の第一項, [j, 12]
+    phi_t1_js_ms = []
+    # 境界jの項別公比法における項mの公比, [j, 12]
+    r_js_ms = []
+
+    for b in bs:
+        rff = response_factor.ResponseFactorFactory.create(spec=b['spec'])
+        rf = rff.get_response_factors()
+        phi_a0_js.append(rf.rfa0)
+        phi_a1_js_ms.append(rf.rfa1)
+        phi_t0_js.append(rf.rft0)
+        phi_t1_js_ms.append(rf.rft1)
+        r_js_ms.append(rf.row)
+        # if b['spec']['method'] == 'response_factor':
+        #     phi_a0_js.append(b['spec']['phi_a0'])
+        #     phi_a1_js_ms.append(b['spec']['phi_a1'])
+        #     phi_t0_js.append(b['spec']['phi_t0'])
+        #     phi_t1_js_ms.append(b['spec']['phi_t1'])
+        #     r_js_ms.append(b['spec']['r'])
+        # else:
+        #     rff = response_factor.ResponseFactorFactory.create(spec=b['spec'])
+        #     rf = rff.get_response_factors()
+        #     phi_a0_js.append(rf.rfa0)
+        #     phi_a1_js_ms.append(rf.rfa1)
+        #     phi_t0_js.append(rf.rft0)
+        #     phi_t1_js_ms.append(rf.rft1)
+        #     r_js_ms.append(rf.row)
+
+    phi_a0_js = np.array(phi_a0_js).reshape(-1, 1)
+    phi_a1_js_ms = np.array(phi_a1_js_ms)
+    phi_t0_js = np.array(phi_t0_js).reshape(-1, 1)
+    phi_t1_js_ms = np.array(phi_t1_js_ms)
+    r_js_ms = np.array(r_js_ms)
+
+#    phi_a0_js = np.array([b['phi_a0'] for b in bs]).reshape(-1, 1)
+#    phi_a1_js_ms = np.array([b['phi_a1'] for b in bs])
+#    phi_t0_js = np.array([b['phi_t0'] for b in bs]).reshape(-1, 1)
+#    phi_t1_js_ms = np.array([b['phi_t1'] for b in bs])
+#    r_js_ms = np.array([b['r'] for b in bs])
+
+    return phi_a0_js, phi_a1_js_ms, phi_t0_js, phi_t1_js_ms, r_js_ms
 

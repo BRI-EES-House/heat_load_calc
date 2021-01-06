@@ -19,9 +19,9 @@
 | stem:[V_{room}]
 | 室stem:[i]の容積, m^3^ +
 stem:[\begin{pmatrix}
-  V_{room,0} \\
-  \vdots \\
-  V_{room, i-1}
+  V_{room,0} & \ldots & 0 \\
+  \vdots & \ddots & \vdots \\
+  0 & \ldots & V_{room, i-1}
 \end{pmatrix}]
 で表されるベクトル
 
@@ -40,9 +40,9 @@ stem:[\begin{pmatrix}
 | ステップ stem:[n]における室stem:[i]の外からの換気量, m^3^/s +
 （機械換気量・すきま風量・自然風利用時の換気量との合計である。） +
 stem:[\begin{pmatrix}
-  V_{out,vent,0,n} \\
-  \vdots \\
-  V_{out,vent,i-1,n}
+  V_{out,vent,0,n} & \ldots & 0 \\
+  \vdots & \ddots & \vdots \\
+  0 & \ldots & V_{out,vent,i-1,n}
 \end{pmatrix}]
 で表されるベクトル
 
@@ -82,21 +82,21 @@ stem:[\begin{pmatrix}
 \end{pmatrix}]
 で表されるベクトル
 
-| stem:[C_{cap,w,frt}]
+| stem:[C_{w,frt}]
 | 室 stem:[i] の家具等の湿気容量, kg/(kg/kg(DA)) +
 stem:[\begin{pmatrix}
-  C_{cap,w,frt,0} \\
-  \vdots \\
-  C_{cap,w,frt,i-1} \\
+  C_{w,frt,0} & \ldots & 0 \\
+  \vdots & \ddots & \vdots \\
+  0 & \ldots & C_{w,frt,i-1} \\
 \end{pmatrix}]
 で表されるベクトル
 
-| stem:[C_{w,frt}]
+| stem:[G_{w,frt}]
 | 室 stem:[i] の家具等と空気間の湿気コンダクタンス, kg/(s kg/kg(DA)) +
 stem:[\begin{pmatrix}
-  C_{w,frt,0} \\
-  \vdots \\
-  C_{w,frt,i-1}
+  G_{w,frt,0} & \ldots & 0 \\
+  \vdots & \ddots & \vdots \\
+  0 & \ldots & G_{w,frt,i-1}
 \end{pmatrix}]
 で表されるベクトル
 
@@ -123,24 +123,56 @@ stem:[\begin{pmatrix}
 
 [stem]
 ++++
-\rho_a \: V_{room} \otimes \frac{dX_r}{dt} = \rho_a \: V_{out,vent} \otimes (X_{o} - X_{r}) + X_{gen} + X_{hum} - G_{RAC} + C_{w,frt} \otimes (X_{frt} - X_{r}) + \rho_a \: V_{int,vent} \: X_{r} \tag{1}
+\begin{split}
+\rho_a \cdot V_{room} \cdot \frac{dX_r}{dt}
+& = \rho_a \cdot V_{out,vent} \cdot (X_{o} - X_{r}) \\
+& + X_{gen} + X_{hum} - G_{RAC} \\
+& + G_{w,frt} \cdot (X_{frt} - X_{r}) \\
+& + \rho_a \cdot V_{int,vent} \cdot X_{r}
+\end{split} \tag{1}
 ++++
 
-空調除湿量はルームエアコンの場合式(2)で表される。
+空調による除湿・加湿の方法として以下の3パターンを想定する。
+
+- 固定値で除湿・加湿を行う方法（加湿器など）
+- 目標絶対湿度を満たすように除湿・加湿を行う方法（従来の負荷計算方法）
+- 室内の絶対湿度に応じて除湿を行う方法（放射パネルやエアコンなど除湿量を完全には制御しない方式）
+
+これらを踏まえて、一般的に除湿量を以下の式で表す。
 
 [stem]
 ++++
-G_{RAC} = \left\{ \begin{array}{ll}
-  \rho_a \: V_{RAC} \: (1 - BF_{RAC}) \: (X_{r} - X_{RAC,ex}) & (X_r \gt X_{RAC,ex})\\
-  0.0 & (X_r \le X_{RAC,ex})
-\end{array} \right. \tag{2}
+L_L = L_a \cdot X_r + L_b \tag{2}
+++++
+
+固定値で除湿・加湿を行う方法の場合、stem:[L_a = 0]とし、除湿・加湿量をstem:[L_b]（ただし加湿を正とする）とすればよい。
+
+目標絶対湿度を満たすように除湿・加湿を行う方法の場合、stem:[L_a = 0]とし、stem:[L_b]を未知数として除湿・加湿量を求めれば良い。
+
+室内の絶対湿度に応じて除湿を行う方法の場合、室内の絶対湿度と除湿を行う表面の飽和絶対湿度との差によって除湿量が決定される場合が多い。その場合、以下のような式で表される。
+
+[stem]
+++++
+L_L = \left\{ \begin{array}{ll}
+  - k_{l} \cdot (X_{r} - X_{srf,ex}) & (X_r \gt X_{srf,ex})\\
+  0.0 & (X_r \le X_{srf,ex})
+\end{array} \right. \tag{3}
+++++
+
+この場合、絶対湿度と熱交換器表面における飽和絶対湿度との大小関係によって除湿の有無が決定されるため、一旦、stem:[X_r > X_{srf,ex}]を仮定して潜熱負荷stem:[L_L]を計算し、その値が正（加湿）だった場合はstem:[L_L=0]として再計算するなど、何らかの数値解法的手法が求められる。
+
+なお、ルームエアコンの場合、stem:[k_l]はバイパスファクターを使用して次のように表される。
+
+[stem]
+++++
+k_l = \rho_a \cdot V_{RAC} \cdot (1 - BF_{RAC})
 ++++
 
 備品の水分収支式は室空気との物質移動だけを考慮すればよいため、次式で表すことができる。
 
 [stem]
 ++++
-C_{cap,w,frt} \otimes \frac{dX_{frt,n}}{dt} = C_{w,frt} \otimes (X_r - X_{frt}) \tag{3}
+C_{w,frt} \cdot \frac{dX_{frt,n}}{dt} = G_{w,frt} \cdot (X_r - X_{frt}) \tag{4}
 ++++
 
 式(1)～式(3)を後退差分で離散化すると以下のようになる。
@@ -148,32 +180,33 @@ C_{cap,w,frt} \otimes \frac{dX_{frt,n}}{dt} = C_{w,frt} \otimes (X_r - X_{frt}) 
 [stem]
 ++++
 \begin{split}
-\rho_a \: V_{room} \otimes \frac{X_{r,n+1} - {X_{r,n}}}{\Delta t} &= \rho_a \: V_{out,vent,n} \otimes (X_{o,n+1} - X_{r,n+1}) \\
-&+ X_{gen,n} + X_{hum,n} \\
-&- G_{RAC,n} \\
-&+ C_{w,frt} \otimes (X_{frt,n+1} - X_{r,n+1}) \\
-&+ \rho_a \: V_{int,vent,n} \: X_{r,n+1}
+\rho_a \cdot V_{room} \cdot \frac{X_{r,n+1} - {X_{r,n}}}{\Delta t}
+& = \rho_a \cdot V_{out,vent,n} \cdot (X_{o,n+1} - X_{r,n+1}) \\
+& + X_{gen,n} + X_{hum,n} \\
+& - G_{RAC,n} \\
+& + G_{w,frt} \cdot (X_{frt,n+1} - X_{r,n+1}) \\
+& + \rho_a \: V_{int,vent,n} \: X_{r,n+1}
 \end{split} \tag{4}
 ++++
 
 [stem]
 ++++
 G_{RAC,n} = \left\{ \begin{array}{ll}
-  \rho_a \: V_{RAC,n} \: (1 - BF_{RAC}) \: (X_{r,n+1} - X_{RAC,ex,n+1}) & (X_{r,n+1} \gt X_{RAC,ex,n+1})\\
+  \rho_a \cdot V_{RAC,n} \cdot (1 - BF_{RAC}) \cdot (X_{r,n+1} - X_{RAC,ex,n+1}) & (X_{r,n+1} \gt X_{RAC,ex,n+1})\\
   0.0 & (X_{r,n+1} \le X_{RAC,ex,n+1})
 \end{array} \right. \tag{5}
 ++++
 
 [stem]
 ++++
-C_{cap,w,frt} \otimes \frac{X_{frt,n+1} - X_{frt,n}}{\Delta t} = C_{w,frt} \otimes (X_{r,n+1} - X_{frt,n+1}) \tag{6}
+C_{w,frt} \cdot \frac{X_{frt,n+1} - X_{frt,n}}{\Delta t} = G_{w,frt} \cdot (X_{r,n+1} - X_{frt,n+1}) \tag{6}
 ++++
 
 式(6)を stem:[X_{frt,n+1}] について解くと次式となる。
 
 [stem]
 ++++
-X_{frt,n+1} = (\Delta t \: C_{w,frt} \otimes X_{r,n+1} + C_{cap,w,frt} \otimes X_{frt,n}) \otimes (C_{cap,w,frt} + \Delta t \: C_{w,frt})^{-1} \tag{7}
+X_{frt,n+1} = (C_{w,frt} + \Delta t \cdot G_{w,frt})^{-1} \cdot (\Delta t \cdot G_{w,frt} \cdot X_{r,n+1} + C_{w,frt} \cdot X_{frt,n}) \tag{7}
 ++++
 
 この式および式(5)を式(4)に代入する。
@@ -181,14 +214,15 @@ X_{frt,n+1} = (\Delta t \: C_{w,frt} \otimes X_{r,n+1} + C_{cap,w,frt} \otimes X
 [stem]
 ++++
 \begin{split}
-\rho_a \: V_{room} \otimes \frac{X_{r,n+1} - {X_{r,n}}}{\Delta t} &= \rho_a \: V_{out,vent,n} \otimes (X_{o,n+1} - X_{r,n+1}) \\
-&+ X_{gen,n} + X_{hum,n} \\
-&- \left\{ \begin{array}{ll}
-  \rho_a \: V_{RAC,n} \: (1 - BF_{RAC}) \: (X_{r,n+1} - X_{RAC,ex,n+1}) & (X_{r,n+1} \gt X_{RAC,ex,n+1})\\
+\rho_a \cdot V_{room} \cdot \frac{X_{r,n+1} - {X_{r,n}}}{\Delta t}
+& = \rho_a \cdot V_{out,vent,n} \cdot (X_{o,n+1} - X_{r,n+1}) \\
+& + X_{gen,n} + X_{hum,n} \\
+& - \left\{ \begin{array}{ll}
+  \rho_a \cdot V_{RAC,n} \cdot (1 - BF_{RAC}) \cdot (X_{r,n+1} - X_{RAC,ex,n+1}) & (X_{r,n+1} \gt X_{RAC,ex,n+1})\\
   0.0 & (X_{r,n+1} \le X_{RAC,ex,n+1})
 \end{array} \right. \\
-&+ C_{w,frt} \otimes C_{cap,w,frt} \otimes (X_{frt,n} - X_{r,n+1}) \otimes (C_{cap,w,frt} + \Delta t \: C_{w,frt})^{-1} \\
-&+ \rho_a \: V_{int,vent,n} \: X_{r,n+1}
+& + (C_{w,frt} + \Delta t \cdot G_{w,frt})^{-1} \cdot G_{w,frt} \cdot C_{w,frt} \cdot (X_{frt,n} - X_{r,n+1}) \\
+& + \rho_a \cdot V_{int,vent,n} \cdot X_{r,n+1}
 \end{split} \tag{8}
 ++++
 
@@ -196,7 +230,7 @@ X_{frt,n+1} = (\Delta t \: C_{w,frt} \otimes X_{r,n+1} + C_{cap,w,frt} \otimes X
 
 [stem]
 ++++
-BRMX \: X_{r,n+1} = BRMC
+BRMX \cdot X_{r,n+1} = BRMC \tag{9}
 ++++
 
 ここで、
@@ -206,30 +240,32 @@ BRMX \: X_{r,n+1} = BRMC
 [stem]
 ++++
 \begin{split}
-BRMX_{not-dh} &= \rho_{a} \: \left( diag \left( \frac{V_{room}}{\Delta t} + V_{out,vent,n} \right) - V_{int,vent,n} \right) \\
-&+ diag \left( C_{w,frt} \otimes C_{cap,w,frt} \otimes (C_{cap,w,frt} + \Delta t C_{w,frt})^{-1} \right)
-\end{split} \tag{8}
+BRMX_{not-dh}
+& = \rho_{a} \cdot \left(\frac{V_{room}}{\Delta t} + V_{out,vent,n} - V_{int,vent,n} \right) \\
+& + (C_{w,frt} + \Delta t \cdot G_{w,frt})^{-1} \cdot G_{w,frt} \cdot C_{w,frt}
+\end{split} \tag{10}
 ++++
 
 [stem]
 ++++
 \begin{split}
-BRMC_{not-dh} &= \rho_{a} \: \left( \frac{V_{room}}{\Delta t} \otimes X_{r,n} + V_{out,vent,n} \otimes X_{o,n+1} \right) \\
-&+ X_{gen,n} + X_{hum,n} \\
-&+ C_{w,frt} \otimes C_{cap,w,frt} \otimes X_{frt,n} \otimes (C_{cap,w,frt} + \Delta t C_{w,frt})^{-1}
-\end{split} \tag{9}
+BRMC_{not-dh}
+& = \rho_{a} \cdot \left( \frac{V_{room}}{\Delta t} \cdot X_{r,n} + V_{out,vent,n} \cdot X_{o,n+1} \right) \\
+& + X_{gen,n} + X_{hum,n} \\
+& + (C_{w,frt} + \Delta t \cdot G_{w,frt})^{-1} \cdot G_{w,frt} \cdot C_{w,frt} \cdot X_{frt,n}
+\end{split} \tag{11}
 ++++
 
 （除湿する場合）
 
 [stem]
 ++++
-BRMX_{dh} = BRMX_{not-dh} + \rho_{a} \: V_{RAC,n} \: (1 - BF_{RAC})
+BRMX_{dh} = BRMX_{not-dh} + \rho_{a} \cdot V_{RAC,n} \cdot (1 - BF_{RAC}) \tag{12}
 ++++
 
 [stem]
 ++++
-BRMC_{dh} = BRMC_{not-dh} + \rho_{a} \: V_{RAC,n} \: (1 - BR_{RAC}) \: X_{RAC,ex,n+1}
+BRMC_{dh} = BRMC_{not-dh} + \rho_{a} \cdot V_{RAC,n} \cdot (1 - BR_{RAC}) \cdot X_{RAC,ex,n+1} \tag{13}
 ++++
 
-ここで、除湿するかしないかの判断は stem:[n+1] における絶対湿度に依存する。ここで除湿の有無が除湿をするか否かの判断の閾値を超えることがない（除湿無しで計算した結果、除湿ありの条件に入り、除湿ありで計算した結果、除湿なしの条件に入るような、ある種、振動するような玄象が生じない）ため、一度、除湿無しで計算をし、計算された絶対湿度から除湿の有無を判断することができる。
+ここで、除湿するかしないかの判断は stem:[n+1] における絶対湿度に依存する。ここで除湿の有無が除湿をするか否かの判断の閾値を超えることがない（除湿無しで計算した結果、除湿ありの条件に入り、除湿ありで計算した結果、除湿なしの条件に入るような、ある種、振動するような現象が生じない）ため、一度、除湿無しで計算をし、計算された絶対湿度から除湿の有無を判断することができる。

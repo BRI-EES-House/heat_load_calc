@@ -50,9 +50,12 @@ def calc(
         n_d_run_up_build=n_d_run_up_build
     )
 
+    # 時間間隔, s
+    delta_t = 3600.0 / n_step_hourly
+
     # json, csv ファイルからパラメータをロードする。
     # （ループ計算する必要の無い）事前計算を行い, クラス PreCalcParameters, PreCalcParametersGround に必要な変数を格納する。
-    pp, ppg = pre_calc_parameters.make_pre_calc_parameters(data_directory=input_data_dir)
+    pp, ppg = pre_calc_parameters.make_pre_calc_parameters(delta_t=delta_t, data_directory=input_data_dir)
 
     gc_n = conditions.initialize_ground_conditions(n_grounds=ppg.n_grounds)
 
@@ -60,7 +63,7 @@ def calc(
     for n in range(-n_step_run_up, -n_step_run_up_build):
         gc_n = sequence_ground.run_tick(gc_n=gc_n, ss=ppg, n=n)
 
-    logger = log.Logger(n_spaces=pp.n_spaces, n_bdries=pp.n_bdries)
+    logger = log.Logger(n_spaces=pp.n_spaces, n_boundaries=pp.n_bdries, n_step_main=n_step_main)
     logger.pre_logging(pp)
 
     # 建物を計算するにあたって初期値を与える
@@ -75,13 +78,13 @@ def calc(
 
     print('助走計算（建物全体）')
     for n in range(-n_step_run_up_build, 0):
-        c_n = sequence.run_tick(n=n, ss=pp, c_n=c_n, logger=logger)
+        c_n = sequence.run_tick(n=n, delta_t=delta_t, ss=pp, c_n=c_n, logger=logger, run_up=True)
 
     print('本計算')
 
     # TODO: loggerに1/1 0:00の瞬時状態値を書き込む
     for n in range(0, n_step_main):
-        c_n = sequence.run_tick(n=n, ss=pp, c_n=c_n, logger=logger)
+        c_n = sequence.run_tick(n=n, delta_t=delta_t, ss=pp, c_n=c_n, logger=logger, run_up=False)
 
     logger.post_logging(pp)
 
@@ -94,7 +97,9 @@ def calc(
         logger=logger,
         output_data_dir=output_data_dir,
         show_simple_result=show_simple_result,
-        show_detail_result=show_detail_result
+        show_detail_result=show_detail_result,
+        n_step_main=n_step_main,
+        n_d_main=n_d_main
     )
 
     return ds, dd

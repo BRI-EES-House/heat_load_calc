@@ -16,9 +16,8 @@ class Conditions:
             theta_dsh_srf_a_js_ms_n,
             theta_dsh_srf_t_js_ms_n,
             q_srf_js_n,
-            theta_frnt_is_n,
-            x_frnt_is_n,
-            theta_cl_is_n,
+            theta_frt_is_n,
+            x_frt_is_n,
             theta_ei_js_n
     ):
 
@@ -49,15 +48,10 @@ class Conditions:
         self.q_srf_js_n = q_srf_js_n
 
         # ステップnの室iにおける家具の温度, degree C, [i, 1]
-        self.theta_frnt_is_n = theta_frnt_is_n
+        self.theta_frt_is_n = theta_frt_is_n
 
         # ステップnの室iにおける家具の絶対湿度, kg/kgDA, [i, 1]
-        self.x_frt_is_n = x_frnt_is_n
-
-        # ステップnにおける室iの在室者の着衣温度, degree C, [i, 1]
-        # 本来であれば着衣温度と人体周りの対流・放射熱伝達率を未知数とした熱収支式を収束計算等を用いて時々刻々求めるのが望ましい。
-        # 今回、収束計算を回避するために前時刻の着衣温度を用いることにした。
-        self.theta_cl_is_n = theta_cl_is_n
+        self.x_frt_is_n = x_frt_is_n
 
         # [i, 1]
         self.theta_ei_js_n = theta_ei_js_n
@@ -89,10 +83,6 @@ def initialize_conditions(n_spaces: int, n_bdries: int):
     # ステップnにおける室iの空気温度, degree C, [i, 1]
     # 初期値を15℃とする。
     theta_r_is_n = np.full((total_number_of_spaces, 1), 15.0)
-
-    # ステップnにおける室iの在室者の着衣温度, degree C, [i, 1]
-    # 初期値を15℃とする。
-    theta_cl_is_n = np.full((total_number_of_spaces, 1), 16.0)
 
     # ステップnにおける室iの在室者の平均放射温度, degree C, [i, 1]
     # 初期値を15℃と設定する。
@@ -130,9 +120,8 @@ def initialize_conditions(n_spaces: int, n_bdries: int):
         theta_dsh_srf_a_js_ms_n=theta_dsh_srf_a_js_ms_n0,
         theta_dsh_srf_t_js_ms_n=theta_dsh_srf_t_js_ms_n0,
         q_srf_js_n=q_srf_jstrs_n,
-        theta_frnt_is_n=theta_frnt_is_n.reshape(-1, 1),
-        x_frnt_is_n=x_frnt_is_n,
-        theta_cl_is_n=theta_cl_is_n,
+        theta_frt_is_n=theta_frnt_is_n.reshape(-1, 1),
+        x_frt_is_n=x_frnt_is_n,
         theta_ei_js_n=np.full(total_number_of_bdry, 15.0).reshape(-1, 1)
     )
 

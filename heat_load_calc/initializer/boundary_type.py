@@ -1,4 +1,4 @@
-from enum import Enum, auto
+from enum import Enum
 
 
 class BoundaryType(Enum):
@@ -7,17 +7,17 @@ class BoundaryType(Enum):
     """
 
     # 'internal': 間仕切り
-    Internal = auto()
+    Internal = 'internal'
 
     # 'external_general_part': 外皮_一般部位
-    ExternalGeneralPart = auto()
+    ExternalGeneralPart = 'external_general_part'
 
     # 'external_transparent_part': 外皮_透明な開口部
-    ExternalTransparentPart = auto()
+    ExternalTransparentPart = 'external_transparent_part'
 
     # 'external_opaque_part': 外皮_不透明な開口部
-    ExternalOpaquePart = auto()
+    ExternalOpaquePart = 'external_opaque_part'
 
     # 'ground': 地盤
-    Ground = auto()
+    Ground = 'ground'
 

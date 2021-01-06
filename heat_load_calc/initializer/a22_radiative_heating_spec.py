@@ -20,12 +20,6 @@ def read_radiative_cooling_max_capacity(d_room):
                d_room['cooling_equipment']['radiative_cooling']['area']
 
 
-# 熱交換器種類 (対流式の場合)
-def read_heat_exchanger_type(d_room):
-    if not read_is_radiative_cooling(d_room):
-        return d_room['cooling_equipment']['convective_cooling']['heat_exchanger_type']
-
-
 # 定格冷房能力[W] (対流式の場合)
 def read_convective_cooling_rtd_capacity(d_room):
     if not read_is_radiative_cooling(d_room):

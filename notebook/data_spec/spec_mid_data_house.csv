@@ -1,59 +1,70 @@
-﻿1,2,3,4,5,6,7,key,項目名,必須,型,単位,入力,備考
-〇,,,,,,,building,建物,〇,dict,－,,
-,〇,,,,,,story,建物の階数,〇,int,－,1又は2。,
-,〇,,,,,,c_value,相当隙間面積,〇,float,cm2/m2,0以上。,
-,〇,,,,,,inside_pressure,室内圧力,〇,str,－,"positive', 'negative' or 'balanced'",
-〇,,,,,,,spaces,空間,〇,list,－,,
-,〇,,,,,,,,〇,dict,－,,
-,,〇,,,,,id,室通し番号,〇,int,－,必ず0から順番に振ること。,
-,,〇,,,,,name,室名,〇,str,－,,
-,,〇,,,,,volume,室気積,〇,float,m3,0以上。,
-,,〇,,,,,beta,放射暖房の対流放熱比率,〇,float,－,0以上。,
-,,〇,,,,,ventilation,換気,〇,dict,－,,
-,,,〇,,,,mechanical,外気からの機械換気流入量,〇,float,m3/sec,0以上。,
-,,,〇,,,,next_spaces,隣室からの機械換気流入量,〇,list,,,
-,,,,〇,,,,（機械換気流入量）,,float,m3/sec,0以上。,
-,,,〇,,,,natural,自然風利用時の換気量,〇,float,m3/sec,0以上。,
-,,〇,,,,,furniture,家具,〇,dict,－,,
-,,,〇,,,,heat_capacity,家具等の熱容量,〇,float,J/K,0以上。,12.6kJ/(m3･K)
-,,,〇,,,,heat_cond,家具等と空気間の熱コンダクタンス,〇,float,W/K,0以上。,0.00022[1/s]
-,,,〇,,,,moisture_capacity,家具等の湿気容量,〇,float,kg/(kg/kgDA),0以上。,16.8 kg/(m3･(kg/kgDA))
-,,,〇,,,,moisture_cond,家具等と空気間の湿気コンダクタンス,〇,float,kg/(s･kg/kgDA)),0以上。,0.0018 [1/s]
-,,〇,,,,,equipment,設備機器,〇,dict,－,,
-,,,〇,,,,heaintg,暖房設備,〇,dict,－,,
-,,,,〇,,,radiative,放射暖房設備,〇,dict,－,,
-,,,,,〇,,installed,放射暖房設備の設置の有無,〇,bool,－,,
-,,,,,〇,,max_capacity,放射暖房設備の最大暖房出力,△,float,W,0以上。,installedがTrueの場合に定義される。
-,,,,〇,,,convective,対流暖房設備,〇,－,－,,
-,,,,,〇,,installed,対流暖房設備の設置の有無,〇,bool,－,,
-,,,〇,,,,cooling,冷房設備,〇,－,－,,
-,,,,〇,,,radiative,放射冷房設備,〇,－,－,,
-,,,,,〇,,installed,放射冷房設備の設置の有無,〇,boolean,－,,
-,,,,,〇,,max_capacity,放射冷房設備の最大暖房出力,△,float,W,0以上。,installedがTrueの場合に定義される。
-,,,,〇,,,convective,対流冷房設備,〇,－,－,,
-,,,,,〇,,installed,対流冷房設備の設置の有無,〇,bool,－,,
-,,,,,,〇,q_min,対流冷房設備の最小冷房能力,△,float,W,0以上。,installedがTrueの場合に定義される。
-,,,,,,〇,q_max,対流冷房設備の最大冷房能力,△,float,W,0以上。,installedがTrueの場合に定義される。
-,,,,,,〇,v_min,対流冷房設備の最小風量,△,float,－,0以上。,installedがTrueの場合に定義される。
-,,,,,,〇,v_max,対流冷房設備の最大風量,△,float,－,0以上。,installedがTrueの場合に定義される。
-〇,,,,,,,boundaries,境界,〇,－,－,,
-,〇,,,,,,,,〇,dict,－,,
-,,〇,,,,,id,境界通し番号,〇,int,－,必ず0から順番に振ること。,
-,,〇,,,,,name,境界名称,〇,str,－,,ex:integrated_boundary0
-,,〇,,,,,sub_name,境界の副名称,〇,str,－,,ex:north_exterior_wall
-,,〇,,,,,is_ground,地盤であるか否か,〇,bool,－,,
-,,〇,,,,,connected_space_id,隣接する空間のID,〇,int,－,,
-,,〇,,,,,area,面積,〇,float,m2,,
-,,〇,,,,,phi_a0,吸熱応答係数の初項,〇,float,m2･K/W,,
-,,〇,,,,,phi_a1,指数項別吸熱応答係数,〇,List[float],m2･K/W,,
-,,〇,,,,,phi_t0,貫流応答係数の初項,〇,float,－,,
-,,〇,,,,,phi_t1,指数項別貫流応答係数,〇,List[float],－,,
-,,〇,,,,,r,公比,〇,List[float],－,,
-,,〇,,,,,h_i,室内側総合熱伝達率,〇,float,W/(m2・K),,
-,,〇,,,,,flr,放射暖房熱量の室内側吸収比率,〇,float,－,,
-,,〇,,,,,is_solar_absorbed,室内侵入日射吸収の有無,〇,bool,－,,
-,,〇,,,,,f_mrt_hum,部位の人体に対する形態係数,〇,float,－,,
-,,〇,,,,,k_outside,隣室温度差係数（室外側相当外気温度基準）,〇,float,－,,
-,,〇,,,,,k_inside,隣室の影響,〇,"dict, null",－,,隣室がない場合はk_insideがnullとなる。
-,,,〇,,,,id,裏面の境界通し番号,△,int,－,,k_insideがnullでない場合に定義される。
-,,,〇,,,,coef,裏面の境界の影響を表す係数,△,float,－,,k_insideがnullでない場合に定義される。
+﻿1,2,3,4,5,6,7,key,項目名,必須,条件,型,単位,入力,備考
+〇,,,,,,,building,建物,〇,,dict,－,,
+,〇,,,,,,infiltration_method,隙間風の計算方法,〇,,str,－,{'balance_residential'},
+,〇,,,,,,story,建物の階数,△,{'infiltration_method': 'balance_residential'},int,－,,1又は2。
+,〇,,,,,,c_value,相当隙間面積,△,{'infiltration_method': 'balance_residential'},float,cm2/m2,,0以上。
+,〇,,,,,,inside_pressure,室内圧力,△,{'infiltration_method': 'balance_residential'},str,－,"{'positive', 'negative', 'balanced'}",
+〇,,,,,,,spaces,空間,〇,,list,－,,
+,〇,,,,,,,,〇,,dict,－,,
+,,〇,,,,,id,室通し番号,〇,,int,－,必ず0から順番に振ること。,
+,,〇,,,,,name,室名,〇,,str,－,,
+,,〇,,,,,volume,室気積,〇,,float,m3,0以上。,
+,,〇,,,,,beta,放射暖房の対流放熱比率,〇,,float,－,0以上。,
+,,〇,,,,,ventilation,換気,〇,,dict,－,,
+,,,〇,,,,mechanical,外気からの機械換気流入量,〇,,float,m3/sec,0以上。,
+,,,〇,,,,next_spaces,隣室からの機械換気流入量,〇,,list,,,
+,,,,〇,,,,（機械換気流入量）,,,float,m3/sec,0以上。,
+,,,〇,,,,natural,自然風利用時の換気量,〇,,float,m3/sec,0以上。,
+,,〇,,,,,furniture,家具,〇,,dict,－,,
+,,,〇,,,,heat_capacity,家具等の熱容量,〇,,float,J/K,0以上。,12.6kJ/(m3･K)
+,,,〇,,,,heat_cond,家具等と空気間の熱コンダクタンス,〇,,float,W/K,0以上。,0.00022[1/s]
+,,,〇,,,,moisture_capacity,家具等の湿気容量,〇,,float,kg/(kg/kgDA),0以上。,16.8 kg/(m3･(kg/kgDA))
+,,,〇,,,,moisture_cond,家具等と空気間の湿気コンダクタンス,〇,,float,kg/(s･kg/kgDA)),0以上。,0.0018 [1/s]
+,,〇,,,,,equipment,設備機器,〇,,dict,－,,
+,,,〇,,,,heaintg,暖房設備,〇,,dict,－,,
+,,,,〇,,,radiative,放射暖房設備,〇,,dict,－,,
+,,,,,〇,,installed,放射暖房設備の設置の有無,〇,,bool,－,,
+,,,,,〇,,max_capacity,放射暖房設備の最大暖房出力,△,,float,W,0以上。,installedがTrueの場合に定義される。
+,,,,〇,,,convective,対流暖房設備,〇,,－,－,,
+,,,,,〇,,installed,対流暖房設備の設置の有無,〇,,bool,－,,
+,,,〇,,,,cooling,冷房設備,〇,,－,－,,
+,,,,〇,,,radiative,放射冷房設備,〇,,－,－,,
+,,,,,〇,,installed,放射冷房設備の設置の有無,〇,,boolean,－,,
+,,,,,〇,,max_capacity,放射冷房設備の最大暖房出力,△,,float,W,0以上。,installedがTrueの場合に定義される。
+,,,,〇,,,convective,対流冷房設備,〇,,－,－,,
+,,,,,〇,,installed,対流冷房設備の設置の有無,〇,,bool,－,,
+,,,,,〇,,q_min,対流冷房設備の最小冷房能力,△,,float,W,0以上。,installedがTrueの場合に定義される。
+,,,,,〇,,q_max,対流冷房設備の最大冷房能力,△,,float,W,0以上。,installedがTrueの場合に定義される。
+,,,,,〇,,v_min,対流冷房設備の最小風量,△,,float,－,0以上。,installedがTrueの場合に定義される。
+,,,,,〇,,v_max,対流冷房設備の最大風量,△,,float,－,0以上。,installedがTrueの場合に定義される。
+〇,,,,,,,boundaries,境界,〇,,－,－,,
+,〇,,,,,,,,〇,,dict,－,,
+,,〇,,,,,id,境界通し番号,〇,,int,－,必ず0から順番に振ること。,
+,,〇,,,,,name,境界名称,〇,,str,－,,ex:integrated_boundary0
+,,〇,,,,,sub_name,境界の副名称,〇,,str,－,,ex:north_exterior_wall
+,,〇,,,,,is_ground,地盤であるか否か,〇,,bool,－,,
+,,〇,,,,,connected_space_id,隣接する空間のID,〇,,int,－,,
+,,〇,,,,,area,面積,〇,,float,m2,,
+,,〇,,,,,spec,仕様,〇,,dict,－,,
+,,,〇,,,,method,壁体仕様の指定方法,〇,,str,－,"{'response_factor', 'layers'}",
+,,,〇,,,,phi_a0,吸熱応答係数の初項,△,{'method': 'response_factor'},float,m2･K/W,,
+,,,〇,,,,phi_a1,指数項別吸熱応答係数,△,{'method': 'response_factor'},List[float],m2･K/W,,
+,,,〇,,,,phi_t0,貫流応答係数の初項,△,{'method': 'response_factor'},float,－,,
+,,,〇,,,,phi_t1,指数項別貫流応答係数,△,{'method': 'response_factor'},List[float],－,,
+,,,〇,,,,r,公比,△,{'method': 'response_factor'},List[float],－,,
+,,,〇,,,,boundary_type,境界の種類,△,{'method': 'layers'},str,－,"{'external_general_part', 'internal','ground','external_transparent_part', 'external_opaque_part'}",
+,,,〇,,,,layers,層,△,{'method': 'layers'},list,－,,
+,,,,〇,,,,,〇,,dict,,,
+,,,,,〇,,thermal_capacity,熱容量,△,"{'boundary_type':['external_general_part', 'internal','ground']}",float,kJ/m2K,,
+,,,,,〇,,thermal_resistance,熱抵抗,△,"{'boundary_type':['external_general_part', 'internal','ground']}",float,m2K/W,,
+,,,〇,,,,outside_heat_transfer_resistance,室外側熱抵抗,△,"{'boundary_type':['external_general_part', 'internal']}",float,m2K/W,,
+,,,〇,,,,u_value,U値,△,"{'boundary_type':['external_transparent_part', 'external_opaque_part']}",float,W/m2K,,
+,,,〇,,,,inside_heat_transfer_resistance,室内側総合熱伝達率,△,"{'boundary_type':['external_transparent_part', 'external_opaque_part']}",float,W/m2K,,
+,,〇,,,,,h_i,室内側総合熱伝達率,〇,,float,W/(m2・K),,
+,,〇,,,,,flr,放射暖房熱量の室内側吸収比率,〇,,float,－,,
+,,〇,,,,,is_solar_absorbed,室内侵入日射吸収の有無,〇,,bool,－,,
+,,〇,,,,,f_mrt_hum,部位の人体に対する形態係数,〇,,float,－,,
+,,〇,,,,,k_outside,隣室温度差係数（室外側相当外気温度基準）,〇,,float,－,,
+,,〇,,,,,k_inside,隣室の影響,〇,,"dict, null",－,,隣室がない場合はk_insideがnullとなる。
+,,,〇,,,,id,裏面の境界通し番号,△,,int,－,,k_insideがnullでない場合に定義される。
+,,,〇,,,,coef,裏面の境界の影響を表す係数,△,,float,－,,k_insideがnullでない場合に定義される。

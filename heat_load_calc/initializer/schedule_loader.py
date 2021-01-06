@@ -9,18 +9,16 @@ def get_compiled_schedules(
 ) -> (np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray):
     """
     各種スケジュールを取得する。
-
     Args:
         n_p: 居住人数
         room_name_is: 室iの名称, [i]
-        a_floor_is: 床面積, m2, [i]
-
+        a_floor_is: 室iの床面積, m2, [i]
     Returns:
         ステップnの室iにおける人体発熱を除く内部発熱, W
         ステップnの室iにおける人体発湿を除く内部発湿, kg/s, [8760*4]
         ステップnの室iにおける局所換気量, m3/s, [i, 365*96]
-        ステップnの室iにおける在室人数, [i, 365*96]
-        ステップnの室iにおける空調割合, float型, [i, 365*96]
+        ステップnの室iにおける在室人数(float型), [i, 365*96]
+        ステップnの室iにおける空調割合(float型), [i, 365*96]
     """
 
     # 変数
@@ -29,15 +27,15 @@ def get_compiled_schedules(
     #   調理発熱, W, [i, 365*96]
     #   調理発湿, kg/s, [i, 365*96]
     #   照明発熱, W/m2, [i, 365*96]
-    #   在室人数, [i, 365*96]
-    #   空調割合, float型, [i, 365*96]
+    #   在室人数(float型）, [i, 365*96]
+    #   空調割合(float型), [i, 365*96]
     v_mec_vent_local_is_ns,\
     q_gen_app_is_ns,\
     q_gen_ckg_is_ns,\
     x_gen_ckg_is_ns,\
     q_gen_lght_is_ns,\
     n_hum_is_ns,\
-    ac_demand_is_ns = get_each_schedules(n_p=n_p, room_name_is=room_name_is)
+    ac_demand_is_ns = _get_each_schedules(n_p=n_p, room_name_is=room_name_is)
 
     # ステップnの室iにおける人体発熱を除く内部発熱, W
     q_gen_is_ns = q_gen_app_is_ns + q_gen_ckg_is_ns + q_gen_lght_is_ns * a_floor_is[:, np.newaxis]
@@ -48,26 +46,24 @@ def get_compiled_schedules(
     return q_gen_is_ns, x_gen_is_ns, v_mec_vent_local_is_ns, n_hum_is_ns, ac_demand_is_ns
 
 
-def get_each_schedules(n_p: float, room_name_is: List[str])\
+def _get_each_schedules(n_p: float, room_name_is: List[str])\
         -> (np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray):
     """スケジュールを取得する。
-
     Args:
         n_p: 居住人数（注意：小数　整数ではない。）
         room_name_is: 室iの名称, [i]
-
     Returns:
         局所換気量, m3/s, [i, 365*96]
         機器発熱, W, [i, 365*96]
         調理発熱, W, [i, 365*96]
         調理発湿, kg/s, [i, 365*96]
         照明発熱, W/m2, [i, 365*96]
-        在室人数, [i, 365*96]
-        空調のON/OFF, bool型, [i, 365*96]
+        在室人数(float型), [i, 365*96]
+        空調のON/OFF(float型）, [i, 365*96]
     """
 
     # スケジュールを記述した辞書の読み込み
-    d = load_schedule()
+    d = _load_schedule()
 
     # カレンダーの読み込み（日にちの種類（'平日', '休日外', '休日在'））, [365]
     calendar = np.array(d['calendar'])
@@ -75,7 +71,7 @@ def get_each_schedules(n_p: float, room_name_is: List[str])\
     # 局所換気量, m3/s, [i, 365*96]
     # jsonファイルでは、 m3/h で示されているため、単位換算(m3/h -> m3/s)を行っている。
     v_mec_vent_local_is_ns = np.concatenate([[
-        get_schedule(
+        _get_schedule(
             room_name_i=room_name_i,
             n_p=n_p,
             calendar=calendar,
@@ -85,7 +81,7 @@ def get_each_schedules(n_p: float, room_name_is: List[str])\
 
     # 機器発熱, W, [i, 365*96]
     q_gen_app_is_ns = np.concatenate([[
-        get_schedule(
+        _get_schedule(
             room_name_i=room_name,
             n_p=n_p,
             calendar=calendar,
@@ -95,7 +91,7 @@ def get_each_schedules(n_p: float, room_name_is: List[str])\
 
     # 調理発熱, W, [i, 365*96]
     q_gen_ckg_is_ns = np.concatenate([[
-        get_schedule(
+        _get_schedule(
             room_name_i=room_name,
             n_p=n_p,
             calendar=calendar,
@@ -106,7 +102,7 @@ def get_each_schedules(n_p: float, room_name_is: List[str])\
     # 調理発湿, kg/s, [i, 365*96]
     # jsonファイルでは、g/h で示されているため、単位換算(g/h->kg/s)を行っている。
     x_gen_ckg_is_ns = np.concatenate([[
-        get_schedule(
+        _get_schedule(
             room_name_i=room_name,
             n_p=n_p,
             calendar=calendar,
@@ -117,7 +113,7 @@ def get_each_schedules(n_p: float, room_name_is: List[str])\
     # 照明発熱, W/m2, [i, 365*96]
     # 単位面積あたりで示されていることに注意
     q_gen_lght_is_ns = np.concatenate([[
-        get_schedule(
+        _get_schedule(
             room_name_i=room_name,
             n_p=n_p,
             calendar=calendar,
@@ -128,7 +124,7 @@ def get_each_schedules(n_p: float, room_name_is: List[str])\
     # 在室人数, [i, 365*96]
     # 居住人数で按分しているため、整数ではなく小数であることに注意
     n_hum_is_ns = np.concatenate([[
-        get_schedule(
+        _get_schedule(
             room_name_i=room_name,
             n_p=n_p,
             calendar=calendar,
@@ -138,7 +134,7 @@ def get_each_schedules(n_p: float, room_name_is: List[str])\
 
     # 空調割合, float型, [i, 365*96]
     ac_demand_is_ns = np.concatenate([[
-        get_schedule(
+        _get_schedule(
             room_name_i=room_name,
             n_p=n_p,
             calendar=calendar,
@@ -149,15 +145,16 @@ def get_each_schedules(n_p: float, room_name_is: List[str])\
     return v_mec_vent_local_is_ns, q_gen_app_is_ns, q_gen_ckg_is_ns, x_gen_ckg_is_ns, q_gen_lght_is_ns, n_hum_is_ns, ac_demand_is_ns
 
 
-def load_schedule() -> Dict:
+def _load_schedule() -> Dict:
     """スケジュールを読み込む
     """
     js = open(str(os.path.dirname(__file__)) + '/schedules.json', 'r', encoding='utf-8')
     d_json = json.load(js)
+    js.close()
     return d_json
 
 
-def get_schedule(
+def _get_schedule(
         room_name_i: str, n_p: float, calendar: np.ndarray, daily_schedule: Dict, schedule_type: str
 ) -> np.ndarray:
     """
@@ -192,15 +189,15 @@ def get_schedule(
     d_holiday_in = convert_schedule(day_type='休日在')
     
     d_365_96 = np.full((365, 96), -1.0, dtype=float)
-    d_365_96[calendar == '平日'] = get_interpolated_schedule(n_p, d_weekday)
-    d_365_96[calendar == '休日外'] = get_interpolated_schedule(n_p, d_holiday_out)
-    d_365_96[calendar == '休日在'] = get_interpolated_schedule(n_p, d_holiday_in)
+    d_365_96[calendar == '平日'] = _get_interpolated_schedule(n_p, d_weekday)
+    d_365_96[calendar == '休日外'] = _get_interpolated_schedule(n_p, d_holiday_out)
+    d_365_96[calendar == '休日在'] = _get_interpolated_schedule(n_p, d_holiday_in)
     d = d_365_96.flatten()
 
     return d
 
 
-def get_interpolated_schedule(n_p: float, daily_schedule: Dict) -> np.ndarray:
+def _get_interpolated_schedule(n_p: float, daily_schedule: Dict) -> np.ndarray:
     """
     世帯人数で線形補間してリストを返す
     Args:
@@ -212,7 +209,7 @@ def get_interpolated_schedule(n_p: float, daily_schedule: Dict) -> np.ndarray:
         線形補間したリスト, [96]
     """
 
-    ceil_np, floor_np = get_ceil_floor_np(n_p)
+    ceil_np, floor_np = _get_ceil_floor_np(n_p)
 
     ceil_schedule = np.array(daily_schedule[str(ceil_np)])
     floor_schedule = np.array(daily_schedule[str(floor_np)])
@@ -222,7 +219,7 @@ def get_interpolated_schedule(n_p: float, daily_schedule: Dict) -> np.ndarray:
     return interpolate_np_schedule
 
 
-def get_ceil_floor_np(n_p: float) -> (int, int):
+def _get_ceil_floor_np(n_p: float) -> (int, int):
     """世帯人数から切り上げ・切り下げた人数を整数値で返す
 
     Args:
