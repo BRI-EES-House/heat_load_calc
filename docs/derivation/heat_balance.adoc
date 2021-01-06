@@ -1250,8 +1250,8 @@ stem:[\begin{pmatrix}
 
 [stem]
 ++++
-& \begin{split}
-\boldsymbol{BRM}_n \cdot (
+\begin{split}
+& \boldsymbol{BRM}_n \cdot (
 \boldsymbol{XOT}_{n+1} \cdot \boldsymbol{\theta}_{OT,n+1}
 + \boldsymbol{XLR}_{n+1} \cdot \overline{\boldsymbol{Lr}_{n}}
 + \boldsymbol{XC}_{n+1}
