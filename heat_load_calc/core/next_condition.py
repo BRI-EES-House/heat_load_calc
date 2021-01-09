@@ -1,20 +1,37 @@
 import numpy as np
+from functools import partial
 
 from heat_load_calc.core.operation_mode import OperationMode
 
 
-def calc_next_temp_and_load(
+def make_get_next_temp_and_load_function(
         is_radiative_heating_is: np.ndarray,
         is_radiative_cooling_is: np.ndarray,
+        lr_h_max_cap_is: np.ndarray,
+        lr_cs_max_cap_is: np.ndarray
+):
+
+    return partial(
+        get_next_temp_and_load,
+        is_radiative_heating_is=is_radiative_heating_is,
+        is_radiative_cooling_is=is_radiative_cooling_is,
+        lr_h_max_cap_is=lr_h_max_cap_is,
+        lr_cs_max_cap_is=lr_cs_max_cap_is
+    )
+
+
+def get_next_temp_and_load(
         brc_ot_is_n: np.ndarray,
         brm_ot_is_is_n: np.ndarray,
         brl_ot_is_is_n: np.ndarray,
         theta_lower_target_is_n,
         theta_upper_target_is_n,
-        lr_h_max_cap_is: np.ndarray,
-        lr_cs_max_cap_is: np.ndarray,
         operation_mode_is_n: np.ndarray,
-        ac_demand_is_n: np.ndarray
+        ac_demand_is_n: np.ndarray,
+        is_radiative_heating_is: np.ndarray,
+        is_radiative_cooling_is: np.ndarray,
+        lr_h_max_cap_is: np.ndarray,
+        lr_cs_max_cap_is: np.ndarray
 ):
 
     # 室の配列の形, i✕1　の行列 を表すタプル

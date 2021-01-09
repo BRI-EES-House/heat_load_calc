@@ -1,15 +1,23 @@
 import numpy as np
 import math
 from typing import Dict, Callable
+from functools import partial
 
 
-def make_get_infiltration_function(rd: Dict) -> Callable[[np.ndarray, float], np.ndarray]:
+def make_get_infiltration_function(rd: Dict):
     """
     室温と外気温度から隙間風を計算する関数を作成する。
     Args:
         rd: 入力する辞書
     Returns:
         室温と外気温度から隙間風を計算する関数
+    Notes:
+        作成される関数の引数と戻り値は以下のとおり。
+            Args:
+                theta_r_is_n: 時刻nの室温, degree C, [i,1]
+                theta_o_n: 時刻n+1の外気温度, degree C
+            Returns:
+                すきま風量, m3/s, [i,1]
     """
 
     # 建物全体に関すること
@@ -26,26 +34,18 @@ def make_get_infiltration_function(rd: Dict) -> Callable[[np.ndarray, float], np
         c_value = bdg['c_value']
 
         # 換気の種類
-        inside_p = bdg['inside_pressure']
+        inside_pressure = bdg['inside_pressure']
 
-        # spaces の取り出し
+        # spaceに関すること
         ss = rd['spaces']
 
         # 空間iの気積, m3, [i, 1]
         v_room_is = np.array([float(s['volume']) for s in ss]).reshape(-1, 1)
 
-        def get_infiltration(theta_r_is_n: np.ndarray, theta_o_n: float):
-
-            return _get_infiltration_residential(
-                c_value=c_value,
-                v_room_is=v_room_is,
-                story=story,
-                inside_pressure=inside_p,
-                theta_r_is_n=theta_r_is_n,
-                theta_o_n=theta_o_n
-            )
-
-        return get_infiltration
+        return partial(
+            _get_infiltration_residential,
+            c_value=c_value, v_room_is=v_room_is, story=story, inside_pressure=inside_pressure
+        )
 
     else:
 
@@ -53,16 +53,14 @@ def make_get_infiltration_function(rd: Dict) -> Callable[[np.ndarray, float], np
 
 
 def _get_infiltration_residential(
-        c_value: float,
-        v_room_is: np.ndarray,
-        story: int,
-        inside_pressure: str,
-        theta_r_is_n: np.ndarray,
-        theta_o_n: float
+        theta_r_is_n: np.ndarray, theta_o_n: float, c_value: float, v_room_is: np.ndarray,
+        story: int, inside_pressure: str
 ) -> np.ndarray:
     """すきま風量を取得する関数（住宅用、圧力バランスを解いた近似式バージョン）
     住宅を１つの空間に見立てて予め圧力バランスを解き、
     Args:
+        theta_r_is_n: 時刻nの室温, degree C, [i,1]
+        theta_o_n: 時刻n+1の外気温度, degree C
         c_value: 相当隙間面積, cm2/m2
         v_room_is: 室iの容積, m3, [i,1]
         story: 階
@@ -70,8 +68,6 @@ def _get_infiltration_residential(
             'negative': 負圧
             'positive': 正圧
             'balanced': バランス圧力
-        theta_r_is_n: 時刻nの室温, degree C, [i,1]
-        theta_o_n: 時刻n+1の外気温度, degree C
     Returns:
         すきま風量, m3/s, [i,1]
     """

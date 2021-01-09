@@ -1,5 +1,6 @@
 from typing import Tuple, Callable
 import numpy as np
+from functools import partial
 
 from heat_load_calc.core.operation_mode import OperationMode
 from heat_load_calc.core import ot_target_pmv
@@ -8,7 +9,7 @@ from heat_load_calc.core import ot_target_pmv
 def make_get_ot_target_and_h_hum_function(
         is_radiative_heating_is: np.ndarray,
         is_radiative_cooling_is: np.ndarray
-) -> Callable[[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray], Tuple]:
+):
     """
     作用温度と人体まわりの熱伝達率を計算する関数を取得する。
     Args:
@@ -33,36 +34,11 @@ def make_get_ot_target_and_h_hum_function(
                 その他の備考情報を含むタプル（何の情報が含まれるかは関数の種類による。）
     """
 
-    def get_ot_target_and_h_hum(
-            theta_r_is_n: np.ndarray,
-            theta_mrt_hum_is_n: np.ndarray,
-            x_r_is_n: np.ndarray,
-            operation_mode_is_n_mns: np.ndarray,
-            ac_demand_is_n: np.ndarray
-    ):
-        h_hum_c_is_n, h_hum_r_is_n, operation_mode_is_n, theta_ot_target_is_n, remarks_is_n = \
-            ot_target_pmv.get_ot_target_and_h_hum_with_pmv(
-                x_r_is_n=x_r_is_n,
-                operation_mode_is_n_mns=operation_mode_is_n_mns,
-                is_radiative_heating_is=np.array(is_radiative_heating_is).reshape(-1, 1),
-                is_radiative_cooling_is=np.array(is_radiative_cooling_is).reshape(-1, 1),
-                theta_r_is_n=theta_r_is_n,
-                theta_mrt_is_n=theta_mrt_hum_is_n,
-                ac_demand_is_n=ac_demand_is_n,
-                method='constant'
-            )
-
-        theta_lower_target_is_n = np.zeros_like(operation_mode_is_n, dtype=float)
-        theta_lower_target_is_n[operation_mode_is_n == OperationMode.HEATING] \
-            = theta_ot_target_is_n[operation_mode_is_n == OperationMode.HEATING]
-
-        theta_upper_target_is_n = np.zeros_like(operation_mode_is_n, dtype=float)
-        theta_upper_target_is_n[operation_mode_is_n == OperationMode.COOLING] \
-            = theta_ot_target_is_n[operation_mode_is_n == OperationMode.COOLING]
-
-        return h_hum_c_is_n, h_hum_r_is_n, operation_mode_is_n, theta_lower_target_is_n, theta_upper_target_is_n,\
-            remarks_is_n
-
-    return get_ot_target_and_h_hum
+    return partial(
+        ot_target_pmv.get_ot_target_and_h_hum_with_pmv,
+        is_radiative_heating_is=is_radiative_heating_is,
+        is_radiative_cooling_is=is_radiative_cooling_is,
+        method='constant'
+    )
 
 

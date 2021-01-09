@@ -228,6 +228,145 @@ def get_step_reps_of_wall(C_i_k_p, R_i_k_p, laps: List[float], alp: List[float],
     return dblAT0, dblAA0, dblAT, dblAA, dblATstep, dblAAstep
 
 
+# 壁体の単位応答の計算（非住宅向け重み付き最小二乗法適用）
+def get_step_reps_of_wall_weighted(C_i_k_p, R_i_k_p, laps: List[float], alp: List[float], M: int):
+    """
+    重み付き最小二乗法の適用
+    :param layers: 壁体構成部材
+    :param laps: ラプラス変数
+    :param alp: 固定根
+    :param nroot: 根の数
+    :param M: 応答係数で作成する項数
+    :param DTime: 計算時間間隔[s]
+    :return:
+    """
+
+    # 四端子基本行列の初期化
+    matFi = np.zeros((len(C_i_k_p), 2, 2))
+
+    # 吸熱、貫流の各伝達関数ベクトルの初期化
+    nlaps = len(laps)
+    matGA = np.zeros((nlaps, 1))
+    matGT = np.zeros((nlaps, 1))
+
+    # 単位貫流応答、単位吸熱応答の初期化
+    dblAT0 = 1.0
+    dblAA0 = sum(R_i_k_p)
+
+    # GA(0), GT(0)
+    dblGA0 = dblAA0
+    dblGT0 = dblAT0
+
+    # 壁体の熱容量が0（定常）の場合
+    # 定常部位であっても、そのまま処理を継続する（計算上は問題ないため）
+    # if abs(dblCtotal) < 0.001:
+    #    pass #　暫定処理（VBAではここで処理を抜ける）
+
+    # 吸熱、貫流の各伝達関数ベクトルの作成
+    for lngI in range(0, len(laps)):
+        # 四端子行列の作成
+        for lngK, (R_k, C_k) in enumerate(zip(R_i_k_p, C_i_k_p)):
+
+            # ---- 四端子基本行列 matFi ----
+            if abs(C_k) < 0.001:
+                # 定常部位（空気層等）の場合
+                matFi[lngK] = np.array([
+                    [1.0, R_k],
+                    [0.0, 1.0]
+                ])
+            else:
+                # 非定常部位の場合
+                dblTemp = math.sqrt(R_k * C_k * laps[lngI])
+                dblCosh = np.cosh(dblTemp)
+                dblSinh = np.sinh(dblTemp)
+
+                matFi[lngK] = np.array([
+                    [dblCosh, R_k / dblTemp * dblSinh],
+                    [dblTemp / R_k * dblSinh, dblCosh]
+                ])
+
+            # print('[Fi(', lngK, ')]')
+            # print(matFi)
+
+            # ---- 四端子行列 matFt ----
+            if lngK == 0:
+                # 室内側1層目の場合は、四端子行列に四端子基本行列をコピーする
+                matFt = np.copy(matFi[lngK])
+            else:
+                # 室内側2層目以降は、四端子基本行列を乗算
+                matFt = np.dot(matFt, matFi[lngK])
+
+        # print('martFt')
+        # print(matFt)
+
+        # 吸熱、貫流の各伝達関数ベクトルの作成
+        matGA[lngI] = matFt[0, 1] / matFt[1, 1] - dblGA0
+        matGT[lngI] = 1.0 / matFt[1][1] - dblGT0
+
+    # print('matGA', matGA)
+    # print('matGT', matGT)
+    # 伝達関数の係数を求めるための左辺行列を作成
+    nroot = len(alp)
+    matF = np.zeros((nlaps, nroot))
+    for lngI, laps in enumerate(laps):
+        for lngJ, root in enumerate(alp):
+            matF[lngI, lngJ] = laps / (laps + root)
+
+    # 最小二乗法のための係数行列を作成
+    matU = np.zeros((nroot, nroot))
+    for lngK in range(nroot):
+       for lngJ in range(nroot):
+           for lngI in range(nlaps):
+               matU[lngK, lngJ] += laps[lngI] ** 2.0 * matF[lngI, lngK] * matF[lngI, lngJ]
+    # matU = np.dot(matF.T, matF)
+
+    # 最小二乗法のための定数項行列を作成
+    matCA = np.zeros((nroot, 1))
+    matCT = np.zeros((nroot, 1))
+    for lngK in range(nroot):
+        for lngI in range(nlaps):
+            matCA[lngI, 0] += laps[lngI] ** 2.0 * matF[lngI, lngK] * matGA[lngI, 0]
+            matCT[lngI, 0] += laps[lngI] ** 2.0 * matF[lngI, lngK] * matGT[lngI, 0]
+
+    # 最小二乗法のための係数行列の逆行列を計算
+    matU_inv = np.linalg.inv(matU)
+
+    # 伝達関数の係数を計算
+    matAA = np.dot(matU_inv, matCA)
+    matAT = np.dot(matU_inv, matCT)
+
+    # 伝達関数の係数を一次元配列に変換
+    dblAT = matAT[:, 0]
+    dblAA = matAA[:, 0]
+
+    # 単位応答を計算
+    dblATstep = np.zeros(M)
+    dblAAstep = np.zeros(M)
+    for lngJ in range(M):
+        dblATstep[lngJ] = dblAT0
+        dblAAstep[lngJ] = dblAA0
+        for lngK, root in enumerate(alp):
+            dblATstep[lngJ] = dblATstep[lngJ] + dblAT[lngK] * math.exp(-root * lngJ * 900)
+            dblAAstep[lngJ] = dblAAstep[lngJ] + dblAA[lngK] * math.exp(-root * lngJ * 900)
+
+    # デバッグ用
+    # print('四端子基本行列：', matFi)
+    # print('四端子行列：', matFt)
+    # print('貫流伝達関数ベクトル：', matGA)
+    # print('吸熱伝達関数ベクトル：', matGT)
+    # print('伝達関数の係数を求めるための左辺行列：', matF)
+    # print('最小二乗法のための係数行列：', matU)
+    # print('最小二乗法のための係数行列の逆行列：', matU_inv)
+    # print('貫流定数項行列：', matCT)
+    # print('吸熱定数項行列：', matCA)
+    # print('貫流伝達関数の係数：', dblAT)
+    # print('吸熱伝達関数の係数：', dblAA)
+    # print('単位貫流応答：', dblATstep[:11])
+    # print('単位吸熱応答：', dblAAstep[:11])
+
+    return dblAT0, dblAA0, dblAT, dblAA, dblATstep, dblAAstep
+
+
 # 二等辺三角波励振の応答係数、指数項別応答係数、公比の計算
 def get_RFTRI(alp, AT0, AA0, AT, AA, M):
     # 二等辺三角波励振の応答係数の配列を初期化
@@ -286,6 +425,48 @@ def calc_response_factor(is_ground: bool, C_i_k_p, R_i_k_p):
 
     # 単位応答の計算
     AT0, AA0, AT, AA, ATstep, AAstep = get_step_reps_of_wall(C_i_k_p, R_i_k_p, laps, alpha_m, M)
+
+    # 二等辺三角波励振の応答係数、指数項別応答係数、公比の計算
+    RFT, RFA, RFT1, RFA1, Row = get_RFTRI(alpha_m, AT0, AA0, AT, AA, M)
+
+    RFT0 = RFT[0]  # 貫流応答係数の初項
+    RFA0 = RFA[0]  # 吸熱応答係数の初項
+    Nroot = len(alpha_m)  # 根の数
+
+    RFT1_12 = np.zeros(12)
+    RFA1_12 = np.zeros(12)
+    Row_12 = np.zeros(12)
+    RFT1_12[:len(RFT1)] = RFT1
+    RFA1_12[:len(RFA1)] = RFA1
+    Row_12[:len(Row)] = Row
+
+    return RFT0, RFA0, RFT1_12, RFA1_12, Row_12, Nroot
+
+
+# 応答係数（非住宅用　住宅との相違は固定根と重み付き最小二乗法を使用する点）
+def calc_response_factor_non_residential(C_i_k_p, R_i_k_p):
+    """
+    VBAからの主な変更点：
+    (1)二次元配列（objArray）で壁体の情報を受け取っていたが、壁体情報クラスで受け取るように変更
+    (2)lngStRow, lngOutputColは削除
+    (3)固定根はシートから読み込んでいたが、初期化時に配列として与えるように変更
+    (4)伝達関数近似のA0の周期は使用しない
+    :param WallType: 壁体種類, 'wall' or 'soil'
+    :param DTime: 計算時間間隔[s]
+    :param wall: 壁体基本情報クラス
+    """
+
+    NcalTime = 50  # 応答係数を作成する時間数[h]
+    M = int(NcalTime * 3600 / 900) + 1  # 応答係数で作成する項数
+
+    # 固定根, 初稿 1/(86400*365)、終項 1/600、項数 10
+    alpha_m = np.logspace(np.log10(1.0 / (86400.0 * 365.0)), np.log10(1.0 / 600.0), 10)
+
+    # ラプラス変数の設定
+    laps = get_laps(alpha_m)
+
+    # 単位応答の計算
+    AT0, AA0, AT, AA, ATstep, AAstep = get_step_reps_of_wall_weighted(C_i_k_p, R_i_k_p, laps, alpha_m, M)
 
     # 二等辺三角波励振の応答係数、指数項別応答係数、公比の計算
     RFT, RFA, RFT1, RFA1, Row = get_RFTRI(alpha_m, AT0, AA0, AT, AA, M)
@@ -477,3 +658,36 @@ class ResponseFactorFactorySteady(ResponseFactorFactory):
         )
 
 
+class ResponseFactorFactoryNonResidentialTransientEnvelope(ResponseFactorFactory):
+
+    def __init__(self, cs: List[float], rs: List[float], r_o: float):
+        """
+
+        Args:
+            cs: 熱容量, kJ/m2K, [layer数]
+            rs: 熱抵抗, m2K/W, [layer数]
+            r_o: 室外側熱伝達抵抗, m2K/W
+        """
+
+        super().__init__()
+        self._cs = cs
+        self._rs = rs
+        self._r_o = r_o
+
+    def get_response_factors(self) -> ResponseFactor:
+
+        is_ground = False
+
+        c = self._cs
+        c.append(0.0)
+        c_layer_i_k_l = np.array(c) * 1000.0
+
+        r = self._rs
+        r.append(self._r_o)
+        r_layer_i_k_l = np.array(r)
+
+        # 応答係数
+        _RFT0, _RFA0, _RFT1, _RFA1, _Row, _n_root_i_js = \
+            calc_response_factor_non_residential(c_layer_i_k_l, r_layer_i_k_l)
+
+        return ResponseFactor(rft0=_RFT0, rfa0=_RFA0, rft1=_RFT1, rfa1=_RFA1, row=_Row, n_root=_n_root_i_js)

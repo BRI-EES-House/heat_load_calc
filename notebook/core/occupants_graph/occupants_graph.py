@@ -145,16 +145,23 @@ def get_graph_data(d):
     for key in d.keys():
 
         # 人体周りの総合熱伝達率, 対流熱伝達率, 放射熱伝達率, 運転モード, 着衣量, 目標作用温度の取得
-        _, _, operation_mode, theta_ot_target, remarks = ot_target_pmv.get_ot_target_and_h_hum_with_pmv(
-            x_r_is_n=np.array(d[key]['x_r']),
-            operation_mode_is_n_mns=np.array(d[key]['operation_mode']),
-            is_radiative_heating_is=np.array(d[key]['radiative_heating']),
-            is_radiative_cooling_is=np.array(d[key]['radiative_cooling']),
-            theta_r_is_n=np.array(d[key]['theta_r']),
-            theta_mrt_is_n=np.array(d[key]['theta_mrt']),
-            ac_demand_is_n=np.where(np.array(d[key]['ac_demand']), 1.0, 0.0)
+        _, _, operation_mode, theta_lower_target_is_n, theta_upper_target_is_n, remarks \
+            = ot_target_pmv.get_ot_target_and_h_hum_with_pmv(
+                x_r_is_n=np.array(d[key]['x_r']),
+                operation_mode_is_n_mns=np.array(d[key]['operation_mode']),
+                theta_r_is_n=np.array(d[key]['theta_r']),
+                theta_mrt_hum_is_n=np.array(d[key]['theta_mrt']),
+                ac_demand_is_n=np.where(np.array(d[key]['ac_demand']), 1.0, 0.0),
+                is_radiative_heating_is=np.array(d[key]['radiative_heating']),
+                is_radiative_cooling_is=np.array(d[key]['radiative_cooling'])
         )
+
         _, _, clo = remarks
+
+        theta_ot_target = np.zeros_like(operation_mode, dtype=float)
+
+        theta_ot_target[operation_mode == OperationMode.HEATING] = theta_lower_target_is_n[operation_mode == OperationMode.HEATING]
+        theta_ot_target[operation_mode == OperationMode.COOLING] = theta_upper_target_is_n[operation_mode == OperationMode.COOLING]
 
         # 運転モード, 着衣量, 目標作用温度のデータ格納
         d_graph_data[key] = {
