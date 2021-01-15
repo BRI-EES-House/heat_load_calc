@@ -13,7 +13,7 @@
 ,,〇,,,,,ventilation,換気,〇,,dict,－,,
 ,,,〇,,,,mechanical,外気からの機械換気流入量,〇,,float,m3/sec,0以上。,
 ,,,〇,,,,next_spaces,隣室からの機械換気流入量,〇,,list,,,
-,,,,〇,,,,（機械換気流入量）,,,float,m3/sec,0以上。,
+,,,,〇,,,,（機械換気流入量）,,,float,m3/sec,0以上。,spaces->idの順に流入風量を記述
 ,,,〇,,,,natural,自然風利用時の換気量,〇,,float,m3/sec,0以上。,
 ,,〇,,,,,furniture,家具,〇,,dict,－,,
 ,,,〇,,,,heat_capacity,家具等の熱容量,〇,,float,J/K,0以上。,12.6kJ/(m3･K)
@@ -55,12 +55,14 @@
 ,,,〇,,,,boundary_type,境界の種類,△,{'method': 'layers'},str,－,"{'external_general_part', 'internal','ground','external_transparent_part', 'external_opaque_part'}",
 ,,,〇,,,,layers,層,△,{'method': 'layers'},list,－,,
 ,,,,〇,,,,,〇,,dict,,,
+,,,,,〇,,name,建材名称,△,"{'boundary_type':['external_general_part', 'internal','ground']}",str,－,,
 ,,,,,〇,,thermal_capacity,熱容量,△,"{'boundary_type':['external_general_part', 'internal','ground']}",float,kJ/m2K,,
 ,,,,,〇,,thermal_resistance,熱抵抗,△,"{'boundary_type':['external_general_part', 'internal','ground']}",float,m2K/W,,
 ,,,〇,,,,outside_heat_transfer_resistance,室外側熱抵抗,△,"{'boundary_type':['external_general_part', 'internal']}",float,m2K/W,,
 ,,,〇,,,,u_value,U値,△,"{'boundary_type':['external_transparent_part', 'external_opaque_part']}",float,W/m2K,,
 ,,,〇,,,,inside_heat_transfer_resistance,室内側総合熱伝達率,△,"{'boundary_type':['external_transparent_part', 'external_opaque_part']}",float,W/m2K,,
-,,〇,,,,,h_i,室内側総合熱伝達率,〇,,float,W/(m2・K),,
+,,〇,,,,,h_i,室内側総合熱伝達率,〇,,float,W/(m2・K),,将来的には廃止
+,,〇,,,,,h_c,室内側対流熱伝達率,〇,,float,W/(m2・K),,
 ,,〇,,,,,flr,放射暖房熱量の室内側吸収比率,〇,,float,－,,
 ,,〇,,,,,is_solar_absorbed,室内侵入日射吸収の有無,〇,,bool,－,,
 ,,〇,,,,,f_mrt_hum,部位の人体に対する形態係数,〇,,float,－,,
