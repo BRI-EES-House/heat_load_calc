@@ -15,7 +15,7 @@
 ,,,○,,,,vent,外気からの機械換気量,○,,float,m3/h,,
 ,,,○,,,,next_vent,隣室からの機械換気量,○,,"list, null",ー,,複数指定。Null も可能。
 ,,,,○,,,,,○,,dict,ー,,
-,,,,,○,,upstream_room_id,上流側の室の名称,○,,str,ー,"{'main_occupant_room', 'other_occupant_room', 'non_occupant_room', 'underfloor'}",
+,,,,,○,,upstream_room_id,上流側の室の名称,○,,id,ー,rooms->idを引用する,
 ,,,,,○,,volume,換気量,○,,float,m3/h,,
 ,,,○,,,,natural_vent_time,自然風利用時の換気回数,○,,float,ー,,
 ,,,○,,,,heating_equipment,暖房設備,○,,dict,ー,,
@@ -42,16 +42,17 @@
 ,,○,,,,,,,○,,dict,ー,,
 ,,,○,,,,id,ID,○,,int,ー,,"先頭を0から1つずつインクリメントしなければならない。重複があってはならない。"
 ,,,○,,,,name,名前,○,,str,ー,,
-,,,○,,,,connected_room_id,接する室のID,○,,int,ー,,
+,,,○,,,,connected_room_id,接する室のID,○,,int,ー,rooms->idを引用する,
 ,,,○,,,,boundary_type,境界の種類,○,,str,ー,"{'internal', 'external_general_part', 'external_transparent_part', 'external_opaque_part', 'ground'}",「間仕切り」「外皮_一般部位」「外皮_透明な開口部」「外皮_不透明な開口部」「地盤」
 ,,,○,,,,area,面積,○,,float,m2,,
 ,,,○,,,,is_sun_striked_outside,日射の有無,△,"{'boundary_type': ['external_general_part', 'external_transparent_part', 'external_opaque_part']}",bool,ー,,
-,,,○,,,,temp_dif_coef,温度差係数,△,"{'boundary_type': ['external_general_part', 'external_transparent_part', 'external_opaque_part']}",float,ー,0以上1以下の値。,
+,,,○,,,,temp_dif_coef,温度差係数,△,"{'boundary_type': ['external_general_part', 'external_transparent_part', 'external_opaque_part']}",float,ー,0以上1以下の値。,隣室温度を、自室温度と裏面相当外気温度の加重平均温度とするときの、裏面相当外気温度の重み
 ,,,○,,,,next_room_type,隣室タイプ,△,{'boundary_type': 'internal'},str,－,"{'main_occupant_room', 'other_occupant_room', 'non_occupant_room', 'underfloor'}",「主たる居室」「その他の居室」「非居室」又は「床下空間」を表す。
-,,,○,,,,rear_surface_boundary_id ,裏面境界ID,△,{'boundary_type': 'internal'},int,－,,
+,,,○,,,,rear_surface_boundary_id ,裏面境界ID,△,{'boundary_type': 'internal'},int,－,裏面境界のboundaries->idを引用,
 ,,,○,,,,is_solar_absorbed_inside,室内侵入日射吸収の有無,○,,bool,－,,必ず室1つにつき1箇所は指定すること。
 ,,,○,,,,direction,向き,△,{'is_sun_striked_outside': True},str,ー,"{’s','sw','w','nw','n','ne','e','se','top', 'bottom'}",8方位＋上・下を表す。「南」「南西」「西」「北西」「北」「北東」「東」「南東」「上」「下」
-,,,○,,,,inside_heat_transfer_resistance,室内側熱伝達抵抗,○,,float,m2K/W,,
+,,,○,,,,is_floor,床かどうか,〇,,bool,ー,,MRT計算時の重みが大きくなる
+,,,○,,,,h_c,室内側対流熱伝達率,○,,float,W/m2K,,
 ,,,○,,,,outside_heat_transfer_resistance,室外側熱伝達抵抗,△,"{'boundary_type': ['internal', 'external_general_part', 'external_transparent_part', 'external_opaque_part']}",float,m2K/W,,
 ,,,○,,,,outside_emissivity,室外側長波長放射率,△,"{'boundary_type': ['external_general_part', 'external_transparent_part', 'external_opaque_part']}",float,－,,
 ,,,○,,,,outside_solar_absorption,室外側日射吸収率,△,"{'boundary_type': ['external_general_part', 'external_opaque_part']}",float,－,,
