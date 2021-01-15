@@ -40,7 +40,7 @@
 ,,,,,,○,v_max,最大風量,○,,float,m3/min,,
 ,○,,,,,,boundaries,境界,○,,list,ー,,
 ,,○,,,,,,,○,,dict,ー,,
-,,,○,,,,id,ID,○,,int,ー,,"先頭を0から1つずつインクリメントしなければならない。重複があってはならない。"
+,,,○,,,,id,ID,○,,int,ー,,先頭を0から1つずつインクリメントしなければならない。重複があってはならない。
 ,,,○,,,,name,名前,○,,str,ー,,
 ,,,○,,,,connected_room_id,接する室のID,○,,int,ー,rooms->idを引用する,
 ,,,○,,,,boundary_type,境界の種類,○,,str,ー,"{'internal', 'external_general_part', 'external_transparent_part', 'external_opaque_part', 'ground'}",「間仕切り」「外皮_一般部位」「外皮_透明な開口部」「外皮_不透明な開口部」「地盤」
