@@ -1,0 +1,82 @@
+﻿種類,1,2,3,4,5,6,key,項目名,必須,条件,型,単位,入力,備考
+全体,○,,,,,,common,共通,○,,dict,－,,
+,,○,,,,,region,地域の区分,○,,int,－,1から8の値。,1から8の地域区分を表す。
+,○,,,,,,building,建物,○,,dict,－,,
+,,○,,,,,story,建物の階数,〇,,int,－,1又は2。,
+,,○,,,,,c_value,相当隙間面積,〇,,float,cm2/m2,0以上。,
+,,○,,,,,inside_pressure,室内圧力,〇,,str,－,"{'positive', 'negative', 'balanced'}",
+,○,,,,,,rooms,室情報,○,,list,－,,
+,,○,,,,,,,○,,dict,－,,
+,,,○,,,,id,ID,○,,int,－,,先頭を0から1つずつインクリメントしなければならない。重複があってはならない。
+,,,○,,,,name,名称,○,,str,－,,
+,,,○,,,,room_type,室タイプ,○,,str,－,"{'main_occupant_room', 'other_occupant_room', 'non_occupant_room', 'underfloor'}",「主たる居室」「その他の居室」「非居室」又は「床下空間」。主たる居室は必ず1つ指定する必要がある。
+,,,○,,,,floor_area,床面積,○,,,,,
+,,,○,,,,volume,気積,○,,float,m3,,
+,,,○,,,,vent,外気からの機械換気量,○,,float,m3/h,,
+,,,○,,,,next_vent,隣室からの機械換気量,○,,"list, null",ー,,複数指定。Null も可能。
+,,,,○,,,,,○,,dict,ー,,
+,,,,,○,,upstream_room_id,上流側の室の名称,○,,id,ー,rooms->idを引用する,
+,,,,,○,,volume,換気量,○,,float,m3/h,,
+,,,○,,,,natural_vent_time,自然風利用時の換気回数,○,,float,ー,,
+,,,○,,,,heating_equipment,暖房設備,○,,dict,ー,,
+,,,,○,,,equipment_type,暖房形式,○,,str,ー,"{'not_installed', 'convective', 'radiative'}",
+,,,,,○,,radiative,放射暖房の機器仕様,○,{'equipment_type': 'radiative'},,,,
+,,,,,,○,max_capacity,最大能力,○,,float,W/m2,,
+,,,,,,○,area,面積,○,,float,m2,,
+,,,,,○,,convective,対流暖房の機器仕様,○,{'equipment_type': 'convective'},,,,
+,,,,,,○,q_min,最小暖房能力,○,,float,W,,
+,,,,,,○,q_max,最大暖房能力,○,,float,W,,
+,,,,,,○,v_min,最小風量,○,,float,m3/min,,
+,,,,,,○,v_max,最大風量,○,,float,m3/min,,
+,,,○,,,,cooling_equipment,冷房設備,○,,dict,ー,,
+,,,,○,,,equipment_type,冷房方式,○,,str,ー,"{'not_installed', 'convective', 'radiative'}",
+,,,,,○,,radiative,放射冷房の機器仕様,○,{'equipment_type': 'radiative'},,,,
+,,,,,,○,max_capacity,最大能力,○,,float,W/m2,,
+,,,,,,○,area,面積,○,,float,m2,,
+,,,,,○,,convective,対流冷房の機器仕様,○,{'equipment_type': 'convective'},,,,
+,,,,,,○,q_min,最小冷房能力,○,,float,W,,
+,,,,,,○,q_max,最大冷房能力,○,,float,W,,
+,,,,,,○,v_min,最小風量,○,,float,m3/min,,
+,,,,,,○,v_max,最大風量,○,,float,m3/min,,
+,○,,,,,,boundaries,境界,○,,list,ー,,
+,,○,,,,,,,○,,dict,ー,,
+,,,○,,,,id,ID,○,,int,ー,,先頭を0から1つずつインクリメントしなければならない。重複があってはならない。
+,,,○,,,,name,名前,○,,str,ー,,
+,,,○,,,,connected_room_id,接する室のID,○,,int,ー,rooms->idを引用する,
+,,,○,,,,boundary_type,境界の種類,○,,str,ー,"{'internal', 'external_general_part', 'external_transparent_part', 'external_opaque_part', 'ground'}",「間仕切り」「外皮_一般部位」「外皮_透明な開口部」「外皮_不透明な開口部」「地盤」
+,,,○,,,,area,面積,○,,float,m2,,
+,,,○,,,,is_sun_striked_outside,日射の有無,△,"{'boundary_type': ['external_general_part', 'external_transparent_part', 'external_opaque_part']}",bool,ー,,
+,,,○,,,,temp_dif_coef,温度差係数,△,"{'boundary_type': ['external_general_part', 'external_transparent_part', 'external_opaque_part']}",float,ー,0以上1以下の値。,隣室温度を、自室温度と裏面相当外気温度の加重平均温度とするときの、裏面相当外気温度の重み
+,,,○,,,,next_room_type,隣室タイプ,△,{'boundary_type': 'internal'},str,－,"{'main_occupant_room', 'other_occupant_room', 'non_occupant_room', 'underfloor'}",「主たる居室」「その他の居室」「非居室」又は「床下空間」を表す。
+,,,○,,,,rear_surface_boundary_id ,裏面境界ID,△,{'boundary_type': 'internal'},int,－,裏面境界のboundaries->idを引用,
+,,,○,,,,is_solar_absorbed_inside,室内侵入日射吸収の有無,○,,bool,－,,必ず室1つにつき1箇所は指定すること。
+,,,○,,,,direction,向き,△,{'is_sun_striked_outside': True},str,ー,"{’s','sw','w','nw','n','ne','e','se','top', 'bottom'}",8方位＋上・下を表す。「南」「南西」「西」「北西」「北」「北東」「東」「南東」「上」「下」
+,,,○,,,,is_floor,床かどうか,〇,,bool,ー,,MRT計算時の重みが大きくなる
+,,,○,,,,h_c,室内側対流熱伝達率,○,,float,W/m2K,,
+,,,○,,,,outside_heat_transfer_resistance,室外側熱伝達抵抗,△,"{'boundary_type': ['internal', 'external_general_part', 'external_transparent_part', 'external_opaque_part']}",float,m2K/W,,
+,,,○,,,,outside_emissivity,室外側長波長放射率,△,"{'boundary_type': ['external_general_part', 'external_transparent_part', 'external_opaque_part']}",float,－,,
+,,,○,,,,outside_solar_absorption,室外側日射吸収率,△,"{'boundary_type': ['external_general_part', 'external_opaque_part']}",float,－,,
+,,,○,,,,eta_value,日射熱取得率,△,{'boundary_type': 'external_transparent_part'},float,－,,
+,,,○,,,,u_value,熱貫流率,△,"{'boundary_type': ['external_transparent_part', 'external_opaque_part']}",float,W/m2K,,
+,,,○,,,,incident_angle_characteristics,ガラスの入射角特性タイプ,△,{'boundary_type': 'external_transparent_part'},str,－,"{'single',  'multiple'}",「単層」「複層」を表す。
+,,,○,,,,layers,層のリスト,△,"{'boundary_type': ['internal', 'external_general_part', 'ground']}",list,－,,室内外の熱伝達抵抗は含まない。
+,,,,○,,,,層,○,,dict,－,,対象室側から並べること。
+,,,,,○,,name,名称,○,,str,－,,
+,,,,,○,,thermal_resistance,熱抵抗,○,,float,m2K/W,,
+,,,,,○,,thermal_capacity,熱容量,○,,float,kJ/m2K,,
+,,,○,,,,solar_shading_part,日除けの仕様,○,,dict,－,,
+,,,,○,,,existence,有無,○,,bool,－,,
+,,,,○,,,input_method,入力方法,△,{'exsistence': True},str,－,"{'default', 'simple', 'detailed'}",「デフォルト値」「簡易法」「詳細法」を表す。
+,,,,○,,,depth,庇・軒の出幅,△,{'input_method': 'simple'},float,m,,
+,,,,○,,,d_h,窓の高さ,△,{'input_method': 'simple'},float,m,,
+,,,,○,,,d_e,窓の上端から庇までの距離,△,{'input_method': 'simple'},float,m,,
+,,,,○,,,x1,庇水平方向の出(左),△,{'input_method': 'detailed'},float,m,,
+,,,,○,,,x2,窓幅,△,{'input_method': 'detailed'},float,m,,
+,,,,○,,,x3,庇水平方向の出(右),△,{'input_method': 'detailed'},float,m,,
+,,,,○,,,y1,上部庇の窓上端からの距離,△,{'input_method': 'detailed'},float,m,,
+,,,,○,,,y2,窓高さ,△,{'input_method': 'detailed'},float,m,,
+,,,,○,,,y3,下部庇の窓下端からの距離,△,{'input_method': 'detailed'},float,m,,
+,,,,○,,,z_x_pls,側壁右の出幅,△,{'input_method': 'detailed'},float,m,,
+,,,,○,,,z_x_mns,側壁左の出幅,△,{'input_method': 'detailed'},float,m,,
+,,,,○,,,z_y_pls,上部庇の出幅,△,{'input_method': 'detailed'},float,m,,
+,,,,○,,,z_y_mns,下部庇の出幅,△,{'input_method': 'detailed'},float,m,,

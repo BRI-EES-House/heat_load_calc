@@ -1,0 +1,8 @@
+﻿列名,単位,概要
+temperature,degree C,外気温度
+absolute humidity,kg/kg(DA),外気絶対湿度
+normal direct solar radiation,W/m2,法線面直達日射量
+horizontal sky solar radiation,W/m2,水平面天空日射量
+outward radiation,W/m2,夜間放射量
+sun altitude,rad,太陽高度
+sun azimuth,rad,太陽方位角
