@@ -10,4 +10,4 @@
 ,,,,〇,,調理内部発熱,heat_generation_cooking,〇,,,List[float],W,24時間×4のリスト
 ,,,,〇,,調理内部発湿,vapor_generation_cooking,〇,,,List[float],g/h,24時間×4のリスト
 ,,,,〇,,局所換気量,local_vent_amount,〇,,,List[float],m3/h,24時間×4のリスト
-,,,,〇,,空調発停,is_temp_limit_set,〇,,,List[float],m3/h,24時間×4のリスト
+,,,,〇,,空調発停,is_temp_limit_set,〇,,,List[float],－,24時間×4のリスト。温度設定時は１、停止時は０で記述する
