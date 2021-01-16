@@ -126,7 +126,7 @@ stem:[\begin{pmatrix}
 \begin{split}
 \rho_a \cdot V_{room} \cdot \frac{dX_r}{dt}
 & = \rho_a \cdot V_{out,vent} \cdot (X_{o} - X_{r}) \\
-& + X_{gen} + X_{hum} - G_{RAC} \\
+& + X_{gen} + X_{hum} + L_L \\
 & + G_{w,frt} \cdot (X_{frt} - X_{r}) \\
 & + \rho_a \cdot V_{int,vent} \cdot X_{r}
 \end{split} \tag{1}
