@@ -3,7 +3,7 @@
 本リポジトリでは、暖冷房負荷計算の開発を行っています。  
 
 [![Build Status](https://travis-ci.com/BRI-EES-House/heat_load_calc.svg?branch=master)](https://travis-ci.com/BRI-EES-House/heat_load_calc)
-
+[![test](https://github.com/BRI-EES-House/heat_load_calc/workflows/test/badge.svg)](https://github.com/BRI-EES-House/heat_load_calc/actions?query=workflow%3Atest)
 
 
 ## 仕様書・根拠
