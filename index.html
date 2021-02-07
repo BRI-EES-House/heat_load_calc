@@ -3488,7 +3488,7 @@ k_{EO,j} \cdot \theta_{EO,n}
 \[\begin{split}
 \rho_a \cdot V_{room} \cdot \frac{dX_r}{dt}
 &amp; = \rho_a \cdot V_{out,vent} \cdot (X_{o} - X_{r}) \\
-&amp; + X_{gen} + X_{hum} - G_{RAC} \\
+&amp; + X_{gen} + X_{hum} + L_L \\
 &amp; + G_{w,frt} \cdot (X_{frt} - X_{r}) \\
 &amp; + \rho_a \cdot V_{int,vent} \cdot X_{r}
 \end{split} \tag{1}\]
@@ -3536,6 +3536,9 @@ k_{EO,j} \cdot \theta_{EO,n}
 </div>
 </div>
 <div class="paragraph">
+<p>ここで、\(L_a = - k_l\)、\(L_b = k_l \cdot X_{srf,ex}\)である。</p>
+</div>
+<div class="paragraph">
 <p>この場合、絶対湿度と熱交換器表面における飽和絶対湿度との大小関係によって除湿の有無が決定されるため、一旦、\(X_r &gt; X_{srf,ex}\)を仮定して潜熱負荷\(L_L\)を計算し、その値が正（加湿）だった場合は\(L_L=0\)として再計算するなど、何らかの数値解法的手法が求められる。</p>
 </div>
 <div class="paragraph">
@@ -3543,7 +3546,7 @@ k_{EO,j} \cdot \theta_{EO,n}
 </div>
 <div class="stemblock">
 <div class="content">
-\[k_l = \rho_a \cdot V_{RAC} \cdot (1 - BF_{RAC})\]
+\[k_l = \rho_a \cdot V_{RAC} \cdot (1 - BF_{RAC}) \tag{4}\]
 </div>
 </div>
 <div class="paragraph">
@@ -3551,7 +3554,7 @@ k_{EO,j} \cdot \theta_{EO,n}
 </div>
 <div class="stemblock">
 <div class="content">
-\[C_{w,frt} \cdot \frac{dX_{frt,n}}{dt} = G_{w,frt} \cdot (X_r - X_{frt}) \tag{4}\]
+\[C_{w,frt} \cdot \frac{dX_{frt,n}}{dt} = G_{w,frt} \cdot (X_r - X_{frt}) \tag{5}\]
 </div>
 </div>
 <div class="paragraph">
@@ -3561,11 +3564,11 @@ k_{EO,j} \cdot \theta_{EO,n}
 <div class="content">
 \[\begin{split}
 \rho_a \cdot V_{room} \cdot \frac{X_{r,n+1} - {X_{r,n}}}{\Delta t}
-&amp; = \rho_a \cdot V_{out,vent,n} \cdot (X_{o,n+1} - X_{r,n+1}) \\
-&amp; + X_{gen,n} + X_{hum,n} \\
-&amp; - G_{RAC,n} \\
+&amp; = \rho_a \cdot \overline{V_{out,vent,n}} \cdot (X_{o,n+1} - X_{r,n+1}) \\
+&amp; + \overline{X_{gen,n}} + \overline{X_{hum,n}} \\
+&amp; + \overline{L_{L,n}} \\
 &amp; + G_{w,frt} \cdot (X_{frt,n+1} - X_{r,n+1}) \\
-&amp; + \rho_a \: V_{int,vent,n} \: X_{r,n+1}
+&amp; + \rho_a \: \overline{V_{int,vent,n}} \: X_{r,n+1}
 \end{split} \tag{4}\]
 </div>
 </div>
@@ -3671,7 +3674,7 @@ BRMC_{not-dh}
 <div id="footer">
 <div id="footer-text">
 Version 1.0.0(202006)<br>
-Last updated 2021-02-06 08:46:53 UTC
+Last updated 2021-02-07 11:42:10 UTC
 </div>
 </div>
 <script type="text/x-mathjax-config">
