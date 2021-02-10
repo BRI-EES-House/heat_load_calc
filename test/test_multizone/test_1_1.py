@@ -52,7 +52,7 @@ class MyTestCase(unittest.TestCase):
 
         # 部位からの対流熱取得, [W]
         surf_conv_heat = 0.0
-        for i in range(0, 11):
+        for i in range(0, 12):
             surf_conv_heat -= self._dd['rm0_b' + str(i) + '_qic_s']['1989-01-01 00:15:00']
 
         # 家具からの対流熱取得, [W]
@@ -127,7 +127,7 @@ class MyTestCase(unittest.TestCase):
 
         # 部位の放射熱取得, [W]
         surf_radiative_heat = 0.0
-        for i in range(0, 11):
+        for i in range(0, 12):
             surf_radiative_heat += self._dd['rm0_b' + str(i) + '_qir_s']['1989-01-01 00:15:00']
 
         self.assertAlmostEqual(surf_radiative_heat, 0.0)
@@ -150,11 +150,11 @@ class MyTestCase(unittest.TestCase):
     def test_nagata_radiative_heat_transfer(self):
 
         h_i_r0 = self._dd['rm0_b0_hir_s']['1989-01-01 00:15:00']
-        self.assertAlmostEqual(first=h_i_r0, second=5.30103376821525)
+        self.assertAlmostEqual(first=h_i_r0, second=5.3033300464)
         h_i_r1 = self._dd['rm0_b1_hir_s']['1989-01-01 00:15:00']
-        self.assertAlmostEqual(first=h_i_r1, second=5.19171875408622)
+        self.assertAlmostEqual(first=h_i_r1, second=5.1924019186)
         h_i_r10 = self._dd['rm0_b10_hir_s']['1989-01-01 00:15:00']
-        self.assertAlmostEqual(first=h_i_r10, second=5.43615990094699)
+        self.assertAlmostEqual(first=h_i_r10, second=5.5218668782)
 
     def test_solar_heat_gain_balance(self):
 
