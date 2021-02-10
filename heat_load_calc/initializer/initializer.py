@@ -17,7 +17,7 @@ from heat_load_calc.initializer import occupants_form_factor
 from heat_load_calc.initializer import boundary_simple
 from heat_load_calc.initializer import building_part_summarize
 from heat_load_calc.initializer import furniture
-from heat_load_calc.core.shape_factor import get_h_r_js
+from heat_load_calc.core.shape_factor import get_h_r_js2
 
 
 class Story(Enum):
@@ -666,8 +666,8 @@ def _make_boundaries(bss2: List[BoundarySimple], rooms: List[Dict], boundaries: 
     for i in range(n_spaces):
         is_connected = np.array([bs.connected_room_id == i for bs in bss2])
 
-        h_r_is[is_connected] = get_h_r_js(
-            a_bdry_i_js=np.array([bs.area for bs in np.array(bss2)[is_connected]])
+        h_r_is[is_connected] = get_h_r_js2(
+            a_srf=np.array([bs.area for bs in np.array(bss2)[is_connected]])
         )
 
     # 暖房設備仕様の読み込み
@@ -704,6 +704,7 @@ def _make_boundaries(bss2: List[BoundarySimple], rooms: List[Dict], boundaries: 
             # 'r': list(bs.row),
             'h_i': bs.h_i,
             'h_c': bs.h_c,
+            'h_r': h_r_is[i],
             'flr': flr_js[i],
             'is_solar_absorbed': str(bs.is_solar_absorbed_inside),
             'f_mrt_hum': f_mrt_hum_is[i],

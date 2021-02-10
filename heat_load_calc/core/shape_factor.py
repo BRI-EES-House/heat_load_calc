@@ -35,6 +35,27 @@ def get_h_r_js(a_srf_js: np.ndarray, p_js_is: np.ndarray) -> np.ndarray:
     return hr_i_k_n.reshape(-1, 1)
 
 
+def get_h_r_js2(a_srf: np.ndarray) -> np.ndarray:
+    """ 放射熱伝達率（室単位で計算する）
+
+    Args:
+        a_srf: 境界jの面積, m2, [j, 1]
+    Returns:
+        放射熱伝達率, W/m2K, [j, 1]
+    """
+
+    # 微小点に対する境界jの形態係数
+    # 永田先生の方法
+    f_js = _get_f_i_js(a_srf_js=a_srf)
+
+    # 境界間の放射熱伝達率を決定する際、平均放射温度を20℃固定値であるとして計算する。
+    t_mrt = 273.15 + 20.0
+
+    hr_k_n = get_eps() / (1.0 - get_eps() * f_js) * 4.0 * get_sgm() * t_mrt ** 3.0
+
+    return hr_k_n
+
+
 def get_f_mrt_is_js(a_srf_js, h_r_js, p_is_js):
 
     ah = a_srf_js * h_r_js
