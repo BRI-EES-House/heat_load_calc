@@ -17,6 +17,7 @@ from heat_load_calc.initializer import occupants_form_factor
 from heat_load_calc.initializer import boundary_simple
 from heat_load_calc.initializer import building_part_summarize
 from heat_load_calc.initializer import furniture
+from heat_load_calc.core.shape_factor import get_h_r_js
 
 
 class Story(Enum):
@@ -658,6 +659,15 @@ def _make_boundaries(bss2: List[BoundarySimple], rooms: List[Dict], boundaries: 
         f_mrt_hum_is[is_connected] = occupants_form_factor.get_f_mrt_hum_is(
             a_bdry_i_js=np.array([bs.area for bs in np.array(bss2)[is_connected]]),
             is_floor_bdry_i_js=np.array([bs.is_floor for bs in np.array(bss2)[is_connected]])
+        )
+
+    # 室iの微小球に対する境界jの形態係数
+    h_r_is = np.zeros_like(bss2, dtype=float)
+    for i in range(n_spaces):
+        is_connected = np.array([bs.connected_room_id == i for bs in bss2])
+
+        h_r_is[is_connected] = get_h_r_js(
+            a_bdry_i_js=np.array([bs.area for bs in np.array(bss2)[is_connected]])
         )
 
     # 暖房設備仕様の読み込み
