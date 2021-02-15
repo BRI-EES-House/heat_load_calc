@@ -1,4 +1,5 @@
 import json
+import os
 import time
 
 from heat_load_calc.initializer import initializer
@@ -8,15 +9,17 @@ from heat_load_calc.core import core
 
 def run():
 
-    js = open('data_example1/input_residential.json', 'r', encoding='utf-8')
+    data_dir = str(os.path.dirname(__file__)) + '/data_example1'
+
+    js = open(data_dir + '/input_residential.json', 'r', encoding='utf-8')
 
     d = json.load(js)
 
-    weather.make_weather(region=d['common']['region'], output_data_dir='data_example1', csv_output=True)
+    weather.make_weather(region=d['common']['region'], output_data_dir=data_dir, csv_output=True)
 
-    initializer.make_house(d=d, input_data_dir='data_example1', output_data_dir='data_example1')
+    initializer.make_house(d=d, input_data_dir=data_dir, output_data_dir=data_dir)
 
-    core.calc(input_data_dir='data_example1', output_data_dir='data_example1', show_simple_result=True, show_detail_result=True)
+    core.calc(input_data_dir=data_dir, output_data_dir=data_dir, show_simple_result=True, show_detail_result=False)
 
 
 if __name__ == '__main__':

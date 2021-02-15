@@ -315,6 +315,9 @@ def make_pre_calc_parameters(delta_t: float, data_directory: str) -> (PreCalcPar
     # 境界jの室内側表面対流熱伝達率, W/m2K, [j, 1]
     h_c_js = np.array([b['h_c'] for b in bs]).reshape(-1, 1)
 
+    # 境界jの室内側表面放射熱伝達率, W/m2K, [j, 1]
+    h_r_js2 = np.array([b['h_r'] for b in bs]).reshape(-1, 1)
+
     # 境界jの室内側表面総合熱伝達率, W/m2K, [j, 1]
     # h_i_js_temporary = np.array([b['h_i'] for b in bs]).reshape(-1, 1)
 
@@ -452,6 +455,8 @@ def make_pre_calc_parameters(delta_t: float, data_directory: str) -> (PreCalcPar
 
     # 境界jの室内側表面放射熱伝達率, W/m2K, [j, 1]
     h_r_js = shape_factor.get_h_r_js(a_srf_js=a_srf_js, p_js_is=p_js_is)
+
+    h_r_js = h_r_js2
 
     # 平均放射温度計算時の各部位表面温度の重み, [i, j]
     f_mrt_is_js = shape_factor.get_f_mrt_is_js(a_srf_js=a_srf_js, h_r_js=h_r_js, p_is_js=p_is_js)
