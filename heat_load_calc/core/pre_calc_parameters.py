@@ -468,6 +468,7 @@ def make_pre_calc_parameters(delta_t: float, data_directory: str) -> (PreCalcPar
     v_mec_vent_is_ns = v_vent_ex_is[:, np.newaxis] + v_mec_vent_local_is_ns
 
     # 室内侵入日射のうち家具に吸収される割合
+    # TODO: これは入力値にした方がよいのではないか？
     r_sol_fnt = 0.5
 
     # ステップnの室iにおける家具の吸収日射量, W, [i, n]
@@ -477,6 +478,7 @@ def make_pre_calc_parameters(delta_t: float, data_directory: str) -> (PreCalcPar
     a_srf_abs_is = np.dot(p_is_js, a_srf_js * is_solar_abs_js)
 
     # ステップnの境界jにおける透過日射吸収熱量, W/m2, [j, n]
+    # TODO: 日射の吸収割合を入力値にした方がよいのではないか？
     q_sol_js_ns = np.dot(p_js_is, q_trs_sol_is_ns / a_srf_abs_is)\
         * is_solar_abs_js * (1.0 - r_sol_fnt)
 

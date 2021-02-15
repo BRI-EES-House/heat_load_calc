@@ -478,6 +478,7 @@ def _make_spaces_dict(rooms: List[dict]):
     v_int_vent_is = _get_v_int_vent_is(next_vents, n_spaces)
 
     # 室iの自然風利用時の換気量, m3/s, [i]
+    # TODO: もしかすると換気回数わたしの方が自然か？
     v_ntrl_vent_is = v_room_cap_is * n_ntrl_vent_is / 3600
 
     # 室iの家具等の熱容量, J/K
