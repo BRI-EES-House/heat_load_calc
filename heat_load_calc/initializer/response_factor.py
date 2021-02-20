@@ -493,46 +493,34 @@ class ResponseFactorFactory:
     @classmethod
     def create(cls, spec: Dict):
 
-        if spec['method'] == 'response_factor':
+        if spec['boundary_type'] in ['external_general_part', 'internal']:
 
-            return ResponseFactorFactoryDirect(
-                rft0=spec['phi_t0'],
-                rfa0=spec['phi_a0'],
-                rft1=spec['phi_t1'],
-                rfa1=spec['phi_a1'],
-                row=spec['r'],
-                n_root=len(spec['phi_t1'])
+            layers = spec['layers']
+
+            return ResponseFactorFactoryTransientEnvelope(
+                cs=[float(layer['thermal_capacity']) for layer in layers],
+                rs=[float(layer['thermal_resistance']) for layer in layers],
+                r_o=float(spec['outside_heat_transfer_resistance'])
+            )
+
+        elif spec['boundary_type'] == 'ground':
+
+            layers = spec['layers']
+
+            return ResponseFactorFactoryTransientGround(
+                cs=[float(layer['thermal_capacity']) for layer in layers],
+                rs=[float(layer['thermal_resistance']) for layer in layers]
+            )
+
+        elif spec['boundary_type'] in ['external_transparent_part', 'external_opaque_part']:
+
+            return ResponseFactorFactorySteady(
+                u_w=spec['u_value'],
+                r_i=spec['inside_heat_transfer_resistance']
             )
 
         else:
-            if spec['boundary_type'] in ['external_general_part', 'internal']:
-
-                layers = spec['layers']
-
-                return ResponseFactorFactoryTransientEnvelope(
-                    cs=[float(layer['thermal_capacity']) for layer in layers],
-                    rs=[float(layer['thermal_resistance']) for layer in layers],
-                    r_o=float(spec['outside_heat_transfer_resistance'])
-                )
-
-            elif spec['boundary_type'] == 'ground':
-
-                layers = spec['layers']
-
-                return ResponseFactorFactoryTransientGround(
-                    cs=[float(layer['thermal_capacity']) for layer in layers],
-                    rs=[float(layer['thermal_resistance']) for layer in layers]
-                )
-
-            elif spec['boundary_type'] in ['external_transparent_part', 'external_opaque_part']:
-
-                return ResponseFactorFactorySteady(
-                    u_w=spec['u_value'],
-                    r_i=spec['inside_heat_transfer_resistance']
-                )
-
-            else:
-                raise KeyError()
+            raise KeyError()
 
     def get_response_factors(self) -> ResponseFactor:
 
