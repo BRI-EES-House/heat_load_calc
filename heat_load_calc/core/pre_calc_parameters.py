@@ -6,9 +6,7 @@ from dataclasses import dataclass
 from typing import List, Dict, Any, Callable
 
 from heat_load_calc.external.global_number import get_c_air, get_rho_air
-from heat_load_calc.core import shape_factor
-from heat_load_calc.core.operation_mode import OperationMode
-from heat_load_calc.initializer import response_factor
+from heat_load_calc.initializer import response_factor, shape_factor
 from heat_load_calc.core import infiltration
 from heat_load_calc.core import ot_target
 from heat_load_calc.core import next_condition
