@@ -453,9 +453,6 @@ def make_pre_calc_parameters(delta_t: float, data_directory: str) -> (PreCalcPar
     # 室iの空気の熱容量, J/K, [i, 1]
     c_rm_is = v_room_is * get_rho_air() * get_c_air()
 
-    # 境界jの室内側表面放射熱伝達率, W/m2K, [j, 1]
-    h_r_js = shape_factor.get_h_r_js(a_srf_js=a_srf_js, p_js_is=p_js_is)
-
     h_r_js = h_r_js2
 
     # 平均放射温度計算時の各部位表面温度の重み, [i, j]
