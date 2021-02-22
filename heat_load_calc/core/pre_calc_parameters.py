@@ -327,6 +327,12 @@ def make_pre_calc_parameters(delta_t: float, data_directory: str) -> (PreCalcPar
     # 応答係数を取得する。
     phi_a0_js, phi_a1_js_ms, phi_t0_js, phi_t1_js_ms, r_js_ms = _get_responsfactors(bs)
 
+    phi_a0_js = phi_a0_js2
+    phi_a1_js_ms = phi_a1_js_ms2
+    phi_t0_js = phi_t0_js2
+    phi_t1_js_ms = phi_t1_js_ms2
+    r_js_ms = r_js_ms2
+
     # 境界jの室内側表面対流熱伝達率, W/m2K, [j, 1]
     h_c_js = np.array([b['h_c'] for b in bs]).reshape(-1, 1)
 
