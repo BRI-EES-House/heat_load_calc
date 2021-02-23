@@ -15,10 +15,13 @@ from heat_load_calc.initializer import schedule_loader
 from heat_load_calc.initializer import residents_number
 from heat_load_calc.initializer import occupants_form_factor
 from heat_load_calc.initializer import boundary_simple
-from heat_load_calc.initializer import building_part_summarize
 from heat_load_calc.initializer import furniture
+<<<<<<< HEAD
 from heat_load_calc.core.shape_factor import get_h_r_js2
 from heat_load_calc.initializer import response_factor
+=======
+from heat_load_calc.initializer.shape_factor import get_h_r_js2
+>>>>>>> master
 
 
 class Story(Enum):
