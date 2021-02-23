@@ -17,7 +17,7 @@ class MyTestCase(unittest.TestCase):
 
         cls._data_dir = str(os.path.dirname(__file__)) + '/data'
 
-        ds, dd = core.calc(input_data_dir=cls._data_dir, output_data_dir=cls._data_dir, show_detail_result=True)
+        ds, dd = core.calc(input_data_dir=cls._data_dir, output_data_dir=cls._data_dir)
 
         cls._ds = ds
         cls._dd = dd
@@ -75,7 +75,7 @@ class MyTestCase(unittest.TestCase):
         q_vent_natural = c_air * rho_air * v_natural * (t_o - t_r_new)
 
         # 隣室間換気による熱取得, [W]
-        v_next_vent0 = self._mdh['spaces'][0]['ventilation']['next_spaces'][0]  # m3/s
+        v_next_vent0 = 0.0                                                      # m3/s
         v_next_vent1 = self._mdh['spaces'][0]['ventilation']['next_spaces'][1]  # m3/s
         v_next_vent2 = self._mdh['spaces'][0]['ventilation']['next_spaces'][2]  # m3/s
         t_r_0_new = self._dd['rm0_t_r']['1989-01-01 00:15:00']
@@ -164,7 +164,7 @@ class MyTestCase(unittest.TestCase):
         # 隣室間換気による熱取得, [W]
         v_next_vent0 = self._mdh['spaces'][2]['ventilation']['next_spaces'][0]  # m3/s
         v_next_vent1 = self._mdh['spaces'][2]['ventilation']['next_spaces'][1]  # m3/s
-        v_next_vent2 = self._mdh['spaces'][2]['ventilation']['next_spaces'][2]  # m3/s
+        v_next_vent2 = 0.0                                                      # m3/s
         t_r_0_new = self._dd['rm0_t_r'][date_now]
         t_r_1_new = self._dd['rm1_t_r'][date_now]
         t_r_2_new = self._dd['rm2_t_r'][date_now]
