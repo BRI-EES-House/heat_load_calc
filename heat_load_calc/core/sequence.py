@@ -126,7 +126,7 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
 
     # ステップn+1における係数 BRM, W/K, [i, i]
     brm_is_is_n_pls = ss.brm_non_vent_is_is\
-        + get_c_air() * get_rho_air() * (np.diag(v_out_vent_is_n.flatten()) + ss.v_int_vent_is_is)
+        + get_c_air() * get_rho_air() * (np.diag(v_out_vent_is_n.flatten()) - ss.v_int_vent_is_is)
 
     # 本来であればステップn+1の値を使用すべきであるが、線形関係で決まらない値であるため、
     # ステップn+1計算用の値としてステップnから求めた値で代用する。
