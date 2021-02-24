@@ -6,9 +6,7 @@ from dataclasses import dataclass
 from typing import List, Dict, Any, Callable
 
 from heat_load_calc.external.global_number import get_c_air, get_rho_air
-from heat_load_calc.core import shape_factor
-from heat_load_calc.core.operation_mode import OperationMode
-from heat_load_calc.initializer import response_factor
+from heat_load_calc.initializer import response_factor, shape_factor
 from heat_load_calc.core import infiltration
 from heat_load_calc.core import ot_target
 from heat_load_calc.core import next_condition
@@ -310,10 +308,25 @@ def make_pre_calc_parameters(delta_t: float, data_directory: str) -> (PreCalcPar
     a_srf_js = np.array([b['area'] for b in bs]).reshape(-1, 1)
 
     # 応答係数を取得する。
-    phi_a0_js, phi_a1_js_ms, phi_t0_js, phi_t1_js_ms, r_js_ms = _get_responsfactors(bs)
+    phi_a0_js = np.array([b['phi_a0'] for b in bs]).reshape(-1, 1)
+    phi_t0_js = np.array([b['phi_t0'] for b in bs]).reshape(-1, 1)
+    phi_a1_js_ms_lst = []
+    phi_t1_js_ms_lst = []
+    r_js_ms_lst = []
+    for b in bs:
+        phi_a1_js_ms_lst.append(b['phi_a1'])
+        phi_t1_js_ms_lst.append(b['phi_t1'])
+        r_js_ms_lst.append(b['r'])
+
+    phi_a1_js_ms = np.array(phi_a1_js_ms_lst)
+    phi_t1_js_ms = np.array(phi_t1_js_ms_lst)
+    r_js_ms = np.array(r_js_ms_lst)
 
     # 境界jの室内側表面対流熱伝達率, W/m2K, [j, 1]
     h_c_js = np.array([b['h_c'] for b in bs]).reshape(-1, 1)
+
+    # 境界jの室内側表面放射熱伝達率, W/m2K, [j, 1]
+    h_r_js = np.array([b['h_r'] for b in bs]).reshape(-1, 1)
 
     # 境界jの室内側表面総合熱伝達率, W/m2K, [j, 1]
     # h_i_js_temporary = np.array([b['h_i'] for b in bs]).reshape(-1, 1)
@@ -450,9 +463,6 @@ def make_pre_calc_parameters(delta_t: float, data_directory: str) -> (PreCalcPar
     # 室iの空気の熱容量, J/K, [i, 1]
     c_rm_is = v_room_is * get_rho_air() * get_c_air()
 
-    # 境界jの室内側表面放射熱伝達率, W/m2K, [j, 1]
-    h_r_js = shape_factor.get_h_r_js(a_srf_js=a_srf_js, p_js_is=p_js_is)
-
     # 平均放射温度計算時の各部位表面温度の重み, [i, j]
     f_mrt_is_js = shape_factor.get_f_mrt_is_js(a_srf_js=a_srf_js, h_r_js=h_r_js, p_is_js=p_is_js)
 
@@ -463,6 +473,7 @@ def make_pre_calc_parameters(delta_t: float, data_directory: str) -> (PreCalcPar
     v_mec_vent_is_ns = v_vent_ex_is[:, np.newaxis] + v_mec_vent_local_is_ns
 
     # 室内侵入日射のうち家具に吸収される割合
+    # TODO: これは入力値にした方がよいのではないか？
     r_sol_fnt = 0.5
 
     # ステップnの室iにおける家具の吸収日射量, W, [i, n]
@@ -472,6 +483,7 @@ def make_pre_calc_parameters(delta_t: float, data_directory: str) -> (PreCalcPar
     a_srf_abs_is = np.dot(p_is_js, a_srf_js * is_solar_abs_js)
 
     # ステップnの境界jにおける透過日射吸収熱量, W/m2, [j, n]
+    # TODO: 日射の吸収割合を入力値にした方がよいのではないか？
     q_sol_js_ns = np.dot(p_js_is, q_trs_sol_is_ns / a_srf_abs_is)\
         * is_solar_abs_js * (1.0 - r_sol_fnt)
 

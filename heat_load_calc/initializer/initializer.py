@@ -15,8 +15,9 @@ from heat_load_calc.initializer import schedule_loader
 from heat_load_calc.initializer import residents_number
 from heat_load_calc.initializer import occupants_form_factor
 from heat_load_calc.initializer import boundary_simple
-from heat_load_calc.initializer import building_part_summarize
 from heat_load_calc.initializer import furniture
+from heat_load_calc.initializer.shape_factor import get_h_r_js2
+from heat_load_calc.initializer import response_factor
 
 
 class Story(Enum):
@@ -477,6 +478,7 @@ def _make_spaces_dict(rooms: List[dict]):
     v_int_vent_is = _get_v_int_vent_is(next_vents, n_spaces)
 
     # 室iの自然風利用時の換気量, m3/s, [i]
+    # TODO: もしかすると換気回数わたしの方が自然か？
     v_ntrl_vent_is = v_room_cap_is * n_ntrl_vent_is / 3600
 
     # 室iの家具等の熱容量, J/K
@@ -660,6 +662,15 @@ def _make_boundaries(bss2: List[BoundarySimple], rooms: List[Dict], boundaries: 
             is_floor_bdry_i_js=np.array([bs.is_floor for bs in np.array(bss2)[is_connected]])
         )
 
+    # 室iの微小球に対する境界jの形態係数
+    h_r_is = np.zeros_like(bss2, dtype=float)
+    for i in range(n_spaces):
+        is_connected = np.array([bs.connected_room_id == i for bs in bss2])
+
+        h_r_is[is_connected] = get_h_r_js2(
+            a_srf=np.array([bs.area for bs in np.array(bss2)[is_connected]])
+        )
+
     # 暖房設備仕様の読み込み
     # 放射暖房有無（Trueなら放射暖房あり）
     is_radiative_heating_is = [a22.read_is_radiative_heating(room) for room in rooms]
@@ -677,6 +688,26 @@ def _make_boundaries(bss2: List[BoundarySimple], rooms: List[Dict], boundaries: 
 
     specs = [_get_boundary_spec(boundary, bs) for boundary, bs in zip(boundaries, bss2)]
 
+    # 境界jの吸熱応答係数の初項, m2K/W, [j, 1]
+    phi_a0_js = []
+    # 境界jの項別公比法における項mの吸熱応答係数の第一項 , m2K/W, [j, 12]
+    phi_a1_js_ms = []
+    # 境界jの貫流応答係数の初項, [j, 1]
+    phi_t0_js = []
+    # 境界jの項別公比法における項mの貫流応答係数の第一項, [j, 12]
+    phi_t1_js_ms = []
+    # 境界jの項別公比法における項mの公比, [j, 12]
+    r_js_ms = []
+
+    for bs in boundaries:
+        rff = response_factor.ResponseFactorFactory.create(spec=bs)
+        rf = rff.get_response_factors()
+        phi_a0_js.append(rf.rfa0)
+        phi_a1_js_ms.append(rf.rfa1)
+        phi_t0_js.append(rf.rft0)
+        phi_t1_js_ms.append(rf.rft1)
+        r_js_ms.append(rf.row)
+
     bdrs = []
 
     for i, bs in enumerate(bss2):
@@ -687,13 +718,14 @@ def _make_boundaries(bss2: List[BoundarySimple], rooms: List[Dict], boundaries: 
             'is_ground': 'true' if bs.boundary_type == BoundaryType.Ground else 'false',
             'connected_space_id': bs.connected_room_id,
             'area': bs.area,
-            # 'phi_a0': bs.rfa0,
-            # 'phi_a1': list(bs.rfa1),
-            # 'phi_t0': bs.rft0,
-            # 'phi_t1': list(bs.rft1),
-            # 'r': list(bs.row),
+            'phi_a0': phi_a0_js[i],
+            'phi_a1': list(phi_a1_js_ms[i]),
+            'phi_t0': phi_t0_js[i],
+            'phi_t1': list(phi_t1_js_ms[i]),
+            'r': list(r_js_ms[i]),
             'h_i': bs.h_i,
             'h_c': bs.h_c,
+            'h_r': h_r_is[i],
             'flr': flr_js[i],
             'is_solar_absorbed': str(bs.is_solar_absorbed_inside),
             'f_mrt_hum': f_mrt_hum_is[i],

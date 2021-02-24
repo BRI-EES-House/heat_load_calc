@@ -63,6 +63,7 @@
 ,,,〇,,,,inside_heat_transfer_resistance,室内側総合熱伝達率,△,"{'boundary_type':['external_transparent_part', 'external_opaque_part']}",float,W/m2K,,
 ,,〇,,,,,h_i,室内側総合熱伝達率,〇,,float,W/(m2・K),,将来的には廃止
 ,,〇,,,,,h_c,室内側対流熱伝達率,〇,,float,W/(m2・K),,
+,,〇,,,,,h_r,室内微小球に対する放射熱伝達率,〇,,float,W/(m2・K),,
 ,,〇,,,,,flr,放射暖房熱量の室内側吸収比率,〇,,float,－,,
 ,,〇,,,,,is_solar_absorbed,室内侵入日射吸収の有無,〇,,bool,－,,
 ,,〇,,,,,f_mrt_hum,部位の人体に対する形態係数,〇,,float,－,,

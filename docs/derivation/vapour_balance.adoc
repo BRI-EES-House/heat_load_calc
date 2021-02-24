@@ -126,7 +126,7 @@ stem:[\begin{pmatrix}
 \begin{split}
 \rho_a \cdot V_{room} \cdot \frac{dX_r}{dt}
 & = \rho_a \cdot V_{out,vent} \cdot (X_{o} - X_{r}) \\
-& + X_{gen} + X_{hum} - G_{RAC} \\
+& + X_{gen} + X_{hum} + L_L \\
 & + G_{w,frt} \cdot (X_{frt} - X_{r}) \\
 & + \rho_a \cdot V_{int,vent} \cdot X_{r}
 \end{split} \tag{1}
@@ -159,20 +159,22 @@ L_L = \left\{ \begin{array}{ll}
 \end{array} \right. \tag{3}
 ++++
 
+ここで、stem:[L_a = - k_l]、stem:[L_b = k_l \cdot X_{srf,ex}]である。
+
 この場合、絶対湿度と熱交換器表面における飽和絶対湿度との大小関係によって除湿の有無が決定されるため、一旦、stem:[X_r > X_{srf,ex}]を仮定して潜熱負荷stem:[L_L]を計算し、その値が正（加湿）だった場合はstem:[L_L=0]として再計算するなど、何らかの数値解法的手法が求められる。
 
 なお、ルームエアコンの場合、stem:[k_l]はバイパスファクターを使用して次のように表される。
 
 [stem]
 ++++
-k_l = \rho_a \cdot V_{RAC} \cdot (1 - BF_{RAC})
+k_l = \rho_a \cdot V_{RAC} \cdot (1 - BF_{RAC}) \tag{4}
 ++++
 
 備品の水分収支式は室空気との物質移動だけを考慮すればよいため、次式で表すことができる。
 
 [stem]
 ++++
-C_{w,frt} \cdot \frac{dX_{frt,n}}{dt} = G_{w,frt} \cdot (X_r - X_{frt}) \tag{4}
+C_{w,frt} \cdot \frac{dX_{frt,n}}{dt} = G_{w,frt} \cdot (X_r - X_{frt}) \tag{5}
 ++++
 
 式(1)～式(3)を後退差分で離散化すると以下のようになる。
@@ -181,11 +183,11 @@ C_{w,frt} \cdot \frac{dX_{frt,n}}{dt} = G_{w,frt} \cdot (X_r - X_{frt}) \tag{4}
 ++++
 \begin{split}
 \rho_a \cdot V_{room} \cdot \frac{X_{r,n+1} - {X_{r,n}}}{\Delta t}
-& = \rho_a \cdot V_{out,vent,n} \cdot (X_{o,n+1} - X_{r,n+1}) \\
-& + X_{gen,n} + X_{hum,n} \\
-& - G_{RAC,n} \\
+& = \rho_a \cdot \overline{V_{out,vent,n}} \cdot (X_{o,n+1} - X_{r,n+1}) \\
+& + \overline{X_{gen,n}} + \overline{X_{hum,n}} \\
+& + \overline{L_{L,n}} \\
 & + G_{w,frt} \cdot (X_{frt,n+1} - X_{r,n+1}) \\
-& + \rho_a \: V_{int,vent,n} \: X_{r,n+1}
+& + \rho_a \: \overline{V_{int,vent,n}} \: X_{r,n+1}
 \end{split} \tag{4}
 ++++
 
