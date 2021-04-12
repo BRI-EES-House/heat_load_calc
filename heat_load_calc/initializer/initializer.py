@@ -790,15 +790,20 @@ def _get_v_int_vent_is(next_vents: List[List[Tuple]], n_rooms: int) -> np.ndarra
     # 隣室iから室iへの換気量マトリックス, m3/s [i, i]
     v_int_vent_is = np.zeros((n_rooms, n_rooms), dtype=float)
 
-    # 室iのループ
+    # 室iのループ（風下室ループ）
     for i, next_vent_is in enumerate(next_vents):
 
-        # 室iにおける経路jのループ
+        # 室iにおける経路jのループ（風上室ループ）
         # 取得するのは、(ID: int, 換気量(m3/h): float) のタプル
         for (idx, volume) in next_vent_is:
 
             # m3/hからm3/sへの単位変換を行っている
-            v_int_vent_is[i, idx] = v_int_vent_is[i, idx] + volume / 3600.0
+            # 風上側
+            if i != idx:
+                v_int_vent_is[i, idx] += volume / 3600.0
+
+            # 自室への流入
+            v_int_vent_is[i,i] -= volume / 3600.0
 
     return v_int_vent_is
 
