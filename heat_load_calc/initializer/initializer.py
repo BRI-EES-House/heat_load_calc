@@ -729,8 +729,7 @@ def _make_boundaries(bss2: List[BoundarySimple], rooms: List[Dict], boundaries: 
             'is_solar_absorbed': str(bs.is_solar_absorbed_inside),
             'f_mrt_hum': f_mrt_hum_is[i],
             'k_outside': bs.h_td,
-            'k_inside': k_ei_js[i],
-            'spec': specs[i]
+            'k_inside': k_ei_js[i]
         })
     return bdrs
 
