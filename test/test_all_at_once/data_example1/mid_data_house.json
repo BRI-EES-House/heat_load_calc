@@ -194,39 +194,7 @@
             "is_solar_absorbed": "False",
             "f_mrt_hum": 0.027134347293875108,
             "k_outside": 1.0,
-            "k_inside": null,
-            "spec": {
-                "method": "layers",
-                "boundary_type": "external_general_part",
-                "layers": [
-                    {
-                        "name": "plaster_board",
-                        "thermal_resistance": 0.0432,
-                        "thermal_capacity": 7.885
-                    },
-                    {
-                        "name": "non-hermetic_air_layer",
-                        "thermal_resistance": 0.09,
-                        "thermal_capacity": 0.0
-                    },
-                    {
-                        "name": "glass_wool_10K",
-                        "thermal_resistance": 1.28,
-                        "thermal_capacity": 0.512
-                    },
-                    {
-                        "name": "plywood",
-                        "thermal_resistance": 0.075,
-                        "thermal_capacity": 8.64
-                    },
-                    {
-                        "name": "wood-wool_and_flake_boards",
-                        "thermal_resistance": 0.0882,
-                        "thermal_capacity": 25.1789
-                    }
-                ],
-                "outside_heat_transfer_resistance": 0.04
-            }
+            "k_inside": null
         },
         {
             "id": 1,
@@ -285,13 +253,7 @@
             "is_solar_absorbed": "False",
             "f_mrt_hum": 0.00883126923477201,
             "k_outside": 1.0,
-            "k_inside": null,
-            "spec": {
-                "method": "u_value",
-                "boundary_type": "external_opaque_part",
-                "u_value": 4.65,
-                "inside_heat_transfer_resistance": 0.11
-            }
+            "k_inside": null
         },
         {
             "id": 2,
@@ -350,39 +312,7 @@
             "is_solar_absorbed": "False",
             "f_mrt_hum": 0.09802708850596929,
             "k_outside": 1.0,
-            "k_inside": null,
-            "spec": {
-                "method": "layers",
-                "boundary_type": "external_general_part",
-                "layers": [
-                    {
-                        "name": "plaster_board",
-                        "thermal_resistance": 0.0432,
-                        "thermal_capacity": 7.885
-                    },
-                    {
-                        "name": "non-hermetic_air_layer",
-                        "thermal_resistance": 0.09,
-                        "thermal_capacity": 0.0
-                    },
-                    {
-                        "name": "glass_wool_10K",
-                        "thermal_resistance": 1.28,
-                        "thermal_capacity": 0.512
-                    },
-                    {
-                        "name": "plywood",
-                        "thermal_resistance": 0.075,
-                        "thermal_capacity": 8.64
-                    },
-                    {
-                        "name": "wood-wool_and_flake_boards",
-                        "thermal_resistance": 0.0882,
-                        "thermal_capacity": 25.1789
-                    }
-                ],
-                "outside_heat_transfer_resistance": 0.04
-            }
+            "k_inside": null
         },
         {
             "id": 3,
@@ -441,13 +371,7 @@
             "is_solar_absorbed": "False",
             "f_mrt_hum": 0.017062884385701475,
             "k_outside": 1.0,
-            "k_inside": null,
-            "spec": {
-                "method": "u_value",
-                "boundary_type": "external_transparent_part",
-                "u_value": 4.65,
-                "inside_heat_transfer_resistance": 0.11
-            }
+            "k_inside": null
         },
         {
             "id": 4,
@@ -506,39 +430,7 @@
             "is_solar_absorbed": "False",
             "f_mrt_hum": 0.05567788168478019,
             "k_outside": 1.0,
-            "k_inside": null,
-            "spec": {
-                "method": "layers",
-                "boundary_type": "external_general_part",
-                "layers": [
-                    {
-                        "name": "plaster_board",
-                        "thermal_resistance": 0.0432,
-                        "thermal_capacity": 7.885
-                    },
-                    {
-                        "name": "non-hermetic_air_layer",
-                        "thermal_resistance": 0.09,
-                        "thermal_capacity": 0.0
-                    },
-                    {
-                        "name": "glass_wool_10K",
-                        "thermal_resistance": 1.28,
-                        "thermal_capacity": 0.512
-                    },
-                    {
-                        "name": "plywood",
-                        "thermal_resistance": 0.075,
-                        "thermal_capacity": 8.64
-                    },
-                    {
-                        "name": "wood-wool_and_flake_boards",
-                        "thermal_resistance": 0.0882,
-                        "thermal_capacity": 25.1789
-                    }
-                ],
-                "outside_heat_transfer_resistance": 0.04
-            }
+            "k_inside": null
         },
         {
             "id": 5,
@@ -597,13 +489,7 @@
             "is_solar_absorbed": "False",
             "f_mrt_hum": 0.03783272128970231,
             "k_outside": 1.0,
-            "k_inside": null,
-            "spec": {
-                "method": "u_value",
-                "boundary_type": "external_transparent_part",
-                "u_value": 4.65,
-                "inside_heat_transfer_resistance": 0.11
-            }
+            "k_inside": null
         },
         {
             "id": 6,
@@ -665,23 +551,6 @@
             "k_inside": {
                 "id": 6,
                 "coef": 0.3
-            },
-            "spec": {
-                "method": "layers",
-                "boundary_type": "external_general_part",
-                "layers": [
-                    {
-                        "name": "plywood",
-                        "thermal_resistance": 0.075,
-                        "thermal_capacity": 8.64
-                    },
-                    {
-                        "name": "glass_wool_10K",
-                        "thermal_resistance": 1.28,
-                        "thermal_capacity": 0.512
-                    }
-                ],
-                "outside_heat_transfer_resistance": 0.15
             }
         },
         {
@@ -741,24 +610,7 @@
             "is_solar_absorbed": "False",
             "f_mrt_hum": 0.022568799155528466,
             "k_outside": 1.0,
-            "k_inside": null,
-            "spec": {
-                "method": "layers",
-                "boundary_type": "external_general_part",
-                "layers": [
-                    {
-                        "name": "plaster_board",
-                        "thermal_resistance": 0.0432,
-                        "thermal_capacity": 7.885
-                    },
-                    {
-                        "name": "glass_wool_10K",
-                        "thermal_resistance": 3.42,
-                        "thermal_capacity": 1.368
-                    }
-                ],
-                "outside_heat_transfer_resistance": 0.09
-            }
+            "k_inside": null
         },
         {
             "id": 8,
@@ -820,28 +672,6 @@
             "k_inside": {
                 "id": 45,
                 "coef": 1.0
-            },
-            "spec": {
-                "method": "layers",
-                "boundary_type": "internal",
-                "layers": [
-                    {
-                        "name": "plaster_board",
-                        "thermal_resistance": 0.0568,
-                        "thermal_capacity": 10.375
-                    },
-                    {
-                        "name": "non-hermetic_air_layer",
-                        "thermal_resistance": 0.09,
-                        "thermal_capacity": 0.0
-                    },
-                    {
-                        "name": "plaster_board",
-                        "thermal_resistance": 0.0568,
-                        "thermal_capacity": 10.375
-                    }
-                ],
-                "outside_heat_transfer_resistance": 0.11
             }
         },
         {
@@ -904,28 +734,6 @@
             "k_inside": {
                 "id": 22,
                 "coef": 1.0
-            },
-            "spec": {
-                "method": "layers",
-                "boundary_type": "internal",
-                "layers": [
-                    {
-                        "name": "plaster_board",
-                        "thermal_resistance": 0.0568,
-                        "thermal_capacity": 10.375
-                    },
-                    {
-                        "name": "non-hermetic_air_layer",
-                        "thermal_resistance": 0.07,
-                        "thermal_capacity": 0.0
-                    },
-                    {
-                        "name": "plywood",
-                        "thermal_resistance": 0.075,
-                        "thermal_capacity": 8.64
-                    }
-                ],
-                "outside_heat_transfer_resistance": 0.15
             }
         },
         {
@@ -988,28 +796,6 @@
             "k_inside": {
                 "id": 29,
                 "coef": 1.0
-            },
-            "spec": {
-                "method": "layers",
-                "boundary_type": "internal",
-                "layers": [
-                    {
-                        "name": "plaster_board",
-                        "thermal_resistance": 0.0568,
-                        "thermal_capacity": 10.375
-                    },
-                    {
-                        "name": "non-hermetic_air_layer",
-                        "thermal_resistance": 0.07,
-                        "thermal_capacity": 0.0
-                    },
-                    {
-                        "name": "plywood",
-                        "thermal_resistance": 0.075,
-                        "thermal_capacity": 8.64
-                    }
-                ],
-                "outside_heat_transfer_resistance": 0.15
             }
         },
         {
@@ -1072,28 +858,6 @@
             "k_inside": {
                 "id": 37,
                 "coef": 1.0
-            },
-            "spec": {
-                "method": "layers",
-                "boundary_type": "internal",
-                "layers": [
-                    {
-                        "name": "plaster_board",
-                        "thermal_resistance": 0.0568,
-                        "thermal_capacity": 10.375
-                    },
-                    {
-                        "name": "non-hermetic_air_layer",
-                        "thermal_resistance": 0.09,
-                        "thermal_capacity": 0.0
-                    },
-                    {
-                        "name": "plaster_board",
-                        "thermal_resistance": 0.0568,
-                        "thermal_capacity": 10.375
-                    }
-                ],
-                "outside_heat_transfer_resistance": 0.11
             }
         },
         {
@@ -1153,39 +917,7 @@
             "is_solar_absorbed": "False",
             "f_mrt_hum": 0.029623840610315373,
             "k_outside": 1.0,
-            "k_inside": null,
-            "spec": {
-                "method": "layers",
-                "boundary_type": "external_general_part",
-                "layers": [
-                    {
-                        "name": "plaster_board",
-                        "thermal_resistance": 0.0432,
-                        "thermal_capacity": 7.885
-                    },
-                    {
-                        "name": "non-hermetic_air_layer",
-                        "thermal_resistance": 0.09,
-                        "thermal_capacity": 0.0
-                    },
-                    {
-                        "name": "glass_wool_10K",
-                        "thermal_resistance": 1.28,
-                        "thermal_capacity": 0.512
-                    },
-                    {
-                        "name": "plywood",
-                        "thermal_resistance": 0.075,
-                        "thermal_capacity": 8.64
-                    },
-                    {
-                        "name": "wood-wool_and_flake_boards",
-                        "thermal_resistance": 0.0882,
-                        "thermal_capacity": 25.1789
-                    }
-                ],
-                "outside_heat_transfer_resistance": 0.04
-            }
+            "k_inside": null
         },
         {
             "id": 13,
@@ -1244,13 +976,7 @@
             "is_solar_absorbed": "False",
             "f_mrt_hum": 0.006328629816725807,
             "k_outside": 1.0,
-            "k_inside": null,
-            "spec": {
-                "method": "u_value",
-                "boundary_type": "external_transparent_part",
-                "u_value": 4.65,
-                "inside_heat_transfer_resistance": 0.11
-            }
+            "k_inside": null
         },
         {
             "id": 14,
@@ -1309,39 +1035,7 @@
             "is_solar_absorbed": "False",
             "f_mrt_hum": 0.032330884578163396,
             "k_outside": 1.0,
-            "k_inside": null,
-            "spec": {
-                "method": "layers",
-                "boundary_type": "external_general_part",
-                "layers": [
-                    {
-                        "name": "plaster_board",
-                        "thermal_resistance": 0.0432,
-                        "thermal_capacity": 7.885
-                    },
-                    {
-                        "name": "non-hermetic_air_layer",
-                        "thermal_resistance": 0.09,
-                        "thermal_capacity": 0.0
-                    },
-                    {
-                        "name": "glass_wool_10K",
-                        "thermal_resistance": 1.28,
-                        "thermal_capacity": 0.512
-                    },
-                    {
-                        "name": "plywood",
-                        "thermal_resistance": 0.075,
-                        "thermal_capacity": 8.64
-                    },
-                    {
-                        "name": "wood-wool_and_flake_boards",
-                        "thermal_resistance": 0.0882,
-                        "thermal_capacity": 25.1789
-                    }
-                ],
-                "outside_heat_transfer_resistance": 0.04
-            }
+            "k_inside": null
         },
         {
             "id": 15,
@@ -1400,13 +1094,7 @@
             "is_solar_absorbed": "False",
             "f_mrt_hum": 0.003621585848877774,
             "k_outside": 1.0,
-            "k_inside": null,
-            "spec": {
-                "method": "u_value",
-                "boundary_type": "external_transparent_part",
-                "u_value": 4.65,
-                "inside_heat_transfer_resistance": 0.11
-            }
+            "k_inside": null
         },
         {
             "id": 16,
@@ -1465,24 +1153,7 @@
             "is_solar_absorbed": "False",
             "f_mrt_hum": 0.04847071969457627,
             "k_outside": 1.0,
-            "k_inside": null,
-            "spec": {
-                "method": "layers",
-                "boundary_type": "external_general_part",
-                "layers": [
-                    {
-                        "name": "plaster_board",
-                        "thermal_resistance": 0.0432,
-                        "thermal_capacity": 7.885
-                    },
-                    {
-                        "name": "glass_wool_10K",
-                        "thermal_resistance": 3.42,
-                        "thermal_capacity": 1.368
-                    }
-                ],
-                "outside_heat_transfer_resistance": 0.09
-            }
+            "k_inside": null
         },
         {
             "id": 17,
@@ -1544,28 +1215,6 @@
             "k_inside": {
                 "id": 49,
                 "coef": 1.0
-            },
-            "spec": {
-                "method": "layers",
-                "boundary_type": "internal",
-                "layers": [
-                    {
-                        "name": "plaster_board",
-                        "thermal_resistance": 0.0568,
-                        "thermal_capacity": 10.375
-                    },
-                    {
-                        "name": "non-hermetic_air_layer",
-                        "thermal_resistance": 0.09,
-                        "thermal_capacity": 0.0
-                    },
-                    {
-                        "name": "plaster_board",
-                        "thermal_resistance": 0.0568,
-                        "thermal_capacity": 10.375
-                    }
-                ],
-                "outside_heat_transfer_resistance": 0.11
             }
         },
         {
@@ -1625,39 +1274,7 @@
             "is_solar_absorbed": "False",
             "f_mrt_hum": 0.017432082794307892,
             "k_outside": 1.0,
-            "k_inside": null,
-            "spec": {
-                "method": "layers",
-                "boundary_type": "external_general_part",
-                "layers": [
-                    {
-                        "name": "plaster_board",
-                        "thermal_resistance": 0.0432,
-                        "thermal_capacity": 7.885
-                    },
-                    {
-                        "name": "non-hermetic_air_layer",
-                        "thermal_resistance": 0.09,
-                        "thermal_capacity": 0.0
-                    },
-                    {
-                        "name": "glass_wool_10K",
-                        "thermal_resistance": 1.28,
-                        "thermal_capacity": 0.512
-                    },
-                    {
-                        "name": "plywood",
-                        "thermal_resistance": 0.075,
-                        "thermal_capacity": 8.64
-                    },
-                    {
-                        "name": "wood-wool_and_flake_boards",
-                        "thermal_resistance": 0.0882,
-                        "thermal_capacity": 25.1789
-                    }
-                ],
-                "outside_heat_transfer_resistance": 0.04
-            }
+            "k_inside": null
         },
         {
             "id": 19,
@@ -1716,13 +1333,7 @@
             "is_solar_absorbed": "False",
             "f_mrt_hum": 0.011779299427663065,
             "k_outside": 1.0,
-            "k_inside": null,
-            "spec": {
-                "method": "u_value",
-                "boundary_type": "external_transparent_part",
-                "u_value": 4.65,
-                "inside_heat_transfer_resistance": 0.11
-            }
+            "k_inside": null
         },
         {
             "id": 20,
@@ -1781,24 +1392,7 @@
             "is_solar_absorbed": "False",
             "f_mrt_hum": 0.03939846423476123,
             "k_outside": 1.0,
-            "k_inside": null,
-            "spec": {
-                "method": "layers",
-                "boundary_type": "external_general_part",
-                "layers": [
-                    {
-                        "name": "plaster_board",
-                        "thermal_resistance": 0.0432,
-                        "thermal_capacity": 7.885
-                    },
-                    {
-                        "name": "glass_wool_10K",
-                        "thermal_resistance": 3.42,
-                        "thermal_capacity": 1.368
-                    }
-                ],
-                "outside_heat_transfer_resistance": 0.09
-            }
+            "k_inside": null
         },
         {
             "id": 21,
@@ -1860,28 +1454,6 @@
             "k_inside": {
                 "id": 47,
                 "coef": 1.0
-            },
-            "spec": {
-                "method": "layers",
-                "boundary_type": "internal",
-                "layers": [
-                    {
-                        "name": "plaster_board",
-                        "thermal_resistance": 0.0568,
-                        "thermal_capacity": 10.375
-                    },
-                    {
-                        "name": "non-hermetic_air_layer",
-                        "thermal_resistance": 0.09,
-                        "thermal_capacity": 0.0
-                    },
-                    {
-                        "name": "plaster_board",
-                        "thermal_resistance": 0.0568,
-                        "thermal_capacity": 10.375
-                    }
-                ],
-                "outside_heat_transfer_resistance": 0.11
             }
         },
         {
@@ -1944,28 +1516,6 @@
             "k_inside": {
                 "id": 9,
                 "coef": 1.0
-            },
-            "spec": {
-                "method": "layers",
-                "boundary_type": "internal",
-                "layers": [
-                    {
-                        "name": "plywood",
-                        "thermal_resistance": 0.075,
-                        "thermal_capacity": 8.64
-                    },
-                    {
-                        "name": "non-hermetic_air_layer",
-                        "thermal_resistance": 0.07,
-                        "thermal_capacity": 0.0
-                    },
-                    {
-                        "name": "plaster_board",
-                        "thermal_resistance": 0.0568,
-                        "thermal_capacity": 10.375
-                    }
-                ],
-                "outside_heat_transfer_resistance": 0.09
             }
         },
         {
@@ -2025,39 +1575,7 @@
             "is_solar_absorbed": "False",
             "f_mrt_hum": 0.03353807986112266,
             "k_outside": 1.0,
-            "k_inside": null,
-            "spec": {
-                "method": "layers",
-                "boundary_type": "external_general_part",
-                "layers": [
-                    {
-                        "name": "plaster_board",
-                        "thermal_resistance": 0.0432,
-                        "thermal_capacity": 7.885
-                    },
-                    {
-                        "name": "non-hermetic_air_layer",
-                        "thermal_resistance": 0.09,
-                        "thermal_capacity": 0.0
-                    },
-                    {
-                        "name": "glass_wool_10K",
-                        "thermal_resistance": 1.28,
-                        "thermal_capacity": 0.512
-                    },
-                    {
-                        "name": "plywood",
-                        "thermal_resistance": 0.075,
-                        "thermal_capacity": 8.64
-                    },
-                    {
-                        "name": "wood-wool_and_flake_boards",
-                        "thermal_resistance": 0.0882,
-                        "thermal_capacity": 25.1789
-                    }
-                ],
-                "outside_heat_transfer_resistance": 0.04
-            }
+            "k_inside": null
         },
         {
             "id": 24,
@@ -2116,13 +1634,7 @@
             "is_solar_absorbed": "False",
             "f_mrt_hum": 0.0024143905659185162,
             "k_outside": 1.0,
-            "k_inside": null,
-            "spec": {
-                "method": "u_value",
-                "boundary_type": "external_transparent_part",
-                "u_value": 4.65,
-                "inside_heat_transfer_resistance": 0.11
-            }
+            "k_inside": null
         },
         {
             "id": 25,
@@ -2181,39 +1693,7 @@
             "is_solar_absorbed": "False",
             "f_mrt_hum": 0.017432082794307892,
             "k_outside": 1.0,
-            "k_inside": null,
-            "spec": {
-                "method": "layers",
-                "boundary_type": "external_general_part",
-                "layers": [
-                    {
-                        "name": "plaster_board",
-                        "thermal_resistance": 0.0432,
-                        "thermal_capacity": 7.885
-                    },
-                    {
-                        "name": "non-hermetic_air_layer",
-                        "thermal_resistance": 0.09,
-                        "thermal_capacity": 0.0
-                    },
-                    {
-                        "name": "glass_wool_10K",
-                        "thermal_resistance": 1.28,
-                        "thermal_capacity": 0.512
-                    },
-                    {
-                        "name": "plywood",
-                        "thermal_resistance": 0.075,
-                        "thermal_capacity": 8.64
-                    },
-                    {
-                        "name": "wood-wool_and_flake_boards",
-                        "thermal_resistance": 0.0882,
-                        "thermal_capacity": 25.1789
-                    }
-                ],
-                "outside_heat_transfer_resistance": 0.04
-            }
+            "k_inside": null
         },
         {
             "id": 26,
@@ -2272,13 +1752,7 @@
             "is_solar_absorbed": "False",
             "f_mrt_hum": 0.011779299427663065,
             "k_outside": 1.0,
-            "k_inside": null,
-            "spec": {
-                "method": "u_value",
-                "boundary_type": "external_transparent_part",
-                "u_value": 4.65,
-                "inside_heat_transfer_resistance": 0.11
-            }
+            "k_inside": null
         },
         {
             "id": 27,
@@ -2337,24 +1811,7 @@
             "is_solar_absorbed": "False",
             "f_mrt_hum": 0.03939846423476123,
             "k_outside": 1.0,
-            "k_inside": null,
-            "spec": {
-                "method": "layers",
-                "boundary_type": "external_general_part",
-                "layers": [
-                    {
-                        "name": "plaster_board",
-                        "thermal_resistance": 0.0432,
-                        "thermal_capacity": 7.885
-                    },
-                    {
-                        "name": "glass_wool_10K",
-                        "thermal_resistance": 3.42,
-                        "thermal_capacity": 1.368
-                    }
-                ],
-                "outside_heat_transfer_resistance": 0.09
-            }
+            "k_inside": null
         },
         {
             "id": 28,
@@ -2416,28 +1873,6 @@
             "k_inside": {
                 "id": 48,
                 "coef": 1.0
-            },
-            "spec": {
-                "method": "layers",
-                "boundary_type": "internal",
-                "layers": [
-                    {
-                        "name": "plaster_board",
-                        "thermal_resistance": 0.0568,
-                        "thermal_capacity": 10.375
-                    },
-                    {
-                        "name": "non-hermetic_air_layer",
-                        "thermal_resistance": 0.09,
-                        "thermal_capacity": 0.0
-                    },
-                    {
-                        "name": "plaster_board",
-                        "thermal_resistance": 0.0568,
-                        "thermal_capacity": 10.375
-                    }
-                ],
-                "outside_heat_transfer_resistance": 0.11
             }
         },
         {
@@ -2500,28 +1935,6 @@
             "k_inside": {
                 "id": 10,
                 "coef": 1.0
-            },
-            "spec": {
-                "method": "layers",
-                "boundary_type": "internal",
-                "layers": [
-                    {
-                        "name": "plywood",
-                        "thermal_resistance": 0.075,
-                        "thermal_capacity": 8.64
-                    },
-                    {
-                        "name": "non-hermetic_air_layer",
-                        "thermal_resistance": 0.07,
-                        "thermal_capacity": 0.0
-                    },
-                    {
-                        "name": "plaster_board",
-                        "thermal_resistance": 0.0568,
-                        "thermal_capacity": 10.375
-                    }
-                ],
-                "outside_heat_transfer_resistance": 0.09
             }
         },
         {
@@ -2581,39 +1994,7 @@
             "is_solar_absorbed": "False",
             "f_mrt_hum": 0.009653904096149945,
             "k_outside": 1.0,
-            "k_inside": null,
-            "spec": {
-                "method": "layers",
-                "boundary_type": "external_general_part",
-                "layers": [
-                    {
-                        "name": "plaster_board",
-                        "thermal_resistance": 0.0432,
-                        "thermal_capacity": 7.885
-                    },
-                    {
-                        "name": "non-hermetic_air_layer",
-                        "thermal_resistance": 0.09,
-                        "thermal_capacity": 0.0
-                    },
-                    {
-                        "name": "glass_wool_10K",
-                        "thermal_resistance": 1.28,
-                        "thermal_capacity": 0.512
-                    },
-                    {
-                        "name": "plywood",
-                        "thermal_resistance": 0.075,
-                        "thermal_capacity": 8.64
-                    },
-                    {
-                        "name": "wood-wool_and_flake_boards",
-                        "thermal_resistance": 0.0882,
-                        "thermal_capacity": 25.1789
-                    }
-                ],
-                "outside_heat_transfer_resistance": 0.04
-            }
+            "k_inside": null
         },
         {
             "id": 31,
@@ -2672,39 +2053,7 @@
             "is_solar_absorbed": "False",
             "f_mrt_hum": 0.03147853154504369,
             "k_outside": 1.0,
-            "k_inside": null,
-            "spec": {
-                "method": "layers",
-                "boundary_type": "external_general_part",
-                "layers": [
-                    {
-                        "name": "plaster_board",
-                        "thermal_resistance": 0.0432,
-                        "thermal_capacity": 7.885
-                    },
-                    {
-                        "name": "non-hermetic_air_layer",
-                        "thermal_resistance": 0.09,
-                        "thermal_capacity": 0.0
-                    },
-                    {
-                        "name": "glass_wool_10K",
-                        "thermal_resistance": 1.28,
-                        "thermal_capacity": 0.512
-                    },
-                    {
-                        "name": "plywood",
-                        "thermal_resistance": 0.075,
-                        "thermal_capacity": 8.64
-                    },
-                    {
-                        "name": "wood-wool_and_flake_boards",
-                        "thermal_resistance": 0.0882,
-                        "thermal_capacity": 25.1789
-                    }
-                ],
-                "outside_heat_transfer_resistance": 0.04
-            }
+            "k_inside": null
         },
         {
             "id": 32,
@@ -2763,13 +2112,7 @@
             "is_solar_absorbed": "False",
             "f_mrt_hum": 0.016790988935706044,
             "k_outside": 1.0,
-            "k_inside": null,
-            "spec": {
-                "method": "u_value",
-                "boundary_type": "external_transparent_part",
-                "u_value": 4.65,
-                "inside_heat_transfer_resistance": 0.11
-            }
+            "k_inside": null
         },
         {
             "id": 33,
@@ -2828,39 +2171,7 @@
             "is_solar_absorbed": "False",
             "f_mrt_hum": 0.03861561638459978,
             "k_outside": 1.0,
-            "k_inside": null,
-            "spec": {
-                "method": "layers",
-                "boundary_type": "external_general_part",
-                "layers": [
-                    {
-                        "name": "plaster_board",
-                        "thermal_resistance": 0.0432,
-                        "thermal_capacity": 7.885
-                    },
-                    {
-                        "name": "non-hermetic_air_layer",
-                        "thermal_resistance": 0.09,
-                        "thermal_capacity": 0.0
-                    },
-                    {
-                        "name": "glass_wool_10K",
-                        "thermal_resistance": 1.28,
-                        "thermal_capacity": 0.512
-                    },
-                    {
-                        "name": "plywood",
-                        "thermal_resistance": 0.075,
-                        "thermal_capacity": 8.64
-                    },
-                    {
-                        "name": "wood-wool_and_flake_boards",
-                        "thermal_resistance": 0.0882,
-                        "thermal_capacity": 25.1789
-                    }
-                ],
-                "outside_heat_transfer_resistance": 0.04
-            }
+            "k_inside": null
         },
         {
             "id": 34,
@@ -2922,23 +2233,6 @@
             "k_inside": {
                 "id": 34,
                 "coef": 0.3
-            },
-            "spec": {
-                "method": "layers",
-                "boundary_type": "external_general_part",
-                "layers": [
-                    {
-                        "name": "plywood",
-                        "thermal_resistance": 0.075,
-                        "thermal_capacity": 8.64
-                    },
-                    {
-                        "name": "glass_wool_10K",
-                        "thermal_resistance": 1.28,
-                        "thermal_capacity": 0.512
-                    }
-                ],
-                "outside_heat_transfer_resistance": 0.15
             }
         },
         {
@@ -2998,24 +2292,7 @@
             "is_solar_absorbed": "False",
             "f_mrt_hum": 0.012108534504833771,
             "k_outside": 1.0,
-            "k_inside": null,
-            "spec": {
-                "method": "layers",
-                "boundary_type": "external_general_part",
-                "layers": [
-                    {
-                        "name": "plaster_board",
-                        "thermal_resistance": 0.0432,
-                        "thermal_capacity": 7.885
-                    },
-                    {
-                        "name": "glass_wool_10K",
-                        "thermal_resistance": 3.42,
-                        "thermal_capacity": 1.368
-                    }
-                ],
-                "outside_heat_transfer_resistance": 0.09
-            }
+            "k_inside": null
         },
         {
             "id": 36,
@@ -3077,28 +2354,6 @@
             "k_inside": {
                 "id": 46,
                 "coef": 1.0
-            },
-            "spec": {
-                "method": "layers",
-                "boundary_type": "internal",
-                "layers": [
-                    {
-                        "name": "plaster_board",
-                        "thermal_resistance": 0.0568,
-                        "thermal_capacity": 10.375
-                    },
-                    {
-                        "name": "non-hermetic_air_layer",
-                        "thermal_resistance": 0.09,
-                        "thermal_capacity": 0.0
-                    },
-                    {
-                        "name": "plaster_board",
-                        "thermal_resistance": 0.0568,
-                        "thermal_capacity": 10.375
-                    }
-                ],
-                "outside_heat_transfer_resistance": 0.11
             }
         },
         {
@@ -3161,28 +2416,6 @@
             "k_inside": {
                 "id": 11,
                 "coef": 1.0
-            },
-            "spec": {
-                "method": "layers",
-                "boundary_type": "internal",
-                "layers": [
-                    {
-                        "name": "plaster_board",
-                        "thermal_resistance": 0.0568,
-                        "thermal_capacity": 10.375
-                    },
-                    {
-                        "name": "non-hermetic_air_layer",
-                        "thermal_resistance": 0.09,
-                        "thermal_capacity": 0.0
-                    },
-                    {
-                        "name": "plaster_board",
-                        "thermal_resistance": 0.0568,
-                        "thermal_capacity": 10.375
-                    }
-                ],
-                "outside_heat_transfer_resistance": 0.11
             }
         },
         {
@@ -3242,39 +2475,7 @@
             "is_solar_absorbed": "False",
             "f_mrt_hum": 0.1625330757922806,
             "k_outside": 1.0,
-            "k_inside": null,
-            "spec": {
-                "method": "layers",
-                "boundary_type": "external_general_part",
-                "layers": [
-                    {
-                        "name": "plaster_board",
-                        "thermal_resistance": 0.0432,
-                        "thermal_capacity": 7.885
-                    },
-                    {
-                        "name": "non-hermetic_air_layer",
-                        "thermal_resistance": 0.09,
-                        "thermal_capacity": 0.0
-                    },
-                    {
-                        "name": "glass_wool_10K",
-                        "thermal_resistance": 1.28,
-                        "thermal_capacity": 0.512
-                    },
-                    {
-                        "name": "plywood",
-                        "thermal_resistance": 0.075,
-                        "thermal_capacity": 8.64
-                    },
-                    {
-                        "name": "wood-wool_and_flake_boards",
-                        "thermal_resistance": 0.0882,
-                        "thermal_capacity": 25.1789
-                    }
-                ],
-                "outside_heat_transfer_resistance": 0.04
-            }
+            "k_inside": null
         },
         {
             "id": 39,
@@ -3333,13 +2534,7 @@
             "is_solar_absorbed": "False",
             "f_mrt_hum": 0.013876448668421592,
             "k_outside": 1.0,
-            "k_inside": null,
-            "spec": {
-                "method": "u_value",
-                "boundary_type": "external_transparent_part",
-                "u_value": 4.65,
-                "inside_heat_transfer_resistance": 0.11
-            }
+            "k_inside": null
         },
         {
             "id": 40,
@@ -3398,39 +2593,7 @@
             "is_solar_absorbed": "False",
             "f_mrt_hum": 0.01847936822672729,
             "k_outside": 1.0,
-            "k_inside": null,
-            "spec": {
-                "method": "layers",
-                "boundary_type": "external_general_part",
-                "layers": [
-                    {
-                        "name": "plaster_board",
-                        "thermal_resistance": 0.0432,
-                        "thermal_capacity": 7.885
-                    },
-                    {
-                        "name": "non-hermetic_air_layer",
-                        "thermal_resistance": 0.09,
-                        "thermal_capacity": 0.0
-                    },
-                    {
-                        "name": "glass_wool_10K",
-                        "thermal_resistance": 1.28,
-                        "thermal_capacity": 0.512
-                    },
-                    {
-                        "name": "plywood",
-                        "thermal_resistance": 0.075,
-                        "thermal_capacity": 8.64
-                    },
-                    {
-                        "name": "wood-wool_and_flake_boards",
-                        "thermal_resistance": 0.0882,
-                        "thermal_capacity": 25.1789
-                    }
-                ],
-                "outside_heat_transfer_resistance": 0.04
-            }
+            "k_inside": null
         },
         {
             "id": 41,
@@ -3489,39 +2652,7 @@
             "is_solar_absorbed": "False",
             "f_mrt_hum": 0.04700693993367748,
             "k_outside": 1.0,
-            "k_inside": null,
-            "spec": {
-                "method": "layers",
-                "boundary_type": "external_general_part",
-                "layers": [
-                    {
-                        "name": "plaster_board",
-                        "thermal_resistance": 0.0432,
-                        "thermal_capacity": 7.885
-                    },
-                    {
-                        "name": "non-hermetic_air_layer",
-                        "thermal_resistance": 0.09,
-                        "thermal_capacity": 0.0
-                    },
-                    {
-                        "name": "glass_wool_10K",
-                        "thermal_resistance": 1.28,
-                        "thermal_capacity": 0.512
-                    },
-                    {
-                        "name": "plywood",
-                        "thermal_resistance": 0.075,
-                        "thermal_capacity": 8.64
-                    },
-                    {
-                        "name": "wood-wool_and_flake_boards",
-                        "thermal_resistance": 0.0882,
-                        "thermal_capacity": 25.1789
-                    }
-                ],
-                "outside_heat_transfer_resistance": 0.04
-            }
+            "k_inside": null
         },
         {
             "id": 42,
@@ -3580,13 +2711,7 @@
             "is_solar_absorbed": "False",
             "f_mrt_hum": 0.01116884892824177,
             "k_outside": 1.0,
-            "k_inside": null,
-            "spec": {
-                "method": "u_value",
-                "boundary_type": "external_transparent_part",
-                "u_value": 4.65,
-                "inside_heat_transfer_resistance": 0.11
-            }
+            "k_inside": null
         },
         {
             "id": 43,
@@ -3648,23 +2773,6 @@
             "k_inside": {
                 "id": 43,
                 "coef": 0.3
-            },
-            "spec": {
-                "method": "layers",
-                "boundary_type": "external_general_part",
-                "layers": [
-                    {
-                        "name": "plywood",
-                        "thermal_resistance": 0.075,
-                        "thermal_capacity": 8.64
-                    },
-                    {
-                        "name": "glass_wool_10K",
-                        "thermal_resistance": 1.28,
-                        "thermal_capacity": 0.512
-                    }
-                ],
-                "outside_heat_transfer_resistance": 0.15
             }
         },
         {
@@ -3724,24 +2832,7 @@
             "is_solar_absorbed": "False",
             "f_mrt_hum": 0.09657105739974702,
             "k_outside": 1.0,
-            "k_inside": null,
-            "spec": {
-                "method": "layers",
-                "boundary_type": "external_general_part",
-                "layers": [
-                    {
-                        "name": "plaster_board",
-                        "thermal_resistance": 0.0432,
-                        "thermal_capacity": 7.885
-                    },
-                    {
-                        "name": "glass_wool_10K",
-                        "thermal_resistance": 3.42,
-                        "thermal_capacity": 1.368
-                    }
-                ],
-                "outside_heat_transfer_resistance": 0.09
-            }
+            "k_inside": null
         },
         {
             "id": 45,
@@ -3803,28 +2894,6 @@
             "k_inside": {
                 "id": 8,
                 "coef": 1.0
-            },
-            "spec": {
-                "method": "layers",
-                "boundary_type": "internal",
-                "layers": [
-                    {
-                        "name": "plaster_board",
-                        "thermal_resistance": 0.0568,
-                        "thermal_capacity": 10.375
-                    },
-                    {
-                        "name": "non-hermetic_air_layer",
-                        "thermal_resistance": 0.09,
-                        "thermal_capacity": 0.0
-                    },
-                    {
-                        "name": "plaster_board",
-                        "thermal_resistance": 0.0568,
-                        "thermal_capacity": 10.375
-                    }
-                ],
-                "outside_heat_transfer_resistance": 0.11
             }
         },
         {
@@ -3887,28 +2956,6 @@
             "k_inside": {
                 "id": 36,
                 "coef": 1.0
-            },
-            "spec": {
-                "method": "layers",
-                "boundary_type": "internal",
-                "layers": [
-                    {
-                        "name": "plaster_board",
-                        "thermal_resistance": 0.0568,
-                        "thermal_capacity": 10.375
-                    },
-                    {
-                        "name": "non-hermetic_air_layer",
-                        "thermal_resistance": 0.09,
-                        "thermal_capacity": 0.0
-                    },
-                    {
-                        "name": "plaster_board",
-                        "thermal_resistance": 0.0568,
-                        "thermal_capacity": 10.375
-                    }
-                ],
-                "outside_heat_transfer_resistance": 0.11
             }
         },
         {
@@ -3971,28 +3018,6 @@
             "k_inside": {
                 "id": 21,
                 "coef": 1.0
-            },
-            "spec": {
-                "method": "layers",
-                "boundary_type": "internal",
-                "layers": [
-                    {
-                        "name": "plaster_board",
-                        "thermal_resistance": 0.0568,
-                        "thermal_capacity": 10.375
-                    },
-                    {
-                        "name": "non-hermetic_air_layer",
-                        "thermal_resistance": 0.09,
-                        "thermal_capacity": 0.0
-                    },
-                    {
-                        "name": "plaster_board",
-                        "thermal_resistance": 0.0568,
-                        "thermal_capacity": 10.375
-                    }
-                ],
-                "outside_heat_transfer_resistance": 0.11
             }
         },
         {
@@ -4055,28 +3080,6 @@
             "k_inside": {
                 "id": 28,
                 "coef": 1.0
-            },
-            "spec": {
-                "method": "layers",
-                "boundary_type": "internal",
-                "layers": [
-                    {
-                        "name": "plaster_board",
-                        "thermal_resistance": 0.0568,
-                        "thermal_capacity": 10.375
-                    },
-                    {
-                        "name": "non-hermetic_air_layer",
-                        "thermal_resistance": 0.09,
-                        "thermal_capacity": 0.0
-                    },
-                    {
-                        "name": "plaster_board",
-                        "thermal_resistance": 0.0568,
-                        "thermal_capacity": 10.375
-                    }
-                ],
-                "outside_heat_transfer_resistance": 0.11
             }
         },
         {
@@ -4139,28 +3142,6 @@
             "k_inside": {
                 "id": 17,
                 "coef": 1.0
-            },
-            "spec": {
-                "method": "layers",
-                "boundary_type": "internal",
-                "layers": [
-                    {
-                        "name": "plaster_board",
-                        "thermal_resistance": 0.0568,
-                        "thermal_capacity": 10.375
-                    },
-                    {
-                        "name": "non-hermetic_air_layer",
-                        "thermal_resistance": 0.09,
-                        "thermal_capacity": 0.0
-                    },
-                    {
-                        "name": "plaster_board",
-                        "thermal_resistance": 0.0568,
-                        "thermal_capacity": 10.375
-                    }
-                ],
-                "outside_heat_transfer_resistance": 0.11
             }
         }
     ]
