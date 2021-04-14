@@ -723,7 +723,6 @@ def _make_boundaries(bss2: List[BoundarySimple], rooms: List[Dict], boundaries: 
             'phi_t0': phi_t0_js[i],
             'phi_t1': list(phi_t1_js_ms[i]),
             'r': list(r_js_ms[i]),
-            'h_i': bs.h_i,
             'h_c': bs.h_c,
             'h_r': h_r_is[i],
             'flr': flr_js[i],
