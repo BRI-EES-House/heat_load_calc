@@ -299,7 +299,7 @@ def make_pre_calc_parameters(delta_t: float, data_directory: str) -> (PreCalcPar
     sub_name_bdry_js = [b['sub_name'] for b in bs]
 
     # 地盤かどうか, [j, 1]
-    is_ground_js = np.array([{'true': True, 'false': False}[b['is_ground']] for b in bs]).reshape(-1, 1)
+    is_ground_js = np.array([b['is_ground'] for b in bs]).reshape(-1, 1)
 
     # 隣接する空間のID, [j]
     connected_space_id_js = np.array([b['connected_space_id'] for b in bs])

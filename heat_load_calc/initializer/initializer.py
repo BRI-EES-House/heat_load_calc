@@ -715,7 +715,7 @@ def _make_boundaries(bss2: List[BoundarySimple], rooms: List[Dict], boundaries: 
             'id': bs.id,
             'name': bs.name,
             'sub_name': bs.sub_name,
-            'is_ground': 'true' if bs.boundary_type == BoundaryType.Ground else 'false',
+            'is_ground': True if bs.boundary_type == BoundaryType.Ground else False,
             'connected_space_id': bs.connected_room_id,
             'area': bs.area,
             'phi_a0': phi_a0_js[i],
