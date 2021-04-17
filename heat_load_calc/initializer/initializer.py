@@ -578,7 +578,12 @@ def _make_spaces_dict(rooms: List[dict]):
             'beta': beta_is[i],
             'ventilation': {
                 'mechanical': v_vent_ex_is[i] / 3600,
-                'next_spaces': v_int_vent_is.tolist()[i],
+                'next_spaces': [
+                    {
+                        'upstream_room_id': next_vent['upstream_room_id'],
+                        'volume': next_vent['volume'] / 3600
+                    } for next_vent in rooms[i]['next_vent']
+                ],
                 'natural': v_ntrl_vent_is[i]
             },
             'furniture': {
