@@ -13,9 +13,7 @@
             "beta": 0.0,
             "ventilation": {
                 "mechanical": 0.0,
-                "next_spaces": [
-                    0.0
-                ],
+                "next_spaces": [],
                 "natural": 0.0
             },
             "furniture": {
