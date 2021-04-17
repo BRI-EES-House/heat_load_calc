@@ -243,7 +243,6 @@ def make_pre_calc_parameters(delta_t: float, data_directory: str) -> (PreCalcPar
         ] for s in ss
     ]
     v_int_vent_is_is = _get_v_int_vent_is(next_vents, n_spaces)
-    # v_int_vent_is_is = np.array([s['ventilation']['next_spaces'] for s in ss])
 
     # 室iの自然風利用時の換気量, m3/s, [i, 1]
     v_ntrl_vent_is = np.array([s['ventilation']['natural'] for s in ss]).reshape(-1, 1)
