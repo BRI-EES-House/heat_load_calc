@@ -474,9 +474,6 @@ def _make_spaces_dict(rooms: List[dict]):
         else:
             raise Exception()
 
-    # 室iの隣室からの機械換気量, m3/h, [i, i]
-    v_int_vent_is = _get_v_int_vent_is(next_vents, n_spaces)
-
     # 室iの自然風利用時の換気量, m3/s, [i]
     # TODO: もしかすると換気回数わたしの方が自然か？
     v_ntrl_vent_is = v_room_cap_is * n_ntrl_vent_is / 3600
@@ -578,7 +575,12 @@ def _make_spaces_dict(rooms: List[dict]):
             'beta': beta_is[i],
             'ventilation': {
                 'mechanical': v_vent_ex_is[i] / 3600,
-                'next_spaces': v_int_vent_is.tolist()[i],
+                'next_spaces': [
+                    {
+                        'upstream_room_id': next_vent['upstream_room_id'],
+                        'volume': next_vent['volume'] / 3600
+                    } for next_vent in rooms[i]['next_vent']
+                ],
                 'natural': v_ntrl_vent_is[i]
             },
             'furniture': {
@@ -758,50 +760,4 @@ def _get_boundary_spec(boundaries, bs) -> Dict:
         }
     else:
         raise KeyError()
-
-
-def _get_v_int_vent_is(next_vents: List[List[Tuple]], n_rooms: int) -> np.ndarray:
-    """
-    隣室iから室iへの機械換気量マトリクスを生成する。
-    Args:
-        next_vents: 隣室からの機械換気
-                        2重のリスト構造を持つ。
-                        外側のリスト：室、（流入側の室を基準とする。）
-                        内側のリスト：換気経路（数は任意であり、換気経路が無い（0: 空のリスト）場合もある。）
-                        変数はタプル （流出側の室ID: int, 換気量（m3/h): float)
-        n_rooms: 室の数
-    Returns:
-        隣室iから室iへの機械換気量マトリクス, m3/s, [i, i]
-            例えば、
-                室0→室1:3.0
-                室0→室2:4.0
-                室1→室2:3.0
-                室3→室1:1.5
-                室3→室2:1.0
-            の場合、
-                [[0.0, 0.0, 0.0, 0.0],
-                 [3.0, 0.0, 0.0, 1.5],
-                 [4.0, 3.0, 0.0, 1.0],
-                 [0.0, 0.0, 0.0, 0.0]]
-    """
-
-    # 隣室iから室iへの換気量マトリックス, m3/s [i, i]
-    v_int_vent_is = np.zeros((n_rooms, n_rooms), dtype=float)
-
-    # 室iのループ（風下室ループ）
-    for i, next_vent_is in enumerate(next_vents):
-
-        # 室iにおける経路jのループ（風上室ループ）
-        # 取得するのは、(ID: int, 換気量(m3/h): float) のタプル
-        for (idx, volume) in next_vent_is:
-
-            # m3/hからm3/sへの単位変換を行っている
-            # 風上側
-            if i != idx:
-                v_int_vent_is[i, idx] += volume / 3600.0
-
-            # 自室への流入
-            v_int_vent_is[i,i] -= volume / 3600.0
-
-    return v_int_vent_is
 

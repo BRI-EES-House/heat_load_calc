@@ -76,8 +76,8 @@ class MyTestCase(unittest.TestCase):
 
         # 隣室間換気による熱取得, [W]
         v_next_vent0 = 0.0                                                      # m3/s
-        v_next_vent1 = self._mdh['spaces'][0]['ventilation']['next_spaces'][1]  # m3/s
-        v_next_vent2 = self._mdh['spaces'][0]['ventilation']['next_spaces'][2]  # m3/s
+        v_next_vent1 = 0.0                                                      # m3/s
+        v_next_vent2 = 0.0                                                      # m3/s
         t_r_0_new = self._dd['rm0_t_r']['1989-01-01 00:15:00']
         t_r_1_new = self._dd['rm1_t_r']['1989-01-01 00:15:00']
         t_r_2_new = self._dd['rm2_t_r']['1989-01-01 00:15:00']
@@ -162,8 +162,8 @@ class MyTestCase(unittest.TestCase):
         q_vent_natural = c_air * rho_air * v_natural * (t_o - t_r_new)
 
         # 隣室間換気による熱取得, [W]
-        v_next_vent0 = self._mdh['spaces'][2]['ventilation']['next_spaces'][0]  # m3/s
-        v_next_vent1 = self._mdh['spaces'][2]['ventilation']['next_spaces'][1]  # m3/s
+        v_next_vent0 = self._mdh['spaces'][2]['ventilation']['next_spaces'][0]['volume']  # m3/s
+        v_next_vent1 = self._mdh['spaces'][2]['ventilation']['next_spaces'][1]['volume']  # m3/s
         v_next_vent2 = 0.0                                                      # m3/s
         t_r_0_new = self._dd['rm0_t_r'][date_now]
         t_r_1_new = self._dd['rm1_t_r'][date_now]
@@ -324,9 +324,9 @@ class MyTestCase(unittest.TestCase):
         humid_natural = rho_air * v_natural * (x_o - x_r_new)
 
         # 隣室間換気による湿気取得, [kg/s]
-        v_next_vent0 = self._mdh['spaces'][0]['ventilation']['next_spaces'][0]  # m3/s
-        v_next_vent1 = self._mdh['spaces'][0]['ventilation']['next_spaces'][1]  # m3/s
-        v_next_vent2 = self._mdh['spaces'][0]['ventilation']['next_spaces'][2]  # m3/s
+        v_next_vent0 = 0.0  # m3/s
+        v_next_vent1 = 0.0  # m3/s
+        v_next_vent2 = 0.0  # m3/s
         x_r_0_new = self._dd['rm0_x_r'][date_now]
         x_r_1_new = self._dd['rm1_x_r'][date_now]
         x_r_2_new = self._dd['rm2_x_r'][date_now]
@@ -404,8 +404,8 @@ class MyTestCase(unittest.TestCase):
         humid_natural = rho_air * v_natural * (x_o - x_r_new)
 
         # 隣室間換気による湿気取得, [kg/s]
-        v_next_vent0 = self._mdh['spaces'][2]['ventilation']['next_spaces'][0]  # m3/s
-        v_next_vent1 = self._mdh['spaces'][2]['ventilation']['next_spaces'][1]  # m3/s
+        v_next_vent0 = self._mdh['spaces'][2]['ventilation']['next_spaces'][0]['volume']  # m3/s
+        v_next_vent1 = self._mdh['spaces'][2]['ventilation']['next_spaces'][1]['volume']  # m3/s
         v_next_vent2 = 0.0                                                      # m3/s
         x_r_0_new = self._dd['rm0_x_r'][date_now]
         x_r_1_new = self._dd['rm1_x_r'][date_now]
