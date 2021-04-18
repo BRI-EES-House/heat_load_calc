@@ -299,7 +299,7 @@ def make_pre_calc_parameters(delta_t: float, data_directory: str) -> (PreCalcPar
     sub_name_bdry_js = [b['sub_name'] for b in bs]
 
     # 地盤かどうか, [j, 1]
-    is_ground_js = np.array([{'true': True, 'false': False}[b['is_ground']] for b in bs]).reshape(-1, 1)
+    is_ground_js = np.array([b['is_ground'] for b in bs]).reshape(-1, 1)
 
     # 隣接する空間のID, [j]
     connected_space_id_js = np.array([b['connected_space_id'] for b in bs])
@@ -335,15 +335,7 @@ def make_pre_calc_parameters(delta_t: float, data_directory: str) -> (PreCalcPar
     flr_js = np.array([b['flr'] for b in bs])
 
     # 境界jの日射吸収の有無, [j, 1]
-    is_solar_abs_js = np.array(
-        [
-            {
-                'True': True,
-                'False': False
-            }[b['is_solar_absorbed']]
-            for b in bs
-        ]
-    ).reshape(-1, 1)
+    is_solar_abs_js = np.array([b['is_solar_absorbed'] for b in bs]).reshape(-1, 1)
 
     # 境界jの室に設置された放射暖房の放熱量のうち放射成分に対する境界jの室内側吸収比率
     f_mrt_hum_is = np.array([b['f_mrt_hum'] for b in bs])

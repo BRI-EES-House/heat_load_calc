@@ -53,7 +53,7 @@
             "id": 0,
             "name": "north_exterior_window",
             "sub_name": "",
-            "is_ground": "false",
+            "is_ground": false,
             "connected_space_id": 0,
             "area": 1.0,
             "phi_a0": 0.10505376344086019,
@@ -100,26 +100,19 @@
                 0.0,
                 0.0
             ],
-            "h_i": 9.090909090909092,
             "h_c": 3.041174391,
             "h_r": 6.0497346947743775,
             "flr": 0.0,
-            "is_solar_absorbed": "False",
+            "is_solar_absorbed": false,
             "f_mrt_hum": 0.11000000000000001,
             "k_outside": 1.0,
-            "k_inside": null,
-            "spec": {
-                "method": "u_value",
-                "boundary_type": "external_transparent_part",
-                "u_value": 4.65,
-                "inside_heat_transfer_resistance": 0.11
-            }
+            "k_inside": null
         },
         {
             "id": 1,
             "name": "east_exterior_window",
             "sub_name": "",
-            "is_ground": "false",
+            "is_ground": false,
             "connected_space_id": 0,
             "area": 1.0,
             "phi_a0": 0.10505376344086019,
@@ -166,26 +159,19 @@
                 0.0,
                 0.0
             ],
-            "h_i": 9.090909090909092,
             "h_c": 3.041174391,
             "h_r": 6.0497346947743775,
             "flr": 0.0,
-            "is_solar_absorbed": "False",
+            "is_solar_absorbed": false,
             "f_mrt_hum": 0.11000000000000001,
             "k_outside": 1.0,
-            "k_inside": null,
-            "spec": {
-                "method": "u_value",
-                "boundary_type": "external_transparent_part",
-                "u_value": 4.65,
-                "inside_heat_transfer_resistance": 0.11
-            }
+            "k_inside": null
         },
         {
             "id": 2,
             "name": "south_exterior_window",
             "sub_name": "",
-            "is_ground": "false",
+            "is_ground": false,
             "connected_space_id": 0,
             "area": 1.0,
             "phi_a0": 0.10505376344086019,
@@ -232,26 +218,19 @@
                 0.0,
                 0.0
             ],
-            "h_i": 9.090909090909092,
             "h_c": 3.041174391,
             "h_r": 6.0497346947743775,
             "flr": 0.0,
-            "is_solar_absorbed": "False",
+            "is_solar_absorbed": false,
             "f_mrt_hum": 0.11000000000000001,
             "k_outside": 1.0,
-            "k_inside": null,
-            "spec": {
-                "method": "u_value",
-                "boundary_type": "external_transparent_part",
-                "u_value": 4.65,
-                "inside_heat_transfer_resistance": 0.11
-            }
+            "k_inside": null
         },
         {
             "id": 3,
             "name": "west_exterior_window",
             "sub_name": "",
-            "is_ground": "false",
+            "is_ground": false,
             "connected_space_id": 0,
             "area": 1.0,
             "phi_a0": 0.10505376344086019,
@@ -298,26 +277,19 @@
                 0.0,
                 0.0
             ],
-            "h_i": 9.090909090909092,
             "h_c": 3.041174391,
             "h_r": 6.0497346947743775,
             "flr": 0.0,
-            "is_solar_absorbed": "False",
+            "is_solar_absorbed": false,
             "f_mrt_hum": 0.11000000000000001,
             "k_outside": 1.0,
-            "k_inside": null,
-            "spec": {
-                "method": "u_value",
-                "boundary_type": "external_transparent_part",
-                "u_value": 4.65,
-                "inside_heat_transfer_resistance": 0.11
-            }
+            "k_inside": null
         },
         {
             "id": 4,
             "name": "exterior_floor",
             "sub_name": "",
-            "is_ground": "false",
+            "is_ground": false,
             "connected_space_id": 0,
             "area": 1.0,
             "phi_a0": 0.06596543618262128,
@@ -364,32 +336,19 @@
                 0.0,
                 0.0
             ],
-            "h_i": 9.090909090909092,
             "h_c": 3.041174391,
             "h_r": 6.0497346947743775,
             "flr": 0.0,
-            "is_solar_absorbed": "True",
+            "is_solar_absorbed": true,
             "f_mrt_hum": 0.45,
             "k_outside": 1.0,
-            "k_inside": null,
-            "spec": {
-                "method": "layers",
-                "boundary_type": "external_general_part",
-                "layers": [
-                    {
-                        "name": "plywood",
-                        "thermal_resistance": 0.075,
-                        "thermal_capacity": 8.64
-                    }
-                ],
-                "outside_heat_transfer_resistance": 0.04
-            }
+            "k_inside": null
         },
         {
             "id": 5,
             "name": "exterior_ceiling",
             "sub_name": "",
-            "is_ground": "false",
+            "is_ground": false,
             "connected_space_id": 0,
             "area": 1.0,
             "phi_a0": 0.06596543618262128,
@@ -436,26 +395,13 @@
                 0.0,
                 0.0
             ],
-            "h_i": 9.090909090909092,
             "h_c": 3.041174391,
             "h_r": 6.0497346947743775,
             "flr": 0.0,
-            "is_solar_absorbed": "False",
+            "is_solar_absorbed": false,
             "f_mrt_hum": 0.11000000000000001,
             "k_outside": 1.0,
-            "k_inside": null,
-            "spec": {
-                "method": "layers",
-                "boundary_type": "external_general_part",
-                "layers": [
-                    {
-                        "name": "plywood",
-                        "thermal_resistance": 0.075,
-                        "thermal_capacity": 8.64
-                    }
-                ],
-                "outside_heat_transfer_resistance": 0.04
-            }
+            "k_inside": null
         }
     ]
 }

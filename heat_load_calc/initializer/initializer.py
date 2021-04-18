@@ -715,7 +715,7 @@ def _make_boundaries(bss2: List[BoundarySimple], rooms: List[Dict], boundaries: 
             'id': bs.id,
             'name': bs.name,
             'sub_name': bs.sub_name,
-            'is_ground': 'true' if bs.boundary_type == BoundaryType.Ground else 'false',
+            'is_ground': True if bs.boundary_type == BoundaryType.Ground else False,
             'connected_space_id': bs.connected_room_id,
             'area': bs.area,
             'phi_a0': phi_a0_js[i],
@@ -723,15 +723,13 @@ def _make_boundaries(bss2: List[BoundarySimple], rooms: List[Dict], boundaries: 
             'phi_t0': phi_t0_js[i],
             'phi_t1': list(phi_t1_js_ms[i]),
             'r': list(r_js_ms[i]),
-            'h_i': bs.h_i,
             'h_c': bs.h_c,
             'h_r': h_r_is[i],
             'flr': flr_js[i],
-            'is_solar_absorbed': str(bs.is_solar_absorbed_inside),
+            'is_solar_absorbed': bs.is_solar_absorbed_inside,
             'f_mrt_hum': f_mrt_hum_is[i],
             'k_outside': bs.h_td,
-            'k_inside': k_ei_js[i],
-            'spec': specs[i]
+            'k_inside': k_ei_js[i]
         })
     return bdrs
 
