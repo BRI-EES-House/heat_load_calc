@@ -506,7 +506,7 @@ def make_pre_calc_parameters(delta_t: float, data_directory: str) -> (PreCalcPar
     fia_js_is = phi_a0_js * h_c_js * p_js_is\
         + np.dot(k_ei_js_js, p_js_is) * phi_t0_js * h_c_js / h_i_js
 
-    # CRX, W, [j, n]
+    # CRX, degree C, [j, n]
     crx_js_ns = phi_a0_js * q_sol_js_ns\
         + phi_t0_js / h_i_js * np.dot(k_ei_js_js, q_sol_js_ns)\
         + phi_t0_js * theta_dstrb_js_ns
@@ -518,7 +518,7 @@ def make_pre_calc_parameters(delta_t: float, data_directory: str) -> (PreCalcPar
     # WSR, [j, i]
     wsr_js_is = np.dot(ivs_ax_js_js, fia_js_is)
 
-    # WSC, W, [j, n]
+    # WSC, degree C, [j, n]
     wsc_js_ns = np.dot(ivs_ax_js_js, crx_js_ns)
 
     # WSB, K/W, [j, i]
