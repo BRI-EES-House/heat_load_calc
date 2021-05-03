@@ -37,6 +37,7 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
     ac_demand_is_n = ss.ac_demand_is_ns[:, n].reshape(-1, 1)
 
     # ステップnの境界jにおける外気側等価温度の外乱成分, degree C, [j, 1]
+    # TODO: ss.theta_dstrb_js_ns[:, n] -> ss.theta_dstrb_js_ns[:, n + 1]
     theta_dstrb_js_n = ss.theta_dstrb_js_ns[:, n].reshape(-1, 1)
 
     # ステップnの室iにおける在室人数, [i, 1]
@@ -67,6 +68,7 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
     #     ステップnの室iの在室者周りの風速, m/s, [i, 1]
     #     ステップnの室iにおけるClo値, [i, 1]
     #     ステップnの室iにおける目標作用温度, degree C, [i, 1]
+    # TODO: 目標作用温度はステップn+1ではないか
     h_hum_c_is_n, h_hum_r_is_n, operation_mode_is_n, theta_lower_target_is_n, theta_upper_target_is_n, remarks_is_n \
         = ss.get_ot_target_and_h_hum(
             x_r_is_n=c_n.x_r_is_n,
@@ -125,6 +127,7 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
         ) / (ss.c_sh_frt_is + delta_t * ss.g_sh_frt_is)
 
     # ステップn+1における係数 BRM, W/K, [i, i]
+    # TODO: 左辺はステップnにすべきではないか
     brm_is_is_n_pls = ss.brm_non_vent_is_is\
         + get_c_air() * get_rho_air() * (np.diag(v_out_vent_is_n.flatten()) - ss.v_int_vent_is_is)
 
@@ -150,9 +153,11 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
     brm_ot_is_is_n = np.dot(brm_is_is_n_pls, xot_is_is_n_pls)
 
     # ステップnにおける係数 BRLOT, [i, i]
+    # TODO: 左辺はステップn+1にすべきではないか
     brl_ot_is_is_n = ss.brl_is_is + np.dot(brm_is_is_n_pls, xlr_is_is_n_pls)
 
     # ステップnにおける係数 BRCOT, [i, 1]
+    # TODO: 左辺はステップn+1にすべきではないか
     brc_ot_is_n = brc_is_n_pls + np.dot(brm_is_is_n_pls, xc_is_n_pls)
 
     # ステップ n+1 における室 i の作用温度, degree C, [i, 1] (ステップn+1における瞬時値）
@@ -205,6 +210,7 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
     ) / (ss.h_c_js + ss.h_r_js)
 
     # ステップ n+1 の境界 j における表面熱流（壁体吸熱を正とする）, W/m2, [j, 1]
+    # TODO: 左辺はステップnにすべきではないか
     q_srf_js_n_pls = (theta_ei_js_n_pls - theta_s_js_n_pls) * (ss.h_c_js + ss.h_r_js)
 
     # --- ここから、湿度の計算 ---
