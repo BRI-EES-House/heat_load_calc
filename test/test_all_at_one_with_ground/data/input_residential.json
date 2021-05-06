@@ -57,14 +57,9 @@
 			"outside_solar_absorption": 0.8,
 			"layers": [
 				{
-					"name": "RC",
+					"name": "RC120mm",
 					"thermal_resistance": 0.075,
 					"thermal_capacity": 240
-				},
-				{
-					"name": "plywood",
-					"thermal_resistance": 0.075,
-					"thermal_capacity": 8.64
 				}
 			],
 			"solar_shading_part": {
@@ -88,14 +83,9 @@
 			"outside_solar_absorption": 0.8,
 			"layers": [
 				{
-					"name": "RC",
+					"name": "RC120mm",
 					"thermal_resistance": 0.075,
 					"thermal_capacity": 240
-				},
-				{
-					"name": "plywood",
-					"thermal_resistance": 0.075,
-					"thermal_capacity": 8.64
 				}
 			],
 			"solar_shading_part": {
