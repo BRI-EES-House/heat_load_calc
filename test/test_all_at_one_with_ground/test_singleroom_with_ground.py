@@ -12,9 +12,9 @@ from heat_load_calc.core import core
 class TestSigleRoomWithFround(unittest.TestCase):
     """
     計算条件
-    屋根と床が合板12mm、壁が複層ガラスの1m角の立方体の単室モデル。
-    外気温度一定。日射、夜間放射は考慮なし。
-    内部発熱一定。
+    土間床２面のみを有する単室。
+    外気温度は10℃一定。日射、夜間放射は考慮なし。
+    内部発熱なし。
 
     """
 
@@ -37,7 +37,8 @@ class TestSigleRoomWithFround(unittest.TestCase):
         # initializer.make_house(d=d, input_data_dir=s_folder, output_data_dir=s_folder)
 
         # 計算実行
-        ds, dd = core.calc(input_data_dir=s_folder, output_data_dir=s_folder, show_detail_result=True)
+        ds, dd = core.calc(input_data_dir=s_folder, output_data_dir=s_folder,
+                           show_detail_result=False, n_d_main=30, n_d_run_up=10, n_d_run_up_build=0)
 
         # 計算結果格納
         cls._ds = ds
@@ -46,19 +47,16 @@ class TestSigleRoomWithFround(unittest.TestCase):
     # 室空気温[℃]のテスト
     def test_case_01_room_temp(self):
 
-        # self.assertAlmostEqual(7.28483914957795, self._dd['rm0_t_r']['1989-1-1 12:00:00'])
-        pass
+        self.assertAlmostEqual(10.0057217473846, self._dd['rm0_t_r']['1989-1-30 23:45:00'])
 
     # 室内側表面熱流[W/m2]のテスト
     def test_case_01_heat_flow(self):
 
-        # self.assertAlmostEqual(16.9159256281029, self._dd['rm0_b0_qiall_s']['1989-1-1 12:00:00'])
-        # self.assertAlmostEqual(16.1681487437944, self._dd['rm0_b4_qiall_s']['1989-1-1 12:00:00'])
-        pass
+        self.assertAlmostEqual(-0.000471298032647407, self._dd['rm0_b0_qiall_s']['1989-1-30 23:45:00'])
+        self.assertAlmostEqual(-0.000471298032647407, self._dd['rm0_b1_qiall_s']['1989-1-30 23:45:00'])
 
     # 表面温度[℃]のテスト
     def test_case_01_surface_temp(self):
 
-        # self.assertAlmostEqual(1.77708164821362, self._dd['rm0_b0_t_s']['1989-1-1 12:00:00'])
-        # self.assertAlmostEqual(1.85933710553636, self._dd['rm0_b4_t_s']['1989-1-1 12:00:00'])
-        pass
+        self.assertAlmostEqual(10.0058767197643, self._dd['rm0_b0_t_s']['1989-1-30 23:45:00'])
+        self.assertAlmostEqual(10.0058767197643, self._dd['rm0_b1_t_s']['1989-1-30 23:45:00'])

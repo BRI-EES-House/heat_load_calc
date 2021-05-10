@@ -48,7 +48,7 @@
 			"area": 1.0,
 			"is_sun_striked_outside": false,
 			"temp_dif_coef": 1.0,
-			"is_floor": true,
+			"is_floor": false,
 			"is_solar_absorbed_inside": true,
 			"outside_emissivity": 0.9,
 			"inside_heat_transfer_resistance": 0.11,

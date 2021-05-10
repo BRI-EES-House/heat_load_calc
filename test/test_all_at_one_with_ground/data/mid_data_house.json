@@ -102,7 +102,7 @@
             "h_r": 9.349589129818472,
             "flr": 0.0,
             "is_solar_absorbed": true,
-            "f_mrt_hum": 0.225,
+            "f_mrt_hum": 0.55,
             "k_outside": 1.0,
             "k_inside": null
         },
@@ -161,7 +161,7 @@
             "h_r": 9.349589129818472,
             "flr": 0.0,
             "is_solar_absorbed": true,
-            "f_mrt_hum": 0.225,
+            "f_mrt_hum": 0.45,
             "k_outside": 1.0,
             "k_inside": null
         }
