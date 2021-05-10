@@ -30,7 +30,7 @@ class TestSigleRoomWithFround(unittest.TestCase):
         js = open(s_folder + '/input_residential.json', 'r', encoding='utf-8')
         d = json.load(js)
 
-        weather.make_weather(region=d['common']['region'], output_data_dir=s_folder, csv_output=True)
+        # weather.make_weather(region=d['common']['region'], output_data_dir=s_folder, csv_output=True)
 
         # 中間データ作成（境界条件は再構築しない）
         initializer.make_house_for_test(d=d, input_data_dir=s_folder, output_data_dir=s_folder)
