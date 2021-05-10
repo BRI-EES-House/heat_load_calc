@@ -614,6 +614,10 @@ class ResponseFactorFactoryTransientGround(ResponseFactorFactory):
         _RFT0, _RFA0, _RFT1, _RFA1, _Row, _n_root_i_js = \
             calc_response_factor(is_ground, c_layer_i_k_l, r_layer_i_k_l)
 
+        # 貫流応答係数の上書
+        _RFT0 = 1.0
+        _RFT1 = np.zeros(12)
+
         return ResponseFactor(rft0=_RFT0, rfa0=_RFA0, rft1=_RFT1, rfa1=_RFA1, row=_Row, n_root=_n_root_i_js)
 
 
