@@ -139,7 +139,6 @@
 			"is_floor": true,
 			"is_solar_absorbed_inside": true,
 			"outside_emissivity": 0.9,
-			"inside_heat_transfer_resistance": 0.11,
 			"h_c": 3.041174396,
 			"outside_heat_transfer_resistance": 0.04,
 			"outside_solar_absorption": 0.8,
@@ -167,7 +166,6 @@
 			"is_solar_absorbed_inside": false,
 			"outside_emissivity": 0.9,
 			"outside_solar_absorption": 0.8,
-			"inside_heat_transfer_resistance": 0.11,
 			"h_c": 3.041174396,
 			"outside_heat_transfer_resistance": 0.04,
 			"layers": [
