@@ -60,9 +60,6 @@ class BoundarySimple:
     # 日射の有無が定義されている場合でかつその値がTrueの場合のみ定義される。
     direction: str
 
-    # 室内側表面総合熱伝達率, W/m2K
-    h_i: float
-
     # 室内側表面対流熱伝達率, W/m2K
     h_c: float
 
@@ -150,12 +147,6 @@ def get_boundary_simple(theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, a_sun_ns, h_sun_n
     else:
         direction = None
 
-    # 室内側熱伝達抵抗, m2K/W
-    r_i = b['inside_heat_transfer_resistance']
-
-    # 室内側表面総合熱伝達率, W/m2K
-    h_i = 1.0 / r_i
-
     # 室内側表面対流熱伝達率, W/m2K
     h_c = b['h_c']
 
@@ -190,7 +181,6 @@ def get_boundary_simple(theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, a_sun_ns, h_sun_n
         is_solar_absorbed_inside=is_solar_absorbed_inside,
         is_sun_striked_outside=is_sun_striked_outside,
         direction=direction,
-        h_i=h_i,
         h_c=h_c,
         theta_o_sol=theta_o_sol,
         q_trs_sol=q_trs_sol
