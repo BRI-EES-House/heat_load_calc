@@ -108,7 +108,7 @@ def get_boundary_simple(theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, a_sun_ns, h_sun_n
 
     # 温度差係数
     # 境界の種類が'external_general_part', 'external_transparent_part', 'external_opaque_part'の場合に定義される。
-    if b['boundary_type'] in ['external_general_part', 'external_transparent_part', 'external_opaque_part']:
+    if b['boundary_type'] in ['external_general_part', 'external_transparent_part', 'external_opaque_part', 'ground']:
         h_td = float(b['temp_dif_coef'])
     else:
         h_td = 0.0

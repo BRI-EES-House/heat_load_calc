@@ -91,7 +91,7 @@ class MyTestCase(unittest.TestCase):
         self.assertAlmostEqual(0.724907397092839, rft.rfa0)
 
         # RFT0の確認
-        self.assertAlmostEqual(0.00653534054594054, rft.rft0)
+        self.assertAlmostEqual(1.0, rft.rft0)
 
         # 指数項別吸熱応答係数の確認
         self.assertAlmostEqual(-1.07167494987018E-08, rft.rfa1[0])
@@ -106,16 +106,16 @@ class MyTestCase(unittest.TestCase):
         self.assertAlmostEqual(0.0624448755908967, rft.rfa1[9])
 
         # 指数項別貫流応答係数の確認
-        self.assertAlmostEqual(-8.3658530876484E-09, rft.rft1[0])
-        self.assertAlmostEqual(1.57562362360675E-07, rft.rft1[1])
-        self.assertAlmostEqual(-1.92935352966178E-06, rft.rft1[2])
-        self.assertAlmostEqual(0.000078921727482781, rft.rft1[3])
-        self.assertAlmostEqual(-3.31494863540307E-06, rft.rft1[4])
-        self.assertAlmostEqual(-0.000292451877136084, rft.rft1[5])
-        self.assertAlmostEqual(0.000703991291132831, rft.rft1[6])
-        self.assertAlmostEqual(-0.00171320405558963, rft.rft1[7])
-        self.assertAlmostEqual(0.00432501610589603, rft.rft1[8])
-        self.assertAlmostEqual(-0.00754619016027733, rft.rft1[9])
+        self.assertAlmostEqual(0.0, rft.rft1[0])
+        self.assertAlmostEqual(0.0, rft.rft1[1])
+        self.assertAlmostEqual(0.0, rft.rft1[2])
+        self.assertAlmostEqual(0.0, rft.rft1[3])
+        self.assertAlmostEqual(0.0, rft.rft1[4])
+        self.assertAlmostEqual(0.0, rft.rft1[5])
+        self.assertAlmostEqual(0.0, rft.rft1[6])
+        self.assertAlmostEqual(0.0, rft.rft1[7])
+        self.assertAlmostEqual(0.0, rft.rft1[8])
+        self.assertAlmostEqual(0.0, rft.rft1[9])
 
 
 if __name__ == '__main__':
