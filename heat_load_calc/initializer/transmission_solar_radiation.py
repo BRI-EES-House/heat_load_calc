@@ -7,7 +7,7 @@ import numpy as np
 from heat_load_calc.initializer import external_boundaries_direction
 from heat_load_calc.initializer import inclined_surface_solar_radiation
 from heat_load_calc.initializer import solar_shading
-from heat_load_calc.initializer import oblique_incidence_charac
+from heat_load_calc.initializer import window
 
 
 class TransmissionSolarRadiation:
@@ -107,11 +107,11 @@ class TransmissionSolarRadiationTransparentSunStrike(TransmissionSolarRadiation)
         # ---基準透過率
 
         # 境界jにおける透明な開口部の直達日射に対する基準化透過率, [8760 * 4]
-        tau_d_j_ns = oblique_incidence_charac.get_tau_d_j_ns(
+        tau_d_j_ns = window.get_tau_d_j_ns(
             theta_aoi_j_ns=theta_aoi_j_ns, glazing_type_j=self._glazing_type)
 
         # 境界jにおける透明な開口部の拡散日射に対する基準化透過率
-        c_d_j = oblique_incidence_charac.get_c_d_j(glazing_type_j=self._glazing_type)
+        c_d_j = window.get_c_d_j(glazing_type_j=self._glazing_type)
 
         # ---透過日射量, W/m2
 
