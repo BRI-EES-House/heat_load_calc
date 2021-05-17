@@ -52,6 +52,7 @@
 ,,,○,,,,is_solar_absorbed_inside,室内侵入日射吸収の有無,○,,bool,－,,必ず室1つにつき1箇所は指定すること。
 ,,,○,,,,direction,向き,△,{'is_sun_striked_outside': True},str,ー,"{’s','sw','w','nw','n','ne','e','se','top', 'bottom'}",8方位＋上・下を表す。「南」「南西」「西」「北西」「北」「北東」「東」「南東」「上」「下」
 ,,,○,,,,is_floor,床かどうか,〇,,bool,ー,,MRT計算時の重みが大きくなる
+,,,○,,,,inside_heat_transfer_resistance,室内側熱伝達抵抗,△,"{'boundary_type': ['external_transparent_part', 'external_opaque_part']}",float,m2K/W,,入力されたu_valueから定常部位の貫流応答（室内表面がら室外までの熱抵抗）を計算するために使用
 ,,,○,,,,h_c,室内側対流熱伝達率,○,,float,W/m2K,,
 ,,,○,,,,outside_heat_transfer_resistance,室外側熱伝達抵抗,△,"{'boundary_type': ['internal', 'external_general_part', 'external_transparent_part', 'external_opaque_part']}",float,m2K/W,,
 ,,,○,,,,outside_emissivity,室外側長波長放射率,△,"{'boundary_type': ['external_general_part', 'external_transparent_part', 'external_opaque_part']}",float,－,,
