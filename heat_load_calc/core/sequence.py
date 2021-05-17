@@ -234,24 +234,20 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
 
     # i室のn時点におけるエアコンの（BFを考慮した）相当風量[m3/s]
     # 空調の熱交換部飽和絶対湿度の計算
-    brmx_rac_is_n_pls, brxc_rac_is_n_pls = ss.get_deh_coef(
+    l_a_is_is_n, l_b_is_n = ss.get_deh_coef(
         lcs_is_n=l_cs_is_n,
         theta_r_is_npls=theta_r_is_n_pls,
         x_r_non_dh_is_n=x_r_non_dh_is_n_pls,
     )
 
-    # 室絶対湿度[kg/kg(DA)]の計算
-    brmx_is_n_pls = brmx_is_is_n + brmx_rac_is_n_pls
-    brxc_is_n_pls = brxc_is_n + brxc_rac_is_n_pls
-
-    # 室絶対湿度の計算 式(16)
-    x_r_is_npls = np.dot(np.linalg.inv(brmx_is_n_pls), brxc_is_n_pls)
+    # 室絶対湿度の計算
+    x_r_is_n_pls = np.dot(np.linalg.inv(brmx_is_is_n + l_a_is_is_n), brxc_is_n + l_b_is_n)
 
     # 除湿量
-    l_cl_i_n = - (np.dot(brmx_rac_is_n_pls, x_r_is_npls) - brxc_rac_is_n_pls) * get_l_wtr()
+    l_cl_i_n = - (np.dot(l_a_is_is_n, x_r_is_n_pls) - l_b_is_n) * get_l_wtr()
 
     # 備品類の絶対湿度の計算
-    x_frt_is_npls = (ss.c_lh_frt_is * c_n.x_frt_is_n + delta_t * ss.g_lh_frt_is * x_r_is_npls) / (ss.c_lh_frt_is + delta_t * ss.g_lh_frt_is)
+    x_frt_is_npls = (ss.c_lh_frt_is * c_n.x_frt_is_n + delta_t * ss.g_lh_frt_is * x_r_is_n_pls) / (ss.c_lh_frt_is + delta_t * ss.g_lh_frt_is)
 
     if not run_up:
         # 次の時刻に引き渡す値
@@ -260,7 +256,7 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
         # 瞬時値
         logger.theta_r[:, n] = theta_r_is_n_pls.flatten()
         logger.theta_mrt_hum[:, n] = theta_mrt_hum_is_n_pls.flatten()
-        logger.x_r[:, n] = x_r_is_npls.flatten()
+        logger.x_r[:, n] = x_r_is_n_pls.flatten()
         logger.theta_frt[:, n] = theta_frt_is_n_pls.flatten()
         logger.x_frt[:, n] = x_frt_is_npls.flatten()
         logger.theta_ei[:, n] = theta_ei_js_n_pls.flatten()
@@ -289,7 +285,7 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
         operation_mode_is_n=operation_mode_is_n,
         theta_r_is_n=theta_r_is_n_pls,
         theta_mrt_hum_is_n=theta_mrt_hum_is_n_pls,
-        x_r_is_n=x_r_is_npls,
+        x_r_is_n=x_r_is_n_pls,
         theta_dsh_srf_a_js_ms_n=theta_dsh_srf_a_js_ms_n_pls,
         theta_dsh_srf_t_js_ms_n=theta_dsh_srf_t_js_ms_n_pls,
         q_srf_js_n=q_srf_js_n_pls,
