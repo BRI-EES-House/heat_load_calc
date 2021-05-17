@@ -237,8 +237,8 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
     brmx_rac_is_n_pls, brxc_rac_is_n_pls = heat_exchanger.get_dehumid_coeff(
         lcs_is_n=l_cs_is_n,
         theta_r_is_npls=theta_r_is_n_pls,
-        rac_spec=ss.rac_spec,
-        x_r_non_dh_is_n=x_r_non_dh_is_n_pls
+        x_r_non_dh_is_n=x_r_non_dh_is_n_pls,
+        rac_spec = ss.rac_spec
     )
 
     # 室絶対湿度[kg/kg(DA)]の計算
