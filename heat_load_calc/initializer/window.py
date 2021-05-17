@@ -125,3 +125,14 @@ def _get_tau_and_ashgc(eta_w: np.ndarray, glazing_type_j: str,
 
     return tau_w, eta_w - tau_w
 
+
+# TODO:吸収日射取得率の入射角特性は、1-τ-ρで暫定対応（τ：透過率の入射角特性、ρ：反射率の入射角特性）
+def _get_c_ashgc(glazing_type_j: str, theta_aoi_i_k: np.ndarray) -> np.ndarray:
+
+    if glazing_type_j == "single":
+        tau = _get_tau_norm_glass_i_k_n(theta_aoi_i_k=theta_aoi_i_k)
+        rho = _get_rhod_n_single(theta_aoi_i_k=theta_aoi_i_k)
+    elif glazing_type_j == "multiple":
+        tau = _get_taud_n_double(theta_aoi_i_k=theta_aoi_i_k)
+        # TODO: 複層ガラスの反射日射の入射角特性が見当たらない
+        # rho = XXXXXX
