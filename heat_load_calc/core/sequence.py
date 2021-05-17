@@ -234,11 +234,10 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
 
     # i室のn時点におけるエアコンの（BFを考慮した）相当風量[m3/s]
     # 空調の熱交換部飽和絶対湿度の計算
-    brmx_rac_is_n_pls, brxc_rac_is_n_pls = heat_exchanger.get_dehumid_coeff(
+    brmx_rac_is_n_pls, brxc_rac_is_n_pls = ss.get_deh_coef(
         lcs_is_n=l_cs_is_n,
         theta_r_is_npls=theta_r_is_n_pls,
         x_r_non_dh_is_n=x_r_non_dh_is_n_pls,
-        rac_spec = ss.rac_spec
     )
 
     # 室絶対湿度[kg/kg(DA)]の計算
