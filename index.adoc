@@ -39,3 +39,5 @@ include::derivation/heat_balance.adoc[]
 include::derivation/vapour_balance.adoc[]
 
 == 根拠
+
+include::calc_spec/humidity_balance.adoc[]
