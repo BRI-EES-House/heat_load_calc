@@ -215,9 +215,11 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
 
     # --- ここから、湿度の計算 ---
 
-    # ステップnの室iにおける係数 brmx（除湿なし）, [i, 1]
-    brmx_non_dh_is_n_pls = get_rho_air() * (v_diag(ss.v_room_is / delta_t + v_out_vent_is_n) - ss.v_int_vent_is_is)\
-        + v_diag(ss.c_lh_frt_is * ss.g_lh_frt_is / (ss.c_lh_frt_is + delta_t * ss.g_lh_frt_is))
+    # ステップnにおける室iの湿度に関する係数brmx,　ｋｇ(DA)/s [i, i]
+    brmx_is_is_n = v_diag(
+        get_rho_air() * (ss.v_room_is / delta_t + v_out_vent_is_n)
+        + ss.c_lh_frt_is * ss.g_lh_frt_is / (ss.c_lh_frt_is + delta_t * ss.g_lh_frt_is)
+    ) - get_rho_air() * ss.v_int_vent_is_is
 
     # ステップnにおける室iの湿度に関する係数BRXC, kg/s, [i, 1]
     # TODO: 外気温度の参照を n+1 にすべき。
@@ -226,7 +228,7 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
         + ss.c_lh_frt_is * ss.g_lh_frt_is / (ss.c_lh_frt_is + delta_t * ss.g_lh_frt_is) * c_n.x_frt_is_n \
         + x_gen_is_n + x_hum_is_n
 
-    x_r_non_dh_is_n_pls = np.dot(np.linalg.inv(brmx_non_dh_is_n_pls), brxc_is_n)
+    x_r_non_dh_is_n_pls = np.dot(np.linalg.inv(brmx_is_is_n), brxc_is_n)
 
     # ==== ルームエアコン吹出絶対湿度の計算 ====
 
@@ -240,7 +242,7 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
     )
 
     # 室絶対湿度[kg/kg(DA)]の計算
-    brmx_is_n_pls = brmx_non_dh_is_n_pls + brmx_rac_is_n_pls
+    brmx_is_n_pls = brmx_is_is_n + brmx_rac_is_n_pls
     brxc_is_n_pls = brxc_is_n + brxc_rac_is_n_pls
 
     # 室絶対湿度の計算 式(16)
