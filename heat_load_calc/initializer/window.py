@@ -100,11 +100,12 @@ def _get_c_d_double() -> float:
     return 0.832
 
 
-def _get_tau_and_ashgc(eta_w: float, glazing: str, glass_area_ratio: float) -> (float, float):
+def _get_tau_and_ashgc(eta_w: np.ndarray, glazing_type_j: str,
+                       glass_area_ratio: np.ndarray) -> (np.ndarray, np.ndarray):
     """
     日射熱取得率から透過率、吸収日射取得率を推定する
     :param eta_w: 窓の日射熱取得率
-    :param glazing: ガラスの層数
+    :param glazing_type_j: ガラスの層数
     :param glass_area_ratio: 窓のガラス面積率
     :return: 日射透過率、吸収日射取得率
     """
@@ -112,9 +113,9 @@ def _get_tau_and_ashgc(eta_w: float, glazing: str, glass_area_ratio: float) -> (
     # ガラスの日射熱取得率
     eta_g = eta_w / glass_area_ratio
 
-    if glazing == "single":
+    if glazing_type_j == "single":
         tau_g = 0.77 * eta_g ** 2 + 0.41 * eta_g - 0.09
-    elif glazing == "multiple":
+    elif glazing_type_j == "multiple":
         tau_g = 0.99 * eta_g - 0.10
     else:
         raise ValueError()
@@ -122,5 +123,5 @@ def _get_tau_and_ashgc(eta_w: float, glazing: str, glass_area_ratio: float) -> (
     # 窓の日射透過率
     tau_w = tau_g * glass_area_ratio
 
-    return (tau_w, eta_w - tau_w)
+    return tau_w, eta_w - tau_w
 
