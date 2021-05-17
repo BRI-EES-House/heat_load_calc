@@ -247,7 +247,8 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
     l_cl_i_n = - (np.dot(l_a_is_is_n, x_r_is_n_pls) - l_b_is_n) * get_l_wtr()
 
     # 備品類の絶対湿度の計算
-    x_frt_is_npls = (ss.c_lh_frt_is * c_n.x_frt_is_n + delta_t * ss.g_lh_frt_is * x_r_is_n_pls) / (ss.c_lh_frt_is + delta_t * ss.g_lh_frt_is)
+    x_frt_is_npls = (ss.c_lh_frt_is * c_n.x_frt_is_n + delta_t * ss.g_lh_frt_is * x_r_is_n_pls)\
+        / (ss.c_lh_frt_is + delta_t * ss.g_lh_frt_is)
 
     if not run_up:
         # 次の時刻に引き渡す値
