@@ -615,6 +615,8 @@ class ResponseFactorFactoryTransientGround(ResponseFactorFactory):
             calc_response_factor(is_ground, c_layer_i_k_l, r_layer_i_k_l)
 
         # 貫流応答係数の上書
+        # 土壌の計算は吸熱応答のみで計算するため、畳み込み積分に必要な指数項別応答係数はすべて０にする
+        # 貫流応答の初項は年平均気温掛かる係数であることから１とし、計算された貫流応答係数をすべて上書きする
         _RFT0 = 1.0
         _RFT1 = np.zeros(12)
 
