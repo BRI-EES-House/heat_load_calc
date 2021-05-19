@@ -48,6 +48,10 @@ def get_h_r_js2(a_srf: np.ndarray) -> np.ndarray:
     # 永田先生の方法
     f_js = _get_f_i_js(a_srf_js=a_srf)
 
+    # 形態係数の総計をチェック
+    if abs(f_js.sum() - 1.0) > 1.0e-5:
+        raise ValueError()
+
     # 境界間の放射熱伝達率を決定する際、平均放射温度を20℃固定値であるとして計算する。
     t_mrt = 273.15 + 20.0
 

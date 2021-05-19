@@ -27,6 +27,10 @@ def get_f_mrt_hum_is(a_bdry_i_js: np.ndarray, is_floor_bdry_i_js: np.ndarray) ->
     f2 = np.logical_not(is_floor_bdry_i_js)
     f_mrt_hum_i_js[f2] = a_bdry_i_js[f2] / np.sum(a_bdry_i_js[f2]) * (1.0 - f_mrt_hum_floor)
 
+    # 合計値が1になっているかチェックする
+    if abs(f_mrt_hum_i_js.sum() - 1.0) > 1.0e-4:
+        raise ValueError()
+
     return f_mrt_hum_i_js
 
 
