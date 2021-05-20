@@ -74,6 +74,29 @@ def get_c_d_j(glazing_type_j: str) -> float:
         raise ValueError()
 
 
+def get_r_d_j(glazing_type_j: str) -> float:
+    """
+    窓ガラスのガラスの入射角特性タイプから拡散日射に対する基準化反射率を求める。
+
+    Args:
+        glazing_type_j: 室iの境界kにおける透明な開口部のガラスの入射角特性タイプ
+
+    Returns:
+        室iの境界kにおける透明な開口部の拡散日射に対する基準化反射率
+    """
+
+    # 入射角特性タイプが単板ガラスの場合
+    if glazing_type_j == 'single':
+        return _get_r_d_single()
+
+    # 入射角特性タイプが複層ガラスの場合
+    elif glazing_type_j == 'multiple':
+        return _get_r_d_double()
+
+    else:
+        raise ValueError()
+
+
 # 直達日射に対する基準化透過率の計算（単層ガラス）
 def _get_tau_norm_glass_i_k_n(theta_aoi_i_k: np.ndarray) -> np.ndarray:
 
@@ -123,6 +146,15 @@ def _get_c_d_single() -> float:
     return 0.900
 
 
+def _get_r_d_single() -> float:
+    """
+    透明な開口部の拡散日射に対する規準化反射率（単層ガラス）を定義する。
+    :return:
+        透明な開口部の拡散日射に対する規準化反射率（単層ガラス）
+    """
+
+    return 0.061
+
 def _get_c_d_double() -> float:
     """
     透明な開口部の拡散日射に対する基準化透過率（複層ガラス）を定義する。
@@ -132,6 +164,16 @@ def _get_c_d_double() -> float:
     """
 
     return 0.832
+
+
+def _get_r_d_double() -> float:
+    """
+    透明な開口部の拡散日射に対する規準化反射率（複層ガラス）を定義する。
+    :return:
+        透明な開口部の拡散日射に対する規準化反射率（複層ガラス）
+    """
+
+    return 0.088
 
 
 def _get_tau_and_ashgc(eta_w: np.ndarray, glazing_type_j: str,
