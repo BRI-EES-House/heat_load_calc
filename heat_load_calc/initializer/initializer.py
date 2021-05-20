@@ -16,7 +16,7 @@ from heat_load_calc.initializer import residents_number
 from heat_load_calc.initializer import occupants_form_factor
 from heat_load_calc.initializer import boundary_simple
 from heat_load_calc.initializer import furniture
-from heat_load_calc.initializer.shape_factor import get_h_r_js2
+from heat_load_calc.initializer.shape_factor import get_h_r_js
 from heat_load_calc.initializer import response_factor
 
 
@@ -669,7 +669,7 @@ def _make_boundaries(bss2: List[BoundarySimple], rooms: List[Dict], boundaries: 
     for i in range(n_spaces):
         is_connected = np.array([bs.connected_room_id == i for bs in bss2])
 
-        h_r_is[is_connected] = get_h_r_js2(
+        h_r_is[is_connected] = get_h_r_js(
             a_srf=np.array([bs.area for bs in np.array(bss2)[is_connected]])
         )
 
