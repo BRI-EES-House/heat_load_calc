@@ -1,6 +1,7 @@
 """窓の入射角特性
 
 """
+import math
 
 import numpy as np
 
@@ -23,6 +24,28 @@ def get_tau_d_j_ns(theta_aoi_j_ns: np.ndarray, glazing_type_j: str) -> np.ndarra
 
     elif glazing_type_j == 'multiple':
         return _get_taud_n_double(theta_aoi_i_k=theta_aoi_j_ns)
+
+    else:
+        raise ValueError()
+
+def get_rho_d_j_ns(theta_aoi_j_ns: np.ndarray, glazing_type_j: str) -> np.ndarray:
+    """
+    透明部位の入射角特性
+    直達日射の反射率入射角特性の計算
+
+    Args:
+        theta_aoi_j_ns:
+        glazing_type_j:
+
+    Returns:
+        直達日射に対する基準化反射率
+    """
+
+    if glazing_type_j == 'single':
+        return _get_rhod_n_single(theta_aoi_i_k=theta_aoi_j_ns)
+
+    elif glazing_type_j == 'multiple':
+        return _get_rhod_n_double(theta_aoi_i_k=theta_aoi_j_ns)
 
     else:
         raise ValueError()
@@ -76,6 +99,17 @@ def _get_taud_n_double(theta_aoi_i_k: np.ndarray) -> np.ndarray:
 
     return _get_tau_norm_glass_i_k_n(
         theta_aoi_i_k=theta_aoi_i_k) ** 2.0 / (1.0 - _get_rhod_n_single(theta_aoi_i_k) ** 2.0)
+
+
+def _get_rhod_n_double(theta_aoi_i_k: np.ndarray) -> np.ndarray:
+    '''
+    直達日射に対する規準化反射率の計算（複層ガラス）　JIS A2103-2014  (8)式
+    :param theta_aoi_i_k: 入射角
+    :return: 斜入射時の規準化反射率
+    '''
+    tau = _get_tau_norm_glass_i_k_n(theta_aoi_i_k=theta_aoi_i_k)
+    rho = _get_rhod_n_single(theta_aoi_i_k=theta_aoi_i_k)
+    return rho + tau ** 2.0 * rho / (1.0 - rho ** 2.0)
 
 
 def _get_c_d_single() -> float:
@@ -136,3 +170,10 @@ def _get_c_ashgc(glazing_type_j: str, theta_aoi_i_k: np.ndarray) -> np.ndarray:
         tau = _get_taud_n_double(theta_aoi_i_k=theta_aoi_i_k)
         # TODO: 複層ガラスの反射日射の入射角特性が見当たらない
         # rho = XXXXXX
+
+
+if __name__ == "__main__":
+    phi = np.ndarray(1)
+    phi[0] = math.radians(0.0)
+    print(get_rho_d_j_ns(phi, 'multiple'))
+    print(get_tau_d_j_ns(phi, 'multiple'))
