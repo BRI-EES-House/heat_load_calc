@@ -5,36 +5,6 @@ from heat_load_calc.external.global_number import get_sgm, get_eps
 from scipy import optimize
 
 
-def get_h_r_js(a_srf_js: np.ndarray, p_js_is: np.ndarray) -> np.ndarray:
-    """ 放射熱伝達率
-
-    Args:
-        a_srf_js: 境界jの面積, m2, [j, 1]
-        p_js_is: 室iと境界jの関係を表す係数（室iから境界jへの変換）
-    　　　　　　　[[p_0_0 ... p_0_i]
-    　　　　　　　　[ ...  ...  ... ]
-    　　　　　　　　[ ...  ...  ... ]
-    　　　　　　　　[p_j_0 ... p_j_i]]
-    Returns:
-        放射熱伝達率, W/m2K, [j, 1]
-    """
-
-    n_spaces = p_js_is.shape[1]
-
-    # 微小点に対する境界jの形態係数
-    # 永田先生の方法
-    f_js = np.concatenate([
-        _get_f_i_js(a_srf_js=a_srf_js.flatten()[p_js_is[:, i] == 1])
-        for i in range(n_spaces)])
-
-    # 境界間の放射熱伝達率を決定する際、平均放射温度を20℃固定値であるとして計算する。
-    t_mrt = 273.15 + 20.0
-
-    hr_i_k_n = get_eps() / (1.0 - get_eps() * f_js) * 4.0 * get_sgm() * t_mrt ** 3.0
-
-    return hr_i_k_n.reshape(-1, 1)
-
-
 def get_h_r_js2(a_srf: np.ndarray) -> np.ndarray:
     """ 放射熱伝達率（室単位で計算する）
 
