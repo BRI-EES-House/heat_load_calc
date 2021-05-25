@@ -186,8 +186,14 @@ class PreCalcParametersGround:
     # 地盤jの項別公比法における項mの公比, [j, 12]
     r_js_ms: np.ndarray
 
+    # 境界jの貫流応答係数の初項, [j]
+    phi_t0_js: np.ndarray
+
     # 地盤jの吸熱応答係数の初項, m2K/W, [j, 1]
     phi_a0_js: np.ndarray
+
+    # 境界jの項別公比法における項mの貫流応答係数の第一項, [j,12]
+    phi_t1_js_ms: np.ndarray
 
     # 地盤jの項別公比法における項mの吸熱応答係数の第一項 , m2K/W, [j, 12]
     phi_a1_js_ms: np.ndarray
@@ -200,6 +206,9 @@ class PreCalcParametersGround:
 
     # ステップnの外気温度, degree C, [n]
     theta_o_ns: np.ndarray
+
+    # ステップnの境界jにおける外気側等価温度の外乱成分, degree C, [j, 8760*4]
+    theta_dstrb_js_ns: np.ndarray
 
     # 年平均外気温度, degree C
     theta_o_ave: float
@@ -632,10 +641,13 @@ def make_pre_calc_parameters(delta_t: float, data_directory: str) -> (PreCalcPar
         n_grounds=n_grounds,
         r_js_ms=r_js_ms[is_ground_js.flatten(), :],
         phi_a0_js=phi_a0_js[is_ground_js.flatten(), :],
+        phi_t0_js=phi_t0_js[is_ground_js.flatten(), :],
         phi_a1_js_ms=phi_a1_js_ms[is_ground_js.flatten(), :],
+        phi_t1_js_ms=phi_t1_js_ms[is_ground_js.flatten(), :],
         h_r_js=h_r_js[is_ground_js.flatten(), :],
         h_c_js=h_c_js[is_ground_js.flatten(), :],
         theta_o_ns=theta_o_ns,
+        theta_dstrb_js_ns=theta_dstrb_js_ns[is_ground_js.flatten(), :],
         theta_o_ave=theta_o_ave,
     )
 
