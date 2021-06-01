@@ -5,19 +5,28 @@
 I. 評価法
 ============
 
-１） 室全体の水分収支
+１） 次のステップの絶対湿度と潜熱負荷
 --------------------
 
-ステップ :math:`n+1` における室 :math:`i` の絶対湿度 :math:`X_{r,i,n+1}` 及び
 ステップ :math:`n` からステップ :math:`n+1` における室 :math:`i` の
-潜熱負荷（加湿を正・除湿を負とする） :math:`L_{L,i,n}` を求めるにあたり以下の2種類の方法を設ける。
+潜熱負荷（加湿を正・除湿を負とする） :math:`L_{L,i,n}` は、式(1)により計算される。
 
-A法：目標とする絶対湿度を設定する方法
-B法：除湿・加湿量を設定する方法（除湿量・加湿量がゼロの場合も含む）
-C法：除湿量を室内の絶対湿度に応じて設定する方法
-本項では、A法・B法・C法ごとに、ステップ :math:`n+1` における室の絶対湿度と潜熱負荷の計算方法を示し、その次に、3つの方法共通の計算式を記す。
+.. math::
+    \pmb{\hat{L}}_{L,n} = \pmb{\hat{L}}'_{a,n} \cdot \pmb{X}_{r,n+1} + \pmb{\hat{L}}'_{b,n} \tag{1}
 
-2) A法：目標とする絶対湿度を設定する方法
+| ここで、
+| :math:`\pmb{\hat{L}}_{L,n}` ：　:math:`\hat{L}_{L,i,n}` を要素にもつ :math:`I \times 1` の縦行列
+| :math:`\pmb{\hat{L}}'_{a,n}` ： :math:`\hat{L}'_{a,i,j,n}` を要素にもつ :math:`I \times I` の正方行列
+| :math:`\pmb{X}_{r,n+1}` ： :math:`X_{r,i,n+1}` を要素にもつ :math:`I \times 1` の縦行列
+| :math:`\pmb{\hat{L}}'_{b,n}` ： :math:`\hat{L}'_{b,i,n}` を要素にもつ :math:`I \times 1` の縦行列
+| であり、
+| :math:`\hat{L}_{L,i,n}` :ステップ :math:`n` からステップ :math:`n+1` における室 :math:`i` の潜熱負荷（加湿を正・除湿を負とする）, kg/s
+| :math:`\hat{L}'_{a,i,j,n}` ：ステップ :math:`n+1` における室 :math:`j` の絶対湿度がステップ :math:`n` からステップ :math:`n+1` における室 :math:`i` の潜熱負荷に与える影響を表す係数, kg/s(kg/kg(DA))
+| :math:`X_{r,i,n+1}` :ステップ :math:`n+1` における室 :math:`i` の絶対湿度, kg/kg(DA)
+| :math:`\hat{L}'_{b,i,n}` ：ステップ :math:`n` からステップ :math:`n+1` における室 :math:`i` の潜熱負荷に与える影響を表す係数, kg/s
+| である。
+
+ステップ :math:`n+1` における室 :math:`i` の絶対湿度 :math:`X_{r,i,n+1}` は式(2)で表される。
 
 .. math::
 	X_{r,i,n+1} = \begin{cases}
@@ -26,207 +35,74 @@ C法：除湿量を室内の絶対湿度に応じて設定する方法
 	\end{cases}
 
 .. math::
-	\tag {1}
+	\tag {2a}
+
+ステップ :math:`n` からステップ :math:`n+1` における係数 :math:`\hat{L}'_{a,i,n}`　は式(2b)で表される。
 
 .. math::
-	\hat{L}_{L,i,n} = \begin{cases}
-		\hat{L}_{L,set,i,n} & ( \hat{f}_{set,i,n} = 0 ) \\
+    \hat{L}'_{b,i,j,n} = \hat{L}_{b,i,j,n} \tag{2b}
+
+ステップ :math:`n` からステップ :math:`n+1` における係数 :math:`\hat{L}'_{b,i,n}`　は式(2c)で表される。
+
+.. math::
+	\hat{L}'_{b,i,n} = \begin{cases}
+		\hat{L}_{b,i,n} & ( \hat{f}_{set,i,n} = 0 ) \\
 		k_{i,n} & ( \hat{f}_{set,i,n} = 1 )
 	\end{cases}
 
 .. math::
-	\tag{2}
+	\tag{2c}
 
 | ここで、
-| :math:`X_{r,i,n+1}` :ステップ :math:`n+1` における室 :math:`i` の絶対湿度, kg/kg(DA)
-| :math:`\hat{L}_{L,i,n}` :ステップ :math:`n` からステップ :math:`n+1` における室 :math:`i` の潜熱負荷（加湿を正・除湿を負とする）, kg/s
 | :math:`X_{r,set,i,n+1}` :ステップ :math:`n+1` における室 :math:`i` の設定絶対湿度（設定しない場合は0とする）, kg/kg(DA)
-| :math:`\hat{L}_{L,set,i,n}` :ステップ :math:`n` からステップ :math:`n+1` における室 :math:`i` の設定潜熱負荷（加湿を正・除湿を負とする）, kg/s
 | :math:`f ̂_(set,i,n)` :ステップ :math:`n` からステップ :math:`n+1` における室 :math:`i` の絶対湿度を設定するか否かを表す記号（設定する場合を1とし、設定しない場合を0とする。）
-| である。 :math:`k_{i,n}` は、 :math:`\hat{f}_{set,i,n}` の値に応じて次の意味を持つ係数である。
+| である。
 
-.. math::
-	k_{i,n} = \begin{cases}
-		X_{r,i,n+1} & ( \hat{f}_{set,i,n+1} = 0 ) \\
-		\hat{L}_{L,i,n} & ( \hat{f}_{set,i,n+1} = 1)
-	\end{cases}
-
-.. math::
-	\tag{3}
-
+なお、 :math:`k_{i,n}` は、 :math:`\hat{f}_{set,i,n+1} = 0` の時、つまり、絶対湿度を設定しない時は、
+成り行きで求まるステップ :math:`n+1` における室 :math:`i` の絶対湿度を表し、
+:math:`\hat{f}_{set,i,n+1} = 1` の時、つまり、絶対湿度を設定する時は、
+それに必要なステップ :math:`n` からステップ :math:`n+1` における室 :math:`i` の潜熱負荷を表す。
+絶対湿度を設定するか否かに応じて単位が異なることに留意されたい。
 
 係数 :math:`k_{i,n}` は次式で表される。
 
 .. math::
-	k_n = BRMK_n^{-1} \cdot ( - BRMX_n \cdot X_{r,set,n+1} + BRMC_n + \hat{L}_{L,set} ) \tag{4}
-
-ここで、
-
-.. math::
-	k_n = \begin{pmatrix}
-		k_{0,n} \\
-		\vdots \\
-		k_{i,n} \\
-		\vdots \\
-		k_{N_room-1,n}
-	\end{pmatrix}
-
-.. math::
-	BRMK_n = \begin{pmatrix}
-		BRMK_{0,0,n} & \cdots & BRMK_{0,j,n} & \cdots & BRMK_{0,N_room-1,n} \\
-		\vdots & \ddots & \vdots & & \vdots \\
-		BRMK_{i,0,n} & \cdots & BRMK_{i,j,n} & \cdots & BRMK_{i,N_room-1,n} \\
-		\vdots & & \vdots & \ddots & \vdots \\
-		BRMK_{N_room-1,n} & \cdots & BRMK_{N_room-1,j,n} & \cdots & BRMK_{N_room-1,N_room-1,n}
-	\end{pmatrix}
-
-.. math::
-	BRMX_n = \begin{pmatrix}
-		BRMX_{0,0,n} & \cdot & BRMX_{0,j,n} & \cdots & BRMX_{0,N_room-1,n} \\
-		\vdots & \ddots & \vdots & & \\
-		BRMX_{i,0,n} & \cdots & BRMX_{i,j,n} & \cdots & BRMX_{i,N_room-1,n} \\
-		\vdots & & \vdots & \ddots & \vdots \\
-		BRMX_{N_room-1,n} & \cdots & BRMX_{N_room-1,j,n} & \cdots & BRMX_{N_room-1,N_room-1,n}
-	\end{pmatrix}
-
-.. math::
-	BRMC_n = \begin{pmatrix}
-		BRMC_{0,n} \\
-		\vdots \\
-		BRMC_{i,n} \\
-		\vdots \\
-		BRMC_{N_room-1,n}
-	\end{pmatrix}
-
-.. math::
-	X_{r,set,n+1} = \begin{pmatrix}
-		X_{r,set,0,n+1} \\
-		\vdots \\
-		X_{r,set,i,n+1} \\
-		\vdots \\
-		X_{r,set,N_room-1,n+1}
-	\end{pmatrix}
-
-.. math::
-	\hat{L}_{L,set,n} = \begin{pmatrix}
-		\hat{L}_{L,set,0,n} \\
-		\vdots \\
-		\hat{L}_{L,set,i,n} \\
-		\vdots \\
-		\hat{L}_{L,set,i+1,n}
-	\end{pmatrix}
-
-である。ここで、:math:`N_{room}` は室の数を表す。
-
-係数 :math:`BRMK_{i,j,n}` は次式で表される。
-
-.. math::
-	BRMK_{i,j,n} = \begin{cases}
-		- 1 & ( \hat{f}_{SET,j,n} = 0 ) \\
-		BRMX_{i,j,n} & ( \hat{f}_{SET,j,n} = 1 )
-	\end{cases}
-
-.. math::
-	\tag{5}
+	\pmb{k}_n　= {\pmb{BRMX}''}_n^{-1} \cdot ( - \pmb{BRMX}'_n \cdot \pmb{X}_{r,set,n+1} + \pmb{BRCX}_n + \pmb{\hat{L}}_{b,n} )　\tag{3}
 
 | ここで、
-| 		:math:`\hat{f}_{set,j,n}` :ステップ :math:`n` からステップ :math:`n+1` における室 :math:`j` の絶対湿度を設定するか否かを表す記号（設定する場合を1とし、設定しない場合を0とする。）
-| 係数BRMX及び係数BRMCの決定方法については後述する。
+| :math:`\pmb{k}_n` ： :math:`k_{i,n}` を要素にもつ :math:`I \times 1` の縦行列, kg/kg(DA) または kg/s
+| :math:`{\pmb{BRMX}''}_n` ： :math:`{BRMX''}_{i,j,n}` を要素にもつ :math:`I \times I` の正方行列, kg/s(kg/kg(DA)) または -
+| :math:`\pmb{X}_{r,set,n+1}` : :math:`X_{r,set,i,n+1}` を要素にもつ :math:`I \times 1` の縦行列, kg/kg(DA)
+| :math:`\pmb{BRCX}_n` ： :math:`BRCX_{i,n}` を要素にもつ :math:`I \times 1` の縦行列, kg/s
+| :math:`\pmb{\hat{L}}_{b,n}` ： :math:`\hat{L}_{b,n}` を要素にもつ :math:`I \times 1` の縦行列, kg/s
 
-3) B法：除湿・加湿量を設定する場合（除湿量・加湿量がゼロの場合も含む）
-
-ステップ :math:`n+1` における室 :math:`i` の絶対湿度 :math:`X_{r,i,n+1}` は、次式で表される。
-
-.. math::
-	X_{r,n+1} = BRMX_n^{-1} \cdot ( BRMC_n + \hat{L}_{L,n} ) \tag{6}
-
-ここで、
+係数 :math:`{BRMX''}_{i,j,n}` は次式で表される。
 
 .. math::
-	X_{r,n+1} = \begin{pmatrix}
-		X_{r,0,n+1} \\
-		\vdots \\
-		X_{r,i,n+1} \\
-		\vdots \\
-		X_{r,N_room-1,n+1}
-	\end{pmatrix}
+	BRMX''_{i,j,n} = \begin{cases}
+        BRMX'_{i,j,n} & ( \hat{f}_{set,j,n} = 0 ) \\
+        -1 & ( \hat{f}_{set,j,n} = 1 )
+    \end{cases}
 
 .. math::
-	\hat{L}_{L,n} = \begin{pmatrix}
-		\hat{L}_{L,0,n} \\
-		\vdots \\
-		\hat{L}_{L,i,n} \\
-		\vdots \\
-		\hat{L}_{L,N_{room-1},n}
-	\end{pmatrix}
+	\tag{4}
 
-である。
-
-4) C法：除湿量を室内の絶対湿度に応じて設定する方法
-
-ステップ :math:`n+1` における室 :math:`i` の絶対湿度 :math:`X_{r,i,n+1}`
-及びステップ :math:`n` からステップ :math:`n+1` における室 :math:`i` の潜熱負荷（加湿を正・除湿を負とする） :math:`\hat{L}_{L,i,n}` を求めるにあたり、次式により一旦、仮の室の絶対湿度を求める。
+係数 :math:`BRMX'_{i,j,n}` は次式で表される。
 
 .. math::
-	\bpm{X}'_{r,n+1} = ( \bpm{BRMX}_n - \bpm{\hat{L}}'_{a,n} )^(-1) \cdot ( \bpm{BRMC}_n + \hat{L}'_{b,n} ) \tag{6}
+    BRMX'_{i,j,n} = BRMX_{i,j,n} - \hat{L}_{a,i,j,n} \tag{5}
 
-ここで、
+2） 加湿・除湿を行わない場合の次のステップの絶対湿度
+--------------------
 
-.. math::
-	\pmb{X}'_{r,n+1} = \begin{pmatrix}
-		X'_{r,0,n+1} \\
-		\vdots \\
-		X'_{r,i,n+1} \\
-		\vdots \\
-		X'_{r,N_{room-1},n+1}
-	\end{pmatrix}
+加湿・除湿を行わない場合のステップ :math:`n+1` における室 :math:`i` の絶対湿度 :math:`X_{ntr,i,n+1}` は次式で表される。
 
 .. math::
-	\hat{L}^' ) ̂_(a,n)=[■((L^' ) ̂_(a,0,n)&⋯&0&⋯&0@⋮&⋱&⋮&&⋮@0&⋯&(L^' ) ̂_(a,i,n)&⋯&0@⋮&&⋮&⋱&⋮@0&⋯&0&⋯&(L^' ) ̂_(a,N_room,n) )]
+	\pmb{X}_{ntr,n+1}　= \pmb{BRMX}_n^{-1} \cdot \pmb{BRMC}_n　\tag{6}
 
-.. math::
-	(L^' ) ̂_(b,n)=[■((L^' ) ̂_(b,0,n)@⋮@(L^' ) ̂_(b,i,n)@⋮@(L^' ) ̂_(b,N_room,n) )]
-
-であり、
-〖X'〗_(r,i,n+1)
-	：ステップn+1における室iの仮の絶対湿度, kg/kg(DA)
-(L^' ) ̂_(a,i,n)	：ステップnからステップn+1における室iの仮の係数L_a, kg/(s kg/kg(DA))
-(L^' ) ̂_(b,i,n)	：ステップnからステップn+1における室iの仮の係数L_b, kg/s
-である。(L^' ) ̂_(a,i,n)及び(L^' ) ̂_(b,i,n)の決定方法は後述する。
-この仮の絶対湿度を用いて次式により仮の潜熱負荷を計算する。
-(L') ̂_(L,i,n)=(L^' ) ̂_(a,i,n)⋅〖X'〗_(r,i,n+1)+(L^' ) ̂_(b,i,n)
-(7)
-ここで、
-(L') ̂_(L,i,n)	：ステップnにおける潜熱負荷, kg/s
-である。
-ここで説明する方法（C法）は除湿のみに適用されるため、ここで求めた潜熱負荷が正の場合つまり、(L') ̂_(L,i,n)>0となるインデックスiに対して、式(6)で定めた値にかかわらず、
-L ̂_(a,i,n)=0
-L ̂_(b,i,n)=0
-(8a)
-とし、それ以外のインデックスiに対しては、
-L ̂_(a,i,n)=(L^' ) ̂_(a,i,n)
-L ̂_(b,i,n)=(L^' ) ̂_(b,i,n)
-(8b)
-とした上で、再度、式(6)を解く。
-X_(r,n+1)=(BRMX_n-L ̂_(a,n) )^(-1)∙(〖BRMC〗_n+L ̂_(b,n) )
-(9)
-ここで、
-X_(r,n+1)=[■(X_(r,0,n+1)@⋮@X_(r,i,n+1)@⋮@X_(r,N_room-1,n+1) )]
-L ̂_(a,n)=[■(L ̂_(a,0,n)&⋯&0&⋯&0@⋮&⋱&⋮&&⋮@0&⋯&L ̂_(a,i,n)&⋯&0@⋮&&⋮&⋱&⋮@0&⋯&0&⋯&L ̂_(a,N_room,n) )]
-L ̂_(b,n)=[■(L ̂_(b,0,n)@⋮@L ̂_(b,i,n)@⋮@L ̂_(b,N_room,n) )]
-であり、
-X_(r,i,n+1)
-	：ステップn+1における室iの絶対湿度, kg/kg(DA)
-L ̂_(a,i,n)	：ステップnからステップn+1における室iの係数L_a, kg/(s kg/kg(DA))
-L ̂_(b,i,n)	：ステップnからステップn+1における室iの係数L_b, kg/s
-である。
-ステップnにおける潜熱負荷L ̂_(L,i,n)は、次式で表される。
-L ̂_(L,i,n)=L ̂_(a,i,n)⋅〖X'〗_(r,i,n+1)+L ̂_(b,i,n)
-(10)
-ここで、
-(L') ̂_(L,i,n)	：ステップnにおける潜熱負荷, kg/s
-である。
-
+| ここで、
+| :math:`\pmb{X}_{ntr,n+1}` ： :math:`X_{ntr,i,n+1}` を要素にもつ :math:`I \times 1` の縦行列, kg/kg(DA) または kg/s
+| である。
 
 5) A法・B法・C法共通のパラメータ
 
@@ -652,7 +528,7 @@ II. 根拠
 この際、潜熱負荷は、
 
 .. math::
-    \pmb{\hat{L}}_{L,n} = \pmb{\hat{L}}_{a,n} \cdot \pmb{X}_{r,n+1} + \pmb{\hat{L}}_{b,n} \tag{21}
+    \pmb{\hat{L}}_{L,n} = \pmb{\hat{L}}_{a,n} \cdot \pmb{X}_{r,n+1} + \pmb{\hat{L}}_{b,n} \tag{b21}
 
 で表される。
 
