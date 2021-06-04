@@ -16,7 +16,7 @@ def get_tau_d_j_ns(theta_aoi_j_ns: np.ndarray, glazing_type_j: str) -> np.ndarra
         glazing_type_j:
 
     Returns:
-        直達日射に対する基準化透過率
+        直達日射に対する規準化透過率
     """
 
     if glazing_type_j == 'single':
@@ -38,7 +38,7 @@ def get_rho_d_j_ns(theta_aoi_j_ns: np.ndarray, glazing_type_j: str) -> np.ndarra
         glazing_type_j:
 
     Returns:
-        直達日射に対する基準化反射率
+        直達日射に対する規準化反射率
     """
 
     if glazing_type_j == 'single':
@@ -53,13 +53,13 @@ def get_rho_d_j_ns(theta_aoi_j_ns: np.ndarray, glazing_type_j: str) -> np.ndarra
 
 def get_c_d_j(glazing_type_j: str) -> float:
     """
-    窓ガラスのガラスの入射角特性タイプから拡散日射に対する基準化透過率を求める。
+    窓ガラスのガラスの入射角特性タイプから拡散日射に対する規準化透過率を求める。
 
     Args:
         glazing_type_j: 室iの境界kにおける透明な開口部のガラスの入射角特性タイプ
 
     Returns:
-        室iの境界kにおける透明な開口部の拡散日射に対する基準化透過率
+        室iの境界kにおける透明な開口部の拡散日射に対する規準化透過率
     """
 
     # 入射角特性タイプが単板ガラスの場合
@@ -76,13 +76,13 @@ def get_c_d_j(glazing_type_j: str) -> float:
 
 def get_r_d_j(glazing_type_j: str) -> float:
     """
-    窓ガラスのガラスの入射角特性タイプから拡散日射に対する基準化反射率を求める。
+    窓ガラスのガラスの入射角特性タイプから拡散日射に対する規準化反射率を求める。
 
     Args:
         glazing_type_j: 室iの境界kにおける透明な開口部のガラスの入射角特性タイプ
 
     Returns:
-        室iの境界kにおける透明な開口部の拡散日射に対する基準化反射率
+        室iの境界kにおける透明な開口部の拡散日射に対する規準化反射率
     """
 
     # 入射角特性タイプが単板ガラスの場合
@@ -97,7 +97,7 @@ def get_r_d_j(glazing_type_j: str) -> float:
         raise ValueError()
 
 
-# 直達日射に対する基準化透過率の計算（単層ガラス）
+# 直達日射に対する規準化透過率の計算（単層ガラス）
 def _get_tau_norm_glass_i_k_n(theta_aoi_i_k: np.ndarray) -> np.ndarray:
 
     c = np.cos(theta_aoi_i_k)
@@ -108,7 +108,7 @@ def _get_tau_norm_glass_i_k_n(theta_aoi_i_k: np.ndarray) -> np.ndarray:
            - 11.388 * c ** 3.0 + 13.617 * c ** 4.0 - 5.146 * c ** 5.0
 
 
-# 直達日射に対する基準化反射率の計算（単層ガラス）
+# 直達日射に対する規準化反射率の計算（単層ガラス）
 def _get_rhod_n_single(theta_aoi_i_k) -> np.ndarray:
 
     cos = np.cos(theta_aoi_i_k)
@@ -117,7 +117,7 @@ def _get_rhod_n_single(theta_aoi_i_k) -> np.ndarray:
            - 16.593 * cos ** 3.0 + 11.851 * cos ** 4.0 - 3.461 * cos ** 5.0
 
 
-# 直達日射に対する基準化透過率の計算（複層ガラス）
+# 直達日射に対する規準化透過率の計算（複層ガラス）
 def _get_taud_n_double(theta_aoi_i_k: np.ndarray) -> np.ndarray:
 
     return _get_tau_norm_glass_i_k_n(
@@ -137,10 +137,10 @@ def _get_rhod_n_double(theta_aoi_i_k: np.ndarray) -> np.ndarray:
 
 def _get_c_d_single() -> float:
     """
-    透明な開口部の拡散日射に対する基準化透過率（単層ガラス）を定義する。
+    透明な開口部の拡散日射に対する規準化透過率（単層ガラス）を定義する。
 
     Returns:
-        透明な開口部の拡散日射に対する基準化透過率（単層ガラス）
+        透明な開口部の拡散日射に対する規準化透過率（単層ガラス）
     """
 
     return 0.900
@@ -157,10 +157,10 @@ def _get_r_d_single() -> float:
 
 def _get_c_d_double() -> float:
     """
-    透明な開口部の拡散日射に対する基準化透過率（複層ガラス）を定義する。
+    透明な開口部の拡散日射に対する規準化透過率（複層ガラス）を定義する。
 
     Returns:
-        透明な開口部の拡散日射に対する基準化透過率（複層ガラス）
+        透明な開口部の拡散日射に対する規準化透過率（複層ガラス）
     """
 
     return 0.832
