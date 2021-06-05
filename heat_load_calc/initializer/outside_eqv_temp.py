@@ -8,6 +8,8 @@ import numpy as np
 
 from heat_load_calc.initializer import external_boundaries_direction
 from heat_load_calc.initializer import inclined_surface_solar_radiation
+from heat_load_calc.initializer import solar_shading
+from heat_load_calc.initializer import window
 
 
 class OutsideEqvTemp:
@@ -208,7 +210,11 @@ class OutsideEqvTempExternalTransparentPart(OutsideEqvTemp):
             i_sky_ns: np.ndarray,
             r_n_ns: np.ndarray,
             a_sun_ns: np.ndarray,
-            h_sun_ns: np.ndarray
+            h_sun_ns: np.ndarray,
+            u_value_j: float,
+            eta_value_j: float,
+            glazing_type_j: str,
+            glass_area_ratio_j: float
     ):
         """
         相当外気温度を計算する。
@@ -220,6 +226,10 @@ class OutsideEqvTempExternalTransparentPart(OutsideEqvTemp):
             r_n_ns: ステップnにおける夜間放射量, W/m2, [8760 * 4]
             a_sun_ns: ステップnにおける太陽高度, deg, [8760 * 4]
             h_sun_ns: ステップnにおける太陽方位, deg, [8760 * 4]
+            u_value_j: 境界jの熱貫流率, W/m2K
+            eta_value_j: 境界jの日射熱取得率
+            glazing_type_j: 境界jのガラスの層数
+            glass_area_ratio_j: 境界jのガラス面積率
 
         Returns:
             室iの境界jの傾斜面のステップnにおける相当外気温度, ℃, [8760 * 4]
@@ -231,6 +241,11 @@ class OutsideEqvTempExternalTransparentPart(OutsideEqvTemp):
 
         # ステップnにおける室iの境界jにおける傾斜面の夜間放射量, W/m2, [8760 * 4]
         r_n_is_i_j_ns = inclined_surface_solar_radiation.get_r_n_is_j_ns(r_n_ns=r_n_ns, w_beta_j=w_beta_i_j)
+
+        # 吸収日射取得率の計算
+        tau_value, ashgc_value = window.get_tau_and_ashgc(eta_w=eta_value_j,
+                                                          glazing_type_j=glazing_type_j,
+                                                          glass_area_ratio=glass_area_ratio_j)
 
         # 室iの境界jの傾斜面のステップnにおける相当外気温度, ℃, [8760*4]
         # 透明な開口部の場合、日射はガラス面への透過・吸収の項で扱うため、ここでは長波長放射のみ考慮する。
