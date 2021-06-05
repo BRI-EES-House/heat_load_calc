@@ -239,6 +239,10 @@ class OutsideEqvTempExternalTransparentPart(OutsideEqvTemp):
         # 室iの境界jの傾斜面の傾斜角, rad
         w_alpha_i_j, w_beta_i_j = external_boundaries_direction.get_w_alpha_j_w_beta_j(direction_j=self._direction)
 
+        # ステップnの境界jにおける傾斜面に入射する太陽の入射角, rad, [8760 * 4]
+        theta_aoi_j_ns = inclined_surface_solar_radiation.get_theta_aoi_j_n(
+            h_sun_ns=h_sun_ns, a_sun_ns=a_sun_ns, w_alpha_j=w_alpha_i_j, w_beta_j=w_beta_i_j)
+
         # ステップnにおける室iの境界jにおける傾斜面の夜間放射量, W/m2, [8760 * 4]
         r_n_is_i_j_ns = inclined_surface_solar_radiation.get_r_n_is_j_ns(r_n_ns=r_n_ns, w_beta_j=w_beta_i_j)
 
