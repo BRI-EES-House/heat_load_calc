@@ -275,6 +275,13 @@ class OutsideEqvTempExternalTransparentPart(OutsideEqvTemp):
                                                           glazing_type_j=glazing_type_j,
                                                           glass_area_ratio=glass_area_ratio_j)
 
+        # 境界jにおける透明な開口部の直達日射に対する規準化吸収日射取得率, [8760 * 4]
+        tau_d_j_ns = window.get_c_ashgc(
+            theta_aoi_i_k=theta_aoi_j_ns, glazing_type_j=glazing_type_j)
+
+        # 境界jにおける透明な開口部の拡散日射に対する規準化吸収日射取得率
+        c_d_j = window.get_c_d_j(glazing_type_j=glazing_type_j)
+
         # 室iの境界jの傾斜面のステップnにおける相当外気温度, ℃, [8760*4]
         # 透明な開口部の場合、日射はガラス面への透過・吸収の項で扱うため、ここでは長波長放射のみ考慮する。
         return theta_o_ns - self._eps_r * r_n_is_i_j_ns * self._r_surf_o
