@@ -203,7 +203,7 @@ def get_tau_and_ashgc(eta_w: float, glazing_type_j: str,
 
 
 # TODO:吸収日射取得率の入射角特性は、1-τ-ρで暫定対応（τ：透過率の規準化透過率、ρ：反射率の規準化反射率）
-def _get_c_ashgc(glazing_type_j: str, theta_aoi_i_k: np.ndarray) -> np.ndarray:
+def get_c_ashgc(glazing_type_j: str, theta_aoi_i_k: np.ndarray) -> np.ndarray:
     '''
     吸収日射取得率の入射角特性を計算（規準化吸収日射取得率）
     :param glazing_type_j: ガラスの層数
