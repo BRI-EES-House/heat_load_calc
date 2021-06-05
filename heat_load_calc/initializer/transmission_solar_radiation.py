@@ -106,11 +106,11 @@ class TransmissionSolarRadiationTransparentSunStrike(TransmissionSolarRadiation)
 
         # ---基準透過率
 
-        # 境界jにおける透明な開口部の直達日射に対する基準化透過率, [8760 * 4]
+        # 境界jにおける透明な開口部の直達日射に対する規準化透過率, [8760 * 4]
         tau_d_j_ns = window.get_tau_d_j_ns(
             theta_aoi_j_ns=theta_aoi_j_ns, glazing_type_j=self._glazing_type)
 
-        # 境界jにおける透明な開口部の拡散日射に対する基準化透過率
+        # 境界jにおける透明な開口部の拡散日射に対する規準化透過率
         c_d_j = window.get_c_d_j(glazing_type_j=self._glazing_type)
 
         # ---透過日射量, W/m2
