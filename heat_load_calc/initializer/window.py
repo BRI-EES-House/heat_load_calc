@@ -176,7 +176,7 @@ def _get_r_d_double() -> float:
     return 0.088
 
 
-def _get_tau_and_ashgc(eta_w: float, glazing_type_j: str,
+def get_tau_and_ashgc(eta_w: float, glazing_type_j: str,
                        glass_area_ratio: float) -> (float, float):
     """
     日射熱取得率から透過率、吸収日射取得率を推定する
