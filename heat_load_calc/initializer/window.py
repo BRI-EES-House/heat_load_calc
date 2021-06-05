@@ -204,6 +204,12 @@ def _get_tau_and_ashgc(eta_w: float, glazing_type_j: str,
 
 # TODO:吸収日射取得率の入射角特性は、1-τ-ρで暫定対応（τ：透過率の規準化透過率、ρ：反射率の規準化反射率）
 def _get_c_ashgc(glazing_type_j: str, theta_aoi_i_k: np.ndarray) -> np.ndarray:
+    '''
+    吸収日射取得率の入射角特性を計算（規準化吸収日射取得率）
+    :param glazing_type_j: ガラスの層数
+    :param theta_aoi_i_k: 入射角
+    :return: 規準化吸収日射取得率
+    '''
 
     if glazing_type_j == "single":
         tau = _get_tau_norm_glass_i_k_n(theta_aoi_i_k=theta_aoi_i_k)
@@ -213,8 +219,8 @@ def _get_c_ashgc(glazing_type_j: str, theta_aoi_i_k: np.ndarray) -> np.ndarray:
         rho = _get_rhod_n_double(theta_aoi_i_k=theta_aoi_i_k)
     else:
         raise ValueError()
-    
-    return 1.0 - tau - rho
+
+    return np.maximum(1.0 - tau - rho, 0.0)
 
 
 if __name__ == "__main__":
@@ -222,3 +228,4 @@ if __name__ == "__main__":
     phi[0] = math.radians(0.0)
     print(get_rho_d_j_ns(phi, 'multiple'))
     print(get_tau_d_j_ns(phi, 'multiple'))
+
