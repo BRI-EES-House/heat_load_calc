@@ -243,6 +243,18 @@ class OutsideEqvTempExternalTransparentPart(OutsideEqvTemp):
         theta_aoi_j_ns = inclined_surface_solar_radiation.get_theta_aoi_j_n(
             h_sun_ns=h_sun_ns, a_sun_ns=a_sun_ns, w_alpha_j=w_alpha_i_j, w_beta_j=w_beta_i_j)
 
+        # ステップnにおける境界jにおける傾斜面の日射量のうち直達成分, W / m2K, [8760 * 4]
+        # ステップnにおける境界jにおける傾斜面の日射量のうち天空成分, W / m2K, [8760 * 4]
+        # ステップnにおける境界jにおける傾斜面の日射量のうち地盤反射成分, W / m2K, [8760 * 4]
+        i_inc_d_j_ns, i_inc_sky_j_ns, i_inc_ref_j_ns = inclined_surface_solar_radiation.get_i_is_j_ns(
+            i_dn_ns=i_dn_ns,
+            i_sky_ns=i_sky_ns,
+            h_sun_ns=h_sun_ns,
+            a_sun_ns=a_sun_ns,
+            w_alpha_j=w_alpha_i_j,
+            w_beta_j=w_beta_i_j
+        )
+
         # ステップnにおける室iの境界jにおける傾斜面の夜間放射量, W/m2, [8760 * 4]
         r_n_is_i_j_ns = inclined_surface_solar_radiation.get_r_n_is_j_ns(r_n_ns=r_n_ns, w_beta_j=w_beta_i_j)
 
