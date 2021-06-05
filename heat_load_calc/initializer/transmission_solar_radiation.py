@@ -104,6 +104,11 @@ class TransmissionSolarRadiationTransparentSunStrike(TransmissionSolarRadiation)
         # 地面反射日射に対する日よけの影面積比率
         f_ss_r_j_ns = 0.0
 
+        # 透過率の計算
+        tau_value, ashgc_value = window.get_tau_and_ashgc(eta_w=self._eta_value,
+                                                          glazing_type_j=self._glazing_type,
+                                                          glass_area_ratio=0.8)
+
         # ---基準透過率
 
         # 境界jにおける透明な開口部の直達日射に対する規準化透過率, [8760 * 4]
@@ -116,13 +121,13 @@ class TransmissionSolarRadiationTransparentSunStrike(TransmissionSolarRadiation)
         # ---透過日射量, W/m2
 
         # 直達日射に対する透過日射量, W/m2, [8760 * 4]
-        q_gt_d_j_ns = self._eta_value * (1.0 - f_ss_d_j_ns) * tau_d_j_ns * i_inc_d_j_ns
+        q_gt_d_j_ns = tau_value * (1.0 - f_ss_d_j_ns) * tau_d_j_ns * i_inc_d_j_ns
 
         # 天空日射に対する透過日射量, W/m2, [8760 * 4]
-        q_gt_sky_j_ns = self._eta_value * (1.0 - f_ss_s_j_ns) * c_d_j * i_inc_sky_j_ns
+        q_gt_sky_j_ns = tau_value * (1.0 - f_ss_s_j_ns) * c_d_j * i_inc_sky_j_ns
 
         # 地盤反射日射に対する透過日射量, W/m2, [8760 * 4]
-        q_gt_ref_j_ns = self._eta_value * (1.0 - f_ss_r_j_ns) * c_d_j * i_inc_ref_j_ns
+        q_gt_ref_j_ns = tau_value * (1.0 - f_ss_r_j_ns) * c_d_j * i_inc_ref_j_ns
 
         # 透過日射量, W, [8760 * 4]
         q_gt_ns = (q_gt_d_j_ns + q_gt_sky_j_ns + q_gt_ref_j_ns) * self._area
