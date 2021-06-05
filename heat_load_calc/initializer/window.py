@@ -97,6 +97,31 @@ def get_r_d_j(glazing_type_j: str) -> float:
         raise ValueError()
 
 
+# TODO:吸収日射取得率の入射角特性は、1-τ-ρで暫定対応（τ：透過率の規準化透過率、ρ：反射率の規準化反射率）
+def get_ashgc_d_j(glazing_type_j: str) -> float:
+    """
+    窓ガラスのガラスの入射角特性タイプから拡散日射に対する規準化日射熱取得率を求める。
+
+    Args:
+        glazing_type_j: 室iの境界kにおける透明な開口部のガラスの入射角特性タイプ
+
+    Returns:
+        室iの境界kにおける透明な開口部の拡散日射に対する規準化反射率
+    """
+
+
+    # 入射角特性タイプが単板ガラスの場合
+    if glazing_type_j == 'single':
+        return max(1.0 - _get_c_d_single() - _get_r_d_single(), 0.0)
+
+    # 入射角特性タイプが複層ガラスの場合
+    elif glazing_type_j == 'multiple':
+        return max(1.0 - _get_c_d_double() - _get_r_d_double(), 0.0)
+
+    else:
+        raise ValueError()
+
+
 # 直達日射に対する規準化透過率の計算（単層ガラス）
 def _get_tau_norm_glass_i_k_n(theta_aoi_i_k: np.ndarray) -> np.ndarray:
 
