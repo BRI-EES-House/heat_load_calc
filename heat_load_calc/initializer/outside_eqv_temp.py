@@ -214,7 +214,8 @@ class OutsideEqvTempExternalTransparentPart(OutsideEqvTemp):
             u_value_j: float,
             eta_value_j: float,
             glazing_type_j: str,
-            glass_area_ratio_j: float
+            glass_area_ratio_j: float,
+            solar_shading_part: solar_shading.SolarShadingSimple
     ):
         """
         相当外気温度を計算する。
@@ -254,6 +255,17 @@ class OutsideEqvTempExternalTransparentPart(OutsideEqvTemp):
             w_alpha_j=w_alpha_i_j,
             w_beta_j=w_beta_i_j
         )
+
+        # ---日よけの影面積比率
+
+        # 直達日射に対する日よけの影面積比率, [8760 * 4]
+        f_ss_d_j_ns = solar_shading_part.get_f_ss_d_j_ns(h_sun_ns, a_sun_ns)
+
+        # 天空日射に対する日よけの影面積比率
+        f_ss_s_j_ns = solar_shading_part.get_f_ss_s_j()
+
+        # 地面反射日射に対する日よけの影面積比率
+        f_ss_r_j_ns = 0.0
 
         # ステップnにおける室iの境界jにおける傾斜面の夜間放射量, W/m2, [8760 * 4]
         r_n_is_i_j_ns = inclined_surface_solar_radiation.get_r_n_is_j_ns(r_n_ns=r_n_ns, w_beta_j=w_beta_i_j)
