@@ -51,7 +51,7 @@ class OutsideEqvTemp:
                     u_value_j=float(b['u_value']),
                     eta_value_j=float(b['eta_value']),
                     glazing_type_j=b['incident_angle_characteristics'],
-                    glass_area_ratio_j=0.8,
+                    glass_area_ratio_j=b['glass_area_ratio'],
                     solar_shading_part=solar_shading.SolarShading.create(b=b)
                 )
 
@@ -282,7 +282,7 @@ class OutsideEqvTempExternalTransparentPart(OutsideEqvTemp):
         # 吸収日射取得率の計算
         tau_value, ashgc_value = window.get_tau_and_ashgc(eta_w=self._eta_value,
                                                           glazing_type_j=self._glazing_type,
-                                                          glass_area_ratio=self._glass_area_ratio)
+                                                          glass_area_ratio_j=self._glass_area_ratio)
         
         # 境界jにおける透明な開口部の直達日射に対する規準化吸収日射取得率, [8760 * 4]
         ashgc_d_j_ns = window.get_c_ashgc(
