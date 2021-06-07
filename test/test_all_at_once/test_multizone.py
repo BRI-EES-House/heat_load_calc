@@ -32,12 +32,12 @@ class TestAllAtOnce(unittest.TestCase):
 
         ds, dd = core.calc(input_data_dir=data_dir, output_data_dir=data_dir)
 
-        self.assertAlmostEqual(18.66104480949255, dd['rm0_t_r']['1989-12-31  23:45:00'])
-        self.assertAlmostEqual(0.012947109437972056, dd['rm0_x_r']['1989/8/24  16:00:00'])
-        self.assertAlmostEqual(24.0871933456679, dd['rm1_t_r']['1989-12-31  23:45:00'])
-        self.assertAlmostEqual(0.00334785075948, dd['rm1_x_r']['1989-12-31  23:45:00'])
-        self.assertAlmostEqual(19.9604196744205, dd['rm2_t_r']['1989-12-31  23:45:00'])
-        self.assertAlmostEqual(0.00331875351875944, dd['rm2_x_r']['1989-12-31  23:45:00'])
+        self.assertAlmostEqual(18.6542416449712, dd['rm0_t_r']['1989-12-31  23:45:00'])
+        self.assertAlmostEqual(0.0133444112258639, dd['rm0_x_r']['1989/8/24  16:00:00'])
+        self.assertAlmostEqual(24.0837287182197, dd['rm1_t_r']['1989-12-31  23:45:00'])
+        self.assertAlmostEqual(0.00337075478937544, dd['rm1_x_r']['1989-12-31  23:45:00'])
+        self.assertAlmostEqual(19.9557856520506, dd['rm2_t_r']['1989-12-31  23:45:00'])
+        self.assertAlmostEqual(0.00334656925378777, dd['rm2_x_r']['1989-12-31  23:45:00'])
 
 
 if __name__ == '__main__':
