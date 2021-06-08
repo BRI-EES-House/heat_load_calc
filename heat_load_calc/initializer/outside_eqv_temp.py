@@ -193,7 +193,7 @@ class OutsideEqvTempExternalGeneralPartAndExternalOpaquePart(OutsideEqvTemp):
         # 室iの境界jの傾斜面のステップnにおける相当外気温度, ℃, [8760*4]
         # 一般部位・不透明な開口部の場合、日射・長波長放射を考慮する。
         theta_o_sol_i_j_ns = theta_o_ns + (
-                self._a_s * (i_is_d_j_ns * (1.0 - f_ss_d_j_ns) + i_is_sky_j_ns * (1.0 - f_ss_s_j_ns) + i_is_ref_j_ns + (1.0 - f_ss_r_j_ns)) - self._eps_r * r_n_is_j_ns
+                self._a_s * (i_is_d_j_ns * (1.0 - f_ss_d_j_ns) + i_is_sky_j_ns * (1.0 - f_ss_s_j_ns) + i_is_ref_j_ns * (1.0 - f_ss_r_j_ns)) - self._eps_r * r_n_is_j_ns
         ) * self._r_surf
 
         return theta_o_sol_i_j_ns
