@@ -8,6 +8,7 @@ import numpy as np
 
 from heat_load_calc.initializer import external_boundaries_direction
 from heat_load_calc.initializer import inclined_surface_solar_radiation
+from heat_load_calc.initializer import solar_shading
 
 
 class OutsideEqvTemp:
@@ -30,8 +31,8 @@ class OutsideEqvTemp:
                     direction=b['direction'],
                     a_s=float(b['outside_solar_absorption']),
                     eps_r=float(b['outside_emissivity']),
-                    r_surf=float(b['outside_heat_transfer_resistance'])
-
+                    r_surf=float(b['outside_heat_transfer_resistance']),
+                    solar_shading=solar_shading.SolarShadingSimple.create(b)
                 )
 
             else:
@@ -125,7 +126,7 @@ class OutsideEqvTempInternal(OutsideEqvTemp):
 
 class OutsideEqvTempExternalGeneralPartAndExternalOpaquePart(OutsideEqvTemp):
 
-    def __init__(self, direction: str, a_s, eps_r, r_surf):
+    def __init__(self, direction: str, a_s, eps_r, r_surf, solar_shading: solar_shading.SolarShadingSimple):
         """
 
         Args:
@@ -138,6 +139,7 @@ class OutsideEqvTempExternalGeneralPartAndExternalOpaquePart(OutsideEqvTemp):
         self._a_s = a_s
         self._eps_r = eps_r
         self._r_surf = r_surf
+        self._solar_shading_part = solar_shading
 
     def get_theta_o_sol_i_j_ns(
             self,
@@ -167,6 +169,17 @@ class OutsideEqvTempExternalGeneralPartAndExternalOpaquePart(OutsideEqvTemp):
         # 室iの境界jの傾斜面の傾斜角, rad
         w_alpha_i_j, w_beta_i_j = external_boundaries_direction.get_w_alpha_j_w_beta_j(direction_j=self._direction)
 
+        # ---日よけの影面積比率
+
+        # 直達日射に対する日よけの影面積比率, [8760 * 4]
+        f_ss_d_j_ns = self._solar_shading_part.get_f_ss_d_j_ns(h_sun_ns, a_sun_ns)
+
+        # 天空日射に対する日よけの影面積比率
+        f_ss_s_j_ns = self._solar_shading_part.get_f_ss_s_j()
+
+        # 地面反射日射に対する日よけの影面積比率
+        f_ss_r_j_ns = 0.0
+
         # ステップnにおける室iの境界jにおける傾斜面の夜間放射量, W/m2, [8760 * 4]
         r_n_is_j_ns = inclined_surface_solar_radiation.get_r_n_is_j_ns(r_n_ns=r_n_ns, w_beta_j=w_beta_i_j)
 
@@ -180,7 +193,7 @@ class OutsideEqvTempExternalGeneralPartAndExternalOpaquePart(OutsideEqvTemp):
         # 室iの境界jの傾斜面のステップnにおける相当外気温度, ℃, [8760*4]
         # 一般部位・不透明な開口部の場合、日射・長波長放射を考慮する。
         theta_o_sol_i_j_ns = theta_o_ns + (
-                self._a_s * (i_is_d_j_ns + i_is_sky_j_ns + i_is_ref_j_ns) - self._eps_r * r_n_is_j_ns
+                self._a_s * (i_is_d_j_ns * (1.0 - f_ss_d_j_ns) + i_is_sky_j_ns * (1.0 - f_ss_s_j_ns) + i_is_ref_j_ns + (1.0 - f_ss_r_j_ns)) - self._eps_r * r_n_is_j_ns
         ) * self._r_surf
 
         return theta_o_sol_i_j_ns
