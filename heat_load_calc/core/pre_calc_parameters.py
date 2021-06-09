@@ -254,7 +254,7 @@ def make_pre_calc_parameters(delta_t: float, data_directory: str) -> (PreCalcPar
             ([next_vent['upstream_room_id']], next_vent['volume']) for next_vent in s['ventilation']['next_spaces']
         ] for s in ss
     ]
-    v_int_vent_is_is = _get_v_int_vent_is(next_vents, n_spaces)
+    v_int_vent_is_is = _get_v_int_vent_is_is(next_vents)
 
     # 室iの自然風利用時の換気量, m3/s, [i, 1]
     v_ntrl_vent_is = np.array([s['ventilation']['natural'] for s in ss]).reshape(-1, 1)
@@ -705,7 +705,7 @@ def _get_responsfactors(bs):
     return phi_a0_js, phi_a1_js_ms, phi_t0_js, phi_t1_js_ms, r_js_ms
 
 
-def _get_v_int_vent_is(next_vents: List[List[Tuple]], n_rooms: int) -> np.ndarray:
+def _get_v_int_vent_is_is(next_vents: List[List[Tuple]]) -> np.ndarray:
     """
     隣室iから室iへの機械換気量マトリクスを生成する。
     Args:
@@ -713,8 +713,7 @@ def _get_v_int_vent_is(next_vents: List[List[Tuple]], n_rooms: int) -> np.ndarra
                         2重のリスト構造を持つ。
                         外側のリスト：室、（下流側の室を基準とする。）
                         内側のリスト：換気経路（数は任意であり、換気経路が無い（0: 空のリスト）場合もある。）
-                        変数はタプル （上流側の室ID: int, 換気量（m3/h): float)
-        n_rooms: 室の数
+                        変数はタプル （上流側の室ID: int, 換気量（m3/s): float)
     Returns:
         隣室iから室iへの機械換気量マトリクス, m3/s, [i, i]
             例えば、
@@ -724,14 +723,16 @@ def _get_v_int_vent_is(next_vents: List[List[Tuple]], n_rooms: int) -> np.ndarra
                 室3→室1:1.5
                 室3→室2:1.0
             の場合、
-                [[0.0,  0.0,  0.0,  0.0],
-                 [3.0, -4.5,  0.0,  1.5],
-                 [4.0,  3.0, -8.0,  1.0],
-                 [0.0,  0.0,  0.0,  0.0]]
+                [[0.0, 0.0, 0.0,  0.0],
+                 [3.0, 0.0, 0.0,  1.5],
+                 [4.0, 3.0, 0.0,  1.0],
+                 [0.0, 0.0, 0.0,  0.0]]
     """
 
+    n_rooms = len(next_vents)
+
     # 隣室iから室iへの換気量マトリックス, m3/s [i, i]
-    v_int_vent_is = np.zeros((n_rooms, n_rooms), dtype=float)
+    v_int_vent_is_is = np.zeros((n_rooms, n_rooms), dtype=float)
 
     # 室iのループ（風下室ループ）
     for i, next_vent_is in enumerate(next_vents):
@@ -740,13 +741,9 @@ def _get_v_int_vent_is(next_vents: List[List[Tuple]], n_rooms: int) -> np.ndarra
         # 取得するのは、(ID: int, 換気量(m3/h): float) のタプル
         for (idx, volume) in next_vent_is:
 
-            # m3/hからm3/sへの単位変換を行っている
             # 風上側
             if i != idx:
-                v_int_vent_is[i, idx] += volume
+                v_int_vent_is_is[i, idx] += volume
 
-            # 自室への流入
-            v_int_vent_is[i, i] -= volume
-
-    return v_int_vent_is
+    return v_int_vent_is_is
 
