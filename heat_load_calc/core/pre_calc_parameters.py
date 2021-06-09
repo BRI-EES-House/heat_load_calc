@@ -745,8 +745,8 @@ def _get_v_int_vent_is(next_vents: List[List[Tuple]], n_rooms: int) -> np.ndarra
             if i != idx:
                 v_int_vent_is[i, idx] += volume
 
-            # 自室への流入
-            v_int_vent_is[i, i] -= volume
+    # 自室への流入分の要素も追加する
+    v_int_vent_is = v_int_vent_is - np.diag(v_int_vent_is.sum(axis=1))
 
     return v_int_vent_is
 
