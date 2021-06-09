@@ -233,8 +233,7 @@ class SolarShadingNot(SolarShading):
             直達日射に対する日除けの影面積比率, [8760*4]
         """
 
-        # TODO: 要確認（ここは1.0ではなくて0.0が正しい？）
-        return np.full(len(h_sun_n), 1.0)
+        return np.full(len(h_sun_n), 0.0)
 
     def get_f_ss_s_j(self):
         """
