@@ -491,7 +491,7 @@ class ResponseFactorFactory:
         pass
 
     @classmethod
-    def create(cls, spec: Dict):
+    def create(cls, spec: Dict, h_r_js: np.ndarray, h_c_js: np.ndarray):
 
         if spec['boundary_type'] in ['external_general_part', 'internal']:
 
