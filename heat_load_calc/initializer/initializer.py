@@ -701,6 +701,11 @@ def _make_boundaries(bss2: List[BoundarySimple], rooms: List[Dict], boundaries: 
     # 境界jの項別公比法における項mの公比, [j, 12]
     r_js_ms = []
 
+    # 室内側対流熱伝達率
+    h_c_js = np.zeros_like(bss2, dtype=float)
+    for i, bs in enumerate(bss2):
+        h_c_js[i] = bs.h_c
+
     for bs in boundaries:
         rff = response_factor.ResponseFactorFactory.create(spec=bs)
         rf = rff.get_response_factors()
