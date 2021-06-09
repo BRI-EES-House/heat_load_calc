@@ -254,7 +254,7 @@ def make_pre_calc_parameters(delta_t: float, data_directory: str) -> (PreCalcPar
             ([next_vent['upstream_room_id']], next_vent['volume']) for next_vent in s['ventilation']['next_spaces']
         ] for s in ss
     ]
-    v_int_vent_is_is = _get_v_int_vent_is(next_vents, n_spaces)
+    v_int_vent_is_is = _get_v_int_vent_is(next_vents)
 
     # 室iの自然風利用時の換気量, m3/s, [i, 1]
     v_ntrl_vent_is = np.array([s['ventilation']['natural'] for s in ss]).reshape(-1, 1)
@@ -705,7 +705,7 @@ def _get_responsfactors(bs):
     return phi_a0_js, phi_a1_js_ms, phi_t0_js, phi_t1_js_ms, r_js_ms
 
 
-def _get_v_int_vent_is(next_vents: List[List[Tuple]], n_rooms: int) -> np.ndarray:
+def _get_v_int_vent_is(next_vents: List[List[Tuple]]) -> np.ndarray:
     """
     隣室iから室iへの機械換気量マトリクスを生成する。
     Args:
@@ -714,7 +714,6 @@ def _get_v_int_vent_is(next_vents: List[List[Tuple]], n_rooms: int) -> np.ndarra
                         外側のリスト：室、（下流側の室を基準とする。）
                         内側のリスト：換気経路（数は任意であり、換気経路が無い（0: 空のリスト）場合もある。）
                         変数はタプル （上流側の室ID: int, 換気量（m3/h): float)
-        n_rooms: 室の数
     Returns:
         隣室iから室iへの機械換気量マトリクス, m3/s, [i, i]
             例えば、
