@@ -491,9 +491,9 @@ class ResponseFactorFactory:
         pass
 
     @classmethod
-    def create(cls, spec: Dict):
+    def create(cls, spec: Dict, h_r_js: np.ndarray, h_c_js: np.ndarray):
 
-        if spec['boundary_type'] in ['external_general_part', 'internal']:
+        if spec['boundary_type'] == 'external_general_part':
 
             layers = spec['layers']
 
@@ -501,6 +501,19 @@ class ResponseFactorFactory:
                 cs=[float(layer['thermal_capacity']) for layer in layers],
                 rs=[float(layer['thermal_resistance']) for layer in layers],
                 r_o=float(spec['outside_heat_transfer_resistance'])
+            )
+
+        elif spec['boundary_type'] == 'internal':
+
+            layers = spec['layers']
+
+            rear_h_c = h_c_js[spec['rear_surface_boundary_id']]
+            rear_h_r = h_r_js[spec['rear_surface_boundary_id']]
+
+            return ResponseFactorFactoryTransientEnvelope(
+                cs=[float(layer['thermal_capacity']) for layer in layers],
+                rs=[float(layer['thermal_resistance']) for layer in layers],
+                r_o=1.0 / (rear_h_c + rear_h_r)
             )
 
         elif spec['boundary_type'] == 'ground':
