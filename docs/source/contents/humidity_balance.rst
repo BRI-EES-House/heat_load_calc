@@ -133,17 +133,17 @@ I. 評価法
 加湿・除湿を行わない場合のステップ :math:`n+1` における室 :math:`i` の絶対湿度 :math:`X_{ntr,i,n+1}` は式(6)で表される。
 
 .. math::
-	\pmb{X}_{ntr,n+1}　= \pmb{F}_{t,wgt,n}^{-1} \cdot \pmb{F}_{t,cst,n}　\tag{6}
+	\pmb{X}_{r,ntr,n+1}　= \pmb{F}_{t,wgt,n}^{-1} \cdot \pmb{F}_{t,cst,n}　\tag{6}
 
 ここで、
 
-:math:`\pmb{X}_{ntr,n+1}`
-    :math:`X_{ntr,i,n+1}` を要素にもつ :math:`I \times 1` の縦行列, kg/kg(DA) または kg/s
+:math:`\pmb{X}_{r,ntr,n+1}`
+    :math:`X_{r,ntr,i,n+1}` を要素にもつ :math:`I \times 1` の縦行列, kg / kg(DA)
 
 であり、
 
-:math:`X_{ntr,i,n+1}`
-    ステップ :math:`n+1` における室 :math:`i` の加湿・除湿を行わない場合の絶対湿度, kg/kg(DA)
+:math:`X_{r,ntr,i,n+1}`
+    ステップ :math:`n+1` における室 :math:`i` の加湿・除湿を行わない場合の絶対湿度, kg / kg(DA)
 
 である。
 
