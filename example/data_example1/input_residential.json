@@ -246,6 +246,7 @@
 			"incident_angle_characteristics": "multiple",
 			"eta_value": 0.792,
 			"u_value": 4.65,
+			"glass_area_ratio": 0.8,
 			"solar_shading_part": {
 				"existence": false
 			}
@@ -315,6 +316,7 @@
 			"incident_angle_characteristics": "multiple",
 			"eta_value": 0.792,
 			"u_value": 4.65,
+			"glass_area_ratio": 0.8,
 			"solar_shading_part": {
 				"existence": true,
 				"input_method": "simple",
@@ -595,6 +597,7 @@
 			"incident_angle_characteristics": "multiple",
 			"eta_value": 0.792,
 			"u_value": 4.65,
+			"glass_area_ratio": 0.8,
 			"solar_shading_part": {
 				"existence": true,
 				"input_method": "simple",
@@ -669,6 +672,7 @@
 			"incident_angle_characteristics": "multiple",
 			"eta_value": 0.792,
 			"u_value": 4.65,
+			"glass_area_ratio": 0.8,
 			"solar_shading_part": {
 				"existence": false
 			}
@@ -806,6 +810,7 @@
 			"incident_angle_characteristics": "multiple",
 			"eta_value": 0.792,
 			"u_value": 4.65,
+			"glass_area_ratio": 0.8,
 			"solar_shading_part": {
 				"existence": true,
 				"input_method": "simple",
@@ -983,6 +988,7 @@
 			"incident_angle_characteristics": "multiple",
 			"eta_value": 0.792,
 			"u_value": 4.65,
+			"glass_area_ratio": 0.8,
 			"solar_shading_part": {
 				"existence": false
 			}
@@ -1052,6 +1058,7 @@
 			"incident_angle_characteristics": "multiple",
 			"eta_value": 0.792,
 			"u_value": 4.65,
+			"glass_area_ratio": 0.8,
 			"solar_shading_part": {
 				"existence": true,
 				"input_method": "simple",
@@ -1276,6 +1283,7 @@
 			"incident_angle_characteristics": "multiple",
 			"eta_value": 0.792,
 			"u_value": 4.65,
+			"glass_area_ratio": 0.8,
 			"solar_shading_part": {
 				"existence": false
 			}
@@ -1527,6 +1535,7 @@
 			"incident_angle_characteristics": "multiple",
 			"eta_value": 0.792,
 			"u_value": 4.65,
+			"glass_area_ratio": 0.8,
 			"solar_shading_part": {
 				"existence": false
 			}
@@ -1643,6 +1652,7 @@
 			"incident_angle_characteristics": "multiple",
 			"eta_value": 0.792,
 			"u_value": 4.65,
+			"glass_area_ratio": 0.8,
 			"solar_shading_part": {
 				"existence": false
 			}

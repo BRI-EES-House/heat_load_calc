@@ -6,3 +6,4 @@ result_detail.csv
 result_digest.csv
 /.pytest_cache/
 .pytest_cache/
+docs/build/

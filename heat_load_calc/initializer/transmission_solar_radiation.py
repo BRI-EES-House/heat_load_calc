@@ -7,7 +7,7 @@ import numpy as np
 from heat_load_calc.initializer import external_boundaries_direction
 from heat_load_calc.initializer import inclined_surface_solar_radiation
 from heat_load_calc.initializer import solar_shading
-from heat_load_calc.initializer import oblique_incidence_charac
+from heat_load_calc.initializer import window
 
 
 class TransmissionSolarRadiation:
@@ -28,6 +28,7 @@ class TransmissionSolarRadiation:
                     solar_shading_part=solar_shading_part,
                     glazing_type=d['incident_angle_characteristics'],
                     eta_value=d['eta_value'],
+                    glass_area_ratio=d['glass_area_ratio']
                 )
 
             else:
@@ -51,7 +52,8 @@ class TransmissionSolarRadiationTransparentSunStrike(TransmissionSolarRadiation)
             area: float,
             solar_shading_part: solar_shading.SolarShadingSimple,
             glazing_type: str,
-            eta_value: float
+            eta_value: float,
+            glass_area_ratio: float
     ):
         """
 
@@ -61,6 +63,7 @@ class TransmissionSolarRadiationTransparentSunStrike(TransmissionSolarRadiation)
             solar_shading_part: 日よけの仕様（SolarShadingPartクラス）
             glazing_type: ガラスの入射角特性タイプ = 'single' or 'multiple'
             eta_value: 日射熱取得率
+            glass_area_ratio: ガラス面積率
         """
 
         super().__init__()
@@ -70,6 +73,7 @@ class TransmissionSolarRadiationTransparentSunStrike(TransmissionSolarRadiation)
         self._solar_shading_part = solar_shading_part
         self._glazing_type = glazing_type
         self._eta_value = eta_value
+        self._glass_area_ratio = glass_area_ratio
 
     def get_qgt(self, a_sun_ns, h_sun_ns, i_dn_ns, i_sky_ns):
 
@@ -104,25 +108,30 @@ class TransmissionSolarRadiationTransparentSunStrike(TransmissionSolarRadiation)
         # 地面反射日射に対する日よけの影面積比率
         f_ss_r_j_ns = 0.0
 
+        # 透過率の計算
+        tau_value, ashgc_value = window.get_tau_and_ashgc(eta_w=self._eta_value,
+                                                          glazing_type_j=self._glazing_type,
+                                                          glass_area_ratio_j=self._glass_area_ratio)
+
         # ---基準透過率
 
-        # 境界jにおける透明な開口部の直達日射に対する基準化透過率, [8760 * 4]
-        tau_d_j_ns = oblique_incidence_charac.get_tau_d_j_ns(
+        # 境界jにおける透明な開口部の直達日射に対する規準化透過率, [8760 * 4]
+        tau_d_j_ns = window.get_tau_d_j_ns(
             theta_aoi_j_ns=theta_aoi_j_ns, glazing_type_j=self._glazing_type)
 
-        # 境界jにおける透明な開口部の拡散日射に対する基準化透過率
-        c_d_j = oblique_incidence_charac.get_c_d_j(glazing_type_j=self._glazing_type)
+        # 境界jにおける透明な開口部の拡散日射に対する規準化透過率
+        c_d_j = window.get_c_d_j(glazing_type_j=self._glazing_type)
 
         # ---透過日射量, W/m2
 
         # 直達日射に対する透過日射量, W/m2, [8760 * 4]
-        q_gt_d_j_ns = self._eta_value * (1.0 - f_ss_d_j_ns) * tau_d_j_ns * i_inc_d_j_ns
+        q_gt_d_j_ns = tau_value * (1.0 - f_ss_d_j_ns) * tau_d_j_ns * i_inc_d_j_ns
 
         # 天空日射に対する透過日射量, W/m2, [8760 * 4]
-        q_gt_sky_j_ns = self._eta_value * (1.0 - f_ss_s_j_ns) * c_d_j * i_inc_sky_j_ns
+        q_gt_sky_j_ns = tau_value * (1.0 - f_ss_s_j_ns) * c_d_j * i_inc_sky_j_ns
 
         # 地盤反射日射に対する透過日射量, W/m2, [8760 * 4]
-        q_gt_ref_j_ns = self._eta_value * (1.0 - f_ss_r_j_ns) * c_d_j * i_inc_ref_j_ns
+        q_gt_ref_j_ns = tau_value * (1.0 - f_ss_r_j_ns) * c_d_j * i_inc_ref_j_ns
 
         # 透過日射量, W, [8760 * 4]
         q_gt_ns = (q_gt_d_j_ns + q_gt_sky_j_ns + q_gt_ref_j_ns) * self._area
