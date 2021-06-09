@@ -730,6 +730,8 @@ def _get_v_int_vent_is(next_vents: List[List[Tuple]], n_rooms: int) -> np.ndarra
                  [0.0,  0.0,  0.0,  0.0]]
     """
 
+    n_rooms = len(next_vents)
+
     # 隣室iから室iへの換気量マトリックス, m3/s [i, i]
     v_int_vent_is = np.zeros((n_rooms, n_rooms), dtype=float)
 
