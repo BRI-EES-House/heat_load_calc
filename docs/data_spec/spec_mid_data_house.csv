@@ -12,8 +12,10 @@
 ,,〇,,,,,beta,放射暖房の対流放熱比率,〇,,float,－,0以上。,
 ,,〇,,,,,ventilation,換気,〇,,dict,－,,
 ,,,〇,,,,mechanical,外気からの機械換気流入量,〇,,float,m3/sec,0以上。,
-,,,〇,,,,next_spaces,隣室からの機械換気流入量,〇,,list,,,
-,,,,〇,,,,（機械換気流入量）,,,float,m3/sec,0以上。,spaces->idの順に流入風量を記述
+,,,〇,,,,next_spaces,隣室からの機械換気流入量,〇,,"list, null",－,,
+,,,,〇,,,,,,,dict,－,,
+,,,,,○,,upstream_room_id,上流側の室の名称,○,,id,ー,,
+,,,,,○,,volume,換気量,○,,float,m3/sec,,
 ,,,〇,,,,natural,自然風利用時の換気量,〇,,float,m3/sec,0以上。,
 ,,〇,,,,,furniture,家具,〇,,dict,－,,
 ,,,〇,,,,heat_capacity,家具等の熱容量,〇,,float,J/K,0以上。,12.6kJ/(m3･K)
