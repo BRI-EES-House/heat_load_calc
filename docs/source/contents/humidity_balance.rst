@@ -5,28 +5,42 @@
 I. 評価法
 ============
 
-１） 次のステップの絶対湿度と潜熱負荷
---------------------
+1. 次のステップの絶対湿度と潜熱負荷
+-----------------------------------------------------------------------------------------------------------------------
 
 ステップ :math:`n` からステップ :math:`n+1` における室 :math:`i` の
-潜熱負荷（加湿を正・除湿を負とする） :math:`L_{L,i,n}` は、式(1)により計算される。
+潜熱負荷（加湿を正・除湿を負とする） :math:`\hat{L}_{L,i,n}` は、式(1)により計算される。
 
 .. math::
     \pmb{\hat{L}}_{L,n} = \pmb{\hat{L}}'_{a,n} \cdot \pmb{X}_{r,n+1} + \pmb{\hat{L}}'_{b,n} \tag{1}
 
-| ここで、
-| :math:`\pmb{\hat{L}}_{L,n}` ：　:math:`\hat{L}_{L,i,n}` を要素にもつ :math:`I \times 1` の縦行列
-| :math:`\pmb{\hat{L}}'_{a,n}` ： :math:`\hat{L}'_{a,i,j,n}` を要素にもつ :math:`I \times I` の正方行列
-| :math:`\pmb{X}_{r,n+1}` ： :math:`X_{r,i,n+1}` を要素にもつ :math:`I \times 1` の縦行列
-| :math:`\pmb{\hat{L}}'_{b,n}` ： :math:`\hat{L}'_{b,i,n}` を要素にもつ :math:`I \times 1` の縦行列
-| であり、
-| :math:`\hat{L}_{L,i,n}` :ステップ :math:`n` からステップ :math:`n+1` における室 :math:`i` の潜熱負荷（加湿を正・除湿を負とする）, kg/s
-| :math:`\hat{L}'_{a,i,j,n}` ：ステップ :math:`n+1` における室 :math:`j` の絶対湿度がステップ :math:`n` からステップ :math:`n+1` における室 :math:`i` の潜熱負荷に与える影響を表す係数, kg/s(kg/kg(DA))
-| :math:`X_{r,i,n+1}` :ステップ :math:`n+1` における室 :math:`i` の絶対湿度, kg/kg(DA)
-| :math:`\hat{L}'_{b,i,n}` ：ステップ :math:`n` からステップ :math:`n+1` における室 :math:`i` の潜熱負荷に与える影響を表す係数, kg/s
-| である。
+ここで、
 
-ステップ :math:`n+1` における室 :math:`i` の絶対湿度 :math:`X_{r,i,n+1}` は式(2)で表される。
+:math:`\pmb{\hat{L}}_{L,n}`
+    :math:`\hat{L}_{L,i,n}` を要素にもつ :math:`N_{room} \times 1` の縦行列, kg/s
+:math:`\pmb{\hat{L}}'_{a,n}`
+    :math:`\hat{L}'_{a,i,j,n}` を要素にもつ :math:`N_{room} \times N_{room}` の正方行列, kg/s(kg/kg(DA))
+:math:`\pmb{X}_{r,n+1}`
+    :math:`X_{r,i,n+1}` を要素にもつ :math:`N_{room} \times 1` の縦行列, kg/kg(DA)
+:math:`\pmb{\hat{L}}'_{b,n}`
+    :math:`\hat{L}'_{b,i,n}` を要素にもつ :math:`N_{room} \times 1` の縦行列, kg/s
+
+であり、
+
+:math:`\hat{L}_{L,i,n}`
+    ステップ :math:`n` から :math:`n+1` における室 :math:`i` の潜熱負荷（加湿を正・除湿を負とする）, kg/s
+:math:`\hat{L}'_{a,i,j,n}`
+    ステップ :math:`n+1` における室 :math:`j` の絶対湿度がステップ :math:`n` から :math:`n+1` における室 :math:`i` の潜熱負荷に与える影響を表す係数, kg/s(kg/kg(DA))
+:math:`X_{r,i,n+1}`
+    ステップ :math:`n+1` における室 :math:`i` の絶対湿度, kg/kg(DA)
+:math:`\hat{L}'_{b,i,n}`
+    ステップ :math:`n` から :math:`n+1` における室 :math:`i` の潜熱負荷に与える影響を表す係数, kg/s
+
+である。ここで、 :math:`N_{room}` は室の数を表す。
+
+ステップ :math:`n+1` における室 :math:`i` の絶対湿度 :math:`X_{r,i,n+1}` は式(2a)で、
+ステップ :math:`n` から :math:`n+1` における係数 :math:`\hat{L}'_{a,i,n}`　は式(2b)で、
+ステップ :math:`n` から :math:`n+1` における係数 :math:`\hat{L}'_{b,i,n}`　は式(2c)で表される。
 
 .. math::
 	X_{r,i,n+1} = \begin{cases}
@@ -37,12 +51,8 @@ I. 評価法
 .. math::
 	\tag {2a}
 
-ステップ :math:`n` からステップ :math:`n+1` における係数 :math:`\hat{L}'_{a,i,n}`　は式(2b)で表される。
-
 .. math::
-    \hat{L}'_{b,i,j,n} = \hat{L}_{b,i,j,n} \tag{2b}
-
-ステップ :math:`n` からステップ :math:`n+1` における係数 :math:`\hat{L}'_{b,i,n}`　は式(2c)で表される。
+    \hat{L}'_{a,i,j,n} = \hat{L}_{a,i,j,n} \tag{2b}
 
 .. math::
 	\hat{L}'_{b,i,n} = \begin{cases}
@@ -53,117 +63,281 @@ I. 評価法
 .. math::
 	\tag{2c}
 
-| ここで、
-| :math:`X_{r,set,i,n+1}` :ステップ :math:`n+1` における室 :math:`i` の設定絶対湿度（設定しない場合は0とする）, kg/kg(DA)
-| :math:`f ̂_(set,i,n)` :ステップ :math:`n` からステップ :math:`n+1` における室 :math:`i` の絶対湿度を設定するか否かを表す記号（設定する場合を1とし、設定しない場合を0とする。）
-| である。
+ここで、
 
-なお、 :math:`k_{i,n}` は、 :math:`\hat{f}_{set,i,n+1} = 0` の時、つまり、絶対湿度を設定しない時は、
+:math:`X_{r,set,i,n+1}`
+    ステップ :math:`n+1` における室 :math:`i` の設定絶対湿度（設定しない場合は0とする）, kg/kg(DA)
+:math:`\hat{L}_{a,i,j,n}`
+    ステップ :math:`n+1` における室 :math:`j` の絶対湿度がステップ :math:`n` から :math:`n+1` における室 :math:`i` の潜熱負荷に与える影響を表す係数, kg/s(kg/kg(DA))
+:math:`\hat{L}_{b,i,n}`
+    ステップ :math:`n` から :math:`n+1` における室 :math:`i` の潜熱負荷に与える影響を表す係数, kg/s
+:math:`\hat{f}_{set,i,n}`
+    ステップ :math:`n` から :math:`n+1` における室 :math:`i` の絶対湿度を設定するか否かを表す記号（設定する場合を1とし、設定しない場合を0とする。）
+
+である。
+
+なお、 :math:`k_{i,n}` は、 :math:`\hat{f}_{set,i,n} = 0` の時（絶対湿度を設定しない時）は、
 成り行きで求まるステップ :math:`n+1` における室 :math:`i` の絶対湿度を表し、
-:math:`\hat{f}_{set,i,n+1} = 1` の時、つまり、絶対湿度を設定する時は、
-それに必要なステップ :math:`n` からステップ :math:`n+1` における室 :math:`i` の潜熱負荷を表す。
+:math:`\hat{f}_{set,i,n+1} = 1` の時（絶対湿度を設定する時）は、
+それに必要なステップ :math:`n` から :math:`n+1` における室 :math:`i` の潜熱負荷を表す。
 絶対湿度を設定するか否かに応じて単位が異なることに留意されたい。
 
-係数 :math:`k_{i,n}` は次式で表される。
+係数 :math:`k_{i,n}` は式(3)で表される。
 
 .. math::
-	\pmb{k}_n　= {\pmb{BRMX}''}_n^{-1} \cdot ( - \pmb{BRMX}'_n \cdot \pmb{X}_{r,set,n+1} + \pmb{BRCX}_n + \pmb{\hat{L}}_{b,n} )　\tag{3}
+	\pmb{k}_n　= {\pmb{F}''}_{t,wgt,n}^{-1} \cdot ( - \pmb{F}'_{t,wgt,n} \cdot \pmb{X}_{r,set,n+1} + \pmb{F}_{t,cst,n} + \pmb{\hat{L}}_{b,n} )　\tag{3}
 
-| ここで、
-| :math:`\pmb{k}_n` ： :math:`k_{i,n}` を要素にもつ :math:`I \times 1` の縦行列, kg/kg(DA) または kg/s
-| :math:`{\pmb{BRMX}''}_n` ： :math:`{BRMX''}_{i,j,n}` を要素にもつ :math:`I \times I` の正方行列, kg/s(kg/kg(DA)) または -
-| :math:`\pmb{X}_{r,set,n+1}` : :math:`X_{r,set,i,n+1}` を要素にもつ :math:`I \times 1` の縦行列, kg/kg(DA)
-| :math:`\pmb{BRCX}_n` ： :math:`BRCX_{i,n}` を要素にもつ :math:`I \times 1` の縦行列, kg/s
-| :math:`\pmb{\hat{L}}_{b,n}` ： :math:`\hat{L}_{b,n}` を要素にもつ :math:`I \times 1` の縦行列, kg/s
+ここで、
 
-係数 :math:`{BRMX''}_{i,j,n}` は次式で表される。
+:math:`\pmb{k}_n`
+    :math:`k_{i,n}` を要素にもつ :math:`N_{room} \times 1` の縦行列, kg/kg(DA) または kg/s
+:math:`{\pmb{F}''}_{t,wgt,n}`
+    :math:`{F''}_{t,wgt,i,j,n}` を要素にもつ :math:`N_{room} \times N_{room}` の正方行列, kg/s(kg/kg(DA)) または -
+:math:`{\pmb{F}'}_{t,wgt,n}`
+    :math:`{F'}_{t,wgt,i,j,n}` を要素にもつ :math:`N_{room} \times N_{room}` の正方行列, kg/s(kg/kg(DA)) または -
+:math:`\pmb{X}_{r,set,n+1}`
+    :math:`X_{r,set,i,n+1}` を要素にもつ :math:`N_{room} \times 1` の縦行列, kg/kg(DA)
+:math:`\pmb{F}_{t,cst,n}`
+    :math:`F_{t,cst,i,n}` を要素にもつ :math:`N_{room} \times 1` の縦行列, kg/s
+:math:`\pmb{\hat{L}}_{b,n}`
+    :math:`\hat{L}_{b,n}` を要素にもつ :math:`N_{room} \times 1` の縦行列, kg/s
+
+である。
+
+係数 :math:`F''_{t,wgt,i,j,n}` は式(4)で表される。
 
 .. math::
-	BRMX''_{i,j,n} = \begin{cases}
-        BRMX'_{i,j,n} & ( \hat{f}_{set,j,n} = 0 ) \\
-        -1 & ( \hat{f}_{set,j,n} = 1 )
+	F''_{t,wgt,i,j,n} = \begin{cases}
+        F'_{t,wgt,i,j,n} & ( \hat{f}_{set,j,n} = 0 ) \\
+        - \delta_{ij} & ( \hat{f}_{set,j,n} = 1 )
     \end{cases}
 
 .. math::
 	\tag{4}
 
-係数 :math:`BRMX'_{i,j,n}` は次式で表される。
+ここで、 :math:`\delta_{ij}` はクロネッカーのデルタである。
+
+係数 :math:`F'_{t,wgt,i,j,n}` は式(5)で表される。
 
 .. math::
-    BRMX'_{i,j,n} = BRMX_{i,j,n} - \hat{L}_{a,i,j,n} \tag{5}
+    F'_{t,wgt,i,j,n} = F_{t,wgt,i,j,n} - \hat{L}_{a,i,j,n} \tag{5}
 
-2） 加湿・除湿を行わない場合の次のステップの絶対湿度
---------------------
+2. 加湿・除湿を行わない場合の次のステップの絶対湿度
+-----------------------------------------------------------------------------------------------------------------------
 
-加湿・除湿を行わない場合のステップ :math:`n+1` における室 :math:`i` の絶対湿度 :math:`X_{ntr,i,n+1}` は次式で表される。
-
-.. math::
-	\pmb{X}_{ntr,n+1}　= \pmb{BRMX}_n^{-1} \cdot \pmb{BRMC}_n　\tag{6}
-
-| ここで、
-| :math:`\pmb{X}_{ntr,n+1}` ： :math:`X_{ntr,i,n+1}` を要素にもつ :math:`I \times 1` の縦行列, kg/kg(DA) または kg/s
-| である。
-
-5) A法・B法・C法共通のパラメータ
-
-ステップnにおける室の湿度に関するバランス式のベクトル :math:`\bpm{BRMX}_n` は次式で表される。
+加湿・除湿を行わない場合のステップ :math:`n+1` における室 :math:`i` の絶対湿度 :math:`X_{ntr,i,n+1}` は式(6)で表される。
 
 .. math::
-	\bpm{BRMX}_{i,j,n}
-	&= ( \rho_a \cdot ( \frac{ V_{room,i} }{ \Delta t } + \hat{V}_{out,vent,i,n} ) + \frac{ G_{lh,frt,i} \cdot C_{lh,frt,i} }{ C_{lh,frt,i} + \Delta t G_{lh,frt} } ) \cdot \delta_{ij} \\
-	&- \rho_a \cdot ( \hat{V}_{int,vent,i,j,n} - \delta_{ij} \cdot \sum_{k=0}^{N_{room-1}}{\hat{V}_{int,vent,i,k,n}} )
+	\pmb{X}_{ntr,n+1}　= \pmb{F}_{t,wgt,n}^{-1} \cdot \pmb{F}_{t,cst,n}　\tag{6}
+
+ここで、
+
+:math:`\pmb{X}_{ntr,n+1}`
+    :math:`X_{ntr,i,n+1}` を要素にもつ :math:`I \times 1` の縦行列, kg/kg(DA) または kg/s
+
+であり、
+
+:math:`X_{ntr,i,n+1}`
+    ステップ :math:`n+1` における室 :math:`i` の加湿・除湿を行わない場合の絶対湿度, kg/kg(DA)
+
+である。
+
+3. 係数 :math:`F_{t,wgt}` ・係数 :math:`F_{t,cst}`
+-----------------------------------------------------------------------------------------------------------------------
+
+ステップ :math:`n` における係数 :math:`F_{t,wgt,i,j,n}` は式(7)で表される。
 
 .. math::
-	\tag{11}
-
-| ここで、
-|   :math:`\rho_a` :空気の密度, kg/m :sup:`3`
-|   :math:`V_{room,i}` :室 :math:`i` の容積, m :sup:`3`
-| 	:math:`\Delta t` :1ステップの時間間隔, s
-| 	:math:`\hat{V}_{out,vent,i,n}` :ステップ :math:`n` からステップ :math:`n+1` における室 :math:`i` の外気との換気量, m :sup:`3` /s
-|   :math:`G_{lh,frt,i}` :室 :math:`i` の家具等と空気間の湿気コンダクタンス, kg/(s kg/kg(DA))
-| 	:math:`C_{lh,frt,i}` :室 :math:`i` の家具等の湿気容量, kg/(kg/kg(DA))
-|		:math:`\hat{V}_{int,vent,i,j,n}` または :math:` \hat{V}_{int,vent,i,k,n}` ：室 :math:`j` または室 :math:`k` から室 :math:`i` への室間の機械換気量, m3/s
-| である。ここで、 :math:`\delta_{ij}` はクロネッカーのデルタである。
-
-ステップ :math:`n` における室の湿度に関する係数 :math:`\pmb{BRMC}_{i,n}` は次式で表される。
+	F_{t,wgt,i,j,n}
+	&= \left( \rho_a \cdot \left( \frac{ V_{room,i} }{ \Delta t } + \hat{V}_{out,vent,i,n} \right) + \frac{ G_{lh,frt,i} \cdot C_{lh,frt,i} }{ C_{lh,frt,i} + \Delta t G_{lh,frt} } \right) \cdot \delta_{ij} \\
+	&- \rho_a \cdot \left( \hat{V}_{int,vent,i,j,n} - \delta_{ij} \cdot \sum_{k=0}^{N_{room-1}}{\hat{V}_{int,vent,i,k,n}} \right)
 
 .. math::
-	\pmb{BRMC}_{i,n} = \rho_a \cdot V_{room,i} / \Delta t \cdot X_{r,i,n}
-	+ \rho_a \cdot \hat{V}_{out,vent,i,n} \cdot X_{o,n+1}
-	+ ( \frac{G_{lh,frt,i} \cdot C_{lh,frt,i} }{ C_{lh,frt,i} + \Delta t \cdot G_{lh,frt} } \cdot X_{frt,i,n}
-	+ \hat{X}_{gen,i,n} + \hat{X}_{hum,i,n} \tag{12}
+	\tag{7}
 
-| ここで、
-| 		:math:`X_{o,n}` :ステップ :math:`n` における外気絶対湿度, kg/kg(DA)
-| 		:math:`X_{frt,i,n}` :ステップ :math:`n` における室 :math:`i` の家具等の絶対湿度, kg/kg(DA)
-| 		:math:`\hat{X}_{gen,i,n}` :ステップ :math:`n` における室 :math:`i` の人体発湿を除く内部発湿, kg/s
-| 		:math:`\hat{X}_{hum,i,n}` :ステップ :math:`n` における室 :math:`i` の人体発湿, kg/s
-| である。
+ここで、
 
+:math:`\rho_a`
+    空気の密度, kg / |m3|
+:math:`V_{room,i}`
+    室 :math:`i` の容積, |m3|
+:math:`\Delta t`
+    1ステップの時間間隔, s
+:math:`\hat{V}_{out,vent,i,n}`
+    ステップ :math:`n` から :math:`n+1` における室 :math:`i` の外気との換気量, |m3| / s
+:math:`G_{lh,frt,i}`
+    室 :math:`i` の家具等と空気間の湿気コンダクタンス, kg / (s kg/kg(DA))
+:math:`C_{lh,frt,i}`
+    室 :math:`i` の家具等の湿気容量, kg / (kg/kg(DA))
+:math:`\hat{V}_{int,vent,i,j,n}`
+    室 :math:`j` から室 :math:`i` への室間の機械換気量, |m3| / s
+:math:`\hat{V}_{int,vent,i,k,n}`
+    室 :math:`k` から室 :math:`i` への室間の機械換気量, |m3| / s
 
-6） 機器固有の値
-前項、C法における機器固有に定まる、係数 :math:`\hat{L}_{a,n}` 及び :math:`\hat{L}_{b,n}` の定め方について、設備の種類ごとに記述する。
+である。
 
-① ルームエアコンディショナーの場合
-次式により定まる。
+ステップ :math:`n` における室の湿度に関する係数 :math:`F_{t,cst,i,n}` は式(8)で表される。
 
 .. math::
-
-	\hat{L}'_{a,i,n} = - V_{RAC,i,n} \cdot \rho_a \cdot ( 1 - BF_i )
+	F_{t,cst,i,n}
+    &= \rho_a \cdot \frac{ V_{room,i} }{ \Delta t } \cdot X_{r,i,n}
+	+ \rho_a \cdot \hat{V}_{out,vent,i,n} \cdot X_{o,n+1} \\
+	&+ \frac{G_{lh,frt,i} \cdot C_{lh,frt,i} }{ C_{lh,frt,i} + \Delta t \cdot G_{lh,frt} } \cdot X_{frt,i,n}
+	+ \hat{X}_{gen,i,n} + \hat{X}_{hum,i,n}
 
 .. math::
+    \tag{8}
 
-	\hat{L}'_{b,i,n} = \hat{V}_{RAC,i,n} \cdot \rho_a \cdot ( 1 - BF_i ) \cdot X_{RAC,srf,ex,i}
+ここで、
 
-| ここで、
-| 		:math:`\hat{L}'_{a,i,n}` :ステップ :math:`n` からステップ :math:`n+1` における室 :math:`i` の仮の係数 :math:`L_a`, kg/(s kg/kg(DA))
-| 		:math:`\hat{L}'_{b,i,n}` :ステップ :math:`n` からステップ :math:`n+1` における室 :math:`i` の仮の係数 :math:`L_b` , kg/s
-| 		:math:`\hat{V}_{RAC,i,n}` :ステップ :math:`n` からステップ :math:`n+1` における室 :math:`i` に設置されたルームエアコンディショナーの吹き出し風量, m :sup:`3` /s
-| 		:math:`\rho_a` :空気の密度, kg/m :sup:`3`
-| 		:math:`BF_i` :室 :math:`i` に設置されたルームエアコンディショナーのバイパスファクター
-| 		:math:`X_{RAC,srf,ex,i}` :室 :math:`i` に設置されたルームエアコンディショナーの室内機の熱交換器表面の絶対湿度, kg/kg(DA)
-| である。
+:math:`X_{o,n}`
+    ステップ :math:`n` における外気絶対湿度, kg/kg(DA)
+:math:`X_{frt,i,n}`
+    ステップ :math:`n` における室 :math:`i` の家具等の絶対湿度, kg/kg(DA)
+:math:`\hat{X}_{gen,i,n}`
+    ステップ :math:`n` における室 :math:`i` の人体発湿を除く内部発湿, kg/s
+:math:`\hat{X}_{hum,i,n}`
+    ステップ :math:`n` における室 :math:`i` の人体発湿, kg/s
+
+である。
+
+
+4. 係数 :math:`\hat{L}_a` ・係数 :math:`\hat{L}_b`
+-----------------------------------------------------------------------------------------------------------------------
+
+係数 :math:`\hat{L}_{a,n}` 及び :math:`\hat{L}_{b,n}` の定め方について、設備の種類ごとに記述する。
+
+4.1. 除湿・加湿を行わない場合
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+ステップ :math:`n` から :math:`n+1` における室 :math:`i` において除湿・加湿を行わない場合は以下のように定める。
+
+.. math::
+    \hat{L}_{a,i,j,n} = 0 \tag{9a}
+
+.. math::
+    \hat{L}_{b,i,n} = 0 \tag{9b}
+
+ここで、 :math:`j = 0 \ldots N_{room} - 1` である。
+
+
+4.2. 一定量の除湿・加湿を行う場合
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+ステップ :math:`n` から :math:`n+1` における室 :math:`i` において一定量の除湿・加湿を行う場合は以下のように定める。
+
+.. math::
+    \hat{L}_{a,i,j,n} = 0 \tag{10a}
+
+.. math::
+    \hat{L}_{b,i,n} = \hat{q}_{X,i,n} \tag{10b}
+
+ここで、
+
+:math:`\hat{q}_{X,i,n}`
+    ステップ :math:`n` から :math:`n+1` における室 :math:`i` の加湿・除湿量（加湿を正・除湿を負とする）, kg/s
+
+である。
+また、 :math:`j = 0 \ldots N_{room} - 1` である。
+
+4.3.　絶対湿度に応じて一定量の除湿を行う場合（ルームエアコン）
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+ステップ :math:`n` から :math:`n+1` における室 :math:`i` において、
+ステップ :math:`n+1` における室 :math:`i` の絶対湿度に応じて一定量の除湿を行う場合は以下のように定める。
+
+.. math::
+    \hat{L}_{a,i,j,n} = - \hat{V}_{rac,i,n} \cdot \rho_a \cdot ( 1 - BF_{rac,i} ) \tag{11a}
+
+.. math::
+	\hat{L}_{b,i,n} = \hat{V}_{rac,i,n} \cdot \rho_a \cdot ( 1 - BF_{rac,i} ) \cdot X_{rac,ex-srf,i,n+1} \tag{11b}
+
+ここで、
+
+:math:`\hat{V}_{rac,i,n}`
+    ステップ :math:`n` から :math:`n+1` における室 :math:`i` に設置されたルームエアコンディショナーの吹き出し風量, |m3| / s
+:math:`\rho_a`
+    空気の密度, kg / |m3|
+:math:`BF_{rac,i}`
+    室 :math:`i` に設置されたルームエアコンディショナーの室内機の熱交換器のバイパスファクター, -
+:math:`X_{rac,ex-srf,i,n+1}`
+    ステップ :math:`n+1` における室 :math:`i` に設置されたルームエアコンディショナーの室内機の熱交換器表面の絶対湿度, kg/kg(DA)
+
+である。
+
+ステップ :math:`n+1` における室 :math:`i` に設置されたルームエアコンディショナーの室内機の熱交換器表面の絶対湿度 :math:`X_{rac,ex-srf,i,n+1}` は式(12)で表される。
+
+.. math::
+    X_{rac,ex-srf,i,n+1} = f_x \left( f_{p,vs} \left( \theta_{rac,ex-srf,i,n+1} \right) \right) \tag{12}
+
+ここで、
+
+:math:`\theta_{rac,ex-srf,i,n+1}`
+    ステップ :math:`n+1` における室 :math:`i` に設置されたルームエアコンディショナーの室内機の熱交換器表面の表面温度, ℃
+
+である。
+
+また、関数 :math:`f_x` は、飽和水蒸気圧を飽和絶対湿度に変換する関数、関数 :math:`f_{p,vs}` は温度を飽和水蒸気圧に変換する関数である。
+
+ステップ :math:`n+1` における室 :math:`i` に設置されたルームエアコンディショナーの室内機の熱交換器表面の表面温度　:math:`\theta_{rac,ex-srf,i,n+1}` は式(13)で表される。
+
+.. math::
+    \theta_{rac,ex-srf,i,n+1} = \theta_{r,i,n+1} - \frac{ \hat{q}_{s,i,n} }{ c_a \cdot \rho_a \cdot \hat{V}_{rac,i,n} \cdot (1 - BF_{rac,i}) } \tag{13}
+
+ここで、
+
+:math:`\theta_{r,i,n+1}`
+    ステップ :math:`n+1` における室 :math:`i` の温度, ℃
+:math:`\hat{q}_{s,i,n}`
+    ステップ :math:`n` から :math:`n+1` における室 :math:`i` の顕熱負荷, W
+:math:`c_a`
+    空気の比熱, J / kg K
+
+である。
+
+室 :math:`i` に設置されたルームエアコンディショナーの室内機の熱交換器のバイパスファクター :math:`BF_{rac,i}` は 0.2 とする。
+
+ステップ :math:`n` から :math:`n+1` における室 :math:`i` に設置されたルームエアコンディショナーの吹き出し風量 :math:`\hat{V}_{rac,i,n}` は式(14)により表される。
+
+.. math::
+    \hat{V}_{rac,i,n}
+    = V_{rac,min,i} \cdot \frac{ q_{rac,max,i} - q_{s,i,n} }{ q_{rac,max,i} - q_{rac,min,i} }
+    + V_{rac,max,i} \cdot \frac{ q_{rac,min,i} - q_{s,i,n} }{ q_{rac,min,i} - q_{rac,max,i} } \tag{14}
+
+ここで、
+
+:math:`V_{rac,min,i}`
+    室 :math:`i` に設置されたルームエアコンディショナーの最小能力時における風量, |m3| / s
+:math:`V_{rac,max,i}`
+    室 :math:`i` に設置されたルームエアコンディショナーの最大能力時における風量, |m3| / s
+:math:`q_{rac,min,i}`
+    室 :math:`i` に設置されたルームエアコンディショナーの最小能力, W
+:math:`q_{rac,max,i}`
+    室 :math:`i` に設置されたルームエアコンディショナーの最大能力, W
+
+である。
+
+4.3.　絶対湿度に応じて一定量の除湿を行う場合（ダクト式セントラル空調）
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. math::
+    \hat{L}_{a,i,j,n} = - \hat{V}_{RAC,i,n} \cdot \rho_a \cdot ( 1 - BF_{RAC,i} ) \tag{11a}
+
+.. math::
+	\hat{L}_{b,i,n} = \hat{V}_{RAC,i,n} \cdot \rho_a \cdot ( 1 - BF_{RAC,i} ) \cdot X_{RAC,ex-srf,i} \tag{11b}
+
+ここで、
+
+:math:`\hat{V}_{RAC,i,n}`
+    ステップ :math:`n` から :math:`n+1` における室 :math:`i` に設置されたルームエアコンディショナーの吹き出し風量, |m3| / s
+:math:`\rho_a`
+    空気の密度, kg / |m3|
+:math:`BF_{RAC,i}`
+    室 :math:`i` に設置されたルームエアコンディショナーの室内機の熱交換器のバイパスファクター, -
+:math:`X_{RAC,ex-srf,i}`
+    室 :math:`i` に設置されたルームエアコンディショナーの室内機の熱交換器表面の絶対湿度, kg/kg(DA)
+
+である。
 
 
 II. 根拠
