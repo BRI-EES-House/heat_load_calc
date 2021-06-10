@@ -29,11 +29,14 @@ def get_dehumid_coeff(lcs_is_n, theta_r_is_npls, x_r_non_dh_is_n, rac_spec):
 
     x_e_out_is_n = np.zeros_like(lcs_is_n, dtype=float)
 
-    x_e_out_is_n[dh] = get_x_e_out_is_n(
-        bf=bf,
-        qs_is_n=qs_is_n[dh],
-        theta_r_is_npls=theta_r_is_npls[dh],
-        vac_is_n=v_ac_is_n[dh]
+    x_e_out_is_n[dh] = func_rac(
+        q_rac_max_i=rac_spec['q_max'][dh],
+        q_rac_min_i=rac_spec['q_min'][dh],
+        q_s_i_n=qs_is_n[dh],
+        v_rac_max_i=rac_spec['v_max'][dh] / 60,
+        v_rac_min_i=rac_spec['v_min'][dh] / 60,
+        bf_rac_i=bf,
+        theta_r_i_n_pls=theta_r_is_npls[dh]
     )
 
     v_ac_is_n = v_ac_is_n * (1 - bf)
@@ -47,18 +50,58 @@ def get_dehumid_coeff(lcs_is_n, theta_r_is_npls, x_r_non_dh_is_n, rac_spec):
     return brmx_rac_is, brxc_rac_is
 
 
-def get_x_e_out_is_n(bf, qs_is_n, theta_r_is_npls, vac_is_n):
-
-    # 熱交換器温度＝熱交換器部分吹出温度 式(113)
-
-    theta_e_out_is_n = _get_theta_rac_ex_srf_i_n_pls(bf, qs_is_n, theta_r_is_npls, vac_is_n)
-
-    x_e_out_is_n = get_x(get_p_vs_is2(theta_e_out_is_n))
-
-    return x_e_out_is_n
 
 
-def _get_theta_rac_ex_srf_i_n_pls(bf_rac_i: float, q_s_i_n: float, theta_r_i_n_pls: float, v_rac_i_n: float) -> float:
+def func_rac(
+        q_rac_max_i,
+        q_rac_min_i,
+        q_s_i_n,
+        v_rac_max_i,
+        v_rac_min_i,
+        bf_rac_i,
+        theta_r_i_n_pls
+):
+
+    v_rac_i_n = _get_vac_rac_i_n(
+        q_rac_max_i=q_rac_max_i,
+        q_rac_min_i=q_rac_min_i,
+        q_s_i_n=q_s_i_n,
+        v_rac_max_i=v_rac_max_i,
+        v_rac_min_i=v_rac_min_i
+    )
+
+    theta_rac_ex_srf_i_n_pls = _get_theta_rac_ex_srf_i_n_pls(
+        bf_rac_i=bf_rac_i,
+        q_s_i_n=q_s_i_n,
+        theta_r_i_n_pls=theta_r_i_n_pls,
+        v_rac_i_n=v_rac_i_n
+    )
+
+    x_rac_ex_srf_i_n_pls = _get_x_rac_ex_srf_i_n_pls(theta_rac_ex_srf_i_n_pls=theta_rac_ex_srf_i_n_pls)
+
+    return x_rac_ex_srf_i_n_pls
+
+
+def _get_x_rac_ex_srf_i_n_pls(theta_rac_ex_srf_i_n_pls: float) -> float:
+    """
+    ルームエアコンディショナーの室内機の熱交換器表面の絶対湿度を求める。
+    Args:
+        theta_rac_ex_srf_i_n_pls: ステップ n+1 における室 i に設置されたルームエアコンディショナーの室内機の熱交換器表面温度,degree C
+    Returns:
+        ステップ n+1 における室 i に設置されたルームエアコンディショナーの室内機の熱交換器表面の絶対湿度, kg/kg(DA)
+    Notes:
+        繰り返し計算（温度と湿度） eq.12
+    """
+
+    return get_x(get_p_vs_is2(theta_rac_ex_srf_i_n_pls))
+
+
+def _get_theta_rac_ex_srf_i_n_pls(
+        bf_rac_i: float,
+        q_s_i_n: float,
+        theta_r_i_n_pls: float,
+        v_rac_i_n: float
+) -> float:
     """
     ステップ n+1 における室 i に設置されたルームエアコンディショナーの室内機の熱交換器表面温度を計算する。
     Args:
@@ -66,7 +109,6 @@ def _get_theta_rac_ex_srf_i_n_pls(bf_rac_i: float, q_s_i_n: float, theta_r_i_n_p
         q_s_i_n: ステップ n から n+1 における室 i の顕熱負荷, W
         theta_r_i_n_pls: ステップ n+1 における室 i の温度, degree C
         v_rac_i_n: ステップ n から n+1 における室 i に設置されたルームエアコンディショナーの吹き出し風量, m3/s
-
     Returns:
         ステップ n+1 における室 i に設置されたルームエアコンディショナーの室内機の熱交換器表面温度, degree C
     Notes:
