@@ -51,11 +51,29 @@ def get_x_e_out_is_n(bf, qs_is_n, theta_r_is_npls, vac_is_n):
 
     # 熱交換器温度＝熱交換器部分吹出温度 式(113)
 
-    theta_e_out_is_n = theta_r_is_npls - qs_is_n / (get_c_air() * get_rho_air() * vac_is_n * (1.0 - bf))
+    theta_e_out_is_n = _get_theta_rac_ex_srf_i_n_pls(bf, qs_is_n, theta_r_is_npls, vac_is_n)
 
     x_e_out_is_n = get_x(get_p_vs_is2(theta_e_out_is_n))
 
     return x_e_out_is_n
+
+
+def _get_theta_rac_ex_srf_i_n_pls(bf_rac_i: float, q_s_i_n: float, theta_r_i_n_pls: float, v_rac_i_n: float) -> float:
+    """
+    ステップ n+1 における室 i に設置されたルームエアコンディショナーの室内機の熱交換器表面温度を計算する。
+    Args:
+        bf_rac_i: 室 i に設置されたルームエアコンディショナーの室内機の熱交換器のバイパスファクター, -
+        q_s_i_n: ステップ n から n+1 における室 i の顕熱負荷, W
+        theta_r_i_n_pls: ステップ n+1 における室 i の温度, degree C
+        v_rac_i_n: ステップ n から n+1 における室 i に設置されたルームエアコンディショナーの吹き出し風量, m3/s
+
+    Returns:
+        ステップ n+1 における室 i に設置されたルームエアコンディショナーの室内機の熱交換器表面温度, degree C
+    Notes:
+        繰り返し計算（温度と湿度） eq.14
+    """
+
+    return theta_r_i_n_pls - q_s_i_n / (get_c_air() * get_rho_air() * v_rac_i_n * (1.0 - bf_rac_i))
 
 
 def _get_vac_rac_i_n(
