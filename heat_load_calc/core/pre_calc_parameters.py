@@ -579,7 +579,7 @@ def make_pre_calc_parameters(delta_t: float, data_directory: str) -> (PreCalcPar
     }
 
     def get_deh_coef(lcs_is_n, theta_r_is_npls, x_r_non_dh_is_n):
-        return heat_exchanger.get_dehumid_coeff(lcs_is_n=lcs_is_n, theta_r_is_npls=theta_r_is_npls, x_r_non_dh_is_n=x_r_non_dh_is_n, rac_spec=rac_spec)
+        return heat_exchanger.get_dehumid_coeff(lcs_is_n=lcs_is_n, theta_r_is_n_pls=theta_r_is_npls, x_r_ntr_is_n_pls=x_r_non_dh_is_n, rac_spec=rac_spec)
 
     pre_calc_parameters = PreCalcParameters(
         n_spaces=n_spaces,

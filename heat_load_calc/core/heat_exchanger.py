@@ -7,7 +7,7 @@ from heat_load_calc.external.global_number import get_c_air, get_rho_air
 from heat_load_calc.core.matrix_method import v_diag
 
 
-def get_dehumid_coeff(lcs_is_n, theta_r_is_npls, x_r_non_dh_is_n, rac_spec):
+def get_dehumid_coeff(lcs_is_n, theta_r_is_n_pls, x_r_ntr_is_n_pls, rac_spec):
     # Lcsは加熱が正で表される。
     # 加熱時は除湿しない。
     # 以下の取り扱いを簡単にするため（冷房負荷を正とするため）、正負を反転させる
@@ -15,39 +15,25 @@ def get_dehumid_coeff(lcs_is_n, theta_r_is_npls, x_r_non_dh_is_n, rac_spec):
 
     dh = qs_is_n > 1.0e-3
 
-    v_ac_is_n = np.zeros_like(lcs_is_n, dtype=float)
-
-    v_ac_is_n[dh] = _get_vac_rac_i_n(
-        q_rac_max_i=rac_spec['q_max'][dh],
-        q_rac_min_i=rac_spec['q_min'][dh],
-        q_s_i_n=qs_is_n[dh],
-        v_rac_max_i=rac_spec['v_max'][dh]/60,
-        v_rac_min_i=rac_spec['v_min'][dh]/60
-    )
-
     bf = 0.2
 
-    x_e_out_is_n = np.zeros_like(lcs_is_n, dtype=float)
+    brmx_rac_is = np.zeros_like(lcs_is_n, dtype=float)
+    brxc_rac_is = np.zeros_like(lcs_is_n, dtype=float)
 
-    x_e_out_is_n[dh] = func_rac(
+    brmx_rac_is[dh], brxc_rac_is[dh] = func_rac(
         q_rac_max_i=rac_spec['q_max'][dh],
         q_rac_min_i=rac_spec['q_min'][dh],
         q_s_i_n=qs_is_n[dh],
         v_rac_max_i=rac_spec['v_max'][dh] / 60,
         v_rac_min_i=rac_spec['v_min'][dh] / 60,
         bf_rac_i=bf,
-        theta_r_i_n_pls=theta_r_is_npls[dh]
+        theta_r_i_n_pls=theta_r_is_n_pls[dh],
+        x_r_ntr_i_n_pls=x_r_ntr_is_n_pls[dh]
     )
 
-    v_ac_is_n = v_ac_is_n * (1 - bf)
+    brmx_rac_is_is = v_diag(brmx_rac_is)
 
-    brmx_rac_is = v_diag(get_rho_air() * v_ac_is_n)
-    brxc_rac_is = get_rho_air() * v_ac_is_n * x_e_out_is_n
-
-    brmx_rac_is = v_diag(np.where(x_e_out_is_n > x_r_non_dh_is_n, 0.0, np.diag(brmx_rac_is).reshape(-1, 1)))
-    brxc_rac_is = np.where(x_e_out_is_n > x_r_non_dh_is_n, 0.0, brxc_rac_is)
-
-    return brmx_rac_is, brxc_rac_is
+    return brmx_rac_is_is, brxc_rac_is
 
 
 
@@ -59,7 +45,8 @@ def func_rac(
         v_rac_max_i,
         v_rac_min_i,
         bf_rac_i,
-        theta_r_i_n_pls
+        theta_r_i_n_pls,
+        x_r_ntr_i_n_pls
 ):
 
     v_rac_i_n = _get_vac_rac_i_n(
@@ -79,7 +66,19 @@ def func_rac(
 
     x_rac_ex_srf_i_n_pls = _get_x_rac_ex_srf_i_n_pls(theta_rac_ex_srf_i_n_pls=theta_rac_ex_srf_i_n_pls)
 
-    return x_rac_ex_srf_i_n_pls
+    brmx_rac_is = np.where(
+        x_rac_ex_srf_i_n_pls > x_r_ntr_i_n_pls,
+        0.0,
+        get_rho_air() * v_rac_i_n * (1 - bf_rac_i)
+    )
+
+    brcx_rac_is = np.where(
+        x_rac_ex_srf_i_n_pls > x_r_ntr_i_n_pls,
+        0.0,
+        get_rho_air() * v_rac_i_n * (1 - bf_rac_i) * x_rac_ex_srf_i_n_pls
+    )
+
+    return brmx_rac_is, brcx_rac_is
 
 
 def _get_x_rac_ex_srf_i_n_pls(theta_rac_ex_srf_i_n_pls: float) -> float:

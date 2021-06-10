@@ -250,17 +250,30 @@ I. 評価法
 また、 :math:`j = 0 \ldots N_{room} - 1` である。
 
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-4.3.　絶対湿度に応じて一定量の除湿を行う場合（ルームエアコン）
+4.3.　絶対湿度に応じて一定量の除湿を行う場合（ルームエアコンディショナー）
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+ルームエアコンディショナーを設置する室の集合を :math:`\pmb{k}` とする。
 ステップ :math:`n` から :math:`n+1` における室 :math:`i` において、
 ステップ :math:`n+1` における室 :math:`i` の絶対湿度に応じて一定量の除湿を行う場合は以下のように定める。
 
 .. math::
-    \hat{L}_{a,i,j,n} = - \hat{V}_{rac,i,n} \cdot \rho_a \cdot ( 1 - BF_{rac,i} ) \tag{11a}
+    \left. \hat{L}_{a,i,j,n} \right|_{i \in \pmb{k}} = \begin{cases}
+        - \hat{V}_{rac,i,n} \cdot \rho_a \cdot ( 1 - BF_{rac,i} ) \cdot \delta_{ij} & ( X_{r,ntr,i,n+1} > X_{rac,ex-srf,i,n+1} ) \\
+        0 & ( X_{rac,ex-srf,i,n+1} \ge X_{r,ntr,i,n+1} )
+    \end{cases}
 
 .. math::
-	\hat{L}_{b,i,n} = \hat{V}_{rac,i,n} \cdot \rho_a \cdot ( 1 - BF_{rac,i} ) \cdot X_{rac,ex-srf,i,n+1} \tag{11b}
+    \tag{11a}
+
+.. math::
+    \left. \hat{L}_{b,i,n} \right|_{i \in \pmb{k}} = \begin{cases}
+        \hat{V}_{rac,i,n} \cdot \rho_a \cdot ( 1 - BF_{rac,i} ) \cdot X_{rac,ex-srf,i,n+1} &  ( X_{r,ntr,i,n+1} > X_{rac,ex-srf,i,n+1} ) \\
+        0 & ( X_{rac,ex-srf,i,n+1} \ge X_{r,ntr,i,n+1} )
+    \end{cases}
+
+.. math::
+    \tag{11b}
 
 ここで、
 
