@@ -17,7 +17,7 @@ def get_dehumid_coeff(lcs_is_n, theta_r_is_npls, x_r_non_dh_is_n, rac_spec):
 
     v_ac_is_n = np.zeros_like(lcs_is_n, dtype=float)
 
-    v_ac_is_n[dh] = _get_vac_rac_is_n(
+    v_ac_is_n[dh] = _get_vac_rac_i_n(
         q_rac_max_i=rac_spec['q_max'][dh],
         q_rac_min_i=rac_spec['q_min'][dh],
         q_s_i_n=qs_is_n[dh],
@@ -58,7 +58,7 @@ def get_x_e_out_is_n(bf, qs_is_n, theta_r_is_npls, vac_is_n):
     return x_e_out_is_n
 
 
-def _get_vac_rac_is_n(
+def _get_vac_rac_i_n(
         q_rac_max_i: Union[float, np.ndarray],
         q_rac_min_i: Union[float, np.ndarray],
         q_s_i_n: Union[float, np.ndarray],
