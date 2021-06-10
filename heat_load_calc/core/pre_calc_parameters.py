@@ -172,8 +172,6 @@ class PreCalcParameters:
 
     calc_next_temp_and_load: Callable
 
-    rac_spec: Dict[str, Any]
-
     get_deh_coef: Callable
 
 
@@ -630,7 +628,6 @@ def make_pre_calc_parameters(delta_t: float, data_directory: str) -> (PreCalcPar
         theta_o_ns=theta_o_ns,
         x_o_ns=x_o_ns,
         theta_o_ave=theta_o_ave,
-        rac_spec=rac_spec,
         get_ot_target_and_h_hum=get_ot_target_and_h_hum,
         get_infiltration=get_infiltration,
         calc_next_temp_and_load=calc_next_temp_and_load,
