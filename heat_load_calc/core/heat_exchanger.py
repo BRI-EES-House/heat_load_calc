@@ -13,22 +13,17 @@ def get_dehumid_coeff(lcs_is_n, theta_r_is_n_pls, x_r_ntr_is_n_pls, rac_spec):
     # 以下の取り扱いを簡単にするため（冷房負荷を正とするため）、正負を反転させる
     qs_is_n = -lcs_is_n
 
-    dh = qs_is_n > 1.0e-3
-
     bf = 0.2
 
-    brmx_rac_is = np.zeros_like(lcs_is_n, dtype=float)
-    brxc_rac_is = np.zeros_like(lcs_is_n, dtype=float)
-
-    brmx_rac_is[dh], brxc_rac_is[dh] = func_rac(
-        q_rac_max_i=rac_spec['q_max'][dh],
-        q_rac_min_i=rac_spec['q_min'][dh],
-        q_s_i_n=qs_is_n[dh],
-        v_rac_max_i=rac_spec['v_max'][dh] / 60,
-        v_rac_min_i=rac_spec['v_min'][dh] / 60,
+    brmx_rac_is, brxc_rac_is = func_rac(
+        q_rac_max_i=rac_spec['q_max'],
+        q_rac_min_i=rac_spec['q_min'],
+        q_s_i_n=qs_is_n,
+        v_rac_max_i=rac_spec['v_max'] / 60,
+        v_rac_min_i=rac_spec['v_min'] / 60,
         bf_rac_i=bf,
-        theta_r_i_n_pls=theta_r_is_n_pls[dh],
-        x_r_ntr_i_n_pls=x_r_ntr_is_n_pls[dh]
+        theta_r_i_n_pls=theta_r_is_n_pls,
+        x_r_ntr_i_n_pls=x_r_ntr_is_n_pls
     )
 
     brmx_rac_is_is = v_diag(brmx_rac_is)
@@ -68,14 +63,12 @@ def func_rac(
 
     brmx_rac_is = np.where(
         (x_r_ntr_i_n_pls > x_rac_ex_srf_i_n_pls) & (q_s_i_n > 0.0),
-#        x_r_ntr_i_n_pls > x_rac_ex_srf_i_n_pls,
         get_rho_air() * v_rac_i_n * (1 - bf_rac_i),
         0.0
     )
 
     brcx_rac_is = np.where(
         (x_r_ntr_i_n_pls > x_rac_ex_srf_i_n_pls) & (q_s_i_n > 0.0),
-#        x_r_ntr_i_n_pls > x_rac_ex_srf_i_n_pls,
         get_rho_air() * v_rac_i_n * (1 - bf_rac_i) * x_rac_ex_srf_i_n_pls,
         0.0
     )
