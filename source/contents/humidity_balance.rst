@@ -133,17 +133,17 @@ I. 評価法
 加湿・除湿を行わない場合のステップ :math:`n+1` における室 :math:`i` の絶対湿度 :math:`X_{ntr,i,n+1}` は式(6)で表される。
 
 .. math::
-	\pmb{X}_{ntr,n+1}　= \pmb{F}_{t,wgt,n}^{-1} \cdot \pmb{F}_{t,cst,n}　\tag{6}
+	\pmb{X}_{r,ntr,n+1}　= \pmb{F}_{t,wgt,n}^{-1} \cdot \pmb{F}_{t,cst,n}　\tag{6}
 
 ここで、
 
-:math:`\pmb{X}_{ntr,n+1}`
-    :math:`X_{ntr,i,n+1}` を要素にもつ :math:`I \times 1` の縦行列, kg/kg(DA) または kg/s
+:math:`\pmb{X}_{r,ntr,n+1}`
+    :math:`X_{r,ntr,i,n+1}` を要素にもつ :math:`I \times 1` の縦行列, kg / kg(DA)
 
 であり、
 
-:math:`X_{ntr,i,n+1}`
-    ステップ :math:`n+1` における室 :math:`i` の加湿・除湿を行わない場合の絶対湿度, kg/kg(DA)
+:math:`X_{r,ntr,i,n+1}`
+    ステップ :math:`n+1` における室 :math:`i` の加湿・除湿を行わない場合の絶対湿度, kg / kg(DA)
 
 である。
 
@@ -308,6 +308,8 @@ I. 評価法
 室 :math:`i` に設置されたルームエアコンディショナーの室内機の熱交換器のバイパスファクター :math:`BF_{rac,i}` は 0.2 とする。
 
 ステップ :math:`n` から :math:`n+1` における室 :math:`i` に設置されたルームエアコンディショナーの吹き出し風量 :math:`\hat{V}_{rac,i,n}` は式(14)により表される。
+ただし、計算された :math:`\hat{V}_{rac,i,n}` が :math:`V_{rac,min,i}` を下回る場合は :math:`V_{rac,min,i}` に等しいとし、
+:math:`V_{rac,max,i}` を上回る場合は :math:`V_{rac,max,i}` に等しいとする。
 
 .. math::
     \hat{V}_{rac,i,n}
