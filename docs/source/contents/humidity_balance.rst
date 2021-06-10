@@ -259,8 +259,8 @@ I. 評価法
 
 .. math::
     \left. \hat{L}_{a,i,j,n} \right|_{i \in \pmb{k}} = \begin{cases}
-        - \hat{V}_{rac,i,n} \cdot \rho_a \cdot ( 1 - BF_{rac,i} ) \cdot \delta_{ij} & ( X_{r,ntr,i,n+1} > X_{rac,ex-srf,i,n+1} ) \\
-        0 & ( X_{rac,ex-srf,i,n+1} \ge X_{r,ntr,i,n+1} )
+        - \hat{V}_{rac,i,n} \cdot \rho_a \cdot ( 1 - BF_{rac,i} ) \cdot \delta_{ij} & \begin{pmatrix} X_{r,ntr,i,n+1} > X_{rac,ex-srf,i,n+1} \\ \text{and} \\ \hat{q}_{s,i,n} > 0 \end{pmatrix} \\
+        0 & \left( \text{その他の場合} \right)
     \end{cases}
 
 .. math::
@@ -268,8 +268,8 @@ I. 評価法
 
 .. math::
     \left. \hat{L}_{b,i,n} \right|_{i \in \pmb{k}} = \begin{cases}
-        \hat{V}_{rac,i,n} \cdot \rho_a \cdot ( 1 - BF_{rac,i} ) \cdot X_{rac,ex-srf,i,n+1} &  ( X_{r,ntr,i,n+1} > X_{rac,ex-srf,i,n+1} ) \\
-        0 & ( X_{rac,ex-srf,i,n+1} \ge X_{r,ntr,i,n+1} )
+        \hat{V}_{rac,i,n} \cdot \rho_a \cdot ( 1 - BF_{rac,i} ) \cdot X_{rac,ex-srf,i,n+1} & \begin{pmatrix} X_{r,ntr,i,n+1} > X_{rac,ex-srf,i,n+1} \\ \text{and} \\ \hat{q}_{s,i,n} > 0 \end{pmatrix} \\
+        0 & \left( \text{その他の場合} \right)
     \end{cases}
 
 .. math::

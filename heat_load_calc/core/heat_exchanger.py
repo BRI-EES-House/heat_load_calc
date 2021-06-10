@@ -67,15 +67,17 @@ def func_rac(
     x_rac_ex_srf_i_n_pls = _get_x_rac_ex_srf_i_n_pls(theta_rac_ex_srf_i_n_pls=theta_rac_ex_srf_i_n_pls)
 
     brmx_rac_is = np.where(
-        x_rac_ex_srf_i_n_pls > x_r_ntr_i_n_pls,
-        0.0,
-        get_rho_air() * v_rac_i_n * (1 - bf_rac_i)
+        (x_r_ntr_i_n_pls > x_rac_ex_srf_i_n_pls) & (q_s_i_n > 0.0),
+#        x_r_ntr_i_n_pls > x_rac_ex_srf_i_n_pls,
+        get_rho_air() * v_rac_i_n * (1 - bf_rac_i),
+        0.0
     )
 
     brcx_rac_is = np.where(
-        x_rac_ex_srf_i_n_pls > x_r_ntr_i_n_pls,
-        0.0,
-        get_rho_air() * v_rac_i_n * (1 - bf_rac_i) * x_rac_ex_srf_i_n_pls
+        (x_r_ntr_i_n_pls > x_rac_ex_srf_i_n_pls) & (q_s_i_n > 0.0),
+#        x_r_ntr_i_n_pls > x_rac_ex_srf_i_n_pls,
+        get_rho_air() * v_rac_i_n * (1 - bf_rac_i) * x_rac_ex_srf_i_n_pls,
+        0.0
     )
 
     return brmx_rac_is, brcx_rac_is
