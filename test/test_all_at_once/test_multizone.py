@@ -33,7 +33,7 @@ class TestAllAtOnce(unittest.TestCase):
         ds, dd = core.calc(input_data_dir=data_dir, output_data_dir=data_dir)
 
         self.assertAlmostEqual(18.6451544693251, dd['rm0_t_r']['1989-12-31  23:45:00'])
-        self.assertAlmostEqual(0.0133479898060818, dd['rm0_x_r']['1989/8/24  16:00:00'])
+        self.assertAlmostEqual(0.01334853851152308, dd['rm0_x_r']['1989/8/24  16:00:00'])
         self.assertAlmostEqual(24.0781300379892, dd['rm1_t_r']['1989-12-31  23:45:00'])
         self.assertAlmostEqual(0.0033163628304586, dd['rm1_x_r']['1989-12-31  23:45:00'])
         self.assertAlmostEqual(20.0276095753461, dd['rm2_t_r']['1989-12-31  23:45:00'])

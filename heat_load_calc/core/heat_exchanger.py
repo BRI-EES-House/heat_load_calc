@@ -1,5 +1,7 @@
 import numpy as np
 
+from typing import Union
+
 from heat_load_calc.external.psychrometrics import get_p_vs, get_x, get_p_vs_is2
 from heat_load_calc.external.global_number import get_c_air, get_rho_air
 from heat_load_calc.core.matrix_method import v_diag
@@ -57,12 +59,12 @@ def get_x_e_out_is_n(bf, qs_is_n, theta_r_is_npls, vac_is_n):
 
 
 def get_vac_rac_is_n(
-        q_rac_max_i: float,
-        q_rac_min_i: float,
-        q_s_i_n: float,
-        v_rac_max_i: float,
-        v_rac_min_i: float
-) -> float:
+        q_rac_max_i: Union[float, np.ndarray],
+        q_rac_min_i: Union[float, np.ndarray],
+        q_s_i_n: Union[float, np.ndarray],
+        v_rac_max_i: Union[float, np.ndarray],
+        v_rac_min_i: Union[float, np.ndarray]
+) -> Union[float, np.ndarray]:
     """
     ルームエアコンディショナーの吹き出し風量を顕熱負荷に応じて計算する。
 
@@ -78,10 +80,12 @@ def get_vac_rac_is_n(
         繰り返し計算（湿度と潜熱） eq.14
     """
 
-    # TODO 最小値・最大値処理がないような気がする
-
-    v_rac_i_n = v_rac_min_i * (q_rac_max_i - q_s_i_n) / (q_rac_max_i - q_rac_min_i)\
+    # 吹き出し風量（仮）, m3/s
+    v = v_rac_min_i * (q_rac_max_i - q_s_i_n) / (q_rac_max_i - q_rac_min_i)\
         + v_rac_max_i * (q_rac_min_i - q_s_i_n) / (q_rac_min_i - q_rac_max_i)
+
+    # 下限値・上限値でクリップ後の吹き出し風量, m3/s
+    v_rac_i_n = np.clip(v, a_min=v_rac_min_i, a_max=v_rac_max_i)
 
     return v_rac_i_n
 

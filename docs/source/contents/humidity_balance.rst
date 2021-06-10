@@ -308,6 +308,8 @@ I. 評価法
 室 :math:`i` に設置されたルームエアコンディショナーの室内機の熱交換器のバイパスファクター :math:`BF_{rac,i}` は 0.2 とする。
 
 ステップ :math:`n` から :math:`n+1` における室 :math:`i` に設置されたルームエアコンディショナーの吹き出し風量 :math:`\hat{V}_{rac,i,n}` は式(14)により表される。
+ただし、計算された :math:`\hat{V}_{rac,i,n}` が :math:`V_{rac,min,i}` を下回る場合は :math:`V_{rac,min,i}` に等しいとし、
+:math:`V_{rac,max,i}` を上回る場合は :math:`V_{rac,max,i}` に等しいとする。
 
 .. math::
     \hat{V}_{rac,i,n}
