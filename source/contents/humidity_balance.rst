@@ -250,17 +250,30 @@ I. 評価法
 また、 :math:`j = 0 \ldots N_{room} - 1` である。
 
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-4.3.　絶対湿度に応じて一定量の除湿を行う場合（ルームエアコン）
+4.3.　絶対湿度に応じて一定量の除湿を行う場合（ルームエアコンディショナー）
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+ルームエアコンディショナーを設置する室の集合を :math:`\pmb{k}` とする。
 ステップ :math:`n` から :math:`n+1` における室 :math:`i` において、
 ステップ :math:`n+1` における室 :math:`i` の絶対湿度に応じて一定量の除湿を行う場合は以下のように定める。
 
 .. math::
-    \hat{L}_{a,i,j,n} = - \hat{V}_{rac,i,n} \cdot \rho_a \cdot ( 1 - BF_{rac,i} ) \tag{11a}
+    \left. \hat{L}_{a,i,j,n} \right|_{i \in \pmb{k}} = \begin{cases}
+        - \hat{V}_{rac,i,n} \cdot \rho_a \cdot ( 1 - BF_{rac,i} ) \cdot \delta_{ij} & \begin{pmatrix} X_{r,ntr,i,n+1} > X_{rac,ex-srf,i,n+1} \\ \text{and} \\ \hat{q}_{s,i,n} > 0 \end{pmatrix} \\
+        0 & \left( \text{その他の場合} \right)
+    \end{cases}
 
 .. math::
-	\hat{L}_{b,i,n} = \hat{V}_{rac,i,n} \cdot \rho_a \cdot ( 1 - BF_{rac,i} ) \cdot X_{rac,ex-srf,i,n+1} \tag{11b}
+    \tag{11a}
+
+.. math::
+    \left. \hat{L}_{b,i,n} \right|_{i \in \pmb{k}} = \begin{cases}
+        \hat{V}_{rac,i,n} \cdot \rho_a \cdot ( 1 - BF_{rac,i} ) \cdot X_{rac,ex-srf,i,n+1} & \begin{pmatrix} X_{r,ntr,i,n+1} > X_{rac,ex-srf,i,n+1} \\ \text{and} \\ \hat{q}_{s,i,n} > 0 \end{pmatrix} \\
+        0 & \left( \text{その他の場合} \right)
+    \end{cases}
+
+.. math::
+    \tag{11b}
 
 ここで、
 
@@ -271,11 +284,11 @@ I. 評価法
 :math:`BF_{rac,i}`
     室 :math:`i` に設置されたルームエアコンディショナーの室内機の熱交換器のバイパスファクター, -
 :math:`X_{rac,ex-srf,i,n+1}`
-    ステップ :math:`n+1` における室 :math:`i` に設置されたルームエアコンディショナーの室内機の熱交換器表面の絶対湿度, kg/kg(DA)
+    ステップ :math:`n+1` における室 :math:`i` に設置されたルームエアコンディショナーの室内機の熱交換器表面絶対湿度, kg/kg(DA)
 
 である。
 
-ステップ :math:`n+1` における室 :math:`i` に設置されたルームエアコンディショナーの室内機の熱交換器表面の絶対湿度 :math:`X_{rac,ex-srf,i,n+1}` は式(12)で表される。
+ステップ :math:`n+1` における室 :math:`i` に設置されたルームエアコンディショナーの室内機の熱交換器表面絶対湿度 :math:`X_{rac,ex-srf,i,n+1}` は式(12)で表される。
 
 .. math::
     X_{rac,ex-srf,i,n+1} = f_x \left( f_{p,vs} \left( \theta_{rac,ex-srf,i,n+1} \right) \right) \tag{12}
@@ -283,13 +296,13 @@ I. 評価法
 ここで、
 
 :math:`\theta_{rac,ex-srf,i,n+1}`
-    ステップ :math:`n+1` における室 :math:`i` に設置されたルームエアコンディショナーの室内機の熱交換器表面の表面温度, ℃
+    ステップ :math:`n+1` における室 :math:`i` に設置されたルームエアコンディショナーの室内機の熱交換器表面温度, ℃
 
 である。
 
 また、関数 :math:`f_x` は、飽和水蒸気圧を飽和絶対湿度に変換する関数、関数 :math:`f_{p,vs}` は温度を飽和水蒸気圧に変換する関数である。
 
-ステップ :math:`n+1` における室 :math:`i` に設置されたルームエアコンディショナーの室内機の熱交換器表面の表面温度　:math:`\theta_{rac,ex-srf,i,n+1}` は式(13)で表される。
+ステップ :math:`n+1` における室 :math:`i` に設置されたルームエアコンディショナーの室内機の熱交換器表面温度　:math:`\theta_{rac,ex-srf,i,n+1}` は式(13)で表される。
 
 .. math::
     \theta_{rac,ex-srf,i,n+1} = \theta_{r,i,n+1} - \frac{ \hat{q}_{s,i,n} }{ c_a \cdot \rho_a \cdot \hat{V}_{rac,i,n} \cdot (1 - BF_{rac,i}) } \tag{13}
