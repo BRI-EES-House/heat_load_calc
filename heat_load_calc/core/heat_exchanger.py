@@ -14,17 +14,36 @@ def get_dehumid_coeff(lcs_is_n, theta_r_is_n_pls, x_r_ntr_is_n_pls, rac_spec):
     qs_is_n = -lcs_is_n
 
     bf = 0.2
+    brmx=[]
+    brxc=[]
 
-    brmx_rac_is, brxc_rac_is = func_rac(
-        q_rac_max_i=rac_spec['q_max'],
-        q_rac_min_i=rac_spec['q_min'],
-        q_s_i_n=qs_is_n,
-        v_rac_max_i=rac_spec['v_max'] / 60,
-        v_rac_min_i=rac_spec['v_min'] / 60,
-        bf_rac_i=bf,
-        theta_r_i_n_pls=theta_r_is_n_pls,
-        x_r_ntr_i_n_pls=x_r_ntr_is_n_pls
-    )
+    for i in range(len(qs_is_n.flatten())):
+        x, c = func_rac(
+            q_rac_max_i=rac_spec['q_max'][i][0],
+            q_rac_min_i=rac_spec['q_min'][i][0],
+            q_s_i_n=qs_is_n[i][0],
+            v_rac_max_i=rac_spec['v_max'][i][0] / 60,
+            v_rac_min_i=rac_spec['v_min'][i][0] / 60,
+            bf_rac_i=bf,
+            theta_r_i_n_pls=theta_r_is_n_pls[i][0],
+            x_r_ntr_i_n_pls=x_r_ntr_is_n_pls[i][0]
+        )
+        brmx.append(x)
+        brxc.append(c)
+
+    brmx_rac_is = np.array(brmx).reshape(-1, 1)
+    brxc_rac_is = np.array(brxc).reshape(-1, 1)
+
+#    brmx_rac_is, brxc_rac_is = func_rac(
+#        q_rac_max_i=rac_spec['q_max'],
+#        q_rac_min_i=rac_spec['q_min'],
+#        q_s_i_n=qs_is_n,
+#        v_rac_max_i=rac_spec['v_max'] / 60,
+#        v_rac_min_i=rac_spec['v_min'] / 60,
+#        bf_rac_i=bf,
+#        theta_r_i_n_pls=theta_r_is_n_pls,
+#        x_r_ntr_i_n_pls=x_r_ntr_is_n_pls
+#    )
 
     brmx_rac_is_is = v_diag(brmx_rac_is)
 
