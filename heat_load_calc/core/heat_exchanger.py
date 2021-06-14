@@ -11,10 +11,7 @@ def get_dehumid_coeff(
         lcs_is_n,
         theta_r_is_n_pls,
         x_r_ntr_is_n_pls,
-        Vmin_is,
-        Vmax_is,
-        qmin_c_is,
-        qmax_c_is
+        rac_is
 ):
 
     # Lcsは加熱が正で表される。
@@ -28,11 +25,11 @@ def get_dehumid_coeff(
 
     for i in range(len(qs_is_n.flatten())):
         x, c = func_rac(
-            q_rac_max_i=qmax_c_is[i][0],
-            q_rac_min_i=qmin_c_is[i][0],
+            q_rac_max_i=rac_is[i]['q_max'],
+            q_rac_min_i=rac_is[i]['q_min'],
             q_s_i_n=qs_is_n[i][0],
-            v_rac_max_i=Vmax_is[i][0] / 60,
-            v_rac_min_i=Vmin_is[i][0] / 60,
+            v_rac_max_i=rac_is[i]['v_max'] / 60,
+            v_rac_min_i=rac_is[i]['v_min'] / 60,
             bf_rac_i=bf,
             theta_r_i_n_pls=theta_r_is_n_pls[i][0],
             x_r_ntr_i_n_pls=x_r_ntr_is_n_pls[i][0]
