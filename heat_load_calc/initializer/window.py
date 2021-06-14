@@ -215,9 +215,9 @@ def get_tau_and_ashgc(eta_w: float, glazing_type_j: str,
     eta_g = eta_w / glass_area_ratio_j
 
     if glazing_type_j == "single":
-        tau_g = 0.77 * eta_g ** 2 + 0.41 * eta_g - 0.09
+        tau_g = -0.70 * eta_g ** 3 + 1.94 * eta_g ** 2 - 0.19 * eta_g
     elif glazing_type_j == "multiple":
-        tau_g = 0.99 * eta_g - 0.10
+        tau_g = -0.34 * eta_g ** 3 + 0.81 * eta_g ** 2 + 0.46 * eta_g
     else:
         raise ValueError()
 
