@@ -37,8 +37,7 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
     ac_demand_is_n = ss.ac_demand_is_ns[:, n].reshape(-1, 1)
 
     # ステップnの境界jにおける外気側等価温度の外乱成分, degree C, [j, 1]
-    # TODO: ss.theta_dstrb_js_ns[:, n] -> ss.theta_dstrb_js_ns[:, n + 1]
-    theta_dstrb_js_n = ss.theta_dstrb_js_ns[:, n].reshape(-1, 1)
+    theta_dstrb_js_n = ss.theta_dstrb_js_ns[:, n + 1].reshape(-1, 1)
 
     # ステップnの室iにおける在室人数, [i, 1]
     n_hum_is_n = ss.n_hum_is_ns[:, n].reshape(-1, 1)
@@ -50,8 +49,7 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
     x_gen_is_n = ss.x_gen_is_ns[:, n].reshape(-1, 1)
 
     # ステップn+1の境界jにおける係数 WSC, degree C, [j, 1]
-    # TODO: WSC n+1 にもかかわらず、n の値が代入されている。n+1 を代入すべきではないのか？その場合、計算の最終ステップの計算はどうする？
-    wsc_js_n_pls = ss.wsc_js_ns[:, n].reshape(-1, 1)
+    wsc_js_n_pls = ss.wsc_js_ns[:, n + 1].reshape(-1, 1)
 
     # ステップnの室iにおける機械換気量（全般換気量+局所換気量）, m3/s, [i, 1]
     v_mec_vent_is_n = ss.v_mec_vent_is_ns[:, n].reshape(-1, 1)
@@ -68,13 +66,13 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
     #     ステップnの室iの在室者周りの風速, m/s, [i, 1]
     #     ステップnの室iにおけるClo値, [i, 1]
     #     ステップnの室iにおける目標作用温度, degree C, [i, 1]
-    # TODO: 目標作用温度はステップn+1ではないか
-    h_hum_c_is_n, h_hum_r_is_n, operation_mode_is_n, theta_lower_target_is_n, theta_upper_target_is_n, remarks_is_n \
+    h_hum_c_is_n, h_hum_r_is_n, operation_mode_is_n, theta_lower_target_is_n_pls, theta_upper_target_is_n_pls, remarks_is_n \
         = ss.get_ot_target_and_h_hum(
             x_r_is_n=c_n.x_r_is_n,
             operation_mode_is_n_mns=c_n.operation_mode_is_n,
             theta_r_is_n=c_n.theta_r_is_n,
             theta_mrt_hum_is_n=c_n.theta_mrt_hum_is_n,
+
             ac_demand_is_n=ac_demand_is_n
         )
 
@@ -117,10 +115,9 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
     v_out_vent_is_n = v_leak_is_n + v_mec_vent_is_n + v_ntrl_vent_is_n
 
     # ステップn+1の室iにおける係数 BRC, W, [i, 1]
-    # TODO: 外気温度の参照を n+1 にすべき。
     brc_is_n_pls = ss.c_room_is / delta_t * c_n.theta_r_is_n \
         + np.dot(ss.p_is_js, ss.h_c_js * ss.a_srf_js * (wsc_js_n_pls + wsv_js_n_pls)) \
-        + get_c_air() * get_rho_air() * v_out_vent_is_n * ss.theta_o_ns[n] \
+        + get_c_air() * get_rho_air() * v_out_vent_is_n * ss.theta_o_ns[n + 1] \
         + q_gen_is_n + q_hum_is_n \
         + ss.g_sh_frt_is * (
             ss.c_sh_frt_is * c_n.theta_frt_is_n + ss.q_sol_frt_is_ns[:, n].reshape(-1, 1) * delta_t
@@ -128,7 +125,7 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
 
     # ステップn+1における係数 BRM, W/K, [i, i]
     # TODO: 左辺はステップnにすべきではないか
-    brm_is_is_n_pls = ss.brm_non_vent_is_is\
+    brm_is_is_n = ss.brm_non_vent_is_is\
         + get_c_air() * get_rho_air() * (
             np.diag(v_out_vent_is_n.flatten()) - (ss.v_int_vent_is_is - np.diag(ss.v_int_vent_is_is.sum(axis=1)))
         )
@@ -152,15 +149,13 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
     xc_is_n_pls = np.dot(xot_is_is_n_pls, kr_is_n * np.dot(ss.f_mrt_hum_is_js, (wsc_js_n_pls + wsv_js_n_pls)))
 
     # ステップnにおける係数 BRMOT, W/K, [i, i]
-    brm_ot_is_is_n = np.dot(brm_is_is_n_pls, xot_is_is_n_pls)
+    brm_ot_is_is_n = np.dot(brm_is_is_n, xot_is_is_n_pls)
 
     # ステップnにおける係数 BRLOT, [i, i]
-    # TODO: 左辺はステップn+1にすべきではないか
-    brl_ot_is_is_n = ss.brl_is_is + np.dot(brm_is_is_n_pls, xlr_is_is_n_pls)
+    brl_ot_is_is_n_pls = ss.brl_is_is + np.dot(brm_is_is_n, xlr_is_is_n_pls)
 
     # ステップnにおける係数 BRCOT, [i, 1]
-    # TODO: 左辺はステップn+1にすべきではないか
-    brc_ot_is_n = brc_is_n_pls + np.dot(brm_is_is_n_pls, xc_is_n_pls)
+    brc_ot_is_n_pls = brc_is_n_pls + np.dot(brm_is_is_n, xc_is_n_pls)
 
     # ステップ n+1 における室 i の作用温度, degree C, [i, 1] (ステップn+1における瞬時値）
     # ステップ n における室 i に設置された対流暖房の放熱量, W, [i, 1] (ステップn～ステップn+1までの平均値）
@@ -168,22 +163,22 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
     # theta_ot_is_n_pls, l_cs_is_n, l_hs_is_n = next_condition.calc_next_temp_and_load(
     #     is_radiative_heating_is=ss.is_radiative_heating_is,
     #     is_radiative_cooling_is=ss.is_radiative_cooling_is,
-    #     brc_ot_is_n=brc_ot_is_n,
+    #     brc_ot_is_n_pls=brc_ot_is_n_pls,
     #     brm_ot_is_is_n=brm_ot_is_is_n,
-    #     brl_ot_is_is_n=brl_ot_is_is_n,
-    #     theta_lower_target_is_n=theta_lower_target_is_n,
-    #     theta_upper_target_is_n=theta_upper_target_is_n,
+    #     brl_ot_is_is_n_pls=brl_ot_is_is_n_pls,
+    #     theta_lower_target_is_n_pls=theta_lower_target_is_n_pls,
+    #     theta_upper_target_is_n_pls=theta_upper_target_is_n_pls,
     #     lr_h_max_cap_is=ss.lr_h_max_cap_is,
     #     lr_cs_max_cap_is=ss.lr_cs_max_cap_is,
     #     operation_mode_is_n=operation_mode_is_n,
     #     ac_demand_is_n=ac_demand_is_n
     # )
     theta_ot_is_n_pls, l_cs_is_n, l_hs_is_n = ss.calc_next_temp_and_load(
-        brc_ot_is_n=brc_ot_is_n,
+        brc_ot_is_n=brc_ot_is_n_pls,
         brm_ot_is_is_n=brm_ot_is_is_n,
-        brl_ot_is_is_n=brl_ot_is_is_n,
-        theta_lower_target_is_n=theta_lower_target_is_n,
-        theta_upper_target_is_n=theta_upper_target_is_n,
+        brl_ot_is_is_n=brl_ot_is_is_n_pls,
+        theta_lower_target_is_n=theta_lower_target_is_n_pls,
+        theta_upper_target_is_n=theta_upper_target_is_n_pls,
         operation_mode_is_n=operation_mode_is_n,
         ac_demand_is_n=ac_demand_is_n
     )
@@ -212,8 +207,7 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
     ) / (ss.h_c_js + ss.h_r_js)
 
     # ステップ n+1 の境界 j における表面熱流（壁体吸熱を正とする）, W/m2, [j, 1]
-    # TODO: 左辺はステップnにすべきではないか
-    q_srf_js_n_pls = (theta_ei_js_n_pls - theta_s_js_n_pls) * (ss.h_c_js + ss.h_r_js)
+    q_srf_js_n = (theta_ei_js_n_pls - theta_s_js_n_pls) * (ss.h_c_js + ss.h_r_js)
 
     # --- ここから、湿度の計算 ---
 
@@ -284,7 +278,7 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
         logger.theta_ot[:, n] = theta_ot_is_n_pls.flatten()
         logger.theta_s[:, n] = theta_s_js_n_pls.flatten()
         logger.theta_rear[:, n] = theta_rear_js_n.flatten()
-        logger.qiall_s[:, n] = q_srf_js_n_pls.flatten()
+        logger.qiall_s[:, n] = q_srf_js_n.flatten()
 
         logger.space_remarks[:, n] = np.array([json.dumps(remark) for remark in remarks_is_n])
 
@@ -295,7 +289,7 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
         x_r_is_n=x_r_is_n_pls,
         theta_dsh_srf_a_js_ms_n=theta_dsh_srf_a_js_ms_n_pls,
         theta_dsh_srf_t_js_ms_n=theta_dsh_srf_t_js_ms_n_pls,
-        q_srf_js_n=q_srf_js_n_pls,
+        q_srf_js_n=q_srf_js_n,
         theta_frt_is_n=theta_frt_is_n_pls,
         x_frt_is_n=x_frt_is_npls,
         theta_ei_js_n=theta_ei_js_n_pls
