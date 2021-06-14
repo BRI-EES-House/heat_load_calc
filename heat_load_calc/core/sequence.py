@@ -55,6 +55,7 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
     v_mec_vent_is_n = ss.v_mec_vent_is_ns[:, n].reshape(-1, 1)
 
     # 家具の吸収日射量, W, [i, 1]
+    # TODO: ここの左辺、右辺日射量はn+1とすべき？
     q_sol_frt_is_n = ss.q_sol_frt_is_ns[:, n].reshape(-1, 1)
 
     # ステップnにおける室iの状況（在室者周りの総合熱伝達率・運転状態・Clo値・目標とする作用温度）を取得する
@@ -220,7 +221,7 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
 
     # ステップnにおける室iの湿度に関する係数 F_{t,cst}, kg/s, [i, 1]
     # 繰り返し計算（湿度と潜熱） eq.8
-    # TODO: 外気温度の参照を n+1 にすべき。
+    # TODO: 外気湿度の参照を n+1 にすべき。
     f_t_cst_is_n = get_rho_air() * ss.v_room_is / delta_t * c_n.x_r_is_n \
         + get_rho_air() * v_out_vent_is_n * ss.x_o_ns[n] \
         + ss.c_lh_frt_is * ss.g_lh_frt_is / (ss.c_lh_frt_is + delta_t * ss.g_lh_frt_is) * c_n.x_frt_is_n \
