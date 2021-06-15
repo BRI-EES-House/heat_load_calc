@@ -125,7 +125,6 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
         ) / (ss.c_sh_frt_is + delta_t * ss.g_sh_frt_is)
 
     # ステップn+1における係数 BRM, W/K, [i, i]
-    # TODO: 左辺はステップnにすべきではないか
     brm_is_is_n = ss.brm_non_vent_is_is\
         + get_c_air() * get_rho_air() * (
             np.diag(v_out_vent_is_n.flatten()) - (ss.v_int_vent_is_is - np.diag(ss.v_int_vent_is_is.sum(axis=1)))
@@ -221,9 +220,8 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
 
     # ステップnにおける室iの湿度に関する係数 F_{t,cst}, kg/s, [i, 1]
     # 繰り返し計算（湿度と潜熱） eq.8
-    # TODO: 外気湿度の参照を n+1 にすべき。
     f_t_cst_is_n = get_rho_air() * ss.v_room_is / delta_t * c_n.x_r_is_n \
-        + get_rho_air() * v_out_vent_is_n * ss.x_o_ns[n] \
+        + get_rho_air() * v_out_vent_is_n * ss.x_o_ns[n + 1] \
         + ss.c_lh_frt_is * ss.g_lh_frt_is / (ss.c_lh_frt_is + delta_t * ss.g_lh_frt_is) * c_n.x_frt_is_n \
         + x_gen_is_n + x_hum_is_n
 
