@@ -6,6 +6,8 @@ import pandas as pd
 from dataclasses import dataclass
 from typing import List, Dict, Any, Callable
 
+from numpy import ndarray
+
 from heat_load_calc.external.global_number import get_c_air, get_rho_air
 from heat_load_calc.initializer import response_factor, shape_factor
 from heat_load_calc.core import infiltration
@@ -395,7 +397,12 @@ def make_pre_calc_parameters(delta_t: float, data_directory: str) -> (PreCalcPar
     pp = pd.read_csv(data_directory + '/weather.csv', index_col=0, engine='python')
 
     theta_o_ns = pp['temperature'].values
+    # ステップn+1に対応するために0番要素に最終要素を代入
+    theta_o_ns = np.append(theta_o_ns, theta_o_ns[0])
+
     x_o_ns = pp['absolute humidity'].values
+    # ステップn+1に対応するために0番要素に最終要素を代入
+    x_o_ns = np.append(x_o_ns, x_o_ns[0])
 
     # ステップnの室iにおける局所換気量, m3/s, [i, 8760*4]
     with open(data_directory + '/mid_data_local_vent.csv', 'r') as f:
@@ -427,10 +434,15 @@ def make_pre_calc_parameters(delta_t: float, data_directory: str) -> (PreCalcPar
         r = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
         q_trs_sol_is_ns = np.array([row for row in r]).T
 
+        # ステップn+1に対応するために0番要素に最終要素を代入
+        q_trs_sol_is_ns = np.append(q_trs_sol_is_ns, q_trs_sol_is_ns[:, 0:1], axis=1)
+
     # ステップnの境界jにおける裏面等価温度, ℃, [j, 8760*4]
     with open(data_directory + '/mid_data_theta_o_sol.csv', 'r') as f:
         r = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
         theta_o_sol_js_ns = np.array([row for row in r]).T
+        # ステップn+1に対応するために0番要素に最終要素を代入
+        theta_o_sol_js_ns = np.append(theta_o_sol_js_ns, theta_o_sol_js_ns[:, 0:1], axis=1)
 
     # endregion
 
