@@ -2,6 +2,7 @@ import unittest
 import os
 import json
 import csv
+import datetime
 
 from heat_load_calc.core import core
 
@@ -63,7 +64,7 @@ class MyTestCase(unittest.TestCase):
 
         # すきま風による熱取得, [W]
         v_reak = self._dd['rm0_v_reak']['1989-01-01 00:15:00']  # m3/s
-        t_o = self._dd['out_temp']['1989-01-01 00:15:00']  # C
+        t_o = self._dd['out_temp']['1989-01-01 00:30:00']  # C
         q_vent_reak = c_air * rho_air * v_reak * (t_o - t_r_new)
 
         # 計画換気による熱取得, [W]
@@ -150,7 +151,7 @@ class MyTestCase(unittest.TestCase):
 
         # すきま風による熱取得, [W]
         v_reak = self._dd['rm2_v_reak'][date_now]  # m3/s
-        t_o = self._dd['out_temp'][date_now]  # C
+        t_o = self._dd['out_temp']['1989/1/1  0:00:00']  # C
         q_vent_reak = c_air * rho_air * v_reak * (t_o - t_r_new)
 
         # 計画換気による熱取得, [W]
@@ -312,7 +313,7 @@ class MyTestCase(unittest.TestCase):
 
         # すきま風による湿気取得, [kg/s]
         v_reak = self._dd['rm0_v_reak'][date_now]  # m3/s
-        x_o = self._dd['out_abs_humid'][date_now]  # kg/kg(DA)
+        x_o = self._dd['out_abs_humid']['1989-08-08 12:15:00']  # kg/kg(DA)
         humid_reak = rho_air * v_reak * (x_o - x_r_new)
 
         # 計画換気による湿気取得, [kg/s]
@@ -392,7 +393,7 @@ class MyTestCase(unittest.TestCase):
 
         # すきま風による湿気取得, [kg/s]
         v_reak = self._dd['rm2_v_reak'][date_now]  # m3/s
-        x_o = self._dd['out_abs_humid'][date_now]  # kg/kg(DA)
+        x_o = self._dd['out_abs_humid']['1989-08-08 12:15:00']  # kg/kg(DA)
         humid_reak = rho_air * v_reak * (x_o - x_r_new)
 
         # 計画換気による湿気取得, [kg/s]
