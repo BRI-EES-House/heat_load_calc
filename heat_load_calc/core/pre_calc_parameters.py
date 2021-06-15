@@ -393,9 +393,11 @@ def make_pre_calc_parameters(delta_t: float, data_directory: str) -> (PreCalcPar
 
     theta_o_ns = pp['temperature'].values
     # ステップn+1に対応するために0番要素に最終要素を代入
-    theta_o_ns = np.insert(theta_o_ns, 0, theta_o_ns[-1])
-    # TODO: 湿度の整理が終わったら、ここも修正する必要がある。
+    theta_o_ns = np.append(theta_o_ns, theta_o_ns[0])
+
     x_o_ns = pp['absolute humidity'].values
+    # ステップn+1に対応するために0番要素に最終要素を代入
+    x_o_ns = np.append(x_o_ns, x_o_ns[0])
 
     # ステップnの室iにおける局所換気量, m3/s, [i, 8760*4]
     with open(data_directory + '/mid_data_local_vent.csv', 'r') as f:
@@ -428,14 +430,14 @@ def make_pre_calc_parameters(delta_t: float, data_directory: str) -> (PreCalcPar
         q_trs_sol_is_ns = np.array([row for row in r]).T
 
         # ステップn+1に対応するために0番要素に最終要素を代入
-        q_trs_sol_is_ns = np.insert(q_trs_sol_is_ns, 0, q_trs_sol_is_ns[:, -1], axis=1)
+        q_trs_sol_is_ns = np.append(q_trs_sol_is_ns, q_trs_sol_is_ns[:, 0:1], axis=1)
 
     # ステップnの境界jにおける裏面等価温度, ℃, [j, 8760*4]
     with open(data_directory + '/mid_data_theta_o_sol.csv', 'r') as f:
         r = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
         theta_o_sol_js_ns = np.array([row for row in r]).T
         # ステップn+1に対応するために0番要素に最終要素を代入
-        theta_o_sol_js_ns = np.insert(theta_o_sol_js_ns, 0, theta_o_sol_js_ns[:, -1], axis=1)
+        theta_o_sol_js_ns = np.append(theta_o_sol_js_ns, theta_o_sol_js_ns[:, 0:1], axis=1)
 
     # endregion
 
