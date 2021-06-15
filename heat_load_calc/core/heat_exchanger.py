@@ -1,5 +1,5 @@
 import numpy as np
-from functools import partial
+from functools import partial, reduce
 from typing import Union
 
 from heat_load_calc.external.psychrometrics import get_p_vs, get_x, get_p_vs_is2
@@ -21,7 +21,6 @@ def make_dehumidification_function(
     )
 
 
-
 def get_dehumid_coeff(
         lcs_is_n,
         theta_r_is_n_pls,
@@ -29,32 +28,14 @@ def get_dehumid_coeff(
         dehumidification_funcs
 ):
 
-    # Lcsは加熱が正で表される。
-    # 加熱時は除湿しない。
-    # 以下の取り扱いを簡単にするため（冷房負荷を正とするため）、正負を反転させる
-    qs_is_n = -lcs_is_n
+    ls = [
+        f(lcs_is_n=lcs_is_n, theta_r_is_n_pls=theta_r_is_n_pls, x_r_ntr_is_n_pls=x_r_ntr_is_n_pls)
+        for f in dehumidification_funcs
+    ]
 
-    n_room = len(qs_is_n.flatten())
+    l_a_is_is_n, l_b_is_n = reduce(lambda x, y: (x[0] + y[0], x[1] + y[1]), ls)
 
-    brmx_is_is = np.zeros((n_room, n_room), dtype=float)
-    brxc_is = np.zeros((n_room, 1), dtype=float)
-
-    for f in dehumidification_funcs:
-        m, c = f(
-            lcs_is_n=lcs_is_n,
-            theta_r_is_n_pls=theta_r_is_n_pls,
-            x_r_ntr_is_n_pls=x_r_ntr_is_n_pls,
-        )
-
-        brmx_is_is = brmx_is_is + m
-        brxc_is = brxc_is + c
-
-    brmx_rac_is_is = brmx_is_is
-    brxc_rac_is = brxc_is
-
-    return brmx_rac_is_is, brxc_rac_is
-
-
+    return l_a_is_is_n, l_b_is_n
 
 
 def func_rac(

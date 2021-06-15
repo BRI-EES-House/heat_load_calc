@@ -174,7 +174,7 @@ class PreCalcParameters:
 
     calc_next_temp_and_load: Callable
 
-    get_deh_coef: Callable
+    dehumidification_funcs: [Callable]
 
 
 @dataclass
@@ -598,14 +598,6 @@ def make_pre_calc_parameters(delta_t: float, data_directory: str) -> (PreCalcPar
         ) for equipment in equipments
     ]
 
-    def get_deh_coef(lcs_is_n, theta_r_is_npls, x_r_non_dh_is_n):
-        return heat_exchanger.get_dehumid_coeff(
-            lcs_is_n=lcs_is_n,
-            theta_r_is_n_pls=theta_r_is_npls,
-            x_r_ntr_is_n_pls=x_r_non_dh_is_n,
-            dehumidification_funcs=dehumidification_funcs
-        )
-
     pre_calc_parameters = PreCalcParameters(
         n_spaces=n_spaces,
         id_space_is=id_space_is,
@@ -658,7 +650,7 @@ def make_pre_calc_parameters(delta_t: float, data_directory: str) -> (PreCalcPar
         get_ot_target_and_h_hum=get_ot_target_and_h_hum,
         get_infiltration=get_infiltration,
         calc_next_temp_and_load=calc_next_temp_and_load,
-        get_deh_coef=get_deh_coef
+        dehumidification_funcs=dehumidification_funcs
     )
 
     pre_calc_parameters_ground = PreCalcParametersGround(

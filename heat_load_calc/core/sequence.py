@@ -1,5 +1,6 @@
 import numpy as np
 import json
+from functools import reduce
 
 from heat_load_calc.core.operation_mode import OperationMode
 from heat_load_calc.core.pre_calc_parameters import PreCalcParameters
@@ -231,13 +232,12 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
 
     # ==== ルームエアコン吹出絶対湿度の計算 ====
 
-    # i室のn時点におけるエアコンの（BFを考慮した）相当風量[m3/s]
-    # 空調の熱交換部飽和絶対湿度の計算
-    l_a_is_is_n, l_b_is_n = ss.get_deh_coef(
-        lcs_is_n=l_cs_is_n,
-        theta_r_is_npls=theta_r_is_n_pls,
-        x_r_non_dh_is_n=x_r_ntr_is_n_pls,
-    )
+    ls = [
+        f(lcs_is_n=l_cs_is_n, theta_r_is_n_pls=theta_r_is_n_pls, x_r_ntr_is_n_pls=x_r_ntr_is_n_pls)
+        for f in ss.dehumidification_funcs
+    ]
+
+    l_a_is_is_n, l_b_is_n = reduce(lambda x, y: (x[0] + y[0], x[1] + y[1]), ls)
 
     # 室絶対湿度の計算
     x_r_is_n_pls = np.dot(np.linalg.inv(f_t_wgt_is_is_n + l_a_is_is_n), f_t_cst_is_n + l_b_is_n)
