@@ -300,16 +300,6 @@ def make_pre_calc_parameters(delta_t: float, data_directory: str) -> (PreCalcPar
     is_radiative_cooling_is = np.array(is_radiative_cooling_is_list).reshape(-1, 1)
     lr_cs_max_cap_is = np.array(radiative_cooling_max_capacity_is_list).reshape(-1, 1)
 
-    rac_is = [
-        {
-            'space_id': i,
-            'q_min': s['equipment']['cooling']['convective']['q_min'],
-            'q_max': s['equipment']['cooling']['convective']['q_max'],
-            'v_min': s['equipment']['cooling']['convective']['v_min'],
-            'v_max': s['equipment']['cooling']['convective']['v_max']
-        } for i, s in enumerate(ss)
-    ]
-
     # endregion
 
     # region boundaries の読み込み
@@ -586,12 +576,28 @@ def make_pre_calc_parameters(delta_t: float, data_directory: str) -> (PreCalcPar
 
     # endregion
 
+    equipments = [
+        {
+            'equipment_id': i,
+            'space_id': i,
+            'trans_type': 'convective',
+            'equipment_type': 'rac',
+            'property': {
+                'q_min': s['equipment']['cooling']['convective']['q_min'],
+                'q_max': s['equipment']['cooling']['convective']['q_max'],
+                'v_min': s['equipment']['cooling']['convective']['v_min'],
+                'v_max': s['equipment']['cooling']['convective']['v_max'],
+                'bf': 0.2
+            }
+        } for i, s in enumerate(ss)
+    ]
+
     def get_deh_coef(lcs_is_n, theta_r_is_npls, x_r_non_dh_is_n):
         return heat_exchanger.get_dehumid_coeff(
             lcs_is_n=lcs_is_n,
             theta_r_is_n_pls=theta_r_is_npls,
             x_r_ntr_is_n_pls=x_r_non_dh_is_n,
-            rac_is=rac_is
+            rac_is=equipments
         )
 
     pre_calc_parameters = PreCalcParameters(

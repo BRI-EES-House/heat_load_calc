@@ -21,24 +21,20 @@ def get_dehumid_coeff(
 
     n_room = len(qs_is_n.flatten())
 
-    bf = 0.2
     brmx_is_is = np.zeros((n_room, n_room), dtype=float)
     brxc_is = np.zeros((n_room, 1), dtype=float)
 
-    for i in range(len(qs_is_n.flatten())):
-        brmx_is_is, brxc_is = func_rac(
+    for i in range(n_room):
+        m, c = func_rac(
+            n_room=n_room,
             id=rac_is[i]['space_id'],
-            brmx_is_is=brmx_is_is,
-            brxc_is=brxc_is,
-            q_rac_max_i=rac_is[i]['q_max'],
-            q_rac_min_i=rac_is[i]['q_min'],
-            q_s_i_n=qs_is_n[i][0],
-            v_rac_max_i=rac_is[i]['v_max'] / 60,
-            v_rac_min_i=rac_is[i]['v_min'] / 60,
-            bf_rac_i=bf,
-            theta_r_i_n_pls=theta_r_is_n_pls[i][0],
-            x_r_ntr_i_n_pls=x_r_ntr_is_n_pls[i][0]
+            q_s_is_n=qs_is_n,
+            theta_r_is_n_pls=theta_r_is_n_pls,
+            x_r_ntr_is_n_pls=x_r_ntr_is_n_pls,
+            prop=rac_is[i]['property']
         )
+        brmx_is_is = brmx_is_is + m
+        brxc_is = brxc_is + c
 
     brmx_rac_is_is = brmx_is_is
     brxc_rac_is = brxc_is
@@ -49,18 +45,21 @@ def get_dehumid_coeff(
 
 
 def func_rac(
+        n_room,
         id,
-        brmx_is_is,
-        brxc_is,
-        q_rac_max_i,
-        q_rac_min_i,
-        q_s_i_n,
-        v_rac_max_i,
-        v_rac_min_i,
-        bf_rac_i,
-        theta_r_i_n_pls,
-        x_r_ntr_i_n_pls
+        q_s_is_n,
+        theta_r_is_n_pls,
+        x_r_ntr_is_n_pls,
+        prop
 ):
+    q_rac_max_i = prop['q_max']
+    q_rac_min_i = prop['q_min']
+    v_rac_max_i = prop['v_max'] / 60
+    v_rac_min_i = prop['v_min'] / 60
+    bf_rac_i = prop['bf']
+    q_s_i_n = q_s_is_n[id, 0]
+    theta_r_i_n_pls = theta_r_is_n_pls[id, 0]
+    x_r_ntr_i_n_pls = x_r_ntr_is_n_pls[id, 0]
 
     v_rac_i_n = _get_vac_rac_i_n(
         q_rac_max_i=q_rac_max_i,
@@ -91,8 +90,11 @@ def func_rac(
         0.0
     )
 
-    brmx_is_is[id, id] = brmx_is_is[id, id] + brmx_rac_is
-    brxc_is[id, 0] = brxc_is[id, 0] + brcx_rac_is
+    brmx_is_is = np.zeros((n_room, n_room), dtype=float)
+    brxc_is = np.zeros((n_room, 1), dtype=float)
+
+    brmx_is_is[id, id] = brmx_rac_is
+    brxc_is[id, 0] = brcx_rac_is
 
     return brmx_is_is, brxc_is
 
