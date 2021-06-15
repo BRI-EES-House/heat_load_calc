@@ -7,26 +7,41 @@ from heat_load_calc.external.global_number import get_c_air, get_rho_air
 from heat_load_calc.core.matrix_method import v_diag
 
 
-def get_dehumid_coeff(lcs_is_n, theta_r_is_n_pls, x_r_ntr_is_n_pls, rac_spec):
+def get_dehumid_coeff(
+        lcs_is_n,
+        theta_r_is_n_pls,
+        x_r_ntr_is_n_pls,
+        rac_is
+):
+
     # Lcsは加熱が正で表される。
     # 加熱時は除湿しない。
     # 以下の取り扱いを簡単にするため（冷房負荷を正とするため）、正負を反転させる
     qs_is_n = -lcs_is_n
 
+    n_room = len(qs_is_n.flatten())
+
     bf = 0.2
+    brmx_is_is = np.zeros((n_room, n_room), dtype=float)
+    brxc_is = np.zeros((n_room, 1), dtype=float)
 
-    brmx_rac_is, brxc_rac_is = func_rac(
-        q_rac_max_i=rac_spec['q_max'],
-        q_rac_min_i=rac_spec['q_min'],
-        q_s_i_n=qs_is_n,
-        v_rac_max_i=rac_spec['v_max'] / 60,
-        v_rac_min_i=rac_spec['v_min'] / 60,
-        bf_rac_i=bf,
-        theta_r_i_n_pls=theta_r_is_n_pls,
-        x_r_ntr_i_n_pls=x_r_ntr_is_n_pls
-    )
+    for i in range(len(qs_is_n.flatten())):
+        brmx_is_is, brxc_is = func_rac(
+            id=rac_is[i]['space_id'],
+            brmx_is_is=brmx_is_is,
+            brxc_is=brxc_is,
+            q_rac_max_i=rac_is[i]['q_max'],
+            q_rac_min_i=rac_is[i]['q_min'],
+            q_s_i_n=qs_is_n[i][0],
+            v_rac_max_i=rac_is[i]['v_max'] / 60,
+            v_rac_min_i=rac_is[i]['v_min'] / 60,
+            bf_rac_i=bf,
+            theta_r_i_n_pls=theta_r_is_n_pls[i][0],
+            x_r_ntr_i_n_pls=x_r_ntr_is_n_pls[i][0]
+        )
 
-    brmx_rac_is_is = v_diag(brmx_rac_is)
+    brmx_rac_is_is = brmx_is_is
+    brxc_rac_is = brxc_is
 
     return brmx_rac_is_is, brxc_rac_is
 
@@ -34,6 +49,9 @@ def get_dehumid_coeff(lcs_is_n, theta_r_is_n_pls, x_r_ntr_is_n_pls, rac_spec):
 
 
 def func_rac(
+        id,
+        brmx_is_is,
+        brxc_is,
         q_rac_max_i,
         q_rac_min_i,
         q_s_i_n,
@@ -73,7 +91,10 @@ def func_rac(
         0.0
     )
 
-    return brmx_rac_is, brcx_rac_is
+    brmx_is_is[id, id] = brmx_is_is[id, id] + brmx_rac_is
+    brxc_is[id, 0] = brxc_is[id, 0] + brcx_rac_is
+
+    return brmx_is_is, brxc_is
 
 
 def _get_x_rac_ex_srf_i_n_pls(theta_rac_ex_srf_i_n_pls: float) -> float:
