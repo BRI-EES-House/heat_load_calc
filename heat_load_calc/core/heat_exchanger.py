@@ -1,5 +1,5 @@
 import numpy as np
-
+from functools import partial
 from typing import Union
 
 from heat_load_calc.external.psychrometrics import get_p_vs, get_x, get_p_vs_is2
@@ -7,11 +7,26 @@ from heat_load_calc.external.global_number import get_c_air, get_rho_air
 from heat_load_calc.core.matrix_method import v_diag
 
 
+def make_dehumidification_function(
+        n_room: int,
+        space_id: int,
+        prop: dict
+):
+
+    return partial(
+        func_rac,
+        n_room=n_room,
+        id=space_id,
+        prop=prop
+    )
+
+
+
 def get_dehumid_coeff(
         lcs_is_n,
         theta_r_is_n_pls,
         x_r_ntr_is_n_pls,
-        rac_is
+        dehumidification_funcs
 ):
 
     # Lcsは加熱が正で表される。
@@ -24,15 +39,13 @@ def get_dehumid_coeff(
     brmx_is_is = np.zeros((n_room, n_room), dtype=float)
     brxc_is = np.zeros((n_room, 1), dtype=float)
 
-    for i in range(n_room):
-        m, c = func_rac(
-            n_room=n_room,
-            id=rac_is[i]['space_id'],
-            q_s_is_n=qs_is_n,
+    for f in dehumidification_funcs:
+        m, c = f(
+            lcs_is_n=lcs_is_n,
             theta_r_is_n_pls=theta_r_is_n_pls,
             x_r_ntr_is_n_pls=x_r_ntr_is_n_pls,
-            prop=rac_is[i]['property']
         )
+
         brmx_is_is = brmx_is_is + m
         brxc_is = brxc_is + c
 
@@ -47,11 +60,17 @@ def get_dehumid_coeff(
 def func_rac(
         n_room,
         id,
-        q_s_is_n,
+        lcs_is_n,
         theta_r_is_n_pls,
         x_r_ntr_is_n_pls,
         prop
 ):
+
+    # Lcsは加熱が正で表される。
+    # 加熱時は除湿しない。
+    # 以下の取り扱いを簡単にするため（冷房負荷を正とするため）、正負を反転させる
+    q_s_is_n = -lcs_is_n
+
     q_rac_max_i = prop['q_max']
     q_rac_min_i = prop['q_min']
     v_rac_max_i = prop['v_max'] / 60
