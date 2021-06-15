@@ -393,7 +393,7 @@ def make_pre_calc_parameters(delta_t: float, data_directory: str) -> (PreCalcPar
 
     theta_o_ns = pp['temperature'].values
     # ステップn+1に対応するために0番要素に最終要素を代入
-    theta_o_ns = np.insert(theta_o_ns, 0, 100)
+    theta_o_ns = np.insert(theta_o_ns, 0, theta_o_ns[-1])
     # TODO: 湿度の整理が終わったら、ここも修正する必要がある。
     x_o_ns = pp['absolute humidity'].values
 
