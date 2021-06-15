@@ -27,7 +27,7 @@ def get_dehumid_coeff(
 
     for i in range(len(qs_is_n.flatten())):
         brmx_is_is, brxc_is = func_rac(
-            id=i,
+            id=rac_is[i]['space_id'],
             brmx_is_is=brmx_is_is,
             brxc_is=brxc_is,
             q_rac_max_i=rac_is[i]['q_max'],
