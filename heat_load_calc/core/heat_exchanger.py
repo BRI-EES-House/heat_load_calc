@@ -1,10 +1,9 @@
 import numpy as np
-from functools import partial, reduce
+from functools import partial
 from typing import Union
 
-from heat_load_calc.external.psychrometrics import get_p_vs, get_x, get_p_vs_is2
+from heat_load_calc.external.psychrometrics import get_x, get_p_vs_is2
 from heat_load_calc.external.global_number import get_c_air, get_rho_air
-from heat_load_calc.core.matrix_method import v_diag
 
 
 def make_dehumidification_function(
