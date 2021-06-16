@@ -14,16 +14,14 @@ def make_dehumidification_function(
 ):
 
     return partial(
-        func_rac,
+        _func_rac,
         n_room=n_room,
         id=space_id,
         prop=prop
     )
 
 
-
-
-def func_rac(
+def _func_rac(
         n_room,
         id,
         lcs_is_n,
