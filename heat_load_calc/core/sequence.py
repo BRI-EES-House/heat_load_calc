@@ -232,11 +232,16 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
 
     # ==== ルームエアコン吹出絶対湿度の計算 ====
 
+    # 顕熱負荷・室内温度・除加湿を行わない場合の室絶対湿度から、除加湿計算に必要な係数 la 及び lb を計算する。
+    # 下記、変数 l は、係数 la と lb のタプルであり、変数 ls は変数 l のリスト。
     ls = [
         f(lcs_is_n=l_cs_is_n, theta_r_is_n_pls=theta_r_is_n_pls, x_r_ntr_is_n_pls=x_r_ntr_is_n_pls)
         for f in ss.dehumidification_funcs
     ]
 
+    # 係数 la 及び lb それぞれ合計する。
+    # la [i,i] kg/s(kg/kg(DA))
+    # lb [i,1] kg/kg(DA)
     l_a_is_is_n, l_b_is_n = reduce(lambda x, y: (x[0] + y[0], x[1] + y[1]), ls)
 
     # 室絶対湿度の計算
