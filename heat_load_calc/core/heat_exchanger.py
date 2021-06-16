@@ -12,6 +12,17 @@ def make_dehumidification_function(
         space_id: int,
         prop: dict
 ):
+    """
+    除湿計算に必要な係数 la 及び lb を計算する関数を、引数の部分適用を行うことにより作成する。
+    Args:
+        n_room: 空間の数
+        space_id:
+        prop: 除湿機器のプロパティ
+    Returns:
+        係数 la 及び lb のタプル
+            係数 la [i, i] kg/s(kg/kg(DA))
+            係数 lb [i, 1] kg/kg(DA)
+    """
 
     return partial(
         _func_rac,
