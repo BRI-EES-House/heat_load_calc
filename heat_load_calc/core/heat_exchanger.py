@@ -21,21 +21,6 @@ def make_dehumidification_function(
     )
 
 
-def get_dehumid_coeff(
-        lcs_is_n,
-        theta_r_is_n_pls,
-        x_r_ntr_is_n_pls,
-        dehumidification_funcs
-):
-
-    ls = [
-        f(lcs_is_n=lcs_is_n, theta_r_is_n_pls=theta_r_is_n_pls, x_r_ntr_is_n_pls=x_r_ntr_is_n_pls)
-        for f in dehumidification_funcs
-    ]
-
-    l_a_is_is_n, l_b_is_n = reduce(lambda x, y: (x[0] + y[0], x[1] + y[1]), ls)
-
-    return l_a_is_is_n, l_b_is_n
 
 
 def func_rac(
