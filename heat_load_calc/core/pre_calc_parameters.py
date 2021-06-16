@@ -579,10 +579,10 @@ def make_pre_calc_parameters(delta_t: float, data_directory: str) -> (PreCalcPar
     equipments = [
         {
             'equipment_id': i,
-            'space_id': i,
-            'trans_type': 'convective',
             'equipment_type': 'rac',
             'property': {
+                'space_id': i,
+                'trans_type': 'convective',
                 'q_min': s['equipment']['cooling']['convective']['q_min'],
                 'q_max': s['equipment']['cooling']['convective']['q_max'],
                 'v_min': s['equipment']['cooling']['convective']['v_min'],
@@ -594,7 +594,7 @@ def make_pre_calc_parameters(delta_t: float, data_directory: str) -> (PreCalcPar
 
     dehumidification_funcs = [
         heat_exchanger.make_dehumidification_function(
-            n_room=n_spaces, space_id=equipment['space_id'], prop=equipment['property']
+            n_room=n_spaces, equipment_type=equipment['equipment_type'], prop=equipment['property']
         ) for equipment in equipments
     ]
 

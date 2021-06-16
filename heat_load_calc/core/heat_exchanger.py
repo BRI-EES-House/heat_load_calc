@@ -9,14 +9,14 @@ from heat_load_calc.core.matrix_method import v_diag
 
 def make_dehumidification_function(
         n_room: int,
-        space_id: int,
+        equipment_type: str,
         prop: dict
 ):
     """
     除湿計算に必要な係数 la 及び lb を計算する関数を、引数の部分適用を行うことにより作成する。
     Args:
         n_room: 空間の数
-        space_id:
+        equipment_type: 機器の種類
         prop: 除湿機器のプロパティ
     Returns:
         係数 la 及び lb のタプル
@@ -27,14 +27,12 @@ def make_dehumidification_function(
     return partial(
         _func_rac,
         n_room=n_room,
-        id=space_id,
         prop=prop
     )
 
 
 def _func_rac(
         n_room,
-        id,
         lcs_is_n,
         theta_r_is_n_pls,
         x_r_ntr_is_n_pls,
@@ -45,6 +43,8 @@ def _func_rac(
     # 加熱時は除湿しない。
     # 以下の取り扱いを簡単にするため（冷房負荷を正とするため）、正負を反転させる
     q_s_is_n = -lcs_is_n
+
+    id = prop['space_id']
 
     q_rac_max_i = prop['q_max']
     q_rac_min_i = prop['q_min']
