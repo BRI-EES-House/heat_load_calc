@@ -12,6 +12,7 @@ from heat_load_calc.core import ot_target_pmv
 from heat_load_calc.core import heat_exchanger
 from heat_load_calc.core.matrix_method import v_diag
 from heat_load_calc.core import occupants
+from operator import add
 
 
 def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, logger: Logger, run_up: bool) -> Conditions:
@@ -242,7 +243,8 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
     # 係数 la 及び lb それぞれ合計する。
     # la [i,i] kg/s(kg/kg(DA))
     # lb [i,1] kg/kg(DA)
-    l_a_is_is_n, l_b_is_n = reduce(lambda x, y: (x[0] + y[0], x[1] + y[1]), ls)
+    l_a_is_is_n, l_b_is_n = reduce(lambda x, y: map(add, x, y), ls)
+
 
     # 室絶対湿度の計算
     x_r_is_n_pls = np.dot(np.linalg.inv(f_t_wgt_is_is_n + l_a_is_is_n), f_t_cst_is_n + l_b_is_n)
