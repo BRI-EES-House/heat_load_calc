@@ -9,7 +9,7 @@ from heat_load_calc.external.global_number import get_c_air, get_rho_air, get_l_
 from heat_load_calc.core.log import Logger
 from heat_load_calc.core import next_condition
 from heat_load_calc.core import ot_target_pmv
-from heat_load_calc.core import heat_exchanger
+from heat_load_calc.core import humidification
 from heat_load_calc.core.matrix_method import v_diag
 from heat_load_calc.core import occupants
 from operator import add

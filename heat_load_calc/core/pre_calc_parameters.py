@@ -13,7 +13,7 @@ from heat_load_calc.initializer import response_factor, shape_factor
 from heat_load_calc.core import infiltration
 from heat_load_calc.core import ot_target
 from heat_load_calc.core import next_condition
-from heat_load_calc.core import heat_exchanger
+from heat_load_calc.core import humidification
 
 
 @dataclass
@@ -593,7 +593,7 @@ def make_pre_calc_parameters(delta_t: float, data_directory: str) -> (PreCalcPar
     ]
 
     dehumidification_funcs = [
-        heat_exchanger.make_dehumidification_function(
+        humidification.make_dehumidification_function(
             n_room=n_spaces, equipment_type=equipment['equipment_type'], prop=equipment['property']
         ) for equipment in equipments
     ]
