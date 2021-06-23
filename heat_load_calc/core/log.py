@@ -77,8 +77,14 @@ class Logger:
         # ステップnの室iにおける家具取得水蒸気量, kg/s, [i, n]
         self.q_l_frt = np.zeros((n_spaces, n_step_main), dtype=float)
 
-        # スペースの備考, [i, n]
-        self.space_remarks = np.full((n_spaces, n_step_main), '', dtype=object)
+        # ステップnの室iにおけるPMV目標値, [i, n]
+        self.pmv_target = np.zeros((n_spaces, n_step_main), dtype=float)
+
+        # ステップnの室iにおける人体廻りの風速, C, [i, n]
+        self.v_hum = np.zeros((n_spaces, n_step_main), dtype=float)
+
+        # ステップnの室iにおけるClo値, [i, n]
+        self.clo = np.zeros((n_spaces, n_step_main), dtype=float)
 
         # ステップnの統合された境界j*の室内側表面温度, degree C, [j*, n]
         self.theta_s = np.zeros((n_boundaries, n_step_main), dtype=float)
@@ -189,7 +195,9 @@ def record(pps: PreCalcParameters, logger: Logger, output_data_dir: str, show_si
         dd[name + '_q_l_fun'] = logger.q_l_frt[i][0:n_step_main]
         dd[name + '_v_reak'] = logger.v_reak_is_ns[i][0:n_step_main]
         dd[name + '_v_ntrl'] = logger.v_ntrl_is_ns[i][0:n_step_main]
-        dd[name + '_remarks'] = logger.space_remarks[i][0:n_step_main]
+        dd[name + '_pmv_target'] = logger.pmv_target[i][0:n_step_main]
+        dd[name + '_v_hum'] = logger.v_hum[i][0:n_step_main]
+        dd[name + '_clo'] = logger.clo[i][0:n_step_main]
 
         selected = pps.p_is_js[i] == 1
         boundary_names = pps.name_bdry_js[selected]

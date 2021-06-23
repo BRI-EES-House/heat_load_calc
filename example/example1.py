@@ -19,7 +19,7 @@ def run():
 
     initializer.make_house(d=d, input_data_dir=data_dir, output_data_dir=data_dir)
 
-    core.calc(input_data_dir=data_dir, output_data_dir=data_dir, show_simple_result=True, show_detail_result=False)
+    core.calc(input_data_dir=data_dir, output_data_dir=data_dir, show_simple_result=True, show_detail_result=True)
 
 
 if __name__ == '__main__':

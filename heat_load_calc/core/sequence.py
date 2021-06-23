@@ -286,7 +286,9 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
         logger.theta_rear[:, n] = theta_rear_js_n.flatten()
         logger.qiall_s[:, n] = q_srf_js_n.flatten()
 
-        logger.space_remarks[:, n] = np.array([json.dumps(remark) for remark in remarks_is_n])
+        logger.pmv_target[:, n] = np.array([remark['pmv_target'] for remark in remarks_is_n])
+        logger.v_hum[:, n] = np.array([remark['v_hum m/s'] for remark in remarks_is_n])
+        logger.clo[:, n] = np.array([remark['clo'] for remark in remarks_is_n])
 
     return Conditions(
         operation_mode_is_n=operation_mode_is_n,
