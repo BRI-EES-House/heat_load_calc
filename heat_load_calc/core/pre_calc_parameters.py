@@ -13,7 +13,7 @@ from heat_load_calc.initializer import response_factor, shape_factor
 from heat_load_calc.core import infiltration
 from heat_load_calc.core import ot_target
 from heat_load_calc.core import next_condition
-from heat_load_calc.core import heat_exchanger
+from heat_load_calc.core import humidification
 
 
 @dataclass
@@ -174,7 +174,7 @@ class PreCalcParameters:
 
     calc_next_temp_and_load: Callable
 
-    get_deh_coef: Callable
+    dehumidification_funcs: [Callable]
 
 
 @dataclass
@@ -299,16 +299,6 @@ def make_pre_calc_parameters(delta_t: float, data_directory: str) -> (PreCalcPar
     lr_h_max_cap_is = np.array(radiative_heating_max_capacity_is_list).reshape(-1, 1)
     is_radiative_cooling_is = np.array(is_radiative_cooling_is_list).reshape(-1, 1)
     lr_cs_max_cap_is = np.array(radiative_cooling_max_capacity_is_list).reshape(-1, 1)
-
-    rac_is = [
-        {
-            'space_id': i,
-            'q_min': s['equipment']['cooling']['convective']['q_min'],
-            'q_max': s['equipment']['cooling']['convective']['q_max'],
-            'v_min': s['equipment']['cooling']['convective']['v_min'],
-            'v_max': s['equipment']['cooling']['convective']['v_max']
-        } for i, s in enumerate(ss)
-    ]
 
     # endregion
 
@@ -586,13 +576,27 @@ def make_pre_calc_parameters(delta_t: float, data_directory: str) -> (PreCalcPar
 
     # endregion
 
-    def get_deh_coef(lcs_is_n, theta_r_is_npls, x_r_non_dh_is_n):
-        return heat_exchanger.get_dehumid_coeff(
-            lcs_is_n=lcs_is_n,
-            theta_r_is_n_pls=theta_r_is_npls,
-            x_r_ntr_is_n_pls=x_r_non_dh_is_n,
-            rac_is=rac_is
-        )
+    equipments = [
+        {
+            'equipment_id': i,
+            'equipment_type': 'rac',
+            'property': {
+                'space_id': i,
+                'trans_type': 'convective',
+                'q_min': s['equipment']['cooling']['convective']['q_min'],
+                'q_max': s['equipment']['cooling']['convective']['q_max'],
+                'v_min': s['equipment']['cooling']['convective']['v_min'],
+                'v_max': s['equipment']['cooling']['convective']['v_max'],
+                'bf': 0.2
+            }
+        } for i, s in enumerate(ss)
+    ]
+
+    dehumidification_funcs = [
+        humidification.make_dehumidification_function(
+            n_room=n_spaces, equipment_type=equipment['equipment_type'], prop=equipment['property']
+        ) for equipment in equipments
+    ]
 
     pre_calc_parameters = PreCalcParameters(
         n_spaces=n_spaces,
@@ -646,7 +650,7 @@ def make_pre_calc_parameters(delta_t: float, data_directory: str) -> (PreCalcPar
         get_ot_target_and_h_hum=get_ot_target_and_h_hum,
         get_infiltration=get_infiltration,
         calc_next_temp_and_load=calc_next_temp_and_load,
-        get_deh_coef=get_deh_coef
+        dehumidification_funcs=dehumidification_funcs
     )
 
     pre_calc_parameters_ground = PreCalcParametersGround(

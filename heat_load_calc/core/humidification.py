@@ -1,66 +1,58 @@
 import numpy as np
-
+from functools import partial
 from typing import Union
 
-from heat_load_calc.external.psychrometrics import get_p_vs, get_x, get_p_vs_is2
+from heat_load_calc.external.psychrometrics import get_x, get_p_vs_is2
 from heat_load_calc.external.global_number import get_c_air, get_rho_air
-from heat_load_calc.core.matrix_method import v_diag
 
 
-def get_dehumid_coeff(
+def make_dehumidification_function(
+        n_room: int,
+        equipment_type: str,
+        prop: dict
+):
+    """
+    除湿計算に必要な係数 la 及び lb を計算する関数を、引数の部分適用を行うことにより作成する。
+    Args:
+        n_room: 空間の数
+        equipment_type: 機器の種類
+        prop: 除湿機器のプロパティ
+    Returns:
+        係数 la 及び lb のタプル
+            係数 la [i, i] kg/s(kg/kg(DA))
+            係数 lb [i, 1] kg/kg(DA)
+    """
+
+    return partial(
+        _func_rac,
+        n_room=n_room,
+        prop=prop
+    )
+
+
+def _func_rac(
+        n_room,
         lcs_is_n,
         theta_r_is_n_pls,
         x_r_ntr_is_n_pls,
-        rac_is
+        prop
 ):
 
     # Lcsは加熱が正で表される。
     # 加熱時は除湿しない。
     # 以下の取り扱いを簡単にするため（冷房負荷を正とするため）、正負を反転させる
-    qs_is_n = -lcs_is_n
+    q_s_is_n = -lcs_is_n
 
-    n_room = len(qs_is_n.flatten())
+    id = prop['space_id']
 
-    bf = 0.2
-    brmx_is_is = np.zeros((n_room, n_room), dtype=float)
-    brxc_is = np.zeros((n_room, 1), dtype=float)
-
-    for i in range(len(qs_is_n.flatten())):
-        brmx_is_is, brxc_is = func_rac(
-            id=rac_is[i]['space_id'],
-            brmx_is_is=brmx_is_is,
-            brxc_is=brxc_is,
-            q_rac_max_i=rac_is[i]['q_max'],
-            q_rac_min_i=rac_is[i]['q_min'],
-            q_s_i_n=qs_is_n[i][0],
-            v_rac_max_i=rac_is[i]['v_max'] / 60,
-            v_rac_min_i=rac_is[i]['v_min'] / 60,
-            bf_rac_i=bf,
-            theta_r_i_n_pls=theta_r_is_n_pls[i][0],
-            x_r_ntr_i_n_pls=x_r_ntr_is_n_pls[i][0]
-        )
-
-    brmx_rac_is_is = brmx_is_is
-    brxc_rac_is = brxc_is
-
-    return brmx_rac_is_is, brxc_rac_is
-
-
-
-
-def func_rac(
-        id,
-        brmx_is_is,
-        brxc_is,
-        q_rac_max_i,
-        q_rac_min_i,
-        q_s_i_n,
-        v_rac_max_i,
-        v_rac_min_i,
-        bf_rac_i,
-        theta_r_i_n_pls,
-        x_r_ntr_i_n_pls
-):
+    q_rac_max_i = prop['q_max']
+    q_rac_min_i = prop['q_min']
+    v_rac_max_i = prop['v_max'] / 60
+    v_rac_min_i = prop['v_min'] / 60
+    bf_rac_i = prop['bf']
+    q_s_i_n = q_s_is_n[id, 0]
+    theta_r_i_n_pls = theta_r_is_n_pls[id, 0]
+    x_r_ntr_i_n_pls = x_r_ntr_is_n_pls[id, 0]
 
     v_rac_i_n = _get_vac_rac_i_n(
         q_rac_max_i=q_rac_max_i,
@@ -91,8 +83,11 @@ def func_rac(
         0.0
     )
 
-    brmx_is_is[id, id] = brmx_is_is[id, id] + brmx_rac_is
-    brxc_is[id, 0] = brxc_is[id, 0] + brcx_rac_is
+    brmx_is_is = np.zeros((n_room, n_room), dtype=float)
+    brxc_is = np.zeros((n_room, 1), dtype=float)
+
+    brmx_is_is[id, id] = brmx_rac_is
+    brxc_is[id, 0] = brcx_rac_is
 
     return brmx_is_is, brxc_is
 
