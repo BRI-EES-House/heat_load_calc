@@ -216,12 +216,16 @@ class TestAllAtOnce(unittest.TestCase):
     # 室内放射熱量の熱収支の確認
     def test_radiative_heat_balance(self):
 
-        # 部位の放射熱取得, [W]
-        surf_radiative_heat = 0.0
-        for i in range(0, 12):
-            surf_radiative_heat += self._dd['rm0_b' + str(i) + '_qir_s']['1989-01-01 00:15:00']
+        # 各室の部位の数
+        n_part = [12, 26, 12]
 
-        self.assertAlmostEqual(surf_radiative_heat, 0.0)
+        for rm in range(3):
+            # 部位の放射熱取得, [W]
+            surf_radiative_heat = 0.0
+            for i in range(n_part[rm]):
+                surf_radiative_heat += self._dd['rm' + str(rm) + '_b' + str(i) + '_qir_s']['1989-01-01 12:15:00']
+
+            self.assertAlmostEqual(surf_radiative_heat, 0.0)
 
     # 家具の熱収支のテスト
     def test_furniture_heat_balance(self):
