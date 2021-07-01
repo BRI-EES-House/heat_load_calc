@@ -3,7 +3,6 @@ import os
 import json
 import csv
 import datetime
-import numpy as np
 
 from heat_load_calc.core import core
 
@@ -194,15 +193,12 @@ class MyTestCase(unittest.TestCase):
     # 室内放射熱量の熱収支の確認
     def test_radiative_heat_balance(self):
 
-        n_part = np.array([12, 26, 12])
-
         # 部位の放射熱取得, [W]
-        for rm in range(3):
-            surf_radiative_heat = 0.0
-            for i in range(n_part[rm]):
-                surf_radiative_heat += self._dd['rm' + str(rm) + '_b' + str(i) + '_qir_s']['1989-01-01 00:15:00']
-    
-            self.assertAlmostEqual(surf_radiative_heat, 0.0)
+        surf_radiative_heat = 0.0
+        for i in range(0, 12):
+            surf_radiative_heat += self._dd['rm0_b' + str(i) + '_qir_s']['1989-01-01 00:15:00']
+
+        self.assertAlmostEqual(surf_radiative_heat, 0.0)
 
     # 家具の熱収支のテスト
     def test_furniture_heat_balance(self):
