@@ -11,6 +11,7 @@ from heat_load_calc.core import core
 # @unittest.skip('skip multi zone test_1_1')
 class MyTestCase(unittest.TestCase):
 
+    @unittest.skip("熱収支のテストはall at onceに集約")
     @classmethod
     def setUpClass(cls):
 
