@@ -42,32 +42,28 @@ class TestSteadyState(unittest.TestCase):
         # pre_calc_parametersの構築
         ss, ppg = pre_calc_parameters.make_pre_calc_parameters(delta_t=900.0, data_directory=s_folder)
 
-        q_srf_js_n = np.array([[12.7809215844786, 12.7809215844786, 12.7809215844786, 12.7809215844786,
-            36.6603790532651, 12.2159346088206]]).reshape(-1, 1)
+        q_srf_js_n = np.array([[12.7809219004777, 12.7809219004777, 12.7809219004777, 12.7809219004777,
+            36.6603793746687, 12.2159349302242]]).reshape(-1, 1)
 
         theta_ei_js_n = np.array(
-            [[2.748585287, 2.748585287, 2.748585287, 2.748585287, 8.248585287, 2.748585287]]).reshape(-1, 1)
+            [[2.748585309, 2.748585309, 2.748585309, 2.748585309, 8.248585309, 2.748585309]]).reshape(-1, 1)
 
         # 初期状態値の計算
         c_n = conditions.Conditions(
             operation_mode_is_n=np.array([[operation_mode.OperationMode.STOP_CLOSE]]),
-            theta_r_is_n=np.array([[4.57208812325]]),
-            theta_mrt_hum_is_n=np.array([[2.64248711]]),
+            theta_r_is_n=np.array([[4.57208809459]]),
+            theta_mrt_hum_is_n=np.array([[2.642487123]]),
             x_r_is_n=np.array([[0.0]]),
             theta_dsh_srf_a_js_ms_n=q_srf_js_n * ss.phi_a1_js_ms / (1.0 - ss.r_js_ms),
             theta_dsh_srf_t_js_ms_n=(np.dot(ss.k_ei_js_js, theta_ei_js_n) + ss.theta_dstrb_js_ns[:, 1].reshape(-1, 1)) * ss.phi_t1_js_ms / (1.0 - ss.r_js_ms),
             q_srf_js_n=q_srf_js_n,
-            theta_frt_is_n=np.array([[4.57208812325]]),
+            theta_frt_is_n=np.array([[22.60960613]]),
             x_frt_is_n=np.array([[0.0]]),
             theta_ei_js_n=theta_ei_js_n
         )
 
-        c_n_pls = c_n
-
         # 計算実行
-        for i in range(300):
-            c_n = c_n_pls
-            c_n_pls = sequence.run_tick(n=0, delta_t=900.0, ss=ss, c_n=c_n, logger=None, run_up=True)
+        c_n_pls = sequence.run_tick(n=0, delta_t=900.0, ss=ss, c_n=c_n, logger=None, run_up=True)
 
         # 計算結果格納
         cls._c_n = c_n
