@@ -11,6 +11,7 @@ from heat_load_calc.core import core
 # @unittest.skip('skip multi zone test_1_1')
 class MyTestCase(unittest.TestCase):
 
+    @unittest.skip("熱収支のテストはall at onceに集約")
     @classmethod
     def setUpClass(cls):
 
@@ -102,16 +103,6 @@ class MyTestCase(unittest.TestCase):
         L_s = self._dd['rm0_l_s_c']['1989-01-01 00:15:00']
 
         # 熱収支のテスト
-        print('heat_storage=', heat_storage)
-        print('surf_conv_heat=', surf_conv_heat)
-        print('q_fun=', q_fun)
-        print('q_vent_reak=', q_vent_reak)
-        print('q_vent_mecha=', q_vent_mecha)
-        print('q_vent_natural=', q_vent_natural)
-        print('q_next_vent=', q_next_vent)
-        print('q_local_vent=', q_local_vent)
-        print('q_internal=', q_internal)
-        print('L_s=', L_s)
         self.assertAlmostEqual(heat_storage,
                                + surf_conv_heat \
                                + q_fun \
@@ -189,16 +180,6 @@ class MyTestCase(unittest.TestCase):
         L_s = self._dd['rm2_l_s_c'][date_now]
 
         # 熱収支のテスト
-        print('heat_storage=', heat_storage)
-        print('surf_conv_heat=', surf_conv_heat)
-        print('q_fun=', q_fun)
-        print('q_vent_reak=', q_vent_reak)
-        print('q_vent_mecha=', q_vent_mecha)
-        print('q_vent_natural=', q_vent_natural)
-        print('q_next_vent=', q_next_vent)
-        print('q_local_vent=', q_local_vent)
-        print('q_internal=', q_internal)
-        print('L_s=', L_s)
         self.assertAlmostEqual(heat_storage,
                                + surf_conv_heat \
                                + q_fun \
@@ -350,16 +331,6 @@ class MyTestCase(unittest.TestCase):
         # 潜熱負荷, [kg/s]
         L_l = self._dd['rm0_l_l_c'][date_now] / 2501000.0
 
-        print('humid_storage=', humid_storage)
-        print('humid_fun=', humid_fun)
-        print('humid_reak=', humid_reak)
-        print('humid_mecha=', humid_mecha)
-        print('humid_natural=', humid_natural)
-        print('humid_next_vent=', humid_next_vent)
-        print('humid_local=', humid_local)
-        print('humid_internal=', humid_internal)
-        print('L_l=', L_l)
-
         self.assertAlmostEqual(humid_storage,
                                humid_fun + humid_reak + humid_mecha
                                + humid_natural + humid_next_vent
@@ -429,16 +400,6 @@ class MyTestCase(unittest.TestCase):
 
         # 潜熱負荷, [kg/s]
         L_l = self._dd['rm2_l_l_c'][date_now] / 2501000.0
-
-        print('humid_storage=', humid_storage)
-        print('humid_fun=', humid_fun)
-        print('humid_reak=', humid_reak)
-        print('humid_mecha=', humid_mecha)
-        print('humid_natural=', humid_natural)
-        print('humid_next_vent=', humid_next_vent)
-        print('humid_local=', humid_local)
-        print('humid_internal=', humid_internal)
-        print('L_l=', L_l)
 
         self.assertAlmostEqual(humid_storage,
                                humid_fun + humid_reak + humid_mecha
