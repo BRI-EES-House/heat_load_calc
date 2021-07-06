@@ -151,14 +151,14 @@ def get_pmv(f_cl, h_c, m, p_a, t_a, t_cl, t_r_bar, w):
         equation (1)
     """
 
-    pmv = (0.303 * np.exp(-0.036 * m) + 0.028) * (
+    pmv = np.minimum(np.maximum(0.303 * np.exp(-0.036 * m) + 0.028) * (
             (m - w)
             - get_latent_heat_loss_from_skin(m, p_a, w)
             - get_the_sweating_heat_loss(m, w)
             - get_latent_heat_loss_with_breathing(m, p_a)
             - get_sensible_heat_loss_with_breathing(m, t_a)
             - get_radiative_heat_loss_from_clothing(f_cl, t_cl, t_r_bar)
-            - get_convective_heat_loss_from_clothing(f_cl, h_c, t_a, t_cl))
+            - get_convective_heat_loss_from_clothing(f_cl, h_c, t_a, t_cl), -3.0), 3.0)
 
     ppd = get_ppd(pmv=pmv)
 
