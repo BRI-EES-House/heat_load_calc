@@ -22,7 +22,7 @@ copyright = '2021, Hisashi Miura'
 author = 'Hisashi Miura'
 
 # The full version, including alpha/beta/rc tags
-release = '1.0.0'
+release = '0.0.1'
 
 
 # -- General configuration ---------------------------------------------------
@@ -42,6 +42,23 @@ templates_path = ['_templates']
 # This is also used if you do content translation via gettext catalogs.
 # Usually you set "language" from the command line for these cases.
 language = 'ja'
+
+# 通常のlatexだと日本語PDF化がうまくいかないため、latexエンジンをplatexに変更した。
+latex_engine = 'platex'
+latex_use_xindy = False
+
+# latex は、章・節という概念があり、章はpart 節はsection
+# 節は、1,2,3 の後に,Appendix があるため自動振番をキャンセルしたかったため、
+# latex のプリアンブル部にセクションをカウントする深さを0（つまり番号をつけない）とした。
+# 図・表に勝手に図1とか表1とかの番号がつくためキャンセルさせた。
+latex_elements = {
+    'papersize': 'a4paper',
+    'preamble': '''
+\\setcounter{secnumdepth}{0}
+\\usepackage[labelformat=empty,labelsep=none]{caption}
+
+'''
+}
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
