@@ -21,7 +21,7 @@ I. 評価法
 ここで、
 
 :math:`\pmb{\hat{L}}_{L,n}`
-    :math:`\hat{L}_{L,i,n}` を要素にもつ :math:`N_{room} \times 1` の縦行列, kg/s
+    :math:`\hat{L}_{L,i,n}` を要素にもつ :math:`N_{room} \times 1` の縦行列, kg
 :math:`\pmb{\hat{L}}'_{a,n}`
     :math:`\hat{L}'_{a,i,j,n}` を要素にもつ :math:`N_{room} \times N_{room}` の正方行列, kg/s(kg/kg(DA))
 :math:`\pmb{X}_{r,n+1}`
