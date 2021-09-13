@@ -468,17 +468,17 @@ II. 根拠
 	\tag{b5}
 
 | ここで、
-| 	:math:`\Delta t` :1ステップの時間間隔, s
-| 	:math:`X_{r,i,n}` :ステップ :math:`n` における室 :math:`i` の絶対湿度, kg/kg(DA)
-| 	:math:`X_{r,j,n}` :ステップ :math:`n` における :math:`j` の絶対湿度, kg/kg(DA)
-| 	:math:`\hat{V}_{out,vent,i,n}` :ステップ :math:`n` からステップ :math:`n+1` における室 :math:`i` の外気との換気量, m :sup:`3` /s
-| 	:math:`X_{o,n}` :ステップ :math:`n` における外気絶対湿度, kg/kg(DA)
-| 	:math:`X_{frt,i,n}` :ステップ :math:`n` における室 :math:`i` の家具等の絶対湿度, kg/kg(DA)
-| 	:math:`\hat{V}_{int,vent,i,j,n}` :ステップ :math:`n` からステップ :math:`n+1` における室 :math:`j` から室 :math:`i` への機械換気量, m :sup:`3` /s
-| 	:math:`\hat{X}_{gen,i,n}` :ステップ :math:`n` における室 :math:`i` の人体発湿を除く内部発湿, kg/s
-| 	:math:`\hat{X}_{hum,i,n}` :ステップ :math:`n` における室 :math:`i` の人体発湿, kg/s
 | 	:math:`\hat{L}_{a,i,n}` :ステップ :math:`n` からステップ :math:`n+1` における潜熱負荷に関する係数, kg/(s kg/kg(DA))
 | 	:math:`\hat{L}_{b,i,n}` :ステップ :math:`n` からステップ :math:`n+1` における潜熱負荷に関する係数, kg/s
+| 	:math:`\hat{V}_{int,vent,i,j,n}` :ステップ :math:`n` からステップ :math:`n+1` における室 :math:`j` から室 :math:`i` への機械換気量, m :sup:`3` /s
+| 	:math:`\hat{V}_{out,vent,i,n}` :ステップ :math:`n` からステップ :math:`n+1` における室 :math:`i` の外気との換気量, m :sup:`3` /s
+| 	:math:`X_{frt,i,n}` :ステップ :math:`n` における室 :math:`i` の家具等の絶対湿度, kg/kg(DA)
+| 	:math:`\hat{X}_{gen,i,n}` :ステップ :math:`n` における室 :math:`i` の人体発湿を除く内部発湿, kg/s
+| 	:math:`\hat{X}_{hum,i,n}` :ステップ :math:`n` における室 :math:`i` の人体発湿, kg/s
+| 	:math:`X_{o,n}` :ステップ :math:`n` における外気絶対湿度, kg/kg(DA)
+| 	:math:`X_{r,i,n}` :ステップ :math:`n` における室 :math:`i` の絶対湿度, kg/kg(DA)
+| 	:math:`X_{r,j,n}` :ステップ :math:`n` における :math:`j` の絶対湿度, kg/kg(DA)
+| 	:math:`\Delta t` :1ステップの時間間隔, s
 | であり、記号の上につく横線（ハット）は、ステップ :math:`n` から :math:`n+1` の期間における積算値または平均値を表す。
 
 式(b4)も同様に後退差分で離散化すると次式となる。
