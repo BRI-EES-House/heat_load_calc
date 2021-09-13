@@ -512,7 +512,7 @@ II. 根拠
 
 	& \rho_a \cdot ( \frac{ V_{room,i} }{ \Delta t } + \hat{V}_{out,vent,i,n} )
 	+ ( \frac{G_{lh,frt,i} \cdot C_{lh,frt,i} }{ C_{lh,frt,i} + \Delta t \cdot G_{lh,frt} } ) - \hat{L}_{a,i,n} ) \cdot X_{r,i,n+1} \\
-	&- \rho_a \sum_j^{J-1}{ \hat{V}_{int,vent,i,j,n} \cdot ( X_{r,j,n+1} - X_{r,i,n+1} ) } \\
+	&- \rho_a \sum_{j=0}^{J-1}{ \hat{V}_{int,vent,i,j,n} \cdot ( X_{r,j,n+1} - X_{r,i,n+1} ) } \\
 	&= \rho_a \cdot \frac{ V_{room,i} }{ \Delta t } \cdot X_{r,i,n} + \rho_a \cdot \hat{V}_{out,vent,i,n} \cdot X_{o,n+1} \\
 	&+ ( \frac{ G_{lh,frt,i} \cdot C_{lh,frt,i} }{ C_{lh,frt,i} + \Delta t \cdot G_{lh,frt} } ) \cdot X_{frt,i,n} \\
 	&+ \hat{X}_{gen,i,n} + \hat{X}_{hum,i,n} + \hat{L}_{b,i,n}
