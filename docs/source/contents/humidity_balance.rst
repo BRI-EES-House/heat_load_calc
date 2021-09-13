@@ -196,15 +196,15 @@ I. 評価法
 
 ここで、
 
-:math:`X_{o,n}`
-    ステップ :math:`n` における外気絶対湿度, kg/kg(DA)
 :math:`X_{frt,i,n}`
     ステップ :math:`n` における室 :math:`i` の家具等の絶対湿度, kg/kg(DA)
 :math:`\hat{X}_{gen,i,n}`
     ステップ :math:`n` における室 :math:`i` の人体発湿を除く内部発湿, kg/s
 :math:`\hat{X}_{hum,i,n}`
     ステップ :math:`n` における室 :math:`i` の人体発湿, kg/s
-
+:math:`X_{o,n}`
+    ステップ :math:`n` における外気絶対湿度, kg/kg(DA)
+    
 である。
 
 
