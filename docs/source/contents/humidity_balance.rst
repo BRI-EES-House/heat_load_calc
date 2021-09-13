@@ -449,7 +449,7 @@ II. 根拠
 家具の水分収支式は室空気との物質移動だけを考慮すればよいため、次式で表すことができる。
 
 .. math::
-	C_{lh,frt,i} \cdot \frac{dX_{frt,i}}{dt} = G_{lh,frt} \cdot ( X_{r,i} - X_{frt,i} ) \tag{b4}
+	C_{lh,frt,i} \cdot \frac{dX_{frt,i}}{dt} = G_{lh,frt,i} \cdot ( X_{r,i} - X_{frt,i} ) \tag{b4}
 
 | ここで、
 | 		:math:`C_{lh,frt,i}` :室 :math:`i` の家具等の湿気容量, kg/(kg/kg(DA))
