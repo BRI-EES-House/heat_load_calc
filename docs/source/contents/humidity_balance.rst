@@ -469,7 +469,7 @@ II. 根拠
 
 | ここで、
 | 	:math:`\Delta t` :1ステップの時間間隔, s
-| 	:math:`X_{r,i,n)}` :ステップ :math:`n` における室 :math:`i` の絶対湿度, kg/kg(DA)
+| 	:math:`X_{r,i,n}` :ステップ :math:`n` における室 :math:`i` の絶対湿度, kg/kg(DA)
 | 	:math:`X_{r,j,n}` :ステップ :math:`n` における :math:`j` の絶対湿度, kg/kg(DA)
 | 	:math:`\hat{V}_{out,vent,i,n}` :ステップ :math:`n` からステップ :math:`n+1` における室 :math:`i` の外気との換気量, m :sup:`3` /s
 | 	:math:`X_{o,n}` :ステップ :math:`n` における外気絶対湿度, kg/kg(DA)
