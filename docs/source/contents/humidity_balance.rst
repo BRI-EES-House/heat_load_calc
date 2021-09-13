@@ -388,19 +388,19 @@ II. 根拠
   \tag{b1}
 
 | ここで、
-|   :math:`\rho_a` ：空気の密度, kg / |m3|
-|   :math:`V_{room,i}` ：室 :math:`i` の容積, |m3|
-|   :math:`X_{r,i}` ：室 :math:`i` の絶対湿度, kg / kg(DA)
-|   :math:`X_{r,j}` ：室 :math:`j` の絶対湿度, kg / kg(DA)
 |   :math:`t` ：時間, s
-|   :math:`V_{out,vent,i}` ：室 :math:`i` の外気との換気量, |m3| /s
-|   :math:`X_o` ：外気絶対湿度, kg/kg(DA)
 |   :math:`G_{lh,frt,i}` ：室 :math:`i` の家具等と空気間の湿気コンダクタンス, kg / (s kg/kg(DA))
-|   :math:`X_{frt,i}` ：室 :math:`i` の家具等の絶対湿度, kg / kg(DA)
+|   :math:`L_{L,i}` ：室 :math:`i` の潜熱負荷（加湿を正・除湿を負とする）, kg / s
+|   :math:`V_{room,i}` ：室 :math:`i` の容積, |m3|
 |   :math:`V_{int,vent,i,j}` ：室 :math:`j` から室 :math:`i` への機械換気量, |m3| / s
+|   :math:`V_{out,vent,i}` ：室 :math:`i` の外気との換気量, |m3| /s
+|   :math:`X_{frt,i}` ：室 :math:`i` の家具等の絶対湿度, kg / kg(DA)
 |   :math:`X_{gen,i}` ：室 :math:`i` の人体発湿を除く内部発湿, kg / s
 |   :math:`X_{hum,i}` ：室 :math:`i` の人体発湿, kg / s
-|   :math:`L_{L,i}` ：室 :math:`i` の潜熱負荷（加湿を正・除湿を負とする）, kg / s
+|   :math:`X_o` ：外気絶対湿度, kg/kg(DA)
+|   :math:`X_{r,i}` ：室 :math:`i` の絶対湿度, kg / kg(DA)
+|   :math:`X_{r,j}` ：室 :math:`j` の絶対湿度, kg / kg(DA)
+|   :math:`\rho_a` ：空気の密度, kg / |m3|
 | である。
 
 空調による除湿・加湿の方法として以下のパターンを想定する。
