@@ -188,7 +188,7 @@ I. 評価法
 	F_{t,cst,i,n}
     &= \rho_a \cdot \frac{ V_{room,i} }{ \Delta t } \cdot X_{r,i,n}
 	+ \rho_a \cdot \hat{V}_{out,vent,i,n} \cdot X_{o,n+1} \\
-	&+ \frac{G_{lh,frt,i} \cdot C_{lh,frt,i} }{ C_{lh,frt,i} + \Delta t \cdot G_{lh,frt} } \cdot X_{frt,i,n}
+	&+ \frac{G_{lh,frt,i} \cdot C_{lh,frt,i} }{ C_{lh,frt,i} + \Delta t \cdot G_{lh,frt,t} } \cdot X_{frt,i,n}
 	+ \hat{X}_{gen,i,n} + \hat{X}_{hum,i,n}
 
 .. math::
