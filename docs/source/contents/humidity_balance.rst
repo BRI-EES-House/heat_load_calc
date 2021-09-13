@@ -31,14 +31,14 @@ I. 評価法
 
 であり、
 
-:math:`\hat{L}_{L,i,n}`
-    ステップ :math:`n` から :math:`n+1` における室 :math:`i` の潜熱負荷（加湿を正・除湿を負とする）, kg/s
 :math:`\hat{L}'_{a,i,j,n}`
     ステップ :math:`n+1` における室 :math:`j` の絶対湿度がステップ :math:`n` から :math:`n+1` における室 :math:`i` の潜熱負荷に与える影響を表す係数, kg/s(kg/kg(DA))
-:math:`X_{r,i,n+1}`
-    ステップ :math:`n+1` における室 :math:`i` の絶対湿度, kg/kg(DA)
 :math:`\hat{L}'_{b,i,n}`
     ステップ :math:`n` から :math:`n+1` における室 :math:`i` の潜熱負荷に与える影響を表す係数, kg/s
+:math:`\hat{L}_{L,i,n}`
+    ステップ :math:`n` から :math:`n+1` における室 :math:`i` の潜熱負荷（加湿を正・除湿を負とする）, kg/s
+:math:`X_{r,i,n+1}`
+    ステップ :math:`n+1` における室 :math:`i` の絶対湿度, kg/kg(DA)
 
 である。ここで、 :math:`N_{room}` は室の数を表す。
 
