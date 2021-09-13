@@ -491,7 +491,7 @@ II. 根拠
 
 .. math::
 
-	X_{frt,i,n+1} = \frac{ C_{lh,frt,i} \cdot X_{frt,i,n} + \Delta t \cdot G_{lh,frt} \cdot X_{r,i,n+1} }{ C_{lh,frt,i} + \Delta t \cdot G_{lh,frt} } \tag{b7}
+	X_{frt,i,n+1} = \frac{ C_{lh,frt,i} \cdot X_{frt,i,n} + \Delta t \cdot G_{lh,frt,i} \cdot X_{r,i,n+1} }{ C_{lh,frt,i} + \Delta t \cdot G_{lh,frt,i} } \tag{b7}
 
 となる。これを式(b5)に代入すると、
 
