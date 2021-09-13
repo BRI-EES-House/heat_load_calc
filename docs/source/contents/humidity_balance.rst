@@ -632,7 +632,7 @@ II. 根拠
 	\pmb{X}'_{r,n+1} = {\begin{pmatrix} X'_{r,0,n+1} & \cdots & X'_{r,i,n+1} & \cdots & X'_{r,I-1,n+1} \end{pmatrix}}^T
 
 .. math::
-	\pmb{\hat{L}}_{a,n} = {\begin{pmatrix} \hat{L}_{a,0,n} & \cdots & \hat{L}_{a,i,n} & \cdots & \hat{L}_{a,I-1,n} \end{pmatrix}}^T
+	\pmb{\hat{L}}_{a,n} = diag( \hat{L}_{a,i,n} )
 
 .. math::
 	\pmb{\hat{L}}_{b,n} = {\begin{pmatrix} \hat{L}_{b,0,n} & \cdots & \hat{L}_{b,i,n} & \cdots & \hat{L}_{b,I-1,n} \end{pmatrix}}^T
