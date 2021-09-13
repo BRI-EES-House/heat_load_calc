@@ -532,7 +532,7 @@ II. 根拠
 
 .. math::
 
-	\pmb{BRMX}_n &= diag \left( \rho_a \left( \frac{V_{room,i} }{ \Delta t } + \hat{V}_{out,vent,i,n} \right) + \frac{ G_{lh,frt,i} \cdot C_{lh,frt,i} }{ C_{lh,frt,i} + \Delta t \cdot G_{lh,frt} } \right) \\
+	\pmb{BRMX}_n &= diag \left( \rho_a \left( \frac{V_{room,i} }{ \Delta t } + \hat{V}_{out,vent,i,n} \right) + \frac{ G_{lh,frt,i} \cdot C_{lh,frt,i} }{ C_{lh,frt,i} + \Delta t \cdot G_{lh,frt,i} } \right) \\
 	&- \rho_a \cdot \pmb{\hat{V}}_{int,vent,n}
 
 .. math::
