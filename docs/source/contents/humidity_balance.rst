@@ -644,9 +644,9 @@ II. 根拠
 	\pmb{\hat{L}}'_{b,set,n} = {\begin{pmatrix} \hat{L}_{b,set,0,n} & \cdots & \hat{L}_{b,set,i,n} & \cdots & \hat{L}_{b,set,I-1,n} \end{pmatrix}}^T
 
 | であり、
-|	:math:`\hat{L}'_{b,set,i,n}` :ステップ :math:`n` からステップ :math:`n+1` における室 :math:`i` の潜熱負荷（加湿を正・除湿を負とする）（ただし、設定絶対湿度を定めない場合は0とする）, kg/s
-|	:math:`X'_{r,i,n+1}` :ステップ :math:`n+1` における室iの絶対湿度（ただし、設定絶対湿度を定める場合は0とする）, kg/kg(DA)
-|	:math:`X_{r,set,i,n+1}` :ステップ :math:`n+1` における室iの設定絶対湿度（ただし、設定絶対湿度を定めない場合は0とする）, kg/kg(DA)
+|	:math:`\hat{L}'_{b,set,i,n}` :ステップ :math:`n` からステップ :math:`n+1` における室 :math:`i` の潜熱負荷（加湿を正・除湿を負とする）（ただし、室 :math:`i` の設定絶対湿度を定めない場合は0とする）, kg/s
+|	:math:`X'_{r,i,n+1}` :ステップ :math:`n+1` における室iの絶対湿度（ただし、室 :math:`i` の設定絶対湿度を定める場合は0とする）, kg/kg(DA)
+|	:math:`X_{r,set,i,n+1}` :ステップ :math:`n+1` における室iの設定絶対湿度（ただし、室 :math:`i` の設定絶対湿度を定めない場合は0とする）, kg/kg(DA)
 | である。ここで、 :math:`X'_{r,i,n+1}` と :math:`\hat{L}'_{L,i,n}` のどちらか一方は必ず0となる。同様に、:math:`X_{r,set,i,n+1}` と :math:`\hat{L}_{L,b,i,n}` のどちらか一方は必ず0となる。
 
 ここで、
