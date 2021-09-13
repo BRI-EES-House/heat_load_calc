@@ -540,7 +540,7 @@ II. 根拠
 
 :math:`diag` は室の数を :math:`I` とすると、室 :math:`0` から :math:`I-1` の対角行列を表す。
 
-:math:`\pmb{BRXC}_n` は :math:`I \times 1` の行列であり、その要素を :math:`BRCX_{i,n}` とすると、
+:math:`\pmb{BRXC}_n` は :math:`I \times 1` の縦行列であり、その要素を :math:`BRCX_{i,n}` とすると、
 
 .. math::
 
