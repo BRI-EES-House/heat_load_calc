@@ -461,7 +461,7 @@ II. 根拠
 	\rho_a \cdot V_{room,i} \cdot \frac{ X_{r,i,n+1} - X_{r,i,n} }{ \Delta t }
 	&= \rho_a \cdot \hat{V}_{out,vent,i,n} \cdot ( X_{o,n+1} - X_{r,i,n+1} ) \\
 	&+ G_{lh,frt,i} \cdot ( X_{frt,i,n+1} - X_{r,i,n+1} ) \\
-	&+ \rho_a \cdot \sum_j^{J-1}{\hat{V}_{int,vent,i,j,n} \cdot ( X_{r,j,n+1} - X_{r,i,n+1} ) } \\
+	&+ \rho_a \cdot \sum_{j=0}^{J-1}{\hat{V}_{int,vent,i,j,n} \cdot ( X_{r,j,n+1} - X_{r,i,n+1} ) } \\
 	&+ \hat{X}_{gen,i,n} + \hat{X}_{hum,i,n} + \hat{L}_{a,i,n} \cdot X_{r,i,n+1} + \hat{L}_{b,i,n}
 
 .. math::
