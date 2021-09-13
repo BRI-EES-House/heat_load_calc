@@ -309,13 +309,13 @@ I. 評価法
 
 ここで、
 
-:math:`\theta_{r,i,n+1}`
-    ステップ :math:`n+1` における室 :math:`i` の温度, ℃
-:math:`\hat{q}_{s,i,n}`
-    ステップ :math:`n` から :math:`n+1` における室 :math:`i` の顕熱負荷, W
 :math:`c_a`
     空気の比熱, J / kg K
-
+:math:`\hat{q}_{s,i,n}`
+    ステップ :math:`n` から :math:`n+1` における室 :math:`i` の顕熱負荷, W
+:math:`\theta_{r,i,n+1}`
+    ステップ :math:`n+1` における室 :math:`i` の温度, ℃ 
+    
 である。
 
 室 :math:`i` に設置されたルームエアコンディショナーの室内機の熱交換器のバイパスファクター :math:`BF_{rac,i}` は 0.2 とする。
