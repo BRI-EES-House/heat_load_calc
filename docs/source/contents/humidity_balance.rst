@@ -155,7 +155,7 @@ I. 評価法
 
 .. math::
 	F_{t,wgt,i,j,n}
-	&= \left( \rho_a \cdot \left( \frac{ V_{room,i} }{ \Delta t } + \hat{V}_{out,vent,i,n} \right) + \frac{ G_{lh,frt,i} \cdot C_{lh,frt,i} }{ C_{lh,frt,i} + \Delta t \cdot G_{lh,frt} } \right) \cdot \delta_{ij} \\
+	&= \left( \rho_a \cdot \left( \frac{ V_{room,i} }{ \Delta t } + \hat{V}_{out,vent,i,n} \right) + \frac{ G_{lh,frt,i} \cdot C_{lh,frt,i} }{ C_{lh,frt,i} + \Delta t \cdot G_{lh,frt,i} } \right) \cdot \delta_{ij} \\
 	&- \rho_a \cdot \left( \hat{V}_{int,vent,i,j,n} - \delta_{ij} \cdot \sum_{k=0}^{N_{room-1}}{\hat{V}_{int,vent,i,k,n}} \right)
 
 .. math::
