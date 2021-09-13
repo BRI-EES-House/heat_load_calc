@@ -95,16 +95,16 @@ I. 評価法
 
 :math:`\pmb{k}_n`
     :math:`k_{i,n}` を要素にもつ :math:`N_{room} \times 1` の縦行列, kg/kg(DA) または kg/s
-:math:`{\pmb{F}''}_{t,wgt,n}`
-    :math:`{F''}_{t,wgt,i,j,n}` を要素にもつ :math:`N_{room} \times N_{room}` の正方行列, kg/s(kg/kg(DA)) または -
-:math:`{\pmb{F}'}_{t,wgt,n}`
-    :math:`{F'}_{t,wgt,i,j,n}` を要素にもつ :math:`N_{room} \times N_{room}` の正方行列, kg/s(kg/kg(DA)) または -
-:math:`\pmb{X}_{r,set,n+1}`
-    :math:`X_{r,set,i,n+1}` を要素にもつ :math:`N_{room} \times 1` の縦行列, kg/kg(DA)
 :math:`\pmb{F}_{t,cst,n}`
     :math:`F_{t,cst,i,n}` を要素にもつ :math:`N_{room} \times 1` の縦行列, kg/s
+:math:`{\pmb{F}'}_{t,wgt,n}`
+    :math:`{F'}_{t,wgt,i,j,n}` を要素にもつ :math:`N_{room} \times N_{room}` の正方行列, kg/s(kg/kg(DA)) または -
+:math:`{\pmb{F}''}_{t,wgt,n}`
+    :math:`{F''}_{t,wgt,i,j,n}` を要素にもつ :math:`N_{room} \times N_{room}` の正方行列, kg/s(kg/kg(DA)) または -
 :math:`\pmb{\hat{L}}_{b,n}`
     :math:`\hat{L}_{b,n}` を要素にもつ :math:`N_{room} \times 1` の縦行列, kg/s
+:math:`\pmb{X}_{r,set,n+1}`
+    :math:`X_{r,set,i,n+1}` を要素にもつ :math:`N_{room} \times 1` の縦行列, kg/kg(DA)
 
 である。
 
