@@ -485,7 +485,7 @@ II. 根拠
 
 .. math::
 
-	C_{lh,frt,i} \cdot \frac{ X_{frt,i,n+1} - X_{frt,i,n} }{ \Delta t } = G_{lh,frt} \cdot ( X_{r,i,n+1} - X_{frt,i,n+1} ) \tag{b6}
+	C_{lh,frt,i} \cdot \frac{ X_{frt,i,n+1} - X_{frt,i,n} }{ \Delta t } = G_{lh,frt,i} \cdot ( X_{r,i,n+1} - X_{frt,i,n+1} ) \tag{b6}
 
 式(b6)をステップ :math:`n+1` における室 :math:`i` の家具等の絶対湿度 :math:`X_{frt,i,n+1}` について解くと、
 
