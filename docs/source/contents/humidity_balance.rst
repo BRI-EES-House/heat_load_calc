@@ -587,7 +587,7 @@ II. 根拠
 
 	\pmb{\hat{V}}_{int,vent,n}
 	&= - diag \left (
-	\sum_j^{J-1}{\hat{V}_{int,vent,0,j,n}} \  \cdots \  \sum_j^{J-1}{\hat{V}_{int,vent,i,j,n}} \  \dots \  \sum_j^{J-1}{\hat{V}_{int,vent,I-1,j,n}}
+	\sum_{j=0}^{J-1}{\hat{V}_{int,vent,0,j,n}} \  \cdots \  \sum_{j=0}^{J-1}{\hat{V}_{int,vent,i,j,n}} \  \dots \  \sum_{j=0}^{J-1}{\hat{V}_{int,vent,I-1,j,n}}
 	\right ) \\
 	&+ \begin{pmatrix}
 	0 & \cdots & \hat{V}_{int,vent,0,j,n} & \cdots & \hat{V}_{int,vent,0,J-1,n} \\
