@@ -163,22 +163,22 @@ I. 評価法
 
 ここで、
 
-:math:`\rho_a`
-    空気の密度, kg / |m3|
-:math:`V_{room,i}`
-    室 :math:`i` の容積, |m3|
-:math:`\Delta t`
-    1ステップの時間間隔, s
-:math:`\hat{V}_{out,vent,i,n}`
-    ステップ :math:`n` から :math:`n+1` における室 :math:`i` の外気との換気量, |m3| / s
-:math:`G_{lh,frt,i}`
-    室 :math:`i` の家具等と空気間の湿気コンダクタンス, kg / (s kg/kg(DA))
 :math:`C_{lh,frt,i}`
     室 :math:`i` の家具等の湿気容量, kg / (kg/kg(DA))
+:math:`G_{lh,frt,i}`
+    室 :math:`i` の家具等と空気間の湿気コンダクタンス, kg / (s kg/kg(DA))
 :math:`\hat{V}_{int,vent,i,j,n}`
     室 :math:`j` から室 :math:`i` への室間の機械換気量, |m3| / s
 :math:`\hat{V}_{int,vent,i,k,n}`
     室 :math:`k` から室 :math:`i` への室間の機械換気量, |m3| / s
+:math:`\hat{V}_{out,vent,i,n}`
+    ステップ :math:`n` から :math:`n+1` における室 :math:`i` の外気との換気量, |m3| / s
+:math:`V_{room,i}`
+    室 :math:`i` の容積, |m3|
+:math:`\Delta t`
+    1ステップの時間間隔, s
+:math:`\rho_a`
+    空気の密度, kg / |m3|
 
 である。
 
