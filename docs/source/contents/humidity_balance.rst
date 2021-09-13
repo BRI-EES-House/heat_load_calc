@@ -381,7 +381,7 @@ II. 根拠
   \begin{align}
   \rho_a \cdot V_{room,i} \cdot \frac{dX_{r,i}}{dt}
   &= \rho_a \cdot V_{out,vent,i} \cdot ( X_o - X_{r,i} ) + G_{lh,frt,i} \cdot ( X_{frt,i} - X_{r,i} ) \\
-  &+ \rho_a \sum_j^{J-1}{V_{int,vent,i,j} \cdot (X_{r,j} - X_{r,i})} + X_{gen,i} + X_{hum,i} + L_{L,i}
+  &+ \rho_a \sum_{j=0}^{J-1}{V_{int,vent,i,j} \cdot (X_{r,j} - X_{r,i})} + X_{gen,i} + X_{hum,i} + L_{L,i}
   \end{align}
 
 .. math::
