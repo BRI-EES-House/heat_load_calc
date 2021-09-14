@@ -213,23 +213,23 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
 
     # --- ここから、湿度の計算 ---
 
-    # ステップnにおける室iの湿度に関する係数 F_{t,wgt},　ｋｇ(DA)/s [i, i]
-    # 繰り返し計算（湿度と潜熱） eq.7
-    f_t_wgt_is_is_n = v_diag(
+    # ステップ n における室iの湿度に関する係数 F_{h,wgt},　ｋｇ(DA)/s [i, i]
+    # 繰り返し計算（湿度と潜熱） eq.10
+    f_h_wgt_is_is_n = v_diag(
         get_rho_air() * (ss.v_room_is / delta_t + v_out_vent_is_n)
         + ss.c_lh_frt_is * ss.g_lh_frt_is / (ss.c_lh_frt_is + delta_t * ss.g_lh_frt_is)
     ) - get_rho_air() * (ss.v_int_vent_is_is - np.diag(ss.v_int_vent_is_is.sum(axis=1)))
 
-    # ステップnにおける室iの湿度に関する係数 F_{t,cst}, kg/s, [i, 1]
-    # 繰り返し計算（湿度と潜熱） eq.8
-    f_t_cst_is_n = get_rho_air() * ss.v_room_is / delta_t * c_n.x_r_is_n \
+    # ステップ n における室iの湿度に関する係数 F_{h,cst}, kg/s, [i, 1]
+    # 繰り返し計算（湿度と潜熱） eq.11
+    f_h_cst_is_n = get_rho_air() * ss.v_room_is / delta_t * c_n.x_r_is_n \
         + get_rho_air() * v_out_vent_is_n * ss.x_o_ns[n + 1] \
         + ss.c_lh_frt_is * ss.g_lh_frt_is / (ss.c_lh_frt_is + delta_t * ss.g_lh_frt_is) * c_n.x_frt_is_n \
         + x_gen_is_n + x_hum_is_n
 
     # ステップ n+1 における室 i の加湿・除湿を行わない場合の絶対湿度, kg/kg(DA) [i]
     # 繰り返し計算（湿度と潜熱） eq.6
-    x_r_ntr_is_n_pls = np.dot(np.linalg.inv(f_t_wgt_is_is_n), f_t_cst_is_n)
+    x_r_ntr_is_n_pls = np.dot(np.linalg.inv(f_h_wgt_is_is_n), f_h_cst_is_n)
 
     # ==== ルームエアコン吹出絶対湿度の計算 ====
 
@@ -245,15 +245,14 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
     # lb [i,1] kg/kg(DA)
     l_a_is_is_n, l_b_is_n = reduce(lambda x, y: map(add, x, y), ls)
 
+    # ステップ n+1 における室 i の 絶対湿度, kg/kg(DA), [i, 1]
+    x_r_is_n_pls = np.dot(np.linalg.inv(f_h_wgt_is_is_n + l_a_is_is_n), f_h_cst_is_n + l_b_is_n)
 
-    # 室絶対湿度の計算
-    x_r_is_n_pls = np.dot(np.linalg.inv(f_t_wgt_is_is_n + l_a_is_is_n), f_t_cst_is_n + l_b_is_n)
+    # ステップ n から ステップ n+1 における室 i の潜熱負荷（加湿を正・除湿を負とする）, kg/s
+    l_l_i_n = - (np.dot(l_a_is_is_n, x_r_is_n_pls) - l_b_is_n) * get_l_wtr()
 
-    # 除湿量
-    l_cl_i_n = - (np.dot(l_a_is_is_n, x_r_is_n_pls) - l_b_is_n) * get_l_wtr()
-
-    # 備品類の絶対湿度の計算
-    x_frt_is_npls = (ss.c_lh_frt_is * c_n.x_frt_is_n + delta_t * ss.g_lh_frt_is * x_r_is_n_pls)\
+    # ステップ n+1 における室 i の家具等の絶対湿度, kg/kg(DA), [i, 1]
+    x_frt_is_n_pls = (ss.c_lh_frt_is * c_n.x_frt_is_n + delta_t * ss.g_lh_frt_is * x_r_is_n_pls)\
         / (ss.c_lh_frt_is + delta_t * ss.g_lh_frt_is)
 
     if not run_up:
@@ -265,7 +264,7 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
         logger.theta_mrt_hum[:, n] = theta_mrt_hum_is_n_pls.flatten()
         logger.x_r[:, n] = x_r_is_n_pls.flatten()
         logger.theta_frt[:, n] = theta_frt_is_n_pls.flatten()
-        logger.x_frt[:, n] = x_frt_is_npls.flatten()
+        logger.x_frt[:, n] = x_frt_is_n_pls.flatten()
         logger.theta_ei[:, n] = theta_ei_js_n_pls.flatten()
 
         # 次の時刻に引き渡さない値
@@ -274,7 +273,7 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
         logger.x_hum[:, n] = x_hum_is_n.flatten()
         logger.l_cs[:, n] = l_cs_is_n.flatten()
         logger.l_rs[:, n] = l_hs_is_n.flatten()
-        logger.l_cl[:, n] = l_cl_i_n.flatten()
+        logger.l_cl[:, n] = l_l_i_n.flatten()
         # 平均値
         logger.v_reak_is_ns[:, n] = v_leak_is_n.flatten()
         logger.v_ntrl_is_ns[:, n] = v_ntrl_vent_is_n.flatten()
@@ -299,7 +298,7 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
         theta_dsh_srf_t_js_ms_n=theta_dsh_srf_t_js_ms_n_pls,
         q_srf_js_n=q_srf_js_n,
         theta_frt_is_n=theta_frt_is_n_pls,
-        x_frt_is_n=x_frt_is_npls,
+        x_frt_is_n=x_frt_is_n_pls,
         theta_ei_js_n=theta_ei_js_n_pls
     )
 
