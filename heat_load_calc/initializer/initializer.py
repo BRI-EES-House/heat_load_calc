@@ -145,10 +145,13 @@ def make_house(d, input_data_dir, output_data_dir):
 
     boundaries = _make_boundaries(bss2=bss2, rooms=d['rooms'], boundaries=d['boundaries'])
 
+    equipments = _make_equipment_dict(rooms=d['rooms'])
+
     wd = {
         'building': building,
         'spaces': spaces,
-        'boundaries': boundaries
+        'boundaries': boundaries,
+        'equipments': equipments
     }
 
     with open(output_data_dir + '/mid_data_house.json', 'w') as f:
@@ -232,10 +235,13 @@ def make_house_for_test(d, input_data_dir, output_data_dir):
 
     boundaries = _make_boundaries(bss2=bss2, rooms=d['rooms'], boundaries=d['boundaries'])
 
+    equipments = _make_equipment_dict(rooms=d['rooms'])
+
     wd = {
         'building': building,
         'spaces': spaces,
-        'boundaries': boundaries
+        'boundaries': boundaries,
+        'equipments': equipments
     }
 
     with open(output_data_dir + '/mid_data_house.json', 'w') as f:
@@ -602,6 +608,147 @@ def _make_spaces_dict(rooms: List[dict]):
         })
 
     return spaces
+
+
+def _make_equipment_dict(rooms: List[dict]) -> dict:
+    """
+    出力する辞書のうち、　"equipments" に対応する辞書を作成する。
+    Args:
+        rooms: 入力ファイルの "rooms" に対応する辞書（リスト形式）
+    Returns:
+        "equipments" に対応する辞書（リスト形式）
+    """
+
+    return {
+        'heating_equipments': _make_heating_equipment_dict(rooms),
+        'cooling_equipments': _make_cooling_equipment_dict(rooms)
+    }
+
+
+def _make_heating_equipment_dict(rooms):
+
+    heating_equipments = []
+
+    he_id = 0
+
+    for r in rooms:
+
+        # 暖房設備
+        he = r['heating_equipment']
+
+        # 暖房形式
+        he_type = HeatingEquipmentType(he['equipment_type'])
+
+        # 設置しない
+        if he_type == HeatingEquipmentType.NOT_INSTALLED:
+            pass
+
+        # 対流暖房方式
+        elif he_type == HeatingEquipmentType.CONVECTIVE:
+
+            heating_equipments.append(
+                {
+                    'id': he_id,
+                    'name': 'heating_equipment no.' + str(he_id),
+                    'equipment_type': 'rac',
+                    'property': {
+                        'space_id': r['id'],
+                        'q_min': he['convective']['q_min'],
+                        'q_max': he['convective']['q_max'],
+                        'v_min': he['convective']['v_min'],
+                        'v_max': he['convective']['v_max'],
+                        'bf': 0.2
+                    }
+                }
+            )
+
+            he_id = he_id + 1
+
+        # 放射暖房方式
+        elif he_type == HeatingEquipmentType.RADIATIVE:
+
+            heating_equipments.append(
+                {
+                    'id': he_id,
+                    'name': 'heating_equipment no.' + str(he_id),
+                    'equipment_type': 'floor_heating',
+                    'property': {
+                        'space_id': r['id'],
+                        'max_capacity': he['radiative']['max_capacity'],
+                        'area': he['radiative']['area']
+                    }
+                }
+            )
+
+            he_id = he_id + 1
+
+        else:
+            raise Exception()
+
+    return heating_equipments
+
+
+def _make_cooling_equipment_dict(rooms):
+
+    cooling_equipments = []
+
+    ce_id = 0
+
+    for r in rooms:
+
+        # 冷房設備
+        ce = r['cooling_equipment']
+
+        # 冷房房形式
+        ce_type = CoolingEquipmentType(ce['equipment_type'])
+
+        # 設置しない
+        if ce_type == CoolingEquipmentType.NOT_INSTALLED:
+            pass
+
+        # 対流冷房方式
+        elif ce_type == CoolingEquipmentType.CONVECTIVE:
+
+            cooling_equipments.append(
+                {
+                    'id': ce_id,
+                    'name': 'cooling_equipment no.' + str(ce_id),
+                    'equipment_type': 'rac',
+                    'property': {
+                        'space_id': r['id'],
+                        'q_min': ce['convective']['q_min'],
+                        'q_max': ce['convective']['q_max'],
+                        'v_min': ce['convective']['v_min'],
+                        'v_max': ce['convective']['v_max'],
+                        'bf': 0.2
+                    }
+                }
+            )
+
+            ce_id = ce_id + 1
+
+        # 放射冷房方式
+        elif ce_type == CoolingEquipmentType.RADIATIVE:
+
+            cooling_equipments.append(
+                {
+                    'id': ce_id,
+                    'name': 'heating_equipment no.' + str(ce_id),
+                    'equipment_type': 'floor_cooling',
+                    'property': {
+                        'space_id': r['id'],
+                        'max_capacity': ce['radiative']['max_capacity'],
+                        'area': ce['radiative']['area']
+                    }
+                }
+            )
+
+            ce_id = ce_id + 1
+
+        else:
+            raise Exception()
+
+    return cooling_equipments
 
 
 def check_specifying_room_type(room_type_is: List[RoomType], specified_type: RoomType):
