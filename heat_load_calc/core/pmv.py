@@ -45,6 +45,8 @@ def get_pmv_ppd(
 
     # the clothing surface temperature, degree C
     t_cl = np.zeros((i_cl.shape[0], i_cl.shape[1]), dtype=float)
+
+    # t_cl = get_t_cl_newton(f_cl=np.vectorize(f_cl), i_cl=np.vectorize(i_cl), t_a=np.vectorize(t_a), v_ar=np.vectorize(v_ar), t_r_bar=np.vectorize(t_r_bar))
     i = 0
     for (fcl, icl, ta, var, tr) in zip(f_cl, i_cl, t_a, v_ar, t_r_bar):
         n = 0
@@ -60,6 +62,10 @@ def get_pmv_ppd(
     pmv, ppd = get_pmv(f_cl, h_c, m, p_a, t_a, t_cl, t_r_bar, w)
 
     return pmv, ppd
+
+
+def get_t_cl_newton(f_cl:float, i_cl:float, t_a:float, v_ar:float, t_r_bar:float) -> float:
+    return newton(lambda t: get_t_cl(f_cl, i_cl, t_a, t, v_ar, t_r_bar, convert_met_to_wm2(1.0), convert_met_to_wm2(0.0)) - t, 0.001)
 
 
 def get_h_c(t_a: np.array, t_cl: np.array, v_ar: np.array) -> np.array:
