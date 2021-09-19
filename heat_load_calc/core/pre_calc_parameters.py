@@ -578,11 +578,11 @@ def make_pre_calc_parameters(delta_t: float, data_directory: str) -> (PreCalcPar
 
     equipments = [
         {
-            'equipment_id': i,
+            'id': i,
+            'name': 'cooling_equipment no.' + str(i),
             'equipment_type': 'rac',
             'property': {
                 'space_id': i,
-                'trans_type': 'convective',
                 'q_min': s['equipment']['cooling']['convective']['q_min'],
                 'q_max': s['equipment']['cooling']['convective']['q_max'],
                 'v_min': s['equipment']['cooling']['convective']['v_min'],
