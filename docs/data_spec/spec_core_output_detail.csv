@@ -26,6 +26,8 @@
 室,rm[i]_v_reak,m3/s,すきま風量,I
 室,rm[i]_v_ntrl,m3/s,自然換気量,I
 室,rm[i]_pmv_target,－,PMVの目標値,I
+室,rm[i]_pmv,－,PMVの実現値,I
+室,rm[i]_ppd,－,PPDの実現値,I
 室,rm[i]_v_hum,m/s,人体廻りの風速,I
 室,rm[i]_clo,clo,着衣量,A
 境界,rm[i]_b[j]_t_s,℃,表面温度,I
