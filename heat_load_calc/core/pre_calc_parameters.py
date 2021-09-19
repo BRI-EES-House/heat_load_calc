@@ -224,6 +224,9 @@ def make_pre_calc_parameters(delta_t: float, data_directory: str) -> (PreCalcPar
     # spaces の取り出し
     ss = rd['spaces']
 
+    # equipments の取り出し
+    es = rd['equipments']
+
     # Spaceの数
     n_spaces = len(ss)
 
@@ -576,21 +579,7 @@ def make_pre_calc_parameters(delta_t: float, data_directory: str) -> (PreCalcPar
 
     # endregion
 
-    equipments = [
-        {
-            'id': i,
-            'name': 'cooling_equipment no.' + str(i),
-            'equipment_type': 'rac',
-            'property': {
-                'space_id': i,
-                'q_min': s['equipment']['cooling']['convective']['q_min'],
-                'q_max': s['equipment']['cooling']['convective']['q_max'],
-                'v_min': s['equipment']['cooling']['convective']['v_min'],
-                'v_max': s['equipment']['cooling']['convective']['v_max'],
-                'bf': 0.2
-            }
-        } for i, s in enumerate(ss)
-    ]
+    equipments = es['cooling_equipments']
 
     dehumidification_funcs = [
         humidification.make_dehumidification_function(
