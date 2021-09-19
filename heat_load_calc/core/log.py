@@ -3,6 +3,8 @@ import pandas as pd
 
 from heat_load_calc.core.pre_calc_parameters import PreCalcParameters
 from heat_load_calc.external import psychrometrics as psy
+from heat_load_calc.core import pmv as pmv
+from heat_load_calc.core import ot_target_pmv as ot_target_pmv
 
 
 class Logger:
@@ -79,6 +81,12 @@ class Logger:
 
         # ステップnの室iにおけるPMV目標値, [i, n]
         self.pmv_target = np.zeros((n_spaces, n_step_main), dtype=float)
+
+        # ステップnの室iにおけるPMV実現値, [i, n]
+        self.pmv = np.zeros((n_spaces, n_step_main), dtype=float)
+
+        # ステップnの室iにおけるPPD実現値, [i, n]
+        self.ppd = np.zeros((n_spaces, n_step_main), dtype=float)
 
         # ステップnの室iにおける人体廻りの風速, C, [i, n]
         self.v_hum = np.zeros((n_spaces, n_step_main), dtype=float)
@@ -157,6 +165,17 @@ class Logger:
         # ステップnの室iの家具等から空気への水分流, kg/s, [i, n]
         self.q_l_frt = ss.g_lh_frt_is * (self.x_r - self.x_frt)
 
+        # ステップnの室iの実現PMV, [i, n]
+        (pmvarray, ppdarray) = pmv.get_pmv_ppd(met_value=ot_target_pmv.get_m() / 58.15,
+                                       p_eff=0.0,
+                                       t_a=self.theta_r,
+                                       t_r_bar=self.theta_mrt_hum,
+                                       clo_value=self.clo,
+                                       v_ar=self.v_hum,
+                                       rh=self.rh)
+        self.pmv = pmvarray
+        self.ppd = ppdarray
+
 
 def record(pps: PreCalcParameters, logger: Logger, output_data_dir: str, show_simple_result: bool, show_detail_result: bool, n_step_main: int, n_d_main: int):
 
@@ -196,6 +215,8 @@ def record(pps: PreCalcParameters, logger: Logger, output_data_dir: str, show_si
         dd[name + '_v_reak'] = logger.v_reak_is_ns[i][0:n_step_main]
         dd[name + '_v_ntrl'] = logger.v_ntrl_is_ns[i][0:n_step_main]
         dd[name + '_pmv_target'] = logger.pmv_target[i][0:n_step_main]
+        dd[name + '_pmv'] = logger.pmv[i][0:n_step_main]
+        dd[name + '_ppd'] = logger.ppd[i][0:n_step_main]
         dd[name + '_v_hum'] = logger.v_hum[i][0:n_step_main]
         dd[name + '_clo'] = logger.clo[i][0:n_step_main]
 
