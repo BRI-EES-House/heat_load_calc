@@ -303,6 +303,21 @@ def make_pre_calc_parameters(delta_t: float, data_directory: str) -> (PreCalcPar
     is_radiative_cooling_is = np.array(is_radiative_cooling_is_list).reshape(-1, 1)
     lr_cs_max_cap_is = np.array(radiative_cooling_max_capacity_is_list).reshape(-1, 1)
 
+    is_radiative_heating_is = np.full(shape=(n_spaces, 1), fill_value=False)
+    lr_h_max_cap_is = np.zeros(shape=(n_spaces, 1), dtype=float)
+    is_radiative_cooling_is = np.full(shape=(n_spaces, 1), fill_value=False)
+    lr_cs_max_cap_is = np.zeros(shape=(n_spaces, 1), dtype=float)
+
+    for e_h in es['heating_equipments']:
+        if e_h['equipment_type'] == 'floor_heating':
+            is_radiative_cooling_is[e_h['property']['space_id']] = True
+            lr_h_max_cap_is[e_h['property']['space_id']] = lr_h_max_cap_is[e_h['property']['space_id']] + e_h['property']['max_capacity'] * e_h['property']['area']
+
+    for e_c in es['cooling_equipments']:
+        if e_c['equipment_type'] == 'floor_cooling':
+            is_radiative_cooling_is[e_c['property']['space_id']] = True
+            lr_cs_max_cap_is[e_c['property']['space_id']] = lr_cs_max_cap_is[e_c['property']['space_id']] + e_c['property']['max_capacity'] * e_c['property']['area']
+
     # endregion
 
     # region boundaries の読み込み
