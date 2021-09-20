@@ -276,35 +276,11 @@ def make_pre_calc_parameters(delta_t: float, data_directory: str) -> (PreCalcPar
 
     # 室iの暖房方式として放射空調が設置されているかどうか。  bool値, [i, 1]
     # 室iの暖房方式として放射空調が設置されている場合の、放射暖房最大能力, W, [i, 1]
-    is_radiative_heating_is_list = []
-    radiative_heating_max_capacity_is_list = []
-    for i, s in enumerate(ss):
-        if s['equipment']['heating']['radiative']['installed']:
-            is_radiative_heating_is_list.append(True)
-            radiative_heating_max_capacity_is_list.append(s['equipment']['heating']['radiative']['max_capacity'])
-        else:
-            is_radiative_heating_is_list.append(False)
-            radiative_heating_max_capacity_is_list.append(0.0)
+    is_radiative_heating_is = np.full(shape=(n_spaces, 1), fill_value=False)
+    lr_h_max_cap_is = np.zeros(shape=(n_spaces, 1), dtype=float)
 
     # 室iの冷房方式として放射空調が設置されているかどうか。  bool値, [i, 1]
     # 室iの冷房方式として放射空調が設置されている場合の、放射冷房最大能力, W, [i, 1]
-    is_radiative_cooling_is_list = []
-    radiative_cooling_max_capacity_is_list = []
-    for i, s in enumerate(ss):
-        if s['equipment']['cooling']['radiative']['installed']:
-            is_radiative_cooling_is_list.append(True)
-            radiative_cooling_max_capacity_is_list.append(s['equipment']['cooling']['max_capacity'])
-        else:
-            is_radiative_cooling_is_list.append(False)
-            radiative_cooling_max_capacity_is_list.append(0.0)
-
-    is_radiative_heating_is = np.array(is_radiative_heating_is_list).reshape(-1, 1)
-    lr_h_max_cap_is = np.array(radiative_heating_max_capacity_is_list).reshape(-1, 1)
-    is_radiative_cooling_is = np.array(is_radiative_cooling_is_list).reshape(-1, 1)
-    lr_cs_max_cap_is = np.array(radiative_cooling_max_capacity_is_list).reshape(-1, 1)
-
-    is_radiative_heating_is = np.full(shape=(n_spaces, 1), fill_value=False)
-    lr_h_max_cap_is = np.zeros(shape=(n_spaces, 1), dtype=float)
     is_radiative_cooling_is = np.full(shape=(n_spaces, 1), fill_value=False)
     lr_cs_max_cap_is = np.zeros(shape=(n_spaces, 1), dtype=float)
 
