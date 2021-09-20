@@ -224,9 +224,6 @@ def make_pre_calc_parameters(delta_t: float, data_directory: str) -> (PreCalcPar
     # spaces の取り出し
     ss = rd['spaces']
 
-    # equipments の取り出し
-    es = rd['equipments']
-
     # Spaceの数
     n_spaces = len(ss)
 
@@ -273,26 +270,6 @@ def make_pre_calc_parameters(delta_t: float, data_directory: str) -> (PreCalcPar
 
     # 室iの家具等と空気間の湿気コンダクタンス, kg/s (kg/kgDA), [i, 1]
     g_lh_frt_is = np.array([float(s['furniture']['moisture_cond']) for s in ss]).reshape(-1, 1)
-
-    # 室iの暖房方式として放射空調が設置されているかどうか。  bool値, [i, 1]
-    # 室iの暖房方式として放射空調が設置されている場合の、放射暖房最大能力, W, [i, 1]
-    is_radiative_heating_is = np.full(shape=(n_spaces, 1), fill_value=False)
-    lr_h_max_cap_is = np.zeros(shape=(n_spaces, 1), dtype=float)
-
-    # 室iの冷房方式として放射空調が設置されているかどうか。  bool値, [i, 1]
-    # 室iの冷房方式として放射空調が設置されている場合の、放射冷房最大能力, W, [i, 1]
-    is_radiative_cooling_is = np.full(shape=(n_spaces, 1), fill_value=False)
-    lr_cs_max_cap_is = np.zeros(shape=(n_spaces, 1), dtype=float)
-
-    for e_h in es['heating_equipments']:
-        if e_h['equipment_type'] == 'floor_heating':
-            is_radiative_cooling_is[e_h['property']['space_id']] = True
-            lr_h_max_cap_is[e_h['property']['space_id']] = lr_h_max_cap_is[e_h['property']['space_id']] + e_h['property']['max_capacity'] * e_h['property']['area']
-
-    for e_c in es['cooling_equipments']:
-        if e_c['equipment_type'] == 'floor_cooling':
-            is_radiative_cooling_is[e_c['property']['space_id']] = True
-            lr_cs_max_cap_is[e_c['property']['space_id']] = lr_cs_max_cap_is[e_c['property']['space_id']] + e_c['property']['max_capacity'] * e_c['property']['area']
 
     # endregion
 
@@ -375,6 +352,35 @@ def make_pre_calc_parameters(delta_t: float, data_directory: str) -> (PreCalcPar
 #    k_ei_coef_js = [b['k_inside']['coef'] for b in bs]
 
     # endregion
+
+    # region equipments の読み込み
+
+    # 室iの暖房方式として放射空調が設置されているかどうか。  bool値, [i, 1]
+    # 室iの暖房方式として放射空調が設置されている場合の、放射暖房最大能力, W, [i, 1]
+    is_radiative_heating_is = np.full(shape=(n_spaces, 1), fill_value=False)
+    lr_h_max_cap_is = np.zeros(shape=(n_spaces, 1), dtype=float)
+
+    heating_equipments = rd['equipments']['heating_equipments']
+
+    for e_h in heating_equipments:
+        if e_h['equipment_type'] == 'floor_heating':
+            is_radiative_heating_is[e_h['property']['space_id']] = True
+            lr_h_max_cap_is[e_h['property']['space_id']] = lr_h_max_cap_is[e_h['property']['space_id']] + e_h['property']['max_capacity'] * e_h['property']['area']
+
+    # 室iの冷房方式として放射空調が設置されているかどうか。  bool値, [i, 1]
+    # 室iの冷房方式として放射空調が設置されている場合の、放射冷房最大能力, W, [i, 1]
+    is_radiative_cooling_is = np.full(shape=(n_spaces, 1), fill_value=False)
+    lr_cs_max_cap_is = np.zeros(shape=(n_spaces, 1), dtype=float)
+
+    cooling_equipments = rd['equipments']['cooling_equipments']
+
+    for e_c in cooling_equipments:
+        if e_c['equipment_type'] == 'floor_cooling':
+            is_radiative_cooling_is[e_c['property']['space_id']] = True
+            lr_cs_max_cap_is[e_c['property']['space_id']] = lr_cs_max_cap_is[e_c['property']['space_id']] + e_c['property']['max_capacity'] * e_c['property']['area']
+
+    # endregion
+
 
     # region スケジュール化されたデータの読み込み
 
@@ -570,12 +576,10 @@ def make_pre_calc_parameters(delta_t: float, data_directory: str) -> (PreCalcPar
 
     # endregion
 
-    equipments = es['cooling_equipments']
-
     dehumidification_funcs = [
         humidification.make_dehumidification_function(
             n_room=n_spaces, equipment_type=equipment['equipment_type'], prop=equipment['property']
-        ) for equipment in equipments
+        ) for equipment in cooling_equipments
     ]
 
     pre_calc_parameters = PreCalcParameters(
