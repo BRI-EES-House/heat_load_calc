@@ -21,28 +21,6 @@
                 "heat_cond": 2.7720000000000002,
                 "moisture_capacity": 16.8,
                 "moisture_cond": 0.03024
-            },
-            "equipment": {
-                "heating": {
-                    "radiative": {
-                        "installed": false
-                    },
-                    "convective": {
-                        "installed": true
-                    }
-                },
-                "cooling": {
-                    "radiative": {
-                        "installed": false
-                    },
-                    "convective": {
-                        "installed": true,
-                        "q_min": 500.0,
-                        "q_max": 2059.8888568540006,
-                        "v_min": 3.508455287821144,
-                        "v_max": 6.379009614220261
-                    }
-                }
             }
         }
     ],
