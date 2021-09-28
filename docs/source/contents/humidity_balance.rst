@@ -315,7 +315,7 @@ I. 評価法
 
     \begin{align*}
     	F_{h,wgt,i,j,n}
-	    &= \left( \rho_a \cdot \left( \frac{ V_{room,i} }{ \Delta t } + \hat{V}_{out,vent,i,n} \right) + \frac{ G_{lh,frt,i} \cdot C_{lh,frt,i} }{ C_{lh,frt,i} + \Delta t \cdot G_{lh,frt} } \right) \cdot \delta_{ij} \\
+	    &= \left( \rho_a \cdot \left( \frac{ V_{room,i} }{ \Delta t } + \hat{V}_{out,vent,i,n} \right) + \frac{ G_{lh,frt,i} \cdot C_{lh,frt,i} }{ C_{lh,frt,i} + \Delta t \cdot G_{lh,frt,i} } \right) \cdot \delta_{ij} \\
     	&- \rho_a \cdot \left( \hat{V}_{int,vent,i,j,n} - \delta_{ij} \cdot \sum_{k=0}^{N_{room-1}}{\hat{V}_{int,vent,i,k,n}} \right)
     	\tag{10}
     \end{align*}
@@ -350,7 +350,7 @@ I. 評価法
     	F_{h,cst,i,n}
         &= \rho_a \cdot \frac{ V_{room,i} }{ \Delta t } \cdot X_{r,i,n}
     	+ \rho_a \cdot \hat{V}_{out,vent,i,n} \cdot X_{o,n+1} \\
-	    &+ \frac{G_{lh,frt,i} \cdot C_{lh,frt,i} }{ C_{lh,frt,i} + \Delta t \cdot G_{lh,frt} } \cdot X_{frt,i,n}
+	    &+ \frac{G_{lh,frt,i} \cdot C_{lh,frt,i} }{ C_{lh,frt,i} + \Delta t \cdot G_{lh,frt,i} } \cdot X_{frt,i,n}
     	+ \hat{X}_{gen,i,n} + \hat{X}_{hum,i,n}
         \tag{11}
     \end{align*}
@@ -669,7 +669,7 @@ II. 根拠
     :nowrap:
 
     \begin{align*}
-    	C_{lh,frt,i} \cdot \frac{dX_{frt,i}}{dt} = G_{lh,frt} \cdot ( X_{r,i} - X_{frt,i} ) \tag{b4}
+    	C_{lh,frt,i} \cdot \frac{dX_{frt,i}}{dt} = G_{lh,frt,i} \cdot ( X_{r,i} - X_{frt,i} ) \tag{b4}
     \end{align*}
 
 ここで、
@@ -697,7 +697,7 @@ II. 根拠
 
 :math:`\Delta t`
     | 1ステップの時間間隔, s
-:math:`X_{r,i,n)}`
+:math:`X_{r,i,n}`
     | ステップ |n| における室 |i| の絶対湿度, kg/kg(DA)
 :math:`X_{r,j,n}`
     | ステップ |n| における |j| の絶対湿度, kg/kg(DA)
@@ -727,7 +727,7 @@ II. 根拠
     :nowrap:
 
     \begin{align*}
-    	C_{lh,frt,i} \cdot \frac{ X_{frt,i,n+1} - X_{frt,i,n} }{ \Delta t } = G_{lh,frt} \cdot ( X_{r,i,n+1} - X_{frt,i,n+1} ) \tag{b6}
+    	C_{lh,frt,i} \cdot \frac{ X_{frt,i,n+1} - X_{frt,i,n} }{ \Delta t } = G_{lh,frt,i} \cdot ( X_{r,i,n+1} - X_{frt,i,n+1} ) \tag{b6}
     \end{align*}
 
 式(b6)をステップ |n+1| における室 |i| の家具等の絶対湿度 :math:`X_{frt,i,n+1}` について解くと、
@@ -736,7 +736,7 @@ II. 根拠
     :nowrap:
 
     \begin{align*}
-    	X_{frt,i,n+1} = \frac{ C_{lh,frt,i} \cdot X_{frt,i,n} + \Delta t \cdot G_{lh,frt} \cdot X_{r,i,n+1} }{ C_{lh,frt,i} + \Delta t \cdot G_{lh,frt} } \tag{b7}
+    	X_{frt,i,n+1} = \frac{ C_{lh,frt,i} \cdot X_{frt,i,n} + \Delta t \cdot G_{lh,frt,i} \cdot X_{r,i,n+1} }{ C_{lh,frt,i} + \Delta t \cdot G_{lh,frt,i} } \tag{b7}
     \end{align*}
 
 となる。これを式(b5)に代入すると、
@@ -747,7 +747,7 @@ II. 根拠
     \begin{align*}
     	\rho_a \cdot V_{room,i} \cdot \frac{ X_{r,i,n+1} - X_{r,i,n} }{ \Delta t }
 	    &= \rho_a \cdot \hat{V}_{out,vent,i,n} \cdot ( X_{o,n+1} - X_{r,i,n+1} ) \\
-    	&+ G_{lh,frt,i} \cdot C_{lh,frt,i} \cdot \frac{ X_{frt,i,n} - X_{r,i,n+1} }{ C_{lh,frt,i} + \Delta t \cdot G_{lh,frt} } \\
+    	&+ G_{lh,frt,i} \cdot C_{lh,frt,i} \cdot \frac{ X_{frt,i,n} - X_{r,i,n+1} }{ C_{lh,frt,i} + \Delta t \cdot G_{lh,frt,i} } \\
 	    &+ \rho_a \cdot \sum_{j=0}^{J-1}{ \hat{V}_{int,vent,i,j,n} \cdot ( X_{r,j,n+1} - X_{r,i,n+1} ) } \\
     	&+ \hat{X}_{gen,i,n} + \hat{X}_{hum,i,n} + \hat{L}_{a,i,n} \cdot X_{r,i,n+1} + \hat{L}_{b,i,n}
     	\tag{b8}
@@ -760,10 +760,10 @@ II. 根拠
 
     \begin{align*}
     	& \left( \rho_a \cdot \left( \frac{ V_{room,i} }{ \Delta t } + \hat{V}_{out,vent,i,n} \right)
-	    + \frac{G_{lh,frt,i} \cdot C_{lh,frt,i} }{ C_{lh,frt,i} + \Delta t \cdot G_{lh,frt} } - \hat{L}_{a,i,n} \right) \cdot X_{r,i,n+1} \\
+	    + \frac{G_{lh,frt,i} \cdot C_{lh,frt,i} }{ C_{lh,frt,i} + \Delta t \cdot G_{lh,frt,i} } - \hat{L}_{a,i,n} \right) \cdot X_{r,i,n+1} \\
     	&- \rho_a \sum_{j=0}^{J-1}{ \hat{V}_{int,vent,i,j,n} \cdot ( X_{r,j,n+1} - X_{r,i,n+1} ) } \\
 	    &= \rho_a \cdot \frac{ V_{room,i} }{ \Delta t } \cdot X_{r,i,n} + \rho_a \cdot \hat{V}_{out,vent,i,n} \cdot X_{o,n+1} \\
-    	&+ \frac{ G_{lh,frt,i} \cdot C_{lh,frt,i} }{ C_{lh,frt,i} + \Delta t \cdot G_{lh,frt} } \cdot X_{frt,i,n} \\
+    	&+ \frac{ G_{lh,frt,i} \cdot C_{lh,frt,i} }{ C_{lh,frt,i} + \Delta t \cdot G_{lh,frt,i} } \cdot X_{frt,i,n} \\
 	    &+ \hat{X}_{gen,i,n} + \hat{X}_{hum,i,n} + \hat{L}_{b,i,n}
     	\tag{b9}
     \end{align*}
@@ -785,7 +785,7 @@ II. 根拠
     :nowrap:
 
     \begin{align*}
-    	\pmb{F}_{h,wgt,n} &= diag \left( \rho_a \left( \frac{V_{room,i} }{ \Delta t } + \hat{V}_{out,vent,i,n} \right) + \frac{ G_{lh,frt,i} \cdot C_{lh,frt,i} }{ C_{lh,frt,i} + \Delta t \cdot G_{lh,frt} } \right) \\
+    	\pmb{F}_{h,wgt,n} &= diag \left( \rho_a \left( \frac{V_{room,i} }{ \Delta t } + \hat{V}_{out,vent,i,n} \right) + \frac{ G_{lh,frt,i} \cdot C_{lh,frt,i} }{ C_{lh,frt,i} + \Delta t \cdot G_{lh,frt,i} } \right) \\
 	    &- \rho_a \cdot \pmb{\hat{V}}_{int,vent,n}
     	\tag{b11}
     \end{align*}
@@ -800,7 +800,7 @@ II. 根拠
     \begin{align*}
     	F_{h,cst,i,n} &= \rho_a \cdot \frac{ V_{room,i} }{ \Delta t } \cdot X_{r,i,n}
 	    + \rho_a \cdot \hat{V}_{out,vent,i,n} \cdot X_{o,n+1} \\
-    	&+ \frac{G_{lh,frt,i} \cdot C_{lh,frt,i} }{ C_{lh,frt,i} + \Delta t \cdot G_{lh,frt} } \cdot X_{frt,i,n}
+    	&+ \frac{G_{lh,frt,i} \cdot C_{lh,frt,i} }{ C_{lh,frt,i} + \Delta t \cdot G_{lh,frt,i} } \cdot X_{frt,i,n}
 	    + \hat{X}_{gen,i,n} + \hat{X}_{hum,i,n}
     	\tag{b12}
     \end{align*}
