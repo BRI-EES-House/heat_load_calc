@@ -697,7 +697,7 @@ II. 根拠
 
 :math:`\Delta t`
     | 1ステップの時間間隔, s
-:math:`X_{r,i,n)}`
+:math:`X_{r,i,n}`
     | ステップ |n| における室 |i| の絶対湿度, kg/kg(DA)
 :math:`X_{r,j,n}`
     | ステップ |n| における |j| の絶対湿度, kg/kg(DA)
