@@ -861,7 +861,7 @@ II. 根拠
     	\vdots & & \vdots & \ddots & \vdots \\
 	    \hat{V}_{int,vent,I-1,0,n} & \cdots & \hat{V}_{int,vent,I-1,j,n} & \cdots & 0 \\
     	\end{pmatrix}
-		\tag{}
+		\tag{b13}
     \end{align*}
 
 となる。
