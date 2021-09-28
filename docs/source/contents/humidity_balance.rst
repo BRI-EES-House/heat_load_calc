@@ -907,8 +907,8 @@ II. 根拠
     :nowrap:
 
     \begin{align*}
-    	\pmb{\hat{L}}'_{a,n} = {\begin{pmatrix} \hat{L}'_{a,0,n} & \cdots & \hat{L}'_{a,i,n} & \cdots & \hat{L}'_{a,I-1,n} \end{pmatrix}}^T
-    \end{align*}
+    	\pmb{\hat{L}}'_{a,n} = diag( \hat{L}'_{a,i,n} )
+    \end{align*} 
 
 .. math::
     :nowrap:
