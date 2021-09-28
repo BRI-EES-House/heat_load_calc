@@ -315,7 +315,7 @@ I. 評価法
 
     \begin{align*}
     	F_{h,wgt,i,j,n}
-	    &= \left( \rho_a \cdot \left( \frac{ V_{room,i} }{ \Delta t } + \hat{V}_{out,vent,i,n} \right) + \frac{ G_{lh,frt,i} \cdot C_{lh,frt,i} }{ C_{lh,frt,i} + \Delta t \cdot G_{lh,frt} } \right) \cdot \delta_{ij} \\
+	    &= \left( \rho_a \cdot \left( \frac{ V_{room,i} }{ \Delta t } + \hat{V}_{out,vent,i,n} \right) + \frac{ G_{lh,frt,i} \cdot C_{lh,frt,i} }{ C_{lh,frt,i} + \Delta t \cdot G_{lh,frt,i} } \right) \cdot \delta_{ij} \\
     	&- \rho_a \cdot \left( \hat{V}_{int,vent,i,j,n} - \delta_{ij} \cdot \sum_{k=0}^{N_{room-1}}{\hat{V}_{int,vent,i,k,n}} \right)
     	\tag{10}
     \end{align*}
@@ -350,7 +350,7 @@ I. 評価法
     	F_{h,cst,i,n}
         &= \rho_a \cdot \frac{ V_{room,i} }{ \Delta t } \cdot X_{r,i,n}
     	+ \rho_a \cdot \hat{V}_{out,vent,i,n} \cdot X_{o,n+1} \\
-	    &+ \frac{G_{lh,frt,i} \cdot C_{lh,frt,i} }{ C_{lh,frt,i} + \Delta t \cdot G_{lh,frt} } \cdot X_{frt,i,n}
+	    &+ \frac{G_{lh,frt,i} \cdot C_{lh,frt,i} }{ C_{lh,frt,i} + \Delta t \cdot G_{lh,frt,i} } \cdot X_{frt,i,n}
     	+ \hat{X}_{gen,i,n} + \hat{X}_{hum,i,n}
         \tag{11}
     \end{align*}
@@ -579,7 +579,7 @@ II. 根拠
     \begin{align*}
         \rho_a \cdot V_{room,i} \cdot \frac{dX_{r,i}}{dt}
         &= \rho_a \cdot V_{out,vent,i} \cdot ( X_o - X_{r,i} ) + G_{lh,frt,i} \cdot ( X_{frt,i} - X_{r,i} ) \\
-        &+ \rho_a \cdot \sum_j^{J-1}{V_{int,vent,i,j} \cdot (X_{r,j} - X_{r,i})} + X_{gen,i} + X_{hum,i} + L_{L,i}
+        &+ \rho_a \cdot \sum_{j=0}^{J-1}{V_{int,vent,i,j} \cdot (X_{r,j} - X_{r,i})} + X_{gen,i} + X_{hum,i} + L_{L,i}
         \tag{b1}
     \end{align*}
 
@@ -634,7 +634,7 @@ II. 根拠
 
 ある一定値で除加湿を行う場合、 :math:`L_{a,i} = 0` とし、与えたい除湿・加湿量を  :math:`L_{b,i}`  に与えれば良い。
 
-目標絶対湿度を満たすように除湿・加湿を行う場合、 :math:`L_{a,i} = 0` としたうえで、
+目標絶対湿度を満たすように除湿・加湿を行う場合、 :math:`L_{a,i} = 0` とし、 :math:`X_{r,i}` を目標絶対湿度としたうえで、
 :math:`L_{b,i}` を未知数として除湿・加湿量を求めれば良い。
 
 室内の絶対湿度に応じて除湿を行う方法の場合、室内の絶対湿度と除湿を行う表面の飽和絶対湿度との差によって除湿量が決定される場合が多い。
@@ -669,7 +669,7 @@ II. 根拠
     :nowrap:
 
     \begin{align*}
-    	C_{lh,frt,i} \cdot \frac{dX_{frt,i}}{dt} = G_{lh,frt} \cdot ( X_{r,i} - X_{frt,i} ) \tag{b4}
+    	C_{lh,frt,i} \cdot \frac{dX_{frt,i}}{dt} = G_{lh,frt,i} \cdot ( X_{r,i} - X_{frt,i} ) \tag{b4}
     \end{align*}
 
 ここで、
@@ -688,7 +688,7 @@ II. 根拠
     	\rho_a \cdot V_{room,i} \cdot \frac{ X_{r,i,n+1} - X_{r,i,n} }{ \Delta t }
 	    &= \rho_a \cdot \hat{V}_{out,vent,i,n} \cdot ( X_{o,n+1} - X_{r,i,n+1} ) \\
     	&+ G_{lh,frt,i} \cdot ( X_{frt,i,n+1} - X_{r,i,n+1} ) \\
-	    &+ \rho_a \cdot \sum_j^{J-1}{\hat{V}_{int,vent,i,j,n} \cdot ( X_{r,j,n+1} - X_{r,i,n+1} ) } \\
+	    &+ \rho_a \cdot \sum_{j=0}^{J-1}{\hat{V}_{int,vent,i,j,n} \cdot ( X_{r,j,n+1} - X_{r,i,n+1} ) } \\
     	&+ \hat{X}_{gen,i,n} + \hat{X}_{hum,i,n} + \hat{L}_{a,i,n} \cdot X_{r,i,n+1} + \hat{L}_{b,i,n}
     	\tag{b5}
     \end{align*}
@@ -697,7 +697,7 @@ II. 根拠
 
 :math:`\Delta t`
     | 1ステップの時間間隔, s
-:math:`X_{r,i,n)}`
+:math:`X_{r,i,n}`
     | ステップ |n| における室 |i| の絶対湿度, kg/kg(DA)
 :math:`X_{r,j,n}`
     | ステップ |n| における |j| の絶対湿度, kg/kg(DA)
@@ -719,7 +719,7 @@ II. 根拠
     | ステップ |n| からステップ |n+1| における潜熱負荷に関する係数, kg/s
 
 である。
-記号の上につく横線（ハット）は、ステップ |n| から |n+1| の期間における積算値または平均値を表す。
+記号の上につく:math: `\hat{ } （ハット）は、ステップ |n| から |n+1| の期間における積算値または平均値を表す。
 
 式(b4)も同様に後退差分で離散化すると次式となる。
 
@@ -727,7 +727,7 @@ II. 根拠
     :nowrap:
 
     \begin{align*}
-    	C_{lh,frt,i} \cdot \frac{ X_{frt,i,n+1} - X_{frt,i,n} }{ \Delta t } = G_{lh,frt} \cdot ( X_{r,i,n+1} - X_{frt,i,n+1} ) \tag{b6}
+    	C_{lh,frt,i} \cdot \frac{ X_{frt,i,n+1} - X_{frt,i,n} }{ \Delta t } = G_{lh,frt,i} \cdot ( X_{r,i,n+1} - X_{frt,i,n+1} ) \tag{b6}
     \end{align*}
 
 式(b6)をステップ |n+1| における室 |i| の家具等の絶対湿度 :math:`X_{frt,i,n+1}` について解くと、
@@ -736,7 +736,7 @@ II. 根拠
     :nowrap:
 
     \begin{align*}
-    	X_{frt,i,n+1} = \frac{ C_{lh,frt,i} \cdot X_{frt,i,n} + \Delta t \cdot G_{lh,frt} \cdot X_{r,i,n+1} }{ C_{lh,frt,i} + \Delta t \cdot G_{lh,frt} } \tag{b7}
+    	X_{frt,i,n+1} = \frac{ C_{lh,frt,i} \cdot X_{frt,i,n} + \Delta t \cdot G_{lh,frt,i} \cdot X_{r,i,n+1} }{ C_{lh,frt,i} + \Delta t \cdot G_{lh,frt,i} } \tag{b7}
     \end{align*}
 
 となる。これを式(b5)に代入すると、
@@ -747,8 +747,8 @@ II. 根拠
     \begin{align*}
     	\rho_a \cdot V_{room,i} \cdot \frac{ X_{r,i,n+1} - X_{r,i,n} }{ \Delta t }
 	    &= \rho_a \cdot \hat{V}_{out,vent,i,n} \cdot ( X_{o,n+1} - X_{r,i,n+1} ) \\
-    	&+ G_{lh,frt,i} \cdot C_{lh,frt,i} \cdot \frac{ X_{frt,i,n} - X_{r,i,n+1} }{ C_{lh,frt,i} + \Delta t \cdot G_{lh,frt} } \\
-	    &+ \rho_a \cdot \sum_j^{J-1}{ \hat{V}_{int,vent,i,j,n} \cdot ( X_{r,j,n+1} - X_{r,i,n+1} ) } \\
+    	&+ G_{lh,frt,i} \cdot C_{lh,frt,i} \cdot \frac{ X_{frt,i,n} - X_{r,i,n+1} }{ C_{lh,frt,i} + \Delta t \cdot G_{lh,frt,i} } \\
+	    &+ \rho_a \cdot \sum_{j=0}^{J-1}{ \hat{V}_{int,vent,i,j,n} \cdot ( X_{r,j,n+1} - X_{r,i,n+1} ) } \\
     	&+ \hat{X}_{gen,i,n} + \hat{X}_{hum,i,n} + \hat{L}_{a,i,n} \cdot X_{r,i,n+1} + \hat{L}_{b,i,n}
     	\tag{b8}
     \end{align*}
@@ -760,10 +760,10 @@ II. 根拠
 
     \begin{align*}
     	& \left( \rho_a \cdot \left( \frac{ V_{room,i} }{ \Delta t } + \hat{V}_{out,vent,i,n} \right)
-	    + \frac{G_{lh,frt,i} \cdot C_{lh,frt,i} }{ C_{lh,frt,i} + \Delta t \cdot G_{lh,frt} } - \hat{L}_{a,i,n} \right) \cdot X_{r,i,n+1} \\
-    	&- \rho_a \sum_j^{J-1}{ \hat{V}_{int,vent,i,j,n} \cdot ( X_{r,j,n+1} - X_{r,i,n+1} ) } \\
+	    + \frac{G_{lh,frt,i} \cdot C_{lh,frt,i} }{ C_{lh,frt,i} + \Delta t \cdot G_{lh,frt,i} } - \hat{L}_{a,i,n} \right) \cdot X_{r,i,n+1} \\
+    	&- \rho_a \sum_{j=0}^{J-1}{ \hat{V}_{int,vent,i,j,n} \cdot ( X_{r,j,n+1} - X_{r,i,n+1} ) } \\
 	    &= \rho_a \cdot \frac{ V_{room,i} }{ \Delta t } \cdot X_{r,i,n} + \rho_a \cdot \hat{V}_{out,vent,i,n} \cdot X_{o,n+1} \\
-    	&+ \frac{ G_{lh,frt,i} \cdot C_{lh,frt,i} }{ C_{lh,frt,i} + \Delta t \cdot G_{lh,frt} } \cdot X_{frt,i,n} \\
+    	&+ \frac{ G_{lh,frt,i} \cdot C_{lh,frt,i} }{ C_{lh,frt,i} + \Delta t \cdot G_{lh,frt,i} } \cdot X_{frt,i,n} \\
 	    &+ \hat{X}_{gen,i,n} + \hat{X}_{hum,i,n} + \hat{L}_{b,i,n}
     	\tag{b9}
     \end{align*}
@@ -785,7 +785,7 @@ II. 根拠
     :nowrap:
 
     \begin{align*}
-    	\pmb{F}_{h,wgt,n} &= diag \left( \rho_a \left( \frac{V_{room,i} }{ \Delta t } + \hat{V}_{out,vent,i,n} \right) + \frac{ G_{lh,frt,i} \cdot C_{lh,frt,i} }{ C_{lh,frt,i} + \Delta t \cdot G_{lh,frt} } \right) \\
+    	\pmb{F}_{h,wgt,n} &= diag \left( \rho_a \left( \frac{V_{room,i} }{ \Delta t } + \hat{V}_{out,vent,i,n} \right) + \frac{ G_{lh,frt,i} \cdot C_{lh,frt,i} }{ C_{lh,frt,i} + \Delta t \cdot G_{lh,frt,i} } \right) \\
 	    &- \rho_a \cdot \pmb{\hat{V}}_{int,vent,n}
     	\tag{b11}
     \end{align*}
@@ -800,7 +800,7 @@ II. 根拠
     \begin{align*}
     	F_{h,cst,i,n} &= \rho_a \cdot \frac{ V_{room,i} }{ \Delta t } \cdot X_{r,i,n}
 	    + \rho_a \cdot \hat{V}_{out,vent,i,n} \cdot X_{o,n+1} \\
-    	&+ \frac{G_{lh,frt,i} \cdot C_{lh,frt,i} }{ C_{lh,frt,i} + \Delta t \cdot G_{lh,frt} } \cdot X_{frt,i,n}
+    	&+ \frac{G_{lh,frt,i} \cdot C_{lh,frt,i} }{ C_{lh,frt,i} + \Delta t \cdot G_{lh,frt,i} } \cdot X_{frt,i,n}
 	    + \hat{X}_{gen,i,n} + \hat{X}_{hum,i,n}
     	\tag{b12}
     \end{align*}
@@ -852,7 +852,7 @@ II. 根拠
     \begin{align*}
     	\pmb{\hat{V}}_{int,vent,n}
 	    &= - diag \left (
-    	\sum_j^{J-1}{\hat{V}_{int,vent,0,j,n}} \  \cdots \  \sum_j^{J-1}{\hat{V}_{int,vent,i,j,n}} \  \dots \  \sum_j^{J-1}{\hat{V}_{int,vent,I-1,j,n}}
+    	\sum_{j=0}^{J-1}{\hat{V}_{int,vent,0,j,n}} \  \cdots \  \sum_{j=0}^{J-1}{\hat{V}_{int,vent,i,j,n}} \  \dots \  \sum_{j=0}^{J-1}{\hat{V}_{int,vent,I-1,j,n}}
 	    \right ) \\
     	&+ \begin{pmatrix}
 	    0 & \cdots & \hat{V}_{int,vent,0,j,n} & \cdots & \hat{V}_{int,vent,0,J-1,n} \\
@@ -882,7 +882,7 @@ II. 根拠
     	\tag{b14}
     \end{align*}
 
-となる。ここで、目標とする絶対湿度を設定する場合は、定義から :math:`\pmb{\hat{L}}_{a,n}` が0になり、 :math:`\pmb{\hat{L}}'_{b,set,n}` のみが未知数となる。
+となる。ここで、室 |i| に目標とする絶対湿度を設定する場合は、定義から :math:`\pmb{\hat{L}}_{a,n}` の |i| 成分が0になり、 :math:`\pmb{\hat{L}}'_{b,set,n}` のみが未知数となる。
 ここで、 :math:`\pmb{\hat{L}}'_{b,set,n}` は絶対湿度を設定(=set)した場合の未知数としての負荷成分であることに留意されたい。未知数を左辺に既知数を右辺に整理する。
 
 .. math::
@@ -907,8 +907,8 @@ II. 根拠
     :nowrap:
 
     \begin{align*}
-    	\pmb{\hat{L}}'_{a,n} = {\begin{pmatrix} \hat{L}'_{a,0,n} & \cdots & \hat{L}'_{a,i,n} & \cdots & \hat{L}'_{a,I-1,n} \end{pmatrix}}^T
-    \end{align*}
+    	\pmb{\hat{L}}'_{a,n} = diag( \hat{L}'_{a,i,n} )
+    \end{align*} 
 
 .. math::
     :nowrap:
@@ -934,13 +934,13 @@ II. 根拠
 であり、
 
 :math:`X'_{r,i,n+1}`
-    | ステップ |n+1| における室iの絶対湿度（ただし、設定絶対湿度を定める場合は0とする）, kg/kg(DA)
+    | ステップ |n+1| における室iの絶対湿度（ただし、室 |i| の設定絶対湿度を定める場合は0とする）, kg/kg(DA)
 :math:`\hat{L}'_{b,i,n}`
-    | ステップ |n| からステップ |n+1| における室 |i| の設定潜熱負荷（加湿を正・除湿を負とする）（ただし、設定絶対湿度を定める場合は0とする）, kg/s
+    | ステップ |n| からステップ |n+1| における室 |i| の設定潜熱負荷（加湿を正・除湿を負とする）（ただし、室 |i| の設定絶対湿度を定める場合は0とする）, kg/s
 :math:`X_{r,set,i,n+1}`
-    | ステップ |n+1| における室 |i| の設定絶対湿度（ただし、設定絶対湿度を定めない場合は0とする）, kg/kg(DA)
+    | ステップ |n+1| における室 |i| の設定絶対湿度（ただし、室 |i| の設定絶対湿度を定めない場合は0とする）, kg/kg(DA)
 :math:`\hat{L}'_{b,set,i,n}`
-    | ステップ |n| からステップ |n+1| における室 |i| の潜熱負荷（加湿を正・除湿を負とする）（ただし、設定絶対湿度を定めない場合は0とする）, kg/s
+    | ステップ |n| からステップ |n+1| における室 |i| の潜熱負荷（加湿を正・除湿を負とする）（ただし、室 |i| の設定絶対湿度を定めない場合は0とする）, kg/s
 
 である。ここで、 :math:`X'_{r,i,n+1}` と :math:`\hat{L}'_{L,i,n}` のどちらか一方は必ず0となる。
 同様に、:math:`X'_{r,set,i,n+1}` と :math:`\hat{L}'_{L,b,i,n}` のどちらか一方は必ず0となる。
