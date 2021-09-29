@@ -1,7 +1,6 @@
 import unittest
-import numpy as np
 
-from heat_load_calc.initializer import response_factor as rf
+from heat_load_calc.core import response_factor as rf
 
 
 class MyTestCase(unittest.TestCase):

@@ -1,6 +1,6 @@
 import unittest
 
-from heat_load_calc.initializer import response_factor
+from heat_load_calc.core import response_factor
 
 
 class MyTestCase(unittest.TestCase):
