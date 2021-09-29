@@ -637,11 +637,13 @@ def _make_boundaries(bss2: List[BoundarySimple], rooms: List[Dict], boundaries: 
     # 放射暖房有無（Trueなら放射暖房あり）
     is_radiative_heating_is = [a22.read_is_radiative_heating(room) for room in rooms]
 
+    connected_room_ids = np.array([b['connected_room_id'] for b in boundaries])
+
     # 放射暖房の発熱部位の設定（とりあえず床発熱） 表7
     # TODO: 発熱部位を指定して、面積按分するように変更すべき。
     flr_js = np.zeros_like(bss2, dtype=float)
     for i in range(n_spaces):
-        is_connected = np.array([bs.connected_room_id == i for bs in bss2])
+        is_connected = np.array([connected_room_id == i for connected_room_id in connected_room_ids])
         flr_js[is_connected] = a12.get_flr_i_js(
             area_i_js=np.array([bs.area for bs in np.array(bss2)[is_connected]]),
             is_radiative_heating=is_radiative_heating_is[i],
