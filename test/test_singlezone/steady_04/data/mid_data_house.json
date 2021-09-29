@@ -39,6 +39,7 @@
             "f_mrt_hum": 0.11000000000000001,
             "k_outside": 1.0,
             "k_inside": null,
+            "is_floor": false,
             "spec": {
                 "method": "u_value",
                 "boundary_type": "external_transparent_part",
@@ -60,6 +61,7 @@
             "f_mrt_hum": 0.11000000000000001,
             "k_outside": 1.0,
             "k_inside": null,
+            "is_floor": false,
             "spec": {
                 "method": "u_value",
                 "boundary_type": "external_transparent_part",
@@ -81,6 +83,7 @@
             "f_mrt_hum": 0.11000000000000001,
             "k_outside": 1.0,
             "k_inside": null,
+            "is_floor": false,
             "spec": {
                 "method": "u_value",
                 "boundary_type": "external_transparent_part",
@@ -102,6 +105,7 @@
             "f_mrt_hum": 0.11000000000000001,
             "k_outside": 1.0,
             "k_inside": null,
+            "is_floor": false,
             "spec": {
                 "method": "u_value",
                 "boundary_type": "external_transparent_part",
@@ -123,6 +127,7 @@
             "f_mrt_hum": 0.45,
             "k_outside": 1.0,
             "k_inside": null,
+            "is_floor": true,
             "spec": {
                 "method": "layers",
                 "boundary_type": "external_general_part",
@@ -150,6 +155,7 @@
             "f_mrt_hum": 0.11000000000000001,
             "k_outside": 1.0,
             "k_inside": null,
+            "is_floor": false,
             "spec": {
                 "method": "layers",
                 "boundary_type": "external_general_part",

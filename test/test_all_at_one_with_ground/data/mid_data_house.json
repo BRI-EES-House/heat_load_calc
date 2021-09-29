@@ -39,6 +39,7 @@
             "f_mrt_hum": 0.55,
             "k_outside": 1.0,
             "k_inside": null,
+            "is_floor": false,
             "spec": {
                 "method": "layers_ground",
                 "boundary_type": "ground",
@@ -65,6 +66,7 @@
             "f_mrt_hum": 0.45,
             "k_outside": 1.0,
             "k_inside": null,
+            "is_floor": true,
             "spec": {
                 "method": "layers_ground",
                 "boundary_type": "ground",

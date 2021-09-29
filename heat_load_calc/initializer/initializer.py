@@ -654,6 +654,7 @@ def _make_boundaries(bss2: List[BoundarySimple], rooms: List[Dict], boundaries: 
     bdrs = []
 
     for i, bs in enumerate(bss2):
+
         bdrs.append({
             'id': bs.id,
             'name': bs.name,
@@ -668,8 +669,11 @@ def _make_boundaries(bss2: List[BoundarySimple], rooms: List[Dict], boundaries: 
             'f_mrt_hum': f_mrt_hum_is[i],
             'k_outside': bs.h_td,
             'k_inside': k_ei_js[i],
+            'is_floor': bool(is_floor_js[i]),
             'spec': specs[i]
         })
+
+
     return bdrs
 
 
