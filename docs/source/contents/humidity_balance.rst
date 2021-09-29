@@ -877,8 +877,8 @@ II. 根拠
     :nowrap:
 
     \begin{align*}
-    	( \pmb{F}_{h,wgt,n} - \pmb{\hat{L}}'_{a,n} ) \cdot ( \pmb{X}'_{r,n+1} + \pmb{X}'_{r,set,n+1} )
-        = \pmb{F}_{h,cst,n} + \pmb{\hat{L}}_{b,n} + \pmb{\hat{L}}'_{b,set,n}
+    	( \pmb{F}_{h,wgt,n} - \pmb{\hat{L}}_{a,n} ) \cdot ( \pmb{X}'_{r,n+1} + \pmb{X}'_{r,set,n+1} )
+        = \pmb{F}_{h,cst,n} + \pmb{\hat{L}}'_{b,n} + \pmb{\hat{L}}'_{b,set,n}
     	\tag{b14}
     \end{align*}
 
@@ -889,7 +889,7 @@ II. 根拠
     :nowrap:
 
     \begin{align*}
-    	& ( \pmb{F}_{h,wgt,n} - \pmb{\hat{L}}'_{a,n} ) \cdot \pmb{X}'_{r,n+1} - \pmb{\hat{L}}'_{b,set,n} \\
+    	& ( \pmb{F}_{h,wgt,n} - \pmb{\hat{L}}_{a,n} ) \cdot \pmb{X}'_{r,n+1} - \pmb{\hat{L}}'_{b,set,n} \\
 	    &= - ( \pmb{F}_{h,wgt,n} - \pmb{\hat{L}}_{a,n} ) \cdot \pmb{X}'_{r,set,n+1} + \pmb{F}_{h,cst,n} + \pmb{\hat{L}}'_{b,n}
     	\tag{b15}
     \end{align*}
@@ -907,7 +907,7 @@ II. 根拠
     :nowrap:
 
     \begin{align*}
-    	\pmb{\hat{L}}'_{a,n} = diag( \hat{L}'_{a,i,n} )
+    	\pmb{\hat{L}}_{a,n} = diag( \hat{L}_{a,i,n} )
     \end{align*} 
 
 .. math::
@@ -937,7 +937,7 @@ II. 根拠
     | ステップ |n+1| における室iの絶対湿度（ただし、室 |i| の設定絶対湿度を定める場合は0とする）, kg/kg(DA)
 :math:`\hat{L}'_{b,i,n}`
     | ステップ |n| からステップ |n+1| における室 |i| の設定潜熱負荷（加湿を正・除湿を負とする）（ただし、室 |i| の設定絶対湿度を定める場合は0とする）, kg/s
-:math:`X_{r,set,i,n+1}`
+:math:`X'_{r,set,i,n+1}`
     | ステップ |n+1| における室 |i| の設定絶対湿度（ただし、室 |i| の設定絶対湿度を定めない場合は0とする）, kg/kg(DA)
 :math:`\hat{L}'_{b,set,i,n}`
     | ステップ |n| からステップ |n+1| における室 |i| の潜熱負荷（加湿を正・除湿を負とする）（ただし、室 |i| の設定絶対湿度を定めない場合は0とする）, kg/s
