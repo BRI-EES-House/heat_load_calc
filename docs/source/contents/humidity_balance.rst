@@ -124,7 +124,7 @@ I. 評価法
 :math:`\pmb{F}_{h,cst,n}`
     | :math:`F_{h,cst,i,n}` を要素にもつ :math:`N_{room} \times 1` の縦行列, kg / s
 :math:`\pmb{\hat{L}}'_{b,n}`
-    | :math:`\hat{L}'_{b,n}` を要素にもつ :math:`N_{room} \times 1` の縦行列, kg / s
+    | :math:`\hat{L}'_{b,i,n}` を要素にもつ :math:`N_{room} \times 1` の縦行列, kg / s
 
 である。
 
@@ -283,7 +283,7 @@ I. 評価法
 3. 加湿・除湿を行わない場合の次のステップの絶対湿度
 ------------------------------------------------------------------------------------------------------------------------
 
-加湿・除湿を行わない場合のステップ |n+1| における室 |i| の絶対湿度 :math:`X_{ntr,i,n+1}` は式(9)で表される。
+加湿・除湿を行わない場合のステップ |n+1| における室 |i| の絶対湿度 :math:`X_{r,ntr,i,n+1}` は式(9)で表される。
 
 .. math::
     :nowrap:
@@ -316,7 +316,7 @@ I. 評価法
     \begin{align*}
     	F_{h,wgt,i,j,n}
 	    &= \left( \rho_a \cdot \left( \frac{ V_{room,i} }{ \Delta t } + \hat{V}_{out,vent,i,n} \right) + \frac{ G_{lh,frt,i} \cdot C_{lh,frt,i} }{ C_{lh,frt,i} + \Delta t \cdot G_{lh,frt,i} } \right) \cdot \delta_{ij} \\
-    	&- \rho_a \cdot \left( \hat{V}_{int,vent,i,j,n} - \delta_{ij} \cdot \sum_{k=0}^{N_{room-1}}{\hat{V}_{int,vent,i,k,n}} \right)
+    	&- \rho_a \cdot \left( \hat{V}_{int,vent,i,j,n} - \delta_{ij} \cdot \sum_{k=0}^{N_{room}-1}{\hat{V}_{int,vent,i,k,n}} \right)
     	\tag{10}
     \end{align*}
 
@@ -951,7 +951,7 @@ II. 根拠
     :nowrap:
 
     \begin{align*}
-        \pmb{F}'_{h,wgt,n} = \pmb{F}_{wgt,n} - \pmb{\hat{L}}_{a,n}
+        \pmb{F}'_{h,wgt,n} = \pmb{F}_{h,wgt,n} - \pmb{\hat{L}}_{a,n}
     \end{align*}
 
 とおくと、式(b15)は、
