@@ -635,7 +635,7 @@ def _make_boundaries(bss2: List[BoundarySimple], rooms: List[Dict], boundaries: 
 
     # 暖房設備仕様の読み込み
     # 放射暖房有無（Trueなら放射暖房あり）
-    is_radiative_heating_is = [a22.read_is_radiative_heating(room) for room in rooms]
+    is_radiative_heating_is = np.array([a22.read_is_radiative_heating(room) for room in rooms])
 
     connected_room_ids = np.array([b['connected_room_id'] for b in boundaries])
 
@@ -671,6 +671,9 @@ def _make_boundaries(bss2: List[BoundarySimple], rooms: List[Dict], boundaries: 
             'spec': specs[i]
         })
     return bdrs
+
+
+
 
 
 def _get_boundary_spec(boundaries, bs) -> Dict:
