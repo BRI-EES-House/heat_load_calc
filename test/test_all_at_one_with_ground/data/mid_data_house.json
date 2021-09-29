@@ -82,7 +82,18 @@
             "is_solar_absorbed": true,
             "f_mrt_hum": 0.55,
             "k_outside": 1.0,
-            "k_inside": null
+            "k_inside": null,
+            "spec": {
+                "method": "layers_ground",
+                "boundary_type": "ground",
+                "layers": [
+                    {
+                        "name": "RC120mm",
+                        "thermal_resistance": 0.075,
+                        "thermal_capacity": 240
+                    }
+                ]
+            }
         },
         {
             "id": 1,
@@ -141,7 +152,18 @@
             "is_solar_absorbed": true,
             "f_mrt_hum": 0.45,
             "k_outside": 1.0,
-            "k_inside": null
+            "k_inside": null,
+            "spec": {
+                "method": "layers_ground",
+                "boundary_type": "ground",
+                "layers": [
+                    {
+                        "name": "RC120mm",
+                        "thermal_resistance": 0.075,
+                        "thermal_capacity": 240
+                    }
+                ]
+            }
         }
     ],
     "equipments": {

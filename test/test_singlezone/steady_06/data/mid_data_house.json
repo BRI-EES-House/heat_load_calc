@@ -82,7 +82,13 @@
             "is_solar_absorbed": false,
             "f_mrt_hum": 0.11000000000000001,
             "k_outside": 1.0,
-            "k_inside": null
+            "k_inside": null,
+            "spec": {
+                "method": "u_value",
+                "boundary_type": "external_transparent_part",
+                "u_value": 4.65,
+                "inside_heat_transfer_resistance": 0.11
+            }
         },
         {
             "id": 1,
@@ -141,7 +147,13 @@
             "is_solar_absorbed": false,
             "f_mrt_hum": 0.11000000000000001,
             "k_outside": 1.0,
-            "k_inside": null
+            "k_inside": null,
+            "spec": {
+                "method": "u_value",
+                "boundary_type": "external_transparent_part",
+                "u_value": 4.65,
+                "inside_heat_transfer_resistance": 0.11
+            }
         },
         {
             "id": 2,
@@ -200,7 +212,13 @@
             "is_solar_absorbed": false,
             "f_mrt_hum": 0.11000000000000001,
             "k_outside": 1.0,
-            "k_inside": null
+            "k_inside": null,
+            "spec": {
+                "method": "u_value",
+                "boundary_type": "external_transparent_part",
+                "u_value": 4.65,
+                "inside_heat_transfer_resistance": 0.11
+            }
         },
         {
             "id": 3,
@@ -259,7 +277,13 @@
             "is_solar_absorbed": false,
             "f_mrt_hum": 0.11000000000000001,
             "k_outside": 1.0,
-            "k_inside": null
+            "k_inside": null,
+            "spec": {
+                "method": "u_value",
+                "boundary_type": "external_transparent_part",
+                "u_value": 4.65,
+                "inside_heat_transfer_resistance": 0.11
+            }
         },
         {
             "id": 4,
@@ -318,7 +342,19 @@
             "is_solar_absorbed": true,
             "f_mrt_hum": 0.45,
             "k_outside": 1.0,
-            "k_inside": null
+            "k_inside": null,
+            "spec": {
+                "method": "layers",
+                "boundary_type": "external_general_part",
+                "layers": [
+                    {
+                        "name": "plywood",
+                        "thermal_resistance": 0.075,
+                        "thermal_capacity": 8.64
+                    }
+                ],
+                "outside_heat_transfer_resistance": 0.04
+            }
         },
         {
             "id": 5,
@@ -377,7 +413,19 @@
             "is_solar_absorbed": false,
             "f_mrt_hum": 0.11000000000000001,
             "k_outside": 1.0,
-            "k_inside": null
+            "k_inside": null,
+            "spec": {
+                "method": "layers",
+                "boundary_type": "external_general_part",
+                "layers": [
+                    {
+                        "name": "plywood",
+                        "thermal_resistance": 0.075,
+                        "thermal_capacity": 8.64
+                    }
+                ],
+                "outside_heat_transfer_resistance": 0.04
+            }
         }
     ],
     "equipments": {
