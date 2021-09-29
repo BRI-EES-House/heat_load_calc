@@ -1,5 +1,5 @@
 import numpy as np
-from typing import Dict, List, Tuple
+from typing import Dict, List
 import json
 import csv
 import pandas as pd
@@ -17,7 +17,6 @@ from heat_load_calc.initializer import occupants_form_factor
 from heat_load_calc.initializer import boundary_simple
 from heat_load_calc.initializer import furniture
 from heat_load_calc.initializer.shape_factor import get_h_r_js
-from heat_load_calc.initializer import response_factor
 
 
 class Story(Enum):
