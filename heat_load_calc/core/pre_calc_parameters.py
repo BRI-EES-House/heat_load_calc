@@ -297,27 +297,13 @@ def make_pre_calc_parameters(delta_t: float, data_directory: str) -> (PreCalcPar
     # 境界jの面積, m2, [j, 1]
     a_srf_js = np.array([b['area'] for b in bs]).reshape(-1, 1)
 
-    # 応答係数を取得する。
-    phi_a0_js = np.array([b['phi_a0'] for b in bs]).reshape(-1, 1)
-    phi_t0_js = np.array([b['phi_t0'] for b in bs]).reshape(-1, 1)
-    phi_a1_js_ms_lst = []
-    phi_t1_js_ms_lst = []
-    r_js_ms_lst = []
-    for b in bs:
-        phi_a1_js_ms_lst.append(b['phi_a1'])
-        phi_t1_js_ms_lst.append(b['phi_t1'])
-        r_js_ms_lst.append(b['r'])
-
-    phi_a1_js_ms = np.array(phi_a1_js_ms_lst)
-    phi_t1_js_ms = np.array(phi_t1_js_ms_lst)
-    r_js_ms = np.array(r_js_ms_lst)
-
     # 境界jの室内側表面対流熱伝達率, W/m2K, [j, 1]
     h_c_js = np.array([b['h_c'] for b in bs]).reshape(-1, 1)
 
     # 境界jの室内側表面放射熱伝達率, W/m2K, [j, 1]
     h_r_js = np.array([b['h_r'] for b in bs]).reshape(-1, 1)
 
+    # 応答係数を取得する。
     phi_a0_js, phi_a1_js_ms, phi_t0_js, phi_t1_js_ms, r_js_ms = _get_responsfactors(bs, h_c_js, h_r_js)
 
     # 境界jの室内側表面総合熱伝達率, W/m2K, [j, 1]

@@ -651,30 +651,10 @@ def _make_boundaries(bss2: List[BoundarySimple], rooms: List[Dict], boundaries: 
 
     specs = [_get_boundary_spec(boundary, bs) for boundary, bs in zip(boundaries, bss2)]
 
-    # 境界jの吸熱応答係数の初項, m2K/W, [j, 1]
-    phi_a0_js = []
-    # 境界jの項別公比法における項mの吸熱応答係数の第一項 , m2K/W, [j, 12]
-    phi_a1_js_ms = []
-    # 境界jの貫流応答係数の初項, [j, 1]
-    phi_t0_js = []
-    # 境界jの項別公比法における項mの貫流応答係数の第一項, [j, 12]
-    phi_t1_js_ms = []
-    # 境界jの項別公比法における項mの公比, [j, 12]
-    r_js_ms = []
-
     # 室内側対流熱伝達率
     h_c_js = np.zeros_like(bss2, dtype=float)
     for i, bs in enumerate(bss2):
         h_c_js[i] = bs.h_c
-
-    for bs, spec in zip(boundaries, specs):
-        rff = response_factor.ResponseFactorFactory.create(spec=spec, h_r_js=h_r_is, h_c_js=h_c_js)
-        rf = rff.get_response_factors()
-        phi_a0_js.append(rf.rfa0)
-        phi_a1_js_ms.append(rf.rfa1)
-        phi_t0_js.append(rf.rft0)
-        phi_t1_js_ms.append(rf.rft1)
-        r_js_ms.append(rf.row)
 
     bdrs = []
 
@@ -686,11 +666,6 @@ def _make_boundaries(bss2: List[BoundarySimple], rooms: List[Dict], boundaries: 
             'is_ground': True if bs.boundary_type == BoundaryType.Ground else False,
             'connected_space_id': bs.connected_room_id,
             'area': bs.area,
-            'phi_a0': phi_a0_js[i],
-            'phi_a1': list(phi_a1_js_ms[i]),
-            'phi_t0': phi_t0_js[i],
-            'phi_t1': list(phi_t1_js_ms[i]),
-            'r': list(r_js_ms[i]),
             'h_c': bs.h_c,
             'h_r': h_r_is[i],
             'flr': flr_js[i],
