@@ -17,6 +17,10 @@
 I. 評価法
 ========================================================================================================================
 
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+1) 繰り返し計算
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 繰り返し計算とは、1つ前のステップの状態量から次のステップの状態量を計算することといえる。
 ここで、前のステップから次のステップに引き継ぐ状態量は以下の値とする。
 
@@ -127,7 +131,7 @@ I. 評価法
     | 室 |i| に設置された家具の熱容量, J / K
 :math:`G_{frt,i}`
     | 室 |i| における家具と空気間の熱コンダクタンス, W/K
-:math:`Delta t`
+:math:`\Delta t`
     | 時間ステップの間隔, s
 :math:`\hat{q}_{sol,frt,i,n}`
     | ステップ |n| からステップ |n+1| における室 |i| に設置された家具による透過日射吸収熱量時間平均値, W
@@ -135,7 +139,7 @@ I. 評価法
 である。
 
 
-ステップ |n+1| における境界 |j| の表面温度 :math:`\theta_{srf,j,n+1}` は式(4)により表される。
+ステップ |n+1| における境界 |j| の表面温度 :math:`\theta_{srf,j,n+1}` は式(5)により表される。
 
 .. math::
     :nowrap:
@@ -143,7 +147,7 @@ I. 評価法
     \begin{align*}
         \pmb{\theta}_{srf,n+1}
         = \pmb{WSR} \cdot \pmb{\theta}_{r,n+1} + \pmb{WSC}_{n+1} + \pmb{WSB} \cdot \hat{\pmb{Lr}}_{n} + \pmb{WSV}_{n+1}
-        \tag{4}
+        \tag{5}
     \end{align*}
 
 ここで、
@@ -197,6 +201,351 @@ I. 評価法
     | :math:`J \times 1` で表される縦行列, ℃
 
 である。
+
+
+ステップ |n+1| における室 |i| の室温 :math:`\theta_{r,i,n+1}` は式(6)により表される。
+
+.. math::
+    :nowrap:
+
+    \begin{align*}
+        \pmb{\theta}_{r,n+1}
+        = \pmb{XOT}_{n+1} \cdot \pmb{\theta}_{OT,n+1} + \pmb{XLR}_{n+1} \cdot \hat{\pmb{Lr}}_{n} + \pmb{XC}_{n+1}
+        \tag{6}
+    \end{align*}
+
+ここで、
+
+:math:`\theta_{OT,i,n+1}`
+    | ステップ |n+1| における室 |i| の作用温度, ℃
+
+であり、
+
+.. math::
+    :nowrap:
+
+    \begin{align*}
+        \pmb{\theta}_{OT,n+1}
+        = \begin{pmatrix}
+            \theta_{OT,0,n+1} \\
+            \vdots \\
+            \theta_{OT,i,n+1} \\
+            \vdots \\
+            \theta_{OT,I-1,n+1}
+        \end{pmatrix}
+    \end{align*}
+
+である。また、
+
+:math:`\pmb{XOT}_{n+1}`
+    | :math:`I \times I` で表される行列, -
+:math:`\pmb{XLR}_{n+1}`
+    | :math:`I \times I` で表される行列, K / W
+:math:`\pmb{XC}_{n+1}`
+    | :math:`I \times 1` で表される縦行列, ℃
+
+である。
+
+ステップ |n+1| における室の作用温度　:math:`\pmb{\theta}_{OT,i,n+1}` は式(7)により表される。
+
+.. math::
+    :nowrap:
+
+    \begin{align*}
+        \pmb{\theta}_{OT,n+1} = \pmb{BRM}_{OT,n+1} \cdot \hat{\pmb{LC}}_{n}
+        + \pmb{BRL}_{OT,n+1} \cdot \hat{\pmb{Lr}}_{n}
+        + \pmb{BRC}_{OT,n+1}
+        \tag{7}
+    \end{align*}
+
+作用温度（左辺の :math:`\theta_{OT,i,n+1}` ）を与えて
+負荷（右辺の :math:`\hat{Lc}_{i,n}` 及び :math:`\hat{Lr}_{i,n}` を未知数として計算する負荷を計算する場合（いわゆる負荷計算）と、
+負荷（右辺の :math:`\hat{Lc}_{i,n}` 及び :math:`\hat{Lr}_{i,n}` を与えて
+作用温度（左辺の :math:`\theta_{OT,i,n+1}` ）を未知数として計算する作用温度を計算する場合（いわゆる成り行き温度）があり、
+どちらの計算を行うのかは各室 :math:`i` ごとにスケジュールにより決定される。
+
+負荷計算を行うか、成り行き温度計算を行うかの如何に関わらず、
+作用温度 :math:`\theta_{OT,i,n+1}`　及び負荷 :math:`\hat{Lc}_{i,n}` 及び :math:`\hat{Lr}_{i,n}` を計算することになる。
+負荷の :math:`\hat{Lc}_{i,n}` 及び :math:`\hat{Lr}_{i,n}` の内訳は、
+対流暖冷房設備・放射暖冷房設備の設置の有無及びそれらの最大能力等に依存する。
+これらの計算は、付録・・・に示す。
+
+ここで、
+
+:math:`\pmb{BRM}_{OT,n+1}`
+    | :math:`I \times I` で表される行列, K / W
+:math:`\pmb{BRL}_{OT,n+1}`
+    | :math:`I \times I` で表される行列, K / W
+:math:`\pmb{BRC}_{OT,n+1}`
+    | :math:`I \times 1` で表される縦行列, K
+
+である。
+
+これらの係数 :math:`\pmb{BRC}_{OT,n+1}`、 :math:`\pmb{BRL}_{OT,n+1}` 及び :math:`\pmb{BRM}_{OT,n+1}` は、
+式(8)～式(10)により表される。
+
+.. math::
+    :nowrap:
+
+    \begin{align*}
+        \pmb{BRC}_{OT,n+1} = \pmb{BRM}_{OT,n+1}^{-1} \cdot ( \pmb{BRC}_n - \pmb{BRM}_n \cdot \pmb{XC}_{n+1} ) \tag{8}
+    \end{align*}
+
+    \begin{align*}
+        \pmb{BRL}_{OT,n+1} = \pmb{BRM}_{OT,n+1}^{-1} \cdot ( \pmb{BRL} - \pmb{BRM}_n \cdot \pmb{XLR}_{n+1} ) \tag{9}
+    \end{align*}
+
+    \begin{align*}
+        \pmb{BRM}_{OT,n+1} = \pmb{BRM}_{n} \cdot \pmb{XOT}_{n+1} \tag{10}
+    \end{align*}
+
+ここで、
+
+:math:`\pmb{BRM}_{n}`
+    | :math:`I \times I` で表される行列, W / K
+:math:`\pmb{XOT}_{n+1}`
+    | :math:`I \times I` で表される行列, -
+:math:`\pmb{BRL}`
+    | :math:`I \times I` で表される行列, -
+:math:`\pmb{BRC}_{n}`
+    | :math:`I \times 1` で表される縦行列, W
+:math:`\pmb{XLR}_{n+1}`
+    | :math:`I \times I` で表される行列, K / W
+:math:`\pmb{XC}_{n+1}`
+    | :math:`I \times 1` で表される縦行列, ℃
+
+である。
+
+係数 :math:`\pmb{XC}_{n+1}` は式(11)で表される。
+
+.. math::
+    :nowrap:
+
+    \begin{align*}
+        \pmb{XC}_{n+1} = \pmb{XOT}_{n+1} \cdot \pmb{kr}_{n+1} \cdot \pmb{F}_{mrt,hum}
+        \cdot ( \pmb{WSC}_{n+1} + \pmb{WSV}_{n+1} )
+        \tag{11}
+    \end{align*}
+
+    \begin{align*}
+        \pmb{XLR}_{n+1} = \pmb{XOT}_{n+1} \cdot \pmb{kr}_{n+1} * \pmb{F}_{mrt,hum} \cdot \pmb{WSB} \tag{12}
+    \end{align*}
+
+    \begin{align*}
+        \pmb{XOT}_{n+1} = \left( \pmb{kc}_{n+1} + \pmb{kr}_{n+1} \cdot \pmb{F}_{mrt,hum} \cdot \pmb{WSR} \right)^{-1}
+        \tag{13}
+    \end{align*}
+
+ここで、
+
+:math:`\pmb{kc}_{n+1}`
+    | :math:`kc_{i,n+1}` を要素にもつ :math:`I \times I` の対角化行列
+:math:`\pmb{kr}_{n+1}`
+    | :math:`kr_{i,n+1}` を要素にもつ :math:`I \times I` の対角化行列
+
+であり、
+
+:math:`kc_{i,n+1}`
+    | ステップ |n+1| における室 |i| の人体表面の対流熱伝達率が総合熱伝達率に占める割合, -
+:math:`kr_{i,n+1}`
+    | ステップ |n+1| における室 |i| の人体表面の放射熱伝達率が総合熱伝達率に占める割合, -
+
+である。
+
+ステップ |n+1| における室 |i| の人体表面の対流熱伝達率が総合熱伝達率に占める割合 :math:`kc_{i,n+1}` 及び
+ステップ |n+1| における室 |i| の人体表面の放射熱伝達率が総合熱伝達率に占める割合　:math:`kr_{i,n+1}`　は、
+式(14)及び式(15)で表される。
+
+.. math::
+    :nowrap:
+
+    \begin{align*}
+        kc_{i,n} = \frac{ h_{hum,c,i,n} }{ ( h_{hum,c,i,n} + h_{hum,r,i,n} ) } \tag{14}
+    \end{align*}
+
+    \begin{align*}
+        kr_{i,n} = \frac{ h_{hum,r,i,n} }{ ( h_{hum,c,i,n} + h_{hum,r,i,n} ) } \tag{15}
+    \end{align*}
+
+係数 :math:`\pmb{VRM}_n` 及び係数 :math:`\pmb{BRC}_n` は式(16)及び式(17)により表される。
+
+.. math::
+    :nowrap:
+
+    \begin{align*}
+        \begin{split}
+            \pmb{BRM}_n
+            & = \pmb{C}_{rm} \cdot \frac{1}{\Delta t}
+            + \pmb{p}^{T} \cdot \pmb{h}_c \cdot \pmb{A} \cdot (\pmb{p} - \pmb{WSR}) \\
+            & + c_a \cdot \rho_a \cdot \hat{\pmb{V}}_n
+            - c_a \cdot \rho_a \cdot \hat{\pmb{V}}_{nxt,n}
+            + \pmb{G}_{frt} \cdot (\pmb{C}_{frt} + \Delta t \cdot \pmb{G}_{frt})^{-1} \cdot \pmb{C}_{frt}
+        \end{split}
+        \tag{16}
+    \end{align*}
+
+.. math::
+    :nowrap:
+
+    \begin{align*}
+        \begin{split}
+            \pmb{BRC}_n
+            & = \pmb{C}_{rm} \cdot \frac{1}{\Delta t} \cdot \pmb{\theta}_{r,n}
+            + \pmb{p}^{T} \cdot \pmb{h}_c \cdot \pmb{A} \cdot (\pmb{WSC}_{n+1} + \pmb{WSV}_{n+1}) \\
+            & + c_a \cdot \rho_a \cdot \hat{\pmb{V}}_n \cdot \pmb{\theta}_{o,n+1} + \hat{\pmb{H}}_n \\
+            & + \pmb{G}_{frt} \cdot (\pmb{C}_{frt} + \Delta t \cdot \pmb{G}_{frt})^{-1}
+            \cdot ( \pmb{C}_{frt} \cdot \pmb{\theta}_{frt,n} + \Delta t \cdot \hat{\pmb{Q}}_{sol,frt,n+1} )
+        \end{split}
+        \tag{17}
+    \end{align*}
+
+    # ステップnにおける室iの外からの換気量, m3/s, [i, 1]
+    # 機械換気量・すきま風量・自然風利用時の換気量との合計である。
+    v_out_vent_is_n = v_leak_is_n + v_mec_vent_is_n + v_ntrl_vent_is_n
+
+    # 室iの自然風利用による換気量, m3/s, [i, 1]
+    # 自然風を利用していない場合は、0.0 m3/s になる。
+    v_ntrl_vent_is_n = np.where(operation_mode_is_n == OperationMode.STOP_OPEN, ss.v_ntrl_vent_is, 0.0)
+
+    # ステップn+1の境界jにおける係数WSV, degree C, [j, 1]
+    wsv_js_n_pls = np.dot(ss.ivs_ax_js_js, cvl_js_n_pls)
+
+    # ステップn+1の境界jにおける係数CVL, degree C, [j, 1]
+    cvl_js_n_pls = np.sum(theta_dsh_srf_t_js_ms_n_pls + theta_dsh_srf_a_js_ms_n_pls, axis=1, keepdims=True)
+
+    # ステップn+1の境界jにおける項別公比法の指数項mの貫流応答の項別成分, degree C, [j, m] (m=12)
+    theta_dsh_srf_t_js_ms_n_pls = ss.phi_t1_js_ms * theta_rear_js_n + ss.r_js_ms * c_n.theta_dsh_srf_t_js_ms_n
+
+    # ステップn+1の境界jにおける項別公比法の指数項mの吸熱応答の項別成分, degree C, [j, m] (m=12)
+    theta_dsh_srf_a_js_ms_n_pls = ss.phi_a1_js_ms * c_n.q_srf_js_n + ss.r_js_ms * c_n.theta_dsh_srf_a_js_ms_n
+
+    # ステップnの室iにおけるすきま風量, m3/s, [i, 1]
+    v_leak_is_n = ss.get_infiltration(theta_r_is_n=c_n.theta_r_is_n, theta_o_n=ss.theta_o_ns[n])
+
+    # ステップnの室iにおける人体発湿, kg/s, [i, 1]
+    x_hum_is_n = x_hum_psn_is_n * n_hum_is_n
+
+    # ステップnの室iにおける1人あたりの人体発湿, kg/s, [i, 1]
+    x_hum_psn_is_n = occupants.get_x_hum_psn_is_n(theta_r_is_n=c_n.theta_r_is_n)
+
+    # ステップnの室iにおける人体発熱, W, [i, 1]
+    q_hum_is_n = q_hum_psn_is_n * n_hum_is_n
+
+    # ステップnの室iにおける1人あたりの人体発熱, W, [i, 1]
+    q_hum_psn_is_n = occupants.get_q_hum_psn_is_n(theta_r_is_n=c_n.theta_r_is_n)
+
+    # ステップnの境界jにおける裏面温度, degree C, [j, 1]
+    theta_rear_js_n = np.dot(ss.k_ei_js_js, c_n.theta_ei_js_n) + theta_dstrb_js_n
+
+    # ステップnにおける室iの状況（在室者周りの総合熱伝達率・運転状態・Clo値・目標とする作用温度）を取得する
+    #     ステップnにおける室iの在室者周りの対流熱伝達率, W / m2K, [i, 1]
+    #     ステップnにおける室iの在室者周りの放射熱伝達率, W / m2K, [i, 1]
+    #     ステップnの室iにおける運転モード, [i, 1]
+    #     ステップnの室iにおける目標作用温度下限値, [i, 1]
+    #     ステップnの室iにおける目標作用温度上限値, [i, 1]
+    #     ステップnの室iの在室者周りの風速, m/s, [i, 1]
+    #     ステップnの室iにおけるClo値, [i, 1]
+    #     ステップnの室iにおける目標作用温度, degree C, [i, 1]
+    h_hum_c_is_n, h_hum_r_is_n, operation_mode_is_n, theta_lower_target_is_n_pls, theta_upper_target_is_n_pls, remarks_is_n \
+        = ss.get_ot_target_and_h_hum(
+            x_r_is_n=c_n.x_r_is_n,
+            operation_mode_is_n_mns=c_n.operation_mode_is_n,
+            theta_r_is_n=c_n.theta_r_is_n,
+            theta_mrt_hum_is_n=c_n.theta_mrt_hum_is_n,
+
+            ac_demand_is_n=ac_demand_is_n
+        )
+
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2) 繰り返し計算の前処理
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+    # BRM(換気なし), W/K, [i, i]
+    brm_non_vent_is_is = np.diag(c_rm_is.flatten() / delta_t)\
+        + np.dot(p_is_js, (p_js_is - wsr_js_is) * a_srf_js * h_c_js)\
+        + np.diag((c_sh_frt_is * g_sh_frt_is / (c_sh_frt_is + g_sh_frt_is * delta_t)).flatten())
+
+    # BRL, [i, i]
+    brl_is_is = np.dot(p_is_js, wsb_js_is * h_c_js * a_srf_js) + np.diag(beta_is.flatten())
+
+    # WSB, K/W, [j, i]
+    wsb_js_is = np.dot(ivs_ax_js_js, flb_js_is)
+
+    # WSC, degree C, [j, n]
+    wsc_js_ns = np.dot(ivs_ax_js_js, crx_js_ns)
+
+    # WSR, [j, i]
+    wsr_js_is = np.dot(ivs_ax_js_js, fia_js_is)
+
+    # FLB, K/W, [j, i]
+    flb_js_is = flr_js_is * (1.0 - beta_is.T) * phi_a0_js / a_srf_js\
+        + np.dot(k_ei_js_js, flr_js_is * (1.0 - beta_is.T)) * phi_t0_js / h_i_js / a_srf_js
+
+    # CRX, degree C, [j, n]
+    crx_js_ns = phi_a0_js * q_sol_js_ns\
+        + phi_t0_js / h_i_js * np.dot(k_ei_js_js, q_sol_js_ns)\
+        + phi_t0_js * theta_dstrb_js_ns
+
+    # FIA, [j, i]
+    fia_js_is = phi_a0_js * h_c_js * p_js_is\
+        + np.dot(k_ei_js_js, p_js_is) * phi_t0_js * h_c_js / h_i_js
+
+    # AX^-1, [j, j]
+    ivs_ax_js_js = np.linalg.inv(ax_js_js)
+
+    # AX, [j, j]
+    ax_js_js = np.diag(1.0 + (phi_a0_js * h_i_js).flatten())\
+        - np.dot(p_js_is, f_mrt_is_js) * h_r_js * phi_a0_js\
+        - np.dot(k_ei_js_js, np.dot(p_js_is, f_mrt_is_js)) * h_r_js * phi_t0_js / h_i_js
+
+    # ステップnの境界jにおける外気側等価温度の外乱成分, ℃, [j, n]
+    theta_dstrb_js_ns = theta_o_sol_js_ns * k_eo_js
+
+    # ステップnの境界jにおける透過日射吸収熱量, W/m2, [j, n]
+    # TODO: 日射の吸収割合を入力値にした方がよいのではないか？
+    q_sol_js_ns = np.dot(p_js_is, q_trs_sol_is_ns / a_srf_abs_is)\
+        * is_solar_abs_js * (1.0 - r_sol_fnt)
+
+    # 室iにおける日射が吸収される境界の面積の合計, m2, [i, 1]
+    a_srf_abs_is = np.dot(p_is_js, a_srf_js * is_solar_abs_js)
+
+    # ステップnの室iにおける家具の吸収日射量, W, [i, n]
+    q_sol_frnt_is_ns = q_trs_sol_is_ns * r_sol_fnt
+
+    # 室内侵入日射のうち家具に吸収される割合
+    # TODO: これは入力値にした方がよいのではないか？
+    r_sol_fnt = 0.5
+
+    # ステップnの室iにおける機械換気量（全般換気量+局所換気量）, m3/s, [i, n]
+    v_mec_vent_is_ns = v_vent_ex_is[:, np.newaxis] + v_mec_vent_local_is_ns
+
+    # 境界jの室内側表面総合熱伝達率, W/m2K, [j, 1]
+    h_i_js = h_c_js + h_r_js
+
+    # 平均放射温度計算時の各部位表面温度の重み, [i, j]
+    f_mrt_is_js = shape_factor.get_f_mrt_is_js(a_srf_js=a_srf_js, h_r_js=h_r_js, p_is_js=p_is_js)
+
+室 |i| の空気の熱容量 :math:`C_{rm,i}` は式(x)により表される。
+
+.. math::
+    :nowrap:
+
+    \begin{align*}
+        C_{rm,i} = V_{rm,i} \cdot \rho_{air} \cdot c_{air} \tag{x}
+    \end{align*}
+
+ここで、
+
+:math:`C_{rm,i}`
+    | 室 |i| の空気の熱容量, J / K
+:math:`V_{rm,i}`
+    | 室 |i| の容積, |m3|
+:math:`\rho_{air}`
+    | 空気の密度, kg / |m3|
+:math:`c_{air}`
+    | 空気の比熱, J / kg K
+
+である。ここで、 :math:`\rho_{air}` は :math:`1.2` kg / |m3| 、 :math:`c_{air}` は :math:`1005.0` J / kg K とする。
 
 ========================================================================================================================
 II. 根拠
