@@ -667,8 +667,8 @@ def _make_boundaries(bss2: List[BoundarySimple], rooms: List[Dict], boundaries: 
     for i, bs in enumerate(bss2):
         h_c_js[i] = bs.h_c
 
-    for bs in boundaries:
-        rff = response_factor.ResponseFactorFactory.create(spec=bs, h_r_js=h_r_is, h_c_js=h_c_js)
+    for bs, spec in zip(boundaries, specs):
+        rff = response_factor.ResponseFactorFactory.create(spec=spec, h_r_js=h_r_is, h_c_js=h_c_js)
         rf = rff.get_response_factors()
         phi_a0_js.append(rf.rfa0)
         phi_a1_js_ms.append(rf.rfa1)
@@ -704,12 +704,20 @@ def _make_boundaries(bss2: List[BoundarySimple], rooms: List[Dict], boundaries: 
 
 def _get_boundary_spec(boundaries, bs) -> Dict:
 
-    if bs.boundary_type in [BoundaryType.ExternalGeneralPart, BoundaryType.Internal]:
+    if bs.boundary_type in [BoundaryType.ExternalGeneralPart]:
         return {
             'method': 'layers',
             'boundary_type': bs.boundary_type.value,
             'layers': boundaries['layers'],
             'outside_heat_transfer_resistance': boundaries['outside_heat_transfer_resistance']
+        }
+    elif bs.boundary_type in [BoundaryType.Internal]:
+        return {
+            'method': 'layers',
+            'boundary_type': bs.boundary_type.value,
+            'layers': boundaries['layers'],
+            'outside_heat_transfer_resistance': boundaries['outside_heat_transfer_resistance'],
+            'rear_surface_boundary_id': boundaries['rear_surface_boundary_id']
         }
     elif bs.boundary_type == BoundaryType.Ground:
         return {

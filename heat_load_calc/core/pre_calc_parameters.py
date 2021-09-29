@@ -668,27 +668,27 @@ def _get_responsfactors(bs):
     r_js_ms = []
 
     for b in bs:
-        rff = response_factor.ResponseFactorFactory.create(spec=b['spec'])
-        rf = rff.get_response_factors()
-        phi_a0_js.append(rf.rfa0)
-        phi_a1_js_ms.append(rf.rfa1)
-        phi_t0_js.append(rf.rft0)
-        phi_t1_js_ms.append(rf.rft1)
-        r_js_ms.append(rf.row)
-        # if b['spec']['method'] == 'response_factor':
-        #     phi_a0_js.append(b['spec']['phi_a0'])
-        #     phi_a1_js_ms.append(b['spec']['phi_a1'])
-        #     phi_t0_js.append(b['spec']['phi_t0'])
-        #     phi_t1_js_ms.append(b['spec']['phi_t1'])
-        #     r_js_ms.append(b['spec']['r'])
-        # else:
-        #     rff = response_factor.ResponseFactorFactory.create(spec=b['spec'])
-        #     rf = rff.get_response_factors()
-        #     phi_a0_js.append(rf.rfa0)
-        #     phi_a1_js_ms.append(rf.rfa1)
-        #     phi_t0_js.append(rf.rft0)
-        #     phi_t1_js_ms.append(rf.rft1)
-        #     r_js_ms.append(rf.row)
+        # rff = response_factor.ResponseFactorFactory.create(spec=b['spec'])
+        # rf = rff.get_response_factors()
+        # phi_a0_js.append(rf.rfa0)
+        # phi_a1_js_ms.append(rf.rfa1)
+        # phi_t0_js.append(rf.rft0)
+        # phi_t1_js_ms.append(rf.rft1)
+        # r_js_ms.append(rf.row)
+        if b['spec']['method'] == 'response_factor':
+            phi_a0_js.append(b['spec']['phi_a0'])
+            phi_a1_js_ms.append(b['spec']['phi_a1'])
+            phi_t0_js.append(b['spec']['phi_t0'])
+            phi_t1_js_ms.append(b['spec']['phi_t1'])
+            r_js_ms.append(b['spec']['r'])
+        else:
+            rff = response_factor.ResponseFactorFactory.create(spec=b['spec'])
+            rf = rff.get_response_factors()
+            phi_a0_js.append(rf.rfa0)
+            phi_a1_js_ms.append(rf.rfa1)
+            phi_t0_js.append(rf.rft0)
+            phi_t1_js_ms.append(rf.rft1)
+            r_js_ms.append(rf.row)
 
     phi_a0_js = np.array(phi_a0_js).reshape(-1, 1)
     phi_a1_js_ms = np.array(phi_a1_js_ms)
