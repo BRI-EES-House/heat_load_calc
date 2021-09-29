@@ -651,11 +651,6 @@ def _make_boundaries(bss2: List[BoundarySimple], rooms: List[Dict], boundaries: 
 
     specs = [_get_boundary_spec(boundary, bs) for boundary, bs in zip(boundaries, bss2)]
 
-    # 室内側対流熱伝達率
-    h_c_js = np.zeros_like(bss2, dtype=float)
-    for i, bs in enumerate(bss2):
-        h_c_js[i] = bs.h_c
-
     bdrs = []
 
     for i, bs in enumerate(bss2):
