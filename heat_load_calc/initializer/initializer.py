@@ -16,6 +16,7 @@ from heat_load_calc.initializer import occupants_form_factor
 from heat_load_calc.initializer import boundary_simple
 from heat_load_calc.initializer import furniture
 from heat_load_calc.initializer import shape_factor
+from heat_load_calc.initializer.boundary_type import BoundaryType
 
 
 class Story(Enum):
@@ -605,23 +606,26 @@ def _make_boundaries(bss2: List[BoundarySimple], rooms: List[Dict], boundaries: 
 
     k_ei_js = []
 
-    for bs in bss2:
+    for b in boundaries:
 
-        if bs.boundary_type in [
+        boundary_type = BoundaryType(b['boundary_type'])
+
+        if boundary_type in [
             BoundaryType.ExternalOpaquePart,
             BoundaryType.ExternalTransparentPart,
             BoundaryType.ExternalGeneralPart
         ]:
+            h = b['temp_dif_coef']
             # 温度差係数が1.0でない場合はk_ei_jsに値を代入する。
             # id は自分自身の境界IDとし、自分自身の表面の影響は1.0から温度差係数を減じた値になる。
-            if bs.h_td < 1.0:
-                k_ei_js.append({'id': bs.id, 'coef': round(1.0 - bs.h_td, 1)})
+            if h < 1.0:
+                k_ei_js.append({'id': b['id'], 'coef': round(1.0 - h, 1)})
             else:
                 # 温度差係数が1.0の場合はNoneとする。
                 k_ei_js.append(None)
-        elif bs.boundary_type == BoundaryType.Internal:
+        elif boundary_type == BoundaryType.Internal:
             # 室内壁の場合にk_ei_jsを登録する。
-            k_ei_js.append({'id': int(bs.rear_surface_boundary_id), 'coef': 1.0})
+            k_ei_js.append({'id': int(b['rear_surface_boundary_id']), 'coef': 1.0})
         else:
             # 外皮に面していない場合、室内壁ではない場合（地盤の場合が該当）は、Noneとする。
             k_ei_js.append(None)
