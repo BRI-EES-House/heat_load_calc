@@ -8,7 +8,7 @@ from typing import List, Callable
 
 from heat_load_calc.external.global_number import get_c_air, get_rho_air
 from heat_load_calc.initializer import shape_factor
-from heat_load_calc.core import infiltration, response_factor, a12_indoor_radiative_heat_transfer
+from heat_load_calc.core import infiltration, response_factor, indoor_radiative_heat_transfer
 from heat_load_calc.core import ot_target
 from heat_load_calc.core import next_condition
 from heat_load_calc.core import humidification
@@ -468,9 +468,9 @@ def make_pre_calc_parameters(delta_t: float, data_directory: str) -> (PreCalcPar
     # 境界jの室に設置された放射暖房の放熱量のうち放射成分に対する境界jの室内側吸収比率
     # 放射暖房の発熱部位の設定（とりあえず床発熱） 表7
     # TODO: 発熱部位を指定して、面積按分するように変更すべき。
-    flr_js = a12_indoor_radiative_heat_transfer.get_flr_js(
-        area_js=a_srf_js.flatten(),
-        connected_room_ids=connected_space_id_js,
+    flr_js = indoor_radiative_heat_transfer.get_flr_js(
+        a_srf_js=a_srf_js.flatten(),
+        connected_room_id_js=connected_space_id_js,
         is_floor_js=is_floor_js,
         is_radiative_heating_is=is_radiative_is.flatten(),
         n_boundaries=n_boundaries,
