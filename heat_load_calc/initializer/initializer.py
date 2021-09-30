@@ -5,7 +5,6 @@ import csv
 import pandas as pd
 from enum import Enum
 
-import heat_load_calc.initializer.a12_indoor_radiative_heat_transfer as a12
 import heat_load_calc.initializer.a22_radiative_heating_spec as a22
 
 from heat_load_calc.initializer.boundary_type import BoundaryType
@@ -392,6 +391,10 @@ def _make_spaces_dict(rooms: List[dict]):
     # 室iの家具等と空気間の湿気コンダクタンス, kg/s kg/kgDA
     g_lh_frt_is = furniture.get_g_lh_frt_is(c_lh_frt_is=c_lh_frt_is)
 
+    # 暖房設備仕様の読み込み
+    # 放射暖房有無（Trueなら放射暖房あり）
+    is_radiative_heating_is = np.array([a22.read_is_radiative_heating(room) for room in rooms])
+
     # endregion
 
     spaces = []
@@ -417,7 +420,8 @@ def _make_spaces_dict(rooms: List[dict]):
                 'heat_cond': g_sh_frt_is[i],
                 'moisture_capacity': c_lh_frt_is[i],
                 'moisture_cond': g_lh_frt_is[i]
-            }
+            },
+            'is_radiative': bool(is_radiative_heating_is[i])
         })
 
     return spaces
@@ -633,26 +637,14 @@ def _make_boundaries(bss2: List[BoundarySimple], rooms: List[Dict], boundaries: 
             a_srf=np.array([bs.area for bs in np.array(bss2)[is_connected]])
         )
 
-    # 暖房設備仕様の読み込み
-    # 放射暖房有無（Trueなら放射暖房あり）
-    is_radiative_heating_is = [a22.read_is_radiative_heating(room) for room in rooms]
-
-    # 放射暖房の発熱部位の設定（とりあえず床発熱） 表7
-    # TODO: 発熱部位を指定して、面積按分するように変更すべき。
-    flr_js = np.zeros_like(bss2, dtype=float)
-    for i in range(n_spaces):
-        is_connected = np.array([bs.connected_room_id == i for bs in bss2])
-        flr_js[is_connected] = a12.get_flr_i_js(
-            area_i_js=np.array([bs.area for bs in np.array(bss2)[is_connected]]),
-            is_radiative_heating=is_radiative_heating_is[i],
-            is_floor_i_js=np.array([bs.is_floor for bs in np.array(bss2)[is_connected]])
-        )
+    is_floor_js = np.array([b['is_floor'] for b in boundaries])
 
     specs = [_get_boundary_spec(boundary, bs) for boundary, bs in zip(boundaries, bss2)]
 
     bdrs = []
 
     for i, bs in enumerate(bss2):
+
         bdrs.append({
             'id': bs.id,
             'name': bs.name,
@@ -662,14 +654,19 @@ def _make_boundaries(bss2: List[BoundarySimple], rooms: List[Dict], boundaries: 
             'area': bs.area,
             'h_c': bs.h_c,
             'h_r': h_r_is[i],
-            'flr': flr_js[i],
             'is_solar_absorbed': bs.is_solar_absorbed_inside,
             'f_mrt_hum': f_mrt_hum_is[i],
             'k_outside': bs.h_td,
             'k_inside': k_ei_js[i],
+            'is_floor': bool(is_floor_js[i]),
             'spec': specs[i]
         })
+
+
     return bdrs
+
+
+
 
 
 def _get_boundary_spec(boundaries, bs) -> Dict:

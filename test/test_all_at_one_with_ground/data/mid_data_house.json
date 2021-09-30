@@ -21,7 +21,8 @@
                 "heat_cond": 2.7720000000000002,
                 "moisture_capacity": 16.8,
                 "moisture_cond": 0.03024
-            }
+            },
+            "is_radiative": false
         }
     ],
     "boundaries": [
@@ -34,11 +35,11 @@
             "area": 1.0,
             "h_c": 3.041174391,
             "h_r": 9.349589129818472,
-            "flr": 0.0,
             "is_solar_absorbed": true,
             "f_mrt_hum": 0.55,
             "k_outside": 1.0,
             "k_inside": null,
+            "is_floor": false,
             "spec": {
                 "method": "layers_ground",
                 "boundary_type": "ground",
@@ -60,11 +61,11 @@
             "area": 1.0,
             "h_c": 3.041174391,
             "h_r": 9.349589129818472,
-            "flr": 0.0,
             "is_solar_absorbed": true,
             "f_mrt_hum": 0.45,
             "k_outside": 1.0,
             "k_inside": null,
+            "is_floor": true,
             "spec": {
                 "method": "layers_ground",
                 "boundary_type": "ground",

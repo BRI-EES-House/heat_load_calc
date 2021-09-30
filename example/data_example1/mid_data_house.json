@@ -21,7 +21,8 @@
                 "heat_cond": 196.59024,
                 "moisture_capacity": 1191.4560000000001,
                 "moisture_cond": 2.1446208
-            }
+            },
+            "is_radiative": false
         },
         {
             "id": 1,
@@ -43,7 +44,8 @@
                 "heat_cond": 341.56584000000004,
                 "moisture_capacity": 2070.096,
                 "moisture_cond": 3.7261728
-            }
+            },
+            "is_radiative": false
         },
         {
             "id": 2,
@@ -69,7 +71,8 @@
                 "heat_cond": 263.00735999999995,
                 "moisture_capacity": 1593.984,
                 "moisture_cond": 2.8691712
-            }
+            },
+            "is_radiative": false
         }
     ],
     "boundaries": [
@@ -87,6 +90,7 @@
             "f_mrt_hum": 0.027134347293875108,
             "k_outside": 1.0,
             "k_inside": null,
+            "is_floor": false,
             "spec": {
                 "method": "layers",
                 "boundary_type": "external_general_part",
@@ -134,6 +138,7 @@
             "f_mrt_hum": 0.00883126923477201,
             "k_outside": 1.0,
             "k_inside": null,
+            "is_floor": false,
             "spec": {
                 "method": "u_value",
                 "boundary_type": "external_opaque_part",
@@ -155,6 +160,7 @@
             "f_mrt_hum": 0.09802708850596929,
             "k_outside": 1.0,
             "k_inside": null,
+            "is_floor": false,
             "spec": {
                 "method": "layers",
                 "boundary_type": "external_general_part",
@@ -202,6 +208,7 @@
             "f_mrt_hum": 0.017062884385701475,
             "k_outside": 1.0,
             "k_inside": null,
+            "is_floor": false,
             "spec": {
                 "method": "u_value",
                 "boundary_type": "external_transparent_part",
@@ -223,6 +230,7 @@
             "f_mrt_hum": 0.05567788168478019,
             "k_outside": 1.0,
             "k_inside": null,
+            "is_floor": false,
             "spec": {
                 "method": "layers",
                 "boundary_type": "external_general_part",
@@ -270,6 +278,7 @@
             "f_mrt_hum": 0.03783272128970231,
             "k_outside": 1.0,
             "k_inside": null,
+            "is_floor": false,
             "spec": {
                 "method": "u_value",
                 "boundary_type": "external_transparent_part",
@@ -294,6 +303,7 @@
                 "id": 6,
                 "coef": 0.3
             },
+            "is_floor": true,
             "spec": {
                 "method": "layers",
                 "boundary_type": "external_general_part",
@@ -326,6 +336,7 @@
             "f_mrt_hum": 0.022568799155528466,
             "k_outside": 1.0,
             "k_inside": null,
+            "is_floor": false,
             "spec": {
                 "method": "layers",
                 "boundary_type": "external_general_part",
@@ -361,6 +372,7 @@
                 "id": 45,
                 "coef": 1.0
             },
+            "is_floor": false,
             "spec": {
                 "method": "layers",
                 "boundary_type": "internal",
@@ -402,6 +414,7 @@
                 "id": 22,
                 "coef": 1.0
             },
+            "is_floor": false,
             "spec": {
                 "method": "layers",
                 "boundary_type": "internal",
@@ -443,6 +456,7 @@
                 "id": 29,
                 "coef": 1.0
             },
+            "is_floor": false,
             "spec": {
                 "method": "layers",
                 "boundary_type": "internal",
@@ -484,6 +498,7 @@
                 "id": 37,
                 "coef": 1.0
             },
+            "is_floor": false,
             "spec": {
                 "method": "layers",
                 "boundary_type": "internal",
@@ -522,6 +537,7 @@
             "f_mrt_hum": 0.029623840610315373,
             "k_outside": 1.0,
             "k_inside": null,
+            "is_floor": false,
             "spec": {
                 "method": "layers",
                 "boundary_type": "external_general_part",
@@ -569,6 +585,7 @@
             "f_mrt_hum": 0.006328629816725807,
             "k_outside": 1.0,
             "k_inside": null,
+            "is_floor": false,
             "spec": {
                 "method": "u_value",
                 "boundary_type": "external_transparent_part",
@@ -590,6 +607,7 @@
             "f_mrt_hum": 0.032330884578163396,
             "k_outside": 1.0,
             "k_inside": null,
+            "is_floor": false,
             "spec": {
                 "method": "layers",
                 "boundary_type": "external_general_part",
@@ -637,6 +655,7 @@
             "f_mrt_hum": 0.003621585848877774,
             "k_outside": 1.0,
             "k_inside": null,
+            "is_floor": false,
             "spec": {
                 "method": "u_value",
                 "boundary_type": "external_transparent_part",
@@ -658,6 +677,7 @@
             "f_mrt_hum": 0.04847071969457627,
             "k_outside": 1.0,
             "k_inside": null,
+            "is_floor": false,
             "spec": {
                 "method": "layers",
                 "boundary_type": "external_general_part",
@@ -693,6 +713,7 @@
                 "id": 49,
                 "coef": 1.0
             },
+            "is_floor": false,
             "spec": {
                 "method": "layers",
                 "boundary_type": "internal",
@@ -731,6 +752,7 @@
             "f_mrt_hum": 0.017432082794307892,
             "k_outside": 1.0,
             "k_inside": null,
+            "is_floor": false,
             "spec": {
                 "method": "layers",
                 "boundary_type": "external_general_part",
@@ -778,6 +800,7 @@
             "f_mrt_hum": 0.011779299427663065,
             "k_outside": 1.0,
             "k_inside": null,
+            "is_floor": false,
             "spec": {
                 "method": "u_value",
                 "boundary_type": "external_transparent_part",
@@ -799,6 +822,7 @@
             "f_mrt_hum": 0.03939846423476123,
             "k_outside": 1.0,
             "k_inside": null,
+            "is_floor": false,
             "spec": {
                 "method": "layers",
                 "boundary_type": "external_general_part",
@@ -834,6 +858,7 @@
                 "id": 47,
                 "coef": 1.0
             },
+            "is_floor": false,
             "spec": {
                 "method": "layers",
                 "boundary_type": "internal",
@@ -875,6 +900,7 @@
                 "id": 9,
                 "coef": 1.0
             },
+            "is_floor": true,
             "spec": {
                 "method": "layers",
                 "boundary_type": "internal",
@@ -913,6 +939,7 @@
             "f_mrt_hum": 0.03353807986112266,
             "k_outside": 1.0,
             "k_inside": null,
+            "is_floor": false,
             "spec": {
                 "method": "layers",
                 "boundary_type": "external_general_part",
@@ -960,6 +987,7 @@
             "f_mrt_hum": 0.0024143905659185162,
             "k_outside": 1.0,
             "k_inside": null,
+            "is_floor": false,
             "spec": {
                 "method": "u_value",
                 "boundary_type": "external_transparent_part",
@@ -981,6 +1009,7 @@
             "f_mrt_hum": 0.017432082794307892,
             "k_outside": 1.0,
             "k_inside": null,
+            "is_floor": false,
             "spec": {
                 "method": "layers",
                 "boundary_type": "external_general_part",
@@ -1028,6 +1057,7 @@
             "f_mrt_hum": 0.011779299427663065,
             "k_outside": 1.0,
             "k_inside": null,
+            "is_floor": false,
             "spec": {
                 "method": "u_value",
                 "boundary_type": "external_transparent_part",
@@ -1049,6 +1079,7 @@
             "f_mrt_hum": 0.03939846423476123,
             "k_outside": 1.0,
             "k_inside": null,
+            "is_floor": false,
             "spec": {
                 "method": "layers",
                 "boundary_type": "external_general_part",
@@ -1084,6 +1115,7 @@
                 "id": 48,
                 "coef": 1.0
             },
+            "is_floor": false,
             "spec": {
                 "method": "layers",
                 "boundary_type": "internal",
@@ -1125,6 +1157,7 @@
                 "id": 10,
                 "coef": 1.0
             },
+            "is_floor": true,
             "spec": {
                 "method": "layers",
                 "boundary_type": "internal",
@@ -1163,6 +1196,7 @@
             "f_mrt_hum": 0.009653904096149945,
             "k_outside": 1.0,
             "k_inside": null,
+            "is_floor": false,
             "spec": {
                 "method": "layers",
                 "boundary_type": "external_general_part",
@@ -1210,6 +1244,7 @@
             "f_mrt_hum": 0.03147853154504369,
             "k_outside": 1.0,
             "k_inside": null,
+            "is_floor": false,
             "spec": {
                 "method": "layers",
                 "boundary_type": "external_general_part",
@@ -1257,6 +1292,7 @@
             "f_mrt_hum": 0.016790988935706044,
             "k_outside": 1.0,
             "k_inside": null,
+            "is_floor": false,
             "spec": {
                 "method": "u_value",
                 "boundary_type": "external_transparent_part",
@@ -1278,6 +1314,7 @@
             "f_mrt_hum": 0.03861561638459978,
             "k_outside": 1.0,
             "k_inside": null,
+            "is_floor": false,
             "spec": {
                 "method": "layers",
                 "boundary_type": "external_general_part",
@@ -1328,6 +1365,7 @@
                 "id": 34,
                 "coef": 0.3
             },
+            "is_floor": true,
             "spec": {
                 "method": "layers",
                 "boundary_type": "external_general_part",
@@ -1360,6 +1398,7 @@
             "f_mrt_hum": 0.012108534504833771,
             "k_outside": 1.0,
             "k_inside": null,
+            "is_floor": false,
             "spec": {
                 "method": "layers",
                 "boundary_type": "external_general_part",
@@ -1395,6 +1434,7 @@
                 "id": 46,
                 "coef": 1.0
             },
+            "is_floor": false,
             "spec": {
                 "method": "layers",
                 "boundary_type": "internal",
@@ -1436,6 +1476,7 @@
                 "id": 11,
                 "coef": 1.0
             },
+            "is_floor": false,
             "spec": {
                 "method": "layers",
                 "boundary_type": "internal",
@@ -1474,6 +1515,7 @@
             "f_mrt_hum": 0.1625330757922806,
             "k_outside": 1.0,
             "k_inside": null,
+            "is_floor": false,
             "spec": {
                 "method": "layers",
                 "boundary_type": "external_general_part",
@@ -1521,6 +1563,7 @@
             "f_mrt_hum": 0.013876448668421592,
             "k_outside": 1.0,
             "k_inside": null,
+            "is_floor": false,
             "spec": {
                 "method": "u_value",
                 "boundary_type": "external_transparent_part",
@@ -1542,6 +1585,7 @@
             "f_mrt_hum": 0.01847936822672729,
             "k_outside": 1.0,
             "k_inside": null,
+            "is_floor": false,
             "spec": {
                 "method": "layers",
                 "boundary_type": "external_general_part",
@@ -1589,6 +1633,7 @@
             "f_mrt_hum": 0.04700693993367748,
             "k_outside": 1.0,
             "k_inside": null,
+            "is_floor": false,
             "spec": {
                 "method": "layers",
                 "boundary_type": "external_general_part",
@@ -1636,6 +1681,7 @@
             "f_mrt_hum": 0.01116884892824177,
             "k_outside": 1.0,
             "k_inside": null,
+            "is_floor": false,
             "spec": {
                 "method": "u_value",
                 "boundary_type": "external_transparent_part",
@@ -1660,6 +1706,7 @@
                 "id": 43,
                 "coef": 0.3
             },
+            "is_floor": true,
             "spec": {
                 "method": "layers",
                 "boundary_type": "external_general_part",
@@ -1692,6 +1739,7 @@
             "f_mrt_hum": 0.09657105739974702,
             "k_outside": 1.0,
             "k_inside": null,
+            "is_floor": false,
             "spec": {
                 "method": "layers",
                 "boundary_type": "external_general_part",
@@ -1727,6 +1775,7 @@
                 "id": 8,
                 "coef": 1.0
             },
+            "is_floor": false,
             "spec": {
                 "method": "layers",
                 "boundary_type": "internal",
@@ -1768,6 +1817,7 @@
                 "id": 36,
                 "coef": 1.0
             },
+            "is_floor": false,
             "spec": {
                 "method": "layers",
                 "boundary_type": "internal",
@@ -1809,6 +1859,7 @@
                 "id": 21,
                 "coef": 1.0
             },
+            "is_floor": false,
             "spec": {
                 "method": "layers",
                 "boundary_type": "internal",
@@ -1850,6 +1901,7 @@
                 "id": 28,
                 "coef": 1.0
             },
+            "is_floor": false,
             "spec": {
                 "method": "layers",
                 "boundary_type": "internal",
@@ -1891,6 +1943,7 @@
                 "id": 17,
                 "coef": 1.0
             },
+            "is_floor": false,
             "spec": {
                 "method": "layers",
                 "boundary_type": "internal",

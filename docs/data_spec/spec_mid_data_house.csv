@@ -55,6 +55,7 @@
 ,,〇,,,,,k_inside,隣室の影響,〇,,"dict, null",－,,隣室がない場合はk_insideがnullとなる。
 ,,,〇,,,,id,裏面の境界通し番号,△,,int,－,,k_insideがnullでない場合に定義される。
 ,,,〇,,,,coef,裏面の境界の影響を表す係数,△,,float,－,,k_insideがnullでない場合に定義される。
+,,〇,,,,,is_floor,床か否か,〇,,bool,－,,
 〇,,,,,,,equipments,設備機器,〇,,dict,－,,
 ,〇,,,,,,heaintg_equipments,暖房設備,〇,,list,－,,
 ,,〇,,,,,,,〇,,dict,－,,
