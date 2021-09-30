@@ -309,9 +309,6 @@ def make_pre_calc_parameters(delta_t: float, data_directory: str) -> (PreCalcPar
     # 境界 j が床か否か, [j]
     is_floor_js = np.array([b['is_floor'] for b in bs])
 
-    # 境界jの室に設置された放射暖房の放熱量のうち放射成分に対する境界jの室内側吸収比率
-    f_mrt_hum_is = np.array([b['f_mrt_hum'] for b in bs])
-
     # 境界の裏面温度に屋外側等価温度が与える影響, [j, 1]
     k_eo_js = np.array([b['k_outside'] for b in bs]).reshape(-1, 1)
 
@@ -457,7 +454,8 @@ def make_pre_calc_parameters(delta_t: float, data_directory: str) -> (PreCalcPar
 
     # region 読み込んだ値から新たに係数を作成する
 
-    f_mrt_hum_is = occupants_form_factor.get_f_mrt_hum_js(
+    # 境界jの室に設置された放射暖房の放熱量のうち放射成分に対する境界jの室内側吸収比率
+    f_mrt_hum_js = occupants_form_factor.get_f_mrt_hum_js(
         a_srf_js=a_srf_js.flatten(),
         connected_room_id_js=connected_space_id_js,
         is_floor_js=is_floor_js,
@@ -466,7 +464,7 @@ def make_pre_calc_parameters(delta_t: float, data_directory: str) -> (PreCalcPar
     )
 
     # 室iの在室者に対する境界j*の形態係数, [i, j]
-    f_mrt_hum_is_js = p_is_js * f_mrt_hum_is[np.newaxis, :]
+    f_mrt_hum_is_js = p_is_js * f_mrt_hum_js[np.newaxis, :]
 
     # 境界jの室内側表面放射熱伝達率, W/m2K, [j, 1]
     # 室iの微小球に対する境界jの形態係数
