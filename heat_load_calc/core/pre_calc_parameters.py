@@ -12,6 +12,7 @@ from heat_load_calc.core import infiltration, response_factor
 from heat_load_calc.core import ot_target
 from heat_load_calc.core import next_condition
 from heat_load_calc.core import humidification
+from heat_load_calc.initializer import a12_indoor_radiative_heat_transfer
 
 
 @dataclass
@@ -240,6 +241,8 @@ def make_pre_calc_parameters(delta_t: float, data_directory: str) -> (PreCalcPar
     # 室iの機械換気量（局所換気を除く）, m3/s, [i]
     v_vent_ex_is = np.array([s['ventilation']['mechanical'] for s in ss])
 
+    is_radiative_is = np.array([s['is_radiative'] for s in ss])
+
     # 室iの隣室iからの機械換気量, m3/s, [i, i]
 
     # 隣室からの機械換気
@@ -276,6 +279,8 @@ def make_pre_calc_parameters(delta_t: float, data_directory: str) -> (PreCalcPar
     # boundaries の取り出し
     bs = rd['boundaries']
 
+    n_boundaries = len(bs)
+
     # id, [j]
     bdry_id_js = [b['id'] for b in bs]
 
@@ -301,17 +306,14 @@ def make_pre_calc_parameters(delta_t: float, data_directory: str) -> (PreCalcPar
     # 境界jの室内側表面放射熱伝達率, W/m2K, [j, 1]
     h_r_js = np.array([b['h_r'] for b in bs]).reshape(-1, 1)
 
-    # 応答係数を取得する。
-    phi_a0_js, phi_a1_js_ms, phi_t0_js, phi_t1_js_ms, r_js_ms = _get_responsfactors(bs, h_c_js, h_r_js)
-
-    # 境界jの室内側表面総合熱伝達率, W/m2K, [j, 1]
-    # h_i_js_temporary = np.array([b['h_i'] for b in bs]).reshape(-1, 1)
-
     # 境界jの室に設置された放射暖房の放熱量のうち放射成分に対する境界jの室内側吸収比率
     flr_js = np.array([b['flr'] for b in bs])
 
     # 境界jの日射吸収の有無, [j, 1]
     is_solar_abs_js = np.array([b['is_solar_absorbed'] for b in bs]).reshape(-1, 1)
+
+    # 境界 j が床か否か, [j]
+    is_floor_js = np.array([b['is_floor'] for b in bs])
 
     # 境界jの室に設置された放射暖房の放熱量のうち放射成分に対する境界jの室内側吸収比率
     f_mrt_hum_is = np.array([b['f_mrt_hum'] for b in bs])
@@ -457,15 +459,29 @@ def make_pre_calc_parameters(delta_t: float, data_directory: str) -> (PreCalcPar
         k_ei_js_js.append(k_ei_js)
     k_ei_js_js = np.array(k_ei_js_js)
 
-    # 室iに設置された放射暖房の放熱量のうち放射成分に対する境界jの室内側吸収比率, [j, i]
-    flr_js_is = p_js_is * flr_js[:, np.newaxis]
-
     # 室iの在室者に対する境界j*の形態係数, [i, j]
     f_mrt_hum_is_js = p_is_js * f_mrt_hum_is[np.newaxis, :]
 
     # endregion
 
     # region 読み込んだ値から新たに係数を作成する
+
+    # 応答係数を取得する。
+    phi_a0_js, phi_a1_js_ms, phi_t0_js, phi_t1_js_ms, r_js_ms = _get_response_factors(bs, h_c_js, h_r_js)
+
+    # 放射暖房の発熱部位の設定（とりあえず床発熱） 表7
+    # TODO: 発熱部位を指定して、面積按分するように変更すべき。
+    flr_js = a12_indoor_radiative_heat_transfer.get_flr_js(
+        area_js=a_srf_js.flatten(),
+        connected_room_ids=connected_space_id_js,
+        is_floor_js=is_floor_js,
+        is_radiative_heating_is=is_radiative_is.flatten(),
+        n_boundaries=n_boundaries,
+        n_spaces=n_spaces
+    )
+
+    # 室iに設置された放射暖房の放熱量のうち放射成分に対する境界jの室内側吸収比率, [j, i]
+    flr_js_is = p_js_is * flr_js[:, np.newaxis]
 
     # 室iの空気の熱容量, J/K, [i, 1]
     c_rm_is = v_room_is * get_rho_air() * get_c_air()
@@ -640,7 +656,7 @@ def make_pre_calc_parameters(delta_t: float, data_directory: str) -> (PreCalcPar
     return pre_calc_parameters, pre_calc_parameters_ground
 
 
-def _get_responsfactors(bs, h_c_js, h_r_js):
+def _get_response_factors(bs, h_c_js, h_r_js):
 
     # 境界jの吸熱応答係数の初項, m2K/W, [j, 1]
     phi_a0_js = []
@@ -654,13 +670,6 @@ def _get_responsfactors(bs, h_c_js, h_r_js):
     r_js_ms = []
 
     for b in bs:
-        # rff = response_factor.ResponseFactorFactory.create(spec=b['spec'])
-        # rf = rff.get_response_factors()
-        # phi_a0_js.append(rf.rfa0)
-        # phi_a1_js_ms.append(rf.rfa1)
-        # phi_t0_js.append(rf.rft0)
-        # phi_t1_js_ms.append(rf.rft1)
-        # r_js_ms.append(rf.row)
         if b['spec']['method'] == 'response_factor':
             phi_a0_js.append(b['spec']['phi_a0'])
             phi_a1_js_ms.append(b['spec']['phi_a1'])
@@ -681,12 +690,6 @@ def _get_responsfactors(bs, h_c_js, h_r_js):
     phi_t0_js = np.array(phi_t0_js).reshape(-1, 1)
     phi_t1_js_ms = np.array(phi_t1_js_ms)
     r_js_ms = np.array(r_js_ms)
-
-#    phi_a0_js = np.array([b['phi_a0'] for b in bs]).reshape(-1, 1)
-#    phi_a1_js_ms = np.array([b['phi_a1'] for b in bs])
-#    phi_t0_js = np.array([b['phi_t0'] for b in bs]).reshape(-1, 1)
-#    phi_t1_js_ms = np.array([b['phi_t1'] for b in bs])
-#    r_js_ms = np.array([b['r'] for b in bs])
 
     return phi_a0_js, phi_a1_js_ms, phi_t0_js, phi_t1_js_ms, r_js_ms
 
