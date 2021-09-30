@@ -1,7 +1,19 @@
 import numpy as np
 
 
-def get_f_mrt_hum_is(a_bdry_i_js: np.ndarray, is_floor_bdry_i_js: np.ndarray) -> np.ndarray:
+def get_f_mrt_hum_js(a_srf_js, connected_room_id_js, is_floor_js, n_boundaries, n_spaces):
+    f_mrt_hum_is = np.zeros(shape=(n_boundaries), dtype=float)
+    for i in range(n_spaces):
+        is_connected = connected_room_id_js == i
+
+        f_mrt_hum_is[is_connected] = get_f_mrt_hum_i_js(
+            a_bdry_i_js=a_srf_js[is_connected],
+            is_floor_bdry_i_js=is_floor_js[is_connected]
+        )
+    return f_mrt_hum_is
+
+
+def get_f_mrt_hum_i_js(a_bdry_i_js: np.ndarray, is_floor_bdry_i_js: np.ndarray) -> np.ndarray:
     """
     室iの在室者に対する境界j*の形態係数
     Args:

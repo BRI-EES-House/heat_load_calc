@@ -595,6 +595,14 @@ def _make_boundaries(bss2: List[BoundarySimple], rooms: List[Dict], boundaries: 
     # 室の数
     n_spaces = len(rooms)
 
+    connected_room_id_js = np.array([b['connected_room_id'] for b in boundaries])
+
+    a_srf_js = np.array([b['area'] for b in boundaries])
+
+    is_floor_js = np.array([b['is_floor'] for b in boundaries])
+
+    n_boundaries = len(boundaries)
+
     k_ei_js = []
 
     for bs in bss2:
@@ -618,24 +626,6 @@ def _make_boundaries(bss2: List[BoundarySimple], rooms: List[Dict], boundaries: 
             # 外皮に面していない場合、室内壁ではない場合（地盤の場合が該当）は、Noneとする。
             k_ei_js.append(None)
 
-    # 室iの在室者に対する境界jの形態係数
-    f_mrt_hum_is = np.zeros_like(bss2, dtype=float)
-    for i in range(n_spaces):
-        is_connected = np.array([bs.connected_room_id == i for bs in bss2])
-
-        f_mrt_hum_is[is_connected] = occupants_form_factor.get_f_mrt_hum_is(
-            a_bdry_i_js=np.array([bs.area for bs in np.array(bss2)[is_connected]]),
-            is_floor_bdry_i_js=np.array([bs.is_floor for bs in np.array(bss2)[is_connected]])
-        )
-
-    connected_room_id_js = np.array([b['connected_room_id'] for b in boundaries])
-
-    a_srf_js = np.array([b['area'] for b in boundaries])
-
-    n_boundaries = len(boundaries)
-
-    is_floor_js = np.array([b['is_floor'] for b in boundaries])
-
     specs = [_get_boundary_spec(boundary, bs) for boundary, bs in zip(boundaries, bss2)]
 
     bdrs = []
@@ -651,7 +641,6 @@ def _make_boundaries(bss2: List[BoundarySimple], rooms: List[Dict], boundaries: 
             'area': bs.area,
             'h_c': bs.h_c,
             'is_solar_absorbed': bs.is_solar_absorbed_inside,
-            'f_mrt_hum': f_mrt_hum_is[i],
             'k_outside': bs.h_td,
             'k_inside': k_ei_js[i],
             'is_floor': bool(is_floor_js[i]),
@@ -660,7 +649,6 @@ def _make_boundaries(bss2: List[BoundarySimple], rooms: List[Dict], boundaries: 
 
 
     return bdrs
-
 
 
 

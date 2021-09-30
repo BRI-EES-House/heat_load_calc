@@ -12,6 +12,7 @@ from heat_load_calc.core import infiltration, response_factor, indoor_radiative_
 from heat_load_calc.core import ot_target
 from heat_load_calc.core import next_condition
 from heat_load_calc.core import humidification
+from heat_load_calc.initializer import occupants_form_factor
 
 
 @dataclass
@@ -308,9 +309,6 @@ def make_pre_calc_parameters(delta_t: float, data_directory: str) -> (PreCalcPar
     # 境界 j が床か否か, [j]
     is_floor_js = np.array([b['is_floor'] for b in bs])
 
-    # 境界jの室に設置された放射暖房の放熱量のうち放射成分に対する境界jの室内側吸収比率
-    f_mrt_hum_is = np.array([b['f_mrt_hum'] for b in bs])
-
     # 境界の裏面温度に屋外側等価温度が与える影響, [j, 1]
     k_eo_js = np.array([b['k_outside'] for b in bs]).reshape(-1, 1)
 
@@ -452,12 +450,21 @@ def make_pre_calc_parameters(delta_t: float, data_directory: str) -> (PreCalcPar
         k_ei_js_js.append(k_ei_js)
     k_ei_js_js = np.array(k_ei_js_js)
 
-    # 室iの在室者に対する境界j*の形態係数, [i, j]
-    f_mrt_hum_is_js = p_is_js * f_mrt_hum_is[np.newaxis, :]
-
     # endregion
 
     # region 読み込んだ値から新たに係数を作成する
+
+    # 境界jの室に設置された放射暖房の放熱量のうち放射成分に対する境界jの室内側吸収比率
+    f_mrt_hum_js = occupants_form_factor.get_f_mrt_hum_js(
+        a_srf_js=a_srf_js.flatten(),
+        connected_room_id_js=connected_space_id_js,
+        is_floor_js=is_floor_js,
+        n_boundaries=n_boundaries,
+        n_spaces=n_spaces
+    )
+
+    # 室iの在室者に対する境界j*の形態係数, [i, j]
+    f_mrt_hum_is_js = p_is_js * f_mrt_hum_js[np.newaxis, :]
 
     # 境界jの室内側表面放射熱伝達率, W/m2K, [j, 1]
     # 室iの微小球に対する境界jの形態係数
@@ -467,7 +474,6 @@ def make_pre_calc_parameters(delta_t: float, data_directory: str) -> (PreCalcPar
         n_spaces=n_spaces,
         n_boundaries=n_boundaries
     ).reshape(-1, 1)
-
 
     # 応答係数を取得する。
     phi_a0_js, phi_a1_js_ms, phi_t0_js, phi_t1_js_ms, r_js_ms = _get_response_factors(bs, h_c_js, h_r_js)
