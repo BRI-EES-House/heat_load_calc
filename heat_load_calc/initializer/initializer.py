@@ -5,7 +5,6 @@ import csv
 import pandas as pd
 from enum import Enum
 
-import heat_load_calc.initializer.a12_indoor_radiative_heat_transfer as a12
 import heat_load_calc.initializer.a22_radiative_heating_spec as a22
 
 from heat_load_calc.initializer.boundary_type import BoundaryType
@@ -638,21 +637,7 @@ def _make_boundaries(bss2: List[BoundarySimple], rooms: List[Dict], boundaries: 
             a_srf=np.array([bs.area for bs in np.array(bss2)[is_connected]])
         )
 
-    # 暖房設備仕様の読み込み
-    # 放射暖房有無（Trueなら放射暖房あり）
-    is_radiative_heating_is = np.array([a22.read_is_radiative_heating(room) for room in rooms])
-
-    connected_room_ids = np.array([b['connected_room_id'] for b in boundaries])
-
-    area_js = np.array([b['area'] for b in boundaries])
-
     is_floor_js = np.array([b['is_floor'] for b in boundaries])
-
-    n_boundaries = len(bss2)
-
-    # 放射暖房の発熱部位の設定（とりあえず床発熱） 表7
-    # TODO: 発熱部位を指定して、面積按分するように変更すべき。
-    flr_js = a12.get_flr_js(area_js, connected_room_ids, is_floor_js, is_radiative_heating_is, n_boundaries, n_spaces)
 
     specs = [_get_boundary_spec(boundary, bs) for boundary, bs in zip(boundaries, bss2)]
 

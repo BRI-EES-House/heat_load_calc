@@ -8,11 +8,10 @@ from typing import List, Callable
 
 from heat_load_calc.external.global_number import get_c_air, get_rho_air
 from heat_load_calc.initializer import shape_factor
-from heat_load_calc.core import infiltration, response_factor
+from heat_load_calc.core import infiltration, response_factor, a12_indoor_radiative_heat_transfer
 from heat_load_calc.core import ot_target
 from heat_load_calc.core import next_condition
 from heat_load_calc.core import humidification
-from heat_load_calc.initializer import a12_indoor_radiative_heat_transfer
 
 
 @dataclass
