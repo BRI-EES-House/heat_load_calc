@@ -462,6 +462,15 @@ def make_pre_calc_parameters(delta_t: float, data_directory: str) -> (PreCalcPar
 
     # region 読み込んだ値から新たに係数を作成する
 
+    # 室iの微小球に対する境界jの形態係数
+    h_r_js = shape_factor.get_h_r_js(
+        a_srf_js=a_srf_js.flatten(),
+        connected_room_id_js=connected_space_id_js,
+        n_spaces=n_spaces,
+        n_boundaries=n_boundaries
+    ).reshape(-1, 1)
+
+
     # 応答係数を取得する。
     phi_a0_js, phi_a1_js_ms, phi_t0_js, phi_t1_js_ms, r_js_ms = _get_response_factors(bs, h_c_js, h_r_js)
 
