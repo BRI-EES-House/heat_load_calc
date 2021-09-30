@@ -19,7 +19,7 @@ class TestShapeFactor(unittest.TestCase):
         surf_area = np.array([[20.0], [15.0], [20.0], [15.0], [30.0], [30.0]])
 
         # 放射熱伝達率を計算
-        hr_js = sf.get_h_r_js(a_srf=surf_area)
+        hr_js = sf.get_h_r_i_js(a_srf=surf_area)
 
         # 北外壁の放射熱伝達率
         self.assertAlmostEqual(5.92104643, hr_js[0][0])

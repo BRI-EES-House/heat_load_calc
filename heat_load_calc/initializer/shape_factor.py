@@ -5,7 +5,16 @@ from heat_load_calc.external.global_number import get_sgm, get_eps
 from scipy import optimize
 
 
-def get_h_r_js(a_srf: np.ndarray) -> np.ndarray:
+def get_h_r_js(a_srf_js, connected_room_id_js, n_spaces, n_boundaries):
+    h_r_is = np.zeros(shape=(n_boundaries), dtype=float)
+    for i in range(n_spaces):
+        is_connected = connected_room_id_js == i
+
+        h_r_is[is_connected] = get_h_r_i_js(a_srf=a_srf_js[is_connected])
+    return h_r_is
+
+
+def get_h_r_i_js(a_srf: np.ndarray) -> np.ndarray:
     """ 放射熱伝達率（室単位で計算する）
 
     Args:

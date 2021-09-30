@@ -15,7 +15,7 @@ from heat_load_calc.initializer import residents_number
 from heat_load_calc.initializer import occupants_form_factor
 from heat_load_calc.initializer import boundary_simple
 from heat_load_calc.initializer import furniture
-from heat_load_calc.initializer.shape_factor import get_h_r_js
+from heat_load_calc.initializer import shape_factor
 
 
 class Story(Enum):
@@ -628,14 +628,11 @@ def _make_boundaries(bss2: List[BoundarySimple], rooms: List[Dict], boundaries: 
             is_floor_bdry_i_js=np.array([bs.is_floor for bs in np.array(bss2)[is_connected]])
         )
 
-    # 室iの微小球に対する境界jの形態係数
-    h_r_is = np.zeros_like(bss2, dtype=float)
-    for i in range(n_spaces):
-        is_connected = np.array([bs.connected_room_id == i for bs in bss2])
+    connected_room_id_js = np.array([b['connected_room_id'] for b in boundaries])
 
-        h_r_is[is_connected] = get_h_r_js(
-            a_srf=np.array([bs.area for bs in np.array(bss2)[is_connected]])
-        )
+    a_srf_js = np.array([b['area'] for b in boundaries])
+
+    n_boundaries = len(boundaries)
 
     is_floor_js = np.array([b['is_floor'] for b in boundaries])
 
@@ -653,7 +650,6 @@ def _make_boundaries(bss2: List[BoundarySimple], rooms: List[Dict], boundaries: 
             'connected_space_id': bs.connected_room_id,
             'area': bs.area,
             'h_c': bs.h_c,
-            'h_r': h_r_is[i],
             'is_solar_absorbed': bs.is_solar_absorbed_inside,
             'f_mrt_hum': f_mrt_hum_is[i],
             'k_outside': bs.h_td,
