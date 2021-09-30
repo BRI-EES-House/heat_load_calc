@@ -302,9 +302,6 @@ def make_pre_calc_parameters(delta_t: float, data_directory: str) -> (PreCalcPar
     # 境界jの室内側表面対流熱伝達率, W/m2K, [j, 1]
     h_c_js = np.array([b['h_c'] for b in bs]).reshape(-1, 1)
 
-    # 境界jの室内側表面放射熱伝達率, W/m2K, [j, 1]
-    h_r_js = np.array([b['h_r'] for b in bs]).reshape(-1, 1)
-
     # 境界jの日射吸収の有無, [j, 1]
     is_solar_abs_js = np.array([b['is_solar_absorbed'] for b in bs]).reshape(-1, 1)
 
@@ -462,6 +459,7 @@ def make_pre_calc_parameters(delta_t: float, data_directory: str) -> (PreCalcPar
 
     # region 読み込んだ値から新たに係数を作成する
 
+    # 境界jの室内側表面放射熱伝達率, W/m2K, [j, 1]
     # 室iの微小球に対する境界jの形態係数
     h_r_js = shape_factor.get_h_r_js(
         a_srf_js=a_srf_js.flatten(),

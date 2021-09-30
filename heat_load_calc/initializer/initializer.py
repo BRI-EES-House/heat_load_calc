@@ -634,9 +634,6 @@ def _make_boundaries(bss2: List[BoundarySimple], rooms: List[Dict], boundaries: 
 
     n_boundaries = len(boundaries)
 
-    # 室iの微小球に対する境界jの形態係数
-    h_r_is = shape_factor.get_h_r_js(a_srf_js, connected_room_id_js, n_spaces, n_boundaries)
-
     is_floor_js = np.array([b['is_floor'] for b in boundaries])
 
     specs = [_get_boundary_spec(boundary, bs) for boundary, bs in zip(boundaries, bss2)]
@@ -653,7 +650,6 @@ def _make_boundaries(bss2: List[BoundarySimple], rooms: List[Dict], boundaries: 
             'connected_space_id': bs.connected_room_id,
             'area': bs.area,
             'h_c': bs.h_c,
-            'h_r': h_r_is[i],
             'is_solar_absorbed': bs.is_solar_absorbed_inside,
             'f_mrt_hum': f_mrt_hum_is[i],
             'k_outside': bs.h_td,
