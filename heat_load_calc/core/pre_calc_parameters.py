@@ -306,9 +306,6 @@ def make_pre_calc_parameters(delta_t: float, data_directory: str) -> (PreCalcPar
     # 境界jの室内側表面放射熱伝達率, W/m2K, [j, 1]
     h_r_js = np.array([b['h_r'] for b in bs]).reshape(-1, 1)
 
-    # 境界jの室に設置された放射暖房の放熱量のうち放射成分に対する境界jの室内側吸収比率
-    flr_js = np.array([b['flr'] for b in bs])
-
     # 境界jの日射吸収の有無, [j, 1]
     is_solar_abs_js = np.array([b['is_solar_absorbed'] for b in bs]).reshape(-1, 1)
 
@@ -469,6 +466,7 @@ def make_pre_calc_parameters(delta_t: float, data_directory: str) -> (PreCalcPar
     # 応答係数を取得する。
     phi_a0_js, phi_a1_js_ms, phi_t0_js, phi_t1_js_ms, r_js_ms = _get_response_factors(bs, h_c_js, h_r_js)
 
+    # 境界jの室に設置された放射暖房の放熱量のうち放射成分に対する境界jの室内側吸収比率
     # 放射暖房の発熱部位の設定（とりあえず床発熱） 表7
     # TODO: 発熱部位を指定して、面積按分するように変更すべき。
     flr_js = a12_indoor_radiative_heat_transfer.get_flr_js(

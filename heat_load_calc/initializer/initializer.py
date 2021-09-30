@@ -669,7 +669,6 @@ def _make_boundaries(bss2: List[BoundarySimple], rooms: List[Dict], boundaries: 
             'area': bs.area,
             'h_c': bs.h_c,
             'h_r': h_r_is[i],
-            'flr': flr_js[i],
             'is_solar_absorbed': bs.is_solar_absorbed_inside,
             'f_mrt_hum': f_mrt_hum_is[i],
             'k_outside': bs.h_td,
