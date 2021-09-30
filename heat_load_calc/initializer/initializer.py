@@ -392,6 +392,10 @@ def _make_spaces_dict(rooms: List[dict]):
     # 室iの家具等と空気間の湿気コンダクタンス, kg/s kg/kgDA
     g_lh_frt_is = furniture.get_g_lh_frt_is(c_lh_frt_is=c_lh_frt_is)
 
+    # 暖房設備仕様の読み込み
+    # 放射暖房有無（Trueなら放射暖房あり）
+    is_radiative_heating_is = np.array([a22.read_is_radiative_heating(room) for room in rooms])
+
     # endregion
 
     spaces = []
@@ -417,7 +421,8 @@ def _make_spaces_dict(rooms: List[dict]):
                 'heat_cond': g_sh_frt_is[i],
                 'moisture_capacity': c_lh_frt_is[i],
                 'moisture_cond': g_lh_frt_is[i]
-            }
+            },
+            'is_radiative': bool(is_radiative_heating_is[i])
         })
 
     return spaces
