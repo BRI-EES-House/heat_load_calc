@@ -37,7 +37,6 @@
             "h_c": 3.041174391,
             "is_solar_absorbed": false,
             "k_outside": 1.0,
-            "k_inside": null,
             "is_floor": false,
             "spec": {
                 "method": "u_value",
@@ -58,7 +57,6 @@
             "h_c": 3.041174391,
             "is_solar_absorbed": false,
             "k_outside": 1.0,
-            "k_inside": null,
             "is_floor": false,
             "spec": {
                 "method": "u_value",
@@ -79,7 +77,6 @@
             "h_c": 3.041174391,
             "is_solar_absorbed": false,
             "k_outside": 1.0,
-            "k_inside": null,
             "is_floor": false,
             "spec": {
                 "method": "u_value",
@@ -100,7 +97,6 @@
             "h_c": 3.041174391,
             "is_solar_absorbed": false,
             "k_outside": 1.0,
-            "k_inside": null,
             "is_floor": false,
             "spec": {
                 "method": "u_value",
@@ -121,7 +117,6 @@
             "h_c": 3.041174391,
             "is_solar_absorbed": true,
             "k_outside": 1.0,
-            "k_inside": null,
             "is_floor": true,
             "spec": {
                 "method": "layers",
@@ -148,7 +143,6 @@
             "h_c": 3.041174391,
             "is_solar_absorbed": false,
             "k_outside": 1.0,
-            "k_inside": null,
             "is_floor": false,
             "spec": {
                 "method": "layers",

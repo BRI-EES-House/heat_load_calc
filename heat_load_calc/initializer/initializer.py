@@ -615,8 +615,6 @@ def _make_boundaries(bss2: List[BoundarySimple], rooms: List[Dict], boundaries: 
             h_td = 0.0
         h_td_js.append(h_td)
 
-    k_ei_js = get_k_ei_js(boundaries)
-
     specs = [_get_boundary_spec(boundary, bs) for boundary, bs in zip(boundaries, bss2)]
 
     bdrs = []
@@ -634,7 +632,6 @@ def _make_boundaries(bss2: List[BoundarySimple], rooms: List[Dict], boundaries: 
             'h_c': b['h_c'],
             'is_solar_absorbed': b['is_solar_absorbed_inside'],
             'k_outside': h_td_js[i],
-            'k_inside': k_ei_js[i],
             'is_floor': bool(is_floor_js[i]),
             'spec': specs[i]
         }

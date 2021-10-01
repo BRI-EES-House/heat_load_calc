@@ -34,9 +34,6 @@
 ,,〇,,,,,h_c,室内側対流熱伝達率,〇,,float,W/(m2・K),,
 ,,〇,,,,,is_solar_absorbed,室内侵入日射吸収の有無,〇,,bool,－,,
 ,,〇,,,,,k_outside,隣室温度差係数（室外側相当外気温度基準）,〇,,float,－,,
-,,〇,,,,,k_inside,隣室の影響,〇,,"dict, null",－,,隣室がない場合はk_insideがnullとなる。
-,,,〇,,,,id,裏面の境界通し番号,△,,int,－,,k_insideがnullでない場合に定義される。
-,,,〇,,,,coef,裏面の境界の影響を表す係数,△,,float,－,,k_insideがnullでない場合に定義される。
 ,,〇,,,,,is_floor,床か否か,〇,,bool,－,,
 ,,○,,,,,temp_dif_coef,温度差係数,△,"{'boundary_type': ['external_general_part', 'external_transparent_part', 'external_opaque_part']}",float,ー,0以上1以下の値。,隣室温度を、自室温度と裏面相当外気温度の加重平均温度とするときの、裏面相当外気温度の重み
 ,,○,,,,,rear_surface_boundary_id ,裏面境界ID,△,{'boundary_type': 'internal'},int,－,裏面境界のboundaries->idを引用,
