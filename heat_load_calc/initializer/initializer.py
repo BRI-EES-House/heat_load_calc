@@ -615,32 +615,7 @@ def _make_boundaries(bss2: List[BoundarySimple], rooms: List[Dict], boundaries: 
             h_td = 0.0
         h_td_js.append(h_td)
 
-
-    k_ei_js = []
-
-    for b in boundaries:
-
-        boundary_type = BoundaryType(b['boundary_type'])
-
-        if boundary_type in [
-            BoundaryType.ExternalOpaquePart,
-            BoundaryType.ExternalTransparentPart,
-            BoundaryType.ExternalGeneralPart
-        ]:
-            h = b['temp_dif_coef']
-            # 温度差係数が1.0でない場合はk_ei_jsに値を代入する。
-            # id は自分自身の境界IDとし、自分自身の表面の影響は1.0から温度差係数を減じた値になる。
-            if h < 1.0:
-                k_ei_js.append({'id': b['id'], 'coef': round(1.0 - h, 1)})
-            else:
-                # 温度差係数が1.0の場合はNoneとする。
-                k_ei_js.append(None)
-        elif boundary_type == BoundaryType.Internal:
-            # 室内壁の場合にk_ei_jsを登録する。
-            k_ei_js.append({'id': int(b['rear_surface_boundary_id']), 'coef': 1.0})
-        else:
-            # 外皮に面していない場合、室内壁ではない場合（地盤の場合が該当）は、Noneとする。
-            k_ei_js.append(None)
+    k_ei_js = get_k_ei_js(boundaries)
 
     specs = [_get_boundary_spec(boundary, bs) for boundary, bs in zip(boundaries, bss2)]
 
@@ -680,6 +655,32 @@ def _make_boundaries(bss2: List[BoundarySimple], rooms: List[Dict], boundaries: 
     return bdrs
 
 
+def get_k_ei_js(boundaries):
+    k_ei_js = []
+    for b in boundaries:
+
+        boundary_type = BoundaryType(b['boundary_type'])
+
+        if boundary_type in [
+            BoundaryType.ExternalOpaquePart,
+            BoundaryType.ExternalTransparentPart,
+            BoundaryType.ExternalGeneralPart
+        ]:
+            h = b['temp_dif_coef']
+            # 温度差係数が1.0でない場合はk_ei_jsに値を代入する。
+            # id は自分自身の境界IDとし、自分自身の表面の影響は1.0から温度差係数を減じた値になる。
+            if h < 1.0:
+                k_ei_js.append({'id': b['id'], 'coef': round(1.0 - h, 1)})
+            else:
+                # 温度差係数が1.0の場合はNoneとする。
+                k_ei_js.append(None)
+        elif boundary_type == BoundaryType.Internal:
+            # 室内壁の場合にk_ei_jsを登録する。
+            k_ei_js.append({'id': int(b['rear_surface_boundary_id']), 'coef': 1.0})
+        else:
+            # 外皮に面していない場合、室内壁ではない場合（地盤の場合が該当）は、Noneとする。
+            k_ei_js.append(None)
+    return k_ei_js
 
 
 def _get_boundary_spec(boundaries, bs) -> Dict:
