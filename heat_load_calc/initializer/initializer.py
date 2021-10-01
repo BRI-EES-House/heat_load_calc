@@ -604,6 +604,18 @@ def _make_boundaries(bss2: List[BoundarySimple], rooms: List[Dict], boundaries: 
 
     n_boundaries = len(boundaries)
 
+    h_td_js = []
+
+    for b in boundaries:
+        # 温度差係数
+        # 境界の種類が'external_general_part', 'external_transparent_part', 'external_opaque_part'の場合に定義される。
+        if b['boundary_type'] in ['external_general_part', 'external_transparent_part', 'external_opaque_part', 'ground']:
+            h_td = float(b['temp_dif_coef'])
+        else:
+            h_td = 0.0
+        h_td_js.append(h_td)
+
+
     k_ei_js = []
 
     for b in boundaries:
@@ -634,25 +646,35 @@ def _make_boundaries(bss2: List[BoundarySimple], rooms: List[Dict], boundaries: 
 
     bdrs = []
 
-    for i, (bs, b) in enumerate(zip(bss2, boundaries)):
+    for i, b in enumerate(boundaries):
 
-        b = {
-            'id': bs.id,
-            'name': bs.name,
-            'sub_name': bs.sub_name,
+        bdr = {
+            'id': b['id'],
+            'name': b['name'],
+            'sub_name': '',
             'boundary_type': b['boundary_type'],
-            'is_ground': True if bs.boundary_type == BoundaryType.Ground else False,
-            'connected_space_id': bs.connected_room_id,
-            'area': bs.area,
-            'h_c': bs.h_c,
-            'is_solar_absorbed': bs.is_solar_absorbed_inside,
-            'k_outside': bs.h_td,
+            'is_ground': True if BoundaryType(b['boundary_type']) == BoundaryType.Ground else False,
+            'connected_space_id': b['connected_room_id'],
+            'area': b['area'],
+            'h_c': b['h_c'],
+            'is_solar_absorbed': b['is_solar_absorbed_inside'],
+            'k_outside': h_td_js[i],
             'k_inside': k_ei_js[i],
             'is_floor': bool(is_floor_js[i]),
             'spec': specs[i]
         }
 
-        bdrs.append(b)
+        if BoundaryType(b['boundary_type']) in [
+            BoundaryType.ExternalOpaquePart,
+            BoundaryType.ExternalTransparentPart,
+            BoundaryType.ExternalGeneralPart
+        ]:
+            bdr['temp_dif_coef'] = b['temp_dif_coef']
+
+        if BoundaryType(b['boundary_type']) == BoundaryType.Internal:
+            bdr['rear_surface_boundary_id'] = int(b['rear_surface_boundary_id'])
+
+        bdrs.append(bdr)
 
 
     return bdrs

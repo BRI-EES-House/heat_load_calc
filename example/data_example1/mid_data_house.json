@@ -120,7 +120,8 @@
                     }
                 ],
                 "outside_heat_transfer_resistance": 0.04
-            }
+            },
+            "temp_dif_coef": 1.0
         },
         {
             "id": 1,
@@ -140,7 +141,8 @@
                 "boundary_type": "external_opaque_part",
                 "u_value": 4.65,
                 "inside_heat_transfer_resistance": 0.11
-            }
+            },
+            "temp_dif_coef": 1.0
         },
         {
             "id": 2,
@@ -186,7 +188,8 @@
                     }
                 ],
                 "outside_heat_transfer_resistance": 0.04
-            }
+            },
+            "temp_dif_coef": 1.0
         },
         {
             "id": 3,
@@ -206,7 +209,8 @@
                 "boundary_type": "external_transparent_part",
                 "u_value": 4.65,
                 "inside_heat_transfer_resistance": 0.11
-            }
+            },
+            "temp_dif_coef": 1.0
         },
         {
             "id": 4,
@@ -252,7 +256,8 @@
                     }
                 ],
                 "outside_heat_transfer_resistance": 0.04
-            }
+            },
+            "temp_dif_coef": 1.0
         },
         {
             "id": 5,
@@ -272,7 +277,8 @@
                 "boundary_type": "external_transparent_part",
                 "u_value": 4.65,
                 "inside_heat_transfer_resistance": 0.11
-            }
+            },
+            "temp_dif_coef": 1.0
         },
         {
             "id": 6,
@@ -306,7 +312,8 @@
                     }
                 ],
                 "outside_heat_transfer_resistance": 0.15
-            }
+            },
+            "temp_dif_coef": 0.7
         },
         {
             "id": 7,
@@ -337,7 +344,8 @@
                     }
                 ],
                 "outside_heat_transfer_resistance": 0.09
-            }
+            },
+            "temp_dif_coef": 1.0
         },
         {
             "id": 8,
@@ -377,7 +385,8 @@
                 ],
                 "outside_heat_transfer_resistance": 0.11,
                 "rear_surface_boundary_id": 45
-            }
+            },
+            "rear_surface_boundary_id": 45
         },
         {
             "id": 9,
@@ -417,7 +426,8 @@
                 ],
                 "outside_heat_transfer_resistance": 0.15,
                 "rear_surface_boundary_id": 22
-            }
+            },
+            "rear_surface_boundary_id": 22
         },
         {
             "id": 10,
@@ -457,7 +467,8 @@
                 ],
                 "outside_heat_transfer_resistance": 0.15,
                 "rear_surface_boundary_id": 29
-            }
+            },
+            "rear_surface_boundary_id": 29
         },
         {
             "id": 11,
@@ -497,7 +508,8 @@
                 ],
                 "outside_heat_transfer_resistance": 0.11,
                 "rear_surface_boundary_id": 37
-            }
+            },
+            "rear_surface_boundary_id": 37
         },
         {
             "id": 12,
@@ -543,7 +555,8 @@
                     }
                 ],
                 "outside_heat_transfer_resistance": 0.04
-            }
+            },
+            "temp_dif_coef": 1.0
         },
         {
             "id": 13,
@@ -563,7 +576,8 @@
                 "boundary_type": "external_transparent_part",
                 "u_value": 4.65,
                 "inside_heat_transfer_resistance": 0.11
-            }
+            },
+            "temp_dif_coef": 1.0
         },
         {
             "id": 14,
@@ -609,7 +623,8 @@
                     }
                 ],
                 "outside_heat_transfer_resistance": 0.04
-            }
+            },
+            "temp_dif_coef": 1.0
         },
         {
             "id": 15,
@@ -629,7 +644,8 @@
                 "boundary_type": "external_transparent_part",
                 "u_value": 4.65,
                 "inside_heat_transfer_resistance": 0.11
-            }
+            },
+            "temp_dif_coef": 1.0
         },
         {
             "id": 16,
@@ -660,7 +676,8 @@
                     }
                 ],
                 "outside_heat_transfer_resistance": 0.09
-            }
+            },
+            "temp_dif_coef": 1.0
         },
         {
             "id": 17,
@@ -700,7 +717,8 @@
                 ],
                 "outside_heat_transfer_resistance": 0.11,
                 "rear_surface_boundary_id": 49
-            }
+            },
+            "rear_surface_boundary_id": 49
         },
         {
             "id": 18,
@@ -746,7 +764,8 @@
                     }
                 ],
                 "outside_heat_transfer_resistance": 0.04
-            }
+            },
+            "temp_dif_coef": 1.0
         },
         {
             "id": 19,
@@ -766,7 +785,8 @@
                 "boundary_type": "external_transparent_part",
                 "u_value": 4.65,
                 "inside_heat_transfer_resistance": 0.11
-            }
+            },
+            "temp_dif_coef": 1.0
         },
         {
             "id": 20,
@@ -797,7 +817,8 @@
                     }
                 ],
                 "outside_heat_transfer_resistance": 0.09
-            }
+            },
+            "temp_dif_coef": 1.0
         },
         {
             "id": 21,
@@ -837,7 +858,8 @@
                 ],
                 "outside_heat_transfer_resistance": 0.11,
                 "rear_surface_boundary_id": 47
-            }
+            },
+            "rear_surface_boundary_id": 47
         },
         {
             "id": 22,
@@ -877,7 +899,8 @@
                 ],
                 "outside_heat_transfer_resistance": 0.09,
                 "rear_surface_boundary_id": 9
-            }
+            },
+            "rear_surface_boundary_id": 9
         },
         {
             "id": 23,
@@ -923,7 +946,8 @@
                     }
                 ],
                 "outside_heat_transfer_resistance": 0.04
-            }
+            },
+            "temp_dif_coef": 1.0
         },
         {
             "id": 24,
@@ -943,7 +967,8 @@
                 "boundary_type": "external_transparent_part",
                 "u_value": 4.65,
                 "inside_heat_transfer_resistance": 0.11
-            }
+            },
+            "temp_dif_coef": 1.0
         },
         {
             "id": 25,
@@ -989,7 +1014,8 @@
                     }
                 ],
                 "outside_heat_transfer_resistance": 0.04
-            }
+            },
+            "temp_dif_coef": 1.0
         },
         {
             "id": 26,
@@ -1009,7 +1035,8 @@
                 "boundary_type": "external_transparent_part",
                 "u_value": 4.65,
                 "inside_heat_transfer_resistance": 0.11
-            }
+            },
+            "temp_dif_coef": 1.0
         },
         {
             "id": 27,
@@ -1040,7 +1067,8 @@
                     }
                 ],
                 "outside_heat_transfer_resistance": 0.09
-            }
+            },
+            "temp_dif_coef": 1.0
         },
         {
             "id": 28,
@@ -1080,7 +1108,8 @@
                 ],
                 "outside_heat_transfer_resistance": 0.11,
                 "rear_surface_boundary_id": 48
-            }
+            },
+            "rear_surface_boundary_id": 48
         },
         {
             "id": 29,
@@ -1120,7 +1149,8 @@
                 ],
                 "outside_heat_transfer_resistance": 0.09,
                 "rear_surface_boundary_id": 10
-            }
+            },
+            "rear_surface_boundary_id": 10
         },
         {
             "id": 30,
@@ -1166,7 +1196,8 @@
                     }
                 ],
                 "outside_heat_transfer_resistance": 0.04
-            }
+            },
+            "temp_dif_coef": 1.0
         },
         {
             "id": 31,
@@ -1212,7 +1243,8 @@
                     }
                 ],
                 "outside_heat_transfer_resistance": 0.04
-            }
+            },
+            "temp_dif_coef": 1.0
         },
         {
             "id": 32,
@@ -1232,7 +1264,8 @@
                 "boundary_type": "external_transparent_part",
                 "u_value": 4.65,
                 "inside_heat_transfer_resistance": 0.11
-            }
+            },
+            "temp_dif_coef": 1.0
         },
         {
             "id": 33,
@@ -1278,7 +1311,8 @@
                     }
                 ],
                 "outside_heat_transfer_resistance": 0.04
-            }
+            },
+            "temp_dif_coef": 1.0
         },
         {
             "id": 34,
@@ -1312,7 +1346,8 @@
                     }
                 ],
                 "outside_heat_transfer_resistance": 0.15
-            }
+            },
+            "temp_dif_coef": 0.7
         },
         {
             "id": 35,
@@ -1343,7 +1378,8 @@
                     }
                 ],
                 "outside_heat_transfer_resistance": 0.09
-            }
+            },
+            "temp_dif_coef": 1.0
         },
         {
             "id": 36,
@@ -1383,7 +1419,8 @@
                 ],
                 "outside_heat_transfer_resistance": 0.11,
                 "rear_surface_boundary_id": 46
-            }
+            },
+            "rear_surface_boundary_id": 46
         },
         {
             "id": 37,
@@ -1423,7 +1460,8 @@
                 ],
                 "outside_heat_transfer_resistance": 0.11,
                 "rear_surface_boundary_id": 11
-            }
+            },
+            "rear_surface_boundary_id": 11
         },
         {
             "id": 38,
@@ -1469,7 +1507,8 @@
                     }
                 ],
                 "outside_heat_transfer_resistance": 0.04
-            }
+            },
+            "temp_dif_coef": 1.0
         },
         {
             "id": 39,
@@ -1489,7 +1528,8 @@
                 "boundary_type": "external_transparent_part",
                 "u_value": 4.65,
                 "inside_heat_transfer_resistance": 0.11
-            }
+            },
+            "temp_dif_coef": 1.0
         },
         {
             "id": 40,
@@ -1535,7 +1575,8 @@
                     }
                 ],
                 "outside_heat_transfer_resistance": 0.04
-            }
+            },
+            "temp_dif_coef": 1.0
         },
         {
             "id": 41,
@@ -1581,7 +1622,8 @@
                     }
                 ],
                 "outside_heat_transfer_resistance": 0.04
-            }
+            },
+            "temp_dif_coef": 1.0
         },
         {
             "id": 42,
@@ -1601,7 +1643,8 @@
                 "boundary_type": "external_transparent_part",
                 "u_value": 4.65,
                 "inside_heat_transfer_resistance": 0.11
-            }
+            },
+            "temp_dif_coef": 1.0
         },
         {
             "id": 43,
@@ -1635,7 +1678,8 @@
                     }
                 ],
                 "outside_heat_transfer_resistance": 0.15
-            }
+            },
+            "temp_dif_coef": 0.7
         },
         {
             "id": 44,
@@ -1666,7 +1710,8 @@
                     }
                 ],
                 "outside_heat_transfer_resistance": 0.09
-            }
+            },
+            "temp_dif_coef": 1.0
         },
         {
             "id": 45,
@@ -1706,7 +1751,8 @@
                 ],
                 "outside_heat_transfer_resistance": 0.11,
                 "rear_surface_boundary_id": 8
-            }
+            },
+            "rear_surface_boundary_id": 8
         },
         {
             "id": 46,
@@ -1746,7 +1792,8 @@
                 ],
                 "outside_heat_transfer_resistance": 0.11,
                 "rear_surface_boundary_id": 36
-            }
+            },
+            "rear_surface_boundary_id": 36
         },
         {
             "id": 47,
@@ -1786,7 +1833,8 @@
                 ],
                 "outside_heat_transfer_resistance": 0.11,
                 "rear_surface_boundary_id": 21
-            }
+            },
+            "rear_surface_boundary_id": 21
         },
         {
             "id": 48,
@@ -1826,7 +1874,8 @@
                 ],
                 "outside_heat_transfer_resistance": 0.11,
                 "rear_surface_boundary_id": 28
-            }
+            },
+            "rear_surface_boundary_id": 28
         },
         {
             "id": 49,
@@ -1866,7 +1915,8 @@
                 ],
                 "outside_heat_transfer_resistance": 0.11,
                 "rear_surface_boundary_id": 17
-            }
+            },
+            "rear_surface_boundary_id": 17
         }
     ],
     "equipments": {
