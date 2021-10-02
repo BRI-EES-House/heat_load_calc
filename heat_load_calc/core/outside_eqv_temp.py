@@ -6,10 +6,7 @@ TODO:
 
 import numpy as np
 
-from heat_load_calc.initializer import external_boundaries_direction
-from heat_load_calc.initializer import inclined_surface_solar_radiation
-from heat_load_calc.initializer import solar_shading
-from heat_load_calc.initializer import window
+from heat_load_calc.core import solar_shading, window, inclined_surface_solar_radiation, external_boundaries_direction
 
 
 class OutsideEqvTemp:
@@ -208,10 +205,10 @@ class OutsideEqvTempExternalGeneralPartAndExternalOpaquePart(OutsideEqvTemp):
 class OutsideEqvTempExternalTransparentPart(OutsideEqvTemp):
 
     def __init__(self, direction: str, eps_r, r_surf_o, u_value_j: float,
-            eta_value_j: float,
-            glazing_type_j: str,
-            glass_area_ratio_j: float,
-            solar_shading_part: solar_shading.SolarShadingSimple):
+                 eta_value_j: float,
+                 glazing_type_j: str,
+                 glass_area_ratio_j: float,
+                 solar_shading_part: solar_shading.SolarShadingSimple):
         """
 
         Args:

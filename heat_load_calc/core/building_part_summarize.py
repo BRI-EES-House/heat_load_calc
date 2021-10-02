@@ -15,7 +15,7 @@ import numpy as np
 from typing import List
 
 from heat_load_calc.initializer.boundary_type import BoundaryType
-from heat_load_calc.initializer.boundary_simple import BoundarySimple
+from heat_load_calc.core.boundary_simple import BoundarySimple
 
 
 def integrate(bss: List[BoundarySimple]) -> List[BoundarySimple]:

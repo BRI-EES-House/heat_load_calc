@@ -1,10 +1,8 @@
 import numpy as np
 from dataclasses import dataclass
 
-from heat_load_calc.initializer import outside_eqv_temp
-from heat_load_calc.initializer import solar_shading
+from heat_load_calc.core import outside_eqv_temp, solar_shading, transmission_solar_radiation
 from heat_load_calc.initializer.boundary_type import BoundaryType
-from heat_load_calc.initializer import transmission_solar_radiation
 
 
 @dataclass

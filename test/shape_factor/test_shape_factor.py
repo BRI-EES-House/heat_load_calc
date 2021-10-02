@@ -1,7 +1,7 @@
 import unittest
 import numpy as np
 
-from heat_load_calc.initializer import shape_factor as sf
+from heat_load_calc.core import shape_factor as sf
 
 
 class TestShapeFactor(unittest.TestCase):

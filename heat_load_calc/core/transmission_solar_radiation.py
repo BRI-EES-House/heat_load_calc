@@ -4,10 +4,7 @@
 
 import numpy as np
 
-from heat_load_calc.initializer import external_boundaries_direction
-from heat_load_calc.initializer import inclined_surface_solar_radiation
-from heat_load_calc.initializer import solar_shading
-from heat_load_calc.initializer import window
+from heat_load_calc.core import solar_shading, window, inclined_surface_solar_radiation, external_boundaries_direction
 
 
 class TransmissionSolarRadiation:

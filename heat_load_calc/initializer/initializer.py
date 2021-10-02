@@ -7,15 +7,9 @@ from enum import Enum
 
 import heat_load_calc.initializer.a22_radiative_heating_spec as a22
 
-from heat_load_calc.initializer.boundary_type import BoundaryType
-from heat_load_calc.initializer.boundary_simple import BoundarySimple
-
 from heat_load_calc.initializer import schedule_loader
 from heat_load_calc.initializer import residents_number
-from heat_load_calc.initializer import occupants_form_factor
-from heat_load_calc.initializer import boundary_simple
 from heat_load_calc.initializer import furniture
-from heat_load_calc.initializer import shape_factor
 from heat_load_calc.initializer.boundary_type import BoundaryType
 
 
@@ -75,44 +69,10 @@ class CoolingEquipmentType(Enum):
 
 def make_house(d, input_data_dir, output_data_dir):
 
-    # 以下の気象データの読み込み
-    # 外気温度, degree C, [n]
-    # 外気絶対湿度, kg/kg(DA), [n]
-    # 法線面直達日射量, W/m2, [n]
-    # 水平面天空日射量, W/m2, [n]
-    # 夜間放射量, W/m2, [n]
-    # 太陽高度, rad, [n]
-    # 太陽方位角, rad, [n]
-    a_sun_ns, h_sun_ns, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns = _read_weather_data(input_data_dir=input_data_dir)
-
     rooms = d['rooms']
-
-    # 室の数
-    n_spaces = len(rooms)
 
     # 室iの名称, [i]
     room_name_is = [r['name'] for r in rooms]
-
-    # 境界j
-    bss = [
-        boundary_simple.get_boundary_simple(
-            theta_o_ns=theta_o_ns,
-            i_dn_ns=i_dn_ns,
-            i_sky_ns=i_sky_ns,
-            r_n_ns=r_n_ns,
-            a_sun_ns=a_sun_ns,
-            h_sun_ns=h_sun_ns,
-            b=b_dict
-        ) for b_dict in d['boundaries']
-    ]
-
-    bss2 = bss
-    # bss2 = building_part_summarize.integrate(bss=bss)
-
-#    q_trs_sol_is_ns = np.array([
-#        np.sum(np.array([bs.q_trs_sol for bs in bss2 if bs.connected_room_id == i]), axis=0)
-#        for i in range(n_spaces)
-#    ])
 
     # 室iの床面積, m2, [i]
     a_floor_is = np.array([r['floor_area'] for r in rooms])
@@ -180,16 +140,6 @@ def make_house(d, input_data_dir, output_data_dir):
     with open(output_data_dir + '/mid_data_ac_demand.csv', 'w') as f:
         w = csv.writer(f, lineterminator='\n')
         w.writerows(ac_demand_is_ns.T.tolist())
-
-    # ステップnの室iにおける窓の透過日射熱取得, W, [8760*4]
-#    with open(output_data_dir + '/mid_data_q_trs_sol.csv', 'w') as f:
-#        w = csv.writer(f, lineterminator='\n')
-#        w.writerows(q_trs_sol_is_ns.T.tolist())
-
-    # ステップnの境界jにおける裏面等価温度, ℃, [j, 8760*4]
-#    with open(output_data_dir + '/mid_data_theta_o_sol.csv', 'w') as f:
-#        w = csv.writer(f, lineterminator='\n')
-#        w.writerows(np.array([bs.theta_o_sol for bs in bss2]).T.tolist())
 
 
 def make_house_for_test(d, input_data_dir, output_data_dir):
