@@ -314,6 +314,19 @@ def make_pre_calc_parameters(delta_t: float, data_directory: str) -> (PreCalcPar
     # 境界の裏面温度に屋外側等価温度が与える影響, [j, 1]
     k_eo_js = np.array([b['k_outside'] for b in bs]).reshape(-1, 1)
 
+    h_td_js = []
+
+    for b in bs:
+        # 温度差係数
+        # 境界の種類が'external_general_part', 'external_transparent_part', 'external_opaque_part'の場合に定義される。
+        if b['boundary_type'] in ['external_general_part', 'external_transparent_part', 'external_opaque_part', 'ground']:
+            h_td = float(b['temp_dif_coef'])
+        else:
+            h_td = 0.0
+        h_td_js.append(h_td)
+
+    k_eo_js = np.array(h_td_js).reshape(-1, 1)
+
     k_ei_js = get_k_ei_js(boundaries=bs)
 
     k_ei_id_js = []

@@ -639,7 +639,8 @@ def _make_boundaries(bss2: List[BoundarySimple], rooms: List[Dict], boundaries: 
         if BoundaryType(b['boundary_type']) in [
             BoundaryType.ExternalOpaquePart,
             BoundaryType.ExternalTransparentPart,
-            BoundaryType.ExternalGeneralPart
+            BoundaryType.ExternalGeneralPart,
+            BoundaryType.Ground
         ]:
             bdr['temp_dif_coef'] = b['temp_dif_coef']
 
