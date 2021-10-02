@@ -1,50 +1,71 @@
 import numpy as np
 import math
-from typing import Dict, Callable
+from typing import Dict, Callable, List
 from functools import partial
+from enum import Enum
 
 
-def make_get_infiltration_function(rd: Dict):
+class Story(Enum):
+    """
+    建物の階数（共同住宅の場合は住戸の階数）
+    """
+    # 1階
+    ONE = 1
+    # 2階（2階以上の階数の場合も2階とする。）
+    TWO = 2
+
+
+class InsidePressure(Enum):
+    """
+    室内圧力
+    """
+    # 正圧
+    POSITIVE = 'positive'
+    # 負圧
+    NEGATIVE = 'negative'
+    # ゼロバランス
+    BALANCED = 'balanced'
+
+
+def make_get_infiltration_function(infiltration: Dict, rms: List[Dict]):
     """
     室温と外気温度から隙間風を計算する関数を作成する。
     Args:
-        rd: 入力する辞書
+        infiltration: 隙間風に関する辞書
+        rms: 室に関する辞書のリスト
     Returns:
         室温と外気温度から隙間風を計算する関数
     Notes:
         作成される関数の引数と戻り値は以下のとおり。
-            Args:
+            引数:
                 theta_r_is_n: 時刻nの室温, degree C, [i,1]
                 theta_o_n: 時刻n+1の外気温度, degree C
-            Returns:
+            戻り値:
                 すきま風量, m3/s, [i,1]
     """
 
-    # 建物全体に関すること
-    bdg = rd['building']
-
     # 隙間風の計算方法
 
-    if bdg['infiltration']['method'] == 'balance_residential':
+    if infiltration['method'] == 'balance_residential':
 
         # 建物の階数
-        story = bdg['infiltration']['story']
+        story = Story(infiltration['story'])
 
         # C値
-        c_value = bdg['infiltration']['c_value']
+        c_value = infiltration['c_value']
 
         # 換気の種類
-        inside_pressure = bdg['infiltration']['inside_pressure']
-
-        # spaceに関すること
-        ss = rd['spaces']
+        inside_pressure = InsidePressure(infiltration['inside_pressure'])
 
         # 空間iの気積, m3, [i, 1]
-        v_room_is = np.array([float(s['volume']) for s in ss]).reshape(-1, 1)
+        v_room_is = np.array([float(s['volume']) for s in rms]).reshape(-1, 1)
 
         return partial(
             _get_infiltration_residential,
-            c_value=c_value, v_room_is=v_room_is, story=story, inside_pressure=inside_pressure
+            c_value=c_value,
+            v_room_is=v_room_is,
+            story=story,
+            inside_pressure=inside_pressure
         )
 
     else:
@@ -53,8 +74,12 @@ def make_get_infiltration_function(rd: Dict):
 
 
 def _get_infiltration_residential(
-        theta_r_is_n: np.ndarray, theta_o_n: float, c_value: float, v_room_is: np.ndarray,
-        story: int, inside_pressure: str
+        theta_r_is_n: np.ndarray,
+        theta_o_n: float,
+        c_value: float,
+        v_room_is: np.ndarray,
+        story: Story,
+        inside_pressure: InsidePressure
 ) -> np.ndarray:
     """すきま風量を取得する関数（住宅用、圧力バランスを解いた近似式バージョン）
     住宅を１つの空間に見立てて予め圧力バランスを解き、
@@ -72,8 +97,6 @@ def _get_infiltration_residential(
         すきま風量, m3/s, [i,1]
     """
 
-    # 室気積の合計値, m3, float
-    total_air_volume = np.sum(v_room_is)
     # 室気積加重平均室温theta_r_nの計算, degree C, float
     theta_average_r_n = np.average(theta_r_is_n, weights=v_room_is)
 
@@ -83,31 +106,30 @@ def _get_infiltration_residential(
     # 係数aの計算, 回/(h (cm2/m2 K^0.5))
     a = {
         # 1階建ての時の係数
-        1: 0.022,
+        Story.ONE: 0.022,
         # 2階建ての時の係数
-        2: 0.020
+        Story.TWO: 0.020
     }[story]
 
     # 係数bの計算, 回/h
     # 階数と換気方式の組み合わせで決定する
     b = {
-        'balanced': {
-            1: 0.00,
-            2: 0.0
+        InsidePressure.BALANCED: {
+            Story.ONE: 0.00,
+            Story.TWO: 0.0
         }[story],
-        'positive': {
-            1: 0.26,
-            2: 0.14
+        InsidePressure.POSITIVE: {
+            Story.ONE: 0.26,
+            Story.TWO: 0.14
         }[story],
-        'negative': {
-            1: 0.28,
-            2: 0.13
+        InsidePressure.NEGATIVE: {
+            Story.ONE: 0.28,
+            Story.TWO: 0.13
         }[story]
     }[inside_pressure]
 
-    # print(a, b)
     # 換気回数の計算
-    # 切片bの符号は-が正解（報告書は間違っている）
+    # Note: 切片bの符号は-が正解（報告書は間違っている）
     infiltration_rate = np.maximum(a * (c_value * math.sqrt(delta_theta)) - b, 0)
 
     # すきま風量の計算

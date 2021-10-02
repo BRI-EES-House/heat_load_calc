@@ -245,27 +245,27 @@ def make_pre_calc_parameters(
     # region spaces の読み込み
 
     # spaces の取り出し
-    ss = rd['spaces']
+    rms = rd['spaces']
 
     # Spaceの数
-    n_spaces = len(ss)
+    n_r = len(rms)
 
     # id, [i]
-    id_space_is = [int(s['id']) for s in ss]
+    id_space_is = [int(s['id']) for s in rms]
 
     # 空間iの名前, [i]
-    name_space_is = [str(s['name']) for s in ss]
+    name_space_is = [str(s['name']) for s in rms]
 
     # 空間iの気積, m3, [i, 1]
-    v_room_is = np.array([float(s['volume']) for s in ss]).reshape(-1, 1)
+    v_room_is = np.array([float(s['volume']) for s in rms]).reshape(-1, 1)
 
     # 室iに設置された放射暖房の対流成分比率, [i, 1]
-    beta_is = np.array([s['beta'] for s in ss]).reshape(-1, 1)
+    beta_is = np.array([s['beta'] for s in rms]).reshape(-1, 1)
 
     # 室iの機械換気量（局所換気を除く）, m3/s, [i]
-    v_vent_ex_is = np.array([s['ventilation']['mechanical'] for s in ss])
+    v_vent_ex_is = np.array([s['ventilation']['mechanical'] for s in rms])
 
-    is_radiative_is = np.array([s['is_radiative'] for s in ss])
+    is_radiative_is = np.array([s['is_radiative'] for s in rms])
 
     # 室iの隣室iからの機械換気量, m3/s, [i, i]
 
@@ -277,12 +277,12 @@ def make_pre_calc_parameters(
     next_vents = [
         [
             ([next_vent['upstream_room_id']], next_vent['volume']) for next_vent in s['ventilation']['next_spaces']
-        ] for s in ss
+        ] for s in rms
     ]
     v_int_vent_is_is = _get_v_int_vent_is_is(next_vents)
 
     # 室iの自然風利用時の換気量, m3/s, [i, 1]
-    v_ntrl_vent_is = np.array([s['ventilation']['natural'] for s in ss]).reshape(-1, 1)
+    v_ntrl_vent_is = np.array([s['ventilation']['natural'] for s in rms]).reshape(-1, 1)
 
     # 室iの家具等の熱容量, J/K, [i, 1]
     c_sh_frt_is = []
@@ -293,7 +293,7 @@ def make_pre_calc_parameters(
     # 室iの家具等と空気間の湿気コンダクタンス, kg/s (kg/kgDA), [i, 1]
     g_lh_frt_is = []
 
-    for s in ss:
+    for s in rms:
 
         if 'furniture' in s:
             c_sh_frt_is.append(float(s['furniture']['heat_capacity']))
@@ -408,8 +408,8 @@ def make_pre_calc_parameters(
 
     # 室iの暖房方式として放射空調が設置されているかどうか。  bool値, [i, 1]
     # 室iの暖房方式として放射空調が設置されている場合の、放射暖房最大能力, W, [i, 1]
-    is_radiative_heating_is = np.full(shape=(n_spaces, 1), fill_value=False)
-    lr_h_max_cap_is = np.zeros(shape=(n_spaces, 1), dtype=float)
+    is_radiative_heating_is = np.full(shape=(n_r, 1), fill_value=False)
+    lr_h_max_cap_is = np.zeros(shape=(n_r, 1), dtype=float)
 
     heating_equipments = rd['equipments']['heating_equipments']
 
@@ -420,8 +420,8 @@ def make_pre_calc_parameters(
 
     # 室iの冷房方式として放射空調が設置されているかどうか。  bool値, [i, 1]
     # 室iの冷房方式として放射空調が設置されている場合の、放射冷房最大能力, W, [i, 1]
-    is_radiative_cooling_is = np.full(shape=(n_spaces, 1), fill_value=False)
-    lr_cs_max_cap_is = np.zeros(shape=(n_spaces, 1), dtype=float)
+    is_radiative_cooling_is = np.full(shape=(n_r, 1), fill_value=False)
+    lr_cs_max_cap_is = np.zeros(shape=(n_r, 1), dtype=float)
 
     cooling_equipments = rd['equipments']['cooling_equipments']
 
@@ -474,7 +474,7 @@ def make_pre_calc_parameters(
     if q_trans_sol_calculate:
         q_trs_sol_is_ns = np.array([
             np.sum(np.array([bs.q_trs_sol for bs in bss if bs.connected_room_id == i]), axis=0)
-            for i in range(n_spaces)
+            for i in range(n_r)
         ])
     else:
         with open(data_directory + '/mid_data_q_trs_sol.csv', 'r') as f:
@@ -510,8 +510,8 @@ def make_pre_calc_parameters(
     # [[p_0_0 ... ... p_0_j]
     #  [ ...  ... ...  ... ]
     #  [p_i_0 ... ... p_i_j]]
-    p_is_js = np.zeros((n_spaces, n_boundaries), dtype=int)
-    for i in range(n_spaces):
+    p_is_js = np.zeros((n_r, n_boundaries), dtype=int)
+    for i in range(n_r):
         p_is_js[i, connected_space_id_js == i] = 1
 
     # 室iと境界jの関係を表す係数（室iから境界jへの変換）
@@ -542,7 +542,7 @@ def make_pre_calc_parameters(
         connected_room_id_js=connected_space_id_js,
         is_floor_js=is_floor_js,
         n_boundaries=n_boundaries,
-        n_spaces=n_spaces
+        n_spaces=n_r
     )
 
     # 室iの在室者に対する境界j*の形態係数, [i, j]
@@ -553,7 +553,7 @@ def make_pre_calc_parameters(
     h_r_js = shape_factor.get_h_r_js(
         a_srf_js=a_srf_js.flatten(),
         connected_room_id_js=connected_space_id_js,
-        n_spaces=n_spaces,
+        n_spaces=n_r,
         n_boundaries=n_boundaries
     ).reshape(-1, 1)
 
@@ -569,7 +569,7 @@ def make_pre_calc_parameters(
         is_floor_js=is_floor_js,
         is_radiative_heating_is=is_radiative_is.flatten(),
         n_boundaries=n_boundaries,
-        n_spaces=n_spaces
+        n_spaces=n_r
     )
 
     # 室iに設置された放射暖房の放熱量のうち放射成分に対する境界jの室内側吸収比率, [j, i]
@@ -658,7 +658,15 @@ def make_pre_calc_parameters(
     )
 
     # すきま風を計算する関数
-    get_infiltration = infiltration.make_get_infiltration_function(rd=rd)
+    # 引数:
+    #   theta_r_is_n: 時刻nの室温, degree C, [i,1]
+    #   theta_o_n: 時刻n+1の外気温度, degree C
+    # 戻り値:
+    #   すきま風量, m3/s, [i,1]
+    get_infiltration = infiltration.make_get_infiltration_function(
+        infiltration=rd['building']['infiltration'],
+        rms=rms
+    )
 
     # 次のステップの室温と負荷を計算する関数
     calc_next_temp_and_load = next_condition.make_get_next_temp_and_load_function(
@@ -672,12 +680,12 @@ def make_pre_calc_parameters(
 
     dehumidification_funcs = [
         humidification.make_dehumidification_function(
-            n_room=n_spaces, equipment_type=equipment['equipment_type'], prop=equipment['property']
+            n_room=n_r, equipment_type=equipment['equipment_type'], prop=equipment['property']
         ) for equipment in cooling_equipments
     ]
 
     pre_calc_parameters = PreCalcParameters(
-        n_spaces=n_spaces,
+        n_spaces=n_r,
         id_space_is=id_space_is,
         name_space_is=name_space_is,
         v_room_is=v_room_is,
