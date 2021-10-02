@@ -15,6 +15,7 @@ from heat_load_calc.core import humidification
 from heat_load_calc.initializer import occupants_form_factor
 
 from heat_load_calc.initializer.boundary_type import BoundaryType
+from heat_load_calc.initializer import boundary_simple
 
 
 @dataclass
@@ -291,6 +292,7 @@ def make_pre_calc_parameters(delta_t: float, data_directory: str) -> (PreCalcPar
     # boundaries の取り出し
     bs = rd['boundaries']
 
+    # 境界j
     n_boundaries = len(bs)
 
     # id, [j]
@@ -307,7 +309,7 @@ def make_pre_calc_parameters(delta_t: float, data_directory: str) -> (PreCalcPar
     is_ground_js = np.array([b['is_ground'] for b in bs]).reshape(-1, 1)
 
     # 隣接する空間のID, [j]
-    connected_space_id_js = np.array([b['connected_space_id'] for b in bs])
+    connected_space_id_js = np.array([b['connected_room_id'] for b in bs])
 
     # 境界jの面積, m2, [j, 1]
     a_srf_js = np.array([b['area'] for b in bs]).reshape(-1, 1)

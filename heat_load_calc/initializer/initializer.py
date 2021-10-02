@@ -571,7 +571,7 @@ def _make_boundaries(boundaries: List[Dict]):
             'sub_name': '',
             'boundary_type': b['boundary_type'],
             'is_ground': True if BoundaryType(b['boundary_type']) == BoundaryType.Ground else False,
-            'connected_space_id': b['connected_room_id'],
+            'connected_room_id': b['connected_room_id'],
             'area': b['area'],
             'h_c': b['h_c'],
             'is_solar_absorbed': b['is_solar_absorbed_inside'],

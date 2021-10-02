@@ -29,7 +29,7 @@
 ,,〇,,,,,sub_name,境界の副名称,〇,,str,－,,ex:north_exterior_wall
 ,,〇,,,,,boundary_type,境界の種類,〇,,str,－,"{'external_general_part', 'internal','ground','external_transparent_part', 'external_opaque_part'}",
 ,,〇,,,,,is_ground,地盤であるか否か,〇,,bool,－,,
-,,〇,,,,,connected_space_id,隣接する空間のID,〇,,int,－,,
+,,〇,,,,,connected_room_id,隣接する空間のID,〇,,int,－,,
 ,,〇,,,,,area,面積,〇,,float,m2,,
 ,,〇,,,,,h_c,室内側対流熱伝達率,〇,,float,W/(m2・K),,
 ,,〇,,,,,is_solar_absorbed,室内侵入日射吸収の有無,〇,,bool,－,,
