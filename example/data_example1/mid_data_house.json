@@ -7,10 +7,11 @@
             "inside_pressure": "negative"
         }
     },
-    "spaces": [
+    "rooms": [
         {
             "id": 0,
             "name": "main_occupant_room",
+            "sub_name": "",
             "volume": 70.92,
             "beta": 0.0,
             "ventilation": {
@@ -18,11 +19,15 @@
                 "next_spaces": [],
                 "natural": 0.0985
             },
-            "is_radiative": false
+            "is_radiative": false,
+            "furniture": {
+                "input_method": "default"
+            }
         },
         {
             "id": 1,
             "name": "other_occupant_room",
+            "sub_name": "",
             "volume": 123.22,
             "beta": 0.0,
             "ventilation": {
@@ -35,11 +40,15 @@
                 ],
                 "natural": 0.1711388888888889
             },
-            "is_radiative": false
+            "is_radiative": false,
+            "furniture": {
+                "input_method": "default"
+            }
         },
         {
             "id": 2,
             "name": "non_occupant_room",
+            "sub_name": "",
             "volume": 94.88,
             "beta": 0.0,
             "ventilation": {
@@ -56,7 +65,10 @@
                 ],
                 "natural": 0.13177777777777777
             },
-            "is_radiative": false
+            "is_radiative": false,
+            "furniture": {
+                "input_method": "default"
+            }
         }
     ],
     "boundaries": [

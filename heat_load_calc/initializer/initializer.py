@@ -218,17 +218,6 @@ def _make_rooms(rms: List[dict]) -> List[dict]:
     # 室iの外気からの機械換気量, m3/h, [i]
     v_vent_ex_is = np.array([r['vent'] for r in rms])
 
-    # 隣室からの機械換気
-    # 2重のリスト構造を持つ。
-    # 外側のリスト：室、（流入側の室を基準とする。）
-    # 内側のリスト：換気経路（数は任意であり、換気経路が無い（0: 空のリスト）場合もある。）
-    # 変数はタプル （流出側の室ID: int, 換気量（m3/h): float)
-    next_vents = [
-        [
-            ([next_vent['upstream_room_id']], next_vent['volume']) for next_vent in r['next_vent']
-        ] for r in rms
-    ]
-
     # 室iの自然風利用時の換気回数, 1/h, [i]
     n_ntrl_vent_is = np.array([r['natural_vent_time'] for r in rms])
 
@@ -268,7 +257,10 @@ def _make_rooms(rms: List[dict]) -> List[dict]:
                 ],
                 'natural': v_ntrl_vent_is[i]
             },
-            'is_radiative': bool(is_radiative_heating_is[i])
+            'is_radiative': bool(is_radiative_heating_is[i]),
+            'furniture': {
+                'input_method': 'default'
+            }
         })
 
     return spaces

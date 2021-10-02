@@ -295,12 +295,7 @@ def make_pre_calc_parameters(
 
     for s in rms:
 
-        if 'furniture' in s:
-            c_sh_frt_is.append(float(s['furniture']['heat_capacity']))
-            g_sh_frt_is.append(float(s['furniture']['heat_cond']))
-            c_lh_frt_is.append(float(s['furniture']['moisture_capacity']))
-            g_lh_frt_is.append(float(s['furniture']['moisture_cond']))
-        else:
+        if s['furniture']['input_method'] == 'default':
             c_sh_frt_i = furniture.get_c_cap_frt_is(v_room_cap_is=s['volume'])
             g_sh_frt_i = furniture.get_g_sh_frt_is(c_sh_frt_is=c_sh_frt_i)
             c_lh_frt_i = furniture.get_c_lh_frt_is(s['volume'])
@@ -309,6 +304,13 @@ def make_pre_calc_parameters(
             g_sh_frt_is.append(g_sh_frt_i)
             c_lh_frt_is.append(c_lh_frt_i)
             g_lh_frt_is.append(g_lh_frt_i)
+        elif s['furniture']['input_method'] == 'specify':
+            c_sh_frt_is.append(float(s['furniture']['heat_capacity']))
+            g_sh_frt_is.append(float(s['furniture']['heat_cond']))
+            c_lh_frt_is.append(float(s['furniture']['moisture_capacity']))
+            g_lh_frt_is.append(float(s['furniture']['moisture_cond']))
+        else:
+            raise Exception()
 
     c_sh_frt_is = np.array(c_sh_frt_is).reshape(-1, 1)
     g_sh_frt_is = np.array(g_sh_frt_is).reshape(-1, 1)
