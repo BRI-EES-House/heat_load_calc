@@ -33,7 +33,7 @@ class TestSigleRoomWithFround(unittest.TestCase):
         # weather.make_weather(region=d['common']['region'], output_data_dir=s_folder, csv_output=True)
 
         # 中間データ作成（境界条件は再構築しない）
-        initializer.make_house_for_test(d=d, input_data_dir=s_folder, output_data_dir=s_folder)
+        initializer.make_mid_data_house(d=d, output_data_dir=s_folder)
         # initializer.make_house(d=d, input_data_dir=s_folder, output_data_dir=s_folder)
 
         # 計算実行

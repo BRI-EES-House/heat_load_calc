@@ -37,10 +37,10 @@ class TestSteadyState(unittest.TestCase):
         d = json.load(js)
 
         # 中間データ作成（建物のみ）
-        initializer.make_house_for_test(d=d, input_data_dir=s_folder, output_data_dir=s_folder)
+        initializer.make_mid_data_house(d=d, output_data_dir=s_folder)
 
         # pre_calc_parametersの構築
-        ss, ppg = pre_calc_parameters.make_pre_calc_parameters(delta_t=900.0, data_directory=s_folder)
+        ss, ppg = pre_calc_parameters.make_pre_calc_parameters(delta_t=900.0, data_directory=s_folder, q_trans_sol_calculate=False)
 
         q_srf_js_n = np.array([[12.7809219004777, 12.7809219004777, 12.7809219004777, 12.7809219004777,
             36.6603793746687, 12.2159349302242]]).reshape(-1, 1)

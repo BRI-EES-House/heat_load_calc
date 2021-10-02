@@ -2,8 +2,7 @@ import unittest
 import copy
 import numpy as np
 
-from heat_load_calc.initializer import building_part_summarize as bps
-from heat_load_calc.initializer import boundary_simple as bs
+from heat_load_calc.core import building_part_summarize as bps, boundary_simple as bs
 
 
 class MyTestCase(unittest.TestCase):

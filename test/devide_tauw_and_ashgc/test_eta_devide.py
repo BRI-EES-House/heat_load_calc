@@ -1,6 +1,6 @@
 import unittest
 
-from heat_load_calc.initializer import window
+from heat_load_calc.core import window
 
 
 class MyTestCase(unittest.TestCase):

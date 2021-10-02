@@ -7,12 +7,11 @@ from dataclasses import dataclass
 from typing import List, Callable
 
 from heat_load_calc.external.global_number import get_c_air, get_rho_air
-from heat_load_calc.initializer import shape_factor
-from heat_load_calc.core import infiltration, response_factor, indoor_radiative_heat_transfer
+from heat_load_calc.core import infiltration, response_factor, indoor_radiative_heat_transfer, shape_factor, \
+    occupants_form_factor, boundary_simple
 from heat_load_calc.core import ot_target
 from heat_load_calc.core import next_condition
 from heat_load_calc.core import humidification
-from heat_load_calc.initializer import occupants_form_factor
 
 from heat_load_calc.initializer.boundary_type import BoundaryType
 
@@ -215,10 +214,33 @@ class PreCalcParametersGround:
     theta_o_ave: float
 
 
-def make_pre_calc_parameters(delta_t: float, data_directory: str) -> (PreCalcParameters, PreCalcParametersGround):
+def make_pre_calc_parameters(
+        delta_t: float, data_directory: str, q_trans_sol_calculate=True, theta_o_sol_calculate=True
+) -> (PreCalcParameters, PreCalcParametersGround):
+    """
+
+    Args:
+        delta_t:
+        data_directory:
+        q_trans_sol_calculate: optional テスト用　これを False に指定すると、CSVファイルから直接読み込むことができる。
+        theta_o_sol_calculate: optional テスト用　これを False に指定すると、CSVファイルから直接読み込むことができる。
+
+    Returns:
+
+    """
 
     with open(data_directory + '/mid_data_house.json') as f:
         rd = json.load(f)
+
+    # 以下の気象データの読み込み
+    # 外気温度, degree C, [n]
+    # 外気絶対湿度, kg/kg(DA), [n]
+    # 法線面直達日射量, W/m2, [n]
+    # 水平面天空日射量, W/m2, [n]
+    # 夜間放射量, W/m2, [n]
+    # 太陽高度, rad, [n]
+    # 太陽方位角, rad, [n]
+    a_sun_ns, h_sun_ns, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns = _read_weather_data(input_data_dir=data_directory)
 
     # region spaces の読み込み
 
@@ -281,7 +303,21 @@ def make_pre_calc_parameters(delta_t: float, data_directory: str) -> (PreCalcPar
     # boundaries の取り出し
     bs = rd['boundaries']
 
+    # 境界j
     n_boundaries = len(bs)
+
+    # 境界j
+    bss = [
+        boundary_simple.get_boundary_simple(
+            theta_o_ns=theta_o_ns,
+            i_dn_ns=i_dn_ns,
+            i_sky_ns=i_sky_ns,
+            r_n_ns=r_n_ns,
+            a_sun_ns=a_sun_ns,
+            h_sun_ns=h_sun_ns,
+            b=b_dict
+        ) for b_dict in bs
+    ]
 
     # id, [j]
     bdry_id_js = [b['id'] for b in bs]
@@ -297,7 +333,7 @@ def make_pre_calc_parameters(delta_t: float, data_directory: str) -> (PreCalcPar
     is_ground_js = np.array([b['is_ground'] for b in bs]).reshape(-1, 1)
 
     # 隣接する空間のID, [j]
-    connected_space_id_js = np.array([b['connected_space_id'] for b in bs])
+    connected_space_id_js = np.array([b['connected_room_id'] for b in bs])
 
     # 境界jの面積, m2, [j, 1]
     a_srf_js = np.array([b['area'] for b in bs]).reshape(-1, 1)
@@ -306,7 +342,7 @@ def make_pre_calc_parameters(delta_t: float, data_directory: str) -> (PreCalcPar
     h_c_js = np.array([b['h_c'] for b in bs]).reshape(-1, 1)
 
     # 境界jの日射吸収の有無, [j, 1]
-    is_solar_abs_js = np.array([b['is_solar_absorbed'] for b in bs]).reshape(-1, 1)
+    is_solar_abs_js = np.array([b['is_solar_absorbed_inside'] for b in bs]).reshape(-1, 1)
 
     # 境界 j が床か否か, [j]
     is_floor_js = np.array([b['is_floor'] for b in bs])
@@ -416,19 +452,29 @@ def make_pre_calc_parameters(delta_t: float, data_directory: str) -> (PreCalcPar
         ac_demand_is_ns = np.array([row for row in r]).T
 
     # ステップnの室iにおける窓の透過日射熱取得, W, [8760*4]
-    with open(data_directory + '/mid_data_q_trs_sol.csv', 'r') as f:
-        r = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
-        q_trs_sol_is_ns = np.array([row for row in r]).T
+    if q_trans_sol_calculate:
+        q_trs_sol_is_ns = np.array([
+            np.sum(np.array([bs.q_trs_sol for bs in bss if bs.connected_room_id == i]), axis=0)
+            for i in range(n_spaces)
+        ])
+    else:
+        with open(data_directory + '/mid_data_q_trs_sol.csv', 'r') as f:
+            r = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
+            q_trs_sol_is_ns = np.array([row for row in r]).T
 
-        # ステップn+1に対応するために0番要素に最終要素を代入
-        q_trs_sol_is_ns = np.append(q_trs_sol_is_ns, q_trs_sol_is_ns[:, 0:1], axis=1)
+    # ステップn+1に対応するために0番要素に最終要素を代入
+    q_trs_sol_is_ns = np.append(q_trs_sol_is_ns, q_trs_sol_is_ns[:, 0:1], axis=1)
 
     # ステップnの境界jにおける裏面等価温度, ℃, [j, 8760*4]
-    with open(data_directory + '/mid_data_theta_o_sol.csv', 'r') as f:
-        r = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
-        theta_o_sol_js_ns = np.array([row for row in r]).T
-        # ステップn+1に対応するために0番要素に最終要素を代入
-        theta_o_sol_js_ns = np.append(theta_o_sol_js_ns, theta_o_sol_js_ns[:, 0:1], axis=1)
+    if theta_o_sol_calculate:
+        theta_o_sol_js_ns = np.array([bs.theta_o_sol for bs in bss])
+    else:
+        with open(data_directory + '/mid_data_theta_o_sol.csv', 'r') as f:
+            r = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
+            theta_o_sol_js_ns = np.array([row for row in r]).T
+
+    # ステップn+1に対応するために0番要素に最終要素を代入
+    theta_o_sol_js_ns = np.append(theta_o_sol_js_ns, theta_o_sol_js_ns[:, 0:1], axis=1)
 
     # endregion
 
@@ -790,3 +836,39 @@ def get_k_ei_js(boundaries):
             # 外皮に面していない場合、室内壁ではない場合（地盤の場合が該当）は、Noneとする。
             k_ei_js.append(None)
     return k_ei_js
+
+
+def _read_weather_data(input_data_dir: str):
+    """
+    気象データを読み込む。
+    Args:
+        input_data_dir: 現在計算しているデータのパス
+    Returns:
+        外気温度, degree C
+        外気絶対湿度, kg/kg(DA)
+        法線面直達日射量, W/m2
+        水平面天空日射量, W/m2
+        夜間放射量, W/m2
+        太陽高度, rad
+        太陽方位角, rad
+    """
+
+    # 気象データ
+    pp = pd.read_csv(input_data_dir + '/weather.csv', index_col=0)
+
+    # 外気温度, degree C
+    theta_o_ns = pp['temperature'].values
+    # 外気絶対湿度, kg/kg(DA)
+    x_o_ns = pp['absolute humidity'].values
+    # 法線面直達日射量, W/m2
+    i_dn_ns = pp['normal direct solar radiation'].values
+    # 水平面天空日射量, W/m2
+    i_sky_ns = pp['horizontal sky solar radiation'].values
+    # 夜間放射量, W/m2
+    r_n_ns = pp['outward radiation'].values
+    # 太陽高度, rad
+    h_sun_ns = pp['sun altitude'].values
+    # 太陽方位角, rad
+    a_sun_ns = pp['sun azimuth'].values
+
+    return a_sun_ns, h_sun_ns, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns

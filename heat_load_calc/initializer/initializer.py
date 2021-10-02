@@ -7,15 +7,9 @@ from enum import Enum
 
 import heat_load_calc.initializer.a22_radiative_heating_spec as a22
 
-from heat_load_calc.initializer.boundary_type import BoundaryType
-from heat_load_calc.initializer.boundary_simple import BoundarySimple
-
 from heat_load_calc.initializer import schedule_loader
 from heat_load_calc.initializer import residents_number
-from heat_load_calc.initializer import occupants_form_factor
-from heat_load_calc.initializer import boundary_simple
 from heat_load_calc.initializer import furniture
-from heat_load_calc.initializer import shape_factor
 from heat_load_calc.initializer.boundary_type import BoundaryType
 
 
@@ -75,44 +69,12 @@ class CoolingEquipmentType(Enum):
 
 def make_house(d, input_data_dir, output_data_dir):
 
-    # 以下の気象データの読み込み
-    # 外気温度, degree C, [n]
-    # 外気絶対湿度, kg/kg(DA), [n]
-    # 法線面直達日射量, W/m2, [n]
-    # 水平面天空日射量, W/m2, [n]
-    # 夜間放射量, W/m2, [n]
-    # 太陽高度, rad, [n]
-    # 太陽方位角, rad, [n]
-    a_sun_ns, h_sun_ns, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns = _read_weather_data(input_data_dir=input_data_dir)
+    make_mid_data_house(d, output_data_dir)
 
     rooms = d['rooms']
 
-    # 室の数
-    n_spaces = len(rooms)
-
     # 室iの名称, [i]
     room_name_is = [r['name'] for r in rooms]
-
-    # 境界j
-    bss = [
-        boundary_simple.get_boundary_simple(
-            theta_o_ns=theta_o_ns,
-            i_dn_ns=i_dn_ns,
-            i_sky_ns=i_sky_ns,
-            r_n_ns=r_n_ns,
-            a_sun_ns=a_sun_ns,
-            h_sun_ns=h_sun_ns,
-            b=b_dict
-        ) for b_dict in d['boundaries']
-    ]
-
-    bss2 = bss
-    # bss2 = building_part_summarize.integrate(bss=bss)
-
-    q_trs_sol_is_ns = np.array([
-        np.sum(np.array([bs.q_trs_sol for bs in bss2 if bs.connected_room_id == i]), axis=0)
-        for i in range(n_spaces)
-    ])
 
     # 室iの床面積, m2, [i]
     a_floor_is = np.array([r['floor_area'] for r in rooms])
@@ -135,26 +97,6 @@ def make_house(d, input_data_dir, output_data_dir):
             room_name_is=room_name_is,
             a_floor_is=a_floor_is
         )
-
-    # json 出力 のうち、"building" に対応する辞書
-    building = _make_building_dict(d=d['building'])
-
-    # json 出力のうち、"spaces" に対応する辞書
-    spaces = _make_spaces_dict(rooms=d['rooms'])
-
-    boundaries = _make_boundaries(boundaries=d['boundaries'])
-
-    equipments = _make_equipment_dict(rooms=d['rooms'])
-
-    wd = {
-        'building': building,
-        'spaces': spaces,
-        'boundaries': boundaries,
-        'equipments': equipments
-    }
-
-    with open(output_data_dir + '/mid_data_house.json', 'w') as f:
-        json.dump(wd, f, indent=4)
 
     # ステップnの室iにおける局所換気量, m3/s, [i, 8760*4]
     with open(output_data_dir + '/mid_data_local_vent.csv', 'w') as f:
@@ -181,52 +123,8 @@ def make_house(d, input_data_dir, output_data_dir):
         w = csv.writer(f, lineterminator='\n')
         w.writerows(ac_demand_is_ns.T.tolist())
 
-    # ステップnの室iにおける窓の透過日射熱取得, W, [8760*4]
-    with open(output_data_dir + '/mid_data_q_trs_sol.csv', 'w') as f:
-        w = csv.writer(f, lineterminator='\n')
-        w.writerows(q_trs_sol_is_ns.T.tolist())
 
-    # ステップnの境界jにおける裏面等価温度, ℃, [j, 8760*4]
-    with open(output_data_dir + '/mid_data_theta_o_sol.csv', 'w') as f:
-        w = csv.writer(f, lineterminator='\n')
-        w.writerows(np.array([bs.theta_o_sol for bs in bss2]).T.tolist())
-
-
-def make_house_for_test(d, input_data_dir, output_data_dir):
-
-    # 以下の気象データの読み込み
-    # 外気温度, degree C
-    # 外気絶対湿度, kg/kg(DA)
-    # 法線面直達日射量, W/m2
-    # 水平面天空日射量, W/m2
-    # 夜間放射量, W/m2
-    # 太陽高度, rad
-    # 太陽方位角, rad
-    a_sun_ns, h_sun_ns, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns = _read_weather_data(input_data_dir=input_data_dir)
-
-    rooms = d['rooms']
-
-    # 室の数
-    n_spaces = len(rooms)
-
-    # 境界j
-    bss = [
-        boundary_simple.get_boundary_simple(
-            theta_o_ns=theta_o_ns,
-            i_dn_ns=i_dn_ns,
-            i_sky_ns=i_sky_ns,
-            r_n_ns=r_n_ns,
-            a_sun_ns=a_sun_ns,
-            h_sun_ns=h_sun_ns,
-            b=b_dict
-        ) for b_dict in d['boundaries']
-    ]
-
-    # 壁体の集約を行わない。
-    # layer のC値・R値を core に引き継ぐため
-    # C値・R値は集約ができないため
-    bss2 = bss
-#    bss2 = building_part_summarize.integrate(bss=bss)
+def make_mid_data_house(d, output_data_dir):
 
     building = _make_building_dict(d=d['building'])
 
@@ -599,21 +497,59 @@ def _make_boundaries(boundaries: List[Dict]):
 
     for i, b in enumerate(boundaries):
 
+        bt = BoundaryType(b['boundary_type'])
+
         bdr = {
             'id': b['id'],
             'name': b['name'],
             'sub_name': '',
+            'connected_room_id': b['connected_room_id'],
             'boundary_type': b['boundary_type'],
             'is_ground': True if BoundaryType(b['boundary_type']) == BoundaryType.Ground else False,
-            'connected_space_id': b['connected_room_id'],
             'area': b['area'],
             'h_c': b['h_c'],
-            'is_solar_absorbed': b['is_solar_absorbed_inside'],
+            'is_solar_absorbed_inside': b['is_solar_absorbed_inside'],
             'is_floor': bool(b['is_floor']),
-            'spec': specs[i]
+            'spec': specs[i],
+            'solar_shading_part': b['solar_shading_part']
         }
 
-        if BoundaryType(b['boundary_type']) in [
+        if bt in [
+            BoundaryType.ExternalGeneralPart, BoundaryType.ExternalTransparentPart, BoundaryType.ExternalOpaquePart
+        ]:
+            bdr['is_sun_striked_outside'] = b['is_sun_striked_outside']
+
+            if b['is_sun_striked_outside'] == True:
+                bdr['direction'] = b['direction']
+
+        if bt in [
+            BoundaryType.ExternalGeneralPart, BoundaryType.ExternalTransparentPart, BoundaryType.ExternalOpaquePart
+        ]:
+            bdr['outside_emissivity'] = b['outside_emissivity']
+
+        if bt in [
+            BoundaryType.ExternalGeneralPart,
+            BoundaryType.ExternalTransparentPart,
+            BoundaryType.ExternalOpaquePart,
+            BoundaryType.Internal
+        ]:
+            bdr['outside_heat_transfer_resistance'] = b['outside_heat_transfer_resistance']
+
+        if bt in [
+            BoundaryType.ExternalTransparentPart,
+            BoundaryType.ExternalOpaquePart
+        ]:
+            bdr['u_value'] = b['u_value']
+
+        if bt in [BoundaryType.ExternalTransparentPart]:
+            bdr['eta_value'] = b['eta_value']
+            bdr['incident_angle_characteristics'] = b['incident_angle_characteristics']
+            bdr['glass_area_ratio'] = b['glass_area_ratio']
+
+        if bt in [BoundaryType.ExternalGeneralPart, BoundaryType.ExternalOpaquePart]:
+            bdr['outside_solar_absorption'] = b['outside_solar_absorption']
+
+        if bt in [
             BoundaryType.ExternalOpaquePart,
             BoundaryType.ExternalTransparentPart,
             BoundaryType.ExternalGeneralPart,
@@ -621,7 +557,7 @@ def _make_boundaries(boundaries: List[Dict]):
         ]:
             bdr['temp_dif_coef'] = b['temp_dif_coef']
 
-        if BoundaryType(b['boundary_type']) == BoundaryType.Internal:
+        if bt == BoundaryType.Internal:
             bdr['rear_surface_boundary_id'] = int(b['rear_surface_boundary_id'])
 
         bdrs.append(bdr)

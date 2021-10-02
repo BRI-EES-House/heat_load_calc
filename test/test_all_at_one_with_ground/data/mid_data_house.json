@@ -30,12 +30,12 @@
             "id": 0,
             "name": "exterior_floor",
             "sub_name": "",
+            "connected_room_id": 0,
             "boundary_type": "ground",
             "is_ground": true,
-            "connected_space_id": 0,
             "area": 1.0,
             "h_c": 3.041174391,
-            "is_solar_absorbed": true,
+            "is_solar_absorbed_inside": true,
             "is_floor": false,
             "spec": {
                 "method": "layers_ground",
@@ -48,18 +48,21 @@
                     }
                 ]
             },
+            "solar_shading_part": {
+                "existence": false
+            },
             "temp_dif_coef": 1.0
         },
         {
             "id": 1,
             "name": "exterior_floor2",
             "sub_name": "",
+            "connected_room_id": 0,
             "boundary_type": "ground",
             "is_ground": true,
-            "connected_space_id": 0,
             "area": 1.0,
             "h_c": 3.041174391,
-            "is_solar_absorbed": true,
+            "is_solar_absorbed_inside": true,
             "is_floor": true,
             "spec": {
                 "method": "layers_ground",
@@ -71,6 +74,9 @@
                         "thermal_capacity": 240
                     }
                 ]
+            },
+            "solar_shading_part": {
+                "existence": false
             },
             "temp_dif_coef": 1.0
         }
