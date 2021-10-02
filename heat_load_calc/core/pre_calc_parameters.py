@@ -220,6 +220,16 @@ def make_pre_calc_parameters(delta_t: float, data_directory: str) -> (PreCalcPar
     with open(data_directory + '/mid_data_house.json') as f:
         rd = json.load(f)
 
+    # 以下の気象データの読み込み
+    # 外気温度, degree C, [n]
+    # 外気絶対湿度, kg/kg(DA), [n]
+    # 法線面直達日射量, W/m2, [n]
+    # 水平面天空日射量, W/m2, [n]
+    # 夜間放射量, W/m2, [n]
+    # 太陽高度, rad, [n]
+    # 太陽方位角, rad, [n]
+    a_sun_ns, h_sun_ns, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns = _read_weather_data(input_data_dir=data_directory)
+
     # region spaces の読み込み
 
     # spaces の取り出し
@@ -790,3 +800,39 @@ def get_k_ei_js(boundaries):
             # 外皮に面していない場合、室内壁ではない場合（地盤の場合が該当）は、Noneとする。
             k_ei_js.append(None)
     return k_ei_js
+
+
+def _read_weather_data(input_data_dir: str):
+    """
+    気象データを読み込む。
+    Args:
+        input_data_dir: 現在計算しているデータのパス
+    Returns:
+        外気温度, degree C
+        外気絶対湿度, kg/kg(DA)
+        法線面直達日射量, W/m2
+        水平面天空日射量, W/m2
+        夜間放射量, W/m2
+        太陽高度, rad
+        太陽方位角, rad
+    """
+
+    # 気象データ
+    pp = pd.read_csv(input_data_dir + '/weather.csv', index_col=0)
+
+    # 外気温度, degree C
+    theta_o_ns = pp['temperature'].values
+    # 外気絶対湿度, kg/kg(DA)
+    x_o_ns = pp['absolute humidity'].values
+    # 法線面直達日射量, W/m2
+    i_dn_ns = pp['normal direct solar radiation'].values
+    # 水平面天空日射量, W/m2
+    i_sky_ns = pp['horizontal sky solar radiation'].values
+    # 夜間放射量, W/m2
+    r_n_ns = pp['outward radiation'].values
+    # 太陽高度, rad
+    h_sun_ns = pp['sun altitude'].values
+    # 太陽方位角, rad
+    a_sun_ns = pp['sun azimuth'].values
+
+    return a_sun_ns, h_sun_ns, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns
