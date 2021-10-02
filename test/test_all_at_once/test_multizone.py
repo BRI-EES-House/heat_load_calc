@@ -6,6 +6,7 @@ import csv
 from heat_load_calc.initializer import initializer
 from heat_load_calc.weather import weather
 from heat_load_calc.core import core
+from heat_load_calc.initializer import furniture
 
 
 class TestAllAtOnce(unittest.TestCase):
@@ -81,7 +82,7 @@ class TestAllAtOnce(unittest.TestCase):
 
         # 家具からの対流熱取得, [W]
         t_fun = self._dd['rm0_t_fun']['1989-01-01 00:15:00']
-        c_fun = self._mdh['spaces'][0]['furniture']['heat_cond']  # W/K
+        c_fun = furniture.get_g_sh_frt_is(furniture.get_c_cap_frt_is(v_room_cap_is=volume))
         q_fun = c_fun * (t_fun - t_r_new)
         self.assertAlmostEqual(q_fun, - self._dd['rm0_q_s_fun']['1989-01-01 00:15:00'])
 
@@ -158,7 +159,7 @@ class TestAllAtOnce(unittest.TestCase):
 
         # 家具からの対流熱取得, [W]
         t_fun = self._dd['rm2_t_fun'][date_now]
-        c_fun = self._mdh['spaces'][2]['furniture']['heat_cond']  # W/K
+        c_fun = furniture.get_g_sh_frt_is(furniture.get_c_cap_frt_is(v_room_cap_is=volume))
         q_fun = c_fun * (t_fun - t_r_new)
         self.assertAlmostEqual(q_fun, - self._dd['rm2_q_s_fun'][date_now])
 
@@ -236,8 +237,11 @@ class TestAllAtOnce(unittest.TestCase):
             t_fun_old = self._dd['rm' + str(rm) + '_t_fun']['1989-01-01 12:00:00']
 
             # 家具と室の熱コンダクタンス
-            c_fun = self._mdh['spaces'][rm]['furniture']['heat_cond']  # W/K
-            cap_fun = self._mdh['spaces'][rm]['furniture']['heat_capacity']  # J/K
+            # c_fun = self._mdh['spaces'][rm]['furniture']['heat_cond']  # W/K
+            volume = self._mdh['spaces'][rm]['volume']  # m3
+            c_fun = furniture.get_g_sh_frt_is(furniture.get_c_cap_frt_is(v_room_cap_is=volume))
+#            cap_fun = self._mdh['spaces'][rm]['furniture']['heat_capacity']  # J/K
+            cap_fun = furniture.get_c_cap_frt_is(v_room_cap_is=volume)
             q_s_fun = self._dd['rm' + str(rm) + '_q_s_sol_fun']['1989-01-01 12:15:00']
             q_fun1 = c_fun * (t_r_new - t_fun_new) + q_s_fun
             q_fun2 = cap_fun * (t_fun_new - t_fun_old) / 900.0
@@ -287,8 +291,11 @@ class TestAllAtOnce(unittest.TestCase):
         x_fun_now = self._dd['rm0_x_fun'][date_now]
         x_fun_old = self._dd['rm0_x_fun'][date_old]
         x_r_new = self._dd['rm0_x_r'][date_now]
-        cx_fun = self._mdh['spaces'][0]['furniture']['moisture_cond']  # kg/(s kg/kg(DA))
-        gf_fun = self._mdh['spaces'][0]['furniture']['moisture_capacity']   # kg
+        volume = self._mdh['spaces'][0]['volume']  # m3
+#        cx_fun = self._mdh['spaces'][0]['furniture']['moisture_cond']  # kg/(s kg/kg(DA))
+#        gf_fun = self._mdh['spaces'][0]['furniture']['moisture_capacity']   # kg
+        gf_fun = furniture.get_c_lh_frt_is(v_room_cap_is=volume)
+        cx_fun = furniture.get_g_lh_frt_is(c_lh_frt_is=gf_fun)
         humid_fun = cx_fun * (x_r_new - x_fun_now)
         humid_fun_storage = gf_fun * (x_fun_now - x_fun_old) / 900.0
 
@@ -317,7 +324,8 @@ class TestAllAtOnce(unittest.TestCase):
 
         # 備品からの湿気取得, [kg/s]
         x_fun = self._dd['rm0_x_fun'][date_now]
-        cx_fun = self._mdh['spaces'][0]['furniture']['moisture_cond']  # kg/(s kg/kg(DA))
+#        cx_fun = self._mdh['spaces'][0]['furniture']['moisture_cond']  # kg/(s kg/kg(DA))
+        cx_fun = furniture.get_g_lh_frt_is(c_lh_frt_is=furniture.get_c_lh_frt_is(v_room_cap_is=volume))
         humid_fun = cx_fun * (x_fun - x_r_new)
 
         # すきま風による湿気取得, [kg/s]
@@ -387,7 +395,8 @@ class TestAllAtOnce(unittest.TestCase):
 
         # 備品からの湿気取得, [kg/s]
         x_fun = self._dd['rm2_x_fun'][date_now]
-        cx_fun = self._mdh['spaces'][2]['furniture']['moisture_cond']  # kg/(s kg/kg(DA))
+#        cx_fun = self._mdh['spaces'][2]['furniture']['moisture_cond']  # kg/(s kg/kg(DA))
+        cx_fun = furniture.get_g_lh_frt_is(c_lh_frt_is=furniture.get_c_lh_frt_is(v_room_cap_is=volume))
         humid_fun = cx_fun * (x_fun - x_r_new)
 
         # すきま風による湿気取得, [kg/s]

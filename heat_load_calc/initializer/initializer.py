@@ -314,12 +314,12 @@ def _make_spaces_dict(rooms: List[dict]):
                 ],
                 'natural': v_ntrl_vent_is[i]
             },
-            'furniture': {
-                'heat_capacity': c_sh_frt_is[i],
-                'heat_cond': g_sh_frt_is[i],
-                'moisture_capacity': c_lh_frt_is[i],
-                'moisture_cond': g_lh_frt_is[i]
-            },
+#            'furniture': {
+#                'heat_capacity': c_sh_frt_is[i],
+#                'heat_cond': g_sh_frt_is[i],
+#                'moisture_capacity': c_lh_frt_is[i],
+#                'moisture_cond': g_lh_frt_is[i]
+#            },
             'is_radiative': bool(is_radiative_heating_is[i])
         })
 
