@@ -216,7 +216,17 @@ class PreCalcParametersGround:
     theta_o_ave: float
 
 
-def make_pre_calc_parameters(delta_t: float, data_directory: str) -> (PreCalcParameters, PreCalcParametersGround):
+def make_pre_calc_parameters(delta_t: float, data_directory: str, q_trans_sol_calculate=True) -> (PreCalcParameters, PreCalcParametersGround):
+    """
+
+    Args:
+        delta_t:
+        data_directory:
+        q_trans_sol_calculate: optional テスト用　これを False に指定すると、CSVファイルから直接読み込むことができる。
+
+    Returns:
+
+    """
 
     with open(data_directory + '/mid_data_house.json') as f:
         rd = json.load(f)
@@ -296,18 +306,17 @@ def make_pre_calc_parameters(delta_t: float, data_directory: str) -> (PreCalcPar
     n_boundaries = len(bs)
 
     # 境界j
-    if True:
-        bss = [
-            boundary_simple.get_boundary_simple(
-                theta_o_ns=theta_o_ns,
-                i_dn_ns=i_dn_ns,
-                i_sky_ns=i_sky_ns,
-                r_n_ns=r_n_ns,
-                a_sun_ns=a_sun_ns,
-                h_sun_ns=h_sun_ns,
-                b=b_dict
-            ) for b_dict in bs
-        ]
+    bss = [
+        boundary_simple.get_boundary_simple(
+            theta_o_ns=theta_o_ns,
+            i_dn_ns=i_dn_ns,
+            i_sky_ns=i_sky_ns,
+            r_n_ns=r_n_ns,
+            a_sun_ns=a_sun_ns,
+            h_sun_ns=h_sun_ns,
+            b=b_dict
+        ) for b_dict in bs
+    ]
 
     # id, [j]
     bdry_id_js = [b['id'] for b in bs]
@@ -442,12 +451,18 @@ def make_pre_calc_parameters(delta_t: float, data_directory: str) -> (PreCalcPar
         ac_demand_is_ns = np.array([row for row in r]).T
 
     # ステップnの室iにおける窓の透過日射熱取得, W, [8760*4]
-    with open(data_directory + '/mid_data_q_trs_sol.csv', 'r') as f:
-        r = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
-        q_trs_sol_is_ns = np.array([row for row in r]).T
+    if q_trans_sol_calculate:
+        q_trs_sol_is_ns = np.array([
+            np.sum(np.array([bs.q_trs_sol for bs in bss if bs.connected_room_id == i]), axis=0)
+            for i in range(n_spaces)
+        ])
+    else:
+        with open(data_directory + '/mid_data_q_trs_sol.csv', 'r') as f:
+            r = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
+            q_trs_sol_is_ns = np.array([row for row in r]).T
 
-        # ステップn+1に対応するために0番要素に最終要素を代入
-        q_trs_sol_is_ns = np.append(q_trs_sol_is_ns, q_trs_sol_is_ns[:, 0:1], axis=1)
+    # ステップn+1に対応するために0番要素に最終要素を代入
+    q_trs_sol_is_ns = np.append(q_trs_sol_is_ns, q_trs_sol_is_ns[:, 0:1], axis=1)
 
     # ステップnの境界jにおける裏面等価温度, ℃, [j, 8760*4]
     with open(data_directory + '/mid_data_theta_o_sol.csv', 'r') as f:
