@@ -187,9 +187,9 @@ def make_house(d, input_data_dir, output_data_dir):
 #        w.writerows(q_trs_sol_is_ns.T.tolist())
 
     # ステップnの境界jにおける裏面等価温度, ℃, [j, 8760*4]
-    with open(output_data_dir + '/mid_data_theta_o_sol.csv', 'w') as f:
-        w = csv.writer(f, lineterminator='\n')
-        w.writerows(np.array([bs.theta_o_sol for bs in bss2]).T.tolist())
+#    with open(output_data_dir + '/mid_data_theta_o_sol.csv', 'w') as f:
+#        w = csv.writer(f, lineterminator='\n')
+#        w.writerows(np.array([bs.theta_o_sol for bs in bss2]).T.tolist())
 
 
 def make_house_for_test(d, input_data_dir, output_data_dir):
