@@ -8,7 +8,7 @@ from typing import List, Callable
 
 from heat_load_calc.external.global_number import get_c_air, get_rho_air
 from heat_load_calc.core import infiltration, response_factor, indoor_radiative_heat_transfer, shape_factor, \
-    occupants_form_factor, boundary_simple
+    occupants_form_factor, boundary_simple, furniture
 from heat_load_calc.core import ot_target
 from heat_load_calc.core import next_condition
 from heat_load_calc.core import humidification
@@ -285,16 +285,35 @@ def make_pre_calc_parameters(
     v_ntrl_vent_is = np.array([s['ventilation']['natural'] for s in ss]).reshape(-1, 1)
 
     # 室iの家具等の熱容量, J/K, [i, 1]
-    c_sh_frt_is = np.array([float(s['furniture']['heat_capacity']) for s in ss]).reshape(-1, 1)
-
+    c_sh_frt_is = []
     # 室iの家具等と空気間の熱コンダクタンス, W/K, [i, 1]
-    g_sh_frt_is = np.array([float(s['furniture']['heat_cond']) for s in ss]).reshape(-1, 1)
-
+    g_sh_frt_is = []
     # 室iの家具等の湿気容量, kg/m3 kg/kgDA, [i, 1]
-    c_lh_frt_is = np.array([float(s['furniture']['moisture_capacity']) for s in ss]).reshape(-1, 1)
-
+    c_lh_frt_is = []
     # 室iの家具等と空気間の湿気コンダクタンス, kg/s (kg/kgDA), [i, 1]
-    g_lh_frt_is = np.array([float(s['furniture']['moisture_cond']) for s in ss]).reshape(-1, 1)
+    g_lh_frt_is = []
+
+    for s in ss:
+
+        if 'furniture' in s:
+            c_sh_frt_is.append(float(s['furniture']['heat_capacity']))
+            g_sh_frt_is.append(float(s['furniture']['heat_cond']))
+            c_lh_frt_is.append(float(s['furniture']['moisture_capacity']))
+            g_lh_frt_is.append(float(s['furniture']['moisture_cond']))
+        else:
+            c_sh_frt_i = furniture.get_c_cap_frt_is(v_room_cap_is=s['volume'])
+            g_sh_frt_i = furniture.get_g_sh_frt_is(c_sh_frt_is=c_sh_frt_i)
+            c_lh_frt_i = furniture.get_c_lh_frt_is(s['volume'])
+            g_lh_frt_i = furniture.get_g_lh_frt_is(c_lh_frt_is=c_lh_frt_i)
+            c_sh_frt_is.append(c_sh_frt_i)
+            g_sh_frt_is.append(g_sh_frt_i)
+            c_lh_frt_is.append(c_lh_frt_i)
+            g_lh_frt_is.append(g_lh_frt_i)
+
+    c_sh_frt_is = np.array(c_sh_frt_is).reshape(-1, 1)
+    g_sh_frt_is = np.array(g_sh_frt_is).reshape(-1, 1)
+    c_lh_frt_is = np.array(c_lh_frt_is).reshape(-1, 1)
+    g_lh_frt_is = np.array(g_lh_frt_is).reshape(-1, 1)
 
     # endregion
 

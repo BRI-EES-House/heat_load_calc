@@ -16,12 +16,6 @@
                 "next_spaces": [],
                 "natural": 0.0
             },
-            "furniture": {
-                "heat_capacity": 12600.0,
-                "heat_cond": 2.7720000000000002,
-                "moisture_capacity": 16.8,
-                "moisture_cond": 0.03024
-            },
             "is_radiative": false
         }
     ],

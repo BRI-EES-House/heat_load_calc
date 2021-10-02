@@ -2,14 +2,12 @@ import numpy as np
 from typing import Dict, List
 import json
 import csv
-import pandas as pd
 from enum import Enum
 
 import heat_load_calc.initializer.a22_radiative_heating_spec as a22
 
 from heat_load_calc.initializer import schedule_loader
 from heat_load_calc.initializer import residents_number
-from heat_load_calc.initializer import furniture
 from heat_load_calc.initializer.boundary_type import BoundaryType
 
 
@@ -145,42 +143,6 @@ def make_mid_data_house(d, output_data_dir):
         json.dump(wd, f, indent=4)
 
 
-def _read_weather_data(input_data_dir: str):
-    """
-    気象データを読み込む。
-    Args:
-        input_data_dir: 現在計算しているデータのパス
-    Returns:
-        外気温度, degree C
-        外気絶対湿度, kg/kg(DA)
-        法線面直達日射量, W/m2
-        水平面天空日射量, W/m2
-        夜間放射量, W/m2
-        太陽高度, rad
-        太陽方位角, rad
-    """
-
-    # 気象データ
-    pp = pd.read_csv(input_data_dir + '/weather.csv', index_col=0)
-
-    # 外気温度, degree C
-    theta_o_ns = pp['temperature'].values
-    # 外気絶対湿度, kg/kg(DA)
-    x_o_ns = pp['absolute humidity'].values
-    # 法線面直達日射量, W/m2
-    i_dn_ns = pp['normal direct solar radiation'].values
-    # 水平面天空日射量, W/m2
-    i_sky_ns = pp['horizontal sky solar radiation'].values
-    # 夜間放射量, W/m2
-    r_n_ns = pp['outward radiation'].values
-    # 太陽高度, rad
-    h_sun_ns = pp['sun altitude'].values
-    # 太陽方位角, rad
-    a_sun_ns = pp['sun azimuth'].values
-
-    return a_sun_ns, h_sun_ns, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns
-
-
 def _make_building_dict(d: Dict):
     """
     出力する辞書のうち、　"building" に対応する辞書を作成する。
@@ -278,18 +240,6 @@ def _make_spaces_dict(rooms: List[dict]):
     # TODO: もしかすると換気回数わたしの方が自然か？
     v_ntrl_vent_is = v_room_cap_is * n_ntrl_vent_is / 3600
 
-    # 室iの家具等の熱容量, J/K
-    c_sh_frt_is = furniture.get_c_cap_frt_is(v_room_cap_is=v_room_cap_is)
-
-    # 室iの家具等と空気間の熱コンダクタンス, W/K, [i]
-    g_sh_frt_is = furniture.get_g_sh_frt_is(c_sh_frt_is=c_sh_frt_is)
-
-    # 室iの家具等の湿気容量, kg/m3 kg/kgDA, [i]
-    c_lh_frt_is = furniture.get_c_lh_frt_is(v_room_cap_is)
-
-    # 室iの家具等と空気間の湿気コンダクタンス, kg/s kg/kgDA
-    g_lh_frt_is = furniture.get_g_lh_frt_is(c_lh_frt_is=c_lh_frt_is)
-
     # 暖房設備仕様の読み込み
     # 放射暖房有無（Trueなら放射暖房あり）
     is_radiative_heating_is = np.array([a22.read_is_radiative_heating(room) for room in rooms])
@@ -313,12 +263,6 @@ def _make_spaces_dict(rooms: List[dict]):
                     } for next_vent in rooms[i]['next_vent']
                 ],
                 'natural': v_ntrl_vent_is[i]
-            },
-            'furniture': {
-                'heat_capacity': c_sh_frt_is[i],
-                'heat_cond': g_sh_frt_is[i],
-                'moisture_capacity': c_lh_frt_is[i],
-                'moisture_cond': g_lh_frt_is[i]
             },
             'is_radiative': bool(is_radiative_heating_is[i])
         })
@@ -562,36 +506,7 @@ def _make_boundaries(boundaries: List[Dict]):
 
         bdrs.append(bdr)
 
-
     return bdrs
-
-
-def get_k_ei_js(boundaries):
-    k_ei_js = []
-    for b in boundaries:
-
-        boundary_type = BoundaryType(b['boundary_type'])
-
-        if boundary_type in [
-            BoundaryType.ExternalOpaquePart,
-            BoundaryType.ExternalTransparentPart,
-            BoundaryType.ExternalGeneralPart
-        ]:
-            h = b['temp_dif_coef']
-            # 温度差係数が1.0でない場合はk_ei_jsに値を代入する。
-            # id は自分自身の境界IDとし、自分自身の表面の影響は1.0から温度差係数を減じた値になる。
-            if h < 1.0:
-                k_ei_js.append({'id': b['id'], 'coef': round(1.0 - h, 1)})
-            else:
-                # 温度差係数が1.0の場合はNoneとする。
-                k_ei_js.append(None)
-        elif boundary_type == BoundaryType.Internal:
-            # 室内壁の場合にk_ei_jsを登録する。
-            k_ei_js.append({'id': int(b['rear_surface_boundary_id']), 'coef': 1.0})
-        else:
-            # 外皮に面していない場合、室内壁ではない場合（地盤の場合が該当）は、Noneとする。
-            k_ei_js.append(None)
-    return k_ei_js
 
 
 def _get_boundary_spec(b) -> Dict:
