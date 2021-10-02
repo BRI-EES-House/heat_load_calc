@@ -142,7 +142,7 @@ def make_house(d, input_data_dir, output_data_dir):
     # json 出力のうち、"spaces" に対応する辞書
     spaces = _make_spaces_dict(rooms=d['rooms'])
 
-    boundaries = _make_boundaries(bss2=bss2, rooms=d['rooms'], boundaries=d['boundaries'])
+    boundaries = _make_boundaries(boundaries=d['boundaries'])
 
     equipments = _make_equipment_dict(rooms=d['rooms'])
 
@@ -232,7 +232,7 @@ def make_house_for_test(d, input_data_dir, output_data_dir):
 
     spaces = _make_spaces_dict(rooms=d['rooms'])
 
-    boundaries = _make_boundaries(bss2=bss2, rooms=d['rooms'], boundaries=d['boundaries'])
+    boundaries = _make_boundaries(boundaries=d['boundaries'])
 
     equipments = _make_equipment_dict(rooms=d['rooms'])
 
@@ -591,9 +591,9 @@ def check_not_specifying_multi_room_type(room_type_is: List[RoomType], specified
         raise ValueError("室タイプ " + specified_type.value + " が複数回指定されました。")
 
 
-def _make_boundaries(bss2: List[BoundarySimple], rooms: List[Dict], boundaries: List[Dict]):
+def _make_boundaries(boundaries: List[Dict]):
 
-    specs = [_get_boundary_spec(boundary, bs) for boundary, bs in zip(boundaries, bss2)]
+    specs = [_get_boundary_spec(b=b) for b in boundaries]
 
     bdrs = []
 
@@ -658,35 +658,37 @@ def get_k_ei_js(boundaries):
     return k_ei_js
 
 
-def _get_boundary_spec(boundaries, bs) -> Dict:
+def _get_boundary_spec(b) -> Dict:
 
-    if bs.boundary_type in [BoundaryType.ExternalGeneralPart]:
+    boundary_type = BoundaryType(b['boundary_type'])
+
+    if boundary_type in [BoundaryType.ExternalGeneralPart]:
         return {
             'method': 'layers',
-            'boundary_type': bs.boundary_type.value,
-            'layers': boundaries['layers'],
-            'outside_heat_transfer_resistance': boundaries['outside_heat_transfer_resistance']
+            'boundary_type': boundary_type.value,
+            'layers': b['layers'],
+            'outside_heat_transfer_resistance': b['outside_heat_transfer_resistance']
         }
-    elif bs.boundary_type in [BoundaryType.Internal]:
+    elif boundary_type in [BoundaryType.Internal]:
         return {
             'method': 'layers',
-            'boundary_type': bs.boundary_type.value,
-            'layers': boundaries['layers'],
-            'outside_heat_transfer_resistance': boundaries['outside_heat_transfer_resistance'],
-            'rear_surface_boundary_id': boundaries['rear_surface_boundary_id']
+            'boundary_type': boundary_type.value,
+            'layers': b['layers'],
+            'outside_heat_transfer_resistance': b['outside_heat_transfer_resistance'],
+            'rear_surface_boundary_id': b['rear_surface_boundary_id']
         }
-    elif bs.boundary_type == BoundaryType.Ground:
+    elif boundary_type == BoundaryType.Ground:
         return {
             'method': 'layers_ground',
-            'boundary_type': bs.boundary_type.value,
-            'layers': boundaries['layers']
+            'boundary_type': boundary_type.value,
+            'layers': b['layers']
         }
-    elif bs.boundary_type in [BoundaryType.ExternalTransparentPart, BoundaryType.ExternalOpaquePart]:
+    elif boundary_type in [BoundaryType.ExternalTransparentPart, BoundaryType.ExternalOpaquePart]:
         return {
             'method': 'u_value',
-            'boundary_type': bs.boundary_type.value,
-            'u_value': boundaries['u_value'],
-            'inside_heat_transfer_resistance': boundaries['inside_heat_transfer_resistance']
+            'boundary_type': boundary_type.value,
+            'u_value': b['u_value'],
+            'inside_heat_transfer_resistance': b['inside_heat_transfer_resistance']
         }
     else:
         raise KeyError()
