@@ -244,8 +244,8 @@ def make_pre_calc_parameters(
 
     # region spaces の読み込み
 
-    # spaces の取り出し
-    rms = rd['spaces']
+    # rooms の取り出し
+    rms = rd['rooms']
 
     # Spaceの数
     n_r = len(rms)

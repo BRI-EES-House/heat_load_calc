@@ -68,7 +68,7 @@ class TestAllAtOnce(unittest.TestCase):
         t_r_old = self._dd['rm0_t_r']['1989-01-01 00:00:00']
         t_r_new = self._dd['rm0_t_r']['1989-01-01 00:15:00']
 
-        volume = self._mdh['spaces'][0]['volume']  # m3
+        volume = self._mdh['rooms'][0]['volume']  # m3
         c_air = 1005  # J/kg K
         rho_air = 1.2  # kg/m3
 
@@ -91,7 +91,7 @@ class TestAllAtOnce(unittest.TestCase):
         q_vent_reak = c_air * rho_air * v_reak * (t_o - t_r_new)
 
         # 計画換気による熱取得, [W]
-        v_mechanical = self._mdh['spaces'][0]['ventilation']['mechanical']  # m3/s
+        v_mechanical = self._mdh['rooms'][0]['ventilation']['mechanical']  # m3/s
         q_vent_mecha = c_air * rho_air * v_mechanical * (t_o - t_r_new)
 
         # 自然換気による熱取得, [W]
@@ -145,7 +145,7 @@ class TestAllAtOnce(unittest.TestCase):
         t_r_old = self._dd['rm2_t_r'][date_old]
         t_r_new = self._dd['rm2_t_r'][date_now]
 
-        volume = self._mdh['spaces'][2]['volume']  # m3
+        volume = self._mdh['rooms'][2]['volume']  # m3
         c_air = 1005  # J/kg K
         rho_air = 1.2  # kg/m3
 
@@ -168,7 +168,7 @@ class TestAllAtOnce(unittest.TestCase):
         q_vent_reak = c_air * rho_air * v_reak * (t_o - t_r_new)
 
         # 計画換気による熱取得, [W]
-        v_mechanical = self._mdh['spaces'][2]['ventilation']['mechanical']  # m3/s
+        v_mechanical = self._mdh['rooms'][2]['ventilation']['mechanical']  # m3/s
         q_vent_mecha = c_air * rho_air * v_mechanical * (t_o - t_r_new)
 
         # 自然換気による熱取得, [W]
@@ -176,8 +176,8 @@ class TestAllAtOnce(unittest.TestCase):
         q_vent_natural = c_air * rho_air * v_natural * (t_o - t_r_new)
 
         # 隣室間換気による熱取得, [W]
-        v_next_vent0 = self._mdh['spaces'][2]['ventilation']['next_spaces'][0]['volume']  # m3/s
-        v_next_vent1 = self._mdh['spaces'][2]['ventilation']['next_spaces'][1]['volume']  # m3/s
+        v_next_vent0 = self._mdh['rooms'][2]['ventilation']['next_spaces'][0]['volume']  # m3/s
+        v_next_vent1 = self._mdh['rooms'][2]['ventilation']['next_spaces'][1]['volume']  # m3/s
         v_next_vent2 = 0.0                                                      # m3/s
         t_r_0_new = self._dd['rm0_t_r'][date_now]
         t_r_1_new = self._dd['rm1_t_r'][date_now]
@@ -237,7 +237,7 @@ class TestAllAtOnce(unittest.TestCase):
 
             # 家具と室の熱コンダクタンス
             # c_fun = self._mdh['spaces'][rm]['furniture']['heat_cond']  # W/K
-            volume = self._mdh['spaces'][rm]['volume']  # m3
+            volume = self._mdh['rooms'][rm]['volume']  # m3
             c_fun = furniture.get_g_sh_frt_is(furniture.get_c_cap_frt_is(v_room_cap_is=volume))
 #            cap_fun = self._mdh['spaces'][rm]['furniture']['heat_capacity']  # J/K
             cap_fun = furniture.get_c_cap_frt_is(v_room_cap_is=volume)
@@ -290,7 +290,7 @@ class TestAllAtOnce(unittest.TestCase):
         x_fun_now = self._dd['rm0_x_fun'][date_now]
         x_fun_old = self._dd['rm0_x_fun'][date_old]
         x_r_new = self._dd['rm0_x_r'][date_now]
-        volume = self._mdh['spaces'][0]['volume']  # m3
+        volume = self._mdh['rooms'][0]['volume']  # m3
 #        cx_fun = self._mdh['spaces'][0]['furniture']['moisture_cond']  # kg/(s kg/kg(DA))
 #        gf_fun = self._mdh['spaces'][0]['furniture']['moisture_capacity']   # kg
         gf_fun = furniture.get_c_lh_frt_is(v_room_cap_is=volume)
@@ -317,7 +317,7 @@ class TestAllAtOnce(unittest.TestCase):
         # 室空気の蓄湿, [kg/s]
         x_r_old = self._dd['rm0_x_r'][date_old]
         x_r_new = self._dd['rm0_x_r'][date_now]
-        volume = self._mdh['spaces'][0]['volume']  # m3
+        volume = self._mdh['rooms'][0]['volume']  # m3
         rho_air = 1.2  # kg/m3
         humid_storage = (x_r_new - x_r_old) * volume * rho_air / 900.0   # kg/s
 
@@ -333,7 +333,7 @@ class TestAllAtOnce(unittest.TestCase):
         humid_reak = rho_air * v_reak * (x_o - x_r_new)
 
         # 計画換気による湿気取得, [kg/s]
-        v_mechanical = self._mdh['spaces'][0]['ventilation']['mechanical']  # m3/s
+        v_mechanical = self._mdh['rooms'][0]['ventilation']['mechanical']  # m3/s
         humid_mecha = rho_air * v_mechanical * (x_o - x_r_new)
 
         # 自然換気による熱取得, [kg/s]
@@ -388,7 +388,7 @@ class TestAllAtOnce(unittest.TestCase):
         # 室空気の蓄湿, [kg/s]
         x_r_old = self._dd['rm2_x_r'][date_old]
         x_r_new = self._dd['rm2_x_r'][date_now]
-        volume = self._mdh['spaces'][2]['volume']  # m3
+        volume = self._mdh['rooms'][2]['volume']  # m3
         rho_air = 1.2  # kg/m3
         humid_storage = (x_r_new - x_r_old) * volume * rho_air / 900.0   # kg/s
 
@@ -404,7 +404,7 @@ class TestAllAtOnce(unittest.TestCase):
         humid_reak = rho_air * v_reak * (x_o - x_r_new)
 
         # 計画換気による湿気取得, [kg/s]
-        v_mechanical = self._mdh['spaces'][2]['ventilation']['mechanical']  # m3/s
+        v_mechanical = self._mdh['rooms'][2]['ventilation']['mechanical']  # m3/s
         humid_mecha = rho_air * v_mechanical * (x_o - x_r_new)
 
         # 自然換気による熱取得, [kg/s]
@@ -412,8 +412,8 @@ class TestAllAtOnce(unittest.TestCase):
         humid_natural = rho_air * v_natural * (x_o - x_r_new)
 
         # 隣室間換気による湿気取得, [kg/s]
-        v_next_vent0 = self._mdh['spaces'][2]['ventilation']['next_spaces'][0]['volume']  # m3/s
-        v_next_vent1 = self._mdh['spaces'][2]['ventilation']['next_spaces'][1]['volume']  # m3/s
+        v_next_vent0 = self._mdh['rooms'][2]['ventilation']['next_spaces'][0]['volume']  # m3/s
+        v_next_vent1 = self._mdh['rooms'][2]['ventilation']['next_spaces'][1]['volume']  # m3/s
         v_next_vent2 = 0.0                                                      # m3/s
         x_r_0_new = self._dd['rm0_x_r'][date_now]
         x_r_1_new = self._dd['rm1_x_r'][date_now]

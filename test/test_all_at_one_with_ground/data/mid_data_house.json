@@ -7,7 +7,7 @@
             "inside_pressure": "negative"
         }
     },
-    "spaces": [
+    "rooms": [
         {
             "id": 0,
             "name": "main_occupant_room",

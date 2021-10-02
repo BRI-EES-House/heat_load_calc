@@ -124,17 +124,17 @@ def make_house(d, input_data_dir, output_data_dir):
 
 def make_mid_data_house(d, output_data_dir):
 
-    building = _make_building_dict(d=d['building'])
+    building = _make_building(d=d['building'])
 
-    spaces = _make_spaces_dict(rooms=d['rooms'])
+    rooms = _make_rooms(rooms=d['rooms'])
 
     boundaries = _make_boundaries(boundaries=d['boundaries'])
 
-    equipments = _make_equipment_dict(rooms=d['rooms'])
+    equipments = _make_equipment(rooms=d['rooms'])
 
     wd = {
         'building': building,
-        'spaces': spaces,
+        'rooms': rooms,
         'boundaries': boundaries,
         'equipments': equipments
     }
@@ -143,7 +143,7 @@ def make_mid_data_house(d, output_data_dir):
         json.dump(wd, f, indent=4)
 
 
-def _make_building_dict(d: Dict):
+def _make_building(d: Dict):
     """
     出力する辞書のうち、　"building" に対応する辞書を作成する。
     Args:
@@ -171,13 +171,13 @@ def _make_building_dict(d: Dict):
     }
 
 
-def _make_spaces_dict(rooms: List[dict]):
+def _make_rooms(rooms: List[dict]):
     """
     出力する辞書のうち、　"spaces" に対応する辞書を作成する。
     Args:
-        rooms: 入力ファイルの "rooms" に対応する辞書（リスト形式）
+        rooms: "rooms" に対応する入力用辞書
     Returns:
-        "spaces" に対応する辞書（リスト形式）
+        "rooms" に対応する出力用辞書
     """
 
     # region 入力ファイル(space_initializer)の"rooms"部分の読み込み
@@ -187,6 +187,7 @@ def _make_spaces_dict(rooms: List[dict]):
 
     # 室のID, [i]
     room_id_is = [int(r['id']) for r in rooms]
+
     # ID が0始まりで1ずつ増え、一意であることをチェック
     for i, room_id in enumerate(room_id_is):
         if i != room_id:
@@ -254,6 +255,7 @@ def _make_spaces_dict(rooms: List[dict]):
         spaces.append({
             'id': room_id_is[i],
             'name': room_name_is[i],
+            'sub_name': '',
             'volume': v_room_cap_is[i],
             'beta': beta_is[i],
             'ventilation': {
@@ -272,7 +274,7 @@ def _make_spaces_dict(rooms: List[dict]):
     return spaces
 
 
-def _make_equipment_dict(rooms: List[dict]) -> dict:
+def _make_equipment(rooms: List[dict]) -> dict:
     """
     出力する辞書のうち、　"equipments" に対応する辞書を作成する。
     Args:

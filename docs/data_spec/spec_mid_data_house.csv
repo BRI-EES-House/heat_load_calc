@@ -5,7 +5,7 @@
 ,,〇,,,,,story,建物の階数,△,{'infiltration_method': 'balance_residential'},int,－,,1又は2。
 ,,〇,,,,,c_value,相当隙間面積,△,{'infiltration_method': 'balance_residential'},float,cm2/m2,,0以上。
 ,,〇,,,,,inside_pressure,室内圧力,△,{'infiltration_method': 'balance_residential'},str,－,"{'positive', 'negative', 'balanced'}",
-〇,,,,,,,spaces,空間,〇,,list,－,,
+〇,,,,,,,rooms,室情報,〇,,list,－,,
 ,〇,,,,,,,,〇,,dict,－,,
 ,,〇,,,,,id,室通し番号,〇,,int,－,必ず0から順番に振ること。,
 ,,〇,,,,,name,室名,〇,,str,－,,
