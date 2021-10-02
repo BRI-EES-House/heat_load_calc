@@ -69,6 +69,8 @@ class CoolingEquipmentType(Enum):
 
 def make_house(d, input_data_dir, output_data_dir):
 
+    make_mid_data_house(d, output_data_dir)
+
     rooms = d['rooms']
 
     # 室iの名称, [i]
@@ -96,26 +98,6 @@ def make_house(d, input_data_dir, output_data_dir):
             a_floor_is=a_floor_is
         )
 
-    # json 出力 のうち、"building" に対応する辞書
-    building = _make_building_dict(d=d['building'])
-
-    # json 出力のうち、"spaces" に対応する辞書
-    spaces = _make_spaces_dict(rooms=d['rooms'])
-
-    boundaries = _make_boundaries(boundaries=d['boundaries'])
-
-    equipments = _make_equipment_dict(rooms=d['rooms'])
-
-    wd = {
-        'building': building,
-        'spaces': spaces,
-        'boundaries': boundaries,
-        'equipments': equipments
-    }
-
-    with open(output_data_dir + '/mid_data_house.json', 'w') as f:
-        json.dump(wd, f, indent=4)
-
     # ステップnの室iにおける局所換気量, m3/s, [i, 8760*4]
     with open(output_data_dir + '/mid_data_local_vent.csv', 'w') as f:
         w = csv.writer(f, lineterminator='\n')
@@ -142,7 +124,7 @@ def make_house(d, input_data_dir, output_data_dir):
         w.writerows(ac_demand_is_ns.T.tolist())
 
 
-def make_house_for_test(d, input_data_dir, output_data_dir):
+def make_mid_data_house(d, output_data_dir):
 
     building = _make_building_dict(d=d['building'])
 
