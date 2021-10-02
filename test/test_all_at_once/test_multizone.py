@@ -5,8 +5,7 @@ import csv
 
 from heat_load_calc.initializer import initializer
 from heat_load_calc.weather import weather
-from heat_load_calc.core import core
-from heat_load_calc.initializer import furniture
+from heat_load_calc.core import core, furniture
 
 
 class TestAllAtOnce(unittest.TestCase):
