@@ -295,6 +295,20 @@ def make_pre_calc_parameters(delta_t: float, data_directory: str) -> (PreCalcPar
     # 境界j
     n_boundaries = len(bs)
 
+    # 境界j
+    if True:
+        bss = [
+            boundary_simple.get_boundary_simple(
+                theta_o_ns=theta_o_ns,
+                i_dn_ns=i_dn_ns,
+                i_sky_ns=i_sky_ns,
+                r_n_ns=r_n_ns,
+                a_sun_ns=a_sun_ns,
+                h_sun_ns=h_sun_ns,
+                b=b_dict
+            ) for b_dict in bs
+        ]
+
     # id, [j]
     bdry_id_js = [b['id'] for b in bs]
 
@@ -318,7 +332,7 @@ def make_pre_calc_parameters(delta_t: float, data_directory: str) -> (PreCalcPar
     h_c_js = np.array([b['h_c'] for b in bs]).reshape(-1, 1)
 
     # 境界jの日射吸収の有無, [j, 1]
-    is_solar_abs_js = np.array([b['is_solar_absorbed'] for b in bs]).reshape(-1, 1)
+    is_solar_abs_js = np.array([b['is_solar_absorbed_inside'] for b in bs]).reshape(-1, 1)
 
     # 境界 j が床か否か, [j]
     is_floor_js = np.array([b['is_floor'] for b in bs])

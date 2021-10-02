@@ -565,21 +565,59 @@ def _make_boundaries(boundaries: List[Dict]):
 
     for i, b in enumerate(boundaries):
 
+        bt = BoundaryType(b['boundary_type'])
+
         bdr = {
             'id': b['id'],
             'name': b['name'],
             'sub_name': '',
+            'connected_room_id': b['connected_room_id'],
             'boundary_type': b['boundary_type'],
             'is_ground': True if BoundaryType(b['boundary_type']) == BoundaryType.Ground else False,
-            'connected_room_id': b['connected_room_id'],
             'area': b['area'],
             'h_c': b['h_c'],
-            'is_solar_absorbed': b['is_solar_absorbed_inside'],
+            'is_solar_absorbed_inside': b['is_solar_absorbed_inside'],
             'is_floor': bool(b['is_floor']),
-            'spec': specs[i]
+            'spec': specs[i],
+            'solar_shading_part': b['solar_shading_part']
         }
 
-        if BoundaryType(b['boundary_type']) in [
+        if bt in [
+            BoundaryType.ExternalGeneralPart, BoundaryType.ExternalTransparentPart, BoundaryType.ExternalOpaquePart
+        ]:
+            bdr['is_sun_striked_outside'] = b['is_sun_striked_outside']
+
+            if b['is_sun_striked_outside'] == True:
+                bdr['direction'] = b['direction']
+
+        if bt in [
+            BoundaryType.ExternalGeneralPart, BoundaryType.ExternalTransparentPart, BoundaryType.ExternalOpaquePart
+        ]:
+            bdr['outside_emissivity'] = b['outside_emissivity']
+
+        if bt in [
+            BoundaryType.ExternalGeneralPart,
+            BoundaryType.ExternalTransparentPart,
+            BoundaryType.ExternalOpaquePart,
+            BoundaryType.Internal
+        ]:
+            bdr['outside_heat_transfer_resistance'] = b['outside_heat_transfer_resistance']
+
+        if bt in [
+            BoundaryType.ExternalTransparentPart,
+            BoundaryType.ExternalOpaquePart
+        ]:
+            bdr['u_value'] = b['u_value']
+
+        if bt in [BoundaryType.ExternalTransparentPart]:
+            bdr['eta_value'] = b['eta_value']
+            bdr['incident_angle_characteristics'] = b['incident_angle_characteristics']
+            bdr['glass_area_ratio'] = b['glass_area_ratio']
+
+        if bt in [BoundaryType.ExternalGeneralPart, BoundaryType.ExternalOpaquePart]:
+            bdr['outside_solar_absorption'] = b['outside_solar_absorption']
+
+        if bt in [
             BoundaryType.ExternalOpaquePart,
             BoundaryType.ExternalTransparentPart,
             BoundaryType.ExternalGeneralPart,
@@ -587,7 +625,7 @@ def _make_boundaries(boundaries: List[Dict]):
         ]:
             bdr['temp_dif_coef'] = b['temp_dif_coef']
 
-        if BoundaryType(b['boundary_type']) == BoundaryType.Internal:
+        if bt == BoundaryType.Internal:
             bdr['rear_surface_boundary_id'] = int(b['rear_surface_boundary_id'])
 
         bdrs.append(bdr)

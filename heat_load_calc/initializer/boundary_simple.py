@@ -31,13 +31,6 @@ class BoundarySimple:
     # 温度差係数
     h_td: float
 
-    # 隣室タイプ
-    #   'main_occupant_room': 0,
-    #   'other_occupant_room': 1,
-    #   'non_occupant_room': 2,
-    #   'underfloor': 3
-    next_room_type: int
-
     # 裏側表面の境界ID
     # internal_wall の場合のみ定義される。
     rear_surface_boundary_id: int
@@ -109,18 +102,6 @@ def get_boundary_simple(theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, a_sun_ns, h_sun_n
     else:
         h_td = 0.0
 
-    # 隣室タイプ
-    # 境界の種類が'internal'の場合に定義される。
-    # 隣室タイプにひもづけて隣室のIDを取得している。
-    # 本来であれば、IDで直接指定する方が望ましい。
-    # TODO: ID指定に変更する。
-    next_room_type = {
-        'main_occupant_room': 0,
-        'other_occupant_room': 1,
-        'non_occupant_room': 2,
-        'underfloor': 3
-    }[b['next_room_type']] if b['boundary_type'] == 'internal' else -1
-
     if b['boundary_type'] == 'internal':
         rear_surface_boundary_id = int(b['rear_surface_boundary_id'])
     else:
@@ -174,7 +155,6 @@ def get_boundary_simple(theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, a_sun_ns, h_sun_n
         boundary_type=boundary_type,
         area=area,
         h_td=h_td,
-        next_room_type=next_room_type,
         rear_surface_boundary_id=rear_surface_boundary_id,
         is_floor=is_floor,
         is_solar_absorbed_inside=is_solar_absorbed_inside,
