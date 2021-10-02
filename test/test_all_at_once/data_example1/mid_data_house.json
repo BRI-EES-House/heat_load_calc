@@ -11,6 +11,7 @@
         {
             "id": 0,
             "name": "main_occupant_room",
+            "sub_name": "",
             "volume": 70.92,
             "beta": 0.0,
             "ventilation": {
@@ -23,6 +24,7 @@
         {
             "id": 1,
             "name": "other_occupant_room",
+            "sub_name": "",
             "volume": 123.22,
             "beta": 0.0,
             "ventilation": {
@@ -40,6 +42,7 @@
         {
             "id": 2,
             "name": "non_occupant_room",
+            "sub_name": "",
             "volume": 94.88,
             "beta": 0.0,
             "ventilation": {
