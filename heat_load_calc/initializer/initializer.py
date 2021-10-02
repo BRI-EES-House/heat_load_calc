@@ -109,10 +109,10 @@ def make_house(d, input_data_dir, output_data_dir):
     bss2 = bss
     # bss2 = building_part_summarize.integrate(bss=bss)
 
-    q_trs_sol_is_ns = np.array([
-        np.sum(np.array([bs.q_trs_sol for bs in bss2 if bs.connected_room_id == i]), axis=0)
-        for i in range(n_spaces)
-    ])
+#    q_trs_sol_is_ns = np.array([
+#        np.sum(np.array([bs.q_trs_sol for bs in bss2 if bs.connected_room_id == i]), axis=0)
+#        for i in range(n_spaces)
+#    ])
 
     # 室iの床面積, m2, [i]
     a_floor_is = np.array([r['floor_area'] for r in rooms])
@@ -182,9 +182,9 @@ def make_house(d, input_data_dir, output_data_dir):
         w.writerows(ac_demand_is_ns.T.tolist())
 
     # ステップnの室iにおける窓の透過日射熱取得, W, [8760*4]
-    with open(output_data_dir + '/mid_data_q_trs_sol.csv', 'w') as f:
-        w = csv.writer(f, lineterminator='\n')
-        w.writerows(q_trs_sol_is_ns.T.tolist())
+#    with open(output_data_dir + '/mid_data_q_trs_sol.csv', 'w') as f:
+#        w = csv.writer(f, lineterminator='\n')
+#        w.writerows(q_trs_sol_is_ns.T.tolist())
 
     # ステップnの境界jにおける裏面等価温度, ℃, [j, 8760*4]
     with open(output_data_dir + '/mid_data_theta_o_sol.csv', 'w') as f:
