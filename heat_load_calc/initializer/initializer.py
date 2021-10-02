@@ -147,9 +147,9 @@ def _make_building_dict(d: Dict):
     """
     出力する辞書のうち、　"building" に対応する辞書を作成する。
     Args:
-        d: 入力ファイルの "building" に対応する辞書
+        d: "building" に対応する入力用辞書
     Returns:
-        "building" に対応する辞書
+        "building" に対応する出力用辞書
     """
 
     # 建物の階数
@@ -162,10 +162,12 @@ def _make_building_dict(d: Dict):
     inside_pressure = InsidePressure(d['inside_pressure'])
 
     return {
-        'infiltration_method': 'balance_residential',
-        'story': story.value,
-        'c_value': c_value,
-        'inside_pressure': inside_pressure.value
+        'infiltration': {
+            'method': 'balance_residential',
+            'story': story.value,
+            'c_value': c_value,
+            'inside_pressure': inside_pressure.value
+        }
     }
 
 

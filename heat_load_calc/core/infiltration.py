@@ -25,16 +25,16 @@ def make_get_infiltration_function(rd: Dict):
 
     # 隙間風の計算方法
 
-    if bdg['infiltration_method'] == 'balance_residential':
+    if bdg['infiltration']['method'] == 'balance_residential':
 
         # 建物の階数
-        story = bdg['story']
+        story = bdg['infiltration']['story']
 
         # C値
-        c_value = bdg['c_value']
+        c_value = bdg['infiltration']['c_value']
 
         # 換気の種類
-        inside_pressure = bdg['inside_pressure']
+        inside_pressure = bdg['infiltration']['inside_pressure']
 
         # spaceに関すること
         ss = rd['spaces']
