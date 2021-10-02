@@ -30,89 +30,88 @@
             "id": 0,
             "name": "north_exterior_window",
             "sub_name": "",
+            "boundary_type": "external_transparent_part",
             "is_ground": false,
             "connected_space_id": 0,
             "area": 1.0,
             "h_c": 3.041174396,
             "is_solar_absorbed": false,
-            "k_outside": 1.0,
-            "k_inside": null,
             "is_floor": false,
             "spec": {
                 "method": "u_value",
                 "boundary_type": "external_transparent_part",
                 "u_value": 4.65,
                 "inside_heat_transfer_resistance": 0.11
-            }
+            },
+            "temp_dif_coef": 1.0
         },
         {
             "id": 1,
             "name": "east_exterior_window",
             "sub_name": "",
+            "boundary_type": "external_transparent_part",
             "is_ground": false,
             "connected_space_id": 0,
             "area": 1.0,
             "h_c": 3.041174396,
             "is_solar_absorbed": false,
-            "k_outside": 1.0,
-            "k_inside": null,
             "is_floor": false,
             "spec": {
                 "method": "u_value",
                 "boundary_type": "external_transparent_part",
                 "u_value": 4.65,
                 "inside_heat_transfer_resistance": 0.11
-            }
+            },
+            "temp_dif_coef": 1.0
         },
         {
             "id": 2,
             "name": "south_exterior_window",
             "sub_name": "",
+            "boundary_type": "external_transparent_part",
             "is_ground": false,
             "connected_space_id": 0,
             "area": 1.0,
             "h_c": 3.041174396,
             "is_solar_absorbed": false,
-            "k_outside": 1.0,
-            "k_inside": null,
             "is_floor": false,
             "spec": {
                 "method": "u_value",
                 "boundary_type": "external_transparent_part",
                 "u_value": 4.65,
                 "inside_heat_transfer_resistance": 0.11
-            }
+            },
+            "temp_dif_coef": 1.0
         },
         {
             "id": 3,
             "name": "west_exterior_window",
             "sub_name": "",
+            "boundary_type": "external_transparent_part",
             "is_ground": false,
             "connected_space_id": 0,
             "area": 1.0,
             "h_c": 3.041174396,
             "is_solar_absorbed": false,
-            "k_outside": 1.0,
-            "k_inside": null,
             "is_floor": false,
             "spec": {
                 "method": "u_value",
                 "boundary_type": "external_transparent_part",
                 "u_value": 4.65,
                 "inside_heat_transfer_resistance": 0.11
-            }
+            },
+            "temp_dif_coef": 1.0
         },
         {
             "id": 4,
             "name": "exterior_floor",
             "sub_name": "",
+            "boundary_type": "external_general_part",
             "is_ground": false,
             "connected_space_id": 0,
             "area": 1.0,
             "h_c": 3.041174396,
             "is_solar_absorbed": true,
-            "k_outside": 1.0,
-            "k_inside": null,
             "is_floor": true,
             "spec": {
                 "method": "layers",
@@ -125,19 +124,19 @@
                     }
                 ],
                 "outside_heat_transfer_resistance": 0.04
-            }
+            },
+            "temp_dif_coef": 1.0
         },
         {
             "id": 5,
             "name": "exterior_ceiling",
             "sub_name": "",
+            "boundary_type": "external_general_part",
             "is_ground": false,
             "connected_space_id": 0,
             "area": 1.0,
             "h_c": 3.041174396,
             "is_solar_absorbed": false,
-            "k_outside": 1.0,
-            "k_inside": null,
             "is_floor": false,
             "spec": {
                 "method": "layers",
@@ -150,7 +149,8 @@
                     }
                 ],
                 "outside_heat_transfer_resistance": 0.04
-            }
+            },
+            "temp_dif_coef": 1.0
         }
     ],
     "equipments": {

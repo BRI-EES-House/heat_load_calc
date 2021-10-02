@@ -16,6 +16,7 @@ from heat_load_calc.initializer import occupants_form_factor
 from heat_load_calc.initializer import boundary_simple
 from heat_load_calc.initializer import furniture
 from heat_load_calc.initializer import shape_factor
+from heat_load_calc.initializer.boundary_type import BoundaryType
 
 
 class Story(Enum):
@@ -141,7 +142,7 @@ def make_house(d, input_data_dir, output_data_dir):
     # json 出力のうち、"spaces" に対応する辞書
     spaces = _make_spaces_dict(rooms=d['rooms'])
 
-    boundaries = _make_boundaries(bss2=bss2, rooms=d['rooms'], boundaries=d['boundaries'])
+    boundaries = _make_boundaries(boundaries=d['boundaries'])
 
     equipments = _make_equipment_dict(rooms=d['rooms'])
 
@@ -231,7 +232,7 @@ def make_house_for_test(d, input_data_dir, output_data_dir):
 
     spaces = _make_spaces_dict(rooms=d['rooms'])
 
-    boundaries = _make_boundaries(bss2=bss2, rooms=d['rooms'], boundaries=d['boundaries'])
+    boundaries = _make_boundaries(boundaries=d['boundaries'])
 
     equipments = _make_equipment_dict(rooms=d['rooms'])
 
@@ -590,98 +591,104 @@ def check_not_specifying_multi_room_type(room_type_is: List[RoomType], specified
         raise ValueError("室タイプ " + specified_type.value + " が複数回指定されました。")
 
 
-def _make_boundaries(bss2: List[BoundarySimple], rooms: List[Dict], boundaries: List[Dict]):
+def _make_boundaries(boundaries: List[Dict]):
 
-    # 室の数
-    n_spaces = len(rooms)
-
-    connected_room_id_js = np.array([b['connected_room_id'] for b in boundaries])
-
-    a_srf_js = np.array([b['area'] for b in boundaries])
-
-    is_floor_js = np.array([b['is_floor'] for b in boundaries])
-
-    n_boundaries = len(boundaries)
-
-    k_ei_js = []
-
-    for bs in bss2:
-
-        if bs.boundary_type in [
-            BoundaryType.ExternalOpaquePart,
-            BoundaryType.ExternalTransparentPart,
-            BoundaryType.ExternalGeneralPart
-        ]:
-            # 温度差係数が1.0でない場合はk_ei_jsに値を代入する。
-            # id は自分自身の境界IDとし、自分自身の表面の影響は1.0から温度差係数を減じた値になる。
-            if bs.h_td < 1.0:
-                k_ei_js.append({'id': bs.id, 'coef': round(1.0 - bs.h_td, 1)})
-            else:
-                # 温度差係数が1.0の場合はNoneとする。
-                k_ei_js.append(None)
-        elif bs.boundary_type == BoundaryType.Internal:
-            # 室内壁の場合にk_ei_jsを登録する。
-            k_ei_js.append({'id': int(bs.rear_surface_boundary_id), 'coef': 1.0})
-        else:
-            # 外皮に面していない場合、室内壁ではない場合（地盤の場合が該当）は、Noneとする。
-            k_ei_js.append(None)
-
-    specs = [_get_boundary_spec(boundary, bs) for boundary, bs in zip(boundaries, bss2)]
+    specs = [_get_boundary_spec(b=b) for b in boundaries]
 
     bdrs = []
 
-    for i, bs in enumerate(bss2):
+    for i, b in enumerate(boundaries):
 
-        bdrs.append({
-            'id': bs.id,
-            'name': bs.name,
-            'sub_name': bs.sub_name,
-            'is_ground': True if bs.boundary_type == BoundaryType.Ground else False,
-            'connected_space_id': bs.connected_room_id,
-            'area': bs.area,
-            'h_c': bs.h_c,
-            'is_solar_absorbed': bs.is_solar_absorbed_inside,
-            'k_outside': bs.h_td,
-            'k_inside': k_ei_js[i],
-            'is_floor': bool(is_floor_js[i]),
+        bdr = {
+            'id': b['id'],
+            'name': b['name'],
+            'sub_name': '',
+            'boundary_type': b['boundary_type'],
+            'is_ground': True if BoundaryType(b['boundary_type']) == BoundaryType.Ground else False,
+            'connected_space_id': b['connected_room_id'],
+            'area': b['area'],
+            'h_c': b['h_c'],
+            'is_solar_absorbed': b['is_solar_absorbed_inside'],
+            'is_floor': bool(b['is_floor']),
             'spec': specs[i]
-        })
+        }
+
+        if BoundaryType(b['boundary_type']) in [
+            BoundaryType.ExternalOpaquePart,
+            BoundaryType.ExternalTransparentPart,
+            BoundaryType.ExternalGeneralPart,
+            BoundaryType.Ground
+        ]:
+            bdr['temp_dif_coef'] = b['temp_dif_coef']
+
+        if BoundaryType(b['boundary_type']) == BoundaryType.Internal:
+            bdr['rear_surface_boundary_id'] = int(b['rear_surface_boundary_id'])
+
+        bdrs.append(bdr)
 
 
     return bdrs
 
 
+def get_k_ei_js(boundaries):
+    k_ei_js = []
+    for b in boundaries:
+
+        boundary_type = BoundaryType(b['boundary_type'])
+
+        if boundary_type in [
+            BoundaryType.ExternalOpaquePart,
+            BoundaryType.ExternalTransparentPart,
+            BoundaryType.ExternalGeneralPart
+        ]:
+            h = b['temp_dif_coef']
+            # 温度差係数が1.0でない場合はk_ei_jsに値を代入する。
+            # id は自分自身の境界IDとし、自分自身の表面の影響は1.0から温度差係数を減じた値になる。
+            if h < 1.0:
+                k_ei_js.append({'id': b['id'], 'coef': round(1.0 - h, 1)})
+            else:
+                # 温度差係数が1.0の場合はNoneとする。
+                k_ei_js.append(None)
+        elif boundary_type == BoundaryType.Internal:
+            # 室内壁の場合にk_ei_jsを登録する。
+            k_ei_js.append({'id': int(b['rear_surface_boundary_id']), 'coef': 1.0})
+        else:
+            # 外皮に面していない場合、室内壁ではない場合（地盤の場合が該当）は、Noneとする。
+            k_ei_js.append(None)
+    return k_ei_js
 
 
-def _get_boundary_spec(boundaries, bs) -> Dict:
+def _get_boundary_spec(b) -> Dict:
 
-    if bs.boundary_type in [BoundaryType.ExternalGeneralPart]:
+    boundary_type = BoundaryType(b['boundary_type'])
+
+    if boundary_type in [BoundaryType.ExternalGeneralPart]:
         return {
             'method': 'layers',
-            'boundary_type': bs.boundary_type.value,
-            'layers': boundaries['layers'],
-            'outside_heat_transfer_resistance': boundaries['outside_heat_transfer_resistance']
+            'boundary_type': boundary_type.value,
+            'layers': b['layers'],
+            'outside_heat_transfer_resistance': b['outside_heat_transfer_resistance']
         }
-    elif bs.boundary_type in [BoundaryType.Internal]:
+    elif boundary_type in [BoundaryType.Internal]:
         return {
             'method': 'layers',
-            'boundary_type': bs.boundary_type.value,
-            'layers': boundaries['layers'],
-            'outside_heat_transfer_resistance': boundaries['outside_heat_transfer_resistance'],
-            'rear_surface_boundary_id': boundaries['rear_surface_boundary_id']
+            'boundary_type': boundary_type.value,
+            'layers': b['layers'],
+            'outside_heat_transfer_resistance': b['outside_heat_transfer_resistance'],
+            'rear_surface_boundary_id': b['rear_surface_boundary_id']
         }
-    elif bs.boundary_type == BoundaryType.Ground:
+    elif boundary_type == BoundaryType.Ground:
         return {
             'method': 'layers_ground',
-            'boundary_type': bs.boundary_type.value,
-            'layers': boundaries['layers']
+            'boundary_type': boundary_type.value,
+            'layers': b['layers']
         }
-    elif bs.boundary_type in [BoundaryType.ExternalTransparentPart, BoundaryType.ExternalOpaquePart]:
+    elif boundary_type in [BoundaryType.ExternalTransparentPart, BoundaryType.ExternalOpaquePart]:
         return {
             'method': 'u_value',
-            'boundary_type': bs.boundary_type.value,
-            'u_value': boundaries['u_value'],
-            'inside_heat_transfer_resistance': boundaries['inside_heat_transfer_resistance']
+            'boundary_type': boundary_type.value,
+            'u_value': b['u_value'],
+            'inside_heat_transfer_resistance': b['inside_heat_transfer_resistance']
         }
     else:
         raise KeyError()

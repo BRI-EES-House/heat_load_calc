@@ -14,6 +14,8 @@ from heat_load_calc.core import next_condition
 from heat_load_calc.core import humidification
 from heat_load_calc.initializer import occupants_form_factor
 
+from heat_load_calc.initializer.boundary_type import BoundaryType
+
 
 @dataclass
 class PreCalcParameters:
@@ -309,18 +311,33 @@ def make_pre_calc_parameters(delta_t: float, data_directory: str) -> (PreCalcPar
     # 境界 j が床か否か, [j]
     is_floor_js = np.array([b['is_floor'] for b in bs])
 
-    # 境界の裏面温度に屋外側等価温度が与える影響, [j, 1]
-    k_eo_js = np.array([b['k_outside'] for b in bs]).reshape(-1, 1)
+    h_td_js = []
+
+    for b in bs:
+        # 温度差係数
+        # 境界の種類が'external_general_part', 'external_transparent_part', 'external_opaque_part'の場合に定義される。
+        if b['boundary_type'] in ['external_general_part', 'external_transparent_part', 'external_opaque_part', 'ground']:
+            h_td = float(b['temp_dif_coef'])
+        else:
+            h_td = 0.0
+        h_td_js.append(h_td)
+
+    k_eo_js = np.array(h_td_js).reshape(-1, 1)
+
+    k_ei_js = get_k_ei_js(boundaries=bs)
 
     k_ei_id_js = []
     k_ei_coef_js = []
-    for b in bs:
-        if b['k_inside'] is None:
+    for j, b in enumerate(bs):
+        if k_ei_js[j] is None:
+#        if b['k_inside'] is None:
             k_ei_id_j = None
             k_ei_coef_j = None
         else:
-            k_ei_id_j = b['k_inside']['id']
-            k_ei_coef_j = b['k_inside']['coef']
+            k_ei_id_j = k_ei_js[j]['id']
+            k_ei_coef_j = k_ei_js[j]['coef']
+#            k_ei_id_j = b['k_inside']['id']
+#            k_ei_coef_j = b['k_inside']['coef']
         k_ei_id_js.append(k_ei_id_j)
         k_ei_coef_js.append(k_ei_coef_j)
 
@@ -746,3 +763,30 @@ def _get_v_int_vent_is_is(next_vents: List[List[Tuple]]) -> np.ndarray:
 
     return v_int_vent_is_is
 
+
+def get_k_ei_js(boundaries):
+    k_ei_js = []
+    for b in boundaries:
+
+        boundary_type = BoundaryType(b['boundary_type'])
+
+        if boundary_type in [
+            BoundaryType.ExternalOpaquePart,
+            BoundaryType.ExternalTransparentPart,
+            BoundaryType.ExternalGeneralPart
+        ]:
+            h = b['temp_dif_coef']
+            # 温度差係数が1.0でない場合はk_ei_jsに値を代入する。
+            # id は自分自身の境界IDとし、自分自身の表面の影響は1.0から温度差係数を減じた値になる。
+            if h < 1.0:
+                k_ei_js.append({'id': b['id'], 'coef': round(1.0 - h, 1)})
+            else:
+                # 温度差係数が1.0の場合はNoneとする。
+                k_ei_js.append(None)
+        elif boundary_type == BoundaryType.Internal:
+            # 室内壁の場合にk_ei_jsを登録する。
+            k_ei_js.append({'id': int(b['rear_surface_boundary_id']), 'coef': 1.0})
+        else:
+            # 外皮に面していない場合、室内壁ではない場合（地盤の場合が該当）は、Noneとする。
+            k_ei_js.append(None)
+    return k_ei_js
