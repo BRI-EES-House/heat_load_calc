@@ -311,9 +311,6 @@ def make_pre_calc_parameters(delta_t: float, data_directory: str) -> (PreCalcPar
     # 境界 j が床か否か, [j]
     is_floor_js = np.array([b['is_floor'] for b in bs])
 
-    # 境界の裏面温度に屋外側等価温度が与える影響, [j, 1]
-    k_eo_js = np.array([b['k_outside'] for b in bs]).reshape(-1, 1)
-
     h_td_js = []
 
     for b in bs:

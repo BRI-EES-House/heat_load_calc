@@ -593,28 +593,6 @@ def check_not_specifying_multi_room_type(room_type_is: List[RoomType], specified
 
 def _make_boundaries(bss2: List[BoundarySimple], rooms: List[Dict], boundaries: List[Dict]):
 
-    # 室の数
-    n_spaces = len(rooms)
-
-    connected_room_id_js = np.array([b['connected_room_id'] for b in boundaries])
-
-    a_srf_js = np.array([b['area'] for b in boundaries])
-
-    is_floor_js = np.array([b['is_floor'] for b in boundaries])
-
-    n_boundaries = len(boundaries)
-
-    h_td_js = []
-
-    for b in boundaries:
-        # 温度差係数
-        # 境界の種類が'external_general_part', 'external_transparent_part', 'external_opaque_part'の場合に定義される。
-        if b['boundary_type'] in ['external_general_part', 'external_transparent_part', 'external_opaque_part', 'ground']:
-            h_td = float(b['temp_dif_coef'])
-        else:
-            h_td = 0.0
-        h_td_js.append(h_td)
-
     specs = [_get_boundary_spec(boundary, bs) for boundary, bs in zip(boundaries, bss2)]
 
     bdrs = []
@@ -631,8 +609,7 @@ def _make_boundaries(bss2: List[BoundarySimple], rooms: List[Dict], boundaries: 
             'area': b['area'],
             'h_c': b['h_c'],
             'is_solar_absorbed': b['is_solar_absorbed_inside'],
-            'k_outside': h_td_js[i],
-            'is_floor': bool(is_floor_js[i]),
+            'is_floor': bool(b['is_floor']),
             'spec': specs[i]
         }
 

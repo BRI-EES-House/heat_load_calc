@@ -36,7 +36,6 @@
             "area": 1.0,
             "h_c": 3.041174391,
             "is_solar_absorbed": true,
-            "k_outside": 1.0,
             "is_floor": false,
             "spec": {
                 "method": "layers_ground",
@@ -61,7 +60,6 @@
             "area": 1.0,
             "h_c": 3.041174391,
             "is_solar_absorbed": true,
-            "k_outside": 1.0,
             "is_floor": true,
             "spec": {
                 "method": "layers_ground",
