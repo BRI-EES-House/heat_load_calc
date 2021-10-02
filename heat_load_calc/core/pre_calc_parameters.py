@@ -216,13 +216,16 @@ class PreCalcParametersGround:
     theta_o_ave: float
 
 
-def make_pre_calc_parameters(delta_t: float, data_directory: str, q_trans_sol_calculate=True) -> (PreCalcParameters, PreCalcParametersGround):
+def make_pre_calc_parameters(
+        delta_t: float, data_directory: str, q_trans_sol_calculate=True, theta_o_sol_calculate=True
+) -> (PreCalcParameters, PreCalcParametersGround):
     """
 
     Args:
         delta_t:
         data_directory:
         q_trans_sol_calculate: optional テスト用　これを False に指定すると、CSVファイルから直接読み込むことができる。
+        theta_o_sol_calculate: optional テスト用　これを False に指定すると、CSVファイルから直接読み込むことができる。
 
     Returns:
 
@@ -465,11 +468,15 @@ def make_pre_calc_parameters(delta_t: float, data_directory: str, q_trans_sol_ca
     q_trs_sol_is_ns = np.append(q_trs_sol_is_ns, q_trs_sol_is_ns[:, 0:1], axis=1)
 
     # ステップnの境界jにおける裏面等価温度, ℃, [j, 8760*4]
-    with open(data_directory + '/mid_data_theta_o_sol.csv', 'r') as f:
-        r = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
-        theta_o_sol_js_ns = np.array([row for row in r]).T
-        # ステップn+1に対応するために0番要素に最終要素を代入
-        theta_o_sol_js_ns = np.append(theta_o_sol_js_ns, theta_o_sol_js_ns[:, 0:1], axis=1)
+    if theta_o_sol_calculate:
+        theta_o_sol_js_ns = np.array([bs.theta_o_sol for bs in bss])
+    else:
+        with open(data_directory + '/mid_data_theta_o_sol.csv', 'r') as f:
+            r = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
+            theta_o_sol_js_ns = np.array([row for row in r]).T
+
+    # ステップn+1に対応するために0番要素に最終要素を代入
+    theta_o_sol_js_ns = np.append(theta_o_sol_js_ns, theta_o_sol_js_ns[:, 0:1], axis=1)
 
     # endregion
 

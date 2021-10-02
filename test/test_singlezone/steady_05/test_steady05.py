@@ -38,7 +38,7 @@ class TestSteadyState(unittest.TestCase):
         initializer.make_house_for_test(d=d, input_data_dir=s_folder, output_data_dir=s_folder)
 
         # pre_calc_parametersの構築
-        ss, ppg = pre_calc_parameters.make_pre_calc_parameters(delta_t=900.0, data_directory=s_folder)
+        ss, ppg = pre_calc_parameters.make_pre_calc_parameters(delta_t=900.0, data_directory=s_folder, theta_o_sol_calculate=False)
 
         q_srf_js_n = np.array([[15.384094583670, 15.384094583670, -31.115905416330, 15.384094583670,
             14.704033054882, -29.740411389563]]).reshape(-1, 1)
