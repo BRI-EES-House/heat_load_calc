@@ -194,40 +194,6 @@ def make_house(d, input_data_dir, output_data_dir):
 
 def make_house_for_test(d, input_data_dir, output_data_dir):
 
-    # 以下の気象データの読み込み
-    # 外気温度, degree C
-    # 外気絶対湿度, kg/kg(DA)
-    # 法線面直達日射量, W/m2
-    # 水平面天空日射量, W/m2
-    # 夜間放射量, W/m2
-    # 太陽高度, rad
-    # 太陽方位角, rad
-    a_sun_ns, h_sun_ns, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns = _read_weather_data(input_data_dir=input_data_dir)
-
-    rooms = d['rooms']
-
-    # 室の数
-    n_spaces = len(rooms)
-
-    # 境界j
-    bss = [
-        boundary_simple.get_boundary_simple(
-            theta_o_ns=theta_o_ns,
-            i_dn_ns=i_dn_ns,
-            i_sky_ns=i_sky_ns,
-            r_n_ns=r_n_ns,
-            a_sun_ns=a_sun_ns,
-            h_sun_ns=h_sun_ns,
-            b=b_dict
-        ) for b_dict in d['boundaries']
-    ]
-
-    # 壁体の集約を行わない。
-    # layer のC値・R値を core に引き継ぐため
-    # C値・R値は集約ができないため
-    bss2 = bss
-#    bss2 = building_part_summarize.integrate(bss=bss)
-
     building = _make_building_dict(d=d['building'])
 
     spaces = _make_spaces_dict(rooms=d['rooms'])
