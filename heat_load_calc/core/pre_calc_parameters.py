@@ -276,7 +276,9 @@ def make_pre_calc_parameters(
             ([next_vent['upstream_room_id']], next_vent['volume'] / 3600) for next_vent in s['ventilation']['next_spaces']
         ] for s in rms
     ]
-    v_int_vent_is_is = _get_v_int_vent_is_is(next_vents)
+    v_int_vent_is_is = _get_v_int_vent_is_is(
+        next_spaces=[rm['ventilation']['next_spaces'] for rm in rms]
+    )
 
     # 室iの自然風利用時の換気量, m3/s, [i, 1]
     # 入力は m3/h なので、3600 で除して m3/s への変換を行っている。
@@ -802,7 +804,7 @@ def _get_response_factors(bs, h_c_js, h_r_js):
     return phi_a0_js, phi_a1_js_ms, phi_t0_js, phi_t1_js_ms, r_js_ms
 
 
-def _get_v_int_vent_is_is(next_vents: List[List[Tuple]]) -> np.ndarray:
+def _get_v_int_vent_is_is(next_spaces: List[List[dict]]) -> np.ndarray:
     """
     隣室iから室iへの機械換気量マトリクスを生成する。
     Args:
@@ -825,6 +827,12 @@ def _get_v_int_vent_is_is(next_vents: List[List[Tuple]]) -> np.ndarray:
                  [4.0, 3.0, 0.0,  1.0],
                  [0.0, 0.0, 0.0,  0.0]]
     """
+
+    next_vents = [
+        [
+            ([next_vent['upstream_room_id']], next_vent['volume'] / 3600) for next_vent in next_space
+        ] for next_space in next_spaces
+    ]
 
     n_rooms = len(next_vents)
 
