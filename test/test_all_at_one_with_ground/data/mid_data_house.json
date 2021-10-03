@@ -15,7 +15,7 @@
             "volume": 1.0,
             "beta": 0.0,
             "ventilation": {
-                "mechanical": 0.0001388888888888889,
+                "mechanical": 0.5,
                 "next_spaces": [],
                 "natural": 0.0
             },
