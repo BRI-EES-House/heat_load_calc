@@ -228,9 +228,9 @@ def _make_rooms(rms: List[dict]) -> List[dict]:
     # 放射暖房対流比率, [i]
     beta_is = np.zeros(shape=(n_rms), dtype=float)
 
-    # 室iの自然風利用時の換気量, m3/s, [i]
+    # 室iの自然風利用時の換気量, m3/h, [i]
     # TODO: もしかすると換気回数わたしの方が自然か？
-    v_ntrl_vent_is = v_rm_is * n_ntrl_vent_is / 3600
+    v_ntrl_vent_is = v_rm_is * n_ntrl_vent_is
 
     # 暖房設備仕様の読み込み
     # 放射暖房有無（Trueなら放射暖房あり）
@@ -248,11 +248,11 @@ def _make_rooms(rms: List[dict]) -> List[dict]:
             'volume': v_rm_is[i],
             'beta': beta_is[i],
             'ventilation': {
-                'mechanical': v_vent_ex_is[i] / 3600,
+                'mechanical': v_vent_ex_is[i],
                 'next_spaces': [
                     {
                         'upstream_room_id': next_vent['upstream_room_id'],
-                        'volume': next_vent['volume'] / 3600
+                        'volume': next_vent['volume']
                     } for next_vent in rms[i]['next_vent']
                 ],
                 'natural': v_ntrl_vent_is[i]

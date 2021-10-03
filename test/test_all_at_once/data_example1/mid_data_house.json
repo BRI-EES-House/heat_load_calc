@@ -15,9 +15,9 @@
             "volume": 70.92,
             "beta": 0.0,
             "ventilation": {
-                "mechanical": 0.016666666666666666,
+                "mechanical": 60.0,
                 "next_spaces": [],
-                "natural": 0.0985
+                "natural": 354.6
             },
             "is_radiative": false,
             "furniture": {
@@ -31,14 +31,14 @@
             "volume": 123.22,
             "beta": 0.0,
             "ventilation": {
-                "mechanical": 0.027777777777777776,
+                "mechanical": 100.0,
                 "next_spaces": [
                     {
                         "upstream_room_id": 2,
-                        "volume": 0.005555555555555556
+                        "volume": 20.0
                     }
                 ],
-                "natural": 0.1711388888888889
+                "natural": 616.1
             },
             "is_radiative": false,
             "furniture": {
@@ -56,14 +56,14 @@
                 "next_spaces": [
                     {
                         "upstream_room_id": 0,
-                        "volume": 0.016666666666666666
+                        "volume": 60.0
                     },
                     {
                         "upstream_room_id": 1,
-                        "volume": 0.027777777777777776
+                        "volume": 100.0
                     }
                 ],
-                "natural": 0.13177777777777777
+                "natural": 474.4
             },
             "is_radiative": false,
             "furniture": {

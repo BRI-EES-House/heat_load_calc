@@ -260,7 +260,8 @@ def make_pre_calc_parameters(
     v_rm_is = np.array([float(rm['volume']) for rm in rms]).reshape(-1, 1)
 
     # 室iの機械換気量（局所換気を除く）, m3/s, [i, 1]
-    v_vent_ex_is = np.array([rm['ventilation']['mechanical'] for rm in rms]).reshape(-1, 1)
+    # 入力は m3/h なので、3600で除して m3/s への変換を行う。
+    v_vent_ex_is = (np.array([rm['ventilation']['mechanical'] for rm in rms]) / 3600).reshape(-1, 1)
 
     # 室iの隣室iからの機械換気量, m3/s, [i, i]
 
@@ -269,15 +270,17 @@ def make_pre_calc_parameters(
     # 外側のリスト：室、（下流側の室を基準とする。）
     # 内側のリスト：換気経路（数は任意であり、換気経路が無い（0: 空のリスト）場合もある。）
     # 変数はタプル （上流側の室ID: int, 換気量（m3/s): float)
+    # 入力は m3/h なので、3600 で除して m3/s への変換を行っている。
     next_vents = [
         [
-            ([next_vent['upstream_room_id']], next_vent['volume']) for next_vent in s['ventilation']['next_spaces']
+            ([next_vent['upstream_room_id']], next_vent['volume'] / 3600) for next_vent in s['ventilation']['next_spaces']
         ] for s in rms
     ]
     v_int_vent_is_is = _get_v_int_vent_is_is(next_vents)
 
     # 室iの自然風利用時の換気量, m3/s, [i, 1]
-    v_ntrl_vent_is = np.array([s['ventilation']['natural'] for s in rms]).reshape(-1, 1)
+    # 入力は m3/h なので、3600 で除して m3/s への変換を行っている。
+    v_ntrl_vent_is = np.array([s['ventilation']['natural'] / 3600 for s in rms]).reshape(-1, 1)
 
     # 室iの家具等の熱容量, J/K, [i, 1]
     c_sh_frt_is = []
