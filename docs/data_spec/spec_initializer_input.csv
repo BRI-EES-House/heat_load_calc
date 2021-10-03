@@ -7,7 +7,7 @@
 ,,○,,,,,inside_pressure,室内圧力,〇,,str,－,"{'positive', 'negative', 'balanced'}",
 ,○,,,,,,rooms,室情報,○,,list,－,,
 ,,○,,,,,,,○,,dict,－,,
-,,,○,,,,id,ID,○,,int,－,,先頭を0から1つずつインクリメントしなければならない。重複があってはならない。
+,,,○,,,,id,室通し番号,○,,int,－,,先頭を0から1つずつインクリメントしなければならない。重複があってはならない。
 ,,,○,,,,name,名称,○,,str,－,,
 ,,,○,,,,room_type,室タイプ,○,,str,－,"{'main_occupant_room', 'other_occupant_room', 'non_occupant_room', 'underfloor'}",「主たる居室」「その他の居室」「非居室」又は「床下空間」。主たる居室は必ず1つ指定する必要がある。
 ,,,○,,,,floor_area,床面積,○,,,,,

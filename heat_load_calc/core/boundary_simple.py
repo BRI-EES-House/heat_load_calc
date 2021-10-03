@@ -68,7 +68,7 @@ def get_boundary_simple(theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, a_sun_ns, h_sun_n
 
     # 名前
     name = b['name']
-    sub_name = ''
+    sub_name = b['sub_name']
 
     # 接する室のID
     connected_room_id = int(b['connected_room_id'])

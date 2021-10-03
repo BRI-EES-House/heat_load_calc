@@ -1,14 +1,15 @@
 ﻿1,2,3,4,5,6,7,key,項目名,必須,条件,型,単位,入力,備考
 〇,,,,,,,building,建物,〇,,dict,－,,
-,〇,,,,,,infiltration_method,隙間風の計算方法,〇,,str,－,{'balance_residential'},
-,〇,,,,,,story,建物の階数,△,{'infiltration_method': 'balance_residential'},int,－,,1又は2。
-,〇,,,,,,c_value,相当隙間面積,△,{'infiltration_method': 'balance_residential'},float,cm2/m2,,0以上。
-,〇,,,,,,inside_pressure,室内圧力,△,{'infiltration_method': 'balance_residential'},str,－,"{'positive', 'negative', 'balanced'}",
-〇,,,,,,,spaces,空間,〇,,list,－,,
+,〇,,,,,,infiltration,隙間風,〇,,dict,－,,
+,,〇,,,,,infiltration_method,隙間風の計算方法,〇,,str,－,{'balance_residential'},
+,,〇,,,,,story,建物の階数,△,{'infiltration_method': 'balance_residential'},int,－,,1又は2。
+,,〇,,,,,c_value,相当隙間面積,△,{'infiltration_method': 'balance_residential'},float,cm2/m2,,0以上。
+,,〇,,,,,inside_pressure,室内圧力,△,{'infiltration_method': 'balance_residential'},str,－,"{'positive', 'negative', 'balanced'}",
+〇,,,,,,,rooms,室情報,〇,,list,－,,
 ,〇,,,,,,,,〇,,dict,－,,
 ,,〇,,,,,id,室通し番号,〇,,int,－,必ず0から順番に振ること。,
 ,,〇,,,,,name,室名,〇,,str,－,,
-,,〇,,,,,volume,室気積,〇,,float,m3,0以上。,
+,,〇,,,,,volume,気積,〇,,float,m3,0以上。,
 ,,〇,,,,,beta,放射暖房の対流放熱比率,〇,,float,－,0以上。,
 ,,〇,,,,,ventilation,換気,〇,,dict,－,,
 ,,,〇,,,,mechanical,外気からの機械換気流入量,〇,,float,m3/sec,0以上。,
@@ -18,10 +19,11 @@
 ,,,,,○,,volume,換気量,○,,float,m3/sec,,
 ,,,〇,,,,natural,自然風利用時の換気量,〇,,float,m3/sec,0以上。,
 ,,〇,,,,,furniture,家具,〇,,dict,－,,
-,,,〇,,,,heat_capacity,家具等の熱容量,〇,,float,J/K,0以上。,12.6kJ/(m3･K)
-,,,〇,,,,heat_cond,家具等と空気間の熱コンダクタンス,〇,,float,W/K,0以上。,0.00022[1/s]
-,,,〇,,,,moisture_capacity,家具等の湿気容量,〇,,float,kg/(kg/kgDA),0以上。,16.8 kg/(m3･(kg/kgDA))
-,,,〇,,,,moisture_cond,家具等と空気間の湿気コンダクタンス,〇,,float,kg/(s･kg/kgDA)),0以上。,0.0018 [1/s]
+,,,〇,,,,input_method,入力方法,〇,,str,－,"{'default', 'specify'}",
+,,,〇,,,,heat_capacity,家具等の熱容量,△,{'input_method': 'specify'},float,J/K,0以上。,12.6kJ/(m3･K)
+,,,〇,,,,heat_cond,家具等と空気間の熱コンダクタンス,△,{'input_method': 'specify'},float,W/K,0以上。,0.00022[1/s]
+,,,〇,,,,moisture_capacity,家具等の湿気容量,△,{'input_method': 'specify'},float,kg/(kg/kgDA),0以上。,16.8 kg/(m3･(kg/kgDA))
+,,,〇,,,,moisture_cond,家具等と空気間の湿気コンダクタンス,△,{'input_method': 'specify'},float,kg/(s･kg/kgDA)),0以上。,0.0018 [1/s]
 〇,,,,,,,boundaries,境界,〇,,list,－,,
 ,〇,,,,,,,,〇,,dict,－,,
 ,,〇,,,,,id,境界通し番号,〇,,int,－,必ず0から順番に振ること。,

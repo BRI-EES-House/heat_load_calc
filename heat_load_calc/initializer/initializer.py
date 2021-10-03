@@ -124,17 +124,17 @@ def make_house(d, input_data_dir, output_data_dir):
 
 def make_mid_data_house(d, output_data_dir):
 
-    building = _make_building_dict(d=d['building'])
+    building = _make_building(d=d['building'])
 
-    spaces = _make_spaces_dict(rooms=d['rooms'])
+    rooms = _make_rooms(rms=d['rooms'])
 
     boundaries = _make_boundaries(boundaries=d['boundaries'])
 
-    equipments = _make_equipment_dict(rooms=d['rooms'])
+    equipments = _make_equipment(rooms=d['rooms'])
 
     wd = {
         'building': building,
-        'spaces': spaces,
+        'rooms': rooms,
         'boundaries': boundaries,
         'equipments': equipments
     }
@@ -143,13 +143,13 @@ def make_mid_data_house(d, output_data_dir):
         json.dump(wd, f, indent=4)
 
 
-def _make_building_dict(d: Dict):
+def _make_building(d: Dict):
     """
     出力する辞書のうち、　"building" に対応する辞書を作成する。
     Args:
-        d: 入力ファイルの "building" に対応する辞書
+        d: "building" に対応する入力用辞書
     Returns:
-        "building" に対応する辞書
+        "building" に対応する出力用辞書
     """
 
     # 建物の階数
@@ -162,42 +162,45 @@ def _make_building_dict(d: Dict):
     inside_pressure = InsidePressure(d['inside_pressure'])
 
     return {
-        'infiltration_method': 'balance_residential',
-        'story': story.value,
-        'c_value': c_value,
-        'inside_pressure': inside_pressure.value
+        'infiltration': {
+            'method': 'balance_residential',
+            'story': story.value,
+            'c_value': c_value,
+            'inside_pressure': inside_pressure.value
+        }
     }
 
 
-def _make_spaces_dict(rooms: List[dict]):
+def _make_rooms(rms: List[dict]) -> List[dict]:
     """
     出力する辞書のうち、　"spaces" に対応する辞書を作成する。
     Args:
-        rooms: 入力ファイルの "rooms" に対応する辞書（リスト形式）
+        rms: "rooms" に対応する入力用辞書
     Returns:
-        "spaces" に対応する辞書（リスト形式）
+        "rooms" に対応する出力用辞書
     """
 
     # region 入力ファイル(space_initializer)の"rooms"部分の読み込み
 
     # 室の数
-    n_spaces = len(rooms)
+    n_rms = len(rms)
 
     # 室のID, [i]
-    room_id_is = [int(r['id']) for r in rooms]
+    id_is = [int(r['id']) for r in rms]
+
     # ID が0始まりで1ずつ増え、一意であることをチェック
-    for i, room_id in enumerate(room_id_is):
+    for i, room_id in enumerate(id_is):
         if i != room_id:
             raise ValueError('指定されたroomのIDは0からインクリメントする必要があります。')
 
     # 室iの名称, [i]
-    room_name_is = [r['name'] for r in rooms]
+    name_is = [r['name'] for r in rms]
 
     # 室iのタイプ, [i]
     # 現在、室iのタイプについては使用していない。
     # boundary が接する空間の識別は ID で行っているため。
     # とはいえ、室i がどの種別の部屋なのかの情報は非常に重要であるため、当面の間、この入力項目は残しておく。
-    room_type_is = [RoomType(r['room_type']) for r in rooms]
+    room_type_is = [RoomType(r['room_type']) for r in rms]
     # 主たる居室が必ず指定されていることを確認する。
     check_specifying_room_type(room_type_is=room_type_is, specified_type=RoomType.MAIN_OCCUPANT_ROOM)
     # 主たる居室が複数回指定されていないかどうかを確認する。
@@ -210,49 +213,39 @@ def _make_spaces_dict(rooms: List[dict]):
     check_not_specifying_multi_room_type(room_type_is=room_type_is, specified_type=RoomType.UNDERFLOOR)
 
     # 室iの気積, m3, [i]
-    v_room_cap_is = np.array([r['volume'] for r in rooms])
+    v_rm_is = np.array([r['volume'] for r in rms])
 
     # 室iの外気からの機械換気量, m3/h, [i]
-    v_vent_ex_is = np.array([r['vent'] for r in rooms])
-
-    # 隣室からの機械換気
-    # 2重のリスト構造を持つ。
-    # 外側のリスト：室、（流入側の室を基準とする。）
-    # 内側のリスト：換気経路（数は任意であり、換気経路が無い（0: 空のリスト）場合もある。）
-    # 変数はタプル （流出側の室ID: int, 換気量（m3/h): float)
-    next_vents = [
-        [
-            ([next_vent['upstream_room_id']], next_vent['volume']) for next_vent in r['next_vent']
-        ] for r in rooms
-    ]
+    v_vent_ex_is = np.array([r['vent'] for r in rms])
 
     # 室iの自然風利用時の換気回数, 1/h, [i]
-    n_ntrl_vent_is = np.array([r['natural_vent_time'] for r in rooms])
+    n_ntrl_vent_is = np.array([r['natural_vent_time'] for r in rms])
 
     # endregion
 
     # region 出力ファイルに必要なパラメータの作成（必要なもののみ）
 
     # 放射暖房対流比率, [i]
-    beta_is = np.zeros(shape=(n_spaces), dtype=float)
+    beta_is = np.zeros(shape=(n_rms), dtype=float)
 
     # 室iの自然風利用時の換気量, m3/s, [i]
     # TODO: もしかすると換気回数わたしの方が自然か？
-    v_ntrl_vent_is = v_room_cap_is * n_ntrl_vent_is / 3600
+    v_ntrl_vent_is = v_rm_is * n_ntrl_vent_is / 3600
 
     # 暖房設備仕様の読み込み
     # 放射暖房有無（Trueなら放射暖房あり）
-    is_radiative_heating_is = np.array([a22.read_is_radiative_heating(room) for room in rooms])
+    is_radiative_heating_is = np.array([a22.read_is_radiative_heating(room) for room in rms])
 
     # endregion
 
     spaces = []
 
-    for i in range(n_spaces):
+    for i in range(n_rms):
         spaces.append({
-            'id': room_id_is[i],
-            'name': room_name_is[i],
-            'volume': v_room_cap_is[i],
+            'id': id_is[i],
+            'name': name_is[i],
+            'sub_name': '',
+            'volume': v_rm_is[i],
             'beta': beta_is[i],
             'ventilation': {
                 'mechanical': v_vent_ex_is[i] / 3600,
@@ -260,17 +253,20 @@ def _make_spaces_dict(rooms: List[dict]):
                     {
                         'upstream_room_id': next_vent['upstream_room_id'],
                         'volume': next_vent['volume'] / 3600
-                    } for next_vent in rooms[i]['next_vent']
+                    } for next_vent in rms[i]['next_vent']
                 ],
                 'natural': v_ntrl_vent_is[i]
             },
-            'is_radiative': bool(is_radiative_heating_is[i])
+            'is_radiative': bool(is_radiative_heating_is[i]),
+            'furniture': {
+                'input_method': 'default'
+            }
         })
 
     return spaces
 
 
-def _make_equipment_dict(rooms: List[dict]) -> dict:
+def _make_equipment(rooms: List[dict]) -> dict:
     """
     出力する辞書のうち、　"equipments" に対応する辞書を作成する。
     Args:
