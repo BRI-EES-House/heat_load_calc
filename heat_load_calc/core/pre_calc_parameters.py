@@ -264,20 +264,8 @@ def make_pre_calc_parameters(
     v_vent_ex_is = (np.array([rm['ventilation']['mechanical'] for rm in rms]) / 3600).reshape(-1, 1)
 
     # 室iの隣室iからの機械換気量, m3/s, [i, i]
-
-    # 隣室からの機械換気
-    # 2重のリスト構造を持つ。
-    # 外側のリスト：室、（下流側の室を基準とする。）
-    # 内側のリスト：換気経路（数は任意であり、換気経路が無い（0: 空のリスト）場合もある。）
-    # 変数はタプル （上流側の室ID: int, 換気量（m3/s): float)
-    # 入力は m3/h なので、3600 で除して m3/s への変換を行っている。
-    next_vents = [
-        [
-            ([next_vent['upstream_room_id']], next_vent['volume'] / 3600) for next_vent in s['ventilation']['next_spaces']
-        ] for s in rms
-    ]
     v_int_vent_is_is = _get_v_int_vent_is_is(
-        next_spaces=[rm['ventilation']['next_spaces'] for rm in rms]
+        next_vent_is_ks=[rm['ventilation']['next_spaces'] for rm in rms]
     )
 
     # 室iの自然風利用時の換気量, m3/s, [i, 1]
@@ -804,15 +792,15 @@ def _get_response_factors(bs, h_c_js, h_r_js):
     return phi_a0_js, phi_a1_js_ms, phi_t0_js, phi_t1_js_ms, r_js_ms
 
 
-def _get_v_int_vent_is_is(next_spaces: List[List[dict]]) -> np.ndarray:
+def _get_v_int_vent_is_is(next_vent_is_ks: List[List[dict]]) -> np.ndarray:
     """
     隣室iから室iへの機械換気量マトリクスを生成する。
     Args:
-        next_vents: 隣室からの機械換気
-                        2重のリスト構造を持つ。
-                        外側のリスト：室、（下流側の室を基準とする。）
-                        内側のリスト：換気経路（数は任意であり、換気経路が無い（0: 空のリスト）場合もある。）
-                        変数はタプル （上流側の室ID: int, 換気量（m3/s): float)
+        next_vent_is_ks: 隣室からの機械換気
+            2重のリスト構造を持つ。
+            外側のリスト：室、（下流側の室を基準とする。）
+            内側のリスト：換気経路（数は任意であり、換気経路が無い（0: 空のリスト）場合もある。）
+                辞書型 （上流側の室ID: int, 換気量（m3/s): float)
     Returns:
         隣室iから室iへの機械換気量マトリクス, m3/s, [i, i]
             例えば、
@@ -828,23 +816,22 @@ def _get_v_int_vent_is_is(next_spaces: List[List[dict]]) -> np.ndarray:
                  [0.0, 0.0, 0.0,  0.0]]
     """
 
-    next_vents = [
-        [
-            ([next_vent['upstream_room_id']], next_vent['volume'] / 3600) for next_vent in next_space
-        ] for next_space in next_spaces
-    ]
-
-    n_rooms = len(next_vents)
+    n_rooms = len(next_vent_is_ks)
 
     # 隣室iから室iへの換気量マトリックス, m3/s [i, i]
     v_int_vent_is_is = np.zeros((n_rooms, n_rooms), dtype=float)
 
     # 室iのループ（風下室ループ）
-    for i, next_vent_is in enumerate(next_vents):
+    for i, next_vent_i_ks in enumerate(next_vent_is_ks):
 
         # 室iにおける経路jのループ（風上室ループ）
         # 取得するのは、(ID: int, 換気量(m3/h): float) のタプル
-        for (idx, volume) in next_vent_is:
+        for next_vent_i_k in next_vent_i_ks:
+
+            idx = next_vent_i_k['upstream_room_id']
+
+            # 入力は m3/h なので、3600 で除して m3/s への変換を行っている。
+            volume = next_vent_i_k['volume'] / 3600
 
             # 風上側
             if i != idx:
