@@ -309,9 +309,6 @@ def make_pre_calc_parameters(
 
     bs = rd['boundaries']
 
-    # 境界jの面積, m2, [j, 1]
-    a_srf_js = np.array([b['area'] for b in bs]).reshape(-1, 1)
-
     # 境界jの室内側表面対流熱伝達率, W/m2K, [j, 1]
     h_c_js = np.array([b['h_c'] for b in bs]).reshape(-1, 1)
 
@@ -504,6 +501,9 @@ def make_pre_calc_parameters(
     # 室iに設置された放射暖房の対流成分比率, [i, 1]
     # TODO: 入力ファイルから与えられるのではなく、設備の入力情報から計算するべき。
     beta_is = np.array([s['beta'] for s in rms]).reshape(-1, 1)
+
+    # 境界jの面積, m2, [j, 1]
+    a_srf_js = np.array([b['area'] for b in bs]).reshape(-1, 1)
 
     # 境界jの室に設置された放射暖房の放熱量のうち放射成分に対する境界jの室内側吸収比率
     f_mrt_hum_js = occupants_form_factor.get_f_mrt_hum_js(
