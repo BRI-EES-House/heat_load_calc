@@ -309,11 +309,6 @@ def make_pre_calc_parameters(
 
     bs = rd['boundaries']
 
-    # 温度差係数
-    h_td_js = [bs.h_td for bs in bss]
-
-    k_eo_js = np.array(h_td_js).reshape(-1, 1)
-
     k_ei_js = get_k_ei_js(boundaries=bs)
 
     k_ei_id_js = []
@@ -562,6 +557,9 @@ def make_pre_calc_parameters(
     # TODO: 日射の吸収割合を入力値にした方がよいのではないか？
     q_sol_js_ns = np.dot(p_js_is, q_trs_sol_is_ns / a_srf_abs_is)\
         * is_solar_abs_js * (1.0 - r_sol_fnt)
+
+    # 温度差係数
+    k_eo_js = np.array([bs.h_td for bs in bss]).reshape(-1, 1)
 
     # ステップnの境界jにおける外気側等価温度の外乱成分, ℃, [j, n]
     theta_dstrb_js_ns = theta_o_sol_js_ns * k_eo_js
