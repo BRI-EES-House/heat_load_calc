@@ -408,7 +408,7 @@ def make_pre_calc_parameters(
     # ただし、1次元配列を縦ベクトルに変換する処理等は読み込み時に np.reshape を適用して変換している。
 
     # 境界の数
-    n_boundaries = len(bs)
+    n_boundaries = len(bss)
 
     # 地盤かどうか, [j, 1]
     is_ground_js = np.array([b['is_ground'] for b in bs]).reshape(-1, 1)
