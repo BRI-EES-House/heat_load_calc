@@ -301,14 +301,13 @@ def make_pre_calc_parameters(
         ) for b_dict in rd['boundaries']
     ]
 
+    # 名前, [j, 1]
+    name_js = np.array([bs.name for bs in bss]).reshape(-1, 1)
+
+    # 名前2, [j, 1]
+    sub_name_js = np.array([bs.sub_name for bs in bss]).reshape(-1, 1)
+
     bs = rd['boundaries']
-
-    # 名前, [j]
-    name_bdry_js = np.array([str(b['name']) for b in bs])
-
-    # 名前2, [j]
-    # TODO: なぜこちらは np.ndarray にしていない？
-    sub_name_bdry_js = [b['sub_name'] for b in bs]
 
     # 地盤かどうか, [j, 1]
     is_ground_js = np.array([b['is_ground'] for b in bs]).reshape(-1, 1)
@@ -665,8 +664,8 @@ def make_pre_calc_parameters(
         g_sh_frt_is=g_sh_frt_is,
         g_lh_frt_is=g_lh_frt_is,
         v_int_vent_is_is=v_int_vent_is_is,
-        name_bdry_js=name_bdry_js,
-        sub_name_bdry_js=sub_name_bdry_js,
+        name_bdry_js=name_js,
+        sub_name_bdry_js=sub_name_js,
         a_srf_js=a_srf_js,
         v_mec_vent_is_ns=v_mec_vent_is_ns,
         q_gen_is_ns=q_gen_is_ns,
