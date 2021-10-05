@@ -309,25 +309,6 @@ def make_pre_calc_parameters(
 
     bs = rd['boundaries']
 
-    k_ei_id_js = []
-    k_ei_coef_js = []
-    for j, b in enumerate(bs):
-        k_ei_j = get_k_ei_j(b)
-        if k_ei_j is None:
-            k_ei_id_j = None
-            k_ei_coef_j = None
-        else:
-            k_ei_id_j = k_ei_j['id']
-            k_ei_coef_j = k_ei_j['coef']
-        k_ei_id_js.append(k_ei_id_j)
-        k_ei_coef_js.append(k_ei_coef_j)
-
-    # 境界jの裏面に相当する境界のID
-#    k_ei_id_js = [b['k_inside']['id'] for b in bs]
-
-    # 境界jの裏面に相当する境界が与える影響
-#    k_ei_coef_js = [b['k_inside']['coef'] for b in bs]
-
     # endregion
 
     # region equipments の読み込み
@@ -452,6 +433,19 @@ def make_pre_calc_parameters(
     #  [ ...  ...  ... ]
     #  [p_j_0 ... p_j_i]]
     p_js_is = p_is_js.T
+
+    k_ei_id_js = []
+    k_ei_coef_js = []
+    for j, b in enumerate(bs):
+        k_ei_j = get_k_ei_j(b)
+        if k_ei_j is None:
+            k_ei_id_j = None
+            k_ei_coef_j = None
+        else:
+            k_ei_id_j = k_ei_j['id']
+            k_ei_coef_j = k_ei_j['coef']
+        k_ei_id_js.append(k_ei_id_j)
+        k_ei_coef_js.append(k_ei_coef_j)
 
     # 境界jの裏面温度に他の境界の等価温度が与える影響, [j, j]
     k_ei_js_js = []
