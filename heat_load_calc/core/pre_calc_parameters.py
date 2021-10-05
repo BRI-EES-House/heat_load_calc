@@ -309,9 +309,6 @@ def make_pre_calc_parameters(
 
     bs = rd['boundaries']
 
-    # 隣接する空間のID, [j]
-    connected_space_id_js = np.array([b['connected_room_id'] for b in bs])
-
     # 境界jの面積, m2, [j, 1]
     a_srf_js = np.array([b['area'] for b in bs]).reshape(-1, 1)
 
@@ -466,6 +463,9 @@ def make_pre_calc_parameters(
 
     # 地盤の数
     n_grounds = np.count_nonzero(is_ground_js)
+
+    # 隣接する空間のID, [j]
+    connected_space_id_js = np.array([b['connected_room_id'] for b in bs])
 
     # 室iと境界jの関係を表す係数（境界jから室iへの変換）
     # [[p_0_0 ... ... p_0_j]
