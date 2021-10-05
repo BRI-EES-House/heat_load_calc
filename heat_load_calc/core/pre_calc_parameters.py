@@ -309,9 +309,6 @@ def make_pre_calc_parameters(
 
     bs = rd['boundaries']
 
-    # 境界 j が床か否か, [j]
-    is_floor_js = np.array([b['is_floor'] for b in bs])
-
     h_td_js = []
 
     for b in bs:
@@ -498,6 +495,9 @@ def make_pre_calc_parameters(
 
     # 境界jの面積, m2, [j, 1]
     a_srf_js = np.array([b['area'] for b in bs]).reshape(-1, 1)
+
+    # 境界 j が床か否か, [j]
+    is_floor_js = np.array([b['is_floor'] for b in bs])
 
     # 境界jの室に設置された放射暖房の放熱量のうち放射成分に対する境界jの室内側吸収比率
     f_mrt_hum_js = occupants_form_factor.get_f_mrt_hum_js(
