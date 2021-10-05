@@ -307,8 +307,6 @@ def make_pre_calc_parameters(
     # 名前2, [j, 1]
     sub_name_js = np.array([bs.sub_name for bs in bss]).reshape(-1, 1)
 
-    bs = rd['boundaries']
-
     # endregion
 
     # region equipments の読み込み
@@ -407,23 +405,16 @@ def make_pre_calc_parameters(
     # region 読み込んだ変数をベクトル表記に変換する
     # ただし、1次元配列を縦ベクトルに変換する処理等は読み込み時に np.reshape を適用して変換している。
 
-    # 境界の数
-    n_boundaries = len(bss)
-
     # 地盤かどうか, [j, 1]
     is_ground_js = np.array([bs.boundary_type == BoundaryType.Ground for bs in bss]).reshape(-1, 1)
-
-    # 隣接する空間のID, [j]
-    # 注意：　この変数は後の numpy の操作のみに使用されるため、[j, 1]の縦行列ではなく、[j] の1次元配列とした。
-    connected_room_id_js = np.array([bs.connected_room_id for bs in bss])
 
     # 室iと境界jの関係を表す係数（境界jから室iへの変換）
     # [[p_0_0 ... ... p_0_j]
     #  [ ...  ... ...  ... ]
     #  [p_i_0 ... ... p_i_j]]
-    p_is_js = np.zeros((n_rm, n_boundaries), dtype=int)
-    for i in range(n_rm):
-        p_is_js[i, connected_room_id_js == i] = 1
+    p_is_js = np.zeros((n_rm, len(bss)), dtype=int)
+    for bs in bss:
+        p_is_js[bs.connected_room_id, bs.id] = 1
 
     # 室iと境界jの関係を表す係数（室iから境界jへの変換）
     # [[p_0_0 ... p_0_i]
@@ -431,6 +422,8 @@ def make_pre_calc_parameters(
     #  [ ...  ...  ... ]
     #  [p_j_0 ... p_j_i]]
     p_js_is = p_is_js.T
+
+    bs = rd['boundaries']
 
     k_ei_id_js = []
     k_ei_coef_js = []
@@ -444,6 +437,9 @@ def make_pre_calc_parameters(
             k_ei_coef_j = k_ei_j['coef']
         k_ei_id_js.append(k_ei_id_j)
         k_ei_coef_js.append(k_ei_coef_j)
+
+    # 境界の数
+    n_boundaries = len(bss)
 
     # 境界jの裏面温度に他の境界の等価温度が与える影響, [j, j]
     k_ei_js_js = []
@@ -473,6 +469,10 @@ def make_pre_calc_parameters(
 
     # 境界 j が床か否か, [j]
     is_floor_js = np.array([b['is_floor'] for b in bs])
+
+    # 隣接する空間のID, [j]
+    # 注意：　この変数は後の numpy の操作のみに使用されるため、[j, 1]の縦行列ではなく、[j] の1次元配列とした。
+    connected_room_id_js = np.array([bs.connected_room_id for bs in bss])
 
     # 境界jの室に設置された放射暖房の放熱量のうち放射成分に対する境界jの室内側吸収比率
     f_mrt_hum_js = occupants_form_factor.get_f_mrt_hum_js(
