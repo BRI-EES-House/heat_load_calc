@@ -411,10 +411,7 @@ def make_pre_calc_parameters(
     n_boundaries = len(bss)
 
     # 地盤かどうか, [j, 1]
-    is_ground_js = np.array([b['is_ground'] for b in bs]).reshape(-1, 1)
-
-    # 地盤の数
-    n_grounds = np.count_nonzero(is_ground_js)
+    is_ground_js = np.array([bs.boundary_type == BoundaryType.Ground for bs in bss]).reshape(-1, 1)
 
     # 隣接する空間のID, [j]
     connected_space_id_js = np.array([b['connected_room_id'] for b in bs])
@@ -687,6 +684,9 @@ def make_pre_calc_parameters(
         calc_next_temp_and_load=calc_next_temp_and_load,
         dehumidification_funcs=dehumidification_funcs
     )
+
+    # 地盤の数
+    n_grounds = sum(bs.boundary_type == BoundaryType.Ground for bs in bss)
 
     pre_calc_parameters_ground = PreCalcParametersGround(
         n_grounds=n_grounds,
