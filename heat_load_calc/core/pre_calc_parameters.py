@@ -423,26 +423,8 @@ def make_pre_calc_parameters(
     #  [p_j_0 ... p_j_i]]
     p_js_is = p_is_js.T
 
-    # 境界の数
-    n_boundaries = len(bss)
-
     # 境界jの裏面温度に他の境界の等価温度が与える影響, [j, j]
-    k_ei_js_js = []
-
-    for bs in bss:
-
-        k_ei_js = [0.0] * n_boundaries
-
-        k_ei_j = get_k_ei_j(bs=bs)
-
-        if k_ei_j is None:
-            pass
-        else:
-            k_ei_js[k_ei_j['id']] = k_ei_j['coef']
-
-        k_ei_js_js.append(k_ei_js)
-
-    k_ei_js_js = np.array(k_ei_js_js)
+    k_ei_js_js = np.array([get_k_ei_js_j(bs=bs, n_boundaries=len(bss)) for bs in bss])
 
     # endregion
 
@@ -467,6 +449,9 @@ def make_pre_calc_parameters(
     # 隣接する空間のID, [j]
     # 注意：　この変数は後の numpy の操作のみに使用されるため、[j, 1]の縦行列ではなく、[j] の1次元配列とした。
     connected_room_id_js = np.array([bs.connected_room_id for bs in bss])
+
+    # 境界の数
+    n_boundaries = len(bss)
 
     # 境界jの室に設置された放射暖房の放熱量のうち放射成分に対する境界jの室内側吸収比率
     f_mrt_hum_js = occupants_form_factor.get_f_mrt_hum_js(
@@ -786,11 +771,11 @@ def _get_v_int_vent_is_is(next_vent_is_ks: List[List[dict]]) -> np.ndarray:
     return v_int_vent_is_is
 
 
-def get_k_ei_j(bs):
+def get_k_ei_js_j(bs, n_boundaries):
 
-    boundary_type = bs.boundary_type
+    k_ei_js_j = [0.0] * n_boundaries
 
-    if boundary_type in [
+    if bs.boundary_type in [
         BoundaryType.ExternalOpaquePart,
         BoundaryType.ExternalTransparentPart,
         BoundaryType.ExternalGeneralPart
@@ -801,22 +786,22 @@ def get_k_ei_j(bs):
         # 温度差係数が1.0でない場合はk_ei_jsに値を代入する。
         # id は自分自身の境界IDとし、自分自身の表面の影響は1.0から温度差係数を減じた値になる。
         if h < 1.0:
-            k_ei_j = {'id': bs.id, 'coef': round(1.0 - h, 1)}
+            k_ei_js_j[bs.id] = round(1.0 - h, 1)
         else:
-            # 温度差係数が1.0の場合はNoneとする。
-            k_ei_j = None
+            # 温度差係数が1.0の場合は裏面の影響は何もないため k_ei_js に操作は行わない。
+            pass
 
-    elif boundary_type == BoundaryType.Internal:
+    elif bs.boundary_type == BoundaryType.Internal:
 
         # 室内壁の場合にk_ei_jsを登録する。
-        k_ei_j = {'id': int(bs.rear_surface_boundary_id), 'coef': 1.0}
+        k_ei_js_j[int(bs.rear_surface_boundary_id)] = 1.0
 
     else:
 
-        # 外皮に面していない場合、室内壁ではない場合（地盤の場合が該当）は、Noneとする。
-        k_ei_j = None
+        # 外皮に面していない場合、室内壁ではない場合（地盤の場合が該当）は、k_ei_js に操作は行わない。
+        pass
 
-    return k_ei_j
+    return k_ei_js_j
 
 
 def _read_weather_data(input_data_dir: str):
