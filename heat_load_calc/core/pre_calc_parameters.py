@@ -309,16 +309,8 @@ def make_pre_calc_parameters(
 
     bs = rd['boundaries']
 
-    h_td_js = []
-
-    for b in bs:
-        # 温度差係数
-        # 境界の種類が'external_general_part', 'external_transparent_part', 'external_opaque_part'の場合に定義される。
-        if b['boundary_type'] in ['external_general_part', 'external_transparent_part', 'external_opaque_part', 'ground']:
-            h_td = float(b['temp_dif_coef'])
-        else:
-            h_td = 0.0
-        h_td_js.append(h_td)
+    # 温度差係数
+    h_td_js = [bs.h_td for bs in bss]
 
     k_eo_js = np.array(h_td_js).reshape(-1, 1)
 
