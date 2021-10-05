@@ -414,7 +414,8 @@ def make_pre_calc_parameters(
     is_ground_js = np.array([bs.boundary_type == BoundaryType.Ground for bs in bss]).reshape(-1, 1)
 
     # 隣接する空間のID, [j]
-    connected_space_id_js = np.array([b['connected_room_id'] for b in bs])
+    # 注意：　この変数は後の numpy の操作のみに使用されるため、[j, 1]の縦行列ではなく、[j] の1次元配列とした。
+    connected_room_id_js = np.array([bs.connected_room_id for bs in bss])
 
     # 室iと境界jの関係を表す係数（境界jから室iへの変換）
     # [[p_0_0 ... ... p_0_j]
@@ -422,7 +423,7 @@ def make_pre_calc_parameters(
     #  [p_i_0 ... ... p_i_j]]
     p_is_js = np.zeros((n_rm, n_boundaries), dtype=int)
     for i in range(n_rm):
-        p_is_js[i, connected_space_id_js == i] = 1
+        p_is_js[i, connected_room_id_js == i] = 1
 
     # 室iと境界jの関係を表す係数（室iから境界jへの変換）
     # [[p_0_0 ... p_0_i]
@@ -476,7 +477,7 @@ def make_pre_calc_parameters(
     # 境界jの室に設置された放射暖房の放熱量のうち放射成分に対する境界jの室内側吸収比率
     f_mrt_hum_js = occupants_form_factor.get_f_mrt_hum_js(
         a_srf_js=a_srf_js.flatten(),
-        connected_room_id_js=connected_space_id_js,
+        connected_room_id_js=connected_room_id_js,
         is_floor_js=is_floor_js,
         n_boundaries=n_boundaries,
         n_spaces=n_rm
@@ -489,7 +490,7 @@ def make_pre_calc_parameters(
     # 室iの微小球に対する境界jの形態係数
     h_r_js = shape_factor.get_h_r_js(
         a_srf_js=a_srf_js.flatten(),
-        connected_room_id_js=connected_space_id_js,
+        connected_room_id_js=connected_room_id_js,
         n_spaces=n_rm,
         n_boundaries=n_boundaries
     ).reshape(-1, 1)
@@ -505,7 +506,7 @@ def make_pre_calc_parameters(
     # TODO: 発熱部位を指定して、面積按分するように変更すべき。
     flr_js = indoor_radiative_heat_transfer.get_flr_js(
         a_srf_js=a_srf_js.flatten(),
-        connected_room_id_js=connected_space_id_js,
+        connected_room_id_js=connected_room_id_js,
         is_floor_js=is_floor_js,
         is_radiative_heating_is=is_radiative_is.flatten(),
         n_boundaries=n_boundaries,
