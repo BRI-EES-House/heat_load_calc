@@ -309,9 +309,6 @@ def make_pre_calc_parameters(
 
     bs = rd['boundaries']
 
-    # 境界jの日射吸収の有無, [j, 1]
-    is_solar_abs_js = np.array([b['is_solar_absorbed_inside'] for b in bs]).reshape(-1, 1)
-
     # 境界 j が床か否か, [j]
     is_floor_js = np.array([b['is_floor'] for b in bs])
 
@@ -562,6 +559,9 @@ def make_pre_calc_parameters(
 
     # ステップnの室iにおける家具の吸収日射量, W, [i, n]
     q_sol_frnt_is_ns = q_trs_sol_is_ns * r_sol_fnt
+
+    # 境界jの日射吸収の有無, [j, 1]
+    is_solar_abs_js = np.array([b['is_solar_absorbed_inside'] for b in bs]).reshape(-1, 1)
 
     # 室iにおける日射が吸収される境界の面積の合計, m2, [i, 1]
     a_srf_abs_is = np.dot(p_is_js, a_srf_js * is_solar_abs_js)
