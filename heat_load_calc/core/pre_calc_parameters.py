@@ -309,9 +309,6 @@ def make_pre_calc_parameters(
 
     bs = rd['boundaries']
 
-    # 地盤かどうか, [j, 1]
-    is_ground_js = np.array([b['is_ground'] for b in bs]).reshape(-1, 1)
-
     # 隣接する空間のID, [j]
     connected_space_id_js = np.array([b['connected_room_id'] for b in bs])
 
@@ -463,6 +460,9 @@ def make_pre_calc_parameters(
 
     # 境界の数
     n_boundaries = len(bs)
+
+    # 地盤かどうか, [j, 1]
+    is_ground_js = np.array([b['is_ground'] for b in bs]).reshape(-1, 1)
 
     # 地盤の数
     n_grounds = np.count_nonzero(is_ground_js)
