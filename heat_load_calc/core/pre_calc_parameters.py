@@ -287,10 +287,6 @@ def make_pre_calc_parameters(
     # region boundaries の読み込み
 
     # boundaries の取り出し
-    bs = rd['boundaries']
-
-    # 境界j
-    n_boundaries = len(bs)
 
     # 境界j
     bss = [
@@ -302,11 +298,10 @@ def make_pre_calc_parameters(
             a_sun_ns=a_sun_ns,
             h_sun_ns=h_sun_ns,
             b=b_dict
-        ) for b_dict in bs
+        ) for b_dict in rd['boundaries']
     ]
 
-    # id, [j]
-    bdry_id_js = [b['id'] for b in bs]
+    bs = rd['boundaries']
 
     # 名前, [j]
     name_bdry_js = np.array([str(b['name']) for b in bs])
