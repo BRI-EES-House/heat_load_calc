@@ -288,7 +288,7 @@ def make_pre_calc_parameters(
 
     # boundaries の取り出し
 
-    bss, rfs = boundary_simple.get_boundary_simples(
+    bss = boundary_simple.get_boundary_simples(
         a_sun_ns=a_sun_ns,
         h_sun_ns=h_sun_ns,
         i_dn_ns=i_dn_ns,
@@ -298,8 +298,6 @@ def make_pre_calc_parameters(
         theta_o_ns=theta_o_ns,
         bs=rd['boundaries']
     )
-
-    rfs = [bs.rf for bs in bss]
 
     # 名前, [j, 1]
     name_js = np.array([bs.name for bs in bss]).reshape(-1, 1)
@@ -463,16 +461,22 @@ def make_pre_calc_parameters(
     # 室iの在室者に対する境界j*の形態係数, [i, j]
     f_mrt_hum_is_js = p_is_js * f_mrt_hum_js[np.newaxis, :]
 
+    # 応答係数
+
     # 境界jの吸熱応答係数の初項, m2K/W, [j, 1]
-    phi_a0_js = np.array([rf.rfa0 for rf in rfs]).reshape(-1, 1)
+    phi_a0_js = np.array([bs.rf.rfa0 for bs in bss]).reshape(-1, 1)
+
     # 境界jの項別公比法における項mの吸熱応答係数の第一項 , m2K/W, [j, 12]
-    phi_a1_js_ms = np.array([rf.rfa1 for rf in rfs])
+    phi_a1_js_ms = np.array([bs.rf.rfa1 for bs in bss])
+
     # 境界jの貫流応答係数の初項, [j, 1]
-    phi_t0_js = np.array([rf.rft0 for rf in rfs]).reshape(-1, 1)
+    phi_t0_js = np.array([bs.rf.rft0 for bs in bss]).reshape(-1, 1)
+
     # 境界jの項別公比法における項mの貫流応答係数の第一項, [j, 12]
-    phi_t1_js_ms = np.array([rf.rft1 for rf in rfs])
+    phi_t1_js_ms = np.array([bs.rf.rft1 for bs in bss])
+
     # 境界jの項別公比法における項mの公比, [j, 12]
-    r_js_ms = np.array([rf.row for rf in rfs])
+    r_js_ms = np.array([bs.rf.row for bs in bss])
 
     # 境界jの室に設置された放射暖房の放熱量のうち放射成分に対する境界jの室内側吸収比率
     # 放射暖房の発熱部位の設定（とりあえず床発熱） 表7

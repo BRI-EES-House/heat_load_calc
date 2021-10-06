@@ -87,9 +87,6 @@ def get_boundary_simples(a_sun_ns, h_sun_ns, i_dn_ns, i_sky_ns, n_rm, r_n_ns, th
     # 境界jの室内側表面対流熱伝達率, W/m2K, [j, 1]
     h_c_js = np.array([b['h_c'] for b in bs]).reshape(-1, 1)
 
-    # 応答係数を取得する。
-    rfs = [response_factor.get_response_factor(b=b, h_c_js=h_c_js, h_r_js=h_r_js) for b in bs]
-
     # 境界j
     bss = [
         get_boundary_simple(
@@ -105,7 +102,7 @@ def get_boundary_simples(a_sun_ns, h_sun_ns, i_dn_ns, i_sky_ns, n_rm, r_n_ns, th
         ) for b in bs
     ]
 
-    return bss, rfs
+    return bss
 
 
 def get_boundary_simple(theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, a_sun_ns, h_sun_ns, b, h_c_js, h_r_js):
