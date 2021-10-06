@@ -64,6 +64,9 @@ class BoundarySimple:
     # 透過日射熱取得, W, [8760*4]
     q_trs_sol: np.ndarray
 
+    # 応答係数データクラス
+    rf: response_factor.ResponseFactor
+
 
 def get_boundary_simples(a_sun_ns, h_sun_ns, i_dn_ns, i_sky_ns, n_rm, r_n_ns, theta_o_ns, bs):
 
@@ -74,8 +77,8 @@ def get_boundary_simples(a_sun_ns, h_sun_ns, i_dn_ns, i_sky_ns, n_rm, r_n_ns, th
     # さらに応答係数の計算には裏面の表面放射・対流熱伝達率の値が必要となるため、
     # BoundarySimple クラスを生成する前に、予め室内側表面放射・対流熱伝達率を計算しておき、
     # BoundarySimple クラスを生成する時に必要な情報としておく。
-    # 境界jの室内側表面放射熱伝達率, W/m2K, [j, 1]
 
+    # 境界jの室内側表面放射熱伝達率, W/m2K, [j, 1]
     h_r_js = shape_factor.get_h_r_js(
         n_spaces=n_rm,
         bs=bs
@@ -97,14 +100,15 @@ def get_boundary_simples(a_sun_ns, h_sun_ns, i_dn_ns, i_sky_ns, n_rm, r_n_ns, th
             a_sun_ns=a_sun_ns,
             h_sun_ns=h_sun_ns,
             b=b,
+            h_c_js=h_c_js,
             h_r_js=h_r_js
         ) for b in bs
     ]
 
-    return bss, h_r_js, rfs
+    return bss, rfs
 
 
-def get_boundary_simple(theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, a_sun_ns, h_sun_ns, b, h_r_js):
+def get_boundary_simple(theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, a_sun_ns, h_sun_ns, b, h_c_js, h_r_js):
 
     # ID
     # TODO: ID が0始まりで1ずつ増え、一意であることのチェックを行うコードを追記する。
@@ -196,6 +200,9 @@ def get_boundary_simple(theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, a_sun_ns, h_sun_n
     tsr = transmission_solar_radiation.TransmissionSolarRadiation.create(d=b, solar_shading_part=solar_shading_part)
     q_trs_sol = tsr.get_qgt(a_sun_ns=a_sun_ns, h_sun_ns=h_sun_ns, i_dn_ns=i_dn_ns, i_sky_ns=i_sky_ns)
 
+    # 応答係数
+    rf = response_factor.get_response_factor(b=b, h_c_js=h_c_js, h_r_js=h_r_js)
+
     return BoundarySimple(
         id=boundary_id,
         name=name,
@@ -212,6 +219,7 @@ def get_boundary_simple(theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, a_sun_ns, h_sun_n
         h_c=h_c,
         h_r=h_r,
         theta_o_sol=theta_o_sol,
-        q_trs_sol=q_trs_sol
+        q_trs_sol=q_trs_sol,
+        rf=rf
     )
 

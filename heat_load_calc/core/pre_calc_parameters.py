@@ -288,7 +288,7 @@ def make_pre_calc_parameters(
 
     # boundaries の取り出し
 
-    bss, h_r_js, rfs = boundary_simple.get_boundary_simples(
+    bss, rfs = boundary_simple.get_boundary_simples(
         a_sun_ns=a_sun_ns,
         h_sun_ns=h_sun_ns,
         i_dn_ns=i_dn_ns,
@@ -299,7 +299,7 @@ def make_pre_calc_parameters(
         bs=rd['boundaries']
     )
 
-    h_r_js = np.array([bs.h_r for bs in bss]).reshape(-1, 1)
+    rfs = [bs.rf for bs in bss]
 
     # 名前, [j, 1]
     name_js = np.array([bs.name for bs in bss]).reshape(-1, 1)
@@ -491,6 +491,9 @@ def make_pre_calc_parameters(
 
     # 室iの空気の熱容量, J/K, [i, 1]
     c_rm_is = v_rm_is * get_rho_air() * get_c_air()
+
+    # 境界jの室内側表面放射熱伝達率, W/m2K, [j, 1]
+    h_r_js = np.array([bs.h_r for bs in bss]).reshape(-1, 1)
 
     # 平均放射温度計算時の各部位表面温度の重み, [i, j]
     f_mrt_is_js = shape_factor.get_f_mrt_is_js(a_srf_js=a_srf_js, h_r_js=h_r_js, p_is_js=p_is_js)
