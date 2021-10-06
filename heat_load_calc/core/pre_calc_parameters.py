@@ -287,87 +287,23 @@ def make_pre_calc_parameters(
     # region boundaries の読み込み
 
     # boundaries の取り出し
-    bs = rd['boundaries']
 
-    # 境界j
-    n_boundaries = len(bs)
+    bss = boundary_simple.get_boundary_simples(
+        a_sun_ns=a_sun_ns,
+        h_sun_ns=h_sun_ns,
+        i_dn_ns=i_dn_ns,
+        i_sky_ns=i_sky_ns,
+        n_rm=n_rm,
+        r_n_ns=r_n_ns,
+        theta_o_ns=theta_o_ns,
+        bs=rd['boundaries']
+    )
 
-    # 境界j
-    bss = [
-        boundary_simple.get_boundary_simple(
-            theta_o_ns=theta_o_ns,
-            i_dn_ns=i_dn_ns,
-            i_sky_ns=i_sky_ns,
-            r_n_ns=r_n_ns,
-            a_sun_ns=a_sun_ns,
-            h_sun_ns=h_sun_ns,
-            b=b_dict
-        ) for b_dict in bs
-    ]
+    # 名前, [j, 1]
+    name_js = np.array([bs.name for bs in bss]).reshape(-1, 1)
 
-    # id, [j]
-    bdry_id_js = [b['id'] for b in bs]
-
-    # 名前, [j]
-    name_bdry_js = np.array([str(b['name']) for b in bs])
-
-    # 名前2, [j]
-    # TODO: なぜこちらは np.ndarray にしていない？
-    sub_name_bdry_js = [b['sub_name'] for b in bs]
-
-    # 地盤かどうか, [j, 1]
-    is_ground_js = np.array([b['is_ground'] for b in bs]).reshape(-1, 1)
-
-    # 隣接する空間のID, [j]
-    connected_space_id_js = np.array([b['connected_room_id'] for b in bs])
-
-    # 境界jの面積, m2, [j, 1]
-    a_srf_js = np.array([b['area'] for b in bs]).reshape(-1, 1)
-
-    # 境界jの室内側表面対流熱伝達率, W/m2K, [j, 1]
-    h_c_js = np.array([b['h_c'] for b in bs]).reshape(-1, 1)
-
-    # 境界jの日射吸収の有無, [j, 1]
-    is_solar_abs_js = np.array([b['is_solar_absorbed_inside'] for b in bs]).reshape(-1, 1)
-
-    # 境界 j が床か否か, [j]
-    is_floor_js = np.array([b['is_floor'] for b in bs])
-
-    h_td_js = []
-
-    for b in bs:
-        # 温度差係数
-        # 境界の種類が'external_general_part', 'external_transparent_part', 'external_opaque_part'の場合に定義される。
-        if b['boundary_type'] in ['external_general_part', 'external_transparent_part', 'external_opaque_part', 'ground']:
-            h_td = float(b['temp_dif_coef'])
-        else:
-            h_td = 0.0
-        h_td_js.append(h_td)
-
-    k_eo_js = np.array(h_td_js).reshape(-1, 1)
-
-    k_ei_js = get_k_ei_js(boundaries=bs)
-
-    k_ei_id_js = []
-    k_ei_coef_js = []
-    for j, b in enumerate(bs):
-        if k_ei_js[j] is None:
-#        if b['k_inside'] is None:
-            k_ei_id_j = None
-            k_ei_coef_j = None
-        else:
-            k_ei_id_j = k_ei_js[j]['id']
-            k_ei_coef_j = k_ei_js[j]['coef']
-#            k_ei_id_j = b['k_inside']['id']
-#            k_ei_coef_j = b['k_inside']['coef']
-        k_ei_id_js.append(k_ei_id_j)
-        k_ei_coef_js.append(k_ei_coef_j)
-
-    # 境界jの裏面に相当する境界のID
-#    k_ei_id_js = [b['k_inside']['id'] for b in bs]
-
-    # 境界jの裏面に相当する境界が与える影響
-#    k_ei_coef_js = [b['k_inside']['coef'] for b in bs]
+    # 名前2, [j, 1]
+    sub_name_js = np.array([bs.sub_name for bs in bss]).reshape(-1, 1)
 
     # endregion
 
@@ -467,19 +403,16 @@ def make_pre_calc_parameters(
     # region 読み込んだ変数をベクトル表記に変換する
     # ただし、1次元配列を縦ベクトルに変換する処理等は読み込み時に np.reshape を適用して変換している。
 
-    # 境界の数
-    n_boundaries = len(bs)
-
-    # 地盤の数
-    n_grounds = np.count_nonzero(is_ground_js)
+    # 地盤かどうか, [j, 1]
+    is_ground_js = np.array([bs.boundary_type == BoundaryType.Ground for bs in bss]).reshape(-1, 1)
 
     # 室iと境界jの関係を表す係数（境界jから室iへの変換）
     # [[p_0_0 ... ... p_0_j]
     #  [ ...  ... ...  ... ]
     #  [p_i_0 ... ... p_i_j]]
-    p_is_js = np.zeros((n_rm, n_boundaries), dtype=int)
-    for i in range(n_rm):
-        p_is_js[i, connected_space_id_js == i] = 1
+    p_is_js = np.zeros((n_rm, len(bss)), dtype=int)
+    for bs in bss:
+        p_is_js[bs.connected_room_id, bs.id] = 1
 
     # 室iと境界jの関係を表す係数（室iから境界jへの変換）
     # [[p_0_0 ... p_0_i]
@@ -489,15 +422,7 @@ def make_pre_calc_parameters(
     p_js_is = p_is_js.T
 
     # 境界jの裏面温度に他の境界の等価温度が与える影響, [j, j]
-    k_ei_js_js = []
-    for k_ei_id_j, k_ei_coef_j in zip(k_ei_id_js, k_ei_coef_js):
-        k_ei_js = [0.0] * n_boundaries
-        if k_ei_id_j is None:
-            pass
-        else:
-            k_ei_js[k_ei_id_j] = k_ei_coef_j
-        k_ei_js_js.append(k_ei_js)
-    k_ei_js_js = np.array(k_ei_js_js)
+    k_ei_js_js = np.array([get_k_ei_js_j(bs=bs, n_boundaries=len(bss)) for bs in bss])
 
     # endregion
 
@@ -511,10 +436,23 @@ def make_pre_calc_parameters(
     # TODO: 入力ファイルから与えられるのではなく、設備の入力情報から計算するべき。
     beta_is = np.array([s['beta'] for s in rms]).reshape(-1, 1)
 
+    # 境界jの面積, m2, [j, 1]
+    a_srf_js = np.array([bs.area for bs in bss]).reshape(-1, 1)
+
+    # 境界 j が床か否か, [j]
+    is_floor_js = np.array([bs.is_floor for bs in bss])
+
+    # 隣接する空間のID, [j]
+    # 注意：　この変数は後の numpy の操作のみに使用されるため、[j, 1]の縦行列ではなく、[j] の1次元配列とした。
+    connected_room_id_js = np.array([bs.connected_room_id for bs in bss])
+
+    # 境界の数
+    n_boundaries = len(bss)
+
     # 境界jの室に設置された放射暖房の放熱量のうち放射成分に対する境界jの室内側吸収比率
     f_mrt_hum_js = occupants_form_factor.get_f_mrt_hum_js(
         a_srf_js=a_srf_js.flatten(),
-        connected_room_id_js=connected_space_id_js,
+        connected_room_id_js=connected_room_id_js,
         is_floor_js=is_floor_js,
         n_boundaries=n_boundaries,
         n_spaces=n_rm
@@ -523,24 +461,29 @@ def make_pre_calc_parameters(
     # 室iの在室者に対する境界j*の形態係数, [i, j]
     f_mrt_hum_is_js = p_is_js * f_mrt_hum_js[np.newaxis, :]
 
-    # 境界jの室内側表面放射熱伝達率, W/m2K, [j, 1]
-    # 室iの微小球に対する境界jの形態係数
-    h_r_js = shape_factor.get_h_r_js(
-        a_srf_js=a_srf_js.flatten(),
-        connected_room_id_js=connected_space_id_js,
-        n_spaces=n_rm,
-        n_boundaries=n_boundaries
-    ).reshape(-1, 1)
+    # 応答係数
 
-    # 応答係数を取得する。
-    phi_a0_js, phi_a1_js_ms, phi_t0_js, phi_t1_js_ms, r_js_ms = _get_response_factors(bs, h_c_js, h_r_js)
+    # 境界jの吸熱応答係数の初項, m2K/W, [j, 1]
+    phi_a0_js = np.array([bs.rf.rfa0 for bs in bss]).reshape(-1, 1)
+
+    # 境界jの項別公比法における項mの吸熱応答係数の第一項 , m2K/W, [j, 12]
+    phi_a1_js_ms = np.array([bs.rf.rfa1 for bs in bss])
+
+    # 境界jの貫流応答係数の初項, [j, 1]
+    phi_t0_js = np.array([bs.rf.rft0 for bs in bss]).reshape(-1, 1)
+
+    # 境界jの項別公比法における項mの貫流応答係数の第一項, [j, 12]
+    phi_t1_js_ms = np.array([bs.rf.rft1 for bs in bss])
+
+    # 境界jの項別公比法における項mの公比, [j, 12]
+    r_js_ms = np.array([bs.rf.row for bs in bss])
 
     # 境界jの室に設置された放射暖房の放熱量のうち放射成分に対する境界jの室内側吸収比率
     # 放射暖房の発熱部位の設定（とりあえず床発熱） 表7
     # TODO: 発熱部位を指定して、面積按分するように変更すべき。
     flr_js = indoor_radiative_heat_transfer.get_flr_js(
         a_srf_js=a_srf_js.flatten(),
-        connected_room_id_js=connected_space_id_js,
+        connected_room_id_js=connected_room_id_js,
         is_floor_js=is_floor_js,
         is_radiative_heating_is=is_radiative_is.flatten(),
         n_boundaries=n_boundaries,
@@ -553,8 +496,14 @@ def make_pre_calc_parameters(
     # 室iの空気の熱容量, J/K, [i, 1]
     c_rm_is = v_rm_is * get_rho_air() * get_c_air()
 
+    # 境界jの室内側表面放射熱伝達率, W/m2K, [j, 1]
+    h_r_js = np.array([bs.h_r for bs in bss]).reshape(-1, 1)
+
     # 平均放射温度計算時の各部位表面温度の重み, [i, j]
     f_mrt_is_js = shape_factor.get_f_mrt_is_js(a_srf_js=a_srf_js, h_r_js=h_r_js, p_is_js=p_is_js)
+
+    # 境界jの室内側表面対流熱伝達率, W/m2K, [j, 1]
+    h_c_js = np.array([bs.h_c for bs in bss]).reshape(-1, 1)
 
     # 境界jの室内側表面総合熱伝達率, W/m2K, [j, 1]
     h_i_js = h_c_js + h_r_js
@@ -569,6 +518,9 @@ def make_pre_calc_parameters(
     # ステップnの室iにおける家具の吸収日射量, W, [i, n]
     q_sol_frnt_is_ns = q_trs_sol_is_ns * r_sol_fnt
 
+    # 境界jの日射吸収の有無, [j, 1]
+    is_solar_abs_js = np.array([bs.is_solar_absorbed_inside for bs in bss]).reshape(-1, 1)
+
     # 室iにおける日射が吸収される境界の面積の合計, m2, [i, 1]
     a_srf_abs_is = np.dot(p_is_js, a_srf_js * is_solar_abs_js)
 
@@ -576,6 +528,9 @@ def make_pre_calc_parameters(
     # TODO: 日射の吸収割合を入力値にした方がよいのではないか？
     q_sol_js_ns = np.dot(p_js_is, q_trs_sol_is_ns / a_srf_abs_is)\
         * is_solar_abs_js * (1.0 - r_sol_fnt)
+
+    # 温度差係数
+    k_eo_js = np.array([bs.h_td for bs in bss]).reshape(-1, 1)
 
     # ステップnの境界jにおける外気側等価温度の外乱成分, ℃, [j, n]
     theta_dstrb_js_ns = theta_o_sol_js_ns * k_eo_js
@@ -670,8 +625,8 @@ def make_pre_calc_parameters(
         g_sh_frt_is=g_sh_frt_is,
         g_lh_frt_is=g_lh_frt_is,
         v_int_vent_is_is=v_int_vent_is_is,
-        name_bdry_js=name_bdry_js,
-        sub_name_bdry_js=sub_name_bdry_js,
+        name_bdry_js=name_js,
+        sub_name_bdry_js=sub_name_js,
         a_srf_js=a_srf_js,
         v_mec_vent_is_ns=v_mec_vent_is_ns,
         q_gen_is_ns=q_gen_is_ns,
@@ -714,6 +669,9 @@ def make_pre_calc_parameters(
         dehumidification_funcs=dehumidification_funcs
     )
 
+    # 地盤の数
+    n_grounds = sum(bs.boundary_type == BoundaryType.Ground for bs in bss)
+
     pre_calc_parameters_ground = PreCalcParametersGround(
         n_grounds=n_grounds,
         r_js_ms=r_js_ms[is_ground_js.flatten(), :],
@@ -729,44 +687,6 @@ def make_pre_calc_parameters(
     )
 
     return pre_calc_parameters, pre_calc_parameters_ground
-
-
-def _get_response_factors(bs, h_c_js, h_r_js):
-
-    # 境界jの吸熱応答係数の初項, m2K/W, [j, 1]
-    phi_a0_js = []
-    # 境界jの項別公比法における項mの吸熱応答係数の第一項 , m2K/W, [j, 12]
-    phi_a1_js_ms = []
-    # 境界jの貫流応答係数の初項, [j, 1]
-    phi_t0_js = []
-    # 境界jの項別公比法における項mの貫流応答係数の第一項, [j, 12]
-    phi_t1_js_ms = []
-    # 境界jの項別公比法における項mの公比, [j, 12]
-    r_js_ms = []
-
-    for b in bs:
-        if b['spec']['method'] == 'response_factor':
-            phi_a0_js.append(b['spec']['phi_a0'])
-            phi_a1_js_ms.append(b['spec']['phi_a1'])
-            phi_t0_js.append(b['spec']['phi_t0'])
-            phi_t1_js_ms.append(b['spec']['phi_t1'])
-            r_js_ms.append(b['spec']['r'])
-        else:
-            rff = response_factor.ResponseFactorFactory.create(spec=b['spec'], h_r_js=h_r_js, h_c_js=h_c_js)
-            rf = rff.get_response_factors()
-            phi_a0_js.append(rf.rfa0)
-            phi_a1_js_ms.append(rf.rfa1)
-            phi_t0_js.append(rf.rft0)
-            phi_t1_js_ms.append(rf.rft1)
-            r_js_ms.append(rf.row)
-
-    phi_a0_js = np.array(phi_a0_js).reshape(-1, 1)
-    phi_a1_js_ms = np.array(phi_a1_js_ms)
-    phi_t0_js = np.array(phi_t0_js).reshape(-1, 1)
-    phi_t1_js_ms = np.array(phi_t1_js_ms)
-    r_js_ms = np.array(r_js_ms)
-
-    return phi_a0_js, phi_a1_js_ms, phi_t0_js, phi_t1_js_ms, r_js_ms
 
 
 def _get_v_int_vent_is_is(next_vent_is_ks: List[List[dict]]) -> np.ndarray:
@@ -817,32 +737,37 @@ def _get_v_int_vent_is_is(next_vent_is_ks: List[List[dict]]) -> np.ndarray:
     return v_int_vent_is_is
 
 
-def get_k_ei_js(boundaries):
-    k_ei_js = []
-    for b in boundaries:
+def get_k_ei_js_j(bs, n_boundaries):
 
-        boundary_type = BoundaryType(b['boundary_type'])
+    k_ei_js_j = [0.0] * n_boundaries
 
-        if boundary_type in [
-            BoundaryType.ExternalOpaquePart,
-            BoundaryType.ExternalTransparentPart,
-            BoundaryType.ExternalGeneralPart
-        ]:
-            h = b['temp_dif_coef']
-            # 温度差係数が1.0でない場合はk_ei_jsに値を代入する。
-            # id は自分自身の境界IDとし、自分自身の表面の影響は1.0から温度差係数を減じた値になる。
-            if h < 1.0:
-                k_ei_js.append({'id': b['id'], 'coef': round(1.0 - h, 1)})
-            else:
-                # 温度差係数が1.0の場合はNoneとする。
-                k_ei_js.append(None)
-        elif boundary_type == BoundaryType.Internal:
-            # 室内壁の場合にk_ei_jsを登録する。
-            k_ei_js.append({'id': int(b['rear_surface_boundary_id']), 'coef': 1.0})
+    if bs.boundary_type in [
+        BoundaryType.ExternalOpaquePart,
+        BoundaryType.ExternalTransparentPart,
+        BoundaryType.ExternalGeneralPart
+    ]:
+
+        h = bs.h_td
+
+        # 温度差係数が1.0でない場合はk_ei_jsに値を代入する。
+        # id は自分自身の境界IDとし、自分自身の表面の影響は1.0から温度差係数を減じた値になる。
+        if h < 1.0:
+            k_ei_js_j[bs.id] = round(1.0 - h, 1)
         else:
-            # 外皮に面していない場合、室内壁ではない場合（地盤の場合が該当）は、Noneとする。
-            k_ei_js.append(None)
-    return k_ei_js
+            # 温度差係数が1.0の場合は裏面の影響は何もないため k_ei_js に操作は行わない。
+            pass
+
+    elif bs.boundary_type == BoundaryType.Internal:
+
+        # 室内壁の場合にk_ei_jsを登録する。
+        k_ei_js_j[int(bs.rear_surface_boundary_id)] = 1.0
+
+    else:
+
+        # 外皮に面していない場合、室内壁ではない場合（地盤の場合が該当）は、k_ei_js に操作は行わない。
+        pass
+
+    return k_ei_js_j
 
 
 def _read_weather_data(input_data_dir: str):
