@@ -288,18 +288,25 @@ def make_pre_calc_parameters(
 
     # boundaries の取り出し
 
-    # 境界jの室内側表面放射熱伝達率, W/m2K, [j, 1]
     # 本来であれば BoundarySimple クラスにおいて境界に関する入力用辞書から読み込みを境界個別に行う。
     # しかし、室内側表面放射熱伝達は室内側の形態係数によって値が決まり、ある室に接する境界の面積の組み合わせで決定されるため、
     # 境界個別に値を決めることはできない。（すべての境界の情報が必要である。）
     # 一方で、境界の集約を行うためには、応答係数を BoundarySimple クラス生成時に求める必要があり、
-    # さらに応答係数の計算には裏面の表面放射熱伝達率の値が必要となるため、
-    # BoundarySimple クラスを生成する前に、予め室内側表面放射熱伝達率を計算しておき、
+    # さらに応答係数の計算には裏面の表面放射・対流熱伝達率の値が必要となるため、
+    # BoundarySimple クラスを生成する前に、予め室内側表面放射・対流熱伝達率を計算しておき、
     # BoundarySimple クラスを生成する時に必要な情報としておく。
+
+    # 境界jの室内側表面放射熱伝達率, W/m2K, [j, 1]
     h_r_js = shape_factor.get_h_r_js(
         n_spaces=n_rm,
         bs=rd['boundaries']
     ).reshape(-1, 1)
+
+    # 境界jの室内側表面対流熱伝達率, W/m2K, [j, 1]
+    h_c_js = np.array([b['h_c'] for b in rd['boundaries']]).reshape(-1, 1)
+
+    # 応答係数を取得する。
+    rfs = [response_factor.get_response_factor(b=b, h_c_js=h_c_js, h_r_js=h_r_js) for b in rd['boundaries']]
 
     # 境界j
     bss = [
@@ -478,15 +485,16 @@ def make_pre_calc_parameters(
     # 室iの在室者に対する境界j*の形態係数, [i, j]
     f_mrt_hum_is_js = p_is_js * f_mrt_hum_js[np.newaxis, :]
 
-    # 境界jの室内側表面対流熱伝達率, W/m2K, [j, 1]
-    h_c_js = np.array([b['h_c'] for b in bs]).reshape(-1, 1)
-
-    # 応答係数を取得する。
-    phi_a0_js, phi_a1_js_ms, phi_t0_js, phi_t1_js_ms, r_js_ms = response_factor.get_response_factors(
-        bs=bs,
-        h_c_js=h_c_js,
-        h_r_js=h_r_js
-    )
+    # 境界jの吸熱応答係数の初項, m2K/W, [j, 1]
+    phi_a0_js = np.array([rf.rfa0 for rf in rfs]).reshape(-1, 1)
+    # 境界jの項別公比法における項mの吸熱応答係数の第一項 , m2K/W, [j, 12]
+    phi_a1_js_ms = np.array([rf.rfa1 for rf in rfs])
+    # 境界jの貫流応答係数の初項, [j, 1]
+    phi_t0_js = np.array([rf.rft0 for rf in rfs]).reshape(-1, 1)
+    # 境界jの項別公比法における項mの貫流応答係数の第一項, [j, 12]
+    phi_t1_js_ms = np.array([rf.rft1 for rf in rfs])
+    # 境界jの項別公比法における項mの公比, [j, 12]
+    r_js_ms = np.array([rf.row for rf in rfs])
 
     # 境界jの室に設置された放射暖房の放熱量のうち放射成分に対する境界jの室内側吸収比率
     # 放射暖房の発熱部位の設定（とりあえず床発熱） 表7
@@ -691,44 +699,6 @@ def make_pre_calc_parameters(
     )
 
     return pre_calc_parameters, pre_calc_parameters_ground
-
-
-def _get_response_factors(bs, h_c_js, h_r_js):
-
-    # 境界jの吸熱応答係数の初項, m2K/W, [j, 1]
-    phi_a0_js = []
-    # 境界jの項別公比法における項mの吸熱応答係数の第一項 , m2K/W, [j, 12]
-    phi_a1_js_ms = []
-    # 境界jの貫流応答係数の初項, [j, 1]
-    phi_t0_js = []
-    # 境界jの項別公比法における項mの貫流応答係数の第一項, [j, 12]
-    phi_t1_js_ms = []
-    # 境界jの項別公比法における項mの公比, [j, 12]
-    r_js_ms = []
-
-    for b in bs:
-        if b['spec']['method'] == 'response_factor':
-            phi_a0_js.append(b['spec']['phi_a0'])
-            phi_a1_js_ms.append(b['spec']['phi_a1'])
-            phi_t0_js.append(b['spec']['phi_t0'])
-            phi_t1_js_ms.append(b['spec']['phi_t1'])
-            r_js_ms.append(b['spec']['r'])
-        else:
-            rff = response_factor.ResponseFactorFactory.create(spec=b['spec'], h_r_js=h_r_js, h_c_js=h_c_js)
-            rf = rff.get_response_factors()
-            phi_a0_js.append(rf.rfa0)
-            phi_a1_js_ms.append(rf.rfa1)
-            phi_t0_js.append(rf.rft0)
-            phi_t1_js_ms.append(rf.rft1)
-            r_js_ms.append(rf.row)
-
-    phi_a0_js = np.array(phi_a0_js).reshape(-1, 1)
-    phi_a1_js_ms = np.array(phi_a1_js_ms)
-    phi_t0_js = np.array(phi_t0_js).reshape(-1, 1)
-    phi_t1_js_ms = np.array(phi_t1_js_ms)
-    r_js_ms = np.array(r_js_ms)
-
-    return phi_a0_js, phi_a1_js_ms, phi_t0_js, phi_t1_js_ms, r_js_ms
 
 
 def _get_v_int_vent_is_is(next_vent_is_ks: List[List[dict]]) -> np.ndarray:
