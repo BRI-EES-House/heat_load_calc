@@ -428,8 +428,6 @@ def make_pre_calc_parameters(
 
     # endregion
 
-    bs = rd['boundaries']
-
     # region 読み込んだ値から新たに係数を作成する
 
     # TODO: is_radiative_is は flr の計算のみに使用されている。
@@ -441,7 +439,9 @@ def make_pre_calc_parameters(
     beta_is = np.array([s['beta'] for s in rms]).reshape(-1, 1)
 
     # 境界jの面積, m2, [j, 1]
-    a_srf_js = np.array([b['area'] for b in bs]).reshape(-1, 1)
+    a_srf_js = np.array([bs.area for bs in bss]).reshape(-1, 1)
+
+    bs = rd['boundaries']
 
     # 境界 j が床か否か, [j]
     is_floor_js = np.array([b['is_floor'] for b in bs])
