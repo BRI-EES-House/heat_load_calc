@@ -331,9 +331,9 @@ I. 評価法
 :math:`\hat{V}_{out,vent,i,n}`
     | ステップ |n| から |n+1| における室 |i| の外気との換気量, |m3| / s
 :math:`G_{lh,frt,i}`
-    | 室 |i| の家具等と空気間の湿気コンダクタンス, kg / (s kg/kg(DA))
+    | 室 |i| の備品等と空気間の湿気コンダクタンス, kg / (s kg/kg(DA))
 :math:`C_{lh,frt,i}`
-    | 室 |i| の家具等の湿気容量, kg / (kg/kg(DA))
+    | 室 |i| の備品等の湿気容量, kg / (kg/kg(DA))
 :math:`\hat{V}_{int,vent,i,j,n}`
     | 室 |j| から室 |i| への室間の機械換気量, |m3| / s
 :math:`\hat{V}_{int,vent,i,k,n}`
@@ -360,7 +360,7 @@ I. 評価法
 :math:`X_{o,n}`
     | ステップ |n| における外気絶対湿度, kg/kg(DA)
 :math:`X_{frt,i,n}`
-    | ステップ |n| における室 |i| の家具等の絶対湿度, kg/kg(DA)
+    | ステップ |n| における室 |i| の備品等の絶対湿度, kg/kg(DA)
 :math:`\hat{X}_{gen,i,n}`
     | ステップ |n| における室 |i| の人体発湿を除く内部発湿, kg/s
 :math:`\hat{X}_{hum,i,n}`
@@ -600,9 +600,9 @@ II. 根拠
 :math:`X_o`
     | 外気絶対湿度, kg/kg(DA)
 :math:`G_{lh,frt,i}`
-    | 室 |i| の家具等と空気間の湿気コンダクタンス, kg / (s kg/kg(DA))
+    | 室 |i| の備品等と空気間の湿気コンダクタンス, kg / (s kg/kg(DA))
 :math:`X_{frt,i}`
-    | 室 |i| の家具等の絶対湿度, kg / kg(DA)
+    | 室 |i| の備品等の絶対湿度, kg / kg(DA)
 :math:`V_{int,vent,i,j}`
     | 室 |j| から室 |i| への機械換気量, |m3| / s
 :math:`X_{gen,i}`
@@ -663,7 +663,7 @@ II. 根拠
 その湿度と熱交換器表面における飽和絶対湿度 :math:`X_{srf,ex,i}` の大小を比較して除湿の有無を決定することになる。
 なお、 :math:`L_{a,i}` 及び :math:`L_{b,i}` の決定方法は後述する。
 
-備品の水分収支式は室空気との物質移動だけを考慮すればよいため、次式で表すことができる。
+備品等の水分収支式は室空気との物質移動だけを考慮すればよいため、次式で表すことができる。
 
 .. math::
     :nowrap:
@@ -675,7 +675,7 @@ II. 根拠
 ここで、
 
 :math:`C_{lh,frt,i}`
-    | 室 |i| の家具等の湿気容量, kg/(kg/kg(DA))
+    | 室 |i| の備品等の湿気容量, kg/(kg/kg(DA))
 
 である。
 
@@ -706,7 +706,7 @@ II. 根拠
 :math:`X_{o,n}`
     | ステップ |n| における外気絶対湿度, kg/kg(DA)
 :math:`X_{frt,i,n}`
-    | ステップ |n| における室 |i| の家具等の絶対湿度, kg/kg(DA)
+    | ステップ |n| における室 |i| の備品等の絶対湿度, kg/kg(DA)
 :math:`\hat{V}_{int,vent,i,j,n}`
     | ステップ |n| からステップ |n+1| における室 |j| から室 |i| への機械換気量, |m3| /s
 :math:`\hat{X}_{gen,i,n}`
@@ -730,7 +730,7 @@ II. 根拠
     	C_{lh,frt,i} \cdot \frac{ X_{frt,i,n+1} - X_{frt,i,n} }{ \Delta t } = G_{lh,frt,i} \cdot ( X_{r,i,n+1} - X_{frt,i,n+1} ) \tag{b6}
     \end{align*}
 
-式(b6)をステップ |n+1| における室 |i| の家具等の絶対湿度 :math:`X_{frt,i,n+1}` について解くと、
+式(b6)をステップ |n+1| における室 |i| の備品等の絶対湿度 :math:`X_{frt,i,n+1}` について解くと、
 
 .. math::
     :nowrap:
