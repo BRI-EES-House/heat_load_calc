@@ -288,38 +288,18 @@ def make_pre_calc_parameters(
 
     # boundaries の取り出し
 
-    # 本来であれば BoundarySimple クラスにおいて境界に関する入力用辞書から読み込みを境界個別に行う。
-    # しかし、室内側表面放射熱伝達は室内側の形態係数によって値が決まり、ある室に接する境界の面積の組み合わせで決定されるため、
-    # 境界個別に値を決めることはできない。（すべての境界の情報が必要である。）
-    # 一方で、境界の集約を行うためには、応答係数を BoundarySimple クラス生成時に求める必要があり、
-    # さらに応答係数の計算には裏面の表面放射・対流熱伝達率の値が必要となるため、
-    # BoundarySimple クラスを生成する前に、予め室内側表面放射・対流熱伝達率を計算しておき、
-    # BoundarySimple クラスを生成する時に必要な情報としておく。
-
-    # 境界jの室内側表面放射熱伝達率, W/m2K, [j, 1]
-    h_r_js = shape_factor.get_h_r_js(
-        n_spaces=n_rm,
+    bss, h_r_js, rfs = boundary_simple.get_boundary_simples(
+        a_sun_ns=a_sun_ns,
+        h_sun_ns=h_sun_ns,
+        i_dn_ns=i_dn_ns,
+        i_sky_ns=i_sky_ns,
+        n_rm=n_rm,
+        r_n_ns=r_n_ns,
+        theta_o_ns=theta_o_ns,
         bs=rd['boundaries']
-    ).reshape(-1, 1)
+    )
 
-    # 境界jの室内側表面対流熱伝達率, W/m2K, [j, 1]
-    h_c_js = np.array([b['h_c'] for b in rd['boundaries']]).reshape(-1, 1)
-
-    # 応答係数を取得する。
-    rfs = [response_factor.get_response_factor(b=b, h_c_js=h_c_js, h_r_js=h_r_js) for b in rd['boundaries']]
-
-    # 境界j
-    bss = [
-        boundary_simple.get_boundary_simple(
-            theta_o_ns=theta_o_ns,
-            i_dn_ns=i_dn_ns,
-            i_sky_ns=i_sky_ns,
-            r_n_ns=r_n_ns,
-            a_sun_ns=a_sun_ns,
-            h_sun_ns=h_sun_ns,
-            b=b_dict
-        ) for b_dict in rd['boundaries']
-    ]
+    h_r_js = np.array([bs.h_r for bs in bss]).reshape(-1, 1)
 
     # 名前, [j, 1]
     name_js = np.array([bs.name for bs in bss]).reshape(-1, 1)
@@ -464,8 +444,6 @@ def make_pre_calc_parameters(
     # 境界 j が床か否か, [j]
     is_floor_js = np.array([bs.is_floor for bs in bss])
 
-    bs = rd['boundaries']
-
     # 隣接する空間のID, [j]
     # 注意：　この変数は後の numpy の操作のみに使用されるため、[j, 1]の縦行列ではなく、[j] の1次元配列とした。
     connected_room_id_js = np.array([bs.connected_room_id for bs in bss])
@@ -517,6 +495,9 @@ def make_pre_calc_parameters(
     # 平均放射温度計算時の各部位表面温度の重み, [i, j]
     f_mrt_is_js = shape_factor.get_f_mrt_is_js(a_srf_js=a_srf_js, h_r_js=h_r_js, p_is_js=p_is_js)
 
+    # 境界jの室内側表面対流熱伝達率, W/m2K, [j, 1]
+    h_c_js = np.array([bs.h_c for bs in bss]).reshape(-1, 1)
+
     # 境界jの室内側表面総合熱伝達率, W/m2K, [j, 1]
     h_i_js = h_c_js + h_r_js
 
@@ -531,7 +512,6 @@ def make_pre_calc_parameters(
     q_sol_frnt_is_ns = q_trs_sol_is_ns * r_sol_fnt
 
     # 境界jの日射吸収の有無, [j, 1]
-#    is_solar_abs_js = np.array([b['is_solar_absorbed_inside'] for b in bs]).reshape(-1, 1)
     is_solar_abs_js = np.array([bs.is_solar_absorbed_inside for bs in bss]).reshape(-1, 1)
 
     # 室iにおける日射が吸収される境界の面積の合計, m2, [i, 1]

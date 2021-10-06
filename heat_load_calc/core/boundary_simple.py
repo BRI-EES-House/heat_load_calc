@@ -3,6 +3,8 @@ from dataclasses import dataclass
 
 from heat_load_calc.core import outside_eqv_temp, solar_shading, transmission_solar_radiation
 from heat_load_calc.initializer.boundary_type import BoundaryType
+from heat_load_calc.core import shape_factor
+from heat_load_calc.core import response_factor
 
 
 @dataclass
@@ -53,6 +55,9 @@ class BoundarySimple:
     # 室内側表面対流熱伝達率, W/m2K
     h_c: float
 
+    # 室内側表面放射熱伝達率, W/m2K
+    h_r: float
+
     # 相当外気温度, ℃, [8760 * 4]
     theta_o_sol: np.ndarray
 
@@ -60,7 +65,46 @@ class BoundarySimple:
     q_trs_sol: np.ndarray
 
 
-def get_boundary_simple(theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, a_sun_ns, h_sun_ns, b):
+def get_boundary_simples(a_sun_ns, h_sun_ns, i_dn_ns, i_sky_ns, n_rm, r_n_ns, theta_o_ns, bs):
+
+    # 本来であれば BoundarySimple クラスにおいて境界に関する入力用辞書から読み込みを境界個別に行う。
+    # しかし、室内側表面放射熱伝達は室内側の形態係数によって値が決まり、ある室に接する境界の面積の組み合わせで決定されるため、
+    # 境界個別に値を決めることはできない。（すべての境界の情報が必要である。）
+    # 一方で、境界の集約を行うためには、応答係数を BoundarySimple クラス生成時に求める必要があり、
+    # さらに応答係数の計算には裏面の表面放射・対流熱伝達率の値が必要となるため、
+    # BoundarySimple クラスを生成する前に、予め室内側表面放射・対流熱伝達率を計算しておき、
+    # BoundarySimple クラスを生成する時に必要な情報としておく。
+    # 境界jの室内側表面放射熱伝達率, W/m2K, [j, 1]
+
+    h_r_js = shape_factor.get_h_r_js(
+        n_spaces=n_rm,
+        bs=bs
+    ).reshape(-1, 1)
+
+    # 境界jの室内側表面対流熱伝達率, W/m2K, [j, 1]
+    h_c_js = np.array([b['h_c'] for b in bs]).reshape(-1, 1)
+
+    # 応答係数を取得する。
+    rfs = [response_factor.get_response_factor(b=b, h_c_js=h_c_js, h_r_js=h_r_js) for b in bs]
+
+    # 境界j
+    bss = [
+        get_boundary_simple(
+            theta_o_ns=theta_o_ns,
+            i_dn_ns=i_dn_ns,
+            i_sky_ns=i_sky_ns,
+            r_n_ns=r_n_ns,
+            a_sun_ns=a_sun_ns,
+            h_sun_ns=h_sun_ns,
+            b=b,
+            h_r_js=h_r_js
+        ) for b in bs
+    ]
+
+    return bss, h_r_js, rfs
+
+
+def get_boundary_simple(theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, a_sun_ns, h_sun_ns, b, h_r_js):
 
     # ID
     # TODO: ID が0始まりで1ずつ増え、一意であることのチェックを行うコードを追記する。
@@ -133,6 +177,8 @@ def get_boundary_simple(theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, a_sun_ns, h_sun_n
     # 室内側表面対流熱伝達率, W/m2K
     h_c = b['h_c']
 
+    h_r = h_r_js[boundary_id]
+
     solar_shading_part = solar_shading.SolarShading.create(b=b)
 
     # 相当外気温度, degree C, [8760 * 4]
@@ -164,6 +210,7 @@ def get_boundary_simple(theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, a_sun_ns, h_sun_n
         is_sun_striked_outside=is_sun_striked_outside,
         direction=direction,
         h_c=h_c,
+        h_r=h_r,
         theta_o_sol=theta_o_sol,
         q_trs_sol=q_trs_sol
     )
