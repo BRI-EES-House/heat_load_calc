@@ -299,12 +299,6 @@ def make_pre_calc_parameters(
         bs=rd['boundaries']
     )
 
-    # 名前, [j, 1]
-    name_js = np.array([bs.name for bs in bss]).reshape(-1, 1)
-
-    # 名前2, [j, 1]
-    sub_name_js = np.array([bs.sub_name for bs in bss]).reshape(-1, 1)
-
     # endregion
 
     # region equipments の読み込み
@@ -402,6 +396,12 @@ def make_pre_calc_parameters(
 
     # region 読み込んだ変数をベクトル表記に変換する
     # ただし、1次元配列を縦ベクトルに変換する処理等は読み込み時に np.reshape を適用して変換している。
+
+    # 名前, [j, 1]
+    name_js = np.array([bs.name for bs in bss]).reshape(-1, 1)
+
+    # 名前2, [j, 1]
+    sub_name_js = np.array([bs.sub_name for bs in bss]).reshape(-1, 1)
 
     # 地盤かどうか, [j, 1]
     is_ground_js = np.array([bs.boundary_type == BoundaryType.Ground for bs in bss]).reshape(-1, 1)
