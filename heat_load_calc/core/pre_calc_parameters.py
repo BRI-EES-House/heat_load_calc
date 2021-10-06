@@ -441,10 +441,10 @@ def make_pre_calc_parameters(
     # 境界jの面積, m2, [j, 1]
     a_srf_js = np.array([bs.area for bs in bss]).reshape(-1, 1)
 
-    bs = rd['boundaries']
-
     # 境界 j が床か否か, [j]
-    is_floor_js = np.array([b['is_floor'] for b in bs])
+    is_floor_js = np.array([bs.is_floor for bs in bss])
+
+    bs = rd['boundaries']
 
     # 隣接する空間のID, [j]
     # 注意：　この変数は後の numpy の操作のみに使用されるため、[j, 1]の縦行列ではなく、[j] の1次元配列とした。
