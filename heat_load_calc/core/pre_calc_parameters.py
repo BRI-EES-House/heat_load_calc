@@ -288,6 +288,19 @@ def make_pre_calc_parameters(
 
     # boundaries の取り出し
 
+    # 境界jの室内側表面放射熱伝達率, W/m2K, [j, 1]
+    # 本来であれば BoundarySimple クラスにおいて境界に関する入力用辞書から読み込みを境界個別に行う。
+    # しかし、室内側表面放射熱伝達は室内側の形態係数によって値が決まり、ある室に接する境界の面積の組み合わせで決定されるため、
+    # 境界個別に値を決めることはできない。（すべての境界の情報が必要である。）
+    # 一方で、境界の集約を行うためには、応答係数を BoundarySimple クラス生成時に求める必要があり、
+    # さらに応答係数の計算には裏面の表面放射熱伝達率の値が必要となるため、
+    # BoundarySimple クラスを生成する前に、予め室内側表面放射熱伝達率を計算しておき、
+    # BoundarySimple クラスを生成する時に必要な情報としておく。
+    h_r_js = shape_factor.get_h_r_js(
+        n_spaces=n_rm,
+        bs=rd['boundaries']
+    ).reshape(-1, 1)
+
     # 境界j
     bss = [
         boundary_simple.get_boundary_simple(
@@ -465,20 +478,15 @@ def make_pre_calc_parameters(
     # 室iの在室者に対する境界j*の形態係数, [i, j]
     f_mrt_hum_is_js = p_is_js * f_mrt_hum_js[np.newaxis, :]
 
-    # 境界jの室内側表面放射熱伝達率, W/m2K, [j, 1]
-    # 室iの微小球に対する境界jの形態係数
-    h_r_js = shape_factor.get_h_r_js(
-        a_srf_js=a_srf_js.flatten(),
-        connected_room_id_js=connected_room_id_js,
-        n_spaces=n_rm,
-        n_boundaries=n_boundaries
-    ).reshape(-1, 1)
-
     # 境界jの室内側表面対流熱伝達率, W/m2K, [j, 1]
     h_c_js = np.array([b['h_c'] for b in bs]).reshape(-1, 1)
 
     # 応答係数を取得する。
-    phi_a0_js, phi_a1_js_ms, phi_t0_js, phi_t1_js_ms, r_js_ms = _get_response_factors(bs, h_c_js, h_r_js)
+    phi_a0_js, phi_a1_js_ms, phi_t0_js, phi_t1_js_ms, r_js_ms = response_factor.get_response_factors(
+        bs=bs,
+        h_c_js=h_c_js,
+        h_r_js=h_r_js
+    )
 
     # 境界jの室に設置された放射暖房の放熱量のうち放射成分に対する境界jの室内側吸収比率
     # 放射暖房の発熱部位の設定（とりあえず床発熱） 表7

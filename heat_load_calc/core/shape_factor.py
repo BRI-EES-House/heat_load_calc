@@ -5,8 +5,13 @@ from heat_load_calc.external.global_number import get_sgm, get_eps
 from scipy import optimize
 
 
-def get_h_r_js(a_srf_js, connected_room_id_js, n_spaces, n_boundaries):
-    h_r_is = np.zeros(shape=(n_boundaries), dtype=float)
+def get_h_r_js(n_spaces, bs):
+
+    a_srf_js = np.array([b['area'] for b in bs])
+
+    connected_room_id_js = np.array([b['connected_room_id'] for b in bs])
+
+    h_r_is = np.zeros(shape=(len(bs)), dtype=float)
     for i in range(n_spaces):
         is_connected = connected_room_id_js == i
 

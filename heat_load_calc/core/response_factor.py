@@ -30,6 +30,51 @@ class ResponseFactor:
     n_root: int
 
 
+def get_response_factors(bs, h_c_js, h_r_js):
+
+    # 境界jの吸熱応答係数の初項, m2K/W, [j, 1]
+    phi_a0_js = []
+    # 境界jの項別公比法における項mの吸熱応答係数の第一項 , m2K/W, [j, 12]
+    phi_a1_js_ms = []
+    # 境界jの貫流応答係数の初項, [j, 1]
+    phi_t0_js = []
+    # 境界jの項別公比法における項mの貫流応答係数の第一項, [j, 12]
+    phi_t1_js_ms = []
+    # 境界jの項別公比法における項mの公比, [j, 12]
+    r_js_ms = []
+
+    for b in bs:
+        if b['spec']['method'] == 'response_factor':
+            # TODO: ここで根の数は使用しないためゼロとしているが本来であれば適切な値を設定すべき。
+            # この後、根の数は使用していないため、もしこの後の計算で不要なのであれば、
+            # そもそもデータクラスのプロパティーにする必要はないと思われる。
+            rf = ResponseFactor(
+                rft0=b['spec']['phi_t0'],
+                rfa0=b['spec']['phi_a0'],
+                rft1=b['spec']['phi_t1'],
+                rfa1=b['spec']['phi_a1'],
+                row=b['spec']['r'],
+                n_root=0
+            )
+        else:
+            rff = ResponseFactorFactory.create(spec=b['spec'], h_r_js=h_r_js, h_c_js=h_c_js)
+            rf = rff.get_response_factors()
+            
+        phi_a0_js.append(rf.rfa0)
+        phi_a1_js_ms.append(rf.rfa1)
+        phi_t0_js.append(rf.rft0)
+        phi_t1_js_ms.append(rf.rft1)
+        r_js_ms.append(rf.row)
+
+    phi_a0_js = np.array(phi_a0_js).reshape(-1, 1)
+    phi_a1_js_ms = np.array(phi_a1_js_ms)
+    phi_t0_js = np.array(phi_t0_js).reshape(-1, 1)
+    phi_t1_js_ms = np.array(phi_t1_js_ms)
+    r_js_ms = np.array(r_js_ms)
+
+    return phi_a0_js, phi_a1_js_ms, phi_t0_js, phi_t1_js_ms, r_js_ms
+
+
 # ラプラス変数の設定
 def get_laps(alp: np.ndarray) -> np.ndarray:
     """
