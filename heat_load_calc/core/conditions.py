@@ -109,11 +109,11 @@ def initialize_conditions(n_spaces: int, n_bdries: int):
 
     # ステップnの室iにおける家具の温度, degree C, [i]
     # 初期値を15℃とする。
-    theta_frnt_is_n = np.full(total_number_of_spaces, 15.0)
+    theta_frt_is_n = np.full(total_number_of_spaces, 15.0)
 
     # ステップnの室iにおける家具の絶対湿度, kg/kgDA, [i, 1]
     # 初期値を空気温度20℃相対湿度40%の時の値とする。
-    x_frnt_is_n = np.full((total_number_of_spaces, 1), psy.get_x(psy.get_p_vs(theta=20.0) * 0.4))
+    x_frt_is_n = np.full((total_number_of_spaces, 1), psy.get_x(psy.get_p_vs(theta=20.0) * 0.4))
 
     return Conditions(
         operation_mode_is_n=operation_mode_is_n,
@@ -123,8 +123,8 @@ def initialize_conditions(n_spaces: int, n_bdries: int):
         theta_dsh_srf_a_js_ms_n=theta_dsh_srf_a_js_ms_n0,
         theta_dsh_srf_t_js_ms_n=theta_dsh_srf_t_js_ms_n0,
         q_srf_js_n=q_srf_jstrs_n,
-        theta_frt_is_n=theta_frnt_is_n.reshape(-1, 1),
-        x_frt_is_n=x_frnt_is_n,
+        theta_frt_is_n=theta_frt_is_n.reshape(-1, 1),
+        x_frt_is_n=x_frt_is_n,
         theta_ei_js_n=np.full(total_number_of_bdry, 15.0).reshape(-1, 1)
     )
 
