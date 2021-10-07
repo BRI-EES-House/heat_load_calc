@@ -442,20 +442,14 @@ def make_pre_calc_parameters(
     # 境界 j が床か否か, [j]
     is_floor_js = np.array([bs.is_floor for bs in bss])
 
-    # 隣接する空間のID, [j]
-    # 注意：　この変数は後の numpy の操作のみに使用されるため、[j, 1]の縦行列ではなく、[j] の1次元配列とした。
-    connected_room_id_js = np.array([bs.connected_room_id for bs in bss])
-
     # 境界の数
     n_boundaries = len(bss)
 
-    # 境界jの室に設置された放射暖房の放熱量のうち放射成分に対する境界jの室内側吸収比率
+    # 室iの在室者に対する境界jの形態係数, [j]
+    # 境界jが接する室の在室者に対する境界jの形態係数, [j]
     f_mrt_hum_js = occupants_form_factor.get_f_mrt_hum_js(
-        a_srf_js=a_srf_js.flatten(),
-        connected_room_id_js=connected_room_id_js,
-        is_floor_js=is_floor_js,
-        n_boundaries=n_boundaries,
-        n_spaces=n_rm
+        n_spaces=n_rm,
+        bss=bss
     )
 
     # 室iの在室者に対する境界j*の形態係数, [i, j]
@@ -482,12 +476,10 @@ def make_pre_calc_parameters(
     # 放射暖房の発熱部位の設定（とりあえず床発熱） 表7
     # TODO: 発熱部位を指定して、面積按分するように変更すべき。
     flr_js = indoor_radiative_heat_transfer.get_flr_js(
-        a_srf_js=a_srf_js.flatten(),
-        connected_room_id_js=connected_room_id_js,
         is_floor_js=is_floor_js,
         is_radiative_heating_is=is_radiative_is.flatten(),
-        n_boundaries=n_boundaries,
-        n_spaces=n_rm
+        n_spaces=n_rm,
+        bss=bss
     )
 
     # 室iに設置された放射暖房の放熱量のうち放射成分に対する境界jの室内側吸収比率, [j, i]
@@ -516,7 +508,7 @@ def make_pre_calc_parameters(
     r_sol_fnt = 0.5
 
     # ステップnの室iにおける家具の吸収日射量, W, [i, n]
-    q_sol_frnt_is_ns = q_trs_sol_is_ns * r_sol_fnt
+    q_sol_frt_is_ns = q_trs_sol_is_ns * r_sol_fnt
 
     # 境界jの日射吸収の有無, [j, 1]
     is_solar_abs_js = np.array([bs.is_solar_absorbed_inside for bs in bss]).reshape(-1, 1)
@@ -525,9 +517,7 @@ def make_pre_calc_parameters(
     a_srf_abs_is = np.dot(p_is_js, a_srf_js * is_solar_abs_js)
 
     # ステップnの境界jにおける透過日射吸収熱量, W/m2, [j, n]
-    # TODO: 日射の吸収割合を入力値にした方がよいのではないか？
-    q_sol_js_ns = np.dot(p_js_is, q_trs_sol_is_ns / a_srf_abs_is)\
-        * is_solar_abs_js * (1.0 - r_sol_fnt)
+    q_sol_js_ns = np.dot(p_js_is, q_trs_sol_is_ns / a_srf_abs_is) * is_solar_abs_js * (1.0 - r_sol_fnt)
 
     # 温度差係数
     k_eo_js = np.array([bs.h_td for bs in bss]).reshape(-1, 1)
@@ -648,7 +638,7 @@ def make_pre_calc_parameters(
         h_c_js=h_c_js,
         f_mrt_is_js=f_mrt_is_js,
         q_sol_js_ns=q_sol_js_ns,
-        q_sol_frt_is_ns=q_sol_frnt_is_ns,
+        q_sol_frt_is_ns=q_sol_frt_is_ns,
         beta_is=beta_is,
         wsr_js_is=wsr_js_is,
         wsb_js_is=wsb_js_is,
