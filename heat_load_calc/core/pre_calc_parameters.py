@@ -442,10 +442,6 @@ def make_pre_calc_parameters(
     # 境界 j が床か否か, [j]
     is_floor_js = np.array([bs.is_floor for bs in bss])
 
-    # 隣接する空間のID, [j]
-    # 注意：　この変数は後の numpy の操作のみに使用されるため、[j, 1]の縦行列ではなく、[j] の1次元配列とした。
-    connected_room_id_js = np.array([bs.connected_room_id for bs in bss])
-
     # 境界の数
     n_boundaries = len(bss)
 
@@ -480,12 +476,10 @@ def make_pre_calc_parameters(
     # 放射暖房の発熱部位の設定（とりあえず床発熱） 表7
     # TODO: 発熱部位を指定して、面積按分するように変更すべき。
     flr_js = indoor_radiative_heat_transfer.get_flr_js(
-        a_srf_js=a_srf_js.flatten(),
-        connected_room_id_js=connected_room_id_js,
         is_floor_js=is_floor_js,
         is_radiative_heating_is=is_radiative_is.flatten(),
-        n_boundaries=n_boundaries,
-        n_spaces=n_rm
+        n_spaces=n_rm,
+        bss=bss
     )
 
     # 室iに設置された放射暖房の放熱量のうち放射成分に対する境界jの室内側吸収比率, [j, i]
