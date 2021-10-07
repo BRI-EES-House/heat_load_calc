@@ -146,7 +146,7 @@ I. 評価法
 
     \begin{align*}
         \pmb{\theta}_{s,n+1}
-        = \pmb{F}_{WSR} \cdot \pmb{\theta}_{r,n+1} + \pmb{F}_{WSC,n+1} + \pmb{F}_{WSB} \cdot \hat{\pmb{Lr}}_{n} + \pmb{F}_{WSV,n+1}
+        = \pmb{F}_{WSR} \cdot \pmb{\theta}_{r,n+1} + \pmb{F}_{WSC,n+1} + \pmb{F}_{WSB} \cdot \hat{\pmb{L}}_{sr,n} + \pmb{F}_{WSV,n+1}
         \tag{5}
     \end{align*}
 
@@ -178,13 +178,13 @@ I. 評価法
     \end{align*}
 
     \begin{align*}
-        \hat{\pmb{Lr}}_{n}
+        \hat{\pmb{L}}_{sr,n}
         = \begin{pmatrix}
-            \hat{Lr}_{0,n} \\
+            \hat{L}_{sr,0,n} \\
             \vdots \\
-            \hat{Lr}_{i,n} \\
+            \hat{L}_{sr,i,n} \\
             \vdots \\
-            \hat{Lr}_{I-1,n}
+            \hat{L}_{sr,I-1,n}
         \end{pmatrix}
     \end{align*}
 
@@ -210,7 +210,7 @@ I. 評価法
 
     \begin{align*}
         \pmb{\theta}_{r,n+1}
-        = \pmb{F}_{XOT,n+1} \cdot \pmb{\theta}_{OT,n+1} - \pmb{F}_{XLR,n+1} \cdot \hat{\pmb{Lr}}_{n} - \pmb{F}_{XC,n+1}
+        = \pmb{F}_{XOT,n+1} \cdot \pmb{\theta}_{OT,n+1} - \pmb{F}_{XLR,n+1} \cdot \hat{\pmb{L}}_{sr,n} - \pmb{F}_{XC,n+1}
         \tag{6}
     \end{align*}
 
