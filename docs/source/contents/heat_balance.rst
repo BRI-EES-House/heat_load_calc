@@ -66,7 +66,7 @@ I. 評価法
             \theta_{EI,j,n+1} &= \frac{ 1 }{ h_{c,j} + h_{r,j} } \cdot \\
             & \left( h_{c,j} \cdot \theta_{r,i,n+1} \mid_{i = p_j}
             + h_{r,j} \cdot \sum_{j=0}^{J-1}{ ( F_{mrt,i,j} \cdot \theta_{srf,j,n+1} ) } \mid_{i = p_j} \right. \\
-            & \left. + q_{sol,j,n+1} + \frac{ ( flr_{j,i} \cdot \hat{Lr}_{i,n} \cdot (1 - \beta_i) ) \mid_{i = p_j} }{ A_j } \right)
+            & \left. + q_{sol,j,n+1} + \frac{ ( flr_{j,i} \cdot \hat{L}_{SR,i,n} \cdot (1 - \beta_i) ) \mid_{i = p_j} }{ A_j } \right)
         \end{split}
         \tag{2}
     \end{align*}
@@ -81,7 +81,7 @@ I. 評価法
     | ステップ |n+1| における境界 |j| の透過日射吸収熱量, W / |m2|
 :math:`flr_{j,i}`
     | 室 |i| に設置された放射暖房の放熱量のうち放射成分に対する境界 |j| の室内側表面の吸収比率, -
-:math:`\hat{Lr}_{i,n}`
+:math:`\hat{L}_{SR,i,n}`
     | ステップ |n| からステップ |n+1| における室 |i| に設置された放射暖房の放熱量, W
 :math:`\beta_{i}`
     | 室 |i| に設置された放射暖房の対流成分比率, -
@@ -146,7 +146,7 @@ I. 評価法
 
     \begin{align*}
         \pmb{\theta}_{s,n+1}
-        = \pmb{F}_{WSR} \cdot \pmb{\theta}_{r,n+1} + \pmb{F}_{WSC,n+1} + \pmb{F}_{WSB} \cdot \hat{\pmb{L}}_{sr,n} + \pmb{F}_{WSV,n+1}
+        = \pmb{F}_{WSR} \cdot \pmb{\theta}_{r,n+1} + \pmb{F}_{WSC,n+1} + \pmb{F}_{WSB} \cdot \hat{\pmb{L}}_{SR,n} + \pmb{F}_{WSV,n+1}
         \tag{5}
     \end{align*}
 
@@ -178,13 +178,13 @@ I. 評価法
     \end{align*}
 
     \begin{align*}
-        \hat{\pmb{L}}_{sr,n}
+        \hat{\pmb{L}}_{SR,n}
         = \begin{pmatrix}
-            \hat{L}_{sr,0,n} \\
+            \hat{L}_{SR,0,n} \\
             \vdots \\
-            \hat{L}_{sr,i,n} \\
+            \hat{L}_{SR,i,n} \\
             \vdots \\
-            \hat{L}_{sr,I-1,n}
+            \hat{L}_{SR,I-1,n}
         \end{pmatrix}
     \end{align*}
 
@@ -210,7 +210,7 @@ I. 評価法
 
     \begin{align*}
         \pmb{\theta}_{r,n+1}
-        = \pmb{F}_{XOT,n+1} \cdot \pmb{\theta}_{OT,n+1} - \pmb{F}_{XLR,n+1} \cdot \hat{\pmb{L}}_{sr,n} - \pmb{F}_{XC,n+1}
+        = \pmb{F}_{XOT,n+1} \cdot \pmb{\theta}_{OT,n+1} - \pmb{F}_{XLR,n+1} \cdot \hat{\pmb{L}}_{SR,n} - \pmb{F}_{XC,n+1}
         \tag{6}
     \end{align*}
 
@@ -252,7 +252,7 @@ I. 評価法
     :nowrap:
 
     \begin{align*}
-        \pmb{\theta}_{OT,n+1} = \pmb{BRM}_{OT,n+1} \cdot \hat{\pmb{LC}}_{n}
+        \pmb{\theta}_{OT,n+1} = \pmb{F}_{BRM,OT,n+1} \cdot \hat{\pmb{L}}_{SC,n}
         + \pmb{BRL}_{OT,n+1} \cdot \hat{\pmb{Lr}}_{n}
         + \pmb{BRC}_{OT,n+1}
         \tag{7}
