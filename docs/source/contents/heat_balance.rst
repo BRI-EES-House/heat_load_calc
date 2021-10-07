@@ -24,7 +24,7 @@ I. 評価法
 繰り返し計算とは、1つ前のステップの状態量から次のステップの状態量を計算することといえる。
 ここで、前のステップから次のステップに引き継ぐ状態量は以下の値とする。
 
-:math:`q_{srf,j,n}`
+:math:`q_{s,j,n}`
     | ステップ |n| における境界 |j| の表面熱流（壁体吸熱を正とする）, W / |m2|
 :math:`\theta_{EI,j,n}`
     | ステップ |n| における境界 |j| の等価温度, ℃
@@ -32,18 +32,18 @@ I. 評価法
     | ステップ |n+1| における室 |i| の人体の平均放射温度, ℃
 
 
-ステップ |n+1| における境界 |j| の表面熱流（壁体吸熱を正とする） :math:`q_{srf,j,n+1}` は式(1)により与えられる。
+ステップ |n+1| における境界 |j| の表面熱流（壁体吸熱を正とする） :math:`q_{s,j,n+1}` は式(1)により与えられる。
 
 .. math::
     :nowrap:
 
     \begin{align*}
-        q_{srf,j,n+1} = ( \theta_{EI,j,n+1} - \theta_{srf,j,n+1} ) \cdot ( h_{c,j} + h_{r,j} ) \tag{1}
+        q_{s,j,n+1} = ( \theta_{EI,j,n+1} - \theta_{srf,j,n+1} ) \cdot ( h_{c,j} + h_{r,j} ) \tag{1}
     \end{align*}
 
 ここで、
 
-:math:`q_{srf,j,n}`
+:math:`q_{s,j,n}`
     | ステップ |n| における境界 |j| の表面熱流（壁体吸熱を正とする）, W / |m2|
 :math:`\theta_{EI,j,n}`
     | ステップ |n| における境界 |j| の等価温度, ℃
@@ -66,7 +66,7 @@ I. 評価法
             \theta_{EI,j,n+1} &= \frac{ 1 }{ h_{c,j} + h_{r,j} } \cdot \\
             & \left( h_{c,j} \cdot \theta_{r,i,n+1} \mid_{i = p_j}
             + h_{r,j} \cdot \sum_{j=0}^{J-1}{ ( F_{mrt,i,j} \cdot \theta_{srf,j,n+1} ) } \mid_{i = p_j} \right. \\
-            & \left. + q_{sol,j,n+1} + \frac{flr_{j,i} \cdot \hat{Lr}_{i,n} \cdot (1 - \beta_i) }{ A_j } \right)
+            & \left. + q_{sol,j,n+1} + \frac{ ( flr_{j,i} \cdot \hat{Lr}_{i,n} \cdot (1 - \beta_i) ) \mid_{i = p_j} }{ A_j } \right)
         \end{split}
         \tag{2}
     \end{align*}
@@ -92,13 +92,13 @@ I. 評価法
 また、 :math:`p_j` とは境界 |j| に接する室の番号を表す。
 例えば、 :math:`\theta_{r,i,n+1} \mid_{i = p_j}` とは、境界 |j| に接する室 |i| の室温である。
 
-ステップ |n+1| における室 |i| の人体の平均放射温度 :math:`\theta_{mrt,hum,i,n+}` は式(3)により表される。
+ステップ |n+1| における室 |i| の人体の平均放射温度 :math:`\theta_{mrt,hum,i,n+1}` は式(3)により表される。
 
 .. math::
     :nowrap:
 
     \begin{align*}
-        \theta_{mrt,hum,i,n+1} = f_{mrt,hum,i,j} \cdot \theta_{srf,j,n+1} \tag{3}
+        \theta_{mrt,hum,i,n+1} = f_{mrt,hum,i,j} \cdot \theta_{s,j,n+1} \tag{3}
     \end{align*}
 
 ここで、
@@ -117,9 +117,9 @@ I. 評価法
 
     \begin{align*}
         \theta_{frt,i,n+1} = \frac{
-            C_{frt,i} \cdot \theta_{frt,i,n} + \Delta t \cdot G_{frt,i} \cdot \theta_{r,i,n+1}
+            C_{sh,frt,i} \cdot \theta_{frt,i,n} + \Delta t \cdot G_{sh,frt,i} \cdot \theta_{r,i,n+1}
             + \Delta t \cdot \hat{q}_{sol,frt,n+1}
-        }{ C_{frt,i} + \Delta t \cdot G_{frt,i} }
+        }{ C_{sh,frt,i} + \Delta t \cdot G_{sh,frt,i} }
         \tag{4}
     \end{align*}
 
@@ -127,9 +127,9 @@ I. 評価法
 
 :math:`\theta_{frt,i,n}`
     | ステップ |n| における室 |i| に設置された家具の温度, ℃
-:math:`C_{frt,i}`
+:math:`C_{sh,frt,i}`
     | 室 |i| に設置された家具の熱容量, J / K
-:math:`G_{frt,i}`
+:math:`G_{sh,frt,i}`
     | 室 |i| における家具と空気間の熱コンダクタンス, W/K
 :math:`\Delta t`
     | 時間ステップの間隔, s
@@ -139,14 +139,14 @@ I. 評価法
 である。
 
 
-ステップ |n+1| における境界 |j| の表面温度 :math:`\theta_{srf,j,n+1}` は式(5)により表される。
+ステップ |n+1| における境界 |j| の表面温度 :math:`\theta_{s,j,n+1}` は式(5)により表される。
 
 .. math::
     :nowrap:
 
     \begin{align*}
-        \pmb{\theta}_{srf,n+1}
-        = \pmb{WSR} \cdot \pmb{\theta}_{r,n+1} + \pmb{WSC}_{n+1} + \pmb{WSB} \cdot \hat{\pmb{Lr}}_{n} + \pmb{WSV}_{n+1}
+        \pmb{\theta}_{s,n+1}
+        = \pmb{F}_{WSR} \cdot \pmb{\theta}_{r,n+1} + \pmb{F}_{WSC,n+1} + \pmb{F}_{WSB} \cdot \hat{\pmb{Lr}}_{n} + \pmb{F}_{WSV,n+1}
         \tag{5}
     \end{align*}
 
@@ -156,13 +156,13 @@ I. 評価法
     :nowrap:
 
     \begin{align*}
-        \pmb{\theta}_{srf,n}
+        \pmb{\theta}_{s,n}
         = \begin{pmatrix}
-            \theta_{srf,0,n} \\
+            \theta_{s,0,n} \\
             \vdots \\
-            \theta_{srf,i,n} \\
+            \theta_{s,i,n} \\
             \vdots \\
-            \theta_{srf,I-1,n}
+            \theta_{s,I-1,n}
         \end{pmatrix}
     \end{align*}
 
@@ -191,14 +191,14 @@ I. 評価法
 である。
 また、
 
-:math:`\pmb{WSR}`
-    | :math:`J \times I` で表される行列, -
-:math:`\pmb{WSC}_{n+1}`
-    | :math:`J \times 1` で表される縦行列, ℃
-:math:`\pmb{WSB}_{n+1}`
-    | :math:`J \times I` で表される行列, K / W
-:math:`\pmb{WSV}_{n+1}`
-    | :math:`J \times 1` で表される縦行列, ℃
+:math:`\pmb{F}_{WSR}`
+    | :math:`F_{WSR,j,i}` を要素にもつ :math:`N_{boundary} \times N_{room}` で表される行列, -
+:math:`\pmb{F}_{WSC,n+1}`
+    | :math:`F_{WSC,j,n+1}` を要素にもつ :math:`N_{boundary} \times 1` で表される縦行列, ℃
+:math:`\pmb{F}_{WSB,n+1}`
+    | :math:`F_{WSB,j,i,n+1}` を要素にもつ :math:`N_{boundary} \times N_{room}` で表される行列, K / W
+:math:`\pmb{F}_{WSV,n+1}`
+    | :math:`F_{WSV,j,n+1}` を要素にもつ :math:`N_{boundary} \times 1` で表される縦行列, ℃
 
 である。
 

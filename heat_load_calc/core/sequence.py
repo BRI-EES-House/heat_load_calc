@@ -51,7 +51,7 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
     x_gen_is_n = ss.x_gen_is_ns[:, n].reshape(-1, 1)
 
     # ステップn+1の境界jにおける係数 WSC, degree C, [j, 1]
-    wsc_js_n_pls = ss.wsc_js_ns[:, n + 1].reshape(-1, 1)
+    f_wsc_js_n_pls = ss.wsc_js_ns[:, n + 1].reshape(-1, 1)
 
     # ステップnの室iにおける機械換気量（全般換気量+局所換気量）, m3/s, [i, 1]
     v_mec_vent_is_n = ss.v_mec_vent_is_ns[:, n].reshape(-1, 1)
@@ -107,7 +107,7 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
     cvl_js_n_pls = np.sum(theta_dsh_srf_t_js_ms_n_pls + theta_dsh_srf_a_js_ms_n_pls, axis=1, keepdims=True)
 
     # ステップn+1の境界jにおける係数WSV, degree C, [j, 1]
-    wsv_js_n_pls = np.dot(ss.ivs_ax_js_js, cvl_js_n_pls)
+    f_wsv_js_n_pls = np.dot(ss.ivs_ax_js_js, cvl_js_n_pls)
 
     # 室iの自然風利用による換気量, m3/s, [i, 1]
     # 自然風を利用していない場合は、0.0 m3/s になる。
@@ -119,7 +119,7 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
 
     # ステップn+1の室iにおける係数 BRC, W, [i, 1]
     brc_is_n_pls = ss.c_room_is / delta_t * c_n.theta_r_is_n \
-        + np.dot(ss.p_is_js, ss.h_c_js * ss.a_srf_js * (wsc_js_n_pls + wsv_js_n_pls)) \
+        + np.dot(ss.p_is_js, ss.h_c_js * ss.a_srf_js * (f_wsc_js_n_pls + f_wsv_js_n_pls)) \
         + get_c_air() * get_rho_air() * v_out_vent_is_n * ss.theta_o_ns[n + 1] \
         + q_gen_is_n + q_hum_is_n \
         + ss.g_sh_frt_is * (
@@ -142,13 +142,13 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
     kr_is_n = h_hum_r_is_n / (h_hum_c_is_n + h_hum_r_is_n)
 
     # ステップn+1における室iの係数 XOT, [i, i]
-    xot_is_is_n_pls = np.linalg.inv(v_diag(kc_is_n) + kr_is_n * np.dot(ss.f_mrt_hum_is_js, ss.wsr_js_is))
+    xot_is_is_n_pls = np.linalg.inv(v_diag(kc_is_n) + kr_is_n * np.dot(ss.f_mrt_hum_is_js, ss.f_wsr_js_is))
 
     # ステップn+1における室iの係数 XLR, [i, i]
-    xlr_is_is_n_pls = np.dot(xot_is_is_n_pls, kr_is_n * np.dot(ss.f_mrt_hum_is_js, ss.wsb_js_is))
+    xlr_is_is_n_pls = np.dot(xot_is_is_n_pls, kr_is_n * np.dot(ss.f_mrt_hum_is_js, ss.f_wsb_js_is))
 
     # ステップn+1における室iの係数 XC, [i, 1]
-    xc_is_n_pls = np.dot(xot_is_is_n_pls, kr_is_n * np.dot(ss.f_mrt_hum_is_js, (wsc_js_n_pls + wsv_js_n_pls)))
+    xc_is_n_pls = np.dot(xot_is_is_n_pls, kr_is_n * np.dot(ss.f_mrt_hum_is_js, (f_wsc_js_n_pls + f_wsv_js_n_pls)))
 
     # ステップnにおける係数 BRMOT, W/K, [i, i]
     brm_ot_is_is_n = np.dot(brm_is_is_n, xot_is_is_n_pls)
@@ -162,7 +162,7 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
     # ステップ n+1 における室 i の作用温度, degree C, [i, 1] (ステップn+1における瞬時値）
     # ステップ n における室 i に設置された対流暖房の放熱量, W, [i, 1] (ステップn～ステップn+1までの平均値）
     # ステップ n における室 i に設置された放射暖房の放熱量, W, [i, 1]　(ステップn～ステップn+1までの平均値）
-    theta_ot_is_n_pls, l_cs_is_n, l_hs_is_n = ss.calc_next_temp_and_load(
+    theta_ot_is_n_pls, l_sc_is_n, l_sr_is_n = ss.calc_next_temp_and_load(
         brc_ot_is_n=brc_ot_is_n_pls,
         brm_ot_is_is_n=brm_ot_is_is_n,
         brl_ot_is_is_n=brl_ot_is_is_n_pls,
@@ -173,36 +173,36 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
     )
 
     # ステップ n+1 における室 i の室温, degree C, [i, 1]
-    theta_r_is_n_pls = np.dot(xot_is_is_n_pls, theta_ot_is_n_pls) - np.dot(xlr_is_is_n_pls, l_hs_is_n) - xc_is_n_pls
+    theta_r_is_n_pls = np.dot(xot_is_is_n_pls, theta_ot_is_n_pls) - np.dot(xlr_is_is_n_pls, l_sr_is_n) - xc_is_n_pls
 
-    # ステップ n+1 における室 i　の家具の温度, degree C, [i, 1]
+    # ステップ n+1 における境界 j の表面温度, degree C, [j, 1], eq.(5)
+    theta_s_js_n_pls = np.dot(ss.f_wsr_js_is, theta_r_is_n_pls) + f_wsc_js_n_pls \
+                       + np.dot(ss.f_wsb_js_is, l_sr_is_n) + f_wsv_js_n_pls
+
+    # ステップ n+1 における室 i　の家具の温度, degree C, [i, 1], eq.(4)
     theta_frt_is_n_pls = (
         ss.c_sh_frt_is * c_n.theta_frt_is_n + delta_t * ss.g_sh_frt_is * theta_r_is_n_pls + q_sol_frt_is_n * delta_t
     ) / (ss.c_sh_frt_is + delta_t * ss.g_sh_frt_is)
 
-    # ステップ n+1 における境界 j の表面温度, degree C, [j, 1]
-    theta_s_js_n_pls = np.dot(ss.wsr_js_is, theta_r_is_n_pls) + wsc_js_n_pls \
-        + np.dot(ss.wsb_js_is, l_hs_is_n) + wsv_js_n_pls
-
-    # ステップ n+1 における室 i の人体に対する平均放射温度, degree C, [i, 1]
+    # ステップ n+1 における室 i の人体に対する平均放射温度, degree C, [i, 1], eq.(3)
     theta_mrt_hum_is_n_pls = np.dot(ss.f_mrt_hum_is_js, theta_s_js_n_pls)
 
-    # ステップ n+1 の境界 j における等価温度, degree C, [j, 1]
+    # ステップ n+1 における境界 j の等価温度, degree C, [j, 1], eq.(2)
     theta_ei_js_n_pls = (
         ss.h_c_js * np.dot(ss.p_js_is, theta_r_is_n_pls)
         + ss.h_r_js * np.dot(np.dot(ss.p_js_is, ss.f_mrt_is_js), theta_s_js_n_pls)
         + ss.q_sol_js_ns[:, n].reshape(-1, 1)
-        + np.dot(ss.flr_js_is, (1.0 - ss.beta_is) * l_hs_is_n) / ss.a_srf_js
+        + np.dot(ss.flr_js_is, (1.0 - ss.beta_is) * l_sr_is_n) / ss.a_srf_js
     ) / (ss.h_c_js + ss.h_r_js)
 
-    # ステップ n+1 の境界 j における表面熱流（壁体吸熱を正とする）, W/m2, [j, 1]
-    q_srf_js_n = (theta_ei_js_n_pls - theta_s_js_n_pls) * (ss.h_c_js + ss.h_r_js)
+    # ステップ n+1 における境界 j の表面熱流（壁体吸熱を正とする）, W/m2, [j, 1], eq.(1)
+    q_s_js_n_pls = (theta_ei_js_n_pls - theta_s_js_n_pls) * (ss.h_c_js + ss.h_r_js)
 
     # --- ここから、湿度の計算 ---
 
     l_l_i_n, x_frt_is_n_pls, x_r_is_n_pls = calc_humidity_and_latent_load(
         delta_t=delta_t,
-        l_cs_is_n=l_cs_is_n,
+        l_cs_is_n=l_sc_is_n,
         ss=ss,
         theta_r_is_n_pls=theta_r_is_n_pls,
         v_out_vent_is_n=v_out_vent_is_n,
@@ -233,8 +233,8 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
         # 積算値
         logger.q_hum[:, n] = q_hum_is_n.flatten()
         logger.x_hum[:, n] = x_hum_is_n.flatten()
-        logger.l_cs[:, n] = l_cs_is_n.flatten()
-        logger.l_rs[:, n] = l_hs_is_n.flatten()
+        logger.l_cs[:, n] = l_sc_is_n.flatten()
+        logger.l_rs[:, n] = l_sr_is_n.flatten()
         logger.l_cl[:, n] = l_l_i_n.flatten()
         # 平均値
         logger.v_reak_is_ns[:, n] = v_leak_is_n.flatten()
@@ -245,7 +245,7 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
         logger.theta_ot[:, n] = theta_ot_is_n_pls.flatten()
         logger.theta_s[:, n] = theta_s_js_n_pls.flatten()
         logger.theta_rear[:, n] = theta_rear_js_n.flatten()
-        logger.qiall_s[:, n] = q_srf_js_n.flatten()
+        logger.qiall_s[:, n] = q_s_js_n_pls.flatten()
 
         logger.pmv_target[:, n] = np.array([remark['pmv_target'] for remark in remarks_is_n])
         logger.v_hum[:, n] = np.array([remark['v_hum m/s'] for remark in remarks_is_n])
@@ -258,7 +258,7 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
         x_r_is_n=x_r_is_n_pls,
         theta_dsh_srf_a_js_ms_n=theta_dsh_srf_a_js_ms_n_pls,
         theta_dsh_srf_t_js_ms_n=theta_dsh_srf_t_js_ms_n_pls,
-        q_srf_js_n=q_srf_js_n,
+        q_srf_js_n=q_s_js_n_pls,
         theta_frt_is_n=theta_frt_is_n_pls,
         x_frt_is_n=x_frt_is_n_pls,
         theta_ei_js_n=theta_ei_js_n_pls
