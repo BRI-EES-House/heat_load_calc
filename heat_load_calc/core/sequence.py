@@ -162,19 +162,6 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
     # ステップ n+1 における室 i の作用温度, degree C, [i, 1] (ステップn+1における瞬時値）
     # ステップ n における室 i に設置された対流暖房の放熱量, W, [i, 1] (ステップn～ステップn+1までの平均値）
     # ステップ n における室 i に設置された放射暖房の放熱量, W, [i, 1]　(ステップn～ステップn+1までの平均値）
-    # theta_ot_is_n_pls, l_cs_is_n, l_hs_is_n = next_condition.calc_next_temp_and_load(
-    #     is_radiative_heating_is=ss.is_radiative_heating_is,
-    #     is_radiative_cooling_is=ss.is_radiative_cooling_is,
-    #     brc_ot_is_n_pls=brc_ot_is_n_pls,
-    #     brm_ot_is_is_n=brm_ot_is_is_n,
-    #     brl_ot_is_is_n_pls=brl_ot_is_is_n_pls,
-    #     theta_lower_target_is_n_pls=theta_lower_target_is_n_pls,
-    #     theta_upper_target_is_n_pls=theta_upper_target_is_n_pls,
-    #     lr_h_max_cap_is=ss.lr_h_max_cap_is,
-    #     lr_cs_max_cap_is=ss.lr_cs_max_cap_is,
-    #     operation_mode_is_n=operation_mode_is_n,
-    #     ac_demand_is_n=ac_demand_is_n
-    # )
     theta_ot_is_n_pls, l_cs_is_n, l_hs_is_n = ss.calc_next_temp_and_load(
         brc_ot_is_n=brc_ot_is_n_pls,
         brm_ot_is_is_n=brm_ot_is_is_n,
