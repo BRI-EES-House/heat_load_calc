@@ -142,22 +142,22 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
     kr_is_n = h_hum_r_is_n / (h_hum_c_is_n + h_hum_r_is_n)
 
     # ステップn+1における室iの係数 XOT, [i, i]
-    xot_is_is_n_pls = np.linalg.inv(v_diag(kc_is_n) + kr_is_n * np.dot(ss.f_mrt_hum_is_js, ss.f_wsr_js_is))
+    f_xot_is_is_n_pls = np.linalg.inv(v_diag(kc_is_n) + kr_is_n * np.dot(ss.f_mrt_hum_is_js, ss.f_wsr_js_is))
 
     # ステップn+1における室iの係数 XLR, [i, i]
-    xlr_is_is_n_pls = np.dot(xot_is_is_n_pls, kr_is_n * np.dot(ss.f_mrt_hum_is_js, ss.f_wsb_js_is))
+    xlr_is_is_n_pls = np.dot(f_xot_is_is_n_pls, kr_is_n * np.dot(ss.f_mrt_hum_is_js, ss.f_wsb_js_is))
 
     # ステップn+1における室iの係数 XC, [i, 1]
-    xc_is_n_pls = np.dot(xot_is_is_n_pls, kr_is_n * np.dot(ss.f_mrt_hum_is_js, (f_wsc_js_n_pls + f_wsv_js_n_pls)))
+    f_xc_is_n_pls = np.dot(f_xot_is_is_n_pls, kr_is_n * np.dot(ss.f_mrt_hum_is_js, (f_wsc_js_n_pls + f_wsv_js_n_pls)))
 
     # ステップnにおける係数 BRMOT, W/K, [i, i]
-    brm_ot_is_is_n = np.dot(brm_is_is_n, xot_is_is_n_pls)
+    brm_ot_is_is_n = np.dot(brm_is_is_n, f_xot_is_is_n_pls)
 
     # ステップnにおける係数 BRLOT, [i, i]
     brl_ot_is_is_n_pls = ss.brl_is_is + np.dot(brm_is_is_n, xlr_is_is_n_pls)
 
     # ステップnにおける係数 BRCOT, [i, 1]
-    brc_ot_is_n_pls = brc_is_n_pls + np.dot(brm_is_is_n, xc_is_n_pls)
+    brc_ot_is_n_pls = brc_is_n_pls + np.dot(brm_is_is_n, f_xc_is_n_pls)
 
     # ステップ n+1 における室 i の作用温度, degree C, [i, 1] (ステップn+1における瞬時値）
     # ステップ n における室 i に設置された対流暖房の放熱量, W, [i, 1] (ステップn～ステップn+1までの平均値）
@@ -172,8 +172,8 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
         ac_demand_is_n=ac_demand_is_n
     )
 
-    # ステップ n+1 における室 i の室温, degree C, [i, 1]
-    theta_r_is_n_pls = np.dot(xot_is_is_n_pls, theta_ot_is_n_pls) - np.dot(xlr_is_is_n_pls, l_sr_is_n) - xc_is_n_pls
+    # ステップ n+1 における室 i の室温, degree C, [i, 1], eq.(6)
+    theta_r_is_n_pls = np.dot(f_xot_is_is_n_pls, theta_ot_is_n_pls) - np.dot(xlr_is_is_n_pls, l_sr_is_n) - f_xc_is_n_pls
 
     # ステップ n+1 における境界 j の表面温度, degree C, [j, 1], eq.(5)
     theta_s_js_n_pls = np.dot(ss.f_wsr_js_is, theta_r_is_n_pls) + f_wsc_js_n_pls \

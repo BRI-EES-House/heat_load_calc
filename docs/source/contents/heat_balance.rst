@@ -192,13 +192,13 @@ I. 評価法
 また、
 
 :math:`\pmb{F}_{WSR}`
-    | :math:`F_{WSR,j,i}` を要素にもつ :math:`N_{boundary} \times N_{room}` で表される行列, -
+    | :math:`F_{WSR,j,i}` を要素にもつ :math:`J \times I` で表される行列, -
 :math:`\pmb{F}_{WSC,n+1}`
-    | :math:`F_{WSC,j,n+1}` を要素にもつ :math:`N_{boundary} \times 1` で表される縦行列, ℃
+    | :math:`F_{WSC,j,n+1}` を要素にもつ :math:`J \times 1` で表される縦行列, ℃
 :math:`\pmb{F}_{WSB,n+1}`
-    | :math:`F_{WSB,j,i,n+1}` を要素にもつ :math:`N_{boundary} \times N_{room}` で表される行列, K / W
+    | :math:`F_{WSB,j,i,n+1}` を要素にもつ :math:`J \times I` で表される行列, K / W
 :math:`\pmb{F}_{WSV,n+1}`
-    | :math:`F_{WSV,j,n+1}` を要素にもつ :math:`N_{boundary} \times 1` で表される縦行列, ℃
+    | :math:`F_{WSV,j,n+1}` を要素にもつ :math:`J \times 1` で表される縦行列, ℃
 
 である。
 
@@ -210,7 +210,7 @@ I. 評価法
 
     \begin{align*}
         \pmb{\theta}_{r,n+1}
-        = \pmb{XOT}_{n+1} \cdot \pmb{\theta}_{OT,n+1} + \pmb{XLR}_{n+1} \cdot \hat{\pmb{Lr}}_{n} + \pmb{XC}_{n+1}
+        = \pmb{F}_{XOT,n+1} \cdot \pmb{\theta}_{OT,n+1} - \pmb{F}_{XLR,n+1} \cdot \hat{\pmb{Lr}}_{n} - \pmb{F}_{XC,n+1}
         \tag{6}
     \end{align*}
 
@@ -237,12 +237,12 @@ I. 評価法
 
 である。また、
 
-:math:`\pmb{XOT}_{n+1}`
-    | :math:`I \times I` で表される行列, -
-:math:`\pmb{XLR}_{n+1}`
-    | :math:`I \times I` で表される行列, K / W
-:math:`\pmb{XC}_{n+1}`
-    | :math:`I \times 1` で表される縦行列, ℃
+:math:`\pmb{F}_{XOT,n+1}`
+    | :math:`F_{XOT,i,i,n+1}` を要素にもつ :math:`I \times I` で表される行列, -
+:math:`\pmb{F}_{XLR,n+1}`
+    | :math:`F_{XLR,i,i,n+1}` を要素にもつ :math:`I \times I` で表される行列, K / W
+:math:`\pmb{F}_{XC,n+1}`
+    | :math:`F_{XC,i,n+1}` を要素にもつ :math:`I \times 1` で表される縦行列, ℃
 
 である。
 
