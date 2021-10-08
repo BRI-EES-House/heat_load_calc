@@ -65,9 +65,9 @@ I. 評価法
         \begin{split}
             \theta_{EI,j,n+1}
             &= \frac{ 1 }{ h_{s,c,j} + h_{s,r,j} } \cdot \\
-            & \left( h_{s,c,j} \sum_{i=0}^{I-1}{p_{i,j} \cdot \theta_{r,i,n+1}}
+            & \left( h_{s,c,j} \sum_{i=0}^{I-1}{ ( p_{i,j} \cdot \theta_{r,i,n+1} ) }
             + h_{s,r,j} \cdot \sum_{j*=0}^{J-1}{ ( F'_{mrt,j,j*} \cdot \theta_{s,j*,n+1} ) } \right. \\
-            & \left. + q_{sol,j,n+1} + \frac{ ( flr_{j,i,n+1} \cdot \hat{L}_{SR,i,n} \cdot (1 - \beta_i) ) \mid_{i = p_j} }{ A_j } \right)
+            & \left. + q_{sol,j,n+1} + \frac{ \sum_{i=0}^{I-1}{ ( flr_{i,j,n+1} \cdot \hat{L}_{SR,i,n} \cdot (1 - \beta_i) ) } }{ A_j } \right)
         \end{split}
         \tag{2}
     \end{align*}
@@ -80,7 +80,7 @@ I. 評価法
     | 平均放射温度計算時の境界 |j*| の表面温度が境界 |j| に与える重み
 :math:`q_{sol,j,n+1}`
     | ステップ |n+1| における境界 |j| の透過日射吸収熱量, W / |m2|
-:math:`flr_{j,i,n+1}`
+:math:`flr_{i,j,n+1}`
     | ステップ |n+1| における室 |i| に設置された放射暖房の放熱量のうち放射成分に対する境界 |j| の室内側表面の吸収比率, -
 :math:`\hat{L}_{SR,i,n}`
     | ステップ |n| からステップ |n+1| における室 |i| に設置された放射空調の吸放熱量, W
@@ -88,11 +88,13 @@ I. 評価法
     | 室 |i| に設置された放射暖房の対流成分比率, -
 :math:`A_{j}`
     | 境界 |j| の面積, |m2|
+:math:`p_{i,j}`
+    | 室 |i| と境界 |j| の接続に関する係数。　境界 |j| が室 |i| に接している場合は :math:`1` とし、それ以外の場合は :math:`0` とする。
 
 である。
 なお、式中では、境界 |j*| と境界 |j| で添字を書き分けているが、意味するところは同じであり、例えば表面温度の場合、
 
-..math::
+.. math::
     :nowrap:
 
     \begin{align*}
