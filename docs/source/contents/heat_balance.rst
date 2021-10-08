@@ -63,10 +63,11 @@ I. 評価法
 
     \begin{align*}
         \begin{split}
-            \theta_{EI,j,n+1} &= \frac{ 1 }{ h_{c,j} + h_{r,j} } \cdot \\
-            & \left( h_{c,j} \cdot \theta_{r,i,n+1} \mid_{i = p_j}
-            + h_{r,j} \cdot \sum_{j=0}^{J-1}{ ( F_{mrt,i,j} \cdot \theta_{srf,j,n+1} ) } \mid_{i = p_j} \right. \\
-            & \left. + q_{sol,j,n+1} + \frac{ ( flr_{j,i} \cdot \hat{L}_{SR,i,n} \cdot (1 - \beta_i) ) \mid_{i = p_j} }{ A_j } \right)
+            \theta_{EI,j,n+1}
+            &= \frac{ 1 }{ h_{s,c,j} + h_{s,r,j} } \cdot \\
+            & \left( h_{s,c,j} \cdot \theta_{r,i,n+1} \mid_{i = p_j}
+            + h_{s,r,j} \cdot \sum_{j=0}^{J-1}{ ( F_{mrt,i,j} \cdot \theta_{s,j,n+1} ) } \mid_{i = p_j} \right. \\
+            & \left. + q_{sol,j,n+1} + \frac{ ( flr_{j,i,n+1} \cdot \hat{L}_{SR,i,n} \cdot (1 - \beta_i) ) \mid_{i = p_j} }{ A_j } \right)
         \end{split}
         \tag{2}
     \end{align*}
@@ -79,8 +80,8 @@ I. 評価法
     | 境界 |j| から室 |i| への微小球に対する形態係数
 :math:`q_{sol,j,n+1}`
     | ステップ |n+1| における境界 |j| の透過日射吸収熱量, W / |m2|
-:math:`flr_{j,i}`
-    | 室 |i| に設置された放射暖房の放熱量のうち放射成分に対する境界 |j| の室内側表面の吸収比率, -
+:math:`flr_{j,i,n+1}`
+    | ステップ |n+1| における室 |i| に設置された放射暖房の放熱量のうち放射成分に対する境界 |j| の室内側表面の吸収比率, -
 :math:`\hat{L}_{SR,i,n}`
     | ステップ |n| からステップ |n+1| における室 |i| に設置された放射空調の吸放熱量, W
 :math:`\beta_{i}`
