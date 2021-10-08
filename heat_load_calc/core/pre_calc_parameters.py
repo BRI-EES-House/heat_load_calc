@@ -483,7 +483,7 @@ def make_pre_calc_parameters(
     )
 
     # 室iに設置された放射暖房の放熱量のうち放射成分に対する境界jの室内側吸収比率, [j, i]
-    flr_js_is = p_js_is * flr_js[:, np.newaxis]
+    flr_js_is_ns = p_js_is * flr_js[:, np.newaxis]
 
     # 室iの空気の熱容量, J/K, [i, 1]
     c_rm_is = v_rm_is * get_rho_air() * get_c_air()
@@ -543,8 +543,8 @@ def make_pre_calc_parameters(
         + phi_t0_js * theta_dstrb_js_ns
 
     # FLB, K/W, [j, i]
-    flb_js_is = flr_js_is * (1.0 - beta_is.T) * phi_a0_js / a_srf_js\
-        + np.dot(k_ei_js_js, flr_js_is * (1.0 - beta_is.T)) * phi_t0_js / h_i_js / a_srf_js
+    flb_js_is_ns = flr_js_is_ns * (1.0 - beta_is.T) * phi_a0_js / a_srf_js\
+        + np.dot(k_ei_js_js, flr_js_is_ns * (1.0 - beta_is.T)) * phi_t0_js / h_i_js / a_srf_js
 
     # WSR, [j, i]
     wsr_js_is = np.dot(ivs_ax_js_js, fia_js_is)
@@ -553,10 +553,10 @@ def make_pre_calc_parameters(
     wsc_js_ns = np.dot(ivs_ax_js_js, crx_js_ns)
 
     # WSB, K/W, [j, i]
-    wsb_js_is = np.dot(ivs_ax_js_js, flb_js_is)
+    wsb_js_is_ns = np.dot(ivs_ax_js_js, flb_js_is_ns)
 
     # BRL, [i, i]
-    brl_is_is = np.dot(p_is_js, wsb_js_is * h_c_js * a_srf_js) + np.diag(beta_is.flatten())
+    brl_is_is_ns = np.dot(p_is_js, wsb_js_is_ns * h_c_js * a_srf_js) + np.diag(beta_is.flatten())
 
     # BRM(換気なし), W/K, [i, i]
     brm_non_vent_is_is = np.diag(c_rm_is.flatten() / delta_t)\
@@ -633,7 +633,7 @@ def make_pre_calc_parameters(
         q_trs_sol_is_ns=q_trs_sol_is_ns,
         v_ntrl_vent_is=v_ntrl_vent_is,
         ac_demand_is_ns=ac_demand_is_ns,
-        flr_js_is=flr_js_is,
+        flr_js_is=flr_js_is_ns,
         h_r_js=h_r_js,
         h_c_js=h_c_js,
         f_mrt_is_js=f_mrt_is_js,
@@ -641,10 +641,10 @@ def make_pre_calc_parameters(
         q_sol_frt_is_ns=q_sol_frt_is_ns,
         beta_is=beta_is,
         f_wsr_js_is=wsr_js_is,
-        f_wsb_js_is=wsb_js_is,
+        f_wsb_js_is=wsb_js_is_ns,
         brm_non_vent_is_is=brm_non_vent_is_is,
         ivs_ax_js_js=ivs_ax_js_js,
-        brl_is_is=brl_is_is,
+        brl_is_is=brl_is_is_ns,
         p_is_js=p_is_js,
         p_js_is=p_js_is,
         is_ground_js=is_ground_js,

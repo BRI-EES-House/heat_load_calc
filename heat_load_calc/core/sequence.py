@@ -150,11 +150,15 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
     # ステップn+1における室iの係数 XC, [i, 1]
     f_xc_is_n_pls = np.dot(f_xot_is_is_n_pls, kr_is_n * np.dot(ss.f_mrt_hum_is_js, (f_wsc_js_n_pls + f_wsv_js_n_pls)))
 
+    # BRL, [i, i]
+    brl_is_is_ns = np.dot(ss.p_is_js, ss.f_wsb_js_is * ss.h_c_js * ss.a_srf_js) + np.diag(ss.beta_is.flatten())
+
     # ステップnにおける係数 BRMOT, W/K, [i, i]
     brm_ot_is_is_n = np.dot(brm_is_is_n, f_xot_is_is_n_pls)
 
     # ステップnにおける係数 BRLOT, [i, i]
-    brl_ot_is_is_n_pls = ss.brl_is_is + np.dot(brm_is_is_n, xlr_is_is_n_pls)
+    # brl_ot_is_is_n_pls = ss.brl_is_is + np.dot(brm_is_is_n, xlr_is_is_n_pls)
+    brl_ot_is_is_n_pls = brl_is_is_ns + np.dot(brm_is_is_n, xlr_is_is_n_pls)
 
     # ステップnにおける係数 BRCOT, [i, 1]
     brc_ot_is_n_pls = brc_is_n_pls + np.dot(brm_is_is_n, f_xc_is_n_pls)
