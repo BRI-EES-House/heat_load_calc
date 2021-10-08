@@ -263,7 +263,7 @@ I. 評価法
     :nowrap:
 
     \begin{align*}
-        \pmb{\theta}_{OT,n+1} = \pmb{F}_{BRM,OT,n+1} \cdot \hat{\pmb{L}}_{SC,n}
+        \pmb{F}_{BRM,OT,n+1} \cdot \pmb{\theta}_{OT,n+1} = \hat{\pmb{L}}_{SC,n}
         + \pmb{F}_{BRL,OT,n+1} \cdot \hat{\pmb{L}}_{SR,n}
         + \pmb{F}_{BRC,OT,n+1}
         \tag{7}
@@ -340,37 +340,68 @@ I. 評価法
 
 である。これらの計算方法は、付録・・・に示す。
 
-これらの係数 :math:`\pmb{BRC}_{OT,n+1}`、 :math:`\pmb{BRL}_{OT,n+1}` 及び :math:`\pmb{BRM}_{OT,n+1}` は、
+これらの係数 :math:`\pmb{F}_{BRC,OT,n+1}`、 :math:`\pmb{F}_{BRL,OT,n+1}` 及び :math:`\pmb{F}_{BRM,OT,n+1}` は、
 式(8)～式(10)により表される。
 
 .. math::
     :nowrap:
 
     \begin{align*}
-        \pmb{BRC}_{OT,n+1} = \pmb{BRM}_{OT,n+1}^{-1} \cdot ( \pmb{BRC}_n - \pmb{BRM}_n \cdot \pmb{XC}_{n+1} ) \tag{8}
+        \pmb{F}_{BRC,OT,n+1} = \pmb{F}_{BRC,n} + \pmb{F}_{BRM,n} \cdot \pmb{F}_{XC,n+1} \tag{8}
     \end{align*}
 
     \begin{align*}
-        \pmb{BRL}_{OT,n+1} = \pmb{BRM}_{OT,n+1}^{-1} \cdot ( \pmb{BRL} - \pmb{BRM}_n \cdot \pmb{XLR}_{n+1} ) \tag{9}
+        \pmb{F}_{BRL,OT,n+1} = \pmb{F}_{BRL} + \pmb{F}_{BRM,n} \cdot \pmb{F}_{XLR,n+1} \tag{9}
     \end{align*}
 
     \begin{align*}
-        \pmb{BRM}_{OT,n+1} = \pmb{BRM}_{n} \cdot \pmb{XOT}_{n+1} \tag{10}
+        \pmb{F}_{BRM,OT,n+1} = \pmb{F}_{BRM,n} \cdot \pmb{F}_{XOT,n+1} \tag{10}
     \end{align*}
+
+
+
+.. math::
+    :nowrap:
+
+    \begin{align*}
+        \begin{split}
+            \pmb{\theta}_{OT,n+1}
+            & = (\pmb{BRM}_n \cdot \pmb{XOT}_{n+1})^{-1} \cdot \hat{\pmb{LC}}_n \\
+            & + (\pmb{BRM}_n \cdot \pmb{XOT}_{n+1})^{-1}
+            \cdot ( \pmb{BRL} - \pmb{BRM}_n \cdot \pmb{XLR}_{n+1} )
+            \cdot \hat{\pmb{Lr}}_{n} \\
+            & + (\pmb{BRM}_n \cdot \pmb{XOT}_{n+1})^{-1}
+            \cdot ( \pmb{BRC}_n - \pmb{BRM}_n \cdot \pmb{XC}_{n+1} )
+        \end{split}
+        \tag{b53}
+    \end{align*}
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ここで、
 
-:math:`\pmb{BRM}_{n}`
+:math:`\pmb{F}_{BRM,n}`
     | :math:`I \times I` で表される行列, W / K
-:math:`\pmb{XOT}_{n+1}`
+:math:`\pmb{F}_{XOT,n+1}`
     | :math:`I \times I` で表される行列, -
-:math:`\pmb{BRL}`
+:math:`\pmb{F}_{BRL}`
     | :math:`I \times I` で表される行列, -
-:math:`\pmb{BRC}_{n}`
+:math:`\pmb{F}_{BRC,n}`
     | :math:`I \times 1` で表される縦行列, W
-:math:`\pmb{XLR}_{n+1}`
+:math:`\pmb{F}_{XLR,n+1}`
     | :math:`I \times I` で表される行列, K / W
-:math:`\pmb{XC}_{n+1}`
+:math:`\pmb{F}_{XC,n+1}`
     | :math:`I \times 1` で表される縦行列, ℃
 
 である。

@@ -31,7 +31,8 @@ def get_next_temp_and_load(
         is_radiative_heating_is: np.ndarray,
         is_radiative_cooling_is: np.ndarray,
         lr_h_max_cap_is: np.ndarray,
-        lr_cs_max_cap_is: np.ndarray
+        lr_cs_max_cap_is: np.ndarray,
+        theta_natural_is_n: np.ndarray
 ):
 
     # 室の配列の形, i✕1　の行列 を表すタプル
@@ -53,7 +54,7 @@ def get_next_temp_and_load(
     k = brc_ot_is_n
 
     # 暖冷房負荷が無い場合の自然作用温度を計算する。
-    theta_natural_is_n = np.dot(np.linalg.inv(kt), k)
+    # theta_natural_is_n = np.dot(np.linalg.inv(kt), k)
 
     # 実際に暖房が行われるかどうか。
     is_heating = (operation_mode_is_n == OperationMode.HEATING) & (theta_natural_is_n < theta_lower_target_is_n)
