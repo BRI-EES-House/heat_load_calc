@@ -538,18 +538,11 @@ def make_pre_calc_parameters(
         + phi_t0_js / h_i_js * np.dot(k_ei_js_js, q_sol_js_ns)\
         + phi_t0_js * theta_dstrb_js_ns
 
-    # FLB, K/W, [j, i]
-    flb_js_is_ns = flr_js_is_ns * (1.0 - beta_is.T) * phi_a0_js / a_srf_js\
-        + np.dot(k_ei_js_js, flr_js_is_ns * (1.0 - beta_is.T)) * phi_t0_js / h_i_js / a_srf_js
-
     # WSR, [j, i]
     wsr_js_is = np.dot(ivs_ax_js_js, fia_js_is)
 
     # WSC, degree C, [j, n]
     wsc_js_ns = np.dot(ivs_ax_js_js, crx_js_ns)
-
-    # WSB, K/W, [j, i]
-    wsb_js_is_ns = np.dot(ivs_ax_js_js, flb_js_is_ns)
 
     # BRM(換気なし), W/K, [i, i]
     brm_non_vent_is_is = np.diag(c_rm_is.flatten() / delta_t)\

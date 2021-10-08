@@ -141,9 +141,12 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
     # ステップnにおける室iの在室者表面における放射熱伝達率の総合熱伝達率に対する比, [i, 1]
     kr_is_n = h_hum_r_is_n / (h_hum_c_is_n + h_hum_r_is_n)
 
+    # flr
+    flr_js_is_n_pls = ss.flr_js_is
+
     # FLB, K/W, [j, i]
-    flb_js_is_ns = ss.flr_js_is * (1.0 - ss.beta_is.T) * ss.phi_a0_js / ss.a_srf_js\
-        + np.dot(ss.k_ei_js_js, ss.flr_js_is * (1.0 - ss.beta_is.T)) * ss.phi_t0_js / (ss.h_c_js + ss.h_r_js) / ss.a_srf_js
+    flb_js_is_ns = flr_js_is_n_pls * (1.0 - ss.beta_is.T) * ss.phi_a0_js / ss.a_srf_js\
+        + np.dot(ss.k_ei_js_js, flr_js_is_n_pls * (1.0 - ss.beta_is.T)) * ss.phi_t0_js / (ss.h_c_js + ss.h_r_js) / ss.a_srf_js
 
     # WSB, K/W, [j, i]
     f_wsb_js_is_n_pls = np.dot(ss.ivs_ax_js_js, flb_js_is_ns)
@@ -203,7 +206,7 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
         ss.h_c_js * np.dot(ss.p_js_is, theta_r_is_n_pls)
         + ss.h_r_js * np.dot(np.dot(ss.p_js_is, ss.f_mrt_is_js), theta_s_js_n_pls)
         + ss.q_sol_js_ns[:, n].reshape(-1, 1)
-        + np.dot(ss.flr_js_is, (1.0 - ss.beta_is) * l_sr_is_n) / ss.a_srf_js
+        + np.dot(flr_js_is_n_pls, (1.0 - ss.beta_is) * l_sr_is_n) / ss.a_srf_js
     ) / (ss.h_c_js + ss.h_r_js)
 
     # ステップ n+1 における境界 j の表面熱流（壁体吸熱を正とする）, W/m2, [j, 1], eq.(1)
