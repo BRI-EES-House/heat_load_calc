@@ -119,7 +119,7 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
 
     # ステップn+1の室iにおける係数 BRC, W, [i, 1]
     brc_is_n_pls = ss.c_room_is / delta_t * c_n.theta_r_is_n \
-        + np.dot(ss.p_is_js, ss.h_c_js * ss.a_srf_js * (f_wsc_js_n_pls + f_wsv_js_n_pls)) \
+        + np.dot(ss.p_is_js, ss.h_s_c_js * ss.a_srf_js * (f_wsc_js_n_pls + f_wsv_js_n_pls)) \
         + get_c_air() * get_rho_air() * v_out_vent_is_n * ss.theta_o_ns[n + 1] \
         + q_gen_is_n + q_hum_is_n \
         + ss.g_sh_frt_is * (
@@ -145,8 +145,8 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
     flr_js_is_n_pls = ss.flr_js_is
 
     # FLB, K/W, [j, i]
-    flb_js_is_ns = flr_js_is_n_pls * (1.0 - ss.beta_is.T) * ss.phi_a0_js / ss.a_srf_js\
-        + np.dot(ss.k_ei_js_js, flr_js_is_n_pls * (1.0 - ss.beta_is.T)) * ss.phi_t0_js / (ss.h_c_js + ss.h_r_js) / ss.a_srf_js
+    flb_js_is_ns = flr_js_is_n_pls * (1.0 - ss.beta_is.T) * ss.phi_a0_js / ss.a_srf_js \
+                   + np.dot(ss.k_ei_js_js, flr_js_is_n_pls * (1.0 - ss.beta_is.T)) * ss.phi_t0_js / (ss.h_s_c_js + ss.h_s_r_js) / ss.a_srf_js
 
     # WSB, K/W, [j, i]
     f_wsb_js_is_n_pls = np.dot(ss.ivs_ax_js_js, flb_js_is_ns)
@@ -162,7 +162,7 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
     f_xc_is_n_pls = np.dot(f_xot_is_is_n_pls, kr_is_n * np.dot(ss.f_mrt_hum_is_js, (f_wsc_js_n_pls + f_wsv_js_n_pls)))
 
     # BRL, [i, i]
-    brl_is_is_n_pls = np.dot(ss.p_is_js, f_wsb_js_is_n_pls * ss.h_c_js * ss.a_srf_js) + np.diag(ss.beta_is.flatten())
+    brl_is_is_n_pls = np.dot(ss.p_is_js, f_wsb_js_is_n_pls * ss.h_s_c_js * ss.a_srf_js) + np.diag(ss.beta_is.flatten())
 
     # ステップnにおける係数 BRMOT, W/K, [i, i]
     brm_ot_is_is_n = np.dot(brm_is_is_n, f_xot_is_is_n_pls)
@@ -203,14 +203,14 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
 
     # ステップ n+1 における境界 j の等価温度, degree C, [j, 1], eq.(2)
     theta_ei_js_n_pls = (
-        ss.h_c_js * np.dot(ss.p_js_is, theta_r_is_n_pls)
-        + ss.h_r_js * np.dot(np.dot(ss.p_js_is, ss.f_mrt_is_js), theta_s_js_n_pls)
-        + ss.q_sol_js_ns[:, n].reshape(-1, 1)
-        + np.dot(flr_js_is_n_pls, (1.0 - ss.beta_is) * l_sr_is_n) / ss.a_srf_js
-    ) / (ss.h_c_js + ss.h_r_js)
+                                ss.h_s_c_js * np.dot(ss.p_js_is, theta_r_is_n_pls)
+                                + ss.h_s_r_js * np.dot(np.dot(ss.p_js_is, ss.f_mrt_is_js), theta_s_js_n_pls)
+                                + ss.q_sol_js_ns[:, n].reshape(-1, 1)
+                                + np.dot(flr_js_is_n_pls, (1.0 - ss.beta_is) * l_sr_is_n) / ss.a_srf_js
+    ) / (ss.h_s_c_js + ss.h_s_r_js)
 
     # ステップ n+1 における境界 j の表面熱流（壁体吸熱を正とする）, W/m2, [j, 1], eq.(1)
-    q_s_js_n_pls = (theta_ei_js_n_pls - theta_s_js_n_pls) * (ss.h_c_js + ss.h_r_js)
+    q_s_js_n_pls = (theta_ei_js_n_pls - theta_s_js_n_pls) * (ss.h_s_c_js + ss.h_s_r_js)
 
     # --- ここから、湿度の計算 ---
 

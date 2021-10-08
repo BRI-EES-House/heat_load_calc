@@ -38,7 +38,7 @@ I. 評価法
     :nowrap:
 
     \begin{align*}
-        q_{s,j,n+1} = ( \theta_{EI,j,n+1} - \theta_{srf,j,n+1} ) \cdot ( h_{c,j} + h_{r,j} ) \tag{1}
+        q_{s,j,n+1} = ( \theta_{EI,j,n+1} - \theta_{s,j,n+1} ) \cdot ( h_{s,c,j} + h_{s,r,j} ) \tag{1}
     \end{align*}
 
 ここで、
@@ -47,11 +47,11 @@ I. 評価法
     | ステップ |n| における境界 |j| の表面熱流（壁体吸熱を正とする）, W / |m2|
 :math:`\theta_{EI,j,n}`
     | ステップ |n| における境界 |j| の等価温度, ℃
-:math:`\theta_{srf,j,n}`
+:math:`\theta_{s,j,n}`
     | ステップ |n| における境界 |j| の表面温度, ℃
-:math:`h_{c,j}`
+:math:`h_{s,c,j}`
     | 境界 |j| の室内側対流熱伝達率, W / |m2| K
-:math:`h_{r,j}`
+:math:`h_{s,r,j}`
     | 境界 |j| の室内側放射熱伝達率, W / |m2| K
 
 である。

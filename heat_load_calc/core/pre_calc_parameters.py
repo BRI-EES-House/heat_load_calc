@@ -138,10 +138,10 @@ class PreCalcParameters:
     f_mrt_is_js: np.ndarray
 
     # 境界jにおける室内側放射熱伝達率, W/m2K, [j, 1]
-    h_r_js: np.ndarray
+    h_s_r_js: np.ndarray
 
     # 境界jにおける室内側対流熱伝達率, W/m2K, [j, 1]
-    h_c_js: np.ndarray
+    h_s_c_js: np.ndarray
 
     # WSR, WSB の計算 式(24)
     f_wsr_js_is: np.ndarray
@@ -195,10 +195,10 @@ class PreCalcParametersGround:
     phi_a1_js_ms: np.ndarray
 
     # 地盤jにおける室内側放射熱伝達率, W/m2K, [j, 1]
-    h_r_js: np.ndarray
+    h_s_r_js: np.ndarray
 
     # 地盤jにおける室内側対流熱伝達率, W/m2K, [j, 1]
-    h_c_js: np.ndarray
+    h_s_c_js: np.ndarray
 
     # ステップnの外気温度, degree C, [n]
     theta_o_ns: np.ndarray
@@ -620,8 +620,8 @@ def make_pre_calc_parameters(
         v_ntrl_vent_is=v_ntrl_vent_is,
         ac_demand_is_ns=ac_demand_is_ns,
         flr_js_is=flr_js_is_ns,
-        h_r_js=h_r_js,
-        h_c_js=h_c_js,
+        h_s_r_js=h_r_js,
+        h_s_c_js=h_c_js,
         f_mrt_is_js=f_mrt_is_js,
         q_sol_js_ns=q_sol_js_ns,
         q_sol_frt_is_ns=q_sol_frt_is_ns,
@@ -653,8 +653,8 @@ def make_pre_calc_parameters(
         phi_t0_js=phi_t0_js[is_ground_js.flatten(), :],
         phi_a1_js_ms=phi_a1_js_ms[is_ground_js.flatten(), :],
         phi_t1_js_ms=phi_t1_js_ms[is_ground_js.flatten(), :],
-        h_r_js=h_r_js[is_ground_js.flatten(), :],
-        h_c_js=h_c_js[is_ground_js.flatten(), :],
+        h_s_r_js=h_r_js[is_ground_js.flatten(), :],
+        h_s_c_js=h_c_js[is_ground_js.flatten(), :],
         theta_o_ns=theta_o_ns,
         theta_dstrb_js_ns=theta_dstrb_js_ns[is_ground_js.flatten(), :],
         theta_o_ave=theta_o_ave,
