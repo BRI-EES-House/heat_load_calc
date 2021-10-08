@@ -205,7 +205,7 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
     # TODO: q_sol_js_ns の配列番号が n になっているが、これは本当は n+1 が正しいのではないか？
     theta_ei_js_n_pls = (
         ss.h_s_c_js * np.dot(ss.p_js_is, theta_r_is_n_pls)
-        + ss.h_s_r_js * np.dot(np.dot(ss.p_js_is, ss.f_mrt_is_js), theta_s_js_n_pls)
+        + ss.h_s_r_js * np.dot(ss.f_dsh_mrt_js_js, theta_s_js_n_pls)
         + ss.q_sol_js_ns[:, n].reshape(-1, 1)
         + np.dot(flr_js_is_n_pls, (1.0 - ss.beta_is) * l_sr_is_n) / ss.a_srf_js
     ) / (ss.h_s_c_js + ss.h_s_r_js)

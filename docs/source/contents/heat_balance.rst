@@ -65,8 +65,8 @@ I. 評価法
         \begin{split}
             \theta_{EI,j,n+1}
             &= \frac{ 1 }{ h_{s,c,j} + h_{s,r,j} } \cdot \\
-            & \left( h_{s,c,j} \cdot \theta_{r,i,n+1} \mid_{i = p_j}
-            + h_{s,r,j} \cdot \sum_{j=0}^{J-1}{ ( F_{mrt,i,j} \cdot \theta_{s,j,n+1} ) } \mid_{i = p_j} \right. \\
+            & \left( h_{s,c,j} \sum_{i=0}^{I-1}{p_{i,j} \cdot \theta_{r,i,n+1}}
+            + h_{s,r,j} \cdot \sum_{j*=0}^{J-1}{ ( F'_{mrt,j,j*} \cdot \theta_{s,j*,n+1} ) } \right. \\
             & \left. + q_{sol,j,n+1} + \frac{ ( flr_{j,i,n+1} \cdot \hat{L}_{SR,i,n} \cdot (1 - \beta_i) ) \mid_{i = p_j} }{ A_j } \right)
         \end{split}
         \tag{2}
@@ -76,8 +76,8 @@ I. 評価法
 
 :math:`\theta_{r,i,n}`
     | ステップ |n| における室 |i| の室温, ℃
-:math:`F_{mrt,i,j}`
-    | 境界 |j| から室 |i| への微小球に対する形態係数
+:math:`F'_{mrt,j*,j}`
+    | 平均放射温度計算時の境界 |j*| の表面温度が境界 |j| に与える重み
 :math:`q_{sol,j,n+1}`
     | ステップ |n+1| における境界 |j| の透過日射吸収熱量, W / |m2|
 :math:`flr_{j,i,n+1}`
@@ -90,8 +90,16 @@ I. 評価法
     | 境界 |j| の面積, |m2|
 
 である。
-また、 :math:`p_j` とは境界 |j| に接する室の番号を表す。
-例えば、 :math:`\theta_{r,i,n+1} \mid_{i = p_j}` とは、境界 |j| に接する室 |i| の室温である。
+なお、式中では、境界 |j*| と境界 |j| で添字を書き分けているが、意味するところは同じであり、例えば表面温度の場合、
+
+..math::
+    :nowrap:
+
+    \begin{align*}
+        \theta_{s,j,n} = \theta_{s,j*,n}
+    \end{align*}
+
+である。
 
 ステップ |n+1| における室 |i| の人体の平均放射温度 :math:`\theta_{mrt,hum,i,n+1}` は式(3)により表される。
 
