@@ -141,6 +141,21 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
     # ステップnにおける室iの在室者表面における放射熱伝達率の総合熱伝達率に対する比, [i, 1]
     kr_is_n = h_hum_r_is_n / (h_hum_c_is_n + h_hum_r_is_n)
 
+    # ステップn+1における室iの係数 XOT, [i, i]
+    f_xot_is_is_n_pls = np.linalg.inv(v_diag(kc_is_n) + kr_is_n * np.dot(ss.f_mrt_hum_is_js, ss.f_wsr_js_is))
+
+    # ステップn+1における室iの係数 XC, [i, 1]
+    f_xc_is_n_pls = np.dot(f_xot_is_is_n_pls, kr_is_n * np.dot(ss.f_mrt_hum_is_js, (f_wsc_js_n_pls + f_wsv_js_n_pls)))
+
+    # ステップnにおける係数 BRMOT, W/K, [i, i]
+    f_brm_ot_is_is_n_pls = np.dot(f_brm_is_is_n, f_xot_is_is_n_pls)
+
+    # ステップnにおける係数 BRCOT, [i, 1]
+    f_brc_ot_is_n_pls = f_brc_is_n_pls + np.dot(f_brm_is_is_n, f_xc_is_n_pls)
+
+    # ステップ n+1 における自然作用温度, [i, 1]
+    theta_natural_is_n = np.dot(np.linalg.inv(f_brm_ot_is_is_n_pls), f_brc_ot_is_n_pls)
+
     # flr
     flr_js_is_n_pls = ss.flr_js_is
 
@@ -150,31 +165,15 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
 
     # WSB, K/W, [j, i]
     f_wsb_js_is_n_pls = np.dot(ss.ivs_ax_js_js, flb_js_is_ns)
-#    f_wsb_js_is_n_pls = ss.f_wsb_js_is
-
-    # ステップn+1における室iの係数 XOT, [i, i]
-    f_xot_is_is_n_pls = np.linalg.inv(v_diag(kc_is_n) + kr_is_n * np.dot(ss.f_mrt_hum_is_js, ss.f_wsr_js_is))
-
-    # ステップn+1における室iの係数 XLR, [i, i]
-    f_xlr_is_is_n_pls = np.dot(f_xot_is_is_n_pls, kr_is_n * np.dot(ss.f_mrt_hum_is_js, f_wsb_js_is_n_pls))
-
-    # ステップn+1における室iの係数 XC, [i, 1]
-    f_xc_is_n_pls = np.dot(f_xot_is_is_n_pls, kr_is_n * np.dot(ss.f_mrt_hum_is_js, (f_wsc_js_n_pls + f_wsv_js_n_pls)))
 
     # BRL, [i, i]
     f_brl_is_is_n_pls = np.dot(ss.p_is_js, f_wsb_js_is_n_pls * ss.h_s_c_js * ss.a_srf_js) + np.diag(ss.beta_is.flatten())
 
-    # ステップnにおける係数 BRMOT, W/K, [i, i]
-    f_brm_ot_is_is_n_pls = np.dot(f_brm_is_is_n, f_xot_is_is_n_pls)
+    # ステップn+1における室iの係数 XLR, [i, i]
+    f_xlr_is_is_n_pls = np.dot(f_xot_is_is_n_pls, kr_is_n * np.dot(ss.f_mrt_hum_is_js, f_wsb_js_is_n_pls))
 
     # ステップnにおける係数 BRLOT, [i, i]
     f_brl_ot_is_is_n_pls = f_brl_is_is_n_pls + np.dot(f_brm_is_is_n, f_xlr_is_is_n_pls)
-
-    # ステップnにおける係数 BRCOT, [i, 1]
-    f_brc_ot_is_n_pls = f_brc_is_n_pls + np.dot(f_brm_is_is_n, f_xc_is_n_pls)
-
-    # ステップ n+1 における自然作用温度, [i, 1]
-    theta_natural_is_n = np.dot(np.linalg.inv(f_brm_ot_is_is_n_pls), f_brc_ot_is_n_pls)
 
     # ステップ n+1 における室 i の作用温度, degree C, [i, 1] (ステップn+1における瞬時値）
     # ステップ n における室 i に設置された対流暖房の放熱量, W, [i, 1] (ステップn～ステップn+1までの平均値）
