@@ -141,17 +141,25 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
     # ステップnにおける室iの在室者表面における放射熱伝達率の総合熱伝達率に対する比, [i, 1]
     kr_is_n = h_hum_r_is_n / (h_hum_c_is_n + h_hum_r_is_n)
 
+    # FLB, K/W, [j, i]
+    flb_js_is_ns = ss.flr_js_is * (1.0 - ss.beta_is.T) * ss.phi_a0_js / ss.a_srf_js\
+        + np.dot(ss.k_ei_js_js, ss.flr_js_is * (1.0 - ss.beta_is.T)) * ss.phi_t0_js / (ss.h_c_js + ss.h_r_js) / ss.a_srf_js
+
+    # WSB, K/W, [j, i]
+    f_wsb_js_is_n_pls = np.dot(ss.ivs_ax_js_js, flb_js_is_ns)
+#    f_wsb_js_is_n_pls = ss.f_wsb_js_is
+
     # ステップn+1における室iの係数 XOT, [i, i]
     f_xot_is_is_n_pls = np.linalg.inv(v_diag(kc_is_n) + kr_is_n * np.dot(ss.f_mrt_hum_is_js, ss.f_wsr_js_is))
 
     # ステップn+1における室iの係数 XLR, [i, i]
-    xlr_is_is_n_pls = np.dot(f_xot_is_is_n_pls, kr_is_n * np.dot(ss.f_mrt_hum_is_js, ss.f_wsb_js_is))
+    xlr_is_is_n_pls = np.dot(f_xot_is_is_n_pls, kr_is_n * np.dot(ss.f_mrt_hum_is_js, f_wsb_js_is_n_pls))
 
     # ステップn+1における室iの係数 XC, [i, 1]
     f_xc_is_n_pls = np.dot(f_xot_is_is_n_pls, kr_is_n * np.dot(ss.f_mrt_hum_is_js, (f_wsc_js_n_pls + f_wsv_js_n_pls)))
 
     # BRL, [i, i]
-    brl_is_is_n_pls = np.dot(ss.p_is_js, ss.f_wsb_js_is * ss.h_c_js * ss.a_srf_js) + np.diag(ss.beta_is.flatten())
+    brl_is_is_n_pls = np.dot(ss.p_is_js, f_wsb_js_is_n_pls * ss.h_c_js * ss.a_srf_js) + np.diag(ss.beta_is.flatten())
 
     # ステップnにおける係数 BRMOT, W/K, [i, i]
     brm_ot_is_is_n = np.dot(brm_is_is_n, f_xot_is_is_n_pls)
@@ -180,7 +188,7 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
 
     # ステップ n+1 における境界 j の表面温度, degree C, [j, 1], eq.(5)
     theta_s_js_n_pls = np.dot(ss.f_wsr_js_is, theta_r_is_n_pls) + f_wsc_js_n_pls \
-                       + np.dot(ss.f_wsb_js_is, l_sr_is_n) + f_wsv_js_n_pls
+                       + np.dot(f_wsb_js_is_n_pls, l_sr_is_n) + f_wsv_js_n_pls
 
     # ステップ n+1 における室 i　の家具の温度, degree C, [i, 1], eq.(4)
     theta_frt_is_n_pls = (

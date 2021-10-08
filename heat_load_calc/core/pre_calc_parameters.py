@@ -145,7 +145,6 @@ class PreCalcParameters:
 
     # WSR, WSB の計算 式(24)
     f_wsr_js_is: np.ndarray
-    f_wsb_js_is: np.ndarray
 
     # 床暖房の発熱部位？
     flr_js_is: np.ndarray
@@ -635,7 +634,6 @@ def make_pre_calc_parameters(
         q_sol_frt_is_ns=q_sol_frt_is_ns,
         beta_is=beta_is,
         f_wsr_js_is=wsr_js_is,
-        f_wsb_js_is=wsb_js_is_ns,
         brm_non_vent_is_is=brm_non_vent_is_is,
         ivs_ax_js_js=ivs_ax_js_js,
         p_is_js=p_is_js,
