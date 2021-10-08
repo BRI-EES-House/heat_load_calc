@@ -293,11 +293,11 @@ I. 評価法
 である。また、
 
 :math:`\pmb{F}_{BRM,OT,n+1}`
-    | :math:`F_{BRM,OT,i,i}` を要素にもつ :math:`I \times I` で表される行列, K / W
+    | :math:`F_{BRM,OT,i,i}` を要素にもつ :math:`I \times I` で表される行列, W / K
 :math:`\pmb{F}_{BRL,OT,n+1}`
-    | :math:`F_{BRL,OT,i,i,n+1}` を要素にもつ :math:`I \times I` で表される縦行列, K / W
+    | :math:`F_{BRL,OT,i,i,n+1}` を要素にもつ :math:`I \times I` で表される縦行列, -
 :math:`\pmb{F}_{BRC,OT,n+1}`
-    | :math:`F_{BRC,OT,i,i,n+1}` を要素にもつ :math:`I \times I` で表される行列, ℃
+    | :math:`F_{BRC,OT,i,i,n+1}` を要素にもつ :math:`I \times I` で表される行列, W
 
 である。
 
@@ -320,9 +320,9 @@ I. 評価法
 
 入力値
 
-* 係数 :math:`\pmb{F}_{BRM,OT,n+1}` , K / W
-* 係数 :math:`\pmb{F}_{BRL,OT,n+1}` , K / W
-* 係数 :math:`\pmb{F}_{BRC,OT,n+1}` , ℃
+* 係数 :math:`\pmb{F}_{BRM,OT,n+1}` , W / K
+* 係数 :math:`\pmb{F}_{BRL,OT,n+1}` , -
+* 係数 :math:`\pmb{F}_{BRC,OT,n+1}` , W
 * ステップ |n| から |n+1| における室 |i| の運転モード（暖房・冷房・暖房・冷房停止で窓「開」・暖房・冷房停止で窓「閉」）
 * ステップ |n+1| における室 |i| の目標作用温度（冷房用） :math:`\theta_{OT,upper,target,i,n+1}`
 * ステップ |n+1| における室 |i| の目標作用温度（暖房用） :math:`\theta_{OT,lower,target,i,n+1}`
@@ -331,6 +331,7 @@ I. 評価法
 * 室 |i| の放射冷房の有無
 * 室 |i| の放射暖房の最大放熱量（放熱を正値とする） :math:`q_{SR,h,max,i}`, W
 * 室 |i| の放射冷房の最大吸熱量（吸熱を負値とする） :math:`q_{SR,c,max,i}`, W
+* ステップ |n+1| における室 |i| の自然作用温度 :math:`\theta_{r,OT,ntr,i,n+1}`, ℃
 
 出力値
 
@@ -340,7 +341,26 @@ I. 評価法
 
 である。これらの計算方法は、付録・・・に示す。
 
-これらの係数 :math:`\pmb{F}_{BRC,OT,n+1}`、 :math:`\pmb{F}_{BRL,OT,n+1}` 及び :math:`\pmb{F}_{BRM,OT,n+1}` は、
+係数 :math:`\pmb{F}_{BRL,OT,n+1}` は、式(8)により表される。
+
+.. math::
+    :nowrap:
+
+    \begin{align*}
+        \pmb{F}_{BRL,OT,n+1} = \pmb{F}_{BRL,n+1} + \pmb{F}_{BRM,n+1} \cdot \pmb{F}_{XLR,n+1} \tag{8}
+    \end{align*}
+
+ここで、
+
+:math:`\pmb{F}_{BRL,n+1}`
+    | :math:`F_{BRL,i,i,n+1}` を要素にもつ :math:`I \times I` で表される行列, -
+:math:`\pmb{F}_{BRM,n+1}`
+    | :math:`F_{BRM,i,i,n+1}` を要素にもつ :math:`I \times I` で表される行列, W / K
+
+である。
+
+
+これらの係数 :math:`\pmb{F}_{BRC,OT,n+1}`、  及び :math:`\pmb{F}_{BRM,OT,n+1}` は、
 式(8)～式(10)により表される。
 
 .. math::
@@ -350,9 +370,6 @@ I. 評価法
         \pmb{F}_{BRC,OT,n+1} = \pmb{F}_{BRC,n} + \pmb{F}_{BRM,n} \cdot \pmb{F}_{XC,n+1} \tag{8}
     \end{align*}
 
-    \begin{align*}
-        \pmb{F}_{BRL,OT,n+1} = \pmb{F}_{BRL} + \pmb{F}_{BRM,n} \cdot \pmb{F}_{XLR,n+1} \tag{9}
-    \end{align*}
 
     \begin{align*}
         \pmb{F}_{BRM,OT,n+1} = \pmb{F}_{BRM,n} \cdot \pmb{F}_{XOT,n+1} \tag{10}

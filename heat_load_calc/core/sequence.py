@@ -127,7 +127,7 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
         ) / (ss.c_sh_frt_is + delta_t * ss.g_sh_frt_is)
 
     # ステップn+1における係数 BRM, W/K, [i, i]
-    f_brm_is_is_n = ss.brm_non_vent_is_is\
+    f_brm_is_is_n_pls = ss.brm_non_vent_is_is\
         + get_c_air() * get_rho_air() * (
             np.diag(v_out_vent_is_n.flatten()) - (ss.v_int_vent_is_is - np.diag(ss.v_int_vent_is_is.sum(axis=1)))
         )
@@ -148,13 +148,13 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
     f_xc_is_n_pls = np.dot(f_xot_is_is_n_pls, kr_is_n * np.dot(ss.f_mrt_hum_is_js, (f_wsc_js_n_pls + f_wsv_js_n_pls)))
 
     # ステップnにおける係数 BRMOT, W/K, [i, i]
-    f_brm_ot_is_is_n_pls = np.dot(f_brm_is_is_n, f_xot_is_is_n_pls)
+    f_brm_ot_is_is_n_pls = np.dot(f_brm_is_is_n_pls, f_xot_is_is_n_pls)
 
     # ステップnにおける係数 BRCOT, [i, 1]
-    f_brc_ot_is_n_pls = f_brc_is_n_pls + np.dot(f_brm_is_is_n, f_xc_is_n_pls)
+    f_brc_ot_is_n_pls = f_brc_is_n_pls + np.dot(f_brm_is_is_n_pls, f_xc_is_n_pls)
 
     # ステップ n+1 における自然作用温度, [i, 1]
-    theta_natural_is_n = np.dot(np.linalg.inv(f_brm_ot_is_is_n_pls), f_brc_ot_is_n_pls)
+    theta_r_ot_ntr_is_n_pls = np.dot(np.linalg.inv(f_brm_ot_is_is_n_pls), f_brc_ot_is_n_pls)
 
     # flr
     flr_js_is_n_pls = ss.flr_js_is
@@ -166,14 +166,14 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
     # WSB, K/W, [j, i]
     f_wsb_js_is_n_pls = np.dot(ss.ivs_ax_js_js, flb_js_is_ns)
 
-    # BRL, [i, i]
+    # BRL, -, [i, i]
     f_brl_is_is_n_pls = np.dot(ss.p_is_js, f_wsb_js_is_n_pls * ss.h_s_c_js * ss.a_srf_js) + np.diag(ss.beta_is.flatten())
 
-    # ステップn+1における室iの係数 XLR, [i, i]
+    # ステップn+1における室iの係数 XLR, K/W, [i, i]
     f_xlr_is_is_n_pls = np.dot(f_xot_is_is_n_pls, kr_is_n * np.dot(ss.f_mrt_hum_is_js, f_wsb_js_is_n_pls))
 
-    # ステップnにおける係数 BRLOT, [i, i]
-    f_brl_ot_is_is_n_pls = f_brl_is_is_n_pls + np.dot(f_brm_is_is_n, f_xlr_is_is_n_pls)
+    # ステップnにおける係数 F_BRL_OT, -, [i, i], eq.(8)
+    f_brl_ot_is_is_n_pls = f_brl_is_is_n_pls + np.dot(f_brm_is_is_n_pls, f_xlr_is_is_n_pls)
 
     # ステップ n+1 における室 i の作用温度, degree C, [i, 1] (ステップn+1における瞬時値）
     # ステップ n における室 i に設置された対流暖房の放熱量, W, [i, 1] (ステップn～ステップn+1までの平均値）
@@ -186,7 +186,7 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
         theta_upper_target_is_n=theta_upper_target_is_n_pls,
         operation_mode_is_n=operation_mode_is_n,
         ac_demand_is_n=ac_demand_is_n,
-        theta_natural_is_n=theta_natural_is_n
+        theta_natural_is_n=theta_r_ot_ntr_is_n_pls
     )
 
     # ステップ n+1 における室 i の室温, degree C, [i, 1], eq.(6)
