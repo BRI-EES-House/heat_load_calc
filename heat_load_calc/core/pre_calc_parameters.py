@@ -101,9 +101,6 @@ class PreCalcParameters:
     # BRM(換気なし), W/K, [i, i]
     brm_non_vent_is_is: np.ndarray
 
-    # BRL, [i, i]
-    brl_is_is: np.ndarray
-
     # 放射暖房対流比率, [i, 1]
     beta_is: np.ndarray
 
@@ -555,9 +552,6 @@ def make_pre_calc_parameters(
     # WSB, K/W, [j, i]
     wsb_js_is_ns = np.dot(ivs_ax_js_js, flb_js_is_ns)
 
-    # BRL, [i, i]
-    brl_is_is_ns = np.dot(p_is_js, wsb_js_is_ns * h_c_js * a_srf_js) + np.diag(beta_is.flatten())
-
     # BRM(換気なし), W/K, [i, i]
     brm_non_vent_is_is = np.diag(c_rm_is.flatten() / delta_t)\
         + np.dot(p_is_js, (p_js_is - wsr_js_is) * a_srf_js * h_c_js)\
@@ -644,7 +638,6 @@ def make_pre_calc_parameters(
         f_wsb_js_is=wsb_js_is_ns,
         brm_non_vent_is_is=brm_non_vent_is_is,
         ivs_ax_js_js=ivs_ax_js_js,
-        brl_is_is=brl_is_is_ns,
         p_is_js=p_is_js,
         p_js_is=p_js_is,
         is_ground_js=is_ground_js,
