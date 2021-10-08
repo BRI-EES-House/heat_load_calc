@@ -82,7 +82,7 @@ I. 評価法
 :math:`flr_{j,i}`
     | 室 |i| に設置された放射暖房の放熱量のうち放射成分に対する境界 |j| の室内側表面の吸収比率, -
 :math:`\hat{L}_{SR,i,n}`
-    | ステップ |n| からステップ |n+1| における室 |i| に設置された放射暖房の放熱量, W
+    | ステップ |n| からステップ |n+1| における室 |i| に設置された放射空調の吸放熱量, W
 :math:`\beta_{i}`
     | 室 |i| に設置された放射暖房の対流成分比率, -
 :math:`A_{j}`
@@ -253,33 +253,81 @@ I. 評価法
 
     \begin{align*}
         \pmb{\theta}_{OT,n+1} = \pmb{F}_{BRM,OT,n+1} \cdot \hat{\pmb{L}}_{SC,n}
-        + \pmb{BRL}_{OT,n+1} \cdot \hat{\pmb{Lr}}_{n}
-        + \pmb{BRC}_{OT,n+1}
+        + \pmb{F}_{BRL,OT,n+1} \cdot \hat{\pmb{L}}_{SR,n}
+        + \pmb{F}_{BRC,OT,n+1}
         \tag{7}
     \end{align*}
 
-作用温度（左辺の :math:`\theta_{OT,i,n+1}` ）を与えて
-負荷（右辺の :math:`\hat{Lc}_{i,n}` 及び :math:`\hat{Lr}_{i,n}` を未知数として計算する負荷を計算する場合（いわゆる負荷計算）と、
-負荷（右辺の :math:`\hat{Lc}_{i,n}` 及び :math:`\hat{Lr}_{i,n}` を与えて
-作用温度（左辺の :math:`\theta_{OT,i,n+1}` ）を未知数として計算する作用温度を計算する場合（いわゆる成り行き温度）があり、
-どちらの計算を行うのかは各室 :math:`i` ごとにスケジュールにより決定される。
-
-負荷計算を行うか、成り行き温度計算を行うかの如何に関わらず、
-作用温度 :math:`\theta_{OT,i,n+1}`　及び負荷 :math:`\hat{Lc}_{i,n}` 及び :math:`\hat{Lr}_{i,n}` を計算することになる。
-負荷の :math:`\hat{Lc}_{i,n}` 及び :math:`\hat{Lr}_{i,n}` の内訳は、
-対流暖冷房設備・放射暖冷房設備の設置の有無及びそれらの最大能力等に依存する。
-これらの計算は、付録・・・に示す。
-
 ここで、
 
-:math:`\pmb{BRM}_{OT,n+1}`
-    | :math:`I \times I` で表される行列, K / W
-:math:`\pmb{BRL}_{OT,n+1}`
-    | :math:`I \times I` で表される行列, K / W
-:math:`\pmb{BRC}_{OT,n+1}`
-    | :math:`I \times 1` で表される縦行列, K
+:math:`\hat{L}_{SC,i,n}`
+    | ステップ |n| からステップ |n+1| における室 |i| に設置された対流空調の吸放熱量, W
+
+であり、
+
+.. math::
+    :nowrap:
+
+    \begin{align*}
+        \hat{\pmb{L}}_{SC,n}
+        = \begin{pmatrix}
+            \hat{L}_{SC,0,n} \\
+            \vdots \\
+            \hat{L}_{SC,i,n} \\
+            \vdots \\
+            \hat{L}_{SC,I-1,n}
+        \end{pmatrix}
+    \end{align*}
+
+である。また、
+
+:math:`\pmb{F}_{BRM,OT,n+1}`
+    | :math:`F_{BRM,OT,i,i}` を要素にもつ :math:`I \times I` で表される行列, K / W
+:math:`\pmb{F}_{BRL,OT,n+1}`
+    | :math:`F_{BRL,OT,i,i,n+1}` を要素にもつ :math:`I \times I` で表される縦行列, K / W
+:math:`\pmb{F}_{BRC,OT,n+1}`
+    | :math:`F_{BRC,OT,i,i,n+1}` を要素にもつ :math:`I \times I` で表される行列, ℃
 
 である。
+
+作用温度（左辺の :math:`\theta_{OT,i,n+1}` ）を与えて
+負荷（右辺の :math:`\hat{L}_{SC,i,n}` 及び :math:`\hat{L}_{SR,i,n}` ）を未知数として計算する場合（いわゆる負荷計算）と、
+負荷（右辺の :math:`\hat{L}_{SC,i,n}` 及び :math:`\hat{L}_{SR,i,n}` を与えて
+作用温度（左辺の :math:`\theta_{OT,i,n+1}` ）を未知数として計算する場合（いわゆる成り行き温度）があり、
+どちらの計算を行うのかは各室 :math:`i` ごとに定められる運転スケジュールにより決定される。
+
+また、運転スケジュールから空調を行う場合でも、自然室温（空調しない場合の室温）が設定温度以上（暖房時）または設定温度以下（冷房時）の場合は、
+自然室温計算を行うことになる。
+
+負荷の :math:`\hat{L}_{SC,i,n}` 及び :math:`\hat{L}_{SR,i,n}` の内訳は、
+対流暖冷房設備・放射暖冷房設備の設置の有無及びそれらの最大能力等に依存する。
+
+負荷計算を行うか、成り行き温度計算を行うかの如何に関わらず、
+作用温度 :math:`\theta_{OT,i,n+1}`　及び負荷 :math:`\hat{L}_{SC,i,n}` 及び :math:`\hat{L}_{SR,i,n}` を計算することになる。
+
+まとめると、この計算は、
+
+入力値
+
+* 係数 :math:`\pmb{F}_{BRM,OT,n+1}` , K / W
+* 係数 :math:`\pmb{F}_{BRL,OT,n+1}` , K / W
+* 係数 :math:`\pmb{F}_{BRC,OT,n+1}` , ℃
+* ステップ |n| から |n+1| における室 |i| の運転モード（暖房・冷房・暖房・冷房停止で窓「開」・暖房・冷房停止で窓「閉」）
+* ステップ |n+1| における室 |i| の目標作用温度（冷房用） :math:`\theta_{OT,upper,target,i,n+1}`
+* ステップ |n+1| における室 |i| の目標作用温度（暖房用） :math:`\theta_{OT,lower,target,i,n+1}`
+* ステップ |n| から |n+1| における室 |i| の空調需要 :math:`\hat{r}_{ac,demand,i,n}`
+* 室 |i| の放射暖房の有無
+* 室 |i| の放射冷房の有無
+* 室 |i| の放射暖房の最大放熱量（放熱を正値とする） :math:`q_{SR,h,max,i}`, W
+* 室 |i| の放射冷房の最大吸熱量（吸熱を負値とする） :math:`q_{SR,c,max,i}`, W
+
+出力値
+
+* ステップ |n+1| における室 |i| の作用温度 :math:`\theta_{OT,i,n+1}` , ℃
+* ステップ |n| からステップ |n+1| における室 |i| に設置された対流空調の吸放熱量 :math:`\hat{L}_{SC,i,n}` , W
+* ステップ |n| からステップ |n+1| における室 |i| に設置された放射空調の吸放熱量 :math:`\hat{L}_{SR,i,n}` , W
+
+である。これらの計算方法は、付録・・・に示す。
 
 これらの係数 :math:`\pmb{BRC}_{OT,n+1}`、 :math:`\pmb{BRL}_{OT,n+1}` 及び :math:`\pmb{BRM}_{OT,n+1}` は、
 式(8)～式(10)により表される。
