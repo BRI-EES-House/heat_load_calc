@@ -101,9 +101,6 @@ class PreCalcParameters:
     # BRM(換気なし), W/K, [i, i]
     brm_non_vent_is_is: np.ndarray
 
-    # BRL, [i, i]
-    brl_is_is: np.ndarray
-
     # 放射暖房対流比率, [i, 1]
     beta_is: np.ndarray
 
@@ -137,18 +134,17 @@ class PreCalcParameters:
     # 室iの在室者に対する境界j*の形態係数
     f_mrt_hum_is_js: np.ndarray
 
-    # 平均放射温度計算時の各部位表面温度の重み計算 式(101)
-    f_mrt_is_js: np.ndarray
+    # 平均放射温度計算時の境界 j* の表面温度が境界 j に与える重み, [j, j]
+    f_dsh_mrt_js_js: np.ndarray
 
     # 境界jにおける室内側放射熱伝達率, W/m2K, [j, 1]
-    h_r_js: np.ndarray
+    h_s_r_js: np.ndarray
 
     # 境界jにおける室内側対流熱伝達率, W/m2K, [j, 1]
-    h_c_js: np.ndarray
+    h_s_c_js: np.ndarray
 
     # WSR, WSB の計算 式(24)
-    wsr_js_is: np.ndarray
-    wsb_js_is: np.ndarray
+    f_wsr_js_is: np.ndarray
 
     # 床暖房の発熱部位？
     flr_js_is: np.ndarray
@@ -199,10 +195,10 @@ class PreCalcParametersGround:
     phi_a1_js_ms: np.ndarray
 
     # 地盤jにおける室内側放射熱伝達率, W/m2K, [j, 1]
-    h_r_js: np.ndarray
+    h_s_r_js: np.ndarray
 
     # 地盤jにおける室内側対流熱伝達率, W/m2K, [j, 1]
-    h_c_js: np.ndarray
+    h_s_c_js: np.ndarray
 
     # ステップnの外気温度, degree C, [n]
     theta_o_ns: np.ndarray
@@ -483,7 +479,7 @@ def make_pre_calc_parameters(
     )
 
     # 室iに設置された放射暖房の放熱量のうち放射成分に対する境界jの室内側吸収比率, [j, i]
-    flr_js_is = p_js_is * flr_js[:, np.newaxis]
+    flr_js_is_ns = p_js_is * flr_js[:, np.newaxis]
 
     # 室iの空気の熱容量, J/K, [i, 1]
     c_rm_is = v_rm_is * get_rho_air() * get_c_air()
@@ -493,6 +489,9 @@ def make_pre_calc_parameters(
 
     # 平均放射温度計算時の各部位表面温度の重み, [i, j]
     f_mrt_is_js = shape_factor.get_f_mrt_is_js(a_srf_js=a_srf_js, h_r_js=h_r_js, p_is_js=p_is_js)
+
+    # 平均放射温度計算時の境界 j* の表面温度が境界 j　に与える重み, [j, j]
+    f_dsh_mrt_js_js = np.dot(p_js_is, f_mrt_is_js)
 
     # 境界jの室内側表面対流熱伝達率, W/m2K, [j, 1]
     h_c_js = np.array([bs.h_c for bs in bss]).reshape(-1, 1)
@@ -527,8 +526,8 @@ def make_pre_calc_parameters(
 
     # AX, [j, j]
     ax_js_js = np.diag(1.0 + (phi_a0_js * h_i_js).flatten())\
-        - np.dot(p_js_is, f_mrt_is_js) * h_r_js * phi_a0_js\
-        - np.dot(k_ei_js_js, np.dot(p_js_is, f_mrt_is_js)) * h_r_js * phi_t0_js / h_i_js
+        - f_dsh_mrt_js_js * h_r_js * phi_a0_js\
+        - np.dot(k_ei_js_js, f_dsh_mrt_js_js) * h_r_js * phi_t0_js / h_i_js
 
     # AX^-1, [j, j]
     ivs_ax_js_js = np.linalg.inv(ax_js_js)
@@ -542,21 +541,11 @@ def make_pre_calc_parameters(
         + phi_t0_js / h_i_js * np.dot(k_ei_js_js, q_sol_js_ns)\
         + phi_t0_js * theta_dstrb_js_ns
 
-    # FLB, K/W, [j, i]
-    flb_js_is = flr_js_is * (1.0 - beta_is.T) * phi_a0_js / a_srf_js\
-        + np.dot(k_ei_js_js, flr_js_is * (1.0 - beta_is.T)) * phi_t0_js / h_i_js / a_srf_js
-
     # WSR, [j, i]
     wsr_js_is = np.dot(ivs_ax_js_js, fia_js_is)
 
     # WSC, degree C, [j, n]
     wsc_js_ns = np.dot(ivs_ax_js_js, crx_js_ns)
-
-    # WSB, K/W, [j, i]
-    wsb_js_is = np.dot(ivs_ax_js_js, flb_js_is)
-
-    # BRL, [i, i]
-    brl_is_is = np.dot(p_is_js, wsb_js_is * h_c_js * a_srf_js) + np.diag(beta_is.flatten())
 
     # BRM(換気なし), W/K, [i, i]
     brm_non_vent_is_is = np.diag(c_rm_is.flatten() / delta_t)\
@@ -633,18 +622,16 @@ def make_pre_calc_parameters(
         q_trs_sol_is_ns=q_trs_sol_is_ns,
         v_ntrl_vent_is=v_ntrl_vent_is,
         ac_demand_is_ns=ac_demand_is_ns,
-        flr_js_is=flr_js_is,
-        h_r_js=h_r_js,
-        h_c_js=h_c_js,
-        f_mrt_is_js=f_mrt_is_js,
+        flr_js_is=flr_js_is_ns,
+        h_s_r_js=h_r_js,
+        h_s_c_js=h_c_js,
+        f_dsh_mrt_js_js=f_dsh_mrt_js_js,
         q_sol_js_ns=q_sol_js_ns,
         q_sol_frt_is_ns=q_sol_frt_is_ns,
         beta_is=beta_is,
-        wsr_js_is=wsr_js_is,
-        wsb_js_is=wsb_js_is,
+        f_wsr_js_is=wsr_js_is,
         brm_non_vent_is_is=brm_non_vent_is_is,
         ivs_ax_js_js=ivs_ax_js_js,
-        brl_is_is=brl_is_is,
         p_is_js=p_is_js,
         p_js_is=p_js_is,
         is_ground_js=is_ground_js,
@@ -669,8 +656,8 @@ def make_pre_calc_parameters(
         phi_t0_js=phi_t0_js[is_ground_js.flatten(), :],
         phi_a1_js_ms=phi_a1_js_ms[is_ground_js.flatten(), :],
         phi_t1_js_ms=phi_t1_js_ms[is_ground_js.flatten(), :],
-        h_r_js=h_r_js[is_ground_js.flatten(), :],
-        h_c_js=h_c_js[is_ground_js.flatten(), :],
+        h_s_r_js=h_r_js[is_ground_js.flatten(), :],
+        h_s_c_js=h_c_js[is_ground_js.flatten(), :],
         theta_o_ns=theta_o_ns,
         theta_dstrb_js_ns=theta_dstrb_js_ns[is_ground_js.flatten(), :],
         theta_o_ave=theta_o_ave,

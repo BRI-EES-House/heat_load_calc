@@ -139,8 +139,8 @@ class Logger:
 
 
         self.qisol_s = ss.q_sol_js_ns * ss.a_srf_js
-        self.h_c_s = ss.h_c_js.repeat(self._n_step_main, axis=1)
-        self.h_r_s = ss.h_r_js.repeat(self._n_step_main, axis=1)
+        self.h_c_s = ss.h_s_c_js.repeat(self._n_step_main, axis=1)
+        self.h_r_s = ss.h_s_r_js.repeat(self._n_step_main, axis=1)
 
     def post_logging(self, ss: PreCalcParameters):
 
@@ -157,10 +157,10 @@ class Logger:
         self.q_frt = ss.g_sh_frt_is * (self.theta_r - self.theta_frt)
 
         # ステップnの境界jにおける表面熱流（壁体吸熱を正とする）のうち対流成分, W, [j, n]
-        self.qc = ss.h_c_js * ss.a_srf_js * (np.dot(ss.p_js_is, self.theta_r) - self.theta_s)
+        self.qc = ss.h_s_c_js * ss.a_srf_js * (np.dot(ss.p_js_is, self.theta_r) - self.theta_s)
 
         # ステップnの境界jにおける表面熱流（壁体吸熱を正とする）のうち放射成分, W, [j, n]
-        self.qr = ss.h_r_js * ss.a_srf_js * (np.dot(np.dot(ss.p_js_is, ss.f_mrt_is_js), self.theta_s) - self.theta_s)
+        self.qr = ss.h_s_r_js * ss.a_srf_js * (np.dot(ss.f_dsh_mrt_js_js, self.theta_s) - self.theta_s)
 
         # ステップnの室iの家具等から空気への水分流, kg/s, [i, n]
         self.q_l_frt = ss.g_lh_frt_is * (self.x_r - self.x_frt)
