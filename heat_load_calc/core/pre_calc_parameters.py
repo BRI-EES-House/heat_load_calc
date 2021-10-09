@@ -93,7 +93,7 @@ class PreCalcParameters:
     is_ground_js: np.ndarray
 
     # 境界jの面積, m2, [j, 1]
-    a_srf_js: np.ndarray
+    a_s_js: np.ndarray
 
     # ステップnの境界jにおける外気側等価温度の外乱成分, degree C, [j, 8760*4]
     theta_dstrb_js_ns: np.ndarray
@@ -606,7 +606,7 @@ def make_pre_calc_parameters(
         v_int_vent_is_is=v_int_vent_is_is,
         name_bdry_js=name_js,
         sub_name_bdry_js=sub_name_js,
-        a_srf_js=a_srf_js,
+        a_s_js=a_srf_js,
         v_mec_vent_is_ns=v_mec_vent_is_ns,
         q_gen_is_ns=q_gen_is_ns,
         n_hum_is_ns=n_hum_is_ns,

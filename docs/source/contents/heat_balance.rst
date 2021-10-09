@@ -67,7 +67,7 @@ I. 評価法
             &= \frac{ 1 }{ h_{s,c,j} + h_{s,r,j} } \cdot \\
             & \left( h_{s,c,j} \sum_{i=0}^{I-1}{ ( p_{i,j} \cdot \theta_{r,i,n+1} ) }
             + h_{s,r,j} \cdot \sum_{j*=0}^{J-1}{ ( F'_{mrt,j,j*} \cdot \theta_{s,j*,n+1} ) } \right. \\
-            & \left. + q_{sol,j,n+1} + \frac{ \sum_{i=0}^{I-1}{ ( flr_{i,j,n+1} \cdot \hat{L}_{SR,i,n} \cdot (1 - \beta_i) ) } }{ A_j } \right)
+            & \left. + q_{sol,j,n+1} + \frac{ \sum_{i=0}^{I-1}{ ( flr_{i,j,n+1} \cdot \hat{L}_{SR,i,n} \cdot (1 - \beta_i) ) } }{ A_{s,j} } \right)
         \end{split}
         \tag{2}
     \end{align*}
@@ -86,7 +86,7 @@ I. 評価法
     | ステップ |n| からステップ |n+1| における室 |i| に設置された放射空調の吸放熱量, W
 :math:`\beta_{i}`
     | 室 |i| に設置された放射暖房の対流成分比率, -
-:math:`A_{j}`
+:math:`A_{s,j}`
     | 境界 |j| の面積, |m2|
 :math:`p_{i,j}`
     | 室 |i| と境界 |j| の接続に関する係数。　境界 |j| が室 |i| に接している場合は :math:`1` とし、それ以外の場合は :math:`0` とする。
@@ -291,10 +291,10 @@ I. 評価法
 
 ここで、
 
-:math:`\pmb{F}_{BRL,n+1}`
-    | :math:`F_{BRL,i,i,n+1}` を要素にもつ :math:`I \times I` で表される行列, -
-:math:`\pmb{F}_{BRM,n+1}`
-    | :math:`F_{BRM,i,i,n+1}` を要素にもつ :math:`I \times I` で表される行列, W / K
+:math:`\pmb{F}_{BRL,n}`
+    | :math:`F_{BRL,i,i,n}` を要素にもつ :math:`I \times I` で表される行列, -
+:math:`\pmb{F}_{BRM,n}`
+    | :math:`F_{BRM,i,i,n}` を要素にもつ :math:`I \times I` で表される行列, W / K
 
 である。
 
@@ -319,8 +319,40 @@ I. 評価法
 
 である。
 
+係数 :math:`\pmb{F}_{BRL,n}` は、式(10)により表される。
 
+.. math::
+    :nowrap:
 
+    \begin{align*}
+        \pmb{F}_{BRL,n} = \pmb{p}_{ij} \cdot \pmb{h}_{s,c} \cdot \pmb{A}_{s} \cdot \pmb{F}_{WSB} + \pmb{\beta}
+        \tag{10}
+    \end{align*}
+
+ここで、
+
+:math:`\pmb{h}_{s,c}`
+    | :math:`{h_{s,c,j}}` を要素にもつ :math:`J \times J` の対角化行列
+:math:`\pmb{A}_{s}`
+    | :math:`{A_{s,j}}` を要素にもつ :math:`J \times J` の対角化行列
+:math:`\pmb{\beta}`
+    | :math:`{\beta_{i}}` を要素にもつ :math:`I \times I` の対角化行列
+
+とする。また、 :math:`\pmb{p}_{ij}` は :math:`p_{i,j}` を要素にもつ、室 |i| と境界 |j| との関係を表す行列であり、
+
+:math:`\pmb{p}_{ij}`
+    | :math:`p_{i,j}` を要素にもつ :math:`I \times J` の対角化行列
+
+とし、この転置行列を :math:`\pmb{p}_{ji}` と表記する。つまり、
+
+.. math::
+    :nowrap:
+
+    \begin{align*}
+        \pmb{p}_{ij} = \pmb{p}_{ji}^{T}
+    \end{align*}
+
+と定義する。
 
 
 これらの係数 :math:`\pmb{F}_{BRC,OT,n+1}`、  及び :math:`\pmb{F}_{BRM,OT,n+1}` は、
