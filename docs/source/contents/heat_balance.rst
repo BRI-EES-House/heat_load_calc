@@ -163,53 +163,20 @@ I. 評価法
 
 ここで、
 
-.. math::
-    :nowrap:
-
-    \begin{align*}
-        \pmb{\theta}_{s,n}
-        = \begin{pmatrix}
-            \theta_{s,0,n} \\
-            \vdots \\
-            \theta_{s,i,n} \\
-            \vdots \\
-            \theta_{s,I-1,n}
-        \end{pmatrix}
-    \end{align*}
-
-    \begin{align*}
-        \pmb{\theta}_{r,n}
-        = \begin{pmatrix}
-            \theta_{r,0,n} \\
-            \vdots \\
-            \theta_{r,i,n} \\
-            \vdots \\
-            \theta_{r,I-1,n}
-        \end{pmatrix}
-    \end{align*}
-
-    \begin{align*}
-        \hat{\pmb{L}}_{SR,n}
-        = \begin{pmatrix}
-            \hat{L}_{SR,0,n} \\
-            \vdots \\
-            \hat{L}_{SR,i,n} \\
-            \vdots \\
-            \hat{L}_{SR,I-1,n}
-        \end{pmatrix}
-    \end{align*}
-
-である。
-また、
-
+:math:`\pmb{\theta}_{s,n}`
+    | :math:`\theta_{s,i,n}` を要素にもつ :math:`I \times 1` の縦行列, ℃
+:math:`\pmb{\theta}_{r,n}`
+    | :math:`\theta_{r,i,n}` を要素にもつ :math:`I \times 1` の縦行列, ℃
+:math:`\hat{\pmb{L}}_{SR,n}`
+    | :math:`\hat{L}_{SR,i,n}` を要素にもつ :math:`I \times 1` の縦行列, W
 :math:`\pmb{F}_{WSR}`
     | :math:`F_{WSR,j,i}` を要素にもつ :math:`J \times I` で表される行列, -
-:math:`\pmb{F}_{WSC,n+1}`
-    | :math:`F_{WSC,j,n+1}` を要素にもつ :math:`J \times 1` で表される縦行列, ℃
-:math:`\pmb{F}_{WSB,n+1}`
-    | :math:`F_{WSB,j,i,n+1}` を要素にもつ :math:`J \times I` で表される行列, K / W
-:math:`\pmb{F}_{WSV,n+1}`
-    | :math:`F_{WSV,j,n+1}` を要素にもつ :math:`J \times 1` で表される縦行列, ℃
+:math:`\pmb{F}_{WSC,n}`
+    | :math:`F_{WSC,j,n}` を要素にもつ :math:`J \times 1` で表される縦行列, ℃
+:math:`\pmb{F}_{WSB,n}`
+    | :math:`F_{WSB,j,i,n}` を要素にもつ :math:`J \times I` で表される行列, K / W
+:math:`\pmb{F}_{WSV,n}`
+    | :math:`F_{WSV,j,n}` を要素にもつ :math:`J \times 1` で表される縦行列, ℃
 
 である。
 
@@ -227,33 +194,19 @@ I. 評価法
 
 ここで、
 
-:math:`\theta_{OT,i,n+1}`
-    | ステップ |n+1| における室 |i| の作用温度, ℃
+:math:`\pmb{\theta}_{OT,n}`
+    | :math:`\theta_{OT,i,n}` を要素にもつ :math:`I \times 1` で表される縦行列, -
+:math:`\pmb{F}_{XOT,n}`
+    | :math:`F_{XOT,i,i,n}` を要素にもつ :math:`I \times I` で表される行列, -
+:math:`\pmb{F}_{XLR,n}`
+    | :math:`F_{XLR,i,i,n}` を要素にもつ :math:`I \times I` で表される行列, K / W
+:math:`\pmb{F}_{XC,n}`
+    | :math:`F_{XC,i,n}` を要素にもつ :math:`I \times 1` で表される縦行列, ℃
 
 であり、
 
-.. math::
-    :nowrap:
-
-    \begin{align*}
-        \pmb{\theta}_{OT,n+1}
-        = \begin{pmatrix}
-            \theta_{OT,0,n+1} \\
-            \vdots \\
-            \theta_{OT,i,n+1} \\
-            \vdots \\
-            \theta_{OT,I-1,n+1}
-        \end{pmatrix}
-    \end{align*}
-
-である。また、
-
-:math:`\pmb{F}_{XOT,n+1}`
-    | :math:`F_{XOT,i,i,n+1}` を要素にもつ :math:`I \times I` で表される行列, -
-:math:`\pmb{F}_{XLR,n+1}`
-    | :math:`F_{XLR,i,i,n+1}` を要素にもつ :math:`I \times I` で表される行列, K / W
-:math:`\pmb{F}_{XC,n+1}`
-    | :math:`F_{XC,i,n+1}` を要素にもつ :math:`I \times 1` で表される縦行列, ℃
+:math:`\theta_{OT,i,n}`
+    | ステップ |n| における室 |i| の作用温度, ℃
 
 である。
 
@@ -271,33 +224,19 @@ I. 評価法
 
 ここで、
 
-:math:`\hat{L}_{SC,i,n}`
-    | ステップ |n| からステップ |n+1| における室 |i| に設置された対流空調の吸放熱量, W
+:math:`\hat{\pmb{L}}_{SC,n}`
+    | :math:`\hat{L}_{SC,i,n}` を要素にもつ :math:`I \times 1` で表される縦行列, W
+:math:`\pmb{F}_{BRM,OT,n}`
+    | :math:`F_{BRM,OT,i,i,n}` を要素にもつ :math:`I \times I` で表される行列, W / K
+:math:`\pmb{F}_{BRL,OT,n}`
+    | :math:`F_{BRL,OT,i,i,n}` を要素にもつ :math:`I \times I` で表される縦行列, -
+:math:`\pmb{F}_{BRC,OT,n}`
+    | :math:`F_{BRC,OT,i,i,n}` を要素にもつ :math:`I \times I` で表される行列, W
 
 であり、
 
-.. math::
-    :nowrap:
-
-    \begin{align*}
-        \hat{\pmb{L}}_{SC,n}
-        = \begin{pmatrix}
-            \hat{L}_{SC,0,n} \\
-            \vdots \\
-            \hat{L}_{SC,i,n} \\
-            \vdots \\
-            \hat{L}_{SC,I-1,n}
-        \end{pmatrix}
-    \end{align*}
-
-である。また、
-
-:math:`\pmb{F}_{BRM,OT,n+1}`
-    | :math:`F_{BRM,OT,i,i}` を要素にもつ :math:`I \times I` で表される行列, W / K
-:math:`\pmb{F}_{BRL,OT,n+1}`
-    | :math:`F_{BRL,OT,i,i,n+1}` を要素にもつ :math:`I \times I` で表される縦行列, -
-:math:`\pmb{F}_{BRC,OT,n+1}`
-    | :math:`F_{BRC,OT,i,i,n+1}` を要素にもつ :math:`I \times I` で表される行列, W
+:math:`\hat{L}_{SC,i,n}`
+    | ステップ |n| からステップ |n+1| における室 |i| に設置された対流空調の吸放熱量, W
 
 である。
 
@@ -358,6 +297,30 @@ I. 評価法
     | :math:`F_{BRM,i,i,n+1}` を要素にもつ :math:`I \times I` で表される行列, W / K
 
 である。
+
+係数 :math:`\pmb{F}_{XLR,n+1}` は、式(9)により表される。
+
+.. math::
+    :nowrap:
+
+    \begin{align*}
+        \pmb{F}_{XLR,n+1} = \pmb{F}_{XOT,n+1} \cdot \pmb{k}_{r,n+1} \cdot \pmb{F}_{mrt,hum} \cdot \pmb{F}_{WSB,n+1} \tag{9}
+    \end{align*}
+
+ここで、
+
+:math:`\pmb{k}_{r,n+1}`
+    | :math:`k_{r,i,n+1}` を要素にもつ :math:`I \times I` の対角化行列
+
+であり、
+
+:math:`k_{r,i,n}`
+    | ステップ |n| における室 |i| の人体表面の放射熱伝達率が総合熱伝達率に占める割合, -
+
+である。
+
+
+
 
 
 これらの係数 :math:`\pmb{F}_{BRC,OT,n+1}`、  及び :math:`\pmb{F}_{BRM,OT,n+1}` は、
@@ -434,9 +397,6 @@ I. 評価法
         \tag{11}
     \end{align*}
 
-    \begin{align*}
-        \pmb{XLR}_{n+1} = \pmb{XOT}_{n+1} \cdot \pmb{kr}_{n+1} * \pmb{F}_{mrt,hum} \cdot \pmb{WSB} \tag{12}
-    \end{align*}
 
     \begin{align*}
         \pmb{XOT}_{n+1} = \left( \pmb{kc}_{n+1} + \pmb{kr}_{n+1} \cdot \pmb{F}_{mrt,hum} \cdot \pmb{WSR} \right)^{-1}
@@ -447,15 +407,11 @@ I. 評価法
 
 :math:`\pmb{kc}_{n+1}`
     | :math:`kc_{i,n+1}` を要素にもつ :math:`I \times I` の対角化行列
-:math:`\pmb{kr}_{n+1}`
-    | :math:`kr_{i,n+1}` を要素にもつ :math:`I \times I` の対角化行列
 
 であり、
 
 :math:`kc_{i,n+1}`
     | ステップ |n+1| における室 |i| の人体表面の対流熱伝達率が総合熱伝達率に占める割合, -
-:math:`kr_{i,n+1}`
-    | ステップ |n+1| における室 |i| の人体表面の放射熱伝達率が総合熱伝達率に占める割合, -
 
 である。
 

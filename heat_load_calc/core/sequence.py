@@ -169,7 +169,7 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
     # BRL, -, [i, i]
     f_brl_is_is_n_pls = np.dot(ss.p_is_js, f_wsb_js_is_n_pls * ss.h_s_c_js * ss.a_srf_js) + np.diag(ss.beta_is.flatten())
 
-    # ステップn+1における室iの係数 XLR, K/W, [i, i]
+    # ステップn+1における室iの係数 XLR, K/W, [i, i], eq.(9)
     f_xlr_is_is_n_pls = np.dot(f_xot_is_is_n_pls, kr_is_n * np.dot(ss.f_mrt_hum_is_js, f_wsb_js_is_n_pls))
 
     # ステップnにおける係数 F_BRL_OT, -, [i, i], eq.(8)
