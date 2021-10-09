@@ -126,7 +126,7 @@ class PreCalcParameters:
 
     n_bdries: int
 
-    ivs_ax_js_js: np.ndarray
+    ivs_f_ax_js_js: np.ndarray
 
     p_is_js: np.ndarray
     p_js_is: np.ndarray
@@ -631,7 +631,7 @@ def make_pre_calc_parameters(
         beta_is=beta_is,
         f_wsr_js_is=wsr_js_is,
         brm_non_vent_is_is=brm_non_vent_is_is,
-        ivs_ax_js_js=ivs_ax_js_js,
+        ivs_f_ax_js_js=ivs_ax_js_js,
         p_is_js=p_is_js,
         p_js_is=p_js_is,
         is_ground_js=is_ground_js,

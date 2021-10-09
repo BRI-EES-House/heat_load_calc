@@ -325,7 +325,7 @@ I. 評価法
     :nowrap:
 
     \begin{align*}
-        \pmb{F}_{BRL,n} = \pmb{p}_{ij} \cdot \pmb{h}_{s,c} \cdot \pmb{A}_{s} \cdot \pmb{F}_{WSB} + \pmb{\beta}
+        \pmb{F}_{BRL,n} = \pmb{p}_{ij} \cdot \pmb{h}_{s,c} \cdot \pmb{A}_{s} \cdot \pmb{F}_{WSB,n+1} + \pmb{\beta}
         \tag{10}
     \end{align*}
 
@@ -353,6 +353,31 @@ I. 評価法
     \end{align*}
 
 と定義する。
+
+:math:`\pmb{F}_{WSB,n+1}` は、式(11)により表される。
+
+.. math::
+    :nowrap:
+
+    \begin{align*}
+        \pmb{F}_{WSB,n+1} = \pmb{F}_{AX}^{-1} \cdot \pmb{F}_{FLB,n+1} \tag{11}
+    \end{align*}
+
+ここで、
+
+:math:`\pmb{F}_{AX}`
+    | :math:`F_{AX,j,j*}` を要素にもつ、:math:`J \times J` の行列, -
+:math:`\pmb{F}_{FLB,n+1}`
+    | :math:`F_{FLB,ｊ，i,n+1}` を要素にもつ、:math:`J \times I` の行列, K/W
+
+である。
+
+    # FLB, K/W, [j, i]
+    flb_js_is = flr_js_is * (1.0 - beta_is.T) * phi_a0_js / a_srf_js\
+        + np.dot(k_ei_js_js, flr_js_is * (1.0 - beta_is.T)) * phi_t0_js / h_i_js / a_srf_js
+
+
+
 
 
 これらの係数 :math:`\pmb{F}_{BRC,OT,n+1}`、  及び :math:`\pmb{F}_{BRM,OT,n+1}` は、
@@ -563,18 +588,11 @@ I. 評価法
     # BRL, [i, i]
     brl_is_is = np.dot(p_is_js, wsb_js_is * h_c_js * a_srf_js) + np.diag(beta_is.flatten())
 
-    # WSB, K/W, [j, i]
-    wsb_js_is = np.dot(ivs_ax_js_js, flb_js_is)
-
     # WSC, degree C, [j, n]
     wsc_js_ns = np.dot(ivs_ax_js_js, crx_js_ns)
 
     # WSR, [j, i]
     wsr_js_is = np.dot(ivs_ax_js_js, fia_js_is)
-
-    # FLB, K/W, [j, i]
-    flb_js_is = flr_js_is * (1.0 - beta_is.T) * phi_a0_js / a_srf_js\
-        + np.dot(k_ei_js_js, flr_js_is * (1.0 - beta_is.T)) * phi_t0_js / h_i_js / a_srf_js
 
     # CRX, degree C, [j, n]
     crx_js_ns = phi_a0_js * q_sol_js_ns\

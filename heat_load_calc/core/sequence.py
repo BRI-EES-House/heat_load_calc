@@ -107,7 +107,7 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
     cvl_js_n_pls = np.sum(theta_dsh_srf_t_js_ms_n_pls + theta_dsh_srf_a_js_ms_n_pls, axis=1, keepdims=True)
 
     # ステップn+1の境界jにおける係数WSV, degree C, [j, 1]
-    f_wsv_js_n_pls = np.dot(ss.ivs_ax_js_js, cvl_js_n_pls)
+    f_wsv_js_n_pls = np.dot(ss.ivs_f_ax_js_js, cvl_js_n_pls)
 
     # 室iの自然風利用による換気量, m3/s, [i, 1]
     # 自然風を利用していない場合は、0.0 m3/s になる。
@@ -160,16 +160,16 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
     flr_js_is_n_pls = ss.flr_js_is
 
     # FLB, K/W, [j, i]
-    flb_js_is_ns = flr_js_is_n_pls * (1.0 - ss.beta_is.T) * ss.phi_a0_js / ss.a_s_js \
-                   + np.dot(ss.k_ei_js_js, flr_js_is_n_pls * (1.0 - ss.beta_is.T)) * ss.phi_t0_js / (ss.h_s_c_js + ss.h_s_r_js) / ss.a_s_js
+    f_flb_js_is_n_pls = flr_js_is_n_pls * (1.0 - ss.beta_is.T) * ss.phi_a0_js / ss.a_s_js \
+        + np.dot(ss.k_ei_js_js, flr_js_is_n_pls * (1.0 - ss.beta_is.T)) * ss.phi_t0_js / (ss.h_s_c_js + ss.h_s_r_js) / ss.a_s_js
 
-    # WSB, K/W, [j, i]
-    f_wsb_js_is_n_pls = np.dot(ss.ivs_ax_js_js, flb_js_is_ns)
+    # F_WSB, K/W, [j, i], eq.(11)
+    f_wsb_js_is_n_pls = np.dot(ss.ivs_f_ax_js_js, f_flb_js_is_n_pls)
 
-    # BRL, -, [i, i], eq.(10)
+    # F_BRL, -, [i, i], eq.(10)
     f_brl_is_is_n_pls = np.dot(ss.p_is_js, f_wsb_js_is_n_pls * ss.h_s_c_js * ss.a_s_js) + np.diag(ss.beta_is.flatten())
 
-    # ステップn+1における室iの係数 XLR, K/W, [i, i], eq.(9)
+    # ステップn+1における室iの係数 F_XLR, K/W, [i, i], eq.(9)
     f_xlr_is_is_n_pls = np.dot(f_xot_is_is_n_pls, kr_is_n * np.dot(ss.f_mrt_hum_is_js, f_wsb_js_is_n_pls))
 
     # ステップnにおける係数 F_BRL_OT, -, [i, i], eq.(8)
