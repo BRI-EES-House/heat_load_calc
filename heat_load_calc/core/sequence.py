@@ -107,7 +107,7 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
     cvl_js_n_pls = np.sum(theta_dsh_srf_t_js_ms_n_pls + theta_dsh_srf_a_js_ms_n_pls, axis=1, keepdims=True)
 
     # ステップn+1の境界jにおける係数WSV, degree C, [j, 1]
-    f_wsv_js_n_pls = np.dot(ss.ivs_ax_js_js, cvl_js_n_pls)
+    f_wsv_js_n_pls = np.dot(ss.ivs_f_ax_js_js, cvl_js_n_pls)
 
     # 室iの自然風利用による換気量, m3/s, [i, 1]
     # 自然風を利用していない場合は、0.0 m3/s になる。
@@ -118,8 +118,8 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
     v_out_vent_is_n = v_leak_is_n + v_mec_vent_is_n + v_ntrl_vent_is_n
 
     # ステップn+1の室iにおける係数 BRC, W, [i, 1]
-    brc_is_n_pls = ss.c_room_is / delta_t * c_n.theta_r_is_n \
-        + np.dot(ss.p_is_js, ss.h_s_c_js * ss.a_srf_js * (f_wsc_js_n_pls + f_wsv_js_n_pls)) \
+    f_brc_is_n_pls = ss.c_room_is / delta_t * c_n.theta_r_is_n \
+        + np.dot(ss.p_is_js, ss.h_s_c_js * ss.a_s_js * (f_wsc_js_n_pls + f_wsv_js_n_pls)) \
         + get_c_air() * get_rho_air() * v_out_vent_is_n * ss.theta_o_ns[n + 1] \
         + q_gen_is_n + q_hum_is_n \
         + ss.g_sh_frt_is * (
@@ -127,7 +127,7 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
         ) / (ss.c_sh_frt_is + delta_t * ss.g_sh_frt_is)
 
     # ステップn+1における係数 BRM, W/K, [i, i]
-    brm_is_is_n = ss.brm_non_vent_is_is\
+    f_brm_is_is_n_pls = ss.brm_non_vent_is_is\
         + get_c_air() * get_rho_air() * (
             np.diag(v_out_vent_is_n.flatten()) - (ss.v_int_vent_is_is - np.diag(ss.v_int_vent_is_is.sum(axis=1)))
         )
@@ -141,53 +141,56 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
     # ステップnにおける室iの在室者表面における放射熱伝達率の総合熱伝達率に対する比, [i, 1]
     kr_is_n = h_hum_r_is_n / (h_hum_c_is_n + h_hum_r_is_n)
 
-    # flr
-    flr_js_is_n_pls = ss.flr_js_is
-
-    # FLB, K/W, [j, i]
-    flb_js_is_ns = flr_js_is_n_pls * (1.0 - ss.beta_is.T) * ss.phi_a0_js / ss.a_srf_js \
-                   + np.dot(ss.k_ei_js_js, flr_js_is_n_pls * (1.0 - ss.beta_is.T)) * ss.phi_t0_js / (ss.h_s_c_js + ss.h_s_r_js) / ss.a_srf_js
-
-    # WSB, K/W, [j, i]
-    f_wsb_js_is_n_pls = np.dot(ss.ivs_ax_js_js, flb_js_is_ns)
-#    f_wsb_js_is_n_pls = ss.f_wsb_js_is
-
     # ステップn+1における室iの係数 XOT, [i, i]
     f_xot_is_is_n_pls = np.linalg.inv(v_diag(kc_is_n) + kr_is_n * np.dot(ss.f_mrt_hum_is_js, ss.f_wsr_js_is))
-
-    # ステップn+1における室iの係数 XLR, [i, i]
-    xlr_is_is_n_pls = np.dot(f_xot_is_is_n_pls, kr_is_n * np.dot(ss.f_mrt_hum_is_js, f_wsb_js_is_n_pls))
 
     # ステップn+1における室iの係数 XC, [i, 1]
     f_xc_is_n_pls = np.dot(f_xot_is_is_n_pls, kr_is_n * np.dot(ss.f_mrt_hum_is_js, (f_wsc_js_n_pls + f_wsv_js_n_pls)))
 
-    # BRL, [i, i]
-    brl_is_is_n_pls = np.dot(ss.p_is_js, f_wsb_js_is_n_pls * ss.h_s_c_js * ss.a_srf_js) + np.diag(ss.beta_is.flatten())
-
     # ステップnにおける係数 BRMOT, W/K, [i, i]
-    brm_ot_is_is_n = np.dot(brm_is_is_n, f_xot_is_is_n_pls)
-
-    # ステップnにおける係数 BRLOT, [i, i]
-    brl_ot_is_is_n_pls = brl_is_is_n_pls + np.dot(brm_is_is_n, xlr_is_is_n_pls)
+    f_brm_ot_is_is_n_pls = np.dot(f_brm_is_is_n_pls, f_xot_is_is_n_pls)
 
     # ステップnにおける係数 BRCOT, [i, 1]
-    brc_ot_is_n_pls = brc_is_n_pls + np.dot(brm_is_is_n, f_xc_is_n_pls)
+    f_brc_ot_is_n_pls = f_brc_is_n_pls + np.dot(f_brm_is_is_n_pls, f_xc_is_n_pls)
+
+    # ステップ n+1 における自然作用温度, [i, 1]
+    theta_r_ot_ntr_is_n_pls = np.dot(np.linalg.inv(f_brm_ot_is_is_n_pls), f_brc_ot_is_n_pls)
+
+    # flr
+    flr_js_is_n_pls = ss.flr_js_is
+
+    # F_FLB, K/W, [j, i], eq.(12)
+    f_flb_js_is_n_pls = flr_js_is_n_pls * (1.0 - ss.beta_is.T) * ss.phi_a0_js / ss.a_s_js \
+        + np.dot(ss.k_ei_js_js, flr_js_is_n_pls * (1.0 - ss.beta_is.T)) * ss.phi_t0_js / (ss.h_s_c_js + ss.h_s_r_js) / ss.a_s_js
+
+    # F_WSB, K/W, [j, i], eq.(11)
+    f_wsb_js_is_n_pls = np.dot(ss.ivs_f_ax_js_js, f_flb_js_is_n_pls)
+
+    # F_BRL, -, [i, i], eq.(10)
+    f_brl_is_is_n_pls = np.dot(ss.p_is_js, f_wsb_js_is_n_pls * ss.h_s_c_js * ss.a_s_js) + np.diag(ss.beta_is.flatten())
+
+    # ステップn+1における室iの係数 F_XLR, K/W, [i, i], eq.(9)
+    f_xlr_is_is_n_pls = np.dot(f_xot_is_is_n_pls, kr_is_n * np.dot(ss.f_mrt_hum_is_js, f_wsb_js_is_n_pls))
+
+    # ステップnにおける係数 F_BRL_OT, -, [i, i], eq.(8)
+    f_brl_ot_is_is_n_pls = f_brl_is_is_n_pls + np.dot(f_brm_is_is_n_pls, f_xlr_is_is_n_pls)
 
     # ステップ n+1 における室 i の作用温度, degree C, [i, 1] (ステップn+1における瞬時値）
     # ステップ n における室 i に設置された対流暖房の放熱量, W, [i, 1] (ステップn～ステップn+1までの平均値）
     # ステップ n における室 i に設置された放射暖房の放熱量, W, [i, 1]　(ステップn～ステップn+1までの平均値）
     theta_ot_is_n_pls, l_sc_is_n, l_sr_is_n = ss.calc_next_temp_and_load(
-        brc_ot_is_n=brc_ot_is_n_pls,
-        brm_ot_is_is_n=brm_ot_is_is_n,
-        brl_ot_is_is_n=brl_ot_is_is_n_pls,
+        brc_ot_is_n=f_brc_ot_is_n_pls,
+        brm_ot_is_is_n=f_brm_ot_is_is_n_pls,
+        brl_ot_is_is_n=f_brl_ot_is_is_n_pls,
         theta_lower_target_is_n=theta_lower_target_is_n_pls,
         theta_upper_target_is_n=theta_upper_target_is_n_pls,
         operation_mode_is_n=operation_mode_is_n,
-        ac_demand_is_n=ac_demand_is_n
+        ac_demand_is_n=ac_demand_is_n,
+        theta_natural_is_n=theta_r_ot_ntr_is_n_pls
     )
 
     # ステップ n+1 における室 i の室温, degree C, [i, 1], eq.(6)
-    theta_r_is_n_pls = np.dot(f_xot_is_is_n_pls, theta_ot_is_n_pls) - np.dot(xlr_is_is_n_pls, l_sr_is_n) - f_xc_is_n_pls
+    theta_r_is_n_pls = np.dot(f_xot_is_is_n_pls, theta_ot_is_n_pls) - np.dot(f_xlr_is_is_n_pls, l_sr_is_n) - f_xc_is_n_pls
 
     # ステップ n+1 における境界 j の表面温度, degree C, [j, 1], eq.(5)
     theta_s_js_n_pls = np.dot(ss.f_wsr_js_is, theta_r_is_n_pls) + f_wsc_js_n_pls \
@@ -207,7 +210,7 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
         ss.h_s_c_js * np.dot(ss.p_js_is, theta_r_is_n_pls)
         + ss.h_s_r_js * np.dot(ss.f_dsh_mrt_js_js, theta_s_js_n_pls)
         + ss.q_sol_js_ns[:, n+1].reshape(-1, 1)
-        + np.dot(flr_js_is_n_pls, (1.0 - ss.beta_is) * l_sr_is_n) / ss.a_srf_js
+        + np.dot(flr_js_is_n_pls, (1.0 - ss.beta_is) * l_sr_is_n) / ss.a_s_js
     ) / (ss.h_s_c_js + ss.h_s_r_js)
 
     # ステップ n+1 における境界 j の表面熱流（壁体吸熱を正とする）, W/m2, [j, 1], eq.(1)

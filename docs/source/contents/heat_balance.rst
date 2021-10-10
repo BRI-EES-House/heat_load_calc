@@ -67,7 +67,7 @@ I. 評価法
             &= \frac{ 1 }{ h_{s,c,j} + h_{s,r,j} } \cdot \\
             & \left( h_{s,c,j} \sum_{i=0}^{I-1}{ ( p_{i,j} \cdot \theta_{r,i,n+1} ) }
             + h_{s,r,j} \cdot \sum_{j*=0}^{J-1}{ ( F'_{mrt,j,j*} \cdot \theta_{s,j*,n+1} ) } \right. \\
-            & \left. + q_{sol,j,n+1} + \frac{ \sum_{i=0}^{I-1}{ ( flr_{i,j,n+1} \cdot \hat{L}_{SR,i,n} \cdot (1 - \beta_i) ) } }{ A_j } \right)
+            & \left. + q_{sol,j,n+1} + \frac{ \sum_{i=0}^{I-1}{ ( flr_{i,j,n+1} \cdot \hat{L}_{SR,i,n} \cdot (1 - \beta_{i,n+1}) ) } }{ A_{s,j} } \right)
         \end{split}
         \tag{2}
     \end{align*}
@@ -84,9 +84,9 @@ I. 評価法
     | ステップ |n+1| における室 |i| に設置された放射暖房の放熱量のうち放射成分に対する境界 |j| の室内側表面の吸収比率, -
 :math:`\hat{L}_{SR,i,n}`
     | ステップ |n| からステップ |n+1| における室 |i| に設置された放射空調の吸放熱量, W
-:math:`\beta_{i}`
-    | 室 |i| に設置された放射暖房の対流成分比率, -
-:math:`A_{j}`
+:math:`\beta_{i,n}`
+    | ステップ |n| における室 |i| に設置された放射暖房の対流成分比率, -
+:math:`A_{s,j}`
     | 境界 |j| の面積, |m2|
 :math:`p_{i,j}`
     | 室 |i| と境界 |j| の接続に関する係数。　境界 |j| が室 |i| に接している場合は :math:`1` とし、それ以外の場合は :math:`0` とする。
@@ -163,53 +163,20 @@ I. 評価法
 
 ここで、
 
-.. math::
-    :nowrap:
-
-    \begin{align*}
-        \pmb{\theta}_{s,n}
-        = \begin{pmatrix}
-            \theta_{s,0,n} \\
-            \vdots \\
-            \theta_{s,i,n} \\
-            \vdots \\
-            \theta_{s,I-1,n}
-        \end{pmatrix}
-    \end{align*}
-
-    \begin{align*}
-        \pmb{\theta}_{r,n}
-        = \begin{pmatrix}
-            \theta_{r,0,n} \\
-            \vdots \\
-            \theta_{r,i,n} \\
-            \vdots \\
-            \theta_{r,I-1,n}
-        \end{pmatrix}
-    \end{align*}
-
-    \begin{align*}
-        \hat{\pmb{L}}_{SR,n}
-        = \begin{pmatrix}
-            \hat{L}_{SR,0,n} \\
-            \vdots \\
-            \hat{L}_{SR,i,n} \\
-            \vdots \\
-            \hat{L}_{SR,I-1,n}
-        \end{pmatrix}
-    \end{align*}
-
-である。
-また、
-
+:math:`\pmb{\theta}_{s,n}`
+    | :math:`\theta_{s,i,n}` を要素にもつ :math:`I \times 1` の縦行列, ℃
+:math:`\pmb{\theta}_{r,n}`
+    | :math:`\theta_{r,i,n}` を要素にもつ :math:`I \times 1` の縦行列, ℃
+:math:`\hat{\pmb{L}}_{SR,n}`
+    | :math:`\hat{L}_{SR,i,n}` を要素にもつ :math:`I \times 1` の縦行列, W
 :math:`\pmb{F}_{WSR}`
     | :math:`F_{WSR,j,i}` を要素にもつ :math:`J \times I` で表される行列, -
-:math:`\pmb{F}_{WSC,n+1}`
-    | :math:`F_{WSC,j,n+1}` を要素にもつ :math:`J \times 1` で表される縦行列, ℃
-:math:`\pmb{F}_{WSB,n+1}`
-    | :math:`F_{WSB,j,i,n+1}` を要素にもつ :math:`J \times I` で表される行列, K / W
-:math:`\pmb{F}_{WSV,n+1}`
-    | :math:`F_{WSV,j,n+1}` を要素にもつ :math:`J \times 1` で表される縦行列, ℃
+:math:`\pmb{F}_{WSC,n}`
+    | :math:`F_{WSC,j,n}` を要素にもつ :math:`J \times 1` で表される縦行列, ℃
+:math:`\pmb{F}_{WSB,n}`
+    | :math:`F_{WSB,j,i,n}` を要素にもつ :math:`J \times I` で表される行列, K / W
+:math:`\pmb{F}_{WSV,n}`
+    | :math:`F_{WSV,j,n}` を要素にもつ :math:`J \times 1` で表される縦行列, ℃
 
 である。
 
@@ -227,33 +194,19 @@ I. 評価法
 
 ここで、
 
-:math:`\theta_{OT,i,n+1}`
-    | ステップ |n+1| における室 |i| の作用温度, ℃
+:math:`\pmb{\theta}_{OT,n}`
+    | :math:`\theta_{OT,i,n}` を要素にもつ :math:`I \times 1` で表される縦行列, -
+:math:`\pmb{F}_{XOT,n}`
+    | :math:`F_{XOT,i,i,n}` を要素にもつ :math:`I \times I` で表される行列, -
+:math:`\pmb{F}_{XLR,n}`
+    | :math:`F_{XLR,i,i,n}` を要素にもつ :math:`I \times I` で表される行列, K / W
+:math:`\pmb{F}_{XC,n}`
+    | :math:`F_{XC,i,n}` を要素にもつ :math:`I \times 1` で表される縦行列, ℃
 
 であり、
 
-.. math::
-    :nowrap:
-
-    \begin{align*}
-        \pmb{\theta}_{OT,n+1}
-        = \begin{pmatrix}
-            \theta_{OT,0,n+1} \\
-            \vdots \\
-            \theta_{OT,i,n+1} \\
-            \vdots \\
-            \theta_{OT,I-1,n+1}
-        \end{pmatrix}
-    \end{align*}
-
-である。また、
-
-:math:`\pmb{F}_{XOT,n+1}`
-    | :math:`F_{XOT,i,i,n+1}` を要素にもつ :math:`I \times I` で表される行列, -
-:math:`\pmb{F}_{XLR,n+1}`
-    | :math:`F_{XLR,i,i,n+1}` を要素にもつ :math:`I \times I` で表される行列, K / W
-:math:`\pmb{F}_{XC,n+1}`
-    | :math:`F_{XC,i,n+1}` を要素にもつ :math:`I \times 1` で表される縦行列, ℃
+:math:`\theta_{OT,i,n}`
+    | ステップ |n| における室 |i| の作用温度, ℃
 
 である。
 
@@ -263,7 +216,7 @@ I. 評価法
     :nowrap:
 
     \begin{align*}
-        \pmb{\theta}_{OT,n+1} = \pmb{F}_{BRM,OT,n+1} \cdot \hat{\pmb{L}}_{SC,n}
+        \pmb{F}_{BRM,OT,n+1} \cdot \pmb{\theta}_{OT,n+1} = \hat{\pmb{L}}_{SC,n}
         + \pmb{F}_{BRL,OT,n+1} \cdot \hat{\pmb{L}}_{SR,n}
         + \pmb{F}_{BRC,OT,n+1}
         \tag{7}
@@ -271,33 +224,19 @@ I. 評価法
 
 ここで、
 
-:math:`\hat{L}_{SC,i,n}`
-    | ステップ |n| からステップ |n+1| における室 |i| に設置された対流空調の吸放熱量, W
+:math:`\hat{\pmb{L}}_{SC,n}`
+    | :math:`\hat{L}_{SC,i,n}` を要素にもつ :math:`I \times 1` で表される縦行列, W
+:math:`\pmb{F}_{BRM,OT,n}`
+    | :math:`F_{BRM,OT,i,i,n}` を要素にもつ :math:`I \times I` で表される行列, W / K
+:math:`\pmb{F}_{BRL,OT,n}`
+    | :math:`F_{BRL,OT,i,i,n}` を要素にもつ :math:`I \times I` で表される縦行列, -
+:math:`\pmb{F}_{BRC,OT,n}`
+    | :math:`F_{BRC,OT,i,i,n}` を要素にもつ :math:`I \times I` で表される行列, W
 
 であり、
 
-.. math::
-    :nowrap:
-
-    \begin{align*}
-        \hat{\pmb{L}}_{SC,n}
-        = \begin{pmatrix}
-            \hat{L}_{SC,0,n} \\
-            \vdots \\
-            \hat{L}_{SC,i,n} \\
-            \vdots \\
-            \hat{L}_{SC,I-1,n}
-        \end{pmatrix}
-    \end{align*}
-
-である。また、
-
-:math:`\pmb{F}_{BRM,OT,n+1}`
-    | :math:`F_{BRM,OT,i,i}` を要素にもつ :math:`I \times I` で表される行列, K / W
-:math:`\pmb{F}_{BRL,OT,n+1}`
-    | :math:`F_{BRL,OT,i,i,n+1}` を要素にもつ :math:`I \times I` で表される縦行列, K / W
-:math:`\pmb{F}_{BRC,OT,n+1}`
-    | :math:`F_{BRC,OT,i,i,n+1}` を要素にもつ :math:`I \times I` で表される行列, ℃
+:math:`\hat{L}_{SC,i,n}`
+    | ステップ |n| からステップ |n+1| における室 |i| に設置された対流空調の吸放熱量, W
 
 である。
 
@@ -320,9 +259,9 @@ I. 評価法
 
 入力値
 
-* 係数 :math:`\pmb{F}_{BRM,OT,n+1}` , K / W
-* 係数 :math:`\pmb{F}_{BRL,OT,n+1}` , K / W
-* 係数 :math:`\pmb{F}_{BRC,OT,n+1}` , ℃
+* 係数 :math:`\pmb{F}_{BRM,OT,n+1}` , W / K
+* 係数 :math:`\pmb{F}_{BRL,OT,n+1}` , -
+* 係数 :math:`\pmb{F}_{BRC,OT,n+1}` , W
 * ステップ |n| から |n+1| における室 |i| の運転モード（暖房・冷房・暖房・冷房停止で窓「開」・暖房・冷房停止で窓「閉」）
 * ステップ |n+1| における室 |i| の目標作用温度（冷房用） :math:`\theta_{OT,upper,target,i,n+1}`
 * ステップ |n+1| における室 |i| の目標作用温度（暖房用） :math:`\theta_{OT,lower,target,i,n+1}`
@@ -331,6 +270,7 @@ I. 評価法
 * 室 |i| の放射冷房の有無
 * 室 |i| の放射暖房の最大放熱量（放熱を正値とする） :math:`q_{SR,h,max,i}`, W
 * 室 |i| の放射冷房の最大吸熱量（吸熱を負値とする） :math:`q_{SR,c,max,i}`, W
+* ステップ |n+1| における室 |i| の自然作用温度 :math:`\theta_{r,OT,ntr,i,n+1}`, ℃
 
 出力値
 
@@ -340,37 +280,202 @@ I. 評価法
 
 である。これらの計算方法は、付録・・・に示す。
 
-これらの係数 :math:`\pmb{BRC}_{OT,n+1}`、 :math:`\pmb{BRL}_{OT,n+1}` 及び :math:`\pmb{BRM}_{OT,n+1}` は、
+係数 :math:`\pmb{F}_{BRL,OT,n+1}` は、式(8)により表される。
+
+.. math::
+    :nowrap:
+
+    \begin{align*}
+        \pmb{F}_{BRL,OT,n+1} = \pmb{F}_{BRL,n+1} + \pmb{F}_{BRM,n+1} \cdot \pmb{F}_{XLR,n+1} \tag{8}
+    \end{align*}
+
+ここで、
+
+:math:`\pmb{F}_{BRL,n}`
+    | :math:`F_{BRL,i,i,n}` を要素にもつ :math:`I \times I` で表される行列, -
+:math:`\pmb{F}_{BRM,n}`
+    | :math:`F_{BRM,i,i,n}` を要素にもつ :math:`I \times I` で表される行列, W / K
+
+である。
+
+係数 :math:`\pmb{F}_{XLR,n+1}` は、式(9)により表される。
+
+.. math::
+    :nowrap:
+
+    \begin{align*}
+        \pmb{F}_{XLR,n+1} = \pmb{F}_{XOT,n+1} \cdot \pmb{k}_{r,n+1} \cdot \pmb{F}_{mrt,hum} \cdot \pmb{F}_{WSB,n+1} \tag{9}
+    \end{align*}
+
+ここで、
+
+:math:`\pmb{k}_{r,n+1}`
+    | :math:`k_{r,i,n+1}` を要素にもつ :math:`I \times I` の対角化行列
+
+であり、
+
+:math:`k_{r,i,n}`
+    | ステップ |n| における室 |i| の人体表面の放射熱伝達率が総合熱伝達率に占める割合, -
+
+である。
+
+係数 :math:`\pmb{F}_{BRL,n}` は、式(10)により表される。
+
+.. math::
+    :nowrap:
+
+    \begin{align*}
+        \pmb{F}_{BRL,n} = \pmb{p}_{ij} \cdot \pmb{h}_{s,c} \cdot \pmb{A}_{s} \cdot \pmb{F}_{WSB,n+1} + \pmb{\beta}_{n+1}
+        \tag{10}
+    \end{align*}
+
+ここで、
+
+:math:`\pmb{h}_{s,c}`
+    | :math:`h_{s,c,j}` を要素にもつ :math:`J \times J` の対角化行列
+:math:`\pmb{A}_{s}`
+    | :math:`A_{s,j}` を要素にもつ :math:`J \times J` の対角化行列
+:math:`\pmb{\beta}_{n+1}`
+    | :math:`\beta_{i,n+1}` を要素にもつ :math:`I \times I` の対角化行列
+
+であり、
+
+:math:`h_{s,c,j}`
+    | 境界 |j| の室内側対流熱伝達率, W / |m2| K
+:math:`A_{s,j}`
+    | 境界 |j| の面積, |m2|
+:math:`\beta_{i}`
+    | 室 |i| に設置された放射空調の対流成分比率, -
+
+とする。また、 :math:`\pmb{p}_{ij}` は :math:`p_{i,j}` を要素にもつ、室 |i| と境界 |j| との関係を表す行列であり、
+
+:math:`\pmb{p}_{ij}`
+    | :math:`p_{i,j}` を要素にもつ :math:`I \times J` の対角化行列
+
+とし、この転置行列を :math:`\pmb{p}_{ji}` と表記する。つまり、
+
+.. math::
+    :nowrap:
+
+    \begin{align*}
+        \pmb{p}_{ij} = \pmb{p}_{ji}^{T}
+    \end{align*}
+
+と定義する。
+
+:math:`\pmb{F}_{WSB,n+1}` は、式(11)により表される。
+
+.. math::
+    :nowrap:
+
+    \begin{align*}
+        \pmb{F}_{WSB,n+1} = \pmb{F}_{AX}^{-1} \cdot \pmb{F}_{FLB,n+1} \tag{11}
+    \end{align*}
+
+ここで、
+
+:math:`\pmb{F}_{AX}`
+    | :math:`F_{AX,j,j*}` を要素にもつ、:math:`J \times J` の行列, -
+:math:`\pmb{F}_{FLB,n}`
+    | :math:`F_{FLB,j，i,n}` を要素にもつ、:math:`J \times I` の行列, K/W
+
+である。
+
+:math:`F_{FLB,j,i,n+1}` は、式(12)により表される。
+
+.. math::
+    :nowrap:
+
+    \begin{align*}
+        \begin{split}
+            F_{FLB,j,i,n+1}
+            &= \frac{ \phi_{A0,j} \cdot ( 1 - \beta_{i,n+1} ) \cdot f_{flr,j,i,n+1} }{ A_{s,j} } \\
+            &+ \phi_{T0,j} \cdot \sum_{j*=0}^{J-1}{
+            \frac{ k'_{EI,j,j*}  \cdot ( 1 - \beta_{i,n+1} ) \cdot f_{flr,j*,i,n+1} }{ A_{s,j*} \cdot ( h_{s,c,j*} + h_{s,r,j*} ) }
+            }
+        \end{split}
+        \tag{12}
+    \end{align*}
+
+ここで、
+
+:math:`\phi_{A0,j}`
+    | 境界 |j| の吸熱応答係数の初項, |m2| K / W
+:math:`\phi_{T0,j}`
+    | 境界 |j| の貫流応答係数の初項, -
+:math:`k'_{EI,j,j*}`
+    | 境界 |j| の裏面温度に境界　|j*| の等価温度が与える影響
+:math:`h_{s,r,j}`
+    | 境界 |j| の室内側放射熱伝達率, W / |m2| K
+:math:`{f_{flr,j,n}}`
+    | ステップ |n| における室 |i| に設置された放射暖房の放熱量のうち放射成分に対する境界 |j| の室内側表面の吸収比率, -
+
+である。
+
+
+
+
+
+
+これらの係数 :math:`\pmb{F}_{BRC,OT,n+1}`、  及び :math:`\pmb{F}_{BRM,OT,n+1}` は、
 式(8)～式(10)により表される。
 
 .. math::
     :nowrap:
 
     \begin{align*}
-        \pmb{BRC}_{OT,n+1} = \pmb{BRM}_{OT,n+1}^{-1} \cdot ( \pmb{BRC}_n - \pmb{BRM}_n \cdot \pmb{XC}_{n+1} ) \tag{8}
+        \pmb{F}_{BRC,OT,n+1} = \pmb{F}_{BRC,n} + \pmb{F}_{BRM,n} \cdot \pmb{F}_{XC,n+1} \tag{8}
     \end{align*}
 
-    \begin{align*}
-        \pmb{BRL}_{OT,n+1} = \pmb{BRM}_{OT,n+1}^{-1} \cdot ( \pmb{BRL} - \pmb{BRM}_n \cdot \pmb{XLR}_{n+1} ) \tag{9}
-    \end{align*}
 
     \begin{align*}
-        \pmb{BRM}_{OT,n+1} = \pmb{BRM}_{n} \cdot \pmb{XOT}_{n+1} \tag{10}
+        \pmb{F}_{BRM,OT,n+1} = \pmb{F}_{BRM,n} \cdot \pmb{F}_{XOT,n+1} \tag{10}
     \end{align*}
+
+
+
+.. math::
+    :nowrap:
+
+    \begin{align*}
+        \begin{split}
+            \pmb{\theta}_{OT,n+1}
+            & = (\pmb{BRM}_n \cdot \pmb{XOT}_{n+1})^{-1} \cdot \hat{\pmb{LC}}_n \\
+            & + (\pmb{BRM}_n \cdot \pmb{XOT}_{n+1})^{-1}
+            \cdot ( \pmb{BRL} - \pmb{BRM}_n \cdot \pmb{XLR}_{n+1} )
+            \cdot \hat{\pmb{Lr}}_{n} \\
+            & + (\pmb{BRM}_n \cdot \pmb{XOT}_{n+1})^{-1}
+            \cdot ( \pmb{BRC}_n - \pmb{BRM}_n \cdot \pmb{XC}_{n+1} )
+        \end{split}
+        \tag{b53}
+    \end{align*}
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ここで、
 
-:math:`\pmb{BRM}_{n}`
+:math:`\pmb{F}_{BRM,n}`
     | :math:`I \times I` で表される行列, W / K
-:math:`\pmb{XOT}_{n+1}`
+:math:`\pmb{F}_{XOT,n+1}`
     | :math:`I \times I` で表される行列, -
-:math:`\pmb{BRL}`
+:math:`\pmb{F}_{BRL}`
     | :math:`I \times I` で表される行列, -
-:math:`\pmb{BRC}_{n}`
+:math:`\pmb{F}_{BRC,n}`
     | :math:`I \times 1` で表される縦行列, W
-:math:`\pmb{XLR}_{n+1}`
+:math:`\pmb{F}_{XLR,n+1}`
     | :math:`I \times I` で表される行列, K / W
-:math:`\pmb{XC}_{n+1}`
+:math:`\pmb{F}_{XC,n+1}`
     | :math:`I \times 1` で表される縦行列, ℃
 
 である。
@@ -386,9 +491,6 @@ I. 評価法
         \tag{11}
     \end{align*}
 
-    \begin{align*}
-        \pmb{XLR}_{n+1} = \pmb{XOT}_{n+1} \cdot \pmb{kr}_{n+1} * \pmb{F}_{mrt,hum} \cdot \pmb{WSB} \tag{12}
-    \end{align*}
 
     \begin{align*}
         \pmb{XOT}_{n+1} = \left( \pmb{kc}_{n+1} + \pmb{kr}_{n+1} \cdot \pmb{F}_{mrt,hum} \cdot \pmb{WSR} \right)^{-1}
@@ -399,15 +501,11 @@ I. 評価法
 
 :math:`\pmb{kc}_{n+1}`
     | :math:`kc_{i,n+1}` を要素にもつ :math:`I \times I` の対角化行列
-:math:`\pmb{kr}_{n+1}`
-    | :math:`kr_{i,n+1}` を要素にもつ :math:`I \times I` の対角化行列
 
 であり、
 
 :math:`kc_{i,n+1}`
     | ステップ |n+1| における室 |i| の人体表面の対流熱伝達率が総合熱伝達率に占める割合, -
-:math:`kr_{i,n+1}`
-    | ステップ |n+1| における室 |i| の人体表面の放射熱伝達率が総合熱伝達率に占める割合, -
 
 である。
 
@@ -527,18 +625,11 @@ I. 評価法
     # BRL, [i, i]
     brl_is_is = np.dot(p_is_js, wsb_js_is * h_c_js * a_srf_js) + np.diag(beta_is.flatten())
 
-    # WSB, K/W, [j, i]
-    wsb_js_is = np.dot(ivs_ax_js_js, flb_js_is)
-
     # WSC, degree C, [j, n]
     wsc_js_ns = np.dot(ivs_ax_js_js, crx_js_ns)
 
     # WSR, [j, i]
     wsr_js_is = np.dot(ivs_ax_js_js, fia_js_is)
-
-    # FLB, K/W, [j, i]
-    flb_js_is = flr_js_is * (1.0 - beta_is.T) * phi_a0_js / a_srf_js\
-        + np.dot(k_ei_js_js, flr_js_is * (1.0 - beta_is.T)) * phi_t0_js / h_i_js / a_srf_js
 
     # CRX, degree C, [j, n]
     crx_js_ns = phi_a0_js * q_sol_js_ns\
