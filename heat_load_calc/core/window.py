@@ -217,16 +217,16 @@ def get_tau_and_ashgc_rho_a(eta_w: float, glazing_type_j: str,
     if glazing_type_j == "single":
         tau_g = -0.70 * eta_g ** 3 + 1.94 * eta_g ** 2 - 0.19 * eta_g
         ashgc_g = eta_g - tau_g
-        if tau_g + 3.76 * ashgc_g < 1.0:
-            a_g = 3.76 * ashgc_g
+        if tau_g + 3.01 * ashgc_g < 1.0:
+            a_g = 3.01 * ashgc_g
         else:
             a_g = 1.0 - tau_g
         rho_g = 1.0 - tau_g - a_g
     elif glazing_type_j == "multiple":
         tau_g = -0.34 * eta_g ** 3 + 0.81 * eta_g ** 2 + 0.46 * eta_g
         ashgc_g = eta_g - tau_g
-        if tau_g + 3.01 * ashgc_g < 1.0:
-            a_g = 3.01 * ashgc_g
+        if tau_g + 3.76 * ashgc_g < 1.0:
+            a_g = 3.76 * ashgc_g
         else:
             a_g = 1.0 - tau_g
         rho_g = 1.0 - tau_g - a_g
