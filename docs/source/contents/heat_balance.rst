@@ -67,7 +67,7 @@ I. 評価法
             &= \frac{ 1 }{ h_{s,c,j} + h_{s,r,j} } \cdot \\
             & \left( h_{s,c,j} \sum_{i=0}^{I-1}{ ( p_{i,j} \cdot \theta_{r,i,n+1} ) }
             + h_{s,r,j} \cdot \sum_{j*=0}^{J-1}{ ( F'_{mrt,j,j*} \cdot \theta_{s,j*,n+1} ) } \right. \\
-            & \left. + q_{sol,j,n+1} + \frac{ \sum_{i=0}^{I-1}{ ( flr_{i,j,n+1} \cdot \hat{L}_{SR,i,n} \cdot (1 - \beta_i) ) } }{ A_{s,j} } \right)
+            & \left. + q_{sol,j,n+1} + \frac{ \sum_{i=0}^{I-1}{ ( flr_{i,j,n+1} \cdot \hat{L}_{SR,i,n} \cdot (1 - \beta_{i,n+1}) ) } }{ A_{s,j} } \right)
         \end{split}
         \tag{2}
     \end{align*}
@@ -84,8 +84,8 @@ I. 評価法
     | ステップ |n+1| における室 |i| に設置された放射暖房の放熱量のうち放射成分に対する境界 |j| の室内側表面の吸収比率, -
 :math:`\hat{L}_{SR,i,n}`
     | ステップ |n| からステップ |n+1| における室 |i| に設置された放射空調の吸放熱量, W
-:math:`\beta_{i}`
-    | 室 |i| に設置された放射暖房の対流成分比率, -
+:math:`\beta_{i,n}`
+    | ステップ |n| における室 |i| に設置された放射暖房の対流成分比率, -
 :math:`A_{s,j}`
     | 境界 |j| の面積, |m2|
 :math:`p_{i,j}`
@@ -325,18 +325,27 @@ I. 評価法
     :nowrap:
 
     \begin{align*}
-        \pmb{F}_{BRL,n} = \pmb{p}_{ij} \cdot \pmb{h}_{s,c} \cdot \pmb{A}_{s} \cdot \pmb{F}_{WSB,n+1} + \pmb{\beta}
+        \pmb{F}_{BRL,n} = \pmb{p}_{ij} \cdot \pmb{h}_{s,c} \cdot \pmb{A}_{s} \cdot \pmb{F}_{WSB,n+1} + \pmb{\beta}_{n+1}
         \tag{10}
     \end{align*}
 
 ここで、
 
 :math:`\pmb{h}_{s,c}`
-    | :math:`{h_{s,c,j}}` を要素にもつ :math:`J \times J` の対角化行列
+    | :math:`h_{s,c,j}` を要素にもつ :math:`J \times J` の対角化行列
 :math:`\pmb{A}_{s}`
-    | :math:`{A_{s,j}}` を要素にもつ :math:`J \times J` の対角化行列
-:math:`\pmb{\beta}`
-    | :math:`{\beta_{i}}` を要素にもつ :math:`I \times I` の対角化行列
+    | :math:`A_{s,j}` を要素にもつ :math:`J \times J` の対角化行列
+:math:`\pmb{\beta}_{n+1}`
+    | :math:`\beta_{i,n+1}` を要素にもつ :math:`I \times I` の対角化行列
+
+であり、
+
+:math:`h_{s,c,j}`
+    | 境界 |j| の室内側対流熱伝達率, W / |m2| K
+:math:`A_{s,j}`
+    | 境界 |j| の面積, |m2|
+:math:`\beta_{i}`
+    | 室 |i| に設置された放射空調の対流成分比率, -
 
 とする。また、 :math:`\pmb{p}_{ij}` は :math:`p_{i,j}` を要素にもつ、室 |i| と境界 |j| との関係を表す行列であり、
 
@@ -367,14 +376,42 @@ I. 評価法
 
 :math:`\pmb{F}_{AX}`
     | :math:`F_{AX,j,j*}` を要素にもつ、:math:`J \times J` の行列, -
-:math:`\pmb{F}_{FLB,n+1}`
-    | :math:`F_{FLB,ｊ，i,n+1}` を要素にもつ、:math:`J \times I` の行列, K/W
+:math:`\pmb{F}_{FLB,n}`
+    | :math:`F_{FLB,j，i,n}` を要素にもつ、:math:`J \times I` の行列, K/W
 
 である。
 
-    # FLB, K/W, [j, i]
-    flb_js_is = flr_js_is * (1.0 - beta_is.T) * phi_a0_js / a_srf_js\
-        + np.dot(k_ei_js_js, flr_js_is * (1.0 - beta_is.T)) * phi_t0_js / h_i_js / a_srf_js
+:math:`F_{FLB,j,i,n+1}` は、式(12)により表される。
+
+.. math::
+    :nowrap:
+
+    \begin{align*}
+        \begin{split}
+            F_{FLB,j,i,n+1}
+            &= \frac{ \phi_{A0,j} \cdot ( 1 - \beta_{i,n+1} ) \cdot f_{flr,j,i,n+1} }{ A_{s,j} } \\
+            &+ \phi_{T0,j} \cdot \sum_{j*=0}^{J-1}{
+            \frac{ k'_{EI,j,j*}  \cdot ( 1 - \beta_{i,n+1} ) \cdot f_{flr,j*,i,n+1} }{ A_{s,j*} \cdot ( h_{s,c,j*} + h_{s,r,j*} ) }
+            }
+        \end{split}
+        \tag{12}
+    \end{align*}
+
+ここで、
+
+:math:`\phi_{A0,j}`
+    | 境界 |j| の吸熱応答係数の初項, |m2| K / W
+:math:`\phi_{T0,j}`
+    | 境界 |j| の貫流応答係数の初項, -
+:math:`k'_{EI,j,j*}`
+    | 境界 |j| の裏面温度に境界　|j*| の等価温度が与える影響
+:math:`h_{s,r,j}`
+    | 境界 |j| の室内側放射熱伝達率, W / |m2| K
+:math:`{f_{flr,j,n}}`
+    | ステップ |n| における室 |i| に設置された放射暖房の放熱量のうち放射成分に対する境界 |j| の室内側表面の吸収比率, -
+
+である。
+
 
 
 

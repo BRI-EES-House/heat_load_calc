@@ -159,7 +159,7 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
     # flr
     flr_js_is_n_pls = ss.flr_js_is
 
-    # FLB, K/W, [j, i]
+    # F_FLB, K/W, [j, i], eq.(12)
     f_flb_js_is_n_pls = flr_js_is_n_pls * (1.0 - ss.beta_is.T) * ss.phi_a0_js / ss.a_s_js \
         + np.dot(ss.k_ei_js_js, flr_js_is_n_pls * (1.0 - ss.beta_is.T)) * ss.phi_t0_js / (ss.h_s_c_js + ss.h_s_r_js) / ss.a_s_js
 
