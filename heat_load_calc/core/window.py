@@ -201,8 +201,8 @@ def _get_r_d_double() -> float:
     return 0.088
 
 
-def get_tau_and_ashgc(eta_w: float, glazing_type_j: str,
-                      glass_area_ratio_j: float) -> (float, float):
+def get_tau_and_ashgc_rho_a(eta_w: float, glazing_type_j: str,
+                            glass_area_ratio_j: float) -> (float, float):
     """
     日射熱取得率から透過率、吸収日射取得率を推定する
     :param eta_w: 窓の日射熱取得率
@@ -216,15 +216,29 @@ def get_tau_and_ashgc(eta_w: float, glazing_type_j: str,
 
     if glazing_type_j == "single":
         tau_g = -0.70 * eta_g ** 3 + 1.94 * eta_g ** 2 - 0.19 * eta_g
+        ashgc_g = eta_g - tau_g
+        if tau_g + 3.76 * ashgc_g < 1.0:
+            a_g = 3.76 * ashgc_g
+        else:
+            a_g = 1.0 - tau_g
+        rho_g = 1.0 - tau_g - a_g
     elif glazing_type_j == "multiple":
         tau_g = -0.34 * eta_g ** 3 + 0.81 * eta_g ** 2 + 0.46 * eta_g
+        ashgc_g = eta_g - tau_g
+        if tau_g + 3.01 * ashgc_g < 1.0:
+            a_g = 3.01 * ashgc_g
+        else:
+            a_g = 1.0 - tau_g
+        rho_g = 1.0 - tau_g - a_g
     else:
         raise ValueError()
 
     # 窓の日射透過率
     tau_w = tau_g * glass_area_ratio_j
+    a_w = a_g * glass_area_ratio_j
+    rho_w = rho_g * glass_area_ratio_j
 
-    return tau_w, eta_w - tau_w
+    return tau_w, eta_w - tau_w, rho_w, a_w
 
 
 # TODO:吸収日射取得率の入射角特性は、1-τ-ρで暫定対応（τ：透過率の規準化透過率、ρ：反射率の規準化反射率）
