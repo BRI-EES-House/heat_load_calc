@@ -163,15 +163,18 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
     # flr
     flr_js_is_n_pls = ss.flr_js_is
 
+    # beta
+    beta_is_n_pls = ss.beta_is
+
     # F_FLB, K/W, [j, i], eq.(12)
-    f_flb_js_is_n_pls = flr_js_is_n_pls * (1.0 - ss.beta_is.T) * ss.phi_a0_js / ss.a_s_js \
-        + np.dot(ss.k_ei_js_js, flr_js_is_n_pls * (1.0 - ss.beta_is.T)) * ss.phi_t0_js / (ss.h_s_c_js + ss.h_s_r_js) / ss.a_s_js
+    f_flb_js_is_n_pls = flr_js_is_n_pls * (1.0 - beta_is_n_pls.T) * ss.phi_a0_js / ss.a_s_js \
+        + np.dot(ss.k_ei_js_js, flr_js_is_n_pls * (1.0 - beta_is_n_pls.T)) * ss.phi_t0_js / (ss.h_s_c_js + ss.h_s_r_js) / ss.a_s_js
 
     # F_WSB, K/W, [j, i], eq.(11)
     f_wsb_js_is_n_pls = np.dot(ss.ivs_f_ax_js_js, f_flb_js_is_n_pls)
 
     # F_BRL, -, [i, i], eq.(10)
-    f_brl_is_is_n_pls = np.dot(ss.p_is_js, f_wsb_js_is_n_pls * ss.h_s_c_js * ss.a_s_js) + np.diag(ss.beta_is.flatten())
+    f_brl_is_is_n_pls = np.dot(ss.p_is_js, f_wsb_js_is_n_pls * ss.h_s_c_js * ss.a_s_js) + np.diag(beta_is_n_pls.flatten())
 
     # ステップn+1における室iの係数 F_XLR, K/W, [i, i], eq.(9)
     f_xlr_is_is_n_pls = np.dot(f_xot_is_is_n_pls, kr_is_n * np.dot(ss.f_mrt_hum_is_js, f_wsb_js_is_n_pls))
@@ -215,7 +218,7 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
         ss.h_s_c_js * np.dot(ss.p_js_is, theta_r_is_n_pls)
         + ss.h_s_r_js * np.dot(ss.f_dsh_mrt_js_js, theta_s_js_n_pls)
         + ss.q_sol_js_ns[:, n+1].reshape(-1, 1)
-        + np.dot(flr_js_is_n_pls, (1.0 - ss.beta_is) * l_sr_is_n) / ss.a_s_js
+        + np.dot(flr_js_is_n_pls, (1.0 - beta_is_n_pls) * l_sr_is_n) / ss.a_s_js
     ) / (ss.h_s_c_js + ss.h_s_r_js)
 
     # ステップ n+1 における境界 j の表面熱流（壁体吸熱を正とする）, W/m2, [j, 1], eq.(1)
