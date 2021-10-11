@@ -102,7 +102,8 @@ class PreCalcParameters:
     brm_non_vent_is_is: np.ndarray
 
     # 放射暖房対流比率, [i, 1]
-    beta_is: np.ndarray
+    beta_h_is: np.ndarray
+    beta_c_is: np.ndarray
 
     # === 境界jに関すること ===
 
@@ -147,7 +148,8 @@ class PreCalcParameters:
     f_wsr_js_is: np.ndarray
 
     # 床暖房の発熱部位？
-    flr_js_is: np.ndarray
+    flr_h_js_is: np.ndarray
+    flr_c_js_is: np.ndarray
 
     # WSC, W, [j, n]
     wsc_js_ns: np.ndarray
@@ -431,6 +433,8 @@ def make_pre_calc_parameters(
     # 室iに設置された放射暖房の対流成分比率, [i, 1]
     # TODO: 入力ファイルから与えられるのではなく、設備の入力情報から計算するべき。
     beta_is = np.array([s['beta'] for s in rms]).reshape(-1, 1)
+    beta_h_is = beta_is
+    beta_c_is = beta_is
 
     # 境界jの面積, m2, [j, 1]
     a_srf_js = np.array([bs.area for bs in bss]).reshape(-1, 1)
@@ -480,6 +484,8 @@ def make_pre_calc_parameters(
 
     # 室iに設置された放射暖房の放熱量のうち放射成分に対する境界jの室内側吸収比率, [j, i]
     flr_js_is_ns = p_js_is * flr_js[:, np.newaxis]
+    flr_h_js_is = flr_js_is_ns
+    flr_c_js_is = flr_js_is_ns
 
     # 室iの空気の熱容量, J/K, [i, 1]
     c_rm_is = v_rm_is * get_rho_air() * get_c_air()
@@ -622,13 +628,15 @@ def make_pre_calc_parameters(
         q_trs_sol_is_ns=q_trs_sol_is_ns,
         v_ntrl_vent_is=v_ntrl_vent_is,
         ac_demand_is_ns=ac_demand_is_ns,
-        flr_js_is=flr_js_is_ns,
+        flr_h_js_is=flr_h_js_is,
+        flr_c_js_is=flr_c_js_is,
         h_s_r_js=h_r_js,
         h_s_c_js=h_c_js,
         f_dsh_mrt_js_js=f_dsh_mrt_js_js,
         q_sol_js_ns=q_sol_js_ns,
         q_sol_frt_is_ns=q_sol_frt_is_ns,
-        beta_is=beta_is,
+        beta_h_is=beta_h_is,
+        beta_c_is=beta_c_is,
         f_wsr_js_is=wsr_js_is,
         brm_non_vent_is_is=brm_non_vent_is_is,
         ivs_f_ax_js_js=ivs_ax_js_js,

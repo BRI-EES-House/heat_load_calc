@@ -156,15 +156,15 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
     # ステップ n+1 における自然作用温度, [i, 1]
     theta_r_ot_ntr_is_n_pls = np.dot(np.linalg.inv(f_brm_ot_is_is_n_pls), f_brc_ot_is_n_pls)
 
-    # ステップ n から n+1 において室 i で実際に暖房・冷房が行われるかどうかの判定結果
+    # ステップ n から n+1 において室 i で実際に暖房・冷房が行われるかどうかの判定結果, [i, 1]
     is_heating_is_n = (operation_mode_is_n == OperationMode.HEATING) & (theta_r_ot_ntr_is_n_pls < theta_lower_target_is_n_pls)
     is_cooling_is_n = (operation_mode_is_n == OperationMode.COOLING) & (theta_upper_target_is_n_pls < theta_r_ot_ntr_is_n_pls)
 
     # flr
-    flr_js_is_n_pls = ss.flr_js_is
+    flr_js_is_n_pls = ss.flr_h_js_is * is_heating_is_n.flatten() + ss.flr_c_js_is * is_cooling_is_n.flatten()
 
     # beta
-    beta_is_n_pls = ss.beta_is
+    beta_is_n_pls = ss.beta_h_is * is_heating_is_n + ss.beta_c_is * is_cooling_is_n
 
     # F_FLB, K/W, [j, i], eq.(12)
     f_flb_js_is_n_pls = flr_js_is_n_pls * (1.0 - beta_is_n_pls.T) * ss.phi_a0_js / ss.a_s_js \
