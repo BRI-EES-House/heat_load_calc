@@ -156,6 +156,10 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
     # ステップ n+1 における自然作用温度, [i, 1]
     theta_r_ot_ntr_is_n_pls = np.dot(np.linalg.inv(f_brm_ot_is_is_n_pls), f_brc_ot_is_n_pls)
 
+    # ステップ n から n+1 において室 i で実際に暖房・冷房が行われるかどうかの判定結果
+    is_heating_is_n = (operation_mode_is_n == OperationMode.HEATING) & (theta_r_ot_ntr_is_n_pls < theta_lower_target_is_n_pls)
+    is_cooling_is_n = (operation_mode_is_n == OperationMode.COOLING) & (theta_upper_target_is_n_pls < theta_r_ot_ntr_is_n_pls)
+
     # flr
     flr_js_is_n_pls = ss.flr_js_is
 
@@ -186,7 +190,9 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
         theta_upper_target_is_n=theta_upper_target_is_n_pls,
         operation_mode_is_n=operation_mode_is_n,
         ac_demand_is_n=ac_demand_is_n,
-        theta_natural_is_n=theta_r_ot_ntr_is_n_pls
+        theta_natural_is_n=theta_r_ot_ntr_is_n_pls,
+        is_heating_is_n=is_heating_is_n,
+        is_cooling_is_n=is_cooling_is_n
     )
 
     # ステップ n+1 における室 i の室温, degree C, [i, 1], eq.(6)
