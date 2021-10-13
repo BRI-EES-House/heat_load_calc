@@ -13,3 +13,4 @@
    /contents/notes
    /contents/heat_balance
    /contents/humidity_balance
+   /contents/furniture
