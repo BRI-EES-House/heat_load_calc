@@ -289,16 +289,16 @@ class OutsideEqvTempExternalTransparentPart(OutsideEqvTemp):
         r_n_is_i_j_ns = inclined_surface_solar_radiation.get_r_n_is_j_ns(r_n_ns=r_n_ns, w_beta_j=w_beta_i_j)
 
         # 吸収日射取得率の計算
-        tau_value, ashgc_value = window.get_tau_and_ashgc(eta_w=self._eta_value,
-                                                          glazing_type_j=self._glazing_type,
-                                                          glass_area_ratio_j=self._glass_area_ratio)
+        tau_value, ashgc_value, rho_value, a_value = window.get_tau_and_ashgc_rho_a(eta_w=self._eta_value,
+                                                                glazing_type_j=self._glazing_type,
+                                                                glass_area_ratio_j=self._glass_area_ratio)
         
         # 境界jにおける透明な開口部の直達日射に対する規準化吸収日射取得率, [8760 * 4]
-        ashgc_d_j_ns = window.get_c_ashgc(
-            theta_aoi_i_k=theta_aoi_j_ns, glazing_type_j=self._glazing_type)
+        ashgc_d_j_ns = window.get_ashgc_d_j(
+            theta_aoi_i_k=theta_aoi_j_ns, glazing_type_j=self._glazing_type, tau_w=tau_value, rho_w=rho_value)
 
         # 境界jにおける透明な開口部の拡散日射に対する規準化吸収日射取得率
-        ashgc_d_j = window.get_ashgc_d_j(glazing_type_j=self._glazing_type)
+        ashgc_d_j = window.get_c_ashgc(glazing_type_j=self._glazing_type, tau_w=tau_value, rho_w=rho_value)
         
         # ---吸収日射熱取得, W/m2
 

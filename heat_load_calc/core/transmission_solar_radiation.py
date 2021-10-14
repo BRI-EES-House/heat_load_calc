@@ -106,9 +106,9 @@ class TransmissionSolarRadiationTransparentSunStrike(TransmissionSolarRadiation)
         f_ss_r_j_ns = 0.0
 
         # 透過率の計算
-        tau_value, ashgc_value = window.get_tau_and_ashgc(eta_w=self._eta_value,
-                                                          glazing_type_j=self._glazing_type,
-                                                          glass_area_ratio_j=self._glass_area_ratio)
+        tau_value, ashgc_value, rho_value, a_value = window.get_tau_and_ashgc_rho_a(eta_w=self._eta_value,
+                                                                glazing_type_j=self._glazing_type,
+                                                                glass_area_ratio_j=self._glass_area_ratio)
 
         # ---基準透過率
 
