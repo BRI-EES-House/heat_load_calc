@@ -878,11 +878,11 @@ II. 根拠
 
     \begin{align*}
     	( \pmb{F}_{h,wgt,n} - \pmb{\hat{L}}'_{a,n} ) \cdot ( \pmb{X}'_{r,n+1} + \pmb{X}'_{r,set,n+1} )
-        = \pmb{F}_{h,cst,n} + \pmb{\hat{L}}_{b,n} + \pmb{\hat{L}}'_{b,set,n}
+        = \pmb{F}_{h,cst,n} + \pmb{\hat{L}}'_{b,n} + \pmb{\hat{L}}'_{b,set,n}
     	\tag{b14}
     \end{align*}
 
-となる。ここで、室 |i| に目標とする絶対湿度を設定する場合は、定義から :math:`\pmb{\hat{L}}_{a,n}` の |i| 成分が0になり、 :math:`\pmb{\hat{L}}'_{b,set,n}` のみが未知数となる。
+となる。ここで、室 |i| に目標とする絶対湿度を設定する場合は、定義から :math:`\pmb{\hat{L}}'_{a,n}` の |i| 成分が0になり、 :math:`\pmb{\hat{L}}'_{b,set,n}` のみが未知数となる。
 ここで、 :math:`\pmb{\hat{L}}'_{b,set,n}` は絶対湿度を設定(=set)した場合の未知数としての負荷成分であることに留意されたい。未知数を左辺に既知数を右辺に整理する。
 
 .. math::
@@ -890,7 +890,7 @@ II. 根拠
 
     \begin{align*}
     	& ( \pmb{F}_{h,wgt,n} - \pmb{\hat{L}}'_{a,n} ) \cdot \pmb{X}'_{r,n+1} - \pmb{\hat{L}}'_{b,set,n} \\
-	    &= - ( \pmb{F}_{h,wgt,n} - \pmb{\hat{L}}_{a,n} ) \cdot \pmb{X}'_{r,set,n+1} + \pmb{F}_{h,cst,n} + \pmb{\hat{L}}'_{b,n}
+	    &= - ( \pmb{F}_{h,wgt,n} - \pmb{\hat{L}}'_{a,n} ) \cdot \pmb{X}'_{r,set,n+1} + \pmb{F}_{h,cst,n} + \pmb{\hat{L}}'_{b,n}
     	\tag{b15}
     \end{align*}
 
@@ -937,7 +937,7 @@ II. 根拠
     | ステップ |n+1| における室iの絶対湿度（ただし、室 |i| の設定絶対湿度を定める場合は0とする）, kg/kg(DA)
 :math:`\hat{L}'_{b,i,n}`
     | ステップ |n| からステップ |n+1| における室 |i| の設定潜熱負荷（加湿を正・除湿を負とする）（ただし、室 |i| の設定絶対湿度を定める場合は0とする）, kg/s
-:math:`X_{r,set,i,n+1}`
+:math:`X'_{r,set,i,n+1}`
     | ステップ |n+1| における室 |i| の設定絶対湿度（ただし、室 |i| の設定絶対湿度を定めない場合は0とする）, kg/kg(DA)
 :math:`\hat{L}'_{b,set,i,n}`
     | ステップ |n| からステップ |n+1| における室 |i| の潜熱負荷（加湿を正・除湿を負とする）（ただし、室 |i| の設定絶対湿度を定めない場合は0とする）, kg/s
@@ -951,7 +951,7 @@ II. 根拠
     :nowrap:
 
     \begin{align*}
-        \pmb{F}'_{h,wgt,n} = \pmb{F}_{h,wgt,n} - \pmb{\hat{L}}_{a,n}
+        \pmb{F}'_{h,wgt,n} = \pmb{F}_{h,wgt,n} - \pmb{\hat{L}}'_{a,n}
     \end{align*}
 
 とおくと、式(b15)は、
@@ -1023,7 +1023,7 @@ II. 根拠
     \begin{align*}
     	X_{r,i,n+1} = \begin{cases}
 	    	k_{i,n} & ( \hat{f}_{set,i,n} = 0 ) \\
-		    X_{r,set,i,n+1} & ( \hat{f}_{set,i,n} = 1 )
+		    X'_{r,set,i,n+1} & ( \hat{f}_{set,i,n} = 1 )
     	\end{cases}
     	\tag{b20-1}
     \end{align*}
@@ -1033,7 +1033,7 @@ II. 根拠
 
     \begin{align*}
     	\hat{L}_{b,i,n} = \begin{cases}
-	    	\hat{L}_{b,i,n} & ( \hat{f}_{set,i,n} = 0 ) \\
+	    	\hat{L}'_{b,i,n} & ( \hat{f}_{set,i,n} = 0 ) \\
 		    k_{i,n} & ( \hat{f}_{set,i,n} = 1 )
     	\end{cases}
     	\tag{b20-2}
