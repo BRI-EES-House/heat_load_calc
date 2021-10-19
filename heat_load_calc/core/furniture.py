@@ -71,17 +71,17 @@ def get_furniture_specs(
 
 def _get_c_sh_frt(v_rm: float) -> float:
     """
-    家具の熱容量を計算する。
+    備品等の熱容量を計算する。
     Args:
         v_rm: 室iの気積, m3
     Returns:
-        家具の熱容量, J/K
+        備品等の熱容量, J/K
     """
 
-    # 室の家具の顕熱容量, kJ/m3 K
+    # 室の備品等の顕熱容量, kJ/(m3･K)
     furniture_sensible_capacity = 12.6
 
-    # 家具熱容量, J/K
+    # 備品等の熱容量, J/K
     c_sh_frt = furniture_sensible_capacity * v_rm * 1000.0
 
     return c_sh_frt
@@ -89,11 +89,11 @@ def _get_c_sh_frt(v_rm: float) -> float:
 
 def _get_g_sh_frt(c_sh_frt: float) -> float:
     """
-    家具と空気間の熱コンダクタンスを取得する。
+    空気と備品等間の熱コンダクタンスを取得する。
     Args:
-        c_sh_frt: 家具の熱容量, J/K
+        c_sh_frt: 備品等の熱容量, J/K
     Returns:
-        家具と空気間の熱コンダクタンス, W/K
+        室iの空気と備品等間の熱コンダクタンス, W/K
     """
 
     g_sh_frt_is = 0.00022 * c_sh_frt
@@ -103,17 +103,17 @@ def _get_g_sh_frt(c_sh_frt: float) -> float:
 
 def _get_c_lh_frt(v_rm: float) -> float:
     """
-    家具類の湿気容量を計算する。
+    備品等の湿気容量を計算する。
     Args:
         v_rm: 室iの気積, m3
     Returns:
-        家具類の湿気容量, kg
+        備品等の湿気容量, kg/(kg/kg(DA))
     """
 
-    # 室の家具の潜熱容量, kg/(m3 kg/kg(DA))
+    # 室の備品等の潜熱容量, kg/(m3 kg/kg(DA))
     furniture_latent_capacity = 16.8
 
-    # 家具類の湿気容量, kg
+    # 備品等の湿気容量, kg/(kg/kg(DA))
     c_lh_frt_is = furniture_latent_capacity * v_rm
 
     return c_lh_frt_is
@@ -121,11 +121,11 @@ def _get_c_lh_frt(v_rm: float) -> float:
 
 def _get_g_lh_frt(c_lh_frt: float) -> float:
     """
-    空気と家具類間の湿気コンダクタンスを取得する。
+    空気と備品等間の湿気コンダクタンスを取得する。
     Args:
-        c_lh_frt: 室iの家具等の湿気容量, kg/m3 kg/kgDA
+        c_lh_frt: 室iの備品等の湿気容量, kg/(kg/kg(DA))
     Returns:
-        室空気と家具類間の湿気コンダクタンス, kg/(s･kg/kg(DA))
+        室iの空気と備品等間の湿気コンダクタンス, kg/(s･kg/kg(DA))
     """
 
     g_lh_frt_is = 0.0018 * c_lh_frt
