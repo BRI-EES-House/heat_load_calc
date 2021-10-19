@@ -465,6 +465,39 @@ I. 評価法
 
 である。
 
+「ステップ |n| からステップ |n+1| における室 |i| の運転が暖房運転時の場合」とは、
+運転モードが「暖房」であり、かつ式(15a)を満たす場合をいう。
+
+.. math::
+    :nowrap:
+
+    \begin{align*}
+        \theta_{r,OT,ntr,i,n+1} < \theta_{lower,target,i,n+1} \tag{15a}
+    \end{align*}
+
+「ステップ |n| からステップ |n+1| における室 |i| の運転が冷房運転時の場合」とは、
+運転モードが「冷房」であり、かつ式(15b)を満たす場合をいう。
+
+.. math::
+    :nowrap:
+
+    \begin{align*}
+        \theta_{upper,target,i,n+1} < \theta_{r,OT,ntr,i,n+1} \tag{15b}
+    \end{align*}
+
+ここで、
+
+:math:`\theta_{r,OT,ntr,i,n+1}`
+    | ステップ |n+1| における室 |i| の自然作用温度 , ℃
+:math:`\theta_{lower,target,i,n+1}`
+    | ステップ |n+1| における室 |i| の作用温度下限値 , ℃
+:math:`\theta_{upper,target,i,n+1}`
+    | ステップ |n+1| における室 |i| の作用温度上限値 , ℃
+
+である。
+
+
+
 
 これらの係数 :math:`\pmb{F}_{BRC,OT,n+1}`、  及び :math:`\pmb{F}_{BRM,OT,n+1}` は、
 式(8)～式(10)により表される。
