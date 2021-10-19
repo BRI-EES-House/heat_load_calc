@@ -505,21 +505,29 @@ I. 評価法
         \pmb{\theta}_{r,OT,ntr,n+1} = \pmb{f}_{BRM,OT,n+1}^{-1} \cdot \pmb{F}_{BRC,OT,n+1} \tag{16}
     \end{align*}
 
-
-
-これらの係数 :math:`\pmb{F}_{BRC,OT,n+1}`、  及び :math:`\pmb{F}_{BRM,OT,n+1}` は、
-式(8)～式(10)により表される。
+係数 :math:`\pmb{F}_{BRC,OT,n+1}` は、式(17)により表される。
 
 .. math::
     :nowrap:
 
     \begin{align*}
-        \pmb{F}_{BRC,OT,n+1} = \pmb{F}_{BRC,n} + \pmb{F}_{BRM,n} \cdot \pmb{F}_{XC,n+1} \tag{8}
+        \pmb{F}_{BRC,OT,n+1} = \pmb{F}_{BRC,n} + \pmb{F}_{BRM,n} \cdot \pmb{F}_{XC,n+1} \tag{17}
     \end{align*}
 
+ここで、
+
+:math:`\pmb{F}_{BRC,n}`
+    | :math:`I \times 1` で表される縦行列, W
+
+である。
+
+係数 :math:`\pmb{F}_{BRM,OT,n+1}` は、式(18)により表される。
+
+.. math::
+    :nowrap:
 
     \begin{align*}
-        \pmb{F}_{BRM,OT,n+1} = \pmb{F}_{BRM,n} \cdot \pmb{F}_{XOT,n+1} \tag{10}
+        \pmb{F}_{BRM,OT,n+1} = \pmb{F}_{BRM,n} \cdot \pmb{F}_{XOT,n+1} \tag{18}
     \end{align*}
 
 
@@ -561,8 +569,6 @@ I. 評価法
     | :math:`I \times I` で表される行列, -
 :math:`\pmb{F}_{BRL}`
     | :math:`I \times I` で表される行列, -
-:math:`\pmb{F}_{BRC,n}`
-    | :math:`I \times 1` で表される縦行列, W
 :math:`\pmb{F}_{XLR,n+1}`
     | :math:`I \times I` で表される行列, K / W
 :math:`\pmb{F}_{XC,n+1}`

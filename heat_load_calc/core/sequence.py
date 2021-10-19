@@ -147,10 +147,10 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
     # ステップn+1における室iの係数 XC, [i, 1]
     f_xc_is_n_pls = np.dot(f_xot_is_is_n_pls, kr_is_n * np.dot(ss.f_mrt_hum_is_js, (f_wsc_js_n_pls + f_wsv_js_n_pls)))
 
-    # ステップnにおける係数 BRMOT, W/K, [i, i]
+    # ステップnにおける係数 BRMOT, W/K, [i, i], eq.(18)
     f_brm_ot_is_is_n_pls = np.dot(f_brm_is_is_n_pls, f_xot_is_is_n_pls)
 
-    # ステップnにおける係数 BRCOT, [i, 1]
+    # ステップnにおける係数 BRCOT, W, [i, 1], eq.(17)
     f_brc_ot_is_n_pls = f_brc_is_n_pls + np.dot(f_brm_is_is_n_pls, f_xc_is_n_pls)
 
     # ステップ n+1 における自然作用温度, [i, 1], ℃, eq.(16)
