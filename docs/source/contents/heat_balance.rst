@@ -530,22 +530,15 @@ I. 評価法
         \pmb{F}_{BRM,OT,n+1} = \pmb{F}_{BRM,n} \cdot \pmb{F}_{XOT,n+1} \tag{18}
     \end{align*}
 
-
+係数 :math:`\pmb{F}_{XC,n}` は、式(19)により表される。
 
 .. math::
     :nowrap:
 
     \begin{align*}
-        \begin{split}
-            \pmb{\theta}_{OT,n+1}
-            & = (\pmb{BRM}_n \cdot \pmb{XOT}_{n+1})^{-1} \cdot \hat{\pmb{LC}}_n \\
-            & + (\pmb{BRM}_n \cdot \pmb{XOT}_{n+1})^{-1}
-            \cdot ( \pmb{BRL} - \pmb{BRM}_n \cdot \pmb{XLR}_{n+1} )
-            \cdot \hat{\pmb{Lr}}_{n} \\
-            & + (\pmb{BRM}_n \cdot \pmb{XOT}_{n+1})^{-1}
-            \cdot ( \pmb{BRC}_n - \pmb{BRM}_n \cdot \pmb{XC}_{n+1} )
-        \end{split}
-        \tag{b53}
+        \pmb{F}_{XC,n+1} = \pmb{F}_{XOT,n+1} \cdot \pmb{kr}_{n+1} \cdot \pmb{F}_{mrt,hum}
+        \cdot ( \pmb{F}_{WSC,n+1} + \pmb{F}_{WSV,n+1} )
+        \tag{19}
     \end{align*}
 
 
@@ -555,37 +548,12 @@ I. 評価法
 
 
 
-
-
-
-
-
-
-ここで、
-
-:math:`\pmb{F}_{BRM,n}`
-    | :math:`I \times I` で表される行列, W / K
-:math:`\pmb{F}_{XOT,n+1}`
-    | :math:`I \times I` で表される行列, -
-:math:`\pmb{F}_{BRL}`
-    | :math:`I \times I` で表される行列, -
-:math:`\pmb{F}_{XLR,n+1}`
-    | :math:`I \times I` で表される行列, K / W
-:math:`\pmb{F}_{XC,n+1}`
-    | :math:`I \times 1` で表される縦行列, ℃
-
-である。
 
 係数 :math:`\pmb{XC}_{n+1}` は式(11)で表される。
 
 .. math::
     :nowrap:
 
-    \begin{align*}
-        \pmb{XC}_{n+1} = \pmb{XOT}_{n+1} \cdot \pmb{kr}_{n+1} \cdot \pmb{F}_{mrt,hum}
-        \cdot ( \pmb{WSC}_{n+1} + \pmb{WSV}_{n+1} )
-        \tag{11}
-    \end{align*}
 
 
     \begin{align*}
