@@ -160,10 +160,10 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
     is_heating_is_n = (operation_mode_is_n == OperationMode.HEATING) & (theta_r_ot_ntr_is_n_pls < theta_lower_target_is_n_pls)
     is_cooling_is_n = (operation_mode_is_n == OperationMode.COOLING) & (theta_upper_target_is_n_pls < theta_r_ot_ntr_is_n_pls)
 
-    # flr
+    # flr, -, [j,i], eq.(14)
     flr_js_is_n_pls = ss.flr_h_js_is * is_heating_is_n.flatten() + ss.flr_c_js_is * is_cooling_is_n.flatten()
 
-    # beta
+    # beta, -, [i], eq.(13)
     beta_is_n_pls = ss.beta_h_is * is_heating_is_n + ss.beta_c_is * is_cooling_is_n
 
     # F_FLB, K/W, [j, i], eq.(12)

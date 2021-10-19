@@ -66,8 +66,8 @@ I. 評価法
             \theta_{EI,j,n+1}
             &= \frac{ 1 }{ h_{s,c,j} + h_{s,r,j} } \cdot \\
             & \left( h_{s,c,j} \sum_{i=0}^{I-1}{ ( p_{i,j} \cdot \theta_{r,i,n+1} ) }
-            + h_{s,r,j} \cdot \sum_{j*=0}^{J-1}{ ( F'_{mrt,j,j*} \cdot \theta_{s,j*,n+1} ) } \right. \\
-            & \left. + q_{sol,j,n+1} + \frac{ \sum_{i=0}^{I-1}{ ( flr_{i,j,n+1} \cdot \hat{L}_{SR,i,n} \cdot (1 - \beta_{i,n+1}) ) } }{ A_{s,j} } \right)
+            + h_{s,r,j} \cdot \sum_{j*=0}^{J-1}{ ( f'_{mrt,j,j*} \cdot \theta_{s,j*,n+1} ) } \right. \\
+            & \left. + q_{sol,j,n+1} + \frac{ \sum_{i=0}^{I-1}{ ( \hat{f}_{flr,i,j,n} \cdot \hat{L}_{SR,i,n} \cdot (1 - \hat{\beta}_{i,n}) ) } }{ A_{s,j} } \right)
         \end{split}
         \tag{2}
     \end{align*}
@@ -76,16 +76,16 @@ I. 評価法
 
 :math:`\theta_{r,i,n}`
     | ステップ |n| における室 |i| の室温, ℃
-:math:`F'_{mrt,j*,j}`
+:math:`f'_{mrt,j*,j}`
     | 平均放射温度計算時の境界 |j*| の表面温度が境界 |j| に与える重み
 :math:`q_{sol,j,n+1}`
     | ステップ |n+1| における境界 |j| の透過日射吸収熱量, W / |m2|
-:math:`flr_{i,j,n+1}`
-    | ステップ |n+1| における室 |i| に設置された放射暖房の放熱量のうち放射成分に対する境界 |j| の室内側表面の吸収比率, -
+:math:`\hat{f}_{flr,i,j,n}`
+    | ステップ |n| からステップ |n+1| における室 |i| に設置された放射暖冷房の放熱量のうち放射成分に対する境界 |j| の室内側表面の吸収比率, -
 :math:`\hat{L}_{SR,i,n}`
     | ステップ |n| からステップ |n+1| における室 |i| に設置された放射空調の吸放熱量, W
-:math:`\beta_{i,n}`
-    | ステップ |n| における室 |i| に設置された放射暖房の対流成分比率, -
+:math:`\hat{\beta}_{i,n}`
+    | ステップ |n| からステップ |n+1| における室 |i| に設置された放射暖冷房の対流成分比率, -
 :math:`A_{s,j}`
     | 境界 |j| の面積, |m2|
 :math:`p_{i,j}`
@@ -325,7 +325,7 @@ I. 評価法
     :nowrap:
 
     \begin{align*}
-        \pmb{F}_{BRL,n} = \pmb{p}_{ij} \cdot \pmb{h}_{s,c} \cdot \pmb{A}_{s} \cdot \pmb{F}_{WSB,n+1} + \pmb{\beta}_{n+1}
+        \pmb{F}_{BRL,n} = \pmb{p}_{ij} \cdot \pmb{h}_{s,c} \cdot \pmb{A}_{s} \cdot \pmb{F}_{WSB,n+1} + \hat{\pmb{\beta}}_{n}
         \tag{10}
     \end{align*}
 
@@ -335,8 +335,8 @@ I. 評価法
     | :math:`h_{s,c,j}` を要素にもつ :math:`J \times J` の対角化行列
 :math:`\pmb{A}_{s}`
     | :math:`A_{s,j}` を要素にもつ :math:`J \times J` の対角化行列
-:math:`\pmb{\beta}_{n+1}`
-    | :math:`\beta_{i,n+1}` を要素にもつ :math:`I \times I` の対角化行列
+:math:`\hat{\pmb{\beta}}_{n}`
+    | :math:`\hat{\beta}_{i,n}` を要素にもつ :math:`I \times I` の対角化行列
 
 であり、
 
@@ -344,8 +344,6 @@ I. 評価法
     | 境界 |j| の室内側対流熱伝達率, W / |m2| K
 :math:`A_{s,j}`
     | 境界 |j| の面積, |m2|
-:math:`\beta_{i}`
-    | 室 |i| に設置された放射空調の対流成分比率, -
 
 とする。また、 :math:`\pmb{p}_{ij}` は :math:`p_{i,j}` を要素にもつ、室 |i| と境界 |j| との関係を表す行列であり、
 
@@ -389,9 +387,9 @@ I. 評価法
     \begin{align*}
         \begin{split}
             F_{FLB,j,i,n+1}
-            &= \frac{ \phi_{A0,j} \cdot ( 1 - \beta_{i,n+1} ) \cdot f_{flr,j,i,n+1} }{ A_{s,j} } \\
+            &= \frac{ \phi_{A0,j} \cdot ( 1 - \hat{\beta}_{i,n} ) \cdot f_{flr,i,j,n+1} }{ A_{s,j} } \\
             &+ \phi_{T0,j} \cdot \sum_{j*=0}^{J-1}{
-            \frac{ k'_{EI,j,j*}  \cdot ( 1 - \beta_{i,n+1} ) \cdot f_{flr,j*,i,n+1} }{ A_{s,j*} \cdot ( h_{s,c,j*} + h_{s,r,j*} ) }
+            \frac{ k'_{EI,j,j*}  \cdot ( 1 - \hat{\beta}_{i,n} ) \cdot f_{flr,i,j*,n+1} }{ A_{s,j*} \cdot ( h_{s,c,j*} + h_{s,r,j*} ) }
             }
         \end{split}
         \tag{12}
@@ -407,14 +405,65 @@ I. 評価法
     | 境界 |j| の裏面温度に境界　|j*| の等価温度が与える影響
 :math:`h_{s,r,j}`
     | 境界 |j| の室内側放射熱伝達率, W / |m2| K
-:math:`{f_{flr,j,n}}`
-    | ステップ |n| における室 |i| に設置された放射暖房の放熱量のうち放射成分に対する境界 |j| の室内側表面の吸収比率, -
 
 である。
 
+ステップ |n| からステップ |n+1| における室 |i| に設置された放射暖冷房の対流成分比率 :math:`\hat{\beta}_{i,n}` および、
+ステップ |n| からステップ |n+1| における室 |i| に設置された放射暖房の放熱量のうち放射成分に対する境界 |j| の室内側表面の吸収比率 :math:`{\hat{f}_{flr,i,j,n}}` は、
 
+ステップ |n| からステップ |n+1| における室 |i| の運転が暖房運転時の場合
 
+.. math::
+    :nowrap:
 
+    \begin{align*}
+        \hat{\beta}_{i,n} = \beta_{h,i} \tag{13a}
+    \end{align*}
+
+    \begin{align*}
+        \hat{f}_{flr,i,j,n} = f_{flr,h,i,j} \tag{14a}
+    \end{align*}
+
+ステップ |n| からステップ |n+1| における室 |i| の運転が冷房運転時の場合
+
+.. math::
+    :nowrap:
+
+    \begin{align*}
+        \hat{\beta}_{i,n} = \beta_{c,i} \tag{13b}
+    \end{align*}
+
+    \begin{align*}
+        \hat{f}_{flr,i,j,n} = f_{flr,c,i,j} \tag{14b}
+    \end{align*}
+
+それ以外の場合
+
+.. math::
+    :nowrap:
+
+    \begin{align*}
+        \hat{\beta}_{i,n} = 0 \tag{13c}
+    \end{align*}
+
+    \begin{align*}
+        \hat{f}_{flr,i,j,n} = 0 \tag{14c}
+    \end{align*}
+
+とする。
+
+ここで、
+
+:math:`\beta_{h,i}`
+    | 室 |i| に設置された放射暖房の対流成分比率
+:math:`\beta_{c,i}`
+    | 室 |i| に設置された放射冷房の対流成分比率
+:math:`f_{flr,h,i,j}`
+    室 |i| に設置された放射暖房の放熱量のうち放射成分に対する境界 |j| の室内側表面の吸収比率
+:math:`f_{flr,c,i,j}`
+    室 |i| に設置された放射暖房の放熱量のうち放射成分に対する境界 |j| の室内側表面の吸収比率
+
+である。
 
 
 これらの係数 :math:`\pmb{F}_{BRC,OT,n+1}`、  及び :math:`\pmb{F}_{BRM,OT,n+1}` は、
