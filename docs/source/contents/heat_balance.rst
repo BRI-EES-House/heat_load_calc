@@ -496,6 +496,14 @@ I. 評価法
 
 である。
 
+ステップ |n+1| における室 |i| の自然作用温度 :math:`\theta_{r,OT,ntr,i,n+1}`　は式(16)により表される。
+
+.. math::
+    :nowrap:
+
+    \begin{align*}
+        \pmb{\theta}_{r,OT,ntr,n+1} = \pmb{f}_{BRM,OT,n+1}^{-1} \cdot \pmb{F}_{BRC,OT,n+1} \tag{16}
+    \end{align*}
 
 
 

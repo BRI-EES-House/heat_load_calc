@@ -153,7 +153,7 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
     # ステップnにおける係数 BRCOT, [i, 1]
     f_brc_ot_is_n_pls = f_brc_is_n_pls + np.dot(f_brm_is_is_n_pls, f_xc_is_n_pls)
 
-    # ステップ n+1 における自然作用温度, [i, 1]
+    # ステップ n+1 における自然作用温度, [i, 1], ℃, eq.(16)
     theta_r_ot_ntr_is_n_pls = np.dot(np.linalg.inv(f_brm_ot_is_is_n_pls), f_brc_ot_is_n_pls)
 
     # ステップ n から n+1 において室 i で実際に暖房・冷房が行われるかどうかの判定結果, [i, 1], eq(15a,15b)
