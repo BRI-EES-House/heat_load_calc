@@ -541,24 +541,14 @@ I. 評価法
         \tag{19}
     \end{align*}
 
-
-
-
-
-
-
-
-
-係数 :math:`\pmb{XC}_{n+1}` は式(11)で表される。
+係数 :math:`\pmb{F}_{XOT,n+1}` は、式(20)により表される。
 
 .. math::
     :nowrap:
 
-
-
     \begin{align*}
-        \pmb{XOT}_{n+1} = \left( \pmb{kc}_{n+1} + \pmb{kr}_{n+1} \cdot \pmb{F}_{mrt,hum} \cdot \pmb{WSR} \right)^{-1}
-        \tag{13}
+        \pmb{F}_{XOT,n+1} = \left( \pmb{kc}_{n+1} + \pmb{kr}_{n+1} \cdot \pmb{F}_{mrt,hum} \cdot \pmb{F}_{WSR} \right)^{-1}
+        \tag{20}
     \end{align*}
 
 ここで、
@@ -575,18 +565,30 @@ I. 評価法
 
 ステップ |n+1| における室 |i| の人体表面の対流熱伝達率が総合熱伝達率に占める割合 :math:`kc_{i,n+1}` 及び
 ステップ |n+1| における室 |i| の人体表面の放射熱伝達率が総合熱伝達率に占める割合　:math:`kr_{i,n+1}`　は、
-式(14)及び式(15)で表される。
+式(21)及び式(22)で表される。
 
 .. math::
     :nowrap:
 
     \begin{align*}
-        kc_{i,n} = \frac{ h_{hum,c,i,n} }{ ( h_{hum,c,i,n} + h_{hum,r,i,n} ) } \tag{14}
+        kc_{i,n} = \frac{ h_{hum,c,i,n} }{ ( h_{hum,c,i,n} + h_{hum,r,i,n} ) } \tag{21}
     \end{align*}
 
     \begin{align*}
-        kr_{i,n} = \frac{ h_{hum,r,i,n} }{ ( h_{hum,c,i,n} + h_{hum,r,i,n} ) } \tag{15}
+        kr_{i,n} = \frac{ h_{hum,r,i,n} }{ ( h_{hum,c,i,n} + h_{hum,r,i,n} ) } \tag{22}
     \end{align*}
+
+ここで、
+
+:math:`h_{hum,c,i,n}`
+    | ステップ |n| における室 |i| の人体表面の対流熱伝達率, W / |m2| K
+:math:`h_{hum,r,i,n}`
+    | ステップ |n| における室 |i| の人体表面の放射熱伝達率, W / |m2| K
+
+である。
+
+
+
 
 係数 :math:`\pmb{VRM}_n` 及び係数 :math:`\pmb{BRC}_n` は式(16)及び式(17)により表される。
 

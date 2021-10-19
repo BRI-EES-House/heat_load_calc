@@ -135,16 +135,16 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
     # 本来であればステップn+1の値を使用すべきであるが、線形関係で決まらない値であるため、
     # ステップn+1計算用の値としてステップnから求めた値で代用する。
 
-    # ステップnにおける室iの在室者表面における対流熱伝達率の総合熱伝達率に対する比, [i, 1]
+    # ステップnにおける室iの在室者表面における対流熱伝達率の総合熱伝達率に対する比, -, [i, 1], eq.(22)
     kc_is_n = h_hum_c_is_n / (h_hum_c_is_n + h_hum_r_is_n)
 
-    # ステップnにおける室iの在室者表面における放射熱伝達率の総合熱伝達率に対する比, [i, 1]
+    # ステップnにおける室iの在室者表面における放射熱伝達率の総合熱伝達率に対する比, -, [i, 1], eq.(21)
     kr_is_n = h_hum_r_is_n / (h_hum_c_is_n + h_hum_r_is_n)
 
-    # ステップn+1における室iの係数 XOT, [i, i]
+    # ステップn+1における室iの係数 XOT, [i, i], eq.(20)
     f_xot_is_is_n_pls = np.linalg.inv(v_diag(kc_is_n) + kr_is_n * np.dot(ss.f_mrt_hum_is_js, ss.f_wsr_js_is))
 
-    # ステップn+1における室iの係数 XC, [i, 1]
+    # ステップn+1における室iの係数 XC, [i, 1], eq.(19)
     f_xc_is_n_pls = np.dot(f_xot_is_is_n_pls, kr_is_n * np.dot(ss.f_mrt_hum_is_js, (f_wsc_js_n_pls + f_wsv_js_n_pls)))
 
     # ステップnにおける係数 BRMOT, W/K, [i, i], eq.(18)
