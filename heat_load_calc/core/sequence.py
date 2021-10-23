@@ -117,8 +117,8 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
     # 機械換気量・すきま風量・自然風利用時の換気量との合計である。
     v_out_vent_is_n = v_leak_is_n + v_mec_vent_is_n + v_ntrl_vent_is_n
 
-    # ステップn+1の室iにおける係数 BRC, W, [i, 1]
-    f_brc_is_n_pls = ss.c_room_is / delta_t * c_n.theta_r_is_n \
+    # ステップn+1の室iにおける係数 BRC, W, [i, 1], eq.(24)
+    f_brc_is_n_pls = ss.c_rm_is / delta_t * c_n.theta_r_is_n \
         + np.dot(ss.p_is_js, ss.h_s_c_js * ss.a_s_js * (f_wsc_js_n_pls + f_wsv_js_n_pls)) \
         + get_c_air() * get_rho_air() * v_out_vent_is_n * ss.theta_o_ns[n + 1] \
         + q_gen_is_n + q_hum_is_n \
@@ -126,14 +126,13 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
             ss.c_sh_frt_is * c_n.theta_frt_is_n + ss.q_sol_frt_is_ns[:, n].reshape(-1, 1) * delta_t
         ) / (ss.c_sh_frt_is + delta_t * ss.g_sh_frt_is)
 
-    # ステップn+1における係数 BRM, W/K, [i, i]
-    f_brm_is_is_n_pls = ss.brm_non_vent_is_is\
+    # ステップn+1における係数 BRM, W/K, [i, i], eq.(23)
+    f_brm_is_is_n_pls = np.diag(ss.c_rm_is.flatten() / delta_t) \
+        + np.dot(ss.p_is_js, (ss.p_js_is - ss.f_wsr_js_is) * ss.a_s_js * ss.h_s_c_js) \
+        + np.diag((ss.c_sh_frt_is * ss.g_sh_frt_is / (ss.c_sh_frt_is + ss.g_sh_frt_is * delta_t)).flatten()) \
         + get_c_air() * get_rho_air() * (
             np.diag(v_out_vent_is_n.flatten()) - (ss.v_int_vent_is_is - np.diag(ss.v_int_vent_is_is.sum(axis=1)))
         )
-
-    # 本来であればステップn+1の値を使用すべきであるが、線形関係で決まらない値であるため、
-    # ステップn+1計算用の値としてステップnから求めた値で代用する。
 
     # ステップnにおける室iの在室者表面における対流熱伝達率の総合熱伝達率に対する比, -, [i, 1], eq.(22)
     kc_is_n = h_hum_c_is_n / (h_hum_c_is_n + h_hum_r_is_n)

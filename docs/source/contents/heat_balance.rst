@@ -587,40 +587,95 @@ I. 評価法
 
 である。
 
-
-
-
-係数 :math:`\pmb{VRM}_n` 及び係数 :math:`\pmb{BRC}_n` は式(16)及び式(17)により表される。
+係数 :math:`\pmb{F}_{BRM,n}` は、式(23)により表される。
 
 .. math::
     :nowrap:
 
     \begin{align*}
         \begin{split}
-            \pmb{BRM}_n
-            & = \pmb{C}_{rm} \cdot \frac{1}{\Delta t}
-            + \pmb{p}^{T} \cdot \pmb{h}_c \cdot \pmb{A} \cdot (\pmb{p} - \pmb{WSR}) \\
-            & + c_a \cdot \rho_a \cdot \hat{\pmb{V}}_n
-            - c_a \cdot \rho_a \cdot \hat{\pmb{V}}_{nxt,n}
-            + \pmb{G}_{frt} \cdot (\pmb{C}_{frt} + \Delta t \cdot \pmb{G}_{frt})^{-1} \cdot \pmb{C}_{frt}
+            \pmb{F}_{BRM,n}
+            & = \frac{\pmb{C}_{rm}}{\Delta t}
+            + \pmb{p}_{ij} \cdot \pmb{h}_{s,c} \cdot \pmb{A}_s \cdot (\pmb{p}_{ji} - \pmb{F}_{WSR}) \\
+            & + c_a \cdot \rho_a \cdot ( \hat{\pmb{V}}_{out,vent,n} - \hat{\pmb{V}}_{nxt,n} )
+            + \frac{ \pmb{G}_{sh,frt} \cdot \pmb{C}_{sh,frt} }{ ( \pmb{C}_{sh,frt} + \Delta t \cdot \pmb{G}_{sh,frt} ) }
         \end{split}
-        \tag{16}
+        \tag{23}
     \end{align*}
+
+係数 :math:`\pmb{F}_{BRC,n}` は、式(24)により表される。
 
 .. math::
     :nowrap:
 
     \begin{align*}
         \begin{split}
-            \pmb{BRC}_n
-            & = \pmb{C}_{rm} \cdot \frac{1}{\Delta t} \cdot \pmb{\theta}_{r,n}
-            + \pmb{p}^{T} \cdot \pmb{h}_c \cdot \pmb{A} \cdot (\pmb{WSC}_{n+1} + \pmb{WSV}_{n+1}) \\
-            & + c_a \cdot \rho_a \cdot \hat{\pmb{V}}_n \cdot \pmb{\theta}_{o,n+1} + \hat{\pmb{H}}_n \\
-            & + \pmb{G}_{frt} \cdot (\pmb{C}_{frt} + \Delta t \cdot \pmb{G}_{frt})^{-1}
-            \cdot ( \pmb{C}_{frt} \cdot \pmb{\theta}_{frt,n} + \Delta t \cdot \hat{\pmb{Q}}_{sol,frt,n+1} )
+            \pmb{F}_{BRC,n}
+            & = \frac{ \pmb{C}_{rm} \cdot \pmb{\theta}_{r,n} }{\Delta t}
+            + \pmb{p}_{ij} \cdot \pmb{h}_{s,c} \cdot \pmb{A}_s \cdot (\pmb{F}_{WSC,n+1} + \pmb{F}_{WSV,n+1}) \\
+            & + c_a \cdot \rho_a \cdot \hat{\pmb{V}}_{out,vent,n} \cdot \pmb{\theta}_{o,n+1} \\
+            & + \hat{\pmb{q}}_{gen,n} + \hat{\pmb{q}}_{hum,n} \\
+            & + \frac{ \pmb{G}_{sh,frt} \cdot ( \pmb{C}_{sh,frt} \cdot \pmb{\theta}_{frt,n} + \Delta t \cdot \hat{\pmb{q}}_{sol,frt,n} ) }
+            { \pmb{C}_{sh,frt} + \Delta t \cdot \pmb{G}_{sh,frt} }
         \end{split}
-        \tag{17}
+        \tag{24}
     \end{align*}
+
+ここで、
+
+:math:`\pmb{C}_{rm}`
+    | :math:`C_{rm,i}` を要素にもつ :math:`I \times I` の対角化行列, J / K
+:math:`\pmb{h}_c`
+    | :math:`h_{c,j}` を要素にもつ :math:`J \times J` の対角化行列, W / |m2| K
+:math:`\hat{\pmb{V}}_n`
+    | :math:`V_{i,n}` を要素にもつ :math:`I \times I` の対角化行列, |m3| / s
+:math:`\hat{\pmb{V}}_{nxt,n}`
+    | :math:`V_{nxt,i,i*}` を要素にもつ :math:`I \times I` の行列, |m3| / s
+:math:`\pmb{G}_{frt}`
+    | :math:`G_{frt,i}` を要素にもつ :math:`I \times I` の対角化行列, W / K
+:math:`\pmb{C}_{frt}`
+    | :math:`C_{frt,i}` を要素にもつ :math:`I \times I` の対角化行列, J / K
+:math:`\pmb{\theta}_{o,n}`
+    | :math:`I \times 1` の縦行列であり、 :math:`\theta_{o,i,n} = \theta_{o,n}` , ℃
+:math:`\hat{\pmb{H}}_n`
+    | :math:`H_{i,n}` を要素にもつ :math:`I \times 1` の縦行列, W
+:math:`\hat{\pmb{q}}_{gen,n}`
+    | :math:`\hat{q}_{gen,i,n}` を要素にもつ :math:`I \times 1` の縦行列, W
+:math:`\hat{\pmb{q}}_{hum,n}`
+    | :math:`\hat{q}_{hum,i,n}` を要素にもつ :math:`I \times 1` の縦行列, W
+:math:`\pmb{\theta}_{frt,n}`
+    | :math:`\theta_{frt,i,n} を要素にもつ :math:`I \times 1` の縦行列, ℃
+
+であり、
+
+:math:`C_{rm,i}`
+    | 室 |i| の空気の熱容量, J / K
+:math:`h_{c,j}`
+    | 境界 |j| の室内側対流熱伝達率, W / |m2| K
+:math:`c_a`
+    | 空気の比熱, J / kg K
+:math:`\rho_a`
+    | 空気の密度, kg / |m3|
+:math:`V_{i,n}`
+    | ステップ |n| における室 |i| の換気・すきま風・自然風の利用による外気の流入量, |m3| / s
+:math:`V_{nxt,i,i*}`
+    | ステップ |n| における室 |i*| から室 |i| への室間の空気移動量, |m3| / s
+:math:`G_{frt,i}`
+    | 室 |i| における家具と空気間の熱コンダクタンス, W / K
+:math:`C_{frt,i}`
+    | 室 |i| に設置された家具の熱容量, J / K
+:math:`\theta_{o,n}`
+    | ステップ |n| における外気温度, ℃
+:math:`H_{i,n}`
+    | ステップ |n| における室 |i| の室内発熱, W
+:math:`\hat{q}_{gen,i,n}`
+    | ステップ |n| の室 |i| における人体発熱を除く内部発熱, W
+:math:`\hat{q}_{hum,i,n}`
+    | ステップ |n| の室 |i| における人体発熱, W
+:math:`\theta_{frt,i,n}`
+    | ステップ |n| における室 |i| に設置された家具の温度, ℃
+
+である。
 
     # ステップnにおける室iの外からの換気量, m3/s, [i, 1]
     # 機械換気量・すきま風量・自然風利用時の換気量との合計である。

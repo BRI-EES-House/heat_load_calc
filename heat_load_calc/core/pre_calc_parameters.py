@@ -40,7 +40,7 @@ class PreCalcParameters:
     v_room_is: np.ndarray
 
     # 室iの熱容量, J/K, [i, 1]
-    c_room_is: np.ndarray
+    c_rm_is: np.ndarray
 
     # 室iの家具等の熱容量, J/K, [i, 1]
     c_sh_frt_is: np.ndarray
@@ -97,9 +97,6 @@ class PreCalcParameters:
 
     # ステップnの境界jにおける外気側等価温度の外乱成分, degree C, [j, 8760*4]
     theta_dstrb_js_ns: np.ndarray
-
-    # BRM(換気なし), W/K, [i, i]
-    brm_non_vent_is_is: np.ndarray
 
     # 放射暖房対流比率, [i, 1]
     beta_h_is: np.ndarray
@@ -553,11 +550,6 @@ def make_pre_calc_parameters(
     # WSC, degree C, [j, n]
     wsc_js_ns = np.dot(ivs_ax_js_js, crx_js_ns)
 
-    # BRM(換気なし), W/K, [i, i]
-    brm_non_vent_is_is = np.diag(c_rm_is.flatten() / delta_t)\
-        + np.dot(p_is_js, (p_js_is - wsr_js_is) * a_srf_js * h_c_js)\
-        + np.diag((c_sh_frt_is * g_sh_frt_is / (c_sh_frt_is + g_sh_frt_is * delta_t)).flatten())
-
     # 年平均外気温度, degree C
     # 地盤計算の時の深部温度に用いる
     theta_o_ave = np.average(theta_o_ns)
@@ -604,7 +596,7 @@ def make_pre_calc_parameters(
         id_space_is=id_rm_is,
         name_space_is=name_rm_is,
         v_room_is=v_rm_is,
-        c_room_is=c_rm_is,
+        c_rm_is=c_rm_is,
         c_sh_frt_is=c_sh_frt_is,
         c_lh_frt_is=c_lh_frt_is,
         g_sh_frt_is=g_sh_frt_is,
@@ -638,7 +630,6 @@ def make_pre_calc_parameters(
         beta_h_is=beta_h_is,
         beta_c_is=beta_c_is,
         f_wsr_js_is=wsr_js_is,
-        brm_non_vent_is_is=brm_non_vent_is_is,
         ivs_f_ax_js_js=ivs_ax_js_js,
         p_is_js=p_is_js,
         p_js_is=p_js_is,
