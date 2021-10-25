@@ -4,10 +4,14 @@
 .. |j*| replace:: :math:`j^*`
 .. |k| replace:: :math:`k`
 .. |m| replace:: :math:`m`
-.. |m2| replace:: m\ :sup:`2` \
-.. |m3| replace:: m\ :sup:`3` \
 .. |n| replace:: :math:`n`
 .. |n+1| replace:: :math:`n+1`
+.. |s-1| replace:: s\ :sup:`-1` \
+.. |m-1| replace:: m\ :sup:`-1` \
+.. |m2| replace:: m\ :sup:`2` \
+.. |m-2| replace:: m\ :sup:`-2` \
+.. |m3| replace:: m\ :sup:`3` \
+.. |m-3| replace:: m\ :sup:`-3` \
 
 ************************************************************************************************************************
 繰り返し計算（温度と顕熱）
@@ -25,7 +29,7 @@ I. 評価法
 ここで、前のステップから次のステップに引き継ぐ状態量は以下の値とする。
 
 :math:`q_{s,j,n}`
-    | ステップ |n| における境界 |j| の表面熱流（壁体吸熱を正とする）, W / |m2|
+    | ステップ |n| における境界 |j| の表面熱流（壁体吸熱を正とする）, W |m-2|
 :math:`\theta_{EI,j,n}`
     | ステップ |n| における境界 |j| の等価温度, ℃
 :math:`\theta_{mrt,hum,i,n+}`
@@ -597,7 +601,7 @@ I. 評価法
             \pmb{F}_{BRM,n}
             & = \frac{\pmb{C}_{rm}}{\Delta t}
             + \pmb{p}_{ij} \cdot \pmb{h}_{s,c} \cdot \pmb{A}_s \cdot (\pmb{p}_{ji} - \pmb{F}_{WSR}) \\
-            & + c_a \cdot \rho_a \cdot ( \hat{\pmb{V}}_{out,vent,n} - \hat{\pmb{V}}_{nxt,n} )
+            & + c_a \cdot \rho_a \cdot ( \hat{\pmb{V}}_{vent,out,n} - \hat{\pmb{V}}_{vent,int,n} )
             + \frac{ \pmb{G}_{sh,frt} \cdot \pmb{C}_{sh,frt} }{ ( \pmb{C}_{sh,frt} + \Delta t \cdot \pmb{G}_{sh,frt} ) }
         \end{split}
         \tag{23}
@@ -613,7 +617,7 @@ I. 評価法
             \pmb{F}_{BRC,n}
             & = \frac{ \pmb{C}_{rm} \cdot \pmb{\theta}_{r,n} }{\Delta t}
             + \pmb{p}_{ij} \cdot \pmb{h}_{s,c} \cdot \pmb{A}_s \cdot (\pmb{F}_{WSC,n+1} + \pmb{F}_{WSV,n+1}) \\
-            & + c_a \cdot \rho_a \cdot \hat{\pmb{V}}_{out,vent,n} \cdot \pmb{\theta}_{o,n+1} \\
+            & + c_a \cdot \rho_a \cdot \hat{\pmb{V}}_{vent,out,n} \cdot \pmb{\theta}_{o,n+1} \\
             & + \hat{\pmb{q}}_{gen,n} + \hat{\pmb{q}}_{hum,n} \\
             & + \frac{ \pmb{G}_{sh,frt} \cdot ( \pmb{C}_{sh,frt} \cdot \pmb{\theta}_{frt,n} + \Delta t \cdot \hat{\pmb{q}}_{sol,frt,n} ) }
             { \pmb{C}_{sh,frt} + \Delta t \cdot \pmb{G}_{sh,frt} }
@@ -628,9 +632,11 @@ I. 評価法
 :math:`\pmb{h}_c`
     | :math:`h_{c,j}` を要素にもつ :math:`J \times J` の対角化行列, W / |m2| K
 :math:`\hat{\pmb{V}}_n`
-    | :math:`V_{i,n}` を要素にもつ :math:`I \times I` の対角化行列, |m3| / s
-:math:`\hat{\pmb{V}}_{nxt,n}`
-    | :math:`V_{nxt,i,i*}` を要素にもつ :math:`I \times I` の行列, |m3| / s
+    | :math:`V_{i,n}` を要素にもつ :math:`I \times I` の対角化行列, |m3| |s-1|
+:math:`\hat{\pmb{V}}_{vent,out,n}`
+    | :math:`V_{vent,out,i,n}` を要素にもつ :math:`I \times 1` の縦行列, |m3| |s-1|
+:math:`\hat{\pmb{V}}_{vent,int,n}`
+    | :math:`V_{vent,int,i,i*,n}` を要素にもつ :math:`I \times I` の行列, |m3| |s-1|
 :math:`\pmb{G}_{frt}`
     | :math:`G_{frt,i}` を要素にもつ :math:`I \times I` の対角化行列, W / K
 :math:`\pmb{C}_{frt}`
@@ -644,7 +650,7 @@ I. 評価法
 :math:`\hat{\pmb{q}}_{hum,n}`
     | :math:`\hat{q}_{hum,i,n}` を要素にもつ :math:`I \times 1` の縦行列, W
 :math:`\pmb{\theta}_{frt,n}`
-    | :math:`\theta_{frt,i,n} を要素にもつ :math:`I \times 1` の縦行列, ℃
+    | :math:`\theta_{frt,i,n}` を要素にもつ :math:`I \times 1` の縦行列, ℃
 
 であり、
 
@@ -658,7 +664,9 @@ I. 評価法
     | 空気の密度, kg / |m3|
 :math:`V_{i,n}`
     | ステップ |n| における室 |i| の換気・すきま風・自然風の利用による外気の流入量, |m3| / s
-:math:`V_{nxt,i,i*}`
+:math:`V_{vent,out,i,n}`
+    | ステップ |n| における室 |i| の室外からの換気量, |m3| |s-1|
+:math:`V_{vent,int,i,i*,n}`
     | ステップ |n| における室 |i*| から室 |i| への室間の空気移動量, |m3| / s
 :math:`G_{frt,i}`
     | 室 |i| における家具と空気間の熱コンダクタンス, W / K
