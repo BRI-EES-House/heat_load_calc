@@ -703,10 +703,33 @@ I. 評価法
 
 である。
 
+ステップ |n| からステップ |n+1| における室 |i| の自然風利用による換気量 :math:`\hat{V}_{vent,ntr,i,n}` は、
+ステップ |n| からステップ |n+1| における室 |i| の運転モードが「暖房・冷房停止で窓「開」」の場合は、
 
-    # 室iの自然風利用による換気量, m3/s, [i, 1]
-    # 自然風を利用していない場合は、0.0 m3/s になる。
-    v_ntrl_vent_is_n = np.where(operation_mode_is_n == OperationMode.STOP_OPEN, ss.v_ntrl_vent_is, 0.0)
+.. math::
+    :nowrap:
+
+    \begin{align*}
+        \hat{V}_{vent,ntr,i,n} = \hat{V}_{vent,ntr,set,i} \tag {26a}
+    \end{align*}
+
+とし、それ以外の場合（運転モードが「暖房・冷房停止で窓「開」」でない場合）は、
+
+.. math::
+    :nowrap:
+
+    \begin{align*}
+        \hat{V}_{vent,ntr,i,n} = 0 \tag {26b}
+    \end{align*}
+
+とする。
+ここで、
+
+:math:`\hat{V}_{vent,ntr,set,i}`
+    | 室 |i| の自然風利用時の換気量, |m3| |s-1|
+
+である。
+
 
     # ステップn+1の境界jにおける係数WSV, degree C, [j, 1]
     wsv_js_n_pls = np.dot(ss.ivs_ax_js_js, cvl_js_n_pls)

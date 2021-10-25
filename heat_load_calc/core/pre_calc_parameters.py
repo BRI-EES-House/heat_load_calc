@@ -73,7 +73,7 @@ class PreCalcParameters:
     q_sol_frt_is_ns: np.ndarray
 
     # 室iの自然風利用時の換気量, m3/s, [i, 1]
-    v_ntrl_vent_is: np.ndarray
+    v_vent_ntr_set_is: np.ndarray
 
     # ステップnの室iにおける窓の透過日射熱取得, W, [8760*4]
     q_trs_sol_is_ns: np.ndarray
@@ -265,7 +265,7 @@ def make_pre_calc_parameters(
 
     # 室iの自然風利用時の換気量, m3/s, [i, 1]
     # 入力は m3/h なので、3600 で除して m3/s への変換を行っている。
-    v_ntrl_vent_is = np.array([s['ventilation']['natural'] / 3600 for s in rms]).reshape(-1, 1)
+    v_vent_ntr_set_is = np.array([s['ventilation']['natural'] / 3600 for s in rms]).reshape(-1, 1)
 
     # 家具に関する物性値を取得する。
     #   室iの家具等の熱容量, J/K, [i, 1]
@@ -618,7 +618,7 @@ def make_pre_calc_parameters(
         phi_t1_js_ms=phi_t1_js_ms,
         phi_a1_js_ms=phi_a1_js_ms,
         q_trs_sol_is_ns=q_trs_sol_is_ns,
-        v_ntrl_vent_is=v_ntrl_vent_is,
+        v_vent_ntr_set_is=v_vent_ntr_set_is,
         ac_demand_is_ns=ac_demand_is_ns,
         flr_h_js_is=flr_h_js_is,
         flr_c_js_is=flr_c_js_is,

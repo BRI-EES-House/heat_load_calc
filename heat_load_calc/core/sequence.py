@@ -109,11 +109,10 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
     # ステップn+1の境界jにおける係数WSV, degree C, [j, 1]
     f_wsv_js_n_pls = np.dot(ss.ivs_f_ax_js_js, cvl_js_n_pls)
 
-    # 室iの自然風利用による換気量, m3/s, [i, 1]
-    # 自然風を利用していない場合は、0.0 m3/s になる。
-    v_vent_ntr_is_n = np.where(operation_mode_is_n == OperationMode.STOP_OPEN, ss.v_ntrl_vent_is, 0.0)
+    # ステップnからステップn+1における室iの自然風利用による換気量, m3/s, [i, 1], eq.(26)
+    v_vent_ntr_is_n = np.where(operation_mode_is_n == OperationMode.STOP_OPEN, ss.v_vent_ntr_set_is, 0.0)
 
-    # ステップnにおける室iの外からの換気量, m3/s, [i, 1], eq.(25)
+    # ステップnからステップn+1における室iの換気・隙間風・自然風の利用による外気の流入量, m3/s, [i, 1], eq.(25)
     v_vent_out_is_n = v_leak_is_n + v_vent_mec_is_n + v_vent_ntr_is_n
 
     # ステップn+1の室iにおける係数 BRC, W, [i, 1], eq.(24)
