@@ -54,7 +54,7 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
     f_wsc_js_n_pls = ss.wsc_js_ns[:, n + 1].reshape(-1, 1)
 
     # ステップnの室iにおける機械換気量（全般換気量+局所換気量）, m3/s, [i, 1]
-    v_mec_vent_is_n = ss.v_mec_vent_is_ns[:, n].reshape(-1, 1)
+    v_vent_mec_is_n = ss.v_mec_vent_is_ns[:, n].reshape(-1, 1)
 
     # 家具の吸収日射量, W, [i, 1]
     # TODO: ここの左辺、右辺日射量はn+1とすべき？
@@ -111,11 +111,10 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
 
     # 室iの自然風利用による換気量, m3/s, [i, 1]
     # 自然風を利用していない場合は、0.0 m3/s になる。
-    v_ntrl_vent_is_n = np.where(operation_mode_is_n == OperationMode.STOP_OPEN, ss.v_ntrl_vent_is, 0.0)
+    v_vent_ntr_is_n = np.where(operation_mode_is_n == OperationMode.STOP_OPEN, ss.v_ntrl_vent_is, 0.0)
 
-    # ステップnにおける室iの外からの換気量, m3/s, [i, 1]
-    # 機械換気量・すきま風量・自然風利用時の換気量との合計である。
-    v_vent_out_is_n = v_leak_is_n + v_mec_vent_is_n + v_ntrl_vent_is_n
+    # ステップnにおける室iの外からの換気量, m3/s, [i, 1], eq.(25)
+    v_vent_out_is_n = v_leak_is_n + v_vent_mec_is_n + v_vent_ntr_is_n
 
     # ステップn+1の室iにおける係数 BRC, W, [i, 1], eq.(24)
     f_brc_is_n_pls = ss.c_rm_is / delta_t * c_n.theta_r_is_n \
@@ -261,7 +260,7 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
         logger.l_cl[:, n] = l_l_i_n.flatten()
         # 平均値
         logger.v_reak_is_ns[:, n] = v_leak_is_n.flatten()
-        logger.v_ntrl_is_ns[:, n] = v_ntrl_vent_is_n.flatten()
+        logger.v_ntrl_is_ns[:, n] = v_vent_ntr_is_n.flatten()
         logger.h_hum_c_is_n[:, n] = h_hum_c_is_n.flatten()
         logger.h_hum_r_is_n[:, n] = h_hum_r_is_n.flatten()
         # 瞬時値

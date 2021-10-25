@@ -634,9 +634,9 @@ I. 評価法
 :math:`\hat{\pmb{V}}_n`
     | :math:`V_{i,n}` を要素にもつ :math:`I \times I` の対角化行列, |m3| |s-1|
 :math:`\hat{\pmb{V}}_{vent,out,n}`
-    | :math:`V_{vent,out,i,n}` を要素にもつ :math:`I \times 1` の縦行列, |m3| |s-1|
+    | :math:`\hat{V}_{vent,out,i,n}` を要素にもつ :math:`I \times 1` の縦行列, |m3| |s-1|
 :math:`\hat{\pmb{V}}_{vent,int,n}`
-    | :math:`V_{vent,int,i,i*,n}` を要素にもつ :math:`I \times I` の行列, |m3| |s-1|
+    | :math:`\hat{V}_{vent,int,i,i*,n}` を要素にもつ :math:`I \times I` の行列, |m3| |s-1|
 :math:`\pmb{G}_{frt}`
     | :math:`G_{frt,i}` を要素にもつ :math:`I \times I` の対角化行列, W / K
 :math:`\pmb{C}_{frt}`
@@ -662,32 +662,47 @@ I. 評価法
     | 空気の比熱, J / kg K
 :math:`\rho_a`
     | 空気の密度, kg / |m3|
-:math:`V_{i,n}`
-    | ステップ |n| における室 |i| の換気・すきま風・自然風の利用による外気の流入量, |m3| / s
-:math:`V_{vent,out,i,n}`
-    | ステップ |n| における室 |i| の室外からの換気量, |m3| |s-1|
-:math:`V_{vent,int,i,i*,n}`
-    | ステップ |n| における室 |i*| から室 |i| への室間の空気移動量, |m3| / s
+:math:`\hat{V}_{vent,out,i,n}`
+    | ステップ |n| からステップ |n+1| における室 |i| の換気・すきま風・自然風の利用による外気の流入量, |m3| |s-1|
+:math:`\hat{V}_{vent,int,i,i*,n}`
+    | ステップ |n| からステップ |n+1| における室 |i*| から室 |i| への室間の空気移動量, |m3| |s-1|
 :math:`G_{frt,i}`
     | 室 |i| における家具と空気間の熱コンダクタンス, W / K
 :math:`C_{frt,i}`
     | 室 |i| に設置された家具の熱容量, J / K
 :math:`\theta_{o,n}`
     | ステップ |n| における外気温度, ℃
-:math:`H_{i,n}`
-    | ステップ |n| における室 |i| の室内発熱, W
 :math:`\hat{q}_{gen,i,n}`
-    | ステップ |n| の室 |i| における人体発熱を除く内部発熱, W
+    | ステップ |n| からステップ |n+1| における室 |i| の人体発熱を除く内部発熱, W
 :math:`\hat{q}_{hum,i,n}`
-    | ステップ |n| の室 |i| における人体発熱, W
+    | ステップ |n| からステップ |n+1| における室 |i| の人体発熱, W
 :math:`\theta_{frt,i,n}`
     | ステップ |n| における室 |i| に設置された家具の温度, ℃
 
 である。
 
-    # ステップnにおける室iの外からの換気量, m3/s, [i, 1]
-    # 機械換気量・すきま風量・自然風利用時の換気量との合計である。
-    v_out_vent_is_n = v_leak_is_n + v_mec_vent_is_n + v_ntrl_vent_is_n
+
+ステップ |n| からステップ |n+1| における室 |i| の換気・すきま風・自然風の利用による外気の流入量 :math:`V_{vent,out,i,n}` は、式(25)により表される。
+
+.. math::
+    :nowrap:
+
+    \begin{align*}
+        \hat{V}_{vent,out,i,n} = \hat{V}_{leak,i,n} + \hat{V}_{vent,mec,i,n} + \hat{V}_{vent,ntr,i,n}
+        \tag{25}
+    \end{align*}
+
+ここで、
+
+:math:`\hat{V}_{leak,i,n}`
+    | ステップ |n| からステップ |n+1| における室 |i| のすきま風量, |m3| |s-1|
+:math:`\hat{V}_{vent,mec,i,n}`
+    | ステップ |n| からステップ |n+1| における室 |i| の機械換気量（全般換気量と局所換気量の合計値）, |m3| |s-1|
+:math:`\hat{V}_{vent,ntr,i,n}`
+    | ステップ |n| からステップ |n+1| における室 |i| の自然風利用による換気量, |m3| |s-1|
+
+である。
+
 
     # 室iの自然風利用による換気量, m3/s, [i, 1]
     # 自然風を利用していない場合は、0.0 m3/s になる。
