@@ -730,9 +730,23 @@ I. 評価法
 
 である。
 
+係数 \pmb{F}_{WSV,n+1} は、式(27)により表される。
+
+.. math::
+    :nowrap:
+
+    \begin{align*}
+        \pmb{f}_{WSV,n+1} = \pmb{f}_{AX}^{-1} \cdot \pmb{f}_{CVL,n+1} \tag {27}
+    \end{align*}
+
+:math:`\pmb{f}_{CVL,n}`
+    | :math:`f_{CVL,j,n}` を要素にもつ :math:`J \times 1` で表される縦行列, ℃
+
 
     # ステップn+1の境界jにおける係数WSV, degree C, [j, 1]
     wsv_js_n_pls = np.dot(ss.ivs_ax_js_js, cvl_js_n_pls)
+    # ステップn+1の境界jにおける係数WSV, degree C, [j, 1]
+    f_wsv_js_n_pls = np.dot(ss.ivs_f_ax_js_js, f_cvl_js_n_pls)
 
     # ステップn+1の境界jにおける係数CVL, degree C, [j, 1]
     cvl_js_n_pls = np.sum(theta_dsh_srf_t_js_ms_n_pls + theta_dsh_srf_a_js_ms_n_pls, axis=1, keepdims=True)

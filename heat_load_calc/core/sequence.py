@@ -104,10 +104,10 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
     theta_dsh_srf_t_js_ms_n_pls = ss.phi_t1_js_ms * theta_rear_js_n + ss.r_js_ms * c_n.theta_dsh_srf_t_js_ms_n
 
     # ステップn+1の境界jにおける係数CVL, degree C, [j, 1]
-    cvl_js_n_pls = np.sum(theta_dsh_srf_t_js_ms_n_pls + theta_dsh_srf_a_js_ms_n_pls, axis=1, keepdims=True)
+    f_cvl_js_n_pls = np.sum(theta_dsh_srf_t_js_ms_n_pls + theta_dsh_srf_a_js_ms_n_pls, axis=1, keepdims=True)
 
-    # ステップn+1の境界jにおける係数WSV, degree C, [j, 1]
-    f_wsv_js_n_pls = np.dot(ss.ivs_f_ax_js_js, cvl_js_n_pls)
+    # ステップn+1の境界jにおける係数WSV, degree C, [j, 1], eq.(27)
+    f_wsv_js_n_pls = np.dot(ss.ivs_f_ax_js_js, f_cvl_js_n_pls)
 
     # ステップnからステップn+1における室iの自然風利用による換気量, m3/s, [i, 1], eq.(26)
     v_vent_ntr_is_n = np.where(operation_mode_is_n == OperationMode.STOP_OPEN, ss.v_vent_ntr_set_is, 0.0)
