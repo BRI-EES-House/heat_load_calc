@@ -115,12 +115,12 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
 
     # ステップnにおける室iの外からの換気量, m3/s, [i, 1]
     # 機械換気量・すきま風量・自然風利用時の換気量との合計である。
-    v_out_vent_is_n = v_leak_is_n + v_mec_vent_is_n + v_ntrl_vent_is_n
+    v_vent_out_is_n = v_leak_is_n + v_mec_vent_is_n + v_ntrl_vent_is_n
 
     # ステップn+1の室iにおける係数 BRC, W, [i, 1], eq.(24)
     f_brc_is_n_pls = ss.c_rm_is / delta_t * c_n.theta_r_is_n \
         + np.dot(ss.p_is_js, ss.h_s_c_js * ss.a_s_js * (f_wsc_js_n_pls + f_wsv_js_n_pls)) \
-        + get_c_air() * get_rho_air() * v_out_vent_is_n * ss.theta_o_ns[n + 1] \
+        + get_c_air() * get_rho_air() * v_vent_out_is_n * ss.theta_o_ns[n + 1] \
         + q_gen_is_n + q_hum_is_n \
         + ss.g_sh_frt_is * (
             ss.c_sh_frt_is * c_n.theta_frt_is_n + ss.q_sol_frt_is_ns[:, n].reshape(-1, 1) * delta_t
@@ -130,9 +130,7 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
     f_brm_is_is_n_pls = np.diag(ss.c_rm_is.flatten() / delta_t) \
         + np.dot(ss.p_is_js, (ss.p_js_is - ss.f_wsr_js_is) * ss.a_s_js * ss.h_s_c_js) \
         + np.diag((ss.c_sh_frt_is * ss.g_sh_frt_is / (ss.c_sh_frt_is + ss.g_sh_frt_is * delta_t)).flatten()) \
-        + get_c_air() * get_rho_air() * (
-            np.diag(v_out_vent_is_n.flatten()) - (ss.v_int_vent_is_is - np.diag(ss.v_int_vent_is_is.sum(axis=1)))
-        )
+        + get_c_air() * get_rho_air() * (np.diag(v_vent_out_is_n.flatten()) - ss.v_vent_int_is_is)
 
     # ステップnにおける室iの在室者表面における対流熱伝達率の総合熱伝達率に対する比, -, [i, 1], eq.(22)
     kc_is_n = h_hum_c_is_n / (h_hum_c_is_n + h_hum_r_is_n)
@@ -230,13 +228,13 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
         l_cs_is_n=l_sc_is_n,
         ss=ss,
         theta_r_is_n_pls=theta_r_is_n_pls,
-        v_out_vent_is_n=v_out_vent_is_n,
+        v_vent_out_is_n=v_vent_out_is_n,
         x_gen_is_n=x_gen_is_n,
         x_hum_is_n=x_hum_is_n,
         v_room_is=ss.v_room_is,
         c_lh_frt_is=ss.c_lh_frt_is,
         g_lh_frt_is=ss.g_lh_frt_is,
-        v_int_vent_is_is=ss.v_int_vent_is_is,
+        v_vent_int_is_is=ss.v_vent_int_is_is,
         x_o_n_pls=ss.x_o_ns[n + 1],
         x_r_is_n=c_n.x_r_is_n,
         x_frt_is_n=c_n.x_frt_is_n
@@ -295,13 +293,13 @@ def calc_humidity_and_latent_load(
         l_cs_is_n,
         ss,
         theta_r_is_n_pls: np.ndarray,
-        v_out_vent_is_n: np.ndarray,
+        v_vent_out_is_n: np.ndarray,
         x_gen_is_n: np.ndarray,
         x_hum_is_n: np.ndarray,
         v_room_is: np.ndarray,
         c_lh_frt_is: np.ndarray,
         g_lh_frt_is: np.ndarray,
-        v_int_vent_is_is: np.ndarray,
+        v_vent_int_is_is: np.ndarray,
         x_o_n_pls: float,
         x_r_is_n: np.ndarray,
         x_frt_is_n: np.ndarray
@@ -313,13 +311,13 @@ def calc_humidity_and_latent_load(
         l_cs_is_n:
         ss:
         theta_r_is_n_pls: ステップ  n+1 における室 i の温度, ℃
-        v_out_vent_is_n: ステップ n から n+1 における室 i の外気との換気量, m3/s, [i, 1]
+        v_vent_out_is_n: ステップ n から n+1 における室 i の外気との換気量, m3/s, [i, 1]
         x_gen_is_n: ステップ n における室 i の人体発湿を除く内部発湿, kg/s, [i, 1]
         x_hum_is_n: ステップ n における室 i の人体発湿, kg/s, [i, 1]
         v_room_is: 室 i の容積, m3, [i, 1]
         c_lh_frt_is: 室 i の家具等の湿気容量, kg/(kg/kg(DA)), [i, 1]
         g_lh_frt_is: 室 i の家具等と空気間の湿気コンダクタンス, kg/(s kg/kg(DA)), [i, 1]
-        v_int_vent_is_is: 室 i から室 i への室間の機械換気量, m3/s, [i, i]
+        v_vent_int_is_is: 室 i から室 i への室間の機械換気量, m3/s, [i, i]
         x_o_n_pls: ステップ  n+1 における外気絶対湿度, kg/kg(DA)
         x_r_is_n: ステップ  n における室 i の絶対湿度, kg/kg(DA), [i, 1]
         x_frt_is_n: ステップ  n における室 i の家具等の絶対湿度, kg/kg(DA), [i, 1]
@@ -331,16 +329,16 @@ def calc_humidity_and_latent_load(
     # ステップ n における室iの湿度に関する係数 F_{h,wgt},　ｋｇ(DA)/s [i, i]
     # 繰り返し計算（湿度と潜熱） eq.10
     f_h_wgt_is_is_n = v_diag(
-        get_rho_air() * (v_room_is / delta_t + v_out_vent_is_n)
+        get_rho_air() * (v_room_is / delta_t + v_vent_out_is_n)
         + c_lh_frt_is * g_lh_frt_is / (c_lh_frt_is + delta_t * g_lh_frt_is)
-    ) - get_rho_air() * (v_int_vent_is_is - np.diag(v_int_vent_is_is.sum(axis=1)))
+    ) - get_rho_air() * v_vent_int_is_is
 
     # ステップ n における室iの湿度に関する係数 F_{h,cst}, kg/s, [i, 1]
     # 繰り返し計算（湿度と潜熱） eq.11
     f_h_cst_is_n = get_rho_air() * v_room_is / delta_t * x_r_is_n \
-        + get_rho_air() * v_out_vent_is_n * x_o_n_pls \
-        + c_lh_frt_is * g_lh_frt_is / (c_lh_frt_is + delta_t * g_lh_frt_is) * x_frt_is_n \
-        + x_gen_is_n + x_hum_is_n
+                   + get_rho_air() * v_vent_out_is_n * x_o_n_pls \
+                   + c_lh_frt_is * g_lh_frt_is / (c_lh_frt_is + delta_t * g_lh_frt_is) * x_frt_is_n \
+                   + x_gen_is_n + x_hum_is_n
 
     # ステップ n+1 における室 i の加湿・除湿を行わない場合の絶対湿度, kg/kg(DA) [i]
     # 繰り返し計算（湿度と潜熱） eq.6

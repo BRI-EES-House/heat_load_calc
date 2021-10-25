@@ -81,7 +81,7 @@ class PreCalcParameters:
     # endregion
 
     # 室iの隣室からの機械換気量, m3/s, [i, i]
-    v_int_vent_is_is: np.ndarray
+    v_vent_int_is_is: np.ndarray
 
     # 境界jの名前, [j]
     name_bdry_js: np.ndarray
@@ -259,7 +259,7 @@ def make_pre_calc_parameters(
     v_vent_ex_is = (np.array([rm['ventilation']['mechanical'] for rm in rms]) / 3600).reshape(-1, 1)
 
     # 室iの隣室iからの機械換気量, m3/s, [i, i]
-    v_int_vent_is_is = _get_v_int_vent_is_is(
+    v_vent_int_is_is = _get_v_vent_int_is_is(
         next_vent_is_ks=[rm['ventilation']['next_spaces'] for rm in rms]
     )
 
@@ -601,7 +601,7 @@ def make_pre_calc_parameters(
         c_lh_frt_is=c_lh_frt_is,
         g_sh_frt_is=g_sh_frt_is,
         g_lh_frt_is=g_lh_frt_is,
-        v_int_vent_is_is=v_int_vent_is_is,
+        v_vent_int_is_is=v_vent_int_is_is,
         name_bdry_js=name_js,
         sub_name_bdry_js=sub_name_js,
         a_s_js=a_srf_js,
@@ -665,7 +665,7 @@ def make_pre_calc_parameters(
     return pre_calc_parameters, pre_calc_parameters_ground
 
 
-def _get_v_int_vent_is_is(next_vent_is_ks: List[List[dict]]) -> np.ndarray:
+def _get_v_vent_int_is_is(next_vent_is_ks: List[List[dict]]) -> np.ndarray:
     """
     隣室iから室iへの機械換気量マトリクスを生成する。
     Args:
@@ -683,15 +683,17 @@ def _get_v_int_vent_is_is(next_vent_is_ks: List[List[dict]]) -> np.ndarray:
                 室3→室1:1.5
                 室3→室2:1.0
             の場合、
-                [[0.0, 0.0, 0.0,  0.0],
-                 [3.0, 0.0, 0.0,  1.5],
-                 [4.0, 3.0, 0.0,  1.0],
-                 [0.0, 0.0, 0.0,  0.0]]
+                [[0.0,  0.0,  0.0,  0.0],
+                 [3.0, -4.5,  0.0,  1.5],
+                 [4.0,  3.0, -8.0,  1.0],
+                 [0.0,  0.0,  0.0,  0.0]]
+    Note:
+        2021/10/25 対角要素に流出側の流量をいれるように定義を変更した。
     """
 
     n_rooms = len(next_vent_is_ks)
 
-    # 隣室iから室iへの換気量マトリックス, m3/s [i, i]
+    # 隣室iから室iへの換気量マトリックス（流入側のみ）, m3/s [i, i]
     v_int_vent_is_is = np.zeros((n_rooms, n_rooms), dtype=float)
 
     # 室iのループ（風下室ループ）
@@ -706,9 +708,17 @@ def _get_v_int_vent_is_is(next_vent_is_ks: List[List[dict]]) -> np.ndarray:
             # 入力は m3/h なので、3600 で除して m3/s への変換を行っている。
             volume = next_vent_i_k['volume'] / 3600
 
-            # 風上側
+            # 風上側の部屋IDが自分の部屋IDではないことのチェック
             if i != idx:
+                # 流入側（プラス）
                 v_int_vent_is_is[i, idx] += volume
+                # 流出側（マイナス）
+                v_int_vent_is_is[i, i] -= volume
+            else:
+                raise Exception
+
+    # 対角要素に流出する換気量を設定する。
+#    v_vent_nxt_is_is = v_int_vent_is_is - np.diag(v_int_vent_is_is.sum(axis=1))
 
     return v_int_vent_is_is
 
