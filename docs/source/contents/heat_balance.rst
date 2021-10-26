@@ -4,6 +4,7 @@
 .. |j*| replace:: :math:`j^*`
 .. |k| replace:: :math:`k`
 .. |m| replace:: :math:`m`
+.. |n-1| replace:: :math:`n-1`
 .. |n| replace:: :math:`n`
 .. |n+1| replace:: :math:`n+1`
 .. |s-1| replace:: s\ :sup:`-1` \
@@ -820,28 +821,50 @@ I. 評価法
 ステップ |n| における室 |i| の室温 :math:`\theta_{r,i,n}` に応じて??に示す方法により定まる。
 
 
+ステップ |n| における境界 |j| の裏面温度　:math:`\theta_{rear,j,n}` は、式(32)により表される。
 
-    # ステップnの境界jにおける裏面温度, degree C, [j, 1]
-    theta_rear_js_n = np.dot(ss.k_ei_js_js, c_n.theta_ei_js_n) + theta_dstrb_js_n
+.. math::
+    :nowrap:
 
-    # ステップnにおける室iの状況（在室者周りの総合熱伝達率・運転状態・Clo値・目標とする作用温度）を取得する
-    #     ステップnにおける室iの在室者周りの対流熱伝達率, W / m2K, [i, 1]
-    #     ステップnにおける室iの在室者周りの放射熱伝達率, W / m2K, [i, 1]
-    #     ステップnの室iにおける運転モード, [i, 1]
-    #     ステップnの室iにおける目標作用温度下限値, [i, 1]
-    #     ステップnの室iにおける目標作用温度上限値, [i, 1]
-    #     ステップnの室iの在室者周りの風速, m/s, [i, 1]
-    #     ステップnの室iにおけるClo値, [i, 1]
-    #     ステップnの室iにおける目標作用温度, degree C, [i, 1]
-    h_hum_c_is_n, h_hum_r_is_n, operation_mode_is_n, theta_lower_target_is_n_pls, theta_upper_target_is_n_pls, remarks_is_n \
-        = ss.get_ot_target_and_h_hum(
-            x_r_is_n=c_n.x_r_is_n,
-            operation_mode_is_n_mns=c_n.operation_mode_is_n,
-            theta_r_is_n=c_n.theta_r_is_n,
-            theta_mrt_hum_is_n=c_n.theta_mrt_hum_is_n,
+    \begin{align*}
+        \pmb{\theta}_{rear,n} = \pmb{k}_{ei} \cdot \pmb{\theta}_{ei,n} + \pmb{\theta}_{dstrb,n}
+        \tag{32}
+    \end{align*}
 
-            ac_demand_is_n=ac_demand_is_n
-        )
+ここで、
+
+:math:`\pmb{\theta}_{rear,n}`
+    | :math:`\theta_{rear,j,n}` を要素にもつ :math:`J \times 1` の縦行列, ℃
+:math:`\pmb{k}_{ei}`
+    | :math:`k_{ei,j,j*}` を要素にもつ :math:`J \times J` の行列, -
+:math:`\pmb{\theta}_{dstrb,n}`
+    | :math:`\theta_{dstrb,j,n}` を要素にもつ :math:`J \times 1` の縦行列, ℃
+
+であり、
+
+:math:`\theta_{dstrb,j,n}`
+    | ステップ |n| の境界 |j| における外気側等価温度の外乱成分, ℃
+
+である。
+
+次に示す値、
+
+* ステップ |n| における室 |i| の人体表面の対流熱伝達率 :math:`h_{hum,c,i,n}`
+* ステップ |n| における室 |i| の人体表面の放射熱伝達率 :math:`h_{hum,r,i,n}`
+* ステップ |n| からステップ |n+1| における運転モード
+* ステップ |n+1| における室 |i| の作用温度下限値 :math:`\theta_{lower,target,i,n+1}`
+* ステップ |n+1| における室 |i| の作用温度上限値 :math:`\theta_{upper,target,i,n+1}`
+
+は、
+
+* ステップ |n| における室 |i| の温度 :math:`\theta_{r,i,n}`
+* ステップ |n| における室 |i| の絶対湿度 :math:`X_{r,i,n}`
+* ステップ |n-1| からステップ |n| における運転モード
+* ステップ |n| における室 |i| の人体の平均放射温度 :math:`\theta_{mrt,hum,i,n}`
+* ステップ |n| から |n+1| における室 |i| の空調需要 :math:`\hat{r}_{ac,demand,i,n}`
+
+に応じて、??に定める方法により計算される。
+
 
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 2) 繰り返し計算の前処理
