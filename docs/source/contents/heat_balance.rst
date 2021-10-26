@@ -643,8 +643,6 @@ I. 評価法
     | :math:`C_{frt,i}` を要素にもつ :math:`I \times I` の対角化行列, J / K
 :math:`\pmb{\theta}_{o,n}`
     | :math:`I \times 1` の縦行列であり、 :math:`\theta_{o,i,n} = \theta_{o,n}` , ℃
-:math:`\hat{\pmb{H}}_n`
-    | :math:`H_{i,n}` を要素にもつ :math:`I \times 1` の縦行列, W
 :math:`\hat{\pmb{q}}_{gen,n}`
     | :math:`\hat{q}_{gen,i,n}` を要素にもつ :math:`I \times 1` の縦行列, W
 :math:`\hat{\pmb{q}}_{hum,n}`
@@ -799,12 +797,24 @@ I. 評価法
 ステップ |n| における室 |i| の空気温度 :math:`\theta_{r,i,n}` 及びステップ |n| における外気温度 :math:`\theta_{o,n}`に依存して、
 ??に示す方法により定まることとする。
 
+ステップ |n| からステップ |n+1| における室 |i| の人体発熱 :math:`\hat{q}_{hum,i,n}` は、式(31)により表される。
 
-    # ステップnの室iにおける人体発湿, kg/s, [i, 1]
-    x_hum_is_n = x_hum_psn_is_n * n_hum_is_n
+.. math::
+    :nowrap:
 
-    # ステップnの室iにおける1人あたりの人体発湿, kg/s, [i, 1]
-    x_hum_psn_is_n = occupants.get_x_hum_psn_is_n(theta_r_is_n=c_n.theta_r_is_n)
+    \begin{align*}
+        \hat{q}_{hum,i,n} = \hat{q}_{hum,psn,i,n} \cdot \hat{n}_{hum,i,n}
+        \tag{31}
+    \end{align*}
+
+ここで、
+
+:math:`\hat{q}_{hum,psn,i,n}`
+    | ステップ |n| からステップ |n+1| における室 |i| の1人あたりの人体発熱, W
+:math:`\hat{n}_{hum,i,n}`
+    | ステップ |n| からステップ |n+1| における室 |i| の在室人数, -
+
+である。
 
     # ステップnの室iにおける人体発熱, W, [i, 1]
     q_hum_is_n = q_hum_psn_is_n * n_hum_is_n

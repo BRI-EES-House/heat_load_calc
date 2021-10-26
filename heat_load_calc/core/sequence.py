@@ -41,7 +41,7 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
     # ステップnの境界jにおける外気側等価温度の外乱成分, degree C, [j, 1]
     theta_dstrb_js_n = ss.theta_dstrb_js_ns[:, n + 1].reshape(-1, 1)
 
-    # ステップnの室iにおける在室人数, [i, 1]
+    # ステップnからステップn+1における室iの在室人数, -, [i, 1]
     n_hum_is_n = ss.n_hum_is_ns[:, n].reshape(-1, 1)
 
     # ステップnの室iにおける人体発熱を除く内部発熱, W, [i, 1]
@@ -85,14 +85,8 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
     # ステップnの室iにおける1人あたりの人体発熱, W, [i, 1]
     q_hum_psn_is_n = occupants.get_q_hum_psn_is_n(theta_r_is_n=c_n.theta_r_is_n)
 
-    # ステップnの室iにおける人体発熱, W, [i, 1]
+    # ステップnからステップn+1における室iの人体発熱, W, [i, 1], eq.(31)
     q_hum_is_n = q_hum_psn_is_n * n_hum_is_n
-
-    # ステップnの室iにおける1人あたりの人体発湿, kg/s, [i, 1]
-    x_hum_psn_is_n = occupants.get_x_hum_psn_is_n(theta_r_is_n=c_n.theta_r_is_n)
-
-    # ステップnの室iにおける人体発湿, kg/s, [i, 1]
-    x_hum_is_n = x_hum_psn_is_n * n_hum_is_n
 
     # ステップnの室iにおけるすきま風量, m3/s, [i, 1]
     v_leak_is_n = ss.get_infiltration(theta_r_is_n=c_n.theta_r_is_n, theta_o_n=ss.theta_o_ns[n])
@@ -220,6 +214,12 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
     q_s_js_n_pls = (theta_ei_js_n_pls - theta_s_js_n_pls) * (ss.h_s_c_js + ss.h_s_r_js)
 
     # --- ここから、湿度の計算 ---
+
+    # ステップnの室iにおける1人あたりの人体発湿, kg/s, [i, 1]
+    x_hum_psn_is_n = occupants.get_x_hum_psn_is_n(theta_r_is_n=c_n.theta_r_is_n)
+
+    # ステップnの室iにおける人体発湿, kg/s, [i, 1]
+    x_hum_is_n = x_hum_psn_is_n * n_hum_is_n
 
     l_l_i_n, x_frt_is_n_pls, x_r_is_n_pls = calc_humidity_and_latent_load(
         delta_t=delta_t,
