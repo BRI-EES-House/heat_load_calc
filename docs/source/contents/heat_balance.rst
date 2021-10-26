@@ -795,10 +795,10 @@ I. 評価法
 
 である。
 
+ステップ |n| からステップ |n+1| における室 |i| のすきま風量 :math:`\hat{V}_{leak,i,n}` は、
+ステップ |n| における室 |i| の空気温度 :math:`\theta_{r,i,n}` 及びステップ |n| における外気温度 :math:`\theta_{o,n}`に依存して、
+??に示す方法により定まることとする。
 
-
-    # ステップnの室iにおけるすきま風量, m3/s, [i, 1]
-    v_leak_is_n = ss.get_infiltration(theta_r_is_n=c_n.theta_r_is_n, theta_o_n=ss.theta_o_ns[n])
 
     # ステップnの室iにおける人体発湿, kg/s, [i, 1]
     x_hum_is_n = x_hum_psn_is_n * n_hum_is_n
