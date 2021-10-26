@@ -743,19 +743,59 @@ I. 評価法
     | :math:`f_{CVL,j,n}` を要素にもつ :math:`J \times 1` で表される縦行列, ℃
 
 
-    # ステップn+1の境界jにおける係数WSV, degree C, [j, 1]
-    wsv_js_n_pls = np.dot(ss.ivs_ax_js_js, cvl_js_n_pls)
-    # ステップn+1の境界jにおける係数WSV, degree C, [j, 1]
-    f_wsv_js_n_pls = np.dot(ss.ivs_f_ax_js_js, f_cvl_js_n_pls)
+係数 :math:`f_{CVL,j,n+1}` は、式(28)により表される。
 
-    # ステップn+1の境界jにおける係数CVL, degree C, [j, 1]
-    cvl_js_n_pls = np.sum(theta_dsh_srf_t_js_ms_n_pls + theta_dsh_srf_a_js_ms_n_pls, axis=1, keepdims=True)
+.. math::
+    :nowrap:
 
-    # ステップn+1の境界jにおける項別公比法の指数項mの貫流応答の項別成分, degree C, [j, m] (m=12)
-    theta_dsh_srf_t_js_ms_n_pls = ss.phi_t1_js_ms * theta_rear_js_n + ss.r_js_ms * c_n.theta_dsh_srf_t_js_ms_n
+    \begin{align*}
+        f_{CVL,j,n+1} = \sum_{m=1}^{M}{\theta'_{s,a,j,m,n+1}} + \sum_{m=1}^{M}{\theta_{s,t,j,m,n+1}}
+        \tag{28}
+    \end{align*}
 
-    # ステップn+1の境界jにおける項別公比法の指数項mの吸熱応答の項別成分, degree C, [j, m] (m=12)
-    theta_dsh_srf_a_js_ms_n_pls = ss.phi_a1_js_ms * c_n.q_srf_js_n + ss.r_js_ms * c_n.theta_dsh_srf_a_js_ms_n
+ここで、
+
+:math:`\theta'_{s,a,j,m,n+1}`
+    | ステップ |n+1| における境界 |j| の項別公比法の指数項 |m| の吸熱応答の項別成分, ℃
+:math:`\theta'_{s,t,j,m,n+1}`
+    | ステップ |n+1| における境界 |j| の項別公比法の指数項 |m| の貫流応答の項別成分, ℃
+
+である。 :math:`M` は項別公比法の指数項の数である。
+
+ステップ |n+1| における境界 |j| の項別公比法の指数項 |m| の吸熱応答の項別成分 :math:`\theta'_{s,a,j,m,n+1}` 及び、
+ステップ |n+1| における境界 |j| の項別公比法の指数項 |m| の貫流応答の項別成分 :math:`\theta'_{s,t,j,m,n+1}` は、
+式(29)及び式(30)により表される。
+
+.. math::
+    :nowrap:
+
+    \begin{align*}
+        \theta'_{s,a,j,m,n+1} = q_{s,j,n} \cdot \phi_{a1,j,m} + r_{j,m} \cdot \theta'_{s,a,j,m,n}
+        \tag{29}
+    \end{align*}
+
+.. math::
+    :nowrap:
+
+    \begin{align*}
+        \theta'_{s,t,j,m,n+1} = \theta_{rear,j,n} \cdot \phi_{t1,j,m} + r_{j,m} \cdot \theta'_{s,t,j,m,n}
+        \tag{30}
+    \end{align*}
+
+ここで、
+
+:math:`\theta_{rear,j,n}`
+    | ステップ |n| における境界 |j| の裏面温度, ℃
+:math:`\phi_{a1,j,m}`
+    | 境界 |j| の項別公比法の指数項 |m| の吸熱応答係数, |m2| K / W
+:math:`\phi_{t1,j,m}`
+    | 境界 |j| の項別公比法の指数項 |m| の貫流応答係数, -
+:math:`r_{j,m}`
+    | 境界 |j| の項別公比法の指数項 |m| の公比, -
+
+である。
+
+
 
     # ステップnの室iにおけるすきま風量, m3/s, [i, 1]
     v_leak_is_n = ss.get_infiltration(theta_r_is_n=c_n.theta_r_is_n, theta_o_n=ss.theta_o_ns[n])

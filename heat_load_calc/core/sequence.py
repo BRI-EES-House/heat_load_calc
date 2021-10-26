@@ -97,13 +97,13 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
     # ステップnの室iにおけるすきま風量, m3/s, [i, 1]
     v_leak_is_n = ss.get_infiltration(theta_r_is_n=c_n.theta_r_is_n, theta_o_n=ss.theta_o_ns[n])
 
-    # ステップn+1の境界jにおける項別公比法の指数項mの吸熱応答の項別成分, degree C, [j, m] (m=12)
+    # ステップn+1の境界jにおける項別公比法の指数項mの吸熱応答の項別成分, degree C, [j, m] (m=12), eq.(30)
     theta_dsh_srf_a_js_ms_n_pls = ss.phi_a1_js_ms * c_n.q_srf_js_n + ss.r_js_ms * c_n.theta_dsh_srf_a_js_ms_n
 
-    # ステップn+1の境界jにおける項別公比法の指数項mの貫流応答の項別成分, degree C, [j, m] (m=12)
+    # ステップn+1の境界jにおける項別公比法の指数項mの貫流応答の項別成分, degree C, [j, m] (m=12), eq.(29)
     theta_dsh_srf_t_js_ms_n_pls = ss.phi_t1_js_ms * theta_rear_js_n + ss.r_js_ms * c_n.theta_dsh_srf_t_js_ms_n
 
-    # ステップn+1の境界jにおける係数CVL, degree C, [j, 1]
+    # ステップn+1の境界jにおける係数CVL, degree C, [j, 1], eq.(28)
     f_cvl_js_n_pls = np.sum(theta_dsh_srf_t_js_ms_n_pls + theta_dsh_srf_a_js_ms_n_pls, axis=1, keepdims=True)
 
     # ステップn+1の境界jにおける係数WSV, degree C, [j, 1], eq.(27)
