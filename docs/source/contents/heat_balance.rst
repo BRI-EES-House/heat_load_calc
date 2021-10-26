@@ -795,7 +795,7 @@ I. 評価法
 
 ステップ |n| からステップ |n+1| における室 |i| のすきま風量 :math:`\hat{V}_{leak,i,n}` は、
 ステップ |n| における室 |i| の空気温度 :math:`\theta_{r,i,n}` 及びステップ |n| における外気温度 :math:`\theta_{o,n}`に依存して、
-??に示す方法により定まることとする。
+??に示す方法により定まる。
 
 ステップ |n| からステップ |n+1| における室 |i| の人体発熱 :math:`\hat{q}_{hum,i,n}` は、式(31)により表される。
 
@@ -816,11 +816,10 @@ I. 評価法
 
 である。
 
-    # ステップnの室iにおける人体発熱, W, [i, 1]
-    q_hum_is_n = q_hum_psn_is_n * n_hum_is_n
+ステップ |n| からステップ |n+1| における室 |i| の1人あたりの人体発熱 :math:`\hat{q}_{hum,psn,i,n}` は、
+ステップ |n| における室 |i| の室温 :math:`\theta_{r,i,n}` に応じて??に示す方法により定まる。
 
-    # ステップnの室iにおける1人あたりの人体発熱, W, [i, 1]
-    q_hum_psn_is_n = occupants.get_q_hum_psn_is_n(theta_r_is_n=c_n.theta_r_is_n)
+
 
     # ステップnの境界jにおける裏面温度, degree C, [j, 1]
     theta_rear_js_n = np.dot(ss.k_ei_js_js, c_n.theta_ei_js_n) + theta_dstrb_js_n

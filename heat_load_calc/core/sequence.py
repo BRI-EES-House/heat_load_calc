@@ -82,7 +82,7 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
     # ステップnの境界jにおける裏面温度, degree C, [j, 1]
     theta_rear_js_n = np.dot(ss.k_ei_js_js, c_n.theta_ei_js_n) + theta_dstrb_js_n
 
-    # ステップnの室iにおける1人あたりの人体発熱, W, [i, 1]
+    # ステップnからステップn+1における室iの1人あたりの人体発熱, W, [i, 1]
     q_hum_psn_is_n = occupants.get_q_hum_psn_is_n(theta_r_is_n=c_n.theta_r_is_n)
 
     # ステップnからステップn+1における室iの人体発熱, W, [i, 1], eq.(31)
