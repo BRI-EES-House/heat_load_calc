@@ -1,18 +1,4 @@
-.. |i| replace:: :math:`i`
-.. |i*| replace:: :math:`i^*`
-.. |j| replace:: :math:`j`
-.. |j*| replace:: :math:`j^*`
-.. |k| replace:: :math:`k`
-.. |m| replace:: :math:`m`
-.. |n-1| replace:: :math:`n-1`
-.. |n| replace:: :math:`n`
-.. |n+1| replace:: :math:`n+1`
-.. |s-1| replace:: s\ :sup:`-1` \
-.. |m-1| replace:: m\ :sup:`-1` \
-.. |m2| replace:: m\ :sup:`2` \
-.. |m-2| replace:: m\ :sup:`-2` \
-.. |m3| replace:: m\ :sup:`3` \
-.. |m-3| replace:: m\ :sup:`-3` \
+.. include:: definition.txt
 
 ************************************************************************************************************************
 繰り返し計算（温度と顕熱）
