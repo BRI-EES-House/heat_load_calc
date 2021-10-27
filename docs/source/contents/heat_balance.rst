@@ -1,13 +1,4 @@
-.. |i| replace:: :math:`i`
-.. |i*| replace:: :math:`i^*`
-.. |j| replace:: :math:`j`
-.. |j*| replace:: :math:`j^*`
-.. |k| replace:: :math:`k`
-.. |m| replace:: :math:`m`
-.. |m2| replace:: m\ :sup:`2` \
-.. |m3| replace:: m\ :sup:`3` \
-.. |n| replace:: :math:`n`
-.. |n+1| replace:: :math:`n+1`
+.. include:: definition.txt
 
 ************************************************************************************************************************
 繰り返し計算（温度と顕熱）
@@ -25,7 +16,7 @@ I. 評価法
 ここで、前のステップから次のステップに引き継ぐ状態量は以下の値とする。
 
 :math:`q_{s,j,n}`
-    | ステップ |n| における境界 |j| の表面熱流（壁体吸熱を正とする）, W / |m2|
+    | ステップ |n| における境界 |j| の表面熱流（壁体吸熱を正とする）, W |m-2|
 :math:`\theta_{EI,j,n}`
     | ステップ |n| における境界 |j| の等価温度, ℃
 :math:`\theta_{mrt,hum,i,n+}`
@@ -66,8 +57,8 @@ I. 評価法
             \theta_{EI,j,n+1}
             &= \frac{ 1 }{ h_{s,c,j} + h_{s,r,j} } \cdot \\
             & \left( h_{s,c,j} \sum_{i=0}^{I-1}{ ( p_{i,j} \cdot \theta_{r,i,n+1} ) }
-            + h_{s,r,j} \cdot \sum_{j*=0}^{J-1}{ ( F'_{mrt,j,j*} \cdot \theta_{s,j*,n+1} ) } \right. \\
-            & \left. + q_{sol,j,n+1} + \frac{ \sum_{i=0}^{I-1}{ ( flr_{i,j,n+1} \cdot \hat{L}_{SR,i,n} \cdot (1 - \beta_{i,n+1}) ) } }{ A_{s,j} } \right)
+            + h_{s,r,j} \cdot \sum_{j*=0}^{J-1}{ ( f'_{mrt,j,j*} \cdot \theta_{s,j*,n+1} ) } \right. \\
+            & \left. + q_{sol,j,n+1} + \frac{ \sum_{i=0}^{I-1}{ ( \hat{f}_{flr,i,j,n} \cdot \hat{L}_{SR,i,n} \cdot (1 - \hat{\beta}_{i,n}) ) } }{ A_{s,j} } \right)
         \end{split}
         \tag{2}
     \end{align*}
@@ -76,16 +67,16 @@ I. 評価法
 
 :math:`\theta_{r,i,n}`
     | ステップ |n| における室 |i| の室温, ℃
-:math:`F'_{mrt,j*,j}`
+:math:`f'_{mrt,j*,j}`
     | 平均放射温度計算時の境界 |j*| の表面温度が境界 |j| に与える重み
 :math:`q_{sol,j,n+1}`
     | ステップ |n+1| における境界 |j| の透過日射吸収熱量, W / |m2|
-:math:`flr_{i,j,n+1}`
-    | ステップ |n+1| における室 |i| に設置された放射暖房の放熱量のうち放射成分に対する境界 |j| の室内側表面の吸収比率, -
+:math:`\hat{f}_{flr,i,j,n}`
+    | ステップ |n| からステップ |n+1| における室 |i| に設置された放射暖冷房の放熱量のうち放射成分に対する境界 |j| の室内側表面の吸収比率, -
 :math:`\hat{L}_{SR,i,n}`
     | ステップ |n| からステップ |n+1| における室 |i| に設置された放射空調の吸放熱量, W
-:math:`\beta_{i,n}`
-    | ステップ |n| における室 |i| に設置された放射暖房の対流成分比率, -
+:math:`\hat{\beta}_{i,n}`
+    | ステップ |n| からステップ |n+1| における室 |i| に設置された放射暖冷房の対流成分比率, -
 :math:`A_{s,j}`
     | 境界 |j| の面積, |m2|
 :math:`p_{i,j}`
@@ -325,7 +316,7 @@ I. 評価法
     :nowrap:
 
     \begin{align*}
-        \pmb{F}_{BRL,n} = \pmb{p}_{ij} \cdot \pmb{h}_{s,c} \cdot \pmb{A}_{s} \cdot \pmb{F}_{WSB,n+1} + \pmb{\beta}_{n+1}
+        \pmb{F}_{BRL,n} = \pmb{p}_{ij} \cdot \pmb{h}_{s,c} \cdot \pmb{A}_{s} \cdot \pmb{F}_{WSB,n+1} + \hat{\pmb{\beta}}_{n}
         \tag{10}
     \end{align*}
 
@@ -335,8 +326,8 @@ I. 評価法
     | :math:`h_{s,c,j}` を要素にもつ :math:`J \times J` の対角化行列
 :math:`\pmb{A}_{s}`
     | :math:`A_{s,j}` を要素にもつ :math:`J \times J` の対角化行列
-:math:`\pmb{\beta}_{n+1}`
-    | :math:`\beta_{i,n+1}` を要素にもつ :math:`I \times I` の対角化行列
+:math:`\hat{\pmb{\beta}}_{n}`
+    | :math:`\hat{\beta}_{i,n}` を要素にもつ :math:`I \times I` の対角化行列
 
 であり、
 
@@ -344,8 +335,6 @@ I. 評価法
     | 境界 |j| の室内側対流熱伝達率, W / |m2| K
 :math:`A_{s,j}`
     | 境界 |j| の面積, |m2|
-:math:`\beta_{i}`
-    | 室 |i| に設置された放射空調の対流成分比率, -
 
 とする。また、 :math:`\pmb{p}_{ij}` は :math:`p_{i,j}` を要素にもつ、室 |i| と境界 |j| との関係を表す行列であり、
 
@@ -389,9 +378,9 @@ I. 評価法
     \begin{align*}
         \begin{split}
             F_{FLB,j,i,n+1}
-            &= \frac{ \phi_{A0,j} \cdot ( 1 - \beta_{i,n+1} ) \cdot f_{flr,j,i,n+1} }{ A_{s,j} } \\
+            &= \frac{ \phi_{A0,j} \cdot ( 1 - \hat{\beta}_{i,n} ) \cdot f_{flr,i,j,n+1} }{ A_{s,j} } \\
             &+ \phi_{T0,j} \cdot \sum_{j*=0}^{J-1}{
-            \frac{ k'_{EI,j,j*}  \cdot ( 1 - \beta_{i,n+1} ) \cdot f_{flr,j*,i,n+1} }{ A_{s,j*} \cdot ( h_{s,c,j*} + h_{s,r,j*} ) }
+            \frac{ k'_{EI,j,j*}  \cdot ( 1 - \hat{\beta}_{i,n} ) \cdot f_{flr,i,j*,n+1} }{ A_{s,j*} \cdot ( h_{s,c,j*} + h_{s,r,j*} ) }
             }
         \end{split}
         \tag{12}
@@ -407,94 +396,150 @@ I. 評価法
     | 境界 |j| の裏面温度に境界　|j*| の等価温度が与える影響
 :math:`h_{s,r,j}`
     | 境界 |j| の室内側放射熱伝達率, W / |m2| K
-:math:`{f_{flr,j,n}}`
-    | ステップ |n| における室 |i| に設置された放射暖房の放熱量のうち放射成分に対する境界 |j| の室内側表面の吸収比率, -
 
 である。
 
+ステップ |n| からステップ |n+1| における室 |i| に設置された放射暖冷房の対流成分比率 :math:`\hat{\beta}_{i,n}` および、
+ステップ |n| からステップ |n+1| における室 |i| に設置された放射暖房の放熱量のうち放射成分に対する境界 |j| の室内側表面の吸収比率 :math:`{\hat{f}_{flr,i,j,n}}` は、
 
-
-
-
-
-これらの係数 :math:`\pmb{F}_{BRC,OT,n+1}`、  及び :math:`\pmb{F}_{BRM,OT,n+1}` は、
-式(8)～式(10)により表される。
+ステップ |n| からステップ |n+1| における室 |i| の運転が暖房運転時の場合
 
 .. math::
     :nowrap:
 
     \begin{align*}
-        \pmb{F}_{BRC,OT,n+1} = \pmb{F}_{BRC,n} + \pmb{F}_{BRM,n} \cdot \pmb{F}_{XC,n+1} \tag{8}
+        \hat{\beta}_{i,n} = \beta_{h,i} \tag{13a}
     \end{align*}
-
 
     \begin{align*}
-        \pmb{F}_{BRM,OT,n+1} = \pmb{F}_{BRM,n} \cdot \pmb{F}_{XOT,n+1} \tag{10}
+        \hat{f}_{flr,i,j,n} = f_{flr,h,i,j} \tag{14a}
     \end{align*}
 
-
+ステップ |n| からステップ |n+1| における室 |i| の運転が冷房運転時の場合
 
 .. math::
     :nowrap:
 
     \begin{align*}
-        \begin{split}
-            \pmb{\theta}_{OT,n+1}
-            & = (\pmb{BRM}_n \cdot \pmb{XOT}_{n+1})^{-1} \cdot \hat{\pmb{LC}}_n \\
-            & + (\pmb{BRM}_n \cdot \pmb{XOT}_{n+1})^{-1}
-            \cdot ( \pmb{BRL} - \pmb{BRM}_n \cdot \pmb{XLR}_{n+1} )
-            \cdot \hat{\pmb{Lr}}_{n} \\
-            & + (\pmb{BRM}_n \cdot \pmb{XOT}_{n+1})^{-1}
-            \cdot ( \pmb{BRC}_n - \pmb{BRM}_n \cdot \pmb{XC}_{n+1} )
-        \end{split}
-        \tag{b53}
+        \hat{\beta}_{i,n} = \beta_{c,i} \tag{13b}
     \end{align*}
 
+    \begin{align*}
+        \hat{f}_{flr,i,j,n} = f_{flr,c,i,j} \tag{14b}
+    \end{align*}
 
+それ以外の場合
 
+.. math::
+    :nowrap:
 
+    \begin{align*}
+        \hat{\beta}_{i,n} = 0 \tag{13c}
+    \end{align*}
 
+    \begin{align*}
+        \hat{f}_{flr,i,j,n} = 0 \tag{14c}
+    \end{align*}
 
-
-
-
-
-
-
-
+とする。
 
 ここで、
 
-:math:`\pmb{F}_{BRM,n}`
-    | :math:`I \times I` で表される行列, W / K
-:math:`\pmb{F}_{XOT,n+1}`
-    | :math:`I \times I` で表される行列, -
-:math:`\pmb{F}_{BRL}`
-    | :math:`I \times I` で表される行列, -
-:math:`\pmb{F}_{BRC,n}`
-    | :math:`I \times 1` で表される縦行列, W
-:math:`\pmb{F}_{XLR,n+1}`
-    | :math:`I \times I` で表される行列, K / W
-:math:`\pmb{F}_{XC,n+1}`
-    | :math:`I \times 1` で表される縦行列, ℃
+:math:`\beta_{h,i}`
+    | 室 |i| に設置された放射暖房の対流成分比率
+:math:`\beta_{c,i}`
+    | 室 |i| に設置された放射冷房の対流成分比率
+:math:`f_{flr,h,i,j}`
+    室 |i| に設置された放射暖房の放熱量のうち放射成分に対する境界 |j| の室内側表面の吸収比率
+:math:`f_{flr,c,i,j}`
+    室 |i| に設置された放射暖房の放熱量のうち放射成分に対する境界 |j| の室内側表面の吸収比率
 
 である。
 
-係数 :math:`\pmb{XC}_{n+1}` は式(11)で表される。
+「ステップ |n| からステップ |n+1| における室 |i| の運転が暖房運転時の場合」とは、
+運転モードが「暖房」であり、かつ式(15a)を満たす場合をいう。
 
 .. math::
     :nowrap:
 
     \begin{align*}
-        \pmb{XC}_{n+1} = \pmb{XOT}_{n+1} \cdot \pmb{kr}_{n+1} \cdot \pmb{F}_{mrt,hum}
-        \cdot ( \pmb{WSC}_{n+1} + \pmb{WSV}_{n+1} )
-        \tag{11}
+        \theta_{r,OT,ntr,i,n+1} < \theta_{lower,target,i,n+1} \tag{15a}
     \end{align*}
 
+「ステップ |n| からステップ |n+1| における室 |i| の運転が冷房運転時の場合」とは、
+運転モードが「冷房」であり、かつ式(15b)を満たす場合をいう。
+
+.. math::
+    :nowrap:
 
     \begin{align*}
-        \pmb{XOT}_{n+1} = \left( \pmb{kc}_{n+1} + \pmb{kr}_{n+1} \cdot \pmb{F}_{mrt,hum} \cdot \pmb{WSR} \right)^{-1}
-        \tag{13}
+        \theta_{upper,target,i,n+1} < \theta_{r,OT,ntr,i,n+1} \tag{15b}
+    \end{align*}
+
+ここで、
+
+:math:`\theta_{r,OT,ntr,i,n+1}`
+    | ステップ |n+1| における室 |i| の自然作用温度 , ℃
+:math:`\theta_{lower,target,i,n+1}`
+    | ステップ |n+1| における室 |i| の作用温度下限値 , ℃
+:math:`\theta_{upper,target,i,n+1}`
+    | ステップ |n+1| における室 |i| の作用温度上限値 , ℃
+
+である。
+
+ステップ |n+1| における室 |i| の自然作用温度 :math:`\theta_{r,OT,ntr,i,n+1}`　は式(16)により表される。
+
+.. math::
+    :nowrap:
+
+    \begin{align*}
+        \pmb{\theta}_{r,OT,ntr,n+1} = \pmb{f}_{BRM,OT,n+1}^{-1} \cdot \pmb{F}_{BRC,OT,n+1} \tag{16}
+    \end{align*}
+
+係数 :math:`\pmb{F}_{BRC,OT,n+1}` は、式(17)により表される。
+
+.. math::
+    :nowrap:
+
+    \begin{align*}
+        \pmb{F}_{BRC,OT,n+1} = \pmb{F}_{BRC,n} + \pmb{F}_{BRM,n} \cdot \pmb{F}_{XC,n+1} \tag{17}
+    \end{align*}
+
+ここで、
+
+:math:`\pmb{F}_{BRC,n}`
+    | :math:`I \times 1` で表される縦行列, W
+
+である。
+
+係数 :math:`\pmb{F}_{BRM,OT,n+1}` は、式(18)により表される。
+
+.. math::
+    :nowrap:
+
+    \begin{align*}
+        \pmb{F}_{BRM,OT,n+1} = \pmb{F}_{BRM,n} \cdot \pmb{F}_{XOT,n+1} \tag{18}
+    \end{align*}
+
+係数 :math:`\pmb{F}_{XC,n}` は、式(19)により表される。
+
+.. math::
+    :nowrap:
+
+    \begin{align*}
+        \pmb{F}_{XC,n+1} = \pmb{F}_{XOT,n+1} \cdot \pmb{kr}_{n+1} \cdot \pmb{F}_{mrt,hum}
+        \cdot ( \pmb{F}_{WSC,n+1} + \pmb{F}_{WSV,n+1} )
+        \tag{19}
+    \end{align*}
+
+係数 :math:`\pmb{F}_{XOT,n+1}` は、式(20)により表される。
+
+.. math::
+    :nowrap:
+
+    \begin{align*}
+        \pmb{F}_{XOT,n+1} = \left( \pmb{kc}_{n+1} + \pmb{kr}_{n+1} \cdot \pmb{F}_{mrt,hum} \cdot \pmb{F}_{WSR} \right)^{-1}
+        \tag{20}
     \end{align*}
 
 ここで、
@@ -511,107 +556,301 @@ I. 評価法
 
 ステップ |n+1| における室 |i| の人体表面の対流熱伝達率が総合熱伝達率に占める割合 :math:`kc_{i,n+1}` 及び
 ステップ |n+1| における室 |i| の人体表面の放射熱伝達率が総合熱伝達率に占める割合　:math:`kr_{i,n+1}`　は、
-式(14)及び式(15)で表される。
+式(21)及び式(22)で表される。
 
 .. math::
     :nowrap:
 
     \begin{align*}
-        kc_{i,n} = \frac{ h_{hum,c,i,n} }{ ( h_{hum,c,i,n} + h_{hum,r,i,n} ) } \tag{14}
+        kc_{i,n} = \frac{ h_{hum,c,i,n} }{ ( h_{hum,c,i,n} + h_{hum,r,i,n} ) } \tag{21}
     \end{align*}
 
     \begin{align*}
-        kr_{i,n} = \frac{ h_{hum,r,i,n} }{ ( h_{hum,c,i,n} + h_{hum,r,i,n} ) } \tag{15}
+        kr_{i,n} = \frac{ h_{hum,r,i,n} }{ ( h_{hum,c,i,n} + h_{hum,r,i,n} ) } \tag{22}
     \end{align*}
 
-係数 :math:`\pmb{VRM}_n` 及び係数 :math:`\pmb{BRC}_n` は式(16)及び式(17)により表される。
+ここで、
 
-.. math::
-    :nowrap:
+:math:`h_{hum,c,i,n}`
+    | ステップ |n| における室 |i| の人体表面の対流熱伝達率, W / |m2| K
+:math:`h_{hum,r,i,n}`
+    | ステップ |n| における室 |i| の人体表面の放射熱伝達率, W / |m2| K
 
-    \begin{align*}
-        \begin{split}
-            \pmb{BRM}_n
-            & = \pmb{C}_{rm} \cdot \frac{1}{\Delta t}
-            + \pmb{p}^{T} \cdot \pmb{h}_c \cdot \pmb{A} \cdot (\pmb{p} - \pmb{WSR}) \\
-            & + c_a \cdot \rho_a \cdot \hat{\pmb{V}}_n
-            - c_a \cdot \rho_a \cdot \hat{\pmb{V}}_{nxt,n}
-            + \pmb{G}_{frt} \cdot (\pmb{C}_{frt} + \Delta t \cdot \pmb{G}_{frt})^{-1} \cdot \pmb{C}_{frt}
-        \end{split}
-        \tag{16}
-    \end{align*}
+である。
+
+係数 :math:`\pmb{F}_{BRM,n}` は、式(23)により表される。
 
 .. math::
     :nowrap:
 
     \begin{align*}
         \begin{split}
-            \pmb{BRC}_n
-            & = \pmb{C}_{rm} \cdot \frac{1}{\Delta t} \cdot \pmb{\theta}_{r,n}
-            + \pmb{p}^{T} \cdot \pmb{h}_c \cdot \pmb{A} \cdot (\pmb{WSC}_{n+1} + \pmb{WSV}_{n+1}) \\
-            & + c_a \cdot \rho_a \cdot \hat{\pmb{V}}_n \cdot \pmb{\theta}_{o,n+1} + \hat{\pmb{H}}_n \\
-            & + \pmb{G}_{frt} \cdot (\pmb{C}_{frt} + \Delta t \cdot \pmb{G}_{frt})^{-1}
-            \cdot ( \pmb{C}_{frt} \cdot \pmb{\theta}_{frt,n} + \Delta t \cdot \hat{\pmb{Q}}_{sol,frt,n+1} )
+            \pmb{F}_{BRM,n}
+            & = \frac{\pmb{C}_{rm}}{\Delta t}
+            + \pmb{p}_{ij} \cdot \pmb{h}_{s,c} \cdot \pmb{A}_s \cdot (\pmb{p}_{ji} - \pmb{F}_{WSR}) \\
+            & + c_a \cdot \rho_a \cdot ( \hat{\pmb{V}}_{vent,out,n} - \hat{\pmb{V}}_{vent,int,n} )
+            + \frac{ \pmb{G}_{sh,frt} \cdot \pmb{C}_{sh,frt} }{ ( \pmb{C}_{sh,frt} + \Delta t \cdot \pmb{G}_{sh,frt} ) }
         \end{split}
-        \tag{17}
+        \tag{23}
     \end{align*}
 
-    # ステップnにおける室iの外からの換気量, m3/s, [i, 1]
-    # 機械換気量・すきま風量・自然風利用時の換気量との合計である。
-    v_out_vent_is_n = v_leak_is_n + v_mec_vent_is_n + v_ntrl_vent_is_n
+係数 :math:`\pmb{F}_{BRC,n}` は、式(24)により表される。
 
-    # 室iの自然風利用による換気量, m3/s, [i, 1]
-    # 自然風を利用していない場合は、0.0 m3/s になる。
-    v_ntrl_vent_is_n = np.where(operation_mode_is_n == OperationMode.STOP_OPEN, ss.v_ntrl_vent_is, 0.0)
+.. math::
+    :nowrap:
 
-    # ステップn+1の境界jにおける係数WSV, degree C, [j, 1]
-    wsv_js_n_pls = np.dot(ss.ivs_ax_js_js, cvl_js_n_pls)
+    \begin{align*}
+        \begin{split}
+            \pmb{F}_{BRC,n}
+            & = \frac{ \pmb{C}_{rm} \cdot \pmb{\theta}_{r,n} }{\Delta t}
+            + \pmb{p}_{ij} \cdot \pmb{h}_{s,c} \cdot \pmb{A}_s \cdot (\pmb{F}_{WSC,n+1} + \pmb{F}_{WSV,n+1}) \\
+            & + c_a \cdot \rho_a \cdot \hat{\pmb{V}}_{vent,out,n} \cdot \pmb{\theta}_{o,n+1} \\
+            & + \hat{\pmb{q}}_{gen,n} + \hat{\pmb{q}}_{hum,n} \\
+            & + \frac{ \pmb{G}_{sh,frt} \cdot ( \pmb{C}_{sh,frt} \cdot \pmb{\theta}_{frt,n} + \Delta t \cdot \hat{\pmb{q}}_{sol,frt,n} ) }
+            { \pmb{C}_{sh,frt} + \Delta t \cdot \pmb{G}_{sh,frt} }
+        \end{split}
+        \tag{24}
+    \end{align*}
 
-    # ステップn+1の境界jにおける係数CVL, degree C, [j, 1]
-    cvl_js_n_pls = np.sum(theta_dsh_srf_t_js_ms_n_pls + theta_dsh_srf_a_js_ms_n_pls, axis=1, keepdims=True)
+ここで、
 
-    # ステップn+1の境界jにおける項別公比法の指数項mの貫流応答の項別成分, degree C, [j, m] (m=12)
-    theta_dsh_srf_t_js_ms_n_pls = ss.phi_t1_js_ms * theta_rear_js_n + ss.r_js_ms * c_n.theta_dsh_srf_t_js_ms_n
+:math:`\pmb{C}_{rm}`
+    | :math:`C_{rm,i}` を要素にもつ :math:`I \times I` の対角化行列, J / K
+:math:`\pmb{h}_c`
+    | :math:`h_{c,j}` を要素にもつ :math:`J \times J` の対角化行列, W / |m2| K
+:math:`\hat{\pmb{V}}_n`
+    | :math:`V_{i,n}` を要素にもつ :math:`I \times I` の対角化行列, |m3| |s-1|
+:math:`\hat{\pmb{V}}_{vent,out,n}`
+    | :math:`\hat{V}_{vent,out,i,n}` を要素にもつ :math:`I \times 1` の縦行列, |m3| |s-1|
+:math:`\hat{\pmb{V}}_{vent,int,n}`
+    | :math:`\hat{V}_{vent,int,i,i*,n}` を要素にもつ :math:`I \times I` の行列, |m3| |s-1|
+:math:`\pmb{G}_{frt}`
+    | :math:`G_{frt,i}` を要素にもつ :math:`I \times I` の対角化行列, W / K
+:math:`\pmb{C}_{frt}`
+    | :math:`C_{frt,i}` を要素にもつ :math:`I \times I` の対角化行列, J / K
+:math:`\pmb{\theta}_{o,n}`
+    | :math:`I \times 1` の縦行列であり、 :math:`\theta_{o,i,n} = \theta_{o,n}` , ℃
+:math:`\hat{\pmb{q}}_{gen,n}`
+    | :math:`\hat{q}_{gen,i,n}` を要素にもつ :math:`I \times 1` の縦行列, W
+:math:`\hat{\pmb{q}}_{hum,n}`
+    | :math:`\hat{q}_{hum,i,n}` を要素にもつ :math:`I \times 1` の縦行列, W
+:math:`\pmb{\theta}_{frt,n}`
+    | :math:`\theta_{frt,i,n}` を要素にもつ :math:`I \times 1` の縦行列, ℃
 
-    # ステップn+1の境界jにおける項別公比法の指数項mの吸熱応答の項別成分, degree C, [j, m] (m=12)
-    theta_dsh_srf_a_js_ms_n_pls = ss.phi_a1_js_ms * c_n.q_srf_js_n + ss.r_js_ms * c_n.theta_dsh_srf_a_js_ms_n
+であり、
 
-    # ステップnの室iにおけるすきま風量, m3/s, [i, 1]
-    v_leak_is_n = ss.get_infiltration(theta_r_is_n=c_n.theta_r_is_n, theta_o_n=ss.theta_o_ns[n])
+:math:`C_{rm,i}`
+    | 室 |i| の空気の熱容量, J / K
+:math:`h_{c,j}`
+    | 境界 |j| の室内側対流熱伝達率, W / |m2| K
+:math:`c_a`
+    | 空気の比熱, J / kg K
+:math:`\rho_a`
+    | 空気の密度, kg / |m3|
+:math:`\hat{V}_{vent,out,i,n}`
+    | ステップ |n| からステップ |n+1| における室 |i| の換気・すきま風・自然風の利用による外気の流入量, |m3| |s-1|
+:math:`\hat{V}_{vent,int,i,i*,n}`
+    | ステップ |n| からステップ |n+1| における室 |i*| から室 |i| への室間の空気移動量, |m3| |s-1|
+:math:`G_{frt,i}`
+    | 室 |i| における家具と空気間の熱コンダクタンス, W / K
+:math:`C_{frt,i}`
+    | 室 |i| に設置された家具の熱容量, J / K
+:math:`\theta_{o,n}`
+    | ステップ |n| における外気温度, ℃
+:math:`\hat{q}_{gen,i,n}`
+    | ステップ |n| からステップ |n+1| における室 |i| の人体発熱を除く内部発熱, W
+:math:`\hat{q}_{hum,i,n}`
+    | ステップ |n| からステップ |n+1| における室 |i| の人体発熱, W
+:math:`\theta_{frt,i,n}`
+    | ステップ |n| における室 |i| に設置された家具の温度, ℃
 
-    # ステップnの室iにおける人体発湿, kg/s, [i, 1]
-    x_hum_is_n = x_hum_psn_is_n * n_hum_is_n
+である。
 
-    # ステップnの室iにおける1人あたりの人体発湿, kg/s, [i, 1]
-    x_hum_psn_is_n = occupants.get_x_hum_psn_is_n(theta_r_is_n=c_n.theta_r_is_n)
 
-    # ステップnの室iにおける人体発熱, W, [i, 1]
-    q_hum_is_n = q_hum_psn_is_n * n_hum_is_n
+ステップ |n| からステップ |n+1| における室 |i| の換気・すきま風・自然風の利用による外気の流入量 :math:`V_{vent,out,i,n}` は、式(25)により表される。
 
-    # ステップnの室iにおける1人あたりの人体発熱, W, [i, 1]
-    q_hum_psn_is_n = occupants.get_q_hum_psn_is_n(theta_r_is_n=c_n.theta_r_is_n)
+.. math::
+    :nowrap:
 
-    # ステップnの境界jにおける裏面温度, degree C, [j, 1]
-    theta_rear_js_n = np.dot(ss.k_ei_js_js, c_n.theta_ei_js_n) + theta_dstrb_js_n
+    \begin{align*}
+        \hat{V}_{vent,out,i,n} = \hat{V}_{leak,i,n} + \hat{V}_{vent,mec,i,n} + \hat{V}_{vent,ntr,i,n}
+        \tag{25}
+    \end{align*}
 
-    # ステップnにおける室iの状況（在室者周りの総合熱伝達率・運転状態・Clo値・目標とする作用温度）を取得する
-    #     ステップnにおける室iの在室者周りの対流熱伝達率, W / m2K, [i, 1]
-    #     ステップnにおける室iの在室者周りの放射熱伝達率, W / m2K, [i, 1]
-    #     ステップnの室iにおける運転モード, [i, 1]
-    #     ステップnの室iにおける目標作用温度下限値, [i, 1]
-    #     ステップnの室iにおける目標作用温度上限値, [i, 1]
-    #     ステップnの室iの在室者周りの風速, m/s, [i, 1]
-    #     ステップnの室iにおけるClo値, [i, 1]
-    #     ステップnの室iにおける目標作用温度, degree C, [i, 1]
-    h_hum_c_is_n, h_hum_r_is_n, operation_mode_is_n, theta_lower_target_is_n_pls, theta_upper_target_is_n_pls, remarks_is_n \
-        = ss.get_ot_target_and_h_hum(
-            x_r_is_n=c_n.x_r_is_n,
-            operation_mode_is_n_mns=c_n.operation_mode_is_n,
-            theta_r_is_n=c_n.theta_r_is_n,
-            theta_mrt_hum_is_n=c_n.theta_mrt_hum_is_n,
+ここで、
 
-            ac_demand_is_n=ac_demand_is_n
-        )
+:math:`\hat{V}_{leak,i,n}`
+    | ステップ |n| からステップ |n+1| における室 |i| のすきま風量, |m3| |s-1|
+:math:`\hat{V}_{vent,mec,i,n}`
+    | ステップ |n| からステップ |n+1| における室 |i| の機械換気量（全般換気量と局所換気量の合計値）, |m3| |s-1|
+:math:`\hat{V}_{vent,ntr,i,n}`
+    | ステップ |n| からステップ |n+1| における室 |i| の自然風利用による換気量, |m3| |s-1|
+
+である。
+
+ステップ |n| からステップ |n+1| における室 |i| の自然風利用による換気量 :math:`\hat{V}_{vent,ntr,i,n}` は、
+ステップ |n| からステップ |n+1| における室 |i| の運転モードが「暖房・冷房停止で窓「開」」の場合は、
+
+.. math::
+    :nowrap:
+
+    \begin{align*}
+        \hat{V}_{vent,ntr,i,n} = \hat{V}_{vent,ntr,set,i} \tag {26a}
+    \end{align*}
+
+とし、それ以外の場合（運転モードが「暖房・冷房停止で窓「開」」でない場合）は、
+
+.. math::
+    :nowrap:
+
+    \begin{align*}
+        \hat{V}_{vent,ntr,i,n} = 0 \tag {26b}
+    \end{align*}
+
+とする。
+ここで、
+
+:math:`\hat{V}_{vent,ntr,set,i}`
+    | 室 |i| の自然風利用時の換気量, |m3| |s-1|
+
+である。
+
+係数 \pmb{F}_{WSV,n+1} は、式(27)により表される。
+
+.. math::
+    :nowrap:
+
+    \begin{align*}
+        \pmb{f}_{WSV,n+1} = \pmb{f}_{AX}^{-1} \cdot \pmb{f}_{CVL,n+1} \tag {27}
+    \end{align*}
+
+:math:`\pmb{f}_{CVL,n}`
+    | :math:`f_{CVL,j,n}` を要素にもつ :math:`J \times 1` で表される縦行列, ℃
+
+
+係数 :math:`f_{CVL,j,n+1}` は、式(28)により表される。
+
+.. math::
+    :nowrap:
+
+    \begin{align*}
+        f_{CVL,j,n+1} = \sum_{m=1}^{M}{\theta'_{s,a,j,m,n+1}} + \sum_{m=1}^{M}{\theta_{s,t,j,m,n+1}}
+        \tag{28}
+    \end{align*}
+
+ここで、
+
+:math:`\theta'_{s,a,j,m,n+1}`
+    | ステップ |n+1| における境界 |j| の項別公比法の指数項 |m| の吸熱応答の項別成分, ℃
+:math:`\theta'_{s,t,j,m,n+1}`
+    | ステップ |n+1| における境界 |j| の項別公比法の指数項 |m| の貫流応答の項別成分, ℃
+
+である。 :math:`M` は項別公比法の指数項の数である。
+
+ステップ |n+1| における境界 |j| の項別公比法の指数項 |m| の吸熱応答の項別成分 :math:`\theta'_{s,a,j,m,n+1}` 及び、
+ステップ |n+1| における境界 |j| の項別公比法の指数項 |m| の貫流応答の項別成分 :math:`\theta'_{s,t,j,m,n+1}` は、
+式(29)及び式(30)により表される。
+
+.. math::
+    :nowrap:
+
+    \begin{align*}
+        \theta'_{s,a,j,m,n+1} = q_{s,j,n} \cdot \phi_{a1,j,m} + r_{j,m} \cdot \theta'_{s,a,j,m,n}
+        \tag{29}
+    \end{align*}
+
+.. math::
+    :nowrap:
+
+    \begin{align*}
+        \theta'_{s,t,j,m,n+1} = \theta_{rear,j,n} \cdot \phi_{t1,j,m} + r_{j,m} \cdot \theta'_{s,t,j,m,n}
+        \tag{30}
+    \end{align*}
+
+ここで、
+
+:math:`\theta_{rear,j,n}`
+    | ステップ |n| における境界 |j| の裏面温度, ℃
+:math:`\phi_{a1,j,m}`
+    | 境界 |j| の項別公比法の指数項 |m| の吸熱応答係数, |m2| K / W
+:math:`\phi_{t1,j,m}`
+    | 境界 |j| の項別公比法の指数項 |m| の貫流応答係数, -
+:math:`r_{j,m}`
+    | 境界 |j| の項別公比法の指数項 |m| の公比, -
+
+である。
+
+ステップ |n| からステップ |n+1| における室 |i| のすきま風量 :math:`\hat{V}_{leak,i,n}` は、
+ステップ |n| における室 |i| の空気温度 :math:`\theta_{r,i,n}` 及びステップ |n| における外気温度 :math:`\theta_{o,n}`に依存して、
+??に示す方法により定まる。
+
+ステップ |n| からステップ |n+1| における室 |i| の人体発熱 :math:`\hat{q}_{hum,i,n}` は、式(31)により表される。
+
+.. math::
+    :nowrap:
+
+    \begin{align*}
+        \hat{q}_{hum,i,n} = \hat{q}_{hum,psn,i,n} \cdot \hat{n}_{hum,i,n}
+        \tag{31}
+    \end{align*}
+
+ここで、
+
+:math:`\hat{q}_{hum,psn,i,n}`
+    | ステップ |n| からステップ |n+1| における室 |i| の1人あたりの人体発熱, W
+:math:`\hat{n}_{hum,i,n}`
+    | ステップ |n| からステップ |n+1| における室 |i| の在室人数, -
+
+である。
+
+ステップ |n| からステップ |n+1| における室 |i| の1人あたりの人体発熱 :math:`\hat{q}_{hum,psn,i,n}` は、
+ステップ |n| における室 |i| の室温 :math:`\theta_{r,i,n}` に応じて??に示す方法により定まる。
+
+
+ステップ |n| における境界 |j| の裏面温度　:math:`\theta_{rear,j,n}` は、式(32)により表される。
+
+.. math::
+    :nowrap:
+
+    \begin{align*}
+        \pmb{\theta}_{rear,n} = \pmb{k}_{ei} \cdot \pmb{\theta}_{ei,n} + \pmb{\theta}_{dstrb,n}
+        \tag{32}
+    \end{align*}
+
+ここで、
+
+:math:`\pmb{\theta}_{rear,n}`
+    | :math:`\theta_{rear,j,n}` を要素にもつ :math:`J \times 1` の縦行列, ℃
+:math:`\pmb{k}_{ei}`
+    | :math:`k_{ei,j,j*}` を要素にもつ :math:`J \times J` の行列, -
+:math:`\pmb{\theta}_{dstrb,n}`
+    | :math:`\theta_{dstrb,j,n}` を要素にもつ :math:`J \times 1` の縦行列, ℃
+
+であり、
+
+:math:`\theta_{dstrb,j,n}`
+    | ステップ |n| の境界 |j| における外気側等価温度の外乱成分, ℃
+
+である。
+
+次に示す値、
+
+* ステップ |n| における室 |i| の人体表面の対流熱伝達率 :math:`h_{hum,c,i,n}`
+* ステップ |n| における室 |i| の人体表面の放射熱伝達率 :math:`h_{hum,r,i,n}`
+* ステップ |n| からステップ |n+1| における運転モード
+* ステップ |n+1| における室 |i| の作用温度下限値 :math:`\theta_{lower,target,i,n+1}`
+* ステップ |n+1| における室 |i| の作用温度上限値 :math:`\theta_{upper,target,i,n+1}`
+
+は、
+
+* ステップ |n| における室 |i| の温度 :math:`\theta_{r,i,n}`
+* ステップ |n| における室 |i| の絶対湿度 :math:`X_{r,i,n}`
+* ステップ |n-1| からステップ |n| における運転モード
+* ステップ |n| における室 |i| の人体の平均放射温度 :math:`\theta_{mrt,hum,i,n}`
+* ステップ |n| から |n+1| における室 |i| の空調需要 :math:`\hat{r}_{ac,demand,i,n}`
+
+に応じて、??に定める方法により計算される。
+
 
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 2) 繰り返し計算の前処理

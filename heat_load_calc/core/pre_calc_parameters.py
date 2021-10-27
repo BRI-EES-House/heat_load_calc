@@ -40,7 +40,7 @@ class PreCalcParameters:
     v_room_is: np.ndarray
 
     # 室iの熱容量, J/K, [i, 1]
-    c_room_is: np.ndarray
+    c_rm_is: np.ndarray
 
     # 室iの家具等の熱容量, J/K, [i, 1]
     c_sh_frt_is: np.ndarray
@@ -73,7 +73,7 @@ class PreCalcParameters:
     q_sol_frt_is_ns: np.ndarray
 
     # 室iの自然風利用時の換気量, m3/s, [i, 1]
-    v_ntrl_vent_is: np.ndarray
+    v_vent_ntr_set_is: np.ndarray
 
     # ステップnの室iにおける窓の透過日射熱取得, W, [8760*4]
     q_trs_sol_is_ns: np.ndarray
@@ -81,7 +81,7 @@ class PreCalcParameters:
     # endregion
 
     # 室iの隣室からの機械換気量, m3/s, [i, i]
-    v_int_vent_is_is: np.ndarray
+    v_vent_int_is_is: np.ndarray
 
     # 境界jの名前, [j]
     name_bdry_js: np.ndarray
@@ -98,11 +98,9 @@ class PreCalcParameters:
     # ステップnの境界jにおける外気側等価温度の外乱成分, degree C, [j, 8760*4]
     theta_dstrb_js_ns: np.ndarray
 
-    # BRM(換気なし), W/K, [i, i]
-    brm_non_vent_is_is: np.ndarray
-
     # 放射暖房対流比率, [i, 1]
-    beta_is: np.ndarray
+    beta_h_is: np.ndarray
+    beta_c_is: np.ndarray
 
     # === 境界jに関すること ===
 
@@ -147,7 +145,8 @@ class PreCalcParameters:
     f_wsr_js_is: np.ndarray
 
     # 床暖房の発熱部位？
-    flr_js_is: np.ndarray
+    flr_h_js_is: np.ndarray
+    flr_c_js_is: np.ndarray
 
     # WSC, W, [j, n]
     wsc_js_ns: np.ndarray
@@ -260,13 +259,13 @@ def make_pre_calc_parameters(
     v_vent_ex_is = (np.array([rm['ventilation']['mechanical'] for rm in rms]) / 3600).reshape(-1, 1)
 
     # 室iの隣室iからの機械換気量, m3/s, [i, i]
-    v_int_vent_is_is = _get_v_int_vent_is_is(
+    v_vent_int_is_is = _get_v_vent_int_is_is(
         next_vent_is_ks=[rm['ventilation']['next_spaces'] for rm in rms]
     )
 
     # 室iの自然風利用時の換気量, m3/s, [i, 1]
     # 入力は m3/h なので、3600 で除して m3/s への変換を行っている。
-    v_ntrl_vent_is = np.array([s['ventilation']['natural'] / 3600 for s in rms]).reshape(-1, 1)
+    v_vent_ntr_set_is = np.array([s['ventilation']['natural'] / 3600 for s in rms]).reshape(-1, 1)
 
     # 家具に関する物性値を取得する。
     #   室iの家具等の熱容量, J/K, [i, 1]
@@ -431,6 +430,8 @@ def make_pre_calc_parameters(
     # 室iに設置された放射暖房の対流成分比率, [i, 1]
     # TODO: 入力ファイルから与えられるのではなく、設備の入力情報から計算するべき。
     beta_is = np.array([s['beta'] for s in rms]).reshape(-1, 1)
+    beta_h_is = beta_is
+    beta_c_is = beta_is
 
     # 境界jの面積, m2, [j, 1]
     a_srf_js = np.array([bs.area for bs in bss]).reshape(-1, 1)
@@ -480,6 +481,8 @@ def make_pre_calc_parameters(
 
     # 室iに設置された放射暖房の放熱量のうち放射成分に対する境界jの室内側吸収比率, [j, i]
     flr_js_is_ns = p_js_is * flr_js[:, np.newaxis]
+    flr_h_js_is = flr_js_is_ns
+    flr_c_js_is = flr_js_is_ns
 
     # 室iの空気の熱容量, J/K, [i, 1]
     c_rm_is = v_rm_is * get_rho_air() * get_c_air()
@@ -547,11 +550,6 @@ def make_pre_calc_parameters(
     # WSC, degree C, [j, n]
     wsc_js_ns = np.dot(ivs_ax_js_js, crx_js_ns)
 
-    # BRM(換気なし), W/K, [i, i]
-    brm_non_vent_is_is = np.diag(c_rm_is.flatten() / delta_t)\
-        + np.dot(p_is_js, (p_js_is - wsr_js_is) * a_srf_js * h_c_js)\
-        + np.diag((c_sh_frt_is * g_sh_frt_is / (c_sh_frt_is + g_sh_frt_is * delta_t)).flatten())
-
     # 年平均外気温度, degree C
     # 地盤計算の時の深部温度に用いる
     theta_o_ave = np.average(theta_o_ns)
@@ -598,12 +596,12 @@ def make_pre_calc_parameters(
         id_space_is=id_rm_is,
         name_space_is=name_rm_is,
         v_room_is=v_rm_is,
-        c_room_is=c_rm_is,
+        c_rm_is=c_rm_is,
         c_sh_frt_is=c_sh_frt_is,
         c_lh_frt_is=c_lh_frt_is,
         g_sh_frt_is=g_sh_frt_is,
         g_lh_frt_is=g_lh_frt_is,
-        v_int_vent_is_is=v_int_vent_is_is,
+        v_vent_int_is_is=v_vent_int_is_is,
         name_bdry_js=name_js,
         sub_name_bdry_js=sub_name_js,
         a_s_js=a_srf_js,
@@ -620,17 +618,18 @@ def make_pre_calc_parameters(
         phi_t1_js_ms=phi_t1_js_ms,
         phi_a1_js_ms=phi_a1_js_ms,
         q_trs_sol_is_ns=q_trs_sol_is_ns,
-        v_ntrl_vent_is=v_ntrl_vent_is,
+        v_vent_ntr_set_is=v_vent_ntr_set_is,
         ac_demand_is_ns=ac_demand_is_ns,
-        flr_js_is=flr_js_is_ns,
+        flr_h_js_is=flr_h_js_is,
+        flr_c_js_is=flr_c_js_is,
         h_s_r_js=h_r_js,
         h_s_c_js=h_c_js,
         f_dsh_mrt_js_js=f_dsh_mrt_js_js,
         q_sol_js_ns=q_sol_js_ns,
         q_sol_frt_is_ns=q_sol_frt_is_ns,
-        beta_is=beta_is,
+        beta_h_is=beta_h_is,
+        beta_c_is=beta_c_is,
         f_wsr_js_is=wsr_js_is,
-        brm_non_vent_is_is=brm_non_vent_is_is,
         ivs_f_ax_js_js=ivs_ax_js_js,
         p_is_js=p_is_js,
         p_js_is=p_js_is,
@@ -666,7 +665,7 @@ def make_pre_calc_parameters(
     return pre_calc_parameters, pre_calc_parameters_ground
 
 
-def _get_v_int_vent_is_is(next_vent_is_ks: List[List[dict]]) -> np.ndarray:
+def _get_v_vent_int_is_is(next_vent_is_ks: List[List[dict]]) -> np.ndarray:
     """
     隣室iから室iへの機械換気量マトリクスを生成する。
     Args:
@@ -684,15 +683,17 @@ def _get_v_int_vent_is_is(next_vent_is_ks: List[List[dict]]) -> np.ndarray:
                 室3→室1:1.5
                 室3→室2:1.0
             の場合、
-                [[0.0, 0.0, 0.0,  0.0],
-                 [3.0, 0.0, 0.0,  1.5],
-                 [4.0, 3.0, 0.0,  1.0],
-                 [0.0, 0.0, 0.0,  0.0]]
+                [[0.0,  0.0,  0.0,  0.0],
+                 [3.0, -4.5,  0.0,  1.5],
+                 [4.0,  3.0, -8.0,  1.0],
+                 [0.0,  0.0,  0.0,  0.0]]
+    Note:
+        2021/10/25 対角要素に流出側の流量をいれるように定義を変更した。
     """
 
     n_rooms = len(next_vent_is_ks)
 
-    # 隣室iから室iへの換気量マトリックス, m3/s [i, i]
+    # 隣室iから室iへの換気量マトリックス（流入側のみ）, m3/s [i, i]
     v_int_vent_is_is = np.zeros((n_rooms, n_rooms), dtype=float)
 
     # 室iのループ（風下室ループ）
@@ -707,9 +708,17 @@ def _get_v_int_vent_is_is(next_vent_is_ks: List[List[dict]]) -> np.ndarray:
             # 入力は m3/h なので、3600 で除して m3/s への変換を行っている。
             volume = next_vent_i_k['volume'] / 3600
 
-            # 風上側
+            # 風上側の部屋IDが自分の部屋IDではないことのチェック
             if i != idx:
+                # 流入側（プラス）
                 v_int_vent_is_is[i, idx] += volume
+                # 流出側（マイナス）
+                v_int_vent_is_is[i, i] -= volume
+            else:
+                raise Exception
+
+    # 対角要素に流出する換気量を設定する。
+#    v_vent_nxt_is_is = v_int_vent_is_is - np.diag(v_int_vent_is_is.sum(axis=1))
 
     return v_int_vent_is_is
 
