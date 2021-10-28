@@ -37,7 +37,7 @@ class PreCalcParameters:
     name_space_is: List[str]
 
     # 室iの容積, m3, [i, 1]
-    v_room_is: np.ndarray
+    v_rm_is: np.ndarray
 
     # 室iの熱容量, J/K, [i, 1]
     c_rm_is: np.ndarray
@@ -591,7 +591,7 @@ def make_pre_calc_parameters(
         n_spaces=n_rm,
         id_space_is=id_rm_is,
         name_space_is=name_rm_is,
-        v_room_is=v_rm_is,
+        v_rm_is=v_rm_is,
         c_rm_is=c_rm_is,
         c_sh_frt_is=c_sh_frt_is,
         c_lh_frt_is=c_lh_frt_is,

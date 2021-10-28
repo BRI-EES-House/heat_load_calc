@@ -45,15 +45,31 @@ I. 評価法
 :math:`l_{wtr}`
     | 水の蒸発潜熱, J/kg
 :math:`f_{h,wgt,i,i*,n}`
-    | 潜熱バランスに関する係数, kg/(s(kg/kg(DA)))
+    | ステップ |n| における室 |i*| の絶対湿度が室 |i| の潜熱バランスに与える影響を表す係数, kg/(s(kg/kg(DA)))
 :math:`f_{h,cst,i,n}`
-    | 潜熱バランスに関する係数, kg/s
+    | ステップ |n| における室 |i| の潜熱バランスに関する係数, kg/s
 :math:`\hat{L}_{CS,i,n}`
     | ステップ |n| からステップ |n+1| における室 |i| の顕熱負荷（暖房を正・冷房を負とする）, W
 :math:`\theta_{r,i,n+1}`
     | ステップ |n+1| における室 |i| の温度, ℃
 :math:`X_{r,ntr,i,n+1}`
     | ステップ |n+1| における室 |i| の加湿・除湿を行わない場合の絶対湿度, kg/kg(DA)
+:math:`\rho_a`
+    | 空気の密度, kg/|m3|
+:math:`V_{rm,i}`
+    | 室 |i| の容積, |m3|
+:math:`\Delta t`
+    | 1ステップの時間間隔, s
+:math:`\hat{V}_{vent,out,i,n}`
+    | ステップ |n| から ステップ |n+1| における室 |i| の換気・すきま風・自然風の利用による外気の流入量, |m3|/s
+:math:`\hat{V}_{vent,int,i,i*,n}`
+    | ステップ |n| から ステップ |n+1| における室 |i*| から室 |i| への室間の機械換気量（流出換気量を含む）, |m3|/s
+:math:`X_{o,n}`
+    | ステップ |n| における外気絶対湿度, kg/kg(DA)
+:math:`\hat{X}_{gen,i,n}`
+    | ステップ |n| からステップ |n+1| における室 |i| の人体発湿を除く内部発湿, kg/s
+:math:`\hat{X}_{hum,i,n}`
+    | ステップ |n| からステップ |n+1| における室 |i| の人体発湿, kg/s
 
 
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -136,14 +152,43 @@ I. 評価法
 ステップ |n+1| における室 |i| の加湿・除湿を行わない場合の絶対湿度 :math:`X_{r,ntr,i,n+1}` に応じて定まり、
 その計算方法を????に示す。
 
-ステップ |n+1| における室 |i| の加湿・除湿を行わない場合の絶対湿度 :math:`X_{r,ntr,i,n+1}` は式(1-4)で表される。
+ステップ |n+1| における室 |i| の加湿・除湿を行わない場合の絶対湿度 :math:`X_{r,ntr,i,n+1}` は、式(1-4)により表される。
 
 .. math::
     :nowrap:
 
     \begin{align*}
-        \pmb{X}_{r,ntr,n+1}　= \pmb{F}_{h,wgt,n}^{-1} \cdot \pmb{F}_{h,cst,n}
+        \pmb{X}_{r,ntr,n+1}　= \pmb{f}_{h,wgt,n}^{-1} \cdot \pmb{f}_{h,cst,n}
         \tag{1-4}
     \end{align*}
+
+ステップ |n| における室 |i*| の絶対湿度が室 |i| の潜熱バランスに与える影響を表す係数 :math:`f_{h,wgt,i,i*,n}` は、
+式(1-5)により表される。
+
+.. math::
+    :nowrap:
+
+    \begin{align*}
+        f_{h,wgt,i,i*,n}
+        &= \left( \rho_a \cdot \left( \frac{ V_{rm,i} }{ \Delta t } + \hat{V}_{vent,out,i,n} \right) + \frac{ G_{lh,frt,i} \cdot C_{lh,frt,i} }{ C_{lh,frt,i} + \Delta t \cdot G_{lh,frt,i} } \right) \cdot \delta_{ii*} \\
+    	&- \rho_a \cdot \hat{V}_{vent,int,i,i*}
+        \tag{1-5}
+    \end{align*}
+
+ステップ |n| における室 |i| の潜熱バランスに関する係数 :math:`f_{h,cst,i,n}` は式(1-6)で表される。
+
+.. math::
+    :nowrap:
+
+    \begin{align*}
+        f_{h,cst,i,n}
+        &= \rho_a \cdot \frac{ V_{rm,i} }{ \Delta t } \cdot X_{r,i,n}
+        + \rho_a \cdot \hat{V}_{vent,out,i,n} \cdot X_{o,n+1} \\
+	    &+ \frac{G_{lh,frt,i} \cdot C_{lh,frt,i} }{ C_{lh,frt,i} + \Delta t \cdot G_{lh,frt,i} } \cdot X_{frt,i,n}
+        + \hat{X}_{gen,i,n} + \hat{X}_{hum,i,n}
+        \tag{1-6}
+    \end{align*}
+
+
 
 
