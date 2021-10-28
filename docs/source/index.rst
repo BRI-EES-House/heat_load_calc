@@ -11,5 +11,6 @@
    :maxdepth: 2
 
    /contents/notes
+   /contents/core_main
    /contents/heat_balance
    /contents/humidity_balance
