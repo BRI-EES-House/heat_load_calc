@@ -222,20 +222,21 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
         get_rho_air() * (ss.v_room_is / delta_t + v_vent_out_is_n)
         + ss.c_lh_frt_is * ss.g_lh_frt_is / (ss.c_lh_frt_is + delta_t * ss.g_lh_frt_is)
     ) - get_rho_air() * ss.v_vent_int_is_is
+
+    c_lh_frt_is = ss.c_lh_frt_is
+    g_lh_frt_is = ss.g_lh_frt_is
+    x_frt_is_n = c_n.x_frt_is_n
+    l_wtr = get_l_wtr()
+
     # ステップ n における室iの湿度に関する係数 F_{h,cst}, kg/s, [i, 1]
     # 繰り返し計算（湿度と潜熱） eq.11
     f_h_cst_is_n = get_rho_air() * ss.v_room_is / delta_t * c_n.x_r_is_n \
                    + get_rho_air() * v_vent_out_is_n * pls \
                    + ss.c_lh_frt_is * ss.g_lh_frt_is / (ss.c_lh_frt_is + delta_t * ss.g_lh_frt_is) * c_n.x_frt_is_n \
                    + x_gen_is_n + x_hum_is_n
-    # ステップ n+1 における室 i の加湿・除湿を行わない場合の絶対湿度, kg/kg(DA) [i]
-    # 繰り返し計算（湿度と潜熱） eq.6
-    x_r_ntr_is_n_pls = np.dot(np.linalg.inv(f_h_wgt_is_is_n), f_h_cst_is_n)
 
-    c_lh_frt_is = ss.c_lh_frt_is
-    g_lh_frt_is = ss.g_lh_frt_is
-    x_frt_is_n = c_n.x_frt_is_n
-    l_wtr = get_l_wtr()
+    # ステップ n+1 における室 i の加湿・除湿を行わない場合の絶対湿度, kg/kg(DA) [i, 1]
+    x_r_ntr_is_n_pls = get_x_r_ntr_is_n_pls(f_h_cst_is_n=f_h_cst_is_n, f_h_wgt_is_is_n=f_h_wgt_is_is_n)
 
     # ステップ n+1 における室 i∗ の絶対湿度がステップ n から n+1 における室 i の潜熱負荷に与える影響を表す係数, kg/(s (kg/kg(DA))), [i, i*]
     # ステップ n から n+1 における室 i の潜熱負荷に与える影響を表す係数, kg/s, [i, 1]
@@ -379,3 +380,18 @@ def get_x_r_is_n_pls(f_h_cst_is_n, f_h_wgt_is_is_n, f_l_cl_cst_is_n, f_l_cl_wgt_
     return np.dot(np.linalg.inv(f_h_wgt_is_is_n - f_l_cl_wgt_is_is_n), f_h_cst_is_n + f_l_cl_cst_is_n)
 
 
+def get_x_r_ntr_is_n_pls(f_h_cst_is_n, f_h_wgt_is_is_n):
+    """
+
+    Args:
+        f_h_cst_is_n:
+        f_h_wgt_is_is_n:
+
+    Returns:
+        ステップ n+1 における室 i の加湿・除湿を行わない場合の絶対湿度, kg/kg(DA) [i, 1]
+    Notes:
+        式(1-4)
+
+    """
+
+    return np.dot(np.linalg.inv(f_h_wgt_is_is_n), f_h_cst_is_n)
