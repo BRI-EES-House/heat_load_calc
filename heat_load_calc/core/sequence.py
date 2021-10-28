@@ -237,22 +237,9 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
     x_frt_is_n = c_n.x_frt_is_n
     l_wtr = get_l_wtr()
 
-    # ==== ルームエアコン吹出絶対湿度の計算 ====
-    # 顕熱負荷・室内温度・除加湿を行わない場合の室絶対湿度から、除加湿計算に必要な係数 la 及び lb を計算する。
-    # 下記、変数 l は、係数 la と lb のタプルであり、変数 ls は変数 l のリスト。
-    ls = [
-        f(lcs_is_n=l_cs_is_n, theta_r_is_n_pls=theta_r_is_n_pls, x_r_ntr_is_n_pls=x_r_ntr_is_n_pls)
-        for f in ss.dehumidification_funcs
-    ]
-    # 係数 la と 係数 lb をタプルから別々に取り出す。
-    ls_a = np.array([l[0] for l in ls])
-    ls_b = np.array([l[1] for l in ls])
-    # 係数 la 及び lb それぞれ合計する。
-    # la [i,i] kg/s(kg/kg(DA))
-    # lb [i,1] kg/kg(DA)
-    # TODO: La は正負が仕様書と逆になっている
-    f_l_cl_wgt_is_is_n = - ls_a.sum(axis=0)
-    f_l_cl_cst_is_n = ls_b.sum(axis=0)
+    # ステップ n+1 における室 i∗ の絶対湿度がステップ n から n+1 における室 i の潜熱負荷に与える影響を表す係数, kg/(s (kg/kg(DA))), [i, i*]
+    # ステップ n から n+1 における室 i の潜熱負荷に与える影響を表す係数, kg/s, [i, 1]
+    f_l_cl_cst_is_n, f_l_cl_wgt_is_is_n = ss.get_f_l_cl(l_cs_is_n=l_cs_is_n, theta_r_is_n_pls=theta_r_is_n_pls, x_r_ntr_is_n_pls=x_r_ntr_is_n_pls)
 
     # ステップ n+1 における室 i の 絶対湿度, kg/kg(DA), [i, 1]
     x_r_is_n_pls = get_x_r_is_n_pls(f_h_cst_is_n=f_h_cst_is_n, f_h_wgt_is_is_n=f_h_wgt_is_is_n, f_l_cl_cst_is_n=f_l_cl_cst_is_n, f_l_cl_wgt_is_is_n=f_l_cl_wgt_is_is_n)
@@ -309,6 +296,26 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
         x_frt_is_n=x_frt_is_n_pls,
         theta_ei_js_n=theta_ei_js_n_pls
     )
+
+
+def get_f_l_cl(l_cs_is_n, ss, theta_r_is_n_pls, x_r_ntr_is_n_pls):
+    # ==== ルームエアコン吹出絶対湿度の計算 ====
+    # 顕熱負荷・室内温度・除加湿を行わない場合の室絶対湿度から、除加湿計算に必要な係数 la 及び lb を計算する。
+    # 下記、変数 l は、係数 la と lb のタプルであり、変数 ls は変数 l のリスト。
+    ls = [
+        f(lcs_is_n=l_cs_is_n, theta_r_is_n_pls=theta_r_is_n_pls, x_r_ntr_is_n_pls=x_r_ntr_is_n_pls)
+        for f in ss.dehumidification_funcs
+    ]
+    # 係数 la と 係数 lb をタプルから別々に取り出す。
+    ls_a = np.array([l[0] for l in ls])
+    ls_b = np.array([l[1] for l in ls])
+    # 係数 la 及び lb それぞれ合計する。
+    # la [i,i] kg/s(kg/kg(DA))
+    # lb [i,1] kg/kg(DA)
+    # TODO: La は正負が仕様書と逆になっている
+    f_l_cl_wgt_is_is_n = - ls_a.sum(axis=0)
+    f_l_cl_cst_is_n = ls_b.sum(axis=0)
+    return f_l_cl_cst_is_n, f_l_cl_wgt_is_is_n
 
 
 def get_x_frt_is_n_pls(c_lh_frt_is, delta_t: float, g_lh_frt_is, x_frt_is_n, x_r_is_n_pls):

@@ -169,7 +169,7 @@ class PreCalcParameters:
 
     calc_next_temp_and_load: Callable
 
-    dehumidification_funcs: [Callable]
+    get_f_l_cl: [Callable]
 
 
 @dataclass
@@ -585,11 +585,7 @@ def make_pre_calc_parameters(
 
     # endregion
 
-    dehumidification_funcs = [
-        humidification.make_dehumidification_function(
-            n_room=n_rm, equipment_type=equipment['equipment_type'], prop=equipment['property']
-        ) for equipment in cooling_equipments
-    ]
+    get_f_l_cl = humidification.make_get_f_l_cl_funcs(n_rm, cooling_equipments)
 
     pre_calc_parameters = PreCalcParameters(
         n_spaces=n_rm,
@@ -642,7 +638,7 @@ def make_pre_calc_parameters(
         get_ot_target_and_h_hum=get_ot_target_and_h_hum,
         get_infiltration=get_infiltration,
         calc_next_temp_and_load=calc_next_temp_and_load,
-        dehumidification_funcs=dehumidification_funcs
+        get_f_l_cl=get_f_l_cl
     )
 
     # 地盤の数
