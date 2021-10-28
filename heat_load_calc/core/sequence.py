@@ -41,9 +41,6 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
     # ステップnの室iにおける人体発熱を除く内部発熱, W, [i, 1]
     q_gen_is_n = ss.q_gen_is_ns[:, n].reshape(-1, 1)
 
-    # ステップnの室iにおける人体発湿を除く内部発湿, kg/s, [i, 1]
-    x_gen_is_n = ss.x_gen_is_ns[:, n].reshape(-1, 1)
-
     # ステップn+1の境界jにおける係数 WSC, degree C, [j, 1]
     f_wsc_js_n_pls = ss.wsc_js_ns[:, n + 1].reshape(-1, 1)
 
@@ -53,6 +50,8 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
     # 家具の吸収日射量, W, [i, 1]
     # TODO: ここの左辺、右辺日射量はn+1とすべき？
     q_sol_frt_is_n = ss.q_sol_frt_is_ns[:, n].reshape(-1, 1)
+
+    x_r_is_n = c_n.x_r_is_n
 
     # ステップnにおける室iの状況（在室者周りの総合熱伝達率・運転状態・Clo値・目標とする作用温度）を取得する
     #     ステップnにおける室iの在室者周りの対流熱伝達率, W / m2K, [i, 1]
@@ -111,6 +110,10 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
         + ss.g_sh_frt_is * (
             ss.c_sh_frt_is * c_n.theta_frt_is_n + ss.q_sol_frt_is_ns[:, n].reshape(-1, 1) * delta_t
         ) / (ss.c_sh_frt_is + delta_t * ss.g_sh_frt_is)
+
+    v_vent_int_is_is = ss.v_vent_int_is_is
+
+    rho_air = get_rho_air()
 
     # ステップn+1における係数 BRM, W/K, [i, i], eq.(23)
     f_brm_is_is_n_pls = np.diag(ss.c_rm_is.flatten() / delta_t) \
@@ -212,14 +215,13 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
     # ステップnの室iにおける1人あたりの人体発湿, kg/s, [i, 1]
     x_hum_psn_is_n = occupants.get_x_hum_psn_is_n(theta_r_is_n=c_n.theta_r_is_n)
 
-    x_r_is_n = c_n.x_r_is_n
-    rho_air = get_rho_air()
-    v_vent_int_is_is = ss.v_vent_int_is_is
-
     # ステップnの室iにおける人体発湿, kg/s, [i, 1]
-    x_hum_is_n = x_hum_psn_is_n * n_hum_is_n
+    x_hum_is_n = get_x_hum_is_n(
+        n_hum_is_n=ss.n_hum_is_ns[:, n].reshape(-1, 1),
+        x_hum_psn_is_n=x_hum_psn_is_n
+    )
 
-    # ステップ n における室iの潜熱バランスに関する係数, kg/s, [i, 1]
+    # ステップ n における室　i　の潜熱バランスに関する係数, kg/s, [i, 1]
     f_h_cst_is_n = get_f_h_cst_is_n(
         c_lh_frt_is=ss.c_lh_frt_is,
         delta_t=delta_t,
@@ -228,7 +230,7 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
         v_rm_is=ss.v_rm_is,
         v_vent_out_is_n=v_vent_out_is_n,
         x_frt_is_n=c_n.x_frt_is_n,
-        x_gen_is_n=x_gen_is_n,
+        x_gen_is_n=ss.x_gen_is_ns[:, n].reshape(-1, 1),
         x_hum_is_n=x_hum_is_n,
         x_o_n_pls=ss.x_o_ns[n + 1],
         x_r_is_n=c_n.x_r_is_n
@@ -330,26 +332,6 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
         x_frt_is_n=x_frt_is_n_pls,
         theta_ei_js_n=theta_ei_js_n_pls
     )
-
-
-def get_f_l_cl(l_cs_is_n, ss, theta_r_is_n_pls, x_r_ntr_is_n_pls):
-    # ==== ルームエアコン吹出絶対湿度の計算 ====
-    # 顕熱負荷・室内温度・除加湿を行わない場合の室絶対湿度から、除加湿計算に必要な係数 la 及び lb を計算する。
-    # 下記、変数 l は、係数 la と lb のタプルであり、変数 ls は変数 l のリスト。
-    ls = [
-        f(lcs_is_n=l_cs_is_n, theta_r_is_n_pls=theta_r_is_n_pls, x_r_ntr_is_n_pls=x_r_ntr_is_n_pls)
-        for f in ss.dehumidification_funcs
-    ]
-    # 係数 la と 係数 lb をタプルから別々に取り出す。
-    ls_a = np.array([l[0] for l in ls])
-    ls_b = np.array([l[1] for l in ls])
-    # 係数 la 及び lb それぞれ合計する。
-    # la [i,i] kg/s(kg/kg(DA))
-    # lb [i,1] kg/kg(DA)
-    # TODO: La は正負が仕様書と逆になっている
-    f_l_cl_wgt_is_is_n = - ls_a.sum(axis=0)
-    f_l_cl_cst_is_n = ls_b.sum(axis=0)
-    return f_l_cl_cst_is_n, f_l_cl_wgt_is_is_n
 
 
 def get_x_frt_is_n_pls(c_lh_frt_is, delta_t: float, g_lh_frt_is, x_frt_is_n, x_r_is_n_pls):
@@ -487,3 +469,19 @@ def get_f_h_cst_is_n(c_lh_frt_is, delta_t, g_lh_frt_is, rho_air, v_rm_is, v_vent
         + x_gen_is_n + x_hum_is_n
 
 
+def get_x_hum_is_n(n_hum_is_n, x_hum_psn_is_n):
+    """
+
+    Args:
+        n_hum_is_n:
+        x_hum_psn_is_n:
+
+    Returns:
+        ステップnの室iにおける人体発湿, kg/s, [i, 1]
+
+    Notes:
+        式(1-7)
+
+    """
+
+    return x_hum_psn_is_n * n_hum_is_n
