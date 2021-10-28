@@ -1,18 +1,12 @@
 import numpy as np
-import json
-from functools import reduce
 
 from heat_load_calc.core.operation_mode import OperationMode
 from heat_load_calc.core.pre_calc_parameters import PreCalcParameters
 from heat_load_calc.core.conditions import Conditions
 from heat_load_calc.external.global_number import get_c_air, get_rho_air, get_l_wtr
 from heat_load_calc.core.log import Logger
-from heat_load_calc.core import next_condition
-from heat_load_calc.core import ot_target_pmv
-from heat_load_calc.core import humidification
 from heat_load_calc.core.matrix_method import v_diag
 from heat_load_calc.core import occupants
-from operator import add
 
 
 def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, logger: Logger, run_up: bool) -> Conditions:
@@ -47,9 +41,6 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
     # ステップnの室iにおける人体発熱を除く内部発熱, W, [i, 1]
     q_gen_is_n = ss.q_gen_is_ns[:, n].reshape(-1, 1)
 
-    # ステップnの室iにおける人体発湿を除く内部発湿, kg/s, [i, 1]
-    x_gen_is_n = ss.x_gen_is_ns[:, n].reshape(-1, 1)
-
     # ステップn+1の境界jにおける係数 WSC, degree C, [j, 1]
     f_wsc_js_n_pls = ss.wsc_js_ns[:, n + 1].reshape(-1, 1)
 
@@ -59,6 +50,8 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
     # 家具の吸収日射量, W, [i, 1]
     # TODO: ここの左辺、右辺日射量はn+1とすべき？
     q_sol_frt_is_n = ss.q_sol_frt_is_ns[:, n].reshape(-1, 1)
+
+    x_r_is_n = c_n.x_r_is_n
 
     # ステップnにおける室iの状況（在室者周りの総合熱伝達率・運転状態・Clo値・目標とする作用温度）を取得する
     #     ステップnにおける室iの在室者周りの対流熱伝達率, W / m2K, [i, 1]
@@ -118,6 +111,10 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
             ss.c_sh_frt_is * c_n.theta_frt_is_n + ss.q_sol_frt_is_ns[:, n].reshape(-1, 1) * delta_t
         ) / (ss.c_sh_frt_is + delta_t * ss.g_sh_frt_is)
 
+    v_vent_int_is_is = ss.v_vent_int_is_is
+
+    rho_air = get_rho_air()
+
     # ステップn+1における係数 BRM, W/K, [i, i], eq.(23)
     f_brm_is_is_n_pls = np.diag(ss.c_rm_is.flatten() / delta_t) \
         + np.dot(ss.p_is_js, (ss.p_js_is - ss.f_wsr_js_is) * ss.a_s_js * ss.h_s_c_js) \
@@ -174,7 +171,7 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
     # ステップ n+1 における室 i の作用温度, degree C, [i, 1] (ステップn+1における瞬時値）
     # ステップ n における室 i に設置された対流暖房の放熱量, W, [i, 1] (ステップn～ステップn+1までの平均値）
     # ステップ n における室 i に設置された放射暖房の放熱量, W, [i, 1]　(ステップn～ステップn+1までの平均値）
-    theta_ot_is_n_pls, l_sc_is_n, l_sr_is_n = ss.calc_next_temp_and_load(
+    theta_ot_is_n_pls, l_cs_is_n, l_rs_is_n = ss.calc_next_temp_and_load(
         brc_ot_is_n=f_brc_ot_is_n_pls,
         brm_ot_is_is_n=f_brm_ot_is_is_n_pls,
         brl_ot_is_is_n=f_brl_ot_is_is_n_pls,
@@ -188,11 +185,11 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
     )
 
     # ステップ n+1 における室 i の室温, degree C, [i, 1], eq.(6)
-    theta_r_is_n_pls = np.dot(f_xot_is_is_n_pls, theta_ot_is_n_pls) - np.dot(f_xlr_is_is_n_pls, l_sr_is_n) - f_xc_is_n_pls
+    theta_r_is_n_pls = np.dot(f_xot_is_is_n_pls, theta_ot_is_n_pls) - np.dot(f_xlr_is_is_n_pls, l_rs_is_n) - f_xc_is_n_pls
 
     # ステップ n+1 における境界 j の表面温度, degree C, [j, 1], eq.(5)
     theta_s_js_n_pls = np.dot(ss.f_wsr_js_is, theta_r_is_n_pls) + f_wsc_js_n_pls \
-                       + np.dot(f_wsb_js_is_n_pls, l_sr_is_n) + f_wsv_js_n_pls
+                       + np.dot(f_wsb_js_is_n_pls, l_rs_is_n) + f_wsv_js_n_pls
 
     # ステップ n+1 における室 i　の家具の温度, degree C, [i, 1], eq.(4)
     theta_frt_is_n_pls = (
@@ -207,7 +204,7 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
         ss.h_s_c_js * np.dot(ss.p_js_is, theta_r_is_n_pls)
         + ss.h_s_r_js * np.dot(ss.f_dsh_mrt_js_js, theta_s_js_n_pls)
         + ss.q_sol_js_ns[:, n+1].reshape(-1, 1)
-        + np.dot(flr_js_is_n_pls, (1.0 - beta_is_n_pls) * l_sr_is_n) / ss.a_s_js
+        + np.dot(flr_js_is_n_pls, (1.0 - beta_is_n_pls) * l_rs_is_n) / ss.a_s_js
     ) / (ss.h_s_c_js + ss.h_s_r_js)
 
     # ステップ n+1 における境界 j の表面熱流（壁体吸熱を正とする）, W/m2, [j, 1], eq.(1)
@@ -219,23 +216,74 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
     x_hum_psn_is_n = occupants.get_x_hum_psn_is_n(theta_r_is_n=c_n.theta_r_is_n)
 
     # ステップnの室iにおける人体発湿, kg/s, [i, 1]
-    x_hum_is_n = x_hum_psn_is_n * n_hum_is_n
+    x_hum_is_n = get_x_hum_is_n(
+        n_hum_is_n=ss.n_hum_is_ns[:, n].reshape(-1, 1),
+        x_hum_psn_is_n=x_hum_psn_is_n
+    )
 
-    l_l_i_n, x_frt_is_n_pls, x_r_is_n_pls = calc_humidity_and_latent_load(
-        delta_t=delta_t,
-        l_cs_is_n=l_sc_is_n,
-        ss=ss,
-        theta_r_is_n_pls=theta_r_is_n_pls,
-        v_vent_out_is_n=v_vent_out_is_n,
-        x_gen_is_n=x_gen_is_n,
-        x_hum_is_n=x_hum_is_n,
-        v_room_is=ss.v_room_is,
+    # ステップ n における室　i　の潜熱バランスに関する係数, kg/s, [i, 1]
+    f_h_cst_is_n = get_f_h_cst_is_n(
         c_lh_frt_is=ss.c_lh_frt_is,
+        delta_t=delta_t,
         g_lh_frt_is=ss.g_lh_frt_is,
-        v_vent_int_is_is=ss.v_vent_int_is_is,
+        rho_air=get_rho_air(),
+        v_rm_is=ss.v_rm_is,
+        v_vent_out_is_n=v_vent_out_is_n,
+        x_frt_is_n=c_n.x_frt_is_n,
+        x_gen_is_n=ss.x_gen_is_ns[:, n].reshape(-1, 1),
+        x_hum_is_n=x_hum_is_n,
         x_o_n_pls=ss.x_o_ns[n + 1],
-        x_r_is_n=c_n.x_r_is_n,
-        x_frt_is_n=c_n.x_frt_is_n
+        x_r_is_n=c_n.x_r_is_n
+    )
+
+    # ステップ n における室 i* の絶対湿度が室 i の潜熱バランスに与える影響を表す係数,　kg/(s kg/kg(DA)), [i, i]
+    f_h_wgt_is_is_n = get_f_h_wgt_is_is_n(
+        c_lh_frt_is=ss.c_lh_frt_is,
+        delta_t=delta_t,
+        g_lh_frt_is=ss.g_lh_frt_is,
+        rho_air=get_rho_air(),
+        v_rm_is=ss.v_rm_is,
+        v_vent_int_is_is=ss.v_vent_int_is_is,
+        v_vent_out_is_n=v_vent_out_is_n
+    )
+
+    # ステップ n+1 における室 i の加湿・除湿を行わない場合の絶対湿度, kg/kg(DA) [i, 1]
+    x_r_ntr_is_n_pls = get_x_r_ntr_is_n_pls(
+        f_h_cst_is_n=f_h_cst_is_n,
+        f_h_wgt_is_is_n=f_h_wgt_is_is_n
+    )
+
+    # ステップ n+1 における室 i∗ の絶対湿度がステップ n から n+1 における室 i の潜熱負荷に与える影響を表す係数, kg/(s (kg/kg(DA))), [i, i*]
+    # ステップ n から n+1 における室 i の潜熱負荷に与える影響を表す係数, kg/s, [i, 1]
+    f_l_cl_cst_is_n, f_l_cl_wgt_is_is_n = ss.get_f_l_cl(
+        l_cs_is_n=l_cs_is_n,
+        theta_r_is_n_pls=theta_r_is_n_pls,
+        x_r_ntr_is_n_pls=x_r_ntr_is_n_pls
+    )
+
+    # ステップ n+1 における室 i の 絶対湿度, kg/kg(DA), [i, 1]
+    x_r_is_n_pls = get_x_r_is_n_pls(
+        f_h_cst_is_n=f_h_cst_is_n,
+        f_h_wgt_is_is_n=f_h_wgt_is_is_n,
+        f_l_cl_cst_is_n=f_l_cl_cst_is_n,
+        f_l_cl_wgt_is_is_n=f_l_cl_wgt_is_is_n
+    )
+
+    # ステップ n から ステップ n+1 における室 i の潜熱負荷（加湿を正・除湿を負とする）, kg/s, [i, 1]
+    l_cl_is_n = get_l_cl_is_n(
+        f_l_cl_wgt_is_is_n=f_l_cl_wgt_is_is_n,
+        f_l_cl_cst_is_n=f_l_cl_cst_is_n,
+        l_wtr=get_l_wtr(),
+        x_r_is_n_pls=x_r_is_n_pls
+    )
+
+    # ステップ n+1 における室 i の家具等の絶対湿度, kg/kg(DA), [i, 1]
+    x_frt_is_n_pls = get_x_frt_is_n_pls(
+        c_lh_frt_is=ss.c_lh_frt_is,
+        delta_t=delta_t,
+        g_lh_frt_is=ss.g_lh_frt_is,
+        x_frt_is_n=c_n.x_frt_is_n,
+        x_r_is_n_pls=x_r_is_n_pls
     )
 
     if not run_up:
@@ -254,9 +302,9 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
         # 積算値
         logger.q_hum[:, n] = q_hum_is_n.flatten()
         logger.x_hum[:, n] = x_hum_is_n.flatten()
-        logger.l_cs[:, n] = l_sc_is_n.flatten()
-        logger.l_rs[:, n] = l_sr_is_n.flatten()
-        logger.l_cl[:, n] = l_l_i_n.flatten()
+        logger.l_cs[:, n] = l_cs_is_n.flatten()
+        logger.l_rs[:, n] = l_rs_is_n.flatten()
+        logger.l_cl[:, n] = l_cl_is_n.flatten()
         # 平均値
         logger.v_reak_is_ns[:, n] = v_leak_is_n.flatten()
         logger.v_ntrl_is_ns[:, n] = v_vent_ntr_is_n.flatten()
@@ -286,90 +334,154 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
     )
 
 
-def calc_humidity_and_latent_load(
-        delta_t: float,
-        l_cs_is_n,
-        ss,
-        theta_r_is_n_pls: np.ndarray,
-        v_vent_out_is_n: np.ndarray,
-        x_gen_is_n: np.ndarray,
-        x_hum_is_n: np.ndarray,
-        v_room_is: np.ndarray,
-        c_lh_frt_is: np.ndarray,
-        g_lh_frt_is: np.ndarray,
-        v_vent_int_is_is: np.ndarray,
-        x_o_n_pls: float,
-        x_r_is_n: np.ndarray,
-        x_frt_is_n: np.ndarray
-):
+def get_x_frt_is_n_pls(c_lh_frt_is, delta_t: float, g_lh_frt_is, x_frt_is_n, x_r_is_n_pls):
     """
 
     Args:
+        c_lh_frt_is: 室の備品等の湿気容量, kg/(kg/kg(DA)), [i, 1]
         delta_t: 1ステップの時間間隔, s
-        l_cs_is_n:
-        ss:
-        theta_r_is_n_pls: ステップ  n+1 における室 i の温度, ℃
-        v_vent_out_is_n: ステップ n から n+1 における室 i の外気との換気量, m3/s, [i, 1]
-        x_gen_is_n: ステップ n における室 i の人体発湿を除く内部発湿, kg/s, [i, 1]
-        x_hum_is_n: ステップ n における室 i の人体発湿, kg/s, [i, 1]
-        v_room_is: 室 i の容積, m3, [i, 1]
-        c_lh_frt_is: 室 i の家具等の湿気容量, kg/(kg/kg(DA)), [i, 1]
-        g_lh_frt_is: 室 i の家具等と空気間の湿気コンダクタンス, kg/(s kg/kg(DA)), [i, 1]
-        v_vent_int_is_is: 室 i から室 i への室間の機械換気量, m3/s, [i, i]
-        x_o_n_pls: ステップ  n+1 における外気絶対湿度, kg/kg(DA)
-        x_r_is_n: ステップ  n における室 i の絶対湿度, kg/kg(DA), [i, 1]
-        x_frt_is_n: ステップ  n における室 i の家具等の絶対湿度, kg/kg(DA), [i, 1]
+        g_lh_frt_is: 室の備品等と空気間の湿気コンダクタンス, kg/(s kg/kg(DA)), [i, 1]
+        x_frt_is_n: ステップ n における室の備品等の絶対湿度, kg/kg(DA), [i, 1]
+        x_r_is_n_pls: ステップ n+1 における室の絶対湿度, kg/kg(DA), [i, 1]
 
     Returns:
+        ステップ n+1 における室 i の家具等の絶対湿度, kg/kg(DA), [i, 1]
+
+    Notes:
+        式(1-1)
 
     """
 
-    # ステップ n における室iの湿度に関する係数 F_{h,wgt},　ｋｇ(DA)/s [i, i]
-    # 繰り返し計算（湿度と潜熱） eq.10
-    f_h_wgt_is_is_n = v_diag(
-        get_rho_air() * (v_room_is / delta_t + v_vent_out_is_n)
+    return (c_lh_frt_is * x_frt_is_n + delta_t * g_lh_frt_is * x_r_is_n_pls) / (c_lh_frt_is + delta_t * g_lh_frt_is)
+
+
+def get_l_cl_is_n(f_l_cl_wgt_is_is_n, f_l_cl_cst_is_n, l_wtr, x_r_is_n_pls):
+    """
+
+    Args:
+        f_l_cl_wgt_is_is_n:
+        f_l_cl_cst_is_n:
+        l_wtr:
+        x_r_is_n_pls:
+
+    Returns:
+        ステップ n から ステップ n+1 における室 i の潜熱負荷（加湿を正・除湿を負とする）, W
+
+    Notes:
+        式(1-2)
+
+    """
+
+    return (np.dot(f_l_cl_wgt_is_is_n, x_r_is_n_pls) + f_l_cl_cst_is_n) * l_wtr
+
+
+def get_x_r_is_n_pls(f_h_cst_is_n, f_h_wgt_is_is_n, f_l_cl_cst_is_n, f_l_cl_wgt_is_is_n):
+    """
+
+    Args:
+        f_h_cst_is_n:
+        f_h_wgt_is_is_n:
+        f_l_cl_cst_is_n:
+        f_l_cl_wgt_is_is_n:
+
+    Returns:
+        ステップ n+1 における室 i の 絶対湿度, kg/kg(DA), [i, 1]
+
+    Notes:
+        式(1-3)
+
+    """
+
+    return np.dot(np.linalg.inv(f_h_wgt_is_is_n - f_l_cl_wgt_is_is_n), f_h_cst_is_n + f_l_cl_cst_is_n)
+
+
+def get_x_r_ntr_is_n_pls(f_h_cst_is_n, f_h_wgt_is_is_n):
+    """
+
+    Args:
+        f_h_cst_is_n:
+        f_h_wgt_is_is_n:
+
+    Returns:
+        ステップ n+1 における室 i の加湿・除湿を行わない場合の絶対湿度, kg/kg(DA) [i, 1]
+
+    Notes:
+        式(1-4)
+
+    """
+
+    return np.dot(np.linalg.inv(f_h_wgt_is_is_n), f_h_cst_is_n)
+
+
+def get_f_h_wgt_is_is_n(c_lh_frt_is, delta_t, g_lh_frt_is, rho_air, v_rm_is, v_vent_int_is_is, v_vent_out_is_n):
+    """
+
+    Args:
+        c_lh_frt_is:
+        delta_t:
+        g_lh_frt_is:
+        rho_air:
+        v_rm_is:
+        v_vent_int_is_is:
+        v_vent_out_is_n:
+
+    Returns:
+        ステップ n における室 i* の絶対湿度が室 i の潜熱バランスに与える影響を表す係数,　kg/(s kg/kg(DA)), [i, i]
+
+    Notes:
+        式(1-5)
+
+    """
+
+    return v_diag(
+        rho_air * (v_rm_is / delta_t + v_vent_out_is_n)
         + c_lh_frt_is * g_lh_frt_is / (c_lh_frt_is + delta_t * g_lh_frt_is)
-    ) - get_rho_air() * v_vent_int_is_is
-
-    # ステップ n における室iの湿度に関する係数 F_{h,cst}, kg/s, [i, 1]
-    # 繰り返し計算（湿度と潜熱） eq.11
-    f_h_cst_is_n = get_rho_air() * v_room_is / delta_t * x_r_is_n \
-                   + get_rho_air() * v_vent_out_is_n * x_o_n_pls \
-                   + c_lh_frt_is * g_lh_frt_is / (c_lh_frt_is + delta_t * g_lh_frt_is) * x_frt_is_n \
-                   + x_gen_is_n + x_hum_is_n
-
-    # ステップ n+1 における室 i の加湿・除湿を行わない場合の絶対湿度, kg/kg(DA) [i]
-    # 繰り返し計算（湿度と潜熱） eq.6
-    x_r_ntr_is_n_pls = np.dot(np.linalg.inv(f_h_wgt_is_is_n), f_h_cst_is_n)
-
-    # ==== ルームエアコン吹出絶対湿度の計算 ====
-    # 顕熱負荷・室内温度・除加湿を行わない場合の室絶対湿度から、除加湿計算に必要な係数 la 及び lb を計算する。
-    # 下記、変数 l は、係数 la と lb のタプルであり、変数 ls は変数 l のリスト。
-    ls = [
-        f(lcs_is_n=l_cs_is_n, theta_r_is_n_pls=theta_r_is_n_pls, x_r_ntr_is_n_pls=x_r_ntr_is_n_pls)
-        for f in ss.dehumidification_funcs
-    ]
-
-    # 係数 la と 係数 lb をタプルから別々に取り出す。
-    ls_a = np.array([l[0] for l in ls])
-    ls_b = np.array([l[1] for l in ls])
-
-    # 係数 la 及び lb それぞれ合計する。
-    # la [i,i] kg/s(kg/kg(DA))
-    # lb [i,1] kg/kg(DA)
-    l_a_is_is_n = ls_a.sum(axis=0)
-    l_b_is_n = ls_b.sum(axis=0)
-
-    # ステップ n+1 における室 i の 絶対湿度, kg/kg(DA), [i, 1]
-    x_r_is_n_pls = np.dot(np.linalg.inv(f_h_wgt_is_is_n + l_a_is_is_n), f_h_cst_is_n + l_b_is_n)
-
-    # ステップ n から ステップ n+1 における室 i の潜熱負荷（加湿を正・除湿を負とする）, kg/s
-    l_l_i_n = - (np.dot(l_a_is_is_n, x_r_is_n_pls) - l_b_is_n) * get_l_wtr()
-
-    # ステップ n+1 における室 i の家具等の絶対湿度, kg/kg(DA), [i, 1]
-    x_frt_is_n_pls = (c_lh_frt_is * x_frt_is_n + delta_t * g_lh_frt_is * x_r_is_n_pls) \
-        / (c_lh_frt_is + delta_t * g_lh_frt_is)
-
-    return l_l_i_n, x_frt_is_n_pls, x_r_is_n_pls
+    ) - rho_air * v_vent_int_is_is
 
 
+def get_f_h_cst_is_n(c_lh_frt_is, delta_t, g_lh_frt_is, rho_air, v_rm_is, v_vent_out_is_n, x_frt_is_n, x_gen_is_n, x_hum_is_n, x_o_n_pls, x_r_is_n):
+    """
+
+    Args:
+        c_lh_frt_is:
+        delta_t:
+        g_lh_frt_is:
+        rho_air:
+        v_rm_is:
+        v_vent_out_is_n:
+        x_frt_is_n:
+        x_gen_is_n:
+        x_hum_is_n:
+        x_o_n_pls:
+        x_r_is_n:
+
+    Returns:
+        ステップ n における室iの潜熱バランスに関する係数, kg/s, [i, 1]
+
+    Notes:
+        式(1-6)
+
+    """
+
+    return rho_air * v_rm_is / delta_t * x_r_is_n \
+        + rho_air * v_vent_out_is_n * x_o_n_pls \
+        + c_lh_frt_is * g_lh_frt_is / (c_lh_frt_is + delta_t * g_lh_frt_is) * x_frt_is_n \
+        + x_gen_is_n + x_hum_is_n
+
+
+def get_x_hum_is_n(n_hum_is_n, x_hum_psn_is_n):
+    """
+
+    Args:
+        n_hum_is_n:
+        x_hum_psn_is_n:
+
+    Returns:
+        ステップnの室iにおける人体発湿, kg/s, [i, 1]
+
+    Notes:
+        式(1-7)
+
+    """
+
+    return x_hum_psn_is_n * n_hum_is_n
