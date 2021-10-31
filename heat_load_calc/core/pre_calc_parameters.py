@@ -160,9 +160,6 @@ class PreCalcParameters:
     # ステップnの外気絶対湿度, kg/kg(DA), [n]
     x_o_ns: np.ndarray
 
-    # 年平均外気温度, degree C
-    theta_o_ave: np.ndarray
-
     get_ot_target_and_h_hum: Callable[[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray], tuple]
 
     get_infiltration: Callable[[np.ndarray, float], np.ndarray]
@@ -204,9 +201,6 @@ class PreCalcParametersGround:
 
     # ステップnの境界jにおける外気側等価温度の外乱成分, degree C, [j, 8760*4]
     theta_dstrb_js_ns: np.ndarray
-
-    # 年平均外気温度, degree C
-    theta_o_ave: float
 
 
 def make_pre_calc_parameters(
@@ -550,10 +544,6 @@ def make_pre_calc_parameters(
     # WSC, degree C, [j, n]
     wsc_js_ns = np.dot(ivs_ax_js_js, crx_js_ns)
 
-    # 年平均外気温度, degree C
-    # 地盤計算の時の深部温度に用いる
-    theta_o_ave = np.average(theta_o_ns)
-
     # endregion
 
     # region 読み込んだ値から新たに関数を作成する
@@ -634,7 +624,6 @@ def make_pre_calc_parameters(
         k_ei_js_js=k_ei_js_js,
         theta_o_ns=theta_o_ns,
         x_o_ns=x_o_ns,
-        theta_o_ave=theta_o_ave,
         get_ot_target_and_h_hum=get_ot_target_and_h_hum,
         get_infiltration=get_infiltration,
         calc_next_temp_and_load=calc_next_temp_and_load,
@@ -655,7 +644,6 @@ def make_pre_calc_parameters(
         h_s_c_js=h_c_js[is_ground_js.flatten(), :],
         theta_o_ns=theta_o_ns,
         theta_dstrb_js_ns=theta_dstrb_js_ns[is_ground_js.flatten(), :],
-        theta_o_ave=theta_o_ave,
     )
 
     return pre_calc_parameters, pre_calc_parameters_ground
