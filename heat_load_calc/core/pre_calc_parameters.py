@@ -28,13 +28,13 @@ class PreCalcParameters:
     # region 空間に関すること
 
     # 空間の数, [i]
-    n_spaces: int
+    n_rm: int
 
     # 空間のID
-    id_space_is: List[int]
+    id_rm_is: List[int]
 
     # 空間の名前, [i]
-    name_space_is: List[str]
+    name_rm_is: List[str]
 
     # 室iの容積, m3, [i, 1]
     v_rm_is: np.ndarray
@@ -120,9 +120,9 @@ class PreCalcParameters:
     phi_a1_js_ms: np.ndarray
 
     # ステップnの境界jにおける透過日射熱取得量のうち表面に吸収される日射量, W/m2, [j, 8760*4]
-    q_sol_js_ns: np.ndarray
+    q_s_sol_js_ns: np.ndarray
 
-    n_bdries: int
+    n_bdry: int
 
     ivs_f_ax_js_js: np.ndarray
 
@@ -133,7 +133,7 @@ class PreCalcParameters:
     f_mrt_hum_is_js: np.ndarray
 
     # 平均放射温度計算時の境界 j* の表面温度が境界 j に与える重み, [j, j]
-    f_dsh_mrt_js_js: np.ndarray
+    f_mrt_js_js: np.ndarray
 
     # 境界jにおける室内側放射熱伝達率, W/m2K, [j, 1]
     h_s_r_js: np.ndarray
@@ -387,10 +387,10 @@ def make_pre_calc_parameters(
     # ただし、1次元配列を縦ベクトルに変換する処理等は読み込み時に np.reshape を適用して変換している。
 
     # 名前, [j, 1]
-    name_js = np.array([bs.name for bs in bss]).reshape(-1, 1)
+    name_bdry_js = np.array([bs.name for bs in bss]).reshape(-1, 1)
 
     # 名前2, [j, 1]
-    sub_name_js = np.array([bs.sub_name for bs in bss]).reshape(-1, 1)
+    sub_name_bdry_js = np.array([bs.sub_name for bs in bss]).reshape(-1, 1)
 
     # 地盤かどうか, [j, 1]
     is_ground_js = np.array([bs.boundary_type == BoundaryType.Ground for bs in bss]).reshape(-1, 1)
@@ -428,13 +428,13 @@ def make_pre_calc_parameters(
     beta_c_is = beta_is
 
     # 境界jの面積, m2, [j, 1]
-    a_srf_js = np.array([bs.area for bs in bss]).reshape(-1, 1)
+    a_s_js = np.array([bs.area for bs in bss]).reshape(-1, 1)
 
     # 境界 j が床か否か, [j]
     is_floor_js = np.array([bs.is_floor for bs in bss])
 
     # 境界の数
-    n_boundaries = len(bss)
+    n_bdry = len(bss)
 
     # 室iの在室者に対する境界jの形態係数, [j]
     # 境界jが接する室の在室者に対する境界jの形態係数, [j]
@@ -485,10 +485,10 @@ def make_pre_calc_parameters(
     h_r_js = np.array([bs.h_r for bs in bss]).reshape(-1, 1)
 
     # 平均放射温度計算時の各部位表面温度の重み, [i, j]
-    f_mrt_is_js = shape_factor.get_f_mrt_is_js(a_srf_js=a_srf_js, h_r_js=h_r_js, p_is_js=p_is_js)
+    f_mrt_is_js = shape_factor.get_f_mrt_is_js(a_srf_js=a_s_js, h_r_js=h_r_js, p_is_js=p_is_js)
 
     # 平均放射温度計算時の境界 j* の表面温度が境界 j　に与える重み, [j, j]
-    f_dsh_mrt_js_js = np.dot(p_js_is, f_mrt_is_js)
+    f_mrt_js_js = np.dot(p_js_is, f_mrt_is_js)
 
     # 境界jの室内側表面対流熱伝達率, W/m2K, [j, 1]
     h_c_js = np.array([bs.h_c for bs in bss]).reshape(-1, 1)
@@ -510,10 +510,10 @@ def make_pre_calc_parameters(
     is_solar_abs_js = np.array([bs.is_solar_absorbed_inside for bs in bss]).reshape(-1, 1)
 
     # 室iにおける日射が吸収される境界の面積の合計, m2, [i, 1]
-    a_srf_abs_is = np.dot(p_is_js, a_srf_js * is_solar_abs_js)
+    a_srf_abs_is = np.dot(p_is_js, a_s_js * is_solar_abs_js)
 
     # ステップnの境界jにおける透過日射吸収熱量, W/m2, [j, n]
-    q_sol_js_ns = np.dot(p_js_is, q_trs_sol_is_ns / a_srf_abs_is) * is_solar_abs_js * (1.0 - r_sol_fnt)
+    q_s_sol_js_ns = np.dot(p_js_is, q_trs_sol_is_ns / a_srf_abs_is) * is_solar_abs_js * (1.0 - r_sol_fnt)
 
     # 温度差係数
     k_eo_js = np.array([bs.h_td for bs in bss]).reshape(-1, 1)
@@ -523,8 +523,8 @@ def make_pre_calc_parameters(
 
     # AX, [j, j]
     ax_js_js = np.diag(1.0 + (phi_a0_js * h_i_js).flatten())\
-        - f_dsh_mrt_js_js * h_r_js * phi_a0_js\
-        - np.dot(k_ei_js_js, f_dsh_mrt_js_js) * h_r_js * phi_t0_js / h_i_js
+        - f_mrt_js_js * h_r_js * phi_a0_js\
+        - np.dot(k_ei_js_js, f_mrt_js_js) * h_r_js * phi_t0_js / h_i_js
 
     # AX^-1, [j, j]
     ivs_ax_js_js = np.linalg.inv(ax_js_js)
@@ -534,12 +534,12 @@ def make_pre_calc_parameters(
         + np.dot(k_ei_js_js, p_js_is) * phi_t0_js * h_c_js / h_i_js
 
     # CRX, degree C, [j, n]
-    crx_js_ns = phi_a0_js * q_sol_js_ns\
-        + phi_t0_js / h_i_js * np.dot(k_ei_js_js, q_sol_js_ns)\
-        + phi_t0_js * theta_dstrb_js_ns
+    crx_js_ns = phi_a0_js * q_s_sol_js_ns \
+                + phi_t0_js / h_i_js * np.dot(k_ei_js_js, q_s_sol_js_ns) \
+                + phi_t0_js * theta_dstrb_js_ns
 
     # WSR, [j, i]
-    wsr_js_is = np.dot(ivs_ax_js_js, fia_js_is)
+    f_wsr_js_is = np.dot(ivs_ax_js_js, fia_js_is)
 
     # WSC, degree C, [j, n]
     wsc_js_ns = np.dot(ivs_ax_js_js, crx_js_ns)
@@ -578,9 +578,9 @@ def make_pre_calc_parameters(
     get_f_l_cl = humidification.make_get_f_l_cl_funcs(n_rm, cooling_equipments)
 
     pre_calc_parameters = PreCalcParameters(
-        n_spaces=n_rm,
-        id_space_is=id_rm_is,
-        name_space_is=name_rm_is,
+        n_rm=n_rm,
+        id_rm_is=id_rm_is,
+        name_rm_is=name_rm_is,
         v_rm_is=v_rm_is,
         c_rm_is=c_rm_is,
         c_sh_frt_is=c_sh_frt_is,
@@ -588,16 +588,16 @@ def make_pre_calc_parameters(
         g_sh_frt_is=g_sh_frt_is,
         g_lh_frt_is=g_lh_frt_is,
         v_vent_int_is_is=v_vent_int_is_is,
-        name_bdry_js=name_js,
-        sub_name_bdry_js=sub_name_js,
-        a_s_js=a_srf_js,
+        name_bdry_js=name_bdry_js,
+        sub_name_bdry_js=sub_name_bdry_js,
+        a_s_js=a_s_js,
         v_mec_vent_is_ns=v_mec_vent_is_ns,
         q_gen_is_ns=q_gen_is_ns,
         n_hum_is_ns=n_hum_is_ns,
         x_gen_is_ns=x_gen_is_ns,
         f_mrt_hum_is_js=f_mrt_hum_is_js,
         theta_dstrb_js_ns=theta_dstrb_js_ns,
-        n_bdries=n_boundaries,
+        n_bdry=n_bdry,
         r_js_ms=r_js_ms,
         phi_t0_js=phi_t0_js,
         phi_a0_js=phi_a0_js,
@@ -610,12 +610,12 @@ def make_pre_calc_parameters(
         flr_c_js_is=flr_c_js_is,
         h_s_r_js=h_r_js,
         h_s_c_js=h_c_js,
-        f_dsh_mrt_js_js=f_dsh_mrt_js_js,
-        q_sol_js_ns=q_sol_js_ns,
+        f_mrt_js_js=f_mrt_js_js,
+        q_s_sol_js_ns=q_s_sol_js_ns,
         q_sol_frt_is_ns=q_sol_frt_is_ns,
         beta_h_is=beta_h_is,
         beta_c_is=beta_c_is,
-        f_wsr_js_is=wsr_js_is,
+        f_wsr_js_is=f_wsr_js_is,
         ivs_f_ax_js_js=ivs_ax_js_js,
         p_is_js=p_is_js,
         p_js_is=p_js_is,

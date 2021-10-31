@@ -63,11 +63,11 @@ def calc(
     for n in range(-n_step_run_up, -n_step_run_up_build):
         gc_n = sequence_ground.run_tick(gc_n=gc_n, ss=ppg, n=n)
 
-    logger = log.Logger(n_spaces=pp.n_spaces, n_boundaries=pp.n_bdries, n_step_main=n_step_main)
+    logger = log.Logger(n_spaces=pp.n_rm, n_boundaries=pp.n_bdry, n_step_main=n_step_main)
     logger.pre_logging(pp)
 
     # 建物を計算するにあたって初期値を与える
-    c_n = conditions.initialize_conditions(n_spaces=pp.n_spaces, n_bdries=pp.n_bdries)
+    c_n = conditions.initialize_conditions(n_spaces=pp.n_rm, n_bdries=pp.n_bdry)
 
     # 地盤計算の結果（項別公比法の指数項mの吸熱応答の項別成分・表面熱流）を建物の計算に引き継ぐ
     c_n = conditions.update_conditions_by_ground_conditions(

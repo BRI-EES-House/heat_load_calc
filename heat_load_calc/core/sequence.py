@@ -202,8 +202,8 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
     h_s_c_js = ss.h_s_c_js
     h_s_r_js = ss.h_s_r_js
     p_js_is = ss.p_js_is
-    f_mrt_js_js = ss.f_dsh_mrt_js_js
-    q_s_sol_js_n_pls = ss.q_sol_js_ns[:, n+1].reshape(-1, 1)
+    f_mrt_js_js = ss.f_mrt_js_js
+    q_s_sol_js_n_pls = ss.q_s_sol_js_ns[:, n + 1].reshape(-1, 1)
     a_s_js = ss.a_s_js
 
     # ステップ n+1 における境界 j の等価温度, degree C, [j, 1]
@@ -216,7 +216,7 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
         h_s_r_js=ss.h_s_r_js,
         l_rs_is_n=l_rs_is_n,
         p_js_is=ss.p_js_is,
-        q_s_sol_js_n_pls=q_s_sol_js_n_pls,
+        q_s_sol_js_n_pls=ss.q_s_sol_js_ns[:, n + 1].reshape(-1, 1),
         theta_r_is_n_pls=theta_r_is_n_pls,
         theta_s_js_n_pls=theta_s_js_n_pls
     )
