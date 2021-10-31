@@ -268,7 +268,7 @@ I. 評価法
     :nowrap:
 
     \begin{align*}
-        \hat{\pmb{f}}_{BRM,n} \cdot \pmb{\theta}}_{r,n+1}
+        \hat{\pmb{f}}_{BRM,n} \cdot \pmb{\theta}_{r,n+1}
         = \hat{\pmb{f}}_{BRC,n}
         + \hat{\pmb{L}}_{CS,n}
         + \pmb{f}_{BRL, n} \cdot \hat{\pmb{L}}_{RS,n}
@@ -282,7 +282,7 @@ I. 評価法
 .. math::
     :nowrap:
 
-    \begin{aling*}
+    \begin{align*}
         \pmb{\theta}_{r,n+1}
         = \pmb{f}_{XOT,n+1} \cdot \pmb{\theta}_{OT,n+1}
         + \pmb{f}_{XLR,n+1} \cdot \hat{\pmb{L}}_{RS,n}
@@ -298,7 +298,7 @@ I. 評価法
     :nowrap:
 
     \begin{align*}
-        \hat{\pmb{f}}_{BRM,OT,n} \cdot \pmb{\theta}}_{OT,n+1}
+        \hat{\pmb{f}}_{BRM,OT,n} \cdot \pmb{\theta}_{OT,n+1}
         = \hat{\pmb{f}}_{BRC,OT,n}
         + \hat{\pmb{L}}_{CS,n}
         + \pmb{f}_{BRL,OT,n} \cdot \hat{\pmb{L}}_{RS,n}
