@@ -82,7 +82,7 @@ I. 評価法
     | 室 |i| の放射冷房設備の最大吸熱量（吸熱を負とする）, W
 :math:`q_{s,j,n}`
     | ステップ |n| における境界 |j| の表面熱流（壁体吸熱を正とする）, W/|m2|
-:math:`q_{sol,j,n+1}`
+:math:`q_{s,sol,j,n+1}`
     | ステップ |n+1| における境界 |j| の透過日射吸収熱量, W/|m2|
 :math:`\hat{q}_{sol,frt,i,n}`
     | ステップ |n| からステップ |n+1| における室 |i| に設置された家具による透過日射吸収熱量時間平均値, W
@@ -481,16 +481,16 @@ I. 評価法
 3.2 温度と顕熱処理量
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-ステップ |n+1| における境界 |j| の表面熱流（壁体吸熱を正とする） :math:`q_{s,j,n+1}` は、式(2-1)により与えられる。
+ステップ |n+1| における境界 |j| の表面熱流（壁体吸熱を正とする） :math:`q_{s,j,n+1}` は、式(2.1)により与えられる。
 
 .. math::
     :nowrap:
 
     \begin{align*}
-        q_{s,j,n+1} = ( \theta_{EI,j,n+1} - \theta_{s,j,n+1} ) \cdot ( h_{s,c,j} + h_{s,r,j} ) \tag{2-1}
+        q_{s,j,n+1} = ( \theta_{EI,j,n+1} - \theta_{s,j,n+1} ) \cdot ( h_{s,c,j} + h_{s,r,j} ) \tag{2.1}
     \end{align*}
 
-ステップ |n+1| における境界 |j| の等価温度 :math:`\theta_{EI,j,n+1}` は、式(2-2)のように表される。
+ステップ |n+1| における境界 |j| の等価温度 :math:`\theta_{EI,j,n+1}` は、式(2.2)のように表される。
 
 .. math::
     :nowrap:
@@ -501,9 +501,9 @@ I. 評価法
             &= \frac{ 1 }{ h_{s,c,j} + h_{s,r,j} } \cdot \\
             & \left( h_{s,c,j} \cdot \sum_{i=0}^{I-1}{ ( p_{i,j} \cdot \theta_{r,i,n+1} ) }
             + h_{s,r,j} \cdot \sum_{j*=0}^{J-1}{ ( f_{mrt,j,j*} \cdot \theta_{s,j*,n+1} ) } \right. \\
-            & \left. + q_{sol,j,n+1} + \frac{ \sum_{i=0}^{I-1}{ ( \hat{f}_{flr,i,j,n} \cdot \hat{L}_{RS,i,n} \cdot (1 - \hat{\beta}_{i,n}) ) } }{ A_{s,j} } \right)
+            & \left. + q_{s,sol,j,n+1} + \frac{ \sum_{i=0}^{I-1}{ ( \hat{f}_{flr,i,j,n} \cdot \hat{L}_{RS,i,n} \cdot (1 - \hat{\beta}_{i,n}) ) } }{ A_{s,j} } \right)
         \end{split}
-        \tag{2-2}
+        \tag{2.2}
     \end{align*}
 
 ステップ |n+1| における室 |i| の人体の平均放射温度 :math:`\theta_{mrt,hum,i,n+1}` は、式(2-3)により表される。

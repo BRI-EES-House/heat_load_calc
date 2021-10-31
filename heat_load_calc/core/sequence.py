@@ -199,18 +199,35 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
     # ステップ n+1 における室 i の人体に対する平均放射温度, degree C, [i, 1], eq.(3)
     theta_mrt_hum_is_n_pls = np.dot(ss.f_mrt_hum_is_js, theta_s_js_n_pls)
 
-    # ステップ n+1 における境界 j の等価温度, degree C, [j, 1], eq.(2)
-    theta_ei_js_n_pls = (
-        ss.h_s_c_js * np.dot(ss.p_js_is, theta_r_is_n_pls)
-        + ss.h_s_r_js * np.dot(ss.f_dsh_mrt_js_js, theta_s_js_n_pls)
-        + ss.q_sol_js_ns[:, n+1].reshape(-1, 1)
-        + np.dot(flr_js_is_n_pls, (1.0 - beta_is_n_pls) * l_rs_is_n) / ss.a_s_js
-    ) / (ss.h_s_c_js + ss.h_s_r_js)
+    h_s_c_js = ss.h_s_c_js
+    h_s_r_js = ss.h_s_r_js
+    p_js_is = ss.p_js_is
+    f_mrt_js_js = ss.f_dsh_mrt_js_js
+    q_s_sol_js_n_pls = ss.q_sol_js_ns[:, n+1].reshape(-1, 1)
+    a_s_js = ss.a_s_js
 
-    # ステップ n+1 における境界 j の表面熱流（壁体吸熱を正とする）, W/m2, [j, 1], eq.(1)
-    q_s_js_n_pls = (theta_ei_js_n_pls - theta_s_js_n_pls) * (ss.h_s_c_js + ss.h_s_r_js)
+    # ステップ n+1 における境界 j の等価温度, degree C, [j, 1]
+    theta_ei_js_n_pls = get_theta_ei_js_n_pls(
+        a_s_js=ss.a_s_js,
+        beta_is_n_pls=beta_is_n_pls,
+        f_mrt_js_js=f_mrt_js_js,
+        flr_js_is_n_pls=flr_js_is_n_pls,
+        h_s_c_js=ss.h_s_c_js,
+        h_s_r_js=ss.h_s_r_js,
+        l_rs_is_n=l_rs_is_n,
+        p_js_is=ss.p_js_is,
+        q_s_sol_js_n_pls=q_s_sol_js_n_pls,
+        theta_r_is_n_pls=theta_r_is_n_pls,
+        theta_s_js_n_pls=theta_s_js_n_pls
+    )
 
-    # --- ここから、湿度の計算 ---
+    # ステップ n+1 における境界 j の表面熱流（壁体吸熱を正とする）, W/m2, [j, 1]
+    q_s_js_n_pls = get_q_s_js_n_pls(
+        h_s_c_js=ss.h_s_c_js,
+        h_s_r_js=ss.h_s_r_js,
+        theta_ei_js_n_pls=theta_ei_js_n_pls,
+        theta_s_js_n_pls=theta_s_js_n_pls
+    )
 
     # ステップnの室iにおける1人あたりの人体発湿, kg/s, [i, 1]
     x_hum_psn_is_n = occupants.get_x_hum_psn_is_n(theta_r_is_n=c_n.theta_r_is_n)
@@ -485,3 +502,56 @@ def get_x_hum_is_n(n_hum_is_n, x_hum_psn_is_n):
     """
 
     return x_hum_psn_is_n * n_hum_is_n
+
+
+def get_q_s_js_n_pls(h_s_c_js, h_s_r_js, theta_ei_js_n_pls, theta_s_js_n_pls):
+    """
+
+    Args:
+        h_s_c_js:
+        h_s_r_js:
+        theta_ei_js_n_pls:
+        theta_s_js_n_pls:
+
+    Returns:
+        ステップ n+1 における境界 j の表面熱流（壁体吸熱を正とする）, W/m2, [j, 1]
+
+    Notes:
+        式(2.1)
+
+    """
+
+    return (theta_ei_js_n_pls - theta_s_js_n_pls) * (h_s_c_js + h_s_r_js)
+
+
+def get_theta_ei_js_n_pls(a_s_js, beta_is_n_pls, f_mrt_js_js, flr_js_is_n_pls, h_s_c_js, h_s_r_js, l_rs_is_n, p_js_is, q_s_sol_js_n_pls, theta_r_is_n_pls, theta_s_js_n_pls):
+    """
+
+    Args:
+        a_s_js:
+        beta_is_n_pls:
+        f_mrt_js_js:
+        flr_js_is_n_pls:
+        h_s_c_js:
+        h_s_r_js:
+        l_rs_is_n:
+        p_js_is:
+        q_s_sol_js_n_pls:
+        theta_r_is_n_pls:
+        theta_s_js_n_pls:
+
+    Returns:
+        ステップ n+1 における境界 j の等価温度, degree C, [j, 1]
+    Notes:
+        式(2.2)
+
+    """
+
+    return (
+        h_s_c_js * np.dot(p_js_is, theta_r_is_n_pls)
+        + h_s_r_js * np.dot(f_mrt_js_js, theta_s_js_n_pls)
+        + q_s_sol_js_n_pls
+        + np.dot(flr_js_is_n_pls, (1.0 - beta_is_n_pls) * l_rs_is_n) / a_s_js
+    ) / (h_s_c_js + h_s_r_js)
+
+
