@@ -388,7 +388,7 @@ I. 評価法
 3.1 湿度と潜熱処理量
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-ステップ |n+1| における室 |i| の備品等の絶対湿度 :math:`X_{frt,i,n+1}` は、式(1-1)により表される。
+ステップ |n+1| における室 |i| の備品等の絶対湿度 :math:`X_{frt,i,n+1}` は、式(1.1)により表される。
 
 .. math::
     :nowrap:
@@ -396,11 +396,11 @@ I. 評価法
     \begin{align*}
         X_{frt,i,n+1} = \frac{ C_{lh,frt,i} \cdot X_{frt,i,n} + \Delta t \cdot G_{lh,frt,i} \cdot X_{r,i,n+1} }
         { C_{lh,frt,i} + \Delta t \cdot G_{lh,frt,i} }
-        \tag{1-1}
+        \tag{1.1}
     \end{align*}
 
 ステップ |n| からステップ |n+1| における室 |i| の対流暖冷房設備の潜熱処理量（加湿を正・除湿を負とする） :math:`\hat{L}_{CL,i,n}` は、
-式(1-2)により表される。
+式(1.2)により表される。
 
 .. math::
     :nowrap:
@@ -408,17 +408,17 @@ I. 評価法
     \begin{align*}
         \pmb{\hat{L}}_{CL,n}
         = l_{wtr} \cdot ( \pmb{\hat{f}}_{L,CL,wgt,n} \cdot \pmb{X}_{r,n+1} + \pmb{\hat{f}}_{L,CL,cst,n} )
-        \tag{1-2}
+        \tag{1.2}
     \end{align*}
 
-ステップ |n+1| における室 |i| の絶対湿度 :math:`X_{r,i,n+1}` は、式(1-3)で表される。
+ステップ |n+1| における室 |i| の絶対湿度 :math:`X_{r,i,n+1}` は、式(1.3)で表される。
 
 .. math::
     :nowrap:
 
     \begin{align*}
         \pmb{X}_{r,n+1}　= ( \hat{\pmb{f}}_{h,wgt,n} - \hat{\pmb{f}}_{L,CL,wgt,n} )^{-1} \cdot ( \hat{\pmb{f}}_{h,cst,n} + \hat{\pmb{f}}_{L,CL,cst,n} )
-        \tag{1-3}
+        \tag{1.3}
     \end{align*}
 
 係数 :math:`\hat{f}_{L,CL,wgt,i,i*,n}` 及び係数 :math:`\hat{f}_{L,CL,cst,i,n}` は、
@@ -427,17 +427,17 @@ I. 評価法
 ステップ |n+1| における室 |i| の加湿・除湿を行わない場合の絶対湿度 :math:`X_{r,ntr,i,n+1}` に応じて定まり、
 その計算方法を????に示す。
 
-ステップ |n+1| における室 |i| の加湿・除湿を行わない場合の絶対湿度 :math:`X_{r,ntr,i,n+1}` は、式(1-4)により表される。
+ステップ |n+1| における室 |i| の加湿・除湿を行わない場合の絶対湿度 :math:`X_{r,ntr,i,n+1}` は、式(1.4)により表される。
 
 .. math::
     :nowrap:
 
     \begin{align*}
         \pmb{X}_{r,ntr,n+1}　= \hat{\pmb{f}}_{h,wgt,n}^{-1} \cdot \hat{\pmb{f}}_{h,cst,n}
-        \tag{1-4}
+        \tag{1.4}
     \end{align*}
 
-係数 :math:`f_{h,wgt,i,i*,n}` は、式(1-5)により表される。
+係数 :math:`f_{h,wgt,i,i*,n}` は、式(1.5)により表される。
 
 .. math::
     :nowrap:
@@ -446,10 +446,10 @@ I. 評価法
         \hat{f}_{h,wgt,i,i*,n}
         &= \left( \rho_a \cdot \left( \frac{ V_{rm,i} }{ \Delta t } + \hat{V}_{vent,out,i,n} \right) + \frac{ G_{lh,frt,i} \cdot C_{lh,frt,i} }{ C_{lh,frt,i} + \Delta t \cdot G_{lh,frt,i} } \right) \cdot \delta_{ii*} \\
     	&- \rho_a \cdot \hat{V}_{vent,int,i,i*}
-        \tag{1-5}
+        \tag{1.5}
     \end{align*}
 
-係数 :math:`\hat{f}_{h,cst,i,n}` は、式(1-6)により表される。
+係数 :math:`\hat{f}_{h,cst,i,n}` は、式(1.6)により表される。
 
 .. math::
     :nowrap:
@@ -460,17 +460,17 @@ I. 評価法
         + \rho_a \cdot \hat{V}_{vent,out,i,n} \cdot X_{o,n+1} \\
 	    &+ \frac{G_{lh,frt,i} \cdot C_{lh,frt,i} }{ C_{lh,frt,i} + \Delta t \cdot G_{lh,frt,i} } \cdot X_{frt,i,n}
         + \hat{X}_{gen,i,n} + \hat{X}_{hum,i,n}
-        \tag{1-6}
+        \tag{1.6}
     \end{align*}
 
 
-ステップ |n| からステップ |n+1| における室 |i| の人体発湿 :math:`\hat{X}_{hum,i,n}` は、式(1-7)により表される。
+ステップ |n| からステップ |n+1| における室 |i| の人体発湿 :math:`\hat{X}_{hum,i,n}` は、式(1.7)により表される。
 
 .. math::
     :nowrap:
 
     \begin{align*}
-        \hat{X}_{hum,i,n} = \hat{X}_{hum,psn,i,n} \cdot \hat{n}_{hum,i,n} \tag{1-7}
+        \hat{X}_{hum,i,n} = \hat{X}_{hum,psn,i,n} \cdot \hat{n}_{hum,i,n} \tag{1.7}
     \end{align*}
 
 ステップ |n| からステップ |n+1| における室 |i| の1人あたりの人体発湿　:math:`\hat{X}_{hum,psn,i,n}` は、

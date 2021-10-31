@@ -338,17 +338,17 @@ def get_x_frt_is_n_pls(c_lh_frt_is, delta_t: float, g_lh_frt_is, x_frt_is_n, x_r
     """
 
     Args:
-        c_lh_frt_is: 室の備品等の湿気容量, kg/(kg/kg(DA)), [i, 1]
+        c_lh_frt_is: 室 i の備品等の湿気容量, kg/(kg/kg(DA)), [i, 1]
         delta_t: 1ステップの時間間隔, s
-        g_lh_frt_is: 室の備品等と空気間の湿気コンダクタンス, kg/(s kg/kg(DA)), [i, 1]
-        x_frt_is_n: ステップ n における室の備品等の絶対湿度, kg/kg(DA), [i, 1]
-        x_r_is_n_pls: ステップ n+1 における室の絶対湿度, kg/kg(DA), [i, 1]
+        g_lh_frt_is: 室 i の備品等と空気間の湿気コンダクタンス, kg/(s kg/kg(DA)), [i, 1]
+        x_frt_is_n: ステップ n における室 i の備品等の絶対湿度, kg/kg(DA), [i, 1]
+        x_r_is_n_pls: ステップ n+1 における室 i の絶対湿度, kg/kg(DA), [i, 1]
 
     Returns:
         ステップ n+1 における室 i の家具等の絶対湿度, kg/kg(DA), [i, 1]
 
     Notes:
-        式(1-1)
+        式(1.1)
 
     """
 
@@ -359,16 +359,16 @@ def get_l_cl_is_n(f_l_cl_wgt_is_is_n, f_l_cl_cst_is_n, l_wtr, x_r_is_n_pls):
     """
 
     Args:
-        f_l_cl_wgt_is_is_n:
-        f_l_cl_cst_is_n:
-        l_wtr:
-        x_r_is_n_pls:
+        f_l_cl_wgt_is_is_n: 係数, kg/(s (kg/kg(DA)))
+        f_l_cl_cst_is_n: 係数, kg/s
+        l_wtr: 水の蒸発潜熱, J/kg
+        x_r_is_n_pls: ステップ n+1 における室 i の絶対湿度, kg/kg(DA)
 
     Returns:
         ステップ n から ステップ n+1 における室 i の潜熱負荷（加湿を正・除湿を負とする）, W
 
     Notes:
-        式(1-2)
+        式(1.2)
 
     """
 
@@ -379,16 +379,16 @@ def get_x_r_is_n_pls(f_h_cst_is_n, f_h_wgt_is_is_n, f_l_cl_cst_is_n, f_l_cl_wgt_
     """
 
     Args:
-        f_h_cst_is_n:
-        f_h_wgt_is_is_n:
-        f_l_cl_cst_is_n:
-        f_l_cl_wgt_is_is_n:
+        f_h_cst_is_n: 係数, kg/s
+        f_h_wgt_is_is_n: 係数, kg/(s (kg/kg(DA)))
+        f_l_cl_cst_is_n: 係数, kg/s
+        f_l_cl_wgt_is_is_n: 係数, kg/(s (kg/kg(DA)))
 
     Returns:
         ステップ n+1 における室 i の 絶対湿度, kg/kg(DA), [i, 1]
 
     Notes:
-        式(1-3)
+        式(1.3)
 
     """
 
@@ -399,14 +399,14 @@ def get_x_r_ntr_is_n_pls(f_h_cst_is_n, f_h_wgt_is_is_n):
     """
 
     Args:
-        f_h_cst_is_n:
-        f_h_wgt_is_is_n:
+        f_h_cst_is_n: 係数, kg/s
+        f_h_wgt_is_is_n: 係数, kg/(s (kg/kg(DA)))
 
     Returns:
         ステップ n+1 における室 i の加湿・除湿を行わない場合の絶対湿度, kg/kg(DA) [i, 1]
 
     Notes:
-        式(1-4)
+        式(1.4)
 
     """
 
@@ -417,19 +417,19 @@ def get_f_h_wgt_is_is_n(c_lh_frt_is, delta_t, g_lh_frt_is, rho_air, v_rm_is, v_v
     """
 
     Args:
-        c_lh_frt_is:
-        delta_t:
-        g_lh_frt_is:
-        rho_air:
-        v_rm_is:
-        v_vent_int_is_is:
-        v_vent_out_is_n:
+        c_lh_frt_is: 室 i の備品等の湿気容量, kg/(kg/kg(DA)), [i, 1]
+        delta_t: 1ステップの時間間隔, s
+        g_lh_frt_is: 室 i の備品等と空気間の湿気コンダクタンス, kg/(s kg/kg(DA)), [i, 1]
+        rho_air: 空気の密度, kg/m3
+        v_rm_is: 室 i の容積, m3
+        v_vent_int_is_is:　ステップ n から ステップ n+1 における室 i* から室 i への室間の空気移動量（流出換気量を含む）, m3/s
+        v_vent_out_is_n: ステップ n から ステップ n+1 における室 i の換気・すきま風・自然風の利用による外気の流入量, m3/s
 
     Returns:
         ステップ n における室 i* の絶対湿度が室 i の潜熱バランスに与える影響を表す係数,　kg/(s kg/kg(DA)), [i, i]
 
     Notes:
-        式(1-5)
+        式(1.5)
 
     """
 
@@ -443,23 +443,23 @@ def get_f_h_cst_is_n(c_lh_frt_is, delta_t, g_lh_frt_is, rho_air, v_rm_is, v_vent
     """
 
     Args:
-        c_lh_frt_is:
-        delta_t:
-        g_lh_frt_is:
-        rho_air:
-        v_rm_is:
-        v_vent_out_is_n:
-        x_frt_is_n:
-        x_gen_is_n:
-        x_hum_is_n:
-        x_o_n_pls:
-        x_r_is_n:
+        c_lh_frt_is: 室 i の備品等の湿気容量, kg/(kg/kg(DA)), [i, 1]
+        delta_t: 1ステップの時間間隔, s
+        g_lh_frt_is: 室 i の備品等と空気間の湿気コンダクタンス, kg/(s kg/kg(DA)), [i, 1]
+        rho_air: 空気の密度, kg/m3
+        v_rm_is: 室 i の容積, m3
+        v_vent_out_is_n: ステップ n から ステップ n+1 における室 i の換気・すきま風・自然風の利用による外気の流入量, m3/s
+        x_frt_is_n: ステップ n における室 i の備品等の絶対湿度, kg/kg(DA), [i, 1]
+        x_gen_is_n: ステップ n からステップ n+1 における室 i の人体発湿を除く内部発湿, kg/s
+        x_hum_is_n: ステップ n からステップ n+1 における室 i の人体発湿, kg/s
+        x_o_n_pls: ステップ n における外気絶対湿度, kg/kg(DA)
+        x_r_is_n: ステップ n における室 i の絶対湿度, kg/kg(DA)
 
     Returns:
-        ステップ n における室iの潜熱バランスに関する係数, kg/s, [i, 1]
+        ステップ n における室 i の潜熱バランスに関する係数, kg/s, [i, 1]
 
     Notes:
-        式(1-6)
+        式(1.6)
 
     """
 
@@ -473,14 +473,14 @@ def get_x_hum_is_n(n_hum_is_n, x_hum_psn_is_n):
     """
 
     Args:
-        n_hum_is_n:
-        x_hum_psn_is_n:
+        n_hum_is_n: ステップ n からステップ n+1 における室 i の在室人数, -
+        x_hum_psn_is_n: ステップ n からステップ n+1 における室 i の1人あたりの人体発湿, kg/s
 
     Returns:
         ステップnの室iにおける人体発湿, kg/s, [i, 1]
 
     Notes:
-        式(1-7)
+        式(1.7)
 
     """
 
