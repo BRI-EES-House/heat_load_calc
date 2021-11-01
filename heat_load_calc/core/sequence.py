@@ -47,10 +47,6 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
     # ステップnの室iにおける機械換気量（全般換気量+局所換気量）, m3/s, [i, 1]
     v_vent_mec_is_n = ss.v_mec_vent_is_ns[:, n].reshape(-1, 1)
 
-    # 家具の吸収日射量, W, [i, 1]
-    # TODO: ここの左辺、右辺日射量はn+1とすべき？
-    q_sol_frt_is_n = ss.q_sol_frt_is_ns[:, n].reshape(-1, 1)
-
     x_r_is_n = c_n.x_r_is_n
 
     # ステップnにおける室iの状況（在室者周りの総合熱伝達率・運転状態・Clo値・目標とする作用温度）を取得する
@@ -165,6 +161,16 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
     # ステップn+1における室iの係数 F_XLR, K/W, [i, i], eq.(9)
     f_xlr_is_is_n_pls = np.dot(f_xot_is_is_n_pls, kr_is_n * np.dot(ss.f_mrt_hum_is_js, f_wsb_js_is_n_pls))
 
+    h_s_c_js = ss.h_s_c_js
+    h_s_r_js = ss.h_s_r_js
+    p_js_is = ss.p_js_is
+    a_s_js = ss.a_s_js
+    c_sh_frt_is = ss.c_sh_frt_is
+    theta_frt_is_n = c_n.theta_frt_is_n
+    g_sh_frt_is = ss.g_sh_frt_is
+    f_mrt_hum_is_js = ss.f_mrt_hum_is_js
+    f_wsr_js_is = ss.f_wsr_js_is
+
     # ステップnにおける係数 F_BRL_OT, -, [i, i], eq.(8)
     f_brl_ot_is_is_n_pls = f_brl_is_is_n_pls + np.dot(f_brm_is_is_n_pls, f_xlr_is_is_n_pls)
 
@@ -184,33 +190,46 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
         is_cooling_is_n=is_cooling_is_n
     )
 
-    # ステップ n+1 における室 i の室温, degree C, [i, 1], eq.(6)
-    theta_r_is_n_pls = np.dot(f_xot_is_is_n_pls, theta_ot_is_n_pls) - np.dot(f_xlr_is_is_n_pls, l_rs_is_n) - f_xc_is_n_pls
+    # ステップ n+1 における室 i の室温, degree C, [i, 1]
+    theta_r_is_n_pls = get_theta_r_is_n_pls(
+        f_xc_is_n_pls=f_xc_is_n_pls,
+        f_xlr_is_is_n_pls=f_xlr_is_is_n_pls,
+        f_xot_is_is_n_pls=f_xot_is_is_n_pls,
+        l_rs_is_n=l_rs_is_n,
+        theta_ot_is_n_pls=theta_ot_is_n_pls
+    )
 
-    # ステップ n+1 における境界 j の表面温度, degree C, [j, 1], eq.(5)
-    theta_s_js_n_pls = np.dot(ss.f_wsr_js_is, theta_r_is_n_pls) + f_wsc_js_n_pls \
-                       + np.dot(f_wsb_js_is_n_pls, l_rs_is_n) + f_wsv_js_n_pls
+    # ステップ n+1 における境界 j の表面温度, degree C, [j, 1]
+    theta_s_js_n_pls = get_theta_s_js_n_pls(
+        f_wsb_js_is_n_pls=f_wsb_js_is_n_pls,
+        f_wsc_js_n_pls=f_wsc_js_n_pls,
+        f_wsr_js_is=ss.f_wsr_js_is,
+        f_wsv_js_n_pls=f_wsv_js_n_pls,
+        l_rs_is_n=l_rs_is_n,
+        theta_r_is_n_pls=theta_r_is_n_pls
+    )
 
-    # ステップ n+1 における室 i　の家具の温度, degree C, [i, 1], eq.(4)
-    theta_frt_is_n_pls = (
-        ss.c_sh_frt_is * c_n.theta_frt_is_n + delta_t * ss.g_sh_frt_is * theta_r_is_n_pls + q_sol_frt_is_n * delta_t
-    ) / (ss.c_sh_frt_is + delta_t * ss.g_sh_frt_is)
+    # ステップ n+1 における室 i　の家具の温度, degree C, [i, 1]
+    theta_frt_is_n_pls = get_theta_frt_is_n_pls(
+        c_sh_frt_is=ss.c_sh_frt_is,
+        delta_t=delta_t,
+        g_sh_frt_is=ss.g_sh_frt_is,
+        q_sol_frt_is_n=ss.q_sol_frt_is_ns[:, n].reshape(-1, 1),
+        theta_frt_is_n=c_n.theta_frt_is_n,
+        theta_r_is_n_pls=theta_r_is_n_pls
+    )
 
-    # ステップ n+1 における室 i の人体に対する平均放射温度, degree C, [i, 1], eq.(3)
-    theta_mrt_hum_is_n_pls = np.dot(ss.f_mrt_hum_is_js, theta_s_js_n_pls)
-
-    h_s_c_js = ss.h_s_c_js
-    h_s_r_js = ss.h_s_r_js
-    p_js_is = ss.p_js_is
-    f_mrt_js_js = ss.f_mrt_js_js
-    q_s_sol_js_n_pls = ss.q_s_sol_js_ns[:, n + 1].reshape(-1, 1)
-    a_s_js = ss.a_s_js
+    # ステップ n+1 における室 i の人体に対する平均放射温度, degree C, [i, 1]
+    theta_mrt_hum_is_n_pls = get_theta_mrt_hum_is_n_pls(
+        f_mrt_hum_is_js=ss.f_mrt_hum_is_js,
+        theta_s_js_n_pls=theta_s_js_n_pls
+    )
 
     # ステップ n+1 における境界 j の等価温度, degree C, [j, 1]
     theta_ei_js_n_pls = get_theta_ei_js_n_pls(
         a_s_js=ss.a_s_js,
         beta_is_n_pls=beta_is_n_pls,
-        f_mrt_js_js=f_mrt_js_js,
+        f_mrt_js_js=ss.f_mrt_js_js,
         flr_js_is_n_pls=flr_js_is_n_pls,
         h_s_c_js=ss.h_s_c_js,
         h_s_r_js=ss.h_s_r_js,
@@ -553,5 +572,93 @@ def get_theta_ei_js_n_pls(a_s_js, beta_is_n_pls, f_mrt_js_js, flr_js_is_n_pls, h
         + q_s_sol_js_n_pls
         + np.dot(flr_js_is_n_pls, (1.0 - beta_is_n_pls) * l_rs_is_n) / a_s_js
     ) / (h_s_c_js + h_s_r_js)
+
+
+def get_theta_mrt_hum_is_n_pls(f_mrt_hum_is_js, theta_s_js_n_pls):
+    """
+
+    Args:
+        f_mrt_hum_is_js:
+        theta_s_js_n_pls:
+
+    Returns:
+        ステップ n+1 における室 i の人体に対する平均放射温度, degree C, [i, 1]
+
+    Notes:
+        式(2.3)
+
+    """
+
+    return np.dot(f_mrt_hum_is_js, theta_s_js_n_pls)
+
+
+def get_theta_frt_is_n_pls(c_sh_frt_is, delta_t, g_sh_frt_is, q_sol_frt_is_n, theta_frt_is_n, theta_r_is_n_pls):
+    """
+
+    Args:
+        c_sh_frt_is:
+        delta_t:
+        g_sh_frt_is:
+        q_sol_frt_is_n:
+        theta_frt_is_n:
+        theta_r_is_n_pls:
+
+    Returns:
+        ステップ n+1 における室 i　の家具の温度, degree C, [i, 1]
+
+    Notes:
+        式(2.4)
+
+    """
+
+    return (
+        c_sh_frt_is * theta_frt_is_n + delta_t * g_sh_frt_is * theta_r_is_n_pls + q_sol_frt_is_n * delta_t
+    ) / (c_sh_frt_is + delta_t * g_sh_frt_is)
+
+
+def get_theta_s_js_n_pls(f_wsb_js_is_n_pls, f_wsc_js_n_pls, f_wsr_js_is, f_wsv_js_n_pls, l_rs_is_n, theta_r_is_n_pls):
+    """
+
+    Args:
+        f_wsb_js_is_n_pls:
+        f_wsc_js_n_pls:
+        f_wsr_js_is:
+        f_wsv_js_n_pls:
+        l_rs_is_n:
+        theta_r_is_n_pls:
+
+    Returns:
+        ステップ n+1 における境界 j の表面温度, degree C, [j, 1]
+
+    Notes:
+        式(2.5)
+
+    """
+
+    return np.dot(f_wsr_js_is, theta_r_is_n_pls) + f_wsc_js_n_pls + np.dot(f_wsb_js_is_n_pls,
+                                                                           l_rs_is_n) + f_wsv_js_n_pls
+
+
+def get_theta_r_is_n_pls(f_xc_is_n_pls, f_xlr_is_is_n_pls, f_xot_is_is_n_pls, l_rs_is_n, theta_ot_is_n_pls):
+    """
+
+    Args:
+        f_xc_is_n_pls:
+        f_xlr_is_is_n_pls:
+        f_xot_is_is_n_pls:
+        l_rs_is_n:
+        theta_ot_is_n_pls:
+
+    Returns:
+        ステップ n+1 における室 i の室温, degree C, [i, 1]
+
+    Notes:
+        式(2.6)
+
+    """
+
+    return np.dot(f_xot_is_is_n_pls, theta_ot_is_n_pls) - np.dot(f_xlr_is_is_n_pls, l_rs_is_n) - f_xc_is_n_pls
+
+
 
 

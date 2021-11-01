@@ -506,16 +506,16 @@ I. 評価法
         \tag{2.2}
     \end{align*}
 
-ステップ |n+1| における室 |i| の人体の平均放射温度 :math:`\theta_{mrt,hum,i,n+1}` は、式(2-3)により表される。
+ステップ |n+1| における室 |i| の人体の平均放射温度 :math:`\theta_{mrt,hum,i,n+1}` は、式(2.3)により表される。
 
 .. math::
     :nowrap:
 
     \begin{align*}
-        \theta_{mrt,hum,i,n+1} = f_{mrt,hum,i,j} \cdot \theta_{s,j,n+1} \tag{2-3}
+        \theta_{mrt,hum,i,n+1} = f_{mrt,hum,i,j} \cdot \theta_{s,j,n+1} \tag{2.3}
     \end{align*}
 
-ステップ |n+1| における室 |i| の備品等の温度 :math:`\theta_{frt,i,n+1}` は、式(2-4)で表される。
+ステップ |n+1| における室 |i| の備品等の温度 :math:`\theta_{frt,i,n+1}` は、式(2.4)で表される。
 
 .. math::
     :nowrap:
@@ -525,10 +525,10 @@ I. 評価法
             C_{sh,frt,i} \cdot \theta_{frt,i,n} + \Delta t \cdot G_{sh,frt,i} \cdot \theta_{r,i,n+1}
             + \Delta t \cdot \hat{q}_{sol,frt,i,n}
         }{ C_{sh,frt,i} + \Delta t \cdot G_{sh,frt,i} }
-        \tag{2-4}
+        \tag{2.4}
     \end{align*}
 
-ステップ |n+1| における境界 |j| の表面温度 :math:`\theta_{s,j,n+1}` は式(2-5)により表される。
+ステップ |n+1| における境界 |j| の表面温度 :math:`\theta_{s,j,n+1}` は式(2.5)により表される。
 
 .. math::
     :nowrap:
@@ -536,10 +536,10 @@ I. 評価法
     \begin{align*}
         \pmb{\theta}_{s,n+1}
         = \pmb{f}_{WSR} \cdot \pmb{\theta}_{r,n+1} + \pmb{f}_{WSC,n+1} + \pmb{f}_{WSB} \cdot \hat{\pmb{L}}_{RS,n} + \pmb{f}_{WSV,n+1}
-        \tag{2-5}
+        \tag{2.5}
     \end{align*}
 
-ステップ |n+1| における室 |i| の温度 :math:`\theta_{r,i,n+1}` は式(2-6)により表される。
+ステップ |n+1| における室 |i| の温度 :math:`\theta_{r,i,n+1}` は式(2.6)により表される。
 
 .. math::
     :nowrap:
@@ -547,10 +547,10 @@ I. 評価法
     \begin{align*}
         \pmb{\theta}_{r,n+1}
         = \pmb{f}_{XOT,n+1} \cdot \pmb{\theta}_{OT,n+1} - \pmb{f}_{XLR,n+1} \cdot \hat{\pmb{L}}_{RS,n} - \pmb{f}_{XC,n+1}
-        \tag{2-6}
+        \tag{2.6}
     \end{align*}
 
-ステップ |n+1| における室の作用温度　:math:`\pmb{\theta}_{OT,i,n+1}` は式(2-7)により表される。
+ステップ |n+1| における室の作用温度　:math:`\pmb{\theta}_{OT,i,n+1}` は式(2.7)により表される。
 
 .. math::
     :nowrap:
@@ -560,7 +560,7 @@ I. 評価法
         = \hat{\pmb{L}}_{CS,n}
         + \hat{\pmb{f}}_{BRL,OT,n+1} \cdot \hat{\pmb{L}}_{RS,n}
         + \hat{\pmb{f}}_{BRC,OT,n+1}
-        \tag{2-7}
+        \tag{2.7}
     \end{align*}
 
 作用温度（左辺の :math:`\theta_{OT,i,n+1}` ）を与えて
