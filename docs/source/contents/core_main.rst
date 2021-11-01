@@ -603,32 +603,34 @@ I. 評価法
 
 である。これらの計算方法は、付録・・・に示す。
 
-係数 :math:`\hat{\pmb{f}}_{BRL,OT,i,i*,n}` は、式(2-8)により表される。
+係数 :math:`\hat{\pmb{f}}_{BRL,OT,i,i*,n}` は、式(2.8)により表される。
 
 .. math::
     :nowrap:
 
     \begin{align*}
-        \hat{\pmb{f}}_{BRL,OT,n} = \hat{\pmb{f}}_{BRL,n} + \hat{\pmb{f}}_{BRM,n} \cdot \pmb{f}_{XLR,n+1} \tag{2-8}
+        \hat{\pmb{f}}_{BRL,OT,n} = \hat{\pmb{f}}_{BRL,n} + \hat{\pmb{f}}_{BRM,n} \cdot \pmb{f}_{XLR,n+1}
+        \tag{2.8}
     \end{align*}
 
-係数 :math:`\pmb{f}_{XLR,n+1}` は、式(2-9)により表される。
+係数 :math:`\pmb{f}_{XLR,n+1}` は、式(2.9)により表される。
 
 .. math::
     :nowrap:
 
     \begin{align*}
-        \pmb{f}_{XLR,n+1} = \pmb{f}_{XOT,n+1} \cdot \pmb{k}_{r,n+1} \cdot \pmb{f}_{mrt,hum} \cdot \pmb{f}_{WSB,n+1} \tag{2-9}
+        \pmb{f}_{XLR,n+1} = \pmb{f}_{XOT,n+1} \cdot \pmb{k}_{r,n+1} \cdot \pmb{f}_{mrt,hum} \cdot \pmb{f}_{WSB,n+1}
+        \tag{2.9}
     \end{align*}
 
-係数 :math:`\pmb{f}_{BRL,n}` は、式(2-10)により表される。
+係数 :math:`\pmb{f}_{BRL,n}` は、式(2.10)により表される。
 
 .. math::
     :nowrap:
 
     \begin{align*}
         \pmb{f}_{BRL,n} = \pmb{p}_{ij} \cdot \pmb{h}_{s,c} \cdot \pmb{A}_{s} \cdot \pmb{F}_{WSB,n+1} + \hat{\pmb{\beta}}_{n}
-        \tag{2-10}
+        \tag{2.10}
     \end{align*}
 
 また、 :math:`\pmb{p}_{ij}` は :math:`p_{i,j}` を要素にもつ、室 |i| と境界 |j| との関係を表す行列であり、
@@ -647,16 +649,17 @@ I. 評価法
 
 と定義する。
 
-係数 :math:`\pmb{f}_{WSB,n+1}` は、式(2-11)により表される。
+係数 :math:`\pmb{f}_{WSB,n+1}` は、式(2.11)により表される。
 
 .. math::
     :nowrap:
 
     \begin{align*}
-        \pmb{f}_{WSB,n+1} = \pmb{f}_{AX}^{-1} \cdot \pmb{f}_{FLB,n+1} \tag{2-11}
+        \pmb{f}_{WSB,n+1} = \pmb{f}_{AX}^{-1} \cdot \pmb{f}_{FLB,n+1}
+        \tag{2.11}
     \end{align*}
 
-係数 :math:`f_{FLB,j,i,n+1}` は、式(2-12)により表される。
+係数 :math:`f_{FLB,j,i,n+1}` は、式(2.12)により表される。
 
 .. math::
     :nowrap:
@@ -669,7 +672,7 @@ I. 評価法
             \frac{ k'_{EI,j,j*}  \cdot ( 1 - \hat{\beta}_{i,n} ) \cdot f_{flr,i,j*,n+1} }{ A_{s,j*} \cdot ( h_{s,c,j*} + h_{s,r,j*} ) }
             }
         \end{split}
-        \tag{2-12}
+        \tag{2.12}
     \end{align*}
 
 ステップ |n| からステップ |n+1| における室 |i| の放射暖冷房設備の対流成分比率 :math:`\hat{\beta}_{i,n}` および、
@@ -681,11 +684,11 @@ I. 評価法
     :nowrap:
 
     \begin{align*}
-        \hat{\beta}_{i,n} = \beta_{h,i} \tag{2-13a}
+        \hat{\beta}_{i,n} = \beta_{h,i} \tag{2.13a}
     \end{align*}
 
     \begin{align*}
-        \hat{f}_{flr,i,j,n} = f_{flr,h,i,j} \tag{2-14a}
+        \hat{f}_{flr,i,j,n} = f_{flr,h,i,j} \tag{2.14a}
     \end{align*}
 
 ステップ |n| からステップ |n+1| における室 |i| の運転が冷房運転時の場合
@@ -694,11 +697,11 @@ I. 評価法
     :nowrap:
 
     \begin{align*}
-        \hat{\beta}_{i,n} = \beta_{c,i} \tag{2-13b}
+        \hat{\beta}_{i,n} = \beta_{c,i} \tag{2.13b}
     \end{align*}
 
     \begin{align*}
-        \hat{f}_{flr,i,j,n} = f_{flr,c,i,j} \tag{2-14b}
+        \hat{f}_{flr,i,j,n} = f_{flr,c,i,j} \tag{2.14b}
     \end{align*}
 
 それ以外の場合
@@ -707,63 +710,68 @@ I. 評価法
     :nowrap:
 
     \begin{align*}
-        \hat{\beta}_{i,n} = 0 \tag{2-13c}
+        \hat{\beta}_{i,n} = 0 \tag{2.13c}
     \end{align*}
 
     \begin{align*}
-        \hat{f}_{flr,i,j,n} = 0 \tag{2-14c}
+        \hat{f}_{flr,i,j,n} = 0 \tag{2.14c}
     \end{align*}
 
 とする。
 
 「ステップ |n| からステップ |n+1| における室 |i| の運転が暖房運転時の場合」とは、
-運転モードが「暖房」であり、かつ式(2-15a)を満たす場合をいう。
+運転モードが「暖房」であり、かつ式(2.15a)を満たす場合をいう。
 
 .. math::
     :nowrap:
 
     \begin{align*}
-        \theta_{r,OT,ntr,i,n+1} < \theta_{lower,target,i,n+1} \tag{2-15a}
+        \theta_{r,OT,ntr,i,n+1} < \theta_{lower,target,i,n+1}
+        \tag{2.15a}
     \end{align*}
 
 「ステップ |n| からステップ |n+1| における室 |i| の運転が冷房運転時の場合」とは、
-運転モードが「冷房」であり、かつ式(2-15b)を満たす場合をいう。
+運転モードが「冷房」であり、かつ式(2.15b)を満たす場合をいう。
 
 .. math::
     :nowrap:
 
     \begin{align*}
-        \theta_{upper,target,i,n+1} < \theta_{r,OT,ntr,i,n+1} \tag{2-15b}
+        \theta_{upper,target,i,n+1} < \theta_{r,OT,ntr,i,n+1}
+        \tag{2.15b}
     \end{align*}
 
-ステップ |n+1| における室 |i| の自然作用温度 :math:`\theta_{r,OT,ntr,i,n+1}`　は式(2-16)により表される。
+ステップ |n+1| における室 |i| の自然作用温度 :math:`\theta_{r,OT,ntr,i,n+1}`　は式(2.16)により表される。
 
 .. math::
     :nowrap:
 
     \begin{align*}
-        \pmb{\theta}_{r,OT,ntr,n+1} = \pmb{f}_{BRM,OT,n+1}^{-1} \cdot \pmb{F}_{BRC,OT,n+1} \tag{2-16}
+        \pmb{\theta}_{r,OT,ntr,n+1} = \pmb{f}_{BRM,OT,n+1}^{-1} \cdot \pmb{F}_{BRC,OT,n+1}
+        \tag{2.16}
     \end{align*}
 
-係数 :math:`\hat{\pmb{f}}_{BRC,OT,n}` は、式(2-17)により表される。
+係数 :math:`\hat{\pmb{f}}_{BRC,OT,n}` は、式(2.17)により表される。
 
 .. math::
     :nowrap:
 
     \begin{align*}
-        \hat{\pmb{f}}_{BRC,OT,n} = \hat{\pmb{f}}_{BRC,n} + \hat{\pmb{f}}_{BRM,n} \cdot \pmb{f}_{XC,n+1} \tag{2-17}
+        \hat{\pmb{f}}_{BRC,OT,n} = \hat{\pmb{f}}_{BRC,n} + \hat{\pmb{f}}_{BRM,n} \cdot \pmb{f}_{XC,n+1}
+        \tag{2.17}
     \end{align*}
 
-係数 :math:`\hat{\pmb{f}}_{BRM,OT,n}` は、式(2-18)により表される。
+係数 :math:`\hat{\pmb{f}}_{BRM,OT,n}` は、式(2.18)により表される。
 
 .. math::
     :nowrap:
 
     \begin{align*}
-        \hat{\pmb{f}}_{BRM,OT,n} = \hat{\pmb{f}}_{BRM,n} \cdot \pmb{f}_{XOT,n+1} \tag{2-18}
+        \hat{\pmb{f}}_{BRM,OT,n} = \hat{\pmb{f}}_{BRM,n} \cdot \pmb{f}_{XOT,n+1}
+        \tag{2.18}
     \end{align*}
 
-係数 :math:`\pmb{f}_{XC,n}` は、式(2-19)により表される。
+係数 :math:`\pmb{f}_{XC,n}` は、式(2.19)により表される。
 
 .. math::
     :nowrap:
@@ -771,35 +779,37 @@ I. 評価法
     \begin{align*}
         \pmb{f}_{XC,n+1} = \pmb{f}_{XOT,n+1} \cdot \pmb{k}_{r,n+1} \cdot \pmb{f}_{mrt,hum}
         \cdot ( \pmb{f}_{WSC,n+1} + \pmb{f}_{WSV,n+1} )
-        \tag{2-19}
+        \tag{2.19}
     \end{align*}
 
-係数 :math:`\pmb{f}_{XOT,n+1}` は、式(2-20)により表される。
+係数 :math:`\pmb{f}_{XOT,n+1}` は、式(2.20)により表される。
 
 .. math::
     :nowrap:
 
     \begin{align*}
         \pmb{f}_{XOT,n+1} = \left( \pmb{k}_{c,n+1} + \pmb{k}_{r,n+1} \cdot \pmb{f}_{mrt,hum} \cdot \pmb{f}_{WSR} \right)^{-1}
-        \tag{2-20}
+        \tag{2.20}
     \end{align*}
 
 ステップ |n+1| における室 |i| の人体表面の対流熱伝達率が総合熱伝達率に占める割合 :math:`k_{c,i,n+1}` 及び
 ステップ |n+1| における室 |i| の人体表面の放射熱伝達率が総合熱伝達率に占める割合　:math:`k_{r,i,n+1}`　は、
-式(2-21)及び式(2-22)で表される。
+式(2.21)及び式(2.22)で表される。
 
 .. math::
     :nowrap:
 
     \begin{align*}
-        k_{c,i,n+1} = \frac{ h_{hum,c,i,n+1} }{ ( h_{hum,c,i,n+1} + h_{hum,r,i,n+1} ) } \tag{2-21}
+        k_{c,i,n+1} = \frac{ h_{hum,c,i,n+1} }{ ( h_{hum,c,i,n+1} + h_{hum,r,i,n+1} ) }
+        \tag{2.21}
     \end{align*}
 
     \begin{align*}
-        k_{r,i,n+1} = \frac{ h_{hum,r,i,n+1} }{ ( h_{hum,c,i,n+1} + h_{hum,r,i,n+1} ) } \tag{2-22}
+        k_{r,i,n+1} = \frac{ h_{hum,r,i,n+1} }{ ( h_{hum,c,i,n+1} + h_{hum,r,i,n+1} ) }
+        \tag{2.22}
     \end{align*}
 
-係数 :math:`\hat{\pmb{f}}_{BRM,n}` は、式(2-23)により表される。
+係数 :math:`\hat{\pmb{f}}_{BRM,n}` は、式(2.23)により表される。
 
 .. math::
     :nowrap:
@@ -812,10 +822,10 @@ I. 評価法
             & + c_a \cdot \rho_a \cdot ( \hat{\pmb{V}}_{vent,out,n} - \hat{\pmb{V}}_{vent,int,n} )
             + \frac{ \pmb{G}_{sh,frt} \cdot \pmb{C}_{sh,frt} }{ ( \pmb{C}_{sh,frt} + \Delta t \cdot \pmb{G}_{sh,frt} ) }
         \end{split}
-        \tag{23}
+        \tag{2.23}
     \end{align*}
 
-係数 :math:`\hat{\pmb{f}}_{BRC,n}` は、式(2-24)により表される。
+係数 :math:`\hat{\pmb{f}}_{BRC,n}` は、式(2.24)により表される。
 
 .. math::
     :nowrap:
@@ -830,17 +840,17 @@ I. 評価法
             & + \frac{ \pmb{G}_{sh,frt} \cdot ( \pmb{C}_{sh,frt} \cdot \pmb{\theta}_{frt,n} + \Delta t \cdot \hat{\pmb{q}}_{sol,frt,n} ) }
             { \pmb{C}_{sh,frt} + \Delta t \cdot \pmb{G}_{sh,frt} }
         \end{split}
-        \tag{2-24}
+        \tag{2.24}
     \end{align*}
 
-ステップ |n| からステップ |n+1| における室 |i| の換気・すきま風・自然風の利用による外気の流入量 :math:`V_{vent,out,i,n}` は、式(2-25)により表される。
+ステップ |n| からステップ |n+1| における室 |i| の換気・すきま風・自然風の利用による外気の流入量 :math:`V_{vent,out,i,n}` は、式(2.25)により表される。
 
 .. math::
     :nowrap:
 
     \begin{align*}
         \hat{V}_{vent,out,i,n} = \hat{V}_{leak,i,n} + \hat{V}_{vent,mec,i,n} + \hat{V}_{vent,ntr,i,n}
-        \tag{2-25}
+        \tag{2.25}
     \end{align*}
 
 ステップ |n| からステップ |n+1| における室 |i| の自然風利用による換気量 :math:`\hat{V}_{vent,ntr,i,n}` は、
@@ -850,7 +860,8 @@ I. 評価法
     :nowrap:
 
     \begin{align*}
-        \hat{V}_{vent,ntr,i,n} = \hat{V}_{vent,ntr,set,i} \tag {2-26a}
+        \hat{V}_{vent,ntr,i,n} = \hat{V}_{vent,ntr,set,i}
+        \tag{2.26a}
     \end{align*}
 
 とし、それ以外の場合（運転モードが「暖房・冷房停止で窓「開」」でない場合）は、
@@ -859,18 +870,20 @@ I. 評価法
     :nowrap:
 
     \begin{align*}
-        \hat{V}_{vent,ntr,i,n} = 0 \tag {2-26b}
+        \hat{V}_{vent,ntr,i,n} = 0
+        \tag{2.26b}
     \end{align*}
 
 とする。
 
-係数 :math:`\pmb{f}_{WSV,n+1}` は、式(2-27)により表される。
+係数 :math:`\pmb{f}_{WSV,n+1}` は、式(2.27)により表される。
 
 .. math::
     :nowrap:
 
     \begin{align*}
-        \pmb{f}_{WSV,n+1} = \pmb{f}_{AX}^{-1} \cdot \pmb{f}_{CVL,n+1} \tag {2-27}
+        \pmb{f}_{WSV,n+1} = \pmb{f}_{AX}^{-1} \cdot \pmb{f}_{CVL,n+1}
+        \tag{2.27}
     \end{align*}
 
 係数 :math:`f_{CVL,j,n+1}` は、式(2-28)により表される。
@@ -887,14 +900,14 @@ I. 評価法
 
 ステップ |n+1| における境界 |j| の項別公比法の指数項 |m| の吸熱応答の項別成分 :math:`\theta'_{s,a,j,m,n+1}` 及び、
 ステップ |n+1| における境界 |j| の項別公比法の指数項 |m| の貫流応答の項別成分 :math:`\theta'_{s,t,j,m,n+1}` は、
-式(2-29)及び式(2-30)により表される。
+式(2.29)及び式(2.30)により表される。
 
 .. math::
     :nowrap:
 
     \begin{align*}
         \theta'_{s,a,j,m,n+1} = q_{s,j,n} \cdot \phi_{a1,j,m} + r_{j,m} \cdot \theta'_{s,a,j,m,n}
-        \tag{2-29}
+        \tag{2.29}
     \end{align*}
 
 .. math::
@@ -902,35 +915,35 @@ I. 評価法
 
     \begin{align*}
         \theta'_{s,t,j,m,n+1} = \theta_{rear,j,n} \cdot \phi_{t1,j,m} + r_{j,m} \cdot \theta'_{s,t,j,m,n}
-        \tag{2-30}
+        \tag{2.30}
     \end{align*}
 
 ステップ |n| からステップ |n+1| における室 |i| のすきま風量 :math:`\hat{V}_{leak,i,n}` は、
 ステップ |n| における室 |i| の空気温度 :math:`\theta_{r,i,n}` 及びステップ |n| における外気温度 :math:`\theta_{o,n}` に依存して、
 ??に示す方法により定まる。
 
-ステップ |n| からステップ |n+1| における室 |i| の人体発熱 :math:`\hat{q}_{hum,i,n}` は、式(2-31)により表される。
+ステップ |n| からステップ |n+1| における室 |i| の人体発熱 :math:`\hat{q}_{hum,i,n}` は、式(2.31)により表される。
 
 .. math::
     :nowrap:
 
     \begin{align*}
         \hat{q}_{hum,i,n} = \hat{q}_{hum,psn,i,n} \cdot \hat{n}_{hum,i,n}
-        \tag{2-31}
+        \tag{2.31}
     \end{align*}
 
 ステップ |n| からステップ |n+1| における室 |i| の1人あたりの人体発熱 :math:`\hat{q}_{hum,psn,i,n}` は、
 ステップ |n| における室 |i| の室温 :math:`\theta_{r,i,n}` に応じて??に示す方法により定まる。
 
 
-ステップ |n| における境界 |j| の裏面温度　:math:`\theta_{rear,j,n}` は、式(2-32)により表される。
+ステップ |n| における境界 |j| の裏面温度　:math:`\theta_{rear,j,n}` は、式(2.32)により表される。
 
 .. math::
     :nowrap:
 
     \begin{align*}
         \pmb{\theta}_{rear,n} = \pmb{k}_{ei} \cdot \pmb{\theta}_{ei,n} + \pmb{\theta}_{dstrb,n}
-        \tag{2-32}
+        \tag{2.32}
     \end{align*}
 
 次に示す値、
