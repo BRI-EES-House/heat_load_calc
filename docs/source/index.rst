@@ -14,3 +14,4 @@
    /contents/core_main
    /contents/heat_balance
    /contents/humidity_balance
+   /contents/furniture
