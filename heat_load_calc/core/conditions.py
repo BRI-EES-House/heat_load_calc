@@ -13,8 +13,8 @@ class Conditions:
             theta_r_is_n,
             theta_mrt_hum_is_n,
             x_r_is_n,
-            theta_dsh_srf_a_js_ms_n,
-            theta_dsh_srf_t_js_ms_n,
+            theta_dsh_s_a_js_ms_n,
+            theta_dsh_s_t_js_ms_n,
             q_srf_js_n,
             theta_frt_is_n,
             x_frt_is_n,
@@ -39,10 +39,10 @@ class Conditions:
         self.x_r_is_n = x_r_is_n
 
         # ステップnの境界jにおける項別公比法の指数項mの吸熱応答の項別成分, degree C, [j, m] (m=12)
-        self.theta_dsh_srf_a_js_ms_n = theta_dsh_srf_a_js_ms_n
+        self.theta_dsh_srf_a_js_ms_n = theta_dsh_s_a_js_ms_n
 
         # ステップnの境界jにおける項別公比法の指数項mの貫流応答の項別成分, degree C, [j, m] (m=12)
-        self.theta_dsh_srf_t_js_ms_n = theta_dsh_srf_t_js_ms_n
+        self.theta_dsh_srf_t_js_ms_n = theta_dsh_s_t_js_ms_n
 
         # ステップnの境界jにおける表面熱流（壁体吸熱を正とする）, W/m2, [j, 1]
         self.q_srf_js_n = q_srf_js_n
@@ -120,8 +120,8 @@ def initialize_conditions(n_spaces: int, n_bdries: int):
         theta_r_is_n=theta_r_is_n,
         theta_mrt_hum_is_n=theta_mrt_hum_is_n,
         x_r_is_n=x_r_is_n,
-        theta_dsh_srf_a_js_ms_n=theta_dsh_srf_a_js_ms_n0,
-        theta_dsh_srf_t_js_ms_n=theta_dsh_srf_t_js_ms_n0,
+        theta_dsh_s_a_js_ms_n=theta_dsh_srf_a_js_ms_n0,
+        theta_dsh_s_t_js_ms_n=theta_dsh_srf_t_js_ms_n0,
         q_srf_js_n=q_srf_jstrs_n,
         theta_frt_is_n=theta_frt_is_n.reshape(-1, 1),
         x_frt_is_n=x_frt_is_n,

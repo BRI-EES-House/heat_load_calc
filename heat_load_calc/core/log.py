@@ -138,7 +138,7 @@ class Logger:
         self.q_sol_frt_is_ns = ss.q_sol_frt_is_ns
 
 
-        self.qisol_s = ss.q_sol_js_ns * ss.a_s_js
+        self.qisol_s = ss.q_s_sol_js_ns * ss.a_s_js
         self.h_c_s = ss.h_s_c_js.repeat(self._n_step_main, axis=1)
         self.h_r_s = ss.h_s_r_js.repeat(self._n_step_main, axis=1)
 
@@ -160,7 +160,7 @@ class Logger:
         self.qc = ss.h_s_c_js * ss.a_s_js * (np.dot(ss.p_js_is, self.theta_r) - self.theta_s)
 
         # ステップnの境界jにおける表面熱流（壁体吸熱を正とする）のうち放射成分, W, [j, n]
-        self.qr = ss.h_s_r_js * ss.a_s_js * (np.dot(ss.f_dsh_mrt_js_js, self.theta_s) - self.theta_s)
+        self.qr = ss.h_s_r_js * ss.a_s_js * (np.dot(ss.f_mrt_js_js, self.theta_s) - self.theta_s)
 
         # ステップnの室iの家具等から空気への水分流, kg/s, [i, n]
         self.q_l_frt = ss.g_lh_frt_is * (self.x_r - self.x_frt)
@@ -186,7 +186,7 @@ def record(pps: PreCalcParameters, logger: Logger, output_data_dir: str, show_si
     dd['out_temp'] = logger.theta_o_ns[0:n_step_main]
     dd['out_abs_humid'] = logger.x_o_ns[0:n_step_main]
 
-    for i in range(pps.n_spaces):
+    for i in range(pps.n_rm):
 
         name = 'rm' + str(i)
 
@@ -252,7 +252,7 @@ def record(pps: PreCalcParameters, logger: Logger, output_data_dir: str, show_si
     ds['out_temp'] = dd['out_temp'].resample('H').mean().round(2)
     ds['out_abs_humid'] = dd['out_abs_humid'].resample('H').mean().round(2)
 
-    for i in range(pps.n_spaces):
+    for i in range(pps.n_rm):
 
         name = 'rm' + str(i)
 

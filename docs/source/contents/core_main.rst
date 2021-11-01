@@ -25,89 +25,79 @@ I. 評価法
 :math:`A_{s,j}`
     | 境界 |j| の面積, |m2|
 :math:`c_a`
-    | 空気の比熱, J/kg K
-:math:`C_{frt,i}`
-    | 室 |i| に設置された家具の熱容量, J/K
+    | 空気の比熱, J/(kg K)
 :math:`C_{lh,frt,i}`
     | 室 |i| の備品等の湿気容量, kg/(kg/kg(DA))
 :math:`C_{rm,i}`
     | 室 |i| の空気の熱容量, J/K
 :math:`C_{sh,frt,i}`
-    | 室 |i| に設置された家具の熱容量, J/K
+    | 室 |i| の備品等の熱容量, J/K
 :math:`\hat{f}_{flr,i,j,n}`
-    | ステップ |n| からステップ |n+1| における室 |i| に設置された放射暖冷房の放熱量のうち放射成分に対する境界 |j| の室内側表面の吸収比率, -
-:math:`f_{h,cst,i,n}`
-    | ステップ |n| における室 |i| の潜熱バランスに関する係数, kg/s
-:math:`f_{h,wgt,i,i*,n}`
-    | ステップ |n| における室 |i*| の絶対湿度が室 |i| の潜熱バランスに与える影響を表す係数, kg/(s (kg/kg(DA)))
-:math:`\hat{f}_{L,CL,cst,i,n}`
-    | ステップ |n| から |n+1| における室 |i| の潜熱負荷に与える影響を表す係数, kg/s
-:math:`\hat{f}_{L,CL,wgt,i,i*,n}`
-    | ステップ |n+1| における室 |i*| の絶対湿度がステップ |n| から |n+1| における室 |i| の潜熱負荷に与える影響を表す係数, kg/(s (kg/kg(DA)))
+    | ステップ |n| からステップ |n+1| における室 |i| の放射暖冷房設備の放熱量の放射成分に対する境界 |j| の室内側表面の吸収比率, -
 :math:`f_{mrt,hum,i,j}`
     | 境界 |j| から室 |i| の人体に対する形態係数, -
-:math:`f'_{mrt,j*,j}`
+:math:`f_{mrt,j*,j}`
     | 平均放射温度計算時の境界 |j*| の表面温度が境界 |j| に与える重み
-:math:`G_{frt,i}`
-    | 室 |i| における家具と空気間の熱コンダクタンス, W/K
 :math:`G_{lh,frt,i}`
     | 室 |i| の備品等と空気間の湿気コンダクタンス, kg/(s kg/kg(DA))
 :math:`G_{sh,frt,i}`
-    | 室 |i| における家具と空気間の熱コンダクタンス, W/K
+    | 室 |i| の備品等と空気間の熱コンダクタンス, W/K
 :math:`h_{c,j}`
-    | 境界 |j| の室内側対流熱伝達率, W/|m2| K
+    | 境界 |j| の室内側対流熱伝達率, W/(|m2| K)
 :math:`h_{hum,c,i,n}`
-    | ステップ |n| における室 |i| の人体表面の対流熱伝達率, W/|m2| K
+    | ステップ |n| における室 |i| の人体表面の対流熱伝達率, W/(|m2| K)
 :math:`h_{hum,r,i,n}`
-    | ステップ |n| における室 |i| の人体表面の放射熱伝達率, W/|m2| K
+    | ステップ |n| における室 |i| の人体表面の放射熱伝達率, W/(|m2| K)
 :math:`h_{s,c,j}`
-    | 境界 |j| の室内側対流熱伝達率, W/|m2| K
+    | 境界 |j| の室内側対流熱伝達率, W/(|m2| K)
 :math:`h_{s,r,j}`
-    | 境界 |j| の室内側放射熱伝達率, W/|m2| K
+    | 境界 |j| の室内側放射熱伝達率, W/(|m2| K)
 :math:`k'_{EI,j,j*}`
-    | 境界 |j| の裏面温度に境界　|j*| の等価温度が与える影響
-:math:`kc_{i,n+1}`
-    | ステップ |n+1| における室 |i| の人体表面の対流熱伝達率が総合熱伝達率に占める割合, -
+    | 境界 |j| の裏面温度に境界　|j*| の等価温度が与える影響, -
+:math:`k_{c,i,n}`
+    | ステップ |n| における室 |i| の人体表面の対流熱伝達率が総合熱伝達率に占める割合, -
 :math:`k_{r,i,n}`
     | ステップ |n| における室 |i| の人体表面の放射熱伝達率が総合熱伝達率に占める割合, -
 :math:`\hat{L}_{CL,i,n}`
-    | ステップ |n| からステップ |n+1| における室 |i| の潜熱負荷（加湿を正・除湿を負とする）, W
+    | ステップ |n| からステップ |n+1| における室 |i| の対流暖冷房設備の潜熱処理量（加湿を正・除湿を負とする）, W
 :math:`\hat{L}_{CS,i,n}`
-    | ステップ |n| からステップ |n+1| における室 |i| の顕熱負荷（暖房を正・冷房を負とする）, W
-:math:`\hat{L}_{SC,i,n}`
-    | ステップ |n| からステップ |n+1| における室 |i| に設置された対流空調の吸放熱量, W
-:math:`\hat{L}_{SR,i,n}`
-    | ステップ |n| からステップ |n+1| における室 |i| に設置された放射空調の吸放熱量, W
+    | ステップ |n| からステップ |n+1| における室 |i| の対流暖冷房設備の顕熱処理量（暖房を正・冷房を負とする）, W
+:math:`\hat{L}_{RS,i,n}`
+    | ステップ |n| からステップ |n+1| における室 |i| に放射暖冷房設備の顕熱処理量（暖房を正・冷房を負とする）, W
 :math:`l_{wtr}`
     | 水の蒸発潜熱, J/kg
 :math:`\hat{n}_{hum,i,n}`
     | ステップ |n| からステップ |n+1| における室 |i| の在室人数, -
 :math:`p_{i,j}`
-    | 室 |i| と境界 |j| の接続に関する係数。　境界 |j| が室 |i| に接している場合は :math:`1` とし、それ以外の場合は :math:`0` とする。
+    | 室 |i| と境界 |j| の接続に関する係数（境界 |j| が室 |i| に接している場合は :math:`1` とし、それ以外の場合は :math:`0` とする。）
 :math:`\hat{q}_{gen,i,n}`
     | ステップ |n| からステップ |n+1| における室 |i| の人体発熱を除く内部発熱, W
 :math:`\hat{q}_{hum,i,n}`
     | ステップ |n| からステップ |n+1| における室 |i| の人体発熱, W
 :math:`\hat{q}_{hum,psn,i,n}`
     | ステップ |n| からステップ |n+1| における室 |i| の1人あたりの人体発熱, W
+:math:`q_{RS,c,max,i}`
+    | 室 |i| の放射暖房設備の最大放熱量（放熱を正とする）, W
+:math:`q_{RS,h,max,i}`
+    | 室 |i| の放射冷房設備の最大吸熱量（吸熱を負とする）, W
 :math:`q_{s,j,n}`
     | ステップ |n| における境界 |j| の表面熱流（壁体吸熱を正とする）, W/|m2|
-:math:`q_{sol,j,n+1}`
+:math:`q_{s,sol,j,n+1}`
     | ステップ |n+1| における境界 |j| の透過日射吸収熱量, W/|m2|
 :math:`\hat{q}_{sol,frt,i,n}`
     | ステップ |n| からステップ |n+1| における室 |i| に設置された家具による透過日射吸収熱量時間平均値, W
 :math:`r_{j,m}`
     | 境界 |j| の項別公比法の指数項 |m| の公比, -
-:math:`V_{rm,i}`
-    | 室 |i| の容積, |m3|
-:math:`\hat{V}_{vent,out,i,n}`
-    | ステップ |n| から ステップ |n+1| における室 |i| の換気・すきま風・自然風の利用による外気の流入量, |m3|/s
-:math:`\hat{V}_{vent,int,i,i*,n}`
-    | ステップ |n| から ステップ |n+1| における室 |i*| から室 |i| への室間の機械換気量（流出換気量を含む）, |m3|/s
+:math:`\hat{r}_{ac,demand,i,n}`
+    | ステップ |n| からステップ |n+1| における室 |i| の空調需要, -
 :math:`\hat{V}_{leak,i,n}`
     | ステップ |n| からステップ |n+1| における室 |i| のすきま風量, |m3|/s
+:math:`V_{rm,i}`
+    | 室 |i| の容積, |m3|
 :math:`\hat{V}_{vent,int,i,i*,n}`
-    | ステップ |n| からステップ |n+1| における室 |i*| から室 |i| への室間の空気移動量, |m3|/s
+    | ステップ |n| から ステップ |n+1| における室 |i*| から室 |i| への室間の空気移動量（流出換気量を含む）, |m3|/s
+:math:`\hat{V}_{vent,out,i,n}`
+    | ステップ |n| から ステップ |n+1| における室 |i| の換気・すきま風・自然風の利用による外気の流入量, |m3|/s
 :math:`\hat{V}_{vent,mec,i,n}`
     | ステップ |n| からステップ |n+1| における室 |i| の機械換気量（全般換気量と局所換気量の合計値）, |m3|/s
 :math:`\hat{V}_{vent,ntr,i,n}`
@@ -131,11 +121,11 @@ I. 評価法
 :math:`X_{r,ntr,i,n}`
     | ステップ |n| における室 |i| の加湿・除湿を行わない場合の絶対湿度, kg/kg(DA)
 :math:`\hat{\beta}_{i,n}`
-    | ステップ |n| からステップ |n+1| における室 |i| に設置された放射暖冷房の対流成分比率, -
+    | ステップ |n| からステップ |n+1| における室 |i| の放射暖冷房設備の対流成分比率, -
 :math:`\beta_{c,i}`
-    | 室 |i| に設置された放射冷房の対流成分比率
+    | 室 |i| の放射冷房設備の対流成分比率
 :math:`\beta_{h,i}`
-    | 室 |i| に設置された放射暖房の対流成分比率
+    | 室 |i| の放射暖房設備の対流成分比率
 :math:`\Delta t`
     | 1ステップの時間間隔, s
 :math:`\theta_{dstrb,j,n}`
@@ -143,9 +133,9 @@ I. 評価法
 :math:`\theta_{EI,j,n}`
     | ステップ |n| における境界 |j| の等価温度, ℃
 :math:`\theta_{frt,i,n}`
-    | ステップ |n| における室 |i| に設置された備品等の温度, ℃
+    | ステップ |n| における室 |i| の備品等の温度, ℃
 :math:`\theta_{lower,target,i,n}`
-    | ステップ |n| における室 |i| の作用温度下限値 , ℃
+    | ステップ |n| における室 |i| の目標作用温度の下限値 , ℃
 :math:`\theta_{mrt,hum,i,n}`
     | ステップ |n| における室 |i| の人体の平均放射温度, ℃
 :math:`\theta_{o,n}`
@@ -153,7 +143,7 @@ I. 評価法
 :math:`\theta_{OT,i,n}`
     | ステップ |n| における室 |i| の作用温度, ℃
 :math:`\theta_{r,i,n}`
-    | ステップ |n| における室 |i| の室温, ℃
+    | ステップ |n| における室 |i| の温度, ℃
 :math:`\theta_{r,OT,ntr,i,n}`
     | ステップ |n| における室 |i| の自然作用温度 , ℃
 :math:`\theta_{rear,j,n}`
@@ -165,7 +155,7 @@ I. 評価法
 :math:`\theta'_{s,t,j,m,n}`
     | ステップ |n| における境界 |j| の項別公比法の指数項 |m| の貫流応答の項別成分, ℃
 :math:`\theta_{upper,target,i,n}`
-    | ステップ |n| における室 |i| の作用温度上限値 , ℃
+    | ステップ |n| における室 |i| の目標作用温度の上限値 , ℃
 :math:`\rho_a`
     | 空気の密度, kg/|m3|
 :math:`\phi_{a0,j}`
@@ -192,64 +182,24 @@ I. 評価法
     | :math:`C_{lh,frt,i}` を要素にもつ :math:`I \times I` の対角化行列, kg/(kg/kg(DA))
 :math:`\pmb{C}_{rm}`
     | :math:`C_{rm,i}` を要素にもつ :math:`I \times I` の対角化行列, J/K
-:math:`\pmb{F}_{AX}`
-    | :math:`F_{AX,j,j*}` を要素にもつ、:math:`J \times J` の行列, -
-:math:`\pmb{F}_{BRC,n}`
-    | :math:`I \times 1` で表される縦行列, W
-:math:`\pmb{F}_{BRC,OT,n}`
-    | :math:`F_{BRC,OT,i,i,n}` を要素にもつ :math:`I \times I` で表される行列, W
-:math:`\pmb{F}_{BRL,n}`
-    | :math:`F_{BRL,i,i,n}` を要素にもつ :math:`I \times I` で表される行列, -
-:math:`\pmb{F}_{BRL,OT,n}`
-    | :math:`F_{BRL,OT,i,i,n}` を要素にもつ :math:`I \times I` で表される縦行列, -
-:math:`\pmb{F}_{BRM,n}`
-    | :math:`F_{BRM,i,i,n}` を要素にもつ :math:`I \times I` で表される行列, W / K
-:math:`\pmb{F}_{BRM,OT,n}`
-    | :math:`F_{BRM,OT,i,i,n}` を要素にもつ :math:`I \times I` で表される行列, W/K
-:math:`\pmb{f}_{CVL,n}`
-    | :math:`f_{CVL,j,n}` を要素にもつ :math:`J \times 1` で表される縦行列, ℃
-:math:`\pmb{F}_{FLB,n}`
-    | :math:`F_{FLB,j，i,n}` を要素にもつ、:math:`J \times I` の行列, K/W
-:math:`\pmb{f}_{h,cst,n}`
-    | :math:`f_{h,cst,i,n}` を要素にもつ :math:`I \times 1` の縦行列, kg/s
-:math:`\pmb{f}_{h,wgt,n}`
-    | :math:`f_{h,wgt,i,i*,n}` を要素にもつ :math:`I \times I` の行列, kg/(s　(kg/kg(DA)))
-:math:`\hat{\pmb{f}}_{L,CL,cst,n}`
-    | :math:`\hat{f}_{L,CL,cst,i,n}` を要素にもつ :math:`I \times 1` の縦行列, kg/s
-:math:`\hat{\pmb{f}}_{L,CL,wgt,n}`
-    | :math:`\hat{f}_{L,CL,wgt,i,i*,n}` を要素にもつ :math:`I \times I` の行列, kg/(s (kg/kg(DA)))
-:math:`\pmb{F}_{WSB,n}`
-    | :math:`F_{WSB,j,i,n}` を要素にもつ :math:`J \times I` で表される行列, K/W
-:math:`\pmb{F}_{WSC,n}`
-    | :math:`F_{WSC,j,n}` を要素にもつ :math:`J \times 1` で表される縦行列, ℃
-:math:`\pmb{F}_{WSR}`
-    | :math:`F_{WSR,j,i}` を要素にもつ :math:`J \times I` で表される行列, -
-:math:`\pmb{F}_{WSV,n}`
-    | :math:`F_{WSV,j,n}` を要素にもつ :math:`J \times 1` で表される縦行列, ℃
-:math:`\pmb{F}_{XC,n}`
-    | :math:`F_{XC,i,n}` を要素にもつ :math:`I \times 1` で表される縦行列, ℃
-:math:`\pmb{F}_{XLR,n}`
-    | :math:`F_{XLR,i,i,n}` を要素にもつ :math:`I \times I` で表される行列, K/W
-:math:`\pmb{F}_{XOT,n}`
-    | :math:`F_{XOT,i,i,n}` を要素にもつ :math:`I \times I` で表される行列, -
 :math:`\pmb{G}_{frt}`
     | :math:`G_{frt,i}` を要素にもつ :math:`I \times I` の対角化行列, W / K
 :math:`\pmb{h}_c`
     | :math:`h_{c,j}` を要素にもつ :math:`J \times J` の対角化行列, W / |m2| K
 :math:`\pmb{h}_{s,c}`
     | :math:`h_{s,c,j}` を要素にもつ :math:`J \times J` の対角化行列
-:math:`\pmb{kc}_{n+1}`
-    | :math:`kc_{i,n+1}` を要素にもつ :math:`I \times I` の対角化行列
+:math:`\pmb{k}_{c,n+1}`
+    | :math:`k_{c,i,n+1}` を要素にもつ :math:`I \times I` の対角化行列
 :math:`\pmb{k}_{ei}`
     | :math:`k_{ei,j,j*}` を要素にもつ :math:`J \times J` の行列, -
 :math:`\pmb{k}_{r,n+1}`
     | :math:`k_{r,i,n+1}` を要素にもつ :math:`I \times I` の対角化行列
 :math:`\hat{\pmb{L}}_{CL,n}`
     | :math:`\hat{L}_{CL,i,n}` を要素にもつ :math:`I \times 1` の縦行列, W
-:math:`\hat{\pmb{L}}_{SC,n}`
-    | :math:`\hat{L}_{SC,i,n}` を要素にもつ :math:`I \times 1` で表される縦行列, W
-:math:`\hat{\pmb{L}}_{SR,n}`
-    | :math:`\hat{L}_{SR,i,n}` を要素にもつ :math:`I \times 1` の縦行列, W
+:math:`\hat{\pmb{L}}_{CS,n}`
+    | :math:`\hat{L}_{CS,i,n}` を要素にもつ :math:`I \times 1` で表される縦行列, W
+:math:`\hat{\pmb{L}}_{RS,n}`
+    | :math:`\hat{L}_{RS,i,n}` を要素にもつ :math:`I \times 1` の縦行列, W
 :math:`\hat{\pmb{q}}_{gen,n}`
     | :math:`\hat{q}_{gen,i,n}` を要素にもつ :math:`I \times 1` の縦行列, W
 :math:`\hat{\pmb{q}}_{hum,n}`
@@ -281,9 +231,146 @@ I. 評価法
 :math:`\pmb{\theta}_{s,n}`
     | :math:`\theta_{s,i,n}` を要素にもつ :math:`I \times 1` の縦行列, ℃
 
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2.3 温度バランス・熱バランスに関する係数
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+ステップ |n+1| における境界 |j| の表面温度 :math:`\theta_{s,j,n+1}`　、
+ステップ |n+1| における室 |j| の温度 :math:`\theta,j,n+1` 、及び
+ステップ |n| からステップ |n+1| における室 |i| の放射暖冷房設備の顕熱処理量（暖房を正・冷房を負とする）  :math:`\hat{L}_{RS,i,n}`
+の関係は次式で表されるとする。
+
+.. math::
+    :nowrap:
+
+    \begin{align*}
+        \pmb{f}_{AX} \cdot \pmb{\theta}_{s,n+1}
+        = \pmb{f}_{FIA} \cdot \pmb{\theta}_{r,n+1}
+        + \pmb{f}_{CRX,n+1}
+        + \pmb{f}_{FLB,n+1} \cdot \hat{\pmb{L}}_{RS,n}
+        + \pmb{f}_{CVL,n+1}
+    \end{align*}
+
+    \begin{align*}
+        \pmb{\theta}_{s,n+1}
+        = \pmb{f}_{WSR} \cdot \pmb{\theta}_{r,n+1}
+        + \pmb{f}_{WSC, n+1}
+        + \pmb{f}_{WSB, n+1} \cdot \pmb{\hat{L}}_{RS,n}
+        + \pmb{f}_{WSV,n+1}
+    \end{align*}
+
+ステップ |n+1| における室 |i| の温度 :math:`\theta_{r,i,n+1}` 、
+ステップ |n| からステップ |n+1| における室 |i| の対流暖冷房設備の顕熱処理量（暖房を正・冷房を負とする） :math:`\hat{\pmb{L}}_{CS,i,n}` 、および
+ステップ |n| からステップ |n+1| における室 |i| の放射暖冷房設備の顕熱処理量（暖房を正・冷房を負とする） :math:`\hat{\pmb{L}}_{RS,i,n}`
+の関係は次式で表されるとする。
+
+.. math::
+    :nowrap:
+
+    \begin{align*}
+        \hat{\pmb{f}}_{BRM,n} \cdot \pmb{\theta}_{r,n+1}
+        = \hat{\pmb{f}}_{BRC,n}
+        + \hat{\pmb{L}}_{CS,n}
+        + \pmb{f}_{BRL, n} \cdot \hat{\pmb{L}}_{RS,n}
+    \end{align*}
+
+ステップ |n+1| における室 |i| の温度 :math:`\theta_{r,i,n+1}` 、
+ステップ |n+1| における室 |i| の作用温度 :math:`\theta_{OT,i,n+1}` 、および
+ステップ |n| からステップ |n+1| における室 |i| の放射暖冷房設備の顕熱処理量（暖房を正・冷房を負とする） :math:`\hat{\pmb{L}}_{RS,i,n}`
+の関係は次式で表されるとする。
+
+.. math::
+    :nowrap:
+
+    \begin{align*}
+        \pmb{\theta}_{r,n+1}
+        = \pmb{f}_{XOT,n+1} \cdot \pmb{\theta}_{OT,n+1}
+        + \pmb{f}_{XLR,n+1} \cdot \hat{\pmb{L}}_{RS,n}
+        + \pmb{f}_{XC,n+1}
+    \end{align*}
+
+ステップ |n+1| における室 |i| の作用温度 :math:`\theta_{OT,i,n+1}` 、
+ステップ |n| からステップ |n+1| における室 |i| の対流暖冷房設備の顕熱処理量（暖房を正・冷房を負とする） :math:`\hat{\pmb{L}}_{CS,i,n}` 、および
+ステップ |n| からステップ |n+1| における室 |i| の放射暖冷房設備の顕熱処理量（暖房を正・冷房を負とする） :math:`\hat{\pmb{L}}_{RS,i,n}`
+の関係は次式で表されるとする。
+
+.. math::
+    :nowrap:
+
+    \begin{align*}
+        \hat{\pmb{f}}_{BRM,OT,n} \cdot \pmb{\theta}_{OT,n+1}
+        = \hat{\pmb{f}}_{BRC,OT,n}
+        + \hat{\pmb{L}}_{CS,n}
+        + \pmb{f}_{BRL,OT,n} \cdot \hat{\pmb{L}}_{RS,n}
+    \end{align*}
+
+ここで、
+
+:math:`\pmb{f}_{AX}`
+    | :math:`f_{AX,j,j*}` を要素にもつ、:math:`J \times J` の行列, -
+:math:`\pmb{f}_{FIA}`
+    | :math:`f_{FIA,j,j*}` を要素にもつ、:math:`J \times J` の行列, -
+:math:`\pmb{f}_{CRX,n}`
+    | :math:`f_{CRX,j,j*,n}` を要素にもつ :math:`I \times 1` で表される縦行列, ℃
+:math:`\pmb{F}_{FLB,n}`
+    | :math:`F_{FLB,j，i,n}` を要素にもつ、:math:`J \times I` の行列, K/W
+:math:`\pmb{f}_{CVL,n}`
+    | :math:`f_{CVL,j,n}` を要素にもつ :math:`J \times 1` で表される縦行列, ℃
+
+:math:`\pmb{ｆ}_{WSR}`
+    | :math:`f_{WSR,j,i}` を要素にもつ :math:`J \times I` で表される行列, -
+:math:`\pmb{f}_{WSC,n}`
+    | :math:`f_{WSC,j,n}` を要素にもつ :math:`J \times 1` で表される縦行列, ℃
+:math:`\pmb{f}_{WSB,n}`
+    | :math:`f_{WSB,j,i,n}` を要素にもつ :math:`J \times I` で表される行列, K/W
+:math:`\pmb{f}_{WSV,n}`
+    | :math:`f_{WSV,j,n}` を要素にもつ :math:`J \times 1` で表される縦行列, ℃
+
+:math:`\hat{\pmb{f}}_{BRM,n}`
+    | :math:`\hat{f}_{BRM,i,i,n}` を要素にもつ :math:`I \times I` で表される行列, W / K
+:math:`\hat{\pmb{f}}_{BRC,n}`
+    | :math:`\hat{f}_{BRC,i,n}` を要素にもつ :math:`I \times 1` で表される縦行列, W
+:math:`\hat{\pmb{f}}_{BRL,n}`
+    | :math:`\hat{f}_{BRL,i,i,n}` を要素にもつ :math:`I \times I` で表される行列, -
+
+:math:`\pmb{f}_{XOT,n}`
+    | :math:`f_{XOT,i,i,n}` を要素にもつ :math:`I \times I` で表される行列, -
+:math:`\pmb{f}_{XLR,n}`
+    | :math:`f_{XLR,i,i,n}` を要素にもつ :math:`I \times I` で表される行列, K/W
+:math:`\pmb{f}_{XC,n}`
+    | :math:`f_{XC,i,n}` を要素にもつ :math:`I \times 1` で表される縦行列, ℃
+
+:math:`\hat{\pmb{f}}_{BRM,OT,n}`
+    | :math:`\hat{f}_{BRM,OT,i,i,n}` を要素にもつ :math:`I \times I` で表される行列, W/K
+:math:`\hat{\pmb{f}}_{BRC,OT,n}`
+    | :math:`\hat{f}_{BRC,OT,i,i,n}` を要素にもつ :math:`I \times I` で表される行列, W
+:math:`\hat{\pmb{f}}_{BRL,OT,n}`
+    | :math:`\hat{f}_{BRL,OT,i,i,n}` を要素にもつ :math:`I \times I` で表される縦行列, -
+
+である。本資料では、各要素は単に係数と呼び、例えば、
+行列 :math:`\pmb{f}_{AX}` の要素は単に、「係数 :math:`f_{AX,j,j*}` 」と呼ぶ。
+
+:math:`\pmb{f}_{h,cst,n}`
+    | :math:`f_{h,cst,i,n}` を要素にもつ :math:`I \times 1` の縦行列, kg/s
+:math:`\pmb{f}_{h,wgt,n}`
+    | :math:`f_{h,wgt,i,i*,n}` を要素にもつ :math:`I \times I` の行列, kg/(s　(kg/kg(DA)))
+:math:`\hat{\pmb{f}}_{L,CL,cst,n}`
+    | :math:`\hat{f}_{L,CL,cst,i,n}` を要素にもつ :math:`I \times 1` の縦行列, kg/s
+:math:`\hat{\pmb{f}}_{L,CL,wgt,n}`
+    | :math:`\hat{f}_{L,CL,wgt,i,i*,n}` を要素にもつ :math:`I \times I` の行列, kg/(s (kg/kg(DA)))
+
+:math:`f_{h,cst,i,n}`
+    | ステップ |n| における室 |i| の潜熱バランスに関する係数, kg/s
+:math:`f_{h,wgt,i,i*,n}`
+    | ステップ |n| における室 |i*| の絶対湿度が室 |i| の潜熱バランスに与える影響を表す係数, kg/(s (kg/kg(DA)))
+:math:`\hat{f}_{L,CL,cst,i,n}`
+    | ステップ |n| から |n+1| における室 |i| の潜熱負荷に与える影響を表す係数, kg/s
+:math:`\hat{f}_{L,CL,wgt,i,i*,n}`
+    | ステップ |n+1| における室 |i*| の絶対湿度がステップ |n| から |n+1| における室 |i| の潜熱負荷に与える影響を表す係数, kg/(s (kg/kg(DA)))
+
 
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-2.2 添え字
+2.4 添え字
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 この計算で用いる添え字を次に示す。
@@ -294,14 +381,14 @@ I. 評価法
     | 境界
 
 ------------------------------------------------------------------------------------------------------------------------
-3 繰り返し計算
+3 繰り返し計算（建物全般）
 ------------------------------------------------------------------------------------------------------------------------
 
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-3.1 湿度と潜熱負荷
+3.1 湿度と潜熱処理量
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-ステップ |n+1| における室 |i| の備品等の絶対湿度 :math:`X_{frt,i,n+1}` は、式(1-1)により表される。
+ステップ |n+1| における室 |i| の備品等の絶対湿度 :math:`X_{frt,i,n+1}` は、式(1.1)により表される。
 
 .. math::
     :nowrap:
@@ -309,11 +396,11 @@ I. 評価法
     \begin{align*}
         X_{frt,i,n+1} = \frac{ C_{lh,frt,i} \cdot X_{frt,i,n} + \Delta t \cdot G_{lh,frt,i} \cdot X_{r,i,n+1} }
         { C_{lh,frt,i} + \Delta t \cdot G_{lh,frt,i} }
-        \tag{1-1}
+        \tag{1.1}
     \end{align*}
 
-ステップ |n| からステップ |n+1| における室 |i| の潜熱負荷（加湿を正・除湿を負とする） :math:`\hat{L}_{CL,i,n}` は、
-式(1-2)により計算される。
+ステップ |n| からステップ |n+1| における室 |i| の対流暖冷房設備の潜熱処理量（加湿を正・除湿を負とする） :math:`\hat{L}_{CL,i,n}` は、
+式(1.2)により表される。
 
 .. math::
     :nowrap:
@@ -321,73 +408,69 @@ I. 評価法
     \begin{align*}
         \pmb{\hat{L}}_{CL,n}
         = l_{wtr} \cdot ( \pmb{\hat{f}}_{L,CL,wgt,n} \cdot \pmb{X}_{r,n+1} + \pmb{\hat{f}}_{L,CL,cst,n} )
-        \tag{1-2}
+        \tag{1.2}
     \end{align*}
 
-ステップ |n+1| における絶対湿度 :math:`\pmb{X}_{r,n+1}` は式(1-3)で表される。
+ステップ |n+1| における室 |i| の絶対湿度 :math:`X_{r,i,n+1}` は、式(1.3)で表される。
 
 .. math::
     :nowrap:
 
     \begin{align*}
-        \pmb{X}_{r,n+1}　= ( \pmb{f}_{h,wgt,n} - \hat{\pmb{f}}_{L,CL,wgt,n} )^{-1} \cdot ( \pmb{f}_{h,cst,n} + \pmb{\hat{f}}_{L,CL,cst,n} )
-        \tag{1-3}
+        \pmb{X}_{r,n+1}　= ( \hat{\pmb{f}}_{h,wgt,n} - \hat{\pmb{f}}_{L,CL,wgt,n} )^{-1} \cdot ( \hat{\pmb{f}}_{h,cst,n} + \hat{\pmb{f}}_{L,CL,cst,n} )
+        \tag{1.3}
     \end{align*}
 
-ステップ |n+1| における室 |i*| の絶対湿度がステップ |n| から |n+1| における室 |i| の潜熱負荷に与える影響を表す係数
-:math:`\hat{f}_{L,CL,wgt,i,i*,n}` 及び
-ステップ |n| から |n+1| における室 |i| の潜熱負荷に与える影響を表す係数
-:math:`\hat{f}_{L,CL,cst,i,n}` は、
-ステップ |n| からステップ |n+1| における室 |i| の顕熱負荷（暖房を正・冷房を負とする） :math:`\hat{L}_{CS,i,n}` 、
-ステップ |n+1| における室 |i| の温度 :math:`\theta_{r,i,n+1}` および
+係数 :math:`\hat{f}_{L,CL,wgt,i,i*,n}` 及び係数 :math:`\hat{f}_{L,CL,cst,i,n}` は、
+ステップ |n| からステップ |n+1| における室 |i| の暖冷房設備の顕熱処理量（暖房を正・冷房を負とする） :math:`\hat{L}_{CS,i,n}` 、
+ステップ |n+1| における室 |i| の温度 :math:`\theta_{r,i,n+1}` 、および
 ステップ |n+1| における室 |i| の加湿・除湿を行わない場合の絶対湿度 :math:`X_{r,ntr,i,n+1}` に応じて定まり、
 その計算方法を????に示す。
 
-ステップ |n+1| における室 |i| の加湿・除湿を行わない場合の絶対湿度 :math:`X_{r,ntr,i,n+1}` は、式(1-4)により表される。
+ステップ |n+1| における室 |i| の加湿・除湿を行わない場合の絶対湿度 :math:`X_{r,ntr,i,n+1}` は、式(1.4)により表される。
 
 .. math::
     :nowrap:
 
     \begin{align*}
-        \pmb{X}_{r,ntr,n+1}　= \pmb{f}_{h,wgt,n}^{-1} \cdot \pmb{f}_{h,cst,n}
-        \tag{1-4}
+        \pmb{X}_{r,ntr,n+1}　= \hat{\pmb{f}}_{h,wgt,n}^{-1} \cdot \hat{\pmb{f}}_{h,cst,n}
+        \tag{1.4}
     \end{align*}
 
-ステップ |n| における室 |i*| の絶対湿度が室 |i| の潜熱バランスに与える影響を表す係数 :math:`f_{h,wgt,i,i*,n}` は、
-式(1-5)により表される。
+係数 :math:`f_{h,wgt,i,i*,n}` は、式(1.5)により表される。
 
 .. math::
     :nowrap:
 
     \begin{align*}
-        f_{h,wgt,i,i*,n}
+        \hat{f}_{h,wgt,i,i*,n}
         &= \left( \rho_a \cdot \left( \frac{ V_{rm,i} }{ \Delta t } + \hat{V}_{vent,out,i,n} \right) + \frac{ G_{lh,frt,i} \cdot C_{lh,frt,i} }{ C_{lh,frt,i} + \Delta t \cdot G_{lh,frt,i} } \right) \cdot \delta_{ii*} \\
     	&- \rho_a \cdot \hat{V}_{vent,int,i,i*}
-        \tag{1-5}
+        \tag{1.5}
     \end{align*}
 
-ステップ |n| における室 |i| の潜熱バランスに関する係数 :math:`f_{h,cst,i,n}` は、式(1-6)により表される。
+係数 :math:`\hat{f}_{h,cst,i,n}` は、式(1.6)により表される。
 
 .. math::
     :nowrap:
 
     \begin{align*}
-        f_{h,cst,i,n}
+        \hat{f}_{h,cst,i,n}
         &= \rho_a \cdot \frac{ V_{rm,i} }{ \Delta t } \cdot X_{r,i,n}
         + \rho_a \cdot \hat{V}_{vent,out,i,n} \cdot X_{o,n+1} \\
 	    &+ \frac{G_{lh,frt,i} \cdot C_{lh,frt,i} }{ C_{lh,frt,i} + \Delta t \cdot G_{lh,frt,i} } \cdot X_{frt,i,n}
         + \hat{X}_{gen,i,n} + \hat{X}_{hum,i,n}
-        \tag{1-6}
+        \tag{1.6}
     \end{align*}
 
 
-ステップ |n| からステップ |n+1| における室 |i| の人体発湿 :math:`\hat{X}_{hum,i,n}` は、式(1-7)により表される。
+ステップ |n| からステップ |n+1| における室 |i| の人体発湿 :math:`\hat{X}_{hum,i,n}` は、式(1.7)により表される。
 
 .. math::
     :nowrap:
 
     \begin{align*}
-        \hat{X}_{hum,i,n} = \hat{X}_{hum,psn,i,n} \cdot \hat{n}_{hum,i,n} \tag{1-7}
+        \hat{X}_{hum,i,n} = \hat{X}_{hum,psn,i,n} \cdot \hat{n}_{hum,i,n} \tag{1.7}
     \end{align*}
 
 ステップ |n| からステップ |n+1| における室 |i| の1人あたりの人体発湿　:math:`\hat{X}_{hum,psn,i,n}` は、
@@ -395,19 +478,19 @@ I. 評価法
 その計算方法を????に示す。
 
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-3.2 温度と顕熱負荷
+3.2 温度と顕熱処理量
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-ステップ |n+1| における境界 |j| の表面熱流（壁体吸熱を正とする） :math:`q_{s,j,n+1}` は式(1)により与えられる。
+ステップ |n+1| における境界 |j| の表面熱流（壁体吸熱を正とする） :math:`q_{s,j,n+1}` は、式(2.1)により与えられる。
 
 .. math::
     :nowrap:
 
     \begin{align*}
-        q_{s,j,n+1} = ( \theta_{EI,j,n+1} - \theta_{s,j,n+1} ) \cdot ( h_{s,c,j} + h_{s,r,j} ) \tag{1}
+        q_{s,j,n+1} = ( \theta_{EI,j,n+1} - \theta_{s,j,n+1} ) \cdot ( h_{s,c,j} + h_{s,r,j} ) \tag{2.1}
     \end{align*}
 
-ステップ |n+1| における境界 |j| の等価温度 :math:`\theta_{EI,j,n}` は式(2)のように表される。
+ステップ |n+1| における境界 |j| の等価温度 :math:`\theta_{EI,j,n+1}` は、式(2.2)のように表される。
 
 .. math::
     :nowrap:
@@ -416,34 +499,23 @@ I. 評価法
         \begin{split}
             \theta_{EI,j,n+1}
             &= \frac{ 1 }{ h_{s,c,j} + h_{s,r,j} } \cdot \\
-            & \left( h_{s,c,j} \sum_{i=0}^{I-1}{ ( p_{i,j} \cdot \theta_{r,i,n+1} ) }
-            + h_{s,r,j} \cdot \sum_{j*=0}^{J-1}{ ( f'_{mrt,j,j*} \cdot \theta_{s,j*,n+1} ) } \right. \\
-            & \left. + q_{sol,j,n+1} + \frac{ \sum_{i=0}^{I-1}{ ( \hat{f}_{flr,i,j,n} \cdot \hat{L}_{SR,i,n} \cdot (1 - \hat{\beta}_{i,n}) ) } }{ A_{s,j} } \right)
+            & \left( h_{s,c,j} \cdot \sum_{i=0}^{I-1}{ ( p_{i,j} \cdot \theta_{r,i,n+1} ) }
+            + h_{s,r,j} \cdot \sum_{j*=0}^{J-1}{ ( f_{mrt,j,j*} \cdot \theta_{s,j*,n+1} ) } \right. \\
+            & \left. + q_{s,sol,j,n+1} + \frac{ \sum_{i=0}^{I-1}{ ( \hat{f}_{flr,i,j,n} \cdot \hat{L}_{RS,i,n} \cdot (1 - \hat{\beta}_{i,n}) ) } }{ A_{s,j} } \right)
         \end{split}
-        \tag{2}
+        \tag{2.2}
     \end{align*}
 
-なお、式中では、境界 |j*| と境界 |j| で添字を書き分けているが、意味するところは同じであり、例えば表面温度の場合、
+ステップ |n+1| における室 |i| の人体の平均放射温度 :math:`\theta_{mrt,hum,i,n+1}` は、式(2.3)により表される。
 
 .. math::
     :nowrap:
 
     \begin{align*}
-        \theta_{s,j,n} = \theta_{s,j*,n}
+        \theta_{mrt,hum,i,n+1} = f_{mrt,hum,i,j} \cdot \theta_{s,j,n+1} \tag{2.3}
     \end{align*}
 
-である。
-
-ステップ |n+1| における室 |i| の人体の平均放射温度 :math:`\theta_{mrt,hum,i,n+1}` は式(3)により表される。
-
-.. math::
-    :nowrap:
-
-    \begin{align*}
-        \theta_{mrt,hum,i,n+1} = f_{mrt,hum,i,j} \cdot \theta_{s,j,n+1} \tag{3}
-    \end{align*}
-
-ステップ |n+1| における室 |i| の家具の温度 :math:`\theta_{frt,i,n+1}` は式(4)で表される。
+ステップ |n+1| における室 |i| の備品等の温度 :math:`\theta_{frt,i,n+1}` は、式(2.4)で表される。
 
 .. math::
     :nowrap:
@@ -451,111 +523,114 @@ I. 評価法
     \begin{align*}
         \theta_{frt,i,n+1} = \frac{
             C_{sh,frt,i} \cdot \theta_{frt,i,n} + \Delta t \cdot G_{sh,frt,i} \cdot \theta_{r,i,n+1}
-            + \Delta t \cdot \hat{q}_{sol,frt,n+1}
+            + \Delta t \cdot \hat{q}_{sol,frt,i,n}
         }{ C_{sh,frt,i} + \Delta t \cdot G_{sh,frt,i} }
-        \tag{4}
+        \tag{2.4}
     \end{align*}
 
-ステップ |n+1| における境界 |j| の表面温度 :math:`\theta_{s,j,n+1}` は式(5)により表される。
+ステップ |n+1| における境界 |j| の表面温度 :math:`\theta_{s,j,n+1}` は式(2.5)により表される。
 
 .. math::
     :nowrap:
 
     \begin{align*}
         \pmb{\theta}_{s,n+1}
-        = \pmb{F}_{WSR} \cdot \pmb{\theta}_{r,n+1} + \pmb{F}_{WSC,n+1} + \pmb{F}_{WSB} \cdot \hat{\pmb{L}}_{SR,n} + \pmb{F}_{WSV,n+1}
-        \tag{5}
+        = \pmb{f}_{WSR} \cdot \pmb{\theta}_{r,n+1} + \pmb{f}_{WSC,n+1} + \pmb{f}_{WSB} \cdot \hat{\pmb{L}}_{RS,n} + \pmb{f}_{WSV,n+1}
+        \tag{2.5}
     \end{align*}
 
-ステップ |n+1| における室 |i| の室温 :math:`\theta_{r,i,n+1}` は式(6)により表される。
+ステップ |n+1| における室 |i| の温度 :math:`\theta_{r,i,n+1}` は式(2.6)により表される。
 
 .. math::
     :nowrap:
 
     \begin{align*}
         \pmb{\theta}_{r,n+1}
-        = \pmb{F}_{XOT,n+1} \cdot \pmb{\theta}_{OT,n+1} - \pmb{F}_{XLR,n+1} \cdot \hat{\pmb{L}}_{SR,n} - \pmb{F}_{XC,n+1}
-        \tag{6}
+        = \pmb{f}_{XOT,n+1} \cdot \pmb{\theta}_{OT,n+1} - \pmb{f}_{XLR,n+1} \cdot \hat{\pmb{L}}_{RS,n} - \pmb{f}_{XC,n+1}
+        \tag{2.6}
     \end{align*}
 
-ステップ |n+1| における室の作用温度　:math:`\pmb{\theta}_{OT,i,n+1}` は式(7)により表される。
+ステップ |n+1| における室の作用温度　:math:`\pmb{\theta}_{OT,i,n+1}` は式(2.7)により表される。
 
 .. math::
     :nowrap:
 
     \begin{align*}
-        \pmb{F}_{BRM,OT,n+1} \cdot \pmb{\theta}_{OT,n+1} = \hat{\pmb{L}}_{SC,n}
-        + \pmb{F}_{BRL,OT,n+1} \cdot \hat{\pmb{L}}_{SR,n}
-        + \pmb{F}_{BRC,OT,n+1}
-        \tag{7}
+        \hat{\pmb{f}}_{BRM,OT,n} \cdot \pmb{\theta}_{OT,n+1}
+        = \hat{\pmb{L}}_{CS,n}
+        + \hat{\pmb{f}}_{BRL,OT,n+1} \cdot \hat{\pmb{L}}_{RS,n}
+        + \hat{\pmb{f}}_{BRC,OT,n+1}
+        \tag{2.7}
     \end{align*}
 
 作用温度（左辺の :math:`\theta_{OT,i,n+1}` ）を与えて
-負荷（右辺の :math:`\hat{L}_{SC,i,n}` 及び :math:`\hat{L}_{SR,i,n}` ）を未知数として計算する場合（いわゆる負荷計算）と、
-負荷（右辺の :math:`\hat{L}_{SC,i,n}` 及び :math:`\hat{L}_{SR,i,n}` を与えて
+負荷（右辺の :math:`\hat{L}_{CS,i,n}` 及び :math:`\hat{L}_{RS,i,n}` ）を未知数として計算する場合（いわゆる負荷計算）と、
+負荷（右辺の :math:`\hat{L}_{CS,i,n}` 及び :math:`\hat{L}_{RS,i,n}` を与えて
 作用温度（左辺の :math:`\theta_{OT,i,n+1}` ）を未知数として計算する場合（いわゆる成り行き温度）があり、
 どちらの計算を行うのかは各室 :math:`i` ごとに定められる運転スケジュールにより決定される。
 
 また、運転スケジュールから空調を行う場合でも、自然室温（空調しない場合の室温）が設定温度以上（暖房時）または設定温度以下（冷房時）の場合は、
 自然室温計算を行うことになる。
 
-負荷の :math:`\hat{L}_{SC,i,n}` 及び :math:`\hat{L}_{SR,i,n}` の内訳は、
+負荷の :math:`\hat{L}_{CS,i,n}` 及び :math:`\hat{L}_{RS,i,n}` の内訳は、
 対流暖冷房設備・放射暖冷房設備の設置の有無及びそれらの最大能力等に依存する。
 
 負荷計算を行うか、成り行き温度計算を行うかの如何に関わらず、
-作用温度 :math:`\theta_{OT,i,n+1}`　及び負荷 :math:`\hat{L}_{SC,i,n}` 及び :math:`\hat{L}_{SR,i,n}` を計算することになる。
+作用温度 :math:`\theta_{OT,i,n+1}`　及び負荷 :math:`\hat{L}_{CS,i,n}` 及び :math:`\hat{L}_{RS,i,n}` を計算することになる。
 
 まとめると、この計算は、
 
 入力値
 
-* 係数 :math:`\pmb{F}_{BRM,OT,n+1}` , W / K
-* 係数 :math:`\pmb{F}_{BRL,OT,n+1}` , -
-* 係数 :math:`\pmb{F}_{BRC,OT,n+1}` , W
+* 係数 :math:`\hat{\pmb{f}}_{BRM,OT,n+1}` , W / K
+* 係数 :math:`\hat{\pmb{f}}_{BRL,OT,n+1}` , -
+* 係数 :math:`\hat{\pmb{f}}_{BRC,OT,n+1}` , W
 * ステップ |n| から |n+1| における室 |i| の運転モード（暖房・冷房・暖房・冷房停止で窓「開」・暖房・冷房停止で窓「閉」）
-* ステップ |n+1| における室 |i| の目標作用温度（冷房用） :math:`\theta_{OT,upper,target,i,n+1}`
-* ステップ |n+1| における室 |i| の目標作用温度（暖房用） :math:`\theta_{OT,lower,target,i,n+1}`
+* ステップ |n+1| における室 |i| の目標作用温度の上限値 :math:`\theta_{OT,upper,target,i,n+1}`
+* ステップ |n+1| における室 |i| の目標作用温度の下限値 :math:`\theta_{OT,lower,target,i,n+1}`
 * ステップ |n| から |n+1| における室 |i| の空調需要 :math:`\hat{r}_{ac,demand,i,n}`
 * 室 |i| の放射暖房の有無
 * 室 |i| の放射冷房の有無
-* 室 |i| の放射暖房の最大放熱量（放熱を正値とする） :math:`q_{SR,h,max,i}`, W
-* 室 |i| の放射冷房の最大吸熱量（吸熱を負値とする） :math:`q_{SR,c,max,i}`, W
+* 室 |i| の放射暖房設備の最大放熱量（放熱を正とする） :math:`q_{RS,h,max,i}`, W
+* 室 |i| の放射冷房設備の最大吸熱量（吸熱を負とする） :math:`q_{RS,c,max,i}`, W
 * ステップ |n+1| における室 |i| の自然作用温度 :math:`\theta_{r,OT,ntr,i,n+1}`, ℃
 
 出力値
 
 * ステップ |n+1| における室 |i| の作用温度 :math:`\theta_{OT,i,n+1}` , ℃
-* ステップ |n| からステップ |n+1| における室 |i| に設置された対流空調の吸放熱量 :math:`\hat{L}_{SC,i,n}` , W
-* ステップ |n| からステップ |n+1| における室 |i| に設置された放射空調の吸放熱量 :math:`\hat{L}_{SR,i,n}` , W
+* ステップ |n| からステップ |n+1| における室 |i| の対流暖冷房設備の顕熱処理量（暖房を正、冷房を負とする） :math:`\hat{L}_{CS,i,n}` , W
+* ステップ |n| からステップ |n+1| における室 |i| の放射暖冷房設備の顕熱処理量（暖房を正、冷房を負とする） :math:`\hat{L}_{RS,i,n}` , W
 
 である。これらの計算方法は、付録・・・に示す。
 
-係数 :math:`\pmb{F}_{BRL,OT,n+1}` は、式(8)により表される。
+係数 :math:`\hat{\pmb{f}}_{BRL,OT,i,i*,n}` は、式(2.8)により表される。
 
 .. math::
     :nowrap:
 
     \begin{align*}
-        \pmb{F}_{BRL,OT,n+1} = \pmb{F}_{BRL,n+1} + \pmb{F}_{BRM,n+1} \cdot \pmb{F}_{XLR,n+1} \tag{8}
+        \hat{\pmb{f}}_{BRL,OT,n} = \hat{\pmb{f}}_{BRL,n} + \hat{\pmb{f}}_{BRM,n} \cdot \pmb{f}_{XLR,n+1}
+        \tag{2.8}
     \end{align*}
 
-係数 :math:`\pmb{F}_{XLR,n+1}` は、式(9)により表される。
+係数 :math:`\pmb{f}_{XLR,n+1}` は、式(2.9)により表される。
 
 .. math::
     :nowrap:
 
     \begin{align*}
-        \pmb{F}_{XLR,n+1} = \pmb{F}_{XOT,n+1} \cdot \pmb{k}_{r,n+1} \cdot \pmb{F}_{mrt,hum} \cdot \pmb{F}_{WSB,n+1} \tag{9}
+        \pmb{f}_{XLR,n+1} = \pmb{f}_{XOT,n+1} \cdot \pmb{k}_{r,n+1} \cdot \pmb{f}_{mrt,hum} \cdot \pmb{f}_{WSB,n+1}
+        \tag{2.9}
     \end{align*}
 
-係数 :math:`\pmb{F}_{BRL,n}` は、式(10)により表される。
+係数 :math:`\pmb{f}_{BRL,n}` は、式(2.10)により表される。
 
 .. math::
     :nowrap:
 
     \begin{align*}
-        \pmb{F}_{BRL,n} = \pmb{p}_{ij} \cdot \pmb{h}_{s,c} \cdot \pmb{A}_{s} \cdot \pmb{F}_{WSB,n+1} + \hat{\pmb{\beta}}_{n}
-        \tag{10}
+        \pmb{f}_{BRL,n} = \pmb{p}_{ij} \cdot \pmb{h}_{s,c} \cdot \pmb{A}_{s} \cdot \pmb{F}_{WSB,n+1} + \hat{\pmb{\beta}}_{n}
+        \tag{2.10}
     \end{align*}
 
 また、 :math:`\pmb{p}_{ij}` は :math:`p_{i,j}` を要素にもつ、室 |i| と境界 |j| との関係を表す行列であり、
@@ -574,33 +649,34 @@ I. 評価法
 
 と定義する。
 
-:math:`\pmb{F}_{WSB,n+1}` は、式(11)により表される。
+係数 :math:`\pmb{f}_{WSB,n+1}` は、式(2.11)により表される。
 
 .. math::
     :nowrap:
 
     \begin{align*}
-        \pmb{F}_{WSB,n+1} = \pmb{F}_{AX}^{-1} \cdot \pmb{F}_{FLB,n+1} \tag{11}
+        \pmb{f}_{WSB,n+1} = \pmb{f}_{AX}^{-1} \cdot \pmb{f}_{FLB,n+1}
+        \tag{2.11}
     \end{align*}
 
-:math:`F_{FLB,j,i,n+1}` は、式(12)により表される。
+係数 :math:`f_{FLB,j,i,n+1}` は、式(2.12)により表される。
 
 .. math::
     :nowrap:
 
     \begin{align*}
         \begin{split}
-            F_{FLB,j,i,n+1}
+            f_{FLB,j,i,n+1}
             &= \frac{ \phi_{A0,j} \cdot ( 1 - \hat{\beta}_{i,n} ) \cdot f_{flr,i,j,n+1} }{ A_{s,j} } \\
             &+ \phi_{T0,j} \cdot \sum_{j*=0}^{J-1}{
             \frac{ k'_{EI,j,j*}  \cdot ( 1 - \hat{\beta}_{i,n} ) \cdot f_{flr,i,j*,n+1} }{ A_{s,j*} \cdot ( h_{s,c,j*} + h_{s,r,j*} ) }
             }
         \end{split}
-        \tag{12}
+        \tag{2.12}
     \end{align*}
 
-ステップ |n| からステップ |n+1| における室 |i| に設置された放射暖冷房の対流成分比率 :math:`\hat{\beta}_{i,n}` および、
-ステップ |n| からステップ |n+1| における室 |i| に設置された放射暖房の放熱量のうち放射成分に対する境界 |j| の室内側表面の吸収比率 :math:`{\hat{f}_{flr,i,j,n}}` は、
+ステップ |n| からステップ |n+1| における室 |i| の放射暖冷房設備の対流成分比率 :math:`\hat{\beta}_{i,n}` および、
+ステップ |n| からステップ |n+1| における室 |i| の放射暖冷房設備の放熱量のうち放射成分に対する境界 |j| の室内側表面の吸収比率 :math:`{\hat{f}_{flr,i,j,n}}` は、
 
 ステップ |n| からステップ |n+1| における室 |i| の運転が暖房運転時の場合
 
@@ -608,11 +684,11 @@ I. 評価法
     :nowrap:
 
     \begin{align*}
-        \hat{\beta}_{i,n} = \beta_{h,i} \tag{13a}
+        \hat{\beta}_{i,n} = \beta_{h,i} \tag{2.13a}
     \end{align*}
 
     \begin{align*}
-        \hat{f}_{flr,i,j,n} = f_{flr,h,i,j} \tag{14a}
+        \hat{f}_{flr,i,j,n} = f_{flr,h,i,j} \tag{2.14a}
     \end{align*}
 
 ステップ |n| からステップ |n+1| における室 |i| の運転が冷房運転時の場合
@@ -621,11 +697,11 @@ I. 評価法
     :nowrap:
 
     \begin{align*}
-        \hat{\beta}_{i,n} = \beta_{c,i} \tag{13b}
+        \hat{\beta}_{i,n} = \beta_{c,i} \tag{2.13b}
     \end{align*}
 
     \begin{align*}
-        \hat{f}_{flr,i,j,n} = f_{flr,c,i,j} \tag{14b}
+        \hat{f}_{flr,i,j,n} = f_{flr,c,i,j} \tag{2.14b}
     \end{align*}
 
 それ以外の場合
@@ -634,140 +710,147 @@ I. 評価法
     :nowrap:
 
     \begin{align*}
-        \hat{\beta}_{i,n} = 0 \tag{13c}
+        \hat{\beta}_{i,n} = 0 \tag{2.13c}
     \end{align*}
 
     \begin{align*}
-        \hat{f}_{flr,i,j,n} = 0 \tag{14c}
+        \hat{f}_{flr,i,j,n} = 0 \tag{2.14c}
     \end{align*}
 
 とする。
 
 「ステップ |n| からステップ |n+1| における室 |i| の運転が暖房運転時の場合」とは、
-運転モードが「暖房」であり、かつ式(15a)を満たす場合をいう。
+運転モードが「暖房」であり、かつ式(2.15a)を満たす場合をいう。
 
 .. math::
     :nowrap:
 
     \begin{align*}
-        \theta_{r,OT,ntr,i,n+1} < \theta_{lower,target,i,n+1} \tag{15a}
+        \theta_{r,OT,ntr,i,n+1} < \theta_{lower,target,i,n+1}
+        \tag{2.15a}
     \end{align*}
 
 「ステップ |n| からステップ |n+1| における室 |i| の運転が冷房運転時の場合」とは、
-運転モードが「冷房」であり、かつ式(15b)を満たす場合をいう。
+運転モードが「冷房」であり、かつ式(2.15b)を満たす場合をいう。
 
 .. math::
     :nowrap:
 
     \begin{align*}
-        \theta_{upper,target,i,n+1} < \theta_{r,OT,ntr,i,n+1} \tag{15b}
+        \theta_{upper,target,i,n+1} < \theta_{r,OT,ntr,i,n+1}
+        \tag{2.15b}
     \end{align*}
 
-ステップ |n+1| における室 |i| の自然作用温度 :math:`\theta_{r,OT,ntr,i,n+1}`　は式(16)により表される。
+ステップ |n+1| における室 |i| の自然作用温度 :math:`\theta_{r,OT,ntr,i,n+1}`　は式(2.16)により表される。
 
 .. math::
     :nowrap:
 
     \begin{align*}
-        \pmb{\theta}_{r,OT,ntr,n+1} = \pmb{f}_{BRM,OT,n+1}^{-1} \cdot \pmb{F}_{BRC,OT,n+1} \tag{16}
+        \pmb{\theta}_{r,OT,ntr,n+1} = \pmb{f}_{BRM,OT,n+1}^{-1} \cdot \pmb{F}_{BRC,OT,n+1}
+        \tag{2.16}
     \end{align*}
 
-係数 :math:`\pmb{F}_{BRC,OT,n+1}` は、式(17)により表される。
+係数 :math:`\hat{\pmb{f}}_{BRC,OT,n}` は、式(2.17)により表される。
 
 .. math::
     :nowrap:
 
     \begin{align*}
-        \pmb{F}_{BRC,OT,n+1} = \pmb{F}_{BRC,n} + \pmb{F}_{BRM,n} \cdot \pmb{F}_{XC,n+1} \tag{17}
+        \hat{\pmb{f}}_{BRC,OT,n} = \hat{\pmb{f}}_{BRC,n} + \hat{\pmb{f}}_{BRM,n} \cdot \pmb{f}_{XC,n+1}
+        \tag{2.17}
     \end{align*}
 
-係数 :math:`\pmb{F}_{BRM,OT,n+1}` は、式(18)により表される。
+係数 :math:`\hat{\pmb{f}}_{BRM,OT,n}` は、式(2.18)により表される。
 
 .. math::
     :nowrap:
 
     \begin{align*}
-        \pmb{F}_{BRM,OT,n+1} = \pmb{F}_{BRM,n} \cdot \pmb{F}_{XOT,n+1} \tag{18}
+        \hat{\pmb{f}}_{BRM,OT,n} = \hat{\pmb{f}}_{BRM,n} \cdot \pmb{f}_{XOT,n+1}
+        \tag{2.18}
     \end{align*}
 
-係数 :math:`\pmb{F}_{XC,n}` は、式(19)により表される。
+係数 :math:`\pmb{f}_{XC,n}` は、式(2.19)により表される。
 
 .. math::
     :nowrap:
 
     \begin{align*}
-        \pmb{F}_{XC,n+1} = \pmb{F}_{XOT,n+1} \cdot \pmb{kr}_{n+1} \cdot \pmb{F}_{mrt,hum}
-        \cdot ( \pmb{F}_{WSC,n+1} + \pmb{F}_{WSV,n+1} )
-        \tag{19}
+        \pmb{f}_{XC,n+1} = \pmb{f}_{XOT,n+1} \cdot \pmb{k}_{r,n+1} \cdot \pmb{f}_{mrt,hum}
+        \cdot ( \pmb{f}_{WSC,n+1} + \pmb{f}_{WSV,n+1} )
+        \tag{2.19}
     \end{align*}
 
-係数 :math:`\pmb{F}_{XOT,n+1}` は、式(20)により表される。
+係数 :math:`\pmb{f}_{XOT,n+1}` は、式(2.20)により表される。
 
 .. math::
     :nowrap:
 
     \begin{align*}
-        \pmb{F}_{XOT,n+1} = \left( \pmb{kc}_{n+1} + \pmb{kr}_{n+1} \cdot \pmb{F}_{mrt,hum} \cdot \pmb{F}_{WSR} \right)^{-1}
-        \tag{20}
+        \pmb{f}_{XOT,n+1} = \left( \pmb{k}_{c,n+1} + \pmb{k}_{r,n+1} \cdot \pmb{f}_{mrt,hum} \cdot \pmb{f}_{WSR} \right)^{-1}
+        \tag{2.20}
     \end{align*}
 
-ステップ |n+1| における室 |i| の人体表面の対流熱伝達率が総合熱伝達率に占める割合 :math:`kc_{i,n+1}` 及び
-ステップ |n+1| における室 |i| の人体表面の放射熱伝達率が総合熱伝達率に占める割合　:math:`kr_{i,n+1}`　は、
-式(21)及び式(22)で表される。
+ステップ |n+1| における室 |i| の人体表面の対流熱伝達率が総合熱伝達率に占める割合 :math:`k_{c,i,n+1}` 及び
+ステップ |n+1| における室 |i| の人体表面の放射熱伝達率が総合熱伝達率に占める割合　:math:`k_{r,i,n+1}`　は、
+式(2.21)及び式(2.22)で表される。
 
 .. math::
     :nowrap:
 
     \begin{align*}
-        kc_{i,n} = \frac{ h_{hum,c,i,n} }{ ( h_{hum,c,i,n} + h_{hum,r,i,n} ) } \tag{21}
+        k_{c,i,n+1} = \frac{ h_{hum,c,i,n+1} }{ ( h_{hum,c,i,n+1} + h_{hum,r,i,n+1} ) }
+        \tag{2.21}
     \end{align*}
 
     \begin{align*}
-        kr_{i,n} = \frac{ h_{hum,r,i,n} }{ ( h_{hum,c,i,n} + h_{hum,r,i,n} ) } \tag{22}
+        k_{r,i,n+1} = \frac{ h_{hum,r,i,n+1} }{ ( h_{hum,c,i,n+1} + h_{hum,r,i,n+1} ) }
+        \tag{2.22}
     \end{align*}
 
-係数 :math:`\pmb{F}_{BRM,n}` は、式(23)により表される。
+係数 :math:`\hat{\pmb{f}}_{BRM,n}` は、式(2.23)により表される。
 
 .. math::
     :nowrap:
 
     \begin{align*}
         \begin{split}
-            \pmb{F}_{BRM,n}
+            \hat{\pmb{f}}_{BRM,n}
             & = \frac{\pmb{C}_{rm}}{\Delta t}
-            + \pmb{p}_{ij} \cdot \pmb{h}_{s,c} \cdot \pmb{A}_s \cdot (\pmb{p}_{ji} - \pmb{F}_{WSR}) \\
+            + \pmb{p}_{ij} \cdot \pmb{h}_{s,c} \cdot \pmb{A}_s \cdot (\pmb{p}_{ji} - \pmb{f}_{WSR}) \\
             & + c_a \cdot \rho_a \cdot ( \hat{\pmb{V}}_{vent,out,n} - \hat{\pmb{V}}_{vent,int,n} )
             + \frac{ \pmb{G}_{sh,frt} \cdot \pmb{C}_{sh,frt} }{ ( \pmb{C}_{sh,frt} + \Delta t \cdot \pmb{G}_{sh,frt} ) }
         \end{split}
-        \tag{23}
+        \tag{2.23}
     \end{align*}
 
-係数 :math:`\pmb{F}_{BRC,n}` は、式(24)により表される。
+係数 :math:`\hat{\pmb{f}}_{BRC,n}` は、式(2.24)により表される。
 
 .. math::
     :nowrap:
 
     \begin{align*}
         \begin{split}
-            \pmb{F}_{BRC,n}
+            \hat{\pmb{f}}_{BRC,n}
             & = \frac{ \pmb{C}_{rm} \cdot \pmb{\theta}_{r,n} }{\Delta t}
-            + \pmb{p}_{ij} \cdot \pmb{h}_{s,c} \cdot \pmb{A}_s \cdot (\pmb{F}_{WSC,n+1} + \pmb{F}_{WSV,n+1}) \\
+            + \pmb{p}_{ij} \cdot \pmb{h}_{s,c} \cdot \pmb{A}_s \cdot (\pmb{f}_{WSC,n+1} + \pmb{f}_{WSV,n+1}) \\
             & + c_a \cdot \rho_a \cdot \hat{\pmb{V}}_{vent,out,n} \cdot \pmb{\theta}_{o,n+1} \\
             & + \hat{\pmb{q}}_{gen,n} + \hat{\pmb{q}}_{hum,n} \\
             & + \frac{ \pmb{G}_{sh,frt} \cdot ( \pmb{C}_{sh,frt} \cdot \pmb{\theta}_{frt,n} + \Delta t \cdot \hat{\pmb{q}}_{sol,frt,n} ) }
             { \pmb{C}_{sh,frt} + \Delta t \cdot \pmb{G}_{sh,frt} }
         \end{split}
-        \tag{24}
+        \tag{2.24}
     \end{align*}
 
-ステップ |n| からステップ |n+1| における室 |i| の換気・すきま風・自然風の利用による外気の流入量 :math:`V_{vent,out,i,n}` は、式(25)により表される。
+ステップ |n| からステップ |n+1| における室 |i| の換気・すきま風・自然風の利用による外気の流入量 :math:`V_{vent,out,i,n}` は、式(2.25)により表される。
 
 .. math::
     :nowrap:
 
     \begin{align*}
         \hat{V}_{vent,out,i,n} = \hat{V}_{leak,i,n} + \hat{V}_{vent,mec,i,n} + \hat{V}_{vent,ntr,i,n}
-        \tag{25}
+        \tag{2.25}
     \end{align*}
 
 ステップ |n| からステップ |n+1| における室 |i| の自然風利用による換気量 :math:`\hat{V}_{vent,ntr,i,n}` は、
@@ -777,7 +860,8 @@ I. 評価法
     :nowrap:
 
     \begin{align*}
-        \hat{V}_{vent,ntr,i,n} = \hat{V}_{vent,ntr,set,i} \tag {26a}
+        \hat{V}_{vent,ntr,i,n} = \hat{V}_{vent,ntr,set,i}
+        \tag{2.26a}
     \end{align*}
 
 とし、それ以外の場合（運転モードが「暖房・冷房停止で窓「開」」でない場合）は、
@@ -786,42 +870,44 @@ I. 評価法
     :nowrap:
 
     \begin{align*}
-        \hat{V}_{vent,ntr,i,n} = 0 \tag {26b}
+        \hat{V}_{vent,ntr,i,n} = 0
+        \tag{2.26b}
     \end{align*}
 
 とする。
 
-係数 :math:`\pmb{F}_{WSV,n+1}` は、式(27)により表される。
+係数 :math:`\pmb{f}_{WSV,n+1}` は、式(2.27)により表される。
 
 .. math::
     :nowrap:
 
     \begin{align*}
-        \pmb{f}_{WSV,n+1} = \pmb{f}_{AX}^{-1} \cdot \pmb{f}_{CVL,n+1} \tag {27}
+        \pmb{f}_{WSV,n+1} = \pmb{f}_{AX}^{-1} \cdot \pmb{f}_{CVL,n+1}
+        \tag{2.27}
     \end{align*}
 
-係数 :math:`f_{CVL,j,n+1}` は、式(28)により表される。
+係数 :math:`f_{CVL,j,n+1}` は、式(2-28)により表される。
 
 .. math::
     :nowrap:
 
     \begin{align*}
         f_{CVL,j,n+1} = \sum_{m=1}^{M}{\theta'_{s,a,j,m,n+1}} + \sum_{m=1}^{M}{\theta_{s,t,j,m,n+1}}
-        \tag{28}
+        \tag{2-28}
     \end{align*}
 
 :math:`M` は項別公比法の指数項の数である。
 
 ステップ |n+1| における境界 |j| の項別公比法の指数項 |m| の吸熱応答の項別成分 :math:`\theta'_{s,a,j,m,n+1}` 及び、
 ステップ |n+1| における境界 |j| の項別公比法の指数項 |m| の貫流応答の項別成分 :math:`\theta'_{s,t,j,m,n+1}` は、
-式(29)及び式(30)により表される。
+式(2.29)及び式(2.30)により表される。
 
 .. math::
     :nowrap:
 
     \begin{align*}
         \theta'_{s,a,j,m,n+1} = q_{s,j,n} \cdot \phi_{a1,j,m} + r_{j,m} \cdot \theta'_{s,a,j,m,n}
-        \tag{29}
+        \tag{2.29}
     \end{align*}
 
 .. math::
@@ -829,35 +915,35 @@ I. 評価法
 
     \begin{align*}
         \theta'_{s,t,j,m,n+1} = \theta_{rear,j,n} \cdot \phi_{t1,j,m} + r_{j,m} \cdot \theta'_{s,t,j,m,n}
-        \tag{30}
+        \tag{2.30}
     \end{align*}
 
 ステップ |n| からステップ |n+1| における室 |i| のすきま風量 :math:`\hat{V}_{leak,i,n}` は、
-ステップ |n| における室 |i| の空気温度 :math:`\theta_{r,i,n}` 及びステップ |n| における外気温度 :math:`\theta_{o,n}`に依存して、
+ステップ |n| における室 |i| の空気温度 :math:`\theta_{r,i,n}` 及びステップ |n| における外気温度 :math:`\theta_{o,n}` に依存して、
 ??に示す方法により定まる。
 
-ステップ |n| からステップ |n+1| における室 |i| の人体発熱 :math:`\hat{q}_{hum,i,n}` は、式(31)により表される。
+ステップ |n| からステップ |n+1| における室 |i| の人体発熱 :math:`\hat{q}_{hum,i,n}` は、式(2.31)により表される。
 
 .. math::
     :nowrap:
 
     \begin{align*}
         \hat{q}_{hum,i,n} = \hat{q}_{hum,psn,i,n} \cdot \hat{n}_{hum,i,n}
-        \tag{31}
+        \tag{2.31}
     \end{align*}
 
 ステップ |n| からステップ |n+1| における室 |i| の1人あたりの人体発熱 :math:`\hat{q}_{hum,psn,i,n}` は、
 ステップ |n| における室 |i| の室温 :math:`\theta_{r,i,n}` に応じて??に示す方法により定まる。
 
 
-ステップ |n| における境界 |j| の裏面温度　:math:`\theta_{rear,j,n}` は、式(32)により表される。
+ステップ |n| における境界 |j| の裏面温度　:math:`\theta_{rear,j,n}` は、式(2.32)により表される。
 
 .. math::
     :nowrap:
 
     \begin{align*}
         \pmb{\theta}_{rear,n} = \pmb{k}_{ei} \cdot \pmb{\theta}_{ei,n} + \pmb{\theta}_{dstrb,n}
-        \tag{32}
+        \tag{2.32}
     \end{align*}
 
 次に示す値、
@@ -877,3 +963,52 @@ I. 評価法
 * ステップ |n| から |n+1| における室 |i| の空調需要 :math:`\hat{r}_{ac,demand,i,n}`
 
 に応じて、??に定める方法により計算される。
+
+------------------------------------------------------------------------------------------------------------------------
+4 繰り返し計算（地盤）
+------------------------------------------------------------------------------------------------------------------------
+
+ステップ |n+1| における境界 |j| の表面熱流（壁体吸熱を正とする） :math:`q_{s,j,n+1}` は、式(3.1)により表される。
+
+.. math::
+    :nowrap:
+
+    \begin{align*}
+        q_{s,j,n+1} = ( h_{s,c,j} + h_{s,r,j} ) \cdot ( \theta_{o,n+1} - \theta_{s,j,n+1} ) \tag{3.1}
+    \end{align*}
+
+ステップ |n+1| における境界 |j| の表面温度 :math:`\theta_{s,j,n+1}` は、式(3.2)により表される。
+
+.. math::
+    :nowrap:
+
+    \begin{align*}
+        \begin{split}
+            \theta_{s,j,n+1}
+            &= \left( \phi_{a0,j} \cdot h_{i,j} \cdot \theta_{o,n+1} + \phi_{t0,j} \cdot \theta_{dstrb,j,n+1} \right. \\
+            &+ \left. \sum_{m=0}^{M-1}{\theta'_{s,a,j,m,n+1}} + \sum_{m=0}^{M-1}{\theta'_{s,t,j,m,n+1}} \right)
+            \cdot \frac{1}{1 + \phi_{a0,j} \cdot (h_{s,c,j} + h_{s,r,j}) }
+        \end{split}
+        \tag{3.2}
+    \end{align*}
+
+ステップ |n+1| における境界 |j| の項別公比法の指数項 |m| の吸熱応答の項別成分 :math:`\theta'_{s,a,j,m,n+1}` 及び、
+ステップ |n+1| における境界 |j| の項別公比法の指数項 |m| の貫流応答の項別成分 :math:`\theta'_{s,t,j,m,n+1}` は、
+式(3.3)及び式(3.4)により表される。
+
+.. math::
+    :nowrap:
+
+    \begin{align*}
+        \theta'_{s,a,j,m,n+1} = q_{s,j,n} \cdot \phi_{a1,j,m} + r_{j,m} \cdot \theta'_{s,a,j,m,n}
+        \tag{3.3}
+    \end{align*}
+
+.. math::
+    :nowrap:
+
+    \begin{align*}
+        \theta'_{s,t,j,m,n+1} = \theta_{dstrb,j,n} \cdot \phi_{t1,j,m} + r_{j,m} \cdot \theta'_{s,t,j,m,n}
+        \tag{3.4}
+    \end{align*}
+
