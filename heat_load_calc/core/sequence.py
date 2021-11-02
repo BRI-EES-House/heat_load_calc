@@ -691,10 +691,10 @@ def get_theta_s_js_n_pls(f_wsb_js_is_n_pls, f_wsc_js_n_pls, f_wsr_js_is, f_wsv_j
     """
 
     Args:
-        f_wsb_js_is_n_pls:
-        f_wsc_js_n_pls:
-        f_wsr_js_is:
-        f_wsv_js_n_pls:
+        f_wsb_js_is_n_pls: ステップ n+1 における係数 f_WSB, K/W, [j, 1]
+        f_wsc_js_n_pls: ステップ n+1 における係数 f_WSC, degree C, [j, 1]
+        f_wsr_js_is: 係数 f_WSR, - [j, i]
+        f_wsv_js_n_pls: ステップ n+1 における係数 f_WSV, degree C, [j, 1]
         l_rs_is_n: ステップ n からステップ n+1 における室 i に放射暖冷房設備の顕熱処理量（暖房を正・冷房を負とする）, W, [i, 1]
         theta_r_is_n_pls: ステップ n+1 における室 i の温度, degree C, [i, 1]
 
@@ -753,7 +753,7 @@ def get_f_xlr_is_is_n_pls(f_mrt_hum_is_js, f_wsb_js_is_n_pls, f_xot_is_is_n_pls,
 
     Args:
         f_mrt_hum_is_js: 境界 j から室 i の人体に対する形態係数, -, [i, j]
-        f_wsb_js_is_n_pls:
+        f_wsb_js_is_n_pls: ステップ n+1 における係数 f_WSB, K/W, [j, 1]
         f_xot_is_is_n_pls:
         k_r_is_n:
 
@@ -774,7 +774,7 @@ def get_f_brl_is_is_n(a_s_js, beta_is_n, f_wsb_js_is_n_pls, h_s_c_js, p_is_js):
     Args:
         a_s_js: 境界 j の面積, m2, [j, 1]
         beta_is_n: ステップ n からステップ n+1 における室 i の放射暖冷房設備の対流成分比率, -, [i, 1]
-        f_wsb_js_is_n_pls:
+        f_wsb_js_is_n_pls: ステップ n+1 における係数 f_WSB, K/W, [j, 1]
         h_s_c_js: 境界 j の室内側対流熱伝達率, W/(m2 K), [j, 1]
         p_is_js:
 
@@ -797,7 +797,7 @@ def get_f_wsb_js_is_n_pls(f_flb_js_is_n_pls, ivs_f_ax_js_js):
         ivs_f_ax_js_js:
 
     Returns:
-        ステップ n における係数 f_WSB, [j, i]
+        ステップ n+1 における係数 f_WSB, K/W, [j, i]
 
     Notes:
         式(2.11)
@@ -954,8 +954,8 @@ def get_f_xc_is_n_pls(f_mrt_hum_is_js, f_wsc_js_n_pls, f_wsv_js_n_pls, f_xot_is_
 
     Args:
         f_mrt_hum_is_js: 境界 j から室 i の人体に対する形態係数, -, [i, j]
-        f_wsc_js_n_pls:
-        f_wsv_js_n_pls:
+        f_wsc_js_n_pls: ステップ n+1 における係数 f_WSC, degree C, [j, 1]
+        f_wsv_js_n_pls: ステップ n+1 における係数 f_WSV, degree C, [j, 1]
         f_xot_is_is_n_pls:
         k_r_is_n:
 
@@ -974,7 +974,7 @@ def get_f_xot_is_is_n_pls(f_mrt_hum_is_js, f_wsr_js_is, k_c_is_n, k_r_is_n):
 
     Args:
         f_mrt_hum_is_js: 境界 j から室 i の人体に対する形態係数, -, [i, j]
-        f_wsr_js_is:
+        f_wsr_js_is: 係数 f_WSR, - [j, i]
         k_c_is_n:
         k_r_is_n:
 
@@ -1034,7 +1034,7 @@ def get_f_brm_is_is_n_pls(
         c_rm_is:
         c_sh_frt_is: 室 i の備品等の熱容量, J/K, [i, 1]
         delta_t: 1ステップの時間間隔, s
-        f_wsr_js_is:
+        f_wsr_js_is: 係数 f_WSR, - [j, i]
         g_sh_frt_is: 室 i の備品等と空気間の熱コンダクタンス, W/K, [i, 1]
         h_s_c_js: 境界 j の室内側対流熱伝達率, W/(m2 K), [j, 1]
         p_is_js:
@@ -1069,8 +1069,8 @@ def get_f_brc_is_n_pls(
         c_rm_is:
         c_sh_frt_is: 室 i の備品等の熱容量, J/K, [i, 1]
         delta_t: 1ステップの時間間隔, s
-        f_wsc_js_n_pls:
-        f_wsv_js_n_pls:
+        f_wsc_js_n_pls: ステップ n+1 における係数 f_WSC, degree C, [j, 1]
+        f_wsv_js_n_pls: ステップ n+1 における係数 f_WSV, degree C, [j, 1]
         g_sh_frt_is: 室 i の備品等と空気間の熱コンダクタンス, W/K, [i, 1]
         h_s_c_js: 境界 j の室内側対流熱伝達率, W/(m2 K), [j, 1]
         p_is_js:
@@ -1140,7 +1140,7 @@ def get_f_wsv_js_n_pls(f_cvl_js_n_pls, ivs_f_ax_js_js):
         ivs_f_ax_js_js:
 
     Returns:
-        ステップn+1の境界jにおける係数WSV, degree C, [j, 1]
+        ステップ n+1 の係数 f_WSV, degree C, [j, 1]
 
     Notes:
         式(2.27)

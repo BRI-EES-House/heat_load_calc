@@ -313,7 +313,7 @@ I. 評価法
 :math:`\pmb{f}_{CRX,n}`
     | :math:`f_{CRX,j,j*,n}` を要素にもつ :math:`I \times 1` で表される縦行列, ℃
 :math:`\pmb{F}_{FLB,n}`
-    | :math:`F_{FLB,j，i,n}` を要素にもつ、:math:`J \times I` の行列, K/W
+    | :math:`f_{FLB,j，i,n}` を要素にもつ、:math:`J \times I` の行列, K/W
 :math:`\pmb{f}_{CVL,n}`
     | :math:`f_{CVL,j,n}` を要素にもつ :math:`J \times 1` で表される縦行列, ℃
 
