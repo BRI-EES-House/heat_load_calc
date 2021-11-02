@@ -1155,8 +1155,8 @@ def get_f_cvl_js_n_pls(theta_dsh_s_a_js_ms_n_pls, theta_dsh_s_t_js_ms_n_pls):
     """
 
     Args:
-        theta_dsh_s_a_js_ms_n_pls:
-        theta_dsh_s_t_js_ms_n_pls:
+        theta_dsh_s_a_js_ms_n_pls: ステップ n+1 における境界 j の項別公比法の指数項 m の吸熱応答の項別成分, degree C, [j, m]
+        theta_dsh_s_t_js_ms_n_pls: ステップ n+1 における境界 j の項別公比法の指数項 m の貫流応答の項別成分, degree C, [j, m]
 
     Returns:
         ステップ n+1 における係数 f_CVL, degree C, [j, 1]
@@ -1173,10 +1173,10 @@ def get_theta_dsh_s_a_js_ms_n_pls(phi_a1_js_ms, q_srf_js_n, r_js_ms, theta_dsh_s
         phi_a1_js_ms:
         q_srf_js_n:
         r_js_ms:
-        theta_dsh_srf_a_js_ms_n:
+        theta_dsh_srf_a_js_ms_n: ステップ n における境界 j の項別公比法の指数項 m の吸熱応答の項別成分, degree C, [j, m]
 
     Returns:
-        ステップ n+1 の境界 j における項別公比法の指数項 m の吸熱応答の項別成分, degree C, [j, m]
+        ステップ n+1 における境界 j の項別公比法の指数項 m の吸熱応答の項別成分, degree C, [j, m]
 
     Notes:
         式(2.29)
@@ -1191,11 +1191,11 @@ def get_theta_dsh_s_t_js_ms_n_pls(phi_t1_js_ms, r_js_ms, theta_dsh_srf_t_js_ms_n
     Args:
         phi_t1_js_ms:
         r_js_ms:
-        theta_dsh_srf_t_js_ms_n:
+        theta_dsh_srf_t_js_ms_n: ステップ n における境界 j の項別公比法の指数項 m の貫流応答の項別成分, degree C, [j, m]
         theta_rear_js_n:
 
     Returns:
-        ステップ n+1 の境界 j における項別公比法の指数項 m の貫流応答の項別成分, degree C, [j, m] (m=12)
+        ステップ n+1 における境界 j の項別公比法の指数項 m の貫流応答の項別成分, degree C, [j, m]
 
     Notes:
         式(2.30)
