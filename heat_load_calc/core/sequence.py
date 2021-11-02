@@ -795,7 +795,7 @@ def get_f_wsb_js_is_n_pls(f_flb_js_is_n_pls, f_ax_js_js):
 
     Args:
         f_flb_js_is_n_pls: ステップ n+1 における係数 f_FLB, K/W, [j, i]
-        f_ax_js_js:
+        f_ax_js_js: 係数 f_AX, -, [j, j]
 
     Returns:
         ステップ n+1 における係数 f_WSB, K/W, [j, i]
@@ -1138,7 +1138,7 @@ def get_f_wsv_js_n_pls(f_cvl_js_n_pls, f_ax_js_js):
 
     Args:
         f_cvl_js_n_pls:
-        f_ax_js_js:
+        f_ax_js_js: 係数 f_AX, -, [j, j]
 
     Returns:
         ステップ n+1 の係数 f_WSV, degree C, [j, 1]
