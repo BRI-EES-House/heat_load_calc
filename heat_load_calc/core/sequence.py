@@ -68,7 +68,7 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
     # ステップ n+1 の境界 j における項別公比法の指数項 m の吸熱応答の項別成分, degree C, [j, m]
     theta_dsh_s_a_js_ms_n_pls = get_theta_dsh_s_a_js_ms_n_pls(
         phi_a1_js_ms=ss.phi_a1_js_ms,
-        q_srf_js_n=c_n.q_srf_js_n,
+        q_s_js_n=c_n.q_srf_js_n,
         r_js_ms=ss.r_js_ms,
         theta_dsh_srf_a_js_ms_n=c_n.theta_dsh_srf_a_js_ms_n
     )
@@ -1166,13 +1166,13 @@ def get_f_cvl_js_n_pls(theta_dsh_s_a_js_ms_n_pls, theta_dsh_s_t_js_ms_n_pls):
     return np.sum(theta_dsh_s_t_js_ms_n_pls + theta_dsh_s_a_js_ms_n_pls, axis=1, keepdims=True)
 
 
-def get_theta_dsh_s_a_js_ms_n_pls(phi_a1_js_ms, q_srf_js_n, r_js_ms, theta_dsh_srf_a_js_ms_n):
+def get_theta_dsh_s_a_js_ms_n_pls(phi_a1_js_ms, q_s_js_n, r_js_ms, theta_dsh_srf_a_js_ms_n):
     """
 
     Args:
-        phi_a1_js_ms:
-        q_srf_js_n:
-        r_js_ms:
+        phi_a1_js_ms: 境界 j の項別公比法の指数項 m の吸熱応答係数, m2 K/W, [j, m]
+        q_s_js_n: ステップ n における境界 j の表面熱流（壁体吸熱を正とする）, W/m2, [j, 1]
+        r_js_ms: 境界 j の項別公比法の指数項 m の公比, -, [j, m]
         theta_dsh_srf_a_js_ms_n: ステップ n における境界 j の項別公比法の指数項 m の吸熱応答の項別成分, degree C, [j, m]
 
     Returns:
@@ -1182,7 +1182,7 @@ def get_theta_dsh_s_a_js_ms_n_pls(phi_a1_js_ms, q_srf_js_n, r_js_ms, theta_dsh_s
         式(2.29)
     """
 
-    return phi_a1_js_ms * q_srf_js_n + r_js_ms * theta_dsh_srf_a_js_ms_n
+    return phi_a1_js_ms * q_s_js_n + r_js_ms * theta_dsh_srf_a_js_ms_n
 
 
 def get_theta_dsh_s_t_js_ms_n_pls(phi_t1_js_ms, r_js_ms, theta_dsh_srf_t_js_ms_n, theta_rear_js_n):
@@ -1190,7 +1190,7 @@ def get_theta_dsh_s_t_js_ms_n_pls(phi_t1_js_ms, r_js_ms, theta_dsh_srf_t_js_ms_n
 
     Args:
         phi_t1_js_ms:
-        r_js_ms:
+        r_js_ms: 境界 j の項別公比法の指数項 m の公比, -, [j, m]
         theta_dsh_srf_t_js_ms_n: ステップ n における境界 j の項別公比法の指数項 m の貫流応答の項別成分, degree C, [j, m]
         theta_rear_js_n:
 
