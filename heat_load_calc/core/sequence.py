@@ -878,10 +878,10 @@ def get_is_heating_is_n_and_is_cooling_is_n(
     """
 
     Args:
-        operation_mode_is_n:
-        theta_lower_target_is_n_pls:
-        theta_r_ot_ntr_is_n_pls:
-        theta_upper_target_is_n_pls:
+        operation_mode_is_n: ステップ n からステップ n+1 における室 i の運転モード, [i, 1]
+        theta_lower_target_is_n_pls: ステップ n+1 における室 i の目標作用温度の下限値 , degree C, [i, 1]
+        theta_r_ot_ntr_is_n_pls: ステップ n+1 における室 i の自然作用温度 , degree C, [i, 1]
+        theta_upper_target_is_n_pls: ステップ n+1 における室 i の目標作用温度の上限値 , degree C, [i, 1]
 
     Returns:
         「ステップ n から n+1 における室 i の運転が暖房運転時の場合」かの有無, -, [i, 1]
@@ -907,7 +907,7 @@ def get_theta_r_ot_ntr_is_n_pls(f_brc_ot_is_n_pls, f_brm_ot_is_is_n_pls):
         f_brm_ot_is_is_n_pls:
 
     Returns:
-        ステップ n+1 における自然作用温度, degree C, [i, 1]
+        ステップ n+1 における室 i の自然作用温度 , degree C, [i, 1]
 
     Notes:
         式(2.16)
