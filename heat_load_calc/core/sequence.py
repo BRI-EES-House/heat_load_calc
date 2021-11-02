@@ -794,7 +794,7 @@ def get_f_wsb_js_is_n_pls(f_flb_js_is_n_pls, ivs_f_ax_js_js):
     """
 
     Args:
-        f_flb_js_is_n_pls:
+        f_flb_js_is_n_pls: ステップ n+1 における係数 f_FLB, K/W, [j, i]
         ivs_f_ax_js_js:
 
     Returns:
@@ -822,7 +822,7 @@ def get_f_flb_js_is_n_pls(a_s_js, beta_is_n, f_flr_js_is_n, h_s_c_js, h_s_r_js, 
         phi_t0_js:
 
     Returns:
-        ステップ n における係数 f_FLB, K/W, [j, i]
+        ステップ n+1 における係数 f_FLB, K/W, [j, i]
 
     Notes:
         式(2.12)
