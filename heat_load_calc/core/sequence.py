@@ -649,7 +649,7 @@ def get_theta_mrt_hum_is_n_pls(f_mrt_hum_is_js, theta_s_js_n_pls):
     """
 
     Args:
-        f_mrt_hum_is_js:
+        f_mrt_hum_is_js: 境界 j から室 i の人体に対する形態係数, -, [i, j]
         theta_s_js_n_pls: ステップ n+1 における境界 j の表面温度, degree C, [j, 1]
 
     Returns:
@@ -752,7 +752,7 @@ def get_f_xlr_is_is_n_pls(f_mrt_hum_is_js, f_wsb_js_is_n_pls, f_xot_is_is_n_pls,
     """
 
     Args:
-        f_mrt_hum_is_js:
+        f_mrt_hum_is_js: 境界 j から室 i の人体に対する形態係数, -, [i, j]
         f_wsb_js_is_n_pls:
         f_xot_is_is_n_pls:
         k_r_is_n:
@@ -953,7 +953,7 @@ def get_f_xc_is_n_pls(f_mrt_hum_is_js, f_wsc_js_n_pls, f_wsv_js_n_pls, f_xot_is_
     """
 
     Args:
-        f_mrt_hum_is_js:
+        f_mrt_hum_is_js: 境界 j から室 i の人体に対する形態係数, -, [i, j]
         f_wsc_js_n_pls:
         f_wsv_js_n_pls:
         f_xot_is_is_n_pls:
@@ -973,7 +973,7 @@ def get_f_xot_is_is_n_pls(f_mrt_hum_is_js, f_wsr_js_is, k_c_is_n, k_r_is_n):
     """
 
     Args:
-        f_mrt_hum_is_js:
+        f_mrt_hum_is_js: 境界 j から室 i の人体に対する形態係数, -, [i, j]
         f_wsr_js_is:
         k_c_is_n:
         k_r_is_n:
