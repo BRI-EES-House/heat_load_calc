@@ -920,7 +920,7 @@ def get_f_brc_ot_is_n_pls(f_brc_is_n_pls, f_brm_is_is_n_pls, f_xc_is_n_pls):
     """
 
     Args:
-        f_brc_is_n_pls:
+        f_brc_is_n_pls: ステップ n+1 における係数 f_BRC,OT, W, [i, 1]
         f_brm_is_is_n_pls: ステップ n+1 における係数 f_BRM, W/K, [i, i]
         f_xc_is_n_pls: ステップ n+1 における係数 f_XC, degree C, [i, 1]
 
@@ -1086,7 +1086,7 @@ def get_f_brc_is_n_pls(
         v_vent_out_is_n:
 
     Returns:
-        ステップ n+1 の室 i における係数 f_BRC, W, [i, 1]
+        ステップ n+1 における係数 f_BRC,OT, W, [i, 1]
 
     Notes:
         式(2.24)
