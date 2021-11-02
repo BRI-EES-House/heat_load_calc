@@ -903,8 +903,8 @@ def get_theta_r_ot_ntr_is_n_pls(f_brc_ot_is_n_pls, f_brm_ot_is_is_n_pls):
     """
 
     Args:
-        f_brc_ot_is_n_pls:
-        f_brm_ot_is_is_n_pls:
+        f_brc_ot_is_n_pls: ステップ n+1 における係数 f_BRC,OT, W, [i, 1]
+        f_brm_ot_is_is_n_pls: ステップ n+1 における係数 f_BRM,OT, W/K, [i, 1]
 
     Returns:
         ステップ n+1 における室 i の自然作用温度 , degree C, [i, 1]
@@ -925,7 +925,7 @@ def get_f_brc_ot_is_n_pls(f_brc_is_n_pls, f_brm_is_is_n_pls, f_xc_is_n_pls):
         f_xc_is_n_pls: ステップ n+1 における係数 f_XC, degree C, [i, 1]
 
     Returns:
-        ステップ n における係数 f_BRC,OT, W, [i, 1]
+        ステップ n+1 における係数 f_BRC,OT, W, [i, 1]
 
     Notes:
         式(2.17)
@@ -942,7 +942,7 @@ def get_f_brm_ot_is_is_n_pls(f_brm_is_is_n_pls, f_xot_is_is_n_pls):
         f_xot_is_is_n_pls: ステップ n+1 における係数 f_XOT, -, [i, i]
 
     Returns:
-        ステップ n における係数 f_BRM,OT, W/K, [i, i]
+        ステップ n+1 における係数 f_BRM,OT, W/K, [i, 1]
 
     Notes:
         式(2.18)
