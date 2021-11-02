@@ -756,7 +756,7 @@ def get_f_xlr_is_is_n_pls(f_mrt_hum_is_js, f_wsb_js_is_n_pls, f_xot_is_is_n_pls,
         f_mrt_hum_is_js: 境界 j から室 i の人体に対する形態係数, -, [i, j]
         f_wsb_js_is_n_pls: ステップ n+1 における係数 f_WSB, K/W, [j, 1]
         f_xot_is_is_n_pls: ステップ n+1 における係数 f_XOT, -, [i, i]
-        k_r_is_n:
+        k_r_is_n: ステップ n における室 i の人体表面の放射熱伝達率が総合熱伝達率に占める割合, -, [i, 1]
 
     Returns:
         ステップ n+1 における係数 f_XLR, K/W, [i, i]
@@ -958,7 +958,7 @@ def get_f_xc_is_n_pls(f_mrt_hum_is_js, f_wsc_js_n_pls, f_wsv_js_n_pls, f_xot_is_
         f_wsc_js_n_pls: ステップ n+1 における係数 f_WSC, degree C, [j, 1]
         f_wsv_js_n_pls: ステップ n+1 における係数 f_WSV, degree C, [j, 1]
         f_xot_is_is_n_pls: ステップ n+1 における係数 f_XOT, -, [i, i]
-        k_r_is_n:
+        k_r_is_n: ステップ n における室 i の人体表面の放射熱伝達率が総合熱伝達率に占める割合, -, [i, 1]
 
     Returns:
         ステップ n+1 における係数 f_XC, degree C, [i, 1]
@@ -977,7 +977,7 @@ def get_f_xot_is_is_n_pls(f_mrt_hum_is_js, f_wsr_js_is, k_c_is_n, k_r_is_n):
         f_mrt_hum_is_js: 境界 j から室 i の人体に対する形態係数, -, [i, j]
         f_wsr_js_is: 係数 f_WSR, - [j, i]
         k_c_is_n:
-        k_r_is_n:
+        k_r_is_n: ステップ n における室 i の人体表面の放射熱伝達率が総合熱伝達率に占める割合, -, [i, 1]
 
     Returns:
         ステップ n+1 における係数 f_XOT, -, [i, i]
