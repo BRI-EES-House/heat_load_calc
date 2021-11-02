@@ -27,8 +27,8 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
     #     ステップnにおける室iの在室者周りの対流熱伝達率, W/(m2 K), [i, 1]
     #     ステップnにおける室iの在室者周りの放射熱伝達率, W/(m2 K), [i, 1]
     #     ステップnの室iにおける運転モード, [i, 1]
-    #     ステップnの室iにおける目標作用温度下限値, ℃, [i, 1]
-    #     ステップnの室iにおける目標作用温度上限値, ℃, [i, 1]
+    #     ステップnの室iにおける目標作用温度下限値, degree C, [i, 1]
+    #     ステップnの室iにおける目標作用温度上限値, degree C, [i, 1]
     #     ステップnの室iの在室者周りの風速, m/s, [i, 1]
     #     ステップnの室iにおけるClo値, [i, 1]
     #     ステップnの室iにおける目標作用温度, degree C, [i, 1]
@@ -173,7 +173,7 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
         f_xc_is_n_pls=f_xc_is_n_pls
     )
 
-    # ステップ n+1 における自然作用温度, [i, 1], ℃
+    # ステップ n+1 における自然作用温度, degree C, [i, 1]
     theta_r_ot_ntr_is_n_pls = get_theta_r_ot_ntr_is_n_pls(
         f_brc_ot_is_n_pls=f_brc_ot_is_n_pls,
         f_brm_ot_is_is_n_pls=f_brm_ot_is_is_n_pls
@@ -188,7 +188,7 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
     )
 
     # ステップ n+1 における係数 f_flr, -, [j, i]
-    f_flr_js_is_n_pls = get_f_flr_js_is_n_pls(
+    f_flr_js_is_n = get_f_flr_js_is_n(
         f_flr_c_js_is=ss.f_flr_c_js_is,
         f_flr_h_js_is=ss.f_flr_h_js_is,
         is_cooling_is_n=is_cooling_is_n,
@@ -196,7 +196,7 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
     )
 
     # ステップ n からステップ n+1 における室 i の放射暖冷房設備の対流成分比率, -, [i, 1]
-    beta_is_n_pls = get_beta_is_n_pls(
+    beta_is_n = get_beta_is_n(
         beta_c_is=ss.beta_c_is,
         beta_h_is=ss.beta_h_is,
         is_cooling_is_n=is_cooling_is_n,
@@ -206,8 +206,8 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
     # ステップ n における係数 f_FLB, K/W, [j, i]
     f_flb_js_is_n_pls = get_f_flb_js_is_n_pls(
         a_s_js=ss.a_s_js,
-        beta_is_n_pls=beta_is_n_pls,
-        f_flr_js_is_n_pls=f_flr_js_is_n_pls,
+        beta_is_n=beta_is_n,
+        f_flr_js_is_n=f_flr_js_is_n,
         h_s_c_js=ss.h_s_c_js,
         h_s_r_js=ss.h_s_r_js,
         k_ei_js_js=ss.k_ei_js_js,
@@ -224,7 +224,7 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
     # ステップ n における係数 f_BRL, -, [i, i]
     f_brl_is_is_n = get_f_brl_is_is_n(
         a_s_js=ss.a_s_js,
-        beta_is_n_pls=beta_is_n_pls,
+        beta_is_n=beta_is_n,
         f_wsb_js_is_n_pls=f_wsb_js_is_n_pls,
         h_s_c_js=ss.h_s_c_js,
         p_is_js=ss.p_is_js
@@ -299,9 +299,9 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
     # ステップ n+1 における境界 j の等価温度, degree C, [j, 1]
     theta_ei_js_n_pls = get_theta_ei_js_n_pls(
         a_s_js=ss.a_s_js,
-        beta_is_n_pls=beta_is_n_pls,
+        beta_is_n=beta_is_n,
         f_mrt_js_js=ss.f_mrt_js_js,
-        f_flr_js_is_n_pls=f_flr_js_is_n_pls,
+        f_flr_js_is_n=f_flr_js_is_n,
         h_s_c_js=ss.h_s_c_js,
         h_s_r_js=ss.h_s_r_js,
         l_rs_is_n=l_rs_is_n,
@@ -600,8 +600,8 @@ def get_q_s_js_n_pls(h_s_c_js, h_s_r_js, theta_ei_js_n_pls, theta_s_js_n_pls):
     Args:
         h_s_c_js: 境界 j の室内側対流熱伝達率, W/(m2 K), [j, 1]
         h_s_r_js: 境界 j の室内側放射熱伝達率, W/(m2 K), [j, 1]
-        theta_ei_js_n_pls: ステップ n+1 における境界 j の等価温度, ℃, [j, 1]
-        theta_s_js_n_pls: ステップ n+1 における境界 j の表面温度, ℃, [j, 1]
+        theta_ei_js_n_pls: ステップ n+1 における境界 j の等価温度, degree C, [j, 1]
+        theta_s_js_n_pls: ステップ n+1 における境界 j の表面温度, degree C, [j, 1]
 
     Returns:
         ステップ n+1 における境界 j の表面熱流（壁体吸熱を正とする）, W/m2, [j, 1]
@@ -614,21 +614,21 @@ def get_q_s_js_n_pls(h_s_c_js, h_s_r_js, theta_ei_js_n_pls, theta_s_js_n_pls):
     return (theta_ei_js_n_pls - theta_s_js_n_pls) * (h_s_c_js + h_s_r_js)
 
 
-def get_theta_ei_js_n_pls(a_s_js, beta_is_n_pls, f_mrt_js_js, f_flr_js_is_n_pls, h_s_c_js, h_s_r_js, l_rs_is_n, p_js_is, q_s_sol_js_n_pls, theta_r_is_n_pls, theta_s_js_n_pls):
+def get_theta_ei_js_n_pls(a_s_js, beta_is_n, f_mrt_js_js, f_flr_js_is_n, h_s_c_js, h_s_r_js, l_rs_is_n, p_js_is, q_s_sol_js_n_pls, theta_r_is_n_pls, theta_s_js_n_pls):
     """
 
     Args:
-        a_s_js:
-        beta_is_n_pls:
-        f_mrt_js_js:
-        f_flr_js_is_n_pls:
+        a_s_js: 境界 j の面積, m2, [j, 1]
+        beta_is_n: ステップ n からステップ n+1 における室 i の放射暖冷房設備の対流成分比率, -, [i, 1]
+        f_mrt_js_js: 平均放射温度計算時の境界 j* の表面温度が境界 j に与える重み, -, [j, j*]
+        f_flr_js_is_n: ステップ n からステップ n+1 における室 i の放射暖冷房設備の放熱量の放射成分に対する境界 j の室内側表面の吸収比率, -, [j, i]
         h_s_c_js: 境界 j の室内側対流熱伝達率, W/(m2 K), [j, 1]
         h_s_r_js: 境界 j の室内側放射熱伝達率, W/(m2 K), [j, 1]
-        l_rs_is_n:
-        p_js_is:
-        q_s_sol_js_n_pls:
-        theta_r_is_n_pls:
-        theta_s_js_n_pls: ステップ n+1 における境界 j の表面温度, ℃, [j, 1]
+        l_rs_is_n: ステップ n からステップ n+1 における室 i に放射暖冷房設備の顕熱処理量（暖房を正・冷房を負とする）, W, [i, 1]
+        p_js_is: 室 i と境界 j の接続に関する係数（境界 j が室 i に接している場合は 1 とし、それ以外の場合は 0 とする。）, -, [j, i]
+        q_s_sol_js_n_pls: ステップ n+1 における境界 j の透過日射吸収熱量, W/m2, [j, 1]
+        theta_r_is_n_pls: ステップ n+1 における室 i の温度, degree C, [i, 1]
+        theta_s_js_n_pls: ステップ n+1 における境界 j の表面温度, degree C, [j, 1]
 
     Returns:
         ステップ n+1 における境界 j の等価温度, degree C, [j, 1]
@@ -638,10 +638,10 @@ def get_theta_ei_js_n_pls(a_s_js, beta_is_n_pls, f_mrt_js_js, f_flr_js_is_n_pls,
     """
 
     return (
-                   h_s_c_js * np.dot(p_js_is, theta_r_is_n_pls)
-                   + h_s_r_js * np.dot(f_mrt_js_js, theta_s_js_n_pls)
-                   + q_s_sol_js_n_pls
-                   + np.dot(f_flr_js_is_n_pls, (1.0 - beta_is_n_pls) * l_rs_is_n) / a_s_js
+        h_s_c_js * np.dot(p_js_is, theta_r_is_n_pls)
+        + h_s_r_js * np.dot(f_mrt_js_js, theta_s_js_n_pls)
+        + q_s_sol_js_n_pls
+        + np.dot(f_flr_js_is_n, (1.0 - beta_is_n) * l_rs_is_n) / a_s_js
     ) / (h_s_c_js + h_s_r_js)
 
 
@@ -650,7 +650,7 @@ def get_theta_mrt_hum_is_n_pls(f_mrt_hum_is_js, theta_s_js_n_pls):
 
     Args:
         f_mrt_hum_is_js:
-        theta_s_js_n_pls: ステップ n+1 における境界 j の表面温度, ℃, [j, 1]
+        theta_s_js_n_pls: ステップ n+1 における境界 j の表面温度, degree C, [j, 1]
 
     Returns:
         ステップ n+1 における室 i の人体に対する平均放射温度, degree C, [i, 1]
@@ -672,7 +672,7 @@ def get_theta_frt_is_n_pls(c_sh_frt_is, delta_t, g_sh_frt_is, q_sol_frt_is_n, th
         g_sh_frt_is:
         q_sol_frt_is_n:
         theta_frt_is_n:
-        theta_r_is_n_pls:
+        theta_r_is_n_pls: ステップ n+1 における室 i の温度, degree C, [i, 1]
 
     Returns:
         ステップ n+1 における室 i　の家具の温度, degree C, [i, 1]
@@ -695,8 +695,8 @@ def get_theta_s_js_n_pls(f_wsb_js_is_n_pls, f_wsc_js_n_pls, f_wsr_js_is, f_wsv_j
         f_wsc_js_n_pls:
         f_wsr_js_is:
         f_wsv_js_n_pls:
-        l_rs_is_n:
-        theta_r_is_n_pls:
+        l_rs_is_n: ステップ n からステップ n+1 における室 i に放射暖冷房設備の顕熱処理量（暖房を正・冷房を負とする）, W, [i, 1]
+        theta_r_is_n_pls: ステップ n+1 における室 i の温度, degree C, [i, 1]
 
     Returns:
         ステップ n+1 における境界 j の表面温度, degree C, [j, 1]
@@ -706,8 +706,7 @@ def get_theta_s_js_n_pls(f_wsb_js_is_n_pls, f_wsc_js_n_pls, f_wsr_js_is, f_wsv_j
 
     """
 
-    return np.dot(f_wsr_js_is, theta_r_is_n_pls) + f_wsc_js_n_pls + np.dot(f_wsb_js_is_n_pls,
-                                                                           l_rs_is_n) + f_wsv_js_n_pls
+    return np.dot(f_wsr_js_is, theta_r_is_n_pls) + f_wsc_js_n_pls + np.dot(f_wsb_js_is_n_pls, l_rs_is_n) + f_wsv_js_n_pls
 
 
 def get_theta_r_is_n_pls(f_xc_is_n_pls, f_xlr_is_is_n_pls, f_xot_is_is_n_pls, l_rs_is_n, theta_ot_is_n_pls):
@@ -717,7 +716,7 @@ def get_theta_r_is_n_pls(f_xc_is_n_pls, f_xlr_is_is_n_pls, f_xot_is_is_n_pls, l_
         f_xc_is_n_pls:
         f_xlr_is_is_n_pls:
         f_xot_is_is_n_pls:
-        l_rs_is_n:
+        l_rs_is_n: ステップ n からステップ n+1 における室 i に放射暖冷房設備の顕熱処理量（暖房を正・冷房を負とする）, W, [i, 1]
         theta_ot_is_n_pls:
 
     Returns:
@@ -769,12 +768,12 @@ def get_f_xlr_is_is_n_pls(f_mrt_hum_is_js, f_wsb_js_is_n_pls, f_xot_is_is_n_pls,
     return np.dot(f_xot_is_is_n_pls, k_r_is_n * np.dot(f_mrt_hum_is_js, f_wsb_js_is_n_pls))
 
 
-def get_f_brl_is_is_n(a_s_js, beta_is_n_pls, f_wsb_js_is_n_pls, h_s_c_js, p_is_js):
+def get_f_brl_is_is_n(a_s_js, beta_is_n, f_wsb_js_is_n_pls, h_s_c_js, p_is_js):
     """
 
     Args:
-        a_s_js:
-        beta_is_n_pls:
+        a_s_js: 境界 j の面積, m2, [j, 1]
+        beta_is_n: ステップ n からステップ n+1 における室 i の放射暖冷房設備の対流成分比率, -, [i, 1]
         f_wsb_js_is_n_pls:
         h_s_c_js: 境界 j の室内側対流熱伝達率, W/(m2 K), [j, 1]
         p_is_js:
@@ -787,7 +786,7 @@ def get_f_brl_is_is_n(a_s_js, beta_is_n_pls, f_wsb_js_is_n_pls, h_s_c_js, p_is_j
 
     """
 
-    return np.dot(p_is_js, f_wsb_js_is_n_pls * h_s_c_js * a_s_js) + v_diag(beta_is_n_pls)
+    return np.dot(p_is_js, f_wsb_js_is_n_pls * h_s_c_js * a_s_js) + v_diag(beta_is_n)
 
 
 def get_f_wsb_js_is_n_pls(f_flb_js_is_n_pls, ivs_f_ax_js_js):
@@ -808,16 +807,16 @@ def get_f_wsb_js_is_n_pls(f_flb_js_is_n_pls, ivs_f_ax_js_js):
     return np.dot(ivs_f_ax_js_js, f_flb_js_is_n_pls)
 
 
-def get_f_flb_js_is_n_pls(a_s_js, beta_is_n_pls, f_flr_js_is_n_pls, h_s_c_js, h_s_r_js, k_ei_js_js, phi_a0_js, phi_t0_js):
+def get_f_flb_js_is_n_pls(a_s_js, beta_is_n, f_flr_js_is_n, h_s_c_js, h_s_r_js, k_ei_js_js, phi_a0_js, phi_t0_js):
     """
 
     Args:
-        a_s_js:
-        beta_is_n_pls:
-        f_flr_js_is_n_pls:
+        a_s_js: 境界 j の面積, m2, [j, 1]
+        beta_is_n: ステップ n からステップ n+1 における室 i の放射暖冷房設備の対流成分比率, -, [i, 1]
+        f_flr_js_is_n: ステップ n からステップ n+1 における室 i の放射暖冷房設備の放熱量の放射成分に対する境界 j の室内側表面の吸収比率, -, [j, i]
         h_s_c_js: 境界 j の室内側対流熱伝達率, W/(m2 K), [j, 1]
         h_s_r_js: 境界 j の室内側放射熱伝達率, W/(m2 K), [j, 1]
-        k_ei_js_js:
+        k_ei_js_js: 境界 j の裏面温度に境界　j* の等価温度が与える影響, -, [j*, j]
         phi_a0_js:
         phi_t0_js:
 
@@ -829,11 +828,11 @@ def get_f_flb_js_is_n_pls(a_s_js, beta_is_n_pls, f_flr_js_is_n_pls, h_s_c_js, h_
 
     """
 
-    return f_flr_js_is_n_pls * (1.0 - beta_is_n_pls.T) * phi_a0_js / a_s_js \
-           + np.dot(k_ei_js_js, f_flr_js_is_n_pls * (1.0 - beta_is_n_pls.T)) * phi_t0_js / (h_s_c_js + h_s_r_js) / a_s_js
+    return f_flr_js_is_n * (1.0 - beta_is_n.T) * phi_a0_js / a_s_js \
+        + np.dot(k_ei_js_js, f_flr_js_is_n * (1.0 - beta_is_n.T)) * phi_t0_js / (h_s_c_js + h_s_r_js) / a_s_js
 
 
-def get_beta_is_n_pls(beta_c_is, beta_h_is, is_cooling_is_n, is_heating_is_n):
+def get_beta_is_n(beta_c_is, beta_h_is, is_cooling_is_n, is_heating_is_n):
     """
 
     Args:
@@ -852,7 +851,7 @@ def get_beta_is_n_pls(beta_c_is, beta_h_is, is_cooling_is_n, is_heating_is_n):
     return beta_h_is * is_heating_is_n + beta_c_is * is_cooling_is_n
 
 
-def get_f_flr_js_is_n_pls(f_flr_c_js_is, f_flr_h_js_is, is_cooling_is_n, is_heating_is_n):
+def get_f_flr_js_is_n(f_flr_c_js_is, f_flr_h_js_is, is_cooling_is_n, is_heating_is_n):
     """
 
     Args:
@@ -862,7 +861,7 @@ def get_f_flr_js_is_n_pls(f_flr_c_js_is, f_flr_h_js_is, is_cooling_is_n, is_heat
         is_heating_is_n:
 
     Returns:
-        ステップ n+1 における係数 f_flr, -, [j,i]
+        ステップ n からステップ n+1 における室 i の放射暖冷房設備の放熱量の放射成分に対する境界 j の室内側表面の吸収比率, -, [j, i]
 
     Notes:
         式(2.14)
@@ -906,7 +905,7 @@ def get_theta_r_ot_ntr_is_n_pls(f_brc_ot_is_n_pls, f_brm_ot_is_is_n_pls):
         f_brm_ot_is_is_n_pls:
 
     Returns:
-        ステップ n+1 における自然作用温度, [i, 1], ℃
+        ステップ n+1 における自然作用温度, degree C, [i, 1]
 
     Notes:
         式(2.16)
@@ -1030,7 +1029,7 @@ def get_f_brm_is_is_n_pls(
     """
 
     Args:
-        a_s_js:
+        a_s_js: 境界 j の面積, m2, [j, 1]
         c_air:
         c_rm_is:
         c_sh_frt_is:
@@ -1039,7 +1038,7 @@ def get_f_brm_is_is_n_pls(
         g_sh_frt_is:
         h_s_c_js: 境界 j の室内側対流熱伝達率, W/(m2 K), [j, 1]
         p_is_js:
-        p_js_is:
+        p_js_is: 室 i と境界 j の接続に関する係数（境界 j が室 i に接している場合は 1 とし、それ以外の場合は 0 とする。）, -, [j, i]
         rho_air:
         v_vent_int_is_is:
         v_vent_out_is_n:
@@ -1065,7 +1064,7 @@ def get_f_brc_is_n_pls(
     """
 
     Args:
-        a_s_js:
+        a_s_js: 境界 j の面積, m2, [j, 1]
         c_air:
         c_rm_is:
         c_sh_frt_is:
@@ -1225,7 +1224,7 @@ def get_theta_rear_js_n(k_ei_js_js, theta_dstrb_js_n, theta_ei_js_n):
     """
 
     Args:
-        k_ei_js_js:
+        k_ei_js_js: 境界 j の裏面温度に境界　j* の等価温度が与える影響, -, [j*, j]
         theta_dstrb_js_n:
         theta_ei_js_n:
 
