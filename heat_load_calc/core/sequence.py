@@ -994,8 +994,8 @@ def get_k_c_is_n(h_hum_c_is_n, h_hum_r_is_n):
     """
 
     Args:
-        h_hum_c_is_n:
-        h_hum_r_is_n:
+        h_hum_c_is_n: ステップ n における室 i の人体表面の対流熱伝達率, W/(m2 K)
+        h_hum_r_is_n: ステップ n における室 i の人体表面の放射熱伝達率, W/(m2 K)
 
     Returns:
         ステップ n における室 i の人体表面の対流熱伝達率が総合熱伝達率に占める割合, -, [i, 1]
@@ -1011,8 +1011,8 @@ def get_k_r_is_n(h_hum_c_is_n, h_hum_r_is_n):
     """
 
     Args:
-        h_hum_c_is_n:
-        h_hum_r_is_n:
+        h_hum_c_is_n: ステップ n における室 i の人体表面の対流熱伝達率, W/(m2 K)
+        h_hum_r_is_n: ステップ n における室 i の人体表面の放射熱伝達率, W/(m2 K)
 
     Returns:
         ステップ n における室 i の人体表面の放射熱伝達率が総合熱伝達率に占める割合, -, [i, 1]
