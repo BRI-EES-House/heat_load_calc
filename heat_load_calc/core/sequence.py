@@ -82,7 +82,7 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
     # ステップ n+1 の境界 j における係数 f_WSV, degree C, [j, 1]
     f_wsv_js_n_pls = get_f_wsv_js_n_pls(
         f_cvl_js_n_pls=f_cvl_js_n_pls,
-        ivs_f_ax_js_js=ss.ivs_f_ax_js_js
+        f_ax_js_js=ss.f_ax_js_js
     )
 
     # ステップ n からステップ n+1 における室 i の自然風利用による換気量, m3/s, [i, 1]
@@ -105,7 +105,7 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
         c_rm_is=ss.c_rm_is,
         c_sh_frt_is=ss.c_sh_frt_is,
         delta_t=delta_t,
-        f_wsc_js_n_pls=ss.wsc_js_ns[:, n + 1].reshape(-1, 1),
+        f_wsc_js_n_pls=ss.f_wsc_js_ns[:, n + 1].reshape(-1, 1),
         f_wsv_js_n_pls=f_wsv_js_n_pls,
         g_sh_frt_is=ss.g_sh_frt_is,
         h_s_c_js=ss.h_s_c_js,
@@ -154,7 +154,7 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
     # ステップn+1における室iの係数 XC, [i, 1]
     f_xc_is_n_pls = get_f_xc_is_n_pls(
         f_mrt_hum_is_js=ss.f_mrt_hum_is_js,
-        f_wsc_js_n_pls=ss.wsc_js_ns[:, n + 1].reshape(-1, 1),
+        f_wsc_js_n_pls=ss.f_wsc_js_ns[:, n + 1].reshape(-1, 1),
         f_wsv_js_n_pls=f_wsv_js_n_pls,
         f_xot_is_is_n_pls=f_xot_is_is_n_pls,
         k_r_is_n=k_r_is_n
@@ -218,7 +218,7 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
     # ステップ n における係数 f_WSB, K/W, [j, i]
     f_wsb_js_is_n_pls = get_f_wsb_js_is_n_pls(
         f_flb_js_is_n_pls=f_flb_js_is_n_pls,
-        ivs_f_ax_js_js=ss.ivs_f_ax_js_js
+        f_ax_js_js=ss.f_ax_js_js
     )
 
     # ステップ n における係数 f_BRL, -, [i, i]
@@ -273,7 +273,7 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
     # ステップ n+1 における境界 j の表面温度, degree C, [j, 1]
     theta_s_js_n_pls = get_theta_s_js_n_pls(
         f_wsb_js_is_n_pls=f_wsb_js_is_n_pls,
-        f_wsc_js_n_pls=ss.wsc_js_ns[:, n + 1].reshape(-1, 1),
+        f_wsc_js_n_pls=ss.f_wsc_js_ns[:, n + 1].reshape(-1, 1),
         f_wsr_js_is=ss.f_wsr_js_is,
         f_wsv_js_n_pls=f_wsv_js_n_pls,
         l_rs_is_n=l_rs_is_n,
@@ -790,12 +790,12 @@ def get_f_brl_is_is_n(a_s_js, beta_is_n, f_wsb_js_is_n_pls, h_s_c_js, p_is_js):
     return np.dot(p_is_js, f_wsb_js_is_n_pls * h_s_c_js * a_s_js) + v_diag(beta_is_n)
 
 
-def get_f_wsb_js_is_n_pls(f_flb_js_is_n_pls, ivs_f_ax_js_js):
+def get_f_wsb_js_is_n_pls(f_flb_js_is_n_pls, f_ax_js_js):
     """
 
     Args:
         f_flb_js_is_n_pls: ステップ n+1 における係数 f_FLB, K/W, [j, i]
-        ivs_f_ax_js_js:
+        f_ax_js_js:
 
     Returns:
         ステップ n+1 における係数 f_WSB, K/W, [j, i]
@@ -805,7 +805,7 @@ def get_f_wsb_js_is_n_pls(f_flb_js_is_n_pls, ivs_f_ax_js_js):
 
     """
 
-    return np.dot(ivs_f_ax_js_js, f_flb_js_is_n_pls)
+    return np.dot(np.linalg.inv(f_ax_js_js), f_flb_js_is_n_pls)
 
 
 def get_f_flb_js_is_n_pls(a_s_js, beta_is_n, f_flr_js_is_n, h_s_c_js, h_s_r_js, k_ei_js_js, phi_a0_js, phi_t0_js):
@@ -1133,12 +1133,12 @@ def get_v_vent_ntr_is_n(operation_mode_is_n, v_vent_ntr_set_is):
     return np.where(operation_mode_is_n == OperationMode.STOP_OPEN, v_vent_ntr_set_is, 0.0)
 
 
-def get_f_wsv_js_n_pls(f_cvl_js_n_pls, ivs_f_ax_js_js):
+def get_f_wsv_js_n_pls(f_cvl_js_n_pls, f_ax_js_js):
     """
 
     Args:
         f_cvl_js_n_pls:
-        ivs_f_ax_js_js:
+        f_ax_js_js:
 
     Returns:
         ステップ n+1 の係数 f_WSV, degree C, [j, 1]
@@ -1147,7 +1147,7 @@ def get_f_wsv_js_n_pls(f_cvl_js_n_pls, ivs_f_ax_js_js):
         式(2.27)
     """
 
-    return np.dot(ivs_f_ax_js_js, f_cvl_js_n_pls)
+    return np.dot(np.linalg.inv(f_ax_js_js), f_cvl_js_n_pls)
 
 
 def get_f_cvl_js_n_pls(theta_dsh_s_a_js_ms_n_pls, theta_dsh_s_t_js_ms_n_pls):

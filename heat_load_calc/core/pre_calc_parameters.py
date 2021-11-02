@@ -124,7 +124,7 @@ class PreCalcParameters:
 
     n_bdry: int
 
-    ivs_f_ax_js_js: np.ndarray
+    f_ax_js_js: np.ndarray
 
     p_is_js: np.ndarray
     p_js_is: np.ndarray
@@ -149,7 +149,7 @@ class PreCalcParameters:
     f_flr_c_js_is: np.ndarray
 
     # WSC, W, [j, n]
-    wsc_js_ns: np.ndarray
+    f_wsc_js_ns: np.ndarray
 
     # 境界jの裏面温度に他の境界の等価温度が与える影響, [j, j]
     k_ei_js_js: np.ndarray
@@ -542,7 +542,7 @@ def make_pre_calc_parameters(
     f_wsr_js_is = np.dot(ivs_ax_js_js, fia_js_is)
 
     # WSC, degree C, [j, n]
-    wsc_js_ns = np.dot(ivs_ax_js_js, crx_js_ns)
+    f_wsc_js_ns = np.dot(ivs_ax_js_js, crx_js_ns)
 
     # endregion
 
@@ -616,11 +616,11 @@ def make_pre_calc_parameters(
         beta_h_is=beta_h_is,
         beta_c_is=beta_c_is,
         f_wsr_js_is=f_wsr_js_is,
-        ivs_f_ax_js_js=ivs_ax_js_js,
+        f_ax_js_js=ax_js_js,
         p_is_js=p_is_js,
         p_js_is=p_js_is,
         is_ground_js=is_ground_js,
-        wsc_js_ns=wsc_js_ns,
+        f_wsc_js_ns=f_wsc_js_ns,
         k_ei_js_js=k_ei_js_js,
         theta_o_ns=theta_o_ns,
         x_o_ns=x_o_ns,
