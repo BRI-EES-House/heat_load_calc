@@ -663,15 +663,15 @@ def get_theta_mrt_hum_is_n_pls(f_mrt_hum_is_js, theta_s_js_n_pls):
     return np.dot(f_mrt_hum_is_js, theta_s_js_n_pls)
 
 
-def get_theta_frt_is_n_pls(c_sh_frt_is, delta_t, g_sh_frt_is, q_sol_frt_is_n, theta_frt_is_n, theta_r_is_n_pls):
+def get_theta_frt_is_n_pls(c_sh_frt_is, delta_t: float, g_sh_frt_is, q_sol_frt_is_n, theta_frt_is_n, theta_r_is_n_pls):
     """
 
     Args:
-        c_sh_frt_is:
-        delta_t:
-        g_sh_frt_is:
-        q_sol_frt_is_n:
-        theta_frt_is_n:
+        c_sh_frt_is: 室 i の備品等の熱容量, J/K, [i, 1]
+        delta_t: 1ステップの時間間隔, s
+        g_sh_frt_is: 室 i の備品等と空気間の熱コンダクタンス, W/K, [i, 1]
+        q_sol_frt_is_n: ステップ n からステップ n+1 における室 i に設置された家具による透過日射吸収熱量時間平均値, W, [i, 1]
+        theta_frt_is_n: ステップ |n| における室 |i| の備品等の温度, degree C, [i, 1]
         theta_r_is_n_pls: ステップ n+1 における室 i の温度, degree C, [i, 1]
 
     Returns:
@@ -1032,10 +1032,10 @@ def get_f_brm_is_is_n_pls(
         a_s_js: 境界 j の面積, m2, [j, 1]
         c_air:
         c_rm_is:
-        c_sh_frt_is:
-        delta_t:
+        c_sh_frt_is: 室 i の備品等の熱容量, J/K, [i, 1]
+        delta_t: 1ステップの時間間隔, s
         f_wsr_js_is:
-        g_sh_frt_is:
+        g_sh_frt_is: 室 i の備品等と空気間の熱コンダクタンス, W/K, [i, 1]
         h_s_c_js: 境界 j の室内側対流熱伝達率, W/(m2 K), [j, 1]
         p_is_js:
         p_js_is: 室 i と境界 j の接続に関する係数（境界 j が室 i に接している場合は 1 とし、それ以外の場合は 0 とする。）, -, [j, i]
@@ -1067,18 +1067,18 @@ def get_f_brc_is_n_pls(
         a_s_js: 境界 j の面積, m2, [j, 1]
         c_air:
         c_rm_is:
-        c_sh_frt_is:
-        delta_t:
+        c_sh_frt_is: 室 i の備品等の熱容量, J/K, [i, 1]
+        delta_t: 1ステップの時間間隔, s
         f_wsc_js_n_pls:
         f_wsv_js_n_pls:
-        g_sh_frt_is:
+        g_sh_frt_is: 室 i の備品等と空気間の熱コンダクタンス, W/K, [i, 1]
         h_s_c_js: 境界 j の室内側対流熱伝達率, W/(m2 K), [j, 1]
         p_is_js:
         q_gen_is_n:
         q_hum_is_n:
-        q_sol_frt_is_n:
+        q_sol_frt_is_n: ステップ n からステップ n+1 における室 i に設置された家具による透過日射吸収熱量時間平均値, W, [i, 1]
         rho_air:
-        theta_frt_is_n:
+        theta_frt_is_n: ステップ |n| における室 |i| の備品等の温度, degree C, [i, 1]
         theta_o_n_pls:
         theta_r_is_n:
         v_vent_out_is_n:
