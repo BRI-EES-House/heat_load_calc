@@ -713,11 +713,11 @@ def get_theta_r_is_n_pls(f_xc_is_n_pls, f_xlr_is_is_n_pls, f_xot_is_is_n_pls, l_
     """
 
     Args:
-        f_xc_is_n_pls:
-        f_xlr_is_is_n_pls:
-        f_xot_is_is_n_pls:
+        f_xc_is_n_pls: ステップ n+1 における係数 f_XC, degree C, [i, 1]
+        f_xlr_is_is_n_pls: ステップ n+1 における係数 f_XLR, K/W, [i, i]
+        f_xot_is_is_n_pls: ステップ n+1 における係数 f_XOT, -, [i, i]
         l_rs_is_n: ステップ n からステップ n+1 における室 i に放射暖冷房設備の顕熱処理量（暖房を正・冷房を負とする）, W, [i, 1]
-        theta_ot_is_n_pls:
+        theta_ot_is_n_pls: ステップ n+1 における室 i の作用温度, ℃
 
     Returns:
         ステップ n+1 における室 i の室温, degree C, [i, 1]
@@ -736,7 +736,7 @@ def get_f_brl_ot_is_is_n(f_brl_is_is_n, f_brm_is_is_n_pls, f_xlr_is_is_n_pls):
     Args:
         f_brl_is_is_n:
         f_brm_is_is_n_pls:
-        f_xlr_is_is_n_pls:
+        f_xlr_is_is_n_pls: ステップ n+1 における係数 f_XLR, K/W, [i, i]
 
     Returns:
         ステップnにおける係数 f_BRL_OT, -, [i, i]
@@ -754,11 +754,11 @@ def get_f_xlr_is_is_n_pls(f_mrt_hum_is_js, f_wsb_js_is_n_pls, f_xot_is_is_n_pls,
     Args:
         f_mrt_hum_is_js: 境界 j から室 i の人体に対する形態係数, -, [i, j]
         f_wsb_js_is_n_pls: ステップ n+1 における係数 f_WSB, K/W, [j, 1]
-        f_xot_is_is_n_pls:
+        f_xot_is_is_n_pls: ステップ n+1 における係数 f_XOT, -, [i, i]
         k_r_is_n:
 
     Returns:
-        ステップn+1における室iの係数 f_XLR, K/W, [i, i]
+        ステップ n+1 における係数 f_XLR, K/W, [i, i]
 
     Notes:
         式(2.9)
@@ -920,7 +920,7 @@ def get_f_brc_ot_is_n_pls(f_brc_is_n_pls, f_brm_is_is_n_pls, f_xc_is_n_pls):
     Args:
         f_brc_is_n_pls:
         f_brm_is_is_n_pls:
-        f_xc_is_n_pls:
+        f_xc_is_n_pls: ステップ n+1 における係数 f_XC, degree C, [i, 1]
 
     Returns:
         ステップ n における係数 f_BRC,OT, W, [i, 1]
@@ -937,7 +937,7 @@ def get_f_brm_ot_is_is_n_pls(f_brm_is_is_n_pls, f_xot_is_is_n_pls):
 
     Args:
         f_brm_is_is_n_pls:
-        f_xot_is_is_n_pls:
+        f_xot_is_is_n_pls: ステップ n+1 における係数 f_XOT, -, [i, i]
 
     Returns:
         ステップ n における係数 f_BRM,OT, W/K, [i, i]
@@ -956,11 +956,11 @@ def get_f_xc_is_n_pls(f_mrt_hum_is_js, f_wsc_js_n_pls, f_wsv_js_n_pls, f_xot_is_
         f_mrt_hum_is_js: 境界 j から室 i の人体に対する形態係数, -, [i, j]
         f_wsc_js_n_pls: ステップ n+1 における係数 f_WSC, degree C, [j, 1]
         f_wsv_js_n_pls: ステップ n+1 における係数 f_WSV, degree C, [j, 1]
-        f_xot_is_is_n_pls:
+        f_xot_is_is_n_pls: ステップ n+1 における係数 f_XOT, -, [i, i]
         k_r_is_n:
 
     Returns:
-        ステップn+1における室iの係数 XC, [i, 1]
+        ステップ n+1 における係数 f_XC, degree C, [i, 1]
 
     Notes:
         式(2.19)
@@ -979,7 +979,7 @@ def get_f_xot_is_is_n_pls(f_mrt_hum_is_js, f_wsr_js_is, k_c_is_n, k_r_is_n):
         k_r_is_n:
 
     Returns:
-        ステップn+1における室iの係数 XOT, [i, i]
+        ステップ n+1 における係数 f_XOT, -, [i, i]
 
     Notes:
         式(2.20)
