@@ -1208,8 +1208,8 @@ def get_q_hum_is_n(n_hum_is_n, q_hum_psn_is_n):
     """
 
     Args:
-        n_hum_is_n:
-        q_hum_psn_is_n:
+        n_hum_is_n: ステップ n からステップ n+1 における室 i の在室人数, -, [i, 1]
+        q_hum_psn_is_n: ステップ n からステップ n+1 における室 i の1人あたりの人体発熱, W, [i, 1]
 
     Returns:
         ステップ n からステップ n+1 における室 i の人体発熱, W, [i, 1]
