@@ -837,10 +837,10 @@ def get_beta_is_n(beta_c_is, beta_h_is, is_cooling_is_n, is_heating_is_n):
     """
 
     Args:
-        beta_c_is:
-        beta_h_is:
-        is_cooling_is_n:
-        is_heating_is_n:
+        beta_c_is: 室 i の放射冷房設備の対流成分比率, -, [i, 1]
+        beta_h_is: 室 i の放射暖房設備の対流成分比率, -, [i, 1]
+        is_cooling_is_n: 「ステップ n から n+1 における室 i の運転が冷房運転時の場合」かの有無, -, [i, 1]
+        is_heating_is_n: 「ステップ n から n+1 における室 i の運転が暖房運転時の場合」かの有無, -, [i, 1]
 
     Returns:
         ステップ n からステップ n+1 における室 i の放射暖冷房設備の対流成分比率, -, [i, 1]
@@ -858,8 +858,8 @@ def get_f_flr_js_is_n(f_flr_c_js_is, f_flr_h_js_is, is_cooling_is_n, is_heating_
     Args:
         f_flr_c_js_is:
         f_flr_h_js_is:
-        is_cooling_is_n:
-        is_heating_is_n:
+        is_cooling_is_n: 「ステップ n から n+1 における室 i の運転が冷房運転時の場合」かの有無, -, [i, 1]
+        is_heating_is_n: 「ステップ n から n+1 における室 i の運転が暖房運転時の場合」かの有無, -, [i, 1]
 
     Returns:
         ステップ n からステップ n+1 における室 i の放射暖冷房設備の放熱量の放射成分に対する境界 j の室内側表面の吸収比率, -, [j, i]
@@ -884,7 +884,8 @@ def get_is_heating_is_n_and_is_cooling_is_n(
         theta_upper_target_is_n_pls:
 
     Returns:
-        ステップ n から n+1 において室 i で実際に暖房・冷房が行われるかどうかの判定結果, [i, 1]
+        「ステップ n から n+1 における室 i の運転が暖房運転時の場合」かの有無, -, [i, 1]
+        「ステップ n から n+1 における室 i の運転が冷房運転時の場合」かの有無, -, [i, 1]
 
     Notes:
         式(2.15a), 式(2.15b)
