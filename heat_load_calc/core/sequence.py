@@ -1226,8 +1226,8 @@ def get_theta_rear_js_n(k_ei_js_js, theta_dstrb_js_n, theta_ei_js_n):
 
     Args:
         k_ei_js_js: 境界 j の裏面温度に境界　j* の等価温度が与える影響, -, [j*, j]
-        theta_dstrb_js_n:
-        theta_ei_js_n:
+        theta_dstrb_js_n: ステップ n の境界 j における外気側等価温度の外乱成分, degree C, [j, 1]
+        theta_ei_js_n: ステップ n における境界 j の等価温度, degree C, [j, 1]
 
     Returns:
         ステップ n における境界 j の裏面温度, degree C, [j, 1]
