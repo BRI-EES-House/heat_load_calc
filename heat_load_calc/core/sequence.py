@@ -671,7 +671,7 @@ def get_theta_frt_is_n_pls(c_sh_frt_is, delta_t: float, g_sh_frt_is, q_sol_frt_i
         delta_t: 1ステップの時間間隔, s
         g_sh_frt_is: 室 i の備品等と空気間の熱コンダクタンス, W/K, [i, 1]
         q_sol_frt_is_n: ステップ n からステップ n+1 における室 i に設置された家具による透過日射吸収熱量時間平均値, W, [i, 1]
-        theta_frt_is_n: ステップ |n| における室 |i| の備品等の温度, degree C, [i, 1]
+        theta_frt_is_n: ステップ n における室 i の備品等の温度, degree C, [i, 1]
         theta_r_is_n_pls: ステップ n+1 における室 i の温度, degree C, [i, 1]
 
     Returns:
@@ -1080,9 +1080,9 @@ def get_f_brc_is_n_pls(
         q_hum_is_n: ステップ n からステップ n+1 における室 i の人体発熱, W, [i, 1]
         q_sol_frt_is_n: ステップ n からステップ n+1 における室 i に設置された家具による透過日射吸収熱量時間平均値, W, [i, 1]
         rho_a: 空気の密度, kg/m3
-        theta_frt_is_n: ステップ |n| における室 |i| の備品等の温度, degree C, [i, 1]
-        theta_o_n_pls:
-        theta_r_is_n:
+        theta_frt_is_n: ステップ n における室 i の備品等の温度, degree C, [i, 1]
+        theta_o_n_pls: ステップ n+1 における外気温度, ℃
+        theta_r_is_n: ステップ n における室 i の温度, ℃
         v_vent_out_is_n: ステップ n からステップ n+1 における室 i の換気・すきま風・自然風の利用による外気の流入量, m3/s
 
     Returns:
