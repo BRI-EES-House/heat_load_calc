@@ -1138,7 +1138,7 @@ def get_f_wsv_js_n_pls(f_cvl_js_n_pls, f_ax_js_js):
     """
 
     Args:
-        f_cvl_js_n_pls:
+        f_cvl_js_n_pls: ステップ n+1 における係数 f_CVL, degree C, [j, 1]
         f_ax_js_js: 係数 f_AX, -, [j, j]
 
     Returns:
@@ -1159,8 +1159,7 @@ def get_f_cvl_js_n_pls(theta_dsh_s_a_js_ms_n_pls, theta_dsh_s_t_js_ms_n_pls):
         theta_dsh_s_t_js_ms_n_pls:
 
     Returns:
-        ステップ n+1 の境界 j における係数f_CVL, degree C, [j, 1]
-
+        ステップ n+1 における係数 f_CVL, degree C, [j, 1]
     Notes:
         式(2.28)
     """
