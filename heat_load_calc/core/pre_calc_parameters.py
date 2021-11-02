@@ -6,7 +6,7 @@ import pandas as pd
 from dataclasses import dataclass
 from typing import List, Callable
 
-from heat_load_calc.external.global_number import get_c_air, get_rho_air
+from heat_load_calc.external.global_number import get_c_a, get_rho_a
 from heat_load_calc.core import infiltration, response_factor, indoor_radiative_heat_transfer, shape_factor, \
     occupants_form_factor, boundary_simple, furniture
 from heat_load_calc.core import ot_target
@@ -479,7 +479,7 @@ def make_pre_calc_parameters(
     f_flr_c_js_is = flr_js_is_ns
 
     # 室iの空気の熱容量, J/K, [i, 1]
-    c_rm_is = v_rm_is * get_rho_air() * get_c_air()
+    c_rm_is = v_rm_is * get_rho_a() * get_c_a()
 
     # 境界jの室内側表面放射熱伝達率, W/m2K, [j, 1]
     h_r_js = np.array([bs.h_r for bs in bss]).reshape(-1, 1)
