@@ -818,8 +818,8 @@ def get_f_flb_js_is_n_pls(a_s_js, beta_is_n, f_flr_js_is_n, h_s_c_js, h_s_r_js, 
         h_s_c_js: 境界 j の室内側対流熱伝達率, W/(m2 K), [j, 1]
         h_s_r_js: 境界 j の室内側放射熱伝達率, W/(m2 K), [j, 1]
         k_ei_js_js: 境界 j の裏面温度に境界　j* の等価温度が与える影響, -, [j*, j]
-        phi_a0_js:
-        phi_t0_js:
+        phi_a0_js: 境界 j の吸熱応答係数の初項, m2 K/W, [j]
+        phi_t0_js: 境界 |j| の貫流応答係数の初項, -, [j]
 
     Returns:
         ステップ n+1 における係数 f_FLB, K/W, [j, i]
