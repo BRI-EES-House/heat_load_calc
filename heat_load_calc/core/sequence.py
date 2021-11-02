@@ -734,17 +734,18 @@ def get_f_brl_ot_is_is_n(f_brl_is_is_n, f_brm_is_is_n_pls, f_xlr_is_is_n_pls):
     """
 
     Args:
-        f_brl_is_is_n:
-        f_brm_is_is_n_pls:
+        f_brl_is_is_n: ステップ n における係数 f_BRL, -, [i, i]
+        f_brm_is_is_n_pls: ステップ n+1 における係数 f_BRM, W/K, [i, i]
         f_xlr_is_is_n_pls: ステップ n+1 における係数 f_XLR, K/W, [i, i]
 
     Returns:
-        ステップnにおける係数 f_BRL_OT, -, [i, i]
+        ステップ n における係数 f_BRL,OT, -, [i, i]
 
     Notes:
         式(2.8)
 
     """
+
     return f_brl_is_is_n + np.dot(f_brm_is_is_n_pls, f_xlr_is_is_n_pls)
 
 
@@ -919,7 +920,7 @@ def get_f_brc_ot_is_n_pls(f_brc_is_n_pls, f_brm_is_is_n_pls, f_xc_is_n_pls):
 
     Args:
         f_brc_is_n_pls:
-        f_brm_is_is_n_pls:
+        f_brm_is_is_n_pls: ステップ n+1 における係数 f_BRM, W/K, [i, i]
         f_xc_is_n_pls: ステップ n+1 における係数 f_XC, degree C, [i, 1]
 
     Returns:
@@ -936,7 +937,7 @@ def get_f_brm_ot_is_is_n_pls(f_brm_is_is_n_pls, f_xot_is_is_n_pls):
     """
 
     Args:
-        f_brm_is_is_n_pls:
+        f_brm_is_is_n_pls: ステップ n+1 における係数 f_BRM, W/K, [i, i]
         f_xot_is_is_n_pls: ステップ n+1 における係数 f_XOT, -, [i, i]
 
     Returns:
