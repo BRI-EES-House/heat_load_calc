@@ -1103,9 +1103,9 @@ def get_v_vent_out_is_n(v_leak_is_n, v_vent_mec_is_n, v_vent_ntr_is_n):
     """
 
     Args:
-        v_leak_is_n:
-        v_vent_mec_is_n:
-        v_vent_ntr_is_n:
+        v_leak_is_n: ステップ n からステップ n+1 における室 i のすきま風量, m3/s, [i, 1]
+        v_vent_mec_is_n: ステップ n からステップ n+1 における室 i の機械換気量（全般換気量と局所換気量の合計値）, m3/s, [i, 1]
+        v_vent_ntr_is_n: ステップ n からステップ n+1 における室 i の自然風利用による換気量, m3/s, [i, 1]
 
     Returns:
         ステップ n からステップ n+1 における室 i の換気・すきま風・自然風の利用による外気の流入量, m3/s
