@@ -1121,8 +1121,8 @@ def get_v_vent_ntr_is_n(operation_mode_is_n, v_vent_ntr_set_is):
     """
 
     Args:
-        operation_mode_is_n:
-        v_vent_ntr_set_is:
+        operation_mode_is_n: ステップ n からステップ n+1 における室 i の運転モード, [i, 1]
+        v_vent_ntr_set_is: 室 i の自然風利用時の換気量, m3/s
 
     Returns:
         ステップ n からステップ n+1 における室 i の自然風利用による換気量, m3/s, [i, 1]
