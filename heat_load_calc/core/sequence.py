@@ -598,10 +598,10 @@ def get_q_s_js_n_pls(h_s_c_js, h_s_r_js, theta_ei_js_n_pls, theta_s_js_n_pls):
     """
 
     Args:
-        h_s_c_js:
-        h_s_r_js:
-        theta_ei_js_n_pls:
-        theta_s_js_n_pls:
+        h_s_c_js: 境界 j の室内側対流熱伝達率, W/(m2 K), [j, 1]
+        h_s_r_js: 境界 j の室内側放射熱伝達率, W/(m2 K), [j, 1]
+        theta_ei_js_n_pls: ステップ n+1 における境界 j の等価温度, ℃, [j, 1]
+        theta_s_js_n_pls: ステップ n+1 における境界 j の表面温度, ℃, [j, 1]
 
     Returns:
         ステップ n+1 における境界 j の表面熱流（壁体吸熱を正とする）, W/m2, [j, 1]
@@ -622,13 +622,13 @@ def get_theta_ei_js_n_pls(a_s_js, beta_is_n_pls, f_mrt_js_js, f_flr_js_is_n_pls,
         beta_is_n_pls:
         f_mrt_js_js:
         f_flr_js_is_n_pls:
-        h_s_c_js:
-        h_s_r_js:
+        h_s_c_js: 境界 j の室内側対流熱伝達率, W/(m2 K), [j, 1]
+        h_s_r_js: 境界 j の室内側放射熱伝達率, W/(m2 K), [j, 1]
         l_rs_is_n:
         p_js_is:
         q_s_sol_js_n_pls:
         theta_r_is_n_pls:
-        theta_s_js_n_pls:
+        theta_s_js_n_pls: ステップ n+1 における境界 j の表面温度, ℃, [j, 1]
 
     Returns:
         ステップ n+1 における境界 j の等価温度, degree C, [j, 1]
@@ -650,7 +650,7 @@ def get_theta_mrt_hum_is_n_pls(f_mrt_hum_is_js, theta_s_js_n_pls):
 
     Args:
         f_mrt_hum_is_js:
-        theta_s_js_n_pls:
+        theta_s_js_n_pls: ステップ n+1 における境界 j の表面温度, ℃, [j, 1]
 
     Returns:
         ステップ n+1 における室 i の人体に対する平均放射温度, degree C, [i, 1]
@@ -776,7 +776,7 @@ def get_f_brl_is_is_n(a_s_js, beta_is_n_pls, f_wsb_js_is_n_pls, h_s_c_js, p_is_j
         a_s_js:
         beta_is_n_pls:
         f_wsb_js_is_n_pls:
-        h_s_c_js:
+        h_s_c_js: 境界 j の室内側対流熱伝達率, W/(m2 K), [j, 1]
         p_is_js:
 
     Returns:
@@ -815,8 +815,8 @@ def get_f_flb_js_is_n_pls(a_s_js, beta_is_n_pls, f_flr_js_is_n_pls, h_s_c_js, h_
         a_s_js:
         beta_is_n_pls:
         f_flr_js_is_n_pls:
-        h_s_c_js:
-        h_s_r_js:
+        h_s_c_js: 境界 j の室内側対流熱伝達率, W/(m2 K), [j, 1]
+        h_s_r_js: 境界 j の室内側放射熱伝達率, W/(m2 K), [j, 1]
         k_ei_js_js:
         phi_a0_js:
         phi_t0_js:
@@ -1037,7 +1037,7 @@ def get_f_brm_is_is_n_pls(
         delta_t:
         f_wsr_js_is:
         g_sh_frt_is:
-        h_s_c_js:
+        h_s_c_js: 境界 j の室内側対流熱伝達率, W/(m2 K), [j, 1]
         p_is_js:
         p_js_is:
         rho_air:
@@ -1073,7 +1073,7 @@ def get_f_brc_is_n_pls(
         f_wsc_js_n_pls:
         f_wsv_js_n_pls:
         g_sh_frt_is:
-        h_s_c_js:
+        h_s_c_js: 境界 j の室内側対流熱伝達率, W/(m2 K), [j, 1]
         p_is_js:
         q_gen_is_n:
         q_hum_is_n:
