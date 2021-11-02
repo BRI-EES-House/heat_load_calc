@@ -1189,10 +1189,10 @@ def get_theta_dsh_s_t_js_ms_n_pls(phi_t1_js_ms, r_js_ms, theta_dsh_srf_t_js_ms_n
     """
 
     Args:
-        phi_t1_js_ms:
+        phi_t1_js_ms: 境界 j の項別公比法の指数項 m の貫流応答係数, -, [j, m]
         r_js_ms: 境界 j の項別公比法の指数項 m の公比, -, [j, m]
         theta_dsh_srf_t_js_ms_n: ステップ n における境界 j の項別公比法の指数項 m の貫流応答の項別成分, degree C, [j, m]
-        theta_rear_js_n:
+        theta_rear_js_n: ステップ n における境界 j の裏面温度, degree C, [j, 1]
 
     Returns:
         ステップ n+1 における境界 j の項別公比法の指数項 m の貫流応答の項別成分, degree C, [j, m]
@@ -1230,7 +1230,7 @@ def get_theta_rear_js_n(k_ei_js_js, theta_dstrb_js_n, theta_ei_js_n):
         theta_ei_js_n:
 
     Returns:
-        ステップnの境界jにおける裏面温度, degree C, [j, 1]
+        ステップ n における境界 j の裏面温度, degree C, [j, 1]
 
     Notes:
         式(2.32)
