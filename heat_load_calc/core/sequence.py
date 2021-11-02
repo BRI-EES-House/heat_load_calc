@@ -777,7 +777,7 @@ def get_f_brl_is_is_n(a_s_js, beta_is_n, f_wsb_js_is_n_pls, h_s_c_js, p_is_js):
         beta_is_n: ステップ n からステップ n+1 における室 i の放射暖冷房設備の対流成分比率, -, [i, 1]
         f_wsb_js_is_n_pls: ステップ n+1 における係数 f_WSB, K/W, [j, 1]
         h_s_c_js: 境界 j の室内側対流熱伝達率, W/(m2 K), [j, 1]
-        p_is_js:
+        p_is_js: 室 i と境界 j の接続に関する係数（境界 j が室 i に接している場合は 1 とし、それ以外の場合は 0 とする。）, -, [i, j]
 
     Returns:
         ステップ n における係数 f_BRL, -, [i, i]
@@ -1038,7 +1038,7 @@ def get_f_brm_is_is_n_pls(
         f_wsr_js_is: 係数 f_WSR, - [j, i]
         g_sh_frt_is: 室 i の備品等と空気間の熱コンダクタンス, W/K, [i, 1]
         h_s_c_js: 境界 j の室内側対流熱伝達率, W/(m2 K), [j, 1]
-        p_is_js:
+        p_is_js: 室 i と境界 j の接続に関する係数（境界 j が室 i に接している場合は 1 とし、それ以外の場合は 0 とする。）, -, [i, j]
         p_js_is: 室 i と境界 j の接続に関する係数（境界 j が室 i に接している場合は 1 とし、それ以外の場合は 0 とする。）, -, [j, i]
         rho_air:
         v_vent_int_is_is:
@@ -1074,7 +1074,7 @@ def get_f_brc_is_n_pls(
         f_wsv_js_n_pls: ステップ n+1 における係数 f_WSV, degree C, [j, 1]
         g_sh_frt_is: 室 i の備品等と空気間の熱コンダクタンス, W/K, [i, 1]
         h_s_c_js: 境界 j の室内側対流熱伝達率, W/(m2 K), [j, 1]
-        p_is_js:
+        p_is_js: 室 i と境界 j の接続に関する係数（境界 j が室 i に接している場合は 1 とし、それ以外の場合は 0 とする。）, -, [i, j]
         q_gen_is_n:
         q_hum_is_n:
         q_sol_frt_is_n: ステップ n からステップ n+1 における室 i に設置された家具による透過日射吸収熱量時間平均値, W, [i, 1]
