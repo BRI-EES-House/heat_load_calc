@@ -39,7 +39,9 @@ I. 評価法
 :math:`\hat{f}_{flr,i,j,n}`
     | ステップ |n| からステップ |n+1| における室 |i| の放射暖冷房設備の放熱量の放射成分に対する境界 |j| の室内側表面の吸収比率, -
 :math:`f_{mrt,hum,i,j}`
-    | 境界 |j| から室 |i| の人体に対する形態係数, -
+    | 室 |i| の人体に対する境界 |j| の形態係数, -
+:math:`f_{mrt,i,j}`
+    | 室 |i| の微小球に対する境界 |j| の形態係数, -
 :math:`f_{mrt,j*,j}`
     | 平均放射温度計算時の境界 |j*| の表面温度が境界 |j| に与える重み, -
 :math:`G_{lh,frt,i}`
@@ -130,7 +132,7 @@ I. 評価法
     | 1ステップの時間間隔, s
 :math:`\theta_{dstrb,j,n}`
     | ステップ |n| の境界 |j| における外気側等価温度の外乱成分, ℃
-:math:`\theta_{EI,j,n}`
+:math:`\theta_{ei,j,n}`
     | ステップ |n| における境界 |j| の等価温度, ℃
 :math:`\theta_{frt,i,n}`
     | ステップ |n| における室 |i| の備品等の温度, ℃
@@ -182,6 +184,10 @@ I. 評価法
     | :math:`C_{lh,frt,i}` を要素にもつ :math:`I \times I` の対角化行列, kg/(kg/kg(DA))
 :math:`\pmb{C}_{rm}`
     | :math:`C_{rm,i}` を要素にもつ :math:`I \times I` の対角化行列, J/K
+:math:`\hat{\pmb{f}}_{flr,n}`
+    | :math:`\hat{f}_{flr,i,j,n}` を要素にもつ :math:`J \times I` の行列, -
+:math:`\pmb{f}_{mrt}`
+    | :math:`f_{mrt,i,j}` を要素にもつ :math:`I \times J` の行列 , -
 :math:`\pmb{G}_{frt}`
     | :math:`G_{frt,i}` を要素にもつ :math:`I \times I` の対角化行列, W / K
 :math:`\pmb{h}_{s,c}`
@@ -200,10 +206,16 @@ I. 評価法
     | :math:`\hat{L}_{CS,i,n}` を要素にもつ :math:`I \times 1` で表される縦行列, W
 :math:`\hat{\pmb{L}}_{RS,n}`
     | :math:`\hat{L}_{RS,i,n}` を要素にもつ :math:`I \times 1` の縦行列, W
+:math:`\pmb{p}_{ij}`
+    | :math:`p_{i,j}` を要素にもつ :math:`I \times J` の行列, -
+:math:`\pmb{p}_{ji}`
+    | :math:`p_{i,j}` を要素にもつ :math:`J \times I` の行列, -
 :math:`\hat{\pmb{q}}_{gen,n}`
     | :math:`\hat{q}_{gen,i,n}` を要素にもつ :math:`I \times 1` の縦行列, W
 :math:`\hat{\pmb{q}}_{hum,n}`
     | :math:`\hat{q}_{hum,i,n}` を要素にもつ :math:`I \times 1` の縦行列, W
+:math:`\pmb{q}_{s,sol,n}`
+    | :math:`q_{s,sol,j,n}` を要素にもつ :math:`J \times 1` の縦行列, W/|m2|
 :math:`\hat{\pmb{V}}_n`
     | :math:`V_{i,n}` を要素にもつ :math:`I \times I` の対角化行列, |m3| |s-1|
 :math:`\hat{\pmb{V}}_{vent,int,n}`
@@ -229,7 +241,7 @@ I. 評価法
 :math:`\pmb{\theta}_{rear,n}`
     | :math:`\theta_{rear,j,n}` を要素にもつ :math:`J \times 1` の縦行列, ℃
 :math:`\pmb{\theta}_{s,n}`
-    | :math:`\theta_{s,i,n}` を要素にもつ :math:`I \times 1` の縦行列, ℃
+    | :math:`\theta_{s,j,n}` を要素にもつ :math:`J \times 1` の縦行列, ℃
 :math:`\pmb{\phi}_{a0}`
     | :math:`\phi_{a0,j}` を要素にもつ :math:`J \times J` の対角化行列, |m2| K/W
 :math:`\pmb{\phi}_{t0}`
@@ -491,17 +503,17 @@ I. 評価法
     :nowrap:
 
     \begin{align*}
-        q_{s,j,n+1} = ( \theta_{EI,j,n+1} - \theta_{s,j,n+1} ) \cdot ( h_{s,c,j} + h_{s,r,j} ) \tag{2.1}
+        q_{s,j,n+1} = ( \theta_{ei,j,n+1} - \theta_{s,j,n+1} ) \cdot ( h_{s,c,j} + h_{s,r,j} ) \tag{2.1}
     \end{align*}
 
-ステップ |n+1| における境界 |j| の等価温度 :math:`\theta_{EI,j,n+1}` は、式(2.2)のように表される。
+ステップ |n+1| における境界 |j| の等価温度 :math:`\theta_{ei,j,n+1}` は、式(2.2)のように表される。
 
 .. math::
     :nowrap:
 
     \begin{align*}
         \begin{split}
-            \theta_{EI,j,n+1}
+            \theta_{ei,j,n+1}
             &= \frac{ 1 }{ h_{s,c,j} + h_{s,r,j} } \cdot \\
             & \left( h_{s,c,j} \cdot \sum_{i=0}^{I-1}{ ( p_{i,j} \cdot \theta_{r,i,n+1} ) }
             + h_{s,r,j} \cdot \sum_{j*=0}^{J-1}{ ( f_{mrt,j,j*} \cdot \theta_{s,j*,n+1} ) } \right. \\
@@ -1072,10 +1084,13 @@ I. 評価法
     \begin{align*}
         \pmb{AX}
         = \pmb{I}
-        + \pmb{\phi}_{A0} \cdot \pmb{h}_{i}
-        - \pmb{\phi}_{A0} \cdot \pmb{h}_{r} \cdot \pmb{p} \cdot \pmb{F}_{mrt}
-        - \pmb{\phi}_{T0} \cdot \pmb{h}_{i}^{-1} \cdot \pmb{h}_{r} \cdot \pmb{k}'_{EI} \cdot \pmb{p} \cdot \pmb{F}_{mrt}
+        + \pmb{\phi}_{a0} \cdot (\pmb{h}_{s,c} + \pmb{h}_{s,r})
+        - \pmb{\phi}_{a0} \cdot \pmb{h}_{s,r} \cdot \pmb{p} \cdot \pmb{f}_{mrt}
+        - \pmb{\phi}_{t0} \cdot (\pmb{h}_{s,c} + \pmb{h}_{s,r})^{-1} \cdot \pmb{h}_{s,r} \cdot \pmb{k}_{ei} \cdot \pmb{p} \cdot \pmb{f}_{mrt}
         \tag{b18}
     \end{align*}
 
 
+v_diag(1.0 + phi_a0_js * (h_s_c_js + h_s_r_js))\
+        - f_mrt_js_js * h_s_r_js * phi_a0_js\
+        - np.dot(k_ei_js_js, f_mrt_js_js) * h_s_r_js * phi_t0_js / (h_s_c_js + h_s_r_js)

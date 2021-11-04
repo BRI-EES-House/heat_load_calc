@@ -12,6 +12,7 @@ from heat_load_calc.core import infiltration, response_factor, indoor_radiative_
 from heat_load_calc.core import ot_target
 from heat_load_calc.core import next_condition
 from heat_load_calc.core import humidification
+from heat_load_calc.core.matrix_method import v_diag
 
 from heat_load_calc.initializer.boundary_type import BoundaryType
 
@@ -133,7 +134,7 @@ class PreCalcParameters:
     f_mrt_hum_is_js: np.ndarray
 
     # 平均放射温度計算時の境界 j* の表面温度が境界 j に与える重み, [j, j]
-    f_mrt_js_js: np.ndarray
+    f_mrt_is_js: np.ndarray
 
     # 境界jにおける室内側放射熱伝達率, W/m2K, [j, 1]
     h_s_r_js: np.ndarray
@@ -487,9 +488,6 @@ def make_pre_calc_parameters(
     # 平均放射温度計算時の各部位表面温度の重み, [i, j]
     f_mrt_is_js = shape_factor.get_f_mrt_is_js(a_srf_js=a_s_js, h_r_js=h_s_r_js, p_is_js=p_is_js)
 
-    # 平均放射温度計算時の境界 j* の表面温度が境界 j　に与える重み, [j, j]
-    f_mrt_js_js = np.dot(p_js_is, f_mrt_is_js)
-
     # 境界jの室内側表面対流熱伝達率, W/m2K, [j, 1]
     h_s_c_js = np.array([bs.h_c for bs in bss]).reshape(-1, 1)
 
@@ -522,9 +520,9 @@ def make_pre_calc_parameters(
     theta_dstrb_js_ns = theta_o_sol_js_ns * k_eo_js
 
     # f_AX, [j, j]
-    f_ax_js_js = np.diag(1.0 + (phi_a0_js * h_i_js).flatten())\
-        - f_mrt_js_js * h_s_r_js * phi_a0_js\
-        - np.dot(k_ei_js_js, f_mrt_js_js) * h_s_r_js * phi_t0_js / h_i_js
+    f_ax_js_js = v_diag(1.0 + phi_a0_js * (h_s_c_js + h_s_r_js))\
+        - np.dot(p_js_is, f_mrt_is_js) * h_s_r_js * phi_a0_js\
+        - np.dot(k_ei_js_js, np.dot(p_js_is, f_mrt_is_js)) * h_s_r_js * phi_t0_js / (h_s_c_js + h_s_r_js)
 
     # 係数 f_FIA, -, [j, i]
     f_fia_js_is = get_f_fia_js_is(
@@ -619,7 +617,7 @@ def make_pre_calc_parameters(
         f_flr_c_js_is=f_flr_c_js_is,
         h_s_r_js=h_s_r_js,
         h_s_c_js=h_s_c_js,
-        f_mrt_js_js=f_mrt_js_js,
+        f_mrt_is_js=f_mrt_is_js,
         q_s_sol_js_ns=q_s_sol_js_ns,
         q_sol_frt_is_ns=q_sol_frt_is_ns,
         beta_h_is=beta_h_is,
