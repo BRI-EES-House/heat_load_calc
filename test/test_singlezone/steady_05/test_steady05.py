@@ -54,7 +54,7 @@ class TestSteadyState(unittest.TestCase):
             x_r_is_n=np.array([[0.0]]),
             theta_dsh_s_a_js_ms_n=q_srf_js_n * ss.phi_a1_js_ms / (1.0 - ss.r_js_ms),
             theta_dsh_s_t_js_ms_n=(np.dot(ss.k_ei_js_js, theta_ei_js_n) + ss.theta_dstrb_js_ns[:, 1].reshape(-1, 1)) * ss.phi_t1_js_ms / (1.0 - ss.r_js_ms),
-            q_srf_js_n=q_srf_js_n,
+            q_s_js_n=q_srf_js_n,
             theta_frt_is_n=np.array([[3.3084074373484]]),
             x_frt_is_n=np.array([[0.0]]),
             theta_ei_js_n=theta_ei_js_n
@@ -75,7 +75,7 @@ class TestSteadyState(unittest.TestCase):
     # 室内側表面熱流[W/m2]のテスト
     def test_heat_flow(self):
 
-        np.testing.assert_array_almost_equal(self._c_n.q_srf_js_n, self._c_n_pls.q_srf_js_n)
+        np.testing.assert_array_almost_equal(self._c_n.q_s_js_n, self._c_n_pls.q_s_js_n)
 
     # 表面温度[℃]のテスト
     def test_surface_temp(self):

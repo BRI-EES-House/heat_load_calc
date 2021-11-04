@@ -15,7 +15,7 @@ class Conditions:
             x_r_is_n,
             theta_dsh_s_a_js_ms_n,
             theta_dsh_s_t_js_ms_n,
-            q_srf_js_n,
+            q_s_js_n,
             theta_frt_is_n,
             x_frt_is_n,
             theta_ei_js_n
@@ -45,7 +45,7 @@ class Conditions:
         self.theta_dsh_srf_t_js_ms_n = theta_dsh_s_t_js_ms_n
 
         # ステップnの境界jにおける表面熱流（壁体吸熱を正とする）, W/m2, [j, 1]
-        self.q_srf_js_n = q_srf_js_n
+        self.q_s_js_n = q_s_js_n
 
         # ステップnの室iにおける家具の温度, degree C, [i, 1]
         self.theta_frt_is_n = theta_frt_is_n
@@ -122,7 +122,7 @@ def initialize_conditions(n_spaces: int, n_bdries: int):
         x_r_is_n=x_r_is_n,
         theta_dsh_s_a_js_ms_n=theta_dsh_srf_a_js_ms_n0,
         theta_dsh_s_t_js_ms_n=theta_dsh_srf_t_js_ms_n0,
-        q_srf_js_n=q_srf_jstrs_n,
+        q_s_js_n=q_srf_jstrs_n,
         theta_frt_is_n=theta_frt_is_n.reshape(-1, 1),
         x_frt_is_n=x_frt_is_n,
         theta_ei_js_n=np.full(total_number_of_bdry, 15.0).reshape(-1, 1)
@@ -154,6 +154,6 @@ def update_conditions_by_ground_conditions(is_ground: np.array, c: Conditions, g
 
     c.theta_dsh_srf_a_js_ms_n[is_ground, :] = gc.theta_dsh_srf_a_js_ms_n
 
-    c.q_srf_js_n[is_ground, :] = gc.q_srf_js_n
+    c.q_s_js_n[is_ground, :] = gc.q_srf_js_n
 
     return c

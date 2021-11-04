@@ -3,7 +3,7 @@ from functools import partial
 from typing import Union
 
 from heat_load_calc.external.psychrometrics import get_x, get_p_vs_is2
-from heat_load_calc.external.global_number import get_c_air, get_rho_air
+from heat_load_calc.external.global_number import get_c_a, get_rho_a
 
 
 def make_get_f_l_cl_funcs(n_rm, cooling_equipments):
@@ -78,13 +78,13 @@ def _func_rac(
 
     brmx_rac_is = np.where(
         (x_r_ntr_i_n_pls > x_rac_ex_srf_i_n_pls) & (q_s_i_n > 0.0),
-        get_rho_air() * v_rac_i_n * (1 - bf_rac_i),
+        get_rho_a() * v_rac_i_n * (1 - bf_rac_i),
         0.0
     )
 
     brcx_rac_is = np.where(
         (x_r_ntr_i_n_pls > x_rac_ex_srf_i_n_pls) & (q_s_i_n > 0.0),
-        get_rho_air() * v_rac_i_n * (1 - bf_rac_i) * x_rac_ex_srf_i_n_pls,
+        get_rho_a() * v_rac_i_n * (1 - bf_rac_i) * x_rac_ex_srf_i_n_pls,
         0.0
     )
 
@@ -130,7 +130,7 @@ def _get_theta_rac_ex_srf_i_n_pls(
         繰り返し計算（温度と湿度） eq.14
     """
 
-    return theta_r_i_n_pls - q_s_i_n / (get_c_air() * get_rho_air() * v_rac_i_n * (1.0 - bf_rac_i))
+    return theta_r_i_n_pls - q_s_i_n / (get_c_a() * get_rho_a() * v_rac_i_n * (1.0 - bf_rac_i))
 
 
 def _get_vac_rac_i_n(

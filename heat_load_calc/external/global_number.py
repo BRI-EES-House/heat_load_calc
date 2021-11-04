@@ -1,5 +1,5 @@
 
-def get_c_air() -> float:
+def get_c_a() -> float:
     """
     Returns:
         空気の比熱, J/kg K
@@ -8,7 +8,7 @@ def get_c_air() -> float:
     return 1005.0
 
 
-def get_rho_air() -> float:
+def get_rho_a() -> float:
     """
     Returns:
         空気の密度, kg/m3

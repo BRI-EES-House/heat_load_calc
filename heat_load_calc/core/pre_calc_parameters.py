@@ -6,7 +6,7 @@ import pandas as pd
 from dataclasses import dataclass
 from typing import List, Callable
 
-from heat_load_calc.external.global_number import get_c_air, get_rho_air
+from heat_load_calc.external.global_number import get_c_a, get_rho_a
 from heat_load_calc.core import infiltration, response_factor, indoor_radiative_heat_transfer, shape_factor, \
     occupants_form_factor, boundary_simple, furniture
 from heat_load_calc.core import ot_target
@@ -124,7 +124,7 @@ class PreCalcParameters:
 
     n_bdry: int
 
-    ivs_f_ax_js_js: np.ndarray
+    f_ax_js_js: np.ndarray
 
     p_is_js: np.ndarray
     p_js_is: np.ndarray
@@ -149,7 +149,7 @@ class PreCalcParameters:
     f_flr_c_js_is: np.ndarray
 
     # WSC, W, [j, n]
-    wsc_js_ns: np.ndarray
+    f_wsc_js_ns: np.ndarray
 
     # 境界jの裏面温度に他の境界の等価温度が与える影響, [j, j]
     k_ei_js_js: np.ndarray
@@ -479,22 +479,22 @@ def make_pre_calc_parameters(
     f_flr_c_js_is = flr_js_is_ns
 
     # 室iの空気の熱容量, J/K, [i, 1]
-    c_rm_is = v_rm_is * get_rho_air() * get_c_air()
+    c_rm_is = v_rm_is * get_rho_a() * get_c_a()
 
     # 境界jの室内側表面放射熱伝達率, W/m2K, [j, 1]
-    h_r_js = np.array([bs.h_r for bs in bss]).reshape(-1, 1)
+    h_s_r_js = np.array([bs.h_r for bs in bss]).reshape(-1, 1)
 
     # 平均放射温度計算時の各部位表面温度の重み, [i, j]
-    f_mrt_is_js = shape_factor.get_f_mrt_is_js(a_srf_js=a_s_js, h_r_js=h_r_js, p_is_js=p_is_js)
+    f_mrt_is_js = shape_factor.get_f_mrt_is_js(a_srf_js=a_s_js, h_r_js=h_s_r_js, p_is_js=p_is_js)
 
     # 平均放射温度計算時の境界 j* の表面温度が境界 j　に与える重み, [j, j]
     f_mrt_js_js = np.dot(p_js_is, f_mrt_is_js)
 
     # 境界jの室内側表面対流熱伝達率, W/m2K, [j, 1]
-    h_c_js = np.array([bs.h_c for bs in bss]).reshape(-1, 1)
+    h_s_c_js = np.array([bs.h_c for bs in bss]).reshape(-1, 1)
 
     # 境界jの室内側表面総合熱伝達率, W/m2K, [j, 1]
-    h_i_js = h_c_js + h_r_js
+    h_i_js = h_s_c_js + h_s_r_js
 
     # ステップnの室iにおける機械換気量（全般換気量+局所換気量）, m3/s, [i, n]
     v_mec_vent_is_ns = v_vent_ex_is + v_mec_vent_local_is_ns
@@ -521,28 +521,22 @@ def make_pre_calc_parameters(
     # ステップnの境界jにおける外気側等価温度の外乱成分, ℃, [j, n]
     theta_dstrb_js_ns = theta_o_sol_js_ns * k_eo_js
 
-    # AX, [j, j]
-    ax_js_js = np.diag(1.0 + (phi_a0_js * h_i_js).flatten())\
-        - f_mrt_js_js * h_r_js * phi_a0_js\
-        - np.dot(k_ei_js_js, f_mrt_js_js) * h_r_js * phi_t0_js / h_i_js
+    # f_AX, [j, j]
+    f_ax_js_js = np.diag(1.0 + (phi_a0_js * h_i_js).flatten())\
+        - f_mrt_js_js * h_s_r_js * phi_a0_js\
+        - np.dot(k_ei_js_js, f_mrt_js_js) * h_s_r_js * phi_t0_js / h_i_js
 
-    # AX^-1, [j, j]
-    ivs_ax_js_js = np.linalg.inv(ax_js_js)
+    # f_FIA, [j, i]
+    f_fia_js_is = phi_a0_js * h_s_c_js * p_js_is + np.dot(k_ei_js_js, p_js_is) * phi_t0_js * h_s_c_js / h_i_js
 
-    # FIA, [j, i]
-    fia_js_is = phi_a0_js * h_c_js * p_js_is\
-        + np.dot(k_ei_js_js, p_js_is) * phi_t0_js * h_c_js / h_i_js
+    # f_CRX, degree C, [j, n]
+    f_crx_js_ns = phi_a0_js * q_s_sol_js_ns + phi_t0_js / h_i_js * np.dot(k_ei_js_js, q_s_sol_js_ns) + phi_t0_js * theta_dstrb_js_ns
 
-    # CRX, degree C, [j, n]
-    crx_js_ns = phi_a0_js * q_s_sol_js_ns \
-                + phi_t0_js / h_i_js * np.dot(k_ei_js_js, q_s_sol_js_ns) \
-                + phi_t0_js * theta_dstrb_js_ns
+    # f_WSR, [j, i]
+    f_wsr_js_is = np.dot(np.linalg.inv(f_ax_js_js), f_fia_js_is)
 
-    # WSR, [j, i]
-    f_wsr_js_is = np.dot(ivs_ax_js_js, fia_js_is)
-
-    # WSC, degree C, [j, n]
-    wsc_js_ns = np.dot(ivs_ax_js_js, crx_js_ns)
+    # f_WSC, degree C, [j, n]
+    f_wsc_js_ns = np.dot(np.linalg.inv(f_ax_js_js), f_crx_js_ns)
 
     # endregion
 
@@ -608,19 +602,19 @@ def make_pre_calc_parameters(
         ac_demand_is_ns=ac_demand_is_ns,
         f_flr_h_js_is=f_flr_h_js_is,
         f_flr_c_js_is=f_flr_c_js_is,
-        h_s_r_js=h_r_js,
-        h_s_c_js=h_c_js,
+        h_s_r_js=h_s_r_js,
+        h_s_c_js=h_s_c_js,
         f_mrt_js_js=f_mrt_js_js,
         q_s_sol_js_ns=q_s_sol_js_ns,
         q_sol_frt_is_ns=q_sol_frt_is_ns,
         beta_h_is=beta_h_is,
         beta_c_is=beta_c_is,
         f_wsr_js_is=f_wsr_js_is,
-        ivs_f_ax_js_js=ivs_ax_js_js,
+        f_ax_js_js=f_ax_js_js,
         p_is_js=p_is_js,
         p_js_is=p_js_is,
         is_ground_js=is_ground_js,
-        wsc_js_ns=wsc_js_ns,
+        f_wsc_js_ns=f_wsc_js_ns,
         k_ei_js_js=k_ei_js_js,
         theta_o_ns=theta_o_ns,
         x_o_ns=x_o_ns,
@@ -640,8 +634,8 @@ def make_pre_calc_parameters(
         phi_t0_js=phi_t0_js[is_ground_js.flatten(), :],
         phi_a1_js_ms=phi_a1_js_ms[is_ground_js.flatten(), :],
         phi_t1_js_ms=phi_t1_js_ms[is_ground_js.flatten(), :],
-        h_s_r_js=h_r_js[is_ground_js.flatten(), :],
-        h_s_c_js=h_c_js[is_ground_js.flatten(), :],
+        h_s_r_js=h_s_r_js[is_ground_js.flatten(), :],
+        h_s_c_js=h_s_c_js[is_ground_js.flatten(), :],
         theta_o_ns=theta_o_ns,
         theta_dstrb_js_ns=theta_dstrb_js_ns[is_ground_js.flatten(), :],
     )
