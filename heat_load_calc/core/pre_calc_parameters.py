@@ -519,10 +519,16 @@ def make_pre_calc_parameters(
     # ステップnの境界jにおける外気側等価温度の外乱成分, ℃, [j, n]
     theta_dstrb_js_ns = theta_o_sol_js_ns * k_eo_js
 
-    # f_AX, [j, j]
-    f_ax_js_js = v_diag(1.0 + phi_a0_js * (h_s_c_js + h_s_r_js))\
-        - np.dot(p_js_is, f_mrt_is_js) * h_s_r_js * phi_a0_js\
-        - np.dot(k_ei_js_js, np.dot(p_js_is, f_mrt_is_js)) * h_s_r_js * phi_t0_js / (h_s_c_js + h_s_r_js)
+    # 係数 f_AX, -, [j, j]
+    f_ax_js_js = get_f_ax_js_is(
+        f_mrt_is_js=f_mrt_is_js,
+        h_s_c_js=h_s_c_js,
+        h_s_r_js=h_s_r_js,
+        k_ei_js_js=k_ei_js_js,
+        p_js_is=p_js_is,
+        phi_a0_js=phi_a0_js,
+        phi_t0_js=phi_t0_js
+    )
 
     # 係数 f_FIA, -, [j, i]
     f_fia_js_is = get_f_fia_js_is(
@@ -733,6 +739,30 @@ def get_f_fia_js_is(h_s_c_js, h_s_r_js, k_ei_js_js, p_js_is, phi_a0_js, phi_t0_j
     """
 
     return phi_a0_js * h_s_c_js * p_js_is + np.dot(k_ei_js_js, p_js_is) * phi_t0_js * h_s_c_js / (h_s_c_js + h_s_r_js)
+
+
+def get_f_ax_js_is(f_mrt_is_js, h_s_c_js, h_s_r_js, k_ei_js_js, p_js_is, phi_a0_js, phi_t0_js):
+    """
+
+    Args:
+        f_mrt_is_js: 室 i の微小球に対する境界 j の形態係数, -, [i, j]
+        h_s_c_js: 境界 j の室内側対流熱伝達率, W/(m2 K), [j, 1]
+        h_s_r_js: 境界 j の室内側放射熱伝達率, W/(m2 K), [j, 1]
+        k_ei_js_js: 境界 j の裏面温度に境界　j∗ の等価温度が与える影響, -, [j, j]
+        p_js_is: 室 i と境界 j の接続に関する係数（境界 j が室 i に接している場合は 1 とし、それ以外の場合は 0 とする。）, -, [j, i]
+        phi_a0_js: 境界 j の吸熱応答係数の初項, m2 K/W, [j, 1]
+        phi_t0_js: 境界 j の貫流応答係数の初項, -, [j, 1]
+
+    Returns:
+        係数 f_AX, -, [j, j]
+
+    Notes:
+        式(4.5)
+    """
+
+    return v_diag(1.0 + phi_a0_js * (h_s_c_js + h_s_r_js)) \
+        - np.dot(p_js_is, f_mrt_is_js) * h_s_r_js * phi_a0_js \
+        - np.dot(k_ei_js_js, np.dot(p_js_is, f_mrt_is_js)) * h_s_r_js * phi_t0_js / (h_s_c_js + h_s_r_js)
 
 
 def _get_v_vent_int_is_is(next_vent_is_ks: List[List[dict]]) -> np.ndarray:
