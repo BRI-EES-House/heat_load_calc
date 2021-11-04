@@ -1078,19 +1078,21 @@ I. 評価法
         \tag{4.4}
     \end{align*}
 
+係数 :math:`f_{AX,j,i}` は、式(4.5)により表される。
+
 .. math::
     :nowrap:
 
     \begin{align*}
-        \pmb{AX}
-        = \pmb{I}
-        + \pmb{\phi}_{a0} \cdot (\pmb{h}_{s,c} + \pmb{h}_{s,r})
-        - \pmb{\phi}_{a0} \cdot \pmb{h}_{s,r} \cdot \pmb{p} \cdot \pmb{f}_{mrt}
-        - \pmb{\phi}_{t0} \cdot (\pmb{h}_{s,c} + \pmb{h}_{s,r})^{-1} \cdot \pmb{h}_{s,r} \cdot \pmb{k}_{ei} \cdot \pmb{p} \cdot \pmb{f}_{mrt}
-        \tag{b18}
+        \begin{split}
+            \pmb{f}_{AX}
+            &= \pmb{I} \\
+            &+ \pmb{\phi}_{a0} \cdot (\pmb{h}_{s,c} + \pmb{h}_{s,r}) \\
+            &- \pmb{\phi}_{a0} \cdot \pmb{h}_{s,r} \cdot \pmb{p}_{ji} \cdot \pmb{f}_{mrt} \\
+            &- \pmb{\phi}_{t0} \cdot (\pmb{h}_{s,c} + \pmb{h}_{s,r})^{-1} \cdot \pmb{h}_{s,r} \cdot \pmb{k}_{ei} \cdot \pmb{p}_{ji} \cdot \pmb{f}_{mrt}
+        \end{split}
+        \tag{4.5}
     \end{align*}
 
 
-v_diag(1.0 + phi_a0_js * (h_s_c_js + h_s_r_js))\
-        - f_mrt_js_js * h_s_r_js * phi_a0_js\
-        - np.dot(k_ei_js_js, f_mrt_js_js) * h_s_r_js * phi_t0_js / (h_s_c_js + h_s_r_js)
+
