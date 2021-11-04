@@ -535,8 +535,8 @@ def make_pre_calc_parameters(
     # f_WSR, [j, i]
     f_wsr_js_is = np.dot(np.linalg.inv(f_ax_js_js), f_fia_js_is)
 
-    # f_WSC, degree C, [j, n]
-    f_wsc_js_ns = np.dot(np.linalg.inv(f_ax_js_js), f_crx_js_ns)
+    # 係数 f_{WSC, n}, degree C, [j, n]
+    f_wsc_js_ns = get_f_wsc_js_ns(f_ax_js_js=f_ax_js_js, f_crx_js_ns=f_crx_js_ns)
 
     # endregion
 
@@ -641,6 +641,23 @@ def make_pre_calc_parameters(
     )
 
     return pre_calc_parameters, pre_calc_parameters_ground
+
+
+def get_f_wsc_js_ns(f_ax_js_js, f_crx_js_ns):
+    """
+
+    Args:
+        f_ax_js_js: 係数 f_{AX}, -, [j, j]
+        f_crx_js_ns: 係数 f_{CRX,n}, degree C, [j, n]
+
+    Returns:
+        係数 f_{WSC,n}, degree C, [j, n]
+
+    Notes:
+        式(4.1)
+    """
+
+    return np.dot(np.linalg.inv(f_ax_js_js), f_crx_js_ns)
 
 
 def _get_v_vent_int_is_is(next_vent_is_ks: List[List[dict]]) -> np.ndarray:
