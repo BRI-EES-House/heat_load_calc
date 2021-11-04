@@ -1094,5 +1094,14 @@ I. 評価法
         \tag{4.5}
     \end{align*}
 
+ステップ |n| の境界 |j| における外気側等価温度の外乱成分 :math:`\theta_{dstrb,j,n}` は、式(4.6)により表される。
+
+.. math::
+    :nowrap:
+
+    \begin{align*}
+        \theta_{dstrb,j,n} = \theta_{o,eqv,j,n} \cdot k_{eo,j}
+        \tag{4.6}
+    \end{align*}
 
 

@@ -373,14 +373,14 @@ def make_pre_calc_parameters(
 
     # ステップnの境界jにおける裏面等価温度, ℃, [j, 8760*4]
     if theta_o_sol_calculate:
-        theta_o_sol_js_ns = np.array([bs.theta_o_sol for bs in bss])
+        theta_o_eqv_js_ns = np.array([bs.theta_o_sol for bs in bss])
     else:
         with open(data_directory + '/mid_data_theta_o_sol.csv', 'r') as f:
             r = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
-            theta_o_sol_js_ns = np.array([row for row in r]).T
+            theta_o_eqv_js_ns = np.array([row for row in r]).T
 
     # ステップn+1に対応するために0番要素に最終要素を代入
-    theta_o_sol_js_ns = np.append(theta_o_sol_js_ns, theta_o_sol_js_ns[:, 0:1], axis=1)
+    theta_o_eqv_js_ns = np.append(theta_o_eqv_js_ns, theta_o_eqv_js_ns[:, 0:1], axis=1)
 
     # endregion
 
@@ -516,8 +516,8 @@ def make_pre_calc_parameters(
     # 温度差係数
     k_eo_js = np.array([bs.h_td for bs in bss]).reshape(-1, 1)
 
-    # ステップnの境界jにおける外気側等価温度の外乱成分, ℃, [j, n]
-    theta_dstrb_js_ns = theta_o_sol_js_ns * k_eo_js
+    # ステップ n の境界 j における外気側等価温度の外乱成分, ℃, [j, n]
+    theta_dstrb_js_ns = get_theta_dstrb_js_ns(k_eo_js=k_eo_js, theta_o_eqv_js_ns=theta_o_eqv_js_ns)
 
     # 係数 f_AX, -, [j, j]
     f_ax_js_js = get_f_ax_js_is(
@@ -763,6 +763,23 @@ def get_f_ax_js_is(f_mrt_is_js, h_s_c_js, h_s_r_js, k_ei_js_js, p_js_is, phi_a0_
     return v_diag(1.0 + phi_a0_js * (h_s_c_js + h_s_r_js)) \
         - np.dot(p_js_is, f_mrt_is_js) * h_s_r_js * phi_a0_js \
         - np.dot(k_ei_js_js, np.dot(p_js_is, f_mrt_is_js)) * h_s_r_js * phi_t0_js / (h_s_c_js + h_s_r_js)
+
+
+def get_theta_dstrb_js_ns(k_eo_js, theta_o_eqv_js_ns):
+    """
+
+    Args:
+        k_eo_js: 境界 j の裏面温度に境界 j の相当外気温度が与える影響, -, [j, 1]
+        theta_o_eqv_js_ns: ステップ n における境界 j の相当外気温度, degree C, [j, 1]
+
+    Returns:
+        ステップ n の境界 j における外気側等価温度の外乱成分, degre C, [j, n]
+
+    Notes:
+        式(4.6)
+    """
+
+    return theta_o_eqv_js_ns * k_eo_js
 
 
 def _get_v_vent_int_is_is(next_vent_is_ks: List[List[dict]]) -> np.ndarray:
