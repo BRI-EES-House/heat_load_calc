@@ -529,8 +529,16 @@ def make_pre_calc_parameters(
     # f_FIA, [j, i]
     f_fia_js_is = phi_a0_js * h_s_c_js * p_js_is + np.dot(k_ei_js_js, p_js_is) * phi_t0_js * h_s_c_js / h_i_js
 
-    # f_CRX, degree C, [j, n]
-    f_crx_js_ns = phi_a0_js * q_s_sol_js_ns + phi_t0_js / h_i_js * np.dot(k_ei_js_js, q_s_sol_js_ns) + phi_t0_js * theta_dstrb_js_ns
+    # 係数 f_CRX, degree C, [j, n]
+    f_crx_js_ns = get_f_crx_js_ns(
+        h_s_c_js=h_s_c_js,
+        h_s_r_js=h_s_r_js,
+        k_ei_js_js=k_ei_js_js,
+        phi_a0_js=phi_a0_js,
+        phi_t0_js=phi_t0_js,
+        q_s_sol_js_ns=q_s_sol_js_ns,
+        theta_dstrb_js_ns=theta_dstrb_js_ns
+    )
 
     # 係数 f_WSR, -, [j, i]
     f_wsr_js_is = get_f_wsr_js_is(f_ax_js_js=f_ax_js_js, f_fia_js_is=f_fia_js_is)
@@ -675,6 +683,30 @@ def get_f_wsr_js_is(f_ax_js_js, f_fia_js_is):
     """
 
     return np.dot(np.linalg.inv(f_ax_js_js), f_fia_js_is)
+
+
+def get_f_crx_js_ns(h_s_c_js, h_s_r_js, k_ei_js_js, phi_a0_js, phi_t0_js, q_s_sol_js_ns, theta_dstrb_js_ns):
+    """
+
+    Args:
+        h_s_c_js: 境界 j の室内側対流熱伝達率, W/(m2 K), [j, 1]
+        h_s_r_js: 境界 j の室内側放射熱伝達率, W/(m2 K), [j, 1]
+        k_ei_js_js: 境界 j の裏面温度に境界　j∗ の等価温度が与える影響, -, [j, j]
+        phi_a0_js: 境界 j の吸熱応答係数の初項, m2 K/W, [j, 1]
+        phi_t0_js: 境界 j の貫流応答係数の初項, -, [j, 1]
+        q_s_sol_js_ns: ステップ n における境界 j の透過日射吸収熱量, W/m2, [j, n]
+        theta_dstrb_js_ns: ステップ n の境界 j における外気側等価温度の外乱成分, degre C, [j, n]
+
+    Returns:
+        係数 f_CRX, degree C, [j, n]
+
+    Notes:
+        式(4.3)
+    """
+
+    return phi_a0_js * q_s_sol_js_ns\
+        + phi_t0_js / (h_s_c_js + h_s_r_js) * np.dot(k_ei_js_js, q_s_sol_js_ns)\
+        + phi_t0_js * theta_dstrb_js_ns
 
 
 def _get_v_vent_int_is_is(next_vent_is_ks: List[List[dict]]) -> np.ndarray:

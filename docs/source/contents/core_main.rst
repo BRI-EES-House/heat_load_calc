@@ -46,8 +46,6 @@ I. 評価法
     | 室 |i| の備品等と空気間の湿気コンダクタンス, kg/(s kg/kg(DA))
 :math:`G_{sh,frt,i}`
     | 室 |i| の備品等と空気間の熱コンダクタンス, W/K
-:math:`h_{c,j}`
-    | 境界 |j| の室内側対流熱伝達率, W/(|m2| K)
 :math:`h_{hum,c,i,n}`
     | ステップ |n| における室 |i| の人体表面の対流熱伝達率, W/(|m2| K)
 :math:`h_{hum,r,i,n}`
@@ -56,7 +54,7 @@ I. 評価法
     | 境界 |j| の室内側対流熱伝達率, W/(|m2| K)
 :math:`h_{s,r,j}`
     | 境界 |j| の室内側放射熱伝達率, W/(|m2| K)
-:math:`k_{EI,j,j*}`
+:math:`k_{ei,j,j*}`
     | 境界 |j| の裏面温度に境界　|j*| の等価温度が与える影響, -
 :math:`k_{c,i,n}`
     | ステップ |n| における室 |i| の人体表面の対流熱伝達率が総合熱伝達率に占める割合, -
@@ -186,16 +184,16 @@ I. 評価法
     | :math:`C_{rm,i}` を要素にもつ :math:`I \times I` の対角化行列, J/K
 :math:`\pmb{G}_{frt}`
     | :math:`G_{frt,i}` を要素にもつ :math:`I \times I` の対角化行列, W / K
-:math:`\pmb{h}_c`
-    | :math:`h_{c,j}` を要素にもつ :math:`J \times J` の対角化行列, W / |m2| K
 :math:`\pmb{h}_{s,c}`
     | :math:`h_{s,c,j}` を要素にもつ :math:`J \times J` の対角化行列
-:math:`\pmb{k}_{c,n+1}`
-    | :math:`k_{c,i,n+1}` を要素にもつ :math:`I \times I` の対角化行列
+:math:`\pmb{h}_{s,r}`
+    | :math:`h_{s,r,j}` を要素にもつ :math:`J \times J` の対角化行列
+:math:`\pmb{k}_{c,n}`
+    | :math:`k_{c,i,n}` を要素にもつ :math:`I \times I` の対角化行列
 :math:`\pmb{k}_{ei}`
     | :math:`k_{ei,j,j*}` を要素にもつ :math:`J \times J` の行列, -
-:math:`\pmb{k}_{r,n+1}`
-    | :math:`k_{r,i,n+1}` を要素にもつ :math:`I \times I` の対角化行列
+:math:`\pmb{k}_{r,n}`
+    | :math:`k_{r,i,n}` を要素にもつ :math:`I \times I` の対角化行列
 :math:`\hat{\pmb{L}}_{CL,n}`
     | :math:`\hat{L}_{CL,i,n}` を要素にもつ :math:`I \times 1` の縦行列, W
 :math:`\hat{\pmb{L}}_{CS,n}`
@@ -1024,7 +1022,7 @@ I. 評価法
     :nowrap:
 
     \begin{align*}
-        \prm{f}_{WSC,n} = \prm{f}_{AX}^{-1} \cdot \prm{f}_{CRX,n}
+        \pmb{f}_{WSC,n} = \pmb{f}_{AX}^{-1} \cdot \pmb{f}_{CRX,n}
         \tag{4.1}
     \end{align*}
 
@@ -1034,7 +1032,21 @@ I. 評価法
     :nowrap:
 
     \begin{align*}
-        \prm{f}_{WSR} = \prm{f}_{AX}^{-1} \cdot \prm{f}_{FIA}
+        \pmb{f}_{WSR} = \pmb{f}_{AX}^{-1} \cdot \pmb{f}_{FIA}
         \tag{4.2}
     \end{align*}
+
+ステップ |n| における係数 :math:`f_{CRX,j,n}` は、式(4.3)により表される。
+
+.. math::
+    :nowrap:
+
+    \begin{align*}
+        \pmb{f}_{CRX,n}
+        = \pmb{\phi}_{a0} \cdot \pmb{q}_{s,sol,n}
+        + \pmb{\phi}_{t0} \cdot \pmb{k}_{ei} \cdot (\pmb{h}_{c} + \pmb{h}_{r})^{-1} \cdot \pmb{q}_{s,sol,n}
+        + \pmb{\phi}_{t0} \cdot \pmb{\theta}_{dstrb,n}
+        \tag{4.3}
+    \end{align*}
+
 
