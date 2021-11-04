@@ -421,6 +421,12 @@ def make_pre_calc_parameters(
     # 境界jの日射吸収の有無, [j, 1]
     p_s_sol_abs_js = np.array([bs.is_solar_absorbed_inside for bs in bss]).reshape(-1, 1)
 
+    # 境界jの室内側表面放射熱伝達率, W/m2K, [j, 1]
+    h_s_r_js = np.array([bs.h_r for bs in bss]).reshape(-1, 1)
+
+    # 境界jの室内側表面対流熱伝達率, W/m2K, [j, 1]
+    h_s_c_js = np.array([bs.h_c for bs in bss]).reshape(-1, 1)
+
     # endregion
 
     # region 読み込んだ値から新たに係数を作成する
@@ -489,17 +495,8 @@ def make_pre_calc_parameters(
     # 室iの空気の熱容量, J/K, [i, 1]
     c_rm_is = v_rm_is * get_rho_a() * get_c_a()
 
-    # 境界jの室内側表面放射熱伝達率, W/m2K, [j, 1]
-    h_s_r_js = np.array([bs.h_r for bs in bss]).reshape(-1, 1)
-
-    # 平均放射温度計算時の各部位表面温度の重み, [i, j]
-    f_mrt_is_js = shape_factor.get_f_mrt_is_js(a_srf_js=a_s_js, h_r_js=h_s_r_js, p_is_js=p_is_js)
-
-    # 境界jの室内側表面対流熱伝達率, W/m2K, [j, 1]
-    h_s_c_js = np.array([bs.h_c for bs in bss]).reshape(-1, 1)
-
-    # 境界jの室内側表面総合熱伝達率, W/m2K, [j, 1]
-    h_i_js = h_s_c_js + h_s_r_js
+    # 室 i の微小球に対する境界 j の形態係数, -, [i, j]
+    f_mrt_is_js = shape_factor.get_f_mrt_is_js(a_s_js=a_s_js, h_s_r_js=h_s_r_js, p_is_js=p_is_js)
 
     # ステップ n からステップ n+1 における室 i の機械換気量（全般換気量と局所換気量の合計値）, m3/s, [i, 1]
     v_vent_mec_is_ns = get_v_vent_mec_is_ns(

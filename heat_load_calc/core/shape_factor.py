@@ -44,9 +44,9 @@ def get_h_r_i_js(a_srf: np.ndarray) -> np.ndarray:
     return hr_k_n
 
 
-def get_f_mrt_is_js(a_srf_js, h_r_js, p_is_js):
+def get_f_mrt_is_js(a_s_js, h_s_r_js, p_is_js):
 
-    ah = a_srf_js * h_r_js
+    ah = a_s_js * h_s_r_js
 
     return p_is_js * ah.T / np.dot(p_is_js, ah)
 
