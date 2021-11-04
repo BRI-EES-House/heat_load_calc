@@ -15,6 +15,7 @@ from heat_load_calc.core import humidification
 from heat_load_calc.core.matrix_method import v_diag
 
 from heat_load_calc.initializer.boundary_type import BoundaryType
+from heat_load_calc.core import solar_absorption
 
 
 @dataclass
@@ -414,6 +415,12 @@ def make_pre_calc_parameters(
     # 境界jの裏面温度に他の境界の等価温度が与える影響, [j, j]
     k_ei_js_js = np.array([get_k_ei_js_j(bs=bs, n_boundaries=len(bss)) for bs in bss])
 
+    # 温度差係数
+    k_eo_js = np.array([bs.h_td for bs in bss]).reshape(-1, 1)
+
+    # 境界jの日射吸収の有無, [j, 1]
+    p_s_sol_abs_js = np.array([bs.is_solar_absorbed_inside for bs in bss]).reshape(-1, 1)
+
     # endregion
 
     # region 読み込んだ値から新たに係数を作成する
@@ -497,24 +504,17 @@ def make_pre_calc_parameters(
     # ステップnの室iにおける機械換気量（全般換気量+局所換気量）, m3/s, [i, n]
     v_mec_vent_is_ns = v_vent_ex_is + v_mec_vent_local_is_ns
 
-    # 室内侵入日射のうち家具に吸収される割合
-    # TODO: これは入力値にした方がよいのではないか？
-    r_sol_fnt = 0.5
+    # ステップ n からステップ n+1 における室 i に設置された家具による透過日射吸収熱量時間平均値, W, [i, n]
+    q_sol_frt_is_ns = solar_absorption.get_q_sol_frt_is_ns(q_trs_sor_is_ns=q_trs_sol_is_ns)
 
-    # ステップnの室iにおける家具の吸収日射量, W, [i, n]
-    q_sol_frt_is_ns = q_trs_sol_is_ns * r_sol_fnt
-
-    # 境界jの日射吸収の有無, [j, 1]
-    is_solar_abs_js = np.array([bs.is_solar_absorbed_inside for bs in bss]).reshape(-1, 1)
-
-    # 室iにおける日射が吸収される境界の面積の合計, m2, [i, 1]
-    a_srf_abs_is = np.dot(p_is_js, a_s_js * is_solar_abs_js)
-
-    # ステップnの境界jにおける透過日射吸収熱量, W/m2, [j, n]
-    q_s_sol_js_ns = np.dot(p_js_is, q_trs_sol_is_ns / a_srf_abs_is) * is_solar_abs_js * (1.0 - r_sol_fnt)
-
-    # 温度差係数
-    k_eo_js = np.array([bs.h_td for bs in bss]).reshape(-1, 1)
+    # ステップ n における境界 j の透過日射吸収熱量, W/m2, [j, n]
+    q_s_sol_js_ns = solar_absorption.get_q_s_sol_js_ns(
+        p_is_js=p_is_js,
+        a_s_js=a_s_js,
+        p_s_sol_abs_js=p_s_sol_abs_js,
+        p_js_is=p_js_is,
+        q_trs_sol_is_ns=q_trs_sol_is_ns
+    )
 
     # ステップ n の境界 j における外気側等価温度の外乱成分, ℃, [j, n]
     theta_dstrb_js_ns = get_theta_dstrb_js_ns(k_eo_js=k_eo_js, theta_o_eqv_js_ns=theta_o_eqv_js_ns)
