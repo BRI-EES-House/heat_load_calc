@@ -230,6 +230,10 @@ I. 評価法
     | :math:`\theta_{rear,j,n}` を要素にもつ :math:`J \times 1` の縦行列, ℃
 :math:`\pmb{\theta}_{s,n}`
     | :math:`\theta_{s,i,n}` を要素にもつ :math:`I \times 1` の縦行列, ℃
+:math:`\pmb{\phi}_{a0}`
+    | :math:`\phi_{a0,j}` を要素にもつ :math:`J \times J` の対角化行列, |m2| K/W
+:math:`\pmb{\phi}_{t0}`
+    | :math:`\phi_{t0,j}` を要素にもつ :math:`J \times J` の対角化行列, -
 
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 2.3 温度バランス・熱バランスに関する係数
@@ -1047,6 +1051,31 @@ I. 評価法
         + \pmb{\phi}_{t0} \cdot \pmb{k}_{ei} \cdot (\pmb{h}_{c} + \pmb{h}_{r})^{-1} \cdot \pmb{q}_{s,sol,n}
         + \pmb{\phi}_{t0} \cdot \pmb{\theta}_{dstrb,n}
         \tag{4.3}
+    \end{align*}
+
+係数 :math:`f_{FIA,j,i}` は、式(4.4)により表される。
+
+.. math::
+    :nowrap:
+
+    \begin{align*}
+        \pmb{f}_{FIA} = (
+            \pmb{\phi}_{a0} \cdot \pmb{h}_{s,c}
+            + \pmb{\phi}_{t0} \cdot \pmb{k}_{ei} \cdot (\pmb{h}_{s,c} + \pmb{h}_{s,r})^{-1} \cdot \pmb{h}_{s,c}
+        ) \cdot \pmb{p}_{ji}
+        \tag{4.4}
+    \end{align*}
+
+.. math::
+    :nowrap:
+
+    \begin{align*}
+        \pmb{AX}
+        = \pmb{I}
+        + \pmb{\phi}_{A0} \cdot \pmb{h}_{i}
+        - \pmb{\phi}_{A0} \cdot \pmb{h}_{r} \cdot \pmb{p} \cdot \pmb{F}_{mrt}
+        - \pmb{\phi}_{T0} \cdot \pmb{h}_{i}^{-1} \cdot \pmb{h}_{r} \cdot \pmb{k}'_{EI} \cdot \pmb{p} \cdot \pmb{F}_{mrt}
+        \tag{b18}
     \end{align*}
 
 
