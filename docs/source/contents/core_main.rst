@@ -42,8 +42,6 @@ I. 評価法
     | 室 |i| の人体に対する境界 |j| の形態係数, -
 :math:`f_{mrt,i,j}`
     | 室 |i| の微小球に対する境界 |j| の形態係数, -
-:math:`f_{mrt,j*,j}`
-    | 平均放射温度計算時の境界 |j*| の表面温度が境界 |j| に与える重み, -
 :math:`G_{lh,frt,i}`
     | 室 |i| の備品等と空気間の湿気コンダクタンス, kg/(s kg/kg(DA))
 :math:`G_{sh,frt,i}`
@@ -513,14 +511,16 @@ I. 評価法
 
     \begin{align*}
         \begin{split}
-            \theta_{ei,j,n+1}
-            &= \frac{ 1 }{ h_{s,c,j} + h_{s,r,j} } \cdot \\
-            & \left( h_{s,c,j} \cdot \sum_{i=0}^{I-1}{ ( p_{i,j} \cdot \theta_{r,i,n+1} ) }
-            + h_{s,r,j} \cdot \sum_{j*=0}^{J-1}{ ( f_{mrt,j,j*} \cdot \theta_{s,j*,n+1} ) } \right. \\
-            & \left. + q_{s,sol,j,n+1} + \frac{ \sum_{i=0}^{I-1}{ ( \hat{f}_{flr,i,j,n} \cdot \hat{L}_{RS,i,n} \cdot (1 - \hat{\beta}_{i,n}) ) } }{ A_{s,j} } \right)
+            \pmb{\theta}_{ei,n+1}
+            &= (\pmb{h}_{s,c} + \pmb{h}_{s,r})^{-1} \cdot \\
+            & \left( \pmb{h}_{s,c} \cdot \pmb{p}_{ji} \cdot \pmb{\theta}_{r,n+1}
+            + \pmb{h}_{s,r} \cdot \pmb{p}_{ji} \cdot \pmb{f}_{mrt} \cdot \pmb{\theta}_{s,,n+1} \right. \\
+            & \left. + \pmb{q}_{s,sol,n+1}
+            + \pmb{A}_{s}^{-1} \cdot \hat{\pmb{f}}_{flr,n} \cdot \hat{\pmb{L}}_{RS,n} \cdot (\pmb{I} - \hat{\pmb{\beta}}_{n}) \right)
         \end{split}
         \tag{2.2}
     \end{align*}
+
 
 ステップ |n+1| における室 |i| の人体の平均放射温度 :math:`\theta_{mrt,hum,i,n+1}` は、式(2.3)により表される。
 
