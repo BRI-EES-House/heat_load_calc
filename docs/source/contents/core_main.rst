@@ -104,6 +104,10 @@ I. 評価法
     | ステップ |n| からステップ |n+1| における室 |i*| から室 |i| への室間の空気移動量（流出換気量を含む）, |m3|/s
 :math:`\hat{V}_{vent,mec,i,n}`
     | ステップ |n| からステップ |n+1| における室 |i| の機械換気量（全般換気量と局所換気量の合計値）, |m3|/s
+:math:`\hat{V}_{vent,mec,general,i}`
+    | ステップ |n| からステップ |n+1| における室 |i| の機械換気量（全般換気量）, |m3|/s
+:math:`\hat{V}_{vent,mec,local,i,n}`
+    | ステップ |n| からステップ |n+1| における室 |i| の機械換気量（局所換気量）, |m3|/s
 :math:`\hat{V}_{vent,ntr,i,n}`
     | ステップ |n| からステップ |n+1| における室 |i| の自然風利用による換気量, |m3|/s
 :math:`\hat{V}_{vent,ntr,set,i}`
@@ -1116,9 +1120,16 @@ I. 評価法
 ステップ |n| における室 |i| の透過日射熱量 :math:`q_{trs,sol,i,n}`
 に応じて??に示す方法により定まる。
 
+ステップ |n| からステップ |n+1| における室 |i| の機械換気量（全般換気量と局所換気量の合計値） :math:`\hat{v}_{vent,mec,i,n}` は、
+式(4.7)により表される。
 
+.. math::
+    :nowrap:
 
-
+    \begin{align*}
+        \hat{V}_{vent,mec,i,n} = \hat{V}_{vent,mec,general,i} + \hat{V}_{vent,mec,local,i,n}
+        \tag{4.7}
+    \end{align*}
 
 
 

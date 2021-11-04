@@ -94,7 +94,7 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
     # ステップ n からステップ n+1 における室 i の換気・隙間風・自然風の利用による外気の流入量, m3/s, [i, 1]
     v_vent_out_is_n = get_v_vent_out_is_n(
         v_leak_is_n=v_leak_is_n,
-        v_vent_mec_is_n=ss.v_mec_vent_is_ns[:, n].reshape(-1, 1),
+        v_vent_mec_is_n=ss.v_vent_mec_is_ns[:, n].reshape(-1, 1),
         v_vent_ntr_is_n=v_vent_ntr_is_n
     )
 

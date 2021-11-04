@@ -69,7 +69,7 @@ class PreCalcParameters:
     x_gen_is_ns: np.ndarray
 
     # ステップnの室iにおける機械換気量（全般換気量+局所換気量）, m3/s, [i, 8760*4]
-    v_mec_vent_is_ns: np.ndarray
+    v_vent_mec_is_ns: np.ndarray
 
     # 家具の吸収日射量, W, [i, 8760*4]
     q_sol_frt_is_ns: np.ndarray
@@ -252,7 +252,7 @@ def make_pre_calc_parameters(
 
     # 室iの機械換気量（局所換気を除く）, m3/s, [i, 1]
     # 入力は m3/h なので、3600で除して m3/s への変換を行う。
-    v_vent_ex_is = (np.array([rm['ventilation']['mechanical'] for rm in rms]) / 3600).reshape(-1, 1)
+    v_vent_mec_general_is = (np.array([rm['ventilation']['mechanical'] for rm in rms]) / 3600).reshape(-1, 1)
 
     # 室iの隣室iからの機械換気量, m3/s, [i, i]
     v_vent_int_is_is = _get_v_vent_int_is_is(
@@ -336,7 +336,7 @@ def make_pre_calc_parameters(
     # ステップnの室iにおける局所換気量, m3/s, [i, 8760*4]
     with open(data_directory + '/mid_data_local_vent.csv', 'r') as f:
         r = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
-        v_mec_vent_local_is_ns = np.array([row for row in r]).T
+        v_vent_mec_local_is_ns = np.array([row for row in r]).T
 
     # ステップnの室iにおける内部発熱, W, [8760*4]
     with open(data_directory + '/mid_data_heat_generation.csv', 'r') as f:
@@ -501,8 +501,11 @@ def make_pre_calc_parameters(
     # 境界jの室内側表面総合熱伝達率, W/m2K, [j, 1]
     h_i_js = h_s_c_js + h_s_r_js
 
-    # ステップnの室iにおける機械換気量（全般換気量+局所換気量）, m3/s, [i, n]
-    v_mec_vent_is_ns = v_vent_ex_is + v_mec_vent_local_is_ns
+    # ステップ n からステップ n+1 における室 i の機械換気量（全般換気量と局所換気量の合計値）, m3/s, [i, 1]
+    v_vent_mec_is_ns = get_v_vent_mec_is_ns(
+        v_vent_mec_general_is=v_vent_mec_general_is,
+        v_vent_mec_local_is_ns=v_vent_mec_local_is_ns
+    )
 
     # ステップ n からステップ n+1 における室 i に設置された家具による透過日射吸収熱量時間平均値, W, [i, n]
     q_sol_frt_is_ns = solar_absorption.get_q_sol_frt_is_ns(q_trs_sor_is_ns=q_trs_sol_is_ns)
@@ -604,7 +607,7 @@ def make_pre_calc_parameters(
         name_bdry_js=name_bdry_js,
         sub_name_bdry_js=sub_name_bdry_js,
         a_s_js=a_s_js,
-        v_mec_vent_is_ns=v_mec_vent_is_ns,
+        v_vent_mec_is_ns=v_vent_mec_is_ns,
         q_gen_is_ns=q_gen_is_ns,
         n_hum_is_ns=n_hum_is_ns,
         x_gen_is_ns=x_gen_is_ns,
@@ -780,6 +783,23 @@ def get_theta_dstrb_js_ns(k_eo_js, theta_o_eqv_js_ns):
     """
 
     return theta_o_eqv_js_ns * k_eo_js
+
+
+def get_v_vent_mec_is_ns(v_vent_mec_general_is, v_vent_mec_local_is_ns):
+    """
+
+    Args:
+        v_vent_mec_general_is: ステップ n からステップ n+1 における室 i の機械換気量（全般換気量）, m3/s, [i, 1]
+        v_vent_mec_local_is_ns: ステップ n からステップ n+1 における室 i の機械換気量（局所換気量）, m3/s, [i, 1]
+
+    Returns:
+        ステップ n からステップ n+1 における室 i の機械換気量（全般換気量と局所換気量の合計値）, m3/s, [i, 1]
+
+    Notes:
+        式(4.7)
+    """
+
+    return v_vent_mec_general_is + v_vent_mec_local_is_ns
 
 
 def _get_v_vent_int_is_is(next_vent_is_ks: List[List[dict]]) -> np.ndarray:
