@@ -311,7 +311,7 @@ I. 評価法
 :math:`\pmb{f}_{AX}`
     | :math:`f_{AX,j,j*}` を要素にもつ、:math:`J \times J` の行列, -
 :math:`\pmb{f}_{FIA}`
-    | :math:`f_{FIA,j,j*}` を要素にもつ、:math:`J \times J` の行列, -
+    | :math:`f_{FIA,j,i}` を要素にもつ、:math:`J \times I` の行列, -
 :math:`\pmb{f}_{CRX,n}`
     | :math:`f_{CRX,j,j*,n}` を要素にもつ :math:`I \times 1` で表される縦行列, ℃
 :math:`\pmb{F}_{FLB,n}`
@@ -1018,7 +1018,7 @@ I. 評価法
 5 事前計算
 ------------------------------------------------------------------------------------------------------------------------
 
-ステップ |n| における境界 |j| の係数 :math:`f_{WSC,j,n}` は、式(4.1)により表される。
+ステップ |n| における係数 :math:`f_{WSC,j,n}` は、式(4.1)により表される。
 
 .. math::
     :nowrap:
@@ -1026,5 +1026,15 @@ I. 評価法
     \begin{align*}
         \prm{f}_{WSC,n} = \prm{f}_{AX}^{-1} \cdot \prm{f}_{CRX,n}
         \tag{4.1}
+    \end{align*}
+
+係数 :math:`f_{WSR,j,i}` は、式(4.2)により表される。
+
+.. math::
+    :nowrap:
+
+    \begin{align*}
+        \prm{f}_{WSR} = \prm{f}_{AX}^{-1} \cdot \prm{f}_{FIA}
+        \tag{4.2}
     \end{align*}
 

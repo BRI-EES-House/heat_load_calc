@@ -532,8 +532,8 @@ def make_pre_calc_parameters(
     # f_CRX, degree C, [j, n]
     f_crx_js_ns = phi_a0_js * q_s_sol_js_ns + phi_t0_js / h_i_js * np.dot(k_ei_js_js, q_s_sol_js_ns) + phi_t0_js * theta_dstrb_js_ns
 
-    # f_WSR, [j, i]
-    f_wsr_js_is = np.dot(np.linalg.inv(f_ax_js_js), f_fia_js_is)
+    # 係数 f_WSR, -, [j, i]
+    f_wsr_js_is = get_f_wsr_js_is(f_ax_js_js=f_ax_js_js, f_fia_js_is=f_fia_js_is)
 
     # 係数 f_{WSC, n}, degree C, [j, n]
     f_wsc_js_ns = get_f_wsc_js_ns(f_ax_js_js=f_ax_js_js, f_crx_js_ns=f_crx_js_ns)
@@ -658,6 +658,23 @@ def get_f_wsc_js_ns(f_ax_js_js, f_crx_js_ns):
     """
 
     return np.dot(np.linalg.inv(f_ax_js_js), f_crx_js_ns)
+
+
+def get_f_wsr_js_is(f_ax_js_js, f_fia_js_is):
+    """
+
+    Args:
+        f_ax_js_js: 係数 f_AX, -, [j, j]
+        f_fia_js_is: 係数 f_FIA, -, [j, i]
+
+    Returns:
+        係数 f_WSR, -, [j, i]
+
+    Notes:
+        式(4.2)
+    """
+
+    return np.dot(np.linalg.inv(f_ax_js_js), f_fia_js_is)
 
 
 def _get_v_vent_int_is_is(next_vent_is_ks: List[List[dict]]) -> np.ndarray:
