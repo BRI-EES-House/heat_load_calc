@@ -37,11 +37,10 @@ class TestSigleRoomWithFround(unittest.TestCase):
         # initializer.make_house(d=d, input_data_dir=s_folder, output_data_dir=s_folder)
 
         # 計算実行
-        ds, dd = core.calc(input_data_dir=s_folder, output_data_dir=s_folder,
+        dd = core.calc(input_data_dir=s_folder, output_data_dir=s_folder,
                            show_detail_result=False, n_d_main=30, n_d_run_up=10, n_d_run_up_build=0)
 
         # 計算結果格納
-        cls._ds = ds
         cls._dd = dd
 
     # 室空気温[℃]のテスト

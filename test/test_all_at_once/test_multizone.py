@@ -32,9 +32,8 @@ class TestAllAtOnce(unittest.TestCase):
 
         initializer.make_house(d=d, input_data_dir=cls._data_dir, output_data_dir=cls._data_dir)
 
-        ds, dd = core.calc(input_data_dir=cls._data_dir, output_data_dir=cls._data_dir)
+        dd = core.calc(input_data_dir=cls._data_dir, output_data_dir=cls._data_dir)
 
-        cls._ds = ds
         cls._dd = dd
 
         with open(cls._data_dir + '/mid_data_house.json') as f:
