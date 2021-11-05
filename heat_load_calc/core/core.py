@@ -12,7 +12,6 @@ from heat_load_calc.core.pre_calc_parameters import PreCalcParameters, PreCalcPa
 def calc(
         input_data_dir: str,
         output_data_dir: str = None,
-        show_simple_result: bool = False,
         show_detail_result: bool = False,
         n_step_hourly: int = 4,
         n_d_main: int = 365,
@@ -90,16 +89,14 @@ def calc(
 
     print('ログ作成')
 
-    # ds: data simple, 1時間間隔で主要なパラメータのみを抽出した pd.DataFrame
     # dd: data detail, 15分間隔のすべてのパラメータ pd.DataFrame
-    ds, dd = log.record(
+    dd = log.record(
         pps=pp,
         logger=logger,
         output_data_dir=output_data_dir,
-        show_simple_result=show_simple_result,
         show_detail_result=show_detail_result,
         n_step_main=n_step_main,
         n_d_main=n_d_main
     )
 
-    return ds, dd
+    return dd

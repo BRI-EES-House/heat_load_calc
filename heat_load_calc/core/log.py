@@ -177,7 +177,7 @@ class Logger:
         self.ppd = ppdarray
 
 
-def record(pps: PreCalcParameters, logger: Logger, output_data_dir: str, show_simple_result: bool, show_detail_result: bool, n_step_main: int, n_d_main: int):
+def record(pps: PreCalcParameters, logger: Logger, output_data_dir: str, show_detail_result: bool, n_step_main: int, n_d_main: int):
 
     date_index_15min = pd.date_range(start='1/1/1989', periods=n_step_main, freq='15min')
 
@@ -245,26 +245,4 @@ def record(pps: PreCalcParameters, logger: Logger, output_data_dir: str, show_si
     if show_detail_result:
         dd.to_csv(output_data_dir + '/result_detail.csv', encoding='cp932')
 
-    date_index_1h = pd.date_range(start='1/1/1989', periods=n_d_main*24, freq='H')
-
-    ds = pd.DataFrame(index=date_index_1h)
-
-    ds['out_temp'] = dd['out_temp'].resample('H').mean().round(2)
-    ds['out_abs_humid'] = dd['out_abs_humid'].resample('H').mean().round(2)
-
-    for i in range(pps.n_rm):
-
-        name = 'rm' + str(i)
-
-        ds[name + '_ac_operate'] = dd[name + '_ac_operate'].asfreq('H')
-        ds[name + '_t_r'] = dd[name + '_t_r'].resample('H').mean().round(2)
-        ds[name + '_x_r'] = dd[name + '_x_r'].resample('H').mean().round(4)
-        ds[name + '_ot'] = dd[name + '_ot'].resample('H').mean().round(2)
-        ds[name + '_l_s_c'] = dd[name + '_l_s_c'].resample('H').sum().round(0)
-        ds[name + '_l_s_r'] = dd[name + '_l_s_r'].resample('H').sum().round(0)
-        ds[name + '_l_l_c'] = dd[name + '_l_l_c'].resample('H').sum().round(0)
-
-    if show_simple_result:
-        ds.to_csv(output_data_dir + '/result_digest.csv', encoding='cp932')
-
-    return ds, dd
+    return dd
