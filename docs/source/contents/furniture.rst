@@ -23,17 +23,21 @@ I. 評価法
     :nowrap:
 
     \begin{align*}
-        G_{lh,frt,i} = 0.0018 \cdot C_{lh,frt,i} \tag{1}
+        G_{lh,frt,i} = g_{lh,frt} \cdot C_{lh,frt,i} \tag{1}
     \end{align*}
 
 ここで、
 
 :math:`G_{lh,frt,i}`
     | 室 |i| の空気と備品等間の湿気コンダクタンス, kg/(s kg/kg(DA))
+:math:`g_{lh,frt}`
+    | 備品等の湿気容量あたりの空気との間の湿気コンダクタンスを表す係数, s^{-1}
 :math:`C_{lh,frt,i}`
     | 室 |i| の備品等の湿気容量, kg/(kg/kg(DA))
 
 である。
+
+備品等の湿気容量あたりの空気との間の湿気コンダクタンスを表す係数 :math:`g_{lh,frt}` は、 :math:`0.0018` s^{-1} とする。
 
 備品等の湿気容量は、式(2)で表される。
 
@@ -63,17 +67,21 @@ I. 評価法
     :nowrap:
 
     \begin{align*}
-        G_{sh,frt,i} = 0.00022 \cdot  C_{sh,frt,i} \tag{3}
+        G_{sh,frt,i} = g_{sh,frt} \cdot  C_{sh,frt,i} \tag{3}
     \end{align*}
 
 ここで、
 
 :math:`G_{sh,frt,i}`
     | 室 |i| の空気と備品等間の熱コンダクタンス, W/K
+:math:`g_{sh,frt}`
+    | 備品等の熱容量あたりの空気との間の熱コンダクタンスを表す係数, s^{-1}
 :math:`C_{sh,frt,i}`
     | 室 |i| の備品等の熱容量, J/K
 
 である。
+
+備品等の熱容量あたりの空気との間の熱コンダクタンスを表す係数 :math:`g_{sh,frt}` は、 :math:`0.00022` s^{-1} とする。
 
 備品等の熱容量は、式(4)で表される。
 
