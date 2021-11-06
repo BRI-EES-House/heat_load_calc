@@ -41,9 +41,6 @@ class PreCalcParameters:
     # 室iの容積, m3, [i, 1]
     v_rm_is: np.ndarray
 
-    # 室iの熱容量, J/K, [i, 1]
-    c_rm_is: np.ndarray
-
     # 室iの家具等の熱容量, J/K, [i, 1]
     c_sh_frt_is: np.ndarray
 
@@ -492,9 +489,6 @@ def make_pre_calc_parameters(
     f_flr_h_js_is = flr_js_is_ns
     f_flr_c_js_is = flr_js_is_ns
 
-    # 室iの空気の熱容量, J/K, [i, 1]
-    c_rm_is = v_rm_is * get_rho_a() * get_c_a()
-
     # 室 i の微小球に対する境界 j の形態係数, -, [i, j]
     f_mrt_is_js = shape_factor.get_f_mrt_is_js(a_s_js=a_s_js, h_s_r_js=h_s_r_js, p_is_js=p_is_js)
 
@@ -595,7 +589,6 @@ def make_pre_calc_parameters(
         id_rm_is=id_rm_is,
         name_rm_is=name_rm_is,
         v_rm_is=v_rm_is,
-        c_rm_is=c_rm_is,
         c_sh_frt_is=c_sh_frt_is,
         c_lh_frt_is=c_lh_frt_is,
         g_sh_frt_is=g_sh_frt_is,

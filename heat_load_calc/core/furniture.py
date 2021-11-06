@@ -13,7 +13,7 @@ def get_furniture_specs(
         家具に関する物性値を取得する。
     Args:
         furnitures: 家具に関する入力情報
-        v_rm_is: 室容量, m3, [i, 1]
+        v_rm_is: 室 i の容量, m3, [i, 1]
     Returns:
         家具に関する物性値
             室iの家具等の熱容量, J/K, [i, 1]
