@@ -28,8 +28,6 @@ I. 評価法
     | 空気の比熱, J/(kg K)
 :math:`C_{lh,frt,i}`
     | 室 |i| の備品等の湿気容量, kg/(kg/kg(DA))
-:math:`C_{rm,i}`
-    | 室 |i| の空気の熱容量, J/K
 :math:`C_{sh,frt,i}`
     | 室 |i| の備品等の熱容量, J/K
 :math:`f_{flr,c,i,j}`
@@ -188,8 +186,6 @@ I. 評価法
     | :math:`C_{frt,i}` を要素にもつ :math:`I \times I` の対角化行列, J/K
 :math:`\pmb{C}_{lh,frt}`
     | :math:`C_{lh,frt,i}` を要素にもつ :math:`I \times I` の対角化行列, kg/(kg/kg(DA))
-:math:`\pmb{C}_{rm}`
-    | :math:`C_{rm,i}` を要素にもつ :math:`I \times I` の対角化行列, J/K
 :math:`\hat{\pmb{f}}_{flr,n}`
     | :math:`\hat{f}_{flr,i,j,n}` を要素にもつ :math:`J \times I` の行列, -
 :math:`\pmb{f}_{mrt}`
