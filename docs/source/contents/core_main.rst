@@ -39,15 +39,13 @@ I. 評価法
 :math:`\hat{f}_{flr,i,j,n}`
     | ステップ |n| からステップ |n+1| における室 |i| の放射暖冷房設備の放熱量の放射成分に対する境界 |j| の室内側表面の吸収比率, -
 :math:`f_{mrt,hum,i,j}`
-    | 境界 |j| から室 |i| の人体に対する形態係数, -
-:math:`f_{mrt,j*,j}`
-    | 平均放射温度計算時の境界 |j*| の表面温度が境界 |j| に与える重み, -
+    | 室 |i| の人体に対する境界 |j| の形態係数, -
+:math:`f_{mrt,i,j}`
+    | 室 |i| の微小球に対する境界 |j| の形態係数, -
 :math:`G_{lh,frt,i}`
     | 室 |i| の備品等と空気間の湿気コンダクタンス, kg/(s kg/kg(DA))
 :math:`G_{sh,frt,i}`
     | 室 |i| の備品等と空気間の熱コンダクタンス, W/K
-:math:`h_{c,j}`
-    | 境界 |j| の室内側対流熱伝達率, W/(|m2| K)
 :math:`h_{hum,c,i,n}`
     | ステップ |n| における室 |i| の人体表面の対流熱伝達率, W/(|m2| K)
 :math:`h_{hum,r,i,n}`
@@ -56,7 +54,7 @@ I. 評価法
     | 境界 |j| の室内側対流熱伝達率, W/(|m2| K)
 :math:`h_{s,r,j}`
     | 境界 |j| の室内側放射熱伝達率, W/(|m2| K)
-:math:`k_{EI,j,j*}`
+:math:`k_{ei,j,j*}`
     | 境界 |j| の裏面温度に境界　|j*| の等価温度が与える影響, -
 :math:`k_{c,i,n}`
     | ステップ |n| における室 |i| の人体表面の対流熱伝達率が総合熱伝達率に占める割合, -
@@ -73,7 +71,9 @@ I. 評価法
 :math:`\hat{n}_{hum,i,n}`
     | ステップ |n| からステップ |n+1| における室 |i| の在室人数, -
 :math:`p_{i,j}`
-    | 室 |i| と境界 |j| の接続に関する係数（境界 |j| が室 |i| に接している場合は :math:`1` とし、それ以外の場合は :math:`0` とする。）
+    | 室 |i| と境界 |j| の接続に関する係数（境界 |j| が室 |i| に接している場合は :math:`1` とし、それ以外の場合は :math:`0` とする。）, -
+:math:`p_{s,sol,abs,j}`
+    | 境界 |j| において透過日射を吸収するか否かを表す係数（吸収する場合は :math:`1` とし、吸収しない場合は :math:`0` とする。）, -
 :math:`\hat{q}_{gen,i,n}`
     | ステップ |n| からステップ |n+1| における室 |i| の人体発熱を除く内部発熱, W
 :math:`\hat{q}_{hum,i,n}`
@@ -90,6 +90,8 @@ I. 評価法
     | ステップ |n| における境界 |j| の透過日射吸収熱量, W/|m2|
 :math:`\hat{q}_{sol,frt,i,n}`
     | ステップ |n| からステップ |n+1| における室 |i| に設置された家具による透過日射吸収熱量時間平均値, W
+:math:`q_{trs,sol,i,n}`
+    | ステップ |n| における室 |i| の透過日射熱量, W
 :math:`r_{j,m}`
     | 境界 |j| の項別公比法の指数項 |m| の公比, -
 :math:`\hat{r}_{ac,demand,i,n}`
@@ -102,6 +104,10 @@ I. 評価法
     | ステップ |n| からステップ |n+1| における室 |i*| から室 |i| への室間の空気移動量（流出換気量を含む）, |m3|/s
 :math:`\hat{V}_{vent,mec,i,n}`
     | ステップ |n| からステップ |n+1| における室 |i| の機械換気量（全般換気量と局所換気量の合計値）, |m3|/s
+:math:`\hat{V}_{vent,mec,general,i}`
+    | ステップ |n| からステップ |n+1| における室 |i| の機械換気量（全般換気量）, |m3|/s
+:math:`\hat{V}_{vent,mec,local,i,n}`
+    | ステップ |n| からステップ |n+1| における室 |i| の機械換気量（局所換気量）, |m3|/s
 :math:`\hat{V}_{vent,ntr,i,n}`
     | ステップ |n| からステップ |n+1| における室 |i| の自然風利用による換気量, |m3|/s
 :math:`\hat{V}_{vent,ntr,set,i}`
@@ -132,7 +138,7 @@ I. 評価法
     | 1ステップの時間間隔, s
 :math:`\theta_{dstrb,j,n}`
     | ステップ |n| の境界 |j| における外気側等価温度の外乱成分, ℃
-:math:`\theta_{EI,j,n}`
+:math:`\theta_{ei,j,n}`
     | ステップ |n| における境界 |j| の等価温度, ℃
 :math:`\theta_{frt,i,n}`
     | ステップ |n| における室 |i| の備品等の温度, ℃
@@ -184,28 +190,38 @@ I. 評価法
     | :math:`C_{lh,frt,i}` を要素にもつ :math:`I \times I` の対角化行列, kg/(kg/kg(DA))
 :math:`\pmb{C}_{rm}`
     | :math:`C_{rm,i}` を要素にもつ :math:`I \times I` の対角化行列, J/K
+:math:`\hat{\pmb{f}}_{flr,n}`
+    | :math:`\hat{f}_{flr,i,j,n}` を要素にもつ :math:`J \times I` の行列, -
+:math:`\pmb{f}_{mrt}`
+    | :math:`f_{mrt,i,j}` を要素にもつ :math:`I \times J` の行列 , -
 :math:`\pmb{G}_{frt}`
     | :math:`G_{frt,i}` を要素にもつ :math:`I \times I` の対角化行列, W / K
-:math:`\pmb{h}_c`
-    | :math:`h_{c,j}` を要素にもつ :math:`J \times J` の対角化行列, W / |m2| K
 :math:`\pmb{h}_{s,c}`
     | :math:`h_{s,c,j}` を要素にもつ :math:`J \times J` の対角化行列
-:math:`\pmb{k}_{c,n+1}`
-    | :math:`k_{c,i,n+1}` を要素にもつ :math:`I \times I` の対角化行列
+:math:`\pmb{h}_{s,r}`
+    | :math:`h_{s,r,j}` を要素にもつ :math:`J \times J` の対角化行列
+:math:`\pmb{k}_{c,n}`
+    | :math:`k_{c,i,n}` を要素にもつ :math:`I \times I` の対角化行列
 :math:`\pmb{k}_{ei}`
     | :math:`k_{ei,j,j*}` を要素にもつ :math:`J \times J` の行列, -
-:math:`\pmb{k}_{r,n+1}`
-    | :math:`k_{r,i,n+1}` を要素にもつ :math:`I \times I` の対角化行列
+:math:`\pmb{k}_{r,n}`
+    | :math:`k_{r,i,n}` を要素にもつ :math:`I \times I` の対角化行列
 :math:`\hat{\pmb{L}}_{CL,n}`
     | :math:`\hat{L}_{CL,i,n}` を要素にもつ :math:`I \times 1` の縦行列, W
 :math:`\hat{\pmb{L}}_{CS,n}`
     | :math:`\hat{L}_{CS,i,n}` を要素にもつ :math:`I \times 1` で表される縦行列, W
 :math:`\hat{\pmb{L}}_{RS,n}`
     | :math:`\hat{L}_{RS,i,n}` を要素にもつ :math:`I \times 1` の縦行列, W
+:math:`\pmb{p}_{ij}`
+    | :math:`p_{i,j}` を要素にもつ :math:`I \times J` の行列, -
+:math:`\pmb{p}_{ji}`
+    | :math:`p_{i,j}` を要素にもつ :math:`J \times I` の行列, -
 :math:`\hat{\pmb{q}}_{gen,n}`
     | :math:`\hat{q}_{gen,i,n}` を要素にもつ :math:`I \times 1` の縦行列, W
 :math:`\hat{\pmb{q}}_{hum,n}`
     | :math:`\hat{q}_{hum,i,n}` を要素にもつ :math:`I \times 1` の縦行列, W
+:math:`\pmb{q}_{s,sol,n}`
+    | :math:`q_{s,sol,j,n}` を要素にもつ :math:`J \times 1` の縦行列, W/|m2|
 :math:`\hat{\pmb{V}}_n`
     | :math:`V_{i,n}` を要素にもつ :math:`I \times I` の対角化行列, |m3| |s-1|
 :math:`\hat{\pmb{V}}_{vent,int,n}`
@@ -231,7 +247,11 @@ I. 評価法
 :math:`\pmb{\theta}_{rear,n}`
     | :math:`\theta_{rear,j,n}` を要素にもつ :math:`J \times 1` の縦行列, ℃
 :math:`\pmb{\theta}_{s,n}`
-    | :math:`\theta_{s,i,n}` を要素にもつ :math:`I \times 1` の縦行列, ℃
+    | :math:`\theta_{s,j,n}` を要素にもつ :math:`J \times 1` の縦行列, ℃
+:math:`\pmb{\phi}_{a0}`
+    | :math:`\phi_{a0,j}` を要素にもつ :math:`J \times J` の対角化行列, |m2| K/W
+:math:`\pmb{\phi}_{t0}`
+    | :math:`\phi_{t0,j}` を要素にもつ :math:`J \times J` の対角化行列, -
 
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 2.3 温度バランス・熱バランスに関する係数
@@ -311,7 +331,7 @@ I. 評価法
 :math:`\pmb{f}_{AX}`
     | :math:`f_{AX,j,j*}` を要素にもつ、:math:`J \times J` の行列, -
 :math:`\pmb{f}_{FIA}`
-    | :math:`f_{FIA,j,j*}` を要素にもつ、:math:`J \times J` の行列, -
+    | :math:`f_{FIA,j,i}` を要素にもつ、:math:`J \times I` の行列, -
 :math:`\pmb{f}_{CRX,n}`
     | :math:`f_{CRX,j,j*,n}` を要素にもつ :math:`I \times 1` で表される縦行列, ℃
 :math:`\pmb{F}_{FLB,n}`
@@ -489,24 +509,26 @@ I. 評価法
     :nowrap:
 
     \begin{align*}
-        q_{s,j,n+1} = ( \theta_{EI,j,n+1} - \theta_{s,j,n+1} ) \cdot ( h_{s,c,j} + h_{s,r,j} ) \tag{2.1}
+        q_{s,j,n+1} = ( \theta_{ei,j,n+1} - \theta_{s,j,n+1} ) \cdot ( h_{s,c,j} + h_{s,r,j} ) \tag{2.1}
     \end{align*}
 
-ステップ |n+1| における境界 |j| の等価温度 :math:`\theta_{EI,j,n+1}` は、式(2.2)のように表される。
+ステップ |n+1| における境界 |j| の等価温度 :math:`\theta_{ei,j,n+1}` は、式(2.2)のように表される。
 
 .. math::
     :nowrap:
 
     \begin{align*}
         \begin{split}
-            \theta_{EI,j,n+1}
-            &= \frac{ 1 }{ h_{s,c,j} + h_{s,r,j} } \cdot \\
-            & \left( h_{s,c,j} \cdot \sum_{i=0}^{I-1}{ ( p_{i,j} \cdot \theta_{r,i,n+1} ) }
-            + h_{s,r,j} \cdot \sum_{j*=0}^{J-1}{ ( f_{mrt,j,j*} \cdot \theta_{s,j*,n+1} ) } \right. \\
-            & \left. + q_{s,sol,j,n+1} + \frac{ \sum_{i=0}^{I-1}{ ( \hat{f}_{flr,i,j,n} \cdot \hat{L}_{RS,i,n} \cdot (1 - \hat{\beta}_{i,n}) ) } }{ A_{s,j} } \right)
+            \pmb{\theta}_{ei,n+1}
+            &= (\pmb{h}_{s,c} + \pmb{h}_{s,r})^{-1} \cdot \\
+            & \left( \pmb{h}_{s,c} \cdot \pmb{p}_{ji} \cdot \pmb{\theta}_{r,n+1}
+            + \pmb{h}_{s,r} \cdot \pmb{p}_{ji} \cdot \pmb{f}_{mrt} \cdot \pmb{\theta}_{s,,n+1} \right. \\
+            & \left. + \pmb{q}_{s,sol,n+1}
+            + \pmb{A}_{s}^{-1} \cdot \hat{\pmb{f}}_{flr,n} \cdot \hat{\pmb{L}}_{RS,n} \cdot (\pmb{I} - \hat{\pmb{\beta}}_{n}) \right)
         \end{split}
         \tag{2.2}
     \end{align*}
+
 
 ステップ |n+1| における室 |i| の人体の平均放射温度 :math:`\theta_{mrt,hum,i,n+1}` は、式(2.3)により表される。
 
@@ -1013,4 +1035,106 @@ I. 評価法
         \theta'_{s,t,j,m,n+1} = \theta_{dstrb,j,n} \cdot \phi_{t1,j,m} + r_{j,m} \cdot \theta'_{s,t,j,m,n}
         \tag{3.4}
     \end{align*}
+
+------------------------------------------------------------------------------------------------------------------------
+5 事前計算
+------------------------------------------------------------------------------------------------------------------------
+
+ステップ |n| における係数 :math:`f_{WSC,j,n}` は、式(4.1)により表される。
+
+.. math::
+    :nowrap:
+
+    \begin{align*}
+        \pmb{f}_{WSC,n} = \pmb{f}_{AX}^{-1} \cdot \pmb{f}_{CRX,n}
+        \tag{4.1}
+    \end{align*}
+
+係数 :math:`f_{WSR,j,i}` は、式(4.2)により表される。
+
+.. math::
+    :nowrap:
+
+    \begin{align*}
+        \pmb{f}_{WSR} = \pmb{f}_{AX}^{-1} \cdot \pmb{f}_{FIA}
+        \tag{4.2}
+    \end{align*}
+
+ステップ |n| における係数 :math:`f_{CRX,j,n}` は、式(4.3)により表される。
+
+.. math::
+    :nowrap:
+
+    \begin{align*}
+        \pmb{f}_{CRX,n}
+        = \pmb{\phi}_{a0} \cdot \pmb{q}_{s,sol,n}
+        + \pmb{\phi}_{t0} \cdot \pmb{k}_{ei} \cdot (\pmb{h}_{c} + \pmb{h}_{r})^{-1} \cdot \pmb{q}_{s,sol,n}
+        + \pmb{\phi}_{t0} \cdot \pmb{\theta}_{dstrb,n}
+        \tag{4.3}
+    \end{align*}
+
+係数 :math:`f_{FIA,j,i}` は、式(4.4)により表される。
+
+.. math::
+    :nowrap:
+
+    \begin{align*}
+        \pmb{f}_{FIA} = (
+            \pmb{\phi}_{a0} \cdot \pmb{h}_{s,c}
+            + \pmb{\phi}_{t0} \cdot \pmb{k}_{ei} \cdot (\pmb{h}_{s,c} + \pmb{h}_{s,r})^{-1} \cdot \pmb{h}_{s,c}
+        ) \cdot \pmb{p}_{ji}
+        \tag{4.4}
+    \end{align*}
+
+係数 :math:`f_{AX,j,i}` は、式(4.5)により表される。
+
+.. math::
+    :nowrap:
+
+    \begin{align*}
+        \begin{split}
+            \pmb{f}_{AX}
+            &= \pmb{I} \\
+            &+ \pmb{\phi}_{a0} \cdot (\pmb{h}_{s,c} + \pmb{h}_{s,r}) \\
+            &- \pmb{\phi}_{a0} \cdot \pmb{h}_{s,r} \cdot \pmb{p}_{ji} \cdot \pmb{f}_{mrt} \\
+            &- \pmb{\phi}_{t0} \cdot (\pmb{h}_{s,c} + \pmb{h}_{s,r})^{-1} \cdot \pmb{h}_{s,r} \cdot \pmb{k}_{ei} \cdot \pmb{p}_{ji} \cdot \pmb{f}_{mrt}
+        \end{split}
+        \tag{4.5}
+    \end{align*}
+
+ステップ |n| の境界 |j| における外気側等価温度の外乱成分 :math:`\theta_{dstrb,j,n}` は、式(4.6)により表される。
+
+.. math::
+    :nowrap:
+
+    \begin{align*}
+        \theta_{dstrb,j,n} = \theta_{o,eqv,j,n} \cdot k_{eo,j}
+        \tag{4.6}
+    \end{align*}
+
+ステップ |n| における境界 |j| の透過日射吸収熱量 :math:`q_{s,sol,j,n}` 及び
+ステップ |n| からステップ |n+1| における室 |i| に設置された家具による透過日射吸収熱量時間平均値 :math:`q_{sol,frt,i,n}` は、
+室 |i| と境界 |j| の接続に関する係数 :math:`p_{i,j}` 、
+境界 |j| の面積 :math:`A_{s,j}` 、
+境界 |j| において透過日射を吸収するか否かを表す係数（吸収する場合は :math:`1` とし、吸収しない場合は :math:`0` とする。） :math:`p_{s,sol,abs,j}` 、および
+ステップ |n| における室 |i| の透過日射熱量 :math:`q_{trs,sol,i,n}`
+に応じて??に示す方法により定まる。
+
+ステップ |n| からステップ |n+1| における室 |i| の機械換気量（全般換気量と局所換気量の合計値） :math:`\hat{v}_{vent,mec,i,n}` は、
+式(4.7)により表される。
+
+.. math::
+    :nowrap:
+
+    \begin{align*}
+        \hat{V}_{vent,mec,i,n} = \hat{V}_{vent,mec,general,i} + \hat{V}_{vent,mec,local,i,n}
+        \tag{4.7}
+    \end{align*}
+
+室 |i| の微小球に対する境界 |j| の形態係数 :math:`f_{mrt,i,j}` は、
+境界 |j| の面積 :math:`A_{s,j}` 、
+境界 |j| の室内側放射熱伝達率 :math:`h_{s,r,j}` 、及び
+室 |i| と境界 |j| の接続に関する係数 :math:`p_{i,j}` に応じて??に示す方法により定まる。
+
+
 

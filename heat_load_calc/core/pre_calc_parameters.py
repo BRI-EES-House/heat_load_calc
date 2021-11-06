@@ -12,8 +12,10 @@ from heat_load_calc.core import infiltration, response_factor, indoor_radiative_
 from heat_load_calc.core import ot_target
 from heat_load_calc.core import next_condition
 from heat_load_calc.core import humidification
+from heat_load_calc.core.matrix_method import v_diag
 
 from heat_load_calc.initializer.boundary_type import BoundaryType
+from heat_load_calc.core import solar_absorption
 
 
 @dataclass
@@ -67,7 +69,7 @@ class PreCalcParameters:
     x_gen_is_ns: np.ndarray
 
     # ステップnの室iにおける機械換気量（全般換気量+局所換気量）, m3/s, [i, 8760*4]
-    v_mec_vent_is_ns: np.ndarray
+    v_vent_mec_is_ns: np.ndarray
 
     # 家具の吸収日射量, W, [i, 8760*4]
     q_sol_frt_is_ns: np.ndarray
@@ -133,7 +135,7 @@ class PreCalcParameters:
     f_mrt_hum_is_js: np.ndarray
 
     # 平均放射温度計算時の境界 j* の表面温度が境界 j に与える重み, [j, j]
-    f_mrt_js_js: np.ndarray
+    f_mrt_is_js: np.ndarray
 
     # 境界jにおける室内側放射熱伝達率, W/m2K, [j, 1]
     h_s_r_js: np.ndarray
@@ -250,7 +252,7 @@ def make_pre_calc_parameters(
 
     # 室iの機械換気量（局所換気を除く）, m3/s, [i, 1]
     # 入力は m3/h なので、3600で除して m3/s への変換を行う。
-    v_vent_ex_is = (np.array([rm['ventilation']['mechanical'] for rm in rms]) / 3600).reshape(-1, 1)
+    v_vent_mec_general_is = (np.array([rm['ventilation']['mechanical'] for rm in rms]) / 3600).reshape(-1, 1)
 
     # 室iの隣室iからの機械換気量, m3/s, [i, i]
     v_vent_int_is_is = _get_v_vent_int_is_is(
@@ -334,7 +336,7 @@ def make_pre_calc_parameters(
     # ステップnの室iにおける局所換気量, m3/s, [i, 8760*4]
     with open(data_directory + '/mid_data_local_vent.csv', 'r') as f:
         r = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
-        v_mec_vent_local_is_ns = np.array([row for row in r]).T
+        v_vent_mec_local_is_ns = np.array([row for row in r]).T
 
     # ステップnの室iにおける内部発熱, W, [8760*4]
     with open(data_directory + '/mid_data_heat_generation.csv', 'r') as f:
@@ -372,14 +374,14 @@ def make_pre_calc_parameters(
 
     # ステップnの境界jにおける裏面等価温度, ℃, [j, 8760*4]
     if theta_o_sol_calculate:
-        theta_o_sol_js_ns = np.array([bs.theta_o_sol for bs in bss])
+        theta_o_eqv_js_ns = np.array([bs.theta_o_sol for bs in bss])
     else:
         with open(data_directory + '/mid_data_theta_o_sol.csv', 'r') as f:
             r = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
-            theta_o_sol_js_ns = np.array([row for row in r]).T
+            theta_o_eqv_js_ns = np.array([row for row in r]).T
 
     # ステップn+1に対応するために0番要素に最終要素を代入
-    theta_o_sol_js_ns = np.append(theta_o_sol_js_ns, theta_o_sol_js_ns[:, 0:1], axis=1)
+    theta_o_eqv_js_ns = np.append(theta_o_eqv_js_ns, theta_o_eqv_js_ns[:, 0:1], axis=1)
 
     # endregion
 
@@ -412,6 +414,18 @@ def make_pre_calc_parameters(
 
     # 境界jの裏面温度に他の境界の等価温度が与える影響, [j, j]
     k_ei_js_js = np.array([get_k_ei_js_j(bs=bs, n_boundaries=len(bss)) for bs in bss])
+
+    # 温度差係数
+    k_eo_js = np.array([bs.h_td for bs in bss]).reshape(-1, 1)
+
+    # 境界jの日射吸収の有無, [j, 1]
+    p_s_sol_abs_js = np.array([bs.is_solar_absorbed_inside for bs in bss]).reshape(-1, 1)
+
+    # 境界jの室内側表面放射熱伝達率, W/m2K, [j, 1]
+    h_s_r_js = np.array([bs.h_r for bs in bss]).reshape(-1, 1)
+
+    # 境界jの室内側表面対流熱伝達率, W/m2K, [j, 1]
+    h_s_c_js = np.array([bs.h_c for bs in bss]).reshape(-1, 1)
 
     # endregion
 
@@ -481,62 +495,67 @@ def make_pre_calc_parameters(
     # 室iの空気の熱容量, J/K, [i, 1]
     c_rm_is = v_rm_is * get_rho_a() * get_c_a()
 
-    # 境界jの室内側表面放射熱伝達率, W/m2K, [j, 1]
-    h_s_r_js = np.array([bs.h_r for bs in bss]).reshape(-1, 1)
+    # 室 i の微小球に対する境界 j の形態係数, -, [i, j]
+    f_mrt_is_js = shape_factor.get_f_mrt_is_js(a_s_js=a_s_js, h_s_r_js=h_s_r_js, p_is_js=p_is_js)
 
-    # 平均放射温度計算時の各部位表面温度の重み, [i, j]
-    f_mrt_is_js = shape_factor.get_f_mrt_is_js(a_srf_js=a_s_js, h_r_js=h_s_r_js, p_is_js=p_is_js)
+    # ステップ n からステップ n+1 における室 i の機械換気量（全般換気量と局所換気量の合計値）, m3/s, [i, 1]
+    v_vent_mec_is_ns = get_v_vent_mec_is_ns(
+        v_vent_mec_general_is=v_vent_mec_general_is,
+        v_vent_mec_local_is_ns=v_vent_mec_local_is_ns
+    )
 
-    # 平均放射温度計算時の境界 j* の表面温度が境界 j　に与える重み, [j, j]
-    f_mrt_js_js = np.dot(p_js_is, f_mrt_is_js)
+    # ステップ n からステップ n+1 における室 i に設置された家具による透過日射吸収熱量時間平均値, W, [i, n]
+    q_sol_frt_is_ns = solar_absorption.get_q_sol_frt_is_ns(q_trs_sor_is_ns=q_trs_sol_is_ns)
 
-    # 境界jの室内側表面対流熱伝達率, W/m2K, [j, 1]
-    h_s_c_js = np.array([bs.h_c for bs in bss]).reshape(-1, 1)
+    # ステップ n における境界 j の透過日射吸収熱量, W/m2, [j, n]
+    q_s_sol_js_ns = solar_absorption.get_q_s_sol_js_ns(
+        p_is_js=p_is_js,
+        a_s_js=a_s_js,
+        p_s_sol_abs_js=p_s_sol_abs_js,
+        p_js_is=p_js_is,
+        q_trs_sol_is_ns=q_trs_sol_is_ns
+    )
 
-    # 境界jの室内側表面総合熱伝達率, W/m2K, [j, 1]
-    h_i_js = h_s_c_js + h_s_r_js
+    # ステップ n の境界 j における外気側等価温度の外乱成分, ℃, [j, n]
+    theta_dstrb_js_ns = get_theta_dstrb_js_ns(k_eo_js=k_eo_js, theta_o_eqv_js_ns=theta_o_eqv_js_ns)
 
-    # ステップnの室iにおける機械換気量（全般換気量+局所換気量）, m3/s, [i, n]
-    v_mec_vent_is_ns = v_vent_ex_is + v_mec_vent_local_is_ns
+    # 係数 f_AX, -, [j, j]
+    f_ax_js_js = get_f_ax_js_is(
+        f_mrt_is_js=f_mrt_is_js,
+        h_s_c_js=h_s_c_js,
+        h_s_r_js=h_s_r_js,
+        k_ei_js_js=k_ei_js_js,
+        p_js_is=p_js_is,
+        phi_a0_js=phi_a0_js,
+        phi_t0_js=phi_t0_js
+    )
 
-    # 室内侵入日射のうち家具に吸収される割合
-    # TODO: これは入力値にした方がよいのではないか？
-    r_sol_fnt = 0.5
+    # 係数 f_FIA, -, [j, i]
+    f_fia_js_is = get_f_fia_js_is(
+        h_s_c_js=h_s_c_js,
+        h_s_r_js=h_s_r_js,
+        k_ei_js_js=k_ei_js_js,
+        p_js_is=p_js_is,
+        phi_a0_js=phi_a0_js,
+        phi_t0_js=phi_t0_js
+    )
 
-    # ステップnの室iにおける家具の吸収日射量, W, [i, n]
-    q_sol_frt_is_ns = q_trs_sol_is_ns * r_sol_fnt
+    # 係数 f_CRX, degree C, [j, n]
+    f_crx_js_ns = get_f_crx_js_ns(
+        h_s_c_js=h_s_c_js,
+        h_s_r_js=h_s_r_js,
+        k_ei_js_js=k_ei_js_js,
+        phi_a0_js=phi_a0_js,
+        phi_t0_js=phi_t0_js,
+        q_s_sol_js_ns=q_s_sol_js_ns,
+        theta_dstrb_js_ns=theta_dstrb_js_ns
+    )
 
-    # 境界jの日射吸収の有無, [j, 1]
-    is_solar_abs_js = np.array([bs.is_solar_absorbed_inside for bs in bss]).reshape(-1, 1)
+    # 係数 f_WSR, -, [j, i]
+    f_wsr_js_is = get_f_wsr_js_is(f_ax_js_js=f_ax_js_js, f_fia_js_is=f_fia_js_is)
 
-    # 室iにおける日射が吸収される境界の面積の合計, m2, [i, 1]
-    a_srf_abs_is = np.dot(p_is_js, a_s_js * is_solar_abs_js)
-
-    # ステップnの境界jにおける透過日射吸収熱量, W/m2, [j, n]
-    q_s_sol_js_ns = np.dot(p_js_is, q_trs_sol_is_ns / a_srf_abs_is) * is_solar_abs_js * (1.0 - r_sol_fnt)
-
-    # 温度差係数
-    k_eo_js = np.array([bs.h_td for bs in bss]).reshape(-1, 1)
-
-    # ステップnの境界jにおける外気側等価温度の外乱成分, ℃, [j, n]
-    theta_dstrb_js_ns = theta_o_sol_js_ns * k_eo_js
-
-    # f_AX, [j, j]
-    f_ax_js_js = np.diag(1.0 + (phi_a0_js * h_i_js).flatten())\
-        - f_mrt_js_js * h_s_r_js * phi_a0_js\
-        - np.dot(k_ei_js_js, f_mrt_js_js) * h_s_r_js * phi_t0_js / h_i_js
-
-    # f_FIA, [j, i]
-    f_fia_js_is = phi_a0_js * h_s_c_js * p_js_is + np.dot(k_ei_js_js, p_js_is) * phi_t0_js * h_s_c_js / h_i_js
-
-    # f_CRX, degree C, [j, n]
-    f_crx_js_ns = phi_a0_js * q_s_sol_js_ns + phi_t0_js / h_i_js * np.dot(k_ei_js_js, q_s_sol_js_ns) + phi_t0_js * theta_dstrb_js_ns
-
-    # f_WSR, [j, i]
-    f_wsr_js_is = np.dot(np.linalg.inv(f_ax_js_js), f_fia_js_is)
-
-    # f_WSC, degree C, [j, n]
-    f_wsc_js_ns = np.dot(np.linalg.inv(f_ax_js_js), f_crx_js_ns)
+    # 係数 f_{WSC, n}, degree C, [j, n]
+    f_wsc_js_ns = get_f_wsc_js_ns(f_ax_js_js=f_ax_js_js, f_crx_js_ns=f_crx_js_ns)
 
     # endregion
 
@@ -585,7 +604,7 @@ def make_pre_calc_parameters(
         name_bdry_js=name_bdry_js,
         sub_name_bdry_js=sub_name_bdry_js,
         a_s_js=a_s_js,
-        v_mec_vent_is_ns=v_mec_vent_is_ns,
+        v_vent_mec_is_ns=v_vent_mec_is_ns,
         q_gen_is_ns=q_gen_is_ns,
         n_hum_is_ns=n_hum_is_ns,
         x_gen_is_ns=x_gen_is_ns,
@@ -604,7 +623,7 @@ def make_pre_calc_parameters(
         f_flr_c_js_is=f_flr_c_js_is,
         h_s_r_js=h_s_r_js,
         h_s_c_js=h_s_c_js,
-        f_mrt_js_js=f_mrt_js_js,
+        f_mrt_is_js=f_mrt_is_js,
         q_s_sol_js_ns=q_s_sol_js_ns,
         q_sol_frt_is_ns=q_sol_frt_is_ns,
         beta_h_is=beta_h_is,
@@ -641,6 +660,143 @@ def make_pre_calc_parameters(
     )
 
     return pre_calc_parameters, pre_calc_parameters_ground
+
+
+def get_f_wsc_js_ns(f_ax_js_js, f_crx_js_ns):
+    """
+
+    Args:
+        f_ax_js_js: 係数 f_{AX}, -, [j, j]
+        f_crx_js_ns: 係数 f_{CRX,n}, degree C, [j, n]
+
+    Returns:
+        係数 f_{WSC,n}, degree C, [j, n]
+
+    Notes:
+        式(4.1)
+    """
+
+    return np.dot(np.linalg.inv(f_ax_js_js), f_crx_js_ns)
+
+
+def get_f_wsr_js_is(f_ax_js_js, f_fia_js_is):
+    """
+
+    Args:
+        f_ax_js_js: 係数 f_AX, -, [j, j]
+        f_fia_js_is: 係数 f_FIA, -, [j, i]
+
+    Returns:
+        係数 f_WSR, -, [j, i]
+
+    Notes:
+        式(4.2)
+    """
+
+    return np.dot(np.linalg.inv(f_ax_js_js), f_fia_js_is)
+
+
+def get_f_crx_js_ns(h_s_c_js, h_s_r_js, k_ei_js_js, phi_a0_js, phi_t0_js, q_s_sol_js_ns, theta_dstrb_js_ns):
+    """
+
+    Args:
+        h_s_c_js: 境界 j の室内側対流熱伝達率, W/(m2 K), [j, 1]
+        h_s_r_js: 境界 j の室内側放射熱伝達率, W/(m2 K), [j, 1]
+        k_ei_js_js: 境界 j の裏面温度に境界　j∗ の等価温度が与える影響, -, [j, j]
+        phi_a0_js: 境界 j の吸熱応答係数の初項, m2 K/W, [j, 1]
+        phi_t0_js: 境界 j の貫流応答係数の初項, -, [j, 1]
+        q_s_sol_js_ns: ステップ n における境界 j の透過日射吸収熱量, W/m2, [j, n]
+        theta_dstrb_js_ns: ステップ n の境界 j における外気側等価温度の外乱成分, degre C, [j, n]
+
+    Returns:
+        係数 f_CRX, degree C, [j, n]
+
+    Notes:
+        式(4.3)
+    """
+
+    return phi_a0_js * q_s_sol_js_ns\
+        + phi_t0_js / (h_s_c_js + h_s_r_js) * np.dot(k_ei_js_js, q_s_sol_js_ns)\
+        + phi_t0_js * theta_dstrb_js_ns
+
+
+def get_f_fia_js_is(h_s_c_js, h_s_r_js, k_ei_js_js, p_js_is, phi_a0_js, phi_t0_js):
+    """
+
+    Args:
+        h_s_c_js: 境界 j の室内側対流熱伝達率, W/(m2 K), [j, 1]
+        h_s_r_js: 境界 j の室内側放射熱伝達率, W/(m2 K), [j, 1]
+        k_ei_js_js: 境界 j の裏面温度に境界　j∗ の等価温度が与える影響, -, [j, j]
+        p_js_is: 室 i と境界 j の接続に関する係数（境界 j が室 i に接している場合は 1 とし、それ以外の場合は 0 とする。）, -, [j, i]
+        phi_a0_js: 境界 j の吸熱応答係数の初項, m2 K/W, [j, 1]
+        phi_t0_js: 境界 j の貫流応答係数の初項, -, [j, 1]
+
+    Returns:
+        係数 f_FIA, -, [j, i]
+
+    Notes:
+        式(4.4)
+    """
+
+    return phi_a0_js * h_s_c_js * p_js_is + np.dot(k_ei_js_js, p_js_is) * phi_t0_js * h_s_c_js / (h_s_c_js + h_s_r_js)
+
+
+def get_f_ax_js_is(f_mrt_is_js, h_s_c_js, h_s_r_js, k_ei_js_js, p_js_is, phi_a0_js, phi_t0_js):
+    """
+
+    Args:
+        f_mrt_is_js: 室 i の微小球に対する境界 j の形態係数, -, [i, j]
+        h_s_c_js: 境界 j の室内側対流熱伝達率, W/(m2 K), [j, 1]
+        h_s_r_js: 境界 j の室内側放射熱伝達率, W/(m2 K), [j, 1]
+        k_ei_js_js: 境界 j の裏面温度に境界　j∗ の等価温度が与える影響, -, [j, j]
+        p_js_is: 室 i と境界 j の接続に関する係数（境界 j が室 i に接している場合は 1 とし、それ以外の場合は 0 とする。）, -, [j, i]
+        phi_a0_js: 境界 j の吸熱応答係数の初項, m2 K/W, [j, 1]
+        phi_t0_js: 境界 j の貫流応答係数の初項, -, [j, 1]
+
+    Returns:
+        係数 f_AX, -, [j, j]
+
+    Notes:
+        式(4.5)
+    """
+
+    return v_diag(1.0 + phi_a0_js * (h_s_c_js + h_s_r_js)) \
+        - np.dot(p_js_is, f_mrt_is_js) * h_s_r_js * phi_a0_js \
+        - np.dot(k_ei_js_js, np.dot(p_js_is, f_mrt_is_js)) * h_s_r_js * phi_t0_js / (h_s_c_js + h_s_r_js)
+
+
+def get_theta_dstrb_js_ns(k_eo_js, theta_o_eqv_js_ns):
+    """
+
+    Args:
+        k_eo_js: 境界 j の裏面温度に境界 j の相当外気温度が与える影響, -, [j, 1]
+        theta_o_eqv_js_ns: ステップ n における境界 j の相当外気温度, degree C, [j, 1]
+
+    Returns:
+        ステップ n の境界 j における外気側等価温度の外乱成分, degre C, [j, n]
+
+    Notes:
+        式(4.6)
+    """
+
+    return theta_o_eqv_js_ns * k_eo_js
+
+
+def get_v_vent_mec_is_ns(v_vent_mec_general_is, v_vent_mec_local_is_ns):
+    """
+
+    Args:
+        v_vent_mec_general_is: ステップ n からステップ n+1 における室 i の機械換気量（全般換気量）, m3/s, [i, 1]
+        v_vent_mec_local_is_ns: ステップ n からステップ n+1 における室 i の機械換気量（局所換気量）, m3/s, [i, 1]
+
+    Returns:
+        ステップ n からステップ n+1 における室 i の機械換気量（全般換気量と局所換気量の合計値）, m3/s, [i, 1]
+
+    Notes:
+        式(4.7)
+    """
+
+    return v_vent_mec_general_is + v_vent_mec_local_is_ns
 
 
 def _get_v_vent_int_is_is(next_vent_is_ks: List[List[dict]]) -> np.ndarray:
