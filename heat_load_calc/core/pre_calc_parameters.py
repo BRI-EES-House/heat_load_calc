@@ -267,7 +267,7 @@ def make_pre_calc_parameters(
     #   室iの家具等の湿気容量, kg/m3 kg/kgDA, [i, 1]
     #   室iの家具等と空気間の湿気コンダクタンス, kg/s (kg/kgDA), [i, 1]
     c_lh_frt_is, c_sh_frt_is, g_lh_frt_is, g_sh_frt_is = furniture.get_furniture_specs(
-        furnitures=[rm['furniture'] for rm in rms],
+        d_frt=[rm['furniture'] for rm in rms],
         v_rm_is=v_rm_is
     )
 

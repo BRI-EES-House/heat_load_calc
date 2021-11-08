@@ -1,48 +1,49 @@
 """
-家具の熱容量・熱コンダクタンスと備品等の湿気容量・湿気コンダクタンスを計算するモジュール
+家具に関するモジュール
+仕様書：備品等
 """
 
 import numpy as np
 from typing import List
 
 
-def get_furniture_specs(
-        furnitures: List[dict], v_rm_is: np.ndarray
-) -> (np.ndarray, np.ndarray, np.ndarray, np.ndarray):
+def get_furniture_specs(d_frt: List[dict], v_rm_is: np.ndarray) -> (np.ndarray, np.ndarray, np.ndarray, np.ndarray):
     """
-        家具に関する物性値を取得する。
+        備品等に関する物性値を取得する。
     Args:
-        furnitures: 家具に関する入力情報
+        d_frt: 備品等に関する入力情報
         v_rm_is: 室 i の容量, m3, [i, 1]
     Returns:
         家具に関する物性値
-            室iの家具等の熱容量, J/K, [i, 1]
-            室iの家具等と空気間の熱コンダクタンス, W/K, [i, 1]
-            室iの家具等の湿気容量, kg/m3 kg/kgDA, [i, 1]
-            室iの家具等と空気間の湿気コンダクタンス, kg/s (kg/kgDA), [i, 1]
+            室 i の備品等の熱容量, J/K, [i, 1]
+            室 i の空気と備品等間の熱コンダクタンス, W/K, [i, 1]
+            室 i の備品等の湿気容量, kg/(kg/kgDA), [i, 1]
+            室 i の空気と備品等間の湿気コンダクタンス, kg/(s (kg/kgDA)), [i, 1]
+    Notes:
+        各値は、特定の値の入力を受け付ける他に、以下の式(1)～(4)により室容積から推定する方法を設定する。
     """
 
-    # 室iの家具等の熱容量, J/K, [i, 1]
+    # 室 i の備品等の熱容量, J/K, [i, 1]
     c_sh_frt_is = []
-    # 室iの家具等と空気間の熱コンダクタンス, W/K, [i, 1]
+    # 室 i の空気と備品等間の熱コンダクタンス, W/K, [i, 1]
     g_sh_frt_is = []
-    # 室iの家具等の湿気容量, kg/m3 kg/kgDA, [i, 1]
+    # 室 i の備品等の湿気容量, kg/(kg/kgDA), [i, 1]
     c_lh_frt_is = []
-    # 室iの家具等と空気間の湿気コンダクタンス, kg/s (kg/kgDA), [i, 1]
+    # 室 i の空気と備品等間の湿気コンダクタンス, kg/(s (kg/kgDA)), [i, 1]
     g_lh_frt_is = []
 
-    for i, f in enumerate(furnitures):
+    for i, f in enumerate(d_frt):
 
-        volume = v_rm_is[i]
+        v_rm_i = v_rm_is[i]
 
         if f['input_method'] == 'default':
 
             # 入力方法がデフォルト指定している場合は室容積から各物性値を推定する。
 
-            c_sh_frt_i = _get_c_sh_frt(v_rm=volume)
-            g_sh_frt_i = _get_g_sh_frt(c_sh_frt=c_sh_frt_i)
-            c_lh_frt_i = _get_c_lh_frt(v_rm=volume)
-            g_lh_frt_i = _get_g_lh_frt(c_lh_frt=c_lh_frt_i)
+            c_sh_frt_i = _get_c_sh_frt_i(v_rm_i=v_rm_i)
+            g_sh_frt_i = _get_g_sh_frt_i(c_sh_frt_i=c_sh_frt_i)
+            c_lh_frt_i = _get_c_lh_frt_i(v_rm_i=v_rm_i)
+            g_lh_frt_i = _get_g_lh_frt_i(c_lh_frt_i=c_lh_frt_i)
 
         elif f['input_method'] == 'specify':
 
@@ -69,65 +70,70 @@ def get_furniture_specs(
     return c_lh_frt_is, c_sh_frt_is, g_lh_frt_is, g_sh_frt_is
 
 
-def _get_c_sh_frt(v_rm: float) -> float:
+def _get_c_sh_frt_i(v_rm_i: float) -> float:
     """
     備品等の熱容量を計算する。
     Args:
-        v_rm: 室iの気積, m3
+        v_rm_i: 室iの気積, m3
     Returns:
-        備品等の熱容量, J/K
+        室 i の備品等の熱容量, J/K
+    Notes:
+        式(4)
     """
 
-    # 室の備品等の顕熱容量, kJ/(m3･K)
-    furniture_sensible_capacity = 12.6
+    # 室の気積あたりの備品等の熱容量を表す係数, J/(m3 K)
+    f_c_sh_frt = 12.6 * 1000.0
 
-    # 備品等の熱容量, J/K
-    c_sh_frt = furniture_sensible_capacity * v_rm * 1000.0
-
-    return c_sh_frt
+    return f_c_sh_frt * v_rm_i
 
 
-def _get_g_sh_frt(c_sh_frt: float) -> float:
+def _get_g_sh_frt_i(c_sh_frt_i: float) -> float:
     """
     空気と備品等間の熱コンダクタンスを取得する。
     Args:
-        c_sh_frt: 備品等の熱容量, J/K
+        c_sh_frt_i: 室 i の備品等の熱容量, J/K
     Returns:
-        室iの空気と備品等間の熱コンダクタンス, W/K
+        室 i の空気と備品等間の熱コンダクタンス, W/K
+    Notes:
+        式(3)
     """
 
-    g_sh_frt_is = 0.00022 * c_sh_frt
+    # 備品等の熱容量あたりの空気との間の熱コンダクタンスを表す係数, 1/s
+    f_g_sh_frt = 0.00022
 
-    return g_sh_frt_is
+    return f_g_sh_frt * c_sh_frt_i
 
 
-def _get_c_lh_frt(v_rm: float) -> float:
+def _get_c_lh_frt_i(v_rm_i: float) -> float:
     """
     備品等の湿気容量を計算する。
     Args:
-        v_rm: 室iの気積, m3
+        v_rm_i: 室iの気積, m3
     Returns:
-        備品等の湿気容量, kg/(kg/kg(DA))
+        室 i の備品等の湿気容量, kg/(kg/kg(DA))
+    Notes:
+        式(2)
     """
 
-    # 室の備品等の潜熱容量, kg/(m3 kg/kg(DA))
-    furniture_latent_capacity = 16.8
+    # 室の気積あたりの備品等の湿気容量を表す係数, kg/(m3 kg/kg(DA))
+    f_c_lh_frt = 16.8
 
-    # 備品等の湿気容量, kg/(kg/kg(DA))
-    c_lh_frt_is = furniture_latent_capacity * v_rm
-
-    return c_lh_frt_is
+    return f_c_lh_frt * v_rm_i
 
 
-def _get_g_lh_frt(c_lh_frt: float) -> float:
+def _get_g_lh_frt_i(c_lh_frt_i: float) -> float:
     """
     空気と備品等間の湿気コンダクタンスを取得する。
     Args:
-        c_lh_frt: 室iの備品等の湿気容量, kg/(kg/kg(DA))
+        c_lh_frt_i: 室iの備品等の湿気容量, kg/(kg/kg(DA))
     Returns:
-        室iの空気と備品等間の湿気コンダクタンス, kg/(s･kg/kg(DA))
+        室iの空気と備品等間の湿気コンダクタンス, kg/(s kg/kg(DA))
+    Notes:
+        式(1)
     """
 
-    g_lh_frt_is = 0.0018 * c_lh_frt
+    # 備品等の湿気容量あたりの空気との間の湿気コンダクタンスを表す係数, 1/s
+    f_g_lh_frt = 0.0018
 
-    return g_lh_frt_is
+    return f_g_lh_frt * c_lh_frt_i
+
