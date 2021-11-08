@@ -1,5 +1,5 @@
 """
-家具に関するモジュール
+備品等に関するモジュール
 仕様書：備品等
 """
 
@@ -14,7 +14,7 @@ def get_furniture_specs(d_frt: List[dict], v_rm_is: np.ndarray) -> (np.ndarray, 
         d_frt: 備品等に関する入力情報
         v_rm_is: 室 i の容量, m3, [i, 1]
     Returns:
-        家具に関する物性値
+        備品等に関する物性値
             室 i の備品等の熱容量, J/K, [i, 1]
             室 i の空気と備品等間の熱コンダクタンス, W/K, [i, 1]
             室 i の備品等の湿気容量, kg/(kg/kgDA), [i, 1]

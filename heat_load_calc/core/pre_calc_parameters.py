@@ -42,16 +42,16 @@ class PreCalcParameters:
     # 室iの容積, m3, [i, 1]
     v_rm_is: np.ndarray
 
-    # 室iの家具等の熱容量, J/K, [i, 1]
+    # 室 i の備品等の熱容量, J/K, [i, 1]
     c_sh_frt_is: np.ndarray
 
-    # 室iの家具等の湿気容量, kg/m3 (kg/kgDA), [i, 1]
+    # 室 i の備品等の湿気容量, kg/(kg/kgDA), [i, 1]
     c_lh_frt_is: np.ndarray
 
-    # 室iの家具等と空気間の熱コンダクタンス, W/K, [i, 1]
+    #  室 i の空気と備品等間の熱コンダクタンス, W/K, [i, 1]
     g_sh_frt_is: np.ndarray
 
-    # 室iの家具等と空気間の湿気コンダクタンス, kg/s (kg/kgDA), [i, 1]
+    # 室 i の空気と備品等間の湿気コンダクタンス, kg/(s (kg/kgDA)), [i, 1]
     g_lh_frt_is: np.ndarray
 
     # ステップnにおける室iの空調需要, [i, 8760*4]
@@ -69,7 +69,7 @@ class PreCalcParameters:
     # ステップnの室iにおける機械換気量（全般換気量+局所換気量）, m3/s, [i, 8760*4]
     v_vent_mec_is_ns: np.ndarray
 
-    # 家具の吸収日射量, W, [i, 8760*4]
+    # ステップ n からステップ n+1 における室 i に設置された備品等による透過日射吸収熱量時間平均値, W, [i, n]
     q_sol_frt_is_ns: np.ndarray
 
     # 室iの自然風利用時の換気量, m3/s, [i, 1]
@@ -261,11 +261,11 @@ def make_pre_calc_parameters(
     # 入力は m3/h なので、3600 で除して m3/s への変換を行っている。
     v_vent_ntr_set_is = np.array([s['ventilation']['natural'] / 3600 for s in rms]).reshape(-1, 1)
 
-    # 家具に関する物性値を取得する。
-    #   室iの家具等の熱容量, J/K, [i, 1]
-    #   室iの家具等と空気間の熱コンダクタンス, W/K, [i, 1]
-    #   室iの家具等の湿気容量, kg/m3 kg/kgDA, [i, 1]
-    #   室iの家具等と空気間の湿気コンダクタンス, kg/s (kg/kgDA), [i, 1]
+    # 備品等に関する物性値を取得する。
+    #   室 i の備品等の熱容量, J/K, [i, 1]
+    #   室 i の空気と備品等間の熱コンダクタンス, W/K, [i, 1]
+    #   室 i の備品等の湿気容量, kg/(kg/kgDA), [i, 1]
+    #   室 i の空気と備品等間の湿気コンダクタンス, kg/(s (kg/kgDA)), [i, 1]
     c_lh_frt_is, c_sh_frt_is, g_lh_frt_is, g_sh_frt_is = furniture.get_furniture_specs(
         d_frt=[rm['furniture'] for rm in rms],
         v_rm_is=v_rm_is
@@ -491,7 +491,7 @@ def make_pre_calc_parameters(
         v_vent_mec_local_is_ns=v_vent_mec_local_is_ns
     )
 
-    # ステップ n からステップ n+1 における室 i に設置された家具による透過日射吸収熱量時間平均値, W, [i, n]
+    # ステップ n からステップ n+1 における室 i に設置された備品等による透過日射吸収熱量時間平均値, W, [i, n]
     q_sol_frt_is_ns = solar_absorption.get_q_sol_frt_is_ns(q_trs_sor_is_ns=q_trs_sol_is_ns)
 
     # ステップ n における境界 j の透過日射吸収熱量, W/m2, [j, n]

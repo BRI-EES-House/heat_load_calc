@@ -280,7 +280,7 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
         theta_r_is_n_pls=theta_r_is_n_pls
     )
 
-    # ステップ n+1 における室 i　の家具の温度, degree C, [i, 1]
+    # ステップ n+1 における室 i　の備品等の温度, degree C, [i, 1]
     theta_frt_is_n_pls = get_theta_frt_is_n_pls(
         c_sh_frt_is=ss.c_sh_frt_is,
         delta_t=delta_t,
@@ -384,7 +384,7 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
         x_r_is_n_pls=x_r_is_n_pls
     )
 
-    # ステップ n+1 における室 i の家具等の絶対湿度, kg/kg(DA), [i, 1]
+    # ステップ n+1 における室 i の備品等等の絶対湿度, kg/kg(DA), [i, 1]
     x_frt_is_n_pls = get_x_frt_is_n_pls(
         c_lh_frt_is=ss.c_lh_frt_is,
         delta_t=delta_t,
@@ -452,7 +452,7 @@ def get_x_frt_is_n_pls(c_lh_frt_is, delta_t: float, g_lh_frt_is, x_frt_is_n, x_r
         x_r_is_n_pls: ステップ n+1 における室 i の絶対湿度, kg/kg(DA), [i, 1]
 
     Returns:
-        ステップ n+1 における室 i の家具等の絶対湿度, kg/kg(DA), [i, 1]
+        ステップ n+1 における室 i の備品等等の絶対湿度, kg/kg(DA), [i, 1]
 
     Notes:
         式(1.1)
@@ -670,12 +670,12 @@ def get_theta_frt_is_n_pls(c_sh_frt_is, delta_t: float, g_sh_frt_is, q_sol_frt_i
         c_sh_frt_is: 室 i の備品等の熱容量, J/K, [i, 1]
         delta_t: 1ステップの時間間隔, s
         g_sh_frt_is: 室 i の備品等と空気間の熱コンダクタンス, W/K, [i, 1]
-        q_sol_frt_is_n: ステップ n からステップ n+1 における室 i に設置された家具による透過日射吸収熱量時間平均値, W, [i, 1]
+        q_sol_frt_is_n: ステップ n からステップ n+1 における室 i に設置された備品等による透過日射吸収熱量時間平均値, W, [i, 1]
         theta_frt_is_n: ステップ n における室 i の備品等の温度, degree C, [i, 1]
         theta_r_is_n_pls: ステップ n+1 における室 i の温度, degree C, [i, 1]
 
     Returns:
-        ステップ n+1 における室 i　の家具の温度, degree C, [i, 1]
+        ステップ n+1 における室 i　の備品等の温度, degree C, [i, 1]
 
     Notes:
         式(2.4)
@@ -1078,7 +1078,7 @@ def get_f_brc_is_n_pls(
         p_is_js: 室 i と境界 j の接続に関する係数（境界 j が室 i に接している場合は 1 とし、それ以外の場合は 0 とする。）, -, [i, j]
         q_gen_is_n: ステップ n からステップ n+1 における室 i の人体発熱を除く内部発熱, W, [i, 1]
         q_hum_is_n: ステップ n からステップ n+1 における室 i の人体発熱, W, [i, 1]
-        q_sol_frt_is_n: ステップ n からステップ n+1 における室 i に設置された家具による透過日射吸収熱量時間平均値, W, [i, 1]
+        q_sol_frt_is_n: ステップ n からステップ n+1 における室 i に設置された備品等による透過日射吸収熱量時間平均値, W, [i, 1]
         rho_a: 空気の密度, kg/m3
         theta_frt_is_n: ステップ n における室 i の備品等の温度, degree C, [i, 1]
         theta_o_n_pls: ステップ n+1 における外気温度, ℃
