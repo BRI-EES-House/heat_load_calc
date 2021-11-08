@@ -6,12 +6,10 @@ import pandas as pd
 from dataclasses import dataclass
 from typing import List, Callable
 
-from heat_load_calc.external.global_number import get_c_a, get_rho_a
 from heat_load_calc.core import infiltration, response_factor, indoor_radiative_heat_transfer, shape_factor, \
     occupants_form_factor, boundary_simple, furniture
 from heat_load_calc.core import ot_target
 from heat_load_calc.core import next_condition
-from heat_load_calc.core import humidification
 from heat_load_calc.core.matrix_method import v_diag
 
 from heat_load_calc.initializer.boundary_type import BoundaryType
@@ -575,7 +573,7 @@ def make_pre_calc_parameters(
 
     # endregion
 
-    get_f_l_cl = humidification.make_get_f_l_cl_funcs(n_rm, cooling_equipments)
+    get_f_l_cl = equipments.make_get_f_l_cl_funcs(n_rm, cooling_equipments)
 
     pre_calc_parameters = PreCalcParameters(
         n_rm=n_rm,
