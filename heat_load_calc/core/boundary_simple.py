@@ -1,5 +1,6 @@
 import numpy as np
 from dataclasses import dataclass
+from typing import List
 
 from heat_load_calc.core import outside_eqv_temp, solar_shading, transmission_solar_radiation
 from heat_load_calc.initializer.boundary_type import BoundaryType
@@ -219,4 +220,18 @@ def get_boundary_simple(theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, a_sun_ns, h_sun_n
         q_trs_sol=q_trs_sol,
         rf=rf
     )
+
+
+def get_boundary_by_id(bss: List[BoundarySimple], boundary_id: int):
+
+    # 指定された boundary_id に一致する Boundary を取得する。
+    _bss = [bs.id == boundary_id for bs in bss]
+
+    # 取得された Boundary は必ず1つのはずなので、「見つからない場合」「複数該当した場合」にはエラーを出す。
+    if len(_bss) == 0:
+        raise Exception("指定された boundary_id に一致する boundary が見つかりませんでした。")
+    if len(_bss) >1:
+        raise Exception("指定された boundary_id に一致する boundary が複数見つかりました。")
+
+    return _bss[0]
 

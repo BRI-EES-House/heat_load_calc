@@ -16,6 +16,7 @@ from heat_load_calc.core.matrix_method import v_diag
 
 from heat_load_calc.initializer.boundary_type import BoundaryType
 from heat_load_calc.core import solar_absorption
+from heat_load_calc.core import equipments
 
 
 @dataclass
@@ -40,9 +41,6 @@ class PreCalcParameters:
 
     # 室iの容積, m3, [i, 1]
     v_rm_is: np.ndarray
-
-    # 室iの熱容量, J/K, [i, 1]
-    c_rm_is: np.ndarray
 
     # 室iの家具等の熱容量, J/K, [i, 1]
     c_sh_frt_is: np.ndarray
@@ -294,29 +292,21 @@ def make_pre_calc_parameters(
 
     # region equipments の読み込み
 
+    es = equipments.Equipments(e=rd['equipments'], n_rm=n_rm)
+
     # 室iの暖房方式として放射空調が設置されているかどうか。  bool値, [i, 1]
+    is_radiative_heating_is = es.get_is_radiative_heating_is(bss=bss)
+
     # 室iの暖房方式として放射空調が設置されている場合の、放射暖房最大能力, W, [i, 1]
-    is_radiative_heating_is = np.full(shape=(n_rm, 1), fill_value=False)
-    lr_h_max_cap_is = np.zeros(shape=(n_rm, 1), dtype=float)
-
-    heating_equipments = rd['equipments']['heating_equipments']
-
-    for e_h in heating_equipments:
-        if e_h['equipment_type'] == 'floor_heating':
-            is_radiative_heating_is[e_h['property']['space_id']] = True
-            lr_h_max_cap_is[e_h['property']['space_id']] = lr_h_max_cap_is[e_h['property']['space_id']] + e_h['property']['max_capacity'] * e_h['property']['area']
-
-    # 室iの冷房方式として放射空調が設置されているかどうか。  bool値, [i, 1]
-    # 室iの冷房方式として放射空調が設置されている場合の、放射冷房最大能力, W, [i, 1]
-    is_radiative_cooling_is = np.full(shape=(n_rm, 1), fill_value=False)
-    lr_cs_max_cap_is = np.zeros(shape=(n_rm, 1), dtype=float)
+    q_rs_h_max_is = es.get_q_rs_h_max_is()
 
     cooling_equipments = rd['equipments']['cooling_equipments']
 
-    for e_c in cooling_equipments:
-        if e_c['equipment_type'] == 'floor_cooling':
-            is_radiative_cooling_is[e_c['property']['space_id']] = True
-            lr_cs_max_cap_is[e_c['property']['space_id']] = lr_cs_max_cap_is[e_c['property']['space_id']] + e_c['property']['max_capacity'] * e_c['property']['area']
+    # 室iの冷房方式として放射空調が設置されているかどうか。  bool値, [i, 1]
+    is_radiative_cooling_is = es.get_is_radiative_cooling_is(bss=bss)
+
+    # 室iの冷房方式として放射空調が設置されている場合の、放射冷房最大能力, W, [i, 1]
+    q_rs_c_max_is = es.get_q_rs_c_max_is()
 
     # endregion
 
@@ -492,9 +482,6 @@ def make_pre_calc_parameters(
     f_flr_h_js_is = flr_js_is_ns
     f_flr_c_js_is = flr_js_is_ns
 
-    # 室iの空気の熱容量, J/K, [i, 1]
-    c_rm_is = v_rm_is * get_rho_a() * get_c_a()
-
     # 室 i の微小球に対する境界 j の形態係数, -, [i, j]
     f_mrt_is_js = shape_factor.get_f_mrt_is_js(a_s_js=a_s_js, h_s_r_js=h_s_r_js, p_is_js=p_is_js)
 
@@ -582,8 +569,8 @@ def make_pre_calc_parameters(
     calc_next_temp_and_load = next_condition.make_get_next_temp_and_load_function(
         is_radiative_heating_is=is_radiative_heating_is,
         is_radiative_cooling_is=is_radiative_cooling_is,
-        lr_h_max_cap_is=lr_h_max_cap_is,
-        lr_cs_max_cap_is=lr_cs_max_cap_is
+        lr_h_max_cap_is=q_rs_h_max_is,
+        lr_cs_max_cap_is=q_rs_c_max_is
     )
 
     # endregion
@@ -595,7 +582,6 @@ def make_pre_calc_parameters(
         id_rm_is=id_rm_is,
         name_rm_is=name_rm_is,
         v_rm_is=v_rm_is,
-        c_rm_is=c_rm_is,
         c_sh_frt_is=c_sh_frt_is,
         c_lh_frt_is=c_lh_frt_is,
         g_sh_frt_is=g_sh_frt_is,

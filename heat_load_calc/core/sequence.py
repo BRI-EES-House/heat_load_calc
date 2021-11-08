@@ -102,7 +102,7 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
     f_brc_is_n_pls = get_f_brc_is_n_pls(
         a_s_js=ss.a_s_js,
         c_a=get_c_a(),
-        c_rm_is=ss.c_rm_is,
+        v_rm_is=ss.v_rm_is,
         c_sh_frt_is=ss.c_sh_frt_is,
         delta_t=delta_t,
         f_wsc_js_n_pls=ss.f_wsc_js_ns[:, n + 1].reshape(-1, 1),
@@ -124,7 +124,7 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
     f_brm_is_is_n_pls = get_f_brm_is_is_n_pls(
         a_s_js=ss.a_s_js,
         c_a=get_c_a(),
-        c_rm_is=ss.c_rm_is,
+        v_rm_is=ss.v_rm_is,
         c_sh_frt_is=ss.c_sh_frt_is,
         delta_t=delta_t,
         f_wsr_js_is=ss.f_wsr_js_is,
@@ -528,7 +528,7 @@ def get_f_h_wgt_is_is_n(c_lh_frt_is, delta_t, g_lh_frt_is, rho_a, v_rm_is, v_ven
         delta_t: 1ステップの時間間隔, s
         g_lh_frt_is: 室 i の備品等と空気間の湿気コンダクタンス, kg/(s kg/kg(DA)), [i, 1]
         rho_a: 空気の密度, kg/m3
-        v_rm_is: 室 i の容積, m3
+        v_rm_is: 室 i の容量, m3, [i, 1]
         v_vent_int_is_is_n:　ステップ n から ステップ n+1 における室 i* から室 i への室間の空気移動量（流出換気量を含む）, m3/s
         v_vent_out_is_n: ステップ n から ステップ n+1 における室 i の換気・すきま風・自然風の利用による外気の流入量, m3/s
 
@@ -554,7 +554,7 @@ def get_f_h_cst_is_n(c_lh_frt_is, delta_t, g_lh_frt_is, rho_a, v_rm_is, v_vent_o
         delta_t: 1ステップの時間間隔, s
         g_lh_frt_is: 室 i の備品等と空気間の湿気コンダクタンス, kg/(s kg/kg(DA)), [i, 1]
         rho_a: 空気の密度, kg/m3
-        v_rm_is: 室 i の容積, m3
+        v_rm_is: 室 i の容量, m3, [i, 1]
         v_vent_out_is_n: ステップ n から ステップ n+1 における室 i の換気・すきま風・自然風の利用による外気の流入量, m3/s
         x_frt_is_n: ステップ n における室 i の備品等の絶対湿度, kg/kg(DA), [i, 1]
         x_gen_is_n: ステップ n からステップ n+1 における室 i の人体発湿を除く内部発湿, kg/s
@@ -1025,7 +1025,7 @@ def get_k_r_is_n(h_hum_c_is_n, h_hum_r_is_n):
 
 
 def get_f_brm_is_is_n_pls(
-        a_s_js, c_a: float, c_rm_is, c_sh_frt_is, delta_t, f_wsr_js_is, g_sh_frt_is, h_s_c_js, p_is_js,
+        a_s_js, c_a: float, v_rm_is, c_sh_frt_is, delta_t, f_wsr_js_is, g_sh_frt_is, h_s_c_js, p_is_js,
         p_js_is, rho_a, v_vent_int_is_is_n, v_vent_out_is_n
 ):
     """
@@ -1033,7 +1033,7 @@ def get_f_brm_is_is_n_pls(
     Args:
         a_s_js: 境界 j の面積, m2, [j, 1]
         c_a: 空気の比熱, J/(kg K)
-        c_rm_is: 室 i の空気の熱容量, J/K, [i, 1]
+        v_rm_is: 室 i の容積, m3, [i, 1]
         c_sh_frt_is: 室 i の備品等の熱容量, J/K, [i, 1]
         delta_t: 1ステップの時間間隔, s
         f_wsr_js_is: 係数 f_WSR, - [j, i]
@@ -1052,14 +1052,14 @@ def get_f_brm_is_is_n_pls(
         式(2.23)
     """
 
-    return v_diag(c_rm_is / delta_t) \
+    return v_diag(v_rm_is * rho_a * c_a / delta_t) \
         + np.dot(p_is_js, (p_js_is - f_wsr_js_is) * a_s_js * h_s_c_js) \
         + v_diag(c_sh_frt_is * g_sh_frt_is / (c_sh_frt_is + g_sh_frt_is * delta_t)) \
         + c_a * rho_a * (v_diag(v_vent_out_is_n) - v_vent_int_is_is_n)
 
 
 def get_f_brc_is_n_pls(
-        a_s_js, c_a, c_rm_is, c_sh_frt_is, delta_t, f_wsc_js_n_pls, f_wsv_js_n_pls, g_sh_frt_is,
+        a_s_js, c_a, v_rm_is, c_sh_frt_is, delta_t, f_wsc_js_n_pls, f_wsv_js_n_pls, g_sh_frt_is,
         h_s_c_js, p_is_js, q_gen_is_n, q_hum_is_n, q_sol_frt_is_n, rho_a, theta_frt_is_n,
         theta_o_n_pls, theta_r_is_n, v_vent_out_is_n
 ):
@@ -1068,7 +1068,7 @@ def get_f_brc_is_n_pls(
     Args:
         a_s_js: 境界 j の面積, m2, [j, 1]
         c_a: 空気の比熱, J/(kg K)
-        c_rm_is: 室 i の空気の熱容量, J/K, [i, 1]
+        v_rm_is: 室容量, m3, [i, 1]
         c_sh_frt_is: 室 i の備品等の熱容量, J/K, [i, 1]
         delta_t: 1ステップの時間間隔, s
         f_wsc_js_n_pls: ステップ n+1 における係数 f_WSC, degree C, [j, 1]
@@ -1092,7 +1092,7 @@ def get_f_brc_is_n_pls(
         式(2.24)
     """
 
-    return c_rm_is / delta_t * theta_r_is_n \
+    return v_rm_is * c_a * rho_a / delta_t * theta_r_is_n \
         + np.dot(p_is_js, h_s_c_js * a_s_js * (f_wsc_js_n_pls + f_wsv_js_n_pls)) \
         + c_a * rho_a * v_vent_out_is_n * theta_o_n_pls \
         + q_gen_is_n + q_hum_is_n \

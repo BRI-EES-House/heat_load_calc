@@ -28,8 +28,6 @@ I. 評価法
     | 空気の比熱, J/(kg K)
 :math:`C_{lh,frt,i}`
     | 室 |i| の備品等の湿気容量, kg/(kg/kg(DA))
-:math:`C_{rm,i}`
-    | 室 |i| の空気の熱容量, J/K
 :math:`C_{sh,frt,i}`
     | 室 |i| の備品等の熱容量, J/K
 :math:`f_{flr,c,i,j}`
@@ -188,8 +186,6 @@ I. 評価法
     | :math:`C_{frt,i}` を要素にもつ :math:`I \times I` の対角化行列, J/K
 :math:`\pmb{C}_{lh,frt}`
     | :math:`C_{lh,frt,i}` を要素にもつ :math:`I \times I` の対角化行列, kg/(kg/kg(DA))
-:math:`\pmb{C}_{rm}`
-    | :math:`C_{rm,i}` を要素にもつ :math:`I \times I` の対角化行列, J/K
 :math:`\hat{\pmb{f}}_{flr,n}`
     | :math:`\hat{f}_{flr,i,j,n}` を要素にもつ :math:`J \times I` の行列, -
 :math:`\pmb{f}_{mrt}`
@@ -841,7 +837,7 @@ I. 評価法
     \begin{align*}
         \begin{split}
             \hat{\pmb{f}}_{BRM,n}
-            & = \frac{\pmb{C}_{rm}}{\Delta t}
+            & = \frac{c_a \cdot \rho_a \cdot \pmb{C}_{rm}}{\Delta t}
             + \pmb{p}_{ij} \cdot \pmb{h}_{s,c} \cdot \pmb{A}_s \cdot (\pmb{p}_{ji} - \pmb{f}_{WSR}) \\
             & + c_a \cdot \rho_a \cdot ( \hat{\pmb{V}}_{vent,out,n} - \hat{\pmb{V}}_{vent,int,n} )
             + \frac{ \pmb{G}_{sh,frt} \cdot \pmb{C}_{sh,frt} }{ ( \pmb{C}_{sh,frt} + \Delta t \cdot \pmb{G}_{sh,frt} ) }
@@ -857,7 +853,7 @@ I. 評価法
     \begin{align*}
         \begin{split}
             \hat{\pmb{f}}_{BRC,n}
-            & = \frac{ \pmb{C}_{rm} \cdot \pmb{\theta}_{r,n} }{\Delta t}
+            & = \frac{c_a \cdot \rho_a \cdot \pmb{V}_{rm} \cdot \pmb{\theta}_{r,n}}{\Delta t}
             + \pmb{p}_{ij} \cdot \pmb{h}_{s,c} \cdot \pmb{A}_s \cdot (\pmb{f}_{WSC,n+1} + \pmb{f}_{WSV,n+1}) \\
             & + c_a \cdot \rho_a \cdot \hat{\pmb{V}}_{vent,out,n} \cdot \pmb{\theta}_{o,n+1} \\
             & + \hat{\pmb{q}}_{gen,n} + \hat{\pmb{q}}_{hum,n} \\
