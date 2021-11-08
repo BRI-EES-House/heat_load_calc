@@ -23,17 +23,21 @@ I. 評価法
     :nowrap:
 
     \begin{align*}
-        G_{lh,frt,i} = 0.0018 \cdot C_{lh,frt,i} \tag{1}
+        G_{lh,frt,i} = f_{g,lh,frt} \cdot C_{lh,frt,i} \tag{1}
     \end{align*}
 
 ここで、
 
 :math:`G_{lh,frt,i}`
     | 室 |i| の空気と備品等間の湿気コンダクタンス, kg/(s kg/kg(DA))
+:math:`f_{g,lh,frt}`
+    | 備品等の湿気容量あたりの空気との間の湿気コンダクタンスを表す係数, s^{-1}
 :math:`C_{lh,frt,i}`
     | 室 |i| の備品等の湿気容量, kg/(kg/kg(DA))
 
 である。
+
+備品等の湿気容量あたりの空気との間の湿気コンダクタンスを表す係数 :math:`f_{g,lh,frt}` は、 :math:`0.0018` s^{-1} とする。
 
 備品等の湿気容量は、式(2)で表される。
 
@@ -41,21 +45,21 @@ I. 評価法
     :nowrap:
 
     \begin{align*}
-        C_{lh,frt,i} = f_{FLC} \cdot V_{rm} \tag{2}
+        C_{lh,frt,i} = f_{c,lh,frt} \cdot V_{rm} \tag{2}
     \end{align*}
 
 ここで、
 
 :math:`C_{lh,frt,i}`
     | 室 |i| の備品等の湿気容量, kg/(kg/kg(DA))
-:math:`f_{FLC}`
+:math:`f_{c,lh,frt}`
     | 室の気積あたりの備品等の湿気容量を表す係数, kg/(|m3| kg/kg(DA))
 :math:`V_{rm}`
     | 室 |i| の気積, |m3|
 
 である。
 
-室の気積あたりの備品等の湿気容量を表す係数 :math:`f_{FLC}` は、一般の家具等を想定し、 :math:`16.8` kg/(|m3| kg/kg(DA)) とする。
+室の気積あたりの備品等の湿気容量を表す係数 :math:`f_{c,lh,frt}` は、一般の家具等を想定し、 :math:`16.8` kg/(|m3| kg/kg(DA)) とする。
 
 空気と備品等間の熱コンダクタンスは、式(3)で表される。
 
@@ -63,17 +67,21 @@ I. 評価法
     :nowrap:
 
     \begin{align*}
-        G_{sh,frt,i} = 0.00022 \cdot  C_{sh,frt,i} \tag{3}
+        G_{sh,frt,i} = f_{g,sh,frt} \cdot  C_{sh,frt,i} \tag{3}
     \end{align*}
 
 ここで、
 
 :math:`G_{sh,frt,i}`
     | 室 |i| の空気と備品等間の熱コンダクタンス, W/K
+:math:`f_{g,sh,frt}`
+    | 備品等の熱容量あたりの空気との間の熱コンダクタンスを表す係数, s^{-1}
 :math:`C_{sh,frt,i}`
     | 室 |i| の備品等の熱容量, J/K
 
 である。
+
+備品等の熱容量あたりの空気との間の熱コンダクタンスを表す係数 :math:`f_{g,sh,frt}` は、 :math:`0.00022` s^{-1} とする。
 
 備品等の熱容量は、式(4)で表される。
 
@@ -81,21 +89,21 @@ I. 評価法
     :nowrap:
 
     \begin{align*}
-        C_{sh,frt,i} = f_{FSC} \cdot V_{rm} \tag{4}
+        C_{sh,frt,i} = f_{c,sh,frt} \cdot V_{rm} \tag{4}
     \end{align*}
 
 ここで、
 
 :math:`C_{sh,frt,i}`
     | 室 |i| の備品等の熱容量, J/K
-:math:`f_{FSC}`
+:math:`f_{c,sh,frt}`
     | 室の気積あたりの備品等の熱容量を表す係数, J/(|m3| K)
 :math:`V_{rm}`
     | 室 |i| の気積, |m3|
     
 である。
 
-室の気積あたりの備品等の熱容量を表す係数 :math:`f_{FSC}` は、一般の家具等を想定し、 :math:`12.6 \cdot 10^3` kJ/(|m3| K) とする。
+室の気積あたりの備品等の熱容量を表す係数 :math:`f_{c,sh,frt}` は、一般の家具等を想定し、 :math:`12.6 \times 10^3` J/(|m3| K) とする。
 
 
 
