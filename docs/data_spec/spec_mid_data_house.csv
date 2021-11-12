@@ -88,6 +88,7 @@
 ,,,,〇,,,boundary_id,放射暖房が設置される境界の番号,△,{'property':'floor_heating'},int,－,,
 ,,,,〇,,,max_capacity,面積あたりの放熱能力,△,{'property':'floor_heating'},float,W/m2,,
 ,,,,〇,,,area,面積,△,{'property':'floor_heating'},float,m2,,
+,,,,〇,,,convection_ratio,対流成分比率,△,{'property':'floor_heating'},float,－,,
 ,〇,,,,,,cooling_equipments,冷房設備,〇,,list,－,,
 ,,〇,,,,,,,〇,,dict,－,,
 ,,〇,,,,,,,〇,,dict,－,,
@@ -104,3 +105,4 @@
 ,,,,〇,,,boundary_id,放射暖房が設置される境界の番号,△,{'property':'floor_cooling'},int,－,,
 ,,,,〇,,,max_capacity,面積あたりの放熱能力,△,{'property':'floor_cooling'},float,W/m2,,
 ,,,,〇,,,area,面積,△,{'property':'floor_cooling'},float,m2,,
+,,,,〇,,,convection_ratio,対流成分比率,△,{'property':'floor_cooling'},float,－,,
