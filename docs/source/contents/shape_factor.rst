@@ -8,72 +8,85 @@
 I. 評価法
 ========================================================================================================================
 
-空間内の微小球からみた面 |i| への形態係数 :math:`f_{i}` は、式(1)で表される。
+室 |i| に属する面 |j| の表面温度が、室 |i| 内の平均放射温度に寄与する割合 :math:`f_{mrt,i,j}` は、式(1)で表される。
 
 .. math::
     :nowrap:
 
     \begin{align*}
-        f_{i} = \dfrac{1}{2} \Bigl\{ 1 - \mbox{sgn}(\left. 1 - 4 \cdot r_{a,srf,i} \middle/ \bar{f} \right.) \sqrt{ | \left. 1 - 4 \cdot r_{a,srf,i} \middle/ \bar{f} \right. | } \Bigr\}  \tag{1}
+        f_{mrt,i,j} = \dfrac{h_{r,j} A_{j}}{\sum\limits_{j\in{i}} h_{r,j} A_{j}} \tag{1}
     \end{align*}
 
 ここで、
 
-:math:`f_{i}`
-   | 空間内の微小球からみた面 |i| への形態係数, -
-:math:`\bar{f}`
-    | 非線形方程式 :math:`L(\bar{f})=0` の解, -
-:math:`r_{a,srf,i}`
-    | 室内の表面積の総和に占める面 |i| の面積の比, -
+:math:`f_{mrt,i,j}`
+    | 室 |i| に属する面 |j| の表面温度が室 |i| 内の平均放射温度に寄与する割合, -
+:math:`h_{r,j}`
+    | 面 |j| の放射熱伝達率, W/(|m2| K)
+:math:`A_{j}`
+    | 面 |j| の面積, |m2|
+
+である。
+
+面 |j| の放射熱伝達率 :math:`h_{r,j}` は、式(2)で表される。
+
+.. math::
+    :nowrap:
+
+    \begin{align*}
+        h_{r,j} = \dfrac{ \epsilon_{j} }{ 1 - \epsilon_{j} \cdot f_{i,j}} \cdot 4 \cdot \sigma \cdot (t_{mrt,i} + 273.15 )^{3} \tag{2}
+    \end{align*}
+
+ここで、
+
+:math:`\epsilon_{j}`
+    | 面 |j| の放射率, -
+:math:`f_{i,j}`
+    | 室 |i| 内の微小球からみた面 |j| への形態係数, -
+:math:`\sigma`
+    | ステファン・ボルツマン定数, W/(|m2| K\ :sup:`4`\)
+:math:`t_{mrt,i}`
+    | 室 |i| 内の平均放射温度, ℃
+
+である。
+
+ステファン・ボルツマン定数 :math:`\sigma` は、 :math:`5.67 \times 10^{-8}` W/(|m2| K\ :sup:`4`\) である。また、平均放射温度 :math:`t_{mrt,i}` は、 :math:`20` ℃ とする。
+
+室 |i| 内の微小球からみた面 |j| への形態係数 :math:`f_{i,j}` は、式(3)で表される。
+
+.. math::
+    :nowrap:
+
+    \begin{align*}
+        f_{i,j} = \dfrac{1}{2} \Bigl\{ 1 - \mbox{sgn}(\left. 1 - 4 \cdot r_{a,i,j} \middle/ \bar{f_i} \right.) \sqrt{ | \left. 1 - 4 \cdot r_{a,i,j} \middle/ \bar{f_i} \right. | } \Bigr\}  \tag{3}
+    \end{align*}
+
+ここで、
+
+:math:`\bar{f_i}`
+    | 非線形方程式 :math:`L(\bar{f_i})=0` の解, -
+:math:`r_{a,i,j}`
+    | 室 |i| 内の表面積の総和に占める面 |j| の面積の比, -
 
 である。また、 :math:`\mbox{sgn}(x)` は符号関数であり、 :math:`x>0` で  :math:`\mbox{sgn}(x)=1` を、 :math:`x=0` で  :math:`\mbox{sgn}(x)=0` を、 :math:`x<0` で  :math:`\mbox{sgn}(x)=-1` をとる。
 
-:math:`\bar{f}` は、式(2)の非線形方程式 :math:`L(\bar{f})=0` を解くことで求まる。
+:math:`\bar{f_i}` は、式(4)の非線形方程式 :math:`L(\bar{f_i})=0` を解くことで求まる。
 
 .. math::
     :nowrap:
 
     \begin{align*}
-        L(\bar{f}) = \sum_{i=1}^{N} \dfrac{1}{2} \Bigl\{ 1 - \mbox{sgn}(\left. 1 - 4 \cdot r_{a,srf,i} \middle/ \bar{f} \right.) \sqrt{ | \left. 1 - 4 \cdot r_{a,srf,i} \middle/ \bar{f} \right. | } \Bigr\} - 1 = 0 \tag{2}
+        L(\bar{f_i}) = \sum_{j\in{i}} \dfrac{1}{2} \Bigl\{ 1 - \mbox{sgn}(\left. 1 - 4 \cdot r_{a,i,j} \middle/ \bar{f_i} \right.) \sqrt{ | \left. 1 - 4 \cdot r_{a,i,j} \middle/ \bar{f_i} \right. | } \Bigr\} - 1 = 0 \tag{4}
     \end{align*}
 
-室内の表面積の総和に占める面 |i| の面積の比 :math:`r_{a,srf,i}` は、式(3)で表される。
+室 |i| 内の表面積の総和に占める面 |j| の面積の比 :math:`r_{a,i,j}` は、式(5)で表される。
 
 .. math::
     :nowrap:
 
     \begin{align*}
-        r_{a,srf,i} =  \dfrac{A_{srf,i}}{\sum\limits_{k=1}^{N} A_{srf,k}} \tag{3}
+        r_{a,i,j} =  \dfrac{A_{j}}{\sum\limits_{j\in{i}} A_{j}} \tag{5}
     \end{align*}
-
-ここで、
-
-:math:`A_{srf,i}`
-    | 面 |i| の面積, |m2|
-
-である。
-
-面 |i| の放射熱伝達率 :math:`h_{r,i}` は、式(4)で表される。
-
-.. math::
-    :nowrap:
-
-    \begin{align*}
-        h_{r,i} = \dfrac{ \epsilon_i }{ 1 - \epsilon_i \cdot f_{i}} \cdot 4 \cdot \sigma \cdot (t_{mrt} + 273.15 )^{3} \tag{4}
-    \end{align*}
-
-ここで、
-
-:math:`\epsilon_i`
-    | 面 |i| の放射率, -
-:math:`\sigma`
-    | ステファン・ボルツマン定数, W/(|m2| K^4)
-:math:`t_{mrt}`
-    | 平均放射温度, ℃
-
-である。
-
-ステファン・ボルツマン定数 :math:`\sigma` は、 :math:`5.67 \times 10^{-8}` W/(|m2| K^4) である。また、平均照射温度 :math:`t_{mrt}` は、 :math:`20` ℃ とする。
 
 ========================================================================================================================
 II. 根拠
