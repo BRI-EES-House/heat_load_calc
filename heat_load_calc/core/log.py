@@ -165,17 +165,6 @@ class Logger:
         # ステップnの室iの家具等から空気への水分流, kg/s, [i, n]
         self.q_l_frt = ss.g_lh_frt_is * (self.x_r - self.x_frt)
 
-        # ステップnの室iの実現PMV, [i, n]
-        (pmvarray, ppdarray) = pmv.get_pmv_ppd(met_value=ot_target_pmv.get_m() / 58.15,
-                                       p_eff=0.0,
-                                       t_a=self.theta_r,
-                                       t_r_bar=self.theta_mrt_hum,
-                                       clo_value=self.clo,
-                                       v_ar=self.v_hum,
-                                       rh=self.rh)
-        self.pmv = pmvarray
-        self.ppd = ppdarray
-
 
 def record(pps: PreCalcParameters, logger: Logger, output_data_dir: str, show_detail_result: bool, n_step_main: int, n_d_main: int):
 

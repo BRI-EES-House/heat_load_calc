@@ -44,15 +44,10 @@ def get_pmv_ppd(
     f_cl = get_f_cl(i_cl)
 
     # the clothing surface temperature, degree C
-    t_cl = np.zeros((i_cl.shape[0], i_cl.shape[1]), dtype=float)
-
-    # t_cl = get_t_cl_newton(f_cl=np.vectorize(f_cl), i_cl=np.vectorize(i_cl), t_a=np.vectorize(t_a), v_ar=np.vectorize(v_ar), t_r_bar=np.vectorize(t_r_bar))
     i = 0
-    for (fcl, icl, ta, var, tr) in zip(f_cl, i_cl, t_a, v_ar, t_r_bar):
-        n = 0
-        for (fcld, icld, tad, vard, trd) in zip(fcl, icl, ta, var, tr):
-            t_cl[i, n] = newton(lambda t: get_t_cl(fcld, icld, tad, t, vard, trd, m, w) - t, 0.001)
-            n += 1
+    t_cl = np.zeros(f_cl.shape[0])
+    for (fcld, icld, tad, vard, trbard) in zip(f_cl, i_cl, t_a, v_ar, t_r_bar):
+        t_cl[i] = newton(lambda t: get_t_cl(fcld, icld, tad, t, vard, trbard, m, w) - t, 0.001)
         i += 1
 
     # the convective heat transfer coefficient, W/m2K
@@ -62,10 +57,6 @@ def get_pmv_ppd(
     pmv, ppd = get_pmv(f_cl, h_c, m, p_a, t_a, t_cl, t_r_bar, w)
 
     return pmv, ppd
-
-
-def get_t_cl_newton(f_cl:float, i_cl:float, t_a:float, v_ar:float, t_r_bar:float) -> float:
-    return newton(lambda t: get_t_cl(f_cl, i_cl, t_a, t, v_ar, t_r_bar, convert_met_to_wm2(1.0), convert_met_to_wm2(0.0)) - t, 0.001)
 
 
 def get_h_c(t_a: np.array, t_cl: np.array, v_ar: np.array) -> np.array:
@@ -83,7 +74,7 @@ def get_h_c(t_a: np.array, t_cl: np.array, v_ar: np.array) -> np.array:
     return np.maximum(12.1 * np.sqrt(v_ar), 2.38 * np.fabs(t_cl - t_a) ** 0.25)
 
 
-def get_t_cl(f_cl:float, i_cl:float, t_a:float, t_cl:float, v_ar:float, t_r_bar:float, m:float, w:float) -> float:
+def get_t_cl(f_cl: np.array, i_cl: np.array, t_a: np.array, t_cl: np.array, v_ar: np.array, t_r_bar: np.array, m:float, w:float) -> np.array:
     """
 
     Args:
@@ -285,7 +276,7 @@ def convert_met_to_wm2(met):
     return met * 58.15
 
 
-def get_f_cl(i_cl: np.array) -> np.array:
+def get_f_cl(i_cl):
     """calculate clothing surface area factor
 
     Args:
