@@ -2,13 +2,15 @@ import numpy as np
 from typing import List
 
 from heat_load_calc.core import boundary_simple
+from heat_load_calc.core.equipments import Equipments
 
 
 def get_flr_js(
         is_floor_js: np.ndarray,
         is_radiative_heating_is: np.ndarray,
         n_spaces: int,
-        bss: List[boundary_simple.BoundarySimple]
+        bss: List[boundary_simple.BoundarySimple],
+        es: Equipments
 ) -> np.ndarray:
     """
     係数 flr を取得する。
