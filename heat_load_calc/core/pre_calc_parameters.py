@@ -296,7 +296,7 @@ def make_pre_calc_parameters(
     is_radiative_heating_is = es.get_is_radiative_heating_is(bss=bss)
 
     # 室iの暖房方式として放射空調が設置されている場合の、放射暖房最大能力, W, [i, 1]
-    q_rs_h_max_is = es.get_q_rs_h_max_is()
+    q_rs_h_max_is = es.get_q_rs_h_max_is(bss=bss)
 
     cooling_equipments = rd['equipments']['cooling_equipments']
 
@@ -304,7 +304,7 @@ def make_pre_calc_parameters(
     is_radiative_cooling_is = es.get_is_radiative_cooling_is(bss=bss)
 
     # 室iの冷房方式として放射空調が設置されている場合の、放射冷房最大能力, W, [i, 1]
-    q_rs_c_max_is = es.get_q_rs_c_max_is()
+    q_rs_c_max_is = es.get_q_rs_c_max_is(bss=bss)
 
     # endregion
 
@@ -472,7 +472,8 @@ def make_pre_calc_parameters(
         is_floor_js=is_floor_js,
         is_radiative_heating_is=is_radiative_is.flatten(),
         n_spaces=n_rm,
-        bss=bss
+        bss=bss,
+        es=es
     )
 
     # 室iに設置された放射暖房の放熱量のうち放射成分に対する境界jの室内側吸収比率, [j, i]
