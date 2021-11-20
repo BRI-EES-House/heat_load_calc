@@ -428,6 +428,7 @@ def make_pre_calc_parameters(
     beta_is = np.array([s['beta'] for s in rms]).reshape(-1, 1)
     beta_h_is = beta_is
     beta_c_is = beta_is
+    beta_h_is =es.get_f_beta_is(bss=bss)
 
     # 境界jの面積, m2, [j, 1]
     a_s_js = np.array([bs.area for bs in bss]).reshape(-1, 1)

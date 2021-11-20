@@ -221,6 +221,48 @@ class Equipments:
 
         return q_rs_c_max_is
 
+    def get_f_beta_is(self, bss: List[BoundarySimple]):
+
+        f_beta_eqp_ks_is = self._get_f_beta_eqp_ks_is(bss=bss)
+        r_max_ks_is = self._get_r_max_ks_is(bss=bss)
+
+        return np.sum(f_beta_eqp_ks_is * r_max_ks_is, axis=0).reshape(-1, 1)
+
+    def _get_f_beta_eqp_ks_is(self, bss: List[BoundarySimple]):
+
+        f_beta_eqp_ks_is = np.zeros(shape=(len(self._hes), self._n_rm), dtype=float)
+
+        for k, he in enumerate(self._hes):
+            if he is HeatingEquipmentFloorHeating:
+                bs = boundary_simple.get_boundary_by_id(bss=bss, boundary_id=he.boundary_id)
+                space_id = bs.connected_room_id
+                f_beta_eqp_ks_is[k, space_id] = he.convection_ratio
+
+        return f_beta_eqp_ks_is
+
+    def _get_r_max_ks_is(self, bss: List[BoundarySimple]):
+
+        q_max_ks_is = np.zeros(shape=(len(self._hes), self._n_rm), dtype=float)
+
+        for k, he in enumerate(self._hes):
+            if he is HeatingEquipmentFloorHeating:
+                bs = boundary_simple.get_boundary_by_id(bss=bss, boundary_id=he.boundary_id)
+                space_id = bs.connected_room_id
+                q_max_ks_is[k, space_id] = he.max_capacity * he.area
+
+        sum_of_q_max_is = q_max_ks_is.sum(axis=0)
+
+        # 各室の放熱量の合計値がゼロだった場合、次の式のゼロ割を防ぐためにダミーの数字1.0を代入する。
+        # この場合、次の式の分子の数はゼロであるため、結果として 0.0/1.0 = 0.0 となり、結果には影響を及ぼさない。
+        sum_of_q_max_is[np.where(sum_of_q_max_is == 0.0)] = 1.0
+
+        return q_max_ks_is / sum_of_q_max_is
+
+    @staticmethod
+    def _get_r_max_i(q_max_k):
+
+        return q_max_k / np.sum(q_max_k)
+
 
 def make_get_f_l_cl_funcs(n_rm, cooling_equipments):
 
