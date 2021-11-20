@@ -7,6 +7,7 @@ from heat_load_calc.core.boundary_simple import BoundarySimple
 from heat_load_calc.core import boundary_simple
 from heat_load_calc.external.psychrometrics import get_x, get_p_vs_is2
 from heat_load_calc.external.global_number import get_c_a, get_rho_a
+from heat_load_calc.core.matrix_method import v_diag
 
 
 @dataclass
@@ -117,7 +118,7 @@ class CoolingEquipmentFloorCooling:
 
 class Equipments:
 
-    def __init__(self, dict_equipments: Dict, n_rm: int, bss: List[BoundarySimple]):
+    def __init__(self, dict_equipments: Dict, n_rm: int, bss: List[BoundarySimple], n_b: int):
         """設備に関する情報を辞書形式で受け取り、データクラスに変換して保持する。
         暖房・冷房それぞれにおいて、
         辞書の中の "equipment_type" の種類に応じて対応するデータクラスを生成する。
@@ -126,6 +127,7 @@ class Equipments:
             dict_equipments: 設備の情報が記された辞書
             n_rm: 部屋の数
             bss: 境界情報
+            n_b: 境界の数
 
         Notes:
             ここで BoundarySimple クラスは、境界IDと室IDとの対応関係を見ることだけに使用される。
@@ -146,6 +148,7 @@ class Equipments:
         ]
 
         self._n_rm = n_rm
+        self._n_b = n_b
 
     @staticmethod
     def _create_heating_equipment(dict_heating_equipment, bss: List[BoundarySimple]):
@@ -291,6 +294,16 @@ class Equipments:
 
         return np.sum(f_beta_eqp_ks_is * r_max_ks_is, axis=0).reshape(-1, 1)
 
+    def _get_p_ks_is(self, es):
+
+        p_ks_is = np.zeros(shape=(len(es), self._n_rm), dtype=float)
+
+        for k, e in enumerate(es):
+            if e is [HeatingEquipmentFloorHeating, CoolingEquipmentFloorCooling]:
+                p_ks_is[k, e.room_id] = 1.0
+
+        return p_ks_is
+
     @staticmethod
     def _get_f_beta_eqp_ks_is(es, n_rm):
 
@@ -318,6 +331,34 @@ class Equipments:
         sum_of_q_max_is[np.where(sum_of_q_max_is == 0.0)] = 1.0
 
         return q_max_ks_is / sum_of_q_max_is
+
+    def get_f_flr_h_js_is(self):
+
+        return self._get_f_flr_js_is(es=self._hes)
+
+    def get_f_flr_c_js_is(self):
+
+        return self._get_f_flr_js_is(es=self._ces)
+
+    def _get_f_flr_js_is(self, es):
+
+        f_flr_eqp_js_ks = self._get_f_flr_eqp_js_ks(es=es)
+        f_beta_eqp_ks_is = self._get_f_beta_eqp_ks_is(es=es, n_rm=self._n_rm)
+        r_max_ks_is = self._get_r_max_ks_is(es=es, n_rm=self._n_rm)
+        beta_is = self._get_beta_is(es=es)
+        p_ks_is = self._get_p_ks_is(es=es)
+
+        return np.dot(np.dot(f_flr_eqp_js_ks, (p_ks_is - f_beta_eqp_ks_is) * r_max_ks_is), v_diag(1 / (1 - beta_is)))
+
+    def _get_f_flr_eqp_js_ks(self, es):
+
+        f_flr_eqp_js_ks = np.zeros(shape=(self._n_b, len(es)), dtype=float)
+
+        for k, e in enumerate(es):
+            if e is [HeatingEquipmentFloorHeating, CoolingEquipmentFloorCooling]:
+                f_flr_eqp_js_ks[e.boundary_id, k] = e.convection_ratio
+
+        return f_flr_eqp_js_ks
 
 
 def make_get_f_l_cl_funcs(n_rm, cooling_equipments):

@@ -290,7 +290,9 @@ def make_pre_calc_parameters(
 
     # region equipments の読み込み
 
-    es = equipments.Equipments(dict_equipments=rd['equipments'], n_rm=n_rm, bss=bss)
+    n_b = len(bss)
+
+    es = equipments.Equipments(dict_equipments=rd['equipments'], n_rm=n_rm, bss=bss, n_b=n_b)
 
     # 室iの暖房方式として放射空調が設置されているかどうか。  bool値, [i, 1]
     is_radiative_heating_is = es.get_is_radiative_heating_is()
@@ -481,6 +483,9 @@ def make_pre_calc_parameters(
     flr_js_is_ns = p_js_is * flr_js[:, np.newaxis]
     f_flr_h_js_is = flr_js_is_ns
     f_flr_c_js_is = flr_js_is_ns
+
+    f_flr_h_js_is = es.get_f_flr_h_js_is()
+    f_flr_c_js_is = es.get_f_flr_c_js_is()
 
     # 室 i の微小球に対する境界 j の形態係数, -, [i, j]
     f_mrt_is_js = shape_factor.get_f_mrt_is_js(a_s_js=a_s_js, h_s_r_js=h_s_r_js, p_is_js=p_is_js)
