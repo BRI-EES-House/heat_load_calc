@@ -225,80 +225,89 @@ class Equipments:
         else:
             raise Exception
 
-    def get_is_radiative_heating_is(self, bss: List[BoundarySimple]):
+    def get_is_radiative_heating_is(self):
+        """
+        室に放射暖房があるか否かを判定する。
+        Returns:
+            放射暖房の有無, [i, 1]
+        """
 
         is_radiative_heating_is = np.full(shape=(self._n_rm, 1), fill_value=False)
 
         for he in self._hes:
             if he is HeatingEquipmentFloorHeating:
-                bs = boundary_simple.get_boundary_by_id(bss=bss, boundary_id=he.boundary_id)
-                is_radiative_heating_is[bs.connected_room_id, 0] = True
+                is_radiative_heating_is[he.room_id, 0] = True
 
         return is_radiative_heating_is
 
-    def get_is_radiative_cooling_is(self, bss: List[BoundarySimple]):
+    def get_is_radiative_cooling_is(self):
+        """
+        室に放射冷房があるか否かを判定する。
+        Returns:
+            放射冷房の有無, [i, 1]
+        """
 
         is_radiative_cooling_is = np.full(shape=(self._n_rm, 1), fill_value=False)
 
         for ce in self._ces:
             if ce is CoolingEquipmentFloorCooling:
-                bs = boundary_simple.get_boundary_by_id(bss=bss, boundary_id=ce.boundary_id)
-                is_radiative_cooling_is[bs.connected_room_id, 0] = True
+                is_radiative_cooling_is[ce.room_id, 0] = True
 
         return is_radiative_cooling_is
 
-    def get_q_rs_h_max_is(self, bss: List[BoundarySimple]):
+    def get_q_rs_h_max_is(self):
 
         q_rs_h_max_is = np.zeros(shape=(self._n_rm, 1), dtype=float)
 
         for he in self._hes:
             if he is HeatingEquipmentFloorHeating:
-                bs = boundary_simple.get_boundary_by_id(bss=bss, boundary_id=he.boundary_id)
-                space_id = bs.connected_room_id
-                q_rs_h_max_is[space_id, 0] = q_rs_h_max_is[space_id, 0] + he.max_capacity * he.area
+                q_rs_h_max_is[he.room_id, 0] = q_rs_h_max_is[he.room_id, 0] + he.max_capacity * he.area
 
         return q_rs_h_max_is
 
-    def get_q_rs_c_max_is(self, bss: List[BoundarySimple]):
+    def get_q_rs_c_max_is(self):
 
         q_rs_c_max_is = np.zeros(shape=(self._n_rm, 1), dtype=float)
 
         for ce in self._ces:
             if ce is CoolingEquipmentFloorCooling:
-                bs = boundary_simple.get_boundary_by_id(bss=bss, boundary_id=ce.boundary_id)
-                space_id = bs.connected_room_id
-                q_rs_c_max_is[space_id, 0] = q_rs_c_max_is[space_id, 0] + ce.max_capacity * ce.area
+                q_rs_c_max_is[ce.room_id, 0] = q_rs_c_max_is[ce.room_id, 0] + ce.max_capacity * ce.area
 
         return q_rs_c_max_is
 
-    def get_beta_is(self, bss: List[BoundarySimple]):
+    def get_beta_is(self):
 
-        f_beta_eqp_ks_is = self._get_f_beta_eqp_ks_is(bss=bss)
-        r_max_ks_is = self._get_r_max_ks_is(bss=bss)
+        f_beta_eqp_ks_is = self._get_f_beta_eqp_ks_is()
+        r_max_ks_is = self._get_r_max_h_ks_is()
 
         return np.sum(f_beta_eqp_ks_is * r_max_ks_is, axis=0).reshape(-1, 1)
 
-    def _get_f_beta_eqp_ks_is(self, bss: List[BoundarySimple]):
+    def _get_f_beta_eqp_ks_is(self):
 
         f_beta_eqp_ks_is = np.zeros(shape=(len(self._hes), self._n_rm), dtype=float)
 
         for k, he in enumerate(self._hes):
             if he is HeatingEquipmentFloorHeating:
-                bs = boundary_simple.get_boundary_by_id(bss=bss, boundary_id=he.boundary_id)
-                space_id = bs.connected_room_id
-                f_beta_eqp_ks_is[k, space_id] = he.convection_ratio
+                f_beta_eqp_ks_is[k, he.room_id] = he.convection_ratio
 
         return f_beta_eqp_ks_is
 
-    def _get_r_max_ks_is(self, bss: List[BoundarySimple]):
+    def _get_r_max_h_ks_is(self):
 
-        q_max_ks_is = np.zeros(shape=(len(self._hes), self._n_rm), dtype=float)
+        return self._get_r_max_ks_is(es=self._hes, n_rm=self._n_rm)
 
-        for k, he in enumerate(self._hes):
-            if he is HeatingEquipmentFloorHeating:
-                bs = boundary_simple.get_boundary_by_id(bss=bss, boundary_id=he.boundary_id)
-                space_id = bs.connected_room_id
-                q_max_ks_is[k, space_id] = he.max_capacity * he.area
+    def _get_r_max_c_ks_is(self):
+
+        return self._get_r_max_ks_is(es=self._ces, n_rm=self._n_rm)
+
+    @staticmethod
+    def _get_r_max_ks_is(es, n_rm):
+
+        q_max_ks_is = np.zeros(shape=(len(es), n_rm), dtype=float)
+
+        for k, e in enumerate(es):
+            if e is [HeatingEquipmentFloorHeating, CoolingEquipmentFloorCooling]:
+                q_max_ks_is[k, e.room_id] = e.max_capacity * e.area
 
         sum_of_q_max_is = q_max_ks_is.sum(axis=0)
 
@@ -307,11 +316,6 @@ class Equipments:
         sum_of_q_max_is[np.where(sum_of_q_max_is == 0.0)] = 1.0
 
         return q_max_ks_is / sum_of_q_max_is
-
-    @staticmethod
-    def _get_r_max_i(q_max_k):
-
-        return q_max_k / np.sum(q_max_k)
 
 
 def make_get_f_l_cl_funcs(n_rm, cooling_equipments):
