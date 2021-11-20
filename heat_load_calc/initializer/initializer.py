@@ -225,9 +225,6 @@ def _make_rooms(rms: List[dict]) -> List[dict]:
 
     # region 出力ファイルに必要なパラメータの作成（必要なもののみ）
 
-    # 放射暖房対流比率, [i]
-    beta_is = np.zeros(shape=(n_rms), dtype=float)
-
     # 室iの自然風利用時の換気量, m3/h, [i]
     # TODO: もしかすると換気回数わたしの方が自然か？
     v_ntrl_vent_is = v_rm_is * n_ntrl_vent_is
@@ -246,7 +243,6 @@ def _make_rooms(rms: List[dict]) -> List[dict]:
             'name': name_is[i],
             'sub_name': '',
             'volume': v_rm_is[i],
-            'beta': beta_is[i],
             'ventilation': {
                 'mechanical': v_vent_ex_is[i],
                 'next_spaces': [
