@@ -253,7 +253,6 @@ def _make_rooms(rms: List[dict]) -> List[dict]:
                 ],
                 'natural': v_ntrl_vent_is[i]
             },
-            'is_radiative': bool(is_radiative_heating_is[i]),
             'furniture': {
                 'input_method': 'default'
             }

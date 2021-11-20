@@ -6,7 +6,7 @@ import pandas as pd
 from dataclasses import dataclass
 from typing import List, Callable
 
-from heat_load_calc.core import infiltration, response_factor, indoor_radiative_heat_transfer, shape_factor, \
+from heat_load_calc.core import infiltration, response_factor, shape_factor, \
     occupants_form_factor, boundary_simple, furniture
 from heat_load_calc.core import ot_target
 from heat_load_calc.core import next_condition
@@ -421,22 +421,12 @@ def make_pre_calc_parameters(
 
     # region 読み込んだ値から新たに係数を作成する
 
-    # TODO: is_radiative_is は flr の計算のみに使用されている。
-    # flr の値は、暖房と冷房で違うのか？違う場合は、暖房用と冷房用で分ける必要があるのかどうかを精査しないといけない。
-    is_radiative_is = np.array([s['is_radiative'] for s in rms])
-
     # 室iに設置された放射暖房の対流成分比率, [i, 1]
-    # TODO: 入力ファイルから与えられるのではなく、設備の入力情報から計算するべき。
-#    beta_is = np.array([s['beta'] for s in rms]).reshape(-1, 1)
-#    beta_h_is = beta_is
     beta_h_is = es.get_beta_h_is()
     beta_c_is = es.get_beta_c_is()
 
     # 境界jの面積, m2, [j, 1]
     a_s_js = np.array([bs.area for bs in bss]).reshape(-1, 1)
-
-    # 境界 j が床か否か, [j]
-    is_floor_js = np.array([bs.is_floor for bs in bss])
 
     # 境界の数
     n_bdry = len(bss)
@@ -469,20 +459,6 @@ def make_pre_calc_parameters(
     r_js_ms = np.array([bs.rf.row for bs in bss])
 
     # 境界jの室に設置された放射暖房の放熱量のうち放射成分に対する境界jの室内側吸収比率
-    # 放射暖房の発熱部位の設定（とりあえず床発熱） 表7
-    # TODO: 発熱部位を指定して、面積按分するように変更すべき。
-    flr_js = indoor_radiative_heat_transfer.get_flr_js(
-        is_floor_js=is_floor_js,
-        is_radiative_heating_is=is_radiative_is.flatten(),
-        n_spaces=n_rm,
-        bss=bss,
-        es=es
-    )
-
-    # 室iに設置された放射暖房の放熱量のうち放射成分に対する境界jの室内側吸収比率, [j, i]
-    flr_js_is_ns = p_js_is * flr_js[:, np.newaxis]
-    f_flr_h_js_is = flr_js_is_ns
-    f_flr_c_js_is = flr_js_is_ns
 
     f_flr_h_js_is = es.get_f_flr_h_js_is()
     f_flr_c_js_is = es.get_f_flr_c_js_is()

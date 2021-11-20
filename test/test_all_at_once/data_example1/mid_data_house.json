@@ -18,7 +18,6 @@
                 "next_spaces": [],
                 "natural": 354.6
             },
-            "is_radiative": false,
             "furniture": {
                 "input_method": "default"
             }
@@ -38,7 +37,6 @@
                 ],
                 "natural": 616.1
             },
-            "is_radiative": false,
             "furniture": {
                 "input_method": "default"
             }
@@ -62,7 +60,6 @@
                 ],
                 "natural": 474.4
             },
-            "is_radiative": false,
             "furniture": {
                 "input_method": "default"
             }
