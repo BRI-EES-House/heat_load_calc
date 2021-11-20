@@ -458,9 +458,10 @@ def make_pre_calc_parameters(
     # 境界jの項別公比法における項mの公比, [j, 12]
     r_js_ms = np.array([bs.rf.row for bs in bss])
 
-    # 境界jの室に設置された放射暖房の放熱量のうち放射成分に対する境界jの室内側吸収比率
-
+    # 室 i の放射暖房の放熱量の放射成分に対する境界 j の室内側表面の吸収比率, - [j, i]
     f_flr_h_js_is = es.get_f_flr_h_js_is()
+
+    # 室 i の放射冷房の吸熱量の放射成分に対する境界 j の室内側表面の放熱比率, - [j, i]
     f_flr_c_js_is = es.get_f_flr_c_js_is()
 
     # 室 i の微小球に対する境界 j の形態係数, -, [i, j]
