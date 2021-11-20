@@ -275,30 +275,31 @@ class Equipments:
 
         return q_rs_c_max_is
 
-    def get_beta_is(self):
+    def get_beta_h_is(self):
 
-        f_beta_eqp_ks_is = self._get_f_beta_eqp_ks_is()
-        r_max_ks_is = self._get_r_max_h_ks_is()
+        return self._get_beta_is(es=self._hes)
+
+    def get_beta_c_is(self):
+
+        return self._get_beta_is(es=self._ces)
+
+    def _get_beta_is(self, es):
+
+        f_beta_eqp_ks_is = self._get_f_beta_eqp_ks_is(es=es, n_rm=self._n_rm)
+        r_max_ks_is = self._get_r_max_ks_is(es=es, n_rm=self._n_rm)
 
         return np.sum(f_beta_eqp_ks_is * r_max_ks_is, axis=0).reshape(-1, 1)
 
-    def _get_f_beta_eqp_ks_is(self):
+    @staticmethod
+    def _get_f_beta_eqp_ks_is(es, n_rm):
 
-        f_beta_eqp_ks_is = np.zeros(shape=(len(self._hes), self._n_rm), dtype=float)
+        f_beta_eqp_ks_is = np.zeros(shape=(len(es), n_rm), dtype=float)
 
-        for k, he in enumerate(self._hes):
-            if he is HeatingEquipmentFloorHeating:
-                f_beta_eqp_ks_is[k, he.room_id] = he.convection_ratio
+        for k, e in enumerate(es):
+            if e is [HeatingEquipmentFloorHeating, CoolingEquipmentFloorCooling]:
+                f_beta_eqp_ks_is[k, e.room_id] = e.convection_ratio
 
         return f_beta_eqp_ks_is
-
-    def _get_r_max_h_ks_is(self):
-
-        return self._get_r_max_ks_is(es=self._hes, n_rm=self._n_rm)
-
-    def _get_r_max_c_ks_is(self):
-
-        return self._get_r_max_ks_is(es=self._ces, n_rm=self._n_rm)
 
     @staticmethod
     def _get_r_max_ks_is(es, n_rm):

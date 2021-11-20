@@ -425,10 +425,10 @@ def make_pre_calc_parameters(
 
     # 室iに設置された放射暖房の対流成分比率, [i, 1]
     # TODO: 入力ファイルから与えられるのではなく、設備の入力情報から計算するべき。
-    beta_is = np.array([s['beta'] for s in rms]).reshape(-1, 1)
-    beta_h_is = beta_is
-    beta_c_is = beta_is
-    beta_h_is = es.get_beta_is()
+#    beta_is = np.array([s['beta'] for s in rms]).reshape(-1, 1)
+#    beta_h_is = beta_is
+    beta_h_is = es.get_beta_h_is()
+    beta_c_is = es.get_beta_c_is()
 
     # 境界jの面積, m2, [j, 1]
     a_s_js = np.array([bs.area for bs in bss]).reshape(-1, 1)
