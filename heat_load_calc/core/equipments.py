@@ -232,13 +232,7 @@ class Equipments:
             放射暖房の有無, [i, 1]
         """
 
-        is_radiative_heating_is = np.full(shape=(self._n_rm, 1), fill_value=False)
-
-        for he in self._hes:
-            if he is HeatingEquipmentFloorHeating:
-                is_radiative_heating_is[he.room_id, 0] = True
-
-        return is_radiative_heating_is
+        return self._get_is_radiative_is(es=self._hes)
 
     def get_is_radiative_cooling_is(self):
         """
@@ -247,33 +241,25 @@ class Equipments:
             放射冷房の有無, [i, 1]
         """
 
-        is_radiative_cooling_is = np.full(shape=(self._n_rm, 1), fill_value=False)
-
-        for ce in self._ces:
-            if ce is CoolingEquipmentFloorCooling:
-                is_radiative_cooling_is[ce.room_id, 0] = True
-
-        return is_radiative_cooling_is
+        return self._get_is_radiative_is(es=self._ces)
 
     def get_q_rs_h_max_is(self):
 
-        q_rs_h_max_is = np.zeros(shape=(self._n_rm, 1), dtype=float)
-
-        for he in self._hes:
-            if he is HeatingEquipmentFloorHeating:
-                q_rs_h_max_is[he.room_id, 0] = q_rs_h_max_is[he.room_id, 0] + he.max_capacity * he.area
-
-        return q_rs_h_max_is
+        return self._get_q_rs_max_is(es=self._hes)
 
     def get_q_rs_c_max_is(self):
 
-        q_rs_c_max_is = np.zeros(shape=(self._n_rm, 1), dtype=float)
+        return self._get_q_rs_max_is(es=self._ces)
 
-        for ce in self._ces:
-            if ce is CoolingEquipmentFloorCooling:
-                q_rs_c_max_is[ce.room_id, 0] = q_rs_c_max_is[ce.room_id, 0] + ce.max_capacity * ce.area
+    def _get_q_rs_max_is(self, es):
 
-        return q_rs_c_max_is
+        q_rs_max_is = np.zeros(shape=(self._n_rm, 1), dtype=float)
+
+        for e in es:
+            if e is [HeatingEquipmentFloorHeating, CoolingEquipmentFloorCooling]:
+                q_rs_max_is[e.room_id, 0] = q_rs_max_is[e.room_id, 0] + e.max_capacity * e.area
+
+        return q_rs_max_is
 
     def get_beta_h_is(self):
 
@@ -282,6 +268,21 @@ class Equipments:
     def get_beta_c_is(self):
 
         return self._get_beta_is(es=self._ces)
+
+    def _get_is_radiative_is(self, es):
+        """室に放射暖冷房があるか否かを判定する。
+
+        Returns:
+            放射暖冷房の有無, [i, 1]
+        """
+
+        is_radiative_is = np.full(shape=(self._n_rm, 1), fill_value=False)
+
+        for e in es:
+            if e is [HeatingEquipmentFloorHeating, CoolingEquipmentFloorCooling]:
+                is_radiative_is[e.room_id, 0] = True
+
+        return is_radiative_is
 
     def _get_beta_is(self, es):
 
