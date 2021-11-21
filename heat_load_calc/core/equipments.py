@@ -138,12 +138,12 @@ class Equipments:
         """
 
         self._hes = [
-            self._create_heating_equipment(dict_heating_equipment=he, bss=bss, bs=bs)
+            self._create_heating_equipment(dict_heating_equipment=he, bs=bs)
             for he in dict_equipments['heating_equipments']
         ]
 
         self._ces = [
-            self._create_cooling_equipment(dict_cooling_equipment=ce, bss=bss, bs=bs)
+            self._create_cooling_equipment(dict_cooling_equipment=ce, bs=bs)
             for ce in dict_equipments['cooling_equipments']
         ]
 
@@ -151,7 +151,7 @@ class Equipments:
         self._n_b = n_b
 
     @staticmethod
-    def _create_heating_equipment(dict_heating_equipment, bss: List[BoundarySimple], bs: boundary_simple.Boundaries):
+    def _create_heating_equipment(dict_heating_equipment, bs: boundary_simple.Boundaries):
 
         he_type = dict_heating_equipment['equipment_type']
         id = dict_heating_equipment['id']
@@ -173,8 +173,7 @@ class Equipments:
 
         elif he_type == 'floor_heating':
 
-            b = bs.get_boundary_by_id(boundary_id=prop['boundary_id'])
-            room_id = b.connected_room_id
+            room_id = bs.get_room_id_by_boundary_id(boundary_id=prop['boundary_id'])
 
             return HeatingEquipmentFloorHeating(
                 id=id,
@@ -190,7 +189,7 @@ class Equipments:
             raise Exception
 
     @staticmethod
-    def _create_cooling_equipment(dict_cooling_equipment, bss: List[BoundarySimple], bs: boundary_simple.Boundaries):
+    def _create_cooling_equipment(dict_cooling_equipment, bs: boundary_simple.Boundaries):
 
         ce_type = dict_cooling_equipment['equipment_type']
         id = dict_cooling_equipment['id']
@@ -212,8 +211,8 @@ class Equipments:
 
         elif ce_type == 'floor_cooling':
 
-            b = bs.get_boundary_by_id(boundary_id=prop['boundary_id'])
-            room_id = b.connected_room_id
+            room_id = bs.get_room_id_by_boundary_id(boundary_id=prop['boundary_id'])
+
 
             return CoolingEquipmentFloorCooling(
                 id=id,
