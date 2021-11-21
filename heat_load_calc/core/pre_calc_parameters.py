@@ -275,6 +275,17 @@ def make_pre_calc_parameters(
 
     # boundaries の取り出し
 
+    bs = boundary_simple.Boundaries(
+        a_sun_ns=a_sun_ns,
+        h_sun_ns=h_sun_ns,
+        i_dn_ns=i_dn_ns,
+        i_sky_ns=i_sky_ns,
+        n_rm=n_rm,
+        r_n_ns=r_n_ns,
+        theta_o_ns=theta_o_ns,
+        bs=rd['boundaries']
+    )
+
     bss = boundary_simple.get_boundary_simples(
         a_sun_ns=a_sun_ns,
         h_sun_ns=h_sun_ns,
@@ -285,6 +296,8 @@ def make_pre_calc_parameters(
         theta_o_ns=theta_o_ns,
         bs=rd['boundaries']
     )
+
+    bss = bs.get_bss()
 
     # endregion
 

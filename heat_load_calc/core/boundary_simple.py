@@ -69,6 +69,17 @@ class BoundarySimple:
     rf: response_factor.ResponseFactor
 
 
+class Boundaries:
+
+    def __init__(self, a_sun_ns, h_sun_ns, i_dn_ns, i_sky_ns, n_rm, r_n_ns, theta_o_ns, bs):
+
+        self._bss = get_boundary_simples(a_sun_ns=a_sun_ns, h_sun_ns=h_sun_ns, i_dn_ns=i_dn_ns, i_sky_ns=i_sky_ns, n_rm=n_rm, r_n_ns=r_n_ns, theta_o_ns=theta_o_ns, bs=bs)
+
+    def get_bss(self):
+
+        return self._bss
+
+
 def get_boundary_simples(a_sun_ns, h_sun_ns, i_dn_ns, i_sky_ns, n_rm, r_n_ns, theta_o_ns, bs):
 
     # 本来であれば BoundarySimple クラスにおいて境界に関する入力用辞書から読み込みを境界個別に行う。
