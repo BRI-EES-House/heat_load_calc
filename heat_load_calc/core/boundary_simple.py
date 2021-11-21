@@ -79,7 +79,7 @@ class Boundaries:
 
         return self._bss
 
-    def get_boundary_simples(self, a_sun_ns, h_sun_ns, i_dn_ns, i_sky_ns, n_rm, r_n_ns, theta_o_ns, bs):
+    def get_boundary_simples(self, a_sun_ns, h_sun_ns, i_dn_ns, i_sky_ns, n_rm, r_n_ns, theta_o_ns, bs) -> List[BoundarySimple]:
 
         # 本来であれば BoundarySimple クラスにおいて境界に関する入力用辞書から読み込みを境界個別に行う。
         # しかし、室内側表面放射熱伝達は室内側の形態係数によって値が決まり、ある室に接する境界の面積の組み合わせで決定されるため、
@@ -116,7 +116,7 @@ class Boundaries:
         return bss
 
     @staticmethod
-    def get_boundary_simple(theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, a_sun_ns, h_sun_ns, b, h_c_js, h_r_js):
+    def get_boundary_simple(theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, a_sun_ns, h_sun_ns, b, h_c_js, h_r_js) -> BoundarySimple:
 
         # ID
         # TODO: ID が0始まりで1ずつ増え、一意であることのチェックを行うコードを追記する。
@@ -231,10 +231,16 @@ class Boundaries:
             rf=rf
         )
 
-    def get_boundary_by_id(self, boundary_id: int):
+    def get_room_id_by_boundary_id(self, boundary_id: int):
+
+        bs = self.get_boundary_by_id(boundary_id=boundary_id)
+
+        return bs.connected_room_id
+
+    def get_boundary_by_id(self, boundary_id: int) -> BoundarySimple:
 
         # 指定された boundary_id に一致する Boundary を取得する。
-        bss = [bs.id == boundary_id for bs in self._bss]
+        bss = [bs for bs in self._bss if bs.id == boundary_id]
 
         # 取得された Boundary は必ず1つのはずなので、「見つからない場合」「複数該当した場合」にはエラーを出す。
         if len(bss) == 0:
