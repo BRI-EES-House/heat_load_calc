@@ -6,12 +6,10 @@ import pandas as pd
 from dataclasses import dataclass
 from typing import List, Callable
 
-from heat_load_calc.external.global_number import get_c_a, get_rho_a
-from heat_load_calc.core import infiltration, response_factor, indoor_radiative_heat_transfer, shape_factor, \
+from heat_load_calc.core import infiltration, response_factor, shape_factor, \
     occupants_form_factor, boundary_simple, furniture
 from heat_load_calc.core import ot_target
 from heat_load_calc.core import next_condition
-from heat_load_calc.core import humidification
 from heat_load_calc.core.matrix_method import v_diag
 
 from heat_load_calc.initializer.boundary_type import BoundaryType
@@ -292,10 +290,12 @@ def make_pre_calc_parameters(
 
     # region equipments の読み込み
 
-    es = equipments.Equipments(e=rd['equipments'], n_rm=n_rm)
+    n_b = len(bss)
+
+    es = equipments.Equipments(dict_equipments=rd['equipments'], n_rm=n_rm, bss=bss, n_b=n_b)
 
     # 室iの暖房方式として放射空調が設置されているかどうか。  bool値, [i, 1]
-    is_radiative_heating_is = es.get_is_radiative_heating_is(bss=bss)
+    is_radiative_heating_is = es.get_is_radiative_heating_is()
 
     # 室iの暖房方式として放射空調が設置されている場合の、放射暖房最大能力, W, [i, 1]
     q_rs_h_max_is = es.get_q_rs_h_max_is()
@@ -303,7 +303,7 @@ def make_pre_calc_parameters(
     cooling_equipments = rd['equipments']['cooling_equipments']
 
     # 室iの冷房方式として放射空調が設置されているかどうか。  bool値, [i, 1]
-    is_radiative_cooling_is = es.get_is_radiative_cooling_is(bss=bss)
+    is_radiative_cooling_is = es.get_is_radiative_cooling_is()
 
     # 室iの冷房方式として放射空調が設置されている場合の、放射冷房最大能力, W, [i, 1]
     q_rs_c_max_is = es.get_q_rs_c_max_is()
@@ -421,21 +421,12 @@ def make_pre_calc_parameters(
 
     # region 読み込んだ値から新たに係数を作成する
 
-    # TODO: is_radiative_is は flr の計算のみに使用されている。
-    # flr の値は、暖房と冷房で違うのか？違う場合は、暖房用と冷房用で分ける必要があるのかどうかを精査しないといけない。
-    is_radiative_is = np.array([s['is_radiative'] for s in rms])
-
     # 室iに設置された放射暖房の対流成分比率, [i, 1]
-    # TODO: 入力ファイルから与えられるのではなく、設備の入力情報から計算するべき。
-    beta_is = np.array([s['beta'] for s in rms]).reshape(-1, 1)
-    beta_h_is = beta_is
-    beta_c_is = beta_is
+    beta_h_is = es.get_beta_h_is()
+    beta_c_is = es.get_beta_c_is()
 
     # 境界jの面積, m2, [j, 1]
     a_s_js = np.array([bs.area for bs in bss]).reshape(-1, 1)
-
-    # 境界 j が床か否か, [j]
-    is_floor_js = np.array([bs.is_floor for bs in bss])
 
     # 境界の数
     n_bdry = len(bss)
@@ -467,20 +458,11 @@ def make_pre_calc_parameters(
     # 境界jの項別公比法における項mの公比, [j, 12]
     r_js_ms = np.array([bs.rf.row for bs in bss])
 
-    # 境界jの室に設置された放射暖房の放熱量のうち放射成分に対する境界jの室内側吸収比率
-    # 放射暖房の発熱部位の設定（とりあえず床発熱） 表7
-    # TODO: 発熱部位を指定して、面積按分するように変更すべき。
-    flr_js = indoor_radiative_heat_transfer.get_flr_js(
-        is_floor_js=is_floor_js,
-        is_radiative_heating_is=is_radiative_is.flatten(),
-        n_spaces=n_rm,
-        bss=bss
-    )
+    # 室 i の放射暖房の放熱量の放射成分に対する境界 j の室内側表面の吸収比率, - [j, i]
+    f_flr_h_js_is = es.get_f_flr_h_js_is()
 
-    # 室iに設置された放射暖房の放熱量のうち放射成分に対する境界jの室内側吸収比率, [j, i]
-    flr_js_is_ns = p_js_is * flr_js[:, np.newaxis]
-    f_flr_h_js_is = flr_js_is_ns
-    f_flr_c_js_is = flr_js_is_ns
+    # 室 i の放射冷房の吸熱量の放射成分に対する境界 j の室内側表面の放熱比率, - [j, i]
+    f_flr_c_js_is = es.get_f_flr_c_js_is()
 
     # 室 i の微小球に対する境界 j の形態係数, -, [i, j]
     f_mrt_is_js = shape_factor.get_f_mrt_is_js(a_s_js=a_s_js, h_s_r_js=h_s_r_js, p_is_js=p_is_js)
@@ -575,7 +557,7 @@ def make_pre_calc_parameters(
 
     # endregion
 
-    get_f_l_cl = humidification.make_get_f_l_cl_funcs(n_rm, cooling_equipments)
+    get_f_l_cl = equipments.make_get_f_l_cl_funcs(n_rm, cooling_equipments)
 
     pre_calc_parameters = PreCalcParameters(
         n_rm=n_rm,

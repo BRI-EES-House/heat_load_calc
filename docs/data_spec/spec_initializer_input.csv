@@ -59,6 +59,7 @@
 ,,,○,,,,outside_solar_absorption,室外側日射吸収率,△,"{'boundary_type': ['external_general_part', 'external_opaque_part']}",float,－,,
 ,,,○,,,,eta_value,日射熱取得率,△,{'boundary_type': 'external_transparent_part'},float,－,,
 ,,,○,,,,u_value,熱貫流率,△,"{'boundary_type': ['external_transparent_part', 'external_opaque_part']}",float,W/m2K,,
+,,,○,,,,glass_area_ratio,ガラス面積率,△,"{'boundary_type': ['external_transparent_part', 'external_opaque_part']}",float,－,,
 ,,,○,,,,incident_angle_characteristics,ガラスの入射角特性タイプ,△,{'boundary_type': 'external_transparent_part'},str,－,"{'single',  'multiple'}",「単層」「複層」を表す。
 ,,,○,,,,layers,層のリスト,△,"{'boundary_type': ['internal', 'external_general_part', 'ground']}",list,－,,室内外の熱伝達抵抗は含まない。
 ,,,,○,,,,層,○,,dict,－,,対象室側から並べること。

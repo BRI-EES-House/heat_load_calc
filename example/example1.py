@@ -1,15 +1,16 @@
 import json
 import os
 import time
+import argparse
 
 from heat_load_calc.initializer import initializer
 from heat_load_calc.weather import weather
 from heat_load_calc.core import core
 
 
-def run():
+def run(folder: str):
 
-    data_dir = str(os.path.dirname(__file__)) + '/data_example1'
+    data_dir = str(os.path.dirname(__file__)) + '/' + folder
 
     js = open(data_dir + '/input_residential.json', 'r', encoding='utf-8')
 
@@ -22,9 +23,18 @@ def run():
     core.calc(input_data_dir=data_dir, output_data_dir=data_dir, show_detail_result=True)
 
 
+
 if __name__ == '__main__':
 
+    parser = argparse.ArgumentParser(description='住宅負荷計算プログラム例題実行')  # 2. パーサを作る
+
+    # parser.add_argumentで受け取る引数を追加していく
+    parser.add_argument('arg1', help='計算を実行するフォルダ名')  # 必須の引数を追加
+
+    # 引数を受け取る
+    args = parser.parse_args()
+
     start = time.time()
-    run()
+    run(args.arg1)
     elapsed_time = time.time() - start
     print("elapsed_time:{0}".format(elapsed_time) + "[sec]")
