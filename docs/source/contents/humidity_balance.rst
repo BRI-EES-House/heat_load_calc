@@ -327,7 +327,7 @@ I. 評価法
 :math:`V_{room,i}`
     | 室 |i| の容積, |m3| 
 :math:`\Delta t`
-    | 1ステップの時間間隔, s
+    | 1ステップの時間間隔, s 
 :math:`\hat{V}_{out,vent,i,n}`
     | ステップ |n| から |n+1| における室 |i| の外気との換気量, |m3| / s
 :math:`G_{lh,frt,i}`
