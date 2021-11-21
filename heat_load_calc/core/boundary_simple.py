@@ -231,17 +231,16 @@ class Boundaries:
             rf=rf
         )
 
+    def get_boundary_by_id(self, boundary_id: int):
 
-def get_boundary_by_id(bss: List[BoundarySimple], boundary_id: int):
+        # 指定された boundary_id に一致する Boundary を取得する。
+        bss = [bs.id == boundary_id for bs in self._bss]
 
-    # 指定された boundary_id に一致する Boundary を取得する。
-    _bss = [bs.id == boundary_id for bs in bss]
+        # 取得された Boundary は必ず1つのはずなので、「見つからない場合」「複数該当した場合」にはエラーを出す。
+        if len(bss) == 0:
+            raise Exception("指定された boundary_id に一致する boundary が見つかりませんでした。")
+        if len(bss) >1:
+            raise Exception("指定された boundary_id に一致する boundary が複数見つかりました。")
 
-    # 取得された Boundary は必ず1つのはずなので、「見つからない場合」「複数該当した場合」にはエラーを出す。
-    if len(_bss) == 0:
-        raise Exception("指定された boundary_id に一致する boundary が見つかりませんでした。")
-    if len(_bss) >1:
-        raise Exception("指定された boundary_id に一致する boundary が複数見つかりました。")
-
-    return _bss[0]
+        return bss[0]
 

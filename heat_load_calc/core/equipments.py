@@ -118,7 +118,7 @@ class CoolingEquipmentFloorCooling:
 
 class Equipments:
 
-    def __init__(self, dict_equipments: Dict, n_rm: int, bss: List[BoundarySimple], n_b: int):
+    def __init__(self, dict_equipments: Dict, n_rm: int, bss: List[BoundarySimple], n_b: int, bs: boundary_simple.Boundaries):
         """設備に関する情報を辞書形式で受け取り、データクラスに変換して保持する。
         暖房・冷房それぞれにおいて、
         辞書の中の "equipment_type" の種類に応じて対応するデータクラスを生成する。
@@ -138,12 +138,12 @@ class Equipments:
         """
 
         self._hes = [
-            self._create_heating_equipment(dict_heating_equipment=he, bss=bss)
+            self._create_heating_equipment(dict_heating_equipment=he, bss=bss, bs=bs)
             for he in dict_equipments['heating_equipments']
         ]
 
         self._ces = [
-            self._create_cooling_equipment(dict_cooling_equipment=ce, bss=bss)
+            self._create_cooling_equipment(dict_cooling_equipment=ce, bss=bss, bs=bs)
             for ce in dict_equipments['cooling_equipments']
         ]
 
@@ -151,7 +151,7 @@ class Equipments:
         self._n_b = n_b
 
     @staticmethod
-    def _create_heating_equipment(dict_heating_equipment, bss: List[BoundarySimple]):
+    def _create_heating_equipment(dict_heating_equipment, bss: List[BoundarySimple], bs: boundary_simple.Boundaries):
 
         he_type = dict_heating_equipment['equipment_type']
         id = dict_heating_equipment['id']
@@ -173,8 +173,8 @@ class Equipments:
 
         elif he_type == 'floor_heating':
 
-            bs = boundary_simple.get_boundary_by_id(bss=bss, boundary_id=prop['boundary_id'])
-            room_id = bs.connected_room_id
+            b = bs.get_boundary_by_id(boundary_id=prop['boundary_id'])
+            room_id = b.connected_room_id
 
             return HeatingEquipmentFloorHeating(
                 id=id,
@@ -190,7 +190,7 @@ class Equipments:
             raise Exception
 
     @staticmethod
-    def _create_cooling_equipment(dict_cooling_equipment, bss: List[BoundarySimple]):
+    def _create_cooling_equipment(dict_cooling_equipment, bss: List[BoundarySimple], bs: boundary_simple.Boundaries):
 
         ce_type = dict_cooling_equipment['equipment_type']
         id = dict_cooling_equipment['id']
@@ -212,8 +212,8 @@ class Equipments:
 
         elif ce_type == 'floor_cooling':
 
-            bs = boundary_simple.get_boundary_by_id(bss=bss, boundary_id=prop['boundary_id'])
-            room_id = bs.connected_room_id
+            b = bs.get_boundary_by_id(boundary_id=prop['boundary_id'])
+            room_id = b.connected_room_id
 
             return CoolingEquipmentFloorCooling(
                 id=id,

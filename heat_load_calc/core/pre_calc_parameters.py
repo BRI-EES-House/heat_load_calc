@@ -294,7 +294,7 @@ def make_pre_calc_parameters(
 
     n_b = len(bss)
 
-    es = equipments.Equipments(dict_equipments=rd['equipments'], n_rm=n_rm, bss=bss, n_b=n_b)
+    es = equipments.Equipments(dict_equipments=rd['equipments'], n_rm=n_rm, bss=bss, n_b=n_b, bs=bs)
 
     # 室iの暖房方式として放射空調が設置されているかどうか。  bool値, [i, 1]
     is_radiative_heating_is = es.get_is_radiative_heating_is()
