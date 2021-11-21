@@ -7,6 +7,7 @@ from heat_load_calc.core.boundary_simple import BoundarySimple
 from heat_load_calc.core import boundary_simple
 from heat_load_calc.external.psychrometrics import get_x, get_p_vs_is2
 from heat_load_calc.external.global_number import get_c_a, get_rho_a
+from heat_load_calc.core.matrix_method import v_diag
 
 
 @dataclass
@@ -18,8 +19,8 @@ class HeatingEquipmentRAC:
     # 名前
     name: str
 
-    # 暖房する空間のID
-    space_id: int
+    # 暖房する室のID
+    room_id: int
 
     # 最小暖房能力, W
     q_min: float
@@ -46,6 +47,9 @@ class HeatingEquipmentFloorHeating:
     # 名前
     name: str
 
+    # 暖房する室のID
+    room_id: int
+
     # 放射暖房が設置される境界の番号
     boundary_id: int
 
@@ -68,8 +72,8 @@ class CoolingEquipmentRAC:
     # 名前
     name: str
 
-    # 冷房する空間のID
-    space_id: int
+    # 冷房する室のID
+    room_id: int
 
     # 最小冷房能力, W
     q_min: float
@@ -96,6 +100,9 @@ class CoolingEquipmentFloorCooling:
     # 名前
     name: str
 
+    # 冷房する室のID
+    room_id: int
+
     # 放射冷房が設置される境界の番号
     boundary_id: int
 
@@ -111,23 +118,52 @@ class CoolingEquipmentFloorCooling:
 
 class Equipments:
 
-    def __init__(self, e: Dict, n_rm: int):
+    def __init__(self, dict_equipments: Dict, n_rm: int, bss: List[BoundarySimple], n_b: int):
+        """設備に関する情報を辞書形式で受け取り、データクラスに変換して保持する。
+        暖房・冷房それぞれにおいて、
+        辞書の中の "equipment_type" の種類に応じて対応するデータクラスを生成する。
 
-        self._hes = [self._create_heating_equipment(dict_he=he) for he in e['heating_equipments']]
-        self._ces = [self._create_cooling_equipment(dict_ce=ce) for ce in e['cooling_equipments']]
+        Args:
+            dict_equipments: 設備の情報が記された辞書
+            n_rm: 部屋の数
+            bss: 境界情報
+            n_b: 境界の数
+
+        Notes:
+            ここで BoundarySimple クラスは、境界IDと室IDとの対応関係を見ることだけに使用される。
+            放射暖冷房に関する設備情報には対応する境界IDしか記されていない。
+            一方で、放射暖冷房においても、beta, f_flr の係数を計算する際には、
+            その放射暖冷房がどの室に属しているのかの情報が必要になるため、
+            Equipments を initialize する際に、あらかじめ放射暖冷房にも room_id を付与しておくこととする。
+        """
+
+        self._hes = [
+            self._create_heating_equipment(dict_heating_equipment=he, bss=bss)
+            for he in dict_equipments['heating_equipments']
+        ]
+
+        self._ces = [
+            self._create_cooling_equipment(dict_cooling_equipment=ce, bss=bss)
+            for ce in dict_equipments['cooling_equipments']
+        ]
+
         self._n_rm = n_rm
+        self._n_b = n_b
 
     @staticmethod
-    def _create_heating_equipment(dict_he):
+    def _create_heating_equipment(dict_heating_equipment, bss: List[BoundarySimple]):
 
-        prop = dict_he['property']
+        he_type = dict_heating_equipment['equipment_type']
+        id = dict_heating_equipment['id']
+        name = dict_heating_equipment['name']
+        prop = dict_heating_equipment['property']
 
-        if dict_he['equipment_type'] == 'rac':
+        if he_type == 'rac':
 
             return HeatingEquipmentRAC(
-                id=dict_he['id'],
-                name=dict_he['name'],
-                space_id=prop['space_id'],
+                id=id,
+                name=name,
+                room_id=prop['space_id'],
                 q_min=prop['q_min'],
                 q_max=prop['q_max'],
                 v_min=prop['v_min'],
@@ -135,28 +171,38 @@ class Equipments:
                 bf=prop['bf']
             )
 
-        elif dict_he['equipment_type'] == 'floor_heating':
+        elif he_type == 'floor_heating':
+
+            bs = boundary_simple.get_boundary_by_id(bss=bss, boundary_id=prop['boundary_id'])
+            room_id = bs.connected_room_id
 
             return HeatingEquipmentFloorHeating(
-                id=dict_he['id'],
-                name=dict_he['name'],
+                id=id,
+                name=name,
+                room_id=room_id,
                 boundary_id=prop['boundary_id'],
                 max_capacity=prop['max_capacity'],
                 area=prop['area'],
                 convection_ratio=prop['convection_ratio']
             )
 
+        else:
+            raise Exception
+
     @staticmethod
-    def _create_cooling_equipment(dict_ce):
+    def _create_cooling_equipment(dict_cooling_equipment, bss: List[BoundarySimple]):
 
-        prop = dict_ce['property']
+        ce_type = dict_cooling_equipment['equipment_type']
+        id = dict_cooling_equipment['id']
+        name = dict_cooling_equipment['name']
+        prop = dict_cooling_equipment['property']
 
-        if dict_ce['equipment_type'] == 'rac':
+        if ce_type == 'rac':
 
             return CoolingEquipmentRAC(
-                id=dict_ce['id'],
-                name=dict_ce['name'],
-                space_id=prop['space_id'],
+                id=id,
+                name=name,
+                room_id=prop['space_id'],
                 q_min=prop['q_min'],
                 q_max=prop['q_max'],
                 v_min=prop['v_min'],
@@ -164,62 +210,155 @@ class Equipments:
                 bf=prop['bf']
             )
 
-        elif dict_ce['equipment_type'] == 'floor_cooling':
+        elif ce_type == 'floor_cooling':
+
+            bs = boundary_simple.get_boundary_by_id(bss=bss, boundary_id=prop['boundary_id'])
+            room_id = bs.connected_room_id
 
             return CoolingEquipmentFloorCooling(
-                id=dict_ce['id'],
-                name=dict_ce['name'],
+                id=id,
+                name=name,
+                room_id=room_id,
                 boundary_id=prop['boundary_id'],
                 max_capacity=prop['max_capacity'],
                 area=prop['area'],
                 convection_ratio=prop['convection_ratio']
             )
 
-    def get_is_radiative_heating_is(self, bss: List[BoundarySimple]):
+        else:
+            raise Exception
 
-        is_radiative_heating_is = np.full(shape=(self._n_rm, 1), fill_value=False)
+    def get_is_radiative_heating_is(self):
+        """
+        室に放射暖房があるか否かを判定する。
+        Returns:
+            放射暖房の有無, [i, 1]
+        """
 
-        for he in self._hes:
-            if he is HeatingEquipmentFloorHeating:
-                bs = boundary_simple.get_boundary_by_id(bss=bss, boundary_id=he.boundary_id)
-                is_radiative_heating_is[bs.connected_room_id, 0] = True
+        return self._get_is_radiative_is(es=self._hes)
 
-        return is_radiative_heating_is
+    def get_is_radiative_cooling_is(self):
+        """
+        室に放射冷房があるか否かを判定する。
+        Returns:
+            放射冷房の有無, [i, 1]
+        """
 
-    def get_is_radiative_cooling_is(self, bss: List[BoundarySimple]):
+        return self._get_is_radiative_is(es=self._ces)
 
-        is_radiative_cooling_is = np.full(shape=(self._n_rm, 1), fill_value=False)
+    def get_q_rs_h_max_is(self):
 
-        for ce in self._ces:
-            if ce is CoolingEquipmentFloorCooling:
-                bs = boundary_simple.get_boundary_by_id(bss=bss, boundary_id=ce.boundary_id)
-                is_radiative_cooling_is[bs.connected_room_id, 0] = True
+        return self._get_q_rs_max_is(es=self._hes)
 
-        return is_radiative_cooling_is
+    def get_q_rs_c_max_is(self):
 
-    def get_q_rs_h_max_is(self, bss: List[BoundarySimple]):
+        return self._get_q_rs_max_is(es=self._ces)
 
-        q_rs_h_max_is = np.zeros(shape=(self._n_rm, 1), dtype=float)
+    def _get_q_rs_max_is(self, es):
 
-        for he in self._hes:
-            if he is HeatingEquipmentFloorHeating:
-                bs = boundary_simple.get_boundary_by_id(bss=bss, boundary_id=he.boundary_id)
-                space_id = bs.connected_room_id
-                q_rs_h_max_is[space_id, 0] = q_rs_h_max_is[space_id, 0] + he.max_capacity * he.area
+        q_rs_max_is = np.zeros(shape=(self._n_rm, 1), dtype=float)
 
-        return q_rs_h_max_is
+        for e in es:
+            if e is [HeatingEquipmentFloorHeating, CoolingEquipmentFloorCooling]:
+                q_rs_max_is[e.room_id, 0] = q_rs_max_is[e.room_id, 0] + e.max_capacity * e.area
 
-    def get_q_rs_c_max_is(self, bss: List[BoundarySimple]):
+        return q_rs_max_is
 
-        q_rs_c_max_is = np.zeros(shape=(self._n_rm, 1), dtype=float)
+    def get_beta_h_is(self):
 
-        for ce in self._ces:
-            if ce is CoolingEquipmentFloorCooling:
-                bs = boundary_simple.get_boundary_by_id(bss=bss, boundary_id=ce.boundary_id)
-                space_id = bs.connected_room_id
-                q_rs_c_max_is[space_id, 0] = q_rs_c_max_is[space_id, 0] + ce.max_capacity * ce.area
+        return self._get_beta_is(es=self._hes)
 
-        return q_rs_c_max_is
+    def get_beta_c_is(self):
+
+        return self._get_beta_is(es=self._ces)
+
+    def _get_is_radiative_is(self, es):
+        """室に放射暖冷房があるか否かを判定する。
+
+        Returns:
+            放射暖冷房の有無, [i, 1]
+        """
+
+        is_radiative_is = np.full(shape=(self._n_rm, 1), fill_value=False)
+
+        for e in es:
+            if e is [HeatingEquipmentFloorHeating, CoolingEquipmentFloorCooling]:
+                is_radiative_is[e.room_id, 0] = True
+
+        return is_radiative_is
+
+    def _get_beta_is(self, es):
+
+        f_beta_eqp_ks_is = self._get_f_beta_eqp_ks_is(es=es, n_rm=self._n_rm)
+        r_max_ks_is = self._get_r_max_ks_is(es=es, n_rm=self._n_rm)
+
+        return np.sum(f_beta_eqp_ks_is * r_max_ks_is, axis=0).reshape(-1, 1)
+
+    def _get_p_ks_is(self, es):
+
+        p_ks_is = np.zeros(shape=(len(es), self._n_rm), dtype=float)
+
+        for k, e in enumerate(es):
+            if e is [HeatingEquipmentFloorHeating, CoolingEquipmentFloorCooling]:
+                p_ks_is[k, e.room_id] = 1.0
+
+        return p_ks_is
+
+    @staticmethod
+    def _get_f_beta_eqp_ks_is(es, n_rm):
+
+        f_beta_eqp_ks_is = np.zeros(shape=(len(es), n_rm), dtype=float)
+
+        for k, e in enumerate(es):
+            if e is [HeatingEquipmentFloorHeating, CoolingEquipmentFloorCooling]:
+                f_beta_eqp_ks_is[k, e.room_id] = e.convection_ratio
+
+        return f_beta_eqp_ks_is
+
+    @staticmethod
+    def _get_r_max_ks_is(es, n_rm):
+
+        q_max_ks_is = np.zeros(shape=(len(es), n_rm), dtype=float)
+
+        for k, e in enumerate(es):
+            if e is [HeatingEquipmentFloorHeating, CoolingEquipmentFloorCooling]:
+                q_max_ks_is[k, e.room_id] = e.max_capacity * e.area
+
+        sum_of_q_max_is = q_max_ks_is.sum(axis=0)
+
+        # 各室の放熱量の合計値がゼロだった場合、次の式のゼロ割を防ぐためにダミーの数字1.0を代入する。
+        # この場合、次の式の分子の数はゼロであるため、結果として 0.0/1.0 = 0.0 となり、結果には影響を及ぼさない。
+        sum_of_q_max_is[np.where(sum_of_q_max_is == 0.0)] = 1.0
+
+        return q_max_ks_is / sum_of_q_max_is
+
+    def get_f_flr_h_js_is(self):
+
+        return self._get_f_flr_js_is(es=self._hes)
+
+    def get_f_flr_c_js_is(self):
+
+        return self._get_f_flr_js_is(es=self._ces)
+
+    def _get_f_flr_js_is(self, es):
+
+        f_flr_eqp_js_ks = self._get_f_flr_eqp_js_ks(es=es)
+        f_beta_eqp_ks_is = self._get_f_beta_eqp_ks_is(es=es, n_rm=self._n_rm)
+        r_max_ks_is = self._get_r_max_ks_is(es=es, n_rm=self._n_rm)
+        beta_is = self._get_beta_is(es=es)
+        p_ks_is = self._get_p_ks_is(es=es)
+
+        return np.dot(np.dot(f_flr_eqp_js_ks, (p_ks_is - f_beta_eqp_ks_is) * r_max_ks_is), v_diag(1 / (1 - beta_is)))
+
+    def _get_f_flr_eqp_js_ks(self, es):
+
+        f_flr_eqp_js_ks = np.zeros(shape=(self._n_b, len(es)), dtype=float)
+
+        for k, e in enumerate(es):
+            if e is [HeatingEquipmentFloorHeating, CoolingEquipmentFloorCooling]:
+                f_flr_eqp_js_ks[e.boundary_id, k] = e.convection_ratio
+
+        return f_flr_eqp_js_ks
 
 
 def make_get_f_l_cl_funcs(n_rm, cooling_equipments):
