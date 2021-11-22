@@ -212,7 +212,6 @@ class Equipments:
 
             room_id = bs.get_room_id_by_boundary_id(boundary_id=prop['boundary_id'])
 
-
             return CoolingEquipmentFloorCooling(
                 id=id,
                 name=name,
@@ -257,7 +256,7 @@ class Equipments:
         q_rs_max_is = np.zeros(shape=(self._n_rm, 1), dtype=float)
 
         for e in es:
-            if e is [HeatingEquipmentFloorHeating, CoolingEquipmentFloorCooling]:
+            if type(e) in [HeatingEquipmentFloorHeating, CoolingEquipmentFloorCooling]:
                 q_rs_max_is[e.room_id, 0] = q_rs_max_is[e.room_id, 0] + e.max_capacity * e.area
 
         return q_rs_max_is
@@ -280,7 +279,7 @@ class Equipments:
         is_radiative_is = np.full(shape=(self._n_rm, 1), fill_value=False)
 
         for e in es:
-            if e is [HeatingEquipmentFloorHeating, CoolingEquipmentFloorCooling]:
+            if type(e) in [HeatingEquipmentFloorHeating, CoolingEquipmentFloorCooling]:
                 is_radiative_is[e.room_id, 0] = True
 
         return is_radiative_is
@@ -297,7 +296,7 @@ class Equipments:
         p_ks_is = np.zeros(shape=(len(es), self._n_rm), dtype=float)
 
         for k, e in enumerate(es):
-            if e is [HeatingEquipmentFloorHeating, CoolingEquipmentFloorCooling]:
+            if type(e) in [HeatingEquipmentFloorHeating, CoolingEquipmentFloorCooling]:
                 p_ks_is[k, e.room_id] = 1.0
 
         return p_ks_is
@@ -308,7 +307,7 @@ class Equipments:
         f_beta_eqp_ks_is = np.zeros(shape=(len(es), n_rm), dtype=float)
 
         for k, e in enumerate(es):
-            if e is [HeatingEquipmentFloorHeating, CoolingEquipmentFloorCooling]:
+            if type(e) in [HeatingEquipmentFloorHeating, CoolingEquipmentFloorCooling]:
                 f_beta_eqp_ks_is[k, e.room_id] = e.convection_ratio
 
         return f_beta_eqp_ks_is
@@ -319,7 +318,7 @@ class Equipments:
         q_max_ks_is = np.zeros(shape=(len(es), n_rm), dtype=float)
 
         for k, e in enumerate(es):
-            if e is [HeatingEquipmentFloorHeating, CoolingEquipmentFloorCooling]:
+            if type(e) in [HeatingEquipmentFloorHeating, CoolingEquipmentFloorCooling]:
                 q_max_ks_is[k, e.room_id] = e.max_capacity * e.area
 
         sum_of_q_max_is = q_max_ks_is.sum(axis=0)
@@ -353,7 +352,7 @@ class Equipments:
         f_flr_eqp_js_ks = np.zeros(shape=(self._n_b, len(es)), dtype=float)
 
         for k, e in enumerate(es):
-            if e is [HeatingEquipmentFloorHeating, CoolingEquipmentFloorCooling]:
+            if type(e) in [HeatingEquipmentFloorHeating, CoolingEquipmentFloorCooling]:
                 f_flr_eqp_js_ks[e.boundary_id, k] = e.convection_ratio
 
         return f_flr_eqp_js_ks
@@ -369,8 +368,8 @@ class Equipments:
             # 下記、変数 l は、係数 la と lb のタプルであり、変数 ls は変数 l のリスト。
 
             ls = [
-                self._get_ls_a_ls_b(n_rm=n_rm, l_cs_is_n=l_cs_is_n, theta_r_is_n_pls=theta_r_is_n_pls, x_r_ntr_is_n_pls=x_r_ntr_is_n_pls, prop=equipment['property'])
-                for equipment in cooling_equipments
+                self._get_ls_a_ls_b(n_rm=n_rm, l_cs_is_n=l_cs_is_n, theta_r_is_n_pls=theta_r_is_n_pls, x_r_ntr_is_n_pls=x_r_ntr_is_n_pls, prop=equipment['property'], ce=ce)
+                for equipment, ce in zip(cooling_equipments, self._ces)
             ]
 
             # 係数 la と 係数 lb をタプルから別々に取り出す。
@@ -386,9 +385,14 @@ class Equipments:
 
         return get_f_l_cl
 
-    def _get_ls_a_ls_b(self, n_rm, l_cs_is_n, theta_r_is_n_pls, x_r_ntr_is_n_pls, prop):
+    def _get_ls_a_ls_b(self, n_rm, l_cs_is_n, theta_r_is_n_pls, x_r_ntr_is_n_pls, prop, ce):
 
-        return self._func_rac(n_room=n_rm, lcs_is_n=l_cs_is_n, theta_r_is_n_pls=theta_r_is_n_pls, x_r_ntr_is_n_pls=x_r_ntr_is_n_pls, prop=prop)
+        if type(ce) is CoolingEquipmentRAC:
+            return self._func_rac(n_room=n_rm, lcs_is_n=l_cs_is_n, theta_r_is_n_pls=theta_r_is_n_pls, x_r_ntr_is_n_pls=x_r_ntr_is_n_pls, prop=prop)
+        elif type(ce) is CoolingEquipmentFloorCooling:
+            raise NotImplementedError
+        else:
+            raise Exception
 
     def _func_rac(
             self,
