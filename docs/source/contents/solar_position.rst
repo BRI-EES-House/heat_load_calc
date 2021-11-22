@@ -125,9 +125,9 @@ I. 評価法
 
 :math:`\nu_n`
     | ステップ |n| における真近点離角, rad
- :math:`\epsilon_n`
+:math:`\epsilon_n`
     | ステップ |n| における近日点と冬至点の角度, rad
- :math:`\delta_0`
+:math:`\delta_0`
     | 北半球の冬至の日赤緯, rad
 
 である。北半球の冬至の日赤緯 :math:`\delta_0` は、 :math:`-23.4393 \times \pi/180` radを用いる。
