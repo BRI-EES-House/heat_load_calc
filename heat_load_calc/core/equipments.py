@@ -388,7 +388,14 @@ class Equipments:
     def _get_ls_a_ls_b(self, n_rm, l_cs_is_n, theta_r_is_n_pls, x_r_ntr_is_n_pls, prop, ce):
 
         if type(ce) is CoolingEquipmentRAC:
-            return self._func_rac(n_room=n_rm, lcs_is_n=l_cs_is_n, theta_r_is_n_pls=theta_r_is_n_pls, x_r_ntr_is_n_pls=x_r_ntr_is_n_pls, prop=prop)
+            return self._func_rac(
+                n_room=n_rm,
+                lcs_is_n=l_cs_is_n,
+                theta_r_is_n_pls=theta_r_is_n_pls,
+                x_r_ntr_is_n_pls=x_r_ntr_is_n_pls,
+                prop=prop,
+                ce=ce
+            )
         elif type(ce) is CoolingEquipmentFloorCooling:
             raise NotImplementedError
         else:
@@ -400,7 +407,8 @@ class Equipments:
             lcs_is_n,
             theta_r_is_n_pls,
             x_r_ntr_is_n_pls,
-            prop
+            prop,
+            ce: CoolingEquipmentRAC
     ):
 
         # Lcsは加熱が正で表される。
@@ -408,27 +416,20 @@ class Equipments:
         # 以下の取り扱いを簡単にするため（冷房負荷を正とするため）、正負を反転させる
         q_s_is_n = -lcs_is_n
 
-        id = prop['space_id']
-
-        q_rac_max_i = prop['q_max']
-        q_rac_min_i = prop['q_min']
-        v_rac_max_i = prop['v_max'] / 60
-        v_rac_min_i = prop['v_min'] / 60
-        bf_rac_i = prop['bf']
-        q_s_i_n = q_s_is_n[id, 0]
-        theta_r_i_n_pls = theta_r_is_n_pls[id, 0]
-        x_r_ntr_i_n_pls = x_r_ntr_is_n_pls[id, 0]
+        q_s_i_n = q_s_is_n[ce.room_id, 0]
+        theta_r_i_n_pls = theta_r_is_n_pls[ce.room_id, 0]
+        x_r_ntr_i_n_pls = x_r_ntr_is_n_pls[ce.room_id, 0]
 
         v_rac_i_n = self._get_vac_rac_i_n(
-            q_rac_max_i=q_rac_max_i,
-            q_rac_min_i=q_rac_min_i,
+            q_rac_max_i=ce.q_max,
+            q_rac_min_i=ce.q_min,
             q_s_i_n=q_s_i_n,
-            v_rac_max_i=v_rac_max_i,
-            v_rac_min_i=v_rac_min_i
+            v_rac_max_i=ce.v_max / 60,
+            v_rac_min_i=ce.v_min / 60
         )
 
         theta_rac_ex_srf_i_n_pls = self._get_theta_rac_ex_srf_i_n_pls(
-            bf_rac_i=bf_rac_i,
+            bf_rac_i=ce.bf,
             q_s_i_n=q_s_i_n,
             theta_r_i_n_pls=theta_r_i_n_pls,
             v_rac_i_n=v_rac_i_n
@@ -438,21 +439,21 @@ class Equipments:
 
         brmx_rac_is = np.where(
             (x_r_ntr_i_n_pls > x_rac_ex_srf_i_n_pls) & (q_s_i_n > 0.0),
-            get_rho_a() * v_rac_i_n * (1 - bf_rac_i),
+            get_rho_a() * v_rac_i_n * (1 - ce.bf),
             0.0
         )
 
         brcx_rac_is = np.where(
             (x_r_ntr_i_n_pls > x_rac_ex_srf_i_n_pls) & (q_s_i_n > 0.0),
-            get_rho_a() * v_rac_i_n * (1 - bf_rac_i) * x_rac_ex_srf_i_n_pls,
+            get_rho_a() * v_rac_i_n * (1 - ce.bf) * x_rac_ex_srf_i_n_pls,
             0.0
         )
 
         brmx_is_is = np.zeros((n_room, n_room), dtype=float)
         brxc_is = np.zeros((n_room, 1), dtype=float)
 
-        brmx_is_is[id, id] = brmx_rac_is
-        brxc_is[id, 0] = brcx_rac_is
+        brmx_is_is[ce.room_id, ce.room_id] = brmx_rac_is
+        brxc_is[ce.room_id, 0] = brcx_rac_is
 
         return brmx_is_is, brxc_is
 
