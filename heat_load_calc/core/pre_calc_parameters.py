@@ -538,7 +538,7 @@ def make_pre_calc_parameters(
 
     # endregion
 
-    get_f_l_cl = equipments.make_get_f_l_cl_funcs(n_rm, cooling_equipments)
+    get_f_l_cl = es.make_get_f_l_cl_funcs(n_rm, cooling_equipments)
 
     pre_calc_parameters = PreCalcParameters(
         n_rm=n_rm,
