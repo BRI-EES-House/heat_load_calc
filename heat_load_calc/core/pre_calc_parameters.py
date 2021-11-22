@@ -284,8 +284,6 @@ def make_pre_calc_parameters(
         bs=rd['boundaries']
     )
 
-    bss = bs.get_bss()
-
     # 境界の数
     n_b = bs.get_n_b()
 

@@ -45,7 +45,7 @@ class MyTestCase(unittest.TestCase):
         }
 
         # Boundaryクラスの作成
-        bs1 = bs.Boundaries.get_boundary(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, d1)
+        bs1 = bs.Boundaries._get_boundary(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, d1)
 
         # 内容がまったく同じ場合
         self.assertEqual(True, bps._is_boundary_integratable(bs1=bs1, bs2=bs1))
@@ -55,7 +55,7 @@ class MyTestCase(unittest.TestCase):
         d15['id'] = 1
         d15['name'] = 'bp15'
         d15['area'] = 20.0
-        bs15 = bs.Boundaries.get_boundary(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, d15)
+        bs15 = bs.Boundaries._get_boundary(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, d15)
         self.assertEqual(True, bps._is_boundary_integratable(bs1=bs1, bs2=bs15))
 
         # 隣接する室IDが異なる場合 = 統合不可能
@@ -63,7 +63,7 @@ class MyTestCase(unittest.TestCase):
         d2['id'] = 1
         d2['name'] = 'bp2'
         d2['connected_room_id'] = 1
-        bs2 = bs.Boundaries.get_boundary(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, d2)
+        bs2 = bs.Boundaries._get_boundary(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, d2)
         self.assertEqual(False, bps._is_boundary_integratable(bs1=bs1, bs2=bs2))
 
         # 温度差係数が異なる場合 = 統合不可能
@@ -71,7 +71,7 @@ class MyTestCase(unittest.TestCase):
         d3['id'] = 1
         d3['name'] = 'bp3'
         d3['temp_dif_coef'] = 0.3
-        bs3 = bs.Boundaries.get_boundary(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, d3)
+        bs3 = bs.Boundaries._get_boundary(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, d3)
         self.assertEqual(False, bps._is_boundary_integratable(bs1=bs1, bs2=bs3))
 
         # 床か否かが異なる場合 = 統合不可能
@@ -79,7 +79,7 @@ class MyTestCase(unittest.TestCase):
         d16['id'] = 1
         d16['name'] = 'bp16'
         d16['is_floor'] = True
-        bs16 = bs.Boundaries.get_boundary(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, d16)
+        bs16 = bs.Boundaries._get_boundary(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, d16)
         self.assertEqual(False, bps._is_boundary_integratable(bs1=bs1, bs2=bs16))
 
         # 日射吸収の有無が異なる場合 = 統合不可能
@@ -87,7 +87,7 @@ class MyTestCase(unittest.TestCase):
         d4['id'] = 1
         d4['name'] = 'bp4'
         d4['is_solar_absorbed_inside'] = True
-        bs4 = bs.Boundaries.get_boundary(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, d4)
+        bs4 = bs.Boundaries._get_boundary(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, d4)
         self.assertEqual(False, bps._is_boundary_integratable(bs1=bs1, bs2=bs4))
 
         # 日射が当たるか田舎の有無が異なる場合 = 統合不可能
@@ -95,7 +95,7 @@ class MyTestCase(unittest.TestCase):
         d5['id'] = 1
         d5['name'] = 'bp5'
         d5['is_sun_striked_outside'] = False
-        bs5 = bs.Boundaries.get_boundary(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, d5)
+        bs5 = bs.Boundaries._get_boundary(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, d5)
         self.assertEqual(False, bps._is_boundary_integratable(bs1=bs1, bs2=bs5))
 
         # 方位が異なる場合 = 統合不可能
@@ -103,7 +103,7 @@ class MyTestCase(unittest.TestCase):
         d6['id'] = 1
         d6['name'] = 'bp6'
         d6['direction'] = 'n'
-        bs6 = bs.Boundaries.get_boundary(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, d6)
+        bs6 = bs.Boundaries._get_boundary(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, d6)
         self.assertEqual(False, bps._is_boundary_integratable(bs1=bs1, bs2=bs6))
 
         # 室内側熱抵抗が異なる場合 = 統合不可能
@@ -111,7 +111,7 @@ class MyTestCase(unittest.TestCase):
         d7['id'] = 1
         d7['name'] = 'bp7'
         d7['inside_heat_transfer_resistance'] = 6.7
-        bs7 = bs.Boundaries.get_boundary(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, d7)
+        bs7 = bs.Boundaries._get_boundary(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, d7)
         self.assertEqual(False, bps._is_boundary_integratable(bs1=bs1, bs2=bs7))
 
         # 「外皮_一般部位」と「外皮_不透明な開口部」で外皮の種類が異なる場合 = 統合不可能
@@ -136,7 +136,7 @@ class MyTestCase(unittest.TestCase):
             'h_c': 2.5,
             'u_value': 4.65
         }
-        bs8 = bs.Boundaries.get_boundary(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, d8)
+        bs8 = bs.Boundaries._get_boundary(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, d8)
         self.assertEqual(False, bps._is_boundary_integratable(bs1=bs1, bs2=bs8))
 
         # 「外皮_一般部位」と「間仕切り」で外皮の種類が異なる場合 = 統合不可能
@@ -166,19 +166,19 @@ class MyTestCase(unittest.TestCase):
                 "existence": False
             }
         }
-        bs9 = bs.Boundaries.get_boundary(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, d9)
+        bs9 = bs.Boundaries._get_boundary(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, d9)
 
         # 内容が全く同じ場合 = 統合可能
         d10 = copy.deepcopy(d9)
         d10['id'] = 1
-        bs10 = bs.Boundaries.get_boundary(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, d10)
+        bs10 = bs.Boundaries._get_boundary(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, d10)
         self.assertEqual(True, bps._is_boundary_integratable(bs1=bs9, bs2=bs10))
 
         # 隣接する室のタイプが異なる場合 = 統合不可能
         d11 = copy.deepcopy(d9)
         d11['id'] = 1
         d11["next_room_type"] = 'other_occupant_room'
-        bs11 = bs.Boundaries.get_boundary(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, d11)
+        bs11 = bs.Boundaries._get_boundary(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, d11)
         self.assertEqual(False, bps._is_boundary_integratable(bs1=bs9, bs2=bs11))
 
     @unittest.skip("集約関係のテストは凍結")
@@ -214,7 +214,7 @@ class MyTestCase(unittest.TestCase):
         }
 
         # Boundaryクラスの作成
-        bs1 = bs.Boundaries.get_boundary(0.0, np.zeros(8760 * 4), np.full(8760 * 4, 50.0), 0.0, np.zeros(8760 * 4), np.full(8760 * 4, 0.0), d1)
+        bs1 = bs.Boundaries._get_boundary(0.0, np.zeros(8760 * 4), np.full(8760 * 4, 50.0), 0.0, np.zeros(8760 * 4), np.full(8760 * 4, 0.0), d1)
 
         # 部位情報の入力
         d2 = {
@@ -241,7 +241,7 @@ class MyTestCase(unittest.TestCase):
         }
 
         # Boundaryクラスの作成
-        bs2 = bs.Boundaries.get_boundary(0.0, np.zeros(8760 * 4), np.full(8760 * 4, 50.0), 0.0, np.zeros(8760 * 4), np.full(8760 * 4, 0.0), d2)
+        bs2 = bs.Boundaries._get_boundary(0.0, np.zeros(8760 * 4), np.full(8760 * 4, 50.0), 0.0, np.zeros(8760 * 4), np.full(8760 * 4, 0.0), d2)
 
         self.assertEqual(True, bps._is_boundary_integratable(bs1=bs1, bs2=bs2))
 
@@ -352,8 +352,8 @@ class MyTestCase(unittest.TestCase):
         }
 
         # Boundaryの作成
-        bs1 = bs.Boundaries.get_boundary(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, d1)
-        bs2 = bs.Boundaries.get_boundary(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, d2)
+        bs1 = bs.Boundaries._get_boundary(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, d1)
+        bs2 = bs.Boundaries._get_boundary(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, d2)
 
         # 部位の集約
         bs3 = bps.integrate([bs1, bs2])

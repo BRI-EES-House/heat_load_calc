@@ -73,13 +73,9 @@ class Boundaries:
 
     def __init__(self, a_sun_ns, h_sun_ns, i_dn_ns, i_sky_ns, n_rm, r_n_ns, theta_o_ns, bs):
 
-        self._bss = self.get_boundary_simples(a_sun_ns=a_sun_ns, h_sun_ns=h_sun_ns, i_dn_ns=i_dn_ns, i_sky_ns=i_sky_ns, n_rm=n_rm, r_n_ns=r_n_ns, theta_o_ns=theta_o_ns, bs=bs)
+        self._bss = self._get_boundary_list(a_sun_ns=a_sun_ns, h_sun_ns=h_sun_ns, i_dn_ns=i_dn_ns, i_sky_ns=i_sky_ns, n_rm=n_rm, r_n_ns=r_n_ns, theta_o_ns=theta_o_ns, bs=bs)
 
-    def get_bss(self):
-
-        return self._bss
-
-    def get_boundary_simples(self, a_sun_ns, h_sun_ns, i_dn_ns, i_sky_ns, n_rm, r_n_ns, theta_o_ns, bs) -> List[Boundary]:
+    def _get_boundary_list(self, a_sun_ns, h_sun_ns, i_dn_ns, i_sky_ns, n_rm, r_n_ns, theta_o_ns, bs) -> List[Boundary]:
 
         # 本来であれば Boundaries クラスにおいて境界に関する入力用辞書から読み込みを境界個別に行う。
         # しかし、室内側表面放射熱伝達は室内側の形態係数によって値が決まり、ある室に接する境界の面積の組み合わせで決定されるため、
@@ -100,7 +96,7 @@ class Boundaries:
 
         # 境界j
         bss = [
-            self.get_boundary(
+            self._get_boundary(
                 theta_o_ns=theta_o_ns,
                 i_dn_ns=i_dn_ns,
                 i_sky_ns=i_sky_ns,
@@ -116,7 +112,7 @@ class Boundaries:
         return bss
 
     @staticmethod
-    def get_boundary(theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, a_sun_ns, h_sun_ns, b, h_c_js, h_r_js) -> Boundary:
+    def _get_boundary(theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, a_sun_ns, h_sun_ns, b, h_c_js, h_r_js) -> Boundary:
 
         # ID
         # TODO: ID が0始まりで1ずつ増え、一意であることのチェックを行うコードを追記する。
