@@ -402,10 +402,7 @@ def make_pre_calc_parameters(
 
     # ステップnの室iにおける窓の透過日射熱取得, W, [8760*4]
     if q_trans_sol_calculate:
-        q_trs_sol_is_ns = np.array([
-            np.sum(np.array([bs.q_trs_sol for bs in bss if bs.connected_room_id == i]), axis=0)
-            for i in range(n_rm)
-        ])
+        q_trs_sol_is_ns = bs.get_q_trs_sol_is_ns(n_rm=n_rm)
     else:
         with open(data_directory + '/mid_data_q_trs_sol.csv', 'r') as f:
             r = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
@@ -416,7 +413,7 @@ def make_pre_calc_parameters(
 
     # ステップnの境界jにおける裏面等価温度, ℃, [j, 8760*4]
     if theta_o_sol_calculate:
-        theta_o_eqv_js_ns = np.array([bs.theta_o_sol for bs in bss])
+        theta_o_eqv_js_ns = bs.get_theta_o_eqv_js_ns()
     else:
         with open(data_directory + '/mid_data_theta_o_sol.csv', 'r') as f:
             r = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
@@ -596,7 +593,7 @@ def make_pre_calc_parameters(
     )
 
     # 地盤の数
-    n_grounds = sum(bs.boundary_type == BoundaryType.Ground for bs in bss)
+    n_grounds = bs.get_n_ground()
 
     pre_calc_parameters_ground = PreCalcParametersGround(
         n_grounds=n_grounds,
@@ -807,39 +804,6 @@ def _get_v_vent_int_is_is(next_vent_is_ks: List[List[dict]]) -> np.ndarray:
 #    v_vent_nxt_is_is = v_int_vent_is_is - np.diag(v_int_vent_is_is.sum(axis=1))
 
     return v_int_vent_is_is
-
-
-def get_k_ei_js_j(bs, n_boundaries):
-
-    k_ei_js_j = [0.0] * n_boundaries
-
-    if bs.boundary_type in [
-        BoundaryType.ExternalOpaquePart,
-        BoundaryType.ExternalTransparentPart,
-        BoundaryType.ExternalGeneralPart
-    ]:
-
-        h = bs.h_td
-
-        # 温度差係数が1.0でない場合はk_ei_jsに値を代入する。
-        # id は自分自身の境界IDとし、自分自身の表面の影響は1.0から温度差係数を減じた値になる。
-        if h < 1.0:
-            k_ei_js_j[bs.id] = round(1.0 - h, 1)
-        else:
-            # 温度差係数が1.0の場合は裏面の影響は何もないため k_ei_js に操作は行わない。
-            pass
-
-    elif bs.boundary_type == BoundaryType.Internal:
-
-        # 室内壁の場合にk_ei_jsを登録する。
-        k_ei_js_j[int(bs.rear_surface_boundary_id)] = 1.0
-
-    else:
-
-        # 外皮に面していない場合、室内壁ではない場合（地盤の場合が該当）は、k_ei_js に操作は行わない。
-        pass
-
-    return k_ei_js_j
 
 
 def _read_weather_data(input_data_dir: str):

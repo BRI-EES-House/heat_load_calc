@@ -235,6 +235,11 @@ class Boundaries:
 
         return len(self._bss)
 
+    def get_n_ground(self):
+        # 地盤の数
+
+        return sum(bs.boundary_type == BoundaryType.Ground for bs in self._bss)
+
     def get_name_bdry_js(self):
         # 名前, [j, 1]
 
@@ -341,6 +346,16 @@ class Boundaries:
 
         return np.array([bs.rf.row for bs in self._bss])
 
+    def get_theta_o_eqv_js_ns(self):
+
+        return np.array([bs.theta_o_sol for bs in self._bss])
+
+    def get_q_trs_sol_is_ns(self, n_rm):
+
+        return np.array([
+            np.sum(np.array([bs.q_trs_sol for bs in self._bss if bs.connected_room_id == i]), axis=0)
+            for i in range(n_rm)
+        ])
 
     def _get_boundary_by_id(self, boundary_id: int) -> BoundarySimple:
 
