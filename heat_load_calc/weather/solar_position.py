@@ -25,10 +25,7 @@ def calc_solar_position(phi_loc: float, lambda_loc: float, interval: str) -> (np
             (2) 太陽方位角, rad [n]
     """
 
-    # 仕様書を書く際の注意
-    # arcsin は、単射ではありません。
-    # ここでの計算方法は、求まる角度を 0～π としています。従って、先頭は大文字とし、Arcsin としてください。
-    # arccos も同様に、求まる角度を -π/2～π/2 としています。従って、先頭は大文字とし、Arccos としてください。
+
 
     # 標準子午線(meridian), rad
     lambda_loc_mer = get_lambda_loc_mer()
