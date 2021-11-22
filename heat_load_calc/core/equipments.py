@@ -3,7 +3,6 @@ from typing import Union
 import numpy as np
 from dataclasses import dataclass
 
-from heat_load_calc.core.boundary_simple import BoundarySimple
 from heat_load_calc.core import boundary_simple
 from heat_load_calc.external.psychrometrics import get_x, get_p_vs_is2
 from heat_load_calc.external.global_number import get_c_a, get_rho_a
@@ -370,7 +369,7 @@ class Equipments:
             # 下記、変数 l は、係数 la と lb のタプルであり、変数 ls は変数 l のリスト。
 
             ls = [
-                self._func_rac(n_room=n_rm, lcs_is_n=l_cs_is_n, theta_r_is_n_pls=theta_r_is_n_pls, x_r_ntr_is_n_pls=x_r_ntr_is_n_pls, prop=equipment['property'])
+                self._get_ls_a_ls_b(n_rm=n_rm, l_cs_is_n=l_cs_is_n, theta_r_is_n_pls=theta_r_is_n_pls, x_r_ntr_is_n_pls=x_r_ntr_is_n_pls, prop=equipment['property'])
                 for equipment in cooling_equipments
             ]
 
@@ -386,6 +385,10 @@ class Equipments:
             return f_l_cl_cst_is_n, f_l_cl_wgt_is_is_n
 
         return get_f_l_cl
+
+    def _get_ls_a_ls_b(self, n_rm, l_cs_is_n, theta_r_is_n_pls, x_r_ntr_is_n_pls, prop):
+
+        return self._func_rac(n_room=n_rm, lcs_is_n=l_cs_is_n, theta_r_is_n_pls=theta_r_is_n_pls, x_r_ntr_is_n_pls=x_r_ntr_is_n_pls, prop=prop)
 
     def _func_rac(
             self,
