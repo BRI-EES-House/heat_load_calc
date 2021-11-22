@@ -271,6 +271,10 @@ class Boundaries:
 
         return p_js_is
 
+    def get_is_floor_js(self):
+
+        return np.array([bs.is_floor for bs in self._bss]).reshape(-1, 1)
+
     def get_is_ground_js(self):
         # 地盤かどうか, [j, 1]
 

@@ -4,38 +4,35 @@ from typing import List
 from heat_load_calc.core import boundary_simple
 
 
-def get_f_mrt_hum_js(n_spaces: int, bss: List[boundary_simple.BoundarySimple]) -> np.ndarray:
+def get_f_mrt_hum_js(n_rm: int, n_b: int, p_is_js, a_s_js, is_floor_js) -> np.ndarray:
     """
     境界jが接する室の在室者に対する境界jの形態係数を取得する。
     Args:
-        n_spaces: 室の数
-        bss: 境界, [j]
+        n_rm: 室の数
+        n_b: 境界の数
+        p_is_js: 室と境界との関係を表すベクトル
+        a_s_js: 境界 j の面積, m2, [j, 1]
+        is_floor_js: 境界 j が床かどうか, [j, 1]
     Returns:
         境界jが接する室の在室者に対する境界jの形態係数
     """
 
     # 境界の数と等しい numpy リストを作成する。
-    f_mrt_hum_is = np.zeros(shape=(len(bss)), dtype=float)
+    f_mrt_hum_js = np.zeros(shape=(n_b), dtype=float)
 
-    # connected_room_id のリスト（numpy形式）
-    connected_room_id_js = np.array([bs.connected_room_id for bs in bss])
+    for i in range(n_rm):
 
-    # 面積, m2, [i]
-    a_srf_js = np.array([bs.area for bs in bss])
+        is_connected_is = p_is_js[i] == 1
 
-    # 床か否か, [i]
-    is_floor_js = np.array([bs.is_floor for bs in bss])
-
-    for i in range(n_spaces):
-
-        is_connected_is = connected_room_id_js == i
-
-        f_mrt_hum_is[is_connected_is] = get_f_mrt_hum_i_js(
-            a_srf_i_js=a_srf_js[is_connected_is],
-            is_floor_i_js=is_floor_js[is_connected_is]
+        f_mrt_hum_js[is_connected_is] = get_f_mrt_hum_i_js(
+            a_srf_i_js=a_s_js.flatten()[is_connected_is],
+            is_floor_i_js=is_floor_js.flatten()[is_connected_is]
         )
 
-    return f_mrt_hum_is
+    # 室iの在室者に対する境界j*の形態係数, [i, j]
+    f_mrt_hum_is_js = p_is_js * f_mrt_hum_js[np.newaxis, :]
+
+    return f_mrt_hum_is_js
 
 
 def get_f_mrt_hum_i_js(a_srf_i_js: np.ndarray, is_floor_i_js: np.ndarray) -> np.ndarray:

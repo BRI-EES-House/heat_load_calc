@@ -301,6 +301,9 @@ def make_pre_calc_parameters(
     # 室iと境界jの関係を表す係数（室iから境界jへの変換）
     p_js_is = bs.get_p_js_is(n_rm=n_rm)
 
+    # 床かどうか, [j, 1]
+    is_floor_js = bs.get_is_floor_js()
+
     # 地盤かどうか, [j, 1]
     is_ground_js = bs.get_is_ground_js()
 
@@ -426,19 +429,18 @@ def make_pre_calc_parameters(
 
     # region 読み込んだ値から新たに係数を作成する
 
+    # 室iの在室者に対する境界jの形態係数, [i, j]
+    f_mrt_hum_is_js = occupants_form_factor.get_f_mrt_hum_js(
+        n_rm=n_rm,
+        n_b=n_b,
+        p_is_js=p_is_js,
+        a_s_js=a_s_js,
+        is_floor_js=is_floor_js
+    )
+
     # 室iに設置された放射暖房の対流成分比率, [i, 1]
     beta_h_is = es.get_beta_h_is()
     beta_c_is = es.get_beta_c_is()
-
-    # 室iの在室者に対する境界jの形態係数, [j]
-    # 境界jが接する室の在室者に対する境界jの形態係数, [j]
-    f_mrt_hum_js = occupants_form_factor.get_f_mrt_hum_js(
-        n_spaces=n_rm,
-        bss=bss
-    )
-
-    # 室iの在室者に対する境界j*の形態係数, [i, j]
-    f_mrt_hum_is_js = p_is_js * f_mrt_hum_js[np.newaxis, :]
 
     # 室 i の放射暖房の放熱量の放射成分に対する境界 j の室内側表面の吸収比率, - [j, i]
     f_flr_h_js_is = es.get_f_flr_h_js_is()
