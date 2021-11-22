@@ -9,7 +9,7 @@ from heat_load_calc.core import response_factor
 
 
 @dataclass
-class BoundarySimple:
+class Boundary:
 
     # ID
     id: int
@@ -79,15 +79,15 @@ class Boundaries:
 
         return self._bss
 
-    def get_boundary_simples(self, a_sun_ns, h_sun_ns, i_dn_ns, i_sky_ns, n_rm, r_n_ns, theta_o_ns, bs) -> List[BoundarySimple]:
+    def get_boundary_simples(self, a_sun_ns, h_sun_ns, i_dn_ns, i_sky_ns, n_rm, r_n_ns, theta_o_ns, bs) -> List[Boundary]:
 
-        # 本来であれば BoundarySimple クラスにおいて境界に関する入力用辞書から読み込みを境界個別に行う。
+        # 本来であれば Boundaries クラスにおいて境界に関する入力用辞書から読み込みを境界個別に行う。
         # しかし、室内側表面放射熱伝達は室内側の形態係数によって値が決まり、ある室に接する境界の面積の組み合わせで決定されるため、
         # 境界個別に値を決めることはできない。（すべての境界の情報が必要である。）
-        # 一方で、境界の集約を行うためには、応答係数を BoundarySimple クラス生成時に求める必要があり、
+        # 一方で、境界の集約を行うためには、応答係数を Boundary クラス生成時に求める必要があり、
         # さらに応答係数の計算には裏面の表面放射・対流熱伝達率の値が必要となるため、
-        # BoundarySimple クラスを生成する前に、予め室内側表面放射・対流熱伝達率を計算しておき、
-        # BoundarySimple クラスを生成する時に必要な情報としておく。
+        # Boundary クラスを生成する前に、予め室内側表面放射・対流熱伝達率を計算しておき、
+        # Boundary クラスを生成する時に必要な情報としておく。
 
         # 境界jの室内側表面放射熱伝達率, W/m2K, [j, 1]
         h_r_js = shape_factor.get_h_r_js(
@@ -100,7 +100,7 @@ class Boundaries:
 
         # 境界j
         bss = [
-            self.get_boundary_simple(
+            self.get_boundary(
                 theta_o_ns=theta_o_ns,
                 i_dn_ns=i_dn_ns,
                 i_sky_ns=i_sky_ns,
@@ -116,7 +116,7 @@ class Boundaries:
         return bss
 
     @staticmethod
-    def get_boundary_simple(theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, a_sun_ns, h_sun_ns, b, h_c_js, h_r_js) -> BoundarySimple:
+    def get_boundary(theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, a_sun_ns, h_sun_ns, b, h_c_js, h_r_js) -> Boundary:
 
         # ID
         # TODO: ID が0始まりで1ずつ増え、一意であることのチェックを行うコードを追記する。
@@ -211,7 +211,7 @@ class Boundaries:
         # 応答係数
         rf = response_factor.get_response_factor(b=b, h_c_js=h_c_js, h_r_js=h_r_js)
 
-        return BoundarySimple(
+        return Boundary(
             id=boundary_id,
             name=name,
             sub_name=sub_name,
@@ -357,7 +357,7 @@ class Boundaries:
             for i in range(n_rm)
         ])
 
-    def _get_boundary_by_id(self, boundary_id: int) -> BoundarySimple:
+    def _get_boundary_by_id(self, boundary_id: int) -> Boundary:
 
         # 指定された boundary_id に一致する Boundary を取得する。
         bss = [bs for bs in self._bss if bs.id == boundary_id]
@@ -371,7 +371,7 @@ class Boundaries:
         return bss[0]
 
     @staticmethod
-    def _get_k_ei_js_j(bs: BoundarySimple, n_boundaries: int):
+    def _get_k_ei_js_j(bs: Boundary, n_boundaries: int):
 
         k_ei_js_j = [0.0] * n_boundaries
 

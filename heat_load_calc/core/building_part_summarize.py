@@ -15,10 +15,10 @@ import numpy as np
 from typing import List
 
 from heat_load_calc.initializer.boundary_type import BoundaryType
-from heat_load_calc.core.boundary_simple import BoundarySimple
+from heat_load_calc.core.boundary_simple import Boundary
 
 
-def integrate(bss: List[BoundarySimple]) -> List[BoundarySimple]:
+def integrate(bss: List[Boundary]) -> List[Boundary]:
     """壁体を集約する。
 
     Args:
@@ -31,7 +31,7 @@ def integrate(bss: List[BoundarySimple]) -> List[BoundarySimple]:
     bss = np.array(bss)
 
     # 集約化可能な境界には同じIDを振り、境界ごとにそのIDを取得する。
-    # BoundarySimple の数のIDを持つ ndarray
+    # Boundary の数のIDを持つ ndarray
     # 例
     # [ 0  1  2  3  4  5  6  7  8  9  9 10 11 12 13 14 15 16 11 12 15 16 17 18
     #  19 11 12 15 16 17 20 11 12 13 21 15 16 22 23 24 25 26 27 28 29 30 31 31
@@ -164,7 +164,7 @@ def integrate(bss: List[BoundarySimple]) -> List[BoundarySimple]:
     ]
 
     return [
-        BoundarySimple(
+        Boundary(
             id=j,
             name=name_js[j],
             sub_name=sub_name_js[j],
@@ -233,7 +233,7 @@ def _get_group_indices(bss: np.ndarray) -> np.ndarray:
     return g_k
 
 
-def _is_boundary_integratable(bs1: BoundarySimple, bs2: BoundarySimple) -> bool:
+def _is_boundary_integratable(bs1: Boundary, bs2: Boundary) -> bool:
     """
     境界1と境界2が同じであるかを判定する。
 
