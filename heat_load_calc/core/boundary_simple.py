@@ -231,13 +231,114 @@ class Boundaries:
             rf=rf
         )
 
+    def get_n_b(self):
+
+        return len(self._bss)
+
+    def get_name_bdry_js(self):
+        # 名前, [j, 1]
+
+        return np.array([bs.name for bs in self._bss]).reshape(-1, 1)
+
+    def get_sub_name_bdry_js(self):
+        # 名前2, [j, 1]
+
+        return np.array([bs.sub_name for bs in self._bss]).reshape(-1, 1)
+
+    def get_p_is_js(self, n_rm):
+        # 室iと境界jの関係を表す係数（境界jから室iへの変換）
+        # [[p_0_0 ... ... p_0_j]
+        #  [ ...  ... ...  ... ]
+        #  [p_i_0 ... ... p_i_j]]
+
+        p_is_js = np.zeros((n_rm, len(self._bss)), dtype=int)
+
+        for bs in self._bss:
+            p_is_js[bs.connected_room_id, bs.id] = 1
+
+        return p_is_js
+
+    def get_p_js_is(self, n_rm):
+        # 室iと境界jの関係を表す係数（室iから境界jへの変換）
+        # [[p_0_0 ... p_0_i]
+        #  [ ...  ...  ... ]
+        #  [ ...  ...  ... ]
+        #  [p_j_0 ... p_j_i]]
+
+        p_is_js = self.get_p_is_js(n_rm=n_rm)
+
+        p_js_is = p_is_js.T
+
+        return p_js_is
+
+    def get_is_ground_js(self):
+        # 地盤かどうか, [j, 1]
+
+        return np.array([bs.boundary_type == BoundaryType.Ground for bs in self._bss]).reshape(-1, 1)
+
+    def get_k_ei_js_js(self):
+        # 境界jの裏面温度に他の境界の等価温度が与える影響, [j, j]
+
+        return np.array([self._get_k_ei_js_j(bs=bs, n_boundaries=len(self._bss)) for bs in self._bss])
+
+    def get_k_eo_js(self):
+        # 温度差係数
+
+        return np.array([bs.h_td for bs in self._bss]).reshape(-1, 1)
+
+    def get_p_s_sol_abs_js(self):
+        # 境界jの日射吸収の有無, [j, 1]
+
+        return np.array([bs.is_solar_absorbed_inside for bs in self._bss]).reshape(-1, 1)
+
+    def get_h_s_r_js(self):
+        # 境界jの室内側表面放射熱伝達率, W/m2K, [j, 1]
+
+        return np.array([bs.h_r for bs in self._bss]).reshape(-1, 1)
+
+    def get_h_s_c_js(self):
+        # 境界jの室内側表面対流熱伝達率, W/m2K, [j, 1]
+
+        return np.array([bs.h_c for bs in self._bss]).reshape(-1, 1)
+
     def get_room_id_by_boundary_id(self, boundary_id: int):
 
-        bs = self.get_boundary_by_id(boundary_id=boundary_id)
+        bs = self._get_boundary_by_id(boundary_id=boundary_id)
 
         return bs.connected_room_id
 
-    def get_boundary_by_id(self, boundary_id: int) -> BoundarySimple:
+    def get_a_s_js(self):
+        # 境界jの面積, m2, [j, 1]
+
+        return np.array([bs.area for bs in self._bss]).reshape(-1, 1)
+
+    def get_phi_a0_js(self):
+        # 境界jの吸熱応答係数の初項, m2K/W, [j, 1]
+
+        return np.array([bs.rf.rfa0 for bs in self._bss]).reshape(-1, 1)
+
+    def get_phi_a1_js_ms(self):
+        # 境界jの項別公比法における項mの吸熱応答係数の第一項 , m2K/W, [j, 12]
+
+        return np.array([bs.rf.rfa1 for bs in self._bss])
+
+    def get_phi_t0_js(self):
+        # 境界jの貫流応答係数の初項, [j, 1]
+
+        return np.array([bs.rf.rft0 for bs in self._bss]).reshape(-1, 1)
+
+    def get_phi_t1_js_ms(self):
+        # 境界jの項別公比法における項mの貫流応答係数の第一項, [j, 12]
+
+        return np.array([bs.rf.rft1 for bs in self._bss])
+
+    def get_r_js_ms(self):
+        # 境界jの項別公比法における項mの公比, [j, 12]
+
+        return np.array([bs.rf.row for bs in self._bss])
+
+
+    def _get_boundary_by_id(self, boundary_id: int) -> BoundarySimple:
 
         # 指定された boundary_id に一致する Boundary を取得する。
         bss = [bs for bs in self._bss if bs.id == boundary_id]
@@ -249,4 +350,39 @@ class Boundaries:
             raise Exception("指定された boundary_id に一致する boundary が複数見つかりました。")
 
         return bss[0]
+
+    @staticmethod
+    def _get_k_ei_js_j(bs: BoundarySimple, n_boundaries: int):
+
+        k_ei_js_j = [0.0] * n_boundaries
+
+        if bs.boundary_type in [
+            BoundaryType.ExternalOpaquePart,
+            BoundaryType.ExternalTransparentPart,
+            BoundaryType.ExternalGeneralPart
+        ]:
+
+            h = bs.h_td
+
+            # 温度差係数が1.0でない場合はk_ei_jsに値を代入する。
+            # id は自分自身の境界IDとし、自分自身の表面の影響は1.0から温度差係数を減じた値になる。
+            if h < 1.0:
+                k_ei_js_j[bs.id] = round(1.0 - h, 1)
+            else:
+                # 温度差係数が1.0の場合は裏面の影響は何もないため k_ei_js に操作は行わない。
+                pass
+
+        elif bs.boundary_type == BoundaryType.Internal:
+
+            # 室内壁の場合にk_ei_jsを登録する。
+            k_ei_js_j[int(bs.rear_surface_boundary_id)] = 1.0
+
+        else:
+
+            # 外皮に面していない場合、室内壁ではない場合（地盤の場合が該当）は、k_ei_js に操作は行わない。
+            pass
+
+        return k_ei_js_j
+
+
 
