@@ -357,7 +357,7 @@ class Equipments:
 
         return f_flr_eqp_js_ks
 
-    def make_get_f_l_cl_funcs(self, n_rm, cooling_equipments):
+    def make_get_f_l_cl_funcs(self):
 
         # 顕熱負荷、室温、加湿・除湿をしない場合の自然絶対湿度から、係数 f_l_cl を求める関数を定義する。
         # 対流式と放射式に分けて係数を設定して、それぞれの除湿量を出す式に将来的に変更した方が良いかもしれない。
@@ -368,8 +368,13 @@ class Equipments:
             # 下記、変数 l は、係数 la と lb のタプルであり、変数 ls は変数 l のリスト。
 
             ls = [
-                self._get_ls_a_ls_b(n_rm=n_rm, l_cs_is_n=l_cs_is_n, theta_r_is_n_pls=theta_r_is_n_pls, x_r_ntr_is_n_pls=x_r_ntr_is_n_pls, prop=equipment['property'], ce=ce)
-                for equipment, ce in zip(cooling_equipments, self._ces)
+                self._get_ls_a_ls_b(
+                    l_cs_is_n=l_cs_is_n,
+                    theta_r_is_n_pls=theta_r_is_n_pls,
+                    x_r_ntr_is_n_pls=x_r_ntr_is_n_pls,
+                    ce=ce
+                )
+                for ce in self._ces
             ]
 
             # 係数 la と 係数 lb をタプルから別々に取り出す。
@@ -385,15 +390,13 @@ class Equipments:
 
         return get_f_l_cl
 
-    def _get_ls_a_ls_b(self, n_rm, l_cs_is_n, theta_r_is_n_pls, x_r_ntr_is_n_pls, prop, ce):
+    def _get_ls_a_ls_b(self, l_cs_is_n, theta_r_is_n_pls, x_r_ntr_is_n_pls, ce):
 
         if type(ce) is CoolingEquipmentRAC:
             return self._func_rac(
-                n_room=n_rm,
-                lcs_is_n=l_cs_is_n,
+                l_cs_is_n=l_cs_is_n,
                 theta_r_is_n_pls=theta_r_is_n_pls,
                 x_r_ntr_is_n_pls=x_r_ntr_is_n_pls,
-                prop=prop,
                 ce=ce
             )
         elif type(ce) is CoolingEquipmentFloorCooling:
@@ -403,18 +406,19 @@ class Equipments:
 
     def _func_rac(
             self,
-            n_room,
-            lcs_is_n,
+            l_cs_is_n,
             theta_r_is_n_pls,
             x_r_ntr_is_n_pls,
-            prop,
             ce: CoolingEquipmentRAC
     ):
+
+        # 室の数
+        n_rm = self._n_rm
 
         # Lcsは加熱が正で表される。
         # 加熱時は除湿しない。
         # 以下の取り扱いを簡単にするため（冷房負荷を正とするため）、正負を反転させる
-        q_s_is_n = -lcs_is_n
+        q_s_is_n = -l_cs_is_n
 
         q_s_i_n = q_s_is_n[ce.room_id, 0]
         theta_r_i_n_pls = theta_r_is_n_pls[ce.room_id, 0]
@@ -449,8 +453,8 @@ class Equipments:
             0.0
         )
 
-        brmx_is_is = np.zeros((n_room, n_room), dtype=float)
-        brxc_is = np.zeros((n_room, 1), dtype=float)
+        brmx_is_is = np.zeros((n_rm, n_rm), dtype=float)
+        brxc_is = np.zeros((n_rm, 1), dtype=float)
 
         brmx_is_is[ce.room_id, ce.room_id] = brmx_rac_is
         brxc_is[ce.room_id, 0] = brcx_rac_is

@@ -342,7 +342,7 @@ def make_pre_calc_parameters(
 
     # endregion
 
-    # region equipments の読み込み
+    # region equipments
 
     es = equipments.Equipments(dict_equipments=rd['equipments'], n_rm=n_rm, n_b=n_b, bs=bs)
 
@@ -352,8 +352,6 @@ def make_pre_calc_parameters(
     # 室iの暖房方式として放射空調が設置されている場合の、放射暖房最大能力, W, [i, 1]
     q_rs_h_max_is = es.get_q_rs_h_max_is()
 
-    cooling_equipments = rd['equipments']['cooling_equipments']
-
     # 室iの冷房方式として放射空調が設置されているかどうか。  bool値, [i, 1]
     is_radiative_cooling_is = es.get_is_radiative_cooling_is()
 
@@ -361,7 +359,6 @@ def make_pre_calc_parameters(
     q_rs_c_max_is = es.get_q_rs_c_max_is()
 
     # endregion
-
 
     # region スケジュール化されたデータの読み込み
 
@@ -536,9 +533,9 @@ def make_pre_calc_parameters(
         lr_cs_max_cap_is=q_rs_c_max_is
     )
 
-    # endregion
+    get_f_l_cl = es.make_get_f_l_cl_funcs()
 
-    get_f_l_cl = es.make_get_f_l_cl_funcs(n_rm, cooling_equipments)
+    # endregion
 
     pre_calc_parameters = PreCalcParameters(
         n_rm=n_rm,
