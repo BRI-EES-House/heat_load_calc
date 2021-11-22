@@ -118,7 +118,7 @@ class CoolingEquipmentFloorCooling:
 
 class Equipments:
 
-    def __init__(self, dict_equipments: Dict, n_rm: int, bss: List[BoundarySimple], n_b: int, bs: boundary_simple.Boundaries):
+    def __init__(self, dict_equipments: Dict, n_rm: int, n_b: int, bs: boundary_simple.Boundaries):
         """設備に関する情報を辞書形式で受け取り、データクラスに変換して保持する。
         暖房・冷房それぞれにおいて、
         辞書の中の "equipment_type" の種類に応じて対応するデータクラスを生成する。
@@ -126,8 +126,8 @@ class Equipments:
         Args:
             dict_equipments: 設備の情報が記された辞書
             n_rm: 部屋の数
-            bss: 境界情報
             n_b: 境界の数
+            bs: Boundariesクラス
 
         Notes:
             ここで BoundarySimple クラスは、境界IDと室IDとの対応関係を見ることだけに使用される。
