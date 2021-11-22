@@ -358,6 +358,23 @@ def make_pre_calc_parameters(
     # 室iの冷房方式として放射空調が設置されている場合の、放射冷房最大能力, W, [i, 1]
     q_rs_c_max_is = es.get_q_rs_c_max_is()
 
+    # 室 i の放射暖房設備の対流成分比率, -, [i, 1]
+    beta_h_is = es.get_beta_h_is()
+
+    # 室 i の放射冷房設備の対流成分比率, -, [i, 1]
+    beta_c_is = es.get_beta_c_is()
+
+    # 室 i の放射暖房の放熱量の放射成分に対する境界 j の室内側表面の吸収比率, - [j, i]
+    f_flr_h_js_is = es.get_f_flr_h_js_is()
+
+    # 室 i の放射冷房の吸熱量の放射成分に対する境界 j の室内側表面の放熱比率, - [j, i]
+    f_flr_c_js_is = es.get_f_flr_c_js_is()
+
+    # 次の係数を求める関数
+    #   ステップ n　からステップ n+1 における係数 f_l_cl_wgt, kg/s(kg/kg(DA)), [i, i]
+    #   ステップ n　からステップ n+1 における係数 f_l_cl_cst, kg/s, [i, 1]
+    get_f_l_cl = es.make_get_f_l_cl_funcs()
+
     # endregion
 
     # region スケジュール化されたデータの読み込み
@@ -431,16 +448,6 @@ def make_pre_calc_parameters(
         a_s_js=a_s_js,
         is_floor_js=is_floor_js
     )
-
-    # 室iに設置された放射暖房の対流成分比率, [i, 1]
-    beta_h_is = es.get_beta_h_is()
-    beta_c_is = es.get_beta_c_is()
-
-    # 室 i の放射暖房の放熱量の放射成分に対する境界 j の室内側表面の吸収比率, - [j, i]
-    f_flr_h_js_is = es.get_f_flr_h_js_is()
-
-    # 室 i の放射冷房の吸熱量の放射成分に対する境界 j の室内側表面の放熱比率, - [j, i]
-    f_flr_c_js_is = es.get_f_flr_c_js_is()
 
     # 室 i の微小球に対する境界 j の形態係数, -, [i, j]
     f_mrt_is_js = shape_factor.get_f_mrt_is_js(a_s_js=a_s_js, h_s_r_js=h_s_r_js, p_is_js=p_is_js)
@@ -532,8 +539,6 @@ def make_pre_calc_parameters(
         lr_h_max_cap_is=q_rs_h_max_is,
         lr_cs_max_cap_is=q_rs_c_max_is
     )
-
-    get_f_l_cl = es.make_get_f_l_cl_funcs()
 
     # endregion
 

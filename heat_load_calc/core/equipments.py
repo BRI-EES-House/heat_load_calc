@@ -363,9 +363,18 @@ class Equipments:
         # 対流式と放射式に分けて係数を設定して、それぞれの除湿量を出す式に将来的に変更した方が良いかもしれない。
 
         def get_f_l_cl(l_cs_is_n, theta_r_is_n_pls, x_r_ntr_is_n_pls):
-            # ==== ルームエアコン吹出絶対湿度の計算 ====
-            # 顕熱負荷・室内温度・除加湿を行わない場合の室絶対湿度から、除加湿計算に必要な係数 la 及び lb を計算する。
-            # 下記、変数 l は、係数 la と lb のタプルであり、変数 ls は変数 l のリスト。
+            """
+
+            Args:
+                l_cs_is_n: ステップ n からステップ n+1 における室 i の暖冷房設備の顕熱処理量（暖房を正・冷房を負とする）, W, [i, 1]
+                theta_r_is_n_pls: ステップ n+1 における室 i の温度, degree C, [i, 1]
+                x_r_ntr_is_n_pls: ステップ n+1 における室 i の加湿・除湿を行わない場合の絶対湿度, kg/kg(DA), [i, 1]
+
+            Returns:
+                タプル
+                    ステップ n　からステップ n+1 における係数 f_l_cl_wgt, kg/s(kg/kg(DA)), [i, i]
+                    ステップ n　からステップ n+1 における係数 f_l_cl_cst, kg/s, [i, 1]
+            """
 
             ls = [
                 self._get_ls_a_ls_b(
