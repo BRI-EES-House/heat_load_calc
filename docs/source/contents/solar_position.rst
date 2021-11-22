@@ -19,6 +19,10 @@ I. 評価法
 
 ここで、
 
+:math:`n`
+    | 1月1日0時からのステップを1とし、12月31日24時までのステップを :math:`365 \times n_h` とする計算ステップ, 回
+:math:`n_h`
+    | 1時間あたりの計算回数, 回/h
 :math:`a_{sun,n}`
     | ステップ |n| における太陽方位角, rad
 :math:`\sin{a_{sun,n}}`
@@ -77,7 +81,7 @@ I. 評価法
 
 ステップ |n| における時角 :math:`\omega_{n}` は、式(5)により計算される。
     
- .. math::
+.. math::
     :nowrap:
 
     \begin{align*}
@@ -93,12 +97,148 @@ I. 評価法
 :math:`\lambda_{loc,mer}`
     | 標準時の地点の経度, rad
 :math:`e_{t,n}`
-    | 均時差, rad
+    | ステップ |n| における均時差, rad
     
 である。  
 
+ステップ |n| における標準時 :math:`t_{m,n}` は、式(6)により計算される。
 
+.. math::
+    :nowrap:
+
+    \begin{align*}
+        t_{m,n} = 365 \times 24 \cdot n \cdot n_h \tag{6}
+    \end{align*}   
+
+計算を :math:`1` 時間間隔で行う場合は :math:`n_h=1` 、 :math:`30` 分間隔の場合は :math:`n_h=2` 、 :math:`15` 分間隔の場合は :math:`n_h=4` となる。
+
+ステップ |n| における赤緯 :math:`\delta_{n}` は、 :math:`-\pi/2 \leq \delta_{n} \leq \pi/2` の範囲で式(7)により計算される。
+
+.. math::
+    :nowrap:
+
+    \begin{align*}
+        \delta_{n} = \arcsin \{ \cos ( \nu_n + \epsilon_n ) \times \sin \delta_0 \} \tag{7}
+    \end{align*}  
+
+ここで、
+
+:math:`\nu_n`
+    | ステップ |n| における真近点離角, rad
+ :math:`\epsilon_n`
+    | ステップ |n| における近日点と冬至点の角度, rad
+ :math:`\delta_0`
+    | 北半球の冬至の日赤緯, rad
+
+である。北半球の冬至の日赤緯 :math:`\delta_0` は、 :math:`-23.4393 \times \pi/180` radを用いる。
+
+ステップ |n| における均時差 :math:`e_{t,n}` は、式(8)により計算される。
+
+.. math::
+    :nowrap:
+
+    \begin{align*}
+        e_{t,n} = ( m_n - \nu_n ) - \arctan \dfrac{ 0.043 \times \sin \{ 2 \times ( \nu_n + \epsilon_n ) \} }{ 1 - 0.043 \times \cos \{ 2 \times ( \nu_n + \epsilon_n ) \} } \tag{8}
+    \end{align*}  
+
+ここで、
+
+:math:`m_n`
+    | ステップ |n| における平均近点離角, rad
+
+である。
+
+ステップ |n| における真近点離角 :math:`\nu_n` は、式(9)により計算される。
+
+.. math::
+    :nowrap:
+
+    \begin{align*}
+        \nu_n = m_n + ( 1.914 \times \sin m_n + 0.02 \sin 2m_n ) \times \dfrac{\pi}{180} \tag{9}
+    \end{align*}
+
+ステップ |n| における近日点と冬至点の角度 :math:`\epsilon_n` は、式(10)により計算される。
+
+.. math::
+    :nowrap:
+
+    \begin{align*}
+        \epsilon_n = \Bigl\{ 12.3901 + 0.0172 \times \Bigl( N + \dfrac{ m_n }{ 2 \pi } \Bigr) \Bigr\} \times \dfrac{\pi}{180}  \tag{10}
+    \end{align*}  
+
+ここで、
+
+:math:`N`
+    | 1968年との年差, 年
+
+である。
+
+ステップ |n| における平均近点離角 :math:`m_n` は、式(11)により計算される。
+
+.. math::
+    :nowrap:
+
+    \begin{align*}
+        m_n = 2 \pi \times ( d_n - d_0 ) / d_{ay}  \tag{11}
+    \end{align*}  
+
+ここで、
+
+:math:`d_n`
+    | ステップ |n| における年通算日( :math:`1` 月 :math:`1` 日を :math:`1` とする), 日
+:math:`d_0`
+    | 平均軌道上の近日点通過日(暦表時による :math:`1968` 年 :math:`1` 月 :math:`1` 日正午基準の日差), 日
+:math:`d_{ay}`
+    | 近点年(近日点基準の公転周期日数), 日
     
+である。本計算では、近点年(近日点基準の公転周期日数) :math:`d_{ay}` は :math:`365.2596` とする。
+
+ステップ |n| における平均軌道上の近日点通過日(暦表時による :math:`1968` 年 :math:`1` 月 :math:`1` 日正午基準の日差) :math:`d_0` は、式(12)により計算される。
+
+.. math::
+    :nowrap:
+
+    \begin{align*}
+        d_0 = 3.71 + 0.2596 \times N - \biggl\lfloor \dfrac{ N + 3 }{ 4 } \biggr\rfloor  \tag{12}
+    \end{align*}  
+
+なお :math:`\lfloor x \rfloor` は、 :math:`x` の小数点以下を切り捨てた値とする。
+	
+1968年との年差 :math:`N` は、式(13)により計算される。
+
+.. math::
+    :nowrap:
+
+    \begin{align*}
+        N = y - 1968  \tag{13}
+    \end{align*}  
+
+ここで、
+
+:math:`y`
+    | 計算するする年(西暦), 年
+    
+である。本計算では、計算するする年は西暦1989年とする。
+	
+:math:`1` 月 :math:`1` 日を :math:`1` とする、ステップ |n| における年通算日 :math:`d_n` は、式(14)により計算される。
+
+.. math::
+    :nowrap:
+
+    \begin{align*}
+        d_n = \biggl\lceil \dfrac{ n }{ 24 \times n_h } \biggr\rceil  \tag{14}
+    \end{align*} 
+
+なお :math:`\lceil x \rceil` は、 :math:`x` の小数点以下を切り上げた値とする。
+
+標準時の地点の経度 :math:`\lambda_{loc,mer}` は、式(15)により計算される。	
+
+.. math::
+    :nowrap:
+
+    \begin{align*}
+        \lambda_{loc,mer} = 135 \times \dfrac{\pi}{180} \tag{15}
+    \end{align*} 
 
 ========================================================================================================================
 II. 根拠
