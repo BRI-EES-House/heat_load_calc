@@ -227,7 +227,7 @@ def make_pre_calc_parameters(
     # 夜間放射量, W/m2, [n]
     # 太陽高度, rad, [n]
     # 太陽方位角, rad, [n]
-    a_sun_ns, h_sun_ns, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns = _read_weather_data(input_data_dir=data_directory)
+    a_sun_ns, h_sun_ns, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, x_o_ns = _read_weather_data(input_data_dir=data_directory)
 
     # region rooms の読み込み
 
@@ -381,7 +381,7 @@ def make_pre_calc_parameters(
     # ステップn+1に対応するために0番要素に最終要素を代入
     theta_o_ns = np.append(theta_o_ns, theta_o_ns[0])
 
-    x_o_ns = pp['absolute humidity'].values
+#    x_o_ns = pp['absolute humidity'].values
     # ステップn+1に対応するために0番要素に最終要素を代入
     x_o_ns = np.append(x_o_ns, x_o_ns[0])
 
@@ -831,4 +831,4 @@ def _read_weather_data(input_data_dir: str):
     # 太陽方位角, rad
     a_sun_ns = pp['sun azimuth'].values
 
-    return a_sun_ns, h_sun_ns, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns
+    return a_sun_ns, h_sun_ns, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, x_o_ns
