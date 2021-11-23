@@ -371,6 +371,32 @@ def make_pre_calc_parameters(
     # 境界jの項別公比法における項mの公比, [j, 12]
     r_js_ms = bs.get_r_js_ms()
 
+    # ステップnの室iにおける窓の透過日射熱取得, W, [8760*4]
+    #　このif文は、これまで実施してきたテストを維持するために設けている。
+    # いずれテスト方法を整理して、csvで与える方式を削除すべきである。
+    # CSVで与える方式があることは（将来的に削除予定であるため）仕様書には記述しない。
+    if q_trans_sol_calculate:
+        q_trs_sol_is_ns = bs.get_q_trs_sol_is_ns(n_rm=n_rm)
+    else:
+        with open(data_directory + '/mid_data_q_trs_sol.csv', 'r') as f:
+            r = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
+            q_trs_sol_is_ns = np.array([row for row in r]).T
+        # ステップn+1に対応するために0番要素に最終要素を代入
+        q_trs_sol_is_ns = np.append(q_trs_sol_is_ns, q_trs_sol_is_ns[:, 0:1], axis=1)
+
+    # ステップnの境界jにおける裏面等価温度, ℃, [j, 8760*4]
+    #　このif文は、これまで実施してきたテストを維持するために設けている。
+    # いずれテスト方法を整理して、csvで与える方式を削除すべきである。
+    # CSVで与える方式があることは（将来的に削除予定であるため）仕様書には記述しない。
+    if theta_o_sol_calculate:
+        theta_o_eqv_js_ns = bs.get_theta_o_eqv_js_ns()
+    else:
+        with open(data_directory + '/mid_data_theta_o_sol.csv', 'r') as f:
+            r = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
+            theta_o_eqv_js_ns = np.array([row for row in r]).T
+        # ステップn+1に対応するために0番要素に最終要素を代入
+        theta_o_eqv_js_ns = np.append(theta_o_eqv_js_ns, theta_o_eqv_js_ns[:, 0:1], axis=1)
+
     # endregion
 
     # region equipments
@@ -407,40 +433,6 @@ def make_pre_calc_parameters(
     get_f_l_cl = es.make_get_f_l_cl_funcs()
 
     # endregion
-
-    pp = pd.read_csv(data_directory + '/weather.csv', index_col=0, engine='python')
-
-#    theta_o_ns = pp['temperature'].values
-    # ステップn+1に対応するために0番要素に最終要素を代入
-#    theta_o_ns = np.append(theta_o_ns, theta_o_ns[0])
-
-#    x_o_ns = pp['absolute humidity'].values
-    # ステップn+1に対応するために0番要素に最終要素を代入
-#    x_o_ns = np.append(x_o_ns, x_o_ns[0])
-
-    # ステップnの室iにおける窓の透過日射熱取得, W, [8760*4]
-    if q_trans_sol_calculate:
-        q_trs_sol_is_ns = bs.get_q_trs_sol_is_ns(n_rm=n_rm)
-        # ステップn+1に対応するために0番要素に最終要素を代入
-#        q_trs_sol_is_ns = np.append(q_trs_sol_is_ns, q_trs_sol_is_ns[:, 0:1], axis=1)
-    else:
-        with open(data_directory + '/mid_data_q_trs_sol.csv', 'r') as f:
-            r = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
-            q_trs_sol_is_ns = np.array([row for row in r]).T
-        # ステップn+1に対応するために0番要素に最終要素を代入
-        q_trs_sol_is_ns = np.append(q_trs_sol_is_ns, q_trs_sol_is_ns[:, 0:1], axis=1)
-
-    # ステップnの境界jにおける裏面等価温度, ℃, [j, 8760*4]
-    if theta_o_sol_calculate:
-        theta_o_eqv_js_ns = bs.get_theta_o_eqv_js_ns()
-        # ステップn+1に対応するために0番要素に最終要素を代入
-#        theta_o_eqv_js_ns = np.append(theta_o_eqv_js_ns, theta_o_eqv_js_ns[:, 0:1], axis=1)
-    else:
-        with open(data_directory + '/mid_data_theta_o_sol.csv', 'r') as f:
-            r = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
-            theta_o_eqv_js_ns = np.array([row for row in r]).T
-        # ステップn+1に対応するために0番要素に最終要素を代入
-        theta_o_eqv_js_ns = np.append(theta_o_eqv_js_ns, theta_o_eqv_js_ns[:, 0:1], axis=1)
 
     # 室iの在室者に対する境界jの形態係数, [i, j]
     f_mrt_hum_is_js = occupants_form_factor.get_f_mrt_hum_js(
