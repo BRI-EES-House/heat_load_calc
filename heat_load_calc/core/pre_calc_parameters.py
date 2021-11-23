@@ -15,7 +15,7 @@ from heat_load_calc.core.matrix_method import v_diag
 from heat_load_calc.initializer.boundary_type import BoundaryType
 from heat_load_calc.core import solar_absorption
 from heat_load_calc.core import equipments
-
+from heat_load_calc.core import rooms
 
 @dataclass
 class PreCalcParameters:
@@ -264,20 +264,26 @@ def make_pre_calc_parameters(
 
     # region rooms の読み込み
 
+    rms2 = rooms.Rooms(dict_rooms=rd['rooms'])
+
     # rooms の取り出し
     rms = rd['rooms']
 
     # room の数
     n_rm = len(rms)
+    n_rm = rms2.get_n_rm()
 
     # id, [i, 1]
     id_rm_is = np.array([int(rm['id']) for rm in rms]).reshape(-1, 1)
+    id_rm_is = rms2.get_id_rm_is()
 
     # 空間iの名前, [i, 1]
     name_rm_is = np.array([str(rm['name']) for rm in rms]).reshape(-1, 1)
+    name_rm_is = rms2.get_name_rm_is()
 
     # 空間iの気積, m3, [i, 1]
     v_rm_is = np.array([float(rm['volume']) for rm in rms]).reshape(-1, 1)
+    v_rm_is = rms2.get_v_rm_is()
 
     # 室iの機械換気量（局所換気を除く）, m3/s, [i, 1]
     # 入力は m3/h なので、3600で除して m3/s への変換を行う。
