@@ -237,6 +237,31 @@ def make_pre_calc_parameters(
     theta_o_ns = np.append(theta_o_ns, theta_o_ns[0])
     x_o_ns = np.append(x_o_ns, x_o_ns[0])
 
+    # ステップnの室iにおける局所換気量, m3/s, [i, 8760*4]
+    with open(data_directory + '/mid_data_local_vent.csv', 'r') as f:
+        r = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
+        v_vent_mec_local_is_ns = np.array([row for row in r]).T
+
+    # ステップnの室iにおける内部発熱, W, [8760*4]
+    with open(data_directory + '/mid_data_heat_generation.csv', 'r') as f:
+        r = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
+        q_gen_is_ns = np.array([row for row in r]).T
+
+    # ステップnの室iにおける人体発湿を除く内部発湿, kg/s, [8760*4]
+    with open(data_directory + '/mid_data_moisture_generation.csv', 'r') as f:
+        r = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
+        x_gen_is_ns = np.array([row for row in r]).T
+
+    # ステップnの室iにおける在室人数, [8760*4]
+    with open(data_directory + '/mid_data_occupants.csv', 'r') as f:
+        r = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
+        n_hum_is_ns = np.array([row for row in r]).T
+
+    # ステップnの室iにおける空調需要, [8760*4]
+    with open(data_directory + '/mid_data_ac_demand.csv', 'r') as f:
+        r = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
+        ac_demand_is_ns = np.array([row for row in r]).T
+
     # region rooms の読み込み
 
     # rooms の取り出し
@@ -392,31 +417,6 @@ def make_pre_calc_parameters(
 #    x_o_ns = pp['absolute humidity'].values
     # ステップn+1に対応するために0番要素に最終要素を代入
 #    x_o_ns = np.append(x_o_ns, x_o_ns[0])
-
-    # ステップnの室iにおける局所換気量, m3/s, [i, 8760*4]
-    with open(data_directory + '/mid_data_local_vent.csv', 'r') as f:
-        r = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
-        v_vent_mec_local_is_ns = np.array([row for row in r]).T
-
-    # ステップnの室iにおける内部発熱, W, [8760*4]
-    with open(data_directory + '/mid_data_heat_generation.csv', 'r') as f:
-        r = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
-        q_gen_is_ns = np.array([row for row in r]).T
-
-    # ステップnの室iにおける人体発湿を除く内部発湿, kg/s, [8760*4]
-    with open(data_directory + '/mid_data_moisture_generation.csv', 'r') as f:
-        r = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
-        x_gen_is_ns = np.array([row for row in r]).T
-
-    # ステップnの室iにおける在室人数, [8760*4]
-    with open(data_directory + '/mid_data_occupants.csv', 'r') as f:
-        r = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
-        n_hum_is_ns = np.array([row for row in r]).T
-
-    # ステップnの室iにおける空調需要, [8760*4]
-    with open(data_directory + '/mid_data_ac_demand.csv', 'r') as f:
-        r = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
-        ac_demand_is_ns = np.array([row for row in r]).T
 
     # ステップnの室iにおける窓の透過日射熱取得, W, [8760*4]
     if q_trans_sol_calculate:
