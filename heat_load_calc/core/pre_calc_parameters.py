@@ -377,7 +377,7 @@ def make_pre_calc_parameters(
 
     pp = pd.read_csv(data_directory + '/weather.csv', index_col=0, engine='python')
 
-    theta_o_ns = pp['temperature'].values
+#    theta_o_ns = pp['temperature'].values
     # ステップn+1に対応するために0番要素に最終要素を代入
     theta_o_ns = np.append(theta_o_ns, theta_o_ns[0])
 
