@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from typing import List, Callable
 
 from heat_load_calc.core import infiltration, response_factor, shape_factor, \
-    occupants_form_factor, boundary_simple, furniture
+    occupants_form_factor, boundaries, furniture
 from heat_load_calc.core import ot_target
 from heat_load_calc.core import next_condition
 from heat_load_calc.core.matrix_method import v_diag
@@ -306,7 +306,7 @@ def make_pre_calc_parameters(
 
     # region boundaries
 
-    bs = boundary_simple.Boundaries(
+    bs = boundaries.Boundaries(
         a_sun_ns=a_sun_ns,
         h_sun_ns=h_sun_ns,
         i_dn_ns=i_dn_ns,

@@ -3,7 +3,7 @@ from typing import Union
 import numpy as np
 from dataclasses import dataclass
 
-from heat_load_calc.core import boundary_simple
+from heat_load_calc.core import boundaries
 from heat_load_calc.external.psychrometrics import get_x, get_p_vs_is2
 from heat_load_calc.external.global_number import get_c_a, get_rho_a
 from heat_load_calc.core.matrix_method import v_diag
@@ -117,7 +117,7 @@ class CoolingEquipmentFloorCooling:
 
 class Equipments:
 
-    def __init__(self, dict_equipments: Dict, n_rm: int, n_b: int, bs: boundary_simple.Boundaries):
+    def __init__(self, dict_equipments: Dict, n_rm: int, n_b: int, bs: boundaries.Boundaries):
         """設備に関する情報を辞書形式で受け取り、データクラスに変換して保持する。
         暖房・冷房それぞれにおいて、
         辞書の中の "equipment_type" の種類に応じて対応するデータクラスを生成する。
@@ -150,7 +150,7 @@ class Equipments:
         self._n_b = n_b
 
     @staticmethod
-    def _create_heating_equipment(dict_heating_equipment, bs: boundary_simple.Boundaries):
+    def _create_heating_equipment(dict_heating_equipment, bs: boundaries.Boundaries):
 
         he_type = dict_heating_equipment['equipment_type']
         id = dict_heating_equipment['id']
@@ -188,7 +188,7 @@ class Equipments:
             raise Exception
 
     @staticmethod
-    def _create_cooling_equipment(dict_cooling_equipment, bs: boundary_simple.Boundaries):
+    def _create_cooling_equipment(dict_cooling_equipment, bs: boundaries.Boundaries):
 
         ce_type = dict_cooling_equipment['equipment_type']
         id = dict_cooling_equipment['id']

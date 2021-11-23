@@ -399,5 +399,3 @@ class Boundaries:
 
         return k_ei_js_j
 
-
-
