@@ -229,6 +229,14 @@ def make_pre_calc_parameters(
     # 太陽方位角, rad, [n]
     a_sun_ns, h_sun_ns, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, x_o_ns = _read_weather_data(input_data_dir=data_directory)
 
+    a_sun_ns = np.append(a_sun_ns, a_sun_ns[0])
+    h_sun_ns = np.append(h_sun_ns, h_sun_ns[0])
+    i_dn_ns = np.append(i_dn_ns, i_dn_ns[0])
+    i_sky_ns = np.append(i_sky_ns, i_sky_ns[0])
+    r_n_ns = np.append(r_n_ns, r_n_ns[0])
+    theta_o_ns = np.append(theta_o_ns, theta_o_ns[0])
+    x_o_ns = np.append(x_o_ns, x_o_ns[0])
+
     # region rooms の読み込み
 
     # rooms の取り出し
@@ -379,11 +387,11 @@ def make_pre_calc_parameters(
 
 #    theta_o_ns = pp['temperature'].values
     # ステップn+1に対応するために0番要素に最終要素を代入
-    theta_o_ns = np.append(theta_o_ns, theta_o_ns[0])
+#    theta_o_ns = np.append(theta_o_ns, theta_o_ns[0])
 
 #    x_o_ns = pp['absolute humidity'].values
     # ステップn+1に対応するために0番要素に最終要素を代入
-    x_o_ns = np.append(x_o_ns, x_o_ns[0])
+#    x_o_ns = np.append(x_o_ns, x_o_ns[0])
 
     # ステップnの室iにおける局所換気量, m3/s, [i, 8760*4]
     with open(data_directory + '/mid_data_local_vent.csv', 'r') as f:
@@ -414,7 +422,7 @@ def make_pre_calc_parameters(
     if q_trans_sol_calculate:
         q_trs_sol_is_ns = bs.get_q_trs_sol_is_ns(n_rm=n_rm)
         # ステップn+1に対応するために0番要素に最終要素を代入
-        q_trs_sol_is_ns = np.append(q_trs_sol_is_ns, q_trs_sol_is_ns[:, 0:1], axis=1)
+#        q_trs_sol_is_ns = np.append(q_trs_sol_is_ns, q_trs_sol_is_ns[:, 0:1], axis=1)
     else:
         with open(data_directory + '/mid_data_q_trs_sol.csv', 'r') as f:
             r = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
@@ -426,7 +434,7 @@ def make_pre_calc_parameters(
     if theta_o_sol_calculate:
         theta_o_eqv_js_ns = bs.get_theta_o_eqv_js_ns()
         # ステップn+1に対応するために0番要素に最終要素を代入
-        theta_o_eqv_js_ns = np.append(theta_o_eqv_js_ns, theta_o_eqv_js_ns[:, 0:1], axis=1)
+#        theta_o_eqv_js_ns = np.append(theta_o_eqv_js_ns, theta_o_eqv_js_ns[:, 0:1], axis=1)
     else:
         with open(data_directory + '/mid_data_theta_o_sol.csv', 'r') as f:
             r = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
