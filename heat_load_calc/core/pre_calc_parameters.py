@@ -375,8 +375,6 @@ def make_pre_calc_parameters(
 
     # endregion
 
-    # region スケジュール化されたデータの読み込み
-
     pp = pd.read_csv(data_directory + '/weather.csv', index_col=0, engine='python')
 
     theta_o_ns = pp['temperature'].values
@@ -433,10 +431,6 @@ def make_pre_calc_parameters(
 
     # ステップn+1に対応するために0番要素に最終要素を代入
     theta_o_eqv_js_ns = np.append(theta_o_eqv_js_ns, theta_o_eqv_js_ns[:, 0:1], axis=1)
-
-    # endregion
-
-    # region 読み込んだ値から新たに係数を作成する
 
     # 室iの在室者に対する境界jの形態係数, [i, j]
     f_mrt_hum_is_js = occupants_form_factor.get_f_mrt_hum_js(
@@ -508,8 +502,6 @@ def make_pre_calc_parameters(
 
     # 係数 f_{WSC, n}, degree C, [j, n]
     f_wsc_js_ns = get_f_wsc_js_ns(f_ax_js_js=f_ax_js_js, f_crx_js_ns=f_crx_js_ns)
-
-    # endregion
 
     # region 読み込んだ値から新たに関数を作成する
 
