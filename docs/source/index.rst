@@ -16,3 +16,4 @@
    /contents/humidity_balance
    /contents/furniture
    /contents/period
+   /contents/solar_position
