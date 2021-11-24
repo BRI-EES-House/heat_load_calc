@@ -264,39 +264,35 @@ def make_pre_calc_parameters(
 
     # region rooms の読み込み
 
-    rms2 = rooms.Rooms(dict_rooms=rd['rooms'])
+    rms = rooms.Rooms(dict_rooms=rd['rooms'])
 
     # rooms の取り出し
-    rms = rd['rooms']
+    dict_rooms = rd['rooms']
 
     # room の数
-    n_rm = len(rms)
-    n_rm = rms2.get_n_rm()
+    n_rm = rms.get_n_rm()
 
     # id, [i, 1]
-    id_rm_is = np.array([int(rm['id']) for rm in rms]).reshape(-1, 1)
-    id_rm_is = rms2.get_id_rm_is()
+    id_rm_is = rms.get_id_rm_is()
 
     # 空間iの名前, [i, 1]
-    name_rm_is = np.array([str(rm['name']) for rm in rms]).reshape(-1, 1)
-    name_rm_is = rms2.get_name_rm_is()
+    name_rm_is = rms.get_name_rm_is()
 
     # 空間iの気積, m3, [i, 1]
-    v_rm_is = np.array([float(rm['volume']) for rm in rms]).reshape(-1, 1)
-    v_rm_is = rms2.get_v_rm_is()
+    v_rm_is = rms.get_v_rm_is()
 
     # 室iの機械換気量（局所換気を除く）, m3/s, [i, 1]
     # 入力は m3/h なので、3600で除して m3/s への変換を行う。
-    v_vent_mec_general_is = (np.array([rm['ventilation']['mechanical'] for rm in rms]) / 3600).reshape(-1, 1)
+    v_vent_mec_general_is = (np.array([rm['ventilation']['mechanical'] for rm in dict_rooms]) / 3600).reshape(-1, 1)
 
     # 室iの隣室iからの機械換気量, m3/s, [i, i]
     v_vent_int_is_is = _get_v_vent_int_is_is(
-        next_vent_is_ks=[rm['ventilation']['next_spaces'] for rm in rms]
+        next_vent_is_ks=[rm['ventilation']['next_spaces'] for rm in dict_rooms]
     )
 
     # 室iの自然風利用時の換気量, m3/s, [i, 1]
     # 入力は m3/h なので、3600 で除して m3/s への変換を行っている。
-    v_vent_ntr_set_is = np.array([s['ventilation']['natural'] / 3600 for s in rms]).reshape(-1, 1)
+    v_vent_ntr_set_is = np.array([s['ventilation']['natural'] / 3600 for s in dict_rooms]).reshape(-1, 1)
 
     # 備品等に関する物性値を取得する。
     #   室 i の備品等の熱容量, J/K, [i, 1]
@@ -304,7 +300,7 @@ def make_pre_calc_parameters(
     #   室 i の備品等の湿気容量, kg/(kg/kgDA), [i, 1]
     #   室 i の空気と備品等間の湿気コンダクタンス, kg/(s (kg/kgDA)), [i, 1]
     c_lh_frt_is, c_sh_frt_is, g_lh_frt_is, g_sh_frt_is = furniture.get_furniture_specs(
-        d_frt=[rm['furniture'] for rm in rms],
+        d_frt=[rm['furniture'] for rm in dict_rooms],
         v_rm_is=v_rm_is
     )
 
@@ -527,7 +523,8 @@ def make_pre_calc_parameters(
     #   すきま風量, m3/s, [i,1]
     get_infiltration = infiltration.make_get_infiltration_function(
         infiltration=rd['building']['infiltration'],
-        rms=rms
+        rms=dict_rooms,
+        v_rm_is=v_rm_is
     )
 
     # 次のステップの室温と負荷を計算する関数

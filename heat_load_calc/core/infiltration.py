@@ -27,12 +27,13 @@ class InsidePressure(Enum):
     BALANCED = 'balanced'
 
 
-def make_get_infiltration_function(infiltration: Dict, rms: List[Dict]):
+def make_get_infiltration_function(infiltration: Dict, rms: List[Dict], v_rm_is):
     """
     室温と外気温度から隙間風を計算する関数を作成する。
     Args:
         infiltration: 隙間風に関する辞書
         rms: 室に関する辞書のリスト
+        v_rm_is: 空間 i の気積, m3, [i, 1]
     Returns:
         室温と外気温度から隙間風を計算する関数
     Notes:
@@ -58,7 +59,8 @@ def make_get_infiltration_function(infiltration: Dict, rms: List[Dict]):
         inside_pressure = InsidePressure(infiltration['inside_pressure'])
 
         # 空間iの気積, m3, [i, 1]
-        v_room_is = np.array([float(s['volume']) for s in rms]).reshape(-1, 1)
+#        v_room_is = np.array([float(s['volume']) for s in rms]).reshape(-1, 1)
+        v_room_is = v_rm_is
 
         return partial(
             _get_infiltration_residential,
