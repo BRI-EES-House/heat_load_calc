@@ -1,52 +1,57 @@
 .. include:: definition.txt
 
 ************************************************************************************************************************
-隙間風
+すきま風
 ************************************************************************************************************************
 
 ========================================================================================================================
 I. 評価法
 ========================================================================================================================
 
-すきま風量を、2階建てまでに適用できる住宅用の近似式を使用して計算する場合は、以下の通りである。
+1. 適用範囲
 
-室 |i| のすきま風量 :math:`V_{infiltration,i}` は式(1)で表される。
+2階建てまでに適用できる住宅用の近似式を使用してすきま風量を計算する場合に適用する。
+
+
+2. 計算式
+
+室 |i| のすきま風量 :math:`V_{infil,i}` は式(1)で表される。
 
 .. math::
     :nowrap:
 
     \begin{align*}
-    	  V_{infiltration,i} = n_{infiltration} V_{room,i} /3600 \tag{1}
+    	  V_{infil,i} = n_{infil} V_{rm,i} /3600 \tag{1}
     \end{align*}
 
 ここで、
 
-:math:`V_{infiltration,i}`
+:math:`V_{infil,i}`
     | 室 |i| のすきま風量, |m3| /s
-:math:`n_{infiltration}`
+:math:`n_{infil}`
     | すきま風による住宅全体の換気回数, 回/h
-:math:`V_{room,i}`
+:math:`V_{rm,i}`
     | 室 |i| の容積, |m3| 
     
 である。
 
-すきま風による住宅全体の換気回数 :math:`n_{infiltration}` は式(2)で表される。
+すきま風による住宅全体の換気回数 :math:`n_{infil}` は式(2)で表される。
 
 .. math::
     :nowrap:
 
     \begin{align*}
-    	  n_{infiltration} = \max \{ a \cdot C \sqrt{\Delta \theta} - b, 0 \} \tag{2}
+    	  n_{infil} = \max \{ a \cdot C \cdot \sqrt{\Delta \theta} - b, 0 \} \tag{2}
     \end{align*}
 
 ここで、
 
 :math:`a`
-    | 近似式の係数, 回/(h cm\ :sup:`2`\/ |m2| K\ :sup:`0.5`\)
+    | 近似式の係数, 回/(h (cm\ :sup:`2`\/ |m2| )K\ :sup:`0.5`\)
 :math:`b`
     | 近似式の係数, 回/h
 :math:`C`
-    | 相当隙間面積, cm\ :sup:`2`\/ |m2| 
+    | 相当隙間面積, (cm\ :sup:`2`\/ |m2| )
 :math:`\Delta \theta`
     | 室内外温度差, ℃ 
     
@@ -80,13 +85,11 @@ I. 評価法
     :nowrap:
 
     \begin{align*}
-    	  \bar{\theta}_{r} = \dfrac{\sum\limits_{i} V_{room,i} \theta_{r,i}}{\sum\limits_{i} V_{room,i}} \tag{4}
+    	  \bar{\theta}_{r} = \dfrac{\sum\limits_{i} V_{rm,i} \theta_{r,i}}{\sum\limits_{i} V_{rm,i}} \tag{4}
     \end{align*}
 
 ここで、
 
-:math:`V_{room,i}`
-    | 室 |i| の容積, |m3| 
 :math:`\theta_{r,i}`
     | 室 |i| の温度, ℃ 
     
