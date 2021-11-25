@@ -132,14 +132,16 @@ class Logger:
 
         self.theta_o_ns = ss.theta_o_ns
         self.x_o_ns = ss.x_o_ns
+        # nからn+1の平均値については最後尾に0番目をコピー
+        # n時点の瞬時値については、最前部に0番目をコピー
         self.ac_demand_is_ns = np.append(ss.ac_demand_is_ns, np.zeros((ss.n_rm, 1)), axis=1)
-        self.q_trs_sol_is_ns = np.append(ss.q_trs_sol_is_ns, np.zeros((ss.n_rm, 1)), axis=1)
+        self.q_trs_sol_is_ns = np.append(np.zeros((ss.n_rm, 1)), ss.q_trs_sol_is_ns, axis=1)
         self.q_gen_is_ns = np.append(ss.q_gen_is_ns, np.zeros((ss.n_rm, 1)), axis=1)
         self.x_gen_is_ns = np.append(ss.x_gen_is_ns, np.zeros((ss.n_rm, 1)), axis=1)
-        self.q_sol_frt_is_ns = np.append(ss.q_sol_frt_is_ns, np.zeros((ss.n_rm, 1)), axis=1)
+        self.q_sol_frt_is_ns = np.append(np.zeros((ss.n_rm, 1)), ss.q_sol_frt_is_ns, axis=1)
 
         qisol_s = ss.q_s_sol_js_ns * ss.a_s_js
-        self.qisol_s = np.append(qisol_s, np.zeros((ss.n_bdry, 1)), axis=1)
+        self.qisol_s = np.append(np.zeros((ss.n_bdry, 1)), qisol_s, axis=1)
         self.h_c_s = ss.h_s_c_js.repeat(self._n_step_main + 1, axis=1)
         self.h_r_s = ss.h_s_r_js.repeat(self._n_step_main + 1, axis=1)
 
@@ -155,7 +157,9 @@ class Logger:
         self.rh = psy.get_h(p_v=p_v, p_vs=p_vs)
 
         # ステップnの室iにおける家具取得熱量, W, [i, n]
-        self.q_frt = ss.g_sh_frt_is * (self.theta_r - self.theta_frt)
+        theta_r_is_ns = np.roll(self.theta_r, -1, axis=1)
+        theta_frt_is_ns = np.roll(self.theta_frt, -1, axis=1)
+        self.q_frt = ss.g_sh_frt_is * (theta_r_is_ns - theta_frt_is_ns)
 
         # ステップnの境界jにおける表面熱流（壁体吸熱を正とする）のうち対流成分, W, [j, n]
         self.qc = ss.h_s_c_js * ss.a_s_js * (np.dot(ss.p_js_is, self.theta_r) - self.theta_s)
@@ -164,7 +168,9 @@ class Logger:
         self.qr = ss.h_s_r_js * ss.a_s_js * (np.dot(np.dot(ss.p_js_is, ss.f_mrt_is_js), self.theta_s) - self.theta_s)
 
         # ステップnの室iの家具等から空気への水分流, kg/s, [i, n]
-        self.q_l_frt = ss.g_lh_frt_is * (self.x_r - self.x_frt)
+        x_r_is_ns = np.roll(self.x_r, -1, axis=1)
+        x_frt_is_ns = np.roll(self.x_frt, -1, axis=1)
+        self.q_l_frt = ss.g_lh_frt_is * (x_r_is_ns - x_frt_is_ns)
 
 
 def record(pps: PreCalcParameters, logger: Logger, output_data_dir: str, show_detail_result: bool, n_step_main: int, n_d_main: int):
@@ -209,13 +215,13 @@ def record(pps: PreCalcParameters, logger: Logger, output_data_dir: str, show_de
         dd_i[name + '_q_s_sol_fun'] = logger.q_sol_frt_is_ns[i][0:n_step_main_i]
         dd_i[name + '_x_fun'] = logger.x_frt[i][0:n_step_main_i]
         dd_a[name + '_q_l_fun'] = logger.q_l_frt[i][0:n_step_main_a]
-        dd_i[name + '_v_reak'] = logger.v_reak_is_ns[i][0:n_step_main_i]
-        dd_i[name + '_v_ntrl'] = logger.v_ntrl_is_ns[i][0:n_step_main_i]
+        dd_a[name + '_v_reak'] = logger.v_reak_is_ns[i][0:n_step_main_a]
+        dd_a[name + '_v_ntrl'] = logger.v_ntrl_is_ns[i][0:n_step_main_a]
         dd_i[name + '_pmv_target'] = logger.pmv_target[i][0:n_step_main_i]
         dd_i[name + '_pmv'] = logger.pmv[i][0:n_step_main_i]
         dd_i[name + '_ppd'] = logger.ppd[i][0:n_step_main_i]
         dd_i[name + '_v_hum'] = logger.v_hum[i][0:n_step_main_i]
-        dd_a[name + '_clo'] = logger.clo[i][0:n_step_main_i]
+        dd_a[name + '_clo'] = logger.clo[i][0:n_step_main_a]
 
         selected = pps.p_is_js[i] == 1
         boundary_names = pps.name_bdry_js[selected]
