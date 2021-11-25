@@ -55,18 +55,21 @@ class TestAllAtOnce(unittest.TestCase):
 
     def test_theta_r_and_humid(self):
 
-        self.assertAlmostEqual(18.6284156828245, self._dd_i['rm0_t_r']['1989-12-31  23:45:00'])
-        self.assertAlmostEqual(0.012926380447727, self._dd_i['rm0_x_r']['1989/8/24  16:00:00'])
-        self.assertAlmostEqual(24.0865229508242, self._dd_i['rm1_t_r']['1989-12-31  23:45:00'])
-        self.assertAlmostEqual(0.00331962007877677, self._dd_i['rm1_x_r']['1989-12-31  23:45:00'])
-        self.assertAlmostEqual(20.0460934484372, self._dd_i['rm2_t_r']['1989-12-31  23:45:00'])
-        self.assertAlmostEqual(0.00329791421931909, self._dd_i['rm2_x_r']['1989-12-31  23:45:00'])
+        self.assertAlmostEqual(18.0046849279943, self._dd_i['rm0_t_r']['1989-01-01  00:15:00'])
+        self.assertAlmostEqual(0.012926380447727, self._dd_i['rm0_x_r']['1989/8/24  16:15:00'])
+        self.assertAlmostEqual(24.1921624698274, self._dd_i['rm1_t_r']['1989-01-01  00:15:00'])
+        self.assertAlmostEqual(0.00333546938260526, self._dd_i['rm1_x_r']['1989-01-01  00:15:00'])
+        self.assertAlmostEqual(19.5938422623153, self._dd_i['rm2_t_r']['1989-01-01  00:15:00'])
+        self.assertAlmostEqual(0.00328408311635483, self._dd_i['rm2_x_r']['1989-01-01  00:15:00'])
 
     # 室空気の熱収支のテスト（主たる居室）
     def test_air_heat_balance_mor(self):
 
-        t_r_old = self._dd_i['rm0_t_r']['1989-01-01 00:00:00']
-        t_r_new = self._dd_i['rm0_t_r']['1989-01-01 00:15:00']
+        date_now = '1989-01-01 00:30:00'
+        date_old = '1989-01-01 00:15:00'
+        date_ave = '1989-01-01 00:15:00'
+        t_r_old = self._dd_i['rm0_t_r'][date_old]
+        t_r_new = self._dd_i['rm0_t_r'][date_now]
 
         volume = self._mdh['rooms'][0]['volume']  # m3
         c_air = 1005  # J/kg K
@@ -77,17 +80,17 @@ class TestAllAtOnce(unittest.TestCase):
         # 部位からの対流熱取得, [W]
         surf_conv_heat = 0.0
         for i in range(0, 12):
-            surf_conv_heat -= self._dd_i['rm0_b' + str(i) + '_qic_s']['1989-01-01 00:15:00']
+            surf_conv_heat -= self._dd_i['rm0_b' + str(i) + '_qic_s'][date_now]
 
         # 家具からの対流熱取得, [W]
-        t_fun = self._dd_i['rm0_t_fun']['1989-01-01 00:15:00']
+        t_fun = self._dd_i['rm0_t_fun'][date_now]
         c_fun = furniture._get_g_sh_frt_i(furniture._get_c_sh_frt_i(v_rm_i=volume))
         q_fun = c_fun * (t_fun - t_r_new)
-        self.assertAlmostEqual(q_fun, - self._dd_i['rm0_q_s_fun']['1989-01-01 00:15:00'])
+        self.assertAlmostEqual(q_fun, - self._dd_a['rm0_q_s_fun'][date_ave])
 
         # すきま風による熱取得, [W]
-        v_reak = self._dd_i['rm0_v_reak']['1989-01-01 00:15:00']  # m3/s
-        t_o = self._dd_i['out_temp']['1989-01-01 00:30:00']  # C
+        v_reak = self._dd_a['rm0_v_reak'][date_ave]  # m3/s
+        t_o = self._dd_i['out_temp'][date_now]  # C
         q_vent_reak = c_air * rho_air * v_reak * (t_o - t_r_new)
 
         # 計画換気による熱取得, [W]
@@ -95,16 +98,16 @@ class TestAllAtOnce(unittest.TestCase):
         q_vent_mecha = c_air * rho_air * v_mechanical * (t_o - t_r_new)
 
         # 自然換気による熱取得, [W]
-        v_natural = self._dd_i['rm0_v_ntrl']['1989-01-01 00:15:00']  # m3/s
+        v_natural = self._dd_a['rm0_v_ntrl'][date_ave]  # m3/s
         q_vent_natural = c_air * rho_air * v_natural * (t_o - t_r_new)
 
         # 隣室間換気による熱取得, [W]
         v_next_vent0 = 0.0                                                      # m3/s
         v_next_vent1 = 0.0                                                      # m3/s
         v_next_vent2 = 0.0                                                      # m3/s
-        t_r_0_new = self._dd_i['rm0_t_r']['1989-01-01 00:15:00']
-        t_r_1_new = self._dd_i['rm1_t_r']['1989-01-01 00:15:00']
-        t_r_2_new = self._dd_i['rm2_t_r']['1989-01-01 00:15:00']
+        t_r_0_new = self._dd_i['rm0_t_r'][date_now]
+        t_r_1_new = self._dd_i['rm1_t_r'][date_now]
+        t_r_2_new = self._dd_i['rm2_t_r'][date_now]
         q_next_vent0 = c_air * rho_air * v_next_vent0 * (t_r_0_new - t_r_new)
         q_next_vent1 = c_air * rho_air * v_next_vent1 * (t_r_1_new - t_r_new)
         q_next_vent2 = c_air * rho_air * v_next_vent2 * (t_r_2_new - t_r_new)
@@ -118,11 +121,11 @@ class TestAllAtOnce(unittest.TestCase):
         q_local_vent = c_air * rho_air * v_local * (t_o - t_r_new)
 
         # 内部発熱顕熱, [W]
-        q_internal = self._dd_i['rm0_q_s_except_hum']['1989-01-01 00:15:00']\
-                     + self._dd_i['rm0_q_hum_s']['1989-01-01 00:15:00']
+        q_internal = self._dd_a['rm0_q_s_except_hum'][date_ave]\
+                     + self._dd_a['rm0_q_hum_s'][date_ave]
 
         # 顕熱負荷, [W]
-        L_s = self._dd_i['rm0_l_s_c']['1989-01-01 00:15:00']
+        L_s = self._dd_a['rm0_l_s_c'][date_ave]
 
         # 熱収支のテスト
         self.assertAlmostEqual(heat_storage,
@@ -141,6 +144,7 @@ class TestAllAtOnce(unittest.TestCase):
 
         date_now = '1989-12-31 23:45:00'
         date_old = '1989-12-31 23:30:00'
+        date_ave = '1989-12-31 23:30:00'
 
         t_r_old = self._dd_i['rm2_t_r'][date_old]
         t_r_new = self._dd_i['rm2_t_r'][date_now]
@@ -160,11 +164,11 @@ class TestAllAtOnce(unittest.TestCase):
         t_fun = self._dd_i['rm2_t_fun'][date_now]
         c_fun = furniture._get_g_sh_frt_i(furniture._get_c_sh_frt_i(v_rm_i=volume))
         q_fun = c_fun * (t_fun - t_r_new)
-        self.assertAlmostEqual(q_fun, - self._dd_i['rm2_q_s_fun'][date_now])
+        self.assertAlmostEqual(q_fun, - self._dd_a['rm2_q_s_fun'][date_ave])
 
         # すきま風による熱取得, [W]
-        v_reak = self._dd_i['rm2_v_reak'][date_now]  # m3/s
-        t_o = self._dd_i['out_temp']['1989/1/1  0:00:00']  # C
+        v_reak = self._dd_a['rm2_v_reak'][date_ave]  # m3/s
+        t_o = self._dd_i['out_temp'][date_now]  # C
         q_vent_reak = c_air * rho_air * v_reak * (t_o - t_r_new)
 
         # 計画換気による熱取得, [W]
@@ -172,7 +176,7 @@ class TestAllAtOnce(unittest.TestCase):
         q_vent_mecha = c_air * rho_air * v_mechanical * (t_o - t_r_new)
 
         # 自然換気による熱取得, [W]
-        v_natural = self._dd_i['rm2_v_ntrl'][date_now]  # m3/s
+        v_natural = self._dd_a['rm2_v_ntrl'][date_ave]  # m3/s
         q_vent_natural = c_air * rho_air * v_natural * (t_o - t_r_new)
 
         # 隣室間換気による熱取得, [W]
@@ -195,11 +199,11 @@ class TestAllAtOnce(unittest.TestCase):
         q_local_vent = c_air * rho_air * v_local * (t_o - t_r_new)
 
         # 内部発熱顕熱, [W]
-        q_internal = self._dd_i['rm2_q_s_except_hum'][date_now]\
-                     + self._dd_i['rm2_q_hum_s'][date_now]
+        q_internal = self._dd_a['rm2_q_s_except_hum'][date_ave]\
+                     + self._dd_a['rm2_q_hum_s'][date_ave]
 
         # 顕熱負荷, [W]
-        L_s = self._dd_i['rm2_l_s_c'][date_now]
+        L_s = self._dd_a['rm2_l_s_c'][date_now]
 
         # 熱収支のテスト
         self.assertAlmostEqual(heat_storage,
@@ -312,7 +316,8 @@ class TestAllAtOnce(unittest.TestCase):
         # テスト時刻を指定
         date_now = '1989-08-08 12:00:00'
         date_old = '1989-08-08 11:45:00'
-        schedule_row = 21072
+        date_ave = '1989-08-08 11:45:00'
+        schedule_row = 21071
 
         # 室空気の蓄湿, [kg/s]
         x_r_old = self._dd_i['rm0_x_r'][date_old]
@@ -323,13 +328,12 @@ class TestAllAtOnce(unittest.TestCase):
 
         # 備品からの湿気取得, [kg/s]
         x_fun = self._dd_i['rm0_x_fun'][date_now]
-#        cx_fun = self._mdh['spaces'][0]['furniture']['moisture_cond']  # kg/(s kg/kg(DA))
         cx_fun = furniture._get_g_lh_frt_i(c_lh_frt_i=furniture._get_c_lh_frt_i(v_rm_i=volume))
         humid_fun = cx_fun * (x_fun - x_r_new)
 
         # すきま風による湿気取得, [kg/s]
-        v_reak = self._dd_i['rm0_v_reak'][date_now]  # m3/s
-        x_o = self._dd_i['out_abs_humid']['1989-08-08 12:15:00']  # kg/kg(DA)
+        v_reak = self._dd_a['rm0_v_reak'][date_ave]  # m3/s
+        x_o = self._dd_i['out_abs_humid'][date_now]  # kg/kg(DA)
         humid_reak = rho_air * v_reak * (x_o - x_r_new)
 
         # 計画換気による湿気取得, [kg/s]
@@ -337,7 +341,7 @@ class TestAllAtOnce(unittest.TestCase):
         humid_mecha = rho_air * v_mechanical * (x_o - x_r_new)
 
         # 自然換気による熱取得, [kg/s]
-        v_natural = self._dd_i['rm0_v_ntrl'][date_now]  # m3/s
+        v_natural = self._dd_a['rm0_v_ntrl'][date_ave]  # m3/s
         humid_natural = rho_air * v_natural * (x_o - x_r_new)
 
         # 隣室間換気による湿気取得, [kg/s]
@@ -360,11 +364,11 @@ class TestAllAtOnce(unittest.TestCase):
         humid_local = rho_air * v_local * (x_o - x_r_new)
 
         # 内部発湿, [kg/s]
-        humid_internal = self._dd_i['rm0_q_l_except_hum'][date_now] \
-                     + self._dd_i['rm0_q_hum_l'][date_now]
+        humid_internal = self._dd_a['rm0_q_l_except_hum'][date_ave] \
+                     + self._dd_a['rm0_q_hum_l'][date_ave]
 
         # 潜熱負荷, [kg/s]
-        L_l = self._dd_i['rm0_l_l_c'][date_now] / 2501000.0
+        L_l = self._dd_a['rm0_l_l_c'][date_ave] / 2501000.0
 
         self.assertAlmostEqual(humid_storage,
                                humid_fun + humid_reak + humid_mecha
@@ -383,7 +387,8 @@ class TestAllAtOnce(unittest.TestCase):
         # テスト時刻を指定
         date_now = '1989-08-08 12:00:00'
         date_old = '1989-08-08 11:45:00'
-        schedule_row = 21072
+        date_ave = '1989-08-08 11:45:00'
+        schedule_row = 21071
 
         # 室空気の蓄湿, [kg/s]
         x_r_old = self._dd_i['rm2_x_r'][date_old]
@@ -394,13 +399,12 @@ class TestAllAtOnce(unittest.TestCase):
 
         # 備品からの湿気取得, [kg/s]
         x_fun = self._dd_i['rm2_x_fun'][date_now]
-#        cx_fun = self._mdh['spaces'][2]['furniture']['moisture_cond']  # kg/(s kg/kg(DA))
         cx_fun = furniture._get_g_lh_frt_i(c_lh_frt_i=furniture._get_c_lh_frt_i(v_rm_i=volume))
         humid_fun = cx_fun * (x_fun - x_r_new)
 
         # すきま風による湿気取得, [kg/s]
-        v_reak = self._dd_i['rm2_v_reak'][date_now]  # m3/s
-        x_o = self._dd_i['out_abs_humid']['1989-08-08 12:15:00']  # kg/kg(DA)
+        v_reak = self._dd_a['rm2_v_reak'][date_ave]  # m3/s
+        x_o = self._dd_i['out_abs_humid'][date_now]  # kg/kg(DA)
         humid_reak = rho_air * v_reak * (x_o - x_r_new)
 
         # 計画換気による湿気取得, [kg/s]
@@ -408,7 +412,7 @@ class TestAllAtOnce(unittest.TestCase):
         humid_mecha = rho_air * v_mechanical * (x_o - x_r_new)
 
         # 自然換気による熱取得, [kg/s]
-        v_natural = self._dd_i['rm2_v_ntrl'][date_now]  # m3/s
+        v_natural = self._dd_a['rm2_v_ntrl'][date_ave]  # m3/s
         humid_natural = rho_air * v_natural * (x_o - x_r_new)
 
         # 隣室間換気による湿気取得, [kg/s]
@@ -431,11 +435,11 @@ class TestAllAtOnce(unittest.TestCase):
         humid_local = rho_air * v_local * (x_o - x_r_new)
 
         # 内部発湿, [kg/s]
-        humid_internal = self._dd_i['rm2_q_l_except_hum'][date_now] \
-                     + self._dd_i['rm2_q_hum_l'][date_now]
+        humid_internal = self._dd_a['rm2_q_l_except_hum'][date_ave] \
+                     + self._dd_a['rm2_q_hum_l'][date_ave]
 
         # 潜熱負荷, [kg/s]
-        L_l = self._dd_i['rm2_l_l_c'][date_now] / 2501000.0
+        L_l = self._dd_a['rm2_l_l_c'][date_ave] / 2501000.0
 
         self.assertAlmostEqual(humid_storage,
                                humid_fun + humid_reak + humid_mecha
