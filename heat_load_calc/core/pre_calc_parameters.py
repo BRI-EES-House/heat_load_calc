@@ -314,11 +314,11 @@ def make_pre_calc_parameters(
     pp = pd.read_csv(data_directory + '/weather.csv', index_col=0, engine='python')
 
     theta_o_ns = pp['temperature'].values
-    # ステップn+1に対応するために0番要素に最終要素を代入
+    # ステップn+1に対応するために0番要素を最終要素の後に追加
     theta_o_ns = np.append(theta_o_ns, theta_o_ns[0])
 
     x_o_ns = pp['absolute humidity'].values
-    # ステップn+1に対応するために0番要素に最終要素を代入
+    # ステップn+1に対応するために0番要素を最終要素の後に追加
     x_o_ns = np.append(x_o_ns, x_o_ns[0])
 
     # ステップnの室iにおける局所換気量, m3/s, [i, 8760*4]
