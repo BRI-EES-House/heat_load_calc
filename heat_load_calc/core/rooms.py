@@ -2,6 +2,7 @@
 import numpy as np
 from dataclasses import dataclass
 
+from heat_load_calc.core import furniture
 
 @dataclass
 class Room:
@@ -23,10 +24,12 @@ class Rooms:
         # room の数
         self._n_rm = len(dict_rooms)
 
-        self._rms = [
-            Room(id=rm['id'], name=rm['name'], v=rm['volume'])
-            for rm in dict_rooms
-        ]
+        self._rms = [self._get_rm(dict_room=rm) for rm in dict_rooms]
+
+    @staticmethod
+    def _get_rm(dict_room: Dict):
+                
+        return Room(id=dict_room['id'], name=dict_room['name'], v=dict_room['volume'])
 
     def get_n_rm(self):
 

@@ -523,7 +523,6 @@ def make_pre_calc_parameters(
     #   すきま風量, m3/s, [i,1]
     get_infiltration = infiltration.make_get_infiltration_function(
         infiltration=rd['building']['infiltration'],
-        rms=dict_rooms,
         v_rm_is=v_rm_is
     )
 
