@@ -124,7 +124,8 @@ class OutsideEqvTempInternal(OutsideEqvTemp):
         # この値は使用しないのでNoneでもよいはず
         # 集約化する際にNoneだと変な挙動を示すかも知れないのでとりあえずゼロにしておく。
 
-        return np.zeros(24 * 365 * 4)
+        # TODO: 配列数は可変にすること。
+        return np.zeros(24 * 365 * 4 + 1)
 
 
 class OutsideEqvTempExternalGeneralPartAndExternalOpaquePart(OutsideEqvTemp):
@@ -381,4 +382,5 @@ class OutsideEqvTempGround(OutsideEqvTemp):
             室iの境界jの傾斜面のステップnにおける相当外気温度, ℃, [8760 * 4]
         """
 
-        return np.full(24 * 365 * 4, np.average(theta_o_ns))
+        # TODO: 配列数は可変にすること。
+        return np.full(24 * 365 * 4 + 1, np.average(theta_o_ns))

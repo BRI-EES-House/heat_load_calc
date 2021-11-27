@@ -6,8 +6,8 @@ import pandas as pd
 from dataclasses import dataclass
 from typing import List, Callable
 
-from heat_load_calc.core import infiltration, response_factor, indoor_radiative_heat_transfer, shape_factor, \
-    occupants_form_factor, boundary_simple, furniture
+from heat_load_calc.core import infiltration, response_factor, shape_factor, \
+    occupants_form_factor, boundaries, furniture
 from heat_load_calc.core import ot_target
 from heat_load_calc.core import next_condition
 from heat_load_calc.core.matrix_method import v_diag
@@ -15,7 +15,7 @@ from heat_load_calc.core.matrix_method import v_diag
 from heat_load_calc.initializer.boundary_type import BoundaryType
 from heat_load_calc.core import solar_absorption
 from heat_load_calc.core import equipments
-
+from heat_load_calc.core import rooms
 
 @dataclass
 class PreCalcParameters:
@@ -227,98 +227,14 @@ def make_pre_calc_parameters(
     # 夜間放射量, W/m2, [n]
     # 太陽高度, rad, [n]
     # 太陽方位角, rad, [n]
-    a_sun_ns, h_sun_ns, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns = _read_weather_data(input_data_dir=data_directory)
+    a_sun_ns, h_sun_ns, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, x_o_ns = _read_weather_data(input_data_dir=data_directory)
 
-    # region rooms の読み込み
-
-    # rooms の取り出し
-    rms = rd['rooms']
-
-    # room の数
-    n_rm = len(rms)
-
-    # id, [i, 1]
-    id_rm_is = np.array([int(rm['id']) for rm in rms]).reshape(-1, 1)
-
-    # 空間iの名前, [i, 1]
-    name_rm_is = np.array([str(rm['name']) for rm in rms]).reshape(-1, 1)
-
-    # 空間iの気積, m3, [i, 1]
-    v_rm_is = np.array([float(rm['volume']) for rm in rms]).reshape(-1, 1)
-
-    # 室iの機械換気量（局所換気を除く）, m3/s, [i, 1]
-    # 入力は m3/h なので、3600で除して m3/s への変換を行う。
-    v_vent_mec_general_is = (np.array([rm['ventilation']['mechanical'] for rm in rms]) / 3600).reshape(-1, 1)
-
-    # 室iの隣室iからの機械換気量, m3/s, [i, i]
-    v_vent_int_is_is = _get_v_vent_int_is_is(
-        next_vent_is_ks=[rm['ventilation']['next_spaces'] for rm in rms]
-    )
-
-    # 室iの自然風利用時の換気量, m3/s, [i, 1]
-    # 入力は m3/h なので、3600 で除して m3/s への変換を行っている。
-    v_vent_ntr_set_is = np.array([s['ventilation']['natural'] / 3600 for s in rms]).reshape(-1, 1)
-
-    # 備品等に関する物性値を取得する。
-    #   室 i の備品等の熱容量, J/K, [i, 1]
-    #   室 i の空気と備品等間の熱コンダクタンス, W/K, [i, 1]
-    #   室 i の備品等の湿気容量, kg/(kg/kgDA), [i, 1]
-    #   室 i の空気と備品等間の湿気コンダクタンス, kg/(s (kg/kgDA)), [i, 1]
-    c_lh_frt_is, c_sh_frt_is, g_lh_frt_is, g_sh_frt_is = furniture.get_furniture_specs(
-        d_frt=[rm['furniture'] for rm in rms],
-        v_rm_is=v_rm_is
-    )
-
-    # endregion
-
-    # region boundaries の読み込み
-
-    # boundaries の取り出し
-
-    bss = boundary_simple.get_boundary_simples(
-        a_sun_ns=a_sun_ns,
-        h_sun_ns=h_sun_ns,
-        i_dn_ns=i_dn_ns,
-        i_sky_ns=i_sky_ns,
-        n_rm=n_rm,
-        r_n_ns=r_n_ns,
-        theta_o_ns=theta_o_ns,
-        bs=rd['boundaries']
-    )
-
-    # endregion
-
-    # region equipments の読み込み
-
-    es = equipments.Equipments(e=rd['equipments'], n_rm=n_rm)
-
-    # 室iの暖房方式として放射空調が設置されているかどうか。  bool値, [i, 1]
-    is_radiative_heating_is = es.get_is_radiative_heating_is(bss=bss)
-
-    # 室iの暖房方式として放射空調が設置されている場合の、放射暖房最大能力, W, [i, 1]
-    q_rs_h_max_is = es.get_q_rs_h_max_is(bss=bss)
-
-    cooling_equipments = rd['equipments']['cooling_equipments']
-
-    # 室iの冷房方式として放射空調が設置されているかどうか。  bool値, [i, 1]
-    is_radiative_cooling_is = es.get_is_radiative_cooling_is(bss=bss)
-
-    # 室iの冷房方式として放射空調が設置されている場合の、放射冷房最大能力, W, [i, 1]
-    q_rs_c_max_is = es.get_q_rs_c_max_is(bss=bss)
-
-    # endregion
-
-
-    # region スケジュール化されたデータの読み込み
-
-    pp = pd.read_csv(data_directory + '/weather.csv', index_col=0, engine='python')
-
-    theta_o_ns = pp['temperature'].values
-    # ステップn+1に対応するために0番要素に最終要素を代入
+    a_sun_ns = np.append(a_sun_ns, a_sun_ns[0])
+    h_sun_ns = np.append(h_sun_ns, h_sun_ns[0])
+    i_dn_ns = np.append(i_dn_ns, i_dn_ns[0])
+    i_sky_ns = np.append(i_sky_ns, i_sky_ns[0])
+    r_n_ns = np.append(r_n_ns, r_n_ns[0])
     theta_o_ns = np.append(theta_o_ns, theta_o_ns[0])
-
-    x_o_ns = pp['absolute humidity'].values
-    # ステップn+1に対応するために0番要素に最終要素を代入
     x_o_ns = np.append(x_o_ns, x_o_ns[0])
 
     # ステップnの室iにおける局所換気量, m3/s, [i, 8760*4]
@@ -346,140 +262,190 @@ def make_pre_calc_parameters(
         r = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
         ac_demand_is_ns = np.array([row for row in r]).T
 
+    # region rooms の読み込み
+
+    rms = rooms.Rooms(dict_rooms=rd['rooms'])
+
+    # rooms の取り出し
+    dict_rooms = rd['rooms']
+
+    # room の数
+    n_rm = rms.get_n_rm()
+
+    # id, [i, 1]
+    id_rm_is = rms.get_id_rm_is()
+
+    # 空間iの名前, [i, 1]
+    name_rm_is = rms.get_name_rm_is()
+
+    # 空間iの気積, m3, [i, 1]
+    v_rm_is = rms.get_v_rm_is()
+
+    # 室 i の備品等の熱容量, J/K, [i, 1]
+    c_sh_frt_is = rms.get_c_sh_frt()
+
+    # 室 i の空気と備品等間の熱コンダクタンス, W/K, [i, 1]
+    g_sh_frt_is = rms.get_g_sh_frt()
+
+    # 室 i の備品等の湿気容量, kg/(kg/kgDA), [i, 1]
+    c_lh_frt_is = rms.get_c_lh_frt()
+
+    # 室 i の空気と備品等間の湿気コンダクタンス, kg/(s (kg/kgDA)), [i, 1]
+    g_lh_frt_is = rms.get_g_lh_frt()
+
+    # 室iの機械換気量（局所換気を除く）, m3/s, [i, 1]
+    # 入力は m3/h なので、3600で除して m3/s への変換を行う。
+    v_vent_mec_general_is = (np.array([rm['ventilation']['mechanical'] for rm in dict_rooms]) / 3600).reshape(-1, 1)
+
+    # 室iの隣室iからの機械換気量, m3/s, [i, i]
+    v_vent_int_is_is = _get_v_vent_int_is_is(
+        next_vent_is_ks=[rm['ventilation']['next_spaces'] for rm in dict_rooms]
+    )
+
+    # 室iの自然風利用時の換気量, m3/s, [i, 1]
+    # 入力は m3/h なので、3600 で除して m3/s への変換を行っている。
+    v_vent_ntr_set_is = np.array([s['ventilation']['natural'] / 3600 for s in dict_rooms]).reshape(-1, 1)
+
+    # endregion
+
+    # region boundaries
+
+    bs = boundaries.Boundaries(
+        a_sun_ns=a_sun_ns,
+        h_sun_ns=h_sun_ns,
+        i_dn_ns=i_dn_ns,
+        i_sky_ns=i_sky_ns,
+        n_rm=n_rm,
+        r_n_ns=r_n_ns,
+        theta_o_ns=theta_o_ns,
+        bs=rd['boundaries']
+    )
+
+    # 境界の数
+    n_b = bs.get_n_b()
+
+    # 名前, [j, 1]
+    name_bdry_js = bs.get_name_bdry_js()
+
+    # 名前2, [j, 1]
+    sub_name_bdry_js = bs.get_sub_name_bdry_js()
+
+    # 室iと境界jの関係を表す係数（境界jから室iへの変換）
+    p_is_js = bs.get_p_is_js(n_rm=n_rm)
+
+    # 室iと境界jの関係を表す係数（室iから境界jへの変換）
+    p_js_is = bs.get_p_js_is(n_rm=n_rm)
+
+    # 床かどうか, [j, 1]
+    is_floor_js = bs.get_is_floor_js()
+
+    # 地盤かどうか, [j, 1]
+    is_ground_js = bs.get_is_ground_js()
+
+    # 境界jの裏面温度に他の境界の等価温度が与える影響, [j, j]
+    k_ei_js_js = bs.get_k_ei_js_js()
+
+    # 温度差係数
+    k_eo_js = bs.get_k_eo_js()
+
+    # 境界jの日射吸収の有無, [j, 1]
+    p_s_sol_abs_js = bs.get_p_s_sol_abs_js()
+
+    # 境界jの室内側表面放射熱伝達率, W/m2K, [j, 1]
+    h_s_r_js = bs.get_h_s_r_js()
+
+    # 境界jの室内側表面対流熱伝達率, W/m2K, [j, 1]
+    h_s_c_js = bs.get_h_s_c_js()
+
+    # 境界jの面積, m2, [j, 1]
+    a_s_js = bs.get_a_s_js()
+
+    # 境界jの吸熱応答係数の初項, m2K/W, [j, 1]
+    phi_a0_js = bs.get_phi_a0_js()
+
+    # 境界jの項別公比法における項mの吸熱応答係数の第一項 , m2K/W, [j, 12]
+    phi_a1_js_ms = bs.get_phi_a1_js_ms()
+
+    # 境界jの貫流応答係数の初項, [j, 1]
+    phi_t0_js = bs.get_phi_t0_js()
+
+    # 境界jの項別公比法における項mの貫流応答係数の第一項, [j, 12]
+    phi_t1_js_ms = bs.get_phi_t1_js_ms()
+
+    # 境界jの項別公比法における項mの公比, [j, 12]
+    r_js_ms = bs.get_r_js_ms()
+
     # ステップnの室iにおける窓の透過日射熱取得, W, [8760*4]
+    #　このif文は、これまで実施してきたテストを維持するために設けている。
+    # いずれテスト方法を整理して、csvで与える方式を削除すべきである。
+    # CSVで与える方式があることは（将来的に削除予定であるため）仕様書には記述しない。
     if q_trans_sol_calculate:
-        q_trs_sol_is_ns = np.array([
-            np.sum(np.array([bs.q_trs_sol for bs in bss if bs.connected_room_id == i]), axis=0)
-            for i in range(n_rm)
-        ])
+        q_trs_sol_is_ns = bs.get_q_trs_sol_is_ns(n_rm=n_rm)
     else:
         with open(data_directory + '/mid_data_q_trs_sol.csv', 'r') as f:
             r = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
             q_trs_sol_is_ns = np.array([row for row in r]).T
+        # ステップn+1に対応するために0番要素に最終要素を代入
+        q_trs_sol_is_ns = np.append(q_trs_sol_is_ns, q_trs_sol_is_ns[:, 0:1], axis=1)
 
-    # ステップn+1に対応するために0番要素に最終要素を代入
-    q_trs_sol_is_ns = np.append(q_trs_sol_is_ns, q_trs_sol_is_ns[:, 0:1], axis=1)
-
-    # ステップnの境界jにおける裏面等価温度, ℃, [j, 8760*4]
+    # ステップ n の境界 j における相当外気温度, ℃, [j, 8760*4]
+    #　このif文は、これまで実施してきたテストを維持するために設けている。
+    # いずれテスト方法を整理して、csvで与える方式を削除すべきである。
+    # CSVで与える方式があることは（将来的に削除予定であるため）仕様書には記述しない。
     if theta_o_sol_calculate:
-        theta_o_eqv_js_ns = np.array([bs.theta_o_sol for bs in bss])
+        theta_o_eqv_js_ns = bs.get_theta_o_eqv_js_ns()
     else:
         with open(data_directory + '/mid_data_theta_o_sol.csv', 'r') as f:
             r = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
             theta_o_eqv_js_ns = np.array([row for row in r]).T
-
-    # ステップn+1に対応するために0番要素に最終要素を代入
-    theta_o_eqv_js_ns = np.append(theta_o_eqv_js_ns, theta_o_eqv_js_ns[:, 0:1], axis=1)
-
-    # endregion
-
-    # region 読み込んだ変数をベクトル表記に変換する
-    # ただし、1次元配列を縦ベクトルに変換する処理等は読み込み時に np.reshape を適用して変換している。
-
-    # 名前, [j, 1]
-    name_bdry_js = np.array([bs.name for bs in bss]).reshape(-1, 1)
-
-    # 名前2, [j, 1]
-    sub_name_bdry_js = np.array([bs.sub_name for bs in bss]).reshape(-1, 1)
-
-    # 地盤かどうか, [j, 1]
-    is_ground_js = np.array([bs.boundary_type == BoundaryType.Ground for bs in bss]).reshape(-1, 1)
-
-    # 室iと境界jの関係を表す係数（境界jから室iへの変換）
-    # [[p_0_0 ... ... p_0_j]
-    #  [ ...  ... ...  ... ]
-    #  [p_i_0 ... ... p_i_j]]
-    p_is_js = np.zeros((n_rm, len(bss)), dtype=int)
-    for bs in bss:
-        p_is_js[bs.connected_room_id, bs.id] = 1
-
-    # 室iと境界jの関係を表す係数（室iから境界jへの変換）
-    # [[p_0_0 ... p_0_i]
-    #  [ ...  ...  ... ]
-    #  [ ...  ...  ... ]
-    #  [p_j_0 ... p_j_i]]
-    p_js_is = p_is_js.T
-
-    # 境界jの裏面温度に他の境界の等価温度が与える影響, [j, j]
-    k_ei_js_js = np.array([get_k_ei_js_j(bs=bs, n_boundaries=len(bss)) for bs in bss])
-
-    # 温度差係数
-    k_eo_js = np.array([bs.h_td for bs in bss]).reshape(-1, 1)
-
-    # 境界jの日射吸収の有無, [j, 1]
-    p_s_sol_abs_js = np.array([bs.is_solar_absorbed_inside for bs in bss]).reshape(-1, 1)
-
-    # 境界jの室内側表面放射熱伝達率, W/m2K, [j, 1]
-    h_s_r_js = np.array([bs.h_r for bs in bss]).reshape(-1, 1)
-
-    # 境界jの室内側表面対流熱伝達率, W/m2K, [j, 1]
-    h_s_c_js = np.array([bs.h_c for bs in bss]).reshape(-1, 1)
+        # ステップn+1に対応するために0番要素に最終要素を代入
+        theta_o_eqv_js_ns = np.append(theta_o_eqv_js_ns, theta_o_eqv_js_ns[:, 0:1], axis=1)
 
     # endregion
 
-    # region 読み込んだ値から新たに係数を作成する
+    # region equipments
 
-    # TODO: is_radiative_is は flr の計算のみに使用されている。
-    # flr の値は、暖房と冷房で違うのか？違う場合は、暖房用と冷房用で分ける必要があるのかどうかを精査しないといけない。
-    is_radiative_is = np.array([s['is_radiative'] for s in rms])
+    es = equipments.Equipments(dict_equipments=rd['equipments'], n_rm=n_rm, n_b=n_b, bs=bs)
 
-    # 室iに設置された放射暖房の対流成分比率, [i, 1]
-    # TODO: 入力ファイルから与えられるのではなく、設備の入力情報から計算するべき。
-    beta_is = np.array([s['beta'] for s in rms]).reshape(-1, 1)
-    beta_h_is = beta_is
-    beta_c_is = beta_is
+    # 室iの暖房方式として放射空調が設置されているかどうか。  bool値, [i, 1]
+    is_radiative_heating_is = es.get_is_radiative_heating_is()
 
-    # 境界jの面積, m2, [j, 1]
-    a_s_js = np.array([bs.area for bs in bss]).reshape(-1, 1)
+    # 室iの暖房方式として放射空調が設置されている場合の、放射暖房最大能力, W, [i, 1]
+    q_rs_h_max_is = es.get_q_rs_h_max_is()
 
-    # 境界 j が床か否か, [j]
-    is_floor_js = np.array([bs.is_floor for bs in bss])
+    # 室iの冷房方式として放射空調が設置されているかどうか。  bool値, [i, 1]
+    is_radiative_cooling_is = es.get_is_radiative_cooling_is()
 
-    # 境界の数
-    n_bdry = len(bss)
+    # 室iの冷房方式として放射空調が設置されている場合の、放射冷房最大能力, W, [i, 1]
+    q_rs_c_max_is = es.get_q_rs_c_max_is()
 
-    # 室iの在室者に対する境界jの形態係数, [j]
-    # 境界jが接する室の在室者に対する境界jの形態係数, [j]
-    f_mrt_hum_js = occupants_form_factor.get_f_mrt_hum_js(
-        n_spaces=n_rm,
-        bss=bss
+    # 室 i の放射暖房設備の対流成分比率, -, [i, 1]
+    beta_h_is = es.get_beta_h_is()
+
+    # 室 i の放射冷房設備の対流成分比率, -, [i, 1]
+    beta_c_is = es.get_beta_c_is()
+
+    # 室 i の放射暖房の放熱量の放射成分に対する境界 j の室内側表面の吸収比率, - [j, i]
+    f_flr_h_js_is = es.get_f_flr_h_js_is()
+
+    # 室 i の放射冷房の吸熱量の放射成分に対する境界 j の室内側表面の放熱比率, - [j, i]
+    f_flr_c_js_is = es.get_f_flr_c_js_is()
+
+    # 次の係数を求める関数
+    #   ステップ n　からステップ n+1 における係数 f_l_cl_wgt, kg/s(kg/kg(DA)), [i, i]
+    #   ステップ n　からステップ n+1 における係数 f_l_cl_cst, kg/s, [i, 1]
+    get_f_l_cl = es.make_get_f_l_cl_funcs()
+
+    # endregion
+
+    # 室iの在室者に対する境界jの形態係数, [i, j]
+    f_mrt_hum_is_js = occupants_form_factor.get_f_mrt_hum_js(
+        n_rm=n_rm,
+        n_b=n_b,
+        p_is_js=p_is_js,
+        a_s_js=a_s_js,
+        is_floor_js=is_floor_js
     )
-
-    # 室iの在室者に対する境界j*の形態係数, [i, j]
-    f_mrt_hum_is_js = p_is_js * f_mrt_hum_js[np.newaxis, :]
-
-    # 応答係数
-
-    # 境界jの吸熱応答係数の初項, m2K/W, [j, 1]
-    phi_a0_js = np.array([bs.rf.rfa0 for bs in bss]).reshape(-1, 1)
-
-    # 境界jの項別公比法における項mの吸熱応答係数の第一項 , m2K/W, [j, 12]
-    phi_a1_js_ms = np.array([bs.rf.rfa1 for bs in bss])
-
-    # 境界jの貫流応答係数の初項, [j, 1]
-    phi_t0_js = np.array([bs.rf.rft0 for bs in bss]).reshape(-1, 1)
-
-    # 境界jの項別公比法における項mの貫流応答係数の第一項, [j, 12]
-    phi_t1_js_ms = np.array([bs.rf.rft1 for bs in bss])
-
-    # 境界jの項別公比法における項mの公比, [j, 12]
-    r_js_ms = np.array([bs.rf.row for bs in bss])
-
-    # 境界jの室に設置された放射暖房の放熱量のうち放射成分に対する境界jの室内側吸収比率
-    # 放射暖房の発熱部位の設定（とりあえず床発熱） 表7
-    # TODO: 発熱部位を指定して、面積按分するように変更すべき。
-    flr_js = indoor_radiative_heat_transfer.get_flr_js(
-        is_floor_js=is_floor_js,
-        is_radiative_heating_is=is_radiative_is.flatten(),
-        n_spaces=n_rm,
-        bss=bss,
-        es=es
-    )
-
-    # 室iに設置された放射暖房の放熱量のうち放射成分に対する境界jの室内側吸収比率, [j, i]
-    flr_js_is_ns = p_js_is * flr_js[:, np.newaxis]
-    f_flr_h_js_is = flr_js_is_ns
-    f_flr_c_js_is = flr_js_is_ns
 
     # 室 i の微小球に対する境界 j の形態係数, -, [i, j]
     f_mrt_is_js = shape_factor.get_f_mrt_is_js(a_s_js=a_s_js, h_s_r_js=h_s_r_js, p_is_js=p_is_js)
@@ -543,8 +509,6 @@ def make_pre_calc_parameters(
     # 係数 f_{WSC, n}, degree C, [j, n]
     f_wsc_js_ns = get_f_wsc_js_ns(f_ax_js_js=f_ax_js_js, f_crx_js_ns=f_crx_js_ns)
 
-    # endregion
-
     # region 読み込んだ値から新たに関数を作成する
 
     # 作用温度と人体周りの熱伝達率を計算する関数
@@ -561,7 +525,7 @@ def make_pre_calc_parameters(
     #   すきま風量, m3/s, [i,1]
     get_infiltration = infiltration.make_get_infiltration_function(
         infiltration=rd['building']['infiltration'],
-        rms=rms
+        v_rm_is=v_rm_is
     )
 
     # 次のステップの室温と負荷を計算する関数
@@ -573,8 +537,6 @@ def make_pre_calc_parameters(
     )
 
     # endregion
-
-    get_f_l_cl = equipments.make_get_f_l_cl_funcs(n_rm, cooling_equipments)
 
     pre_calc_parameters = PreCalcParameters(
         n_rm=n_rm,
@@ -595,7 +557,7 @@ def make_pre_calc_parameters(
         x_gen_is_ns=x_gen_is_ns,
         f_mrt_hum_is_js=f_mrt_hum_is_js,
         theta_dstrb_js_ns=theta_dstrb_js_ns,
-        n_bdry=n_bdry,
+        n_bdry=n_b,
         r_js_ms=r_js_ms,
         phi_t0_js=phi_t0_js,
         phi_a0_js=phi_a0_js,
@@ -629,7 +591,7 @@ def make_pre_calc_parameters(
     )
 
     # 地盤の数
-    n_grounds = sum(bs.boundary_type == BoundaryType.Ground for bs in bss)
+    n_grounds = bs.get_n_ground()
 
     pre_calc_parameters_ground = PreCalcParametersGround(
         n_grounds=n_grounds,
@@ -842,39 +804,6 @@ def _get_v_vent_int_is_is(next_vent_is_ks: List[List[dict]]) -> np.ndarray:
     return v_int_vent_is_is
 
 
-def get_k_ei_js_j(bs, n_boundaries):
-
-    k_ei_js_j = [0.0] * n_boundaries
-
-    if bs.boundary_type in [
-        BoundaryType.ExternalOpaquePart,
-        BoundaryType.ExternalTransparentPart,
-        BoundaryType.ExternalGeneralPart
-    ]:
-
-        h = bs.h_td
-
-        # 温度差係数が1.0でない場合はk_ei_jsに値を代入する。
-        # id は自分自身の境界IDとし、自分自身の表面の影響は1.0から温度差係数を減じた値になる。
-        if h < 1.0:
-            k_ei_js_j[bs.id] = round(1.0 - h, 1)
-        else:
-            # 温度差係数が1.0の場合は裏面の影響は何もないため k_ei_js に操作は行わない。
-            pass
-
-    elif bs.boundary_type == BoundaryType.Internal:
-
-        # 室内壁の場合にk_ei_jsを登録する。
-        k_ei_js_j[int(bs.rear_surface_boundary_id)] = 1.0
-
-    else:
-
-        # 外皮に面していない場合、室内壁ではない場合（地盤の場合が該当）は、k_ei_js に操作は行わない。
-        pass
-
-    return k_ei_js_j
-
-
 def _read_weather_data(input_data_dir: str):
     """
     気象データを読み込む。
@@ -908,4 +837,4 @@ def _read_weather_data(input_data_dir: str):
     # 太陽方位角, rad
     a_sun_ns = pp['sun azimuth'].values
 
-    return a_sun_ns, h_sun_ns, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns
+    return a_sun_ns, h_sun_ns, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, x_o_ns

@@ -13,13 +13,11 @@
             "name": "main_occupant_room",
             "sub_name": "",
             "volume": 70.92,
-            "beta": 0.0,
             "ventilation": {
                 "mechanical": 60.0,
                 "next_spaces": [],
                 "natural": 354.6
             },
-            "is_radiative": false,
             "furniture": {
                 "input_method": "default"
             }
@@ -29,7 +27,6 @@
             "name": "other_occupant_room",
             "sub_name": "",
             "volume": 123.22,
-            "beta": 0.0,
             "ventilation": {
                 "mechanical": 100.0,
                 "next_spaces": [
@@ -40,7 +37,6 @@
                 ],
                 "natural": 616.1
             },
-            "is_radiative": false,
             "furniture": {
                 "input_method": "default"
             }
@@ -50,7 +46,6 @@
             "name": "non_occupant_room",
             "sub_name": "",
             "volume": 94.88,
-            "beta": 0.0,
             "ventilation": {
                 "mechanical": 0.0,
                 "next_spaces": [
@@ -65,7 +60,6 @@
                 ],
                 "natural": 474.4
             },
-            "is_radiative": false,
             "furniture": {
                 "input_method": "default"
             }
