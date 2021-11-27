@@ -4,6 +4,7 @@ from dataclasses import dataclass
 
 from heat_load_calc.core import furniture
 
+
 @dataclass
 class Room:
 
@@ -15,6 +16,18 @@ class Room:
 
     # 気積, m3
     v: float
+
+    # 備品等の熱容量, J/K
+    c_sh_frt: float
+
+    # 空気と備品等間の熱コンダクタンス, W/K
+    g_sh_frt: float
+
+    # 備品等の湿気容量, kg/(kg/kgDA)
+    c_lh_frt: float
+
+    # 空気と備品等間の湿気コンダクタンス, kg/(s (kg/kgDA))
+    g_lh_frt: float
 
 
 class Rooms:
@@ -28,8 +41,23 @@ class Rooms:
 
     @staticmethod
     def _get_rm(dict_room: Dict):
-                
-        return Room(id=dict_room['id'], name=dict_room['name'], v=dict_room['volume'])
+
+        v_rm_i = dict_room['volume']
+
+        c_lh_frt, c_sh_frt, g_lh_frt, g_sh_frt = furniture.get_furniture_specs(
+            dict_furniture_i=dict_room['furniture'],
+            v_rm_i=v_rm_i
+        )
+
+        return Room(
+            id=dict_room['id'],
+            name=dict_room['name'],
+            v=v_rm_i,
+            c_sh_frt=c_sh_frt,
+            g_sh_frt=g_sh_frt,
+            c_lh_frt=c_lh_frt,
+            g_lh_frt=g_lh_frt
+        )
 
     def get_n_rm(self):
 
@@ -46,3 +74,20 @@ class Rooms:
     def get_v_rm_is(self):
 
         return np.array([rm.v for rm in self._rms]).reshape(-1, 1)
+
+    def get_c_sh_frt(self):
+
+        return np.array([rm.c_sh_frt for rm in self._rms]).reshape(-1, 1)
+
+    def get_g_sh_frt(self):
+
+        return np.array([rm.g_sh_frt for rm in self._rms]).reshape(-1, 1)
+
+    def get_c_lh_frt(self):
+
+        return np.array([rm.c_lh_frt for rm in self._rms]).reshape(-1, 1)
+
+    def get_g_lh_frt(self):
+
+        return np.array([rm.g_lh_frt for rm in self._rms]).reshape(-1, 1)
+

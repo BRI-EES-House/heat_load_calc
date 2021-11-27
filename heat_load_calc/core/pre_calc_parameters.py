@@ -281,6 +281,18 @@ def make_pre_calc_parameters(
     # 空間iの気積, m3, [i, 1]
     v_rm_is = rms.get_v_rm_is()
 
+    # 室 i の備品等の熱容量, J/K, [i, 1]
+    c_sh_frt_is = rms.get_c_sh_frt()
+
+    # 室 i の空気と備品等間の熱コンダクタンス, W/K, [i, 1]
+    g_sh_frt_is = rms.get_g_sh_frt()
+
+    # 室 i の備品等の湿気容量, kg/(kg/kgDA), [i, 1]
+    c_lh_frt_is = rms.get_c_lh_frt()
+
+    # 室 i の空気と備品等間の湿気コンダクタンス, kg/(s (kg/kgDA)), [i, 1]
+    g_lh_frt_is = rms.get_g_lh_frt()
+
     # 室iの機械換気量（局所換気を除く）, m3/s, [i, 1]
     # 入力は m3/h なので、3600で除して m3/s への変換を行う。
     v_vent_mec_general_is = (np.array([rm['ventilation']['mechanical'] for rm in dict_rooms]) / 3600).reshape(-1, 1)
@@ -293,16 +305,6 @@ def make_pre_calc_parameters(
     # 室iの自然風利用時の換気量, m3/s, [i, 1]
     # 入力は m3/h なので、3600 で除して m3/s への変換を行っている。
     v_vent_ntr_set_is = np.array([s['ventilation']['natural'] / 3600 for s in dict_rooms]).reshape(-1, 1)
-
-    # 備品等に関する物性値を取得する。
-    #   室 i の備品等の熱容量, J/K, [i, 1]
-    #   室 i の空気と備品等間の熱コンダクタンス, W/K, [i, 1]
-    #   室 i の備品等の湿気容量, kg/(kg/kgDA), [i, 1]
-    #   室 i の空気と備品等間の湿気コンダクタンス, kg/(s (kg/kgDA)), [i, 1]
-    c_lh_frt_is, c_sh_frt_is, g_lh_frt_is, g_sh_frt_is = furniture.get_furniture_specs(
-        d_frt=[rm['furniture'] for rm in dict_rooms],
-        v_rm_is=v_rm_is
-    )
 
     # endregion
 
