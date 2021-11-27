@@ -5,6 +5,13 @@ from heat_load_calc.external.global_number import get_sgm, get_eps
 from scipy import optimize
 
 
+def get_f_mrt_is_js(a_s_js, h_s_r_js, p_is_js):
+
+    ah = a_s_js * h_s_r_js
+
+    return p_is_js * ah.T / np.dot(p_is_js, ah)
+
+
 def get_h_r_js(n_spaces, bs):
 
     a_srf_js = np.array([b['area'] for b in bs])
@@ -15,11 +22,11 @@ def get_h_r_js(n_spaces, bs):
     for i in range(n_spaces):
         is_connected = connected_room_id_js == i
 
-        h_r_is[is_connected] = get_h_r_i_js(a_srf=a_srf_js[is_connected])
+        h_r_is[is_connected] = _get_h_r_i_js(a_srf=a_srf_js[is_connected])
     return h_r_is
 
 
-def get_h_r_i_js(a_srf: np.ndarray) -> np.ndarray:
+def _get_h_r_i_js(a_srf: np.ndarray) -> np.ndarray:
     """ 放射熱伝達率（室単位で計算する）
 
     Args:
@@ -42,13 +49,6 @@ def get_h_r_i_js(a_srf: np.ndarray) -> np.ndarray:
     hr_k_n = get_eps() / (1.0 - get_eps() * f_js) * 4.0 * get_sgm() * t_mrt ** 3.0
 
     return hr_k_n
-
-
-def get_f_mrt_is_js(a_s_js, h_s_r_js, p_is_js):
-
-    ah = a_s_js * h_s_r_js
-
-    return p_is_js * ah.T / np.dot(p_is_js, ah)
 
 
 def _get_f_i_js(a_srf_js: np.ndarray) -> np.ndarray:
