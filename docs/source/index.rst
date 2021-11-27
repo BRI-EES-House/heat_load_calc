@@ -17,3 +17,4 @@
    /contents/furniture
    /contents/shape_factor
    /contents/period
+   /contents/external_boundaries_direction
