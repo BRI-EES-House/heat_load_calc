@@ -15,5 +15,6 @@
    /contents/heat_balance
    /contents/humidity_balance
    /contents/furniture
-   /contents/shape_factor
    /contents/period
+   /contents/shape_factor
+   /contents/infiltration
