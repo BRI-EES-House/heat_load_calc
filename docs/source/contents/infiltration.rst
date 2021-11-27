@@ -21,7 +21,7 @@ I. 評価法
     :nowrap:
 
     \begin{align*}
-    	  V_{infil,i} = n_{infil} V_{rm,i} /3600 \tag{1}
+        V_{infil,i} = n_{infil} \cdot V_{rm,i} /3600 \tag{1}
     \end{align*}
 
 ここで、
@@ -41,7 +41,7 @@ I. 評価法
     :nowrap:
 
     \begin{align*}
-    	  n_{infil} = \max \{ a \cdot C \cdot \sqrt{\Delta \theta} - b, 0 \} \tag{2}
+        n_{infil} = \max \{ a \cdot C \cdot \sqrt{\Delta \theta} - b, 0 \} \tag{2}
     \end{align*}
 
 ここで、
@@ -67,7 +67,7 @@ I. 評価法
     :nowrap:
 
     \begin{align*}
-    	  \Delta \theta = | \bar{\theta}_{r} - \theta_{o} | \tag{3}
+        \Delta \theta = | \bar{\theta}_{r} - \theta_{o} | \tag{3}
     \end{align*}
 
 ここで、
@@ -85,7 +85,7 @@ I. 評価法
     :nowrap:
 
     \begin{align*}
-    	  \bar{\theta}_{r} = \dfrac{\sum\limits_{i} V_{rm,i} \theta_{r,i}}{\sum\limits_{i} V_{rm,i}} \tag{4}
+        \bar{\theta}_{r} = \dfrac{\sum\limits_{i} V_{rm,i} \theta_{r,i}}{\sum\limits_{i} V_{rm,i}} \tag{4}
     \end{align*}
 
 ここで、
