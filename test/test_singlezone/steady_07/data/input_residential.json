@@ -27,7 +27,6 @@
 					"heat_exchanger_type": "normal"
 				}
 			},
-			"c_value": 0.0,
 			"natural_vent_time": 0.0
 		}
 	],
