@@ -262,12 +262,9 @@ def make_pre_calc_parameters(
         r = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
         ac_demand_is_ns = np.array([row for row in r]).T
 
-    # region rooms の読み込み
+    # region rooms
 
     rms = rooms.Rooms(dict_rooms=rd['rooms'])
-
-    # rooms の取り出し
-    dict_rooms = rd['rooms']
 
     # room の数
     n_rm = rms.get_n_rm()
@@ -293,34 +290,8 @@ def make_pre_calc_parameters(
     # 室 i の空気と備品等間の湿気コンダクタンス, kg/(s (kg/kgDA)), [i, 1]
     g_lh_frt_is = rms.get_g_lh_frt()
 
-    vents = rd['mechanical_ventilations']
-
-    v1 = np.zeros(shape=rms.get_n_rm(), dtype=float)
-    v2 = np.zeros(shape=(rms.get_n_rm(), rms.get_n_rm()), dtype=float)
-
-    for v in vents:
-
-        r = v['root']
-
-        for i in range(len(r)):
-
-            if i == 0:
-                v1[r[0]] = v1[r[0]] + v['volume'] / 3600
-            else:
-                v2[r[i], r[i-1]] = v2[r[i], r[i-1]] + v['volume'] / 3600
-                v2[r[i], r[i]] = v2[r[i], r[i]] - v['volume'] / 3600
-
-    v1 = v1.reshape(-1, 1)
-
-    # 室iの機械換気量（局所換気を除く）, m3/s, [i, 1]
-    v_vent_mec_general_is = v1
-
-    # 室iの隣室iからの機械換気量, m3/s, [i, i]
-    v_vent_int_is_is = v2
-
     # 室iの自然風利用時の換気量, m3/s, [i, 1]
-    # 入力は m3/h なので、3600 で除して m3/s への変換を行っている。
-    v_vent_ntr_set_is = np.array([s['ventilation']['natural'] / 3600 for s in dict_rooms]).reshape(-1, 1)
+    v_vent_ntr_set_is = rms.get_v_vent_ntr_set_is()
 
     # endregion
 
@@ -416,6 +387,35 @@ def make_pre_calc_parameters(
             theta_o_eqv_js_ns = np.array([row for row in r]).T
         # ステップn+1に対応するために0番要素に最終要素を代入
         theta_o_eqv_js_ns = np.append(theta_o_eqv_js_ns, theta_o_eqv_js_ns[:, 0:1], axis=1)
+
+    # endregion
+
+    # region mechanical ventilations
+
+    vents = rd['mechanical_ventilations']
+
+    v1 = np.zeros(shape=rms.get_n_rm(), dtype=float)
+    v2 = np.zeros(shape=(rms.get_n_rm(), rms.get_n_rm()), dtype=float)
+
+    for v in vents:
+
+        r = v['root']
+
+        for i in range(len(r)):
+
+            if i == 0:
+                v1[r[0]] = v1[r[0]] + v['volume'] / 3600
+            else:
+                v2[r[i], r[i-1]] = v2[r[i], r[i-1]] + v['volume'] / 3600
+                v2[r[i], r[i]] = v2[r[i], r[i]] - v['volume'] / 3600
+
+    v1 = v1.reshape(-1, 1)
+
+    # 室iの機械換気量（局所換気を除く）, m3/s, [i, 1]
+    v_vent_mec_general_is = v1
+
+    # 室iの隣室iからの機械換気量, m3/s, [i, i]
+    v_vent_int_is_is = v2
 
     # endregion
 
