@@ -107,7 +107,20 @@
 			"natural_vent_time": 5.0
 		}
 	],
-
+	"mechanical_ventilations": [
+		{
+			"id": 0,
+			"root_type": "type3",
+			"volume": 60.0,
+			"root": [0, 2]
+		},
+		{
+			"id": 1,
+			"root_type": "type3",
+			"volume": 100.0,
+			"root": [1,2]
+		}
+	],
 	"boundaries": [
 		{
 			"id": 0,
