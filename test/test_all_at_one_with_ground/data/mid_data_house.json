@@ -14,8 +14,6 @@
             "sub_name": "",
             "volume": 1.0,
             "ventilation": {
-                "mechanical": 0.5,
-                "next_spaces": [],
                 "natural": 0.0
             },
             "furniture": {

@@ -14,8 +14,6 @@
             "sub_name": "",
             "volume": 70.92,
             "ventilation": {
-                "mechanical": 60.0,
-                "next_spaces": [],
                 "natural": 354.6
             },
             "furniture": {
@@ -28,8 +26,6 @@
             "sub_name": "",
             "volume": 123.22,
             "ventilation": {
-                "mechanical": 100.0,
-                "next_spaces": [],
                 "natural": 616.1
             },
             "furniture": {
@@ -42,17 +38,6 @@
             "sub_name": "",
             "volume": 94.88,
             "ventilation": {
-                "mechanical": 0.0,
-                "next_spaces": [
-                    {
-                        "upstream_room_id": 0,
-                        "volume": 60.0
-                    },
-                    {
-                        "upstream_room_id": 1,
-                        "volume": 100.0
-                    }
-                ],
                 "natural": 474.4
             },
             "furniture": {

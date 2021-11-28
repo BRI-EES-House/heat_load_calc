@@ -13,7 +13,6 @@
 			"name": "main_occupant_room",
 			"room_type": "main_occupant_room",
 			"volume": 1.0,
-			"vent": 0.0,
 			"cooling_equipment": {
 				"is_radiative_cooling": false,
 				"convective_cooling": {
@@ -28,8 +27,6 @@
 					"heat_exchanger_type": "normal"
 				}
 			},
-			"next_vent": [
-			],
 			"c_value": 0.0,
 			"natural_vent_time": 0.0
 		}
