@@ -64,10 +64,6 @@
 				}
 			},
 			"next_vent": [
-				{
-					"upstream_room_id": 2,
-					"volume": 20.0
-				}
 			],
 			"c_value": 2.0,
 			"natural_vent_time": 5.0

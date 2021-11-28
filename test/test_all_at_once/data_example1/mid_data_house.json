@@ -29,12 +29,7 @@
             "volume": 123.22,
             "ventilation": {
                 "mechanical": 100.0,
-                "next_spaces": [
-                    {
-                        "upstream_room_id": 2,
-                        "volume": 20.0
-                    }
-                ],
+                "next_spaces": [],
                 "natural": 616.1
             },
             "furniture": {
