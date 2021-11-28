@@ -279,16 +279,16 @@ def make_pre_calc_parameters(
     v_rm_is = rms.get_v_rm_is()
 
     # 室 i の備品等の熱容量, J/K, [i, 1]
-    c_sh_frt_is = rms.get_c_sh_frt()
+    c_sh_frt_is = rms.get_c_sh_frt_is()
 
     # 室 i の空気と備品等間の熱コンダクタンス, W/K, [i, 1]
-    g_sh_frt_is = rms.get_g_sh_frt()
+    g_sh_frt_is = rms.get_g_sh_frt_is()
 
     # 室 i の備品等の湿気容量, kg/(kg/kgDA), [i, 1]
-    c_lh_frt_is = rms.get_c_lh_frt()
+    c_lh_frt_is = rms.get_c_lh_frt_is()
 
     # 室 i の空気と備品等間の湿気コンダクタンス, kg/(s (kg/kgDA)), [i, 1]
-    g_lh_frt_is = rms.get_g_lh_frt()
+    g_lh_frt_is = rms.get_g_lh_frt_is()
 
     # 室iの自然風利用時の換気量, m3/s, [i, 1]
     v_vent_ntr_set_is = rms.get_v_vent_ntr_set_is()

@@ -79,19 +79,19 @@ class Rooms:
 
         return np.array([rm.v for rm in self._rms]).reshape(-1, 1)
 
-    def get_c_sh_frt(self):
+    def get_c_sh_frt_is(self):
 
         return np.array([rm.c_sh_frt for rm in self._rms]).reshape(-1, 1)
 
-    def get_g_sh_frt(self):
+    def get_g_sh_frt_is(self):
 
         return np.array([rm.g_sh_frt for rm in self._rms]).reshape(-1, 1)
 
-    def get_c_lh_frt(self):
+    def get_c_lh_frt_is(self):
 
         return np.array([rm.c_lh_frt for rm in self._rms]).reshape(-1, 1)
 
-    def get_g_lh_frt(self):
+    def get_g_lh_frt_is(self):
 
         return np.array([rm.g_lh_frt for rm in self._rms]).reshape(-1, 1)
 
