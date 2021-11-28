@@ -136,6 +136,7 @@ def make_mid_data_house(d, output_data_dir):
         'building': building,
         'rooms': rooms,
         'boundaries': boundaries,
+        "mechanical_ventilations": d['mechanical_ventilations'],
         'equipments': equipments
     }
 

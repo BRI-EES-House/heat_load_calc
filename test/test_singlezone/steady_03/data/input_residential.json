@@ -39,6 +39,8 @@
 			"natural_vent_time": 0.0
 		}
 	],
+	"mechanical_ventilations": [
+	],
 	"boundaries": [
 		{
 			"id": 0,

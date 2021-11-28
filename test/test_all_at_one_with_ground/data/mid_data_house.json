@@ -79,6 +79,16 @@
             "temp_dif_coef": 1.0
         }
     ],
+    "mechanical_ventilations": [
+        {
+            "id": 0,
+            "root_type": "type3",
+            "volume": 0.5,
+            "root": [
+                0
+            ]
+        }
+    ],
     "equipments": {
         "heating_equipments": [
             {

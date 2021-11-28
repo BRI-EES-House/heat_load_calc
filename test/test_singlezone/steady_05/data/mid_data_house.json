@@ -210,6 +210,7 @@
             "temp_dif_coef": 1.0
         }
     ],
+    "mechanical_ventilations": [],
     "equipments": {
         "heating_equipments": [
             {
