@@ -16,6 +16,7 @@ from heat_load_calc.initializer.boundary_type import BoundaryType
 from heat_load_calc.core import solar_absorption
 from heat_load_calc.core import equipments
 from heat_load_calc.core import rooms
+from heat_load_calc.core import mechanical_ventilations
 
 @dataclass
 class PreCalcParameters:
@@ -392,30 +393,16 @@ def make_pre_calc_parameters(
 
     # region mechanical ventilations
 
-    vents = rd['mechanical_ventilations']
-
-    v1 = np.zeros(shape=rms.get_n_rm(), dtype=float)
-    v2 = np.zeros(shape=(rms.get_n_rm(), rms.get_n_rm()), dtype=float)
-
-    for v in vents:
-
-        r = v['root']
-
-        for i in range(len(r)):
-
-            if i == 0:
-                v1[r[0]] = v1[r[0]] + v['volume'] / 3600
-            else:
-                v2[r[i], r[i-1]] = v2[r[i], r[i-1]] + v['volume'] / 3600
-                v2[r[i], r[i]] = v2[r[i], r[i]] - v['volume'] / 3600
-
-    v1 = v1.reshape(-1, 1)
+    mvs = mechanical_ventilations.MechanicalVentilations(
+        dict_mechanical_ventilations=rd['mechanical_ventilations'],
+        n_rm=n_rm
+    )
 
     # 室iの機械換気量（局所換気を除く）, m3/s, [i, 1]
-    v_vent_mec_general_is = v1
+    v_vent_mec_general_is = mvs.get_v_vent_mec_general_is()
 
     # 室iの隣室iからの機械換気量, m3/s, [i, i]
-    v_vent_int_is_is = v2
+    v_vent_int_is_is = mvs.get_v_vent_int_is_is()
 
     # endregion
 
