@@ -14,7 +14,6 @@
 			"room_type": "main_occupant_room",
 			"floor_area": 29.81,
 			"volume": 70.92,
-			"vent": 60.0,
 			"cooling_equipment": {
 				"equipment_type": "convective",
 				"convective": {
@@ -33,9 +32,6 @@
 					"v_max": 21.423015098015625
 				}
 			},
-			"next_vent": [
-			],
-			"c_value": 2.0,
 			"natural_vent_time": 5.0
 		},
 		{
@@ -44,7 +40,6 @@
 			"room_type": "other_occupant_room",
 			"floor_area": 38.1,
 			"volume": 123.22,
-			"vent": 100.0,
 			"cooling_equipment": {
 				"equipment_type": "convective",
 				"convective": {
@@ -63,9 +58,6 @@
 					"v_max": 23.312837377054926
 				}
 			},
-			"next_vent": [
-			],
-			"c_value": 2.0,
 			"natural_vent_time": 5.0
 		},
 		{
@@ -74,7 +66,6 @@
 			"room_type": "non_occupant_room",
 			"floor_area": 21.52,
 			"volume": 94.88,
-			"vent": 0,
 			"cooling_equipment": {
 				"equipment_type": "convective",
                     "convective": {
@@ -93,21 +84,23 @@
 					"v_max": 19.145163657509634
 				}
 			},
-			"next_vent": [
-				{
-					"upstream_room_id": 0,
-					"volume": 60.0
-				},
-				{
-					"upstream_room_id": 1,
-					"volume": 100.0
-				}
-			],
-			"c_value": 2.0,
 			"natural_vent_time": 5.0
 		}
 	],
-
+	"mechanical_ventilations": [
+		{
+			"id": 0,
+			"root_type": "type3",
+			"volume": 60.0,
+			"root": [0, 2]
+		},
+		{
+			"id": 1,
+			"root_type": "type3",
+			"volume": 100.0,
+			"root": [1,2]
+		}
+	],
 	"boundaries": [
 		{
 			"id": 0,

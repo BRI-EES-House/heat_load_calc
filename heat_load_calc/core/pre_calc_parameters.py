@@ -16,6 +16,7 @@ from heat_load_calc.initializer.boundary_type import BoundaryType
 from heat_load_calc.core import solar_absorption
 from heat_load_calc.core import equipments
 from heat_load_calc.core import rooms
+from heat_load_calc.core import mechanical_ventilations
 
 @dataclass
 class PreCalcParameters:
@@ -262,12 +263,9 @@ def make_pre_calc_parameters(
         r = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
         ac_demand_is_ns = np.array([row for row in r]).T
 
-    # region rooms の読み込み
+    # region rooms
 
     rms = rooms.Rooms(dict_rooms=rd['rooms'])
-
-    # rooms の取り出し
-    dict_rooms = rd['rooms']
 
     # room の数
     n_rm = rms.get_n_rm()
@@ -282,29 +280,19 @@ def make_pre_calc_parameters(
     v_rm_is = rms.get_v_rm_is()
 
     # 室 i の備品等の熱容量, J/K, [i, 1]
-    c_sh_frt_is = rms.get_c_sh_frt()
+    c_sh_frt_is = rms.get_c_sh_frt_is()
 
     # 室 i の空気と備品等間の熱コンダクタンス, W/K, [i, 1]
-    g_sh_frt_is = rms.get_g_sh_frt()
+    g_sh_frt_is = rms.get_g_sh_frt_is()
 
     # 室 i の備品等の湿気容量, kg/(kg/kgDA), [i, 1]
-    c_lh_frt_is = rms.get_c_lh_frt()
+    c_lh_frt_is = rms.get_c_lh_frt_is()
 
     # 室 i の空気と備品等間の湿気コンダクタンス, kg/(s (kg/kgDA)), [i, 1]
-    g_lh_frt_is = rms.get_g_lh_frt()
-
-    # 室iの機械換気量（局所換気を除く）, m3/s, [i, 1]
-    # 入力は m3/h なので、3600で除して m3/s への変換を行う。
-    v_vent_mec_general_is = (np.array([rm['ventilation']['mechanical'] for rm in dict_rooms]) / 3600).reshape(-1, 1)
-
-    # 室iの隣室iからの機械換気量, m3/s, [i, i]
-    v_vent_int_is_is = _get_v_vent_int_is_is(
-        next_vent_is_ks=[rm['ventilation']['next_spaces'] for rm in dict_rooms]
-    )
+    g_lh_frt_is = rms.get_g_lh_frt_is()
 
     # 室iの自然風利用時の換気量, m3/s, [i, 1]
-    # 入力は m3/h なので、3600 で除して m3/s への変換を行っている。
-    v_vent_ntr_set_is = np.array([s['ventilation']['natural'] / 3600 for s in dict_rooms]).reshape(-1, 1)
+    v_vent_ntr_set_is = rms.get_v_vent_ntr_set_is()
 
     # endregion
 
@@ -400,6 +388,21 @@ def make_pre_calc_parameters(
             theta_o_eqv_js_ns = np.array([row for row in r]).T
         # ステップn+1に対応するために0番要素に最終要素を代入
         theta_o_eqv_js_ns = np.append(theta_o_eqv_js_ns, theta_o_eqv_js_ns[:, 0:1], axis=1)
+
+    # endregion
+
+    # region mechanical ventilations
+
+    mvs = mechanical_ventilations.MechanicalVentilations(
+        dict_mechanical_ventilations=rd['mechanical_ventilations'],
+        n_rm=n_rm
+    )
+
+    # 室iの機械換気量（局所換気を除く）, m3/s, [i, 1]
+    v_vent_mec_general_is = mvs.get_v_vent_mec_general_is()
+
+    # 室iの隣室iからの機械換気量, m3/s, [i, i]
+    v_vent_int_is_is = mvs.get_v_vent_int_is_is()
 
     # endregion
 
@@ -744,64 +747,6 @@ def get_v_vent_mec_is_ns(v_vent_mec_general_is, v_vent_mec_local_is_ns):
     """
 
     return v_vent_mec_general_is + v_vent_mec_local_is_ns
-
-
-def _get_v_vent_int_is_is(next_vent_is_ks: List[List[dict]]) -> np.ndarray:
-    """
-    隣室iから室iへの機械換気量マトリクスを生成する。
-    Args:
-        next_vent_is_ks: 隣室からの機械換気
-            2重のリスト構造を持つ。
-            外側のリスト：室、（下流側の室を基準とする。）
-            内側のリスト：換気経路（数は任意であり、換気経路が無い（0: 空のリスト）場合もある。）
-                辞書型 （上流側の室ID: int, 換気量（m3/s): float)
-    Returns:
-        隣室iから室iへの機械換気量マトリクス, m3/s, [i, i]
-            例えば、
-                室0→室1:3.0
-                室0→室2:4.0
-                室1→室2:3.0
-                室3→室1:1.5
-                室3→室2:1.0
-            の場合、
-                [[0.0,  0.0,  0.0,  0.0],
-                 [3.0, -4.5,  0.0,  1.5],
-                 [4.0,  3.0, -8.0,  1.0],
-                 [0.0,  0.0,  0.0,  0.0]]
-    Note:
-        2021/10/25 対角要素に流出側の流量をいれるように定義を変更した。
-    """
-
-    n_rooms = len(next_vent_is_ks)
-
-    # 隣室iから室iへの換気量マトリックス（流入側のみ）, m3/s [i, i]
-    v_int_vent_is_is = np.zeros((n_rooms, n_rooms), dtype=float)
-
-    # 室iのループ（風下室ループ）
-    for i, next_vent_i_ks in enumerate(next_vent_is_ks):
-
-        # 室iにおける経路jのループ（風上室ループ）
-        # 取得するのは、(ID: int, 換気量(m3/h): float) のタプル
-        for next_vent_i_k in next_vent_i_ks:
-
-            idx = next_vent_i_k['upstream_room_id']
-
-            # 入力は m3/h なので、3600 で除して m3/s への変換を行っている。
-            volume = next_vent_i_k['volume'] / 3600
-
-            # 風上側の部屋IDが自分の部屋IDではないことのチェック
-            if i != idx:
-                # 流入側（プラス）
-                v_int_vent_is_is[i, idx] += volume
-                # 流出側（マイナス）
-                v_int_vent_is_is[i, i] -= volume
-            else:
-                raise Exception
-
-    # 対角要素に流出する換気量を設定する。
-#    v_vent_nxt_is_is = v_int_vent_is_is - np.diag(v_int_vent_is_is.sum(axis=1))
-
-    return v_int_vent_is_is
 
 
 def _read_weather_data(input_data_dir: str):

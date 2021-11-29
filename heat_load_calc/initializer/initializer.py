@@ -136,6 +136,7 @@ def make_mid_data_house(d, output_data_dir):
         'building': building,
         'rooms': rooms,
         'boundaries': boundaries,
+        "mechanical_ventilations": d['mechanical_ventilations'],
         'equipments': equipments
     }
 
@@ -215,9 +216,6 @@ def _make_rooms(rms: List[dict]) -> List[dict]:
     # 室iの気積, m3, [i]
     v_rm_is = np.array([r['volume'] for r in rms])
 
-    # 室iの外気からの機械換気量, m3/h, [i]
-    v_vent_ex_is = np.array([r['vent'] for r in rms])
-
     # 室iの自然風利用時の換気回数, 1/h, [i]
     n_ntrl_vent_is = np.array([r['natural_vent_time'] for r in rms])
 
@@ -244,13 +242,6 @@ def _make_rooms(rms: List[dict]) -> List[dict]:
             'sub_name': '',
             'volume': v_rm_is[i],
             'ventilation': {
-                'mechanical': v_vent_ex_is[i],
-                'next_spaces': [
-                    {
-                        'upstream_room_id': next_vent['upstream_room_id'],
-                        'volume': next_vent['volume']
-                    } for next_vent in rms[i]['next_vent']
-                ],
                 'natural': v_ntrl_vent_is[i]
             },
             'furniture': {

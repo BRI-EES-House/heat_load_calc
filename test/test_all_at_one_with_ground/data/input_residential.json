@@ -14,7 +14,6 @@
 			"room_type": "main_occupant_room",
 			"floor_area": 1.0,
 			"volume": 1.0,
-			"vent": 0.5,
 			"cooling_equipment": {
 				"equipment_type": "convective",
 				"convective": {
@@ -33,10 +32,15 @@
 					"v_max": 6.7488455590884255
 				}
 			},
-			"next_vent": [
-			],
-			"c_value": 0.0,
 			"natural_vent_time": 0.0
+		}
+	],
+	"mechanical_ventilations": [
+		{
+			"id": 0,
+			"root_type": "type3",
+			"volume": 0.5,
+			"root": [0]
 		}
 	],
 	"boundaries": [

@@ -12,11 +12,6 @@
 ,,,○,,,,room_type,室タイプ,○,,str,－,"{'main_occupant_room', 'other_occupant_room', 'non_occupant_room', 'underfloor'}",「主たる居室」「その他の居室」「非居室」又は「床下空間」。主たる居室は必ず1つ指定する必要がある。
 ,,,○,,,,floor_area,床面積,○,,,,,
 ,,,○,,,,volume,気積,○,,float,m3,,
-,,,○,,,,vent,外気からの機械換気量,○,,float,m3/h,,
-,,,○,,,,next_vent,隣室からの機械換気量,○,,"list, null",ー,,複数指定。Null も可能。
-,,,,○,,,,,○,,dict,ー,,
-,,,,,○,,upstream_room_id,上流側の室の名称,○,,id,ー,rooms->idを引用する,
-,,,,,○,,volume,換気量,○,,float,m3/h,,
 ,,,○,,,,natural_vent_time,自然風利用時の換気回数,○,,float,ー,,
 ,,,○,,,,heating_equipment,暖房設備,○,,dict,ー,,
 ,,,,○,,,equipment_type,暖房形式,○,,str,ー,"{'not_installed', 'convective', 'radiative'}",
@@ -38,6 +33,13 @@
 ,,,,,,○,q_max,最大冷房能力,○,,float,W,,
 ,,,,,,○,v_min,最小風量,○,,float,m3/min,,
 ,,,,,,○,v_max,最大風量,○,,float,m3/min,,
+,○,,,,,,mechanical_ventilations,機械換気,○,,list,ー,,
+,,○,,,,,,,○,,dict,ー,,
+,,,○,,,,id,ID,○,,int,ー,,
+,,,○,,,,root_type,換気ルートの種類,○,,str,ー,"{'type1', 'type2', 'type3'}",
+,,,○,,,,volume,換気量,○,,float,m3/min,,
+,,,○,,,,root,換気ルートが通る室,○,,list,ー,,
+,,,,○,,,,室のID,○,,int,ー,,換気経路の上流側から室のIDを記す。
 ,○,,,,,,boundaries,境界,○,,list,ー,,
 ,,○,,,,,,,○,,dict,ー,,
 ,,,○,,,,id,ID,○,,int,ー,,先頭を0から1つずつインクリメントしなければならない。重複があってはならない。
