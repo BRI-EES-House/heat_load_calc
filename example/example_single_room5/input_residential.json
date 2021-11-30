@@ -1,0 +1,307 @@
+{
+	"common": {
+		"region": 6
+	},
+	"building": {
+		"story": 1,
+		"c_value": 2.0,
+		"inside_pressure": "negative"
+	},
+	"rooms": [{
+		"id": 0,
+		"name": "main_occupant_room",
+		"room_type": "main_occupant_room",
+		"floor_area": 21.53,
+		"volume": 51.67,
+		"vent": 25.84,
+		"cooling_equipment": {
+			"equipment_type": "convective",
+			"convective": {
+				"q_min": 500.0,
+				"q_max": 2059.8888568540006,
+				"v_min": 3.508455287821144,
+				"v_max": 6.379009614220261
+			}
+		},
+		"heating_equipment": {
+			"equipment_type": "convective",
+			"convective": {
+				"q_min": 500.0,
+				"q_max": 1405.68782,
+				"v_min": 3.7118650574986343,
+				"v_max": 6.7488455590884255
+			}
+		},
+		"next_vent": [],
+		"natural_vent_time": 5.0
+	}],
+	"mechanical_ventilations": [{
+		"id": 0,
+		"root_type": "type3",
+		"volume": 25.84,
+		"root": [0]
+	}],
+	"boundaries": [{
+			"id": 0,
+			"name": "s_exterior_wall",
+			"boundary_type": "external_general_part",
+			"connected_room_id": 0,
+			"area": 10.22,
+			"is_sun_striked_outside": true,
+			"temp_dif_coef": 1.0,
+			"direction": "s",
+			"is_floor": false,
+			"is_solar_absorbed_inside": false,
+			"outside_emissivity": 0.9,
+			"h_c": 2.5,
+			"outside_heat_transfer_resistance": 0.04,
+			"outside_solar_absorption": 0.8,
+			"layers": [{
+					"name": "石こうボード",
+					"thermal_resistance": 0.057,
+					"thermal_capacity": 10.38
+				},
+				{
+					"name": "コンクリート",
+					"thermal_resistance": 0.094,
+					"thermal_capacity": 300
+				},
+				{
+					"name": "押出法ポリスチレンフォーム　保温板　1種",
+					"thermal_resistance": 1.25,
+					"thermal_capacity": 1.65
+				},
+				{
+					"name": "鋼板",
+					"thermal_resistance": 1.886e-5,
+					"thermal_capacity": 3.76
+				}
+			],
+			"solar_shading_part": {
+				"existence": false
+			}
+		},
+		{
+			"id": 1,
+			"name": "s_exterior_window",
+			"boundary_type": "external_transparent_part",
+			"connected_room_id": 0,
+			"area": 6.93,
+			"is_sun_striked_outside": true,
+			"temp_dif_coef": 1.0,
+			"direction": "s",
+			"is_floor": false,
+			"is_solar_absorbed_inside": false,
+			"outside_emissivity": 0.9,
+			"inside_heat_transfer_resistance": 0.11,
+			"h_c": 2.5,
+			"outside_heat_transfer_resistance": 0.04,
+			"incident_angle_characteristics": "multiple",
+			"eta_value": 0.63,
+			"u_value": 4.19,
+			"glass_area_ratio": 0.8,
+			"solar_shading_part": {
+				"existence": false
+			}
+		},
+		{
+			"id": 2,
+			"name": "e_exterior_wall",
+			"boundary_type": "external_general_part",
+			"connected_room_id": 0,
+			"area": 10.56,
+			"is_sun_striked_outside": true,
+			"temp_dif_coef": 1.0,
+			"direction": "e",
+			"is_floor": false,
+			"is_solar_absorbed_inside": false,
+			"outside_emissivity": 0.9,
+			"h_c": 2.5,
+			"outside_heat_transfer_resistance": 0.04,
+			"outside_solar_absorption": 0.8,
+			"layers": [{
+					"name": "石こうボード",
+					"thermal_resistance": 0.057,
+					"thermal_capacity": 10.38
+				},
+				{
+					"name": "コンクリート",
+					"thermal_resistance": 0.094,
+					"thermal_capacity": 300
+				},
+				{
+					"name": "押出法ポリスチレンフォーム　保温板　1種",
+					"thermal_resistance": 1.25,
+					"thermal_capacity": 1.65
+				},
+				{
+					"name": "鋼板",
+					"thermal_resistance": 1.886e-5,
+					"thermal_capacity": 3.76
+				}
+			],
+			"solar_shading_part": {
+				"existence": false
+			}
+		},
+		{
+			"id": 3,
+			"name": "w_exterior_wall",
+			"boundary_type": "external_general_part",
+			"connected_room_id": 0,
+			"area": 10.56,
+			"is_sun_striked_outside": true,
+			"temp_dif_coef": 1.0,
+			"direction": "w",
+			"is_floor": false,
+			"is_solar_absorbed_inside": false,
+			"outside_emissivity": 0.9,
+			"h_c": 2.5,
+			"outside_heat_transfer_resistance": 0.04,
+			"outside_solar_absorption": 0.8,
+			"layers": [{
+					"name": "石こうボード",
+					"thermal_resistance": 0.057,
+					"thermal_capacity": 10.38
+				},
+				{
+					"name": "コンクリート",
+					"thermal_resistance": 0.094,
+					"thermal_capacity": 300
+				},
+				{
+					"name": "押出法ポリスチレンフォーム　保温板　1種",
+					"thermal_resistance": 1.25,
+					"thermal_capacity": 1.65
+				},
+				{
+					"name": "鋼板",
+					"thermal_resistance": 1.886e-5,
+					"thermal_capacity": 3.76
+				}
+			],
+			"solar_shading_part": {
+				"existence": false
+			}
+		},
+		{
+			"id": 4,
+			"name": "n_exterior_wall",
+			"boundary_type": "external_general_part",
+			"connected_room_id": 0,
+			"area": 17.15,
+			"is_sun_striked_outside": true,
+			"temp_dif_coef": 1.0,
+			"direction": "n",
+			"is_floor": false,
+			"is_solar_absorbed_inside": false,
+			"outside_emissivity": 0.9,
+			"h_c": 2.5,
+			"outside_heat_transfer_resistance": 0.04,
+			"outside_solar_absorption": 0.8,
+			"layers": [{
+					"name": "石こうボード",
+					"thermal_resistance": 0.057,
+					"thermal_capacity": 10.38
+				},
+				{
+					"name": "コンクリート",
+					"thermal_resistance": 0.094,
+					"thermal_capacity": 300
+				},
+				{
+					"name": "押出法ポリスチレンフォーム　保温板　1種",
+					"thermal_resistance": 1.25,
+					"thermal_capacity": 1.65
+				},
+				{
+					"name": "鋼板",
+					"thermal_resistance": 1.886e-5,
+					"thermal_capacity": 3.76
+				}
+			],
+			"solar_shading_part": {
+				"existence": false
+			}
+		},
+		{
+			"id": 5,
+			"name": "floor",
+			"boundary_type": "external_general_part",
+			"connected_room_id": 0,
+			"area": 21.53,
+			"is_sun_striked_outside": false,
+			"temp_dif_coef": 0.7,
+			"is_floor": true,
+			"is_solar_absorbed_inside": true,
+			"outside_emissivity": 0.9,
+			"h_c": 0.7,
+			"outside_heat_transfer_resistance": 0.11,
+			"outside_solar_absorption": 0.8,
+			"layers": [{
+					"name": "合板",
+					"thermal_resistance": 0.150,
+					"thermal_capacity": 17.28
+				},
+				{
+					"name": "非密閉空気層",
+					"thermal_resistance": 0.150,
+					"thermal_capacity": 0
+				},
+				{
+					"name": "コンクリート",
+					"thermal_resistance": 0.081,
+					"thermal_capacity": 260
+				},
+				{
+					"name": "押出法ポリスチレンフォーム　保温板　1種",
+					"thermal_resistance": 1.25,
+					"thermal_capacity": 1.65
+				}
+			],
+			"solar_shading_part": {
+				"existence": false
+			}
+		},
+		{
+			"id": 6,
+			"name": "ceiling",
+			"boundary_type": "external_general_part",
+			"connected_room_id": 0,
+			"area": 21.53,
+			"is_sun_striked_outside": true,
+			"temp_dif_coef": 1.0,
+			"direction": "top",
+			"is_floor": false,
+			"is_solar_absorbed_inside": false,
+			"outside_emissivity": 0.9,
+			"h_c": 5.0,
+			"outside_heat_transfer_resistance": 0.11,
+			"outside_solar_absorption": 0.8,
+			"layers": [{
+					"name": "コンクリート",
+					"thermal_resistance": 0.081,
+					"thermal_capacity": 260
+				},
+				{
+					"name": "防水層",
+					"thermal_resistance": 0.091,
+					"thermal_capacity": 9.2
+				},
+				{
+					"name": "押出法ポリスチレンフォーム　保温板　1種",
+					"thermal_resistance": 1.25,
+					"thermal_capacity": 1.65
+				},
+				{
+					"name": "コンクリート",
+					"thermal_resistance": 0.031,
+					"thermal_capacity": 100
+				}
+			],
+			"solar_shading_part": {
+				"existence": false
+			}
+		}
+	]
+}
