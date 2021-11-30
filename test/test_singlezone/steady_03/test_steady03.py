@@ -1,12 +1,9 @@
 import json
 import os
-import shutil
 import unittest
 import numpy as np
 
 from heat_load_calc.initializer import initializer
-from heat_load_calc.weather import weather
-from heat_load_calc.core import core
 from heat_load_calc.core import pre_calc_parameters
 from heat_load_calc.core import conditions
 from heat_load_calc.core import sequence
