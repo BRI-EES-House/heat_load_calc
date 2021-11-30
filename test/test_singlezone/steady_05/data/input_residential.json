@@ -3,8 +3,8 @@
 		"region": 6
 	},
 	"building": {
-		"story": 2,
-		"c_value": 2.0,
+		"story": 1,
+		"c_value": 0.0,
 		"inside_pressure": "negative"
 	},
 	"rooms": [
