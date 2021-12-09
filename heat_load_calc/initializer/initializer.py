@@ -67,7 +67,7 @@ class CoolingEquipmentType(Enum):
 
 def make_house(d, input_data_dir, output_data_dir):
 
-    make_mid_data_house(d, output_data_dir)
+    # make_mid_data_house(d, output_data_dir)
 
     rooms = d['rooms']
 
