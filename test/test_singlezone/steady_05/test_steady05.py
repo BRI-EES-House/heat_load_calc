@@ -1,12 +1,7 @@
-import json
 import os
-import shutil
 import unittest
 import numpy as np
 
-from heat_load_calc.initializer import initializer
-from heat_load_calc.weather import weather
-from heat_load_calc.core import core
 from heat_load_calc.core import pre_calc_parameters
 from heat_load_calc.core import conditions
 from heat_load_calc.core import sequence
@@ -18,24 +13,16 @@ class TestSteadyState(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-
-        '''
+        """
         屋根と床が合板12mm、壁が複層ガラスの1m角の立方体の単室モデル。
         相当外気温度が屋根と南壁10℃、他は0℃。
         内部発熱なし。
-        '''
+        """
 
         print('\n testing single zone steady 05')
 
         # 計算用フォルダ
         s_folder = str(os.path.dirname(__file__)) + '/data'
-
-        # 計算条件読込
-        js = open(s_folder + '/input_residential.json', 'r', encoding='utf-8')
-        d = json.load(js)
-
-        # 中間データ作成（建物のみ）
-        initializer.make_mid_data_house(d=d, output_data_dir=s_folder)
 
         # pre_calc_parametersの構築
         ss, ppg = pre_calc_parameters.make_pre_calc_parameters(delta_t=900.0, data_directory=s_folder, theta_o_sol_calculate=False)

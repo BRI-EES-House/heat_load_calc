@@ -1,10 +1,6 @@
-import json
 import os
-import shutil
 import unittest
 
-from heat_load_calc.initializer import initializer
-from heat_load_calc.weather import weather
 from heat_load_calc.core import core
 
 
@@ -25,16 +21,6 @@ class TestSigleRoomWithFround(unittest.TestCase):
 
         # 計算用フォルダ
         s_folder = str(os.path.dirname(__file__)) + '/data'
-
-        # 計算条件読込
-        js = open(s_folder + '/input_residential.json', 'r', encoding='utf-8')
-        d = json.load(js)
-
-        # weather.make_weather(region=d['common']['region'], output_data_dir=s_folder, csv_output=True)
-
-        # 中間データ作成（境界条件は再構築しない）
-        initializer.make_mid_data_house(d=d, output_data_dir=s_folder)
-        # initializer.make_house(d=d, input_data_dir=s_folder, output_data_dir=s_folder)
 
         # 計算実行
         dd_i, dd_a = core.calc(input_data_dir=s_folder, output_data_dir=s_folder,

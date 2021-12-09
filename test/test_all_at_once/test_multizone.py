@@ -22,7 +22,7 @@ class TestAllAtOnce(unittest.TestCase):
 
         cls._data_dir = str(os.path.dirname(__file__)) + '/data_example1'
 
-        js = open(cls._data_dir + '/input_residential.json', 'r', encoding='utf-8')
+        js = open(cls._data_dir + '/mid_data_house.json', 'r', encoding='utf-8')
 
         d = json.load(js)
 

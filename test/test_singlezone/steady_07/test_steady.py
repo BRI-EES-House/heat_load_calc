@@ -1,11 +1,7 @@
-import json
 import numpy as np
 import os
-import shutil
 import unittest
 
-from heat_load_calc import initializer
-from heat_load_calc.weather import weather
 from heat_load_calc.core import core
 from heat_load_calc.core import ot_target_pmv
 from heat_load_calc.external import psychrometrics
@@ -22,13 +18,6 @@ class TestSteadyState(unittest.TestCase):
 
         # 計算用フォルダ
         s_folder = str(os.path.dirname(__file__)) + '/data'
-
-        # 計算条件読込
-        js = open(s_folder + '/input_residential.json', 'r', encoding='utf-8')
-        d = json.load(js)
-
-        # 中間データ作成（建物のみ）
-        initializer.make_house_for_test(d=d, input_data_dir=s_folder, output_data_dir=s_folder)
 
         # 計算実行
         ds, dd = core.calc(input_data_dir=s_folder, output_data_dir=s_folder)

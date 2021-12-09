@@ -1,4 +1,7 @@
 {
+	"common": {
+		"region": 6
+	},
     "building": {
         "infiltration": {
             "method": "balance_residential",
@@ -12,6 +15,7 @@
             "id": 0,
             "name": "main_occupant_room",
             "sub_name": "",
+            "floor_area": 21.53,
             "volume": 51.67,
             "ventilation": {
                 "natural": 258.35
@@ -88,7 +92,7 @@
                 "inside_heat_transfer_resistance": 0.11
             },
             "solar_shading_part": {
-                "existence": false,
+                "existence": true,
                 "input_method": "simple",
                 "depth": 0.6,
                 "d_h": 2.1,

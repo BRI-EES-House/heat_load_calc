@@ -1,18 +1,16 @@
 import json
 import numpy as np
-from typing import Tuple
 import csv
 import pandas as pd
 from dataclasses import dataclass
 from typing import List, Callable
 
-from heat_load_calc.core import infiltration, response_factor, shape_factor, \
-    occupants_form_factor, boundaries, furniture
+from heat_load_calc.core import infiltration, shape_factor, \
+    occupants_form_factor, boundaries
 from heat_load_calc.core import ot_target
 from heat_load_calc.core import next_condition
 from heat_load_calc.core.matrix_method import v_diag
 
-from heat_load_calc.initializer.boundary_type import BoundaryType
 from heat_load_calc.core import solar_absorption
 from heat_load_calc.core import equipments
 from heat_load_calc.core import rooms
