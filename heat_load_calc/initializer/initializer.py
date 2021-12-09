@@ -213,6 +213,9 @@ def _make_rooms(rms: List[dict]) -> List[dict]:
     # 床下が複数回指定されていないかどうかを確認する。
     check_not_specifying_multi_room_type(room_type_is=room_type_is, specified_type=RoomType.UNDERFLOOR)
 
+    # 室 i の床面積, m2, [i]
+    a_floor_is = np.array([r['floor_area'] for r in rms])
+
     # 室iの気積, m3, [i]
     v_rm_is = np.array([r['volume'] for r in rms])
 
@@ -240,6 +243,7 @@ def _make_rooms(rms: List[dict]) -> List[dict]:
             'id': id_is[i],
             'name': name_is[i],
             'sub_name': '',
+            'floor_area': a_floor_is[i],
             'volume': v_rm_is[i],
             'ventilation': {
                 'natural': v_ntrl_vent_is[i]

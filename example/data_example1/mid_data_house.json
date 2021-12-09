@@ -12,6 +12,7 @@
             "id": 0,
             "name": "main_occupant_room",
             "sub_name": "",
+            "floor_area": 29.81,
             "volume": 70.92,
             "ventilation": {
                 "natural": 354.6
@@ -24,6 +25,7 @@
             "id": 1,
             "name": "other_occupant_room",
             "sub_name": "",
+            "floor_area": 38.1,
             "volume": 123.22,
             "ventilation": {
                 "natural": 616.1
@@ -36,6 +38,7 @@
             "id": 2,
             "name": "non_occupant_room",
             "sub_name": "",
+            "floor_area": 21.52,
             "volume": 94.88,
             "ventilation": {
                 "natural": 474.4
