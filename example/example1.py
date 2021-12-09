@@ -12,7 +12,7 @@ def run(folder: str):
 
     data_dir = str(os.path.dirname(__file__)) + '/' + folder
 
-    js = open(data_dir + '/input_residential.json', 'r', encoding='utf-8')
+    js = open(data_dir + '/mid_data_house.json', 'r', encoding='utf-8')
 
     d = json.load(js)
 
