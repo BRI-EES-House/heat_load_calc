@@ -17,5 +17,17 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         python -m pip install numpy pandas scipy
+    - name: Check environment
+      run: |
+        pwd
+        ls -la
     - name: Test with unittest
-      run: python -m unittest discover
+      run: python -m unittest discover 
+    - name: Test example
+      run: |
+        python heat_load_calc/console.py data_example1
+        python heat_load_calc/console.py example_single_room1
+        python heat_load_calc/console.py example_single_room2
+        python heat_load_calc/console.py example_single_room3
+        python heat_load_calc/console.py example_single_room4
+        python heat_load_calc/console.py example_single_room5
