@@ -60,7 +60,7 @@ def calc_solar_position(phi_loc: float, lambda_loc: float, interval: str) -> (np
     # 15m: 0, 0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, .... , 23.75, 0, 0.25, ...23.75
     t_m_ns = get_t_m_ns(interval=interval)
 
-    # ステップnにおける時角, rad [n]
+    # ステップnにおける時角, rad, [n]
     omega_ns = get_omega_ns(t_m_ns=t_m_ns, lambda_loc=lambda_loc, lambda_loc_mer=lambda_loc_mer, e_t_ns=e_t_ns)
 
     # ステップnにおける太陽高度, rad, [n]
@@ -268,13 +268,16 @@ def get_omega_ns(t_m_ns: np.ndarray, lambda_loc: float, lambda_loc_mer: float, e
     ステップnにおける時角を計算する。
 
     Args:
-        t_m_ns:  標準時, h
+        t_m_ns: ステップnにおける標準時, h, [n]
         lambda_loc: 経度, rad
         lambda_loc_mer: 標準時の地点の経度, rad
-        e_t_ns: 均時差, rad [n]
+        e_t_ns: ステップnにおける均時差, rad, [n]
 
     Returns:
-        ステップnにおける時角, rad [n]
+        ステップnにおける時角, rad, [n]
+
+    Notes:
+        式(5)
     """
 
     return np.radians((t_m_ns - 12.0) * 15.0) + (lambda_loc - lambda_loc_mer) + e_t_ns
