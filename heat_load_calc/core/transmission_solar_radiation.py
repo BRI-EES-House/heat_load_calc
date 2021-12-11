@@ -143,4 +143,4 @@ class TransmissionSolarRadiationNot(TransmissionSolarRadiation):
 
     def get_qgt(self, a_sun_ns, h_sun_ns, i_dn_ns, i_sky_ns):
 
-        return np.zeros(8760*4, dtype=float)
+        return np.zeros(8760*4+1, dtype=float)
