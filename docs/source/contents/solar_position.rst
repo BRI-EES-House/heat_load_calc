@@ -246,13 +246,13 @@ I. 評価法
 
 なお :math:`\lfloor x \rfloor` は、 :math:`x` の小数点以下を切り捨てた値とする。
 
-標準時の地点の経度 :math:`\lambda_{loc,mer}` は、式(15)により計算される。	
+標準時の地点の経度 :math:`\lambda_{loc,mer}` は、式(14)により計算される。
 
 .. math::
     :nowrap:
 
     \begin{align*}
-        \lambda_{loc,mer} = 135 \times \dfrac{\pi}{180} \tag{15}
+        \lambda_{loc,mer} = 135 \times \dfrac{\pi}{180} \tag{14}
     \end{align*} 
 
 ========================================================================================================================

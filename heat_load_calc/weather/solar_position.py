@@ -1,11 +1,10 @@
 import math
 import numpy as np
 
-from heat_load_calc.weather import interval
 from heat_load_calc.weather.interval import Interval
 
 """
-    ステップnにおける太陽位置を計算する。
+ステップnにおける太陽位置を計算する。
 """
 
 
@@ -27,21 +26,19 @@ def calc_solar_position(phi_loc: float, lambda_loc: float, interval: Interval) -
             (2) 太陽方位角, rad [n]
     """
 
-
-
     # 標準子午線(meridian), rad
     lambda_loc_mer = get_lambda_loc_mer()
 
-    # ステップnにおける年通算日（1/1を1とする） [n]
-    d_ns = get_d_ns(interval=interval)
+    # ステップnにおける年通算日（1/1を1とする）, [n]
+    d_ns = _get_d_ns(interval=interval)
 
     # 1968年との年差
-    n = get_n()
+    n = _get_n()
 
     # 平均軌道上の近日点通過日（暦表時による1968年1月1日正午基準の日差）, d
     d_0 = _get_d_0(n=n)
 
-    # ステップnにおける平均近点離角, rad [n]
+    # ステップnにおける平均近点離角, rad, [n]
     m_ns = _get_m_ns(d_ns=d_ns, d_0=d_0)
 
     # ステップnにおける近日点と冬至点の角度, rad, [n]
@@ -89,13 +86,16 @@ def get_lambda_loc_mer() -> float:
 
     Returns:
         標準子午線における経度, rad
+
+    Notes:
+        式(14)
     """
 
     # 標準子午線における経度を135°とする。
     return math.radians(135.0)
 
 
-def get_d_ns(interval: Interval) -> np.ndarray:
+def _get_d_ns(interval: Interval) -> np.ndarray:
     """
     ステップnにおける年通算日を取得する 年通算日（1/1を1とする）, d
     Args:
@@ -121,7 +121,7 @@ def get_d_ns(interval: Interval) -> np.ndarray:
     return np.repeat(np.arange(365) + 1, 24 * n_hour)
 
 
-def get_n() -> int:
+def _get_n() -> int:
     """
     1968年との年差を計算する。
 
