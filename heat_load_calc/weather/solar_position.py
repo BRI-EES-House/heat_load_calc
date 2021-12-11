@@ -53,8 +53,8 @@ def calc_solar_position(phi_loc: float, lambda_loc: float, interval: Interval) -
     # ステップnにおける均時差, rad [n]
     e_t_ns = get_e_t_ns(m_ns=m_ns, epsilon_ns=epsilon_ns, v_ns=v_ns)
 
-    # ステップnにおける赤緯, rad [n]
-    delta_ns = get_delta_ns(epsilon_ns=epsilon_ns, v_ns=v_ns)
+    # ステップnにおける赤緯, rad, [n]
+    delta_ns = _get_delta_ns(epsilon_ns=epsilon_ns, v_ns=v_ns)
 
     # ステップnにおける標準時, d, [n]
     # 1h: 0, 1.0, .... , 23.0, 0, 1.0, ...23.0
@@ -212,25 +212,26 @@ def get_e_t_ns(m_ns: np.ndarray, epsilon_ns: np.ndarray, v_ns: np.ndarray) -> np
     return e_t_ns
 
 
-def get_delta_ns(epsilon_ns: np.ndarray, v_ns: np.ndarray) -> np.ndarray:
+def _get_delta_ns(epsilon_ns: np.ndarray, v_ns: np.ndarray) -> np.ndarray:
     """
     ステップnにおける赤緯を計算する。
 
     Args:
-        epsilon_ns: ステップnにおける近日点と冬至点の角度, rad [n]
-        v_ns: ステップnにおける真近点離角, rad [n]
+        epsilon_ns: ステップnにおける近日点と冬至点の角度, rad, [n]
+        v_ns: ステップnにおける真近点離角, rad, [n]
 
     Returns:
         ステップnにおける赤緯, rad [n]
 
     Notes:
         赤緯は -π/2 ～ 0 π/2 の値をとる
+        式(6)
     """
 
     # 北半球の冬至の日赤緯, rad
     delta_0 = math.radians(-23.4393)
 
-    # 赤緯, rad * 8760 * 96
+    # 赤緯, rad, [n]
     delta_ns = np.arcsin(np.cos(v_ns + epsilon_ns) * math.sin(delta_0))
 
     return delta_ns

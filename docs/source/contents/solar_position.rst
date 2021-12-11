@@ -133,7 +133,7 @@ I. 評価法
     :nowrap:
 
     \begin{align*}
-        \delta_{n} = \arcsin \{ \cos ( \nu_n + \epsilon_n ) \times \sin \delta_0 \} \tag{7}
+        \delta_{n} = \arcsin \{ \cos ( \nu_n + \epsilon_n ) \cdot \sin \delta_0 \} \tag{6}
     \end{align*}  
 
 ここで、
