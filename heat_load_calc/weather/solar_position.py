@@ -54,14 +54,14 @@ def calc_solar_position(phi_loc: float, lambda_loc: float, interval: str) -> (np
     # ステップnにおける赤緯, rad [n]
     delta_ns = get_delta_ns(epsilon_ns=epsilon_ns, v_ns=v_ns)
 
-    # ステップnにおける標準時, d [n]
+    # ステップnにおける標準時, d, [n]
     # 1h: 0, 1.0, .... , 23.0, 0, 1.0, ...23.0
     # 30m: 0, 0.5, 1.0, 1.5, .... , 23.5, 0, 0.5, ...23.5
     # 15m: 0, 0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, .... , 23.75, 0, 0.25, ...23.75
-    t_m_ns = get_t_m_ns(interval=interval)
+    t_m_ns = _get_t_m_ns(interval=interval)
 
     # ステップnにおける時角, rad, [n]
-    omega_ns = get_omega_ns(t_m_ns=t_m_ns, lambda_loc=lambda_loc, lambda_loc_mer=lambda_loc_mer, e_t_ns=e_t_ns)
+    omega_ns = _get_omega_ns(t_m_ns=t_m_ns, lambda_loc=lambda_loc, lambda_loc_mer=lambda_loc_mer, e_t_ns=e_t_ns)
 
     # ステップnにおける太陽高度, rad, [n]
     h_sun_ns = _get_h_sun_ns(phi_loc=phi_loc, omega_ns=omega_ns, delta_ns=delta_ns)
@@ -237,7 +237,7 @@ def get_delta_ns(epsilon_ns: np.ndarray, v_ns: np.ndarray) -> np.ndarray:
     return delta_ns
 
 
-def get_t_m_ns(interval: str) -> np.ndarray:
+def _get_t_m_ns(interval: str) -> np.ndarray:
     """
     ステップnにおける標準時を計算する
     Args:
@@ -263,7 +263,7 @@ def get_t_m_ns(interval: str) -> np.ndarray:
     return np.tile(np.arange(24 * n_hour) * int_interval, 365)
 
 
-def get_omega_ns(t_m_ns: np.ndarray, lambda_loc: float, lambda_loc_mer: float, e_t_ns: np.ndarray) -> np.ndarray:
+def _get_omega_ns(t_m_ns: np.ndarray, lambda_loc: float, lambda_loc_mer: float, e_t_ns: np.ndarray) -> np.ndarray:
     """
     ステップnにおける時角を計算する。
 
