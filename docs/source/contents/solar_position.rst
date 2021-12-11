@@ -51,12 +51,13 @@ I. 評価法
 である。
 
 ステップ |n| における太陽の方位角の正弦 :math:`\sin{a_{sun,n}}` は、式(3)により計算される。
+ただし、太陽の位置が天頂にある場合は定義されない。
 
 .. math::
     :nowrap:
 
     \begin{align*}
-        \sin{a_{sun,n}} = \dfrac{ \cos{\delta_{n}} \times \sin{\omega_{n}} }{ \cos{h_{sun,n}} } \tag{3}
+        \sin{a_{sun,n}} = \dfrac{ \cos{\delta_{n}} \cdot \sin{\omega_{n}} }{ \cos{h_{sun,n}} } \tag{3}
     \end{align*}
 
 ここで、

@@ -67,9 +67,12 @@ def calc_solar_position(phi_loc: float, lambda_loc: float, interval: str) -> (np
     h_sun_ns = get_h_sun_ns(phi_loc=phi_loc, omega_ns=omega_ns, delta_ns=delta_ns)
 
     # 太陽方位角, rad [n]
-    sin_a_sun_ns, f = get_a_sun_ns2(omega_ns=omega_ns, delta_ns=delta_ns, h_sun_ns=h_sun_ns)
+    f = get_a_sun_ns2(h_sun_ns=h_sun_ns)
 
     # ステップnにおける太陽の方位角の正弦（太陽が天頂に無い場合のみに定義される）, [n]
+    sin_a_sun_ns = _get_sin_a_sun_ns(delta_ns=delta_ns, h_sun_ns=h_sun_ns, omega_ns=omega_ns, f=f)
+
+    # ステップnにおける太陽の方位角の余弦（太陽が天頂に無い場合のみに定義される）, [n]
     cos_a_sun_ns = _get_cos_a_sun_ns(delta_ns=delta_ns, h_sun_ns=h_sun_ns, phi_loc=phi_loc, f=f)
 
     # ステップnにおける太陽の方位角（太陽が天頂に無い場合のみに定義される）, rad, [n]
@@ -298,27 +301,44 @@ def get_h_sun_ns(phi_loc: float, omega_ns: np.ndarray, delta_ns: np.ndarray) -> 
     return h_sun_ns
 
 
-def get_a_sun_ns2(omega_ns: np.ndarray, delta_ns: np.ndarray, h_sun_ns: np.ndarray) -> np.ndarray:
+def get_a_sun_ns2(h_sun_ns: np.ndarray) -> np.ndarray:
     """
     Args:
-        omega_ns: ステップnにおける時角, rad [n]
-        phi_loc: 緯度, rad
-        delta_ns: ステップnにおける赤緯, rad [n]
         h_sun_ns: ステップnにおける太陽高度, rad [n]
 
     Returns:
         太陽方位角, rad [n]
     """
 
-    sin_a_sun_ns = np.full(len(h_sun_ns), np.nan)
-
     # 太陽の位置が天頂にない場合をチェックする, 天頂にない場合がTrue [n]
     f = h_sun_ns != np.pi / 2
+
+    return f
+
+
+def _get_sin_a_sun_ns(delta_ns, h_sun_ns, omega_ns, f):
+    """
+
+    Args:
+        delta_ns: ステップnにおける赤緯, rad [n]
+        h_sun_ns: ステップnにおける太陽高度, rad [n]
+        omega_ns: ステップnにおける時角, rad [n]
+        f: ステップ n における太陽位置が天頂にあるか否か（True=天頂にない, False=天頂にある）
+
+    Returns:
+        ステップnにおける太陽の方位角の正弦（太陽が天頂に無い場合のみに定義される）, [n]
+
+    Notes:
+        式(3)
+    """
+
+    # 太陽が天頂にある場合は「定義なし = np.nan」とするため、まずは、np.nan で埋める。
+    sin_a_sun_ns = np.full(len(h_sun_ns), np.nan)
 
     # 太陽の方位角の正弦（太陽が天頂に無い場合のみ計算する）
     sin_a_sun_ns[f] = np.cos(delta_ns[f]) * np.sin(omega_ns[f]) / np.cos(h_sun_ns[f])
 
-    return sin_a_sun_ns, f
+    return sin_a_sun_ns
 
 
 def _get_cos_a_sun_ns(delta_ns, h_sun_ns, phi_loc, f):
@@ -331,7 +351,7 @@ def _get_cos_a_sun_ns(delta_ns, h_sun_ns, phi_loc, f):
         f: ステップ n における太陽位置が天頂にあるか否か（True=天頂にない, False=天頂にある）
 
     Returns:
-        ステップnにおける太陽の方位角の正弦（太陽が天頂に無い場合のみに定義される）, [n]
+        ステップnにおける太陽の方位角の余弦（太陽が天頂に無い場合のみに定義される）, [n]
 
     Notes:
         式(2)
