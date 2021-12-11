@@ -127,7 +127,7 @@ I. 評価法
      ステップ |n| , 0, 1, 2, 3, 4, 5, 6, …, 35039, 35040
      標準時 , 0, 0.25, 0.5, 0.75, 1, 1.25, 1.5, …, 8759.75, 8760
 
-ステップ |n| における赤緯 :math:`\delta_{n}` は、 :math:`-\pi/2 \leq \delta_{n} \leq \pi/2` の範囲で式(7)により計算される。
+ステップ |n| における赤緯 :math:`\delta_{n}` は、 :math:`-\pi/2 \leq \delta_{n} \leq \pi/2` の範囲で式(6)により計算される。
 
 .. math::
     :nowrap:
@@ -147,13 +147,13 @@ I. 評価法
 
 である。北半球の冬至の日赤緯 :math:`\delta_0` は、 :math:`-23.4393 \times \pi/180` radを用いる。
 
-ステップ |n| における均時差 :math:`e_{t,n}` は、式(8)により計算される。
+ステップ |n| における均時差 :math:`e_{t,n}` は、式(7)により計算される。
 
 .. math::
     :nowrap:
 
     \begin{align*}
-        e_{t,n} = ( m_n - \nu_n ) - \arctan \dfrac{ 0.043 \times \sin \{ 2 \times ( \nu_n + \epsilon_n ) \} }{ 1 - 0.043 \times \cos \{ 2 \times ( \nu_n + \epsilon_n ) \} } \tag{8}
+        e_{t,n} = ( m_n - \nu_n ) - \arctan \dfrac{ 0.043 \sin \{ 2 ( \nu_n + \epsilon_n ) \} }{ 1 - 0.043 \cos \{ 2 ( \nu_n + \epsilon_n ) \} } \tag{7}
     \end{align*}  
 
 ここで、
