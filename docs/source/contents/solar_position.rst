@@ -8,7 +8,8 @@
 I. 評価法
 ========================================================================================================================
 
-ステップ |n| における太陽方位角 :math:`a_{sun,n}` は、 :math:`-\pi` ～ :math:`0` ～ :math:`\pi` の範囲で定義され、:math:`a_{sun,n}=\pm \pi` を北、 :math:`a_{sun,n}=-\pi/2` を東、 :math:`a_{sun,n}=0` を南、 :math:`a_{sun,n}=\pi/2` を西として、式(1)により計算される。ただし、太陽の位置が天頂にある場合は定義されない。
+ステップ |n| における太陽方位角 :math:`a_{sun,n}` は、 :math:`-\pi` ～ :math:`0` ～ :math:`\pi` の範囲で定義され、:math:`a_{sun,n}=\pm \pi` を北、 :math:`a_{sun,n}=-\pi/2` を東、 :math:`a_{sun,n}=0` を南、 :math:`a_{sun,n}=\pi/2` を西として、式(1)により計算される。
+ただし、太陽の位置が天頂にある場合は定義されない。
 
 .. math::
     :nowrap:
@@ -29,12 +30,13 @@ I. 評価法
 である。また、 :math:`arctan(y, x)` は、 :math:`-\pi/2` ～ :math:`0` ～ :math:`\pi/2` の範囲で定義される通常の逆正接関数とは異なり、座標上で第1引数を :math:`y` , 第2引数を :math:`x` にした際に :math:`x` 軸との角度を求める関数として、 :math:`-\pi \leq arctan(y, x) \leq \pi` の範囲で定義される。すなわち、 :math:`\sin{a_{sun,n}}>0` かつ :math:`\cos{a_{sun,n}}>0` の場合は :math:`0` ～ :math:`\pi/2` の角度を、:math:`\sin{a_{sun,n}}>0` かつ :math:`\cos{a_{sun,n}}<0` の場合は :math:`\pi/2` ～ :math:`\pi` の角度を、 :math:`\sin{a_{sun,n}}<0` かつ :math:`\cos{a_{sun,n}}<0` の場合は :math:`-\pi` ～ :math:`-\pi/2` の角度を、 :math:`\sin{a_{sun,n}}<0` かつ :math:`\cos{a_{sun,n}}>0` の場合は :math:`-\pi/2` ～ :math:`0` の角度を返す関数となる。
  
 ステップ |n| における太陽方位角の余弦 :math:`\cos{a_{sun,n}}` は、式(2)により計算される。
+ただし、太陽の位置が天頂にある場合は定義されない。
 
 .. math::
     :nowrap:
 
     \begin{align*}
-        \cos{a_{sun,n}} = \dfrac{ \sin{h_{sun,n}} \times \sin{\varphi_{loc}} - \sin{\delta_{n}} }{ \cos{h_{sun,n}} \times \cos{\varphi_{loc}} } \tag{2}
+        \cos{a_{sun,n}} = \dfrac{ \sin{h_{sun,n}} \cdot \sin{\varphi_{loc}} - \sin{\delta_{n}} }{ \cos{h_{sun,n}} \cdot \cos{\varphi_{loc}} } \tag{2}
     \end{align*}
 
 ここで、
@@ -46,7 +48,7 @@ I. 評価法
 :math:`\delta_{n}`
     | ステップ |n| における赤緯, rad
 
-である。なお、 :math:`h_{sun,n}` は、太陽が天頂に位置する場合は定義されない(式(2)の分母が :math:`0` となることから)。
+である。
 
 ステップ |n| における太陽の方位角の正弦 :math:`\sin{a_{sun,n}}` は、式(3)により計算される。
 
