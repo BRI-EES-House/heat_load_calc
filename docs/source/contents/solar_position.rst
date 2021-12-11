@@ -235,16 +235,16 @@ I. 評価法
     
 である。本計算では、計算するする年は西暦1989年とする。
 	
-:math:`1` 月 :math:`1` 日を :math:`1` とする、ステップ |n| における年通算日 :math:`d_n` は、式(14)により計算される。
+:math:`1` 月 :math:`1` 日を :math:`1` とする、ステップ |n| における年通算日 :math:`d_n` は、式(13)により計算される。
 
 .. math::
     :nowrap:
 
     \begin{align*}
-        d_n = \biggl\lceil \dfrac{ n }{ 24 \times n_h } \biggr\rceil  \tag{14}
+        d_n = \biggl\lfloor \dfrac{ n }{ 24 n_h } \biggr\rfloor + 1  \tag{13}
     \end{align*} 
 
-なお :math:`\lceil x \rceil` は、 :math:`x` の小数点以下を切り上げた値とする。
+なお :math:`\lfloor x \rfloor` は、 :math:`x` の小数点以下を切り捨てた値とする。
 
 標準時の地点の経度 :math:`\lambda_{loc,mer}` は、式(15)により計算される。	
 
