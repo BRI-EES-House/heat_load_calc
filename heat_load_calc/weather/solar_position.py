@@ -42,7 +42,7 @@ def calc_solar_position(phi_loc: float, lambda_loc: float, interval: Interval) -
     d_0 = get_d_0(n=n)
 
     # ステップnにおける平均近点離角, rad [n]
-    m_ns = get_m_ns(d_ns=d_ns, d_0=d_0)
+    m_ns = _get_m_ns(d_ns=d_ns, d_0=d_0)
 
     # ステップnにおける近日点と冬至点の角度, rad, [n]
     epsilon_ns = _get_epsilon_ns(m_ns=m_ns, n=n)
@@ -147,7 +147,7 @@ def get_d_0(n: int) -> float:
     return 3.71 + 0.2596 * n - int((n + 3.0) / 4.0)
 
 
-def get_m_ns(d_ns: np.ndarray, d_0: float) -> np.ndarray:
+def _get_m_ns(d_ns: np.ndarray, d_0: float) -> np.ndarray:
     """
     平均近点離角を計算する。
     Args:
@@ -156,12 +156,15 @@ def get_m_ns(d_ns: np.ndarray, d_0: float) -> np.ndarray:
 
     Returns:
         ステップnにおける平均近点離角, rad [n]
+
+    Notes:
+        式(10)
     """
 
     # 近点年（近日点基準の公転周期日数）
     d_ay = 365.2596
 
-    # ステップnにおける平均近点離角, rad * 365 * 96
+    # ステップnにおける平均近点離角, rad, [n]
     m_ns = 2 * math.pi * (d_ns - d_0) / d_ay
 
     return m_ns
