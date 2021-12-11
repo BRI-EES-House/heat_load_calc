@@ -83,7 +83,7 @@ I. 評価法
     :nowrap:
 
     \begin{align*}
-        h_{sun,n} = \arcsin( \sin{\varphi_{loc}} \times \sin{\delta_{n}} + \cos{\delta_{n}} \times \cos{\omega_{n}} ) \tag{4}
+        h_{sun,n} = \arcsin( \sin{\varphi_{loc}} \cdot \sin{\delta_{n}} + \cos{\varphi_{loc}} \cdot \cos{\delta_{n}} \cdot \cos{\omega_{n}} ) \tag{4}
     \end{align*}
 
 なお、 :math:`h_{sun,n} < 0` は、太陽が沈んでいることを意味する。

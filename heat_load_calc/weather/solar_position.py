@@ -63,8 +63,8 @@ def calc_solar_position(phi_loc: float, lambda_loc: float, interval: str) -> (np
     # ステップnにおける時角, rad [n]
     omega_ns = get_omega_ns(t_m_ns=t_m_ns, lambda_loc=lambda_loc, lambda_loc_mer=lambda_loc_mer, e_t_ns=e_t_ns)
 
-    # 太陽高度, rad [n]
-    h_sun_ns = get_h_sun_ns(phi_loc=phi_loc, omega_ns=omega_ns, delta_ns=delta_ns)
+    # ステップnにおける太陽高度, rad, [n]
+    h_sun_ns = _get_h_sun_ns(phi_loc=phi_loc, omega_ns=omega_ns, delta_ns=delta_ns)
 
     # 太陽の位置が天頂にないか（天頂にある = False, 天頂にない = True）, [n]
     is_not_zenith_ns = _get_is_not_zenith_ns(h_sun_ns=h_sun_ns)
@@ -280,20 +280,21 @@ def get_omega_ns(t_m_ns: np.ndarray, lambda_loc: float, lambda_loc_mer: float, e
     return np.radians((t_m_ns - 12.0) * 15.0) + (lambda_loc - lambda_loc_mer) + e_t_ns
 
 
-def get_h_sun_ns(phi_loc: float, omega_ns: np.ndarray, delta_ns: np.ndarray) -> np.ndarray:
+def _get_h_sun_ns(phi_loc: float, omega_ns: np.ndarray, delta_ns: np.ndarray) -> np.ndarray:
     """
     ステップnにおける太陽高度を計算する。
 
     Args:
         phi_loc: 経度, rad
-        omega_ns: ステップnにおける時角, rad [n]
-        delta_ns: ステップnにおける赤緯, rad [n]
+        omega_ns: ステップnにおける時角, rad, [n]
+        delta_ns: ステップnにおける赤緯, rad, [n]
 
     Returns:
-        ステップnにおける太陽高度, rad [n]
+        ステップnにおける太陽高度, rad, [n]
 
     Notes:
         太陽高度はマイナスの値もとり得る。（太陽が沈んでいる場合）
+        式(4)
     """
 
     h_sun_ns = np.arcsin(np.sin(phi_loc) * np.sin(delta_ns) + np.cos(phi_loc) * np.cos(delta_ns) * np.cos(omega_ns))
