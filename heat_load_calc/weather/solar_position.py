@@ -44,8 +44,8 @@ def calc_solar_position(phi_loc: float, lambda_loc: float, interval: Interval) -
     # ステップnにおける平均近点離角, rad [n]
     m_ns = get_m_ns(d_ns=d_ns, d_0=d_0)
 
-    # ステップnにおける近日点と冬至点の角度, rad [n]
-    epsilon_ns = get_epsilon_ns(m_ns=m_ns, n=n)
+    # ステップnにおける近日点と冬至点の角度, rad, [n]
+    epsilon_ns = _get_epsilon_ns(m_ns=m_ns, n=n)
 
     # ステップnにおける真近点離角, rad, [n]
     v_ns = _get_v_ns(m_ns=m_ns)
@@ -167,7 +167,7 @@ def get_m_ns(d_ns: np.ndarray, d_0: float) -> np.ndarray:
     return m_ns
 
 
-def get_epsilon_ns(m_ns: np.ndarray, n: int) -> np.ndarray:
+def _get_epsilon_ns(m_ns: np.ndarray, n: int) -> np.ndarray:
     """
     ステップnにおける近日点と冬至点の角度を計算する。
 
@@ -177,6 +177,9 @@ def get_epsilon_ns(m_ns: np.ndarray, n: int) -> np.ndarray:
 
     Returns:
         ステップnにおける近日点と冬至点の角度, rad [n]
+
+    Notes:
+        式(9)
     """
 
     return np.radians(12.3901 + 0.0172 * (n + m_ns / (2 * math.pi)))

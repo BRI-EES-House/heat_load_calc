@@ -172,13 +172,13 @@ I. 評価法
         \nu_n = m_n + ( 1.914 \sin m_n + 0.02 \sin 2m_n ) \times \dfrac{\pi}{180} \tag{8}
     \end{align*}
 
-ステップ |n| における近日点と冬至点の角度 :math:`\epsilon_n` は、式(10)により計算される。
+ステップ |n| における近日点と冬至点の角度 :math:`\epsilon_n` は、式(9)により計算される。
 
 .. math::
     :nowrap:
 
     \begin{align*}
-        \epsilon_n = \Bigl\{ 12.3901 + 0.0172 \times \Bigl( N + \dfrac{ m_n }{ 2 \pi } \Bigr) \Bigr\} \times \dfrac{\pi}{180}  \tag{10}
+        \epsilon_n = \Bigl\{ 12.3901 + 0.0172 \Bigl( N + \dfrac{ m_n }{ 2 \pi } \Bigr) \Bigr\} \times \dfrac{\pi}{180}  \tag{9}
     \end{align*}  
 
 ここで、
@@ -188,23 +188,23 @@ I. 評価法
 
 である。
 
-ステップ |n| における平均近点離角 :math:`m_n` は、式(11)により計算される。
+ステップ |n| における平均近点離角 :math:`m_n` は、式(10)により計算される。
 
 .. math::
     :nowrap:
 
     \begin{align*}
-        m_n = 2 \pi \times ( d_n - d_0 ) / d_{ay}  \tag{11}
+        m_n = 2 \pi ( d_n - d_0 ) / d_{ay}  \tag{10}
     \end{align*}  
 
 ここで、
 
 :math:`d_n`
-    | ステップ |n| における年通算日( :math:`1` 月 :math:`1` 日を :math:`1` とする), 日
+    | ステップ |n| における年通算日( :math:`1` 月 :math:`1` 日を :math:`1` とする), day
 :math:`d_0`
-    | 平均軌道上の近日点通過日(暦表時による :math:`1968` 年 :math:`1` 月 :math:`1` 日正午基準の日差), 日
+    | 平均軌道上の近日点通過日(暦表時による :math:`1968` 年 :math:`1` 月 :math:`1` 日正午基準の日差), day
 :math:`d_{ay}`
-    | 近点年(近日点基準の公転周期日数), 日
+    | 近点年(近日点基準の公転周期日数), day
     
 である。本計算では、近点年(近日点基準の公転周期日数) :math:`d_{ay}` は :math:`365.2596` とする。
 
