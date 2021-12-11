@@ -67,7 +67,10 @@ def calc_solar_position(phi_loc: float, lambda_loc: float, interval: str) -> (np
     h_sun_ns = get_h_sun_ns(phi_loc=phi_loc, omega_ns=omega_ns, delta_ns=delta_ns)
 
     # 太陽方位角, rad [n]
-    a_sun_ns = get_a_sun_ns(omega_ns=omega_ns, phi_loc=phi_loc, delta_ns=delta_ns, h_sun_ns=h_sun_ns)
+    sin_a_sun_ns, cos_a_sun_ns, f = get_a_sun_ns2(omega_ns=omega_ns, phi_loc=phi_loc, delta_ns=delta_ns, h_sun_ns=h_sun_ns)
+
+    # ステップ n における太陽の方位角, rad, [n]
+    a_sun_ns = _get_a_sun_ns(cos_a_sun_ns=cos_a_sun_ns, sin_a_sun_ns=sin_a_sun_ns, f=f)
 
     return h_sun_ns, a_sun_ns
 
@@ -292,7 +295,7 @@ def get_h_sun_ns(phi_loc: float, omega_ns: np.ndarray, delta_ns: np.ndarray) -> 
     return h_sun_ns
 
 
-def get_a_sun_ns(omega_ns: np.ndarray, phi_loc: float, delta_ns: np.ndarray, h_sun_ns: np.ndarray) -> np.ndarray:
+def get_a_sun_ns2(omega_ns: np.ndarray, phi_loc: float, delta_ns: np.ndarray, h_sun_ns: np.ndarray) -> np.ndarray:
     """
     Args:
         omega_ns: ステップnにおける時角, rad [n]
@@ -304,9 +307,7 @@ def get_a_sun_ns(omega_ns: np.ndarray, phi_loc: float, delta_ns: np.ndarray, h_s
         太陽方位角, rad [n]
     """
 
-    a_sun_ns = np.full(len(h_sun_ns), np.nan)
     sin_a_sun_ns = np.full(len(h_sun_ns), np.nan)
-    cos_a_sun_ns = np.full(len(h_sun_ns), np.nan)
 
     # 太陽の位置が天頂にない場合をチェックする, 天頂にない場合がTrue [n]
     f = h_sun_ns != np.pi / 2
@@ -314,21 +315,41 @@ def get_a_sun_ns(omega_ns: np.ndarray, phi_loc: float, delta_ns: np.ndarray, h_s
     # 太陽の方位角の正弦（太陽が天頂に無い場合のみ計算する）
     sin_a_sun_ns[f] = np.cos(delta_ns[f]) * np.sin(omega_ns[f]) / np.cos(h_sun_ns[f])
 
+    cos_a_sun_ns = np.full(len(h_sun_ns), np.nan)
+
     # 太陽の方位角の余弦（太陽が天頂に無い場合のみ計算する）
     cos_a_sun_ns[f] = (np.sin(h_sun_ns[f]) * np.sin(phi_loc) - np.sin(delta_ns[f]))\
         / (np.cos(h_sun_ns[f]) * np.cos(phi_loc))
 
+    return sin_a_sun_ns, cos_a_sun_ns, f
+
+
+def _get_a_sun_ns(cos_a_sun_ns, sin_a_sun_ns, f):
+    """
+
+    Args:
+        cos_a_sun_ns: ステップ n における太陽の方位角の余弦（太陽が天頂に無い場合のみ計算する）
+        sin_a_sun_ns: ステップ n における太陽の方位角の正弦（太陽が天頂に無い場合のみ計算する）
+        f: ステップ n における太陽位置が天頂にあるか否か（True=天頂にない, False=天頂にある）
+
+    Returns:
+        ステップ n における太陽の方位角, rad, [n]
+
+    Notes:
+        式(1)
+    """
+
+    # 太陽が天頂にある場合は「定義なし = np.nan」とするため、まずは、np.nan で埋める。
+    a_sun_ns = np.full(len(sin_a_sun_ns), np.nan)
+
     # 太陽の方位角, rad [n] （太陽が天頂に無い場合のみ計算する）
-    # 太陽が天頂にある場合は最初に定義した「定義なし=np.nan」のままである。
     # arctan の注意点。
-    # arctan2 は、座標上で第1引数をy, 第2引数をxにした際にx軸との角度を求める関数です。
-    # 従って、単射の通常良く用いられる -π/2 ～ 0 ～ π/2 ではないので、ここだけ小文字の arctan としてください。
-    # 加えて、
-    # sin_a_s_ns が正 かつ cos_a_s_ns が正 の場合は第1象限（0～π/2）
-    # sin_a_s_ns が正 かつ cos_a_s_ns が負 の場合は第2象限（π/2～π）
-    # sin_a_s_ns が負 かつ cos_a_s_ns が負 の場合は第3象限（-π～-π/2）
-    # sin_a_s_ns が負 かつ cos_a_s_ns が正 の場合は第4象限（-π/2～0）
-    # である旨の注釈をつけておいてください。
+    # arctan2 は、座標上で第1引数をy, 第2引数をxにした際にx軸との角度を求める関数。
+    # 従って、単射の通常良く用いられる -π/2 ～ 0 ～ π/2 ではない。
+    #   sin_a_s_ns が正 かつ cos_a_s_ns が正 の場合は第1象限（0～π/2）
+    #   sin_a_s_ns が正 かつ cos_a_s_ns が負 の場合は第2象限（π/2～π）
+    #   sin_a_s_ns が負 かつ cos_a_s_ns が負 の場合は第3象限（-π～-π/2）
+    #   sin_a_s_ns が負 かつ cos_a_s_ns が正 の場合は第4象限（-π/2～0）
     a_sun_ns[f] = np.arctan2(sin_a_sun_ns[f], cos_a_sun_ns[f])
 
     return a_sun_ns
