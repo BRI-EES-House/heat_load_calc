@@ -65,8 +65,18 @@ I. 評価法
 :math:`\omega_{n}`
     | ステップ |n| における時角, rad
     
-である。    
-    
+である。
+
+太陽の位置が天頂にある場合とは、太陽高度 :math:`h_{sun,n}` が次式を満たす場合を言う。
+
+.. math::
+    :nowrap:
+
+    \begin{align*}
+        h_{sun,n} = \frac{ \pi }{ 2 }
+    \end{align*}
+
+
 ステップ |n| における太陽高度 :math:`h_{sun,n}` は、 :math:`-\pi/2 \leq h_{sun,n} \leq \pi/2` の範囲で式(4)により計算される。
     
  .. math::
