@@ -7,8 +7,10 @@
 import numpy as np
 import os
 
+from heat_load_calc.weather.interval import Interval
 
-def load(region: int, interval: str) -> (np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray):
+
+def load(region: int, interval: Interval) -> (np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray):
     """
     地域の区分に応じて気象データを読み込み、指定された時間間隔で必要に応じて補間を行いデータを作成する。
 
@@ -65,7 +67,7 @@ def load(region: int, interval: str) -> (np.ndarray, np.ndarray, np.ndarray, np.
     return theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, x_o_ns
 
 
-def _interpolate(weather_data: np.ndarray, interval: str) -> np.ndarray:
+def _interpolate(weather_data: np.ndarray, interval: Interval) -> np.ndarray:
     """
     1時間ごとの8760データを指定された間隔のデータに補間する。
     '1h': 1時間間隔の場合、 n = 8760
@@ -74,16 +76,13 @@ def _interpolate(weather_data: np.ndarray, interval: str) -> np.ndarray:
 
     Args:
         weather_data: 1時間ごとの気象データ [8760]
-        interval: 生成するデータの時間間隔であり、以下の文字列で指定する。
-            1h: 1時間間隔
-            30m: 30分間隔
-            15m: 15分間隔
+        interval: 生成するデータの時間間隔
 
     Returns:
         指定する時間間隔に補間された気象データ [n]
     """
 
-    if interval == '1h':
+    if interval == Interval.H1:
 
         # 拡張アメダスのデータが1月1日の1時から始まっているため1時間ずらして0時始まりのデータに修正する。
         return np.roll(weather_data, 1)
@@ -92,8 +91,8 @@ def _interpolate(weather_data: np.ndarray, interval: str) -> np.ndarray:
 
         # 補間比率の係数
         alpha = {
-            '30m': np.array([1.0, 0.5]),
-            '15m': np.array([1.0, 0.75, 0.5, 0.25])
+            Interval.M30: np.array([1.0, 0.5]),
+            Interval.M15: np.array([1.0, 0.75, 0.5, 0.25])
         }[interval]
 
         # 補間元データ1, 補間元データ2

@@ -3,6 +3,7 @@ import numpy as np
 import math
 
 import heat_load_calc.weather.solar_position as t
+from heat_load_calc.weather.interval import Interval
 
 
 class TestSolarPosition(unittest.TestCase):
@@ -57,21 +58,21 @@ class TestSolarPosition(unittest.TestCase):
         h_sun_ns_1h, a_sun_ns_1h = t.calc_solar_position(
             phi_loc=math.radians(43.82),
             lambda_loc=math.radians(143.91),
-            interval='1h'
+            interval=Interval.H1
         )
 
         # プログラムで計算された値（15分間隔）
         h_sun_ns_30m, a_sun_ns_30m = t.calc_solar_position(
             phi_loc=math.radians(43.82),
             lambda_loc=math.radians(143.91),
-            interval='30m'
+            interval=Interval.M30
         )
 
         # プログラムで計算された値（15分間隔）
         h_sun_ns_15m, a_sun_ns_15m = t.calc_solar_position(
             phi_loc=math.radians(43.82),
             lambda_loc=math.radians(143.91),
-            interval='15m'
+            interval=Interval.M15
         )
 
         # 1/1 0:00
@@ -104,17 +105,17 @@ class TestSolarPosition(unittest.TestCase):
         h_sun_ns_1h, a_sun_ns_1h = t.calc_solar_position(
             phi_loc=math.radians(43.82),
             lambda_loc=math.radians(143.91),
-            interval='1h'
+            interval=Interval.H1
         )
         h_sun_ns_30m, a_sun_ns_30m = t.calc_solar_position(
             phi_loc=math.radians(43.82),
             lambda_loc=math.radians(143.91),
-            interval='30m'
+            interval=Interval.M30
         )
         h_sun_ns_15m, a_sun_ns_15m = t.calc_solar_position(
             phi_loc=math.radians(43.82),
             lambda_loc=math.radians(143.91),
-            interval='15m'
+            interval=Interval.M15
         )
 
         # 配列長さが、1時間間隔、8760 であることの確認

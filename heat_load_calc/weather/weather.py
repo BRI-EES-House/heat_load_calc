@@ -3,7 +3,8 @@ import pandas as pd
 from heat_load_calc.weather import weather_data
 from heat_load_calc.weather import region_location
 from heat_load_calc.weather import solar_position
-from heat_load_calc.weather import calc_interval
+from heat_load_calc.weather import interval
+from heat_load_calc.weather.interval import Interval
 
 
 def make_weather(region: int, output_data_dir: str = None, csv_output: bool = False, interval: str = '15m'):
@@ -24,6 +25,9 @@ def make_weather(region: int, output_data_dir: str = None, csv_output: bool = Fa
         output_data_dir で指定したディレクトリは実行ファイルがあるフォルダ内に作成される。
     """
 
+    # 時間間隔を列挙体に変換する
+    _interval = Interval(interval)
+
     # 気象データの読み込み
     #   (1)ステップnにおける外気温度, degree C [n]
     #   (2)ステップnにおける法線面直達日射量, W/m2 [n]
@@ -34,7 +38,7 @@ def make_weather(region: int, output_data_dir: str = None, csv_output: bool = Fa
     #   interval = '1h' -> n = 8760
     #   interval = '30m' -> n = 8760 * 2
     #   interval = '15m' -> n = 8760 * 4
-    theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, x_o_ns = weather_data.load(region=region, interval=interval)
+    theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, x_o_ns = weather_data.load(region=region, interval=_interval)
 
     # 緯度, rad & 経度, rad
     phi_loc, lambda_loc = region_location.get_phi_loc_and_lambda_loc(region=region)
@@ -42,7 +46,7 @@ def make_weather(region: int, output_data_dir: str = None, csv_output: bool = Fa
     # 太陽位置
     #   (1) ステップnにおける太陽高度, rad [n]
     #   (2) ステップnにおける太陽方位角, rad [n]
-    h_sun_ns, a_sun_ns = solar_position.calc_solar_position(phi_loc=phi_loc, lambda_loc=lambda_loc, interval=interval)
+    h_sun_ns, a_sun_ns = solar_position.calc_solar_position(phi_loc=phi_loc, lambda_loc=lambda_loc, interval=_interval)
 
     # インターバル指定文字をpandasのfreq引数に文字変換する。
     freq = {
@@ -52,7 +56,7 @@ def make_weather(region: int, output_data_dir: str = None, csv_output: bool = Fa
     }[interval]
 
     # 1時間を何分割するのかを取得する。
-    n_hour = calc_interval.get_n_hour(interval=interval)
+    n_hour = _interval.get_n_hour()
 
     # 時系列インデクスの作成
     dd = pd.DataFrame(index=pd.date_range(start='1/1/1989', periods=8760*n_hour, freq=freq))

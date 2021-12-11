@@ -1,13 +1,15 @@
-# 附属書X5 太陽位置
-# 地域の区分からステップnにおける太陽高度及び太陽方位角を計算する。
-
 import math
 import numpy as np
 
-from heat_load_calc.weather import calc_interval
+from heat_load_calc.weather import interval
+from heat_load_calc.weather.interval import Interval
+
+"""
+    ステップnにおける太陽位置を計算する。
+"""
 
 
-def calc_solar_position(phi_loc: float, lambda_loc: float, interval: str) -> (np.ndarray, np.ndarray):
+def calc_solar_position(phi_loc: float, lambda_loc: float, interval: Interval) -> (np.ndarray, np.ndarray):
     """
     太陽位置を計算する
 
@@ -93,14 +95,11 @@ def get_lambda_loc_mer() -> float:
     return math.radians(135.0)
 
 
-def get_d_ns(interval: str) -> np.ndarray:
+def get_d_ns(interval: Interval) -> np.ndarray:
     """
     ステップnにおける年通算日を取得する 年通算日（1/1を1とする）, d
     Args:
-        interval: 生成するデータの時間間隔であり、以下の文字列で指定する。
-            1h: 1時間間隔
-            30m: 30分間隔
-            15m: 15分間隔
+        interval: 生成するデータの時間間隔
     Returns:
         ステップnにおける年通算日, d [n]
     Notes:
@@ -115,7 +114,7 @@ def get_d_ns(interval: str) -> np.ndarray:
     """
 
     # 1時間を分割するステップ数
-    n_hour = calc_interval.get_n_hour(interval)
+    n_hour = interval.get_n_hour()
 
     return np.repeat(np.arange(365) + 1, 24 * n_hour)
 
@@ -237,25 +236,20 @@ def get_delta_ns(epsilon_ns: np.ndarray, v_ns: np.ndarray) -> np.ndarray:
     return delta_ns
 
 
-def _get_t_m_ns(interval: str) -> np.ndarray:
+def _get_t_m_ns(interval: Interval) -> np.ndarray:
     """
     ステップnにおける標準時を計算する
     Args:
-        interval: 生成するデータの時間間隔であり、以下の文字列で指定する。
-            1h: 1時間間隔
-            30m: 30分間隔
-            15m: 15分間隔
+        interval: 生成するデータの時間間隔
     Returns:
-        ステップnにおける標準時, d [n]
+        ステップnにおける標準時, d, [n]
     """
 
-    n_hour = calc_interval.get_n_hour(interval=interval)
+    # 1時間を何分割するか
+    n_hour = interval.get_n_hour()
 
-    int_interval = {
-        '1h': 1.0,
-        '30m': 0.5,
-        '15m': 0.25
-    }[interval]
+    # インターバル時間, h
+    int_interval = interval.get_time()
 
     # 1h: 0, 1.0, .... , 23.0, 0, 1.0, ...23.0
     # 30m: 0, 0.5, 1.0, 1.5, .... , 23.5, 0, 0.5, ...23.5
