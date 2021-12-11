@@ -163,13 +163,13 @@ I. 評価法
 
 である。
 
-ステップ |n| における真近点離角 :math:`\nu_n` は、式(9)により計算される。
+ステップ |n| における真近点離角 :math:`\nu_n` は、式(8)により計算される。
 
 .. math::
     :nowrap:
 
     \begin{align*}
-        \nu_n = m_n + ( 1.914 \times \sin m_n + 0.02 \sin 2m_n ) \times \dfrac{\pi}{180} \tag{9}
+        \nu_n = m_n + ( 1.914 \sin m_n + 0.02 \sin 2m_n ) \times \dfrac{\pi}{180} \tag{8}
     \end{align*}
 
 ステップ |n| における近日点と冬至点の角度 :math:`\epsilon_n` は、式(10)により計算される。
