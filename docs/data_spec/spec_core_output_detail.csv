@@ -23,8 +23,8 @@
 室,rm[i]_q_s_sol_fun,W,家具吸収日射熱量,I
 室,rm[i]_x_fun,kg/kg(DA),家具絶対湿度,I
 室,rm[i]_q_l_fun,kg/s,家具取得水蒸気量,A
-室,rm[i]_v_reak,m3/s,すきま風量,I
-室,rm[i]_v_ntrl,m3/s,自然換気量,I
+室,rm[i]_v_reak,m3/s,すきま風量,A
+室,rm[i]_v_ntrl,m3/s,自然換気量,A
 室,rm[i]_pmv_target,－,PMVの目標値,I
 室,rm[i]_pmv,－,PMVの実現値,I
 室,rm[i]_ppd,－,PPDの実現値,I

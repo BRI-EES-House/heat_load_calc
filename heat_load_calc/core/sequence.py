@@ -7,6 +7,9 @@ from heat_load_calc.external.global_number import get_c_a, get_rho_a, get_l_wtr
 from heat_load_calc.core.log import Logger
 from heat_load_calc.core.matrix_method import v_diag
 from heat_load_calc.core import occupants
+from heat_load_calc.core import pmv as pmv
+from heat_load_calc.core import ot_target_pmv as ot_target_pmv
+from heat_load_calc.external import psychrometrics as psy
 
 
 def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, logger: Logger, run_up: bool) -> Conditions:
@@ -393,39 +396,70 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
         x_r_is_n_pls=x_r_is_n_pls
     )
 
-    if not run_up:
+    # ステップ n から n+1 における室 i の
+    clo_is_n = np.array([remark['clo'] for remark in remarks_is_n])
+
+    # ステップ n+1 における人体まわりの風速, m/s, [i, n]
+    v_hum_is_n_pls = np.array([remark['v_hum m/s'] for remark in remarks_is_n])
+
+    # ステップ n+1 の室 i における飽和水蒸気圧, Pa, [i, n]
+    p_vs = psy.get_p_vs_is(theta_is=theta_r_is_n_pls)
+
+    # ステップn+1における室iの水蒸気圧, Pa, [i, n]
+    p_v = psy.get_p_v_r_is_n(x_r_is_n=x_r_is_n_pls)
+
+    # ステップn+1の室iにおける相対湿度, %, [i, n]
+    rh_is_n_pls = psy.get_h(p_v=p_v, p_vs=p_vs)
+    # ステップn+1のPMV、PPDを計算, -, [i, 1]
+    pmv_is_n_pls, ppd_is_n_pls = pmv.get_pmv_ppd(met_value=ot_target_pmv.get_m() / 58.15,
+                                                 p_eff=0.0,
+                                                 t_a=theta_r_is_n_pls.flatten(),
+                                                 t_r_bar=theta_mrt_hum_is_n_pls.flatten(),
+                                                 clo_value=clo_is_n,
+                                                 v_ar=v_hum_is_n_pls,
+                                                 rh=rh_is_n_pls.flatten())
+
+    if n >= 0:
+        # 平均値出力のステップ番号
+        n_a = n
+        # 瞬時値出力のステップ番号
+        n_i = n + 1
+
         # 次の時刻に引き渡す値
         # 積算値
-        logger.operation_mode[:, n] = operation_mode_is_n.flatten()
+        logger.operation_mode[:, n_a] = operation_mode_is_n.flatten()
         # 瞬時値
-        logger.theta_r[:, n] = theta_r_is_n_pls.flatten()
-        logger.theta_mrt_hum[:, n] = theta_mrt_hum_is_n_pls.flatten()
-        logger.x_r[:, n] = x_r_is_n_pls.flatten()
-        logger.theta_frt[:, n] = theta_frt_is_n_pls.flatten()
-        logger.x_frt[:, n] = x_frt_is_n_pls.flatten()
-        logger.theta_ei[:, n] = theta_ei_js_n_pls.flatten()
+        logger.theta_r[:, n_i] = theta_r_is_n_pls.flatten()
+        logger.theta_mrt_hum[:, n_i] = theta_mrt_hum_is_n_pls.flatten()
+        logger.x_r[:, n_i] = x_r_is_n_pls.flatten()
+        logger.theta_frt[:, n_i] = theta_frt_is_n_pls.flatten()
+        logger.x_frt[:, n_i] = x_frt_is_n_pls.flatten()
+        logger.theta_ei[:, n_i] = theta_ei_js_n_pls.flatten()
 
         # 次の時刻に引き渡さない値
         # 積算値
-        logger.q_hum[:, n] = q_hum_is_n.flatten()
-        logger.x_hum[:, n] = x_hum_is_n.flatten()
-        logger.l_cs[:, n] = l_cs_is_n.flatten()
-        logger.l_rs[:, n] = l_rs_is_n.flatten()
-        logger.l_cl[:, n] = l_cl_is_n.flatten()
+        logger.q_hum[:, n_a] = q_hum_is_n.flatten()
+        logger.x_hum[:, n_a] = x_hum_is_n.flatten()
+        logger.l_cs[:, n_a] = l_cs_is_n.flatten()
+        logger.l_rs[:, n_a] = l_rs_is_n.flatten()
+        logger.l_cl[:, n_a] = l_cl_is_n.flatten()
         # 平均値
-        logger.v_reak_is_ns[:, n] = v_leak_is_n.flatten()
-        logger.v_ntrl_is_ns[:, n] = v_vent_ntr_is_n.flatten()
-        logger.h_hum_c_is_n[:, n] = h_hum_c_is_n.flatten()
-        logger.h_hum_r_is_n[:, n] = h_hum_r_is_n.flatten()
+        logger.v_reak_is_ns[:, n_a] = v_leak_is_n.flatten()
+        logger.v_ntrl_is_ns[:, n_a] = v_vent_ntr_is_n.flatten()
         # 瞬時値
-        logger.theta_ot[:, n] = theta_ot_is_n_pls.flatten()
-        logger.theta_s[:, n] = theta_s_js_n_pls.flatten()
-        logger.theta_rear[:, n] = theta_rear_js_n.flatten()
-        logger.qiall_s[:, n] = q_s_js_n_pls.flatten()
+        logger.h_hum_c_is_n[:, n_i] = h_hum_c_is_n.flatten()
+        logger.h_hum_r_is_n[:, n_i] = h_hum_r_is_n.flatten()
+        logger.theta_ot[:, n_i] = theta_ot_is_n_pls.flatten()
+        logger.theta_s[:, n_i] = theta_s_js_n_pls.flatten()
+        logger.theta_rear[:, n_i] = theta_rear_js_n.flatten()
+        logger.qiall_s[:, n_i] = q_s_js_n_pls.flatten()
 
-        logger.pmv_target[:, n] = np.array([remark['pmv_target'] for remark in remarks_is_n])
-        logger.v_hum[:, n] = np.array([remark['v_hum m/s'] for remark in remarks_is_n])
-        logger.clo[:, n] = np.array([remark['clo'] for remark in remarks_is_n])
+        logger.pmv_target[:, n_i] = np.array([remark['pmv_target'] for remark in remarks_is_n])
+        logger.v_hum[:, n_i] = np.array([remark['v_hum m/s'] for remark in remarks_is_n])
+        logger.clo[:, n_a] = np.array([remark['clo'] for remark in remarks_is_n])
+
+        logger.pmv[:, n_i] = pmv_is_n_pls
+        logger.ppd[:, n_i] = ppd_is_n_pls
 
     return Conditions(
         operation_mode_is_n=operation_mode_is_n,

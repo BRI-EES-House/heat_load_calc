@@ -14,8 +14,6 @@
             "sub_name": "",
             "volume": 1.0,
             "ventilation": {
-                "mechanical": 0.5,
-                "next_spaces": [],
                 "natural": 0.0
             },
             "furniture": {
@@ -77,6 +75,16 @@
                 "existence": false
             },
             "temp_dif_coef": 1.0
+        }
+    ],
+    "mechanical_ventilations": [
+        {
+            "id": 0,
+            "root_type": "type3",
+            "volume": 0.5,
+            "root": [
+                0
+            ]
         }
     ],
     "equipments": {

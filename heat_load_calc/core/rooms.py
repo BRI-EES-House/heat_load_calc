@@ -29,6 +29,9 @@ class Room:
     # 空気と備品等間の湿気コンダクタンス, kg/(s (kg/kgDA))
     g_lh_frt: float
 
+    # 自然風利用時の換気量, m3/s
+    v_vent_ntr_set: float
+
 
 class Rooms:
 
@@ -56,7 +59,8 @@ class Rooms:
             c_sh_frt=c_sh_frt,
             g_sh_frt=g_sh_frt,
             c_lh_frt=c_lh_frt,
-            g_lh_frt=g_lh_frt
+            g_lh_frt=g_lh_frt,
+            v_vent_ntr_set=dict_room['ventilation']['natural']
         )
 
     def get_n_rm(self):
@@ -75,19 +79,23 @@ class Rooms:
 
         return np.array([rm.v for rm in self._rms]).reshape(-1, 1)
 
-    def get_c_sh_frt(self):
+    def get_c_sh_frt_is(self):
 
         return np.array([rm.c_sh_frt for rm in self._rms]).reshape(-1, 1)
 
-    def get_g_sh_frt(self):
+    def get_g_sh_frt_is(self):
 
         return np.array([rm.g_sh_frt for rm in self._rms]).reshape(-1, 1)
 
-    def get_c_lh_frt(self):
+    def get_c_lh_frt_is(self):
 
         return np.array([rm.c_lh_frt for rm in self._rms]).reshape(-1, 1)
 
-    def get_g_lh_frt(self):
+    def get_g_lh_frt_is(self):
 
         return np.array([rm.g_lh_frt for rm in self._rms]).reshape(-1, 1)
 
+    def get_v_vent_ntr_set_is(self):
+
+        # m3/h から m3/s の単位変換を行う。
+        return np.array([rm.v_vent_ntr_set / 3600.0 for rm in self._rms]).reshape(-1, 1)

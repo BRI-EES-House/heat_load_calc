@@ -2,8 +2,8 @@
     "building": {
         "infiltration": {
             "method": "balance_residential",
-            "story": 2,
-            "c_value": 2.0,
+            "story": 1,
+            "c_value": 0.0,
             "inside_pressure": "negative"
         }
     },
@@ -14,8 +14,6 @@
             "sub_name": "",
             "volume": 1.0,
             "ventilation": {
-                "mechanical": 0.0,
-                "next_spaces": [],
                 "natural": 0.0
             },
             "furniture": {
@@ -210,6 +208,7 @@
             "temp_dif_coef": 1.0
         }
     ],
+    "mechanical_ventilations": [],
     "equipments": {
         "heating_equipments": [
             {

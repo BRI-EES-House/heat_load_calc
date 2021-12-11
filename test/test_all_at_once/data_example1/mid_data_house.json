@@ -1,4 +1,7 @@
 {
+	"common": {
+		"region": 6
+	},
     "building": {
         "infiltration": {
             "method": "balance_residential",
@@ -12,10 +15,9 @@
             "id": 0,
             "name": "main_occupant_room",
             "sub_name": "",
+            "floor_area": 29.81,
             "volume": 70.92,
             "ventilation": {
-                "mechanical": 60.0,
-                "next_spaces": [],
                 "natural": 354.6
             },
             "furniture": {
@@ -26,15 +28,9 @@
             "id": 1,
             "name": "other_occupant_room",
             "sub_name": "",
+            "floor_area": 38.1,
             "volume": 123.22,
             "ventilation": {
-                "mechanical": 100.0,
-                "next_spaces": [
-                    {
-                        "upstream_room_id": 2,
-                        "volume": 20.0
-                    }
-                ],
                 "natural": 616.1
             },
             "furniture": {
@@ -45,19 +41,9 @@
             "id": 2,
             "name": "non_occupant_room",
             "sub_name": "",
+            "floor_area": 21.52,
             "volume": 94.88,
             "ventilation": {
-                "mechanical": 0.0,
-                "next_spaces": [
-                    {
-                        "upstream_room_id": 0,
-                        "volume": 60.0
-                    },
-                    {
-                        "upstream_room_id": 1,
-                        "volume": 100.0
-                    }
-                ],
                 "natural": 474.4
             },
             "furniture": {
@@ -2130,6 +2116,26 @@
             },
             "outside_heat_transfer_resistance": 0.11,
             "rear_surface_boundary_id": 17
+        }
+    ],
+    "mechanical_ventilations": [
+        {
+            "id": 0,
+            "root_type": "type3",
+            "volume": 60.0,
+            "root": [
+                0,
+                2
+            ]
+        },
+        {
+            "id": 1,
+            "root_type": "type3",
+            "volume": 100.0,
+            "root": [
+                1,
+                2
+            ]
         }
     ],
     "equipments": {
