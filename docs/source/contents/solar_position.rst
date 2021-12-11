@@ -219,13 +219,13 @@ I. 評価法
 
 なお :math:`\lfloor x \rfloor` は、 :math:`x` の小数点以下を切り捨てた値とする。
 	
-1968年との年差 :math:`N` は、式(13)により計算される。
+1968年との年差 :math:`N` は、式(12)により計算される。
 
 .. math::
     :nowrap:
 
     \begin{align*}
-        N = y - 1968  \tag{13}
+        N = y - 1968  \tag{12}
     \end{align*}  
 
 ここで、
