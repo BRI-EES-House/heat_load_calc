@@ -39,7 +39,7 @@ def calc_solar_position(phi_loc: float, lambda_loc: float, interval: Interval) -
     n = get_n()
 
     # 平均軌道上の近日点通過日（暦表時による1968年1月1日正午基準の日差）, d
-    d_0 = get_d_0(n=n)
+    d_0 = _get_d_0(n=n)
 
     # ステップnにおける平均近点離角, rad [n]
     m_ns = _get_m_ns(d_ns=d_ns, d_0=d_0)
@@ -133,7 +133,7 @@ def get_n() -> int:
     return y - 1968
 
 
-def get_d_0(n: int) -> float:
+def _get_d_0(n: int) -> float:
     """
     平均軌道上の近日点通過日を取得する。
 
@@ -142,6 +142,9 @@ def get_d_0(n: int) -> float:
 
     Returns:
         平均軌道上の近日点通過日（暦表時による1968年1月1日正午基準の日差）, d
+
+    Notes:
+        式(11)
     """
 
     return 3.71 + 0.2596 * n - int((n + 3.0) / 4.0)

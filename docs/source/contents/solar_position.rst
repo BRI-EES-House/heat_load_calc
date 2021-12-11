@@ -208,13 +208,13 @@ I. 評価法
     
 である。本計算では、近点年(近日点基準の公転周期日数) :math:`d_{ay}` は :math:`365.2596` とする。
 
-ステップ |n| における平均軌道上の近日点通過日(暦表時による :math:`1968` 年 :math:`1` 月 :math:`1` 日正午基準の日差) :math:`d_0` は、式(12)により計算される。
+ステップ |n| における平均軌道上の近日点通過日(暦表時による :math:`1968` 年 :math:`1` 月 :math:`1` 日正午基準の日差) :math:`d_0` は、式(11)により計算される。
 
 .. math::
     :nowrap:
 
     \begin{align*}
-        d_0 = 3.71 + 0.2596 \times N - \biggl\lfloor \dfrac{ N + 3 }{ 4 } \biggr\rfloor  \tag{12}
+        d_0 = 3.71 + 0.2596 N - \biggl\lfloor \dfrac{ N + 3 }{ 4 } \biggr\rfloor  \tag{11}
     \end{align*}  
 
 なお :math:`\lfloor x \rfloor` は、 :math:`x` の小数点以下を切り捨てた値とする。
