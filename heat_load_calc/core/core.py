@@ -90,9 +90,8 @@ def calc(
     print('ログ作成')
 
     # dd: data detail, 15分間隔のすべてのパラメータ pd.DataFrame
-    dd = log.record(
+    dd = logger.record(
         pps=pp,
-        logger=logger,
         output_data_dir=output_data_dir,
         show_detail_result=show_detail_result,
         n_step_main=n_step_main,

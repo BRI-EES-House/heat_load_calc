@@ -173,80 +173,80 @@ class Logger:
         self.q_l_frt = ss.g_lh_frt_is * (x_r_is_ns - x_frt_is_ns)
 
 
-def record(pps: PreCalcParameters, logger: Logger, output_data_dir: str, show_detail_result: bool, n_step_main: int, n_d_main: int):
+    def record(self, pps: PreCalcParameters, output_data_dir: str, show_detail_result: bool, n_step_main: int, n_d_main: int):
 
-    n_step_main_i = n_step_main + 1
-    n_step_main_a = n_step_main + 1
+        n_step_main_i = n_step_main + 1
+        n_step_main_a = n_step_main + 1
 
-    date_index_15min_i = pd.date_range(start='1/1/1989', periods=n_step_main+1, freq='15min')
-    date_index_15min_a = pd.date_range(start='1/1/1989', periods=n_step_main+1, freq='15min')
+        date_index_15min_i = pd.date_range(start='1/1/1989', periods=n_step_main+1, freq='15min')
+        date_index_15min_a = pd.date_range(start='1/1/1989', periods=n_step_main+1, freq='15min')
 
-    dd_i = pd.DataFrame(index=date_index_15min_i)
-    dd_a = pd.DataFrame(index=date_index_15min_a)
-    dd_a['end_time'] = date_index_15min_a + dt.timedelta(minutes=15)
+        dd_i = pd.DataFrame(index=date_index_15min_i)
+        dd_a = pd.DataFrame(index=date_index_15min_a)
+        dd_a['end_time'] = date_index_15min_a + dt.timedelta(minutes=15)
 
-    dd_i['out_temp'] = logger.theta_o_ns[0:n_step_main_i]
-    dd_i['out_abs_humid'] = logger.x_o_ns[0:n_step_main_i]
+        dd_i['out_temp'] = self.theta_o_ns[0:n_step_main_i]
+        dd_i['out_abs_humid'] = self.x_o_ns[0:n_step_main_i]
 
 
-    for i in range(pps.n_rm):
+        for i in range(pps.n_rm):
 
-        name = 'rm' + str(i)
+            name = 'rm' + str(i)
 
-        dd_a[name + '_ac_operate'] = logger.operation_mode[i][0:n_step_main_a]
-        dd_a[name + '_occupancy'] = logger.ac_demand_is_ns[i][0:n_step_main_a]
-        dd_i[name + '_hc_hum'] = logger.h_hum_c_is_n[i][0:n_step_main_i]
-        dd_i[name + '_hr_hum'] = logger.h_hum_r_is_n[i][0:n_step_main_i]
-        dd_i[name + '_t_r'] = logger.theta_r[i][0:n_step_main_i]
-        dd_i[name + '_rh_r'] = logger.rh[i][0:n_step_main_i]
-        dd_i[name + '_x_r'] = logger.x_r[i][0:n_step_main_i]
-        dd_i[name + '_mrt'] = logger.theta_mrt_hum[i][0:n_step_main_i]
-        dd_i[name + '_ot'] = logger.theta_ot[i][0:n_step_main_i]
-        dd_i[name + '_q_sol_t'] = logger.q_trs_sol_is_ns[i][0:n_step_main_i]
-        dd_a[name + '_q_s_except_hum'] = logger.q_gen_is_ns[i][0:n_step_main_a]
-        dd_a[name + '_q_l_except_hum'] = logger.x_gen_is_ns[i][0:n_step_main_a]
-        dd_a[name + '_q_hum_s'] = logger.q_hum[i][0:n_step_main_a]
-        dd_a[name + '_q_hum_l'] = logger.x_hum[i][0:n_step_main_a]
-        dd_a[name + '_l_s_c'] = logger.l_cs[i][0:n_step_main_a]
-        dd_a[name + '_l_s_r'] = logger.l_rs[i][0:n_step_main_a]
-        dd_a[name + '_l_l_c'] = logger.l_cl[i][0:n_step_main_a]
-        dd_i[name + '_t_fun'] = logger.theta_frt[i][0:n_step_main_i]
-        dd_a[name + '_q_s_fun'] = logger.q_frt[i][0:n_step_main_a]
-        dd_i[name + '_q_s_sol_fun'] = logger.q_sol_frt_is_ns[i][0:n_step_main_i]
-        dd_i[name + '_x_fun'] = logger.x_frt[i][0:n_step_main_i]
-        dd_a[name + '_q_l_fun'] = logger.q_l_frt[i][0:n_step_main_a]
-        dd_a[name + '_v_reak'] = logger.v_reak_is_ns[i][0:n_step_main_a]
-        dd_a[name + '_v_ntrl'] = logger.v_ntrl_is_ns[i][0:n_step_main_a]
-        dd_i[name + '_pmv_target'] = logger.pmv_target[i][0:n_step_main_i]
-        dd_i[name + '_pmv'] = logger.pmv[i][0:n_step_main_i]
-        dd_i[name + '_ppd'] = logger.ppd[i][0:n_step_main_i]
-        dd_i[name + '_v_hum'] = logger.v_hum[i][0:n_step_main_i]
-        dd_a[name + '_clo'] = logger.clo[i][0:n_step_main_a]
+            dd_a[name + '_ac_operate'] = self.operation_mode[i][0:n_step_main_a]
+            dd_a[name + '_occupancy'] = self.ac_demand_is_ns[i][0:n_step_main_a]
+            dd_i[name + '_hc_hum'] = self.h_hum_c_is_n[i][0:n_step_main_i]
+            dd_i[name + '_hr_hum'] = self.h_hum_r_is_n[i][0:n_step_main_i]
+            dd_i[name + '_t_r'] = self.theta_r[i][0:n_step_main_i]
+            dd_i[name + '_rh_r'] = self.rh[i][0:n_step_main_i]
+            dd_i[name + '_x_r'] = self.x_r[i][0:n_step_main_i]
+            dd_i[name + '_mrt'] = self.theta_mrt_hum[i][0:n_step_main_i]
+            dd_i[name + '_ot'] = self.theta_ot[i][0:n_step_main_i]
+            dd_i[name + '_q_sol_t'] = self.q_trs_sol_is_ns[i][0:n_step_main_i]
+            dd_a[name + '_q_s_except_hum'] = self.q_gen_is_ns[i][0:n_step_main_a]
+            dd_a[name + '_q_l_except_hum'] = self.x_gen_is_ns[i][0:n_step_main_a]
+            dd_a[name + '_q_hum_s'] = self.q_hum[i][0:n_step_main_a]
+            dd_a[name + '_q_hum_l'] = self.x_hum[i][0:n_step_main_a]
+            dd_a[name + '_l_s_c'] = self.l_cs[i][0:n_step_main_a]
+            dd_a[name + '_l_s_r'] = self.l_rs[i][0:n_step_main_a]
+            dd_a[name + '_l_l_c'] = self.l_cl[i][0:n_step_main_a]
+            dd_i[name + '_t_fun'] = self.theta_frt[i][0:n_step_main_i]
+            dd_a[name + '_q_s_fun'] = self.q_frt[i][0:n_step_main_a]
+            dd_i[name + '_q_s_sol_fun'] = self.q_sol_frt_is_ns[i][0:n_step_main_i]
+            dd_i[name + '_x_fun'] = self.x_frt[i][0:n_step_main_i]
+            dd_a[name + '_q_l_fun'] = self.q_l_frt[i][0:n_step_main_a]
+            dd_a[name + '_v_reak'] = self.v_reak_is_ns[i][0:n_step_main_a]
+            dd_a[name + '_v_ntrl'] = self.v_ntrl_is_ns[i][0:n_step_main_a]
+            dd_i[name + '_pmv_target'] = self.pmv_target[i][0:n_step_main_i]
+            dd_i[name + '_pmv'] = self.pmv[i][0:n_step_main_i]
+            dd_i[name + '_ppd'] = self.ppd[i][0:n_step_main_i]
+            dd_i[name + '_v_hum'] = self.v_hum[i][0:n_step_main_i]
+            dd_a[name + '_clo'] = self.clo[i][0:n_step_main_a]
 
-        selected = pps.p_is_js[i] == 1
-        boundary_names = pps.name_bdry_js[selected]
+            selected = pps.p_is_js[i] == 1
+            boundary_names = pps.name_bdry_js[selected]
 
-        for j, t in enumerate(logger.theta_s[selected, 0:n_step_main_i]):
-            dd_i[name + '_' + 'b' + str(j) + '_t_s'] = t
-        for j, t in enumerate(logger.theta_ei[selected, 0:n_step_main_i]):
-            dd_i[name + '_' + 'b' + str(j) + '_t_e'] = t
-        for j, t in enumerate(logger.theta_rear[selected, 0:n_step_main_i]):
-            dd_i[name + '_' + 'b' + str(j) + '_t_b'] = t
-        for j, t in enumerate(logger.h_r_s[selected, 0:n_step_main_i]):
-            dd_i[name + '_' + 'b' + str(j) + '_hir_s'] = t
-        for j, t in enumerate(logger.qr[selected, 0:n_step_main_i]):
-            dd_i[name + '_' + 'b' + str(j) + '_qir_s'] = t
-        for j, t in enumerate(logger.h_c_s[selected, 0:n_step_main_i]):
-            dd_i[name + '_' + 'b' + str(j) + '_hic_s'] = t
-        for j, t in enumerate(logger.qc[selected, 0:n_step_main_i]):
-            dd_i[name + '_' + 'b' + str(j) + '_qic_s'] = t
-        for j, t in enumerate(logger.qisol_s[selected, 0:n_step_main_i]):
-            dd_i[name + '_' + 'b' + str(j) + '_qisol_s'] = t
-        for j, t in enumerate(logger.qiall_s[selected, 0:n_step_main_i]):
-            dd_i[name + '_' + 'b' + str(j) + '_qiall_s'] = t
+            for j, t in enumerate(self.theta_s[selected, 0:n_step_main_i]):
+                dd_i[name + '_' + 'b' + str(j) + '_t_s'] = t
+            for j, t in enumerate(self.theta_ei[selected, 0:n_step_main_i]):
+                dd_i[name + '_' + 'b' + str(j) + '_t_e'] = t
+            for j, t in enumerate(self.theta_rear[selected, 0:n_step_main_i]):
+                dd_i[name + '_' + 'b' + str(j) + '_t_b'] = t
+            for j, t in enumerate(self.h_r_s[selected, 0:n_step_main_i]):
+                dd_i[name + '_' + 'b' + str(j) + '_hir_s'] = t
+            for j, t in enumerate(self.qr[selected, 0:n_step_main_i]):
+                dd_i[name + '_' + 'b' + str(j) + '_qir_s'] = t
+            for j, t in enumerate(self.h_c_s[selected, 0:n_step_main_i]):
+                dd_i[name + '_' + 'b' + str(j) + '_hic_s'] = t
+            for j, t in enumerate(self.qc[selected, 0:n_step_main_i]):
+                dd_i[name + '_' + 'b' + str(j) + '_qic_s'] = t
+            for j, t in enumerate(self.qisol_s[selected, 0:n_step_main_i]):
+                dd_i[name + '_' + 'b' + str(j) + '_qisol_s'] = t
+            for j, t in enumerate(self.qiall_s[selected, 0:n_step_main_i]):
+                dd_i[name + '_' + 'b' + str(j) + '_qiall_s'] = t
 
-    if show_detail_result:
-        dd_i.to_csv(output_data_dir + '/result_detail_i.csv', encoding='cp932')
-        dd_a.to_csv(output_data_dir + '/result_detail_a.csv', encoding='cp932')
+        if show_detail_result:
+            dd_i.to_csv(output_data_dir + '/result_detail_i.csv', encoding='cp932')
+            dd_a.to_csv(output_data_dir + '/result_detail_a.csv', encoding='cp932')
 
-    return dd_i, dd_a
+        return dd_i, dd_a
