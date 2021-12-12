@@ -3,7 +3,6 @@ import pandas as pd
 from heat_load_calc.weather import weather_data
 from heat_load_calc.weather import region_location
 from heat_load_calc.weather import solar_position
-from heat_load_calc.weather import interval
 from heat_load_calc.weather.interval import Interval
 
 
@@ -50,10 +49,10 @@ def make_weather(region: int, output_data_dir: str = None, csv_output: bool = Fa
 
     # インターバル指定文字をpandasのfreq引数に文字変換する。
     freq = {
-        '15m': '15min',
-        '30m': '30min',
-        '1h': 'H'
-    }[interval]
+        Interval.M15: '15min',
+        Interval.M30: '30min',
+        Interval.H1: 'H'
+    }[_interval]
 
     # 1時間を何分割するのかを取得する。
     n_hour = _interval.get_n_hour()
