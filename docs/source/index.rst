@@ -16,6 +16,7 @@
    /contents/humidity_balance
    /contents/furniture
    /contents/period
+   /contents/external_boundaries_direction
    /contents/solar_position
    /contents/shape_factor
    /contents/infiltration
