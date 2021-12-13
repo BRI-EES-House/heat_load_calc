@@ -2,7 +2,7 @@
 全体,out_temp,℃,外気温度,I
 全体,out_abs_humid,kg/kg(DA),外気絶対湿度,I
 室,rm[i]_ac_operate,－,運転状態,A
-室,rm[i]_occupancy,boolean,在室状況,A
+室,rm[i]_occupancy,－,在室状況,A
 室,rm[i]_hc_hum,W/(m2･K),在室者周りの対流熱伝達率,I
 室,rm[i]_hr_hum,W/(m2･K),在室者周りの放射熱伝達率,I
 室,rm[i]_t_r,℃,空気温度,I
