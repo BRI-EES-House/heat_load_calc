@@ -78,22 +78,43 @@ I. 評価法
     
 である。なお、地面の日射反射率 :math:`\rho_{gnd}` は0.1とする。
 
-傾斜面 |j| における地面の形態係数 :math:`f_{gnd,j}` は、式(4)により計算される。
+ステップ |n| に傾斜面 |j| の夜間放射量 :math:`R_{S,j,n}` は、式(4)により計算される。
 
 .. math::
     :nowrap:
 
     \begin{align*}
-        f_{gnd,j} = 1 - f_{sky,j} \tag{4}
+        R_{S,j,n} = R_{sky,n} \cdot f_{sky,j} \tag{4}
+    \end{align*}
+
+ここで、
+
+:math:`R_{S,j,n}`
+    | ステップ |n| に傾斜面 |j| の夜間放射量, W / |m2| 
+:math:`R_{sky,n}`
+    | ステップ |n| における水平面の夜間放射量, W / |m2| 
+    
+である。
+
+
+
+
+傾斜面 |j| における地面の形態係数 :math:`f_{gnd,j}` は、式(5)により計算される。
+
+.. math::
+    :nowrap:
+
+    \begin{align*}
+        f_{gnd,j} = 1 - f_{sky,j} \tag{5}
     \end{align*}
     
-傾斜面 |j| における天空の形態係数 :math:`f_{sky,j}` は、式(5)により計算される。
+傾斜面 |j| における天空の形態係数 :math:`f_{sky,j}` は、式(6)により計算される。
 
 .. math::
     :nowrap:
 
     \begin{align*}
-        f_{sky,j} = \dfrac{1 + \cos \beta_{w,j} }{2} \tag{5}
+        f_{sky,j} = \dfrac{1 + \cos \beta_{w,j} }{2} \tag{6}
     \end{align*}
 
 ここで、
@@ -101,31 +122,31 @@ I. 評価法
 :math:`\beta_{w,j}`
     | 傾斜面 |j| の傾斜角, rad 
     
-である。
+である。なお、傾斜面 |j| の傾斜角 :math:`\beta_{w,j}` は :math:`0` ～ :math:`\pi` の範囲で定義され、面が天頂を向いている水平面で :math:`0` rad、面が水平方向を向いている垂直面(壁面)で :math:`\pi/2` rad、面が真下を向いているオーバーハング床等の表面で :math:`\pi` radの値をとる。
 
-ステップ |n| における水平面全天日射量 :math:`I_{hrz,n}` は、式(6)により計算される。
+ステップ |n| における水平面全天日射量 :math:`I_{hrz,n}` は、式(7)により計算される。
 
 .. math::
     :nowrap:
 
     \begin{align*}
-        I_{hrz,n} = S_{h,n} \cdot I_{DN,n} + I_{sky,n} \tag{6}
+        I_{hrz,n} = S_{h,n} \cdot I_{DN,n} + I_{sky,n} \tag{7}
     \end{align*}
 
 ここで、
 
 :math:`S_{h,n}`
-    | ステップ |n| における太陽高度の正弦(ただし、太陽が地面に隠れている場合は0), rad 
+    | ステップ |n| における太陽高度の正弦(ただし、太陽が地面に隠れている場合は0), -
     
 である。
 
-ステップ |n| における太陽高度の正弦 :math:`S_{h,n}` は、非負条件が課せられ、式(7)により計算される。
+ステップ |n| における太陽高度の正弦 :math:`S_{h,n}` は、非負条件が課せられ、式(8)により計算される。
 
 .. math::
     :nowrap:
 
     \begin{align*}
-        S_{h,n} = max{\sin{ h_{sun,n} },0} \tag{7}
+        S_{h,n} = max\{ \sin{ h_{sun,n} }, 0 \} \tag{8}
     \end{align*}
 
 ここで、
@@ -135,14 +156,46 @@ I. 評価法
 
 である。
 
+ステップ |n| に傾斜面 |j| に入射する日射の入射角 :math:`\theta_{j,n}` は、式(9)により計算される。
 
+.. math::
+    :nowrap:
 
+    \begin{align*}
+        \theta_{j,n} = \arccos ( C_{\theta,j,n} )  \tag{9}
+    \end{align*}
 
+ここで、
 
-ステップ |n| に傾斜面 |j| に入射する日射の入射角 :math:`\theta_{j,n}` は、式(1)により計算される。
+:math:`C_{\theta,j,n}`
+    | ステップ |n| に傾斜面 |j| に入射する日射の入射角の余弦(ただし、傾斜面 |j| の裏面に太陽が位置する場合は0), -
 
+である。
 
+ステップ |n| に傾斜面 |j| に入射する日射の入射角の余弦 :math:`C_{\theta,j,n}}` は、非負条件が課せられて、太陽が天頂に位置しない場合は式(10)で、太陽が天頂に位置する場合は式(11)により計算される。
 
+.. math::
+    :nowrap:
+
+    \begin{align*}
+        C_{\theta,j,n} = max\{ \sin h_{sun,n} \cdot \cos \beta_{w,j} + \cos h_{sun,n} \cdot \sin \beta_{w,j} \cdot \cos( a_{sun,n} - \alpha_{w,j} ), 0 \} \tag{10}
+    \end{align*}
+    
+.. math::
+    :nowrap:
+
+    \begin{align*}
+        C_{\theta,j,n} = max\{ \sin h_{sun,n} \cdot \cos \beta_{w,j} , 0 \} \tag{11}
+    \end{align*}
+
+ここで、
+
+:math:`a_{sun,n}`
+    | ステップ |n| における太陽方位角, rad
+:math:`\alpha_{w,j}`
+    | 傾斜面 |j| の方位角, rad 
+
+である。なお、傾斜面 |j| の方位角 :math:`\alpha_{w,j}` は、 :math:`-\pi` ～ :math:`0` ～ :math:`\pi` の範囲で定義され、:math:`\alpha_{w,j}=\pm \pi` が北を、 :math:`\alpha_{w,j}=-\pi/2` が東を、 :math:`\alpha_{w,j}=0` が南を、 :math:`\alpha_{w,j}=\pi/2` が西を表す。なお、太陽の位置が天頂にある場合は定義されない。
 
 ========================================================================================================================
 II. 根拠
