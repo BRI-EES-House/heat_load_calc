@@ -2,23 +2,173 @@ import json
 import sys
 import time
 import argparse
-from os import path
+import pandas as pd
+from os import path, getcwd
+import csv
+import numpy as np
 
+def run(
+    house_data_path: str,
+    output_data_dir: str,
+    generate_schedule_only: bool = False,
+    generate_weather_only: bool = False,
+    load_schedule: str = False,
+    load_weather: str = False
+):
+    """負荷計算処理の実行
 
-def run(folder: str):
+    Args:
+        house_data_path (str): 住宅計算条件JSONファイルへのパス
+        output_data_dir (str): 出力フォルダへのパス
+        generate_schedule_only (bool, optional): スケジュール生成のみ実行の場合はTrue. Defaults to False.
+        generate_weather_only (bool, optional): 気象データ生成のみ実行する場合はTrue. Defaults to False.
+        load_schedule (str, optional): スケジュールを生成せずに読み込む場合はTrue. Defaults to False.
+        load_weather (str, optional): 気象データを生成せずに読み込む場合はTrue. Defaults to False.
+    """
 
-    data_dir = str(path.dirname(__file__)) + '/example/' + folder
+    # ---- 事前準備 ----
 
-    js = open(data_dir + '/mid_data_house.json', 'r', encoding='utf-8')
+    flag_run_calc = \
+        generate_schedule_only is False and generate_weather_only is False
+    flag_run_weather = generate_schedule_only is False and load_weather is False
+    flag_run_schedule = generate_weather_only is False and load_schedule is False
 
-    d = json.load(js)
+    flag_save_house = True
+    flag_save_calc = flag_run_calc
+    flag_save_weather = generate_weather_only is True
+    flag_save_schedule = generate_schedule_only is True
 
-    weather.make_weather(region=d['common']['region'], output_data_dir=data_dir, csv_output=True)
+    # 住宅計算条件JSONファイルの読み込み
+    print('Load house data from `{}`'.format(house_data_path))
+    with open(house_data_path, 'r', encoding='utf-8') as js:
+        rd = json.load(js)
 
-    initializer.make_house(d=d, input_data_dir=data_dir, output_data_dir=data_dir)
+    # 気象データの生成 => weather.csv
+    if flag_run_weather:
+        dd_weather = weather.make_weather(region=rd['common']['region'])
+    elif load_weather is not False:
+        import_weather_path = path.join(path.abspath(load_weather), 'weather.csv')
+        print('Load weather data from `{}`'.format(import_weather_path))
+        dd_weather = pd.read_csv(import_weather_path)
 
-    core.calc(input_data_dir=data_dir, output_data_dir=data_dir, show_detail_result=True)
+    # 局所換気量,内部発熱,内部発湿,在室人数,空調需要の生成 => mid_data_*.csv
+    if flag_run_schedule:
+        q_gen_is_ns, x_gen_is_ns, v_mec_vent_local_is_ns, \
+            n_hum_is_ns, ac_demand_is_ns \
+            = initializer.make_house(d=rd)
+    elif load_schedule is not False:
+        # ステップnの室iにおける局所換気量, m3/s, [i, 8760*4]
+        mid_data_local_vent_path = path.join(load_schedule, 'mid_data_local_vent.csv')
+        print('Load v_mec_vent_local_is_ns from `{}`'.format(mid_data_local_vent_path))
+        with open(mid_data_local_vent_path, 'r') as f:
+            r = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
+            v_mec_vent_local_is_ns = np.array([row for row in r]).T
 
+        # ステップnの室iにおける内部発熱, W, [8760*4]
+        mid_data_heat_generation_path = path.join(load_schedule, 'mid_data_heat_generation.csv')
+        print('Load q_gen_is_ns from `{}`'.format(mid_data_heat_generation_path))
+        with open(mid_data_heat_generation_path, 'r') as f:
+            r = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
+            q_gen_is_ns = np.array([row for row in r]).T
+
+        # ステップnの室iにおける人体発湿を除く内部発湿, kg/s, [8760*4]
+        mid_data_moisture_generation_path = path.join(load_schedule, 'mid_data_moisture_generation.csv')
+        print('Load x_gen_is_ns from `{}`'.format(mid_data_moisture_generation_path))
+        with open(mid_data_moisture_generation_path, 'r') as f:
+            r = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
+            x_gen_is_ns = np.array([row for row in r]).T
+
+        # ステップnの室iにおける在室人数, [8760*4]
+        mid_data_occupants_path = path.join(load_schedule, 'mid_data_occupants.csv')
+        print('Load n_hum_is_ns from `{}`'.format(mid_data_occupants_path))
+        with open(mid_data_occupants_path, 'r') as f:
+            r = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
+            n_hum_is_ns = np.array([row for row in r]).T
+
+        # ステップnの室iにおける空調需要, [8760*4]
+        mid_data_ac_demand_path = path.join(load_schedule, 'mid_data_ac_demand.csv')
+        print('Load ac_demand_is_ns from `{}`'.format(mid_data_ac_demand_path))
+        with open(mid_data_ac_demand_path, 'r') as f:
+            r = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
+            ac_demand_is_ns = np.array([row for row in r]).T
+
+    # ---- 計算 ----
+
+    # 計算
+    if flag_run_calc:
+        dd_i, dd_a = core.calc(
+            rd=rd,
+            q_gen_is_ns=q_gen_is_ns,
+            x_gen_is_ns=x_gen_is_ns,
+            v_mec_vent_local_is_ns=v_mec_vent_local_is_ns,
+            n_hum_is_ns=n_hum_is_ns,
+            ac_demand_is_ns=ac_demand_is_ns,
+            weather_dataframe=dd_weather
+        )
+
+    # ---- 中間生成ファイルの保存 ----
+
+    # 住宅計算条件JSONファイル
+    if flag_save_house:
+        mid_data_house_path = path.join(output_data_dir, 'mid_data_house.csv')
+        print('Save house data to `{}`'.format(mid_data_house_path))
+        with open(mid_data_house_path, 'w') as f:
+            json.dump(rd, f)
+
+    # 気象データの生成 => weather.csv
+    if flag_save_weather:
+        weather_path = path.join(output_data_dir, 'weather.csv')
+        print('Save weather data to `{}`'.format(weather_path))
+        dd_weather.to_csv(weather_path, encoding='utf-8')
+
+    if flag_save_schedule:
+        # ステップnの室iにおける局所換気量, m3/s, [i, 8760*4]
+        mid_data_local_vent_path = path.join(output_data_dir, 'mid_data_local_vent.csv')
+        print('Save v_mec_vent_local_is_ns to `{}`'.format(mid_data_local_vent_path))
+        with open(mid_data_local_vent_path, 'w') as f:
+            w = csv.writer(f, lineterminator='\n')
+            w.writerows(v_mec_vent_local_is_ns.T.tolist())
+
+        # ステップnの室iにおける内部発熱, W, [8760*4]
+        mid_data_heat_generation_path = path.join(output_data_dir, 'mid_data_heat_generation.csv')
+        print('Save q_gen_is_ns to `{}`'.format(mid_data_heat_generation_path))
+        with open(mid_data_heat_generation_path, 'w') as f:
+            w = csv.writer(f, lineterminator='\n')
+            w.writerows(q_gen_is_ns.T.tolist())
+
+        # ステップnの室iにおける人体発湿を除く内部発湿, kg/s, [8760*4]
+        mid_data_moisture_generation_path = path.join(output_data_dir, 'mid_data_moisture_generation.csv')
+        print('Save x_gen_is_ns to `{}`'.format(mid_data_moisture_generation_path))
+        with open(mid_data_moisture_generation_path, 'w') as f:
+            w = csv.writer(f, lineterminator='\n')
+            w.writerows(x_gen_is_ns.T.tolist())
+
+        # ステップnの室iにおける在室人数, [8760*4]
+        mid_data_occupants_path = path.join(output_data_dir, 'mid_data_occupants.csv')
+        print('Save n_hum_is_ns to `{}`'.format(mid_data_occupants_path))
+        with open(mid_data_occupants_path, 'w') as f:
+            w = csv.writer(f, lineterminator='\n')
+            w.writerows(n_hum_is_ns.T.tolist())
+
+        # ステップnの室iにおける空調需要, [8760*4]
+        mid_data_ac_demand_path = path.join(output_data_dir, 'mid_data_ac_demand.csv')
+        print('Save ac_demand_is_ns to `{}`'.format(mid_data_ac_demand_path))
+        with open(mid_data_ac_demand_path, 'w') as f:
+            w = csv.writer(f, lineterminator='\n')
+            w.writerows(ac_demand_is_ns.T.tolist())
+
+    # ---- 計算結果ファイルの保存 ----
+
+    if flag_save_calc:
+        # 計算結果（詳細版）をいれたDataFrame
+        result_detail_i_path = path.join(output_data_dir, 'result_detail_i.csv')
+        print('Save calculation results data (detailed version) to `{}`'.format(result_detail_i_path))
+        dd_i.to_csv(result_detail_i_path, encoding='cp932')
+
+        # 計算結果（簡易版）をいれたDataFrame
+        result_detail_a_path = path.join(output_data_dir, 'result_detail_a.csv')
+        print('Save calculation results data (simplified version) to `{}`'.format(result_detail_a_path))
+        dd_a.to_csv(result_detail_a_path, encoding='cp932')
 
 
 if __name__ == '__main__':
@@ -30,15 +180,28 @@ if __name__ == '__main__':
     from heat_load_calc.weather import weather
     from heat_load_calc.core import core
 
-    parser = argparse.ArgumentParser(description='住宅負荷計算プログラム例題実行')  # 2. パーサを作る
+    # 2. パーサを作る
+    parser = argparse.ArgumentParser(description='住宅負荷計算プログラム実行') 
 
     # parser.add_argumentで受け取る引数を追加していく
-    parser.add_argument('arg1', help='計算を実行するフォルダ名')  # 必須の引数を追加
+    parser.add_argument('house_data', help='計算を実行するフォルダ名')  # 必須の引数を追加
+    parser.add_argument('-o', dest="output_data_dir", default=getcwd(), help="出力フォルダ")
+    parser.add_argument('--generate-schedule-only', action='store_true', help="指定された場合はスケジュールファイルの生成します。")
+    parser.add_argument('--generate-weather-only', action='store_true', help="指定された場合は気象データファイルの生成します。")
+    parser.add_argument('--load-schedule', default=False, help="独自のスケジュールを指定します。")
+    parser.add_argument('--load-weather', default=False, help="独自の気象データを指定します。")
 
     # 引数を受け取る
     args = parser.parse_args()
 
     start = time.time()
-    run(args.arg1)
+    run(
+        house_data_path=args.house_data,
+        output_data_dir=args.output_data_dir,
+        generate_schedule_only=args.generate_schedule_only,
+        generate_weather_only=args.generate_weather_only,
+        load_schedule=args.load_schedule,
+        load_weather=args.load_weather
+    )
     elapsed_time = time.time() - start
     print("elapsed_time:{0}".format(elapsed_time) + "[sec]")

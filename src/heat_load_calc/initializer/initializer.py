@@ -20,7 +20,7 @@ class RoomType(Enum):
     UNDERFLOOR = 'underfloor'
 
 
-def make_house(d, input_data_dir, output_data_dir):
+def make_house(d):
 
     rooms = d['rooms']
 
@@ -48,29 +48,5 @@ def make_house(d, input_data_dir, output_data_dir):
             room_name_is=room_name_is,
             a_floor_is=a_floor_is
         )
-
-    # ステップnの室iにおける局所換気量, m3/s, [i, 8760*4]
-    with open(output_data_dir + '/mid_data_local_vent.csv', 'w') as f:
-        w = csv.writer(f, lineterminator='\n')
-        w.writerows(v_mec_vent_local_is_ns.T.tolist())
-
-    # ステップnの室iにおける内部発熱, W, [8760*4]
-    with open(output_data_dir + '/mid_data_heat_generation.csv', 'w') as f:
-        w = csv.writer(f, lineterminator='\n')
-        w.writerows(q_gen_is_ns.T.tolist())
-
-    # ステップnの室iにおける人体発湿を除く内部発湿, kg/s, [8760*4]
-    with open(output_data_dir + '/mid_data_moisture_generation.csv', 'w') as f:
-        w = csv.writer(f, lineterminator='\n')
-        w.writerows(x_gen_is_ns.T.tolist())
-
-    # ステップnの室iにおける在室人数, [8760*4]
-    with open(output_data_dir + '/mid_data_occupants.csv', 'w') as f:
-        w = csv.writer(f, lineterminator='\n')
-        w.writerows(n_hum_is_ns.T.tolist())
-
-    # ステップnの室iにおける空調需要, [8760*4]
-    with open(output_data_dir + '/mid_data_ac_demand.csv', 'w') as f:
-        w = csv.writer(f, lineterminator='\n')
-        w.writerows(ac_demand_is_ns.T.tolist())
-
+    
+    return q_gen_is_ns, x_gen_is_ns, v_mec_vent_local_is_ns, n_hum_is_ns, ac_demand_is_ns

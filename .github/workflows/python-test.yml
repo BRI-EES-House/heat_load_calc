@@ -8,26 +8,48 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - name: Checkout
+      uses: actions/checkout@v2
+
     - name: Set up Python 3.8
       uses: actions/setup-python@v2
       with:
         python-version: 3.8
+
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         python -m pip install numpy pandas scipy
+
     - name: Check environment
       run: |
         pwd
         ls -la
+
     - name: Test with unittest
       run: python -m unittest discover src
+      continue-on-error: true
+
     - name: Test example
       run: |
-        python src/heat_load_calc/heat_load_calc.py data_example1
-        python src/heat_load_calc/heat_load_calc.py example_single_room1
-        python src/heat_load_calc/heat_load_calc.py example_single_room2
-        python src/heat_load_calc/heat_load_calc.py example_single_room3
-        python src/heat_load_calc/heat_load_calc.py example_single_room4
-        python src/heat_load_calc/heat_load_calc.py example_single_room5
+        mkdir out
+        mkdir out/data_example1
+        mkdir out/example_single_room1
+        mkdir out/example_single_room2
+        mkdir out/example_single_room3
+        mkdir out/example_single_room4
+        mkdir out/example_single_room5
+        python src/heat_load_calc/heat_load_calc.py src/heat_load_calc/example/data_example1.json -o out/data_example1
+        python src/heat_load_calc/heat_load_calc.py src/heat_load_calc/example/example_single_room1.json -o out/example_single_room1
+        python src/heat_load_calc/heat_load_calc.py src/heat_load_calc/example/example_single_room2.json -o out/example_single_room2
+        python src/heat_load_calc/heat_load_calc.py src/heat_load_calc/example/example_single_room3.json -o out/example_single_room3
+        python src/heat_load_calc/heat_load_calc.py src/heat_load_calc/example/example_single_room4.json -o out/example_single_room4
+        python src/heat_load_calc/heat_load_calc.py src/heat_load_calc/example/example_single_room5.json -o out/example_single_room5
+      continue-on-error: true
+
+    - name: Archive example results
+      uses: actions/upload-artifact@v2
+      with:
+        name: example-out
+        path: out
+        retention-days: 5
