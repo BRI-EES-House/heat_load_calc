@@ -62,7 +62,7 @@ def calc(
     for n in range(-n_step_run_up, -n_step_run_up_build):
         gc_n = sequence_ground.run_tick(gc_n=gc_n, ss=ppg, n=n)
 
-    logger = log.Logger(n_spaces=pp.n_rm, n_boundaries=pp.n_bdry, n_step_main=n_step_main)
+    logger = log.Logger(n_rm=pp.n_rm, n_boundaries=pp.n_bdry, n_step_main=n_step_main)
     logger.pre_logging(pp)
 
     # 建物を計算するにあたって初期値を与える
@@ -90,13 +90,10 @@ def calc(
     print('ログ作成')
 
     # dd: data detail, 15分間隔のすべてのパラメータ pd.DataFrame
-    dd = log.record(
+    dd = logger.record(
         pps=pp,
-        logger=logger,
         output_data_dir=output_data_dir,
-        show_detail_result=show_detail_result,
-        n_step_main=n_step_main,
-        n_d_main=n_d_main
+        show_detail_result=show_detail_result
     )
 
     return dd

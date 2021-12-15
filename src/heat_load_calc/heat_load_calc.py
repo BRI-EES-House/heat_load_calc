@@ -1,13 +1,13 @@
 import json
-import os
 import sys
 import time
 import argparse
+from os import path
 
 
 def run(folder: str):
 
-    data_dir = str(os.path.dirname(__file__)) + '/example/' + folder
+    data_dir = str(path.dirname(__file__)) + '/example/' + folder
 
     js = open(data_dir + '/mid_data_house.json', 'r', encoding='utf-8')
 
@@ -24,7 +24,7 @@ def run(folder: str):
 if __name__ == '__main__':
 
     # 絶対パスでモジュールを探索できるようにする
-    sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+    sys.path.insert(0, path.abspath(path.join(path.dirname(__file__), '..')))
 
     from heat_load_calc.initializer import initializer
     from heat_load_calc.weather import weather
