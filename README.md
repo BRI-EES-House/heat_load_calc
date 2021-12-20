@@ -2,13 +2,87 @@
 
 本リポジトリでは、暖冷房負荷計算の開発を行っています。  
 
-[![Build Status](https://travis-ci.com/BRI-EES-House/heat_load_calc.svg?branch=master)](https://travis-ci.com/BRI-EES-House/heat_load_calc)
 [![test](https://github.com/BRI-EES-House/heat_load_calc/workflows/test/badge.svg)](https://github.com/BRI-EES-House/heat_load_calc/actions?query=workflow%3Atest)
+
+
+## Quick Start
+
+You can run a sample that executes the following command.
+
+```
+$ git clone git@github.com:BRI-EES-House/heat_load_calc.git
+$ cd heat_load_calc
+$ mkdir out
+$ python3 src/heat_load_calc/heat_load_calc.py src/heat_load_calc//example/data_example1/mid_data_house.json -o out
+```
+
+The files will be generated in the `out` folder.
+
+## How to create original data
+
+See `docs/data_spec/spec_mid_data_house.csv` and create a file.
+
+
+## Generated files
+
+The following file will be generated.
+
+### Echo back
+
+Save the file with the calculation conditions for later checking.
+
+* mid_data_house.json ... 住宅計算条件JSONファイル
+
+### Schedule
+
+These files will be generated when the `--generate-schedule-only` flag is specified.
+
+* mid_data_local_vent.csv ...  ステップnの室iにおける局所換気量
+* mid_data_heat_generation.csv ... ステップnの室iにおける内部発熱
+* mid_data_moisture_generation.csv ... ステップnの室iにおける人体発湿を除く内部発湿
+* mid_data_occupants.csv ... ステップnの室iにおける在室人数
+* mid_data_ac_demand.csv ... ステップnの室iにおける空調需要
+
+### Weather data
+
+This file will be generated when the `--generate-weather-only` flag is specified.
+
+* weather.csv ... 気象データ
+
+### Calculation result
+
+* result_detail_a.csv ... 15分ごとの計算結果（簡易版）(CSV)
+* result_detail_i.csv ... 15分ごとの計算結果（詳細版）(CSV)
+
+See `docs/data_spec/spec_core_output_detail.csv` for `result_detail_i.csv`.
+
+## Command options
+
+`-o=<output-folder>` ... Specifies the output folder. If not specified, the output will be in the current folder.
+
+`--generate-weather-only` ... Execute only the generation of weather data. It does not perform load calculations.
+
+`--generate-schedule-only` ... Executes only schedule generation. It does not perform load calculations.
+
+`--load-weather=<weather-folder>` ... Loads a weather file from a specified folder without generating a schedule.
+
+`--load-schedule=<schedule-folder>` ... Loads schedule files from a specified folder without generating schedules.
 
 
 ## 仕様書・根拠
 
-https://bri-ees-house.github.io/heat_load_calc/
+https://heat-load-calc-document.readthedocs.io/ja/latest/
+
+## How to build the document
+
+```
+sphinx-build -b html docs/source/ dist
+python3 -m http.server --directory dist 8080
+```
+
+See `http://localhost:8080`
+
+
 
 === 以下、旧文章（修正中） ===
 

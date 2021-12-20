@@ -201,22 +201,34 @@ class PreCalcParametersGround:
 
 
 def make_pre_calc_parameters(
-        delta_t: float, data_directory: str, q_trans_sol_calculate=True, theta_o_sol_calculate=True
+        delta_t: float,
+        rd,
+        q_gen_is_ns,
+        x_gen_is_ns,
+        v_vent_mec_local_is_ns,
+        n_hum_is_ns,
+        ac_demand_is_ns,
+        weather_dataframe: pd.DataFrame,
+        q_trs_sol_is_ns=None,
+        theta_o_eqv_js_ns=None
 ) -> (PreCalcParameters, PreCalcParametersGround):
-    """
+    """助走計算用パラメータの生成
 
     Args:
-        delta_t:
-        data_directory:
-        q_trans_sol_calculate: optional テスト用　これを False に指定すると、CSVファイルから直接読み込むことができる。
-        theta_o_sol_calculate: optional テスト用　これを False に指定すると、CSVファイルから直接読み込むことができる。
+        delta_t:  時間間隔, s
+        rd: 住宅計算条件
+        q_gen_is_ns: ステップnの室iにおける内部発熱, W, [8760*4]
+        x_gen_is_ns: ステップnの室iにおける人体発湿を除く内部発湿, kg/s, [8760*4]
+        v_mec_vent_local_is_ns: ステップnの室iにおける局所換気量, m3/s, [i, 8760*4]
+        n_hum_is_ns: ステップnの室iにおける在室人数, [8760*4]
+        ac_demand_is_ns: ステップnの室iにおける空調需要, [8760*4]
+        weather_dataframe (pd.DataFrame):  気象データのDataFrame
+        q_trs_sol_is_ns: optional テスト用　値を指定することができる。未指定の場合は計算する。
+        theta_o_eqv_js_ns: optional テスト用　値を指定することができる。未指定の場合は計算する。
 
     Returns:
-
+        PreCalcParameters および PreCalcParametersGround のタプル
     """
-
-    with open(data_directory + '/mid_data_house.json') as f:
-        rd = json.load(f)
 
     # 以下の気象データの読み込み
     # 外気温度, degree C, [n]
@@ -226,7 +238,7 @@ def make_pre_calc_parameters(
     # 夜間放射量, W/m2, [n]
     # 太陽高度, rad, [n]
     # 太陽方位角, rad, [n]
-    a_sun_ns, h_sun_ns, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, x_o_ns = _read_weather_data(input_data_dir=data_directory)
+    a_sun_ns, h_sun_ns, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, x_o_ns = _read_weather_data(weather_dataframe)
 
     a_sun_ns = np.append(a_sun_ns, a_sun_ns[0])
     h_sun_ns = np.append(h_sun_ns, h_sun_ns[0])
@@ -235,31 +247,6 @@ def make_pre_calc_parameters(
     r_n_ns = np.append(r_n_ns, r_n_ns[0])
     theta_o_ns = np.append(theta_o_ns, theta_o_ns[0])
     x_o_ns = np.append(x_o_ns, x_o_ns[0])
-
-    # ステップnの室iにおける局所換気量, m3/s, [i, 8760*4]
-    with open(data_directory + '/mid_data_local_vent.csv', 'r') as f:
-        r = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
-        v_vent_mec_local_is_ns = np.array([row for row in r]).T
-
-    # ステップnの室iにおける内部発熱, W, [8760*4]
-    with open(data_directory + '/mid_data_heat_generation.csv', 'r') as f:
-        r = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
-        q_gen_is_ns = np.array([row for row in r]).T
-
-    # ステップnの室iにおける人体発湿を除く内部発湿, kg/s, [8760*4]
-    with open(data_directory + '/mid_data_moisture_generation.csv', 'r') as f:
-        r = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
-        x_gen_is_ns = np.array([row for row in r]).T
-
-    # ステップnの室iにおける在室人数, [8760*4]
-    with open(data_directory + '/mid_data_occupants.csv', 'r') as f:
-        r = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
-        n_hum_is_ns = np.array([row for row in r]).T
-
-    # ステップnの室iにおける空調需要, [8760*4]
-    with open(data_directory + '/mid_data_ac_demand.csv', 'r') as f:
-        r = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
-        ac_demand_is_ns = np.array([row for row in r]).T
 
     # region rooms
 
@@ -365,12 +352,9 @@ def make_pre_calc_parameters(
     #　このif文は、これまで実施してきたテストを維持するために設けている。
     # いずれテスト方法を整理して、csvで与える方式を削除すべきである。
     # CSVで与える方式があることは（将来的に削除予定であるため）仕様書には記述しない。
-    if q_trans_sol_calculate:
+    if q_trs_sol_is_ns is None:
         q_trs_sol_is_ns = bs.get_q_trs_sol_is_ns(n_rm=n_rm)
     else:
-        with open(data_directory + '/mid_data_q_trs_sol.csv', 'r') as f:
-            r = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
-            q_trs_sol_is_ns = np.array([row for row in r]).T
         # ステップn+1に対応するために0番要素に最終要素を代入
         q_trs_sol_is_ns = np.append(q_trs_sol_is_ns, q_trs_sol_is_ns[:, 0:1], axis=1)
 
@@ -378,12 +362,9 @@ def make_pre_calc_parameters(
     #　このif文は、これまで実施してきたテストを維持するために設けている。
     # いずれテスト方法を整理して、csvで与える方式を削除すべきである。
     # CSVで与える方式があることは（将来的に削除予定であるため）仕様書には記述しない。
-    if theta_o_sol_calculate:
+    if theta_o_eqv_js_ns is None:
         theta_o_eqv_js_ns = bs.get_theta_o_eqv_js_ns()
     else:
-        with open(data_directory + '/mid_data_theta_o_sol.csv', 'r') as f:
-            r = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
-            theta_o_eqv_js_ns = np.array([row for row in r]).T
         # ステップn+1に対応するために0番要素に最終要素を代入
         theta_o_eqv_js_ns = np.append(theta_o_eqv_js_ns, theta_o_eqv_js_ns[:, 0:1], axis=1)
 
@@ -747,11 +728,11 @@ def get_v_vent_mec_is_ns(v_vent_mec_general_is, v_vent_mec_local_is_ns):
     return v_vent_mec_general_is + v_vent_mec_local_is_ns
 
 
-def _read_weather_data(input_data_dir: str):
+def _read_weather_data(pp: pd.DataFrame):
     """
     気象データを読み込む。
     Args:
-        input_data_dir: 現在計算しているデータのパス
+        pp (pd.DataFrame): 気象データのDataFrame
     Returns:
         外気温度, degree C
         外気絶対湿度, kg/kg(DA)
@@ -761,9 +742,6 @@ def _read_weather_data(input_data_dir: str):
         太陽高度, rad
         太陽方位角, rad
     """
-
-    # 気象データ
-    pp = pd.read_csv(input_data_dir + '/weather.csv', index_col=0)
 
     # 外気温度, degree C
     theta_o_ns = pp['temperature'].values
