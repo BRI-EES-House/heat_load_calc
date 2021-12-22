@@ -1,4 +1,5 @@
 import pandas as pd
+import logging
 
 from heat_load_calc.core import period
 from heat_load_calc.core import pre_calc_parameters
@@ -68,7 +69,7 @@ def calc(
 
     gc_n = conditions.initialize_ground_conditions(n_grounds=ppg.n_grounds)
 
-    print('助走計算（土壌のみ）')
+    logging.info('助走計算（土壌のみ）')
     for n in range(-n_step_run_up, -n_step_run_up_build):
         gc_n = sequence_ground.run_tick(gc_n=gc_n, ss=ppg, n=n)
 
@@ -85,11 +86,11 @@ def calc(
         gc=gc_n
     )
 
-    print('助走計算（建物全体）')
+    logging.info('助走計算（建物全体）')
     for n in range(-n_step_run_up_build, 0):
         c_n = sequence.run_tick(n=n, delta_t=delta_t, ss=pp, c_n=c_n, logger=logger, run_up=True)
 
-    print('本計算')
+    logging.info('本計算')
 
     # TODO: loggerに1/1 0:00の瞬時状態値を書き込む
     for n in range(0, n_step_main):
@@ -97,7 +98,7 @@ def calc(
 
     logger.post_logging(pp)
 
-    print('ログ作成')
+    logging.info('ログ作成')
 
     # dd: data detail, 15分間隔のすべてのパラメータ pd.DataFrame
     dd_i, dd_a = logger.record(
