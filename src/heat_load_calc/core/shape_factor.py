@@ -1,18 +1,20 @@
 import math
 import numpy as np
-from typing import Union
+import logging
+
+from typing import List, Union, Dict
 from heat_load_calc.external.global_number import get_sgm, get_eps
 from scipy import optimize
 
 
-def get_f_mrt_is_js(a_s_js, h_s_r_js, p_is_js):
+def get_f_mrt_is_js(a_s_js: np.ndarray, h_s_r_js: np.ndarray, p_is_js: np.ndarray) -> np.ndarray:
 
     ah = a_s_js * h_s_r_js
 
     return p_is_js * ah.T / np.dot(p_is_js, ah)
 
 
-def get_h_r_js(n_spaces, bs):
+def get_h_r_js(n_spaces: int, bs: List[Dict]) -> np.ndarray:
 
     a_srf_js = np.array([b['area'] for b in bs])
 

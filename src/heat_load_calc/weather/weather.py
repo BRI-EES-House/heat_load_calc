@@ -6,7 +6,7 @@ from heat_load_calc.weather import solar_position
 from heat_load_calc.weather.interval import Interval
 
 
-def make_weather(region: int, interval: str = '15m'):
+def make_weather(region: int, interval: str = '15m') -> pd.DataFrame:
     """
     気象データを作成する。
     Args:

@@ -1,4 +1,5 @@
 import math
+from typing import Tuple
 import numpy as np
 
 from heat_load_calc.weather.interval import Interval
@@ -8,7 +9,7 @@ from heat_load_calc.weather.interval import Interval
 """
 
 
-def calc_solar_position(phi_loc: float, lambda_loc: float, interval: Interval) -> (np.ndarray, np.ndarray):
+def calc_solar_position(phi_loc: float, lambda_loc: float, interval: Interval) -> Tuple[np.ndarray, np.ndarray]:
     """
     太陽位置を計算する
 

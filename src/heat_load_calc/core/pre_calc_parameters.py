@@ -1,9 +1,7 @@
-import json
 import numpy as np
-import csv
 import pandas as pd
 from dataclasses import dataclass
-from typing import List, Callable
+from typing import Dict, List, Callable, Optional, Tuple, Union
 
 from heat_load_calc.core import infiltration, shape_factor, \
     occupants_form_factor, boundaries
@@ -15,6 +13,7 @@ from heat_load_calc.core import solar_absorption
 from heat_load_calc.core import equipments
 from heat_load_calc.core import rooms
 from heat_load_calc.core import mechanical_ventilations
+
 
 @dataclass
 class PreCalcParameters:
@@ -161,9 +160,9 @@ class PreCalcParameters:
 
     get_infiltration: Callable[[np.ndarray, float], np.ndarray]
 
-    calc_next_temp_and_load: Callable
+    calc_next_temp_and_load: Callable[[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray], Tuple[np.ndarray, np.ndarray]]
 
-    get_f_l_cl: [Callable]
+    get_f_l_cl: Callable[[np.ndarray, np.ndarray, np.ndarray], Tuple[np.ndarray, np.ndarray]]
 
 
 @dataclass
@@ -202,16 +201,16 @@ class PreCalcParametersGround:
 
 def make_pre_calc_parameters(
         delta_t: float,
-        rd,
-        q_gen_is_ns,
-        x_gen_is_ns,
-        v_vent_mec_local_is_ns,
-        n_hum_is_ns,
-        ac_demand_is_ns,
+        rd: Dict,
+        q_gen_is_ns: np.ndarray,
+        x_gen_is_ns: np.ndarray,
+        v_vent_mec_local_is_ns: np.ndarray,
+        n_hum_is_ns: np.ndarray,
+        ac_demand_is_ns: np.ndarray,
         weather_dataframe: pd.DataFrame,
-        q_trs_sol_is_ns=None,
-        theta_o_eqv_js_ns=None
-) -> (PreCalcParameters, PreCalcParametersGround):
+        q_trs_sol_is_ns: Optional[np.ndarray] = None,
+        theta_o_eqv_js_ns: Optional[np.ndarray] = None
+) -> Tuple[PreCalcParameters, PreCalcParametersGround]:
     """助走計算用パラメータの生成
 
     Args:

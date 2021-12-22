@@ -1,3 +1,4 @@
+from typing import Callable, Tuple
 import numpy as np
 from functools import partial
 
@@ -9,7 +10,7 @@ def make_get_next_temp_and_load_function(
         is_radiative_cooling_is: np.ndarray,
         lr_h_max_cap_is: np.ndarray,
         lr_cs_max_cap_is: np.ndarray
-):
+) -> Callable[[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray], Tuple[np.ndarray, np.ndarray]]:
 
     return partial(
         get_next_temp_and_load,
@@ -24,8 +25,8 @@ def get_next_temp_and_load(
         brc_ot_is_n: np.ndarray,
         brm_ot_is_is_n: np.ndarray,
         brl_ot_is_is_n: np.ndarray,
-        theta_lower_target_is_n,
-        theta_upper_target_is_n,
+        theta_lower_target_is_n: np.ndarray,
+        theta_upper_target_is_n: np.ndarray,
         operation_mode_is_n: np.ndarray,
         ac_demand_is_n: np.ndarray,
         is_radiative_heating_is: np.ndarray,
@@ -35,7 +36,7 @@ def get_next_temp_and_load(
         theta_natural_is_n: np.ndarray,
         is_heating_is_n: np.ndarray,
         is_cooling_is_n: np.ndarray
-):
+) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
 
     # 室の配列の形, i✕1　の行列 を表すタプル
     room_shape = operation_mode_is_n.shape
@@ -149,7 +150,18 @@ def get_next_temp_and_load(
     return theta, lc, lr
 
 
-def get_load_and_temp(kt, kc, kr, k, nt, theta_set, c, lc_set, r, lr_set) -> (np.ndarray, np.ndarray, np.ndarray):
+def get_load_and_temp(
+    kt: np.ndarray,
+    kc: np.ndarray,
+    kr: np.ndarray,
+    k: np.ndarray,
+    nt: np.ndarray,
+    theta_set: np.ndarray,
+    c: np.ndarray,
+    lc_set: np.ndarray,
+    r: np.ndarray,
+    lr_set: np.ndarray
+) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
     """
 
     Args:
