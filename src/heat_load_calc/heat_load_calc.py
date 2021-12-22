@@ -3,9 +3,18 @@ import sys
 import time
 import argparse
 import pandas as pd
-from os import path, getcwd
+from os import path, getcwd, mkdir
 import csv
 import numpy as np
+import urllib.request, urllib.error
+
+# 絶対パスでモジュールを探索できるようにする
+sys.path.insert(0, path.abspath(path.join(path.dirname(__file__), '..')))
+
+from heat_load_calc.initializer import initializer
+from heat_load_calc.weather import weather
+from heat_load_calc.core import core
+
 
 def run(
     house_data_path: str,
@@ -38,10 +47,22 @@ def run(
     flag_save_weather = generate_weather_only is True
     flag_save_schedule = generate_schedule_only is True
 
+    # 出力ディレクトリの作成
+    if path.exists(output_data_dir) is False:
+        mkdir(output_data_dir)
+
+    if path.isdir(output_data_dir) is False:
+        print('`{}` is not directory.'.format(output_data_dir), file=sys.stderr)
+
     # 住宅計算条件JSONファイルの読み込み
     print('Load house data from `{}`'.format(house_data_path))
-    with open(house_data_path, 'r', encoding='utf-8') as js:
-        rd = json.load(js)
+    if house_data_path.lower()[:4] == 'http':
+        with urllib.request.urlopen(url=house_data_path) as response:
+            json_text = response.read()
+            rd = json.loads(json_text.decode())
+    else:
+        with open(house_data_path, 'r', encoding='utf-8') as js:
+            rd = json.load(js)
 
     # 気象データの生成 => weather.csv
     if flag_run_weather:
@@ -171,20 +192,11 @@ def run(
         dd_a.to_csv(result_detail_a_path, encoding='cp932')
 
 
-if __name__ == '__main__':
-
-    # 絶対パスでモジュールを探索できるようにする
-    sys.path.insert(0, path.abspath(path.join(path.dirname(__file__), '..')))
-
-    from heat_load_calc.initializer import initializer
-    from heat_load_calc.weather import weather
-    from heat_load_calc.core import core
-
-    # 2. パーサを作る
+def main():
     parser = argparse.ArgumentParser(description='住宅負荷計算プログラム実行') 
 
     # parser.add_argumentで受け取る引数を追加していく
-    parser.add_argument('house_data', help='計算を実行するフォルダ名')  # 必須の引数を追加
+    parser.add_argument('house_data', help='計算を実行するJSONファイル')  # 必須の引数を追加
     parser.add_argument('-o', dest="output_data_dir", default=getcwd(), help="出力フォルダ")
     parser.add_argument('--generate-schedule-only', action='store_true', help="指定された場合はスケジュールファイルの生成します。")
     parser.add_argument('--generate-weather-only', action='store_true', help="指定された場合は気象データファイルの生成します。")
@@ -205,3 +217,6 @@ if __name__ == '__main__':
     )
     elapsed_time = time.time() - start
     print("elapsed_time:{0}".format(elapsed_time) + "[sec]")
+
+if __name__ == '__main__':
+    main()
