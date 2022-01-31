@@ -2,9 +2,10 @@
 # 本附属書は地域の区分に応じた計算地点の緯度及び経度を定義する。
 
 import math
+from typing import Tuple
 
 
-def get_phi_loc_and_lambda_loc(region: int) -> (float, float):
+def get_phi_loc_and_lambda_loc(region: int) -> Tuple[float, float]:
     """
     地域の区分から緯度、経度を設定する
 

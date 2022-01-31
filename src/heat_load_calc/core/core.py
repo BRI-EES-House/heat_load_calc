@@ -1,5 +1,8 @@
 import pandas as pd
 import logging
+import numpy as np
+from typing import Tuple, Dict
+from pandas.core.frame import DataFrame
 
 from heat_load_calc.core import period
 from heat_load_calc.core import pre_calc_parameters
@@ -11,12 +14,18 @@ from heat_load_calc.core.pre_calc_parameters import PreCalcParameters, PreCalcPa
 
 
 def calc(
-        rd, q_gen_is_ns, x_gen_is_ns, v_mec_vent_local_is_ns, n_hum_is_ns, ac_demand_is_ns,weather_dataframe,
+        rd: Dict,
+        q_gen_is_ns: np.ndarray,
+        x_gen_is_ns: np.ndarray,
+        v_mec_vent_local_is_ns: np.ndarray,
+        n_hum_is_ns: np.ndarray,
+        ac_demand_is_ns: np.ndarray,
+        weather_dataframe: pd.DataFrame,
         n_step_hourly: int = 4,
         n_d_main: int = 365,
         n_d_run_up: int = 365,
         n_d_run_up_build: int = 183
-) -> (pd.DataFrame, pd.DataFrame):
+) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """coreメインプログラム
 
     Args:

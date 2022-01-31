@@ -2,10 +2,11 @@
 付録15．	ルームエアコンの定格能力、風量の計算
 """
 
+from typing import Tuple
 import numpy as np
 
 
-def get_q_rtd(a_floor_is: np.ndarray) -> (np.ndarray, np.ndarray):
+def get_q_rtd(a_floor_is: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
     """
     定格能力を計算する。
     Args:
@@ -23,7 +24,7 @@ def get_q_rtd(a_floor_is: np.ndarray) -> (np.ndarray, np.ndarray):
     return q_rtd_h, q_rtd_c
 
 
-def get_q_max(q_rtd_h_is: np.ndarray, q_rtd_c_is: np.ndarray) -> (np.ndarray, np.ndarray):
+def get_q_max(q_rtd_h_is: np.ndarray, q_rtd_c_is: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
     """
     最大能力を取得する。
     Args:

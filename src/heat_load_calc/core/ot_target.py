@@ -41,4 +41,3 @@ def make_get_ot_target_and_h_hum_function(
         method='constant'
     )
 
-
