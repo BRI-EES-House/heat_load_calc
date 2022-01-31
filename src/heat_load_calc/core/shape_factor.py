@@ -1,5 +1,7 @@
 import math
 import numpy as np
+import logging
+
 from typing import Union
 from heat_load_calc.external.global_number import get_sgm, get_eps
 from scipy import optimize
@@ -71,7 +73,7 @@ def _get_f_i_js(a_srf_js: np.ndarray) -> np.ndarray:
 
     # 総和のチェック
     if abs(np.sum(f_i_js) - 1.0) > 1.0e-3:
-        print('形態係数の合計値が不正 TotalFF=', np.sum(f_i_js))
+        logging.warning('形態係数の合計値が不正 TotalFF=', np.sum(f_i_js))
 
     return f_i_js
 
