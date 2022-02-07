@@ -36,7 +36,7 @@ class TransmissionSolarRadiation:
 
             return TransmissionSolarRadiationNot()
 
-    def get_qgt(self, a_sun_ns, h_sun_ns, i_dn_ns, i_sky_ns):
+    def get_qgt(self, a_sun_ns, h_sun_ns, i_dn_ns, i_sky_ns, r_n_ns):
 
         raise NotImplementedError()
 
@@ -72,7 +72,7 @@ class TransmissionSolarRadiationTransparentSunStrike(TransmissionSolarRadiation)
         self._eta_value = eta_value
         self._glass_area_ratio = glass_area_ratio
 
-    def get_qgt(self, a_sun_ns, h_sun_ns, i_dn_ns, i_sky_ns):
+    def get_qgt(self, a_sun_ns, h_sun_ns, i_dn_ns, i_sky_ns, r_n_ns):
 
         # 境界jの傾斜面の方位角, rad
         # 境界jの傾斜面の傾斜角, rad
@@ -85,9 +85,10 @@ class TransmissionSolarRadiationTransparentSunStrike(TransmissionSolarRadiation)
         # ステップnにおける境界jにおける傾斜面の日射量のうち直達成分, W / m2K, [8760 * 4]
         # ステップnにおける境界jにおける傾斜面の日射量のうち天空成分, W / m2K, [8760 * 4]
         # ステップnにおける境界jにおける傾斜面の日射量のうち地盤反射成分, W / m2K, [8760 * 4]
-        i_inc_d_j_ns, i_inc_sky_j_ns, i_inc_ref_j_ns = inclined_surface_solar_radiation.get_i_is_j_ns(
+        i_inc_d_j_ns, i_inc_sky_j_ns, i_inc_ref_j_ns, r_srf_eff_j_ns = inclined_surface_solar_radiation.get_i_is_j_ns(
             i_dn_ns=i_dn_ns,
             i_sky_ns=i_sky_ns,
+            r_eff_ns=r_n_ns,
             h_sun_ns=h_sun_ns,
             a_sun_ns=a_sun_ns,
             w_alpha_j=w_alpha_j,
@@ -141,6 +142,6 @@ class TransmissionSolarRadiationNot(TransmissionSolarRadiation):
     def __init__(self):
         super().__init__()
 
-    def get_qgt(self, a_sun_ns, h_sun_ns, i_dn_ns, i_sky_ns):
+    def get_qgt(self, a_sun_ns, h_sun_ns, i_dn_ns, i_sky_ns, r_n_ns):
 
         return np.zeros(8760*4+1, dtype=float)

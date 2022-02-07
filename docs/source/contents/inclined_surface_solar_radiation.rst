@@ -78,20 +78,20 @@ I. 評価法
     
 である。なお、地面の日射反射率 :math:`\rho_{gnd}` は0.1とする。
 
-ステップ |n| に傾斜面 |j| の夜間放射量 :math:`R_{S,j,n}` は、式(4)により計算される。
+ステップ |n| における境界 |j| の傾斜面の夜間放射量 :math:`R_{srf,eff,j,n}` は、式(4)により計算される。
 
 .. math::
     :nowrap:
 
     \begin{align*}
-        R_{S,j,n} = R_{sky,n} \cdot f_{sky,j} \tag{4}
+        R_{srf,eff,j,n} = R_{eff,n} \cdot f_{sky,j} \tag{4}
     \end{align*}
 
 ここで、
 
 :math:`R_{S,j,n}`
     | ステップ |n| に傾斜面 |j| の夜間放射量, W / |m2| 
-:math:`R_{sky,n}`
+:math:`R_{eff,n}`
     | ステップ |n| における水平面の夜間放射量, W / |m2| 
     
 である。
@@ -99,7 +99,7 @@ I. 評価法
 
 
 
-傾斜面 |j| における地面の形態係数 :math:`f_{gnd,j}` は、式(5)により計算される。
+傾斜面 |j| の地面に対する傾斜面の形態係数 :math:`f_{gnd,j}` は、式(5)により計算される。
 
 .. math::
     :nowrap:
