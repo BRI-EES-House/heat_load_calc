@@ -36,7 +36,7 @@ def get_i_is_j_ns(
     """
 
     # ステップnの境界jにおける傾斜面に入射する太陽の入射角 [8760 * 4]
-    theta_aoi_j_n = get_theta_aoi_j_n(h_sun_ns=h_sun_ns, a_sun_ns=a_sun_ns, w_alpha_j=w_alpha_j, w_beta_j=w_beta_j)
+    theta_aoi_j_ns = get_theta_aoi_j_n(h_sun_ns=h_sun_ns, a_sun_ns=a_sun_ns, w_alpha_j=w_alpha_j, w_beta_j=w_beta_j)
 
     # 境界jの傾斜面の天空に対する形態係数
     f_sky_j = _get_f_sky_j(w_beta_j=w_beta_j)
@@ -47,17 +47,17 @@ def get_i_is_j_ns(
     # 地面の日射に対する反射率（アルベド）
     rho_gnd = _get_rho_gnd()
 
-    # ステップnにおける境界jにおける傾斜面の日射量のうち天空成分, W/m2K, [8760 * 4]
-    i_is_sky_j_n = _get_i_is_sky_j_n(i_sky_ns=i_sky_ns, f_sky_j=f_sky_j)
-
-    # ステップnにおける境界jにおける傾斜面の日射量のうち地盤反射成分, W/m2K, [8760 * 4]
+    # ステップ n における境界 j の傾斜面に入射する日射量のうち地盤反射成分, W/m2K, [8760 * 4]
     i_is_ref_j_n = _get_i_is_ref_j_n(
         i_dn_ns=i_dn_ns, i_sky_ns=i_sky_ns, h_sun_ns=h_sun_ns, f_gnd_j=f_gnd_j, rho_gnd=rho_gnd)
 
-    # ステップ　n　における境界 j の傾斜面に入射する日射量の直達成分, W/m2, [n]
-    i_srf_dn_j_ns = _get_i_srf_dn_j_ns(i_dn_ns=i_dn_ns, theta_aoi_j_ns=theta_aoi_j_n)
+    # ステップ n における境界 j の傾斜面に入射する日射量の天空成分, W/m2, [n]
+    i_srf_sky_j_ns = _get_i_srf_sky_j_ns(i_sky_ns=i_sky_ns, f_sky_j=f_sky_j)
 
-    return i_srf_dn_j_ns, i_is_sky_j_n, i_is_ref_j_n
+    # ステップ n における境界 j の傾斜面に入射する日射量の直達成分, W/m2, [n]
+    i_srf_dn_j_ns = _get_i_srf_dn_j_ns(i_dn_ns=i_dn_ns, theta_aoi_j_ns=theta_aoi_j_ns)
+
+    return i_srf_dn_j_ns, i_srf_sky_j_ns, i_is_ref_j_n
 
 
 def get_r_n_is_j_ns(r_n_ns: np.ndarray, w_beta_j: float) -> np.ndarray:
@@ -138,21 +138,24 @@ def _get_i_srf_dn_j_ns(i_dn_ns: np.ndarray, theta_aoi_j_ns: np.ndarray) -> np.nd
     return i_srf_dn_j_ns
 
 
-def _get_i_is_sky_j_n(i_sky_ns: np.ndarray, f_sky_j: float) -> np.ndarray:
+def _get_i_srf_sky_j_ns(i_sky_ns: np.ndarray, f_sky_j: float) -> np.ndarray:
     """
-    傾斜面の日射量のうち天空成分を計算する。
+    傾斜面に入射する日射量の天空成分を計算する。
 
     Args:
-        i_sky_ns: ステップnにおける水平面天空日射量, W/m2K, [8760*4]
-        f_sky_j: 境界jにおける天空に対する傾斜面の形態係数
+        i_sky_ns: ステップ　n における水平面天空日射量, W/m2, [n]
+        f_sky_j: 境界 j の天空に対する傾斜面の形態係数
 
     Returns:
-        ステップnにおける室iの境界jにおける傾斜面の日射量のうち天空成分, W/m2K, [8760*4]
+        ステップ n における境界 j の傾斜面に入射する日射量の天空成分, W/m2, [n]
+
+    Notes:
+        式(2)
     """
 
-    i_is_sky_j_n = f_sky_j * i_sky_ns
+    i_srf_sky_j_ns = f_sky_j * i_sky_ns
 
-    return i_is_sky_j_n
+    return i_srf_sky_j_ns
 
 
 def _get_i_is_ref_j_n(
