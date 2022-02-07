@@ -16,23 +16,23 @@ I. 評価法
 
 2. 計算式
 
-ステップ |n| に傾斜面 |j| に入射する日射量のうち直達成分 :math:`I_{D,j,n}` は、式(1)により計算される。
+ステップ |n| における傾斜面 |j| に入射する日射量の直達成分 :math:`I_{srf,dn,j,n}` は、式(1)により計算される。
 
 .. math::
     :nowrap:
 
     \begin{align*}
-        I_{D,j,n} = I_{DN,n} \cdot \cos{ \theta_{j,n} } \tag{1}
+        I_{srf,dn,j,n} = I_{dn,n} \cdot \cos{ \theta_{aoi,j,n} } \tag{1}
     \end{align*}
 
 ここで、
 
-:math:`I_{D,j,n}`
-    | ステップ |n| に傾斜面 |j| に入射する日射量のうち直達成分, W / |m2| 
-:math:`I_{DN,n}`
+:math:`I_{ｓｒｆ,dn,j,n}`
+    | ステップ |n| における傾斜面 |j| に入射する日射量の直達成分, W / |m2|
+:math:`I_{dn,n}`
     | ステップ |n| における法線面直達日射量, W / |m2| 
-:math:`\theta_{j,n}`
-    | ステップ |n| に傾斜面 |j| に入射する日射の入射角, rad 
+:math:`\theta_{aoi,j,n}`
+    | ステップ |n| における傾斜面 |j| に入射する日射の入射角, rad
 
 である。
 

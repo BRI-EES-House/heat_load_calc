@@ -14,7 +14,7 @@ import numpy as np
 
 def get_i_is_j_ns(
         i_dn_ns: np.ndarray, i_sky_ns: np.ndarray, h_sun_ns: np.ndarray, a_sun_ns: np.ndarray,
-        w_alpha_j: float, w_beta_j: float) -> Tuple[float, float, float]:
+        w_alpha_j: float, w_beta_j: float) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
     """傾斜面の方位角・傾斜角に応じて傾斜面の日射量を計算する。
 
     Args:
@@ -47,9 +47,6 @@ def get_i_is_j_ns(
     # 地面の日射に対する反射率（アルベド）
     rho_gnd = _get_rho_gnd()
 
-    # ステップnにおける境界jにおける傾斜面の日射量のうち直達成分, W/m2K [8760 * 4]
-    i_is_d_j_n = _get_i_is_d_j_n(i_dn_ns=i_dn_ns, theta_aoi_j_n=theta_aoi_j_n)
-
     # ステップnにおける境界jにおける傾斜面の日射量のうち天空成分, W/m2K, [8760 * 4]
     i_is_sky_j_n = _get_i_is_sky_j_n(i_sky_ns=i_sky_ns, f_sky_j=f_sky_j)
 
@@ -57,7 +54,10 @@ def get_i_is_j_ns(
     i_is_ref_j_n = _get_i_is_ref_j_n(
         i_dn_ns=i_dn_ns, i_sky_ns=i_sky_ns, h_sun_ns=h_sun_ns, f_gnd_j=f_gnd_j, rho_gnd=rho_gnd)
 
-    return i_is_d_j_n, i_is_sky_j_n, i_is_ref_j_n
+    # ステップ　n　における境界 j の傾斜面に入射する日射量の直達成分, W/m2, [n]
+    i_srf_dn_j_ns = _get_i_srf_dn_j_ns(i_dn_ns=i_dn_ns, theta_aoi_j_ns=theta_aoi_j_n)
+
+    return i_srf_dn_j_ns, i_is_sky_j_n, i_is_ref_j_n
 
 
 def get_r_n_is_j_ns(r_n_ns: np.ndarray, w_beta_j: float) -> np.ndarray:
@@ -118,21 +118,24 @@ def get_theta_aoi_j_n(
     return theta_aoi_j_n
 
 
-def _get_i_is_d_j_n(i_dn_ns: np.ndarray, theta_aoi_j_n: np.ndarray) -> np.ndarray:
+def _get_i_srf_dn_j_ns(i_dn_ns: np.ndarray, theta_aoi_j_ns: np.ndarray) -> np.ndarray:
     """
-    傾斜面の日射量のうち直達成分を求める。
+    傾斜面に入射する日射量の直達成分を計算する。
 
     Args:
-        i_dn_ns: ステップnにおける法線面直達日射量, W/m2K
-        theta_aoi_j_n: ステップnの境界jにおける傾斜面に入射する太陽の入射角, rad, [8760*4]
+        i_dn_ns: ステップ n における法線面直達日射量, W/m2, [n]
+        theta_aoi_j_ns: ステップ n における境界 j の傾斜面に入射する日射の入射角, rad, [n]
 
     Returns:
-        ステップnにおける境界jにおける傾斜面の日射量のうち直達成分, W/m2K, [8760*4]
+        ステップ　n　における境界 j の傾斜面に入射する日射量の直達成分, W/m2, [n]
+
+    Notes:
+        式(1)
     """
 
-    i_is_d_j_n = i_dn_ns * np.cos(theta_aoi_j_n)
+    i_srf_dn_j_ns = i_dn_ns * np.cos(theta_aoi_j_ns)
 
-    return i_is_d_j_n
+    return i_srf_dn_j_ns
 
 
 def _get_i_is_sky_j_n(i_sky_ns: np.ndarray, f_sky_j: float) -> np.ndarray:
