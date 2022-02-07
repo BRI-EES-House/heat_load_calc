@@ -1,6 +1,7 @@
 from typing import Dict
 import numpy as np
 import xlrd
+import logging
 
 from notebook.initializer.shgc_window import glass_thermal_balance as gtb
 from notebook.initializer.shgc_window import multiple_reflection as mr
@@ -107,11 +108,11 @@ def calc(m: mr.Glass, g: gtb.Glass):
 
     u = g.get_heat_transmittance()
 
-    print('abs: ' + str(abs))
-    print('tau: ' + str(tau))
-    print('r_qin: ' + str(r_qin))
-    print('U_value: ' +  str(u))
-    print('SHGC: ' + str(shgc))
+    logging.debug('abs: ' + str(abs))
+    logging.debug('tau: ' + str(tau))
+    logging.debug('r_qin: ' + str(r_qin))
+    logging.debug('U_value: ' +  str(u))
+    logging.debug('SHGC: ' + str(shgc))
 
 
 if __name__ == '__main__':

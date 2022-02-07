@@ -4,10 +4,10 @@
 """
 
 import numpy as np
-from typing import List
+from typing import List, Dict, Tuple
 
 
-def get_furniture_specs(dict_furniture_i, v_rm_i):
+def get_furniture_specs(dict_furniture_i: Dict[str, str], v_rm_i: float) -> Tuple[float, float, float, float]:
     """
         備品等に関する物性値を取得する。
     Args:

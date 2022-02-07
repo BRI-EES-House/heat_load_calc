@@ -4,12 +4,15 @@
 """
 
 
+from typing import Tuple
+
+
 def get_n_step(
         n_step_hourly: int,
         n_d_main: int,
         n_d_run_up: int,
         n_d_run_up_build: int
-):
+) -> Tuple[int, int, int]:
     """
 
     Args:

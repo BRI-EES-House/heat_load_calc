@@ -2,10 +2,11 @@
 附属書X19 傾斜面の方位角・傾斜角
 """
 
+from typing import Tuple
 import numpy as np
 
 
-def get_w_alpha_j_w_beta_j(direction_j: str) -> (float, float):
+def get_w_alpha_j_w_beta_j(direction_j: str) -> Tuple[float, float]:
     """
     方向名称から傾斜面の方位角・傾斜角を求める。
 

@@ -8,12 +8,13 @@
 
 """
 
+from typing import Tuple
 import numpy as np
 
 
 def get_i_is_j_ns(
-        i_dn_ns: np.ndarray, i_sky_ns: np.ndarray, h_sun_ns: np.ndarray, a_sun_ns,
-        w_alpha_j: float, w_beta_j: float) -> (float, float, float):
+        i_dn_ns: np.ndarray, i_sky_ns: np.ndarray, h_sun_ns: np.ndarray, a_sun_ns: np.ndarray,
+        w_alpha_j: float, w_beta_j: float) -> Tuple[float, float, float]:
     """傾斜面の方位角・傾斜角に応じて傾斜面の日射量を計算する。
 
     Args:

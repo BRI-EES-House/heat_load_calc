@@ -1,12 +1,12 @@
 import numpy as np
 import json
-from typing import Dict, List
+from typing import Dict, List, Tuple
 import os
 
 
 def get_compiled_schedules(
         n_p: float, room_name_is: List[str], a_floor_is: np.array
-) -> (np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray):
+) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     """
     各種スケジュールを取得する。
     Args:
@@ -47,7 +47,7 @@ def get_compiled_schedules(
 
 
 def _get_each_schedules(n_p: float, room_name_is: List[str])\
-        -> (np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray):
+        -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     """スケジュールを取得する。
     Args:
         n_p: 居住人数（注意：小数　整数ではない。）

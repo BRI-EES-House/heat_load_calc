@@ -1,6 +1,7 @@
 # 附属書X35 在室者に関する情報を定義する。
 
 import math
+from typing import Tuple
 import numpy as np
 from scipy.optimize import newton
 
@@ -17,7 +18,7 @@ def get_ot_target_and_h_hum_with_pmv(
         is_radiative_heating_is: np.ndarray,
         is_radiative_cooling_is: np.ndarray,
         method: str = 'convergence'
-) -> (np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, (np.ndarray, np.ndarray, np.ndarray)):
+) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, Tuple[np.ndarray, np.ndarray, np.ndarray]]:
     """
 
     Args:
@@ -202,7 +203,7 @@ def _get_h_hum(
         clo_is_n: np.ndarray,
         v_hum_is_n: np.ndarray,
         method: str
-):
+) -> Tuple[np.ndarray, np.ndarray]:
     """
     在室者周りの熱伝達率を計算する。
     Args:

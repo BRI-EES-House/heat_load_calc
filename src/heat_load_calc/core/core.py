@@ -1,4 +1,8 @@
-from typing import Dict
+import pandas as pd
+import logging
+import numpy as np
+from typing import Tuple, Dict
+from pandas.core.frame import DataFrame
 
 from heat_load_calc.core import period
 from heat_load_calc.core import pre_calc_parameters
@@ -10,21 +14,28 @@ from heat_load_calc.core.pre_calc_parameters import PreCalcParameters, PreCalcPa
 
 
 def calc(
-        input_data_dir: str,
-        output_data_dir: str = None,
-        show_detail_result: bool = False,
+        rd: Dict,
+        q_gen_is_ns: np.ndarray,
+        x_gen_is_ns: np.ndarray,
+        v_mec_vent_local_is_ns: np.ndarray,
+        n_hum_is_ns: np.ndarray,
+        ac_demand_is_ns: np.ndarray,
+        weather_dataframe: pd.DataFrame,
         n_step_hourly: int = 4,
         n_d_main: int = 365,
         n_d_run_up: int = 365,
         n_d_run_up_build: int = 183
-) -> (Dict, Dict):
+) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """coreメインプログラム
 
     Args:
-        input_data_dir: 計算条件を記したファイルがあるディレクトリ（相対パスで指定）
-        output_data_dir: 計算結果を出力するディレクトリ（相対パスで指定）
-        show_simple_result: 簡易計算結果をファイル出力するか否か（指定しない場合はFalse=出力しない）
-        show_detail_result: 詳細計算結果をファイル出力するか否か（指定しない場合はFalse=出力しない）
+        rd: 住宅計算条件
+        q_gen_is_ns: ステップnの室iにおける内部発熱, W, [8760*4]
+        x_gen_is_ns: ステップnの室iにおける人体発湿を除く内部発湿, kg/s, [8760*4]
+        v_mec_vent_local_is_ns: ステップnの室iにおける局所換気量, m3/s, [i, 8760*4]
+        n_hum_is_ns: ステップnの室iにおける在室人数, [8760*4]
+        ac_demand_is_ns: ステップnの室iにおける空調需要, [8760*4]
+        weather_dataframe:  気象データのDataFrame
         n_step_hourly: 計算間隔（1時間を何分割するかどうか）（デフォルトは4（15分間隔））
         n_d_main: 本計算を行う日数（デフォルトは365日（1年間））, d
         n_d_run_up: 助走計算を行う日数（デフォルトは365日（1年間））, d
@@ -32,8 +43,8 @@ def calc(
 
     Returns:
         以下のタプル
-            (1) 計算結果（簡易版）をいれたDataFrame
-            (2) 計算結果（詳細版）をいれたDataFrame
+            (1) 計算結果（詳細版）をいれたDataFrame
+            (2) 計算結果（簡易版）をいれたDataFrame
 
     Notes:
         「助走計算のうち建物全体を解く日数」は「助走計算を行う日数」で指定した値以下でないといけない。
@@ -54,11 +65,20 @@ def calc(
 
     # json, csv ファイルからパラメータをロードする。
     # （ループ計算する必要の無い）事前計算を行い, クラス PreCalcParameters, PreCalcParametersGround に必要な変数を格納する。
-    pp, ppg = pre_calc_parameters.make_pre_calc_parameters(delta_t=delta_t, data_directory=input_data_dir)
+    pp, ppg = pre_calc_parameters.make_pre_calc_parameters(
+        delta_t=delta_t,
+        rd=rd,
+        q_gen_is_ns=q_gen_is_ns,
+        x_gen_is_ns=x_gen_is_ns,
+        v_vent_mec_local_is_ns=v_mec_vent_local_is_ns,
+        n_hum_is_ns=n_hum_is_ns,
+        ac_demand_is_ns=ac_demand_is_ns,
+        weather_dataframe=weather_dataframe
+    )
 
     gc_n = conditions.initialize_ground_conditions(n_grounds=ppg.n_grounds)
 
-    print('助走計算（土壌のみ）')
+    logging.info('助走計算（土壌のみ）')
     for n in range(-n_step_run_up, -n_step_run_up_build):
         gc_n = sequence_ground.run_tick(gc_n=gc_n, ss=ppg, n=n)
 
@@ -75,11 +95,11 @@ def calc(
         gc=gc_n
     )
 
-    print('助走計算（建物全体）')
+    logging.info('助走計算（建物全体）')
     for n in range(-n_step_run_up_build, 0):
         c_n = sequence.run_tick(n=n, delta_t=delta_t, ss=pp, c_n=c_n, logger=logger, run_up=True)
 
-    print('本計算')
+    logging.info('本計算')
 
     # TODO: loggerに1/1 0:00の瞬時状態値を書き込む
     for n in range(0, n_step_main):
@@ -87,13 +107,11 @@ def calc(
 
     logger.post_logging(pp)
 
-    print('ログ作成')
+    logging.info('ログ作成')
 
     # dd: data detail, 15分間隔のすべてのパラメータ pd.DataFrame
-    dd = logger.record(
-        pps=pp,
-        output_data_dir=output_data_dir,
-        show_detail_result=show_detail_result
+    dd_i, dd_a = logger.record(
+        pps=pp
     )
 
-    return dd
+    return dd_i, dd_a

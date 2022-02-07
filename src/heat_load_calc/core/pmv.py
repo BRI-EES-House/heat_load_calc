@@ -1,4 +1,5 @@
 import math
+from typing import Tuple
 from scipy.optimize import newton
 from collections import namedtuple
 import numpy as np
@@ -7,7 +8,7 @@ import numpy as np
 def get_pmv_ppd(
         met_value: float, p_eff: np.array, t_a: np.array, t_r_bar: np.array,
         clo_value: np.array, v_ar: np.array, rh: np.array
-) -> (np.array, np.array):
+) -> Tuple[np.array, np.array]:
     """calculate PMV & PPD
 
     Args:
@@ -128,7 +129,7 @@ def get_radiative_heat_loss_from_clothing(f_cl: np.array, t_cl: np.array, t_r_ba
     return 3.96 * 10 ** (-8) * f_cl * ((t_cl + 273.0) ** 4.0 - (t_r_bar + 273.0) ** 4.0)
 
 
-def get_pmv(f_cl, h_c, m, p_a, t_a, t_cl, t_r_bar, w):
+def get_pmv(f_cl: np.ndarray, h_c: np.ndarray, m: np.ndarray, p_a: np.ndarray, t_a: np.ndarray, t_cl: np.ndarray, t_r_bar: np.ndarray, w: float) -> Tuple[np.ndarray, np.ndarray]:
     """
 
     Args:
@@ -263,7 +264,7 @@ def convert_clo_to_m2kw(clo:np.array) -> np.array:
     return clo * 0.155
 
 
-def convert_met_to_wm2(met):
+def convert_met_to_wm2(met: float):
     """convert the unit of met to W/m2
 
     Args:
@@ -276,7 +277,7 @@ def convert_met_to_wm2(met):
     return met * 58.15
 
 
-def get_f_cl(i_cl):
+def get_f_cl(i_cl: np.ndarray) -> np.ndarray:
     """calculate clothing surface area factor
 
     Args:
@@ -308,7 +309,7 @@ def get_ppd(pmv: np.array) -> np.array:
     return 100.0 - 95.0 * np.exp(-0.03353 * pmv ** 4.0 - 0.2179 * pmv ** 2.0)
 
 
-def saturated_vapor_pressure_SONNTAG(status: str, t: np.array) -> (np.array, np.array):
+def saturated_vapor_pressure_SONNTAG(status: str, t: np.array) -> Tuple[np.array, np.array]:
     """calculate the saturated vapor pressure and its differential
 
     Args:

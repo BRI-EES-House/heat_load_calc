@@ -4,7 +4,7 @@ from typing import List
 from heat_load_calc.core import boundaries
 
 
-def get_f_mrt_hum_js(n_rm: int, n_b: int, p_is_js, a_s_js, is_floor_js) -> np.ndarray:
+def get_f_mrt_hum_js(n_rm: int, n_b: int, p_is_js: np.ndarray, a_s_js: np.ndarray, is_floor_js: np.ndarray) -> np.ndarray:
     """
     境界jが接する室の在室者に対する境界jの形態係数を取得する。
     Args:

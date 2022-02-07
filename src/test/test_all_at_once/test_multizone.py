@@ -24,15 +24,24 @@ class TestAllAtOnce(unittest.TestCase):
 
         js = open(cls._data_dir + '/mid_data_house.json', 'r', encoding='utf-8')
 
-        d = json.load(js)
+        rd = json.load(js)
 
         js.close()
 
-        weather.make_weather(region=d['common']['region'], output_data_dir=cls._data_dir, csv_output=True)
+        dd_weather = weather.make_weather(region=rd['common']['region'])
 
-        initializer.make_house(d=d, input_data_dir=cls._data_dir, output_data_dir=cls._data_dir)
+        q_gen_is_ns, x_gen_is_ns, v_mec_vent_local_is_ns, n_hum_is_ns, ac_demand_is_ns\
+            = initializer.make_house(d=rd)
 
-        dd_i, dd_a = core.calc(input_data_dir=cls._data_dir, output_data_dir=cls._data_dir)
+        dd_i, dd_a = core.calc(
+            rd=rd,
+            q_gen_is_ns=q_gen_is_ns,
+            x_gen_is_ns=x_gen_is_ns,
+            v_mec_vent_local_is_ns=v_mec_vent_local_is_ns,
+            n_hum_is_ns=n_hum_is_ns,
+            ac_demand_is_ns=ac_demand_is_ns,
+            weather_dataframe=dd_weather
+        )
 
         cls._dd_i = dd_i
         cls._dd_a = dd_a

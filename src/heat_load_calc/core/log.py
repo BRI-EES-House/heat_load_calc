@@ -199,7 +199,8 @@ class Logger:
         x_frt_is_ns = np.roll(self.x_frt, -1, axis=1)
         self.q_l_frt = ss.g_lh_frt_is * (x_r_is_ns - x_frt_is_ns)
 
-    def record(self, pps: PreCalcParameters, output_data_dir: str, show_detail_result: bool):
+
+    def record(self, pps: PreCalcParameters):
 
         n_step_i = self._n_step_i
         n_step_a = self._n_step_a
@@ -268,9 +269,5 @@ class Logger:
                 dd_i[name + '_' + 'b' + str(j) + '_qisol_s'] = t
             for j, t in enumerate(self.qiall_s[selected, 0:n_step_i]):
                 dd_i[name + '_' + 'b' + str(j) + '_qiall_s'] = t
-
-        if show_detail_result:
-            dd_i.to_csv(output_data_dir + '/result_detail_i.csv', encoding='cp932')
-            dd_a.to_csv(output_data_dir + '/result_detail_a.csv', encoding='cp932')
 
         return dd_i, dd_a

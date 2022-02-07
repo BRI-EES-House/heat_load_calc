@@ -1,4 +1,4 @@
-﻿from typing import Dict, List
+﻿from typing import Callable, Dict, List, Tuple
 from typing import Union
 import numpy as np
 from dataclasses import dataclass
@@ -357,12 +357,16 @@ class Equipments:
 
         return f_flr_eqp_js_ks
 
-    def make_get_f_l_cl_funcs(self):
+    def make_get_f_l_cl_funcs(self) -> Callable[[np.ndarray, np.ndarray, np.ndarray], Tuple[np.ndarray, np.ndarray]]:
 
         # 顕熱負荷、室温、加湿・除湿をしない場合の自然絶対湿度から、係数 f_l_cl を求める関数を定義する。
         # 対流式と放射式に分けて係数を設定して、それぞれの除湿量を出す式に将来的に変更した方が良いかもしれない。
 
-        def get_f_l_cl(l_cs_is_n, theta_r_is_n_pls, x_r_ntr_is_n_pls):
+        def get_f_l_cl(
+            l_cs_is_n: np.ndarray,
+            theta_r_is_n_pls: np.ndarray,
+            x_r_ntr_is_n_pls: np.ndarray
+        ) -> Tuple[np.ndarray, np.ndarray]:
             """
 
             Args:
@@ -399,7 +403,13 @@ class Equipments:
 
         return get_f_l_cl
 
-    def _get_ls_a_ls_b(self, l_cs_is_n, theta_r_is_n_pls, x_r_ntr_is_n_pls, ce):
+    def _get_ls_a_ls_b(
+        self,
+        l_cs_is_n: np.ndarray,
+        theta_r_is_n_pls: np.ndarray,
+        x_r_ntr_is_n_pls: np.ndarray,
+        ce: CoolingEquipmentRAC
+    ) -> Tuple[np.ndarray, np.ndarray]:
 
         if type(ce) is CoolingEquipmentRAC:
             return self._func_rac(
@@ -415,11 +425,11 @@ class Equipments:
 
     def _func_rac(
             self,
-            l_cs_is_n,
-            theta_r_is_n_pls,
-            x_r_ntr_is_n_pls,
+            l_cs_is_n: np.ndarray,
+            theta_r_is_n_pls: np.ndarray,
+            x_r_ntr_is_n_pls: np.ndarray,
             ce: CoolingEquipmentRAC
-    ):
+    ) -> Tuple[np.ndarray, np.ndarray]:
 
         # 室の数
         n_rm = self._n_rm
