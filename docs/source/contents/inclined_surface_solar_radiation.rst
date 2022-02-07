@@ -56,18 +56,18 @@ I. 評価法
 
 である。
 
-ステップ |n| に傾斜面 |j| に入射する日射量のうち地盤反射成分 :math:`I_{R,j,n}` は、式(3)により計算される。
+ステップ |n| における境界 |j| の傾斜面に入射する日射量の地盤反射成分 :math:`I_{srf,ref,j,n}` は、式(3)により計算される。
 
 .. math::
     :nowrap:
 
     \begin{align*}
-        I_{R,j,n} = \rho_{gnd} \cdot f_{gnd,j} \cdot I_{hrz,n} \tag{3}
+        I_{srf,ref,j,n} = \rho_{gnd} \cdot f_{gnd,j} \cdot I_{hrz,n} \tag{3}
     \end{align*}
 
 ここで、
 
-:math:`I_{R,j,n}`
+:math:`I_{srf,ref,j,n}`
     | ステップ |n| に傾斜面 |j| に入射する日射量のうち地盤反射成分, W / |m2| 
 :math:`\rho_{gnd}`
     | 地面の日射反射率, - 

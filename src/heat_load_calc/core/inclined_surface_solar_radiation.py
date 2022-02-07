@@ -44,12 +44,12 @@ def get_i_is_j_ns(
     # 境界jの傾斜面の地面に対する形態係数
     f_gnd_j = _get_f_gnd_j(f_sky_j=f_sky_j)
 
-    # 地面の日射に対する反射率（アルベド）
-    rho_gnd = _get_rho_gnd()
+    # ステップ n における水平面全天日射量, W/m2
+    i_hrz_ns = _get_i_hrz_ns(i_dn_ns=i_dn_ns, i_sky_ns=i_sky_ns, h_sun_ns=h_sun_ns)
 
-    # ステップ n における境界 j の傾斜面に入射する日射量のうち地盤反射成分, W/m2K, [8760 * 4]
-    i_is_ref_j_n = _get_i_is_ref_j_n(
-        i_dn_ns=i_dn_ns, i_sky_ns=i_sky_ns, h_sun_ns=h_sun_ns, f_gnd_j=f_gnd_j, rho_gnd=rho_gnd)
+    # ステップ n における境界 j の傾斜面に入射する日射量の地盤反射成分, W/m2, [n]
+    i_srf_ref_j_ns = _get_i_srf_ref_j_ns(
+        i_dn_ns=i_dn_ns, i_sky_ns=i_sky_ns, h_sun_ns=h_sun_ns, f_gnd_j=f_gnd_j, i_hrz_ns=i_hrz_ns)
 
     # ステップ n における境界 j の傾斜面に入射する日射量の天空成分, W/m2, [n]
     i_srf_sky_j_ns = _get_i_srf_sky_j_ns(i_sky_ns=i_sky_ns, f_sky_j=f_sky_j)
@@ -57,7 +57,7 @@ def get_i_is_j_ns(
     # ステップ n における境界 j の傾斜面に入射する日射量の直達成分, W/m2, [n]
     i_srf_dn_j_ns = _get_i_srf_dn_j_ns(i_dn_ns=i_dn_ns, theta_aoi_j_ns=theta_aoi_j_ns)
 
-    return i_srf_dn_j_ns, i_srf_sky_j_ns, i_is_ref_j_n
+    return i_srf_dn_j_ns, i_srf_sky_j_ns, i_srf_ref_j_ns
 
 
 def get_r_n_is_j_ns(r_n_ns: np.ndarray, w_beta_j: float) -> np.ndarray:
@@ -158,28 +158,36 @@ def _get_i_srf_sky_j_ns(i_sky_ns: np.ndarray, f_sky_j: float) -> np.ndarray:
     return i_srf_sky_j_ns
 
 
-def _get_i_is_ref_j_n(
-        i_dn_ns: np.ndarray, i_sky_ns: np.ndarray, h_sun_ns: np.ndarray, f_gnd_j: float, rho_gnd: float
+def _get_i_srf_ref_j_ns(
+        i_dn_ns: np.ndarray,
+        i_sky_ns: np.ndarray,
+        h_sun_ns: np.ndarray,
+        f_gnd_j: float,
+        i_hrz_ns: np.ndarray
 ) -> np.ndarray:
     """
     傾斜面の日射量のうち地盤反射成分を求める。
 
     Args:
-        i_dn_ns: ステップnにおける法線面直達日射量, W/m2K, [8760*4]
-        i_sky_ns: ステップnにおける水平面天空日射量, W/m2K, [8760*4]
-        h_sun_ns: ステップnにおける太陽高度, rad, [8760*4]
-        f_gnd_j: 境界jにおける地面に対する傾斜面の形態係数
-        rho_gnd: 境界jにおける地面の日射反射率
+        i_dn_ns: ステップ n における法線面直達日射量, W/m2, [n]
+        i_sky_ns: ステップ n における水平面天空日射量, W/m2, [n]
+        h_sun_ns: ステップ n における太陽高度, rad, [n]
+        f_gnd_j: 境界 j の地面に対する傾斜面の形態係数
+        i_hrz_ns: ステップ n における水平面全天日射量, W/m2, [n]
+
     Returns:
-        ステップnにおける境界kにおける傾斜面の日射量のうち地盤反射成分, W / m2K
+        ステップ n における境界 j の傾斜面に入射する日射量の地盤反射成分, W/m2, [n]
+
+    Notes:
+        式(3)
     """
 
-    # ステップnにおける水平面全天日射量, W/m2K
-    i_hsr_ns = _get_i_hrz_ns(i_dn_ns=i_dn_ns, i_sky_ns=i_sky_ns, h_sun_ns=h_sun_ns)
+    # 地面の日射反射率
+    rho_gnd = 0.1
 
-    i_inc_ref_j_n = f_gnd_j * rho_gnd * i_hsr_ns
+    i_srf_ref_j_ns = f_gnd_j * rho_gnd * i_hrz_ns
 
-    return i_inc_ref_j_n
+    return i_srf_ref_j_ns
 
 
 def _get_i_hrz_ns(i_dn_ns, i_sky_ns, h_sun_ns):
@@ -240,15 +248,4 @@ def _get_f_gnd_j(f_sky_j: float) -> float:
     f_gnd_j = 1.0 - f_sky_j
 
     return f_gnd_j
-
-
-def _get_rho_gnd() -> float:
-    """
-    地面の日射に対する反射率（アルベド）を計算する。
-
-    Returns:
-        地面の日射に対する反射率（アルベド）
-    """
-
-    return 0.1
 
