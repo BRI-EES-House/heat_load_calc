@@ -184,20 +184,24 @@ class OutsideEqvTempExternalGeneralPartAndExternalOpaquePart(OutsideEqvTemp):
         # 地面反射日射に対する日よけの影面積比率
         f_ss_r_j_ns = 0.0
 
-        # ステップnにおける室iの境界jにおける傾斜面の夜間放射量, W/m2, [8760 * 4]
-        r_n_is_j_ns = inclined_surface_solar_radiation.get_r_n_is_j_ns(r_n_ns=r_n_ns, w_beta_j=w_beta_i_j)
-
-        # ステップnにおける境界jにおける傾斜面の日射量のうち直達成分, W/m2K [8760*4]
-        # ステップnにおける境界jにおける傾斜面の日射量のうち天空成分, W/m2K [8760*4]
-        # ステップnにおける境界jにおける傾斜面の日射量のうち地盤反射成分, W/m2K [8760*4]
-        i_is_d_j_ns, i_is_sky_j_ns, i_is_ref_j_ns = inclined_surface_solar_radiation.get_i_is_j_ns(
-            i_dn_ns=i_dn_ns, i_sky_ns=i_sky_ns, h_sun_ns=h_sun_ns, a_sun_ns=a_sun_ns,
-            w_alpha_j=w_alpha_i_j, w_beta_j=w_beta_i_j)
+        # ステップ n における境界 j の傾斜面に入射する日射量の直達成分, W/m2 [n]
+        # ステップ n における境界 j の傾斜面に入射する日射量の天空成分, W/m2 [n]
+        # ステップ n における境界 j の傾斜面に入射する日射量の地盤反射成分, W/m2 [n]
+        # ステップ n における境界 j の傾斜面の夜間放射量, W/m2, [n]
+        i_is_d_j_ns, i_is_sky_j_ns, i_is_ref_j_ns, r_srf_eff_j_ns = inclined_surface_solar_radiation.get_i_is_j_ns(
+            i_dn_ns=i_dn_ns,
+            i_sky_ns=i_sky_ns,
+            r_eff_ns=r_n_ns,
+            h_sun_ns=h_sun_ns,
+            a_sun_ns=a_sun_ns,
+            alpha_w_j=w_alpha_i_j,
+            beta_w_j=w_beta_i_j
+        )
 
         # 室iの境界jの傾斜面のステップnにおける相当外気温度, ℃, [8760*4]
         # 一般部位・不透明な開口部の場合、日射・長波長放射を考慮する。
         theta_o_sol_i_j_ns = theta_o_ns + (
-                self._a_s * (i_is_d_j_ns * (1.0 - f_ss_d_j_ns) + i_is_sky_j_ns * (1.0 - f_ss_s_j_ns) + i_is_ref_j_ns * (1.0 - f_ss_r_j_ns)) - self._eps_r * r_n_is_j_ns
+                self._a_s * (i_is_d_j_ns * (1.0 - f_ss_d_j_ns) + i_is_sky_j_ns * (1.0 - f_ss_s_j_ns) + i_is_ref_j_ns * (1.0 - f_ss_r_j_ns)) - self._eps_r * r_srf_eff_j_ns
         ) * self._r_surf
 
         return theta_o_sol_i_j_ns
@@ -260,19 +264,21 @@ class OutsideEqvTempExternalTransparentPart(OutsideEqvTemp):
         w_alpha_i_j, w_beta_i_j = external_boundaries_direction.get_w_alpha_j_w_beta_j(direction_j=self._direction)
 
         # ステップnの境界jにおける傾斜面に入射する太陽の入射角, rad, [8760 * 4]
-        theta_aoi_j_ns = inclined_surface_solar_radiation.get_theta_aoi_j_n(
-            h_sun_ns=h_sun_ns, a_sun_ns=a_sun_ns, w_alpha_j=w_alpha_i_j, w_beta_j=w_beta_i_j)
+        theta_aoi_j_ns = inclined_surface_solar_radiation.get_theta_aoi_j_ns(
+            h_sun_ns=h_sun_ns, a_sun_ns=a_sun_ns, alpha_w_j=w_alpha_i_j, beta_w_j=w_beta_i_j)
 
-        # ステップnにおける境界jにおける傾斜面の日射量のうち直達成分, W / m2K, [8760 * 4]
-        # ステップnにおける境界jにおける傾斜面の日射量のうち天空成分, W / m2K, [8760 * 4]
-        # ステップnにおける境界jにおける傾斜面の日射量のうち地盤反射成分, W / m2K, [8760 * 4]
-        i_inc_d_j_ns, i_inc_sky_j_ns, i_inc_ref_j_ns = inclined_surface_solar_radiation.get_i_is_j_ns(
+        # ステップ n における境界 j の傾斜面に入射する日射量の直達成分, W / m2, [n]
+        # ステップ n における境界 j の傾斜面に入射する日射量の天空成分, W / m2, [n]
+        # ステップ n における境界 j の傾斜面に入射する日射量の地盤反射成分, W / m2, [n]
+        # ステップ n における境界 j の傾斜面の夜間放射量, W/m2, [n]
+        i_inc_d_j_ns, i_inc_sky_j_ns, i_inc_ref_j_ns, r_srf_eff_j_ns = inclined_surface_solar_radiation.get_i_is_j_ns(
             i_dn_ns=i_dn_ns,
             i_sky_ns=i_sky_ns,
+            r_eff_ns=r_n_ns,
             h_sun_ns=h_sun_ns,
             a_sun_ns=a_sun_ns,
-            w_alpha_j=w_alpha_i_j,
-            w_beta_j=w_beta_i_j
+            alpha_w_j=w_alpha_i_j,
+            beta_w_j=w_beta_i_j
         )
 
         # ---日よけの影面積比率
@@ -286,13 +292,12 @@ class OutsideEqvTempExternalTransparentPart(OutsideEqvTemp):
         # 地面反射日射に対する日よけの影面積比率
         f_ss_r_j_ns = 0.0
 
-        # ステップnにおける室iの境界jにおける傾斜面の夜間放射量, W/m2, [8760 * 4]
-        r_n_is_i_j_ns = inclined_surface_solar_radiation.get_r_n_is_j_ns(r_n_ns=r_n_ns, w_beta_j=w_beta_i_j)
-
         # 吸収日射取得率の計算
-        tau_value, ashgc_value, rho_value, a_value = window.get_tau_and_ashgc_rho_a(eta_w=self._eta_value,
-                                                                glazing_type_j=self._glazing_type,
-                                                                glass_area_ratio_j=self._glass_area_ratio)
+        tau_value, ashgc_value, rho_value, a_value = window.get_tau_and_ashgc_rho_a(
+            eta_w=self._eta_value,
+            glazing_type_j=self._glazing_type,
+            glass_area_ratio_j=self._glass_area_ratio
+        )
         
         # 境界jにおける透明な開口部の直達日射に対する規準化吸収日射取得率, [8760 * 4]
         ashgc_d_j_ns = window.get_ashgc_d_j(
@@ -317,7 +322,7 @@ class OutsideEqvTempExternalTransparentPart(OutsideEqvTemp):
 
         # 室iの境界jの傾斜面のステップnにおける相当外気温度, ℃, [8760*4]
         # 透明な開口部の場合、透過日射はガラス面への透過の項で扱うため、ここでは吸収日射、長波長放射のみ考慮する。
-        return theta_o_ns - self._eps_r * r_n_is_i_j_ns * self._r_surf_o + q_ga_ns / self._u_value
+        return theta_o_ns - self._eps_r * r_srf_eff_j_ns * self._r_surf_o + q_ga_ns / self._u_value
 
 
 class OutsideEqvTempExternalNotSunStriked(OutsideEqvTemp):
