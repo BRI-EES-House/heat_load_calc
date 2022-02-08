@@ -6,7 +6,7 @@ from heat_load_calc.weather import solar_position
 from heat_load_calc.weather.interval import Interval
 
 
-def make_weather(region: int, output_data_dir: str = None, csv_output: bool = False, interval: str = '15m'):
+def make_weather(region: int, interval: str = '15m') -> pd.DataFrame:
     """
     気象データを作成する。
     Args:
@@ -67,8 +67,5 @@ def make_weather(region: int, output_data_dir: str = None, csv_output: bool = Fa
     dd['outward radiation'] = r_n_ns
     dd['sun altitude'] = h_sun_ns
     dd['sun azimuth'] = a_sun_ns
-
-    if csv_output:
-        dd.to_csv(output_data_dir + '/weather.csv', encoding='utf-8')
 
     return dd

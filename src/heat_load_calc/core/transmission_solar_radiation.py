@@ -36,7 +36,7 @@ class TransmissionSolarRadiation:
 
             return TransmissionSolarRadiationNot()
 
-    def get_qgt(self, a_sun_ns, h_sun_ns, i_dn_ns, i_sky_ns):
+    def get_qgt(self, a_sun_ns, h_sun_ns, i_dn_ns, i_sky_ns, r_n_ns):
 
         raise NotImplementedError()
 
@@ -72,26 +72,27 @@ class TransmissionSolarRadiationTransparentSunStrike(TransmissionSolarRadiation)
         self._eta_value = eta_value
         self._glass_area_ratio = glass_area_ratio
 
-    def get_qgt(self, a_sun_ns, h_sun_ns, i_dn_ns, i_sky_ns):
+    def get_qgt(self, a_sun_ns, h_sun_ns, i_dn_ns, i_sky_ns, r_n_ns):
 
         # 境界jの傾斜面の方位角, rad
         # 境界jの傾斜面の傾斜角, rad
         w_alpha_j, w_beta_j = external_boundaries_direction.get_w_alpha_j_w_beta_j(direction_j=self._direction)
 
         # ステップnの境界jにおける傾斜面に入射する太陽の入射角, rad, [8760 * 4]
-        theta_aoi_j_ns = inclined_surface_solar_radiation.get_theta_aoi_j_n(
-            h_sun_ns=h_sun_ns, a_sun_ns=a_sun_ns, w_alpha_j=w_alpha_j, w_beta_j=w_beta_j)
+        theta_aoi_j_ns = inclined_surface_solar_radiation.get_theta_aoi_j_ns(
+            h_sun_ns=h_sun_ns, a_sun_ns=a_sun_ns, alpha_w_j=w_alpha_j, beta_w_j=w_beta_j)
 
         # ステップnにおける境界jにおける傾斜面の日射量のうち直達成分, W / m2K, [8760 * 4]
         # ステップnにおける境界jにおける傾斜面の日射量のうち天空成分, W / m2K, [8760 * 4]
         # ステップnにおける境界jにおける傾斜面の日射量のうち地盤反射成分, W / m2K, [8760 * 4]
-        i_inc_d_j_ns, i_inc_sky_j_ns, i_inc_ref_j_ns = inclined_surface_solar_radiation.get_i_is_j_ns(
+        i_inc_d_j_ns, i_inc_sky_j_ns, i_inc_ref_j_ns, r_srf_eff_j_ns = inclined_surface_solar_radiation.get_i_is_j_ns(
             i_dn_ns=i_dn_ns,
             i_sky_ns=i_sky_ns,
+            r_eff_ns=r_n_ns,
             h_sun_ns=h_sun_ns,
             a_sun_ns=a_sun_ns,
-            w_alpha_j=w_alpha_j,
-            w_beta_j=w_beta_j
+            alpha_w_j=w_alpha_j,
+            beta_w_j=w_beta_j
         )
 
         # ---日よけの影面積比率
@@ -141,6 +142,6 @@ class TransmissionSolarRadiationNot(TransmissionSolarRadiation):
     def __init__(self):
         super().__init__()
 
-    def get_qgt(self, a_sun_ns, h_sun_ns, i_dn_ns, i_sky_ns):
+    def get_qgt(self, a_sun_ns, h_sun_ns, i_dn_ns, i_sky_ns, r_n_ns):
 
         return np.zeros(8760*4+1, dtype=float)

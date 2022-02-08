@@ -1,18 +1,21 @@
 import math
 import numpy as np
+import logging
+from typing import List, Union, Dict
 from typing import Union
+
 from heat_load_calc.external.global_number import get_sgm, get_eps
 from scipy import optimize
 
 
-def get_f_mrt_is_js(a_s_js, h_s_r_js, p_is_js):
+def get_f_mrt_is_js(a_s_js: np.ndarray, h_s_r_js: np.ndarray, p_is_js: np.ndarray) -> np.ndarray:
 
     ah = a_s_js * h_s_r_js
 
     return p_is_js * ah.T / np.dot(p_is_js, ah)
 
 
-def get_h_r_js(n_spaces, bs):
+def get_h_r_js(n_spaces: int, bs: List[Dict]) -> np.ndarray:
 
     a_srf_js = np.array([b['area'] for b in bs])
 
@@ -71,7 +74,7 @@ def _get_f_i_js(a_srf_js: np.ndarray) -> np.ndarray:
 
     # 総和のチェック
     if abs(np.sum(f_i_js) - 1.0) > 1.0e-3:
-        print('形態係数の合計値が不正 TotalFF=', np.sum(f_i_js))
+        logging.warning('形態係数の合計値が不正 TotalFF=', np.sum(f_i_js))
 
     return f_i_js
 

@@ -20,3 +20,5 @@
    /contents/solar_position
    /contents/shape_factor
    /contents/infiltration
+   /contents/inclined_surface_solar_radiation
+

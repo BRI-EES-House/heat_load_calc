@@ -2,6 +2,7 @@
 
 """
 import math
+from typing import Tuple
 
 import numpy as np
 
@@ -198,7 +199,7 @@ def _get_r_d_double() -> float:
 
 
 def get_tau_and_ashgc_rho_a(eta_w: float, glazing_type_j: str,
-                            glass_area_ratio_j: float) -> (float, float):
+                            glass_area_ratio_j: float) -> Tuple[float, float, float, float]:
     """
     日射熱取得率から透過率、吸収日射取得率を推定する
     :param eta_w: 窓の日射熱取得率

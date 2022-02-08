@@ -4,13 +4,14 @@
 そのデータを15分間隔のデータに補間する方法について説明する。
 """
 
+from typing import Tuple
 import numpy as np
 import os
 
 from heat_load_calc.weather.interval import Interval
 
 
-def load(region: int, interval: Interval) -> (np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray):
+def load(region: int, interval: Interval) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     """
     地域の区分に応じて気象データを読み込み、指定された時間間隔で必要に応じて補間を行いデータを作成する。
 

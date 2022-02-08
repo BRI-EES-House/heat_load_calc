@@ -1,7 +1,7 @@
 ﻿import numpy as np
 
 
-def get_q_sol_frt_is_ns(q_trs_sor_is_ns):
+def get_q_sol_frt_is_ns(q_trs_sor_is_ns: np.ndarray) -> np.ndarray:
     """
 
     Args:
@@ -14,7 +14,7 @@ def get_q_sol_frt_is_ns(q_trs_sor_is_ns):
     return q_trs_sor_is_ns * _get_r_sol_frt()
 
 
-def get_q_s_sol_js_ns(p_is_js, a_s_js, p_s_sol_abs_js, p_js_is, q_trs_sol_is_ns):
+def get_q_s_sol_js_ns(p_is_js: np.ndarray, a_s_js: np.ndarray, p_s_sol_abs_js: np.ndarray, p_js_is: np.ndarray, q_trs_sol_is_ns: np.ndarray) -> np.ndarray:
     """
 
     Args:
@@ -44,4 +44,3 @@ def _get_r_sol_frt() -> float:
     """
 
     return 0.5
-

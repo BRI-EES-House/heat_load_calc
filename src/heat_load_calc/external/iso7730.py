@@ -1,11 +1,12 @@
 import math
+from typing import Tuple
 from scipy.optimize import newton
 from collections import namedtuple
 
 
 def get_pmv_ppd(
         met_value: float, p_eff: float, t_a: float, t_r_bar: float, clo_value: float, v_ar: float, rh: float
-) -> (float, float):
+) -> Tuple[float, float]:
     """calculate PMV & PPD
 
     Args:
@@ -305,7 +306,7 @@ def get_ppd(pmv: float) -> float:
     return 100.0 - 95.0 * math.exp(-0.03353 * pmv ** 4.0 - 0.2179 * pmv ** 2.0)
 
 
-def saturated_vapor_pressure_SONNTAG(status: str, t: float) -> (float, float):
+def saturated_vapor_pressure_SONNTAG(status: str, t: float) -> Tuple[float, float]:
     """calculate the saturated vapor pressure and its differential
 
     Args:

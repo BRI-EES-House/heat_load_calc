@@ -202,7 +202,7 @@ class Boundaries:
 
         # 透過日射量, W, [8760*4]
         tsr = transmission_solar_radiation.TransmissionSolarRadiation.create(d=b, solar_shading_part=solar_shading_part)
-        q_trs_sol = tsr.get_qgt(a_sun_ns=a_sun_ns, h_sun_ns=h_sun_ns, i_dn_ns=i_dn_ns, i_sky_ns=i_sky_ns)
+        q_trs_sol = tsr.get_qgt(a_sun_ns=a_sun_ns, h_sun_ns=h_sun_ns, i_dn_ns=i_dn_ns, i_sky_ns=i_sky_ns, r_n_ns=r_n_ns)
 
         # 応答係数
         rf = response_factor.get_response_factor(b=b, h_c_js=h_c_js, h_r_js=h_r_js)

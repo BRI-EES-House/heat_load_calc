@@ -35,7 +35,7 @@ class MechanicalVentilations:
 
         self._n_rm = n_rm
 
-    def get_v_vent_mec_general_is(self):
+    def get_v_vent_mec_general_is(self) -> np.ndarray:
 
         v1 = np.zeros(shape=self._n_rm, dtype=float)
 
@@ -52,7 +52,7 @@ class MechanicalVentilations:
 
         return v1
 
-    def get_v_vent_int_is_is(self):
+    def get_v_vent_int_is_is(self) -> np.ndarray:
 
         v2 = np.zeros(shape=(self._n_rm, self._n_rm), dtype=float)
 

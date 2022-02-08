@@ -549,8 +549,8 @@ class ResponseFactorFactory:
 
             layers = spec['layers']
 
-            rear_h_c = h_c_js[spec['rear_surface_boundary_id']]
-            rear_h_r = h_r_js[spec['rear_surface_boundary_id']]
+            rear_h_c = h_c_js[spec['rear_surface_boundary_id'], 0]
+            rear_h_r = h_r_js[spec['rear_surface_boundary_id'], 0]
 
             return ResponseFactorFactoryTransientEnvelope(
                 cs=[float(layer['thermal_capacity']) for layer in layers],
