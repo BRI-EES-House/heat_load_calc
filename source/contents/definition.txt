@@ -1,0 +1,25 @@
+﻿..
+    単位などの定義を記す。
+
+..
+    数式関係
+
+.. |i| replace:: :math:`i`
+.. |i*| replace:: :math:`i^*`
+.. |j| replace:: :math:`j`
+.. |j*| replace:: :math:`j^*`
+.. |k| replace:: :math:`k`
+.. |m| replace:: :math:`m`
+.. |n-1| replace:: :math:`n-1`
+.. |n| replace:: :math:`n`
+.. |n+1| replace:: :math:`n+1`
+
+..
+    上付き文字
+
+.. |s-1| replace:: s\ :sup:`-1` \
+.. |m-1| replace:: m\ :sup:`-1` \
+.. |m2| replace:: m\ :sup:`2`\
+.. |m-2| replace:: m\ :sup:`-2` \
+.. |m3| replace:: m\ :sup:`3`\
+.. |m-3| replace:: m\ :sup:`-3` \

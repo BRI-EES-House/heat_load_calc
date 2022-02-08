@@ -1,0 +1,3357 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Asciidoctor 2.0.17">
+<title>負荷計算に関する資料</title>
+<style>
+@import url(//cdnjs.cloudflare.com/ajax/libs/font-awesome/3.2.0/css/font-awesome.css);
+/* normalize.css v2.1.1 | MIT License | git.io/normalize */
+/* ========================================================================== HTML5 display definitions ========================================================================== */
+/** Correct `block` display not defined in IE 8/9. */
+article, aside, details, figcaption, figure, footer, header, hgroup, main, nav, section, summary { display: block; }
+
+/** Correct `inline-block` display not defined in IE 8/9. */
+audio, canvas, video { display: inline-block; }
+
+/** Prevent modern browsers from displaying `audio` without controls. Remove excess height in iOS 5 devices. */
+audio:not([controls]) { display: none; height: 0; }
+
+/** Address styling not present in IE 8/9. */
+[hidden] { display: none; }
+
+/* ========================================================================== Base ========================================================================== */
+/** 1. Prevent system color scheme's background color being used in Firefox, IE, and Opera. 2. Prevent system color scheme's text color being used in Firefox, IE, and Opera. 3. Set default font family to sans-serif. 4. Prevent iOS text size adjust after orientation change, without disabling user zoom. */
+html { background: #fff; /* 1 */ color: #000; /* 2 */ font-family: sans-serif; /* 3 */ -ms-text-size-adjust: 100%; /* 4 */ -webkit-text-size-adjust: 100%; /* 4 */ }
+
+/** Remove default margin. */
+body { margin: 0; }
+
+/* ========================================================================== Links ========================================================================== */
+/** Address `outline` inconsistency between Chrome and other browsers. */
+a:focus { outline: thin dotted; }
+
+/** Improve readability when focused and also mouse hovered in all browsers. */
+a:active, a:hover { outline: 0; }
+
+/* ========================================================================== Typography ========================================================================== */
+/** Address variable `h1` font-size and margin within `section` and `article` contexts in Firefox 4+, Safari 5, and Chrome. */
+h1 { font-size: 2em; margin: 0.67em 0; }
+
+/** Address styling not present in IE 8/9, Safari 5, and Chrome. */
+abbr[title] { border-bottom: 1px dotted; }
+
+/** Address style set to `bolder` in Firefox 4+, Safari 5, and Chrome. */
+b, strong { font-weight: bold; }
+
+/** Address styling not present in Safari 5 and Chrome. */
+dfn { font-style: italic; }
+
+/** Address differences between Firefox and other browsers. */
+hr { -moz-box-sizing: content-box; box-sizing: content-box; height: 0; }
+
+/** Address styling not present in IE 8/9. */
+mark { background: #ff0; color: #000; }
+
+/** Correct font family set oddly in Safari 5 and Chrome. */
+code, kbd, pre, samp { font-family: monospace, serif; font-size: 1em; }
+
+/** Improve readability of pre-formatted text in all browsers. */
+pre { white-space: pre-wrap; }
+
+/** Set consistent quote types. */
+q { quotes: "\201C" "\201D" "\2018" "\2019"; }
+
+/** Address inconsistent and variable font size in all browsers. */
+small { font-size: 80%; }
+
+/** Prevent `sub` and `sup` affecting `line-height` in all browsers. */
+sub, sup { font-size: 75%; line-height: 0; position: relative; vertical-align: baseline; }
+
+sup { top: -0.5em; }
+
+sub { bottom: -0.25em; }
+
+/* ========================================================================== Embedded content ========================================================================== */
+/** Remove border when inside `a` element in IE 8/9. */
+img { border: 0; }
+
+/** Correct overflow displayed oddly in IE 9. */
+svg:not(:root) { overflow: hidden; }
+
+/* ========================================================================== Figures ========================================================================== */
+/** Address margin not present in IE 8/9 and Safari 5. */
+figure { margin: 0; }
+
+/* ========================================================================== Forms ========================================================================== */
+/** Define consistent border, margin, and padding. */
+fieldset { border: 1px solid #c0c0c0; margin: 0 2px; padding: 0.35em 0.625em 0.75em; }
+
+/** 1. Correct `color` not being inherited in IE 8/9. 2. Remove padding so people aren't caught out if they zero out fieldsets. */
+legend { border: 0; /* 1 */ padding: 0; /* 2 */ }
+
+/** 1. Correct font family not being inherited in all browsers. 2. Correct font size not being inherited in all browsers. 3. Address margins set differently in Firefox 4+, Safari 5, and Chrome. */
+button, input, select, textarea { font-family: inherit; /* 1 */ font-size: 100%; /* 2 */ margin: 0; /* 3 */ }
+
+/** Address Firefox 4+ setting `line-height` on `input` using `!important` in the UA stylesheet. */
+button, input { line-height: normal; }
+
+/** Address inconsistent `text-transform` inheritance for `button` and `select`. All other form control elements do not inherit `text-transform` values. Correct `button` style inheritance in Chrome, Safari 5+, and IE 8+. Correct `select` style inheritance in Firefox 4+ and Opera. */
+button, select { text-transform: none; }
+
+/** 1. Avoid the WebKit bug in Android 4.0.* where (2) destroys native `audio` and `video` controls. 2. Correct inability to style clickable `input` types in iOS. 3. Improve usability and consistency of cursor style between image-type `input` and others. */
+button, html input[type="button"], input[type="reset"], input[type="submit"] { -webkit-appearance: button; /* 2 */ cursor: pointer; /* 3 */ }
+
+/** Re-set default cursor for disabled elements. */
+button[disabled], html input[disabled] { cursor: default; }
+
+/** 1. Address box sizing set to `content-box` in IE 8/9. 2. Remove excess padding in IE 8/9. */
+input[type="checkbox"], input[type="radio"] { box-sizing: border-box; /* 1 */ padding: 0; /* 2 */ }
+
+/** 1. Address `appearance` set to `searchfield` in Safari 5 and Chrome. 2. Address `box-sizing` set to `border-box` in Safari 5 and Chrome (include `-moz` to future-proof). */
+input[type="search"] { -webkit-appearance: textfield; /* 1 */ -moz-box-sizing: content-box; -webkit-box-sizing: content-box; /* 2 */ box-sizing: content-box; }
+
+/** Remove inner padding and search cancel button in Safari 5 and Chrome on OS X. */
+input[type="search"]::-webkit-search-cancel-button, input[type="search"]::-webkit-search-decoration { -webkit-appearance: none; }
+
+/** Remove inner padding and border in Firefox 4+. */
+button::-moz-focus-inner, input::-moz-focus-inner { border: 0; padding: 0; }
+
+/** 1. Remove default vertical scrollbar in IE 8/9. 2. Improve readability and alignment in all browsers. */
+textarea { overflow: auto; /* 1 */ vertical-align: top; /* 2 */ }
+
+/* ========================================================================== Tables ========================================================================== */
+/** Remove most spacing between table cells. */
+table { border-collapse: collapse; border-spacing: 0; }
+
+*, *:before, *:after { -moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box; }
+
+html, body { font-size: 15px; }
+
+body { background: white; color: #222222; padding: 0; margin: 0; font-family: "Helvetica Neue", "Helvetica", Helvetica, Arial, sans-serif; font-weight: normal; font-style: normal; line-height: 1; position: relative; cursor: auto; }
+
+a:hover { cursor: pointer; }
+
+a:focus { outline: none; }
+
+img, object, embed { max-width: 100%; height: auto; }
+
+object, embed { height: 100%; }
+
+img { -ms-interpolation-mode: bicubic; }
+
+#map_canvas img, #map_canvas embed, #map_canvas object, .map_canvas img, .map_canvas embed, .map_canvas object { max-width: none !important; }
+
+.left { float: left !important; }
+
+.right { float: right !important; }
+
+.text-left { text-align: left !important; }
+
+.text-right { text-align: right !important; }
+
+.text-center { text-align: center !important; }
+
+.text-justify { text-align: justify !important; }
+
+.hide { display: none; }
+
+.antialiased, body { -webkit-font-smoothing: antialiased; }
+
+img { display: inline-block; vertical-align: middle; }
+
+textarea { height: auto; min-height: 50px; }
+
+select { width: 100%; }
+
+p.lead, .paragraph.lead > p, #preamble > .sectionbody > .paragraph:first-of-type p { font-size: 1.23333em; line-height: 1.6; }
+
+.subheader, #content #toctitle, .admonitionblock td.content > .title, .exampleblock > .title, .imageblock > .title, .videoblock > .title, .listingblock > .title, .literalblock > .title, .openblock > .title, .paragraph > .title, .quoteblock > .title, .sidebarblock > .title, .tableblock > .title, .verseblock > .title, .dlist > .title, .olist > .title, .ulist > .title, .qlist > .title, .hdlist > .title, .tableblock > caption { line-height: 1.4; color: #777777; font-weight: 300; margin-top: 0.2em; margin-bottom: 0.5em; }
+
+/* Typography resets */
+div, dl, dt, dd, ul, ol, li, h1, h2, h3, #toctitle, .sidebarblock > .content > .title, h4, h5, h6, pre, form, p, blockquote, th, td { margin: 0; padding: 0; direction: ltr; }
+
+/* Default Link Styles */
+a { color: #4183c4; text-decoration: none; line-height: inherit; }
+a:hover, a:focus { color: #4183c4; }
+a img { border: none; }
+
+/* Default paragraph styles */
+p { font-family: helvetica, arial, freesans, clean, sans-serif; font-weight: normal; font-size: 1em; line-height: 1.4; margin-bottom: 1em; text-rendering: optimizeLegibility; }
+p aside { font-size: 0.93333em; line-height: 1.35; font-style: italic; }
+
+/* Default header styles */
+h1, h2, h3, #toctitle, .sidebarblock > .content > .title, h4, h5, h6 { font-family: helvetica, arial, freesans, clean, sans-serif; font-weight: bold; font-style: normal; color: #333333; text-rendering: optimizeLegibility; margin-top: 0.2em; margin-bottom: 0.5em; line-height: 1.2em; }
+h1 small, h2 small, h3 small, #toctitle small, .sidebarblock > .content > .title small, h4 small, h5 small, h6 small { font-size: 60%; color: gray; line-height: 0; }
+
+h1 { font-size: 1.33333em; }
+
+h2 { font-size: 0.93333em; }
+
+h3, #toctitle, .sidebarblock > .content > .title { font-size: 0.86667em; }
+
+h4 { font-size: 0.66667em; }
+
+h5 { font-size: 1em; }
+
+h6 { font-size: 1em; }
+
+hr { border: solid #dddddd; border-width: 1px 0 0; clear: both; margin: 1.33333em 0 1.26667em; height: 0; }
+
+/* Helpful Typography Defaults */
+em, i { font-style: italic; line-height: inherit; }
+
+strong, b { font-weight: bold; line-height: inherit; }
+
+small { font-size: 60%; line-height: inherit; }
+
+code { font-family: Monaco, "DejaVu Sans Mono", "Courier New", monospace; font-weight: normal; color: #666666; }
+
+/* Lists */
+ul, ol, dl { font-size: 1em; line-height: 1.4; margin-bottom: 1em; list-style-position: outside; font-family: helvetica, arial, freesans, clean, sans-serif; }
+
+ul, ol { margin-left: 0.7em; }
+
+/* Unordered Lists */
+ul li ul, ul li ol { margin-left: 1.33333em; margin-bottom: 0; font-size: 1em; /* Override nested font-size change */ }
+ul.square li ul, ul.circle li ul, ul.disc li ul { list-style: inherit; }
+ul.square { list-style-type: square; }
+ul.circle { list-style-type: circle; }
+ul.disc { list-style-type: disc; }
+ul.no-bullet { list-style: none; }
+
+/* Ordered Lists */
+ol li ul, ol li ol { margin-left: 1.33333em; margin-bottom: 0; }
+
+/* Definition Lists */
+dl dt { margin-bottom: 0.33333em; font-weight: bold; }
+dl dd { margin-bottom: 1.33333em; }
+
+/* Abbreviations */
+abbr, acronym { text-transform: uppercase; font-size: 90%; color: #333333; border-bottom: 1px dotted #dddddd; cursor: help; }
+
+abbr { text-transform: none; }
+
+/* Blockquotes */
+blockquote { margin: 0 0 1em; padding: 0; border-left: none; }
+blockquote cite { display: block; font-size: 0.86667em; color: #666666; }
+blockquote cite:before { content: "\2014 \0020"; }
+blockquote cite a, blockquote cite a:visited { color: #666666; }
+
+blockquote, blockquote p { line-height: 1.4; color: #666666; }
+
+/* Microformats */
+.vcard { display: inline-block; margin: 0 0 1.33333em 0; border: 1px solid #dddddd; padding: 0.66667em 0.8em; }
+.vcard li { margin: 0; display: block; }
+.vcard .fn { font-weight: bold; font-size: 1em; }
+
+.vevent .summary { font-weight: bold; }
+.vevent abbr { cursor: auto; text-decoration: none; font-weight: bold; border: none; padding: 0 0.06667em; }
+
+@media only screen and (min-width: 768px) { h1, h2, h3, #toctitle, .sidebarblock > .content > .title, h4, h5, h6 { line-height: 1.4; }
+  h1 { font-size: 2em; }
+  h2 { font-size: 1.6em; }
+  h3, #toctitle, .sidebarblock > .content > .title { font-size: 1.2em; }
+  h4 { font-size: 1em; } }
+/* Print styles.  Inlined to avoid required HTTP connection: www.phpied.com/delay-loading-your-print-css/ Credit to Paul Irish and HTML5 Boilerplate (html5boilerplate.com)
+*/
+.print-only { display: none !important; }
+
+@media print { * { background: transparent !important; color: #000 !important; /* Black prints faster: h5bp.com/s */ box-shadow: none !important; text-shadow: none !important; }
+  a, a:visited { text-decoration: underline; }
+  a[href]:after { content: " (" attr(href) ")"; }
+  abbr[title]:after { content: " (" attr(title) ")"; }
+  .ir a:after, a[href^="javascript:"]:after, a[href^="#"]:after { content: ""; }
+  pre, blockquote { border: 1px solid #999; page-break-inside: avoid; }
+  thead { display: table-header-group; /* h5bp.com/t */ }
+  tr, img { page-break-inside: avoid; }
+  img { max-width: 100% !important; }
+  @page { margin: 0.5cm; }
+  p, h2, h3, #toctitle, .sidebarblock > .content > .title { orphans: 3; widows: 3; }
+  h2, h3, #toctitle, .sidebarblock > .content > .title { page-break-after: avoid; }
+  .hide-on-print { display: none !important; }
+  .print-only { display: block !important; }
+  .hide-for-print { display: none !important; }
+  .show-for-print { display: inherit !important; } }
+/* Tables */
+table { background: white; margin-bottom: 1.33333em; border: solid 1px #dddddd; }
+table thead, table tfoot { background: whitesmoke; font-weight: bold; }
+table thead tr th, table thead tr td, table tfoot tr th, table tfoot tr td { padding: 0.53333em 0.66667em 0.66667em; font-size: 0.93333em; color: #222222; text-align: left; }
+table tr th, table tr td { padding: 0.6em 0.66667em; font-size: 0.8em; color: #222222; }
+table tr.even, table tr.alt, table tr:nth-of-type(even) { background: #f9f9f9; }
+table thead tr th, table tfoot tr th, table tbody tr td, table tr td, table tfoot tr td { display: table-cell; line-height: 1.4; }
+
+a:hover, a:focus { text-decoration: underline; }
+
+.clearfix:before, .clearfix:after, .float-group:before, .float-group:after { content: " "; display: table; }
+.clearfix:after, .float-group:after { clear: both; }
+
+*:not(pre) > code { font-size: 0.86667em; padding: 1px 5px 1px 5px; white-space: nowrap; background-color: transparent; border: 1px solid #dddddd; -webkit-border-radius: 3px; border-radius: 3px; text-shadow: none; }
+
+pre, pre > code { line-height: 1.6; color: white; font-family: Consolas, "Liberation Mono", Courier, monospace; font-weight: normal; }
+
+kbd.keyseq { color: #666666; }
+
+kbd:not(.keyseq) { display: inline-block; color: #333333; font-size: 0.8em; line-height: 1.4; background-color: #F7F7F7; border: 1px solid #ccc; -webkit-border-radius: 3px; border-radius: 3px; -webkit-box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2), 0 0 0 2px white inset; box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2), 0 0 0 2px white inset; margin: -0.15em 0.15em 0 0.15em; padding: 0.2em 0.6em 0.2em 0.5em; vertical-align: middle; white-space: nowrap; }
+
+kbd kbd:first-child { margin-left: 0; }
+
+kbd kbd:last-child { margin-right: 0; }
+
+.menuseq, .menu { color: #1a1a1a; }
+
+#header, #content, #footnotes, #footer { width: 100%; margin-left: auto; margin-right: auto; margin-top: 0; margin-bottom: 0; max-width: 66.66667em; *zoom: 1; position: relative; padding-left: 1em; padding-right: 1em; }
+#header:before, #header:after, #content:before, #content:after, #footnotes:before, #footnotes:after, #footer:before, #footer:after { content: " "; display: table; }
+#header:after, #content:after, #footnotes:after, #footer:after { clear: both; }
+
+#header { margin-bottom: 2.66667em; }
+#header > h1 { color: #333333; font-weight: 300; border-bottom: 1px solid #dddddd; margin-bottom: -28px; padding-bottom: 32px; }
+#header span { color: #666666; }
+#header #revnumber { text-transform: capitalize; }
+#header br { display: none; }
+#header br + span { padding-left: 3px; }
+#header br + span:before { content: "\2013 \0020"; }
+#header br + span.author { padding-left: 0; }
+#header br + span.author:before { content: ", "; }
+
+#toc { border-bottom: 0 solid #dddddd; padding-bottom: 1.33333em; }
+#toc > ul { margin-left: 0.26667em; }
+#toc ul.sectlevel0 > li > a { font-style: italic; }
+#toc ul.sectlevel0 ul.sectlevel1 { margin-left: 0; margin-top: 0.5em; margin-bottom: 0.5em; }
+#toc ul { list-style-type: none; }
+
+#toctitle { color: #777777; }
+
+@media only screen and (min-width: 1280px) { body.toc2 { padding-left: 20em; }
+  #toc.toc2 { position: fixed; width: 20em; left: 0; top: 0; border-right: 1px solid #dddddd; border-bottom: 0; z-index: 1000; padding: 1em; height: 100%; overflow: auto; }
+  #toc.toc2 #toctitle { margin-top: 0; }
+  #toc.toc2 > ul { font-size: .95em; }
+  #toc.toc2 ul ul { margin-left: 0; padding-left: 1.33333em; }
+  #toc.toc2 ul.sectlevel0 ul.sectlevel1 { padding-left: 0; margin-top: 0.5em; margin-bottom: 0.5em; }
+  body.toc2.toc-right { padding-left: 0; padding-right: 20em; }
+  body.toc2.toc-right #toc.toc2 { border-right: 0; border-left: 1px solid #dddddd; left: auto; right: 0; } }
+#content #toc { border-style: solid; border-width: 1px; border-color: #e6e6e6; margin-bottom: 1.33333em; padding: 1.33333em; background: white; border-width: 0; -webkit-border-radius: 3px; border-radius: 3px; }
+#content #toc > :first-child { margin-top: 0; }
+#content #toc > :last-child { margin-bottom: 0; }
+#content #toc a { text-decoration: none; }
+
+#content #toctitle { font-weight: bold; font-family: helvetica, arial, freesans, clean, sans-serif; font-size: 1.06667em; padding-left: 0.13333em; }
+
+#footer { max-width: 100%; background-color: whitesmoke; padding: 1.33333em; }
+
+#footer-text { color: #333333; line-height: 1.26; }
+
+.sect1 { padding-bottom: 1.33333em; }
+
+.sect1 + .sect1 { border-top: 0 solid #dddddd; }
+
+#content h1 > a.anchor, h2 > a.anchor, h3 > a.anchor, #toctitle > a.anchor, .sidebarblock > .content > .title > a.anchor, h4 > a.anchor, h5 > a.anchor, h6 > a.anchor { position: absolute; width: 1em; margin-left: -1em; display: block; text-decoration: none; visibility: hidden; text-align: center; font-weight: normal; }
+#content h1 > a.anchor:before, h2 > a.anchor:before, h3 > a.anchor:before, #toctitle > a.anchor:before, .sidebarblock > .content > .title > a.anchor:before, h4 > a.anchor:before, h5 > a.anchor:before, h6 > a.anchor:before { content: '\00A7'; font-size: .85em; vertical-align: text-top; display: block; margin-top: 0.05em; }
+#content h1:hover > a.anchor, #content h1 > a.anchor:hover, h2:hover > a.anchor, h2 > a.anchor:hover, h3:hover > a.anchor, #toctitle:hover > a.anchor, .sidebarblock > .content > .title:hover > a.anchor, h3 > a.anchor:hover, #toctitle > a.anchor:hover, .sidebarblock > .content > .title > a.anchor:hover, h4:hover > a.anchor, h4 > a.anchor:hover, h5:hover > a.anchor, h5 > a.anchor:hover, h6:hover > a.anchor, h6 > a.anchor:hover { visibility: visible; }
+#content h1 > a.link, h2 > a.link, h3 > a.link, #toctitle > a.link, .sidebarblock > .content > .title > a.link, h4 > a.link, h5 > a.link, h6 > a.link { color: #333333; text-decoration: none; }
+#content h1 > a.link:hover, h2 > a.link:hover, h3 > a.link:hover, #toctitle > a.link:hover, .sidebarblock > .content > .title > a.link:hover, h4 > a.link:hover, h5 > a.link:hover, h6 > a.link:hover { color: #262626; }
+
+.imageblock, .literalblock, .listingblock, .verseblock, .videoblock { margin-bottom: 1.33333em; }
+
+.admonitionblock td.content > .title, .exampleblock > .title, .imageblock > .title, .videoblock > .title, .listingblock > .title, .literalblock > .title, .openblock > .title, .paragraph > .title, .quoteblock > .title, .sidebarblock > .title, .tableblock > .title, .verseblock > .title, .dlist > .title, .olist > .title, .ulist > .title, .qlist > .title, .hdlist > .title { text-align: left; font-weight: bold; }
+
+.tableblock > caption { text-align: left; font-weight: bold; white-space: nowrap; overflow: visible; max-width: 0; }
+
+table.tableblock #preamble > .sectionbody > .paragraph:first-of-type p { font-size: inherit; }
+
+.admonitionblock > table { border: 0; background: none; width: 100%; }
+.admonitionblock > table td.icon { text-align: center; width: 80px; }
+.admonitionblock > table td.icon img { max-width: none; }
+.admonitionblock > table td.icon .title { font-weight: bold; text-transform: uppercase; }
+.admonitionblock > table td.content { padding-left: 1.2em; padding-right: 1.33333em; border-left: 1px solid #dddddd; color: #666666; }
+.admonitionblock > table td.content > :last-child > :last-child { margin-bottom: 0; }
+
+.exampleblock > .content { border-style: solid; border-width: 1px; border-color: #e6e6e6; margin-bottom: 1.33333em; padding: 1.33333em; background: white; -webkit-border-radius: 3px; border-radius: 3px; }
+.exampleblock > .content > :first-child { margin-top: 0; }
+.exampleblock > .content > :last-child { margin-bottom: 0; }
+.exampleblock > .content h1, .exampleblock > .content h2, .exampleblock > .content h3, .exampleblock > .content #toctitle, .sidebarblock.exampleblock > .content > .title, .exampleblock > .content h4, .exampleblock > .content h5, .exampleblock > .content h6, .exampleblock > .content p { color: #333333; }
+.exampleblock > .content h1, .exampleblock > .content h2, .exampleblock > .content h3, .exampleblock > .content #toctitle, .sidebarblock.exampleblock > .content > .title, .exampleblock > .content h4, .exampleblock > .content h5, .exampleblock > .content h6 { line-height: 1; margin-bottom: 0.66667em; }
+.exampleblock > .content h1.subheader, .exampleblock > .content h2.subheader, .exampleblock > .content h3.subheader, .exampleblock > .content .subheader#toctitle, .sidebarblock.exampleblock > .content > .subheader.title, .exampleblock > .content h4.subheader, .exampleblock > .content h5.subheader, .exampleblock > .content h6.subheader { line-height: 1.4; }
+
+.exampleblock.result > .content { -webkit-box-shadow: 0 1px 8px #eaeaea; box-shadow: 0 1px 8px #eaeaea; }
+
+.sidebarblock { border-style: solid; border-width: 1px; border-color: #e6e6e6; margin-bottom: 1.33333em; padding: 1.33333em; background: white; -webkit-border-radius: 3px; border-radius: 3px; }
+.sidebarblock > :first-child { margin-top: 0; }
+.sidebarblock > :last-child { margin-bottom: 0; }
+.sidebarblock h1, .sidebarblock h2, .sidebarblock h3, .sidebarblock #toctitle, .sidebarblock > .content > .title, .sidebarblock h4, .sidebarblock h5, .sidebarblock h6, .sidebarblock p { color: #333333; }
+.sidebarblock h1, .sidebarblock h2, .sidebarblock h3, .sidebarblock #toctitle, .sidebarblock > .content > .title, .sidebarblock h4, .sidebarblock h5, .sidebarblock h6 { line-height: 1; margin-bottom: 0.66667em; }
+.sidebarblock h1.subheader, .sidebarblock h2.subheader, .sidebarblock h3.subheader, .sidebarblock .subheader#toctitle, .sidebarblock > .content > .subheader.title, .sidebarblock h4.subheader, .sidebarblock h5.subheader, .sidebarblock h6.subheader { line-height: 1.4; }
+.sidebarblock > .content > .title { color: #777777; margin-top: 0; line-height: 1.4; border-width: 0 0 1px 0; border-style: solid; border-color: #cacaca; }
+
+.exampleblock > .content > :last-child > :last-child, .exampleblock > .content .olist > ol > li:last-child > :last-child, .exampleblock > .content .ulist > ul > li:last-child > :last-child, .exampleblock > .content .qlist > ol > li:last-child > :last-child, .sidebarblock > .content > :last-child > :last-child, .sidebarblock > .content .olist > ol > li:last-child > :last-child, .sidebarblock > .content .ulist > ul > li:last-child > :last-child, .sidebarblock > .content .qlist > ol > li:last-child > :last-child { margin-bottom: 0; }
+
+.literalblock > .content pre, .listingblock > .content pre { background: #333333; border-width: 2px; border-style: solid; border-color: #dddddd; -webkit-border-radius: 3px; border-radius: 3px; padding: 0.66667em; word-wrap: break-word; }
+.literalblock > .content pre.nowrap, .listingblock > .content pre.nowrap { overflow-x: auto; white-space: pre; word-wrap: normal; }
+.literalblock > .content pre > code, .listingblock > .content pre > code { display: block; }
+@media only screen { .literalblock > .content pre, .listingblock > .content pre { font-size: 0.69333em; } }
+@media only screen and (min-width: 768px) { .literalblock > .content pre, .listingblock > .content pre { font-size: 0.78em; } }
+@media only screen and (min-width: 1280px) { .literalblock > .content pre, .listingblock > .content pre { font-size: 0.86667em; } }
+
+.listingblock > .content { position: relative; }
+
+.listingblock:hover code[class*=" language-"]:before { text-transform: uppercase; font-size: 0.9em; color: #999; position: absolute; top: 0.4em; right: 0.4em; }
+
+.listingblock:hover code.asciidoc:before { content: "asciidoc"; }
+.listingblock:hover code.clojure:before { content: "clojure"; }
+.listingblock:hover code.css:before { content: "css"; }
+.listingblock:hover code.groovy:before { content: "groovy"; }
+.listingblock:hover code.html:before { content: "html"; }
+.listingblock:hover code.java:before { content: "java"; }
+.listingblock:hover code.javascript:before { content: "javascript"; }
+.listingblock:hover code.python:before { content: "python"; }
+.listingblock:hover code.ruby:before { content: "ruby"; }
+.listingblock:hover code.scss:before { content: "scss"; }
+.listingblock:hover code.xml:before { content: "xml"; }
+.listingblock:hover code.yaml:before { content: "yaml"; }
+
+.listingblock.terminal pre .command:before { content: attr(data-prompt); padding-right: 0.5em; color: #999; }
+
+.listingblock.terminal pre .command:not([data-prompt]):before { content: '$'; }
+
+table.pyhltable { border: 0; margin-bottom: 0; }
+
+table.pyhltable td { vertical-align: top; padding-top: 0; padding-bottom: 0; }
+
+table.pyhltable td.code { padding-left: .75em; padding-right: 0; }
+
+.highlight.pygments .lineno, table.pyhltable td:not(.code) { color: #999; padding-left: 0; padding-right: .5em; border-right: 1px solid #dddddd; }
+
+.highlight.pygments .lineno { display: inline-block; margin-right: .25em; }
+
+table.pyhltable .linenodiv { background-color: transparent !important; padding-right: 0 !important; }
+
+.quoteblock { margin: 0 0 1em; padding: 0; border-left: none; }
+.quoteblock blockquote { margin: 0 0 1em 0; padding: 0 0 0.6em 0; border: 0; }
+.quoteblock blockquote > .paragraph:last-child p { margin-bottom: 0; }
+.quoteblock .attribution { margin-top: -.25em; padding-bottom: 0.6em; font-size: 0.86667em; color: #666666; }
+.quoteblock .attribution br { display: none; }
+.quoteblock .attribution cite { display: block; margin-bottom: 0.66667em; }
+
+table thead th, table tfoot th { font-weight: bold; }
+
+table.tableblock.grid-all { border-collapse: separate; border-spacing: 1px; -webkit-border-radius: 3px; border-radius: 3px; border-top: 1px solid #dddddd; border-bottom: 1px solid #dddddd; }
+
+table.tableblock.frame-topbot, table.tableblock.frame-none { border-left: 0; border-right: 0; }
+
+table.tableblock.frame-sides, table.tableblock.frame-none { border-top: 0; border-bottom: 0; }
+
+table.tableblock td .paragraph:last-child p, table.tableblock td > p:last-child { margin-bottom: 0; }
+
+th.tableblock.halign-left, td.tableblock.halign-left { text-align: left; }
+
+th.tableblock.halign-right, td.tableblock.halign-right { text-align: right; }
+
+th.tableblock.halign-center, td.tableblock.halign-center { text-align: center; }
+
+th.tableblock.valign-top, td.tableblock.valign-top { vertical-align: top; }
+
+th.tableblock.valign-bottom, td.tableblock.valign-bottom { vertical-align: bottom; }
+
+th.tableblock.valign-middle, td.tableblock.valign-middle { vertical-align: middle; }
+
+p.tableblock.header { color: #222222; font-weight: bold; }
+
+td > div.verse { white-space: pre; }
+
+ol { margin-left: 0.96667em; }
+
+ul li ol { margin-left: 0.7em; }
+
+dl dd { margin-left: 1.125em; }
+
+dl dd:last-child, dl dd:last-child > :last-child { margin-bottom: 0; }
+
+ol > li p, ul > li p, ul dd, ol dd, .olist .olist, .ulist .ulist, .ulist .olist, .olist .ulist { margin-bottom: 0.5em; }
+
+ul.unstyled, ol.unnumbered, ul.checklist, ul.none { list-style-type: none; }
+
+ul.unstyled, ol.unnumbered, ul.checklist { margin-left: 0.66667em; }
+
+ul.checklist li > p:first-child > i[class^="icon-check"]:first-child, ul.checklist li > p:first-child > input[type="checkbox"]:first-child { margin-right: 0.25em; }
+
+ul.checklist li > p:first-child > input[type="checkbox"]:first-child { position: relative; top: 1px; }
+
+ul.inline { margin: 0 auto 0.5em auto; margin-left: -1.46667em; margin-right: 0; padding: 0; list-style: none; overflow: hidden; }
+ul.inline > li { list-style: none; float: left; margin-left: 1.46667em; display: block; }
+ul.inline > li > * { display: block; }
+
+.unstyled dl dt { font-weight: normal; font-style: normal; }
+
+ol.arabic { list-style-type: decimal; }
+
+ol.decimal { list-style-type: decimal-leading-zero; }
+
+ol.loweralpha { list-style-type: lower-alpha; }
+
+ol.upperalpha { list-style-type: upper-alpha; }
+
+ol.lowerroman { list-style-type: lower-roman; }
+
+ol.upperroman { list-style-type: upper-roman; }
+
+ol.lowergreek { list-style-type: lower-greek; }
+
+.hdlist > table, .colist > table { border: 0; background: none; }
+.hdlist > table > tbody > tr, .colist > table > tbody > tr { background: none; }
+
+td.hdlist1 { padding-right: .8em; font-weight: bold; }
+
+td.hdlist1, td.hdlist2 { vertical-align: top; }
+
+.literalblock + .colist, .listingblock + .colist { margin-top: -0.5em; }
+
+.colist > table tr > td:first-of-type { padding: 0 .8em; line-height: 1; }
+.colist > table tr > td:last-of-type { padding: 0.26667em 0; }
+
+.qanda > ol > li > p > em:only-child { color: #3876b4; }
+
+.thumb, .th { line-height: 0; display: inline-block; border: solid 4px white; -webkit-box-shadow: 0 0 0 1px #dddddd; box-shadow: 0 0 0 1px #dddddd; }
+
+.imageblock.left, .imageblock[style*="float: left"] { margin: 0.26667em 0.66667em 1.33333em 0; }
+.imageblock.right, .imageblock[style*="float: right"] { margin: 0.26667em 0 1.33333em 0.66667em; }
+.imageblock > .title { margin-bottom: 0; }
+.imageblock.thumb, .imageblock.th { border-width: 6px; }
+.imageblock.thumb > .title, .imageblock.th > .title { padding: 0 0.13333em; }
+
+.image.left, .image.right { margin-top: 0.26667em; margin-bottom: 0.26667em; display: inline-block; line-height: 0; }
+.image.left { margin-right: 0.66667em; }
+.image.right { margin-left: 0.66667em; }
+
+a.image { text-decoration: none; }
+
+span.footnote, span.footnoteref { vertical-align: super; font-size: 0.93333em; }
+span.footnote a, span.footnoteref a { text-decoration: none; }
+
+#footnotes { padding-top: 0.8em; padding-bottom: 0.8em; margin-bottom: 0.66667em; }
+#footnotes hr { width: 20%; min-width: 6.66667em; margin: -.25em 0 .75em 0; border-width: 1px 0 0 0; }
+#footnotes .footnote { padding: 0 0.4em; line-height: 1.3; font-size: 0.93333em; margin-left: 1.2em; text-indent: -1.2em; margin-bottom: .2em; }
+#footnotes .footnote a:first-of-type { font-weight: bold; text-decoration: none; }
+#footnotes .footnote:last-of-type { margin-bottom: 0; }
+
+#content #footnotes { margin-top: -0.66667em; margin-bottom: 0; padding: 0.8em 0; }
+
+.gist .file-data > table { border: none; background: #fff; width: 100%; margin-bottom: 0; }
+.gist .file-data > table td.line-data { width: 99%; }
+
+div.unbreakable { page-break-inside: avoid; }
+
+.big { font-size: larger; }
+
+.small { font-size: smaller; }
+
+.underline { text-decoration: underline; }
+
+.overline { text-decoration: overline; }
+
+.line-through { text-decoration: line-through; }
+
+.aqua { color: #00bfbf; }
+
+.aqua-background { background-color: #00fafa; }
+
+.black { color: black; }
+
+.black-background { background-color: black; }
+
+.blue { color: #0000bf; }
+
+.blue-background { background-color: #0000fa; }
+
+.fuchsia { color: #bf00bf; }
+
+.fuchsia-background { background-color: #fa00fa; }
+
+.gray { color: #606060; }
+
+.gray-background { background-color: #7d7d7d; }
+
+.green { color: #006000; }
+
+.green-background { background-color: #007d00; }
+
+.lime { color: #00bf00; }
+
+.lime-background { background-color: #00fa00; }
+
+.maroon { color: #600000; }
+
+.maroon-background { background-color: #7d0000; }
+
+.navy { color: #000060; }
+
+.navy-background { background-color: #00007d; }
+
+.olive { color: #606000; }
+
+.olive-background { background-color: #7d7d00; }
+
+.purple { color: #600060; }
+
+.purple-background { background-color: #7d007d; }
+
+.red { color: #bf0000; }
+
+.red-background { background-color: #fa0000; }
+
+.silver { color: #909090; }
+
+.silver-background { background-color: #bcbcbc; }
+
+.teal { color: #006060; }
+
+.teal-background { background-color: #007d7d; }
+
+.white { color: #bfbfbf; }
+
+.white-background { background-color: #fafafa; }
+
+.yellow { color: #bfbf00; }
+
+.yellow-background { background-color: #fafa00; }
+
+span.icon > [class^="icon-"], span.icon > [class*=" icon-"] { cursor: default; }
+
+.admonitionblock td.icon [class^="icon-"]:before { font-size: 2.5em; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5); cursor: default; }
+.admonitionblock td.icon .icon-note:before { content: "\f05a"; color: #4183c4; color: #2e6295; }
+.admonitionblock td.icon .icon-tip:before { content: "\f0eb"; text-shadow: 1px 1px 2px rgba(155, 155, 0, 0.8); color: #111; }
+.admonitionblock td.icon .icon-warning:before { content: "\f071"; color: #bf6900; }
+.admonitionblock td.icon .icon-caution:before { content: "\f06d"; color: #bf3400; }
+.admonitionblock td.icon .icon-important:before { content: "\f06a"; color: #bf0000; }
+
+.conum { display: inline-block; color: white !important; background-color: #333333; -webkit-border-radius: 100px; border-radius: 100px; text-align: center; width: 20px; height: 20px; font-size: 12px; font-weight: bold; line-height: 20px; font-family: Arial, sans-serif; font-style: normal; position: relative; top: -2px; letter-spacing: -1px; }
+.conum * { color: white !important; }
+.conum + b { display: none; }
+.conum:after { content: attr(data-value); }
+.conum:not([data-value]):empty { display: none; }
+
+p.lead, .paragraph.lead > p, #preamble > .sectionbody > .paragraph:first-of-type p { font-size: 1em; color: #666666; }
+
+h2 { color: #325D72; border-bottom: 1px solid #dddddd; }
+
+#content h1 > a.anchor, h2 > a.anchor, h3 > a.anchor, #toctitle > a.anchor, .sidebarblock > .content > .title > a.anchor, h4 > a.anchor, h5 > a.anchor, h6 > a.anchor { color: #333333; }
+
+#header, #content, #footnotes { max-width: 660px; padding-left: 0; padding-right: 0; }
+
+#content ul { list-style-type: none; }
+#content ul li { background: url('../images/github/li-chevron.png?1372292342') 0 0.4em no-repeat; padding-left: .7em; }
+
+.olist.procedure > ol { counter-reset: li; list-style: none; position: relative; }
+.olist.procedure > ol > li { position: relative; padding: 5px 0 5px 55px; margin-bottom: 5px; }
+.olist.procedure > ol > li:before { content: counter(li); counter-increment: li; position: absolute; top: 0; left: 0; height: 100%; width: 30px; padding: 0 10px 0 0; color: #999; font-size: 1.46667em; font-weight: bold; line-height: 1.6; text-align: right; border-right: 1px solid #ddd; }
+
+.quoteblock blockquote { background: url('../images/github/blockquote-arrow.png?1372292342') 0 2px no-repeat; padding-left: 1em; }
+
+.sidebarblock > .content > .title { margin-top: -20px; margin-right: -20px; margin-left: -20px; margin-bottom: 20px; padding: 1em; font-size: 0.8em; background: #eaeaea; }
+
+</style>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+<body class="book toc2 toc-left">
+<div id="header">
+<h1>負荷計算に関する資料</h1>
+<div class="details">
+<span id="revnumber">version 1.0.0(202006),</span>
+<span id="revdate">2020/6/19</span>
+</div>
+<div id="toc" class="toc2">
+<div id="toctitle">目次</div>
+<ul class="sectlevel1">
+<li><a href="#_仕様書">仕様書</a>
+<ul class="sectlevel2">
+<li><a href="#_a_外皮の部位の面積等を用いずに外皮性能を評価する方法を用いた場合の外皮の部位の面積や長さの推定">A. 「外皮の部位の面積等を用いずに外皮性能を評価する方法」を用いた場合の外皮の部位の面積や長さの推定</a>
+<ul class="sectlevel3">
+<li><a href="#_a_1_規模係数">A.1 規模係数</a></li>
+<li><a href="#_a_2_主開口方位">A.2 主開口方位</a></li>
+<li><a href="#_a_3_一般部位">A.3 一般部位</a></li>
+<li><a href="#_a_4_大部分がガラスで構成される窓等の開口部">A.4 大部分がガラスで構成される窓等の開口部</a></li>
+<li><a href="#_a_5_大部分がガラスで構成されないドア等の開口部">A.5 大部分がガラスで構成されないドア等の開口部</a></li>
+<li><a href="#_a_6_土間床等の外周部">A.6 土間床等の外周部</a></li>
+<li><a href="#_a_7_土間床等の中心部">A.7 土間床等の中心部</a></li>
+<li><a href="#_x_3_1_熱伝達率">X.3.1 熱伝達率</a></li>
+<li><a href="#_x_3_2_発熱発湿">X.3.2 発熱・発湿</a></li>
+<li><a href="#_x_5_1_概要">X.5.1 概要</a></li>
+<li><a href="#_x_5_2_均時差と赤緯">X.5.2 均時差と赤緯</a></li>
+<li><a href="#_x_5_3_時角">X.5.3 時角</a></li>
+<li><a href="#_x_5_4_太陽位置">X.5.4 太陽位置</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#_式の導出">式の導出</a>
+<ul class="sectlevel2">
+<li><a href="#_熱計算のバランス式">熱計算のバランス式</a>
+<ul class="sectlevel3">
+<li><a href="#_1_概要">1. 概要</a></li>
+<li><a href="#_2_記号説明">2. 記号説明</a></li>
+<li><a href="#_3_境界表面における熱収支">3. 境界表面における熱収支</a></li>
+<li><a href="#_4_室の熱収支">4. 室の熱収支</a></li>
+<li><a href="#_5_作用温度と室温">5. 作用温度と室温</a></li>
+<li><a href="#_6_作用温度と負荷">6. 作用温度と負荷</a></li>
+<li><a href="#_7_具体的な解法の手順">7. 具体的な解法の手順</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div id="content">
+<div class="sect1">
+<h2 id="_仕様書"><a class="link" href="#_仕様書">仕様書</a></h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_a_外皮の部位の面積等を用いずに外皮性能を評価する方法を用いた場合の外皮の部位の面積や長さの推定"><a class="link" href="#_a_外皮の部位の面積等を用いずに外皮性能を評価する方法を用いた場合の外皮の部位の面積や長さの推定">A. 「外皮の部位の面積等を用いずに外皮性能を評価する方法」を用いた場合の外皮の部位の面積や長さの推定</a></h3>
+<div class="sect3">
+<h4 id="_a_1_規模係数"><a class="link" href="#_a_1_規模係数">A.1 規模係数</a></h4>
+<div class="paragraph">
+<p>　規模係数 \(r_{size}\) は式(1)による。</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[r_{size} = \frac{A_{f,total}}{A_{s,f,total}} \tag{1}\]
+</div>
+</div>
+<div class="paragraph">
+<p>　ここで、<br>
+　\(r_{size}\)：規模係数<br>
+　\(A_{f,total}\)：床面積の合計, m<sup>2</sup><br>
+　\(A_{s,f,total}\)：簡易モデル住戸の床面積の合計, m<sup>2</sup><br>
+である。ここで、簡易モデル住戸の床面積の合計\(A_{s,f,total}\)は、90.0(m<sup>2</sup>)とする。</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_a_2_主開口方位"><a class="link" href="#_a_2_主開口方位">A.2 主開口方位</a></h4>
+<div class="paragraph">
+<p>　主開口方位は南西とする。</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_a_3_一般部位"><a class="link" href="#_a_3_一般部位">A.3 一般部位</a></h4>
+<div class="paragraph">
+<p>　一般部位の部位の種類・隣接空間の種類・方位・熱貫流率は表1による。面積は表1の値に規模係数を乗じた値とする。</p>
+</div>
+<div class="paragraph">
+<p>表1 一般部位の種類・隣接空間の種類・方位・面積</p>
+</div>
+<table class="tableblock frame-all grid-all stripes-even stretch">
+<colgroup>
+<col style="width: 7.317%;">
+<col style="width: 7.317%;">
+<col style="width: 9.756%;">
+<col style="width: 7.317%;">
+<col style="width: 14.6341%;">
+<col style="width: 14.6341%;">
+<col style="width: 14.6341%;">
+<col style="width: 14.6341%;">
+<col style="width: 9.7566%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-center valign-middle" rowspan="2"><p class="tableblock">番号</p></td>
+<td class="tableblock halign-center valign-middle" rowspan="2"><p class="tableblock">部位<br>
+の<br>
+種類</p></td>
+<td class="tableblock halign-center valign-middle" rowspan="2"><p class="tableblock">隣接空間<br>
+の<br>
+種類</p></td>
+<td class="tableblock halign-center valign-middle" rowspan="2"><p class="tableblock">方位<sup>※1</sup></p></td>
+<td class="tableblock halign-center valign-middle" colspan="4"><p class="tableblock">面積(m<sup>2</sup>)</p></td>
+<td class="tableblock halign-center valign-middle" rowspan="2"><p class="tableblock">熱貫流率(W/m<sup>2</sup>K)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">床断熱住戸<br>
+浴室床断熱<sup>※2</sup></p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">床断熱住戸<br>
+浴室基礎断熱<sup>※3</sup></p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">床断熱住戸<br>
+浴室床なし<sup>※4</sup></p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">基礎断熱住戸</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">1</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">屋根<br>
+又は<br>
+天井</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">外気</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">上面</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">50.85</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">50.85</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">50.85</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">50.85</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">\(U_{s,roof}\)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">2</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">壁</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">外気</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">0度</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">30.47</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">30.47</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">30.47</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">30.47</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">\(U_{s,wall}\)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">3</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">壁</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">外気</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">90度</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">22.37</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">22.37</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">22.37</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">22.37</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">\(U_{s,wall}\)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">4</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">壁</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">外気</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">180度</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">47.92</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">47.92</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">47.92</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">47.92</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">\(U_{s,wall}\)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">5</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">壁</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">外気</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">270度</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">22.28</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">22.28</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">22.28</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">22.28</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">\(U_{s,wall}\)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">6</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">床</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">外気に通じる床裏</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">下面</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">45.05</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">45.05</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">48.36</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">0.00</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">\(U_{s,floor,other}\)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">7</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">床</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">外気に通じる床裏</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">下面</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">3.31</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">0.00</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">0.00</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">0.00</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">\(U_{s,floor,bath}\)</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>※1 主開口方位からの時計回りの角度（単位：度）で表す。ただし、「上面」「下面」を除く。<br>
+※2 浴室部分の外皮を床とする場合<br>
+※3 浴室部分の外皮を土間床等の外周部の基礎とする場合<br>
+※4 外皮の部位として浴室の床が存在しない場合</p>
+</div>
+<div class="paragraph">
+<p>　ここで、<br>
+　\(U_{s,roof}\)：簡易モデル住戸における屋根又は天井の熱貫流率, W/m<sup>2</sup>K<br>
+　\(U_{s,wall}\)：簡易モデル住戸における壁の熱貫流率, W/m<sup>2</sup>K<br>
+　\(U_{s,floor,other}\)：簡易モデル住戸におけるその他の床の熱貫流率, W/m<sup>2</sup>K<br>
+　\(U_{s,floor,bath}\)：簡易モデル住戸における浴室の床の熱貫流率, W/m<sup>2</sup>K<br>
+である。</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_a_4_大部分がガラスで構成される窓等の開口部"><a class="link" href="#_a_4_大部分がガラスで構成される窓等の開口部">A.4 大部分がガラスで構成される窓等の開口部</a></h4>
+<div class="sect4">
+<h5 id="_a_4_1_部位の仕様"><a class="link" href="#_a_4_1_部位の仕様">A.4.1 部位の仕様</a></h5>
+<div class="paragraph">
+<p>　大部分がガラスで構成される窓等の開口部の隣接空間の種類・方位・熱貫流率・垂直面日射熱取得率は表2による。面積は表2の値に規模係数を乗じた値とする。</p>
+</div>
+<div class="paragraph">
+<p>表2 大部分がガラスで構成される窓等の開口部の種類・隣接空間の種類・方位・面積</p>
+</div>
+<table class="tableblock frame-all grid-all stripes-even stretch">
+<colgroup>
+<col style="width: 5.7142%;">
+<col style="width: 20%;">
+<col style="width: 11.4285%;">
+<col style="width: 14.2857%;">
+<col style="width: 22.8571%;">
+<col style="width: 25.7145%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">番号</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">隣接空間の種類</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">方位<sup>※1</sup></p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">面積 (m<sup>2</sup>)</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">熱貫流率(W/m<sup>2</sup>K)</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">垂直面日射熱取得率</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">1</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">外気</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">0度</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">22.69</p></td>
+<td class="tableblock halign-center valign-middle" rowspan="4"><p class="tableblock">\(U_{s,window}\)</p></td>
+<td class="tableblock halign-center valign-middle" rowspan="4"><p class="tableblock">\(\eta_{s,d}\)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">2</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">外気</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">90度</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">2.38</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">3</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">外気</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">180度</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">3.63</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">4</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">外気</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">270度</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">4.37</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>※1 主開口方位からの時計回りの角度（単位：度）で表す。ただし、「上面」「下面」を除く。</p>
+</div>
+<div class="paragraph">
+<p>　ここで、<br>
+　\(U_{s,window}\)：簡易モデル住戸における窓の熱貫流率, W/m<sup>2</sup>K<br>
+　\(\eta_{s,d}\)：簡易モデル住戸における垂直面日射熱取得率<br>
+である。また、</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{equation}
+\eta_{s,d} = \frac{ ( \eta_{s,d,h} + \eta_{s,d,c} ) }{2}	\tag{2}
+\end{equation}\]
+</div>
+</div>
+<div class="paragraph">
+<p>である。ここで、<br>
+　\(\eta_{s,d,h}\)：簡易モデル住戸における暖房期の垂直面日射熱取得率<br>
+　\(\eta_{s,d,c}\)：簡易モデル住戸における冷房期の垂直面日射熱取得率<br>
+である。</p>
+</div>
+<div class="paragraph">
+<p>　また、全ての大部分がガラスで構成される窓等の開口部において、日除け下端から窓上端までの垂直方向の距離\(y_1\)は0mとし、窓の開口高さ寸法\(y_2\)は1.1mとする。壁面から日除けの張り出し寸法\(z\)は次項A.4.2に定める値とする。</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_a_4_2_壁面からの日除けの張り出し寸法"><a class="link" href="#_a_4_2_壁面からの日除けの張り出し寸法">A.4.2 壁面からの日除けの張り出し寸法</a></h5>
+<div class="paragraph">
+<p>　壁面から日除けの張り出し寸法\(z\)は式(3)による。<br>
+（この式は、もう少しきちんと考察する必要がある。（特に（3a）））</p>
+</div>
+<div class="paragraph">
+<p>1地域～7地域</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{equation}
+z = \frac{z_h + z_c }{ 2 }	\tag{3a}
+\end{equation}\]
+</div>
+</div>
+<div class="paragraph">
+<p>8地域</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{equation}
+z = z_c \tag{3b}
+\end{equation}\]
+</div>
+</div>
+<div class="paragraph">
+<p>　ここで、<br>
+　\(z\)：壁面から日除けの張り出し寸法, m<br>
+　\(z_h\)：暖房期の壁面から日除けの張り出し寸法, m<br>
+　\(z_c\)：冷房期の壁面から日除けの張り出し寸法, m<br>
+である。</p>
+</div>
+<div class="paragraph">
+<p>　暖房期及び冷房期の壁面から日除けの張り出し寸法\(z_h\)・\(z_c\)は、暖房期及び冷房期の取得日射熱補正係数を指定する場合は次の(1)により、指定しない場合は(2)による。</p>
+</div>
+<div class="sect5">
+<h6 id="_1_取得日射熱補正係数を指定する場合"><a class="link" href="#_1_取得日射熱補正係数を指定する場合">(1) 取得日射熱補正係数を指定する場合</a></h6>
+<div class="paragraph">
+<p>\(\frac{f_{s,h}}{0.01} - a_h \le 0\)の場合</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{equation}
+z_h = 5.0 \tag{4a}
+\end{equation}\]
+</div>
+</div>
+<div class="paragraph">
+<p>\(\frac{f_{s,h}}{0.01} - a_h \gt 0\)の場合</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{equation}
+z_h= \left\{ \begin{array}{ll}
+  b_h ( c_h y_1 + y_2 ) / ( \frac{f_{s,h} }{0.01} - a_h ) &amp; ( f_{s,h} \le 0.72 ) \\
+  b_h ( c_h y_1 + y_2 ) / ( \frac{0.72}{0.01} - a_h ) &amp; ( f_{s,h} \gt 0.72 )
+\end{array} \right.
+\tag{4b}
+\end{equation}\]
+</div>
+</div>
+<div class="paragraph">
+<p>　ただし、\(z_h\)が5.0を超える場合は\(z_h=5.0\)とする。</p>
+</div>
+<div class="paragraph">
+<p>\(\frac{f_{s,c}}{0.01} - a_c \le 0\)の場合</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{equation}
+z_c = 5.0	\tag{4c}
+\end{equation}\]
+</div>
+</div>
+<div class="paragraph">
+<p>\(\frac{f_{s,c}}{0.01} - a_c \gt 0\)の場合</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{equation}
+z_c = \left\{ \begin{array}{ll}
+  b_c ( c_c y_1 + y_2 ) / ( \frac{f_{s,c} }{0.01} - a_c ) &amp; ( f_{s,c} \le 0.93 ) \\
+  b_c ( c_c y_1 + y_2 ) / ( \frac{0.93}{0.01} - a_c ) &amp; ( f_{s,c} \gt 0.93 )
+\end{array} \right.
+\tag{4d}
+\end{equation}\]
+</div>
+</div>
+<div class="paragraph">
+<p>　ここで、<br>
+　\(z_h\)：暖房期の壁面から日除けの張り出し寸法, m<br>
+　\(z_c\)：冷房期の壁面から日除けの張り出し寸法, m<br>
+　\(y_1\)：日除け下端から窓上端までの垂直方向の距離(\(=0.0\)), m<br>
+　\(y_2\)：窓の開口高さ寸法(\(=1.1\)), m<br>
+　\(f_{s,h}\)：簡易モデル住戸における暖房期の取得日射熱補正係数<br>
+　\(f_{s,c}\)：簡易モデル住戸における冷房期の取得日射熱補正係数<br>
+である。</p>
+</div>
+<div class="paragraph">
+<p>　式(4)における係数\(a_h\)・\(b_h\)・\(c_h\)及び\(a_c\)・\(b_c\)・\(c_c\)は、暖房期・冷房期の別・地域の区分・方位に応じて表3(a)及び表3(b)に与えられる。</p>
+</div>
+<div class="paragraph">
+<p>表3(a)  式(4)における係数\(a_h\)・\(b_h\)・\(c_h\)</p>
+</div>
+<table class="tableblock frame-all grid-all stripes-even stretch">
+<colgroup>
+<col style="width: 21.7391%;">
+<col style="width: 39.1304%;">
+<col style="width: 13.0434%;">
+<col style="width: 13.0434%;">
+<col style="width: 13.0437%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">地域の区分</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">方位</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">\(a_h\)</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">\(b_h\)</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">\(c_h\)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-center valign-middle" rowspan="2"><p class="tableblock">1～7地域</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">南東・南・南西</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">5</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">20</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">3</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">南東・南・南西以外</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">10</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">15</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">2</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>表3(b)  式(4)における係数\(a_c\)・\(b_c\)・\(c_c\)</p>
+</div>
+<table class="tableblock frame-all grid-all stripes-even stretch">
+<colgroup>
+<col style="width: 21.7391%;">
+<col style="width: 39.1304%;">
+<col style="width: 13.0434%;">
+<col style="width: 13.0434%;">
+<col style="width: 13.0437%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">地域の区分</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">方位</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">\(a_c\)</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">\(b_c\)</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">\(c_c\)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-center valign-middle" rowspan="2"><p class="tableblock">1～7地域</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">南</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">24</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">9</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">3</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">南以外</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">16</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">24</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">2</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-center valign-middle" rowspan="2"><p class="tableblock">8地域</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">南東・南・南西</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">16</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">19</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">2</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">南東・南・南西以外</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">16</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">24</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">2</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect5">
+<h6 id="_2_取得日射熱補正係数を指定しない場合"><a class="link" href="#_2_取得日射熱補正係数を指定しない場合">(2) 取得日射熱補正係数を指定しない場合</a></h6>
+<div class="stemblock">
+<div class="content">
+\[\begin{equation}
+z_h = \frac{ ( y_1 + y_2 ) }{ l_{h,2} } \tag{5a}
+\end{equation}\]
+</div>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{equation}
+z_c = 0 \tag{5b}
+\end{equation}\]
+</div>
+</div>
+<div class="paragraph">
+<p>　ここで、<br>
+　\(z_h\)：暖房期の壁面から日除けの張り出し寸法, m<br>
+　\(z_c\)：冷房期の壁面から日除けの張り出し寸法, m<br>
+　\(y_1\)：日除け下端から窓上端までの垂直方向の距離(\(=0.0\)), m<br>
+　\(y_2\)：窓の開口高さ寸法(\(=1.1\)), m<br>
+である。また、</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{equation}
+l_{h,2} = \frac{1}{0.3} \tag{6}
+\end{equation}\]
+</div>
+</div>
+<div class="paragraph">
+<p>とする。</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_a_5_大部分がガラスで構成されないドア等の開口部"><a class="link" href="#_a_5_大部分がガラスで構成されないドア等の開口部">A.5 大部分がガラスで構成されないドア等の開口部</a></h4>
+<div class="paragraph">
+<p>　大部分がガラスで構成されないドア等の開口部の隣接空間の種類・方位・熱貫流率は表4による。面積は表4の値に規模係数を乗じた値とする。</p>
+</div>
+<div class="paragraph">
+<p>表4 大部分がガラスで構成されないドア等の開口部</p>
+</div>
+<table class="tableblock frame-all grid-all stripes-even stretch">
+<colgroup>
+<col style="width: 8.6956%;">
+<col style="width: 21.7391%;">
+<col style="width: 17.3913%;">
+<col style="width: 21.7391%;">
+<col style="width: 30.4349%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">番号</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">隣接空間の<br>
+種類</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">方位<sup>※1</sup></p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">面積(m<sup>2</sup>)</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">熱貫流率(W/m<sup>2</sup>K)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">1</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">外気</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">90度</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">1.89</p></td>
+<td class="tableblock halign-center valign-middle" rowspan="2"><p class="tableblock">\(U_{s,door}\)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">2</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">外気</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">180度</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">1.62</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>※1 主開口方位からの時計回りの角度（単位：度）で表す。ただし、「上面」「下面」を除く。</p>
+</div>
+<div class="paragraph">
+<p>　ここで、<br>
+　\(U_{s,door}\)：簡易モデル住戸におけるドアの熱貫流率, W/m<sup>2</sup>K<br>
+である。</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_a_6_土間床等の外周部"><a class="link" href="#_a_6_土間床等の外周部">A.6 土間床等の外周部</a></h4>
+<div class="paragraph">
+<p>　土間床等の外周部の部位の種類・隣接空間の種類・方位・熱貫流率は表5による。面積は表5の値に規模係数を乗じた値とする。</p>
+</div>
+<div class="paragraph">
+<p>表5 一般部位の種類・隣接空間の種類・方位・面積</p>
+</div>
+<table class="tableblock frame-all grid-all stripes-even stretch">
+<colgroup>
+<col style="width: 5.1282%;">
+<col style="width: 20.5128%;">
+<col style="width: 10.2564%;">
+<col style="width: 12.8205%;">
+<col style="width: 12.8205%;">
+<col style="width: 12.8205%;">
+<col style="width: 12.8205%;">
+<col style="width: 12.8206%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-center valign-middle" rowspan="2"><p class="tableblock">番号</p></td>
+<td class="tableblock halign-center valign-middle" rowspan="2"><p class="tableblock">隣接空間の種類</p></td>
+<td class="tableblock halign-center valign-middle" rowspan="2"><p class="tableblock">方位<sup>※1</sup><br>
+（参考）</p></td>
+<td class="tableblock halign-center valign-middle" colspan="4"><p class="tableblock">長さ(m)</p></td>
+<td class="tableblock halign-center valign-middle" rowspan="2"><p class="tableblock">熱貫流率(W/mK)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">床断熱住戸<br>
+浴室床断熱<sup>※2</sup></p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">床断熱住戸<br>
+浴室基礎断熱<sup>※3</sup></p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">床断熱住戸<br>
+浴室床なし<sup>※4</sup></p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">基礎断熱住戸</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">1</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">外気</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">90度</p></td>
+<td class="tableblock halign-center valign-middle" colspan="4"><p class="tableblock">1.82</p></td>
+<td class="tableblock halign-center valign-middle" rowspan="3"><p class="tableblock">\(ψ_{s,prm,etrc}\)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">2</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">外気</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">180度</p></td>
+<td class="tableblock halign-center valign-middle" colspan="4"><p class="tableblock">1.37</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">3</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">外気に通じる床裏</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">－</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">3.19</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">3.19</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">3.19</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">0.0</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">4</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">外気</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">90度</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">0.0</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">1.82</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">0.0</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">1.82</p></td>
+<td class="tableblock halign-center valign-middle" rowspan="3"><p class="tableblock">\(ψ_{s,prm,bath}\)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">5</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">外気</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">180度</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">0.0</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">1.82</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">0.0</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">1.82</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">6</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">外気に通じる床裏</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">－</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">0.0</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">3.64</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">0.0</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">0.0</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">7</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">外気</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">0度</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">0.0</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">0.0</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">0.0</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">10.61</p></td>
+<td class="tableblock halign-center valign-middle" rowspan="3"><p class="tableblock">\(ψ_{s,prm,other}\)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">8</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">外気</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">90度</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">0.0</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">0.0</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">0.0</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">1.15</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">9</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">外気</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">180度</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">0.0</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">0.0</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">0.0</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">7.42</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>※1 主開口方位からの時計回りの角度（単位：度）で表す。ただし、「上面」「下面」を除く。<br>
+※2 浴室部分の外皮を床とする場合<br>
+※3 浴室部分の外皮を土間床等の外周部の基礎とする場合<br>
+※4 外皮の部位として浴室の床が存在しない場合</p>
+</div>
+<div class="paragraph">
+<p>　ここで、<br>
+　\(ψ_{s,prm,etrc}\)：簡易モデル住戸における玄関等の土間床等の外周部の線熱貫流率, W/mK<br>
+　\(ψ_{s,prm,bath}\)：簡易モデル住戸における浴室の土間床等の外周部の線熱貫流率, W/mK<br>
+　\(ψ_{s,prm,other}\)：簡易モデル住戸におけるその他の土間床等の外周部の線熱貫流率, W/mK<br>
+である。</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_a_7_土間床等の中心部"><a class="link" href="#_a_7_土間床等の中心部">A.7 土間床等の中心部</a></h4>
+<div class="paragraph">
+<p>　土間床等の中心部の面積は表6による。面積は表6の値に規模係数を乗じた値とする。</p>
+</div>
+<div class="paragraph">
+<p>表6 土間床等の中心部の面積</p>
+</div>
+<table class="tableblock frame-all grid-all stripes-even stretch">
+<colgroup>
+<col style="width: 9.0909%;">
+<col style="width: 22.7272%;">
+<col style="width: 22.7272%;">
+<col style="width: 22.7272%;">
+<col style="width: 22.7275%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-center valign-middle" rowspan="2"><p class="tableblock">番号</p></td>
+<td class="tableblock halign-center valign-middle" colspan="4"><p class="tableblock">面積(m<sup>2</sup>)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">床断熱住戸<br>
+浴室床断熱<sup>※1</sup></p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">床断熱住戸<br>
+浴室基礎断熱<sup>※2</sup></p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">床断熱住戸<br>
+浴室床なし<sup>※3</sup></p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">基礎断熱住戸</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">1</p></td>
+<td class="tableblock halign-center valign-middle" colspan="4"><p class="tableblock">2.48</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">2</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">0.00</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">3.31</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">0.00</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">3.31</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">3</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">0.00</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">0.00</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">0.00</p></td>
+<td class="tableblock halign-center valign-middle"><p class="tableblock">45.05</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>※1 浴室部分の外皮を床とする場合<br>
+※2 浴室部分の外皮を土間床等の外周部の基礎とする場合<br>
+※3 外皮の部位として浴室の床が存在しない場合
+== B. 室用途が指定されていない場合の外皮の部位の室用途とそれに接する面積の推定</p>
+</div>
+<div class="paragraph">
+<p>　外皮の部位が接する室の用途が指定されていない場合、その外皮の部位1つを、「主たる居室」「その他の居室」「非居室」の3つの部位に分けることとし、面積については式(1)、長さについては式(2)による。なお、外皮の部位の種類・隣接空間の種類・方位、その他の仕様については、3つの部位すべてもとの部位と同じとする。</p>
+</div>
+<div class="paragraph">
+<p>外皮の部位が一般部位・開口部の場合の面積</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{equation}
+A_{evlp,mr,i} = \frac{A_{f,mr}}{A_{f,total}} A_{evlp,i} \tag{1a}
+\end{equation}\]
+</div>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{equation}
+A_{evlp,or,i} = \frac{A_{f,or}}{A_{f,total}} A_{evlp,i} \tag{1b}
+\end{equation}\]
+</div>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{equation}
+A_{evlp,nr,i} = \frac{A_{f,total} - A_{f,mr} - A_{f,or}}{A_{f,total}} A_{evlp,i} \tag{1c}
+\end{equation}\]
+</div>
+</div>
+<div class="paragraph">
+<p>外皮の部位が熱橋の場合の長さ</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{equation}
+l_{evlp,mr,i} = \frac{A_{f,mr}}{A_{f,total}} l_{evlp,i} \tag{2a}
+\end{equation}\]
+</div>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{equation}
+l_{evlp,or,i} = \frac{A_{f,or}}{A_{f,total}} l_{evlp,i} \tag{2b}
+\end{equation}\]
+</div>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{equation}
+l_{evlp,nr,i} = \frac{A_{f,total} - A_{f,mr} - A_{f,or}}{A_{f,total}} l_{evlp,i} \tag{2c}
+\end{equation}\]
+</div>
+</div>
+<div class="paragraph">
+<p>　ここで、<br>
+　\(A_{evlp,mr,i}\)：主たる居室に接する外皮の部位（一般部位・開口部）\(i\)の面積, m<sup>2</sup><br>
+　\(A_{evlp,or,i}\)：その他の居室に接する外皮の部位（一般部位・開口部）\(i\)の面積, m<sup>2</sup><br>
+　\(A_{evlp,nr,i}\)：非居室に接する外皮の部位（一般部位・開口部）\(i\)の面積, m<sup>2</sup><br>
+　\(A_{evlp,i}\)：外皮の部位（一般部位・開口部）\(i\)の面積, m<sup>2</sup><br>
+　\(l_{evlp,mr,i}\)：主たる居室に接する外皮の部位（熱橋）\(i\)の長さ, m<br>
+　\(l_{evlp,or,i}\)：その他の居室に接する外皮の部位（熱橋）\(i\)の長さ, m<br>
+　\(l_{evlp,nr,i}\)：非居室に接する外皮の部位（熱橋）\(i\)の長さ, m<br>
+　\(l_{evlp,i}\)：外皮の部位（熱橋）\(i\)の長さ, m<br>
+　\(A_{f,total}\)：床面積の合計, m<sup>2</sup><br>
+　\(A_{f,mr}\)：主たる居室の床面積, m<sup>2</sup><br>
+　\(A_{f,or}\)：その他の居室の床面積, m<sup>2</sup><br>
+である。</p>
+</div>
+<div class="paragraph">
+<p>　土間床等の外周部及び土間床等の中心部が接する空間は、すべて、「床下空間」とする。
+=== X.3 人体</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_x_3_1_熱伝達率"><a class="link" href="#_x_3_1_熱伝達率">X.3.1 熱伝達率</a></h4>
+<div class="paragraph">
+<p>　人体表面の対流熱伝達率及び人体表面の放射熱伝達率は式(1)による。</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{equation}
+\alpha_{hum,c} = 4.9 \tag{1a}
+\end{equation}\]
+</div>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{equation}
+\alpha_{hum,r} = 4.9 \tag{1b}
+\end{equation}\]
+</div>
+</div>
+<div class="paragraph">
+<p>　ここで、<br>
+　\(\alpha_{hum,c}\)：人体表面の対流熱伝達率, W/m<sup>2</sup>K<br>
+　\(\alpha_{hum,r}\)：人体表面の放射熱伝達率, W/m<sup>2</sup>K<br>
+である。</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_x_3_2_発熱発湿"><a class="link" href="#_x_3_2_発熱発湿">X.3.2 発熱・発湿</a></h4>
+<div class="paragraph">
+<p>　1人あたりの人体発熱は式(2a)による。</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{equation}
+q_{hum} = 63 - 4 (\theta_r - 24) \tag{2a}
+\end{equation}\]
+</div>
+</div>
+<div class="paragraph">
+<p>ただし、\(q_{hum} \gt 119\) の場合、\(q_{hum} = 119\) とする。</p>
+</div>
+<div class="paragraph">
+<p>　1人あたりの人体発湿は式(2b)による。</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{equation}
+X_{hum} = \frac{119 - q_{hum}}{L_{wtr}} \tag{2b}
+\end{equation}\]
+</div>
+</div>
+<div class="paragraph">
+<p>ここで、<br>
+　\(q_{hum}\)：1人あたりの人体発熱, W<br>
+　\(\theta_r\)：室温, ℃<br>
+　\(X_{hum}\)：1人あたりの人体発湿, kg/s<br>
+　\(L_{wtr}\)：水の蒸発潜熱(=2501000), J/kg<br>
+である。
+=== X.5 太陽位置</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_x_5_1_概要"><a class="link" href="#_x_5_1_概要">X.5.1 概要</a></h4>
+<div class="paragraph">
+<p>　太陽高度と太陽方位角を計算する。</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_x_5_2_均時差と赤緯"><a class="link" href="#_x_5_2_均時差と赤緯">X.5.2 均時差と赤緯</a></h4>
+<div class="paragraph">
+<p>　均時差と赤緯は、式(1)から式(7)による。</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{equation}
+n = Y - 1968 \tag{1}
+\end{equation}\]
+</div>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{equation}
+d_0 = 3.71 + 0.2596 n - INT \left[ \frac{n+3}{4} \right] \tag{2}
+\end{equation}\]
+</div>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{equation}
+M = 2 \pi \cdot \frac{(D-d_0)}{D_{ay}} \tag{3}
+\end{equation}\]
+</div>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{equation}
+\epsilon = \frac{2 \pi}{360} \cdot \left( 12.3901 + 0.0172 \cdot \left( n + \frac{M}{2 \pi} \right) \right) \tag{4}
+\end{equation}\]
+</div>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{equation}
+v = M + \frac{2 \pi}{360} \cdot \left( 1.914 \cdot \sin{M} + 0.02 \cdot \sin{(2M)} \right) \tag{5}
+\end{equation}\]
+</div>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{equation}
+E_t = (M - v) - \tan^{-1} \left( \frac{ 0.043 \cdot \sin {2( v + \epsilon )} }{ 1 - 0.043 \cdot \cos {2(v + \epsilon)} } \right) \tag{6}
+\end{equation}\]
+</div>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{equation}
+\sin{\delta} = \cos{(v+\epsilon)} \cdot \sin{\delta_0} \tag{7a}
+\end{equation}\]
+</div>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{equation}
+\cos{\delta} = \sqrt{1 - \sin^2{\delta}} \tag{7b}
+\end{equation}\]
+</div>
+</div>
+<div class="paragraph">
+<p>\(INT\) は小数点以下切り捨てた整数を表す。</p>
+</div>
+<div class="paragraph">
+<p>　ここで、<br>
+　\(n\)：1968年との年差<br>
+　\(Y\)：西暦年(=1989)<br>
+　\(d_0\)：平均軌道上の近日点通過日（暦表時による1968年1月1日正午基準の日差）, d<br>
+　\(M\)：平均近点離角, rad<br>
+　\(D\)：年通算日（1/1を \(D=1\) とする), d<br>
+　\(D_{ay}\)：近点年（近日点基準の公転周期日数）(=365.2596), d<br>
+　\(\epsilon\)：近日点と冬至点の角度, rad<br>
+　\(v\)：真近点離角, rad<br>
+　\(E_t\)：均時差, rad<br>
+　\(\delta\)：赤緯, rad<br>
+　\(\delta_0\)：北半球の冬至の日赤緯(=-23.4393[deg]), deg<br>
+である。</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_x_5_3_時角"><a class="link" href="#_x_5_3_時角">X.5.3 時角</a></h4>
+<div class="stemblock">
+<div class="content">
+\[\begin{equation}
+t = 2 \pi \cdot \frac{T_m - 12}{24} + (L - L_0) + E_t \tag{8}
+\end{equation}\]
+</div>
+</div>
+<div class="paragraph">
+<p>ここで、<br>
+　\(t\)：時角, rad<br>
+　\(T_m\)：標準時, h<br>
+　\(L\)：経度, rad<br>
+　\(L_0\)：標準時の地点の経度（標準子午線）, rad<br>
+　\(E_t\)：均時差, rad<br>
+である。</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_x_5_4_太陽位置"><a class="link" href="#_x_5_4_太陽位置">X.5.4 太陽位置</a></h4>
+<div class="paragraph">
+<p>　太陽高度 \(h_s\) は式(9)、太陽方位角 \(A_s\) は式(10)による。</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{equation}
+\sin{h_s} = \max{ \left( 0, \sin{\phi} \sin{\delta}⁡ + \cos{\phi} \cos{\delta}⁡ \cos{t} \right) ⁡} \tag{9a}
+\end{equation}\]
+</div>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{equation}
+\cos{h_s} = \sqrt{1 - \sin^2{h_s}} \tag{9b}
+\end{equation}\]
+</div>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\sin A_s = \left\{ \begin{array}{ll}
+  \frac{ \cos \delta \sin t }{ \cos h_s } &amp; ( h_s \gt 0 ) \\
+  0 &amp; ( h_s = 0 )
+\end{array} \right.
+\tag{10a}\]
+</div>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\cos A_s = \left\{ \begin{array}{ll}
+  \frac { \sin h_s \sin \phi - \sin \delta }{ \cos h_s \cos \phi } &amp; ( h_s \gt 0 ) \\
+  0 &amp; ( h_s = 0 )
+\end{array} \right.
+\tag{10b}\]
+</div>
+</div>
+<div class="paragraph">
+<p>ここで、<br>
+　\(h_s\)：太陽高度, rad<br>
+　\(A_s\)：太陽方位角, rad<br>
+　\(\phi\)：緯度, rad<br>
+　\(\delta\)：赤緯, rad<br>
+　\(t\)：時角, rad<br>
+である。
+=== X.6 外表面における入射角の方向余弦</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{align}
+\cos⁡ \phi &amp;= \sin⁡{h_s} \cos{W_{\beta}}⁡ + \cos{h_s} \sin{W_{\beta}} \cos{(A_s - W_{\alpha})} \nonumber \\
+&amp;= \sin⁡{h_s} \cos{W_{\beta}}⁡ + \cos{h_s} \sin{W_{\beta}} \cos{A_s} \cos{W_{\alpha}} + \cos{h_s} \sin{W_{\beta}} \sin{A_s} \sin{W_{\alpha}} \tag{1}
+\end{align}\]
+</div>
+</div>
+<div class="paragraph">
+<p>ただし、\(\cos{\phi} \lt 0\) の場合、\(\cos{\phi} = 0\) とする。</p>
+</div>
+<div class="paragraph">
+<p>　ここで、<br>
+　\(\phi\)：外表面における入射角<br>
+　\(h_s\)：太陽高度, rad<br>
+　\(A_s\)：太陽方位角, rad<br>
+　\(W_{\alpha}\)：外表面の方位角, rad<br>
+　\(W_{\beta}\)：外表面の傾斜角, rad<br>
+である。
+=== X.10 窓の入射角特性</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{align}
+\cos⁡ \theta &amp;= \sin⁡{h_s} \cos{W_{\beta}}⁡ + \cos{h_s} \sin{W_{\beta}} \cos{(A_s - W_{\alpha})} \nonumber \\
+&amp;= \sin⁡{h_s} \cos{W_{\beta}}⁡ + \cos{h_s} \sin{W_{\beta}} \cos{A_s} \cos{W_{\alpha}} + \cos{h_s} \sin{W_{\beta}} \sin{A_s} \sin{W_{\alpha}} \tag{1}
+\end{align}\]
+</div>
+</div>
+<div class="paragraph">
+<p>ただし、\(\cos{\theta} \lt 0\) の場合、\(\cos{\theta} = 0\) とする。</p>
+</div>
+<div class="paragraph">
+<p>　ここで、<br>
+　\(\theta\)：外表面における入射角<br>
+　\(h_s\)：太陽高度, rad<br>
+　\(A_s\)：太陽方位角, rad<br>
+　\(W_{\alpha}\)：外表面の方位角, rad<br>
+　\(W_{\beta}\)：外表面の傾斜角, rad<br>
+である。</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_式の導出"><a class="link" href="#_式の導出">式の導出</a></h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_熱計算のバランス式"><a class="link" href="#_熱計算のバランス式">熱計算のバランス式</a></h3>
+<div class="sect3">
+<h4 id="_1_概要"><a class="link" href="#_1_概要">1. 概要</a></h4>
+<div class="paragraph">
+<p>室の温度バランス式を連立させて、次時刻の室の温度を計算する式を導出する。</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_2_記号説明"><a class="link" href="#_2_記号説明">2. 記号説明</a></h4>
+
+</div>
+<div class="sect3">
+<h4 id="_3_境界表面における熱収支"><a class="link" href="#_3_境界表面における熱収支">3. 境界表面における熱収支</a></h4>
+<div class="sect4">
+<h5 id="_1_表面温度"><a class="link" href="#_1_表面温度">1) 表面温度</a></h5>
+<div class="paragraph">
+<p>ステップ \(n+1\) における境界 \(j\) の表面温度 \(\theta_{s,j,n+1}\) は次式により表される。</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\theta_{s,j,n+1}
+= \phi_{A0,j} \cdot q_{j,n+1}
++ \sum_{m=1}^{M}{\theta'_{S,A,j,m,n+1}}
++ \phi_{T0,j} \cdot \theta_{rear,j,n+1}
++ \sum_{m=1}^{M}{\theta'_{S,T,j,m,n+1}}
+\tag{3.1}\]
+</div>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\theta'_{S,A,j,m,n+1}
+= q_{j,n} \cdot \phi_{A1,j,m}
++ r_{j,m} \cdot \theta'_{S,A,j,m,n}
+\tag{3.2}\]
+</div>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\theta'_{S,T,j,m,n+1}
+= \theta_{rear,j,n} \cdot \phi_{T1,j,m}
++ r_{j,m} \cdot \theta'_{S,T,j,m,n}
+\tag{3.3}\]
+</div>
+</div>
+<div class="paragraph">
+<p>ここで、</p>
+</div>
+<div class="paragraph">
+<p>\(\theta_{s,j,n}\)： ステップ \(n\) における境界 \(j\) の表面温度, ℃</p>
+</div>
+<div class="paragraph">
+<p>\(\phi_{A0,j}\)： 境界 \(j\) の吸熱応答係数の初項, m<sup>2</sup>K/W</p>
+</div>
+<div class="paragraph">
+<p>\(\phi_{T0,j}\)： 境界 \(j\) の貫流応答係数の初項, -</p>
+</div>
+<div class="paragraph">
+<p>\(q_{j,n}\): ステップ \(n\) における境界 \(j\) の表面熱流（壁体吸熱を正とする）, W/m<sup>2</sup></p>
+</div>
+<div class="paragraph">
+<p>\(\theta_{rear,j,n}\): ステップ \(n\) における境界 \(j\) の裏面温度, ℃</p>
+</div>
+<div class="paragraph">
+<p>\(\theta'_{S,A,j,m,n}\): ステップ \(n\) における境界 \(j\) の項別公比法の指数項 \(m\) の吸熱応答の項別成分, ℃</p>
+</div>
+<div class="paragraph">
+<p>\(\theta'_{S,T,j,m,n}\): ステップ \(n\) における境界 \(j\) の項別公比法の指数項 \(m\) の貫流応答の項別成分, ℃</p>
+</div>
+<div class="paragraph">
+<p>\(\phi_{A1,j,m}\): 境界 \(j\) の項別公比法の指数項 \(m\) の吸熱応答係数, m<sup>2</sup>K/W</p>
+</div>
+<div class="paragraph">
+<p>\(\phi_{T1,j,m}\): 境界 \(j\) の項別公比法の指数項 \(m\) の貫流応答係数, -</p>
+</div>
+<div class="paragraph">
+<p>\(r_{j,m}\): 境界 \(j\) の項別公比法の指数項 \(m\) の公比, -</p>
+</div>
+<div class="paragraph">
+<p>である。 \(M\) は項別公比法の指数項の数である。</p>
+</div>
+<div class="paragraph">
+<p>これらの式を境界 \(0\) ～ \(J-1\) でベクトル表記をすると、次式となる。</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\boldsymbol{\theta}_{s,n+1}
+= \boldsymbol{\phi}_{A0} \cdot \boldsymbol{q}_{n+1}
++ \sum_{m=1}^{M}{\boldsymbol{\theta'}_{S,A,m,n+1}}
++ \boldsymbol{\phi}_{T0} \cdot \boldsymbol{\theta}_{rear,n+1}
++ \sum_{m=1}^{M}{\boldsymbol{\theta'}_{S,T,m,n+1}}
+\tag{3.4}\]
+</div>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\boldsymbol{\theta'}_{S,A,m,n+1}
+= \boldsymbol{\phi}_{A1,m} \cdot \boldsymbol{q_{n}}
++ \boldsymbol{r_{m}} \cdot \boldsymbol{\theta'}_{S,A,m,n}
+\tag{3.5}\]
+</div>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\boldsymbol{\theta'}_{S,T,m,n+1}
+= \boldsymbol{\phi}_{T1,m} \cdot \boldsymbol{\theta_{rear,n}}
++ \boldsymbol{r}_{m} \cdot \boldsymbol{\theta'}_{S,T,m,n}
+\tag{3.6}\]
+</div>
+</div>
+<div class="paragraph">
+<p>ここで、</p>
+</div>
+<div class="paragraph">
+<p>\(\boldsymbol{\theta_{s,n}}\)： ステップ \(n\) における境界の表面温度, ℃</p>
+</div>
+<div class="paragraph">
+<p>\(\begin{pmatrix}
+\theta_{s,0,n} \\
+\vdots \\
+\theta_{s,J-1,n}
+\end{pmatrix}\)
+で表されるベクトル。</p>
+</div>
+<div class="paragraph">
+<p>\(\boldsymbol{\phi_{A0}}\)： 境界の吸熱応答係数の初項, m<sup>2</sup>K/W</p>
+</div>
+<div class="paragraph">
+<p>\(\begin{pmatrix}
+  \phi_{A0,0} &amp; \ldots &amp; 0 \\
+  \vdots &amp; \ddots &amp; \vdots\\
+  0 &amp; \ldots &amp; \phi_{A0,J-1}
+  \end{pmatrix}\)
+で表されるベクトル。</p>
+</div>
+<div class="paragraph">
+<p>\(\boldsymbol{\phi_{T0}}\)： 境界の貫流応答係数の初項, -</p>
+</div>
+<div class="paragraph">
+<p>\(\begin{pmatrix}
+  \phi_{T0,0} &amp; \ldots &amp; 0 \\
+  \vdots &amp; \ddots &amp; \vdots\\
+  0 &amp; \ldots &amp; \phi_{T0,J-1}
+  \end{pmatrix}\)
+で表されるベクトル。</p>
+</div>
+<div class="paragraph">
+<p>\(\boldsymbol{q_{n}}\): ステップ \(n\) における境界の表面熱流（壁体吸熱を正とする）, W/m<sup>2</sup></p>
+</div>
+<div class="paragraph">
+<p>\(\begin{pmatrix}
+  q_{0,n}\\
+  \vdots\\
+  q_{J-1,n}
+\end{pmatrix}\)
+で表されるベクトル。</p>
+</div>
+<div class="paragraph">
+<p>\(\boldsymbol{\theta_{rear,n}}\): ステップ \(n\) における境界の裏面温度, ℃</p>
+</div>
+<div class="paragraph">
+<p>\(\begin{pmatrix}
+  \theta_{rear,0,n} \\
+  \vdots \\
+  \theta_{rear,J-1,n}
+\end{pmatrix}\)
+で表されるベクトル。</p>
+</div>
+<div class="paragraph">
+<p>\(\boldsymbol{\theta'_{S,A,m,n}}\): ステップ \(n\) における境界の項別公比法の指数項 \(m\) の吸熱応答の項別成分, ℃</p>
+</div>
+<div class="paragraph">
+<p>\(\begin{pmatrix}
+  \theta'_{S,A,0,m,n} \\
+  \vdots \\
+  \theta'_{S,A,J-1,m,n}
+\end{pmatrix}\)
+で表されるベクトル。</p>
+</div>
+<div class="paragraph">
+<p>\(\boldsymbol{\theta'_{S,T,m,n}}\): ステップ \(n\) における境界の項別公比法の指数項 \(m\) の貫流応答の項別成分, ℃</p>
+</div>
+<div class="paragraph">
+<p>\(\begin{pmatrix}
+  \theta'_{S,T,0,m,n} \\
+  \vdots \\
+  \theta'_{S,T,J-1,m,n}
+\end{pmatrix}\)
+で表されるベクトル。</p>
+</div>
+<div class="paragraph">
+<p>\(\boldsymbol{\phi_{A1,m}}\): 境界の項別公比法の指数項 \(m\) の吸熱応答係数, m<sup>2</sup>K/W</p>
+</div>
+<div class="paragraph">
+<p>\(\begin{pmatrix}
+  \phi_{A1,0,m} &amp; \ldots &amp; 0\\
+  \vdots &amp; \ddots &amp; \vdots\\
+  0 &amp; \ldots &amp; \phi_{A1,J-1,m}
+\end{pmatrix}\)
+で表されるベクトル。</p>
+</div>
+<div class="paragraph">
+<p>\(\boldsymbol{\phi_{T1,j,m}}\): 境界の項別公比法の指数項 \(m\) の貫流応答係数, -</p>
+</div>
+<div class="paragraph">
+<p>\(\begin{pmatrix}
+  \phi_{T1,0,m} &amp; \ldots &amp; 0\\
+  \vdots &amp; \ddots &amp; \vdots\\
+  0 &amp; \ldots &amp; \phi_{T1,J-1,m}
+\end{pmatrix}\)
+で表されるベクトル。</p>
+</div>
+<div class="paragraph">
+<p>\(\boldsymbol{r_{m}}\): 境界の項別公比法の指数項 \(m\) の公比, -</p>
+</div>
+<div class="paragraph">
+<p>\(\begin{pmatrix}
+  r_{0,m} &amp; \ldots &amp; 0\\
+  \vdots &amp; \ddots &amp; \vdots\\
+  0 &amp; \ldots &amp; r_{J-1,m}
+\end{pmatrix}\)
+で表されるベクトル。</p>
+</div>
+<div class="paragraph">
+<p>である。</p>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+例えば境界の吸熱応答係数の初項 \(\boldsymbol{\phi}_{A0}\) は、
+\(\begin{pmatrix}
+  \phi_{A0,0} \\
+  \vdots \\
+  \phi_{A0,J-1}
+\end{pmatrix}\)
+で表すべきであるが、後のベクトル計算の記述性・操作性を考え、予め対角化した行列、
+\(\begin{pmatrix}
+\phi_{A0,0} &amp; \ldots &amp; 0 \\
+\vdots &amp; \ddots &amp; \vdots\\
+0 &amp; \ldots &amp; \phi_{A0,J-1}
+\end{pmatrix}\)
+として与える。なお、室温や日射量等の状態量を表す変数は、対角化せずに、[J×1]の行列で表す。
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_2_表面熱流"><a class="link" href="#_2_表面熱流">2) 表面熱流</a></h5>
+<div class="paragraph">
+<p>ステップ \(n\) 及びステップ \(n+1\) における境界 \(j\) の表面熱流 \(q_{j,n}\) 及び \(q_{j,n+1}\) は次式により表される。</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[q_{j,n}
+= h_{i,j} \cdot ( \theta_{EI,j,n} - \theta_{S,j,n} )
+\tag{3.7}\]
+</div>
+</div>
+<div class="paragraph">
+<p>ここで、</p>
+</div>
+<div class="paragraph">
+<p>\(h_{i,j}\)： 境界 \(j\) の室内側総合熱伝達率, W/m<sup>2</sup>K</p>
+</div>
+<div class="paragraph">
+<p>\(\theta_{EI,j,n}\)： ステップ \(n\) における境界 \(j\) の等価温度, ℃</p>
+</div>
+<div class="paragraph">
+<p>である。</p>
+</div>
+<div class="paragraph">
+<p>これらの式を境界 \(0\) ～ \(J-1\) でベクトル表記をすると、次式となる。</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\boldsymbol{q}_{n}
+= \boldsymbol{h}_{i} \cdot ( \boldsymbol{\theta}_{EI,n} - \boldsymbol{\theta}_{S,n} )
+\tag{3.8}\]
+</div>
+</div>
+<div class="paragraph">
+<p>ここで、</p>
+</div>
+<div class="paragraph">
+<p>\(\boldsymbol{h}_{i}\)： 境界の室内側総合熱伝達率, W/m<sup>2</sup>K</p>
+</div>
+<div class="paragraph">
+<p>\(\begin{pmatrix}
+  h_{i,0} &amp; \cdots &amp; 0 \\
+  \vdots &amp; \ddots &amp; \vdots \\
+  0 &amp; \cdots &amp; h_{i,J-1}
+\end{pmatrix}\)
+で表されるベクトル。</p>
+</div>
+<div class="paragraph">
+<p>\(\boldsymbol{\theta}_{EI,n}\)： ステップ \(n\) における境界の等価温度, ℃</p>
+</div>
+<div class="paragraph">
+<p>\(\begin{pmatrix}
+  \theta_{EI,0,m} \\
+  \vdots \\
+  \theta_{EI,J-1,m}
+\end{pmatrix}\)
+で表されるベクトル。</p>
+</div>
+<div class="paragraph">
+<p>である。</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_3_等価温度"><a class="link" href="#_3_等価温度">3) 等価温度</a></h5>
+<div class="paragraph">
+<p>境界の表面における熱流を対流・放射・日射熱取得・放射暖房からの熱取得に分けて記述すると次式となる。</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[q_{j,n}
+= h_{c,j} \cdot (\theta_{r,j,n} - \theta_{S,j,n})
++ h_{r,j} \cdot (MRT_{j,n} - \theta_{S,j,n})
++ RS_{j,n}
++ \frac{ flr_{j,i} \cdot Lr_{i,n} \cdot (1 - \beta_i) }{A_j}
+\tag{3.9}\]
+</div>
+</div>
+<div class="paragraph">
+<p>ここで、</p>
+</div>
+<div class="paragraph">
+<p>\(h_{c,j}\)： 境界 \(j\) の室内側対流熱伝達率, W/m<sup>2</sup>K</p>
+</div>
+<div class="paragraph">
+<p>\(h_{r,j}\)： 境界 \(j\) の室内側放射熱伝達率, W/m<sup>2</sup>K</p>
+</div>
+<div class="paragraph">
+<p>\(\theta_{r,j,n}\)： ステップ \(n\) における境界 \(j\) が接する室の空気温度, ℃</p>
+</div>
+<div class="paragraph">
+<p>\(MRT_{j,n}\)： ステップ \(n\) における境界 \(j\) の平均放射温度, ℃</p>
+</div>
+<div class="paragraph">
+<p>\(RS_{j,n}\)： ステップ \(n\) における境界 \(j\) の透過日射吸収熱量, W/m<sup>2</sup></p>
+</div>
+<div class="paragraph">
+<p>\(flr_{j,i}\): 室 \(i\) に設置された放射暖房の放熱量のうち放射成分に対する境界 \(j\) の室内側表面の吸収比率, -</p>
+</div>
+<div class="paragraph">
+<p>\(Lr_{i,n}\): ステップ \(n\) における室 \(i\) に設置された放射暖房の放熱量, W</p>
+</div>
+<div class="paragraph">
+<p>\(\beta_{i}\): 室 \(i\) に設置された放射暖房の対流成分比率, -</p>
+</div>
+<div class="paragraph">
+<p>\(A_{j}\): 境界 \(j\) の面積, m<sup>2</sup></p>
+</div>
+<div class="paragraph">
+<p>である。この境界表面における熱流は次式のように表されるため、</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[q_{j,n} = h_{i,j} \cdot ( \theta_{EI,j,n} - \theta_{S,j,n} ) \tag{再掲 3.7}\]
+</div>
+</div>
+<div class="paragraph">
+<p>ステップ \(n\) における境界 \(j\) の等価温度 \(\theta_{EI,j,n}\) は次式のように表される。</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\theta_{EI,j,n}
+= \frac{h_{c,j}}{h_{i,j}} \cdot \theta_{r,j,n}
++ \frac{h_{r,j}}{h_{i,j}} \cdot MRT_{j,n}
++ \frac{RS_{j,n}}{h_{i,j}}
++ \frac{flr_{j,i} \cdot Lr_{i,n} \cdot (1 - \beta_i) }{A_j \cdot h_{i,j}}
+\tag{3.10}\]
+</div>
+</div>
+<div class="paragraph">
+<p>となる。</p>
+</div>
+<div class="paragraph">
+<p>これらの式を境界 \(0\) ～ \(J-1\) でベクトル表記をすると、次式となる。</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\boldsymbol{\theta}_{EI,n}
+= \boldsymbol{h}_{i}^{-1} \cdot
+( \boldsymbol{h}_{c} \cdot \boldsymbol{p} \cdot \boldsymbol{\theta_{r,n}}
++ \boldsymbol{h}_{r} \cdot \boldsymbol{MRT}_{n}
++ \boldsymbol{RS}_{n}
++ \boldsymbol{A}^{-1} \cdot (1 - \boldsymbol{\beta}) \cdot \boldsymbol{flr} \cdot \boldsymbol{Lr}_{n}
+)
+\tag{3.11}\]
+</div>
+</div>
+<div class="paragraph">
+<p>ここで、</p>
+</div>
+<div class="paragraph">
+<p>\(\boldsymbol{h}_{c}\)： 境界の室内側対流熱伝達率, W/m<sup>2</sup>K</p>
+</div>
+<div class="paragraph">
+<p>\(\begin{pmatrix}
+  h_{c,0} &amp; \cdots &amp; 0\\
+  \vdots &amp; \ddots &amp; \vdots \\
+  0 &amp; \cdots &amp; h_{c,J-1}
+\end{pmatrix}\)
+で表されるベクトル。</p>
+</div>
+<div class="paragraph">
+<p>\(\boldsymbol{h}_{r}\)： 境界の室内側放射熱伝達率, W/m<sup>2</sup>K</p>
+</div>
+<div class="paragraph">
+<p>\(\begin{pmatrix}
+  h_{r,0} &amp; \cdots &amp; 0\\
+  \vdots &amp; \ddots &amp; \vdots \\
+  0 &amp; \cdots &amp; h_{r,J-1}
+\end{pmatrix}\)
+で表されるベクトル。</p>
+</div>
+<div class="paragraph">
+<p>\(\boldsymbol{p}\): 境界と室の関係を表す係数（境界の室内側が室に接していれば1とし、それ以外は0とする。）</p>
+</div>
+<div class="paragraph">
+<p>\(\begin{pmatrix}
+  p_{0,0} &amp; \ldots &amp; p_{0,I-1} \\
+  \vdots &amp; \ddots &amp; \vdots \\
+  p_{J-1,0} &amp; \ldots &amp; p_{J-1,I-1}
+\end{pmatrix}\)
+で表されるベクトル。</p>
+</div>
+<div class="paragraph">
+<p>\(\boldsymbol{\theta}_{r,n}\)： ステップ \(n\) における室の空気温度, ℃</p>
+</div>
+<div class="paragraph">
+<p>\(\begin{pmatrix}
+  \theta_{r,0} \\
+  \vdots \\
+  \theta_{r,I-1}
+\end{pmatrix}\)
+で表されるベクトル。</p>
+</div>
+<div class="paragraph">
+<p>\(\boldsymbol{MRT}_{n}\)： ステップ \(n\) における境界の平均放射温度, ℃</p>
+</div>
+<div class="paragraph">
+<p>\(\begin{pmatrix}
+  MRT_{0} \\
+  \vdots \\
+  MRT_{J-1}
+\end{pmatrix}\)
+で表されるベクトル。</p>
+</div>
+<div class="paragraph">
+<p>\(\boldsymbol{RS}_{n}\)： ステップ \(n\) における境界の透過日射吸収熱量, W/m<sup>2</sup></p>
+</div>
+<div class="paragraph">
+<p>\(\begin{pmatrix}
+  RS_{0} \\
+  \vdots \\
+  RS_{J-1}
+\end{pmatrix}\)
+で表されるベクトル。</p>
+</div>
+<div class="paragraph">
+<p>\(\boldsymbol{flr}\): 室に設置された放射暖房の放熱量のうち放射成分に対する境界の室内側表面の吸収比率, -</p>
+</div>
+<div class="paragraph">
+<p>\(\begin{pmatrix}
+  flr_{0,0} &amp; \ldots &amp; flr_{0,I-1} \\
+  \vdots &amp; \ddots &amp; \vdots \\
+  flr_{J-1,0} &amp; \ldots &amp; flr_{J-1,I-1}
+\end{pmatrix}\)
+で表されるベクトル。</p>
+</div>
+<div class="paragraph">
+<p>\(\boldsymbol{Lr}_{n}\): ステップ \(n\) における室に設置された放射暖房の放熱量, W</p>
+</div>
+<div class="paragraph">
+<p>\(\begin{pmatrix}
+  Lr_{0} \\
+  \vdots \\
+  Lr_{I-1}
+\end{pmatrix}\)
+で表されるベクトル。</p>
+</div>
+<div class="paragraph">
+<p>\(\boldsymbol{\beta}\): 室に設置された放射暖房の対流成分比率, -</p>
+</div>
+<div class="paragraph">
+<p>\(\begin{pmatrix}
+  \beta_{0} &amp; \ldots &amp; 0 \\
+  \vdots &amp; \ddots &amp; \vdots \\
+  0 &amp; \ldots &amp; \beta_{I-1}
+\end{pmatrix}\)
+で表されるベクトル。</p>
+</div>
+<div class="paragraph">
+<p>\(\boldsymbol{A}\): 境界の面積, m<sup>2</sup></p>
+</div>
+<div class="paragraph">
+<p>\(\begin{pmatrix}
+  A_{0} &amp; \ldots &amp; 0 \\
+  \vdots &amp; \ddots &amp; \vdots \\
+  0 &amp; \ldots &amp; A_{I-1}
+\end{pmatrix}\)
+で表されるベクトル。</p>
+</div>
+<div class="paragraph">
+<p>である。</p>
+</div>
+<div class="paragraph">
+<p>ここで、ステップ \(n\) における境界 \(j\) が接する室の空気温度は、</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[　\begin{pmatrix}
+  \theta_{r,0,n} \\
+  \vdots \\
+  \theta_{r,J-1,n}
+\end{pmatrix} =
+\begin{pmatrix}
+  p_{0,0} &amp; \ldots &amp; p_{0,I-1} \\
+  \vdots &amp; \ddots &amp; \vdots \\
+  p_{J-1,0} &amp; \ldots &amp; p_{J-1,I-1}
+\end{pmatrix} \cdot
+\begin{pmatrix}
+  \theta_{r,0} \\
+  \vdots \\
+  \theta_{r,I-1}
+\end{pmatrix} =
+\boldsymbol{p} \cdot \boldsymbol{\theta_r}\]
+</div>
+</div>
+<div class="paragraph">
+<p>の関係を用いて、[I×1]の要素を[J×1]の要素に変換している。</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_4_裏面温度"><a class="link" href="#_4_裏面温度">4) 裏面温度</a></h5>
+<div class="paragraph">
+<p>裏面温度とは、境界の種類によって、</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>外気温度の場合</p>
+</li>
+<li>
+<p>外気温度と室内温度を按分する場合（温度差係数が1ではない場合）</p>
+</li>
+<li>
+<p>隣室の温度の場合</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>が考えられるため、一般化して次式のように定義する。</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\theta_{rear,j,n} =
+\begin{pmatrix}
+  k'_{EI,j,0} &amp; \ldots &amp; k'_{EI,j,J-1}
+\end{pmatrix} \cdot
+\begin{pmatrix}
+  \theta_{EI,0,n} \\
+  \vdots \\
+  \theta_{EI,J-1,n}
+\end{pmatrix} +
+k_{EO,j} \cdot \theta_{EO,n}
+\tag{3.12}\]
+</div>
+</div>
+<div class="paragraph">
+<p>ここで、</p>
+</div>
+<div class="paragraph">
+<p>\(k'_{EI,j,j^*}\)： 境界 \(j\) の裏面温度に境界　\(j^*\) の等価温度が与える影響</p>
+</div>
+<div class="paragraph">
+<p>\(k_{EO,j}\): 境界 \(j\) の裏面温度に屋外側等価温度が与える影響</p>
+</div>
+<div class="paragraph">
+<p>\(\theta_{EO,n}\): ステップ \(n\) における屋外側等価温度, ℃</p>
+</div>
+<div class="paragraph">
+<p>である。</p>
+</div>
+<div class="paragraph">
+<p>例えば、外気温度の場合は、 \(k'_{EI,j,0}\) ～ \(k'_{EI,j,J-1}\) は0.0, \(k_{EO,j}\) は1.0である。</p>
+</div>
+<div class="paragraph">
+<p>外気温度と室内温度を按分する場合の例として例えば床下の場合は温度差係数0.7が採用されるが、その場合の床下に面する境界の裏面（床下側）温度に等価温度として与える境界を \(j^*\) とすると、 \(k'_{EI,j,j^*}\) は 0.3、\(k'_{EO,j}\) は0.7である。</p>
+</div>
+<div class="paragraph">
+<p>間仕切り等、裏面が室の場合は、\(k'_{EI,j,0}\) ～ \(k'_{EI,j,J-1}\) のどれかが1.0, \(k_{EO,j}\) は0.0である。</p>
+</div>
+<div class="paragraph">
+<p>これらの式を境界 \(0\) ～ \(J-1\) でベクトル表記をすると、次式となる。</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\boldsymbol{\theta}_{rear,n}
+= \boldsymbol{k'}_{EI} \cdot \boldsymbol{\theta}_{EI,n}
++ \boldsymbol{k}_{EO} \cdot \theta_{EO,n}
+\tag{3.13}\]
+</div>
+</div>
+<div class="paragraph">
+<p>ここで、</p>
+</div>
+<div class="paragraph">
+<p>\(\boldsymbol{k'}_{EI,j,j^*}\)： 境界 \(j\) の裏面温度に境界　\(j^*\) の等価温度が与える影響</p>
+</div>
+<div class="paragraph">
+<p>\(\begin{pmatrix}
+  k'_{EI,0,0} &amp; \ldots &amp; k'_{EI,0,j^*} &amp; \ldots &amp; k'_{EI,0,J-1} \\
+  \vdots &amp; \ddots &amp; \vdots &amp; &amp; \vdots \\
+  k'_{EI,j,0} &amp; \ldots &amp; k'_{EI,j,j^*} &amp; \ldots &amp; k'_{EI,j,J-1} \\
+  \vdots &amp; &amp; \vdots &amp; \ddots &amp; \vdots \\
+  k'_{EI,J-1,0} &amp; \ldots &amp; k'_{EI,J-1,j^*} &amp; \ldots &amp; k'_{EI,J-1,J-1} \\
+\end{pmatrix}\)
+で表されるベクトル。</p>
+</div>
+<div class="paragraph">
+<p>\(\boldsymbol{k}_{EO}\): 境界の裏面温度に屋外側等価温度が与える影響</p>
+</div>
+<div class="paragraph">
+<p>\(\begin{pmatrix}
+  k_{EO,0} \\
+  \vdots \\
+  k_{EO,J-1}
+\end{pmatrix}\)
+で表されるベクトル。</p>
+</div>
+<div class="paragraph">
+<p>である。</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_4_平均放射温度と放射熱伝達率"><a class="link" href="#_4_平均放射温度と放射熱伝達率">4) 平均放射温度と放射熱伝達率</a></h5>
+<div class="paragraph">
+<p>ステップ \(n\) における境界 \(j\) の等価温度 \(\theta_{EI,j,n}\) を求めるにあたり、放射のやりとりは、</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[h_{r,j} \cdot MRT_{j,n}\]
+</div>
+</div>
+<div class="paragraph">
+<p>で表されるが、ここで、 \(MRT_{j,n}\) を室 \(i\) の微小球の温度で代表させると、平均放射温度 \(MRT\) は室 \(i\) ごとに定められ、</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[MRT_{i,n}
+= \sum_{j=0}^{J-1}{F_{mrt,i,j}} \cdot \theta_{S,j,n}
+\tag{3.14}\]
+</div>
+</div>
+<div class="paragraph">
+<p>となる。ここで、</p>
+</div>
+<div class="paragraph">
+<p>\(F_{mrt,i,j}\): 境界 \(j\) の室 \(i\) の微小球に対する形態係数</p>
+</div>
+<div class="paragraph">
+<p>である。放射熱伝達率についても微小球に対するものとして再定義される。この放射のやりとりをベクトル表記すると、</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\boldsymbol{h}_r \cdot \boldsymbol{p} \cdot \boldsymbol{F}_{mrt} \cdot \boldsymbol{\theta}_{S,n}\]
+</div>
+</div>
+<div class="paragraph">
+<p>となる。ここで、</p>
+</div>
+<div class="paragraph">
+<p>\(\boldsymbol{F}_{mrt}\): 境界の室の微小球に対する形態係数</p>
+</div>
+<div class="paragraph">
+<p>\(\begin{pmatrix}
+  F_{mrt,0,0} &amp; \ldots &amp; F_{mrt,0,J-1} \\
+  \vdots &amp; \ddots &amp; \vdots &amp; \\
+  F_{mrt,I-1,0} &amp; \ldots &amp; F_{mrt,I-1,J-1}
+\end{pmatrix}\)
+で表されるベクトル。</p>
+</div>
+<div class="paragraph">
+<p>である。この関係を式(1.11)に代入すると、</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\boldsymbol{\theta}_{EI,n} = \boldsymbol{h}_{i}^{-1} \cdot
+( \boldsymbol{h}_{c} \cdot \boldsymbol{p} \cdot \boldsymbol{\theta_{r,n}}
++ \boldsymbol{h}_{r} \cdot \boldsymbol{p} \cdot \boldsymbol{F}_{mrt} \cdot \boldsymbol{\theta}_{S,n}
++ \boldsymbol{RS}_{n}
++ \boldsymbol{A}^{-1} \cdot (1 - \boldsymbol{\beta}) \cdot \boldsymbol{flr} \cdot \boldsymbol{Lr}_{n}
+) \tag{3.15}\]
+</div>
+</div>
+<div class="paragraph">
+<p>となる。</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_5_表面温度の関係式の整理"><a class="link" href="#_5_表面温度の関係式の整理">5) 表面温度の関係式の整理</a></h5>
+<div class="paragraph">
+<p>これまで整理した式、</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\boldsymbol{\theta}_{s,n+1}
+= \boldsymbol{\phi}_{A0} \cdot \boldsymbol{q}_{n+1}
++ \sum_{m=1}^{M}{\boldsymbol{\theta'}_{S,A,m,n+1}}
++ \boldsymbol{\phi}_{T0} \cdot \boldsymbol{\theta}_{rear,n+1}
++ \sum_{m=1}^{M}{\boldsymbol{\theta'}_{S,T,m,n+1}}
+\tag{再掲3.4}\]
+</div>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\boldsymbol{q}_{n}
+= \boldsymbol{h}_{i} \cdot ( \boldsymbol{\theta}_{EI,n} - \boldsymbol{\theta}_{S,n} )
+\tag{再掲3.8}\]
+</div>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\boldsymbol{\theta}_{rear,n}
+= \boldsymbol{k'}_{EI} \cdot \boldsymbol{\theta}_{EI,n}
++ \boldsymbol{k}_{EO} \cdot \theta_{EO,n}
+\tag{再掲3.13}\]
+</div>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\boldsymbol{\theta}_{EI,n} = \boldsymbol{h}_{i}^{-1} \cdot
+( \boldsymbol{h}_{c} \cdot \boldsymbol{p} \cdot \boldsymbol{\theta_{r,n}}
++ \boldsymbol{h}_{r} \cdot \boldsymbol{p} \cdot \boldsymbol{F}_{mrt} \cdot \boldsymbol{\theta}_{S,n}
++ \boldsymbol{RS}_{n}
++ \boldsymbol{A}^{-1} \cdot (1 - \boldsymbol{\beta}) \cdot \boldsymbol{flr} \cdot \boldsymbol{Lr}_{n}
+) \tag{再掲3.15}\]
+</div>
+</div>
+<div class="paragraph">
+<p>について、順次代入すると、</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{split}
+\boldsymbol{\theta}_{s,n+1} &amp;= \boldsymbol{\phi}_{A0} \cdot \boldsymbol{q}_{n+1} + \sum_{m=1}^{M}{\boldsymbol{\theta'}_{S,A,m,n+1}} + \boldsymbol{\phi}_{T0} \cdot \boldsymbol{\theta}_{rear,n+1} + \sum_{m=1}^{M}{\boldsymbol{\theta'}_{S,T,m,n+1}} \\
+&amp;= \boldsymbol{\phi}_{A0} \cdot \boldsymbol{h}_{i} \cdot ( \boldsymbol{\theta}_{EI,n+1} - \boldsymbol{\theta}_{S,n+1} ) \\
+&amp;+ \boldsymbol{\phi}_{T0} \cdot (\boldsymbol{k'}_{EI} \cdot \boldsymbol{\theta}_{EI,n+1} + \boldsymbol{k}_{EO} \cdot \theta_{EO,n+1}) \\
+&amp;+ \sum_{m=1}^{M}{\boldsymbol{\theta'}_{S,A,m,n+1}} + \sum_{m=1}^{M}{\boldsymbol{\theta'}_{S,T,m,n+1}} \\
+
+&amp;= \boldsymbol{\phi}_{A0} \cdot \boldsymbol{h}_{i} \\
+&amp;\cdot \boldsymbol{h}_{i}^{-1} \cdot (\boldsymbol{h}_{c} \cdot \boldsymbol{p} \cdot \boldsymbol{\theta_{r,n+1}} + \boldsymbol{h}_{r} \cdot \boldsymbol{p} \cdot \boldsymbol{F}_{mrt} \cdot \boldsymbol{\theta}_{S,n+1} + \boldsymbol{RS}_{n+1} + \boldsymbol{A}^{-1} \cdot (1 - \boldsymbol{\beta}) \cdot \boldsymbol{flr} \cdot \boldsymbol{Lr}_{n+1}) \\
+&amp;- \boldsymbol{\phi}_{A0} \cdot \boldsymbol{h}_{i} \cdot \boldsymbol{\theta}_{S,n+1} \\
+&amp;+ \boldsymbol{\phi}_{T0} \cdot \boldsymbol{k'}_{EI} \\
+&amp;\cdot \boldsymbol{h}_{i}^{-1} \cdot (\boldsymbol{h}_{c} \cdot \boldsymbol{p} \cdot \boldsymbol{\theta_{r,n+1}} + \boldsymbol{h}_{r} \cdot \boldsymbol{p} \cdot \boldsymbol{F}_{mrt} \cdot \boldsymbol{\theta}_{S,n+1} + \boldsymbol{RS}_{n+1} + \boldsymbol{A}^{-1} \cdot (1 - \boldsymbol{\beta}) \cdot \boldsymbol{flr} \cdot \boldsymbol{Lr}_{n+1}) \\
+&amp;+ \boldsymbol{\phi}_{T0} \cdot \boldsymbol{k}_{EO} \cdot \theta_{EO,n+1} \\
+&amp;+ \sum_{m=1}^{M}{\boldsymbol{\theta'}_{S,A,m,n+1}} + \sum_{m=1}^{M}{\boldsymbol{\theta'}_{S,T,m,n+1}} \\
+
+&amp;= \boldsymbol{\phi}_{A0} \cdot \boldsymbol{h}_{c} \cdot \boldsymbol{p} \cdot \boldsymbol{\theta}_{r,n+1} \\
+&amp;+ \boldsymbol{\phi}_{A0} \cdot \boldsymbol{h}_{r} \cdot \boldsymbol{p} \cdot \boldsymbol{F}_{mrt} \cdot \boldsymbol{\theta}_{S,n+1} \\
+&amp;+ \boldsymbol{\phi}_{A0} \cdot \boldsymbol{RS}_{n+1} \\
+&amp;+ \boldsymbol{\phi}_{A0} \cdot \boldsymbol{A}^{-1} \cdot (1 - \boldsymbol{\beta}) \cdot \boldsymbol{flr} \cdot \boldsymbol{Lr}_{n+1} \\
+&amp;- \boldsymbol{\phi}_{A0} \cdot \boldsymbol{h}_{i} \cdot \boldsymbol{\theta}_{S,n+1} \\
+&amp;+ \boldsymbol{\phi}_{T0} \cdot \boldsymbol{k'}_{EI} \cdot \boldsymbol{h}_{i}^{-1} \cdot \boldsymbol{h}_{c} \cdot \boldsymbol{p} \cdot \boldsymbol{\theta_{r,n+1}} \\
+&amp;+ \boldsymbol{\phi}_{T0} \cdot \boldsymbol{k'}_{EI} \cdot \boldsymbol{h}_{i}^{-1} \cdot \boldsymbol{h}_{r} \cdot \boldsymbol{p} \cdot \boldsymbol{F}_{mrt} \cdot \boldsymbol{\theta}_{S,n+1} \\
+&amp;+ \boldsymbol{\phi}_{T0} \cdot \boldsymbol{k'}_{EI} \cdot \boldsymbol{h}_{i}^{-1} \cdot \boldsymbol{RS}_{n+1} \\
+&amp;+ \boldsymbol{\phi}_{T0} \cdot \boldsymbol{k'}_{EI} \cdot \boldsymbol{A}^{-1} \cdot \boldsymbol{h}_{i}^{-1} \cdot (1 - \boldsymbol{\beta}) \cdot \boldsymbol{flr} \cdot \boldsymbol{Lr}_{n+1} \\
+&amp;+ \boldsymbol{\phi}_{T0} \cdot \boldsymbol{k}_{EO} \cdot \theta_{EO,n+1} \\
+&amp;+ \sum_{m=1}^{M}{\boldsymbol{\theta'}_{S,A,m,n+1}} + \sum_{m=1}^{M}{\boldsymbol{\theta'}_{S,T,m,n+1}} \\
+\end{split}
+\tag{3.16}\]
+</div>
+</div>
+<div class="paragraph">
+<p>となる。 \(\boldsymbol{\theta}_{S,n+1}\)に関係する項を左辺に移動させると、</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{split}
+&amp;\boldsymbol{\theta}_{s,n+1}
+- \boldsymbol{\phi}_{A0} \cdot \boldsymbol{h}_{r} \cdot \boldsymbol{p} \cdot \boldsymbol{F}_{mrt} \cdot \boldsymbol{\theta}_{S,n+1}
++ \boldsymbol{\phi}_{A0} \cdot \boldsymbol{h}_{i} \cdot \boldsymbol{\theta}_{S,n+1}
+- \boldsymbol{\phi}_{T0} \cdot \boldsymbol{k'}_{EI} \cdot \boldsymbol{h}_{i}^{-1} \cdot \boldsymbol{h}_{r} \cdot \boldsymbol{p} \cdot \boldsymbol{F}_{mrt} \cdot \boldsymbol{\theta}_{S,n+1}\\
+&amp;= (\boldsymbol{I} - \boldsymbol{\phi}_{A0} \cdot \boldsymbol{h}_{r} \cdot \boldsymbol{p} \cdot \boldsymbol{F}_{mrt} + \boldsymbol{\phi}_{A0} \cdot \boldsymbol{h}_{i} - \boldsymbol{\phi}_{T0} \cdot \boldsymbol{h}_{i}^{-1} \cdot \boldsymbol{h}_{r} \cdot \boldsymbol{k'}_{EI} \cdot \boldsymbol{p} \cdot \boldsymbol{F}_{mrt} ) \cdot \boldsymbol{\theta}_{S,n+1} \\
+&amp;= \boldsymbol{\phi}_{A0} \cdot \boldsymbol{h}_{c} \cdot \boldsymbol{p} \cdot \boldsymbol{\theta}_{r,n+1}
++ \boldsymbol{\phi}_{T0} \cdot \boldsymbol{k'}_{EI} \cdot \boldsymbol{h}_{i}^{-1} \cdot \boldsymbol{h}_{c} \cdot \boldsymbol{p} \cdot \boldsymbol{\theta_{r,n+1}} \\
+&amp;+ \boldsymbol{\phi}_{A0} \cdot \boldsymbol{RS}_{n+1}
++ \boldsymbol{\phi}_{T0} \cdot \boldsymbol{k'}_{EI} \cdot \boldsymbol{h}_{i}^{-1} \cdot \boldsymbol{RS}_{n+1}
++ \boldsymbol{\phi}_{T0} \cdot \boldsymbol{k}_{EO} \cdot \theta_{EO,n+1} \\
+&amp;+ \boldsymbol{\phi}_{A0} \cdot \boldsymbol{A}^{-1} \cdot (1 - \boldsymbol{\beta}) \cdot \boldsymbol{flr} \cdot \boldsymbol{Lr}_{n+1}
++ \boldsymbol{\phi}_{T0} \cdot \boldsymbol{k'}_{EI} \cdot \boldsymbol{A}^{-1} \cdot \boldsymbol{h}_{i}^{-1} \cdot (1 - \boldsymbol{\beta}) \cdot \boldsymbol{flr} \cdot \boldsymbol{Lr}_{n+1} \\
+&amp;+ \sum_{m=1}^{M}{\boldsymbol{\theta'}_{S,A,m,n+1}} + \sum_{m=1}^{M}{\boldsymbol{\theta'}_{S,T,m,n+1}} \\
+\end{split}
+\tag{3.17}\]
+</div>
+</div>
+<div class="paragraph">
+<p>となる。</p>
+</div>
+<div class="paragraph">
+<p>ここで、</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\boldsymbol{AX}
+= \boldsymbol{I}
++ \boldsymbol{\phi}_{A0} \cdot \boldsymbol{h}_{i}
+- \boldsymbol{\phi}_{A0} \cdot \boldsymbol{h}_{r} \cdot \boldsymbol{p} \cdot \boldsymbol{F}_{mrt}
+- \boldsymbol{\phi}_{T0} \cdot \boldsymbol{h}_{i}^{-1} \cdot \boldsymbol{h}_{r} \cdot \boldsymbol{k'}_{EI} \cdot \boldsymbol{p} \cdot \boldsymbol{F}_{mrt}
+\tag{3.18}\]
+</div>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\boldsymbol{FIA}
+= (
+\boldsymbol{\phi}_{A0} \cdot \boldsymbol{h}_{c}
++ \boldsymbol{\phi}_{T0} \cdot \boldsymbol{k'}_{EI} \cdot \boldsymbol{h}_{i}^{-1} \cdot \boldsymbol{h}_{c}
+)
+\cdot \boldsymbol{p}
+\tag{3.19}\]
+</div>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\boldsymbol{CRX}_{n+1}
+= \boldsymbol{\phi}_{A0} \cdot \boldsymbol{RS}_{n+1}
++ \boldsymbol{\phi}_{T0} \cdot \boldsymbol{k'}_{EI} \cdot \boldsymbol{h}_{i}^{-1} \cdot \boldsymbol{RS}_{n+1}
++ \boldsymbol{\phi}_{T0} \cdot \boldsymbol{k}_{EO} \cdot \theta_{EO,n+1}
+\tag{3.20}\]
+</div>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\boldsymbol{FLB}
+= (
+\boldsymbol{\phi}_{A0} \cdot \boldsymbol{A}^{-1}
++ \boldsymbol{\phi}_{T0} \cdot \boldsymbol{k'}_{EI} \cdot \boldsymbol{A}^{-1} \cdot \boldsymbol{h}_{i}^{-1}
+)
+\cdot (1 - \boldsymbol{\beta})
+\cdot \boldsymbol{flr}
+\tag{3.21}\]
+</div>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\boldsymbol{CVL}_{n+1}
+= \sum_{m=1}^{M}{\boldsymbol{\theta'}_{S,A,m,n+1}} + \sum_{m=1}^{M}{\boldsymbol{\theta'}_{S,T,m,n+1}}
+\tag{3.22}\]
+</div>
+</div>
+<div class="paragraph">
+<p>とおくと、式(3.17)は次式のように表すことができる。</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\boldsymbol{AX} \cdot \boldsymbol{\theta}_{S,n+1}
+= \boldsymbol{FIA} \cdot \boldsymbol{\theta}_{r,n+1}
++ \boldsymbol{CRX}_{n+1}
++ \boldsymbol{FLB} \cdot \boldsymbol{LR}_{n+1}
++ \boldsymbol{CVL}_{n+1}
+\tag{3.23}\]
+</div>
+</div>
+<div class="paragraph">
+<p>この式の各項に左から \(\boldsymbol{AX}\) の逆行列をかけて、次のように式変形する。</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{split}
+\boldsymbol{\theta}_{S,n+1}
+&amp;= \boldsymbol{AX}^{-1} \cdot \boldsymbol{FIA} \cdot \boldsymbol{\theta}_{r,n+1}
++ \boldsymbol{AX}^{-1} \cdot \boldsymbol{CRX}_{n+1}
++ \boldsymbol{AX}^{-1} \cdot \boldsymbol{FLB} \cdot \boldsymbol{LR}_{n+1}
++ \boldsymbol{AX}^{-1} \cdot \boldsymbol{CVL}_{n+1} \\
+&amp;= \boldsymbol{WSR} \cdot \boldsymbol{\theta}_{r,n+1}
++ \boldsymbol{WSC}_{n+1}
++ \boldsymbol{WSB} \cdot \boldsymbol{LR}_{n+1}
++ \boldsymbol{WSV}_{n+1}
+\end{split}
+\tag{3.24}\]
+</div>
+</div>
+<div class="paragraph">
+<p>ここで、</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\boldsymbol{WSR}
+= \boldsymbol{AX}^{-1} \cdot \boldsymbol{FIA}
+\tag{3.25}\]
+</div>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\boldsymbol{WSC}_{n+1}
+= \boldsymbol{AX}^{-1} \cdot \boldsymbol{CRX}_{n+1}
+\tag{3.26}\]
+</div>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\boldsymbol{WSB}
+= \boldsymbol{AX}^{-1} \cdot \boldsymbol{FLB}
+\tag{3.27}\]
+</div>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\boldsymbol{WSV}_{n+1}
+= \boldsymbol{AX}^{-1} \cdot \boldsymbol{CVL}_{n+1}
+\tag{3.28}\]
+</div>
+</div>
+<div class="paragraph">
+<p>とした。</p>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_4_室の熱収支"><a class="link" href="#_4_室の熱収支">4. 室の熱収支</a></h4>
+<div class="sect4">
+<h5 id="_1_室の熱収支"><a class="link" href="#_1_室の熱収支">1) 室の熱収支</a></h5>
+<div class="paragraph">
+<p>室の熱収支は次のように表される。</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{split}
+\boldsymbol{C}_{rm} \cdot \frac{d \boldsymbol{\theta}_{r,n}}{d t}
+&amp; = \boldsymbol{p}^{T} \cdot \boldsymbol{h}_c \cdot \boldsymbol{A} \cdot (\boldsymbol{\theta}_{S,n} - \boldsymbol{p} \cdot \boldsymbol{\theta}_{r,n}) \\
+&amp; + c_a \cdot \rho_a \cdot \boldsymbol{V}_n \cdot (\boldsymbol{\theta}_{o,n} - \boldsymbol{\theta}_{r,n})
++ c_a \cdot \rho_a \cdot \boldsymbol{V}_{nxt,n} \cdot \boldsymbol{\theta}_{r,n} \\
+&amp; + \boldsymbol{H}_n
++ (\boldsymbol{LC}_n + \boldsymbol{\beta} \cdot \boldsymbol{Lr}_n)
++ \boldsymbol{G}_{frt} \cdot (\boldsymbol{\theta}_{frt,n} - \boldsymbol{\theta}_{r,n})
+\end{split}
+\tag{4.1}\]
+</div>
+</div>
+<div class="paragraph">
+<p>ここで、</p>
+</div>
+<div class="paragraph">
+<p>\(\boldsymbol{C}_{rm}\): 室の空気と室に設置される家具の合計熱容量, J/K</p>
+</div>
+<div class="paragraph">
+<p>\(\begin{pmatrix}
+  C_{rm,0} &amp; \ldots &amp; 0 \\
+  \vdots &amp; \ddots &amp; \vdots &amp; \\
+  0 &amp; \ldots &amp; C_{rm,I-1}
+\end{pmatrix}\)
+で表されるベクトル。</p>
+</div>
+<div class="paragraph">
+<p>\(t\): 時刻, s</p>
+</div>
+<div class="paragraph">
+<p>\(c_a\): 空気の比熱, J/kg K</p>
+</div>
+<div class="paragraph">
+<p>\(\rho_a\): 空気の密度, kg/m<sup>3</sup></p>
+</div>
+<div class="paragraph">
+<p>\(\boldsymbol{V_n}\): ステップ \(n\) における換気・すきま風・自然風の利用による外気の流入量, m<sup>3</sup>/s</p>
+</div>
+<div class="paragraph">
+<p>\(\begin{pmatrix}
+  V_{0,n} &amp; \ldots &amp; 0 \\
+  \vdots &amp; \ddots &amp; \vdots &amp; \\
+  0 &amp; \ldots &amp; V_{I-1,n}
+\end{pmatrix}\)
+で表されるベクトル。</p>
+</div>
+<div class="paragraph">
+<p>\(\boldsymbol{V_{nxt,n}}\): ステップ \(n\) における室間の空気移動量, m<sup>3</sup>/s</p>
+</div>
+<div class="paragraph">
+<p>\(\begin{pmatrix}
+  V_{nxt,0,0,n}   &amp; \ldots &amp; V_{nxt,0,i^*,n}   &amp; \ldots &amp; V_{nxt,0,I-1,n} \\
+  \vdots          &amp; \ddots &amp; \vdots            &amp;        &amp; \vdots \\
+  V_{nxt,i,0,n}   &amp; \ldots &amp; V_{nxt,i,i^*,n}   &amp; \ldots &amp; V_{nxt,i,I-1,n} \\
+  \vdots          &amp;        &amp; \vdots            &amp; \ddots &amp; \vdots \\
+  V_{nxt,I-1,n}   &amp; \ldots &amp; V_{nxt,I-1,i^*,n} &amp; \ldots &amp; V_{nxt,I-1,I-1,n}
+\end{pmatrix}\)
+で表されるベクトル。</p>
+</div>
+<div class="paragraph">
+<p>ここで、\(i\) は流入先の室番号を表し、 \(i^*\) は流出元の室番号を表す。</p>
+</div>
+<div class="paragraph">
+<p>\(\boldsymbol{H}_n\): ステップ \(n\) における室内発熱, W</p>
+</div>
+<div class="paragraph">
+<p>\(\begin{pmatrix}
+  H_{0,n} \\
+  \vdots  \\
+  H_{I-1,n}
+\end{pmatrix}\)
+で表されるベクトル。</p>
+</div>
+<div class="paragraph">
+<p>\(\boldsymbol{Lc}_n\): ステップ \(n\) における室に設置された対流暖房の放熱量, W</p>
+</div>
+<div class="paragraph">
+<p>\(\begin{pmatrix}
+  Lc_{0,n} \\
+  \vdots  \\
+  Lc_{I-1,n}
+\end{pmatrix}\)
+で表されるベクトル。</p>
+</div>
+<div class="paragraph">
+<p>\(\boldsymbol{G}_{frt}\): 室における家具と空気間の熱コンダクタンス, W/K</p>
+</div>
+<div class="paragraph">
+<p>\(\begin{pmatrix}
+  G_{frt,0} &amp; \ldots &amp; 0 \\
+  \vdots &amp; \ddots &amp; \vdots &amp; \\
+  0 &amp; \ldots &amp; G_{frt,I-1}
+\end{pmatrix}\)
+で表されるベクトル。</p>
+</div>
+<div class="paragraph">
+<p>\(\boldsymbol{\theta}_{fun,n}\): ステップ \(n\) における室に設置された家具の温度, ℃</p>
+</div>
+<div class="paragraph">
+<p>\(\begin{pmatrix}
+  \theta_{fun,0,n} \\
+  \vdots  \\
+  \theta_{fun,I-1,n}
+\end{pmatrix}\)
+で表されるベクトル。</p>
+</div>
+<div class="paragraph">
+<p>両辺をステップ \(n\) から \(n+1\) まで積分すると左辺は、</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\left. \frac{d \boldsymbol{\theta}_r}{dt} \right|_n
+= \frac{\boldsymbol{\theta}_{r,n} - \boldsymbol{\theta}_{r,n-1}}{\Delta t}\]
+</div>
+</div>
+<div class="paragraph">
+<p>のようになり、右辺は　\(n\) から \(n+1\) までの平均値（本来であれば積算値であるが、全体を \(\Delta n\) で除しているので平均値）となるが、
+平均値が計算できない温度の項についてはステップ \(n+1\) の瞬時値で代表させる（後退差分）こととする。
+換気量・放熱量については \(n\) から \(n+1\) までの平均値として定義し、瞬時値と区別するために以後の式展開では記号の上側にバーを付すこととする。</p>
+</div>
+<div class="paragraph">
+<p>室の熱収支は次式となる。</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{split}
+&amp;\boldsymbol{C}_{rm} \frac{\boldsymbol{\theta}_{r,n+1} - \boldsymbol{\theta}_{r,n}}{\Delta t} \\
+&amp; = \boldsymbol{p}^{T} \cdot \boldsymbol{h}_c \cdot \boldsymbol{A} \cdot (\boldsymbol{\theta}_{S,n+1} - \boldsymbol{p} \cdot \boldsymbol{\theta}_{r,n+1}) \\
+&amp; + c_a \cdot \rho_a \cdot \overline{\boldsymbol{V}_n} \cdot (\boldsymbol{\theta}_{o,n+1} - \boldsymbol{\theta}_{r,n+1})
++ c_a \cdot \rho_a \cdot \overline{\boldsymbol{V}_{nxt,n}} \cdot \boldsymbol{\theta}_{r,n+1} \\
+&amp; + \overline{\boldsymbol{H}_n}
++ ( \overline{\boldsymbol{LC}_n} + \boldsymbol{\beta} \cdot \overline{\boldsymbol{Lr}_n} )
++ \boldsymbol{G}_{frt} \cdot (\boldsymbol{\theta}_{frt,n+1} - \boldsymbol{\theta}_{r,n+1})
+\end{split}
+\tag{4.2}\]
+</div>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_2_室の家具と空間との熱収支"><a class="link" href="#_2_室の家具と空間との熱収支">2) 室の家具と空間との熱収支</a></h5>
+<div class="paragraph">
+<p>家具の熱収支は次式で表される。</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\boldsymbol{C}_{frt} \cdot \frac{d \boldsymbol{\theta}_{frt,n}}{d t}
+= \boldsymbol{G}_{frt} \cdot (\boldsymbol{\theta}_{r,n} - \boldsymbol{\theta}_{frt,n})
++ Q_{sol,frt,n}
+\tag{4.3}\]
+</div>
+</div>
+<div class="paragraph">
+<p>ここで、</p>
+</div>
+<div class="paragraph">
+<p>\(\boldsymbol{C}_{frt}\): 室に設置された家具の熱容量, J/K</p>
+</div>
+<div class="paragraph">
+<p>\(\begin{pmatrix}
+  C_{frt,0} &amp; \ldots &amp; 0 \\
+  \vdots &amp; \ddots &amp; \vdots &amp; \\
+  0 &amp; \ldots &amp; C_{frt,I-1}
+\end{pmatrix}\)
+で表されるベクトル。</p>
+</div>
+<div class="paragraph">
+<p>\(\boldsymbol{Q}_{sol,frt,n}\): ステップ \(n\) における室に設置された家具による透過日射吸収熱量, W</p>
+</div>
+<div class="paragraph">
+<p>\(\begin{pmatrix}
+  Q_{sol,frt,0} \\
+  \vdots \\
+  Q_{sol,frt,I-1}
+\end{pmatrix}\)
+で表されるベクトル。</p>
+</div>
+<div class="paragraph">
+<p>である。</p>
+</div>
+<div class="paragraph">
+<p>この式を差分で表すと次式となる。</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\boldsymbol{C}_{frt} \cdot \frac{\boldsymbol{\theta}_{frt,n+1} - \boldsymbol{\theta}_{frt,n}}{\Delta t}
+= \boldsymbol{G}_{frt} \cdot (\boldsymbol{\theta}_{r,n+1} - \boldsymbol{\theta}_{frt,n+1})
++ \overline{Q_{sol,frt,n+1}}
+\tag{4.4}\]
+</div>
+</div>
+<div class="paragraph">
+<p>この式を \(\boldsymbol{\theta}_{frt,n+1}\) について解くと、</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\boldsymbol{\theta}_{frt,n+1}
+= (\boldsymbol{C}_{frt} + \Delta t \cdot \boldsymbol{G}_{frt})^{-1}
+\cdot
+(
+\boldsymbol{C}_{frt} \cdot \boldsymbol{\theta}_{frt,n}
++ \Delta t \cdot \boldsymbol{G}_{frt} \cdot \boldsymbol{\theta}_{r,n+1}
++ \Delta t \cdot \overline{Q_{sol,frt,n+1}}
+)
+\tag{4.5}\]
+</div>
+</div>
+<div class="paragraph">
+<p>となる。</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_3_関係式の整理"><a class="link" href="#_3_関係式の整理">3) 関係式の整理</a></h5>
+<div class="paragraph">
+<p>式(4.5)と表面温度に関する関係式(3.24)を、式(4.2)に代入すると、</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{split}
+&amp;\boldsymbol{C}_{rm} \frac{\boldsymbol{\theta}_{r,n+1} - \boldsymbol{\theta}_{r,n}}{\Delta t} \\
+&amp;= \boldsymbol{p}^{T} \cdot \boldsymbol{h}_c \cdot \boldsymbol{A} \cdot
+(
+\boldsymbol{WSR} \cdot \boldsymbol{\theta}_{r,n+1}
++ \boldsymbol{WSC}_{n+1}
++ \boldsymbol{WSB} \cdot \boldsymbol{Lr}_{n+1}
++ \boldsymbol{WSV}_{n+1}
+- \boldsymbol{p} \cdot \boldsymbol{\theta}_{r,n+1}
+) \\
+&amp;+ c_a \cdot \rho_a \cdot \overline{\boldsymbol{V}_n} \cdot (\boldsymbol{\theta}_{o,n+1} - \boldsymbol{\theta}_{r,n+1}) \\
+&amp;+ c_a \cdot \rho_a \cdot \overline{\boldsymbol{V}_{nxt,n}} \cdot \boldsymbol{\theta}_{r,n+1} \\
+&amp;+ \overline{\boldsymbol{H}_n}
++ ( \overline{\boldsymbol{LC}_n} + \boldsymbol{\beta} \cdot \overline{\boldsymbol{Lr}_n} ) \\
+&amp;+ \boldsymbol{G}_{frt} \cdot (
+(\boldsymbol{C}_{frt} + \Delta t \cdot \boldsymbol{G}_{frt})^{-1}
+\cdot
+(
+\boldsymbol{C}_{frt} \cdot \boldsymbol{\theta}_{frt,n}
++ \Delta t \cdot \boldsymbol{G}_{frt} \cdot \boldsymbol{\theta}_{r,n+1}
++ \Delta t \cdot \overline{Q_{sol,frt,n+1}}
+) - \boldsymbol{\theta}_{r,n+1})
+\end{split}
+\tag{4.6}\]
+</div>
+</div>
+<div class="paragraph">
+<p>となる。ここで、　\(\boldsymbol{Lr}_{n+1}\) を \(\overline{\boldsymbol{Lr}_{n}}\) で代表させ、
+\(\boldsymbol{\theta}_{n+1}\) を左辺に移動させると、右辺は、\(\overline{\boldsymbol{Lr}_n}\) 及び \(\overline{\boldsymbol{Lc}_n}\) でまとめると、</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{split}
+&amp; \boldsymbol{C}_{rm} \cdot \frac{1}{\Delta t} \cdot \boldsymbol{\theta}_{r,n+1}
++ \boldsymbol{p}^{T} \cdot \boldsymbol{h}_c \cdot \boldsymbol{A} \cdot
+(\boldsymbol{p} - \boldsymbol{WSR}) \cdot \boldsymbol{\theta}_{r,n+1} \\
+&amp; + c_a \cdot \rho_a \cdot \overline{\boldsymbol{V}_n} \cdot \boldsymbol{\theta}_{r,n+1} \\
+&amp; - c_a \cdot \rho_a \cdot \overline{\boldsymbol{V}_{nxt,n}} \cdot \boldsymbol{\theta}_{r,n+1} \\
+&amp;+ \boldsymbol{G}_{frt} \cdot (
+(\boldsymbol{C}_{frt} + \Delta t \cdot \boldsymbol{G}_{frt})^{-1}
+\cdot \boldsymbol{C}_{frt} \cdot \boldsymbol{\theta}_{r,n+1} \\
+&amp; = \boldsymbol{C}_{rm} \cdot \frac{1}{\Delta t} \cdot \boldsymbol{\theta}_{r,n} \\
+&amp; + \boldsymbol{p}^{T} \cdot \boldsymbol{h}_c \cdot \boldsymbol{A} \cdot
+(\boldsymbol{WSC}_{n+1} + \boldsymbol{WSV}_{n+1}) \\
+&amp; + c_a \cdot \rho_a \cdot \overline{\boldsymbol{V}_n} \cdot \boldsymbol{\theta}_{o,n+1} \\
+&amp; + \overline{\boldsymbol{H}_n} \\
+&amp; + \boldsymbol{G}_{frt} \cdot
+(\boldsymbol{C}_{frt} + \Delta t \cdot \boldsymbol{G}_{frt})^{-1}
+\cdot
+(
+\boldsymbol{C}_{frt} \cdot \boldsymbol{\theta}_{frt,n}
++ \Delta t \cdot \overline{Q_{sol,frt,n+1}}
+) \\
+&amp; + \overline{\boldsymbol{LC}_n} \\
+&amp; + \boldsymbol{p}^{T} \cdot \boldsymbol{h}_c \cdot \boldsymbol{A} \cdot
+\boldsymbol{WSB} \cdot \overline{\boldsymbol{Lr}_n}
++ \boldsymbol{\beta} \cdot \overline{\boldsymbol{Lr}_n}
+\end{split}
+\tag{4.7}\]
+</div>
+</div>
+<div class="paragraph">
+<p>となる。</p>
+</div>
+<div class="paragraph">
+<p>ここで、</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{split}
+\boldsymbol{BRM}_n
+&amp; = \boldsymbol{C}_{rm} \cdot \frac{1}{\Delta t}
++ \boldsymbol{p}^{T} \cdot \boldsymbol{h}_c \cdot \boldsymbol{A} \cdot
+(\boldsymbol{p} - \boldsymbol{WSR}) \\
+&amp; + c_a \cdot \rho_a \cdot \overline{\boldsymbol{V}_n}
+- c_a \cdot \rho_a \cdot \overline{\boldsymbol{V}_{nxt,n}}
++ \boldsymbol{G}_{frt} \cdot (\boldsymbol{C}_{frt} + \Delta t \cdot \boldsymbol{G}_{frt})^{-1} \cdot \boldsymbol{C}_{frt}
+\end{split}
+\tag{4.8}\]
+</div>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{split}
+\boldsymbol{BRC}_n
+&amp; = \boldsymbol{C}_{rm} \cdot \frac{1}{\Delta t} \cdot \boldsymbol{\theta}_{r,n}
++ \boldsymbol{p}^{T} \cdot \boldsymbol{h}_c \cdot \boldsymbol{A} \cdot
+(\boldsymbol{WSC}_{n+1} + \boldsymbol{WSV}_{n+1}) \\
+&amp; + c_a \cdot \rho_a \cdot \overline{\boldsymbol{V}_n} \cdot \boldsymbol{\theta}_{o,n+1}
++ \overline{\boldsymbol{H}_n} \\
+&amp; + \boldsymbol{G}_{frt} \cdot
+(\boldsymbol{C}_{frt} + \Delta t \cdot \boldsymbol{G}_{frt})^{-1}
+\cdot
+(
+\boldsymbol{C}_{frt} \cdot \boldsymbol{\theta}_{frt,n}
++ \Delta t \cdot \overline{Q_{sol,frt,n+1}}
+)
+\end{split}
+\tag{4.9}\]
+</div>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\boldsymbol{BRL}
+= \boldsymbol{p}^{T} \cdot \boldsymbol{h}_c \cdot \boldsymbol{A} \cdot \boldsymbol{WSB}
++ \boldsymbol{\beta}
+\tag{4.10}\]
+</div>
+</div>
+<div class="paragraph">
+<p>とすると、式(4.7)は、</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\boldsymbol{BRM}_n \cdot \boldsymbol{\theta}_{r,n+1}
+= \boldsymbol{BRC}_n
++ \overline{\boldsymbol{LC}_n}
++ \boldsymbol{BRL} \cdot \overline{\boldsymbol{Lr}_n}
+\tag{4.11}\]
+</div>
+</div>
+<div class="paragraph">
+<p>のように表される。</p>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_5_作用温度と室温"><a class="link" href="#_5_作用温度と室温">5. 作用温度と室温</a></h4>
+<div class="sect4">
+<h5 id="_1_作用温度"><a class="link" href="#_1_作用温度">1) 作用温度</a></h5>
+<div class="paragraph">
+<p>作用温度は次式で表される。</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\boldsymbol{\theta}_{OT,n+1}
+= \boldsymbol{kc}_{n+1} \cdot \boldsymbol{\theta}_{r,n+1}
++ \boldsymbol{kr}_{n+1} \cdot \boldsymbol{\theta}_{MRT,hum,n+1}
+\tag{5.1}\]
+</div>
+</div>
+<div class="paragraph">
+<p>ここで、</p>
+</div>
+<div class="paragraph">
+<p>\(\boldsymbol{\theta}_{OT,n+1}\): ステップ \(n+1\) における作用温度, ℃</p>
+</div>
+<div class="paragraph">
+<p>\(\begin{pmatrix}
+  \theta_{OT,0,n+1} \\
+  \vdots &amp; \\
+  \theta_{OT,I-1,n+1}
+\end{pmatrix}\)
+で表されるベクトル。</p>
+</div>
+<div class="paragraph">
+<p>\(\boldsymbol{\theta}_{MRT,hum,n+1}\): ステップ \(n+1\) における室に居る人体に対する平均放射温度, ℃</p>
+</div>
+<div class="paragraph">
+<p>\(\begin{pmatrix}
+  \theta_{MRT,hum,0,n+1} \\
+  \vdots &amp; \\
+  \theta_{MRT,hum,I-1,n+1}
+\end{pmatrix}\)
+で表されるベクトル。</p>
+</div>
+<div class="paragraph">
+<p>\(\boldsymbol{kc}_{n+1}\): ステップ \(n+1\) における人体表面の対流熱伝達率が総合熱伝達率に占める割合</p>
+</div>
+<div class="paragraph">
+<p>\(\begin{pmatrix}
+  kc_{0,n+1} &amp; \cdots &amp; 0 \\
+  \vdots &amp; \ddots &amp; \vdots \\
+  0 &amp; \cdots &amp; kc_{I-1,n+1}
+\end{pmatrix}\)
+で表されるベクトル。</p>
+</div>
+<div class="paragraph">
+<p>\(\boldsymbol{kr}_{n+1}\): ステップ \(n+1\) における人体表面の放射熱伝達率が総合熱伝達率に占める割合</p>
+</div>
+<div class="paragraph">
+<p>\(\begin{pmatrix}
+  kr_{0,n+1} &amp; \cdots &amp; 0 \\
+  \vdots &amp; \ddots &amp; \vdots \\
+  0 &amp; \cdots &amp; kr_{I-1,n+1}
+\end{pmatrix}\)
+で表されるベクトル。</p>
+</div>
+<div class="paragraph">
+<p>である。</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_2_平均放射温度"><a class="link" href="#_2_平均放射温度">2) 平均放射温度</a></h5>
+<div class="paragraph">
+<p>ステップ \(n+1\) における室に居る人体に対する平均放射温度は次式で表される。</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\boldsymbol{\theta}_{MRT,hum,n+1} = \boldsymbol{F}_{mrt,hum} \cdot \boldsymbol{\theta}_{S,n+1}
+\tag{5.2}\]
+</div>
+</div>
+<div class="paragraph">
+<p>\(\boldsymbol{F}_{mrt,hum}\): 境界の表面温度が室に居る人体に与える放射の影響</p>
+</div>
+<div class="paragraph">
+<p>\(\begin{pmatrix}
+  F_{mrt,hum,0,0} &amp; \cdots &amp; F_{mrt,hum,0,I-1} \\
+  \vdots &amp; \ddots &amp; \vdots \\
+  F_{mrt,hum,J-1,0} &amp; \cdots &amp; F_{mrt,hum,J-1,I-1}
+\end{pmatrix}\)
+で表されるベクトル。</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_3_室温と作用温度との関係式の整理"><a class="link" href="#_3_室温と作用温度との関係式の整理">3) 室温と作用温度との関係式の整理</a></h5>
+<div class="paragraph">
+<p>式(5.1)に式(5.2)及び式(1.24)を代入する。</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{split}
+\boldsymbol{\theta}_{OT,n+1}
+&amp; = \boldsymbol{kc}_{n+1} \cdot \boldsymbol{\theta}_{r,n+1}
++ \boldsymbol{kr}_{n+1} \cdot \boldsymbol{\theta}_{MRT,hum,n+1} \\
+&amp; = \boldsymbol{kc}_{n+1} \cdot \boldsymbol{\theta}_{r,n+1} \\
+&amp; + \boldsymbol{kr}_{n+1} \cdot \boldsymbol{F}_{mrt,hum} \cdot
+(
+\boldsymbol{WSR} \cdot \boldsymbol{\theta}_{r,n+1}
++ \boldsymbol{WSC}_{n+1}
++ \boldsymbol{WSB} \cdot \boldsymbol{Lr}_{n+1}
++ \boldsymbol{WSV}_{n+1}
+)
+\end{split}
+\tag{5.3}\]
+</div>
+</div>
+<div class="paragraph">
+<p>この式を \(\boldsymbol{\theta}_{r,n+1}\) について解くと、</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{split}
+&amp;(
+\boldsymbol{kc}_{n+1}
++ \boldsymbol{kr}_{n+1} \cdot \boldsymbol{F}_{mrt,hum} \cdot \boldsymbol{WSR}
+)
+\cdot \boldsymbol{\theta}_{r,n+1} \\
+&amp; = \boldsymbol{\theta}_{OT,n+1}
+- \boldsymbol{kr}_{n+1} \cdot \boldsymbol{F}_{mrt,hum} \cdot
+\boldsymbol{WSB} \cdot \overline{\boldsymbol{Lr}_{n}}
+- \boldsymbol{kr}_{n+1} \cdot \boldsymbol{F}_{mrt,hum}
+\cdot ( \boldsymbol{WSC}_{n+1} + \boldsymbol{WSV}_{n+1} )
+\end{split}
+\tag{5.4}\]
+</div>
+</div>
+<div class="paragraph">
+<p>となる。</p>
+</div>
+<div class="paragraph">
+<p>なお、式(4.7)における式変形と同様に、　\(\boldsymbol{Lr}_{n+1}\) を \(\overline{\boldsymbol{Lr}_{n}}\) で代表させている。</p>
+</div>
+<div class="paragraph">
+<p>ここで、</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\boldsymbol{XOT}_{n+1}
+=
+(
+\boldsymbol{kc}_{n+1}
++ \boldsymbol{kr}_{n+1} \cdot \boldsymbol{F}_{mrt,hum} \cdot \boldsymbol{WSR}
+) ^ {-1}
+\tag{5.5}\]
+</div>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\boldsymbol{XLR}_{n+1}
+= - \boldsymbol{XOT}_{n+1} \cdot \boldsymbol{kr}_{n+1} \cdot \boldsymbol{F}_{mrt,hum} \cdot \boldsymbol{WSB}
+\tag{5.6}\]
+</div>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\boldsymbol{XC}_{n+1}
+= - \boldsymbol{XOT}_{n+1} \cdot \boldsymbol{kr}_{n+1} \cdot \boldsymbol{F}_{mrt,hum} \cdot
+(\boldsymbol{WSC}_{n+1} + \boldsymbol{WSV}_{n+1})
+\tag{5.7}\]
+</div>
+</div>
+<div class="paragraph">
+<p>とおくと、式(5.4)は、</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\boldsymbol{\theta}_{r,n+1}
+= \boldsymbol{XOT}_{n+1} \cdot \boldsymbol{\theta}_{OT,n+1}
++ \boldsymbol{XLR}_{n+1} \cdot \overline{\boldsymbol{Lr}_{n}}
++ \boldsymbol{XC}_{n+1}
+\tag{5.8}\]
+</div>
+</div>
+<div class="paragraph">
+<p>となる。</p>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_6_作用温度と負荷"><a class="link" href="#_6_作用温度と負荷">6. 作用温度と負荷</a></h4>
+<div class="paragraph">
+<p>式(4.11)に式(5.8)を代入すると次式となる。</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{split}
+&amp; \boldsymbol{BRM}_n \cdot (
+\boldsymbol{XOT}_{n+1} \cdot \boldsymbol{\theta}_{OT,n+1}
++ \boldsymbol{XLR}_{n+1} \cdot \overline{\boldsymbol{Lr}_{n}}
++ \boldsymbol{XC}_{n+1}
+) \\
+&amp; = \boldsymbol{BRC}_n
++ \overline{\boldsymbol{LC}_n}
++ \boldsymbol{BRL} \cdot \overline{\boldsymbol{Lr}_n}
+\end{split}
+\tag{6.1}\]
+</div>
+</div>
+<div class="paragraph">
+<p>この式を、 \(\boldsymbol{\theta}_{OT,n+1}\) について解くと、</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{split}
+\boldsymbol{\theta}_{OT,n+1}
+&amp; = (\boldsymbol{BRM}_n \cdot \boldsymbol{XOT}_{n+1})^{-1} \cdot \overline{\boldsymbol{LC}_n} \\
+&amp; + (\boldsymbol{BRM}_n \cdot \boldsymbol{XOT}_{n+1})^{-1}
+\cdot (
+\boldsymbol{BRL}
+- \boldsymbol{BRM}_n \cdot \boldsymbol{XLR}_{n+1}
+)
+\cdot \overline{\boldsymbol{Lr}_{n}} \\
+&amp; + (\boldsymbol{BRM}_n \cdot \boldsymbol{XOT}_{n+1})^{-1}
+\cdot (
+\boldsymbol{BRC}_n
+- \boldsymbol{BRM}_n \cdot \boldsymbol{XC}_{n+1}
+)
+\end{split}
+\tag{6.2}\]
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_7_具体的な解法の手順"><a class="link" href="#_7_具体的な解法の手順">7. 具体的な解法の手順</a></h4>
+<div class="paragraph">
+<p>これまで定式化した数式における記号は以下の3種類に分類される。</p>
+</div>
+<div class="paragraph">
+<p>イ） 時刻によって変動しない値（形態係数など）</p>
+</div>
+<div class="paragraph">
+<p>ロ） 時刻によって変動するが他の時刻の影響を受けない値（日射量など）</p>
+</div>
+<div class="paragraph">
+<p>ハ） 時刻によって変動し、かつ、前の時刻の状態に影響を受ける値（室温など）</p>
+</div>
+<div class="paragraph">
+<p>今回の計算のほとんどの部分は、ハ）の値を算出するために最初のステップ（ \(n=0\) ）から逐次ステップ数をインクリメントして計算していく部分である。</p>
+</div>
+<div class="paragraph">
+<p>今後の説明において、イ）とロ）は既知のものとして扱い、特に断りの無い限り、その計算方法は別の箇所で記述する。
+ステップ \(n+1\) の状態を計算するのに必要なステップ \(n\) の状態を表す最低限のパラメータは以下のとおりである。
+なお、ここで引き渡す値については特にこれでないといけないという決まりはない。
+（例えば \(\boldsymbol{q}_n\) の代わりに \(\boldsymbol{\theta}_{EI,n+1}\) を引き渡しても良い。）
+計算の前後関係から、なるべく引き渡すパラメータの数が少なくなるように配慮して選定した。</p>
+</div>
+<div class="paragraph">
+<p>また、以下に示すパラメータについては、暖冷房の運転状態やPMV等の何らかのステップnにおける状態から決定される値とした。なお、ここで挙げるパラメータの決め方については、記述を省略する。</p>
+</div>
+<div class="paragraph">
+<p>\(\overline{\boldsymbol{V}_n}\)
+・\(\overline{\boldsymbol{V}_{nxt,n}}\)
+・\(\boldsymbol{kr}_{n+1}\)
+・\(\boldsymbol{kc}_{n+1}\)</p>
+</div>
+<div class="paragraph">
+<p>関係図を以下に示す。各パラメータの関係は非常に複雑なため、作用温度を求めるまでの計算と作用温度を求めてからの各種温度計算（ポスト処理）とに分けて記述する。</p>
+</div>
+<div class="paragraph">
+<p>変数種類イ）については以下のフローにより計算する。</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="pictures/heat_load_balance_1.png" alt="heat load balance 1" width="400">
+</div>
+</div>
+<div class="paragraph">
+<p>図1　変数種類イ）の計算フロー</p>
+</div>
+<div class="paragraph">
+<p>負荷または自然室温を計算するフローを以下に示す。</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="pictures/heat_load_balance_2.png" alt="heat load balance 2" width="950">
+</div>
+</div>
+<div class="paragraph">
+<p>図2　負荷または自然室温の計算フロー</p>
+</div>
+<div class="paragraph">
+<p>負荷および自然室温を計算した後のフローを以下に示す。</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="pictures/heat_load_balance_3.png" alt="heat load balance 3" width="680">
+</div>
+</div>
+<div class="paragraph">
+<p>図3　負荷および自然室温計算後の計算フロー</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div id="footer">
+<div id="footer-text">
+Version 1.0.0(202006)<br>
+Last updated 2022-02-08 12:08:59 UTC
+</div>
+</div>
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  messageStyle: "none",
+  tex2jax: {
+    inlineMath: [["\\(", "\\)"]],
+    displayMath: [["\\[", "\\]"]],
+    ignoreClass: "nostem|nolatexmath"
+  },
+  asciimath2jax: {
+    delimiters: [["\\$", "\\$"]],
+    ignoreClass: "nostem|noasciimath"
+  },
+  TeX: { equationNumbers: { autoNumber: "AMS" } }
+})
+MathJax.Hub.Register.StartupHook("AsciiMath Jax Ready", function () {
+  MathJax.InputJax.AsciiMath.postfilterHooks.Add(function (data, node) {
+    if ((node = data.script.parentNode) && (node = node.parentNode) && node.classList.contains("stemblock")) {
+      data.math.root.display = "block"
+    }
+    return data
+  })
+})
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/MathJax.js?config=TeX-MML-AM_HTMLorMML"></script>
+</body>
+</html>
