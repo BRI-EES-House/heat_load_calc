@@ -49,7 +49,7 @@ def get_i_is_j_ns(
     i_hrz_ns = _get_i_hrz_ns(i_dn_ns=i_dn_ns, i_sky_ns=i_sky_ns, h_sun_ns=h_sun_ns)
 
     # 境界jの傾斜面の天空に対する形態係数
-    f_sky_j = _get_f_sky_j(w_beta_j=w_beta_j)
+    f_sky_j = _get_f_sky_j(beta_w_j=w_beta_j)
 
     # 境界 j の地面に対する傾斜面の形態係数, -
     f_gnd_j = _get_f_gnd_j(f_sky_j=f_sky_j)
@@ -215,12 +215,12 @@ def _get_i_hrz_ns(i_dn_ns, i_sky_ns, h_sun_ns):
     return i_hsr_ns
 
 
-def _get_f_sky_j(w_beta_j: float) -> float:
+def _get_f_sky_j(beta_w_j: float) -> float:
     """
     傾斜面の天空に対する形態係数を計算する。
 
     Args:
-        w_beta_j: 境界jの傾斜面の傾斜角, rad
+        beta_w_j: 境界 j の傾斜面の傾斜角, rad
 
     Returns:
         境界jの傾斜面の天空に対する形態係数
@@ -231,7 +231,7 @@ def _get_f_sky_j(w_beta_j: float) -> float:
         値は0°～180°の範囲をとる。
     """
 
-    f_sky_j = (1.0 + np.cos(w_beta_j)) / 2.0
+    f_sky_j = (1.0 + np.cos(beta_w_j)) / 2.0
 
     return f_sky_j
 
