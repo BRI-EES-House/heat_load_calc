@@ -18,8 +18,8 @@ def get_i_is_j_ns(
         r_eff_ns: np.ndarray,
         h_sun_ns: np.ndarray,
         a_sun_ns: np.ndarray,
-        w_alpha_j: float,
-        w_beta_j: float
+        alpha_w_j: float,
+        beta_w_j: float
 ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     """傾斜面の方位角・傾斜角に応じて傾斜面の日射量を計算する。
 
@@ -29,27 +29,25 @@ def get_i_is_j_ns(
         r_eff_ns: ステップ n における夜間放射量, W/m2, [n]
         h_sun_ns: ステップnにおける太陽高度, rad [8760*4]
         a_sun_ns: ステップnにおける太陽方位角, rad [8760*4]
-        w_alpha_j: 境界jの傾斜面の方位角, rad
-        w_beta_j: 境界jの傾斜面の傾斜角, rad
+        alpha_w_j: 境界jの傾斜面の方位角, rad
+        beta_w_j: 境界jの傾斜面の傾斜角, rad
 
     Returns:
-        以下のタプル
-            (1) ステップnにおける境界jにおける傾斜面の日射量のうち直達成分, W/m2K [8760*4]
-            (2) ステップnにおける境界jにおける傾斜面の日射量のうち天空成分, W/m2K [8760*4]
-            (3) ステップnにおける境界jにおける傾斜面の日射量のうち地盤反射成分, W/m2K [8760*4]
+        (1) ステップ n における境界 j の傾斜面に入射する日射量のうち直達成分, W/m2 [n]
+        (2) ステップ n における境界 j の傾斜面に入射する日射量のうち天空成分, W/m2 [n]
+        (3) ステップ n における境界 j の傾斜面に入射する日射量のうち地盤反射成分, W/m2 [n]
+        (4) ステップ n における境界 j の傾斜面の夜間放射量, W/m2, [n]
 
-    Notes:
-        添字 is は、傾斜面（inclined surface）
     """
 
-    # ステップnの境界jにおける傾斜面に入射する太陽の入射角 [8760 * 4]
-    theta_aoi_j_ns = get_theta_aoi_j_ns(h_sun_ns=h_sun_ns, a_sun_ns=a_sun_ns, alpha_w_j=w_alpha_j, beta_w_j=w_beta_j)
+    # ステップnの境界jにおける傾斜面に入射する太陽の入射角, deg, [n]
+    theta_aoi_j_ns = get_theta_aoi_j_ns(h_sun_ns=h_sun_ns, a_sun_ns=a_sun_ns, alpha_w_j=alpha_w_j, beta_w_j=beta_w_j)
 
-    # ステップ n における水平面全天日射量, W/m2
+    # ステップ n における水平面全天日射量, W/m2, [n]
     i_hrz_ns = _get_i_hrz_ns(i_dn_ns=i_dn_ns, i_sky_ns=i_sky_ns, h_sun_ns=h_sun_ns)
 
-    # 境界jの傾斜面の天空に対する形態係数
-    f_sky_j = _get_f_sky_j(beta_w_j=w_beta_j)
+    # 境界jの傾斜面の天空に対する形態係数, -
+    f_sky_j = _get_f_sky_j(beta_w_j=beta_w_j)
 
     # 境界 j の地面に対する傾斜面の形態係数, -
     f_gnd_j = _get_f_gnd_j(f_sky_j=f_sky_j)

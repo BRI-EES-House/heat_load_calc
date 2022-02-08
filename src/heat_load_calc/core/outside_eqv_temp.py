@@ -194,8 +194,8 @@ class OutsideEqvTempExternalGeneralPartAndExternalOpaquePart(OutsideEqvTemp):
             r_eff_ns=r_n_ns,
             h_sun_ns=h_sun_ns,
             a_sun_ns=a_sun_ns,
-            w_alpha_j=w_alpha_i_j,
-            w_beta_j=w_beta_i_j
+            alpha_w_j=w_alpha_i_j,
+            beta_w_j=w_beta_i_j
         )
 
         # 室iの境界jの傾斜面のステップnにおける相当外気温度, ℃, [8760*4]
@@ -277,8 +277,8 @@ class OutsideEqvTempExternalTransparentPart(OutsideEqvTemp):
             r_eff_ns=r_n_ns,
             h_sun_ns=h_sun_ns,
             a_sun_ns=a_sun_ns,
-            w_alpha_j=w_alpha_i_j,
-            w_beta_j=w_beta_i_j
+            alpha_w_j=w_alpha_i_j,
+            beta_w_j=w_beta_i_j
         )
 
         # ---日よけの影面積比率

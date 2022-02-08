@@ -91,8 +91,8 @@ class TransmissionSolarRadiationTransparentSunStrike(TransmissionSolarRadiation)
             r_eff_ns=r_n_ns,
             h_sun_ns=h_sun_ns,
             a_sun_ns=a_sun_ns,
-            w_alpha_j=w_alpha_j,
-            w_beta_j=w_beta_j
+            alpha_w_j=w_alpha_j,
+            beta_w_j=w_beta_j
         )
 
         # ---日よけの影面積比率
