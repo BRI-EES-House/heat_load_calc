@@ -215,33 +215,38 @@ I. 評価法
 | :math:`h_{sun,n}` : ステップ |n| における太陽高度, rad
 | である。
 
-ステップ |n| に傾斜面 |j| に入射する日射の入射角 :math:`\theta_{j,n}` は、式(9)により計算される。
+ステップ |n| における境界 |j| の傾斜面に入射する日射の入射角 :math:`\theta_{aoi,j,n}` は、式(8)により計算される。
 
 .. math::
     :nowrap:
 
     \begin{align*}
-        \theta_{j,n} = \arccos ( C_{\theta,j,n} )  \tag{9}
+        \theta_{aoi,j,n} = \arccos ( C_{\theta,j,n} )  \tag{8}
     \end{align*}
 
 | ここで、
-| :math:`C_{\theta,j,n}` : ステップ |n| における境界 |j| の傾斜面に入射する日射の入射角の余弦(), -
-| である。ただし、ステップ |n| における境界 |j| の傾斜面に入射する日射の入射角の余弦　:math:`C_{\theta,j,n}`　は傾斜面 |j| の裏面に太陽が位置する場合は0とする。
+| :math:`C_{\theta,j,n}` : ステップ |n| における境界 |j| の傾斜面に入射する日射の入射角の余弦, -
+| である。
 
-ステップ |n| に傾斜面 |j| に入射する日射の入射角の余弦 :math:`C_{\theta,j,n}}` は、非負条件が課せられて、太陽が天頂に位置しない場合は式(10)で、太陽が天頂に位置する場合は式(11)により計算される。
+ステップ |n| における境界 |j| の傾斜面に入射する日射の入射角の余弦 :math:`C_{\theta,j,n}` は、太陽の位置（太陽が天頂に位置するか否か）に応じて式(9)により計算される。
+
+
+:math:`\cos h_{sun,n} \ne 0` の場合
 
 .. math::
     :nowrap:
 
     \begin{align*}
-        C_{\theta,j,n} = max\{ \sin h_{sun,n} \cdot \cos \beta_{w,j} + \cos h_{sun,n} \cdot \sin \beta_{w,j} \cdot \cos( a_{sun,n} - \alpha_{w,j} ), 0 \} \tag{10}
+        C_{\theta,j,n} = \max \left( \sin h_{sun,n} \cdot \cos \beta_{w,j} + \cos h_{sun,n} \cdot \sin \beta_{w,j} \cdot \cos( a_{sun,n} - \alpha_{w,j} \right) , 0 ) \tag{9a}
     \end{align*}
-    
+
+:math:`\cos h_{sun,n} = 0` の場合
+
 .. math::
     :nowrap:
 
     \begin{align*}
-        C_{\theta,j,n} = max\{ \sin h_{sun,n} \cdot \cos \beta_{w,j} , 0 \} \tag{11}
+        C_{\theta,j,n} = \max \left( \sin h_{sun,n} \cdot \cos \beta_{w,j} , 0 \right) \tag{9b}
     \end{align*}
 
 | ここで、

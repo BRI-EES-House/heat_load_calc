@@ -43,7 +43,7 @@ def get_i_is_j_ns(
     """
 
     # ステップnの境界jにおける傾斜面に入射する太陽の入射角 [8760 * 4]
-    theta_aoi_j_ns = get_theta_aoi_j_n(h_sun_ns=h_sun_ns, a_sun_ns=a_sun_ns, w_alpha_j=w_alpha_j, w_beta_j=w_beta_j)
+    theta_aoi_j_ns = get_theta_aoi_j_ns(h_sun_ns=h_sun_ns, a_sun_ns=a_sun_ns, alpha_w_j=w_alpha_j, beta_w_j=w_beta_j)
 
     # ステップ n における水平面全天日射量, W/m2
     i_hrz_ns = _get_i_hrz_ns(i_dn_ns=i_dn_ns, i_sky_ns=i_sky_ns, h_sun_ns=h_sun_ns)
@@ -221,44 +221,44 @@ def _get_i_hrz_ns(i_dn_ns: np.ndarray, i_sky_ns: np.ndarray, h_sun_ns: np.ndarra
     return i_hsr_ns
 
 
-def get_theta_aoi_j_n(
-        h_sun_ns: np.ndarray, a_sun_ns: np.ndarray, w_alpha_j: float, w_beta_j: float) -> np.ndarray:
+def get_theta_aoi_j_ns(h_sun_ns: np.ndarray, a_sun_ns: np.ndarray, alpha_w_j: float, beta_w_j: float) -> np.ndarray:
     """
-    傾斜面に入射する太陽の入射角を求める。
+    傾斜面に入射する太陽の入射角を計算する。
 
     Args:
-        h_sun_ns: ステップnにおける太陽高度, rad, [365 * 24 * 4]
-        a_sun_ns: ステップnにおける太陽方位角, rad, [365 * 24 * 4]
-        w_alpha_j: 境界jにおける傾斜面の方位角, rad
-        w_beta_j: 境界jにおける傾斜面の傾斜角, rad
+        h_sun_ns: ステップ n における太陽高度, rad, [n]
+        a_sun_ns: ステップ n における太陽方位角, rad, [n]
+        alpha_w_j: 境界 j における傾斜面の方位角, rad
+        beta_w_j: 境界 j における傾斜面の傾斜角, rad
 
     Returns:
-        ステップnの境界jにおける傾斜面に入射する太陽の入射角, rad, [365 * 24 * 4]
+        ステップ n の境界 j における傾斜面に入射する太陽の入射角, rad, [n]
 
     Notes:
-        方向余弦がマイナス（入射角が90°～270°）の場合は傾斜面のり面に太陽が位置していることになるため
-        値をゼロとする。
-        （法線面直達日射量にこの値をかけるため、結果的に日射があたらないという計算になる。）
+        式(8), 式(9)
     """
 
-    # ステップnの境界jにおける傾斜面に入射する太陽の入射角のコサイン, [8760 * 4]
-    # h_sun_ns == 1.0 の場合は太陽が天頂にある時であり、太陽の方位角が定義されない。
+    # ステップ n の境界 j における傾斜面に入射する太陽の入射角の余弦, -, [n]
+    # cos(h_sun_ns) == 0.0 の場合は太陽が天頂にある時であり、太陽の方位角が定義されない。
     # その場合、cos(h_sun_ns)がゼロとなり、下式の第2項・第3項がゼロになる。
-    cos_theta_aoi_j_n = np.where(
+    # これを回避するために場合分けを行っている。
+    # 余弦がマイナス（入射角が90°～270°）の場合は傾斜面の裏面に太陽が位置していることになるため、値をゼロにする。
+    # （法線面直達日射量にこの値をかけるため、結果的に日射があたらないという計算になる。）
+    cos_theta_aoi_j_ns = np.where(
         np.cos(h_sun_ns) == 0.0,
-        np.sin(h_sun_ns) * np.cos(w_beta_j),
-        np.sin(h_sun_ns) * np.cos(w_beta_j)
-        + np.cos(h_sun_ns) * np.sin(a_sun_ns) * np.sin(w_beta_j) * np.sin(w_alpha_j)
-        + np.cos(h_sun_ns) * np.cos(a_sun_ns) * np.sin(w_beta_j) * np.cos(w_alpha_j)
+        np.clip(np.sin(h_sun_ns) * np.cos(beta_w_j), 0.0, None),
+        np.clip(np.sin(h_sun_ns) * np.cos(beta_w_j)
+                + np.cos(h_sun_ns) * np.sin(a_sun_ns) * np.sin(beta_w_j) * np.sin(alpha_w_j)
+                + np.cos(h_sun_ns) * np.cos(a_sun_ns) * np.sin(beta_w_j) * np.cos(alpha_w_j)
+                , 0.0, None)
     )
 
-    # cos がマイナスの場合は入射角が90°～270°、つまり傾斜面の裏面に太陽が位置していることになるため、ゼロにする。
-    cos_theta_aoi_j_n = np.clip(cos_theta_aoi_j_n, 0.0, None)
+#    cos_theta_aoi_j_ns = np.clip(cos_theta_aoi_j_ns, 0.0, None)
 
-    # cos から radian に変換する。
-    theta_aoi_j_n = np.arccos(cos_theta_aoi_j_n)
+    # ステップ n における境界 j の傾斜面に入射する日射の入射角, rad, [n]
+    theta_aoi_j_ns = np.arccos(cos_theta_aoi_j_ns)
 
-    return theta_aoi_j_n
+    return theta_aoi_j_ns
 
 
 

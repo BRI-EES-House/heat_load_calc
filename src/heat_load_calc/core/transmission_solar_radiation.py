@@ -79,8 +79,8 @@ class TransmissionSolarRadiationTransparentSunStrike(TransmissionSolarRadiation)
         w_alpha_j, w_beta_j = external_boundaries_direction.get_w_alpha_j_w_beta_j(direction_j=self._direction)
 
         # ステップnの境界jにおける傾斜面に入射する太陽の入射角, rad, [8760 * 4]
-        theta_aoi_j_ns = inclined_surface_solar_radiation.get_theta_aoi_j_n(
-            h_sun_ns=h_sun_ns, a_sun_ns=a_sun_ns, w_alpha_j=w_alpha_j, w_beta_j=w_beta_j)
+        theta_aoi_j_ns = inclined_surface_solar_radiation.get_theta_aoi_j_ns(
+            h_sun_ns=h_sun_ns, a_sun_ns=a_sun_ns, alpha_w_j=w_alpha_j, beta_w_j=w_beta_j)
 
         # ステップnにおける境界jにおける傾斜面の日射量のうち直達成分, W / m2K, [8760 * 4]
         # ステップnにおける境界jにおける傾斜面の日射量のうち天空成分, W / m2K, [8760 * 4]
