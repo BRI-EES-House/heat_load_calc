@@ -152,6 +152,52 @@ def _get_r_srf_eff_j_ns(r_eff_ns: np.ndarray, f_sky_j: float) -> np.ndarray:
     return r_srf_eff_j_ns
 
 
+def _get_f_gnd_j(f_sky_j: float) -> float:
+    """
+    地面に対する傾斜面の形態係数を計算する。
+
+    Args:
+        f_sky_j: 境界 j の天空に対する傾斜面の形態係数, -
+
+    Returns:
+        境界 j の地面に対する傾斜面の形態係数, -
+
+    Notes:
+        式(5)
+    """
+
+    f_gnd_j = 1.0 - f_sky_j
+
+    return f_gnd_j
+
+
+def _get_f_sky_j(beta_w_j: float) -> float:
+    """
+    傾斜面の天空に対する形態係数を計算する。
+
+    Args:
+        beta_w_j: 境界 j の傾斜面の傾斜角, rad
+
+    Returns:
+        境界jの傾斜面の天空に対する形態係数
+
+    Notes:
+        式(6)
+        境界jの傾斜面の傾斜角 は水平面を0とし、垂直面をπ/2とし、オーバーハング床等における下に向いた面はπとし、値は0～πの範囲をとる。
+
+    """
+
+    if beta_w_j < 0:
+        raise Exception("傾斜面の傾斜角が0より小さい値となっています。")
+
+    if beta_w_j > np.pi/2:
+        raise Exception("傾斜角の傾斜面がπ/2より大きい値となっています。")
+
+    f_sky_j = (1.0 + np.cos(beta_w_j)) / 2.0
+
+    return f_sky_j
+
+
 def get_theta_aoi_j_n(
         h_sun_ns: np.ndarray, a_sun_ns: np.ndarray, w_alpha_j: float, w_beta_j: float) -> np.ndarray:
     """
@@ -215,42 +261,4 @@ def _get_i_hrz_ns(i_dn_ns, i_sky_ns, h_sun_ns):
     return i_hsr_ns
 
 
-def _get_f_sky_j(beta_w_j: float) -> float:
-    """
-    傾斜面の天空に対する形態係数を計算する。
-
-    Args:
-        beta_w_j: 境界 j の傾斜面の傾斜角, rad
-
-    Returns:
-        境界jの傾斜面の天空に対する形態係数
-
-    Notes:
-        境界jの傾斜面の傾斜角 は水平面を0°とし、垂直面を90°とし、
-        オーバーハング床等における下に向いた面は180°とする。
-        値は0°～180°の範囲をとる。
-    """
-
-    f_sky_j = (1.0 + np.cos(beta_w_j)) / 2.0
-
-    return f_sky_j
-
-
-def _get_f_gnd_j(f_sky_j: float) -> float:
-    """
-    地面に対する傾斜面の形態係数を計算する。
-
-    Args:
-        f_sky_j: 境界 j の天空に対する傾斜面の形態係数, -
-
-    Returns:
-        境界 j の地面に対する傾斜面の形態係数, -
-
-    Notes:
-        式(5)
-    """
-
-    f_gnd_j = 1.0 - f_sky_j
-
-    return f_gnd_j
 
