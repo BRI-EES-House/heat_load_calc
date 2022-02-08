@@ -69,7 +69,7 @@ class OutsideEqvTemp:
             theta_o_ns: np.ndarray,
             i_dn_ns: np.ndarray,
             i_sky_ns: np.ndarray,
-            r_n_ns: np.ndarray,
+            r_eff_ns: np.ndarray,
             a_sun_ns: np.ndarray,
             h_sun_ns: np.ndarray
     ):
@@ -80,7 +80,7 @@ class OutsideEqvTemp:
             theta_o_ns: ステップnにおける外気温度, ℃, [8760 * 4]
             i_dn_ns: ステップnにおける法線面直達日射量, W/m2, [8760 * 4]
             i_sky_ns: ステップnにおける水平面天空日射量, W/m2, [8760 * 4]
-            r_n_ns: ステップnにおける夜間放射量, W/m2, [8760 * 4]
+            r_eff_ns: ステップnにおける夜間放射量, W/m2, [8760 * 4]
             a_sun_ns: ステップnにおける太陽高度, deg, [8760 * 4]
             h_sun_ns: ステップnにおける太陽方位, deg, [8760 * 4]
 
@@ -102,7 +102,7 @@ class OutsideEqvTempInternal(OutsideEqvTemp):
             theta_o_ns: np.ndarray,
             i_dn_ns: np.ndarray,
             i_sky_ns: np.ndarray,
-            r_n_ns: np.ndarray,
+            r_eff_ns: np.ndarray,
             a_sun_ns: np.ndarray,
             h_sun_ns: np.ndarray
     ):
@@ -113,7 +113,7 @@ class OutsideEqvTempInternal(OutsideEqvTemp):
             theta_o_ns: ステップnにおける外気温度, ℃, [8760 * 4]
             i_dn_ns: ステップnにおける法線面直達日射量, W/m2, [8760 * 4]
             i_sky_ns: ステップnにおける水平面天空日射量, W/m2, [8760 * 4]
-            r_n_ns: ステップnにおける夜間放射量, W/m2, [8760 * 4]
+            r_eff_ns: ステップnにおける夜間放射量, W/m2, [8760 * 4]
             a_sun_ns: ステップnにおける太陽高度, deg, [8760 * 4]
             h_sun_ns: ステップnにおける太陽方位, deg, [8760 * 4]
 
@@ -335,7 +335,7 @@ class OutsideEqvTempExternalNotSunStriked(OutsideEqvTemp):
             theta_o_ns: np.ndarray,
             i_dn_ns: np.ndarray,
             i_sky_ns: np.ndarray,
-            r_n_ns: np.ndarray,
+            r_eff_ns: np.ndarray,
             a_sun_ns: np.ndarray,
             h_sun_ns: np.ndarray
     ):
@@ -346,7 +346,7 @@ class OutsideEqvTempExternalNotSunStriked(OutsideEqvTemp):
             theta_o_ns: ステップnにおける外気温度, ℃, [8760 * 4]
             i_dn_ns: ステップnにおける法線面直達日射量, W/m2, [8760 * 4]
             i_sky_ns: ステップnにおける水平面天空日射量, W/m2, [8760 * 4]
-            r_n_ns: ステップnにおける夜間放射量, W/m2, [8760 * 4]
+            r_eff_ns: ステップnにおける夜間放射量, W/m2, [8760 * 4]
             a_sun_ns: ステップnにおける太陽高度, deg, [8760 * 4]
             h_sun_ns: ステップnにおける太陽方位, deg, [8760 * 4]
 
@@ -368,7 +368,7 @@ class OutsideEqvTempGround(OutsideEqvTemp):
             theta_o_ns: np.ndarray,
             i_dn_ns: np.ndarray,
             i_sky_ns: np.ndarray,
-            r_n_ns: np.ndarray,
+            r_eff_ns: np.ndarray,
             a_sun_ns: np.ndarray,
             h_sun_ns: np.ndarray
     ):
@@ -379,7 +379,7 @@ class OutsideEqvTempGround(OutsideEqvTemp):
             theta_o_ns: ステップnにおける外気温度, ℃, [8760 * 4]
             i_dn_ns: ステップnにおける法線面直達日射量, W/m2, [8760 * 4]
             i_sky_ns: ステップnにおける水平面天空日射量, W/m2, [8760 * 4]
-            r_n_ns: ステップnにおける夜間放射量, W/m2, [8760 * 4]
+            r_eff_ns: ステップnにおける夜間放射量, W/m2, [8760 * 4]
             a_sun_ns: ステップnにおける太陽高度, deg, [8760 * 4]
             h_sun_ns: ステップnにおける太陽方位, deg, [8760 * 4]
 

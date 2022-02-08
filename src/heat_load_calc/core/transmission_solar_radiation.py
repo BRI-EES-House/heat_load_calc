@@ -36,7 +36,7 @@ class TransmissionSolarRadiation:
 
             return TransmissionSolarRadiationNot()
 
-    def get_qgt(self, a_sun_ns, h_sun_ns, i_dn_ns, i_sky_ns, r_n_ns):
+    def get_qgt(self, a_sun_ns, h_sun_ns, i_dn_ns, i_sky_ns, r_eff_ns):
 
         raise NotImplementedError()
 
@@ -143,6 +143,6 @@ class TransmissionSolarRadiationNot(TransmissionSolarRadiation):
     def __init__(self):
         super().__init__()
 
-    def get_qgt(self, a_sun_ns, h_sun_ns, i_dn_ns, i_sky_ns, r_n_ns):
+    def get_qgt(self, a_sun_ns, h_sun_ns, i_dn_ns, i_sky_ns, r_eff_ns):
 
         return np.zeros(8760*4+1, dtype=float)
