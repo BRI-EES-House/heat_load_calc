@@ -70,9 +70,6 @@ I. 評価法
     * - :math:`R_{srf,eff}`
       - 傾斜面の夜間放射量
       - W / |m2|
-    * - :math:`S_{h}`
-      - 太陽高度の正弦
-      - ー
     * - :math:`\alpha_{w}`
       - 傾斜面の方位角
       - rad
@@ -193,27 +190,26 @@ I. 評価法
 | :math:`\beta_{w,j}` : 境界 |j| の傾斜面の傾斜角, rad
 | である。なお、境界 |j| の傾斜面の傾斜角 :math:`\beta_{w,j}` は :math:`0` ～ :math:`\pi` の範囲で定義され、面が天頂を向いている水平面で :math:`0` rad、面が水平方向を向いている垂直面(壁面)で :math:`\pi/2` rad、面が真下を向いているオーバーハング床等の表面で :math:`\pi` radの値をとる。
 
-ステップ |n| における水平面全天日射量 :math:`I_{hrz,n}` は、式(7)により計算される。
+ステップ |n| における水平面全天日射量 :math:`I_{hrz,n}` は、ステップ |n| における太陽高度に応じて式(7)により計算される。
+
+:math:`h_{sun,n} \ge 0` の場合
 
 .. math::
     :nowrap:
 
     \begin{align*}
-        I_{hrz,n} = S_{h,n} \cdot I_{DN,n} + I_{sky,n} \tag{7}
+        I_{hrz,n} = \sin h_{sun,n} \cdot I_{DN,n} + I_{sky,n} \tag{7a}
     \end{align*}
 
-| ここで、
-| :math:`S_{h,n}` : ステップ |n| における太陽高度の正弦, -
-| である。ただし、ステップ |n| における太陽高度の正弦　:math:`S_{h,n}`　は太陽が地面に隠れている場合は0とする。
-
-ステップ |n| における太陽高度の正弦 :math:`S_{h,n}` は、非負条件が課せられ、式(8)により計算される。
+:math:`h_{sun,n} \lt 0` の場合
 
 .. math::
     :nowrap:
 
     \begin{align*}
-        S_{h,n} = max\{ \sin{ h_{sun,n} }, 0 \} \tag{8}
+        I_{hrz,n} = I_{sky,n} \tag{7b}
     \end{align*}
+
 
 | ここで、
 | :math:`h_{sun,n}` : ステップ |n| における太陽高度, rad

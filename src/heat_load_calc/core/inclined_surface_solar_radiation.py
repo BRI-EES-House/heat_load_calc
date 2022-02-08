@@ -198,6 +198,29 @@ def _get_f_sky_j(beta_w_j: float) -> float:
     return f_sky_j
 
 
+def _get_i_hrz_ns(i_dn_ns: np.ndarray, i_sky_ns: np.ndarray, h_sun_ns: np.ndarray) -> np.ndarray:
+    """
+    水平面全天日射量を計算する。
+
+    Args:
+        i_dn_ns: ステップ n における法線面直達日射量, W/m2, [n]
+        i_sky_ns: ステップ n における水平面天空日射量, W/m2, [n]
+        h_sun_ns: ステップ n における太陽高度, rad, [n]
+
+    Returns:
+        ステップ n における水平面全天日射量, W/m2, [n]
+
+    Notes:
+        式(7)
+
+    """
+
+    # ステップ n における太陽高度 h_sun_ns が 0 未満の場合は 0 とする。
+    i_hsr_ns = np.sin(h_sun_ns.clip(min=0.0)) * i_dn_ns + i_sky_ns
+
+    return i_hsr_ns
+
+
 def get_theta_aoi_j_n(
         h_sun_ns: np.ndarray, a_sun_ns: np.ndarray, w_alpha_j: float, w_beta_j: float) -> np.ndarray:
     """
@@ -238,27 +261,6 @@ def get_theta_aoi_j_n(
     return theta_aoi_j_n
 
 
-def _get_i_hrz_ns(i_dn_ns, i_sky_ns, h_sun_ns):
-    """
-    水平面全天日射量を計算する。
-
-    Args:
-        i_dn_ns: ステップnにおける法線面直達日射量, W/m2K, [8760*4]
-        i_sky_ns: ステップnにおける水平面天空日射量, W/m2K, [8760*4]
-        h_sun_ns: ステップnにおける太陽高度, rad, [8760*4]
-
-    Returns:
-        ステップnにおける水平面全天日射量, W/m2K, [8760*4]
-    """
-
-    # ステップnにおける太陽高度の正弦
-    # この値がゼロを下回る場合（太陽が地面に隠れている場合）はゼロとおく。
-    sin_h_sun_ns = np.where(h_sun_ns > 0.0, np.sin(h_sun_ns), 0.0)
-
-    # ステップnにおける水平面全天日射量, W/m2K, [8760*4]
-    i_hsr_ns = sin_h_sun_ns * i_dn_ns + i_sky_ns
-
-    return i_hsr_ns
 
 
 
