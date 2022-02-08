@@ -150,7 +150,7 @@ class OutsideEqvTempExternalGeneralPartAndExternalOpaquePart(OutsideEqvTemp):
             theta_o_ns: np.ndarray,
             i_dn_ns: np.ndarray,
             i_sky_ns: np.ndarray,
-            r_n_ns: np.ndarray,
+            r_eff_ns: np.ndarray,
             a_sun_ns: np.ndarray,
             h_sun_ns: np.ndarray
     ):
@@ -161,7 +161,7 @@ class OutsideEqvTempExternalGeneralPartAndExternalOpaquePart(OutsideEqvTemp):
             theta_o_ns: ステップnにおける外気温度, ℃, [8760 * 4]
             i_dn_ns: ステップnにおける法線面直達日射量, W/m2, [8760 * 4]
             i_sky_ns: ステップnにおける水平面天空日射量, W/m2, [8760 * 4]
-            r_n_ns: ステップnにおける夜間放射量, W/m2, [8760 * 4]
+            r_eff_ns: ステップnにおける夜間放射量, W/m2, [8760 * 4]
             a_sun_ns: ステップnにおける太陽高度, deg, [8760 * 4]
             h_sun_ns: ステップnにおける太陽方位, deg, [8760 * 4]
 
@@ -171,7 +171,7 @@ class OutsideEqvTempExternalGeneralPartAndExternalOpaquePart(OutsideEqvTemp):
 
         # 室iの境界jの傾斜面の方位角, rad
         # 室iの境界jの傾斜面の傾斜角, rad
-        w_alpha_i_j, w_beta_i_j = external_boundaries_direction.get_w_alpha_j_w_beta_j(direction_j=self._direction)
+        alpha_w_j, beta_w_j = external_boundaries_direction.get_w_alpha_j_w_beta_j(direction_j=self._direction)
 
         # ---日よけの影面積比率
 
@@ -191,11 +191,11 @@ class OutsideEqvTempExternalGeneralPartAndExternalOpaquePart(OutsideEqvTemp):
         i_is_d_j_ns, i_is_sky_j_ns, i_is_ref_j_ns, r_srf_eff_j_ns = inclined_surface_solar_radiation.get_i_is_j_ns(
             i_dn_ns=i_dn_ns,
             i_sky_ns=i_sky_ns,
-            r_eff_ns=r_n_ns,
+            r_eff_ns=r_eff_ns,
             h_sun_ns=h_sun_ns,
             a_sun_ns=a_sun_ns,
-            alpha_w_j=w_alpha_i_j,
-            beta_w_j=w_beta_i_j
+            alpha_w_j=alpha_w_j,
+            beta_w_j=beta_w_j
         )
 
         # 室iの境界jの傾斜面のステップnにおける相当外気温度, ℃, [8760*4]
@@ -236,7 +236,7 @@ class OutsideEqvTempExternalTransparentPart(OutsideEqvTemp):
             theta_o_ns: np.ndarray,
             i_dn_ns: np.ndarray,
             i_sky_ns: np.ndarray,
-            r_n_ns: np.ndarray,
+            r_eff_ns: np.ndarray,
             a_sun_ns: np.ndarray,
             h_sun_ns: np.ndarray
     ):
@@ -247,7 +247,7 @@ class OutsideEqvTempExternalTransparentPart(OutsideEqvTemp):
             theta_o_ns: ステップnにおける外気温度, ℃, [8760 * 4]
             i_dn_ns: ステップnにおける法線面直達日射量, W/m2, [8760 * 4]
             i_sky_ns: ステップnにおける水平面天空日射量, W/m2, [8760 * 4]
-            r_n_ns: ステップnにおける夜間放射量, W/m2, [8760 * 4]
+            r_eff_ns: ステップnにおける夜間放射量, W/m2, [8760 * 4]
             a_sun_ns: ステップnにおける太陽高度, deg, [8760 * 4]
             h_sun_ns: ステップnにおける太陽方位, deg, [8760 * 4]
             u_value_j: 境界jの熱貫流率, W/m2K
@@ -261,11 +261,11 @@ class OutsideEqvTempExternalTransparentPart(OutsideEqvTemp):
 
         # 室iの境界jの傾斜面の方位角, rad
         # 室iの境界jの傾斜面の傾斜角, rad
-        w_alpha_i_j, w_beta_i_j = external_boundaries_direction.get_w_alpha_j_w_beta_j(direction_j=self._direction)
+        alpha_w_j, beta_w_j = external_boundaries_direction.get_w_alpha_j_w_beta_j(direction_j=self._direction)
 
-        # ステップnの境界jにおける傾斜面に入射する太陽の入射角, rad, [8760 * 4]
+        # ステップ n の境界 j における傾斜面に入射する太陽の入射角, rad, [n]
         theta_aoi_j_ns = inclined_surface_solar_radiation.get_theta_aoi_j_ns(
-            h_sun_ns=h_sun_ns, a_sun_ns=a_sun_ns, alpha_w_j=w_alpha_i_j, beta_w_j=w_beta_i_j)
+            h_sun_ns=h_sun_ns, a_sun_ns=a_sun_ns, alpha_w_j=alpha_w_j, beta_w_j=beta_w_j)
 
         # ステップ n における境界 j の傾斜面に入射する日射量の直達成分, W / m2, [n]
         # ステップ n における境界 j の傾斜面に入射する日射量の天空成分, W / m2, [n]
@@ -274,11 +274,11 @@ class OutsideEqvTempExternalTransparentPart(OutsideEqvTemp):
         i_inc_d_j_ns, i_inc_sky_j_ns, i_inc_ref_j_ns, r_srf_eff_j_ns = inclined_surface_solar_radiation.get_i_is_j_ns(
             i_dn_ns=i_dn_ns,
             i_sky_ns=i_sky_ns,
-            r_eff_ns=r_n_ns,
+            r_eff_ns=r_eff_ns,
             h_sun_ns=h_sun_ns,
             a_sun_ns=a_sun_ns,
-            alpha_w_j=w_alpha_i_j,
-            beta_w_j=w_beta_i_j
+            alpha_w_j=alpha_w_j,
+            beta_w_j=beta_w_j
         )
 
         # ---日よけの影面積比率
