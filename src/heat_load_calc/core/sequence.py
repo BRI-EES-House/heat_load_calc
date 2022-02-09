@@ -426,8 +426,6 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
         n_i = n + 1
 
         # 次の時刻に引き渡す値
-        # 積算値
-        logger.operation_mode[:, n_a] = operation_mode_is_n.flatten()
         # 瞬時値
         logger.theta_r[:, n_i] = theta_r_is_n_pls.flatten()
         logger.theta_mrt_hum[:, n_i] = theta_mrt_hum_is_n_pls.flatten()
@@ -437,15 +435,6 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
         logger.theta_ei[:, n_i] = theta_ei_js_n_pls.flatten()
 
         # 次の時刻に引き渡さない値
-        # 積算値
-        logger.q_hum[:, n_a] = q_hum_is_n.flatten()
-        logger.x_hum[:, n_a] = x_hum_is_n.flatten()
-        logger.l_cs[:, n_a] = l_cs_is_n.flatten()
-        logger.l_rs[:, n_a] = l_rs_is_n.flatten()
-        logger.l_cl[:, n_a] = l_cl_is_n.flatten()
-        # 平均値
-        logger.v_reak_is_ns[:, n_a] = v_leak_is_n.flatten()
-        logger.v_ntrl_is_ns[:, n_a] = v_vent_ntr_is_n.flatten()
         # 瞬時値
         logger.h_hum_c_is_n[:, n_i] = h_hum_c_is_n.flatten()
         logger.h_hum_r_is_n[:, n_i] = h_hum_r_is_n.flatten()
@@ -453,13 +442,27 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
         logger.theta_s[:, n_i] = theta_s_js_n_pls.flatten()
         logger.theta_rear[:, n_i] = theta_rear_js_n.flatten()
         logger.qiall_s[:, n_i] = q_s_js_n_pls.flatten()
-
         logger.pmv_target[:, n_i] = np.array([remark['pmv_target'] for remark in remarks_is_n])
         logger.v_hum[:, n_i] = np.array([remark['v_hum m/s'] for remark in remarks_is_n])
-        logger.clo[:, n_a] = np.array([remark['clo'] for remark in remarks_is_n])
-
         logger.pmv[:, n_i] = pmv_is_n_pls
         logger.ppd[:, n_i] = ppd_is_n_pls
+
+        # 次の時刻に引き渡す値
+        logger.operation_mode[:, n_a] = operation_mode_is_n.flatten()
+
+        # 次の時刻に引き渡さない値
+        # 積算値
+        logger.l_cs[:, n_a] = l_cs_is_n.flatten()
+        logger.l_rs[:, n_a] = l_rs_is_n.flatten()
+        logger.l_cl[:, n_a] = l_cl_is_n.flatten()
+        # 平均値
+        logger.q_hum[:, n_a] = q_hum_is_n.flatten()
+        logger.x_hum[:, n_a] = x_hum_is_n.flatten()
+        logger.v_reak_is_ns[:, n_a] = v_leak_is_n.flatten()
+        logger.v_ntrl_is_ns[:, n_a] = v_vent_ntr_is_n.flatten()
+        # 瞬時値
+        logger.clo[:, n_a] = np.array([remark['clo'] for remark in remarks_is_n])
+
 
     return Conditions(
         operation_mode_is_n=operation_mode_is_n,
