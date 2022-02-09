@@ -156,11 +156,9 @@ class PreCalcParameters:
     # ステップnの外気絶対湿度, kg/kg(DA), [n]
     x_o_ns: np.ndarray
 
-    get_operation_mode_is_n: Callable[[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray], tuple]
+    get_operation_mode_is_n: Callable[[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray], np.ndarray]
 
-    get_theta_target_is_n: Callable[[np.ndarray, np.ndarray, np.ndarray, np.ndarray], tuple]
-
-    get_ot_target_and_h_hum: Callable[[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray], tuple]
+    get_theta_target_is_n: Callable[[np.ndarray, np.ndarray, np.ndarray, np.ndarray], Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]]
 
     get_infiltration: Callable[[np.ndarray, float], np.ndarray]
 
@@ -581,7 +579,6 @@ def make_pre_calc_parameters(
         x_o_ns=x_o_ns,
         get_operation_mode_is_n=get_operation_mode_is_n,
         get_theta_target_is_n=get_theta_target_is_n,
-        get_ot_target_and_h_hum=get_ot_target_and_h_hum,
         get_infiltration=get_infiltration,
         calc_next_temp_and_load=calc_next_temp_and_load,
         get_f_l_cl=get_f_l_cl
