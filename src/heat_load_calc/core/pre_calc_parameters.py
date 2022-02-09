@@ -5,7 +5,7 @@ from typing import Dict, List, Callable, Optional, Tuple, Union
 
 from heat_load_calc.core import infiltration, shape_factor, \
     occupants_form_factor, boundaries
-from heat_load_calc.core import ot_target
+from heat_load_calc.core import ot_target, ot_target_pmv
 from heat_load_calc.core import next_condition
 from heat_load_calc.core.matrix_method import v_diag
 
@@ -155,6 +155,10 @@ class PreCalcParameters:
 
     # ステップnの外気絶対湿度, kg/kg(DA), [n]
     x_o_ns: np.ndarray
+
+    get_operation_mode_is_n: Callable[[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray], tuple]
+
+    get_theta_target_is_n: Callable[[np.ndarray, np.ndarray, np.ndarray, np.ndarray], tuple]
 
     get_ot_target_and_h_hum: Callable[[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray], tuple]
 
@@ -492,6 +496,16 @@ def make_pre_calc_parameters(
 
     # region 読み込んだ値から新たに関数を作成する
 
+    get_operation_mode_is_n = ot_target_pmv.make_get_operation_mode_is_n_function(
+        is_radiative_heating_is=is_radiative_heating_is,
+        is_radiative_cooling_is=is_radiative_cooling_is
+    )
+
+    get_theta_target_is_n = ot_target_pmv.make_get_theta_target_is_n_function(
+        is_radiative_heating_is=is_radiative_heating_is,
+        is_radiative_cooling_is=is_radiative_cooling_is
+    )
+
     # 作用温度と人体周りの熱伝達率を計算する関数
     get_ot_target_and_h_hum = ot_target.make_get_ot_target_and_h_hum_function(
         is_radiative_heating_is=is_radiative_heating_is,
@@ -565,6 +579,8 @@ def make_pre_calc_parameters(
         k_ei_js_js=k_ei_js_js,
         theta_o_ns=theta_o_ns,
         x_o_ns=x_o_ns,
+        get_operation_mode_is_n=get_operation_mode_is_n,
+        get_theta_target_is_n=get_theta_target_is_n,
         get_ot_target_and_h_hum=get_ot_target_and_h_hum,
         get_infiltration=get_infiltration,
         calc_next_temp_and_load=calc_next_temp_and_load,

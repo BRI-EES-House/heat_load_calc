@@ -4,9 +4,35 @@ import math
 from typing import Tuple
 import numpy as np
 from scipy.optimize import newton
+from functools import partial
 
 from heat_load_calc.core.operation_mode import OperationMode
 from heat_load_calc.external import psychrometrics as psy
+
+
+def make_get_operation_mode_is_n_function(
+        is_radiative_heating_is: np.ndarray,
+        is_radiative_cooling_is: np.ndarray
+):
+
+    return partial(
+        _get_operation_mode_is_n,
+        is_radiative_heating_is=is_radiative_heating_is,
+        is_radiative_cooling_is=is_radiative_cooling_is,
+        method='constant'
+    )
+
+
+def make_get_theta_target_is_n_function(
+        is_radiative_heating_is: np.ndarray,
+        is_radiative_cooling_is: np.ndarray
+):
+    return partial(
+        get_theta_target,
+        is_radiative_heating_is=is_radiative_heating_is,
+        is_radiative_cooling_is=is_radiative_cooling_is,
+        method='constant'
+    )
 
 
 def get_ot_target_and_h_hum_with_pmv(
@@ -49,68 +75,40 @@ def get_ot_target_and_h_hum_with_pmv(
     # ステップnにおける室iの水蒸気圧, Pa, [i, 1]
     p_v_r_is_n = psy.get_p_v_r_is_n(x_r_is_n=x_r_is_n)
 
-    # ステップnにおける室iの在室者周りの風速, m/s, [i, 1]
-    v_hum_is_n_mns = get_v_hum_is_n(
-        operation_mode_is_n=operation_mode_is_n_mns,
-        is_radiative_heating_is=is_radiative_heating_is,
-        is_radiative_cooling_is=is_radiative_cooling_is
+    operation_mode_is_n = _get_operation_mode_is_n(
+        ac_demand_is_n,
+        is_radiative_cooling_is,
+        is_radiative_heating_is,
+        method,
+        operation_mode_is_n_mns,
+        p_v_r_is_n,
+        theta_mrt_hum_is_n,
+        theta_r_is_n
     )
 
-    # 厚着時のClo値
-    clo_heavy = get_clo_heavy()
-
-    # 中間着時のClo値
-    clo_middle = get_clo_middle()
-
-    # 薄着時のClo値
-    clo_light = get_clo_light()
-
-    pmv_heavy_is_n = _get_h_hum_and_pmv(
-        p_a_is_n=p_v_r_is_n,
-        theta_r_is_n=theta_r_is_n,
-        theta_mrt_is_n=theta_mrt_hum_is_n,
-        clo_is_n=clo_heavy,
-        v_hum_is_n=v_hum_is_n_mns,
-        method=method
+    h_hum_c_is_n, h_hum_r_is_n, remarks, theta_lower_target_is_n, theta_upper_target_is_n = get_theta_target(
+        is_radiative_cooling_is,
+        is_radiative_heating_is,
+        method,
+        operation_mode_is_n,
+        p_v_r_is_n,
+        theta_mrt_hum_is_n,
+        theta_r_is_n
     )
 
-    pmv_middle_is_n = _get_h_hum_and_pmv(
-        p_a_is_n=p_v_r_is_n,
-        theta_r_is_n=theta_r_is_n,
-        theta_mrt_is_n=theta_mrt_hum_is_n,
-        clo_is_n=clo_middle,
-        v_hum_is_n=v_hum_is_n_mns,
-        method=method
-    )
+    return h_hum_c_is_n, h_hum_r_is_n, operation_mode_is_n, theta_lower_target_is_n, theta_upper_target_is_n, remarks
 
-    pmv_light_is_n = _get_h_hum_and_pmv(
-        p_a_is_n=p_v_r_is_n,
-        theta_r_is_n=theta_r_is_n,
-        theta_mrt_is_n=theta_mrt_hum_is_n,
-        clo_is_n=clo_light,
-        v_hum_is_n=v_hum_is_n_mns,
-        method=method
-    )
 
-    # ステップnにおける室iの運転状態, [i, 1]
-    operation_mode_is_n = get_operation_mode_is_n(
-        ac_demand_is_n=ac_demand_is_n,
-        operation_mode_is_n_mns=operation_mode_is_n_mns,
-        pmv_heavy_is_n=pmv_heavy_is_n,
-        pmv_middle_is_n=pmv_middle_is_n,
-        pmv_light_is_n=pmv_light_is_n
-    )
-
+def get_theta_target(is_radiative_cooling_is, is_radiative_heating_is, method, operation_mode_is_n, p_v_r_is_n,
+                     theta_mrt_hum_is_n, theta_r_is_n):
     # ステップnの室iにおけるClo値, [i, 1]
     clo_is_n = get_clo_is_n(operation_mode_is_n=operation_mode_is_n)
-
     # ステップnにおける室iの在室者周りの風速, m/s, [i, 1]
     v_hum_is_n = get_v_hum_is_n(
         operation_mode_is_n=operation_mode_is_n,
         is_radiative_heating_is=is_radiative_heating_is,
         is_radiative_cooling_is=is_radiative_cooling_is
     )
-
     h_hum_c_is_n, h_hum_r_is_n = _get_h_hum(
         theta_mrt_is_n=theta_mrt_hum_is_n,
         theta_r_is_n=theta_r_is_n,
@@ -118,12 +116,9 @@ def get_ot_target_and_h_hum_with_pmv(
         v_hum_is_n=v_hum_is_n,
         method=method
     )
-
     h_hum_is_n = h_hum_c_is_n + h_hum_r_is_n
-
     # ステップnの室iにおける目標PMV, [i, 1]
     pmv_target_is_n = get_pmv_target_is_n(operation_mode_is_n)
-
     # ステップnにおける室iの目標作用温度, degree C, [i, 1]
     theta_ot_target_is_n = get_theta_ot_target_is_n(
         p_v_r_is_n=p_v_r_is_n,
@@ -132,23 +127,68 @@ def get_ot_target_and_h_hum_with_pmv(
         clo_is_n=clo_is_n,
         pmv_target_is_n=pmv_target_is_n
     )
-
     remarks = [{
         'pmv_target': pmv_target_i_n,
         'v_hum m/s': v_hum_i_n,
         'clo': clo_i_n
     } for pmv_target_i_n, v_hum_i_n, clo_i_n
         in zip(pmv_target_is_n.flatten(), v_hum_is_n.flatten(), clo_is_n.flatten())]
-
     theta_lower_target_is_n = np.zeros_like(operation_mode_is_n, dtype=float)
     theta_lower_target_is_n[operation_mode_is_n == OperationMode.HEATING] \
         = theta_ot_target_is_n[operation_mode_is_n == OperationMode.HEATING]
-
     theta_upper_target_is_n = np.zeros_like(operation_mode_is_n, dtype=float)
     theta_upper_target_is_n[operation_mode_is_n == OperationMode.COOLING] \
         = theta_ot_target_is_n[operation_mode_is_n == OperationMode.COOLING]
+    return h_hum_c_is_n, h_hum_r_is_n, remarks, theta_lower_target_is_n, theta_upper_target_is_n
 
-    return h_hum_c_is_n, h_hum_r_is_n, operation_mode_is_n, theta_lower_target_is_n, theta_upper_target_is_n, remarks
+
+def _get_operation_mode_is_n(ac_demand_is_n, is_radiative_cooling_is, is_radiative_heating_is, method,
+                             operation_mode_is_n_mns, p_v_r_is_n, theta_mrt_hum_is_n, theta_r_is_n):
+    # ステップnにおける室iの在室者周りの風速, m/s, [i, 1]
+    v_hum_is_n_mns = get_v_hum_is_n(
+        operation_mode_is_n=operation_mode_is_n_mns,
+        is_radiative_heating_is=is_radiative_heating_is,
+        is_radiative_cooling_is=is_radiative_cooling_is
+    )
+    # 厚着時のClo値
+    clo_heavy = get_clo_heavy()
+    # 中間着時のClo値
+    clo_middle = get_clo_middle()
+    # 薄着時のClo値
+    clo_light = get_clo_light()
+    pmv_heavy_is_n = _get_h_hum_and_pmv(
+        p_a_is_n=p_v_r_is_n,
+        theta_r_is_n=theta_r_is_n,
+        theta_mrt_is_n=theta_mrt_hum_is_n,
+        clo_is_n=clo_heavy,
+        v_hum_is_n=v_hum_is_n_mns,
+        method=method
+    )
+    pmv_middle_is_n = _get_h_hum_and_pmv(
+        p_a_is_n=p_v_r_is_n,
+        theta_r_is_n=theta_r_is_n,
+        theta_mrt_is_n=theta_mrt_hum_is_n,
+        clo_is_n=clo_middle,
+        v_hum_is_n=v_hum_is_n_mns,
+        method=method
+    )
+    pmv_light_is_n = _get_h_hum_and_pmv(
+        p_a_is_n=p_v_r_is_n,
+        theta_r_is_n=theta_r_is_n,
+        theta_mrt_is_n=theta_mrt_hum_is_n,
+        clo_is_n=clo_light,
+        v_hum_is_n=v_hum_is_n_mns,
+        method=method
+    )
+    # ステップnにおける室iの運転状態, [i, 1]
+    operation_mode_is_n = get_operation_mode_is_n(
+        ac_demand_is_n=ac_demand_is_n,
+        operation_mode_is_n_mns=operation_mode_is_n_mns,
+        pmv_heavy_is_n=pmv_heavy_is_n,
+        pmv_middle_is_n=pmv_middle_is_n,
+        pmv_light_is_n=pmv_light_is_n
+    )
+    return operation_mode_is_n
 
 
 # region 本モジュール内でのみ参照される関数

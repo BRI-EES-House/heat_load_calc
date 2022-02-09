@@ -26,6 +26,25 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
         次の時刻にわたす状態量
     """
 
+    # ステップnにおける室iの水蒸気圧, Pa, [i, 1]
+    p_v_r_is_n = psy.get_p_v_r_is_n(x_r_is_n=c_n.x_r_is_n)
+
+    operation_mode_is_n = ss.get_operation_mode_is_n(
+        p_v_r_is_n=p_v_r_is_n,
+        operation_mode_is_n_mns=c_n.operation_mode_is_n,
+        theta_r_is_n=c_n.theta_r_is_n,
+        theta_mrt_hum_is_n=c_n.theta_mrt_hum_is_n,
+        ac_demand_is_n=ss.ac_demand_is_ns[:, n].reshape(-1, 1)
+    )
+
+    h_hum_c_is_n, h_hum_r_is_n, remarks_is_n, theta_lower_target_is_n_pls, theta_upper_target_is_n_pls \
+        = ss.get_theta_target_is_n(
+            p_v_r_is_n=p_v_r_is_n,
+            operation_mode_is_n=operation_mode_is_n,
+            theta_r_is_n=c_n.theta_r_is_n,
+            theta_mrt_hum_is_n=c_n.theta_mrt_hum_is_n
+        )
+
     # ステップnにおける室iの状況（在室者周りの総合熱伝達率・運転状態・Clo値・目標とする作用温度）を取得する
     #     ステップnにおける室iの在室者周りの対流熱伝達率, W/(m2 K), [i, 1]
     #     ステップnにおける室iの在室者周りの放射熱伝達率, W/(m2 K), [i, 1]
@@ -35,14 +54,14 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
     #     ステップnの室iの在室者周りの風速, m/s, [i, 1]
     #     ステップnの室iにおけるClo値, [i, 1]
     #     ステップnの室iにおける目標作用温度, degree C, [i, 1]
-    h_hum_c_is_n, h_hum_r_is_n, operation_mode_is_n, theta_lower_target_is_n_pls, theta_upper_target_is_n_pls, remarks_is_n \
-        = ss.get_ot_target_and_h_hum(
-            x_r_is_n=c_n.x_r_is_n,
-            operation_mode_is_n_mns=c_n.operation_mode_is_n,
-            theta_r_is_n=c_n.theta_r_is_n,
-            theta_mrt_hum_is_n=c_n.theta_mrt_hum_is_n,
-            ac_demand_is_n=ss.ac_demand_is_ns[:, n].reshape(-1, 1)
-        )
+#    h_hum_c_is_n, h_hum_r_is_n, operation_mode_is_n, theta_lower_target_is_n_pls, theta_upper_target_is_n_pls, remarks_is_n \
+#        = ss.get_ot_target_and_h_hum(
+#            x_r_is_n=c_n.x_r_is_n,
+#            operation_mode_is_n_mns=c_n.operation_mode_is_n,
+#            theta_r_is_n=c_n.theta_r_is_n,
+#            theta_mrt_hum_is_n=c_n.theta_mrt_hum_is_n,
+#            ac_demand_is_n=ss.ac_demand_is_ns[:, n].reshape(-1, 1)
+#        )
 
     # ステップnの境界jにおける裏面温度, degree C, [j, 1]
     theta_rear_js_n = get_theta_rear_js_n(
