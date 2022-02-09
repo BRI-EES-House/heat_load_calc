@@ -37,7 +37,7 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
         ac_demand_is_n=ss.ac_demand_is_ns[:, n].reshape(-1, 1)
     )
 
-    h_hum_c_is_n, h_hum_r_is_n, remarks_is_n, theta_lower_target_is_n_pls, theta_upper_target_is_n_pls \
+    theta_lower_target_is_n_pls, theta_upper_target_is_n_pls, h_hum_c_is_n, h_hum_r_is_n, remarks_is_n, v_hum_is_n \
         = ss.get_theta_target_is_n(
             p_v_r_is_n=p_v_r_is_n,
             operation_mode_is_n=operation_mode_is_n,
@@ -412,13 +412,13 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
     # ステップn+1の室iにおける相対湿度, %, [i, n]
     rh_is_n_pls = psy.get_h(p_v=p_v, p_vs=p_vs)
     # ステップn+1のPMV、PPDを計算, -, [i, 1]
-    pmv_is_n_pls, ppd_is_n_pls = pmv.get_pmv_ppd(met_value=ot_target_pmv.get_m() / 58.15,
-                                                 p_eff=0.0,
-                                                 t_a=theta_r_is_n_pls.flatten(),
-                                                 t_r_bar=theta_mrt_hum_is_n_pls.flatten(),
-                                                 clo_value=clo_is_n,
+    pmv_is_n_pls, ppd_is_n_pls = pmv.get_pmv_ppd(
+        t_a=theta_r_is_n_pls.flatten(),
+        t_r_bar=theta_mrt_hum_is_n_pls.flatten(),
                                                  v_ar=v_hum_is_n_pls,
-                                                 rh=rh_is_n_pls.flatten())
+                                                 rh=rh_is_n_pls.flatten(),
+        operation_mode_is_n=operation_mode_is_n
+    )
 
     if n >= 0:
         # 平均値出力のステップ番号

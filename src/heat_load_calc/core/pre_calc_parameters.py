@@ -5,7 +5,7 @@ from typing import Dict, List, Callable, Optional, Tuple, Union
 
 from heat_load_calc.core import infiltration, shape_factor, \
     occupants_form_factor, boundaries
-from heat_load_calc.core import ot_target, ot_target_pmv
+from heat_load_calc.core import ot_target_pmv
 from heat_load_calc.core import next_condition
 from heat_load_calc.core.matrix_method import v_diag
 
@@ -500,12 +500,6 @@ def make_pre_calc_parameters(
     )
 
     get_theta_target_is_n = ot_target_pmv.make_get_theta_target_is_n_function(
-        is_radiative_heating_is=is_radiative_heating_is,
-        is_radiative_cooling_is=is_radiative_cooling_is
-    )
-
-    # 作用温度と人体周りの熱伝達率を計算する関数
-    get_ot_target_and_h_hum = ot_target.make_get_ot_target_and_h_hum_function(
         is_radiative_heating_is=is_radiative_heating_is,
         is_radiative_cooling_is=is_radiative_cooling_is
     )

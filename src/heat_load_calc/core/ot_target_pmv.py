@@ -35,70 +35,6 @@ def make_get_theta_target_is_n_function(
     )
 
 
-def get_ot_target_and_h_hum_with_pmv(
-        x_r_is_n: np.ndarray,
-        operation_mode_is_n_mns: np.ndarray,
-        theta_r_is_n: np.ndarray,
-        theta_mrt_hum_is_n: np.ndarray,
-        ac_demand_is_n: np.ndarray,
-        is_radiative_heating_is: np.ndarray,
-        is_radiative_cooling_is: np.ndarray,
-        method: str = 'convergence'
-) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, Tuple[np.ndarray, np.ndarray, np.ndarray]]:
-    """
-
-    Args:
-        x_r_is_n: ステップnにおける室iの絶対湿度, kg/kgDA, [i, 1]
-        operation_mode_is_n_mns: ステップn-1における室iの運転状態, [i, 1]
-            列挙体 OperationMode で表される。
-                COOLING ： 冷房
-                HEATING : 暖房
-                STOP_OPEN : 暖房・冷房停止で窓「開」
-                STOP_CLOSE : 暖房・冷房停止で窓「閉」
-        is_radiative_heating_is:　放射暖房の有無, [i, 1]
-        is_radiative_cooling_is: 放射冷房の有無, [i, 1]
-        theta_r_is_n: ステップnにおける室iの空気温度, degree C, [i, 1]
-        theta_mrt_hum_is_n: ステップnにおける室iの在室者の平均放射温度, degree C, [i, 1]
-        ac_demand_is_n: ステップnにおける室iの空調需要の有無, 0.0～1.0, [i, 1]
-        method: PMV計算時の熱伝達率計算に収束計算を行うか固定値を使用するか
-    Returns:
-        ステップnにおける室iの在室者周りの対流熱伝達率, W/m2K, [i, 1]
-        ステップnにおける室iの在室者周りの放射熱伝達率, W/m2K, [i, 1]
-        ステップnの室iにおける運転モード, [i, 1]
-        ステップnの室iにおける目標作用温度, degree C, [i]
-        以下の備考情報を含むタプル
-            ステップnの室iにおける目標PMV, [i, 1]
-            ステップnの室iにおける人体近傍の風速, [i, 1]
-            ステップnの室iにおけるClo値, [i]
-    """
-
-    # ステップnにおける室iの水蒸気圧, Pa, [i, 1]
-    p_v_r_is_n = psy.get_p_v_r_is_n(x_r_is_n=x_r_is_n)
-
-    operation_mode_is_n = _get_operation_mode_is_n(
-        ac_demand_is_n,
-        is_radiative_cooling_is,
-        is_radiative_heating_is,
-        method,
-        operation_mode_is_n_mns,
-        p_v_r_is_n,
-        theta_mrt_hum_is_n,
-        theta_r_is_n
-    )
-
-    h_hum_c_is_n, h_hum_r_is_n, remarks, theta_lower_target_is_n, theta_upper_target_is_n = get_theta_target(
-        is_radiative_cooling_is,
-        is_radiative_heating_is,
-        method,
-        operation_mode_is_n,
-        p_v_r_is_n,
-        theta_mrt_hum_is_n,
-        theta_r_is_n
-    )
-
-    return h_hum_c_is_n, h_hum_r_is_n, operation_mode_is_n, theta_lower_target_is_n, theta_upper_target_is_n, remarks
-
-
 def get_theta_target(is_radiative_cooling_is, is_radiative_heating_is, method, operation_mode_is_n, p_v_r_is_n,
                      theta_mrt_hum_is_n, theta_r_is_n):
     # ステップnの室iにおけるClo値, [i, 1]
@@ -139,7 +75,7 @@ def get_theta_target(is_radiative_cooling_is, is_radiative_heating_is, method, o
     theta_upper_target_is_n = np.zeros_like(operation_mode_is_n, dtype=float)
     theta_upper_target_is_n[operation_mode_is_n == OperationMode.COOLING] \
         = theta_ot_target_is_n[operation_mode_is_n == OperationMode.COOLING]
-    return h_hum_c_is_n, h_hum_r_is_n, remarks, theta_lower_target_is_n, theta_upper_target_is_n
+    return theta_lower_target_is_n, theta_upper_target_is_n, h_hum_c_is_n, h_hum_r_is_n, remarks, v_hum_is_n
 
 
 def _get_operation_mode_is_n(ac_demand_is_n, is_radiative_cooling_is, is_radiative_heating_is, method,

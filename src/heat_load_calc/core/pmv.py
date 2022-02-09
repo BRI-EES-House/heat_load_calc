@@ -4,11 +4,14 @@ from scipy.optimize import newton
 from collections import namedtuple
 import numpy as np
 
+from heat_load_calc.core import ot_target_pmv
+
 
 def get_pmv_ppd(
-        met_value: float, p_eff: np.array, t_a: np.array, t_r_bar: np.array,
-        clo_value: np.array, v_ar: np.array, rh: np.array
-) -> Tuple[np.array, np.array]:
+        t_a: np.ndarray, t_r_bar: np.ndarray,
+        v_ar: np.ndarray, rh: np.ndarray,
+        operation_mode_is_n: np.ndarray
+) -> Tuple[np.ndarray, np.ndarray]:
     """calculate PMV & PPD
 
     Args:
@@ -16,9 +19,7 @@ def get_pmv_ppd(
         t_r_bar: the mean radiant temperature, degree C
         rh: the relative humidity, %
         v_ar: the relative air velocity, m/s
-        met_value: the metabolic rate, met
-        p_eff: the effective mechanical power, met
-        clo_value: the clothing insulation, clo
+        operation_mode_is_n: ステップ n における運転モード, [i]
 
     Returns:
         tuple:
@@ -28,6 +29,16 @@ def get_pmv_ppd(
     Notes:
         Reference: ISO 7730, 1994, 2005
     """
+
+    # Met値
+    # 取り急ぎ、1.0に固定するが、ot_target_pmv.py
+    met_value = 1.0
+
+    # the effective mechanical power, met
+    p_eff = 0.0
+
+    # ステップnの室iにおけるClo値, [i]
+    clo_value = ot_target_pmv.get_clo_is_n(operation_mode_is_n=operation_mode_is_n).flatten()
 
     # the water vapour partial pressure, Pa
     p_a = get_p_a(rh, t_a)
@@ -336,22 +347,4 @@ def saturated_vapor_pressure_SONNTAG(status: str, t: np.array) -> Tuple[np.array
     dpvs_dt = pvs * (- c.a1 / (t ** 2) + c.a3 + 2 * c.a4 * t + c.a5 / t)
 
     return pvs, dpvs_dt
-
-
-if __name__ == '__main__':
-
-    pmv1 = get_pmv_ppd(met_value=1.1, p_eff=0.0, t_a=22.0, t_r_bar=22.0, clo_value=0.5, v_ar=0.1, rh=60.0)
-    print(pmv1)
-
-    pmv2 = get_pmv_ppd(met_value=1.1, p_eff=0.0, t_a=27.0, t_r_bar=27.0, clo_value=0.5, v_ar=0.1, rh=60.0)
-    print(pmv2)
-
-    pmv3 = get_pmv_ppd(met_value=1.1, p_eff=0.0, t_a=23.5, t_r_bar=25.5, clo_value=0.5, v_ar=0.1, rh=60.0)
-    print(pmv3)
-
-    pmv4 = get_pmv_ppd(met_value=1.1, p_eff=0.0, t_a=19.0, t_r_bar=19.0, clo_value=1.0, v_ar=0.1, rh=40.0)
-    print(pmv4)
-
-    pmv5 = get_pmv_ppd(met_value=1.1, p_eff=0.0, t_a=27.0, t_r_bar=27.0, clo_value=0.5, v_ar=0.3, rh=60.0)
-    print(pmv5)
 
