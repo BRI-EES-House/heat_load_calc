@@ -10,7 +10,7 @@ from heat_load_calc.core import ot_target_pmv
 def get_pmv_ppd(
         t_a: np.ndarray, t_r_bar: np.ndarray,
         v_ar: np.ndarray, rh: np.ndarray,
-        operation_mode_is_n: np.ndarray
+        clo_is_n: np.ndarray
 ) -> Tuple[np.ndarray, np.ndarray]:
     """calculate PMV & PPD
 
@@ -19,7 +19,7 @@ def get_pmv_ppd(
         t_r_bar: the mean radiant temperature, degree C
         rh: the relative humidity, %
         v_ar: the relative air velocity, m/s
-        operation_mode_is_n: ステップ n における運転モード, [i]
+        clo_is_n: ステップ n における室 i の居住者のClo値, [i, 1]
 
     Returns:
         tuple:
@@ -37,14 +37,11 @@ def get_pmv_ppd(
     # the effective mechanical power, met
     p_eff = 0.0
 
-    # ステップnの室iにおけるClo値, [i]
-    clo_value = ot_target_pmv.get_clo_is_n(operation_mode_is_n=operation_mode_is_n).flatten()
-
     # the water vapour partial pressure, Pa
     p_a = get_p_a(rh, t_a)
 
-    # the clothing insulation, m2K/W
-    i_cl = convert_clo_to_m2kw(clo_value)
+    # ステップ n における室 i の在室者の着衣抵抗, m2K/W, [i, 1]
+    i_cl = get_i_cl_is_n(clo_is_n=clo_is_n)
 
     # the metabolic rate, W/m2
     m = convert_met_to_wm2(met_value)
@@ -53,17 +50,25 @@ def get_pmv_ppd(
     w = convert_met_to_wm2(p_eff)
 
     # the clothing surface area factor
-    f_cl = get_f_cl(i_cl)
+    f_cl = get_f_cl_is_n(i_cl_is_n=i_cl)
+
+    def f(t):
+
+        i_cl = get_i_cl_is_n(clo_is_n=clo_is_n)
+        f_cl = get_f_cl_is_n(i_cl_is_n=i_cl)
+        return get_t_cl(f_cl=f_cl, i_cl=i_cl, t_a=t_a, t_cl=t, v_ar=v_ar, t_r_bar=t_r_bar, m=m, w=w)
 
     # the clothing surface temperature, degree C
-    i = 0
-    t_cl = np.zeros(f_cl.shape[0])
-    for (fcld, icld, tad, vard, trbard) in zip(f_cl, i_cl, t_a, v_ar, t_r_bar):
-        t_cl[i] = newton(lambda t: get_t_cl(fcld, icld, tad, t, vard, trbard, m, w) - t, 0.001)
-        i += 1
+#    i = 0
+#    t_cl = np.zeros(f_cl.shape[0])
+#    for (fcld, icld, tad, vard, trbard) in zip(f_cl, i_cl, t_a, v_ar, t_r_bar):
+#        t_cl[i] = newton(lambda t: get_t_cl(fcld, icld, tad, t, vard, trbard, m, w) - t, 0.001)
+#        i += 1
+
+    t_cl = newton(f, np.zeros_like(t_a, dtype=float))
 
     # the convective heat transfer coefficient, W/m2K
-    h_c = get_h_c(t_a, t_cl, v_ar)
+    h_c = get_h_hum_c_is_n(t_a, t_cl, v_ar)
 
     # PMV, PPD
     pmv, ppd = get_pmv(f_cl, h_c, m, p_a, t_a, t_cl, t_r_bar, w)
@@ -71,19 +76,44 @@ def get_pmv_ppd(
     return pmv, ppd
 
 
-def get_h_c(t_a: np.array, t_cl: np.array, v_ar: np.array) -> np.array:
-    """
+def get_h_hum_c_is_n(theta_r_is_n: np.array, theta_cl_is_n: np.array, v_hum_is_n: np.array) -> np.array:
+    """人体周りの対流熱伝達率を計算する。
 
     Args:
-        t_a: the air temperature, degree C
-        t_cl: the clothing surface temperature, degree C
-        v_ar: the relative air velocity, m/s
+        theta_r_is_n: ステップ n における室 i の空気温度, degree C, [i, 1]
+        theta_cl_is_n: ステップ n における室 i の在室者の着衣温度, degree C, [i, 1]
+        v_hum_is_n: ステップ n における室 i の在室者周りの風速, m/s, [i, 1]
 
     Returns:
-        the convective heat transfer coefficient, W/m2K
+        ステップnの室iにおける在室者周りの対流熱伝達率, W/m2K, [i, 1]
+
     """
 
-    return np.maximum(12.1 * np.sqrt(v_ar), 2.38 * np.fabs(t_cl - t_a) ** 0.25)
+    return np.maximum(12.1 * np.sqrt(v_hum_is_n), 2.38 * np.fabs(theta_cl_is_n - theta_r_is_n) ** 0.25)
+
+
+def get_h_hum_r_is_n(
+        theta_cl_is_n: np.ndarray,
+        theta_mrt_is_n: np.ndarray
+) -> np.ndarray:
+    """在室者周りの放射熱伝達率を計算する。
+
+    Args:
+        theta_cl_is_n: ステップnにおける室iの在室者の着衣温度, degree C, [i, 1]
+        theta_mrt_is_n: ステップnにおける室iの在室者の平均放射温度, degree C, [i, 1]
+
+    Returns:
+        ステップnにおける室iの在室者周りの放射熱伝達率, W/m2K, [i, 1]
+    """
+
+    # ステップnにおける室iの在室者の着衣温度, K, [i, 1]
+    t_cl_is_n = theta_cl_is_n + 273.0
+
+    # ステップnにおける室iの在室者の平均放射温度, K, [i, 1]
+    t_mrt_is_n = theta_mrt_is_n + 273.0
+
+    return 3.96 * 10 ** (-8) * (
+                t_cl_is_n ** 3.0 + t_cl_is_n ** 2.0 * t_mrt_is_n + t_cl_is_n * t_mrt_is_n ** 2.0 + t_mrt_is_n ** 3.0)
 
 
 def get_t_cl(f_cl: np.array, i_cl: np.array, t_a: np.array, t_cl: np.array, v_ar: np.array, t_r_bar: np.array, m:float, w:float) -> np.array:
@@ -103,7 +133,7 @@ def get_t_cl(f_cl: np.array, i_cl: np.array, t_a: np.array, t_cl: np.array, v_ar
         the clothing surface temperature, degree C
     """
 
-    h_c = get_h_c(t_a, t_cl, v_ar)
+    h_c = get_h_hum_c_is_n(t_a, t_cl, v_ar)
 
     return get_skin_temperature(m, w) - i_cl * (
             get_radiative_heat_loss_from_clothing(f_cl, t_cl, t_r_bar)
@@ -263,45 +293,34 @@ def get_p_a(rh: np.array, t_a: np.array) -> np.array:
     return rh / 100.0 * p_sat
 
 
-def convert_clo_to_m2kw(clo:np.array) -> np.array:
-    """convert the unit of clo to m2K/W
+def get_i_cl_is_n(clo_is_n: np.array) -> np.array:
+    """Clo値から着衣抵抗を計算する。
 
     Args:
-        clo: value, clo
+        clo_is_n: ステップ n における室 i の在室者のClo値, [i, 1]
 
     Returns:
-        value, m2K/W
-    """
-    return clo * 0.155
-
-
-def convert_met_to_wm2(met: float):
-    """convert the unit of met to W/m2
-
-    Args:
-        met: value, met
-
-    Returns:
-        value, W/m2
-    """
-
-    return met * 58.15
-
-
-def get_f_cl(i_cl: np.ndarray) -> np.ndarray:
-    """calculate clothing surface area factor
-
-    Args:
-        i_cl: the clothing insulation, m2K/W
-
-    Returns:
-        the clothing surface area factor
+        ステップ n における室 i の在室者の着衣抵抗, m2K/W, [i, 1]
 
     Notes:
-        equation (4)
+        1 clo = 0.155 m2K/W
+
     """
 
-    return np.where(i_cl <= 0.078, 1.00 + 1.290 * i_cl, 1.05 + 0.645 * i_cl)
+    return clo_is_n * 0.155
+
+
+def get_f_cl_is_n(i_cl_is_n: np.ndarray) -> np.ndarray:
+    """着衣面積率を計算する。
+
+    Args:
+        i_cl_is_n: ステップ n における室 i の在室者の着衣抵抗, m2K/W, [i, 1]
+
+    Returns:
+        ステップ n における室 i の在室者の着衣面積率, [i, 1]
+    """
+
+    return np.where(i_cl_is_n <= 0.078, 1.00 + 1.290 * i_cl_is_n, 1.05 + 0.645 * i_cl_is_n)
 
 
 def get_ppd(pmv: np.array) -> np.array:
@@ -348,3 +367,126 @@ def saturated_vapor_pressure_SONNTAG(status: str, t: np.array) -> Tuple[np.array
 
     return pvs, dpvs_dt
 
+
+def get_h_hum(
+        theta_mrt_is_n: np.ndarray,
+        theta_r_is_n: np.ndarray,
+        clo_is_n: np.ndarray,
+        v_hum_is_n: np.ndarray,
+        method: str
+) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """ 在室者周りの熱伝達率を計算する。
+
+    Args:
+        theta_mrt_is_n: ステップnにおける室iの在室者の平均放射温度, degree C, [i, 1]
+        theta_r_is_n: ステップnにおける室iの空気温度, degree C, [i, 1]
+        clo_is_n: CLO値, [i, 1]
+        v_hum_is_n: ステップnにおける室iの在室者周りの風速, m/s, [i, 1]
+
+    Returns:
+        (1) ステップ n における室 i の在室者周りの対流熱伝達率, W/m2K, [i, 1]
+        (2) ステップ n における室 i の在室者周りの放射熱伝達率, W/m2K, [i, 1]
+        (3) ステップ n における室 i の在室者周りの総合熱伝達率, W/m2K, [i, 1]
+
+    """
+
+    def f(t):
+
+        # ステップnにおける室iの在室者周りの対流熱伝達率, W/m2K, [i, 1]
+        h_hum_c = get_h_hum_c_is_n(theta_r_is_n=theta_r_is_n, theta_cl_is_n=t, v_hum_is_n=v_hum_is_n)
+
+        # ステップnにおける室iの在室者周りの放射熱伝達率, W/m2K, [i, 1]
+        h_hum_r = get_h_hum_r_is_n(theta_cl_is_n=t, theta_mrt_is_n=theta_mrt_is_n)
+
+        # ステップnにおける室iの在室者周りの総合熱伝達率, W/m2K, [i, 1]
+        h_hum = h_hum_r + h_hum_c
+
+        # ステップnにおける室iの在室者の作用温度, degree C, [i, 1]
+        theta_ot_is_n = (h_hum_r * theta_mrt_is_n + h_hum_c * theta_r_is_n) / h_hum
+
+        return _get_theta_cl_is_n(clo_is_n=clo_is_n, theta_ot_is_n=theta_ot_is_n, h_hum_is_n=h_hum)
+
+    if method == 'convergence':
+        # ステップnにおける室iの在室者の着衣温度, degree C, [i, 1]
+        theta_cl_is_n = newton(lambda t: f(t) - t, np.zeros_like(theta_r_is_n, dtype=float))
+
+        # ステップnにおける室iの在室者周りの対流熱伝達率, W/m2K, [i, 1]
+        h_hum_c_is_n = get_h_hum_c_is_n(theta_r_is_n=theta_r_is_n, theta_cl_is_n=theta_cl_is_n, v_hum_is_n=v_hum_is_n)
+
+        # ステップnにおける室iの在室者周りの放射熱伝達率, W/m2K, [i, 1]
+        h_hum_r_is_n = get_h_hum_r_is_n(theta_cl_is_n=theta_cl_is_n, theta_mrt_is_n=theta_mrt_is_n)
+
+    elif method == 'constant':
+
+        h_hum_c_is_n = np.full_like(theta_r_is_n, 4.0)
+        h_hum_r_is_n = np.full_like(theta_r_is_n, 4 * 3.96 * 10 ** (-8) * (20.0 + 273.15) ** 3.0)
+
+    else:
+
+        raise Exception
+
+    h_hum_is_n = h_hum_c_is_n + h_hum_r_is_n
+
+    return h_hum_c_is_n, h_hum_r_is_n, h_hum_is_n
+
+
+def _get_theta_cl_is_n(
+        clo_is_n: np.ndarray,
+        theta_ot_is_n: np.ndarray,
+        h_hum_is_n: np.ndarray
+) -> np.ndarray:
+    """着衣温度を計算する。
+
+    Args:
+        clo_is_n: ステップnにおける室iの在室者のClo値, [i, 1]　又は、（厚着・中間着・薄着時の）Clo値（定数）
+        theta_ot_is_n: ステップnにおける室iの在室者の作用温度, degree C, [i, 1]
+        h_hum_is_n: ステップnにおける室iの在室者周りの総合熱伝達率, W/m2K, [i, 1]
+
+    Returns:
+        ステップnにおける室iの着衣温度, degree C, [i, 1]
+    """
+
+    # ステップnにおける室iの在室者の着衣抵抗, m2K/W, [i, 1]
+    i_cl_is_n = get_i_cl_is_n(clo_is_n=clo_is_n)
+
+    # ステップnにおける室iの在室者の着衣面積率, [i]
+    f_cl_is_n = get_f_cl_is_n(i_cl_is_n=i_cl_is_n)
+
+    # 室 i の在室者の代謝量（人体内部発熱量）, W/m2
+    m = get_m(met=np.full_like(clo_is_n, fill_value=1.0, dtype=float))
+
+    # ステップnにおける室iの在室者の着衣温度, degree C
+    t_cl_i_n = (35.7 - 0.028 * m - theta_ot_is_n) / (1 + i_cl_is_n * f_cl_is_n * h_hum_is_n) + theta_ot_is_n
+
+    return t_cl_i_n
+
+
+def get_m(met: np.ndarray) -> np.ndarray:
+    """代謝量を得る。
+
+    Args:
+        met: Met, [i, 1]
+
+    Returns:
+        代謝量, W/m2, [i, 1]
+
+    Notes:
+        代謝量は1.0 met に固定とする。
+        1.0 met は、ISOにおける、Resting - Seated, quiet に相当
+        1 met = 58.15 W/m2
+    """
+
+    return met * 58.15
+
+
+def convert_met_to_wm2(met: float):
+    """convert the unit of met to W/m2
+
+    Args:
+        met: value, met
+
+    Returns:
+        value, W/m2
+    """
+
+    return met * 58.15

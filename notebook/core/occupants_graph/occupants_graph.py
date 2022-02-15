@@ -161,7 +161,7 @@ def get_graph_data(d):
         )
 
         # 人体周りの総合熱伝達率, 対流熱伝達率, 放射熱伝達率, 運転モード, 着衣量, 目標作用温度の取得
-        h_hum_c_is_n, h_hum_r_is_n, remarks, theta_lower_target_is_n, theta_upper_target_is_n = ot_target_pmv.get_theta_target(
+        h_hum_c_is_n, h_hum_r_is_n, remarks, theta_lower_target_is_n, theta_upper_target_is_n = ot_target_pmv._get_theta_target(
             is_radiative_cooling_is=np.array(d[key]['radiative_cooling']),
             is_radiative_heating_is=np.array(d[key]['radiative_heating']),
             method='convergence',

@@ -195,6 +195,7 @@ class Logger:
 
         self.h_r_s = ss.h_s_r_js.repeat(self._n_step_main + 1, axis=1)
 
+
     def post_logging(self, ss: PreCalcParameters):
 
         # ステップnの室iにおける飽和水蒸気圧, Pa, [i, n]
