@@ -52,7 +52,7 @@ def _get_operation_mode_is_n(ac_demand_is_n, is_radiative_cooling_is, is_radiati
     # 薄着時のClo値
     clo_light = get_clo_light()
 
-    pmv_heavy_is_n = _get_h_hum_and_pmv(
+    pmv_heavy_is_n = pmv._get_h_hum_and_pmv(
         p_a_is_n=p_v_r_is_n,
         theta_r_is_n=theta_r_is_n,
         theta_mrt_is_n=theta_mrt_hum_is_n,
@@ -60,7 +60,7 @@ def _get_operation_mode_is_n(ac_demand_is_n, is_radiative_cooling_is, is_radiati
         v_hum_is_n=v_hum_is_n_mns,
         method=method
     )
-    pmv_middle_is_n = _get_h_hum_and_pmv(
+    pmv_middle_is_n = pmv._get_h_hum_and_pmv(
         p_a_is_n=p_v_r_is_n,
         theta_r_is_n=theta_r_is_n,
         theta_mrt_is_n=theta_mrt_hum_is_n,
@@ -68,7 +68,7 @@ def _get_operation_mode_is_n(ac_demand_is_n, is_radiative_cooling_is, is_radiati
         v_hum_is_n=v_hum_is_n_mns,
         method=method
     )
-    pmv_light_is_n = _get_h_hum_and_pmv(
+    pmv_light_is_n = pmv._get_h_hum_and_pmv(
         p_a_is_n=p_v_r_is_n,
         theta_r_is_n=theta_r_is_n,
         theta_mrt_is_n=theta_mrt_hum_is_n,
@@ -138,47 +138,6 @@ def _get_theta_target(is_radiative_cooling_is, is_radiative_heating_is, method, 
 
 # region 本モジュール内でのみ参照される関数
 
-def _get_h_hum_and_pmv(
-    p_a_is_n: np.ndarray,
-    theta_r_is_n: np.ndarray,
-    theta_mrt_is_n: np.ndarray,
-    clo_is_n: np.ndarray,
-    v_hum_is_n: np.ndarray,
-    method: str
-) -> np.ndarray:
-    """
-
-    Args:
-        p_a_is_n:　ステップnにおける室iの水蒸気圧, Pa, [i, 1]
-        theta_r_is_n: ステップnにおける室iの空気温度, degree C, [i, 1]
-        theta_mrt_is_n: ステップnにおける室iの在室者の平均放射温度, degree C, [i, 1]
-        clo_is_n:
-        v_hum_is_n: ステップnにおける室iの在室者周りの風速, m/s, [i, 1]
-        method: PMV計算時の熱伝達率計算に収束計算を行うか固定値を使用するか
-    Returns:
-        ステップnにおける室iの在室者のPMV, [i, 1]
-    """
-
-    # (1) ステップ n における室 i の在室者周りの対流熱伝達率, W/m2K, [i, 1]
-    # (2) ステップ n における室 i の在室者周りの放射熱伝達率, W/m2K, [i, 1]
-    # (3) ステップ n における室 i の在室者周りの総合熱伝達率, W/m2K, [i, 1]
-    h_hum_c_is_n, h_hum_r_is_n, h_hum_is_n = pmv.get_h_hum(
-        theta_mrt_is_n=theta_mrt_is_n, theta_r_is_n=theta_r_is_n, clo_is_n=clo_is_n, v_hum_is_n=v_hum_is_n, method=method)
-
-    # ステップnにおける室iの在室者の作用温度, degree C, [i, 1]
-    theta_ot_is_n = (h_hum_r_is_n * theta_mrt_is_n + h_hum_c_is_n * theta_r_is_n) / h_hum_is_n
-
-    # ステップnにおける室iの在室者の厚着時のPMV, [i, 1]
-    pmv_is_n = get_pmv_is_n(
-        theta_r_is_n=theta_r_is_n,
-        clo_is_n=clo_is_n,
-        p_a_is_n=p_a_is_n,
-        h_hum_is_n=h_hum_is_n,
-        theta_ot_is_n=theta_ot_is_n
-    )
-
-    return pmv_is_n
-
 
 def get_v_hum_is_n(
         operation_mode_is_n: np.ndarray,
@@ -241,48 +200,6 @@ def get_clo_light() -> float:
     """
 
     return 0.3
-
-
-def get_pmv_is_n(
-        theta_r_is_n: np.ndarray,
-        clo_is_n: float,
-        p_a_is_n: np.ndarray,
-        h_hum_is_n: np.ndarray,
-        theta_ot_is_n: np.ndarray
-) -> np.ndarray:
-    """PMVを計算する
-
-    Args:
-        theta_r_is_n: ステップnにおける室iの空気温度, degree C, [i, 1]
-        clo_is_n: （厚着・中間着・薄着時の）Clo値
-        p_a_is_n:　ステップnにおける室iの水蒸気圧, Pa, [i, 1]
-        h_hum_is_n: ステップnにおける室iの在室者周りの総合熱伝達率, W/m2K, [i, 1]
-        theta_ot_is_n: ステップnにおける室iの在室者の作用温度, degree C, [i, 1]
-
-    Returns:
-        ステップnにおける室iの在室者のPMV, [i, 1]
-
-    Notes:
-        ISOで定める計算方法ではなく、前の時刻に求めた人体周りの熱伝達率、着衣温度を使用して収束計算が生じないようにしている。
-
-    """
-
-    # ステップnにおける室iの在室者の着衣抵抗, m2K/W, [i, 1]
-    i_cl_is_n = pmv.get_i_cl_is_n(clo_is_n=clo_is_n)
-
-    # 代謝量（人体内部発熱量）, W/m2
-    m = get_m()
-
-    # ステップnにおける室iの在室者の着衣面積率, [i, 1]
-    f_cl_is_n = pmv.get_f_cl_is_n(i_cl_is_n=i_cl_is_n)
-
-    return (0.303 * math.exp(-0.036 * m) + 0.028) * (
-            m  # 活動量, W/m2
-            - 3.05 * 10 ** (-3) * (5733.0 - 6.99 * m - p_a_is_n)  # 皮膚からの潜熱損失, W/m2
-            - max(0.42 * (m - 58.15), 0.0)  # 発汗熱損失, W/m2
-            - 1.7 * 10 ** (-5) * m * (5867.0 - p_a_is_n)  # 呼吸に伴う潜熱損失, W/m2
-            - 0.0014 * m * (34.0 - theta_r_is_n)  # 呼吸に伴う顕熱損失, W/m2 ( = 呼吸量, (g/s)/m2 ✕ (34.0 - 室温)
-            - f_cl_is_n * h_hum_is_n * (35.7 - 0.028 * m - theta_ot_is_n) / (1 + i_cl_is_n * f_cl_is_n * h_hum_is_n))  # 着衣からの熱損失
 
 
 def get_operation_mode_is_n(
@@ -437,7 +354,7 @@ def get_theta_ot_target_is_n(
     # 計算する必要がある場合は、上書きする。
     f = (operation_mode_is_n == OperationMode.HEATING) | (operation_mode_is_n == OperationMode.COOLING)
 
-    theta_ot_target_is_n[f] = get_theta_ot_target(
+    theta_ot_target_is_n[f] = pmv.get_theta_ot_target(
         clo_is_n=clo_is_n[f],
         p_a_is_n=p_v_r_is_n[f],
         h_hum_is_n=h_hum_is_n[f],
@@ -467,61 +384,6 @@ def get_pmv_target_is_n(
     pmv_target_is_n[operation_mode_is_n == OperationMode.STOP_CLOSE] = 0.0
 
     return pmv_target_is_n
-
-
-def get_theta_ot_target(
-        clo_is_n: np.ndarray,
-        p_a_is_n: np.ndarray,
-        h_hum_is_n: np.ndarray,
-        pmv_target_is_n: np.ndarray
-) -> np.ndarray:
-    """指定したPMVを満たすOTを計算する
-
-    Args:
-        clo_is_n: ステップnにおける室iの在室者のClo値, [i, 1]
-        p_a_is_n:　ステップnにおける室iの水蒸気圧, Pa, [i, 1]
-        h_hum_is_n: ステップnにおける室iの在室者周りの総合熱伝達率, W/m2K, [i, 1]
-        pmv_target_is_n: ステップnにおける室iの在室者の目標PMV, [i, 1]
-
-    Returns:
-        ステップnにおける室iの在室者の目標OT, [i, 1]
-
-    Notes:
-        ISOで定める計算方法ではなく、前の時刻に求めた人体周りの熱伝達率、着衣温度を使用して収束計算が生じないようにしている。
-
-    """
-
-    # 着衣抵抗, m2K/W, [i, 1]
-    i_cl_is_n = pmv.get_i_cl_is_n(clo_is_n=clo_is_n)
-
-    # 代謝量（人体内部発熱量）, W/m2
-    m = get_m()
-
-    # ステップnにおける室iの着衣面積率, [i, 1]
-    f_cl_is_n = pmv.get_f_cl_is_n(i_cl_is_n=i_cl_is_n)
-
-    return (pmv_target_is_n / (0.303 * math.exp(-0.036 * m) + 0.028) - m
-            + 3.05 * 10 ** (-3) * (5733.0 - 6.99 * m - p_a_is_n)
-            + max(0.42 * (m - 58.15), 0.0)
-            + 1.7 * 10 ** (-5) * m * (5867.0 - p_a_is_n)
-            + 0.0014 * m * 34.0
-            + f_cl_is_n * h_hum_is_n * (35.7 - 0.028 * m) / (1 + i_cl_is_n * f_cl_is_n * h_hum_is_n)
-            )/(0.0014 * m + f_cl_is_n * h_hum_is_n / (1 + i_cl_is_n * f_cl_is_n * h_hum_is_n))
-
-
-def get_m():
-    """代謝量を得る。
-
-    Returns:
-        代謝量, W/m2
-
-    Notes:
-        代謝量は1.0 met に固定とする。
-        1.0 met は、ISOにおける、Resting - Seated, quiet に相当
-        1 met = 58.15 W/m2
-    """
-
-    return 58.15
 
 
 # endregion

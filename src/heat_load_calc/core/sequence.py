@@ -403,7 +403,7 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
     )
 
     # ステップ n+1 における人体まわりの風速, m/s, [i, n]
-    v_hum_is_n_pls = np.array([remark['v_hum m/s'] for remark in remarks_is_n])
+    v_hum_is_n_pls = np.array([remark['v_hum m/s'] for remark in remarks_is_n]).reshape(-1,1)
 
     # ステップ n+1 の室 i における飽和水蒸気圧, Pa, [i, n]
     p_vs = psy.get_p_vs_is(theta_is=theta_r_is_n_pls)
@@ -418,13 +418,29 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
     clo_is_n = ot_target_pmv.get_clo_is_n(operation_mode_is_n=operation_mode_is_n).flatten()
 
     # ステップn+1のPMV、PPDを計算, -, [i, 1]
-    pmv_is_n_pls, ppd_is_n_pls = pmv.get_pmv_ppd(
-        t_a=theta_r_is_n_pls.flatten(),
-        t_r_bar=theta_mrt_hum_is_n_pls.flatten(),
-        v_ar=v_hum_is_n_pls,
-        rh=rh_is_n_pls.flatten(),
-        clo_is_n=clo_is_n
+#    pmv_is_n_pls, ppd_is_n_pls = pmv.get_pmv_ppd(
+#        t_a=theta_r_is_n_pls.flatten(),
+#        t_r_bar=theta_mrt_hum_is_n_pls.flatten(),
+#        v_ar=v_hum_is_n_pls,
+#        rh=rh_is_n_pls.flatten(),
+#        clo_is_n=clo_is_n
+#    )
+
+#    print(p_v)
+#    print(theta_r_is_n_pls)
+#    print(theta_mrt_hum_is_n_pls)
+#    print(clo_is_n)
+#    print(v_hum_is_n_pls)
+
+    pmv_is_n_pls = pmv._get_h_hum_and_pmv(
+        p_a_is_n=p_v,
+        theta_r_is_n=theta_r_is_n_pls,
+        theta_mrt_is_n=theta_mrt_hum_is_n_pls,
+        clo_is_n=clo_is_n.reshape(-1, 1),
+        v_hum_is_n=v_hum_is_n_pls
     )
+
+    ppd_is_n_pls = pmv.get_ppd(pmv=pmv_is_n_pls)
 
     if n >= 0:
         # 平均値出力のステップ番号
@@ -451,8 +467,8 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
         logger.qiall_s[:, n_i] = q_s_js_n_pls.flatten()
         logger.pmv_target[:, n_i] = np.array([remark['pmv_target'] for remark in remarks_is_n])
         logger.v_hum[:, n_i] = np.array([remark['v_hum m/s'] for remark in remarks_is_n])
-        logger.pmv[:, n_i] = pmv_is_n_pls
-        logger.ppd[:, n_i] = ppd_is_n_pls
+        logger.pmv[:, n_i] = pmv_is_n_pls.flatten()
+        logger.ppd[:, n_i] = ppd_is_n_pls.flatten()
 
         # 次の時刻に引き渡す値
         logger.operation_mode[:, n_a] = operation_mode_is_n.flatten()
