@@ -158,7 +158,7 @@ class PreCalcParameters:
 
     get_operation_mode_is_n: Callable[[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray], np.ndarray]
 
-    get_theta_target_is_n: Callable[[np.ndarray, np.ndarray, np.ndarray, np.ndarray], Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]]
+    get_theta_target_is_n: Callable[[np.ndarray, np.ndarray, np.ndarray, np.ndarray], Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]]
 
     get_infiltration: Callable[[np.ndarray, float], np.ndarray]
 

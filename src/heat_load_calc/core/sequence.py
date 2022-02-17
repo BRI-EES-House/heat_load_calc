@@ -38,16 +38,12 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
         ac_demand_is_n=ss.ac_demand_is_ns[:, n].reshape(-1, 1)
     )
 
-    # ステップ n における室 i の居住者のClo値, clo, [i, 1]
-    clo_is_n = ot_target_pmv.get_clo_is_n(operation_mode_is_n=operation_mode_is_n)
-
-    theta_lower_target_is_n_pls, theta_upper_target_is_n_pls, h_hum_c_is_n, h_hum_r_is_n, remarks_is_n, v_hum_is_n \
+    theta_lower_target_is_n_pls, theta_upper_target_is_n_pls, h_hum_c_is_n, h_hum_r_is_n, v_hum_is_n, clo_is_n \
         = ss.get_theta_target_is_n(
             p_v_r_is_n=p_v_r_is_n,
             operation_mode_is_n=operation_mode_is_n,
             theta_r_is_n=c_n.theta_r_is_n,
-            theta_mrt_hum_is_n=c_n.theta_mrt_hum_is_n,
-            clo_is_n=clo_is_n
+            theta_mrt_hum_is_n=c_n.theta_mrt_hum_is_n
         )
 
     # ステップnの境界jにおける裏面温度, degree C, [j, 1]
@@ -402,42 +398,16 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
         x_r_is_n_pls=x_r_is_n_pls
     )
 
-    # ステップ n+1 における人体まわりの風速, m/s, [i, n]
-    v_hum_is_n_pls = np.array([remark['v_hum m/s'] for remark in remarks_is_n]).reshape(-1,1)
-
-    # ステップ n+1 の室 i における飽和水蒸気圧, Pa, [i, n]
-    p_vs = psy.get_p_vs_is(theta_is=theta_r_is_n_pls)
-
     # ステップn+1における室iの水蒸気圧, Pa, [i, n]
     p_v = psy.get_p_v_r_is_n(x_r_is_n=x_r_is_n_pls)
 
-    # ステップn+1の室iにおける相対湿度, %, [i, n]
-    rh_is_n_pls = psy.get_h(p_v=p_v, p_vs=p_vs)
-
-    # ステップnの室iにおけるClo値, [i]
-    clo_is_n = ot_target_pmv.get_clo_is_n(operation_mode_is_n=operation_mode_is_n).flatten()
-
-    # ステップn+1のPMV、PPDを計算, -, [i, 1]
-#    pmv_is_n_pls, ppd_is_n_pls = pmv.get_pmv_ppd(
-#        t_a=theta_r_is_n_pls.flatten(),
-#        t_r_bar=theta_mrt_hum_is_n_pls.flatten(),
-#        v_ar=v_hum_is_n_pls,
-#        rh=rh_is_n_pls.flatten(),
-#        clo_is_n=clo_is_n
-#    )
-
-#    print(p_v)
-#    print(theta_r_is_n_pls)
-#    print(theta_mrt_hum_is_n_pls)
-#    print(clo_is_n)
-#    print(v_hum_is_n_pls)
-
+    # ステップ n+1 における室 i の在室者のPMV, [i, 1]
     pmv_is_n_pls = pmv._get_h_hum_and_pmv(
         p_a_is_n=p_v,
         theta_r_is_n=theta_r_is_n_pls,
         theta_mrt_is_n=theta_mrt_hum_is_n_pls,
-        clo_is_n=clo_is_n.reshape(-1, 1),
-        v_hum_is_n=v_hum_is_n_pls
+        clo_is_n=clo_is_n,
+        v_hum_is_n=v_hum_is_n
     )
 
     ppd_is_n_pls = pmv.get_ppd(pmv=pmv_is_n_pls)
@@ -465,8 +435,6 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
         logger.theta_s[:, n_i] = theta_s_js_n_pls.flatten()
         logger.theta_rear[:, n_i] = theta_rear_js_n.flatten()
         logger.qiall_s[:, n_i] = q_s_js_n_pls.flatten()
-        logger.pmv_target[:, n_i] = np.array([remark['pmv_target'] for remark in remarks_is_n])
-        logger.v_hum[:, n_i] = np.array([remark['v_hum m/s'] for remark in remarks_is_n])
         logger.pmv[:, n_i] = pmv_is_n_pls.flatten()
         logger.ppd[:, n_i] = ppd_is_n_pls.flatten()
 
@@ -483,9 +451,8 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
         logger.x_hum[:, n_a] = x_hum_is_n.flatten()
         logger.v_reak_is_ns[:, n_a] = v_leak_is_n.flatten()
         logger.v_ntrl_is_ns[:, n_a] = v_vent_ntr_is_n.flatten()
-        # 瞬時値
+        logger.v_hum[:, n_a] = v_hum_is_n.flatten()
         logger.clo[:, n_a] = clo_is_n.flatten()
-
 
     return Conditions(
         operation_mode_is_n=operation_mode_is_n,

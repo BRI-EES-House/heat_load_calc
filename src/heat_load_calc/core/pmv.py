@@ -1,10 +1,7 @@
-import math
 from typing import Tuple
 from scipy.optimize import newton
 from collections import namedtuple
 import numpy as np
-
-from heat_load_calc.core import ot_target_pmv
 
 
 def get_pmv_ppd(
@@ -498,7 +495,7 @@ def _get_h_hum_and_pmv(
     theta_mrt_is_n: np.ndarray,
     clo_is_n: np.ndarray,
     v_hum_is_n: np.ndarray,
-    method : str = "convergence"
+    method: str = "convergence"
 ) -> np.ndarray:
     """
 

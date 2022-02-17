@@ -88,10 +88,10 @@ def _get_operation_mode_is_n(ac_demand_is_n, is_radiative_cooling_is, is_radiati
 
 
 def _get_theta_target(is_radiative_cooling_is, is_radiative_heating_is, method, operation_mode_is_n, p_v_r_is_n,
-                      theta_mrt_hum_is_n, theta_r_is_n, clo_is_n):
+                      theta_mrt_hum_is_n, theta_r_is_n):
 
     # ステップnの室iにおけるClo値, [i, 1]
-    # clo_is_n = get_clo_is_n(operation_mode_is_n=operation_mode_is_n)
+    clo_is_n = get_clo_is_n(operation_mode_is_n=operation_mode_is_n)
 
     # ステップnにおける室iの在室者周りの風速, m/s, [i, 1]
     v_hum_is_n = get_v_hum_is_n(
@@ -113,6 +113,7 @@ def _get_theta_target(is_radiative_cooling_is, is_radiative_heating_is, method, 
 
     # ステップnの室iにおける目標PMV, [i, 1]
     pmv_target_is_n = get_pmv_target_is_n(operation_mode_is_n)
+
     # ステップnにおける室iの目標作用温度, degree C, [i, 1]
     theta_ot_target_is_n = get_theta_ot_target_is_n(
         p_v_r_is_n=p_v_r_is_n,
@@ -121,19 +122,15 @@ def _get_theta_target(is_radiative_cooling_is, is_radiative_heating_is, method, 
         clo_is_n=clo_is_n,
         pmv_target_is_n=pmv_target_is_n
     )
-    remarks = [{
-        'pmv_target': pmv_target_i_n,
-        'v_hum m/s': v_hum_i_n,
-        'clo': clo_i_n
-    } for pmv_target_i_n, v_hum_i_n, clo_i_n
-        in zip(pmv_target_is_n.flatten(), v_hum_is_n.flatten(), clo_is_n.flatten())]
+
     theta_lower_target_is_n = np.zeros_like(operation_mode_is_n, dtype=float)
     theta_lower_target_is_n[operation_mode_is_n == OperationMode.HEATING] \
         = theta_ot_target_is_n[operation_mode_is_n == OperationMode.HEATING]
     theta_upper_target_is_n = np.zeros_like(operation_mode_is_n, dtype=float)
     theta_upper_target_is_n[operation_mode_is_n == OperationMode.COOLING] \
         = theta_ot_target_is_n[operation_mode_is_n == OperationMode.COOLING]
-    return theta_lower_target_is_n, theta_upper_target_is_n, h_hum_c_is_n, h_hum_r_is_n, remarks, v_hum_is_n
+
+    return theta_lower_target_is_n, theta_upper_target_is_n, h_hum_c_is_n, h_hum_r_is_n, v_hum_is_n, clo_is_n
 
 
 # region 本モジュール内でのみ参照される関数
