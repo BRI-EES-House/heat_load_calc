@@ -91,17 +91,17 @@ class TestSteadyState(unittest.TestCase):
 
         clo_is_n = np.array([clo])
 
-        i_cl_is_n = pmv.get_i_cl_is_n(clo_is_n=clo_is_n)
+        i_cl_is_n = pmv._get_i_cl_is_n(clo_is_n=clo_is_n)
         # 室 i の在室者のMet値, [i, 1]
         met_is = np.full_like(clo_is_n, fill_value=1.0, dtype=float)
 
         # 室 i の在室者の代謝量（人体内部発熱量）, W/m2
-        m_is = pmv.get_m_is(met=met_is)
+        m_is = pmv._get_m_is(met_is=met_is)
 
         # ステップnにおける室iの在室者の着衣面積率, [i, 1]
-        f_cl_is_n = pmv.get_f_cl_is_n(i_cl_is_n=i_cl_is_n)
+        f_cl_is_n = pmv._get_f_cl_is_n(i_cl_is_n=i_cl_is_n)
 
-        pmv_confirm = pmv.get_pmv_is_n(
+        pmv_confirm = pmv._get_pmv(
             theta_r_is_n=np.array([theta_ot]),
             p_a_is_n=np.array([p_a]),
             h_hum_is_n=np.array([h_hum]),
@@ -114,7 +114,7 @@ class TestSteadyState(unittest.TestCase):
         self.assertAlmostEqual(self._dd['rm0_pmv_target']['1989-12-31 00:00:00'], pmv_confirm[0][0])
 
         # 実現PMV
-        pmv_practical = pmv.get_pmv_is_n(
+        pmv_practical = pmv._get_pmv(
             theta_r_is_n=np.array([theta_r]),
             p_a_is_n=np.array([p_a]),
             h_hum_is_n=np.array([h_hum]),

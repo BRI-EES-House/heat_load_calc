@@ -157,7 +157,8 @@ def get_graph_data(d):
             operation_mode_is_n_mns=np.array(d[key]['operation_mode']),
             p_v_r_is_n=p_v_r_is_n,
             theta_mrt_hum_is_n=np.array(d[key]['theta_mrt']),
-            theta_r_is_n=np.array(d[key]['theta_r'])
+            theta_r_is_n=np.array(d[key]['theta_r']),
+            met_is=np.full_like(np.array(d[key]['theta_r']), fill_value=1.0, dtype=float)
         )
 
         # 人体周りの総合熱伝達率, 対流熱伝達率, 放射熱伝達率, 運転モード, 着衣量, 目標作用温度の取得
@@ -168,7 +169,8 @@ def get_graph_data(d):
             operation_mode_is_n=operation_mode,
             p_v_r_is_n=p_v_r_is_n,
             theta_mrt_hum_is_n=np.array(d[key]['theta_mrt']),
-            theta_r_is_n=np.array(d[key]['theta_r'])
+            theta_r_is_n=np.array(d[key]['theta_r']),
+            met_is=np.full_like(np.array(d[key]['theta_r']), fill_value=1.0, dtype=float)
         )
 
         # 人体周りの総合熱伝達率, 対流熱伝達率, 放射熱伝達率, 運転モード, 着衣量, 目標作用温度の取得
