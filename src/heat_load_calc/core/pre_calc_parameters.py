@@ -166,6 +166,8 @@ class PreCalcParameters:
 
     get_f_l_cl: Callable[[np.ndarray, np.ndarray, np.ndarray], Tuple[np.ndarray, np.ndarray]]
 
+    met_is: np.ndarray
+
 
 @dataclass
 class PreCalcParametersGround:
@@ -279,6 +281,10 @@ def make_pre_calc_parameters(
 
     # 室iの自然風利用時の換気量, m3/s, [i, 1]
     v_vent_ntr_set_is = rms.get_v_vent_ntr_set_is()
+
+    # 室 i の在室者のMet値, [i, 1]
+    met_is = rms.get_met_is()
+
 
     # endregion
 
@@ -575,7 +581,8 @@ def make_pre_calc_parameters(
         get_theta_target_is_n=get_theta_target_is_n,
         get_infiltration=get_infiltration,
         calc_next_temp_and_load=calc_next_temp_and_load,
-        get_f_l_cl=get_f_l_cl
+        get_f_l_cl=get_f_l_cl,
+        met_is=met_is
     )
 
     # 地盤の数

@@ -99,3 +99,7 @@ class Rooms:
 
         # m3/h から m3/s の単位変換を行う。
         return np.array([rm.v_vent_ntr_set / 3600.0 for rm in self._rms]).reshape(-1, 1)
+
+    def get_met_is(self):
+
+        return np.full(shape=(self._n_rm, 1), fill_value=1.0, dtype=float)
