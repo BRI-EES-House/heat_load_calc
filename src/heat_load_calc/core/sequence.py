@@ -26,22 +26,26 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
         次の時刻にわたす状態量
     """
 
-    # ステップnにおける室iの状況（在室者周りの総合熱伝達率・運転状態・Clo値・目標とする作用温度）を取得する
-    #     ステップnにおける室iの在室者周りの対流熱伝達率, W/(m2 K), [i, 1]
-    #     ステップnにおける室iの在室者周りの放射熱伝達率, W/(m2 K), [i, 1]
-    #     ステップnの室iにおける運転モード, [i, 1]
-    #     ステップnの室iにおける目標作用温度下限値, degree C, [i, 1]
-    #     ステップnの室iにおける目標作用温度上限値, degree C, [i, 1]
-    #     ステップnの室iの在室者周りの風速, m/s, [i, 1]
-    #     ステップnの室iにおけるClo値, [i, 1]
-    #     ステップnの室iにおける目標作用温度, degree C, [i, 1]
-    h_hum_c_is_n, h_hum_r_is_n, operation_mode_is_n, theta_lower_target_is_n_pls, theta_upper_target_is_n_pls, remarks_is_n \
-        = ss.get_ot_target_and_h_hum(
-            x_r_is_n=c_n.x_r_is_n,
-            operation_mode_is_n_mns=c_n.operation_mode_is_n,
+    # ステップnにおける室iの水蒸気圧, Pa, [i, 1]
+    p_v_r_is_n = psy.get_p_v_r_is_n(x_r_is_n=c_n.x_r_is_n)
+
+    # ステップ n における室 i の運転モード, [i, 1]
+    operation_mode_is_n = ss.get_operation_mode_is_n(
+        p_v_r_is_n=p_v_r_is_n,
+        operation_mode_is_n_mns=c_n.operation_mode_is_n,
+        theta_r_is_n=c_n.theta_r_is_n,
+        theta_mrt_hum_is_n=c_n.theta_mrt_hum_is_n,
+        ac_demand_is_n=ss.ac_demand_is_ns[:, n].reshape(-1, 1),
+        met_is=ss.met_is
+    )
+
+    theta_lower_target_is_n_pls, theta_upper_target_is_n_pls, h_hum_c_is_n, h_hum_r_is_n, v_hum_is_n, clo_is_n \
+        = ss.get_theta_target_is_n(
+            p_v_r_is_n=p_v_r_is_n,
+            operation_mode_is_n=operation_mode_is_n,
             theta_r_is_n=c_n.theta_r_is_n,
             theta_mrt_hum_is_n=c_n.theta_mrt_hum_is_n,
-            ac_demand_is_n=ss.ac_demand_is_ns[:, n].reshape(-1, 1)
+            met_is=ss.met_is
         )
 
     # ステップnの境界jにおける裏面温度, degree C, [j, 1]
@@ -396,28 +400,20 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
         x_r_is_n_pls=x_r_is_n_pls
     )
 
-    # ステップ n から n+1 における室 i の
-    clo_is_n = np.array([remark['clo'] for remark in remarks_is_n])
-
-    # ステップ n+1 における人体まわりの風速, m/s, [i, n]
-    v_hum_is_n_pls = np.array([remark['v_hum m/s'] for remark in remarks_is_n])
-
-    # ステップ n+1 の室 i における飽和水蒸気圧, Pa, [i, n]
-    p_vs = psy.get_p_vs_is(theta_is=theta_r_is_n_pls)
-
     # ステップn+1における室iの水蒸気圧, Pa, [i, n]
     p_v = psy.get_p_v_r_is_n(x_r_is_n=x_r_is_n_pls)
 
-    # ステップn+1の室iにおける相対湿度, %, [i, n]
-    rh_is_n_pls = psy.get_h(p_v=p_v, p_vs=p_vs)
-    # ステップn+1のPMV、PPDを計算, -, [i, 1]
-    pmv_is_n_pls, ppd_is_n_pls = pmv.get_pmv_ppd(met_value=ot_target_pmv.get_m() / 58.15,
-                                                 p_eff=0.0,
-                                                 t_a=theta_r_is_n_pls.flatten(),
-                                                 t_r_bar=theta_mrt_hum_is_n_pls.flatten(),
-                                                 clo_value=clo_is_n,
-                                                 v_ar=v_hum_is_n_pls,
-                                                 rh=rh_is_n_pls.flatten())
+    # ステップ n+1 における室 i の在室者のPMV, [i, 1]
+    pmv_is_n_pls = pmv.get_pmv_is_n(
+        p_a_is_n=p_v,
+        theta_r_is_n=theta_r_is_n_pls,
+        theta_mrt_is_n=theta_mrt_hum_is_n_pls,
+        clo_is_n=clo_is_n,
+        v_hum_is_n=v_hum_is_n,
+        met_is=ss.met_is
+    )
+
+    ppd_is_n_pls = pmv.get_ppd_is_n(pmv_is_n=pmv_is_n_pls)
 
     if n >= 0:
         # 平均値出力のステップ番号
@@ -442,10 +438,8 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
         logger.theta_s[:, n_i] = theta_s_js_n_pls.flatten()
         logger.theta_rear[:, n_i] = theta_rear_js_n.flatten()
         logger.qiall_s[:, n_i] = q_s_js_n_pls.flatten()
-        logger.pmv_target[:, n_i] = np.array([remark['pmv_target'] for remark in remarks_is_n])
-        logger.v_hum[:, n_i] = np.array([remark['v_hum m/s'] for remark in remarks_is_n])
-        logger.pmv[:, n_i] = pmv_is_n_pls
-        logger.ppd[:, n_i] = ppd_is_n_pls
+        logger.pmv[:, n_i] = pmv_is_n_pls.flatten()
+        logger.ppd[:, n_i] = ppd_is_n_pls.flatten()
 
         # 次の時刻に引き渡す値
         logger.operation_mode[:, n_a] = operation_mode_is_n.flatten()
@@ -460,9 +454,8 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
         logger.x_hum[:, n_a] = x_hum_is_n.flatten()
         logger.v_reak_is_ns[:, n_a] = v_leak_is_n.flatten()
         logger.v_ntrl_is_ns[:, n_a] = v_vent_ntr_is_n.flatten()
-        # 瞬時値
-        logger.clo[:, n_a] = np.array([remark['clo'] for remark in remarks_is_n])
-
+        logger.v_hum[:, n_a] = v_hum_is_n.flatten()
+        logger.clo[:, n_a] = clo_is_n.flatten()
 
     return Conditions(
         operation_mode_is_n=operation_mode_is_n,

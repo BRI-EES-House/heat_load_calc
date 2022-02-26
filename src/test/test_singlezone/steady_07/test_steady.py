@@ -8,6 +8,7 @@ import json
 from heat_load_calc.core import core
 from heat_load_calc.core import ot_target_pmv
 from heat_load_calc.external import psychrometrics
+from heat_load_calc.core import pmv
 
 
 # 定常状態のテスト
@@ -87,22 +88,40 @@ class TestSteadyState(unittest.TestCase):
 
         # 確認用PMV
         # 室温の代わりに作用温度を使用
-        pmv_confirm = ot_target_pmv.get_pmv_is_n(
-            np.array([theta_ot]),
-            np.array([clo]),
-            np.array([p_a]),
-            np.array([h_hum]),
-            np.array([theta_ot])
+
+        clo_is_n = np.array([clo])
+
+        i_cl_is_n = pmv._get_i_cl_is_n(clo_is_n=clo_is_n)
+        # 室 i の在室者のMet値, [i, 1]
+        met_is = np.full_like(clo_is_n, fill_value=1.0, dtype=float)
+
+        # 室 i の在室者の代謝量（人体内部発熱量）, W/m2
+        m_is = pmv._get_m_is(met_is=met_is)
+
+        # ステップnにおける室iの在室者の着衣面積率, [i, 1]
+        f_cl_is_n = pmv._get_f_cl_is_n(i_cl_is_n=i_cl_is_n)
+
+        pmv_confirm = pmv._get_pmv(
+            theta_r_is_n=np.array([theta_ot]),
+            p_a_is_n=np.array([p_a]),
+            h_hum_is_n=np.array([h_hum]),
+            theta_ot_is_n=np.array([theta_ot]),
+            i_cl_is_n=i_cl_is_n,
+            m_is=m_is,
+            f_cl_is_n=f_cl_is_n
         )
 
         self.assertAlmostEqual(self._dd['rm0_pmv_target']['1989-12-31 00:00:00'], pmv_confirm[0][0])
 
         # 実現PMV
-        pmv_practical = ot_target_pmv.get_pmv_is_n(
-            np.array([theta_r]),
-            np.array([clo]),
-            np.array([p_a]),
-            np.array([h_hum]),
-            np.array([theta_ot]))
+        pmv_practical = pmv._get_pmv(
+            theta_r_is_n=np.array([theta_r]),
+            p_a_is_n=np.array([p_a]),
+            h_hum_is_n=np.array([h_hum]),
+            theta_ot_is_n=np.array([theta_ot]),
+            i_cl_is_n=i_cl_is_n,
+            m_is=m_is,
+            f_cl_is_n=f_cl_is_n
+        )
 
         print(pmv_practical[0][0])

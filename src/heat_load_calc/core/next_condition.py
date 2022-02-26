@@ -10,7 +10,7 @@ def make_get_next_temp_and_load_function(
         is_radiative_cooling_is: np.ndarray,
         lr_h_max_cap_is: np.ndarray,
         lr_cs_max_cap_is: np.ndarray
-) -> Callable[[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray], Tuple[np.ndarray, np.ndarray]]:
+) -> Callable[[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray], Tuple[np.ndarray, np.ndarray, np.ndarray]]:
 
     return partial(
         get_next_temp_and_load,

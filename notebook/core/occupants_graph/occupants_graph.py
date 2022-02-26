@@ -7,6 +7,7 @@ import numpy as np
 
 from heat_load_calc.core import ot_target_pmv
 from heat_load_calc.core.operation_mode import OperationMode
+from heat_load_calc.core import pmv
 
 
 # グラフ作成用辞書の取得
@@ -144,17 +145,45 @@ def get_graph_data(d):
 
     for key in d.keys():
 
+        # ステップnにおける室iの水蒸気圧, Pa, [i, 1]
+        p_v_r_is_n = psy.get_p_v_r_is_n(x_r_is_n=np.array(d[key]['x_r']))
+
         # 人体周りの総合熱伝達率, 対流熱伝達率, 放射熱伝達率, 運転モード, 着衣量, 目標作用温度の取得
-        _, _, operation_mode, theta_lower_target_is_n, theta_upper_target_is_n, remarks \
-            = ot_target_pmv.get_ot_target_and_h_hum_with_pmv(
-                x_r_is_n=np.array(d[key]['x_r']),
-                operation_mode_is_n_mns=np.array(d[key]['operation_mode']),
-                theta_r_is_n=np.array(d[key]['theta_r']),
-                theta_mrt_hum_is_n=np.array(d[key]['theta_mrt']),
-                ac_demand_is_n=np.where(np.array(d[key]['ac_demand']), 1.0, 0.0),
-                is_radiative_heating_is=np.array(d[key]['radiative_heating']),
-                is_radiative_cooling_is=np.array(d[key]['radiative_cooling'])
+        operation_mode = ot_target_pmv._get_operation_mode_is_n(
+            ac_demand_is_n=np.where(np.array(d[key]['ac_demand']), 1.0, 0.0),
+            is_radiative_cooling_is=np.array(d[key]['radiative_cooling']),
+            is_radiative_heating_is=np.array(d[key]['radiative_heating']),
+            method='convergence',
+            operation_mode_is_n_mns=np.array(d[key]['operation_mode']),
+            p_v_r_is_n=p_v_r_is_n,
+            theta_mrt_hum_is_n=np.array(d[key]['theta_mrt']),
+            theta_r_is_n=np.array(d[key]['theta_r']),
+            met_is=np.full_like(np.array(d[key]['theta_r']), fill_value=1.0, dtype=float)
         )
+
+        # 人体周りの総合熱伝達率, 対流熱伝達率, 放射熱伝達率, 運転モード, 着衣量, 目標作用温度の取得
+        h_hum_c_is_n, h_hum_r_is_n, remarks, theta_lower_target_is_n, theta_upper_target_is_n = ot_target_pmv._get_theta_target(
+            is_radiative_cooling_is=np.array(d[key]['radiative_cooling']),
+            is_radiative_heating_is=np.array(d[key]['radiative_heating']),
+            method='convergence',
+            operation_mode_is_n=operation_mode,
+            p_v_r_is_n=p_v_r_is_n,
+            theta_mrt_hum_is_n=np.array(d[key]['theta_mrt']),
+            theta_r_is_n=np.array(d[key]['theta_r']),
+            met_is=np.full_like(np.array(d[key]['theta_r']), fill_value=1.0, dtype=float)
+        )
+
+        # 人体周りの総合熱伝達率, 対流熱伝達率, 放射熱伝達率, 運転モード, 着衣量, 目標作用温度の取得
+#        _, _, operation_mode, theta_lower_target_is_n, theta_upper_target_is_n, remarks \
+#            = ot_target_pmv.get_ot_target_and_h_hum_with_pmv(
+#                x_r_is_n=np.array(d[key]['x_r']),
+#                operation_mode_is_n_mns=np.array(d[key]['operation_mode']),
+#                theta_r_is_n=np.array(d[key]['theta_r']),
+#                theta_mrt_hum_is_n=np.array(d[key]['theta_mrt']),
+#                ac_demand_is_n=np.where(np.array(d[key]['ac_demand']), 1.0, 0.0),
+#                is_radiative_heating_is=np.array(d[key]['radiative_heating']),
+#                is_radiative_cooling_is=np.array(d[key]['radiative_cooling'])
+#        )
 
         _, _, clo = remarks
 

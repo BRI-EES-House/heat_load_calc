@@ -111,9 +111,6 @@ class Logger:
         # ステップnの室iにおける家具取得水蒸気量, kg/s, [i, n]
         self.q_l_frt = np.zeros((n_rm, self._n_step_main), dtype=float)
 
-        # ステップnの室iにおけるPMV目標値, [i, n]
-        self.pmv_target = np.zeros((n_rm, self._n_step_main), dtype=float)
-
         # ステップnの室iにおけるPMV実現値, [i, n]
         self.pmv = np.zeros((n_rm, self._n_step_main), dtype=float)
 
@@ -121,7 +118,7 @@ class Logger:
         self.ppd = np.zeros((n_rm, self._n_step_main), dtype=float)
 
         # ステップnの室iにおける人体廻りの風速, C, [i, n]
-        self.v_hum = np.zeros((n_rm, self._n_step_main), dtype=float)
+        self.v_hum = np.zeros((n_rm, self._n_step_a), dtype=float)
 
         # ステップnの室iにおけるClo値, [i, n]
         self.clo = np.zeros((n_rm, self._n_step_main), dtype=float)
@@ -195,6 +192,7 @@ class Logger:
 
         self.h_r_s = ss.h_s_r_js.repeat(self._n_step_main + 1, axis=1)
 
+
     def post_logging(self, ss: PreCalcParameters):
 
         # ステップnの室iにおける飽和水蒸気圧, Pa, [i, n]
@@ -266,10 +264,9 @@ class Logger:
             dd_a[name + '_q_l_fun'] = self.q_l_frt[i][0:n_step_a]
             dd_a[name + '_v_reak'] = self.v_reak_is_ns[i][0:n_step_a]
             dd_a[name + '_v_ntrl'] = self.v_ntrl_is_ns[i][0:n_step_a]
-            dd_i[name + '_pmv_target'] = self.pmv_target[i][0:n_step_i]
             dd_i[name + '_pmv'] = self.pmv[i][0:n_step_i]
             dd_i[name + '_ppd'] = self.ppd[i][0:n_step_i]
-            dd_i[name + '_v_hum'] = self.v_hum[i][0:n_step_i]
+            dd_a[name + '_v_hum'] = self.v_hum[i][0:n_step_a]
             dd_a[name + '_clo'] = self.clo[i][0:n_step_a]
 
             selected = pps.p_is_js[i] == 1
