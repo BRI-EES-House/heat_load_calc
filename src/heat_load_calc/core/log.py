@@ -71,8 +71,14 @@ class Logger:
         # ステップ n の室 i における家具吸収日射熱量, W, [i, n+1], 出力名："rm[i]_q_s_sol_fun"
         self.q_sol_frt_is_ns = np.empty((n_rm, self._n_step_i), dtype=float)
 
-        # ステップ n の室 i における家具の絶対湿度, kg/kgDA, [i, n+1]
+        # ステップ n の室 i における家具の絶対湿度, kg/kgDA, [i, n+1], 出力名："rm[i]_x_fun"
         self.x_frt_is_ns = np.empty((n_rm, self._n_step_i), dtype=float)
+
+        # ステップ n の室 i におけるPMV実現値, [i, n+1], 出力名："rm[i]_pmv"
+        self.pmv_is_ns = np.empty((n_rm, self._n_step_i), dtype=float)
+
+        # ステップ n の室 i におけるPPD実現値, [i, n+1], 出力名："rm[i]_ppd"
+        self.ppd_is_ns = np.empty((n_rm, self._n_step_i), dtype=float)
 
 
 
@@ -116,12 +122,6 @@ class Logger:
 
         # ステップnの室iにおける家具取得水蒸気量, kg/s, [i, n]
         self.q_l_frt = np.zeros((n_rm, self._n_step_main), dtype=float)
-
-        # ステップnの室iにおけるPMV実現値, [i, n]
-        self.pmv = np.zeros((n_rm, self._n_step_main), dtype=float)
-
-        # ステップnの室iにおけるPPD実現値, [i, n]
-        self.ppd = np.zeros((n_rm, self._n_step_main), dtype=float)
 
         # ステップnの室iにおける人体廻りの風速, C, [i, n]
         self.v_hum = np.zeros((n_rm, self._n_step_a), dtype=float)
@@ -179,6 +179,7 @@ class Logger:
         self.q_sol_frt_is_ns = ss.q_sol_frt_is_ns[:, 0:self._n_step_i]
 
 
+
         # ステップnの室iにおける当該時刻の空調需要, [i, n]
         self.ac_demand_is_ns = ss.ac_demand_is_ns[:, 0:self._n_step_a]
 
@@ -222,6 +223,25 @@ class Logger:
         # ステップ n+1 の湿度を用いてステップ n からステップ n+1 の平均的な水分流を求めている（後退差分）
         self.q_l_frt = np.delete(ss.g_lh_frt_is * (self.x_r_is_ns - self.x_frt_is_ns), 0, axis=1)
 
+        # ステップ n+1 のPMVを計算するのに、ステップ n からステップ n+1 のClo値を用いる。
+        # 現在、Clo値の配列数が1つ多いバグがあるため、適切な長さになるようにスライスしている。
+        # TODO: 本来であれば、助走期間における、n=-1 の時の値を用いないといけないが、とりあえず、配列最後の値を先頭に持ってきて代用している。
+        clo_pls = np.append(self.clo[:, -1:], self.clo, axis=1)[:, 0:self._n_step_i]
+        # ステップ n+1 のPMVを計算するのに、ステップ n からステップ n+1 の人体周りの風速を用いる。
+        # TODO: 本来であれば、助走期間における、n=-1 の時の値を用いないといけないが、とりあえず、配列最後の値を先頭に持ってきて代用している。
+        v_hum_pls = np.append(self.v_hum[:, -1:], self.v_hum, axis=1)
+
+        self.pmv_is_ns = pmv.get_pmv_is_n(
+            p_a_is_n=p_v_is_ns,
+            theta_r_is_n=self.theta_r_is_ns,
+            theta_mrt_is_n=self.theta_mrt_hum_is_ns,
+            clo_is_n=clo_pls,
+            v_hum_is_n=v_hum_pls,
+            met_is=ss.met_is
+        )
+
+        self.ppd_is_ns = pmv.get_ppd_is_n(pmv_is_n=self.pmv_is_ns)
+
     def record(self, pps: PreCalcParameters):
 
         n_step_i = self._n_step_i
@@ -250,8 +270,8 @@ class Logger:
             dd_i[name + '_t_fun'] = self.theta_frt_is_ns[i]
             dd_i[name + '_q_s_sol_fun'] = self.q_sol_frt_is_ns[i]
             dd_i[name + '_x_fun'] = self.x_frt_is_ns[i]
-            dd_i[name + '_pmv'] = self.pmv[i][0:n_step_i]
-            dd_i[name + '_ppd'] = self.ppd[i][0:n_step_i]
+            dd_i[name + '_pmv'] = self.pmv_is_ns[i]
+            dd_i[name + '_ppd'] = self.ppd_is_ns[i]
 
             dd_a[name + '_ac_operate'] = self.operation_mode[i]
             dd_a[name + '_occupancy'] = self.ac_demand_is_ns[i]

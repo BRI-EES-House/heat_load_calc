@@ -403,19 +403,19 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
     )
 
     # ステップn+1における室iの水蒸気圧, Pa, [i, n]
-    p_v = psy.get_p_v_r_is_n(x_r_is_n=x_r_is_n_pls)
+    #p_v = psy.get_p_v_r_is_n(x_r_is_n=x_r_is_n_pls)
 
     # ステップ n+1 における室 i の在室者のPMV, [i, 1]
-    pmv_is_n_pls = pmv.get_pmv_is_n(
-        p_a_is_n=p_v,
-        theta_r_is_n=theta_r_is_n_pls,
-        theta_mrt_is_n=theta_mrt_hum_is_n_pls,
-        clo_is_n=clo_is_n,
-        v_hum_is_n=v_hum_is_n,
-        met_is=ss.met_is
-    )
+    # pmv_is_n_pls = pmv.get_pmv_is_n(
+    #     p_a_is_n=p_v,
+    #     theta_r_is_n=theta_r_is_n_pls,
+    #     theta_mrt_is_n=theta_mrt_hum_is_n_pls,
+    #     clo_is_n=clo_is_n,
+    #     v_hum_is_n=v_hum_is_n,
+    #     met_is=ss.met_is
+    # )
 
-    ppd_is_n_pls = pmv.get_ppd_is_n(pmv_is_n=pmv_is_n_pls)
+#    ppd_is_n_pls = pmv.get_ppd_is_n(pmv_is_n=pmv_is_n_pls)
 
     # 瞬時値の書き込み
 
@@ -437,8 +437,8 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
         logger.theta_s[:, n_i] = theta_s_js_n_pls.flatten()
         logger.theta_rear[:, n_i] = theta_rear_js_n.flatten()
         logger.qiall_s[:, n_i] = q_s_js_n_pls.flatten()
-        logger.pmv[:, n_i] = pmv_is_n_pls.flatten()
-        logger.ppd[:, n_i] = ppd_is_n_pls.flatten()
+#        logger.pmv_is_ns[:, n_i] = pmv_is_n_pls.flatten()
+#        logger.ppd_is_ns[:, n_i] = ppd_is_n_pls.flatten()
 
     # 平均値・積算値の書き込み
 
