@@ -69,7 +69,10 @@ class Logger:
         self.theta_frt_is_ns = np.empty((n_rm, self._n_step_i), dtype=float)
 
         # ステップ n の室 i における家具吸収日射熱量, W, [i, n+1], 出力名："rm[i]_q_s_sol_fun"
-        self.q_sol_frt_is_ns = np.empty((n_rm, self._n_step_main), dtype=float)
+        self.q_sol_frt_is_ns = np.empty((n_rm, self._n_step_i), dtype=float)
+
+        # ステップ n の室 i における家具の絶対湿度, kg/kgDA, [i, n+1]
+        self.x_frt_is_ns = np.empty((n_rm, self._n_step_i), dtype=float)
 
 
 
@@ -110,9 +113,6 @@ class Logger:
 
         # ステップnの室iにおける家具取得熱量, W, [i, n]
         self.q_frt = np.zeros((n_rm, self._n_step_a), dtype=float)
-
-        # ステップnの室iにおける家具の絶対湿度, kg/kgDA, [i, n]
-        self.x_frt = np.zeros((n_rm, self._n_step_main), dtype=float)
 
         # ステップnの室iにおける家具取得水蒸気量, kg/s, [i, n]
         self.q_l_frt = np.zeros((n_rm, self._n_step_main), dtype=float)
@@ -219,10 +219,8 @@ class Logger:
         self.qr = ss.h_s_r_js * ss.a_s_js * (np.dot(np.dot(ss.p_js_is, ss.f_mrt_is_js), self.theta_s) - self.theta_s)
 
         # ステップ n の室 i の家具等から空気への水分流, kg/s, [i, n]
-#        x_r_is_ns = np.roll(self.x_r_is_ns, -1, axis=1)
-#        x_frt_is_ns = np.roll(self.x_frt, -1, axis=1)
-#        self.q_l_frt = ss.g_lh_frt_is * (x_r_is_ns - x_frt_is_ns)
-        self.q_l_frt = np.delete(ss.g_lh_frt_is * (self.x_r_is_ns - self.x_frt), 0, axis=1)
+        # ステップ n+1 の湿度を用いてステップ n からステップ n+1 の平均的な水分流を求めている（後退差分）
+        self.q_l_frt = np.delete(ss.g_lh_frt_is * (self.x_r_is_ns - self.x_frt_is_ns), 0, axis=1)
 
     def record(self, pps: PreCalcParameters):
 
@@ -251,7 +249,7 @@ class Logger:
             dd_i[name + '_q_sol_t'] = self.q_trs_sol_is_ns[i]
             dd_i[name + '_t_fun'] = self.theta_frt_is_ns[i]
             dd_i[name + '_q_s_sol_fun'] = self.q_sol_frt_is_ns[i]
-            dd_i[name + '_x_fun'] = self.x_frt[i][0:n_step_i]
+            dd_i[name + '_x_fun'] = self.x_frt_is_ns[i]
             dd_i[name + '_pmv'] = self.pmv[i][0:n_step_i]
             dd_i[name + '_ppd'] = self.ppd[i][0:n_step_i]
 
