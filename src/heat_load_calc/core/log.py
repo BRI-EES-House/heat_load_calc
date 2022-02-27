@@ -65,6 +65,12 @@ class Logger:
         # ステップ n における室 i の窓の透過日射熱取得, W, [i, n+1], 出力名："rm[i]_q_sol_t"
         self.q_trs_sol_is_ns = np.empty(shape=(n_rm, self._n_step_i), dtype=float)
 
+        # ステップ n の室 i における家具の温度, degree C, [i, n+1], 出力名："rm[i]_t_fun"
+        self.theta_frt_is_ns = np.zeros((n_rm, self._n_step_i), dtype=float)
+
+
+
+
 
         # ステップnにおける室iの運転状態（平均値）, [i, n], 出力名："rm[i]_ac_operate"
         self.operation_mode = np.empty(shape=(n_rm, self._n_step_a), dtype=object)
@@ -98,9 +104,6 @@ class Logger:
 
         # ステップnの室iにおける対流空調潜熱負荷（加湿側を正とする）, W, [i, n]
         self.l_cl = np.zeros((n_rm, self._n_step_main), dtype=float)
-
-        # ステップnの室iにおける家具の温度, degree C, [i, n]
-        self.theta_frt = np.zeros((n_rm, self._n_step_main), dtype=float)
 
         # ステップnの室iにおける家具取得熱量, W, [i, n]
         self.q_frt = np.zeros((n_rm, self._n_step_a), dtype=float)
@@ -206,7 +209,7 @@ class Logger:
 
         # ステップnの室iにおける家具取得熱量, W, [i, n]
         # ステップ n+1 の温度を用いてステップ n からステップ n+1 の平均的な熱流を求めている（後退差分）
-        self.q_frt = np.delete(ss.g_sh_frt_is * (self.theta_r_is_ns - self.theta_frt), 0, axis=1)
+        self.q_frt = np.delete(ss.g_sh_frt_is * (self.theta_r_is_ns - self.theta_frt_is_ns), 0, axis=1)
 
         # ステップnの境界jにおける表面熱流（壁体吸熱を正とする）のうち対流成分, W, [j, n+1]
         self.qc = ss.h_s_c_js * ss.a_s_js * (np.dot(ss.p_js_is, self.theta_r_is_ns) - self.theta_s)
@@ -245,7 +248,7 @@ class Logger:
             dd_i[name + '_mrt'] = self.theta_mrt_hum_is_ns[i]
             dd_i[name + '_ot'] = self.theta_ot[i]
             dd_i[name + '_q_sol_t'] = self.q_trs_sol_is_ns[i]
-            dd_i[name + '_t_fun'] = self.theta_frt[i][0:n_step_i]
+            dd_i[name + '_t_fun'] = self.theta_frt_is_ns[i]
             dd_i[name + '_q_s_sol_fun'] = self.q_sol_frt_is_ns[i][0:n_step_i]
             dd_i[name + '_x_fun'] = self.x_frt[i][0:n_step_i]
             dd_i[name + '_pmv'] = self.pmv[i][0:n_step_i]

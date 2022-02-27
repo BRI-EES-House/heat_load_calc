@@ -426,7 +426,7 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
         logger.theta_r_is_ns[:, n_i] = theta_r_is_n_pls.flatten()
         logger.theta_mrt_hum_is_ns[:, n_i] = theta_mrt_hum_is_n_pls.flatten()
         logger.x_r_is_ns[:, n_i] = x_r_is_n_pls.flatten()
-        logger.theta_frt[:, n_i] = theta_frt_is_n_pls.flatten()
+        logger.theta_frt_is_ns[:, n_i] = theta_frt_is_n_pls.flatten()
         logger.x_frt[:, n_i] = x_frt_is_n_pls.flatten()
         logger.theta_ei[:, n_i] = theta_ei_js_n_pls.flatten()
 
