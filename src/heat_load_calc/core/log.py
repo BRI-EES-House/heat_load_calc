@@ -41,25 +41,25 @@ class Logger:
 
         # ---瞬時値---
 
-        # ステップnにおける外気温度（瞬時値）, degree C, [n+1], 出力名："out_temp"
+        # ステップ n における外気温度, degree C, [n+1], 出力名："out_temp"
         self.theta_o_ns = np.empty(shape=self._n_step_i, dtype=float)
 
-        # ステップnにおける外気絶対湿度（瞬時値）, kg/kg(DA), [n+1], 出力名："out_abs_humid"
+        # ステップ n における外気絶対湿度, kg/kg(DA), [n+1], 出力名："out_abs_humid"
         self.x_o_ns = np.empty(shape=self._n_step_i, dtype=float)
 
-        # ステップnにおける室iの室温（瞬時値）, degree C, [i, n], 出力名："rm[i]_t_r"
-        self.theta_r = np.empty(shape=(n_rm, self._n_step_i), dtype=float)
+        # ステップ　n　における室　i　の室温, degree C, [i, n+1], 出力名："rm[i]_t_r"
+        self.theta_r_is_ns = np.empty(shape=(n_rm, self._n_step_i), dtype=float)
 
-        # ステップnにおける室iの相対湿度（瞬時値）, %, [i, n], 出力名："rm[i]_rh_r"
-        self.rh = np.empty(shape=(n_rm, self._n_step_i), dtype=float)
+        # ステップ n における室 i の相対湿度, %, [i, n+1], 出力名："rm[i]_rh_r"
+        self.rh_r_is_ns = np.empty(shape=(n_rm, self._n_step_i), dtype=float)
 
-        # ステップnにおける室iの絶対湿度（瞬時値）, kg/kgDA, [i, n], 出力名："rm[i]_x_r"
-        self.x_r = np.empty(shape=(n_rm, self._n_step_i), dtype=float)
+        # ステップ n における室 i の絶対湿度, kg/kgDA, [i, n+1], 出力名："rm[i]_x_r"
+        self.x_r_is_ns = np.empty(shape=(n_rm, self._n_step_i), dtype=float)
 
-        # ステップnにおける室iの平均放射温度（瞬時値）, degree C, [i, n], 出力名："rm[i]_mrt"
-        self.theta_mrt_hum = np.empty(shape=(n_rm, self._n_step_i), dtype=float)
+        # ステップ n における室 i の平均放射温度, degree C, [i, n+1], 出力名："rm[i]_mrt"
+        self.theta_mrt_hum_is_ns = np.empty(shape=(n_rm, self._n_step_i), dtype=float)
 
-        # ステップnにおける室iの作用温度（瞬時値）, degree C, [i, n], 出力名："rm[i]_ot"
+        # ステップ n における室 i の作用温度, degree C, [i, n+1], 出力名："rm[i]_ot"
         self.theta_ot = np.empty(shape=(n_rm, self._n_step_i), dtype=float)
 
         # ステップnにおける室iの窓の透過日射熱取得（瞬時値）, W, [i, n], 出力名："rm[i]_q_sol_t"
@@ -162,10 +162,12 @@ class Logger:
 
     def pre_logging(self, ss: PreCalcParameters):
 
-        # ステップnにおける外気温度（瞬時値）, ℃, [n+1]
+        # ステップ n における外気温度, ℃, [n+1]
+        # 注意：用意された1年分のデータと実行期間が異なる場合があるためデータスライスする必要がある。
         self.theta_o_ns = ss.theta_o_ns[0: self._n_step_i]
 
-        # ステップnにおける外気絶対湿度（瞬時値）, kg/kg(DA), [n+1]
+        # ステップ n における外気絶対湿度, kg/kg(DA), [n+1]
+        # 注意：用意された1年分のデータと実行期間が異なる場合があるためデータスライスする必要がある。
         self.x_o_ns = ss.x_o_ns[0: self._n_step_i]
 
         # ステップnの室iにおける当該時刻の空調需要, [i, n]
@@ -196,31 +198,32 @@ class Logger:
 
         self.h_r_s = ss.h_s_r_js.repeat(self._n_step_main + 1, axis=1)
 
-
     def post_logging(self, ss: PreCalcParameters):
 
-        # ステップnの室iにおける飽和水蒸気圧, Pa, [i, n]
-        p_vs = psy.get_p_vs_is(theta_is=self.theta_r)
+        # ステップ n の室 i における飽和水蒸気圧, Pa, [i, n+1]
+        p_vs_is_ns = psy.get_p_vs_is(theta_is=self.theta_r_is_ns)
 
-        # ステップnにおける室iの水蒸気圧, Pa, [i, n]
-        p_v = psy.get_p_v_r_is_n(x_r_is_n=self.x_r)
+        # ステップ n における室 i の水蒸気圧, Pa, [i, n+1]
+        p_v_is_ns = psy.get_p_v_r_is_n(x_r_is_n=self.x_r_is_ns)
 
-        # ステップnの室iにおける相対湿度, %, [i, n]
-        self.rh = psy.get_h(p_v=p_v, p_vs=p_vs)
+        # ステップnの室iにおける相対湿度, %, [i, n+1]
+        self.rh_r_is_ns = psy.get_h(p_v=p_v_is_ns, p_vs=p_vs_is_ns)
 
         # ステップnの室iにおける家具取得熱量, W, [i, n]
-        self.q_frt = np.delete(ss.g_sh_frt_is * (self.theta_r - self.theta_frt), 0, axis=1)
+        # ステップ n+1 の温度を用いてステップ n からステップ n+1 の平均的な熱流を求めている（後退差分）
+        self.q_frt = np.delete(ss.g_sh_frt_is * (self.theta_r_is_ns - self.theta_frt), 0, axis=1)
 
-        # ステップnの境界jにおける表面熱流（壁体吸熱を正とする）のうち対流成分, W, [j, n]
-        self.qc = ss.h_s_c_js * ss.a_s_js * (np.dot(ss.p_js_is, self.theta_r) - self.theta_s)
+        # ステップnの境界jにおける表面熱流（壁体吸熱を正とする）のうち対流成分, W, [j, n+1]
+        self.qc = ss.h_s_c_js * ss.a_s_js * (np.dot(ss.p_js_is, self.theta_r_is_ns) - self.theta_s)
 
         # ステップnの境界jにおける表面熱流（壁体吸熱を正とする）のうち放射成分, W, [j, n]
         self.qr = ss.h_s_r_js * ss.a_s_js * (np.dot(np.dot(ss.p_js_is, ss.f_mrt_is_js), self.theta_s) - self.theta_s)
 
-        # ステップnの室iの家具等から空気への水分流, kg/s, [i, n]
-        x_r_is_ns = np.roll(self.x_r, -1, axis=1)
-        x_frt_is_ns = np.roll(self.x_frt, -1, axis=1)
-        self.q_l_frt = ss.g_lh_frt_is * (x_r_is_ns - x_frt_is_ns)
+        # ステップ n の室 i の家具等から空気への水分流, kg/s, [i, n]
+#        x_r_is_ns = np.roll(self.x_r_is_ns, -1, axis=1)
+#        x_frt_is_ns = np.roll(self.x_frt, -1, axis=1)
+#        self.q_l_frt = ss.g_lh_frt_is * (x_r_is_ns - x_frt_is_ns)
+        self.q_l_frt = np.delete(ss.g_lh_frt_is * (self.x_r_is_ns - self.x_frt), 0, axis=1)
 
     def record(self, pps: PreCalcParameters):
 
@@ -241,10 +244,10 @@ class Logger:
 
             name = 'rm' + str(i)
 
-            dd_i[name + '_t_r'] = self.theta_r[i]
-            dd_i[name + '_rh_r'] = self.rh[i]
-            dd_i[name + '_x_r'] = self.x_r[i]
-            dd_i[name + '_mrt'] = self.theta_mrt_hum[i]
+            dd_i[name + '_t_r'] = self.theta_r_is_ns[i]
+            dd_i[name + '_rh_r'] = self.rh_r_is_ns[i]
+            dd_i[name + '_x_r'] = self.x_r_is_ns[i]
+            dd_i[name + '_mrt'] = self.theta_mrt_hum_is_ns[i]
             dd_i[name + '_ot'] = self.theta_ot[i]
             dd_i[name + '_q_sol_t'] = self.q_trs_sol_is_ns[i][0:n_step_i]
             dd_i[name + '_t_fun'] = self.theta_frt[i][0:n_step_i]
