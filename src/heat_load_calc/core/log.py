@@ -39,23 +39,13 @@ class Logger:
         self._n_step_i = n_step_main + 1
         self._n_step_a = n_step_main
 
+        # ---瞬時値---
+
         # ステップnにおける外気温度（瞬時値）, degree C, [n+1], 出力名："out_temp"
         self.theta_o_ns = np.empty(shape=self._n_step_i, dtype=float)
 
         # ステップnにおける外気絶対湿度（瞬時値）, kg/kg(DA), [n+1], 出力名："out_abs_humid"
         self.x_o_ns = np.empty(shape=self._n_step_i, dtype=float)
-
-        # ステップnにおける室iの運転状態（平均値）, [i, n], 出力名："rm[i]_ac_operate"
-        self.operation_mode = np.empty(shape=(n_rm, self._n_step_a), dtype=object)
-
-        # ステップnにおける室iの空調需要（平均値）, [i, n], 出力名："rm[i]_occupancy"
-        self.ac_demand_is_ns = np.empty(shape=(n_rm, self._n_step_a), dtype=float)
-
-        # ステップnにおける室iの人体周辺対流熱伝達率（瞬時値）, W/m2K, [i, n], 出力名："rm[i]_hc_hum"
-        self.h_hum_c_is_n = np.empty(shape=(n_rm, self._n_step_i), dtype=float)
-
-        # ステップnにおける室iの人体放射熱伝達率（瞬時値）, W/m2K, [i, n], 出力名："rm[i]_hr_hum"
-        self.h_hum_r_is_n = np.empty(shape=(n_rm, self._n_step_i), dtype=float)
 
         # ステップnにおける室iの室温（瞬時値）, degree C, [i, n], 出力名："rm[i]_t_r"
         self.theta_r = np.empty(shape=(n_rm, self._n_step_i), dtype=float)
@@ -74,6 +64,20 @@ class Logger:
 
         # ステップnにおける室iの窓の透過日射熱取得（瞬時値）, W, [i, n], 出力名："rm[i]_q_sol_t"
         self.q_trs_sol_is_ns = np.empty(shape=(n_rm, self._n_step_i), dtype=float)
+
+
+
+        # ステップnにおける室iの運転状態（平均値）, [i, n], 出力名："rm[i]_ac_operate"
+        self.operation_mode = np.empty(shape=(n_rm, self._n_step_a), dtype=object)
+
+        # ステップnにおける室iの空調需要（平均値）, [i, n], 出力名："rm[i]_occupancy"
+        self.ac_demand_is_ns = np.empty(shape=(n_rm, self._n_step_a), dtype=float)
+
+        # ステップnにおける室iの人体周辺対流熱伝達率（平均値）, W/m2K, [i, n], 出力名："rm[i]_hc_hum"
+        self.h_hum_c_is_n = np.empty(shape=(n_rm, self._n_step_a), dtype=float)
+
+        # ステップnにおける室iの人体放射熱伝達率（平均値）, W/m2K, [i, n], 出力名："rm[i]_hr_hum"
+        self.h_hum_r_is_n = np.empty(shape=(n_rm, self._n_step_a), dtype=float)
 
         # ステップnの室iにおける人体発熱を除く内部発熱, W, [i, n]
         self.q_gen_is_ns = None
@@ -100,7 +104,7 @@ class Logger:
         self.theta_frt = np.zeros((n_rm, self._n_step_main), dtype=float)
 
         # ステップnの室iにおける家具取得熱量, W, [i, n]
-        self.q_frt = np.zeros((n_rm, self._n_step_main), dtype=float)
+        self.q_frt = np.zeros((n_rm, self._n_step_a), dtype=float)
 
         # ステップnの室iにおける家具吸収日射熱量, W, [i, n]
         self.q_sol_frt_is_ns = np.zeros((n_rm, self._n_step_main), dtype=float)
@@ -159,10 +163,10 @@ class Logger:
     def pre_logging(self, ss: PreCalcParameters):
 
         # ステップnにおける外気温度（瞬時値）, ℃, [n+1]
-        self.theta_o_ns = ss.theta_o_ns[0:self._n_step_i]
+        self.theta_o_ns = ss.theta_o_ns[0: self._n_step_i]
 
         # ステップnにおける外気絶対湿度（瞬時値）, kg/kg(DA), [n+1]
-        self.x_o_ns = ss.x_o_ns[0:self._n_step_i]
+        self.x_o_ns = ss.x_o_ns[0: self._n_step_i]
 
         # ステップnの室iにおける当該時刻の空調需要, [i, n]
         self.ac_demand_is_ns = ss.ac_demand_is_ns[:, 0:self._n_step_a]
@@ -205,9 +209,7 @@ class Logger:
         self.rh = psy.get_h(p_v=p_v, p_vs=p_vs)
 
         # ステップnの室iにおける家具取得熱量, W, [i, n]
-        theta_r_is_ns = np.roll(self.theta_r, -1, axis=1)
-        theta_frt_is_ns = np.roll(self.theta_frt, -1, axis=1)
-        self.q_frt = ss.g_sh_frt_is * (theta_r_is_ns - theta_frt_is_ns)
+        self.q_frt = np.delete(ss.g_sh_frt_is * (self.theta_r - self.theta_frt), 0, axis=1)
 
         # ステップnの境界jにおける表面熱流（壁体吸熱を正とする）のうち対流成分, W, [j, n]
         self.qc = ss.h_s_c_js * ss.a_s_js * (np.dot(ss.p_js_is, self.theta_r) - self.theta_s)
@@ -219,7 +221,6 @@ class Logger:
         x_r_is_ns = np.roll(self.x_r, -1, axis=1)
         x_frt_is_ns = np.roll(self.x_frt, -1, axis=1)
         self.q_l_frt = ss.g_lh_frt_is * (x_r_is_ns - x_frt_is_ns)
-
 
     def record(self, pps: PreCalcParameters):
 
@@ -240,16 +241,22 @@ class Logger:
 
             name = 'rm' + str(i)
 
-            dd_a[name + '_ac_operate'] = self.operation_mode[i]
-            dd_a[name + '_occupancy'] = self.ac_demand_is_ns[i]
-            dd_i[name + '_hc_hum'] = self.h_hum_c_is_n[i]
-            dd_i[name + '_hr_hum'] = self.h_hum_r_is_n[i]
             dd_i[name + '_t_r'] = self.theta_r[i]
             dd_i[name + '_rh_r'] = self.rh[i]
             dd_i[name + '_x_r'] = self.x_r[i]
             dd_i[name + '_mrt'] = self.theta_mrt_hum[i]
             dd_i[name + '_ot'] = self.theta_ot[i]
             dd_i[name + '_q_sol_t'] = self.q_trs_sol_is_ns[i][0:n_step_i]
+            dd_i[name + '_t_fun'] = self.theta_frt[i][0:n_step_i]
+            dd_i[name + '_q_s_sol_fun'] = self.q_sol_frt_is_ns[i][0:n_step_i]
+            dd_i[name + '_x_fun'] = self.x_frt[i][0:n_step_i]
+            dd_i[name + '_pmv'] = self.pmv[i][0:n_step_i]
+            dd_i[name + '_ppd'] = self.ppd[i][0:n_step_i]
+
+            dd_a[name + '_ac_operate'] = self.operation_mode[i]
+            dd_a[name + '_occupancy'] = self.ac_demand_is_ns[i]
+            dd_a[name + '_hc_hum'] = self.h_hum_c_is_n[i]
+            dd_a[name + '_hr_hum'] = self.h_hum_r_is_n[i]
             dd_a[name + '_q_s_except_hum'] = self.q_gen_is_ns[i][0:n_step_a]
             dd_a[name + '_q_l_except_hum'] = self.x_gen_is_ns[i][0:n_step_a]
             dd_a[name + '_q_hum_s'] = self.q_hum[i][0:n_step_a]
@@ -257,15 +264,10 @@ class Logger:
             dd_a[name + '_l_s_c'] = self.l_cs[i][0:n_step_a]
             dd_a[name + '_l_s_r'] = self.l_rs[i][0:n_step_a]
             dd_a[name + '_l_l_c'] = self.l_cl[i][0:n_step_a]
-            dd_i[name + '_t_fun'] = self.theta_frt[i][0:n_step_i]
             dd_a[name + '_q_s_fun'] = self.q_frt[i][0:n_step_a]
-            dd_i[name + '_q_s_sol_fun'] = self.q_sol_frt_is_ns[i][0:n_step_i]
-            dd_i[name + '_x_fun'] = self.x_frt[i][0:n_step_i]
             dd_a[name + '_q_l_fun'] = self.q_l_frt[i][0:n_step_a]
             dd_a[name + '_v_reak'] = self.v_reak_is_ns[i][0:n_step_a]
             dd_a[name + '_v_ntrl'] = self.v_ntrl_is_ns[i][0:n_step_a]
-            dd_i[name + '_pmv'] = self.pmv[i][0:n_step_i]
-            dd_i[name + '_ppd'] = self.ppd[i][0:n_step_i]
             dd_a[name + '_v_hum'] = self.v_hum[i][0:n_step_a]
             dd_a[name + '_clo'] = self.clo[i][0:n_step_a]
 
