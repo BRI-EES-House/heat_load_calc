@@ -71,7 +71,7 @@ class PreCalcParameters:
     # 室iの自然風利用時の換気量, m3/s, [i, 1]
     v_vent_ntr_set_is: np.ndarray
 
-    # ステップnの室iにおける窓の透過日射熱取得, W, [8760*4]
+    # ステップ n の室 i における窓の透過日射熱取得, W, [i, n+1]
     q_trs_sol_is_ns: np.ndarray
 
     # endregion

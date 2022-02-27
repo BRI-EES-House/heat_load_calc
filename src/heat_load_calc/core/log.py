@@ -62,9 +62,8 @@ class Logger:
         # ステップ n における室 i の作用温度, degree C, [i, n+1], 出力名："rm[i]_ot"
         self.theta_ot = np.empty(shape=(n_rm, self._n_step_i), dtype=float)
 
-        # ステップnにおける室iの窓の透過日射熱取得（瞬時値）, W, [i, n], 出力名："rm[i]_q_sol_t"
+        # ステップ n における室 i の窓の透過日射熱取得, W, [i, n+1], 出力名："rm[i]_q_sol_t"
         self.q_trs_sol_is_ns = np.empty(shape=(n_rm, self._n_step_i), dtype=float)
-
 
 
         # ステップnにおける室iの運転状態（平均値）, [i, n], 出力名："rm[i]_ac_operate"
@@ -173,12 +172,8 @@ class Logger:
         # ステップnの室iにおける当該時刻の空調需要, [i, n]
         self.ac_demand_is_ns = ss.ac_demand_is_ns[:, 0:self._n_step_a]
 
-        # n時点の瞬時値については、最前部に0番目をコピー
-        # TODO: ここは修正する必要があると思われる。
-        # 瞬時値の場合は、外気温度等と同様に、最後尾にインデックス0番をつけるべき。
-        # ただし、test_at_once のテストが崩れるため慎重に対応しないといけない。
-        # 加えて、応答係数に用いる瞬時値としての日射と、室の後退差分に用いる平均値としての日射とをプログラムで明確に区別すべきである。
-        self.q_trs_sol_is_ns = np.append(np.zeros((ss.n_rm, 1)), ss.q_trs_sol_is_ns, axis=1)
+        # ステップ n の室 i における窓の透過日射熱取得, W, [i, n+1]
+        self.q_trs_sol_is_ns = ss.q_trs_sol_is_ns[:, 0:self._n_step_i]
 
         # nからn+1の平均値については最後尾に0番目をコピー
         self.q_gen_is_ns = np.append(ss.q_gen_is_ns, np.zeros((ss.n_rm, 1)), axis=1)
@@ -249,7 +244,7 @@ class Logger:
             dd_i[name + '_x_r'] = self.x_r_is_ns[i]
             dd_i[name + '_mrt'] = self.theta_mrt_hum_is_ns[i]
             dd_i[name + '_ot'] = self.theta_ot[i]
-            dd_i[name + '_q_sol_t'] = self.q_trs_sol_is_ns[i][0:n_step_i]
+            dd_i[name + '_q_sol_t'] = self.q_trs_sol_is_ns[i]
             dd_i[name + '_t_fun'] = self.theta_frt[i][0:n_step_i]
             dd_i[name + '_q_s_sol_fun'] = self.q_sol_frt_is_ns[i][0:n_step_i]
             dd_i[name + '_x_fun'] = self.x_frt[i][0:n_step_i]
