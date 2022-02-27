@@ -106,6 +106,7 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
     )
 
     # ステップ n+1 の室 i における係数 f_BRC, W, [i, 1]
+    # TODO: q_sol_frt_is_ns の値は n+1 の値を使用するべき？
     f_brc_is_n_pls = get_f_brc_is_n_pls(
         a_s_js=ss.a_s_js,
         c_a=get_c_a(),
@@ -288,6 +289,7 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
     )
 
     # ステップ n+1 における室 i　の備品等の温度, degree C, [i, 1]
+    # TODO: q_sol_frt_is_ns の値は n+1 の値を使用するべき？
     theta_frt_is_n_pls = get_theta_frt_is_n_pls(
         c_sh_frt_is=ss.c_sh_frt_is,
         delta_t=delta_t,

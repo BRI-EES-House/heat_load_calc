@@ -66,7 +66,10 @@ class Logger:
         self.q_trs_sol_is_ns = np.empty(shape=(n_rm, self._n_step_i), dtype=float)
 
         # ステップ n の室 i における家具の温度, degree C, [i, n+1], 出力名："rm[i]_t_fun"
-        self.theta_frt_is_ns = np.zeros((n_rm, self._n_step_i), dtype=float)
+        self.theta_frt_is_ns = np.empty((n_rm, self._n_step_i), dtype=float)
+
+        # ステップ n の室 i における家具吸収日射熱量, W, [i, n+1], 出力名："rm[i]_q_s_sol_fun"
+        self.q_sol_frt_is_ns = np.empty((n_rm, self._n_step_main), dtype=float)
 
 
 
@@ -107,9 +110,6 @@ class Logger:
 
         # ステップnの室iにおける家具取得熱量, W, [i, n]
         self.q_frt = np.zeros((n_rm, self._n_step_a), dtype=float)
-
-        # ステップnの室iにおける家具吸収日射熱量, W, [i, n]
-        self.q_sol_frt_is_ns = np.zeros((n_rm, self._n_step_main), dtype=float)
 
         # ステップnの室iにおける家具の絶対湿度, kg/kgDA, [i, n]
         self.x_frt = np.zeros((n_rm, self._n_step_main), dtype=float)
@@ -172,20 +172,21 @@ class Logger:
         # 注意：用意された1年分のデータと実行期間が異なる場合があるためデータスライスする必要がある。
         self.x_o_ns = ss.x_o_ns[0: self._n_step_i]
 
+        # ステップ n における室 i の窓の透過日射熱取得, W, [i, n+1]
+        self.q_trs_sol_is_ns = ss.q_trs_sol_is_ns[:, 0:self._n_step_i]
+
+        # ステップ n における室 i に設置された備品等による透過日射吸収熱量, W, [i, n+1]
+        self.q_sol_frt_is_ns = ss.q_sol_frt_is_ns[:, 0:self._n_step_i]
+
+
         # ステップnの室iにおける当該時刻の空調需要, [i, n]
         self.ac_demand_is_ns = ss.ac_demand_is_ns[:, 0:self._n_step_a]
-
-        # ステップ n の室 i における窓の透過日射熱取得, W, [i, n+1]
-        self.q_trs_sol_is_ns = ss.q_trs_sol_is_ns[:, 0:self._n_step_i]
 
         # nからn+1の平均値については最後尾に0番目をコピー
         self.q_gen_is_ns = np.append(ss.q_gen_is_ns, np.zeros((ss.n_rm, 1)), axis=1)
 
         # nからn+1の平均値については最後尾に0番目をコピー
         self.x_gen_is_ns = np.append(ss.x_gen_is_ns, np.zeros((ss.n_rm, 1)), axis=1)
-
-        # n時点の瞬時値については、最前部に0番目をコピー
-        self.q_sol_frt_is_ns = np.append(np.zeros((ss.n_rm, 1)), ss.q_sol_frt_is_ns, axis=1)
 
         qisol_s = ss.q_s_sol_js_ns * ss.a_s_js
 
@@ -249,7 +250,7 @@ class Logger:
             dd_i[name + '_ot'] = self.theta_ot[i]
             dd_i[name + '_q_sol_t'] = self.q_trs_sol_is_ns[i]
             dd_i[name + '_t_fun'] = self.theta_frt_is_ns[i]
-            dd_i[name + '_q_s_sol_fun'] = self.q_sol_frt_is_ns[i][0:n_step_i]
+            dd_i[name + '_q_s_sol_fun'] = self.q_sol_frt_is_ns[i]
             dd_i[name + '_x_fun'] = self.x_frt[i][0:n_step_i]
             dd_i[name + '_pmv'] = self.pmv[i][0:n_step_i]
             dd_i[name + '_ppd'] = self.ppd[i][0:n_step_i]

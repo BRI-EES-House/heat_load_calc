@@ -254,7 +254,8 @@ class TestAllAtOnce(unittest.TestCase):
             c_fun = furniture._get_g_sh_frt_i(furniture._get_c_sh_frt_i(v_rm_i=volume))
 #            cap_fun = self._mdh['spaces'][rm]['furniture']['heat_capacity']  # J/K
             cap_fun = furniture._get_c_sh_frt_i(v_rm_i=volume)
-            q_s_fun = self._dd_i['rm' + str(rm) + '_q_s_sol_fun']['1989-01-01 12:15:00']
+#            q_s_fun = self._dd_i['rm' + str(rm) + '_q_s_sol_fun']['1989-01-01 12:15:00']
+            q_s_fun = self._dd_i['rm' + str(rm) + '_q_s_sol_fun']['1989-01-01 12:00:00']
             q_fun1 = c_fun * (t_r_new - t_fun_new) + q_s_fun
             q_fun2 = cap_fun * (t_fun_new - t_fun_old) / 900.0
             self.assertAlmostEqual(q_fun1, q_fun2)
@@ -281,8 +282,8 @@ class TestAllAtOnce(unittest.TestCase):
         q_sol_trans = self._dd_i['rm0_q_sol_t'][date_now]
 
         # 家具の吸収日射, W
-#        q_sol_fun = self._dd_i['rm0_q_s_sol_fun'][date_now]
-        q_sol_fun = self._dd_i['rm0_q_s_sol_fun'][date_now_plus]
+        q_sol_fun = self._dd_i['rm0_q_s_sol_fun'][date_now]
+#        q_sol_fun = self._dd_i['rm0_q_s_sol_fun'][date_now_plus]
 
         # 部位の吸収日射, W
         surf_abs_sol = 0.0
