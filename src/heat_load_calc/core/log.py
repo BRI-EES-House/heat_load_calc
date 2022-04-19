@@ -41,6 +41,8 @@ class Logger:
 
         # ---瞬時値---
 
+        # 室に関するもの
+
         # ステップ n における外気温度, degree C, [n+1], 出力名："out_temp"
         self.theta_o_ns = np.empty(shape=self._n_step_i, dtype=float)
 
@@ -80,21 +82,51 @@ class Logger:
         # ステップ n の室 i におけるPPD実現値, [i, n+1], 出力名："rm[i]_ppd"
         self.ppd_is_ns = np.empty((n_rm, self._n_step_i), dtype=float)
 
+        # 境界に関するもの
 
+        # ステップ n の境界 j の室内側表面温度, degree C, [j, n+1], 出力名:"rm[i]_b[j]_t_s
+        self.theta_s = np.zeros((n_boundaries, self._n_step_i), dtype=float)
 
+        # ステップ n の境界 j の等価温度, degree C, [j, n+1], 出力名:"rm[i]_b[j]_t_e
+        self.theta_ei = np.zeros((n_boundaries, self._n_step_i), dtype=float)
 
+        # ステップ n の境界 j の裏面温度, degree C, [j, n+1], 出力名:"rm[i]_b[j]_t_b
+        self.theta_rear = np.zeros((n_boundaries, self._n_step_i), dtype=float)
 
-        # ステップnにおける室iの運転状態（平均値）, [i, n], 出力名："rm[i]_ac_operate"
+        # ステップ n の境界 j の表面放射熱伝達率, W/m2K, [j, n+1], 出力名:"rm[i]_b[j]_hir_s
+        self.h_r_s = np.zeros((n_boundaries, self._n_step_i), dtype=float)
+
+        # ステップ n の境界 j の表面放射熱流, W, [j, n+1], 出力名:"rm[i]_b[j]_qir_s
+        self.qr = np.zeros((n_boundaries, self._n_step_i), dtype=float)
+
+        # ステップ n の境界 j の表面対流熱伝達率, W/m2K, [j, n+1], 出力名:"rm[i]_b[j]_hic_s
+        self.h_c_s = np.zeros((n_boundaries, self._n_step_i), dtype=float)
+
+        # ステップ n の境界 j の表面対流熱流, W, [j, n+1], 出力名:"rm[i]_b[j]_qic_s
+        self.qc = np.zeros((n_boundaries, self._n_step_i), dtype=float)
+
+        # ステップ n の境界 j の表面日射熱流, W, [j, n+1], 出力名:"rm[i]_b[j]_qisol_s
+        self.qisol_s = np.zeros((n_boundaries, self._n_step_i), dtype=float)
+
+        # ステップ n の境界 j の表面日射熱流, W, [j, n+1], 出力名:"rm[i]_b[j]_qiall_s
+        self.qiall_s = np.zeros((n_boundaries, self._n_step_i), dtype=float)
+
+        # ---積算値---
+
+        # ステップ n における室 i の運転状態（平均値）, [i, n], 出力名："rm[i]_ac_operate"
         self.operation_mode = np.empty(shape=(n_rm, self._n_step_a), dtype=object)
 
-        # ステップnにおける室iの空調需要（平均値）, [i, n], 出力名："rm[i]_occupancy"
+        # ステップ n における室 i の空調需要（平均値）, [i, n], 出力名："rm[i]_occupancy"
         self.ac_demand_is_ns = np.empty(shape=(n_rm, self._n_step_a), dtype=float)
 
-        # ステップnにおける室iの人体周辺対流熱伝達率（平均値）, W/m2K, [i, n], 出力名："rm[i]_hc_hum"
+        # ステップ n における室 i の人体周辺対流熱伝達率（平均値）, W/m2K, [i, n], 出力名："rm[i]_hc_hum"
         self.h_hum_c_is_n = np.empty(shape=(n_rm, self._n_step_a), dtype=float)
 
-        # ステップnにおける室iの人体放射熱伝達率（平均値）, W/m2K, [i, n], 出力名："rm[i]_hr_hum"
+        # ステップ n における室 i の人体放射熱伝達率（平均値）, W/m2K, [i, n], 出力名："rm[i]_hr_hum"
         self.h_hum_r_is_n = np.empty(shape=(n_rm, self._n_step_a), dtype=float)
+
+
+
 
         # ステップnの室iにおける人体発熱を除く内部発熱, W, [i, n]
         self.q_gen_is_ns = None
@@ -123,44 +155,17 @@ class Logger:
         # ステップnの室iにおける家具取得水蒸気量, kg/s, [i, n]
         self.q_l_frt = np.zeros((n_rm, self._n_step_main), dtype=float)
 
-        # ステップnの室iにおける人体廻りの風速, C, [i, n]
-        self.v_hum = np.zeros((n_rm, self._n_step_a), dtype=float)
-
-        # ステップnの室iにおけるClo値, [i, n]
-        self.clo = np.zeros((n_rm, self._n_step_main), dtype=float)
-
-        # ステップnの統合された境界j*の室内側表面温度, degree C, [j*, n]
-        self.theta_s = np.zeros((n_boundaries, self._n_step_main), dtype=float)
-
-        # ステップnの統合された境界j*の裏面温度, degree C, [j*, n]
-        self.theta_rear = np.zeros((n_boundaries, self._n_step_main), dtype=float)
-
-        # ステップnの統合された境界j*の表面放射熱流, W, [j*, n]
-        self.qr = np.zeros((n_boundaries, self._n_step_main), dtype=float)
-
-        # ステップnの統合された境界j*の表面対流熱流, W, [j*, n]
-        self.qc = np.zeros((n_boundaries, self._n_step_main), dtype=float)
-
-        # ステップnの統合された境界j*の等価温度, degree C, [j*, n]
-        self.theta_ei = np.zeros((n_boundaries, self._n_step_main), dtype=float)
-
-        # ステップnの統合された境界j*の表面日射熱流, W, [j*, n]
-        self.qisol_s = np.zeros((n_boundaries, self._n_step_main), dtype=float)
-
-        # ステップnの統合された境界j*の表面日射熱流, W, [j*, n]
-        self.qiall_s = np.zeros((n_boundaries, self._n_step_main), dtype=float)
-
-        # ステップnの統合された境界j*の表面対流熱伝達率, W/m2K, [j*, n]
-        self.h_c_s = np.zeros((n_boundaries, self._n_step_main), dtype=float)
-
-        # ステップnの統合された境界j*の表面放射熱伝達率, W/m2K, [j*, n]
-        self.h_r_s = np.zeros((n_boundaries, self._n_step_main), dtype=float)
-
         # ステップnのすきま風量, m3/s, [i, n]
         self.v_reak_is_ns = np.zeros((n_rm, self._n_step_main), dtype=float)
 
         # ステップnの自然換気量, m3/s, [i, n]
         self.v_ntrl_is_ns = np.zeros((n_rm, self._n_step_main), dtype=float)
+
+        # ステップnの室iにおける人体廻りの風速, C, [i, n]
+        self.v_hum = np.zeros((n_rm, self._n_step_a), dtype=float)
+
+        # ステップnの室iにおけるClo値, [i, n]
+        self.clo = np.zeros((n_rm, self._n_step_main), dtype=float)
 
     def pre_logging(self, ss: PreCalcParameters):
 
@@ -178,6 +183,15 @@ class Logger:
         # ステップ n における室 i に設置された備品等による透過日射吸収熱量, W, [i, n+1]
         self.q_sol_frt_is_ns = ss.q_sol_frt_is_ns[:, 0:self._n_step_i]
 
+        # ステップ n の境界 j の表面日射熱流, W, [j, n+1]
+        self.qisol_s = ss.q_s_sol_js_ns[:, 0:self._n_step_i] * ss.a_s_js
+
+        # ステップ n の境界 j の表面対流熱伝達率, W/m2K, [j, n+1]
+        self.h_c_s = ss.h_s_c_js.repeat(self._n_step_i, axis=1)
+
+        # ステップ n の境界 j の表面放射熱伝達率, W/m2K, [j, n+1]
+        self.h_r_s = ss.h_s_r_js.repeat(self._n_step_i, axis=1)
+
 
 
         # ステップnの室iにおける当該時刻の空調需要, [i, n]
@@ -188,15 +202,6 @@ class Logger:
 
         # nからn+1の平均値については最後尾に0番目をコピー
         self.x_gen_is_ns = np.append(ss.x_gen_is_ns, np.zeros((ss.n_rm, 1)), axis=1)
-
-        qisol_s = ss.q_s_sol_js_ns * ss.a_s_js
-
-        # n時点の瞬時値については、最前部に0番目をコピー
-        self.qisol_s = np.append(np.zeros((ss.n_bdry, 1)), qisol_s, axis=1)
-
-        self.h_c_s = ss.h_s_c_js.repeat(self._n_step_main + 1, axis=1)
-
-        self.h_r_s = ss.h_s_r_js.repeat(self._n_step_main + 1, axis=1)
 
     def post_logging(self, ss: PreCalcParameters):
 
@@ -293,23 +298,23 @@ class Logger:
 
             selected = pps.p_is_js[i] == 1
 
-            for j, t in enumerate(self.theta_s[selected, 0:n_step_i]):
+            for j, t in enumerate(self.theta_s[selected, :]):
                 dd_i[name + '_' + 'b' + str(j) + '_t_s'] = t
-            for j, t in enumerate(self.theta_ei[selected, 0:n_step_i]):
+            for j, t in enumerate(self.theta_ei[selected, :]):
                 dd_i[name + '_' + 'b' + str(j) + '_t_e'] = t
-            for j, t in enumerate(self.theta_rear[selected, 0:n_step_i]):
+            for j, t in enumerate(self.theta_rear[selected, :]):
                 dd_i[name + '_' + 'b' + str(j) + '_t_b'] = t
-            for j, t in enumerate(self.h_r_s[selected, 0:n_step_i]):
+            for j, t in enumerate(self.h_r_s[selected, :]):
                 dd_i[name + '_' + 'b' + str(j) + '_hir_s'] = t
-            for j, t in enumerate(self.qr[selected, 0:n_step_i]):
+            for j, t in enumerate(self.qr[selected, :]):
                 dd_i[name + '_' + 'b' + str(j) + '_qir_s'] = t
-            for j, t in enumerate(self.h_c_s[selected, 0:n_step_i]):
+            for j, t in enumerate(self.h_c_s[selected, :]):
                 dd_i[name + '_' + 'b' + str(j) + '_hic_s'] = t
-            for j, t in enumerate(self.qc[selected, 0:n_step_i]):
+            for j, t in enumerate(self.qc[selected, :]):
                 dd_i[name + '_' + 'b' + str(j) + '_qic_s'] = t
-            for j, t in enumerate(self.qisol_s[selected, 0:n_step_i]):
+            for j, t in enumerate(self.qisol_s[selected, :]):
                 dd_i[name + '_' + 'b' + str(j) + '_qisol_s'] = t
-            for j, t in enumerate(self.qiall_s[selected, 0:n_step_i]):
+            for j, t in enumerate(self.qiall_s[selected, :]):
                 dd_i[name + '_' + 'b' + str(j) + '_qiall_s'] = t
 
         return dd_i, dd_a
