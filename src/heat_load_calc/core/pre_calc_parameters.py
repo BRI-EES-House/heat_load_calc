@@ -65,13 +65,13 @@ class PreCalcParameters:
     # ステップnの室iにおける機械換気量（全般換気量+局所換気量）, m3/s, [i, 8760*4]
     v_vent_mec_is_ns: np.ndarray
 
-    # ステップ n からステップ n+1 における室 i に設置された備品等による透過日射吸収熱量時間平均値, W, [i, n]
+    # ステップ n における室 i に設置された備品等による透過日射吸収熱量, W, [i, n+1]
     q_sol_frt_is_ns: np.ndarray
 
     # 室iの自然風利用時の換気量, m3/s, [i, 1]
     v_vent_ntr_set_is: np.ndarray
 
-    # ステップnの室iにおける窓の透過日射熱取得, W, [8760*4]
+    # ステップ n における室 i の窓の透過日射熱取得, W, [i, n+1]
     q_trs_sol_is_ns: np.ndarray
 
     # endregion
@@ -445,7 +445,7 @@ def make_pre_calc_parameters(
         v_vent_mec_local_is_ns=v_vent_mec_local_is_ns
     )
 
-    # ステップ n からステップ n+1 における室 i に設置された備品等による透過日射吸収熱量時間平均値, W, [i, n]
+    # ステップ n における室 i に設置された備品等による透過日射吸収熱量, W, [i, n+1]
     q_sol_frt_is_ns = solar_absorption.get_q_sol_frt_is_ns(q_trs_sor_is_ns=q_trs_sol_is_ns)
 
     # ステップ n における境界 j の透過日射吸収熱量, W/m2, [j, n]
