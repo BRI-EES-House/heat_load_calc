@@ -1,38 +1,36 @@
-# 附属書X35 在室者に関する情報を定義する。
-
-import math
-from typing import Tuple
 import numpy as np
-from scipy.optimize import newton
 from functools import partial
 
 from heat_load_calc.core.operation_mode import OperationMode
-from heat_load_calc.external import psychrometrics as psy
 from heat_load_calc.core import pmv
 
 
 def make_get_operation_mode_is_n_function(
         is_radiative_heating_is: np.ndarray,
-        is_radiative_cooling_is: np.ndarray
+        is_radiative_cooling_is: np.ndarray,
+        met_is: np.ndarray
 ):
 
     return partial(
         _get_operation_mode_is_n,
         is_radiative_heating_is=is_radiative_heating_is,
         is_radiative_cooling_is=is_radiative_cooling_is,
-        method='constant'
+        method='constant',
+        met_is=met_is
     )
 
 
 def make_get_theta_target_is_n_function(
         is_radiative_heating_is: np.ndarray,
-        is_radiative_cooling_is: np.ndarray
+        is_radiative_cooling_is: np.ndarray,
+        met_is: np.ndarray
 ):
     return partial(
         _get_theta_target,
         is_radiative_heating_is=is_radiative_heating_is,
         is_radiative_cooling_is=is_radiative_cooling_is,
-        method='constant'
+        method='constant',
+        met_is=met_is
     )
 
 

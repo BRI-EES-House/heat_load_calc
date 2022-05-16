@@ -502,12 +502,14 @@ def make_pre_calc_parameters(
 
     get_operation_mode_is_n = ot_target_pmv.make_get_operation_mode_is_n_function(
         is_radiative_heating_is=is_radiative_heating_is,
-        is_radiative_cooling_is=is_radiative_cooling_is
+        is_radiative_cooling_is=is_radiative_cooling_is,
+        met_is=met_is
     )
 
     get_theta_target_is_n = ot_target_pmv.make_get_theta_target_is_n_function(
         is_radiative_heating_is=is_radiative_heating_is,
-        is_radiative_cooling_is=is_radiative_cooling_is
+        is_radiative_cooling_is=is_radiative_cooling_is,
+        met_is=met_is
     )
 
     # すきま風を計算する関数
