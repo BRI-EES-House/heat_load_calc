@@ -33,8 +33,14 @@ def get_pmv_is_n(
     # (1) ステップ n における室 i の在室者周りの対流熱伝達率, W/m2K, [i, 1]
     # (2) ステップ n における室 i の在室者周りの放射熱伝達率, W/m2K, [i, 1]
     # (3) ステップ n における室 i の在室者周りの総合熱伝達率, W/m2K, [i, 1]
-    h_hum_c_is_n, h_hum_r_is_n, h_hum_is_n = _get_h_hum(
-        theta_mrt_is_n=theta_mrt_is_n, theta_r_is_n=theta_r_is_n, clo_is_n=clo_is_n, v_hum_is_n=v_hum_is_n, m_is=m_is, method=method)
+    h_hum_c_is_n, h_hum_r_is_n, h_hum_is_n = get_h_hum(
+        theta_mrt_is_n=theta_mrt_is_n,
+        theta_r_is_n=theta_r_is_n,
+        clo_is_n=clo_is_n,
+        v_hum_is_n=v_hum_is_n,
+        method=method,
+        met_is=met_is
+    )
 
     # ステップnにおける室iの在室者の作用温度, degree C, [i, 1]
     theta_ot_is_n = (h_hum_r_is_n * theta_mrt_is_n + h_hum_c_is_n * theta_r_is_n) / h_hum_is_n
@@ -52,8 +58,8 @@ def get_pmv_is_n(
         h_hum_is_n=h_hum_is_n,
         theta_ot_is_n=theta_ot_is_n,
         i_cl_is_n=i_cl_is_n,
-        m_is=m_is,
-        f_cl_is_n=f_cl_is_n
+        f_cl_is_n=f_cl_is_n,
+        met_is=met_is
     )
 
     return pmv_is_n
@@ -73,50 +79,13 @@ def get_ppd_is_n(pmv_is_n: np.array) -> np.array:
     return 100.0 - 95.0 * np.exp(-0.03353 * pmv_is_n ** 4.0 - 0.2179 * pmv_is_n ** 2.0)
 
 
-def get_theta_ot_target_and_h_hum(
-        clo_is_n: np.ndarray,
-        met_is: np.ndarray,
-        method: str,
-        p_v_r_is_n: np.ndarray,
-        pmv_target_is_n: np.ndarray,
-        theta_mrt_hum_is_n: np.ndarray,
-        theta_r_is_n: np.ndarray,
-        v_hum_is_n: np.ndarray
-) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
-
-    # 室 i の在室者の代謝量（人体内部発熱量）, W/m2
-    m_is = _get_m_is(met_is=met_is)
-
-    # (1) ステップ n における室 i の在室者周りの対流熱伝達率, W/m2K, [i, 1]
-    # (2) ステップ n における室 i の在室者周りの放射熱伝達率, W/m2K, [i, 1]
-    # (3) ステップ n における室 i の在室者周りの総合熱伝達率, W/m2K, [i, 1]
-    h_hum_c_is_n, h_hum_r_is_n, h_hum_is_n = _get_h_hum(
-        theta_mrt_is_n=theta_mrt_hum_is_n,
-        theta_r_is_n=theta_r_is_n,
-        clo_is_n=clo_is_n,
-        v_hum_is_n=v_hum_is_n,
-        m_is=m_is,
-        method=method
-    )
-
-    theta_ot_target_dsh_is_n = _get_theta_ot_target(
-        clo_is_n=clo_is_n,
-        p_a_is_n=p_v_r_is_n,
-        h_hum_is_n=h_hum_is_n,
-        met_is=met_is,
-        pmv_target_is_n=pmv_target_is_n
-    )
-
-    return h_hum_c_is_n, h_hum_r_is_n, theta_ot_target_dsh_is_n
-
-
-def _get_h_hum(
+def get_h_hum(
         theta_mrt_is_n: np.ndarray,
         theta_r_is_n: np.ndarray,
         clo_is_n: np.ndarray,
         v_hum_is_n: np.ndarray,
-        m_is: np.ndarray,
-        method: str
+        method: str,
+        met_is: np.ndarray
 ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
     """ 在室者周りの熱伝達率を計算する。
 
@@ -125,15 +94,16 @@ def _get_h_hum(
         theta_r_is_n: ステップnにおける室iの空気温度, degree C, [i, 1]
         clo_is_n: CLO値, [i, 1]
         v_hum_is_n: ステップnにおける室iの在室者周りの風速, m/s, [i, 1]
-        m_is: 室 i の在室者の代謝量（人体内部発熱量）, W/m2
         method: 在室者周りの熱伝達率を求める際に収束計算を行うかどうか
-
+        met_is: 室 i の在室者のMet値, [i, 1]
     Returns:
         (1) ステップ n における室 i の在室者周りの対流熱伝達率, W/m2K, [i, 1]
         (2) ステップ n における室 i の在室者周りの放射熱伝達率, W/m2K, [i, 1]
         (3) ステップ n における室 i の在室者周りの総合熱伝達率, W/m2K, [i, 1]
 
     """
+
+    m_is = _get_m_is(met_is=met_is)
 
     def f(t):
 
@@ -251,8 +221,8 @@ def _get_pmv(
         h_hum_is_n: np.ndarray,
         theta_ot_is_n: np.ndarray,
         i_cl_is_n: np.ndarray,
-        m_is: np.ndarray,
-        f_cl_is_n: np.ndarray
+        f_cl_is_n: np.ndarray,
+        met_is: np.ndarray
 ) -> np.ndarray:
     """PMVを計算する
 
@@ -262,8 +232,8 @@ def _get_pmv(
         h_hum_is_n: ステップnにおける室iの在室者周りの総合熱伝達率, W/m2K, [i, 1]
         theta_ot_is_n: ステップnにおける室iの在室者の作用温度, degree C, [i, 1]
         i_cl_is_n: ステップ n における室 i の在室者の着衣抵抗, m2K/W, [i, 1]
-        m_is: 室 i の在室者の代謝量（人体内部発熱量）, W/m2
         f_cl_is_n: ステップnにおける室iの在室者の着衣面積率, [i, 1]
+        met_is: 室 i の在室者のMet値, [i, 1]
 
     Returns:
         ステップnにおける室iの在室者のPMV, [i, 1]
@@ -272,6 +242,8 @@ def _get_pmv(
         ISOで定める計算方法ではなく、前の時刻に求めた人体周りの熱伝達率、着衣温度を使用して収束計算が生じないようにしている。
 
     """
+
+    m_is = _get_m_is(met_is=met_is)
 
     return (0.303 * np.exp(-0.036 * m_is) + 0.028) * (
             m_is  # 活動量, W/m2
@@ -282,7 +254,7 @@ def _get_pmv(
             - f_cl_is_n * h_hum_is_n * (35.7 - 0.028 * m_is - theta_ot_is_n) / (1 + i_cl_is_n * f_cl_is_n * h_hum_is_n))  # 着衣からの熱損失
 
 
-def _get_theta_ot_target(
+def get_theta_ot_target(
         clo_is_n: np.ndarray,
         p_a_is_n: np.ndarray,
         h_hum_is_n: np.ndarray,

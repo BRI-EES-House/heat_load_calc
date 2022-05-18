@@ -6,6 +6,7 @@ from heat_load_calc.core.operation_mode import OperationMode
 
 
 def make_get_next_temp_and_load_function(
+        ac_demand_is_ns: np.ndarray,
         is_radiative_heating_is: np.ndarray,
         is_radiative_cooling_is: np.ndarray,
         lr_h_max_cap_is: np.ndarray,
@@ -14,6 +15,7 @@ def make_get_next_temp_and_load_function(
 
     return partial(
         get_next_temp_and_load,
+        ac_demand_is_ns=ac_demand_is_ns,
         is_radiative_heating_is=is_radiative_heating_is,
         is_radiative_cooling_is=is_radiative_cooling_is,
         lr_h_max_cap_is=lr_h_max_cap_is,
@@ -22,21 +24,24 @@ def make_get_next_temp_and_load_function(
 
 
 def get_next_temp_and_load(
+        ac_demand_is_ns: np.ndarray,
         brc_ot_is_n: np.ndarray,
         brm_ot_is_is_n: np.ndarray,
         brl_ot_is_is_n: np.ndarray,
         theta_lower_target_is_n: np.ndarray,
         theta_upper_target_is_n: np.ndarray,
         operation_mode_is_n: np.ndarray,
-        ac_demand_is_n: np.ndarray,
         is_radiative_heating_is: np.ndarray,
         is_radiative_cooling_is: np.ndarray,
         lr_h_max_cap_is: np.ndarray,
         lr_cs_max_cap_is: np.ndarray,
         theta_natural_is_n: np.ndarray,
         is_heating_is_n: np.ndarray,
-        is_cooling_is_n: np.ndarray
+        is_cooling_is_n: np.ndarray,
+        n: int
 ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+
+    ac_demand_is_n = ac_demand_is_ns[:, n].reshape(-1, 1)
 
     # 室の配列の形, i✕1　の行列 を表すタプル
     room_shape = operation_mode_is_n.shape

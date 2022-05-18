@@ -35,7 +35,7 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
         operation_mode_is_n_mns=c_n.operation_mode_is_n,
         theta_r_is_n=c_n.theta_r_is_n,
         theta_mrt_hum_is_n=c_n.theta_mrt_hum_is_n,
-        ac_demand_is_n=ss.ac_demand_is_ns[:, n].reshape(-1, 1)
+        n=n
     )
 
     theta_lower_target_is_n_pls, theta_upper_target_is_n_pls, h_hum_c_is_n, h_hum_r_is_n, v_hum_is_n, clo_is_n \
@@ -261,10 +261,10 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
         theta_lower_target_is_n=theta_lower_target_is_n_pls,
         theta_upper_target_is_n=theta_upper_target_is_n_pls,
         operation_mode_is_n=operation_mode_is_n,
-        ac_demand_is_n=ss.ac_demand_is_ns[:, n].reshape(-1, 1),
         theta_natural_is_n=theta_r_ot_ntr_is_n_pls,
         is_heating_is_n=is_heating_is_n,
-        is_cooling_is_n=is_cooling_is_n
+        is_cooling_is_n=is_cooling_is_n,
+        n=n
     )
 
     # ステップ n+1 における室 i の室温, degree C, [i, 1]

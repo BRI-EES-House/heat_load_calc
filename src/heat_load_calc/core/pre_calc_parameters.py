@@ -501,6 +501,7 @@ def make_pre_calc_parameters(
     # region 読み込んだ値から新たに関数を作成する
 
     get_operation_mode_is_n = ot_target_pmv.make_get_operation_mode_is_n_function(
+        ac_demand_is_ns=ac_demand_is_ns,
         is_radiative_heating_is=is_radiative_heating_is,
         is_radiative_cooling_is=is_radiative_cooling_is,
         met_is=met_is
@@ -525,6 +526,7 @@ def make_pre_calc_parameters(
 
     # 次のステップの室温と負荷を計算する関数
     calc_next_temp_and_load = next_condition.make_get_next_temp_and_load_function(
+        ac_demand_is_ns=ac_demand_is_ns,
         is_radiative_heating_is=is_radiative_heating_is,
         is_radiative_cooling_is=is_radiative_cooling_is,
         lr_h_max_cap_is=q_rs_h_max_is,
