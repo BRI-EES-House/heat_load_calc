@@ -62,6 +62,10 @@ class TestSteadyState(unittest.TestCase):
             r = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
             ac_demand_is_ns = np.array([row for row in r]).T
 
+        ac_operation = {
+            'ac_demand_is_ns': ac_demand_is_ns
+        }
+
         # 計算実行
         ds, dd = core.calc(
             rd=rd,
@@ -70,6 +74,7 @@ class TestSteadyState(unittest.TestCase):
             v_mec_vent_local_is_ns=v_mec_vent_local_is_ns,
             n_hum_is_ns=n_hum_is_ns,
             ac_demand_is_ns=ac_demand_is_ns,
+            ac_operation=ac_operation,
             weather_dataframe=dd_weather
         )
 

@@ -118,6 +118,11 @@ def run(
 
     # 計算
     if flag_run_calc:
+
+        ac_operation = {
+            'ac_demand_is_ns': ac_demand_is_ns
+        }
+
         dd_i, dd_a = core.calc(
             rd=rd,
             q_gen_is_ns=q_gen_is_ns,
@@ -125,6 +130,7 @@ def run(
             v_mec_vent_local_is_ns=v_mec_vent_local_is_ns,
             n_hum_is_ns=n_hum_is_ns,
             ac_demand_is_ns=ac_demand_is_ns,
+            ac_operation=ac_operation,
             weather_dataframe=dd_weather
         )
 

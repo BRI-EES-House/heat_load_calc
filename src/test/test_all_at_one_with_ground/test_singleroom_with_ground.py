@@ -65,6 +65,10 @@ class TestSigleRoomWithFround(unittest.TestCase):
             r = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
             ac_demand_is_ns = np.array([row for row in r]).T
 
+        ac_operation = {
+            'ac_demand_is_ns': ac_demand_is_ns
+        }
+
         # 計算実行
         dd_i, dd_a = core.calc(
             rd=rd,
@@ -73,6 +77,7 @@ class TestSigleRoomWithFround(unittest.TestCase):
             v_mec_vent_local_is_ns=v_mec_vent_local_is_ns,
             n_hum_is_ns=n_hum_is_ns,
             ac_demand_is_ns=ac_demand_is_ns,
+            ac_operation=ac_operation,
             weather_dataframe=dd_weather,
             n_d_main=30,
             n_d_run_up=10,

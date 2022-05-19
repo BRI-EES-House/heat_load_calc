@@ -20,6 +20,7 @@ def calc(
         v_mec_vent_local_is_ns: np.ndarray,
         n_hum_is_ns: np.ndarray,
         ac_demand_is_ns: np.ndarray,
+        ac_operation: dict,
         weather_dataframe: pd.DataFrame,
         n_step_hourly: int = 4,
         n_d_main: int = 365,
@@ -30,11 +31,13 @@ def calc(
 
     Args:
         rd: 住宅計算条件
-        q_gen_is_ns: ステップnの室iにおける内部発熱, W, [8760*4]
-        x_gen_is_ns: ステップnの室iにおける人体発湿を除く内部発湿, kg/s, [8760*4]
-        v_mec_vent_local_is_ns: ステップnの室iにおける局所換気量, m3/s, [i, 8760*4]
-        n_hum_is_ns: ステップnの室iにおける在室人数, [8760*4]
-        ac_demand_is_ns: ステップnの室iにおける空調需要, [8760*4]
+        q_gen_is_ns: ステップnの室iにおける内部発熱, W, [i, n]
+        x_gen_is_ns: ステップnの室iにおける人体発湿を除く内部発湿, kg/s, [i, n]
+        v_mec_vent_local_is_ns: ステップnの室iにおける局所換気量, m3/s, [i, n]
+        n_hum_is_ns: ステップnの室iにおける在室人数, [i, n]
+        ac_demand_is_ns: ステップnの室iにおける空調需要, [i, n]
+        ac_operation: 運転方法に関するパラメータを格納した辞書
+            ac_demand_is_ns: ステップ n の室 i における空調需要, [i, n]
         weather_dataframe:  気象データのDataFrame
         n_step_hourly: 計算間隔（1時間を何分割するかどうか）（デフォルトは4（15分間隔））
         n_d_main: 本計算を行う日数（デフォルトは365日（1年間））, d
@@ -72,7 +75,7 @@ def calc(
         x_gen_is_ns=x_gen_is_ns,
         v_vent_mec_local_is_ns=v_mec_vent_local_is_ns,
         n_hum_is_ns=n_hum_is_ns,
-        ac_demand_is_ns=ac_demand_is_ns,
+        ac_operation=ac_operation,
         weather_dataframe=weather_dataframe
     )
 
