@@ -50,7 +50,7 @@ def get_response_factors(bs, h_c_js, h_r_js):
 
 def get_response_factor(b, h_c_js, h_r_js):
 
-    if b['spec']['method'] == 'test_response_factor':
+    if b['spec']['method'] == 'response_factor':
 
         # TODO: ここで根の数は使用しないためゼロとしているが本来であれば適切な値を設定すべき。
         # この後、根の数は使用していないため、もしこの後の計算で不要なのであれば、

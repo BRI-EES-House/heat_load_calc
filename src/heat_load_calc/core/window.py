@@ -29,7 +29,6 @@ def get_tau_d_j_ns(theta_aoi_j_ns: np.ndarray, glazing_type_j: str) -> np.ndarra
     else:
         raise ValueError()
 
-
 def get_rho_d_j_ns(theta_aoi_j_ns: np.ndarray, glazing_type_j: str) -> np.ndarray:
     """
     透明部位の入射角特性

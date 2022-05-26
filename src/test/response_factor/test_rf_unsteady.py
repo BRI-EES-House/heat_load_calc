@@ -6,19 +6,22 @@ from heat_load_calc.core import response_factor as rf
 class MyTestCase(unittest.TestCase):
 
     def test_rf_genera_part(self):
-        """
+
+        '''
         一般部位の応答係数初項、指数項別応答係数のテスト
-        """
+        '''
 
         print('\n testing response factor general part')
 
         # 壁体構成
-        # 石こうボード 9mm
-        # 非密閉中空層
-        # コンクリート 90mm
-        # 押出法ポリスチレンフォーム保温板2種 100mm
-        # モルタル 30mm
-        # 室外側熱伝達率
+        '''
+        石こうボード 9mm
+        非密閉中空層
+        コンクリート 90mm
+        押出法ポリスチレンフォーム保温板2種 100mm
+        モルタル 30mm
+        室外側熱伝達率
+        '''
 
         # 熱容量[kJ/m2 K]
         cs = [7.47, 0.0, 180.0, 3.6, 48.0]
@@ -58,16 +61,19 @@ class MyTestCase(unittest.TestCase):
         self.assertAlmostEqual(-0.00134313966906979, rft.rft1[7])
 
     def test_rf_ground_part(self):
-        """
+
+        '''
         土壌の応答係数初項、指数項別応答係数のテスト
-        """
+        '''
 
         print('\n testing response factor ground part')
 
         # 壁体構成
-        # 押出法ポリスチレンフォーム保温板2種 30mm
-        # コンクリート 120mm
-        # 土壌 3000mm
+        '''
+        押出法ポリスチレンフォーム保温板2種 30mm
+        コンクリート 120mm
+        土壌 3000mm
+        '''
 
         # 熱容量[kJ/m2 K]
         cs = [1.080000, 240.000000]
