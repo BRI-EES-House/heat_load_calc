@@ -7,11 +7,10 @@ from heat_load_calc.core import shape_factor as sf
 class TestShapeFactor(unittest.TestCase):
 
     def test_hr(self):
-
-        '''
+        """
         永田先生の放射伝熱計算のテスト
         面積比率を与え、放射熱伝達率の計算結果をテストする
-        '''
+        """
 
         print('\n testing shape factor by Nagata')
 
