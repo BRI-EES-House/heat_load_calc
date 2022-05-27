@@ -382,7 +382,7 @@ class Boundaries:
             # 温度差係数が1.0でない場合はk_ei_jsに値を代入する。
             # id は自分自身の境界IDとし、自分自身の表面の影響は1.0から温度差係数を減じた値になる。
             if h < 1.0:
-                k_ei_js_j[bs.id] = round(1.0 - h, 1)
+                k_ei_js_j[bs.id] = round(1.0 - h, 2)
             else:
                 # 温度差係数が1.0の場合は裏面の影響は何もないため k_ei_js に操作は行わない。
                 pass
