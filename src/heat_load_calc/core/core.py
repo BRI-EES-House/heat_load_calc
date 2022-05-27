@@ -11,6 +11,7 @@ from heat_load_calc.core import log
 from heat_load_calc.core import sequence
 from heat_load_calc.core import sequence_ground
 from heat_load_calc.core.pre_calc_parameters import PreCalcParameters, PreCalcParametersGround
+from heat_load_calc.core import outdoor_condition
 
 
 def calc(
@@ -66,6 +67,8 @@ def calc(
     # 時間間隔, s
     delta_t = 3600.0 / n_step_hourly
 
+    oc = outdoor_condition.OutdoorCondition.make_from_pd(pp=weather_dataframe)
+
     # json, csv ファイルからパラメータをロードする。
     # （ループ計算する必要の無い）事前計算を行い, クラス PreCalcParameters, PreCalcParametersGround に必要な変数を格納する。
     pp, ppg = pre_calc_parameters.make_pre_calc_parameters(
@@ -76,7 +79,7 @@ def calc(
         v_vent_mec_local_is_ns=v_mec_vent_local_is_ns,
         n_hum_is_ns=n_hum_is_ns,
         ac_operation=ac_operation,
-        weather_dataframe=weather_dataframe
+        oc=oc
     )
 
     gc_n = conditions.initialize_ground_conditions(n_grounds=ppg.n_grounds)
