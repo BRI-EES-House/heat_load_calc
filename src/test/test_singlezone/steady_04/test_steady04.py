@@ -77,6 +77,7 @@ class TestSteadyState(unittest.TestCase):
             v_vent_mec_local_is_ns=v_mec_vent_local_is_ns,
             n_hum_is_ns=n_hum_is_ns,
             ac_operation=ac_operation,
+            ac_demand_is_ns=ac_demand_is_ns,
             oc=oc
         )
 

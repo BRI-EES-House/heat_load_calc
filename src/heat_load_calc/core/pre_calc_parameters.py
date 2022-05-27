@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 from dataclasses import dataclass
 from typing import Dict, List, Callable, Optional, Tuple, Union
+import logging
 
 from heat_load_calc.core import infiltration, shape_factor, \
     occupants_form_factor, boundaries
@@ -213,6 +214,7 @@ def make_pre_calc_parameters(
         n_hum_is_ns: np.ndarray,
         ac_operation: dict,
         oc: outdoor_condition.OutdoorCondition,
+        ac_demand_is_ns: np.ndarray,
         q_trs_sol_is_ns: Optional[np.ndarray] = None,
         theta_o_eqv_js_ns: Optional[np.ndarray] = None
 ) -> Tuple[PreCalcParameters, PreCalcParametersGround]:
@@ -226,7 +228,7 @@ def make_pre_calc_parameters(
         v_mec_vent_local_is_ns: ステップnの室iにおける局所換気量, m3/s, [i, 8760*4]
         n_hum_is_ns: ステップnの室iにおける在室人数, [8760*4]
         ac_operation: 運転方法に関するパラメータを格納した辞書
-            ac_demand_is_ns: ステップ n の室 i における空調需要, [i, n]
+        ac_demand_is_ns: ステップ n の室 i における空調需要, [i, n]
         oc: 外界気象データクラス
         q_trs_sol_is_ns: optional テスト用　値を指定することができる。未指定の場合は計算する。
         theta_o_eqv_js_ns: optional テスト用　値を指定することができる。未指定の場合は計算する。
@@ -235,7 +237,7 @@ def make_pre_calc_parameters(
         PreCalcParameters および PreCalcParametersGround のタプル
     """
 
-    ac_demand_is_ns = ac_operation["ac_demand_is_ns"]
+    logger = logging.getLogger('HeatLoadCalc').getChild('core').getChild('pre_calc_parameters')
 
     a_sun_ns = oc.get_a_sun_ns_plus()
     h_sun_ns = oc.get_h_sun_ns_plus()
@@ -493,6 +495,12 @@ def make_pre_calc_parameters(
     f_wsc_js_ns = get_f_wsc_js_ns(f_ax_js_js=f_ax_js_js, f_crx_js_ns=f_crx_js_ns)
 
     # region 読み込んだ値から新たに関数を作成する
+
+    if 'ac_method' in rd['common']:
+        ac_method = rd['common']['ac_method']
+    else:
+        logger.warning('[ac_method] is not declined. Method [pmv] was set as [ac_method].')
+        ac_method = 'pmv'
 
     get_operation_mode_is_n = ot_target_pmv.make_get_operation_mode_is_n_function(
         ac_demand_is_ns=ac_demand_is_ns,

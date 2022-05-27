@@ -18,12 +18,13 @@ from heat_load_calc.core import core
 
 
 def run(
-    house_data_path: str,
-    output_data_dir: str,
-    generate_schedule_only: bool = False,
-    generate_weather_only: bool = False,
-    load_schedule: str = False,
-    load_weather: str = False
+        logger,
+        house_data_path: str,
+        output_data_dir: str,
+        generate_schedule_only: bool = False,
+        generate_weather_only: bool = False,
+        load_schedule: str = False,
+        load_weather: str = False
 ):
     """負荷計算処理の実行
 
@@ -53,10 +54,10 @@ def run(
         mkdir(output_data_dir)
 
     if path.isdir(output_data_dir) is False:
-        logging.error('`{}` is not directory.'.format(output_data_dir), file=sys.stderr)
+        logger.error('`{}` is not directory.'.format(output_data_dir), file=sys.stderr)
 
     # 住宅計算条件JSONファイルの読み込み
-    logging.info('Load house data from `{}`'.format(house_data_path))
+    logger.info('Load house data from `{}`'.format(house_data_path))
     if house_data_path.lower()[:4] == 'http':
         with urllib.request.urlopen(url=house_data_path) as response:
             json_text = response.read()
@@ -70,7 +71,7 @@ def run(
         dd_weather = weather.make_weather(region=rd['common']['region'])
     elif load_weather is not False:
         import_weather_path = path.join(path.abspath(load_weather), 'weather.csv')
-        logging.info('Load weather data from `{}`'.format(import_weather_path))
+        logger.info('Load weather data from `{}`'.format(import_weather_path))
         dd_weather = pd.read_csv(import_weather_path)
 
     # 局所換気量,内部発熱,内部発湿,在室人数,空調需要の生成 => mid_data_*.csv
@@ -81,35 +82,35 @@ def run(
     elif load_schedule is not False:
         # ステップnの室iにおける局所換気量, m3/s, [i, 8760*4]
         mid_data_local_vent_path = path.join(load_schedule, 'mid_data_local_vent.csv')
-        logging.info('Load v_mec_vent_local_is_ns from `{}`'.format(mid_data_local_vent_path))
+        logger.info('Load v_mec_vent_local_is_ns from `{}`'.format(mid_data_local_vent_path))
         with open(mid_data_local_vent_path, 'r') as f:
             r = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
             v_mec_vent_local_is_ns = np.array([row for row in r]).T
 
         # ステップnの室iにおける内部発熱, W, [8760*4]
         mid_data_heat_generation_path = path.join(load_schedule, 'mid_data_heat_generation.csv')
-        logging.info('Load q_gen_is_ns from `{}`'.format(mid_data_heat_generation_path))
+        logger.info('Load q_gen_is_ns from `{}`'.format(mid_data_heat_generation_path))
         with open(mid_data_heat_generation_path, 'r') as f:
             r = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
             q_gen_is_ns = np.array([row for row in r]).T
 
         # ステップnの室iにおける人体発湿を除く内部発湿, kg/s, [8760*4]
         mid_data_moisture_generation_path = path.join(load_schedule, 'mid_data_moisture_generation.csv')
-        logging.info('Load x_gen_is_ns from `{}`'.format(mid_data_moisture_generation_path))
+        logger.info('Load x_gen_is_ns from `{}`'.format(mid_data_moisture_generation_path))
         with open(mid_data_moisture_generation_path, 'r') as f:
             r = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
             x_gen_is_ns = np.array([row for row in r]).T
 
         # ステップnの室iにおける在室人数, [8760*4]
         mid_data_occupants_path = path.join(load_schedule, 'mid_data_occupants.csv')
-        logging.info('Load n_hum_is_ns from `{}`'.format(mid_data_occupants_path))
+        logger.info('Load n_hum_is_ns from `{}`'.format(mid_data_occupants_path))
         with open(mid_data_occupants_path, 'r') as f:
             r = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
             n_hum_is_ns = np.array([row for row in r]).T
 
         # ステップnの室iにおける空調需要, [8760*4]
         mid_data_ac_demand_path = path.join(load_schedule, 'mid_data_ac_demand.csv')
-        logging.info('Load ac_demand_is_ns from `{}`'.format(mid_data_ac_demand_path))
+        logger.info('Load ac_demand_is_ns from `{}`'.format(mid_data_ac_demand_path))
         with open(mid_data_ac_demand_path, 'r') as f:
             r = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
             ac_demand_is_ns = np.array([row for row in r]).T
@@ -139,48 +140,48 @@ def run(
     # 住宅計算条件JSONファイル
     if flag_save_house:
         mid_data_house_path = path.join(output_data_dir, 'mid_data_house.csv')
-        logging.info('Save house data to `{}`'.format(mid_data_house_path))
+        logger.info('Save house data to `{}`'.format(mid_data_house_path))
         with open(mid_data_house_path, 'w') as f:
             json.dump(rd, f)
 
     # 気象データの生成 => weather.csv
     if flag_save_weather:
         weather_path = path.join(output_data_dir, 'weather.csv')
-        logging.info('Save weather data to `{}`'.format(weather_path))
+        logger.info('Save weather data to `{}`'.format(weather_path))
         dd_weather.to_csv(weather_path, encoding='utf-8')
 
     if flag_save_schedule:
         # ステップnの室iにおける局所換気量, m3/s, [i, 8760*4]
         mid_data_local_vent_path = path.join(output_data_dir, 'mid_data_local_vent.csv')
-        logging.info('Save v_mec_vent_local_is_ns to `{}`'.format(mid_data_local_vent_path))
+        logger.info('Save v_mec_vent_local_is_ns to `{}`'.format(mid_data_local_vent_path))
         with open(mid_data_local_vent_path, 'w') as f:
             w = csv.writer(f, lineterminator='\n')
             w.writerows(v_mec_vent_local_is_ns.T.tolist())
 
         # ステップnの室iにおける内部発熱, W, [8760*4]
         mid_data_heat_generation_path = path.join(output_data_dir, 'mid_data_heat_generation.csv')
-        logging.info('Save q_gen_is_ns to `{}`'.format(mid_data_heat_generation_path))
+        logger.info('Save q_gen_is_ns to `{}`'.format(mid_data_heat_generation_path))
         with open(mid_data_heat_generation_path, 'w') as f:
             w = csv.writer(f, lineterminator='\n')
             w.writerows(q_gen_is_ns.T.tolist())
 
         # ステップnの室iにおける人体発湿を除く内部発湿, kg/s, [8760*4]
         mid_data_moisture_generation_path = path.join(output_data_dir, 'mid_data_moisture_generation.csv')
-        logging.info('Save x_gen_is_ns to `{}`'.format(mid_data_moisture_generation_path))
+        logger.info('Save x_gen_is_ns to `{}`'.format(mid_data_moisture_generation_path))
         with open(mid_data_moisture_generation_path, 'w') as f:
             w = csv.writer(f, lineterminator='\n')
             w.writerows(x_gen_is_ns.T.tolist())
 
         # ステップnの室iにおける在室人数, [8760*4]
         mid_data_occupants_path = path.join(output_data_dir, 'mid_data_occupants.csv')
-        logging.info('Save n_hum_is_ns to `{}`'.format(mid_data_occupants_path))
+        logger.info('Save n_hum_is_ns to `{}`'.format(mid_data_occupants_path))
         with open(mid_data_occupants_path, 'w') as f:
             w = csv.writer(f, lineterminator='\n')
             w.writerows(n_hum_is_ns.T.tolist())
 
         # ステップnの室iにおける空調需要, [8760*4]
         mid_data_ac_demand_path = path.join(output_data_dir, 'mid_data_ac_demand.csv')
-        logging.info('Save ac_demand_is_ns to `{}`'.format(mid_data_ac_demand_path))
+        logger.info('Save ac_demand_is_ns to `{}`'.format(mid_data_ac_demand_path))
         with open(mid_data_ac_demand_path, 'w') as f:
             w = csv.writer(f, lineterminator='\n')
             w.writerows(ac_demand_is_ns.T.tolist())
@@ -190,17 +191,18 @@ def run(
     if flag_save_calc:
         # 計算結果（詳細版）をいれたDataFrame
         result_detail_i_path = path.join(output_data_dir, 'result_detail_i.csv')
-        logging.info('Save calculation results data (detailed version) to `{}`'.format(result_detail_i_path))
+        logger.info('Save calculation results data (detailed version) to `{}`'.format(result_detail_i_path))
         dd_i.to_csv(result_detail_i_path, encoding='cp932')
 
         # 計算結果（簡易版）をいれたDataFrame
         result_detail_a_path = path.join(output_data_dir, 'result_detail_a.csv')
-        logging.info('Save calculation results data (simplified version) to `{}`'.format(result_detail_a_path))
+        logger.info('Save calculation results data (simplified version) to `{}`'.format(result_detail_a_path))
         dd_a.to_csv(result_detail_a_path, encoding='cp932')
 
 
 def main():
-    parser = argparse.ArgumentParser(description='住宅負荷計算プログラム実行') 
+
+    parser = argparse.ArgumentParser(description='住宅負荷計算プログラム実行')
 
     # parser.add_argumentで受け取る引数を追加していく
     parser.add_argument(
@@ -244,14 +246,32 @@ def main():
     args = parser.parse_args()
 
     # ログレベル設定
-    log_level = getattr(logging, args.log.upper(), None)
-    logging.basicConfig(
-        level=log_level,
-        format='%(message)s'
-    )
+#    log_level = getattr(logging, args.log.upper(), None)
+#    logging.basicConfig(
+#        level=log_level,
+#        format='%(message)s'
+#    )
+    level = {
+        'DEBUG': logging.DEBUG,
+        'INFO': logging.INFO,
+        'WARN': logging.WARN,
+        'ERROR': logging.ERROR,
+        'CRITICAL': logging.CRITICAL
+    }[args.log]
+
+    logger = logging.getLogger(name='HeatLoadCalc')
+    handler = logging.StreamHandler()
+    logger.setLevel(level=level)
+    handler.setLevel(level=level)
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+
+
 
     start = time.time()
     run(
+        logger=logger,
         house_data_path=args.house_data,
         output_data_dir=args.output_data_dir,
         generate_schedule_only=args.generate_schedule_only,
@@ -260,6 +280,7 @@ def main():
         load_weather=args.load_weather
     )
     elapsed_time = time.time() - start
+
     logging.info("elapsed_time:{0}".format(elapsed_time) + "[sec]")
 
 

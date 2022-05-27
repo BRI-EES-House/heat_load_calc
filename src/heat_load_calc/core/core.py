@@ -54,6 +54,8 @@ def calc(
         「助走計算のうち建物全体を解く日数」は「助走計算を行う日数」で指定した値以下でないといけない。
     """
 
+    logger = logging.getLogger('HeatLoadCalc').getChild('core')
+
     # 本計算のステップ数
     # 助走計算のステップ数
     # 助走計算のうち建物全体を解くステップ数
@@ -79,17 +81,18 @@ def calc(
         v_vent_mec_local_is_ns=v_mec_vent_local_is_ns,
         n_hum_is_ns=n_hum_is_ns,
         ac_operation=ac_operation,
+        ac_demand_is_ns=ac_demand_is_ns,
         oc=oc
     )
 
     gc_n = conditions.initialize_ground_conditions(n_grounds=ppg.n_grounds)
 
-    logging.info('助走計算（土壌のみ）')
+    logger.info('助走計算（土壌のみ）')
     for n in range(-n_step_run_up, -n_step_run_up_build):
         gc_n = sequence_ground.run_tick(gc_n=gc_n, ss=ppg, n=n)
 
-    logger = log.Logger(n_rm=pp.n_rm, n_boundaries=pp.n_bdry, n_step_main=n_step_main)
-    logger.pre_logging(pp)
+    result_logger = log.Logger(n_rm=pp.n_rm, n_boundaries=pp.n_bdry, n_step_main=n_step_main)
+    result_logger.pre_logging(pp)
 
     # 建物を計算するにあたって初期値を与える
     c_n = conditions.initialize_conditions(n_spaces=pp.n_rm, n_bdries=pp.n_bdry)
@@ -101,22 +104,22 @@ def calc(
         gc=gc_n
     )
 
-    logging.info('助走計算（建物全体）')
+    logger.info('助走計算（建物全体）')
     for n in range(-n_step_run_up_build, 0):
-        c_n = sequence.run_tick(n=n, delta_t=delta_t, ss=pp, c_n=c_n, logger=logger, run_up=True)
+        c_n = sequence.run_tick(n=n, delta_t=delta_t, ss=pp, c_n=c_n, logger=result_logger, run_up=True)
 
-    logging.info('本計算')
+    logger.info('本計算')
 
     # TODO: loggerに1/1 0:00の瞬時状態値を書き込む
     for n in range(0, n_step_main):
-        c_n = sequence.run_tick(n=n, delta_t=delta_t, ss=pp, c_n=c_n, logger=logger, run_up=False)
+        c_n = sequence.run_tick(n=n, delta_t=delta_t, ss=pp, c_n=c_n, logger=result_logger, run_up=False)
 
-    logger.post_logging(pp)
+    result_logger.post_logging(pp)
 
-    logging.info('ログ作成')
+    logger.info('ログ作成')
 
     # dd: data detail, 15分間隔のすべてのパラメータ pd.DataFrame
-    dd_i, dd_a = logger.record(
+    dd_i, dd_a = result_logger.record(
         pps=pp
     )
 
