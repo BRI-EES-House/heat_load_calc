@@ -1,5 +1,28 @@
 import numpy as np
 import response_factor as rf
+from dataclasses import dataclass
+
+
+@dataclass()
+class EarthenFloor:
+
+    # 線熱貫流率, W/m K
+    psi: float
+
+    # 吸熱応答係数の初項, -
+    rfa0: float
+
+    # 貫流応答係数の初項, -
+    rft0: float
+
+    # 指数項別吸熱応答係数, -
+    rfa1: np.ndarray
+
+    # 指数項別貫流応答係数, -
+    rft1: np.ndarray
+
+    # 根の数
+    n_root: int
 
 
 def get_rf_parameters_t() -> np.ndarray:
@@ -72,7 +95,46 @@ def calc_rf_exponential(parameters: np.ndarray, alpha_m: np.ndarray) -> np.ndarr
     return - parameters / (alpha_m * 900.0) * (1.0 - np.exp(- alpha_m * 900.0)) ** 2.0
 
 
+class EarthenFloorRF(EarthenFloor):
+
+    def __init__(self, psi: float):
+
+        # 線熱貫流率
+        self.psi = psi
+
+        # 貫流応答、吸熱応答のパラメータ取得
+        parameters_t = get_rf_parameters_t()
+        parameters_a = get_rf_parameters_a()
+
+        # 土壌の根を取得
+        alpha_m = rf.get_alpha_m(is_ground=True)
+
+        # 根の数
+        self.n_root = len(alpha_m)
+
+        # 吸熱応答の初項
+        self.rfa0 = psi * rf_initial_term(parameters=parameters_a, alpha_m=alpha_m)
+        # 貫流応答の初項
+        self.rft0 = psi * rf_initial_term(parameters=parameters_t, alpha_m=alpha_m)
+        # 指数項別吸熱応答係数
+        self.rfa1 = psi * calc_rf_exponential(parameters=parameters_a, alpha_m=alpha_m)
+        self.rft1 = psi * calc_rf_exponential(parameters=parameters_t, alpha_m=alpha_m)
+
+
 if __name__ == "__main__":
+
+    erf = EarthenFloorRF(psi=1.0)
+    print(erf.psi)
+    print(erf.rfa0, erf.rft0)
+    print(erf.rfa1)
+    print(erf.rft1)
+
+    erf2 = EarthenFloorRF(psi=0.5)
+    print(erf2.psi)
+    print(erf2.rfa0, erf2.rft0)
+    print(erf2.rfa1)
+    print(erf2.rft1)
+
     parameters_t = get_rf_parameters_t()
     parameters_a = get_rf_parameters_a()
 
@@ -81,9 +143,9 @@ if __name__ == "__main__":
     at0 = rf_initial_term(parameters=parameters_t, alpha_m=alpha_m)
     aa0 = rf_initial_term(parameters=parameters_a, alpha_m=alpha_m)
 
-    print(at0, aa0)
+    print(aa0, at0)
 
     rft1 = calc_rf_exponential(parameters=parameters_t, alpha_m=alpha_m)
     rfa1 = calc_rf_exponential(parameters=parameters_a, alpha_m=alpha_m)
 
-    print(rft1, rfa1)
+    print(rfa1, rft1)
