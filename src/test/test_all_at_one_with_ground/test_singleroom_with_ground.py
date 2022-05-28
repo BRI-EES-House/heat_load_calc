@@ -6,6 +6,7 @@ import csv
 import json
 
 from heat_load_calc.core import core
+from heat_load_calc.core import schedule_maker
 
 
 # 定常状態のテスト
@@ -36,10 +37,8 @@ class TestSigleRoomWithFround(unittest.TestCase):
         dd_weather = pd.read_csv(import_weather_path)
 
         # ステップnの室iにおける局所換気量, m3/s, [i, 8760*4]
-        mid_data_local_vent_path = os.path.join(s_folder, 'mid_data_local_vent.csv')
-        with open(mid_data_local_vent_path, 'r') as f:
-            r = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
-            v_mec_vent_local_is_ns = np.array([row for row in r]).T
+        sm = schedule_maker.ScheduleMaker()
+        v_mec_vent_local_is_ns = sm.get_v_mec_vent_local_is_ns(s_folder=s_folder, rd=rd)
 
         # ステップnの室iにおける内部発熱, W, [8760*4]
         mid_data_heat_generation_path = os.path.join(s_folder, 'mid_data_heat_generation.csv')
