@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 from dataclasses import dataclass
 from typing import Dict, List, Callable, Optional, Tuple, Union
+import logging
 
 from heat_load_calc.core import infiltration, shape_factor, \
     occupants_form_factor, boundaries
@@ -13,6 +14,7 @@ from heat_load_calc.core import solar_absorption
 from heat_load_calc.core import equipments
 from heat_load_calc.core import rooms
 from heat_load_calc.core import mechanical_ventilations
+from heat_load_calc.core import outdoor_condition
 
 
 @dataclass
@@ -211,7 +213,8 @@ def make_pre_calc_parameters(
         v_vent_mec_local_is_ns: np.ndarray,
         n_hum_is_ns: np.ndarray,
         ac_operation: dict,
-        weather_dataframe: pd.DataFrame,
+        oc: outdoor_condition.OutdoorCondition,
+        ac_demand_is_ns: np.ndarray,
         q_trs_sol_is_ns: Optional[np.ndarray] = None,
         theta_o_eqv_js_ns: Optional[np.ndarray] = None
 ) -> Tuple[PreCalcParameters, PreCalcParametersGround]:
@@ -225,8 +228,8 @@ def make_pre_calc_parameters(
         v_mec_vent_local_is_ns: ステップnの室iにおける局所換気量, m3/s, [i, 8760*4]
         n_hum_is_ns: ステップnの室iにおける在室人数, [8760*4]
         ac_operation: 運転方法に関するパラメータを格納した辞書
-            ac_demand_is_ns: ステップ n の室 i における空調需要, [i, n]
-        weather_dataframe (pd.DataFrame):  気象データのDataFrame
+        ac_demand_is_ns: ステップ n の室 i における空調需要, [i, n]
+        oc: 外界気象データクラス
         q_trs_sol_is_ns: optional テスト用　値を指定することができる。未指定の場合は計算する。
         theta_o_eqv_js_ns: optional テスト用　値を指定することができる。未指定の場合は計算する。
 
@@ -234,25 +237,15 @@ def make_pre_calc_parameters(
         PreCalcParameters および PreCalcParametersGround のタプル
     """
 
-    ac_demand_is_ns = ac_operation["ac_demand_is_ns"]
+    logger = logging.getLogger('HeatLoadCalc').getChild('core').getChild('pre_calc_parameters')
 
-    # 以下の気象データの読み込み
-    # 外気温度, degree C, [n]
-    # 外気絶対湿度, kg/kg(DA), [n]
-    # 法線面直達日射量, W/m2, [n]
-    # 水平面天空日射量, W/m2, [n]
-    # 夜間放射量, W/m2, [n]
-    # 太陽高度, rad, [n]
-    # 太陽方位角, rad, [n]
-    a_sun_ns, h_sun_ns, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, x_o_ns = _read_weather_data(weather_dataframe)
-
-    a_sun_ns = np.append(a_sun_ns, a_sun_ns[0])
-    h_sun_ns = np.append(h_sun_ns, h_sun_ns[0])
-    i_dn_ns = np.append(i_dn_ns, i_dn_ns[0])
-    i_sky_ns = np.append(i_sky_ns, i_sky_ns[0])
-    r_n_ns = np.append(r_n_ns, r_n_ns[0])
-    theta_o_ns = np.append(theta_o_ns, theta_o_ns[0])
-    x_o_ns = np.append(x_o_ns, x_o_ns[0])
+    a_sun_ns = oc.get_a_sun_ns_plus()
+    h_sun_ns = oc.get_h_sun_ns_plus()
+    i_dn_ns = oc.get_i_dn_ns_plus()
+    i_sky_ns = oc.get_i_sky_ns_plus()
+    r_n_ns = oc.get_r_n_ns_plus()
+    theta_o_ns = oc.get_theta_o_ns_plus()
+    x_o_ns = oc.get_x_o_ns_plus()
 
     # region rooms
 
@@ -503,7 +496,14 @@ def make_pre_calc_parameters(
 
     # region 読み込んだ値から新たに関数を作成する
 
+    if 'ac_method' in rd['common']:
+        ac_method = rd['common']['ac_method']
+    else:
+        logger.warning('[ac_method] is not declined. Method [pmv] was set as [ac_method].')
+        ac_method = 'pmv'
+
     get_operation_mode_is_n = ot_target_pmv.make_get_operation_mode_is_n_function(
+        ac_method=ac_method,
         ac_demand_is_ns=ac_demand_is_ns,
         is_radiative_heating_is=is_radiative_heating_is,
         is_radiative_cooling_is=is_radiative_cooling_is,

@@ -49,7 +49,7 @@ def get_f_mrt_hum_i_js(a_srf_i_js: np.ndarray, is_floor_i_js: np.ndarray) -> np.
     f_mrt_hum_floor = 0.45
 
     # 人体に対する部位の形態係数の計算
-    f_mrt_hum_i_js = np.zeros(len(a_srf_i_js), dtype=np.float)
+    f_mrt_hum_i_js = np.zeros(len(a_srf_i_js), dtype=float)
 
     # 下向き部位（床）
     # 値 0.45 を床である境界の面積で按分する。

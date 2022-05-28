@@ -5,33 +5,33 @@ from heat_load_calc.core.operation_mode import OperationMode
 from heat_load_calc.core import pmv
 
 
-#def make_get_operation_mode_is_n_function(
-#        ac_demand_is_ns: np.ndarray,
-#        is_radiative_heating_is: np.ndarray,
-#        is_radiative_cooling_is: np.ndarray,
-#        met_is: np.ndarray
-#):
+def make_get_operation_mode_is_n_function(
+        ac_method: str,
+        ac_demand_is_ns: np.ndarray,
+        is_radiative_heating_is: np.ndarray,
+        is_radiative_cooling_is: np.ndarray,
+        met_is: float
+):
+    if ac_method == 'simple':
+        return partial(
+            _get_operation_mode_simple_is_n,
+            ac_demand_is_ns=ac_demand_is_ns
+        )
 
-#    return partial(
-#        _get_operation_mode_is_n,
-#        ac_demand_is_ns=ac_demand_is_ns,
-#        is_radiative_heating_is=is_radiative_heating_is,
-#        is_radiative_cooling_is=is_radiative_cooling_is,
-#        method='constant',
-#        met_is=met_is
-#    )
+    elif ac_method == 'pmv':
 
+        return partial(
+            _get_operation_mode_pmv_is_n,
+            ac_demand_is_ns=ac_demand_is_ns,
+            is_radiative_heating_is=is_radiative_heating_is,
+            is_radiative_cooling_is=is_radiative_cooling_is,
+            method='constant',
+            met_is=met_is
+        )
 
-def make_get_operation_mode_is_n_function(**kwargs):
+    else:
 
-    return partial(
-        _get_operation_mode_is_n,
-        ac_demand_is_ns=kwargs["ac_demand_is_ns"],
-        is_radiative_heating_is=kwargs["is_radiative_heating_is"],
-        is_radiative_cooling_is=kwargs["is_radiative_cooling_is"],
-        method='constant',
-        met_is=kwargs["met_is"]
-    )
+        raise Exception()
 
 
 def make_get_theta_target_is_n_function(
@@ -48,7 +48,25 @@ def make_get_theta_target_is_n_function(
     )
 
 
-def _get_operation_mode_is_n(
+def _get_operation_mode_simple_is_n(
+        ac_demand_is_ns: np.ndarray,
+        operation_mode_is_n_mns: np.ndarray,
+        p_v_r_is_n: np.ndarray,
+        theta_mrt_hum_is_n: np.ndarray,
+        theta_r_is_n: np.ndarray,
+        n: int
+):
+
+    ac_demand_is_n = ac_demand_is_ns[:, n].reshape(-1, 1)
+
+    v = np.full_like(operation_mode_is_n_mns, OperationMode.STOP_CLOSE)
+
+    v[ac_demand_is_n > 0] = OperationMode.HEATING_AND_COOLING
+
+    return v
+
+
+def _get_operation_mode_pmv_is_n(
         ac_demand_is_ns: np.ndarray,
         is_radiative_cooling_is: np.ndarray,
         is_radiative_heating_is: np.ndarray,

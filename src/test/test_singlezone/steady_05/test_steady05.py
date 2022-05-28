@@ -9,6 +9,7 @@ from heat_load_calc.core import pre_calc_parameters
 from heat_load_calc.core import conditions
 from heat_load_calc.core import sequence
 from heat_load_calc.core import operation_mode
+from heat_load_calc.core import outdoor_condition
 
 
 # 定常状態のテスト
@@ -33,44 +34,46 @@ class TestSteadyState(unittest.TestCase):
             rd = json.load(js)
 
         # 気象データ読み出し
-        import_weather_path = os.path.join(s_folder, "weather.csv")
-        dd_weather = pd.read_csv(import_weather_path)
+        # 全ての値は0.0で一定とする。日射・夜間放射はなし。
+        oc = outdoor_condition.OutdoorCondition(
+            a_sun_ns=np.zeros(8760*4, dtype=float),
+            h_sun_ns=np.zeros(8760*4, dtype=float),
+            i_dn_ns=np.zeros(8760*4, dtype=float),
+            i_sky_ns=np.zeros(8760*4, dtype=float),
+            r_n_ns=np.zeros(8760*4, dtype=float),
+            theta_o_ns=np.zeros(8760*4, dtype=float),
+            x_o_ns=np.zeros(8760*4, dtype=float)
+        )
 
         # ステップnの室iにおける局所換気量, m3/s, [i, 8760*4]
-        mid_data_local_vent_path = os.path.join(s_folder, 'mid_data_local_vent.csv')
-        with open(mid_data_local_vent_path, 'r') as f:
-            r = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
-            v_mec_vent_local_is_ns = np.array([row for row in r]).T
+        # 局所換気量は常に 0.0 m3/s とする。
+        v_mec_vent_local_is_ns = np.zeros((1, 8760*4), dtype=float)
 
         # ステップnの室iにおける内部発熱, W, [8760*4]
-        mid_data_heat_generation_path = os.path.join(s_folder, 'mid_data_heat_generation.csv')
-        with open(mid_data_heat_generation_path, 'r') as f:
-            r = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
-            q_gen_is_ns = np.array([row for row in r]).T
+        # 内部発熱は常に 0 W とする。
+        q_gen_is_ns = np.zeros((1, 8760*4), dtype=float)
 
         # ステップnの室iにおける人体発湿を除く内部発湿, kg/s, [8760*4]
-        mid_data_moisture_generation_path = os.path.join(s_folder, 'mid_data_moisture_generation.csv')
-        with open(mid_data_moisture_generation_path, 'r') as f:
-            r = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
-            x_gen_is_ns = np.array([row for row in r]).T
+        # 内部発湿は常に 0.0 kg/s とする。
+        x_gen_is_ns = np.zeros((1, 8760*4), dtype=float)
 
         # ステップnの室iにおける在室人数, [8760*4]
-        mid_data_occupants_path = os.path.join(s_folder, 'mid_data_occupants.csv')
-        with open(mid_data_occupants_path, 'r') as f:
-            r = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
-            n_hum_is_ns = np.array([row for row in r]).T
+        # 在室人数は常に 0 人とする。
+        n_hum_is_ns = np.zeros((1, 8760*4), dtype=float)
 
         # ステップnの室iにおける空調需要, [8760*4]
-        mid_data_ac_demand_path = os.path.join(s_folder, 'mid_data_ac_demand.csv')
-        with open(mid_data_ac_demand_path, 'r') as f:
-            r = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
-            ac_demand_is_ns = np.array([row for row in r]).T
+        ac_demand_is_ns = np.zeros((1, 8760*4), dtype=float)
 
         # ステップ n の境界 j における相当外気温度, ℃, [j, 8760*4]
-        theta_o_eqv_js_ns_path = os.path.join(s_folder, "mid_data_theta_o_sol.csv")
-        with open(theta_o_eqv_js_ns_path, 'r') as f:
-            r = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
-            theta_o_eqv_js_ns = np.array([row for row in r]).T
+        # 南（ID=2)と屋根(ID=5)の壁の相当外気温度を 10.0 ℃とする。
+        theta_o_eqv_js_ns = np.stack([
+            np.zeros(8760*4, dtype=float),
+            np.zeros(8760 * 4, dtype=float),
+            np.full(8760*4, 10.0, dtype=float),
+            np.zeros(8760 * 4, dtype=float),
+            np.zeros(8760 * 4, dtype=float),
+            np.full(8760 * 4, 10.0, dtype=float)
+        ])
 
         ac_operation = {
             "ac_demand_is_ns": ac_demand_is_ns
@@ -85,7 +88,8 @@ class TestSteadyState(unittest.TestCase):
             v_vent_mec_local_is_ns=v_mec_vent_local_is_ns,
             n_hum_is_ns=n_hum_is_ns,
             ac_operation=ac_operation,
-            weather_dataframe=dd_weather,
+            ac_demand_is_ns=ac_demand_is_ns,
+            oc=oc,
             theta_o_eqv_js_ns=theta_o_eqv_js_ns
         )
 
