@@ -503,6 +503,7 @@ def make_pre_calc_parameters(
         ac_method = 'pmv'
 
     get_operation_mode_is_n = ot_target_pmv.make_get_operation_mode_is_n_function(
+        ac_method=ac_method,
         ac_demand_is_ns=ac_demand_is_ns,
         is_radiative_heating_is=is_radiative_heating_is,
         is_radiative_cooling_is=is_radiative_cooling_is,
