@@ -1,4 +1,7 @@
 {
+    "common": {
+
+    },
     "building": {
         "infiltration": {
             "method": "balance_residential",
