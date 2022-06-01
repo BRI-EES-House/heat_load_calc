@@ -12,6 +12,7 @@ from heat_load_calc.core import sequence
 from heat_load_calc.core import sequence_ground
 from heat_load_calc.core.pre_calc_parameters import PreCalcParameters, PreCalcParametersGround
 from heat_load_calc.core import outdoor_condition
+from heat_load_calc.core import schedule_maker
 
 
 def calc(
@@ -23,6 +24,7 @@ def calc(
         ac_demand_is_ns: np.ndarray,
         ac_operation: dict,
         weather_dataframe: pd.DataFrame,
+        scd: schedule_maker.ScheduleMaker,
         n_step_hourly: int = 4,
         n_d_main: int = 365,
         n_d_run_up: int = 365,

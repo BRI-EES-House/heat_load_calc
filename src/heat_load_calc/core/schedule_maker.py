@@ -6,25 +6,69 @@ import csv
 
 class ScheduleMaker:
 
-    def __init__(self, folder_path: str, rooms: list[dict]):
+    def __init__(self, q_gen_is_ns: np.ndarray, x_gen_is_ns: np.ndarray, v_mec_vent_local_is_ns: np.ndarray, n_hum_is_ns: np.ndarray, ac_demand_is_ns: np.ndarray):
 
-        self._folder_path = folder_path
+        self._q_gen_is_ns = q_gen_is_ns
+        self._x_gen_is_ns = x_gen_is_ns
+        self._v_mec_vent_local_is_ns = v_mec_vent_local_is_ns
+        self._n_hum_is_ns = n_hum_is_ns
+        self._ac_demand_is_ns = ac_demand_is_ns
 
-        self._df_hg = self.read_pandas_file(folder_path=folder_path, file_name='heat_generation.csv')
-        self._np_hg = self.read_csv_file(folder_path=folder_path, file_name='mid_data_heat_generation.csv')
-        self._df_mg = self.read_pandas_file(folder_path=folder_path, file_name='moisture_generation.csv')
-        self._np_mg = self.read_csv_file(folder_path=folder_path, file_name='mid_data_moisture_generation.csv')
-        self._df_lv = self.read_pandas_file(folder_path=folder_path, file_name='local_vent.csv')
-        self._np_lv = self.read_csv_file(folder_path=folder_path, file_name='mid_data_local_vent.csv')
-        self._df_op = self.read_pandas_file(folder_path=folder_path, file_name='occupants.csv')
-        self._np_op = self.read_csv_file(folder_path=folder_path, file_name='mid_data_occupants.csv')
-        self._df_ad = self.read_pandas_file(folder_path=folder_path, file_name='ac_demand.csv')
-        self._np_ad = self.read_csv_file(folder_path=folder_path, file_name='mid_data_ac_demand.csv')
+    @classmethod
+    def read_schedule(cls, folder_path: str, rooms: list[dict]):
 
-        self._rooms = rooms
+        _df_hg = cls._read_pandas_file(folder_path=folder_path, file_name='heat_generation.csv')
+        _np_hg = cls._read_csv_file(folder_path=folder_path, file_name='mid_data_heat_generation.csv')
+        _df_mg = cls._read_pandas_file(folder_path=folder_path, file_name='moisture_generation.csv')
+        _np_mg = cls._read_csv_file(folder_path=folder_path, file_name='mid_data_moisture_generation.csv')
+        _df_lv = cls._read_pandas_file(folder_path=folder_path, file_name='local_vent.csv')
+        _np_lv = cls._read_csv_file(folder_path=folder_path, file_name='mid_data_local_vent.csv')
+        _df_op = cls._read_pandas_file(folder_path=folder_path, file_name='occupants.csv')
+        _np_op = cls._read_csv_file(folder_path=folder_path, file_name='mid_data_occupants.csv')
+        _df_ad = cls._read_pandas_file(folder_path=folder_path, file_name='ac_demand.csv')
+        _np_ad = cls._read_csv_file(folder_path=folder_path, file_name='mid_data_ac_demand.csv')
 
-    @staticmethod
-    def read_pandas_file(folder_path: str, file_name: str):
+        _q_gen_is_ns = cls._get_multi_schedule(category='heat_generation', f_df=_df_hg, f_csv=_np_hg, rooms=rooms)
+        _x_gen_is_ns = cls._get_multi_schedule(category='moisture_generation', f_df=_df_mg, f_csv=_np_mg, rooms=rooms)
+        _v_mec_vent_local_is_ns = cls._get_multi_schedule(category='local_ventilation', f_df=_df_lv, f_csv=_np_lv, rooms=rooms)
+        _n_hum_is_ns = cls._get_multi_schedule(category='occupants', f_df=_df_op, f_csv=_np_op, rooms=rooms)
+        _ac_demand_is_ns = cls._get_multi_schedule(category='ac_demand', f_df=_df_ad, f_csv=_np_ad, rooms=rooms)
+
+        return ScheduleMaker(
+            q_gen_is_ns=_q_gen_is_ns,
+            x_gen_is_ns=_x_gen_is_ns,
+            v_mec_vent_local_is_ns=_v_mec_vent_local_is_ns,
+            n_hum_is_ns=_n_hum_is_ns,
+            ac_demand_is_ns=_ac_demand_is_ns
+        )
+
+    @property
+    def q_gen_is_ns(self):
+
+        return self._q_gen_is_ns
+
+    @property
+    def x_gen_is_ns(self):
+
+        return self._x_gen_is_ns
+
+    @property
+    def v_mec_vent_local_is_ns(self):
+
+        return self._v_mec_vent_local_is_ns
+
+    @property
+    def n_hum_is_ns(self):
+
+        return self._n_hum_is_ns
+
+    @property
+    def ac_demand_is_ns(self):
+
+        return self._ac_demand_is_ns
+
+    @classmethod
+    def _read_pandas_file(cls, folder_path: str, file_name: str):
 
         file_path = os.path.join(folder_path, file_name)
 
@@ -35,8 +79,8 @@ class ScheduleMaker:
             print('The file ' + file_name + ' was not exist.')
             return None
 
-    @staticmethod
-    def read_csv_file(folder_path: str, file_name: str):
+    @classmethod
+    def _read_csv_file(cls, folder_path: str, file_name: str):
 
         file_path = os.path.join(folder_path, file_name)
 
@@ -49,36 +93,17 @@ class ScheduleMaker:
             print('The file ' + file_name + ' was not exist.')
             return None
 
-    def get_q_gen_is_ns(self):
-
-        return self.get_multi_schedule(category='heat_generation', f_df=self._df_hg, f_csv=self._np_hg)
-
-    def get_x_gen_is_ns(self):
-
-        return self.get_multi_schedule(category='moisture_generation', f_df=self._df_mg, f_csv=self._np_mg)
-
-    def get_v_mec_vent_local_is_ns(self):
-
-        return self.get_multi_schedule(category='local_ventilation', f_df=self._df_lv, f_csv=self._np_lv)
-
-    def get_n_hum_is_ns(self):
-
-        return self.get_multi_schedule(category='occupants', f_df=self._df_op, f_csv=self._np_op)
-
-    def get_ac_demand_is_ns(self):
-
-        return self.get_multi_schedule(category='ac_demand', f_df=self._df_ad, f_csv=self._np_ad)
-
-    def get_multi_schedule(self, category: str, f_df: pd.DataFrame, f_csv: np.ndarray):
+    @classmethod
+    def _get_multi_schedule(cls, category: str, f_df: pd.DataFrame, f_csv: np.ndarray, rooms: list[dict]):
 
         return np.stack([
-            self.get_single_schedule(
+            cls._get_single_schedule(
                 room=room, category=category, f_df=f_df, f_csv=f_csv
-            ) for room in self._rooms
+            ) for room in rooms
         ])
 
-    @staticmethod
-    def get_single_schedule(room: dict, category: str, f_df: pd.DataFrame, f_csv: np.ndarray):
+    @classmethod
+    def _get_single_schedule(cls, room: dict, category: str, f_df: pd.DataFrame, f_csv: np.ndarray):
 
         if 'schedule' in room:
             c = room['schedule'][category]
@@ -93,5 +118,3 @@ class ScheduleMaker:
         else:
             print('Read {} csv data for numpy format.'.format(category))
             return f_csv[int(room['id'])]
-
-

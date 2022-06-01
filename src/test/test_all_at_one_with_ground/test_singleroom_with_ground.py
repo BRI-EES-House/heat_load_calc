@@ -37,22 +37,22 @@ class TestSigleRoomWithFround(unittest.TestCase):
         dd_weather = pd.read_csv(import_weather_path)
 
         # スケジュールの設定
-        sm = schedule_maker.ScheduleMaker(folder_path=s_folder, rooms=rd['rooms'])
+        scd = schedule_maker.ScheduleMaker.read_schedule(folder_path=s_folder, rooms=rd['rooms'])
 
         # ステップnの室iにおける内部発熱, W, [i, n]
-        q_gen_is_ns = sm.get_q_gen_is_ns()
+        q_gen_is_ns = scd.q_gen_is_ns
 
         # ステップnの室iにおける人体発湿を除く内部発湿, kg/s, [i, n]
-        x_gen_is_ns = sm.get_x_gen_is_ns()
+        x_gen_is_ns = scd.x_gen_is_ns
 
         # ステップnの室iにおける局所換気量, m3/s, [i, n]
-        v_mec_vent_local_is_ns = sm.get_v_mec_vent_local_is_ns()
+        v_mec_vent_local_is_ns = scd.v_mec_vent_local_is_ns
 
         # ステップnの室iにおける在室人数, [i, n]
-        n_hum_is_ns = sm.get_n_hum_is_ns()
+        n_hum_is_ns = scd.n_hum_is_ns
 
         # ステップnの室iにおける空調需要, [i, n]
-        ac_demand_is_ns = sm.get_ac_demand_is_ns()
+        ac_demand_is_ns = scd.ac_demand_is_ns
 
         ac_operation = {
             'ac_demand_is_ns': ac_demand_is_ns
@@ -68,6 +68,7 @@ class TestSigleRoomWithFround(unittest.TestCase):
             ac_demand_is_ns=ac_demand_is_ns,
             ac_operation=ac_operation,
             weather_dataframe=dd_weather,
+            scd=scd,
             n_d_main=30,
             n_d_run_up=10,
             n_d_run_up_build=0
