@@ -6,6 +6,7 @@ import csv
 import json
 
 from heat_load_calc.core import core
+from heat_load_calc.core import schedule_maker
 
 
 # 定常状態のテスト
@@ -35,35 +36,23 @@ class TestSigleRoomWithFround(unittest.TestCase):
         import_weather_path = os.path.join(s_folder, "weather.csv")
         dd_weather = pd.read_csv(import_weather_path)
 
-        # ステップnの室iにおける局所換気量, m3/s, [i, 8760*4]
-        mid_data_local_vent_path = os.path.join(s_folder, 'mid_data_local_vent.csv')
-        with open(mid_data_local_vent_path, 'r') as f:
-            r = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
-            v_mec_vent_local_is_ns = np.array([row for row in r]).T
+        # スケジュールの設定
+        sm = schedule_maker.ScheduleMaker(folder_path=s_folder, rooms=rd['rooms'])
 
-        # ステップnの室iにおける内部発熱, W, [8760*4]
-        mid_data_heat_generation_path = os.path.join(s_folder, 'mid_data_heat_generation.csv')
-        with open(mid_data_heat_generation_path, 'r') as f:
-            r = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
-            q_gen_is_ns = np.array([row for row in r]).T
+        # ステップnの室iにおける内部発熱, W, [i, n]
+        q_gen_is_ns = sm.get_q_gen_is_ns()
 
-        # ステップnの室iにおける人体発湿を除く内部発湿, kg/s, [8760*4]
-        mid_data_moisture_generation_path = os.path.join(s_folder, 'mid_data_moisture_generation.csv')
-        with open(mid_data_moisture_generation_path, 'r') as f:
-            r = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
-            x_gen_is_ns = np.array([row for row in r]).T
+        # ステップnの室iにおける人体発湿を除く内部発湿, kg/s, [i, n]
+        x_gen_is_ns = sm.get_x_gen_is_ns()
 
-        # ステップnの室iにおける在室人数, [8760*4]
-        mid_data_occupants_path = os.path.join(s_folder, 'mid_data_occupants.csv')
-        with open(mid_data_occupants_path, 'r') as f:
-            r = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
-            n_hum_is_ns = np.array([row for row in r]).T
+        # ステップnの室iにおける局所換気量, m3/s, [i, n]
+        v_mec_vent_local_is_ns = sm.get_v_mec_vent_local_is_ns()
 
-        # ステップnの室iにおける空調需要, [8760*4]
-        mid_data_ac_demand_path = os.path.join(s_folder, 'mid_data_ac_demand.csv')
-        with open(mid_data_ac_demand_path, 'r') as f:
-            r = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
-            ac_demand_is_ns = np.array([row for row in r]).T
+        # ステップnの室iにおける在室人数, [i, n]
+        n_hum_is_ns = sm.get_n_hum_is_ns()
+
+        # ステップnの室iにおける空調需要, [i, n]
+        ac_demand_is_ns = sm.get_ac_demand_is_ns()
 
         ac_operation = {
             'ac_demand_is_ns': ac_demand_is_ns

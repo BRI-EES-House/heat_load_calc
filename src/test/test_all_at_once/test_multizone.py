@@ -55,6 +55,7 @@ class TestAllAtOnce(unittest.TestCase):
             mdh = json.load(f)
 
         cls._mdh = mdh
+        cls._v_mec_vent = v_mec_vent_local_is_ns
 
     def test_weather(self):
 
@@ -128,10 +129,11 @@ class TestAllAtOnce(unittest.TestCase):
         q_next_vent = q_next_vent0 + q_next_vent1 + q_next_vent2
 
         # 局所換気による熱取得, [W]
-        with open(self._data_dir + '/mid_data_local_vent.csv', 'r') as f:
-            r = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
-            l = [row for row in r]
-        v_local = float(l[1][0])
+#        with open(self._data_dir + '/mid_data_local_vent.csv', 'r') as f:
+#            r = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
+#            l = [row for row in r]
+#        v_local = float(l[1][0])
+        v_local = self._v_mec_vent[0][1]
         q_local_vent = c_air * rho_air * v_local * (t_o - t_r_new)
 
         # 内部発熱顕熱, [W]
@@ -206,10 +208,11 @@ class TestAllAtOnce(unittest.TestCase):
         q_next_vent = q_next_vent0 + q_next_vent1 + q_next_vent2
 
         # 局所換気による熱取得, [W]
-        with open(self._data_dir + '/mid_data_local_vent.csv', 'r') as f:
-            r = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
-            l = [row for row in r]
-        v_local = float(l[35039][2])
+#        with open(self._data_dir + '/mid_data_local_vent.csv', 'r') as f:
+#            r = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
+#            l = [row for row in r]
+#        v_local = float(l[35039][2])
+        v_local = self._v_mec_vent[2][35039]
         q_local_vent = c_air * rho_air * v_local * (t_o - t_r_new)
 
         # 内部発熱顕熱, [W]
@@ -375,10 +378,8 @@ class TestAllAtOnce(unittest.TestCase):
         humid_next_vent = humid_next_vent0 + humid_next_vent1 + humid_next_vent2
 
         # 局所換気による湿気取得, [kg/s]
-        with open(self._data_dir + '/mid_data_local_vent.csv', 'r') as f:
-            r = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
-            l = [row for row in r]
-        v_local = float(l[schedule_row][0])
+        v_local = self._v_mec_vent[0][schedule_row]
+
         humid_local = rho_air * v_local * (x_o - x_r_new)
 
         # 内部発湿, [kg/s]
@@ -446,10 +447,12 @@ class TestAllAtOnce(unittest.TestCase):
         humid_next_vent = humid_next_vent0 + humid_next_vent1 + humid_next_vent2
 
         # 局所換気による湿気取得, [kg/s]
-        with open(self._data_dir + '/mid_data_local_vent.csv', 'r') as f:
-            r = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
-            l = [row for row in r]
-        v_local = float(l[schedule_row][2])
+#        with open(self._data_dir + '/mid_data_local_vent.csv', 'r') as f:
+#            r = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
+#            l = [row for row in r]
+#        v_local = float(l[schedule_row][2])
+        v_local = self._v_mec_vent[2][schedule_row]
+
         humid_local = rho_air * v_local * (x_o - x_r_new)
 
         # 内部発湿, [kg/s]
