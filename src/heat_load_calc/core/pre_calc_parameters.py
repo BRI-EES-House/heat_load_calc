@@ -212,7 +212,6 @@ def make_pre_calc_parameters(
         x_gen_is_ns: np.ndarray,
         v_vent_mec_local_is_ns: np.ndarray,
         n_hum_is_ns: np.ndarray,
-        ac_operation: dict,
         oc: outdoor_condition.OutdoorCondition,
         ac_demand_is_ns: np.ndarray,
         q_trs_sol_is_ns: Optional[np.ndarray] = None,
@@ -227,7 +226,6 @@ def make_pre_calc_parameters(
         x_gen_is_ns: ステップnの室iにおける人体発湿を除く内部発湿, kg/s, [8760*4]
         v_mec_vent_local_is_ns: ステップnの室iにおける局所換気量, m3/s, [i, 8760*4]
         n_hum_is_ns: ステップnの室iにおける在室人数, [8760*4]
-        ac_operation: 運転方法に関するパラメータを格納した辞書
         ac_demand_is_ns: ステップ n の室 i における空調需要, [i, n]
         oc: 外界気象データクラス
         q_trs_sol_is_ns: optional テスト用　値を指定することができる。未指定の場合は計算する。

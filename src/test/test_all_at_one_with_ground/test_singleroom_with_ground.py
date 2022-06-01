@@ -1,11 +1,9 @@
 import os
 import unittest
-import numpy as np
 import pandas as pd
-import csv
 import json
 
-from heat_load_calc.core import core
+from heat_load_calc import core2
 from heat_load_calc.core import schedule_maker
 
 
@@ -37,37 +35,13 @@ class TestSigleRoomWithFround(unittest.TestCase):
         dd_weather = pd.read_csv(import_weather_path)
 
         # スケジュールの設定
-        sm = schedule_maker.ScheduleMaker(folder_path=s_folder, rooms=rd['rooms'])
-
-        # ステップnの室iにおける内部発熱, W, [i, n]
-        q_gen_is_ns = sm.get_q_gen_is_ns()
-
-        # ステップnの室iにおける人体発湿を除く内部発湿, kg/s, [i, n]
-        x_gen_is_ns = sm.get_x_gen_is_ns()
-
-        # ステップnの室iにおける局所換気量, m3/s, [i, n]
-        v_mec_vent_local_is_ns = sm.get_v_mec_vent_local_is_ns()
-
-        # ステップnの室iにおける在室人数, [i, n]
-        n_hum_is_ns = sm.get_n_hum_is_ns()
-
-        # ステップnの室iにおける空調需要, [i, n]
-        ac_demand_is_ns = sm.get_ac_demand_is_ns()
-
-        ac_operation = {
-            'ac_demand_is_ns': ac_demand_is_ns
-        }
+        scd = schedule_maker.ScheduleMaker.read_schedule(folder_path=s_folder, rooms=rd['rooms'])
 
         # 計算実行
-        dd_i, dd_a = core.calc(
+        dd_i, dd_a = core2.calc(
             rd=rd,
-            q_gen_is_ns=q_gen_is_ns,
-            x_gen_is_ns=x_gen_is_ns,
-            v_mec_vent_local_is_ns=v_mec_vent_local_is_ns,
-            n_hum_is_ns=n_hum_is_ns,
-            ac_demand_is_ns=ac_demand_is_ns,
-            ac_operation=ac_operation,
             weather_dataframe=dd_weather,
+            scd=scd,
             n_d_main=30,
             n_d_run_up=10,
             n_d_run_up_build=0

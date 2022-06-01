@@ -5,8 +5,7 @@ import pandas as pd
 import csv
 import json
 
-from heat_load_calc.core import core
-from heat_load_calc.core import ot_target_pmv
+from heat_load_calc import core
 from heat_load_calc.external import psychrometrics
 from heat_load_calc.core import pmv
 

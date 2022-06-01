@@ -12,17 +12,13 @@ from heat_load_calc.core import sequence
 from heat_load_calc.core import sequence_ground
 from heat_load_calc.core.pre_calc_parameters import PreCalcParameters, PreCalcParametersGround
 from heat_load_calc.core import outdoor_condition
+from heat_load_calc.core import schedule_maker
 
 
 def calc(
         rd: Dict,
-        q_gen_is_ns: np.ndarray,
-        x_gen_is_ns: np.ndarray,
-        v_mec_vent_local_is_ns: np.ndarray,
-        n_hum_is_ns: np.ndarray,
-        ac_demand_is_ns: np.ndarray,
-        ac_operation: dict,
         weather_dataframe: pd.DataFrame,
+        scd: schedule_maker.ScheduleMaker,
         n_step_hourly: int = 4,
         n_d_main: int = 365,
         n_d_run_up: int = 365,
@@ -32,14 +28,8 @@ def calc(
 
     Args:
         rd: 住宅計算条件
-        q_gen_is_ns: ステップnの室iにおける内部発熱, W, [i, n]
-        x_gen_is_ns: ステップnの室iにおける人体発湿を除く内部発湿, kg/s, [i, n]
-        v_mec_vent_local_is_ns: ステップnの室iにおける局所換気量, m3/s, [i, n]
-        n_hum_is_ns: ステップnの室iにおける在室人数, [i, n]
-        ac_demand_is_ns: ステップnの室iにおける空調需要, [i, n]
-        ac_operation: 運転方法に関するパラメータを格納した辞書
-            ac_demand_is_ns: ステップ n の室 i における空調需要, [i, n]
         weather_dataframe:  気象データのDataFrame
+        scd: スケジュール
         n_step_hourly: 計算間隔（1時間を何分割するかどうか）（デフォルトは4（15分間隔））
         n_d_main: 本計算を行う日数（デフォルトは365日（1年間））, d
         n_d_run_up: 助走計算を行う日数（デフォルトは365日（1年間））, d
@@ -71,6 +61,21 @@ def calc(
 
     oc = outdoor_condition.OutdoorCondition.make_from_pd(pp=weather_dataframe)
 
+    # ステップnの室iにおける内部発熱, W, [i, n]
+    q_gen_is_ns = scd.q_gen_is_ns
+
+    # ステップnの室iにおける人体発湿を除く内部発湿, kg/s, [i, n]
+    x_gen_is_ns = scd.x_gen_is_ns
+
+    # ステップnの室iにおける局所換気量, m3/s, [i, n]
+    v_mec_vent_local_is_ns = scd.v_mec_vent_local_is_ns
+
+    # ステップnの室iにおける在室人数, [i, n]
+    n_hum_is_ns = scd.n_hum_is_ns
+
+    # ステップnの室iにおける空調需要, [i, n]
+    ac_demand_is_ns = scd.ac_demand_is_ns
+
     # json, csv ファイルからパラメータをロードする。
     # （ループ計算する必要の無い）事前計算を行い, クラス PreCalcParameters, PreCalcParametersGround に必要な変数を格納する。
     pp, ppg = pre_calc_parameters.make_pre_calc_parameters(
@@ -80,7 +85,6 @@ def calc(
         x_gen_is_ns=x_gen_is_ns,
         v_vent_mec_local_is_ns=v_mec_vent_local_is_ns,
         n_hum_is_ns=n_hum_is_ns,
-        ac_operation=ac_operation,
         ac_demand_is_ns=ac_demand_is_ns,
         oc=oc
     )

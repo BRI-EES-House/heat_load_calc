@@ -69,10 +69,6 @@ class TestSteadyState(unittest.TestCase):
         # 等価日射量は常に 100 W とする。
         q_trs_sol_is_ns = np.full((1, 8760*4), 100.0, dtype=float)
 
-        ac_operation = {
-            "ac_demand_is_ns": ac_demand_is_ns
-        }
-
         # pre_calc_parametersの構築
         ss, ppg = pre_calc_parameters.make_pre_calc_parameters(
             delta_t=900.0,
@@ -81,7 +77,6 @@ class TestSteadyState(unittest.TestCase):
             x_gen_is_ns=x_gen_is_ns,
             v_vent_mec_local_is_ns=v_mec_vent_local_is_ns,
             n_hum_is_ns=n_hum_is_ns,
-            ac_operation=ac_operation,
             ac_demand_is_ns=ac_demand_is_ns,
             oc=oc,
             q_trs_sol_is_ns=q_trs_sol_is_ns
