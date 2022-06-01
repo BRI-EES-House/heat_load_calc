@@ -2,9 +2,8 @@ import unittest
 import os
 import json
 import csv
-import datetime
 
-from heat_load_calc.core import core
+from heat_load_calc import core
 
 
 # クラスの名前は何でも良いので、　TestSurfaceHeatBalance のような形で名前を変更してください。

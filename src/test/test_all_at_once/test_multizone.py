@@ -1,11 +1,11 @@
 import unittest
 import json
 import os
-import csv
 
 from heat_load_calc.initializer import initializer
 from heat_load_calc.weather import weather
-from heat_load_calc.core import core, furniture
+from heat_load_calc.core import furniture
+from heat_load_calc import core2
 from heat_load_calc.core import schedule_maker
 
 
@@ -36,7 +36,7 @@ class TestAllAtOnce(unittest.TestCase):
 
         scd = schedule_maker.ScheduleMaker(q_gen_is_ns=q_gen_is_ns, x_gen_is_ns=x_gen_is_ns, v_mec_vent_local_is_ns=v_mec_vent_local_is_ns, n_hum_is_ns=n_hum_is_ns, ac_demand_is_ns=ac_demand_is_ns)
 
-        dd_i, dd_a = core.calc(
+        dd_i, dd_a = core2.calc(
             rd=rd,
             weather_dataframe=dd_weather,
             scd=scd

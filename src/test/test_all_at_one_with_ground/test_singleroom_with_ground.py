@@ -1,11 +1,9 @@
 import os
 import unittest
-import numpy as np
 import pandas as pd
-import csv
 import json
 
-from heat_load_calc.core import core
+from heat_load_calc import core2
 from heat_load_calc.core import schedule_maker
 
 
@@ -40,7 +38,7 @@ class TestSigleRoomWithFround(unittest.TestCase):
         scd = schedule_maker.ScheduleMaker.read_schedule(folder_path=s_folder, rooms=rd['rooms'])
 
         # 計算実行
-        dd_i, dd_a = core.calc(
+        dd_i, dd_a = core2.calc(
             rd=rd,
             weather_dataframe=dd_weather,
             scd=scd,
