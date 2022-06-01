@@ -7,6 +7,15 @@ import csv
 class ScheduleMaker:
 
     def __init__(self, q_gen_is_ns: np.ndarray, x_gen_is_ns: np.ndarray, v_mec_vent_local_is_ns: np.ndarray, n_hum_is_ns: np.ndarray, ac_demand_is_ns: np.ndarray):
+        """
+
+        Args:
+            q_gen_is_ns: ステップnの室iにおける内部発熱, W, [i, n]
+            x_gen_is_ns: ステップnの室iにおける人体発湿を除く内部発湿, kg/s, [i, n]
+            v_mec_vent_local_is_ns: ステップnの室iにおける局所換気量, m3/s, [i, n]
+            n_hum_is_ns: ステップnの室iにおける在室人数, [i, n]
+            ac_demand_is_ns: ステップnの室iにおける空調需要, [i, n]
+        """
 
         self._q_gen_is_ns = q_gen_is_ns
         self._x_gen_is_ns = x_gen_is_ns
