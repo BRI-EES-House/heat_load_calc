@@ -21,6 +21,23 @@
             },
             "furniture": {
                 "input_method": "default"
+            },
+            "schedule": {
+                "local_ventilation": {
+                    "method": "file"
+                },
+                "heat_generation": {
+                    "method": "file"
+                },
+                "moisture_generation": {
+                    "method": "file"
+                },
+                "occupants": {
+                    "method": "file"
+                },
+                "ac_demand": {
+                    "method": "file"
+                }
             }
         }
     ],
