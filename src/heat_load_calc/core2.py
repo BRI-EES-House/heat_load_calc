@@ -1,8 +1,6 @@
 import pandas as pd
 import logging
-import numpy as np
 from typing import Tuple, Dict
-from pandas.core.frame import DataFrame
 
 from heat_load_calc.core import period
 from heat_load_calc.core import pre_calc_parameters
@@ -10,15 +8,14 @@ from heat_load_calc.core import conditions
 from heat_load_calc.core import log
 from heat_load_calc.core import sequence
 from heat_load_calc.core import sequence_ground
-from heat_load_calc.core.pre_calc_parameters import PreCalcParameters, PreCalcParametersGround
 from heat_load_calc.core import outdoor_condition
-from heat_load_calc.core import schedule_maker
+from heat_load_calc import schedule
 
 
 def calc(
         rd: Dict,
         weather_dataframe: pd.DataFrame,
-        scd: schedule_maker.ScheduleMaker,
+        scd: schedule.Schedule,
         n_step_hourly: int = 4,
         n_d_main: int = 365,
         n_d_run_up: int = 365,

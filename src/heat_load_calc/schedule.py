@@ -3,8 +3,9 @@ import pandas as pd
 import numpy as np
 import csv
 
+from heat_load_calc.initializer import initializer
 
-class ScheduleMaker:
+class Schedule:
 
     def __init__(self, q_gen_is_ns: np.ndarray, x_gen_is_ns: np.ndarray, v_mec_vent_local_is_ns: np.ndarray, n_hum_is_ns: np.ndarray, ac_demand_is_ns: np.ndarray):
         """
@@ -43,12 +44,25 @@ class ScheduleMaker:
         _n_hum_is_ns = cls._get_multi_schedule(category='occupants', f_df=_df_op, f_csv=_np_op, rooms=rooms)
         _ac_demand_is_ns = cls._get_multi_schedule(category='ac_demand', f_df=_df_ad, f_csv=_np_ad, rooms=rooms)
 
-        return ScheduleMaker(
+        return Schedule(
             q_gen_is_ns=_q_gen_is_ns,
             x_gen_is_ns=_x_gen_is_ns,
             v_mec_vent_local_is_ns=_v_mec_vent_local_is_ns,
             n_hum_is_ns=_n_hum_is_ns,
             ac_demand_is_ns=_ac_demand_is_ns
+        )
+
+    @classmethod
+    def make_schedule(cls, rooms: list[dict]):
+
+        q_gen_is_ns, x_gen_is_ns, v_mec_vent_local_is_ns, n_hum_is_ns, ac_demand_is_ns = initializer.make_house(rooms=rooms)
+
+        return Schedule(
+            q_gen_is_ns=q_gen_is_ns,
+            x_gen_is_ns=x_gen_is_ns,
+            v_mec_vent_local_is_ns=v_mec_vent_local_is_ns,
+            n_hum_is_ns=n_hum_is_ns,
+            ac_demand_is_ns=ac_demand_is_ns
         )
 
     @property

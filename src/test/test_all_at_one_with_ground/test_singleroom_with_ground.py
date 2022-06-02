@@ -3,8 +3,7 @@ import unittest
 import pandas as pd
 import json
 
-from heat_load_calc import core2
-from heat_load_calc.core import schedule_maker
+from heat_load_calc import core2, schedule
 
 
 # 定常状態のテスト
@@ -35,7 +34,7 @@ class TestSigleRoomWithFround(unittest.TestCase):
         dd_weather = pd.read_csv(import_weather_path)
 
         # スケジュールの設定
-        scd = schedule_maker.ScheduleMaker.read_schedule(folder_path=s_folder, rooms=rd['rooms'])
+        scd = schedule.Schedule.read_schedule(folder_path=s_folder, rooms=rd['rooms'])
 
         # 計算実行
         dd_i, dd_a = core2.calc(

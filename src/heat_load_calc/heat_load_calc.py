@@ -14,8 +14,7 @@ sys.path.insert(0, path.abspath(path.join(path.dirname(__file__), '..')))
 
 from heat_load_calc.initializer import initializer
 from heat_load_calc.weather import weather
-from heat_load_calc import core2
-from heat_load_calc.core import schedule_maker
+from heat_load_calc import core2, schedule
 
 
 def run(
@@ -79,7 +78,7 @@ def run(
     if flag_run_schedule:
         q_gen_is_ns, x_gen_is_ns, v_mec_vent_local_is_ns, \
             n_hum_is_ns, ac_demand_is_ns \
-            = initializer.make_house(d=rd)
+            = initializer.make_house(rooms=rd['rooms'])
     elif load_schedule is not False:
         # ステップnの室iにおける局所換気量, m3/s, [i, 8760*4]
         mid_data_local_vent_path = path.join(load_schedule, 'mid_data_local_vent.csv')
@@ -121,7 +120,7 @@ def run(
     # 計算
     if flag_run_calc:
 
-        scd = schedule_maker.ScheduleMaker(q_gen_is_ns=q_gen_is_ns, x_gen_is_ns=x_gen_is_ns, v_mec_vent_local_is_ns=v_mec_vent_local_is_ns, n_hum_is_ns=n_hum_is_ns, ac_demand_is_ns=ac_demand_is_ns)
+        scd = schedule.Schedule(q_gen_is_ns=q_gen_is_ns, x_gen_is_ns=x_gen_is_ns, v_mec_vent_local_is_ns=v_mec_vent_local_is_ns, n_hum_is_ns=n_hum_is_ns, ac_demand_is_ns=ac_demand_is_ns)
 
         dd_i, dd_a = core2.calc(
             rd=rd,

@@ -20,9 +20,7 @@ class RoomType(Enum):
     UNDERFLOOR = 'underfloor'
 
 
-def make_house(d):
-
-    rooms = d['rooms']
+def make_house(rooms: list[dict]):
 
     # 室iの名称, [i]
     room_name_is = [r['name'] for r in rooms]
