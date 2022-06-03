@@ -24,7 +24,7 @@ def run(
         generate_weather_only: bool = False,
         load_schedule: str = False,
         load_weather: str = False,
-        schedule_data_folder_path: str = None
+        schedule_data_folder_path: str = ""
 ):
     """負荷計算処理の実行
 
@@ -84,7 +84,7 @@ def run(
     #
     #     scd = schedule.Schedule.read_schedule(folder_path=load_schedule, rooms=rd['rooms'])
 
-    scd = schedule.Schedule.get_schedule(rooms=rd['rooms'], flag_run_schedule=flag_run_schedule, folder_path=load_schedule)
+    scd = schedule.Schedule.get_schedule(rooms=rd['rooms'], flag_run_schedule=flag_run_schedule, folder_path=schedule_data_folder_path)
 
     # ---- 計算 ----
 
@@ -196,7 +196,8 @@ def main():
     )
     parser.add_argument(
         '-s', '--schedule_data_folder_path',
-        default=None,
+        default="",
+        type=str,
         help="独自のスケジュールを指定した場合にスケジュールファイルが置かれているフォルダパスを相対パスで指定します。"
     )
     parser.add_argument(

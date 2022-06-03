@@ -2,9 +2,15 @@
 import pandas as pd
 import numpy as np
 import csv
+from typing import List, Dict
+import logging
 
 from heat_load_calc.initializer import residents_number
 from heat_load_calc.initializer import schedule_loader
+
+
+logger = logging.getLogger(name='HeatLoadCalc').getChild('Schedule')
+
 
 class Schedule:
 
@@ -26,7 +32,20 @@ class Schedule:
         self._ac_demand_is_ns = ac_demand_is_ns
 
     @classmethod
-    def get_schedule(cls, rooms: list[dict], flag_run_schedule: bool, folder_path: str =""):
+    def get_schedule(cls, rooms: List[Dict], flag_run_schedule: bool, folder_path: str = ""):
+
+        # 独自指定のCSVファイルの読み込み
+        # 読み込むファイルが存在しない場合（独自指定をしない場合に該当）はNoneを返す。
+        df_hg = cls._read_pandas_file(folder_path=folder_path, file_name='heat_generation.csv')
+        np_hg = cls._read_csv_file(folder_path=folder_path, file_name='mid_data_heat_generation.csv')
+        df_mg = cls._read_pandas_file(folder_path=folder_path, file_name='moisture_generation.csv')
+        np_mg = cls._read_csv_file(folder_path=folder_path, file_name='mid_data_moisture_generation.csv')
+        df_lv = cls._read_pandas_file(folder_path=folder_path, file_name='local_vent.csv')
+        np_lv = cls._read_csv_file(folder_path=folder_path, file_name='mid_data_local_vent.csv')
+        df_op = cls._read_pandas_file(folder_path=folder_path, file_name='occupants.csv')
+        np_op = cls._read_csv_file(folder_path=folder_path, file_name='mid_data_occupants.csv')
+        df_ad = cls._read_pandas_file(folder_path=folder_path, file_name='ac_demand.csv')
+        np_ad = cls._read_csv_file(folder_path=folder_path, file_name='mid_data_ac_demand.csv')
 
         if flag_run_schedule:
 
@@ -42,9 +61,6 @@ class Schedule:
             # 居住人数
             n_p = residents_number.get_total_number_of_residents(a_floor_total=a_floor_total)
 
-#            q_gen_is_ns, x_gen_is_ns, v_mec_vent_local_is_ns, n_hum_is_ns, ac_demand_is_ns = initializer.make_house(
-#                rooms=rooms, room_name_is=room_name_is, a_floor_is=a_floor_is, a_floor_total=a_floor_total, n_p=n_p)
-
             # 以下のスケジュールの取得, [i, 365*96]
             #   ステップnの室iにおける人体発熱を除く内部発熱, W, [i, 8760*4]
             # 　　ステップnの室iにおける人体発湿を除く内部発湿, kg/s, [i, 8760*4]
@@ -52,46 +68,23 @@ class Schedule:
             #   ステップnの室iにおける在室人数, [i, 8760*4]
             #   ステップnの室iにおける空調割合, [i, 8760*4]
             q_gen_is_ns, x_gen_is_ns, v_mec_vent_local_is_ns, n_hum_is_ns, ac_demand_is_ns \
-                = schedule_loader.get_compiled_schedules(
-                n_p=n_p,
-                room_name_is=room_name_is,
-                a_floor_is=a_floor_is
-            )
-
-            return Schedule(
-                q_gen_is_ns=q_gen_is_ns,
-                x_gen_is_ns=x_gen_is_ns,
-                v_mec_vent_local_is_ns=v_mec_vent_local_is_ns,
-                n_hum_is_ns=n_hum_is_ns,
-                ac_demand_is_ns=ac_demand_is_ns
-            )
+                = schedule_loader.get_compiled_schedules(n_p=n_p, room_name_is=room_name_is, a_floor_is=a_floor_is)
 
         else:
 
-            _df_hg = cls._read_pandas_file(folder_path=folder_path, file_name='heat_generation.csv')
-            _np_hg = cls._read_csv_file(folder_path=folder_path, file_name='mid_data_heat_generation.csv')
-            _df_mg = cls._read_pandas_file(folder_path=folder_path, file_name='moisture_generation.csv')
-            _np_mg = cls._read_csv_file(folder_path=folder_path, file_name='mid_data_moisture_generation.csv')
-            _df_lv = cls._read_pandas_file(folder_path=folder_path, file_name='local_vent.csv')
-            _np_lv = cls._read_csv_file(folder_path=folder_path, file_name='mid_data_local_vent.csv')
-            _df_op = cls._read_pandas_file(folder_path=folder_path, file_name='occupants.csv')
-            _np_op = cls._read_csv_file(folder_path=folder_path, file_name='mid_data_occupants.csv')
-            _df_ad = cls._read_pandas_file(folder_path=folder_path, file_name='ac_demand.csv')
-            _np_ad = cls._read_csv_file(folder_path=folder_path, file_name='mid_data_ac_demand.csv')
+            q_gen_is_ns = cls._get_multi_schedule(category='heat_generation', f_df=df_hg, f_csv=np_hg, rooms=rooms)
+            x_gen_is_ns = cls._get_multi_schedule(category='moisture_generation', f_df=df_mg, f_csv=np_mg, rooms=rooms)
+            v_mec_vent_local_is_ns = cls._get_multi_schedule(category='local_ventilation', f_df=df_lv, f_csv=np_lv, rooms=rooms)
+            n_hum_is_ns = cls._get_multi_schedule(category='occupants', f_df=df_op, f_csv=np_op, rooms=rooms)
+            ac_demand_is_ns = cls._get_multi_schedule(category='ac_demand', f_df=df_ad, f_csv=np_ad, rooms=rooms)
 
-            _q_gen_is_ns = cls._get_multi_schedule(category='heat_generation', f_df=_df_hg, f_csv=_np_hg, rooms=rooms)
-            _x_gen_is_ns = cls._get_multi_schedule(category='moisture_generation', f_df=_df_mg, f_csv=_np_mg, rooms=rooms)
-            _v_mec_vent_local_is_ns = cls._get_multi_schedule(category='local_ventilation', f_df=_df_lv, f_csv=_np_lv, rooms=rooms)
-            _n_hum_is_ns = cls._get_multi_schedule(category='occupants', f_df=_df_op, f_csv=_np_op, rooms=rooms)
-            _ac_demand_is_ns = cls._get_multi_schedule(category='ac_demand', f_df=_df_ad, f_csv=_np_ad, rooms=rooms)
-
-            return Schedule(
-                q_gen_is_ns=_q_gen_is_ns,
-                x_gen_is_ns=_x_gen_is_ns,
-                v_mec_vent_local_is_ns=_v_mec_vent_local_is_ns,
-                n_hum_is_ns=_n_hum_is_ns,
-                ac_demand_is_ns=_ac_demand_is_ns
-            )
+        return Schedule(
+            q_gen_is_ns=q_gen_is_ns,
+            x_gen_is_ns=x_gen_is_ns,
+            v_mec_vent_local_is_ns=v_mec_vent_local_is_ns,
+            n_hum_is_ns=n_hum_is_ns,
+            ac_demand_is_ns=ac_demand_is_ns
+        )
 
     @property
     def q_gen_is_ns(self):
@@ -124,10 +117,10 @@ class Schedule:
         file_path = os.path.join(folder_path, file_name)
 
         if os.path.exists(file_path):
-            print('The file ' + file_name + ' was exist.')
+            logger.info('The file ' + file_name + ' was exist.')
             return pd.read_csv(file_path)
         else:
-            print('The file ' + file_name + ' was not exist.')
+            logger.info('The file ' + file_name + ' was not exist.')
             return None
 
     @classmethod
@@ -136,12 +129,12 @@ class Schedule:
         file_path = os.path.join(folder_path, file_name)
 
         if os.path.exists(file_path):
-            print('The file ' + file_name + ' was exist.')
+            logger.info('The file ' + file_name + ' was exist.')
             with open(file_path, 'r') as f:
                 r = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
                 return np.array([row for row in r]).T
         else:
-            print('The file ' + file_name + ' was not exist.')
+            logger.info('The file ' + file_name + ' was not exist.')
             return None
 
     @classmethod
@@ -159,13 +152,13 @@ class Schedule:
         if 'schedule' in room:
             c = room['schedule'][category]
             if c['method'] == 'constant':
-                print('Set the constant value to {} .'.format(category))
+                logger.info('Set the constant value to {} .'.format(category))
                 return np.full(shape=(8760 * 4), fill_value=float(c['constant_value']))
             elif c['method'] == 'file':
-                print('Read {} csv data for pandas format.'.format(category))
+                logger.info('Read {} csv data for pandas format.'.format(category))
                 return f_df[str(room['id'])].values
             else:
                 raise Exception()
         else:
-            print('Read {} csv data for numpy format.'.format(category))
+            logger.info('Read {} csv data for numpy format.'.format(category))
             return f_csv[int(room['id'])]
