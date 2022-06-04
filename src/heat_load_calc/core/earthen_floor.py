@@ -1,7 +1,8 @@
 import numpy as np
-import response_factor as rf
 from dataclasses import dataclass
 
+
+from . import response_factor as rf
 
 @dataclass()
 class EarthenFloor:
