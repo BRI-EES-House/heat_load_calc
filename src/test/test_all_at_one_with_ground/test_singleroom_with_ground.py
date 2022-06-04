@@ -8,7 +8,7 @@ from heat_load_calc.core import schedule_maker
 
 
 # 定常状態のテスト
-class TestSigleRoomWithFround(unittest.TestCase):
+class TestSigleRoomWithGround(unittest.TestCase):
     """
     計算条件
     土間床２面のみを有する単室。
