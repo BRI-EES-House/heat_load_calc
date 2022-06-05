@@ -29,7 +29,7 @@ class TestAllAtOnce(unittest.TestCase):
 
         dd_weather = weather.make_weather(region=rd['common']['region'])
 
-        scd = schedule.Schedule.get_schedule(rooms=rd['rooms'], flag_run_schedule=True)
+        scd = schedule.Schedule.get_schedule(common=rd['common'], rooms=rd['rooms'], flag_run_schedule=True)
 
         dd_i, dd_a = core2.calc(rd=rd, weather_dataframe=dd_weather, scd=scd)
 

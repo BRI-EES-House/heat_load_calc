@@ -84,7 +84,7 @@ def run(
     #
     #     scd = schedule.Schedule.read_schedule(folder_path=load_schedule, rooms=rd['rooms'])
 
-    scd = schedule.Schedule.get_schedule(rooms=rd['rooms'], flag_run_schedule=flag_run_schedule, folder_path=schedule_data_folder_path)
+    scd = schedule.Schedule.get_schedule(common=rd['common'], rooms=rd['rooms'], flag_run_schedule=flag_run_schedule, folder_path=schedule_data_folder_path)
 
     # ---- 計算 ----
 

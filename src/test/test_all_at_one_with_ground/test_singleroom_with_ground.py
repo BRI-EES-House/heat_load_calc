@@ -34,8 +34,7 @@ class TestSigleRoomWithFround(unittest.TestCase):
         dd_weather = pd.read_csv(import_weather_path)
 
         # スケジュールの設定
-#        scd = schedule.Schedule.read_schedule(folder_path=s_folder, rooms=rd['rooms'])
-        scd = schedule.Schedule.get_schedule(rooms=rd['rooms'], flag_run_schedule=False, folder_path=s_folder)
+        scd = schedule.Schedule.get_schedule(common=rd['common'], rooms=rd['rooms'], flag_run_schedule=False, folder_path=s_folder)
 
         # 計算実行
         dd_i, dd_a = core2.calc(
