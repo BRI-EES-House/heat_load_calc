@@ -36,18 +36,10 @@ class TestSigleRoomWithFround(unittest.TestCase):
         oc = outdoor_condition.OutdoorCondition.make_from_pd(pp=dd_weather)
 
         # スケジュールの設定
-        scd = schedule.Schedule.get_schedule(common=rd['common'], rooms=rd['rooms'], folder_path=s_folder)
+        scd = schedule.Schedule.get_schedule(schedule_dict=rd['common']['schedule'], rooms=rd['rooms'], folder_path=s_folder)
 
         # 計算実行
-        dd_i, dd_a = core2.calc(
-            rd=rd,
-            weather_dataframe=dd_weather,
-            oc=oc,
-            scd=scd,
-            n_d_main=30,
-            n_d_run_up=10,
-            n_d_run_up_build=0
-        )
+        dd_i, dd_a = core2.calc(rd=rd, oc=oc, scd=scd, n_d_main=30, n_d_run_up=10, n_d_run_up_build=0)
 
         # 計算結果格納
         cls._dd_i = dd_i

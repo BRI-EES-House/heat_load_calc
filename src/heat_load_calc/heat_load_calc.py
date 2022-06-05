@@ -75,19 +75,14 @@ def run(
 
     oc = outdoor_condition.OutdoorCondition.make_from_pd(pp=dd_weather)
 
-    scd = schedule.Schedule.get_schedule(common=rd['common'], rooms=rd['rooms'], folder_path=schedule_data_folder_path)
+    scd = schedule.Schedule.get_schedule(schedule_dict=rd['common']['schedule'], rooms=rd['rooms'], folder_path=schedule_data_folder_path)
 
     # ---- 計算 ----
 
     # 計算
     if flag_run_calc:
 
-        dd_i, dd_a = core2.calc(
-            rd=rd,
-            weather_dataframe=dd_weather,
-            oc=oc,
-            scd=scd
-        )
+        dd_i, dd_a = core2.calc(rd=rd, oc=oc, scd=scd)
 
     # ---- 中間生成ファイルの保存 ----
 

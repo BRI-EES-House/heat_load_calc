@@ -31,9 +31,9 @@ class TestAllAtOnce(unittest.TestCase):
 
         oc = outdoor_condition.OutdoorCondition.make_from_pd(pp=dd_weather)
 
-        scd = schedule.Schedule.get_schedule(common=rd['common'], rooms=rd['rooms'])
+        scd = schedule.Schedule.get_schedule(schedule_dict=rd['common']['schedule'], rooms=rd['rooms'])
 
-        dd_i, dd_a = core2.calc(rd=rd, weather_dataframe=dd_weather, oc=oc, scd=scd)
+        dd_i, dd_a = core2.calc(rd=rd, oc=oc, scd=scd)
 
         cls._dd_i = dd_i
         cls._dd_a = dd_a

@@ -2,11 +2,11 @@
 import pandas as pd
 import numpy as np
 import csv
-from typing import List, Dict
+from typing import List, Dict, Tuple
 import logging
+import json
 
 from heat_load_calc.initializer import residents_number
-from heat_load_calc.initializer import schedule_loader
 
 
 logger = logging.getLogger(name='HeatLoadCalc').getChild('Schedule')
@@ -32,22 +32,9 @@ class Schedule:
         self._ac_demand_is_ns = ac_demand_is_ns
 
     @classmethod
-    def get_schedule(cls, common: Dict, rooms: List[Dict], folder_path: str = ""):
+    def get_schedule(cls, schedule_dict: Dict, rooms: List[Dict], folder_path: str = ""):
 
-        # 独自指定のCSVファイルの読み込み
-        # 読み込むファイルが存在しない場合（独自指定をしない場合に該当）はNoneを返す。
-        df_hg = cls._read_pandas_file(folder_path=folder_path, file_name='heat_generation.csv')
-        np_hg = cls._read_csv_file(folder_path=folder_path, file_name='mid_data_heat_generation.csv')
-        df_mg = cls._read_pandas_file(folder_path=folder_path, file_name='moisture_generation.csv')
-        np_mg = cls._read_csv_file(folder_path=folder_path, file_name='mid_data_moisture_generation.csv')
-        df_lv = cls._read_pandas_file(folder_path=folder_path, file_name='local_vent.csv')
-        np_lv = cls._read_csv_file(folder_path=folder_path, file_name='mid_data_local_vent.csv')
-        df_op = cls._read_pandas_file(folder_path=folder_path, file_name='occupants.csv')
-        np_op = cls._read_csv_file(folder_path=folder_path, file_name='mid_data_occupants.csv')
-        df_ad = cls._read_pandas_file(folder_path=folder_path, file_name='ac_demand.csv')
-        np_ad = cls._read_csv_file(folder_path=folder_path, file_name='mid_data_ac_demand.csv')
-
-        if common['schedule']['method'] == 'calculate':
+        if schedule_dict['method'] == 'calculate':
 
             # 室iの名称, [i]
             room_name_is = [r['name'] for r in rooms]
@@ -62,35 +49,35 @@ class Schedule:
             n_p = residents_number.get_total_number_of_residents(a_floor_total=a_floor_total)
 
             # スケジュールを記述した辞書の読み込み
-            d = schedule_loader._load_schedule()
+            d = cls._load_schedule()
 
             # カレンダーの読み込み（日にちの種類（'平日', '休日外', '休日在'））, [365]
             calendar = np.array(d['calendar'])
 
             # ステップ n の室 i における局所換気量, m3/s, [i, n]
             # jsonファイルでは、 m3/h で示されているため、単位換算(m3/h -> m3/s)を行っている。
-            v_mec_vent_local_is_ns = np.concatenate([[schedule_loader._get_schedule(room_name_i=room_name_i, n_p=n_p, calendar=calendar, daily_schedule=d['daily_schedule'], schedule_type='local_vent_amount')] for room_name_i in room_name_is]) / 3600.0
+            v_mec_vent_local_is_ns = np.concatenate([[cls._get_schedule(room_name_i=room_name_i, n_p=n_p, calendar=calendar, daily_schedule=d['daily_schedule'], schedule_type='local_vent_amount')] for room_name_i in room_name_is]) / 3600.0
 
             # ステップ n の室 i における機器発熱, W, [i, n]
-            q_gen_app_is_ns = np.concatenate([[schedule_loader._get_schedule(room_name_i=room_name, n_p=n_p, calendar=calendar, daily_schedule=d['daily_schedule'], schedule_type='heat_generation_appliances')] for room_name in room_name_is])
+            q_gen_app_is_ns = np.concatenate([[cls._get_schedule(room_name_i=room_name, n_p=n_p, calendar=calendar, daily_schedule=d['daily_schedule'], schedule_type='heat_generation_appliances')] for room_name in room_name_is])
 
             # ステップ n の室 i における調理発熱, W, [i, n]
-            q_gen_ckg_is_ns = np.concatenate([[schedule_loader._get_schedule(room_name_i=room_name, n_p=n_p, calendar=calendar, daily_schedule=d['daily_schedule'], schedule_type='vapor_generation_cooking')] for room_name in room_name_is])
+            q_gen_ckg_is_ns = np.concatenate([[cls._get_schedule(room_name_i=room_name, n_p=n_p, calendar=calendar, daily_schedule=d['daily_schedule'], schedule_type='vapor_generation_cooking')] for room_name in room_name_is])
 
             # ステップ n の室 i における調理発湿, kg/s, [i, n]
             # jsonファイルでは、g/h で示されているため、単位換算(g/h->kg/s)を行っている。
-            x_gen_ckg_is_ns = np.concatenate([[schedule_loader._get_schedule(room_name_i=room_name, n_p=n_p, calendar=calendar, daily_schedule=d['daily_schedule'], schedule_type='heat_generation_cooking')] for room_name in room_name_is]) / 1000.0 / 3600.0
+            x_gen_ckg_is_ns = np.concatenate([[cls._get_schedule(room_name_i=room_name, n_p=n_p, calendar=calendar, daily_schedule=d['daily_schedule'], schedule_type='heat_generation_cooking')] for room_name in room_name_is]) / 1000.0 / 3600.0
 
             # ステップ n の室 i における照明発熱, W/m2, [i, n]
             # 単位面積あたりで示されていることに注意
-            q_gen_lght_is_ns = np.concatenate([[schedule_loader._get_schedule(room_name_i=room_name, n_p=n_p, calendar=calendar, daily_schedule=d['daily_schedule'], schedule_type='heat_generation_lighting')] for room_name in room_name_is])
+            q_gen_lght_is_ns = np.concatenate([[cls._get_schedule(room_name_i=room_name, n_p=n_p, calendar=calendar, daily_schedule=d['daily_schedule'], schedule_type='heat_generation_lighting')] for room_name in room_name_is])
 
             # ステップ n の室 i における在室人数, [i, n]
             # 居住人数で按分しているため、整数ではなく小数であることに注意
-            n_hum_is_ns = np.concatenate([[schedule_loader._get_schedule(room_name_i=room_name, n_p=n_p, calendar=calendar, daily_schedule=d['daily_schedule'], schedule_type='number_of_people')] for room_name in room_name_is])
+            n_hum_is_ns = np.concatenate([[cls._get_schedule(room_name_i=room_name, n_p=n_p, calendar=calendar, daily_schedule=d['daily_schedule'], schedule_type='number_of_people')] for room_name in room_name_is])
 
             # ステップ n の室 i における空調割合, [i, n]
-            ac_demand_is_ns = np.concatenate([[schedule_loader._get_schedule(room_name_i=room_name, n_p=n_p, calendar=calendar, daily_schedule=d['daily_schedule'], schedule_type='is_temp_limit_set')] for room_name in room_name_is])
+            ac_demand_is_ns = np.concatenate([[cls._get_schedule(room_name_i=room_name, n_p=n_p, calendar=calendar, daily_schedule=d['daily_schedule'], schedule_type='is_temp_limit_set')] for room_name in room_name_is])
 
             # ステップ n の室 i における人体発熱を除く内部発熱, W, [i, n]
             q_gen_is_ns = q_gen_app_is_ns + q_gen_ckg_is_ns + q_gen_lght_is_ns * a_floor_is[:, np.newaxis]
@@ -98,7 +85,20 @@ class Schedule:
             # ステップ n の室 i における人体発湿を除く内部発湿, kg/s, [i, n]
             x_gen_is_ns = x_gen_ckg_is_ns
 
-        elif common['schedule']['method'] == 'specify':
+        elif schedule_dict['method'] == 'specify':
+
+            # 独自指定のCSVファイルの読み込み
+            # 読み込むファイルが存在しない場合（独自指定をしない場合に該当）はNoneを返す。
+            df_hg = cls._read_pandas_file(folder_path=folder_path, file_name='heat_generation.csv')
+            np_hg = cls._read_csv_file(folder_path=folder_path, file_name='mid_data_heat_generation.csv')
+            df_mg = cls._read_pandas_file(folder_path=folder_path, file_name='moisture_generation.csv')
+            np_mg = cls._read_csv_file(folder_path=folder_path, file_name='mid_data_moisture_generation.csv')
+            df_lv = cls._read_pandas_file(folder_path=folder_path, file_name='local_vent.csv')
+            np_lv = cls._read_csv_file(folder_path=folder_path, file_name='mid_data_local_vent.csv')
+            df_op = cls._read_pandas_file(folder_path=folder_path, file_name='occupants.csv')
+            np_op = cls._read_csv_file(folder_path=folder_path, file_name='mid_data_occupants.csv')
+            df_ad = cls._read_pandas_file(folder_path=folder_path, file_name='ac_demand.csv')
+            np_ad = cls._read_csv_file(folder_path=folder_path, file_name='mid_data_ac_demand.csv')
 
             q_gen_is_ns = cls._get_multi_schedule(category='heat_generation', f_df=df_hg, f_csv=np_hg, rooms=rooms)
             x_gen_is_ns = cls._get_multi_schedule(category='moisture_generation', f_df=df_mg, f_csv=np_mg, rooms=rooms)
@@ -194,3 +194,111 @@ class Schedule:
         else:
             logger.info('Read {} csv data for numpy format.'.format(category))
             return f_csv[int(room['id'])]
+
+
+    @classmethod
+    def _load_schedule(cls) -> Dict:
+        """スケジュールを読み込む
+        """
+
+        js = open(str(os.path.dirname(__file__)) + '/schedules.json', 'r', encoding='utf-8')
+        d_json = json.load(js)
+        js.close()
+        return d_json
+
+
+    @classmethod
+    def _get_schedule(
+            cls, room_name_i: str, n_p: float, calendar: np.ndarray, daily_schedule: Dict, schedule_type: str
+    ) -> np.ndarray:
+        """
+        スケジュールを取得する。
+        Args:
+            room_name_i: 室iの名称
+            n_p: 居住人数
+            calendar: 日にちの種類（'平日', '休日外', '休日在'), [365]
+            daily_schedule: スケジュール（辞書型）
+            schedule_type: どのようなスケジュールを扱うのか？　以下から指定する。
+                'local_vent_amount'
+                'heat_generation_appliances'
+                'vapor_generation_cooking'
+                'heat_generation_cooking'
+                'heat_generation_lighting'
+                'number_of_people'
+                'is_temp_limit_set'
+        Returns:
+            スケジュール, [365*96]
+        """
+
+        def convert_schedule(day_type: str):
+            return {
+                '1': daily_schedule['1'][room_name_i][day_type][schedule_type],
+                '2': daily_schedule['2'][room_name_i][day_type][schedule_type],
+                '3': daily_schedule['3'][room_name_i][day_type][schedule_type],
+                '4': daily_schedule['4'][room_name_i][day_type][schedule_type],
+            }
+
+        d_weekday = convert_schedule(day_type='平日')
+        d_holiday_out = convert_schedule(day_type='休日外')
+        d_holiday_in = convert_schedule(day_type='休日在')
+
+        d_365_96 = np.full((365, 96), -1.0, dtype=float)
+        d_365_96[calendar == '平日'] = cls._get_interpolated_schedule(n_p, d_weekday)
+        d_365_96[calendar == '休日外'] = cls._get_interpolated_schedule(n_p, d_holiday_out)
+        d_365_96[calendar == '休日在'] = cls._get_interpolated_schedule(n_p, d_holiday_in)
+        d = d_365_96.flatten()
+
+        return d
+
+    @classmethod
+    def _get_interpolated_schedule(cls, n_p: float, daily_schedule: Dict) -> np.ndarray:
+        """
+        世帯人数で線形補間してリストを返す
+        Args:
+            n_p: 居住人数
+            daily_schedule: スケジュール
+                Keyは必ず'1', '2', '3', '4'
+                Valueは96個のリスト形式の値（15分インターバル）
+        Returns:
+            線形補間したリスト, [96]
+        """
+
+        ceil_np, floor_np = cls._get_ceil_floor_np(n_p)
+
+        ceil_schedule = np.array(daily_schedule[str(ceil_np)])
+        floor_schedule = np.array(daily_schedule[str(floor_np)])
+
+        interpolate_np_schedule = ceil_schedule * (n_p - float(floor_np)) + floor_schedule * (float(ceil_np) - n_p)
+
+        return interpolate_np_schedule
+
+    @classmethod
+    def _get_ceil_floor_np(cls, n_p: float) -> Tuple[int, int]:
+        """世帯人数から切り上げ・切り下げた人数を整数値で返す
+
+        Args:
+            n_p: 世帯人数
+
+        Returns:
+            タプル：
+                切り上げた世帯人数
+                切り下げた世帯人数
+
+        Notes:
+            1人未満、4人より大の人数を指定した場合はエラーを返す。
+        """
+
+        if 1.0 <= n_p < 2.0:
+            ceil_np = 2
+            floor_np = 1
+        elif 2.0 <= n_p < 3.0:
+            ceil_np = 3
+            floor_np = 2
+        elif 3.0 <= n_p <= 4.0:
+            ceil_np = 4
+            floor_np = 3
+        else:
+            raise logger.error(msg='The number of people is out of range.')
+
+        return ceil_np, floor_np
+
