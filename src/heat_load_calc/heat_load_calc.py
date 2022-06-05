@@ -14,6 +14,7 @@ sys.path.insert(0, path.abspath(path.join(path.dirname(__file__), '..')))
 
 from heat_load_calc.weather import weather
 from heat_load_calc import core2, schedule
+from heat_load_calc.core import outdoor_condition
 
 
 def run(
@@ -22,7 +23,6 @@ def run(
         output_data_dir: str,
         generate_schedule_only: bool = False,
         generate_weather_only: bool = False,
-        load_schedule: str = False,
         load_weather: str = False,
         schedule_data_folder_path: str = ""
 ):
@@ -33,7 +33,6 @@ def run(
         output_data_dir (str): 出力フォルダへのパス
         generate_schedule_only (bool, optional): スケジュール生成のみ実行の場合はTrue. Defaults to False.
         generate_weather_only (bool, optional): 気象データ生成のみ実行する場合はTrue. Defaults to False.
-        load_schedule (str, optional): スケジュールを生成せずに読み込む場合はTrue. Defaults to False.
         load_weather (str, optional): 気象データを生成せずに読み込む場合はTrue. Defaults to False.
         schedule_data_folder_path: 独自のスケジュールを指定した場合にスケジュールファイルが置かれているフォルダパス（相対パス）
     """
@@ -43,7 +42,6 @@ def run(
     flag_run_calc = \
         generate_schedule_only is False and generate_weather_only is False
     flag_run_weather = generate_schedule_only is False and load_weather is False
-    flag_run_schedule = generate_weather_only is False and load_schedule is False
 
     flag_save_house = True
     flag_save_calc = flag_run_calc
@@ -75,27 +73,19 @@ def run(
         logger.info('Load weather data from `{}`'.format(import_weather_path))
         dd_weather = pd.read_csv(import_weather_path)
 
-    # 局所換気量,内部発熱,内部発湿,在室人数,空調需要の生成 => mid_data_*.csv
-    # if flag_run_schedule:
-    #
-    #     scd = schedule.Schedule.make_schedule(rooms=rd['rooms'])
-    #
-    # elif load_schedule is not False:
-    #
-    #     scd = schedule.Schedule.read_schedule(folder_path=load_schedule, rooms=rd['rooms'])
+    oc = outdoor_condition.OutdoorCondition.make_from_pd(pp=dd_weather)
 
-    scd = schedule.Schedule.get_schedule(common=rd['common'], rooms=rd['rooms'], flag_run_schedule=flag_run_schedule, folder_path=schedule_data_folder_path)
+    scd = schedule.Schedule.get_schedule(common=rd['common'], rooms=rd['rooms'], folder_path=schedule_data_folder_path)
 
     # ---- 計算 ----
 
     # 計算
     if flag_run_calc:
 
-        # scd = schedule.Schedule(q_gen_is_ns=q_gen_is_ns, x_gen_is_ns=x_gen_is_ns, v_mec_vent_local_is_ns=v_mec_vent_local_is_ns, n_hum_is_ns=n_hum_is_ns, ac_demand_is_ns=ac_demand_is_ns)
-
         dd_i, dd_a = core2.calc(
             rd=rd,
             weather_dataframe=dd_weather,
+            oc=oc,
             scd=scd
         )
 
@@ -190,11 +180,6 @@ def main():
         help="指定された場合は気象データファイルの生成します。"
     )
     parser.add_argument(
-        '--load-schedule',
-        default=False,
-        help="独自のスケジュールを指定します。"
-    )
-    parser.add_argument(
         '-s', '--schedule_data_folder_path',
         default="",
         type=str,
@@ -215,12 +200,6 @@ def main():
     # 引数を受け取る
     args = parser.parse_args()
 
-    # ログレベル設定
-#    log_level = getattr(logging, args.log.upper(), None)
-#    logging.basicConfig(
-#        level=log_level,
-#        format='%(message)s'
-#    )
     level = {
         'DEBUG': logging.DEBUG,
         'INFO': logging.INFO,
@@ -246,7 +225,6 @@ def main():
         output_data_dir=args.output_data_dir,
         generate_schedule_only=args.generate_schedule_only,
         generate_weather_only=args.generate_weather_only,
-        load_schedule=args.load_schedule,
         load_weather=args.load_weather,
         schedule_data_folder_path=args.schedule_data_folder_path
     )

@@ -68,6 +68,10 @@ See `docs/data_spec/spec_core_output_detail.csv` for `result_detail_i.csv`.
 
 `--load-schedule=<schedule-folder>` ... Loads schedule files from a specified folder without generating schedules.
 
+`--schedule_data_folder_path=<schedule-folder>`
+... Specify the schedule folder, where schedule files ares set.
+Normally, the schedules are created automatically based on the total floor area. 
+However, when specifying the schedules without using the automatically created one, this path is needed to be specify.
 
 ## 仕様書・根拠
 

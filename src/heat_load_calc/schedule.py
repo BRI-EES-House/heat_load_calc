@@ -32,7 +32,7 @@ class Schedule:
         self._ac_demand_is_ns = ac_demand_is_ns
 
     @classmethod
-    def get_schedule(cls, common: Dict, rooms: List[Dict], flag_run_schedule: bool, folder_path: str = ""):
+    def get_schedule(cls, common: Dict, rooms: List[Dict], folder_path: str = ""):
 
         # 独自指定のCSVファイルの読み込み
         # 読み込むファイルが存在しない場合（独自指定をしない場合に該当）はNoneを返す。

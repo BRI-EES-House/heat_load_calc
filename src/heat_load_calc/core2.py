@@ -15,6 +15,7 @@ from heat_load_calc import schedule
 def calc(
         rd: Dict,
         weather_dataframe: pd.DataFrame,
+        oc: outdoor_condition.OutdoorCondition,
         scd: schedule.Schedule,
         n_step_hourly: int = 4,
         n_d_main: int = 365,
@@ -26,6 +27,7 @@ def calc(
     Args:
         rd: 住宅計算条件
         weather_dataframe:  気象データのDataFrame
+        oc: 外界気象条件
         scd: スケジュール
         n_step_hourly: 計算間隔（1時間を何分割するかどうか）（デフォルトは4（15分間隔））
         n_d_main: 本計算を行う日数（デフォルトは365日（1年間））, d

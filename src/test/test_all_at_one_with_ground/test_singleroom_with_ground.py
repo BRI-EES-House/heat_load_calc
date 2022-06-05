@@ -4,6 +4,7 @@ import pandas as pd
 import json
 
 from heat_load_calc import core2, schedule
+from heat_load_calc.core import outdoor_condition
 
 
 # 定常状態のテスト
@@ -32,14 +33,16 @@ class TestSigleRoomWithFround(unittest.TestCase):
         # 気象データ読み出し
         import_weather_path = os.path.join(s_folder, "weather.csv")
         dd_weather = pd.read_csv(import_weather_path)
+        oc = outdoor_condition.OutdoorCondition.make_from_pd(pp=dd_weather)
 
         # スケジュールの設定
-        scd = schedule.Schedule.get_schedule(common=rd['common'], rooms=rd['rooms'], flag_run_schedule=False, folder_path=s_folder)
+        scd = schedule.Schedule.get_schedule(common=rd['common'], rooms=rd['rooms'], folder_path=s_folder)
 
         # 計算実行
         dd_i, dd_a = core2.calc(
             rd=rd,
             weather_dataframe=dd_weather,
+            oc=oc,
             scd=scd,
             n_d_main=30,
             n_d_run_up=10,

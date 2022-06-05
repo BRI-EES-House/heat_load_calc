@@ -5,7 +5,7 @@ import os
 from heat_load_calc.weather import weather
 from heat_load_calc.core import furniture
 from heat_load_calc import core2, schedule
-
+from heat_load_calc.core import outdoor_condition
 
 class TestAllAtOnce(unittest.TestCase):
 
@@ -29,9 +29,11 @@ class TestAllAtOnce(unittest.TestCase):
 
         dd_weather = weather.make_weather(region=rd['common']['region'])
 
-        scd = schedule.Schedule.get_schedule(common=rd['common'], rooms=rd['rooms'], flag_run_schedule=True)
+        oc = outdoor_condition.OutdoorCondition.make_from_pd(pp=dd_weather)
 
-        dd_i, dd_a = core2.calc(rd=rd, weather_dataframe=dd_weather, scd=scd)
+        scd = schedule.Schedule.get_schedule(common=rd['common'], rooms=rd['rooms'])
+
+        dd_i, dd_a = core2.calc(rd=rd, weather_dataframe=dd_weather, oc=oc, scd=scd)
 
         cls._dd_i = dd_i
         cls._dd_a = dd_a
