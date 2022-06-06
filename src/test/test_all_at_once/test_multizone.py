@@ -2,21 +2,19 @@ import unittest
 import json
 import os
 
-from heat_load_calc.initializer import initializer
 from heat_load_calc.weather import weather
 from heat_load_calc.core import furniture
-from heat_load_calc import core2
-from heat_load_calc.core import schedule_maker
-
+from heat_load_calc import core2, schedule
+from heat_load_calc.core import outdoor_condition
 
 class TestAllAtOnce(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-
         """
-        initializerとcoreを一気通貫で計算するテスト
-        :return:
+
+        Returns:
+
         """
 
         print('\n testing all at once')
@@ -31,16 +29,11 @@ class TestAllAtOnce(unittest.TestCase):
 
         dd_weather = weather.make_weather(region=rd['common']['region'])
 
-        q_gen_is_ns, x_gen_is_ns, v_mec_vent_local_is_ns, n_hum_is_ns, ac_demand_is_ns\
-            = initializer.make_house(d=rd)
+        oc = outdoor_condition.OutdoorCondition.make_from_pd(pp=dd_weather)
 
-        scd = schedule_maker.ScheduleMaker(q_gen_is_ns=q_gen_is_ns, x_gen_is_ns=x_gen_is_ns, v_mec_vent_local_is_ns=v_mec_vent_local_is_ns, n_hum_is_ns=n_hum_is_ns, ac_demand_is_ns=ac_demand_is_ns)
+        scd = schedule.Schedule.get_schedule(schedule_dict=rd['common']['schedule'], rooms=rd['rooms'])
 
-        dd_i, dd_a = core2.calc(
-            rd=rd,
-            weather_dataframe=dd_weather,
-            scd=scd
-        )
+        dd_i, dd_a = core2.calc(rd=rd, oc=oc, scd=scd)
 
         cls._dd_i = dd_i
         cls._dd_a = dd_a
@@ -49,7 +42,7 @@ class TestAllAtOnce(unittest.TestCase):
             mdh = json.load(f)
 
         cls._mdh = mdh
-        cls._v_mec_vent = v_mec_vent_local_is_ns
+        cls._v_mec_vent = scd.v_mec_vent_local_is_ns
 
     def test_weather(self):
 

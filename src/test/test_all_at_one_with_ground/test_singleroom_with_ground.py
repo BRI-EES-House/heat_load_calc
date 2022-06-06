@@ -3,8 +3,8 @@ import unittest
 import pandas as pd
 import json
 
-from heat_load_calc import core2
-from heat_load_calc.core import schedule_maker
+from heat_load_calc import core2, schedule
+from heat_load_calc.core import outdoor_condition
 
 
 # 定常状態のテスト
@@ -33,19 +33,13 @@ class TestSigleRoomWithFround(unittest.TestCase):
         # 気象データ読み出し
         import_weather_path = os.path.join(s_folder, "weather.csv")
         dd_weather = pd.read_csv(import_weather_path)
+        oc = outdoor_condition.OutdoorCondition.make_from_pd(pp=dd_weather)
 
         # スケジュールの設定
-        scd = schedule_maker.ScheduleMaker.read_schedule(folder_path=s_folder, rooms=rd['rooms'])
+        scd = schedule.Schedule.get_schedule(schedule_dict=rd['common']['schedule'], rooms=rd['rooms'], folder_path=s_folder)
 
         # 計算実行
-        dd_i, dd_a = core2.calc(
-            rd=rd,
-            weather_dataframe=dd_weather,
-            scd=scd,
-            n_d_main=30,
-            n_d_run_up=10,
-            n_d_run_up_build=0
-        )
+        dd_i, dd_a = core2.calc(rd=rd, oc=oc, scd=scd, n_d_main=30, n_d_run_up=10, n_d_run_up_build=0)
 
         # 計算結果格納
         cls._dd_i = dd_i

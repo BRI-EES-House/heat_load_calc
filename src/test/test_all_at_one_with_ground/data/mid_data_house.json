@@ -1,6 +1,9 @@
 {
     "common": {
-        "ac_method": "pmv"
+        "ac_method": "pmv",
+        "schedule": {
+            "method": "specify"
+        }
     },
     "building": {
         "infiltration": {
