@@ -49,7 +49,7 @@ class Schedule:
             n_p = residents_number.get_total_number_of_residents(a_floor_total=a_floor_total)
 
             # スケジュールを記述した辞書の読み込み
-            d = cls._load_schedule()
+            d = cls._load_schedule(filename='schedules')
 
             # カレンダーの読み込み（日にちの種類（'平日', '休日外', '休日在'））, [365]
             calendar = np.array(d['calendar'])
@@ -195,17 +195,15 @@ class Schedule:
             logger.info('Read {} csv data for numpy format.'.format(category))
             return f_csv[int(room['id'])]
 
-
     @classmethod
-    def _load_schedule(cls) -> Dict:
+    def _load_schedule(cls, filename: str) -> Dict:
         """スケジュールを読み込む
         """
 
-        js = open(str(os.path.dirname(__file__)) + '/schedules.json', 'r', encoding='utf-8')
+        js = open(str(os.path.dirname(__file__)) + '/' + filename + '.json', 'r', encoding='utf-8')
         d_json = json.load(js)
         js.close()
         return d_json
-
 
     @classmethod
     def _get_schedule(
