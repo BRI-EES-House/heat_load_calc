@@ -3,8 +3,7 @@ import unittest
 import pandas as pd
 import json
 
-from heat_load_calc import core2, schedule
-from heat_load_calc.core import outdoor_condition
+from heat_load_calc import core2, schedule, outdoor_condition
 
 
 # 定常状態のテスト

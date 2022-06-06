@@ -1,6 +1,6 @@
 import numpy as np
 
-from heat_load_calc.core.pre_calc_parameters import PreCalcParametersGround
+from heat_load_calc.pre_calc_parameters import PreCalcParametersGround
 from heat_load_calc.core.conditions import GroundConditions
 
 

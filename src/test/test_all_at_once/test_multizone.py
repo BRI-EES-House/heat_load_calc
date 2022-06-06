@@ -4,8 +4,8 @@ import os
 
 from heat_load_calc.weather import weather
 from heat_load_calc.core import furniture
-from heat_load_calc import core2, schedule
-from heat_load_calc.core import outdoor_condition
+from heat_load_calc import core2, schedule, outdoor_condition
+
 
 class TestAllAtOnce(unittest.TestCase):
 

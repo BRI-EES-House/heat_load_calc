@@ -3,13 +3,8 @@ import logging
 from typing import Tuple, Dict
 
 from heat_load_calc.core import period
-from heat_load_calc.core import pre_calc_parameters
 from heat_load_calc.core import conditions
-from heat_load_calc.core import log
-from heat_load_calc.core import sequence
-from heat_load_calc.core import sequence_ground
-from heat_load_calc.core import outdoor_condition
-from heat_load_calc import schedule
+from heat_load_calc import schedule, sequence, log, sequence_ground, pre_calc_parameters, outdoor_condition
 
 
 def calc(
