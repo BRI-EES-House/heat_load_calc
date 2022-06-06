@@ -5,6 +5,7 @@ import csv
 from typing import List, Dict, Tuple
 import logging
 import json
+from os import path
 
 from heat_load_calc.initializer import residents_number
 
@@ -117,6 +118,43 @@ class Schedule:
             n_hum_is_ns=n_hum_is_ns,
             ac_demand_is_ns=ac_demand_is_ns
         )
+
+    def save_schedule(self, output_data_dir):
+
+        # ステップnの室iにおける局所換気量, m3/s, [i, 8760*4]
+        mid_data_local_vent_path = path.join(output_data_dir, 'mid_data_local_vent.csv')
+        logger.info('Save v_mec_vent_local_is_ns to `{}`'.format(mid_data_local_vent_path))
+        with open(mid_data_local_vent_path, 'w') as f:
+            w = csv.writer(f, lineterminator='\n')
+            w.writerows(self.v_mec_vent_local_is_ns.T.tolist())
+
+        # ステップnの室iにおける内部発熱, W, [8760*4]
+        mid_data_heat_generation_path = path.join(output_data_dir, 'mid_data_heat_generation.csv')
+        logger.info('Save q_gen_is_ns to `{}`'.format(mid_data_heat_generation_path))
+        with open(mid_data_heat_generation_path, 'w') as f:
+            w = csv.writer(f, lineterminator='\n')
+            w.writerows(self.q_gen_is_ns.T.tolist())
+
+        # ステップnの室iにおける人体発湿を除く内部発湿, kg/s, [8760*4]
+        mid_data_moisture_generation_path = path.join(output_data_dir, 'mid_data_moisture_generation.csv')
+        logger.info('Save x_gen_is_ns to `{}`'.format(mid_data_moisture_generation_path))
+        with open(mid_data_moisture_generation_path, 'w') as f:
+            w = csv.writer(f, lineterminator='\n')
+            w.writerows(self.x_gen_is_ns.T.tolist())
+
+        # ステップnの室iにおける在室人数, [8760*4]
+        mid_data_occupants_path = path.join(output_data_dir, 'mid_data_occupants.csv')
+        logger.info('Save n_hum_is_ns to `{}`'.format(mid_data_occupants_path))
+        with open(mid_data_occupants_path, 'w') as f:
+            w = csv.writer(f, lineterminator='\n')
+            w.writerows(self.n_hum_is_ns.T.tolist())
+
+        # ステップnの室iにおける空調需要, [8760*4]
+        mid_data_ac_demand_path = path.join(output_data_dir, 'mid_data_ac_demand.csv')
+        logger.info('Save ac_demand_is_ns to `{}`'.format(mid_data_ac_demand_path))
+        with open(mid_data_ac_demand_path, 'w') as f:
+            w = csv.writer(f, lineterminator='\n')
+            w.writerows(self.ac_demand_is_ns.T.tolist())
 
     @property
     def q_gen_is_ns(self):
@@ -299,4 +337,3 @@ class Schedule:
             raise logger.error(msg='The number of people is out of range.')
 
         return ceil_np, floor_np
-

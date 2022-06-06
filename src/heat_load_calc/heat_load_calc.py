@@ -5,7 +5,6 @@ import logging
 import argparse
 import pandas as pd
 from os import path, getcwd, mkdir
-import csv
 import urllib.request, urllib.error
 
 # 絶対パスでモジュールを探索できるようにする
@@ -22,17 +21,20 @@ def run(
         generate_schedule_only: bool = False,
         generate_weather_only: bool = False,
         load_weather: str = False,
-        schedule_data_folder_path: str = ""
+        schedule_data_folder_path: str = "",
+        is_schedule_saved: bool = False
 ):
     """負荷計算処理の実行
 
     Args:
+        logger
         house_data_path (str): 住宅計算条件JSONファイルへのパス
         output_data_dir (str): 出力フォルダへのパス
         generate_schedule_only (bool, optional): スケジュール生成のみ実行の場合はTrue. Defaults to False.
         generate_weather_only (bool, optional): 気象データ生成のみ実行する場合はTrue. Defaults to False.
         load_weather (str, optional): 気象データを生成せずに読み込む場合はTrue. Defaults to False.
         schedule_data_folder_path: 独自のスケジュールを指定した場合にスケジュールファイルが置かれているフォルダパス（相対パス）
+        is_schedule_saved: スケジュールを出力するか否か
     """
 
     # ---- 事前準備 ----
@@ -44,7 +46,6 @@ def run(
     flag_save_house = True
     flag_save_calc = flag_run_calc
     flag_save_weather = generate_weather_only is True
-    flag_save_schedule = generate_schedule_only is True
 
     # 出力ディレクトリの作成
     if path.exists(output_data_dir) is False:
@@ -97,41 +98,9 @@ def run(
         logger.info('Save weather data to `{}`'.format(weather_path))
         dd_weather.to_csv(weather_path, encoding='utf-8')
 
-    if flag_save_schedule:
-        # ステップnの室iにおける局所換気量, m3/s, [i, 8760*4]
-        mid_data_local_vent_path = path.join(output_data_dir, 'mid_data_local_vent.csv')
-        logger.info('Save v_mec_vent_local_is_ns to `{}`'.format(mid_data_local_vent_path))
-        with open(mid_data_local_vent_path, 'w') as f:
-            w = csv.writer(f, lineterminator='\n')
-            w.writerows(scd.v_mec_vent_local_is_ns.T.tolist())
+    if is_schedule_saved:
 
-        # ステップnの室iにおける内部発熱, W, [8760*4]
-        mid_data_heat_generation_path = path.join(output_data_dir, 'mid_data_heat_generation.csv')
-        logger.info('Save q_gen_is_ns to `{}`'.format(mid_data_heat_generation_path))
-        with open(mid_data_heat_generation_path, 'w') as f:
-            w = csv.writer(f, lineterminator='\n')
-            w.writerows(scd.q_gen_is_ns.T.tolist())
-
-        # ステップnの室iにおける人体発湿を除く内部発湿, kg/s, [8760*4]
-        mid_data_moisture_generation_path = path.join(output_data_dir, 'mid_data_moisture_generation.csv')
-        logger.info('Save x_gen_is_ns to `{}`'.format(mid_data_moisture_generation_path))
-        with open(mid_data_moisture_generation_path, 'w') as f:
-            w = csv.writer(f, lineterminator='\n')
-            w.writerows(scd.x_gen_is_ns.T.tolist())
-
-        # ステップnの室iにおける在室人数, [8760*4]
-        mid_data_occupants_path = path.join(output_data_dir, 'mid_data_occupants.csv')
-        logger.info('Save n_hum_is_ns to `{}`'.format(mid_data_occupants_path))
-        with open(mid_data_occupants_path, 'w') as f:
-            w = csv.writer(f, lineterminator='\n')
-            w.writerows(scd.n_hum_is_ns.T.tolist())
-
-        # ステップnの室iにおける空調需要, [8760*4]
-        mid_data_ac_demand_path = path.join(output_data_dir, 'mid_data_ac_demand.csv')
-        logger.info('Save ac_demand_is_ns to `{}`'.format(mid_data_ac_demand_path))
-        with open(mid_data_ac_demand_path, 'w') as f:
-            w = csv.writer(f, lineterminator='\n')
-            w.writerows(scd.ac_demand_is_ns.T.tolist())
+        scd.save_schedule(output_data_dir)
 
     # ---- 計算結果ファイルの保存 ----
 
@@ -145,6 +114,9 @@ def run(
         result_detail_a_path = path.join(output_data_dir, 'result_detail_a.csv')
         logger.info('Save calculation results data (simplified version) to `{}`'.format(result_detail_a_path))
         dd_a.to_csv(result_detail_a_path, encoding='cp932')
+
+
+
 
 
 def main():
@@ -178,6 +150,13 @@ def main():
         type=str,
         help="独自のスケジュールを指定した場合にスケジュールファイルが置かれているフォルダパスを相対パスで指定します。"
     )
+    parser.add_argument(
+        '--is_schedule_saved',
+        default=False,
+        type=bool,
+        help="スケジュールを出力するか否かを指定します。"
+    )
+
     parser.add_argument(
         '--load-weather',
         action='store_true',
@@ -219,7 +198,8 @@ def main():
         generate_schedule_only=args.generate_schedule_only,
         generate_weather_only=args.generate_weather_only,
         load_weather=args.load_weather,
-        schedule_data_folder_path=args.schedule_data_folder_path
+        schedule_data_folder_path=args.schedule_data_folder_path,
+        is_schedule_saved=args.is_schedule_saved
     )
     elapsed_time = time.time() - start
 
