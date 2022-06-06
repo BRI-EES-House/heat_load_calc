@@ -81,22 +81,22 @@ class MyTestCase(unittest.TestCase):
         rft: rf.ResponseFactor = rff.get_response_factors()
 
         # RFA0の確認
-        self.assertAlmostEqual(0.724907397092839, rft.rfa0)
+        self.assertAlmostEqual(0.7153374350138639, rft.rfa0)
 
         # RFT0の確認
         self.assertAlmostEqual(1.0, rft.rft0)
 
         # 指数項別吸熱応答係数の確認
-        self.assertAlmostEqual(-1.07167494987018E-08, rft.rfa1[0])
-        self.assertAlmostEqual(2.08189010050113E-07, rft.rfa1[1])
-        self.assertAlmostEqual(-2.75932440530367E-06, rft.rfa1[2])
-        self.assertAlmostEqual(0.000145439349961729, rft.rfa1[3])
-        self.assertAlmostEqual(0.0000965074343781571, rft.rfa1[4])
-        self.assertAlmostEqual(0.000174519738283692, rft.rfa1[5])
-        self.assertAlmostEqual(0.000524125506538959, rft.rfa1[6])
-        self.assertAlmostEqual(0.00153299929341512, rft.rfa1[7])
-        self.assertAlmostEqual(-0.00624720902369905, rft.rfa1[8])
-        self.assertAlmostEqual(0.0624448755908967, rft.rfa1[9])
+        self.assertAlmostEqual(-4.932291953561631e-07, rft.rfa1[0])
+        self.assertAlmostEqual(1.1848402120231172e-05, rft.rfa1[1])
+        self.assertAlmostEqual(0.00022864847810913559, rft.rfa1[2])
+        self.assertAlmostEqual(-0.00014609989062409255, rft.rfa1[3])
+        self.assertAlmostEqual(0.0005463330720022236, rft.rfa1[4])
+        self.assertAlmostEqual(-0.00032414830484532136, rft.rfa1[5])
+        self.assertAlmostEqual(0.0013791568569407097, rft.rfa1[6])
+        self.assertAlmostEqual(0.0019867700951619544, rft.rfa1[7])
+        self.assertAlmostEqual(-0.014622509832519151, rft.rfa1[8])
+        self.assertAlmostEqual(0.07659670581003312, rft.rfa1[9])
 
         # 指数項別貫流応答係数の確認
         self.assertAlmostEqual(0.0, rft.rft1[0])
