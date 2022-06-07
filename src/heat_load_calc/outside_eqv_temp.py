@@ -6,7 +6,7 @@ TODO:
 
 import numpy as np
 
-from heat_load_calc.core import solar_shading, window, inclined_surface_solar_radiation, external_boundaries_direction
+from heat_load_calc import external_boundaries_direction, inclined_surface_solar_radiation, window, solar_shading
 
 
 class OutsideEqvTemp:

@@ -2,9 +2,7 @@ import unittest
 import json
 import os
 
-from heat_load_calc.weather import weather
-from heat_load_calc.core import furniture
-from heat_load_calc import core2, schedule, outdoor_condition
+from heat_load_calc import core2, schedule, outdoor_condition, furniture
 
 
 class TestAllAtOnce(unittest.TestCase):

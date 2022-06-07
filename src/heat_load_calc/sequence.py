@@ -6,7 +6,7 @@ from heat_load_calc.conditions import Conditions
 from heat_load_calc.external.global_number import get_c_a, get_rho_a, get_l_wtr
 from heat_load_calc.log import Logger
 from heat_load_calc.core.matrix_method import v_diag
-from heat_load_calc.core import occupants
+from heat_load_calc import occupants
 from heat_load_calc.external import psychrometrics as psy
 
 

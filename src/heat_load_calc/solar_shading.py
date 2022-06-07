@@ -6,7 +6,7 @@ import numpy as np
 from typing import Dict
 import math
 
-from heat_load_calc.core import external_boundaries_direction
+from heat_load_calc import external_boundaries_direction
 
 
 class SolarShading:

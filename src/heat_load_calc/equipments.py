@@ -1,9 +1,9 @@
-﻿from typing import Callable, Dict, List, Tuple
+﻿from typing import Callable, Dict, Tuple
 from typing import Union
 import numpy as np
 from dataclasses import dataclass
 
-from heat_load_calc.core import boundaries
+from heat_load_calc import boundaries
 from heat_load_calc.external.psychrometrics import get_x, get_p_vs_is2
 from heat_load_calc.external.global_number import get_c_a, get_rho_a
 from heat_load_calc.core.matrix_method import v_diag
