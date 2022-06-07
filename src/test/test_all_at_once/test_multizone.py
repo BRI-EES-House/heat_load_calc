@@ -27,9 +27,7 @@ class TestAllAtOnce(unittest.TestCase):
 
         js.close()
 
-        dd_weather = weather.make_weather(region=rd['common']['region'])
-
-        oc = outdoor_condition.OutdoorCondition.make_from_pd(pp=dd_weather)
+        oc = outdoor_condition.OutdoorCondition.make_weather(method='ees', region=rd['common']['region'])
 
         scd = schedule.Schedule.get_schedule(schedule_dict=rd['common']['schedule'], rooms=rd['rooms'])
 

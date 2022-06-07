@@ -29,10 +29,10 @@ class TestSigleRoomWithGround(unittest.TestCase):
         with open(house_data_path, 'r', encoding='utf-8') as js:
             rd = json.load(js)
 
+        file_path = os.path.abspath(os.path.join(s_folder, "weather.csv"))
+
         # 気象データ読み出し
-        import_weather_path = os.path.join(s_folder, "weather.csv")
-        dd_weather = pd.read_csv(import_weather_path)
-        oc = outdoor_condition.OutdoorCondition.make_from_pd(pp=dd_weather)
+        oc = outdoor_condition.OutdoorCondition.make_weather(method='file', file_path=file_path)
 
         # スケジュールの設定
         scd = schedule.Schedule.get_schedule(schedule_dict=rd['common']['schedule'], rooms=rd['rooms'], folder_path=s_folder)

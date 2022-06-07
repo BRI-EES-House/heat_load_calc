@@ -3,14 +3,12 @@ import sys
 import time
 import logging
 import argparse
-import pandas as pd
 from os import path, getcwd, mkdir
 import urllib.request, urllib.error
 
 # 絶対パスでモジュールを探索できるようにする
 sys.path.insert(0, path.abspath(path.join(path.dirname(__file__), '..')))
 
-from heat_load_calc.weather import weather
 from heat_load_calc import core2, schedule, outdoor_condition
 
 
@@ -20,9 +18,11 @@ def run(
         output_data_dir: str,
         generate_schedule_only: bool = False,
         generate_weather_only: bool = False,
-        load_weather: str = False,
         schedule_data_folder_path: str = "",
-        is_schedule_saved: bool = False
+        is_schedule_saved: bool = False,
+        weather_specify_method: str = 'ees',
+        weather_file_path: str = "",
+        region: int = 0
 ):
     """負荷計算処理の実行
 
@@ -35,13 +35,15 @@ def run(
         load_weather (str, optional): 気象データを生成せずに読み込む場合はTrue. Defaults to False.
         schedule_data_folder_path: 独自のスケジュールを指定した場合にスケジュールファイルが置かれているフォルダパス（相対パス）
         is_schedule_saved: スケジュールを出力するか否か
+        weather_specify_method: 気象データの指定方法
+        weather_file_path: 気象データのファイルパス
+        region: 地域の区分
     """
 
     # ---- 事前準備 ----
 
     flag_run_calc = \
         generate_schedule_only is False and generate_weather_only is False
-    flag_run_weather = generate_schedule_only is False and load_weather is False
 
     flag_save_house = True
     flag_save_calc = flag_run_calc
@@ -65,14 +67,11 @@ def run(
             rd = json.load(js)
 
     # 気象データの生成 => weather.csv
-    if flag_run_weather:
-        dd_weather = weather.make_weather(region=rd['common']['region'])
-    elif load_weather is not False:
-        import_weather_path = path.join(path.abspath(load_weather), 'weather.csv')
-        logger.info('Load weather data from `{}`'.format(import_weather_path))
-        dd_weather = pd.read_csv(import_weather_path)
-
-    oc = outdoor_condition.OutdoorCondition.make_from_pd(pp=dd_weather)
+    oc = outdoor_condition.OutdoorCondition.make_weather(
+        method=weather_specify_method,
+        file_path=path.abspath(weather_file_path),
+        region=region
+    )
 
     scd = schedule.Schedule.get_schedule(schedule_dict=rd['common']['schedule'], rooms=rd['rooms'], folder_path=schedule_data_folder_path)
 
@@ -94,9 +93,8 @@ def run(
 
     # 気象データの生成 => weather.csv
     if flag_save_weather:
-        weather_path = path.join(output_data_dir, 'weather.csv')
-        logger.info('Save weather data to `{}`'.format(weather_path))
-        dd_weather.to_csv(weather_path, encoding='utf-8')
+
+        oc.save_weather(output_data_dir=output_data_dir)
 
     if is_schedule_saved:
 
@@ -158,10 +156,25 @@ def main():
     )
 
     parser.add_argument(
-        '--load-weather',
-        action='store_true',
-        help="独自の気象データを指定します。"
+        '--weather',
+        choices=['ees', 'file'],
+        default='ees',
+        help="気象データの作成方法を指定します。"
     )
+    parser.add_argument(
+        '--weather_path',
+        default="",
+        type=str,
+        help="気象データの絶対パスを指定します。 weather オプションで file が指定された場合は必ず指定します。"
+    )
+    parser.add_argument(
+        '--region',
+        choices=[1, 2, 3, 4, 5, 6, 7, 8],
+        default=0,
+        type=int,
+        help="地域の区分を指定します。気象データの作成方法として建築物省エネ法を指定した場合には必ず指定します。"
+    )
+
     parser.add_argument(
         "--log",
         choices=['DEBUG', 'INFO', 'WARN', 'ERROR', 'CRITICAL'],
@@ -197,9 +210,11 @@ def main():
         output_data_dir=args.output_data_dir,
         generate_schedule_only=args.generate_schedule_only,
         generate_weather_only=args.generate_weather_only,
-        load_weather=args.load_weather,
         schedule_data_folder_path=args.schedule_data_folder_path,
-        is_schedule_saved=args.is_schedule_saved
+        is_schedule_saved=args.is_schedule_saved,
+        weather_specify_method=args.weather,
+        weather_file_path=args.weather_path,
+        region=args.region
     )
     elapsed_time = time.time() - start
 
