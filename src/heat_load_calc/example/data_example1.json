@@ -25,6 +25,9 @@
             },
             "furniture": {
                 "input_method": "default"
+            },
+             "schedule": {
+                "name": "main_occupant_room"
             }
         },
         {
@@ -38,6 +41,9 @@
             },
             "furniture": {
                 "input_method": "default"
+            },
+             "schedule": {
+                "name": "other_occupant_room"
             }
         },
         {
@@ -51,6 +57,9 @@
             },
             "furniture": {
                 "input_method": "default"
+            },
+             "schedule": {
+                "name": "non_occupant_room"
             }
         }
     ],

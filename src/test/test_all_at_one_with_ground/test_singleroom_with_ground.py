@@ -1,6 +1,5 @@
 import os
 import unittest
-import pandas as pd
 import json
 
 from heat_load_calc import core2, schedule, outdoor_condition
@@ -35,7 +34,7 @@ class TestSigleRoomWithGround(unittest.TestCase):
         oc = outdoor_condition.OutdoorCondition.make_weather(method='file', file_path=file_path)
 
         # スケジュールの設定
-        scd = schedule.Schedule.get_schedule(schedule_specify_method='specify', rooms=rd['rooms'], folder_path=s_folder)
+        scd = schedule.Schedule.get_schedule(schedule_specify_method='calculate', rooms=rd['rooms'])
 
         # 計算実行
         dd_i, dd_a = core2.calc(rd=rd, oc=oc, scd=scd, n_d_main=30, n_d_run_up=10, n_d_run_up_build=0)
