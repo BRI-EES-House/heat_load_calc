@@ -1,9 +1,5 @@
 {
 	"common": {
-		"region": 6,
-        "schedule": {
-            "method": "calculate"
-        }
 	},
     "building": {
         "infiltration": {

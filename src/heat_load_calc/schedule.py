@@ -33,9 +33,9 @@ class Schedule:
         self._ac_demand_is_ns = ac_demand_is_ns
 
     @classmethod
-    def get_schedule(cls, schedule_dict: Dict, rooms: List[Dict], folder_path: str = ""):
+    def get_schedule(cls, schedule_specify_method: str, rooms: List[Dict], folder_path: str = ""):
 
-        if schedule_dict['method'] == 'calculate':
+        if schedule_specify_method == 'calculate':
 
             # 室iの名称, [i]
             room_name_is = [r['name'] for r in rooms]
@@ -86,7 +86,7 @@ class Schedule:
             # ステップ n の室 i における人体発湿を除く内部発湿, kg/s, [i, n]
             x_gen_is_ns = x_gen_ckg_is_ns
 
-        elif schedule_dict['method'] == 'specify':
+        elif schedule_specify_method == 'specify':
 
             # 独自指定のCSVファイルの読み込み
             # 読み込むファイルが存在しない場合（独自指定をしない場合に該当）はNoneを返す。

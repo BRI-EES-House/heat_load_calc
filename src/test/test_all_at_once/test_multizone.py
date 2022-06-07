@@ -27,9 +27,9 @@ class TestAllAtOnce(unittest.TestCase):
 
         js.close()
 
-        oc = outdoor_condition.OutdoorCondition.make_weather(method='ees', region=rd['common']['region'])
+        oc = outdoor_condition.OutdoorCondition.make_weather(method='ees', region=6)
 
-        scd = schedule.Schedule.get_schedule(schedule_dict=rd['common']['schedule'], rooms=rd['rooms'])
+        scd = schedule.Schedule.get_schedule(schedule_specify_method='calculate', rooms=rd['rooms'])
 
         dd_i, dd_a = core2.calc(rd=rd, oc=oc, scd=scd)
 

@@ -16,13 +16,13 @@ def run(
         logger,
         house_data_path: str,
         output_data_dir: str,
-        generate_schedule_only: bool = False,
-        generate_weather_only: bool = False,
+        schedule_specify_method: str = 'calculate',
         schedule_data_folder_path: str = "",
         is_schedule_saved: bool = False,
         weather_specify_method: str = 'ees',
         weather_file_path: str = "",
-        region: int = 0
+        region: int = 0,
+        is_weather_saved: bool = False
 ):
     """負荷計算処理の実行
 
@@ -30,24 +30,16 @@ def run(
         logger
         house_data_path (str): 住宅計算条件JSONファイルへのパス
         output_data_dir (str): 出力フォルダへのパス
-        generate_schedule_only (bool, optional): スケジュール生成のみ実行の場合はTrue. Defaults to False.
-        generate_weather_only (bool, optional): 気象データ生成のみ実行する場合はTrue. Defaults to False.
-        load_weather (str, optional): 気象データを生成せずに読み込む場合はTrue. Defaults to False.
+        schedule_specify_method: スケジュールデータの指定方法
         schedule_data_folder_path: 独自のスケジュールを指定した場合にスケジュールファイルが置かれているフォルダパス（相対パス）
         is_schedule_saved: スケジュールを出力するか否か
         weather_specify_method: 気象データの指定方法
         weather_file_path: 気象データのファイルパス
         region: 地域の区分
+        is_weather_saved: 気象データを出力するか否か
     """
 
     # ---- 事前準備 ----
-
-    flag_run_calc = \
-        generate_schedule_only is False and generate_weather_only is False
-
-    flag_save_house = True
-    flag_save_calc = flag_run_calc
-    flag_save_weather = generate_weather_only is True
 
     # 出力ディレクトリの作成
     if path.exists(output_data_dir) is False:
@@ -73,48 +65,34 @@ def run(
         region=region
     )
 
-    scd = schedule.Schedule.get_schedule(schedule_dict=rd['common']['schedule'], rooms=rd['rooms'], folder_path=schedule_data_folder_path)
+    scd = schedule.Schedule.get_schedule(schedule_specify_method=schedule_specify_method, rooms=rd['rooms'], folder_path=schedule_data_folder_path)
 
     # ---- 計算 ----
 
     # 計算
-    if flag_run_calc:
+    dd_i, dd_a = core2.calc(rd=rd, oc=oc, scd=scd)
 
-        dd_i, dd_a = core2.calc(rd=rd, oc=oc, scd=scd)
-
-    # ---- 中間生成ファイルの保存 ----
-
-    # 住宅計算条件JSONファイル
-    if flag_save_house:
-        mid_data_house_path = path.join(output_data_dir, 'mid_data_house.csv')
-        logger.info('Save house data to `{}`'.format(mid_data_house_path))
-        with open(mid_data_house_path, 'w') as f:
-            json.dump(rd, f)
-
-    # 気象データの生成 => weather.csv
-    if flag_save_weather:
+    # 気象データの保存
+    if is_weather_saved:
 
         oc.save_weather(output_data_dir=output_data_dir)
 
+    # スケジュールファイルの保存
     if is_schedule_saved:
 
         scd.save_schedule(output_data_dir)
 
     # ---- 計算結果ファイルの保存 ----
 
-    if flag_save_calc:
-        # 計算結果（詳細版）をいれたDataFrame
-        result_detail_i_path = path.join(output_data_dir, 'result_detail_i.csv')
-        logger.info('Save calculation results data (detailed version) to `{}`'.format(result_detail_i_path))
-        dd_i.to_csv(result_detail_i_path, encoding='cp932')
+    # 計算結果（瞬時値）
+    result_detail_i_path = path.join(output_data_dir, 'result_detail_i.csv')
+    logger.info('Save calculation results data (detailed version) to `{}`'.format(result_detail_i_path))
+    dd_i.to_csv(result_detail_i_path, encoding='cp932')
 
-        # 計算結果（簡易版）をいれたDataFrame
-        result_detail_a_path = path.join(output_data_dir, 'result_detail_a.csv')
-        logger.info('Save calculation results data (simplified version) to `{}`'.format(result_detail_a_path))
-        dd_a.to_csv(result_detail_a_path, encoding='cp932')
-
-
-
+    # 計算結果（平均・積算値）
+    result_detail_a_path = path.join(output_data_dir, 'result_detail_a.csv')
+    logger.info('Save calculation results data (simplified version) to `{}`'.format(result_detail_a_path))
+    dd_a.to_csv(result_detail_a_path, encoding='cp932')
 
 
 def main():
@@ -132,15 +110,13 @@ def main():
         default=getcwd(),
         help="出力フォルダ"
     )
+
     parser.add_argument(
-        '--generate-schedule-only',
-        action='store_true',
-        help="指定された場合はスケジュールファイルの生成します。"
-    )
-    parser.add_argument(
-        '--generate-weather-only',
-        action='store_true',
-        help="指定された場合は気象データファイルの生成します。"
+        '--schedule',
+        choices=['calculate', 'specify'],
+        default='calculate',
+        type=str,
+        help="スケジュールの指定方法を選択します。"
     )
     parser.add_argument(
         '-s', '--schedule_data_folder_path',
@@ -149,9 +125,8 @@ def main():
         help="独自のスケジュールを指定した場合にスケジュールファイルが置かれているフォルダパスを相対パスで指定します。"
     )
     parser.add_argument(
-        '--is_schedule_saved',
-        default=False,
-        type=bool,
+        '--schedule_saved',
+        action='store_true',
         help="スケジュールを出力するか否かを指定します。"
     )
 
@@ -173,6 +148,11 @@ def main():
         default=0,
         type=int,
         help="地域の区分を指定します。気象データの作成方法として建築物省エネ法を指定した場合には必ず指定します。"
+    )
+    parser.add_argument(
+        '--weather_saved',
+        action='store_true',
+        help="気象データを出力するか否かを指定します。"
     )
 
     parser.add_argument(
@@ -208,13 +188,13 @@ def main():
         logger=logger,
         house_data_path=args.house_data,
         output_data_dir=args.output_data_dir,
-        generate_schedule_only=args.generate_schedule_only,
-        generate_weather_only=args.generate_weather_only,
+        schedule_specify_method=args.schedule,
         schedule_data_folder_path=args.schedule_data_folder_path,
-        is_schedule_saved=args.is_schedule_saved,
+        is_schedule_saved=args.schedule_saved,
         weather_specify_method=args.weather,
         weather_file_path=args.weather_path,
-        region=args.region
+        region=args.region,
+        is_weather_saved=args.weather_saved
     )
     elapsed_time = time.time() - start
 
