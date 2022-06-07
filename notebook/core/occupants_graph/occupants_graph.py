@@ -5,9 +5,8 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
 
-from heat_load_calc.core import ot_target_pmv
-from heat_load_calc.core.operation_mode import OperationMode
-from heat_load_calc.core import pmv
+from heat_load_calc import ot_target_pmv
+from heat_load_calc.operation_mode import OperationMode
 
 
 # グラフ作成用辞書の取得

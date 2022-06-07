@@ -65,7 +65,11 @@ def run(
         region=region
     )
 
-    scd = schedule.Schedule.get_schedule(schedule_specify_method=schedule_specify_method, rooms=rd['rooms'], folder_path=schedule_data_folder_path)
+    scd = schedule.Schedule.get_schedule(
+        schedule_specify_method=schedule_specify_method,
+        rooms=rd['rooms'],
+        folder_path=schedule_data_folder_path
+    )
 
     # ---- 計算 ----
 

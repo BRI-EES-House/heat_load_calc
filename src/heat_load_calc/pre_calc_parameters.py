@@ -6,15 +6,13 @@ import logging
 
 from heat_load_calc.core import infiltration, shape_factor, \
     occupants_form_factor, boundaries
-from heat_load_calc.core import ot_target_pmv
-from heat_load_calc.core import next_condition
 from heat_load_calc.core.matrix_method import v_diag
 
 from heat_load_calc.core import solar_absorption
 from heat_load_calc.core import equipments
 from heat_load_calc.core import rooms
 from heat_load_calc.core import mechanical_ventilations
-from heat_load_calc import outdoor_condition
+from heat_load_calc import outdoor_condition, ot_target_pmv, next_condition, schedule
 
 
 @dataclass
@@ -208,12 +206,8 @@ class PreCalcParametersGround:
 def make_pre_calc_parameters(
         delta_t: float,
         rd: Dict,
-        q_gen_is_ns: np.ndarray,
-        x_gen_is_ns: np.ndarray,
-        v_vent_mec_local_is_ns: np.ndarray,
-        n_hum_is_ns: np.ndarray,
         oc: outdoor_condition.OutdoorCondition,
-        ac_demand_is_ns: np.ndarray,
+        scd: schedule.Schedule,
         q_trs_sol_is_ns: Optional[np.ndarray] = None,
         theta_o_eqv_js_ns: Optional[np.ndarray] = None
 ) -> Tuple[PreCalcParameters, PreCalcParametersGround]:
@@ -222,12 +216,8 @@ def make_pre_calc_parameters(
     Args:
         delta_t:  時間間隔, s
         rd: 住宅計算条件
-        q_gen_is_ns: ステップnの室iにおける内部発熱, W, [8760*4]
-        x_gen_is_ns: ステップnの室iにおける人体発湿を除く内部発湿, kg/s, [8760*4]
-        v_mec_vent_local_is_ns: ステップnの室iにおける局所換気量, m3/s, [i, 8760*4]
-        n_hum_is_ns: ステップnの室iにおける在室人数, [8760*4]
-        ac_demand_is_ns: ステップ n の室 i における空調需要, [i, n]
         oc: 外界気象データクラス
+        scd: スケジュールクラス
         q_trs_sol_is_ns: optional テスト用　値を指定することができる。未指定の場合は計算する。
         theta_o_eqv_js_ns: optional テスト用　値を指定することができる。未指定の場合は計算する。
 
@@ -244,6 +234,21 @@ def make_pre_calc_parameters(
     r_n_ns = oc.get_r_n_ns_plus()
     theta_o_ns = oc.get_theta_o_ns_plus()
     x_o_ns = oc.get_x_o_ns_plus()
+
+    # ステップ n の室 i における内部発熱, W, [i, n]
+    q_gen_is_ns = scd.q_gen_is_ns
+
+    # ステップ n の室 i における人体発湿を除く内部発湿, kg/s, [i, n]
+    x_gen_is_ns = scd.x_gen_is_ns
+
+    # ステップ n の室 i における局所換気量, m3/s, [i, n]
+    v_vent_mec_local_is_ns = scd.v_mec_vent_local_is_ns
+
+    # ステップ n の室 i における在室人数, [i, n]
+    n_hum_is_ns = scd.n_hum_is_ns
+
+    # ステップ n の室 i における空調需要, [i, n]
+    ac_demand_is_ns = scd.ac_demand_is_ns
 
     # region rooms
 
@@ -278,7 +283,6 @@ def make_pre_calc_parameters(
 
     # 室 i の在室者のMet値, [i, 1]
     met_is = rms.get_met_is()
-
 
     # endregion
 

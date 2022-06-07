@@ -3,9 +3,7 @@ import unittest
 import numpy as np
 import json
 
-from heat_load_calc.core import conditions
-from heat_load_calc import sequence, pre_calc_parameters, outdoor_condition
-from heat_load_calc.core import operation_mode
+from heat_load_calc import sequence, pre_calc_parameters, outdoor_condition, conditions, operation_mode, schedule
 
 
 # 定常状態のテスト
@@ -46,20 +44,18 @@ class TestSteadyState(unittest.TestCase):
         # 局所換気量は常に 0.0 m3/s とする。
         v_mec_vent_local_is_ns = np.zeros((1, 8760*4), dtype=float)
 
-        # ステップnの室iにおける内部発熱, W, [8760*4]
-        # 内部発熱は常に 0 W とする。
-        q_gen_is_ns = np.zeros((1, 8760*4), dtype=float)
-
-        # ステップnの室iにおける人体発湿を除く内部発湿, kg/s, [8760*4]
-        # 内部発湿は常に 0.0 kg/s とする。
-        x_gen_is_ns = np.zeros((1, 8760*4), dtype=float)
-
-        # ステップnの室iにおける在室人数, [8760*4]
-        # 在室人数は常に 0 人とする。
-        n_hum_is_ns = np.zeros((1, 8760*4), dtype=float)
-
-        # ステップnの室iにおける空調需要, [8760*4]
-        ac_demand_is_ns = np.zeros((1, 8760*4), dtype=float)
+        # ステップ n の室 i における内部発熱, W, [i, n] ( = 0.0 )
+        # ステップ n の室 i における人体発湿を除く内部発湿, kg/s, [i, n] ( = 0.0 )
+        # ステップ n の室 i における局所換気量, m3/s, [i, n] ( = 0.0 )
+        # ステップ n の室 i における在室人数, [i, n] ( = 0 )
+        # ステップ n の室 i における空調需要, [i, n] ( = 0.0 )
+        scd = schedule.Schedule(
+            q_gen_is_ns=np.zeros((1, 8760*4), dtype=float),
+            x_gen_is_ns=np.zeros((1, 8760*4), dtype=float),
+            v_mec_vent_local_is_ns=np.zeros((1, 8760*4), dtype=float),
+            n_hum_is_ns=np.zeros((1, 8760*4), dtype=float),
+            ac_demand_is_ns=np.zeros((1, 8760*4), dtype=float)
+        )
 
         # ステップnの室iにおける窓の透過日射熱取得, W, [8760*4]
         # 等価日射量は常に 100 W とする。
@@ -69,12 +65,8 @@ class TestSteadyState(unittest.TestCase):
         ss, ppg = pre_calc_parameters.make_pre_calc_parameters(
             delta_t=900.0,
             rd=rd,
-            q_gen_is_ns=q_gen_is_ns,
-            x_gen_is_ns=x_gen_is_ns,
-            v_vent_mec_local_is_ns=v_mec_vent_local_is_ns,
-            n_hum_is_ns=n_hum_is_ns,
-            ac_demand_is_ns=ac_demand_is_ns,
             oc=oc,
+            scd=scd,
             q_trs_sol_is_ns=q_trs_sol_is_ns
         )
 
