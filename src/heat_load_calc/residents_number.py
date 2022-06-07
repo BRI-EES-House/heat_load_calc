@@ -6,7 +6,7 @@ def get_total_number_of_residents(a_floor_total: float) -> float:
         a_floor_total: 床面積の合計, m2
 
     Returns:
-        居住人数 float型
+        居住人数
     """
 
     if a_floor_total < 30.0:

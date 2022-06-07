@@ -7,8 +7,7 @@ import logging
 import json
 from os import path
 
-from heat_load_calc.initializer import residents_number
-
+from heat_load_calc import residents_number
 
 logger = logging.getLogger(name='HeatLoadCalc').getChild('Schedule')
 
