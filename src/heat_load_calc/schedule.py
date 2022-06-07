@@ -268,10 +268,10 @@ class Schedule:
 
         def convert_schedule(day_type: str):
             return {
-                '1': daily_schedule['1'][room_name_i][day_type][schedule_type],
-                '2': daily_schedule['2'][room_name_i][day_type][schedule_type],
-                '3': daily_schedule['3'][room_name_i][day_type][schedule_type],
-                '4': daily_schedule['4'][room_name_i][day_type][schedule_type],
+                '1': daily_schedule[room_name_i]['1'][day_type][schedule_type],
+                '2': daily_schedule[room_name_i]['2'][day_type][schedule_type],
+                '3': daily_schedule[room_name_i]['3'][day_type][schedule_type],
+                '4': daily_schedule[room_name_i]['4'][day_type][schedule_type],
             }
 
         d_weekday = convert_schedule(day_type='平日')
