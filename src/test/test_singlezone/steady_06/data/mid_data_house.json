@@ -4,6 +4,7 @@
     "building": {
         "infiltration": {
             "method": "balance_residential",
+            "c_value_estimate": "specify",
             "story": 1,
             "c_value": 0.0,
             "inside_pressure": "negative"

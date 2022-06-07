@@ -1,10 +1,8 @@
 import os
 import unittest
-import pandas as pd
 import json
 
-from heat_load_calc import core2, schedule
-from heat_load_calc.core import outdoor_condition
+from heat_load_calc import core2, schedule, outdoor_condition
 
 
 # 定常状態のテスト
@@ -30,13 +28,13 @@ class TestSigleRoomWithGround(unittest.TestCase):
         with open(house_data_path, 'r', encoding='utf-8') as js:
             rd = json.load(js)
 
+        file_path = os.path.abspath(os.path.join(s_folder, "weather.csv"))
+
         # 気象データ読み出し
-        import_weather_path = os.path.join(s_folder, "weather.csv")
-        dd_weather = pd.read_csv(import_weather_path)
-        oc = outdoor_condition.OutdoorCondition.make_from_pd(pp=dd_weather)
+        oc = outdoor_condition.OutdoorCondition.make_weather(method='file', file_path=file_path)
 
         # スケジュールの設定
-        scd = schedule.Schedule.get_schedule(schedule_dict=rd['common']['schedule'], rooms=rd['rooms'], folder_path=s_folder)
+        scd = schedule.Schedule.get_schedule(schedule_specify_method='calculate', rooms=rd['rooms'])
 
         # 計算実行
         dd_i, dd_a = core2.calc(rd=rd, oc=oc, scd=scd, n_d_main=30, n_d_run_up=10, n_d_run_up_build=0)

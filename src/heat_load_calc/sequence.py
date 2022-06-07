@@ -1,14 +1,12 @@
 import numpy as np
 
 from heat_load_calc.core.operation_mode import OperationMode
-from heat_load_calc.core.pre_calc_parameters import PreCalcParameters
+from heat_load_calc.pre_calc_parameters import PreCalcParameters
 from heat_load_calc.core.conditions import Conditions
 from heat_load_calc.external.global_number import get_c_a, get_rho_a, get_l_wtr
-from heat_load_calc.core.log import Logger
+from heat_load_calc.log import Logger
 from heat_load_calc.core.matrix_method import v_diag
 from heat_load_calc.core import occupants
-from heat_load_calc.core import pmv as pmv
-from heat_load_calc.core import ot_target_pmv as ot_target_pmv
 from heat_load_calc.external import psychrometrics as psy
 
 

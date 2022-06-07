@@ -4,6 +4,8 @@ from typing import Dict, Callable, List
 from functools import partial
 from enum import Enum
 
+from heat_load_calc import estimate_c_value
+
 
 class Story(Enum):
     """
@@ -25,6 +27,16 @@ class InsidePressure(Enum):
     NEGATIVE = 'negative'
     # ゼロバランス
     BALANCED = 'balanced'
+
+
+class Structure(Enum):
+    """構造を表す列挙型
+    """
+
+    RC = 'rc'
+    SRC = 'src'
+    WOODEN = 'wooden'
+    STEEL = 'steel'
 
 
 def make_get_infiltration_function(infiltration: Dict, v_rm_is):
@@ -52,7 +64,20 @@ def make_get_infiltration_function(infiltration: Dict, v_rm_is):
         story = Story(infiltration['story'])
 
         # C値
-        c_value = infiltration['c_value']
+        if infiltration['c_value_estimate'] == 'specify':
+
+            c_value = infiltration['c_value']
+
+        elif infiltration['c_value_estimate'] == 'calculate':
+
+            c_value = _estimate_c_value(
+                ua_value=infiltration['ua_value'],
+                struct=Structure(infiltration['struct'])
+            )
+
+        else:
+
+            raise Exception()
 
         # 換気の種類
         inside_pressure = InsidePressure(infiltration['inside_pressure'])
@@ -133,3 +158,22 @@ def _get_infiltration_residential(
     infiltration = infiltration_rate * v_room_is / 3600.0
 
     return infiltration
+
+
+def _estimate_c_value(ua_value: float, struct: Structure) -> float:
+    """
+    Args
+        ua_value: UA値, W/m2 K
+        struct: 構造
+    Returns:
+        C値, cm2/m2
+    """
+
+    a = {
+        Structure.RC: 4.16,       # RC造
+        Structure.SRC: 4.16,      # SRC造
+        Structure.WOODEN: 8.28,   # 木造
+        Structure.STEEL: 8.28,    # 鉄骨造
+    }[struct]
+
+    return a * ua_value

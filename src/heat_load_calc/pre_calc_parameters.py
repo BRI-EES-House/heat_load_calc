@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 from dataclasses import dataclass
-from typing import Dict, List, Callable, Optional, Tuple, Union
+from typing import Dict, List, Callable, Optional, Tuple
 import logging
 
 from heat_load_calc.core import infiltration, shape_factor, \
@@ -14,7 +14,7 @@ from heat_load_calc.core import solar_absorption
 from heat_load_calc.core import equipments
 from heat_load_calc.core import rooms
 from heat_load_calc.core import mechanical_ventilations
-from heat_load_calc.core import outdoor_condition
+from heat_load_calc import outdoor_condition
 
 
 @dataclass
