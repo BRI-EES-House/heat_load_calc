@@ -1,7 +1,7 @@
 import unittest
 import numpy as np
 
-from heat_load_calc.core import earthen_floor
+from heat_load_calc import earthen_floor
 
 
 class TestEarthenFloorRF(unittest.TestCase):

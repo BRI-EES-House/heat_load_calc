@@ -5,9 +5,8 @@ import pandas as pd
 import csv
 import json
 
-from heat_load_calc import core
+from heat_load_calc import core, pmv
 from heat_load_calc.external import psychrometrics
-from heat_load_calc.core import pmv
 
 
 # 定常状態のテスト

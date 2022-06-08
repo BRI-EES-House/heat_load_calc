@@ -2,7 +2,7 @@ import numpy as np
 from functools import partial
 
 from heat_load_calc.operation_mode import OperationMode
-from heat_load_calc.core import pmv
+from heat_load_calc import pmv
 
 
 def make_get_operation_mode_is_n_function(

@@ -2,9 +2,8 @@ import numpy as np
 from dataclasses import dataclass
 from typing import List
 
-from heat_load_calc import outside_eqv_temp, response_factor, transmission_solar_radiation, solar_shading
+from heat_load_calc import outside_eqv_temp, response_factor, transmission_solar_radiation, solar_shading, shape_factor
 from heat_load_calc.boundary_type import BoundaryType
-from heat_load_calc.core import shape_factor
 
 
 @dataclass

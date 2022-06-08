@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from heat_load_calc import boundaries
 from heat_load_calc.external.psychrometrics import get_x, get_p_vs_is2
 from heat_load_calc.external.global_number import get_c_a, get_rho_a
-from heat_load_calc.core.matrix_method import v_diag
+from heat_load_calc.matrix_method import v_diag
 
 
 @dataclass
