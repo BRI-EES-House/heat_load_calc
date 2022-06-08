@@ -2,8 +2,7 @@ import os
 import unittest
 import json
 
-from heat_load_calc import core2, schedule, outdoor_condition
-from heat_load_calc.weather import interval
+from heat_load_calc import core2, schedule, outdoor_condition, interval
 
 
 # 定常状態のテスト

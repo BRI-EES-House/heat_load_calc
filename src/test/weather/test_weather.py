@@ -1,7 +1,7 @@
 import unittest
 
 from heat_load_calc.outdoor_condition import OutdoorCondition
-from heat_load_calc.weather.interval import Interval
+from heat_load_calc.interval import Interval
 
 
 class TestWeather(unittest.TestCase):

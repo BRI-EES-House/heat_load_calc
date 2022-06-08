@@ -2,7 +2,7 @@ import math
 from typing import Tuple
 import numpy as np
 
-from heat_load_calc.weather.interval import Interval
+from heat_load_calc.interval import Interval
 
 """
 ステップnにおける太陽位置を計算する。

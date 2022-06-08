@@ -9,8 +9,7 @@ import urllib.request, urllib.error
 # 絶対パスでモジュールを探索できるようにする
 sys.path.insert(0, path.abspath(path.join(path.dirname(__file__), '..')))
 
-from heat_load_calc import core2, schedule, outdoor_condition
-from heat_load_calc.weather import interval
+from heat_load_calc import core2, schedule, outdoor_condition, interval
 
 
 def run(

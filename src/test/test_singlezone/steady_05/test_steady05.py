@@ -3,8 +3,8 @@ import unittest
 import numpy as np
 import json
 
-from heat_load_calc import sequence, pre_calc_parameters, outdoor_condition, conditions, operation_mode, schedule
-from heat_load_calc.weather import interval
+from heat_load_calc import sequence, pre_calc_parameters, outdoor_condition, conditions, operation_mode, schedule, \
+    interval
 
 
 # 定常状態のテスト
