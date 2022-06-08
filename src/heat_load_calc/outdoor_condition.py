@@ -4,9 +4,10 @@ import os
 import logging
 from typing import Tuple
 
-from heat_load_calc.weather import region_location
 from heat_load_calc import solar_position
 from heat_load_calc.interval import Interval
+from heat_load_calc.region import Region
+from heat_load_calc import region
 
 logger = logging.getLogger(name='HeatLoadCalc').getChild('Weather')
 
@@ -60,7 +61,7 @@ class OutdoorCondition:
 
             logger.info('make weather data based on the EES region')
 
-            return cls._make_weather_ees(region=region, itv=Interval.M15)
+            return cls._make_weather_ees(rgn=Region(region), itv=Interval.M15)
 
         else:
 
@@ -173,10 +174,10 @@ class OutdoorCondition:
         return np.append(d, d[0])
 
     @classmethod
-    def _make_weather_ees(cls, region: int, itv: Interval = Interval.M15):
+    def _make_weather_ees(cls, rgn: Region, itv: Interval = Interval.M15):
         """気象データを作成する。
         Args:
-            region: 地域の区分
+            rgn: 地域の区分
             itv: Interval 列挙体
         Returns:
             OutdoorCondition クラス
@@ -192,10 +193,10 @@ class OutdoorCondition:
         #   interval = '1h' -> n = 8760
         #   interval = '30m' -> n = 8760 * 2
         #   interval = '15m' -> n = 8760 * 4
-        theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, x_o_ns = cls._load(region=region, itv=itv)
+        theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, x_o_ns = cls._load(region=rgn, itv=itv)
 
         # 緯度, rad & 経度, rad
-        phi_loc, lambda_loc = region_location.get_phi_loc_and_lambda_loc(region=region)
+        phi_loc, lambda_loc = region.get_phi_loc_and_lambda_loc(rgn=rgn)
 
         # 太陽位置
         #   (1) ステップ n における太陽高度, rad, [n]
@@ -214,7 +215,7 @@ class OutdoorCondition:
         )
 
     @classmethod
-    def _load(cls, region: int, itv: Interval) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    def _load(cls, region: Region, itv: Interval) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
         """
         地域の区分に応じて気象データを読み込み、指定された時間間隔で必要に応じて補間を行いデータを作成する。
 
@@ -310,7 +311,7 @@ class OutdoorCondition:
             return data_interp_1d
 
     @classmethod
-    def _get_filename(cls, region: int) -> str:
+    def _get_filename(cls, region: Region) -> str:
         """
         地域の区分に応じたファイル名を取得する。
 
@@ -322,14 +323,14 @@ class OutdoorCondition:
         """
 
         weather_data_filename = {
-            1: '01_kitami.csv',  # 1地域（北見）
-            2: '02_iwamizawa.csv',  # 2地域（岩見沢）
-            3: '03_morioka.csv',  # 3地域（盛岡）
-            4: '04_nagano.csv',  # 4地域（長野）
-            5: '05_utsunomiya.csv',  # 5地域（宇都宮）
-            6: '06_okayama.csv',  # 6地域（岡山）
-            7: '07_miyazaki.csv',  # 7地域（宮崎）
-            8: '08_naha.csv'  # 8地域（那覇）
+            Region.Region1: '01_kitami.csv',  # 1地域（北見）
+            Region.Region2: '02_iwamizawa.csv',  # 2地域（岩見沢）
+            Region.Region3: '03_morioka.csv',  # 3地域（盛岡）
+            Region.Region4: '04_nagano.csv',  # 4地域（長野）
+            Region.Region5: '05_utsunomiya.csv',  # 5地域（宇都宮）
+            Region.Region6: '06_okayama.csv',  # 6地域（岡山）
+            Region.Region7: '07_miyazaki.csv',  # 7地域（宮崎）
+            Region.Region8: '08_naha.csv'  # 8地域（那覇）
         }[region]
 
         return weather_data_filename
