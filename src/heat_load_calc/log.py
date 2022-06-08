@@ -4,7 +4,7 @@ import datetime as dt
 
 from heat_load_calc.pre_calc_parameters import PreCalcParameters
 from heat_load_calc.external import psychrometrics as psy
-from heat_load_calc.core import pmv as pmv
+from heat_load_calc import pmv as pmv
 
 
 class Logger:

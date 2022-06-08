@@ -2,9 +2,10 @@ import pandas as pd
 import logging
 from typing import Tuple, Dict
 
-from heat_load_calc.core import period
-from heat_load_calc.core import conditions
-from heat_load_calc import schedule, sequence, log, sequence_ground, pre_calc_parameters, outdoor_condition
+from heat_load_calc import schedule, sequence, log, sequence_ground, pre_calc_parameters, outdoor_condition, period, \
+    conditions
+
+logger = logging.getLogger('HeatLoadCalc').getChild('core')
 
 
 def calc(
@@ -36,8 +37,6 @@ def calc(
         「助走計算のうち建物全体を解く日数」は「助走計算を行う日数」で指定した値以下でないといけない。
     """
 
-    logger = logging.getLogger('HeatLoadCalc').getChild('core')
-
     # 本計算のステップ数
     # 助走計算のステップ数
     # 助走計算のうち建物全体を解くステップ数
@@ -51,35 +50,9 @@ def calc(
     # 時間間隔, s
     delta_t = 3600.0 / n_step_hourly
 
-#    oc = outdoor_condition.OutdoorCondition.make_from_pd(pp=weather_dataframe)
-
-    # ステップnの室iにおける内部発熱, W, [i, n]
-    q_gen_is_ns = scd.q_gen_is_ns
-
-    # ステップnの室iにおける人体発湿を除く内部発湿, kg/s, [i, n]
-    x_gen_is_ns = scd.x_gen_is_ns
-
-    # ステップnの室iにおける局所換気量, m3/s, [i, n]
-    v_mec_vent_local_is_ns = scd.v_mec_vent_local_is_ns
-
-    # ステップnの室iにおける在室人数, [i, n]
-    n_hum_is_ns = scd.n_hum_is_ns
-
-    # ステップnの室iにおける空調需要, [i, n]
-    ac_demand_is_ns = scd.ac_demand_is_ns
-
     # json, csv ファイルからパラメータをロードする。
     # （ループ計算する必要の無い）事前計算を行い, クラス PreCalcParameters, PreCalcParametersGround に必要な変数を格納する。
-    pp, ppg = pre_calc_parameters.make_pre_calc_parameters(
-        delta_t=delta_t,
-        rd=rd,
-        q_gen_is_ns=q_gen_is_ns,
-        x_gen_is_ns=x_gen_is_ns,
-        v_vent_mec_local_is_ns=v_mec_vent_local_is_ns,
-        n_hum_is_ns=n_hum_is_ns,
-        ac_demand_is_ns=ac_demand_is_ns,
-        oc=oc
-    )
+    pp, ppg = pre_calc_parameters.make_pre_calc_parameters(delta_t=delta_t, rd=rd, oc=oc, scd=scd)
 
     gc_n = conditions.initialize_ground_conditions(n_grounds=ppg.n_grounds)
 

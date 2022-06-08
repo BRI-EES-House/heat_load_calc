@@ -2,8 +2,6 @@ from typing import Callable, Tuple
 import numpy as np
 from functools import partial
 
-from heat_load_calc.core.operation_mode import OperationMode
-
 
 def make_get_next_temp_and_load_function(
         ac_demand_is_ns: np.ndarray,

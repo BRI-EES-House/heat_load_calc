@@ -2,7 +2,7 @@
 import numpy as np
 from dataclasses import dataclass
 
-from heat_load_calc.core import furniture
+from heat_load_calc import furniture
 
 
 @dataclass

@@ -1,8 +1,8 @@
 import numpy as np
 from dataclasses import dataclass
 
+from heat_load_calc import response_factor as rf
 
-from . import response_factor as rf
 
 @dataclass()
 class EarthenFloor:

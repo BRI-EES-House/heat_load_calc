@@ -4,7 +4,7 @@
 
 import numpy as np
 
-from heat_load_calc.core import solar_shading, window, inclined_surface_solar_radiation, external_boundaries_direction
+from heat_load_calc import external_boundaries_direction, inclined_surface_solar_radiation, window, solar_shading
 
 
 class TransmissionSolarRadiation:
@@ -109,8 +109,8 @@ class TransmissionSolarRadiationTransparentSunStrike(TransmissionSolarRadiation)
 
         # 透過率の計算
         tau_value, ashgc_value, rho_value, a_value = window.get_tau_and_ashgc_rho_a(eta_w=self._eta_value,
-                                                                glazing_type_j=self._glazing_type,
-                                                                glass_area_ratio_j=self._glass_area_ratio)
+                                                                                    glazing_type_j=self._glazing_type,
+                                                                                    glass_area_ratio_j=self._glass_area_ratio)
 
         # ---基準透過率
 

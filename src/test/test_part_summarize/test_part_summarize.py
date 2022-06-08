@@ -2,7 +2,7 @@ import unittest
 import copy
 import numpy as np
 
-from heat_load_calc.core import building_part_summarize as bps, boundaries as bs
+from heat_load_calc import building_part_summarize as bps, boundaries as bs
 
 
 class MyTestCase(unittest.TestCase):
