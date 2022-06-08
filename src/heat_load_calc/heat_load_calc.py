@@ -13,8 +13,6 @@ from heat_load_calc import core2, schedule, outdoor_condition
 from heat_load_calc.weather import interval
 
 
-
-
 def run(
         logger,
         house_data_path: str,

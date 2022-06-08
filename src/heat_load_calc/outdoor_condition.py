@@ -6,7 +6,7 @@ import logging
 from heat_load_calc.weather import interval
 from heat_load_calc.weather import weather_data
 from heat_load_calc.weather import region_location
-from heat_load_calc.weather import solar_position
+from heat_load_calc import solar_position
 
 logger = logging.getLogger(name='HeatLoadCalc').getChild('Weather')
 
@@ -54,22 +54,13 @@ class OutdoorCondition:
 
             logger.info('Load weather data from `{}`'.format(file_path))
 
-            if not os.path.isfile(file_path):
-
-                raise FileNotFoundError("Error: File {} is not exist.".format(file_path))
-
-            pp = pd.read_csv(file_path)
-
-            return cls.make_from_pd(pp=pp, itv=itv)
+            return cls.make_from_pd(file_path=file_path, itv=itv)
 
         elif method == 'ees':
 
             logger.info('make weather data based on the EES region')
 
-#            pp = weather.make_weather(region=region)
-            pp = cls.make_weather_ees(region=region, itv=interval.Interval.M15)
-
-            return cls.make_from_pd(pp=pp, itv=itv)
+            return cls._make_weather_ees(region=region, itv=interval.Interval.M15)
 
         else:
 
@@ -77,8 +68,15 @@ class OutdoorCondition:
 
     def get_weather_as_pandas_data_frame(self):
 
+        # インターバル指定文字をpandasのfreq引数に文字変換する。
+        freq = {
+            interval.Interval.M15: '15min',
+            interval.Interval.M30: '30min',
+            interval.Interval.H1: 'H'
+        }[self._itv]
+
         # 時系列インデクスの作成
-        dd = pd.DataFrame(index=pd.date_range(start='1/1/1989', periods=8760 * 4, freq='15min'))
+        dd = pd.DataFrame(index=pd.date_range(start='1/1/1989', periods=8760 * 4, freq=freq))
 
         dd['temperature'] = self._theta_o_ns.round(3)
         dd['absolute humidity'] = self._x_o_ns.round(6)
@@ -112,16 +110,21 @@ class OutdoorCondition:
         return self._add_index_0_data_to_end(d=self._x_o_ns)
 
     @classmethod
-    def make_from_pd(cls, pp: pd.DataFrame, itv: interval.Interval):
+    def make_from_pd(cls, file_path, itv: interval.Interval):
         """
         気象データを読み込む。
 
         Args:
-            pp (pd.DataFrame): 気象データのDataFrame
+            file_path: 気象データのファイルのパス
             itv: Interval 列挙体
         Returns:
             OutdoorCondition クラス
         """
+
+        if not os.path.isfile(file_path):
+            raise FileNotFoundError("Error: File {} is not exist.".format(file_path))
+
+        pp = pd.read_csv(file_path)
 
         # 外気温度, degree C
         theta_o_ns = pp['temperature'].values
@@ -170,21 +173,21 @@ class OutdoorCondition:
         return np.append(d, d[0])
 
     @classmethod
-    def make_weather_ees(cls, region: int, itv: interval.Interval = interval.Interval.M15) -> pd.DataFrame:
+    def _make_weather_ees(cls, region: int, itv: interval.Interval = interval.Interval.M15):
         """気象データを作成する。
         Args:
             region: 地域の区分
             itv: Interval 列挙体
         Returns:
-            作成された気象データ（pandas DataFrame 形式）
+            OutdoorCondition クラス
         """
 
         # 気象データの読み込み
-        #   (1)ステップnにおける外気温度, degree C [n]
-        #   (2)ステップnにおける法線面直達日射量, W/m2 [n]
-        #   (3)ステップnにおける水平面天空日射量, W/m2 [n]
-        #   (4)ステップnにおける夜間放射量, W/m2 [n]
-        #   (5)ステップnにおける外気絶対湿度, kg/kgDA [n]
+        #   (1)ステップnにおける外気温度, degree C, [n]
+        #   (2)ステップnにおける法線面直達日射量, W/m2, [n]
+        #   (3)ステップnにおける水平面天空日射量, W/m2, [n]
+        #   (4)ステップnにおける夜間放射量, W/m2, [n]
+        #   (5)ステップnにおける外気絶対湿度, kg/kgDA, [n]
         # インターバルごとの要素数について
         #   interval = '1h' -> n = 8760
         #   interval = '30m' -> n = 8760 * 2
@@ -195,29 +198,17 @@ class OutdoorCondition:
         phi_loc, lambda_loc = region_location.get_phi_loc_and_lambda_loc(region=region)
 
         # 太陽位置
-        #   (1) ステップnにおける太陽高度, rad [n]
-        #   (2) ステップnにおける太陽方位角, rad [n]
+        #   (1) ステップ n における太陽高度, rad, [n]
+        #   (2) ステップ n における太陽方位角, rad, [n]
         h_sun_ns, a_sun_ns = solar_position.calc_solar_position(phi_loc=phi_loc, lambda_loc=lambda_loc, interval=itv)
 
-        # インターバル指定文字をpandasのfreq引数に文字変換する。
-        freq = {
-            interval.Interval.M15: '15min',
-            interval.Interval.M30: '30min',
-            interval.Interval.H1: 'H'
-        }[itv]
-
-        # 1時間を何分割するのかを取得する。
-        n_hour = itv.get_n_hour()
-
-        # 時系列インデクスの作成
-        dd = pd.DataFrame(index=pd.date_range(start='1/1/1989', periods=8760*n_hour, freq=freq))
-
-        dd['temperature'] = theta_o_ns.round(3)
-        dd['absolute humidity'] = x_o_ns.round(6)
-        dd['normal direct solar radiation'] = i_dn_ns
-        dd['horizontal sky solar radiation'] = i_sky_ns
-        dd['outward radiation'] = r_n_ns
-        dd['sun altitude'] = h_sun_ns
-        dd['sun azimuth'] = a_sun_ns
-
-        return dd
+        return OutdoorCondition(
+            a_sun_ns=a_sun_ns,
+            h_sun_ns=h_sun_ns,
+            i_dn_ns=i_dn_ns,
+            i_sky_ns=i_sky_ns,
+            r_n_ns=r_n_ns,
+            theta_o_ns=theta_o_ns.round(3),
+            x_o_ns=x_o_ns.round(6),
+            itv=itv
+        )
