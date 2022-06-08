@@ -4,6 +4,7 @@ import numpy as np
 import json
 
 from heat_load_calc import sequence, pre_calc_parameters, outdoor_condition, conditions, operation_mode, schedule
+from heat_load_calc.weather import interval
 
 
 # 定常状態のテスト
@@ -37,7 +38,8 @@ class TestSteadyState(unittest.TestCase):
             i_sky_ns=np.zeros(8760*4, dtype=float),
             r_n_ns=np.zeros(8760*4, dtype=float),
             theta_o_ns=np.zeros(8760*4, dtype=float),
-            x_o_ns=np.zeros(8760*4, dtype=float)
+            x_o_ns=np.zeros(8760*4, dtype=float),
+            itv=interval.Interval.M15
         )
 
         # ステップnの室iにおける局所換気量, m3/s, [i, 8760*4]
@@ -63,11 +65,7 @@ class TestSteadyState(unittest.TestCase):
 
         # pre_calc_parametersの構築
         ss, ppg = pre_calc_parameters.make_pre_calc_parameters(
-            delta_t=900.0,
-            rd=rd,
-            oc=oc,
-            scd=scd,
-            q_trs_sol_is_ns=q_trs_sol_is_ns
+            delta_t=900.0, rd=rd, oc=oc, scd=scd, q_trs_sol_is_ns=q_trs_sol_is_ns
         )
 
         q_srf_js_n = np.array([[12.7809219004777, 12.7809219004777, 12.7809219004777, 12.7809219004777,

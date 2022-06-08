@@ -1,6 +1,7 @@
 import unittest
 
-import heat_load_calc.weather.weather as t
+from heat_load_calc.outdoor_condition import OutdoorCondition
+from heat_load_calc.weather.interval import Interval
 
 
 class TestWeather(unittest.TestCase):
@@ -8,7 +9,8 @@ class TestWeather(unittest.TestCase):
     def test_weather_values_solar_position(self):
 
         # データの取得
-        d = t.make_weather(region=1)
+        oc = OutdoorCondition.make_weather(method="ees", itv=Interval.M15, region=1)
+        d = oc.get_weather_as_pandas_data_frame()
 
         # 1/1 0:00
         self.assertAlmostEqual(d['sun altitude']['1989-01-01 00:00:00'], -1.18973183, delta=0.00001)
@@ -24,7 +26,9 @@ class TestWeather(unittest.TestCase):
 
     def test_weather_values(self):
 
-        d = t.make_weather(region=1)
+        # データの取得
+        oc = OutdoorCondition.make_weather(method="ees", itv=Interval.M15, region=1)
+        d = oc.get_weather_as_pandas_data_frame()
 
         # 外気温度
         self.assertEqual(d['temperature']['1989-01-01 12:00:00'], -11.3)

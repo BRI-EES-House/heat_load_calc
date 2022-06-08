@@ -3,6 +3,7 @@ import json
 import os
 
 from heat_load_calc import core2, schedule, outdoor_condition, furniture
+from heat_load_calc.weather import interval
 
 
 class TestAllAtOnce(unittest.TestCase):
@@ -25,7 +26,7 @@ class TestAllAtOnce(unittest.TestCase):
 
         js.close()
 
-        oc = outdoor_condition.OutdoorCondition.make_weather(method='ees', region=6)
+        oc = outdoor_condition.OutdoorCondition.make_weather(method='ees', region=6, itv=interval.Interval.M15)
 
         scd = schedule.Schedule.get_schedule(schedule_specify_method='calculate', rooms=rd['rooms'])
 

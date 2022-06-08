@@ -10,6 +10,9 @@ import urllib.request, urllib.error
 sys.path.insert(0, path.abspath(path.join(path.dirname(__file__), '..')))
 
 from heat_load_calc import core2, schedule, outdoor_condition
+from heat_load_calc.weather import interval
+
+
 
 
 def run(
@@ -39,6 +42,10 @@ def run(
         is_weather_saved: 気象データを出力するか否か
     """
 
+    # 時間間隔
+    # TODO: 現在、時間間隔が15分間隔であることを前提として作成されているモジュールがいくつかあるため、当分の間15分間隔固定とする。
+    itv = interval.Interval.M15
+
     # ---- 事前準備 ----
 
     # 出力ディレクトリの作成
@@ -62,7 +69,8 @@ def run(
     oc = outdoor_condition.OutdoorCondition.make_weather(
         method=weather_specify_method,
         file_path=path.abspath(weather_file_path),
-        region=region
+        region=region,
+        itv=interval.Interval.M15
     )
 
     scd = schedule.Schedule.get_schedule(
@@ -79,7 +87,10 @@ def run(
     # 気象データの保存
     if is_weather_saved:
 
-        oc.save_weather(output_data_dir=output_data_dir)
+        weather_path = path.join(output_data_dir, 'weather.csv')
+        logger.info('Save weather data to `{}`'.format(weather_path))
+        dd = oc.get_weather_as_pandas_data_frame()
+        dd.to_csv(weather_path, encoding='utf-8')
 
     # スケジュールファイルの保存
     if is_schedule_saved:

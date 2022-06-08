@@ -3,15 +3,27 @@ import pandas as pd
 import os
 import logging
 
-from heat_load_calc.weather import weather
-
+from heat_load_calc.weather import interval
+from heat_load_calc.weather import weather_data
+from heat_load_calc.weather import region_location
+from heat_load_calc.weather import solar_position
 
 logger = logging.getLogger(name='HeatLoadCalc').getChild('Weather')
 
 
 class OutdoorCondition:
 
-    def __init__(self, a_sun_ns, h_sun_ns, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, x_o_ns):
+    def __init__(
+            self,
+            a_sun_ns: np.ndarray,
+            h_sun_ns: np.ndarray,
+            i_dn_ns: np.ndarray,
+            i_sky_ns: np.ndarray,
+            r_n_ns: np.ndarray,
+            theta_o_ns: np.ndarray,
+            x_o_ns: np.ndarray,
+            itv: interval = interval.Interval.M15
+    ):
         """
 
         Args:
@@ -22,6 +34,7 @@ class OutdoorCondition:
             r_n_ns: 夜間放射量, W/m2, [n]
             theta_o_ns: 太陽高度, rad, [n]
             x_o_ns: 太陽方位角, rad, [n]
+            itv: 時間間隔
         """
 
         self._a_sun_ns = a_sun_ns
@@ -32,8 +45,10 @@ class OutdoorCondition:
         self._theta_o_ns = theta_o_ns
         self._x_o_ns = x_o_ns
 
+        self._itv = itv
+
     @classmethod
-    def make_weather(cls, method: str, file_path: str = "", region: int = None):
+    def make_weather(cls, method: str, itv: interval.Interval, file_path: str = "", region: int = None):
 
         if method == 'file':
 
@@ -45,26 +60,22 @@ class OutdoorCondition:
 
             pp = pd.read_csv(file_path)
 
-            return cls.make_from_pd(pp=pp)
+            return cls.make_from_pd(pp=pp, itv=itv)
 
         elif method == 'ees':
 
             logger.info('make weather data based on the EES region')
 
-            pp = weather.make_weather(region=region)
+#            pp = weather.make_weather(region=region)
+            pp = cls.make_weather_ees(region=region, itv=interval.Interval.M15)
 
-            return cls.make_from_pd(pp=pp)
+            return cls.make_from_pd(pp=pp, itv=itv)
 
         else:
 
             raise Exception()
 
-    def save_weather(self, output_data_dir: str):
-
-        # TODO: とりあえずのコード。 pandas でデータを保持する方が素直か？
-
-        weather_path = os.path.join(output_data_dir, 'weather.csv')
-        logger.info('Save weather data to `{}`'.format(weather_path))
+    def get_weather_as_pandas_data_frame(self):
 
         # 時系列インデクスの作成
         dd = pd.DataFrame(index=pd.date_range(start='1/1/1989', periods=8760 * 4, freq='15min'))
@@ -76,44 +87,40 @@ class OutdoorCondition:
         dd['outward radiation'] = self._r_n_ns
         dd['sun altitude'] = self._h_sun_ns
         dd['sun azimuth'] = self._a_sun_ns
-        dd.to_csv(weather_path, encoding='utf-8')
+
+        return dd
 
     def get_a_sun_ns_plus(self):
-        return self.add_index_0_data_to_end(d=self._a_sun_ns)
+        return self._add_index_0_data_to_end(d=self._a_sun_ns)
 
     def get_h_sun_ns_plus(self):
-        return self.add_index_0_data_to_end(d=self._h_sun_ns)
+        return self._add_index_0_data_to_end(d=self._h_sun_ns)
 
     def get_i_dn_ns_plus(self):
-        return self.add_index_0_data_to_end(d=self._i_dn_ns)
+        return self._add_index_0_data_to_end(d=self._i_dn_ns)
 
     def get_i_sky_ns_plus(self):
-        return self.add_index_0_data_to_end(d=self._i_sky_ns)
+        return self._add_index_0_data_to_end(d=self._i_sky_ns)
 
     def get_r_n_ns_plus(self):
-        return self.add_index_0_data_to_end(d=self._r_n_ns)
+        return self._add_index_0_data_to_end(d=self._r_n_ns)
 
     def get_theta_o_ns_plus(self):
-        return self.add_index_0_data_to_end(d=self._theta_o_ns)
+        return self._add_index_0_data_to_end(d=self._theta_o_ns)
 
     def get_x_o_ns_plus(self):
-        return self.add_index_0_data_to_end(d=self._x_o_ns)
+        return self._add_index_0_data_to_end(d=self._x_o_ns)
 
     @classmethod
-    def make_from_pd(cls, pp: pd.DataFrame):
+    def make_from_pd(cls, pp: pd.DataFrame, itv: interval.Interval):
         """
         気象データを読み込む。
 
         Args:
             pp (pd.DataFrame): 気象データのDataFrame
+            itv: Interval 列挙体
         Returns:
-            外気温度, degree C
-            外気絶対湿度, kg/kg(DA)
-            法線面直達日射量, W/m2
-            水平面天空日射量, W/m2
-            夜間放射量, W/m2
-            太陽高度, rad
-            太陽方位角, rad
+            OutdoorCondition クラス
         """
 
         # 外気温度, degree C
@@ -144,11 +151,12 @@ class OutdoorCondition:
             i_sky_ns=i_sky_ns,
             r_n_ns=r_n_ns,
             theta_o_ns=theta_o_ns,
-            x_o_ns=x_o_ns
+            x_o_ns=x_o_ns,
+            itv=itv
         )
 
-    @staticmethod
-    def add_index_0_data_to_end(d: np.ndarray):
+    @classmethod
+    def _add_index_0_data_to_end(cls, d: np.ndarray):
         """
         リストの最後に一番最初のデータを追加する。
 
@@ -160,3 +168,56 @@ class OutdoorCondition:
         """
 
         return np.append(d, d[0])
+
+    @classmethod
+    def make_weather_ees(cls, region: int, itv: interval.Interval = interval.Interval.M15) -> pd.DataFrame:
+        """気象データを作成する。
+        Args:
+            region: 地域の区分
+            itv: Interval 列挙体
+        Returns:
+            作成された気象データ（pandas DataFrame 形式）
+        """
+
+        # 気象データの読み込み
+        #   (1)ステップnにおける外気温度, degree C [n]
+        #   (2)ステップnにおける法線面直達日射量, W/m2 [n]
+        #   (3)ステップnにおける水平面天空日射量, W/m2 [n]
+        #   (4)ステップnにおける夜間放射量, W/m2 [n]
+        #   (5)ステップnにおける外気絶対湿度, kg/kgDA [n]
+        # インターバルごとの要素数について
+        #   interval = '1h' -> n = 8760
+        #   interval = '30m' -> n = 8760 * 2
+        #   interval = '15m' -> n = 8760 * 4
+        theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, x_o_ns = weather_data.load(region=region, interval=itv)
+
+        # 緯度, rad & 経度, rad
+        phi_loc, lambda_loc = region_location.get_phi_loc_and_lambda_loc(region=region)
+
+        # 太陽位置
+        #   (1) ステップnにおける太陽高度, rad [n]
+        #   (2) ステップnにおける太陽方位角, rad [n]
+        h_sun_ns, a_sun_ns = solar_position.calc_solar_position(phi_loc=phi_loc, lambda_loc=lambda_loc, interval=itv)
+
+        # インターバル指定文字をpandasのfreq引数に文字変換する。
+        freq = {
+            interval.Interval.M15: '15min',
+            interval.Interval.M30: '30min',
+            interval.Interval.H1: 'H'
+        }[itv]
+
+        # 1時間を何分割するのかを取得する。
+        n_hour = itv.get_n_hour()
+
+        # 時系列インデクスの作成
+        dd = pd.DataFrame(index=pd.date_range(start='1/1/1989', periods=8760*n_hour, freq=freq))
+
+        dd['temperature'] = theta_o_ns.round(3)
+        dd['absolute humidity'] = x_o_ns.round(6)
+        dd['normal direct solar radiation'] = i_dn_ns
+        dd['horizontal sky solar radiation'] = i_sky_ns
+        dd['outward radiation'] = r_n_ns
+        dd['sun altitude'] = h_sun_ns
+        dd['sun azimuth'] = a_sun_ns
+
+        return dd

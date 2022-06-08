@@ -3,6 +3,7 @@ import unittest
 import json
 
 from heat_load_calc import core2, schedule, outdoor_condition
+from heat_load_calc.weather import interval
 
 
 # 定常状態のテスト
@@ -31,7 +32,7 @@ class TestSigleRoomWithGround(unittest.TestCase):
         file_path = os.path.abspath(os.path.join(s_folder, "weather.csv"))
 
         # 気象データ読み出し
-        oc = outdoor_condition.OutdoorCondition.make_weather(method='file', file_path=file_path)
+        oc = outdoor_condition.OutdoorCondition.make_weather(method='file', file_path=file_path, itv=interval.Interval.M15)
 
         # スケジュールの設定
         scd = schedule.Schedule.get_schedule(schedule_specify_method='calculate', rooms=rd['rooms'])
