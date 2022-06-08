@@ -9,7 +9,7 @@ class TestWeatherData15m(unittest.TestCase):
 
     def test_read_row_1_1_12(self):
 
-        theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, x_o_ns = OutdoorCondition._load(region=Region.Region1, itv=Interval.M15)
+        theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, x_o_ns = OutdoorCondition._load(rgn=Region.Region1, itv=Interval.M15)
 
         # 時刻 12 時のデータ
         time = 12 * 4
@@ -31,7 +31,7 @@ class TestWeatherData15m(unittest.TestCase):
 
     def test_read_row_1_1_13(self):
 
-        theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, x_o_ns = OutdoorCondition._load(region=Region.Region1, itv=Interval.M15)
+        theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, x_o_ns = OutdoorCondition._load(rgn=Region.Region1, itv=Interval.M15)
 
         # 時刻 13 時のデータ
         time = 13 * 4
@@ -56,7 +56,7 @@ class TestWeatherData15m(unittest.TestCase):
         按分のテスト
         """
 
-        theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, x_o_ns = OutdoorCondition._load(region=Region.Region1, itv=Interval.M15)
+        theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, x_o_ns = OutdoorCondition._load(rgn=Region.Region1, itv=Interval.M15)
 
         # 時刻 12 時 15 分のデータ
         time = 12 * 4 + 1
@@ -81,7 +81,7 @@ class TestWeatherData30m(unittest.TestCase):
 
     def test_read_row_1_1_12(self):
 
-        theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, x_o_ns = OutdoorCondition._load(region=Region.Region1, itv=Interval.M30)
+        theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, x_o_ns = OutdoorCondition._load(rgn=Region.Region1, itv=Interval.M30)
 
         # 時刻 12 時のデータ
         time = 12 * 2
@@ -103,7 +103,7 @@ class TestWeatherData30m(unittest.TestCase):
 
     def test_read_row_1_1_13(self):
 
-        theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, x_o_ns = OutdoorCondition._load(region=Region.Region1, itv=Interval.M30)
+        theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, x_o_ns = OutdoorCondition._load(rgn=Region.Region1, itv=Interval.M30)
 
         # 時刻 13 時のデータ
         time = 13 * 2
@@ -128,7 +128,7 @@ class TestWeatherData30m(unittest.TestCase):
         按分のテスト
         """
 
-        theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, x_o_ns = OutdoorCondition._load(region=Region.Region1, itv=Interval.M30)
+        theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, x_o_ns = OutdoorCondition._load(rgn=Region.Region1, itv=Interval.M30)
 
         # 時刻 12 時 30 分のデータ
         time = 12 * 2 + 1
@@ -153,7 +153,7 @@ class TestWeatherData1h(unittest.TestCase):
 
     def test_read_row_1_1_12(self):
 
-        theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, x_o_ns = OutdoorCondition._load(region=Region.Region1, itv=Interval.H1)
+        theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, x_o_ns = OutdoorCondition._load(rgn=Region.Region1, itv=Interval.H1)
 
         # 時刻 12 時のデータ
         time = 12
@@ -175,7 +175,7 @@ class TestWeatherData1h(unittest.TestCase):
 
     def test_read_row_1_1_13(self):
 
-        theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, x_o_ns = OutdoorCondition._load(region=Region.Region1, itv=Interval.H1)
+        theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, x_o_ns = OutdoorCondition._load(rgn=Region.Region1, itv=Interval.H1)
 
         # 時刻 13 時のデータ
         time = 13

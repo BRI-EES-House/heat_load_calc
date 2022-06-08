@@ -7,7 +7,6 @@ from typing import Tuple
 from heat_load_calc import solar_position
 from heat_load_calc.interval import Interval
 from heat_load_calc.region import Region
-from heat_load_calc import region
 
 logger = logging.getLogger(name='HeatLoadCalc').getChild('Weather')
 
@@ -193,10 +192,10 @@ class OutdoorCondition:
         #   interval = '1h' -> n = 8760
         #   interval = '30m' -> n = 8760 * 2
         #   interval = '15m' -> n = 8760 * 4
-        theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, x_o_ns = cls._load(region=rgn, itv=itv)
+        theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, x_o_ns = cls._load(rgn=rgn, itv=itv)
 
         # 緯度, rad & 経度, rad
-        phi_loc, lambda_loc = region.get_phi_loc_and_lambda_loc(rgn=rgn)
+        phi_loc, lambda_loc = rgn.get_phi_loc_and_lambda_loc()
 
         # 太陽位置
         #   (1) ステップ n における太陽高度, rad, [n]
@@ -215,12 +214,12 @@ class OutdoorCondition:
         )
 
     @classmethod
-    def _load(cls, region: Region, itv: Interval) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    def _load(cls, rgn: Region, itv: Interval) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
         """
         地域の区分に応じて気象データを読み込み、指定された時間間隔で必要に応じて補間を行いデータを作成する。
 
         Args:
-            region: 地域の区分
+            rgn: 地域の区分
             itv: Interval 列挙体
 
         Returns:
@@ -238,10 +237,10 @@ class OutdoorCondition:
         """
 
         # 地域の区分に応じたファイル名の取得
-        weather_data_filename = cls._get_filename(region)
+        weather_data_filename = cls._get_filename(rgn=rgn)
 
         # ファイル読み込み
-        path_and_filename = str(os.path.dirname(__file__)) + '/weather/expanded_amedas/' + weather_data_filename
+        path_and_filename = str(os.path.dirname(__file__)) + '/expanded_amedas/' + weather_data_filename
 
         data = np.loadtxt(path_and_filename, delimiter=",", skiprows=2, usecols=(2, 3, 4, 5, 6), encoding="utf-8")
 
@@ -311,12 +310,12 @@ class OutdoorCondition:
             return data_interp_1d
 
     @classmethod
-    def _get_filename(cls, region: Region) -> str:
+    def _get_filename(cls, rgn: Region) -> str:
         """
         地域の区分に応じたファイル名を取得する。
 
         Args:
-            region: 地域の区分
+            rgn: 地域の区分
 
         Returns:
             地域の区分に応じたファイル名（CSVファイル）（拡張子も含む）
@@ -331,6 +330,6 @@ class OutdoorCondition:
             Region.Region6: '06_okayama.csv',  # 6地域（岡山）
             Region.Region7: '07_miyazaki.csv',  # 7地域（宮崎）
             Region.Region8: '08_naha.csv'  # 8地域（那覇）
-        }[region]
+        }[rgn]
 
         return weather_data_filename
