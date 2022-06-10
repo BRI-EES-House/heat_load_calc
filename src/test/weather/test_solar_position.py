@@ -2,8 +2,8 @@ import unittest
 import numpy as np
 import math
 
-import heat_load_calc.weather.solar_position as t
-from heat_load_calc.weather.interval import Interval
+import heat_load_calc.solar_position as t
+from heat_load_calc.interval import Interval
 
 
 class TestSolarPosition(unittest.TestCase):

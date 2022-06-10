@@ -1,10 +1,9 @@
-import math
 import numpy as np
 import logging
-from typing import List, Union, Dict
+from typing import List, Dict
 from typing import Union
 
-from heat_load_calc.external.global_number import get_sgm, get_eps
+from heat_load_calc.global_number import get_sgm, get_eps
 from scipy import optimize
 
 

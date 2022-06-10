@@ -3,7 +3,8 @@ import unittest
 import numpy as np
 import json
 
-from heat_load_calc import sequence, pre_calc_parameters, outdoor_condition, conditions, operation_mode, schedule
+from heat_load_calc import sequence, pre_calc_parameters, outdoor_condition, conditions, operation_mode, schedule, \
+    interval
 
 
 # 定常状態のテスト
@@ -36,7 +37,8 @@ class TestSteadyState(unittest.TestCase):
             i_sky_ns=np.zeros(8760*4, dtype=float),
             r_n_ns=np.zeros(8760*4, dtype=float),
             theta_o_ns=np.zeros(8760*4, dtype=float),
-            x_o_ns=np.zeros(8760*4, dtype=float)
+            x_o_ns=np.zeros(8760*4, dtype=float),
+            itv=interval.Interval.M15
         )
 
         # ステップ n の室 i における内部発熱, W, [i, n] ( = 0.0 )
@@ -65,11 +67,7 @@ class TestSteadyState(unittest.TestCase):
 
         # pre_calc_parametersの構築
         ss, ppg = pre_calc_parameters.make_pre_calc_parameters(
-            delta_t=900.0,
-            rd=rd,
-            oc=oc,
-            theta_o_eqv_js_ns=theta_o_eqv_js_ns,
-            scd=scd
+            delta_t=900.0, rd=rd, oc=oc, theta_o_eqv_js_ns=theta_o_eqv_js_ns, scd=scd
         )
 
         q_srf_js_n = np.array([[15.384094583670, 15.384094583670, -31.115905416330, 15.384094583670,

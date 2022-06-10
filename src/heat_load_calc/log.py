@@ -3,8 +3,7 @@ import pandas as pd
 import datetime as dt
 
 from heat_load_calc.pre_calc_parameters import PreCalcParameters
-from heat_load_calc.external import psychrometrics as psy
-from heat_load_calc import pmv as pmv
+from heat_load_calc import pmv as pmv, psychrometrics as psy
 
 
 class Logger:
@@ -208,7 +207,7 @@ class Logger:
         # ---瞬時値---
 
         # ステップ n の室 i における飽和水蒸気圧, Pa, [i, n+1]
-        p_vs_is_ns = psy.get_p_vs_is(theta_is=self.theta_r_is_ns)
+        p_vs_is_ns = psy.get_p_vs(theta=self.theta_r_is_ns)
 
         # ステップ n における室 i の水蒸気圧, Pa, [i, n+1]
         p_v_is_ns = psy.get_p_v_r_is_n(x_r_is_n=self.x_r_is_ns)

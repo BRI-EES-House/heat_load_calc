@@ -3,11 +3,10 @@ import numpy as np
 from heat_load_calc.operation_mode import OperationMode
 from heat_load_calc.pre_calc_parameters import PreCalcParameters
 from heat_load_calc.conditions import Conditions
-from heat_load_calc.external.global_number import get_c_a, get_rho_a, get_l_wtr
+from heat_load_calc.global_number import get_c_a, get_rho_a, get_l_wtr
 from heat_load_calc.log import Logger
 from heat_load_calc.matrix_method import v_diag
-from heat_load_calc import occupants
-from heat_load_calc.external import psychrometrics as psy
+from heat_load_calc import occupants, psychrometrics as psy
 
 
 def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, logger: Logger, run_up: bool) -> Conditions:

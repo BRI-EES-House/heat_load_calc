@@ -2,7 +2,7 @@ import math
 from typing import Tuple
 import numpy as np
 
-from heat_load_calc.weather.interval import Interval
+from heat_load_calc.interval import Interval
 
 """
 ステップnにおける太陽位置を計算する。
@@ -28,7 +28,7 @@ def calc_solar_position(phi_loc: float, lambda_loc: float, interval: Interval) -
     """
 
     # 標準子午線(meridian), rad
-    lambda_loc_mer = get_lambda_loc_mer()
+    lambda_loc_mer = _get_lambda_loc_mer()
 
     # ステップnにおける年通算日（1/1を1とする）, [n]
     d_ns = _get_d_ns(interval=interval)
@@ -81,7 +81,7 @@ def calc_solar_position(phi_loc: float, lambda_loc: float, interval: Interval) -
     return h_sun_ns, a_sun_ns
 
 
-def get_lambda_loc_mer() -> float:
+def _get_lambda_loc_mer() -> float:
     """
     標準子午線を取得する。
 
