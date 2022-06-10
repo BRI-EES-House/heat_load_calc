@@ -1,7 +1,7 @@
 import numpy as np
 
 from heat_load_calc.operation_mode import OperationMode
-from heat_load_calc.external import psychrometrics as psy
+from heat_load_calc import psychrometrics as psy
 
 
 class Conditions:
@@ -92,6 +92,7 @@ def initialize_conditions(n_spaces: int, n_bdries: int):
 
     # ステップnにおける室iの絶対湿度, kg/kgDA, [i, 1]
     # 初期値を空気温度20℃相対湿度40%の時の値とする。
+    # x_r_is_n = np.full((total_number_of_spaces, 1), psy.get_x(psy.get_p_vs(theta=20.0) * 0.4))
     x_r_is_n = np.full((total_number_of_spaces, 1), psy.get_x(psy.get_p_vs(theta=20.0) * 0.4))
 
     # ステップnの統合された境界j*における指数項mの吸熱応答の項別成分, degree C, [j*, 12]

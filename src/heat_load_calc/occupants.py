@@ -1,6 +1,6 @@
 import numpy as np
 
-from heat_load_calc.external.global_number import get_l_wtr
+from heat_load_calc.global_number import get_l_wtr
 
 
 def get_x_hum_psn_is_n(theta_r_is_n: np.ndarray) -> np.ndarray:

@@ -4,8 +4,8 @@ import numpy as np
 from dataclasses import dataclass
 
 from heat_load_calc import boundaries
-from heat_load_calc.external.psychrometrics import get_x, get_p_vs_is2
-from heat_load_calc.external.global_number import get_c_a, get_rho_a
+from heat_load_calc.psychrometrics import get_x, get_p_vs
+from heat_load_calc.global_number import get_c_a, get_rho_a
 from heat_load_calc.matrix_method import v_diag
 
 
@@ -492,7 +492,7 @@ class Equipments:
             繰り返し計算（温度と湿度） eq.12
         """
 
-        return get_x(get_p_vs_is2(theta_rac_ex_srf_i_n_pls))
+        return get_x(get_p_vs(theta_rac_ex_srf_i_n_pls))
 
     @staticmethod
     def _get_theta_rac_ex_srf_i_n_pls(
