@@ -14,7 +14,7 @@ class OutsideEqvTemp:
         pass
 
     @classmethod
-    def create(cls, b: dict):
+    def create(cls, b: dict, ssp: solar_shading.SolarShading):
 
         if b['boundary_type'] == 'internal':
 
@@ -29,7 +29,7 @@ class OutsideEqvTemp:
                     a_s=float(b['outside_solar_absorption']),
                     eps_r=float(b['outside_emissivity']),
                     r_surf=float(b['outside_heat_transfer_resistance']),
-                    solar_shading=solar_shading.SolarShadingSimple.create(b)
+                    solar_shading=ssp
                 )
 
             else:
@@ -48,7 +48,7 @@ class OutsideEqvTemp:
                     eta_value_j=float(b['eta_value']),
                     glazing_type_j=b['incident_angle_characteristics'],
                     glass_area_ratio_j=b['glass_area_ratio'],
-                    solar_shading_part=solar_shading.SolarShading.create(b=b)
+                    solar_shading_part=ssp
                 )
 
             else:
@@ -104,7 +104,7 @@ class OutsideEqvTempInternal(OutsideEqvTemp):
 
 class OutsideEqvTempExternalGeneralPartAndExternalOpaquePart(OutsideEqvTemp):
 
-    def __init__(self, direction: str, a_s, eps_r, r_surf, solar_shading: solar_shading.SolarShadingSimple):
+    def __init__(self, direction: str, a_s, eps_r, r_surf, solar_shading: solar_shading.SolarShading):
         """
 
         Args:
@@ -174,7 +174,7 @@ class OutsideEqvTempExternalTransparentPart(OutsideEqvTemp):
                  eta_value_j: float,
                  glazing_type_j: str,
                  glass_area_ratio_j: float,
-                 solar_shading_part: solar_shading.SolarShadingSimple):
+                 solar_shading_part: solar_shading.SolarShading):
         """
 
         Args:

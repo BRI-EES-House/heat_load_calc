@@ -14,19 +14,19 @@ class TransmissionSolarRadiation:
         pass
 
     @classmethod
-    def create(cls, d: dict, solar_shading_part: solar_shading.SolarShadingSimple):
+    def create(cls, b: dict, ssp: solar_shading.SolarShading):
 
-        if d['boundary_type'] == 'external_transparent_part':
+        if b['boundary_type'] == 'external_transparent_part':
 
-            if bool(d['is_sun_striked_outside']):
+            if bool(b['is_sun_striked_outside']):
 
                 return TransmissionSolarRadiationTransparentSunStrike(
-                    direction=d['direction'],
-                    area=d['area'],
-                    solar_shading_part=solar_shading_part,
-                    glazing_type=d['incident_angle_characteristics'],
-                    eta_value=d['eta_value'],
-                    glass_area_ratio=d['glass_area_ratio']
+                    direction=b['direction'],
+                    area=b['area'],
+                    solar_shading_part=ssp,
+                    glazing_type=b['incident_angle_characteristics'],
+                    eta_value=b['eta_value'],
+                    glass_area_ratio=b['glass_area_ratio']
                 )
 
             else:

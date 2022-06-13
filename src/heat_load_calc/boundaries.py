@@ -206,14 +206,19 @@ class Boundaries:
         h_r = h_r_js[boundary_id]
 
         # 日除け
-        solar_shading_part = solar_shading.SolarShading.create(b=b)
+        ssp = solar_shading.SolarShading.create(
+            b=b,
+            ssp_dict=b['solar_shading_part'],
+            boundary_type=boundary_type,
+            is_sun_striked_outside=is_sun_striked_outside
+        )
 
         # 相当外気温度, degree C, [N+1]
-        oet = outside_eqv_temp.OutsideEqvTemp.create(b)
+        oet = outside_eqv_temp.OutsideEqvTemp.create(b=b, ssp=ssp)
         theta_o_sol = oet.get_theta_o_sol_i_j_ns(oc=oc)
 
         # 透過日射量, W, [N+1]
-        tsr = transmission_solar_radiation.TransmissionSolarRadiation.create(d=b, solar_shading_part=solar_shading_part)
+        tsr = transmission_solar_radiation.TransmissionSolarRadiation.create(b=b, ssp=ssp)
         q_trs_sol = tsr.get_qgt(oc=oc)
 
         # 応答係数
