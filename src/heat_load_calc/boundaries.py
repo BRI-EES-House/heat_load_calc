@@ -206,12 +206,24 @@ class Boundaries:
         h_r = h_r_js[boundary_id]
 
         # 日除け
-        ssp = solar_shading.SolarShading.create(
-            b=b,
-            ssp_dict=b['solar_shading_part'],
-            boundary_type=boundary_type,
-            is_sun_striked_outside=is_sun_striked_outside
-        )
+        if boundary_type in [
+            BoundaryType.ExternalGeneralPart,
+            BoundaryType.ExternalTransparentPart,
+            BoundaryType.ExternalOpaquePart
+        ]:
+            ssp = solar_shading.SolarShading.create(
+                b=b,
+                ssp_dict=b['solar_shading_part'],
+                boundary_type=boundary_type,
+                is_sun_striked_outside=is_sun_striked_outside
+            )
+        elif boundary_type in [
+            BoundaryType.Internal,
+            BoundaryType.Ground
+        ]:
+            ssp = None
+        else:
+            raise Exception()
 
         # 相当外気温度, degree C, [N+1]
         oet = outside_eqv_temp.OutsideEqvTemp.create(b=b, ssp=ssp)
