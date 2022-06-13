@@ -1,7 +1,5 @@
 """裏面相当温度を計算するモジュール
 
-TODO:
-    配列の数が 8760 * 4 に固定されている。
 """
 
 import numpy as np
@@ -123,13 +121,14 @@ class OutsideEqvTempInternal(OutsideEqvTemp):
 
         Returns:
             ステップ n における室 i の境界 j の傾斜面の相当外気温度, degree C, [N+1]
+
+        Notes:
+            本来であれば、間仕切り壁において相当外気温度は定義できない概念ではあるが、
+            後々の numpy の行列計算において、相当外気温度を 0.0 にしておく方が都合がよいので、
+            ここでは0.0に初期化することにした。
         """
 
-        # この値は使用しないのでNoneでもよいはず
-        # 集約化する際にNoneだと変な挙動を示すかも知れないのでとりあえずゼロにしておく。
-
-        # TODO: 配列数は可変にすること。
-        return np.zeros(24 * 365 * 4 + 1)
+        return np.zeros(oc.number_of_data_plus)
 
 
 class OutsideEqvTempExternalGeneralPartAndExternalOpaquePart(OutsideEqvTemp):
