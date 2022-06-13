@@ -199,17 +199,9 @@ class Boundaries:
 
         solar_shading_part = solar_shading.SolarShading.create(b=b)
 
-        # 相当外気温度, degree C, [8760 * 4]
+        # 相当外気温度, degree C, [N+1]
         oet = outside_eqv_temp.OutsideEqvTemp.create(b)
-        theta_o_sol = oet.get_theta_o_sol_i_j_ns(
-            theta_o_ns=theta_o_ns,
-            i_dn_ns=i_dn_ns,
-            i_sky_ns=i_sky_ns,
-            r_eff_ns=r_n_ns,
-            a_sun_ns=a_sun_ns,
-            h_sun_ns=h_sun_ns,
-            oc=oc
-        )
+        theta_o_sol = oet.get_theta_o_sol_i_j_ns(oc=oc)
 
         # 透過日射量, W, [8760*4]
         tsr = transmission_solar_radiation.TransmissionSolarRadiation.create(d=b, solar_shading_part=solar_shading_part)
