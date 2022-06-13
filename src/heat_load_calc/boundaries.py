@@ -114,7 +114,18 @@ class Boundaries:
         return bss
 
     @staticmethod
-    def _get_boundary(b, h_c_js, h_r_js, oc) -> Boundary:
+    def _get_boundary(b: Dict, h_c_js: np.ndarray, h_r_js: np.ndarray, oc: OutdoorCondition) -> Boundary:
+        """
+
+        Args:
+            b: Boundary　の辞書
+            h_c_js: 境界 j の室内側表面対流熱伝達率, W/m2K, [J, 1]
+            h_r_js: 境界 j の室内側表面放射熱伝達率, W/m2K, [J, 1]
+            oc: OutdoorCondition クラス
+
+        Returns:
+            Boundary クラス
+        """
 
         # ID
         # TODO: ID が0始まりで1ずつ増え、一意であることのチェックを行うコードを追記する。
@@ -142,7 +153,11 @@ class Boundaries:
         # True: 当たる
         # False: 当たらない
         # 境界の種類が'external_general_part', 'external_transparent_part', 'external_opaque_part'の場合に定義される。
-        if b['boundary_type'] in ['external_general_part', 'external_transparent_part', 'external_opaque_part']:
+        if boundary_type in [
+            BoundaryType.ExternalGeneralPart,
+            BoundaryType.ExternalTransparentPart,
+            BoundaryType.ExternalOpaquePart
+        ]:
             is_sun_striked_outside = bool(b['is_sun_striked_outside'])
         else:
             is_sun_striked_outside = None
@@ -159,7 +174,7 @@ class Boundaries:
         else:
             h_td = 0.0
 
-        if b['boundary_type'] == 'internal':
+        if boundary_type == BoundaryType.Internal:
             rear_surface_boundary_id = int(b['rear_surface_boundary_id'])
         else:
             rear_surface_boundary_id = None
@@ -187,8 +202,10 @@ class Boundaries:
         # 室内側表面対流熱伝達率, W/m2K
         h_c = b['h_c']
 
+        # 室内側表面放射熱伝達率, W/m2K
         h_r = h_r_js[boundary_id]
 
+        # 日除け
         solar_shading_part = solar_shading.SolarShading.create(b=b)
 
         # 相当外気温度, degree C, [N+1]
