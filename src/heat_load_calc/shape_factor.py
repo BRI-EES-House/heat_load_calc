@@ -14,17 +14,20 @@ def get_f_mrt_is_js(a_s_js: np.ndarray, h_s_r_js: np.ndarray, p_is_js: np.ndarra
     return p_is_js * ah.T / np.dot(p_is_js, ah)
 
 
-def get_h_r_js(n_spaces: int, bs: List[Dict]) -> np.ndarray:
+def get_h_r_js(n_rm: int, bs: List[Dict]) -> np.ndarray:
 
     a_srf_js = np.array([b['area'] for b in bs])
 
     connected_room_id_js = np.array([b['connected_room_id'] for b in bs])
 
     h_r_is = np.zeros(shape=(len(bs)), dtype=float)
-    for i in range(n_spaces):
+
+    for i in range(n_rm):
+
         is_connected = connected_room_id_js == i
 
         h_r_is[is_connected] = _get_h_r_i_js(a_srf=a_srf_js[is_connected])
+
     return h_r_is
 
 

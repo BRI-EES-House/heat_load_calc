@@ -5,6 +5,7 @@ from typing import List, Dict
 from heat_load_calc import outside_eqv_temp, response_factor, transmission_solar_radiation, solar_shading, \
     shape_factor, outdoor_condition
 from heat_load_calc.boundary_type import BoundaryType
+from heat_load_calc.outdoor_condition import OutdoorCondition
 
 
 @dataclass
@@ -70,21 +71,28 @@ class Boundary:
 
 class Boundaries:
 
-    def __init__(
-            self,
-            a_sun_ns: np.ndarray,
-            h_sun_ns: np.ndarray,
-            i_dn_ns: np.ndarray,
-            i_sky_ns: np.ndarray,
-            n_rm: int,
-            r_n_ns: np.ndarray,
-            theta_o_ns: np.ndarray,
-            bs: List[Dict],
-            oc: outdoor_condition.OutdoorCondition):
+    def __init__(self, n_rm: int, bs_list: List[Dict], oc: OutdoorCondition):
+        """
 
-        self._bss = self._get_boundary_list(a_sun_ns=a_sun_ns, h_sun_ns=h_sun_ns, i_dn_ns=i_dn_ns, i_sky_ns=i_sky_ns, n_rm=n_rm, r_n_ns=r_n_ns, theta_o_ns=theta_o_ns, bs=bs, oc=oc)
+        Args:
+            n_rm: 室の数
+            bs_list: 境界に関する辞書
+            oc: OutdoorCondition クラス
+        """
 
-    def _get_boundary_list(self, a_sun_ns, h_sun_ns, i_dn_ns, i_sky_ns, n_rm, r_n_ns, theta_o_ns, bs, oc) -> List[Boundary]:
+        self._bss = self._get_boundary_list(n_rm=n_rm, bs_list=bs_list, oc=oc)
+
+    def _get_boundary_list(self, n_rm: int, bs_list: List[Dict], oc: OutdoorCondition) -> List[Boundary]:
+        """
+
+        Args:
+            n_rm: 室の数
+            bs_list: 境界に関する辞書
+            oc: OutdoorCondition クラス
+
+        Returns:
+
+        """
 
         # 本来であれば Boundaries クラスにおいて境界に関する入力用辞書から読み込みを境界個別に行う。
         # しかし、室内側表面放射熱伝達は室内側の形態係数によって値が決まり、ある室に接する境界の面積の組み合わせで決定されるため、
@@ -94,35 +102,19 @@ class Boundaries:
         # Boundary クラスを生成する前に、予め室内側表面放射・対流熱伝達率を計算しておき、
         # Boundary クラスを生成する時に必要な情報としておく。
 
-        # 境界jの室内側表面放射熱伝達率, W/m2K, [j, 1]
-        h_r_js = shape_factor.get_h_r_js(
-            n_spaces=n_rm,
-            bs=bs
-        ).reshape(-1, 1)
+        # 境界jの室内側表面放射熱伝達率, W/m2K, [J, 1]
+        h_r_js = shape_factor.get_h_r_js(n_rm=n_rm, bs=bs_list).reshape(-1, 1)
 
-        # 境界jの室内側表面対流熱伝達率, W/m2K, [j, 1]
-        h_c_js = np.array([b['h_c'] for b in bs]).reshape(-1, 1)
+        # 境界jの室内側表面対流熱伝達率, W/m2K, [J, 1]
+        h_c_js = np.array([b['h_c'] for b in bs_list]).reshape(-1, 1)
 
-        # 境界j
-        bss = [
-            self._get_boundary(
-                theta_o_ns=theta_o_ns,
-                i_dn_ns=i_dn_ns,
-                i_sky_ns=i_sky_ns,
-                r_n_ns=r_n_ns,
-                a_sun_ns=a_sun_ns,
-                h_sun_ns=h_sun_ns,
-                b=b,
-                h_c_js=h_c_js,
-                h_r_js=h_r_js,
-                oc=oc
-            ) for b in bs
-        ]
+        # 境界 j, [J]
+        bss = [self._get_boundary(b=b, h_c_js=h_c_js, h_r_js=h_r_js, oc=oc) for b in bs_list]
 
         return bss
 
     @staticmethod
-    def _get_boundary(theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, a_sun_ns, h_sun_ns, b, h_c_js, h_r_js, oc) -> Boundary:
+    def _get_boundary(b, h_c_js, h_r_js, oc) -> Boundary:
 
         # ID
         # TODO: ID が0始まりで1ずつ増え、一意であることのチェックを行うコードを追記する。
@@ -203,9 +195,9 @@ class Boundaries:
         oet = outside_eqv_temp.OutsideEqvTemp.create(b)
         theta_o_sol = oet.get_theta_o_sol_i_j_ns(oc=oc)
 
-        # 透過日射量, W, [8760*4]
+        # 透過日射量, W, [N+1]
         tsr = transmission_solar_radiation.TransmissionSolarRadiation.create(d=b, solar_shading_part=solar_shading_part)
-        q_trs_sol = tsr.get_qgt(a_sun_ns=a_sun_ns, h_sun_ns=h_sun_ns, i_dn_ns=i_dn_ns, i_sky_ns=i_sky_ns, r_eff_ns=r_n_ns)
+        q_trs_sol = tsr.get_qgt(oc=oc)
 
         # 応答係数
         rf = response_factor.get_response_factor(b=b, h_c_js=h_c_js, h_r_js=h_r_js)

@@ -284,14 +284,8 @@ def make_pre_calc_parameters(
     # region boundaries
 
     bs = boundaries.Boundaries(
-        a_sun_ns=a_sun_ns,
-        h_sun_ns=h_sun_ns,
-        i_dn_ns=i_dn_ns,
-        i_sky_ns=i_sky_ns,
         n_rm=n_rm,
-        r_n_ns=r_n_ns,
-        theta_o_ns=theta_o_ns,
-        bs=rd['boundaries'],
+        bs_list=rd['boundaries'],
         oc=oc
     )
 
