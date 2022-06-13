@@ -88,26 +88,62 @@ class OutdoorCondition:
 
         return dd
 
-    def get_a_sun_ns_plus(self):
+    @property
+    def a_sun_ns_plus(self):
         return self._add_index_0_data_to_end(d=self._a_sun_ns)
 
-    def get_h_sun_ns_plus(self):
+    @property
+    def h_sun_ns_plus(self):
         return self._add_index_0_data_to_end(d=self._h_sun_ns)
 
-    def get_i_dn_ns_plus(self):
+    @property
+    def i_dn_ns_plus(self):
         return self._add_index_0_data_to_end(d=self._i_dn_ns)
 
-    def get_i_sky_ns_plus(self):
+    @property
+    def i_sky_ns_plus(self):
         return self._add_index_0_data_to_end(d=self._i_sky_ns)
 
-    def get_r_n_ns_plus(self):
+    @property
+    def r_n_ns_plus(self):
         return self._add_index_0_data_to_end(d=self._r_n_ns)
 
-    def get_theta_o_ns_plus(self):
+    @property
+    def theta_o_ns_plus(self):
         return self._add_index_0_data_to_end(d=self._theta_o_ns)
 
-    def get_x_o_ns_plus(self):
+    @property
+    def x_o_ns_plus(self):
         return self._add_index_0_data_to_end(d=self._x_o_ns)
+
+    @property
+    def number_of_data(self) -> int:
+        """データの数を取得する。
+        Returns:
+            データの数
+        """
+
+        return self._itv.get_n_hour() * 8760
+
+    @property
+    def number_of_data_plus(self) -> int:
+        """データの数に1を足したものを取得する。
+        例えば、1時間間隔の場合、データの数は8760なので、返す値は8761
+        15分間隔の場合、データの数は35040なので、返す値は35041
+        Returns:
+            データの数に1を足したもの
+        """
+
+        return self.number_of_data + 1
+
+    def get_theta_o_ns_average(self) -> float:
+        """外気温度の年間平均値を取得する。
+
+        Returns:
+            外気温度の年間平均値, degree C
+        """
+
+        return np.average(self._theta_o_ns)
 
     @classmethod
     def make_from_pd(cls, file_path, itv: Interval):

@@ -1,8 +1,9 @@
 import numpy as np
 from dataclasses import dataclass
-from typing import List
+from typing import List, Dict
 
-from heat_load_calc import outside_eqv_temp, response_factor, transmission_solar_radiation, solar_shading, shape_factor
+from heat_load_calc import outside_eqv_temp, response_factor, transmission_solar_radiation, solar_shading, \
+    shape_factor, outdoor_condition
 from heat_load_calc.boundary_type import BoundaryType
 
 
@@ -69,11 +70,21 @@ class Boundary:
 
 class Boundaries:
 
-    def __init__(self, a_sun_ns, h_sun_ns, i_dn_ns, i_sky_ns, n_rm, r_n_ns, theta_o_ns, bs):
+    def __init__(
+            self,
+            a_sun_ns: np.ndarray,
+            h_sun_ns: np.ndarray,
+            i_dn_ns: np.ndarray,
+            i_sky_ns: np.ndarray,
+            n_rm: int,
+            r_n_ns: np.ndarray,
+            theta_o_ns: np.ndarray,
+            bs: List[Dict],
+            oc: outdoor_condition.OutdoorCondition):
 
-        self._bss = self._get_boundary_list(a_sun_ns=a_sun_ns, h_sun_ns=h_sun_ns, i_dn_ns=i_dn_ns, i_sky_ns=i_sky_ns, n_rm=n_rm, r_n_ns=r_n_ns, theta_o_ns=theta_o_ns, bs=bs)
+        self._bss = self._get_boundary_list(a_sun_ns=a_sun_ns, h_sun_ns=h_sun_ns, i_dn_ns=i_dn_ns, i_sky_ns=i_sky_ns, n_rm=n_rm, r_n_ns=r_n_ns, theta_o_ns=theta_o_ns, bs=bs, oc=oc)
 
-    def _get_boundary_list(self, a_sun_ns, h_sun_ns, i_dn_ns, i_sky_ns, n_rm, r_n_ns, theta_o_ns, bs) -> List[Boundary]:
+    def _get_boundary_list(self, a_sun_ns, h_sun_ns, i_dn_ns, i_sky_ns, n_rm, r_n_ns, theta_o_ns, bs, oc) -> List[Boundary]:
 
         # 本来であれば Boundaries クラスにおいて境界に関する入力用辞書から読み込みを境界個別に行う。
         # しかし、室内側表面放射熱伝達は室内側の形態係数によって値が決まり、ある室に接する境界の面積の組み合わせで決定されるため、
@@ -103,14 +114,15 @@ class Boundaries:
                 h_sun_ns=h_sun_ns,
                 b=b,
                 h_c_js=h_c_js,
-                h_r_js=h_r_js
+                h_r_js=h_r_js,
+                oc=oc
             ) for b in bs
         ]
 
         return bss
 
     @staticmethod
-    def _get_boundary(theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, a_sun_ns, h_sun_ns, b, h_c_js, h_r_js) -> Boundary:
+    def _get_boundary(theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, a_sun_ns, h_sun_ns, b, h_c_js, h_r_js, oc) -> Boundary:
 
         # ID
         # TODO: ID が0始まりで1ずつ増え、一意であることのチェックを行うコードを追記する。
@@ -195,7 +207,8 @@ class Boundaries:
             i_sky_ns=i_sky_ns,
             r_eff_ns=r_n_ns,
             a_sun_ns=a_sun_ns,
-            h_sun_ns=h_sun_ns
+            h_sun_ns=h_sun_ns,
+            oc=oc
         )
 
         # 透過日射量, W, [8760*4]

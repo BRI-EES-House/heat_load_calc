@@ -7,6 +7,7 @@ TODO:
 import numpy as np
 
 from heat_load_calc import external_boundaries_direction, inclined_surface_solar_radiation, window, solar_shading
+from heat_load_calc.outdoor_condition import OutdoorCondition
 
 
 class OutsideEqvTemp:
@@ -71,7 +72,8 @@ class OutsideEqvTemp:
             i_sky_ns: np.ndarray,
             r_eff_ns: np.ndarray,
             a_sun_ns: np.ndarray,
-            h_sun_ns: np.ndarray
+            h_sun_ns: np.ndarray,
+            oc: OutdoorCondition
     ):
         """相当外気温度を計算する。
         本関数はアブストラクトメソッド。継承されたクラスによりオーバーライドされる。
@@ -104,7 +106,8 @@ class OutsideEqvTempInternal(OutsideEqvTemp):
             i_sky_ns: np.ndarray,
             r_eff_ns: np.ndarray,
             a_sun_ns: np.ndarray,
-            h_sun_ns: np.ndarray
+            h_sun_ns: np.ndarray,
+            oc: OutdoorCondition
     ):
         """
         相当外気温度を計算する。
@@ -116,9 +119,10 @@ class OutsideEqvTempInternal(OutsideEqvTemp):
             r_eff_ns: ステップnにおける夜間放射量, W/m2, [8760 * 4]
             a_sun_ns: ステップnにおける太陽高度, deg, [8760 * 4]
             h_sun_ns: ステップnにおける太陽方位, deg, [8760 * 4]
+            oc: OutdoorCondition クラス
 
         Returns:
-            室iの境界jの傾斜面のステップnにおける相当外気温度, ℃, [8760 * 4]
+            ステップ n における室 i の境界 j の傾斜面の相当外気温度, degree C, [N+1]
         """
 
         # この値は使用しないのでNoneでもよいはず
@@ -152,7 +156,8 @@ class OutsideEqvTempExternalGeneralPartAndExternalOpaquePart(OutsideEqvTemp):
             i_sky_ns: np.ndarray,
             r_eff_ns: np.ndarray,
             a_sun_ns: np.ndarray,
-            h_sun_ns: np.ndarray
+            h_sun_ns: np.ndarray,
+            oc: OutdoorCondition
     ):
         """
         相当外気温度を計算する。
@@ -164,9 +169,10 @@ class OutsideEqvTempExternalGeneralPartAndExternalOpaquePart(OutsideEqvTemp):
             r_eff_ns: ステップnにおける夜間放射量, W/m2, [8760 * 4]
             a_sun_ns: ステップnにおける太陽高度, deg, [8760 * 4]
             h_sun_ns: ステップnにおける太陽方位, deg, [8760 * 4]
+            oc: OutdoorCondition クラス
 
         Returns:
-            室iの境界jの傾斜面のステップnにおける相当外気温度, ℃, [8760 * 4]
+            ステップ n における室 i の境界 j の傾斜面の相当外気温度, degree C, [N+1]
         """
 
         # 室iの境界jの傾斜面の方位角, rad
@@ -176,7 +182,7 @@ class OutsideEqvTempExternalGeneralPartAndExternalOpaquePart(OutsideEqvTemp):
         # ---日よけの影面積比率
 
         # 直達日射に対する日よけの影面積比率, [8760 * 4]
-        f_ss_d_j_ns = self._solar_shading_part.get_f_ss_d_j_ns(h_sun_ns, a_sun_ns)
+        f_ss_d_j_ns = self._solar_shading_part.get_f_ss_d_j_ns(oc.h_sun_ns_plus, oc.a_sun_ns_plus)
 
         # 天空日射に対する日よけの影面積比率
         f_ss_s_j_ns = self._solar_shading_part.get_f_ss_s_j()
@@ -189,18 +195,18 @@ class OutsideEqvTempExternalGeneralPartAndExternalOpaquePart(OutsideEqvTemp):
         # ステップ n における境界 j の傾斜面に入射する日射量の地盤反射成分, W/m2 [n]
         # ステップ n における境界 j の傾斜面の夜間放射量, W/m2, [n]
         i_is_d_j_ns, i_is_sky_j_ns, i_is_ref_j_ns, r_srf_eff_j_ns = inclined_surface_solar_radiation.get_i_is_j_ns(
-            i_dn_ns=i_dn_ns,
-            i_sky_ns=i_sky_ns,
-            r_eff_ns=r_eff_ns,
-            h_sun_ns=h_sun_ns,
-            a_sun_ns=a_sun_ns,
+            i_dn_ns=oc.i_dn_ns_plus,
+            i_sky_ns=oc.i_sky_ns_plus,
+            r_eff_ns=oc.r_n_ns_plus,
+            h_sun_ns=oc.h_sun_ns_plus,
+            a_sun_ns=oc.a_sun_ns_plus,
             alpha_w_j=alpha_w_j,
             beta_w_j=beta_w_j
         )
 
         # 室iの境界jの傾斜面のステップnにおける相当外気温度, ℃, [8760*4]
         # 一般部位・不透明な開口部の場合、日射・長波長放射を考慮する。
-        theta_o_sol_i_j_ns = theta_o_ns + (
+        theta_o_sol_i_j_ns = oc.theta_o_ns_plus + (
                 self._a_s * (i_is_d_j_ns * (1.0 - f_ss_d_j_ns) + i_is_sky_j_ns * (1.0 - f_ss_s_j_ns) + i_is_ref_j_ns * (1.0 - f_ss_r_j_ns)) - self._eps_r * r_srf_eff_j_ns
         ) * self._r_surf
 
@@ -238,7 +244,8 @@ class OutsideEqvTempExternalTransparentPart(OutsideEqvTemp):
             i_sky_ns: np.ndarray,
             r_eff_ns: np.ndarray,
             a_sun_ns: np.ndarray,
-            h_sun_ns: np.ndarray
+            h_sun_ns: np.ndarray,
+            oc: OutdoorCondition
     ):
         """
         相当外気温度を計算する。
@@ -250,13 +257,10 @@ class OutsideEqvTempExternalTransparentPart(OutsideEqvTemp):
             r_eff_ns: ステップnにおける夜間放射量, W/m2, [8760 * 4]
             a_sun_ns: ステップnにおける太陽高度, deg, [8760 * 4]
             h_sun_ns: ステップnにおける太陽方位, deg, [8760 * 4]
-            u_value_j: 境界jの熱貫流率, W/m2K
-            eta_value_j: 境界jの日射熱取得率
-            glazing_type_j: 境界jのガラスの層数
-            glass_area_ratio_j: 境界jのガラス面積率
+            oc: OutdoorCondition クラス
 
         Returns:
-            室iの境界jの傾斜面のステップnにおける相当外気温度, ℃, [8760 * 4]
+            ステップ n における室 i の境界 j の傾斜面の相当外気温度, degree C, [N+1]
         """
 
         # 室iの境界jの傾斜面の方位角, rad
@@ -265,18 +269,18 @@ class OutsideEqvTempExternalTransparentPart(OutsideEqvTemp):
 
         # ステップ n の境界 j における傾斜面に入射する太陽の入射角, rad, [n]
         theta_aoi_j_ns = inclined_surface_solar_radiation.get_theta_aoi_j_ns(
-            h_sun_ns=h_sun_ns, a_sun_ns=a_sun_ns, alpha_w_j=alpha_w_j, beta_w_j=beta_w_j)
+            h_sun_ns=oc.h_sun_ns_plus, a_sun_ns=oc.a_sun_ns_plus, alpha_w_j=alpha_w_j, beta_w_j=beta_w_j)
 
         # ステップ n における境界 j の傾斜面に入射する日射量の直達成分, W / m2, [n]
         # ステップ n における境界 j の傾斜面に入射する日射量の天空成分, W / m2, [n]
         # ステップ n における境界 j の傾斜面に入射する日射量の地盤反射成分, W / m2, [n]
         # ステップ n における境界 j の傾斜面の夜間放射量, W/m2, [n]
         i_inc_d_j_ns, i_inc_sky_j_ns, i_inc_ref_j_ns, r_srf_eff_j_ns = inclined_surface_solar_radiation.get_i_is_j_ns(
-            i_dn_ns=i_dn_ns,
-            i_sky_ns=i_sky_ns,
-            r_eff_ns=r_eff_ns,
-            h_sun_ns=h_sun_ns,
-            a_sun_ns=a_sun_ns,
+            i_dn_ns=oc.i_dn_ns_plus,
+            i_sky_ns=oc.i_sky_ns_plus,
+            r_eff_ns=oc.r_n_ns_plus,
+            h_sun_ns=oc.h_sun_ns_plus,
+            a_sun_ns=oc.a_sun_ns_plus,
             alpha_w_j=alpha_w_j,
             beta_w_j=beta_w_j
         )
@@ -284,7 +288,7 @@ class OutsideEqvTempExternalTransparentPart(OutsideEqvTemp):
         # ---日よけの影面積比率
 
         # 直達日射に対する日よけの影面積比率, [8760 * 4]
-        f_ss_d_j_ns = self._shading_part.get_f_ss_d_j_ns(h_sun_ns, a_sun_ns)
+        f_ss_d_j_ns = self._shading_part.get_f_ss_d_j_ns(oc.h_sun_ns_plus, oc.a_sun_ns_plus)
 
         # 天空日射に対する日よけの影面積比率
         f_ss_s_j_ns = self._shading_part.get_f_ss_s_j()
@@ -322,7 +326,7 @@ class OutsideEqvTempExternalTransparentPart(OutsideEqvTemp):
 
         # 室iの境界jの傾斜面のステップnにおける相当外気温度, ℃, [8760*4]
         # 透明な開口部の場合、透過日射はガラス面への透過の項で扱うため、ここでは吸収日射、長波長放射のみ考慮する。
-        return theta_o_ns - self._eps_r * r_srf_eff_j_ns * self._r_surf_o + q_ga_ns / self._u_value
+        return oc.theta_o_ns_plus - self._eps_r * r_srf_eff_j_ns * self._r_surf_o + q_ga_ns / self._u_value
 
 
 class OutsideEqvTempExternalNotSunStriked(OutsideEqvTemp):
@@ -337,7 +341,8 @@ class OutsideEqvTempExternalNotSunStriked(OutsideEqvTemp):
             i_sky_ns: np.ndarray,
             r_eff_ns: np.ndarray,
             a_sun_ns: np.ndarray,
-            h_sun_ns: np.ndarray
+            h_sun_ns: np.ndarray,
+            oc: OutdoorCondition
     ):
         """
         相当外気温度を計算する。
@@ -349,12 +354,14 @@ class OutsideEqvTempExternalNotSunStriked(OutsideEqvTemp):
             r_eff_ns: ステップnにおける夜間放射量, W/m2, [8760 * 4]
             a_sun_ns: ステップnにおける太陽高度, deg, [8760 * 4]
             h_sun_ns: ステップnにおける太陽方位, deg, [8760 * 4]
+            oc: OutdoorCondition クラス
 
         Returns:
-            室iの境界jの傾斜面のステップnにおける相当外気温度, ℃, [8760 * 4]
+            ステップ n における室 i の境界 j の傾斜面の相当外気温度, degree C, [N+1]
         """
 
-        return theta_o_ns
+#        return theta_o_ns
+        return oc.theta_o_ns_plus
 
 
 class OutsideEqvTempGround(OutsideEqvTemp):
@@ -370,22 +377,22 @@ class OutsideEqvTempGround(OutsideEqvTemp):
             i_sky_ns: np.ndarray,
             r_eff_ns: np.ndarray,
             a_sun_ns: np.ndarray,
-            h_sun_ns: np.ndarray
+            h_sun_ns: np.ndarray,
+            oc: OutdoorCondition
     ):
-        """
-        相当外気温度を計算する。
+        """相当外気温度を計算する。
 
         Args:
-            theta_o_ns: ステップnにおける外気温度, ℃, [8760 * 4]
-            i_dn_ns: ステップnにおける法線面直達日射量, W/m2, [8760 * 4]
-            i_sky_ns: ステップnにおける水平面天空日射量, W/m2, [8760 * 4]
-            r_eff_ns: ステップnにおける夜間放射量, W/m2, [8760 * 4]
-            a_sun_ns: ステップnにおける太陽高度, deg, [8760 * 4]
-            h_sun_ns: ステップnにおける太陽方位, deg, [8760 * 4]
+            theta_o_ns: ステップ n における外気温度, ℃, [N+1]
+            i_dn_ns: ステップ n における法線面直達日射量, W/m2, [N+1]
+            i_sky_ns: ステップ n における水平面天空日射量, W/m2, [N+1]
+            r_eff_ns: ステップ n における夜間放射量, W/m2, [N+1]
+            a_sun_ns: ステップ n における太陽高度, deg, [N+1]
+            h_sun_ns: ステップ n における太陽方位, deg, [N+1]
+            oc: OutdoorCondition クラス
 
         Returns:
-            室iの境界jの傾斜面のステップnにおける相当外気温度, ℃, [8760 * 4]
+            ステップ n における室 i の境界 j の傾斜面の相当外気温度, ℃, [N+1]
         """
 
-        # TODO: 配列数は可変にすること。
-        return np.full(24 * 365 * 4 + 1, np.average(theta_o_ns))
+        return np.full(oc.number_of_data_plus, oc.get_theta_o_ns_average())
