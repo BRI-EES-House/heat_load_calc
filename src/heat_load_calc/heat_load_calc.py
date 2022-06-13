@@ -193,9 +193,8 @@ def main():
     handler.setFormatter(formatter)
     logger.addHandler(handler)
 
-
-
     start = time.time()
+
     run(
         logger=logger,
         house_data_path=args.house_data,
@@ -208,9 +207,10 @@ def main():
         region=args.region,
         is_weather_saved=args.weather_saved
     )
+
     elapsed_time = time.time() - start
 
-    logging.info("elapsed_time:{0}".format(elapsed_time) + "[sec]")
+    logger.info("elapsed_time:{0}".format(elapsed_time) + "[sec]")
 
 
 if __name__ == '__main__':

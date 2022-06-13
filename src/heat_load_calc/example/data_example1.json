@@ -3,7 +3,8 @@
 		"region": 6,
         "schedule": {
             "method": "calculate"
-        }
+        },
+        "ac_method": "pmv"
 	},
     "building": {
         "infiltration": {

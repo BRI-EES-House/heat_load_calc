@@ -6,8 +6,8 @@ import logging
 
 from heat_load_calc.matrix_method import v_diag
 
-from heat_load_calc import outdoor_condition, ot_target_pmv, next_condition, schedule, rooms, boundaries, equipments, \
-    infiltration, occupants_form_factor, shape_factor, solar_absorption, mechanical_ventilations
+from heat_load_calc import outdoor_condition, ot_target, next_condition, schedule, rooms, boundaries, equipments, \
+    infiltration, occupants_form_factor, shape_factor, solar_absorption, mechanical_ventilations, operation
 
 
 @dataclass
@@ -499,7 +499,9 @@ def make_pre_calc_parameters(
         logger.warning('[ac_method] is not declined. Method [pmv] was set as [ac_method].')
         ac_method = 'pmv'
 
-    get_operation_mode_is_n = ot_target_pmv.make_get_operation_mode_is_n_function(
+    # ac_method = 'simple'
+
+    get_operation_mode_is_n = operation.make_get_operation_mode_is_n_function(
         ac_method=ac_method,
         ac_demand_is_ns=ac_demand_is_ns,
         is_radiative_heating_is=is_radiative_heating_is,
@@ -507,7 +509,8 @@ def make_pre_calc_parameters(
         met_is=met_is
     )
 
-    get_theta_target_is_n = ot_target_pmv.make_get_theta_target_is_n_function(
+    get_theta_target_is_n = ot_target.make_get_theta_target_is_n_function(
+        ac_method=ac_method,
         is_radiative_heating_is=is_radiative_heating_is,
         is_radiative_cooling_is=is_radiative_cooling_is,
         met_is=met_is
