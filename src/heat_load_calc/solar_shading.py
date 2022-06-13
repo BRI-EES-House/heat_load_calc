@@ -16,72 +16,58 @@ class SolarShading:
         pass
 
     @classmethod
-    def create(cls, b: Dict, ssp_dict: Dict, boundary_type: BoundaryType, is_sun_striked_outside: bool):
+    def create(cls, ssp_dict: Dict, is_sun_striked_outside: bool, direction: str):
         """
         入力ファイルの辞書の'solar_shading_part'を読み込む。
 
         Args:
-            b: 'boundary' の辞書
             ssp_dict: 日除けの仕様に関する辞書
-            boundary_type: 境界 j のタイプ
+            is_sun_striked_outside: 日射が当たるか否か
+            direction: 方位
 
         Returns:
             SolarShadingPart クラス
         """
 
-        existence = ssp_dict['existence']
+        if ssp_dict['existence'] & is_sun_striked_outside:
 
-        if boundary_type in [
-            BoundaryType.ExternalGeneralPart,
-            BoundaryType.ExternalTransparentPart,
-            BoundaryType.ExternalOpaquePart
-        ]:
-            if existence & is_sun_striked_outside:
+            input_method = ssp_dict['input_method']
 
-                input_method = ssp_dict['input_method']
+            # 境界ｊの傾斜面の方位角, rad
+            # 境界jの傾斜面の傾斜角, rad
+            w_alpha_j, _ = external_boundaries_direction.get_w_alpha_j_w_beta_j(direction_j=direction)
 
-                # 境界ｊの傾斜面の方位角, rad
-                # 境界jの傾斜面の傾斜角, rad
-                w_alpha_j, _ = external_boundaries_direction.get_w_alpha_j_w_beta_j(direction_j=b['direction'])
+            if input_method == 'simple':
 
-                if input_method == 'simple':
+                return SolarShadingSimple(
+                    w_alpha=w_alpha_j,
+                    depth=ssp_dict['depth'],
+                    d_h=ssp_dict['d_h'],
+                    d_e=ssp_dict['d_e']
+                )
 
-                    return SolarShadingSimple(
-                        w_alpha=w_alpha_j,
-                        depth=ssp_dict['depth'],
-                        d_h=ssp_dict['d_h'],
-                        d_e=ssp_dict['d_e']
-                    )
+            elif input_method == 'detail':
 
-                elif input_method == 'detail':
-
-                    return SolarShadingDetail(
-                        w_alpha=w_alpha_j,
-                        x1=ssp_dict['x1'],
-                        x2=ssp_dict['x2'],
-                        x3=ssp_dict['x3'],
-                        y1=ssp_dict['y1'],
-                        y2=ssp_dict['y2'],
-                        y3=ssp_dict['y3'],
-                        z_x_pls=ssp_dict['z_x_pls'],
-                        z_x_mns=ssp_dict['z_x_mns'],
-                        z_y_pls=ssp_dict['z_y_pls'],
-                        z_y_mns=ssp_dict['z_y_mns']
-                    )
-
-                else:
-                    raise ValueError()
+                return SolarShadingDetail(
+                    w_alpha=w_alpha_j,
+                    x1=ssp_dict['x1'],
+                    x2=ssp_dict['x2'],
+                    x3=ssp_dict['x3'],
+                    y1=ssp_dict['y1'],
+                    y2=ssp_dict['y2'],
+                    y3=ssp_dict['y3'],
+                    z_x_pls=ssp_dict['z_x_pls'],
+                    z_x_mns=ssp_dict['z_x_mns'],
+                    z_y_pls=ssp_dict['z_y_pls'],
+                    z_y_mns=ssp_dict['z_y_mns']
+                )
 
             else:
+                raise ValueError()
 
-                return SolarShadingNot()
-        elif boundary_type in [
-            BoundaryType.Internal,
-            BoundaryType.Ground
-        ]:
-            return None
         else:
-            raise Exception()
+
+            return SolarShadingNot()
 
     def get_f_ss_d_j_ns(self, h_sun_n, a_sun_n):
         """

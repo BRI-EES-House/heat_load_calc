@@ -212,10 +212,9 @@ class Boundaries:
             BoundaryType.ExternalOpaquePart
         ]:
             ssp = solar_shading.SolarShading.create(
-                b=b,
                 ssp_dict=b['solar_shading_part'],
-                boundary_type=boundary_type,
-                is_sun_striked_outside=is_sun_striked_outside
+                is_sun_striked_outside=is_sun_striked_outside,
+                direction=direction
             )
         elif boundary_type in [
             BoundaryType.Internal,
