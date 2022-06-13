@@ -57,10 +57,12 @@ def calc(
     gc_n = conditions.initialize_ground_conditions(n_grounds=ppg.n_grounds)
 
     logger.info('助走計算（土壌のみ）')
+
     for n in range(-n_step_run_up, -n_step_run_up_build):
         gc_n = sequence_ground.run_tick(gc_n=gc_n, ss=ppg, n=n)
 
     result_logger = log.Logger(n_rm=pp.n_rm, n_boundaries=pp.n_bdry, n_step_main=n_step_main)
+
     result_logger.pre_logging(pp)
 
     # 建物を計算するにあたって初期値を与える
@@ -74,22 +76,28 @@ def calc(
     )
 
     logger.info('助走計算（建物全体）')
+
     for n in range(-n_step_run_up_build, 0):
         c_n = sequence.run_tick(n=n, delta_t=delta_t, ss=pp, c_n=c_n, logger=result_logger, run_up=True)
 
     logger.info('本計算')
 
     # TODO: loggerに1/1 0:00の瞬時状態値を書き込む
+    m = 1
+
     for n in range(0, n_step_main):
+
         c_n = sequence.run_tick(n=n, delta_t=delta_t, ss=pp, c_n=c_n, logger=result_logger, run_up=False)
+
+        if n == int(n_step_main / 12 * m):
+            logger.info("{} / 12 calculated.".format(m))
+            m = m + 1
 
     result_logger.post_logging(pp)
 
     logger.info('ログ作成')
 
     # dd: data detail, 15分間隔のすべてのパラメータ pd.DataFrame
-    dd_i, dd_a = result_logger.record(
-        pps=pp
-    )
+    dd_i, dd_a = result_logger.record(pps=pp)
 
     return dd_i, dd_a

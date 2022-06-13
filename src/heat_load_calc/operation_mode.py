@@ -17,3 +17,5 @@ class OperationMode(IntEnum):
 
     # 暖房かつ冷房
     HEATING_AND_COOLING = 5
+
+

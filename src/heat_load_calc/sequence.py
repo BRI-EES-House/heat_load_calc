@@ -909,10 +909,12 @@ def get_is_heating_is_n_and_is_cooling_is_n(
         式(2.15a), 式(2.15b)
     """
 
-    is_heating_is_n = (operation_mode_is_n == OperationMode.HEATING) & (
-                theta_r_ot_ntr_is_n_pls < theta_lower_target_is_n_pls)
-    is_cooling_is_n = (operation_mode_is_n == OperationMode.COOLING) & (
-                theta_upper_target_is_n_pls < theta_r_ot_ntr_is_n_pls)
+    is_heating_is_n = (
+            (operation_mode_is_n == OperationMode.HEATING) | (operation_mode_is_n == OperationMode.HEATING_AND_COOLING)
+        ) & (theta_r_ot_ntr_is_n_pls < theta_lower_target_is_n_pls)
+    is_cooling_is_n = (
+            (operation_mode_is_n == OperationMode.COOLING) | (operation_mode_is_n == OperationMode.HEATING_AND_COOLING)
+        ) & (theta_upper_target_is_n_pls < theta_r_ot_ntr_is_n_pls)
 
     return is_heating_is_n, is_cooling_is_n
 
