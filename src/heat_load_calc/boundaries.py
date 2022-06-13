@@ -233,7 +233,7 @@ class Boundaries:
         q_trs_sol = tsr.get_qgt(oc=oc)
 
         # 応答係数
-        rf = response_factor.get_response_factor(b=b, h_c_js=h_c_js, h_r_js=h_r_js)
+        rf = response_factor.get_response_factor(h_c_js=h_c_js, h_r_js=h_r_js, spec=b['spec'])
 
         return Boundary(
             id=boundary_id,

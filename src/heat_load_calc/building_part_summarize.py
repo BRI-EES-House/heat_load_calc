@@ -119,9 +119,6 @@ def integrate(bss: List[Boundary]) -> List[Boundary]:
         for i in np.unique(gp_idxs)
     ]
 
-    # 応答係数法（項別公比法）における根の数, [j]
-    n_root_js = [bss[first_idx[i]].n_root for i in np.unique(gp_idxs)]
-
     # 項別公比法における項mの公比, [j, 12]
     rows_js = [bss[first_idx[i]].row for i in np.unique(gp_idxs)]
 
@@ -182,7 +179,6 @@ def integrate(bss: List[Boundary]) -> List[Boundary]:
             h_c=h_c_js[j],
             theta_o_sol=theta_o_sol_js_ns[j],
             q_trs_sol=q_trs_sol_js_ns[j],
-            n_root=n_root_js[j],
             row=rows_js[j],
             rft0=phi_t0_js[j],
             rfa0=phi_a0_js[j],
