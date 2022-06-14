@@ -48,8 +48,7 @@ def get_response_factor(h_c_js, h_r_js, spec: Dict):
 
     else:
 
-        rff = ResponseFactorFactory.create(spec=spec, h_r_js=h_r_js, h_c_js=h_c_js)
-        rf = rff.get_response_factors()
+        rf = ResponseFactorFactory.create(spec=spec, h_r_js=h_r_js, h_c_js=h_c_js)
 
     return rf
 
@@ -521,11 +520,13 @@ class ResponseFactorFactory:
 
             layers = spec['layers']
 
-            return ResponseFactorFactoryTransientEnvelope(
+            rff = ResponseFactorFactoryTransientEnvelope(
                 cs=[float(layer['thermal_capacity']) for layer in layers],
                 rs=[float(layer['thermal_resistance']) for layer in layers],
                 r_o=float(spec['outside_heat_transfer_resistance'])
             )
+
+            return rff.get_response_factors()
 
         elif spec['boundary_type'] == 'internal':
 
@@ -534,27 +535,33 @@ class ResponseFactorFactory:
             rear_h_c = h_c_js[spec['rear_surface_boundary_id'], 0]
             rear_h_r = h_r_js[spec['rear_surface_boundary_id'], 0]
 
-            return ResponseFactorFactoryTransientEnvelope(
+            rff = ResponseFactorFactoryTransientEnvelope(
                 cs=[float(layer['thermal_capacity']) for layer in layers],
                 rs=[float(layer['thermal_resistance']) for layer in layers],
                 r_o=1.0 / (rear_h_c + rear_h_r)
             )
 
+            return rff.get_response_factors()
+
         elif spec['boundary_type'] == 'ground':
 
             layers = spec['layers']
 
-            return ResponseFactorFactoryTransientGround(
+            rff = ResponseFactorFactoryTransientGround(
                 cs=[float(layer['thermal_capacity']) for layer in layers],
                 rs=[float(layer['thermal_resistance']) for layer in layers]
             )
 
+            return rff.get_response_factors()
+
         elif spec['boundary_type'] in ['external_transparent_part', 'external_opaque_part']:
 
-            return ResponseFactorFactorySteady(
+            rff = ResponseFactorFactorySteady(
                 u_w=spec['u_value'],
                 r_i=spec['inside_heat_transfer_resistance']
             )
+
+            return rff.get_response_factors()
 
         else:
             raise KeyError()
