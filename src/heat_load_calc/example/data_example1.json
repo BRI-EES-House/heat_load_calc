@@ -1,6 +1,5 @@
 {
 	"common": {
-		"region": 6,
         "schedule": {
             "method": "calculate"
         },
@@ -72,14 +71,12 @@
             "sub_name": "",
             "connected_room_id": 0,
             "boundary_type": "external_general_part",
-            "is_ground": false,
             "area": 4.9775,
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
             "spec": {
                 "method": "layers",
-                "boundary_type": "external_general_part",
                 "layers": [
                     {
                         "name": "plaster_board",
@@ -125,14 +122,12 @@
             "sub_name": "",
             "connected_room_id": 0,
             "boundary_type": "external_opaque_part",
-            "is_ground": false,
             "area": 1.62,
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
             "spec": {
                 "method": "u_value",
-                "boundary_type": "external_opaque_part",
                 "u_value": 4.65,
                 "inside_heat_transfer_resistance": 0.11
             },
@@ -153,14 +148,12 @@
             "sub_name": "",
             "connected_room_id": 0,
             "boundary_type": "external_general_part",
-            "is_ground": false,
             "area": 17.982,
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
             "spec": {
                 "method": "layers",
-                "boundary_type": "external_general_part",
                 "layers": [
                     {
                         "name": "plaster_board",
@@ -206,14 +199,12 @@
             "sub_name": "",
             "connected_room_id": 0,
             "boundary_type": "external_transparent_part",
-            "is_ground": false,
             "area": 3.13,
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
             "spec": {
                 "method": "u_value",
-                "boundary_type": "external_transparent_part",
                 "u_value": 4.65,
                 "inside_heat_transfer_resistance": 0.11
             },
@@ -236,14 +227,12 @@
             "sub_name": "",
             "connected_room_id": 0,
             "boundary_type": "external_general_part",
-            "is_ground": false,
             "area": 10.2135,
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
             "spec": {
                 "method": "layers",
-                "boundary_type": "external_general_part",
                 "layers": [
                     {
                         "name": "plaster_board",
@@ -289,14 +278,12 @@
             "sub_name": "",
             "connected_room_id": 0,
             "boundary_type": "external_transparent_part",
-            "is_ground": false,
             "area": 6.94,
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
             "spec": {
                 "method": "u_value",
-                "boundary_type": "external_transparent_part",
                 "u_value": 4.65,
                 "inside_heat_transfer_resistance": 0.11
             },
@@ -323,14 +310,12 @@
             "sub_name": "",
             "connected_room_id": 0,
             "boundary_type": "external_general_part",
-            "is_ground": false,
             "area": 29.81,
             "h_c": 0.7,
             "is_solar_absorbed_inside": true,
             "is_floor": true,
             "spec": {
                 "method": "layers",
-                "boundary_type": "external_general_part",
                 "layers": [
                     {
                         "name": "plywood",
@@ -360,14 +345,12 @@
             "sub_name": "",
             "connected_room_id": 0,
             "boundary_type": "external_general_part",
-            "is_ground": false,
             "area": 4.14,
             "h_c": 5.0,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
             "spec": {
                 "method": "layers",
-                "boundary_type": "external_general_part",
                 "layers": [
                     {
                         "name": "plaster_board",
@@ -398,14 +381,12 @@
             "sub_name": "",
             "connected_room_id": 0,
             "boundary_type": "internal",
-            "is_ground": false,
             "area": 21.6125,
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
             "spec": {
                 "method": "layers",
-                "boundary_type": "internal",
                 "layers": [
                     {
                         "name": "plaster_board",
@@ -438,14 +419,12 @@
             "sub_name": "",
             "connected_room_id": 0,
             "boundary_type": "internal",
-            "is_ground": false,
             "area": 10.77,
             "h_c": 5.0,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
             "spec": {
                 "method": "layers",
-                "boundary_type": "internal",
                 "layers": [
                     {
                         "name": "plaster_board",
@@ -478,14 +457,12 @@
             "sub_name": "",
             "connected_room_id": 0,
             "boundary_type": "internal",
-            "is_ground": false,
             "area": 10.77,
             "h_c": 5.0,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
             "spec": {
                 "method": "layers",
-                "boundary_type": "internal",
                 "layers": [
                     {
                         "name": "plaster_board",
@@ -518,14 +495,12 @@
             "sub_name": "",
             "connected_room_id": 0,
             "boundary_type": "internal",
-            "is_ground": false,
             "area": 8.736,
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
             "spec": {
                 "method": "layers",
-                "boundary_type": "internal",
                 "layers": [
                     {
                         "name": "plaster_board",
@@ -558,14 +533,12 @@
             "sub_name": "",
             "connected_room_id": 1,
             "boundary_type": "external_general_part",
-            "is_ground": false,
             "area": 8.098,
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
             "spec": {
                 "method": "layers",
-                "boundary_type": "external_general_part",
                 "layers": [
                     {
                         "name": "plaster_board",
@@ -611,14 +584,12 @@
             "sub_name": "",
             "connected_room_id": 1,
             "boundary_type": "external_transparent_part",
-            "is_ground": false,
             "area": 1.73,
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
             "spec": {
                 "method": "u_value",
-                "boundary_type": "external_transparent_part",
                 "u_value": 4.65,
                 "inside_heat_transfer_resistance": 0.11
             },
@@ -645,14 +616,12 @@
             "sub_name": "",
             "connected_room_id": 1,
             "boundary_type": "external_general_part",
-            "is_ground": false,
             "area": 8.838,
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
             "spec": {
                 "method": "layers",
-                "boundary_type": "external_general_part",
                 "layers": [
                     {
                         "name": "plaster_board",
@@ -698,14 +667,12 @@
             "sub_name": "",
             "connected_room_id": 1,
             "boundary_type": "external_transparent_part",
-            "is_ground": false,
             "area": 0.99,
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
             "spec": {
                 "method": "u_value",
-                "boundary_type": "external_transparent_part",
                 "u_value": 4.65,
                 "inside_heat_transfer_resistance": 0.11
             },
@@ -728,14 +695,12 @@
             "sub_name": "",
             "connected_room_id": 1,
             "boundary_type": "external_general_part",
-            "is_ground": false,
             "area": 13.25,
             "h_c": 5.0,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
             "spec": {
                 "method": "layers",
-                "boundary_type": "external_general_part",
                 "layers": [
                     {
                         "name": "plaster_board",
@@ -766,14 +731,12 @@
             "sub_name": "",
             "connected_room_id": 1,
             "boundary_type": "internal",
-            "is_ground": false,
             "area": 8.736,
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
             "spec": {
                 "method": "layers",
-                "boundary_type": "internal",
                 "layers": [
                     {
                         "name": "plaster_board",
@@ -806,14 +769,12 @@
             "sub_name": "",
             "connected_room_id": 1,
             "boundary_type": "external_general_part",
-            "is_ground": false,
             "area": 4.76525,
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
             "spec": {
                 "method": "layers",
-                "boundary_type": "external_general_part",
                 "layers": [
                     {
                         "name": "plaster_board",
@@ -859,14 +820,12 @@
             "sub_name": "",
             "connected_room_id": 1,
             "boundary_type": "external_transparent_part",
-            "is_ground": false,
             "area": 3.22,
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
             "spec": {
                 "method": "u_value",
-                "boundary_type": "external_transparent_part",
                 "u_value": 4.65,
                 "inside_heat_transfer_resistance": 0.11
             },
@@ -893,14 +852,12 @@
             "sub_name": "",
             "connected_room_id": 1,
             "boundary_type": "external_general_part",
-            "is_ground": false,
             "area": 10.77,
             "h_c": 5.0,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
             "spec": {
                 "method": "layers",
-                "boundary_type": "external_general_part",
                 "layers": [
                     {
                         "name": "plaster_board",
@@ -931,14 +888,12 @@
             "sub_name": "",
             "connected_room_id": 1,
             "boundary_type": "internal",
-            "is_ground": false,
             "area": 7.098,
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
             "spec": {
                 "method": "layers",
-                "boundary_type": "internal",
                 "layers": [
                     {
                         "name": "plaster_board",
@@ -971,14 +926,12 @@
             "sub_name": "",
             "connected_room_id": 1,
             "boundary_type": "internal",
-            "is_ground": false,
             "area": 10.77,
             "h_c": 0.7,
             "is_solar_absorbed_inside": true,
             "is_floor": true,
             "spec": {
                 "method": "layers",
-                "boundary_type": "internal",
                 "layers": [
                     {
                         "name": "plywood",
@@ -1011,14 +964,12 @@
             "sub_name": "",
             "connected_room_id": 1,
             "boundary_type": "external_general_part",
-            "is_ground": false,
             "area": 9.168,
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
             "spec": {
                 "method": "layers",
-                "boundary_type": "external_general_part",
                 "layers": [
                     {
                         "name": "plaster_board",
@@ -1064,14 +1015,12 @@
             "sub_name": "",
             "connected_room_id": 1,
             "boundary_type": "external_transparent_part",
-            "is_ground": false,
             "area": 0.66,
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
             "spec": {
                 "method": "u_value",
-                "boundary_type": "external_transparent_part",
                 "u_value": 4.65,
                 "inside_heat_transfer_resistance": 0.11
             },
@@ -1094,14 +1043,12 @@
             "sub_name": "",
             "connected_room_id": 1,
             "boundary_type": "external_general_part",
-            "is_ground": false,
             "area": 4.76525,
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
             "spec": {
                 "method": "layers",
-                "boundary_type": "external_general_part",
                 "layers": [
                     {
                         "name": "plaster_board",
@@ -1147,14 +1094,12 @@
             "sub_name": "",
             "connected_room_id": 1,
             "boundary_type": "external_transparent_part",
-            "is_ground": false,
             "area": 3.22,
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
             "spec": {
                 "method": "u_value",
-                "boundary_type": "external_transparent_part",
                 "u_value": 4.65,
                 "inside_heat_transfer_resistance": 0.11
             },
@@ -1181,14 +1126,12 @@
             "sub_name": "",
             "connected_room_id": 1,
             "boundary_type": "external_general_part",
-            "is_ground": false,
             "area": 10.77,
             "h_c": 5.0,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
             "spec": {
                 "method": "layers",
-                "boundary_type": "external_general_part",
                 "layers": [
                     {
                         "name": "plaster_board",
@@ -1219,14 +1162,12 @@
             "sub_name": "",
             "connected_room_id": 1,
             "boundary_type": "internal",
-            "is_ground": false,
             "area": 7.098,
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
             "spec": {
                 "method": "layers",
-                "boundary_type": "internal",
                 "layers": [
                     {
                         "name": "plaster_board",
@@ -1259,14 +1200,12 @@
             "sub_name": "",
             "connected_room_id": 1,
             "boundary_type": "internal",
-            "is_ground": false,
             "area": 10.77,
             "h_c": 0.7,
             "is_solar_absorbed_inside": true,
             "is_floor": true,
             "spec": {
                 "method": "layers",
-                "boundary_type": "internal",
                 "layers": [
                     {
                         "name": "plywood",
@@ -1299,14 +1238,12 @@
             "sub_name": "",
             "connected_room_id": 1,
             "boundary_type": "external_general_part",
-            "is_ground": false,
             "area": 2.639,
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
             "spec": {
                 "method": "layers",
-                "boundary_type": "external_general_part",
                 "layers": [
                     {
                         "name": "plaster_board",
@@ -1352,14 +1289,12 @@
             "sub_name": "",
             "connected_room_id": 1,
             "boundary_type": "external_general_part",
-            "is_ground": false,
             "area": 8.605,
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
             "spec": {
                 "method": "layers",
-                "boundary_type": "external_general_part",
                 "layers": [
                     {
                         "name": "plaster_board",
@@ -1405,14 +1340,12 @@
             "sub_name": "",
             "connected_room_id": 1,
             "boundary_type": "external_transparent_part",
-            "is_ground": false,
             "area": 4.59,
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
             "spec": {
                 "method": "u_value",
-                "boundary_type": "external_transparent_part",
                 "u_value": 4.65,
                 "inside_heat_transfer_resistance": 0.11
             },
@@ -1435,14 +1368,12 @@
             "sub_name": "",
             "connected_room_id": 1,
             "boundary_type": "external_general_part",
-            "is_ground": false,
             "area": 10.556,
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
             "spec": {
                 "method": "layers",
-                "boundary_type": "external_general_part",
                 "layers": [
                     {
                         "name": "plaster_board",
@@ -1488,14 +1419,12 @@
             "sub_name": "",
             "connected_room_id": 1,
             "boundary_type": "external_general_part",
-            "is_ground": false,
             "area": 16.56,
             "h_c": 0.7,
             "is_solar_absorbed_inside": true,
             "is_floor": true,
             "spec": {
                 "method": "layers",
-                "boundary_type": "external_general_part",
                 "layers": [
                     {
                         "name": "plywood",
@@ -1525,14 +1454,12 @@
             "sub_name": "",
             "connected_room_id": 1,
             "boundary_type": "external_general_part",
-            "is_ground": false,
             "area": 3.31,
             "h_c": 5.0,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
             "spec": {
                 "method": "layers",
-                "boundary_type": "external_general_part",
                 "layers": [
                     {
                         "name": "plaster_board",
@@ -1563,14 +1490,12 @@
             "sub_name": "",
             "connected_room_id": 1,
             "boundary_type": "internal",
-            "is_ground": false,
             "area": 8.736,
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
             "spec": {
                 "method": "layers",
-                "boundary_type": "internal",
                 "layers": [
                     {
                         "name": "plaster_board",
@@ -1603,14 +1528,12 @@
             "sub_name": "",
             "connected_room_id": 1,
             "boundary_type": "internal",
-            "is_ground": false,
             "area": 8.736,
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
             "spec": {
                 "method": "layers",
-                "boundary_type": "internal",
                 "layers": [
                     {
                         "name": "plaster_board",
@@ -1643,14 +1566,12 @@
             "sub_name": "",
             "connected_room_id": 2,
             "boundary_type": "external_general_part",
-            "is_ground": false,
             "area": 43.2205,
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
             "spec": {
                 "method": "layers",
-                "boundary_type": "external_general_part",
                 "layers": [
                     {
                         "name": "plaster_board",
@@ -1696,14 +1617,12 @@
             "sub_name": "",
             "connected_room_id": 2,
             "boundary_type": "external_transparent_part",
-            "is_ground": false,
             "area": 3.69,
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
             "spec": {
                 "method": "u_value",
-                "boundary_type": "external_transparent_part",
                 "u_value": 4.65,
                 "inside_heat_transfer_resistance": 0.11
             },
@@ -1726,14 +1645,12 @@
             "sub_name": "",
             "connected_room_id": 2,
             "boundary_type": "external_general_part",
-            "is_ground": false,
             "area": 4.914,
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
             "spec": {
                 "method": "layers",
-                "boundary_type": "external_general_part",
                 "layers": [
                     {
                         "name": "plaster_board",
@@ -1779,14 +1696,12 @@
             "sub_name": "",
             "connected_room_id": 2,
             "boundary_type": "external_general_part",
-            "is_ground": false,
             "area": 12.5,
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
             "spec": {
                 "method": "layers",
-                "boundary_type": "external_general_part",
                 "layers": [
                     {
                         "name": "plaster_board",
@@ -1832,14 +1747,12 @@
             "sub_name": "",
             "connected_room_id": 2,
             "boundary_type": "external_transparent_part",
-            "is_ground": false,
             "area": 2.97,
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
             "spec": {
                 "method": "u_value",
-                "boundary_type": "external_transparent_part",
                 "u_value": 4.65,
                 "inside_heat_transfer_resistance": 0.11
             },
@@ -1862,14 +1775,12 @@
             "sub_name": "",
             "connected_room_id": 2,
             "boundary_type": "external_general_part",
-            "is_ground": false,
             "area": 21.52,
             "h_c": 0.7,
             "is_solar_absorbed_inside": true,
             "is_floor": true,
             "spec": {
                 "method": "layers",
-                "boundary_type": "external_general_part",
                 "layers": [
                     {
                         "name": "plywood",
@@ -1899,14 +1810,12 @@
             "sub_name": "",
             "connected_room_id": 2,
             "boundary_type": "external_general_part",
-            "is_ground": false,
             "area": 25.68,
             "h_c": 5.0,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
             "spec": {
                 "method": "layers",
-                "boundary_type": "external_general_part",
                 "layers": [
                     {
                         "name": "plaster_board",
@@ -1937,14 +1846,12 @@
             "sub_name": "",
             "connected_room_id": 2,
             "boundary_type": "internal",
-            "is_ground": false,
             "area": 21.6125,
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
             "spec": {
                 "method": "layers",
-                "boundary_type": "internal",
                 "layers": [
                     {
                         "name": "plaster_board",
@@ -1977,14 +1884,12 @@
             "sub_name": "",
             "connected_room_id": 2,
             "boundary_type": "internal",
-            "is_ground": false,
             "area": 8.736,
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
             "spec": {
                 "method": "layers",
-                "boundary_type": "internal",
                 "layers": [
                     {
                         "name": "plaster_board",
@@ -2017,14 +1922,12 @@
             "sub_name": "",
             "connected_room_id": 2,
             "boundary_type": "internal",
-            "is_ground": false,
             "area": 7.098,
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
             "spec": {
                 "method": "layers",
-                "boundary_type": "internal",
                 "layers": [
                     {
                         "name": "plaster_board",
@@ -2057,14 +1960,12 @@
             "sub_name": "",
             "connected_room_id": 2,
             "boundary_type": "internal",
-            "is_ground": false,
             "area": 7.098,
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
             "spec": {
                 "method": "layers",
-                "boundary_type": "internal",
                 "layers": [
                     {
                         "name": "plaster_board",
@@ -2097,14 +1998,12 @@
             "sub_name": "",
             "connected_room_id": 2,
             "boundary_type": "internal",
-            "is_ground": false,
             "area": 8.736,
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
             "spec": {
                 "method": "layers",
-                "boundary_type": "internal",
                 "layers": [
                     {
                         "name": "plaster_board",

@@ -7,6 +7,7 @@ import numpy as np
 from typing import List, Dict
 from dataclasses import dataclass
 
+from heat_load_calc.boundary_type import BoundaryType
 
 @dataclass()
 class ResponseFactor:
@@ -30,14 +31,14 @@ class ResponseFactor:
     n_root: int
 
 
-def get_response_factor(h_c_js, h_r_js, spec: Dict):
+def get_response_factor(h_c_js, h_r_js, spec: Dict, boundary_type: BoundaryType, b: Dict):
 
     if spec['method'] == 'test_response_factor':
 
         # TODO: ここで根の数は使用しないためゼロとしているが本来であれば適切な値を設定すべき。
         # この後、根の数は使用していないため、もしこの後の計算で不要なのであれば、
         # そもそもデータクラスのプロパティーにする必要はないと思われる。
-        rf = ResponseFactor(
+        return ResponseFactor(
             rft0=spec['phi_t0'],
             rfa0=spec['phi_a0'],
             rft1=spec['phi_t1'],
@@ -48,9 +49,57 @@ def get_response_factor(h_c_js, h_r_js, spec: Dict):
 
     else:
 
-        rf = ResponseFactorFactory.create(spec=spec, h_r_js=h_r_js, h_c_js=h_c_js)
+        if boundary_type == BoundaryType.ExternalGeneralPart:
 
-    return rf
+            layers = spec['layers']
+
+            rff = ResponseFactorFactoryTransientEnvelope(
+                cs=[float(layer['thermal_capacity']) for layer in layers],
+                rs=[float(layer['thermal_resistance']) for layer in layers],
+                r_o=float(spec['outside_heat_transfer_resistance'])
+            )
+
+            return rff.get_response_factors()
+
+        elif boundary_type == BoundaryType.Internal:
+
+            layers = spec['layers']
+
+            rear_h_c = h_c_js[spec['rear_surface_boundary_id'], 0]
+
+            rear_h_r = h_r_js[spec['rear_surface_boundary_id'], 0]
+
+            rff = ResponseFactorFactoryTransientEnvelope(
+                cs=[float(layer['thermal_capacity']) for layer in layers],
+                rs=[float(layer['thermal_resistance']) for layer in layers],
+                r_o=1.0 / (rear_h_c + rear_h_r)
+            )
+
+            return rff.get_response_factors()
+
+        elif boundary_type == BoundaryType.Ground:
+
+            layers = spec['layers']
+
+            rff = ResponseFactorFactoryTransientGround(
+                cs=[float(layer['thermal_capacity']) for layer in layers],
+                rs=[float(layer['thermal_resistance']) for layer in layers]
+            )
+
+            return rff.get_response_factors()
+
+        elif boundary_type in [BoundaryType.ExternalTransparentPart, BoundaryType.ExternalOpaquePart]:
+
+            rff = ResponseFactorFactorySteady(
+                u_w=spec['u_value'],
+                r_i=spec['inside_heat_transfer_resistance']
+            )
+
+            return rff.get_response_factors()
+
+        else:
+
+            raise KeyError()
 
 
 # ラプラス変数の設定
@@ -729,3 +778,20 @@ class ResponseFactorFactoryNonResidentialTransientEnvelope(ResponseFactorFactory
             calc_response_factor_non_residential(c_layer_i_k_l, r_layer_i_k_l)
 
         return ResponseFactor(rft0=_RFT0, rfa0=_RFA0, rft1=_RFT1, rfa1=_RFA1, row=_Row, n_root=_n_root_i_js)
+
+
+def get_response_factor_non_residential_transient_envelope(cs: List[float], rs: List[float], r_o: float):
+
+    c = cs.copy()
+    c.append(0.0)
+    c_layer_i_k_l = np.array(c) * 1000.0
+
+    r = rs.copy()
+    r.append(r_o)
+    r_layer_i_k_l = np.array(r)
+
+    # 応答係数
+    _rft0, _rfa0, _rft1, _rfa1, _row, _n_root_i_js = calc_response_factor_non_residential(c_layer_i_k_l, r_layer_i_k_l)
+
+    return ResponseFactor(rft0=_rft0, rfa0=_rfa0, rft1=_rft1, rfa1=_rfa1, row=_row, n_root=_n_root_i_js)
+
