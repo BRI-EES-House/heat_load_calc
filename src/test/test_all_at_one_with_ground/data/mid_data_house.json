@@ -56,7 +56,6 @@
             "is_solar_absorbed_inside": true,
             "is_floor": false,
             "spec": {
-                "method": "layers_ground",
                 "layers": [
                     {
                         "name": "RC120mm",
@@ -81,7 +80,6 @@
             "is_solar_absorbed_inside": true,
             "is_floor": true,
             "spec": {
-                "method": "layers_ground",
                 "layers": [
                     {
                         "name": "RC120mm",

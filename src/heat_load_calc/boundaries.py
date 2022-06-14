@@ -234,7 +234,7 @@ class Boundaries:
 
         # 応答係数
         rf = response_factor.get_response_factor(
-            h_c_js=h_c_js, h_r_js=h_r_js, spec=b['spec'], boundary_type=boundary_type, b=b
+            h_c_js=h_c_js, h_r_js=h_r_js, spec=b['spec'], bt=boundary_type, b=b
         )
 
         return Boundary(

@@ -9,6 +9,7 @@ from dataclasses import dataclass
 
 from heat_load_calc.boundary_type import BoundaryType
 
+
 @dataclass()
 class ResponseFactor:
 
@@ -31,75 +32,59 @@ class ResponseFactor:
     n_root: int
 
 
-def get_response_factor(h_c_js, h_r_js, spec: Dict, boundary_type: BoundaryType, b: Dict):
+def get_response_factor(h_c_js, h_r_js, spec: Dict, bt: BoundaryType, b: Dict):
 
-    if spec['method'] == 'test_response_factor':
+    if bt == BoundaryType.ExternalGeneralPart:
 
-        # TODO: ここで根の数は使用しないためゼロとしているが本来であれば適切な値を設定すべき。
-        # この後、根の数は使用していないため、もしこの後の計算で不要なのであれば、
-        # そもそもデータクラスのプロパティーにする必要はないと思われる。
-        return ResponseFactor(
-            rft0=spec['phi_t0'],
-            rfa0=spec['phi_a0'],
-            rft1=spec['phi_t1'],
-            rfa1=spec['phi_a1'],
-            row=spec['r'],
-            n_root=0
+        layers = spec['layers']
+
+        rff = ResponseFactorFactoryTransientEnvelope(
+            cs=[float(layer['thermal_capacity']) for layer in layers],
+            rs=[float(layer['thermal_resistance']) for layer in layers],
+            r_o=float(spec['outside_heat_transfer_resistance'])
         )
+
+        return rff.get_response_factors()
+
+    elif bt == BoundaryType.Internal:
+
+        layers = spec['layers']
+
+        rear_h_c = h_c_js[spec['rear_surface_boundary_id'], 0]
+
+        rear_h_r = h_r_js[spec['rear_surface_boundary_id'], 0]
+
+        rff = ResponseFactorFactoryTransientEnvelope(
+            cs=[float(layer['thermal_capacity']) for layer in layers],
+            rs=[float(layer['thermal_resistance']) for layer in layers],
+            r_o=1.0 / (rear_h_c + rear_h_r)
+        )
+
+        return rff.get_response_factors()
+
+    elif bt == BoundaryType.Ground:
+
+        layers = spec['layers']
+
+        rff = ResponseFactorFactoryTransientGround(
+            cs=[float(layer['thermal_capacity']) for layer in layers],
+            rs=[float(layer['thermal_resistance']) for layer in layers]
+        )
+
+        return rff.get_response_factors()
+
+    elif bt in [BoundaryType.ExternalTransparentPart, BoundaryType.ExternalOpaquePart]:
+
+        rff = ResponseFactorFactorySteady(
+            u_w=spec['u_value'],
+            r_i=spec['inside_heat_transfer_resistance']
+        )
+
+        return rff.get_response_factors()
 
     else:
 
-        if boundary_type == BoundaryType.ExternalGeneralPart:
-
-            layers = spec['layers']
-
-            rff = ResponseFactorFactoryTransientEnvelope(
-                cs=[float(layer['thermal_capacity']) for layer in layers],
-                rs=[float(layer['thermal_resistance']) for layer in layers],
-                r_o=float(spec['outside_heat_transfer_resistance'])
-            )
-
-            return rff.get_response_factors()
-
-        elif boundary_type == BoundaryType.Internal:
-
-            layers = spec['layers']
-
-            rear_h_c = h_c_js[spec['rear_surface_boundary_id'], 0]
-
-            rear_h_r = h_r_js[spec['rear_surface_boundary_id'], 0]
-
-            rff = ResponseFactorFactoryTransientEnvelope(
-                cs=[float(layer['thermal_capacity']) for layer in layers],
-                rs=[float(layer['thermal_resistance']) for layer in layers],
-                r_o=1.0 / (rear_h_c + rear_h_r)
-            )
-
-            return rff.get_response_factors()
-
-        elif boundary_type == BoundaryType.Ground:
-
-            layers = spec['layers']
-
-            rff = ResponseFactorFactoryTransientGround(
-                cs=[float(layer['thermal_capacity']) for layer in layers],
-                rs=[float(layer['thermal_resistance']) for layer in layers]
-            )
-
-            return rff.get_response_factors()
-
-        elif boundary_type in [BoundaryType.ExternalTransparentPart, BoundaryType.ExternalOpaquePart]:
-
-            rff = ResponseFactorFactorySteady(
-                u_w=spec['u_value'],
-                r_i=spec['inside_heat_transfer_resistance']
-            )
-
-            return rff.get_response_factors()
-
-        else:
-
-            raise KeyError()
+        raise KeyError()
 
 
 # ラプラス変数の設定

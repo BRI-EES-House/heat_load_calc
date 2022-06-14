@@ -37,8 +37,6 @@
             "is_solar_absorbed_inside": false,
             "is_floor": false,
             "spec": {
-                "method": "layers",
-                "boundary_type": "external_general_part",
                 "layers": [
                     {
                         "name": "plywood",
@@ -69,8 +67,6 @@
             "is_solar_absorbed_inside": false,
             "is_floor": false,
             "spec": {
-                "method": "layers",
-                "boundary_type": "external_general_part",
                 "layers": [
                     {
                         "name": "plywood",
@@ -101,8 +97,6 @@
             "is_solar_absorbed_inside": false,
             "is_floor": false,
             "spec": {
-                "method": "layers",
-                "boundary_type": "external_general_part",
                 "layers": [
                     {
                         "name": "plywood",
@@ -133,8 +127,6 @@
             "is_solar_absorbed_inside": false,
             "is_floor": false,
             "spec": {
-                "method": "layers",
-                "boundary_type": "external_general_part",
                 "layers": [
                     {
                         "name": "plywood",
@@ -165,8 +157,6 @@
             "is_solar_absorbed_inside": true,
             "is_floor": true,
             "spec": {
-                "method": "layers",
-                "boundary_type": "external_general_part",
                 "layers": [
                     {
                         "name": "plywood",
@@ -197,8 +187,6 @@
             "is_solar_absorbed_inside": false,
             "is_floor": false,
             "spec": {
-                "method": "layers",
-                "boundary_type": "external_general_part",
                 "layers": [
                     {
                         "name": "plywood",
