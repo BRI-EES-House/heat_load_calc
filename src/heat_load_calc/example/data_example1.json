@@ -126,7 +126,6 @@
             "is_solar_absorbed_inside": false,
             "is_floor": false,
             "spec": {
-                "u_value": 4.65,
                 "inside_heat_transfer_resistance": 0.11
             },
             "solar_shading_part": {
@@ -201,7 +200,6 @@
             "is_solar_absorbed_inside": false,
             "is_floor": false,
             "spec": {
-                "u_value": 4.65,
                 "inside_heat_transfer_resistance": 0.11
             },
             "solar_shading_part": {
@@ -278,7 +276,6 @@
             "is_solar_absorbed_inside": false,
             "is_floor": false,
             "spec": {
-                "u_value": 4.65,
                 "inside_heat_transfer_resistance": 0.11
             },
             "solar_shading_part": {
@@ -576,7 +573,6 @@
             "is_solar_absorbed_inside": false,
             "is_floor": false,
             "spec": {
-                "u_value": 4.65,
                 "inside_heat_transfer_resistance": 0.11
             },
             "solar_shading_part": {
@@ -657,7 +653,6 @@
             "is_solar_absorbed_inside": false,
             "is_floor": false,
             "spec": {
-                "u_value": 4.65,
                 "inside_heat_transfer_resistance": 0.11
             },
             "solar_shading_part": {
@@ -806,7 +801,6 @@
             "is_solar_absorbed_inside": false,
             "is_floor": false,
             "spec": {
-                "u_value": 4.65,
                 "inside_heat_transfer_resistance": 0.11
             },
             "solar_shading_part": {
@@ -996,7 +990,6 @@
             "is_solar_absorbed_inside": false,
             "is_floor": false,
             "spec": {
-                "u_value": 4.65,
                 "inside_heat_transfer_resistance": 0.11
             },
             "solar_shading_part": {
@@ -1073,7 +1066,6 @@
             "is_solar_absorbed_inside": false,
             "is_floor": false,
             "spec": {
-                "u_value": 4.65,
                 "inside_heat_transfer_resistance": 0.11
             },
             "solar_shading_part": {
@@ -1313,7 +1305,6 @@
             "is_solar_absorbed_inside": false,
             "is_floor": false,
             "spec": {
-                "u_value": 4.65,
                 "inside_heat_transfer_resistance": 0.11
             },
             "solar_shading_part": {
@@ -1583,7 +1574,6 @@
             "is_solar_absorbed_inside": false,
             "is_floor": false,
             "spec": {
-                "u_value": 4.65,
                 "inside_heat_transfer_resistance": 0.11
             },
             "solar_shading_part": {
@@ -1710,7 +1700,6 @@
             "is_solar_absorbed_inside": false,
             "is_floor": false,
             "spec": {
-                "u_value": 4.65,
                 "inside_heat_transfer_resistance": 0.11
             },
             "solar_shading_part": {

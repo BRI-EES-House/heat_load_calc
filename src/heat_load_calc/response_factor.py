@@ -76,7 +76,7 @@ def get_response_factor(h_c_js, h_r_js, spec: Dict, bt: BoundaryType, b: Dict):
     elif bt in [BoundaryType.ExternalTransparentPart, BoundaryType.ExternalOpaquePart]:
 
         rff = ResponseFactorFactorySteady(
-            u_w=spec['u_value'],
+            u_w=b['u_value'],
             r_i=spec['inside_heat_transfer_resistance']
         )
 
