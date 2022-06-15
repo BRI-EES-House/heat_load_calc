@@ -51,6 +51,7 @@ class ResponseFactor:
 
     @classmethod
     def create_for_steady(cls, u_w: float, r_i: float):
+        """"""
 
         # 開口部の室内表面から屋外までの熱コンダクタンス, W/m2K
         u_so = 1.0 / (1.0 / u_w - r_i)
@@ -104,10 +105,6 @@ def get_response_factor(h_c_js, h_r_js, spec: Dict, bt: BoundaryType, b: Dict):
         )
 
         return rff.get_response_factors()
-
-    elif bt in [BoundaryType.ExternalTransparentPart, BoundaryType.ExternalOpaquePart]:
-
-        return ResponseFactor.create_for_steady(u_w=b['u_value'], r_i=spec['inside_heat_transfer_resistance'])
 
     else:
 

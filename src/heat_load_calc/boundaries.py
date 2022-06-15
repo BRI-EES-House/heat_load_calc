@@ -6,6 +6,7 @@ from heat_load_calc import outside_eqv_temp, response_factor, transmission_solar
     shape_factor, outdoor_condition
 from heat_load_calc.boundary_type import BoundaryType
 from heat_load_calc.outdoor_condition import OutdoorCondition
+from heat_load_calc.response_factor import ResponseFactor
 
 
 @dataclass
@@ -233,9 +234,12 @@ class Boundaries:
         q_trs_sol = tsr.get_qgt(oc=oc)
 
         # 応答係数
-        rf = response_factor.get_response_factor(
-            h_c_js=h_c_js, h_r_js=h_r_js, spec=b['spec'], bt=boundary_type, b=b
-        )
+        if boundary_type in [BoundaryType.ExternalTransparentPart, BoundaryType.ExternalOpaquePart]:
+            rf = ResponseFactor.create_for_steady(u_w=b['u_value'], r_i=b['inside_heat_transfer_resistance'])
+        else:
+            rf = response_factor.get_response_factor(
+                h_c_js=h_c_js, h_r_js=h_r_js, spec=b['spec'], bt=boundary_type, b=b
+            )
 
         return Boundary(
             id=boundary_id,

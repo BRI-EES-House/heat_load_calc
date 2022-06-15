@@ -122,9 +122,6 @@
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
-            "spec": {
-                "inside_heat_transfer_resistance": 0.11
-            },
             "solar_shading_part": {
                 "existence": false
             },
@@ -133,6 +130,7 @@
             "outside_emissivity": 0.9,
             "outside_heat_transfer_resistance": 0.04,
             "u_value": 4.65,
+            "inside_heat_transfer_resistance": 0.11,
             "outside_solar_absorption": 0.8,
             "temp_dif_coef": 1.0
         },
@@ -196,9 +194,6 @@
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
-            "spec": {
-                "inside_heat_transfer_resistance": 0.11
-            },
             "solar_shading_part": {
                 "existence": false
             },
@@ -207,6 +202,7 @@
             "outside_emissivity": 0.9,
             "outside_heat_transfer_resistance": 0.04,
             "u_value": 4.65,
+            "inside_heat_transfer_resistance": 0.11,
             "eta_value": 0.792,
             "incident_angle_characteristics": "multiple",
             "glass_area_ratio": 0.8,
@@ -272,9 +268,6 @@
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
-            "spec": {
-                "inside_heat_transfer_resistance": 0.11
-            },
             "solar_shading_part": {
                 "existence": true,
                 "input_method": "simple",
@@ -287,6 +280,7 @@
             "outside_emissivity": 0.9,
             "outside_heat_transfer_resistance": 0.04,
             "u_value": 4.65,
+            "inside_heat_transfer_resistance": 0.11,
             "eta_value": 0.792,
             "incident_angle_characteristics": "multiple",
             "glass_area_ratio": 0.8,
@@ -569,9 +563,6 @@
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
-            "spec": {
-                "inside_heat_transfer_resistance": 0.11
-            },
             "solar_shading_part": {
                 "existence": true,
                 "input_method": "simple",
@@ -584,6 +575,7 @@
             "outside_emissivity": 0.9,
             "outside_heat_transfer_resistance": 0.04,
             "u_value": 4.65,
+            "inside_heat_transfer_resistance": 0.11,
             "eta_value": 0.792,
             "incident_angle_characteristics": "multiple",
             "glass_area_ratio": 0.8,
@@ -649,9 +641,6 @@
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
-            "spec": {
-                "inside_heat_transfer_resistance": 0.11
-            },
             "solar_shading_part": {
                 "existence": false
             },
@@ -660,6 +649,7 @@
             "outside_emissivity": 0.9,
             "outside_heat_transfer_resistance": 0.04,
             "u_value": 4.65,
+            "inside_heat_transfer_resistance": 0.11,
             "eta_value": 0.792,
             "incident_angle_characteristics": "multiple",
             "glass_area_ratio": 0.8,
@@ -797,9 +787,6 @@
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
-            "spec": {
-                "inside_heat_transfer_resistance": 0.11
-            },
             "solar_shading_part": {
                 "existence": true,
                 "input_method": "simple",
@@ -812,6 +799,7 @@
             "outside_emissivity": 0.9,
             "outside_heat_transfer_resistance": 0.04,
             "u_value": 4.65,
+            "inside_heat_transfer_resistance": 0.11,
             "eta_value": 0.792,
             "incident_angle_characteristics": "multiple",
             "glass_area_ratio": 0.8,
@@ -986,9 +974,6 @@
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
-            "spec": {
-                "inside_heat_transfer_resistance": 0.11
-            },
             "solar_shading_part": {
                 "existence": false
             },
@@ -997,6 +982,7 @@
             "outside_emissivity": 0.9,
             "outside_heat_transfer_resistance": 0.04,
             "u_value": 4.65,
+            "inside_heat_transfer_resistance": 0.11,
             "eta_value": 0.792,
             "incident_angle_characteristics": "multiple",
             "glass_area_ratio": 0.8,
@@ -1062,9 +1048,6 @@
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
-            "spec": {
-                "inside_heat_transfer_resistance": 0.11
-            },
             "solar_shading_part": {
                 "existence": true,
                 "input_method": "simple",
@@ -1077,6 +1060,7 @@
             "outside_emissivity": 0.9,
             "outside_heat_transfer_resistance": 0.04,
             "u_value": 4.65,
+            "inside_heat_transfer_resistance": 0.11,
             "eta_value": 0.792,
             "incident_angle_characteristics": "multiple",
             "glass_area_ratio": 0.8,
@@ -1301,9 +1285,6 @@
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
-            "spec": {
-                "inside_heat_transfer_resistance": 0.11
-            },
             "solar_shading_part": {
                 "existence": false
             },
@@ -1312,6 +1293,7 @@
             "outside_emissivity": 0.9,
             "outside_heat_transfer_resistance": 0.04,
             "u_value": 4.65,
+            "inside_heat_transfer_resistance": 0.11,
             "eta_value": 0.792,
             "incident_angle_characteristics": "multiple",
             "glass_area_ratio": 0.8,
@@ -1570,9 +1552,6 @@
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
-            "spec": {
-                "inside_heat_transfer_resistance": 0.11
-            },
             "solar_shading_part": {
                 "existence": false
             },
@@ -1581,6 +1560,7 @@
             "outside_emissivity": 0.9,
             "outside_heat_transfer_resistance": 0.04,
             "u_value": 4.65,
+            "inside_heat_transfer_resistance": 0.11,
             "eta_value": 0.792,
             "incident_angle_characteristics": "multiple",
             "glass_area_ratio": 0.8,
@@ -1696,9 +1676,6 @@
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
-            "spec": {
-                "inside_heat_transfer_resistance": 0.11
-            },
             "solar_shading_part": {
                 "existence": false
             },
@@ -1707,6 +1684,7 @@
             "outside_emissivity": 0.9,
             "outside_heat_transfer_resistance": 0.04,
             "u_value": 4.65,
+            "inside_heat_transfer_resistance": 0.11,
             "eta_value": 0.792,
             "incident_angle_characteristics": "multiple",
             "glass_area_ratio": 0.8,
