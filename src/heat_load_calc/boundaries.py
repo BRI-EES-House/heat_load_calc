@@ -245,14 +245,17 @@ class Boundaries:
 
             if boundary_type == BoundaryType.ExternalGeneralPart:
 
-                rf = ResponseFactor.create_for_unsteady_not_ground(cs=cs, rs=rs, r_o=float(b['spec']['outside_heat_transfer_resistance']))
+                r_o = float(b['outside_heat_transfer_resistance'])
+                rf = ResponseFactor.create_for_unsteady_not_ground(cs=cs, rs=rs, r_o=r_o)
 
             elif boundary_type == BoundaryType.Internal:
 
                 rear_h_c = h_c_js[b['spec']['rear_surface_boundary_id'], 0]
                 rear_h_r = h_r_js[b['spec']['rear_surface_boundary_id'], 0]
 
-                rf = ResponseFactor.create_for_unsteady_not_ground(cs=cs, rs=rs, r_o=1.0 / (rear_h_c + rear_h_r))
+                r_o = 1.0 / (rear_h_c + rear_h_r)
+
+                rf = ResponseFactor.create_for_unsteady_not_ground(cs=cs, rs=rs, r_o=r_o)
 
             elif boundary_type == BoundaryType.Ground:
 

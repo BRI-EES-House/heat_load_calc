@@ -139,8 +139,7 @@
                         "thermal_resistance": 0.075,
                         "thermal_capacity": 8.64
                     }
-                ],
-                "outside_heat_transfer_resistance": 0.04
+                ]
             },
             "solar_shading_part": {
                 "existence": false
@@ -168,8 +167,7 @@
                         "thermal_resistance": 0.075,
                         "thermal_capacity": 8.64
                     }
-                ],
-                "outside_heat_transfer_resistance": 0.04
+                ]
             },
             "solar_shading_part": {
                 "existence": false
