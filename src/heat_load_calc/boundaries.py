@@ -240,8 +240,8 @@ class Boundaries:
 
         else:
 
-            cs = np.array([float(layer['thermal_capacity']) for layer in b['spec']['layers']])
-            rs = np.array([float(layer['thermal_resistance']) for layer in b['spec']['layers']])
+            cs = np.array([float(layer['thermal_capacity']) for layer in b['layers']])
+            rs = np.array([float(layer['thermal_resistance']) for layer in b['layers']])
 
             if boundary_type == BoundaryType.ExternalGeneralPart:
 

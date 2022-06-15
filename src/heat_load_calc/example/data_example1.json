@@ -75,8 +75,7 @@
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
-            "spec": {
-                "layers": [
+            "layers": [
                     {
                         "name": "plaster_board",
                         "thermal_resistance": 0.0432,
@@ -102,8 +101,7 @@
                         "thermal_resistance": 0.0882,
                         "thermal_capacity": 25.1789
                     }
-                ]
-            },
+                ],
             "solar_shading_part": {
                 "existence": false
             },
@@ -146,8 +144,7 @@
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
-            "spec": {
-                "layers": [
+            "layers": [
                     {
                         "name": "plaster_board",
                         "thermal_resistance": 0.0432,
@@ -173,8 +170,7 @@
                         "thermal_resistance": 0.0882,
                         "thermal_capacity": 25.1789
                     }
-                ]
-            },
+                ],
             "solar_shading_part": {
                 "existence": false
             },
@@ -219,8 +215,7 @@
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
-            "spec": {
-                "layers": [
+            "layers": [
                     {
                         "name": "plaster_board",
                         "thermal_resistance": 0.0432,
@@ -246,8 +241,7 @@
                         "thermal_resistance": 0.0882,
                         "thermal_capacity": 25.1789
                     }
-                ]
-            },
+                ],
             "solar_shading_part": {
                 "existence": false
             },
@@ -296,8 +290,7 @@
             "h_c": 0.7,
             "is_solar_absorbed_inside": true,
             "is_floor": true,
-            "spec": {
-                "layers": [
+            "layers": [
                     {
                         "name": "plywood",
                         "thermal_resistance": 0.075,
@@ -308,8 +301,7 @@
                         "thermal_resistance": 1.28,
                         "thermal_capacity": 0.512
                     }
-                ]
-            },
+                ],
             "solar_shading_part": {
                 "existence": false
             },
@@ -329,8 +321,7 @@
             "h_c": 5.0,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
-            "spec": {
-                "layers": [
+            "layers": [
                     {
                         "name": "plaster_board",
                         "thermal_resistance": 0.0432,
@@ -341,8 +332,7 @@
                         "thermal_resistance": 3.42,
                         "thermal_capacity": 1.368
                     }
-                ]
-            },
+                ],
             "solar_shading_part": {
                 "existence": false
             },
@@ -363,8 +353,7 @@
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
-            "spec": {
-                "layers": [
+            "layers": [
                     {
                         "name": "plaster_board",
                         "thermal_resistance": 0.0568,
@@ -380,8 +369,7 @@
                         "thermal_resistance": 0.0568,
                         "thermal_capacity": 10.375
                     }
-                ]
-            },
+                ],
             "solar_shading_part": {
                 "existence": false
             },
@@ -398,8 +386,7 @@
             "h_c": 5.0,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
-            "spec": {
-                "layers": [
+            "layers": [
                     {
                         "name": "plaster_board",
                         "thermal_resistance": 0.0568,
@@ -415,8 +402,7 @@
                         "thermal_resistance": 0.075,
                         "thermal_capacity": 8.64
                     }
-                ]
-            },
+                ],
             "solar_shading_part": {
                 "existence": false
             },
@@ -433,8 +419,7 @@
             "h_c": 5.0,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
-            "spec": {
-                "layers": [
+            "layers": [
                     {
                         "name": "plaster_board",
                         "thermal_resistance": 0.0568,
@@ -450,8 +435,7 @@
                         "thermal_resistance": 0.075,
                         "thermal_capacity": 8.64
                     }
-                ]
-            },
+                ],
             "solar_shading_part": {
                 "existence": false
             },
@@ -468,8 +452,7 @@
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
-            "spec": {
-                "layers": [
+            "layers": [
                     {
                         "name": "plaster_board",
                         "thermal_resistance": 0.0568,
@@ -485,8 +468,7 @@
                         "thermal_resistance": 0.0568,
                         "thermal_capacity": 10.375
                     }
-                ]
-            },
+                ],
             "solar_shading_part": {
                 "existence": false
             },
@@ -503,8 +485,7 @@
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
-            "spec": {
-                "layers": [
+            "layers": [
                     {
                         "name": "plaster_board",
                         "thermal_resistance": 0.0432,
@@ -530,8 +511,7 @@
                         "thermal_resistance": 0.0882,
                         "thermal_capacity": 25.1789
                     }
-                ]
-            },
+                ],
             "solar_shading_part": {
                 "existence": false
             },
@@ -580,8 +560,7 @@
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
-            "spec": {
-                "layers": [
+            "layers": [
                     {
                         "name": "plaster_board",
                         "thermal_resistance": 0.0432,
@@ -607,8 +586,7 @@
                         "thermal_resistance": 0.0882,
                         "thermal_capacity": 25.1789
                     }
-                ]
-            },
+                ],
             "solar_shading_part": {
                 "existence": false
             },
@@ -653,8 +631,7 @@
             "h_c": 5.0,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
-            "spec": {
-                "layers": [
+            "layers": [
                     {
                         "name": "plaster_board",
                         "thermal_resistance": 0.0432,
@@ -665,8 +642,7 @@
                         "thermal_resistance": 3.42,
                         "thermal_capacity": 1.368
                     }
-                ]
-            },
+                ],
             "solar_shading_part": {
                 "existence": false
             },
@@ -687,8 +663,7 @@
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
-            "spec": {
-                "layers": [
+            "layers": [
                     {
                         "name": "plaster_board",
                         "thermal_resistance": 0.0568,
@@ -704,8 +679,7 @@
                         "thermal_resistance": 0.0568,
                         "thermal_capacity": 10.375
                     }
-                ]
-            },
+                ],
             "solar_shading_part": {
                 "existence": false
             },
@@ -722,8 +696,7 @@
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
-            "spec": {
-                "layers": [
+            "layers": [
                     {
                         "name": "plaster_board",
                         "thermal_resistance": 0.0432,
@@ -749,8 +722,7 @@
                         "thermal_resistance": 0.0882,
                         "thermal_capacity": 25.1789
                     }
-                ]
-            },
+                ],
             "solar_shading_part": {
                 "existence": false
             },
@@ -799,8 +771,7 @@
             "h_c": 5.0,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
-            "spec": {
-                "layers": [
+            "layers": [
                     {
                         "name": "plaster_board",
                         "thermal_resistance": 0.0432,
@@ -811,8 +782,7 @@
                         "thermal_resistance": 3.42,
                         "thermal_capacity": 1.368
                     }
-                ]
-            },
+                ],
             "solar_shading_part": {
                 "existence": false
             },
@@ -833,8 +803,7 @@
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
-            "spec": {
-                "layers": [
+            "layers": [
                     {
                         "name": "plaster_board",
                         "thermal_resistance": 0.0568,
@@ -850,8 +819,7 @@
                         "thermal_resistance": 0.0568,
                         "thermal_capacity": 10.375
                     }
-                ]
-            },
+                ],
             "solar_shading_part": {
                 "existence": false
             },
@@ -868,8 +836,7 @@
             "h_c": 0.7,
             "is_solar_absorbed_inside": true,
             "is_floor": true,
-            "spec": {
-                "layers": [
+            "layers": [
                     {
                         "name": "plywood",
                         "thermal_resistance": 0.075,
@@ -885,8 +852,7 @@
                         "thermal_resistance": 0.0568,
                         "thermal_capacity": 10.375
                     }
-                ]
-            },
+                ],
             "solar_shading_part": {
                 "existence": false
             },
@@ -903,8 +869,7 @@
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
-            "spec": {
-                "layers": [
+            "layers": [
                     {
                         "name": "plaster_board",
                         "thermal_resistance": 0.0432,
@@ -930,8 +895,7 @@
                         "thermal_resistance": 0.0882,
                         "thermal_capacity": 25.1789
                     }
-                ]
-            },
+                ],
             "solar_shading_part": {
                 "existence": false
             },
@@ -976,8 +940,7 @@
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
-            "spec": {
-                "layers": [
+            "layers": [
                     {
                         "name": "plaster_board",
                         "thermal_resistance": 0.0432,
@@ -1003,8 +966,7 @@
                         "thermal_resistance": 0.0882,
                         "thermal_capacity": 25.1789
                     }
-                ]
-            },
+                ],
             "solar_shading_part": {
                 "existence": false
             },
@@ -1053,8 +1015,7 @@
             "h_c": 5.0,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
-            "spec": {
-                "layers": [
+            "layers": [
                     {
                         "name": "plaster_board",
                         "thermal_resistance": 0.0432,
@@ -1065,8 +1026,7 @@
                         "thermal_resistance": 3.42,
                         "thermal_capacity": 1.368
                     }
-                ]
-            },
+                ],
             "solar_shading_part": {
                 "existence": false
             },
@@ -1087,8 +1047,7 @@
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
-            "spec": {
-                "layers": [
+            "layers": [
                     {
                         "name": "plaster_board",
                         "thermal_resistance": 0.0568,
@@ -1104,8 +1063,7 @@
                         "thermal_resistance": 0.0568,
                         "thermal_capacity": 10.375
                     }
-                ]
-            },
+                ],
             "solar_shading_part": {
                 "existence": false
             },
@@ -1122,8 +1080,7 @@
             "h_c": 0.7,
             "is_solar_absorbed_inside": true,
             "is_floor": true,
-            "spec": {
-                "layers": [
+            "layers": [
                     {
                         "name": "plywood",
                         "thermal_resistance": 0.075,
@@ -1139,8 +1096,7 @@
                         "thermal_resistance": 0.0568,
                         "thermal_capacity": 10.375
                     }
-                ]
-            },
+                ],
             "solar_shading_part": {
                 "existence": false
             },
@@ -1157,8 +1113,7 @@
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
-            "spec": {
-                "layers": [
+            "layers": [
                     {
                         "name": "plaster_board",
                         "thermal_resistance": 0.0432,
@@ -1184,8 +1139,7 @@
                         "thermal_resistance": 0.0882,
                         "thermal_capacity": 25.1789
                     }
-                ]
-            },
+                ],
             "solar_shading_part": {
                 "existence": false
             },
@@ -1206,8 +1160,7 @@
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
-            "spec": {
-                "layers": [
+            "layers": [
                     {
                         "name": "plaster_board",
                         "thermal_resistance": 0.0432,
@@ -1233,8 +1186,7 @@
                         "thermal_resistance": 0.0882,
                         "thermal_capacity": 25.1789
                     }
-                ]
-            },
+                ],
             "solar_shading_part": {
                 "existence": false
             },
@@ -1279,8 +1231,7 @@
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
-            "spec": {
-                "layers": [
+            "layers": [
                     {
                         "name": "plaster_board",
                         "thermal_resistance": 0.0432,
@@ -1306,8 +1257,7 @@
                         "thermal_resistance": 0.0882,
                         "thermal_capacity": 25.1789
                     }
-                ]
-            },
+                ],
             "solar_shading_part": {
                 "existence": false
             },
@@ -1328,8 +1278,7 @@
             "h_c": 0.7,
             "is_solar_absorbed_inside": true,
             "is_floor": true,
-            "spec": {
-                "layers": [
+            "layers": [
                     {
                         "name": "plywood",
                         "thermal_resistance": 0.075,
@@ -1340,8 +1289,7 @@
                         "thermal_resistance": 1.28,
                         "thermal_capacity": 0.512
                     }
-                ]
-            },
+                ],
             "solar_shading_part": {
                 "existence": false
             },
@@ -1361,8 +1309,7 @@
             "h_c": 5.0,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
-            "spec": {
-                "layers": [
+            "layers": [
                     {
                         "name": "plaster_board",
                         "thermal_resistance": 0.0432,
@@ -1373,8 +1320,7 @@
                         "thermal_resistance": 3.42,
                         "thermal_capacity": 1.368
                     }
-                ]
-            },
+                ],
             "solar_shading_part": {
                 "existence": false
             },
@@ -1395,8 +1341,7 @@
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
-            "spec": {
-                "layers": [
+            "layers": [
                     {
                         "name": "plaster_board",
                         "thermal_resistance": 0.0568,
@@ -1412,8 +1357,7 @@
                         "thermal_resistance": 0.0568,
                         "thermal_capacity": 10.375
                     }
-                ]
-            },
+                ],
             "solar_shading_part": {
                 "existence": false
             },
@@ -1430,8 +1374,7 @@
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
-            "spec": {
-                "layers": [
+            "layers": [
                     {
                         "name": "plaster_board",
                         "thermal_resistance": 0.0568,
@@ -1447,8 +1390,7 @@
                         "thermal_resistance": 0.0568,
                         "thermal_capacity": 10.375
                     }
-                ]
-            },
+                ],
             "solar_shading_part": {
                 "existence": false
             },
@@ -1465,8 +1407,7 @@
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
-            "spec": {
-                "layers": [
+            "layers": [
                     {
                         "name": "plaster_board",
                         "thermal_resistance": 0.0432,
@@ -1492,8 +1433,7 @@
                         "thermal_resistance": 0.0882,
                         "thermal_capacity": 25.1789
                     }
-                ]
-            },
+                ],
             "solar_shading_part": {
                 "existence": false
             },
@@ -1538,8 +1478,7 @@
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
-            "spec": {
-                "layers": [
+            "layers": [
                     {
                         "name": "plaster_board",
                         "thermal_resistance": 0.0432,
@@ -1565,8 +1504,7 @@
                         "thermal_resistance": 0.0882,
                         "thermal_capacity": 25.1789
                     }
-                ]
-            },
+                ],
             "solar_shading_part": {
                 "existence": false
             },
@@ -1587,8 +1525,7 @@
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
-            "spec": {
-                "layers": [
+            "layers": [
                     {
                         "name": "plaster_board",
                         "thermal_resistance": 0.0432,
@@ -1614,8 +1551,7 @@
                         "thermal_resistance": 0.0882,
                         "thermal_capacity": 25.1789
                     }
-                ]
-            },
+                ],
             "solar_shading_part": {
                 "existence": false
             },
@@ -1660,8 +1596,7 @@
             "h_c": 0.7,
             "is_solar_absorbed_inside": true,
             "is_floor": true,
-            "spec": {
-                "layers": [
+            "layers": [
                     {
                         "name": "plywood",
                         "thermal_resistance": 0.075,
@@ -1672,8 +1607,7 @@
                         "thermal_resistance": 1.28,
                         "thermal_capacity": 0.512
                     }
-                ]
-            },
+                ],
             "solar_shading_part": {
                 "existence": false
             },
@@ -1693,8 +1627,7 @@
             "h_c": 5.0,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
-            "spec": {
-                "layers": [
+            "layers": [
                     {
                         "name": "plaster_board",
                         "thermal_resistance": 0.0432,
@@ -1705,8 +1638,7 @@
                         "thermal_resistance": 3.42,
                         "thermal_capacity": 1.368
                     }
-                ]
-            },
+                ],
             "solar_shading_part": {
                 "existence": false
             },
@@ -1727,8 +1659,7 @@
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
-            "spec": {
-                "layers": [
+            "layers": [
                     {
                         "name": "plaster_board",
                         "thermal_resistance": 0.0568,
@@ -1744,8 +1675,7 @@
                         "thermal_resistance": 0.0568,
                         "thermal_capacity": 10.375
                     }
-                ]
-            },
+                ],
             "solar_shading_part": {
                 "existence": false
             },
@@ -1762,8 +1692,7 @@
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
-            "spec": {
-                "layers": [
+            "layers": [
                     {
                         "name": "plaster_board",
                         "thermal_resistance": 0.0568,
@@ -1779,8 +1708,7 @@
                         "thermal_resistance": 0.0568,
                         "thermal_capacity": 10.375
                     }
-                ]
-            },
+                ],
             "solar_shading_part": {
                 "existence": false
             },
@@ -1797,8 +1725,7 @@
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
-            "spec": {
-                "layers": [
+            "layers": [
                     {
                         "name": "plaster_board",
                         "thermal_resistance": 0.0568,
@@ -1814,8 +1741,7 @@
                         "thermal_resistance": 0.0568,
                         "thermal_capacity": 10.375
                     }
-                ]
-            },
+                ],
             "solar_shading_part": {
                 "existence": false
             },
@@ -1832,8 +1758,7 @@
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
-            "spec": {
-                "layers": [
+            "layers": [
                     {
                         "name": "plaster_board",
                         "thermal_resistance": 0.0568,
@@ -1849,8 +1774,7 @@
                         "thermal_resistance": 0.0568,
                         "thermal_capacity": 10.375
                     }
-                ]
-            },
+                ],
             "solar_shading_part": {
                 "existence": false
             },
@@ -1867,8 +1791,7 @@
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
-            "spec": {
-                "layers": [
+            "layers": [
                     {
                         "name": "plaster_board",
                         "thermal_resistance": 0.0568,
@@ -1884,8 +1807,7 @@
                         "thermal_resistance": 0.0568,
                         "thermal_capacity": 10.375
                     }
-                ]
-            },
+                ],
             "solar_shading_part": {
                 "existence": false
             },

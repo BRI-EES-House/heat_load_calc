@@ -132,15 +132,13 @@
             "h_c": 3.041174391,
             "is_solar_absorbed_inside": true,
             "is_floor": true,
-            "spec": {
-                "layers": [
-                    {
-                        "name": "plywood",
-                        "thermal_resistance": 0.075,
-                        "thermal_capacity": 8.64
-                    }
-                ]
-            },
+            "layers": [
+                {
+                    "name": "plywood",
+                    "thermal_resistance": 0.075,
+                    "thermal_capacity": 8.64
+                }
+            ],
             "solar_shading_part": {
                 "existence": false
             },
@@ -160,15 +158,13 @@
             "h_c": 3.041174391,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
-            "spec": {
-                "layers": [
-                    {
-                        "name": "plywood",
-                        "thermal_resistance": 0.075,
-                        "thermal_capacity": 8.64
-                    }
-                ]
-            },
+            "layers": [
+                {
+                    "name": "plywood",
+                    "thermal_resistance": 0.075,
+                    "thermal_capacity": 8.64
+                }
+            ],
             "solar_shading_part": {
                 "existence": false
             },
