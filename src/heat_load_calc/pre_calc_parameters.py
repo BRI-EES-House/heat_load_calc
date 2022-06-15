@@ -222,13 +222,13 @@ def make_pre_calc_parameters(
 
     logger = logging.getLogger('HeatLoadCalc').getChild('core').getChild('pre_calc_parameters')
 
-    a_sun_ns = oc.get_a_sun_ns_plus()
-    h_sun_ns = oc.get_h_sun_ns_plus()
-    i_dn_ns = oc.get_i_dn_ns_plus()
-    i_sky_ns = oc.get_i_sky_ns_plus()
-    r_n_ns = oc.get_r_n_ns_plus()
-    theta_o_ns = oc.get_theta_o_ns_plus()
-    x_o_ns = oc.get_x_o_ns_plus()
+    a_sun_ns = oc.a_sun_ns_plus
+    h_sun_ns = oc.h_sun_ns_plus
+    i_dn_ns = oc.i_dn_ns_plus
+    i_sky_ns = oc.i_sky_ns_plus
+    r_n_ns = oc.r_n_ns_plus
+    theta_o_ns = oc.theta_o_ns_plus
+    x_o_ns = oc.x_o_ns_plus
 
     # ステップ n の室 i における内部発熱, W, [i, n]
     q_gen_is_ns = scd.q_gen_is_ns
@@ -284,14 +284,9 @@ def make_pre_calc_parameters(
     # region boundaries
 
     bs = boundaries.Boundaries(
-        a_sun_ns=a_sun_ns,
-        h_sun_ns=h_sun_ns,
-        i_dn_ns=i_dn_ns,
-        i_sky_ns=i_sky_ns,
         n_rm=n_rm,
-        r_n_ns=r_n_ns,
-        theta_o_ns=theta_o_ns,
-        bs=rd['boundaries']
+        bs_list=rd['boundaries'],
+        oc=oc
     )
 
     # 境界の数
@@ -537,6 +532,9 @@ def make_pre_calc_parameters(
     )
 
     # endregion
+
+
+
 
     pre_calc_parameters = PreCalcParameters(
         n_rm=n_rm,

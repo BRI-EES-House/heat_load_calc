@@ -7,6 +7,7 @@ from typing import Dict
 import math
 
 from heat_load_calc import external_boundaries_direction
+from heat_load_calc.boundary_type import BoundaryType
 
 
 class SolarShading:
@@ -15,59 +16,50 @@ class SolarShading:
         pass
 
     @classmethod
-    def create(cls, b: Dict):
+    def create(cls, ssp_dict: Dict, is_sun_striked_outside: bool, direction: str):
         """
         入力ファイルの辞書の'solar_shading_part'を読み込む。
 
         Args:
-            b: 'boundary' の辞書
+            ssp_dict: 日除けの仕様に関する辞書
+            is_sun_striked_outside: 日射が当たるか否か
+            direction: 方位
 
         Returns:
             SolarShadingPart クラス
         """
 
-        ssp = b['solar_shading_part']
+        if ssp_dict['existence'] & is_sun_striked_outside:
 
-        existence = ssp['existence']
-
-        if b['boundary_type'] in ['external_general_part', 'external_transparent_part', 'external_opaque_part']:
-            is_sun_striked_outside = bool(b['is_sun_striked_outside'])
-        elif b['boundary_type'] in ['internal', 'ground']:
-            is_sun_striked_outside = False
-        else:
-            raise KeyError()
-
-        if existence & is_sun_striked_outside:
-
-            input_method = ssp['input_method']
+            input_method = ssp_dict['input_method']
 
             # 境界ｊの傾斜面の方位角, rad
             # 境界jの傾斜面の傾斜角, rad
-            w_alpha_j, _ = external_boundaries_direction.get_w_alpha_j_w_beta_j(direction_j=b['direction'])
+            w_alpha_j, _ = external_boundaries_direction.get_w_alpha_j_w_beta_j(direction_j=direction)
 
             if input_method == 'simple':
 
                 return SolarShadingSimple(
                     w_alpha=w_alpha_j,
-                    depth=ssp['depth'],
-                    d_h=ssp['d_h'],
-                    d_e=ssp['d_e']
+                    depth=ssp_dict['depth'],
+                    d_h=ssp_dict['d_h'],
+                    d_e=ssp_dict['d_e']
                 )
 
             elif input_method == 'detail':
 
                 return SolarShadingDetail(
                     w_alpha=w_alpha_j,
-                    x1=ssp['x1'],
-                    x2=ssp['x2'],
-                    x3=ssp['x3'],
-                    y1=ssp['y1'],
-                    y2=ssp['y2'],
-                    y3=ssp['y3'],
-                    z_x_pls=ssp['z_x_pls'],
-                    z_x_mns=ssp['z_x_mns'],
-                    z_y_pls=ssp['z_y_pls'],
-                    z_y_mns=ssp['z_y_mns']
+                    x1=ssp_dict['x1'],
+                    x2=ssp_dict['x2'],
+                    x3=ssp_dict['x3'],
+                    y1=ssp_dict['y1'],
+                    y2=ssp_dict['y2'],
+                    y3=ssp_dict['y3'],
+                    z_x_pls=ssp_dict['z_x_pls'],
+                    z_x_mns=ssp_dict['z_x_mns'],
+                    z_y_pls=ssp_dict['z_y_pls'],
+                    z_y_mns=ssp_dict['z_y_mns']
                 )
 
             else:

@@ -1,5 +1,6 @@
 {
 	"common": {
+        "ac_method": "pmv"
 	},
     "building": {
         "infiltration": {
@@ -67,15 +68,11 @@
             "sub_name": "",
             "connected_room_id": 0,
             "boundary_type": "external_general_part",
-            "is_ground": false,
             "area": 4.9775,
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
-            "spec": {
-                "method": "layers",
-                "boundary_type": "external_general_part",
-                "layers": [
+            "layers": [
                     {
                         "name": "plaster_board",
                         "thermal_resistance": 0.0432,
@@ -102,8 +99,6 @@
                         "thermal_capacity": 25.1789
                     }
                 ],
-                "outside_heat_transfer_resistance": 0.04
-            },
             "solar_shading_part": {
                 "existence": false
             },
@@ -120,17 +115,10 @@
             "sub_name": "",
             "connected_room_id": 0,
             "boundary_type": "external_opaque_part",
-            "is_ground": false,
             "area": 1.62,
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
-            "spec": {
-                "method": "u_value",
-                "boundary_type": "external_opaque_part",
-                "u_value": 4.65,
-                "inside_heat_transfer_resistance": 0.11
-            },
             "solar_shading_part": {
                 "existence": false
             },
@@ -139,6 +127,7 @@
             "outside_emissivity": 0.9,
             "outside_heat_transfer_resistance": 0.04,
             "u_value": 4.65,
+            "inside_heat_transfer_resistance": 0.11,
             "outside_solar_absorption": 0.8,
             "temp_dif_coef": 1.0
         },
@@ -148,15 +137,11 @@
             "sub_name": "",
             "connected_room_id": 0,
             "boundary_type": "external_general_part",
-            "is_ground": false,
             "area": 17.982,
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
-            "spec": {
-                "method": "layers",
-                "boundary_type": "external_general_part",
-                "layers": [
+            "layers": [
                     {
                         "name": "plaster_board",
                         "thermal_resistance": 0.0432,
@@ -183,8 +168,6 @@
                         "thermal_capacity": 25.1789
                     }
                 ],
-                "outside_heat_transfer_resistance": 0.04
-            },
             "solar_shading_part": {
                 "existence": false
             },
@@ -201,17 +184,10 @@
             "sub_name": "",
             "connected_room_id": 0,
             "boundary_type": "external_transparent_part",
-            "is_ground": false,
             "area": 3.13,
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
-            "spec": {
-                "method": "u_value",
-                "boundary_type": "external_transparent_part",
-                "u_value": 4.65,
-                "inside_heat_transfer_resistance": 0.11
-            },
             "solar_shading_part": {
                 "existence": false
             },
@@ -220,6 +196,7 @@
             "outside_emissivity": 0.9,
             "outside_heat_transfer_resistance": 0.04,
             "u_value": 4.65,
+            "inside_heat_transfer_resistance": 0.11,
             "eta_value": 0.792,
             "incident_angle_characteristics": "multiple",
             "glass_area_ratio": 0.8,
@@ -231,15 +208,11 @@
             "sub_name": "",
             "connected_room_id": 0,
             "boundary_type": "external_general_part",
-            "is_ground": false,
             "area": 10.2135,
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
-            "spec": {
-                "method": "layers",
-                "boundary_type": "external_general_part",
-                "layers": [
+            "layers": [
                     {
                         "name": "plaster_board",
                         "thermal_resistance": 0.0432,
@@ -266,8 +239,6 @@
                         "thermal_capacity": 25.1789
                     }
                 ],
-                "outside_heat_transfer_resistance": 0.04
-            },
             "solar_shading_part": {
                 "existence": false
             },
@@ -284,17 +255,10 @@
             "sub_name": "",
             "connected_room_id": 0,
             "boundary_type": "external_transparent_part",
-            "is_ground": false,
             "area": 6.94,
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
-            "spec": {
-                "method": "u_value",
-                "boundary_type": "external_transparent_part",
-                "u_value": 4.65,
-                "inside_heat_transfer_resistance": 0.11
-            },
             "solar_shading_part": {
                 "existence": true,
                 "input_method": "simple",
@@ -307,6 +271,7 @@
             "outside_emissivity": 0.9,
             "outside_heat_transfer_resistance": 0.04,
             "u_value": 4.65,
+            "inside_heat_transfer_resistance": 0.11,
             "eta_value": 0.792,
             "incident_angle_characteristics": "multiple",
             "glass_area_ratio": 0.8,
@@ -318,15 +283,11 @@
             "sub_name": "",
             "connected_room_id": 0,
             "boundary_type": "external_general_part",
-            "is_ground": false,
             "area": 29.81,
             "h_c": 0.7,
             "is_solar_absorbed_inside": true,
             "is_floor": true,
-            "spec": {
-                "method": "layers",
-                "boundary_type": "external_general_part",
-                "layers": [
+            "layers": [
                     {
                         "name": "plywood",
                         "thermal_resistance": 0.075,
@@ -337,9 +298,7 @@
                         "thermal_resistance": 1.28,
                         "thermal_capacity": 0.512
                     }
-                ],
-                "outside_heat_transfer_resistance": 0.15
-            },
+        ],
             "solar_shading_part": {
                 "existence": false
             },
@@ -355,15 +314,11 @@
             "sub_name": "",
             "connected_room_id": 0,
             "boundary_type": "external_general_part",
-            "is_ground": false,
             "area": 4.14,
             "h_c": 5.0,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
-            "spec": {
-                "method": "layers",
-                "boundary_type": "external_general_part",
-                "layers": [
+            "layers": [
                     {
                         "name": "plaster_board",
                         "thermal_resistance": 0.0432,
@@ -375,8 +330,6 @@
                         "thermal_capacity": 1.368
                     }
                 ],
-                "outside_heat_transfer_resistance": 0.09
-            },
             "solar_shading_part": {
                 "existence": false
             },
@@ -393,15 +346,11 @@
             "sub_name": "",
             "connected_room_id": 0,
             "boundary_type": "internal",
-            "is_ground": false,
             "area": 21.6125,
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
-            "spec": {
-                "method": "layers",
-                "boundary_type": "internal",
-                "layers": [
+            "layers": [
                     {
                         "name": "plaster_board",
                         "thermal_resistance": 0.0568,
@@ -418,9 +367,6 @@
                         "thermal_capacity": 10.375
                     }
                 ],
-                "outside_heat_transfer_resistance": 0.11,
-                "rear_surface_boundary_id": 45
-            },
             "solar_shading_part": {
                 "existence": false
             },
@@ -433,15 +379,11 @@
             "sub_name": "",
             "connected_room_id": 0,
             "boundary_type": "internal",
-            "is_ground": false,
             "area": 10.77,
             "h_c": 5.0,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
-            "spec": {
-                "method": "layers",
-                "boundary_type": "internal",
-                "layers": [
+            "layers": [
                     {
                         "name": "plaster_board",
                         "thermal_resistance": 0.0568,
@@ -458,9 +400,6 @@
                         "thermal_capacity": 8.64
                     }
                 ],
-                "outside_heat_transfer_resistance": 0.15,
-                "rear_surface_boundary_id": 22
-            },
             "solar_shading_part": {
                 "existence": false
             },
@@ -473,15 +412,11 @@
             "sub_name": "",
             "connected_room_id": 0,
             "boundary_type": "internal",
-            "is_ground": false,
             "area": 10.77,
             "h_c": 5.0,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
-            "spec": {
-                "method": "layers",
-                "boundary_type": "internal",
-                "layers": [
+            "layers": [
                     {
                         "name": "plaster_board",
                         "thermal_resistance": 0.0568,
@@ -498,9 +433,6 @@
                         "thermal_capacity": 8.64
                     }
                 ],
-                "outside_heat_transfer_resistance": 0.15,
-                "rear_surface_boundary_id": 29
-            },
             "solar_shading_part": {
                 "existence": false
             },
@@ -513,15 +445,11 @@
             "sub_name": "",
             "connected_room_id": 0,
             "boundary_type": "internal",
-            "is_ground": false,
             "area": 8.736,
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
-            "spec": {
-                "method": "layers",
-                "boundary_type": "internal",
-                "layers": [
+            "layers": [
                     {
                         "name": "plaster_board",
                         "thermal_resistance": 0.0568,
@@ -538,9 +466,6 @@
                         "thermal_capacity": 10.375
                     }
                 ],
-                "outside_heat_transfer_resistance": 0.11,
-                "rear_surface_boundary_id": 37
-            },
             "solar_shading_part": {
                 "existence": false
             },
@@ -553,15 +478,11 @@
             "sub_name": "",
             "connected_room_id": 1,
             "boundary_type": "external_general_part",
-            "is_ground": false,
             "area": 8.098,
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
-            "spec": {
-                "method": "layers",
-                "boundary_type": "external_general_part",
-                "layers": [
+            "layers": [
                     {
                         "name": "plaster_board",
                         "thermal_resistance": 0.0432,
@@ -588,8 +509,6 @@
                         "thermal_capacity": 25.1789
                     }
                 ],
-                "outside_heat_transfer_resistance": 0.04
-            },
             "solar_shading_part": {
                 "existence": false
             },
@@ -606,17 +525,10 @@
             "sub_name": "",
             "connected_room_id": 1,
             "boundary_type": "external_transparent_part",
-            "is_ground": false,
             "area": 1.73,
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
-            "spec": {
-                "method": "u_value",
-                "boundary_type": "external_transparent_part",
-                "u_value": 4.65,
-                "inside_heat_transfer_resistance": 0.11
-            },
             "solar_shading_part": {
                 "existence": true,
                 "input_method": "simple",
@@ -629,6 +541,7 @@
             "outside_emissivity": 0.9,
             "outside_heat_transfer_resistance": 0.04,
             "u_value": 4.65,
+            "inside_heat_transfer_resistance": 0.11,
             "eta_value": 0.792,
             "incident_angle_characteristics": "multiple",
             "glass_area_ratio": 0.8,
@@ -640,15 +553,11 @@
             "sub_name": "",
             "connected_room_id": 1,
             "boundary_type": "external_general_part",
-            "is_ground": false,
             "area": 8.838,
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
-            "spec": {
-                "method": "layers",
-                "boundary_type": "external_general_part",
-                "layers": [
+            "layers": [
                     {
                         "name": "plaster_board",
                         "thermal_resistance": 0.0432,
@@ -675,8 +584,6 @@
                         "thermal_capacity": 25.1789
                     }
                 ],
-                "outside_heat_transfer_resistance": 0.04
-            },
             "solar_shading_part": {
                 "existence": false
             },
@@ -693,17 +600,10 @@
             "sub_name": "",
             "connected_room_id": 1,
             "boundary_type": "external_transparent_part",
-            "is_ground": false,
             "area": 0.99,
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
-            "spec": {
-                "method": "u_value",
-                "boundary_type": "external_transparent_part",
-                "u_value": 4.65,
-                "inside_heat_transfer_resistance": 0.11
-            },
             "solar_shading_part": {
                 "existence": false
             },
@@ -712,6 +612,7 @@
             "outside_emissivity": 0.9,
             "outside_heat_transfer_resistance": 0.04,
             "u_value": 4.65,
+            "inside_heat_transfer_resistance": 0.11,
             "eta_value": 0.792,
             "incident_angle_characteristics": "multiple",
             "glass_area_ratio": 0.8,
@@ -723,15 +624,11 @@
             "sub_name": "",
             "connected_room_id": 1,
             "boundary_type": "external_general_part",
-            "is_ground": false,
             "area": 13.25,
             "h_c": 5.0,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
-            "spec": {
-                "method": "layers",
-                "boundary_type": "external_general_part",
-                "layers": [
+            "layers": [
                     {
                         "name": "plaster_board",
                         "thermal_resistance": 0.0432,
@@ -743,8 +640,6 @@
                         "thermal_capacity": 1.368
                     }
                 ],
-                "outside_heat_transfer_resistance": 0.09
-            },
             "solar_shading_part": {
                 "existence": false
             },
@@ -761,15 +656,11 @@
             "sub_name": "",
             "connected_room_id": 1,
             "boundary_type": "internal",
-            "is_ground": false,
             "area": 8.736,
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
-            "spec": {
-                "method": "layers",
-                "boundary_type": "internal",
-                "layers": [
+            "layers": [
                     {
                         "name": "plaster_board",
                         "thermal_resistance": 0.0568,
@@ -786,9 +677,6 @@
                         "thermal_capacity": 10.375
                     }
                 ],
-                "outside_heat_transfer_resistance": 0.11,
-                "rear_surface_boundary_id": 49
-            },
             "solar_shading_part": {
                 "existence": false
             },
@@ -801,15 +689,11 @@
             "sub_name": "",
             "connected_room_id": 1,
             "boundary_type": "external_general_part",
-            "is_ground": false,
             "area": 4.76525,
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
-            "spec": {
-                "method": "layers",
-                "boundary_type": "external_general_part",
-                "layers": [
+            "layers": [
                     {
                         "name": "plaster_board",
                         "thermal_resistance": 0.0432,
@@ -836,8 +720,6 @@
                         "thermal_capacity": 25.1789
                     }
                 ],
-                "outside_heat_transfer_resistance": 0.04
-            },
             "solar_shading_part": {
                 "existence": false
             },
@@ -854,17 +736,10 @@
             "sub_name": "",
             "connected_room_id": 1,
             "boundary_type": "external_transparent_part",
-            "is_ground": false,
             "area": 3.22,
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
-            "spec": {
-                "method": "u_value",
-                "boundary_type": "external_transparent_part",
-                "u_value": 4.65,
-                "inside_heat_transfer_resistance": 0.11
-            },
             "solar_shading_part": {
                 "existence": true,
                 "input_method": "simple",
@@ -877,6 +752,7 @@
             "outside_emissivity": 0.9,
             "outside_heat_transfer_resistance": 0.04,
             "u_value": 4.65,
+            "inside_heat_transfer_resistance": 0.11,
             "eta_value": 0.792,
             "incident_angle_characteristics": "multiple",
             "glass_area_ratio": 0.8,
@@ -888,15 +764,11 @@
             "sub_name": "",
             "connected_room_id": 1,
             "boundary_type": "external_general_part",
-            "is_ground": false,
             "area": 10.77,
             "h_c": 5.0,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
-            "spec": {
-                "method": "layers",
-                "boundary_type": "external_general_part",
-                "layers": [
+            "layers": [
                     {
                         "name": "plaster_board",
                         "thermal_resistance": 0.0432,
@@ -908,8 +780,6 @@
                         "thermal_capacity": 1.368
                     }
                 ],
-                "outside_heat_transfer_resistance": 0.09
-            },
             "solar_shading_part": {
                 "existence": false
             },
@@ -926,15 +796,11 @@
             "sub_name": "",
             "connected_room_id": 1,
             "boundary_type": "internal",
-            "is_ground": false,
             "area": 7.098,
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
-            "spec": {
-                "method": "layers",
-                "boundary_type": "internal",
-                "layers": [
+            "layers": [
                     {
                         "name": "plaster_board",
                         "thermal_resistance": 0.0568,
@@ -951,9 +817,6 @@
                         "thermal_capacity": 10.375
                     }
                 ],
-                "outside_heat_transfer_resistance": 0.11,
-                "rear_surface_boundary_id": 47
-            },
             "solar_shading_part": {
                 "existence": false
             },
@@ -966,15 +829,11 @@
             "sub_name": "",
             "connected_room_id": 1,
             "boundary_type": "internal",
-            "is_ground": false,
             "area": 10.77,
             "h_c": 0.7,
             "is_solar_absorbed_inside": true,
             "is_floor": true,
-            "spec": {
-                "method": "layers",
-                "boundary_type": "internal",
-                "layers": [
+            "layers": [
                     {
                         "name": "plywood",
                         "thermal_resistance": 0.075,
@@ -991,9 +850,6 @@
                         "thermal_capacity": 10.375
                     }
                 ],
-                "outside_heat_transfer_resistance": 0.09,
-                "rear_surface_boundary_id": 9
-            },
             "solar_shading_part": {
                 "existence": false
             },
@@ -1006,15 +862,11 @@
             "sub_name": "",
             "connected_room_id": 1,
             "boundary_type": "external_general_part",
-            "is_ground": false,
             "area": 9.168,
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
-            "spec": {
-                "method": "layers",
-                "boundary_type": "external_general_part",
-                "layers": [
+            "layers": [
                     {
                         "name": "plaster_board",
                         "thermal_resistance": 0.0432,
@@ -1041,8 +893,6 @@
                         "thermal_capacity": 25.1789
                     }
                 ],
-                "outside_heat_transfer_resistance": 0.04
-            },
             "solar_shading_part": {
                 "existence": false
             },
@@ -1059,17 +909,10 @@
             "sub_name": "",
             "connected_room_id": 1,
             "boundary_type": "external_transparent_part",
-            "is_ground": false,
             "area": 0.66,
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
-            "spec": {
-                "method": "u_value",
-                "boundary_type": "external_transparent_part",
-                "u_value": 4.65,
-                "inside_heat_transfer_resistance": 0.11
-            },
             "solar_shading_part": {
                 "existence": false
             },
@@ -1078,6 +921,7 @@
             "outside_emissivity": 0.9,
             "outside_heat_transfer_resistance": 0.04,
             "u_value": 4.65,
+            "inside_heat_transfer_resistance": 0.11,
             "eta_value": 0.792,
             "incident_angle_characteristics": "multiple",
             "glass_area_ratio": 0.8,
@@ -1089,15 +933,11 @@
             "sub_name": "",
             "connected_room_id": 1,
             "boundary_type": "external_general_part",
-            "is_ground": false,
             "area": 4.76525,
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
-            "spec": {
-                "method": "layers",
-                "boundary_type": "external_general_part",
-                "layers": [
+            "layers": [
                     {
                         "name": "plaster_board",
                         "thermal_resistance": 0.0432,
@@ -1124,8 +964,6 @@
                         "thermal_capacity": 25.1789
                     }
                 ],
-                "outside_heat_transfer_resistance": 0.04
-            },
             "solar_shading_part": {
                 "existence": false
             },
@@ -1142,17 +980,10 @@
             "sub_name": "",
             "connected_room_id": 1,
             "boundary_type": "external_transparent_part",
-            "is_ground": false,
             "area": 3.22,
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
-            "spec": {
-                "method": "u_value",
-                "boundary_type": "external_transparent_part",
-                "u_value": 4.65,
-                "inside_heat_transfer_resistance": 0.11
-            },
             "solar_shading_part": {
                 "existence": true,
                 "input_method": "simple",
@@ -1165,6 +996,7 @@
             "outside_emissivity": 0.9,
             "outside_heat_transfer_resistance": 0.04,
             "u_value": 4.65,
+            "inside_heat_transfer_resistance": 0.11,
             "eta_value": 0.792,
             "incident_angle_characteristics": "multiple",
             "glass_area_ratio": 0.8,
@@ -1176,15 +1008,11 @@
             "sub_name": "",
             "connected_room_id": 1,
             "boundary_type": "external_general_part",
-            "is_ground": false,
             "area": 10.77,
             "h_c": 5.0,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
-            "spec": {
-                "method": "layers",
-                "boundary_type": "external_general_part",
-                "layers": [
+            "layers": [
                     {
                         "name": "plaster_board",
                         "thermal_resistance": 0.0432,
@@ -1196,8 +1024,6 @@
                         "thermal_capacity": 1.368
                     }
                 ],
-                "outside_heat_transfer_resistance": 0.09
-            },
             "solar_shading_part": {
                 "existence": false
             },
@@ -1214,15 +1040,11 @@
             "sub_name": "",
             "connected_room_id": 1,
             "boundary_type": "internal",
-            "is_ground": false,
             "area": 7.098,
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
-            "spec": {
-                "method": "layers",
-                "boundary_type": "internal",
-                "layers": [
+            "layers": [
                     {
                         "name": "plaster_board",
                         "thermal_resistance": 0.0568,
@@ -1239,9 +1061,6 @@
                         "thermal_capacity": 10.375
                     }
                 ],
-                "outside_heat_transfer_resistance": 0.11,
-                "rear_surface_boundary_id": 48
-            },
             "solar_shading_part": {
                 "existence": false
             },
@@ -1254,15 +1073,11 @@
             "sub_name": "",
             "connected_room_id": 1,
             "boundary_type": "internal",
-            "is_ground": false,
             "area": 10.77,
             "h_c": 0.7,
             "is_solar_absorbed_inside": true,
             "is_floor": true,
-            "spec": {
-                "method": "layers",
-                "boundary_type": "internal",
-                "layers": [
+            "layers": [
                     {
                         "name": "plywood",
                         "thermal_resistance": 0.075,
@@ -1279,9 +1094,6 @@
                         "thermal_capacity": 10.375
                     }
                 ],
-                "outside_heat_transfer_resistance": 0.09,
-                "rear_surface_boundary_id": 10
-            },
             "solar_shading_part": {
                 "existence": false
             },
@@ -1294,15 +1106,11 @@
             "sub_name": "",
             "connected_room_id": 1,
             "boundary_type": "external_general_part",
-            "is_ground": false,
             "area": 2.639,
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
-            "spec": {
-                "method": "layers",
-                "boundary_type": "external_general_part",
-                "layers": [
+            "layers": [
                     {
                         "name": "plaster_board",
                         "thermal_resistance": 0.0432,
@@ -1329,8 +1137,6 @@
                         "thermal_capacity": 25.1789
                     }
                 ],
-                "outside_heat_transfer_resistance": 0.04
-            },
             "solar_shading_part": {
                 "existence": false
             },
@@ -1347,15 +1153,11 @@
             "sub_name": "",
             "connected_room_id": 1,
             "boundary_type": "external_general_part",
-            "is_ground": false,
             "area": 8.605,
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
-            "spec": {
-                "method": "layers",
-                "boundary_type": "external_general_part",
-                "layers": [
+            "layers": [
                     {
                         "name": "plaster_board",
                         "thermal_resistance": 0.0432,
@@ -1382,8 +1184,6 @@
                         "thermal_capacity": 25.1789
                     }
                 ],
-                "outside_heat_transfer_resistance": 0.04
-            },
             "solar_shading_part": {
                 "existence": false
             },
@@ -1400,17 +1200,10 @@
             "sub_name": "",
             "connected_room_id": 1,
             "boundary_type": "external_transparent_part",
-            "is_ground": false,
             "area": 4.59,
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
-            "spec": {
-                "method": "u_value",
-                "boundary_type": "external_transparent_part",
-                "u_value": 4.65,
-                "inside_heat_transfer_resistance": 0.11
-            },
             "solar_shading_part": {
                 "existence": false
             },
@@ -1419,6 +1212,7 @@
             "outside_emissivity": 0.9,
             "outside_heat_transfer_resistance": 0.04,
             "u_value": 4.65,
+            "inside_heat_transfer_resistance": 0.11,
             "eta_value": 0.792,
             "incident_angle_characteristics": "multiple",
             "glass_area_ratio": 0.8,
@@ -1430,15 +1224,11 @@
             "sub_name": "",
             "connected_room_id": 1,
             "boundary_type": "external_general_part",
-            "is_ground": false,
             "area": 10.556,
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
-            "spec": {
-                "method": "layers",
-                "boundary_type": "external_general_part",
-                "layers": [
+            "layers": [
                     {
                         "name": "plaster_board",
                         "thermal_resistance": 0.0432,
@@ -1465,8 +1255,6 @@
                         "thermal_capacity": 25.1789
                     }
                 ],
-                "outside_heat_transfer_resistance": 0.04
-            },
             "solar_shading_part": {
                 "existence": false
             },
@@ -1483,15 +1271,11 @@
             "sub_name": "",
             "connected_room_id": 1,
             "boundary_type": "external_general_part",
-            "is_ground": false,
             "area": 16.56,
             "h_c": 0.7,
             "is_solar_absorbed_inside": true,
             "is_floor": true,
-            "spec": {
-                "method": "layers",
-                "boundary_type": "external_general_part",
-                "layers": [
+            "layers": [
                     {
                         "name": "plywood",
                         "thermal_resistance": 0.075,
@@ -1503,8 +1287,6 @@
                         "thermal_capacity": 0.512
                     }
                 ],
-                "outside_heat_transfer_resistance": 0.15
-            },
             "solar_shading_part": {
                 "existence": false
             },
@@ -1520,15 +1302,11 @@
             "sub_name": "",
             "connected_room_id": 1,
             "boundary_type": "external_general_part",
-            "is_ground": false,
             "area": 3.31,
             "h_c": 5.0,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
-            "spec": {
-                "method": "layers",
-                "boundary_type": "external_general_part",
-                "layers": [
+            "layers": [
                     {
                         "name": "plaster_board",
                         "thermal_resistance": 0.0432,
@@ -1540,8 +1318,6 @@
                         "thermal_capacity": 1.368
                     }
                 ],
-                "outside_heat_transfer_resistance": 0.09
-            },
             "solar_shading_part": {
                 "existence": false
             },
@@ -1558,15 +1334,11 @@
             "sub_name": "",
             "connected_room_id": 1,
             "boundary_type": "internal",
-            "is_ground": false,
             "area": 8.736,
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
-            "spec": {
-                "method": "layers",
-                "boundary_type": "internal",
-                "layers": [
+            "layers": [
                     {
                         "name": "plaster_board",
                         "thermal_resistance": 0.0568,
@@ -1583,9 +1355,6 @@
                         "thermal_capacity": 10.375
                     }
                 ],
-                "outside_heat_transfer_resistance": 0.11,
-                "rear_surface_boundary_id": 46
-            },
             "solar_shading_part": {
                 "existence": false
             },
@@ -1598,15 +1367,11 @@
             "sub_name": "",
             "connected_room_id": 1,
             "boundary_type": "internal",
-            "is_ground": false,
             "area": 8.736,
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
-            "spec": {
-                "method": "layers",
-                "boundary_type": "internal",
-                "layers": [
+            "layers": [
                     {
                         "name": "plaster_board",
                         "thermal_resistance": 0.0568,
@@ -1623,9 +1388,6 @@
                         "thermal_capacity": 10.375
                     }
                 ],
-                "outside_heat_transfer_resistance": 0.11,
-                "rear_surface_boundary_id": 11
-            },
             "solar_shading_part": {
                 "existence": false
             },
@@ -1638,15 +1400,11 @@
             "sub_name": "",
             "connected_room_id": 2,
             "boundary_type": "external_general_part",
-            "is_ground": false,
             "area": 43.2205,
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
-            "spec": {
-                "method": "layers",
-                "boundary_type": "external_general_part",
-                "layers": [
+            "layers": [
                     {
                         "name": "plaster_board",
                         "thermal_resistance": 0.0432,
@@ -1673,8 +1431,6 @@
                         "thermal_capacity": 25.1789
                     }
                 ],
-                "outside_heat_transfer_resistance": 0.04
-            },
             "solar_shading_part": {
                 "existence": false
             },
@@ -1691,17 +1447,10 @@
             "sub_name": "",
             "connected_room_id": 2,
             "boundary_type": "external_transparent_part",
-            "is_ground": false,
             "area": 3.69,
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
-            "spec": {
-                "method": "u_value",
-                "boundary_type": "external_transparent_part",
-                "u_value": 4.65,
-                "inside_heat_transfer_resistance": 0.11
-            },
             "solar_shading_part": {
                 "existence": false
             },
@@ -1710,6 +1459,7 @@
             "outside_emissivity": 0.9,
             "outside_heat_transfer_resistance": 0.04,
             "u_value": 4.65,
+            "inside_heat_transfer_resistance": 0.11,
             "eta_value": 0.792,
             "incident_angle_characteristics": "multiple",
             "glass_area_ratio": 0.8,
@@ -1721,15 +1471,11 @@
             "sub_name": "",
             "connected_room_id": 2,
             "boundary_type": "external_general_part",
-            "is_ground": false,
             "area": 4.914,
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
-            "spec": {
-                "method": "layers",
-                "boundary_type": "external_general_part",
-                "layers": [
+            "layers": [
                     {
                         "name": "plaster_board",
                         "thermal_resistance": 0.0432,
@@ -1756,8 +1502,6 @@
                         "thermal_capacity": 25.1789
                     }
                 ],
-                "outside_heat_transfer_resistance": 0.04
-            },
             "solar_shading_part": {
                 "existence": false
             },
@@ -1774,15 +1518,11 @@
             "sub_name": "",
             "connected_room_id": 2,
             "boundary_type": "external_general_part",
-            "is_ground": false,
             "area": 12.5,
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
-            "spec": {
-                "method": "layers",
-                "boundary_type": "external_general_part",
-                "layers": [
+            "layers": [
                     {
                         "name": "plaster_board",
                         "thermal_resistance": 0.0432,
@@ -1809,8 +1549,6 @@
                         "thermal_capacity": 25.1789
                     }
                 ],
-                "outside_heat_transfer_resistance": 0.04
-            },
             "solar_shading_part": {
                 "existence": false
             },
@@ -1827,17 +1565,10 @@
             "sub_name": "",
             "connected_room_id": 2,
             "boundary_type": "external_transparent_part",
-            "is_ground": false,
             "area": 2.97,
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
-            "spec": {
-                "method": "u_value",
-                "boundary_type": "external_transparent_part",
-                "u_value": 4.65,
-                "inside_heat_transfer_resistance": 0.11
-            },
             "solar_shading_part": {
                 "existence": false
             },
@@ -1846,6 +1577,7 @@
             "outside_emissivity": 0.9,
             "outside_heat_transfer_resistance": 0.04,
             "u_value": 4.65,
+            "inside_heat_transfer_resistance": 0.11,
             "eta_value": 0.792,
             "incident_angle_characteristics": "multiple",
             "glass_area_ratio": 0.8,
@@ -1857,15 +1589,11 @@
             "sub_name": "",
             "connected_room_id": 2,
             "boundary_type": "external_general_part",
-            "is_ground": false,
             "area": 21.52,
             "h_c": 0.7,
             "is_solar_absorbed_inside": true,
             "is_floor": true,
-            "spec": {
-                "method": "layers",
-                "boundary_type": "external_general_part",
-                "layers": [
+            "layers": [
                     {
                         "name": "plywood",
                         "thermal_resistance": 0.075,
@@ -1877,8 +1605,6 @@
                         "thermal_capacity": 0.512
                     }
                 ],
-                "outside_heat_transfer_resistance": 0.15
-            },
             "solar_shading_part": {
                 "existence": false
             },
@@ -1894,15 +1620,11 @@
             "sub_name": "",
             "connected_room_id": 2,
             "boundary_type": "external_general_part",
-            "is_ground": false,
             "area": 25.68,
             "h_c": 5.0,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
-            "spec": {
-                "method": "layers",
-                "boundary_type": "external_general_part",
-                "layers": [
+            "layers": [
                     {
                         "name": "plaster_board",
                         "thermal_resistance": 0.0432,
@@ -1914,8 +1636,6 @@
                         "thermal_capacity": 1.368
                     }
                 ],
-                "outside_heat_transfer_resistance": 0.09
-            },
             "solar_shading_part": {
                 "existence": false
             },
@@ -1932,15 +1652,11 @@
             "sub_name": "",
             "connected_room_id": 2,
             "boundary_type": "internal",
-            "is_ground": false,
             "area": 21.6125,
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
-            "spec": {
-                "method": "layers",
-                "boundary_type": "internal",
-                "layers": [
+            "layers": [
                     {
                         "name": "plaster_board",
                         "thermal_resistance": 0.0568,
@@ -1957,9 +1673,6 @@
                         "thermal_capacity": 10.375
                     }
                 ],
-                "outside_heat_transfer_resistance": 0.11,
-                "rear_surface_boundary_id": 8
-            },
             "solar_shading_part": {
                 "existence": false
             },
@@ -1972,15 +1685,11 @@
             "sub_name": "",
             "connected_room_id": 2,
             "boundary_type": "internal",
-            "is_ground": false,
             "area": 8.736,
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
-            "spec": {
-                "method": "layers",
-                "boundary_type": "internal",
-                "layers": [
+            "layers": [
                     {
                         "name": "plaster_board",
                         "thermal_resistance": 0.0568,
@@ -1997,9 +1706,6 @@
                         "thermal_capacity": 10.375
                     }
                 ],
-                "outside_heat_transfer_resistance": 0.11,
-                "rear_surface_boundary_id": 36
-            },
             "solar_shading_part": {
                 "existence": false
             },
@@ -2012,15 +1718,11 @@
             "sub_name": "",
             "connected_room_id": 2,
             "boundary_type": "internal",
-            "is_ground": false,
             "area": 7.098,
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
-            "spec": {
-                "method": "layers",
-                "boundary_type": "internal",
-                "layers": [
+            "layers": [
                     {
                         "name": "plaster_board",
                         "thermal_resistance": 0.0568,
@@ -2037,9 +1739,6 @@
                         "thermal_capacity": 10.375
                     }
                 ],
-                "outside_heat_transfer_resistance": 0.11,
-                "rear_surface_boundary_id": 21
-            },
             "solar_shading_part": {
                 "existence": false
             },
@@ -2052,15 +1751,11 @@
             "sub_name": "",
             "connected_room_id": 2,
             "boundary_type": "internal",
-            "is_ground": false,
             "area": 7.098,
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
-            "spec": {
-                "method": "layers",
-                "boundary_type": "internal",
-                "layers": [
+            "layers": [
                     {
                         "name": "plaster_board",
                         "thermal_resistance": 0.0568,
@@ -2077,9 +1772,6 @@
                         "thermal_capacity": 10.375
                     }
                 ],
-                "outside_heat_transfer_resistance": 0.11,
-                "rear_surface_boundary_id": 28
-            },
             "solar_shading_part": {
                 "existence": false
             },
@@ -2092,15 +1784,11 @@
             "sub_name": "",
             "connected_room_id": 2,
             "boundary_type": "internal",
-            "is_ground": false,
             "area": 8.736,
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
-            "spec": {
-                "method": "layers",
-                "boundary_type": "internal",
-                "layers": [
+            "layers": [
                     {
                         "name": "plaster_board",
                         "thermal_resistance": 0.0568,
@@ -2117,9 +1805,6 @@
                         "thermal_capacity": 10.375
                     }
                 ],
-                "outside_heat_transfer_resistance": 0.11,
-                "rear_surface_boundary_id": 17
-            },
             "solar_shading_part": {
                 "existence": false
             },

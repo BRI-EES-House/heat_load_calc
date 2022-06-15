@@ -1,6 +1,8 @@
 import unittest
+import numpy as np
 
 from heat_load_calc import response_factor as rf
+from heat_load_calc.response_factor import ResponseFactor
 
 
 class MyTestCase(unittest.TestCase):
@@ -20,16 +22,13 @@ class MyTestCase(unittest.TestCase):
         # モルタル 30mm
         # 室外側熱伝達率
 
-        # 熱容量[kJ/m2 K]
-        cs = [7.47, 0.0, 180.0, 3.6, 48.0]
-        # 熱抵抗[m2 K/W]
-        rs = [0.0409090909, 0.070000, 0.0562500000, 2.9411764706, 0.020000]
-
-        # 応答係数を計算する工場を作成
-        rff = rf.ResponseFactorFactoryTransientEnvelope(cs=cs, rs=rs, r_o=0.04)
+        # 単位面積あたりの熱容量, kJ / m2 K
+        cs = np.array([7.47, 0.0, 180.0, 3.6, 48.0])
+        # 熱抵抗, m2 K/W
+        rs = np.array([0.0409090909, 0.070000, 0.0562500000, 2.9411764706, 0.020000])
 
         # 応答係数の計算
-        rft: rf.ResponseFactor = rff.get_response_factors()
+        rft: rf.ResponseFactor = ResponseFactor.create_for_unsteady_not_ground(cs=cs, rs=rs, r_o=0.04)
 
         # RFA0の確認
         self.assertAlmostEqual(0.0582434301679216, rft.rfa0)
@@ -69,16 +68,13 @@ class MyTestCase(unittest.TestCase):
         # コンクリート 120mm
         # 土壌 3000mm
 
-        # 熱容量[kJ/m2 K]
-        cs = [1.080000, 240.000000]
-        # 熱抵抗[m2 K/W]
-        rs = [0.8823529412, 0.0750000000]
-
-        # 応答係数を計算する工場を作成
-        rff = rf.ResponseFactorFactoryTransientGround(cs=cs, rs=rs)
+        # 単位面積あたりの熱容量, kJ / m2 K
+        cs = np.array([1.080000, 240.000000])
+        # 熱抵抗, m2 K / W
+        rs = np.array([0.8823529412, 0.0750000000])
 
         # 応答係数の計算
-        rft: rf.ResponseFactor = rff.get_response_factors()
+        rft = ResponseFactor.create_for_unsteady_ground(cs=cs, rs=rs)
 
         # RFA0の確認
         self.assertAlmostEqual(0.7153374350138639, rft.rfa0)

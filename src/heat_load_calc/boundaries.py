@@ -1,9 +1,12 @@
 import numpy as np
 from dataclasses import dataclass
-from typing import List
+from typing import List, Dict
 
-from heat_load_calc import outside_eqv_temp, response_factor, transmission_solar_radiation, solar_shading, shape_factor
+from heat_load_calc import outside_eqv_temp, response_factor, transmission_solar_radiation, solar_shading, \
+    shape_factor, outdoor_condition
 from heat_load_calc.boundary_type import BoundaryType
+from heat_load_calc.outdoor_condition import OutdoorCondition
+from heat_load_calc.response_factor import ResponseFactor
 
 
 @dataclass
@@ -69,11 +72,28 @@ class Boundary:
 
 class Boundaries:
 
-    def __init__(self, a_sun_ns, h_sun_ns, i_dn_ns, i_sky_ns, n_rm, r_n_ns, theta_o_ns, bs):
+    def __init__(self, n_rm: int, bs_list: List[Dict], oc: OutdoorCondition):
+        """
 
-        self._bss = self._get_boundary_list(a_sun_ns=a_sun_ns, h_sun_ns=h_sun_ns, i_dn_ns=i_dn_ns, i_sky_ns=i_sky_ns, n_rm=n_rm, r_n_ns=r_n_ns, theta_o_ns=theta_o_ns, bs=bs)
+        Args:
+            n_rm: 室の数
+            bs_list: 境界に関する辞書
+            oc: OutdoorCondition クラス
+        """
 
-    def _get_boundary_list(self, a_sun_ns, h_sun_ns, i_dn_ns, i_sky_ns, n_rm, r_n_ns, theta_o_ns, bs) -> List[Boundary]:
+        self._bss = self._get_boundary_list(n_rm=n_rm, bs_list=bs_list, oc=oc)
+
+    def _get_boundary_list(self, n_rm: int, bs_list: List[Dict], oc: OutdoorCondition) -> List[Boundary]:
+        """
+
+        Args:
+            n_rm: 室の数
+            bs_list: 境界に関する辞書
+            oc: OutdoorCondition クラス
+
+        Returns:
+
+        """
 
         # 本来であれば Boundaries クラスにおいて境界に関する入力用辞書から読み込みを境界個別に行う。
         # しかし、室内側表面放射熱伝達は室内側の形態係数によって値が決まり、ある室に接する境界の面積の組み合わせで決定されるため、
@@ -83,34 +103,30 @@ class Boundaries:
         # Boundary クラスを生成する前に、予め室内側表面放射・対流熱伝達率を計算しておき、
         # Boundary クラスを生成する時に必要な情報としておく。
 
-        # 境界jの室内側表面放射熱伝達率, W/m2K, [j, 1]
-        h_r_js = shape_factor.get_h_r_js(
-            n_spaces=n_rm,
-            bs=bs
-        ).reshape(-1, 1)
+        # 境界jの室内側表面放射熱伝達率, W/m2K, [J, 1]
+        h_r_js = shape_factor.get_h_r_js(n_rm=n_rm, bs=bs_list).reshape(-1, 1)
 
-        # 境界jの室内側表面対流熱伝達率, W/m2K, [j, 1]
-        h_c_js = np.array([b['h_c'] for b in bs]).reshape(-1, 1)
+        # 境界jの室内側表面対流熱伝達率, W/m2K, [J, 1]
+        h_c_js = np.array([b['h_c'] for b in bs_list]).reshape(-1, 1)
 
-        # 境界j
-        bss = [
-            self._get_boundary(
-                theta_o_ns=theta_o_ns,
-                i_dn_ns=i_dn_ns,
-                i_sky_ns=i_sky_ns,
-                r_n_ns=r_n_ns,
-                a_sun_ns=a_sun_ns,
-                h_sun_ns=h_sun_ns,
-                b=b,
-                h_c_js=h_c_js,
-                h_r_js=h_r_js
-            ) for b in bs
-        ]
+        # 境界 j, [J]
+        bss = [self._get_boundary(b=b, h_c_js=h_c_js, h_r_js=h_r_js, oc=oc) for b in bs_list]
 
         return bss
 
     @staticmethod
-    def _get_boundary(theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, a_sun_ns, h_sun_ns, b, h_c_js, h_r_js) -> Boundary:
+    def _get_boundary(b: Dict, h_c_js: np.ndarray, h_r_js: np.ndarray, oc: OutdoorCondition) -> Boundary:
+        """
+
+        Args:
+            b: Boundary　の辞書
+            h_c_js: 境界 j の室内側表面対流熱伝達率, W/m2K, [J, 1]
+            h_r_js: 境界 j の室内側表面放射熱伝達率, W/m2K, [J, 1]
+            oc: OutdoorCondition クラス
+
+        Returns:
+            Boundary クラス
+        """
 
         # ID
         # TODO: ID が0始まりで1ずつ増え、一意であることのチェックを行うコードを追記する。
@@ -138,7 +154,11 @@ class Boundaries:
         # True: 当たる
         # False: 当たらない
         # 境界の種類が'external_general_part', 'external_transparent_part', 'external_opaque_part'の場合に定義される。
-        if b['boundary_type'] in ['external_general_part', 'external_transparent_part', 'external_opaque_part']:
+        if boundary_type in [
+            BoundaryType.ExternalGeneralPart,
+            BoundaryType.ExternalTransparentPart,
+            BoundaryType.ExternalOpaquePart
+        ]:
             is_sun_striked_outside = bool(b['is_sun_striked_outside'])
         else:
             is_sun_striked_outside = None
@@ -155,7 +175,7 @@ class Boundaries:
         else:
             h_td = 0.0
 
-        if b['boundary_type'] == 'internal':
+        if boundary_type == BoundaryType.Internal:
             rear_surface_boundary_id = int(b['rear_surface_boundary_id'])
         else:
             rear_surface_boundary_id = None
@@ -183,27 +203,67 @@ class Boundaries:
         # 室内側表面対流熱伝達率, W/m2K
         h_c = b['h_c']
 
+        # 室内側表面放射熱伝達率, W/m2K
         h_r = h_r_js[boundary_id]
 
-        solar_shading_part = solar_shading.SolarShading.create(b=b)
+        # 日除け
+        if boundary_type in [
+            BoundaryType.ExternalGeneralPart,
+            BoundaryType.ExternalTransparentPart,
+            BoundaryType.ExternalOpaquePart
+        ]:
+            ssp = solar_shading.SolarShading.create(
+                ssp_dict=b['solar_shading_part'],
+                is_sun_striked_outside=is_sun_striked_outside,
+                direction=direction
+            )
+        elif boundary_type in [
+            BoundaryType.Internal,
+            BoundaryType.Ground
+        ]:
+            ssp = None
+        else:
+            raise Exception()
 
-        # 相当外気温度, degree C, [8760 * 4]
-        oet = outside_eqv_temp.OutsideEqvTemp.create(b)
-        theta_o_sol = oet.get_theta_o_sol_i_j_ns(
-            theta_o_ns=theta_o_ns,
-            i_dn_ns=i_dn_ns,
-            i_sky_ns=i_sky_ns,
-            r_eff_ns=r_n_ns,
-            a_sun_ns=a_sun_ns,
-            h_sun_ns=h_sun_ns
-        )
+        # 相当外気温度, degree C, [N+1]
+        oet = outside_eqv_temp.OutsideEqvTemp.create(b=b, ssp=ssp)
+        theta_o_sol = oet.get_theta_o_sol_i_j_ns(oc=oc)
 
-        # 透過日射量, W, [8760*4]
-        tsr = transmission_solar_radiation.TransmissionSolarRadiation.create(d=b, solar_shading_part=solar_shading_part)
-        q_trs_sol = tsr.get_qgt(a_sun_ns=a_sun_ns, h_sun_ns=h_sun_ns, i_dn_ns=i_dn_ns, i_sky_ns=i_sky_ns, r_eff_ns=r_n_ns)
+        # 透過日射量, W, [N+1]
+        tsr = transmission_solar_radiation.TransmissionSolarRadiation.create(b=b, ssp=ssp)
+        q_trs_sol = tsr.get_qgt(oc=oc)
 
         # 応答係数
-        rf = response_factor.get_response_factor(b=b, h_c_js=h_c_js, h_r_js=h_r_js)
+        if boundary_type in [BoundaryType.ExternalTransparentPart, BoundaryType.ExternalOpaquePart]:
+
+            rf = ResponseFactor.create_for_steady(u_w=b['u_value'], r_i=b['inside_heat_transfer_resistance'])
+
+        else:
+
+            cs = np.array([float(layer['thermal_capacity']) for layer in b['layers']])
+            rs = np.array([float(layer['thermal_resistance']) for layer in b['layers']])
+
+            if boundary_type == BoundaryType.ExternalGeneralPart:
+
+                r_o = float(b['outside_heat_transfer_resistance'])
+                rf = ResponseFactor.create_for_unsteady_not_ground(cs=cs, rs=rs, r_o=r_o)
+
+            elif boundary_type == BoundaryType.Internal:
+
+                rear_h_c = h_c_js[b['rear_surface_boundary_id'], 0]
+                rear_h_r = h_r_js[b['rear_surface_boundary_id'], 0]
+
+                r_o = 1.0 / (rear_h_c + rear_h_r)
+
+                rf = ResponseFactor.create_for_unsteady_not_ground(cs=cs, rs=rs, r_o=r_o)
+
+            elif boundary_type == BoundaryType.Ground:
+
+                rf = ResponseFactor.create_for_unsteady_ground(cs=cs, rs=rs)
+
+            else:
+
+                KeyError()
 
         return Boundary(
             id=boundary_id,

@@ -1,6 +1,6 @@
 {
 	"common": {
-		"region": 6
+        "ac_method": "pmv"
 	},
     "building": {
         "infiltration": {

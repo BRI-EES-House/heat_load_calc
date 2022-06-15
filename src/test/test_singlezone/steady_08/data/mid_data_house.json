@@ -1,6 +1,6 @@
 {
     "common": {
-
+        "ac_method": "pmv"
     },
     "building": {
         "infiltration": {
@@ -32,23 +32,17 @@
             "sub_name": "",
             "connected_room_id": 0,
             "boundary_type": "external_general_part",
-            "is_ground": false,
             "area": 1.0,
             "h_c": 5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
-            "spec": {
-                "method": "layers",
-                "boundary_type": "external_general_part",
-                "layers": [
-                    {
-                        "name": "plywood",
-                        "thermal_resistance": 0.075,
-                        "thermal_capacity": 8.64
-                    }
-                ],
-                "outside_heat_transfer_resistance": 0.04
-            },
+            "layers": [
+                {
+                    "name": "plywood",
+                    "thermal_resistance": 0.075,
+                    "thermal_capacity": 8.64
+                }
+            ],
             "solar_shading_part": {
                 "existence": false
             },
@@ -65,23 +59,17 @@
             "sub_name": "",
             "connected_room_id": 0,
             "boundary_type": "external_general_part",
-            "is_ground": false,
             "area": 1.0,
             "h_c": 5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
-            "spec": {
-                "method": "layers",
-                "boundary_type": "external_general_part",
-                "layers": [
-                    {
-                        "name": "plywood",
-                        "thermal_resistance": 0.075,
-                        "thermal_capacity": 8.64
-                    }
-                ],
-                "outside_heat_transfer_resistance": 0.04
-            },
+            "layers": [
+                {
+                    "name": "plywood",
+                    "thermal_resistance": 0.075,
+                    "thermal_capacity": 8.64
+                }
+            ],
             "solar_shading_part": {
                 "existence": false
             },
@@ -98,23 +86,17 @@
             "sub_name": "",
             "connected_room_id": 0,
             "boundary_type": "external_general_part",
-            "is_ground": false,
             "area": 1.0,
             "h_c": 5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
-            "spec": {
-                "method": "layers",
-                "boundary_type": "external_general_part",
-                "layers": [
-                    {
-                        "name": "plywood",
-                        "thermal_resistance": 0.075,
-                        "thermal_capacity": 8.64
-                    }
-                ],
-                "outside_heat_transfer_resistance": 0.04
-            },
+            "layers": [
+                {
+                    "name": "plywood",
+                    "thermal_resistance": 0.075,
+                    "thermal_capacity": 8.64
+                }
+            ],
             "solar_shading_part": {
                 "existence": false
             },
@@ -131,23 +113,17 @@
             "sub_name": "",
             "connected_room_id": 0,
             "boundary_type": "external_general_part",
-            "is_ground": false,
             "area": 1.0,
             "h_c": 5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
-            "spec": {
-                "method": "layers",
-                "boundary_type": "external_general_part",
-                "layers": [
-                    {
-                        "name": "plywood",
-                        "thermal_resistance": 0.075,
-                        "thermal_capacity": 8.64
-                    }
-                ],
-                "outside_heat_transfer_resistance": 0.04
-            },
+            "layers": [
+                {
+                    "name": "plywood",
+                    "thermal_resistance": 0.075,
+                    "thermal_capacity": 8.64
+                }
+            ],
             "solar_shading_part": {
                 "existence": false
             },
@@ -164,23 +140,17 @@
             "sub_name": "",
             "connected_room_id": 0,
             "boundary_type": "external_general_part",
-            "is_ground": false,
             "area": 1.0,
             "h_c": 5,
             "is_solar_absorbed_inside": true,
             "is_floor": true,
-            "spec": {
-                "method": "layers",
-                "boundary_type": "external_general_part",
-                "layers": [
-                    {
-                        "name": "plywood",
-                        "thermal_resistance": 0.075,
-                        "thermal_capacity": 8.64
-                    }
-                ],
-                "outside_heat_transfer_resistance": 0.04
-            },
+            "layers": [
+                {
+                    "name": "plywood",
+                    "thermal_resistance": 0.075,
+                    "thermal_capacity": 8.64
+                }
+            ],
             "solar_shading_part": {
                 "existence": false
             },
@@ -197,23 +167,17 @@
             "sub_name": "",
             "connected_room_id": 0,
             "boundary_type": "external_general_part",
-            "is_ground": false,
             "area": 1.0,
             "h_c": 5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
-            "spec": {
-                "method": "layers",
-                "boundary_type": "external_general_part",
-                "layers": [
-                    {
-                        "name": "plywood",
-                        "thermal_resistance": 0.075,
-                        "thermal_capacity": 8.64
-                    }
-                ],
-                "outside_heat_transfer_resistance": 0.04
-            },
+            "layers": [
+                {
+                    "name": "plywood",
+                    "thermal_resistance": 0.075,
+                    "thermal_capacity": 8.64
+                }
+            ],
             "solar_shading_part": {
                 "existence": false
             },

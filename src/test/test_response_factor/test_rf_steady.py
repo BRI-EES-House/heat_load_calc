@@ -1,13 +1,12 @@
 import unittest
 
 from heat_load_calc import response_factor
+from heat_load_calc.response_factor import ResponseFactor
 
 
 class MyTestCase(unittest.TestCase):
 
     def test_rf_steady(self):
-
-        # NOTE: n_root は将来的に破棄する予定のためテストはしない。
 
         test_patterns = [
             (2.0, 0.11,
@@ -21,25 +20,22 @@ class MyTestCase(unittest.TestCase):
         for u_w, r_i, expected_rfa0, expected_rfa1, expected_rft0, expected_rft1 in test_patterns:
             with self.subTest(u_w=u_w, r_i=r_i):
 
-                # 応答係数を作成する工場を作成
-                rff = response_factor.ResponseFactorFactorySteady(u_w=u_w, r_i=r_i)
-
                 # 応答係数の作成
-                rf: response_factor.ResponseFactor = rff.get_response_factors()
+                rf: ResponseFactor = ResponseFactor.create_for_steady(u_w=u_w, r_i=r_i)
 
                 # RFA0 の確認
                 self.assertAlmostEqual(rf.rfa0, expected_rfa0)
 
                 # RFA1 の確認　（12個）
-                for i in range(12):
-                    self.assertAlmostEqual(rf.rfa1[i], expected_rfa1[i])
+                for result, expected in zip(rf.rfa1, expected_rfa1):
+                    self.assertAlmostEqual(result, expected)
 
                 # RFT0 の確認
                 self.assertAlmostEqual(rf.rft0, expected_rft0)
 
                 # RFT1 の確認　（12個）
-                for i in range(12):
-                    self.assertAlmostEqual(rf.rfa1[i], expected_rft1[i])
+                for result, expected in zip(rf.rft1, expected_rft1):
+                    self.assertAlmostEqual(result, expected)
 
 
 if __name__ == '__main__':

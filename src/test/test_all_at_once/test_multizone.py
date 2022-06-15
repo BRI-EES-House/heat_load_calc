@@ -1,6 +1,7 @@
 import unittest
 import json
 import os
+import time
 
 from heat_load_calc import core2, schedule, outdoor_condition, furniture, interval
 
@@ -16,6 +17,8 @@ class TestAllAtOnce(unittest.TestCase):
         """
 
         print('\n testing all at once')
+
+        start = time.time()
 
         cls._data_dir = str(os.path.dirname(__file__)) + '/data_example1'
 
@@ -34,11 +37,16 @@ class TestAllAtOnce(unittest.TestCase):
         cls._dd_i = dd_i
         cls._dd_a = dd_a
 
+        elapsed_time = time.time() - start
+
+        print("elapsed_time:{0}".format(elapsed_time) + "[sec]")
+
         with open(cls._data_dir + '/mid_data_house.json') as f:
             mdh = json.load(f)
 
         cls._mdh = mdh
         cls._v_mec_vent = scd.v_mec_vent_local_is_ns
+
 
     def test_weather(self):
 

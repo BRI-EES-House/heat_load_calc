@@ -51,22 +51,17 @@
             "sub_name": "",
             "connected_room_id": 0,
             "boundary_type": "ground",
-            "is_ground": true,
             "area": 1.0,
             "h_c": 3.041174391,
             "is_solar_absorbed_inside": true,
             "is_floor": false,
-            "spec": {
-                "method": "layers_ground",
-                "boundary_type": "ground",
-                "layers": [
-                    {
-                        "name": "RC120mm",
-                        "thermal_resistance": 0.075,
-                        "thermal_capacity": 240
-                    }
-                ]
-            },
+            "layers": [
+                {
+                    "name": "RC120mm",
+                    "thermal_resistance": 0.075,
+                    "thermal_capacity": 240
+                }
+            ],
             "solar_shading_part": {
                 "existence": false
             },
@@ -78,22 +73,17 @@
             "sub_name": "",
             "connected_room_id": 0,
             "boundary_type": "ground",
-            "is_ground": true,
             "area": 1.0,
             "h_c": 3.041174391,
             "is_solar_absorbed_inside": true,
             "is_floor": true,
-            "spec": {
-                "method": "layers_ground",
-                "boundary_type": "ground",
-                "layers": [
-                    {
-                        "name": "RC120mm",
-                        "thermal_resistance": 0.075,
-                        "thermal_capacity": 240
-                    }
-                ]
-            },
+            "layers": [
+                {
+                    "name": "RC120mm",
+                    "thermal_resistance": 0.075,
+                    "thermal_capacity": 240
+                }
+            ],
             "solar_shading_part": {
                 "existence": false
             },
