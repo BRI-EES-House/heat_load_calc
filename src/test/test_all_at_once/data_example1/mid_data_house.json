@@ -377,8 +377,7 @@
                         "thermal_resistance": 0.0568,
                         "thermal_capacity": 10.375
                     }
-                ],
-                "rear_surface_boundary_id": 45
+                ]
             },
             "solar_shading_part": {
                 "existence": false
@@ -413,8 +412,7 @@
                         "thermal_resistance": 0.075,
                         "thermal_capacity": 8.64
                     }
-                ],
-                "rear_surface_boundary_id": 22
+                ]
             },
             "solar_shading_part": {
                 "existence": false
@@ -449,8 +447,7 @@
                         "thermal_resistance": 0.075,
                         "thermal_capacity": 8.64
                     }
-                ],
-                "rear_surface_boundary_id": 29
+                ]
             },
             "solar_shading_part": {
                 "existence": false
@@ -485,8 +482,7 @@
                         "thermal_resistance": 0.0568,
                         "thermal_capacity": 10.375
                     }
-                ],
-                "rear_surface_boundary_id": 37
+                ]
             },
             "solar_shading_part": {
                 "existence": false
@@ -705,8 +701,7 @@
                         "thermal_resistance": 0.0568,
                         "thermal_capacity": 10.375
                     }
-                ],
-                "rear_surface_boundary_id": 49
+                ]
             },
             "solar_shading_part": {
                 "existence": false
@@ -852,8 +847,7 @@
                         "thermal_resistance": 0.0568,
                         "thermal_capacity": 10.375
                     }
-                ],
-                "rear_surface_boundary_id": 47
+                ]
             },
             "solar_shading_part": {
                 "existence": false
@@ -888,8 +882,7 @@
                         "thermal_resistance": 0.0568,
                         "thermal_capacity": 10.375
                     }
-                ],
-                "rear_surface_boundary_id": 9
+                ]
             },
             "solar_shading_part": {
                 "existence": false
@@ -1108,8 +1101,7 @@
                         "thermal_resistance": 0.0568,
                         "thermal_capacity": 10.375
                     }
-                ],
-                "rear_surface_boundary_id": 48
+                ]
             },
             "solar_shading_part": {
                 "existence": false
@@ -1144,8 +1136,7 @@
                         "thermal_resistance": 0.0568,
                         "thermal_capacity": 10.375
                     }
-                ],
-                "rear_surface_boundary_id": 10
+                ]
             },
             "solar_shading_part": {
                 "existence": false
@@ -1418,8 +1409,7 @@
                         "thermal_resistance": 0.0568,
                         "thermal_capacity": 10.375
                     }
-                ],
-                "rear_surface_boundary_id": 46
+                ]
             },
             "solar_shading_part": {
                 "existence": false
@@ -1454,8 +1444,7 @@
                         "thermal_resistance": 0.0568,
                         "thermal_capacity": 10.375
                     }
-                ],
-                "rear_surface_boundary_id": 11
+                ]
             },
             "solar_shading_part": {
                 "existence": false
@@ -1752,8 +1741,7 @@
                         "thermal_resistance": 0.0568,
                         "thermal_capacity": 10.375
                     }
-                ],
-                "rear_surface_boundary_id": 8
+                ]
             },
             "solar_shading_part": {
                 "existence": false
@@ -1788,8 +1776,7 @@
                         "thermal_resistance": 0.0568,
                         "thermal_capacity": 10.375
                     }
-                ],
-                "rear_surface_boundary_id": 36
+                ]
             },
             "solar_shading_part": {
                 "existence": false
@@ -1824,8 +1811,7 @@
                         "thermal_resistance": 0.0568,
                         "thermal_capacity": 10.375
                     }
-                ],
-                "rear_surface_boundary_id": 21
+                ]
             },
             "solar_shading_part": {
                 "existence": false
@@ -1860,8 +1846,7 @@
                         "thermal_resistance": 0.0568,
                         "thermal_capacity": 10.375
                     }
-                ],
-                "rear_surface_boundary_id": 28
+                ]
             },
             "solar_shading_part": {
                 "existence": false
@@ -1896,8 +1881,7 @@
                         "thermal_resistance": 0.0568,
                         "thermal_capacity": 10.375
                     }
-                ],
-                "rear_surface_boundary_id": 17
+                ]
             },
             "solar_shading_part": {
                 "existence": false

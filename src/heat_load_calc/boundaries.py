@@ -250,8 +250,8 @@ class Boundaries:
 
             elif boundary_type == BoundaryType.Internal:
 
-                rear_h_c = h_c_js[b['spec']['rear_surface_boundary_id'], 0]
-                rear_h_r = h_r_js[b['spec']['rear_surface_boundary_id'], 0]
+                rear_h_c = h_c_js[b['rear_surface_boundary_id'], 0]
+                rear_h_r = h_r_js[b['rear_surface_boundary_id'], 0]
 
                 r_o = 1.0 / (rear_h_c + rear_h_r)
 
