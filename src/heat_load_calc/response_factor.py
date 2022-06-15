@@ -5,7 +5,6 @@
 import math
 import numpy as np
 from typing import List, Dict
-from dataclasses import dataclass
 
 from heat_load_calc.boundary_type import BoundaryType
 
@@ -131,24 +130,6 @@ class ResponseFactor:
         rft1 = np.zeros(12)
 
         return ResponseFactor(rft0=rft0, rfa0=rfa0, rft1=rft1, rfa1=rfa1, row=row)
-
-
-def get_response_factor(layers: List[Dict]):
-
-    # rff = ResponseFactorFactoryTransientGround(
-    #     cs=[float(layer['thermal_capacity']) for layer in layers],
-    #     rs=[float(layer['thermal_resistance']) for layer in layers]
-    # )
-    #
-    # return rff.get_response_factors(
-    #     cs=[float(layer['thermal_capacity']) for layer in layers],
-    #     rs=[float(layer['thermal_resistance']) for layer in layers]
-    # )
-
-    return ResponseFactor.create_for_unsteady_ground(
-        cs=np.array([float(layer['thermal_capacity']) for layer in layers]),
-        rs=np.array([float(layer['thermal_resistance']) for layer in layers])
-    )
 
 
 # ラプラス変数の設定
@@ -604,103 +585,4 @@ def calc_response_factor_non_residential(C_i_k_p, R_i_k_p):
     Row_12[:len(Row)] = Row
 
     return RFT0, RFA0, RFT1_12, RFA1_12, Row_12, Nroot
-
-
-class ResponseFactorFactory:
-
-    def __init__(self):
-        pass
-
-    def get_response_factors(self) -> ResponseFactor:
-
-        raise NotImplementedError()
-
-
-class ResponseFactorFactoryTransientGround(ResponseFactorFactory):
-
-    def __init__(self, cs: List[float], rs: List[float]):
-        """
-
-        Args:
-            cs: 単位面積あたりの熱容量, kJ/m2K, [layer数]
-            rs: 熱抵抗, m2K/W, [layer数]
-        """
-
-        super().__init__()
-        self._cs = cs
-        self._rs = rs
-
-    def get_response_factors(self, cs, rs) -> ResponseFactor:
-
-        is_ground = True
-
-        c = self._cs
-        c.append(3300.0 * 3.0)
-        c_layer_i_k_l = np.array(c) * 1000.0
-
-        r = self._rs
-        r.append(3.0 / 1.0)
-        r_layer_i_k_l = np.array(r)
-
-        # 応答係数
-        rft0, rfa0, rft1, rfa1, row = calc_response_factor(is_ground, c_layer_i_k_l, r_layer_i_k_l)
-
-        # 貫流応答係数の上書
-        # 土壌の計算は吸熱応答のみで計算するため、畳み込み積分に必要な指数項別応答係数はすべて０にする
-        # 貫流応答の初項は年平均気温掛かる係数であることから１とし、計算された貫流応答係数をすべて上書きする
-        rft0 = 1.0
-        rft1 = np.zeros(12)
-
-        return ResponseFactor(rft0=rft0, rfa0=rfa0, rft1=rft1, rfa1=rfa1, row=row)
-
-
-class ResponseFactorFactoryNonResidentialTransientEnvelope(ResponseFactorFactory):
-
-    def __init__(self, cs: List[float], rs: List[float], r_o: float):
-        """
-
-        Args:
-            cs: 熱容量, kJ/m2K, [layer数]
-            rs: 熱抵抗, m2K/W, [layer数]
-            r_o: 室外側熱伝達抵抗, m2K/W
-        """
-
-        super().__init__()
-        self._cs = cs
-        self._rs = rs
-        self._r_o = r_o
-
-    def get_response_factors(self) -> ResponseFactor:
-
-        is_ground = False
-
-        c = self._cs
-        c.append(0.0)
-        c_layer_i_k_l = np.array(c) * 1000.0
-
-        r = self._rs
-        r.append(self._r_o)
-        r_layer_i_k_l = np.array(r)
-
-        # 応答係数
-        _RFT0, _RFA0, _RFT1, _RFA1, _Row, _n_root_i_js = \
-            calc_response_factor_non_residential(c_layer_i_k_l, r_layer_i_k_l)
-
-        return ResponseFactor(rft0=_RFT0, rfa0=_RFA0, rft1=_RFT1, rfa1=_RFA1, row=_Row)
-
-
-def get_response_factor_non_residential_transient_envelope(cs: List[float], rs: List[float], r_o: float):
-
-    c = cs.copy()
-    c.append(0.0)
-    c_layer_i_k_l = np.array(c) * 1000.0
-
-    r = rs.copy()
-    r.append(r_o)
-    r_layer_i_k_l = np.array(r)
-
-    # 応答係数
-    _rft0, _rfa0, _rft1, _rfa1, _row, _n_root_i_js = calc_response_factor_non_residential(c_layer_i_k_l, r_layer_i_k_l)
-
-    return ResponseFactor(rft0=_rft0, rfa0=_rfa0, rft1=_rft1, rfa1=_rfa1, row=_row)
 
