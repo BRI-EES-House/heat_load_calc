@@ -25,7 +25,7 @@ class MyTestCase(unittest.TestCase):
                 rff = response_factor.ResponseFactorFactorySteady(u_w=u_w, r_i=r_i)
 
                 # 応答係数の作成
-                rf: response_factor.ResponseFactor = rff.get_response_factors()
+                rf: response_factor.ResponseFactor = response_factor.ResponseFactor.create_for_steady(u_w=u_w, r_i=r_i)
 
                 # RFA0 の確認
                 self.assertAlmostEqual(rf.rfa0, expected_rfa0)

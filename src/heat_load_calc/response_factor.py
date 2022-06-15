@@ -10,26 +10,65 @@ from dataclasses import dataclass
 from heat_load_calc.boundary_type import BoundaryType
 
 
-@dataclass()
 class ResponseFactor:
 
-    # 貫流応答係数の初項
-    rft0: float
+    def __init__(self, rft0: float, rfa0: float, rft1: np.ndarray, rfa1: np.ndarray, row: np.ndarray, n_root: int):
+        """
 
-    # 吸熱応答係数の初項
-    rfa0: float
+        Args:
+            rft0: 貫流応答係数の初項
+            rfa0: 吸熱応答係数の初項
+            rft1: 貫流応答係数
+            rfa1: 吸熱応答係数
+            row: 公比
+            n_root: 根の数
+        """
 
-    # 貫流応答係数
-    rft1: np.ndarray
+        self._rft0 = rft0
+        self._rfa0 = rfa0
+        self._rft1 = rft1
+        self._rfa1 = rfa1
+        self._row = row
+        self._n_root = n_root
 
-    # 吸熱応答係数
-    rfa1: np.ndarray
+    @property
+    def rft0(self):
+        return self._rft0
 
-    # 公比
-    row: np.ndarray
+    @property
+    def rfa0(self):
+        return self._rfa0
 
-    # 根の数
-    n_root: int
+    @property
+    def rft1(self):
+        return self._rft1
+
+    @property
+    def rfa1(self):
+        return self._rfa1
+
+    @property
+    def row(self):
+        return self._row
+
+    @property
+    def n_root(self):
+        return self._n_root
+
+    @classmethod
+    def create_for_steady(cls, u_w: float, r_i: float):
+
+        # 開口部の室内表面から屋外までの熱貫流率, W/m2K
+        u_so = 1.0 / (1.0 / u_w - r_i)
+
+        return ResponseFactor(
+            rft0=1.0,
+            rfa0=1.0 / u_so,
+            rft1=np.zeros(12, dtype=float),
+            rfa1=np.zeros(12, dtype=float),
+            row=np.zeros(12, dtype=float),
+            n_root=0
+        )
 
 
 def get_response_factor(h_c_js, h_r_js, spec: Dict, bt: BoundaryType, b: Dict):
@@ -80,7 +119,7 @@ def get_response_factor(h_c_js, h_r_js, spec: Dict, bt: BoundaryType, b: Dict):
             r_i=spec['inside_heat_transfer_resistance']
         )
 
-        return rff.get_response_factors()
+        return ResponseFactor.create_for_steady(u_w=b['u_value'], r_i=spec['inside_heat_transfer_resistance'])
 
     else:
 
@@ -595,7 +634,7 @@ class ResponseFactorFactory:
                 r_i=spec['inside_heat_transfer_resistance']
             )
 
-            return rff.get_response_factors()
+            return ResponseFactor.create_for_steady(u_w=spec['u_value'], r_i=spec['inside_heat_transfer_resistance'])
 
         else:
             raise KeyError()
@@ -715,10 +754,10 @@ class ResponseFactorFactorySteady(ResponseFactorFactory):
         self._u_w = u_w
         self._r_i = r_i
 
-    def get_response_factors(self) -> ResponseFactor:
+    def get_response_factors(self, u_w: float, r_i: float) -> ResponseFactor:
 
         # 開口部の室内表面から屋外までの熱貫流率, W/m2K
-        u_so = 1.0 / (1.0 / self._u_w - self._r_i)
+        u_so = 1.0 / (1.0 / u_w - r_i)
 
         return ResponseFactor(
             rft0=1.0,
