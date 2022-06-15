@@ -259,11 +259,13 @@ class Boundaries:
                     r_o=1.0 / (rear_h_c + rear_h_r)
                 )
 
+            elif boundary_type == BoundaryType.Ground:
+
+                rf = response_factor.get_response_factor(layers=b['spec']['layers'])
+
             else:
 
-                rf = response_factor.get_response_factor(
-                    h_c_js=h_c_js, h_r_js=h_r_js, spec=b['spec'], bt=boundary_type, layers=b['spec']['layers']
-                )
+                KeyError()
 
         return Boundary(
             id=boundary_id,

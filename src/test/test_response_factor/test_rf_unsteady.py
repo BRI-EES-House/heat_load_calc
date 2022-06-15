@@ -74,10 +74,12 @@ class MyTestCase(unittest.TestCase):
         rs = [0.8823529412, 0.0750000000]
 
         # 応答係数を計算する工場を作成
-        rff = rf.ResponseFactorFactoryTransientGround(cs=cs, rs=rs)
+#        rff = rf.ResponseFactorFactoryTransientGround(cs=cs, rs=rs)
 
         # 応答係数の計算
-        rft: rf.ResponseFactor = rff.get_response_factors()
+#        rft: rf.ResponseFactor = rff.get_response_factors(cs=cs, rs=rs)
+
+        rft = ResponseFactor.create_for_unsteady_ground(cs=cs, rs=rs)
 
         # RFA0の確認
         self.assertAlmostEqual(0.7153374350138639, rft.rfa0)

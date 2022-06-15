@@ -101,41 +101,47 @@ class ResponseFactor:
 
         return ResponseFactor(rft0=frt0, rfa0=rfa0, rft1=rft1, rfa1=rfa1, row=row)
 
+    @classmethod
+    def create_for_unsteady_ground(self, cs, rs):
 
-def get_response_factor(h_c_js, h_r_js, spec: Dict, bt: BoundaryType, layers: List[Dict]):
+        is_ground = True
 
-    if bt == BoundaryType.ExternalGeneralPart:
+        c = cs
+        c.append(3300.0 * 3.0)
+        c_layer_i_k_l = np.array(c) * 1000.0
 
-        return ResponseFactor.create_for_unsteady_not_ground(
-            cs=np.array([float(layer['thermal_capacity']) for layer in layers]),
-            rs=np.array([float(layer['thermal_resistance']) for layer in layers]),
-            r_o=float(spec['outside_heat_transfer_resistance'])
-        )
+        r = rs
+        r.append(3.0 / 1.0)
+        r_layer_i_k_l = np.array(r)
 
-    elif bt == BoundaryType.Internal:
+        # 応答係数
+        rft0, rfa0, rft1, rfa1, row = calc_response_factor(is_ground, c_layer_i_k_l, r_layer_i_k_l)
 
-        rear_h_c = h_c_js[spec['rear_surface_boundary_id'], 0]
+        # 貫流応答係数の上書
+        # 土壌の計算は吸熱応答のみで計算するため、畳み込み積分に必要な指数項別応答係数はすべて０にする
+        # 貫流応答の初項は年平均気温掛かる係数であることから１とし、計算された貫流応答係数をすべて上書きする
+        rft0 = 1.0
+        rft1 = np.zeros(12)
 
-        rear_h_r = h_r_js[spec['rear_surface_boundary_id'], 0]
+        return ResponseFactor(rft0=rft0, rfa0=rfa0, rft1=rft1, rfa1=rfa1, row=row)
 
-        return ResponseFactor.create_for_unsteady_not_ground(
-            cs=np.array([float(layer['thermal_capacity']) for layer in layers]),
-            rs=np.array([float(layer['thermal_resistance']) for layer in layers]),
-            r_o=1.0 / (rear_h_c + rear_h_r)
-        )
 
-    elif bt == BoundaryType.Ground:
+def get_response_factor(layers: List[Dict]):
 
-        rff = ResponseFactorFactoryTransientGround(
-            cs=[float(layer['thermal_capacity']) for layer in layers],
-            rs=[float(layer['thermal_resistance']) for layer in layers]
-        )
+    # rff = ResponseFactorFactoryTransientGround(
+    #     cs=[float(layer['thermal_capacity']) for layer in layers],
+    #     rs=[float(layer['thermal_resistance']) for layer in layers]
+    # )
+    #
+    # return rff.get_response_factors(
+    #     cs=[float(layer['thermal_capacity']) for layer in layers],
+    #     rs=[float(layer['thermal_resistance']) for layer in layers]
+    # )
 
-        return rff.get_response_factors()
-
-    else:
-
-        raise KeyError()
+    return ResponseFactor.create_for_unsteady_ground(
+        cs=[float(layer['thermal_capacity']) for layer in layers],
+        rs=[float(layer['thermal_resistance']) for layer in layers]
+    )
 
 
 # ラプラス変数の設定
@@ -617,7 +623,7 @@ class ResponseFactorFactoryTransientGround(ResponseFactorFactory):
         self._cs = cs
         self._rs = rs
 
-    def get_response_factors(self) -> ResponseFactor:
+    def get_response_factors(self, cs, rs) -> ResponseFactor:
 
         is_ground = True
 
