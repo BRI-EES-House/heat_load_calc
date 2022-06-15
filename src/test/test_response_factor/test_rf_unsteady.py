@@ -69,16 +69,11 @@ class MyTestCase(unittest.TestCase):
         # 土壌 3000mm
 
         # 単位面積あたりの熱容量, kJ / m2 K
-        cs = [1.080000, 240.000000]
+        cs = np.array([1.080000, 240.000000])
         # 熱抵抗, m2 K / W
-        rs = [0.8823529412, 0.0750000000]
-
-        # 応答係数を計算する工場を作成
-#        rff = rf.ResponseFactorFactoryTransientGround(cs=cs, rs=rs)
+        rs = np.array([0.8823529412, 0.0750000000])
 
         # 応答係数の計算
-#        rft: rf.ResponseFactor = rff.get_response_factors(cs=cs, rs=rs)
-
         rft = ResponseFactor.create_for_unsteady_ground(cs=cs, rs=rs)
 
         # RFA0の確認

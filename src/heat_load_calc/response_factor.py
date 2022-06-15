@@ -102,20 +102,27 @@ class ResponseFactor:
         return ResponseFactor(rft0=frt0, rfa0=rfa0, rft1=rft1, rfa1=rfa1, row=row)
 
     @classmethod
-    def create_for_unsteady_ground(self, cs, rs):
+    def create_for_unsteady_ground(cls, cs: np.ndarray, rs: np.ndarray):
+        """応答係数を作成する（地盤用）
 
-        is_ground = True
+        地盤層を追加する。
+        Args:
+            cs: 単位面積あたりの熱容量, kJ/m2K, [layer数]
+            rs: 熱抵抗, m2K/W, [layer数]
 
-        c = cs
-        c.append(3300.0 * 3.0)
-        c_layer_i_k_l = np.array(c) * 1000.0
+        Returns:
+            応答係数
+        """
 
-        r = rs
-        r.append(3.0 / 1.0)
-        r_layer_i_k_l = np.array(r)
+        # 裏面に地盤の層を加える。
+        cs = np.append(cs, 3300.0 * 3.0)
+        rs = np.append(rs, 3.0 / 1.0)
+
+        # 単位変換 kJ/m2K -> J/m2K
+        cs = cs * 1000.0
 
         # 応答係数
-        rft0, rfa0, rft1, rfa1, row = calc_response_factor(is_ground, c_layer_i_k_l, r_layer_i_k_l)
+        rft0, rfa0, rft1, rfa1, row = calc_response_factor(is_ground=True, cs=cs, rs=rs)
 
         # 貫流応答係数の上書
         # 土壌の計算は吸熱応答のみで計算するため、畳み込み積分に必要な指数項別応答係数はすべて０にする
@@ -139,8 +146,8 @@ def get_response_factor(layers: List[Dict]):
     # )
 
     return ResponseFactor.create_for_unsteady_ground(
-        cs=[float(layer['thermal_capacity']) for layer in layers],
-        rs=[float(layer['thermal_resistance']) for layer in layers]
+        cs=np.array([float(layer['thermal_capacity']) for layer in layers]),
+        rs=np.array([float(layer['thermal_resistance']) for layer in layers])
     )
 
 

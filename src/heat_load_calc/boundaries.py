@@ -261,7 +261,11 @@ class Boundaries:
 
             elif boundary_type == BoundaryType.Ground:
 
-                rf = response_factor.get_response_factor(layers=b['spec']['layers'])
+#                rf = response_factor.get_response_factor(layers=b['spec']['layers'])
+                rf = ResponseFactor.create_for_unsteady_ground(
+                    cs=np.array([float(layer['thermal_capacity']) for layer in b['spec']['layers']]),
+                    rs=np.array([float(layer['thermal_resistance']) for layer in b['spec']['layers']])
+                )
 
             else:
 
