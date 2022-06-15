@@ -102,11 +102,9 @@ class ResponseFactor:
         return ResponseFactor(rft0=frt0, rfa0=rfa0, rft1=rft1, rfa1=rfa1, row=row)
 
 
-def get_response_factor(h_c_js, h_r_js, spec: Dict, bt: BoundaryType, b: Dict):
+def get_response_factor(h_c_js, h_r_js, spec: Dict, bt: BoundaryType, layers: List[Dict]):
 
     if bt == BoundaryType.ExternalGeneralPart:
-
-        layers = spec['layers']
 
         return ResponseFactor.create_for_unsteady_not_ground(
             cs=np.array([float(layer['thermal_capacity']) for layer in layers]),
@@ -115,8 +113,6 @@ def get_response_factor(h_c_js, h_r_js, spec: Dict, bt: BoundaryType, b: Dict):
         )
 
     elif bt == BoundaryType.Internal:
-
-        layers = spec['layers']
 
         rear_h_c = h_c_js[spec['rear_surface_boundary_id'], 0]
 
@@ -129,8 +125,6 @@ def get_response_factor(h_c_js, h_r_js, spec: Dict, bt: BoundaryType, b: Dict):
         )
 
     elif bt == BoundaryType.Ground:
-
-        layers = spec['layers']
 
         rff = ResponseFactorFactoryTransientGround(
             cs=[float(layer['thermal_capacity']) for layer in layers],

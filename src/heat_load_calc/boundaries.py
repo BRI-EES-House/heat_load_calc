@@ -235,11 +235,35 @@ class Boundaries:
 
         # 応答係数
         if boundary_type in [BoundaryType.ExternalTransparentPart, BoundaryType.ExternalOpaquePart]:
+
             rf = ResponseFactor.create_for_steady(u_w=b['u_value'], r_i=b['inside_heat_transfer_resistance'])
+
         else:
-            rf = response_factor.get_response_factor(
-                h_c_js=h_c_js, h_r_js=h_r_js, spec=b['spec'], bt=boundary_type, b=b
-            )
+
+            if boundary_type == BoundaryType.ExternalGeneralPart:
+
+                rf = ResponseFactor.create_for_unsteady_not_ground(
+                    cs=np.array([float(layer['thermal_capacity']) for layer in b['spec']['layers']]),
+                    rs=np.array([float(layer['thermal_resistance']) for layer in b['spec']['layers']]),
+                    r_o=float(b['spec']['outside_heat_transfer_resistance'])
+                )
+
+            elif boundary_type == BoundaryType.Internal:
+
+                rear_h_c = h_c_js[b['spec']['rear_surface_boundary_id'], 0]
+                rear_h_r = h_r_js[b['spec']['rear_surface_boundary_id'], 0]
+
+                rf = ResponseFactor.create_for_unsteady_not_ground(
+                    cs=np.array([float(layer['thermal_capacity']) for layer in b['spec']['layers']]),
+                    rs=np.array([float(layer['thermal_resistance']) for layer in b['spec']['layers']]),
+                    r_o=1.0 / (rear_h_c + rear_h_r)
+                )
+
+            else:
+
+                rf = response_factor.get_response_factor(
+                    h_c_js=h_c_js, h_r_js=h_r_js, spec=b['spec'], bt=boundary_type, layers=b['spec']['layers']
+                )
 
         return Boundary(
             id=boundary_id,
