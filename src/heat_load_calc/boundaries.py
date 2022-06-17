@@ -211,7 +211,6 @@ class Boundaries:
             if b['is_sun_striked_outside']:
                 ssp = solar_shading.SolarShading.create(
                     ssp_dict=b['solar_shading_part'],
-                    is_sun_striked_outside=is_sun_striked_outside,
                     direction=direction
                 )
             else:

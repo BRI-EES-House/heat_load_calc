@@ -16,20 +16,19 @@ class SolarShading:
         pass
 
     @classmethod
-    def create(cls, ssp_dict: Dict, is_sun_striked_outside: bool, direction: str):
+    def create(cls, ssp_dict: Dict, direction: str):
         """
         入力ファイルの辞書の'solar_shading_part'を読み込む。
 
         Args:
             ssp_dict: 日除けの仕様に関する辞書
-            is_sun_striked_outside: 日射が当たるか否か
             direction: 方位
 
         Returns:
             SolarShadingPart クラス
         """
 
-        if ssp_dict['existence'] & is_sun_striked_outside:
+        if ssp_dict['existence']:
 
             input_method = ssp_dict['input_method']
 
