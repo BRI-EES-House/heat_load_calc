@@ -41,12 +41,18 @@ class MechanicalVentilations:
 
         for v in self._mechanical_ventilations:
 
-            r = v.root
+            if v.root_type in ['type1', 'type2', 'type3']:
 
-            for i in range(len(r)):
+                r = v.root
 
-                if i == 0:
-                    v1[r[0]] = v1[r[0]] + v.volume / 3600
+                for i in range(len(r)):
+
+                    if i == 0:
+                        v1[r[0]] = v1[r[0]] + v.volume / 3600
+
+            else:
+
+                raise KeyError()
 
         v1 = v1.reshape(-1, 1)
 
@@ -58,14 +64,20 @@ class MechanicalVentilations:
 
         for v in self._mechanical_ventilations:
 
-            r = v.root
+            if v.root_type in ['type1', 'type2', 'type3']:
 
-            for i in range(len(r)):
+                r = v.root
 
-                if i == 0:
-                    pass
-                else:
-                    v2[r[i], r[i-1]] = v2[r[i], r[i-1]] + v.volume / 3600
-                    v2[r[i], r[i]] = v2[r[i], r[i]] - v.volume / 3600
+                for i in range(len(r)):
+
+                    if i == 0:
+                        pass
+                    else:
+                        v2[r[i], r[i-1]] = v2[r[i], r[i-1]] + v.volume / 3600
+                        v2[r[i], r[i]] = v2[r[i], r[i]] - v.volume / 3600
+
+            else:
+
+                raise KeyError()
 
         return v2
