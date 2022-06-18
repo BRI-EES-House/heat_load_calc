@@ -78,7 +78,7 @@ def calc(
     logger.info('助走計算（建物全体）')
 
     for n in range(-n_step_run_up_build, 0):
-        c_n = sequence.run_tick(n=n, delta_t=delta_t, ss=pp, c_n=c_n, logger=result_logger, run_up=True)
+        c_n = sequence.run_tick(n=n, delta_t=delta_t, ss=pp, c_n=c_n, logger=result_logger)
 
     logger.info('本計算')
 
@@ -87,7 +87,7 @@ def calc(
 
     for n in range(0, n_step_main):
 
-        c_n = sequence.run_tick(n=n, delta_t=delta_t, ss=pp, c_n=c_n, logger=result_logger, run_up=False)
+        c_n = sequence.run_tick(n=n, delta_t=delta_t, ss=pp, c_n=c_n, logger=result_logger)
 
         if n == int(n_step_main / 12 * m):
             logger.info("{} / 12 calculated.".format(m))

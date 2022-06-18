@@ -9,7 +9,7 @@ from heat_load_calc.matrix_method import v_diag
 from heat_load_calc import occupants, psychrometrics as psy
 
 
-def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, logger: Logger, run_up: bool) -> Conditions:
+def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, logger: Logger) -> Conditions:
     """
     室の温湿度・熱負荷の計算
     Args:
@@ -18,7 +18,6 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
         ss: ループ計算前に計算可能なパラメータを含めたクラス
         c_n: 前の時刻からの状態量
         logger: ロギング用クラス
-        run_up: 助走計算か否か
     Returns:
         次の時刻にわたす状態量
     """
