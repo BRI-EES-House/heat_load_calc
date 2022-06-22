@@ -410,14 +410,12 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
         logger.theta_frt_is_ns[:, n_i] = theta_frt_is_n_pls.flatten()
         logger.x_frt_is_ns[:, n_i] = x_frt_is_n_pls.flatten()
         logger.theta_ei_js_ns[:, n_i] = theta_ei_js_n_pls.flatten()
+        logger.q_s_js_ns[:, n_i] = q_s_js_n_pls.flatten()
 
         # 次の時刻に引き渡さない値
         logger.theta_ot[:, n_i] = theta_ot_is_n_pls.flatten()
         logger.theta_s_js_ns[:, n_i] = theta_s_js_n_pls.flatten()
         logger.theta_rear_js_ns[:, n_i] = theta_rear_js_n.flatten()
-        logger.q_i_all_s_ns_js[:, n_i] = q_s_js_n_pls.flatten()
-#        logger.pmv_is_ns[:, n_i] = pmv_is_n_pls.flatten()
-#        logger.ppd_is_ns[:, n_i] = ppd_is_n_pls.flatten()
 
     # 平均値・積算値の書き込み
 
