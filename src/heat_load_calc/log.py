@@ -109,7 +109,7 @@ class Logger:
         self.q_i_sol_s_ns_js = np.zeros((n_boundaries, self._n_step_i), dtype=float)
 
         # ステップ n の境界 j の表面日射熱流, W, [j, n+1], 出力名:"rm[i]_b[j]_qiall_s
-        self.q_i_all_s_ns_js = np.zeros((n_boundaries, self._n_step_i), dtype=float)
+        self.q_s_js_ns = np.zeros((n_boundaries, self._n_step_i), dtype=float)
 
         # ---積算値---
 
@@ -321,7 +321,7 @@ class Logger:
                 dd_i[name + '_' + 'b' + str(j) + '_qic_s'] = t
             for j, t in enumerate(self.q_i_sol_s_ns_js[selected, :]):
                 dd_i[name + '_' + 'b' + str(j) + '_qisol_s'] = t
-            for j, t in enumerate(self.q_i_all_s_ns_js[selected, :]):
+            for j, t in enumerate(self.q_s_js_ns[selected, :]):
                 dd_i[name + '_' + 'b' + str(j) + '_qiall_s'] = t
 
         return dd_i, dd_a
