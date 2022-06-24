@@ -7,8 +7,6 @@ import logging
 import json
 from os import path
 
-from heat_load_calc import residents_number
-
 logger = logging.getLogger(name='HeatLoadCalc').getChild('Schedule')
 
 
@@ -51,7 +49,7 @@ class Schedule:
             a_floor_total = a_floor_is.sum()
 
             # 居住人数
-            n_p = residents_number.get_total_number_of_residents(a_floor_total=a_floor_total)
+            n_p = get_total_number_of_residents(a_floor_total=a_floor_total)
 
             # スケジュールを記述した辞書の読み込み
             d = cls._load_schedule(filename='schedules')
@@ -341,3 +339,21 @@ class Schedule:
             raise logger.error(msg='The number of people is out of range.')
 
         return ceil_np, floor_np
+
+
+def get_total_number_of_residents(a_floor_total: float) -> float:
+    """
+    床面積の合計から居住人数を計算する。
+    Args:
+        a_floor_total: 床面積の合計, m2
+
+    Returns:
+        居住人数
+    """
+
+    if a_floor_total < 30.0:
+        return 1.0
+    elif a_floor_total < 120.0:
+        return a_floor_total / 30.0
+    else:
+        return 4.0
