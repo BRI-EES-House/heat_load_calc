@@ -8,6 +8,8 @@ class TestRegionLocation(unittest.TestCase):
 
     def test_region_location(self):
 
+        print('\n testing region module')
+
         # 1地域（北見）
         lat, lon = Region.Region1.get_phi_loc_and_lambda_loc()
         self.assertEqual(lat, math.radians(43.82))

@@ -3,6 +3,7 @@ import pandas as pd
 import os
 import logging
 from typing import Tuple
+import math
 
 from heat_load_calc import solar_position
 from heat_load_calc.interval import Interval
@@ -11,7 +12,7 @@ from heat_load_calc.region import Region
 logger = logging.getLogger(name='HeatLoadCalc').getChild('Weather')
 
 
-class OutdoorCondition:
+class Weather:
 
     def __init__(
             self,
@@ -48,7 +49,7 @@ class OutdoorCondition:
         self._itv = itv
 
     @classmethod
-    def make_weather(cls, method: str, itv: Interval, file_path: str = "", region: int = None):
+    def make_weather(cls, method: str, itv: Interval = Interval.M15, file_path: str = "", region: int = None):
 
         if method == 'file':
 
@@ -60,7 +61,7 @@ class OutdoorCondition:
 
             logger.info('make weather data based on the EES region')
 
-            return cls._make_weather_ees(rgn=Region(region), itv=Interval.M15)
+            return cls._make_weather_ees(rgn=Region(region), itv=itv)
 
         else:
 
@@ -76,7 +77,7 @@ class OutdoorCondition:
         }[self._itv]
 
         # 時系列インデクスの作成
-        dd = pd.DataFrame(index=pd.date_range(start='1/1/1989', periods=8760 * 4, freq=freq))
+        dd = pd.DataFrame(index=pd.date_range(start='1/1/1989', periods=self._itv.get_annual_number(), freq=freq))
 
         dd['temperature'] = self._theta_o_ns.round(3)
         dd['absolute humidity'] = self._x_o_ns.round(6)
@@ -162,28 +163,36 @@ class OutdoorCondition:
 
         pp = pd.read_csv(file_path)
 
+        if not len(pp) == 8760:
+            raise Exception("Error: Row length of the file should be 8760.")
+
+        latitude = pp['longitude'][0]
+        longitude = pp['latitude'][0]
+
+        phi_loc, lambda_loc = math.radians(latitude), math.radians(longitude)
+
+        # 太陽位置
+        #   (1) ステップ n における太陽高度, rad, [n]
+        #   (2) ステップ n における太陽方位角, rad, [n]
+        h_sun_ns, a_sun_ns = solar_position.calc_solar_position(phi_loc=phi_loc, lambda_loc=lambda_loc, interval=itv)
+
         # 外気温度, degree C
-        theta_o_ns = pp['temperature'].values
+        theta_o_ns = cls._interpolate(weather_data=pp['temperature'].values, interval=itv, rolling=False)
 
         # 外気絶対湿度, kg/kg(DA)
-        x_o_ns = pp['absolute humidity'].values
+        # g/kgDA から kg/kgDA へ単位変換を行う。
+        x_o_ns = cls._interpolate(weather_data=pp['absolute humidity'].values, interval=itv, rolling=False) / 1000.0
 
         # 法線面直達日射量, W/m2
-        i_dn_ns = pp['normal direct solar radiation'].values
+        i_dn_ns = cls._interpolate(weather_data=pp['normal direct solar radiation'].values, interval=itv, rolling=False)
 
         # 水平面天空日射量, W/m2
-        i_sky_ns = pp['horizontal sky solar radiation'].values
+        i_sky_ns = cls._interpolate(weather_data=pp['horizontal sky solar radiation'].values, interval=itv, rolling=False)
 
         # 夜間放射量, W/m2
-        r_n_ns = pp['outward radiation'].values
+        r_n_ns = cls._interpolate(weather_data=pp['outward radiation'].values, interval=itv, rolling=False)
 
-        # 太陽高度, rad
-        h_sun_ns = pp['sun altitude'].values
-
-        # 太陽方位角, rad
-        a_sun_ns = pp['sun azimuth'].values
-
-        return OutdoorCondition(
+        return Weather(
             a_sun_ns=a_sun_ns,
             h_sun_ns=h_sun_ns,
             i_dn_ns=i_dn_ns,
@@ -209,7 +218,7 @@ class OutdoorCondition:
         return np.append(d, d[0])
 
     @classmethod
-    def _make_weather_ees(cls, rgn: Region, itv: Interval = Interval.M15):
+    def _make_weather_ees(cls, rgn: Region, itv: Interval):
         """気象データを作成する。
         Args:
             rgn: 地域の区分
@@ -238,7 +247,7 @@ class OutdoorCondition:
         #   (2) ステップ n における太陽方位角, rad, [n]
         h_sun_ns, a_sun_ns = solar_position.calc_solar_position(phi_loc=phi_loc, lambda_loc=lambda_loc, interval=itv)
 
-        return OutdoorCondition(
+        return Weather(
             a_sun_ns=a_sun_ns,
             h_sun_ns=h_sun_ns,
             i_dn_ns=i_dn_ns,
@@ -286,25 +295,25 @@ class OutdoorCondition:
         weather = data.T
 
         # ステップnにおける外気温度, degree C
-        theta_o_ns = cls._interpolate(weather_data=weather[0], interval=itv)
+        theta_o_ns = cls._interpolate(weather_data=weather[0], interval=itv, rolling=True)
 
         # ステップnにおける法線面直達日射量, W/m2
-        i_dn_ns = cls._interpolate(weather_data=weather[1], interval=itv)
+        i_dn_ns = cls._interpolate(weather_data=weather[1], interval=itv, rolling=True)
 
         # ステップnにおける水平面天空日射量, W/m2
-        i_sky_ns = cls._interpolate(weather_data=weather[2], interval=itv)
+        i_sky_ns = cls._interpolate(weather_data=weather[2], interval=itv, rolling=True)
 
         # ステップnにおける夜間放射量, W/m2
-        r_n_ns = cls._interpolate(weather_data=weather[3], interval=itv)
+        r_n_ns = cls._interpolate(weather_data=weather[3], interval=itv, rolling=True)
 
         # ステップnにおける外気絶対湿度, kg/kgDA
         # g/kgDA から kg/kgDA へ単位変換を行う。
-        x_o_ns = cls._interpolate(weather_data=weather[4], interval=itv) / 1000.
+        x_o_ns = cls._interpolate(weather_data=weather[4], interval=itv, rolling=True) / 1000.0
 
         return theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, x_o_ns
 
     @classmethod
-    def _interpolate(cls, weather_data: np.ndarray, interval: Interval) -> np.ndarray:
+    def _interpolate(cls, weather_data: np.ndarray, interval: Interval, rolling: bool) -> np.ndarray:
         """
         1時間ごとの8760データを指定された間隔のデータに補間する。
         '1h': 1時間間隔の場合、 n = 8760
@@ -314,6 +323,7 @@ class OutdoorCondition:
         Args:
             weather_data: 1時間ごとの気象データ [8760]
             interval: 生成するデータの時間間隔
+            rolling: rolling するか否か。データが1時始まりの場合は最終行の 12/31 24:00 のデータを 1/1 0:00 に持ってくるため、この値は True にすること。
 
         Returns:
             指定する時間間隔に補間された気象データ [n]
@@ -321,8 +331,11 @@ class OutdoorCondition:
 
         if interval == Interval.H1:
 
-            # 拡張アメダスのデータが1月1日の1時から始まっているため1時間ずらして0時始まりのデータに修正する。
-            return np.roll(weather_data, 1)
+            if rolling:
+                # 拡張アメダスのデータが1月1日の1時から始まっているため1時間ずらして0時始まりのデータに修正する。
+                return np.roll(weather_data, 1)
+            else:
+                return weather_data
 
         else:
 
@@ -333,9 +346,13 @@ class OutdoorCondition:
             }[interval]
 
             # 補間元データ1, 補間元データ2
-            # 拡張アメダスのデータが1月1日の1時から始まっているため1時間ずらして0時始まりのデータに修正する。
-            data1 = np.roll(weather_data, 1)     # 0時=24時のため、1回分前のデータを参照
-            data2 = weather_data
+            if rolling:
+                # 拡張アメダスのデータが1月1日の1時から始まっているため1時間ずらして0時始まりのデータに修正する。
+                data1 = np.roll(weather_data, 1)     # 0時=24時のため、1回分前のデータを参照
+                data2 = weather_data
+            else:
+                data1 = weather_data
+                data2 = np.roll(weather_data, -1)
 
             # 直線補完 8760×4 の2次元配列
             data_interp_2d = alpha[np.newaxis, :] * data1[:, np.newaxis] + (1.0 - alpha[np.newaxis, :]) * data2[:, np.newaxis]
