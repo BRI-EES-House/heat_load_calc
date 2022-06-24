@@ -1,10 +1,14 @@
 {
 	"common": {
+        "schedule": {
+            "method": "calculate"
+        },
         "ac_method": "pmv"
 	},
     "building": {
         "infiltration": {
             "method": "balance_residential",
+            "c_value_estimate": "specify",
             "story": 1,
             "c_value": 2.0,
             "inside_pressure": "negative"
@@ -22,6 +26,9 @@
             },
             "furniture": {
                 "input_method": "default"
+            },
+             "schedule": {
+                "name": "main_occupant_room"
             }
         }
     ],
@@ -32,38 +39,32 @@
             "sub_name": "",
             "connected_room_id": 0,
             "boundary_type": "external_general_part",
-            "is_ground": false,
             "area": 10.22,
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
-            "spec": {
-                "method": "layers",
-                "boundary_type": "external_general_part",
-                "layers": [
-                    {
-                        "name": "\u77f3\u3053\u3046\u30dc\u30fc\u30c9",
-                        "thermal_resistance": 0.057,
-                        "thermal_capacity": 10.38
-                    },
-                    {
-                        "name": "\u30b3\u30f3\u30af\u30ea\u30fc\u30c8",
-                        "thermal_resistance": 0.094,
-                        "thermal_capacity": 300
-                    },
-                    {
-                        "name": "\u62bc\u51fa\u6cd5\u30dd\u30ea\u30b9\u30c1\u30ec\u30f3\u30d5\u30a9\u30fc\u30e0\u3000\u4fdd\u6e29\u677f\u30001\u7a2e",
-                        "thermal_resistance": 1.25,
-                        "thermal_capacity": 1.65
-                    },
-                    {
-                        "name": "\u92fc\u677f",
-                        "thermal_resistance": 1.886e-05,
-                        "thermal_capacity": 3.76
-                    }
-                ],
-                "outside_heat_transfer_resistance": 0.04
-            },
+			"layers": [
+				{
+					"name": "\u77f3\u3053\u3046\u30dc\u30fc\u30c9",
+					"thermal_resistance": 0.057,
+					"thermal_capacity": 10.38
+				},
+				{
+					"name": "\u30b3\u30f3\u30af\u30ea\u30fc\u30c8",
+					"thermal_resistance": 0.094,
+					"thermal_capacity": 300
+				},
+				{
+					"name": "\u62bc\u51fa\u6cd5\u30dd\u30ea\u30b9\u30c1\u30ec\u30f3\u30d5\u30a9\u30fc\u30e0\u3000\u4fdd\u6e29\u677f\u30001\u7a2e",
+					"thermal_resistance": 1.25,
+					"thermal_capacity": 1.65
+				},
+				{
+					"name": "\u92fc\u677f",
+					"thermal_resistance": 1.886e-05,
+					"thermal_capacity": 3.76
+				}
+			],
             "solar_shading_part": {
                 "existence": false
             },
@@ -80,17 +81,10 @@
             "sub_name": "",
             "connected_room_id": 0,
             "boundary_type": "external_transparent_part",
-            "is_ground": false,
             "area": 6.93,
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
-            "spec": {
-                "method": "u_value",
-                "boundary_type": "external_transparent_part",
-                "u_value": 4.19,
-                "inside_heat_transfer_resistance": 0.11
-            },
             "solar_shading_part": {
                 "existence": false
             },
@@ -99,6 +93,7 @@
             "outside_emissivity": 0.9,
             "outside_heat_transfer_resistance": 0.04,
             "u_value": 4.19,
+			"inside_heat_transfer_resistance": 0.11,
             "eta_value": 0.63,
             "incident_angle_characteristics": "multiple",
             "glass_area_ratio": 0.8,
@@ -110,38 +105,32 @@
             "sub_name": "",
             "connected_room_id": 0,
             "boundary_type": "external_general_part",
-            "is_ground": false,
             "area": 10.56,
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
-            "spec": {
-                "method": "layers",
-                "boundary_type": "external_general_part",
-                "layers": [
-                    {
-                        "name": "\u77f3\u3053\u3046\u30dc\u30fc\u30c9",
-                        "thermal_resistance": 0.057,
-                        "thermal_capacity": 10.38
-                    },
-                    {
-                        "name": "\u30b3\u30f3\u30af\u30ea\u30fc\u30c8",
-                        "thermal_resistance": 0.094,
-                        "thermal_capacity": 300
-                    },
-                    {
-                        "name": "\u62bc\u51fa\u6cd5\u30dd\u30ea\u30b9\u30c1\u30ec\u30f3\u30d5\u30a9\u30fc\u30e0\u3000\u4fdd\u6e29\u677f\u30001\u7a2e",
-                        "thermal_resistance": 1.25,
-                        "thermal_capacity": 1.65
-                    },
-                    {
-                        "name": "\u92fc\u677f",
-                        "thermal_resistance": 1.886e-05,
-                        "thermal_capacity": 3.76
-                    }
-                ],
-                "outside_heat_transfer_resistance": 0.04
-            },
+			"layers": [
+				{
+					"name": "\u77f3\u3053\u3046\u30dc\u30fc\u30c9",
+					"thermal_resistance": 0.057,
+					"thermal_capacity": 10.38
+				},
+				{
+					"name": "\u30b3\u30f3\u30af\u30ea\u30fc\u30c8",
+					"thermal_resistance": 0.094,
+					"thermal_capacity": 300
+				},
+				{
+					"name": "\u62bc\u51fa\u6cd5\u30dd\u30ea\u30b9\u30c1\u30ec\u30f3\u30d5\u30a9\u30fc\u30e0\u3000\u4fdd\u6e29\u677f\u30001\u7a2e",
+					"thermal_resistance": 1.25,
+					"thermal_capacity": 1.65
+				},
+				{
+					"name": "\u92fc\u677f",
+					"thermal_resistance": 1.886e-05,
+					"thermal_capacity": 3.76
+				}
+			],
             "solar_shading_part": {
                 "existence": false
             },
@@ -158,38 +147,32 @@
             "sub_name": "",
             "connected_room_id": 0,
             "boundary_type": "external_general_part",
-            "is_ground": false,
             "area": 10.56,
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
-            "spec": {
-                "method": "layers",
-                "boundary_type": "external_general_part",
-                "layers": [
-                    {
-                        "name": "\u77f3\u3053\u3046\u30dc\u30fc\u30c9",
-                        "thermal_resistance": 0.057,
-                        "thermal_capacity": 10.38
-                    },
-                    {
-                        "name": "\u30b3\u30f3\u30af\u30ea\u30fc\u30c8",
-                        "thermal_resistance": 0.094,
-                        "thermal_capacity": 300
-                    },
-                    {
-                        "name": "\u62bc\u51fa\u6cd5\u30dd\u30ea\u30b9\u30c1\u30ec\u30f3\u30d5\u30a9\u30fc\u30e0\u3000\u4fdd\u6e29\u677f\u30001\u7a2e",
-                        "thermal_resistance": 1.25,
-                        "thermal_capacity": 1.65
-                    },
-                    {
-                        "name": "\u92fc\u677f",
-                        "thermal_resistance": 1.886e-05,
-                        "thermal_capacity": 3.76
-                    }
-                ],
-                "outside_heat_transfer_resistance": 0.04
-            },
+			"layers": [
+				{
+					"name": "\u77f3\u3053\u3046\u30dc\u30fc\u30c9",
+					"thermal_resistance": 0.057,
+					"thermal_capacity": 10.38
+				},
+				{
+					"name": "\u30b3\u30f3\u30af\u30ea\u30fc\u30c8",
+					"thermal_resistance": 0.094,
+					"thermal_capacity": 300
+				},
+				{
+					"name": "\u62bc\u51fa\u6cd5\u30dd\u30ea\u30b9\u30c1\u30ec\u30f3\u30d5\u30a9\u30fc\u30e0\u3000\u4fdd\u6e29\u677f\u30001\u7a2e",
+					"thermal_resistance": 1.25,
+					"thermal_capacity": 1.65
+				},
+				{
+					"name": "\u92fc\u677f",
+					"thermal_resistance": 1.886e-05,
+					"thermal_capacity": 3.76
+				}
+			],
             "solar_shading_part": {
                 "existence": false
             },
@@ -206,38 +189,32 @@
             "sub_name": "",
             "connected_room_id": 0,
             "boundary_type": "external_general_part",
-            "is_ground": false,
             "area": 17.15,
             "h_c": 2.5,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
-            "spec": {
-                "method": "layers",
-                "boundary_type": "external_general_part",
-                "layers": [
-                    {
-                        "name": "\u77f3\u3053\u3046\u30dc\u30fc\u30c9",
-                        "thermal_resistance": 0.057,
-                        "thermal_capacity": 10.38
-                    },
-                    {
-                        "name": "\u30b3\u30f3\u30af\u30ea\u30fc\u30c8",
-                        "thermal_resistance": 0.094,
-                        "thermal_capacity": 300
-                    },
-                    {
-                        "name": "\u62bc\u51fa\u6cd5\u30dd\u30ea\u30b9\u30c1\u30ec\u30f3\u30d5\u30a9\u30fc\u30e0\u3000\u4fdd\u6e29\u677f\u30001\u7a2e",
-                        "thermal_resistance": 1.25,
-                        "thermal_capacity": 1.65
-                    },
-                    {
-                        "name": "\u92fc\u677f",
-                        "thermal_resistance": 1.886e-05,
-                        "thermal_capacity": 3.76
-                    }
-                ],
-                "outside_heat_transfer_resistance": 0.04
-            },
+			"layers": [
+				{
+					"name": "\u77f3\u3053\u3046\u30dc\u30fc\u30c9",
+					"thermal_resistance": 0.057,
+					"thermal_capacity": 10.38
+				},
+				{
+					"name": "\u30b3\u30f3\u30af\u30ea\u30fc\u30c8",
+					"thermal_resistance": 0.094,
+					"thermal_capacity": 300
+				},
+				{
+					"name": "\u62bc\u51fa\u6cd5\u30dd\u30ea\u30b9\u30c1\u30ec\u30f3\u30d5\u30a9\u30fc\u30e0\u3000\u4fdd\u6e29\u677f\u30001\u7a2e",
+					"thermal_resistance": 1.25,
+					"thermal_capacity": 1.65
+				},
+				{
+					"name": "\u92fc\u677f",
+					"thermal_resistance": 1.886e-05,
+					"thermal_capacity": 3.76
+				}
+			],
             "solar_shading_part": {
                 "existence": false
             },
@@ -254,38 +231,32 @@
             "sub_name": "",
             "connected_room_id": 0,
             "boundary_type": "external_general_part",
-            "is_ground": false,
             "area": 21.53,
             "h_c": 0.7,
             "is_solar_absorbed_inside": true,
             "is_floor": true,
-            "spec": {
-                "method": "layers",
-                "boundary_type": "external_general_part",
-                "layers": [
-                    {
-                        "name": "\u5408\u677f",
-                        "thermal_resistance": 0.15,
-                        "thermal_capacity": 17.28
-                    },
-                    {
-                        "name": "\u975e\u5bc6\u9589\u7a7a\u6c17\u5c64",
-                        "thermal_resistance": 0.15,
-                        "thermal_capacity": 0
-                    },
-                    {
-                        "name": "\u30b3\u30f3\u30af\u30ea\u30fc\u30c8",
-                        "thermal_resistance": 0.081,
-                        "thermal_capacity": 260
-                    },
-                    {
-                        "name": "\u62bc\u51fa\u6cd5\u30dd\u30ea\u30b9\u30c1\u30ec\u30f3\u30d5\u30a9\u30fc\u30e0\u3000\u4fdd\u6e29\u677f\u30001\u7a2e",
-                        "thermal_resistance": 1.25,
-                        "thermal_capacity": 1.65
-                    }
-                ],
-                "outside_heat_transfer_resistance": 0.11
-            },
+			"layers": [
+				{
+					"name": "\u5408\u677f",
+					"thermal_resistance": 0.15,
+					"thermal_capacity": 17.28
+				},
+				{
+					"name": "\u975e\u5bc6\u9589\u7a7a\u6c17\u5c64",
+					"thermal_resistance": 0.15,
+					"thermal_capacity": 0
+				},
+				{
+					"name": "\u30b3\u30f3\u30af\u30ea\u30fc\u30c8",
+					"thermal_resistance": 0.081,
+					"thermal_capacity": 260
+				},
+				{
+					"name": "\u62bc\u51fa\u6cd5\u30dd\u30ea\u30b9\u30c1\u30ec\u30f3\u30d5\u30a9\u30fc\u30e0\u3000\u4fdd\u6e29\u677f\u30001\u7a2e",
+					"thermal_resistance": 1.25,
+					"thermal_capacity": 1.65
+				}
+			],
             "solar_shading_part": {
                 "existence": false
             },
@@ -301,38 +272,32 @@
             "sub_name": "",
             "connected_room_id": 0,
             "boundary_type": "external_general_part",
-            "is_ground": false,
             "area": 21.53,
             "h_c": 5.0,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
-            "spec": {
-                "method": "layers",
-                "boundary_type": "external_general_part",
-                "layers": [
-                    {
-                        "name": "\u30b3\u30f3\u30af\u30ea\u30fc\u30c8",
-                        "thermal_resistance": 0.081,
-                        "thermal_capacity": 260
-                    },
-                    {
-                        "name": "\u9632\u6c34\u5c64",
-                        "thermal_resistance": 0.091,
-                        "thermal_capacity": 9.2
-                    },
-                    {
-                        "name": "\u62bc\u51fa\u6cd5\u30dd\u30ea\u30b9\u30c1\u30ec\u30f3\u30d5\u30a9\u30fc\u30e0\u3000\u4fdd\u6e29\u677f\u30001\u7a2e",
-                        "thermal_resistance": 1.25,
-                        "thermal_capacity": 1.65
-                    },
-                    {
-                        "name": "\u30b3\u30f3\u30af\u30ea\u30fc\u30c8",
-                        "thermal_resistance": 0.031,
-                        "thermal_capacity": 100
-                    }
-                ],
-                "outside_heat_transfer_resistance": 0.11
-            },
+			"layers": [
+				{
+					"name": "\u30b3\u30f3\u30af\u30ea\u30fc\u30c8",
+					"thermal_resistance": 0.081,
+					"thermal_capacity": 260
+				},
+				{
+					"name": "\u9632\u6c34\u5c64",
+					"thermal_resistance": 0.091,
+					"thermal_capacity": 9.2
+				},
+				{
+					"name": "\u62bc\u51fa\u6cd5\u30dd\u30ea\u30b9\u30c1\u30ec\u30f3\u30d5\u30a9\u30fc\u30e0\u3000\u4fdd\u6e29\u677f\u30001\u7a2e",
+					"thermal_resistance": 1.25,
+					"thermal_capacity": 1.65
+				},
+				{
+					"name": "\u30b3\u30f3\u30af\u30ea\u30fc\u30c8",
+					"thermal_resistance": 0.031,
+					"thermal_capacity": 100
+				}
+			],
             "solar_shading_part": {
                 "existence": false
             },
