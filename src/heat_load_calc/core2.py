@@ -2,7 +2,7 @@ import pandas as pd
 import logging
 from typing import Tuple, Dict
 
-from heat_load_calc import schedule, sequence, log, sequence_ground, pre_calc_parameters, outdoor_condition, period, \
+from heat_load_calc import schedule, sequence, log, sequence_ground, pre_calc_parameters, weather, period, \
     conditions
 
 logger = logging.getLogger('HeatLoadCalc').getChild('core')
@@ -10,7 +10,7 @@ logger = logging.getLogger('HeatLoadCalc').getChild('core')
 
 def calc(
         rd: Dict,
-        oc: outdoor_condition.OutdoorCondition,
+        oc: weather.Weather,
         scd: schedule.Schedule,
         n_step_hourly: int = 4,
         n_d_main: int = 365,

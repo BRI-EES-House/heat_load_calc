@@ -6,7 +6,7 @@ import logging
 
 from heat_load_calc.matrix_method import v_diag
 
-from heat_load_calc import outdoor_condition, ot_target, next_condition, schedule, rooms, boundaries, equipments, \
+from heat_load_calc import weather, ot_target, next_condition, schedule, rooms, boundaries, equipments, \
     infiltration, occupants_form_factor, shape_factor, solar_absorption, mechanical_ventilations, operation
 
 
@@ -201,7 +201,7 @@ class PreCalcParametersGround:
 def make_pre_calc_parameters(
         delta_t: float,
         rd: Dict,
-        oc: outdoor_condition.OutdoorCondition,
+        oc: weather.Weather,
         scd: schedule.Schedule,
         q_trs_sol_is_ns: Optional[np.ndarray] = None,
         theta_o_eqv_js_ns: Optional[np.ndarray] = None

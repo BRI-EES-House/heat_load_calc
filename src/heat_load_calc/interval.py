@@ -23,11 +23,7 @@ class Interval(Enum):
     M15 = '15m'
 
     def get_n_hour(self):
-        """
-        1時間を分割するステップ数を求める。
-
-        Args:
-            interval: 生成するデータの時間間隔
+        """1時間を分割するステップ数を求める。
 
         Returns:
             1時間を分割するステップ数
@@ -45,11 +41,7 @@ class Interval(Enum):
         }[self]
 
     def get_time(self):
-        """
-        1時間を分割するステップに応じてインターバル時間を取得する。
-
-        Args:
-            interval: 生成するデータの時間間隔
+        """1時間を分割するステップに応じてインターバル時間を取得する。
 
         Returns:
             インターバル時間, h
@@ -60,3 +52,15 @@ class Interval(Enum):
             Interval.M30: 0.5,
             Interval.M15: 0.25
         }[self]
+
+    def get_annual_number(self):
+        """対応するインターバルにおいて1年間は何ステップに対応するのか、その数を取得する。
+
+        Returns:
+            1年間のステップ数
+        Notes:
+            瞬時値の結果は、1/1 0:00 と 12/31 24:00(=翌年の1/1 0:00) の値を含むため、+1 される。
+            この関数で返す値は「+1されない」値である。
+        """
+
+        return 8760 * self.get_n_hour()

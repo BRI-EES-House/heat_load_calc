@@ -3,9 +3,9 @@ from dataclasses import dataclass
 from typing import List, Dict
 
 from heat_load_calc import outside_eqv_temp, response_factor, transmission_solar_radiation, solar_shading, \
-    shape_factor, outdoor_condition
+    shape_factor, weather
 from heat_load_calc.boundary_type import BoundaryType
-from heat_load_calc.outdoor_condition import OutdoorCondition
+from heat_load_calc.weather import Weather
 from heat_load_calc.response_factor import ResponseFactor
 
 
@@ -72,7 +72,7 @@ class Boundary:
 
 class Boundaries:
 
-    def __init__(self, n_rm: int, bs_list: List[Dict], oc: OutdoorCondition):
+    def __init__(self, n_rm: int, bs_list: List[Dict], oc: Weather):
         """
 
         Args:
@@ -83,7 +83,7 @@ class Boundaries:
 
         self._bss = self._get_boundary_list(n_rm=n_rm, bs_list=bs_list, oc=oc)
 
-    def _get_boundary_list(self, n_rm: int, bs_list: List[Dict], oc: OutdoorCondition) -> List[Boundary]:
+    def _get_boundary_list(self, n_rm: int, bs_list: List[Dict], oc: Weather) -> List[Boundary]:
         """
 
         Args:
@@ -115,7 +115,7 @@ class Boundaries:
         return bss
 
     @staticmethod
-    def _get_boundary(b: Dict, h_c_js: np.ndarray, h_r_js: np.ndarray, oc: OutdoorCondition) -> Boundary:
+    def _get_boundary(b: Dict, h_c_js: np.ndarray, h_r_js: np.ndarray, oc: Weather) -> Boundary:
         """
 
         Args:

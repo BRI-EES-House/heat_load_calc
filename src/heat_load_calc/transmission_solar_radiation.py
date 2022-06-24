@@ -5,7 +5,7 @@
 import numpy as np
 
 from heat_load_calc import external_boundaries_direction, inclined_surface_solar_radiation, window, solar_shading
-from heat_load_calc.outdoor_condition import OutdoorCondition
+from heat_load_calc.weather import Weather
 
 
 class TransmissionSolarRadiation:
@@ -37,7 +37,7 @@ class TransmissionSolarRadiation:
 
             return TransmissionSolarRadiationNot()
 
-    def get_qgt(self, oc: OutdoorCondition) -> np.ndarray:
+    def get_qgt(self, oc: Weather) -> np.ndarray:
         """
 
         Args:
@@ -81,7 +81,7 @@ class TransmissionSolarRadiationTransparentSunStrike(TransmissionSolarRadiation)
         self._eta_value = eta_value
         self._glass_area_ratio = glass_area_ratio
 
-    def get_qgt(self, oc: OutdoorCondition) -> np.ndarray:
+    def get_qgt(self, oc: Weather) -> np.ndarray:
         """
 
         Args:
@@ -162,7 +162,7 @@ class TransmissionSolarRadiationNot(TransmissionSolarRadiation):
     def __init__(self):
         super().__init__()
 
-    def get_qgt(self, oc: OutdoorCondition) -> np.ndarray:
+    def get_qgt(self, oc: Weather) -> np.ndarray:
         """
 
         Args:

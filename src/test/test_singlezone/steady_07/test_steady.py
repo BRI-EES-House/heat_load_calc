@@ -26,7 +26,7 @@ class TestSteadyState(unittest.TestCase):
             rd = json.load(js)
 
         # 気象データ読み出し
-        import_weather_path = os.path.join(s_folder, "weather.csv")
+        import_weather_path = os.path.join(s_folder, "weather_for_method_file.csv")
         dd_weather = pd.read_csv(import_weather_path)
 
         # ステップnの室iにおける局所換気量, m3/s, [i, 8760*4]

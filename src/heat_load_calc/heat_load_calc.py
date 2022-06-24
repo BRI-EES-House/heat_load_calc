@@ -9,7 +9,7 @@ import urllib.request, urllib.error
 # 絶対パスでモジュールを探索できるようにする
 sys.path.insert(0, path.abspath(path.join(path.dirname(__file__), '..')))
 
-from heat_load_calc import core2, schedule, outdoor_condition, interval
+from heat_load_calc import core2, schedule, weather, interval
 
 
 def run(
@@ -62,8 +62,8 @@ def run(
         with open(house_data_path, 'r', encoding='utf-8') as js:
             rd = json.load(js)
 
-    # 気象データの生成 => weather.csv
-    oc = outdoor_condition.OutdoorCondition.make_weather(
+    # 気象データの生成 => weather_for_method_file.csv
+    w = weather.Weather.make_weather(
         method=weather_specify_method,
         file_path=path.abspath(weather_file_path),
         region=region,
@@ -79,14 +79,14 @@ def run(
     # ---- 計算 ----
 
     # 計算
-    dd_i, dd_a = core2.calc(rd=rd, oc=oc, scd=scd)
+    dd_i, dd_a = core2.calc(rd=rd, oc=w, scd=scd)
 
     # 気象データの保存
     if is_weather_saved:
 
-        weather_path = path.join(output_data_dir, 'weather.csv')
+        weather_path = path.join(output_data_dir, 'weather_for_method_file.csv')
         logger.info('Save weather data to `{}`'.format(weather_path))
-        dd = oc.get_weather_as_pandas_data_frame()
+        dd = w.get_weather_as_pandas_data_frame()
         dd.to_csv(weather_path, encoding='utf-8')
 
     # スケジュールファイルの保存

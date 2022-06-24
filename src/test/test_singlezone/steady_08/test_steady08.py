@@ -3,7 +3,7 @@ import unittest
 import numpy as np
 import json
 
-from heat_load_calc import sequence, pre_calc_parameters, outdoor_condition, conditions, operation_mode, schedule, \
+from heat_load_calc import sequence, pre_calc_parameters, weather, conditions, operation_mode, schedule, \
     interval
 
 
@@ -33,7 +33,7 @@ class TestSteadyState(unittest.TestCase):
         # 気象データ読み出し
         # 外界条件
         # 全ての値は0.0で一定とする。日射・夜間放射はなし。
-        oc = outdoor_condition.OutdoorCondition(
+        oc = weather.Weather(
             a_sun_ns=np.zeros(8760*4, dtype=float),
             h_sun_ns=np.zeros(8760*4, dtype=float),
             i_dn_ns=np.zeros(8760*4, dtype=float),

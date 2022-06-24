@@ -1,8 +1,9 @@
 import os
 import unittest
 import json
+import numpy as np
 
-from heat_load_calc import core2, schedule, outdoor_condition, interval
+from heat_load_calc import core2, schedule, weather, interval
 
 
 # 定常状態のテスト
@@ -31,13 +32,22 @@ class TestSigleRoomWithGround(unittest.TestCase):
         file_path = os.path.abspath(os.path.join(s_folder, "weather.csv"))
 
         # 気象データ読み出し
-        oc = outdoor_condition.OutdoorCondition.make_weather(method='file', file_path=file_path, itv=interval.Interval.M15)
+        w = weather.Weather(
+            a_sun_ns=np.zeros(8760*4, dtype=float),
+            h_sun_ns=np.zeros(8760*4, dtype=float),
+            i_dn_ns=np.zeros(8760*4, dtype=float),
+            i_sky_ns=np.zeros(8760*4, dtype=float),
+            r_n_ns=np.zeros(8760*4, dtype=float),
+            theta_o_ns=np.full(8760*4, fill_value=10.0, dtype=float),
+            x_o_ns=np.zeros(8760*4, dtype=float),
+            itv=interval.Interval.M15
+        )
 
         # スケジュールの設定
         scd = schedule.Schedule.get_schedule(schedule_specify_method='calculate', rooms=rd['rooms'])
 
         # 計算実行
-        dd_i, dd_a = core2.calc(rd=rd, oc=oc, scd=scd, n_d_main=30, n_d_run_up=10, n_d_run_up_build=0)
+        dd_i, dd_a = core2.calc(rd=rd, oc=w, scd=scd, n_d_main=30, n_d_run_up=10, n_d_run_up_build=0)
 
         # 計算結果格納
         cls._dd_i = dd_i

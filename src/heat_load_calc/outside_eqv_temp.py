@@ -5,7 +5,7 @@
 import numpy as np
 
 from heat_load_calc import external_boundaries_direction, inclined_surface_solar_radiation, window, solar_shading
-from heat_load_calc.outdoor_condition import OutdoorCondition
+from heat_load_calc.weather import Weather
 
 
 class OutsideEqvTemp:
@@ -63,7 +63,7 @@ class OutsideEqvTemp:
 
             raise KeyError()
 
-    def get_theta_o_sol_i_j_ns(self, oc: OutdoorCondition) -> np.ndarray:
+    def get_theta_o_sol_i_j_ns(self, oc: Weather) -> np.ndarray:
         """相当外気温度を計算する。
         本関数はアブストラクトメソッド。継承されたクラスによりオーバーライドされる。
 
@@ -83,7 +83,7 @@ class OutsideEqvTempInternal(OutsideEqvTemp):
         super().__init__()
         pass
 
-    def get_theta_o_sol_i_j_ns(self, oc: OutdoorCondition) -> np.ndarray:
+    def get_theta_o_sol_i_j_ns(self, oc: Weather) -> np.ndarray:
         """
         相当外気温度を計算する。
 
@@ -119,7 +119,7 @@ class OutsideEqvTempExternalGeneralPartAndExternalOpaquePart(OutsideEqvTemp):
         self._r_surf = r_surf
         self._solar_shading_part = solar_shading
 
-    def get_theta_o_sol_i_j_ns(self, oc: OutdoorCondition) -> np.ndarray:
+    def get_theta_o_sol_i_j_ns(self, oc: Weather) -> np.ndarray:
         """
         相当外気温度を計算する。
 
@@ -192,7 +192,7 @@ class OutsideEqvTempExternalTransparentPart(OutsideEqvTemp):
         self._glass_area_ratio = glass_area_ratio_j
         self._shading_part = solar_shading_part
 
-    def get_theta_o_sol_i_j_ns(self, oc: OutdoorCondition) -> np.ndarray:
+    def get_theta_o_sol_i_j_ns(self, oc: Weather) -> np.ndarray:
         """
         相当外気温度を計算する。
 
@@ -274,7 +274,7 @@ class OutsideEqvTempExternalNotSunStriked(OutsideEqvTemp):
     def __init__(self):
         super().__init__()
 
-    def get_theta_o_sol_i_j_ns(self, oc: OutdoorCondition) -> np.ndarray:
+    def get_theta_o_sol_i_j_ns(self, oc: Weather) -> np.ndarray:
         """
         相当外気温度を計算する。
 
@@ -295,7 +295,7 @@ class OutsideEqvTempGround(OutsideEqvTemp):
         super().__init__()
         pass
 
-    def get_theta_o_sol_i_j_ns(self, oc: OutdoorCondition) -> np.ndarray:
+    def get_theta_o_sol_i_j_ns(self, oc: Weather) -> np.ndarray:
         """相当外気温度を計算する。
 
         Args:
