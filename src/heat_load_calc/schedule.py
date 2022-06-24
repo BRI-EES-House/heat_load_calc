@@ -32,7 +32,12 @@ class Schedule:
         self._ac_demand_is_ns = ac_demand_is_ns
 
     @classmethod
-    def get_schedule(cls, schedule_specify_method: str, rooms: List[Dict], folder_path: str = ""):
+    def get_schedule(cls, rooms: List[Dict], folder_path: str = ""):
+
+        schedule_specify_method = 'calculate'
+        # スケジュールの与え方は常にjsonファイルから読み込む形式に統一する。
+        # 今後、numpy で1年間のデータを直接与える方法は採用しない。
+        # しばらくの間、'specify' メソッドを残しておくが、十分確認した後、削除する予定。
 
         if schedule_specify_method == 'calculate':
 

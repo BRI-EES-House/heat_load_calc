@@ -30,7 +30,7 @@ class TestAllAtOnce(unittest.TestCase):
 
         oc = weather.Weather.make_weather(method='ees', region=6, itv=interval.Interval.M15)
 
-        scd = schedule.Schedule.get_schedule(schedule_specify_method='calculate', rooms=rd['rooms'])
+        scd = schedule.Schedule.get_schedule(rooms=rd['rooms'])
 
         dd_i, dd_a = core2.calc(rd=rd, oc=oc, scd=scd)
 
