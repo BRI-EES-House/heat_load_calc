@@ -51,11 +51,13 @@ class Schedule:
             # 居住人数
             n_p = get_total_number_of_residents(a_floor_total=a_floor_total)
 
-            # スケジュールを記述した辞書の読み込み
-            d = cls._load_schedule(filename='schedules')
+            calender_dict = cls._load_schedule(filename='calendar')
 
             # カレンダーの読み込み（日にちの種類（'平日', '休日外', '休日在'））, [365]
-            calendar = np.array(d['calendar'])
+            calendar = np.array(calender_dict['calendar'])
+
+            # スケジュールを記述した辞書の読み込み
+            d = cls._load_schedule(filename='schedules')
 
             # ステップ n の室 i における局所換気量, m3/s, [i, n]
             # jsonファイルでは、 m3/h で示されているため、単位換算(m3/h -> m3/s)を行っている。
@@ -240,7 +242,7 @@ class Schedule:
         """スケジュールを読み込む
         """
 
-        js = open(str(os.path.dirname(__file__)) + '/' + filename + '.json', 'r', encoding='utf-8')
+        js = open(str(os.path.dirname(__file__)) + '/schedule/' + filename + '.json', 'r', encoding='utf-8')
         d_json = json.load(js)
         js.close()
         return d_json
