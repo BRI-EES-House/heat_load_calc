@@ -40,64 +40,50 @@ class Schedule:
         self._ac_demand_is_ns = ac_demand_is_ns
 
     @classmethod
-    def get_schedule(cls, rooms: List[Dict], number_of_occupants: str, s_name_is: List[str], a_floor_is: List[float]):
+    def get_schedule(cls, number_of_occupants: str, s_name_is: List[str], a_floor_is: List[float]):
         """
 
         Args:
-            rooms:
             number_of_occupants: 居住人数の指定方法
             s_name_is: 室 i のスケジュールの名称, [i]
+            a_floor_is: 室 i の床面積, m2, [i]
 
         Returns:
 
         """
 
-        no = NumberOfOccupants(number_of_occupants)
-
-        # 室iの名称, [i]
-        s_name_is = [r['schedule']['name'] for r in rooms]
-
-        # 室iの床面積, m2, [i]
-        a_floor_is = np.array([r['floor_area'] for r in rooms])
-
-        # 床面積の合計, m2
-        a_floor_total = a_floor_is.sum()
+        # 居住人数の指定モード
+        noo = NumberOfOccupants(number_of_occupants)
 
         # 居住人数
-        n_p = get_total_number_of_residents(a_floor_total=a_floor_total)
-
-        calender_dict = cls._load_schedule(filename='calendar')
-
-        # カレンダーの読み込み（日にちの種類（'平日', '休日外', '休日在'））, [365]
-        calendar = np.array(calender_dict['calendar'])
-
-        # スケジュールを記述した辞書の読み込み
-        d = cls._load_schedule(filename='schedules')
+        n_p = cls._get_n_p(noo=noo, a_floor_is=a_floor_is)
 
         # ステップ n の室 i における局所換気量, m3/s, [i, n]
         # jsonファイルでは、 m3/h で示されているため、単位換算(m3/h -> m3/s)を行っている。
-        v_mec_vent_local_is_ns = np.concatenate([[cls._get_schedule(schedule_name_i=s_name_i, n_p=n_p, calendar=calendar, daily_schedule=d['daily_schedule'], schedule_type='local_vent_amount')] for s_name_i in s_name_is]) / 3600.0
+        v_mec_vent_local_is_ns = cls._get_schedules(s_name_is=s_name_is, noo=noo, n_p=n_p, schedule_type='local_vent_amount') / 3600.0
 
         # ステップ n の室 i における機器発熱, W, [i, n]
-        q_gen_app_is_ns = np.concatenate([[cls._get_schedule(schedule_name_i=s_name_i, n_p=n_p, calendar=calendar, daily_schedule=d['daily_schedule'], schedule_type='heat_generation_appliances')] for s_name_i in s_name_is])
+        q_gen_app_is_ns = cls._get_schedules(s_name_is=s_name_is, noo=noo, n_p=n_p, schedule_type='heat_generation_appliances')
 
         # ステップ n の室 i における調理発熱, W, [i, n]
-        q_gen_ckg_is_ns = np.concatenate([[cls._get_schedule(schedule_name_i=s_name_i, n_p=n_p, calendar=calendar, daily_schedule=d['daily_schedule'], schedule_type='vapor_generation_cooking')] for s_name_i in s_name_is])
+        q_gen_ckg_is_ns = cls._get_schedules(s_name_is=s_name_is, noo=noo, n_p=n_p, schedule_type='vapor_generation_cooking')
 
         # ステップ n の室 i における調理発湿, kg/s, [i, n]
         # jsonファイルでは、g/h で示されているため、単位換算(g/h->kg/s)を行っている。
-        x_gen_ckg_is_ns = np.concatenate([[cls._get_schedule(schedule_name_i=s_name_i, n_p=n_p, calendar=calendar, daily_schedule=d['daily_schedule'], schedule_type='heat_generation_cooking')] for s_name_i in s_name_is]) / 1000.0 / 3600.0
+        x_gen_ckg_is_ns = cls._get_schedules(s_name_is=s_name_is, noo=noo, n_p=n_p, schedule_type='heat_generation_cooking') / 1000.0 / 3600.0
 
         # ステップ n の室 i における照明発熱, W/m2, [i, n]
         # 単位面積あたりで示されていることに注意
-        q_gen_lght_is_ns = np.concatenate([[cls._get_schedule(schedule_name_i=s_name_i, n_p=n_p, calendar=calendar, daily_schedule=d['daily_schedule'], schedule_type='heat_generation_lighting')] for s_name_i in s_name_is])
+        q_gen_lght_is_ns = cls._get_schedules(s_name_is=s_name_is, noo=noo, n_p=n_p, schedule_type='heat_generation_lighting')
 
         # ステップ n の室 i における在室人数, [i, n]
         # 居住人数で按分しているため、整数ではなく小数であることに注意
-        n_hum_is_ns = np.concatenate([[cls._get_schedule(schedule_name_i=s_name_i, n_p=n_p, calendar=calendar, daily_schedule=d['daily_schedule'], schedule_type='number_of_people')] for s_name_i in s_name_is])
+        n_hum_is_ns = cls._get_schedules(s_name_is=s_name_is, noo=noo, n_p=n_p, schedule_type='number_of_people')
 
         # ステップ n の室 i における空調割合, [i, n]
-        ac_demand_is_ns = np.concatenate([[cls._get_schedule(schedule_name_i=s_name_i, n_p=n_p, calendar=calendar, daily_schedule=d['daily_schedule'], schedule_type='is_temp_limit_set')] for s_name_i in s_name_is])
+        ac_demand_is_ns = cls._get_schedules(s_name_is=s_name_is, noo=noo, n_p=n_p, schedule_type='is_temp_limit_set')
+
+        a_floor_is = np.array(a_floor_is)
 
         # ステップ n の室 i における人体発熱を除く内部発熱, W, [i, n]
         q_gen_is_ns = q_gen_app_is_ns + q_gen_ckg_is_ns + q_gen_lght_is_ns * a_floor_is[:, np.newaxis]
@@ -176,6 +162,13 @@ class Schedule:
         return self._ac_demand_is_ns
 
     @classmethod
+    def _load_calendar(cls) -> np.ndarray:
+
+        calender_dict = cls._load_schedule(filename='calendar')
+
+        return np.array(calender_dict['calendar'])
+
+    @classmethod
     def _load_schedule(cls, filename: str) -> Dict:
         """スケジュールを読み込む
         """
@@ -186,16 +179,21 @@ class Schedule:
         return d_json
 
     @classmethod
-    def _get_schedule(
-            cls, schedule_name_i: str, n_p: float, calendar: np.ndarray, daily_schedule: Dict, schedule_type: str
-    ) -> np.ndarray:
+    def _get_schedules(cls, s_name_is: List[str], noo: NumberOfOccupants, n_p: float, schedule_type: str):
+
+        return np.concatenate([
+            [cls._get_schedule(schedule_name_i=schedule_name_i, noo=noo, n_p=n_p, schedule_type=schedule_type)]
+            for schedule_name_i in s_name_is
+        ])
+
+    @classmethod
+    def _get_schedule(cls, schedule_name_i: str, noo: NumberOfOccupants, n_p: float, schedule_type: str) -> np.ndarray:
         """
         スケジュールを取得する。
         Args:
             schedule_name_i: 室 i のスケジュールの名称
+            noo: 居住人数の指定方法（NumberOfOccupants 列挙体）
             n_p: 居住人数
-            calendar: 日にちの種類（'平日', '休日外', '休日在'), [365]
-            daily_schedule: スケジュール（辞書型）
             schedule_type: どのようなスケジュールを扱うのか？　以下から指定する。
                 'local_vent_amount'
                 'heat_generation_appliances'
@@ -207,6 +205,15 @@ class Schedule:
         Returns:
             スケジュール, [365*96]
         """
+
+        # カレンダーの読み込み（日にちの種類（'平日', '休日外', '休日在'））, [365]
+        calendar = cls._load_calendar()
+
+        # スケジュールを記述した辞書の読み込み
+        d = cls._load_schedule(filename='schedules')
+
+        # スケジュール（辞書型）
+        daily_schedule = d['daily_schedule']
 
         def convert_schedule(day_type: str):
             return {
@@ -280,20 +287,40 @@ class Schedule:
 
         return ceil_np, floor_np
 
+    @classmethod
+    def _get_n_p(cls, noo: NumberOfOccupants, a_floor_is: List[float]) -> float:
+        """
+        床面積の合計から居住人数を計算する。
+        Args:
+            noo: 居住人数の指定方法
+            a_floor_is: 室 i の床面積, m2, [i]
 
-def get_total_number_of_residents(a_floor_total: float) -> float:
-    """
-    床面積の合計から居住人数を計算する。
-    Args:
-        a_floor_total: 床面積の合計, m2
+        Returns:
+            居住人数
+        """
 
-    Returns:
-        居住人数
-    """
+        if noo == NumberOfOccupants.One:
+            return 1.0
 
-    if a_floor_total < 30.0:
-        return 1.0
-    elif a_floor_total < 120.0:
-        return a_floor_total / 30.0
-    else:
-        return 4.0
+        elif noo == NumberOfOccupants.Two:
+            return 2.0
+
+        elif noo == NumberOfOccupants.Three:
+            return 3.0
+
+        elif noo == NumberOfOccupants.Four:
+            return 4.0
+
+        elif noo == NumberOfOccupants.Auto:
+
+            # 床面積の合計, m2
+            a_floor_total = sum(a_floor_is)
+
+            if a_floor_total < 30.0:
+                return 1.0
+            elif a_floor_total < 120.0:
+                return a_floor_total / 30.0
+            else:
+                return 4.0
+        else:
+            raise ValueError()

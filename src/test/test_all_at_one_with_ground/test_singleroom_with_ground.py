@@ -45,7 +45,6 @@ class TestSigleRoomWithGround(unittest.TestCase):
 
         # スケジュールの設定
         scd = schedule.Schedule.get_schedule(
-            rooms=rd['rooms'],
             number_of_occupants='auto',
             s_name_is=[rm['schedule']['name'] for rm in rd['rooms']],
             a_floor_is=[r['floor_area'] for r in rd['rooms']]
