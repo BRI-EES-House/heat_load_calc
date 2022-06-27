@@ -66,11 +66,11 @@ class Schedule:
         q_gen_app_is_ns = cls._get_schedules(s_name_is=s_name_is, noo=noo, n_p=n_p, schedule_type='heat_generation_appliances')
 
         # ステップ n の室 i における調理発熱, W, [i, n]
-        q_gen_ckg_is_ns = cls._get_schedules(s_name_is=s_name_is, noo=noo, n_p=n_p, schedule_type='vapor_generation_cooking')
+        q_gen_ckg_is_ns = cls._get_schedules(s_name_is=s_name_is, noo=noo, n_p=n_p, schedule_type='heat_generation_cooking')
 
         # ステップ n の室 i における調理発湿, kg/s, [i, n]
         # jsonファイルでは、g/h で示されているため、単位換算(g/h->kg/s)を行っている。
-        x_gen_ckg_is_ns = cls._get_schedules(s_name_is=s_name_is, noo=noo, n_p=n_p, schedule_type='heat_generation_cooking') / 1000.0 / 3600.0
+        x_gen_ckg_is_ns = cls._get_schedules(s_name_is=s_name_is, noo=noo, n_p=n_p, schedule_type='vapor_generation_cooking') / 1000.0 / 3600.0
 
         # ステップ n の室 i における照明発熱, W/m2, [i, n]
         # 単位面積あたりで示されていることに注意
