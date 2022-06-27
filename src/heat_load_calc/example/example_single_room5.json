@@ -1,8 +1,5 @@
 {
 	"common": {
-        "schedule": {
-            "method": "calculate"
-        },
         "ac_method": "pmv"
 	},
     "building": {
