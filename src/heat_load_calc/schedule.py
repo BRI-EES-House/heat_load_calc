@@ -1,8 +1,7 @@
 ﻿import os
-import pandas as pd
 import numpy as np
 import csv
-from typing import List, Dict, Tuple
+from typing import List, Dict, Tuple, Optional
 import logging
 import json
 from os import path
@@ -12,6 +11,10 @@ logger = logging.getLogger(name='HeatLoadCalc').getChild('Schedule')
 
 
 class NumberOfOccupants(Enum):
+    """居住人数の指定方法
+
+    1～4人を指定するか、auto の場合は床面積から居住人数を指定する方法を選択する。
+    """
 
     One = "1"
     Two = "2"
@@ -41,7 +44,7 @@ class Schedule:
 
     @classmethod
     def get_schedule(cls, number_of_occupants: str, s_name_is: List[str], a_floor_is: List[float]):
-        """
+        """Schedule クラスを生成する。
 
         Args:
             number_of_occupants: 居住人数の指定方法
@@ -49,7 +52,7 @@ class Schedule:
             a_floor_is: 室 i の床面積, m2, [i]
 
         Returns:
-
+            Schedule クラス
         """
 
         # 居住人数の指定モード
@@ -100,6 +103,12 @@ class Schedule:
         )
 
     def save_schedule(self, output_data_dir):
+        """スケジュールをCSV形式で保存する
+
+        Args:
+            output_data_dir: CSV形式で保存するファイルのディレクトリ
+
+        """
 
         # ステップnの室iにおける局所換気量, m3/s, [i, 8760*4]
         mid_data_local_vent_path = path.join(output_data_dir, 'mid_data_local_vent.csv')
@@ -138,31 +147,61 @@ class Schedule:
 
     @property
     def q_gen_is_ns(self):
+        """
+
+        Returns:
+            ステップ n の室 i における内部発熱, W, [i, n]
+        """
 
         return self._q_gen_is_ns
 
     @property
     def x_gen_is_ns(self):
+        """
+
+        Returns:
+            ステップ n の室 i における人体発湿を除く内部発湿, kg / s, [i, n]
+        """
 
         return self._x_gen_is_ns
 
     @property
     def v_mec_vent_local_is_ns(self):
+        """
+
+        Returns:
+            ステップ n の室 i における局所換気量, m3 / s, [i, n]
+        """
 
         return self._v_mec_vent_local_is_ns
 
     @property
     def n_hum_is_ns(self):
+        """
+
+        Returns:
+            ステップ n の室 i における在室人数, [i, n]
+        """
 
         return self._n_hum_is_ns
 
     @property
     def ac_demand_is_ns(self):
+        """
+
+        Returns:
+            ステップ n の室 i における空調需要, [i, n]
+        """
 
         return self._ac_demand_is_ns
 
     @classmethod
     def _load_calendar(cls) -> np.ndarray:
+        """365日分のカレンダーを取得する。
+
+        Returns:
+            365日分のカレンダー
+        """
 
         calender_dict = cls._load_schedule(filename='calendar')
 
@@ -210,52 +249,79 @@ class Schedule:
         calendar = cls._load_calendar()
 
         # スケジュールを記述した辞書の読み込み
-        d = cls._load_schedule(filename='schedules')
-
-        # スケジュール（辞書型）
-        daily_schedule = d['daily_schedule']
+        # d = cls._load_schedule(filename='schedules')
+        d = cls._load_schedule(filename=schedule_name_i)
 
         def convert_schedule(day_type: str):
-            return {
-                '1': daily_schedule[schedule_name_i]['1'][day_type][schedule_type],
-                '2': daily_schedule[schedule_name_i]['2'][day_type][schedule_type],
-                '3': daily_schedule[schedule_name_i]['3'][day_type][schedule_type],
-                '4': daily_schedule[schedule_name_i]['4'][day_type][schedule_type],
-            }
+            if d['schedule_type'] == 'number':
+                return {
+                    'schedule_type': 'number',
+                    '1': d['schedule']['1'][day_type][schedule_type],
+                    '2': d['schedule']['2'][day_type][schedule_type],
+                    '3': d['schedule']['3'][day_type][schedule_type],
+                    '4': d['schedule']['4'][day_type][schedule_type],
+                }
+            elif d['schedule_type'] == 'const':
+                return {
+                    'schedule_type': 'const',
+                    'const': d['schedule']['const'][day_type][schedule_type]
+                }
+            else:
+                raise KeyError()
 
-        d_weekday = convert_schedule(day_type='平日')
-        d_holiday_out = convert_schedule(day_type='休日外')
-        d_holiday_in = convert_schedule(day_type='休日在')
+        d_weekday = convert_schedule(day_type='Weekday')
+        d_holiday_out = convert_schedule(day_type='Holiday_Out')
+        d_holiday_in = convert_schedule(day_type='Holiday_In')
 
         d_365_96 = np.full((365, 96), -1.0, dtype=float)
-        d_365_96[calendar == '平日'] = cls._get_interpolated_schedule(n_p, d_weekday)
-        d_365_96[calendar == '休日外'] = cls._get_interpolated_schedule(n_p, d_holiday_out)
-        d_365_96[calendar == '休日在'] = cls._get_interpolated_schedule(n_p, d_holiday_in)
+        d_365_96[calendar == 'W'] = cls._get_interpolated_schedule(daily_schedule=d_weekday, noo=noo, n_p=n_p)
+        d_365_96[calendar == 'HO'] = cls._get_interpolated_schedule(daily_schedule=d_holiday_out, noo=noo, n_p=n_p)
+        d_365_96[calendar == 'HI'] = cls._get_interpolated_schedule(daily_schedule=d_holiday_in, noo=noo, n_p=n_p)
         d = d_365_96.flatten()
 
         return d
 
     @classmethod
-    def _get_interpolated_schedule(cls, n_p: float, daily_schedule: Dict) -> np.ndarray:
+    def _get_interpolated_schedule(cls, daily_schedule: Dict, noo: NumberOfOccupants, n_p: Optional[float] = None) -> np.ndarray:
         """
         世帯人数で線形補間してリストを返す
         Args:
-            n_p: 居住人数
             daily_schedule: スケジュール
                 Keyは必ず'1', '2', '3', '4'
                 Valueは96個のリスト形式の値（15分インターバル）
+            noo: 居住人数の指定方法
+            n_p: 居住人数
         Returns:
             線形補間したリスト, [96]
         """
 
-        ceil_np, floor_np = cls._get_ceil_floor_np(n_p)
+        if daily_schedule['schedule_type'] == 'const':
 
-        ceil_schedule = np.array(daily_schedule[str(ceil_np)])
-        floor_schedule = np.array(daily_schedule[str(floor_np)])
+            return daily_schedule['const']
 
-        interpolate_np_schedule = ceil_schedule * (n_p - float(floor_np)) + floor_schedule * (float(ceil_np) - n_p)
+        elif daily_schedule['schedule_type'] == 'number':
 
-        return interpolate_np_schedule
+            if noo in [NumberOfOccupants.One, NumberOfOccupants.Two, NumberOfOccupants.Three, NumberOfOccupants.Four]:
+
+                return np.array(daily_schedule[str(noo.value)])
+
+            elif noo == NumberOfOccupants.Auto:
+
+                ceil_np, floor_np = cls._get_ceil_floor_np(n_p)
+
+                ceil_schedule = np.array(daily_schedule[str(ceil_np)])
+                floor_schedule = np.array(daily_schedule[str(floor_np)])
+
+                interpolate_np_schedule = ceil_schedule * (n_p - float(floor_np)) + floor_schedule * (float(ceil_np) - n_p)
+
+                return interpolate_np_schedule
+
+            else:
+
+                raise KeyError()
+        else:
+
+            raise KeyError()
 
     @classmethod
     def _get_ceil_floor_np(cls, n_p: float) -> Tuple[int, int]:
