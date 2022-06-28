@@ -16,8 +16,6 @@ def run(
         logger,
         house_data_path: str,
         output_data_dir: str,
-        schedule_specify_method: str = 'calculate',
-        schedule_data_folder_path: str = "",
         is_schedule_saved: bool = False,
         weather_specify_method: str = 'ees',
         weather_file_path: str = "",
@@ -30,8 +28,6 @@ def run(
         logger
         house_data_path (str): 住宅計算条件JSONファイルへのパス
         output_data_dir (str): 出力フォルダへのパス
-        schedule_specify_method: スケジュールデータの指定方法
-        schedule_data_folder_path: 独自のスケジュールを指定した場合にスケジュールファイルが置かれているフォルダパス（相対パス）
         is_schedule_saved: スケジュールを出力するか否か
         weather_specify_method: 気象データの指定方法
         weather_file_path: 気象データのファイルパス
@@ -71,9 +67,9 @@ def run(
     )
 
     scd = schedule.Schedule.get_schedule(
-        schedule_specify_method=schedule_specify_method,
-        rooms=rd['rooms'],
-        folder_path=schedule_data_folder_path
+        number_of_occupants='auto',
+        s_name_is=[rm['schedule']['name'] for rm in rd['rooms']],
+        a_floor_is=[r['floor_area'] for r in rd['rooms']]
     )
 
     # ---- 計算 ----
@@ -123,19 +119,6 @@ def main():
         help="出力フォルダ"
     )
 
-    parser.add_argument(
-        '--schedule',
-        choices=['calculate', 'specify'],
-        default='calculate',
-        type=str,
-        help="スケジュールの指定方法を選択します。"
-    )
-    parser.add_argument(
-        '-s', '--schedule_data_folder_path',
-        default="",
-        type=str,
-        help="独自のスケジュールを指定した場合にスケジュールファイルが置かれているフォルダパスを相対パスで指定します。"
-    )
     parser.add_argument(
         '--schedule_saved',
         action='store_true',
@@ -199,8 +182,6 @@ def main():
         logger=logger,
         house_data_path=args.house_data,
         output_data_dir=args.output_data_dir,
-        schedule_specify_method=args.schedule,
-        schedule_data_folder_path=args.schedule_data_folder_path,
         is_schedule_saved=args.schedule_saved,
         weather_specify_method=args.weather,
         weather_file_path=args.weather_path,

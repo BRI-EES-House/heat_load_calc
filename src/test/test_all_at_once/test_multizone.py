@@ -30,7 +30,11 @@ class TestAllAtOnce(unittest.TestCase):
 
         oc = weather.Weather.make_weather(method='ees', region=6, itv=interval.Interval.M15)
 
-        scd = schedule.Schedule.get_schedule(schedule_specify_method='calculate', rooms=rd['rooms'])
+        scd = schedule.Schedule.get_schedule(
+            number_of_occupants='auto',
+            s_name_is=[rm['schedule']['name'] for rm in rd['rooms']],
+            a_floor_is=[r['floor_area'] for r in rd['rooms']]
+        )
 
         dd_i, dd_a = core2.calc(rd=rd, oc=oc, scd=scd)
 
@@ -61,12 +65,12 @@ class TestAllAtOnce(unittest.TestCase):
 
     def test_theta_r_and_humid(self):
 
-        self.assertAlmostEqual(18.00440116549166, self._dd_i['rm0_t_r']['1989-01-01  00:15:00'])
-        self.assertAlmostEqual(0.012927709058337233, self._dd_i['rm0_x_r']['1989/8/24  16:15:00'])
-        self.assertAlmostEqual(24.19090747711903, self._dd_i['rm1_t_r']['1989-01-01  00:15:00'])
+        self.assertAlmostEqual(18.01333823771801, self._dd_i['rm0_t_r']['1989-01-01  00:15:00'])
+        self.assertAlmostEqual(0.012910908965389318, self._dd_i['rm0_x_r']['1989/8/24  16:15:00'])
+        self.assertAlmostEqual(24.189663860537877, self._dd_i['rm1_t_r']['1989-01-01  00:15:00'])
         self.assertAlmostEqual(0.0033399924620388594, self._dd_i['rm1_x_r']['1989-01-01  00:15:00'])
-        self.assertAlmostEqual(19.59446584508983, self._dd_i['rm2_t_r']['1989-01-01  00:15:00'])
-        self.assertAlmostEqual(0.003287304866323409, self._dd_i['rm2_x_r']['1989-01-01  00:15:00'])
+        self.assertAlmostEqual(19.597428715370413, self._dd_i['rm2_t_r']['1989-01-01  00:15:00'])
+        self.assertAlmostEqual(0.0032652758037681686, self._dd_i['rm2_x_r']['1989-01-01  00:15:00'])
 
     # 室空気の熱収支のテスト（主たる居室）
     def test_air_heat_balance_mor(self):
