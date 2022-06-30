@@ -10,7 +10,7 @@ logger = logging.getLogger('HeatLoadCalc').getChild('core')
 
 def calc(
         rd: Dict,
-        oc: weather.Weather,
+        w: weather.Weather,
         scd: schedule.Schedule,
         n_step_hourly: int = 4,
         n_d_main: int = 365,
@@ -21,7 +21,7 @@ def calc(
 
     Args:
         rd: 住宅計算条件
-        oc: 外界気象条件
+        w: 外界気象条件
         scd: スケジュール
         n_step_hourly: 計算間隔（1時間を何分割するかどうか）（デフォルトは4（15分間隔））
         n_d_main: 本計算を行う日数（デフォルトは365日（1年間））, d
@@ -52,7 +52,7 @@ def calc(
 
     # json, csv ファイルからパラメータをロードする。
     # （ループ計算する必要の無い）事前計算を行い, クラス PreCalcParameters, PreCalcParametersGround に必要な変数を格納する。
-    pp, ppg = pre_calc_parameters.make_pre_calc_parameters(delta_t=delta_t, rd=rd, oc=oc, scd=scd)
+    pp, ppg = pre_calc_parameters.make_pre_calc_parameters(delta_t=delta_t, rd=rd, oc=w, scd=scd)
 
     gc_n = conditions.initialize_ground_conditions(n_grounds=ppg.n_grounds)
 
