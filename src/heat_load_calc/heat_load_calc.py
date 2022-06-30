@@ -75,7 +75,7 @@ def run(
     # ---- 計算 ----
 
     # 計算
-    dd_i, dd_a = core2.calc(rd=rd, w=w, scd=scd)
+    dd_i, dd_a, dd_i2 = core2.calc(rd=rd, w=w, scd=scd)
 
     # 気象データの保存
     if is_weather_saved:
@@ -96,6 +96,10 @@ def run(
     result_detail_i_path = path.join(output_data_dir, 'result_detail_i.csv')
     logger.info('Save calculation results data (detailed version) to `{}`'.format(result_detail_i_path))
     dd_i.to_csv(result_detail_i_path, encoding='cp932')
+
+    result_detail_i2_path = path.join(output_data_dir, 'result_detail_i2.csv')
+    logger.info('Save calculation results data (detailed version) to `{}`'.format(result_detail_i2_path))
+    dd_i2.to_csv(result_detail_i2_path, encoding='cp932')
 
     # 計算結果（平均・積算値）
     result_detail_a_path = path.join(output_data_dir, 'result_detail_a.csv')

@@ -1,12 +1,13 @@
 import numpy as np
 import pandas as pd
 import datetime as dt
+import itertools
 
 from heat_load_calc.pre_calc_parameters import PreCalcParameters
 from heat_load_calc import pmv as pmv, psychrometrics as psy
 
 
-class Logger:
+class Recorder:
     """
     Notes:
         データは、「瞬時値」を記したものと、「平均値」「積算値」を記したものの2種類に分類される。
@@ -164,7 +165,7 @@ class Logger:
         # ステップ n の室 i におけるClo値, [i, n], 出力名："rm[i]_clo"
         self.clo_is_ns = np.zeros((n_rm, self._n_step_a), dtype=float)
 
-    def pre_logging(self, ss: PreCalcParameters):
+    def pre_recording(self, ss: PreCalcParameters):
 
         # 注意：用意された1年分のデータと実行期間が異なる場合があるためデータスライスする必要がある。
 
@@ -202,7 +203,7 @@ class Logger:
         # ステップ n の室 i における人体発湿を除く内部発湿, kg/s, [i, n]
         self.x_gen_is_ns = ss.x_gen_is_ns[:, 0:self._n_step_a]
 
-    def post_logging(self, ss: PreCalcParameters):
+    def post_recording(self, ss: PreCalcParameters):
 
         # ---瞬時値---
 
@@ -254,20 +255,117 @@ class Logger:
         # ステップ n の室 i におけるPPD実現値, [i, n+1]
         self.ppd_is_ns = pmv.get_ppd_is_n(pmv_is_n=self.pmv_is_ns)
 
-    def record(self, pps: PreCalcParameters):
+    def recording(self, n: int, **kwargs):
+
+        # 瞬時値の書き込み
+
+        if n >= -1:
+
+            # 瞬時値出力のステップ番号
+            n_i = n + 1
+
+            # 次の時刻に引き渡す値
+            self.theta_r_is_ns[:, n_i] = kwargs["theta_r_is_n_pls"].flatten()
+            self.theta_mrt_hum_is_ns[:, n_i] = kwargs["theta_mrt_hum_is_n_pls"].flatten()
+            self.x_r_is_ns[:, n_i] = kwargs["x_r_is_n_pls"].flatten()
+            self.theta_frt_is_ns[:, n_i] = kwargs["theta_frt_is_n_pls"].flatten()
+            self.x_frt_is_ns[:, n_i] = kwargs["x_frt_is_n_pls"].flatten()
+            self.theta_ei_js_ns[:, n_i] = kwargs["theta_ei_js_n_pls"].flatten()
+            self.q_s_js_ns[:, n_i] = kwargs["q_s_js_n_pls"].flatten()
+
+            # 次の時刻に引き渡さない値
+            self.theta_ot[:, n_i] = kwargs["theta_ot_is_n_pls"].flatten()
+            self.theta_s_js_ns[:, n_i] = kwargs["theta_s_js_n_pls"].flatten()
+            self.theta_rear_js_ns[:, n_i] = kwargs["theta_rear_js_n"].flatten()
+
+        # 平均値・積算値の書き込み
+
+        if n >= 0:
+
+            # 平均値出力のステップ番号
+            n_a = n
+
+            # 次の時刻に引き渡す値
+            self.operation_mode_is_ns[:, n_a] = kwargs["operation_mode_is_n"].flatten()
+
+            # 次の時刻に引き渡さない値
+            # 積算値
+            self.l_cs_is_ns[:, n_a] = kwargs["l_cs_is_n"].flatten()
+            self.l_rs_is_ns[:, n_a] = kwargs["l_rs_is_n"].flatten()
+            self.l_cl_is_ns[:, n_a] = kwargs["l_cl_is_n"].flatten()
+            # 平均値
+            self.h_hum_c_is_ns[:, n_a] = kwargs["h_hum_c_is_n"].flatten()
+            self.h_hum_r_is_ns[:, n_a] = kwargs["h_hum_r_is_n"].flatten()
+            self.q_hum_is_ns[:, n_a] = kwargs["q_hum_is_n"].flatten()
+            self.x_hum_is_ns[:, n_a] = kwargs["x_hum_is_n"].flatten()
+            self.v_reak_is_ns[:, n_a] = kwargs["v_leak_is_n"].flatten()
+            self.v_ntrl_is_ns[:, n_a] = kwargs["v_vent_ntr_is_n"].flatten()
+            self.v_hum_is_ns[:, n_a] = kwargs["v_hum_is_n"].flatten()
+            self.clo_is_ns[:, n_a] = kwargs["clo_is_n"].flatten()
+
+    def export_pd(self, pps: PreCalcParameters):
 
         n_step_i = self._n_step_i
         n_step_a = self._n_step_a
 
         date_index_15min_i = pd.date_range(start='1/1/1989', periods=n_step_i, freq='15min', name='start_time')
-        date_index_15min_a = pd.date_range(start='1/1/1989', periods=n_step_a, freq='15min', name='start_time')
+
+        date_index_15min_a_start = pd.date_range(start='1/1/1989', periods=n_step_a, freq='15min')
+        date_index_15min_a_end = date_index_15min_a_start + dt.timedelta(minutes=15)
+        date_index_15min_a_start.name = 'start_time'
+        date_index_15min_a_end.name = 'end_time'
 
         dd_i = pd.DataFrame(index=date_index_15min_i)
-        dd_a = pd.DataFrame(index=date_index_15min_a)
-        dd_a['end_time'] = date_index_15min_a + dt.timedelta(minutes=15)
 
         dd_i['out_temp'] = self.theta_o_ns
         dd_i['out_abs_humid'] = self.x_o_ns
+
+        dd_i2 = pd.DataFrame(self.theta_r_is_ns.T, columns=['rm' + str(i) + '_t_r' for i in range(pps.n_rm)], index=date_index_15min_i)
+
+        def make_data_frame_a(d: np.ndarray, column_name: str):
+            return pd.DataFrame(d.T, columns=['rm' + str(i) + '_' + column_name for i in range(pps.n_rm)], index=date_index_15min_a_start)
+
+        output_list_a = [
+            ('operation_mode_is_ns', 'ac_operate'),
+            ('ac_demand_is_ns', 'occupancy'),
+            ('h_hum_c_is_ns', 'hc_hum'),
+            ('h_hum_r_is_ns', 'hr_hum'),
+            ('q_gen_is_ns', 'q_s_except_hum'),
+            ('x_gen_is_ns', 'q_l_except_hum'),
+            ('q_hum_is_ns', 'q_hum_s'),
+            ('x_hum_is_ns', 'q_hum_l'),
+            ('l_cs_is_ns', 'l_s_c'),
+            ('l_rs_is_ns', 'l_s_r'),
+            ('l_cl_is_ns', 'l_l_c'),
+            ('q_frt_is_ns', 'q_s_fun'),
+            ('q_l_frt_is_ns', 'q_l_fun'),
+            ('v_reak_is_ns', 'v_reak'),
+            ('v_ntrl_is_ns', 'v_ntrl'),
+            ('v_hum_is_ns', 'v_hum'),
+            ('clo_is_ns', 'clo')
+        ]
+
+        def get_room_name(i: int, name: str):
+            return 'rm' + str(i) + '_' + name
+
+        def get_room_names(name: str):
+            return [get_room_name(i=i, name=name) for i in range(pps.n_rm)]
+
+        df_a1 = pd.DataFrame(
+            data=np.concatenate([self.__dict__[column[0]] for column in output_list_a]).T,
+            columns=list(itertools.chain.from_iterable([get_room_names(name=column[1]) for column in output_list_a])),
+            index=[date_index_15min_a_start, date_index_15min_a_end]
+        )
+
+        new_columns_a = list(itertools.chain.from_iterable(
+            [[get_room_name(i=i, name=column[1]) for column in output_list_a]for i in range(pps.n_rm)]
+        ))
+
+        df_a2 = df_a1.reindex(columns=new_columns_a)
+
+#        df_i1 = pd.DataFrame(
+#            data=np.concatenate()
+#        )
 
         for i in range(pps.n_rm):
 
@@ -284,24 +382,6 @@ class Logger:
             dd_i[name + '_x_fun'] = self.x_frt_is_ns[i]
             dd_i[name + '_pmv'] = self.pmv_is_ns[i]
             dd_i[name + '_ppd'] = self.ppd_is_ns[i]
-
-            dd_a[name + '_ac_operate'] = self.operation_mode_is_ns[i]
-            dd_a[name + '_occupancy'] = self.ac_demand_is_ns[i]
-            dd_a[name + '_hc_hum'] = self.h_hum_c_is_ns[i]
-            dd_a[name + '_hr_hum'] = self.h_hum_r_is_ns[i]
-            dd_a[name + '_q_s_except_hum'] = self.q_gen_is_ns[i]
-            dd_a[name + '_q_l_except_hum'] = self.x_gen_is_ns[i]
-            dd_a[name + '_q_hum_s'] = self.q_hum_is_ns[i]
-            dd_a[name + '_q_hum_l'] = self.x_hum_is_ns[i]
-            dd_a[name + '_l_s_c'] = self.l_cs_is_ns[i]
-            dd_a[name + '_l_s_r'] = self.l_rs_is_ns[i]
-            dd_a[name + '_l_l_c'] = self.l_cl_is_ns[i]
-            dd_a[name + '_q_s_fun'] = self.q_frt_is_ns[i]
-            dd_a[name + '_q_l_fun'] = self.q_l_frt_is_ns[i]
-            dd_a[name + '_v_reak'] = self.v_reak_is_ns[i]
-            dd_a[name + '_v_ntrl'] = self.v_ntrl_is_ns[i]
-            dd_a[name + '_v_hum'] = self.v_hum_is_ns[i]
-            dd_a[name + '_clo'] = self.clo_is_ns[i]
 
             selected = pps.p_is_js[i] == 1
 
@@ -324,4 +404,4 @@ class Logger:
             for j, t in enumerate(self.q_s_js_ns[selected, :]):
                 dd_i[name + '_' + 'b' + str(j) + '_qiall_s'] = t
 
-        return dd_i, dd_a
+        return dd_i, df_a2, dd_i2
