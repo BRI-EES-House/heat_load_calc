@@ -4,12 +4,12 @@ from heat_load_calc.operation_mode import OperationMode
 from heat_load_calc.pre_calc_parameters import PreCalcParameters
 from heat_load_calc.conditions import Conditions
 from heat_load_calc.global_number import get_c_a, get_rho_a, get_l_wtr
-from heat_load_calc.log import Logger
+from heat_load_calc.recorder import Recorder
 from heat_load_calc.matrix_method import v_diag
 from heat_load_calc import occupants, psychrometrics as psy
 
 
-def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, logger: Logger) -> Conditions:
+def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, recorder: Recorder) -> Conditions:
     """
     室の温湿度・熱負荷の計算
     Args:
@@ -17,7 +17,7 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
         delta_t: 時間間隔, s
         ss: ループ計算前に計算可能なパラメータを含めたクラス
         c_n: 前の時刻からの状態量
-        logger: ロギング用クラス
+        recorder: Recorder クラス
     Returns:
         次の時刻にわたす状態量
     """
@@ -396,51 +396,78 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, log
         x_r_is_n_pls=x_r_is_n_pls
     )
 
-    # 瞬時値の書き込み
+    if recorder is not None:
+        recorder.recording(
+            n=n,
+            theta_r_is_n_pls=theta_r_is_n_pls,
+            theta_mrt_hum_is_n_pls=theta_mrt_hum_is_n_pls,
+            x_r_is_n_pls=x_r_is_n_pls,
+            theta_frt_is_n_pls=theta_frt_is_n_pls,
+            x_frt_is_n_pls=x_frt_is_n_pls,
+            theta_ei_js_n_pls=theta_ei_js_n_pls,
+            q_s_js_n_pls=q_s_js_n_pls,
+            theta_ot_is_n_pls=theta_ot_is_n_pls,
+            theta_s_js_n_pls=theta_s_js_n_pls,
+            theta_rear_js_n=theta_rear_js_n,
+            operation_mode_is_n=operation_mode_is_n,
+            l_cs_is_n=l_cs_is_n,
+            l_rs_is_n=l_rs_is_n,
+            l_cl_is_n=l_cl_is_n,
+            h_hum_c_is_n=h_hum_c_is_n,
+            h_hum_r_is_n=h_hum_r_is_n,
+            q_hum_is_n=q_hum_is_n,
+            x_hum_is_n=x_hum_is_n,
+            v_leak_is_n=v_leak_is_n,
+            v_vent_ntr_is_n=v_vent_ntr_is_n,
+            v_hum_is_n=v_hum_is_n,
+            clo_is_n=clo_is_n
+        )
 
-    if n >= -1:
-
-        # 瞬時値出力のステップ番号
-        n_i = n + 1
-
-        # 次の時刻に引き渡す値
-        logger.theta_r_is_ns[:, n_i] = theta_r_is_n_pls.flatten()
-        logger.theta_mrt_hum_is_ns[:, n_i] = theta_mrt_hum_is_n_pls.flatten()
-        logger.x_r_is_ns[:, n_i] = x_r_is_n_pls.flatten()
-        logger.theta_frt_is_ns[:, n_i] = theta_frt_is_n_pls.flatten()
-        logger.x_frt_is_ns[:, n_i] = x_frt_is_n_pls.flatten()
-        logger.theta_ei_js_ns[:, n_i] = theta_ei_js_n_pls.flatten()
-        logger.q_s_js_ns[:, n_i] = q_s_js_n_pls.flatten()
-
-        # 次の時刻に引き渡さない値
-        logger.theta_ot[:, n_i] = theta_ot_is_n_pls.flatten()
-        logger.theta_s_js_ns[:, n_i] = theta_s_js_n_pls.flatten()
-        logger.theta_rear_js_ns[:, n_i] = theta_rear_js_n.flatten()
-
-    # 平均値・積算値の書き込み
-
-    if n >= 0:
-
-        # 平均値出力のステップ番号
-        n_a = n
-
-        # 次の時刻に引き渡す値
-        logger.operation_mode_is_ns[:, n_a] = operation_mode_is_n.flatten()
-
-        # 次の時刻に引き渡さない値
-        # 積算値
-        logger.l_cs_is_ns[:, n_a] = l_cs_is_n.flatten()
-        logger.l_rs_is_ns[:, n_a] = l_rs_is_n.flatten()
-        logger.l_cl_is_ns[:, n_a] = l_cl_is_n.flatten()
-        # 平均値
-        logger.h_hum_c_is_ns[:, n_a] = h_hum_c_is_n.flatten()
-        logger.h_hum_r_is_ns[:, n_a] = h_hum_r_is_n.flatten()
-        logger.q_hum_is_ns[:, n_a] = q_hum_is_n.flatten()
-        logger.x_hum_is_ns[:, n_a] = x_hum_is_n.flatten()
-        logger.v_reak_is_ns[:, n_a] = v_leak_is_n.flatten()
-        logger.v_ntrl_is_ns[:, n_a] = v_vent_ntr_is_n.flatten()
-        logger.v_hum_is_ns[:, n_a] = v_hum_is_n.flatten()
-        logger.clo_is_ns[:, n_a] = clo_is_n.flatten()
+    # # 瞬時値の書き込み
+    #
+    # if n >= -1:
+    #
+    #     # 瞬時値出力のステップ番号
+    #     n_i = n + 1
+    #
+    #     # 次の時刻に引き渡す値
+    #     recorder.theta_r_is_ns[:, n_i] = theta_r_is_n_pls.flatten()
+    #     recorder.theta_mrt_hum_is_ns[:, n_i] = theta_mrt_hum_is_n_pls.flatten()
+    #     recorder.x_r_is_ns[:, n_i] = x_r_is_n_pls.flatten()
+    #     recorder.theta_frt_is_ns[:, n_i] = theta_frt_is_n_pls.flatten()
+    #     recorder.x_frt_is_ns[:, n_i] = x_frt_is_n_pls.flatten()
+    #     recorder.theta_ei_js_ns[:, n_i] = theta_ei_js_n_pls.flatten()
+    #     recorder.q_s_js_ns[:, n_i] = q_s_js_n_pls.flatten()
+    #
+    #     # 次の時刻に引き渡さない値
+    #     recorder.theta_ot[:, n_i] = theta_ot_is_n_pls.flatten()
+    #     recorder.theta_s_js_ns[:, n_i] = theta_s_js_n_pls.flatten()
+    #     recorder.theta_rear_js_ns[:, n_i] = theta_rear_js_n.flatten()
+    #
+    # # 平均値・積算値の書き込み
+    #
+    # if n >= 0:
+    #
+    #     # 平均値出力のステップ番号
+    #     n_a = n
+    #
+    #     # 次の時刻に引き渡す値
+    #     recorder.operation_mode_is_ns[:, n_a] = operation_mode_is_n.flatten()
+    #
+    #     # 次の時刻に引き渡さない値
+    #     # 積算値
+    #     recorder.l_cs_is_ns[:, n_a] = l_cs_is_n.flatten()
+    #     recorder.l_rs_is_ns[:, n_a] = l_rs_is_n.flatten()
+    #     recorder.l_cl_is_ns[:, n_a] = l_cl_is_n.flatten()
+    #     # 平均値
+    #     recorder.h_hum_c_is_ns[:, n_a] = h_hum_c_is_n.flatten()
+    #     recorder.h_hum_r_is_ns[:, n_a] = h_hum_r_is_n.flatten()
+    #     recorder.q_hum_is_ns[:, n_a] = q_hum_is_n.flatten()
+    #     recorder.x_hum_is_ns[:, n_a] = x_hum_is_n.flatten()
+    #     recorder.v_reak_is_ns[:, n_a] = v_leak_is_n.flatten()
+    #     recorder.v_ntrl_is_ns[:, n_a] = v_vent_ntr_is_n.flatten()
+    #     recorder.v_hum_is_ns[:, n_a] = v_hum_is_n.flatten()
+    #     recorder.clo_is_ns[:, n_a] = clo_is_n.flatten()
 
     return Conditions(
         operation_mode_is_n=operation_mode_is_n,

@@ -64,3 +64,16 @@ class Interval(Enum):
         """
 
         return 8760 * self.get_n_hour()
+
+    def get_pandas_freq(self):
+        """pandas 用の freq 引数を取得する。
+
+        Returns:
+            freq 引数
+        """
+
+        return {
+            Interval.M15: '15min',
+            Interval.M30: '30min',
+            Interval.H1: 'H'
+        }[self]
