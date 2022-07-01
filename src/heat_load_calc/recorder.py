@@ -315,17 +315,25 @@ class Recorder:
         date_index_15min_a_start.name = 'start_time'
         date_index_15min_a_end.name = 'end_time'
 
-        dd_i = pd.DataFrame(index=date_index_15min_i)
+        df_i = pd.DataFrame(index=date_index_15min_i)
 
-        dd_i['out_temp'] = self.theta_o_ns
-        dd_i['out_abs_humid'] = self.x_o_ns
+        df_i['out_temp'] = self.theta_o_ns
+        df_i['out_abs_humid'] = self.x_o_ns
 
-        dd_i2 = pd.DataFrame(self.theta_r_is_ns.T, columns=['rm' + str(i) + '_t_r' for i in range(pps.n_rm)], index=date_index_15min_i)
+        def get_room_name(i: int, name: str):
+            return 'rm' + str(i) + '_' + name
 
-        def make_data_frame_a(d: np.ndarray, column_name: str):
-            return pd.DataFrame(d.T, columns=['rm' + str(i) + '_' + column_name for i in range(pps.n_rm)], index=date_index_15min_a_start)
+        def get_room_names(name: str):
+            return [get_room_name(i=i, name=name) for i in range(pps.n_rm)]
 
-        output_list_a = [
+        def get_boundary_name(j: int, name: str):
+            rm_index = np.where(pps.p_js_is[j] == 1)[0][0]
+            return 'rm' + str(rm_index) + '_b' + str(j) + '_' + name
+
+        def get_boundary_names(name: str):
+            return [get_boundary_name(j=j, name=name) for j in range(pps.n_bdry)]
+
+        output_list_room_a = [
             ('operation_mode_is_ns', 'ac_operate'),
             ('ac_demand_is_ns', 'occupancy'),
             ('h_hum_c_is_ns', 'hc_hum'),
@@ -345,63 +353,105 @@ class Recorder:
             ('clo_is_ns', 'clo')
         ]
 
-        def get_room_name(i: int, name: str):
-            return 'rm' + str(i) + '_' + name
-
-        def get_room_names(name: str):
-            return [get_room_name(i=i, name=name) for i in range(pps.n_rm)]
-
         df_a1 = pd.DataFrame(
-            data=np.concatenate([self.__dict__[column[0]] for column in output_list_a]).T,
-            columns=list(itertools.chain.from_iterable([get_room_names(name=column[1]) for column in output_list_a])),
+            data=np.concatenate([self.__dict__[column[0]] for column in output_list_room_a]).T,
+            columns=list(itertools.chain.from_iterable([get_room_names(name=column[1]) for column in output_list_room_a])),
             index=[date_index_15min_a_start, date_index_15min_a_end]
         )
 
         new_columns_a = list(itertools.chain.from_iterable(
-            [[get_room_name(i=i, name=column[1]) for column in output_list_a]for i in range(pps.n_rm)]
+            [[get_room_name(i=i, name=column[1]) for column in output_list_room_a] for i in range(pps.n_rm)]
         ))
 
         df_a2 = df_a1.reindex(columns=new_columns_a)
 
-#        df_i1 = pd.DataFrame(
-#            data=np.concatenate()
-#        )
+        output_list_room_i =[
+            ('theta_r_is_ns', 't_r'),
+            ('rh_r_is_ns', 'rh_r'),
+            ('x_r_is_ns', 'x_r'),
+            ('theta_mrt_hum_is_ns', 'mrt'),
+            ('theta_ot', 'ot'),
+            ('q_trs_sol_is_ns', 'q_sol_t'),
+            ('theta_frt_is_ns', 't_fun'),
+            ('q_sol_frt_is_ns', 'q_s_sol_fun'),
+            ('x_frt_is_ns', 'x_fun'),
+            ('pmv_is_ns', 'pmv'),
+            ('ppd_is_ns', 'ppd')
+        ]
+
+        output_list_boundary_i = [
+            ('theta_s_js_ns', 't_s'),
+            ('theta_ei_js_ns', 't_e'),
+            ('theta_rear_js_ns', 't_b'),
+            ('h_s_r_js_ns', 'hir_s'),
+            ('q_r_js_ns', 'qir_s'),
+            ('h_s_c_js_ns', 'hic_s'),
+            ('q_c_js_ns', 'qic_s'),
+            ('q_i_sol_s_ns_js', 'qisol_s'),
+            ('q_s_js_ns', 'qiall_s')
+        ]
+
+        df_i1 = pd.DataFrame(
+            data=np.concatenate(
+                [[self.theta_o_ns], [self.x_o_ns]]
+                + [self.__dict__[column[0]] for column in output_list_room_i]
+                + [self.__dict__[column[0]] for column in output_list_boundary_i]
+            ).T,
+            columns=['out_temp', 'out_abs_humid']
+                + list(itertools.chain.from_iterable([get_room_names(name=column[1]) for column in output_list_room_i]))
+                + list(itertools.chain.from_iterable([get_boundary_names(name=column[1]) for column in output_list_boundary_i])),
+            index=date_index_15min_i
+        )
+
+        new_columns_i = []
+
+        for i in range(pps.n_rm):
+
+            for column in output_list_room_i:
+
+                new_columns_i.append(get_room_name(i=i, name=column[1]))
+
+            selected = pps.p_is_js[i] == 1
+
+            for column in output_list_boundary_i:
+                for j, t in enumerate(self.__dict__[column[0]][selected, :]):
+                    new_columns_i.append('rm' + str(i) + '_b' + str(j) + '_' + column[1])
 
         for i in range(pps.n_rm):
 
             name = 'rm' + str(i)
 
-            dd_i[name + '_t_r'] = self.theta_r_is_ns[i]
-            dd_i[name + '_rh_r'] = self.rh_r_is_ns[i]
-            dd_i[name + '_x_r'] = self.x_r_is_ns[i]
-            dd_i[name + '_mrt'] = self.theta_mrt_hum_is_ns[i]
-            dd_i[name + '_ot'] = self.theta_ot[i]
-            dd_i[name + '_q_sol_t'] = self.q_trs_sol_is_ns[i]
-            dd_i[name + '_t_fun'] = self.theta_frt_is_ns[i]
-            dd_i[name + '_q_s_sol_fun'] = self.q_sol_frt_is_ns[i]
-            dd_i[name + '_x_fun'] = self.x_frt_is_ns[i]
-            dd_i[name + '_pmv'] = self.pmv_is_ns[i]
-            dd_i[name + '_ppd'] = self.ppd_is_ns[i]
+            df_i[name + '_t_r'] = self.theta_r_is_ns[i]
+            df_i[name + '_rh_r'] = self.rh_r_is_ns[i]
+            df_i[name + '_x_r'] = self.x_r_is_ns[i]
+            df_i[name + '_mrt'] = self.theta_mrt_hum_is_ns[i]
+            df_i[name + '_ot'] = self.theta_ot[i]
+            df_i[name + '_q_sol_t'] = self.q_trs_sol_is_ns[i]
+            df_i[name + '_t_fun'] = self.theta_frt_is_ns[i]
+            df_i[name + '_q_s_sol_fun'] = self.q_sol_frt_is_ns[i]
+            df_i[name + '_x_fun'] = self.x_frt_is_ns[i]
+            df_i[name + '_pmv'] = self.pmv_is_ns[i]
+            df_i[name + '_ppd'] = self.ppd_is_ns[i]
 
             selected = pps.p_is_js[i] == 1
 
             for j, t in enumerate(self.theta_s_js_ns[selected, :]):
-                dd_i[name + '_' + 'b' + str(j) + '_t_s'] = t
+                df_i[name + '_' + 'b' + str(j) + '_t_s'] = t
             for j, t in enumerate(self.theta_ei_js_ns[selected, :]):
-                dd_i[name + '_' + 'b' + str(j) + '_t_e'] = t
+                df_i[name + '_' + 'b' + str(j) + '_t_e'] = t
             for j, t in enumerate(self.theta_rear_js_ns[selected, :]):
-                dd_i[name + '_' + 'b' + str(j) + '_t_b'] = t
+                df_i[name + '_' + 'b' + str(j) + '_t_b'] = t
             for j, t in enumerate(self.h_s_r_js_ns[selected, :]):
-                dd_i[name + '_' + 'b' + str(j) + '_hir_s'] = t
+                df_i[name + '_' + 'b' + str(j) + '_hir_s'] = t
             for j, t in enumerate(self.q_r_js_ns[selected, :]):
-                dd_i[name + '_' + 'b' + str(j) + '_qir_s'] = t
+                df_i[name + '_' + 'b' + str(j) + '_qir_s'] = t
             for j, t in enumerate(self.h_s_c_js_ns[selected, :]):
-                dd_i[name + '_' + 'b' + str(j) + '_hic_s'] = t
+                df_i[name + '_' + 'b' + str(j) + '_hic_s'] = t
             for j, t in enumerate(self.q_c_js_ns[selected, :]):
-                dd_i[name + '_' + 'b' + str(j) + '_qic_s'] = t
+                df_i[name + '_' + 'b' + str(j) + '_qic_s'] = t
             for j, t in enumerate(self.q_i_sol_s_ns_js[selected, :]):
-                dd_i[name + '_' + 'b' + str(j) + '_qisol_s'] = t
+                df_i[name + '_' + 'b' + str(j) + '_qisol_s'] = t
             for j, t in enumerate(self.q_s_js_ns[selected, :]):
-                dd_i[name + '_' + 'b' + str(j) + '_qiall_s'] = t
+                df_i[name + '_' + 'b' + str(j) + '_qiall_s'] = t
 
-        return dd_i, df_a2, dd_i2
+        return df_i1, df_a2, df_i

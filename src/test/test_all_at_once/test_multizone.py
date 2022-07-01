@@ -174,7 +174,7 @@ class TestAllAtOnce(unittest.TestCase):
 
         # 部位からの対流熱取得, [W]
         surf_conv_heat = 0.0
-        for i in range(0, 12):
+        for i in [38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49]:
             surf_conv_heat -= self._dd_i['rm2_b' + str(i) + '_qic_s'][date_now]
 
         # 家具からの対流熱取得, [W]
@@ -239,12 +239,16 @@ class TestAllAtOnce(unittest.TestCase):
     def test_radiative_heat_balance(self):
 
         # 各室の部位の数
-        n_part = [12, 26, 12]
+        n_part = [
+            [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
+            [12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37],
+            [38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49]
+        ]
 
         for rm in range(3):
             # 部位の放射熱取得, [W]
             surf_radiative_heat = 0.0
-            for i in range(n_part[rm]):
+            for i in n_part[rm]:
                 surf_radiative_heat += self._dd_i['rm' + str(rm) + '_b' + str(i) + '_qir_s']['1989-01-01 12:15:00']
 
             self.assertAlmostEqual(surf_radiative_heat, 0.0)
