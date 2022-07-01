@@ -22,3 +22,10 @@ class TestInterval(unittest.TestCase):
         self.assertEqual(8760*4, Interval.M15.get_annual_number())
         self.assertEqual(8760*2, Interval.M30.get_annual_number())
         self.assertEqual(8760*1, Interval.H1.get_annual_number())
+
+    def test_get_pandas_freq(self):
+
+        self.assertEqual('15min', Interval.M15.get_pandas_freq())
+        self.assertEqual('30min', Interval.M30.get_pandas_freq())
+        self.assertEqual('H', Interval.H1.get_pandas_freq())
+

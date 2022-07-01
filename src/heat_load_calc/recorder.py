@@ -1,12 +1,15 @@
 import numpy as np
 import pandas as pd
 import datetime as dt
+import itertools
+from typing import List
 
 from heat_load_calc.pre_calc_parameters import PreCalcParameters
 from heat_load_calc import pmv as pmv, psychrometrics as psy
+from heat_load_calc.interval import Interval
 
 
-class Logger:
+class Recorder:
     """
     Notes:
         データは、「瞬時値」を記したものと、「平均値」「積算値」を記したものの2種類に分類される。
@@ -22,16 +25,35 @@ class Logger:
         -a とあるものは平均値・積算値を表す。
     """
 
-    def __init__(self, n_rm: int, n_boundaries: int, n_step_main: int):
+    # 本負荷計算に年の概念は無いが、便宜上1989年として記録する。（閏年でなければ、任意）
+    YEAR = '1989'
+
+    def __init__(self, n_step_main: int, id_rm_is: List[int], id_bdry_js: List[int], itv: Interval = Interval.M15):
         """
         ロギング用に numpy の配列を用意する。
 
         Args:
-            n_rm: 室の数
-            n_boundaries: 境界の数
             n_step_main: 計算ステップの数
+            id_rm_is: 室のid [i]
+            id_bdry_js: 境界のid [j]
+            itv: インターバルクラス
 
         """
+
+        # インターバル
+        self._itv = itv
+
+        # 室の数
+        n_rm = len(id_rm_is)
+
+        # 境界の数
+        n_boundaries = len(id_bdry_js)
+
+        # 室のID
+        self._id_rm_is = id_rm_is
+
+        # 境界のID
+        self._id_bdry_js = id_bdry_js
 
         # 瞬時値の行数
         self._n_step_i = n_step_main + 1
@@ -164,7 +186,53 @@ class Logger:
         # ステップ n の室 i におけるClo値, [i, n], 出力名："rm[i]_clo"
         self.clo_is_ns = np.zeros((n_rm, self._n_step_a), dtype=float)
 
-    def pre_logging(self, ss: PreCalcParameters):
+        self._output_list_room_a = [
+            ('operation_mode_is_ns', 'ac_operate'),
+            ('ac_demand_is_ns', 'occupancy'),
+            ('h_hum_c_is_ns', 'hc_hum'),
+            ('h_hum_r_is_ns', 'hr_hum'),
+            ('q_gen_is_ns', 'q_s_except_hum'),
+            ('x_gen_is_ns', 'q_l_except_hum'),
+            ('q_hum_is_ns', 'q_hum_s'),
+            ('x_hum_is_ns', 'q_hum_l'),
+            ('l_cs_is_ns', 'l_s_c'),
+            ('l_rs_is_ns', 'l_s_r'),
+            ('l_cl_is_ns', 'l_l_c'),
+            ('q_frt_is_ns', 'q_s_fun'),
+            ('q_l_frt_is_ns', 'q_l_fun'),
+            ('v_reak_is_ns', 'v_reak'),
+            ('v_ntrl_is_ns', 'v_ntrl'),
+            ('v_hum_is_ns', 'v_hum'),
+            ('clo_is_ns', 'clo')
+        ]
+
+        self._output_list_room_i =[
+            ('theta_r_is_ns', 't_r'),
+            ('rh_r_is_ns', 'rh_r'),
+            ('x_r_is_ns', 'x_r'),
+            ('theta_mrt_hum_is_ns', 'mrt'),
+            ('theta_ot', 'ot'),
+            ('q_trs_sol_is_ns', 'q_sol_t'),
+            ('theta_frt_is_ns', 't_fun'),
+            ('q_sol_frt_is_ns', 'q_s_sol_fun'),
+            ('x_frt_is_ns', 'x_fun'),
+            ('pmv_is_ns', 'pmv'),
+            ('ppd_is_ns', 'ppd')
+        ]
+
+        self._output_list_boundary_i = [
+            ('theta_s_js_ns', 't_s'),
+            ('theta_ei_js_ns', 't_e'),
+            ('theta_rear_js_ns', 't_b'),
+            ('h_s_r_js_ns', 'hir_s'),
+            ('q_r_js_ns', 'qir_s'),
+            ('h_s_c_js_ns', 'hic_s'),
+            ('q_c_js_ns', 'qic_s'),
+            ('q_i_sol_s_ns_js', 'qisol_s'),
+            ('q_s_js_ns', 'qiall_s')
+        ]
+
+    def pre_recording(self, ss: PreCalcParameters):
 
         # 注意：用意された1年分のデータと実行期間が異なる場合があるためデータスライスする必要がある。
 
@@ -202,7 +270,7 @@ class Logger:
         # ステップ n の室 i における人体発湿を除く内部発湿, kg/s, [i, n]
         self.x_gen_is_ns = ss.x_gen_is_ns[:, 0:self._n_step_a]
 
-    def post_logging(self, ss: PreCalcParameters):
+    def post_recording(self, ss: PreCalcParameters):
 
         # ---瞬時値---
 
@@ -254,74 +322,192 @@ class Logger:
         # ステップ n の室 i におけるPPD実現値, [i, n+1]
         self.ppd_is_ns = pmv.get_ppd_is_n(pmv_is_n=self.pmv_is_ns)
 
-    def record(self, pps: PreCalcParameters):
+    def recording(self, n: int, **kwargs):
 
-        n_step_i = self._n_step_i
-        n_step_a = self._n_step_a
+        # 瞬時値の書き込み
 
-        date_index_15min_i = pd.date_range(start='1/1/1989', periods=n_step_i, freq='15min', name='start_time')
-        date_index_15min_a = pd.date_range(start='1/1/1989', periods=n_step_a, freq='15min', name='start_time')
+        if n >= -1:
 
-        dd_i = pd.DataFrame(index=date_index_15min_i)
-        dd_a = pd.DataFrame(index=date_index_15min_a)
-        dd_a['end_time'] = date_index_15min_a + dt.timedelta(minutes=15)
+            # 瞬時値出力のステップ番号
+            n_i = n + 1
 
-        dd_i['out_temp'] = self.theta_o_ns
-        dd_i['out_abs_humid'] = self.x_o_ns
+            # 次の時刻に引き渡す値
+            self.theta_r_is_ns[:, n_i] = kwargs["theta_r_is_n_pls"].flatten()
+            self.theta_mrt_hum_is_ns[:, n_i] = kwargs["theta_mrt_hum_is_n_pls"].flatten()
+            self.x_r_is_ns[:, n_i] = kwargs["x_r_is_n_pls"].flatten()
+            self.theta_frt_is_ns[:, n_i] = kwargs["theta_frt_is_n_pls"].flatten()
+            self.x_frt_is_ns[:, n_i] = kwargs["x_frt_is_n_pls"].flatten()
+            self.theta_ei_js_ns[:, n_i] = kwargs["theta_ei_js_n_pls"].flatten()
+            self.q_s_js_ns[:, n_i] = kwargs["q_s_js_n_pls"].flatten()
 
-        for i in range(pps.n_rm):
+            # 次の時刻に引き渡さない値
+            self.theta_ot[:, n_i] = kwargs["theta_ot_is_n_pls"].flatten()
+            self.theta_s_js_ns[:, n_i] = kwargs["theta_s_js_n_pls"].flatten()
+            self.theta_rear_js_ns[:, n_i] = kwargs["theta_rear_js_n"].flatten()
 
-            name = 'rm' + str(i)
+        # 平均値・積算値の書き込み
 
-            dd_i[name + '_t_r'] = self.theta_r_is_ns[i]
-            dd_i[name + '_rh_r'] = self.rh_r_is_ns[i]
-            dd_i[name + '_x_r'] = self.x_r_is_ns[i]
-            dd_i[name + '_mrt'] = self.theta_mrt_hum_is_ns[i]
-            dd_i[name + '_ot'] = self.theta_ot[i]
-            dd_i[name + '_q_sol_t'] = self.q_trs_sol_is_ns[i]
-            dd_i[name + '_t_fun'] = self.theta_frt_is_ns[i]
-            dd_i[name + '_q_s_sol_fun'] = self.q_sol_frt_is_ns[i]
-            dd_i[name + '_x_fun'] = self.x_frt_is_ns[i]
-            dd_i[name + '_pmv'] = self.pmv_is_ns[i]
-            dd_i[name + '_ppd'] = self.ppd_is_ns[i]
+        if n >= 0:
 
-            dd_a[name + '_ac_operate'] = self.operation_mode_is_ns[i]
-            dd_a[name + '_occupancy'] = self.ac_demand_is_ns[i]
-            dd_a[name + '_hc_hum'] = self.h_hum_c_is_ns[i]
-            dd_a[name + '_hr_hum'] = self.h_hum_r_is_ns[i]
-            dd_a[name + '_q_s_except_hum'] = self.q_gen_is_ns[i]
-            dd_a[name + '_q_l_except_hum'] = self.x_gen_is_ns[i]
-            dd_a[name + '_q_hum_s'] = self.q_hum_is_ns[i]
-            dd_a[name + '_q_hum_l'] = self.x_hum_is_ns[i]
-            dd_a[name + '_l_s_c'] = self.l_cs_is_ns[i]
-            dd_a[name + '_l_s_r'] = self.l_rs_is_ns[i]
-            dd_a[name + '_l_l_c'] = self.l_cl_is_ns[i]
-            dd_a[name + '_q_s_fun'] = self.q_frt_is_ns[i]
-            dd_a[name + '_q_l_fun'] = self.q_l_frt_is_ns[i]
-            dd_a[name + '_v_reak'] = self.v_reak_is_ns[i]
-            dd_a[name + '_v_ntrl'] = self.v_ntrl_is_ns[i]
-            dd_a[name + '_v_hum'] = self.v_hum_is_ns[i]
-            dd_a[name + '_clo'] = self.clo_is_ns[i]
+            # 平均値出力のステップ番号
+            n_a = n
 
-            selected = pps.p_is_js[i] == 1
+            # 次の時刻に引き渡す値
+            self.operation_mode_is_ns[:, n_a] = kwargs["operation_mode_is_n"].flatten()
 
-            for j, t in enumerate(self.theta_s_js_ns[selected, :]):
-                dd_i[name + '_' + 'b' + str(j) + '_t_s'] = t
-            for j, t in enumerate(self.theta_ei_js_ns[selected, :]):
-                dd_i[name + '_' + 'b' + str(j) + '_t_e'] = t
-            for j, t in enumerate(self.theta_rear_js_ns[selected, :]):
-                dd_i[name + '_' + 'b' + str(j) + '_t_b'] = t
-            for j, t in enumerate(self.h_s_r_js_ns[selected, :]):
-                dd_i[name + '_' + 'b' + str(j) + '_hir_s'] = t
-            for j, t in enumerate(self.q_r_js_ns[selected, :]):
-                dd_i[name + '_' + 'b' + str(j) + '_qir_s'] = t
-            for j, t in enumerate(self.h_s_c_js_ns[selected, :]):
-                dd_i[name + '_' + 'b' + str(j) + '_hic_s'] = t
-            for j, t in enumerate(self.q_c_js_ns[selected, :]):
-                dd_i[name + '_' + 'b' + str(j) + '_qic_s'] = t
-            for j, t in enumerate(self.q_i_sol_s_ns_js[selected, :]):
-                dd_i[name + '_' + 'b' + str(j) + '_qisol_s'] = t
-            for j, t in enumerate(self.q_s_js_ns[selected, :]):
-                dd_i[name + '_' + 'b' + str(j) + '_qiall_s'] = t
+            # 次の時刻に引き渡さない値
+            # 積算値
+            self.l_cs_is_ns[:, n_a] = kwargs["l_cs_is_n"].flatten()
+            self.l_rs_is_ns[:, n_a] = kwargs["l_rs_is_n"].flatten()
+            self.l_cl_is_ns[:, n_a] = kwargs["l_cl_is_n"].flatten()
+            # 平均値
+            self.h_hum_c_is_ns[:, n_a] = kwargs["h_hum_c_is_n"].flatten()
+            self.h_hum_r_is_ns[:, n_a] = kwargs["h_hum_r_is_n"].flatten()
+            self.q_hum_is_ns[:, n_a] = kwargs["q_hum_is_n"].flatten()
+            self.x_hum_is_ns[:, n_a] = kwargs["x_hum_is_n"].flatten()
+            self.v_reak_is_ns[:, n_a] = kwargs["v_leak_is_n"].flatten()
+            self.v_ntrl_is_ns[:, n_a] = kwargs["v_vent_ntr_is_n"].flatten()
+            self.v_hum_is_ns[:, n_a] = kwargs["v_hum_is_n"].flatten()
+            self.clo_is_ns[:, n_a] = kwargs["clo_is_n"].flatten()
 
-        return dd_i, dd_a
+    def export_pd(self):
+
+        # データインデックス（「瞬時値・平均値用」・「積算値用（開始時刻）」・「積算値用（終了時刻）」）を作成する。
+        date_index_a_end, date_index_a_start, date_index_i = self._get_date_index()
+
+        # dataframe を作成（瞬時値・平均値用）
+        df_a1 = pd.DataFrame(data=self._get_flat_data_a().T, columns=self.get_header_a(), index=[date_index_a_start, date_index_a_end])
+
+        # 列入れ替え用の新しいヘッダーを作成
+        new_columns_a = list(itertools.chain.from_iterable(
+            [[self._get_room_header_name(id=i, name=column[1]) for column in self._output_list_room_a] for i in self._id_rm_is]
+        ))
+
+        # 列の入れ替え
+        df_a2 = df_a1.reindex(columns=new_columns_a)
+
+        # dataframe を作成（積算値用）
+        df_i1 = pd.DataFrame(data=self._get_flat_data_i().T, columns=self.get_header_i(), index=date_index_i)
+
+        # 列入れ替え用の新しいヘッダーを作成
+        new_columns_i = ['out_temp', 'out_abs_humid'] + list(itertools.chain.from_iterable(
+            [[self._get_room_header_name(id=id, name=column[1]) for column in self._output_list_room_i] for id in self._id_rm_is]
+        )) + list(itertools.chain.from_iterable(
+            [[self._get_boundary_name(id=id, name=column[1]) for column in self._output_list_boundary_i] for id in self._id_bdry_js]
+        ))
+
+        # 列の入れ替え
+        df_i2 = df_i1.reindex(columns=new_columns_i)
+
+        return df_i2, df_a2
+
+    def get_header_i(self):
+
+        return ['out_temp', 'out_abs_humid'] \
+            + list(itertools.chain.from_iterable(
+                [self._get_room_header_names(name=column[1]) for column in self._output_list_room_i]))\
+            + list(itertools.chain.from_iterable(
+                [self._get_boundary_names(name=column[1]) for column in self._output_list_boundary_i]))
+
+    def get_header_a(self):
+
+        return list(itertools.chain.from_iterable(
+            [self._get_room_header_names(name=column[1]) for column in self._output_list_room_a]))
+
+    def _get_flat_data_i(self):
+        """[列（項目数）✕行（時系列）]のデータを作成する。
+        Returns:
+
+        """
+
+        # 出力リストに従って1つずつ記録された2次元のデータを縦に並べていき（この時点で3次元になる）、concatenate でフラット化する。
+        # 先頭に外気温度と外気湿度の2つのデータを並べてある。他のデータが2次元データのため、
+        # 外気温度と外気湿度のデータもあえて 1 ✕ n の2次元データにしてから統合してある。
+        return np.concatenate(
+            [[self.theta_o_ns], [self.x_o_ns]]
+            + [self.__dict__[column[0]] for column in self._output_list_room_i]
+            + [self.__dict__[column[0]] for column in self._output_list_boundary_i]
+        )
+
+    def _get_flat_data_a(self):
+        """[列（項目数）✕行（時系列）]のデータを作成する。
+
+        Returns:
+
+        """
+
+        # 出力リストに従って1つずつ記録された2次元のデータを縦に並べていき（この時点で3次元になる）、concatenate でフラット化する。
+        return np.concatenate([self.__dict__[column[0]] for column in self._output_list_room_a])
+
+    def _get_date_index(self):
+        """データインデックスを作成する。
+
+        Returns:
+
+        """
+
+        # pandas 用の時間間隔 freq 引数
+        freq = self._itv.get_pandas_freq()
+
+        # date time index 作成（瞬時値・平均値）
+        date_index_i = pd.date_range(start='1/1/' + self.YEAR, periods=self._n_step_i, freq=freq, name='start_time')
+
+        # date time index 作成（積算値）（start と end の2種類作成する）
+        date_index_a_start = pd.date_range(start='1/1/' + self.YEAR, periods=self._n_step_a, freq=freq)
+        date_index_a_end = date_index_a_start + dt.timedelta(minutes=15)
+        date_index_a_start.name = 'start_time'
+        date_index_a_end.name = 'end_time'
+
+        return date_index_a_end, date_index_a_start, date_index_i
+
+    @classmethod
+    def _get_room_header_name(cls, id: int, name: str):
+        """room 用のヘッダー名称を取得する。
+
+        Args:
+            id: room のID
+            name: 出力項目名称
+
+        Returns:
+            ヘッダー名称
+        """
+
+        return 'rm' + str(id) + '_' + name
+
+    def _get_room_header_names(self, name: str):
+        """room 用のヘッダー名称を室の数分取得する。
+
+        Args:
+            name: 出力項目名称
+
+        Returns:
+            ヘッダー名称のリスト
+        """
+        return [self._get_room_header_name(id=id, name=name) for id in self._id_rm_is]
+
+    @classmethod
+    def _get_boundary_name(cls, id: int, name: str):
+        """boundary 用のヘッダ名称を取得する。
+
+        Args:
+            pps: PreCalcParameters クラス
+            j: boundary の ID
+            name: 出力項目名称
+
+        Returns:
+
+        """
+
+        return 'b' + str(id) + '_' + name
+
+    def _get_boundary_names(self, name: str):
+        """boundary 用のヘッダ名称を boundary の数だけ取得する。
+
+        Args:
+            name: 出力項目名称
+
+        Returns:
+
+        """
+        return [self._get_boundary_name(id=id, name=name) for id in self._id_bdry_js]
+

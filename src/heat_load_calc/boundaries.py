@@ -287,6 +287,11 @@ class Boundaries:
 
         return sum(bs.boundary_type == BoundaryType.Ground for bs in self._bss)
 
+    def get_id_js(self):
+        # ID
+
+        return np.array([bs.id for bs in self._bss]).reshape(-1, 1)
+
     def get_name_bdry_js(self):
         # 名前, [j, 1]
 
