@@ -25,7 +25,7 @@ class PreCalcParameters:
     n_rm: int
 
     # 空間のID
-    id_rm_is: List[int]
+    id_rm_is: np.ndarray
 
     # 空間の名前, [i]
     name_rm_is: List[str]
@@ -73,6 +73,9 @@ class PreCalcParameters:
 
     # 室iの隣室からの機械換気量, m3/s, [i, i]
     v_vent_int_is_is: np.ndarray
+
+    # 境界のID, [j, 1]
+    id_bdry_js: np.ndarray
 
     # 境界jの名前, [j]
     name_bdry_js: np.ndarray
@@ -291,6 +294,9 @@ def make_pre_calc_parameters(
 
     # 境界の数
     n_b = bs.get_n_b()
+
+    # 境界のID
+    id_b_js = bs.get_id_js()
 
     # 名前, [j, 1]
     name_bdry_js = bs.get_name_bdry_js()
@@ -546,6 +552,7 @@ def make_pre_calc_parameters(
         g_sh_frt_is=g_sh_frt_is,
         g_lh_frt_is=g_lh_frt_is,
         v_vent_int_is_is=v_vent_int_is_is,
+        id_bdry_js=id_b_js,
         name_bdry_js=name_bdry_js,
         sub_name_bdry_js=sub_name_bdry_js,
         a_s_js=a_s_js,
