@@ -51,7 +51,7 @@ class TestSigleRoomWithGround(unittest.TestCase):
         )
 
         # 計算実行
-        dd_i, dd_a, _ = core2.calc(rd=rd, w=w, scd=scd, n_d_main=30, n_d_run_up=10, n_d_run_up_build=0)
+        dd_i, dd_a = core2.calc(rd=rd, w=w, scd=scd, n_d_main=30, n_d_run_up=10, n_d_run_up_build=0)
 
         # 計算結果格納
         cls._dd_i = dd_i

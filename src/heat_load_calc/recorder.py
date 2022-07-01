@@ -403,55 +403,12 @@ class Recorder:
             index=date_index_15min_i
         )
 
-        new_columns_i = []
+        new_columns_i = ['out_temp', 'out_abs_humid'] + list(itertools.chain.from_iterable(
+            [[get_room_name(i=i, name=column[1]) for column in output_list_room_i] for i in range(pps.n_rm)]
+        )) + list(itertools.chain.from_iterable(
+            [[get_boundary_name(j=j, name=column[1]) for column in output_list_boundary_i] for j in range(pps.n_bdry)]
+        ))
 
-        for i in range(pps.n_rm):
+        df_i2 = df_i1.reindex(columns=new_columns_i)
 
-            for column in output_list_room_i:
-
-                new_columns_i.append(get_room_name(i=i, name=column[1]))
-
-            selected = pps.p_is_js[i] == 1
-
-            for column in output_list_boundary_i:
-                for j, t in enumerate(self.__dict__[column[0]][selected, :]):
-                    new_columns_i.append('rm' + str(i) + '_b' + str(j) + '_' + column[1])
-
-        for i in range(pps.n_rm):
-
-            name = 'rm' + str(i)
-
-            df_i[name + '_t_r'] = self.theta_r_is_ns[i]
-            df_i[name + '_rh_r'] = self.rh_r_is_ns[i]
-            df_i[name + '_x_r'] = self.x_r_is_ns[i]
-            df_i[name + '_mrt'] = self.theta_mrt_hum_is_ns[i]
-            df_i[name + '_ot'] = self.theta_ot[i]
-            df_i[name + '_q_sol_t'] = self.q_trs_sol_is_ns[i]
-            df_i[name + '_t_fun'] = self.theta_frt_is_ns[i]
-            df_i[name + '_q_s_sol_fun'] = self.q_sol_frt_is_ns[i]
-            df_i[name + '_x_fun'] = self.x_frt_is_ns[i]
-            df_i[name + '_pmv'] = self.pmv_is_ns[i]
-            df_i[name + '_ppd'] = self.ppd_is_ns[i]
-
-            selected = pps.p_is_js[i] == 1
-
-            for j, t in enumerate(self.theta_s_js_ns[selected, :]):
-                df_i[name + '_' + 'b' + str(j) + '_t_s'] = t
-            for j, t in enumerate(self.theta_ei_js_ns[selected, :]):
-                df_i[name + '_' + 'b' + str(j) + '_t_e'] = t
-            for j, t in enumerate(self.theta_rear_js_ns[selected, :]):
-                df_i[name + '_' + 'b' + str(j) + '_t_b'] = t
-            for j, t in enumerate(self.h_s_r_js_ns[selected, :]):
-                df_i[name + '_' + 'b' + str(j) + '_hir_s'] = t
-            for j, t in enumerate(self.q_r_js_ns[selected, :]):
-                df_i[name + '_' + 'b' + str(j) + '_qir_s'] = t
-            for j, t in enumerate(self.h_s_c_js_ns[selected, :]):
-                df_i[name + '_' + 'b' + str(j) + '_hic_s'] = t
-            for j, t in enumerate(self.q_c_js_ns[selected, :]):
-                df_i[name + '_' + 'b' + str(j) + '_qic_s'] = t
-            for j, t in enumerate(self.q_i_sol_s_ns_js[selected, :]):
-                df_i[name + '_' + 'b' + str(j) + '_qisol_s'] = t
-            for j, t in enumerate(self.q_s_js_ns[selected, :]):
-                df_i[name + '_' + 'b' + str(j) + '_qiall_s'] = t
-
-        return df_i1, df_a2, df_i
+        return df_i2, df_a2

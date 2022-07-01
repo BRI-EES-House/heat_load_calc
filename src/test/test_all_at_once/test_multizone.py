@@ -36,7 +36,7 @@ class TestAllAtOnce(unittest.TestCase):
             a_floor_is=[r['floor_area'] for r in rd['rooms']]
         )
 
-        dd_i, dd_a, _ = core2.calc(rd=rd, w=oc, scd=scd)
+        dd_i, dd_a = core2.calc(rd=rd, w=oc, scd=scd)
 
         cls._dd_i = dd_i
         cls._dd_a = dd_a
