@@ -98,6 +98,6 @@ def calc(
     logger.info('ログ作成')
 
     # dd: data detail, 15分間隔のすべてのパラメータ pd.DataFrame
-    dd_i, dd_a = result.export_pd(pps=pp)
+    dd_i, dd_a = result.export_pd()
 
     return dd_i, dd_a

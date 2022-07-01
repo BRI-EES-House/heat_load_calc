@@ -370,7 +370,7 @@ class Recorder:
             self.v_hum_is_ns[:, n_a] = kwargs["v_hum_is_n"].flatten()
             self.clo_is_ns[:, n_a] = kwargs["clo_is_n"].flatten()
 
-    def export_pd(self, pps: PreCalcParameters):
+    def export_pd(self):
 
         # データインデックス（「瞬時値・平均値用」・「積算値用（開始時刻）」・「積算値用（終了時刻）」）を作成する。
         date_index_a_end, date_index_a_start, date_index_i = self._get_date_index()
@@ -380,20 +380,20 @@ class Recorder:
 
         # 列入れ替え用の新しいヘッダーを作成
         new_columns_a = list(itertools.chain.from_iterable(
-            [[self._get_room_header_name(id=i, name=column[1]) for column in self._output_list_room_a] for i in range(pps.n_rm)]
+            [[self._get_room_header_name(id=i, name=column[1]) for column in self._output_list_room_a] for i in self._id_rm_is]
         ))
 
         # 列の入れ替え
         df_a2 = df_a1.reindex(columns=new_columns_a)
 
         # dataframe を作成（積算値用）
-        df_i1 = pd.DataFrame(data=self._get_flat_data_i().T, columns=self.get_header_i(pps), index=date_index_i)
+        df_i1 = pd.DataFrame(data=self._get_flat_data_i().T, columns=self.get_header_i(), index=date_index_i)
 
         # 列入れ替え用の新しいヘッダーを作成
         new_columns_i = ['out_temp', 'out_abs_humid'] + list(itertools.chain.from_iterable(
-            [[self._get_room_header_name(id=i, name=column[1]) for column in self._output_list_room_i] for i in range(pps.n_rm)]
+            [[self._get_room_header_name(id=id, name=column[1]) for column in self._output_list_room_i] for id in self._id_rm_is]
         )) + list(itertools.chain.from_iterable(
-            [[self._get_boundary_name(pps=pps, j=j, name=column[1]) for column in self._output_list_boundary_i] for j in range(pps.n_bdry)]
+            [[self._get_boundary_name(id=id, name=column[1]) for column in self._output_list_boundary_i] for id in self._id_bdry_js]
         ))
 
         # 列の入れ替え
@@ -401,13 +401,13 @@ class Recorder:
 
         return df_i2, df_a2
 
-    def get_header_i(self, pps):
+    def get_header_i(self):
 
         return ['out_temp', 'out_abs_humid'] \
             + list(itertools.chain.from_iterable(
                 [self._get_room_header_names(name=column[1]) for column in self._output_list_room_i]))\
             + list(itertools.chain.from_iterable(
-                [self._get_boundary_names(pps=pps, name=column[1]) for column in self._output_list_boundary_i]))
+                [self._get_boundary_names(name=column[1]) for column in self._output_list_boundary_i]))
 
     def get_header_a(self):
 
@@ -486,7 +486,7 @@ class Recorder:
         return [self._get_room_header_name(id=id, name=name) for id in self._id_rm_is]
 
     @classmethod
-    def _get_boundary_name(cls, pps: PreCalcParameters, j: int, name: str):
+    def _get_boundary_name(cls, id: int, name: str):
         """boundary 用のヘッダ名称を取得する。
 
         Args:
@@ -497,18 +497,17 @@ class Recorder:
         Returns:
 
         """
-        rm_index = np.where(pps.p_js_is[j] == 1)[0][0]
-        return 'rm' + str(rm_index) + '_b' + str(j) + '_' + name
 
-    def _get_boundary_names(self, pps: PreCalcParameters, name: str):
+        return 'b' + str(id) + '_' + name
+
+    def _get_boundary_names(self, name: str):
         """boundary 用のヘッダ名称を boundary の数だけ取得する。
 
         Args:
-            pps: PreCalcParameters クラス
             name: 出力項目名称
 
         Returns:
 
         """
-        return [self._get_boundary_name(pps=pps, j=j, name=name) for j in self._id_bdry_js]
+        return [self._get_boundary_name(id=id, name=name) for id in self._id_bdry_js]
 

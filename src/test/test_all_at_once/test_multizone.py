@@ -92,7 +92,7 @@ class TestAllAtOnce(unittest.TestCase):
         # 部位からの対流熱取得, [W]
         surf_conv_heat = 0.0
         for i in range(0, 12):
-            surf_conv_heat -= self._dd_i['rm0_b' + str(i) + '_qic_s'][date_now]
+            surf_conv_heat -= self._dd_i['b' + str(i) + '_qic_s'][date_now]
 
         # 家具からの対流熱取得, [W]
         t_fun = self._dd_i['rm0_t_fun'][date_now]
@@ -175,7 +175,7 @@ class TestAllAtOnce(unittest.TestCase):
         # 部位からの対流熱取得, [W]
         surf_conv_heat = 0.0
         for i in [38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49]:
-            surf_conv_heat -= self._dd_i['rm2_b' + str(i) + '_qic_s'][date_now]
+            surf_conv_heat -= self._dd_i['b' + str(i) + '_qic_s'][date_now]
 
         # 家具からの対流熱取得, [W]
         t_fun = self._dd_i['rm2_t_fun'][date_now]
@@ -249,7 +249,7 @@ class TestAllAtOnce(unittest.TestCase):
             # 部位の放射熱取得, [W]
             surf_radiative_heat = 0.0
             for i in n_part[rm]:
-                surf_radiative_heat += self._dd_i['rm' + str(rm) + '_b' + str(i) + '_qir_s']['1989-01-01 12:15:00']
+                surf_radiative_heat += self._dd_i['b' + str(i) + '_qir_s']['1989-01-01 12:15:00']
 
             self.assertAlmostEqual(surf_radiative_heat, 0.0)
 
@@ -276,11 +276,11 @@ class TestAllAtOnce(unittest.TestCase):
     # 放射熱伝達率の計算結果のテスト
     def test_nagata_radiative_heat_transfer(self):
 
-        h_i_r0 = self._dd_i['rm0_b0_hir_s']['1989-01-01 00:15:00']
+        h_i_r0 = self._dd_i['b0_hir_s']['1989-01-01 00:15:00']
         self.assertAlmostEqual(first=h_i_r0, second=5.3033300464)
-        h_i_r1 = self._dd_i['rm0_b1_hir_s']['1989-01-01 00:15:00']
+        h_i_r1 = self._dd_i['b1_hir_s']['1989-01-01 00:15:00']
         self.assertAlmostEqual(first=h_i_r1, second=5.1924019186)
-        h_i_r10 = self._dd_i['rm0_b10_hir_s']['1989-01-01 00:15:00']
+        h_i_r10 = self._dd_i['b10_hir_s']['1989-01-01 00:15:00']
         self.assertAlmostEqual(first=h_i_r10, second=5.5218668782)
 
     def test_solar_heat_gain_balance(self):
@@ -301,8 +301,8 @@ class TestAllAtOnce(unittest.TestCase):
         # 部位の吸収日射, W
         surf_abs_sol = 0.0
         for i in range(11):
-            surf_abs_sol += self._dd_i['rm0_b' + str(i) + '_qisol_s'][date_now]
-#            surf_abs_sol += self._dd_i['rm0_b' + str(i) + '_qisol_s'][date_now_plus]
+            surf_abs_sol += self._dd_i['b' + str(i) + '_qisol_s'][date_now]
+#            surf_abs_sol += self._dd_i['b' + str(i) + '_qisol_s'][date_now_plus]
 
         self.assertAlmostEqual(q_sol_trans, q_sol_fun + surf_abs_sol)
 
