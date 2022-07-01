@@ -2,9 +2,11 @@ import numpy as np
 import pandas as pd
 import datetime as dt
 import itertools
+from typing import List
 
 from heat_load_calc.pre_calc_parameters import PreCalcParameters
 from heat_load_calc import pmv as pmv, psychrometrics as psy
+from heat_load_calc.interval import Interval
 
 
 class Recorder:
@@ -23,16 +25,35 @@ class Recorder:
         -a とあるものは平均値・積算値を表す。
     """
 
-    def __init__(self, n_rm: int, n_boundaries: int, n_step_main: int):
+    # 本負荷計算に年の概念は無いが、便宜上1989年として記録する。（閏年でなければ、任意）
+    YEAR = '1989'
+
+    def __init__(self, n_step_main: int, id_rm_is: List[int], id_bdry_js: List[int], itv: Interval = Interval.M15):
         """
         ロギング用に numpy の配列を用意する。
 
         Args:
-            n_rm: 室の数
-            n_boundaries: 境界の数
             n_step_main: 計算ステップの数
+            id_rm_is: 室のid [i]
+            id_bdry_js: 境界のid [j]
+            itv: インターバルクラス
 
         """
+
+        # インターバル
+        self._itv = itv
+
+        # 室の数
+        n_rm = len(id_rm_is)
+
+        # 境界の数
+        n_boundaries = len(id_bdry_js)
+
+        # 室のID
+        self._id_rm_is = id_rm_is
+
+        # 境界のID
+        self._id_bdry_js = id_bdry_js
 
         # 瞬時値の行数
         self._n_step_i = n_step_main + 1
@@ -165,7 +186,7 @@ class Recorder:
         # ステップ n の室 i におけるClo値, [i, n], 出力名："rm[i]_clo"
         self.clo_is_ns = np.zeros((n_rm, self._n_step_a), dtype=float)
 
-        self.output_list_room_a = [
+        self._output_list_room_a = [
             ('operation_mode_is_ns', 'ac_operate'),
             ('ac_demand_is_ns', 'occupancy'),
             ('h_hum_c_is_ns', 'hc_hum'),
@@ -185,7 +206,7 @@ class Recorder:
             ('clo_is_ns', 'clo')
         ]
 
-        self.output_list_room_i =[
+        self._output_list_room_i =[
             ('theta_r_is_ns', 't_r'),
             ('rh_r_is_ns', 'rh_r'),
             ('x_r_is_ns', 'x_r'),
@@ -199,7 +220,7 @@ class Recorder:
             ('ppd_is_ns', 'ppd')
         ]
 
-        self.output_list_boundary_i = [
+        self._output_list_boundary_i = [
             ('theta_s_js_ns', 't_s'),
             ('theta_ei_js_ns', 't_e'),
             ('theta_rear_js_ns', 't_b'),
@@ -351,48 +372,28 @@ class Recorder:
 
     def export_pd(self, pps: PreCalcParameters):
 
-        # date time index 作成（瞬時値・平均値）
-        date_index_15min_i = pd.date_range(start='1/1/1989', periods=self._n_step_i, freq='15min', name='start_time')
-
-        # date time index 作成（積算値）（start と end の2種類作成する）
-        date_index_15min_a_start = pd.date_range(start='1/1/1989', periods=self._n_step_a, freq='15min')
-        date_index_15min_a_end = date_index_15min_a_start + dt.timedelta(minutes=15)
-        date_index_15min_a_start.name = 'start_time'
-        date_index_15min_a_end.name = 'end_time'
+        # データインデックス（「瞬時値・平均値用」・「積算値用（開始時刻）」・「積算値用（終了時刻）」）を作成する。
+        date_index_a_end, date_index_a_start, date_index_i = self._get_date_index()
 
         # dataframe を作成（瞬時値・平均値用）
-        df_a1 = pd.DataFrame(
-            data=np.concatenate([self.__dict__[column[0]] for column in self.output_list_room_a]).T,
-            columns=list(itertools.chain.from_iterable([self._get_room_header_names(name=column[1], pps=pps) for column in self.output_list_room_a])),
-            index=[date_index_15min_a_start, date_index_15min_a_end]
-        )
+        df_a1 = pd.DataFrame(data=self._get_flat_data_a().T, columns=self.get_header_a(), index=[date_index_a_start, date_index_a_end])
 
         # 列入れ替え用の新しいヘッダーを作成
         new_columns_a = list(itertools.chain.from_iterable(
-            [[self._get_room_header_name(i=i, name=column[1]) for column in self.output_list_room_a] for i in range(pps.n_rm)]
+            [[self._get_room_header_name(id=i, name=column[1]) for column in self._output_list_room_a] for i in range(pps.n_rm)]
         ))
 
         # 列の入れ替え
         df_a2 = df_a1.reindex(columns=new_columns_a)
 
         # dataframe を作成（積算値用）
-        df_i1 = pd.DataFrame(
-            data=np.concatenate(
-                [[self.theta_o_ns], [self.x_o_ns]]
-                + [self.__dict__[column[0]] for column in self.output_list_room_i]
-                + [self.__dict__[column[0]] for column in self.output_list_boundary_i]
-            ).T,
-            columns=['out_temp', 'out_abs_humid']
-                + list(itertools.chain.from_iterable([self._get_room_header_names(name=column[1], pps=pps) for column in self.output_list_room_i]))
-                + list(itertools.chain.from_iterable([self._get_boundary_names(pps=pps, name=column[1]) for column in self.output_list_boundary_i])),
-            index=date_index_15min_i
-        )
+        df_i1 = pd.DataFrame(data=self._get_flat_data_i().T, columns=self.get_header_i(pps), index=date_index_i)
 
         # 列入れ替え用の新しいヘッダーを作成
         new_columns_i = ['out_temp', 'out_abs_humid'] + list(itertools.chain.from_iterable(
-            [[self._get_room_header_name(i=i, name=column[1]) for column in self.output_list_room_i] for i in range(pps.n_rm)]
+            [[self._get_room_header_name(id=i, name=column[1]) for column in self._output_list_room_i] for i in range(pps.n_rm)]
         )) + list(itertools.chain.from_iterable(
-            [[self._get_boundary_name(pps=pps, j=j, name=column[1]) for column in self.output_list_boundary_i] for j in range(pps.n_bdry)]
+            [[self._get_boundary_name(pps=pps, j=j, name=column[1]) for column in self._output_list_boundary_i] for j in range(pps.n_bdry)]
         ))
 
         # 列の入れ替え
@@ -400,22 +401,80 @@ class Recorder:
 
         return df_i2, df_a2
 
+    def get_header_i(self, pps):
+
+        return ['out_temp', 'out_abs_humid'] \
+            + list(itertools.chain.from_iterable(
+                [self._get_room_header_names(name=column[1]) for column in self._output_list_room_i]))\
+            + list(itertools.chain.from_iterable(
+                [self._get_boundary_names(pps=pps, name=column[1]) for column in self._output_list_boundary_i]))
+
+    def get_header_a(self):
+
+        return list(itertools.chain.from_iterable(
+            [self._get_room_header_names(name=column[1]) for column in self._output_list_room_a]))
+
+    def _get_flat_data_i(self):
+        """[列（項目数）✕行（時系列）]のデータを作成する。
+        Returns:
+
+        """
+
+        # 出力リストに従って1つずつ記録された2次元のデータを縦に並べていき（この時点で3次元になる）、concatenate でフラット化する。
+        # 先頭に外気温度と外気湿度の2つのデータを並べてある。他のデータが2次元データのため、
+        # 外気温度と外気湿度のデータもあえて 1 ✕ n の2次元データにしてから統合してある。
+        return np.concatenate(
+            [[self.theta_o_ns], [self.x_o_ns]]
+            + [self.__dict__[column[0]] for column in self._output_list_room_i]
+            + [self.__dict__[column[0]] for column in self._output_list_boundary_i]
+        )
+
+    def _get_flat_data_a(self):
+        """[列（項目数）✕行（時系列）]のデータを作成する。
+
+        Returns:
+
+        """
+
+        # 出力リストに従って1つずつ記録された2次元のデータを縦に並べていき（この時点で3次元になる）、concatenate でフラット化する。
+        return np.concatenate([self.__dict__[column[0]] for column in self._output_list_room_a])
+
+    def _get_date_index(self):
+        """データインデックスを作成する。
+
+        Returns:
+
+        """
+
+        # pandas 用の時間間隔 freq 引数
+        freq = self._itv.get_pandas_freq()
+
+        # date time index 作成（瞬時値・平均値）
+        date_index_i = pd.date_range(start='1/1/' + self.YEAR, periods=self._n_step_i, freq=freq, name='start_time')
+
+        # date time index 作成（積算値）（start と end の2種類作成する）
+        date_index_a_start = pd.date_range(start='1/1/' + self.YEAR, periods=self._n_step_a, freq=freq)
+        date_index_a_end = date_index_a_start + dt.timedelta(minutes=15)
+        date_index_a_start.name = 'start_time'
+        date_index_a_end.name = 'end_time'
+
+        return date_index_a_end, date_index_a_start, date_index_i
+
     @classmethod
-    def _get_room_header_name(cls, i: int, name: str):
+    def _get_room_header_name(cls, id: int, name: str):
         """room 用のヘッダー名称を取得する。
 
         Args:
-            i: room のID
+            id: room のID
             name: 出力項目名称
 
         Returns:
             ヘッダー名称
         """
 
-        return 'rm' + str(i) + '_' + name
+        return 'rm' + str(id) + '_' + name
 
-    @classmethod
-    def _get_room_header_names(cls, name: str, pps: PreCalcParameters):
+    def _get_room_header_names(self, name: str):
         """room 用のヘッダー名称を室の数分取得する。
 
         Args:
@@ -424,7 +483,7 @@ class Recorder:
         Returns:
             ヘッダー名称のリスト
         """
-        return [cls._get_room_header_name(i=i, name=name) for i in range(pps.n_rm)]
+        return [self._get_room_header_name(id=id, name=name) for id in self._id_rm_is]
 
     @classmethod
     def _get_boundary_name(cls, pps: PreCalcParameters, j: int, name: str):
@@ -441,8 +500,7 @@ class Recorder:
         rm_index = np.where(pps.p_js_is[j] == 1)[0][0]
         return 'rm' + str(rm_index) + '_b' + str(j) + '_' + name
 
-    @classmethod
-    def _get_boundary_names(cls, pps: PreCalcParameters, name: str):
+    def _get_boundary_names(self, pps: PreCalcParameters, name: str):
         """boundary 用のヘッダ名称を boundary の数だけ取得する。
 
         Args:
@@ -452,5 +510,5 @@ class Recorder:
         Returns:
 
         """
-        return [cls._get_boundary_name(pps=pps, j=j, name=name) for j in range(pps.n_bdry)]
+        return [self._get_boundary_name(pps=pps, j=j, name=name) for j in self._id_bdry_js]
 

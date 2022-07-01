@@ -61,7 +61,7 @@ def calc(
     for n in range(-n_step_run_up, -n_step_run_up_build):
         gc_n = sequence_ground.run_tick(gc_n=gc_n, ss=ppg, n=n)
 
-    result = recorder.Recorder(n_rm=pp.n_rm, n_boundaries=pp.n_bdry, n_step_main=n_step_main)
+    result = recorder.Recorder(n_step_main=n_step_main, id_rm_is=list(pp.id_rm_is.flatten()), id_bdry_js=list(pp.id_bdry_js.flatten()))
 
     result.pre_recording(pp)
 
