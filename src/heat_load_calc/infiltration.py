@@ -4,47 +4,15 @@ from typing import Dict, Callable, List
 from functools import partial
 from enum import Enum
 
-from heat_load_calc import estimate_c_value
+from heat_load_calc.building import Story, InsidePressure, Structure, Building
 
 
-class Story(Enum):
-    """
-    建物の階数（共同住宅の場合は住戸の階数）
-    """
-    # 1階
-    ONE = 1
-    # 2階（2階以上の階数の場合も2階とする。）
-    TWO = 2
-
-
-class InsidePressure(Enum):
-    """
-    室内圧力
-    """
-    # 正圧
-    POSITIVE = 'positive'
-    # 負圧
-    NEGATIVE = 'negative'
-    # ゼロバランス
-    BALANCED = 'balanced'
-
-
-class Structure(Enum):
-    """構造を表す列挙型
-    """
-
-    RC = 'rc'
-    SRC = 'src'
-    WOODEN = 'wooden'
-    STEEL = 'steel'
-
-
-def make_get_infiltration_function(infiltration: Dict, v_rm_is):
+def make_get_infiltration_function(v_rm_is: np.ndarray, building: Building):
     """
     室温と外気温度から隙間風を計算する関数を作成する。
     Args:
-        infiltration: 隙間風に関する辞書
         v_rm_is: 空間 i の気積, m3, [i, 1]
+        building: Building クラス
     Returns:
         室温と外気温度から隙間風を計算する関数
     Notes:
@@ -56,43 +24,13 @@ def make_get_infiltration_function(infiltration: Dict, v_rm_is):
                 すきま風量, m3/s, [i,1]
     """
 
-    # 隙間風の計算方法
-
-    if infiltration['method'] == 'balance_residential':
-
-        # 建物の階数
-        story = Story(infiltration['story'])
-
-        # C値
-        if infiltration['c_value_estimate'] == 'specify':
-
-            c_value = infiltration['c_value']
-
-        elif infiltration['c_value_estimate'] == 'calculate':
-
-            c_value = _estimate_c_value(
-                ua_value=infiltration['ua_value'],
-                struct=Structure(infiltration['struct'])
-            )
-
-        else:
-
-            raise Exception()
-
-        # 換気の種類
-        inside_pressure = InsidePressure(infiltration['inside_pressure'])
-
-        return partial(
-            _get_infiltration_residential,
-            c_value=c_value,
-            v_room_is=v_rm_is,
-            story=story,
-            inside_pressure=inside_pressure
-        )
-
-    else:
-
-        raise Exception
+    return partial(
+        _get_infiltration_residential,
+        c_value=building.c_value,
+        v_room_is=v_rm_is,
+        story=building.story,
+        inside_pressure=building.inside_pressure
+    )
 
 
 def _get_infiltration_residential(

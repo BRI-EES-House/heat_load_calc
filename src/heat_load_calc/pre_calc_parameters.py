@@ -5,7 +5,7 @@ from typing import Dict, List, Callable, Optional, Tuple
 import logging
 
 from heat_load_calc.matrix_method import v_diag
-
+from heat_load_calc.building import Building
 from heat_load_calc import weather, ot_target, next_condition, schedule, rooms, boundaries, equipments, \
     infiltration, occupants_form_factor, shape_factor, solar_absorption, mechanical_ventilations, operation
 
@@ -247,6 +247,12 @@ def make_pre_calc_parameters(
 
     # ステップ n の室 i における空調需要, [i, n]
     ac_demand_is_ns = scd.ac_demand_is_ns
+
+    # region building
+
+    building = Building.create_building(d=rd['building'])
+
+    # endregion
 
     # region rooms
 
@@ -524,8 +530,8 @@ def make_pre_calc_parameters(
     # 戻り値:
     #   すきま風量, m3/s, [i,1]
     get_infiltration = infiltration.make_get_infiltration_function(
-        infiltration=rd['building']['infiltration'],
-        v_rm_is=v_rm_is
+        v_rm_is=v_rm_is,
+        building=building
     )
 
     # 次のステップの室温と負荷を計算する関数
