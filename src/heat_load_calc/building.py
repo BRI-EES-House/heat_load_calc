@@ -69,7 +69,7 @@ class Building:
 
             else:
 
-                raise KeyError()
+                raise ValueError()
 
             # 換気の種類
             inside_pressure = InsidePressure(ifl['inside_pressure'])
