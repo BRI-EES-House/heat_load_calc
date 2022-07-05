@@ -16,6 +16,7 @@
             "id": 0,
             "name": "main_occupant_room",
             "sub_name": "",
+            "floor_area": 1.0,
             "volume": 1.0,
             "ventilation": {
                 "natural": 0.0
