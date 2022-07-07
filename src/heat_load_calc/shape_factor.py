@@ -14,35 +14,35 @@ def get_f_mrt_is_js(a_s_js: np.ndarray, h_s_r_js: np.ndarray, p_is_js: np.ndarra
     return p_is_js * ah.T / np.dot(p_is_js, ah)
 
 
-def get_h_r_js(n_rm: int, bs: List[Dict]) -> np.ndarray:
+def get_h_r_js(n_rm: int, a_s_js: np.ndarray, connected_room_id_js: np.ndarray) -> np.ndarray:
 
-    a_srf_js = np.array([b['area'] for b in bs])
+    a_s_js = a_s_js.flatten()
 
-    connected_room_id_js = np.array([b['connected_room_id'] for b in bs])
+    connected_room_id_js = connected_room_id_js.flatten()
 
-    h_r_is = np.zeros(shape=(len(bs)), dtype=float)
+    h_r_is = np.zeros_like(a=a_s_js, dtype=float)
 
     for i in range(n_rm):
 
         is_connected = connected_room_id_js == i
 
-        h_r_is[is_connected] = _get_h_r_i_js(a_srf=a_srf_js[is_connected])
+        h_r_is[is_connected] = _get_h_r_i_js(a_s_js_dsh=a_s_js[is_connected])
 
-    return h_r_is
+    return h_r_is.reshape(-1, 1)
 
 
-def _get_h_r_i_js(a_srf: np.ndarray) -> np.ndarray:
+def _get_h_r_i_js(a_s_js_dsh: np.ndarray) -> np.ndarray:
     """ 放射熱伝達率（室単位で計算する）
 
     Args:
-        a_srf: 境界jの面積, m2, [j, 1]
+        a_s_js_dsh: 境界jの面積, m2, [j, 1]
     Returns:
         放射熱伝達率, W/m2K, [j, 1]
     """
 
     # 微小点に対する境界jの形態係数
     # 永田先生の方法
-    f_js = _get_f_i_js(a_srf_js=a_srf)
+    f_js = _get_f_i_js(a_s_js_dsh=a_s_js_dsh)
 
     # 形態係数の総計をチェック
     if abs(f_js.sum() - 1.0) > 1.0e-5:
@@ -56,17 +56,17 @@ def _get_h_r_i_js(a_srf: np.ndarray) -> np.ndarray:
     return hr_k_n
 
 
-def _get_f_i_js(a_srf_js: np.ndarray) -> np.ndarray:
+def _get_f_i_js(a_s_js_dsh: np.ndarray) -> np.ndarray:
     """
     微小体に対する部位の形態係数の計算
     Args:
-        a_srf_js: 境界の表面積, m2, [js]
+        a_s_js_dsh: 境界の表面積, m2, [js]
     Returns:
         微小体に対する部位の形態係数, -, [js]
     """
 
     # 面積比, [j]
-    r_a_srf_js = a_srf_js / sum(a_srf_js)
+    r_a_srf_js = a_s_js_dsh / sum(a_s_js_dsh)
 
     # 非線形方程式L(f̅)=0の解, float
     f_ver = _get_f_ver(r_a_srf_js=r_a_srf_js)

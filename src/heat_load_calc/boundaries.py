@@ -104,7 +104,11 @@ class Boundaries:
         # Boundary クラスを生成する時に必要な情報としておく。
 
         # 境界jの室内側表面放射熱伝達率, W/m2K, [J, 1]
-        h_r_js = shape_factor.get_h_r_js(n_rm=n_rm, bs=bs_list).reshape(-1, 1)
+        h_r_js = shape_factor.get_h_r_js(
+            n_rm=n_rm,
+            a_s_js=np.array([b['area'] for b in bs_list]).reshape(-1, 1),
+            connected_room_id_js=np.array([b['connected_room_id'] for b in bs_list]).reshape(-1, 1)
+        )
 
         # 境界jの室内側表面対流熱伝達率, W/m2K, [J, 1]
         h_c_js = np.array([b['h_c'] for b in bs_list]).reshape(-1, 1)
