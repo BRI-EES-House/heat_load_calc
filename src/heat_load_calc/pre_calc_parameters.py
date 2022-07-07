@@ -293,7 +293,7 @@ def make_pre_calc_parameters(
     # region boundaries
 
     bs = boundaries.Boundaries(
-        n_rm=n_rm,
+        id_rm_is=id_rm_is,
         bs_list=rd['boundaries'],
         oc=oc
     )
@@ -310,7 +310,7 @@ def make_pre_calc_parameters(
     # 名前2, [j, 1]
     sub_name_bdry_js = bs.get_sub_name_bdry_js()
 
-    # 室iと境界jの関係を表す係数（境界jから室iへの変換）
+    # 室iと境界jの関係を表す係数（境界jから室iへの変換）, [i, j]
     p_is_js = bs.get_p_is_js(n_rm=n_rm)
 
     # 室iと境界jの関係を表す係数（室iから境界jへの変換）
