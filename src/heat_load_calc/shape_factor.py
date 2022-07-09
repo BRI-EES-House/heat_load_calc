@@ -46,9 +46,9 @@ def get_h_s_r_js(id_rm_is: np.ndarray, a_s_js: np.ndarray, connected_room_id_js:
 
     h_s_r_is = np.zeros_like(a=a_s_js, dtype=float)
 
-    for id in id_rm_is:
+    for id_rm_i in id_rm_is:
 
-        is_connected = connected_room_id_js == id
+        is_connected = connected_room_id_js == id_rm_i
 
         h_s_r_is[is_connected] = _calc_h_s_r_i_js(a_s_i_js=a_s_js[is_connected])
 
