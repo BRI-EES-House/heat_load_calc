@@ -55,10 +55,10 @@ class Boundary:
     direction: str
 
     # 室内側表面対流熱伝達率, W/m2K
-    h_c: float
+    h_s_c: float
 
     # 室内側表面放射熱伝達率, W/m2K
-    h_r: float
+    h_s_r: float
 
     # 相当外気温度, ℃, [8760 * 4]
     theta_o_sol: np.ndarray
@@ -72,22 +72,22 @@ class Boundary:
 
 class Boundaries:
 
-    def __init__(self, n_rm: int, bs_list: List[Dict], oc: Weather):
+    def __init__(self, id_rm_is: np.ndarray, bs_list: List[Dict], oc: Weather):
         """
 
         Args:
-            n_rm: 室の数
+            id_rm_is: 室のID, [i, 1]
             bs_list: 境界に関する辞書
             oc: OutdoorCondition クラス
         """
 
-        self._bss = self._get_boundary_list(n_rm=n_rm, bs_list=bs_list, oc=oc)
+        self._bss = self._get_boundary_list(id_rm_is=id_rm_is, bs_list=bs_list, oc=oc)
 
-    def _get_boundary_list(self, n_rm: int, bs_list: List[Dict], oc: Weather) -> List[Boundary]:
+    def _get_boundary_list(self, id_rm_is: np.ndarray, bs_list: List[Dict], oc: Weather) -> List[Boundary]:
         """
 
         Args:
-            n_rm: 室の数
+            id_rm_is: 室のID, [i, 1]
             bs_list: 境界に関する辞書
             oc: OutdoorCondition クラス
 
@@ -104,8 +104,8 @@ class Boundaries:
         # Boundary クラスを生成する時に必要な情報としておく。
 
         # 境界jの室内側表面放射熱伝達率, W/m2K, [J, 1]
-        h_r_js = shape_factor.get_h_r_js(
-            n_rm=n_rm,
+        h_s_r_js = shape_factor.get_h_s_r_js(
+            id_rm_is=id_rm_is,
             a_s_js=np.array([b['area'] for b in bs_list]).reshape(-1, 1),
             connected_room_id_js=np.array([b['connected_room_id'] for b in bs_list]).reshape(-1, 1)
         )
@@ -114,18 +114,18 @@ class Boundaries:
         h_c_js = np.array([b['h_c'] for b in bs_list]).reshape(-1, 1)
 
         # 境界 j, [J]
-        bss = [self._get_boundary(b=b, h_c_js=h_c_js, h_r_js=h_r_js, oc=oc) for b in bs_list]
+        bss = [self._get_boundary(b=b, h_c_js=h_c_js, h_s_r_js=h_s_r_js, oc=oc) for b in bs_list]
 
         return bss
 
     @staticmethod
-    def _get_boundary(b: Dict, h_c_js: np.ndarray, h_r_js: np.ndarray, oc: Weather) -> Boundary:
+    def _get_boundary(b: Dict, h_c_js: np.ndarray, h_s_r_js: np.ndarray, oc: Weather) -> Boundary:
         """
 
         Args:
             b: Boundary　の辞書
             h_c_js: 境界 j の室内側表面対流熱伝達率, W/m2K, [J, 1]
-            h_r_js: 境界 j の室内側表面放射熱伝達率, W/m2K, [J, 1]
+            h_s_r_js: 境界 j の室内側表面放射熱伝達率, W/m2K, [J, 1]
             oc: OutdoorCondition クラス
 
         Returns:
@@ -205,10 +205,10 @@ class Boundaries:
             direction = None
 
         # 室内側表面対流熱伝達率, W/m2K
-        h_c = b['h_c']
+        h_s_c = b['h_c']
 
         # 室内側表面放射熱伝達率, W/m2K
-        h_r = h_r_js[boundary_id]
+        h_s_r = h_s_r_js[boundary_id]
 
         # 日除け
         if 'is_sun_striked_outside' in b:
@@ -248,7 +248,7 @@ class Boundaries:
             elif boundary_type == BoundaryType.Internal:
 
                 rear_h_c = h_c_js[b['rear_surface_boundary_id'], 0]
-                rear_h_r = h_r_js[b['rear_surface_boundary_id'], 0]
+                rear_h_r = h_s_r_js[b['rear_surface_boundary_id'], 0]
 
                 r_o = 1.0 / (rear_h_c + rear_h_r)
 
@@ -275,8 +275,8 @@ class Boundaries:
             is_solar_absorbed_inside=is_solar_absorbed_inside,
             is_sun_striked_outside=is_sun_striked_outside,
             direction=direction,
-            h_c=h_c,
-            h_r=h_r,
+            h_s_c=h_s_c,
+            h_s_r=h_s_r,
             theta_o_sol=theta_o_sol,
             q_trs_sol=q_trs_sol,
             rf=rf
@@ -359,12 +359,12 @@ class Boundaries:
     def get_h_s_r_js(self):
         # 境界jの室内側表面放射熱伝達率, W/m2K, [j, 1]
 
-        return np.array([bs.h_r for bs in self._bss]).reshape(-1, 1)
+        return np.array([bs.h_s_r for bs in self._bss]).reshape(-1, 1)
 
     def get_h_s_c_js(self):
         # 境界jの室内側表面対流熱伝達率, W/m2K, [j, 1]
 
-        return np.array([bs.h_c for bs in self._bss]).reshape(-1, 1)
+        return np.array([bs.h_s_c for bs in self._bss]).reshape(-1, 1)
 
     def get_room_id_by_boundary_id(self, boundary_id: int):
 

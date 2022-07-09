@@ -16,7 +16,7 @@ class TestShapeFactor(unittest.TestCase):
         surf_area = np.array([[20.0], [15.0], [20.0], [15.0], [30.0], [30.0]])
 
         # 放射熱伝達率を計算
-        hr_js = sf._get_h_r_i_js(a_s_js_dsh=surf_area)
+        hr_js = sf._calc_h_s_r_i_js(a_s_i_js=surf_area)
 
         # 北外壁の放射熱伝達率
         self.assertAlmostEqual(5.92104643, hr_js[0][0])
@@ -46,7 +46,7 @@ class TestShapeFactor(unittest.TestCase):
         surf_area = np.array([[0.0], [15.0], [20.0], [15.0], [30.0], [30.0]])
 
         # 放射熱伝達率を計算
-        hr_js = sf._get_h_r_i_js(a_s_js_dsh=surf_area)
+        hr_js = sf._calc_h_s_r_i_js(a_s_i_js=surf_area)
 
         # 北外壁の放射熱伝達率
         self.assertAlmostEqual(5.14227449, hr_js[0][0])
@@ -76,7 +76,7 @@ class TestShapeFactor(unittest.TestCase):
         surf_area = np.array([[0.0], [0.0], [0.0], [0.0], [0.0], [30.0]])
 
         # 放射熱伝達率を計算
-        hr_js = sf._get_h_r_i_js(a_s_js_dsh=surf_area)
+        hr_js = sf._calc_h_s_r_i_js(a_s_i_js=surf_area)
 
         # 北外壁の放射熱伝達率
         self.assertAlmostEqual(5.14227449, hr_js[0][0])
@@ -98,24 +98,24 @@ class TestShapeFactor(unittest.TestCase):
 
     def test_get_h_r_is(self):
 
-        h_r_js = sf.get_h_r_js(
-            n_rm=2,
+        h_s_r_js = sf.get_h_s_r_js(
+            id_rm_is=np.array([[0], [1]]),
             a_s_js=np.array([20.0, 0.0, 15.0, 15.0, 20.0, 20.0, 15.0, 15.0, 30.0, 30.0, 30.0, 30.0]).reshape(-1, 1),
             connected_room_id_js=np.array([0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1]).reshape(-1, 1)
         )
 
-        self.assertAlmostEqual(5.92104643, h_r_js[0][0])
-        self.assertAlmostEqual(5.14227449, h_r_js[1][0])
-        self.assertAlmostEqual(5.67616719, h_r_js[2][0])
-        self.assertAlmostEqual(5.75676599, h_r_js[3][0])
-        self.assertAlmostEqual(5.92104643, h_r_js[4][0])
-        self.assertAlmostEqual(6.05447714, h_r_js[5][0])
-        self.assertAlmostEqual(5.67616719, h_r_js[6][0])
-        self.assertAlmostEqual(5.75676599, h_r_js[7][0])
-        self.assertAlmostEqual(6.63019048, h_r_js[8][0])
-        self.assertAlmostEqual(7.02424180, h_r_js[9][0])
-        self.assertAlmostEqual(6.63019048, h_r_js[10][0])
-        self.assertAlmostEqual(7.02424180, h_r_js[11][0])
+        self.assertAlmostEqual(5.92104643, h_s_r_js[0][0])
+        self.assertAlmostEqual(5.14227449, h_s_r_js[1][0])
+        self.assertAlmostEqual(5.67616719, h_s_r_js[2][0])
+        self.assertAlmostEqual(5.75676599, h_s_r_js[3][0])
+        self.assertAlmostEqual(5.92104643, h_s_r_js[4][0])
+        self.assertAlmostEqual(6.05447714, h_s_r_js[5][0])
+        self.assertAlmostEqual(5.67616719, h_s_r_js[6][0])
+        self.assertAlmostEqual(5.75676599, h_s_r_js[7][0])
+        self.assertAlmostEqual(6.63019048, h_s_r_js[8][0])
+        self.assertAlmostEqual(7.02424180, h_s_r_js[9][0])
+        self.assertAlmostEqual(6.63019048, h_s_r_js[10][0])
+        self.assertAlmostEqual(7.02424180, h_s_r_js[11][0])
 
     def test_get_f_mrt_is_js(self):
 
