@@ -17,11 +17,9 @@ class TestDirection(unittest.TestCase):
         self.assertEqual(Direction('e').alpha_w_j, math.radians(-90.0))
         self.assertEqual(Direction('se').alpha_w_j, math.radians(-45.0))
 
-#        with self.assertRaises(KeyError):
-#            _ = Direction('top').alpha_w_j
-#            _ = Direction('bottom').alpha_w_j
-        self.assertEqual(Direction('top').alpha_w_j, math.radians(0.0))
-        self.assertEqual(Direction('bottom').alpha_w_j, math.radians(0.0))
+        with self.assertRaises(KeyError):
+            _ = Direction('top').alpha_w_j
+            _ = Direction('bottom').alpha_w_j
 
     def test_beta_w_j(self):
 

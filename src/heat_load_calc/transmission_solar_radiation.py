@@ -88,15 +88,9 @@ class TransmissionSolarRadiationTransparentSunStrike(TransmissionSolarRadiation)
 
         """
 
-        # 境界jの傾斜面の方位角, rad
-        # 境界jの傾斜面の傾斜角, rad
-#        alpha_w_j, beta_w_j = Direction.get_w_alpha_j_w_beta_j(direction_j=self._direction.value)
-        alpha_w_j = self._direction.alpha_w_j
-        beta_w_j = self._direction.beta_w_j
-
         # ステップ n における境界 j の傾斜面に入射する太陽の入射角, rad, [N+1]
         theta_aoi_j_ns = inclined_surface_solar_radiation.get_theta_aoi_j_ns(
-            h_sun_ns=oc.h_sun_ns_plus, a_sun_ns=oc.a_sun_ns_plus, alpha_w_j=alpha_w_j, beta_w_j=beta_w_j)
+            h_sun_ns=oc.h_sun_ns_plus, a_sun_ns=oc.a_sun_ns_plus, direction=self._direction)
 
         # ステップ n における境界 j の傾斜面に入射する日射量のうち直達成分, W/m2 [N+1]
         # ステップ n における境界 j の傾斜面に入射する日射量のうち天空成分, W/m2 [N+1]
@@ -108,8 +102,7 @@ class TransmissionSolarRadiationTransparentSunStrike(TransmissionSolarRadiation)
             r_eff_ns=oc.r_n_ns_plus,
             h_sun_ns=oc.h_sun_ns_plus,
             a_sun_ns=oc.a_sun_ns_plus,
-            alpha_w_j=alpha_w_j,
-            beta_w_j=beta_w_j
+            direction=self._direction
         )
 
         # ---日よけの影面積比率

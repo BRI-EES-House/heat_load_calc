@@ -22,7 +22,7 @@ class OutsideEqvTemp:
             if b['is_sun_striked_outside']:
 
                 return OutsideEqvTempExternalGeneralPartAndExternalOpaquePart(
-                    direction=b['direction'],
+                    direction=Direction(b['direction']),
                     a_s=float(b['outside_solar_absorption']),
                     eps_r=float(b['outside_emissivity']),
                     r_surf=float(b['outside_heat_transfer_resistance']),
@@ -38,7 +38,7 @@ class OutsideEqvTemp:
             if b['is_sun_striked_outside']:
 
                 return OutsideEqvTempExternalTransparentPart(
-                    direction=b['direction'],
+                    direction=Direction(b['direction']),
                     eps_r=float(b['outside_emissivity']),
                     r_surf_o=float(b['outside_heat_transfer_resistance']),
                     u_value_j=float(b['u_value']),
@@ -101,7 +101,7 @@ class OutsideEqvTempInternal(OutsideEqvTemp):
 
 class OutsideEqvTempExternalGeneralPartAndExternalOpaquePart(OutsideEqvTemp):
 
-    def __init__(self, direction: str, a_s, eps_r, r_surf, solar_shading: solar_shading.SolarShading):
+    def __init__(self, direction: Direction, a_s, eps_r, r_surf, solar_shading: solar_shading.SolarShading):
         """
 
         Args:
@@ -110,7 +110,7 @@ class OutsideEqvTempExternalGeneralPartAndExternalOpaquePart(OutsideEqvTemp):
 
         super().__init__()
 
-        self._direction = Direction(direction)
+        self._direction = direction
         self._a_s = a_s
         self._eps_r = eps_r
         self._r_surf = r_surf
@@ -126,14 +126,6 @@ class OutsideEqvTempExternalGeneralPartAndExternalOpaquePart(OutsideEqvTemp):
         Returns:
             ステップ n における室 i の境界 j の傾斜面の相当外気温度, degree C, [N+1]
         """
-
-        # 室iの境界jの傾斜面の方位角, rad
-        alpha_w_j = self._direction.alpha_w_j
-
-        # 室iの境界jの傾斜面の傾斜角, rad
-        beta_w_j = self._direction.beta_w_j
-
-        # ---日よけの影面積比率
 
         # 直達日射に対する日よけの影面積比率, [8760 * 4]
         f_ss_d_j_ns = self._solar_shading_part.get_f_ss_d_j_ns(oc.h_sun_ns_plus, oc.a_sun_ns_plus)
@@ -154,8 +146,7 @@ class OutsideEqvTempExternalGeneralPartAndExternalOpaquePart(OutsideEqvTemp):
             r_eff_ns=oc.r_n_ns_plus,
             h_sun_ns=oc.h_sun_ns_plus,
             a_sun_ns=oc.a_sun_ns_plus,
-            alpha_w_j=alpha_w_j,
-            beta_w_j=beta_w_j
+            direction=self._direction
         )
 
         # 室iの境界jの傾斜面のステップnにおける相当外気温度, ℃, [8760*4]
@@ -169,7 +160,7 @@ class OutsideEqvTempExternalGeneralPartAndExternalOpaquePart(OutsideEqvTemp):
 
 class OutsideEqvTempExternalTransparentPart(OutsideEqvTemp):
 
-    def __init__(self, direction: str, eps_r, r_surf_o, u_value_j: float,
+    def __init__(self, direction: Direction, eps_r, r_surf_o, u_value_j: float,
                  eta_value_j: float,
                  glazing_type_j: str,
                  glass_area_ratio_j: float,
@@ -182,7 +173,7 @@ class OutsideEqvTempExternalTransparentPart(OutsideEqvTemp):
 
         super().__init__()
 
-        self._direction = Direction(direction)
+        self._direction = direction
         self._eps_r = eps_r
         self._r_surf_o = r_surf_o
         self._u_value = u_value_j
@@ -202,14 +193,9 @@ class OutsideEqvTempExternalTransparentPart(OutsideEqvTemp):
             ステップ n における室 i の境界 j の傾斜面の相当外気温度, degree C, [N+1]
         """
 
-        # 室iの境界jの傾斜面の方位角, rad
-        # 室iの境界jの傾斜面の傾斜角, rad
-        alpha_w_j = self._direction.alpha_w_j
-        beta_w_j = self._direction.beta_w_j
-
         # ステップ n の境界 j における傾斜面に入射する太陽の入射角, rad, [n]
         theta_aoi_j_ns = inclined_surface_solar_radiation.get_theta_aoi_j_ns(
-            h_sun_ns=oc.h_sun_ns_plus, a_sun_ns=oc.a_sun_ns_plus, alpha_w_j=alpha_w_j, beta_w_j=beta_w_j)
+            h_sun_ns=oc.h_sun_ns_plus, a_sun_ns=oc.a_sun_ns_plus, direction=self._direction)
 
         # ステップ n における境界 j の傾斜面に入射する日射量の直達成分, W / m2, [n]
         # ステップ n における境界 j の傾斜面に入射する日射量の天空成分, W / m2, [n]
@@ -221,8 +207,7 @@ class OutsideEqvTempExternalTransparentPart(OutsideEqvTemp):
             r_eff_ns=oc.r_n_ns_plus,
             h_sun_ns=oc.h_sun_ns_plus,
             a_sun_ns=oc.a_sun_ns_plus,
-            alpha_w_j=alpha_w_j,
-            beta_w_j=beta_w_j
+            direction=self._direction
         )
 
         # ---日よけの影面積比率

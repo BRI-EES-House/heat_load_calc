@@ -24,10 +24,11 @@ class Direction(Enum):
         """
 
         if self == Direction.TOP or self == Direction.BOTTOM:
-            print('方位が上面・下面が定義されているにもかかわらず、方位角を取得しようとしました。')
-            return np.radians(0.0)
-            # raise KeyError("方位が上面・下面が定義されているにもかかわらず、方位角を取得しようとしました。")
+
+            raise KeyError("方位が上面・下面が定義されているにもかかわらず、方位角を取得しようとしました。")
+
         else:
+
             return np.radians(
                 {
                     Direction.S: 0.0,
