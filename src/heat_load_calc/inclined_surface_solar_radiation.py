@@ -11,6 +11,8 @@
 from typing import Tuple
 import numpy as np
 
+from heat_load_calc.direction import Direction
+
 
 def get_i_is_j_ns(
         i_dn_ns: np.ndarray,

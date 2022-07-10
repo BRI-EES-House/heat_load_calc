@@ -1,11 +1,8 @@
-"""裏面相当温度を計算するモジュール
-
-"""
-
 import numpy as np
 
-from heat_load_calc import external_boundaries_direction, inclined_surface_solar_radiation, window, solar_shading
+from heat_load_calc import direction, inclined_surface_solar_radiation, window, solar_shading
 from heat_load_calc.weather import Weather
+from heat_load_calc.direction import Direction
 
 
 class OutsideEqvTemp:
@@ -113,7 +110,7 @@ class OutsideEqvTempExternalGeneralPartAndExternalOpaquePart(OutsideEqvTemp):
 
         super().__init__()
 
-        self._direction = direction
+        self._direction = Direction(direction)
         self._a_s = a_s
         self._eps_r = eps_r
         self._r_surf = r_surf
@@ -131,8 +128,10 @@ class OutsideEqvTempExternalGeneralPartAndExternalOpaquePart(OutsideEqvTemp):
         """
 
         # 室iの境界jの傾斜面の方位角, rad
+        alpha_w_j = self._direction.alpha_w_j
+
         # 室iの境界jの傾斜面の傾斜角, rad
-        alpha_w_j, beta_w_j = external_boundaries_direction.get_w_alpha_j_w_beta_j(direction_j=self._direction)
+        beta_w_j = self._direction.beta_w_j
 
         # ---日よけの影面積比率
 
@@ -183,7 +182,7 @@ class OutsideEqvTempExternalTransparentPart(OutsideEqvTemp):
 
         super().__init__()
 
-        self._direction = direction
+        self._direction = Direction(direction)
         self._eps_r = eps_r
         self._r_surf_o = r_surf_o
         self._u_value = u_value_j
@@ -205,7 +204,8 @@ class OutsideEqvTempExternalTransparentPart(OutsideEqvTemp):
 
         # 室iの境界jの傾斜面の方位角, rad
         # 室iの境界jの傾斜面の傾斜角, rad
-        alpha_w_j, beta_w_j = external_boundaries_direction.get_w_alpha_j_w_beta_j(direction_j=self._direction)
+        alpha_w_j = self._direction.alpha_w_j
+        beta_w_j = self._direction.beta_w_j
 
         # ステップ n の境界 j における傾斜面に入射する太陽の入射角, rad, [n]
         theta_aoi_j_ns = inclined_surface_solar_radiation.get_theta_aoi_j_ns(

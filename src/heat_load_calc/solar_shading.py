@@ -6,8 +6,9 @@ import numpy as np
 from typing import Dict
 import math
 
-from heat_load_calc import external_boundaries_direction
+from heat_load_calc import direction
 from heat_load_calc.boundary_type import BoundaryType
+from heat_load_calc.direction import Direction
 
 
 class SolarShading:
@@ -16,7 +17,7 @@ class SolarShading:
         pass
 
     @classmethod
-    def create(cls, ssp_dict: Dict, direction: str):
+    def create(cls, ssp_dict: Dict, direction: Direction):
         """
         入力ファイルの辞書の'solar_shading_part'を読み込む。
 
@@ -32,9 +33,8 @@ class SolarShading:
 
             input_method = ssp_dict['input_method']
 
-            # 境界ｊの傾斜面の方位角, rad
-            # 境界jの傾斜面の傾斜角, rad
-            w_alpha_j, _ = external_boundaries_direction.get_w_alpha_j_w_beta_j(direction_j=direction)
+            # 境界ｊの傾斜面の方位角, rad            # 境界jの傾斜面の傾斜角, rad
+            w_alpha_j = direction.alpha_w_j
 
             if input_method == 'simple':
 
