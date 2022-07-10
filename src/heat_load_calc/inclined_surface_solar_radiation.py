@@ -1,15 +1,7 @@
-"""傾斜面の日射量
-附属書X7 傾斜面の日射量
-
-次の関数からなる。
-- 傾斜面の方位角・傾斜角から傾斜面の日射量（直達成分・天空成分・地盤反射成分）を計算する。
-- 傾斜面の方位角・傾斜角から傾斜面の夜間放射量を計算する。
-- 傾斜面の方位角・傾斜角から傾斜面に入射する太陽の入射角を計算する。
-
-"""
-
 from typing import Tuple
 import numpy as np
+
+from heat_load_calc.direction import Direction
 
 
 def get_i_is_j_ns(
@@ -18,8 +10,7 @@ def get_i_is_j_ns(
         r_eff_ns: np.ndarray,
         h_sun_ns: np.ndarray,
         a_sun_ns: np.ndarray,
-        alpha_w_j: float,
-        beta_w_j: float
+        direction: Direction
 ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     """傾斜面の方位角・傾斜角に応じて傾斜面の日射量を計算する。
 
@@ -29,8 +20,7 @@ def get_i_is_j_ns(
         r_eff_ns: ステップ n における夜間放射量, W/m2, [n]
         h_sun_ns: ステップnにおける太陽高度, rad [8760*4]
         a_sun_ns: ステップnにおける太陽方位角, rad [8760*4]
-        alpha_w_j: 境界jの傾斜面の方位角, rad
-        beta_w_j: 境界jの傾斜面の傾斜角, rad
+        direction: Direction クラス
 
     Returns:
         (1) ステップ n における境界 j の傾斜面に入射する日射量のうち直達成分, W/m2 [n]
@@ -40,8 +30,11 @@ def get_i_is_j_ns(
 
     """
 
+    # 境界jの傾斜面の傾斜角, rad
+    beta_w_j = direction.beta_w_j
+
     # ステップnの境界jにおける傾斜面に入射する太陽の入射角, deg, [n]
-    theta_aoi_j_ns = get_theta_aoi_j_ns(h_sun_ns=h_sun_ns, a_sun_ns=a_sun_ns, alpha_w_j=alpha_w_j, beta_w_j=beta_w_j)
+    theta_aoi_j_ns = get_theta_aoi_j_ns(h_sun_ns=h_sun_ns, a_sun_ns=a_sun_ns, direction=direction)
 
     # ステップ n における水平面全天日射量, W/m2, [n]
     i_hrz_ns = _get_i_hrz_ns(i_dn_ns=i_dn_ns, i_sky_ns=i_sky_ns, h_sun_ns=h_sun_ns)
@@ -219,15 +212,14 @@ def _get_i_hrz_ns(i_dn_ns: np.ndarray, i_sky_ns: np.ndarray, h_sun_ns: np.ndarra
     return i_hsr_ns
 
 
-def get_theta_aoi_j_ns(h_sun_ns: np.ndarray, a_sun_ns: np.ndarray, alpha_w_j: float, beta_w_j: float) -> np.ndarray:
+def get_theta_aoi_j_ns(h_sun_ns: np.ndarray, a_sun_ns: np.ndarray, direction: Direction) -> np.ndarray:
     """
     傾斜面に入射する太陽の入射角を計算する。
 
     Args:
         h_sun_ns: ステップ n における太陽高度, rad, [n]
         a_sun_ns: ステップ n における太陽方位角, rad, [n]
-        alpha_w_j: 境界 j における傾斜面の方位角, rad
-        beta_w_j: 境界 j における傾斜面の傾斜角, rad
+        direction: Direction クラス
 
     Returns:
         ステップ n の境界 j における傾斜面に入射する太陽の入射角, rad, [n]
@@ -236,20 +228,33 @@ def get_theta_aoi_j_ns(h_sun_ns: np.ndarray, a_sun_ns: np.ndarray, alpha_w_j: fl
         式(8), 式(9)
     """
 
-    # ステップ n の境界 j における傾斜面に入射する太陽の入射角の余弦, -, [n]
-    # cos(h_sun_ns) == 0.0 の場合は太陽が天頂にある時であり、太陽の方位角が定義されない。
-    # その場合、cos(h_sun_ns)がゼロとなり、下式の第2項・第3項がゼロになる。
-    # これを回避するために場合分けを行っている。
-    # 余弦がマイナス（入射角が90°～270°）の場合は傾斜面の裏面に太陽が位置していることになるため、値をゼロにする。
-    # （法線面直達日射量にこの値をかけるため、結果的に日射があたらないという計算になる。）
-    cos_theta_aoi_j_ns = np.where(
-        np.cos(h_sun_ns) == 0.0,
-        np.clip(np.sin(h_sun_ns) * np.cos(beta_w_j), 0.0, None),
-        np.clip(np.sin(h_sun_ns) * np.cos(beta_w_j)
-                + np.cos(h_sun_ns) * np.sin(a_sun_ns) * np.sin(beta_w_j) * np.sin(alpha_w_j)
-                + np.cos(h_sun_ns) * np.cos(a_sun_ns) * np.sin(beta_w_j) * np.cos(alpha_w_j)
-                , 0.0, None)
-    )
+    # 方位が上面・下面（beta_w_j=0）の場合は、厳密には方位角（alpha_w_j）は定義できないため、条件分岐により式を分ける。
+    if direction in [Direction.TOP, Direction.BOTTOM]:
+
+        cos_theta_aoi_j_ns = np.clip(np.sin(h_sun_ns), 0.0, None)
+
+    else:
+
+        # 境界 j における傾斜面の方位角, rad
+        alpha_w_j = direction.alpha_w_j
+
+        # 境界 j における傾斜面の傾斜角, rad
+        beta_w_j = direction.beta_w_j
+
+        # ステップ n の境界 j における傾斜面に入射する太陽の入射角の余弦, -, [n]
+        # cos(h_sun_ns) == 0.0 の場合は太陽が天頂にある時であり、太陽の方位角が定義されない。
+        # その場合、cos(h_sun_ns)がゼロとなり、下式の第2項・第3項がゼロになる。
+        # これを回避するために場合分けを行っている。
+        # 余弦がマイナス（入射角が90°～270°）の場合は傾斜面の裏面に太陽が位置していることになるため、値をゼロにする。
+        # （法線面直達日射量にこの値をかけるため、結果的に日射があたらないという計算になる。）
+        cos_theta_aoi_j_ns = np.where(
+            np.cos(h_sun_ns) == 0.0,
+            np.clip(np.sin(h_sun_ns) * np.cos(beta_w_j), 0.0, None),
+            np.clip(np.sin(h_sun_ns) * np.cos(beta_w_j)
+                    + np.cos(h_sun_ns) * np.sin(a_sun_ns) * np.sin(beta_w_j) * np.sin(alpha_w_j)
+                    + np.cos(h_sun_ns) * np.cos(a_sun_ns) * np.sin(beta_w_j) * np.cos(alpha_w_j)
+                    , 0.0, None)
+        )
 
 #    cos_theta_aoi_j_ns = np.clip(cos_theta_aoi_j_ns, 0.0, None)
 

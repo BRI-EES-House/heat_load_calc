@@ -7,6 +7,7 @@ from heat_load_calc import outside_eqv_temp, response_factor, transmission_solar
 from heat_load_calc.boundary_type import BoundaryType
 from heat_load_calc.weather import Weather
 from heat_load_calc.response_factor import ResponseFactor
+from heat_load_calc.direction import Direction
 
 
 @dataclass
@@ -48,11 +49,6 @@ class Boundary:
     # False: 当たらない
     # 境界の種類が'external_general_part', 'external_transparent_part', 'external_opaque_part'の場合に定義される。
     is_sun_striked_outside: bool
-
-    # 面する方位
-    # 's', 'sw', 'w', 'nw', 'n', 'ne', 'e', 'se', 'top', 'bottom'
-    # 日射の有無が定義されている場合でかつその値がTrueの場合のみ定義される。
-    direction: str
 
     # 室内側表面対流熱伝達率, W/m2K
     h_s_c: float
@@ -198,7 +194,7 @@ class Boundaries:
         # 日射の有無が定義されている場合でかつその値がTrueの場合のみ定義される。
         if 'is_sun_striked_outside' in b:
             if b['is_sun_striked_outside']:
-                direction = b['direction']
+                direction = Direction(b['direction'])
             else:
                 direction = None
         else:
@@ -274,7 +270,6 @@ class Boundaries:
             is_floor=is_floor,
             is_solar_absorbed_inside=is_solar_absorbed_inside,
             is_sun_striked_outside=is_sun_striked_outside,
-            direction=direction,
             h_s_c=h_s_c,
             h_s_r=h_s_r,
             theta_o_sol=theta_o_sol,
