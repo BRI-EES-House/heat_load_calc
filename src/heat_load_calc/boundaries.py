@@ -220,7 +220,7 @@ class Boundaries:
 
         # 相当外気温度, degree C, [N+1]
         oet = outside_eqv_temp.OutsideEqvTemp.create(b=b, ssp=ssp)
-        theta_o_sol = oet.get_theta_o_sol_i_j_ns(oc=oc)
+        theta_o_sol = oet.get_theta_o_sol_i_j_ns(w=oc)
 
         # 透過日射量, W, [N+1]
         tsr = transmission_solar_radiation.TransmissionSolarRadiation.create(b=b, ssp=ssp)
