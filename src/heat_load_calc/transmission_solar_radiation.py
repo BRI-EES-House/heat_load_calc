@@ -108,7 +108,7 @@ class TransmissionSolarRadiationTransparentSunStrike(TransmissionSolarRadiation)
         # ---日よけの影面積比率
 
         # 直達日射に対する日よけの影面積比率, [N+1]
-        f_ss_d_j_ns = self._solar_shading_part.get_f_ss_d_j_ns(oc.h_sun_ns_plus, oc.a_sun_ns_plus)
+        f_ss_d_j_ns = self._solar_shading_part.get_f_ss_d_j_ns(h_sun_n=oc.h_sun_ns_plus, a_sun_n=oc.a_sun_ns_plus)
 
         # 天空日射に対する日よけの影面積比率
         f_ss_s_j_ns = self._solar_shading_part.get_f_ss_s_j()
