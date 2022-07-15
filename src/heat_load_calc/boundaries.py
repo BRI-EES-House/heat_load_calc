@@ -272,7 +272,7 @@ class Boundaries:
             # グレージングの種類
             glazing_type = GlazingType(b['incident_angle_characteristics'])
 
-            window = Window(glass_area_ratio=glass_area_ratio, eta_value=eta_value, glazing_type=glazing_type)
+            window = Window(r_a_glass_j=glass_area_ratio, eta_w_j=eta_value, glazing_type_j=glazing_type)
 
         else:
 

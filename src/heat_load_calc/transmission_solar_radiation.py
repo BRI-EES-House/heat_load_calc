@@ -76,6 +76,7 @@ class TransmissionSolarRadiationTransparentSunStrike(TransmissionSolarRadiation)
         self._glazing_type = window.glazing_type.value
         self._eta_value = window.eta_value
         self._glass_area_ratio = window.glass_area_ratio
+        self._window = window
 
     def get_qgt(self, oc: Weather) -> np.ndarray:
         """
@@ -121,6 +122,10 @@ class TransmissionSolarRadiationTransparentSunStrike(TransmissionSolarRadiation)
             glazing_type_j=self._glazing_type,
             glass_area_ratio_j=self._glass_area_ratio
         )
+#        tau_value = self._window.tau_value
+#        ashgc_value = self._window.ashgc_value
+#        rho_value = self._window.rho_value
+#        a_value = self._window.a_value
 
         # ---基準透過率
 

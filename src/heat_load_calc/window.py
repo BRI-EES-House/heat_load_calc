@@ -12,23 +12,165 @@ class GlazingType(Enum):
 
 class Window:
 
-    def __init__(self, glass_area_ratio: float, eta_value: float, glazing_type: GlazingType):
+    def __init__(self, r_a_glass_j: float, eta_w_j: float, glazing_type_j: GlazingType):
+        """
 
-        self._glass_area_ratio = glass_area_ratio
-        self._eta_value = eta_value
-        self._glazing_type = glazing_type
+        Args:
+            r_a_glass_j: 境界 j の開口部の面積に対するグレージングの面積の比, -
+            eta_w_j: 境界 j の開口部の日射熱取得率, -
+            glazing_type_j: 境界 ｊ の開口部のグレージングの種類
+
+        """
+
+        # 境界 j の開口部のグレージングの日射熱取得率, -
+        eta_g_j = self._get_eta_g_j(eta_w_j=eta_w_j, r_a_glass_j=r_a_glass_j)
+
+        # 境界 j の開口部のグレージングの日射透過率, -
+        tau_g_j = self._get_tau_g_j(eta_g_j=eta_g_j, glazing_type_j=glazing_type_j)
+
+        # 境界 j の開口部のグレージングの吸収日射熱取得率, -
+        b_g_j = self._get_b_g_j(eta_g_j, tau_g_j)
+
+        # 境界 j の開口部のグレージングの日射吸収率, -
+        a_g_j = self._get_a_g_j(b_g_j=b_g_j, glazing_type_j=glazing_type_j, tau_g_j=tau_g_j)
+
+        # 境界 j の開口部のグレージングの日射反射率, -
+        rho_g_j = self._get_rho_g_j(a_g_j=a_g_j, tau_g_j=tau_g_j)
+
+        tau_w_j = tau_g_j * r_a_glass_j
+
+        ashgc_value = eta_w_j - tau_w_j
+
+        a_w = a_g_j * r_a_glass_j
+
+        rho_w = rho_g_j * r_a_glass_j
+
+        self._r_a_glass_j = r_a_glass_j
+        self._eta_w_j = eta_w_j
+        self._glazing_type_j = glazing_type_j
+        self._tau_value = tau_w_j
+        self._ashgc_value = ashgc_value
+        self._rho_value = rho_w
+        self._a_value = a_w
 
     @property
     def glass_area_ratio(self):
-        return self._glass_area_ratio
+        return self._r_a_glass_j
 
     @property
     def eta_value(self):
-        return self._eta_value
+        return self._eta_w_j
 
     @property
     def glazing_type(self):
-        return self._glazing_type
+        return self._glazing_type_j
+
+    @property
+    def tau_value(self):
+        return self._tau_value
+
+    @property
+    def ashgc_value(self):
+        return self._ashgc_value
+
+    @property
+    def rho_value(self):
+        return self._rho_value
+
+    @property
+    def a_value(self):
+        return self._a_value
+
+    @classmethod
+    def _get_rho_g_j(cls, a_g_j: float, tau_g_j: float):
+        """開口部のグレージングの日射反射率を取得する。
+
+        Args:
+            a_g_j: 境界 j の開口部のグレージングの日射吸収率, -
+            tau_g_j: 境界 j の開口部のグレージングの日射透過率, -
+
+        Returns:
+            境界 j の開口部のグレージングの日射反射率, -
+        """
+
+        return 1.0 - tau_g_j - a_g_j
+
+    @classmethod
+    def _get_b_g_j(cls, eta_g_j: float, tau_g_j: float):
+        """開口部のグレージングの吸収日射熱取得率を取得する。
+
+        Args:
+            eta_g_j: 境界 j の開口部のグレージングの日射熱取得率, -
+            tau_g_j: 境界 j の開口部のグレージングの日射透過率, -
+
+        Returns:
+            境界 j の開口部のグレージングの吸収日射熱取得率, -
+        """
+        return eta_g_j - tau_g_j
+
+    @classmethod
+    def _get_eta_g_j(cls, eta_w_j: float, r_a_glass_j: float):
+        """開口部のグレージングの日射熱取得率
+
+        Args:
+            eta_w_j: 境界 j の開口部の日射熱取得率, -
+            r_a_glass_j: 境界 j の開口部の面積に対するグレージングの面積の比, -
+
+        Returns:
+            境界 j の開口部のグレージングの日射熱取得率, -
+        """
+
+        return eta_w_j / r_a_glass_j
+
+    @classmethod
+    def _get_a_g_j(cls, b_g_j: float, glazing_type_j: GlazingType, tau_g_j: float):
+        """
+
+        Args:
+            b_g_j: 境界 j の開口部のグレージングの吸収日射熱取得率, -
+            glazing_type_j: 境界 ｊ の開口部のグレージングの種類
+            tau_g_j: 境界 j の開口部のグレージングの日射透過率, -
+
+        Returns:
+
+        """
+
+        if glazing_type_j == GlazingType.Single:
+            if tau_g_j + 3.01 * b_g_j < 1.0:
+                return 3.01 * b_g_j
+            else:
+                return 1.0 - tau_g_j
+        elif glazing_type_j == GlazingType.Multiple:
+            if tau_g_j + 3.76 * b_g_j < 1.0:
+                return 3.76 * b_g_j
+            else:
+                return 1.0 - tau_g_j
+        else:
+            raise ValueError()
+
+    @classmethod
+    def _get_tau_g_j(cls, eta_g_j: float, glazing_type_j: GlazingType):
+        """開口部のグレージングの日射透過率を取得する。
+
+        Args:
+            eta_g_j: 境界 j の開口部のグレージングの日射熱取得率, -
+            glazing_type_j: 境界 ｊ の開口部のグレージングの種類
+
+        Returns:
+            境界 j の開口部のグレージングの日射透過率, -
+        """
+
+        if glazing_type_j == GlazingType.Single:
+
+            return -0.70 * eta_g_j ** 3 + 1.94 * eta_g_j ** 2 - 0.19 * eta_g_j
+
+        elif glazing_type_j == GlazingType.Multiple:
+
+            return -0.34 * eta_g_j ** 3 + 0.81 * eta_g_j ** 2 + 0.46 * eta_g_j
+
+        else:
+
+            KeyError()
 
 
 def get_tau_d_j_ns(theta_aoi_j_ns: np.ndarray, glazing_type_j: str) -> np.ndarray:
@@ -209,8 +351,6 @@ def _get_tau_norm_glass_i_k_n(theta_aoi_i_k: np.ndarray) -> np.ndarray:
 
     c = np.cos(theta_aoi_i_k)
 
-
-
     return 0.000 * c ** 0.0 + 2.552 * c ** 1.0 + 1.364 * c ** 2.0 \
            - 11.388 * c ** 3.0 + 13.617 * c ** 4.0 - 5.146 * c ** 5.0
 
@@ -282,14 +422,4 @@ def _get_r_d_double() -> float:
     """
 
     return 0.088
-
-
-if __name__ == "__main__":
-    phi = np.ndarray(1)
-    phi[0] = math.radians(0.0)
-    tau_value, ashgc_value, rho_value, a_value = get_tau_and_ashgc_rho_a(eta_w=0.89, glazing_type_j='single', glass_area_ratio_j=1.0)
-    print(get_ashgc_d_j(glazing_type_j='single', tau_w=tau_value, rho_w=rho_value, theta_aoi_i_k=phi))
-
-    tau_value, ashgc_value, rho_value, a_value = get_tau_and_ashgc_rho_a(eta_w=0.62, glazing_type_j='multiple', glass_area_ratio_j=1.0)
-    print(get_ashgc_d_j(glazing_type_j='multiple', tau_w=tau_value, rho_w=rho_value, theta_aoi_i_k=phi))
 
