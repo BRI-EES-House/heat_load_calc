@@ -196,46 +196,6 @@ def get_tau_d_j_ns(theta_aoi_j_ns: np.ndarray, glazing_type_j: str) -> np.ndarra
         raise ValueError()
 
 
-def get_tau_and_ashgc_rho_a(eta_w: float, glazing_type_j: str,
-                            glass_area_ratio_j: float) -> Tuple[float, float, float, float]:
-    """
-    日射熱取得率から透過率、吸収日射取得率を推定する
-    :param eta_w: 窓の日射熱取得率
-    :param glazing_type_j: ガラスの層数
-    :param glass_area_ratio_j: 窓のガラス面積率
-    :return: 日射透過率、吸収日射取得率
-    """
-
-    # ガラスの日射熱取得率
-    eta_g = eta_w / glass_area_ratio_j
-
-    if glazing_type_j == "single":
-        tau_g = -0.70 * eta_g ** 3 + 1.94 * eta_g ** 2 - 0.19 * eta_g
-        ashgc_g = eta_g - tau_g
-        if tau_g + 3.01 * ashgc_g < 1.0:
-            a_g = 3.01 * ashgc_g
-        else:
-            a_g = 1.0 - tau_g
-        rho_g = 1.0 - tau_g - a_g
-    elif glazing_type_j == "multiple":
-        tau_g = -0.34 * eta_g ** 3 + 0.81 * eta_g ** 2 + 0.46 * eta_g
-        ashgc_g = eta_g - tau_g
-        if tau_g + 3.76 * ashgc_g < 1.0:
-            a_g = 3.76 * ashgc_g
-        else:
-            a_g = 1.0 - tau_g
-        rho_g = 1.0 - tau_g - a_g
-    else:
-        raise ValueError()
-
-    # 窓の日射透過率
-    tau_w = tau_g * glass_area_ratio_j
-    a_w = a_g * glass_area_ratio_j
-    rho_w = rho_g * glass_area_ratio_j
-
-    return tau_w, eta_w - tau_w, rho_w, a_w
-
-
 # TODO:吸収日射取得率の入射角特性は、1-τ-ρで暫定対応（τ：透過率の規準化透過率、ρ：反射率の規準化反射率）
 def get_c_ashgc(glazing_type_j: str, tau_w: float, rho_w: float) -> float:
     '''
