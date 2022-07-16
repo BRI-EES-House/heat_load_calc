@@ -74,15 +74,13 @@ class TransmissionSolarRadiationTransparentSunStrike(TransmissionSolarRadiation)
         self._area = area
         self._ss = ss
         self._glazing_type = window.glazing_type_j.value
-        self._eta_value = window.eta_w_j
-        self._glass_area_ratio = window.r_a_glass_j
         self._window = window
 
     def get_qgt(self, oc: Weather) -> np.ndarray:
         """
 
         Args:
-            oc: OutdoorCondition クラス
+            oc: Weather クラス
 
         Returns:
 
@@ -116,39 +114,25 @@ class TransmissionSolarRadiationTransparentSunStrike(TransmissionSolarRadiation)
         # 地面反射日射に対する日よけの影面積比率
         f_ss_r_j_ns = self._ss.get_f_ss_r_j()
 
-        # 透過率の計算
-#        tau_value, ashgc_value, rho_value, a_value = window.get_tau_and_ashgc_rho_a(
-#            eta_w=self._eta_value,
-#            glazing_type_j=self._glazing_type,
-#            glass_area_ratio_j=self._glass_area_ratio
-#        )
-        tau_value = self._window.tau_w_j
-        ashgc_value = self._window.b_w_j
-        rho_value = self._window.rho_w_j
-        a_value = self._window.a_w_j
+        # ステップ n における境界 j の透明な開口部の直達日射に対する日射透過率, -, [N+1]
+        tau_d_j_ns = self._window.get_tau_d_j_ns(theta_aoi_j_ns=theta_aoi_j_ns)
 
+        # 境界 j の透明な開口部の天空日射に対する日射透過率, -, [N+1]
+        tau_s_j = self._window.get_tau_s_j()
 
-        # ---基準透過率
+        # 境界 j の透明な開口部の地盤反射日射に対する日射透過率, -, [N+1]
+        tau_r_j = self._window.get_tau_r_j()
 
-        # 境界jにおける透明な開口部の直達日射に対する規準化透過率, [8760 * 4]
-        tau_d_j_ns = window.get_tau_d_j_ns(
-            theta_aoi_j_ns=theta_aoi_j_ns, glazing_type_j=self._glazing_type)
+        # 直達日射に対する透過日射量, W/m2, [N+1]
+        q_gt_d_j_ns = tau_d_j_ns * (1.0 - f_ss_d_j_ns) * i_inc_d_j_ns
 
-        # 境界jにおける透明な開口部の拡散日射に対する規準化透過率
-        c_d_j = window.get_c_d_j(glazing_type_j=self._glazing_type)
+        # 天空日射に対する透過日射量, W/m2, [N+1]
+        q_gt_sky_j_ns = tau_s_j * (1.0 - f_ss_s_j_ns) * i_inc_sky_j_ns
 
-        # ---透過日射量, W/m2
+        # 地盤反射日射に対する透過日射量, W/m2, [N+1]
+        q_gt_ref_j_ns = tau_r_j * (1.0 - f_ss_r_j_ns) * i_inc_ref_j_ns
 
-        # 直達日射に対する透過日射量, W/m2, [8760 * 4]
-        q_gt_d_j_ns = tau_value * (1.0 - f_ss_d_j_ns) * tau_d_j_ns * i_inc_d_j_ns
-
-        # 天空日射に対する透過日射量, W/m2, [8760 * 4]
-        q_gt_sky_j_ns = tau_value * (1.0 - f_ss_s_j_ns) * c_d_j * i_inc_sky_j_ns
-
-        # 地盤反射日射に対する透過日射量, W/m2, [8760 * 4]
-        q_gt_ref_j_ns = tau_value * (1.0 - f_ss_r_j_ns) * c_d_j * i_inc_ref_j_ns
-
-        # 透過日射量, W, [8760 * 4]
+        # 透過日射量, W, [N+1]
         q_gt_ns = (q_gt_d_j_ns + q_gt_sky_j_ns + q_gt_ref_j_ns) * self._area
 
         return q_gt_ns

@@ -202,7 +202,7 @@ class OutsideEqvTempExternalTransparentPart(OutsideEqvTemp):
         相当外気温度を計算する。
 
         Args:
-            w: OutdoorCondition クラス
+            w: Weather クラス
 
         Returns:
             ステップ n における室 i の境界 j の傾斜面の相当外気温度, degree C, [N+1]
@@ -227,7 +227,7 @@ class OutsideEqvTempExternalTransparentPart(OutsideEqvTemp):
 
         # ---日よけの影面積比率
 
-        # 直達日射に対する日よけの影面積比率, [8760 * 4]
+        # 直達日射に対する日よけの影面積比率, [N+1]
         f_ss_d_j_ns = self._ss.get_f_ss_d_j_ns(h_sun_n=w.h_sun_ns_plus, a_sun_n=w.a_sun_ns_plus)
 
         # 天空日射に対する日よけの影面積比率
@@ -236,30 +236,28 @@ class OutsideEqvTempExternalTransparentPart(OutsideEqvTemp):
         # 地面反射日射に対する日よけの影面積比率
         f_ss_r_j_ns = self._ss.get_f_ss_r_j()
 
-        # 吸収日射取得率の計算
-        ashgc_value = self._window.b_w_j
+        # ステップ n における境界 ｊ　の開口部の直達日射に対する吸収日射熱取得率, -, [N+1]
+        b_w_d_j_ns = self._window.get_b_w_d_j_ns(theta_aoi_j_ns=theta_aoi_j_ns)
 
-        # 境界jにおける透明な開口部の直達日射に対する規準化吸収日射取得率, [8760 * 4]
-        ashgc_d_j_ns = self._window.get_ashgc_d_j(theta_aoi_i_k=theta_aoi_j_ns)
+        # 境界 ｊ　の開口部の天空日射に対する吸収日射熱取得率, -
+        b_w_s_j = self._window.get_b_w_s_j()
 
-        # 境界jにおける透明な開口部の拡散日射に対する規準化吸収日射取得率
-        ashgc_d_j = self._window.get_c_ashgc()
-        
-        # ---吸収日射熱取得, W/m2
+        # 境界 ｊ　の開口部の地盤反射日射に対する吸収日射熱取得率, -
+        b_w_r_j = self._window.get_b_w_r_j()
 
-        # 直達日射に対する吸収日射熱取得, W/m2, [8760 * 4]
-        q_gt_d_j_ns = ashgc_value * (1.0 - f_ss_d_j_ns) * ashgc_d_j_ns * i_inc_d_j_ns
+        # 直達日射に対する吸収日射熱取得, W/m2, [N+1]
+        q_gt_d_j_ns = b_w_d_j_ns * (1.0 - f_ss_d_j_ns) * i_inc_d_j_ns
 
-        # 天空日射に対する吸収日射熱取得, W/m2, [8760 * 4]
-        q_gt_sky_j_ns = ashgc_value * (1.0 - f_ss_s_j_ns) * ashgc_d_j * i_inc_sky_j_ns
+        # 天空日射に対する吸収日射熱取得, W/m2, [N+1]
+        q_gt_sky_j_ns = b_w_s_j * (1.0 - f_ss_s_j_ns) * i_inc_sky_j_ns
 
-        # 地盤反射日射に対する吸収日射熱取得, W/m2, [8760 * 4]
-        q_gt_ref_j_ns = ashgc_value * (1.0 - f_ss_r_j_ns) * ashgc_d_j * i_inc_ref_j_ns
+        # 地盤反射日射に対する吸収日射熱取得, W/m2, [N+1]
+        q_gt_ref_j_ns = b_w_r_j * (1.0 - f_ss_r_j_ns) * i_inc_ref_j_ns
 
-        # 吸収日射熱取得, W/m2, [8760 * 4]
+        # 吸収日射熱取得, W/m2, [N+1]
         q_ga_ns = (q_gt_d_j_ns + q_gt_sky_j_ns + q_gt_ref_j_ns)
 
-        # 室iの境界jの傾斜面のステップnにおける相当外気温度, ℃, [8760*4]
+        # 室iの境界jの傾斜面のステップnにおける相当外気温度, ℃, [N+1]
         # 透明な開口部の場合、透過日射はガラス面への透過の項で扱うため、ここでは吸収日射、長波長放射のみ考慮する。
         return w.theta_o_ns_plus - self._eps_r * r_srf_eff_j_ns * self._r_surf_o + q_ga_ns / self._u_value
 
