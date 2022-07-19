@@ -29,6 +29,8 @@ def hasp_read(file_name: str) -> (np.ndarray, np.ndarray, np.ndarray, np.ndarray
         widths=column_width,
         header=None
     )
+    # 余計な列を削除（年、月、日、曜日、気象要素番号）
+    weather_data_pd.drop(weather_data_pd.columns[[24, 25, 26, 27, 28]], axis=1, inplace=True)
 
     # 外気温度
     ta_data = get_element(weather_data_pd, 0)
@@ -74,9 +76,6 @@ def get_element(weather_pd: pd, row_number: int) -> np.ndarray:
 
     # row_numberだけシフトし7行置きにデータを抽出
     element_data = weather_pd[row_number::7]
-    # 余計な列を削除（年、月、日、曜日、気象要素番号）
-    # TODO: ワーニングが発生する（A value is trying to be set on a copy of a slice from a DataFrame）
-    element_data.drop(element_data.columns[[24, 25, 26, 27, 28]], axis=1, inplace=True)
     # 1行のNumpyに変換する
     element_data_np = element_data.values.flatten()
 
