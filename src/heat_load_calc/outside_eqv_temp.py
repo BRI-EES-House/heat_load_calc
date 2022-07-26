@@ -1,8 +1,12 @@
 import numpy as np
+from typing import Optional
 
-from heat_load_calc import direction, inclined_surface_solar_radiation, window, solar_shading
+from heat_load_calc import inclined_surface_solar_radiation, window
 from heat_load_calc.weather import Weather
 from heat_load_calc.direction import Direction
+from heat_load_calc.solar_shading import SolarShading
+from heat_load_calc.boundary_type import BoundaryType
+from heat_load_calc.window import Window
 
 
 class OutsideEqvTemp:
@@ -11,48 +15,57 @@ class OutsideEqvTemp:
         pass
 
     @classmethod
-    def create(cls, b: dict, ssp: solar_shading.SolarShading):
+    def create(
+            cls,
+            ss: SolarShading,
+            boundary_type: BoundaryType,
+            is_sun_striked_outside: Optional[bool],
+            direction: Direction,
+            eps_r: Optional[float],
+            r_surf: Optional[float],
+            u_value: Optional[float],
+            window: Optional[Window],
+            a_s: Optional[float]
+    ):
 
-        if b['boundary_type'] == 'internal':
+        if boundary_type == BoundaryType.Internal:
 
             return OutsideEqvTempInternal()
 
-        elif b['boundary_type'] in ['external_general_part', 'external_opaque_part']:
+        elif boundary_type in [BoundaryType.ExternalGeneralPart, BoundaryType.ExternalOpaquePart]:
 
-            if b['is_sun_striked_outside']:
+            if is_sun_striked_outside:
 
                 return OutsideEqvTempExternalGeneralPartAndExternalOpaquePart(
-                    direction=Direction(b['direction']),
-                    a_s=float(b['outside_solar_absorption']),
-                    eps_r=float(b['outside_emissivity']),
-                    r_surf=float(b['outside_heat_transfer_resistance']),
-                    solar_shading=ssp
+                    direction=direction,
+                    a_s=a_s,
+                    eps_r=eps_r,
+                    r_surf=r_surf,
+                    ss=ss
                 )
 
             else:
 
                 return OutsideEqvTempExternalNotSunStriked()
 
-        elif b['boundary_type'] == 'external_transparent_part':
+        elif boundary_type == BoundaryType.ExternalTransparentPart:
 
-            if b['is_sun_striked_outside']:
+            if is_sun_striked_outside:
 
                 return OutsideEqvTempExternalTransparentPart(
-                    direction=Direction(b['direction']),
-                    eps_r=float(b['outside_emissivity']),
-                    r_surf_o=float(b['outside_heat_transfer_resistance']),
-                    u_value_j=float(b['u_value']),
-                    eta_value_j=float(b['eta_value']),
-                    glazing_type_j=b['incident_angle_characteristics'],
-                    glass_area_ratio_j=b['glass_area_ratio'],
-                    solar_shading_part=ssp
+                    direction=direction,
+                    eps_r=eps_r,
+                    r_surf_o=r_surf,
+                    u_value_j=u_value,
+                    ss=ss,
+                    window=window
                 )
 
             else:
 
                 return OutsideEqvTempExternalNotSunStriked()
 
-        elif b['boundary_type'] == 'ground':
+        elif boundary_type == BoundaryType.Ground:
 
             return OutsideEqvTempGround()
 
@@ -85,7 +98,7 @@ class OutsideEqvTempInternal(OutsideEqvTemp):
         相当外気温度を計算する。
 
         Args:
-            w: OutdoorCondition クラス
+            w: Weather クラス
 
         Returns:
             ステップ n における室 i の境界 j の傾斜面の相当外気温度, degree C, [N+1]
@@ -101,7 +114,7 @@ class OutsideEqvTempInternal(OutsideEqvTemp):
 
 class OutsideEqvTempExternalGeneralPartAndExternalOpaquePart(OutsideEqvTemp):
 
-    def __init__(self, direction: Direction, a_s, eps_r, r_surf, solar_shading: solar_shading.SolarShading):
+    def __init__(self, direction: Direction, a_s, eps_r, r_surf, ss: SolarShading):
         """
 
         Args:
@@ -114,7 +127,7 @@ class OutsideEqvTempExternalGeneralPartAndExternalOpaquePart(OutsideEqvTemp):
         self._a_s = a_s
         self._eps_r = eps_r
         self._r_surf = r_surf
-        self._solar_shading_part = solar_shading
+        self._ss = ss
 
     def get_theta_o_sol_i_j_ns(self, w: Weather) -> np.ndarray:
         """
@@ -128,10 +141,10 @@ class OutsideEqvTempExternalGeneralPartAndExternalOpaquePart(OutsideEqvTemp):
         """
 
         # 直達日射に対する日よけの影面積比率, [8760 * 4]
-        f_ss_d_j_ns = self._solar_shading_part.get_f_ss_d_j_ns(h_sun_n=w.h_sun_ns_plus, a_sun_n=w.a_sun_ns_plus)
+        f_ss_d_j_ns = self._ss.get_f_ss_d_j_ns(h_sun_n=w.h_sun_ns_plus, a_sun_n=w.a_sun_ns_plus)
 
         # 天空日射に対する日よけの影面積比率
-        f_ss_s_j_ns = self._solar_shading_part.get_f_ss_s_j()
+        f_ss_s_j_ns = self._ss.get_f_ss_s_j()
 
         # 地面反射日射に対する日よけの影面積比率
         f_ss_r_j_ns = 0.0
@@ -160,11 +173,15 @@ class OutsideEqvTempExternalGeneralPartAndExternalOpaquePart(OutsideEqvTemp):
 
 class OutsideEqvTempExternalTransparentPart(OutsideEqvTemp):
 
-    def __init__(self, direction: Direction, eps_r, r_surf_o, u_value_j: float,
-                 eta_value_j: float,
-                 glazing_type_j: str,
-                 glass_area_ratio_j: float,
-                 solar_shading_part: solar_shading.SolarShading):
+    def __init__(
+            self,
+            direction: Direction,
+            eps_r,
+            r_surf_o,
+            u_value_j: float,
+            ss: SolarShading,
+            window: Window
+    ):
         """
 
         Args:
@@ -177,17 +194,15 @@ class OutsideEqvTempExternalTransparentPart(OutsideEqvTemp):
         self._eps_r = eps_r
         self._r_surf_o = r_surf_o
         self._u_value = u_value_j
-        self._eta_value = eta_value_j
-        self._glazing_type = glazing_type_j
-        self._glass_area_ratio = glass_area_ratio_j
-        self._shading_part = solar_shading_part
+        self._ss = ss
+        self._window = window
 
     def get_theta_o_sol_i_j_ns(self, w: Weather) -> np.ndarray:
         """
         相当外気温度を計算する。
 
         Args:
-            w: OutdoorCondition クラス
+            w: Weather クラス
 
         Returns:
             ステップ n における室 i の境界 j の傾斜面の相当外気温度, degree C, [N+1]
@@ -212,44 +227,37 @@ class OutsideEqvTempExternalTransparentPart(OutsideEqvTemp):
 
         # ---日よけの影面積比率
 
-        # 直達日射に対する日よけの影面積比率, [8760 * 4]
-        f_ss_d_j_ns = self._shading_part.get_f_ss_d_j_ns(h_sun_n=w.h_sun_ns_plus, a_sun_n=w.a_sun_ns_plus)
+        # 直達日射に対する日よけの影面積比率, [N+1]
+        f_ss_d_j_ns = self._ss.get_f_ss_d_j_ns(h_sun_n=w.h_sun_ns_plus, a_sun_n=w.a_sun_ns_plus)
 
         # 天空日射に対する日よけの影面積比率
-        f_ss_s_j_ns = self._shading_part.get_f_ss_s_j()
+        f_ss_s_j_ns = self._ss.get_f_ss_s_j()
 
         # 地面反射日射に対する日よけの影面積比率
-        f_ss_r_j_ns = 0.0
+        f_ss_r_j_ns = self._ss.get_f_ss_r_j()
 
-        # 吸収日射取得率の計算
-        tau_value, ashgc_value, rho_value, a_value = window.get_tau_and_ashgc_rho_a(
-            eta_w=self._eta_value,
-            glazing_type_j=self._glazing_type,
-            glass_area_ratio_j=self._glass_area_ratio
-        )
-        
-        # 境界jにおける透明な開口部の直達日射に対する規準化吸収日射取得率, [8760 * 4]
-        ashgc_d_j_ns = window.get_ashgc_d_j(
-            theta_aoi_i_k=theta_aoi_j_ns, glazing_type_j=self._glazing_type, tau_w=tau_value, rho_w=rho_value)
+        # ステップ n における境界 ｊ　の開口部の直達日射に対する吸収日射熱取得率, -, [N+1]
+        b_w_d_j_ns = self._window.get_b_w_d_j_ns(theta_aoi_j_ns=theta_aoi_j_ns)
 
-        # 境界jにおける透明な開口部の拡散日射に対する規準化吸収日射取得率
-        ashgc_d_j = window.get_c_ashgc(glazing_type_j=self._glazing_type, tau_w=tau_value, rho_w=rho_value)
-        
-        # ---吸収日射熱取得, W/m2
+        # 境界 ｊ　の開口部の天空日射に対する吸収日射熱取得率, -
+        b_w_s_j = self._window.get_b_w_s_j()
 
-        # 直達日射に対する吸収日射熱取得, W/m2, [8760 * 4]
-        q_gt_d_j_ns = ashgc_value * (1.0 - f_ss_d_j_ns) * ashgc_d_j_ns * i_inc_d_j_ns
+        # 境界 ｊ　の開口部の地盤反射日射に対する吸収日射熱取得率, -
+        b_w_r_j = self._window.get_b_w_r_j()
 
-        # 天空日射に対する吸収日射熱取得, W/m2, [8760 * 4]
-        q_gt_sky_j_ns = ashgc_value * (1.0 - f_ss_s_j_ns) * ashgc_d_j * i_inc_sky_j_ns
+        # 直達日射に対する吸収日射熱取得, W/m2, [N+1]
+        q_gt_d_j_ns = b_w_d_j_ns * (1.0 - f_ss_d_j_ns) * i_inc_d_j_ns
 
-        # 地盤反射日射に対する吸収日射熱取得, W/m2, [8760 * 4]
-        q_gt_ref_j_ns = ashgc_value * (1.0 - f_ss_r_j_ns) * ashgc_d_j * i_inc_ref_j_ns
+        # 天空日射に対する吸収日射熱取得, W/m2, [N+1]
+        q_gt_sky_j_ns = b_w_s_j * (1.0 - f_ss_s_j_ns) * i_inc_sky_j_ns
 
-        # 吸収日射熱取得, W/m2, [8760 * 4]
+        # 地盤反射日射に対する吸収日射熱取得, W/m2, [N+1]
+        q_gt_ref_j_ns = b_w_r_j * (1.0 - f_ss_r_j_ns) * i_inc_ref_j_ns
+
+        # 吸収日射熱取得, W/m2, [N+1]
         q_ga_ns = (q_gt_d_j_ns + q_gt_sky_j_ns + q_gt_ref_j_ns)
 
-        # 室iの境界jの傾斜面のステップnにおける相当外気温度, ℃, [8760*4]
+        # 室iの境界jの傾斜面のステップnにおける相当外気温度, ℃, [N+1]
         # 透明な開口部の場合、透過日射はガラス面への透過の項で扱うため、ここでは吸収日射、長波長放射のみ考慮する。
         return w.theta_o_ns_plus - self._eps_r * r_srf_eff_j_ns * self._r_surf_o + q_ga_ns / self._u_value
 

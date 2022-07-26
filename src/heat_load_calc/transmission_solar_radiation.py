@@ -1,8 +1,11 @@
 import numpy as np
 
-from heat_load_calc import direction, inclined_surface_solar_radiation, window, solar_shading
+from heat_load_calc import direction, inclined_surface_solar_radiation, window
 from heat_load_calc.weather import Weather
 from heat_load_calc.direction import Direction
+from heat_load_calc.solar_shading import SolarShading
+from heat_load_calc.boundary_type import BoundaryType
+from heat_load_calc.window import Window
 
 
 class TransmissionSolarRadiation:
@@ -11,19 +14,25 @@ class TransmissionSolarRadiation:
         pass
 
     @classmethod
-    def create(cls, b: dict, ssp: solar_shading.SolarShading):
+    def create(
+            cls,
+            ss: SolarShading,
+            boundary_type: BoundaryType,
+            direction: Direction,
+            area: float,
+            window: Window,
+            is_sun_striked_outside: bool
+    ):
 
-        if b['boundary_type'] == 'external_transparent_part':
+        if boundary_type == BoundaryType.ExternalTransparentPart:
 
-            if bool(b['is_sun_striked_outside']):
+            if is_sun_striked_outside:
 
                 return TransmissionSolarRadiationTransparentSunStrike(
-                    direction=b['direction'],
-                    area=b['area'],
-                    solar_shading_part=ssp,
-                    glazing_type=b['incident_angle_characteristics'],
-                    eta_value=b['eta_value'],
-                    glass_area_ratio=b['glass_area_ratio']
+                    direction=direction,
+                    area=area,
+                    ss=ss,
+                    window=window
                 )
 
             else:
@@ -49,40 +58,29 @@ class TransmissionSolarRadiation:
 
 class TransmissionSolarRadiationTransparentSunStrike(TransmissionSolarRadiation):
 
-    def __init__(
-            self,
-            direction: str,
-            area: float,
-            solar_shading_part: solar_shading.SolarShadingSimple,
-            glazing_type: str,
-            eta_value: float,
-            glass_area_ratio: float
-    ):
+    def __init__(self, direction: Direction, area: float, ss: SolarShading, window: Window):
         """
 
         Args:
             direction: 境界が面する方位
             area: 面積, m2
-            solar_shading_part: 日よけの仕様（SolarShadingPartクラス）
-            glazing_type: ガラスの入射角特性タイプ = 'single' or 'multiple'
-            eta_value: 日射熱取得率
-            glass_area_ratio: ガラス面積率
+            ss: 日よけの仕様（SolarShadingPartクラス）
+            window: Windowクラス
         """
 
         super().__init__()
 
-        self._direction = Direction(direction)
+        self._direction = direction
         self._area = area
-        self._solar_shading_part = solar_shading_part
-        self._glazing_type = glazing_type
-        self._eta_value = eta_value
-        self._glass_area_ratio = glass_area_ratio
+        self._ss = ss
+        self._glazing_type = window.glazing_type_j.value
+        self._window = window
 
     def get_qgt(self, oc: Weather) -> np.ndarray:
         """
 
         Args:
-            oc: OutdoorCondition クラス
+            oc: Weather クラス
 
         Returns:
 
@@ -108,42 +106,33 @@ class TransmissionSolarRadiationTransparentSunStrike(TransmissionSolarRadiation)
         # ---日よけの影面積比率
 
         # 直達日射に対する日よけの影面積比率, [N+1]
-        f_ss_d_j_ns = self._solar_shading_part.get_f_ss_d_j_ns(h_sun_n=oc.h_sun_ns_plus, a_sun_n=oc.a_sun_ns_plus)
+        f_ss_d_j_ns = self._ss.get_f_ss_d_j_ns(h_sun_n=oc.h_sun_ns_plus, a_sun_n=oc.a_sun_ns_plus)
 
         # 天空日射に対する日よけの影面積比率
-        f_ss_s_j_ns = self._solar_shading_part.get_f_ss_s_j()
+        f_ss_s_j_ns = self._ss.get_f_ss_s_j()
 
         # 地面反射日射に対する日よけの影面積比率
-        f_ss_r_j_ns = 0.0
+        f_ss_r_j_ns = self._ss.get_f_ss_r_j()
 
-        # 透過率の計算
-        tau_value, ashgc_value, rho_value, a_value = window.get_tau_and_ashgc_rho_a(
-            eta_w=self._eta_value,
-            glazing_type_j=self._glazing_type,
-            glass_area_ratio_j=self._glass_area_ratio
-        )
+        # ステップ n における境界 j の透明な開口部の直達日射に対する日射透過率, -, [N+1]
+        tau_d_j_ns = self._window.get_tau_d_j_ns(theta_aoi_j_ns=theta_aoi_j_ns)
 
-        # ---基準透過率
+        # 境界 j の透明な開口部の天空日射に対する日射透過率, -, [N+1]
+        tau_s_j = self._window.get_tau_s_j()
 
-        # 境界jにおける透明な開口部の直達日射に対する規準化透過率, [8760 * 4]
-        tau_d_j_ns = window.get_tau_d_j_ns(
-            theta_aoi_j_ns=theta_aoi_j_ns, glazing_type_j=self._glazing_type)
+        # 境界 j の透明な開口部の地盤反射日射に対する日射透過率, -, [N+1]
+        tau_r_j = self._window.get_tau_r_j()
 
-        # 境界jにおける透明な開口部の拡散日射に対する規準化透過率
-        c_d_j = window.get_c_d_j(glazing_type_j=self._glazing_type)
+        # 直達日射に対する透過日射量, W/m2, [N+1]
+        q_gt_d_j_ns = tau_d_j_ns * (1.0 - f_ss_d_j_ns) * i_inc_d_j_ns
 
-        # ---透過日射量, W/m2
+        # 天空日射に対する透過日射量, W/m2, [N+1]
+        q_gt_sky_j_ns = tau_s_j * (1.0 - f_ss_s_j_ns) * i_inc_sky_j_ns
 
-        # 直達日射に対する透過日射量, W/m2, [8760 * 4]
-        q_gt_d_j_ns = tau_value * (1.0 - f_ss_d_j_ns) * tau_d_j_ns * i_inc_d_j_ns
+        # 地盤反射日射に対する透過日射量, W/m2, [N+1]
+        q_gt_ref_j_ns = tau_r_j * (1.0 - f_ss_r_j_ns) * i_inc_ref_j_ns
 
-        # 天空日射に対する透過日射量, W/m2, [8760 * 4]
-        q_gt_sky_j_ns = tau_value * (1.0 - f_ss_s_j_ns) * c_d_j * i_inc_sky_j_ns
-
-        # 地盤反射日射に対する透過日射量, W/m2, [8760 * 4]
-        q_gt_ref_j_ns = tau_value * (1.0 - f_ss_r_j_ns) * c_d_j * i_inc_ref_j_ns
-
-        # 透過日射量, W, [8760 * 4]
+        # 透過日射量, W, [N+1]
         q_gt_ns = (q_gt_d_j_ns + q_gt_sky_j_ns + q_gt_ref_j_ns) * self._area
 
         return q_gt_ns

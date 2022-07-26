@@ -18,6 +18,7 @@ class TestSolarShading(unittest.TestCase):
 
         self.assertEqual(ss.get_f_ss_d_j_ns(h_sun_n=np.array([0.0]), a_sun_n=np.array([0.0])), np.array([0.0]))
         self.assertEqual(ss.get_f_ss_s_j(), 0.0)
+        self.assertEqual(ss.get_f_ss_r_j(), 0.0)
 
     def test_solar_shading_simple(self):
 
@@ -43,6 +44,7 @@ class TestSolarShading(unittest.TestCase):
                 self.assertAlmostEqual(r, e)
 
         self.assertAlmostEqual(ss.get_f_ss_s_j(), 0.068638682)
+        self.assertEqual(ss.get_f_ss_r_j(), 0.0)
 
     @unittest.skip('not implemented')
     def test_solar_shading_detail(self):

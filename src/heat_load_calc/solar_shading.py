@@ -90,6 +90,15 @@ class SolarShading:
 
         raise NotImplementedError()
 
+    def get_f_ss_r_j(self) -> float:
+        """
+        地面反射に対する日よけの影面積比率を計算する。
+        Returns:
+            地面反射に対する日よけの影面積比率
+        """
+
+        raise NotImplementedError()
+
 
 class SolarShadingSimple(SolarShading):
 
@@ -162,6 +171,15 @@ class SolarShadingSimple(SolarShading):
             - (self._l_y_e_j + math.sqrt((self._l_y_e_j + self._l_y_h_j) ** 2.0 + self._l_z_j ** 2.0))
         ) / (2.0 * self._l_y_h_j)
 
+    def get_f_ss_r_j(self) -> float:
+        """
+        地面反射に対する日よけの影面積比率を計算する。
+        Returns:
+            地面反射に対する日よけの影面積比率
+        """
+
+        return 0.0
+
 
 class SolarShadingDetail(SolarShading):
 
@@ -205,6 +223,15 @@ class SolarShadingDetail(SolarShading):
 
         raise NotImplementedError()
 
+    def get_f_ss_r_j(self) -> float:
+        """
+        地面反射に対する日よけの影面積比率を計算する。
+        Returns:
+            地面反射に対する日よけの影面積比率
+        """
+
+        raise NotImplementedError()
+
 
 class SolarShadingNot(SolarShading):
 
@@ -232,6 +259,15 @@ class SolarShadingNot(SolarShading):
 
         Returns:
             天空放射に対する日除けの影面積比率, -
+        """
+
+        return 0.0
+
+    def get_f_ss_r_j(self) -> float:
+        """
+        地面反射に対する日よけの影面積比率を計算する。
+        Returns:
+            地面反射に対する日よけの影面積比率
         """
 
         return 0.0
