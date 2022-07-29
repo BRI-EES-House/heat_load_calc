@@ -39,7 +39,8 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, rec
             p_v_r_is_n=p_v_r_is_n,
             operation_mode_is_n=operation_mode_is_n,
             theta_r_is_n=c_n.theta_r_is_n,
-            theta_mrt_hum_is_n=c_n.theta_mrt_hum_is_n
+            theta_mrt_hum_is_n=c_n.theta_mrt_hum_is_n,
+            n=n
         )
 
     # ステップnの境界jにおける裏面温度, degree C, [j, 1]

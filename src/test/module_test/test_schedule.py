@@ -116,7 +116,8 @@ class TestSchedule(unittest.TestCase):
                 "x_gen_is_ns": test_patterns_30["x_gen_is_ns"] * 2 / 3 + test_patterns_60["x_gen_is_ns"] * 1 / 3,
                 "v_mec_vent_local_is_ns": test_patterns_30["v_mec_vent_local_is_ns"] * 2 / 3 + test_patterns_60["v_mec_vent_local_is_ns"] * 1 / 3,
                 "n_hum_is_ns": test_patterns_30["n_hum_is_ns"] * 2 / 3 + test_patterns_60["n_hum_is_ns"] * 1 / 3,
-                "ac_demand_is_ns": test_patterns_30["ac_demand_is_ns"] * 2 / 3 + test_patterns_60["ac_demand_is_ns"] * 1 / 3
+                "ac_demand_is_ns": test_patterns_30["ac_demand_is_ns"] * 2 / 3 + test_patterns_60["ac_demand_is_ns"] * 1 / 3,
+                "ac_setting_is_ns": np.maximum(test_patterns_30["ac_setting_is_ns"], test_patterns_60["ac_setting_is_ns"])
             }
 
             self.check(i=i, s=s, test_patterns=test_patterns, is_almost=True)
@@ -149,7 +150,8 @@ class TestSchedule(unittest.TestCase):
                 "x_gen_is_ns": test_patterns_60["x_gen_is_ns"] * 1 / 3 + test_patterns_90["x_gen_is_ns"] * 2 / 3,
                 "v_mec_vent_local_is_ns": test_patterns_60["v_mec_vent_local_is_ns"] * 1 / 3 + test_patterns_90["v_mec_vent_local_is_ns"] * 2 / 3,
                 "n_hum_is_ns": test_patterns_60["n_hum_is_ns"] * 1 / 3 + test_patterns_90["n_hum_is_ns"] * 2 / 3,
-                "ac_demand_is_ns": test_patterns_60["ac_demand_is_ns"] * 1 / 3 + test_patterns_90["ac_demand_is_ns"] * 2 / 3
+                "ac_demand_is_ns": test_patterns_60["ac_demand_is_ns"] * 1 / 3 + test_patterns_90["ac_demand_is_ns"] * 2 / 3,
+                "ac_setting_is_ns": np.maximum(test_patterns_60["ac_setting_is_ns"], test_patterns_90["ac_setting_is_ns"])
             }
 
             self.check(i=i, s=s, test_patterns=test_patterns, is_almost=True)
@@ -182,7 +184,8 @@ class TestSchedule(unittest.TestCase):
                 "x_gen_is_ns": test_patterns_90["x_gen_is_ns"] * 1 / 2 + test_patterns_120["x_gen_is_ns"] * 1 / 2,
                 "v_mec_vent_local_is_ns": test_patterns_90["v_mec_vent_local_is_ns"] * 1 / 2 + test_patterns_120["v_mec_vent_local_is_ns"] * 1 / 2,
                 "n_hum_is_ns": test_patterns_90["n_hum_is_ns"] * 1 / 2 + test_patterns_120["n_hum_is_ns"] * 1 / 2,
-                "ac_demand_is_ns": test_patterns_90["ac_demand_is_ns"] * 1 / 2 + test_patterns_120["ac_demand_is_ns"] * 1 / 2
+                "ac_demand_is_ns": test_patterns_90["ac_demand_is_ns"] * 1 / 2 + test_patterns_120["ac_demand_is_ns"] * 1 / 2,
+                "ac_setting_is_ns": np.maximum(test_patterns_90["ac_setting_is_ns"], test_patterns_120["ac_setting_is_ns"])
             }
 
             self.check(i=i, s=s, test_patterns=test_patterns, is_almost=True)
@@ -223,16 +226,21 @@ class TestSchedule(unittest.TestCase):
                     self.assertAlmostEqual(s.x_gen_is_ns[i, n], expected)
 
             for n, expected in zip(self._test_indices, test_patterns["v_mec_vent_local_is_ns"]):
-                with self.subTest(name="v_mec", n=n, i=i, result=s.x_gen_is_ns[i, n], expected=expected):
+                with self.subTest(name="v_mec", n=n, i=i, result=s.v_mec_vent_local_is_ns[i, n], expected=expected):
                     self.assertAlmostEqual(s.v_mec_vent_local_is_ns[i, n], expected)
 
             for n, expected in zip(self._test_indices, test_patterns["n_hum_is_ns"]):
-                with self.subTest(name="n_hum", n=n, i=i, result=s.x_gen_is_ns[i, n], expected=expected):
+                with self.subTest(name="n_hum", n=n, i=i, result=s.n_hum_is_ns[i, n], expected=expected):
                     self.assertAlmostEqual(s.n_hum_is_ns[i, n], expected)
 
             for n, expected in zip(self._test_indices, test_patterns["ac_demand_is_ns"]):
-                with self.subTest(name="ac_demand", n=n, i=i, result=s.x_gen_is_ns[i, n], expected=expected):
+                with self.subTest(name="ac_demand", n=n, i=i, result=s.ac_demand_is_ns[i, n], expected=expected):
                     self.assertAlmostEqual(s.ac_demand_is_ns[i, n], expected)
+
+            for n, expected in zip(self._test_indices, test_patterns["ac_setting_is_ns"]):
+                with self.subTest(name="ac_setting", n=n, i=i, result=s.ac_setting_is_ns[i, n], expected=expected):
+                    self.assertAlmostEqual(s.ac_setting_is_ns[i, n], expected)
+
         else:
             self.assertTrue((s.q_gen_is_ns[i][self._test_indices] == test_patterns["q_gen_is_ns"]).all())
             self.assertTrue((s.x_gen_is_ns[i][self._test_indices] == test_patterns["x_gen_is_ns"]).all())
@@ -255,7 +263,11 @@ class TestSchedule(unittest.TestCase):
 
         n_hum_is_ns = cls.make_test_patterns(d=d, nop=nop, target_key="number_of_people")
 
-        ac_demand_is_ns = cls.make_test_patterns(d=d, nop=nop, target_key="is_temp_limit_set")
+        is_temp_limit_set = cls.make_test_patterns(d=d, nop=nop, target_key="is_temp_limit_set")
+
+        ac_demand_is_ns = np.where(is_temp_limit_set > 0.0, 1.0, 0.0)
+
+        ac_setting_is_ns = is_temp_limit_set
 
         q_gen_is_ns = q_gen_app_is_ns + q_gen_ckg_is_ns + q_gen_lght_is_ns * a_floor_i
 
@@ -267,7 +279,8 @@ class TestSchedule(unittest.TestCase):
             "x_gen_is_ns": x_gen_is_ns,
             "v_mec_vent_local_is_ns": v_mec_vent_local_is_ns,
             "n_hum_is_ns": n_hum_is_ns,
-            "ac_demand_is_ns": ac_demand_is_ns
+            "ac_demand_is_ns": ac_demand_is_ns,
+            "ac_setting_is_ns": ac_setting_is_ns
         }
 
     @classmethod

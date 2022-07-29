@@ -7,7 +7,7 @@ import numpy as np
 
 from heat_load_calc import ot_target
 from heat_load_calc.operation_mode import OperationMode
-from heat_load_calc import operation
+from heat_load_calc import operation_
 
 
 # グラフ作成用辞書の取得

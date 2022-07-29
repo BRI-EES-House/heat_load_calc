@@ -10,12 +10,25 @@ def make_get_theta_target_is_n_function(
         ac_method: str,
         is_radiative_heating_is: np.ndarray,
         is_radiative_cooling_is: np.ndarray,
-        met_is: np.ndarray
+        met_is: np.ndarray,
+        ac_setting_is_ns: np.ndarray,
+        ac_config: dict
 ):
 
     if ac_method == 'simple':
 
-        return _get_theta_target_simple
+        theta_lower_target_is_ns = np.full_like(ac_setting_is_ns, fill_value=np.nan, dtype=float)
+        theta_upper_target_is_ns = np.full_like(ac_setting_is_ns, fill_value=np.nan, dtype=float)
+
+        for asc in ac_config:
+            theta_lower_target_is_ns[ac_setting_is_ns == asc['mode']] = asc['lower']
+            theta_upper_target_is_ns[ac_setting_is_ns == asc['mode']] = asc['upper']
+
+        return partial(
+            _get_theta_target_simple,
+            theta_lower_target_is_ns=theta_lower_target_is_ns,
+            theta_upper_target_is_ns=theta_upper_target_is_ns
+        )
 
     elif ac_method == 'pmv':
         return partial(
@@ -30,10 +43,13 @@ def make_get_theta_target_is_n_function(
 
 
 def _get_theta_target_simple(
-    p_v_r_is_n: np.ndarray,
-    operation_mode_is_n: np.ndarray,
-    theta_r_is_n: np.ndarray,
-    theta_mrt_hum_is_n: np.ndarray
+        p_v_r_is_n: np.ndarray,
+        operation_mode_is_n: np.ndarray,
+        theta_r_is_n: np.ndarray,
+        theta_mrt_hum_is_n: np.ndarray,
+        theta_lower_target_is_ns: np.ndarray,
+        theta_upper_target_is_ns: np.ndarray,
+        n: int
 ):
 
     # ステップnの室iにおけるClo値, [i, 1]
@@ -45,8 +61,8 @@ def _get_theta_target_simple(
     h_hum_c_is_n = np.full_like(theta_r_is_n, fill_value=1.0, dtype=float)
     h_hum_r_is_n = np.full_like(theta_r_is_n, fill_value=1.0, dtype=float)
 
-    theta_lower_target_is_n = np.full_like(theta_r_is_n, fill_value=20.0, dtype=float)
-    theta_upper_target_is_n = np.full_like(theta_r_is_n, fill_value=27.0, dtype=float)
+    theta_lower_target_is_n = theta_lower_target_is_ns[:, n].reshape(-1, 1)
+    theta_upper_target_is_n = theta_upper_target_is_ns[:, n].reshape(-1, 1)
 
     return theta_lower_target_is_n, theta_upper_target_is_n, h_hum_c_is_n, h_hum_r_is_n, v_hum_is_n, clo_is_n
 
@@ -59,17 +75,23 @@ def _get_theta_target(
         p_v_r_is_n: np.ndarray,
         theta_mrt_hum_is_n: np.ndarray,
         theta_r_is_n: np.ndarray,
-        met_is: np.ndarray
+        met_is: np.ndarray,
+        n: int
 ):
 
     # ステップnの室iにおけるClo値, [i, 1]
     clo_is_n = _get_clo_is_n(operation_mode_is_n=operation_mode_is_n)
 
+    # is_window_open_is_n = operation_mode_is_n == OperationMode.STOP_OPEN
+    is_window_open_is_n = OperationMode.u_is_window_open(oms=operation_mode_is_n)
+    is_convective_ac_is_n = ((operation_mode_is_n == OperationMode.HEATING) & np.logical_not(is_radiative_heating_is)) | (
+                (operation_mode_is_n == OperationMode.COOLING) & np.logical_not(is_radiative_cooling_is))
+    is_convective_ac_is_n = OperationMode.u_is_convective_ac(oms=operation_mode_is_n, is_radiative_heating_is=is_radiative_heating_is, is_radiative_cooling_is=is_radiative_cooling_is)
+
     # ステップnにおける室iの在室者周りの風速, m/s, [i, 1]
     v_hum_is_n = occupants.get_v_hum_is_n(
-        operation_mode_is_n=operation_mode_is_n,
-        is_radiative_heating_is=is_radiative_heating_is,
-        is_radiative_cooling_is=is_radiative_cooling_is
+        is_window_open_is_n=is_window_open_is_n,
+        is_convective_ac_is_n=is_convective_ac_is_n
     )
 
     # ステップnの室iにおける目標PMV, [i, 1]

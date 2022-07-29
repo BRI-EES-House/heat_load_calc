@@ -7,7 +7,7 @@ import logging
 from heat_load_calc.matrix_method import v_diag
 from heat_load_calc.building import Building
 from heat_load_calc import weather, ot_target, next_condition, schedule, rooms, boundaries, equipments, \
-    infiltration, occupants_form_factor, shape_factor, solar_absorption, mechanical_ventilations, operation
+    infiltration, occupants_form_factor, shape_factor, solar_absorption, mechanical_ventilations, operation_
 
 
 @dataclass
@@ -506,9 +506,14 @@ def make_pre_calc_parameters(
         logger.warning('[ac_method] is not declined. Method [pmv] was set as [ac_method].')
         ac_method = 'pmv'
 
+    if 'ac_config' in rd['common']:
+        ac_config = rd['common']['ac_config']
+    else:
+        ac_config = [{'mode': 1, 'lower': 20.0, 'upper': 27.0}]
+
     # ac_method = 'simple'
 
-    get_operation_mode_is_n = operation.make_get_operation_mode_is_n_function(
+    get_operation_mode_is_n = operation_.make_get_operation_mode_is_n_function(
         ac_method=ac_method,
         ac_demand_is_ns=ac_demand_is_ns,
         is_radiative_heating_is=is_radiative_heating_is,
@@ -520,7 +525,9 @@ def make_pre_calc_parameters(
         ac_method=ac_method,
         is_radiative_heating_is=is_radiative_heating_is,
         is_radiative_cooling_is=is_radiative_cooling_is,
-        met_is=met_is
+        met_is=met_is,
+        ac_setting_is_ns=ac_demand_is_ns,
+        ac_config=ac_config
     )
 
     # すきま風を計算する関数

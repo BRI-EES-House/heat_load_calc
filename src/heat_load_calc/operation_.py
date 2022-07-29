@@ -3,6 +3,7 @@ from functools import partial
 
 from heat_load_calc import pmv, occupants
 from heat_load_calc.operation_mode import OperationMode
+from heat_load_calc import operation_mode
 
 
 def make_get_operation_mode_is_n_function(
@@ -66,11 +67,16 @@ def _get_operation_mode_pmv_is_n(
         n: int
 ):
 
+#    is_window_open_is_n = operation_mode_is_n_mns == OperationMode.STOP_OPEN
+    is_window_open_is_n = OperationMode.u_is_window_open(oms=operation_mode_is_n_mns)
+#    is_convective_ac_is_n = ((operation_mode_is_n_mns == OperationMode.HEATING) & np.logical_not(is_radiative_heating_is)) | (
+#                (operation_mode_is_n_mns == OperationMode.COOLING) & np.logical_not(is_radiative_cooling_is))
+    is_convective_ac_is_n = OperationMode.u_is_convective_ac(oms=operation_mode_is_n_mns, is_radiative_heating_is=is_radiative_heating_is, is_radiative_cooling_is=is_radiative_cooling_is)
+
     # ステップnにおける室iの在室者周りの風速, m/s, [i, 1]
     v_hum_is_n_mns = occupants.get_v_hum_is_n(
-        operation_mode_is_n=operation_mode_is_n_mns,
-        is_radiative_heating_is=is_radiative_heating_is,
-        is_radiative_cooling_is=is_radiative_cooling_is
+        is_window_open_is_n=is_window_open_is_n,
+        is_convective_ac_is_n=is_convective_ac_is_n
     )
 
     # 厚着時のClo値
