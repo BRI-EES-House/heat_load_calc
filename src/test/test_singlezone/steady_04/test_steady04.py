@@ -52,7 +52,8 @@ class TestSteadyState(unittest.TestCase):
             x_gen_is_ns=np.zeros((1, 8760*4), dtype=float),
             v_mec_vent_local_is_ns=np.full((1, 8760*4), 0.000278, dtype=float),
             n_hum_is_ns=np.zeros((1, 8760*4), dtype=float),
-            ac_demand_is_ns=np.zeros((1, 8760*4), dtype=float)
+            ac_demand_is_ns=np.zeros((1, 8760*4), dtype=float),
+            ac_setting_is_ns=np.zeros((1, 8760 * 4), dtype=float)
         )
 
         # pre_calc_parametersの構築

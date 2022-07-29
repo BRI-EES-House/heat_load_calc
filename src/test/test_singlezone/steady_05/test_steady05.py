@@ -51,7 +51,8 @@ class TestSteadyState(unittest.TestCase):
             x_gen_is_ns=np.zeros((1, 8760*4), dtype=float),
             v_mec_vent_local_is_ns=np.zeros((1, 8760*4), dtype=float),
             n_hum_is_ns=np.zeros((1, 8760*4), dtype=float),
-            ac_demand_is_ns=np.zeros((1, 8760*4), dtype=float)
+            ac_demand_is_ns=np.zeros((1, 8760*4), dtype=float),
+            ac_setting_is_ns=np.zeros((1, 8760 * 4), dtype=float)
         )
 
         # ステップ n の境界 j における相当外気温度, ℃, [j, 8760*4]

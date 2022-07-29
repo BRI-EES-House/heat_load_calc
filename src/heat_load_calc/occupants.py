@@ -1,7 +1,6 @@
 import numpy as np
 
 from heat_load_calc.global_number import get_l_wtr
-from heat_load_calc.operation_mode import OperationMode
 
 
 def get_x_hum_psn_is_n(theta_r_is_n: np.ndarray) -> np.ndarray:
@@ -36,33 +35,27 @@ def get_q_hum_psn_is_n(theta_r_is_n: np.ndarray) -> np.ndarray:
     return np.minimum(63.0 - 4.0 * (theta_r_is_n - 24.0), 119.0)
 
 
-def get_v_hum_is_n(
-        operation_mode_is_n: np.ndarray,
-        is_radiative_heating_is: np.ndarray,
-        is_radiative_cooling_is: np.ndarray
-) -> np.ndarray:
+def get_v_hum_is_n(is_window_open_is_n: np.ndarray, is_convective_ac_is_n: np.ndarray) -> np.ndarray:
     """在室者周りの風速を求める。
 
     Args:
-        operation_mode_is_n: ステップnにおける室iの運転状態, [i, 1]
-        is_radiative_heating_is: 放射暖房の有無, [i, 1]
-        is_radiative_cooling_is: 放射冷房の有無, [i, 1]
+        is_window_open_is_n: 窓が開いている, [i, 1]
+        is_convective_ac_is_n: 対流暖房または冷房を行っている, [i, 1]
 
     Returns:
         ステップnにおける室iの在室者周りの風速, m/s, [i, 1]
     """
 
     # 在室者周りの風速はデフォルトで 0.0 m/s とおく
-    v_hum_is_n = np.zeros_like(operation_mode_is_n, dtype=float)
+    v_hum_is_n = np.zeros_like(is_convective_ac_is_n, dtype=float)
 
-    # 暖房をしてかつそれが放射暖房ではない場合の風速を 0.2 m/s とする
-    v_hum_is_n[(operation_mode_is_n == OperationMode.HEATING) & np.logical_not(is_radiative_heating_is)] = 0.2
-
-    # 冷房をしてかつそれが放射冷房ではない場合の風速を 0.2 m/s とする
-    v_hum_is_n[(operation_mode_is_n == OperationMode.COOLING) & np.logical_not(is_radiative_cooling_is)] = 0.2
+    # 対流暖房・冷房時の風速を 0.2 m/s とする
+    v_hum_is_n[is_convective_ac_is_n] = 0.2
 
     # 暖冷房をせずに窓を開けている時の風速を 0.1 m/s とする
-    v_hum_is_n[operation_mode_is_n == OperationMode.STOP_OPEN] = 0.1
+    # 対流暖房・冷房時と窓を開けている時は同時には起こらないことを期待しているが
+    # もし同時にTrueの場合は窓を開けている時の風速が優先される（上書きわれる）
+    v_hum_is_n[is_window_open_is_n] = 0.1
 
     # 上記に当てはまらない場合の風速は 0.0 m/s のままである。
 
