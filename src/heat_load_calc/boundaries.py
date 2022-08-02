@@ -169,10 +169,11 @@ class Boundaries:
         if boundary_type in [
             BoundaryType.ExternalGeneralPart,
             BoundaryType.ExternalTransparentPart,
-            BoundaryType.ExternalOpaquePart,
-            BoundaryType.Ground
+            BoundaryType.ExternalOpaquePart
         ]:
             h_td = float(b['temp_dif_coef'])
+        elif boundary_type == BoundaryType.Ground:
+            h_td = 1.0
         else:
             h_td = 0.0
         if h_td > 1.0:
