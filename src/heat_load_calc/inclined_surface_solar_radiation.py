@@ -181,8 +181,8 @@ def _get_f_sky_j(beta_w_j: float) -> float:
     if beta_w_j < 0:
         raise Exception("傾斜面の傾斜角が0より小さい値となっています。")
 
-    if beta_w_j > np.pi/2:
-        raise Exception("傾斜角の傾斜面がπ/2より大きい値となっています。")
+    if beta_w_j > np.pi:
+        raise Exception("傾斜角の傾斜面がπより大きい値となっています。")
 
     f_sky_j = (1.0 + np.cos(beta_w_j)) / 2.0
 
