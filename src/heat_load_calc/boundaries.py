@@ -398,8 +398,8 @@ class Boundaries:
 
         p_is_js = np.zeros((n_rm, len(self._bss)), dtype=int)
 
-        for bs in self._bss:
-            p_is_js[bs.connected_room_id, bs.id] = 1
+        for i, bs in enumerate(self._bss):
+            p_is_js[bs.connected_room_id, i] = 1
 
         return p_is_js
 
