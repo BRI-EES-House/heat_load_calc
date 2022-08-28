@@ -204,7 +204,7 @@ class PreCalcParametersGround:
 def make_pre_calc_parameters(
         delta_t: float,
         rd: Dict,
-        oc: weather.Weather,
+        w: weather.Weather,
         scd: schedule.Schedule,
         q_trs_sol_is_ns: Optional[np.ndarray] = None,
         theta_o_eqv_js_ns: Optional[np.ndarray] = None
@@ -214,7 +214,7 @@ def make_pre_calc_parameters(
     Args:
         delta_t:  時間間隔, s
         rd: 住宅計算条件
-        oc: 外界気象データクラス
+        w: 外界気象データクラス
         scd: スケジュールクラス
         q_trs_sol_is_ns: optional テスト用　値を指定することができる。未指定の場合は計算する。
         theta_o_eqv_js_ns: optional テスト用　値を指定することができる。未指定の場合は計算する。
@@ -225,13 +225,13 @@ def make_pre_calc_parameters(
 
     logger = logging.getLogger('HeatLoadCalc').getChild('core').getChild('pre_calc_parameters')
 
-    a_sun_ns = oc.a_sun_ns_plus
-    h_sun_ns = oc.h_sun_ns_plus
-    i_dn_ns = oc.i_dn_ns_plus
-    i_sky_ns = oc.i_sky_ns_plus
-    r_n_ns = oc.r_n_ns_plus
-    theta_o_ns = oc.theta_o_ns_plus
-    x_o_ns = oc.x_o_ns_plus
+    a_sun_ns = w.a_sun_ns_plus
+    h_sun_ns = w.h_sun_ns_plus
+    i_dn_ns = w.i_dn_ns_plus
+    i_sky_ns = w.i_sky_ns_plus
+    r_n_ns = w.r_n_ns_plus
+    theta_o_ns = w.theta_o_ns_plus
+    x_o_ns = w.x_o_ns_plus
 
     # ステップ n の室 i における内部発熱, W, [i, n]
     q_gen_is_ns = scd.q_gen_is_ns
@@ -295,7 +295,7 @@ def make_pre_calc_parameters(
     bs = boundaries.Boundaries(
         id_rm_is=id_rm_is,
         bs_list=rd['boundaries'],
-        oc=oc
+        w=w
     )
 
     # 境界の数

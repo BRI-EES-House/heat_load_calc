@@ -31,7 +31,7 @@ class TestSteadyState(unittest.TestCase):
 
         # 気象データ読み出し
         # 全ての値は0.0で一定とする。日射・夜間放射はなし。
-        oc = weather.Weather(
+        w = weather.Weather(
             a_sun_ns=np.zeros(8760*4, dtype=float),
             h_sun_ns=np.zeros(8760*4, dtype=float),
             i_dn_ns=np.zeros(8760*4, dtype=float),
@@ -66,7 +66,7 @@ class TestSteadyState(unittest.TestCase):
 
         # pre_calc_parametersの構築
         ss, ppg = pre_calc_parameters.make_pre_calc_parameters(
-            delta_t=900.0, rd=rd, oc=oc, scd=scd, q_trs_sol_is_ns=q_trs_sol_is_ns
+            delta_t=900.0, rd=rd, w=w, scd=scd, q_trs_sol_is_ns=q_trs_sol_is_ns
         )
 
         q_srf_js_n = np.array([[12.7809219004777, 12.7809219004777, 12.7809219004777, 12.7809219004777,

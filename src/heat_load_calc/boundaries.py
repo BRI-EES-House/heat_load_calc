@@ -70,24 +70,24 @@ class Boundary:
 
 class Boundaries:
 
-    def __init__(self, id_rm_is: np.ndarray, bs_list: List[Dict], oc: Weather):
+    def __init__(self, id_rm_is: np.ndarray, bs_list: List[Dict], w: Weather):
         """
 
         Args:
             id_rm_is: 室のID, [i, 1]
             bs_list: 境界に関する辞書
-            oc: OutdoorCondition クラス
+            w: Weather クラス
         """
 
-        self._bss = self._get_boundary_list(id_rm_is=id_rm_is, bs_list=bs_list, oc=oc)
+        self._bss = self._get_boundary_list(id_rm_is=id_rm_is, bs_list=bs_list, w=w)
 
-    def _get_boundary_list(self, id_rm_is: np.ndarray, bs_list: List[Dict], oc: Weather) -> List[Boundary]:
+    def _get_boundary_list(self, id_rm_is: np.ndarray, bs_list: List[Dict], w: Weather) -> List[Boundary]:
         """
 
         Args:
             id_rm_is: 室のID, [i, 1]
             bs_list: 境界に関する辞書
-            oc: OutdoorCondition クラス
+            w: Weather クラス
 
         Returns:
 
@@ -112,19 +112,19 @@ class Boundaries:
         h_c_js = np.array([b['h_c'] for b in bs_list]).reshape(-1, 1)
 
         # 境界 j, [J]
-        bss = [self._get_boundary(b=b, h_c_js=h_c_js, h_s_r_js=h_s_r_js, oc=oc) for b in bs_list]
+        bss = [self._get_boundary(b=b, h_c_js=h_c_js, h_s_r_js=h_s_r_js, w=w) for b in bs_list]
 
         return bss
 
     @staticmethod
-    def _get_boundary(b: Dict, h_c_js: np.ndarray, h_s_r_js: np.ndarray, oc: Weather) -> Boundary:
+    def _get_boundary(b: Dict, h_c_js: np.ndarray, h_s_r_js: np.ndarray, w: Weather) -> Boundary:
         """
 
         Args:
             b: Boundary　の辞書
             h_c_js: 境界 j の室内側表面対流熱伝達率, W/m2K, [J, 1]
             h_s_r_js: 境界 j の室内側表面放射熱伝達率, W/m2K, [J, 1]
-            oc: OutdoorCondition クラス
+            w: Weather クラス
 
         Returns:
             Boundary クラス
@@ -301,7 +301,7 @@ class Boundaries:
             a_s=a_s
         )
 
-        theta_o_sol = oet.get_theta_o_sol_i_j_ns(w=oc)
+        theta_o_sol = oet.get_theta_o_sol_i_j_ns(w=w)
 
         # 透過日射量, W, [N+1]
         tsr = transmission_solar_radiation.TransmissionSolarRadiation.create(
@@ -313,7 +313,7 @@ class Boundaries:
             is_sun_striked_outside=is_sun_striked_outside
         )
 
-        q_trs_sol = tsr.get_qgt(oc=oc)
+        q_trs_sol = tsr.get_qgt(w=w)
 
         # 応答係数
         if boundary_type in [BoundaryType.ExternalTransparentPart, BoundaryType.ExternalOpaquePart]:
