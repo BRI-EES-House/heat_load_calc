@@ -225,11 +225,6 @@ def make_pre_calc_parameters(
 
     logger = logging.getLogger('HeatLoadCalc').getChild('core').getChild('pre_calc_parameters')
 
-    a_sun_ns = w.a_sun_ns_plus
-    h_sun_ns = w.h_sun_ns_plus
-    i_dn_ns = w.i_dn_ns_plus
-    i_sky_ns = w.i_sky_ns_plus
-    r_n_ns = w.r_n_ns_plus
     theta_o_ns = w.theta_o_ns_plus
     x_o_ns = w.x_o_ns_plus
 
