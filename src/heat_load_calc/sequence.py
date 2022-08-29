@@ -47,9 +47,12 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, rec
     theta_rear_js_n = get_theta_rear_js_n(
         k_ei_js_js=ss.k_ei_js_js,
         theta_ei_js_n=c_n.theta_ei_js_n,
-        k_eo_js = ss.k_eo_js,
-        theta_o_eqv_js_n = ss.theta_o_eqv_js_ns[:, n+1].reshape(-1, 1)
+        k_eo_js=ss.k_eo_js,
+        theta_o_eqv_js_n=ss.theta_o_eqv_js_ns[:, n+1].reshape(-1, 1),
+        k_s_r_js_is=ss.k_s_r_js_is,
+        theta_r_is_n=c_n.theta_r_is_n
     )
+
     # ステップnからステップn+1における室iの1人あたりの人体発熱, W, [i, 1]
     q_hum_psn_is_n = occupants.get_q_hum_psn_is_n(theta_r_is_n=c_n.theta_r_is_n)
 
@@ -1265,8 +1268,7 @@ def get_q_hum_is_n(n_hum_is_n, q_hum_psn_is_n):
 
     return q_hum_psn_is_n * n_hum_is_n
 
-
-def get_theta_rear_js_n(k_ei_js_js, theta_ei_js_n, k_eo_js, theta_o_eqv_js_n):
+def get_theta_rear_js_n(k_ei_js_js, theta_ei_js_n, k_eo_js, theta_o_eqv_js_n, k_s_r_js_is, theta_r_is_n):
     """
 
     Args:
@@ -1282,5 +1284,5 @@ def get_theta_rear_js_n(k_ei_js_js, theta_ei_js_n, k_eo_js, theta_o_eqv_js_n):
         式(2.32)
     """
 
-    return np.dot(k_ei_js_js, theta_ei_js_n) + k_eo_js * theta_o_eqv_js_n
+    return np.dot(k_ei_js_js, theta_ei_js_n) + k_eo_js * theta_o_eqv_js_n + np.dot(k_s_r_js_is, theta_r_is_n)
 

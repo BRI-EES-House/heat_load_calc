@@ -154,6 +154,8 @@ class PreCalcParameters:
     # 温度差係数, -, [j, 1]
     k_eo_js: np.ndarray
 
+    k_s_r_js_is: np.ndarray
+
     # ステップ n の境界 j における相当外気温度, ℃, [j, n]
     theta_o_eqv_js_ns: np.ndarray
 
@@ -323,8 +325,11 @@ def make_pre_calc_parameters(
     # 地盤かどうか, [j, 1]
     is_ground_js = bs.is_ground_js
 
-    # 境界jの裏面温度に他の境界の等価温度が与える影響, [j, j]
+    # 境界jの裏面温度に他の境界の等価室温が与える影響, [j, j]
     k_ei_js_js = bs.k_ei_js_js
+
+    # 境界 j の裏面温度に室温が与える影響, [j, i]
+    k_s_r_js_is = bs.k_s_r_js_is
 
     # 温度差係数
     k_eo_js = bs.k_eo_js
@@ -476,7 +481,8 @@ def make_pre_calc_parameters(
         k_ei_js_js=k_ei_js_js,
         p_js_is=p_js_is,
         phi_a0_js=phi_a0_js,
-        phi_t0_js=phi_t0_js
+        phi_t0_js=phi_t0_js,
+        k_s_r_js_is=k_s_r_js_is
     )
 
     # 係数 f_CRX, degree C, [j, n]
@@ -607,7 +613,8 @@ def make_pre_calc_parameters(
         get_f_l_cl=get_f_l_cl,
         met_is=met_is,
         k_eo_js=k_eo_js,
-        theta_o_eqv_js_ns=theta_o_eqv_js_ns
+        theta_o_eqv_js_ns=theta_o_eqv_js_ns,
+        k_s_r_js_is=k_s_r_js_is
     )
 
     # 地盤の数
@@ -689,7 +696,7 @@ def get_f_crx_js_ns(h_s_c_js, h_s_r_js, k_ei_js_js, phi_a0_js, phi_t0_js, q_s_so
         + phi_t0_js * theta_o_eqv_js_ns * k_eo_js
 
 
-def get_f_fia_js_is(h_s_c_js, h_s_r_js, k_ei_js_js, p_js_is, phi_a0_js, phi_t0_js):
+def get_f_fia_js_is(h_s_c_js, h_s_r_js, k_ei_js_js, p_js_is, phi_a0_js, phi_t0_js, k_s_r_js_is):
     """
 
     Args:
@@ -707,7 +714,7 @@ def get_f_fia_js_is(h_s_c_js, h_s_r_js, k_ei_js_js, p_js_is, phi_a0_js, phi_t0_j
         式(4.4)
     """
 
-    return phi_a0_js * h_s_c_js * p_js_is + np.dot(k_ei_js_js, p_js_is) * phi_t0_js * h_s_c_js / (h_s_c_js + h_s_r_js)
+    return phi_a0_js * h_s_c_js * p_js_is + np.dot(k_ei_js_js, p_js_is) * phi_t0_js * h_s_c_js / (h_s_c_js + h_s_r_js) + phi_t0_js * k_s_r_js_is
 
 
 def get_f_ax_js_is(f_mrt_is_js, h_s_c_js, h_s_r_js, k_ei_js_js, p_js_is, phi_a0_js, phi_t0_js):

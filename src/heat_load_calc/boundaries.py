@@ -67,7 +67,11 @@ class Boundary:
     # 応答係数データクラス
     rf: response_factor.ResponseFactor
 
+    # 裏面温度に他の境界 j の等価室温が与える影響, [j, j]
     k_ei_js_j: List
+
+    # 裏面温度に室 i の室温が与える影響, [i]
+    k_s_r_j_is: List
 
 
 class Boundaries:
@@ -99,11 +103,11 @@ class Boundaries:
         # 境界jの室内側表面対流熱伝達率, W/m2K, [J, 1]
         h_c_js = np.array([b['h_c'] for b in bs_list]).reshape(-1, 1)
 
-        # 境界 j, [J]
-        bss = [self._get_boundary(b=b, h_c_js=h_c_js, h_s_r_js=h_s_r_js, w=w) for b in bs_list]
-
         # 室の数
         n_rm = id_rm_is.size
+
+        # 境界 j, [J]
+        bss = [self._get_boundary(b=b, h_c_js=h_c_js, h_s_r_js=h_s_r_js, w=w, n_rm=n_rm) for b in bs_list]
 
         # 室iと境界jの関係を表す係数（境界jから室iへの変換）, [i, j]
         p_is_js = self._get_p_is_js(n_rm=n_rm, bss=bss)
@@ -116,7 +120,7 @@ class Boundaries:
         self._q_trs_sol_is_ns = q_trs_sol_is_ns
 
     @staticmethod
-    def _get_boundary(b: Dict, h_c_js: np.ndarray, h_s_r_js: np.ndarray, w: Weather) -> Boundary:
+    def _get_boundary(b: Dict, h_c_js: np.ndarray, h_s_r_js: np.ndarray, w: Weather, n_rm: int) -> Boundary:
         """
 
         Args:
@@ -124,6 +128,7 @@ class Boundaries:
             h_c_js: 境界 j の室内側表面対流熱伝達率, W/m2K, [J, 1]
             h_s_r_js: 境界 j の室内側表面放射熱伝達率, W/m2K, [J, 1]
             w: Weather クラス
+            n_rm: 室の数
 
         Returns:
             Boundary クラス
@@ -356,16 +361,17 @@ class Boundaries:
             BoundaryType.ExternalTransparentPart,
             BoundaryType.ExternalGeneralPart
         ]:
+            pass
 
-            h = h_td
+#            h = h_td
 
             # 温度差係数が1.0でない場合はk_ei_jsに値を代入する。
             # id は自分自身の境界IDとし、自分自身の表面の影響は1.0から温度差係数を減じた値になる。
-            if h < 1.0:
-                k_ei_js_j[boundary_id] = round(1.0 - h, 2)
-            else:
+#            if h < 1.0:
+#                k_ei_js_j[boundary_id] = round(1.0 - h, 2)
+#            else:
                 # 温度差係数が1.0の場合は裏面の影響は何もないため k_ei_js に操作は行わない。
-                pass
+#                pass
 
         elif boundary_type == BoundaryType.Internal:
 
@@ -375,6 +381,28 @@ class Boundaries:
         else:
 
             # 外皮に面していない場合、室内壁ではない場合（地盤の場合が該当）は、k_ei_js に操作は行わない。
+            pass
+
+        k_s_r_j_is = [0.0] * n_rm
+
+        if boundary_type in [
+            BoundaryType.ExternalOpaquePart,
+            BoundaryType.ExternalTransparentPart,
+            BoundaryType.ExternalGeneralPart
+        ]:
+
+            h = h_td
+
+            # 温度差係数が1.0でない場合はk_ei_jsに値を代入する。
+            # id は自分自身の境界IDとし、自分自身の表面の影響は1.0から温度差係数を減じた値になる。
+            if h < 1.0:
+                k_s_r_j_is[connected_room_id] = round(1.0 - h, 2)
+            else:
+                # 温度差係数が1.0の場合は裏面の影響は何もないため k_ei_js に操作は行わない。
+                pass
+
+        else:
+
             pass
 
         return Boundary(
@@ -394,7 +422,8 @@ class Boundaries:
             theta_o_sol=theta_o_sol,
             q_trs_sol=q_trs_sol,
             rf=rf,
-            k_ei_js_j=k_ei_js_j
+            k_ei_js_j=k_ei_js_j,
+            k_s_r_j_is=k_s_r_j_is
         )
 
     @staticmethod
@@ -525,7 +554,7 @@ class Boundaries:
         """
 
         Returns:
-            境界jの裏面温度に他の境界の等価温度が与える影響, [j, j]
+            境界jの裏面温度に他の境界の等価室温が与える影響, [j, j]
         """
 
         return np.array([bs.k_ei_js_j for bs in self._bss])
@@ -539,6 +568,16 @@ class Boundaries:
         """
 
         return np.array([bs.h_td for bs in self._bss]).reshape(-1, 1)
+
+    @property
+    def k_s_r_js_is(self):
+        """
+
+        Returns:
+            境界 j の裏面温度に室温が与える影響, [j, i]
+        """
+
+        return np.array([bs.k_s_r_j_is for bs in self._bss])
 
     @property
     def p_s_sol_abs_js(self):
