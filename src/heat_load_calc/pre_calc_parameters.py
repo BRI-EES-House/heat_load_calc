@@ -89,9 +89,6 @@ class PreCalcParameters:
     # 境界jの面積, m2, [j, 1]
     a_s_js: np.ndarray
 
-    # ステップnの境界jにおける外気側等価温度の外乱成分, degree C, [j, 8760*4]
-    theta_dstrb_js_ns: np.ndarray
-
     # 放射暖房対流比率, [i, 1]
     beta_h_is: np.ndarray
     beta_c_is: np.ndarray
@@ -154,6 +151,12 @@ class PreCalcParameters:
     # ステップnの外気絶対湿度, kg/kg(DA), [n]
     x_o_ns: np.ndarray
 
+    # 温度差係数, -, [j, 1]
+    k_eo_js: np.ndarray
+
+    # ステップ n の境界 j における相当外気温度, ℃, [j, n]
+    theta_o_eqv_js_ns: np.ndarray
+
     get_operation_mode_is_n: Callable[[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray], np.ndarray]
 
     get_theta_target_is_n: Callable[[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray], Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]]
@@ -197,8 +200,11 @@ class PreCalcParametersGround:
     # ステップnの外気温度, degree C, [n]
     theta_o_ns: np.ndarray
 
-    # ステップnの境界jにおける外気側等価温度の外乱成分, degree C, [j, 8760*4]
-    theta_dstrb_js_ns: np.ndarray
+    # 温度差係数, -, [j, 1]
+    k_eo_js: np.ndarray
+
+    # ステップ n の境界 j における相当外気温度, ℃, [j, n]
+    theta_o_eqv_js_ns: np.ndarray
 
 
 def make_pre_calc_parameters(
@@ -422,7 +428,7 @@ def make_pre_calc_parameters(
 
     # endregion
 
-    # 室iの在室者に対する境界jの形態係数, [i, j]
+    # 室 i の在室者に対する境界jの形態係数, [i, j]
     f_mrt_hum_is_js = occupants_form_factor.get_f_mrt_hum_js(
         n_rm=n_rm,
         n_b=n_b,
@@ -451,9 +457,6 @@ def make_pre_calc_parameters(
         p_js_is=p_js_is,
         q_trs_sol_is_ns=q_trs_sol_is_ns
     )
-
-    # ステップ n の境界 j における外気側等価温度の外乱成分, ℃, [j, n]
-    theta_dstrb_js_ns = get_theta_dstrb_js_ns(k_eo_js=k_eo_js, theta_o_eqv_js_ns=theta_o_eqv_js_ns)
 
     # 係数 f_AX, -, [j, j]
     f_ax_js_js = get_f_ax_js_is(
@@ -484,7 +487,8 @@ def make_pre_calc_parameters(
         phi_a0_js=phi_a0_js,
         phi_t0_js=phi_t0_js,
         q_s_sol_js_ns=q_s_sol_js_ns,
-        theta_dstrb_js_ns=theta_dstrb_js_ns
+        k_eo_js=k_eo_js,
+        theta_o_eqv_js_ns=theta_o_eqv_js_ns
     )
 
     # 係数 f_WSR, -, [j, i]
@@ -569,7 +573,6 @@ def make_pre_calc_parameters(
         n_hum_is_ns=n_hum_is_ns,
         x_gen_is_ns=x_gen_is_ns,
         f_mrt_hum_is_js=f_mrt_hum_is_js,
-        theta_dstrb_js_ns=theta_dstrb_js_ns,
         n_bdry=n_b,
         r_js_ms=r_js_ms,
         phi_t0_js=phi_t0_js,
@@ -602,7 +605,9 @@ def make_pre_calc_parameters(
         get_infiltration=get_infiltration,
         calc_next_temp_and_load=calc_next_temp_and_load,
         get_f_l_cl=get_f_l_cl,
-        met_is=met_is
+        met_is=met_is,
+        k_eo_js=k_eo_js,
+        theta_o_eqv_js_ns=theta_o_eqv_js_ns
     )
 
     # 地盤の数
@@ -618,7 +623,8 @@ def make_pre_calc_parameters(
         h_s_r_js=h_s_r_js[is_ground_js.flatten(), :],
         h_s_c_js=h_s_c_js[is_ground_js.flatten(), :],
         theta_o_ns=theta_o_ns,
-        theta_dstrb_js_ns=theta_dstrb_js_ns[is_ground_js.flatten(), :],
+        k_eo_js=k_eo_js[is_ground_js.flatten(), :],
+        theta_o_eqv_js_ns=theta_o_eqv_js_ns[is_ground_js.flatten(), :]
     )
 
     return pre_calc_parameters, pre_calc_parameters_ground
@@ -658,7 +664,7 @@ def get_f_wsr_js_is(f_ax_js_js, f_fia_js_is):
     return np.dot(np.linalg.inv(f_ax_js_js), f_fia_js_is)
 
 
-def get_f_crx_js_ns(h_s_c_js, h_s_r_js, k_ei_js_js, phi_a0_js, phi_t0_js, q_s_sol_js_ns, theta_dstrb_js_ns):
+def get_f_crx_js_ns(h_s_c_js, h_s_r_js, k_ei_js_js, phi_a0_js, phi_t0_js, q_s_sol_js_ns, k_eo_js, theta_o_eqv_js_ns):
     """
 
     Args:
@@ -668,7 +674,8 @@ def get_f_crx_js_ns(h_s_c_js, h_s_r_js, k_ei_js_js, phi_a0_js, phi_t0_js, q_s_so
         phi_a0_js: 境界 j の吸熱応答係数の初項, m2 K/W, [j, 1]
         phi_t0_js: 境界 j の貫流応答係数の初項, -, [j, 1]
         q_s_sol_js_ns: ステップ n における境界 j の透過日射吸収熱量, W/m2, [j, n]
-        theta_dstrb_js_ns: ステップ n の境界 j における外気側等価温度の外乱成分, degre C, [j, n]
+        k_eo_js: 境界 j の裏面温度に境界 j の相当外気温度が与える影響, -, [j, 1]
+        theta_o_eqv_js_ns: ステップ n における境界 j の相当外気温度, degree C, [j, 1]
 
     Returns:
         係数 f_CRX, degree C, [j, n]
@@ -679,7 +686,7 @@ def get_f_crx_js_ns(h_s_c_js, h_s_r_js, k_ei_js_js, phi_a0_js, phi_t0_js, q_s_so
 
     return phi_a0_js * q_s_sol_js_ns\
         + phi_t0_js / (h_s_c_js + h_s_r_js) * np.dot(k_ei_js_js, q_s_sol_js_ns)\
-        + phi_t0_js * theta_dstrb_js_ns
+        + phi_t0_js * theta_o_eqv_js_ns * k_eo_js
 
 
 def get_f_fia_js_is(h_s_c_js, h_s_r_js, k_ei_js_js, p_js_is, phi_a0_js, phi_t0_js):
@@ -725,23 +732,6 @@ def get_f_ax_js_is(f_mrt_is_js, h_s_c_js, h_s_r_js, k_ei_js_js, p_js_is, phi_a0_
     return v_diag(1.0 + phi_a0_js * (h_s_c_js + h_s_r_js)) \
         - np.dot(p_js_is, f_mrt_is_js) * h_s_r_js * phi_a0_js \
         - np.dot(k_ei_js_js, np.dot(p_js_is, f_mrt_is_js)) * h_s_r_js * phi_t0_js / (h_s_c_js + h_s_r_js)
-
-
-def get_theta_dstrb_js_ns(k_eo_js, theta_o_eqv_js_ns):
-    """
-
-    Args:
-        k_eo_js: 境界 j の裏面温度に境界 j の相当外気温度が与える影響, -, [j, 1]
-        theta_o_eqv_js_ns: ステップ n における境界 j の相当外気温度, degree C, [j, 1]
-
-    Returns:
-        ステップ n の境界 j における外気側等価温度の外乱成分, degre C, [j, n]
-
-    Notes:
-        式(4.6)
-    """
-
-    return theta_o_eqv_js_ns * k_eo_js
 
 
 def get_v_vent_mec_is_ns(v_vent_mec_general_is, v_vent_mec_local_is_ns):
