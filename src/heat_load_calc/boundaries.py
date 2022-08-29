@@ -67,6 +67,8 @@ class Boundary:
     # 応答係数データクラス
     rf: response_factor.ResponseFactor
 
+    k_ei_js_j: List
+
 
 class Boundaries:
 
@@ -77,29 +79,15 @@ class Boundaries:
             id_rm_is: 室のID, [i, 1]
             bs_list: 境界に関する辞書
             w: Weather クラス
+        Notes:
+            本来であれば Boundaries クラスにおいて境界に関する入力用辞書から読み込みを境界個別に行う。
+            しかし、室内側表面放射熱伝達は室内側の形態係数によって値が決まり、ある室に接する境界の面積の組み合わせで決定されるため、
+            境界個別に値を決めることはできない。（すべての境界の情報が必要である。）
+            一方で、境界の集約を行うためには、応答係数を Boundary クラス生成時に求める必要があり、
+            さらに応答係数の計算には裏面の表面放射・対流熱伝達率の値が必要となるため、
+            Boundary クラスを生成する前に、予め室内側表面放射・対流熱伝達率を計算しておき、
+            Boundary クラスを生成する時に必要な情報としておく。
         """
-
-        self._bss = self._get_boundary_list(id_rm_is=id_rm_is, bs_list=bs_list, w=w)
-
-    def _get_boundary_list(self, id_rm_is: np.ndarray, bs_list: List[Dict], w: Weather) -> List[Boundary]:
-        """
-
-        Args:
-            id_rm_is: 室のID, [i, 1]
-            bs_list: 境界に関する辞書
-            w: Weather クラス
-
-        Returns:
-
-        """
-
-        # 本来であれば Boundaries クラスにおいて境界に関する入力用辞書から読み込みを境界個別に行う。
-        # しかし、室内側表面放射熱伝達は室内側の形態係数によって値が決まり、ある室に接する境界の面積の組み合わせで決定されるため、
-        # 境界個別に値を決めることはできない。（すべての境界の情報が必要である。）
-        # 一方で、境界の集約を行うためには、応答係数を Boundary クラス生成時に求める必要があり、
-        # さらに応答係数の計算には裏面の表面放射・対流熱伝達率の値が必要となるため、
-        # Boundary クラスを生成する前に、予め室内側表面放射・対流熱伝達率を計算しておき、
-        # Boundary クラスを生成する時に必要な情報としておく。
 
         # 境界jの室内側表面放射熱伝達率, W/m2K, [J, 1]
         h_s_r_js = shape_factor.get_h_s_r_js(
@@ -114,7 +102,18 @@ class Boundaries:
         # 境界 j, [J]
         bss = [self._get_boundary(b=b, h_c_js=h_c_js, h_s_r_js=h_s_r_js, w=w) for b in bs_list]
 
-        return bss
+        # 室の数
+        n_rm = id_rm_is.size
+
+        # 室iと境界jの関係を表す係数（境界jから室iへの変換）, [i, j]
+        p_is_js = self._get_p_is_js(n_rm=n_rm, bss=bss)
+
+        # ステップ n の室 i における窓の透過日射熱取得, W, [n]
+        q_trs_sol_is_ns = self.get_q_trs_sol_is_ns(n_rm=n_rm, bss=bss)
+
+        self._bss = bss
+        self._p_is_js = p_is_js
+        self._q_trs_sol_is_ns = q_trs_sol_is_ns
 
     @staticmethod
     def _get_boundary(b: Dict, h_c_js: np.ndarray, h_s_r_js: np.ndarray, w: Weather) -> Boundary:
@@ -347,6 +346,37 @@ class Boundaries:
 
                 KeyError()
 
+        # Boundary の数
+        n_b = h_c_js.size
+
+        k_ei_js_j = [0.0] * n_b
+
+        if boundary_type in [
+            BoundaryType.ExternalOpaquePart,
+            BoundaryType.ExternalTransparentPart,
+            BoundaryType.ExternalGeneralPart
+        ]:
+
+            h = h_td
+
+            # 温度差係数が1.0でない場合はk_ei_jsに値を代入する。
+            # id は自分自身の境界IDとし、自分自身の表面の影響は1.0から温度差係数を減じた値になる。
+            if h < 1.0:
+                k_ei_js_j[boundary_id] = round(1.0 - h, 2)
+            else:
+                # 温度差係数が1.0の場合は裏面の影響は何もないため k_ei_js に操作は行わない。
+                pass
+
+        elif boundary_type == BoundaryType.Internal:
+
+            # 室内壁の場合にk_ei_jsを登録する。
+            k_ei_js_j[int(rear_surface_boundary_id)] = 1.0
+
+        else:
+
+            # 外皮に面していない場合、室内壁ではない場合（地盤の場合が該当）は、k_ei_js に操作は行わない。
+            pass
+
         return Boundary(
             id=boundary_id,
             name=name,
@@ -363,139 +393,264 @@ class Boundaries:
             h_s_r=h_s_r,
             theta_o_sol=theta_o_sol,
             q_trs_sol=q_trs_sol,
-            rf=rf
+            rf=rf,
+            k_ei_js_j=k_ei_js_j
         )
 
-    def get_n_b(self):
-
-        return len(self._bss)
-
-    def get_n_ground(self):
-        # 地盤の数
-
-        return sum(bs.boundary_type == BoundaryType.Ground for bs in self._bss)
-
-    def get_id_js(self):
-        # ID
-
-        return np.array([bs.id for bs in self._bss]).reshape(-1, 1)
-
-    def get_name_bdry_js(self):
-        # 名前, [j, 1]
-
-        return np.array([bs.name for bs in self._bss]).reshape(-1, 1)
-
-    def get_sub_name_bdry_js(self):
-        # 名前2, [j, 1]
-
-        return np.array([bs.sub_name for bs in self._bss]).reshape(-1, 1)
-
-    def get_p_is_js(self, n_rm):
+    @staticmethod
+    def _get_p_is_js(n_rm, bss):
         # 室iと境界jの関係を表す係数（境界jから室iへの変換）
         # [[p_0_0 ... ... p_0_j]
         #  [ ...  ... ...  ... ]
         #  [p_i_0 ... ... p_i_j]]
 
-        p_is_js = np.zeros((n_rm, len(self._bss)), dtype=int)
+        p_is_js = np.zeros((n_rm, len(bss)), dtype=int)
 
-        for i, bs in enumerate(self._bss):
+        for i, bs in enumerate(bss):
             p_is_js[bs.connected_room_id, i] = 1
 
         return p_is_js
 
-    def get_p_js_is(self, n_rm):
-        # 室iと境界jの関係を表す係数（室iから境界jへの変換）
-        # [[p_0_0 ... p_0_i]
-        #  [ ...  ...  ... ]
-        #  [ ...  ...  ... ]
-        #  [p_j_0 ... p_j_i]]
+    @staticmethod
+    def get_q_trs_sol_is_ns(n_rm, bss):
 
-        p_is_js = self.get_p_is_js(n_rm=n_rm)
+        return np.array([
+            np.sum(np.array([bs.q_trs_sol for bs in bss if bs.connected_room_id == i]), axis=0)
+            for i in range(n_rm)
+        ])
 
-        p_js_is = p_is_js.T
+    @property
+    def n_b(self):
+        """
 
-        return p_js_is
+        Returns:
+            境界の数
+        """
 
-    def get_is_floor_js(self):
+        return len(self._bss)
+
+    @property
+    def n_ground(self):
+        """
+
+        Returns:
+            地盤の数
+        """
+
+        return sum(bs.boundary_type == BoundaryType.Ground for bs in self._bss)
+
+    @property
+    def id_js(self):
+        """
+
+        Returns:
+            ID
+        """
+
+        return np.array([bs.id for bs in self._bss]).reshape(-1, 1)
+
+    @property
+    def name_b_js(self):
+        """
+
+        Returns:
+            名前, [j, 1]
+        """
+
+        return np.array([bs.name for bs in self._bss]).reshape(-1, 1)
+
+    @property
+    def sub_name_b_js(self):
+        """
+
+        Returns:
+            名前2, [j, 1]
+        """
+
+        return np.array([bs.sub_name for bs in self._bss]).reshape(-1, 1)
+
+    @property
+    def p_is_js(self):
+        """
+
+        Returns:
+            室iと境界jの関係を表す係数（境界jから室iへの変換）
+        Notes:
+            室iと境界jの関係を表す係数（境界jから室iへの変換）
+            [[p_0_0 ... ... p_0_j]
+             [ ...  ... ...  ... ]
+             [p_i_0 ... ... p_i_j]]
+
+        """
+
+        return self._p_is_js
+
+    @property
+    def p_js_is(self):
+        """
+
+        Returns:
+            室iと境界jの関係を表す係数（室iから境界jへの変換）
+        Notes:
+            [[p_0_0 ... p_0_i]
+             [ ...  ...  ... ]
+             [ ...  ...  ... ]
+             [p_j_0 ... p_j_i]]
+        """
+
+        return self._p_is_js.T
+
+    @property
+    def is_floor_js(self):
+        """
+
+        Returns:
+            床かどうか, [j, 1]
+        """
 
         return np.array([bs.is_floor for bs in self._bss]).reshape(-1, 1)
 
-    def get_is_ground_js(self):
-        # 地盤かどうか, [j, 1]
+    @property
+    def is_ground_js(self):
+        """
+
+        Returns:
+            地盤かどうか, [j, 1]
+        """
 
         return np.array([bs.boundary_type == BoundaryType.Ground for bs in self._bss]).reshape(-1, 1)
 
-    def get_k_ei_js_js(self):
-        # 境界jの裏面温度に他の境界の等価温度が与える影響, [j, j]
+    @property
+    def k_ei_js_js(self):
+        """
 
-        return np.array([self._get_k_ei_js_j(bs=bs, n_boundaries=len(self._bss)) for bs in self._bss])
+        Returns:
+            境界jの裏面温度に他の境界の等価温度が与える影響, [j, j]
+        """
 
-    def get_k_eo_js(self):
-        # 温度差係数
+        return np.array([bs.k_ei_js_j for bs in self._bss])
+        
+    @property
+    def k_eo_js(self):
+        """
+
+        Returns:
+            温度差係数
+        """
 
         return np.array([bs.h_td for bs in self._bss]).reshape(-1, 1)
 
-    def get_p_s_sol_abs_js(self):
-        # 境界jの日射吸収の有無, [j, 1]
+    @property
+    def p_s_sol_abs_js(self):
+        """
+
+        Returns:
+            境界jの日射吸収の有無, [j, 1]
+        """
 
         return np.array([bs.is_solar_absorbed_inside for bs in self._bss]).reshape(-1, 1)
 
-    def get_h_s_r_js(self):
-        # 境界jの室内側表面放射熱伝達率, W/m2K, [j, 1]
+    @property
+    def h_s_r_js(self):
+        """
+
+        Returns:
+            境界jの室内側表面放射熱伝達率, W/m2K, [j, 1]
+        """
 
         return np.array([bs.h_s_r for bs in self._bss]).reshape(-1, 1)
 
-    def get_h_s_c_js(self):
+    @property
+    def h_s_c_js(self):
         # 境界jの室内側表面対流熱伝達率, W/m2K, [j, 1]
 
         return np.array([bs.h_s_c for bs in self._bss]).reshape(-1, 1)
+
+    @property
+    def a_s_js(self):
+        """
+
+        Returns:
+            境界jの面積, m2, [j, 1]
+        """
+
+        return np.array([bs.area for bs in self._bss]).reshape(-1, 1)
+
+    @property
+    def phi_a0_js(self):
+        """
+
+        Returns:
+            境界jの吸熱応答係数の初項, m2K/W, [j, 1]
+        """
+
+        return np.array([bs.rf.rfa0 for bs in self._bss]).reshape(-1, 1)
+
+    @property
+    def phi_a1_js_ms(self):
+        """
+
+        Returns:
+            境界jの項別公比法における項mの吸熱応答係数の第一項 , m2K/W, [j, 12]
+        """
+
+        return np.array([bs.rf.rfa1 for bs in self._bss])
+
+    @property
+    def phi_t0_js(self):
+        """
+
+        Returns:
+            境界jの貫流応答係数の初項, [j, 1]
+        """
+
+        return np.array([bs.rf.rft0 for bs in self._bss]).reshape(-1, 1)
+
+    @property
+    def phi_t1_js_ms(self):
+        """
+
+        Returns:
+            境界jの項別公比法における項mの貫流応答係数の第一項, [j, 12]
+        """
+
+        return np.array([bs.rf.rft1 for bs in self._bss])
+
+    @property
+    def r_js_ms(self):
+        """
+
+        Returns:
+            境界jの項別公比法における項mの公比, [j, 12]
+        """
+
+        return np.array([bs.rf.row for bs in self._bss])
+
+    @property
+    def theta_o_eqv_js_ns(self):
+        """
+
+        Returns:
+            ステップ n の境界 j における相当外気温度, ℃, [j, n+1]
+        """
+
+        return np.array([bs.theta_o_sol for bs in self._bss])
+
+    @property
+    def q_trs_sol_is_ns(self):
+        """
+
+        Returns:
+            ステップ n の室 i における窓の透過日射熱取得, W, [n]
+        """
+
+        return self._q_trs_sol_is_ns
 
     def get_room_id_by_boundary_id(self, boundary_id: int):
 
         bs = self._get_boundary_by_id(boundary_id=boundary_id)
 
         return bs.connected_room_id
-
-    def get_a_s_js(self):
-        # 境界jの面積, m2, [j, 1]
-
-        return np.array([bs.area for bs in self._bss]).reshape(-1, 1)
-
-    def get_phi_a0_js(self):
-        # 境界jの吸熱応答係数の初項, m2K/W, [j, 1]
-
-        return np.array([bs.rf.rfa0 for bs in self._bss]).reshape(-1, 1)
-
-    def get_phi_a1_js_ms(self):
-        # 境界jの項別公比法における項mの吸熱応答係数の第一項 , m2K/W, [j, 12]
-
-        return np.array([bs.rf.rfa1 for bs in self._bss])
-
-    def get_phi_t0_js(self):
-        # 境界jの貫流応答係数の初項, [j, 1]
-
-        return np.array([bs.rf.rft0 for bs in self._bss]).reshape(-1, 1)
-
-    def get_phi_t1_js_ms(self):
-        # 境界jの項別公比法における項mの貫流応答係数の第一項, [j, 12]
-
-        return np.array([bs.rf.rft1 for bs in self._bss])
-
-    def get_r_js_ms(self):
-        # 境界jの項別公比法における項mの公比, [j, 12]
-
-        return np.array([bs.rf.row for bs in self._bss])
-
-    def get_theta_o_eqv_js_ns(self):
-
-        return np.array([bs.theta_o_sol for bs in self._bss])
-
-    def get_q_trs_sol_is_ns(self, n_rm):
-
-        return np.array([
-            np.sum(np.array([bs.q_trs_sol for bs in self._bss if bs.connected_room_id == i]), axis=0)
-            for i in range(n_rm)
-        ])
 
     def _get_boundary_by_id(self, boundary_id: int) -> Boundary:
 
@@ -509,37 +664,4 @@ class Boundaries:
             raise Exception("指定された boundary_id に一致する boundary が複数見つかりました。")
 
         return bss[0]
-
-    @staticmethod
-    def _get_k_ei_js_j(bs: Boundary, n_boundaries: int):
-
-        k_ei_js_j = [0.0] * n_boundaries
-
-        if bs.boundary_type in [
-            BoundaryType.ExternalOpaquePart,
-            BoundaryType.ExternalTransparentPart,
-            BoundaryType.ExternalGeneralPart
-        ]:
-
-            h = bs.h_td
-
-            # 温度差係数が1.0でない場合はk_ei_jsに値を代入する。
-            # id は自分自身の境界IDとし、自分自身の表面の影響は1.0から温度差係数を減じた値になる。
-            if h < 1.0:
-                k_ei_js_j[bs.id] = round(1.0 - h, 2)
-            else:
-                # 温度差係数が1.0の場合は裏面の影響は何もないため k_ei_js に操作は行わない。
-                pass
-
-        elif bs.boundary_type == BoundaryType.Internal:
-
-            # 室内壁の場合にk_ei_jsを登録する。
-            k_ei_js_j[int(bs.rear_surface_boundary_id)] = 1.0
-
-        else:
-
-            # 外皮に面していない場合、室内壁ではない場合（地盤の場合が該当）は、k_ei_js に操作は行わない。
-            pass
-
-        return k_ei_js_j
 

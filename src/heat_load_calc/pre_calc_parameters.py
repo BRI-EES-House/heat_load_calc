@@ -300,78 +300,78 @@ def make_pre_calc_parameters(
     )
 
     # 境界の数
-    n_b = bs.get_n_b()
+    n_b = bs.n_b
 
     # 境界のID
-    id_b_js = bs.get_id_js()
+    id_b_js = bs.id_js
 
     # 名前, [j, 1]
-    name_bdry_js = bs.get_name_bdry_js()
+    name_bdry_js = bs.name_b_js
 
     # 名前2, [j, 1]
-    sub_name_bdry_js = bs.get_sub_name_bdry_js()
+    sub_name_bdry_js = bs.sub_name_b_js
 
     # 室iと境界jの関係を表す係数（境界jから室iへの変換）, [i, j]
-    p_is_js = bs.get_p_is_js(n_rm=n_rm)
+    p_is_js = bs.p_is_js
 
     # 室iと境界jの関係を表す係数（室iから境界jへの変換）
-    p_js_is = bs.get_p_js_is(n_rm=n_rm)
+    p_js_is = bs.p_js_is
 
     # 床かどうか, [j, 1]
-    is_floor_js = bs.get_is_floor_js()
+    is_floor_js = bs.is_floor_js
 
     # 地盤かどうか, [j, 1]
-    is_ground_js = bs.get_is_ground_js()
+    is_ground_js = bs.is_ground_js
 
     # 境界jの裏面温度に他の境界の等価温度が与える影響, [j, j]
-    k_ei_js_js = bs.get_k_ei_js_js()
+    k_ei_js_js = bs.k_ei_js_js
 
     # 温度差係数
-    k_eo_js = bs.get_k_eo_js()
+    k_eo_js = bs.k_eo_js
 
     # 境界jの日射吸収の有無, [j, 1]
-    p_s_sol_abs_js = bs.get_p_s_sol_abs_js()
+    p_s_sol_abs_js = bs.p_s_sol_abs_js
 
     # 境界jの室内側表面放射熱伝達率, W/m2K, [j, 1]
-    h_s_r_js = bs.get_h_s_r_js()
+    h_s_r_js = bs.h_s_r_js
 
     # 境界jの室内側表面対流熱伝達率, W/m2K, [j, 1]
-    h_s_c_js = bs.get_h_s_c_js()
+    h_s_c_js = bs.h_s_c_js
 
     # 境界jの面積, m2, [j, 1]
-    a_s_js = bs.get_a_s_js()
+    a_s_js = bs.a_s_js
 
     # 境界jの吸熱応答係数の初項, m2K/W, [j, 1]
-    phi_a0_js = bs.get_phi_a0_js()
+    phi_a0_js = bs.phi_a0_js
 
     # 境界jの項別公比法における項mの吸熱応答係数の第一項 , m2K/W, [j, 12]
-    phi_a1_js_ms = bs.get_phi_a1_js_ms()
+    phi_a1_js_ms = bs.phi_a1_js_ms
 
     # 境界jの貫流応答係数の初項, [j, 1]
-    phi_t0_js = bs.get_phi_t0_js()
+    phi_t0_js = bs.phi_t0_js
 
     # 境界jの項別公比法における項mの貫流応答係数の第一項, [j, 12]
-    phi_t1_js_ms = bs.get_phi_t1_js_ms()
+    phi_t1_js_ms = bs.phi_t1_js_ms
 
     # 境界jの項別公比法における項mの公比, [j, 12]
-    r_js_ms = bs.get_r_js_ms()
+    r_js_ms = bs.r_js_ms
 
-    # ステップnの室iにおける窓の透過日射熱取得, W, [8760*4]
+    # ステップ n の室 i における窓の透過日射熱取得, W, [n]
     #　このif文は、これまで実施してきたテストを維持するために設けている。
     # いずれテスト方法を整理して、csvで与える方式を削除すべきである。
     # CSVで与える方式があることは（将来的に削除予定であるため）仕様書には記述しない。
     if q_trs_sol_is_ns is None:
-        q_trs_sol_is_ns = bs.get_q_trs_sol_is_ns(n_rm=n_rm)
+        q_trs_sol_is_ns = bs.q_trs_sol_is_ns
     else:
         # ステップn+1に対応するために0番要素に最終要素を代入
         q_trs_sol_is_ns = np.append(q_trs_sol_is_ns, q_trs_sol_is_ns[:, 0:1], axis=1)
 
-    # ステップ n の境界 j における相当外気温度, ℃, [j, 8760*4]
+    # ステップ n の境界 j における相当外気温度, ℃, [j, n]
     #　このif文は、これまで実施してきたテストを維持するために設けている。
     # いずれテスト方法を整理して、csvで与える方式を削除すべきである。
     # CSVで与える方式があることは（将来的に削除予定であるため）仕様書には記述しない。
     if theta_o_eqv_js_ns is None:
-        theta_o_eqv_js_ns = bs.get_theta_o_eqv_js_ns()
+        theta_o_eqv_js_ns = bs.theta_o_eqv_js_ns
     else:
         # ステップn+1に対応するために0番要素に最終要素を代入
         theta_o_eqv_js_ns = np.append(theta_o_eqv_js_ns, theta_o_eqv_js_ns[:, 0:1], axis=1)
@@ -611,7 +611,7 @@ def make_pre_calc_parameters(
     )
 
     # 地盤の数
-    n_grounds = bs.get_n_ground()
+    n_grounds = bs.n_ground
 
     pre_calc_parameters_ground = PreCalcParametersGround(
         n_grounds=n_grounds,
