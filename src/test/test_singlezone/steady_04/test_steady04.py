@@ -31,7 +31,7 @@ class TestSteadyState(unittest.TestCase):
 
         # 外界条件
         # 全ての値は0.0で一定とする。日射・夜間放射はなし。
-        oc = weather.Weather(
+        w = weather.Weather(
             a_sun_ns=np.zeros(8760*4, dtype=float),
             h_sun_ns=np.zeros(8760*4, dtype=float),
             i_dn_ns=np.zeros(8760*4, dtype=float),
@@ -57,7 +57,7 @@ class TestSteadyState(unittest.TestCase):
         )
 
         # pre_calc_parametersの構築
-        ss, ppg = pre_calc_parameters.make_pre_calc_parameters(delta_t=900.0, rd=rd, oc=oc, scd=scd)
+        ss, ppg = pre_calc_parameters.make_pre_calc_parameters(delta_t=900.0, rd=rd, w=w, scd=scd)
 
         q_srf_js_n = np.array([[16.51262564317, 16.51262564317, 16.51262564317, 16.51262564317,
             15.78267683477, 15.78267683477]]).reshape(-1, 1)
@@ -72,7 +72,7 @@ class TestSteadyState(unittest.TestCase):
             theta_mrt_hum_is_n=np.array([[1.779678314]]),
             x_r_is_n=np.array([[0.0]]),
             theta_dsh_s_a_js_ms_n=q_srf_js_n * ss.phi_a1_js_ms / (1.0 - ss.r_js_ms),
-            theta_dsh_s_t_js_ms_n=(np.dot(ss.k_ei_js_js, theta_ei_js_n) + ss.theta_dstrb_js_ns[:, 1].reshape(-1, 1)) * ss.phi_t1_js_ms / (1.0 - ss.r_js_ms),
+            theta_dsh_s_t_js_ms_n=(np.dot(ss.k_ei_js_js, theta_ei_js_n) + ss.k_eo_js * ss.theta_o_eqv_js_ns[:, 1].reshape(-1, 1)) * ss.phi_t1_js_ms / (1.0 - ss.r_js_ms),
             q_s_js_n=q_srf_js_n,
             theta_frt_is_n=np.array([[7.1111581117273]]),
             x_frt_is_n=np.array([[0.0]]),

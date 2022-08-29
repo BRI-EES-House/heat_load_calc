@@ -46,10 +46,10 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, rec
     # ステップnの境界jにおける裏面温度, degree C, [j, 1]
     theta_rear_js_n = get_theta_rear_js_n(
         k_ei_js_js=ss.k_ei_js_js,
-        theta_dstrb_js_n=ss.theta_dstrb_js_ns[:, n + 1].reshape(-1, 1),
-        theta_ei_js_n=c_n.theta_ei_js_n
+        theta_ei_js_n=c_n.theta_ei_js_n,
+        k_eo_js = ss.k_eo_js,
+        theta_o_eqv_js_n = ss.theta_o_eqv_js_ns[:, n+1].reshape(-1, 1)
     )
-
     # ステップnからステップn+1における室iの1人あたりの人体発熱, W, [i, 1]
     q_hum_psn_is_n = occupants.get_q_hum_psn_is_n(theta_r_is_n=c_n.theta_r_is_n)
 
@@ -1266,13 +1266,14 @@ def get_q_hum_is_n(n_hum_is_n, q_hum_psn_is_n):
     return q_hum_psn_is_n * n_hum_is_n
 
 
-def get_theta_rear_js_n(k_ei_js_js, theta_dstrb_js_n, theta_ei_js_n):
+def get_theta_rear_js_n(k_ei_js_js, theta_ei_js_n, k_eo_js, theta_o_eqv_js_n):
     """
 
     Args:
         k_ei_js_js: 境界 j の裏面温度に境界　j* の等価温度が与える影響, -, [j*, j]
-        theta_dstrb_js_n: ステップ n の境界 j における外気側等価温度の外乱成分, degree C, [j, 1]
         theta_ei_js_n: ステップ n における境界 j の等価温度, degree C, [j, 1]
+        k_eo_js: 温度差係数, -, [j, 1]
+        theta_o_eqv_js_n: ステップ n の境界 j における相当外気温度, ℃, [j, n]
 
     Returns:
         ステップ n における境界 j の裏面温度, degree C, [j, 1]
@@ -1281,9 +1282,5 @@ def get_theta_rear_js_n(k_ei_js_js, theta_dstrb_js_n, theta_ei_js_n):
         式(2.32)
     """
 
-    return np.dot(k_ei_js_js, theta_ei_js_n) + theta_dstrb_js_n
-
-
-
-
+    return np.dot(k_ei_js_js, theta_ei_js_n) + k_eo_js * theta_o_eqv_js_n
 

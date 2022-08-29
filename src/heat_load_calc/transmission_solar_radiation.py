@@ -43,11 +43,11 @@ class TransmissionSolarRadiation:
 
             return TransmissionSolarRadiationNot()
 
-    def get_qgt(self, oc: Weather) -> np.ndarray:
+    def get_qgt(self, w: Weather) -> np.ndarray:
         """
 
         Args:
-            oc: OutdoorCondition クラス
+            w: Weather クラス
 
         Returns:
 
@@ -76,11 +76,11 @@ class TransmissionSolarRadiationTransparentSunStrike(TransmissionSolarRadiation)
         self._glazing_type = window.glazing_type_j.value
         self._window = window
 
-    def get_qgt(self, oc: Weather) -> np.ndarray:
+    def get_qgt(self, w: Weather) -> np.ndarray:
         """
 
         Args:
-            oc: Weather クラス
+            w: Weather クラス
 
         Returns:
 
@@ -88,25 +88,25 @@ class TransmissionSolarRadiationTransparentSunStrike(TransmissionSolarRadiation)
 
         # ステップ n における境界 j の傾斜面に入射する太陽の入射角, rad, [N+1]
         theta_aoi_j_ns = inclined_surface_solar_radiation.get_theta_aoi_j_ns(
-            h_sun_ns=oc.h_sun_ns_plus, a_sun_ns=oc.a_sun_ns_plus, direction=self._direction)
+            h_sun_ns=w.h_sun_ns_plus, a_sun_ns=w.a_sun_ns_plus, direction=self._direction)
 
         # ステップ n における境界 j の傾斜面に入射する日射量のうち直達成分, W/m2 [N+1]
         # ステップ n における境界 j の傾斜面に入射する日射量のうち天空成分, W/m2 [N+1]
         # ステップ n における境界 j の傾斜面に入射する日射量のうち地盤反射成分, W/m2 [N+1]
         # ステップ n における境界 j の傾斜面の夜間放射量, W/m2, [N+1]
         i_inc_d_j_ns, i_inc_sky_j_ns, i_inc_ref_j_ns, r_srf_eff_j_ns = inclined_surface_solar_radiation.get_i_is_j_ns(
-            i_dn_ns=oc.i_dn_ns_plus,
-            i_sky_ns=oc.i_sky_ns_plus,
-            r_eff_ns=oc.r_n_ns_plus,
-            h_sun_ns=oc.h_sun_ns_plus,
-            a_sun_ns=oc.a_sun_ns_plus,
+            i_dn_ns=w.i_dn_ns_plus,
+            i_sky_ns=w.i_sky_ns_plus,
+            r_eff_ns=w.r_n_ns_plus,
+            h_sun_ns=w.h_sun_ns_plus,
+            a_sun_ns=w.a_sun_ns_plus,
             direction=self._direction
         )
 
         # ---日よけの影面積比率
 
         # 直達日射に対する日よけの影面積比率, [N+1]
-        f_ss_d_j_ns = self._ss.get_f_ss_d_j_ns(h_sun_n=oc.h_sun_ns_plus, a_sun_n=oc.a_sun_ns_plus)
+        f_ss_d_j_ns = self._ss.get_f_ss_d_j_ns(h_sun_n=w.h_sun_ns_plus, a_sun_n=w.a_sun_ns_plus)
 
         # 天空日射に対する日よけの影面積比率
         f_ss_s_j_ns = self._ss.get_f_ss_s_j()
@@ -143,14 +143,14 @@ class TransmissionSolarRadiationNot(TransmissionSolarRadiation):
     def __init__(self):
         super().__init__()
 
-    def get_qgt(self, oc: Weather) -> np.ndarray:
+    def get_qgt(self, w: Weather) -> np.ndarray:
         """
 
         Args:
-            oc: OutdoorCondition クラス
+            w: Weather クラス
 
         Returns:
 
         """
 
-        return np.zeros(oc.number_of_data_plus, dtype=float)
+        return np.zeros(w.number_of_data_plus, dtype=float)
