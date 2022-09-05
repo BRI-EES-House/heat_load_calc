@@ -1,6 +1,7 @@
 .ipynb_checkpoints/
 __pycache__
 .idea/
+.vscode/
 venv/
 result_detail.csv
 result_digest.csv

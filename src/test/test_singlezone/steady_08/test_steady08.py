@@ -65,18 +65,20 @@ class TestSteadyState(unittest.TestCase):
                                 16.66666667, 16.66666667]]).reshape(-1, 1)
 
         theta_ei_js_n = np.array(
-            [[22.83332338, 22.83332338, 22.83332338, 22.83332338, 22.83332338, 22.83332338]]).reshape(-1, 1)
+            [[33.17499851, 33.17499851, 33.17499851, 33.17499851, 33.17499851, 33.17499851]]).reshape(-1, 1)
+
+        theta_r_is_n = np.array([[34.999999999999800]])
 
         # 初期状態値の計算
         c_n = conditions.Conditions(
             operation_mode_is_n=np.array([[operation_mode.OperationMode.STOP_CLOSE]]),
-            theta_r_is_n=np.array([[24.658324874564500]]),
-            theta_mrt_hum_is_n=np.array([[21.32499154]]),
+            theta_r_is_n=theta_r_is_n,
+            theta_mrt_hum_is_n=np.array([[31.66666667]]),
             x_r_is_n=np.array([[0.0]]),
             theta_dsh_s_a_js_ms_n=q_srf_js_n * ss.phi_a1_js_ms / (1.0 - ss.r_js_ms),
-            theta_dsh_s_t_js_ms_n=(np.dot(ss.k_ei_js_js, theta_ei_js_n) + ss.k_eo_js * ss.theta_o_eqv_js_ns[:, 1].reshape(-1, 1)) * ss.phi_t1_js_ms / (1.0 - ss.r_js_ms),
+            theta_dsh_s_t_js_ms_n=(np.dot(ss.k_ei_js_js, theta_ei_js_n) + ss.k_eo_js * ss.theta_o_eqv_js_ns[:, 1].reshape(-1, 1) + np.dot(ss.k_s_r_js_is, theta_r_is_n)) * ss.phi_t1_js_ms / (1.0 - ss.r_js_ms),
             q_s_js_n=q_srf_js_n,
-            theta_frt_is_n=np.array([[24.658324874564500]]),
+            theta_frt_is_n=np.array([[34.999999999999900]]),
             x_frt_is_n=np.array([[0.0]]),
             theta_ei_js_n=theta_ei_js_n
         )
@@ -89,27 +91,26 @@ class TestSteadyState(unittest.TestCase):
         cls._c_n_pls = c_n_pls
 
     # 室空気温[℃]のテスト
-    def test_case_01_room_temp(self):
+    def test_case_08_room_temp(self):
 
         np.testing.assert_array_almost_equal(self._c_n.theta_r_is_n, self._c_n_pls.theta_r_is_n)
 
     # 室内側表面熱流[W/m2]のテスト
-    def test_case_01_heat_flow(self):
+    def test_case_08_heat_flow(self):
 
         np.testing.assert_array_almost_equal(self._c_n.q_s_js_n, self._c_n_pls.q_s_js_n)
 
     # 表面温度[℃]のテスト
-    def test_case_01_surface_temp(self):
+    def test_case_08_surface_temp(self):
 
         np.testing.assert_array_almost_equal(self._c_n.theta_mrt_hum_is_n, self._c_n_pls.theta_mrt_hum_is_n)
 
     # 等価室温[℃]のテスト
-    def test_case_01_theta_ei(self):
+    def test_case_08_theta_ei(self):
 
         np.testing.assert_array_almost_equal(self._c_n.theta_ei_js_n, self._c_n_pls.theta_ei_js_n)
 
     # 表面温度絶対値テスト
-    def test_case01_hum_mrt_abs(self):
+    def test_case08_hum_mrt_abs(self):
 
-        c_n_hum_theta_mrt = np.full(1, 21.32499154).reshape(-1, 1)
-        np.testing.assert_array_almost_equal(c_n_hum_theta_mrt, self._c_n_pls.theta_mrt_hum_is_n)
+        np.testing.assert_array_almost_equal(self._c_n.theta_mrt_hum_is_n, self._c_n_pls.theta_mrt_hum_is_n)

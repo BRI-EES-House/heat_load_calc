@@ -65,12 +65,12 @@ class TestAllAtOnce(unittest.TestCase):
 
     def test_theta_r_and_humid(self):
 
-        self.assertAlmostEqual(18.01333823771801, self._dd_i['rm0_t_r']['1989-01-01  00:15:00'])
-        self.assertAlmostEqual(0.012910908965389318, self._dd_i['rm0_x_r']['1989/8/24  16:15:00'])
-        self.assertAlmostEqual(24.189663860537877, self._dd_i['rm1_t_r']['1989-01-01  00:15:00'])
-        self.assertAlmostEqual(0.0033399924620388594, self._dd_i['rm1_x_r']['1989-01-01  00:15:00'])
-        self.assertAlmostEqual(19.597428715370413, self._dd_i['rm2_t_r']['1989-01-01  00:15:00'])
-        self.assertAlmostEqual(0.0032652758037681686, self._dd_i['rm2_x_r']['1989-01-01  00:15:00'])
+        self.assertAlmostEqual(18.01458299808515, self._dd_i['rm0_t_r']['1989-01-01  00:15:00'])
+        self.assertAlmostEqual(0.013003791579555531, self._dd_i['rm0_x_r']['1989/8/24  16:15:00'])
+        self.assertAlmostEqual(24.1600082849518, self._dd_i['rm1_t_r']['1989-01-01  00:15:00'])
+        self.assertAlmostEqual(0.00335423121879601, self._dd_i['rm1_x_r']['1989-01-01  00:15:00'])
+        self.assertAlmostEqual(19.5896346570715, self._dd_i['rm2_t_r']['1989-01-01  00:15:00'])
+        self.assertAlmostEqual(0.00327358010975223, self._dd_i['rm2_x_r']['1989-01-01  00:15:00'])
 
     # 室空気の熱収支のテスト（主たる居室）
     def test_air_heat_balance_mor(self):
