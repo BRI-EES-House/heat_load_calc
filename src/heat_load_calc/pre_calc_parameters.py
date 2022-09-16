@@ -132,6 +132,9 @@ class PreCalcParameters:
     # 境界jにおける室内側対流熱伝達率, W/m2K, [j, 1]
     h_s_c_js: np.ndarray
 
+    # 境界jにおけるシミュレーションに用いる表面熱伝達抵抗での熱貫流率, W/m2K, [j,1]
+    simulation_u_value: np.ndarray
+
     # WSR, WSB の計算 式(24)
     f_wsr_js_is: np.ndarray
 
@@ -342,6 +345,9 @@ def make_pre_calc_parameters(
 
     # 境界jの室内側表面対流熱伝達率, W/m2K, [j, 1]
     h_s_c_js = bs.h_s_c_js
+
+    # シミュレーションに用いる表面熱伝達抵抗での熱貫流率, W/m2K, [j,1]
+    simulation_u_value = bs.simulation_u_value
 
     # 境界jの面積, m2, [j, 1]
     a_s_js = bs.a_s_js
@@ -592,6 +598,7 @@ def make_pre_calc_parameters(
         f_flr_c_js_is=f_flr_c_js_is,
         h_s_r_js=h_s_r_js,
         h_s_c_js=h_s_c_js,
+        simulation_u_value=simulation_u_value,
         f_mrt_is_js=f_mrt_is_js,
         q_s_sol_js_ns=q_s_sol_js_ns,
         q_sol_frt_is_ns=q_sol_frt_is_ns,

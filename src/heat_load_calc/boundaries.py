@@ -73,6 +73,9 @@ class Boundary:
     # 裏面温度に室 i の室温が与える影響, [i]
     k_s_r_j_is: List
 
+    # 計算で使用する熱貫流率, W/m2K
+    simulation_u_value: float
+
 
 class Boundaries:
 
@@ -351,6 +354,45 @@ class Boundaries:
 
                 KeyError()
 
+        # 熱貫流率の計算
+        # シミュレーションで使用する室内熱伝達抵抗の計算
+        inner_h_c = h_c_js[b['id'], 0]
+        inner_h_r = h_s_r_js[b['id'], 0]
+        simulation_r_i = 1.0 / (inner_h_c + inner_h_r)
+        simulation_u_value = 0.0
+
+        if boundary_type in [BoundaryType.ExternalTransparentPart, BoundaryType.ExternalOpaquePart]:
+
+            input_r_i = b['inside_heat_transfer_resistance']
+            input_u_value = float(b['u_value'])
+            simulation_u_value = 1.0 / (1.0 / input_u_value - input_r_i + simulation_r_i)
+
+        else:
+
+            sum_rs = np.sum(np.array([float(layer['thermal_resistance']) for layer in b['layers']]))
+
+            if boundary_type == BoundaryType.ExternalGeneralPart:
+
+                r_o = float(b['outside_heat_transfer_resistance'])
+
+                simulation_u_value = 1.0 / (simulation_r_i + sum_rs + r_o)
+
+            elif boundary_type == BoundaryType.Internal:
+
+                rear_h_c = h_c_js[b['rear_surface_boundary_id'], 0]
+                rear_h_r = h_s_r_js[b['rear_surface_boundary_id'], 0]
+
+                r_o = 1.0 / (rear_h_c + rear_h_r)
+
+                simulation_u_value = 1.0 / (simulation_r_i + sum_rs + r_o)
+
+            elif boundary_type == BoundaryType.Ground:
+
+                simulation_u_value = 1.0 / (simulation_r_i + sum_rs)
+
+            else:
+                KeyError()
+
         # Boundary の数
         n_b = h_c_js.size
 
@@ -419,6 +461,7 @@ class Boundaries:
             is_sun_striked_outside=is_sun_striked_outside,
             h_s_c=h_s_c,
             h_s_r=h_s_r,
+            simulation_u_value=simulation_u_value,
             theta_o_sol=theta_o_sol,
             q_trs_sol=q_trs_sol,
             rf=rf,
@@ -604,6 +647,12 @@ class Boundaries:
         # 境界jの室内側表面対流熱伝達率, W/m2K, [j, 1]
 
         return np.array([bs.h_s_c for bs in self._bss]).reshape(-1, 1)
+
+    @property
+    def simulation_u_value(self):
+        # 境界jの室内側表面対流熱伝達率, W/m2K, [j, 1]
+
+        return np.array([bs.simulation_u_value for bs in self._bss]).reshape(-1, 1)
 
     @property
     def a_s_js(self):
