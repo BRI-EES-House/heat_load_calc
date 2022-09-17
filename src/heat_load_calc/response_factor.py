@@ -419,7 +419,7 @@ def get_step_reps_of_wall_weighted(C_i_k_p, R_i_k_p, laps: List[float], alp: Lis
     for lngK in range(nroot):
        for lngJ in range(nroot):
            for lngI in range(nlaps):
-               matU[lngK, lngJ] += laps[lngI] ** 2.0 * matF[lngI, lngK] * matF[lngI, lngJ]
+               matU[lngK, lngJ] += np.power(laps[lngI], 2.0) * matF[lngI, lngK] * matF[lngI, lngJ]
     # matU = np.dot(matF.T, matF)
 
     # 最小二乗法のための定数項行列を作成
