@@ -96,7 +96,7 @@ class ResponseFactor:
         cs = cs * 1000.0
 
         # 応答係数
-        frt0, rfa0, rft1, rfa1, row = calc_response_factor(is_ground=False, cs=cs, rs=rs)
+        frt0, rfa0, rft1, rfa1, row = calc_response_factor_non_residential(C_i_k_p=cs, R_i_k_p=rs)
 
         return ResponseFactor(rft0=frt0, rfa0=rfa0, rft1=rft1, rfa1=rfa1, row=row)
 
@@ -419,7 +419,7 @@ def get_step_reps_of_wall_weighted(C_i_k_p, R_i_k_p, laps: List[float], alp: Lis
     for lngK in range(nroot):
        for lngJ in range(nroot):
            for lngI in range(nlaps):
-               matU[lngK, lngJ] += laps[lngI] ** 2.0 * matF[lngI, lngK] * matF[lngI, lngJ]
+               matU[lngK, lngJ] += np.power(laps[lngI], 2.0) * matF[lngI, lngK] * matF[lngI, lngJ]
     # matU = np.dot(matF.T, matF)
 
     # 最小二乗法のための定数項行列を作成
@@ -427,8 +427,8 @@ def get_step_reps_of_wall_weighted(C_i_k_p, R_i_k_p, laps: List[float], alp: Lis
     matCT = np.zeros((nroot, 1))
     for lngK in range(nroot):
         for lngI in range(nlaps):
-            matCA[lngI, 0] += laps[lngI] ** 2.0 * matF[lngI, lngK] * matGA[lngI, 0]
-            matCT[lngI, 0] += laps[lngI] ** 2.0 * matF[lngI, lngK] * matGT[lngI, 0]
+            matCA[lngI, 0] += np.power(laps[lngI], 2.0) * matF[lngI, lngK] * matGA[lngI, 0]
+            matCT[lngI, 0] += np.power(laps[lngI], 2.0) * matF[lngI, lngK] * matGT[lngI, 0]
 
     # 最小二乗法のための係数行列の逆行列を計算
     matU_inv = np.linalg.inv(matU)
