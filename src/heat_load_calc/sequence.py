@@ -413,6 +413,7 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, rec
             theta_ot_is_n_pls=theta_ot_is_n_pls,
             theta_s_js_n_pls=theta_s_js_n_pls,
             theta_rear_js_n=theta_rear_js_n,
+            f_cvl_js_n_pls=f_cvl_js_n_pls,
             operation_mode_is_n=operation_mode_is_n,
             l_cs_is_n=l_cs_is_n,
             l_rs_is_n=l_rs_is_n,
