@@ -36,10 +36,11 @@ class TestAllAtOnce(unittest.TestCase):
             a_floor_is=[r['floor_area'] for r in rd['rooms']]
         )
 
-        dd_i, dd_a = core2.calc(rd=rd, w=oc, scd=scd)
+        dd_i, dd_a, pp = core2.calc(rd=rd, w=oc, scd=scd)
 
         cls._dd_i = dd_i
         cls._dd_a = dd_a
+        cls._pp = pp
 
         elapsed_time = time.time() - start
 
@@ -476,6 +477,20 @@ class TestAllAtOnce(unittest.TestCase):
                                + humid_natural + humid_next_vent
                                + humid_local + humid_internal + L_l)
 
+    # 表面温度のテスト
+    def test_theta_surface(self):
+
+        # テスト時刻を指定
+        date_now = '1989-08-08 12:00:00'
+
+        # 0番目の境界（外壁）
+        theta_s = self._dd_i['b0_t_s'][date_now]
+        theta_rear = self._dd_i['b0_t_b'][date_now]
+        f_cvl = self._dd_i['b0_f_cvl'][date_now]
+        q_all = self._dd_i['b0_qiall_s'][date_now]
+        phi_a_0 = self._pp.phi_a0_js[0]
+        phi_t_0 = self._pp.phi_t0_js[0]
+        self.assertAlmostEqual(theta_s, phi_a_0 * q_all + phi_t_0 * theta_rear + f_cvl)
 
 if __name__ == '__main__':
 

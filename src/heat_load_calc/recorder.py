@@ -232,7 +232,8 @@ class Recorder:
             ('h_s_c_js_ns', 'hic_s'),
             ('q_c_js_ns', 'qic_s'),
             ('q_i_sol_s_ns_js', 'qisol_s'),
-            ('q_s_js_ns', 'qiall_s')
+            ('q_s_js_ns', 'qiall_s'),
+            ('f_cvl_js_ns', 'f_cvl')
         ]
 
     def pre_recording(self, ss: PreCalcParameters):
