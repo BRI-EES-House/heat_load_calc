@@ -50,7 +50,7 @@ class TestSteadyState(unittest.TestCase):
         # ステップ n の室 i における空調需要, [i, n] ( = 0.0 )
         scd = schedule.Schedule(
             q_gen_is_ns=np.concatenate(
-                [np.full(8760 * 4, 1000.0, dtype=float), np.zeros(8760 * 4, dtype=float)]).flatten().reshape(2, -1),
+                [np.full(8760 * 4, 1000.0, dtype=float), np.full(8760 * 4, 100.0, dtype=float)]).flatten().reshape(2, -1),
             x_gen_is_ns=np.zeros((2, 8760 * 4), dtype=float),
             v_mec_vent_local_is_ns=np.zeros((2, 8760 * 4), dtype=float),
             n_hum_is_ns=np.zeros((2, 8760 * 4), dtype=float),
@@ -67,46 +67,48 @@ class TestSteadyState(unittest.TestCase):
         result.pre_recording(ss)
 
         q_srf_js_n = np.array([[
-            3.486876731976,
-            3.469934770479,
-            3.469934770479,
-            3.100314298814,
-            3.589801185493,
-            1.159006780402,
-            1.162529832371,
-            1.162529832371,
-            1.118551529596,
-            1.157345630601,
-            46.014495896766,
-            15.350136963186,
-            16.737981821922,
-            - 16.737981822135
+            3.602777409159,
+            3.586187752870,
+            3.586187752870,
+            3.212169450994,
+            3.705535747753,
+            1.507694452744,
+            1.509523308575,
+            1.509523308575,
+            1.428582958700,
+            1.516325748351,
+            47.549509580206,
+            19.951586540013,
+            15.064183639825,
+            - 15.064183639825
+
         ]]).reshape(-1, 1)
 
         theta_ei_js_n = np.array([[
-            10.5302040,
-            10.4471245,
-            10.4471245,
-            9.6999596,
-            10.8572408,
-            3.5001461,
-            3.5000929,
-            3.5000929,
-            3.4996144,
-            3.5003555,
-            10.4921758,
-            3.5001217,
-            10.4471245,
-            3.5000929
+            10.8802186,
+            10.7971338,
+            10.7971338,
+            10.0499210,
+            11.2072764,
+            4.5531665,
+            4.5448053,
+            4.5448053,
+            4.4696104,
+            4.5860795,
+            10.8421880,
+            4.5493393,
+            10.7971338,
+            4.5448053
+
         ]]).reshape(-1, 1)
 
         # 初期状態値の計算
-        theta_r_is_n = np.array([[12.994519557331000, 3.501724061072760]]).reshape(-1, 1)
+        theta_r_is_n = np.array([[13.344691960034400, 4.801176013409610]]).reshape(-1, 1)
         c_n = conditions.Conditions(
             operation_mode_is_n=np.array(
                 [[operation_mode.OperationMode.STOP_CLOSE, operation_mode.OperationMode.STOP_CLOSE]]).reshape(-1, 1),
             theta_r_is_n=theta_r_is_n,
-            theta_mrt_hum_is_n=np.array([[9.308131741, 3.45938169]]).reshape(-1, 1),
+            theta_mrt_hum_is_n=np.array([[9.654069907, 4.390194862]]).reshape(-1, 1),
             x_r_is_n=np.array([[0.0, 0.0]]).reshape(-1, 1),
             theta_dsh_s_a_js_ms_n=q_srf_js_n * ss.phi_a1_js_ms / (1.0 - ss.r_js_ms),
             theta_dsh_s_t_js_ms_n=(np.dot(ss.k_ei_js_js, theta_ei_js_n) + ss.k_eo_js * ss.theta_o_eqv_js_ns[:,
@@ -120,7 +122,7 @@ class TestSteadyState(unittest.TestCase):
 
         c_n_init = c_n
         # 計算実行
-        for i in range(8760 * 4):
+        for i in range(-8760 * 4, 8760 * 4):
             c_n = sequence.run_tick(n=i, delta_t=900.0, ss=ss, c_n=c_n, recorder=result)
 
         result.post_recording(ss)
@@ -130,6 +132,8 @@ class TestSteadyState(unittest.TestCase):
         cls._c_n_pls = c_n
         cls._pp = ss
         cls._dd_i, cls._dd_a = result.export_pd()
+        cls._dd_i.to_excel('data/dd_i.xlsx')
+        cls._dd_a.to_excel('data/dd_a.xlsx')
 
     # 室空気温[℃]のテスト
     def test_case_01_room_temp(self):
@@ -155,7 +159,7 @@ class TestSteadyState(unittest.TestCase):
     def test_case_01_theta_s(self):
 
         # テスト時刻を指定
-        date_now = '1989-08-08 12:00:00'
+        date_now = '1990-01-01 0:00:00'
 
         n_bndrs = self._pp.n_bdry
 
