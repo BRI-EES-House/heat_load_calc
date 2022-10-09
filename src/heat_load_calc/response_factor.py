@@ -410,9 +410,9 @@ def get_step_reps_of_wall_weighted(C_i_k_p, R_i_k_p, laps: List[float], alp: Lis
     # 伝達関数の係数を求めるための左辺行列を作成
     nroot = len(alp)
     matF = np.zeros((nlaps, nroot))
-    for lngI, laps in enumerate(laps):
+    for lngI, lap in enumerate(laps):
         for lngJ, root in enumerate(alp):
-            matF[lngI, lngJ] = laps / (laps + root)
+            matF[lngI, lngJ] = lap / (lap + root)
 
     # 最小二乗法のための係数行列を作成
     matU = np.zeros((nroot, nroot))
@@ -427,8 +427,8 @@ def get_step_reps_of_wall_weighted(C_i_k_p, R_i_k_p, laps: List[float], alp: Lis
     matCT = np.zeros((nroot, 1))
     for lngK in range(nroot):
         for lngI in range(nlaps):
-            matCA[lngI, 0] += np.power(laps[lngI], 2.0) * matF[lngI, lngK] * matGA[lngI, 0]
-            matCT[lngI, 0] += np.power(laps[lngI], 2.0) * matF[lngI, lngK] * matGT[lngI, 0]
+            matCA[lngK, 0] += laps[lngI] ** 2.0 * matF[lngI, lngK] * matGA[lngI, 0]
+            matCT[lngK, 0] += laps[lngI] ** 2.0 * matF[lngI, lngK] * matGT[lngI, 0]
 
     # 最小二乗法のための係数行列の逆行列を計算
     matU_inv = np.linalg.inv(matU)
@@ -584,5 +584,5 @@ def calc_response_factor_non_residential(C_i_k_p, R_i_k_p):
     RFA1_12[:len(RFA1)] = RFA1
     Row_12[:len(Row)] = Row
 
-    return RFT0, RFA0, RFT1_12, RFA1_12, Row_12, Nroot
+    return RFT0, RFA0, RFT1_12, RFA1_12, Row_12
 
