@@ -157,7 +157,7 @@ class Boundaries:
         # 面積, m2
         area = float(b['area'])
         if area <= 0.0:
-            raise ValueError("境界(ID=" + boundary_id + ")の面積で0以下の値が指定されました。")
+            raise ValueError("境界(ID=" + str(boundary_id) + ")の面積で0以下の値が指定されました。")
 
         # 日射の有無 (True:当たる/False: 当たらない)
         # 境界の種類が'external_general_part', 'external_transparent_part', 'external_opaque_part'の場合に定義される。
