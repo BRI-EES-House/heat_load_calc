@@ -1,5 +1,3 @@
-import math
-from typing import Tuple
 import numpy as np
 from enum import Enum
 
@@ -82,7 +80,7 @@ class Window:
         return self._a_w_j
 
     @classmethod
-    def _get_rho_g_j(cls, a_g_j: float, tau_g_j: float):
+    def _get_rho_g_j(cls, a_g_j: float, tau_g_j: float) -> float:
         """開口部のグレージングの日射反射率を取得する。
 
         Args:
@@ -96,34 +94,7 @@ class Window:
         return 1.0 - tau_g_j - a_g_j
 
     @classmethod
-    def _get_b_g_j(cls, eta_g_j: float, tau_g_j: float):
-        """開口部のグレージングの吸収日射熱取得率を取得する。
-
-        Args:
-            eta_g_j: 境界 j の開口部のグレージングの日射熱取得率, -
-            tau_g_j: 境界 j の開口部のグレージングの日射透過率, -
-
-        Returns:
-            境界 j の開口部のグレージングの吸収日射熱取得率, -
-        """
-        return eta_g_j - tau_g_j
-
-    @classmethod
-    def _get_eta_g_j(cls, eta_w_j: float, r_a_glass_j: float):
-        """開口部のグレージングの日射熱取得率
-
-        Args:
-            eta_w_j: 境界 j の開口部の日射熱取得率, -
-            r_a_glass_j: 境界 j の開口部の面積に対するグレージングの面積の比, -
-
-        Returns:
-            境界 j の開口部のグレージングの日射熱取得率, -
-        """
-
-        return eta_w_j / r_a_glass_j
-
-    @classmethod
-    def _get_a_g_j(cls, b_g_j: float, glazing_type_j: GlazingType, tau_g_j: float):
+    def _get_a_g_j(cls, b_g_j: float, glazing_type_j: GlazingType, tau_g_j: float) -> float:
         """
 
         Args:
@@ -132,7 +103,7 @@ class Window:
             tau_g_j: 境界 j の開口部のグレージングの日射透過率, -
 
         Returns:
-
+            境界 j の開口部のグレージングの日射吸収率, -
         """
 
         if glazing_type_j == GlazingType.Single:
@@ -149,7 +120,20 @@ class Window:
             raise ValueError()
 
     @classmethod
-    def _get_tau_g_j(cls, eta_g_j: float, glazing_type_j: GlazingType):
+    def _get_b_g_j(cls, eta_g_j: float, tau_g_j: float) -> float:
+        """開口部のグレージングの吸収日射熱取得率を取得する。
+
+        Args:
+            eta_g_j: 境界 j の開口部のグレージングの日射熱取得率, -
+            tau_g_j: 境界 j の開口部のグレージングの日射透過率, -
+
+        Returns:
+            境界 j の開口部のグレージングの吸収日射熱取得率, -
+        """
+        return eta_g_j - tau_g_j
+
+    @classmethod
+    def _get_tau_g_j(cls, eta_g_j: float, glazing_type_j: GlazingType) -> float:
         """開口部のグレージングの日射透過率を取得する。
 
         Args:
@@ -171,6 +155,23 @@ class Window:
         else:
 
             KeyError()
+
+    @classmethod
+    def _get_eta_g_j(cls, eta_w_j: float, r_a_glass_j: float) -> float:
+        """開口部のグレージングの日射熱取得率
+
+        Args:
+            eta_w_j: 境界 j の開口部の日射熱取得率, -
+            r_a_glass_j: 境界 j の開口部の面積に対するグレージングの面積の比, -
+
+        Returns:
+            境界 j の開口部のグレージングの日射熱取得率, -
+        """
+
+        return eta_w_j / r_a_glass_j
+
+
+
 
     def get_b_w_d_j_ns(self, theta_aoi_j_ns: np.ndarray) -> np.ndarray:
         return self._get_ashgc_d_j(theta_aoi_i_k=theta_aoi_j_ns) * self.b_w_j
