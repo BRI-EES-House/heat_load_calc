@@ -165,7 +165,6 @@ class TestSteadyState(unittest.TestCase):
 
         # 0番目の境界（外壁）
         for i in range(n_bndrs):
-            print(i)
             bdr_name = 'b' + str(i) + '_'
             theta_s = self._dd_i[bdr_name + 't_s'][date_now]
             theta_rear = self._dd_i[bdr_name + 't_b'][date_now]
