@@ -430,12 +430,9 @@ def get_step_reps_of_wall_weighted(C_i_k_p, R_i_k_p, laps: List[float], alp: Lis
             matCA[lngK, 0] += laps[lngI] ** 2.0 * matF[lngI, lngK] * matGA[lngI, 0]
             matCT[lngK, 0] += laps[lngI] ** 2.0 * matF[lngI, lngK] * matGT[lngI, 0]
 
-    # 最小二乗法のための係数行列の逆行列を計算
-    matU_inv = np.linalg.inv(matU)
-
     # 伝達関数の係数を計算
-    matAA = np.dot(matU_inv, matCA)
-    matAT = np.dot(matU_inv, matCT)
+    matAA = np.linalg.solve(matU, matCA)
+    matAT = np.linalg.solve(matU, matCT)
 
     # 伝達関数の係数を一次元配列に変換
     dblAT = matAT[:, 0]

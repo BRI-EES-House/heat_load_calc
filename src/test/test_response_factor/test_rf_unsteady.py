@@ -31,21 +31,18 @@ class MyTestCase(unittest.TestCase):
         rft: rf.ResponseFactor = ResponseFactor.create_for_unsteady_not_ground(cs=cs, rs=rs, r_o=0.04)
 
         # RFA0の確認
-        self.assertAlmostEqual(0.05936024851637489, rft.rfa0)
+        self.assertAlmostEqual(0.059333203452339944, rft.rfa0)
 
         # RFT0の確認
-        self.assertAlmostEqual(6.249040344452617e-05, rft.rft0)
-
-        print(rft.rfa1)
-        print(rft.rft1)
+        self.assertAlmostEqual(4.816508482685666e-05, rft.rft0)
 
         # 指数項別吸熱応答係数の確認
-        self.assertAlmostEqual(-1.13989133e-05, rft.rfa1[0])
-        self.assertAlmostEqual(1.02748351e-04, rft.rfa1[1])
-        self.assertAlmostEqual(-4.81002013e-04, rft.rfa1[2])
-        self.assertAlmostEqual(3.49960611e-03, rft.rfa1[3])
-        self.assertAlmostEqual(2.47517060e-03, rft.rfa1[4])
-        self.assertAlmostEqual(-1.44373441e-03, rft.rfa1[5])
+        self.assertAlmostEqual(-1.1319719177506464e-05, rft.rfa1[0])
+        self.assertAlmostEqual(0.00010234716880205303, rft.rfa1[1])
+        self.assertAlmostEqual(-0.0004804994153141731, rft.rfa1[2])
+        self.assertAlmostEqual(0.0034995178642668358, rft.rfa1[3])
+        self.assertAlmostEqual(0.0024750154172678293, rft.rfa1[4])
+        self.assertAlmostEqual(-0.0014436510795198371, rft.rfa1[5])
         self.assertAlmostEqual(1.48281651e-03, rft.rfa1[6])
         self.assertAlmostEqual(-2.47943318e-03, rft.rfa1[7])
         self.assertAlmostEqual(1.09630293e-02, rft.rfa1[8])
@@ -53,8 +50,8 @@ class MyTestCase(unittest.TestCase):
 
         # 指数項別貫流応答係数の確認
         self.assertAlmostEqual(-2.66672824e-06, rft.rft1[0])
-        self.assertAlmostEqual(2.51698857e-05, rft.rft1[1])
-        self.assertAlmostEqual(-1.28979158e-04, rft.rft1[2])
+        self.assertAlmostEqual(2.504086769448683e-05, rft.rft1[1])
+        self.assertAlmostEqual(-0.00012881652899894772, rft.rft1[2])
         self.assertAlmostEqual(1.09059713e-03, rft.rft1[3])
         self.assertAlmostEqual(9.62571633e-04, rft.rft1[4])
         self.assertAlmostEqual(-7.51043238e-04, rft.rft1[5])
