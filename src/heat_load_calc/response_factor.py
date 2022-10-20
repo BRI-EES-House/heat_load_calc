@@ -274,9 +274,9 @@ def get_step_reps_of_wall(C_i_k_p, R_i_k_p, laps: List[float], alp: List[float],
     # 伝達関数の係数を求めるための左辺行列を作成
     nroot = len(alp)
     matF = np.zeros((nlaps, nroot))
-    for lngI, laps in enumerate(laps):
+    for lngI, lap in enumerate(laps):
         for lngJ, root in enumerate(alp):
-            matF[lngI, lngJ] = laps / (laps + root)
+            matF[lngI, lngJ] = lap / (lap + root)
 
     # 最小二乗法のための係数行列を作成
     # matU = np.zeros((nroot, nroot))

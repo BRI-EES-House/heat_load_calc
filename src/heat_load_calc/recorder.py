@@ -133,6 +133,9 @@ class Recorder:
         # ステップ n の境界 j の表面日射熱流, W, [j, n+1], 出力名:"rm[i]_b[j]_qiall_s
         self.q_s_js_ns = np.zeros((n_boundaries, self._n_step_i), dtype=float)
 
+        # ステップ n の境界 j の係数cvl, degree C, [j, n+1], 出力名:"rm[i]_b[j]_cvl
+        self.f_cvl_js_ns = np.zeros((n_boundaries, self._n_step_i), dtype=float)
+
         # ---積算値---
 
         # ステップ n における室 i の運転状態（平均値）, [i, n], 出力名："rm[i]_ac_operate"
@@ -229,7 +232,8 @@ class Recorder:
             ('h_s_c_js_ns', 'hic_s'),
             ('q_c_js_ns', 'qic_s'),
             ('q_i_sol_s_ns_js', 'qisol_s'),
-            ('q_s_js_ns', 'qiall_s')
+            ('q_s_js_ns', 'qiall_s'),
+            ('f_cvl_js_ns', 'f_cvl')
         ]
 
     def pre_recording(self, ss: PreCalcParameters):
@@ -344,6 +348,7 @@ class Recorder:
             self.theta_ot[:, n_i] = kwargs["theta_ot_is_n_pls"].flatten()
             self.theta_s_js_ns[:, n_i] = kwargs["theta_s_js_n_pls"].flatten()
             self.theta_rear_js_ns[:, n_i] = kwargs["theta_rear_js_n"].flatten()
+            self.f_cvl_js_ns[:, n_i] = kwargs["f_cvl_js_n_pls"].flatten()
 
         # 平均値・積算値の書き込み
 

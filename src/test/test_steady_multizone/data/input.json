@@ -1,0 +1,517 @@
+{
+  "common": {
+    "ac_method": "simple"
+  },
+  "building": {
+    "infiltration": {
+      "method": "balance_residential",
+      "c_value_estimate": "specify",
+      "story": 1,
+      "c_value": 0.0,
+      "inside_pressure": "negative"
+    }
+  },
+  "rooms": [
+    {
+      "id": 0,
+      "name": "e_room",
+      "sub_name": null,
+      "floor_area": 25.0,
+      "volume": 75.0,
+      "ventilation": {
+        "natural": 0.0
+      },
+      "furniture": {
+        "input_method": "default"
+      },
+      "schedule": {
+        "name": "zero"
+      }
+    },
+    {
+      "id": 1,
+      "name": "w_room",
+      "sub_name": null,
+      "floor_area": 25.0,
+      "volume": 75.0,
+      "ventilation": {
+        "natural": 0.0
+      },
+      "furniture": {
+        "input_method": "default"
+      },
+      "schedule": {
+        "name": "zero"
+      }
+    }
+  ],
+  "boundaries": [
+    {
+      "id": 0,
+      "name": "s_wall_e_room",
+      "sub_name": "e_room",
+      "connected_room_id": 0,
+      "boundary_type": "external_general_part",
+      "area": 5.0,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "wood_board-12",
+          "thermal_resistance": 0.075,
+          "thermal_capacity": 8.64
+        },
+        {
+          "name": "hgw24k-100",
+          "thermal_resistance": 2.777777777777778,
+          "thermal_capacity": 2.0
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "is_sun_striked_outside": true,
+      "direction": "s",
+      "outside_emissivity": 0.9,
+      "outside_heat_transfer_resistance": 0.04,
+      "outside_solar_absorption": 0.8,
+      "temp_dif_coef": 1.0
+    },
+    {
+      "id": 1,
+      "name": "e_wall_e_room",
+      "sub_name": "e_room",
+      "connected_room_id": 0,
+      "boundary_type": "external_general_part",
+      "area": 15.0,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "wood_board-12",
+          "thermal_resistance": 0.075,
+          "thermal_capacity": 8.64
+        },
+        {
+          "name": "hgw24k-100",
+          "thermal_resistance": 2.777777777777778,
+          "thermal_capacity": 2.0
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "is_sun_striked_outside": true,
+      "direction": "e",
+      "outside_emissivity": 0.9,
+      "outside_heat_transfer_resistance": 0.04,
+      "outside_solar_absorption": 0.8,
+      "temp_dif_coef": 1.0
+    },
+    {
+      "id": 2,
+      "name": "n_wall_e_room",
+      "sub_name": "e_room",
+      "connected_room_id": 0,
+      "boundary_type": "external_general_part",
+      "area": 15.0,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "wood_board-12",
+          "thermal_resistance": 0.075,
+          "thermal_capacity": 8.64
+        },
+        {
+          "name": "hgw24k-100",
+          "thermal_resistance": 2.777777777777778,
+          "thermal_capacity": 2.0
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "is_sun_striked_outside": true,
+      "direction": "n",
+      "outside_emissivity": 0.9,
+      "outside_heat_transfer_resistance": 0.04,
+      "outside_solar_absorption": 0.8,
+      "temp_dif_coef": 1.0
+    },
+    {
+      "id": 3,
+      "name": "floor_e_room",
+      "sub_name": "e_room",
+      "connected_room_id": 0,
+      "boundary_type": "external_general_part",
+      "area": 25.0,
+      "h_c": 0.7,
+      "is_solar_absorbed_inside": true,
+      "is_floor": true,
+      "layers": [
+        {
+          "name": "wood_board-12",
+          "thermal_resistance": 0.075,
+          "thermal_capacity": 8.64
+        },
+        {
+          "name": "hgw24k-100",
+          "thermal_resistance": 2.777777777777778,
+          "thermal_capacity": 2.0
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "is_sun_striked_outside": true,
+      "direction": "bottom",
+      "outside_emissivity": 0.9,
+      "outside_heat_transfer_resistance": 0.15,
+      "outside_solar_absorption": 0.8,
+      "temp_dif_coef": 1.0
+    },
+    {
+      "id": 4,
+      "name": "roof_e_room",
+      "sub_name": "e_room",
+      "connected_room_id": 0,
+      "boundary_type": "external_general_part",
+      "area": 25.0,
+      "h_c": 5.0,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "wood_board-12",
+          "thermal_resistance": 0.075,
+          "thermal_capacity": 8.64
+        },
+        {
+          "name": "hgw24k-100",
+          "thermal_resistance": 2.777777777777778,
+          "thermal_capacity": 2.0
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "is_sun_striked_outside": true,
+      "direction": "top",
+      "outside_emissivity": 0.9,
+      "outside_heat_transfer_resistance": 0.09,
+      "outside_solar_absorption": 0.8,
+      "temp_dif_coef": 1.0
+    },
+    {
+      "id": 5,
+      "name": "s_wall_w_room",
+      "sub_name": "w_room",
+      "connected_room_id": 1,
+      "boundary_type": "external_general_part",
+      "area": 5.0,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "wood_board-12",
+          "thermal_resistance": 0.075,
+          "thermal_capacity": 8.64
+        },
+        {
+          "name": "hgw24k-100",
+          "thermal_resistance": 2.777777777777778,
+          "thermal_capacity": 2.0
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "is_sun_striked_outside": true,
+      "direction": "s",
+      "outside_emissivity": 0.9,
+      "outside_heat_transfer_resistance": 0.04,
+      "outside_solar_absorption": 0.8,
+      "temp_dif_coef": 1.0
+    },
+    {
+      "id": 6,
+      "name": "e_wall_w_room",
+      "sub_name": "w_room",
+      "connected_room_id": 1,
+      "boundary_type": "external_general_part",
+      "area": 15.0,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "wood_board-12",
+          "thermal_resistance": 0.075,
+          "thermal_capacity": 8.64
+        },
+        {
+          "name": "hgw24k-100",
+          "thermal_resistance": 2.777777777777778,
+          "thermal_capacity": 2.0
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "is_sun_striked_outside": true,
+      "direction": "w",
+      "outside_emissivity": 0.9,
+      "outside_heat_transfer_resistance": 0.04,
+      "outside_solar_absorption": 0.8,
+      "temp_dif_coef": 1.0
+    },
+    {
+      "id": 7,
+      "name": "n_wall_w_room",
+      "sub_name": "w_room",
+      "connected_room_id": 1,
+      "boundary_type": "external_general_part",
+      "area": 15.0,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "wood_board-12",
+          "thermal_resistance": 0.075,
+          "thermal_capacity": 8.64
+        },
+        {
+          "name": "hgw24k-100",
+          "thermal_resistance": 2.777777777777778,
+          "thermal_capacity": 2.0
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "is_sun_striked_outside": true,
+      "direction": "n",
+      "outside_emissivity": 0.9,
+      "outside_heat_transfer_resistance": 0.04,
+      "outside_solar_absorption": 0.8,
+      "temp_dif_coef": 1.0
+    },
+    {
+      "id": 8,
+      "name": "floor_w_room",
+      "sub_name": "w_room",
+      "connected_room_id": 1,
+      "boundary_type": "external_general_part",
+      "area": 25.0,
+      "h_c": 0.7,
+      "is_solar_absorbed_inside": true,
+      "is_floor": true,
+      "layers": [
+        {
+          "name": "wood_board-12",
+          "thermal_resistance": 0.075,
+          "thermal_capacity": 8.64
+        },
+        {
+          "name": "hgw24k-100",
+          "thermal_resistance": 2.777777777777778,
+          "thermal_capacity": 2.0
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "is_sun_striked_outside": true,
+      "direction": "bottom",
+      "outside_emissivity": 0.9,
+      "outside_heat_transfer_resistance": 0.15,
+      "outside_solar_absorption": 0.8,
+      "temp_dif_coef": 1.0
+    },
+    {
+      "id": 9,
+      "name": "roof_w_room",
+      "sub_name": "w_room",
+      "connected_room_id": 1,
+      "boundary_type": "external_general_part",
+      "area": 25.0,
+      "h_c": 5.0,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "wood_board-12",
+          "thermal_resistance": 0.075,
+          "thermal_capacity": 8.64
+        },
+        {
+          "name": "hgw24k-100",
+          "thermal_resistance": 2.777777777777778,
+          "thermal_capacity": 2.0
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "is_sun_striked_outside": true,
+      "direction": "top",
+      "outside_emissivity": 0.9,
+      "outside_heat_transfer_resistance": 0.09,
+      "outside_solar_absorption": 0.8,
+      "temp_dif_coef": 1.0
+    },
+    {
+      "id": 10,
+      "name": "south_window_room1",
+      "sub_name": null,
+      "connected_room_id": 0,
+      "boundary_type": "external_transparent_part",
+      "area": 10.0,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "solar_shading_part": {
+        "existence": false
+      },
+      "is_sun_striked_outside": true,
+      "direction": "s",
+      "outside_emissivity": 0.9,
+      "outside_heat_transfer_resistance": 0.04,
+      "u_value": 4.65,
+      "inside_heat_transfer_resistance": 0.11,
+      "eta_value": 0.792,
+      "incident_angle_characteristics": "multiple",
+      "glass_area_ratio": 0.8,
+      "temp_dif_coef": 1.0
+    },
+    {
+      "id": 11,
+      "name": "south_window_room4",
+      "sub_name": null,
+      "connected_room_id": 1,
+      "boundary_type": "external_transparent_part",
+      "area": 10.0,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "solar_shading_part": {
+        "existence": false
+      },
+      "is_sun_striked_outside": true,
+      "direction": "s",
+      "outside_emissivity": 0.9,
+      "outside_heat_transfer_resistance": 0.04,
+      "u_value": 4.65,
+      "inside_heat_transfer_resistance": 0.11,
+      "eta_value": 0.792,
+      "incident_angle_characteristics": "multiple",
+      "glass_area_ratio": 0.8,
+      "temp_dif_coef": 1.0
+    },
+    {
+      "id": 12,
+      "name": "internal_1",
+      "sub_name": null,
+      "connected_room_id": 0,
+      "boundary_type": "internal",
+      "area": 15.0,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "gypsum_board-12",
+          "thermal_resistance": 0.05454545454545455,
+          "thermal_capacity": 9.96
+        },
+        {
+          "name": "air_space",
+          "thermal_resistance": 0.07,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "gypsum_board-12",
+          "thermal_resistance": 0.05454545454545455,
+          "thermal_capacity": 9.96
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.11,
+      "rear_surface_boundary_id": 13
+    },
+    {
+      "id": 13,
+      "name": "internal_2",
+      "sub_name": null,
+      "connected_room_id": 1,
+      "boundary_type": "internal",
+      "area": 15.0,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "gypsum_board-12",
+          "thermal_resistance": 0.05454545454545455,
+          "thermal_capacity": 9.96
+        },
+        {
+          "name": "air_space",
+          "thermal_resistance": 0.07,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "gypsum_board-12",
+          "thermal_resistance": 0.05454545454545455,
+          "thermal_capacity": 9.96
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.11,
+      "rear_surface_boundary_id": 12
+    }
+  ],
+	"mechanical_ventilations": [],
+	"equipments": {
+		"heating_equipments": [
+			{
+				"id": 0,
+				"name": "heating_equipment no.0",
+				"equipment_type": "rac",
+				"property": {
+					"space_id": 0,
+					"q_min": 500.0,
+					"q_max": 1405.68782,
+					"v_min": 3.7118650574986343,
+					"v_max": 6.7488455590884255,
+					"bf": 0.2
+				}
+			}
+		],
+		"cooling_equipments": [
+			{
+				"id": 0,
+				"name": "cooling_equipment no.0",
+				"equipment_type": "rac",
+				"property": {
+					"space_id": 0,
+					"q_min": 500.0,
+					"q_max": 2059.8888568540006,
+					"v_min": 3.508455287821144,
+					"v_max": 6.379009614220261,
+					"bf": 0.2
+				}
+			}
+		]
+	}
+}
