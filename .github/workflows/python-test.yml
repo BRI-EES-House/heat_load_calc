@@ -9,10 +9,10 @@ jobs:
 
     steps:
     - name: Checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
 
     - name: Set up Python 3.8
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v4
       with:
         python-version: 3.8
 
@@ -28,7 +28,6 @@ jobs:
 
     - name: Test with unittest
       run: python -m unittest discover src
-      continue-on-error: true
 
     - name: Test example
       run: |
@@ -45,7 +44,6 @@ jobs:
         python src/heat_load_calc/heat_load_calc.py src/heat_load_calc/example/example_single_room3.json -o out/example_single_room3
         python src/heat_load_calc/heat_load_calc.py src/heat_load_calc/example/example_single_room4.json -o out/example_single_room4
         python src/heat_load_calc/heat_load_calc.py src/heat_load_calc/example/example_single_room5.json -o out/example_single_room5
-      continue-on-error: true
 
     - name: Archive example results
       uses: actions/upload-artifact@v2
