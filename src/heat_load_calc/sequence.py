@@ -383,7 +383,7 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, rec
         f_l_cl_wgt_is_is_n=f_l_cl_wgt_is_is_n
     )
 
-    # ステップ n から ステップ n+1 における室 i の潜熱負荷（加湿を正・除湿を負とする）, kg/s, [i, 1]
+    # ステップ n から ステップ n+1 における室 i の潜熱負荷（加湿を正・除湿を負とする）, W, [i, 1]
     l_cl_is_n = get_l_cl_is_n(
         f_l_cl_wgt_is_is_n=f_l_cl_wgt_is_is_n,
         f_l_cl_cst_is_n=f_l_cl_cst_is_n,
