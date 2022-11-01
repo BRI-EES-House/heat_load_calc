@@ -7,7 +7,7 @@ from heat_load_calc.interval import Interval
 
 class TestWeather(unittest.TestCase):
 
-    file_path = str(os.path.dirname(__file__)) + '\\weather_for_method_file.csv'
+    file_path = os.path.join(os.path.dirname(__file__), 'weather_for_method_file.csv')
 
     def test_weather_values_solar_position_ees_m15(self):
 
