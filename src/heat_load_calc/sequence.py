@@ -318,6 +318,16 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, rec
         theta_s_js_n_pls=theta_s_js_n_pls
     )
 
+    # ステップ n+1 における境界 j の裏面温度, degree C, [j, 1]
+    theta_rear_js_n_pls = get_theta_rear_js_n(
+        k_ei_js_js=ss.k_ei_js_js,
+        theta_ei_js_n=theta_ei_js_n_pls,
+        k_eo_js=ss.k_eo_js,
+        theta_o_eqv_js_n=ss.theta_o_eqv_js_ns[:, n+1].reshape(-1, 1),
+        k_s_r_js_is=ss.k_s_r_js_is,
+        theta_r_is_n=theta_r_is_n_pls
+    )
+
     # ステップ n+1 における境界 j の表面熱流（壁体吸熱を正とする）, W/m2, [j, 1]
     q_s_js_n_pls = get_q_s_js_n_pls(
         h_s_c_js=ss.h_s_c_js,
@@ -412,7 +422,7 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, rec
             q_s_js_n_pls=q_s_js_n_pls,
             theta_ot_is_n_pls=theta_ot_is_n_pls,
             theta_s_js_n_pls=theta_s_js_n_pls,
-            theta_rear_js_n=theta_rear_js_n,
+            theta_rear_js_n=theta_rear_js_n_pls,
             f_cvl_js_n_pls=f_cvl_js_n_pls,
             operation_mode_is_n=operation_mode_is_n,
             l_cs_is_n=l_cs_is_n,
