@@ -18,7 +18,7 @@ class MyTestCase(unittest.TestCase):
 
         cls._data_dir = str(os.path.dirname(__file__)) + '/data'
 
-        ds, dd = core2.calc(input_data_dir=cls._data_dir, output_data_dir=cls._data_dir)
+        ds, dd, _ = core2.calc(input_data_dir=cls._data_dir, output_data_dir=cls._data_dir)
 
         cls._ds = ds
         cls._dd = dd
