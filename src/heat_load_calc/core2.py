@@ -16,7 +16,7 @@ def calc(
         n_d_main: int = 365,
         n_d_run_up: int = 365,
         n_d_run_up_build: int = 183
-) -> Tuple[pd.DataFrame, pd.DataFrame]:
+) -> Tuple[pd.DataFrame, pd.DataFrame, pre_calc_parameters.PreCalcParameters]:
     """coreメインプログラム
 
     Args:
