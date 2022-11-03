@@ -73,7 +73,6 @@ class TransmissionSolarRadiationTransparentSunStrike(TransmissionSolarRadiation)
         self._direction = direction
         self._area = area
         self._ss = ss
-        self._glazing_type = window.glazing_type_j.value
         self._window = window
 
     def get_qgt(self, w: Weather) -> np.ndarray:
@@ -115,13 +114,13 @@ class TransmissionSolarRadiationTransparentSunStrike(TransmissionSolarRadiation)
         f_ss_r_j_ns = self._ss.get_f_ss_r_j()
 
         # ステップ n における境界 j の透明な開口部の直達日射に対する日射透過率, -, [N+1]
-        tau_d_j_ns = self._window.get_tau_d_j_ns(theta_aoi_j_ns=theta_aoi_j_ns)
+        tau_d_j_ns = np.vectorize(self._window.get_tau_w_j_n)(phi_n=theta_aoi_j_ns)
 
         # 境界 j の透明な開口部の天空日射に対する日射透過率, -, [N+1]
-        tau_s_j = self._window.get_tau_s_j()
+        tau_s_j = self._window.tau_w_s_j
 
         # 境界 j の透明な開口部の地盤反射日射に対する日射透過率, -, [N+1]
-        tau_r_j = self._window.get_tau_r_j()
+        tau_r_j = self._window.tau_w_r_j
 
         # 直達日射に対する透過日射量, W/m2, [N+1]
         q_gt_d_j_ns = tau_d_j_ns * (1.0 - f_ss_d_j_ns) * i_inc_d_j_ns

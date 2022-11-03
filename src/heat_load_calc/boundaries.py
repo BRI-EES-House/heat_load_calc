@@ -9,7 +9,7 @@ from heat_load_calc.response_factor import ResponseFactor
 from heat_load_calc.direction import Direction
 from heat_load_calc.solar_shading import SolarShading
 from heat_load_calc.outside_eqv_temp import OutsideEqvTemp
-from heat_load_calc.window import Window, GlazingType
+from heat_load_calc.window import Window
 
 
 @dataclass
@@ -278,9 +278,9 @@ class Boundaries:
                 raise ValueError("境界(ID=" + str(boundary_id) + ")の開口部の面積に対するグレージング面積の比率で1.0より大の値が指定されました。")
 
             # グレージングの種類
-            glazing_type = GlazingType(b['incident_angle_characteristics'])
+            glazing_type = Window.GlassType(b['incident_angle_characteristics'])
 
-            window = Window(r_a_glass_j=glass_area_ratio, eta_w_j=eta_value, glazing_type_j=glazing_type)
+            window = Window(u_w_j=b['u_value'], eta_w_j=eta_value, glass_type=glazing_type, r_a_w_g_j=glass_area_ratio)
 
         else:
 

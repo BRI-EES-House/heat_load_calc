@@ -237,13 +237,13 @@ class OutsideEqvTempExternalTransparentPart(OutsideEqvTemp):
         f_ss_r_j_ns = self._ss.get_f_ss_r_j()
 
         # ステップ n における境界 ｊ　の開口部の直達日射に対する吸収日射熱取得率, -, [N+1]
-        b_w_d_j_ns = self._window.get_b_w_d_j_ns(theta_aoi_j_ns=theta_aoi_j_ns)
+        b_w_d_j_ns = np.vectorize(self._window.get_alpha_w_j_n)(phi_n=theta_aoi_j_ns)
 
         # 境界 ｊ　の開口部の天空日射に対する吸収日射熱取得率, -
-        b_w_s_j = self._window.get_b_w_s_j()
+        b_w_s_j = self._window.alpha_w_s_j
 
         # 境界 ｊ　の開口部の地盤反射日射に対する吸収日射熱取得率, -
-        b_w_r_j = self._window.get_b_w_r_j()
+        b_w_r_j = self._window.alpha_w_r_j
 
         # 直達日射に対する吸収日射熱取得, W/m2, [N+1]
         q_gt_d_j_ns = b_w_d_j_ns * (1.0 - f_ss_d_j_ns) * i_inc_d_j_ns
