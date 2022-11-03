@@ -70,11 +70,7 @@ class Weather:
     def get_weather_as_pandas_data_frame(self):
 
         # インターバル指定文字をpandasのfreq引数に文字変換する。
-        freq = {
-            Interval.M15: '15min',
-            Interval.M30: '30min',
-            Interval.H1: 'H'
-        }[self._itv]
+        freq = self._itv.get_pandas_freq()
 
         # 時系列インデクスの作成
         dd = pd.DataFrame(index=pd.date_range(start='1/1/1989', periods=self._itv.get_annual_number(), freq=freq))
