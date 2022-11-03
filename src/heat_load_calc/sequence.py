@@ -43,12 +43,12 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, rec
             n=n
         )
 
-    # ステップnの境界jにおける裏面温度, degree C, [j, 1]
-    theta_rear_js_n = get_theta_rear_js_n(
-        k_ei_js_js=ss.k_ei_js_js,
-        theta_ei_js_n=c_n.theta_ei_js_n,
-        k_eo_js=ss.k_eo_js,
-        theta_o_eqv_js_n=ss.theta_o_eqv_js_ns[:, n+1].reshape(-1, 1),
+    # ステップ n の境界 j における裏面温度, degree C, [j, 1]
+    theta_rear_js_n = get_theta_s_rear_js_n(
+        k_s_er_js_js=ss.k_ei_js_js,
+        theta_er_js_n=c_n.theta_ei_js_n,
+        k_s_eo_js=ss.k_eo_js,
+        theta_eo_js_n=ss.theta_o_eqv_js_ns[:, n].reshape(-1, 1),
         k_s_r_js_is=ss.k_s_r_js_is,
         theta_r_is_n=c_n.theta_r_is_n
     )
@@ -1269,14 +1269,24 @@ def get_q_hum_is_n(n_hum_is_n, q_hum_psn_is_n):
 
     return q_hum_psn_is_n * n_hum_is_n
 
-def get_theta_rear_js_n(k_ei_js_js, theta_ei_js_n, k_eo_js, theta_o_eqv_js_n, k_s_r_js_is, theta_r_is_n):
+
+def get_theta_s_rear_js_n(
+        k_s_er_js_js: np.ndarray,
+        theta_er_js_n: np.ndarray,
+        k_s_eo_js: np.ndarray,
+        theta_eo_js_n: np.ndarray,
+        k_s_r_js_is: np.ndarray,
+        theta_r_is_n: np.ndarray
+):
     """
 
     Args:
-        k_ei_js_js: 境界 j の裏面温度に境界　j* の等価温度が与える影響, -, [j*, j]
-        theta_ei_js_n: ステップ n における境界 j の等価温度, degree C, [j, 1]
-        k_eo_js: 温度差係数, -, [j, 1]
-        theta_o_eqv_js_n: ステップ n の境界 j における相当外気温度, ℃, [j, n]
+        k_s_er_js_js: 境界 j の裏面温度に境界　j* の等価温度が与える影響, -, [j*, j]
+        theta_er_js_n: ステップ n における境界 j の等価温度, degree C, [j, 1]
+        k_s_eo_js: 境界 j の裏面温度に境界 j の相当外気温度が与える影響（温度差係数）, -, [j, 1]
+        theta_eo_js_n: ステップ n の境界 j における相当外気温度, ℃, [j, n]
+        k_s_r_js_is: 境界 j の裏面温度に境界 j の裏面が接する室 i の空気温度が与える影響, -, [j, i]
+        theta_r_is_n: ステップ n における室 i の空気温度, degree C, [i, 1]
 
     Returns:
         ステップ n における境界 j の裏面温度, degree C, [j, 1]
@@ -1285,5 +1295,5 @@ def get_theta_rear_js_n(k_ei_js_js, theta_ei_js_n, k_eo_js, theta_o_eqv_js_n, k_
         式(2.32)
     """
 
-    return np.dot(k_ei_js_js, theta_ei_js_n) + k_eo_js * theta_o_eqv_js_n + np.dot(k_s_r_js_is, theta_r_is_n)
+    return np.dot(k_s_er_js_js, theta_er_js_n) + k_s_eo_js * theta_eo_js_n + np.dot(k_s_r_js_is, theta_r_is_n)
 
