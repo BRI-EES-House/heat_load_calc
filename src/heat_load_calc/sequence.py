@@ -336,6 +336,169 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, rec
         theta_s_js_n_pls=theta_s_js_n_pls
     )
 
+
+    def comp(name, x, y):
+        result = np.all(x - y < 0.00000001)
+        print(name + ': ' + str(result))
+        if not result:
+            print(x)
+            print(y)
+
+    #    if n == 21071:
+    if n == 5:
+        tj = 8
+        print('式(4)の検証')
+        print(np.all(
+            theta_s_js_n_pls == ss.phi_a0_js * q_s_js_n_pls
+            + np.sum(theta_dsh_s_a_js_ms_n_pls, axis=1).reshape(-1, 1)
+            + ss.phi_t0_js * theta_rear_js_n_pls
+            + np.sum(theta_dsh_s_t_js_ms_n_pls, axis=1).reshape(-1, 1)))
+        print('式(8)の検証（ただしnはn+1と読み替える）')
+        print(np.all(
+            q_s_js_n_pls == np.dot(ss.p_js_is, (h_hum_c_is_n + h_hum_r_is_n))
+            * (theta_ei_js_n_pls - theta_s_js_n_pls)))
+        print('式(13)の検証')
+        print(np.all(
+            theta_rear_js_n_pls == np.dot(ss.k_ei_js_js, theta_ei_js_n_pls)
+            + np.dot(ss.k_s_r_js_is, theta_r_is_n_pls)
+            + ss.k_eo_js * theta_ei_js_n_pls))
+        comp(
+            name='式(15)の検証（ただしnはn+1と読み替える）',
+            x=theta_ei_js_n_pls,
+            y=(
+                      ss.h_s_c_js * np.dot(ss.p_js_is, theta_r_is_n_pls)
+                      + ss.h_s_r_js * np.dot(ss.p_js_is, np.dot(ss.f_mrt_is_js, theta_s_js_n_pls))
+                      + (ss.q_s_sol_js_ns[:, n+1]).reshape(-1, 1)
+                      + np.dot(f_flr_js_is_n, (1 - beta_is_n) * l_rs_is_n) / ss.a_s_js
+              ) / (ss.h_s_r_js + ss.h_s_c_js)
+        )
+
+        comp(
+            name='式(23)の検証',
+            x=np.dot(ss.f_ax_js_js, theta_s_js_n_pls),
+            y=np.dot(ss.local_value['f_fia_js_is'], theta_r_is_n_pls)
+              + (ss.local_value['f_crx_js_ns'][:, n + 1]).reshape(-1, 1)
+              + np.dot(f_flb_js_is_n_pls, l_rs_is_n)
+              + f_cvl_js_n_pls
+        )
+        comp(
+            name='式(17-23)の検証',
+            x=np.dot(ss.f_ax_js_js, theta_s_js_n_pls),
+            y=theta_s_js_n_pls
+                - ss.phi_a0_js * ss.h_s_r_js * np.dot(np.dot(ss.p_js_is, ss.f_mrt_is_js), theta_s_js_n_pls)
+                + ss.phi_a0_js * (ss.h_s_r_js + ss.h_s_c_js) * theta_s_js_n_pls
+                - ss.phi_t0_js * np.dot(ss.k_ei_js_js, ss.h_s_r_js / (ss.h_s_c_js + ss.h_s_r_js) * np.dot(ss.p_js_is, np.dot(ss.f_mrt_is_js, theta_s_js_n_pls))),
+        )
+        comp(
+            name='式(17)の検証',
+            x=theta_s_js_n_pls
+                - ss.phi_a0_js * ss.h_s_r_js * np.dot(np.dot(ss.p_js_is, ss.f_mrt_is_js), theta_s_js_n_pls)
+                + ss.phi_a0_js * (ss.h_s_r_js + ss.h_s_c_js) * theta_s_js_n_pls
+                - ss.phi_t0_js * np.dot(ss.k_ei_js_js, ss.h_s_r_js / (ss.h_s_c_js + ss.h_s_r_js) * np.dot(ss.p_js_is, np.dot(ss.f_mrt_is_js, theta_s_js_n_pls))),
+            y=ss.phi_a0_js * ss.h_s_c_js * np.dot(ss.p_js_is, theta_r_is_n_pls)
+                + ss.phi_t0_js * np.dot(ss.k_ei_js_js, ss.h_s_c_js / (ss.h_s_r_js + ss.h_s_r_js) * np.dot(ss.p_js_is, theta_r_is_n_pls))
+                + ss.phi_t0_js * np.dot(ss.k_s_r_js_is, theta_r_is_n_pls)
+                + ss.phi_a0_js * ss.q_s_sol_js_ns[:, n+1].reshape(-1, 1)
+                + ss.phi_t0_js * np.dot(ss.k_ei_js_js, ss.q_s_sol_js_ns[:, n+1].reshape(-1, 1) / (ss.h_s_r_js + ss.h_s_r_js))
+                + ss.phi_t0_js * ss.k_eo_js * ss.theta_o_eqv_js_ns[:, n+1].reshape(-1, 1)
+                + ss.phi_a0_js / ss.a_s_js * np.dot(f_flr_js_is_n, (1 - beta_is_n) * l_rs_is_n)
+                + ss.phi_t0_js * np.dot(ss.k_ei_js_js, (ss.h_s_r_js + ss.h_s_r_js) / ss.a_s_js * np.dot(f_flr_js_is_n, (1 - beta_is_n) * l_rs_is_n))
+                + np.sum(theta_dsh_s_a_js_ms_n_pls, axis=1).reshape(-1, 1)
+                + np.sum(theta_dsh_s_t_js_ms_n_pls, axis=1).reshape(-1, 1)
+        )
+        comp(
+            name='式(18)の検証',
+            x=ss.f_ax_js_js,
+            y=np.diag((1 + ss.phi_a0_js * (ss.h_s_c_js + ss.h_s_r_js)).flatten())
+                - ss.phi_a0_js * ss.h_s_r_js * np.dot(ss.p_js_is, ss.f_mrt_is_js)
+                - ss.phi_t0_js / (ss.h_s_r_js + ss.h_s_c_js) * ss.h_s_r_js * np.dot(ss.k_ei_js_js, np.dot(ss.p_js_is, ss.f_mrt_is_js))
+        )
+        comp(
+            name='式(19)の検証',
+            x=ss.local_value['f_fia_js_is'],
+            y=ss.phi_a0_js * ss.h_s_c_js * ss.p_js_is
+                + ss.phi_t0_js * np.dot(ss.k_ei_js_js, ss.h_s_c_js / (ss.h_s_c_js + ss.h_s_r_js) * ss.p_js_is)
+                + ss.phi_t0_js * ss.k_s_r_js_is
+        )
+        comp(
+            name='式(20)の検証',
+            x=(ss.local_value['f_crx_js_ns'][:, n + 1]).reshape(-1, 1),
+            y=ss.phi_a0_js * (ss.q_s_sol_js_ns[:, n+1]).reshape(-1, 1)
+                + ss.phi_t0_js * np.dot(
+                    ss.k_ei_js_js,
+                    (ss.q_s_sol_js_ns[:, n+1]).reshape(-1, 1) / (ss.h_s_r_js + ss.h_s_c_js)
+                ) + ss.phi_t0_js * ss.k_eo_js * ss.theta_o_eqv_js_ns[:, n+1].reshape(-1, 1)
+        )
+        comp(
+            name='式(21)の検証',
+            x=f_flb_js_is_n_pls,
+            y=ss.phi_a0_js / ss.a_s_js * (1 - beta_is_n).flatten() * f_flr_js_is_n
+                + np.dot(
+                    (ss.phi_t0_js / ss.a_s_js / (ss.h_s_c_js + ss.h_s_r_js)) * ss.k_ei_js_js,
+                    (1 - beta_is_n).flatten() * f_flr_js_is_n
+            )
+        )
+        comp(
+            name='式(22)の検証',
+            x=f_cvl_js_n_pls,
+            y=(
+                    np.sum(theta_dsh_s_a_js_ms_n_pls, axis=1)
+                    + np.sum(theta_dsh_s_t_js_ms_n_pls, axis=1)
+            ).reshape(-1, 1)
+        )
+        comp(
+            name='式(23)の検証',
+            x=np.dot(ss.f_ax_js_js, theta_s_js_n_pls),
+            y=np.dot(ss.local_value['f_fia_js_is'], theta_r_is_n_pls)
+              + (ss.local_value['f_crx_js_ns'][:, n + 1]).reshape(-1, 1)
+              + np.dot(f_flb_js_is_n_pls, l_rs_is_n)
+              + f_cvl_js_n_pls
+        )
+        comp(
+            name='式(24-1)の検証',
+            x=theta_s_js_n_pls,
+            y=np.linalg.solve(
+                ss.f_ax_js_js,
+                (
+                    np.dot(ss.local_value['f_fia_js_is'], theta_r_is_n_pls)
+                    + (ss.local_value['f_crx_js_ns'][:, n+1]).reshape(-1, 1)
+                    + np.dot(f_flb_js_is_n_pls, l_rs_is_n)
+                    + f_cvl_js_n_pls
+                )
+            )
+        )
+        comp(
+            name='式(24-2)の検証',
+            x=theta_s_js_n_pls,
+            y=np.dot(ss.f_wsr_js_is, theta_r_is_n_pls)
+              + (ss.f_wsc_js_ns[:, n+1]).reshape(-1, 1)
+              + np.dot(f_wsb_js_is_n_pls, l_rs_is_n)
+              + f_wsv_js_n_pls
+        )
+        comp(
+            name='式(25)の検証',
+            x=ss.f_wsr_js_is,
+            y=np.linalg.solve(ss.f_ax_js_js, ss.local_value['f_fia_js_is'])
+        )
+        comp(
+            name='式(26)の検証',
+            x=ss.local_value['f_wsc_js_ns'],
+            y=np.linalg.solve(ss.f_ax_js_js, ss.local_value['f_crx_js_ns'])
+        )
+        comp(
+            name='式(27)の検証',
+            x=f_wsb_js_is_n_pls,
+            y=np.linalg.solve(ss.f_ax_js_js, f_flb_js_is_n_pls)
+        )
+        comp(
+            name='式(28)の検証',
+            x=f_wsv_js_n_pls,
+            y=np.linalg.solve(ss.f_ax_js_js, f_cvl_js_n_pls)
+        )
+
+        print('f_cvl_js_n_pls: ' + str(f_cvl_js_n_pls[tj, 0]))
+        print(ss.phi_a0_js[tj, 0] * q_s_js_n_pls[tj, 0] + ss.phi_t0_js[tj, 0] * theta_rear_js_n_pls[tj, 0] + f_cvl_js_n_pls[tj, 0])
+
     # ステップnの室iにおける1人あたりの人体発湿, kg/s, [i, 1]
     x_hum_psn_is_n = occupants.get_x_hum_psn_is_n(theta_r_is_n=c_n.theta_r_is_n)
 

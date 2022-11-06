@@ -174,6 +174,8 @@ class PreCalcParameters:
 
     met_is: np.ndarray
 
+    local_value: Dict
+
 
 @dataclass
 class PreCalcParametersGround:
@@ -621,7 +623,12 @@ def make_pre_calc_parameters(
         met_is=met_is,
         k_eo_js=k_eo_js,
         theta_o_eqv_js_ns=theta_o_eqv_js_ns,
-        k_s_r_js_is=k_s_r_js_is
+        k_s_r_js_is=k_s_r_js_is,
+        local_value={
+            'f_wsc_js_ns': f_wsc_js_ns,
+            'f_crx_js_ns': f_crx_js_ns,
+            'f_fia_js_is': f_fia_js_is
+        }
     )
 
     # 地盤の数
@@ -721,7 +728,8 @@ def get_f_fia_js_is(h_s_c_js, h_s_r_js, k_ei_js_js, p_js_is, phi_a0_js, phi_t0_j
         式(4.4)
     """
 
-    return phi_a0_js * h_s_c_js * p_js_is + np.dot(k_ei_js_js, p_js_is) * phi_t0_js * h_s_c_js / (h_s_c_js + h_s_r_js) + phi_t0_js * k_s_r_js_is
+    # return phi_a0_js * h_s_c_js * p_js_is + np.dot(k_ei_js_js, p_js_is) * phi_t0_js * h_s_c_js / (h_s_c_js + h_s_r_js) + phi_t0_js * k_s_r_js_is
+    return phi_a0_js * h_s_c_js * p_js_is + phi_t0_js * np.dot(k_ei_js_js, p_js_is * h_s_c_js / (h_s_c_js + h_s_r_js)) + phi_t0_js * k_s_r_js_is
 
 
 def get_f_ax_js_is(f_mrt_is_js, h_s_c_js, h_s_r_js, k_ei_js_js, p_js_is, phi_a0_js, phi_t0_js):

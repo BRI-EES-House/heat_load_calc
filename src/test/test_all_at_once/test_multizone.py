@@ -495,6 +495,12 @@ class TestAllAtOnce(unittest.TestCase):
             q_all = self._dd_i[bdr_name + 'qiall_s'][date_now]
             phi_a_0 = self._pp.phi_a0_js[i][0]
             phi_t_0 = self._pp.phi_t0_js[i][0]
+            print(theta_s)
+            print(theta_rear)
+            print(f_cvl)
+            print(q_all)
+            print(phi_a_0)
+            print(phi_t_0)
             self.assertAlmostEqual(theta_s, phi_a_0 * q_all + phi_t_0 * theta_rear + f_cvl)
 
 if __name__ == '__main__':
