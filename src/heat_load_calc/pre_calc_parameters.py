@@ -699,7 +699,7 @@ def get_f_crx_js_ns(h_s_c_js, h_s_r_js, k_ei_js_js, phi_a0_js, phi_t0_js, q_s_so
     """
 
     return phi_a0_js * q_s_sol_js_ns\
-        + phi_t0_js / (h_s_c_js + h_s_r_js) * np.dot(k_ei_js_js, q_s_sol_js_ns)\
+        + phi_t0_js * np.dot(k_ei_js_js, q_s_sol_js_ns / (h_s_c_js + h_s_r_js))\
         + phi_t0_js * theta_o_eqv_js_ns * k_eo_js
 
 
@@ -721,7 +721,7 @@ def get_f_fia_js_is(h_s_c_js, h_s_r_js, k_ei_js_js, p_js_is, phi_a0_js, phi_t0_j
         式(4.4)
     """
 
-    return phi_a0_js * h_s_c_js * p_js_is + np.dot(k_ei_js_js, p_js_is) * phi_t0_js * h_s_c_js / (h_s_c_js + h_s_r_js) + phi_t0_js * k_s_r_js_is
+    return phi_a0_js * h_s_c_js * p_js_is + np.dot(k_ei_js_js, p_js_is * h_s_c_js / (h_s_c_js + h_s_r_js)) * phi_t0_js + phi_t0_js * k_s_r_js_is
 
 
 def get_f_ax_js_is(f_mrt_is_js, h_s_c_js, h_s_r_js, k_ei_js_js, p_js_is, phi_a0_js, phi_t0_js):
@@ -745,7 +745,7 @@ def get_f_ax_js_is(f_mrt_is_js, h_s_c_js, h_s_r_js, k_ei_js_js, p_js_is, phi_a0_
 
     return v_diag(1.0 + phi_a0_js * (h_s_c_js + h_s_r_js)) \
         - np.dot(p_js_is, f_mrt_is_js) * h_s_r_js * phi_a0_js \
-        - np.dot(k_ei_js_js, np.dot(p_js_is, f_mrt_is_js)) * h_s_r_js * phi_t0_js / (h_s_c_js + h_s_r_js)
+        - np.dot(k_ei_js_js, np.dot(p_js_is, f_mrt_is_js) * h_s_r_js / (h_s_c_js + h_s_r_js)) * phi_t0_js
 
 
 def get_v_vent_mec_is_ns(v_vent_mec_general_is, v_vent_mec_local_is_ns):
