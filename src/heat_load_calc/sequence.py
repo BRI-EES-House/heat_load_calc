@@ -556,7 +556,7 @@ def get_x_r_is_n_pls(f_h_cst_is_n, f_h_wgt_is_is_n, f_l_cl_cst_is_n, f_l_cl_wgt_
 
     """
 
-    return np.dot(np.linalg.inv(f_h_wgt_is_is_n - f_l_cl_wgt_is_is_n), f_h_cst_is_n + f_l_cl_cst_is_n)
+    return np.linalg.solve(f_h_wgt_is_is_n - f_l_cl_wgt_is_is_n, f_h_cst_is_n + f_l_cl_cst_is_n)
 
 
 def get_x_r_ntr_is_n_pls(f_h_cst_is_n, f_h_wgt_is_is_n):
@@ -574,7 +574,7 @@ def get_x_r_ntr_is_n_pls(f_h_cst_is_n, f_h_wgt_is_is_n):
 
     """
 
-    return np.dot(np.linalg.inv(f_h_wgt_is_is_n), f_h_cst_is_n)
+    return np.linalg.solve(f_h_wgt_is_is_n, f_h_cst_is_n)
 
 
 def get_f_h_wgt_is_is_n(c_lh_frt_is, delta_t, g_lh_frt_is, rho_a, v_rm_is, v_vent_int_is_is_n, v_vent_out_is_n):
@@ -862,7 +862,7 @@ def get_f_wsb_js_is_n_pls(f_flb_js_is_n_pls, f_ax_js_js):
 
     """
 
-    return np.dot(np.linalg.inv(f_ax_js_js), f_flb_js_is_n_pls)
+    return np.linalg.solve(f_ax_js_js, f_flb_js_is_n_pls)
 
 
 def get_f_flb_js_is_n_pls(a_s_js, beta_is_n, f_flr_js_is_n, h_s_c_js, h_s_r_js, k_ei_js_js, phi_a0_js, phi_t0_js):
@@ -972,7 +972,7 @@ def get_theta_r_ot_ntr_is_n_pls(f_brc_ot_is_n_pls, f_brm_ot_is_is_n_pls):
         式(2.16)
     """
 
-    return np.dot(np.linalg.inv(f_brm_ot_is_is_n_pls), f_brc_ot_is_n_pls)
+    return np.linalg.solve(f_brm_ot_is_is_n_pls, f_brc_ot_is_n_pls)
 
 
 def get_f_brc_ot_is_n_pls(f_brc_is_n_pls, f_brm_is_is_n_pls, f_xc_is_n_pls):
@@ -1207,7 +1207,7 @@ def get_f_wsv_js_n_pls(f_cvl_js_n_pls, f_ax_js_js):
         式(2.27)
     """
 
-    return np.dot(np.linalg.inv(f_ax_js_js), f_cvl_js_n_pls)
+    return np.linalg.solve(f_ax_js_js, f_cvl_js_n_pls)
 
 
 def get_f_cvl_js_n_pls(theta_dsh_s_a_js_ms_n_pls, theta_dsh_s_t_js_ms_n_pls):

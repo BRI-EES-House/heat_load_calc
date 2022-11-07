@@ -658,7 +658,7 @@ def get_f_wsc_js_ns(f_ax_js_js, f_crx_js_ns):
         式(4.1)
     """
 
-    return np.dot(np.linalg.inv(f_ax_js_js), f_crx_js_ns)
+    return np.linalg.solve(f_ax_js_js, f_crx_js_ns)
 
 
 def get_f_wsr_js_is(f_ax_js_js, f_fia_js_is):
@@ -675,7 +675,7 @@ def get_f_wsr_js_is(f_ax_js_js, f_fia_js_is):
         式(4.2)
     """
 
-    return np.dot(np.linalg.inv(f_ax_js_js), f_fia_js_is)
+    return np.linalg.solve(f_ax_js_js, f_fia_js_is)
 
 
 def get_f_crx_js_ns(h_s_c_js, h_s_r_js, k_ei_js_js, phi_a0_js, phi_t0_js, q_s_sol_js_ns, k_eo_js, theta_o_eqv_js_ns):

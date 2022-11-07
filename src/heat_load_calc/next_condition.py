@@ -217,7 +217,7 @@ def get_load_and_temp(
     # X1 V = X2
     # V = X1^-1 X2
     # となる。 V は [i, 1] の縦ベクトル。
-    v = np.dot(np.linalg.inv(x1), x2)
+    v = np.linalg.solve(x1, x2)
 
     # 求めるべき数値
     # nt, c, r それぞれ、1の場合（値を指定しない場合）は、vで表される値が入る。

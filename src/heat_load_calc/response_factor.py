@@ -291,12 +291,9 @@ def get_step_reps_of_wall(C_i_k_p, R_i_k_p, laps: List[float], alp: List[float],
     matCA[:, 0] = np.sum([matF * matGA], axis=1)
     matCT[:, 0] = np.sum([matF * matGT], axis=1)
 
-    # 最小二乗法のための係数行列の逆行列を計算
-    matU_inv = np.linalg.inv(matU)
-
     # 伝達関数の係数を計算
-    matAA = np.dot(matU_inv, matCA)
-    matAT = np.dot(matU_inv, matCT)
+    matAA = np.linalg.solve(matU, matCA)
+    matAT = np.linalg.solve(matU, matCT)
 
     # 伝達関数の係数を一次元配列に変換
     dblAT = matAT[:, 0]
