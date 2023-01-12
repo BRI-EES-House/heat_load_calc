@@ -53,6 +53,19 @@ class Interval(Enum):
             Interval.M15: 0.25
         }[self]
 
+    def get_delta_t(self):
+        """1時間を分割するステップに応じてインターバル時間を取得する。
+
+        Returns:
+            インターバル時間, s
+        """
+
+        return {
+            Interval.H1: 3600,
+            Interval.M30: 1800,
+            Interval.M15: 900
+        }[self]
+
     def get_annual_number(self):
         """対応するインターバルにおいて1年間は何ステップに対応するのか、その数を取得する。
 
