@@ -17,6 +17,12 @@ class TestInterval(unittest.TestCase):
         self.assertEqual(0.5, Interval.M30.get_time())
         self.assertEqual(1.0, Interval.H1.get_time())
 
+    def test_get_delta_t(self):
+
+        self.assertEqual(900, Interval.M15.get_delta_t())
+        self.assertEqual(1800, Interval.M30.get_delta_t())
+        self.assertEqual(3600, Interval.H1.get_delta_t())
+
     def test_get_annual_number(self):
 
         self.assertEqual(8760*4, Interval.M15.get_annual_number())

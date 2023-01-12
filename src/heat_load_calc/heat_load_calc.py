@@ -75,7 +75,7 @@ def run(
     # ---- 計算 ----
 
     # 計算
-    dd_i, dd_a, _ = core2.calc(rd=rd, w=w, scd=scd)
+    dd_i, dd_a, _ = core2.calc(rd=rd, w=w, scd=scd, itv=itv)
 
     # 気象データの保存
     if is_weather_saved:
