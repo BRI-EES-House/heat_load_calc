@@ -7,7 +7,7 @@ import logging
 from heat_load_calc.matrix_method import v_diag
 from heat_load_calc.building import Building
 from heat_load_calc import weather, ot_target, next_condition, schedule, rooms, boundaries, equipments, \
-    infiltration, occupants_form_factor, shape_factor, solar_absorption, mechanical_ventilations, operation_
+    infiltration, occupants_form_factor, shape_factor, solar_absorption, mechanical_ventilations, operation_, interval
 
 
 @dataclass
@@ -213,7 +213,7 @@ class PreCalcParametersGround:
 
 
 def make_pre_calc_parameters(
-        delta_t: float,
+        itv: interval.Interval,
         rd: Dict,
         w: weather.Weather,
         scd: schedule.Schedule,
@@ -223,7 +223,7 @@ def make_pre_calc_parameters(
     """助走計算用パラメータの生成
 
     Args:
-        delta_t:  時間間隔, s
+        itv: 時間間隔
         rd: 住宅計算条件
         w: 外界気象データクラス
         scd: スケジュールクラス
@@ -235,6 +235,8 @@ def make_pre_calc_parameters(
     """
 
     logger = logging.getLogger('HeatLoadCalc').getChild('core').getChild('pre_calc_parameters')
+
+    delta_t = itv.get_delta_t()
 
     theta_o_ns = w.theta_o_ns_plus
     x_o_ns = w.x_o_ns_plus

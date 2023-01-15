@@ -54,7 +54,7 @@ def calc(
 
     # json, csv ファイルからパラメータをロードする。
     # （ループ計算する必要の無い）事前計算を行い, クラス PreCalcParameters, PreCalcParametersGround に必要な変数を格納する。
-    pp, ppg = pre_calc_parameters.make_pre_calc_parameters(delta_t=delta_t, rd=rd, w=w, scd=scd)
+    pp, ppg = pre_calc_parameters.make_pre_calc_parameters(itv=itv, rd=rd, w=w, scd=scd)
 
     gc_n = conditions.initialize_ground_conditions(n_grounds=ppg.n_grounds)
 

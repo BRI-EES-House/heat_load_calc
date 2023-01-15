@@ -68,7 +68,7 @@ class TestSteadyState(unittest.TestCase):
 
         # pre_calc_parametersの構築
         ss, ppg = pre_calc_parameters.make_pre_calc_parameters(
-            delta_t=900.0, rd=rd, w=w, theta_o_eqv_js_ns=theta_o_eqv_js_ns, scd=scd
+            itv=interval.Interval.M15, rd=rd, w=w, theta_o_eqv_js_ns=theta_o_eqv_js_ns, scd=scd
         )
 
         q_srf_js_n = np.array([[15.384094583670, 15.384094583670, -31.115905416330, 15.384094583670,
