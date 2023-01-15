@@ -5,6 +5,7 @@ import logging
 
 logger = logging.getLogger('HeatLoadCalc').getChild('building')
 
+
 class Story(Enum):
     """
     建物の階数（共同住宅の場合は住戸の階数）

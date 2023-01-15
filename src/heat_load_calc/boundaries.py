@@ -9,6 +9,8 @@ from heat_load_calc.response_factor import ResponseFactor
 from heat_load_calc.direction import Direction
 from heat_load_calc.solar_shading import SolarShading
 from heat_load_calc.outside_eqv_temp import OutsideEqvTemp
+from heat_load_calc import outside_eqv_temp
+from heat_load_calc import transmission_solar_radiation
 from heat_load_calc.window import Window
 
 
@@ -38,7 +40,7 @@ class Boundary:
 
     # 裏側表面の境界ID
     # internal_wall の場合のみ定義される。
-    rear_surface_boundary_id: int
+#    rear_surface_boundary_id: int
 
     # 床か否か
     is_floor: bool
@@ -159,17 +161,6 @@ class Boundaries:
         if area <= 0.0:
             raise ValueError("境界(ID=" + str(boundary_id) + ")の面積で0以下の値が指定されました。")
 
-        # 日射の有無 (True:当たる/False: 当たらない)
-        # 境界の種類が'external_general_part', 'external_transparent_part', 'external_opaque_part'の場合に定義される。
-        if boundary_type in [
-            BoundaryType.ExternalGeneralPart,
-            BoundaryType.ExternalTransparentPart,
-            BoundaryType.ExternalOpaquePart
-        ]:
-            is_sun_striked_outside = bool(b['is_sun_striked_outside'])
-        else:
-            is_sun_striked_outside = None
-
         # 温度差係数
         # 境界の種類が'external_general_part', 'external_transparent_part', 'external_opaque_part'の場合に定義される。
         # TODO: 下記、BoundaryType.Ground が指定されているのは間違い？　要チェック。
@@ -200,30 +191,11 @@ class Boundaries:
         # 床か否か(True:床/False:床以外)
         is_floor = bool(b['is_floor'])
 
-        # 方位
-        # 日射の有無が定義されている場合でかつその値がTrueの場合のみ定義される。
-        if is_sun_striked_outside is not None:
-            if is_sun_striked_outside:
-                direction = Direction(b['direction'])
-            else:
-                direction = None
-        else:
-            direction = None
-
         # 室内側表面対流熱伝達率, W/m2K
         h_s_c = b['h_c']
 
         # 室内側表面放射熱伝達率, W/m2K
         h_s_r = h_s_r_js[boundary_id]
-
-        # 日除け
-        if is_sun_striked_outside is not None:
-            if is_sun_striked_outside:
-                ssp = SolarShading.create(ssp_dict=b['solar_shading_part'], direction=direction)
-            else:
-                ssp = None
-        else:
-            ssp = None
 
         # 室外側長波長放射率, -
         if boundary_type in [
@@ -295,32 +267,111 @@ class Boundaries:
         else:
             a_s = None
 
-        # 相当外気温度, degree C, [N+1]
-        oet = OutsideEqvTemp.create(
-            ss=ssp,
-            boundary_type=boundary_type,
-            is_sun_striked_outside=is_sun_striked_outside,
-            direction=direction,
-            eps_r=eps_r,
-            r_surf=r_surf,
-            u_value=u_value,
-            window=window,
-            a_s=a_s
-        )
+        # 日射の有無 (True:当たる/False: 当たらない)
+        # 境界の種類が'external_general_part', 'external_transparent_part', 'external_opaque_part'の場合に定義される。
+        if boundary_type in [
+            BoundaryType.ExternalGeneralPart,
+            BoundaryType.ExternalTransparentPart,
+            BoundaryType.ExternalOpaquePart
+        ]:
+            is_sun_striked_outside = bool(b['is_sun_striked_outside'])
+        else:
+            is_sun_striked_outside = False
 
-        theta_o_sol = oet.get_theta_o_sol_i_j_ns(w=w)
 
-        # 透過日射量, W, [N+1]
-        tsr = transmission_solar_radiation.TransmissionSolarRadiation.create(
-            ss=ssp,
-            boundary_type=boundary_type,
-            direction=direction,
-            area=area,
-            window=window,
-            is_sun_striked_outside=is_sun_striked_outside
-        )
 
-        q_trs_sol = tsr.get_qgt(w=w)
+
+        if boundary_type == BoundaryType.Internal:
+
+            oet = outside_eqv_temp.OutsideEqvTempInternal()
+            theta_o_sol = oet.get_theta_o_sol_i_j_ns(w=w)
+
+            # 透過日射量, W, [N+1]
+            tsr = transmission_solar_radiation.TransmissionSolarRadiationNot()
+            q_trs_sol = tsr.get_qgt(w=w)
+
+        elif boundary_type in [BoundaryType.ExternalGeneralPart, BoundaryType.ExternalOpaquePart]:
+
+            is_sun_striked_outside = bool(b['is_sun_striked_outside'])
+
+            if is_sun_striked_outside:
+
+                # 方位
+                direction = Direction(b['direction'])
+
+                # 日除け
+                ssp = SolarShading.create(ssp_dict=b['solar_shading_part'], direction=direction)
+
+                oet = outside_eqv_temp.OutsideEqvTempExternalGeneralPartAndExternalOpaquePart(
+                    direction=direction,
+                    a_s=a_s,
+                    eps_r=eps_r,
+                    r_surf=r_surf,
+                    ss=ssp
+                )
+                theta_o_sol = oet.get_theta_o_sol_i_j_ns(w=w)
+
+            else:
+
+                oet = outside_eqv_temp.OutsideEqvTempExternalNotSunStriked()
+                theta_o_sol = oet.get_theta_o_sol_i_j_ns(w=w)
+
+            # 透過日射量, W, [N+1]
+            tsr = transmission_solar_radiation.TransmissionSolarRadiationNot()
+            q_trs_sol = tsr.get_qgt(w=w)
+
+        elif boundary_type == BoundaryType.ExternalTransparentPart:
+
+            is_sun_striked_outside = bool(b['is_sun_striked_outside'])
+
+            if is_sun_striked_outside:
+
+                # 方位
+                direction = Direction(b['direction'])
+
+                # 日除け
+                ssp = SolarShading.create(ssp_dict=b['solar_shading_part'], direction=direction)
+
+                oet = outside_eqv_temp.OutsideEqvTempExternalTransparentPart(
+                    direction=direction,
+                    eps_r=eps_r,
+                    r_surf_o=r_surf,
+                    u_value_j=u_value,
+                    ss=ssp,
+                    window=window
+                )
+                theta_o_sol = oet.get_theta_o_sol_i_j_ns(w=w)
+
+                # 透過日射量, W, [N+1]
+                tsr = transmission_solar_radiation.TransmissionSolarRadiationTransparentSunStrike(
+                    direction=direction,
+                    area=area,
+                    ss=ssp,
+                    window=window
+                )
+                q_trs_sol = tsr.get_qgt(w=w)
+
+            else:
+
+                oet = outside_eqv_temp.OutsideEqvTempExternalNotSunStriked()
+                theta_o_sol = oet.get_theta_o_sol_i_j_ns(w=w)
+
+                # 透過日射量, W, [N+1]
+                tsr = transmission_solar_radiation.TransmissionSolarRadiationNot()
+                q_trs_sol = tsr.get_qgt(w=w)
+
+        elif boundary_type == BoundaryType.Ground:
+
+            oet = outside_eqv_temp.OutsideEqvTempGround()
+            theta_o_sol = oet.get_theta_o_sol_i_j_ns(w=w)
+
+            # 透過日射量, W, [N+1]
+            tsr = transmission_solar_radiation.TransmissionSolarRadiationNot()
+            q_trs_sol = tsr.get_qgt(w=w)
+
+        else:
+
+            raise KeyError()
 
         # 応答係数
         if boundary_type in [BoundaryType.ExternalTransparentPart, BoundaryType.ExternalOpaquePart]:
@@ -455,7 +506,7 @@ class Boundaries:
             boundary_type=boundary_type,
             area=area,
             h_td=h_td,
-            rear_surface_boundary_id=rear_surface_boundary_id,
+#            rear_surface_boundary_id=rear_surface_boundary_id,
             is_floor=is_floor,
             is_solar_absorbed_inside=is_solar_absorbed_inside,
             is_sun_striked_outside=is_sun_striked_outside,
