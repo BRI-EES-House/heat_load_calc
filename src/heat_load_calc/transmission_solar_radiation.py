@@ -4,7 +4,6 @@ from heat_load_calc import inclined_surface_solar_radiation
 from heat_load_calc.weather import Weather
 from heat_load_calc.direction import Direction
 from heat_load_calc.solar_shading import SolarShading
-from heat_load_calc.boundary_type import BoundaryType
 from heat_load_calc.window import Window
 
 
