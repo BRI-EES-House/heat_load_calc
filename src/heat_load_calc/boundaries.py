@@ -8,7 +8,6 @@ from heat_load_calc.weather import Weather
 from heat_load_calc.response_factor import ResponseFactor
 from heat_load_calc.direction import Direction
 from heat_load_calc.solar_shading import SolarShading
-from heat_load_calc.outside_eqv_temp import OutsideEqvTemp
 from heat_load_calc import outside_eqv_temp
 from heat_load_calc import transmission_solar_radiation
 from heat_load_calc.window import Window
@@ -197,76 +196,6 @@ class Boundaries:
         # 室内側表面放射熱伝達率, W/m2K
         h_s_r = h_s_r_js[boundary_id]
 
-        # 室外側長波長放射率, -
-        if boundary_type in [
-            BoundaryType.ExternalGeneralPart, BoundaryType.ExternalTransparentPart, BoundaryType.ExternalOpaquePart
-        ]:
-            eps_r = float(b['outside_emissivity'])
-            if eps_r > 1.0:
-                raise ValueError("境界(ID=" + str(boundary_id) + ")の室外側長波長放射率で1.0を超える値が指定されました。")
-            if eps_r < 0.0:
-                raise ValueError("境界(ID=" + str(boundary_id) + ")の室外側長波長放射率で0.0を下回る値が指定されました。")
-        else:
-            eps_r = None
-
-        # 室外側熱伝達抵抗, m2K/W
-        if boundary_type in [
-            BoundaryType.ExternalGeneralPart, BoundaryType.ExternalTransparentPart, BoundaryType.ExternalOpaquePart
-        ]:
-            r_surf = float(b['outside_heat_transfer_resistance'])
-            if r_surf <= 0.0:
-                raise ValueError("境界(ID=" + str(boundary_id) + ")の室外側熱伝達抵抗で0.0以下の値が指定されました。")
-        else:
-            r_surf = None
-
-        # 熱貫流率
-        if boundary_type in [BoundaryType.ExternalTransparentPart, BoundaryType.ExternalOpaquePart]:
-            u_value = float(b['u_value'])
-            if u_value <= 0.0:
-                raise ValueError("境界(ID=" + str(boundary_id) + ")の熱貫流率で0.0以下の値が指定されました。")
-        else:
-            u_value = None
-
-        # 室内側熱伝達抵抗, m2K/W
-        if boundary_type in [BoundaryType.ExternalTransparentPart, BoundaryType.ExternalOpaquePart]:
-            r_i = float(b['inside_heat_transfer_resistance'])
-            if r_i <= 0.0:
-                raise ValueError("境界(ID=" + str(boundary_id) + ")の室内側熱伝達抵抗で0.0以下の値が指定されました。")
-        else:
-            r_i = None
-
-        if boundary_type == BoundaryType.ExternalTransparentPart:
-
-            # 日射熱取得率
-            eta_value = float(b['eta_value'])
-            if eta_value <= 0.0:
-                raise ValueError("境界(ID=" + str(boundary_id) + ")の日射熱取得率で0.0以下の値が指定されました。")
-
-            # 開口部の面積に対するグレージングの面積の比率
-            glass_area_ratio = b['glass_area_ratio']
-            if glass_area_ratio < 0.0:
-                raise ValueError("境界(ID=" + str(boundary_id) + ")の開口部の面積に対するグレージング面積の比率で0.0未満の値が指定されました。")
-            if glass_area_ratio > 1.0:
-                raise ValueError("境界(ID=" + str(boundary_id) + ")の開口部の面積に対するグレージング面積の比率で1.0より大の値が指定されました。")
-
-            # グレージングの種類
-            glazing_type = Window.GlassType(b['incident_angle_characteristics'])
-
-            window = Window(u_w_j=b['u_value'], eta_w_j=eta_value, glass_type=glazing_type, r_a_w_g_j=glass_area_ratio)
-
-        else:
-
-            window = None
-
-        if boundary_type in [BoundaryType.ExternalGeneralPart, BoundaryType.ExternalOpaquePart]:
-            a_s = float(b['outside_solar_absorption'])
-            if a_s < 0.0:
-                raise ValueError("境界(ID=" + str(boundary_id) + ")の日射吸収率で0.0未満の値が指定されました。")
-            if a_s > 1.0:
-                raise ValueError("境界(ID=" + str(boundary_id) + ")の日射吸収率で1.0より大の値が指定されました。")
-        else:
-            a_s = None
-
         # 日射の有無 (True:当たる/False: 当たらない)
         # 境界の種類が'external_general_part', 'external_transparent_part', 'external_opaque_part'の場合に定義される。
         if boundary_type in [
@@ -278,21 +207,29 @@ class Boundaries:
         else:
             is_sun_striked_outside = False
 
-
-
-
         if boundary_type == BoundaryType.Internal:
 
-            oet = outside_eqv_temp.OutsideEqvTempInternal()
-            theta_o_sol = oet.get_theta_o_sol_i_j_ns(w=w)
+            # 相当外気温度, ℃
+            theta_o_sol = outside_eqv_temp.get_theta_o_sol_i_j_ns_for_internal(w=w)
 
             # 透過日射量, W, [N+1]
-            tsr = transmission_solar_radiation.TransmissionSolarRadiationNot()
-            q_trs_sol = tsr.get_qgt(w=w)
+            q_trs_sol = transmission_solar_radiation.get_qgt_for_not(w=w)
 
-        elif boundary_type in [BoundaryType.ExternalGeneralPart, BoundaryType.ExternalOpaquePart]:
+            cs = np.array([_read_cs_j_l(layer=layer) for layer in b['layers']])
+            rs = np.array([_read_rs_j_l(layer=layer) for layer in b['layers']])
 
-            is_sun_striked_outside = bool(b['is_sun_striked_outside'])
+            rear_h_c = h_c_js[b['rear_surface_boundary_id'], 0]
+            rear_h_r = h_s_r_js[b['rear_surface_boundary_id'], 0]
+
+            r_o = 1.0 / (rear_h_c + rear_h_r)
+
+            # 応答係数
+            rf = ResponseFactor.create_for_unsteady_not_ground(cs=cs, rs=rs, r_o=r_o)
+
+            # U値
+            simulation_u_value = 1.0 / (1.0 / (h_s_c + h_s_r) + rs.sum() + 1.0 / (rear_h_c + rear_h_r))
+
+        elif boundary_type == BoundaryType.ExternalGeneralPart:
 
             if is_sun_striked_outside:
 
@@ -302,27 +239,39 @@ class Boundaries:
                 # 日除け
                 ssp = SolarShading.create(ssp_dict=b['solar_shading_part'], direction=direction)
 
-                oet = outside_eqv_temp.OutsideEqvTempExternalGeneralPartAndExternalOpaquePart(
-                    direction=direction,
-                    a_s=a_s,
-                    eps_r=eps_r,
-                    r_surf=r_surf,
-                    ss=ssp
+                # 室外側日射吸収率
+                a_s = _read_a_s(b=b)
+
+                r_surf = _read_r_surf(b=b, boundary_id=boundary_id)
+
+                eps_r = _read_eps_r(b=b, boundary_id=boundary_id)
+
+                # 相当外気温度, ℃
+                theta_o_sol = outside_eqv_temp.get_theta_o_sol_i_j_ns_for_external_general_part_and_external_opaque_part(
+                    direction=direction, a_s=a_s, eps_r=eps_r, r_surf=r_surf, ss=ssp, w=w
                 )
-                theta_o_sol = oet.get_theta_o_sol_i_j_ns(w=w)
 
             else:
 
-                oet = outside_eqv_temp.OutsideEqvTempExternalNotSunStriked()
-                theta_o_sol = oet.get_theta_o_sol_i_j_ns(w=w)
+                # 相当外気温度, ℃
+                theta_o_sol = outside_eqv_temp.get_theta_o_sol_i_j_ns_for_external_not_sun_striked(w=w)
 
             # 透過日射量, W, [N+1]
-            tsr = transmission_solar_radiation.TransmissionSolarRadiationNot()
-            q_trs_sol = tsr.get_qgt(w=w)
+            q_trs_sol = transmission_solar_radiation.get_qgt_for_not(w=w)
+
+            cs = np.array([_read_cs_j_l(layer=layer) for layer in b['layers']])
+            rs = np.array([_read_rs_j_l(layer=layer) for layer in b['layers']])
+
+            r_o = float(b['outside_heat_transfer_resistance'])
+
+            rf = ResponseFactor.create_for_unsteady_not_ground(cs=cs, rs=rs, r_o=r_o)
+
+            # U値
+            simulation_u_value = 1.0 / (1.0 / (h_s_c + h_s_r) + rs.sum() + r_o)
 
         elif boundary_type == BoundaryType.ExternalTransparentPart:
 
-            is_sun_striked_outside = bool(b['is_sun_striked_outside'])
+            u_value = _read_u_nominal_j(b=b, boundary_id=boundary_id)
 
             if is_sun_striked_outside:
 
@@ -332,117 +281,118 @@ class Boundaries:
                 # 日除け
                 ssp = SolarShading.create(ssp_dict=b['solar_shading_part'], direction=direction)
 
-                oet = outside_eqv_temp.OutsideEqvTempExternalTransparentPart(
-                    direction=direction,
-                    eps_r=eps_r,
-                    r_surf_o=r_surf,
-                    u_value_j=u_value,
-                    ss=ssp,
-                    window=window
+                # 日射熱取得率
+                eta_value = float(b['eta_value'])
+                if eta_value <= 0.0:
+                    raise ValueError("境界(ID=" + str(boundary_id) + ")の日射熱取得率で0.0以下の値が指定されました。")
+
+                # 開口部の面積に対するグレージングの面積の比率
+                glass_area_ratio = b['glass_area_ratio']
+                if glass_area_ratio < 0.0:
+                    raise ValueError("境界(ID=" + str(boundary_id) + ")の開口部の面積に対するグレージング面積の比率で0.0未満の値が指定されました。")
+                if glass_area_ratio > 1.0:
+                    raise ValueError("境界(ID=" + str(boundary_id) + ")の開口部の面積に対するグレージング面積の比率で1.0より大の値が指定されました。")
+
+                # グレージングの種類
+                glazing_type = Window.GlassType(b['incident_angle_characteristics'])
+
+                window = Window(
+                    u_w_j=u_value, eta_w_j=eta_value, glass_type=glazing_type, r_a_w_g_j=glass_area_ratio
                 )
-                theta_o_sol = oet.get_theta_o_sol_i_j_ns(w=w)
+
+                r_surf = _read_r_surf(b=b, boundary_id=boundary_id)
+
+                eps_r = _read_eps_r(b=b, boundary_id=boundary_id)
+
+                # 相当外気温度, ℃
+                theta_o_sol = outside_eqv_temp.get_theta_o_sol_i_j_ns_for_external_transparent_part(
+                    direction=direction, eps_r=eps_r, r_surf_o=r_surf, u_value_j=u_value, ss=ssp, window=window, w=w
+                )
 
                 # 透過日射量, W, [N+1]
-                tsr = transmission_solar_radiation.TransmissionSolarRadiationTransparentSunStrike(
-                    direction=direction,
-                    area=area,
-                    ss=ssp,
-                    window=window
+                q_trs_sol = transmission_solar_radiation.get_qgt_for_transparent_sun_strike(
+                    direction=direction, area=area, ss=ssp, window=window, w=w
                 )
-                q_trs_sol = tsr.get_qgt(w=w)
 
             else:
 
-                oet = outside_eqv_temp.OutsideEqvTempExternalNotSunStriked()
-                theta_o_sol = oet.get_theta_o_sol_i_j_ns(w=w)
+                # 相当外気温度, ℃
+                theta_o_sol = outside_eqv_temp.get_theta_o_sol_i_j_ns_for_external_not_sun_striked(w=w)
 
                 # 透過日射量, W, [N+1]
-                tsr = transmission_solar_radiation.TransmissionSolarRadiationNot()
-                q_trs_sol = tsr.get_qgt(w=w)
+                q_trs_sol = transmission_solar_radiation.get_qgt_for_not(w=w)
+
+            # 室内側熱伝達抵抗, m2K/W
+            r_i_nominal = _read_r_i_nominal(b=b, boundary_id=boundary_id)
+
+            # 応答係数
+            rf = ResponseFactor.create_for_steady(u_w=u_value, r_i=r_i_nominal)
+
+            u_value_nominal = float(b['u_value'])
+
+            simulation_u_value = 1.0 / (1.0 / u_value_nominal - r_i_nominal + 1.0 / (h_s_c + h_s_r))
+
+        elif boundary_type == BoundaryType.ExternalOpaquePart:
+
+            if is_sun_striked_outside:
+
+                # 方位
+                direction = Direction(b['direction'])
+
+                # 日除け
+                ssp = SolarShading.create(ssp_dict=b['solar_shading_part'], direction=direction)
+
+                # 室外側日射吸収率
+                a_s = _read_a_s(b=b)
+
+                r_surf = _read_r_surf(b=b, boundary_id=boundary_id)
+
+                eps_r = _read_eps_r(b=b, boundary_id=boundary_id)
+
+                # 相当外気温度, ℃
+                theta_o_sol = outside_eqv_temp.get_theta_o_sol_i_j_ns_for_external_general_part_and_external_opaque_part(
+                    direction=direction, a_s=a_s, eps_r=eps_r, r_surf=r_surf, ss=ssp, w=w
+                )
+
+            else:
+
+                # 相当外気温度, ℃
+                theta_o_sol = outside_eqv_temp.get_theta_o_sol_i_j_ns_for_external_not_sun_striked(w=w)
+
+            # 透過日射量, W, [N+1]
+            q_trs_sol = transmission_solar_radiation.get_qgt_for_not(w=w)
+
+            # 室内側熱伝達抵抗, m2K/W
+            r_i_nominal = _read_r_i_nominal(b=b, boundary_id=boundary_id)
+
+            u_value = _read_u_nominal_j(b=b, boundary_id=boundary_id)
+
+            rf = ResponseFactor.create_for_steady(u_w=u_value, r_i=r_i_nominal)
+
+            r_i_nominal = b['inside_heat_transfer_resistance']
+            u_value_nominal = float(b['u_value'])
+            simulation_u_value = 1.0 / (1.0 / u_value_nominal - r_i_nominal + 1.0 / (h_s_c + h_s_r))
 
         elif boundary_type == BoundaryType.Ground:
 
-            oet = outside_eqv_temp.OutsideEqvTempGround()
-            theta_o_sol = oet.get_theta_o_sol_i_j_ns(w=w)
+            # 相当外気温度, ℃
+            theta_o_sol = outside_eqv_temp.get_theta_o_sol_i_j_ns_for_ground(w=w)
 
             # 透過日射量, W, [N+1]
-            tsr = transmission_solar_radiation.TransmissionSolarRadiationNot()
-            q_trs_sol = tsr.get_qgt(w=w)
+            q_trs_sol = transmission_solar_radiation.get_qgt_for_not(w=w)
+
+            cs = np.array([_read_cs_j_l(layer=layer) for layer in b['layers']])
+            rs = np.array([_read_rs_j_l(layer=layer) for layer in b['layers']])
+
+            # 応答係数
+            rf = ResponseFactor.create_for_unsteady_ground(cs=cs, rs=rs)
+
+            # U値
+            simulation_u_value = 1.0 / (1.0 / (h_s_c + h_s_r) + rs.sum())
 
         else:
 
             raise KeyError()
-
-        # 応答係数
-        if boundary_type in [BoundaryType.ExternalTransparentPart, BoundaryType.ExternalOpaquePart]:
-
-            rf = ResponseFactor.create_for_steady(u_w=b['u_value'], r_i=r_i)
-
-        else:
-
-            cs = np.array([float(layer['thermal_capacity']) for layer in b['layers']])
-            rs = np.array([float(layer['thermal_resistance']) for layer in b['layers']])
-
-            if boundary_type == BoundaryType.ExternalGeneralPart:
-
-                r_o = float(b['outside_heat_transfer_resistance'])
-                rf = ResponseFactor.create_for_unsteady_not_ground(cs=cs, rs=rs, r_o=r_o)
-
-            elif boundary_type == BoundaryType.Internal:
-
-                rear_h_c = h_c_js[b['rear_surface_boundary_id'], 0]
-                rear_h_r = h_s_r_js[b['rear_surface_boundary_id'], 0]
-
-                r_o = 1.0 / (rear_h_c + rear_h_r)
-
-                rf = ResponseFactor.create_for_unsteady_not_ground(cs=cs, rs=rs, r_o=r_o)
-
-            elif boundary_type == BoundaryType.Ground:
-
-                rf = ResponseFactor.create_for_unsteady_ground(cs=cs, rs=rs)
-
-            else:
-
-                KeyError()
-
-        # 熱貫流率の計算
-        # シミュレーションで使用する室内熱伝達抵抗の計算
-        inner_h_c = h_c_js[b['id'], 0]
-        inner_h_r = h_s_r_js[b['id'], 0]
-        simulation_r_i = 1.0 / (inner_h_c + inner_h_r)
-        simulation_u_value = 0.0
-
-        if boundary_type in [BoundaryType.ExternalTransparentPart, BoundaryType.ExternalOpaquePart]:
-
-            input_r_i = b['inside_heat_transfer_resistance']
-            input_u_value = float(b['u_value'])
-            simulation_u_value = 1.0 / (1.0 / input_u_value - input_r_i + simulation_r_i)
-
-        else:
-
-            sum_rs = np.sum(np.array([float(layer['thermal_resistance']) for layer in b['layers']]))
-
-            if boundary_type == BoundaryType.ExternalGeneralPart:
-
-                r_o = float(b['outside_heat_transfer_resistance'])
-
-                simulation_u_value = 1.0 / (simulation_r_i + sum_rs + r_o)
-
-            elif boundary_type == BoundaryType.Internal:
-
-                rear_h_c = h_c_js[b['rear_surface_boundary_id'], 0]
-                rear_h_r = h_s_r_js[b['rear_surface_boundary_id'], 0]
-
-                r_o = 1.0 / (rear_h_c + rear_h_r)
-
-                simulation_u_value = 1.0 / (simulation_r_i + sum_rs + r_o)
-
-            elif boundary_type == BoundaryType.Ground:
-
-                simulation_u_value = 1.0 / (simulation_r_i + sum_rs)
-
-            else:
-                KeyError()
 
         # Boundary の数
         n_b = h_c_js.size
@@ -803,4 +753,91 @@ class Boundaries:
             raise Exception("指定された boundary_id に一致する boundary が複数見つかりました。")
 
         return bss[0]
+
+
+def _read_r_i_nominal(b: Dict, boundary_id: int) -> float:
+    """
+    室内側熱伝達抵抗を取得する。
+    Args:
+        b: 境界の辞書
+        boundary_id: 境界のID
+
+    Returns:
+        室内側熱伝達抵抗, m2K/W
+
+    """
+
+    # 室内側熱伝達抵抗, m2K/W
+    r_i = float(b['inside_heat_transfer_resistance'])
+
+    if r_i <= 0.0:
+        raise ValueError("境界(ID=" + str(boundary_id) + ")の室内側熱伝達抵抗で0.0以下の値が指定されました。")
+
+    return r_i
+
+
+def _read_cs_j_l(layer: Dict) -> float:
+
+    return float(layer['thermal_capacity'])
+
+
+def _read_rs_j_l(layer: Dict) -> float:
+
+    return float(layer['thermal_resistance'])
+
+
+def _read_a_s(b: Dict) -> float:
+    """
+
+    Args:
+        b:
+
+    Returns:
+        室外側日射吸収率
+    """
+
+    # 室外側日射吸収率
+    a_s = float(b['outside_solar_absorption'])
+
+    if a_s < 0.0:
+        raise ValueError("境界(ID=" + str(boundary_id) + ")の日射吸収率で0.0未満の値が指定されました。")
+
+    if a_s > 1.0:
+        raise ValueError("境界(ID=" + str(boundary_id) + ")の日射吸収率で1.0より大の値が指定されました。")
+
+    return a_s
+
+
+def _read_u_nominal_j(b: Dict, boundary_id: int) -> float:
+
+    u_nominal_j = float(b['u_value'])
+
+    if u_nominal_j <= 0.0:
+        raise ValueError("境界(ID=" + str(boundary_id) + ")の熱貫流率で0.0以下の値が指定されました。")
+
+    return u_nominal_j
+
+
+def _read_r_surf(b: Dict, boundary_id: int) -> float:
+
+    r_surf = float(b['outside_heat_transfer_resistance'])
+
+    if r_surf <= 0.0:
+        raise ValueError("境界(ID=" + str(boundary_id) + ")の室外側熱伝達抵抗で0.0以下の値が指定されました。")
+
+    return r_surf
+
+
+def _read_eps_r(b: Dict, boundary_id: int) -> float:
+
+    eps_r = float(b['outside_emissivity'])
+
+    if eps_r > 1.0:
+        raise ValueError("境界(ID=" + str(boundary_id) + ")の室外側長波長放射率で1.0を超える値が指定されました。")
+
+    if eps_r < 0.0:
+        raise ValueError("境界(ID=" + str(boundary_id) + ")の室外側長波長放射率で0.0を下回る値が指定されました。")
+
+    return eps_r
+
 
