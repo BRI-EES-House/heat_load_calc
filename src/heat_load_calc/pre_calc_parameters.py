@@ -394,7 +394,7 @@ def make_pre_calc_parameters(
     # region mechanical ventilations
 
     mvs = mechanical_ventilations.MechanicalVentilations(
-        dict_mechanical_ventilations=rd['mechanical_ventilations'],
+        vs=rd['mechanical_ventilations'],
         n_rm=n_rm
     )
 
