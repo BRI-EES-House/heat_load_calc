@@ -9,7 +9,7 @@ class VentilationType(Enum):
     TYPE1 = 'type1'
     TYPE2 = 'type2'
     TYPE3 = 'type3'
-    NATURAL_ROOP = 'natural_roop'
+    NATURAL_LOOP = 'natural_loop'
 
 
 @dataclass
@@ -78,7 +78,7 @@ class MechanicalVentilations:
                         v2[r[i], r[i-1]] = v2[r[i], r[i-1]] + v.volume / 3600
                         v2[r[i], r[i]] = v2[r[i], r[i]] - v.volume / 3600
 
-            elif v.root_type == VentilationType.NATURAL_ROOP:
+            elif v.root_type == VentilationType.NATURAL_LOOP:
 
                 r = v.root
 
