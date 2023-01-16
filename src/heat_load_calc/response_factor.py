@@ -6,8 +6,6 @@ import math
 import numpy as np
 from typing import List, Dict
 
-from heat_load_calc.boundary_type import BoundaryType
-
 
 class ResponseFactor:
 

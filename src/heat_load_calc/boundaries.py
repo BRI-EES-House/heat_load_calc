@@ -1,9 +1,9 @@
 import numpy as np
 from dataclasses import dataclass
 from typing import List, Dict
+from enum import Enum
 
 from heat_load_calc import response_factor, transmission_solar_radiation, shape_factor
-from heat_load_calc.boundary_type import BoundaryType
 from heat_load_calc.weather import Weather
 from heat_load_calc.response_factor import ResponseFactor
 from heat_load_calc.direction import Direction
@@ -11,6 +11,27 @@ from heat_load_calc.solar_shading import SolarShading
 from heat_load_calc import outside_eqv_temp
 from heat_load_calc import transmission_solar_radiation
 from heat_load_calc.window import Window
+
+
+class BoundaryType(Enum):
+    """
+    境界の種類
+    """
+
+    # 'internal': 間仕切り
+    Internal = 'internal'
+
+    # 'external_general_part': 外皮_一般部位
+    ExternalGeneralPart = 'external_general_part'
+
+    # 'external_transparent_part': 外皮_透明な開口部
+    ExternalTransparentPart = 'external_transparent_part'
+
+    # 'external_opaque_part': 外皮_不透明な開口部
+    ExternalOpaquePart = 'external_opaque_part'
+
+    # 'ground': 地盤
+    Ground = 'ground'
 
 
 @dataclass
