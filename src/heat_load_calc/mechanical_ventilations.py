@@ -1,6 +1,15 @@
 ﻿from typing import Dict, List
 import numpy as np
 from dataclasses import dataclass
+from enum import Enum
+
+
+class VentilationType(Enum):
+
+    TYPE1 = 'type1'
+    TYPE2 = 'type2'
+    TYPE3 = 'type3'
+    NATURAL_LOOP = 'natural_loop'
 
 
 @dataclass
@@ -10,7 +19,7 @@ class MechanicalVentilation:
     id: int
 
     # 換気経路のタイプ
-    root_type: str
+    root_type: VentilationType
 
     # 換気量, m3/h
     volume: float
@@ -21,16 +30,16 @@ class MechanicalVentilation:
 
 class MechanicalVentilations:
 
-    def __init__(self, dict_mechanical_ventilations: Dict, n_rm: int):
+    def __init__(self, vs: Dict, n_rm: int):
 
         self._mechanical_ventilations = [
             MechanicalVentilation(
                 id=v['id'],
-                root_type=v['root_type'],
+                root_type=VentilationType(v['root_type']),
                 volume=v['volume'],
                 root=v['root']
             )
-            for v in dict_mechanical_ventilations
+            for v in vs
         ]
 
         self._n_rm = n_rm
@@ -41,18 +50,11 @@ class MechanicalVentilations:
 
         for v in self._mechanical_ventilations:
 
-            if v.root_type in ['type1', 'type2', 'type3']:
+            if v.root_type in [VentilationType.TYPE1, VentilationType.TYPE2, VentilationType.TYPE3]:
 
                 r = v.root
 
-                for i in range(len(r)):
-
-                    if i == 0:
-                        v1[r[0]] = v1[r[0]] + v.volume / 3600
-
-            else:
-
-                raise KeyError()
+                v1[r[0]] = v1[r[0]] + v.volume / 3600
 
         v1 = v1.reshape(-1, 1)
 
@@ -64,7 +66,7 @@ class MechanicalVentilations:
 
         for v in self._mechanical_ventilations:
 
-            if v.root_type in ['type1', 'type2', 'type3']:
+            if v.root_type in [VentilationType.TYPE1, VentilationType.TYPE2, VentilationType.TYPE3]:
 
                 r = v.root
 
@@ -75,6 +77,20 @@ class MechanicalVentilations:
                     else:
                         v2[r[i], r[i-1]] = v2[r[i], r[i-1]] + v.volume / 3600
                         v2[r[i], r[i]] = v2[r[i], r[i]] - v.volume / 3600
+
+            elif v.root_type == VentilationType.NATURAL_LOOP:
+
+                r = v.root
+
+                for i in range(len(r)):
+
+                    if i == 0:
+                        i_upstream = len(r) - 1
+                    else:
+                        i_upstream = i - 1
+
+                    v2[r[i], r[i_upstream]] = v2[r[i], r[i_upstream]] + v.volume / 3600
+                    v2[r[i], r[i]] = v2[r[i], r[i]] - v.volume / 3600
 
             else:
 
