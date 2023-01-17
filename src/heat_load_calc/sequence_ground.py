@@ -1,11 +1,11 @@
 import numpy as np
 
-from heat_load_calc.pre_calc_parameters import PreCalcParametersGround
+from heat_load_calc.pre_calc_parameters import PreCalcParametersGround, PreCalcParameters
 from heat_load_calc.conditions import GroundConditions
 
 
 # 地盤の計算（n+1ステップを計算する）
-def run_tick(gc_n: GroundConditions, ss: PreCalcParametersGround, n: int):
+def run_tick(pp: PreCalcParameters, gc_n: GroundConditions, ss: PreCalcParametersGround, n: int):
 
     h_i_js = ss.h_s_r_js + ss.h_s_c_js
 
@@ -17,12 +17,12 @@ def run_tick(gc_n: GroundConditions, ss: PreCalcParametersGround, n: int):
 
 #    theta_s_js_npls = (ss.phi_a0_js * h_i_js * ss.theta_o_ns[n + 1] + ss.phi_t0_js * ss.theta_dstrb_js_ns[:, [n + 1]]
 #    theta_s_js_npls = (ss.phi_a0_js * h_i_js * ss.theta_o_ns[n + 1] + ss.phi_t0_js * ss.theta_dstrb_js_ns[:, n + 1]
-    theta_s_js_npls = (ss.phi_a0_js * h_i_js * ss.theta_o_ns[n + 1] + ss.phi_t0_js * ss.k_eo_js * ss.theta_o_eqv_js_ns[:, [n + 1]]
-        + np.sum(theta_dsh_srf_a_js_ms_npls, axis=1, keepdims=True)
-        + np.sum(theta_dsh_srf_t_js_ms_npls, axis=1, keepdims=True)) \
+    theta_s_js_npls = (ss.phi_a0_js * h_i_js * pp.weather.theta_o_ns_plus[n + 1] + ss.phi_t0_js * ss.k_eo_js * ss.theta_o_eqv_js_ns[:, [n + 1]]
+                       + np.sum(theta_dsh_srf_a_js_ms_npls, axis=1, keepdims=True)
+                       + np.sum(theta_dsh_srf_t_js_ms_npls, axis=1, keepdims=True)) \
         / (1.0 + ss.phi_a0_js * h_i_js)
 
-    q_srf_js_n = h_i_js * (ss.theta_o_ns[n+1] - theta_s_js_npls)
+    q_srf_js_n = h_i_js * (pp.weather.theta_o_ns_plus[n + 1] - theta_s_js_npls)
 
     return GroundConditions(
         theta_dsh_srf_a_js_ms_n=theta_dsh_srf_a_js_ms_npls,

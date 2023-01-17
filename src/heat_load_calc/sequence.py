@@ -60,7 +60,7 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, rec
     q_hum_is_n = get_q_hum_is_n(n_hum_is_n=ss.n_hum_is_ns[:, n].reshape(-1, 1), q_hum_psn_is_n=q_hum_psn_is_n)
 
     # ステップnの室iにおけるすきま風量, m3/s, [i, 1]
-    v_leak_is_n = ss.get_infiltration(theta_r_is_n=c_n.theta_r_is_n, theta_o_n=ss.theta_o_ns[n])
+    v_leak_is_n = ss.get_infiltration(theta_r_is_n=c_n.theta_r_is_n, theta_o_n=ss.weather.theta_o_ns_plus[n])
 
     # ステップ n+1 の境界 j における項別公比法の指数項 m の貫流応答の項別成分, degree C, [j, m] (m=12), eq.(29)
     theta_dsh_s_t_js_ms_n_pls = get_theta_dsh_s_t_js_ms_n_pls(
@@ -121,7 +121,7 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, rec
         q_sol_frt_is_n=ss.q_sol_frt_is_ns[:, n].reshape(-1, 1),
         rho_a=get_rho_a(),
         theta_frt_is_n=c_n.theta_frt_is_n,
-        theta_o_n_pls=ss.theta_o_ns[n + 1],
+        theta_o_n_pls=ss.weather.theta_o_ns_plus[n + 1],
         theta_r_is_n=c_n.theta_r_is_n,
         v_vent_out_is_n=v_vent_out_is_n
     )
@@ -356,7 +356,7 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, rec
         x_frt_is_n=c_n.x_frt_is_n,
         x_gen_is_n=ss.x_gen_is_ns[:, n].reshape(-1, 1),
         x_hum_is_n=x_hum_is_n,
-        x_o_n_pls=ss.x_o_ns[n + 1],
+        x_o_n_pls=ss.weather.x_o_ns_plus[n + 1],
         x_r_is_n=c_n.x_r_is_n
     )
 

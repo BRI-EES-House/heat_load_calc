@@ -54,18 +54,18 @@ def calc(
 
     # json, csv ファイルからパラメータをロードする。
     # （ループ計算する必要の無い）事前計算を行い, クラス PreCalcParameters, PreCalcParametersGround に必要な変数を格納する。
-    pp, ppg = pre_calc_parameters.make_pre_calc_parameters(itv=itv, rd=rd, w=w, scd=scd)
+    pp, ppg = pre_calc_parameters.make_pre_calc_parameters(itv=itv, rd=rd, weather=w, scd=scd)
 
     gc_n = conditions.initialize_ground_conditions(n_grounds=ppg.n_grounds)
 
     logger.info('助走計算（土壌のみ）')
 
     for n in range(-n_step_run_up, -n_step_run_up_build):
-        gc_n = sequence_ground.run_tick(gc_n=gc_n, ss=ppg, n=n)
+        gc_n = sequence_ground.run_tick(pp=pp, gc_n=gc_n, ss=ppg, n=n)
 
     result = recorder.Recorder(n_step_main=n_step_main, id_rm_is=list(pp.id_rm_is.flatten()), id_bdry_js=list(pp.id_bdry_js.flatten()))
 
-    result.pre_recording(pp)
+    result.pre_recording(ss=pp, weather=pp.weather)
 
     # 建物を計算するにあたって初期値を与える
     c_n = conditions.initialize_conditions(n_spaces=pp.n_rm, n_bdries=pp.n_bdry)

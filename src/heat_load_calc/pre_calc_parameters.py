@@ -9,6 +9,7 @@ from heat_load_calc.matrix_method import v_diag
 from heat_load_calc.building import Building
 from heat_load_calc import weather, ot_target, next_condition, schedule, rooms, boundaries, equipments, \
     infiltration, occupants_form_factor, shape_factor, solar_absorption, mechanical_ventilations, operation_, interval
+from heat_load_calc.weather import Weather
 
 
 class ACMethod(Enum):
@@ -21,6 +22,10 @@ class ACMethod(Enum):
 
 @dataclass
 class PreCalcParameters:
+
+    # 気象条件
+    #   ステップnの外気温度, degree C, [N+1]
+    weather: Weather
 
     # region 建物全体に関すること
 
@@ -157,12 +162,6 @@ class PreCalcParameters:
     # 境界jの裏面温度に他の境界の等価温度が与える影響, [j, j]
     k_ei_js_js: np.ndarray
 
-    # ステップnの外気温度, degree C, [n]
-    theta_o_ns: np.ndarray
-
-    # ステップnの外気絶対湿度, kg/kg(DA), [n]
-    x_o_ns: np.ndarray
-
     # 温度差係数, -, [j, 1]
     k_eo_js: np.ndarray
 
@@ -211,9 +210,6 @@ class PreCalcParametersGround:
     # 地盤jにおける室内側対流熱伝達率, W/m2K, [j, 1]
     h_s_c_js: np.ndarray
 
-    # ステップnの外気温度, degree C, [n]
-    theta_o_ns: np.ndarray
-
     # 温度差係数, -, [j, 1]
     k_eo_js: np.ndarray
 
@@ -224,7 +220,7 @@ class PreCalcParametersGround:
 def make_pre_calc_parameters(
         itv: interval.Interval,
         rd: Dict,
-        w: weather.Weather,
+        weather: Weather,
         scd: schedule.Schedule,
         q_trs_sol_is_ns: Optional[np.ndarray] = None,
         theta_o_eqv_js_ns: Optional[np.ndarray] = None
@@ -234,7 +230,7 @@ def make_pre_calc_parameters(
     Args:
         itv: 時間間隔
         rd: 住宅計算条件
-        w: 外界気象データクラス
+        weather: Weatherクラス
         scd: スケジュールクラス
         q_trs_sol_is_ns: optional テスト用　値を指定することができる。未指定の場合は計算する。
         theta_o_eqv_js_ns: optional テスト用　値を指定することができる。未指定の場合は計算する。
@@ -246,9 +242,6 @@ def make_pre_calc_parameters(
     logger = logging.getLogger('HeatLoadCalc').getChild('core').getChild('pre_calc_parameters')
 
     delta_t = itv.get_delta_t()
-
-    theta_o_ns = w.theta_o_ns_plus
-    x_o_ns = w.x_o_ns_plus
 
     # ステップ n の室 i における内部発熱, W, [i, n]
     q_gen_is_ns = scd.q_gen_is_ns
@@ -312,7 +305,7 @@ def make_pre_calc_parameters(
     bs = boundaries.Boundaries(
         id_rm_is=id_rm_is,
         bs_list=rd['boundaries'],
-        w=w
+        w=weather
     )
 
     # 境界の数
@@ -574,6 +567,7 @@ def make_pre_calc_parameters(
 
 
     pre_calc_parameters = PreCalcParameters(
+        weather=weather,
         n_rm=n_rm,
         id_rm_is=id_rm_is,
         name_rm_is=name_rm_is,
@@ -618,8 +612,6 @@ def make_pre_calc_parameters(
         is_ground_js=is_ground_js,
         f_wsc_js_ns=f_wsc_js_ns,
         k_ei_js_js=k_ei_js_js,
-        theta_o_ns=theta_o_ns,
-        x_o_ns=x_o_ns,
         get_operation_mode_is_n=get_operation_mode_is_n,
         get_theta_target_is_n=get_theta_target_is_n,
         get_infiltration=get_infiltration,
@@ -643,7 +635,6 @@ def make_pre_calc_parameters(
         phi_t1_js_ms=phi_t1_js_ms[is_ground_js.flatten(), :],
         h_s_r_js=h_s_r_js[is_ground_js.flatten(), :],
         h_s_c_js=h_s_c_js[is_ground_js.flatten(), :],
-        theta_o_ns=theta_o_ns,
         k_eo_js=k_eo_js[is_ground_js.flatten(), :],
         theta_o_eqv_js_ns=theta_o_eqv_js_ns[is_ground_js.flatten(), :]
     )
@@ -771,35 +762,3 @@ def get_v_vent_mec_is_ns(v_vent_mec_general_is, v_vent_mec_local_is_ns):
 
     return v_vent_mec_general_is + v_vent_mec_local_is_ns
 
-
-def _read_weather_data(pp: pd.DataFrame):
-    """
-    気象データを読み込む。
-    Args:
-        pp (pd.DataFrame): 気象データのDataFrame
-    Returns:
-        外気温度, degree C
-        外気絶対湿度, kg/kg(DA)
-        法線面直達日射量, W/m2
-        水平面天空日射量, W/m2
-        夜間放射量, W/m2
-        太陽高度, rad
-        太陽方位角, rad
-    """
-
-    # 外気温度, degree C
-    theta_o_ns = pp['temperature'].values
-    # 外気絶対湿度, kg/kg(DA)
-    x_o_ns = pp['absolute humidity'].values
-    # 法線面直達日射量, W/m2
-    i_dn_ns = pp['normal direct solar radiation'].values
-    # 水平面天空日射量, W/m2
-    i_sky_ns = pp['horizontal sky solar radiation'].values
-    # 夜間放射量, W/m2
-    r_n_ns = pp['outward radiation'].values
-    # 太陽高度, rad
-    h_sun_ns = pp['sun altitude'].values
-    # 太陽方位角, rad
-    a_sun_ns = pp['sun azimuth'].values
-
-    return a_sun_ns, h_sun_ns, i_dn_ns, i_sky_ns, r_n_ns, theta_o_ns, x_o_ns

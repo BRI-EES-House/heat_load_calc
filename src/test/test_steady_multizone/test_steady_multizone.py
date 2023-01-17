@@ -59,12 +59,12 @@ class TestSteadyState(unittest.TestCase):
         )
 
         # pre_calc_parametersの構築
-        ss, ppg = pre_calc_parameters.make_pre_calc_parameters(itv=interval.Interval.M15, rd=rd, w=w, scd=scd)
+        ss, ppg = pre_calc_parameters.make_pre_calc_parameters(itv=interval.Interval.M15, rd=rd, weather=w, scd=scd)
 
         result = recorder.Recorder(n_step_main=8760 * 4, id_rm_is=list(ss.id_rm_is.flatten()),
                                    id_bdry_js=list(ss.id_bdry_js.flatten()))
 
-        result.pre_recording(ss)
+        result.pre_recording(ss=ss, weather=ss.weather)
 
         q_srf_js_n = np.array([[
             3.615155079132,

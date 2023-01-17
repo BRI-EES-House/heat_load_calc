@@ -7,6 +7,7 @@ from typing import List
 from heat_load_calc.pre_calc_parameters import PreCalcParameters
 from heat_load_calc import pmv as pmv, psychrometrics as psy
 from heat_load_calc.interval import Interval
+from heat_load_calc.weather import Weather
 
 
 class Recorder:
@@ -236,17 +237,17 @@ class Recorder:
             ('f_cvl_js_ns', 'f_cvl')
         ]
 
-    def pre_recording(self, ss: PreCalcParameters):
+    def pre_recording(self, ss: PreCalcParameters, weather: Weather):
 
         # 注意：用意された1年分のデータと実行期間が異なる場合があるためデータスライスする必要がある。
 
         # ---瞬時値---
 
         # ステップ n における外気温度, ℃, [n+1]
-        self.theta_o_ns = ss.theta_o_ns[0: self._n_step_i]
+        self.theta_o_ns = weather.theta_o_ns_plus[0: self._n_step_i]
 
         # ステップ n における外気絶対湿度, kg/kg(DA), [n+1]
-        self.x_o_ns = ss.x_o_ns[0: self._n_step_i]
+        self.x_o_ns = weather.x_o_ns_plus[0: self._n_step_i]
 
         # ステップ n における室 i の窓の透過日射熱取得, W, [i, n+1]
         self.q_trs_sol_is_ns = ss.q_trs_sol_is_ns[:, 0:self._n_step_i]
