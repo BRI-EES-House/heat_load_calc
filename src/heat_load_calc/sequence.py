@@ -57,7 +57,7 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, rec
     q_hum_psn_is_n = occupants.get_q_hum_psn_is_n(theta_r_is_n=c_n.theta_r_is_n)
 
     # ステップ n からステップ n+1 における室 i の人体発熱, W, [i, 1]
-    q_hum_is_n = get_q_hum_is_n(n_hum_is_n=ss.n_hum_is_ns[:, n].reshape(-1, 1), q_hum_psn_is_n=q_hum_psn_is_n)
+    q_hum_is_n = get_q_hum_is_n(n_hum_is_n=ss.scd.n_hum_is_ns[:, n].reshape(-1, 1), q_hum_psn_is_n=q_hum_psn_is_n)
 
     # ステップnの室iにおけるすきま風量, m3/s, [i, 1]
     v_leak_is_n = ss.get_infiltration(theta_r_is_n=c_n.theta_r_is_n, theta_o_n=ss.weather.theta_o_ns_plus[n])
@@ -341,7 +341,7 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, rec
 
     # ステップnの室iにおける人体発湿, kg/s, [i, 1]
     x_hum_is_n = get_x_hum_is_n(
-        n_hum_is_n=ss.n_hum_is_ns[:, n].reshape(-1, 1),
+        n_hum_is_n=ss.scd.n_hum_is_ns[:, n].reshape(-1, 1),
         x_hum_psn_is_n=x_hum_psn_is_n
     )
 
@@ -354,7 +354,7 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, rec
         v_rm_is=ss.v_rm_is,
         v_vent_out_is_n=v_vent_out_is_n,
         x_frt_is_n=c_n.x_frt_is_n,
-        x_gen_is_n=ss.x_gen_is_ns[:, n].reshape(-1, 1),
+        x_gen_is_n=ss.scd.x_gen_is_ns[:, n].reshape(-1, 1),
         x_hum_is_n=x_hum_is_n,
         x_o_n_pls=ss.weather.x_o_ns_plus[n + 1],
         x_r_is_n=c_n.x_r_is_n

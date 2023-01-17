@@ -36,6 +36,11 @@ class PreCalcParameters:
 
     # Schedule Class
     #   ステップnの室iにおける人体発熱を除く内部発熱, W, [i, N]
+    #   ステップnの室iにおける人体発湿を除く内部発湿, kg/s, [i, N]
+    #   ステップnの室iにおける局所換気量, m3 / s, [i, N]
+    #   ステップnの室iにおける在室人数, [i, N]
+    #   ステップnの室iにおける空調需要, [i, N]
+    #   ステップnの室iにおける空調モード, [i, N]
     scd: Schedule
 
     # region 建物全体に関すること
@@ -69,15 +74,6 @@ class PreCalcParameters:
 
     # 室 i の空気と備品等間の湿気コンダクタンス, kg/(s (kg/kgDA)), [i, 1]
     g_lh_frt_is: np.ndarray
-
-    # ステップnにおける室iの空調需要, [i, 8760*4]
-    ac_demand_is_ns: np.ndarray
-
-    # ステップnの室iにおける在室人数, [i, 8760*4]
-    n_hum_is_ns: np.ndarray
-
-    # ステップnの室iにおける人体発湿を除く内部発湿, kg/s, [i, 8760*4]
-    x_gen_is_ns: np.ndarray
 
     # ステップnの室iにおける機械換気量（全般換気量+局所換気量）, m3/s, [i, 8760*4]
     v_vent_mec_is_ns: np.ndarray
@@ -250,18 +246,6 @@ def make_pre_calc_parameters(
     logger = logging.getLogger('HeatLoadCalc').getChild('core').getChild('pre_calc_parameters')
 
     delta_t = itv.get_delta_t()
-
-    # ステップ n の室 i における人体発湿を除く内部発湿, kg/s, [i, n]
-    x_gen_is_ns = scd.x_gen_is_ns
-
-    # ステップ n の室 i における局所換気量, m3/s, [i, n]
-    v_vent_mec_local_is_ns = scd.v_mec_vent_local_is_ns
-
-    # ステップ n の室 i における在室人数, [i, n]
-    n_hum_is_ns = scd.n_hum_is_ns
-
-    # ステップ n の室 i における空調需要, [i, n]
-    ac_demand_is_ns = scd.ac_demand_is_ns
 
     # region building
 
@@ -463,7 +447,7 @@ def make_pre_calc_parameters(
     # ステップ n からステップ n+1 における室 i の機械換気量（全般換気量と局所換気量の合計値）, m3/s, [i, 1]
     v_vent_mec_is_ns = get_v_vent_mec_is_ns(
         v_vent_mec_general_is=v_vent_mec_general_is,
-        v_vent_mec_local_is_ns=v_vent_mec_local_is_ns
+        v_vent_mec_local_is_ns=scd.v_mec_vent_local_is_ns
     )
 
     # ステップ n における室 i に設置された備品等による透過日射吸収熱量, W, [i, n+1]
@@ -531,7 +515,7 @@ def make_pre_calc_parameters(
 
     get_operation_mode_is_n = operation_.make_get_operation_mode_is_n_function(
         ac_method=ac_method.value,
-        ac_demand_is_ns=ac_demand_is_ns,
+        ac_demand_is_ns=scd.ac_demand_is_ns,
         is_radiative_heating_is=is_radiative_heating_is,
         is_radiative_cooling_is=is_radiative_cooling_is,
         met_is=met_is
@@ -542,7 +526,7 @@ def make_pre_calc_parameters(
         is_radiative_heating_is=is_radiative_heating_is,
         is_radiative_cooling_is=is_radiative_cooling_is,
         met_is=met_is,
-        ac_setting_is_ns=ac_demand_is_ns,
+        ac_setting_is_ns=scd.ac_demand_is_ns,
         ac_config=ac_config
     )
 
@@ -559,7 +543,7 @@ def make_pre_calc_parameters(
 
     # 次のステップの室温と負荷を計算する関数
     calc_next_temp_and_load = next_condition.make_get_next_temp_and_load_function(
-        ac_demand_is_ns=ac_demand_is_ns,
+        ac_demand_is_ns=scd.ac_demand_is_ns,
         is_radiative_heating_is=is_radiative_heating_is,
         is_radiative_cooling_is=is_radiative_cooling_is,
         lr_h_max_cap_is=q_rs_h_max_is,
@@ -588,8 +572,6 @@ def make_pre_calc_parameters(
         sub_name_bdry_js=sub_name_bdry_js,
         a_s_js=a_s_js,
         v_vent_mec_is_ns=v_vent_mec_is_ns,
-        n_hum_is_ns=n_hum_is_ns,
-        x_gen_is_ns=x_gen_is_ns,
         f_mrt_hum_is_js=f_mrt_hum_is_js,
         n_bdry=n_b,
         r_js_ms=r_js_ms,
@@ -599,7 +581,6 @@ def make_pre_calc_parameters(
         phi_a1_js_ms=phi_a1_js_ms,
         q_trs_sol_is_ns=q_trs_sol_is_ns,
         v_vent_ntr_set_is=v_vent_ntr_set_is,
-        ac_demand_is_ns=ac_demand_is_ns,
         f_flr_h_js_is=f_flr_h_js_is,
         f_flr_c_js_is=f_flr_c_js_is,
         h_s_r_js=h_s_r_js,

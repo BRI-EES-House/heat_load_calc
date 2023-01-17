@@ -268,13 +268,13 @@ class Recorder:
         # ---平均値・積算値---
 
         # ステップ n の室 i における当該時刻の空調需要, [i, n_step_a]
-        self.ac_demand_is_ns = ss.ac_demand_is_ns[:, 0:self._n_step_a]
+        self.ac_demand_is_ns = ss.scd.ac_demand_is_ns[:, 0:self._n_step_a]
 
         # ステップnの室iにおける人体発熱を除く内部発熱, W, [i, n_step_a]
         self.q_gen_is_ns = ss.scd.q_gen_is_ns[:, 0:self._n_step_a]
 
         # ステップ n の室 i における人体発湿を除く内部発湿, kg/s, [i, n_step_a]
-        self.x_gen_is_ns = ss.x_gen_is_ns[:, 0:self._n_step_a]
+        self.x_gen_is_ns = ss.scd.x_gen_is_ns[:, 0:self._n_step_a]
 
     def post_recording(self, ss: PreCalcParameters):
 
