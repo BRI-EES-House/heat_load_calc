@@ -3,11 +3,20 @@ import pandas as pd
 from dataclasses import dataclass
 from typing import Dict, List, Callable, Optional, Tuple
 import logging
+from enum import Enum
 
 from heat_load_calc.matrix_method import v_diag
 from heat_load_calc.building import Building
 from heat_load_calc import weather, ot_target, next_condition, schedule, rooms, boundaries, equipments, \
     infiltration, occupants_form_factor, shape_factor, solar_absorption, mechanical_ventilations, operation_, interval
+
+
+class ACMethod(Enum):
+
+    PMV = 'pmv'
+    SIMPLE = 'simple'
+    OT = 'ot'
+    AIR_TEMPERATURE = 'air_temperature'
 
 
 @dataclass
@@ -513,11 +522,7 @@ def make_pre_calc_parameters(
 
     # region 読み込んだ値から新たに関数を作成する
 
-    if 'ac_method' in rd['common']:
-        ac_method = rd['common']['ac_method']
-    else:
-        logger.warning('[ac_method] is not declined. Method [pmv] was set as [ac_method].')
-        ac_method = 'pmv'
+    ac_method = ACMethod(rd['common']['ac_method'])
 
     if 'ac_config' in rd['common']:
         ac_config = rd['common']['ac_config']
@@ -527,7 +532,7 @@ def make_pre_calc_parameters(
     # ac_method = 'simple'
 
     get_operation_mode_is_n = operation_.make_get_operation_mode_is_n_function(
-        ac_method=ac_method,
+        ac_method=ac_method.value,
         ac_demand_is_ns=ac_demand_is_ns,
         is_radiative_heating_is=is_radiative_heating_is,
         is_radiative_cooling_is=is_radiative_cooling_is,
@@ -535,7 +540,7 @@ def make_pre_calc_parameters(
     )
 
     get_theta_target_is_n = ot_target.make_get_theta_target_is_n_function(
-        ac_method=ac_method,
+        ac_method=ac_method.value,
         is_radiative_heating_is=is_radiative_heating_is,
         is_radiative_cooling_is=is_radiative_cooling_is,
         met_is=met_is,
