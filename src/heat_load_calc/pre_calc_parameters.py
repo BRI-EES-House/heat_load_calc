@@ -24,7 +24,13 @@ class ACMethod(Enum):
 class PreCalcParameters:
 
     # 気象条件
-    #   ステップnの外気温度, degree C, [N+1]
+    #   ステップ n の外気温度, degree C, [N+1]
+    #   ステップ n の外気絶対湿度, kg / kg(DA), [N+1]
+    #   ステップ n の法線面直達日射量, W / m2, [N+1]
+    #   ステップ n の水平面天空日射量, W / m2, [N+1]
+    #   ステップ n の夜間放射量, W / m2, [N+1]
+    #   ステップ n の太陽高度, rad, [N+1]
+    #   ステップ n の太陽方位角, rad, [N+1]
     weather: Weather
 
     # region 建物全体に関すること
