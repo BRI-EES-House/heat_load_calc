@@ -61,7 +61,7 @@ class TestSteadyState(unittest.TestCase):
         # pre_calc_parametersの構築
         ss, ppg = pre_calc_parameters.make_pre_calc_parameters(itv=interval.Interval.M15, rd=rd, weather=w, scd=scd)
 
-        result = recorder.Recorder(n_step_main=8760 * 4, id_rm_is=list(ss.id_rm_is.flatten()),
+        result = recorder.Recorder(n_step_main=8760 * 4, id_rm_is=list(ss.rms.id_rm_is.flatten()),
                                    id_bdry_js=list(ss.id_bdry_js.flatten()))
 
         result.pre_recording(ss=ss, weather=ss.weather, scd=ss.scd)
@@ -121,7 +121,7 @@ class TestSteadyState(unittest.TestCase):
         c_n_init = c_n
         c_n = sequence.run_tick(n=0, delta_t=900.0, ss=ss, c_n=c_n, recorder=result)
 
-        result.post_recording(ss)
+        result.post_recording(ss=ss, rms=ss.rms)
 
         # 計算結果格納
         cls._c_n = c_n_init

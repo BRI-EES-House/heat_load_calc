@@ -9,6 +9,7 @@ from heat_load_calc import pmv as pmv, psychrometrics as psy
 from heat_load_calc.interval import Interval
 from heat_load_calc.weather import Weather
 from heat_load_calc.schedule import Schedule
+from heat_load_calc.rooms import Rooms
 
 
 class Recorder:
@@ -276,7 +277,7 @@ class Recorder:
         # ステップ n の室 i における人体発湿を除く内部発湿, kg/s, [i, n_step_a]
         self.x_gen_is_ns = ss.scd.x_gen_is_ns[:, 0:self._n_step_a]
 
-    def post_recording(self, ss: PreCalcParameters):
+    def post_recording(self, ss: PreCalcParameters, rms: Rooms):
 
         # ---瞬時値---
 
@@ -299,11 +300,11 @@ class Recorder:
 
         # ステップnの室iにおける家具取得熱量, W, [i, n]
         # ステップ n+1 の温度を用いてステップ n からステップ n+1 の平均的な熱流を求めている（後退差分）
-        self.q_frt_is_ns = np.delete(ss.g_sh_frt_is * (self.theta_r_is_ns - self.theta_frt_is_ns), 0, axis=1)
+        self.q_frt_is_ns = np.delete(rms.g_sh_frt_is * (self.theta_r_is_ns - self.theta_frt_is_ns), 0, axis=1)
 
         # ステップ n の室 i の家具等から空気への水分流, kg/s, [i, n]
         # ステップ n+1 の湿度を用いてステップ n からステップ n+1 の平均的な水分流を求めている（後退差分）
-        self.q_l_frt_is_ns = np.delete(ss.g_lh_frt_is * (self.x_r_is_ns - self.x_frt_is_ns), 0, axis=1)
+        self.q_l_frt_is_ns = np.delete(rms.g_lh_frt_is * (self.x_r_is_ns - self.x_frt_is_ns), 0, axis=1)
 
         # ステップ n+1 のPMVを計算するのに、ステップ n からステップ n+1 のClo値を用いる。
         # 現在、Clo値の配列数が1つ多いバグがあるため、適切な長さになるようにスライスしている。
@@ -322,7 +323,7 @@ class Recorder:
             theta_mrt_is_n=self.theta_mrt_hum_is_ns,
             clo_is_n=clo_pls,
             v_hum_is_n=v_hum_pls,
-            met_is=ss.met_is
+            met_is=rms.met_is
         )
 
         # ステップ n の室 i におけるPPD実現値, [i, n+1]

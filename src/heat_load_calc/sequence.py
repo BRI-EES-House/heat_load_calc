@@ -93,7 +93,7 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, rec
     # ステップ n からステップ n+1 における室 i の自然風利用による換気量, m3/s, [i, 1]
     v_vent_ntr_is_n = get_v_vent_ntr_is_n(
         operation_mode_is_n=operation_mode_is_n,
-        v_vent_ntr_set_is=ss.v_vent_ntr_set_is
+        v_vent_ntr_set_is=ss.rms.v_vent_ntr_set_is
     )
 
     # ステップ n からステップ n+1 における室 i の換気・隙間風・自然風の利用による外気の流入量, m3/s, [i, 1]
@@ -108,12 +108,12 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, rec
     f_brc_is_n_pls = get_f_brc_is_n_pls(
         a_s_js=ss.a_s_js,
         c_a=get_c_a(),
-        v_rm_is=ss.v_rm_is,
-        c_sh_frt_is=ss.c_sh_frt_is,
+        v_rm_is=ss.rms.v_rm_is,
+        c_sh_frt_is=ss.rms.c_sh_frt_is,
         delta_t=delta_t,
         f_wsc_js_n_pls=ss.f_wsc_js_ns[:, n + 1].reshape(-1, 1),
         f_wsv_js_n_pls=f_wsv_js_n_pls,
-        g_sh_frt_is=ss.g_sh_frt_is,
+        g_sh_frt_is=ss.rms.g_sh_frt_is,
         h_s_c_js=ss.h_s_c_js,
         p_is_js=ss.p_is_js,
         q_gen_is_n=ss.scd.q_gen_is_ns[:, n].reshape(-1, 1),
@@ -130,11 +130,11 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, rec
     f_brm_is_is_n_pls = get_f_brm_is_is_n_pls(
         a_s_js=ss.a_s_js,
         c_a=get_c_a(),
-        v_rm_is=ss.v_rm_is,
-        c_sh_frt_is=ss.c_sh_frt_is,
+        v_rm_is=ss.rms.v_rm_is,
+        c_sh_frt_is=ss.rms.c_sh_frt_is,
         delta_t=delta_t,
         f_wsr_js_is=ss.f_wsr_js_is,
-        g_sh_frt_is=ss.g_sh_frt_is,
+        g_sh_frt_is=ss.rms.g_sh_frt_is,
         h_s_c_js=ss.h_s_c_js,
         p_is_js=ss.p_is_js,
         p_js_is=ss.p_js_is,
@@ -289,9 +289,9 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, rec
     # ステップ n+1 における室 i　の備品等の温度, degree C, [i, 1]
     # TODO: q_sol_frt_is_ns の値は n+1 の値を使用するべき？
     theta_frt_is_n_pls = get_theta_frt_is_n_pls(
-        c_sh_frt_is=ss.c_sh_frt_is,
+        c_sh_frt_is=ss.rms.c_sh_frt_is,
         delta_t=delta_t,
-        g_sh_frt_is=ss.g_sh_frt_is,
+        g_sh_frt_is=ss.rms.g_sh_frt_is,
         q_sol_frt_is_n=ss.q_sol_frt_is_ns[:, n].reshape(-1, 1),
         theta_frt_is_n=c_n.theta_frt_is_n,
         theta_r_is_n_pls=theta_r_is_n_pls
@@ -347,11 +347,11 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, rec
 
     # ステップ n における室　i　の潜熱バランスに関する係数, kg/s, [i, 1]
     f_h_cst_is_n = get_f_h_cst_is_n(
-        c_lh_frt_is=ss.c_lh_frt_is,
+        c_lh_frt_is=ss.rms.c_lh_frt_is,
         delta_t=delta_t,
-        g_lh_frt_is=ss.g_lh_frt_is,
+        g_lh_frt_is=ss.rms.g_lh_frt_is,
         rho_a=get_rho_a(),
-        v_rm_is=ss.v_rm_is,
+        v_rm_is=ss.rms.v_rm_is,
         v_vent_out_is_n=v_vent_out_is_n,
         x_frt_is_n=c_n.x_frt_is_n,
         x_gen_is_n=ss.scd.x_gen_is_ns[:, n].reshape(-1, 1),
@@ -362,11 +362,11 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, rec
 
     # ステップ n における室 i* の絶対湿度が室 i の潜熱バランスに与える影響を表す係数,　kg/(s kg/kg(DA)), [i, i]
     f_h_wgt_is_is_n = get_f_h_wgt_is_is_n(
-        c_lh_frt_is=ss.c_lh_frt_is,
+        c_lh_frt_is=ss.rms.c_lh_frt_is,
         delta_t=delta_t,
-        g_lh_frt_is=ss.g_lh_frt_is,
+        g_lh_frt_is=ss.rms.g_lh_frt_is,
         rho_a=get_rho_a(),
-        v_rm_is=ss.v_rm_is,
+        v_rm_is=ss.rms.v_rm_is,
         v_vent_int_is_is_n=ss.v_vent_int_is_is,
         v_vent_out_is_n=v_vent_out_is_n
     )
@@ -403,9 +403,9 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, rec
 
     # ステップ n+1 における室 i の備品等等の絶対湿度, kg/kg(DA), [i, 1]
     x_frt_is_n_pls = get_x_frt_is_n_pls(
-        c_lh_frt_is=ss.c_lh_frt_is,
+        c_lh_frt_is=ss.rms.c_lh_frt_is,
         delta_t=delta_t,
-        g_lh_frt_is=ss.g_lh_frt_is,
+        g_lh_frt_is=ss.rms.g_lh_frt_is,
         x_frt_is_n=c_n.x_frt_is_n,
         x_r_is_n_pls=x_r_is_n_pls
     )

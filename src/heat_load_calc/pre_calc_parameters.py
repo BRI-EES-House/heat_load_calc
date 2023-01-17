@@ -1,5 +1,4 @@
 import numpy as np
-import pandas as pd
 from dataclasses import dataclass
 from typing import Dict, List, Callable, Optional, Tuple
 import logging
@@ -7,11 +6,12 @@ from enum import Enum
 
 from heat_load_calc.matrix_method import v_diag
 from heat_load_calc.building import Building
-from heat_load_calc import weather, ot_target, next_condition, schedule, rooms, boundaries, equipments, \
+from heat_load_calc import ot_target, next_condition, schedule, rooms, boundaries, equipments, \
     infiltration, occupants_form_factor, shape_factor, solar_absorption, mechanical_ventilations, operation_, interval
 from heat_load_calc.weather import Weather
 from heat_load_calc.schedule import Schedule
-
+from heat_load_calc.rooms import Rooms
+from heat_load_calc.boundaries import Boundaries
 
 class ACMethod(Enum):
 
@@ -37,52 +37,35 @@ class PreCalcParameters:
     # Schedule Class
     #   ステップnの室iにおける人体発熱を除く内部発熱, W, [i, N]
     #   ステップnの室iにおける人体発湿を除く内部発湿, kg/s, [i, N]
-    #   ステップnの室iにおける局所換気量, m3 / s, [i, N]
+    #   ステップnの室iにおける局所換気量, m3/s, [i, N]
     #   ステップnの室iにおける在室人数, [i, N]
     #   ステップnの室iにおける空調需要, [i, N]
     #   ステップnの室iにおける空調モード, [i, N]
     scd: Schedule
 
-    # region 建物全体に関すること
+    # Rooms Class
+    #   空間の数, [i]
+    #   空間のID, [i]
+    #   空間の名前, [i]
+    #   室iの容積, m3, [i, 1]
+    #   室iの備品等の熱容量, J/K, [i, 1]
+    #   室iの備品等の湿気容量, kg/(kg/kgDA), [i, 1]
+    #   室iの空気と備品等間の熱コンダクタンス, W/K, [i, 1]
+    #   室iの空気と備品等間の湿気コンダクタンス, kg/(s (kg/kgDA)), [i, 1]
+    #   室iの自然風利用時の換気量, m3/s, [i, 1]
+    #   室iの在室者のMet値, [i, 1]
+    rms: Rooms
 
-    # 該当なし
-
-    # endregion
+    # Boundaries Class
+    bs: Boundaries
 
     # region 空間に関すること
-
-    # 空間の数, [i]
-    n_rm: int
-
-    # 空間のID
-    id_rm_is: np.ndarray
-
-    # 空間の名前, [i]
-    name_rm_is: List[str]
-
-    # 室iの容積, m3, [i, 1]
-    v_rm_is: np.ndarray
-
-    # 室 i の備品等の熱容量, J/K, [i, 1]
-    c_sh_frt_is: np.ndarray
-
-    # 室 i の備品等の湿気容量, kg/(kg/kgDA), [i, 1]
-    c_lh_frt_is: np.ndarray
-
-    #  室 i の空気と備品等間の熱コンダクタンス, W/K, [i, 1]
-    g_sh_frt_is: np.ndarray
-
-    # 室 i の空気と備品等間の湿気コンダクタンス, kg/(s (kg/kgDA)), [i, 1]
-    g_lh_frt_is: np.ndarray
 
     # ステップnの室iにおける機械換気量（全般換気量+局所換気量）, m3/s, [i, 8760*4]
     v_vent_mec_is_ns: np.ndarray
 
     # ステップ n における室 i に設置された備品等による透過日射吸収熱量, W, [i, n+1]
     q_sol_frt_is_ns: np.ndarray
-
-    # 室iの自然風利用時の換気量, m3/s, [i, 1]
-    v_vent_ntr_set_is: np.ndarray
 
     # ステップ n における室 i の窓の透過日射熱取得, W, [i, n+1]
     q_trs_sol_is_ns: np.ndarray
@@ -184,8 +167,6 @@ class PreCalcParameters:
 
     get_f_l_cl: Callable[[np.ndarray, np.ndarray, np.ndarray], Tuple[np.ndarray, np.ndarray]]
 
-    met_is: np.ndarray
-
 
 @dataclass
 class PreCalcParametersGround:
@@ -247,52 +228,16 @@ def make_pre_calc_parameters(
 
     delta_t = itv.get_delta_t()
 
-    # region building
-
+    # Building Class
     building = Building.create_building(d=rd['building'])
 
-    # endregion
-
-    # region rooms
-
+    # Rooms Class
     rms = rooms.Rooms(ds=rd['rooms'])
-
-    # room の数
-    n_rm = rms.n_rm
-
-    # id, [i, 1]
-    id_rm_is = rms.id_rm_is
-
-    # 空間iの名前, [i, 1]
-    name_rm_is = rms.name_rm_is
-
-    # 空間iの気積, m3, [i, 1]
-    v_rm_is = rms.v_rm_is
-
-    # 室 i の備品等の熱容量, J/K, [i, 1]
-    c_sh_frt_is = rms.c_sh_frt_is
-
-    # 室 i の空気と備品等間の熱コンダクタンス, W/K, [i, 1]
-    g_sh_frt_is = rms.g_sh_frt_is
-
-    # 室 i の備品等の湿気容量, kg/(kg/kgDA), [i, 1]
-    c_lh_frt_is = rms.c_lh_frt_is
-
-    # 室 i の空気と備品等間の湿気コンダクタンス, kg/(s (kg/kgDA)), [i, 1]
-    g_lh_frt_is = rms.g_lh_frt_is
-
-    # 室iの自然風利用時の換気量, m3/s, [i, 1]
-    v_vent_ntr_set_is = rms.v_vent_ntr_set_is
-
-    # 室 i の在室者のMet値, [i, 1]
-    met_is = rms.met_is
-
-    # endregion
 
     # region boundaries
 
     bs = boundaries.Boundaries(
-        id_rm_is=id_rm_is,
+        id_rm_is=rms.id_rm_is,
         bs_list=rd['boundaries'],
         w=weather
     )
@@ -386,7 +331,7 @@ def make_pre_calc_parameters(
 
     mvs = mechanical_ventilations.MechanicalVentilations(
         vs=rd['mechanical_ventilations'],
-        n_rm=n_rm
+        n_rm=rms.n_rm
     )
 
     # 室iの機械換気量（局所換気を除く）, m3/s, [i, 1]
@@ -399,7 +344,7 @@ def make_pre_calc_parameters(
 
     # region equipments
 
-    es = equipments.Equipments(dict_equipments=rd['equipments'], n_rm=n_rm, n_b=n_b, bs=bs)
+    es = equipments.Equipments(dict_equipments=rd['equipments'], n_rm=rms.n_rm, n_b=n_b, bs=bs)
 
     # 室iの暖房方式として放射空調が設置されているかどうか。  bool値, [i, 1]
     is_radiative_heating_is = es.get_is_radiative_heating_is()
@@ -434,7 +379,7 @@ def make_pre_calc_parameters(
 
     # 室 i の在室者に対する境界jの形態係数, [i, j]
     f_mrt_hum_is_js = occupants_form_factor.get_f_mrt_hum_js(
-        n_rm=n_rm,
+        n_rm=rms.n_rm,
         n_b=n_b,
         p_is_js=p_is_js,
         a_s_js=a_s_js,
@@ -518,14 +463,14 @@ def make_pre_calc_parameters(
         ac_demand_is_ns=scd.ac_demand_is_ns,
         is_radiative_heating_is=is_radiative_heating_is,
         is_radiative_cooling_is=is_radiative_cooling_is,
-        met_is=met_is
+        met_is=rms.met_is
     )
 
     get_theta_target_is_n = ot_target.make_get_theta_target_is_n_function(
         ac_method=ac_method.value,
         is_radiative_heating_is=is_radiative_heating_is,
         is_radiative_cooling_is=is_radiative_cooling_is,
-        met_is=met_is,
+        met_is=rms.met_is,
         ac_setting_is_ns=scd.ac_demand_is_ns,
         ac_config=ac_config
     )
@@ -537,7 +482,7 @@ def make_pre_calc_parameters(
     # 戻り値:
     #   すきま風量, m3/s, [i,1]
     get_infiltration = infiltration.make_get_infiltration_function(
-        v_rm_is=v_rm_is,
+        v_rm_is=rms.v_rm_is,
         building=building
     )
 
@@ -558,14 +503,8 @@ def make_pre_calc_parameters(
     pre_calc_parameters = PreCalcParameters(
         weather=weather,
         scd=scd,
-        n_rm=n_rm,
-        id_rm_is=id_rm_is,
-        name_rm_is=name_rm_is,
-        v_rm_is=v_rm_is,
-        c_sh_frt_is=c_sh_frt_is,
-        c_lh_frt_is=c_lh_frt_is,
-        g_sh_frt_is=g_sh_frt_is,
-        g_lh_frt_is=g_lh_frt_is,
+        rms=rms,
+        bs=bs,
         v_vent_int_is_is=v_vent_int_is_is,
         id_bdry_js=id_b_js,
         name_bdry_js=name_bdry_js,
@@ -580,7 +519,6 @@ def make_pre_calc_parameters(
         phi_t1_js_ms=phi_t1_js_ms,
         phi_a1_js_ms=phi_a1_js_ms,
         q_trs_sol_is_ns=q_trs_sol_is_ns,
-        v_vent_ntr_set_is=v_vent_ntr_set_is,
         f_flr_h_js_is=f_flr_h_js_is,
         f_flr_c_js_is=f_flr_c_js_is,
         h_s_r_js=h_s_r_js,
@@ -603,7 +541,6 @@ def make_pre_calc_parameters(
         get_infiltration=get_infiltration,
         calc_next_temp_and_load=calc_next_temp_and_load,
         get_f_l_cl=get_f_l_cl,
-        met_is=met_is,
         k_eo_js=k_eo_js,
         theta_o_eqv_js_ns=theta_o_eqv_js_ns,
         k_s_r_js_is=k_s_r_js_is
