@@ -65,7 +65,7 @@ def calc(
 
     result = recorder.Recorder(n_step_main=n_step_main, id_rm_is=list(pp.id_rm_is.flatten()), id_bdry_js=list(pp.id_bdry_js.flatten()))
 
-    result.pre_recording(ss=pp, weather=pp.weather)
+    result.pre_recording(ss=pp, weather=pp.weather, scd=pp.scd)
 
     # 建物を計算するにあたって初期値を与える
     c_n = conditions.initialize_conditions(n_spaces=pp.n_rm, n_bdries=pp.n_bdry)

@@ -8,6 +8,7 @@ from heat_load_calc.pre_calc_parameters import PreCalcParameters
 from heat_load_calc import pmv as pmv, psychrometrics as psy
 from heat_load_calc.interval import Interval
 from heat_load_calc.weather import Weather
+from heat_load_calc.schedule import Schedule
 
 
 class Recorder:
@@ -237,7 +238,7 @@ class Recorder:
             ('f_cvl_js_ns', 'f_cvl')
         ]
 
-    def pre_recording(self, ss: PreCalcParameters, weather: Weather):
+    def pre_recording(self, ss: PreCalcParameters, weather: Weather, scd: Schedule):
 
         # 注意：用意された1年分のデータと実行期間が異なる場合があるためデータスライスする必要がある。
 
@@ -266,13 +267,13 @@ class Recorder:
 
         # ---平均値・積算値---
 
-        # ステップ n の室 i における当該時刻の空調需要, [i, n]
+        # ステップ n の室 i における当該時刻の空調需要, [i, n_step_a]
         self.ac_demand_is_ns = ss.ac_demand_is_ns[:, 0:self._n_step_a]
 
-        # ステップnの室iにおける人体発熱を除く内部発熱, W, [i, 8760*4]
-        self.q_gen_is_ns = ss.q_gen_is_ns[:, 0:self._n_step_a]
+        # ステップnの室iにおける人体発熱を除く内部発熱, W, [i, n_step_a]
+        self.q_gen_is_ns = ss.scd.q_gen_is_ns[:, 0:self._n_step_a]
 
-        # ステップ n の室 i における人体発湿を除く内部発湿, kg/s, [i, n]
+        # ステップ n の室 i における人体発湿を除く内部発湿, kg/s, [i, n_step_a]
         self.x_gen_is_ns = ss.x_gen_is_ns[:, 0:self._n_step_a]
 
     def post_recording(self, ss: PreCalcParameters):

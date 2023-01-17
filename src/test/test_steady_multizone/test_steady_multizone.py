@@ -64,7 +64,7 @@ class TestSteadyState(unittest.TestCase):
         result = recorder.Recorder(n_step_main=8760 * 4, id_rm_is=list(ss.id_rm_is.flatten()),
                                    id_bdry_js=list(ss.id_bdry_js.flatten()))
 
-        result.pre_recording(ss=ss, weather=ss.weather)
+        result.pre_recording(ss=ss, weather=ss.weather, scd=ss.scd)
 
         q_srf_js_n = np.array([[
             3.615155079132,

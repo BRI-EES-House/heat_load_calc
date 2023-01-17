@@ -10,6 +10,7 @@ from heat_load_calc.building import Building
 from heat_load_calc import weather, ot_target, next_condition, schedule, rooms, boundaries, equipments, \
     infiltration, occupants_form_factor, shape_factor, solar_absorption, mechanical_ventilations, operation_, interval
 from heat_load_calc.weather import Weather
+from heat_load_calc.schedule import Schedule
 
 
 class ACMethod(Enum):
@@ -23,15 +24,19 @@ class ACMethod(Enum):
 @dataclass
 class PreCalcParameters:
 
-    # 気象条件
-    #   ステップ n の外気温度, degree C, [N+1]
-    #   ステップ n の外気絶対湿度, kg / kg(DA), [N+1]
-    #   ステップ n の法線面直達日射量, W / m2, [N+1]
-    #   ステップ n の水平面天空日射量, W / m2, [N+1]
-    #   ステップ n の夜間放射量, W / m2, [N+1]
-    #   ステップ n の太陽高度, rad, [N+1]
-    #   ステップ n の太陽方位角, rad, [N+1]
+    # Weather Class
+    #   ステップnの外気温度, degree C, [N+1]
+    #   ステップnの外気絶対湿度, kg / kg(DA), [N+1]
+    #   ステップnの法線面直達日射量, W / m2, [N+1]
+    #   ステップnの水平面天空日射量, W / m2, [N+1]
+    #   ステップnの夜間放射量, W / m2, [N+1]
+    #   ステップnの太陽高度, rad, [N+1]
+    #   ステップnの太陽方位角, rad, [N+1]
     weather: Weather
+
+    # Schedule Class
+    #   ステップnの室iにおける人体発熱を除く内部発熱, W, [i, N]
+    scd: Schedule
 
     # region 建物全体に関すること
 
@@ -70,9 +75,6 @@ class PreCalcParameters:
 
     # ステップnの室iにおける在室人数, [i, 8760*4]
     n_hum_is_ns: np.ndarray
-
-    # ステップnの室iにおける人体発熱を除く内部発熱, W, [i, 8760*4]
-    q_gen_is_ns: np.ndarray
 
     # ステップnの室iにおける人体発湿を除く内部発湿, kg/s, [i, 8760*4]
     x_gen_is_ns: np.ndarray
@@ -248,9 +250,6 @@ def make_pre_calc_parameters(
     logger = logging.getLogger('HeatLoadCalc').getChild('core').getChild('pre_calc_parameters')
 
     delta_t = itv.get_delta_t()
-
-    # ステップ n の室 i における内部発熱, W, [i, n]
-    q_gen_is_ns = scd.q_gen_is_ns
 
     # ステップ n の室 i における人体発湿を除く内部発湿, kg/s, [i, n]
     x_gen_is_ns = scd.x_gen_is_ns
@@ -574,6 +573,7 @@ def make_pre_calc_parameters(
 
     pre_calc_parameters = PreCalcParameters(
         weather=weather,
+        scd=scd,
         n_rm=n_rm,
         id_rm_is=id_rm_is,
         name_rm_is=name_rm_is,
@@ -588,7 +588,6 @@ def make_pre_calc_parameters(
         sub_name_bdry_js=sub_name_bdry_js,
         a_s_js=a_s_js,
         v_vent_mec_is_ns=v_vent_mec_is_ns,
-        q_gen_is_ns=q_gen_is_ns,
         n_hum_is_ns=n_hum_is_ns,
         x_gen_is_ns=x_gen_is_ns,
         f_mrt_hum_is_js=f_mrt_hum_is_js,

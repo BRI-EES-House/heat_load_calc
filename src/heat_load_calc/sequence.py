@@ -116,7 +116,7 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, rec
         g_sh_frt_is=ss.g_sh_frt_is,
         h_s_c_js=ss.h_s_c_js,
         p_is_js=ss.p_is_js,
-        q_gen_is_n=ss.q_gen_is_ns[:, n].reshape(-1, 1),
+        q_gen_is_n=ss.scd.q_gen_is_ns[:, n].reshape(-1, 1),
         q_hum_is_n=q_hum_is_n,
         q_sol_frt_is_n=ss.q_sol_frt_is_ns[:, n].reshape(-1, 1),
         rho_a=get_rho_a(),
