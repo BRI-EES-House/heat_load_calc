@@ -45,11 +45,11 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, rec
 
     # ステップ n の境界 j における裏面温度, degree C, [j, 1]
     theta_rear_js_n = get_theta_s_rear_js_n(
-        k_s_er_js_js=ss.k_ei_js_js,
+        k_s_er_js_js=ss.bs.k_ei_js_js,
         theta_er_js_n=c_n.theta_ei_js_n,
         k_s_eo_js=ss.k_eo_js,
         theta_eo_js_n=ss.theta_o_eqv_js_ns[:, n].reshape(-1, 1),
-        k_s_r_js_is=ss.k_s_r_js_is,
+        k_s_r_js_is=ss.bs.k_s_r_js_is,
         theta_r_is_n=c_n.theta_r_is_n
     )
 
@@ -115,7 +115,7 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, rec
         f_wsv_js_n_pls=f_wsv_js_n_pls,
         g_sh_frt_is=ss.rms.g_sh_frt_is,
         h_s_c_js=ss.h_s_c_js,
-        p_is_js=ss.p_is_js,
+        p_is_js=ss.bs.p_is_js,
         q_gen_is_n=ss.scd.q_gen_is_ns[:, n].reshape(-1, 1),
         q_hum_is_n=q_hum_is_n,
         q_sol_frt_is_n=ss.q_sol_frt_is_ns[:, n].reshape(-1, 1),
@@ -136,8 +136,8 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, rec
         f_wsr_js_is=ss.f_wsr_js_is,
         g_sh_frt_is=ss.rms.g_sh_frt_is,
         h_s_c_js=ss.h_s_c_js,
-        p_is_js=ss.p_is_js,
-        p_js_is=ss.p_js_is,
+        p_is_js=ss.bs.p_is_js,
+        p_js_is=ss.bs.p_js_is,
         rho_a=get_rho_a(),
         v_vent_int_is_is_n=ss.v_vent_int_is_is,
         v_vent_out_is_n=v_vent_out_is_n
@@ -216,7 +216,7 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, rec
         f_flr_js_is_n=f_flr_js_is_n,
         h_s_c_js=ss.h_s_c_js,
         h_s_r_js=ss.h_s_r_js,
-        k_ei_js_js=ss.k_ei_js_js,
+        k_ei_js_js=ss.bs.k_ei_js_js,
         phi_a0_js=ss.phi_a0_js,
         phi_t0_js=ss.phi_t0_js
     )
@@ -233,7 +233,7 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, rec
         beta_is_n=beta_is_n,
         f_wsb_js_is_n_pls=f_wsb_js_is_n_pls,
         h_s_c_js=ss.h_s_c_js,
-        p_is_js=ss.p_is_js
+        p_is_js=ss.bs.p_is_js
     )
 
     # ステップn+1における室iの係数 f_XLR, K/W, [i, i]
@@ -312,7 +312,7 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, rec
         h_s_c_js=ss.h_s_c_js,
         h_s_r_js=ss.h_s_r_js,
         l_rs_is_n=l_rs_is_n,
-        p_js_is=ss.p_js_is,
+        p_js_is=ss.bs.p_js_is,
         q_s_sol_js_n_pls=ss.q_s_sol_js_ns[:, n + 1].reshape(-1, 1),
         theta_r_is_n_pls=theta_r_is_n_pls,
         theta_s_js_n_pls=theta_s_js_n_pls
@@ -320,11 +320,11 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, rec
 
     # ステップ n+1 における境界 j の裏面温度, degree C, [j, 1]
     theta_rear_js_n_pls = get_theta_s_rear_js_n(
-        k_s_er_js_js=ss.k_ei_js_js,
+        k_s_er_js_js=ss.bs.k_ei_js_js,
         theta_er_js_n=theta_ei_js_n_pls,
         k_s_eo_js=ss.k_eo_js,
         theta_eo_js_n=ss.theta_o_eqv_js_ns[:, n+1].reshape(-1, 1),
-        k_s_r_js_is=ss.k_s_r_js_is,
+        k_s_r_js_is=ss.bs.k_s_r_js_is,
         theta_r_is_n=theta_r_is_n_pls
     )
 

@@ -57,6 +57,16 @@ class PreCalcParameters:
     rms: Rooms
 
     # Boundaries Class
+    #   境界の数
+    #   id_js: 境界jのID, [j, 1]
+    #   境界jの名前, [j]
+    #   境界jの名前2, [j]
+    #   p_is_js: 室iと境界jの関係を表す係数（境界jから室iへの変換）, [i, j]
+    #   p_js_is: 室iと境界jの関係を表す係数（室iから境界jへの変換）
+    #   床かどうか, [j, 1]
+    #   地盤かどうか, [j, 1]
+    #   境界jの裏面温度に他の境界の等価温度が与える影響, [j, j]
+    #   境界jの裏面温度に室温が与える影響, [j, i]
     bs: Boundaries
 
     # region 空間に関すること
@@ -74,15 +84,6 @@ class PreCalcParameters:
 
     # 室iの隣室からの機械換気量, m3/s, [i, i]
     v_vent_int_is_is: np.ndarray
-
-    # 境界のID, [j, 1]
-    id_bdry_js: np.ndarray
-
-    # 境界jの名前, [j]
-    name_bdry_js: np.ndarray
-
-    # 境界jの名前2, [j]
-    sub_name_bdry_js: List[str]
 
     # 境界jが地盤かどうか, [j, 1]
     is_ground_js: np.ndarray
@@ -114,12 +115,7 @@ class PreCalcParameters:
     # ステップnの境界jにおける透過日射熱取得量のうち表面に吸収される日射量, W/m2, [j, 8760*4]
     q_s_sol_js_ns: np.ndarray
 
-    n_bdry: int
-
     f_ax_js_js: np.ndarray
-
-    p_is_js: np.ndarray
-    p_js_is: np.ndarray
 
     # 室iの在室者に対する境界j*の形態係数
     f_mrt_hum_is_js: np.ndarray
@@ -146,13 +142,8 @@ class PreCalcParameters:
     # WSC, W, [j, n]
     f_wsc_js_ns: np.ndarray
 
-    # 境界jの裏面温度に他の境界の等価温度が与える影響, [j, j]
-    k_ei_js_js: np.ndarray
-
     # 温度差係数, -, [j, 1]
     k_eo_js: np.ndarray
-
-    k_s_r_js_is: np.ndarray
 
     # ステップ n の境界 j における相当外気温度, ℃, [j, n]
     theta_o_eqv_js_ns: np.ndarray
@@ -236,41 +227,7 @@ def make_pre_calc_parameters(
 
     # region boundaries
 
-    bs = boundaries.Boundaries(
-        id_rm_is=rms.id_rm_is,
-        bs_list=rd['boundaries'],
-        w=weather
-    )
-
-    # 境界の数
-    n_b = bs.n_b
-
-    # 境界のID
-    id_b_js = bs.id_js
-
-    # 名前, [j, 1]
-    name_bdry_js = bs.name_b_js
-
-    # 名前2, [j, 1]
-    sub_name_bdry_js = bs.sub_name_b_js
-
-    # 室iと境界jの関係を表す係数（境界jから室iへの変換）, [i, j]
-    p_is_js = bs.p_is_js
-
-    # 室iと境界jの関係を表す係数（室iから境界jへの変換）
-    p_js_is = bs.p_js_is
-
-    # 床かどうか, [j, 1]
-    is_floor_js = bs.is_floor_js
-
-    # 地盤かどうか, [j, 1]
-    is_ground_js = bs.is_ground_js
-
-    # 境界jの裏面温度に他の境界の等価室温が与える影響, [j, j]
-    k_ei_js_js = bs.k_ei_js_js
-
-    # 境界 j の裏面温度に室温が与える影響, [j, i]
-    k_s_r_js_is = bs.k_s_r_js_is
+    bs = boundaries.Boundaries(id_rm_is=rms.id_rm_is, bs_list=rd['boundaries'], w=weather)
 
     # 温度差係数
     k_eo_js = bs.k_eo_js
@@ -344,7 +301,7 @@ def make_pre_calc_parameters(
 
     # region equipments
 
-    es = equipments.Equipments(dict_equipments=rd['equipments'], n_rm=rms.n_rm, n_b=n_b, bs=bs)
+    es = equipments.Equipments(dict_equipments=rd['equipments'], n_rm=rms.n_rm, n_b=bs.n_b, bs=bs)
 
     # 室iの暖房方式として放射空調が設置されているかどうか。  bool値, [i, 1]
     is_radiative_heating_is = es.get_is_radiative_heating_is()
@@ -380,14 +337,14 @@ def make_pre_calc_parameters(
     # 室 i の在室者に対する境界jの形態係数, [i, j]
     f_mrt_hum_is_js = occupants_form_factor.get_f_mrt_hum_js(
         n_rm=rms.n_rm,
-        n_b=n_b,
-        p_is_js=p_is_js,
+        n_b=bs.n_b,
+        p_is_js=bs.p_is_js,
         a_s_js=a_s_js,
-        is_floor_js=is_floor_js
+        is_floor_js=bs.is_floor_js
     )
 
     # 室 i の微小球に対する境界 j の形態係数, -, [i, j]
-    f_mrt_is_js = shape_factor.get_f_mrt_is_js(a_s_js=a_s_js, h_s_r_js=h_s_r_js, p_is_js=p_is_js)
+    f_mrt_is_js = shape_factor.get_f_mrt_is_js(a_s_js=a_s_js, h_s_r_js=h_s_r_js, p_is_js=bs.p_is_js)
 
     # ステップ n からステップ n+1 における室 i の機械換気量（全般換気量と局所換気量の合計値）, m3/s, [i, 1]
     v_vent_mec_is_ns = get_v_vent_mec_is_ns(
@@ -400,10 +357,10 @@ def make_pre_calc_parameters(
 
     # ステップ n における境界 j の透過日射吸収熱量, W/m2, [j, n]
     q_s_sol_js_ns = solar_absorption.get_q_s_sol_js_ns(
-        p_is_js=p_is_js,
+        p_is_js=bs.p_is_js,
         a_s_js=a_s_js,
         p_s_sol_abs_js=p_s_sol_abs_js,
-        p_js_is=p_js_is,
+        p_js_is=bs.p_js_is,
         q_trs_sol_is_ns=q_trs_sol_is_ns
     )
 
@@ -412,8 +369,8 @@ def make_pre_calc_parameters(
         f_mrt_is_js=f_mrt_is_js,
         h_s_c_js=h_s_c_js,
         h_s_r_js=h_s_r_js,
-        k_ei_js_js=k_ei_js_js,
-        p_js_is=p_js_is,
+        k_ei_js_js=bs.k_ei_js_js,
+        p_js_is=bs.p_js_is,
         phi_a0_js=phi_a0_js,
         phi_t0_js=phi_t0_js
     )
@@ -422,18 +379,18 @@ def make_pre_calc_parameters(
     f_fia_js_is = get_f_fia_js_is(
         h_s_c_js=h_s_c_js,
         h_s_r_js=h_s_r_js,
-        k_ei_js_js=k_ei_js_js,
-        p_js_is=p_js_is,
+        k_ei_js_js=bs.k_ei_js_js,
+        p_js_is=bs.p_js_is,
         phi_a0_js=phi_a0_js,
         phi_t0_js=phi_t0_js,
-        k_s_r_js_is=k_s_r_js_is
+        k_s_r_js_is=bs.k_s_r_js_is
     )
 
     # 係数 f_CRX, degree C, [j, n]
     f_crx_js_ns = get_f_crx_js_ns(
         h_s_c_js=h_s_c_js,
         h_s_r_js=h_s_r_js,
-        k_ei_js_js=k_ei_js_js,
+        k_ei_js_js=bs.k_ei_js_js,
         phi_a0_js=phi_a0_js,
         phi_t0_js=phi_t0_js,
         q_s_sol_js_ns=q_s_sol_js_ns,
@@ -506,13 +463,9 @@ def make_pre_calc_parameters(
         rms=rms,
         bs=bs,
         v_vent_int_is_is=v_vent_int_is_is,
-        id_bdry_js=id_b_js,
-        name_bdry_js=name_bdry_js,
-        sub_name_bdry_js=sub_name_bdry_js,
         a_s_js=a_s_js,
         v_vent_mec_is_ns=v_vent_mec_is_ns,
         f_mrt_hum_is_js=f_mrt_hum_is_js,
-        n_bdry=n_b,
         r_js_ms=r_js_ms,
         phi_t0_js=phi_t0_js,
         phi_a0_js=phi_a0_js,
@@ -531,19 +484,15 @@ def make_pre_calc_parameters(
         beta_c_is=beta_c_is,
         f_wsr_js_is=f_wsr_js_is,
         f_ax_js_js=f_ax_js_js,
-        p_is_js=p_is_js,
-        p_js_is=p_js_is,
-        is_ground_js=is_ground_js,
+        is_ground_js=bs.is_ground_js,
         f_wsc_js_ns=f_wsc_js_ns,
-        k_ei_js_js=k_ei_js_js,
         get_operation_mode_is_n=get_operation_mode_is_n,
         get_theta_target_is_n=get_theta_target_is_n,
         get_infiltration=get_infiltration,
         calc_next_temp_and_load=calc_next_temp_and_load,
         get_f_l_cl=get_f_l_cl,
         k_eo_js=k_eo_js,
-        theta_o_eqv_js_ns=theta_o_eqv_js_ns,
-        k_s_r_js_is=k_s_r_js_is
+        theta_o_eqv_js_ns=theta_o_eqv_js_ns
     )
 
     # 地盤の数
@@ -551,15 +500,15 @@ def make_pre_calc_parameters(
 
     pre_calc_parameters_ground = PreCalcParametersGround(
         n_grounds=n_grounds,
-        r_js_ms=r_js_ms[is_ground_js.flatten(), :],
-        phi_a0_js=phi_a0_js[is_ground_js.flatten(), :],
-        phi_t0_js=phi_t0_js[is_ground_js.flatten(), :],
-        phi_a1_js_ms=phi_a1_js_ms[is_ground_js.flatten(), :],
-        phi_t1_js_ms=phi_t1_js_ms[is_ground_js.flatten(), :],
-        h_s_r_js=h_s_r_js[is_ground_js.flatten(), :],
-        h_s_c_js=h_s_c_js[is_ground_js.flatten(), :],
-        k_eo_js=k_eo_js[is_ground_js.flatten(), :],
-        theta_o_eqv_js_ns=theta_o_eqv_js_ns[is_ground_js.flatten(), :]
+        r_js_ms=r_js_ms[bs.is_ground_js.flatten(), :],
+        phi_a0_js=phi_a0_js[bs.is_ground_js.flatten(), :],
+        phi_t0_js=phi_t0_js[bs.is_ground_js.flatten(), :],
+        phi_a1_js_ms=phi_a1_js_ms[bs.is_ground_js.flatten(), :],
+        phi_t1_js_ms=phi_t1_js_ms[bs.is_ground_js.flatten(), :],
+        h_s_r_js=h_s_r_js[bs.is_ground_js.flatten(), :],
+        h_s_c_js=h_s_c_js[bs.is_ground_js.flatten(), :],
+        k_eo_js=k_eo_js[bs.is_ground_js.flatten(), :],
+        theta_o_eqv_js_ns=theta_o_eqv_js_ns[bs.is_ground_js.flatten(), :]
     )
 
     return pre_calc_parameters, pre_calc_parameters_ground

@@ -483,7 +483,7 @@ class TestAllAtOnce(unittest.TestCase):
         # テスト時刻を指定
         date_now = '1989-08-08 12:00:00'
 
-        n_bndrs = self._pp.n_bdry
+        n_bndrs = self._pp.bs.n_b
 
         # 0番目の境界（外壁）
         for i in range(n_bndrs):

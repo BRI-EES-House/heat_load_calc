@@ -63,12 +63,16 @@ def calc(
     for n in range(-n_step_run_up, -n_step_run_up_build):
         gc_n = sequence_ground.run_tick(pp=pp, gc_n=gc_n, ss=ppg, n=n)
 
-    result = recorder.Recorder(n_step_main=n_step_main, id_rm_is=list(pp.rms.id_rm_is.flatten()), id_bdry_js=list(pp.id_bdry_js.flatten()))
+    result = recorder.Recorder(
+        n_step_main=n_step_main,
+        id_rm_is=list(pp.rms.id_rm_is.flatten()),
+        id_bdry_js=list(pp.bs.id_js.flatten())
+    )
 
     result.pre_recording(ss=pp, weather=pp.weather, scd=pp.scd)
 
     # 建物を計算するにあたって初期値を与える
-    c_n = conditions.initialize_conditions(n_spaces=pp.rms.n_rm, n_bdries=pp.n_bdry)
+    c_n = conditions.initialize_conditions(n_spaces=pp.rms.n_rm, n_bdries=pp.bs.n_b)
 
     # 地盤計算の結果（項別公比法の指数項mの吸熱応答の項別成分・表面熱流）を建物の計算に引き継ぐ
     c_n = conditions.update_conditions_by_ground_conditions(

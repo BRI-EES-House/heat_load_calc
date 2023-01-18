@@ -61,8 +61,11 @@ class TestSteadyState(unittest.TestCase):
         # pre_calc_parametersの構築
         ss, ppg = pre_calc_parameters.make_pre_calc_parameters(itv=interval.Interval.M15, rd=rd, weather=w, scd=scd)
 
-        result = recorder.Recorder(n_step_main=8760 * 4, id_rm_is=list(ss.rms.id_rm_is.flatten()),
-                                   id_bdry_js=list(ss.id_bdry_js.flatten()))
+        result = recorder.Recorder(
+            n_step_main=8760 * 4,
+            id_rm_is=list(ss.rms.id_rm_is.flatten()),
+            id_bdry_js=list(ss.bs.id_js.flatten())
+        )
 
         result.pre_recording(ss=ss, weather=ss.weather, scd=ss.scd)
 
@@ -109,9 +112,9 @@ class TestSteadyState(unittest.TestCase):
             theta_mrt_hum_is_n=np.array([[9.689970497, 4.391663789]]).reshape(-1, 1),
             x_r_is_n=np.array([[0.0, 0.0]]).reshape(-1, 1),
             theta_dsh_s_a_js_ms_n=q_srf_js_n * ss.phi_a1_js_ms / (1.0 - ss.r_js_ms),
-            theta_dsh_s_t_js_ms_n=(np.dot(ss.k_ei_js_js, theta_ei_js_n) + ss.k_eo_js * ss.theta_o_eqv_js_ns[:,
+            theta_dsh_s_t_js_ms_n=(np.dot(ss.bs.k_ei_js_js, theta_ei_js_n) + ss.k_eo_js * ss.theta_o_eqv_js_ns[:,
                                                                                        1].reshape(-1, 1) + np.dot(
-                ss.k_s_r_js_is, theta_r_is_n)) * ss.phi_t1_js_ms / (1.0 - ss.r_js_ms),
+                ss.bs.k_s_r_js_is, theta_r_is_n)) * ss.phi_t1_js_ms / (1.0 - ss.r_js_ms),
             q_s_js_n=q_srf_js_n,
             theta_frt_is_n=theta_r_is_n,
             x_frt_is_n=np.array([[0.0, 0.0]]).reshape(-1, 1),
@@ -155,7 +158,7 @@ class TestSteadyState(unittest.TestCase):
         # テスト時刻を指定
         date_now = '1990-01-01 0:00:00'
 
-        n_bndrs = self._pp.n_bdry
+        n_bndrs = self._pp.bs.n_b
 
         # 0番目の境界（外壁）
         for i in range(n_bndrs):
