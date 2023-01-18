@@ -67,7 +67,8 @@ class PreCalcParameters:
     #   地盤かどうか, [j, 1]
     #   境界jの裏面温度に他の境界の等価温度が与える影響, [j, j]
     #   境界jの裏面温度に室温が与える影響, [j, i]
-    #   室iの温度差係数, -, [j, 1]
+    #   境界jの温度差係数, -, [j, 1]
+    #   境界jの日射吸収の有無, [j, 1]
     bs: Boundaries
 
     # region 空間に関すること
@@ -224,9 +225,6 @@ def make_pre_calc_parameters(
 
     bs = boundaries.Boundaries(id_rm_is=rms.id_rm_is, bs_list=rd['boundaries'], w=weather)
 
-    # 境界jの日射吸収の有無, [j, 1]
-    p_s_sol_abs_js = bs.p_s_sol_abs_js
-
     # 境界jの室内側表面放射熱伝達率, W/m2K, [j, 1]
     h_s_r_js = bs.h_s_r_js
 
@@ -351,7 +349,7 @@ def make_pre_calc_parameters(
     q_s_sol_js_ns = solar_absorption.get_q_s_sol_js_ns(
         p_is_js=bs.p_is_js,
         a_s_js=a_s_js,
-        p_s_sol_abs_js=p_s_sol_abs_js,
+        p_s_sol_abs_js=bs.p_s_sol_abs_js,
         p_js_is=bs.p_js_is,
         q_trs_sol_is_ns=q_trs_sol_is_ns
     )
