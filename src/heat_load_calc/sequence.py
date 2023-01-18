@@ -106,7 +106,7 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, rec
     # ステップ n+1 の室 i における係数 f_BRC, W, [i, 1]
     # TODO: q_sol_frt_is_ns の値は n+1 の値を使用するべき？
     f_brc_is_n_pls = get_f_brc_is_n_pls(
-        a_s_js=ss.a_s_js,
+        a_s_js=ss.bs.a_s_js,
         c_a=get_c_a(),
         v_rm_is=ss.rms.v_rm_is,
         c_sh_frt_is=ss.rms.c_sh_frt_is,
@@ -128,7 +128,7 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, rec
 
     # ステップ n+1 における係数 f_BRM, W/K, [i, i]
     f_brm_is_is_n_pls = get_f_brm_is_is_n_pls(
-        a_s_js=ss.a_s_js,
+        a_s_js=ss.bs.a_s_js,
         c_a=get_c_a(),
         v_rm_is=ss.rms.v_rm_is,
         c_sh_frt_is=ss.rms.c_sh_frt_is,
@@ -211,7 +211,7 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, rec
 
     # ステップ n における係数 f_FLB, K/W, [j, i]
     f_flb_js_is_n_pls = get_f_flb_js_is_n_pls(
-        a_s_js=ss.a_s_js,
+        a_s_js=ss.bs.a_s_js,
         beta_is_n=beta_is_n,
         f_flr_js_is_n=f_flr_js_is_n,
         h_s_c_js=ss.bs.h_s_c_js,
@@ -229,7 +229,7 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, rec
 
     # ステップ n における係数 f_BRL, -, [i, i]
     f_brl_is_is_n = get_f_brl_is_is_n(
-        a_s_js=ss.a_s_js,
+        a_s_js=ss.bs.a_s_js,
         beta_is_n=beta_is_n,
         f_wsb_js_is_n_pls=f_wsb_js_is_n_pls,
         h_s_c_js=ss.bs.h_s_c_js,
@@ -305,7 +305,7 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, rec
 
     # ステップ n+1 における境界 j の等価温度, degree C, [j, 1]
     theta_ei_js_n_pls = get_theta_ei_js_n_pls(
-        a_s_js=ss.a_s_js,
+        a_s_js=ss.bs.a_s_js,
         beta_is_n=beta_is_n,
         f_mrt_is_js=ss.f_mrt_is_js,
         f_flr_js_is_n=f_flr_js_is_n,

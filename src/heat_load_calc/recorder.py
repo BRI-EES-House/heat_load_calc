@@ -258,7 +258,7 @@ class Recorder:
         self.q_sol_frt_is_ns = ss.q_sol_frt_is_ns[:, 0:self._n_step_i]
 
         # ステップ n の境界 j の表面日射熱流, W, [j, n+1]
-        self.q_i_sol_s_ns_js = ss.q_s_sol_js_ns[:, 0:self._n_step_i] * ss.a_s_js
+        self.q_i_sol_s_ns_js = ss.q_s_sol_js_ns[:, 0:self._n_step_i] * ss.bs.a_s_js
 
         # ステップ n の境界 j の表面対流熱伝達率, W/m2K, [j, n+1]
         self.h_s_c_js_ns = ss.bs.h_s_c_js.repeat(self._n_step_i, axis=1)
@@ -291,10 +291,10 @@ class Recorder:
         self.rh_r_is_ns = psy.get_h(p_v=p_v_is_ns, p_vs=p_vs_is_ns)
 
         # ステップnの境界jにおける表面熱流（壁体吸熱を正とする）のうち放射成分, W, [j, n]
-        self.q_r_js_ns = ss.bs.h_s_r_js * ss.a_s_js * (np.dot(np.dot(ss.bs.p_js_is, ss.f_mrt_is_js), self.theta_s_js_ns) - self.theta_s_js_ns)
+        self.q_r_js_ns = ss.bs.h_s_r_js * ss.bs.a_s_js * (np.dot(np.dot(ss.bs.p_js_is, ss.f_mrt_is_js), self.theta_s_js_ns) - self.theta_s_js_ns)
 
         # ステップnの境界jにおける表面熱流（壁体吸熱を正とする）のうち対流成分, W, [j, n+1]
-        self.q_c_js_ns = ss.bs.h_s_c_js * ss.a_s_js * (np.dot(ss.bs.p_js_is, self.theta_r_is_ns) - self.theta_s_js_ns)
+        self.q_c_js_ns = ss.bs.h_s_c_js * ss.bs.a_s_js * (np.dot(ss.bs.p_js_is, self.theta_r_is_ns) - self.theta_s_js_ns)
 
         # ---平均値・瞬時値---
 

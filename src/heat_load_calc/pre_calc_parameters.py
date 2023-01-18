@@ -71,6 +71,8 @@ class PreCalcParameters:
     #   境界jの日射吸収の有無, [j, 1]
     #   境界jにおける室内側放射熱伝達率, W/m2K, [j, 1]
     #   境界jにおける室内側対流熱伝達率, W/m2K, [j, 1]
+    #   境界jにおけるシミュレーションに用いる表面熱伝達抵抗での熱貫流率, W/m2K, [j,1]
+    #   境界jの面積, m2, [j, 1]
     bs: Boundaries
 
     # region 空間に関すること
@@ -91,9 +93,6 @@ class PreCalcParameters:
 
     # 境界jが地盤かどうか, [j, 1]
     is_ground_js: np.ndarray
-
-    # 境界jの面積, m2, [j, 1]
-    a_s_js: np.ndarray
 
     # 放射暖房対流比率, [i, 1]
     beta_h_is: np.ndarray
@@ -126,9 +125,6 @@ class PreCalcParameters:
 
     # 平均放射温度計算時の境界 j* の表面温度が境界 j に与える重み, [j, j]
     f_mrt_is_js: np.ndarray
-
-    # 境界jにおけるシミュレーションに用いる表面熱伝達抵抗での熱貫流率, W/m2K, [j,1]
-    simulation_u_value: np.ndarray
 
     # WSR, WSB の計算 式(24)
     f_wsr_js_is: np.ndarray
@@ -214,12 +210,6 @@ def make_pre_calc_parameters(
     # region boundaries
 
     bs = boundaries.Boundaries(id_rm_is=rms.id_rm_is, bs_list=rd['boundaries'], w=weather)
-
-    # シミュレーションに用いる表面熱伝達抵抗での熱貫流率, W/m2K, [j,1]
-    simulation_u_value = bs.simulation_u_value
-
-    # 境界jの面積, m2, [j, 1]
-    a_s_js = bs.a_s_js
 
     # 境界jの吸熱応答係数の初項, m2K/W, [j, 1]
     phi_a0_js = bs.phi_a0_js
@@ -313,12 +303,12 @@ def make_pre_calc_parameters(
         n_rm=rms.n_rm,
         n_b=bs.n_b,
         p_is_js=bs.p_is_js,
-        a_s_js=a_s_js,
+        a_s_js=bs.a_s_js,
         is_floor_js=bs.is_floor_js
     )
 
     # 室 i の微小球に対する境界 j の形態係数, -, [i, j]
-    f_mrt_is_js = shape_factor.get_f_mrt_is_js(a_s_js=a_s_js, h_s_r_js=bs.h_s_r_js, p_is_js=bs.p_is_js)
+    f_mrt_is_js = shape_factor.get_f_mrt_is_js(a_s_js=bs.a_s_js, h_s_r_js=bs.h_s_r_js, p_is_js=bs.p_is_js)
 
     # ステップ n からステップ n+1 における室 i の機械換気量（全般換気量と局所換気量の合計値）, m3/s, [i, 1]
     v_vent_mec_is_ns = get_v_vent_mec_is_ns(
@@ -332,7 +322,7 @@ def make_pre_calc_parameters(
     # ステップ n における境界 j の透過日射吸収熱量, W/m2, [j, n]
     q_s_sol_js_ns = solar_absorption.get_q_s_sol_js_ns(
         p_is_js=bs.p_is_js,
-        a_s_js=a_s_js,
+        a_s_js=bs.a_s_js,
         p_s_sol_abs_js=bs.p_s_sol_abs_js,
         p_js_is=bs.p_js_is,
         q_trs_sol_is_ns=q_trs_sol_is_ns
@@ -437,7 +427,6 @@ def make_pre_calc_parameters(
         rms=rms,
         bs=bs,
         v_vent_int_is_is=v_vent_int_is_is,
-        a_s_js=a_s_js,
         v_vent_mec_is_ns=v_vent_mec_is_ns,
         f_mrt_hum_is_js=f_mrt_hum_is_js,
         r_js_ms=r_js_ms,
@@ -448,7 +437,6 @@ def make_pre_calc_parameters(
         q_trs_sol_is_ns=q_trs_sol_is_ns,
         f_flr_h_js_is=f_flr_h_js_is,
         f_flr_c_js_is=f_flr_c_js_is,
-        simulation_u_value=simulation_u_value,
         f_mrt_is_js=f_mrt_is_js,
         q_s_sol_js_ns=q_s_sol_js_ns,
         q_sol_frt_is_ns=q_sol_frt_is_ns,
