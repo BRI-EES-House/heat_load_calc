@@ -47,7 +47,7 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, rec
     theta_rear_js_n = get_theta_s_rear_js_n(
         k_s_er_js_js=ss.bs.k_ei_js_js,
         theta_er_js_n=c_n.theta_ei_js_n,
-        k_s_eo_js=ss.k_eo_js,
+        k_s_eo_js=ss.bs.k_eo_js,
         theta_eo_js_n=ss.theta_o_eqv_js_ns[:, n].reshape(-1, 1),
         k_s_r_js_is=ss.bs.k_s_r_js_is,
         theta_r_is_n=c_n.theta_r_is_n
@@ -322,7 +322,7 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, rec
     theta_rear_js_n_pls = get_theta_s_rear_js_n(
         k_s_er_js_js=ss.bs.k_ei_js_js,
         theta_er_js_n=theta_ei_js_n_pls,
-        k_s_eo_js=ss.k_eo_js,
+        k_s_eo_js=ss.bs.k_eo_js,
         theta_eo_js_n=ss.theta_o_eqv_js_ns[:, n+1].reshape(-1, 1),
         k_s_r_js_is=ss.bs.k_s_r_js_is,
         theta_r_is_n=theta_r_is_n_pls

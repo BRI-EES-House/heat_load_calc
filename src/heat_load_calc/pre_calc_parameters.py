@@ -67,6 +67,7 @@ class PreCalcParameters:
     #   地盤かどうか, [j, 1]
     #   境界jの裏面温度に他の境界の等価温度が与える影響, [j, j]
     #   境界jの裏面温度に室温が与える影響, [j, i]
+    #   室iの温度差係数, -, [j, 1]
     bs: Boundaries
 
     # region 空間に関すること
@@ -142,9 +143,6 @@ class PreCalcParameters:
     # WSC, W, [j, n]
     f_wsc_js_ns: np.ndarray
 
-    # 温度差係数, -, [j, 1]
-    k_eo_js: np.ndarray
-
     # ステップ n の境界 j における相当外気温度, ℃, [j, n]
     theta_o_eqv_js_ns: np.ndarray
 
@@ -186,9 +184,6 @@ class PreCalcParametersGround:
     # 地盤jにおける室内側対流熱伝達率, W/m2K, [j, 1]
     h_s_c_js: np.ndarray
 
-    # 温度差係数, -, [j, 1]
-    k_eo_js: np.ndarray
-
     # ステップ n の境界 j における相当外気温度, ℃, [j, n]
     theta_o_eqv_js_ns: np.ndarray
 
@@ -228,9 +223,6 @@ def make_pre_calc_parameters(
     # region boundaries
 
     bs = boundaries.Boundaries(id_rm_is=rms.id_rm_is, bs_list=rd['boundaries'], w=weather)
-
-    # 温度差係数
-    k_eo_js = bs.k_eo_js
 
     # 境界jの日射吸収の有無, [j, 1]
     p_s_sol_abs_js = bs.p_s_sol_abs_js
@@ -394,7 +386,7 @@ def make_pre_calc_parameters(
         phi_a0_js=phi_a0_js,
         phi_t0_js=phi_t0_js,
         q_s_sol_js_ns=q_s_sol_js_ns,
-        k_eo_js=k_eo_js,
+        k_eo_js=bs.k_eo_js,
         theta_o_eqv_js_ns=theta_o_eqv_js_ns
     )
 
@@ -491,7 +483,6 @@ def make_pre_calc_parameters(
         get_infiltration=get_infiltration,
         calc_next_temp_and_load=calc_next_temp_and_load,
         get_f_l_cl=get_f_l_cl,
-        k_eo_js=k_eo_js,
         theta_o_eqv_js_ns=theta_o_eqv_js_ns
     )
 
@@ -507,7 +498,6 @@ def make_pre_calc_parameters(
         phi_t1_js_ms=phi_t1_js_ms[bs.is_ground_js.flatten(), :],
         h_s_r_js=h_s_r_js[bs.is_ground_js.flatten(), :],
         h_s_c_js=h_s_c_js[bs.is_ground_js.flatten(), :],
-        k_eo_js=k_eo_js[bs.is_ground_js.flatten(), :],
         theta_o_eqv_js_ns=theta_o_eqv_js_ns[bs.is_ground_js.flatten(), :]
     )
 
