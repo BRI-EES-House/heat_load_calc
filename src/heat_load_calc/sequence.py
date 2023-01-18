@@ -217,7 +217,7 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, rec
         h_s_c_js=ss.bs.h_s_c_js,
         h_s_r_js=ss.bs.h_s_r_js,
         k_ei_js_js=ss.bs.k_ei_js_js,
-        phi_a0_js=ss.phi_a0_js,
+        phi_a0_js=ss.bs.phi_a0_js,
         phi_t0_js=ss.phi_t0_js
     )
 

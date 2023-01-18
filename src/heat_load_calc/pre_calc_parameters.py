@@ -73,6 +73,7 @@ class PreCalcParameters:
     #   境界jにおける室内側対流熱伝達率, W/m2K, [j, 1]
     #   境界jにおけるシミュレーションに用いる表面熱伝達抵抗での熱貫流率, W/m2K, [j,1]
     #   境界jの面積, m2, [j, 1]
+    #   境界jの吸熱応答係数の初項, m2K/W, [j, 1]
     bs: Boundaries
 
     # region 空間に関すること
@@ -105,9 +106,6 @@ class PreCalcParameters:
 
     # 境界jの貫流応答係数の初項, [j]
     phi_t0_js: np.ndarray
-
-    # 境界jの吸熱応答係数の初項, m2K/W, [j]
-    phi_a0_js: np.ndarray
 
     # 境界jの項別公比法における項mの貫流応答係数の第一項, [j,12]
     phi_t1_js_ms: np.ndarray
@@ -162,9 +160,6 @@ class PreCalcParametersGround:
     # 境界jの貫流応答係数の初項, [j]
     phi_t0_js: np.ndarray
 
-    # 地盤jの吸熱応答係数の初項, m2K/W, [j, 1]
-    phi_a0_js: np.ndarray
-
     # 境界jの項別公比法における項mの貫流応答係数の第一項, [j,12]
     phi_t1_js_ms: np.ndarray
 
@@ -210,9 +205,6 @@ def make_pre_calc_parameters(
     # region boundaries
 
     bs = boundaries.Boundaries(id_rm_is=rms.id_rm_is, bs_list=rd['boundaries'], w=weather)
-
-    # 境界jの吸熱応答係数の初項, m2K/W, [j, 1]
-    phi_a0_js = bs.phi_a0_js
 
     # 境界jの項別公比法における項mの吸熱応答係数の第一項 , m2K/W, [j, 12]
     phi_a1_js_ms = bs.phi_a1_js_ms
@@ -335,7 +327,7 @@ def make_pre_calc_parameters(
         h_s_r_js=bs.h_s_r_js,
         k_ei_js_js=bs.k_ei_js_js,
         p_js_is=bs.p_js_is,
-        phi_a0_js=phi_a0_js,
+        phi_a0_js=bs.phi_a0_js,
         phi_t0_js=phi_t0_js
     )
 
@@ -345,7 +337,7 @@ def make_pre_calc_parameters(
         h_s_r_js=bs.h_s_r_js,
         k_ei_js_js=bs.k_ei_js_js,
         p_js_is=bs.p_js_is,
-        phi_a0_js=phi_a0_js,
+        phi_a0_js=bs.phi_a0_js,
         phi_t0_js=phi_t0_js,
         k_s_r_js_is=bs.k_s_r_js_is
     )
@@ -355,7 +347,7 @@ def make_pre_calc_parameters(
         h_s_c_js=bs.h_s_c_js,
         h_s_r_js=bs.h_s_r_js,
         k_ei_js_js=bs.k_ei_js_js,
-        phi_a0_js=phi_a0_js,
+        phi_a0_js=bs.phi_a0_js,
         phi_t0_js=phi_t0_js,
         q_s_sol_js_ns=q_s_sol_js_ns,
         k_eo_js=bs.k_eo_js,
@@ -431,7 +423,6 @@ def make_pre_calc_parameters(
         f_mrt_hum_is_js=f_mrt_hum_is_js,
         r_js_ms=r_js_ms,
         phi_t0_js=phi_t0_js,
-        phi_a0_js=phi_a0_js,
         phi_t1_js_ms=phi_t1_js_ms,
         phi_a1_js_ms=phi_a1_js_ms,
         q_trs_sol_is_ns=q_trs_sol_is_ns,
@@ -460,7 +451,6 @@ def make_pre_calc_parameters(
     pre_calc_parameters_ground = PreCalcParametersGround(
         n_grounds=n_grounds,
         r_js_ms=r_js_ms[bs.is_ground_js.flatten(), :],
-        phi_a0_js=phi_a0_js[bs.is_ground_js.flatten(), :],
         phi_t0_js=phi_t0_js[bs.is_ground_js.flatten(), :],
         phi_a1_js_ms=phi_a1_js_ms[bs.is_ground_js.flatten(), :],
         phi_t1_js_ms=phi_t1_js_ms[bs.is_ground_js.flatten(), :],
