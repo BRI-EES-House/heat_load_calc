@@ -77,6 +77,7 @@ class PreCalcParameters:
     #   境界jの吸熱応答係数の初項, m2K/W, [j, 1]
     #   境界jの項別公比法における項mの吸熱応答係数の第一項 , m2K/W, [j, 12]
     #   境界jの貫流応答係数の初項, [j]
+    #   境界jの項別公比法における項mの貫流応答係数の第一項, [j,12]
     bs: Boundaries
 
     # region 空間に関すること
@@ -106,9 +107,6 @@ class PreCalcParameters:
 
     # 境界jの項別公比法における項mの公比, [j, 12]
     r_js_ms: np.ndarray
-
-    # 境界jの項別公比法における項mの貫流応答係数の第一項, [j,12]
-    phi_t1_js_ms: np.ndarray
 
     # ステップnの境界jにおける透過日射熱取得量のうち表面に吸収される日射量, W/m2, [j, 8760*4]
     q_s_sol_js_ns: np.ndarray
@@ -154,9 +152,6 @@ class PreCalcParametersGround:
     # 地盤jの項別公比法における項mの公比, [j, 12]
     r_js_ms: np.ndarray
 
-    # 境界jの項別公比法における項mの貫流応答係数の第一項, [j,12]
-    phi_t1_js_ms: np.ndarray
-
     # ステップ n の境界 j における相当外気温度, ℃, [j, n]
     theta_o_eqv_js_ns: np.ndarray
 
@@ -196,9 +191,6 @@ def make_pre_calc_parameters(
     # region boundaries
 
     bs = boundaries.Boundaries(id_rm_is=rms.id_rm_is, bs_list=rd['boundaries'], w=weather)
-
-    # 境界jの項別公比法における項mの貫流応答係数の第一項, [j, 12]
-    phi_t1_js_ms = bs.phi_t1_js_ms
 
     # 境界jの項別公比法における項mの公比, [j, 12]
     r_js_ms = bs.r_js_ms
@@ -407,7 +399,6 @@ def make_pre_calc_parameters(
         v_vent_mec_is_ns=v_vent_mec_is_ns,
         f_mrt_hum_is_js=f_mrt_hum_is_js,
         r_js_ms=r_js_ms,
-        phi_t1_js_ms=phi_t1_js_ms,
         q_trs_sol_is_ns=q_trs_sol_is_ns,
         f_flr_h_js_is=f_flr_h_js_is,
         f_flr_c_js_is=f_flr_c_js_is,
@@ -434,7 +425,6 @@ def make_pre_calc_parameters(
     pre_calc_parameters_ground = PreCalcParametersGround(
         n_grounds=n_grounds,
         r_js_ms=r_js_ms[bs.is_ground_js.flatten(), :],
-        phi_t1_js_ms=phi_t1_js_ms[bs.is_ground_js.flatten(), :],
         theta_o_eqv_js_ns=theta_o_eqv_js_ns[bs.is_ground_js.flatten(), :]
     )
 

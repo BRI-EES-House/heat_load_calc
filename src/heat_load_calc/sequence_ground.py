@@ -17,7 +17,8 @@ def run_tick(pp: PreCalcParameters, gc_n: GroundConditions, ss: PreCalcParameter
     theta_dsh_srf_a_js_ms_npls = pp.bs.phi_a1_js_ms[is_ground, :] * gc_n.q_srf_js_n + ss.r_js_ms * gc_n.theta_dsh_srf_a_js_ms_n
 
     # theta_dsh_srf_t_js_ms_npls = ss.phi_t1_js_ms * ss.k_eo_js * ss.theta_o_eqv_js_ns[:, [n]] + ss.r_js_ms * gc_n.theta_dsh_srf_t_js_ms_n
-    theta_dsh_srf_t_js_ms_npls = ss.phi_t1_js_ms * pp.bs.k_eo_js[is_ground, :] * ss.theta_o_eqv_js_ns[:, [n]] + ss.r_js_ms * gc_n.theta_dsh_srf_t_js_ms_n
+    # theta_dsh_srf_t_js_ms_npls = ss.phi_t1_js_ms * pp.bs.k_eo_js[is_ground, :] * ss.theta_o_eqv_js_ns[:, [n]] + ss.r_js_ms * gc_n.theta_dsh_srf_t_js_ms_n
+    theta_dsh_srf_t_js_ms_npls = pp.bs.phi_t1_js_ms[is_ground, :] * pp.bs.k_eo_js[is_ground, :] * ss.theta_o_eqv_js_ns[:, [n]] + ss.r_js_ms * gc_n.theta_dsh_srf_t_js_ms_n
 
     theta_s_js_npls = (
         # ss.phi_a0_js * h_i_js * pp.weather.theta_o_ns_plus[n + 1]
