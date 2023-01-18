@@ -12,6 +12,7 @@ from heat_load_calc.weather import Weather
 from heat_load_calc.schedule import Schedule
 from heat_load_calc.rooms import Rooms
 from heat_load_calc.boundaries import Boundaries
+from heat_load_calc.mechanical_ventilations import MechanicalVentilations
 
 
 class ACMethod(Enum):
@@ -83,6 +84,11 @@ class PreCalcParameters:
     #   ステップ n の境界 j における相当外気温度, ℃, [j, n]
     bs: Boundaries
 
+    # MechanicalVentilationClass
+    #   v_vent_mec_general_is: 室iの機械換気量（局所換気を除く）, m3/s, [i, 1]
+    #   v_vent_int_is_is: 室iの隣室からの機械換気量, m3/s, [i, i]
+    mvs: MechanicalVentilations
+
     # region 空間に関すること
 
     # ステップnの室iにおける機械換気量（全般換気量+局所換気量）, m3/s, [i, 8760*4]
@@ -92,9 +98,6 @@ class PreCalcParameters:
     q_sol_frt_is_ns: np.ndarray
 
     # endregion
-
-    # 室iの隣室からの機械換気量, m3/s, [i, i]
-    v_vent_int_is_is: np.ndarray
 
     # 境界jが地盤かどうか, [j, 1]
     is_ground_js: np.ndarray
@@ -195,20 +198,8 @@ def make_pre_calc_parameters(
         # ステップn+1に対応するために0番要素に最終要素を代入
         bs.set_theta_o_eqv_js_ns(theta_o_eqv_js_ns=np.append(theta_o_eqv_js_ns, theta_o_eqv_js_ns[:, 0:1], axis=1))
 
-    # region mechanical ventilations
-
-    mvs = mechanical_ventilations.MechanicalVentilations(
-        vs=rd['mechanical_ventilations'],
-        n_rm=rms.n_rm
-    )
-
-    # 室iの機械換気量（局所換気を除く）, m3/s, [i, 1]
-    v_vent_mec_general_is = mvs.get_v_vent_mec_general_is()
-
-    # 室iの隣室iからの機械換気量, m3/s, [i, i]
-    v_vent_int_is_is = mvs.get_v_vent_int_is_is()
-
-    # endregion
+    # MechanicalVentilation Class
+    mvs = mechanical_ventilations.MechanicalVentilations(vs=rd['mechanical_ventilations'], n_rm=rms.n_rm)
 
     # region equipments
 
@@ -259,7 +250,7 @@ def make_pre_calc_parameters(
 
     # ステップ n からステップ n+1 における室 i の機械換気量（全般換気量と局所換気量の合計値）, m3/s, [i, 1]
     v_vent_mec_is_ns = get_v_vent_mec_is_ns(
-        v_vent_mec_general_is=v_vent_mec_general_is,
+        v_vent_mec_general_is=mvs.v_vent_mec_general_is,
         v_vent_mec_local_is_ns=scd.v_mec_vent_local_is_ns
     )
 
@@ -373,7 +364,7 @@ def make_pre_calc_parameters(
         scd=scd,
         rms=rms,
         bs=bs,
-        v_vent_int_is_is=v_vent_int_is_is,
+        mvs=mvs,
         v_vent_mec_is_ns=v_vent_mec_is_ns,
         f_mrt_hum_is_js=f_mrt_hum_is_js,
         f_flr_h_js_is=f_flr_h_js_is,

@@ -139,7 +139,7 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, rec
         p_is_js=ss.bs.p_is_js,
         p_js_is=ss.bs.p_js_is,
         rho_a=get_rho_a(),
-        v_vent_int_is_is_n=ss.v_vent_int_is_is,
+        v_vent_int_is_is_n=ss.mvs.v_vent_int_is_is,
         v_vent_out_is_n=v_vent_out_is_n
     )
 
@@ -367,7 +367,7 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, rec
         g_lh_frt_is=ss.rms.g_lh_frt_is,
         rho_a=get_rho_a(),
         v_rm_is=ss.rms.v_rm_is,
-        v_vent_int_is_is_n=ss.v_vent_int_is_is,
+        v_vent_int_is_is_n=ss.mvs.v_vent_int_is_is,
         v_vent_out_is_n=v_vent_out_is_n
     )
 
