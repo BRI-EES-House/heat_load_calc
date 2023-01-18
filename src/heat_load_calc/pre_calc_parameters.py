@@ -176,22 +176,16 @@ def make_pre_calc_parameters(
     # Rooms Class
     rms = rooms.Rooms(ds=rd['rooms'])
 
-    # region boundaries
-
+    # Boundaries Class
     bs = boundaries.Boundaries(id_rm_is=rms.id_rm_is, bs_list=rd['boundaries'], w=weather)
 
     # ステップ n の室 i における窓の透過日射熱取得, W, [n]
-    #　このif文は、これまで実施してきたテストを維持するために設けている。
+    #　この操作は、これまで実施してきたテストを維持するために設けている。
     # いずれテスト方法を整理して、csvで与える方式を削除すべきである。
     # CSVで与える方式があることは（将来的に削除予定であるため）仕様書には記述しない。
     if q_trs_sol_is_ns is not None:
         # ステップn+1に対応するために0番要素に最終要素を代入
         bs.set_q_trs_sol_is_ns(q_trs_sol_is_ns=np.append(q_trs_sol_is_ns, q_trs_sol_is_ns[:, 0:1], axis=1))
-    # if q_trs_sol_is_ns is None:
-    #     q_trs_sol_is_ns = bs.q_trs_sol_is_ns
-    # else:
-    #     # ステップn+1に対応するために0番要素に最終要素を代入
-    #     q_trs_sol_is_ns = np.append(q_trs_sol_is_ns, q_trs_sol_is_ns[:, 0:1], axis=1)
 
     # ステップ n の境界 j における相当外気温度, ℃, [j, n]
     #　このif文は、これまで実施してきたテストを維持するために設けている。
@@ -200,13 +194,6 @@ def make_pre_calc_parameters(
     if theta_o_eqv_js_ns is not None:
         # ステップn+1に対応するために0番要素に最終要素を代入
         bs.set_theta_o_eqv_js_ns(theta_o_eqv_js_ns=np.append(theta_o_eqv_js_ns, theta_o_eqv_js_ns[:, 0:1], axis=1))
-    # if theta_o_eqv_js_ns is None:
-    #     theta_o_eqv_js_ns = bs.theta_o_eqv_js_ns
-    # else:
-    #     # ステップn+1に対応するために0番要素に最終要素を代入
-    #     theta_o_eqv_js_ns = np.append(theta_o_eqv_js_ns, theta_o_eqv_js_ns[:, 0:1], axis=1)
-
-    # endregion
 
     # region mechanical ventilations
 
