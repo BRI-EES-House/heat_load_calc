@@ -72,7 +72,7 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, rec
 
     # ステップ n+1 の境界 j における項別公比法の指数項 m の吸熱応答の項別成分, degree C, [j, m]
     theta_dsh_s_a_js_ms_n_pls = get_theta_dsh_s_a_js_ms_n_pls(
-        phi_a1_js_ms=ss.phi_a1_js_ms,
+        phi_a1_js_ms=ss.bs.phi_a1_js_ms,
         q_s_js_n=c_n.q_s_js_n,
         r_js_ms=ss.r_js_ms,
         theta_dsh_srf_a_js_ms_n=c_n.theta_dsh_srf_a_js_ms_n

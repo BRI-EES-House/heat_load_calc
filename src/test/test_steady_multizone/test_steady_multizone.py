@@ -111,7 +111,7 @@ class TestSteadyState(unittest.TestCase):
             theta_r_is_n=theta_r_is_n,
             theta_mrt_hum_is_n=np.array([[9.689970497, 4.391663789]]).reshape(-1, 1),
             x_r_is_n=np.array([[0.0, 0.0]]).reshape(-1, 1),
-            theta_dsh_s_a_js_ms_n=q_srf_js_n * ss.phi_a1_js_ms / (1.0 - ss.r_js_ms),
+            theta_dsh_s_a_js_ms_n=q_srf_js_n * ss.bs.phi_a1_js_ms / (1.0 - ss.r_js_ms),
             theta_dsh_s_t_js_ms_n=(
                     np.dot(ss.bs.k_ei_js_js, theta_ei_js_n)
                     + ss.bs.k_eo_js * ss.theta_o_eqv_js_ns[:, 1].reshape(-1, 1)
