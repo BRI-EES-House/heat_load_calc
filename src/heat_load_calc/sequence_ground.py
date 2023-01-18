@@ -10,7 +10,8 @@ def run_tick(pp: PreCalcParameters, gc_n: GroundConditions, ss: PreCalcParameter
     is_ground = pp.bs.is_ground_js.flatten()
 
     # h_i_js = ss.h_s_r_js + ss.h_s_c_js
-    h_i_js = pp.bs.h_s_r_js[is_ground, :] + ss.h_s_c_js
+    #h_i_js = pp.bs.h_s_r_js[is_ground, :] + ss.h_s_c_js
+    h_i_js = pp.bs.h_s_r_js[is_ground, :] + pp.bs.h_s_c_js[is_ground, :]
 
     theta_dsh_srf_a_js_ms_npls = ss.phi_a1_js_ms * gc_n.q_srf_js_n + ss.r_js_ms * gc_n.theta_dsh_srf_a_js_ms_n
 
