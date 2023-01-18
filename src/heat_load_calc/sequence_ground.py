@@ -23,7 +23,8 @@ def run_tick(pp: PreCalcParameters, gc_n: GroundConditions, ss: PreCalcParameter
         # ss.phi_a0_js * h_i_js * pp.weather.theta_o_ns_plus[n + 1]
         pp.bs.phi_a0_js[is_ground, :] * h_i_js * pp.weather.theta_o_ns_plus[n + 1]
         # + ss.phi_t0_js * ss.k_eo_js * ss.theta_o_eqv_js_ns[:, [n + 1]]
-        + ss.phi_t0_js * pp.bs.k_eo_js[is_ground, :] * ss.theta_o_eqv_js_ns[:, [n + 1]]
+        # + ss.phi_t0_js * pp.bs.k_eo_js[is_ground, :] * ss.theta_o_eqv_js_ns[:, [n + 1]]
+        + pp.bs.phi_t0_js[is_ground, :] * pp.bs.k_eo_js[is_ground, :] * ss.theta_o_eqv_js_ns[:, [n + 1]]
         + np.sum(theta_dsh_srf_a_js_ms_npls, axis=1, keepdims=True)
         + np.sum(theta_dsh_srf_t_js_ms_npls, axis=1, keepdims=True)
 #    ) / (1.0 + ss.phi_a0_js * h_i_js)
