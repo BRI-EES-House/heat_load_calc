@@ -215,7 +215,7 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, rec
         beta_is_n=beta_is_n,
         f_flr_js_is_n=f_flr_js_is_n,
         h_s_c_js=ss.h_s_c_js,
-        h_s_r_js=ss.h_s_r_js,
+        h_s_r_js=ss.bs.h_s_r_js,
         k_ei_js_js=ss.bs.k_ei_js_js,
         phi_a0_js=ss.phi_a0_js,
         phi_t0_js=ss.phi_t0_js
@@ -310,7 +310,7 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, rec
         f_mrt_is_js=ss.f_mrt_is_js,
         f_flr_js_is_n=f_flr_js_is_n,
         h_s_c_js=ss.h_s_c_js,
-        h_s_r_js=ss.h_s_r_js,
+        h_s_r_js=ss.bs.h_s_r_js,
         l_rs_is_n=l_rs_is_n,
         p_js_is=ss.bs.p_js_is,
         q_s_sol_js_n_pls=ss.q_s_sol_js_ns[:, n + 1].reshape(-1, 1),
@@ -331,7 +331,7 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, rec
     # ステップ n+1 における境界 j の表面熱流（壁体吸熱を正とする）, W/m2, [j, 1]
     q_s_js_n_pls = get_q_s_js_n_pls(
         h_s_c_js=ss.h_s_c_js,
-        h_s_r_js=ss.h_s_r_js,
+        h_s_r_js=ss.bs.h_s_r_js,
         theta_ei_js_n_pls=theta_ei_js_n_pls,
         theta_s_js_n_pls=theta_s_js_n_pls
     )

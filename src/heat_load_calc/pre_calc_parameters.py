@@ -69,6 +69,7 @@ class PreCalcParameters:
     #   境界jの裏面温度に室温が与える影響, [j, i]
     #   境界jの温度差係数, -, [j, 1]
     #   境界jの日射吸収の有無, [j, 1]
+    #   境界jにおける室内側放射熱伝達率, W/m2K, [j, 1]
     bs: Boundaries
 
     # region 空間に関すること
@@ -125,9 +126,6 @@ class PreCalcParameters:
     # 平均放射温度計算時の境界 j* の表面温度が境界 j に与える重み, [j, j]
     f_mrt_is_js: np.ndarray
 
-    # 境界jにおける室内側放射熱伝達率, W/m2K, [j, 1]
-    h_s_r_js: np.ndarray
-
     # 境界jにおける室内側対流熱伝達率, W/m2K, [j, 1]
     h_s_c_js: np.ndarray
 
@@ -178,9 +176,6 @@ class PreCalcParametersGround:
 
     # 地盤jの項別公比法における項mの吸熱応答係数の第一項 , m2K/W, [j, 12]
     phi_a1_js_ms: np.ndarray
-
-    # 地盤jにおける室内側放射熱伝達率, W/m2K, [j, 1]
-    h_s_r_js: np.ndarray
 
     # 地盤jにおける室内側対流熱伝達率, W/m2K, [j, 1]
     h_s_c_js: np.ndarray
@@ -334,7 +329,7 @@ def make_pre_calc_parameters(
     )
 
     # 室 i の微小球に対する境界 j の形態係数, -, [i, j]
-    f_mrt_is_js = shape_factor.get_f_mrt_is_js(a_s_js=a_s_js, h_s_r_js=h_s_r_js, p_is_js=bs.p_is_js)
+    f_mrt_is_js = shape_factor.get_f_mrt_is_js(a_s_js=a_s_js, h_s_r_js=bs.h_s_r_js, p_is_js=bs.p_is_js)
 
     # ステップ n からステップ n+1 における室 i の機械換気量（全般換気量と局所換気量の合計値）, m3/s, [i, 1]
     v_vent_mec_is_ns = get_v_vent_mec_is_ns(
@@ -358,7 +353,7 @@ def make_pre_calc_parameters(
     f_ax_js_js = get_f_ax_js_is(
         f_mrt_is_js=f_mrt_is_js,
         h_s_c_js=h_s_c_js,
-        h_s_r_js=h_s_r_js,
+        h_s_r_js=bs.h_s_r_js,
         k_ei_js_js=bs.k_ei_js_js,
         p_js_is=bs.p_js_is,
         phi_a0_js=phi_a0_js,
@@ -368,7 +363,7 @@ def make_pre_calc_parameters(
     # 係数 f_FIA, -, [j, i]
     f_fia_js_is = get_f_fia_js_is(
         h_s_c_js=h_s_c_js,
-        h_s_r_js=h_s_r_js,
+        h_s_r_js=bs.h_s_r_js,
         k_ei_js_js=bs.k_ei_js_js,
         p_js_is=bs.p_js_is,
         phi_a0_js=phi_a0_js,
@@ -379,7 +374,7 @@ def make_pre_calc_parameters(
     # 係数 f_CRX, degree C, [j, n]
     f_crx_js_ns = get_f_crx_js_ns(
         h_s_c_js=h_s_c_js,
-        h_s_r_js=h_s_r_js,
+        h_s_r_js=bs.h_s_r_js,
         k_ei_js_js=bs.k_ei_js_js,
         phi_a0_js=phi_a0_js,
         phi_t0_js=phi_t0_js,
@@ -464,7 +459,6 @@ def make_pre_calc_parameters(
         q_trs_sol_is_ns=q_trs_sol_is_ns,
         f_flr_h_js_is=f_flr_h_js_is,
         f_flr_c_js_is=f_flr_c_js_is,
-        h_s_r_js=h_s_r_js,
         h_s_c_js=h_s_c_js,
         simulation_u_value=simulation_u_value,
         f_mrt_is_js=f_mrt_is_js,
@@ -494,7 +488,6 @@ def make_pre_calc_parameters(
         phi_t0_js=phi_t0_js[bs.is_ground_js.flatten(), :],
         phi_a1_js_ms=phi_a1_js_ms[bs.is_ground_js.flatten(), :],
         phi_t1_js_ms=phi_t1_js_ms[bs.is_ground_js.flatten(), :],
-        h_s_r_js=h_s_r_js[bs.is_ground_js.flatten(), :],
         h_s_c_js=h_s_c_js[bs.is_ground_js.flatten(), :],
         theta_o_eqv_js_ns=theta_o_eqv_js_ns[bs.is_ground_js.flatten(), :]
     )
