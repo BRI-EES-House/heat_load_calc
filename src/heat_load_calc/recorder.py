@@ -252,7 +252,7 @@ class Recorder:
         self.x_o_ns = weather.x_o_ns_plus[0: self._n_step_i]
 
         # ステップ n における室 i の窓の透過日射熱取得, W, [i, n+1]
-        self.q_trs_sol_is_ns = ss.q_trs_sol_is_ns[:, 0:self._n_step_i]
+        self.q_trs_sol_is_ns = ss.bs.q_trs_sol_is_ns[:, 0:self._n_step_i]
 
         # ステップ n における室 i に設置された備品等による透過日射吸収熱量, W, [i, n+1]
         self.q_sol_frt_is_ns = ss.q_sol_frt_is_ns[:, 0:self._n_step_i]

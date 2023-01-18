@@ -79,6 +79,8 @@ class PreCalcParameters:
     #   境界jの貫流応答係数の初項, [j]
     #   境界jの項別公比法における項mの貫流応答係数の第一項, [j,12]
     #   境界jの項別公比法における項mの公比, [j, 12]
+    #   ステップ n における室 i の窓の透過日射熱取得, W, [i, N+1]
+    #   ステップ n の境界 j における相当外気温度, ℃, [j, n]
     bs: Boundaries
 
     # region 空間に関すること
@@ -88,9 +90,6 @@ class PreCalcParameters:
 
     # ステップ n における室 i に設置された備品等による透過日射吸収熱量, W, [i, n+1]
     q_sol_frt_is_ns: np.ndarray
-
-    # ステップ n における室 i の窓の透過日射熱取得, W, [i, n+1]
-    q_trs_sol_is_ns: np.ndarray
 
     # endregion
 
@@ -127,9 +126,6 @@ class PreCalcParameters:
     # WSC, W, [j, n]
     f_wsc_js_ns: np.ndarray
 
-    # ステップ n の境界 j における相当外気温度, ℃, [j, n]
-    theta_o_eqv_js_ns: np.ndarray
-
     get_operation_mode_is_n: Callable[[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray], np.ndarray]
 
     get_theta_target_is_n: Callable[[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray], Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]]
@@ -146,9 +142,6 @@ class PreCalcParametersGround:
 
     # 地盤の数
     n_grounds: int
-
-    # ステップ n の境界 j における相当外気温度, ℃, [j, n]
-    theta_o_eqv_js_ns: np.ndarray
 
 
 def make_pre_calc_parameters(
@@ -199,7 +192,6 @@ def make_pre_calc_parameters(
     # else:
     #     # ステップn+1に対応するために0番要素に最終要素を代入
     #     q_trs_sol_is_ns = np.append(q_trs_sol_is_ns, q_trs_sol_is_ns[:, 0:1], axis=1)
-    q_trs_sol_is_ns = bs.q_trs_sol_is_ns
 
     # ステップ n の境界 j における相当外気温度, ℃, [j, n]
     #　このif文は、これまで実施してきたテストを維持するために設けている。
@@ -213,7 +205,6 @@ def make_pre_calc_parameters(
     # else:
     #     # ステップn+1に対応するために0番要素に最終要素を代入
     #     theta_o_eqv_js_ns = np.append(theta_o_eqv_js_ns, theta_o_eqv_js_ns[:, 0:1], axis=1)
-    theta_o_eqv_js_ns = bs.theta_o_eqv_js_ns
 
     # endregion
 
@@ -286,7 +277,7 @@ def make_pre_calc_parameters(
     )
 
     # ステップ n における室 i に設置された備品等による透過日射吸収熱量, W, [i, n+1]
-    q_sol_frt_is_ns = solar_absorption.get_q_sol_frt_is_ns(q_trs_sor_is_ns=q_trs_sol_is_ns)
+    q_sol_frt_is_ns = solar_absorption.get_q_sol_frt_is_ns(q_trs_sor_is_ns=bs.q_trs_sol_is_ns)
 
     # ステップ n における境界 j の透過日射吸収熱量, W/m2, [j, n]
     q_s_sol_js_ns = solar_absorption.get_q_s_sol_js_ns(
@@ -294,7 +285,7 @@ def make_pre_calc_parameters(
         a_s_js=bs.a_s_js,
         p_s_sol_abs_js=bs.p_s_sol_abs_js,
         p_js_is=bs.p_js_is,
-        q_trs_sol_is_ns=q_trs_sol_is_ns
+        q_trs_sol_is_ns=bs.q_trs_sol_is_ns
     )
 
     # 係数 f_AX, -, [j, j]
@@ -328,7 +319,7 @@ def make_pre_calc_parameters(
         phi_t0_js=bs.phi_t0_js,
         q_s_sol_js_ns=q_s_sol_js_ns,
         k_eo_js=bs.k_eo_js,
-        theta_o_eqv_js_ns=theta_o_eqv_js_ns
+        theta_o_eqv_js_ns=bs.theta_o_eqv_js_ns
     )
 
     # 係数 f_WSR, -, [j, i]
@@ -398,7 +389,6 @@ def make_pre_calc_parameters(
         v_vent_int_is_is=v_vent_int_is_is,
         v_vent_mec_is_ns=v_vent_mec_is_ns,
         f_mrt_hum_is_js=f_mrt_hum_is_js,
-        q_trs_sol_is_ns=q_trs_sol_is_ns,
         f_flr_h_js_is=f_flr_h_js_is,
         f_flr_c_js_is=f_flr_c_js_is,
         f_mrt_is_js=f_mrt_is_js,
@@ -414,16 +404,14 @@ def make_pre_calc_parameters(
         get_theta_target_is_n=get_theta_target_is_n,
         get_infiltration=get_infiltration,
         calc_next_temp_and_load=calc_next_temp_and_load,
-        get_f_l_cl=get_f_l_cl,
-        theta_o_eqv_js_ns=theta_o_eqv_js_ns
+        get_f_l_cl=get_f_l_cl
     )
 
     # 地盤の数
     n_grounds = bs.n_ground
 
     pre_calc_parameters_ground = PreCalcParametersGround(
-        n_grounds=n_grounds,
-        theta_o_eqv_js_ns=theta_o_eqv_js_ns[bs.is_ground_js.flatten(), :]
+        n_grounds=n_grounds
     )
 
     return pre_calc_parameters, pre_calc_parameters_ground
