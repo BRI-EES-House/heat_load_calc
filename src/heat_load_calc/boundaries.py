@@ -746,6 +746,12 @@ class Boundaries:
 
         return np.array([bs.theta_o_sol for bs in self._bss])
 
+    # TODO: 一部のテストを通すためだけに、後から上書きできる機能を作成した。将来的には消すこと。
+    def set_theta_o_eqv_js_ns(self, theta_o_eqv_js_ns):
+
+        for i in range(theta_o_eqv_js_ns.shape[0]):
+            self._bss[i].theta_o_sol = theta_o_eqv_js_ns[i]
+
     @property
     def q_trs_sol_is_ns(self):
         """
@@ -755,6 +761,10 @@ class Boundaries:
         """
 
         return self._q_trs_sol_is_ns
+
+    # TODO: 一部のテストを通すためだけに、後から上書きできる機能を作成した。将来的には消すこと。
+    def set_q_trs_sol_is_ns(self, q_trs_sol_is_ns):
+        self._q_trs_sol_is_ns = q_trs_sol_is_ns
 
     def get_room_id_by_boundary_id(self, boundary_id: int):
 
