@@ -195,8 +195,8 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, rec
 
     # ステップ n+1 における係数 f_flr, -, [j, i]
     f_flr_js_is_n = get_f_flr_js_is_n(
-        f_flr_c_js_is=ss.f_flr_c_js_is,
-        f_flr_h_js_is=ss.f_flr_h_js_is,
+        f_flr_c_js_is=ss.es.f_flr_c_js_is,
+        f_flr_h_js_is=ss.es.f_flr_h_js_is,
         is_cooling_is_n=is_cooling_is_n,
         is_heating_is_n=is_heating_is_n
     )

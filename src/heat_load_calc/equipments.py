@@ -155,6 +155,8 @@ class Equipments:
         self._q_rs_c_max_is = self._get_q_rs_max_is(es=ces, n_rm=n_rm)
         self._beta_h_is = self._get_beta_is(es=hes, n_rm=n_rm)
         self._beta_c_is = self._get_beta_is(es=ces, n_rm=n_rm)
+        self._f_flr_h_js_is = self._get_f_flr_js_is(es=hes, n_rm=n_rm, n_b=n_b)
+        self._f_flr_c_js_is = self._get_f_flr_js_is(es=ces, n_rm=n_rm, n_b=n_b)
 
         self._n_rm = n_rm
         self._n_b = n_b
@@ -343,27 +345,29 @@ class Equipments:
 
         return q_max_ks_is / sum_of_q_max_is
 
-    def get_f_flr_h_js_is(self):
+    @property
+    def f_flr_h_js_is(self):
 
-        return self._get_f_flr_js_is(es=self._hes)
+        return self._f_flr_h_js_is
 
-    def get_f_flr_c_js_is(self):
+    @property
+    def f_flr_c_js_is(self):
 
-        return self._get_f_flr_js_is(es=self._ces)
+        return self._f_flr_c_js_is
 
-    def _get_f_flr_js_is(self, es):
+    def _get_f_flr_js_is(self, es, n_rm, n_b):
 
-        f_flr_eqp_js_ks = self._get_f_flr_eqp_js_ks(es=es)
-        f_beta_eqp_ks_is = self._get_f_beta_eqp_ks_is(es=es, n_rm=self._n_rm)
-        r_max_ks_is = self._get_r_max_ks_is(es=es, n_rm=self._n_rm)
-        beta_is = self._get_beta_is(es=es, n_rm=self._n_rm)
-        p_ks_is = self._get_p_ks_is(es=es, n_rm=self._n_rm)
+        f_flr_eqp_js_ks = self._get_f_flr_eqp_js_ks(es=es, n_b=n_b)
+        f_beta_eqp_ks_is = self._get_f_beta_eqp_ks_is(es=es, n_rm=n_rm)
+        r_max_ks_is = self._get_r_max_ks_is(es=es, n_rm=n_rm)
+        beta_is = self._get_beta_is(es=es, n_rm=n_rm)
+        p_ks_is = self._get_p_ks_is(es=es, n_rm=n_rm)
 
         return np.dot(np.dot(f_flr_eqp_js_ks, (p_ks_is - f_beta_eqp_ks_is) * r_max_ks_is), v_diag(1 / (1 - beta_is)))
 
-    def _get_f_flr_eqp_js_ks(self, es):
+    def _get_f_flr_eqp_js_ks(self, es, n_b):
 
-        f_flr_eqp_js_ks = np.zeros(shape=(self._n_b, len(es)), dtype=float)
+        f_flr_eqp_js_ks = np.zeros(shape=(n_b, len(es)), dtype=float)
 
         for k, e in enumerate(es):
             if type(e) in [HeatingEquipmentFloorHeating, CoolingEquipmentFloorCooling]:

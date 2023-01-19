@@ -5,15 +5,13 @@ import logging
 from enum import Enum
 
 from heat_load_calc.matrix_method import v_diag
-from heat_load_calc.building import Building
 from heat_load_calc import ot_target, next_condition, schedule, rooms, boundaries
-from heat_load_calc import equipments
 from heat_load_calc import infiltration, occupants_form_factor, shape_factor, solar_absorption
-from heat_load_calc import mechanical_ventilations
 from heat_load_calc import operation_, interval
 
 from heat_load_calc.weather import Weather
 from heat_load_calc.schedule import Schedule
+from heat_load_calc.building import Building
 from heat_load_calc.rooms import Rooms
 from heat_load_calc.boundaries import Boundaries
 from heat_load_calc.mechanical_ventilations import MechanicalVentilations
@@ -101,6 +99,8 @@ class PreCalcParameters:
     #   室iの冷房方式として放射空調が設置されている場合の、放射冷房最大能力, W, [i, 1]
     #   室iの放射暖房設備の対流成分比率, -, [i, 1]
     #   室iの放射冷房設備の対流成分比率, -, [i, 1]
+    #   室 i の放射暖房の放熱量の放射成分に対する境界 j の室内側表面の吸収比率, - [j, i]
+    #   室 i の放射冷房の吸熱量の放射成分に対する境界 j の室内側表面の放熱比率, - [j, i]
     es: Equipments
 
     # region 空間に関すること
@@ -131,10 +131,6 @@ class PreCalcParameters:
 
     # WSR, WSB の計算 式(24)
     f_wsr_js_is: np.ndarray
-
-    # 床暖房の発熱部位？
-    f_flr_h_js_is: np.ndarray
-    f_flr_c_js_is: np.ndarray
 
     # WSC, W, [j, n]
     f_wsc_js_ns: np.ndarray
@@ -214,12 +210,6 @@ def make_pre_calc_parameters(
     # region equipments
 
     es = Equipments(dict_equipments=rd['equipments'], n_rm=rms.n_rm, n_b=bs.n_b, bs=bs)
-
-    # 室 i の放射暖房の放熱量の放射成分に対する境界 j の室内側表面の吸収比率, - [j, i]
-    f_flr_h_js_is = es.get_f_flr_h_js_is()
-
-    # 室 i の放射冷房の吸熱量の放射成分に対する境界 j の室内側表面の放熱比率, - [j, i]
-    f_flr_c_js_is = es.get_f_flr_c_js_is()
 
     # 次の係数を求める関数
     #   ステップ n　からステップ n+1 における係数 f_l_cl_wgt, kg/s(kg/kg(DA)), [i, i]
@@ -348,9 +338,6 @@ def make_pre_calc_parameters(
 
     # endregion
 
-
-
-
     pre_calc_parameters = PreCalcParameters(
         weather=weather,
         scd=scd,
@@ -360,8 +347,6 @@ def make_pre_calc_parameters(
         es=es,
         v_vent_mec_is_ns=v_vent_mec_is_ns,
         f_mrt_hum_is_js=f_mrt_hum_is_js,
-        f_flr_h_js_is=f_flr_h_js_is,
-        f_flr_c_js_is=f_flr_c_js_is,
         f_mrt_is_js=f_mrt_is_js,
         q_s_sol_js_ns=q_s_sol_js_ns,
         q_sol_frt_is_ns=q_sol_frt_is_ns,
