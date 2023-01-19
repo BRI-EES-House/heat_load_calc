@@ -151,8 +151,10 @@ class Equipments:
 
         self._is_radiative_heating_is = self._get_is_radiative_is(es=hes, n_rm=n_rm)
         self._is_radiative_cooling_is = self._get_is_radiative_is(es=ces, n_rm=n_rm)
-        self._q_rs_h_max_is = self._get_q_rs_max_is(es=hes)
-        self._q_rs_c_max_is = self._get_q_rs_max_is(es=ces)
+        self._q_rs_h_max_is = self._get_q_rs_max_is(es=hes, n_rm=n_rm)
+        self._q_rs_c_max_is = self._get_q_rs_max_is(es=ces, n_rm=n_rm)
+        self._beta_h_is = self._get_beta_is(es=hes, n_rm=n_rm)
+        self._beta_c_is = self._get_beta_is(es=ces, n_rm=n_rm)
 
         self._n_rm = n_rm
         self._n_b = n_b
@@ -261,23 +263,25 @@ class Equipments:
 
         return self._q_rs_c_max_is
 
-    def _get_q_rs_max_is(self, es):
+    @property
+    def beta_h_is(self):
 
-        q_rs_max_is = np.zeros(shape=(self._n_rm, 1), dtype=float)
+        return self._beta_h_is
+
+    @property
+    def beta_c_is(self):
+
+        return self._beta_c_is
+
+    def _get_q_rs_max_is(self, es, n_rm):
+
+        q_rs_max_is = np.zeros(shape=(n_rm, 1), dtype=float)
 
         for e in es:
             if type(e) in [HeatingEquipmentFloorHeating, CoolingEquipmentFloorCooling]:
                 q_rs_max_is[e.room_id, 0] = q_rs_max_is[e.room_id, 0] + e.max_capacity * e.area
 
         return q_rs_max_is
-
-    def get_beta_h_is(self):
-
-        return self._get_beta_is(es=self._hes)
-
-    def get_beta_c_is(self):
-
-        return self._get_beta_is(es=self._ces)
 
     def _get_is_radiative_is(self, es, n_rm):
         """室に放射暖冷房があるか否かを判定する。
@@ -294,16 +298,16 @@ class Equipments:
 
         return is_radiative_is
 
-    def _get_beta_is(self, es):
+    def _get_beta_is(self, es, n_rm):
 
-        f_beta_eqp_ks_is = self._get_f_beta_eqp_ks_is(es=es, n_rm=self._n_rm)
-        r_max_ks_is = self._get_r_max_ks_is(es=es, n_rm=self._n_rm)
+        f_beta_eqp_ks_is = self._get_f_beta_eqp_ks_is(es=es, n_rm=n_rm)
+        r_max_ks_is = self._get_r_max_ks_is(es=es, n_rm=n_rm)
 
         return np.sum(f_beta_eqp_ks_is * r_max_ks_is, axis=0).reshape(-1, 1)
 
-    def _get_p_ks_is(self, es):
+    def _get_p_ks_is(self, es, n_rm):
 
-        p_ks_is = np.zeros(shape=(len(es), self._n_rm), dtype=float)
+        p_ks_is = np.zeros(shape=(len(es), n_rm), dtype=float)
 
         for k, e in enumerate(es):
             if type(e) in [HeatingEquipmentFloorHeating, CoolingEquipmentFloorCooling]:
@@ -352,8 +356,8 @@ class Equipments:
         f_flr_eqp_js_ks = self._get_f_flr_eqp_js_ks(es=es)
         f_beta_eqp_ks_is = self._get_f_beta_eqp_ks_is(es=es, n_rm=self._n_rm)
         r_max_ks_is = self._get_r_max_ks_is(es=es, n_rm=self._n_rm)
-        beta_is = self._get_beta_is(es=es)
-        p_ks_is = self._get_p_ks_is(es=es)
+        beta_is = self._get_beta_is(es=es, n_rm=self._n_rm)
+        p_ks_is = self._get_p_ks_is(es=es, n_rm=self._n_rm)
 
         return np.dot(np.dot(f_flr_eqp_js_ks, (p_ks_is - f_beta_eqp_ks_is) * r_max_ks_is), v_diag(1 / (1 - beta_is)))
 

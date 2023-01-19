@@ -203,8 +203,8 @@ def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, rec
 
     # ステップ n からステップ n+1 における室 i の放射暖冷房設備の対流成分比率, -, [i, 1]
     beta_is_n = get_beta_is_n(
-        beta_c_is=ss.beta_c_is,
-        beta_h_is=ss.beta_h_is,
+        beta_c_is=ss.es.beta_c_is,
+        beta_h_is=ss.es.beta_h_is,
         is_cooling_is_n=is_cooling_is_n,
         is_heating_is_n=is_heating_is_n
     )

@@ -99,6 +99,8 @@ class PreCalcParameters:
     #   室iの冷房方式として放射空調が設置されているかどうか, bool値, [i, 1]
     #   室iの暖房方式として放射空調が設置されている場合の、放射暖房最大能力, W, [i, 1]
     #   室iの冷房方式として放射空調が設置されている場合の、放射冷房最大能力, W, [i, 1]
+    #   室iの放射暖房設備の対流成分比率, -, [i, 1]
+    #   室iの放射冷房設備の対流成分比率, -, [i, 1]
     es: Equipments
 
     # region 空間に関すること
@@ -113,10 +115,6 @@ class PreCalcParameters:
 
     # 境界jが地盤かどうか, [j, 1]
     is_ground_js: np.ndarray
-
-    # 放射暖房対流比率, [i, 1]
-    beta_h_is: np.ndarray
-    beta_c_is: np.ndarray
 
     # === 境界jに関すること ===
 
@@ -216,12 +214,6 @@ def make_pre_calc_parameters(
     # region equipments
 
     es = Equipments(dict_equipments=rd['equipments'], n_rm=rms.n_rm, n_b=bs.n_b, bs=bs)
-
-    # 室 i の放射暖房設備の対流成分比率, -, [i, 1]
-    beta_h_is = es.get_beta_h_is()
-
-    # 室 i の放射冷房設備の対流成分比率, -, [i, 1]
-    beta_c_is = es.get_beta_c_is()
 
     # 室 i の放射暖房の放熱量の放射成分に対する境界 j の室内側表面の吸収比率, - [j, i]
     f_flr_h_js_is = es.get_f_flr_h_js_is()
@@ -373,8 +365,6 @@ def make_pre_calc_parameters(
         f_mrt_is_js=f_mrt_is_js,
         q_s_sol_js_ns=q_s_sol_js_ns,
         q_sol_frt_is_ns=q_sol_frt_is_ns,
-        beta_h_is=beta_h_is,
-        beta_c_is=beta_c_is,
         f_wsr_js_is=f_wsr_js_is,
         f_ax_js_js=f_ax_js_js,
         is_ground_js=bs.is_ground_js,
