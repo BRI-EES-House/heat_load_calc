@@ -136,15 +136,23 @@ class Equipments:
             Equipments を initialize する際に、あらかじめ放射暖冷房にも room_id を付与しておくこととする。
         """
 
-        self._hes = [
+        hes = [
             self._create_heating_equipment(dict_heating_equipment=he, bs=bs)
             for he in dict_equipments['heating_equipments']
         ]
 
-        self._ces = [
+        ces = [
             self._create_cooling_equipment(dict_cooling_equipment=ce, bs=bs)
             for ce in dict_equipments['cooling_equipments']
         ]
+
+        self._hes = hes
+        self._ces = ces
+
+        self._is_radiative_heating_is = self._get_is_radiative_is(es=hes, n_rm=n_rm)
+        self._is_radiative_cooling_is = self._get_is_radiative_is(es=ces, n_rm=n_rm)
+        self._q_rs_h_max_is = self._get_q_rs_max_is(es=hes)
+        self._q_rs_c_max_is = self._get_q_rs_max_is(es=ces)
 
         self._n_rm = n_rm
         self._n_b = n_b
@@ -225,31 +233,33 @@ class Equipments:
         else:
             raise Exception
 
-    def get_is_radiative_heating_is(self):
+    @property
+    def is_radiative_heating_is(self):
         """
         室に放射暖房があるか否かを判定する。
         Returns:
             放射暖房の有無, [i, 1]
         """
+        return self._is_radiative_heating_is
 
-        return self._get_is_radiative_is(es=self._hes)
-
-    def get_is_radiative_cooling_is(self):
+    @property
+    def is_radiative_cooling_is(self):
         """
         室に放射冷房があるか否かを判定する。
         Returns:
             放射冷房の有無, [i, 1]
         """
+        return self._is_radiative_cooling_is
 
-        return self._get_is_radiative_is(es=self._ces)
+    @property
+    def q_rs_h_max_is(self):
 
-    def get_q_rs_h_max_is(self):
+        return self._q_rs_h_max_is
 
-        return self._get_q_rs_max_is(es=self._hes)
+    @property
+    def q_rs_c_max_is(self):
 
-    def get_q_rs_c_max_is(self):
-
-        return self._get_q_rs_max_is(es=self._ces)
+        return self._q_rs_c_max_is
 
     def _get_q_rs_max_is(self, es):
 
@@ -269,14 +279,14 @@ class Equipments:
 
         return self._get_beta_is(es=self._ces)
 
-    def _get_is_radiative_is(self, es):
+    def _get_is_radiative_is(self, es, n_rm):
         """室に放射暖冷房があるか否かを判定する。
 
         Returns:
             放射暖冷房の有無, [i, 1]
         """
 
-        is_radiative_is = np.full(shape=(self._n_rm, 1), fill_value=False)
+        is_radiative_is = np.full(shape=(n_rm, 1), fill_value=False)
 
         for e in es:
             if type(e) in [HeatingEquipmentFloorHeating, CoolingEquipmentFloorCooling]:

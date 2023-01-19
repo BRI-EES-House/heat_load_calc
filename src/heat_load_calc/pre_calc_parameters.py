@@ -6,13 +6,18 @@ from enum import Enum
 
 from heat_load_calc.matrix_method import v_diag
 from heat_load_calc.building import Building
-from heat_load_calc import ot_target, next_condition, schedule, rooms, boundaries, equipments, \
-    infiltration, occupants_form_factor, shape_factor, solar_absorption, mechanical_ventilations, operation_, interval
+from heat_load_calc import ot_target, next_condition, schedule, rooms, boundaries
+from heat_load_calc import equipments
+from heat_load_calc import infiltration, occupants_form_factor, shape_factor, solar_absorption
+from heat_load_calc import mechanical_ventilations
+from heat_load_calc import operation_, interval
+
 from heat_load_calc.weather import Weather
 from heat_load_calc.schedule import Schedule
 from heat_load_calc.rooms import Rooms
 from heat_load_calc.boundaries import Boundaries
 from heat_load_calc.mechanical_ventilations import MechanicalVentilations
+from heat_load_calc.equipments import Equipments
 
 
 class ACMethod(Enum):
@@ -84,10 +89,17 @@ class PreCalcParameters:
     #   ステップ n の境界 j における相当外気温度, ℃, [j, n]
     bs: Boundaries
 
-    # MechanicalVentilationClass
+    # MechanicalVentilation Class
     #   v_vent_mec_general_is: 室iの機械換気量（局所換気を除く）, m3/s, [i, 1]
     #   v_vent_int_is_is: 室iの隣室からの機械換気量, m3/s, [i, i]
     mvs: MechanicalVentilations
+
+    # Equipments Class
+    #   室iの暖房方式として放射空調が設置されているかどうか, bool値, [i, 1]
+    #   室iの冷房方式として放射空調が設置されているかどうか, bool値, [i, 1]
+    #   室iの暖房方式として放射空調が設置されている場合の、放射暖房最大能力, W, [i, 1]
+    #   室iの冷房方式として放射空調が設置されている場合の、放射冷房最大能力, W, [i, 1]
+    es: Equipments
 
     # region 空間に関すること
 
@@ -199,23 +211,11 @@ def make_pre_calc_parameters(
         bs.set_theta_o_eqv_js_ns(theta_o_eqv_js_ns=np.append(theta_o_eqv_js_ns, theta_o_eqv_js_ns[:, 0:1], axis=1))
 
     # MechanicalVentilation Class
-    mvs = mechanical_ventilations.MechanicalVentilations(vs=rd['mechanical_ventilations'], n_rm=rms.n_rm)
+    mvs = MechanicalVentilations(vs=rd['mechanical_ventilations'], n_rm=rms.n_rm)
 
     # region equipments
 
-    es = equipments.Equipments(dict_equipments=rd['equipments'], n_rm=rms.n_rm, n_b=bs.n_b, bs=bs)
-
-    # 室iの暖房方式として放射空調が設置されているかどうか。  bool値, [i, 1]
-    is_radiative_heating_is = es.get_is_radiative_heating_is()
-
-    # 室iの暖房方式として放射空調が設置されている場合の、放射暖房最大能力, W, [i, 1]
-    q_rs_h_max_is = es.get_q_rs_h_max_is()
-
-    # 室iの冷房方式として放射空調が設置されているかどうか。  bool値, [i, 1]
-    is_radiative_cooling_is = es.get_is_radiative_cooling_is()
-
-    # 室iの冷房方式として放射空調が設置されている場合の、放射冷房最大能力, W, [i, 1]
-    q_rs_c_max_is = es.get_q_rs_c_max_is()
+    es = Equipments(dict_equipments=rd['equipments'], n_rm=rms.n_rm, n_b=bs.n_b, bs=bs)
 
     # 室 i の放射暖房設備の対流成分比率, -, [i, 1]
     beta_h_is = es.get_beta_h_is()
@@ -320,15 +320,15 @@ def make_pre_calc_parameters(
     get_operation_mode_is_n = operation_.make_get_operation_mode_is_n_function(
         ac_method=ac_method.value,
         ac_demand_is_ns=scd.ac_demand_is_ns,
-        is_radiative_heating_is=is_radiative_heating_is,
-        is_radiative_cooling_is=is_radiative_cooling_is,
+        is_radiative_heating_is=es.is_radiative_heating_is,
+        is_radiative_cooling_is=es.is_radiative_cooling_is,
         met_is=rms.met_is
     )
 
     get_theta_target_is_n = ot_target.make_get_theta_target_is_n_function(
         ac_method=ac_method.value,
-        is_radiative_heating_is=is_radiative_heating_is,
-        is_radiative_cooling_is=is_radiative_cooling_is,
+        is_radiative_heating_is=es.is_radiative_heating_is,
+        is_radiative_cooling_is=es.is_radiative_cooling_is,
         met_is=rms.met_is,
         ac_setting_is_ns=scd.ac_demand_is_ns,
         ac_config=ac_config
@@ -348,10 +348,10 @@ def make_pre_calc_parameters(
     # 次のステップの室温と負荷を計算する関数
     calc_next_temp_and_load = next_condition.make_get_next_temp_and_load_function(
         ac_demand_is_ns=scd.ac_demand_is_ns,
-        is_radiative_heating_is=is_radiative_heating_is,
-        is_radiative_cooling_is=is_radiative_cooling_is,
-        lr_h_max_cap_is=q_rs_h_max_is,
-        lr_cs_max_cap_is=q_rs_c_max_is
+        is_radiative_heating_is=es.is_radiative_heating_is,
+        is_radiative_cooling_is=es.is_radiative_cooling_is,
+        lr_h_max_cap_is=es.q_rs_h_max_is,
+        lr_cs_max_cap_is=es.q_rs_c_max_is
     )
 
     # endregion
@@ -365,6 +365,7 @@ def make_pre_calc_parameters(
         rms=rms,
         bs=bs,
         mvs=mvs,
+        es=es,
         v_vent_mec_is_ns=v_vent_mec_is_ns,
         f_mrt_hum_is_js=f_mrt_hum_is_js,
         f_flr_h_js_is=f_flr_h_js_is,
