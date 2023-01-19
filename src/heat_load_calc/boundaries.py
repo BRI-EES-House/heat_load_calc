@@ -144,6 +144,12 @@ class Boundaries:
         self._p_is_js = p_is_js
         self._q_trs_sol_is_ns = q_trs_sol_is_ns
 
+        self._k_ei_js_js = np.array([bs.k_ei_js_j for bs in self._bss])
+        self._k_eo_js = np.array([bs.h_td for bs in self._bss]).reshape(-1, 1)
+        self._k_s_r_js = np.array([bs.k_s_r_j_is for bs in self._bss])
+
+        self._theta_o_eqv_js_ns = np.array([bs.theta_o_sol for bs in bss])
+
     @staticmethod
     def _get_boundary(b: Dict, h_c_js: np.ndarray, h_s_r_js: np.ndarray, w: Weather, n_rm: int) -> Boundary:
         """
@@ -622,7 +628,7 @@ class Boundaries:
             境界jの裏面温度に他の境界の等価室温が与える影響, [j, j]
         """
 
-        return np.array([bs.k_ei_js_j for bs in self._bss])
+        return self._k_ei_js_js
         
     @property
     def k_eo_js(self):
@@ -632,7 +638,7 @@ class Boundaries:
             温度差係数
         """
 
-        return np.array([bs.h_td for bs in self._bss]).reshape(-1, 1)
+        return self._k_eo_js
 
     @property
     def k_s_r_js_is(self):
@@ -642,7 +648,7 @@ class Boundaries:
             境界 j の裏面温度に室温が与える影響, [j, i]
         """
 
-        return np.array([bs.k_s_r_j_is for bs in self._bss])
+        return self._k_s_r_js
 
     @property
     def p_s_sol_abs_js(self):
@@ -744,13 +750,11 @@ class Boundaries:
             ステップ n の境界 j における相当外気温度, ℃, [j, n+1]
         """
 
-        return np.array([bs.theta_o_sol for bs in self._bss])
+        return self._theta_o_eqv_js_ns
 
     # TODO: 一部のテストを通すためだけに、後から上書きできる機能を作成した。将来的には消すこと。
     def set_theta_o_eqv_js_ns(self, theta_o_eqv_js_ns):
-
-        for i in range(theta_o_eqv_js_ns.shape[0]):
-            self._bss[i].theta_o_sol = theta_o_eqv_js_ns[i]
+        self._theta_o_eqv_js_ns = theta_o_eqv_js_ns
 
     @property
     def q_trs_sol_is_ns(self):
