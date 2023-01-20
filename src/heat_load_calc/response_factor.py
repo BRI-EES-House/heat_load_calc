@@ -325,6 +325,60 @@ def get_step_reps_of_wall(C_i_k_p, R_i_k_p, laps: List[float], alp: List[float],
     return dblAT0, dblAA0, dblAT, dblAA, dblATstep, dblAAstep
 
 
+# 伝達関数の計算
+def calc_transfer_function(C_i_k_p: List[float], R_i_k_p: List[float], laps: float) -> (float, float):
+
+    """
+
+    Args:
+        C_i_k_p: 層の熱容量[J/m2K]
+        R_i_k_p: 層の熱抵抗[m2K/W]
+        laps: ラプラス変数[1/s]
+
+    Returns:
+        貫流伝達関数[K]
+        吸熱伝達関数[K]
+    """
+
+    # 四端子行列の初期化
+    matFt = np.identity(2, dtype=float)
+
+    for lngK, (R_k, C_k) in enumerate(zip(R_i_k_p, C_i_k_p)):
+
+        # ---- 四端子基本行列 matFi ----
+        if abs(C_k) < 0.001:
+            # 定常部位（空気層等）の場合
+            matFi = np.array([
+                [1.0, R_k],
+                [0.0, 1.0]
+            ])
+        else:
+            # 非定常部位の場合
+            dblTemp = math.sqrt(R_k * C_k * laps)
+            dblCosh = np.cosh(dblTemp)
+            dblSinh = np.sinh(dblTemp)
+
+            matFi = np.array([
+                [dblCosh, R_k / dblTemp * dblSinh],
+                [dblTemp / R_k * dblSinh, dblCosh]
+            ])
+
+        # print('[Fi(', lngK, ')]')
+        # print(matFi)
+
+        # ---- 四端子行列 matFt ----
+        matFt = np.dot(matFt, matFi)
+
+    # print('martFt')
+    # print(matFt)
+
+    # 吸熱、貫流の各伝達関数ベクトルの作成
+    GA = matFt[0, 1] / matFt[1, 1]
+    GT = 1.0 / matFt[1][1]
+
+    return (GA, GT)
+
+
 # 壁体の単位応答の計算（非住宅向け重み付き最小二乗法適用）
 def get_step_reps_of_wall_weighted(C_i_k_p, R_i_k_p, laps: List[float], alp: List[float], M: int):
     """
@@ -360,45 +414,15 @@ def get_step_reps_of_wall_weighted(C_i_k_p, R_i_k_p, laps: List[float], alp: Lis
     #    pass #　暫定処理（VBAではここで処理を抜ける）
 
     # 吸熱、貫流の各伝達関数ベクトルの作成
-    for lngI in range(0, len(laps)):
-        # 四端子行列の作成
-        for lngK, (R_k, C_k) in enumerate(zip(R_i_k_p, C_i_k_p)):
+    matFt = np.identity(2, dtype=float)
+    for lngI, lap in enumerate(laps):
 
-            # ---- 四端子基本行列 matFi ----
-            if abs(C_k) < 0.001:
-                # 定常部位（空気層等）の場合
-                matFi[lngK] = np.array([
-                    [1.0, R_k],
-                    [0.0, 1.0]
-                ])
-            else:
-                # 非定常部位の場合
-                dblTemp = math.sqrt(R_k * C_k * laps[lngI])
-                dblCosh = np.cosh(dblTemp)
-                dblSinh = np.sinh(dblTemp)
-
-                matFi[lngK] = np.array([
-                    [dblCosh, R_k / dblTemp * dblSinh],
-                    [dblTemp / R_k * dblSinh, dblCosh]
-                ])
-
-            # print('[Fi(', lngK, ')]')
-            # print(matFi)
-
-            # ---- 四端子行列 matFt ----
-            if lngK == 0:
-                # 室内側1層目の場合は、四端子行列に四端子基本行列をコピーする
-                matFt = np.copy(matFi[lngK])
-            else:
-                # 室内側2層目以降は、四端子基本行列を乗算
-                matFt = np.dot(matFt, matFi[lngK])
-
-        # print('martFt')
-        # print(matFt)
+        # 伝達関数の計算
+        (GA, GT) = calc_transfer_function(C_i_k_p=C_i_k_p, R_i_k_p=R_i_k_p, laps=lap)
 
         # 吸熱、貫流の各伝達関数ベクトルの作成
-        matGA[lngI] = matFt[0, 1] / matFt[1, 1] - dblGA0
-        matGT[lngI] = 1.0 / matFt[1][1] - dblGT0
+        matGA[lngI] = GA - dblGA0
+        matGT[lngI] = GT - dblGT0
 
     # print('matGA', matGA)
     # print('matGT', matGT)
@@ -578,3 +602,20 @@ def calc_response_factor_non_residential(C_i_k_p, R_i_k_p):
 
     return RFT0, RFA0, RFT1_12, RFA1_12, Row_12
 
+if __name__ == '__main__':
+
+    C = np.array([
+        10375.0,
+        0.0,
+        10375.0,
+        0.0
+    ])
+
+    R = np.array([
+        0.0568,
+        0.09,
+        0.0568,
+        0.120289612356129
+    ])
+
+    print(calc_transfer_function(C, R, 1.0 / (900)))
