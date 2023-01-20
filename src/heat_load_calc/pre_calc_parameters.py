@@ -146,13 +146,6 @@ class PreCalcParameters:
     get_f_l_cl: Callable[[np.ndarray, np.ndarray, np.ndarray], Tuple[np.ndarray, np.ndarray]]
 
 
-@dataclass
-class PreCalcParametersGround:
-
-    # 地盤の数
-    n_grounds: int
-
-
 def make_pre_calc_parameters(
         itv: interval.Interval,
         rd: Dict,
@@ -160,7 +153,7 @@ def make_pre_calc_parameters(
         scd: schedule.Schedule,
         q_trs_sol_is_ns: Optional[np.ndarray] = None,
         theta_o_eqv_js_ns: Optional[np.ndarray] = None
-) -> Tuple[PreCalcParameters, PreCalcParametersGround]:
+) -> PreCalcParameters:
     """助走計算用パラメータの生成
 
     Args:
@@ -172,7 +165,7 @@ def make_pre_calc_parameters(
         theta_o_eqv_js_ns: optional テスト用　値を指定することができる。未指定の場合は計算する。
 
     Returns:
-        PreCalcParameters および PreCalcParametersGround のタプル
+        PreCalcParameters
     """
 
     logger = logging.getLogger('HeatLoadCalc').getChild('core').getChild('pre_calc_parameters')
@@ -361,14 +354,7 @@ def make_pre_calc_parameters(
         get_f_l_cl=get_f_l_cl
     )
 
-    # 地盤の数
-    n_grounds = bs.n_ground
-
-    pre_calc_parameters_ground = PreCalcParametersGround(
-        n_grounds=n_grounds
-    )
-
-    return pre_calc_parameters, pre_calc_parameters_ground
+    return pre_calc_parameters
 
 
 def get_f_wsc_js_ns(f_ax_js_js, f_crx_js_ns):

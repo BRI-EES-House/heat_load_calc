@@ -65,7 +65,7 @@ class TestSteadyState(unittest.TestCase):
         q_trs_sol_is_ns = np.full((1, 8760*4), 100.0, dtype=float)
 
         # pre_calc_parametersの構築
-        ss, ppg = pre_calc_parameters.make_pre_calc_parameters(
+        ss = pre_calc_parameters.make_pre_calc_parameters(
             itv=interval.Interval.M15, rd=rd, weather=w, scd=scd, q_trs_sol_is_ns=q_trs_sol_is_ns
         )
 

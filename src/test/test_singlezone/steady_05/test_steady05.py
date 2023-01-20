@@ -67,7 +67,7 @@ class TestSteadyState(unittest.TestCase):
         ])
 
         # pre_calc_parametersの構築
-        ss, ppg = pre_calc_parameters.make_pre_calc_parameters(
+        ss = pre_calc_parameters.make_pre_calc_parameters(
             itv=interval.Interval.M15, rd=rd, weather=w, theta_o_eqv_js_ns=theta_o_eqv_js_ns, scd=scd
         )
 
