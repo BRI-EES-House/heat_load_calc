@@ -53,8 +53,8 @@ class TestRooms(unittest.TestCase):
         self.assertEqual(rms.sub_name_rm_is[0, 0], 'sub_test0')
         self.assertEqual(rms.sub_name_rm_is[1, 0], 'sub_test1')
 
-        self.assertEqual(rms.floor_area_is[0, 0], 30.0)
-        self.assertEqual(rms.floor_area_is[1, 0], 40.0)
+        self.assertEqual(rms.a_f_rm_is[0, 0], 30.0)
+        self.assertEqual(rms.a_f_rm_is[1, 0], 40.0)
 
         self.assertEqual(rms.v_rm_is[0, 0], 70.0)
         self.assertEqual(rms.v_rm_is[1, 0], 130.0)
@@ -133,8 +133,8 @@ class TestRooms(unittest.TestCase):
         self.assertEqual(rms.sub_name_rm_is[0, 0], 'sub_test0')
         self.assertEqual(rms.sub_name_rm_is[1, 0], 'sub_test1')
 
-        self.assertEqual(rms.floor_area_is[0, 0], 30.0)
-        self.assertEqual(rms.floor_area_is[1, 0], 40.0)
+        self.assertEqual(rms.a_f_rm_is[0, 0], 30.0)
+        self.assertEqual(rms.a_f_rm_is[1, 0], 40.0)
 
         self.assertEqual(rms.v_rm_is[0, 0], 70.0)
         self.assertEqual(rms.v_rm_is[1, 0], 130.0)

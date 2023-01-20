@@ -21,7 +21,7 @@ class Room:
     v: float
 
     # 床面積, m2
-    floor_area: float
+    a_f: float
 
     # 備品等の熱容量, J/K
     c_sh_frt: float
@@ -47,28 +47,40 @@ class Rooms:
         self._n_rm = len(ds)
 
         self._rms = [self._get_rm(d=d) for d in ds]
+        self._id_rm_is = np.array([rm.id for rm in self._rms]).reshape(-1, 1)
+        self._name_rm_is = np.array([rm.name for rm in self._rms]).reshape(-1, 1)
+        self._sub_name_rm_is = np.array([rm.sub_name for rm in self._rms]).reshape(-1, 1)
+        self._a_f_rm_is = np.array([rm.a_f for rm in self._rms]).reshape(-1, 1)
+        self._v_rm_is = np.array([rm.v for rm in self._rms]).reshape(-1, 1)
+        self._c_sh_frt_is = np.array([rm.c_sh_frt for rm in self._rms]).reshape(-1, 1)
+        self._g_sh_frt_is = np.array([rm.g_sh_frt for rm in self._rms]).reshape(-1, 1)
+        self._c_lh_frt_is = np.array([rm.c_lh_frt for rm in self._rms]).reshape(-1, 1)
+        self._g_lh_frt_is = np.array([rm.g_lh_frt for rm in self._rms]).reshape(-1, 1)
+        self._v_vent_ntr_set_is = np.array([rm.v_vent_ntr_set for rm in self._rms]).reshape(-1, 1)
+        self._met_is = np.full(shape=(self._n_rm, 1), fill_value=1.0, dtype=float)
 
     @staticmethod
     def _get_rm(d: Dict):
 
-        v_rm_i = d['volume']
+        v_rm_i = float(d['volume'])
 
         c_lh_frt, c_sh_frt, g_lh_frt, g_sh_frt = furniture.get_furniture_specs(
             dict_furniture_i=d['furniture'],
             v_rm_i=v_rm_i
         )
 
+        # v_vent_ntr_set については m3/h から m3/s の単位変換を行う。
         return Room(
-            id=d['id'],
-            name=d['name'],
-            sub_name=d['sub_name'],
-            floor_area=d['floor_area'],
+            id=int(d['id']),
+            name=str(d['name']),
+            sub_name=str(d['sub_name']),
+            a_f=float(d['floor_area']),
             v=v_rm_i,
             c_sh_frt=c_sh_frt,
             g_sh_frt=g_sh_frt,
             c_lh_frt=c_lh_frt,
             g_lh_frt=g_lh_frt,
-            v_vent_ntr_set=d['ventilation']['natural']
+            v_vent_ntr_set=float(d['ventilation']['natural']) / 3600.0
         )
 
     @property
@@ -79,55 +91,54 @@ class Rooms:
     @property
     def id_rm_is(self):
 
-        return np.array([rm.id for rm in self._rms]).reshape(-1, 1)
+        return self._id_rm_is
 
     @property
     def name_rm_is(self):
 
-        return np.array([rm.name for rm in self._rms]).reshape(-1, 1)
+        return self._name_rm_is
 
     @property
     def sub_name_rm_is(self):
 
-        return np.array([rm.sub_name for rm in self._rms]).reshape(-1, 1)
+        return self._sub_name_rm_is
 
     @property
-    def floor_area_is(self):
+    def a_f_rm_is(self):
 
-        return np.array([rm.floor_area for rm in self._rms]).reshape(-1, 1)
+        return self._a_f_rm_is
 
     @property
     def v_rm_is(self):
 
-        return np.array([rm.v for rm in self._rms]).reshape(-1, 1)
+        return self._v_rm_is
 
     @property
     def c_sh_frt_is(self):
 
-        return np.array([rm.c_sh_frt for rm in self._rms]).reshape(-1, 1)
+        return self._c_sh_frt_is
 
     @property
     def g_sh_frt_is(self):
 
-        return np.array([rm.g_sh_frt for rm in self._rms]).reshape(-1, 1)
+        return self._g_sh_frt_is
 
     @property
     def c_lh_frt_is(self):
 
-        return np.array([rm.c_lh_frt for rm in self._rms]).reshape(-1, 1)
+        return self._c_lh_frt_is
 
     @property
     def g_lh_frt_is(self):
 
-        return np.array([rm.g_lh_frt for rm in self._rms]).reshape(-1, 1)
+        return self._g_lh_frt_is
 
     @property
     def v_vent_ntr_set_is(self):
 
-        # m3/h から m3/s の単位変換を行う。
-        return np.array([rm.v_vent_ntr_set / 3600.0 for rm in self._rms]).reshape(-1, 1)
+        return self._v_vent_ntr_set_is
 
     @property
     def met_is(self):
 
-        return np.full(shape=(self._n_rm, 1), fill_value=1.0, dtype=float)
+        return self._met_is
