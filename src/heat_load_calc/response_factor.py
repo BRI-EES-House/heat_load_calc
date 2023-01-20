@@ -380,7 +380,7 @@ def calc_transfer_function(C_i_k_p: List[float], R_i_k_p: List[float], laps: flo
 
 
 # 壁体の単位応答の計算（非住宅向け重み付き最小二乗法適用）
-def get_step_reps_of_wall_weighted(C_i_k_p, R_i_k_p, laps: List[float], alp: List[float]):
+def get_step_reps_of_wall_weighted(C_i_k_p, R_i_k_p, laps: List[float], alp: List[float], weight: float):
     """
     重み付き最小二乗法の適用
     :param layers: 壁体構成部材
@@ -408,7 +408,6 @@ def get_step_reps_of_wall_weighted(C_i_k_p, R_i_k_p, laps: List[float], alp: Lis
     #    pass #　暫定処理（VBAではここで処理を抜ける）
 
     # 吸熱、貫流の各伝達関数ベクトルの作成
-    matFt = np.identity(2, dtype=float)
     for lngI, lap in enumerate(laps):
 
         # 伝達関数の計算
@@ -432,7 +431,7 @@ def get_step_reps_of_wall_weighted(C_i_k_p, R_i_k_p, laps: List[float], alp: Lis
     for lngK in range(nroot):
        for lngJ in range(nroot):
            for lngI in range(nlaps):
-               matU[lngK, lngJ] += np.power(laps[lngI], 2.0) * matF[lngI, lngK] * matF[lngI, lngJ]
+               matU[lngK, lngJ] += np.power(laps[lngI], weight) * matF[lngI, lngK] * matF[lngI, lngJ]
     # matU = np.dot(matF.T, matF)
 
     # 最小二乗法のための定数項行列を作成
@@ -440,8 +439,8 @@ def get_step_reps_of_wall_weighted(C_i_k_p, R_i_k_p, laps: List[float], alp: Lis
     matCT = np.zeros((nroot, 1))
     for lngK in range(nroot):
         for lngI in range(nlaps):
-            matCA[lngK, 0] += laps[lngI] ** 2.0 * matF[lngI, lngK] * matGA[lngI, 0]
-            matCT[lngK, 0] += laps[lngI] ** 2.0 * matF[lngI, lngK] * matGT[lngI, 0]
+            matCA[lngK, 0] += laps[lngI] ** weight * matF[lngI, lngK] * matGA[lngI, 0]
+            matCT[lngK, 0] += laps[lngI] ** weight * matF[lngI, lngK] * matGT[lngI, 0]
 
     # 伝達関数の係数を計算
     matAA = np.linalg.solve(matU, matCA)
@@ -534,12 +533,10 @@ def calc_response_factor_non_residential(C_i_k_p, R_i_k_p):
     laps = get_laps(alpha_m)
 
     # 単位応答の計算
-    AT0, AA0, AT, AA = get_step_reps_of_wall_weighted(C_i_k_p, R_i_k_p, laps, alpha_m)
+    AT0, AA0, AT, AA = get_step_reps_of_wall_weighted(C_i_k_p=C_i_k_p, R_i_k_p=R_i_k_p, laps=laps, alp=alpha_m, weight=2.0)
 
     # 二等辺三角波励振の応答係数の初項、指数項別応答係数、公比の計算
     RFT0, RFA0, RFT1, RFA1, Row = get_RFTRI(alpha_m, AT0, AA0, AT, AA)
-
-    Nroot = len(alpha_m)  # 根の数
 
     RFT1_12 = np.zeros(12)
     RFA1_12 = np.zeros(12)
