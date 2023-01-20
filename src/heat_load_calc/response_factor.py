@@ -536,11 +536,9 @@ def calc_response_factor_non_residential(C_i_k_p, R_i_k_p):
     # 単位応答の計算
     AT0, AA0, AT, AA = get_step_reps_of_wall_weighted(C_i_k_p, R_i_k_p, laps, alpha_m)
 
-    # 二等辺三角波励振の応答係数、指数項別応答係数、公比の計算
+    # 二等辺三角波励振の応答係数の初項、指数項別応答係数、公比の計算
     RFT0, RFA0, RFT1, RFA1, Row = get_RFTRI(alpha_m, AT0, AA0, AT, AA)
 
-    RFT0 = RFT[0]  # 貫流応答係数の初項
-    RFA0 = RFA[0]  # 吸熱応答係数の初項
     Nroot = len(alpha_m)  # 根の数
 
     RFT1_12 = np.zeros(12)
