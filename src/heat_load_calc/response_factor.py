@@ -380,20 +380,14 @@ def calc_transfer_function(C_i_k_p: List[float], R_i_k_p: List[float], laps: flo
 
 
 # 壁体の単位応答の計算（非住宅向け重み付き最小二乗法適用）
-def get_step_reps_of_wall_weighted(C_i_k_p, R_i_k_p, laps: List[float], alp: List[float], M: int):
+def get_step_reps_of_wall_weighted(C_i_k_p, R_i_k_p, laps: List[float], alp: List[float]):
     """
     重み付き最小二乗法の適用
     :param layers: 壁体構成部材
     :param laps: ラプラス変数
     :param alp: 固定根
-    :param nroot: 根の数
-    :param M: 応答係数で作成する項数
-    :param DTime: 計算時間間隔[s]
     :return:
     """
-
-    # 四端子基本行列の初期化
-    matFi = np.zeros((len(C_i_k_p), 2, 2))
 
     # 吸熱、貫流の各伝達関数ベクトルの初期化
     nlaps = len(laps)
@@ -457,51 +451,17 @@ def get_step_reps_of_wall_weighted(C_i_k_p, R_i_k_p, laps: List[float], alp: Lis
     dblAT = matAT[:, 0]
     dblAA = matAA[:, 0]
 
-    # 単位応答を計算
-    dblATstep = np.zeros(M)
-    dblAAstep = np.zeros(M)
-    for lngJ in range(M):
-        dblATstep[lngJ] = dblAT0
-        dblAAstep[lngJ] = dblAA0
-        for lngK, root in enumerate(alp):
-            dblATstep[lngJ] = dblATstep[lngJ] + dblAT[lngK] * math.exp(-root * lngJ * 900)
-            dblAAstep[lngJ] = dblAAstep[lngJ] + dblAA[lngK] * math.exp(-root * lngJ * 900)
-
-    # デバッグ用
-    # print('四端子基本行列：', matFi)
-    # print('四端子行列：', matFt)
-    # print('貫流伝達関数ベクトル：', matGA)
-    # print('吸熱伝達関数ベクトル：', matGT)
-    # print('伝達関数の係数を求めるための左辺行列：', matF)
-    # print('最小二乗法のための係数行列：', matU)
-    # print('最小二乗法のための係数行列の逆行列：', matU_inv)
-    # print('貫流定数項行列：', matCT)
-    # print('吸熱定数項行列：', matCA)
-    # print('貫流伝達関数の係数：', dblAT)
-    # print('吸熱伝達関数の係数：', dblAA)
-    # print('単位貫流応答：', dblATstep[:11])
-    # print('単位吸熱応答：', dblAAstep[:11])
-
-    return dblAT0, dblAA0, dblAT, dblAA, dblATstep, dblAAstep
+    return dblAT0, dblAA0, dblAT, dblAA
 
 
 # 二等辺三角波励振の応答係数、指数項別応答係数、公比の計算
-def get_RFTRI(alp, AT0, AA0, AT, AA, M):
-    # 二等辺三角波励振の応答係数の配列を初期化
-    dblRFT = np.zeros(M)
-    dblRFA = np.zeros(M)
+def get_RFTRI(alp, AT0, AA0, AT, AA):
 
     # 二等辺三角波励振の応答係数の初項を計算
     dblTemp = np.array(alp) * 900
     dblE1 = (1.0 - np.exp(-dblTemp)) / dblTemp
-    dblRFT[0] = AT0 + np.sum(dblE1 * AT)
-    dblRFA[0] = AA0 + np.sum(dblE1 * AA)
-
-    # 二等辺三角波励振の応答係数の二項目以降を計算
-    for lngJ in range(1, M):
-        dblE1 = (1.0 - np.exp(-dblTemp)) ** 2.0 * np.exp(-(float(lngJ) - 1.0) * dblTemp) / dblTemp
-        dblRFT[lngJ] = (-1.0) * np.sum(dblE1 * AT)
-        dblRFA[lngJ] = (-1.0) * np.sum(dblE1 * AA)
+    dblRFT0 = AT0 + np.sum(dblE1 * AT)
+    dblRFA0 = AA0 + np.sum(dblE1 * AA)
 
     # 指数項別応答係数、公比を計算
     dblE1 = 1.0 / dblTemp * (1.0 - np.exp(-dblTemp)) ** 2.0
@@ -509,14 +469,7 @@ def get_RFTRI(alp, AT0, AA0, AT, AA, M):
     dblRFA1 = - AA * dblE1
     dblRow = np.exp(-dblTemp)
 
-    # デバッグ用
-    # print('貫流応答係数：', dblRFT[:11])
-    # print('吸熱応答係数：', dblRFA[:11])
-    # print('指数項別貫流応答係数：', dblRFT1)
-    # print('指数項別吸熱応答係数：', dblRFA1)
-    # print('公比：', dblRow)
-
-    return dblRFT, dblRFA, dblRFT1, dblRFA1, dblRow
+    return dblRFT0, dblRFA0, dblRFT1, dblRFA1, dblRow
 
 
 # 応答係数
@@ -574,9 +527,6 @@ def calc_response_factor_non_residential(C_i_k_p, R_i_k_p):
     :param wall: 壁体基本情報クラス
     """
 
-    NcalTime = 50  # 応答係数を作成する時間数[h]
-    M = int(NcalTime * 3600 / 900) + 1  # 応答係数で作成する項数
-
     # 固定根, 初稿 1/(86400*365)、終項 1/600、項数 10
     alpha_m = np.logspace(np.log10(1.0 / (86400.0 * 365.0)), np.log10(1.0 / 600.0), 10)
 
@@ -584,10 +534,10 @@ def calc_response_factor_non_residential(C_i_k_p, R_i_k_p):
     laps = get_laps(alpha_m)
 
     # 単位応答の計算
-    AT0, AA0, AT, AA, ATstep, AAstep = get_step_reps_of_wall_weighted(C_i_k_p, R_i_k_p, laps, alpha_m, M)
+    AT0, AA0, AT, AA = get_step_reps_of_wall_weighted(C_i_k_p, R_i_k_p, laps, alpha_m)
 
     # 二等辺三角波励振の応答係数、指数項別応答係数、公比の計算
-    RFT, RFA, RFT1, RFA1, Row = get_RFTRI(alpha_m, AT0, AA0, AT, AA, M)
+    RFT0, RFA0, RFT1, RFA1, Row = get_RFTRI(alpha_m, AT0, AA0, AT, AA)
 
     RFT0 = RFT[0]  # 貫流応答係数の初項
     RFA0 = RFA[0]  # 吸熱応答係数の初項
