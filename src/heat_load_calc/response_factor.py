@@ -227,48 +227,14 @@ def get_step_reps_of_wall(C_i_k_p, R_i_k_p, laps: List[float], alp: List[float],
     #    pass #　暫定処理（VBAではここで処理を抜ける）
 
     # 吸熱、貫流の各伝達関数ベクトルの作成
-    for lngI in range(0, len(laps)):
-        # 四端子行列の作成
-        for lngK, (R_k, C_k) in enumerate(zip(R_i_k_p, C_i_k_p)):
-
-            # ---- 四端子基本行列 matFi ----
-            if abs(C_k) < 0.001:
-                # 定常部位（空気層等）の場合
-                matFi[lngK] = np.array([
-                    [1.0, R_k],
-                    [0.0, 1.0]
-                ])
-            else:
-                # 非定常部位の場合
-                dblTemp = math.sqrt(R_k * C_k * laps[lngI])
-                dblCosh = np.cosh(dblTemp)
-                dblSinh = np.sinh(dblTemp)
-
-                matFi[lngK] = np.array([
-                    [dblCosh, R_k / dblTemp * dblSinh],
-                    [dblTemp / R_k * dblSinh, dblCosh]
-                ])
-
-            # print('[Fi(', lngK, ')]')
-            # print(matFi)
-
-            # ---- 四端子行列 matFt ----
-            if lngK == 0:
-                # 室内側1層目の場合は、四端子行列に四端子基本行列をコピーする
-                matFt = np.copy(matFi[lngK])
-            else:
-                # 室内側2層目以降は、四端子基本行列を乗算
-                matFt = np.dot(matFt, matFi[lngK])
-
-        # print('martFt')
-        # print(matFt)
+    for lngI, lap in enumerate(laps):
+        # 伝達関数の計算
+        (GA, GT) = calc_transfer_function(C_i_k_p=C_i_k_p, R_i_k_p=R_i_k_p, laps=lap)
 
         # 吸熱、貫流の各伝達関数ベクトルの作成
-        matGA[lngI] = matFt[0, 1] / matFt[1, 1] - dblGA0
-        matGT[lngI] = 1.0 / matFt[1][1] - dblGT0
+        matGA[lngI] = GA - dblGA0
+        matGT[lngI] = GT - dblGT0
 
-    # print('matGA', matGA)
-    # print('matGT', matGT)
     # 伝達関数の係数を求めるための左辺行列を作成
     nroot = len(alp)
     matF = np.zeros((nlaps, nroot))
@@ -354,7 +320,7 @@ def calc_transfer_function(C_i_k_p: List[float], R_i_k_p: List[float], laps: flo
             ])
         else:
             # 非定常部位の場合
-            dblTemp = math.sqrt(R_k * C_k * laps)
+            dblTemp = np.sqrt(R_k * C_k * laps)
             dblCosh = np.cosh(dblTemp)
             dblSinh = np.sinh(dblTemp)
 
@@ -386,6 +352,7 @@ def get_step_reps_of_wall_weighted(C_i_k_p, R_i_k_p, laps: List[float], alp: Lis
     :param layers: 壁体構成部材
     :param laps: ラプラス変数
     :param alp: 固定根
+    :param weight: 重み付き最小二乗法の重み
     :return:
     """
 
@@ -414,8 +381,8 @@ def get_step_reps_of_wall_weighted(C_i_k_p, R_i_k_p, laps: List[float], alp: Lis
         (GA, GT) = calc_transfer_function(C_i_k_p=C_i_k_p, R_i_k_p=R_i_k_p, laps=lap)
 
         # 吸熱、貫流の各伝達関数ベクトルの作成
-        matGA[lngI] = GA - dblGA0
-        matGT[lngI] = GT - dblGT0
+        matGA[lngI, 0] = GA - dblGA0
+        matGT[lngI, 0] = GT - dblGT0
 
     # print('matGA', matGA)
     # print('matGT', matGT)
@@ -494,7 +461,7 @@ def calc_response_factor(is_ground: bool, cs, rs):
     laps = get_laps(alpha_m)
 
     # 単位応答の計算
-    AT0, AA0, AT, AA, ATstep, AAstep = get_step_reps_of_wall(cs, rs, laps, alpha_m, M)
+    AT0, AA0, AT, AA, ATstep, AAstep = get_step_reps_of_wall(cs, rs, laps, alpha_m)
 
     # 二等辺三角波励振の応答係数、指数項別応答係数、公比の計算
     RFT, RFA, RFT1, RFA1, Row = get_RFTRI(alpha_m, AT0, AA0, AT, AA, M)
@@ -527,23 +494,65 @@ def calc_response_factor_non_residential(C_i_k_p, R_i_k_p):
     """
 
     # 固定根, 初稿 1/(86400*365)、終項 1/600、項数 10
-    alpha_m = np.logspace(np.log10(1.0 / (86400.0 * 365.0)), np.log10(1.0 / 600.0), 10)
+    alpha_m = np.logspace(np.log10(1.0 / (86400.0 * 365.0)), np.log10(1.0 / 900.0), 10)
+    alpha_m_temp = alpha_m
+
+    nroot = len(alpha_m)
+    # 実際に応答係数計算に使用する固定根を選定する
+    GA = np.zeros_like(alpha_m_temp, dtype=float)
+    GT = np.zeros_like(alpha_m_temp, dtype=float)
+    # 固定根をラプラスパラメータとして伝達関数を計算
+    for i, lap in enumerate(alpha_m_temp):
+        (GA[i], GT[i]) = calc_transfer_function(C_i_k_p=C_i_k_p, R_i_k_p=R_i_k_p, laps=lap)
+
+    GT2 = np.zeros(nroot + 2, dtype=float)
+    # 配列0に定常の伝達関数を入力
+    GT2[0] = 1.0
+    # 配列の最後にs=∞の伝達関数を入力
+    GT2[nroot - 1] = 0.0
+    # それ以外に計算した伝達関数を代入
+    for i in range(nroot):
+        GT2[i + 1] = GT[i]
+
+    # 採用する固定根の場合1
+    is_adopts = np.zeros(nroot, dtype=int)
+    for i in range(nroot + 1):
+        for j in range(i + 1, nroot):
+            # 伝達関数が3%以上変化した根だけ採用する
+            if math.fabs(GT2[j] - GT2[i]) > 1.0 * 0.03:
+                is_adopts[j] = 1
+                i = j - 1
+                break
+
+    # 採用する根を数える
+    adopt_nroot = sum(is_adopts)
+
+    # 不採用の固定根を削除
+    for i, adopts in enumerate(reversed(is_adopts)):
+        if adopts == 0:
+            alpha_m_temp = np.delete(alpha_m_temp, nroot - i - 1)
 
     # ラプラス変数の設定
-    laps = get_laps(alpha_m)
+    laps = get_laps(alpha_m_temp)
 
     # 単位応答の計算
-    AT0, AA0, AT, AA = get_step_reps_of_wall_weighted(C_i_k_p=C_i_k_p, R_i_k_p=R_i_k_p, laps=laps, alp=alpha_m, weight=2.0)
+    AT0, AA0, AT, AA = get_step_reps_of_wall_weighted(C_i_k_p=C_i_k_p, R_i_k_p=R_i_k_p, laps=laps, alp=alpha_m_temp, weight=2.0)
 
     # 二等辺三角波励振の応答係数の初項、指数項別応答係数、公比の計算
-    RFT0, RFA0, RFT1, RFA1, Row = get_RFTRI(alpha_m, AT0, AA0, AT, AA)
+    RFT0, RFA0, RFT1, RFA1, Row = get_RFTRI(alpha_m_temp, AT0, AA0, AT, AA)
 
     RFT1_12 = np.zeros(12)
     RFA1_12 = np.zeros(12)
     Row_12 = np.zeros(12)
-    RFT1_12[:len(RFT1)] = RFT1
-    RFA1_12[:len(RFA1)] = RFA1
-    Row_12[:len(Row)] = Row
+    # RFT1_12[:len(RFT1)] = RFT1
+    # RFA1_12[:len(RFA1)] = RFA1
+    # Row_12[:len(Row)] = Row
+    for i, alpha in enumerate(alpha_m):
+        for j, alpha_temp in enumerate(alpha_m_temp):
+            if alpha == alpha_temp:
+                RFT1_12[i] = RFT1[j]
+                RFA1_12[i] = RFA1[j]
+                Row_12[i] = Row[j]
 
     return RFT0, RFA0, RFT1_12, RFA1_12, Row_12
 
@@ -563,4 +572,4 @@ if __name__ == '__main__':
         0.120289612356129
     ])
 
-    print(calc_transfer_function(C, R, 1.0 / (900)))
+    calc_response_factor_non_residential(C, R)
