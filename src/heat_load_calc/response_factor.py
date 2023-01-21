@@ -194,14 +194,11 @@ def get_alpha_m(is_ground: bool) -> np.ndarray:
 
 
 # 壁体の単位応答の計算
-def get_step_reps_of_wall(C_i_k_p, R_i_k_p, laps: List[float], alp: List[float], M: int):
+def get_step_reps_of_wall(C_i_k_p, R_i_k_p, laps: List[float], alp: List[float]):
     """
     :param layers: 壁体構成部材
     :param laps: ラプラス変数
     :param alp: 固定根
-    :param nroot: 根の数
-    :param M: 応答係数で作成する項数
-    :param DTime: 計算時間間隔[s]
     :return:
     """
 
@@ -263,32 +260,7 @@ def get_step_reps_of_wall(C_i_k_p, R_i_k_p, laps: List[float], alp: List[float],
     dblAT = matAT[:, 0]
     dblAA = matAA[:, 0]
 
-    # 単位応答を計算
-    dblATstep = np.zeros(M)
-    dblAAstep = np.zeros(M)
-    for lngJ in range(M):
-        dblATstep[lngJ] = dblAT0
-        dblAAstep[lngJ] = dblAA0
-        for lngK, root in enumerate(alp):
-            dblATstep[lngJ] = dblATstep[lngJ] + dblAT[lngK] * math.exp(-root * lngJ * 900)
-            dblAAstep[lngJ] = dblAAstep[lngJ] + dblAA[lngK] * math.exp(-root * lngJ * 900)
-
-    # デバッグ用
-    # print('四端子基本行列：', matFi)
-    # print('四端子行列：', matFt)
-    # print('貫流伝達関数ベクトル：', matGA)
-    # print('吸熱伝達関数ベクトル：', matGT)
-    # print('伝達関数の係数を求めるための左辺行列：', matF)
-    # print('最小二乗法のための係数行列：', matU)
-    # print('最小二乗法のための係数行列の逆行列：', matU_inv)
-    # print('貫流定数項行列：', matCT)
-    # print('吸熱定数項行列：', matCA)
-    # print('貫流伝達関数の係数：', dblAT)
-    # print('吸熱伝達関数の係数：', dblAA)
-    # print('単位貫流応答：', dblATstep[:11])
-    # print('単位吸熱応答：', dblAAstep[:11])
-
-    return dblAT0, dblAA0, dblAT, dblAA, dblATstep, dblAAstep
+    return dblAT0, dblAA0, dblAT, dblAA
 
 
 # 伝達関数の計算
@@ -461,13 +433,11 @@ def calc_response_factor(is_ground: bool, cs, rs):
     laps = get_laps(alpha_m)
 
     # 単位応答の計算
-    AT0, AA0, AT, AA, ATstep, AAstep = get_step_reps_of_wall(cs, rs, laps, alpha_m)
+    AT0, AA0, AT, AA = get_step_reps_of_wall(cs, rs, laps, alpha_m)
 
     # 二等辺三角波励振の応答係数、指数項別応答係数、公比の計算
-    RFT, RFA, RFT1, RFA1, Row = get_RFTRI(alpha_m, AT0, AA0, AT, AA, M)
+    RFT0, RFA0, RFT1, RFA1, Row = get_RFTRI(alpha_m, AT0, AA0, AT, AA)
 
-    RFT0 = RFT[0]  # 貫流応答係数の初項
-    RFA0 = RFA[0]  # 吸熱応答係数の初項
     Nroot = len(alpha_m)  # 根の数
 
     RFT1_12 = np.zeros(12)
@@ -536,7 +506,7 @@ def calc_response_factor_non_residential(C_i_k_p, R_i_k_p):
     laps = get_laps(alpha_m_temp)
 
     # 単位応答の計算
-    AT0, AA0, AT, AA = get_step_reps_of_wall_weighted(C_i_k_p=C_i_k_p, R_i_k_p=R_i_k_p, laps=laps, alp=alpha_m_temp, weight=2.0)
+    AT0, AA0, AT, AA = get_step_reps_of_wall_weighted(C_i_k_p=C_i_k_p, R_i_k_p=R_i_k_p, laps=laps, alp=alpha_m_temp, weight=0.0)
 
     # 二等辺三角波励振の応答係数の初項、指数項別応答係数、公比の計算
     RFT0, RFA0, RFT1, RFA1, Row = get_RFTRI(alpha_m_temp, AT0, AA0, AT, AA)
