@@ -486,13 +486,15 @@ def calc_response_factor_non_residential(C_i_k_p, R_i_k_p):
 
     # 採用する固定根の場合1
     is_adopts = np.zeros(nroot, dtype=int)
-    for i in range(nroot + 1):
-        for j in range(i + 1, nroot):
+    i = 0
+    while i <= nroot + 1:
+        for j in range(i + 1, nroot + 1):
             # 伝達関数が3%以上変化した根だけ採用する
             if math.fabs(GT2[j] - GT2[i]) > 1.0 * 0.03:
-                is_adopts[j] = 1
+                is_adopts[j - 1] = 1
                 i = j - 1
                 break
+        i += 1
 
     # 採用する根を数える
     adopt_nroot = sum(is_adopts)
@@ -542,4 +544,10 @@ if __name__ == '__main__':
         0.120289612356129
     ])
 
-    calc_response_factor_non_residential(C, R)
+    print(calc_response_factor_non_residential(C, R))
+
+    # 単位面積あたりの熱容量, kJ / m2 K
+    cs = np.array([7470, 0.0, 180000.0, 3600, 48000.0, 0.0])
+    # 熱抵抗, m2 K/W
+    rs = np.array([0.0409090909, 0.070000, 0.0562500000, 2.9411764706, 0.020000, 0.04])
+    print(calc_response_factor_non_residential(cs, rs))
