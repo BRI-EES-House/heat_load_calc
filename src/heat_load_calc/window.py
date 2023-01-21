@@ -1,6 +1,7 @@
 from enum import Enum, auto
 from typing import Optional, Tuple
 from math import sin, cos, pi
+import numpy as np
 
 
 class Window:
@@ -409,8 +410,12 @@ class Window:
         Returns:
             規準化反射率, -
         """
-        ms_rho = [1.000, -5.189, 12.392, -16.593, 11.851, -3.461]
-        return sum([m_rho * (cos(phi) ** k) for (k, m_rho) in enumerate(ms_rho)])
+        #ms_rho = [1.000, -5.189, 12.392, -16.593, 11.851, -3.461]
+        #return sum([m_rho * (cos(phi) ** k) for (k, m_rho) in enumerate(ms_rho)])
+        #ms_rho = np.array([1.000, -5.189, 12.392, -16.593, 11.851, -3.461])
+        #k = np.arange(6)
+        #return np.sum(ms_rho * np.power(np.cos(phi), k))
+        return 1.0 - 5.189 * cos(phi) + 12.392 * cos(phi) ** 2 - 16.593 * cos(phi) ** 3 + 11.851 * cos(phi) ** 4 - 3.461 * cos(phi) ** 5
 
     @staticmethod
     def _get_tau_n_phi(phi: float) -> float:
@@ -422,8 +427,12 @@ class Window:
         Returns:
             規準化透過率
         """
-        ms_tau = [0.000, 2.552, 1.364, -11.388, 13.617, -5.146]
-        return sum([m_tau * (cos(phi) ** k) for (k, m_tau) in enumerate(ms_tau)])
+        # ms_tau = [0.000, 2.552, 1.364, -11.388, 13.617, -5.146]
+        # return sum([m_tau * (cos(phi) ** k) for (k, m_tau) in enumerate(ms_tau)])
+        # ms_tau = np.array([0.000, 2.552, 1.364, -11.388, 13.617, -5.146])
+        # k = np.arange(6)
+        # return np.sum(ms_tau * np.power(np.cos(phi), k))
+        return 2.552 * cos(phi) + 1.364 * cos(phi) ** 2 - 11.388 * cos(phi) ** 3 + 13.617 * cos(phi) ** 4 - 5.146 * cos(phi) ** 5
 
     def _get_rho_w_g_s2f_j_phi(self, phi: float) -> float:
         """任意の入射角に対する境界 j の窓のガラス部分の室外側から2枚目の板ガラスの反射率（正面側）を計算する。
@@ -579,11 +588,16 @@ class Window:
             境界 j の窓の天空放射に対する日射吸収率, -
         """
         M = 1000
-        ms = list(range(1, M + 1))
-        phis_m = [pi / 2 * (m - 1 / 2) / M for m in ms]
-        tau_w_c_j = pi / M * sum([self._get_tau_w_j_phi(phi=phi_m) * sin(phi_m) * cos(phi_m) for phi_m in phis_m])
-        eta_w_c_j = pi / M * sum([self._get_eta_w_j_phi(phi=phi_m) * sin(phi_m) * cos(phi_m) for phi_m in phis_m])
-        alpha_w_c_j = pi / M * sum([self._get_alpha_w_j_phi(phi=phi_m) * sin(phi_m) * cos(phi_m) for phi_m in phis_m])
+        # ms = list(range(1, M + 1))
+        ms = np.arange(1, M+1)
+        # phis_m = [pi / 2 * (m - 1 / 2) / M for m in ms]
+        phis_m = np.pi / 2 * (ms - 1 / 2) / M
+        # tau_w_c_j = pi / M * sum([self._get_tau_w_j_phi(phi=phi_m) * sin(phi_m) * cos(phi_m) for phi_m in phis_m])
+        tau_w_c_j = np.pi / M * np.sum(np.vectorize(self._get_tau_w_j_phi)(phi=phis_m) * np.sin(phis_m) * np.cos(phis_m))
+        # eta_w_c_j = pi / M * sum([self._get_eta_w_j_phi(phi=phi_m) * sin(phi_m) * cos(phi_m) for phi_m in phis_m])
+        eta_w_c_j = np.pi / M * np.sum(np.vectorize(self._get_eta_w_j_phi)(phi=phis_m) * np.sin(phis_m) * np.cos(phis_m))
+        # alpha_w_c_j = pi / M * sum([self._get_alpha_w_j_phi(phi=phi_m) * sin(phi_m) * cos(phi_m) for phi_m in phis_m])
+        alpha_w_c_j = np.pi / M * np.sum(np.vectorize(self._get_alpha_w_j_phi)(phi=phis_m) * np.sin(phis_m) * np.cos(phis_m))
         tau_w_r_j = tau_w_c_j
         tau_w_s_j = tau_w_c_j
         eta_w_r_j = eta_w_c_j
