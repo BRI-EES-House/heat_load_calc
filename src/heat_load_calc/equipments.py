@@ -136,15 +136,27 @@ class Equipments:
             Equipments を initialize する際に、あらかじめ放射暖冷房にも room_id を付与しておくこととする。
         """
 
-        self._hes = [
+        hes = [
             self._create_heating_equipment(dict_heating_equipment=he, bs=bs)
             for he in dict_equipments['heating_equipments']
         ]
 
-        self._ces = [
+        ces = [
             self._create_cooling_equipment(dict_cooling_equipment=ce, bs=bs)
             for ce in dict_equipments['cooling_equipments']
         ]
+
+        self._hes = hes
+        self._ces = ces
+
+        self._is_radiative_heating_is = self._get_is_radiative_is(es=hes, n_rm=n_rm)
+        self._is_radiative_cooling_is = self._get_is_radiative_is(es=ces, n_rm=n_rm)
+        self._q_rs_h_max_is = self._get_q_rs_max_is(es=hes, n_rm=n_rm)
+        self._q_rs_c_max_is = self._get_q_rs_max_is(es=ces, n_rm=n_rm)
+        self._beta_h_is = self._get_beta_is(es=hes, n_rm=n_rm)
+        self._beta_c_is = self._get_beta_is(es=ces, n_rm=n_rm)
+        self._f_flr_h_js_is = self._get_f_flr_js_is(es=hes, n_rm=n_rm, n_b=n_b)
+        self._f_flr_c_js_is = self._get_f_flr_js_is(es=ces, n_rm=n_rm, n_b=n_b)
 
         self._n_rm = n_rm
         self._n_b = n_b
@@ -225,35 +237,47 @@ class Equipments:
         else:
             raise Exception
 
-    def get_is_radiative_heating_is(self):
+    @property
+    def is_radiative_heating_is(self):
         """
         室に放射暖房があるか否かを判定する。
         Returns:
             放射暖房の有無, [i, 1]
         """
+        return self._is_radiative_heating_is
 
-        return self._get_is_radiative_is(es=self._hes)
-
-    def get_is_radiative_cooling_is(self):
+    @property
+    def is_radiative_cooling_is(self):
         """
         室に放射冷房があるか否かを判定する。
         Returns:
             放射冷房の有無, [i, 1]
         """
+        return self._is_radiative_cooling_is
 
-        return self._get_is_radiative_is(es=self._ces)
+    @property
+    def q_rs_h_max_is(self):
 
-    def get_q_rs_h_max_is(self):
+        return self._q_rs_h_max_is
 
-        return self._get_q_rs_max_is(es=self._hes)
+    @property
+    def q_rs_c_max_is(self):
 
-    def get_q_rs_c_max_is(self):
+        return self._q_rs_c_max_is
 
-        return self._get_q_rs_max_is(es=self._ces)
+    @property
+    def beta_h_is(self):
 
-    def _get_q_rs_max_is(self, es):
+        return self._beta_h_is
 
-        q_rs_max_is = np.zeros(shape=(self._n_rm, 1), dtype=float)
+    @property
+    def beta_c_is(self):
+
+        return self._beta_c_is
+
+    def _get_q_rs_max_is(self, es, n_rm):
+
+        q_rs_max_is = np.zeros(shape=(n_rm, 1), dtype=float)
 
         for e in es:
             if type(e) in [HeatingEquipmentFloorHeating, CoolingEquipmentFloorCooling]:
@@ -261,22 +285,14 @@ class Equipments:
 
         return q_rs_max_is
 
-    def get_beta_h_is(self):
-
-        return self._get_beta_is(es=self._hes)
-
-    def get_beta_c_is(self):
-
-        return self._get_beta_is(es=self._ces)
-
-    def _get_is_radiative_is(self, es):
+    def _get_is_radiative_is(self, es, n_rm):
         """室に放射暖冷房があるか否かを判定する。
 
         Returns:
             放射暖冷房の有無, [i, 1]
         """
 
-        is_radiative_is = np.full(shape=(self._n_rm, 1), fill_value=False)
+        is_radiative_is = np.full(shape=(n_rm, 1), fill_value=False)
 
         for e in es:
             if type(e) in [HeatingEquipmentFloorHeating, CoolingEquipmentFloorCooling]:
@@ -284,16 +300,16 @@ class Equipments:
 
         return is_radiative_is
 
-    def _get_beta_is(self, es):
+    def _get_beta_is(self, es, n_rm):
 
-        f_beta_eqp_ks_is = self._get_f_beta_eqp_ks_is(es=es, n_rm=self._n_rm)
-        r_max_ks_is = self._get_r_max_ks_is(es=es, n_rm=self._n_rm)
+        f_beta_eqp_ks_is = self._get_f_beta_eqp_ks_is(es=es, n_rm=n_rm)
+        r_max_ks_is = self._get_r_max_ks_is(es=es, n_rm=n_rm)
 
         return np.sum(f_beta_eqp_ks_is * r_max_ks_is, axis=0).reshape(-1, 1)
 
-    def _get_p_ks_is(self, es):
+    def _get_p_ks_is(self, es, n_rm):
 
-        p_ks_is = np.zeros(shape=(len(es), self._n_rm), dtype=float)
+        p_ks_is = np.zeros(shape=(len(es), n_rm), dtype=float)
 
         for k, e in enumerate(es):
             if type(e) in [HeatingEquipmentFloorHeating, CoolingEquipmentFloorCooling]:
@@ -329,27 +345,29 @@ class Equipments:
 
         return q_max_ks_is / sum_of_q_max_is
 
-    def get_f_flr_h_js_is(self):
+    @property
+    def f_flr_h_js_is(self):
 
-        return self._get_f_flr_js_is(es=self._hes)
+        return self._f_flr_h_js_is
 
-    def get_f_flr_c_js_is(self):
+    @property
+    def f_flr_c_js_is(self):
 
-        return self._get_f_flr_js_is(es=self._ces)
+        return self._f_flr_c_js_is
 
-    def _get_f_flr_js_is(self, es):
+    def _get_f_flr_js_is(self, es, n_rm, n_b):
 
-        f_flr_eqp_js_ks = self._get_f_flr_eqp_js_ks(es=es)
-        f_beta_eqp_ks_is = self._get_f_beta_eqp_ks_is(es=es, n_rm=self._n_rm)
-        r_max_ks_is = self._get_r_max_ks_is(es=es, n_rm=self._n_rm)
-        beta_is = self._get_beta_is(es=es)
-        p_ks_is = self._get_p_ks_is(es=es)
+        f_flr_eqp_js_ks = self._get_f_flr_eqp_js_ks(es=es, n_b=n_b)
+        f_beta_eqp_ks_is = self._get_f_beta_eqp_ks_is(es=es, n_rm=n_rm)
+        r_max_ks_is = self._get_r_max_ks_is(es=es, n_rm=n_rm)
+        beta_is = self._get_beta_is(es=es, n_rm=n_rm)
+        p_ks_is = self._get_p_ks_is(es=es, n_rm=n_rm)
 
         return np.dot(np.dot(f_flr_eqp_js_ks, (p_ks_is - f_beta_eqp_ks_is) * r_max_ks_is), v_diag(1 / (1 - beta_is)))
 
-    def _get_f_flr_eqp_js_ks(self, es):
+    def _get_f_flr_eqp_js_ks(self, es, n_b):
 
-        f_flr_eqp_js_ks = np.zeros(shape=(self._n_b, len(es)), dtype=float)
+        f_flr_eqp_js_ks = np.zeros(shape=(n_b, len(es)), dtype=float)
 
         for k, e in enumerate(es):
             if type(e) in [HeatingEquipmentFloorHeating, CoolingEquipmentFloorCooling]:

@@ -7,6 +7,9 @@ from typing import List
 from heat_load_calc.pre_calc_parameters import PreCalcParameters
 from heat_load_calc import pmv as pmv, psychrometrics as psy
 from heat_load_calc.interval import Interval
+from heat_load_calc.weather import Weather
+from heat_load_calc.schedule import Schedule
+from heat_load_calc.rooms import Rooms
 
 
 class Recorder:
@@ -236,45 +239,45 @@ class Recorder:
             ('f_cvl_js_ns', 'f_cvl')
         ]
 
-    def pre_recording(self, ss: PreCalcParameters):
+    def pre_recording(self, ss: PreCalcParameters, weather: Weather, scd: Schedule):
 
         # 注意：用意された1年分のデータと実行期間が異なる場合があるためデータスライスする必要がある。
 
         # ---瞬時値---
 
         # ステップ n における外気温度, ℃, [n+1]
-        self.theta_o_ns = ss.theta_o_ns[0: self._n_step_i]
+        self.theta_o_ns = weather.theta_o_ns_plus[0: self._n_step_i]
 
         # ステップ n における外気絶対湿度, kg/kg(DA), [n+1]
-        self.x_o_ns = ss.x_o_ns[0: self._n_step_i]
+        self.x_o_ns = weather.x_o_ns_plus[0: self._n_step_i]
 
         # ステップ n における室 i の窓の透過日射熱取得, W, [i, n+1]
-        self.q_trs_sol_is_ns = ss.q_trs_sol_is_ns[:, 0:self._n_step_i]
+        self.q_trs_sol_is_ns = ss.bs.q_trs_sol_is_ns[:, 0:self._n_step_i]
 
         # ステップ n における室 i に設置された備品等による透過日射吸収熱量, W, [i, n+1]
         self.q_sol_frt_is_ns = ss.q_sol_frt_is_ns[:, 0:self._n_step_i]
 
         # ステップ n の境界 j の表面日射熱流, W, [j, n+1]
-        self.q_i_sol_s_ns_js = ss.q_s_sol_js_ns[:, 0:self._n_step_i] * ss.a_s_js
+        self.q_i_sol_s_ns_js = ss.q_s_sol_js_ns[:, 0:self._n_step_i] * ss.bs.a_s_js
 
         # ステップ n の境界 j の表面対流熱伝達率, W/m2K, [j, n+1]
-        self.h_s_c_js_ns = ss.h_s_c_js.repeat(self._n_step_i, axis=1)
+        self.h_s_c_js_ns = ss.bs.h_s_c_js.repeat(self._n_step_i, axis=1)
 
         # ステップ n の境界 j の表面放射熱伝達率, W/m2K, [j, n+1]
-        self.h_s_r_js_ns = ss.h_s_r_js.repeat(self._n_step_i, axis=1)
+        self.h_s_r_js_ns = ss.bs.h_s_r_js.repeat(self._n_step_i, axis=1)
 
         # ---平均値・積算値---
 
-        # ステップ n の室 i における当該時刻の空調需要, [i, n]
-        self.ac_demand_is_ns = ss.ac_demand_is_ns[:, 0:self._n_step_a]
+        # ステップ n の室 i における当該時刻の空調需要, [i, n_step_a]
+        self.ac_demand_is_ns = ss.scd.ac_demand_is_ns[:, 0:self._n_step_a]
 
-        # ステップnの室iにおける人体発熱を除く内部発熱, W, [i, 8760*4]
-        self.q_gen_is_ns = ss.q_gen_is_ns[:, 0:self._n_step_a]
+        # ステップnの室iにおける人体発熱を除く内部発熱, W, [i, n_step_a]
+        self.q_gen_is_ns = ss.scd.q_gen_is_ns[:, 0:self._n_step_a]
 
-        # ステップ n の室 i における人体発湿を除く内部発湿, kg/s, [i, n]
-        self.x_gen_is_ns = ss.x_gen_is_ns[:, 0:self._n_step_a]
+        # ステップ n の室 i における人体発湿を除く内部発湿, kg/s, [i, n_step_a]
+        self.x_gen_is_ns = ss.scd.x_gen_is_ns[:, 0:self._n_step_a]
 
-    def post_recording(self, ss: PreCalcParameters):
+    def post_recording(self, ss: PreCalcParameters, rms: Rooms):
 
         # ---瞬時値---
 
@@ -288,20 +291,20 @@ class Recorder:
         self.rh_r_is_ns = psy.get_h(p_v=p_v_is_ns, p_vs=p_vs_is_ns)
 
         # ステップnの境界jにおける表面熱流（壁体吸熱を正とする）のうち放射成分, W, [j, n]
-        self.q_r_js_ns = ss.h_s_r_js * ss.a_s_js * (np.dot(np.dot(ss.p_js_is, ss.f_mrt_is_js), self.theta_s_js_ns) - self.theta_s_js_ns)
+        self.q_r_js_ns = ss.bs.h_s_r_js * ss.bs.a_s_js * (np.dot(np.dot(ss.bs.p_js_is, ss.f_mrt_is_js), self.theta_s_js_ns) - self.theta_s_js_ns)
 
         # ステップnの境界jにおける表面熱流（壁体吸熱を正とする）のうち対流成分, W, [j, n+1]
-        self.q_c_js_ns = ss.h_s_c_js * ss.a_s_js * (np.dot(ss.p_js_is, self.theta_r_is_ns) - self.theta_s_js_ns)
+        self.q_c_js_ns = ss.bs.h_s_c_js * ss.bs.a_s_js * (np.dot(ss.bs.p_js_is, self.theta_r_is_ns) - self.theta_s_js_ns)
 
         # ---平均値・瞬時値---
 
         # ステップnの室iにおける家具取得熱量, W, [i, n]
         # ステップ n+1 の温度を用いてステップ n からステップ n+1 の平均的な熱流を求めている（後退差分）
-        self.q_frt_is_ns = np.delete(ss.g_sh_frt_is * (self.theta_r_is_ns - self.theta_frt_is_ns), 0, axis=1)
+        self.q_frt_is_ns = np.delete(rms.g_sh_frt_is * (self.theta_r_is_ns - self.theta_frt_is_ns), 0, axis=1)
 
         # ステップ n の室 i の家具等から空気への水分流, kg/s, [i, n]
         # ステップ n+1 の湿度を用いてステップ n からステップ n+1 の平均的な水分流を求めている（後退差分）
-        self.q_l_frt_is_ns = np.delete(ss.g_lh_frt_is * (self.x_r_is_ns - self.x_frt_is_ns), 0, axis=1)
+        self.q_l_frt_is_ns = np.delete(rms.g_lh_frt_is * (self.x_r_is_ns - self.x_frt_is_ns), 0, axis=1)
 
         # ステップ n+1 のPMVを計算するのに、ステップ n からステップ n+1 のClo値を用いる。
         # 現在、Clo値の配列数が1つ多いバグがあるため、適切な長さになるようにスライスしている。
@@ -320,7 +323,7 @@ class Recorder:
             theta_mrt_is_n=self.theta_mrt_hum_is_ns,
             clo_is_n=clo_pls,
             v_hum_is_n=v_hum_pls,
-            met_is=ss.met_is
+            met_is=rms.met_is
         )
 
         # ステップ n の室 i におけるPPD実現値, [i, n+1]

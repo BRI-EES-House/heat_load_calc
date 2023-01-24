@@ -65,8 +65,8 @@ class TestSteadyState(unittest.TestCase):
         q_trs_sol_is_ns = np.full((1, 8760*4), 100.0, dtype=float)
 
         # pre_calc_parametersの構築
-        ss, ppg = pre_calc_parameters.make_pre_calc_parameters(
-            itv=interval.Interval.M15, rd=rd, w=w, scd=scd, q_trs_sol_is_ns=q_trs_sol_is_ns
+        ss = pre_calc_parameters.make_pre_calc_parameters(
+            itv=interval.Interval.M15, rd=rd, weather=w, scd=scd, q_trs_sol_is_ns=q_trs_sol_is_ns
         )
 
         q_srf_js_n = np.array([[12.7809219004777, 12.7809219004777, 12.7809219004777, 12.7809219004777,
@@ -81,8 +81,8 @@ class TestSteadyState(unittest.TestCase):
             theta_r_is_n=np.array([[4.57208809459]]),
             theta_mrt_hum_is_n=np.array([[2.642487123]]),
             x_r_is_n=np.array([[0.0]]),
-            theta_dsh_s_a_js_ms_n=q_srf_js_n * ss.phi_a1_js_ms / (1.0 - ss.r_js_ms),
-            theta_dsh_s_t_js_ms_n=(np.dot(ss.k_ei_js_js, theta_ei_js_n) + ss.k_eo_js * ss.theta_o_eqv_js_ns[:, 1].reshape(-1, 1)) * ss.phi_t1_js_ms / (1.0 - ss.r_js_ms),
+            theta_dsh_s_a_js_ms_n=q_srf_js_n * ss.bs.phi_a1_js_ms / (1.0 - ss.bs.r_js_ms),
+            theta_dsh_s_t_js_ms_n=(np.dot(ss.bs.k_ei_js_js, theta_ei_js_n) + ss.bs.k_eo_js * ss.bs.theta_o_eqv_js_ns[:, 1].reshape(-1, 1)) * ss.bs.phi_t1_js_ms / (1.0 - ss.bs.r_js_ms),
             q_s_js_n=q_srf_js_n,
             theta_frt_is_n=np.array([[22.60960613]]),
             x_frt_is_n=np.array([[0.0]]),

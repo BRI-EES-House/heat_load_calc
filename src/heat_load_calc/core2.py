@@ -54,21 +54,25 @@ def calc(
 
     # json, csv ファイルからパラメータをロードする。
     # （ループ計算する必要の無い）事前計算を行い, クラス PreCalcParameters, PreCalcParametersGround に必要な変数を格納する。
-    pp, ppg = pre_calc_parameters.make_pre_calc_parameters(itv=itv, rd=rd, w=w, scd=scd)
+    pp = pre_calc_parameters.make_pre_calc_parameters(itv=itv, rd=rd, weather=w, scd=scd)
 
-    gc_n = conditions.initialize_ground_conditions(n_grounds=ppg.n_grounds)
+    gc_n = conditions.initialize_ground_conditions(n_grounds=pp.bs.n_ground)
 
     logger.info('助走計算（土壌のみ）')
 
     for n in range(-n_step_run_up, -n_step_run_up_build):
-        gc_n = sequence_ground.run_tick(gc_n=gc_n, ss=ppg, n=n)
+        gc_n = sequence_ground.run_tick(pp=pp, gc_n=gc_n, n=n)
 
-    result = recorder.Recorder(n_step_main=n_step_main, id_rm_is=list(pp.id_rm_is.flatten()), id_bdry_js=list(pp.id_bdry_js.flatten()))
+    result = recorder.Recorder(
+        n_step_main=n_step_main,
+        id_rm_is=list(pp.rms.id_rm_is.flatten()),
+        id_bdry_js=list(pp.bs.id_js.flatten())
+    )
 
-    result.pre_recording(pp)
+    result.pre_recording(ss=pp, weather=pp.weather, scd=pp.scd)
 
     # 建物を計算するにあたって初期値を与える
-    c_n = conditions.initialize_conditions(n_spaces=pp.n_rm, n_bdries=pp.n_bdry)
+    c_n = conditions.initialize_conditions(n_spaces=pp.rms.n_rm, n_bdries=pp.bs.n_b)
 
     # 地盤計算の結果（項別公比法の指数項mの吸熱応答の項別成分・表面熱流）を建物の計算に引き継ぐ
     c_n = conditions.update_conditions_by_ground_conditions(
@@ -95,7 +99,7 @@ def calc(
             logger.info("{} / 12 calculated.".format(m))
             m = m + 1
 
-    result.post_recording(pp)
+    result.post_recording(ss=pp, rms=pp.rms)
 
     logger.info('ログ作成')
 

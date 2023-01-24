@@ -141,7 +141,28 @@ class Boundaries:
         q_trs_sol_is_ns = self.get_q_trs_sol_is_ns(n_rm=n_rm, bss=bss)
 
         self._bss = bss
+
+        self._id_js = np.array([bs.id for bs in self._bss]).reshape(-1, 1)
+        self._name_js = np.array([bs.name for bs in self._bss]).reshape(-1, 1)
+        self._sub_name_js = np.array([bs.sub_name for bs in self._bss]).reshape(-1, 1)
         self._p_is_js = p_is_js
+        self._p_js_is = p_is_js.T
+        self._is_floor_js = np.array([bs.is_floor for bs in self._bss]).reshape(-1, 1)
+        self._is_ground_js = np.array([bs.boundary_type == BoundaryType.Ground for bs in self._bss]).reshape(-1, 1)
+        self._k_ei_js_js = np.array([bs.k_ei_js_j for bs in self._bss])
+        self._k_eo_js = np.array([bs.h_td for bs in self._bss]).reshape(-1, 1)
+        self._k_s_r_js = np.array([bs.k_s_r_j_is for bs in self._bss])
+        self._p_s_sol_abs_js = np.array([bs.is_solar_absorbed_inside for bs in self._bss]).reshape(-1, 1)
+        self._h_s_r_js = np.array([bs.h_s_r for bs in self._bss]).reshape(-1, 1)
+        self._h_s_c_js = np.array([bs.h_s_c for bs in self._bss]).reshape(-1, 1)
+        self._simulation_u_value = np.array([bs.simulation_u_value for bs in self._bss]).reshape(-1, 1)
+        self._a_s_js = np.array([bs.area for bs in self._bss]).reshape(-1, 1)
+        self._phi_a0_js = np.array([bs.rf.rfa0 for bs in self._bss]).reshape(-1, 1)
+        self._phi_a1_js_ms = np.array([bs.rf.rfa1 for bs in self._bss])
+        self._phi_t0_js = np.array([bs.rf.rft0 for bs in self._bss]).reshape(-1, 1)
+        self._phi_t1_js_ms = np.array([bs.rf.rft1 for bs in self._bss])
+        self._r_js_ms = np.array([bs.rf.row for bs in self._bss])
+        self._theta_o_eqv_js_ns = np.array([bs.theta_o_sol for bs in bss])
         self._q_trs_sol_is_ns = q_trs_sol_is_ns
 
     @staticmethod
@@ -536,32 +557,26 @@ class Boundaries:
     @property
     def id_js(self):
         """
-
         Returns:
             ID
         """
-
-        return np.array([bs.id for bs in self._bss]).reshape(-1, 1)
+        return self._id_js
 
     @property
     def name_b_js(self):
         """
-
         Returns:
             名前, [j, 1]
         """
-
-        return np.array([bs.name for bs in self._bss]).reshape(-1, 1)
+        return self._name_js
 
     @property
     def sub_name_b_js(self):
         """
-
         Returns:
             名前2, [j, 1]
         """
-
-        return np.array([bs.sub_name for bs in self._bss]).reshape(-1, 1)
+        return self._sub_name_js
 
     @property
     def p_is_js(self):
@@ -592,7 +607,7 @@ class Boundaries:
              [p_j_0 ... p_j_i]]
         """
 
-        return self._p_is_js.T
+        return self._p_js_is
 
     @property
     def is_floor_js(self):
@@ -601,8 +616,7 @@ class Boundaries:
         Returns:
             床かどうか, [j, 1]
         """
-
-        return np.array([bs.is_floor for bs in self._bss]).reshape(-1, 1)
+        return self._is_floor_js
 
     @property
     def is_ground_js(self):
@@ -611,8 +625,7 @@ class Boundaries:
         Returns:
             地盤かどうか, [j, 1]
         """
-
-        return np.array([bs.boundary_type == BoundaryType.Ground for bs in self._bss]).reshape(-1, 1)
+        return self._is_ground_js
 
     @property
     def k_ei_js_js(self):
@@ -621,28 +634,23 @@ class Boundaries:
         Returns:
             境界jの裏面温度に他の境界の等価室温が与える影響, [j, j]
         """
-
-        return np.array([bs.k_ei_js_j for bs in self._bss])
+        return self._k_ei_js_js
         
     @property
     def k_eo_js(self):
         """
-
         Returns:
             温度差係数
         """
-
-        return np.array([bs.h_td for bs in self._bss]).reshape(-1, 1)
+        return self._k_eo_js
 
     @property
     def k_s_r_js_is(self):
         """
-
         Returns:
             境界 j の裏面温度に室温が与える影響, [j, i]
         """
-
-        return np.array([bs.k_s_r_j_is for bs in self._bss])
+        return self._k_s_r_js
 
     @property
     def p_s_sol_abs_js(self):
@@ -651,100 +659,91 @@ class Boundaries:
         Returns:
             境界jの日射吸収の有無, [j, 1]
         """
-
-        return np.array([bs.is_solar_absorbed_inside for bs in self._bss]).reshape(-1, 1)
+        return self._p_s_sol_abs_js
 
     @property
     def h_s_r_js(self):
         """
-
         Returns:
             境界jの室内側表面放射熱伝達率, W/m2K, [j, 1]
         """
-
-        return np.array([bs.h_s_r for bs in self._bss]).reshape(-1, 1)
+        return self._h_s_r_js
 
     @property
     def h_s_c_js(self):
-        # 境界jの室内側表面対流熱伝達率, W/m2K, [j, 1]
-
-        return np.array([bs.h_s_c for bs in self._bss]).reshape(-1, 1)
+        """
+        Returns:
+            境界jの室内側表面対流熱伝達率, W/m2K, [j, 1]
+        """
+        return self._h_s_c_js
 
     @property
     def simulation_u_value(self):
-        # 境界jの室内側表面対流熱伝達率, W/m2K, [j, 1]
-
-        return np.array([bs.simulation_u_value for bs in self._bss]).reshape(-1, 1)
+        """
+        Returns:
+            境界jの室内側表面対流熱伝達率, W/m2K, [j, 1]
+        """
+        return self._simulation_u_value
 
     @property
     def a_s_js(self):
         """
-
         Returns:
             境界jの面積, m2, [j, 1]
         """
-
-        return np.array([bs.area for bs in self._bss]).reshape(-1, 1)
+        return self._a_s_js
 
     @property
     def phi_a0_js(self):
         """
-
         Returns:
             境界jの吸熱応答係数の初項, m2K/W, [j, 1]
         """
-
-        return np.array([bs.rf.rfa0 for bs in self._bss]).reshape(-1, 1)
+        return self._phi_a0_js
 
     @property
     def phi_a1_js_ms(self):
         """
-
         Returns:
             境界jの項別公比法における項mの吸熱応答係数の第一項 , m2K/W, [j, 12]
         """
-
-        return np.array([bs.rf.rfa1 for bs in self._bss])
+        return self._phi_a1_js_ms
 
     @property
     def phi_t0_js(self):
         """
-
         Returns:
             境界jの貫流応答係数の初項, [j, 1]
         """
-
-        return np.array([bs.rf.rft0 for bs in self._bss]).reshape(-1, 1)
+        return self._phi_t0_js
 
     @property
     def phi_t1_js_ms(self):
         """
-
         Returns:
             境界jの項別公比法における項mの貫流応答係数の第一項, [j, 12]
         """
-
-        return np.array([bs.rf.rft1 for bs in self._bss])
+        return self._phi_t1_js_ms
 
     @property
     def r_js_ms(self):
         """
-
         Returns:
             境界jの項別公比法における項mの公比, [j, 12]
         """
-
-        return np.array([bs.rf.row for bs in self._bss])
+        return self._r_js_ms
 
     @property
     def theta_o_eqv_js_ns(self):
         """
-
         Returns:
             ステップ n の境界 j における相当外気温度, ℃, [j, n+1]
         """
+        return self._theta_o_eqv_js_ns
 
-        return np.array([bs.theta_o_sol for bs in self._bss])
+    # TODO: 一部のテストを通すためだけに、後から上書きできる機能を作成した。将来的には消すこと。
+    def set_theta_o_eqv_js_ns(self, theta_o_eqv_js_ns):
+        self._theta_o_eqv_js_ns = theta_o_eqv_js_ns
 
     @property
     def q_trs_sol_is_ns(self):
@@ -755,6 +754,10 @@ class Boundaries:
         """
 
         return self._q_trs_sol_is_ns
+
+    # TODO: 一部のテストを通すためだけに、後から上書きできる機能を作成した。将来的には消すこと。
+    def set_q_trs_sol_is_ns(self, q_trs_sol_is_ns):
+        self._q_trs_sol_is_ns = q_trs_sol_is_ns
 
     def get_room_id_by_boundary_id(self, boundary_id: int):
 
