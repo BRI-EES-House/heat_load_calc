@@ -71,7 +71,7 @@ def get_qgt_for_transparent_sun_strike(
     f_ss_r_j_ns = ss.get_f_ss_r_j()
 
     # ステップ n における境界 j の透明な開口部の直達日射に対する日射透過率, -, [N+1]
-    tau_d_j_ns = np.vectorize(window.get_tau_w_j_n)(phi_n=theta_aoi_j_ns)
+    tau_d_j_ns = window.get_tau_w_j_n(phi_ns=theta_aoi_j_ns)
 
     # 境界 j の透明な開口部の天空日射に対する日射透過率, -, [N+1]
     tau_s_j = window.tau_w_s_j

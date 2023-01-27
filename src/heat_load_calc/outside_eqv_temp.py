@@ -153,7 +153,7 @@ def get_theta_o_sol_i_j_ns_for_external_transparent_part(
     f_ss_r_j_ns = ss.get_f_ss_r_j()
 
     # ステップ n における境界 ｊ　の開口部の直達日射に対する吸収日射熱取得率, -, [N+1]
-    b_w_d_j_ns = np.vectorize(window.get_alpha_w_j_n)(phi_n=theta_aoi_j_ns)
+    b_w_d_j_ns = window.get_alpha_w_j_n(phi_ns=theta_aoi_j_ns)
 
     # 境界 ｊ　の開口部の天空日射に対する吸収日射熱取得率, -
     b_w_s_j = window.alpha_w_s_j
