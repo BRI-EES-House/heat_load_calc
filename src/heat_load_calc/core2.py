@@ -2,7 +2,7 @@ import pandas as pd
 import logging
 from typing import Tuple, Dict
 
-from heat_load_calc import schedule, sequence, recorder, sequence_ground, pre_calc_parameters, weather, period, \
+from heat_load_calc import schedule, recorder, pre_calc_parameters, weather, period, \
     conditions, interval
 
 logger = logging.getLogger('HeatLoadCalc').getChild('core')
@@ -61,7 +61,7 @@ def calc(
     logger.info('助走計算（土壌のみ）')
 
     for n in range(-n_step_run_up, -n_step_run_up_build):
-        gc_n = sequence_ground.run_tick(pp=pp, gc_n=gc_n, n=n)
+        gc_n = pre_calc_parameters.run_tick_ground(pp=pp, gc_n=gc_n, n=n)
 
     result = recorder.Recorder(
         n_step_main=n_step_main,
@@ -90,7 +90,7 @@ def calc(
     logger.info('助走計算（建物全体）')
 
     for n in range(-n_step_run_up_build, 0):
-        c_n = sequence.run_tick(n=n, delta_t=delta_t, ss=pp, c_n=c_n, recorder=result)
+        c_n = pre_calc_parameters.run_tick(n=n, delta_t=delta_t, ss=pp, c_n=c_n, recorder=result)
 
     logger.info('本計算')
 
@@ -99,7 +99,7 @@ def calc(
 
     for n in range(0, n_step_main):
 
-        c_n = sequence.run_tick(n=n, delta_t=delta_t, ss=pp, c_n=c_n, recorder=result)
+        c_n = pre_calc_parameters.run_tick(n=n, delta_t=delta_t, ss=pp, c_n=c_n, recorder=result)
 
         if n == int(n_step_main / 12 * m):
             logger.info("{} / 12 calculated.".format(m))

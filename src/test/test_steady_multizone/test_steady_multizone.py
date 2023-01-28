@@ -3,7 +3,7 @@ import unittest
 import numpy as np
 import json
 
-from heat_load_calc import sequence, pre_calc_parameters, weather, conditions, operation_mode, schedule, \
+from heat_load_calc import pre_calc_parameters, weather, conditions, operation_mode, schedule, \
     interval, recorder
 
 
@@ -130,7 +130,7 @@ class TestSteadyState(unittest.TestCase):
         )
 
         c_n_init = c_n
-        c_n = sequence.run_tick(n=0, delta_t=900.0, ss=ss, c_n=c_n, recorder=result)
+        c_n = pre_calc_parameters.run_tick(n=0, delta_t=900.0, ss=ss, c_n=c_n, recorder=result)
 
         result.post_recording(rms=ss.rms, bs=ss.bs, f_mrt_is_js=ss.f_mrt_is_js)
 
