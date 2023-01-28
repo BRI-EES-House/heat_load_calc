@@ -64,10 +64,16 @@ class TestSteadyState(unittest.TestCase):
         result = recorder.Recorder(
             n_step_main=8760 * 4,
             id_rm_is=list(ss.rms.id_rm_is.flatten()),
-            id_bdry_js=list(ss.bs.id_js.flatten())
+            id_bs_js=list(ss.bs.id_bs_js.flatten())
         )
 
-        result.pre_recording(ss=ss, weather=ss.weather, scd=ss.scd)
+        result.pre_recording(
+            weather=ss.weather,
+            scd=ss.scd,
+            bs= ss.bs,
+            q_sol_frt_is_ns=ss.q_sol_frt_is_ns,
+            q_s_sol_js_ns=ss.q_s_sol_js_ns
+        )
 
         q_srf_js_n = np.array([[
             3.615155079132,
@@ -126,7 +132,7 @@ class TestSteadyState(unittest.TestCase):
         c_n_init = c_n
         c_n = sequence.run_tick(n=0, delta_t=900.0, ss=ss, c_n=c_n, recorder=result)
 
-        result.post_recording(ss=ss, rms=ss.rms)
+        result.post_recording(rms=ss.rms, bs=ss.bs, f_mrt_is_js=ss.f_mrt_is_js)
 
         # 計算結果格納
         cls._c_n = c_n_init

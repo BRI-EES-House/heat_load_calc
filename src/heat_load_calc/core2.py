@@ -66,10 +66,16 @@ def calc(
     result = recorder.Recorder(
         n_step_main=n_step_main,
         id_rm_is=list(pp.rms.id_rm_is.flatten()),
-        id_bdry_js=list(pp.bs.id_js.flatten())
+        id_bs_js=list(pp.bs.id_bs_js.flatten())
     )
 
-    result.pre_recording(ss=pp, weather=pp.weather, scd=pp.scd)
+    result.pre_recording(
+        weather=pp.weather,
+        scd=pp.scd,
+        bs=pp.bs,
+        q_sol_frt_is_ns=pp.q_sol_frt_is_ns,
+        q_s_sol_js_ns=pp.q_s_sol_js_ns
+    )
 
     # 建物を計算するにあたって初期値を与える
     c_n = conditions.initialize_conditions(n_spaces=pp.rms.n_rm, n_bdries=pp.bs.n_b)
@@ -99,7 +105,7 @@ def calc(
             logger.info("{} / 12 calculated.".format(m))
             m = m + 1
 
-    result.post_recording(ss=pp, rms=pp.rms)
+    result.post_recording(rms=pp.rms, bs=pp.bs, f_mrt_is_js=pp.f_mrt_is_js)
 
     logger.info('ログ作成')
 

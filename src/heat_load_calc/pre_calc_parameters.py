@@ -179,7 +179,7 @@ def make_pre_calc_parameters(
     rms = rooms.Rooms(ds=rd['rooms'])
 
     # Boundaries Class
-    bs = boundaries.Boundaries(id_rm_is=rms.id_rm_is, bs_list=rd['boundaries'], w=weather)
+    bs = boundaries.Boundaries(id_rm_is=rms.id_rm_is, ds=rd['boundaries'], w=weather)
 
     # ステップ n の室 i における窓の透過日射熱取得, W, [n]
     #　この操作は、これまで実施してきたテストを維持するために設けている。
