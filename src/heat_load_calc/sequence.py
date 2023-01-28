@@ -151,7 +151,49 @@ class PreCalcParameters:
     get_f_l_cl: Callable[[np.ndarray, np.ndarray, np.ndarray], Tuple[np.ndarray, np.ndarray]]
 
 
-def make_pre_calc_parameters(
+class Sequence:
+
+    def __init__(self):
+
+        self._pre_calc_parameters = None
+
+    def pre_calc(
+            self,
+            itv: interval.Interval,
+            rd: Dict,
+            weather: Weather,
+            scd: schedule.Schedule,
+            q_trs_sol_is_ns: Optional[np.ndarray] = None,
+            theta_o_eqv_js_ns: Optional[np.ndarray] = None
+    ):
+
+        self._pre_calc_parameters = _pre_calc(
+            itv=itv,
+            rd=rd,
+            weather=weather,
+            scd=scd,
+            q_trs_sol_is_ns=q_trs_sol_is_ns,
+            theta_o_eqv_js_ns=theta_o_eqv_js_ns
+        )
+
+    @property
+    def pre_calc_parameter(self):
+        return self._pre_calc_parameters
+
+    def run_tick(self, n: int, delta_t: float, c_n: Conditions, recorder: Recorder) -> Conditions:
+
+        ss = self.pre_calc_parameter
+
+        return _run_tick(n=n, delta_t=delta_t, ss=ss, c_n=c_n, recorder=recorder)
+
+    def run_tick_ground(self, gc_n: GroundConditions, n: int):
+
+        pp = self.pre_calc_parameter
+
+        return _run_tick_ground(pp=pp, gc_n=gc_n, n=n)
+
+
+def _pre_calc(
         itv: interval.Interval,
         rd: Dict,
         weather: Weather,
@@ -498,7 +540,7 @@ def get_v_vent_mec_is_ns(v_vent_mec_general_is, v_vent_mec_local_is_ns):
 
 
 
-def run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, recorder: Recorder) -> Conditions:
+def _run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, recorder: Recorder) -> Conditions:
     """
     室の温湿度・熱負荷の計算
     Args:
@@ -1798,7 +1840,7 @@ def get_theta_s_rear_js_n(
 
 
 # 地盤の計算（n+1ステップを計算する）
-def run_tick_ground(pp: PreCalcParameters, gc_n: GroundConditions, n: int):
+def _run_tick_ground(pp: PreCalcParameters, gc_n: GroundConditions, n: int):
 
     is_ground = pp.bs.is_ground_js.flatten()
 

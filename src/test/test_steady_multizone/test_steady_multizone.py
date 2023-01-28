@@ -3,8 +3,7 @@ import unittest
 import numpy as np
 import json
 
-from heat_load_calc import pre_calc_parameters, weather, conditions, operation_mode, schedule, \
-    interval, recorder
+from heat_load_calc import sequence, weather, conditions, operation_mode, schedule, interval, recorder
 
 
 # 定常状態のテスト
@@ -59,7 +58,9 @@ class TestSteadyState(unittest.TestCase):
         )
 
         # pre_calc_parametersの構築
-        ss = pre_calc_parameters.make_pre_calc_parameters(itv=interval.Interval.M15, rd=rd, weather=w, scd=scd)
+        sqc = sequence.Sequence()
+        sqc.pre_calc(itv=interval.Interval.M15, rd=rd, weather=w, scd=scd)
+        ss = sqc.pre_calc_parameter
 
         result = recorder.Recorder(
             n_step_main=8760 * 4,
@@ -130,7 +131,7 @@ class TestSteadyState(unittest.TestCase):
         )
 
         c_n_init = c_n
-        c_n = pre_calc_parameters.run_tick(n=0, delta_t=900.0, ss=ss, c_n=c_n, recorder=result)
+        c_n = sqc.run_tick(n=0, delta_t=900.0, c_n=c_n, recorder=result)
 
         result.post_recording(rms=ss.rms, bs=ss.bs, f_mrt_is_js=ss.f_mrt_is_js)
 
