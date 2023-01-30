@@ -56,8 +56,8 @@ class TestSteadyState(unittest.TestCase):
         )
 
         # pre_calc_parametersの構築
-        sqc = sequence.Sequence()
-        sqc.pre_calc(itv=interval.Interval.M15, rd=rd, weather=w, scd=scd)
+        sqc = sequence.Sequence(itv=interval.Interval.M15, rd=rd, weather=w, scd=scd)
+
         ss = sqc.pre_calc_parameter
 
         q_srf_js_n = np.array([[16.51262564317, 16.51262564317, 16.51262564317, 16.51262564317,
@@ -81,7 +81,7 @@ class TestSteadyState(unittest.TestCase):
         )
 
         # 計算実行
-        c_n_pls = sqc.run_tick(n=-2, delta_t=900.0, c_n=c_n, recorder=None)
+        c_n_pls = sqc.run_tick(n=-2, c_n=c_n, recorder=None)
 
         # 計算結果格納
         cls._c_n = c_n

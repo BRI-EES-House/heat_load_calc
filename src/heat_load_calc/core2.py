@@ -54,8 +54,8 @@ def calc(
 
     # json, csv ファイルからパラメータをロードする。
     # （ループ計算する必要の無い）事前計算を行い, クラス PreCalcParameters, PreCalcParametersGround に必要な変数を格納する。
-    sqc = sequence.Sequence()
-    sqc.pre_calc(itv=itv, rd=rd, weather=w, scd=scd)
+    sqc = sequence.Sequence(itv=itv, rd=rd, weather=w, scd=scd)
+
     pp = sqc.pre_calc_parameter
 
     gc_n = conditions.initialize_ground_conditions(n_grounds=pp.bs.n_ground)
@@ -92,7 +92,7 @@ def calc(
     logger.info('助走計算（建物全体）')
 
     for n in range(-n_step_run_up_build, 0):
-        c_n = sqc.run_tick(n=n, delta_t=delta_t, c_n=c_n, recorder=result)
+        c_n = sqc.run_tick(n=n, c_n=c_n, recorder=result)
 
     logger.info('本計算')
 
@@ -101,7 +101,7 @@ def calc(
 
     for n in range(0, n_step_main):
 
-        c_n = sqc.run_tick(n=n, delta_t=delta_t, c_n=c_n, recorder=result)
+        c_n = sqc.run_tick(n=n, c_n=c_n, recorder=result)
 
         if n == int(n_step_main / 12 * m):
             logger.info("{} / 12 calculated.".format(m))

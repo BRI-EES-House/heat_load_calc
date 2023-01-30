@@ -58,8 +58,8 @@ class TestSteadyState(unittest.TestCase):
         )
 
         # pre_calc_parametersの構築
-        sqc = sequence.Sequence()
-        sqc.pre_calc(itv=interval.Interval.M15, rd=rd, weather=w, scd=scd)
+        sqc = sequence.Sequence(itv=interval.Interval.M15, rd=rd, weather=w, scd=scd)
+
         ss = sqc.pre_calc_parameter
 
         result = recorder.Recorder(
@@ -131,7 +131,7 @@ class TestSteadyState(unittest.TestCase):
         )
 
         c_n_init = c_n
-        c_n = sqc.run_tick(n=0, delta_t=900.0, c_n=c_n, recorder=result)
+        c_n = sqc.run_tick(n=0, c_n=c_n, recorder=result)
 
         result.post_recording(rms=ss.rms, bs=ss.bs, f_mrt_is_js=ss.f_mrt_is_js)
 

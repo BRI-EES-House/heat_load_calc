@@ -153,11 +153,7 @@ class PreCalcParameters:
 
 class Sequence:
 
-    def __init__(self):
-
-        self._pre_calc_parameters = None
-
-    def pre_calc(
+    def __init__(
             self,
             itv: interval.Interval,
             rd: Dict,
@@ -166,8 +162,20 @@ class Sequence:
             q_trs_sol_is_ns: Optional[np.ndarray] = None,
             theta_o_eqv_js_ns: Optional[np.ndarray] = None
     ):
+        """
+        Args:
+            itv: 時間間隔
+            rd:
+            weather:
+            scd:
+            q_trs_sol_is_ns:
+            theta_o_eqv_js_ns:
+        """
 
-        self._pre_calc_parameters = _pre_calc(
+        # 時間間隔, s
+        delta_t = itv.get_delta_t()
+
+        pre_calc_parameters = _pre_calc(
             itv=itv,
             rd=rd,
             weather=weather,
@@ -176,13 +184,21 @@ class Sequence:
             theta_o_eqv_js_ns=theta_o_eqv_js_ns
         )
 
+        # 時間間隔クラス
+        self._itv = itv
+        # 時間間隔, s
+        self._delta_t = delta_t
+
+        self._pre_calc_parameters = pre_calc_parameters
+
     @property
     def pre_calc_parameter(self):
         return self._pre_calc_parameters
 
-    def run_tick(self, n: int, delta_t: float, c_n: Conditions, recorder: Recorder) -> Conditions:
+    def run_tick(self, n: int, c_n: Conditions, recorder: Recorder) -> Conditions:
 
         ss = self.pre_calc_parameter
+        delta_t = self._delta_t
 
         return _run_tick(n=n, delta_t=delta_t, ss=ss, c_n=c_n, recorder=recorder)
 
