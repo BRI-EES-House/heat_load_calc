@@ -436,27 +436,6 @@ def _run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, re
         次の時刻にわたす状態量
     """
 
-    # ステップnにおける室iの水蒸気圧, Pa, [i, 1]
-    p_v_r_is_n = psy.get_p_v_r_is_n(x_r_is_n=c_n.x_r_is_n)
-
-    # ステップ n における室 i の運転モード, [i, 1]
-    operation_mode_is_n = ss.get_operation_mode_is_n(
-        p_v_r_is_n=p_v_r_is_n,
-        operation_mode_is_n_mns=c_n.operation_mode_is_n,
-        theta_r_is_n=c_n.theta_r_is_n,
-        theta_mrt_hum_is_n=c_n.theta_mrt_hum_is_n,
-        n=n
-    )
-
-    theta_lower_target_is_n_pls, theta_upper_target_is_n_pls, h_hum_c_is_n, h_hum_r_is_n, v_hum_is_n, clo_is_n \
-        = ss.get_theta_target_is_n(
-            p_v_r_is_n=p_v_r_is_n,
-            operation_mode_is_n=operation_mode_is_n,
-            theta_r_is_n=c_n.theta_r_is_n,
-            theta_mrt_hum_is_n=c_n.theta_mrt_hum_is_n,
-            n=n
-        )
-
     # ステップ n の境界 j における裏面温度, degree C, [j, 1]
     theta_rear_js_n = get_theta_s_rear_js_n(
         k_s_er_js_js=ss.bs.k_ei_js_js,
@@ -503,6 +482,27 @@ def _run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, re
         f_cvl_js_n_pls=f_cvl_js_n_pls,
         f_ax_js_js=ss.f_ax_js_js
     )
+
+    # ステップnにおける室iの水蒸気圧, Pa, [i, 1]
+    p_v_r_is_n = psy.get_p_v_r_is_n(x_r_is_n=c_n.x_r_is_n)
+
+    # ステップ n における室 i の運転モード, [i, 1]
+    operation_mode_is_n = ss.get_operation_mode_is_n(
+        p_v_r_is_n=p_v_r_is_n,
+        operation_mode_is_n_mns=c_n.operation_mode_is_n,
+        theta_r_is_n=c_n.theta_r_is_n,
+        theta_mrt_hum_is_n=c_n.theta_mrt_hum_is_n,
+        n=n
+    )
+
+    theta_lower_target_is_n_pls, theta_upper_target_is_n_pls, h_hum_c_is_n, h_hum_r_is_n, v_hum_is_n, clo_is_n \
+        = ss.get_theta_target_is_n(
+            p_v_r_is_n=p_v_r_is_n,
+            operation_mode_is_n=operation_mode_is_n,
+            theta_r_is_n=c_n.theta_r_is_n,
+            theta_mrt_hum_is_n=c_n.theta_mrt_hum_is_n,
+            n=n
+        )
 
     # ステップ n からステップ n+1 における室 i の自然風利用による換気量, m3/s, [i, 1]
     v_vent_ntr_is_n = get_v_vent_ntr_is_n(
@@ -733,6 +733,7 @@ def _run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, re
     )
 
     # ステップ n+1 における境界 j の裏面温度, degree C, [j, 1]
+    # TODO: この値は記録にしか使用していないので、ポスト処理にまわせる。
     theta_rear_js_n_pls = get_theta_s_rear_js_n(
         k_s_er_js_js=ss.bs.k_ei_js_js,
         theta_er_js_n=theta_ei_js_n_pls,
