@@ -5,6 +5,11 @@ from heat_load_calc import pmv, occupants
 from heat_load_calc.operation_mode import OperationMode
 from heat_load_calc import operation_mode
 
+PMV = 'pmv'
+SIMPLE = 'simple'
+OT = 'ot'
+AIR_TEMPERATURE = 'air_temperature'
+
 
 def make_get_operation_mode_is_n_function(
         ac_method: str,
@@ -13,7 +18,7 @@ def make_get_operation_mode_is_n_function(
         is_radiative_cooling_is: np.ndarray,
         met_is: float
 ):
-    if ac_method == 'simple':
+    if ac_method in ['air_temperature', 'simple', 'ot']:
 
         return partial(
             _get_operation_mode_simple_is_n,

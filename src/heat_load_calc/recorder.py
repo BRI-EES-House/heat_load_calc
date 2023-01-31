@@ -4,12 +4,12 @@ import datetime as dt
 import itertools
 from typing import List
 
-from heat_load_calc.pre_calc_parameters import PreCalcParameters
 from heat_load_calc import pmv as pmv, psychrometrics as psy
 from heat_load_calc.interval import Interval
 from heat_load_calc.weather import Weather
 from heat_load_calc.schedule import Schedule
 from heat_load_calc.rooms import Rooms
+from heat_load_calc.boundaries import Boundaries
 
 
 class Recorder:
@@ -31,14 +31,14 @@ class Recorder:
     # 本負荷計算に年の概念は無いが、便宜上1989年として記録する。（閏年でなければ、任意）
     YEAR = '1989'
 
-    def __init__(self, n_step_main: int, id_rm_is: List[int], id_bdry_js: List[int], itv: Interval = Interval.M15):
+    def __init__(self, n_step_main: int, id_rm_is: List[int], id_bs_js: List[int], itv: Interval = Interval.M15):
         """
         ロギング用に numpy の配列を用意する。
 
         Args:
             n_step_main: 計算ステップの数
-            id_rm_is: 室のid [i]
-            id_bdry_js: 境界のid [j]
+            id_rm_is: 室のid, [i]
+            id_bs_js: 境界のid, [j]
             itv: インターバルクラス
 
         """
@@ -48,15 +48,17 @@ class Recorder:
 
         # 室の数
         n_rm = len(id_rm_is)
+        self._n_rm = n_rm
 
         # 境界の数
-        n_boundaries = len(id_bdry_js)
+        n_bs = len(id_bs_js)
+        self._n_bs = n_bs
 
         # 室のID
         self._id_rm_is = id_rm_is
 
         # 境界のID
-        self._id_bdry_js = id_bdry_js
+        self._id_bs_js = id_bs_js
 
         # 瞬時値の行数
         self._n_step_i = n_step_main + 1
@@ -110,34 +112,34 @@ class Recorder:
         # 境界に関するもの
 
         # ステップ n の境界 j の室内側表面温度, degree C, [j, n+1], 出力名:"rm[i]_b[j]_t_s
-        self.theta_s_js_ns = np.zeros((n_boundaries, self._n_step_i), dtype=float)
+        self.theta_s_js_ns = np.zeros((n_bs, self._n_step_i), dtype=float)
 
         # ステップ n の境界 j の等価温度, degree C, [j, n+1], 出力名:"rm[i]_b[j]_t_e
-        self.theta_ei_js_ns = np.zeros((n_boundaries, self._n_step_i), dtype=float)
+        self.theta_ei_js_ns = np.zeros((n_bs, self._n_step_i), dtype=float)
 
         # ステップ n の境界 j の裏面温度, degree C, [j, n+1], 出力名:"rm[i]_b[j]_t_b
-        self.theta_rear_js_ns = np.zeros((n_boundaries, self._n_step_i), dtype=float)
+        self.theta_rear_js_ns = np.zeros((n_bs, self._n_step_i), dtype=float)
 
         # ステップ n の境界 j の表面放射熱伝達率, W/m2K, [j, n+1], 出力名:"rm[i]_b[j]_hir_s
-        self.h_s_r_js_ns = np.zeros((n_boundaries, self._n_step_i), dtype=float)
+        self.h_s_r_js_ns = np.zeros((n_bs, self._n_step_i), dtype=float)
 
         # ステップ n の境界 j の表面放射熱流, W, [j, n+1], 出力名:"rm[i]_b[j]_qir_s
-        self.q_r_js_ns = np.zeros((n_boundaries, self._n_step_i), dtype=float)
+        self.q_r_js_ns = np.zeros((n_bs, self._n_step_i), dtype=float)
 
         # ステップ n の境界 j の表面対流熱伝達率, W/m2K, [j, n+1], 出力名:"rm[i]_b[j]_hic_s
-        self.h_s_c_js_ns = np.zeros((n_boundaries, self._n_step_i), dtype=float)
+        self.h_s_c_js_ns = np.zeros((n_bs, self._n_step_i), dtype=float)
 
         # ステップ n の境界 j の表面対流熱流, W, [j, n+1], 出力名:"rm[i]_b[j]_qic_s
-        self.q_c_js_ns = np.zeros((n_boundaries, self._n_step_i), dtype=float)
+        self.q_c_js_ns = np.zeros((n_bs, self._n_step_i), dtype=float)
 
         # ステップ n の境界 j の表面日射熱流, W, [j, n+1], 出力名:"rm[i]_b[j]_qisol_s
-        self.q_i_sol_s_ns_js = np.zeros((n_boundaries, self._n_step_i), dtype=float)
+        self.q_i_sol_s_ns_js = np.zeros((n_bs, self._n_step_i), dtype=float)
 
         # ステップ n の境界 j の表面日射熱流, W, [j, n+1], 出力名:"rm[i]_b[j]_qiall_s
-        self.q_s_js_ns = np.zeros((n_boundaries, self._n_step_i), dtype=float)
+        self.q_s_js_ns = np.zeros((n_bs, self._n_step_i), dtype=float)
 
         # ステップ n の境界 j の係数cvl, degree C, [j, n+1], 出力名:"rm[i]_b[j]_cvl
-        self.f_cvl_js_ns = np.zeros((n_boundaries, self._n_step_i), dtype=float)
+        self.f_cvl_js_ns = np.zeros((n_bs, self._n_step_i), dtype=float)
 
         # ---積算値---
 
@@ -239,7 +241,14 @@ class Recorder:
             ('f_cvl_js_ns', 'f_cvl')
         ]
 
-    def pre_recording(self, ss: PreCalcParameters, weather: Weather, scd: Schedule):
+    def pre_recording(
+            self,
+            weather: Weather,
+            scd: Schedule,
+            bs: Boundaries,
+            q_sol_frt_is_ns: np.ndarray,
+            q_s_sol_js_ns: np.ndarray,
+    ):
 
         # 注意：用意された1年分のデータと実行期間が異なる場合があるためデータスライスする必要がある。
 
@@ -252,32 +261,32 @@ class Recorder:
         self.x_o_ns = weather.x_o_ns_plus[0: self._n_step_i]
 
         # ステップ n における室 i の窓の透過日射熱取得, W, [i, n+1]
-        self.q_trs_sol_is_ns = ss.bs.q_trs_sol_is_ns[:, 0:self._n_step_i]
+        self.q_trs_sol_is_ns = bs.q_trs_sol_is_ns[:, 0:self._n_step_i]
 
         # ステップ n における室 i に設置された備品等による透過日射吸収熱量, W, [i, n+1]
-        self.q_sol_frt_is_ns = ss.q_sol_frt_is_ns[:, 0:self._n_step_i]
+        self.q_sol_frt_is_ns = q_sol_frt_is_ns[:, 0:self._n_step_i]
 
         # ステップ n の境界 j の表面日射熱流, W, [j, n+1]
-        self.q_i_sol_s_ns_js = ss.q_s_sol_js_ns[:, 0:self._n_step_i] * ss.bs.a_s_js
+        self.q_i_sol_s_ns_js = q_s_sol_js_ns[:, 0:self._n_step_i] * bs.a_s_js
 
         # ステップ n の境界 j の表面対流熱伝達率, W/m2K, [j, n+1]
-        self.h_s_c_js_ns = ss.bs.h_s_c_js.repeat(self._n_step_i, axis=1)
+        self.h_s_c_js_ns = bs.h_s_c_js.repeat(self._n_step_i, axis=1)
 
         # ステップ n の境界 j の表面放射熱伝達率, W/m2K, [j, n+1]
-        self.h_s_r_js_ns = ss.bs.h_s_r_js.repeat(self._n_step_i, axis=1)
+        self.h_s_r_js_ns = bs.h_s_r_js.repeat(self._n_step_i, axis=1)
 
         # ---平均値・積算値---
 
         # ステップ n の室 i における当該時刻の空調需要, [i, n_step_a]
-        self.ac_demand_is_ns = ss.scd.ac_demand_is_ns[:, 0:self._n_step_a]
+        self.ac_demand_is_ns = scd.ac_demand_is_ns[:, 0:self._n_step_a]
 
         # ステップnの室iにおける人体発熱を除く内部発熱, W, [i, n_step_a]
-        self.q_gen_is_ns = ss.scd.q_gen_is_ns[:, 0:self._n_step_a]
+        self.q_gen_is_ns = scd.q_gen_is_ns[:, 0:self._n_step_a]
 
         # ステップ n の室 i における人体発湿を除く内部発湿, kg/s, [i, n_step_a]
-        self.x_gen_is_ns = ss.scd.x_gen_is_ns[:, 0:self._n_step_a]
+        self.x_gen_is_ns = scd.x_gen_is_ns[:, 0:self._n_step_a]
 
-    def post_recording(self, ss: PreCalcParameters, rms: Rooms):
+    def post_recording(self, rms: Rooms, bs: Boundaries, f_mrt_is_js: np.ndarray):
 
         # ---瞬時値---
 
@@ -291,10 +300,10 @@ class Recorder:
         self.rh_r_is_ns = psy.get_h(p_v=p_v_is_ns, p_vs=p_vs_is_ns)
 
         # ステップnの境界jにおける表面熱流（壁体吸熱を正とする）のうち放射成分, W, [j, n]
-        self.q_r_js_ns = ss.bs.h_s_r_js * ss.bs.a_s_js * (np.dot(np.dot(ss.bs.p_js_is, ss.f_mrt_is_js), self.theta_s_js_ns) - self.theta_s_js_ns)
+        self.q_r_js_ns = bs.h_s_r_js * bs.a_s_js * (np.dot(np.dot(bs.p_js_is, f_mrt_is_js), self.theta_s_js_ns) - self.theta_s_js_ns)
 
         # ステップnの境界jにおける表面熱流（壁体吸熱を正とする）のうち対流成分, W, [j, n+1]
-        self.q_c_js_ns = ss.bs.h_s_c_js * ss.bs.a_s_js * (np.dot(ss.bs.p_js_is, self.theta_r_is_ns) - self.theta_s_js_ns)
+        self.q_c_js_ns = bs.h_s_c_js * bs.a_s_js * (np.dot(bs.p_js_is, self.theta_r_is_ns) - self.theta_s_js_ns)
 
         # ---平均値・瞬時値---
 
@@ -401,7 +410,7 @@ class Recorder:
         new_columns_i = ['out_temp', 'out_abs_humid'] + list(itertools.chain.from_iterable(
             [[self._get_room_header_name(id=id, name=column[1]) for column in self._output_list_room_i] for id in self._id_rm_is]
         )) + list(itertools.chain.from_iterable(
-            [[self._get_boundary_name(id=id, name=column[1]) for column in self._output_list_boundary_i] for id in self._id_bdry_js]
+            [[self._get_boundary_name(id=id, name=column[1]) for column in self._output_list_boundary_i] for id in self._id_bs_js]
         ))
 
         # 列の入れ替え
@@ -498,8 +507,7 @@ class Recorder:
         """boundary 用のヘッダ名称を取得する。
 
         Args:
-            pps: PreCalcParameters クラス
-            j: boundary の ID
+            id: boundary の ID
             name: 出力項目名称
 
         Returns:
@@ -517,5 +525,5 @@ class Recorder:
         Returns:
 
         """
-        return [self._get_boundary_name(id=id, name=name) for id in self._id_bdry_js]
+        return [self._get_boundary_name(id=id, name=name) for id in self._id_bs_js]
 

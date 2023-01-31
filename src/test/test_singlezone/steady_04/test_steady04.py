@@ -3,8 +3,7 @@ import unittest
 import numpy as np
 import json
 
-from heat_load_calc import sequence, pre_calc_parameters, weather, conditions, operation_mode, schedule, \
-    interval
+from heat_load_calc import sequence, weather, conditions, operation_mode, schedule, interval
 
 
 # 定常状態のテスト
@@ -57,7 +56,9 @@ class TestSteadyState(unittest.TestCase):
         )
 
         # pre_calc_parametersの構築
-        ss = pre_calc_parameters.make_pre_calc_parameters(itv=interval.Interval.M15, rd=rd, weather=w, scd=scd)
+        sqc = sequence.Sequence(itv=interval.Interval.M15, rd=rd, weather=w, scd=scd)
+
+        ss = sqc.pre_calc_parameter
 
         q_srf_js_n = np.array([[16.51262564317, 16.51262564317, 16.51262564317, 16.51262564317,
             15.78267683477, 15.78267683477]]).reshape(-1, 1)
@@ -80,7 +81,7 @@ class TestSteadyState(unittest.TestCase):
         )
 
         # 計算実行
-        c_n_pls = sequence.run_tick(n=-2, delta_t=900.0, ss=ss, c_n=c_n, recorder=None)
+        c_n_pls = sqc.run_tick(n=-2, c_n=c_n, recorder=None)
 
         # 計算結果格納
         cls._c_n = c_n

@@ -2,7 +2,7 @@ import pandas as pd
 import logging
 from typing import Tuple, Dict
 
-from heat_load_calc import schedule, sequence, recorder, sequence_ground, pre_calc_parameters, weather, period, \
+from heat_load_calc import schedule, recorder, sequence, weather, period, \
     conditions, interval
 
 logger = logging.getLogger('HeatLoadCalc').getChild('core')
@@ -17,7 +17,7 @@ def calc(
         n_d_main: int = 365,
         n_d_run_up: int = 365,
         n_d_run_up_build: int = 183
-) -> Tuple[pd.DataFrame, pd.DataFrame, pre_calc_parameters.PreCalcParameters]:
+) -> Tuple[pd.DataFrame, pd.DataFrame, sequence.PreCalcParameters]:
     """coreメインプログラム
 
     Args:
@@ -54,22 +54,30 @@ def calc(
 
     # json, csv ファイルからパラメータをロードする。
     # （ループ計算する必要の無い）事前計算を行い, クラス PreCalcParameters, PreCalcParametersGround に必要な変数を格納する。
-    pp = pre_calc_parameters.make_pre_calc_parameters(itv=itv, rd=rd, weather=w, scd=scd)
+    sqc = sequence.Sequence(itv=itv, rd=rd, weather=w, scd=scd)
+
+    pp = sqc.pre_calc_parameter
 
     gc_n = conditions.initialize_ground_conditions(n_grounds=pp.bs.n_ground)
 
     logger.info('助走計算（土壌のみ）')
 
     for n in range(-n_step_run_up, -n_step_run_up_build):
-        gc_n = sequence_ground.run_tick(pp=pp, gc_n=gc_n, n=n)
+        gc_n = sqc.run_tick_ground(gc_n=gc_n, n=n)
 
     result = recorder.Recorder(
         n_step_main=n_step_main,
         id_rm_is=list(pp.rms.id_rm_is.flatten()),
-        id_bdry_js=list(pp.bs.id_js.flatten())
+        id_bs_js=list(pp.bs.id_bs_js.flatten())
     )
 
-    result.pre_recording(ss=pp, weather=pp.weather, scd=pp.scd)
+    result.pre_recording(
+        weather=pp.weather,
+        scd=pp.scd,
+        bs=pp.bs,
+        q_sol_frt_is_ns=pp.q_sol_frt_is_ns,
+        q_s_sol_js_ns=pp.q_s_sol_js_ns
+    )
 
     # 建物を計算するにあたって初期値を与える
     c_n = conditions.initialize_conditions(n_spaces=pp.rms.n_rm, n_bdries=pp.bs.n_b)
@@ -84,7 +92,7 @@ def calc(
     logger.info('助走計算（建物全体）')
 
     for n in range(-n_step_run_up_build, 0):
-        c_n = sequence.run_tick(n=n, delta_t=delta_t, ss=pp, c_n=c_n, recorder=result)
+        c_n = sqc.run_tick(n=n, c_n=c_n, recorder=result)
 
     logger.info('本計算')
 
@@ -93,13 +101,13 @@ def calc(
 
     for n in range(0, n_step_main):
 
-        c_n = sequence.run_tick(n=n, delta_t=delta_t, ss=pp, c_n=c_n, recorder=result)
+        c_n = sqc.run_tick(n=n, c_n=c_n, recorder=result)
 
         if n == int(n_step_main / 12 * m):
             logger.info("{} / 12 calculated.".format(m))
             m = m + 1
 
-    result.post_recording(ss=pp, rms=pp.rms)
+    result.post_recording(rms=pp.rms, bs=pp.bs, f_mrt_is_js=pp.f_mrt_is_js)
 
     logger.info('ログ作成')
 

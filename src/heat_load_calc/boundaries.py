@@ -101,12 +101,12 @@ class Boundary:
 
 class Boundaries:
 
-    def __init__(self, id_rm_is: np.ndarray, bs_list: List[Dict], w: Weather):
+    def __init__(self, id_rm_is: np.ndarray, ds: List[Dict], w: Weather):
         """
 
         Args:
             id_rm_is: 室のID, [i, 1]
-            bs_list: 境界に関する辞書
+            ds: 境界に関する辞書
             w: Weather クラス
         Notes:
             本来であれば Boundaries クラスにおいて境界に関する入力用辞書から読み込みを境界個別に行う。
@@ -121,18 +121,18 @@ class Boundaries:
         # 境界jの室内側表面放射熱伝達率, W/m2K, [J, 1]
         h_s_r_js = shape_factor.get_h_s_r_js(
             id_rm_is=id_rm_is,
-            a_s_js=np.array([b['area'] for b in bs_list]).reshape(-1, 1),
-            connected_room_id_js=np.array([b['connected_room_id'] for b in bs_list]).reshape(-1, 1)
+            a_s_js=np.array([b['area'] for b in ds]).reshape(-1, 1),
+            connected_room_id_js=np.array([b['connected_room_id'] for b in ds]).reshape(-1, 1)
         )
 
         # 境界jの室内側表面対流熱伝達率, W/m2K, [J, 1]
-        h_c_js = np.array([b['h_c'] for b in bs_list]).reshape(-1, 1)
+        h_c_js = np.array([b['h_c'] for b in ds]).reshape(-1, 1)
 
         # 室の数
         n_rm = id_rm_is.size
 
         # 境界 j, [J]
-        bss = [self._get_boundary(b=b, h_c_js=h_c_js, h_s_r_js=h_s_r_js, w=w, n_rm=n_rm) for b in bs_list]
+        bss = [self._get_boundary(b=b, h_c_js=h_c_js, h_s_r_js=h_s_r_js, w=w, n_rm=n_rm) for b in ds]
 
         # 室iと境界jの関係を表す係数（境界jから室iへの変換）, [i, j]
         p_is_js = self._get_p_is_js(n_rm=n_rm, bss=bss)
@@ -142,7 +142,7 @@ class Boundaries:
 
         self._bss = bss
 
-        self._id_js = np.array([bs.id for bs in self._bss]).reshape(-1, 1)
+        self._id_bs_js = np.array([bs.id for bs in self._bss]).reshape(-1, 1)
         self._name_js = np.array([bs.name for bs in self._bss]).reshape(-1, 1)
         self._sub_name_js = np.array([bs.sub_name for bs in self._bss]).reshape(-1, 1)
         self._p_is_js = p_is_js
@@ -555,12 +555,12 @@ class Boundaries:
         return sum(bs.boundary_type == BoundaryType.Ground for bs in self._bss)
 
     @property
-    def id_js(self):
+    def id_bs_js(self):
         """
         Returns:
             ID
         """
-        return self._id_js
+        return self._id_bs_js
 
     @property
     def name_b_js(self):
