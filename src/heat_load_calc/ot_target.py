@@ -15,14 +15,14 @@ def make_get_theta_target_is_n_function(
         ac_config: dict
 ):
 
-    if ac_method == 'simple':
+    if ac_method in ['air_temperature', 'simple', 'ot']:
 
         theta_lower_target_is_ns = np.full_like(ac_setting_is_ns, fill_value=np.nan, dtype=float)
         theta_upper_target_is_ns = np.full_like(ac_setting_is_ns, fill_value=np.nan, dtype=float)
 
-        for asc in ac_config:
-            theta_lower_target_is_ns[ac_setting_is_ns == asc['mode']] = asc['lower']
-            theta_upper_target_is_ns[ac_setting_is_ns == asc['mode']] = asc['upper']
+        for conf in ac_config:
+            theta_lower_target_is_ns[ac_setting_is_ns == conf['mode']] = conf['lower']
+            theta_upper_target_is_ns[ac_setting_is_ns == conf['mode']] = conf['upper']
 
         return partial(
             _get_theta_target_simple,

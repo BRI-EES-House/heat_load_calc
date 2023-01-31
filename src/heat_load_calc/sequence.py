@@ -150,6 +150,8 @@ class PreCalcParameters:
 
     get_f_l_cl: Callable[[np.ndarray, np.ndarray, np.ndarray], Tuple[np.ndarray, np.ndarray]]
 
+    ac_method: ACMethod
+
 
 class Sequence:
 
@@ -368,7 +370,7 @@ def _pre_calc(
         is_radiative_heating_is=es.is_radiative_heating_is,
         is_radiative_cooling_is=es.is_radiative_cooling_is,
         met_is=rms.met_is,
-        ac_setting_is_ns=scd.ac_demand_is_ns,
+        ac_setting_is_ns=scd.ac_setting_is_ns,
         ac_config=ac_config
     )
 
@@ -414,7 +416,8 @@ def _pre_calc(
         get_theta_target_is_n=get_theta_target_is_n,
         get_infiltration=get_infiltration,
         calc_next_temp_and_load=calc_next_temp_and_load,
-        get_f_l_cl=get_f_l_cl
+        get_f_l_cl=get_f_l_cl,
+        ac_method=ac_method
     )
 
     return pre_calc_parameters
