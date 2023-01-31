@@ -420,142 +420,6 @@ def _pre_calc(
     return pre_calc_parameters
 
 
-def get_f_wsc_js_ns(f_ax_js_js, f_crx_js_ns):
-    """
-
-    Args:
-        f_ax_js_js: 係数 f_{AX}, -, [j, j]
-        f_crx_js_ns: 係数 f_{CRX,n}, degree C, [j, n]
-
-    Returns:
-        係数 f_{WSC,n}, degree C, [j, n]
-
-    Notes:
-        式(4.1)
-    """
-
-    return np.linalg.solve(f_ax_js_js, f_crx_js_ns)
-
-
-def get_f_wsr_js_is(f_ax_js_js, f_fia_js_is):
-    """
-
-    Args:
-        f_ax_js_js: 係数 f_AX, -, [j, j]
-        f_fia_js_is: 係数 f_FIA, -, [j, i]
-
-    Returns:
-        係数 f_WSR, -, [j, i]
-
-    Notes:
-        式(4.2)
-    """
-
-    return np.linalg.solve(f_ax_js_js, f_fia_js_is)
-
-
-def get_f_crx_js_ns(h_s_c_js, h_s_r_js, k_ei_js_js, phi_a0_js, phi_t0_js, q_s_sol_js_ns, k_eo_js, theta_o_eqv_js_ns):
-    """
-
-    Args:
-        h_s_c_js: 境界 j の室内側対流熱伝達率, W/(m2 K), [j, 1]
-        h_s_r_js: 境界 j の室内側放射熱伝達率, W/(m2 K), [j, 1]
-        k_ei_js_js: 境界 j の裏面温度に境界　j∗ の等価温度が与える影響, -, [j, j]
-        phi_a0_js: 境界 j の吸熱応答係数の初項, m2 K/W, [j, 1]
-        phi_t0_js: 境界 j の貫流応答係数の初項, -, [j, 1]
-        q_s_sol_js_ns: ステップ n における境界 j の透過日射吸収熱量, W/m2, [j, n]
-        k_eo_js: 境界 j の裏面温度に境界 j の相当外気温度が与える影響, -, [j, 1]
-        theta_o_eqv_js_ns: ステップ n における境界 j の相当外気温度, degree C, [j, 1]
-
-    Returns:
-        係数 f_CRX, degree C, [j, n]
-
-    Notes:
-        式(4.3)
-    """
-
-    return phi_a0_js * q_s_sol_js_ns\
-        + phi_t0_js * np.dot(k_ei_js_js, q_s_sol_js_ns / (h_s_c_js + h_s_r_js))\
-        + phi_t0_js * theta_o_eqv_js_ns * k_eo_js
-
-
-def get_f_fia_js_is(h_s_c_js, h_s_r_js, k_ei_js_js, p_js_is, phi_a0_js, phi_t0_js, k_s_r_js_is):
-    """
-
-    Args:
-        h_s_c_js: 境界 j の室内側対流熱伝達率, W/(m2 K), [j, 1]
-        h_s_r_js: 境界 j の室内側放射熱伝達率, W/(m2 K), [j, 1]
-        k_ei_js_js: 境界 j の裏面温度に境界　j∗ の等価温度が与える影響, -, [j, j]
-        p_js_is: 室 i と境界 j の接続に関する係数（境界 j が室 i に接している場合は 1 とし、それ以外の場合は 0 とする。）, -, [j, i]
-        phi_a0_js: 境界 j の吸熱応答係数の初項, m2 K/W, [j, 1]
-        phi_t0_js: 境界 j の貫流応答係数の初項, -, [j, 1]
-
-    Returns:
-        係数 f_FIA, -, [j, i]
-
-    Notes:
-        式(4.4)
-    """
-
-    return phi_a0_js * h_s_c_js * p_js_is + np.dot(k_ei_js_js, p_js_is * h_s_c_js / (h_s_c_js + h_s_r_js)) * phi_t0_js + phi_t0_js * k_s_r_js_is
-
-
-def get_f_ax_js_is(f_mrt_is_js, h_s_c_js, h_s_r_js, k_ei_js_js, p_js_is, phi_a0_js, phi_t0_js):
-    """
-
-    Args:
-        f_mrt_is_js: 室 i の微小球に対する境界 j の形態係数, -, [i, j]
-        h_s_c_js: 境界 j の室内側対流熱伝達率, W/(m2 K), [j, 1]
-        h_s_r_js: 境界 j の室内側放射熱伝達率, W/(m2 K), [j, 1]
-        k_ei_js_js: 境界 j の裏面温度に境界　j∗ の等価温度が与える影響, -, [j, j]
-        p_js_is: 室 i と境界 j の接続に関する係数（境界 j が室 i に接している場合は 1 とし、それ以外の場合は 0 とする。）, -, [j, i]
-        phi_a0_js: 境界 j の吸熱応答係数の初項, m2 K/W, [j, 1]
-        phi_t0_js: 境界 j の貫流応答係数の初項, -, [j, 1]
-
-    Returns:
-        係数 f_AX, -, [j, j]
-
-    Notes:
-        式(4.5)
-    """
-
-    return v_diag(1.0 + phi_a0_js * (h_s_c_js + h_s_r_js)) \
-        - np.dot(p_js_is, f_mrt_is_js) * h_s_r_js * phi_a0_js \
-        - np.dot(k_ei_js_js, np.dot(p_js_is, f_mrt_is_js) * h_s_r_js / (h_s_c_js + h_s_r_js)) * phi_t0_js
-
-
-def get_v_vent_mec_is_ns(v_vent_mec_general_is, v_vent_mec_local_is_ns):
-    """
-
-    Args:
-        v_vent_mec_general_is: ステップ n からステップ n+1 における室 i の機械換気量（全般換気量）, m3/s, [i, 1]
-        v_vent_mec_local_is_ns: ステップ n からステップ n+1 における室 i の機械換気量（局所換気量）, m3/s, [i, 1]
-
-    Returns:
-        ステップ n からステップ n+1 における室 i の機械換気量（全般換気量と局所換気量の合計値）, m3/s, [i, 1]
-
-    Notes:
-        式(4.7)
-    """
-
-    return v_vent_mec_general_is + v_vent_mec_local_is_ns
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 def _run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, recorder: Recorder) -> Conditions:
     """
     室の温湿度・熱負荷の計算
@@ -1044,6 +908,171 @@ def _run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, re
         theta_ei_js_n=theta_ei_js_n_pls
     )
 
+
+def _run_tick_ground(pp: PreCalcParameters, gc_n: GroundConditions, n: int):
+    """地盤の計算
+
+    Args:
+        pp:
+        gc_n:
+        n:
+
+    Returns:
+
+    """
+
+    is_ground = pp.bs.is_ground_js.flatten()
+
+    theta_o_eqv_js_ns = pp.bs.theta_o_eqv_js_ns[is_ground, :]
+
+    h_i_js = pp.bs.h_s_r_js[is_ground, :] + pp.bs.h_s_c_js[is_ground, :]
+
+    theta_dsh_srf_a_js_ms_npls = pp.bs.phi_a1_js_ms[is_ground, :] * gc_n.q_srf_js_n + pp.bs.r_js_ms[is_ground, :] * gc_n.theta_dsh_srf_a_js_ms_n
+
+    theta_dsh_srf_t_js_ms_npls = pp.bs.phi_t1_js_ms[is_ground, :] * pp.bs.k_eo_js[is_ground, :] * theta_o_eqv_js_ns[:, [n]] + pp.bs.r_js_ms[is_ground, :] * gc_n.theta_dsh_srf_t_js_ms_n
+
+    theta_s_js_npls = (
+        pp.bs.phi_a0_js[is_ground, :] * h_i_js * pp.weather.theta_o_ns_plus[n + 1]
+        + pp.bs.phi_t0_js[is_ground, :] * pp.bs.k_eo_js[is_ground, :] * theta_o_eqv_js_ns[:, [n+1]]
+        + np.sum(theta_dsh_srf_a_js_ms_npls, axis=1, keepdims=True)
+        + np.sum(theta_dsh_srf_t_js_ms_npls, axis=1, keepdims=True)
+    ) / (1.0 + pp.bs.phi_a0_js[is_ground, :] * h_i_js)
+
+    q_srf_js_n = h_i_js * (pp.weather.theta_o_ns_plus[n + 1] - theta_s_js_npls)
+
+    return GroundConditions(
+        theta_dsh_srf_a_js_ms_n=theta_dsh_srf_a_js_ms_npls,
+        theta_dsh_srf_t_js_ms_n=theta_dsh_srf_t_js_ms_npls,
+        q_srf_js_n=q_srf_js_n,
+    )
+
+
+# region equation 4 (pre calculation)
+
+def get_f_wsc_js_ns(f_ax_js_js, f_crx_js_ns):
+    """
+
+    Args:
+        f_ax_js_js: 係数 f_{AX}, -, [j, j]
+        f_crx_js_ns: 係数 f_{CRX,n}, degree C, [j, n]
+
+    Returns:
+        係数 f_{WSC,n}, degree C, [j, n]
+
+    Notes:
+        式(4.1)
+    """
+
+    return np.linalg.solve(f_ax_js_js, f_crx_js_ns)
+
+
+def get_f_wsr_js_is(f_ax_js_js, f_fia_js_is):
+    """
+
+    Args:
+        f_ax_js_js: 係数 f_AX, -, [j, j]
+        f_fia_js_is: 係数 f_FIA, -, [j, i]
+
+    Returns:
+        係数 f_WSR, -, [j, i]
+
+    Notes:
+        式(4.2)
+    """
+
+    return np.linalg.solve(f_ax_js_js, f_fia_js_is)
+
+
+def get_f_crx_js_ns(h_s_c_js, h_s_r_js, k_ei_js_js, phi_a0_js, phi_t0_js, q_s_sol_js_ns, k_eo_js, theta_o_eqv_js_ns):
+    """
+
+    Args:
+        h_s_c_js: 境界 j の室内側対流熱伝達率, W/(m2 K), [j, 1]
+        h_s_r_js: 境界 j の室内側放射熱伝達率, W/(m2 K), [j, 1]
+        k_ei_js_js: 境界 j の裏面温度に境界　j∗ の等価温度が与える影響, -, [j, j]
+        phi_a0_js: 境界 j の吸熱応答係数の初項, m2 K/W, [j, 1]
+        phi_t0_js: 境界 j の貫流応答係数の初項, -, [j, 1]
+        q_s_sol_js_ns: ステップ n における境界 j の透過日射吸収熱量, W/m2, [j, n]
+        k_eo_js: 境界 j の裏面温度に境界 j の相当外気温度が与える影響, -, [j, 1]
+        theta_o_eqv_js_ns: ステップ n における境界 j の相当外気温度, degree C, [j, 1]
+
+    Returns:
+        係数 f_CRX, degree C, [j, n]
+
+    Notes:
+        式(4.3)
+    """
+
+    return phi_a0_js * q_s_sol_js_ns\
+        + phi_t0_js * np.dot(k_ei_js_js, q_s_sol_js_ns / (h_s_c_js + h_s_r_js))\
+        + phi_t0_js * theta_o_eqv_js_ns * k_eo_js
+
+
+def get_f_fia_js_is(h_s_c_js, h_s_r_js, k_ei_js_js, p_js_is, phi_a0_js, phi_t0_js, k_s_r_js_is):
+    """
+
+    Args:
+        h_s_c_js: 境界 j の室内側対流熱伝達率, W/(m2 K), [j, 1]
+        h_s_r_js: 境界 j の室内側放射熱伝達率, W/(m2 K), [j, 1]
+        k_ei_js_js: 境界 j の裏面温度に境界　j∗ の等価温度が与える影響, -, [j, j]
+        p_js_is: 室 i と境界 j の接続に関する係数（境界 j が室 i に接している場合は 1 とし、それ以外の場合は 0 とする。）, -, [j, i]
+        phi_a0_js: 境界 j の吸熱応答係数の初項, m2 K/W, [j, 1]
+        phi_t0_js: 境界 j の貫流応答係数の初項, -, [j, 1]
+
+    Returns:
+        係数 f_FIA, -, [j, i]
+
+    Notes:
+        式(4.4)
+    """
+
+    return phi_a0_js * h_s_c_js * p_js_is + np.dot(k_ei_js_js, p_js_is * h_s_c_js / (h_s_c_js + h_s_r_js)) * phi_t0_js + phi_t0_js * k_s_r_js_is
+
+
+def get_f_ax_js_is(f_mrt_is_js, h_s_c_js, h_s_r_js, k_ei_js_js, p_js_is, phi_a0_js, phi_t0_js):
+    """
+
+    Args:
+        f_mrt_is_js: 室 i の微小球に対する境界 j の形態係数, -, [i, j]
+        h_s_c_js: 境界 j の室内側対流熱伝達率, W/(m2 K), [j, 1]
+        h_s_r_js: 境界 j の室内側放射熱伝達率, W/(m2 K), [j, 1]
+        k_ei_js_js: 境界 j の裏面温度に境界　j∗ の等価温度が与える影響, -, [j, j]
+        p_js_is: 室 i と境界 j の接続に関する係数（境界 j が室 i に接している場合は 1 とし、それ以外の場合は 0 とする。）, -, [j, i]
+        phi_a0_js: 境界 j の吸熱応答係数の初項, m2 K/W, [j, 1]
+        phi_t0_js: 境界 j の貫流応答係数の初項, -, [j, 1]
+
+    Returns:
+        係数 f_AX, -, [j, j]
+
+    Notes:
+        式(4.5)
+    """
+
+    return v_diag(1.0 + phi_a0_js * (h_s_c_js + h_s_r_js)) \
+        - np.dot(p_js_is, f_mrt_is_js) * h_s_r_js * phi_a0_js \
+        - np.dot(k_ei_js_js, np.dot(p_js_is, f_mrt_is_js) * h_s_r_js / (h_s_c_js + h_s_r_js)) * phi_t0_js
+
+
+def get_v_vent_mec_is_ns(v_vent_mec_general_is, v_vent_mec_local_is_ns):
+    """
+
+    Args:
+        v_vent_mec_general_is: ステップ n からステップ n+1 における室 i の機械換気量（全般換気量）, m3/s, [i, 1]
+        v_vent_mec_local_is_ns: ステップ n からステップ n+1 における室 i の機械換気量（局所換気量）, m3/s, [i, 1]
+
+    Returns:
+        ステップ n からステップ n+1 における室 i の機械換気量（全般換気量と局所換気量の合計値）, m3/s, [i, 1]
+
+    Notes:
+        式(4.7)
+    """
+
+    return v_vent_mec_general_is + v_vent_mec_local_is_ns
+
+# endregion
+
+
+# region equation 1-2 (sequence calculation)
 
 def get_x_frt_is_n_pls(c_lh_frt_is, delta_t: float, g_lh_frt_is, x_frt_is_n, x_r_is_n_pls):
     """
@@ -1854,43 +1883,5 @@ def get_theta_s_rear_js_n(
 
     return np.dot(k_s_er_js_js, theta_er_js_n) + k_s_eo_js * theta_eo_js_n + np.dot(k_s_r_js_is, theta_r_is_n)
 
-
-# 地盤の計算（n+1ステップを計算する）
-def _run_tick_ground(pp: PreCalcParameters, gc_n: GroundConditions, n: int):
-
-    is_ground = pp.bs.is_ground_js.flatten()
-
-    theta_o_eqv_js_ns = pp.bs.theta_o_eqv_js_ns[is_ground, :]
-
-    h_i_js = pp.bs.h_s_r_js[is_ground, :] + pp.bs.h_s_c_js[is_ground, :]
-
-    theta_dsh_srf_a_js_ms_npls = pp.bs.phi_a1_js_ms[is_ground, :] * gc_n.q_srf_js_n + pp.bs.r_js_ms[is_ground, :] * gc_n.theta_dsh_srf_a_js_ms_n
-
-    theta_dsh_srf_t_js_ms_npls = pp.bs.phi_t1_js_ms[is_ground, :] * pp.bs.k_eo_js[is_ground, :] * theta_o_eqv_js_ns[:, [n]] + pp.bs.r_js_ms[is_ground, :] * gc_n.theta_dsh_srf_t_js_ms_n
-
-    theta_s_js_npls = (
-        pp.bs.phi_a0_js[is_ground, :] * h_i_js * pp.weather.theta_o_ns_plus[n + 1]
-        + pp.bs.phi_t0_js[is_ground, :] * pp.bs.k_eo_js[is_ground, :] * theta_o_eqv_js_ns[:, [n+1]]
-        + np.sum(theta_dsh_srf_a_js_ms_npls, axis=1, keepdims=True)
-        + np.sum(theta_dsh_srf_t_js_ms_npls, axis=1, keepdims=True)
-    ) / (1.0 + pp.bs.phi_a0_js[is_ground, :] * h_i_js)
-
-    q_srf_js_n = h_i_js * (pp.weather.theta_o_ns_plus[n + 1] - theta_s_js_npls)
-
-    return GroundConditions(
-        theta_dsh_srf_a_js_ms_n=theta_dsh_srf_a_js_ms_npls,
-        theta_dsh_srf_t_js_ms_n=theta_dsh_srf_t_js_ms_npls,
-        q_srf_js_n=q_srf_js_n,
-    )
-
-
-
-
-
-
-
-
-
-
-
+# endregion
 
