@@ -479,40 +479,21 @@ def _run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, re
     # ステップnにおける室iの水蒸気圧, Pa, [i, 1]
     p_v_r_is_n = psy.get_p_v_r_is_n(x_r_is_n=c_n.x_r_is_n)
 
-    # ステップ n における室 i の運転モード, [i, 1]
-    operation_mode_is_n = ss.get_operation_mode_is_n(
-        p_v_r_is_n=p_v_r_is_n,
-        operation_mode_is_n_mns=c_n.operation_mode_is_n,
-        theta_r_is_n=c_n.theta_r_is_n,
-        theta_mrt_hum_is_n=c_n.theta_mrt_hum_is_n,
-        n=n
-    )
-
-    theta_lower_target_is_n_pls, theta_upper_target_is_n_pls, h_hum_c_is_n, h_hum_r_is_n, v_hum_is_n, clo_is_n \
-        = ss.get_theta_target_is_n(
-            p_v_r_is_n=p_v_r_is_n,
-            operation_mode_is_n=operation_mode_is_n,
-            theta_r_is_n=c_n.theta_r_is_n,
-            theta_mrt_hum_is_n=c_n.theta_mrt_hum_is_n,
-            n=n
-        )
-
     # ステップ n からステップ n+1 における室 i の自然風利用による換気量, m3/s, [i, 1]
-    v_vent_ntr_is_n = get_v_vent_ntr_is_n(
-        operation_mode_is_n=operation_mode_is_n,
-        v_vent_ntr_set_is=ss.rms.v_vent_ntr_set_is
-    )
+    # v_vent_ntr_is_n = get_v_vent_ntr_is_n(
+    #     operation_mode_is_n=operation_mode_is_n,
+    #     v_vent_ntr_set_is=ss.rms.v_vent_ntr_set_is
+    # )
 
-    # ステップ n からステップ n+1 における室 i の換気・隙間風・自然風の利用による外気の流入量, m3/s, [i, 1]
-    v_vent_out_is_n = get_v_vent_out_is_n(
+    # ステップnからステップn+1における室iの換気・隙間風による外気の流入量, m3/s, [i, 1]
+    v_vent_out_non_ntr_is_n = get_v_vent_out_non_ntr_is_n(
         v_leak_is_n=v_leak_is_n,
-        v_vent_mec_is_n=ss.v_vent_mec_is_ns[:, n].reshape(-1, 1),
-        v_vent_ntr_is_n=v_vent_ntr_is_n
+        v_vent_mec_is_n=ss.v_vent_mec_is_ns[:, n].reshape(-1, 1)
     )
 
     # ステップ n+1 の室 i における係数 f_BRC, W, [i, 1]
     # TODO: q_sol_frt_is_ns の値は n+1 の値を使用するべき？
-    f_brc_is_n_pls = get_f_brc_is_n_pls(
+    f_brc_non_ntr_is_n_pls, f_brc_ntr_is_n_pls = get_f_brc_is_n_pls(
         a_s_js=ss.bs.a_s_js,
         c_a=get_c_a(),
         v_rm_is=ss.rms.v_rm_is,
@@ -530,7 +511,35 @@ def _run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, re
         theta_frt_is_n=c_n.theta_frt_is_n,
         theta_o_n_pls=ss.weather.theta_o_ns_plus[n + 1],
         theta_r_is_n=c_n.theta_r_is_n,
-        v_vent_out_is_n=v_vent_out_is_n
+        v_vent_out_non_ntr_is_n=v_vent_out_non_ntr_is_n,
+        v_vent_ntr_is_n=ss.rms.v_vent_ntr_set_is
+    )
+
+    # ステップ n における室 i の運転モード, [i, 1]
+    operation_mode_is_n = ss.get_operation_mode_is_n(
+        p_v_r_is_n=p_v_r_is_n,
+        operation_mode_is_n_mns=c_n.operation_mode_is_n,
+        theta_r_is_n=c_n.theta_r_is_n,
+        theta_mrt_hum_is_n=c_n.theta_mrt_hum_is_n,
+        n=n
+    )
+
+    f_brc_is_n_pls = np.where(
+        operation_mode_is_n == OperationMode.STOP_OPEN,
+        f_brc_ntr_is_n_pls,
+        f_brc_non_ntr_is_n_pls
+    )
+
+    v_vent_out_is_n = np.where(
+        operation_mode_is_n == OperationMode.STOP_OPEN,
+        v_vent_out_non_ntr_is_n + ss.rms.v_vent_ntr_set_is,
+        v_vent_out_non_ntr_is_n
+    )
+
+    v_vent_ntr_is_n = np.where(
+        operation_mode_is_n == OperationMode.STOP_OPEN,
+        ss.rms.v_vent_ntr_set_is,
+        0.0
     )
 
     # ステップ n+1 における係数 f_BRM, W/K, [i, i]
@@ -591,6 +600,15 @@ def _run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, re
         f_brc_ot_is_n_pls=f_brc_ot_is_n_pls,
         f_brm_ot_is_is_n_pls=f_brm_ot_is_is_n_pls
     )
+
+    theta_lower_target_is_n_pls, theta_upper_target_is_n_pls, h_hum_c_is_n, h_hum_r_is_n, v_hum_is_n, clo_is_n \
+        = ss.get_theta_target_is_n(
+            p_v_r_is_n=p_v_r_is_n,
+            operation_mode_is_n=operation_mode_is_n,
+            theta_r_is_n=c_n.theta_r_is_n,
+            theta_mrt_hum_is_n=c_n.theta_mrt_hum_is_n,
+            n=n
+        )
 
     # ステップ n から n+1 において室 i で実際に暖房・冷房が行われるかどうかの判定結果, [i, 1]
     is_heating_is_n, is_cooling_is_n = get_is_heating_is_n_and_is_cooling_is_n(
@@ -1689,7 +1707,7 @@ def get_f_brm_is_is_n_pls(
 def get_f_brc_is_n_pls(
         a_s_js, c_a, v_rm_is, c_sh_frt_is, delta_t, f_wsc_js_n_pls, f_wsv_js_n_pls, g_sh_frt_is,
         h_s_c_js, p_is_js, q_gen_is_n, q_hum_is_n, q_sol_frt_is_n, rho_a, theta_frt_is_n,
-        theta_o_n_pls, theta_r_is_n, v_vent_out_is_n
+        theta_o_n_pls, theta_r_is_n, v_vent_out_non_ntr_is_n, v_vent_ntr_is_n
 ):
     """
 
@@ -1711,38 +1729,42 @@ def get_f_brc_is_n_pls(
         theta_frt_is_n: ステップ n における室 i の備品等の温度, degree C, [i, 1]
         theta_o_n_pls: ステップ n+1 における外気温度, ℃
         theta_r_is_n: ステップ n における室 i の温度, ℃
-        v_vent_out_is_n: ステップ n からステップ n+1 における室 i の換気・すきま風・自然風の利用による外気の流入量, m3/s
-
+        v_vent_out_non_ntr_is_n: ステップnからステップn+1における室iの換気・すきま風による外気の流入量, m3/s
+        v_vent_ntr_is_n: ステップnからステップn+1における室iの自然風の利用による外気の流入量, m3/s
     Returns:
-        ステップ n+1 における係数 f_BRC,OT, W, [i, 1]
+        ステップn+1における係数 f_BRC,OT,non-ntr, W, [i, 1]
+        ステップn+1における係数　f_BRC,OT,ntr, W, [i, 1]
 
     Notes:
         式(2.24)
     """
 
-    return v_rm_is * c_a * rho_a / delta_t * theta_r_is_n \
+    f_brc_non_ntr_is_n_pls = v_rm_is * c_a * rho_a / delta_t * theta_r_is_n \
         + np.dot(p_is_js, h_s_c_js * a_s_js * (f_wsc_js_n_pls + f_wsv_js_n_pls)) \
-        + c_a * rho_a * v_vent_out_is_n * theta_o_n_pls \
+        + c_a * rho_a * v_vent_out_non_ntr_is_n * theta_o_n_pls \
         + q_gen_is_n + q_hum_is_n \
         + g_sh_frt_is * (c_sh_frt_is * theta_frt_is_n + q_sol_frt_is_n * delta_t) / (c_sh_frt_is + delta_t * g_sh_frt_is)
 
+    f_brc_ntr_is_n_pls = f_brc_non_ntr_is_n_pls + c_a * rho_a * v_vent_ntr_is_n * theta_o_n_pls
 
-def get_v_vent_out_is_n(v_leak_is_n, v_vent_mec_is_n, v_vent_ntr_is_n):
+    return f_brc_non_ntr_is_n_pls, f_brc_ntr_is_n_pls
+
+
+def get_v_vent_out_non_ntr_is_n(v_leak_is_n, v_vent_mec_is_n):
     """
 
     Args:
         v_leak_is_n: ステップ n からステップ n+1 における室 i のすきま風量, m3/s, [i, 1]
         v_vent_mec_is_n: ステップ n からステップ n+1 における室 i の機械換気量（全般換気量と局所換気量の合計値）, m3/s, [i, 1]
-        v_vent_ntr_is_n: ステップ n からステップ n+1 における室 i の自然風利用による換気量, m3/s, [i, 1]
 
     Returns:
-        ステップ n からステップ n+1 における室 i の換気・すきま風・自然風の利用による外気の流入量, m3/s
+        ステップnからステップn+1における室iの換気・すきま風の利用による外気の流入量, m3/s
 
     Notes:
         式(2.25)
     """
 
-    return v_leak_is_n + v_vent_mec_is_n + v_vent_ntr_is_n
+    return v_leak_is_n + v_vent_mec_is_n
 
 
 def get_v_vent_ntr_is_n(operation_mode_is_n, v_vent_ntr_set_is):
