@@ -551,10 +551,10 @@ def _run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, re
     )
 
     # ステップ n における室 i の在室者表面における放射熱伝達率の総合熱伝達率に対する比, -, [i, 1]
-    k_r_is_n = get_k_r_is_n(h_hum_c_is_n=h_hum_c_is_n, h_hum_r_is_n=h_hum_r_is_n)
+    k_r_is_n = get_k_r_is_n(n_rm=ss.rms.n_rm)
 
     # ステップnにおける室iの在室者表面における対流熱伝達率の総合熱伝達率に対する比, -, [i, 1]
-    k_c_is_n = get_k_c_is_n(h_hum_c_is_n=h_hum_c_is_n, h_hum_r_is_n=h_hum_r_is_n)
+    k_c_is_n = get_k_c_is_n(n_rm=ss.rms.n_rm)
 
     # ステップn+1における室iの係数 XOT, [i, i]
     f_xot_is_is_n_pls = get_f_xot_is_is_n_pls(
@@ -1622,38 +1622,34 @@ def get_f_xot_is_is_n_pls(f_mrt_hum_is_js, f_wsr_js_is, k_c_is_n, k_r_is_n):
     return np.linalg.inv(v_diag(k_c_is_n) + k_r_is_n * np.dot(f_mrt_hum_is_js, f_wsr_js_is))
 
 
-def get_k_c_is_n(h_hum_c_is_n, h_hum_r_is_n):
+def get_k_c_is_n(n_rm: int) -> float:
     """
 
     Args:
-        h_hum_c_is_n: ステップ n における室 i の人体表面の対流熱伝達率, W/(m2 K)
-        h_hum_r_is_n: ステップ n における室 i の人体表面の放射熱伝達率, W/(m2 K)
-
+        室の数
     Returns:
         ステップ n における室 i の人体表面の対流熱伝達率が総合熱伝達率に占める割合, -, [i, 1]
 
     Notes:
         式(2.21)
     """
+    # TODO: 仕様書を修正する必要あり
+    return np.full((n_rm, 1), 0.5)
 
-    return h_hum_c_is_n / (h_hum_c_is_n + h_hum_r_is_n)
 
-
-def get_k_r_is_n(h_hum_c_is_n, h_hum_r_is_n):
+def get_k_r_is_n(n_rm: int) -> float:
     """
 
     Args:
-        h_hum_c_is_n: ステップ n における室 i の人体表面の対流熱伝達率, W/(m2 K)
-        h_hum_r_is_n: ステップ n における室 i の人体表面の放射熱伝達率, W/(m2 K)
-
+        室の数
     Returns:
         ステップ n における室 i の人体表面の放射熱伝達率が総合熱伝達率に占める割合, -, [i, 1]
 
     Notes:
         式(2.22)
     """
-
-    return h_hum_r_is_n / (h_hum_c_is_n + h_hum_r_is_n)
+    # TODO: 仕様書を修正する必要あり
+    return np.full((n_rm, 1), 0.5)
 
 
 def get_f_brm_is_is_n_pls(
