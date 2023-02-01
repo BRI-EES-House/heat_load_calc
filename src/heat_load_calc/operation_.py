@@ -5,11 +5,6 @@ from heat_load_calc import pmv, occupants
 from heat_load_calc.operation_mode import OperationMode
 from heat_load_calc import operation_mode
 
-PMV = 'pmv'
-SIMPLE = 'simple'
-OT = 'ot'
-AIR_TEMPERATURE = 'air_temperature'
-
 
 def make_get_operation_mode_is_n_function(
         ac_method: str,
@@ -231,4 +226,7 @@ def get_operation_mode_i_n(
     # 空調需要がない場合（窓閉鎖、空調停止）
     else:
         return OperationMode.STOP_CLOSE
+
+
+
 

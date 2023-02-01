@@ -21,14 +21,7 @@ from heat_load_calc.operation_mode import OperationMode
 from heat_load_calc.conditions import Conditions
 from heat_load_calc.recorder import Recorder
 from heat_load_calc.conditions import GroundConditions
-
-
-class ACMethod(Enum):
-
-    PMV = 'pmv'
-    SIMPLE = 'simple'
-    OT = 'ot'
-    AIR_TEMPERATURE = 'air_temperature'
+from heat_load_calc.ot_target import ACMethod
 
 
 @dataclass
