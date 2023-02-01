@@ -1,9 +1,19 @@
 import numpy as np
 from functools import partial
+from enum import Enum
 
 from heat_load_calc.operation_mode import OperationMode
 from heat_load_calc import pmv
 from heat_load_calc import occupants
+from heat_load_calc import operation_
+
+
+class ACMethod(Enum):
+
+    PMV = 'pmv'
+    SIMPLE = 'simple'
+    OT = 'ot'
+    AIR_TEMPERATURE = 'air_temperature'
 
 
 def make_get_theta_target_is_n_function(
@@ -183,3 +193,59 @@ def _get_pmv_target_is_n(operation_mode_is_n: np.ndarray) -> np.ndarray:
     pmv_target_is_n[operation_mode_is_n == OperationMode.STOP_CLOSE] = 0.0
 
     return pmv_target_is_n
+
+
+def get_h_hum_is_n_simple(
+        operation_mode_is_n: np.ndarray,
+        theta_r_is_n: np.ndarray,
+        theta_mrt_hum_is_n: np.ndarray
+):
+
+    # ステップnの室iにおけるClo値, [i, 1]
+    clo_is_n = np.full_like(theta_r_is_n, fill_value=occupants.get_clo_light(), dtype=float)
+
+    # ステップnにおける室iの在室者周りの風速, m/s, [i, 1]
+    v_hum_is_n = np.zeros_like(theta_r_is_n, dtype=float)
+
+    h_hum_c_is_n = np.full_like(theta_r_is_n, fill_value=1.0, dtype=float)
+    h_hum_r_is_n = np.full_like(theta_r_is_n, fill_value=1.0, dtype=float)
+
+    return h_hum_c_is_n, h_hum_r_is_n
+
+
+def get_h_hum_is_n_pmv(
+        is_radiative_cooling_is: np.ndarray,
+        is_radiative_heating_is: np.ndarray,
+        method: str,
+        operation_mode_is_n: np.ndarray,
+        theta_mrt_hum_is_n: np.ndarray,
+        theta_r_is_n: np.ndarray,
+        met_is: np.ndarray
+):
+
+    # ステップnの室iにおけるClo値, [i, 1]
+    clo_is_n = _get_clo_is_n(operation_mode_is_n=operation_mode_is_n)
+
+    is_window_open_is_n = OperationMode.u_is_window_open(oms=operation_mode_is_n)
+    is_convective_ac_is_n = OperationMode.u_is_convective_ac(oms=operation_mode_is_n, is_radiative_heating_is=is_radiative_heating_is, is_radiative_cooling_is=is_radiative_cooling_is)
+
+    # ステップnにおける室iの在室者周りの風速, m/s, [i, 1]
+    v_hum_is_n = occupants.get_v_hum_is_n(
+        is_window_open_is_n=is_window_open_is_n,
+        is_convective_ac_is_n=is_convective_ac_is_n
+    )
+
+    # (1) ステップ n における室 i の在室者周りの対流熱伝達率, W/m2K, [i, 1]
+    # (2) ステップ n における室 i の在室者周りの放射熱伝達率, W/m2K, [i, 1]
+    # (3) ステップ n における室 i の在室者周りの総合熱伝達率, W/m2K, [i, 1]
+    h_hum_c_is_n, h_hum_r_is_n, h_hum_is_n = pmv.get_h_hum(
+        theta_mrt_is_n=theta_mrt_hum_is_n,
+        theta_r_is_n=theta_r_is_n,
+        clo_is_n=clo_is_n,
+        v_hum_is_n=v_hum_is_n,
+        method=method,
+        met_is=met_is
+    )
+
+    return h_hum_c_is_n, h_hum_r_is_n
+
