@@ -556,6 +556,13 @@ def _run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, re
         k_r_is_n=k_r_is_n
     )
 
+    # ステップ n における係数 f_BRM,OT, W/K, [i, i]
+    f_brm_ot_non_ntr_is_is_n_pls, f_brm_ot_ntr_is_is_n_pls = get_f_brm_ot_is_is_n_pls(
+        f_xot_is_is_n_pls=f_xot_is_is_n_pls,
+        f_brm_non_ntr_is_is_n_pls=f_brm_non_ntr_is_is_n_pls,
+        f_brm_ntr_is_is_n_pls=f_brm_ntr_is_is_n_pls
+    )
+
     # ステップ n における室 i の運転モード, [i, 1]
     operation_mode_is_n = ss.get_operation_mode_is_n(
         p_v_r_is_n=p_v_r_is_n,
@@ -583,10 +590,10 @@ def _run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, re
         0.0
     )
 
-    # ステップ n における係数 f_BRM,OT, W/K, [i, i]
-    f_brm_ot_is_is_n_pls = get_f_brm_ot_is_is_n_pls(
-        f_brm_is_is_n_pls=f_brm_is_is_n_pls,
-        f_xot_is_is_n_pls=f_xot_is_is_n_pls
+    f_brm_ot_is_is_n_pls = np.where(
+        operation_mode_is_n == OperationMode.STOP_OPEN,
+        f_brm_ot_ntr_is_is_n_pls,
+        f_brm_ot_non_ntr_is_is_n_pls
     )
 
     f_brc_is_n_pls = np.where(
@@ -1591,12 +1598,14 @@ def get_f_brc_ot_is_n_pls(f_brc_is_n_pls, f_brm_is_is_n_pls, f_xc_is_n_pls):
     return f_brc_is_n_pls + np.dot(f_brm_is_is_n_pls, f_xc_is_n_pls)
 
 
-def get_f_brm_ot_is_is_n_pls(f_brm_is_is_n_pls, f_xot_is_is_n_pls):
+def get_f_brm_ot_is_is_n_pls(f_xot_is_is_n_pls, f_brm_non_ntr_is_is_n_pls, f_brm_ntr_is_is_n_pls):
     """
 
     Args:
-        f_brm_is_is_n_pls: ステップ n+1 における係数 f_BRM, W/K, [i, i]
         f_xot_is_is_n_pls: ステップ n+1 における係数 f_XOT, -, [i, i]
+        f_brm_non_ntr_is_is_n_pls: ステップ n+1 における自然風利用なし時の係数 f_BRM, W/K, [i, i]
+        f_brm_ntr_is_is_n_pls: ステップ n+1 における自然風利用時の係数 f_BRM, W/K, [i, i]
+
 
     Returns:
         ステップ n+1 における係数 f_BRM,OT, W/K, [i, 1]
@@ -1604,8 +1613,7 @@ def get_f_brm_ot_is_is_n_pls(f_brm_is_is_n_pls, f_xot_is_is_n_pls):
     Notes:
         式(2.18)
     """
-
-    return np.dot(f_brm_is_is_n_pls, f_xot_is_is_n_pls)
+    return np.dot(f_brm_non_ntr_is_is_n_pls, f_xot_is_is_n_pls), np.dot(f_brm_ntr_is_is_n_pls, f_xot_is_is_n_pls)
 
 
 def get_f_xc_is_n_pls(f_mrt_hum_is_js, f_wsc_js_n_pls, f_wsv_js_n_pls, f_xot_is_is_n_pls, k_r_is_n):
