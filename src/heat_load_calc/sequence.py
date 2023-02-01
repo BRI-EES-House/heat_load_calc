@@ -476,9 +476,6 @@ def _run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, re
         f_ax_js_js=ss.f_ax_js_js
     )
 
-    # ステップnにおける室iの水蒸気圧, Pa, [i, 1]
-    p_v_r_is_n = psy.get_p_v_r_is_n(x_r_is_n=c_n.x_r_is_n)
-
     # ステップ n からステップ n+1 における室 i の自然風利用による換気量, m3/s, [i, 1]
     # v_vent_ntr_is_n = get_v_vent_ntr_is_n(
     #     operation_mode_is_n=operation_mode_is_n,
@@ -486,14 +483,14 @@ def _run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, re
     # )
 
     # ステップnからステップn+1における室iの換気・隙間風による外気の流入量, m3/s, [i, 1]
-    v_vent_out_non_ntr_is_n = get_v_vent_out_non_ntr_is_n(
+    v_vent_out_non_nv_is_n = get_v_vent_out_non_ntr_is_n(
         v_leak_is_n=v_leak_is_n,
         v_vent_mec_is_n=ss.v_vent_mec_is_ns[:, n].reshape(-1, 1)
     )
 
     # ステップ n+1 の室 i における係数 f_BRC, W, [i, 1]
     # TODO: q_sol_frt_is_ns の値は n+1 の値を使用するべき？
-    f_brc_non_ntr_is_n_pls, f_brc_ntr_is_n_pls = get_f_brc_is_n_pls(
+    f_brc_non_nv_is_n_pls, f_brc_nv_is_n_pls = get_f_brc_is_n_pls(
         a_s_js=ss.bs.a_s_js,
         c_a=get_c_a(),
         v_rm_is=ss.rms.v_rm_is,
@@ -511,12 +508,12 @@ def _run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, re
         theta_frt_is_n=c_n.theta_frt_is_n,
         theta_o_n_pls=ss.weather.theta_o_ns_plus[n + 1],
         theta_r_is_n=c_n.theta_r_is_n,
-        v_vent_out_non_ntr_is_n=v_vent_out_non_ntr_is_n,
+        v_vent_out_non_nv_is_n=v_vent_out_non_nv_is_n,
         v_vent_ntr_is_n=ss.rms.v_vent_ntr_set_is
     )
 
     # ステップ n+1 における係数 f_BRM, W/K, [i, i]
-    f_brm_non_ntr_is_is_n_pls, f_brm_ntr_is_is_n_pls = get_f_brm_is_is_n_pls(
+    f_brm_non_nv_is_is_n_pls, f_brm_nv_is_is_n_pls = get_f_brm_is_is_n_pls(
         a_s_js=ss.bs.a_s_js,
         c_a=get_c_a(),
         v_rm_is=ss.rms.v_rm_is,
@@ -529,7 +526,7 @@ def _run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, re
         p_js_is=ss.bs.p_js_is,
         rho_a=get_rho_a(),
         v_vent_int_is_is_n=ss.mvs.v_vent_int_is_is,
-        v_vent_out_non_ntr_is_n=v_vent_out_non_ntr_is_n,
+        v_vent_out_non_nv_is_n=v_vent_out_non_nv_is_n,
         v_vent_ntr_set_is=ss.rms.v_vent_ntr_set_is
     )
 
@@ -557,28 +554,31 @@ def _run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, re
     )
 
     # ステップ n における係数 f_BRM,OT, W/K, [i, i]
-    f_brm_ot_non_ntr_is_is_n_pls, f_brm_ot_ntr_is_is_n_pls = get_f_brm_ot_is_is_n_pls(
+    f_brm_ot_non_nv_is_is_n_pls, f_brm_ot_nv_is_is_n_pls = get_f_brm_ot_is_is_n_pls(
         f_xot_is_is_n_pls=f_xot_is_is_n_pls,
-        f_brm_non_ntr_is_is_n_pls=f_brm_non_ntr_is_is_n_pls,
-        f_brm_ntr_is_is_n_pls=f_brm_ntr_is_is_n_pls
+        f_brm_non_nv_is_is_n_pls=f_brm_non_nv_is_is_n_pls,
+        f_brm_nv_is_is_n_pls=f_brm_nv_is_is_n_pls
     )
 
     # ステップ n における係数 f_BRC,OT, W, [i, 1]
-    f_brc_ot_non_ntr_is_n_pls, f_brc_ot_ntr_is_n_pls = get_f_brc_ot_is_n_pls(
+    f_brc_ot_non_nv_is_n_pls, f_brc_ot_nv_is_n_pls = get_f_brc_ot_is_n_pls(
         f_xc_is_n_pls=f_xc_is_n_pls,
-        f_brc_non_ntr_is_n_pls=f_brc_non_ntr_is_n_pls,
-        f_brc_ntr_is_n_pls=f_brc_ntr_is_n_pls,
-        f_brm_non_ntr_is_is_n_pls=f_brm_non_ntr_is_is_n_pls,
-        f_brm_ntr_is_is_n_pls=f_brm_ntr_is_is_n_pls
+        f_brc_non_nv_is_n_pls=f_brc_non_nv_is_n_pls,
+        f_brc_nv_is_n_pls=f_brc_nv_is_n_pls,
+        f_brm_non_nv_is_is_n_pls=f_brm_non_nv_is_is_n_pls,
+        f_brm_nv_is_is_n_pls=f_brm_nv_is_is_n_pls
     )
 
     # ステップ n+1 における自然作用温度, degree C, [i, 1]
-    theta_r_ot_ntr_non_ntr_is_n_pls, theta_r_ot_ntr_ntr_is_n_pls = get_theta_r_ot_ntr_is_n_pls(
-        f_brc_ot_non_ntr_is_n_pls=f_brc_ot_non_ntr_is_n_pls,
-        f_brc_ot_ntr_is_n_pls=f_brc_ot_ntr_is_n_pls,
-        f_brm_ot_non_ntr_is_is_n_pls=f_brm_ot_non_ntr_is_is_n_pls,
-        f_brm_ot_ntr_is_is_n_pls=f_brm_ot_ntr_is_is_n_pls
+    theta_r_ot_ntr_non_nv_is_n_pls, theta_r_ot_ntr_nv_is_n_pls = get_theta_r_ot_ntr_is_n_pls(
+        f_brc_ot_non_nv_is_n_pls=f_brc_ot_non_nv_is_n_pls,
+        f_brc_ot_nv_is_n_pls=f_brc_ot_nv_is_n_pls,
+        f_brm_ot_non_nv_is_is_n_pls=f_brm_ot_non_nv_is_is_n_pls,
+        f_brm_ot_nv_is_is_n_pls=f_brm_ot_nv_is_is_n_pls
     )
+
+    # ステップnにおける室iの水蒸気圧, Pa, [i, 1]
+    p_v_r_is_n = psy.get_p_v_r_is_n(x_r_is_n=c_n.x_r_is_n)
 
     # ステップ n における室 i の運転モード, [i, 1]
     operation_mode_is_n = ss.get_operation_mode_is_n(
@@ -591,14 +591,14 @@ def _run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, re
 
     v_vent_out_is_n = np.where(
         operation_mode_is_n == OperationMode.STOP_OPEN,
-        v_vent_out_non_ntr_is_n + ss.rms.v_vent_ntr_set_is,
-        v_vent_out_non_ntr_is_n
+        v_vent_out_non_nv_is_n + ss.rms.v_vent_ntr_set_is,
+        v_vent_out_non_nv_is_n
     )
 
     f_brm_is_is_n_pls = np.where(
         operation_mode_is_n == OperationMode.STOP_OPEN,
-        f_brm_ntr_is_is_n_pls,
-        f_brm_non_ntr_is_is_n_pls
+        f_brm_nv_is_is_n_pls,
+        f_brm_non_nv_is_is_n_pls
     )
 
     v_vent_ntr_is_n = np.where(
@@ -609,20 +609,20 @@ def _run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, re
 
     f_brm_ot_is_is_n_pls = np.where(
         operation_mode_is_n == OperationMode.STOP_OPEN,
-        f_brm_ot_ntr_is_is_n_pls,
-        f_brm_ot_non_ntr_is_is_n_pls
+        f_brm_ot_nv_is_is_n_pls,
+        f_brm_ot_non_nv_is_is_n_pls
     )
 
     f_brc_ot_is_n_pls = np.where(
         operation_mode_is_n == OperationMode.STOP_OPEN,
-        f_brc_ot_ntr_is_n_pls,
-        f_brc_ot_non_ntr_is_n_pls
+        f_brc_ot_nv_is_n_pls,
+        f_brc_ot_non_nv_is_n_pls
     )
 
     theta_r_ot_ntr_is_n_pls = np.where(
         operation_mode_is_n == OperationMode.STOP_OPEN,
-        theta_r_ot_ntr_ntr_is_n_pls,
-        theta_r_ot_ntr_non_ntr_is_n_pls
+        theta_r_ot_ntr_nv_is_n_pls,
+        theta_r_ot_ntr_non_nv_is_n_pls
     )
 
     theta_lower_target_is_n_pls, theta_upper_target_is_n_pls, h_hum_c_is_n, h_hum_r_is_n, v_hum_is_n, clo_is_n \
@@ -1574,74 +1574,77 @@ def get_is_heating_is_n_and_is_cooling_is_n(
 
 
 def get_theta_r_ot_ntr_is_n_pls(
-        f_brc_ot_non_ntr_is_n_pls,
-        f_brc_ot_ntr_is_n_pls,
-        f_brm_ot_non_ntr_is_is_n_pls,
-        f_brm_ot_ntr_is_is_n_pls
+        f_brc_ot_non_nv_is_n_pls,
+        f_brc_ot_nv_is_n_pls,
+        f_brm_ot_non_nv_is_is_n_pls,
+        f_brm_ot_nv_is_is_n_pls
 ):
     """
 
     Args:
-        f_brc_ot_non_ntr_is_n_pls: ステップ n+1 における自然風の利用なし時の係数 f_BRC,OT, W, [i, 1]
-        f_brc_ot_ntr_is_n_pls: ステップ n+1 における自然風の利用時の係数 f_BRC,OT, W, [i, 1]
-        f_brm_ot_non_ntr_is_is_n_pls: ステップ n+1 における自然風の利用なし時の係数 f_BRM,OT, W/K, [i, 1]
-        f_brm_ot_ntr_is_is_n_pls: ステップ n+1 における自然風の利用時の係数 f_BRM,OT, W/K, [i, 1]
+        f_brc_ot_non_nv_is_n_pls: ステップ n+1 における自然風の利用なし時の係数 f_BRC,OT, W, [i, 1]
+        f_brc_ot_nv_is_n_pls: ステップ n+1 における自然風の利用時の係数 f_BRC,OT, W, [i, 1]
+        f_brm_ot_non_nv_is_is_n_pls: ステップ n+1 における自然風の利用なし時の係数 f_BRM,OT, W/K, [i, 1]
+        f_brm_ot_nv_is_is_n_pls: ステップ n+1 における自然風の利用時の係数 f_BRM,OT, W/K, [i, 1]
 
 
     Returns:
-        ステップ n+1 における室 i の自然作用温度 , degree C, [i, 1]
+        ステップn+1における自然風非利用時の室iの自然作用温度, degree C, [i, 1]
+        ステップn+1における自然風利用時の室iの自然作用温度, degree C, [i, 1]
 
     Notes:
         式(2.16)
     """
-    theta_r_ot_ntr_non_ntr_is_n_pls = np.linalg.solve(f_brm_ot_non_ntr_is_is_n_pls, f_brc_ot_non_ntr_is_n_pls)
-    theta_r_ot_ntr_ntr_is_n_pls = np.linalg.solve(f_brm_ot_ntr_is_is_n_pls, f_brc_ot_ntr_is_n_pls)
-    return theta_r_ot_ntr_non_ntr_is_n_pls, theta_r_ot_ntr_ntr_is_n_pls
+    theta_r_ot_ntr_non_nv_is_n_pls = np.linalg.solve(f_brm_ot_non_nv_is_is_n_pls, f_brc_ot_non_nv_is_n_pls)
+    theta_r_ot_ntr_nv_is_n_pls = np.linalg.solve(f_brm_ot_nv_is_is_n_pls, f_brc_ot_nv_is_n_pls)
+    return theta_r_ot_ntr_non_nv_is_n_pls, theta_r_ot_ntr_nv_is_n_pls
 
 
 def get_f_brc_ot_is_n_pls(
         f_xc_is_n_pls,
-        f_brc_non_ntr_is_n_pls,
-        f_brc_ntr_is_n_pls,
-        f_brm_non_ntr_is_is_n_pls,
-        f_brm_ntr_is_is_n_pls
+        f_brc_non_nv_is_n_pls,
+        f_brc_nv_is_n_pls,
+        f_brm_non_nv_is_is_n_pls,
+        f_brm_nv_is_is_n_pls
 ):
     """
 
     Args:
         f_xc_is_n_pls: ステップ n+1 における係数 f_XC, degree C, [i, 1]
-        f_brc_non_ntr_is_n_pls: ステップn+1における自然風の利用なし時の係数f_BRC,OT, W, [i,1]
-        f_brc_ntr_is_n_pls: ステップn+1における自然風の利用時の係数f_BRC,OT, W, [i,1]
-        f_brm_non_ntr_is_is_n_pls: ステップn+1における自然風の利用なし時の係数f_BRM,OT, W, [i,i]
-        f_brm_ntr_is_is_n_pls: ステップn+1における自然風の利用時の係数f_BRM,OT, W, [i,i]
+        f_brc_non_nv_is_n_pls: ステップn+1における自然風非利用時の係数f_BRC,OT, W, [i,1]
+        f_brc_nv_is_n_pls: ステップn+1における自然風利用時の係数f_BRC,OT, W, [i,1]
+        f_brm_non_nv_is_is_n_pls: ステップn+1における自然風非利用時の係数f_BRM,OT, W, [i,i]
+        f_brm_nv_is_is_n_pls: ステップn+1における自然風利用時の係数f_BRM,OT, W, [i,i]
     Returns:
-        ステップn+1における係数f_BRC,OT, W, [i, 1]
+        ステップn+1における自然風非利用時の係数f_BRC,OT, W, [i, 1]
+        ステップn+1における自然風利用時の係数f_BRC,OT, W, [i, 1]
 
     Notes:
         式(2.17)
     """
 
-    f_brc_ot_non_ntr_is_n_pls = f_brc_non_ntr_is_n_pls + np.dot(f_brm_non_ntr_is_is_n_pls, f_xc_is_n_pls)
-    f_brc_ot_ntr_is_n_pls = f_brc_ntr_is_n_pls + np.dot(f_brm_ntr_is_is_n_pls, f_xc_is_n_pls)
-    return f_brc_ot_non_ntr_is_n_pls, f_brc_ot_ntr_is_n_pls
+    f_brc_ot_non_nv_is_n_pls = f_brc_non_nv_is_n_pls + np.dot(f_brm_non_nv_is_is_n_pls, f_xc_is_n_pls)
+    f_brc_ot_nv_is_n_pls = f_brc_nv_is_n_pls + np.dot(f_brm_nv_is_is_n_pls, f_xc_is_n_pls)
+    return f_brc_ot_non_nv_is_n_pls, f_brc_ot_nv_is_n_pls
 
 
-def get_f_brm_ot_is_is_n_pls(f_xot_is_is_n_pls, f_brm_non_ntr_is_is_n_pls, f_brm_ntr_is_is_n_pls):
+def get_f_brm_ot_is_is_n_pls(f_xot_is_is_n_pls, f_brm_non_nv_is_is_n_pls, f_brm_nv_is_is_n_pls):
     """
 
     Args:
         f_xot_is_is_n_pls: ステップ n+1 における係数 f_XOT, -, [i, i]
-        f_brm_non_ntr_is_is_n_pls: ステップ n+1 における自然風利用なし時の係数 f_BRM, W/K, [i, i]
-        f_brm_ntr_is_is_n_pls: ステップ n+1 における自然風利用時の係数 f_BRM, W/K, [i, i]
+        f_brm_non_nv_is_is_n_pls: ステップ n+1 における自然風非利用時の係数 f_BRM, W/K, [i, i]
+        f_brm_nv_is_is_n_pls: ステップ n+1 における自然風利用時の係数 f_BRM, W/K, [i, i]
 
 
     Returns:
-        ステップ n+1 における係数 f_BRM,OT, W/K, [i, 1]
+        ステップn+1における自然風非利用時の係数f_BRM,OT, W/K, [i, 1]
+        ステップn+1における自然風利用時の係数f_BRM,OT, W/K, [i, 1]
 
     Notes:
         式(2.18)
     """
-    return np.dot(f_brm_non_ntr_is_is_n_pls, f_xot_is_is_n_pls), np.dot(f_brm_ntr_is_is_n_pls, f_xot_is_is_n_pls)
+    return np.dot(f_brm_non_nv_is_is_n_pls, f_xot_is_is_n_pls), np.dot(f_brm_nv_is_is_n_pls, f_xot_is_is_n_pls)
 
 
 def get_f_xc_is_n_pls(f_mrt_hum_is_js, f_wsc_js_n_pls, f_wsv_js_n_pls, f_xot_is_is_n_pls, k_r_is_n):
@@ -1715,7 +1718,7 @@ def get_k_r_is_n(n_rm: int) -> np.ndarray:
 
 def get_f_brm_is_is_n_pls(
         a_s_js, c_a: float, v_rm_is, c_sh_frt_is, delta_t, f_wsr_js_is, g_sh_frt_is, h_s_c_js, p_is_js,
-        p_js_is, rho_a, v_vent_int_is_is_n, v_vent_out_non_ntr_is_n,
+        p_js_is, rho_a, v_vent_int_is_is_n, v_vent_out_non_nv_is_n,
         v_vent_ntr_set_is
 ):
     """
@@ -1733,11 +1736,12 @@ def get_f_brm_is_is_n_pls(
         p_js_is: 室 i と境界 j の接続に関する係数（境界 j が室 i に接している場合は 1 とし、それ以外の場合は 0 とする。）, -, [j, i]
         rho_a: 空気の密度, kg/m3
         v_vent_int_is_is_n: ステップ n から ステップ n+1 における室 i* から室 i への室間の空気移動量（流出換気量を含む）, m3/s
-        v_vent_out_non_ntr_is_n: ステップnからステップn+1 における室iの換気・すきま風による外気の流入量, m3/s
+        v_vent_out_non_nv_is_n: ステップnからステップn+1 における室iの換気・すきま風による外気の流入量, m3/s
         v_vent_ntr_set_is: ステップnからステップn+1における室iの自然風の利用による外気の流入量, m3/s
 
     Returns:
-        ステップ n+1 における係数 f_BRM, W/K, [i, i]
+        ステップn+1における自然風非利用時の係数f_BRM, W/K, [i, i]
+        ステップn+1における自然風利用時の係数f_BRM, W/K, [i, i]
 
     Notes:
         式(2.23)
@@ -1745,7 +1749,7 @@ def get_f_brm_is_is_n_pls(
     f_brm_non_ntr_is_is_n_pls = v_diag(v_rm_is * rho_a * c_a / delta_t) \
         + np.dot(p_is_js, (p_js_is - f_wsr_js_is) * a_s_js * h_s_c_js) \
         + v_diag(c_sh_frt_is * g_sh_frt_is / (c_sh_frt_is + g_sh_frt_is * delta_t)) \
-        + c_a * rho_a * (v_diag(v_vent_out_non_ntr_is_n) - v_vent_int_is_is_n)
+        + c_a * rho_a * (v_diag(v_vent_out_non_nv_is_n) - v_vent_int_is_is_n)
     f_brm_ntr_is_is_n_pls = f_brm_non_ntr_is_is_n_pls + c_a * rho_a * v_diag(v_vent_ntr_set_is)
     return f_brm_non_ntr_is_is_n_pls, f_brm_ntr_is_is_n_pls
 
@@ -1753,7 +1757,7 @@ def get_f_brm_is_is_n_pls(
 def get_f_brc_is_n_pls(
         a_s_js, c_a, v_rm_is, c_sh_frt_is, delta_t, f_wsc_js_n_pls, f_wsv_js_n_pls, g_sh_frt_is,
         h_s_c_js, p_is_js, q_gen_is_n, q_hum_is_n, q_sol_frt_is_n, rho_a, theta_frt_is_n,
-        theta_o_n_pls, theta_r_is_n, v_vent_out_non_ntr_is_n, v_vent_ntr_is_n
+        theta_o_n_pls, theta_r_is_n, v_vent_out_non_nv_is_n, v_vent_ntr_is_n
 ):
     """
 
@@ -1775,7 +1779,7 @@ def get_f_brc_is_n_pls(
         theta_frt_is_n: ステップ n における室 i の備品等の温度, degree C, [i, 1]
         theta_o_n_pls: ステップ n+1 における外気温度, ℃
         theta_r_is_n: ステップ n における室 i の温度, ℃
-        v_vent_out_non_ntr_is_n: ステップnからステップn+1における室iの換気・すきま風による外気の流入量, m3/s
+        v_vent_out_non_nv_is_n: ステップnからステップn+1における室iの換気・すきま風による外気の流入量, m3/s
         v_vent_ntr_is_n: ステップnからステップn+1における室iの自然風の利用による外気の流入量, m3/s
     Returns:
         ステップn+1における係数 f_BRC,OT,non-ntr, W, [i, 1]
@@ -1786,10 +1790,10 @@ def get_f_brc_is_n_pls(
     """
 
     f_brc_non_ntr_is_n_pls = v_rm_is * c_a * rho_a / delta_t * theta_r_is_n \
-        + np.dot(p_is_js, h_s_c_js * a_s_js * (f_wsc_js_n_pls + f_wsv_js_n_pls)) \
-        + c_a * rho_a * v_vent_out_non_ntr_is_n * theta_o_n_pls \
-        + q_gen_is_n + q_hum_is_n \
-        + g_sh_frt_is * (c_sh_frt_is * theta_frt_is_n + q_sol_frt_is_n * delta_t) / (c_sh_frt_is + delta_t * g_sh_frt_is)
+                             + np.dot(p_is_js, h_s_c_js * a_s_js * (f_wsc_js_n_pls + f_wsv_js_n_pls)) \
+                             + c_a * rho_a * v_vent_out_non_nv_is_n * theta_o_n_pls \
+                             + q_gen_is_n + q_hum_is_n \
+                             + g_sh_frt_is * (c_sh_frt_is * theta_frt_is_n + q_sol_frt_is_n * delta_t) / (c_sh_frt_is + delta_t * g_sh_frt_is)
 
     f_brc_ntr_is_n_pls = f_brc_non_ntr_is_n_pls + c_a * rho_a * v_vent_ntr_is_n * theta_o_n_pls
 
