@@ -572,6 +572,15 @@ def _run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, re
         n=n
     )
 
+    # ステップ n における係数 f_BRC,OT, W, [i, 1]
+    f_brc_ot_non_ntr_is_n_pls, f_brc_ot_ntr_is_n_pls = get_f_brc_ot_is_n_pls(
+        f_xc_is_n_pls=f_xc_is_n_pls,
+        f_brc_non_ntr_is_n_pls=f_brc_non_ntr_is_n_pls,
+        f_brc_ntr_is_n_pls=f_brc_ntr_is_n_pls,
+        f_brm_non_ntr_is_is_n_pls=f_brm_non_ntr_is_is_n_pls,
+        f_brm_ntr_is_is_n_pls=f_brm_ntr_is_is_n_pls
+    )
+
     v_vent_out_is_n = np.where(
         operation_mode_is_n == OperationMode.STOP_OPEN,
         v_vent_out_non_ntr_is_n + ss.rms.v_vent_ntr_set_is,
@@ -596,17 +605,10 @@ def _run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, re
         f_brm_ot_non_ntr_is_is_n_pls
     )
 
-    f_brc_is_n_pls = np.where(
+    f_brc_ot_is_n_pls = np.where(
         operation_mode_is_n == OperationMode.STOP_OPEN,
-        f_brc_ntr_is_n_pls,
-        f_brc_non_ntr_is_n_pls
-    )
-
-    # ステップ n における係数 f_BRC,OT, W, [i, 1]
-    f_brc_ot_is_n_pls = get_f_brc_ot_is_n_pls(
-        f_brc_is_n_pls=f_brc_is_n_pls,
-        f_brm_is_is_n_pls=f_brm_is_is_n_pls,
-        f_xc_is_n_pls=f_xc_is_n_pls
+        f_brc_ot_ntr_is_n_pls,
+        f_brc_ot_non_ntr_is_n_pls
     )
 
     # ステップ n+1 における自然作用温度, degree C, [i, 1]
@@ -1580,22 +1582,31 @@ def get_theta_r_ot_ntr_is_n_pls(f_brc_ot_is_n_pls, f_brm_ot_is_is_n_pls):
     return np.linalg.solve(f_brm_ot_is_is_n_pls, f_brc_ot_is_n_pls)
 
 
-def get_f_brc_ot_is_n_pls(f_brc_is_n_pls, f_brm_is_is_n_pls, f_xc_is_n_pls):
+def get_f_brc_ot_is_n_pls(
+        f_xc_is_n_pls,
+        f_brc_non_ntr_is_n_pls,
+        f_brc_ntr_is_n_pls,
+        f_brm_non_ntr_is_is_n_pls,
+        f_brm_ntr_is_is_n_pls
+):
     """
 
     Args:
-        f_brc_is_n_pls: ステップ n+1 における係数 f_BRC,OT, W, [i, 1]
-        f_brm_is_is_n_pls: ステップ n+1 における係数 f_BRM, W/K, [i, i]
         f_xc_is_n_pls: ステップ n+1 における係数 f_XC, degree C, [i, 1]
-
+        f_brc_non_ntr_is_n_pls: ステップn+1における自然風の利用なし時の係数f_BRC,OT, W, [i,1]
+        f_brc_ntr_is_n_pls: ステップn+1における自然風の利用時の係数f_BRC,OT, W, [i,1]
+        f_brm_non_ntr_is_is_n_pls: ステップn+1における自然風の利用なし時の係数f_BRM,OT, W, [i,i]
+        f_brm_ntr_is_is_n_pls: ステップn+1における自然風の利用時の係数f_BRM,OT, W, [i,i]
     Returns:
-        ステップ n+1 における係数 f_BRC,OT, W, [i, 1]
+        ステップn+1における係数f_BRC,OT, W, [i, 1]
 
     Notes:
         式(2.17)
     """
 
-    return f_brc_is_n_pls + np.dot(f_brm_is_is_n_pls, f_xc_is_n_pls)
+    f_brc_ot_non_ntr_is_n_pls = f_brc_non_ntr_is_n_pls + np.dot(f_brm_non_ntr_is_is_n_pls, f_xc_is_n_pls)
+    f_brc_ot_ntr_is_n_pls = f_brc_ntr_is_n_pls + np.dot(f_brm_ntr_is_is_n_pls, f_xc_is_n_pls)
+    return f_brc_ot_non_ntr_is_n_pls, f_brc_ot_ntr_is_n_pls
 
 
 def get_f_brm_ot_is_is_n_pls(f_xot_is_is_n_pls, f_brm_non_ntr_is_is_n_pls, f_brm_ntr_is_is_n_pls):
