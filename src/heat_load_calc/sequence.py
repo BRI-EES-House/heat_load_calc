@@ -580,8 +580,8 @@ def _run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, re
     theta_r_ntr_non_nv_is_n_pls = np.dot(f_xot_is_is_n_pls, theta_r_ot_ntr_non_nv_is_n_pls) + f_xc_is_n_pls
     theta_r_ntr_nv_is_n_pls = np.dot(f_xot_is_is_n_pls, theta_r_ot_ntr_nv_is_n_pls) + f_xc_is_n_pls
 
-    theta_s_ntr_non_nv_js_n_pls = ss.f_wsr_js_is * theta_r_ntr_non_nv_is_n_pls + ss.f_wsc_js_ns[:, n + 1].reshape(-1, 1) + f_wsv_js
-    theta_s_ntr_nv_js_n_pls = ss.f_wsr_js_is * theta_r_ntr_nv_is_n_pls + ss.f_wsc_js_ns[:, n + 1].reshape(-1, 1) + f_wsv_js_n_pls
+    theta_s_ntr_non_nv_js_n_pls = np.dot(ss.f_wsr_js_is, theta_r_ntr_non_nv_is_n_pls) + ss.f_wsc_js_ns[:, n + 1].reshape(-1, 1) + f_wsv_js_n_pls
+    theta_s_ntr_nv_js_n_pls = np.dot(ss.f_wsr_js_is, theta_r_ntr_nv_is_n_pls) + ss.f_wsc_js_ns[:, n + 1].reshape(-1, 1) + f_wsv_js_n_pls
 
     theta_mrt_hum_ntr_non_nv_is_n_pls = np.dot(ss.f_mrt_is_js, theta_s_ntr_non_nv_js_n_pls)
     theta_mrt_hum_ntr_nv_is_n_pls = np.dot(ss.f_mrt_is_js, theta_s_ntr_nv_js_n_pls)
