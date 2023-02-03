@@ -152,57 +152,33 @@ class Schedule:
             w.writerows(self.ac_demand_is_ns.T.tolist())
 
     @property
-    def q_gen_is_ns(self):
-        """
-
-        Returns:
-            ステップ n の室 i における内部発熱, W, [i, n]
-        """
-
+    def q_gen_is_ns(self) -> np.ndarray:
+        """ステップnの室iにおける人体発熱を除く内部発熱, W, [i, N]"""
         return self._q_gen_is_ns
 
     @property
-    def x_gen_is_ns(self):
-        """
-
-        Returns:
-            ステップ n の室 i における人体発湿を除く内部発湿, kg / s, [i, n]
-        """
-
+    def x_gen_is_ns(self) -> np.ndarray:
+        """ステップnの室iにおける人体発湿を除く内部発湿, kg/s, [i, N]"""
         return self._x_gen_is_ns
 
     @property
-    def v_mec_vent_local_is_ns(self):
-        """
-
-        Returns:
-            ステップ n の室 i における局所換気量, m3 / s, [i, n]
-        """
-
+    def v_mec_vent_local_is_ns(self) -> np.ndarray:
+        """ステップnの室iにおける局所換気量, m3/s, [i, N]"""
         return self._v_mec_vent_local_is_ns
 
     @property
-    def n_hum_is_ns(self):
-        """
-
-        Returns:
-            ステップ n の室 i における在室人数, [i, n]
-        """
-
+    def n_hum_is_ns(self) -> np.ndarray:
+        """ステップnの室iにおける在室人数, [i, N]"""
         return self._n_hum_is_ns
 
     @property
-    def ac_demand_is_ns(self):
-        """
-
-        Returns:
-            ステップ n の室 i における空調需要, [i, n]
-        """
-
+    def ac_demand_is_ns(self) -> np.ndarray:
+        """ステップnの室iにおける空調需要, [i, N]"""
         return self._ac_demand_is_ns
 
     @property
-    def ac_setting_is_ns(self):
+    def ac_setting_is_ns(self) -> np.ndarray:
+        """ステップnの室iにおける空調モード, [i, N]"""
         return self._ac_setting_is_ns
 
     @classmethod

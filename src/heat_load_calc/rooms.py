@@ -84,61 +84,61 @@ class Rooms:
         )
 
     @property
-    def n_rm(self):
-
+    def n_rm(self) -> int:
+        """室の数"""
         return self._n_rm
 
     @property
-    def id_rm_is(self):
-
+    def id_rm_is(self) -> np.ndarray:
+        """空間のID, [i, 1]"""
         return self._id_rm_is
 
     @property
-    def name_rm_is(self):
-
+    def name_rm_is(self) -> np.ndarray:
+        """室iの名前, [i, 1]"""
         return self._name_rm_is
 
     @property
-    def sub_name_rm_is(self):
-
+    def sub_name_rm_is(self) -> np.ndarray:
+        """室iの名前2, [i, 1]"""
         return self._sub_name_rm_is
 
     @property
-    def a_f_rm_is(self):
-
+    def a_f_rm_is(self) -> np.ndarray:
+        """室iの面積, m2, [i, 1]"""
         return self._a_f_rm_is
 
     @property
-    def v_rm_is(self):
-
+    def v_rm_is(self) -> np.ndarray:
+        """室iの容積, m3, [i, 1]"""
         return self._v_rm_is
 
     @property
-    def c_sh_frt_is(self):
-
+    def c_sh_frt_is(self) -> np.ndarray:
+        """室iの備品等の熱容量, J/K, [i, 1]"""
         return self._c_sh_frt_is
 
     @property
-    def g_sh_frt_is(self):
-
+    def g_sh_frt_is(self) -> np.ndarray:
+        """室iの空気と備品等間の熱コンダクタンス, W/K, [i, 1]"""
         return self._g_sh_frt_is
 
     @property
-    def c_lh_frt_is(self):
-
+    def c_lh_frt_is(self) -> np.ndarray:
+        """室iの備品等の湿気容量, kg/(kg/kgDA), [i, 1]"""
         return self._c_lh_frt_is
 
     @property
-    def g_lh_frt_is(self):
-
+    def g_lh_frt_is(self) -> np.ndarray:
+        """室iの空気と備品等間の湿気コンダクタンス, kg/(s (kg/kgDA)), [i, 1]"""
         return self._g_lh_frt_is
 
     @property
-    def v_vent_ntr_set_is(self):
-
+    def v_vent_ntr_set_is(self) -> np.ndarray:
+        """室iの自然風利用時の換気量, m3/s, [i, 1]"""
         return self._v_vent_ntr_set_is
 
     @property
-    def met_is(self):
-
+    def met_is(self) -> np.ndarray:
+        """室iの在室者のMet値, [i, 1]"""
         return self._met_is

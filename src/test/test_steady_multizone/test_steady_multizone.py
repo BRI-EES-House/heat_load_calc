@@ -64,14 +64,14 @@ class TestSteadyState(unittest.TestCase):
 
         result = recorder.Recorder(
             n_step_main=8760 * 4,
-            id_rm_is=list(ss.rms.id_rm_is.flatten()),
-            id_bs_js=list(ss.bs.id_bs_js.flatten())
+            id_rm_is=list(sqc.rms.id_rm_is.flatten()),
+            id_bs_js=list(sqc.bs.id_bs_js.flatten())
         )
 
         result.pre_recording(
-            weather=ss.weather,
-            scd=ss.scd,
-            bs= ss.bs,
+            weather=sqc.weather,
+            scd=sqc.scd,
+            bs=sqc.bs,
             q_sol_frt_is_ns=ss.q_sol_frt_is_ns,
             q_s_sol_js_ns=ss.q_s_sol_js_ns
         )
@@ -118,12 +118,12 @@ class TestSteadyState(unittest.TestCase):
             theta_r_is_n=theta_r_is_n,
             theta_mrt_hum_is_n=np.array([[9.689970497, 4.391663789]]).reshape(-1, 1),
             x_r_is_n=np.array([[0.0, 0.0]]).reshape(-1, 1),
-            theta_dsh_s_a_js_ms_n=q_srf_js_n * ss.bs.phi_a1_js_ms / (1.0 - ss.bs.r_js_ms),
+            theta_dsh_s_a_js_ms_n=q_srf_js_n * sqc.bs.phi_a1_js_ms / (1.0 - sqc.bs.r_js_ms),
             theta_dsh_s_t_js_ms_n=(
-                    np.dot(ss.bs.k_ei_js_js, theta_ei_js_n)
-                    + ss.bs.k_eo_js * ss.bs.theta_o_eqv_js_ns[:, 1].reshape(-1, 1)
-                    + np.dot(ss.bs.k_s_r_js_is, theta_r_is_n)
-                ) * ss.bs.phi_t1_js_ms / (1.0 - ss.bs.r_js_ms),
+                    np.dot(sqc.bs.k_ei_js_js, theta_ei_js_n)
+                    + sqc.bs.k_eo_js * sqc.bs.theta_o_eqv_js_ns[:, 1].reshape(-1, 1)
+                    + np.dot(sqc.bs.k_s_r_js_is, theta_r_is_n)
+                ) * sqc.bs.phi_t1_js_ms / (1.0 - sqc.bs.r_js_ms),
             q_s_js_n=q_srf_js_n,
             theta_frt_is_n=theta_r_is_n,
             x_frt_is_n=np.array([[0.0, 0.0]]).reshape(-1, 1),
@@ -133,13 +133,14 @@ class TestSteadyState(unittest.TestCase):
         c_n_init = c_n
         c_n = sqc.run_tick(n=0, c_n=c_n, recorder=result)
 
-        result.post_recording(rms=ss.rms, bs=ss.bs, f_mrt_is_js=ss.f_mrt_is_js)
+        result.post_recording(rms=sqc.rms, bs=sqc.bs, f_mrt_is_js=ss.f_mrt_is_js)
 
         # 計算結果格納
         cls._c_n = c_n_init
         cls._c_n_pls = c_n
         cls._pp = ss
         cls._dd_i, cls._dd_a = result.export_pd()
+        cls._sqc = sqc
 
     # 室空気温[℃]のテスト
     def test_case_01_room_temp(self):
@@ -167,7 +168,7 @@ class TestSteadyState(unittest.TestCase):
         # テスト時刻を指定
         date_now = '1990-01-01 0:00:00'
 
-        n_bndrs = self._pp.bs.n_b
+        n_bndrs = self._sqc.bs.n_b
 
         # 0番目の境界（外壁）
         for i in range(n_bndrs):
@@ -176,6 +177,6 @@ class TestSteadyState(unittest.TestCase):
             theta_rear = self._dd_i[bdr_name + 't_b'][date_now]
             f_cvl = self._dd_i[bdr_name + 'f_cvl'][date_now]
             q_all = self._dd_i[bdr_name + 'qiall_s'][date_now]
-            phi_a_0 = self._pp.bs.phi_a0_js[i][0]
-            phi_t_0 = self._pp.bs.phi_t0_js[i][0]
+            phi_a_0 = self._sqc.bs.phi_a0_js[i][0]
+            phi_t_0 = self._sqc.bs.phi_t0_js[i][0]
             self.assertAlmostEqual(theta_s, phi_a_0 * q_all + phi_t_0 * theta_rear + f_cvl)

@@ -27,80 +27,6 @@ from heat_load_calc.ot_target import ACMethod
 @dataclass
 class PreCalcParameters:
 
-    # Weather Class
-    #   ステップnの外気温度, degree C, [N+1]
-    #   ステップnの外気絶対湿度, kg / kg(DA), [N+1]
-    #   ステップnの法線面直達日射量, W / m2, [N+1]
-    #   ステップnの水平面天空日射量, W / m2, [N+1]
-    #   ステップnの夜間放射量, W / m2, [N+1]
-    #   ステップnの太陽高度, rad, [N+1]
-    #   ステップnの太陽方位角, rad, [N+1]
-    weather: Weather
-
-    # Schedule Class
-    #   ステップnの室iにおける人体発熱を除く内部発熱, W, [i, N]
-    #   ステップnの室iにおける人体発湿を除く内部発湿, kg/s, [i, N]
-    #   ステップnの室iにおける局所換気量, m3/s, [i, N]
-    #   ステップnの室iにおける在室人数, [i, N]
-    #   ステップnの室iにおける空調需要, [i, N]
-    #   ステップnの室iにおける空調モード, [i, N]
-    scd: Schedule
-
-    # Rooms Class
-    #   空間の数, [i]
-    #   空間のID, [i]
-    #   空間の名前, [i]
-    #   室iの容積, m3, [i, 1]
-    #   室iの備品等の熱容量, J/K, [i, 1]
-    #   室iの備品等の湿気容量, kg/(kg/kgDA), [i, 1]
-    #   室iの空気と備品等間の熱コンダクタンス, W/K, [i, 1]
-    #   室iの空気と備品等間の湿気コンダクタンス, kg/(s (kg/kgDA)), [i, 1]
-    #   室iの自然風利用時の換気量, m3/s, [i, 1]
-    #   室iの在室者のMet値, [i, 1]
-    rms: Rooms
-
-    # Boundaries Class
-    #   境界の数
-    #   id_js: 境界jのID, [j, 1]
-    #   境界jの名前, [j]
-    #   境界jの名前2, [j]
-    #   p_is_js: 室iと境界jの関係を表す係数（境界jから室iへの変換）, [i, j]
-    #   p_js_is: 室iと境界jの関係を表す係数（室iから境界jへの変換）
-    #   床かどうか, [j, 1]
-    #   地盤かどうか, [j, 1]
-    #   境界jの裏面温度に他の境界の等価温度が与える影響, [j, j]
-    #   境界jの裏面温度に室温が与える影響, [j, i]
-    #   境界jの温度差係数, -, [j, 1]
-    #   境界jの日射吸収の有無, [j, 1]
-    #   境界jにおける室内側放射熱伝達率, W/m2K, [j, 1]
-    #   境界jにおける室内側対流熱伝達率, W/m2K, [j, 1]
-    #   境界jにおけるシミュレーションに用いる表面熱伝達抵抗での熱貫流率, W/m2K, [j,1]
-    #   境界jの面積, m2, [j, 1]
-    #   境界jの吸熱応答係数の初項, m2K/W, [j, 1]
-    #   境界jの項別公比法における項mの吸熱応答係数の第一項 , m2K/W, [j, 12]
-    #   境界jの貫流応答係数の初項, [j]
-    #   境界jの項別公比法における項mの貫流応答係数の第一項, [j,12]
-    #   境界jの項別公比法における項mの公比, [j, 12]
-    #   ステップ n における室 i の窓の透過日射熱取得, W, [i, N+1]
-    #   ステップ n の境界 j における相当外気温度, ℃, [j, n]
-    bs: Boundaries
-
-    # MechanicalVentilation Class
-    #   v_vent_mec_general_is: 室iの機械換気量（局所換気を除く）, m3/s, [i, 1]
-    #   v_vent_int_is_is: 室iの隣室からの機械換気量, m3/s, [i, i]
-    mvs: MechanicalVentilations
-
-    # Equipments Class
-    #   室iの暖房方式として放射空調が設置されているかどうか, bool値, [i, 1]
-    #   室iの冷房方式として放射空調が設置されているかどうか, bool値, [i, 1]
-    #   室iの暖房方式として放射空調が設置されている場合の、放射暖房最大能力, W, [i, 1]
-    #   室iの冷房方式として放射空調が設置されている場合の、放射冷房最大能力, W, [i, 1]
-    #   室iの放射暖房設備の対流成分比率, -, [i, 1]
-    #   室iの放射冷房設備の対流成分比率, -, [i, 1]
-    #   室 i の放射暖房の放熱量の放射成分に対する境界 j の室内側表面の吸収比率, - [j, i]
-    #   室 i の放射冷房の吸熱量の放射成分に対する境界 j の室内側表面の放熱比率, - [j, i]
-    es: Equipments
-
     # region 空間に関すること
 
     # ステップnの室iにおける機械換気量（全般換気量+局所換気量）, m3/s, [i, 8760*4]
@@ -170,21 +96,116 @@ class Sequence:
         # 時間間隔, s
         delta_t = itv.get_delta_t()
 
+        # ロガー
+        logger = logging.getLogger('HeatLoadCalc').getChild('core').getChild('pre_calc_parameters')
+
+        # Building Class
+        building = Building.create_building(d=rd['building'])
+
+        # Rooms Class
+        rms = rooms.Rooms(ds=rd['rooms'])
+
+        # Boundaries Class
+        bs = boundaries.Boundaries(id_rm_is=rms.id_rm_is, ds=rd['boundaries'], w=weather)
+
+        # ステップ n の室 i における窓の透過日射熱取得, W, [n]
+        # 　この操作は、これまで実施してきたテストを維持するために設けている。
+        # いずれテスト方法を整理して、csvで与える方式を削除すべきである。
+        # CSVで与える方式があることは（将来的に削除予定であるため）仕様書には記述しない。
+        if q_trs_sol_is_ns is not None:
+            # ステップn+1に対応するために0番要素に最終要素を代入
+            bs.set_q_trs_sol_is_ns(q_trs_sol_is_ns=np.append(q_trs_sol_is_ns, q_trs_sol_is_ns[:, 0:1], axis=1))
+
+        # ステップ n の境界 j における相当外気温度, ℃, [j, n]
+        # 　このif文は、これまで実施してきたテストを維持するために設けている。
+        # いずれテスト方法を整理して、csvで与える方式を削除すべきである。
+        # CSVで与える方式があることは（将来的に削除予定であるため）仕様書には記述しない。
+        if theta_o_eqv_js_ns is not None:
+            # ステップn+1に対応するために0番要素に最終要素を代入
+            bs.set_theta_o_eqv_js_ns(theta_o_eqv_js_ns=np.append(theta_o_eqv_js_ns, theta_o_eqv_js_ns[:, 0:1], axis=1))
+
+        # MechanicalVentilation Class
+        mvs = MechanicalVentilations(vs=rd['mechanical_ventilations'], n_rm=rms.n_rm)
+
+        # Equipments Class
+        es = Equipments(dict_equipments=rd['equipments'], n_rm=rms.n_rm, n_b=bs.n_b, bs=bs)
+
         pre_calc_parameters = _pre_calc(
-            itv=itv,
             rd=rd,
             weather=weather,
             scd=scd,
-            q_trs_sol_is_ns=q_trs_sol_is_ns,
-            theta_o_eqv_js_ns=theta_o_eqv_js_ns
+            building=building,
+            rms=rms,
+            bs=bs,
+            mvs=mvs,
+            es=es
         )
 
         # 時間間隔クラス
         self._itv = itv
+
         # 時間間隔, s
         self._delta_t = delta_t
 
+        # ロガー
+        self._logger = logger
+
+        # Weather Class
+        self._weather: Weather = weather
+
+        # Schedule Class
+        self._scd: Schedule = scd
+
+        # Building Class
+        self._building: Building = building
+
+        # Rooms Class
+        self._rms: Rooms = rms
+
+        # Boundaries Class
+        self._bs: Boundaries = bs
+
+        # MechanicalVentilation Class
+        self._mvs: MechanicalVentilations = mvs
+
+        # Equipments Class
+        self._es: Equipments = es
+
         self._pre_calc_parameters = pre_calc_parameters
+
+    @property
+    def weather(self) -> Weather:
+        """Weather Class"""
+        return self._weather
+
+    @property
+    def scd(self) -> Schedule:
+        """Schedule Class"""
+        return self._scd
+
+    @property
+    def building(self) -> Building:
+        """Building Class"""
+        return self._building
+
+    @property
+    def rms(self) -> Rooms:
+        """Rooms Class"""
+        return self._rms
+
+    @property
+    def bs(self) -> Boundaries:
+        """Boundaries Class"""
+        return self._bs
+
+    @property
+    def mvs(self) -> MechanicalVentilations:
+        """MechanicalVentilations Class"""
+        return self._mvs
+
+    @property
+    def es(self) -> Equipments:
+        return self._es
 
     @property
     def pre_calc_parameter(self):
@@ -195,79 +216,45 @@ class Sequence:
         ss = self.pre_calc_parameter
         delta_t = self._delta_t
 
-        return _run_tick(n=n, delta_t=delta_t, ss=ss, c_n=c_n, recorder=recorder)
+        return _run_tick(self=self, n=n, delta_t=delta_t, ss=ss, c_n=c_n, recorder=recorder)
 
     def run_tick_ground(self, gc_n: GroundConditions, n: int):
 
         pp = self.pre_calc_parameter
 
-        return _run_tick_ground(pp=pp, gc_n=gc_n, n=n)
+        return _run_tick_ground(self=self, pp=pp, gc_n=gc_n, n=n)
 
 
 def _pre_calc(
-        itv: interval.Interval,
         rd: Dict,
         weather: Weather,
         scd: schedule.Schedule,
-        q_trs_sol_is_ns: Optional[np.ndarray] = None,
-        theta_o_eqv_js_ns: Optional[np.ndarray] = None
+        building: Building,
+        rms: Rooms,
+        bs: Boundaries,
+        mvs: MechanicalVentilations,
+        es: Equipments
 ) -> PreCalcParameters:
     """助走計算用パラメータの生成
 
     Args:
-        itv: 時間間隔
         rd: 住宅計算条件
         weather: Weatherクラス
-        scd: スケジュールクラス
-        q_trs_sol_is_ns: optional テスト用　値を指定することができる。未指定の場合は計算する。
-        theta_o_eqv_js_ns: optional テスト用　値を指定することができる。未指定の場合は計算する。
+        scd: Scheduleクラス
+        building: Buildingクラス
+        rms: Roomsクラス
+        bs: Boundariesクラス
+        mvs: MechanicalVentilationsクラス
+        es: Equipmenstクラス
 
     Returns:
         PreCalcParameters
     """
 
-    logger = logging.getLogger('HeatLoadCalc').getChild('core').getChild('pre_calc_parameters')
-
-    delta_t = itv.get_delta_t()
-
-    # Building Class
-    building = Building.create_building(d=rd['building'])
-
-    # Rooms Class
-    rms = rooms.Rooms(ds=rd['rooms'])
-
-    # Boundaries Class
-    bs = boundaries.Boundaries(id_rm_is=rms.id_rm_is, ds=rd['boundaries'], w=weather)
-
-    # ステップ n の室 i における窓の透過日射熱取得, W, [n]
-    #　この操作は、これまで実施してきたテストを維持するために設けている。
-    # いずれテスト方法を整理して、csvで与える方式を削除すべきである。
-    # CSVで与える方式があることは（将来的に削除予定であるため）仕様書には記述しない。
-    if q_trs_sol_is_ns is not None:
-        # ステップn+1に対応するために0番要素に最終要素を代入
-        bs.set_q_trs_sol_is_ns(q_trs_sol_is_ns=np.append(q_trs_sol_is_ns, q_trs_sol_is_ns[:, 0:1], axis=1))
-
-    # ステップ n の境界 j における相当外気温度, ℃, [j, n]
-    #　このif文は、これまで実施してきたテストを維持するために設けている。
-    # いずれテスト方法を整理して、csvで与える方式を削除すべきである。
-    # CSVで与える方式があることは（将来的に削除予定であるため）仕様書には記述しない。
-    if theta_o_eqv_js_ns is not None:
-        # ステップn+1に対応するために0番要素に最終要素を代入
-        bs.set_theta_o_eqv_js_ns(theta_o_eqv_js_ns=np.append(theta_o_eqv_js_ns, theta_o_eqv_js_ns[:, 0:1], axis=1))
-
-    # MechanicalVentilation Class
-    mvs = MechanicalVentilations(vs=rd['mechanical_ventilations'], n_rm=rms.n_rm)
-
-    # region equipments
-
-    es = Equipments(dict_equipments=rd['equipments'], n_rm=rms.n_rm, n_b=bs.n_b, bs=bs)
-
     # 次の係数を求める関数
     #   ステップ n　からステップ n+1 における係数 f_l_cl_wgt, kg/s(kg/kg(DA)), [i, i]
     #   ステップ n　からステップ n+1 における係数 f_l_cl_cst, kg/s, [i, 1]
     get_f_l_cl = es.make_get_f_l_cl_funcs()
-
-    # endregion
 
     # 室 i の在室者に対する境界jの形態係数, [i, j]
     f_mrt_hum_is_js = occupants_form_factor.get_f_mrt_hum_js(
@@ -390,12 +377,6 @@ def _pre_calc(
     # endregion
 
     pre_calc_parameters = PreCalcParameters(
-        weather=weather,
-        scd=scd,
-        rms=rms,
-        bs=bs,
-        mvs=mvs,
-        es=es,
         v_vent_mec_is_ns=v_vent_mec_is_ns,
         f_mrt_hum_is_js=f_mrt_hum_is_js,
         f_mrt_is_js=f_mrt_is_js,
@@ -416,7 +397,7 @@ def _pre_calc(
     return pre_calc_parameters
 
 
-def _run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, recorder: Recorder) -> Conditions:
+def _run_tick(self, n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, recorder: Recorder) -> Conditions:
     """
     室の温湿度・熱負荷の計算
     Args:
@@ -429,38 +410,48 @@ def _run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, re
         次の時刻にわたす状態量
     """
 
-    # ステップ n の境界 j における裏面温度, degree C, [j, 1]
-    theta_rear_js_n = get_theta_s_rear_js_n(
-        k_s_er_js_js=ss.bs.k_ei_js_js,
-        theta_er_js_n=c_n.theta_ei_js_n,
-        k_s_eo_js=ss.bs.k_eo_js,
-        theta_eo_js_n=ss.bs.theta_o_eqv_js_ns[:, n].reshape(-1, 1),
-        k_s_r_js_is=ss.bs.k_s_r_js_is,
-        theta_r_is_n=c_n.theta_r_is_n
-    )
+    # region 人体発熱・人体発湿
 
     # ステップnからステップn+1における室iの1人あたりの人体発熱, W, [i, 1]
     q_hum_psn_is_n = occupants.get_q_hum_psn_is_n(theta_r_is_n=c_n.theta_r_is_n)
 
     # ステップ n からステップ n+1 における室 i の人体発熱, W, [i, 1]
-    q_hum_is_n = get_q_hum_is_n(n_hum_is_n=ss.scd.n_hum_is_ns[:, n].reshape(-1, 1), q_hum_psn_is_n=q_hum_psn_is_n)
+    q_hum_is_n = get_q_hum_is_n(n_hum_is_n=self.scd.n_hum_is_ns[:, n].reshape(-1, 1), q_hum_psn_is_n=q_hum_psn_is_n)
+
+    # ステップnの室iにおける1人あたりの人体発湿, kg/s, [i, 1]
+    x_hum_psn_is_n = occupants.get_x_hum_psn_is_n(theta_r_is_n=c_n.theta_r_is_n)
+
+    # ステップnの室iにおける人体発湿, kg/s, [i, 1]
+    x_hum_is_n = get_x_hum_is_n(n_hum_is_n=self.scd.n_hum_is_ns[:, n].reshape(-1, 1), x_hum_psn_is_n=x_hum_psn_is_n)
+
+    # endregion
+
+    # ステップ n の境界 j における裏面温度, degree C, [j, 1]
+    theta_rear_js_n = get_theta_s_rear_js_n(
+        k_s_er_js_js=self.bs.k_ei_js_js,
+        theta_er_js_n=c_n.theta_ei_js_n,
+        k_s_eo_js=self.bs.k_eo_js,
+        theta_eo_js_n=self.bs.theta_o_eqv_js_ns[:, n].reshape(-1, 1),
+        k_s_r_js_is=self.bs.k_s_r_js_is,
+        theta_r_is_n=c_n.theta_r_is_n
+    )
 
     # ステップnの室iにおけるすきま風量, m3/s, [i, 1]
-    v_leak_is_n = ss.get_infiltration(theta_r_is_n=c_n.theta_r_is_n, theta_o_n=ss.weather.theta_o_ns_plus[n])
+    v_leak_is_n = ss.get_infiltration(theta_r_is_n=c_n.theta_r_is_n, theta_o_n=self.weather.theta_o_ns_plus[n])
 
     # ステップ n+1 の境界 j における項別公比法の指数項 m の貫流応答の項別成分, degree C, [j, m] (m=12), eq.(29)
     theta_dsh_s_t_js_ms_n_pls = get_theta_dsh_s_t_js_ms_n_pls(
-        phi_t1_js_ms=ss.bs.phi_t1_js_ms,
-        r_js_ms=ss.bs.r_js_ms,
+        phi_t1_js_ms=self.bs.phi_t1_js_ms,
+        r_js_ms=self.bs.r_js_ms,
         theta_dsh_srf_t_js_ms_n=c_n.theta_dsh_srf_t_js_ms_n,
         theta_rear_js_n=theta_rear_js_n
     )
 
     # ステップ n+1 の境界 j における項別公比法の指数項 m の吸熱応答の項別成分, degree C, [j, m]
     theta_dsh_s_a_js_ms_n_pls = get_theta_dsh_s_a_js_ms_n_pls(
-        phi_a1_js_ms=ss.bs.phi_a1_js_ms,
+        phi_a1_js_ms=self.bs.phi_a1_js_ms,
         q_s_js_n=c_n.q_s_js_n,
-        r_js_ms=ss.bs.r_js_ms,
+        r_js_ms=self.bs.r_js_ms,
         theta_dsh_srf_a_js_ms_n=c_n.theta_dsh_srf_a_js_ms_n
     )
 
@@ -491,50 +482,50 @@ def _run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, re
     # ステップ n+1 の室 i における係数 f_BRC, W, [i, 1]
     # TODO: q_sol_frt_is_ns の値は n+1 の値を使用するべき？
     f_brc_non_nv_is_n_pls, f_brc_nv_is_n_pls = get_f_brc_is_n_pls(
-        a_s_js=ss.bs.a_s_js,
+        a_s_js=self.bs.a_s_js,
         c_a=get_c_a(),
-        v_rm_is=ss.rms.v_rm_is,
-        c_sh_frt_is=ss.rms.c_sh_frt_is,
+        v_rm_is=self.rms.v_rm_is,
+        c_sh_frt_is=self.rms.c_sh_frt_is,
         delta_t=delta_t,
         f_wsc_js_n_pls=ss.f_wsc_js_ns[:, n + 1].reshape(-1, 1),
         f_wsv_js_n_pls=f_wsv_js_n_pls,
-        g_sh_frt_is=ss.rms.g_sh_frt_is,
-        h_s_c_js=ss.bs.h_s_c_js,
-        p_is_js=ss.bs.p_is_js,
-        q_gen_is_n=ss.scd.q_gen_is_ns[:, n].reshape(-1, 1),
+        g_sh_frt_is=self.rms.g_sh_frt_is,
+        h_s_c_js=self.bs.h_s_c_js,
+        p_is_js=self.bs.p_is_js,
+        q_gen_is_n=self.scd.q_gen_is_ns[:, n].reshape(-1, 1),
         q_hum_is_n=q_hum_is_n,
         q_sol_frt_is_n=ss.q_sol_frt_is_ns[:, n].reshape(-1, 1),
         rho_a=get_rho_a(),
         theta_frt_is_n=c_n.theta_frt_is_n,
-        theta_o_n_pls=ss.weather.theta_o_ns_plus[n + 1],
+        theta_o_n_pls=self.weather.theta_o_ns_plus[n + 1],
         theta_r_is_n=c_n.theta_r_is_n,
         v_vent_out_non_nv_is_n=v_vent_out_non_nv_is_n,
-        v_vent_ntr_is_n=ss.rms.v_vent_ntr_set_is
+        v_vent_ntr_is_n=self.rms.v_vent_ntr_set_is
     )
 
     # ステップ n+1 における係数 f_BRM, W/K, [i, i]
     f_brm_non_nv_is_is_n_pls, f_brm_nv_is_is_n_pls = get_f_brm_is_is_n_pls(
-        a_s_js=ss.bs.a_s_js,
+        a_s_js=self.bs.a_s_js,
         c_a=get_c_a(),
-        v_rm_is=ss.rms.v_rm_is,
-        c_sh_frt_is=ss.rms.c_sh_frt_is,
+        v_rm_is=self.rms.v_rm_is,
+        c_sh_frt_is=self.rms.c_sh_frt_is,
         delta_t=delta_t,
         f_wsr_js_is=ss.f_wsr_js_is,
-        g_sh_frt_is=ss.rms.g_sh_frt_is,
-        h_s_c_js=ss.bs.h_s_c_js,
-        p_is_js=ss.bs.p_is_js,
-        p_js_is=ss.bs.p_js_is,
+        g_sh_frt_is=self.rms.g_sh_frt_is,
+        h_s_c_js=self.bs.h_s_c_js,
+        p_is_js=self.bs.p_is_js,
+        p_js_is=self.bs.p_js_is,
         rho_a=get_rho_a(),
-        v_vent_int_is_is_n=ss.mvs.v_vent_int_is_is,
+        v_vent_int_is_is_n=self.mvs.v_vent_int_is_is,
         v_vent_out_non_nv_is_n=v_vent_out_non_nv_is_n,
-        v_vent_ntr_set_is=ss.rms.v_vent_ntr_set_is
+        v_vent_ntr_set_is=self.rms.v_vent_ntr_set_is
     )
 
     # ステップ n における室 i の在室者表面における放射熱伝達率の総合熱伝達率に対する比, -, [i, 1]
-    k_r_is_n = get_k_r_is_n(n_rm=ss.rms.n_rm)
+    k_r_is_n = get_k_r_is_n(n_rm=self.rms.n_rm)
 
     # ステップnにおける室iの在室者表面における対流熱伝達率の総合熱伝達率に対する比, -, [i, 1]
-    k_c_is_n = get_k_c_is_n(n_rm=ss.rms.n_rm)
+    k_c_is_n = get_k_c_is_n(n_rm=self.rms.n_rm)
 
     # ステップn+1における室iの係数 XOT, [i, i]
     f_xot_is_is_n_pls = get_f_xot_is_is_n_pls(
@@ -600,7 +591,7 @@ def _run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, re
 
     v_vent_out_is_n = np.where(
         operation_mode_is_n == OperationMode.STOP_OPEN,
-        v_vent_out_non_nv_is_n + ss.rms.v_vent_ntr_set_is,
+        v_vent_out_non_nv_is_n + self.rms.v_vent_ntr_set_is,
         v_vent_out_non_nv_is_n
     )
 
@@ -612,7 +603,7 @@ def _run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, re
 
     v_vent_ntr_is_n = np.where(
         operation_mode_is_n == OperationMode.STOP_OPEN,
-        ss.rms.v_vent_ntr_set_is,
+        self.rms.v_vent_ntr_set_is,
         0.0
     )
 
@@ -653,30 +644,30 @@ def _run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, re
 
     # ステップ n+1 における係数 f_flr, -, [j, i]
     f_flr_js_is_n = get_f_flr_js_is_n(
-        f_flr_c_js_is=ss.es.f_flr_c_js_is,
-        f_flr_h_js_is=ss.es.f_flr_h_js_is,
+        f_flr_c_js_is=self.es.f_flr_c_js_is,
+        f_flr_h_js_is=self.es.f_flr_h_js_is,
         is_cooling_is_n=is_cooling_is_n,
         is_heating_is_n=is_heating_is_n
     )
 
     # ステップ n からステップ n+1 における室 i の放射暖冷房設備の対流成分比率, -, [i, 1]
     beta_is_n = get_beta_is_n(
-        beta_c_is=ss.es.beta_c_is,
-        beta_h_is=ss.es.beta_h_is,
+        beta_c_is=self.es.beta_c_is,
+        beta_h_is=self.es.beta_h_is,
         is_cooling_is_n=is_cooling_is_n,
         is_heating_is_n=is_heating_is_n
     )
 
     # ステップ n における係数 f_FLB, K/W, [j, i]
     f_flb_js_is_n_pls = get_f_flb_js_is_n_pls(
-        a_s_js=ss.bs.a_s_js,
+        a_s_js=self.bs.a_s_js,
         beta_is_n=beta_is_n,
         f_flr_js_is_n=f_flr_js_is_n,
-        h_s_c_js=ss.bs.h_s_c_js,
-        h_s_r_js=ss.bs.h_s_r_js,
-        k_ei_js_js=ss.bs.k_ei_js_js,
-        phi_a0_js=ss.bs.phi_a0_js,
-        phi_t0_js=ss.bs.phi_t0_js
+        h_s_c_js=self.bs.h_s_c_js,
+        h_s_r_js=self.bs.h_s_r_js,
+        k_ei_js_js=self.bs.k_ei_js_js,
+        phi_a0_js=self.bs.phi_a0_js,
+        phi_t0_js=self.bs.phi_t0_js
     )
 
     # ステップ n における係数 f_WSB, K/W, [j, i]
@@ -687,11 +678,11 @@ def _run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, re
 
     # ステップ n における係数 f_BRL, -, [i, i]
     f_brl_is_is_n = get_f_brl_is_is_n(
-        a_s_js=ss.bs.a_s_js,
+        a_s_js=self.bs.a_s_js,
         beta_is_n=beta_is_n,
         f_wsb_js_is_n_pls=f_wsb_js_is_n_pls,
-        h_s_c_js=ss.bs.h_s_c_js,
-        p_is_js=ss.bs.p_is_js
+        h_s_c_js=self.bs.h_s_c_js,
+        p_is_js=self.bs.p_is_js
     )
 
     # ステップn+1における室iの係数 f_XLR, K/W, [i, i]
@@ -747,9 +738,9 @@ def _run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, re
     # ステップ n+1 における室 i　の備品等の温度, degree C, [i, 1]
     # TODO: q_sol_frt_is_ns の値は n+1 の値を使用するべき？
     theta_frt_is_n_pls = get_theta_frt_is_n_pls(
-        c_sh_frt_is=ss.rms.c_sh_frt_is,
+        c_sh_frt_is=self.rms.c_sh_frt_is,
         delta_t=delta_t,
-        g_sh_frt_is=ss.rms.g_sh_frt_is,
+        g_sh_frt_is=self.rms.g_sh_frt_is,
         q_sol_frt_is_n=ss.q_sol_frt_is_ns[:, n].reshape(-1, 1),
         theta_frt_is_n=c_n.theta_frt_is_n,
         theta_r_is_n_pls=theta_r_is_n_pls
@@ -763,14 +754,14 @@ def _run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, re
 
     # ステップ n+1 における境界 j の等価温度, degree C, [j, 1]
     theta_ei_js_n_pls = get_theta_ei_js_n_pls(
-        a_s_js=ss.bs.a_s_js,
+        a_s_js=self.bs.a_s_js,
         beta_is_n=beta_is_n,
         f_mrt_is_js=ss.f_mrt_is_js,
         f_flr_js_is_n=f_flr_js_is_n,
-        h_s_c_js=ss.bs.h_s_c_js,
-        h_s_r_js=ss.bs.h_s_r_js,
+        h_s_c_js=self.bs.h_s_c_js,
+        h_s_r_js=self.bs.h_s_r_js,
         l_rs_is_n=l_rs_is_n,
-        p_js_is=ss.bs.p_js_is,
+        p_js_is=self.bs.p_js_is,
         q_s_sol_js_n_pls=ss.q_s_sol_js_ns[:, n + 1].reshape(-1, 1),
         theta_r_is_n_pls=theta_r_is_n_pls,
         theta_s_js_n_pls=theta_s_js_n_pls
@@ -779,54 +770,45 @@ def _run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, re
     # ステップ n+1 における境界 j の裏面温度, degree C, [j, 1]
     # TODO: この値は記録にしか使用していないので、ポスト処理にまわせる。
     theta_rear_js_n_pls = get_theta_s_rear_js_n(
-        k_s_er_js_js=ss.bs.k_ei_js_js,
+        k_s_er_js_js=self.bs.k_ei_js_js,
         theta_er_js_n=theta_ei_js_n_pls,
-        k_s_eo_js=ss.bs.k_eo_js,
-        theta_eo_js_n=ss.bs.theta_o_eqv_js_ns[:, n+1].reshape(-1, 1),
-        k_s_r_js_is=ss.bs.k_s_r_js_is,
+        k_s_eo_js=self.bs.k_eo_js,
+        theta_eo_js_n=self.bs.theta_o_eqv_js_ns[:, n+1].reshape(-1, 1),
+        k_s_r_js_is=self.bs.k_s_r_js_is,
         theta_r_is_n=theta_r_is_n_pls
     )
 
     # ステップ n+1 における境界 j の表面熱流（壁体吸熱を正とする）, W/m2, [j, 1]
     q_s_js_n_pls = get_q_s_js_n_pls(
-        h_s_c_js=ss.bs.h_s_c_js,
-        h_s_r_js=ss.bs.h_s_r_js,
+        h_s_c_js=self.bs.h_s_c_js,
+        h_s_r_js=self.bs.h_s_r_js,
         theta_ei_js_n_pls=theta_ei_js_n_pls,
         theta_s_js_n_pls=theta_s_js_n_pls
     )
 
-    # ステップnの室iにおける1人あたりの人体発湿, kg/s, [i, 1]
-    x_hum_psn_is_n = occupants.get_x_hum_psn_is_n(theta_r_is_n=c_n.theta_r_is_n)
-
-    # ステップnの室iにおける人体発湿, kg/s, [i, 1]
-    x_hum_is_n = get_x_hum_is_n(
-        n_hum_is_n=ss.scd.n_hum_is_ns[:, n].reshape(-1, 1),
-        x_hum_psn_is_n=x_hum_psn_is_n
-    )
-
     # ステップ n における室　i　の潜熱バランスに関する係数, kg/s, [i, 1]
     f_h_cst_is_n = get_f_h_cst_is_n(
-        c_lh_frt_is=ss.rms.c_lh_frt_is,
+        c_lh_frt_is=self.rms.c_lh_frt_is,
         delta_t=delta_t,
-        g_lh_frt_is=ss.rms.g_lh_frt_is,
+        g_lh_frt_is=self.rms.g_lh_frt_is,
         rho_a=get_rho_a(),
-        v_rm_is=ss.rms.v_rm_is,
+        v_rm_is=self.rms.v_rm_is,
         v_vent_out_is_n=v_vent_out_is_n,
         x_frt_is_n=c_n.x_frt_is_n,
-        x_gen_is_n=ss.scd.x_gen_is_ns[:, n].reshape(-1, 1),
+        x_gen_is_n=self.scd.x_gen_is_ns[:, n].reshape(-1, 1),
         x_hum_is_n=x_hum_is_n,
-        x_o_n_pls=ss.weather.x_o_ns_plus[n + 1],
+        x_o_n_pls=self.weather.x_o_ns_plus[n + 1],
         x_r_is_n=c_n.x_r_is_n
     )
 
     # ステップ n における室 i* の絶対湿度が室 i の潜熱バランスに与える影響を表す係数,　kg/(s kg/kg(DA)), [i, i]
     f_h_wgt_is_is_n = get_f_h_wgt_is_is_n(
-        c_lh_frt_is=ss.rms.c_lh_frt_is,
+        c_lh_frt_is=self.rms.c_lh_frt_is,
         delta_t=delta_t,
-        g_lh_frt_is=ss.rms.g_lh_frt_is,
+        g_lh_frt_is=self.rms.g_lh_frt_is,
         rho_a=get_rho_a(),
-        v_rm_is=ss.rms.v_rm_is,
-        v_vent_int_is_is_n=ss.mvs.v_vent_int_is_is,
+        v_rm_is=self.rms.v_rm_is,
+        v_vent_int_is_is_n=self.mvs.v_vent_int_is_is,
         v_vent_out_is_n=v_vent_out_is_n
     )
 
@@ -862,9 +844,9 @@ def _run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, re
 
     # ステップ n+1 における室 i の備品等等の絶対湿度, kg/kg(DA), [i, 1]
     x_frt_is_n_pls = get_x_frt_is_n_pls(
-        c_lh_frt_is=ss.rms.c_lh_frt_is,
+        c_lh_frt_is=self.rms.c_lh_frt_is,
         delta_t=delta_t,
-        g_lh_frt_is=ss.rms.g_lh_frt_is,
+        g_lh_frt_is=self.rms.g_lh_frt_is,
         x_frt_is_n=c_n.x_frt_is_n,
         x_r_is_n_pls=x_r_is_n_pls
     )
@@ -957,7 +939,7 @@ def _run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, re
     )
 
 
-def _run_tick_ground(pp: PreCalcParameters, gc_n: GroundConditions, n: int):
+def _run_tick_ground(self, pp: PreCalcParameters, gc_n: GroundConditions, n: int):
     """地盤の計算
 
     Args:
@@ -969,24 +951,24 @@ def _run_tick_ground(pp: PreCalcParameters, gc_n: GroundConditions, n: int):
 
     """
 
-    is_ground = pp.bs.is_ground_js.flatten()
+    is_ground = self.bs.is_ground_js.flatten()
 
-    theta_o_eqv_js_ns = pp.bs.theta_o_eqv_js_ns[is_ground, :]
+    theta_o_eqv_js_ns = self.bs.theta_o_eqv_js_ns[is_ground, :]
 
-    h_i_js = pp.bs.h_s_r_js[is_ground, :] + pp.bs.h_s_c_js[is_ground, :]
+    h_i_js = self.bs.h_s_r_js[is_ground, :] + self.bs.h_s_c_js[is_ground, :]
 
-    theta_dsh_srf_a_js_ms_npls = pp.bs.phi_a1_js_ms[is_ground, :] * gc_n.q_srf_js_n + pp.bs.r_js_ms[is_ground, :] * gc_n.theta_dsh_srf_a_js_ms_n
+    theta_dsh_srf_a_js_ms_npls = self.bs.phi_a1_js_ms[is_ground, :] * gc_n.q_srf_js_n + self.bs.r_js_ms[is_ground, :] * gc_n.theta_dsh_srf_a_js_ms_n
 
-    theta_dsh_srf_t_js_ms_npls = pp.bs.phi_t1_js_ms[is_ground, :] * pp.bs.k_eo_js[is_ground, :] * theta_o_eqv_js_ns[:, [n]] + pp.bs.r_js_ms[is_ground, :] * gc_n.theta_dsh_srf_t_js_ms_n
+    theta_dsh_srf_t_js_ms_npls = self.bs.phi_t1_js_ms[is_ground, :] * self.bs.k_eo_js[is_ground, :] * theta_o_eqv_js_ns[:, [n]] + self.bs.r_js_ms[is_ground, :] * gc_n.theta_dsh_srf_t_js_ms_n
 
     theta_s_js_npls = (
-        pp.bs.phi_a0_js[is_ground, :] * h_i_js * pp.weather.theta_o_ns_plus[n + 1]
-        + pp.bs.phi_t0_js[is_ground, :] * pp.bs.k_eo_js[is_ground, :] * theta_o_eqv_js_ns[:, [n+1]]
+        self.bs.phi_a0_js[is_ground, :] * h_i_js * self.weather.theta_o_ns_plus[n + 1]
+        + self.bs.phi_t0_js[is_ground, :] * self.bs.k_eo_js[is_ground, :] * theta_o_eqv_js_ns[:, [n+1]]
         + np.sum(theta_dsh_srf_a_js_ms_npls, axis=1, keepdims=True)
         + np.sum(theta_dsh_srf_t_js_ms_npls, axis=1, keepdims=True)
-    ) / (1.0 + pp.bs.phi_a0_js[is_ground, :] * h_i_js)
+    ) / (1.0 + self.bs.phi_a0_js[is_ground, :] * h_i_js)
 
-    q_srf_js_n = h_i_js * (pp.weather.theta_o_ns_plus[n + 1] - theta_s_js_npls)
+    q_srf_js_n = h_i_js * (self.weather.theta_o_ns_plus[n + 1] - theta_s_js_npls)
 
     return GroundConditions(
         theta_dsh_srf_a_js_ms_n=theta_dsh_srf_a_js_ms_npls,

@@ -238,41 +238,33 @@ class Equipments:
             raise Exception
 
     @property
-    def is_radiative_heating_is(self):
-        """
-        室に放射暖房があるか否かを判定する。
-        Returns:
-            放射暖房の有無, [i, 1]
-        """
+    def is_radiative_heating_is(self) -> np.ndarray:
+        """室iの暖房方式として放射空調が設置されているかどうか, bool値, [i, 1]"""
         return self._is_radiative_heating_is
 
     @property
-    def is_radiative_cooling_is(self):
-        """
-        室に放射冷房があるか否かを判定する。
-        Returns:
-            放射冷房の有無, [i, 1]
-        """
+    def is_radiative_cooling_is(self) -> np.ndarray:
+        """室iの冷房方式として放射空調が設置されているかどうか, bool値, [i, 1]"""
         return self._is_radiative_cooling_is
 
     @property
-    def q_rs_h_max_is(self):
-
+    def q_rs_h_max_is(self) -> np.ndarray:
+        """室iの暖房方式として放射空調が設置されている場合の、放射暖房最大能力, W, [i, 1]"""
         return self._q_rs_h_max_is
 
     @property
-    def q_rs_c_max_is(self):
-
+    def q_rs_c_max_is(self) -> np.ndarray:
+        """室iの冷房方式として放射空調が設置されている場合の、放射冷房最大能力, W, [i, 1]"""
         return self._q_rs_c_max_is
 
     @property
-    def beta_h_is(self):
-
+    def beta_h_is(self) -> np.ndarray:
+        """室iの放射暖房設備の対流成分比率, -, [i, 1]"""
         return self._beta_h_is
 
     @property
-    def beta_c_is(self):
-
+    def beta_c_is(self) -> np.ndarray:
+        """室iの放射冷房設備の対流成分比率, -, [i, 1]"""
         return self._beta_c_is
 
     def _get_q_rs_max_is(self, es, n_rm):
@@ -346,13 +338,13 @@ class Equipments:
         return q_max_ks_is / sum_of_q_max_is
 
     @property
-    def f_flr_h_js_is(self):
-
+    def f_flr_h_js_is(self) -> np.ndarray:
+        """室iの放射暖房の放熱量の放射成分に対する境界jの室内側表面の吸収比率, - [j, i]"""
         return self._f_flr_h_js_is
 
     @property
-    def f_flr_c_js_is(self):
-
+    def f_flr_c_js_is(self) -> np.ndarray:
+        """室iの放射冷房の吸熱量の放射成分に対する境界jの室内側表面の放熱比率, - [j, i]"""
         return self._f_flr_c_js_is
 
     def _get_f_flr_js_is(self, es, n_rm, n_b):
