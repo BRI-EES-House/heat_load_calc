@@ -2,10 +2,9 @@ import numpy as np
 from dataclasses import dataclass
 from typing import Dict, List, Callable, Optional, Tuple
 import logging
-from enum import Enum
 
 from heat_load_calc.matrix_method import v_diag
-from heat_load_calc import ot_target, next_condition, schedule, rooms, boundaries
+from heat_load_calc import next_condition, schedule, rooms, boundaries
 from heat_load_calc import infiltration, occupants_form_factor, shape_factor, solar_absorption
 from heat_load_calc import operation_, interval
 from heat_load_calc import occupants, psychrometrics as psy
@@ -21,13 +20,11 @@ from heat_load_calc.operation_mode import OperationMode
 from heat_load_calc.conditions import Conditions
 from heat_load_calc.recorder import Recorder
 from heat_load_calc.conditions import GroundConditions
-from heat_load_calc.ot_target import ACMethod
+from heat_load_calc.operation_ import Operation
 
 
 @dataclass
 class PreCalcParameters:
-
-    # region 空間に関すること
 
     # ステップnの室iにおける機械換気量（全般換気量+局所換気量）, m3/s, [i, 8760*4]
     v_vent_mec_is_ns: np.ndarray
@@ -35,12 +32,8 @@ class PreCalcParameters:
     # ステップ n における室 i に設置された備品等による透過日射吸収熱量, W, [i, n+1]
     q_sol_frt_is_ns: np.ndarray
 
-    # endregion
-
     # 境界jが地盤かどうか, [j, 1]
     is_ground_js: np.ndarray
-
-    # === 境界jに関すること ===
 
     # ステップnの境界jにおける透過日射熱取得量のうち表面に吸収される日射量, W/m2, [j, 8760*4]
     q_s_sol_js_ns: np.ndarray
@@ -59,15 +52,9 @@ class PreCalcParameters:
     # WSC, W, [j, n]
     f_wsc_js_ns: np.ndarray
 
-    get_operation_mode_is_n: Callable[[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray], np.ndarray]
-
-    get_theta_target_is_n: Callable[[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray], Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]]
-
     calc_next_temp_and_load: Callable[[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray], Tuple[np.ndarray, np.ndarray, np.ndarray]]
 
     get_f_l_cl: Callable[[np.ndarray, np.ndarray, np.ndarray], Tuple[np.ndarray, np.ndarray]]
-
-    ac_method: ACMethod
 
     # ステップ n における室 i の在室者表面における放射熱伝達率の総合熱伝達率に対する比, -, [i, 1]
     k_r_is_n: np.ndarray
@@ -137,8 +124,27 @@ class Sequence:
         # Equipments Class
         es = Equipments(dict_equipments=rd['equipments'], n_rm=rms.n_rm, n_b=bs.n_b, bs=bs)
 
+        # Operation Class
+        op = operation_.Operation.make_operation(d=rd['common'])
+
         # すきま風を計算する関数
         get_infiltration = infiltration.make_get_infiltration_function(v_rm_is=rms.v_rm_is, building=building)
+
+        # Operation Mode を決定する関数
+        get_operation_mode_is_n = op.make_get_operation_mode_is_n_function(
+            ac_demand_is_ns=scd.ac_demand_is_ns,
+            is_radiative_heating_is=es.is_radiative_heating_is,
+            is_radiative_cooling_is=es.is_radiative_cooling_is,
+            met_is=rms.met_is
+        )
+
+        # 目標作用温度を決定する関数
+        get_theta_target_is_n = op.make_get_theta_target_is_n_function(
+            is_radiative_heating_is=es.is_radiative_heating_is,
+            is_radiative_cooling_is=es.is_radiative_cooling_is,
+            met_is=rms.met_is,
+            ac_setting_is_ns=scd.ac_setting_is_ns
+        )
 
         pre_calc_parameters = _pre_calc(
             rd=rd,
@@ -148,7 +154,8 @@ class Sequence:
             rms=rms,
             bs=bs,
             mvs=mvs,
-            es=es
+            es=es,
+            op=op
         )
 
         # 時間間隔クラス
@@ -181,8 +188,17 @@ class Sequence:
         # Equipments Class
         self._es: Equipments = es
 
+        # Operation Class
+        self._op: Operation = op
+
         # 隙間風を計算する関数
         self._get_infiltration = get_infiltration
+
+        # Operation MOde を決定する関数
+        self._get_operation_mode_is_n = get_operation_mode_is_n
+
+        # 目標作用温度を決定する関数
+        self._get_theta_target_is_n = get_theta_target_is_n
 
         self._pre_calc_parameters = pre_calc_parameters
 
@@ -221,6 +237,10 @@ class Sequence:
         return self._es
 
     @property
+    def op(self) -> Operation:
+        return self._op
+
+    @property
     def get_infiltration(self) -> Callable[[np.ndarray, float], np.ndarray]:
         """隙間風を計算する関数
 
@@ -231,6 +251,25 @@ class Sequence:
           すきま風量, m3/s, [i,1]
         """
         return self._get_infiltration
+
+    @property
+    def get_operation_mode_is_n(self) -> Callable[[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray], np.ndarray]:
+        """Operation MOde を決定する関数
+
+        Returns:
+
+        """
+        return self._get_operation_mode_is_n
+
+    @property
+
+    def get_theta_target_is_n(self) -> Callable[[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray], Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]]:
+        """目標作用温度を決定する関数
+
+        Returns:
+
+        """
+        return self._get_theta_target_is_n
 
     @property
     def pre_calc_parameter(self):
@@ -258,7 +297,8 @@ def _pre_calc(
         rms: Rooms,
         bs: Boundaries,
         mvs: MechanicalVentilations,
-        es: Equipments
+        es: Equipments,
+        op: Operation
 ) -> PreCalcParameters:
     """助走計算用パラメータの生成
 
@@ -353,29 +393,18 @@ def _pre_calc(
 
     # region 読み込んだ値から新たに関数を作成する
 
-    ac_method = ACMethod(rd['common']['ac_method'])
-
-    if 'ac_config' in rd['common']:
-        ac_config = rd['common']['ac_config']
-    else:
-        ac_config = [{'mode': 1, 'lower': 20.0, 'upper': 27.0},
-                     {'mode': 2, 'lower': 20.0, 'upper': 27.0}]
-
-    get_operation_mode_is_n = operation_.make_get_operation_mode_is_n_function(
-        ac_method=ac_method.value,
+    get_operation_mode_is_n = op.make_get_operation_mode_is_n_function(
         ac_demand_is_ns=scd.ac_demand_is_ns,
         is_radiative_heating_is=es.is_radiative_heating_is,
         is_radiative_cooling_is=es.is_radiative_cooling_is,
         met_is=rms.met_is
     )
 
-    get_theta_target_is_n = ot_target.make_get_theta_target_is_n_function(
-        ac_method=ac_method.value,
+    get_theta_target_is_n = op.make_get_theta_target_is_n_function(
         is_radiative_heating_is=es.is_radiative_heating_is,
         is_radiative_cooling_is=es.is_radiative_cooling_is,
         met_is=rms.met_is,
-        ac_setting_is_ns=scd.ac_setting_is_ns,
-        ac_config=ac_config
+        ac_setting_is_ns=scd.ac_setting_is_ns
     )
 
     # 次のステップの室温と負荷を計算する関数
@@ -389,15 +418,9 @@ def _pre_calc(
 
     # endregion
 
-    # ステップ n における室 i の在室者表面における放射熱伝達率の総合熱伝達率に対する比, -, [i, 1]
-#    k_r_is_n = get_k_r_is_n(n_rm=rms.n_rm)
-
-    # ステップnにおける室iの在室者表面における対流熱伝達率の総合熱伝達率に対する比, -, [i, 1]
-#    k_c_is_n = get_k_c_is_n(n_rm=rms.n_rm)
-
     # ステップnにおける室iの在室者表面における対流熱伝達率の総合熱伝達率に対する比, -, [i, 1]
     # ステップ n における室 i の在室者表面における放射熱伝達率の総合熱伝達率に対する比, -, [i, 1]
-    k_c_is_n, k_r_is_n = get_k_is(n_rm=rms.n_rm, ac_method=ac_method)
+    k_c_is_n, k_r_is_n = op.get_k_is(n_rm=rms.n_rm)
 
     # ステップn+1における室iの係数 XOT, [i, i]
     f_xot_is_is_n_pls = get_f_xot_is_is_n_pls(
@@ -417,11 +440,8 @@ def _pre_calc(
         f_ax_js_js=f_ax_js_js,
         is_ground_js=bs.is_ground_js,
         f_wsc_js_ns=f_wsc_js_ns,
-        get_operation_mode_is_n=get_operation_mode_is_n,
-        get_theta_target_is_n=get_theta_target_is_n,
         calc_next_temp_and_load=calc_next_temp_and_load,
         get_f_l_cl=get_f_l_cl,
-        ac_method=ac_method,
         k_r_is_n=k_r_is_n,
         k_c_is_n=k_c_is_n,
         f_xot_is_is_n_pls=f_xot_is_is_n_pls
@@ -594,7 +614,7 @@ def _run_tick(self, n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditio
     p_v_r_is_n = psy.get_p_v_r_is_n(x_r_is_n=c_n.x_r_is_n)
 
     # ステップ n における室 i の運転モード, [i, 1]
-    operation_mode_is_n = ss.get_operation_mode_is_n(
+    operation_mode_is_n = self.get_operation_mode_is_n(
         p_v_r_is_n=p_v_r_is_n,
         operation_mode_is_n_mns=c_n.operation_mode_is_n,
         theta_r_is_n=c_n.theta_r_is_n,
@@ -639,7 +659,7 @@ def _run_tick(self, n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditio
     )
 
     theta_lower_target_is_n_pls, theta_upper_target_is_n_pls, h_hum_c_is_n, h_hum_r_is_n, v_hum_is_n, clo_is_n \
-        = ss.get_theta_target_is_n(
+        = self.get_theta_target_is_n(
             p_v_r_is_n=p_v_r_is_n,
             operation_mode_is_n=operation_mode_is_n,
             theta_r_is_n=c_n.theta_r_is_n,
@@ -891,52 +911,6 @@ def _run_tick(self, n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditio
             v_hum_is_n=v_hum_is_n,
             clo_is_n=clo_is_n
         )
-
-    # # 瞬時値の書き込み
-    #
-    # if n >= -1:
-    #
-    #     # 瞬時値出力のステップ番号
-    #     n_i = n + 1
-    #
-    #     # 次の時刻に引き渡す値
-    #     recorder.theta_r_is_ns[:, n_i] = theta_r_is_n_pls.flatten()
-    #     recorder.theta_mrt_hum_is_ns[:, n_i] = theta_mrt_hum_is_n_pls.flatten()
-    #     recorder.x_r_is_ns[:, n_i] = x_r_is_n_pls.flatten()
-    #     recorder.theta_frt_is_ns[:, n_i] = theta_frt_is_n_pls.flatten()
-    #     recorder.x_frt_is_ns[:, n_i] = x_frt_is_n_pls.flatten()
-    #     recorder.theta_ei_js_ns[:, n_i] = theta_ei_js_n_pls.flatten()
-    #     recorder.q_s_js_ns[:, n_i] = q_s_js_n_pls.flatten()
-    #
-    #     # 次の時刻に引き渡さない値
-    #     recorder.theta_ot[:, n_i] = theta_ot_is_n_pls.flatten()
-    #     recorder.theta_s_js_ns[:, n_i] = theta_s_js_n_pls.flatten()
-    #     recorder.theta_rear_js_ns[:, n_i] = theta_rear_js_n.flatten()
-    #
-    # # 平均値・積算値の書き込み
-    #
-    # if n >= 0:
-    #
-    #     # 平均値出力のステップ番号
-    #     n_a = n
-    #
-    #     # 次の時刻に引き渡す値
-    #     recorder.operation_mode_is_ns[:, n_a] = operation_mode_is_n.flatten()
-    #
-    #     # 次の時刻に引き渡さない値
-    #     # 積算値
-    #     recorder.l_cs_is_ns[:, n_a] = l_cs_is_n.flatten()
-    #     recorder.l_rs_is_ns[:, n_a] = l_rs_is_n.flatten()
-    #     recorder.l_cl_is_ns[:, n_a] = l_cl_is_n.flatten()
-    #     # 平均値
-    #     recorder.h_hum_c_is_ns[:, n_a] = h_hum_c_is_n.flatten()
-    #     recorder.h_hum_r_is_ns[:, n_a] = h_hum_r_is_n.flatten()
-    #     recorder.q_hum_is_ns[:, n_a] = q_hum_is_n.flatten()
-    #     recorder.x_hum_is_ns[:, n_a] = x_hum_is_n.flatten()
-    #     recorder.v_reak_is_ns[:, n_a] = v_leak_is_n.flatten()
-    #     recorder.v_ntrl_is_ns[:, n_a] = v_vent_ntr_is_n.flatten()
-    #     recorder.v_hum_is_ns[:, n_a] = v_hum_is_n.flatten()
-    #     recorder.clo_is_ns[:, n_a] = clo_is_n.flatten()
 
     return Conditions(
         operation_mode_is_n=operation_mode_is_n,
@@ -1688,30 +1662,6 @@ def get_f_xot_is_is_n_pls(f_mrt_hum_is_js, f_wsr_js_is, k_c_is_n, k_r_is_n):
     """
 
     return np.linalg.inv(v_diag(k_c_is_n) + k_r_is_n * np.dot(f_mrt_hum_is_js, f_wsr_js_is))
-
-
-def get_k_is(n_rm: int, ac_method: ACMethod) -> Tuple[np.ndarray, np.ndarray]:
-    """
-
-    Args:
-        n_rm: 室の数
-        ac_method:
-
-    Returns:
-        ステップ n における室 i の人体表面の対流熱伝達率が総合熱伝達率に占める割合, -, [i, 1]
-        ステップ n における室 i の人体表面の放射熱伝達率が総合熱伝達率に占める割合, -, [i, 1]
-    """
-
-    if ac_method == ACMethod.AIR_TEMPERATURE:
-        k_c_is = np.full((n_rm, 1), 1.0, dtype=float)
-        k_r_is = np.full((n_rm, 1), 0.0, dtype=float)
-    elif ac_method in [ACMethod.OT, ACMethod.PMV, ACMethod.SIMPLE]:
-        k_c_is = np.full((n_rm, 1), 0.5, dtype=float)
-        k_r_is = np.full((n_rm, 1), 0.5, dtype=float)
-    else:
-        raise Exception
-
-    return k_c_is, k_r_is
 
 
 def get_k_c_is_n(n_rm: int) -> np.ndarray:
