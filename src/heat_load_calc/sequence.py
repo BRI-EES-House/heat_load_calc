@@ -63,8 +63,6 @@ class PreCalcParameters:
 
     get_theta_target_is_n: Callable[[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray], Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]]
 
-    get_infiltration: Callable[[np.ndarray, float], np.ndarray]
-
     calc_next_temp_and_load: Callable[[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray], Tuple[np.ndarray, np.ndarray, np.ndarray]]
 
     get_f_l_cl: Callable[[np.ndarray, np.ndarray, np.ndarray], Tuple[np.ndarray, np.ndarray]]
@@ -130,6 +128,9 @@ class Sequence:
         # Equipments Class
         es = Equipments(dict_equipments=rd['equipments'], n_rm=rms.n_rm, n_b=bs.n_b, bs=bs)
 
+        # すきま風を計算する関数
+        get_infiltration = infiltration.make_get_infiltration_function(v_rm_is=rms.v_rm_is, building=building)
+
         pre_calc_parameters = _pre_calc(
             rd=rd,
             weather=weather,
@@ -171,6 +172,9 @@ class Sequence:
         # Equipments Class
         self._es: Equipments = es
 
+        # 隙間風を計算する関数
+        self._get_infiltration = get_infiltration
+
         self._pre_calc_parameters = pre_calc_parameters
 
     @property
@@ -206,6 +210,18 @@ class Sequence:
     @property
     def es(self) -> Equipments:
         return self._es
+
+    @property
+    def get_infiltration(self) -> Callable[[np.ndarray, float], np.ndarray]:
+        """隙間風を計算する関数
+
+        引数:
+          theta_r_is_n: 時刻nの室温, degree C, [i,1]
+          theta_o_n: 時刻n+1の外気温度, degree C
+        戻り値:
+          すきま風量, m3/s, [i,1]
+        """
+        return self._get_infiltration
 
     @property
     def pre_calc_parameter(self):
@@ -355,17 +371,6 @@ def _pre_calc(
         ac_config=ac_config
     )
 
-    # すきま風を計算する関数
-    # 引数:
-    #   theta_r_is_n: 時刻nの室温, degree C, [i,1]
-    #   theta_o_n: 時刻n+1の外気温度, degree C
-    # 戻り値:
-    #   すきま風量, m3/s, [i,1]
-    get_infiltration = infiltration.make_get_infiltration_function(
-        v_rm_is=rms.v_rm_is,
-        building=building
-    )
-
     # 次のステップの室温と負荷を計算する関数
     calc_next_temp_and_load = next_condition.make_get_next_temp_and_load_function(
         ac_demand_is_ns=scd.ac_demand_is_ns,
@@ -389,7 +394,6 @@ def _pre_calc(
         f_wsc_js_ns=f_wsc_js_ns,
         get_operation_mode_is_n=get_operation_mode_is_n,
         get_theta_target_is_n=get_theta_target_is_n,
-        get_infiltration=get_infiltration,
         calc_next_temp_and_load=calc_next_temp_and_load,
         get_f_l_cl=get_f_l_cl,
         ac_method=ac_method
@@ -438,7 +442,7 @@ def _run_tick(self, n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditio
     )
 
     # ステップnの室iにおけるすきま風量, m3/s, [i, 1]
-    v_leak_is_n = ss.get_infiltration(theta_r_is_n=c_n.theta_r_is_n, theta_o_n=self.weather.theta_o_ns_plus[n])
+    v_leak_is_n = self.get_infiltration(theta_r_is_n=c_n.theta_r_is_n, theta_o_n=self.weather.theta_o_ns_plus[n])
 
     # ステップ n+1 の境界 j における項別公比法の指数項 m の貫流応答の項別成分, degree C, [j, m] (m=12), eq.(29)
     theta_dsh_s_t_js_ms_n_pls = get_theta_dsh_s_t_js_ms_n_pls(
@@ -467,12 +471,6 @@ def _run_tick(self, n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditio
         f_cvl_js_n_pls=f_cvl_js_n_pls,
         f_ax_js_js=ss.f_ax_js_js
     )
-
-    # ステップ n からステップ n+1 における室 i の自然風利用による換気量, m3/s, [i, 1]
-    # v_vent_ntr_is_n = get_v_vent_ntr_is_n(
-    #     operation_mode_is_n=operation_mode_is_n,
-    #     v_vent_ntr_set_is=ss.rms.v_vent_ntr_set_is
-    # )
 
     # ステップnからステップn+1における室iの換気・隙間風による外気の流入量, m3/s, [i, 1]
     v_vent_out_non_nv_is_n = get_v_vent_out_non_ntr_is_n(
@@ -1807,23 +1805,6 @@ def get_v_vent_out_non_ntr_is_n(v_leak_is_n, v_vent_mec_is_n):
     """
 
     return v_leak_is_n + v_vent_mec_is_n
-
-
-def get_v_vent_ntr_is_n(operation_mode_is_n, v_vent_ntr_set_is):
-    """
-
-    Args:
-        operation_mode_is_n: ステップ n からステップ n+1 における室 i の運転モード, [i, 1]
-        v_vent_ntr_set_is: 室 i の自然風利用時の換気量, m3/s
-
-    Returns:
-        ステップ n からステップ n+1 における室 i の自然風利用による換気量, m3/s, [i, 1]
-
-    Notes:
-        式(2.26)
-    """
-
-    return np.where(operation_mode_is_n == OperationMode.STOP_OPEN, v_vent_ntr_set_is, 0.0)
 
 
 def get_f_wsv_js_n_pls(f_cvl_js_n_pls, f_ax_js_js):
