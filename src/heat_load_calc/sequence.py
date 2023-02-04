@@ -69,6 +69,12 @@ class PreCalcParameters:
 
     ac_method: ACMethod
 
+    # ステップ n における室 i の在室者表面における放射熱伝達率の総合熱伝達率に対する比, -, [i, 1]
+    k_r_is_n: np.ndarray
+
+    # ステップnにおける室iの在室者表面における対流熱伝達率の総合熱伝達率に対する比, -, [i, 1]
+    k_c_is_n: np.ndarray
+
 
 class Sequence:
 
@@ -352,8 +358,6 @@ def _pre_calc(
         ac_config = [{'mode': 1, 'lower': 20.0, 'upper': 27.0},
                      {'mode': 2, 'lower': 20.0, 'upper': 27.0}]
 
-    # ac_method = 'simple'
-
     get_operation_mode_is_n = operation_.make_get_operation_mode_is_n_function(
         ac_method=ac_method.value,
         ac_demand_is_ns=scd.ac_demand_is_ns,
@@ -382,6 +386,14 @@ def _pre_calc(
 
     # endregion
 
+    # ステップ n における室 i の在室者表面における放射熱伝達率の総合熱伝達率に対する比, -, [i, 1]
+    k_r_is_n = get_k_r_is_n(n_rm=rms.n_rm)
+
+    # ステップnにおける室iの在室者表面における対流熱伝達率の総合熱伝達率に対する比, -, [i, 1]
+    k_c_is_n = get_k_c_is_n(n_rm=rms.n_rm)
+
+
+
     pre_calc_parameters = PreCalcParameters(
         v_vent_mec_is_ns=v_vent_mec_is_ns,
         f_mrt_hum_is_js=f_mrt_hum_is_js,
@@ -396,7 +408,9 @@ def _pre_calc(
         get_theta_target_is_n=get_theta_target_is_n,
         calc_next_temp_and_load=calc_next_temp_and_load,
         get_f_l_cl=get_f_l_cl,
-        ac_method=ac_method
+        ac_method=ac_method,
+        k_r_is_n=k_r_is_n,
+        k_c_is_n=k_c_is_n
     )
 
     return pre_calc_parameters
@@ -520,18 +534,12 @@ def _run_tick(self, n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditio
         v_vent_ntr_set_is=self.rms.v_vent_ntr_set_is
     )
 
-    # ステップ n における室 i の在室者表面における放射熱伝達率の総合熱伝達率に対する比, -, [i, 1]
-    k_r_is_n = get_k_r_is_n(n_rm=self.rms.n_rm)
-
-    # ステップnにおける室iの在室者表面における対流熱伝達率の総合熱伝達率に対する比, -, [i, 1]
-    k_c_is_n = get_k_c_is_n(n_rm=self.rms.n_rm)
-
     # ステップn+1における室iの係数 XOT, [i, i]
     f_xot_is_is_n_pls = get_f_xot_is_is_n_pls(
         f_mrt_hum_is_js=ss.f_mrt_hum_is_js,
         f_wsr_js_is=ss.f_wsr_js_is,
-        k_c_is_n=k_c_is_n,
-        k_r_is_n=k_r_is_n
+        k_c_is_n=ss.k_c_is_n,
+        k_r_is_n=ss.k_r_is_n
     )
 
     # ステップn+1における室iの係数 XC, [i, 1]
@@ -540,7 +548,7 @@ def _run_tick(self, n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditio
         f_wsc_js_n_pls=ss.f_wsc_js_ns[:, n + 1].reshape(-1, 1),
         f_wsv_js_n_pls=f_wsv_js_n_pls,
         f_xot_is_is_n_pls=f_xot_is_is_n_pls,
-        k_r_is_n=k_r_is_n
+        k_r_is_n=ss.k_r_is_n
     )
 
     # ステップ n における係数 f_BRM,OT, W/K, [i, i]
@@ -689,7 +697,7 @@ def _run_tick(self, n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditio
         f_mrt_hum_is_js=ss.f_mrt_hum_is_js,
         f_wsb_js_is_n_pls=f_wsb_js_is_n_pls,
         f_xot_is_is_n_pls=f_xot_is_is_n_pls,
-        k_r_is_n=k_r_is_n
+        k_r_is_n=ss.k_r_is_n
     )
 
     # ステップ n における係数 f_BRL_OT, -, [i, i]
