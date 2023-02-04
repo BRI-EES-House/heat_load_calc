@@ -49,11 +49,13 @@ class MechanicalVentilations:
         self._v_vent_int_is_is = self.get_v_vent_int_is_is()
 
     @property
-    def v_vent_mec_general_is(self):
+    def v_vent_mec_general_is(self) -> np.ndarray:
+        """室iの機械換気量（局所換気を除く）, m3/s, [i, 1]"""
         return self._v_vent_mec_general_is
 
     @property
-    def v_vent_int_is_is(self):
+    def v_vent_int_is_is(self) -> np.ndarray:
+        """室iの隣室からの機械換気量, m3/s, [i, i]"""
         return self._v_vent_int_is_is
 
     def get_v_vent_mec_general_is(self) -> np.ndarray:

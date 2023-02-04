@@ -86,31 +86,38 @@ class Weather:
         return dd
 
     @property
-    def a_sun_ns_plus(self):
+    def a_sun_ns_plus(self) -> np.ndarray:
+        """ステップnの太陽方位角, rad, [N+1]"""
         return self._add_index_0_data_to_end(d=self._a_sun_ns)
 
     @property
-    def h_sun_ns_plus(self):
+    def h_sun_ns_plus(self) -> np.ndarray:
+        """ステップnの太陽高度, rad, [N+1]"""
         return self._add_index_0_data_to_end(d=self._h_sun_ns)
 
     @property
-    def i_dn_ns_plus(self):
+    def i_dn_ns_plus(self) -> np.ndarray:
+        """ステップnの法線面直達日射量, W / m2, [N+1]"""
         return self._add_index_0_data_to_end(d=self._i_dn_ns)
 
     @property
-    def i_sky_ns_plus(self):
+    def i_sky_ns_plus(self) -> np.ndarray:
+        """ステップnの水平面天空日射量, W / m2, [N+1]"""
         return self._add_index_0_data_to_end(d=self._i_sky_ns)
 
     @property
-    def r_n_ns_plus(self):
+    def r_n_ns_plus(self) -> np.ndarray:
+        """ステップnの夜間放射量, W / m2, [N+1]"""
         return self._add_index_0_data_to_end(d=self._r_n_ns)
 
     @property
-    def theta_o_ns_plus(self):
+    def theta_o_ns_plus(self) -> np.ndarray:
+        """ステップnの外気温度, degree C, [N+1]"""
         return self._add_index_0_data_to_end(d=self._theta_o_ns)
 
     @property
-    def x_o_ns_plus(self):
+    def x_o_ns_plus(self) -> np.ndarray:
+        """ステップnの外気絶対湿度, kg / kg(DA), [N+1]"""
         return self._add_index_0_data_to_end(d=self._x_o_ns)
 
     @property

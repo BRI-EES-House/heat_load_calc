@@ -142,6 +142,9 @@ class Boundaries:
 
         self._bss = bss
 
+        self._n_b = len(bss)
+        self._n_ground = sum(bs.boundary_type == BoundaryType.Ground for bs in bss)
+
         self._id_bs_js = np.array([bs.id for bs in self._bss]).reshape(-1, 1)
         self._name_js = np.array([bs.name for bs in self._bss]).reshape(-1, 1)
         self._sub_name_js = np.array([bs.sub_name for bs in self._bss]).reshape(-1, 1)
@@ -535,210 +538,130 @@ class Boundaries:
         ])
 
     @property
-    def n_b(self):
-        """
-
-        Returns:
-            境界の数
-        """
-
-        return len(self._bss)
+    def n_b(self) -> int:
+        """境界の数"""
+        return self._n_b
 
     @property
-    def n_ground(self):
-        """
-
-        Returns:
-            地盤の数
-        """
-
-        return sum(bs.boundary_type == BoundaryType.Ground for bs in self._bss)
+    def n_ground(self) -> int:
+        """地盤の数"""
+        return self._n_ground
 
     @property
-    def id_bs_js(self):
-        """
-        Returns:
-            ID
-        """
+    def id_bs_js(self) -> np.ndarray:
+        """境界jのID, [j, 1]"""
         return self._id_bs_js
 
     @property
-    def name_b_js(self):
-        """
-        Returns:
-            名前, [j, 1]
-        """
+    def name_b_js(self) -> np.ndarray:
+        """境界jの名前, [j, 1]"""
         return self._name_js
 
     @property
-    def sub_name_b_js(self):
-        """
-        Returns:
-            名前2, [j, 1]
-        """
+    def sub_name_b_js(self) -> np.ndarray:
+        """境界jの名前2, [j, 1]"""
         return self._sub_name_js
 
     @property
-    def p_is_js(self):
-        """
-
-        Returns:
-            室iと境界jの関係を表す係数（境界jから室iへの変換）
+    def p_is_js(self) -> np.ndarray:
+        """室iと境界jの関係を表す係数（境界jから室iへの変換）, [i, j]
         Notes:
             室iと境界jの関係を表す係数（境界jから室iへの変換）
             [[p_0_0 ... ... p_0_j]
              [ ...  ... ...  ... ]
              [p_i_0 ... ... p_i_j]]
-
         """
-
         return self._p_is_js
 
     @property
-    def p_js_is(self):
-        """
-
-        Returns:
-            室iと境界jの関係を表す係数（室iから境界jへの変換）
+    def p_js_is(self) -> np.ndarray:
+        """室iと境界jの関係を表す係数（室iから境界jへの変換）
         Notes:
             [[p_0_0 ... p_0_i]
              [ ...  ...  ... ]
              [ ...  ...  ... ]
              [p_j_0 ... p_j_i]]
         """
-
         return self._p_js_is
 
     @property
-    def is_floor_js(self):
-        """
-
-        Returns:
-            床かどうか, [j, 1]
-        """
+    def is_floor_js(self) -> np.ndarray:
+        """境界jが床かどうか, [j, 1]"""
         return self._is_floor_js
 
     @property
-    def is_ground_js(self):
-        """
-
-        Returns:
-            地盤かどうか, [j, 1]
-        """
+    def is_ground_js(self) -> np.ndarray:
+        """境界jが地盤かどうか, [j, 1]"""
         return self._is_ground_js
 
     @property
-    def k_ei_js_js(self):
-        """
-
-        Returns:
-            境界jの裏面温度に他の境界の等価室温が与える影響, [j, j]
-        """
+    def k_ei_js_js(self) -> np.ndarray:
+        """境界jの裏面温度に他の境界の等価室温が与える影響, [j, j]"""
         return self._k_ei_js_js
         
     @property
-    def k_eo_js(self):
-        """
-        Returns:
-            温度差係数
-        """
+    def k_eo_js(self) -> np.ndarray:
+        """境界jの裏面温度に外気温度が与える影響（温度差係数）, [j, 1]"""
         return self._k_eo_js
 
     @property
-    def k_s_r_js_is(self):
-        """
-        Returns:
-            境界 j の裏面温度に室温が与える影響, [j, i]
-        """
+    def k_s_r_js_is(self) -> np.ndarray:
+        """境界jの裏面温度に室温が与える影響, [j, i]"""
         return self._k_s_r_js
 
     @property
-    def p_s_sol_abs_js(self):
-        """
-
-        Returns:
-            境界jの日射吸収の有無, [j, 1]
-        """
+    def p_s_sol_abs_js(self) -> np.ndarray:
+        """境界jの日射吸収の有無, [j, 1]"""
         return self._p_s_sol_abs_js
 
     @property
-    def h_s_r_js(self):
-        """
-        Returns:
-            境界jの室内側表面放射熱伝達率, W/m2K, [j, 1]
-        """
+    def h_s_r_js(self) -> np.ndarray:
+        """境界jの室内側表面放射熱伝達率, W/m2K, [j, 1]"""
         return self._h_s_r_js
 
     @property
-    def h_s_c_js(self):
-        """
-        Returns:
-            境界jの室内側表面対流熱伝達率, W/m2K, [j, 1]
-        """
+    def h_s_c_js(self) -> np.ndarray:
+        """境界jの室内側表面対流熱伝達率, W/m2K, [j, 1]"""
         return self._h_s_c_js
 
     @property
-    def simulation_u_value(self):
-        """
-        Returns:
-            境界jの室内側表面対流熱伝達率, W/m2K, [j, 1]
-        """
+    def simulation_u_value(self) -> np.ndarray:
+        """境界jにおけるシミュレーションに用いる表面熱伝達抵抗での熱貫流率, W/m2K, [j,1]"""
         return self._simulation_u_value
 
     @property
-    def a_s_js(self):
-        """
-        Returns:
-            境界jの面積, m2, [j, 1]
-        """
+    def a_s_js(self) -> np.ndarray:
+        """境界jの面積, m2, [j, 1]"""
         return self._a_s_js
 
     @property
-    def phi_a0_js(self):
-        """
-        Returns:
-            境界jの吸熱応答係数の初項, m2K/W, [j, 1]
-        """
+    def phi_a0_js(self) -> np.ndarray:
+        """境界jの吸熱応答係数の初項, m2K/W, [j, 1]"""
         return self._phi_a0_js
 
     @property
-    def phi_a1_js_ms(self):
-        """
-        Returns:
-            境界jの項別公比法における項mの吸熱応答係数の第一項 , m2K/W, [j, 12]
-        """
+    def phi_a1_js_ms(self) -> np.ndarray:
+        """境界jの項別公比法における項mの吸熱応答係数の第一項 , m2K/W, [j, 12]"""
         return self._phi_a1_js_ms
 
     @property
-    def phi_t0_js(self):
-        """
-        Returns:
-            境界jの貫流応答係数の初項, [j, 1]
-        """
+    def phi_t0_js(self) -> np.ndarray:
+        """境界jの貫流応答係数の初項, [j, 1]"""
         return self._phi_t0_js
 
     @property
-    def phi_t1_js_ms(self):
-        """
-        Returns:
-            境界jの項別公比法における項mの貫流応答係数の第一項, [j, 12]
-        """
+    def phi_t1_js_ms(self) -> np.ndarray:
+        """境界jの項別公比法における項mの貫流応答係数の第一項, [j, 12]"""
         return self._phi_t1_js_ms
 
     @property
-    def r_js_ms(self):
-        """
-        Returns:
-            境界jの項別公比法における項mの公比, [j, 12]
-        """
+    def r_js_ms(self) -> np.ndarray:
+        """境界jの項別公比法における項mの公比, [j, 12]"""
         return self._r_js_ms
 
     @property
-    def theta_o_eqv_js_ns(self):
-        """
-        Returns:
-            ステップ n の境界 j における相当外気温度, ℃, [j, n+1]
-        """
+    def theta_o_eqv_js_ns(self) -> np.ndarray:
+        """ステップ n の境界 j における相当外気温度, ℃, [j, n+1]"""
         return self._theta_o_eqv_js_ns
 
     # TODO: 一部のテストを通すためだけに、後から上書きできる機能を作成した。将来的には消すこと。
@@ -746,13 +669,8 @@ class Boundaries:
         self._theta_o_eqv_js_ns = theta_o_eqv_js_ns
 
     @property
-    def q_trs_sol_is_ns(self):
-        """
-
-        Returns:
-            ステップ n の室 i における窓の透過日射熱取得, W, [n]
-        """
-
+    def q_trs_sol_is_ns(self) -> np.ndarray:
+        """ステップ n の室 i における窓の透過日射熱取得, W, [n]"""
         return self._q_trs_sol_is_ns
 
     # TODO: 一部のテストを通すためだけに、後から上書きできる機能を作成した。将来的には消すこと。
