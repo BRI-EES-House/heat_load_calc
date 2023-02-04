@@ -86,7 +86,7 @@ class Schedule:
         n_hum_is_ns = cls._get_schedules(s_name_is=s_name_is, noo=noo, n_p=n_p, schedule_type='number_of_people')
 
         # ステップ n の室 i における空調割合, [i, n]
-        ac_demand_is_ns = cls._get_schedules(s_name_is=s_name_is, noo=noo, n_p=n_p, schedule_type='is_temp_limit_set')
+        ac_demand_is_ns = cls._get_schedules(s_name_is=s_name_is, noo=noo, n_p=n_p, schedule_type='is_temp_limit_set', is_zero_one=True)
 
         # ステップ n の室 i における空調モード, [i, n]
         ac_setting_is_ns = cls._get_schedules(s_name_is=s_name_is, noo=noo, n_p=n_p, schedule_type='is_temp_limit_set', is_proportionable=False)
