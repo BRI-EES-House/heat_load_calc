@@ -84,7 +84,7 @@ def calc(
 
     # 地盤計算の結果（項別公比法の指数項mの吸熱応答の項別成分・表面熱流）を建物の計算に引き継ぐ
     c_n = conditions.update_conditions_by_ground_conditions(
-        is_ground=pp.is_ground_js.flatten(),
+        is_ground=sqc.bs.is_ground_js.flatten(),
         c=c_n,
         gc=gc_n
     )

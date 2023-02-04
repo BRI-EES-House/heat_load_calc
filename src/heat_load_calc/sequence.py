@@ -32,9 +32,6 @@ class PreCalcParameters:
     # ステップ n における室 i に設置された備品等による透過日射吸収熱量, W, [i, n+1]
     q_sol_frt_is_ns: np.ndarray
 
-    # 境界jが地盤かどうか, [j, 1]
-    is_ground_js: np.ndarray
-
     # ステップnの境界jにおける透過日射熱取得量のうち表面に吸収される日射量, W/m2, [j, 8760*4]
     q_s_sol_js_ns: np.ndarray
 
@@ -262,7 +259,6 @@ class Sequence:
         return self._get_operation_mode_is_n
 
     @property
-
     def get_theta_target_is_n(self) -> Callable[[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray], Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]]:
         """目標作用温度を決定する関数
 
@@ -391,22 +387,6 @@ def _pre_calc(
     # 係数 f_{WSC, n}, degree C, [j, n]
     f_wsc_js_ns = get_f_wsc_js_ns(f_ax_js_js=f_ax_js_js, f_crx_js_ns=f_crx_js_ns)
 
-    # region 読み込んだ値から新たに関数を作成する
-
-    get_operation_mode_is_n = op.make_get_operation_mode_is_n_function(
-        ac_demand_is_ns=scd.ac_demand_is_ns,
-        is_radiative_heating_is=es.is_radiative_heating_is,
-        is_radiative_cooling_is=es.is_radiative_cooling_is,
-        met_is=rms.met_is
-    )
-
-    get_theta_target_is_n = op.make_get_theta_target_is_n_function(
-        is_radiative_heating_is=es.is_radiative_heating_is,
-        is_radiative_cooling_is=es.is_radiative_cooling_is,
-        met_is=rms.met_is,
-        ac_setting_is_ns=scd.ac_setting_is_ns
-    )
-
     # 次のステップの室温と負荷を計算する関数
     calc_next_temp_and_load = next_condition.make_get_next_temp_and_load_function(
         ac_demand_is_ns=scd.ac_demand_is_ns,
@@ -415,8 +395,6 @@ def _pre_calc(
         lr_h_max_cap_is=es.q_rs_h_max_is,
         lr_cs_max_cap_is=es.q_rs_c_max_is
     )
-
-    # endregion
 
     # ステップnにおける室iの在室者表面における対流熱伝達率の総合熱伝達率に対する比, -, [i, 1]
     # ステップ n における室 i の在室者表面における放射熱伝達率の総合熱伝達率に対する比, -, [i, 1]
@@ -438,7 +416,6 @@ def _pre_calc(
         q_sol_frt_is_ns=q_sol_frt_is_ns,
         f_wsr_js_is=f_wsr_js_is,
         f_ax_js_js=f_ax_js_js,
-        is_ground_js=bs.is_ground_js,
         f_wsc_js_ns=f_wsc_js_ns,
         calc_next_temp_and_load=calc_next_temp_and_load,
         get_f_l_cl=get_f_l_cl,
