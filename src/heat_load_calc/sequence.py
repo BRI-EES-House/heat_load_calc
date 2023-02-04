@@ -49,10 +49,6 @@ class PreCalcParameters:
     # WSC, W, [j, n]
     f_wsc_js_ns: np.ndarray
 
-    calc_next_temp_and_load: Callable[[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray], Tuple[np.ndarray, np.ndarray, np.ndarray]]
-
-    get_f_l_cl: Callable[[np.ndarray, np.ndarray, np.ndarray], Tuple[np.ndarray, np.ndarray]]
-
     # ステップ n における室 i の在室者表面における放射熱伝達率の総合熱伝達率に対する比, -, [i, 1]
     k_r_is_n: np.ndarray
 
@@ -143,11 +139,22 @@ class Sequence:
             ac_setting_is_ns=scd.ac_setting_is_ns
         )
 
+        # 次のステップの室温と負荷を計算する関数
+        calc_next_temp_and_load = next_condition.make_get_next_temp_and_load_function(
+            ac_demand_is_ns=scd.ac_demand_is_ns,
+            is_radiative_heating_is=es.is_radiative_heating_is,
+            is_radiative_cooling_is=es.is_radiative_cooling_is,
+            lr_h_max_cap_is=es.q_rs_h_max_is,
+            lr_cs_max_cap_is=es.q_rs_c_max_is
+        )
+
+        # 次の係数を求める関数
+        #   ステップ n　からステップ n+1 における係数 f_l_cl_wgt, kg/s(kg/kg(DA)), [i, i]
+        #   ステップ n　からステップ n+1 における係数 f_l_cl_cst, kg/s, [i, 1]
+        get_f_l_cl = es.make_get_f_l_cl_funcs()
+
         pre_calc_parameters = _pre_calc(
-            rd=rd,
-            weather=weather,
             scd=scd,
-            building=building,
             rms=rms,
             bs=bs,
             mvs=mvs,
@@ -196,6 +203,14 @@ class Sequence:
 
         # 目標作用温度を決定する関数
         self._get_theta_target_is_n = get_theta_target_is_n
+
+        # 次のステップの室温と負荷を計算する関数
+        self._calc_next_temp_and_load = calc_next_temp_and_load
+
+        # 次の係数を求める関数
+        #   ステップ n　からステップ n+1 における係数 f_l_cl_wgt, kg/s(kg/kg(DA)), [i, i]
+        #   ステップ n　からステップ n+1 における係数 f_l_cl_cst, kg/s, [i, 1]
+        self._get_f_l_cl = get_f_l_cl
 
         self._pre_calc_parameters = pre_calc_parameters
 
@@ -268,6 +283,27 @@ class Sequence:
         return self._get_theta_target_is_n
 
     @property
+    def calc_next_temp_and_load(self) -> Callable[[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray], Tuple[np.ndarray, np.ndarray, np.ndarray]]:
+        """次のステップの室温と負荷を計算する関数
+
+        Returns:
+
+        """
+        return self._calc_next_temp_and_load
+
+    @property
+    def get_f_l_cl(self) -> Callable[[np.ndarray, np.ndarray, np.ndarray], Tuple[np.ndarray, np.ndarray]]:
+        """次の係数を求める関数
+
+        ステップ n　からステップ n+1 における係数 f_l_cl_wgt, kg/s(kg/kg(DA)), [i, i]
+        ステップ n　からステップ n+1 における係数 f_l_cl_cst, kg/s, [i, 1]
+
+        Returns:
+
+        """
+        return self._get_f_l_cl
+
+    @property
     def pre_calc_parameter(self):
         return self._pre_calc_parameters
 
@@ -286,10 +322,7 @@ class Sequence:
 
 
 def _pre_calc(
-        rd: Dict,
-        weather: Weather,
         scd: schedule.Schedule,
-        building: Building,
         rms: Rooms,
         bs: Boundaries,
         mvs: MechanicalVentilations,
@@ -299,10 +332,7 @@ def _pre_calc(
     """助走計算用パラメータの生成
 
     Args:
-        rd: 住宅計算条件
-        weather: Weatherクラス
         scd: Scheduleクラス
-        building: Buildingクラス
         rms: Roomsクラス
         bs: Boundariesクラス
         mvs: MechanicalVentilationsクラス
@@ -311,11 +341,6 @@ def _pre_calc(
     Returns:
         PreCalcParameters
     """
-
-    # 次の係数を求める関数
-    #   ステップ n　からステップ n+1 における係数 f_l_cl_wgt, kg/s(kg/kg(DA)), [i, i]
-    #   ステップ n　からステップ n+1 における係数 f_l_cl_cst, kg/s, [i, 1]
-    get_f_l_cl = es.make_get_f_l_cl_funcs()
 
     # 室 i の在室者に対する境界jの形態係数, [i, j]
     f_mrt_hum_is_js = occupants_form_factor.get_f_mrt_hum_js(
@@ -387,15 +412,6 @@ def _pre_calc(
     # 係数 f_{WSC, n}, degree C, [j, n]
     f_wsc_js_ns = get_f_wsc_js_ns(f_ax_js_js=f_ax_js_js, f_crx_js_ns=f_crx_js_ns)
 
-    # 次のステップの室温と負荷を計算する関数
-    calc_next_temp_and_load = next_condition.make_get_next_temp_and_load_function(
-        ac_demand_is_ns=scd.ac_demand_is_ns,
-        is_radiative_heating_is=es.is_radiative_heating_is,
-        is_radiative_cooling_is=es.is_radiative_cooling_is,
-        lr_h_max_cap_is=es.q_rs_h_max_is,
-        lr_cs_max_cap_is=es.q_rs_c_max_is
-    )
-
     # ステップnにおける室iの在室者表面における対流熱伝達率の総合熱伝達率に対する比, -, [i, 1]
     # ステップ n における室 i の在室者表面における放射熱伝達率の総合熱伝達率に対する比, -, [i, 1]
     k_c_is_n, k_r_is_n = op.get_k_is(n_rm=rms.n_rm)
@@ -417,8 +433,6 @@ def _pre_calc(
         f_wsr_js_is=f_wsr_js_is,
         f_ax_js_js=f_ax_js_js,
         f_wsc_js_ns=f_wsc_js_ns,
-        calc_next_temp_and_load=calc_next_temp_and_load,
-        get_f_l_cl=get_f_l_cl,
         k_r_is_n=k_r_is_n,
         k_c_is_n=k_c_is_n,
         f_xot_is_is_n_pls=f_xot_is_is_n_pls
@@ -605,6 +619,38 @@ def _run_tick(self, n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditio
         v_vent_out_non_nv_is_n
     )
 
+    # ステップ n における室　i　の潜熱バランスに関する係数, kg/s, [i, 1]
+    f_h_cst_is_n = get_f_h_cst_is_n(
+        c_lh_frt_is=self.rms.c_lh_frt_is,
+        delta_t=delta_t,
+        g_lh_frt_is=self.rms.g_lh_frt_is,
+        rho_a=get_rho_a(),
+        v_rm_is=self.rms.v_rm_is,
+        v_vent_out_is_n=v_vent_out_is_n,
+        x_frt_is_n=c_n.x_frt_is_n,
+        x_gen_is_n=self.scd.x_gen_is_ns[:, n].reshape(-1, 1),
+        x_hum_is_n=x_hum_is_n,
+        x_o_n_pls=self.weather.x_o_ns_plus[n + 1],
+        x_r_is_n=c_n.x_r_is_n
+    )
+
+    # ステップ n における室 i* の絶対湿度が室 i の潜熱バランスに与える影響を表す係数,　kg/(s kg/kg(DA)), [i, i]
+    f_h_wgt_is_is_n = get_f_h_wgt_is_is_n(
+        c_lh_frt_is=self.rms.c_lh_frt_is,
+        delta_t=delta_t,
+        g_lh_frt_is=self.rms.g_lh_frt_is,
+        rho_a=get_rho_a(),
+        v_rm_is=self.rms.v_rm_is,
+        v_vent_int_is_is_n=self.mvs.v_vent_int_is_is,
+        v_vent_out_is_n=v_vent_out_is_n
+    )
+
+    # ステップ n+1 における室 i の加湿・除湿を行わない場合の絶対湿度, kg/kg(DA) [i, 1]
+    x_r_ntr_is_n_pls = get_x_r_ntr_is_n_pls(
+        f_h_cst_is_n=f_h_cst_is_n,
+        f_h_wgt_is_is_n=f_h_wgt_is_is_n
+    )
+
     f_brm_is_is_n_pls = np.where(
         operation_mode_is_n == OperationMode.STOP_OPEN,
         f_brm_nv_is_is_n_pls,
@@ -713,7 +759,7 @@ def _run_tick(self, n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditio
     # ステップ n+1 における室 i の作用温度, degree C, [i, 1] (ステップn+1における瞬時値）
     # ステップ n における室 i に設置された対流暖房の放熱量, W, [i, 1] (ステップn～ステップn+1までの平均値）
     # ステップ n における室 i に設置された放射暖房の放熱量, W, [i, 1]　(ステップn～ステップn+1までの平均値）
-    theta_ot_is_n_pls, l_cs_is_n, l_rs_is_n = ss.calc_next_temp_and_load(
+    theta_ot_is_n_pls, l_cs_is_n, l_rs_is_n = self.calc_next_temp_and_load(
         brc_ot_is_n=f_brc_ot_is_n_pls,
         brm_ot_is_is_n=f_brm_ot_is_is_n_pls,
         brl_ot_is_is_n=f_brl_ot_is_is_n,
@@ -796,41 +842,9 @@ def _run_tick(self, n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditio
         theta_s_js_n_pls=theta_s_js_n_pls
     )
 
-    # ステップ n における室　i　の潜熱バランスに関する係数, kg/s, [i, 1]
-    f_h_cst_is_n = get_f_h_cst_is_n(
-        c_lh_frt_is=self.rms.c_lh_frt_is,
-        delta_t=delta_t,
-        g_lh_frt_is=self.rms.g_lh_frt_is,
-        rho_a=get_rho_a(),
-        v_rm_is=self.rms.v_rm_is,
-        v_vent_out_is_n=v_vent_out_is_n,
-        x_frt_is_n=c_n.x_frt_is_n,
-        x_gen_is_n=self.scd.x_gen_is_ns[:, n].reshape(-1, 1),
-        x_hum_is_n=x_hum_is_n,
-        x_o_n_pls=self.weather.x_o_ns_plus[n + 1],
-        x_r_is_n=c_n.x_r_is_n
-    )
-
-    # ステップ n における室 i* の絶対湿度が室 i の潜熱バランスに与える影響を表す係数,　kg/(s kg/kg(DA)), [i, i]
-    f_h_wgt_is_is_n = get_f_h_wgt_is_is_n(
-        c_lh_frt_is=self.rms.c_lh_frt_is,
-        delta_t=delta_t,
-        g_lh_frt_is=self.rms.g_lh_frt_is,
-        rho_a=get_rho_a(),
-        v_rm_is=self.rms.v_rm_is,
-        v_vent_int_is_is_n=self.mvs.v_vent_int_is_is,
-        v_vent_out_is_n=v_vent_out_is_n
-    )
-
-    # ステップ n+1 における室 i の加湿・除湿を行わない場合の絶対湿度, kg/kg(DA) [i, 1]
-    x_r_ntr_is_n_pls = get_x_r_ntr_is_n_pls(
-        f_h_cst_is_n=f_h_cst_is_n,
-        f_h_wgt_is_is_n=f_h_wgt_is_is_n
-    )
-
     # ステップ n+1 における室 i∗ の絶対湿度がステップ n から n+1 における室 i の潜熱負荷に与える影響を表す係数, kg/(s (kg/kg(DA))), [i, i*]
     # ステップ n から n+1 における室 i の潜熱負荷に与える影響を表す係数, kg/s, [i, 1]
-    f_l_cl_cst_is_n, f_l_cl_wgt_is_is_n = ss.get_f_l_cl(
+    f_l_cl_cst_is_n, f_l_cl_wgt_is_is_n = self.get_f_l_cl(
         l_cs_is_n=l_cs_is_n,
         theta_r_is_n_pls=theta_r_is_n_pls,
         x_r_ntr_is_n_pls=x_r_ntr_is_n_pls
