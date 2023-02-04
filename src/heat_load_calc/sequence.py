@@ -333,7 +333,8 @@ def _pre_calc(
     if 'ac_config' in rd['common']:
         ac_config = rd['common']['ac_config']
     else:
-        ac_config = [{'mode': 1, 'lower': 20.0, 'upper': 27.0}]
+        ac_config = [{'mode': 1, 'lower': 20.0, 'upper': 27.0},
+                     {'mode': 2, 'lower': 20.0, 'upper': 27.0}]
 
     # ac_method = 'simple'
 
