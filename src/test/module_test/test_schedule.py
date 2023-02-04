@@ -21,12 +21,29 @@ class TestSchedule(unittest.TestCase):
         with open(schedule_file_path, 'r', encoding='utf-8') as js:
             rd = json.load(js)
 
-        cls._mor = rd["daily_schedule"]["main_occupant_room"]
-        cls._oor = rd["daily_schedule"]["other_occupant_room"]
-        cls._nor = rd["daily_schedule"]["non_occupant_room"]
-        cls._zero = rd["daily_schedule"]["zero"]
-
         cls._s_name_is = ['main_occupant_room', 'other_occupant_room', 'non_occupant_room', 'zero']
+
+        with open(str(os.path.dirname(__file__)) + '/schedule/main_occupant_room.json', 'r', encoding='utf-8') as js:
+            mor = json.load(js)
+        with open(str(os.path.dirname(__file__)) + '/schedule/other_occupant_room.json', 'r', encoding='utf-8') as js:
+            oor = json.load(js)
+        with open(str(os.path.dirname(__file__)) + '/schedule/non_occupant_room.json', 'r', encoding='utf-8') as js:
+            nor = json.load(js)
+        with open(str(os.path.dirname(__file__)) + '/schedule/zero.json', 'r', encoding='utf-8') as js:
+            zero = json.load(js)
+
+        zero2 = {
+            '4': zero['schedule']['const'],
+            '3': zero['schedule']['const'],
+            '2': zero['schedule']['const'],
+            '1': zero['schedule']['const']
+        }
+
+        cls._mor = mor['schedule']
+        cls._oor = oor['schedule']
+        cls._nor = nor['schedule']
+        cls._zero = zero2
+
 
     def test_one(self):
 
@@ -286,5 +303,6 @@ class TestSchedule(unittest.TestCase):
     @classmethod
     def make_test_patterns(cls, d: Dict, nop: int, target_key: str):
 
-        ds = [d[str(nop)][p][target_key] for p in ["休日在", "平日", "休日外"]]
+        #ds = [d[str(nop)][p][target_key] for p in ["休日在", "平日", "休日外"]]
+        ds = [d[str(nop)][p][target_key] for p in ["Holiday_In", "Weekday", "Holiday_Out"]]
         return np.array(list(itertools.chain(*ds)))
