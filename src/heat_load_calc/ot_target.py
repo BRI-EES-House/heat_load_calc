@@ -10,9 +10,13 @@ from heat_load_calc import operation_
 
 class ACMethod(Enum):
 
+    # PMV 制御
     PMV = 'pmv'
+    # OT制御と同じ　互換性を保つために残しているがOTを使用することを推奨する
     SIMPLE = 'simple'
+    # OT制御
     OT = 'ot'
+    # 空気温度制御
     AIR_TEMPERATURE = 'air_temperature'
 
 

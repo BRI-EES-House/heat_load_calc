@@ -390,10 +390,14 @@ def _pre_calc(
     # endregion
 
     # ステップ n における室 i の在室者表面における放射熱伝達率の総合熱伝達率に対する比, -, [i, 1]
-    k_r_is_n = get_k_r_is_n(n_rm=rms.n_rm)
+#    k_r_is_n = get_k_r_is_n(n_rm=rms.n_rm)
 
     # ステップnにおける室iの在室者表面における対流熱伝達率の総合熱伝達率に対する比, -, [i, 1]
-    k_c_is_n = get_k_c_is_n(n_rm=rms.n_rm)
+#    k_c_is_n = get_k_c_is_n(n_rm=rms.n_rm)
+
+    # ステップnにおける室iの在室者表面における対流熱伝達率の総合熱伝達率に対する比, -, [i, 1]
+    # ステップ n における室 i の在室者表面における放射熱伝達率の総合熱伝達率に対する比, -, [i, 1]
+    k_c_is_n, k_r_is_n = get_k_is(n_rm=rms.n_rm, ac_method=ac_method)
 
     # ステップn+1における室iの係数 XOT, [i, i]
     f_xot_is_is_n_pls = get_f_xot_is_is_n_pls(
@@ -1684,6 +1688,30 @@ def get_f_xot_is_is_n_pls(f_mrt_hum_is_js, f_wsr_js_is, k_c_is_n, k_r_is_n):
     """
 
     return np.linalg.inv(v_diag(k_c_is_n) + k_r_is_n * np.dot(f_mrt_hum_is_js, f_wsr_js_is))
+
+
+def get_k_is(n_rm: int, ac_method: ACMethod) -> Tuple[np.ndarray, np.ndarray]:
+    """
+
+    Args:
+        n_rm: 室の数
+        ac_method:
+
+    Returns:
+        ステップ n における室 i の人体表面の対流熱伝達率が総合熱伝達率に占める割合, -, [i, 1]
+        ステップ n における室 i の人体表面の放射熱伝達率が総合熱伝達率に占める割合, -, [i, 1]
+    """
+
+    if ac_method == ACMethod.AIR_TEMPERATURE:
+        k_c_is = np.full((n_rm, 1), 1.0, dtype=float)
+        k_r_is = np.full((n_rm, 1), 0.0, dtype=float)
+    elif ac_method in [ACMethod.OT, ACMethod.PMV, ACMethod.SIMPLE]:
+        k_c_is = np.full((n_rm, 1), 0.5, dtype=float)
+        k_r_is = np.full((n_rm, 1), 0.5, dtype=float)
+    else:
+        raise Exception
+
+    return k_c_is, k_r_is
 
 
 def get_k_c_is_n(n_rm: int) -> np.ndarray:
