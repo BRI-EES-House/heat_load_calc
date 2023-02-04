@@ -8,6 +8,11 @@ from heat_load_calc.schedule import Schedule
 
 
 class TestSchedule(unittest.TestCase):
+    """
+    Notes:
+        heat_load_calc の下にある schedule フォルダの内容と
+        module_test の下にある schedule フォルダの内容は揃えること。
+    """
 
     @classmethod
     def setUpClass(cls):
@@ -16,10 +21,6 @@ class TestSchedule(unittest.TestCase):
         # カレンダーは、　"休日在", "平日", "平日", "平日", "平日", "平日", "休日在", "休日外", ...
         # なので、すべてのパターンが試せるように、1/1, 1/2, 1/8 のそれぞれ96時間分をテストする。
         cls._test_indices = list(range(0, 96)) + list(range(96*1, 96*2)) + list(range(96*7, 96*8))
-
-        schedule_file_path = os.path.join(os.path.dirname(__file__), "schedules_for_test.json")
-        with open(schedule_file_path, 'r', encoding='utf-8') as js:
-            rd = json.load(js)
 
         cls._s_name_is = ['main_occupant_room', 'other_occupant_room', 'non_occupant_room', 'zero']
 
@@ -266,7 +267,7 @@ class TestSchedule(unittest.TestCase):
             self.assertTrue((s.ac_demand_is_ns[i][self._test_indices] == test_patterns["ac_demand_is_ns"]).all())
 
     @classmethod
-    def make_test_patterns_all(cls, d:Dict, nop: int, a_floor_i: List[float]):
+    def make_test_patterns_all(cls, d:Dict, nop: int, a_floor_i: float):
 
         v_mec_vent_local_is_ns = cls.make_test_patterns(d=d, nop=nop, target_key="local_vent_amount") / 3600
 
