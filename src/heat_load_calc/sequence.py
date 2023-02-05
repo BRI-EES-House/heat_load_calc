@@ -118,7 +118,11 @@ class Sequence:
         es = Equipments(dict_equipments=rd['equipments'], n_rm=rms.n_rm, n_b=bs.n_b, bs=bs)
 
         # Operation Class
-        op = operation_.Operation.make_operation(d=rd['common'])
+        op = operation_.Operation.make_operation(
+            d=rd['common'],
+            ac_setting_is_ns=scd.ac_setting_is_ns,
+            n_rm=rms.n_rm
+        )
 
         # すきま風を計算する関数
         get_infiltration = infiltration.make_get_infiltration_function(v_rm_is=rms.v_rm_is, building=building)
@@ -394,7 +398,7 @@ def _pre_calc(
 
     # ステップnにおける室iの在室者表面における対流熱伝達率の総合熱伝達率に対する比, -, [i, 1]
     # ステップ n における室 i の在室者表面における放射熱伝達率の総合熱伝達率に対する比, -, [i, 1]
-    k_c_is_n, k_r_is_n = op.get_k_is(n_rm=rms.n_rm)
+    k_c_is_n, k_r_is_n = op.get_k_is()
 
     # ステップn+1における室iの係数 XOT, [i, i]
     f_xot_is_is_n_pls = get_f_xot_is_is_n_pls(
@@ -634,7 +638,9 @@ def _run_tick(self, n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditio
         ac_demand_is_ns=self.scd.ac_demand_is_ns,
         is_radiative_heating_is=self.es.is_radiative_heating_is,
         is_radiative_cooling_is=self.es.is_radiative_cooling_is,
-        met_is=self.rms.met_is
+        met_is=self.rms.met_is,
+        theta_r_ot_ntr_non_nv_is_n_pls=theta_r_ot_ntr_non_nv_is_n_pls,
+        theta_r_ot_ntr_nv_is_n_pls=theta_r_ot_ntr_nv_is_n_pls
     )
 
     f_h_cst_is_n = np.where(
