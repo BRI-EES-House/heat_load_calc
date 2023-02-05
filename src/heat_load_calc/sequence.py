@@ -581,7 +581,21 @@ def _run_tick(self, n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditio
         v_vent_ntr_is= self.rms.v_vent_ntr_set_is
     )
 
-    # ステップ n+1 における自然作用温度, degree C, [i, 1]
+    # ステップnにおける自然風非利用時の室i*の絶対湿度が室iの潜熱バランスに与える影響を表す係数,　kg/(s kg/kg(DA)), [i, i]
+    # ステップnにおける自然風利用時の室i*の絶対湿度が室iの潜熱バランスに与える影響を表す係数,　kg/(s kg/kg(DA)), [i, i]
+    f_h_wgt_non_nv_is_is_n, f_h_wgt_nv_is_is_n = get_f_h_wgt_is_is_n(
+        c_lh_frt_is=self.rms.c_lh_frt_is,
+        delta_t=delta_t,
+        g_lh_frt_is=self.rms.g_lh_frt_is,
+        rho_a=get_rho_a(),
+        v_rm_is=self.rms.v_rm_is,
+        v_vent_int_is_is_n=self.mvs.v_vent_int_is_is,
+        v_vent_out_non_nv_is_n=v_vent_out_non_nv_is_n,
+        v_vent_ntr_is=self.rms.v_vent_ntr_set_is
+    )
+
+    # ステップn+1における自然風非利用時の自然作用温度, degree C, [i, 1]
+    # ステップn+1における自然風利用時の自然作用温度, degree C, [i, 1]
     theta_r_ot_ntr_non_nv_is_n_pls, theta_r_ot_ntr_nv_is_n_pls = get_theta_r_ot_ntr_is_n_pls(
         f_brc_ot_non_nv_is_n_pls=f_brc_ot_non_nv_is_n_pls,
         f_brc_ot_nv_is_n_pls=f_brc_ot_nv_is_n_pls,
@@ -597,6 +611,15 @@ def _run_tick(self, n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditio
 
     theta_mrt_hum_ntr_non_nv_is_n_pls = np.dot(ss.f_mrt_is_js, theta_s_ntr_non_nv_js_n_pls)
     theta_mrt_hum_ntr_nv_is_n_pls = np.dot(ss.f_mrt_is_js, theta_s_ntr_nv_js_n_pls)
+
+    # ステップn+1における室iの自然風非利用時の加湿・除湿を行わない場合の絶対湿度, kg/kg(DA) [i, 1]
+    # ステップn+1における室iの自然風利用時の加湿・除湿を行わない場合の絶対湿度, kg/kg(DA) [i, 1]
+    x_r_ntr_non_nv_is_n_pls, x_r_ntr_nv_is_n_pls = get_x_r_ntr_is_n_pls(
+        f_h_cst_non_nv_is_n=f_h_cst_non_nv_is_n,
+        f_h_wgt_non_nv_is_is_n=f_h_wgt_non_nv_is_is_n,
+        f_h_cst_nv_is_n=f_h_cst_nv_is_n,
+        f_h_wgt_nv_is_is_n=f_h_wgt_nv_is_is_n
+    )
 
     # ステップnにおける室iの水蒸気圧, Pa, [i, 1]
     p_v_r_is_n = psy.get_p_v_r_is_n(x_r_is_n=c_n.x_r_is_n)
@@ -614,30 +637,10 @@ def _run_tick(self, n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditio
         met_is=self.rms.met_is
     )
 
-    v_vent_out_is_n = np.where(
-        operation_mode_is_n == OperationMode.STOP_OPEN,
-        v_vent_out_non_nv_is_n + self.rms.v_vent_ntr_set_is,
-        v_vent_out_non_nv_is_n
-    )
-
     f_h_cst_is_n = np.where(
         operation_mode_is_n == OperationMode.STOP_OPEN,
         f_h_cst_nv_is_n,
         f_h_cst_non_nv_is_n
-    )
-
-    # ステップnにおける自然風非利用時の室i*の絶対湿度が室iの潜熱バランスに与える影響を表す係数,　kg/(s kg/kg(DA)), [i, i]
-    # ステップnにおける自然風利用時の室i*の絶対湿度が室iの潜熱バランスに与える影響を表す係数,　kg/(s kg/kg(DA)), [i, i]
-
-    f_h_wgt_non_nv_is_is_n, f_h_wgt_nv_is_is_n = get_f_h_wgt_is_is_n(
-        c_lh_frt_is=self.rms.c_lh_frt_is,
-        delta_t=delta_t,
-        g_lh_frt_is=self.rms.g_lh_frt_is,
-        rho_a=get_rho_a(),
-        v_rm_is=self.rms.v_rm_is,
-        v_vent_int_is_is_n=self.mvs.v_vent_int_is_is,
-        v_vent_out_non_nv_is_n=v_vent_out_non_nv_is_n,
-        v_vent_ntr_is=self.rms.v_vent_ntr_set_is
     )
 
     f_h_wgt_is_is_n = np.where(
@@ -646,10 +649,10 @@ def _run_tick(self, n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditio
         f_h_wgt_non_nv_is_is_n
     )
 
-    # ステップ n+1 における室 i の加湿・除湿を行わない場合の絶対湿度, kg/kg(DA) [i, 1]
-    x_r_ntr_is_n_pls = get_x_r_ntr_is_n_pls(
-        f_h_cst_is_n=f_h_cst_is_n,
-        f_h_wgt_is_is_n=f_h_wgt_is_is_n
+    x_r_ntr_is_n_pls = np.where(
+        operation_mode_is_n == OperationMode.STOP_OPEN,
+        x_r_ntr_nv_is_n_pls,
+        x_r_ntr_non_nv_is_n_pls
     )
 
     f_brm_is_is_n_pls = np.where(
@@ -1144,12 +1147,19 @@ def get_x_r_is_n_pls(f_h_cst_is_n, f_h_wgt_is_is_n, f_l_cl_cst_is_n, f_l_cl_wgt_
     return np.linalg.solve(f_h_wgt_is_is_n - f_l_cl_wgt_is_is_n, f_h_cst_is_n + f_l_cl_cst_is_n)
 
 
-def get_x_r_ntr_is_n_pls(f_h_cst_is_n, f_h_wgt_is_is_n):
+def get_x_r_ntr_is_n_pls(
+        f_h_cst_non_nv_is_n: np.ndarray,
+        f_h_wgt_non_nv_is_is_n: np.ndarray,
+        f_h_cst_nv_is_n: np.ndarray,
+        f_h_wgt_nv_is_is_n: np.ndarray
+) -> Tuple[np.ndarray, np.ndarray]:
     """
 
     Args:
-        f_h_cst_is_n: 係数, kg/s
-        f_h_wgt_is_is_n: 係数, kg/(s (kg/kg(DA)))
+        f_h_cst_non_nv_is_n: ステップnにおける自然風非利用時の室iの係数f_h_cst, kg/s
+        f_h_wgt_non_nv_is_is_n: ステップnにおける自然風利用時の室iの係数f_h_wgt, kg/(s (kg/kg(DA)))
+        f_h_cst_nv_is_n: ステップnにおける自然風利用時の室iの係数f_h_cst, kg/s
+        f_h_wgt_nv_is_is_n: ステップnにおける自然風利用時の室iの係数f_wgt, kg/(s (kg/kg(DA)))
 
     Returns:
         ステップ n+1 における室 i の加湿・除湿を行わない場合の絶対湿度, kg/kg(DA) [i, 1]
@@ -1159,7 +1169,10 @@ def get_x_r_ntr_is_n_pls(f_h_cst_is_n, f_h_wgt_is_is_n):
 
     """
 
-    return np.linalg.solve(f_h_wgt_is_is_n, f_h_cst_is_n)
+    x_r_ntr_non_nv_is_n_pls = np.linalg.solve(f_h_wgt_non_nv_is_is_n, f_h_cst_non_nv_is_n)
+    x_r_ntr_nv_is_n_pls = np.linalg.solve(f_h_wgt_nv_is_is_n, f_h_cst_nv_is_n)
+
+    return x_r_ntr_non_nv_is_n_pls, x_r_ntr_nv_is_n_pls
 
 
 def get_f_h_wgt_is_is_n(
