@@ -123,14 +123,6 @@ class Sequence:
         # すきま風を計算する関数
         get_infiltration = infiltration.make_get_infiltration_function(v_rm_is=rms.v_rm_is, building=building)
 
-        # Operation Mode を決定する関数
-        get_operation_mode_is_n = op.make_get_operation_mode_is_n_function(
-            ac_demand_is_ns=scd.ac_demand_is_ns,
-            is_radiative_heating_is=es.is_radiative_heating_is,
-            is_radiative_cooling_is=es.is_radiative_cooling_is,
-            met_is=rms.met_is
-        )
-
         # 目標作用温度を決定する関数
         get_theta_target_is_n = op.make_get_theta_target_is_n_function(
             is_radiative_heating_is=es.is_radiative_heating_is,
@@ -198,9 +190,6 @@ class Sequence:
         # 隙間風を計算する関数
         self._get_infiltration = get_infiltration
 
-        # Operation MOde を決定する関数
-        self._get_operation_mode_is_n = get_operation_mode_is_n
-
         # 目標作用温度を決定する関数
         self._get_theta_target_is_n = get_theta_target_is_n
 
@@ -263,15 +252,6 @@ class Sequence:
           すきま風量, m3/s, [i,1]
         """
         return self._get_infiltration
-
-    @property
-    def get_operation_mode_is_n(self) -> Callable[[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray], np.ndarray]:
-        """Operation MOde を決定する関数
-
-        Returns:
-
-        """
-        return self._get_operation_mode_is_n
 
     @property
     def get_theta_target_is_n(self) -> Callable[[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray], Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]]:
@@ -605,12 +585,16 @@ def _run_tick(self, n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditio
     p_v_r_is_n = psy.get_p_v_r_is_n(x_r_is_n=c_n.x_r_is_n)
 
     # ステップ n における室 i の運転モード, [i, 1]
-    operation_mode_is_n = self.get_operation_mode_is_n(
-        p_v_r_is_n=p_v_r_is_n,
+    operation_mode_is_n = self.op.get_operation_mode_is_n(
         operation_mode_is_n_mns=c_n.operation_mode_is_n,
-        theta_r_is_n=c_n.theta_r_is_n,
+        p_v_r_is_n=p_v_r_is_n,
         theta_mrt_hum_is_n=c_n.theta_mrt_hum_is_n,
-        n=n
+        theta_r_is_n=c_n.theta_r_is_n,
+        n=n,
+        ac_demand_is_ns=self.scd.ac_demand_is_ns,
+        is_radiative_heating_is=self.es.is_radiative_heating_is,
+        is_radiative_cooling_is=self.es.is_radiative_cooling_is,
+        met_is=self.rms.met_is
     )
 
     v_vent_out_is_n = np.where(

@@ -46,34 +46,45 @@ class Operation:
     def ac_config(self):
         return self._ac_config
 
-    def make_get_operation_mode_is_n_function(
+    def get_operation_mode_is_n(
             self,
+            operation_mode_is_n_mns: np.ndarray,
+            p_v_r_is_n: np.ndarray,
+            theta_mrt_hum_is_n: np.ndarray,
+            theta_r_is_n: np.ndarray,
+            n: int,
             ac_demand_is_ns: np.ndarray,
             is_radiative_heating_is: np.ndarray,
             is_radiative_cooling_is: np.ndarray,
-            met_is: float
-    ) -> Callable[[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray], np.ndarray]:
+            met_is: np.ndarray
+    ):
+
         if self.ac_method in [ACMethod.AIR_TEMPERATURE, ACMethod.SIMPLE, ACMethod.OT]:
 
-            return partial(
-                _get_operation_mode_simple_is_n,
-                ac_demand_is_ns=ac_demand_is_ns
+            return _get_operation_mode_simple_is_n(
+                ac_demand_is_ns=ac_demand_is_ns,
+                operation_mode_is_n_mns=operation_mode_is_n_mns,
+                p_v_r_is_n=p_v_r_is_n,
+                theta_mrt_hum_is_n=theta_mrt_hum_is_n,
+                theta_r_is_n=theta_r_is_n,
+                n=n
             )
 
         elif self.ac_method == ACMethod.PMV:
 
-            return partial(
-                _get_operation_mode_pmv_is_n,
+            return _get_operation_mode_pmv_is_n(
                 ac_demand_is_ns=ac_demand_is_ns,
-                is_radiative_heating_is=is_radiative_heating_is,
                 is_radiative_cooling_is=is_radiative_cooling_is,
+                is_radiative_heating_is=is_radiative_heating_is,
                 method='constant',
-                met_is=met_is
+                operation_mode_is_n_mns=operation_mode_is_n_mns,
+                p_v_r_is_n=p_v_r_is_n,
+                theta_mrt_hum_is_n=theta_mrt_hum_is_n,
+                theta_r_is_n=theta_r_is_n,
+                met_is=met_is,
+                n=n
             )
 
-        else:
-
-            raise Exception()
 
     def make_get_theta_target_is_n_function(
             self,
