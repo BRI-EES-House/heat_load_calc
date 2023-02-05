@@ -1,6 +1,6 @@
 {
   "common": {
-    "ac_method": "simple",
+    "ac_method": "air_temperature",
 	"ac_config": [
 	{
 		"mode": 1,
