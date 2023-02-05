@@ -535,11 +535,9 @@ def _run_tick(n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, re
 
     # ステップ n における室 i の在室者表面における放射熱伝達率の総合熱伝達率に対する比, -, [i, 1]
     k_r_is_n = get_k_r_is_n(n_rm=ss.rms.n_rm)
-    k_r_is_n = np.full_like(k_r_is_n, 0.0)
 
     # ステップnにおける室iの在室者表面における対流熱伝達率の総合熱伝達率に対する比, -, [i, 1]
     k_c_is_n = get_k_c_is_n(n_rm=ss.rms.n_rm)
-    k_c_is_n = np.full_like(k_c_is_n, 1.0)
 
     # ステップn+1における室iの係数 XOT, [i, i]
     f_xot_is_is_n_pls = get_f_xot_is_is_n_pls(
