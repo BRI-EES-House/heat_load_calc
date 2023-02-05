@@ -626,15 +626,24 @@ def _run_tick(self, n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditio
         f_h_cst_non_nv_is_n
     )
 
-    # ステップ n における室 i* の絶対湿度が室 i の潜熱バランスに与える影響を表す係数,　kg/(s kg/kg(DA)), [i, i]
-    f_h_wgt_is_is_n = get_f_h_wgt_is_is_n(
+    # ステップnにおける自然風非利用時の室i*の絶対湿度が室iの潜熱バランスに与える影響を表す係数,　kg/(s kg/kg(DA)), [i, i]
+    # ステップnにおける自然風利用時の室i*の絶対湿度が室iの潜熱バランスに与える影響を表す係数,　kg/(s kg/kg(DA)), [i, i]
+
+    f_h_wgt_non_nv_is_is_n, f_h_wgt_nv_is_is_n = get_f_h_wgt_is_is_n(
         c_lh_frt_is=self.rms.c_lh_frt_is,
         delta_t=delta_t,
         g_lh_frt_is=self.rms.g_lh_frt_is,
         rho_a=get_rho_a(),
         v_rm_is=self.rms.v_rm_is,
         v_vent_int_is_is_n=self.mvs.v_vent_int_is_is,
-        v_vent_out_is_n=v_vent_out_is_n
+        v_vent_out_non_nv_is_n=v_vent_out_non_nv_is_n,
+        v_vent_ntr_is=self.rms.v_vent_ntr_set_is
+    )
+
+    f_h_wgt_is_is_n = np.where(
+        operation_mode_is_n == OperationMode.STOP_OPEN,
+        f_h_wgt_nv_is_is_n,
+        f_h_wgt_non_nv_is_is_n
     )
 
     # ステップ n+1 における室 i の加湿・除湿を行わない場合の絶対湿度, kg/kg(DA) [i, 1]
@@ -1153,7 +1162,16 @@ def get_x_r_ntr_is_n_pls(f_h_cst_is_n, f_h_wgt_is_is_n):
     return np.linalg.solve(f_h_wgt_is_is_n, f_h_cst_is_n)
 
 
-def get_f_h_wgt_is_is_n(c_lh_frt_is, delta_t, g_lh_frt_is, rho_a, v_rm_is, v_vent_int_is_is_n, v_vent_out_is_n):
+def get_f_h_wgt_is_is_n(
+        c_lh_frt_is: np.ndarray,
+        delta_t: float,
+        g_lh_frt_is: np.ndarray,
+        rho_a: float,
+        v_rm_is: np.ndarray,
+        v_vent_int_is_is_n: np.ndarray,
+        v_vent_out_non_nv_is_n: np.ndarray,
+        v_vent_ntr_is: np.ndarray
+) -> Tuple[np.ndarray, np.ndarray]:
     """
 
     Args:
@@ -1163,20 +1181,26 @@ def get_f_h_wgt_is_is_n(c_lh_frt_is, delta_t, g_lh_frt_is, rho_a, v_rm_is, v_ven
         rho_a: 空気の密度, kg/m3
         v_rm_is: 室 i の容量, m3, [i, 1]
         v_vent_int_is_is_n:　ステップ n から ステップ n+1 における室 i* から室 i への室間の空気移動量（流出換気量を含む）, m3/s
-        v_vent_out_is_n: ステップ n から ステップ n+1 における室 i の換気・すきま風・自然風の利用による外気の流入量, m3/s
+        v_vent_out_non_nv_is_n: ステップnからステップn+1における室iの換気・隙間風による外気の流入量, m3/s, [i, 1]
+        v_vent_ntr_is: 室iの自然風利用時の換気量, m3/s, [i, 1]
 
     Returns:
-        ステップ n における室 i* の絶対湿度が室 i の潜熱バランスに与える影響を表す係数,　kg/(s kg/kg(DA)), [i, i]
+        ステップnにおける自然風非利用時の室i*の絶対湿度が室iの潜熱バランスに与える影響を表す係数,　kg/(s kg/kg(DA)), [i, i]
+        ステップnにおける自然風利用時の室i*の絶対湿度が室iの潜熱バランスに与える影響を表す係数,　kg/(s kg/kg(DA)), [i, i]
 
     Notes:
         式(1.5)
 
     """
 
-    return v_diag(
-        rho_a * (v_rm_is / delta_t + v_vent_out_is_n)
+    f_h_wgt_non_nv_is_is_n = v_diag(
+        rho_a * (v_rm_is / delta_t + v_vent_out_non_nv_is_n)
         + c_lh_frt_is * g_lh_frt_is / (c_lh_frt_is + delta_t * g_lh_frt_is)
     ) - rho_a * v_vent_int_is_is_n
+
+    f_h_wgt_nv_is_is_n = f_h_wgt_non_nv_is_is_n + v_diag(rho_a * v_vent_ntr_is)
+
+    return f_h_wgt_non_nv_is_is_n, f_h_wgt_nv_is_is_n
 
 
 def get_f_h_cst_is_n(
