@@ -118,7 +118,11 @@ class Sequence:
         es = Equipments(dict_equipments=rd['equipments'], n_rm=rms.n_rm, n_b=bs.n_b, bs=bs)
 
         # Operation Class
-        op = operation_.Operation.make_operation(d=rd['common'])
+        op = operation_.Operation.make_operation(
+            d=rd['common'],
+            ac_setting_is_ns=scd.ac_setting_is_ns,
+            n_rm=rms.n_rm
+        )
 
         # すきま風を計算する関数
         get_infiltration = infiltration.make_get_infiltration_function(v_rm_is=rms.v_rm_is, building=building)
@@ -394,7 +398,7 @@ def _pre_calc(
 
     # ステップnにおける室iの在室者表面における対流熱伝達率の総合熱伝達率に対する比, -, [i, 1]
     # ステップ n における室 i の在室者表面における放射熱伝達率の総合熱伝達率に対する比, -, [i, 1]
-    k_c_is_n, k_r_is_n = op.get_k_is(n_rm=rms.n_rm)
+    k_c_is_n, k_r_is_n = op.get_k_is()
 
     # ステップn+1における室iの係数 XOT, [i, i]
     f_xot_is_is_n_pls = get_f_xot_is_is_n_pls(
@@ -564,7 +568,38 @@ def _run_tick(self, n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditio
         f_brm_nv_is_is_n_pls=f_brm_nv_is_is_n_pls
     )
 
-    # ステップ n+1 における自然作用温度, degree C, [i, 1]
+    # ステップnにおける室iの自然風の非利用時の潜熱バランスに関する係数f_h_cst, kg / s, [i, 1]
+    # ステップnにおける室iの自然風の利用時の潜熱バランスに関する係数f_h_cst, kg / s, [i, 1]
+    f_h_cst_non_nv_is_n, f_h_cst_nv_is_n = get_f_h_cst_is_n(
+        c_lh_frt_is=self.rms.c_lh_frt_is,
+        delta_t=delta_t,
+        g_lh_frt_is=self.rms.g_lh_frt_is,
+        rho_a=get_rho_a(),
+        v_rm_is=self.rms.v_rm_is,
+        x_frt_is_n=c_n.x_frt_is_n,
+        x_gen_is_n=self.scd.x_gen_is_ns[:, n].reshape(-1, 1),
+        x_hum_is_n=x_hum_is_n,
+        x_o_n_pls=self.weather.x_o_ns_plus[n + 1],
+        x_r_is_n=c_n.x_r_is_n,
+        v_vent_out_non_nv_is_n=v_vent_out_non_nv_is_n,
+        v_vent_ntr_is= self.rms.v_vent_ntr_set_is
+    )
+
+    # ステップnにおける自然風非利用時の室i*の絶対湿度が室iの潜熱バランスに与える影響を表す係数,　kg/(s kg/kg(DA)), [i, i]
+    # ステップnにおける自然風利用時の室i*の絶対湿度が室iの潜熱バランスに与える影響を表す係数,　kg/(s kg/kg(DA)), [i, i]
+    f_h_wgt_non_nv_is_is_n, f_h_wgt_nv_is_is_n = get_f_h_wgt_is_is_n(
+        c_lh_frt_is=self.rms.c_lh_frt_is,
+        delta_t=delta_t,
+        g_lh_frt_is=self.rms.g_lh_frt_is,
+        rho_a=get_rho_a(),
+        v_rm_is=self.rms.v_rm_is,
+        v_vent_int_is_is_n=self.mvs.v_vent_int_is_is,
+        v_vent_out_non_nv_is_n=v_vent_out_non_nv_is_n,
+        v_vent_ntr_is=self.rms.v_vent_ntr_set_is
+    )
+
+    # ステップn+1における自然風非利用時の自然作用温度, degree C, [i, 1]
+    # ステップn+1における自然風利用時の自然作用温度, degree C, [i, 1]
     theta_r_ot_ntr_non_nv_is_n_pls, theta_r_ot_ntr_nv_is_n_pls = get_theta_r_ot_ntr_is_n_pls(
         f_brc_ot_non_nv_is_n_pls=f_brc_ot_non_nv_is_n_pls,
         f_brc_ot_nv_is_n_pls=f_brc_ot_nv_is_n_pls,
@@ -581,6 +616,15 @@ def _run_tick(self, n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditio
     theta_mrt_hum_ntr_non_nv_is_n_pls = np.dot(ss.f_mrt_is_js, theta_s_ntr_non_nv_js_n_pls)
     theta_mrt_hum_ntr_nv_is_n_pls = np.dot(ss.f_mrt_is_js, theta_s_ntr_nv_js_n_pls)
 
+    # ステップn+1における室iの自然風非利用時の加湿・除湿を行わない場合の絶対湿度, kg/kg(DA) [i, 1]
+    # ステップn+1における室iの自然風利用時の加湿・除湿を行わない場合の絶対湿度, kg/kg(DA) [i, 1]
+    x_r_ntr_non_nv_is_n_pls, x_r_ntr_nv_is_n_pls = get_x_r_ntr_is_n_pls(
+        f_h_cst_non_nv_is_n=f_h_cst_non_nv_is_n,
+        f_h_wgt_non_nv_is_is_n=f_h_wgt_non_nv_is_is_n,
+        f_h_cst_nv_is_n=f_h_cst_nv_is_n,
+        f_h_wgt_nv_is_is_n=f_h_wgt_nv_is_is_n
+    )
+
     # ステップnにおける室iの水蒸気圧, Pa, [i, 1]
     p_v_r_is_n = psy.get_p_v_r_is_n(x_r_is_n=c_n.x_r_is_n)
 
@@ -594,45 +638,27 @@ def _run_tick(self, n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditio
         ac_demand_is_ns=self.scd.ac_demand_is_ns,
         is_radiative_heating_is=self.es.is_radiative_heating_is,
         is_radiative_cooling_is=self.es.is_radiative_cooling_is,
-        met_is=self.rms.met_is
+        met_is=self.rms.met_is,
+        theta_r_ot_ntr_non_nv_is_n_pls=theta_r_ot_ntr_non_nv_is_n_pls,
+        theta_r_ot_ntr_nv_is_n_pls=theta_r_ot_ntr_nv_is_n_pls
     )
 
-    v_vent_out_is_n = np.where(
+    f_h_cst_is_n = np.where(
         operation_mode_is_n == OperationMode.STOP_OPEN,
-        v_vent_out_non_nv_is_n + self.rms.v_vent_ntr_set_is,
-        v_vent_out_non_nv_is_n
+        f_h_cst_nv_is_n,
+        f_h_cst_non_nv_is_n
     )
 
-    # ステップ n における室　i　の潜熱バランスに関する係数, kg/s, [i, 1]
-    f_h_cst_is_n = get_f_h_cst_is_n(
-        c_lh_frt_is=self.rms.c_lh_frt_is,
-        delta_t=delta_t,
-        g_lh_frt_is=self.rms.g_lh_frt_is,
-        rho_a=get_rho_a(),
-        v_rm_is=self.rms.v_rm_is,
-        v_vent_out_is_n=v_vent_out_is_n,
-        x_frt_is_n=c_n.x_frt_is_n,
-        x_gen_is_n=self.scd.x_gen_is_ns[:, n].reshape(-1, 1),
-        x_hum_is_n=x_hum_is_n,
-        x_o_n_pls=self.weather.x_o_ns_plus[n + 1],
-        x_r_is_n=c_n.x_r_is_n
+    f_h_wgt_is_is_n = np.where(
+        operation_mode_is_n == OperationMode.STOP_OPEN,
+        f_h_wgt_nv_is_is_n,
+        f_h_wgt_non_nv_is_is_n
     )
 
-    # ステップ n における室 i* の絶対湿度が室 i の潜熱バランスに与える影響を表す係数,　kg/(s kg/kg(DA)), [i, i]
-    f_h_wgt_is_is_n = get_f_h_wgt_is_is_n(
-        c_lh_frt_is=self.rms.c_lh_frt_is,
-        delta_t=delta_t,
-        g_lh_frt_is=self.rms.g_lh_frt_is,
-        rho_a=get_rho_a(),
-        v_rm_is=self.rms.v_rm_is,
-        v_vent_int_is_is_n=self.mvs.v_vent_int_is_is,
-        v_vent_out_is_n=v_vent_out_is_n
-    )
-
-    # ステップ n+1 における室 i の加湿・除湿を行わない場合の絶対湿度, kg/kg(DA) [i, 1]
-    x_r_ntr_is_n_pls = get_x_r_ntr_is_n_pls(
-        f_h_cst_is_n=f_h_cst_is_n,
-        f_h_wgt_is_is_n=f_h_wgt_is_is_n
+    x_r_ntr_is_n_pls = np.where(
+        operation_mode_is_n == OperationMode.STOP_OPEN,
+        x_r_ntr_nv_is_n_pls,
+        x_r_ntr_non_nv_is_n_pls
     )
 
     f_brm_is_is_n_pls = np.where(
@@ -1127,12 +1153,19 @@ def get_x_r_is_n_pls(f_h_cst_is_n, f_h_wgt_is_is_n, f_l_cl_cst_is_n, f_l_cl_wgt_
     return np.linalg.solve(f_h_wgt_is_is_n - f_l_cl_wgt_is_is_n, f_h_cst_is_n + f_l_cl_cst_is_n)
 
 
-def get_x_r_ntr_is_n_pls(f_h_cst_is_n, f_h_wgt_is_is_n):
+def get_x_r_ntr_is_n_pls(
+        f_h_cst_non_nv_is_n: np.ndarray,
+        f_h_wgt_non_nv_is_is_n: np.ndarray,
+        f_h_cst_nv_is_n: np.ndarray,
+        f_h_wgt_nv_is_is_n: np.ndarray
+) -> Tuple[np.ndarray, np.ndarray]:
     """
 
     Args:
-        f_h_cst_is_n: 係数, kg/s
-        f_h_wgt_is_is_n: 係数, kg/(s (kg/kg(DA)))
+        f_h_cst_non_nv_is_n: ステップnにおける自然風非利用時の室iの係数f_h_cst, kg/s
+        f_h_wgt_non_nv_is_is_n: ステップnにおける自然風利用時の室iの係数f_h_wgt, kg/(s (kg/kg(DA)))
+        f_h_cst_nv_is_n: ステップnにおける自然風利用時の室iの係数f_h_cst, kg/s
+        f_h_wgt_nv_is_is_n: ステップnにおける自然風利用時の室iの係数f_wgt, kg/(s (kg/kg(DA)))
 
     Returns:
         ステップ n+1 における室 i の加湿・除湿を行わない場合の絶対湿度, kg/kg(DA) [i, 1]
@@ -1142,10 +1175,22 @@ def get_x_r_ntr_is_n_pls(f_h_cst_is_n, f_h_wgt_is_is_n):
 
     """
 
-    return np.linalg.solve(f_h_wgt_is_is_n, f_h_cst_is_n)
+    x_r_ntr_non_nv_is_n_pls = np.linalg.solve(f_h_wgt_non_nv_is_is_n, f_h_cst_non_nv_is_n)
+    x_r_ntr_nv_is_n_pls = np.linalg.solve(f_h_wgt_nv_is_is_n, f_h_cst_nv_is_n)
+
+    return x_r_ntr_non_nv_is_n_pls, x_r_ntr_nv_is_n_pls
 
 
-def get_f_h_wgt_is_is_n(c_lh_frt_is, delta_t, g_lh_frt_is, rho_a, v_rm_is, v_vent_int_is_is_n, v_vent_out_is_n):
+def get_f_h_wgt_is_is_n(
+        c_lh_frt_is: np.ndarray,
+        delta_t: float,
+        g_lh_frt_is: np.ndarray,
+        rho_a: float,
+        v_rm_is: np.ndarray,
+        v_vent_int_is_is_n: np.ndarray,
+        v_vent_out_non_nv_is_n: np.ndarray,
+        v_vent_ntr_is: np.ndarray
+) -> Tuple[np.ndarray, np.ndarray]:
     """
 
     Args:
@@ -1155,23 +1200,42 @@ def get_f_h_wgt_is_is_n(c_lh_frt_is, delta_t, g_lh_frt_is, rho_a, v_rm_is, v_ven
         rho_a: 空気の密度, kg/m3
         v_rm_is: 室 i の容量, m3, [i, 1]
         v_vent_int_is_is_n:　ステップ n から ステップ n+1 における室 i* から室 i への室間の空気移動量（流出換気量を含む）, m3/s
-        v_vent_out_is_n: ステップ n から ステップ n+1 における室 i の換気・すきま風・自然風の利用による外気の流入量, m3/s
+        v_vent_out_non_nv_is_n: ステップnからステップn+1における室iの換気・隙間風による外気の流入量, m3/s, [i, 1]
+        v_vent_ntr_is: 室iの自然風利用時の換気量, m3/s, [i, 1]
 
     Returns:
-        ステップ n における室 i* の絶対湿度が室 i の潜熱バランスに与える影響を表す係数,　kg/(s kg/kg(DA)), [i, i]
+        ステップnにおける自然風非利用時の室i*の絶対湿度が室iの潜熱バランスに与える影響を表す係数,　kg/(s kg/kg(DA)), [i, i]
+        ステップnにおける自然風利用時の室i*の絶対湿度が室iの潜熱バランスに与える影響を表す係数,　kg/(s kg/kg(DA)), [i, i]
 
     Notes:
         式(1.5)
 
     """
 
-    return v_diag(
-        rho_a * (v_rm_is / delta_t + v_vent_out_is_n)
+    f_h_wgt_non_nv_is_is_n = v_diag(
+        rho_a * (v_rm_is / delta_t + v_vent_out_non_nv_is_n)
         + c_lh_frt_is * g_lh_frt_is / (c_lh_frt_is + delta_t * g_lh_frt_is)
     ) - rho_a * v_vent_int_is_is_n
 
+    f_h_wgt_nv_is_is_n = f_h_wgt_non_nv_is_is_n + v_diag(rho_a * v_vent_ntr_is)
 
-def get_f_h_cst_is_n(c_lh_frt_is, delta_t, g_lh_frt_is, rho_a, v_rm_is, v_vent_out_is_n, x_frt_is_n, x_gen_is_n, x_hum_is_n, x_o_n_pls, x_r_is_n):
+    return f_h_wgt_non_nv_is_is_n, f_h_wgt_nv_is_is_n
+
+
+def get_f_h_cst_is_n(
+        c_lh_frt_is: np.ndarray,
+        delta_t: float,
+        g_lh_frt_is: np.ndarray,
+        rho_a: float,
+        v_rm_is: np.ndarray,
+        x_frt_is_n: np.ndarray,
+        x_gen_is_n: np.ndarray,
+        x_hum_is_n: np.ndarray,
+        x_o_n_pls: np.ndarray,
+        x_r_is_n: np.ndarray,
+        v_vent_out_non_nv_is_n: np.ndarray,
+        v_vent_ntr_is: np.ndarray
+) -> Tuple[np.ndarray, np.ndarray]:
     """
 
     Args:
@@ -1180,25 +1244,30 @@ def get_f_h_cst_is_n(c_lh_frt_is, delta_t, g_lh_frt_is, rho_a, v_rm_is, v_vent_o
         g_lh_frt_is: 室 i の備品等と空気間の湿気コンダクタンス, kg/(s kg/kg(DA)), [i, 1]
         rho_a: 空気の密度, kg/m3
         v_rm_is: 室 i の容量, m3, [i, 1]
-        v_vent_out_is_n: ステップ n から ステップ n+1 における室 i の換気・すきま風・自然風の利用による外気の流入量, m3/s
         x_frt_is_n: ステップ n における室 i の備品等の絶対湿度, kg/kg(DA), [i, 1]
         x_gen_is_n: ステップ n からステップ n+1 における室 i の人体発湿を除く内部発湿, kg/s
         x_hum_is_n: ステップ n からステップ n+1 における室 i の人体発湿, kg/s
         x_o_n_pls: ステップ n における外気絶対湿度, kg/kg(DA)
         x_r_is_n: ステップ n における室 i の絶対湿度, kg/kg(DA)
+        v_vent_out_non_nv_is_n: ステップnからステップn+1における室iの換気・隙間風による外気の流入量, m3/s, [i, 1]
+        v_vent_ntr_is: 室iの自然風利用時の換気量, m3/s, [i, 1]
 
     Returns:
-        ステップ n における室 i の潜熱バランスに関する係数, kg/s, [i, 1]
+        ステップnにおける室iの自然風の非利用時の潜熱バランスに関する係数f_h_cst, kg/s, [i, 1]
+        ステップnにおける室iの自然風の利用時の潜熱バランスに関する係数f_h_cst, kg/s, [i, 1]
 
     Notes:
         式(1.6)
 
     """
+    f_h_cst_non_nv_is_n = rho_a * v_rm_is / delta_t * x_r_is_n \
+       + rho_a * v_vent_out_non_nv_is_n * x_o_n_pls \
+       + c_lh_frt_is * g_lh_frt_is / (c_lh_frt_is + delta_t * g_lh_frt_is) * x_frt_is_n \
+       + x_gen_is_n + x_hum_is_n
 
-    return rho_a * v_rm_is / delta_t * x_r_is_n \
-           + rho_a * v_vent_out_is_n * x_o_n_pls \
-           + c_lh_frt_is * g_lh_frt_is / (c_lh_frt_is + delta_t * g_lh_frt_is) * x_frt_is_n \
-           + x_gen_is_n + x_hum_is_n
+    f_h_cst_nv_is_n = f_h_cst_non_nv_is_n + rho_a * v_vent_ntr_is * x_o_n_pls
+
+    return f_h_cst_non_nv_is_n, f_h_cst_nv_is_n
 
 
 def get_x_hum_is_n(n_hum_is_n, x_hum_psn_is_n):

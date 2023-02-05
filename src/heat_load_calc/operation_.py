@@ -21,22 +21,53 @@ class ACMethod(Enum):
 
 class Operation:
 
-    def __init__(self, ac_method: ACMethod, ac_config: Dict):
+    def __init__(
+            self,
+            ac_method: ACMethod,
+            ac_config: Dict,
+            lower_target_is_ns: np.ndarray,
+            upper_target_is_ns: np.ndarray,
+            n_rm
+    ):
         self._ac_method = ac_method
         self._ac_config = ac_config
+        self._lower_target = lower_target_is_ns
+        self._upper_target = upper_target_is_ns
+        self._n_rm = n_rm
 
     @classmethod
-    def make_operation(cls, d: Dict):
+    def make_operation(cls, d: Dict, ac_setting_is_ns: np.ndarray, n_rm: int):
 
         ac_method = ACMethod(d['ac_method'])
 
         if 'ac_config' in d:
             ac_config = d['ac_config']
         else:
-            ac_config = [{'mode': 1, 'lower': 20.0, 'upper': 27.0},
-                         {'mode': 2, 'lower': 20.0, 'upper': 27.0}]
+            if ac_method in [ACMethod.AIR_TEMPERATURE, ACMethod.SIMPLE, ACMethod.OT]:
+                ac_config = [
+                    {'mode': 1, 'lower': 20.0, 'upper': 27.0},
+                    {'mode': 2, 'lower': 20.0, 'upper': 27.0}
+                ]
+            elif ac_method == ACMethod.PMV:
+                ac_config = [
+                    {'mode': 1, 'lower': -0.5, 'upper': 0.5},
+                    {'mode': 2, 'lower': -0.5, 'upper': 0.5}
+                ]
 
-        return Operation(ac_method=ac_method, ac_config=ac_config)
+        lower_target_is_ns = np.full_like(ac_setting_is_ns, fill_value=np.nan, dtype=float)
+        upper_target_is_ns = np.full_like(ac_setting_is_ns, fill_value=np.nan, dtype=float)
+
+        for conf in ac_config:
+            lower_target_is_ns[ac_setting_is_ns == conf['mode']] = conf['lower']
+            upper_target_is_ns[ac_setting_is_ns == conf['mode']] = conf['upper']
+
+        return Operation(
+            ac_method=ac_method,
+            ac_config=ac_config,
+            lower_target_is_ns=lower_target_is_ns,
+            upper_target_is_ns=upper_target_is_ns,
+            n_rm=n_rm
+        )
 
     @property
     def ac_method(self):
@@ -56,18 +87,37 @@ class Operation:
             ac_demand_is_ns: np.ndarray,
             is_radiative_heating_is: np.ndarray,
             is_radiative_cooling_is: np.ndarray,
-            met_is: np.ndarray
+            met_is: np.ndarray,
+            theta_r_ot_ntr_non_nv_is_n_pls: np.ndarray,
+            theta_r_ot_ntr_nv_is_n_pls: np.ndarray
+
     ):
+        """
+
+        Args:
+            operation_mode_is_n_mns:
+            p_v_r_is_n:
+            theta_mrt_hum_is_n:
+            theta_r_is_n:
+            n:
+            ac_demand_is_ns:
+            is_radiative_heating_is:
+            is_radiative_cooling_is:
+            met_is:
+            theta_r_ot_ntr_non_nv_is_n_pls: ステップn+1における自然風非利用時の自然作用温度, degree C, [i, 1]
+            theta_r_ot_ntr_nv_is_n_pls: ステップn+1における自然風利用時の自然作用温度, degree C, [i, 1]
+
+        Returns:
+
+        """
 
         if self.ac_method in [ACMethod.AIR_TEMPERATURE, ACMethod.SIMPLE, ACMethod.OT]:
 
             return _get_operation_mode_simple_is_n(
                 ac_demand_is_ns=ac_demand_is_ns,
                 operation_mode_is_n_mns=operation_mode_is_n_mns,
-                p_v_r_is_n=p_v_r_is_n,
-                theta_mrt_hum_is_n=theta_mrt_hum_is_n,
-                theta_r_is_n=theta_r_is_n,
-                n=n
+                n=n,
+                n_rm=self._n_rm
             )
 
         elif self.ac_method == ACMethod.PMV:
@@ -96,17 +146,10 @@ class Operation:
 
         if self.ac_method in [ACMethod.AIR_TEMPERATURE, ACMethod.SIMPLE, ACMethod.OT]:
 
-            theta_lower_target_is_ns = np.full_like(ac_setting_is_ns, fill_value=np.nan, dtype=float)
-            theta_upper_target_is_ns = np.full_like(ac_setting_is_ns, fill_value=np.nan, dtype=float)
-
-            for conf in self.ac_config:
-                theta_lower_target_is_ns[ac_setting_is_ns == conf['mode']] = conf['lower']
-                theta_upper_target_is_ns[ac_setting_is_ns == conf['mode']] = conf['upper']
-
             return partial(
                 _get_theta_target_simple,
-                theta_lower_target_is_ns=theta_lower_target_is_ns,
-                theta_upper_target_is_ns=theta_upper_target_is_ns
+                theta_lower_target_is_ns=self._lower_target,
+                theta_upper_target_is_ns=self._upper_target
             )
 
         elif self.ac_method == ACMethod.PMV:
@@ -120,22 +163,20 @@ class Operation:
         else:
             raise Exception()
 
-    def get_k_is(self, n_rm: int) -> Tuple[np.ndarray, np.ndarray]:
+    def get_k_is(self) -> Tuple[np.ndarray, np.ndarray]:
         """
 
-        Args:
-            n_rm: 室の数
         Returns:
             ステップ n における室 i の人体表面の対流熱伝達率が総合熱伝達率に占める割合, -, [i, 1]
             ステップ n における室 i の人体表面の放射熱伝達率が総合熱伝達率に占める割合, -, [i, 1]
         """
 
         if self.ac_method == ACMethod.AIR_TEMPERATURE:
-            k_c_is = np.full((n_rm, 1), 1.0, dtype=float)
-            k_r_is = np.full((n_rm, 1), 0.0, dtype=float)
+            k_c_is = np.full((self._n_rm, 1), 1.0, dtype=float)
+            k_r_is = np.full((self._n_rm, 1), 0.0, dtype=float)
         elif self.ac_method in [ACMethod.OT, ACMethod.PMV, ACMethod.SIMPLE]:
-            k_c_is = np.full((n_rm, 1), 0.5, dtype=float)
-            k_r_is = np.full((n_rm, 1), 0.5, dtype=float)
+            k_c_is = np.full((self._n_rm, 1), 0.5, dtype=float)
+            k_r_is = np.full((self._n_rm, 1), 0.5, dtype=float)
         else:
             raise Exception
 
@@ -145,15 +186,14 @@ class Operation:
 def _get_operation_mode_simple_is_n(
         ac_demand_is_ns: np.ndarray,
         operation_mode_is_n_mns: np.ndarray,
-        p_v_r_is_n: np.ndarray,
-        theta_mrt_hum_is_n: np.ndarray,
-        theta_r_is_n: np.ndarray,
-        n: int
+        n: int,
+        n_rm
 ):
 
     ac_demand_is_n = ac_demand_is_ns[:, n].reshape(-1, 1)
 
-    v = np.full_like(operation_mode_is_n_mns, OperationMode.STOP_CLOSE)
+    #v = np.full_like(operation_mode_is_n_mns, OperationMode.STOP_CLOSE)
+    v = np.full((n_rm, 1), OperationMode.STOP_CLOSE)
 
     v[ac_demand_is_n > 0] = OperationMode.HEATING_AND_COOLING
 
