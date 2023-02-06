@@ -5,7 +5,7 @@ from typing import Dict, Tuple, Callable
 
 from heat_load_calc import pmv, occupants
 from heat_load_calc.operation_mode import OperationMode
-
+from heat_load_calc import psychrometrics as psy
 
 class ACMethod(Enum):
 
@@ -87,13 +87,17 @@ class Operation:
             theta_mrt_hum_is_n: np.ndarray,
             theta_r_is_n: np.ndarray,
             n: int,
-            ac_demand_is_ns: np.ndarray,
             is_radiative_heating_is: np.ndarray,
             is_radiative_cooling_is: np.ndarray,
             met_is: np.ndarray,
             theta_r_ot_ntr_non_nv_is_n_pls: np.ndarray,
-            theta_r_ot_ntr_nv_is_n_pls: np.ndarray
-
+            theta_r_ot_ntr_nv_is_n_pls: np.ndarray,
+            theta_r_ntr_non_nv_is_n_pls: np.ndarray,
+            theta_r_ntr_nv_is_n_pls: np.ndarray,
+            theta_mrt_hum_ntr_non_nv_is_n_pls: np.ndarray,
+            theta_mrt_hum_ntr_nv_is_n_pls: np.ndarray,
+            x_r_ntr_non_nv_is_n_pls: np.ndarray,
+            x_r_ntr_nv_is_n_pls: np.ndarray
     ):
         """
 
@@ -103,7 +107,6 @@ class Operation:
             theta_mrt_hum_is_n:
             theta_r_is_n:
             n:
-            ac_demand_is_ns:
             is_radiative_heating_is:
             is_radiative_cooling_is:
             met_is:
@@ -141,7 +144,11 @@ class Operation:
                 theta_r_is_n=theta_r_is_n,
                 met_is=met_is,
                 n=n,
-                ac_demand_is_n=ac_demand_is_n
+                upper_target_is_n=upper_target_is_n,
+                lower_target_is_n=lower_target_is_n,
+                ac_demand_is_n=ac_demand_is_n,
+                theta_r_ot_ntr_non_nv_is_n_pls=theta_r_ot_ntr_non_nv_is_n_pls,
+                theta_r_ot_ntr_nv_is_n_pls=theta_r_ot_ntr_nv_is_n_pls
             )
 
 
@@ -222,7 +229,11 @@ def _get_operation_mode_pmv_is_n(
         theta_r_is_n: np.ndarray,
         met_is: np.ndarray,
         n: int,
-        ac_demand_is_n: np.ndarray
+        upper_target_is_n: np.ndarray,
+        lower_target_is_n: np.ndarray,
+        ac_demand_is_n: np.ndarray,
+        theta_r_ot_ntr_non_nv_is_n_pls: np.ndarray,
+        theta_r_ot_ntr_nv_is_n_pls: np.ndarray
 ):
 
     is_window_open_is_n = OperationMode.u_is_window_open(oms=operation_mode_is_n_mns)
