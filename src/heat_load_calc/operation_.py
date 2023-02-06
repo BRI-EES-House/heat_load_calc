@@ -83,7 +83,7 @@ class Operation:
     def get_operation_mode_is_n(
             self,
             operation_mode_is_n_mns: np.ndarray,
-            p_v_r_is_n: np.ndarray,
+            x_r_is_n: np.ndarray,
             theta_mrt_hum_is_n: np.ndarray,
             theta_r_is_n: np.ndarray,
             n: int,
@@ -103,7 +103,7 @@ class Operation:
 
         Args:
             operation_mode_is_n_mns:
-            p_v_r_is_n:
+            x_r_is_n:
             theta_mrt_hum_is_n:
             theta_r_is_n:
             n:
@@ -134,21 +134,30 @@ class Operation:
 
         elif self.ac_method == ACMethod.PMV:
 
+            # ステップnにおける室iの水蒸気圧, Pa, [i, 1]
+            p_v_r_is_n = psy.get_p_v_r_is_n(x_r_is_n=x_r_ntr_non_nv_is_n_pls)
+
             return _get_operation_mode_pmv_is_n(
                 is_radiative_cooling_is=is_radiative_cooling_is,
                 is_radiative_heating_is=is_radiative_heating_is,
                 method='constant',
                 operation_mode_is_n_mns=operation_mode_is_n_mns,
                 p_v_r_is_n=p_v_r_is_n,
-                theta_mrt_hum_is_n=theta_mrt_hum_is_n,
-                theta_r_is_n=theta_r_is_n,
+                theta_mrt_hum_is_n=theta_mrt_hum_ntr_non_nv_is_n_pls,
+                theta_r_is_n=theta_r_ot_ntr_non_nv_is_n_pls,
                 met_is=met_is,
                 n=n,
                 upper_target_is_n=upper_target_is_n,
                 lower_target_is_n=lower_target_is_n,
                 ac_demand_is_n=ac_demand_is_n,
                 theta_r_ot_ntr_non_nv_is_n_pls=theta_r_ot_ntr_non_nv_is_n_pls,
-                theta_r_ot_ntr_nv_is_n_pls=theta_r_ot_ntr_nv_is_n_pls
+                theta_r_ot_ntr_nv_is_n_pls=theta_r_ot_ntr_nv_is_n_pls,
+                theta_r_ntr_non_nv_is_n_pls=theta_r_ntr_non_nv_is_n_pls,
+                theta_r_ntr_nv_is_n_pls=theta_r_ntr_nv_is_n_pls,
+                theta_mrt_hum_ntr_non_nv_is_n_pls=theta_mrt_hum_ntr_non_nv_is_n_pls,
+                theta_mrt_hum_ntr_nv_is_n_pls=theta_mrt_hum_ntr_nv_is_n_pls,
+                x_r_ntr_non_nv_is_n_pls=x_r_ntr_non_nv_is_n_pls,
+                x_r_ntr_nv_is_n_pls=x_r_ntr_nv_is_n_pls
             )
 
 
@@ -233,7 +242,14 @@ def _get_operation_mode_pmv_is_n(
         lower_target_is_n: np.ndarray,
         ac_demand_is_n: np.ndarray,
         theta_r_ot_ntr_non_nv_is_n_pls: np.ndarray,
-        theta_r_ot_ntr_nv_is_n_pls: np.ndarray
+        theta_r_ot_ntr_nv_is_n_pls: np.ndarray,
+        theta_r_ntr_non_nv_is_n_pls: np.ndarray,
+        theta_r_ntr_nv_is_n_pls: np.ndarray,
+        theta_mrt_hum_ntr_non_nv_is_n_pls: np.ndarray,
+        theta_mrt_hum_ntr_nv_is_n_pls: np.ndarray,
+        x_r_ntr_non_nv_is_n_pls: np.ndarray,
+        x_r_ntr_nv_is_n_pls: np.ndarray
+
 ):
 
     is_window_open_is_n = OperationMode.u_is_window_open(oms=operation_mode_is_n_mns)
