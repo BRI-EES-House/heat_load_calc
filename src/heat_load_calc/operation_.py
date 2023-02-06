@@ -27,16 +27,18 @@ class Operation:
             ac_config: Dict,
             lower_target_is_ns: np.ndarray,
             upper_target_is_ns: np.ndarray,
+            ac_demand_is_ns: np.ndarray,
             n_rm
     ):
         self._ac_method = ac_method
         self._ac_config = ac_config
-        self._lower_target = lower_target_is_ns
-        self._upper_target = upper_target_is_ns
+        self._lower_target_is_ns = lower_target_is_ns
+        self._upper_target_is_ns = upper_target_is_ns
+        self._ac_demand_is_ns = ac_demand_is_ns
         self._n_rm = n_rm
 
     @classmethod
-    def make_operation(cls, d: Dict, ac_setting_is_ns: np.ndarray, n_rm: int):
+    def make_operation(cls, d: Dict, ac_setting_is_ns: np.ndarray, ac_demand_is_ns: np.ndarray, n_rm: int):
 
         ac_method = ACMethod(d['ac_method'])
 
@@ -66,6 +68,7 @@ class Operation:
             ac_config=ac_config,
             lower_target_is_ns=lower_target_is_ns,
             upper_target_is_ns=upper_target_is_ns,
+            ac_demand_is_ns=ac_demand_is_ns,
             n_rm=n_rm
         )
 
@@ -111,19 +114,24 @@ class Operation:
 
         """
 
+        upper_target_is_n = self._upper_target_is_ns[:, n].reshape(-1, 1)
+        lower_target_is_n = self._lower_target_is_ns[:, n].reshape(-1, 1)
+        ac_demand_is_n = self._ac_demand_is_ns[:, n].reshape(-1, 1)
+
         if self.ac_method in [ACMethod.AIR_TEMPERATURE, ACMethod.SIMPLE, ACMethod.OT]:
 
             return _get_operation_mode_simple_is_n(
-                ac_demand_is_ns=ac_demand_is_ns,
-                operation_mode_is_n_mns=operation_mode_is_n_mns,
-                n=n,
-                n_rm=self._n_rm
+                n_rm=self._n_rm,
+                theta_r_ot_ntr_non_nv_is_n_pls=theta_r_ot_ntr_non_nv_is_n_pls,
+                theta_r_ot_ntr_nv_is_n_pls=theta_r_ot_ntr_nv_is_n_pls,
+                upper_target_is_n=upper_target_is_n,
+                lower_target_is_n=lower_target_is_n,
+                ac_demand_is_n=ac_demand_is_n
             )
 
         elif self.ac_method == ACMethod.PMV:
 
             return _get_operation_mode_pmv_is_n(
-                ac_demand_is_ns=ac_demand_is_ns,
                 is_radiative_cooling_is=is_radiative_cooling_is,
                 is_radiative_heating_is=is_radiative_heating_is,
                 method='constant',
@@ -132,7 +140,8 @@ class Operation:
                 theta_mrt_hum_is_n=theta_mrt_hum_is_n,
                 theta_r_is_n=theta_r_is_n,
                 met_is=met_is,
-                n=n
+                n=n,
+                ac_demand_is_n=ac_demand_is_n
             )
 
 
@@ -148,8 +157,8 @@ class Operation:
 
             return partial(
                 _get_theta_target_simple,
-                theta_lower_target_is_ns=self._lower_target,
-                theta_upper_target_is_ns=self._upper_target
+                theta_lower_target_is_ns=self._lower_target_is_ns,
+                theta_upper_target_is_ns=self._upper_target_is_ns
             )
 
         elif self.ac_method == ACMethod.PMV:
@@ -184,24 +193,26 @@ class Operation:
 
 
 def _get_operation_mode_simple_is_n(
-        ac_demand_is_ns: np.ndarray,
-        operation_mode_is_n_mns: np.ndarray,
-        n: int,
-        n_rm
+        n_rm,
+        theta_r_ot_ntr_non_nv_is_n_pls,
+        theta_r_ot_ntr_nv_is_n_pls,
+        upper_target_is_n,
+        lower_target_is_n,
+        ac_demand_is_n
 ):
 
-    ac_demand_is_n = ac_demand_is_ns[:, n].reshape(-1, 1)
-
-    #v = np.full_like(operation_mode_is_n_mns, OperationMode.STOP_CLOSE)
     v = np.full((n_rm, 1), OperationMode.STOP_CLOSE)
 
-    v[ac_demand_is_n > 0] = OperationMode.HEATING_AND_COOLING
+    is_op = ac_demand_is_n > 0
+
+    v[is_op & (theta_r_ot_ntr_non_nv_is_n_pls > upper_target_is_n) & (theta_r_ot_ntr_nv_is_n_pls > upper_target_is_n)] = OperationMode.COOLING
+    v[is_op & (theta_r_ot_ntr_non_nv_is_n_pls > upper_target_is_n) & (theta_r_ot_ntr_nv_is_n_pls <= upper_target_is_n)] = OperationMode.STOP_OPEN
+    v[is_op & (theta_r_ot_ntr_non_nv_is_n_pls < lower_target_is_n)] = OperationMode.HEATING
 
     return v
 
 
 def _get_operation_mode_pmv_is_n(
-        ac_demand_is_ns: np.ndarray,
         is_radiative_cooling_is: np.ndarray,
         is_radiative_heating_is: np.ndarray,
         method: str,
@@ -210,13 +221,11 @@ def _get_operation_mode_pmv_is_n(
         theta_mrt_hum_is_n: np.ndarray,
         theta_r_is_n: np.ndarray,
         met_is: np.ndarray,
-        n: int
+        n: int,
+        ac_demand_is_n: np.ndarray
 ):
 
-#    is_window_open_is_n = operation_mode_is_n_mns == OperationMode.STOP_OPEN
     is_window_open_is_n = OperationMode.u_is_window_open(oms=operation_mode_is_n_mns)
-#    is_convective_ac_is_n = ((operation_mode_is_n_mns == OperationMode.HEATING) & np.logical_not(is_radiative_heating_is)) | (
-#                (operation_mode_is_n_mns == OperationMode.COOLING) & np.logical_not(is_radiative_cooling_is))
     is_convective_ac_is_n = OperationMode.u_is_convective_ac(oms=operation_mode_is_n_mns, is_radiative_heating_is=is_radiative_heating_is, is_radiative_cooling_is=is_radiative_cooling_is)
 
     # ステップnにおける室iの在室者周りの風速, m/s, [i, 1]
@@ -233,8 +242,6 @@ def _get_operation_mode_pmv_is_n(
 
     # 薄着時のClo値
     clo_light = occupants.get_clo_light()
-
-    # met_is = np.full_like(theta_r_is_n, fill_value=1.0, dtype=float)
 
     pmv_heavy_is_n = pmv.get_pmv_is_n(
         p_a_is_n=p_v_r_is_n,
@@ -265,8 +272,6 @@ def _get_operation_mode_pmv_is_n(
         met_is=met_is,
         method=method
     )
-
-    ac_demand_is_n = ac_demand_is_ns[:, n].reshape(-1, 1)
 
     # ステップnにおける室iの運転状態, [i, 1]
     operation_mode_is_n = get_operation_mode_is_n(
