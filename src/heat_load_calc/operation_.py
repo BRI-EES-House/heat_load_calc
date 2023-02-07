@@ -7,6 +7,7 @@ from heat_load_calc import pmv, occupants
 from heat_load_calc.operation_mode import OperationMode
 from heat_load_calc import psychrometrics as psy
 
+
 class ACMethod(Enum):
 
     # PMV 制御
@@ -157,33 +158,6 @@ class Operation:
         v[is_op & (x_heating_is_n_pls < lower_target_is_n)] = OperationMode.HEATING
 
         return v
-
-    def make_get_theta_target_is_n_function(
-            self,
-            is_radiative_heating_is: np.ndarray,
-            is_radiative_cooling_is: np.ndarray,
-            met_is: np.ndarray,
-            ac_setting_is_ns: np.ndarray
-    ) -> Callable[[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray], Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]]:
-
-        if self.ac_method in [ACMethod.AIR_TEMPERATURE, ACMethod.SIMPLE, ACMethod.OT]:
-
-            return partial(
-                _get_theta_target_simple,
-                theta_lower_target_is_ns=self._lower_target_is_ns,
-                theta_upper_target_is_ns=self._upper_target_is_ns
-            )
-
-        elif self.ac_method == ACMethod.PMV:
-            return partial(
-                _get_theta_target,
-                method='constant',
-                met_is=met_is,
-                theta_lower_target_is_ns=self._lower_target_is_ns,
-                theta_upper_target_is_ns=self._upper_target_is_ns
-            )
-        else:
-            raise Exception()
 
     def get_theta_target_is_n(
             self,

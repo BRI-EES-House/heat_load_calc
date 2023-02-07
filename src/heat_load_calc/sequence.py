@@ -128,14 +128,6 @@ class Sequence:
         # すきま風を計算する関数
         get_infiltration = infiltration.make_get_infiltration_function(v_rm_is=rms.v_rm_is, building=building)
 
-        # 目標作用温度を決定する関数
-        get_theta_target_is_n = op.make_get_theta_target_is_n_function(
-            is_radiative_heating_is=es.is_radiative_heating_is,
-            is_radiative_cooling_is=es.is_radiative_cooling_is,
-            met_is=rms.met_is,
-            ac_setting_is_ns=scd.ac_setting_is_ns
-        )
-
         # 次のステップの室温と負荷を計算する関数
         calc_next_temp_and_load = next_condition.make_get_next_temp_and_load_function(
             ac_demand_is_ns=scd.ac_demand_is_ns,
@@ -194,9 +186,6 @@ class Sequence:
 
         # 隙間風を計算する関数
         self._get_infiltration = get_infiltration
-
-        # 目標作用温度を決定する関数
-        self._get_theta_target_is_n = get_theta_target_is_n
 
         # 次のステップの室温と負荷を計算する関数
         self._calc_next_temp_and_load = calc_next_temp_and_load
@@ -257,15 +246,6 @@ class Sequence:
           すきま風量, m3/s, [i,1]
         """
         return self._get_infiltration
-
-    @property
-    def get_theta_target_is_n(self) -> Callable[[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray], Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]]:
-        """目標作用温度を決定する関数
-
-        Returns:
-
-        """
-        return self._get_theta_target_is_n
 
     @property
     def calc_next_temp_and_load(self) -> Callable[[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray], Tuple[np.ndarray, np.ndarray, np.ndarray]]:
