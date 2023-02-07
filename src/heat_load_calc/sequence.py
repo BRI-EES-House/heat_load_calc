@@ -628,7 +628,6 @@ def _run_tick(self, n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditio
 
     # ステップ n における室 i の運転モード, [i, 1]
     operation_mode_is_n = self.op.get_operation_mode_is_n(
-        operation_mode_is_n_mns=c_n.operation_mode_is_n,
         n=n,
         is_radiative_heating_is=self.es.is_radiative_heating_is,
         is_radiative_cooling_is=self.es.is_radiative_cooling_is,
@@ -695,13 +694,16 @@ def _run_tick(self, n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditio
     p_v_r_is_n = psy.get_p_v_r_is_n(x_r_is_n=c_n.x_r_is_n)
 
     theta_lower_target_is_n_pls, theta_upper_target_is_n_pls, h_hum_c_is_n, h_hum_r_is_n, v_hum_is_n, clo_is_n \
-        = self.get_theta_target_is_n(
-            p_v_r_is_n=p_v_r_is_n,
-            operation_mode_is_n=operation_mode_is_n,
-            theta_r_is_n=c_n.theta_r_is_n,
-            theta_mrt_hum_is_n=c_n.theta_mrt_hum_is_n,
-            n=n
-        )
+        = self.op.get_theta_target_is_n(
+        p_v_r_is_n=p_v_r_is_n,
+        operation_mode_is_n=operation_mode_is_n,
+        theta_r_is_n=c_n.theta_r_is_n,
+        theta_mrt_hum_is_n=c_n.theta_mrt_hum_is_n,
+        n=n,
+        is_radiative_heating_is=self.es.is_radiative_heating_is,
+        is_radiative_cooling_is=self.es.is_radiative_cooling_is,
+        met_is=self.rms.met_is
+    )
 
     # ステップ n から n+1 において室 i で実際に暖房・冷房が行われるかどうかの判定結果, [i, 1]
     is_heating_is_n, is_cooling_is_n = get_is_heating_is_n_and_is_cooling_is_n(
