@@ -121,6 +121,7 @@ class Sequence:
         op = operation_.Operation.make_operation(
             d=rd['common'],
             ac_setting_is_ns=scd.ac_setting_is_ns,
+            ac_demand_is_ns=scd.ac_demand_is_ns,
             n_rm=rms.n_rm
         )
 
@@ -607,8 +608,8 @@ def _run_tick(self, n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditio
         f_brm_ot_nv_is_is_n_pls=f_brm_ot_nv_is_is_n_pls
     )
 
-    theta_r_ntr_non_nv_is_n_pls = np.dot(ss.f_xot_is_is_n_pls, theta_r_ot_ntr_non_nv_is_n_pls) + f_xc_is_n_pls
-    theta_r_ntr_nv_is_n_pls = np.dot(ss.f_xot_is_is_n_pls, theta_r_ot_ntr_nv_is_n_pls) + f_xc_is_n_pls
+    theta_r_ntr_non_nv_is_n_pls = np.dot(ss.f_xot_is_is_n_pls, theta_r_ot_ntr_non_nv_is_n_pls) - f_xc_is_n_pls
+    theta_r_ntr_nv_is_n_pls = np.dot(ss.f_xot_is_is_n_pls, theta_r_ot_ntr_nv_is_n_pls) - f_xc_is_n_pls
 
     theta_s_ntr_non_nv_js_n_pls = np.dot(ss.f_wsr_js_is, theta_r_ntr_non_nv_is_n_pls) + ss.f_wsc_js_ns[:, n + 1].reshape(-1, 1) + f_wsv_js_n_pls
     theta_s_ntr_nv_js_n_pls = np.dot(ss.f_wsr_js_is, theta_r_ntr_nv_is_n_pls) + ss.f_wsc_js_ns[:, n + 1].reshape(-1, 1) + f_wsv_js_n_pls
@@ -625,22 +626,21 @@ def _run_tick(self, n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditio
         f_h_wgt_nv_is_is_n=f_h_wgt_nv_is_is_n
     )
 
-    # ステップnにおける室iの水蒸気圧, Pa, [i, 1]
-    p_v_r_is_n = psy.get_p_v_r_is_n(x_r_is_n=c_n.x_r_is_n)
-
     # ステップ n における室 i の運転モード, [i, 1]
     operation_mode_is_n = self.op.get_operation_mode_is_n(
         operation_mode_is_n_mns=c_n.operation_mode_is_n,
-        p_v_r_is_n=p_v_r_is_n,
-        theta_mrt_hum_is_n=c_n.theta_mrt_hum_is_n,
-        theta_r_is_n=c_n.theta_r_is_n,
         n=n,
-        ac_demand_is_ns=self.scd.ac_demand_is_ns,
         is_radiative_heating_is=self.es.is_radiative_heating_is,
         is_radiative_cooling_is=self.es.is_radiative_cooling_is,
         met_is=self.rms.met_is,
         theta_r_ot_ntr_non_nv_is_n_pls=theta_r_ot_ntr_non_nv_is_n_pls,
-        theta_r_ot_ntr_nv_is_n_pls=theta_r_ot_ntr_nv_is_n_pls
+        theta_r_ot_ntr_nv_is_n_pls=theta_r_ot_ntr_nv_is_n_pls,
+        theta_r_ntr_non_nv_is_n_pls=theta_r_ntr_non_nv_is_n_pls,
+        theta_r_ntr_nv_is_n_pls=theta_r_ntr_nv_is_n_pls,
+        theta_mrt_hum_ntr_non_nv_is_n_pls=theta_mrt_hum_ntr_non_nv_is_n_pls,
+        theta_mrt_hum_ntr_nv_is_n_pls=theta_mrt_hum_ntr_nv_is_n_pls,
+        x_r_ntr_non_nv_is_n_pls=x_r_ntr_non_nv_is_n_pls,
+        x_r_ntr_nv_is_n_pls=x_r_ntr_nv_is_n_pls
     )
 
     f_h_cst_is_n = np.where(
@@ -690,6 +690,9 @@ def _run_tick(self, n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditio
         theta_r_ot_ntr_nv_is_n_pls,
         theta_r_ot_ntr_non_nv_is_n_pls
     )
+
+    # ステップnにおける室iの水蒸気圧, Pa, [i, 1]
+    p_v_r_is_n = psy.get_p_v_r_is_n(x_r_is_n=c_n.x_r_is_n)
 
     theta_lower_target_is_n_pls, theta_upper_target_is_n_pls, h_hum_c_is_n, h_hum_r_is_n, v_hum_is_n, clo_is_n \
         = self.get_theta_target_is_n(

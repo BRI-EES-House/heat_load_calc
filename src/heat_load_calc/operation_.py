@@ -5,7 +5,7 @@ from typing import Dict, Tuple, Callable
 
 from heat_load_calc import pmv, occupants
 from heat_load_calc.operation_mode import OperationMode
-
+from heat_load_calc import psychrometrics as psy
 
 class ACMethod(Enum):
 
@@ -27,16 +27,18 @@ class Operation:
             ac_config: Dict,
             lower_target_is_ns: np.ndarray,
             upper_target_is_ns: np.ndarray,
+            ac_demand_is_ns: np.ndarray,
             n_rm
     ):
         self._ac_method = ac_method
         self._ac_config = ac_config
-        self._lower_target = lower_target_is_ns
-        self._upper_target = upper_target_is_ns
+        self._lower_target_is_ns = lower_target_is_ns
+        self._upper_target_is_ns = upper_target_is_ns
+        self._ac_demand_is_ns = ac_demand_is_ns
         self._n_rm = n_rm
 
     @classmethod
-    def make_operation(cls, d: Dict, ac_setting_is_ns: np.ndarray, n_rm: int):
+    def make_operation(cls, d: Dict, ac_setting_is_ns: np.ndarray, ac_demand_is_ns: np.ndarray, n_rm: int):
 
         ac_method = ACMethod(d['ac_method'])
 
@@ -66,6 +68,7 @@ class Operation:
             ac_config=ac_config,
             lower_target_is_ns=lower_target_is_ns,
             upper_target_is_ns=upper_target_is_ns,
+            ac_demand_is_ns=ac_demand_is_ns,
             n_rm=n_rm
         )
 
@@ -80,60 +83,81 @@ class Operation:
     def get_operation_mode_is_n(
             self,
             operation_mode_is_n_mns: np.ndarray,
-            p_v_r_is_n: np.ndarray,
-            theta_mrt_hum_is_n: np.ndarray,
-            theta_r_is_n: np.ndarray,
             n: int,
-            ac_demand_is_ns: np.ndarray,
             is_radiative_heating_is: np.ndarray,
             is_radiative_cooling_is: np.ndarray,
             met_is: np.ndarray,
             theta_r_ot_ntr_non_nv_is_n_pls: np.ndarray,
-            theta_r_ot_ntr_nv_is_n_pls: np.ndarray
-
+            theta_r_ot_ntr_nv_is_n_pls: np.ndarray,
+            theta_r_ntr_non_nv_is_n_pls: np.ndarray,
+            theta_r_ntr_nv_is_n_pls: np.ndarray,
+            theta_mrt_hum_ntr_non_nv_is_n_pls: np.ndarray,
+            theta_mrt_hum_ntr_nv_is_n_pls: np.ndarray,
+            x_r_ntr_non_nv_is_n_pls: np.ndarray,
+            x_r_ntr_nv_is_n_pls: np.ndarray
     ):
         """
 
         Args:
             operation_mode_is_n_mns:
-            p_v_r_is_n:
-            theta_mrt_hum_is_n:
-            theta_r_is_n:
             n:
-            ac_demand_is_ns:
             is_radiative_heating_is:
             is_radiative_cooling_is:
             met_is:
             theta_r_ot_ntr_non_nv_is_n_pls: ステップn+1における自然風非利用時の自然作用温度, degree C, [i, 1]
             theta_r_ot_ntr_nv_is_n_pls: ステップn+1における自然風利用時の自然作用温度, degree C, [i, 1]
-
+            theta_r_ntr_non_nv_is_n_pls:
+            theta_r_ntr_nv_is_n_pls:
+            theta_mrt_hum_ntr_non_nv_is_n_pls:
+            theta_mrt_hum_ntr_nv_is_n_pls:
+            x_r_ntr_non_nv_is_n_pls:
+            x_r_ntr_nv_is_n_pls:
         Returns:
 
         """
 
+        upper_target_is_n = self._upper_target_is_ns[:, n].reshape(-1, 1)
+        lower_target_is_n = self._lower_target_is_ns[:, n].reshape(-1, 1)
+        ac_demand_is_n = self._ac_demand_is_ns[:, n].reshape(-1, 1)
+
         if self.ac_method in [ACMethod.AIR_TEMPERATURE, ACMethod.SIMPLE, ACMethod.OT]:
 
             return _get_operation_mode_simple_is_n(
-                ac_demand_is_ns=ac_demand_is_ns,
-                operation_mode_is_n_mns=operation_mode_is_n_mns,
-                n=n,
-                n_rm=self._n_rm
+                n_rm=self._n_rm,
+                theta_r_ot_ntr_non_nv_is_n_pls=theta_r_ot_ntr_non_nv_is_n_pls,
+                theta_r_ot_ntr_nv_is_n_pls=theta_r_ot_ntr_nv_is_n_pls,
+                upper_target_is_n=upper_target_is_n,
+                lower_target_is_n=lower_target_is_n,
+                ac_demand_is_n=ac_demand_is_n
             )
 
         elif self.ac_method == ACMethod.PMV:
 
             return _get_operation_mode_pmv_is_n(
-                ac_demand_is_ns=ac_demand_is_ns,
+                n_rm=self._n_rm,
                 is_radiative_cooling_is=is_radiative_cooling_is,
                 is_radiative_heating_is=is_radiative_heating_is,
                 method='constant',
                 operation_mode_is_n_mns=operation_mode_is_n_mns,
-                p_v_r_is_n=p_v_r_is_n,
-                theta_mrt_hum_is_n=theta_mrt_hum_is_n,
-                theta_r_is_n=theta_r_is_n,
+                theta_mrt_hum_is_n=theta_mrt_hum_ntr_non_nv_is_n_pls,
+                theta_r_is_n=theta_r_ot_ntr_non_nv_is_n_pls,
                 met_is=met_is,
-                n=n
+                n=n,
+                upper_target_is_n=upper_target_is_n,
+                lower_target_is_n=lower_target_is_n,
+                ac_demand_is_n=ac_demand_is_n,
+                theta_r_ot_ntr_non_nv_is_n_pls=theta_r_ot_ntr_non_nv_is_n_pls,
+                theta_r_ot_ntr_nv_is_n_pls=theta_r_ot_ntr_nv_is_n_pls,
+                theta_r_ntr_non_nv_is_n_pls=theta_r_ntr_non_nv_is_n_pls,
+                theta_r_ntr_nv_is_n_pls=theta_r_ntr_nv_is_n_pls,
+                theta_mrt_hum_ntr_non_nv_is_n_pls=theta_mrt_hum_ntr_non_nv_is_n_pls,
+                theta_mrt_hum_ntr_nv_is_n_pls=theta_mrt_hum_ntr_nv_is_n_pls,
+                x_r_ntr_non_nv_is_n_pls=x_r_ntr_non_nv_is_n_pls,
+                x_r_ntr_nv_is_n_pls=x_r_ntr_nv_is_n_pls
             )
+
+        else:
+            raise Exception()
 
 
     def make_get_theta_target_is_n_function(
@@ -148,8 +172,8 @@ class Operation:
 
             return partial(
                 _get_theta_target_simple,
-                theta_lower_target_is_ns=self._lower_target,
-                theta_upper_target_is_ns=self._upper_target
+                theta_lower_target_is_ns=self._lower_target_is_ns,
+                theta_upper_target_is_ns=self._upper_target_is_ns
             )
 
         elif self.ac_method == ACMethod.PMV:
@@ -184,39 +208,118 @@ class Operation:
 
 
 def _get_operation_mode_simple_is_n(
-        ac_demand_is_ns: np.ndarray,
-        operation_mode_is_n_mns: np.ndarray,
-        n: int,
-        n_rm
+        n_rm: int,
+        theta_r_ot_ntr_non_nv_is_n_pls: np.ndarray,
+        theta_r_ot_ntr_nv_is_n_pls: np.ndarray,
+        upper_target_is_n: np.ndarray,
+        lower_target_is_n: np.ndarray,
+        ac_demand_is_n: np.ndarray
 ):
 
-    ac_demand_is_n = ac_demand_is_ns[:, n].reshape(-1, 1)
-
-    #v = np.full_like(operation_mode_is_n_mns, OperationMode.STOP_CLOSE)
     v = np.full((n_rm, 1), OperationMode.STOP_CLOSE)
 
-    v[ac_demand_is_n > 0] = OperationMode.HEATING_AND_COOLING
+    is_op = ac_demand_is_n > 0
+
+    v[is_op & (theta_r_ot_ntr_non_nv_is_n_pls > upper_target_is_n) & (theta_r_ot_ntr_nv_is_n_pls > upper_target_is_n)] = OperationMode.COOLING
+    v[is_op & (theta_r_ot_ntr_non_nv_is_n_pls > upper_target_is_n) & (theta_r_ot_ntr_nv_is_n_pls <= upper_target_is_n)] = OperationMode.STOP_OPEN
+    v[is_op & (theta_r_ot_ntr_non_nv_is_n_pls < lower_target_is_n)] = OperationMode.HEATING
 
     return v
 
 
 def _get_operation_mode_pmv_is_n(
-        ac_demand_is_ns: np.ndarray,
+        n_rm: int,
         is_radiative_cooling_is: np.ndarray,
         is_radiative_heating_is: np.ndarray,
         method: str,
         operation_mode_is_n_mns: np.ndarray,
-        p_v_r_is_n: np.ndarray,
         theta_mrt_hum_is_n: np.ndarray,
         theta_r_is_n: np.ndarray,
         met_is: np.ndarray,
-        n: int
+        n: int,
+        upper_target_is_n: np.ndarray,
+        lower_target_is_n: np.ndarray,
+        ac_demand_is_n: np.ndarray,
+        theta_r_ot_ntr_non_nv_is_n_pls: np.ndarray,
+        theta_r_ot_ntr_nv_is_n_pls: np.ndarray,
+        theta_r_ntr_non_nv_is_n_pls: np.ndarray,
+        theta_r_ntr_nv_is_n_pls: np.ndarray,
+        theta_mrt_hum_ntr_non_nv_is_n_pls: np.ndarray,
+        theta_mrt_hum_ntr_nv_is_n_pls: np.ndarray,
+        x_r_ntr_non_nv_is_n_pls: np.ndarray,
+        x_r_ntr_nv_is_n_pls: np.ndarray
+
 ):
 
-#    is_window_open_is_n = operation_mode_is_n_mns == OperationMode.STOP_OPEN
+    # ステップnにおける室iの水蒸気圧, Pa, [i, 1]
+    p_v_r_ntr_non_nv_is_n_pls = psy.get_p_v_r_is_n(x_r_is_n=x_r_ntr_non_nv_is_n_pls)
+    p_v_r_ntr_nv_is_n_pls = psy.get_p_v_r_is_n(x_r_is_n=x_r_ntr_nv_is_n_pls)
+
+    # 薄着時のClo値
+    clo_light = occupants.get_clo_light()
+
+    # 厚着時のClo値
+    clo_heavy = occupants.get_clo_heavy()
+
+    ### 冷房判定用（窓開け時）のPMV計算
+
+    # 窓を開けている時の風速を 0.1 m/s とする
+    v_hum_window_open_is_n = 0.1
+
+    # 冷房判定用（窓開け時）のPMV
+    pmv_window_open_is_n = pmv.get_pmv_is_n(
+        p_a_is_n=p_v_r_ntr_nv_is_n_pls,
+        theta_r_is_n=theta_r_ntr_nv_is_n_pls,
+        theta_mrt_is_n=theta_mrt_hum_ntr_nv_is_n_pls,
+        clo_is_n=clo_light,
+        v_hum_is_n=v_hum_window_open_is_n,
+        met_is=met_is,
+        method=method
+    )
+
+    # 冷房判定用（窓閉め時）のPMV計算
+
+    # 冷房時の風速を対流冷房時0.2m/s・放射冷房時0.0m/sに設定する。
+    v_hum_cooling_is_n = np.where(is_radiative_cooling_is, 0.0, 0.2)
+
+    # 冷房判定用（窓閉め時）のPMV
+    pmv_cooling_is_n = pmv.get_pmv_is_n(
+        p_a_is_n=p_v_r_ntr_non_nv_is_n_pls,
+        theta_r_is_n=theta_r_ntr_non_nv_is_n_pls,
+        theta_mrt_is_n=theta_mrt_hum_ntr_non_nv_is_n_pls,
+        clo_is_n=clo_light,
+        v_hum_is_n=v_hum_cooling_is_n,
+        met_is=met_is,
+        method=method
+    )
+
+    # 暖房判定用のPMV計算
+
+    # 暖房時の風速を対流暖房時0.2m/s・放射暖房時0.0m/sに設定する。
+    v_hum_heating_is_n = np.where(is_radiative_heating_is, 0.0, 0.2)
+
+    # 暖房判定用のPMV
+    pmv_heating_is_n = pmv.get_pmv_is_n(
+        p_a_is_n=p_v_r_ntr_non_nv_is_n_pls,
+        theta_r_is_n=theta_r_ntr_non_nv_is_n_pls,
+        theta_mrt_is_n=theta_mrt_hum_ntr_non_nv_is_n_pls,
+        clo_is_n=clo_heavy,
+        v_hum_is_n=v_hum_heating_is_n,
+        met_is=met_is,
+        method=method
+    )
+
+    v = np.full((n_rm, 1), OperationMode.STOP_CLOSE)
+
+    is_op = ac_demand_is_n > 0
+
+    v[is_op & (pmv_cooling_is_n > upper_target_is_n) & (pmv_window_open_is_n > upper_target_is_n)] = OperationMode.COOLING
+    v[is_op & (pmv_cooling_is_n > upper_target_is_n) & (pmv_window_open_is_n <= upper_target_is_n)] = OperationMode.STOP_OPEN
+    v[is_op & (pmv_heating_is_n < lower_target_is_n)] = OperationMode.HEATING
+
+
+
     is_window_open_is_n = OperationMode.u_is_window_open(oms=operation_mode_is_n_mns)
-#    is_convective_ac_is_n = ((operation_mode_is_n_mns == OperationMode.HEATING) & np.logical_not(is_radiative_heating_is)) | (
-#                (operation_mode_is_n_mns == OperationMode.COOLING) & np.logical_not(is_radiative_cooling_is))
     is_convective_ac_is_n = OperationMode.u_is_convective_ac(oms=operation_mode_is_n_mns, is_radiative_heating_is=is_radiative_heating_is, is_radiative_cooling_is=is_radiative_cooling_is)
 
     # ステップnにおける室iの在室者周りの風速, m/s, [i, 1]
@@ -225,19 +328,12 @@ def _get_operation_mode_pmv_is_n(
         is_convective_ac_is_n=is_convective_ac_is_n
     )
 
-    # 厚着時のClo値
-    clo_heavy = occupants.get_clo_heavy()
-
     # 中間着時のClo値
     clo_middle = occupants.get_clo_middle()
 
-    # 薄着時のClo値
-    clo_light = occupants.get_clo_light()
-
-    # met_is = np.full_like(theta_r_is_n, fill_value=1.0, dtype=float)
 
     pmv_heavy_is_n = pmv.get_pmv_is_n(
-        p_a_is_n=p_v_r_is_n,
+        p_a_is_n=p_v_r_ntr_non_nv_is_n_pls,
         theta_r_is_n=theta_r_is_n,
         theta_mrt_is_n=theta_mrt_hum_is_n,
         clo_is_n=clo_heavy,
@@ -247,7 +343,7 @@ def _get_operation_mode_pmv_is_n(
     )
 
     pmv_middle_is_n = pmv.get_pmv_is_n(
-        p_a_is_n=p_v_r_is_n,
+        p_a_is_n=p_v_r_ntr_non_nv_is_n_pls,
         theta_r_is_n=theta_r_is_n,
         theta_mrt_is_n=theta_mrt_hum_is_n,
         clo_is_n=clo_middle,
@@ -257,7 +353,7 @@ def _get_operation_mode_pmv_is_n(
     )
 
     pmv_light_is_n = pmv.get_pmv_is_n(
-        p_a_is_n=p_v_r_is_n,
+        p_a_is_n=p_v_r_ntr_non_nv_is_n_pls,
         theta_r_is_n=theta_r_is_n,
         theta_mrt_is_n=theta_mrt_hum_is_n,
         clo_is_n=clo_light,
@@ -265,8 +361,6 @@ def _get_operation_mode_pmv_is_n(
         met_is=met_is,
         method=method
     )
-
-    ac_demand_is_n = ac_demand_is_ns[:, n].reshape(-1, 1)
 
     # ステップnにおける室iの運転状態, [i, 1]
     operation_mode_is_n = get_operation_mode_is_n(
@@ -277,7 +371,8 @@ def _get_operation_mode_pmv_is_n(
         pmv_light_is_n=pmv_light_is_n
     )
 
-    return operation_mode_is_n
+#    return operation_mode_is_n
+    return v
 
 
 def get_operation_mode_is_n(
