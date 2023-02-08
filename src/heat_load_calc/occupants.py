@@ -35,33 +35,6 @@ def get_q_hum_psn_is_n(theta_r_is_n: np.ndarray) -> np.ndarray:
     return np.minimum(63.0 - 4.0 * (theta_r_is_n - 24.0), 119.0)
 
 
-def get_v_hum_is_n(is_window_open_is_n: np.ndarray, is_convective_ac_is_n: np.ndarray) -> np.ndarray:
-    """在室者周りの風速を求める。
-
-    Args:
-        is_window_open_is_n: 窓が開いている, [i, 1]
-        is_convective_ac_is_n: 対流暖房または冷房を行っている, [i, 1]
-
-    Returns:
-        ステップnにおける室iの在室者周りの風速, m/s, [i, 1]
-    """
-
-    # 在室者周りの風速はデフォルトで 0.0 m/s とおく
-    v_hum_is_n = np.zeros_like(is_convective_ac_is_n, dtype=float)
-
-    # 対流暖房・冷房時の風速を 0.2 m/s とする
-    v_hum_is_n[is_convective_ac_is_n] = 0.2
-
-    # 暖冷房をせずに窓を開けている時の風速を 0.1 m/s とする
-    # 対流暖房・冷房時と窓を開けている時は同時には起こらないことを期待しているが
-    # もし同時にTrueの場合は窓を開けている時の風速が優先される（上書きわれる）
-    v_hum_is_n[is_window_open_is_n] = 0.1
-
-    # 上記に当てはまらない場合の風速は 0.0 m/s のままである。
-
-    return v_hum_is_n
-
-
 def get_clo_heavy() -> float:
     """厚着をした場合の在室者のclo値を取得する。
 

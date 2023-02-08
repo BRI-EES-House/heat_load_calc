@@ -115,6 +115,7 @@ class Sequence:
         mvs = MechanicalVentilations(vs=rd['mechanical_ventilations'], n_rm=rms.n_rm)
 
         # Equipments Class
+        # TODO: Equipments Class を作成するのに Boundaries Class 全部をわたしているのはあまりよくない。
         es = Equipments(dict_equipments=rd['equipments'], n_rm=rms.n_rm, n_b=bs.n_b, bs=bs)
 
         # Operation Class
@@ -622,24 +623,6 @@ def _run_tick(self, n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditio
         x_r_ntr_nv_is_n_pls=x_r_ntr_nv_is_n_pls
     )
 
-    f_h_cst_is_n = np.where(
-        operation_mode_is_n == OperationMode.STOP_OPEN,
-        f_h_cst_nv_is_n,
-        f_h_cst_non_nv_is_n
-    )
-
-    f_h_wgt_is_is_n = np.where(
-        operation_mode_is_n == OperationMode.STOP_OPEN,
-        f_h_wgt_nv_is_is_n,
-        f_h_wgt_non_nv_is_is_n
-    )
-
-    x_r_ntr_is_n_pls = np.where(
-        operation_mode_is_n == OperationMode.STOP_OPEN,
-        x_r_ntr_nv_is_n_pls,
-        x_r_ntr_non_nv_is_n_pls
-    )
-
     f_brm_is_is_n_pls = np.where(
         operation_mode_is_n == OperationMode.STOP_OPEN,
         f_brm_nv_is_is_n_pls,
@@ -664,26 +647,53 @@ def _run_tick(self, n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditio
         f_brc_ot_non_nv_is_n_pls
     )
 
+    f_h_cst_is_n = np.where(
+        operation_mode_is_n == OperationMode.STOP_OPEN,
+        f_h_cst_nv_is_n,
+        f_h_cst_non_nv_is_n
+    )
+
+    f_h_wgt_is_is_n = np.where(
+        operation_mode_is_n == OperationMode.STOP_OPEN,
+        f_h_wgt_nv_is_is_n,
+        f_h_wgt_non_nv_is_is_n
+    )
+
     theta_r_ot_ntr_is_n_pls = np.where(
         operation_mode_is_n == OperationMode.STOP_OPEN,
         theta_r_ot_ntr_nv_is_n_pls,
         theta_r_ot_ntr_non_nv_is_n_pls
     )
 
-    # ステップnにおける室iの水蒸気圧, Pa, [i, 1]
-    p_v_r_is_n = psy.get_p_v_r_is_n(x_r_is_n=c_n.x_r_is_n)
+    theta_r_ntr_is_n_pls = np.where(
+        operation_mode_is_n == OperationMode.STOP_OPEN,
+        theta_r_ntr_nv_is_n_pls,
+        theta_r_ntr_non_nv_is_n_pls
+    )
+
+    theta_mrt_hum_ntr_is_n_pls = np.where(
+        operation_mode_is_n == OperationMode.STOP_OPEN,
+        theta_mrt_hum_ntr_nv_is_n_pls,
+        theta_mrt_hum_ntr_non_nv_is_n_pls
+    )
+
+    x_r_ntr_is_n_pls = np.where(
+        operation_mode_is_n == OperationMode.STOP_OPEN,
+        x_r_ntr_nv_is_n_pls,
+        x_r_ntr_non_nv_is_n_pls
+    )
 
     theta_lower_target_is_n_pls, theta_upper_target_is_n_pls, h_hum_c_is_n, h_hum_r_is_n \
         = self.op.get_theta_target_is_n(
-        p_v_r_is_n=p_v_r_is_n,
-        operation_mode_is_n=operation_mode_is_n,
-        theta_r_is_n=c_n.theta_r_is_n,
-        theta_mrt_hum_is_n=c_n.theta_mrt_hum_is_n,
-        n=n,
-        is_radiative_heating_is=self.es.is_radiative_heating_is,
-        is_radiative_cooling_is=self.es.is_radiative_cooling_is,
-        met_is=self.rms.met_is
-    )
+            operation_mode_is_n=operation_mode_is_n,
+            theta_r_is_n=theta_r_ntr_is_n_pls,
+            theta_mrt_hum_is_n=theta_mrt_hum_ntr_is_n_pls,
+            x_r_ntr_is_n_pls=x_r_ntr_is_n_pls,
+            n=n,
+            is_radiative_heating_is=self.es.is_radiative_heating_is,
+            is_radiative_cooling_is=self.es.is_radiative_cooling_is,
+            met_is=self.rms.met_is
+        )
 
     # ステップ n から n+1 において室 i で実際に暖房・冷房が行われるかどうかの判定結果, [i, 1]
     is_heating_is_n, is_cooling_is_n = get_is_heating_is_n_and_is_cooling_is_n(

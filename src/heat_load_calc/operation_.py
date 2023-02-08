@@ -161,10 +161,10 @@ class Operation:
 
     def get_theta_target_is_n(
             self,
-            p_v_r_is_n: np.ndarray,
             operation_mode_is_n: np.ndarray,
             theta_r_is_n: np.ndarray,
             theta_mrt_hum_is_n: np.ndarray,
+            x_r_ntr_is_n_pls: np.ndarray,
             n: int,
             is_radiative_heating_is: np.ndarray,
             is_radiative_cooling_is: np.ndarray,
@@ -202,6 +202,9 @@ class Operation:
 
         elif self.ac_method == ACMethod.PMV:
 
+            # ステップnにおける室iの水蒸気圧, Pa, [i, 1]
+            p_v_r_is_n = psy.get_p_v_r_is_n(x_r_is_n=x_r_ntr_is_n_pls)
+
             lower_target_is_n, upper_target_is_n = _get_theta_target(
                 operation_mode_is_n=operation_mode_is_n,
                 p_v_r_is_n=p_v_r_is_n,
@@ -217,7 +220,6 @@ class Operation:
         else:
 
             raise Exception()
-
 
     def get_k_is(self) -> Tuple[np.ndarray, np.ndarray]:
         """
