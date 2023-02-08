@@ -3,7 +3,7 @@ import json
 import os
 import time
 
-from heat_load_calc import core2, schedule, weather, furniture, interval
+from heat_load_calc import core, schedule, weather, furniture, interval
 
 
 class TestAllAtOnce(unittest.TestCase):
@@ -36,7 +36,7 @@ class TestAllAtOnce(unittest.TestCase):
             a_floor_is=[r['floor_area'] for r in rd['rooms']]
         )
 
-        dd_i, dd_a, bs = core2.calc(rd=rd, w=oc, scd=scd)
+        dd_i, dd_a, bs = core.calc(rd=rd, w=oc, scd=scd)
 
         cls._dd_i = dd_i
         cls._dd_a = dd_a

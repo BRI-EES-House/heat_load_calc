@@ -3,7 +3,7 @@ import os
 import json
 import csv
 
-from heat_load_calc import core2
+from heat_load_calc import core
 
 
 # クラスの名前は何でも良いので、　TestSurfaceHeatBalance のような形で名前を変更してください。
@@ -18,7 +18,7 @@ class MyTestCase(unittest.TestCase):
 
         cls._data_dir = str(os.path.dirname(__file__)) + '/data'
 
-        ds, dd, _ = core2.calc(input_data_dir=cls._data_dir, output_data_dir=cls._data_dir)
+        ds, dd, _ = core.calc(input_data_dir=cls._data_dir, output_data_dir=cls._data_dir)
 
         cls._ds = ds
         cls._dd = dd

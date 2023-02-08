@@ -6,7 +6,7 @@ import logging
 from heat_load_calc.matrix_method import v_diag
 from heat_load_calc import next_condition, schedule, rooms, boundaries
 from heat_load_calc import infiltration, occupants_form_factor, shape_factor, solar_absorption
-from heat_load_calc import operation_, interval
+from heat_load_calc import operation, interval
 from heat_load_calc import occupants, psychrometrics as psy
 from heat_load_calc.global_number import get_c_a, get_rho_a, get_l_wtr
 from heat_load_calc.weather import Weather
@@ -20,7 +20,7 @@ from heat_load_calc.operation_mode import OperationMode
 from heat_load_calc.conditions import Conditions
 from heat_load_calc.recorder import Recorder
 from heat_load_calc.conditions import GroundConditions
-from heat_load_calc.operation_ import Operation
+from heat_load_calc.operation import Operation
 
 
 @dataclass
@@ -119,7 +119,7 @@ class Sequence:
         es = Equipments(dict_equipments=rd['equipments'], n_rm=rms.n_rm, n_b=bs.n_b, bs=bs)
 
         # Operation Class
-        op = operation_.Operation.make_operation(
+        op = operation.Operation.make_operation(
             d=rd['common'],
             ac_setting_is_ns=scd.ac_setting_is_ns,
             ac_demand_is_ns=scd.ac_demand_is_ns,

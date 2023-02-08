@@ -9,7 +9,7 @@ import urllib.request, urllib.error
 # 絶対パスでモジュールを探索できるようにする
 sys.path.insert(0, path.abspath(path.join(path.dirname(__file__), '..')))
 
-from heat_load_calc import core2, schedule, weather, interval
+from heat_load_calc import core, schedule, weather, interval
 
 
 def run(
@@ -75,7 +75,7 @@ def run(
     # ---- 計算 ----
 
     # 計算
-    dd_i, dd_a, _ = core2.calc(rd=rd, w=w, scd=scd, itv=itv)
+    dd_i, dd_a, _ = core.calc(rd=rd, w=w, scd=scd, itv=itv)
 
     # 気象データの保存
     if is_weather_saved:
