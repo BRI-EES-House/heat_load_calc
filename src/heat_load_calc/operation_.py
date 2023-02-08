@@ -463,3 +463,59 @@ def _get_pmv_target_is_n(operation_mode_is_n: np.ndarray) -> np.ndarray:
     return pmv_target_is_n
 
 
+def get_v_hum_is_n(
+        operation_mode_is: np.ndarray,
+        is_radiative_cooling_is: np.ndarray,
+        is_radiative_heating_is: np.ndarray
+) -> np.ndarray:
+    """在室者周りの風速を求める。
+
+    Args:
+        operation_mode_is:
+        is_radiative_cooling_is:
+        is_radiative_heating_is:
+
+    Returns:
+        ステップnにおける室iの在室者周りの風速, m/s, [i, 1]
+    """
+
+    # 在室者周りの風速はデフォルトで 0.0 m/s とおく
+    v_hum_is_n = np.zeros_like(operation_mode_is, dtype=float)
+
+    # 対流暖房時の風速を 0.2 m/s とする
+    v_hum_is_n[(operation_mode_is == OperationMode.HEATING) & np.logical_not(is_radiative_heating_is)] = 0.2
+    # 放射暖房時の風速を 0.0 m/s とする
+    v_hum_is_n[(operation_mode_is == OperationMode.HEATING) & (is_radiative_heating_is)] = 0.0
+
+    # 対流冷房時の風速を 0.2 m/s とする
+    v_hum_is_n[(operation_mode_is == OperationMode.COOLING) & np.logical_not(is_radiative_cooling_is)] = 0.2
+    # 放射冷房時の風速を 0.0 m/s とする
+    v_hum_is_n[(operation_mode_is == OperationMode.COOLING) & (is_radiative_cooling_is)] = 0.0
+
+    # 暖冷房をせずに窓を開けている時の風速を 0.1 m/s とする
+    # 対流暖房・冷房時と窓を開けている時は同時には起こらないことを期待しているが
+    # もし同時にTrueの場合は窓を開けている時の風速が優先される（上書きわれる）
+    v_hum_is_n[operation_mode_is == OperationMode.STOP_OPEN] = 0.1
+
+    # 上記に当てはまらない場合の風速は 0.0 m/s のままである。
+
+    return v_hum_is_n
+
+
+def get_clo_is_ns(operation_mode_is: np.ndarray):
+
+    clo_is_ns = np.zeros_like(operation_mode_is, dtype=float)
+
+    # 暖房時は厚着とする。
+    clo_is_ns[operation_mode_is == OperationMode.HEATING] = occupants.get_clo_heavy()
+
+    # 冷房時は薄着とする。
+    clo_is_ns[operation_mode_is == OperationMode.COOLING] = occupants.get_clo_light()
+
+    # 運転停止（窓開）時は薄着とする。
+    clo_is_ns[operation_mode_is == OperationMode.STOP_OPEN] = occupants.get_clo_light()
+
+    # 運転停止（窓閉）時は薄着とする。
+    clo_is_ns[operation_mode_is == OperationMode.STOP_CLOSE] = occupants.get_clo_middle()
+
+    return clo_is_ns

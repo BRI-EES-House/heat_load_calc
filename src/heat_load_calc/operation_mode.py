@@ -16,9 +16,6 @@ class OperationMode(Enum):
     # 暖房・冷房停止で窓「閉」
     STOP_CLOSE = 4
 
-    # 暖房かつ冷房
-    HEATING_AND_COOLING = 5
-
     @property
     def is_window_open(self):
         return self == OperationMode.STOP_OPEN
