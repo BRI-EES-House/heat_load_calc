@@ -395,8 +395,6 @@ class Recorder:
             self.x_hum_is_ns[:, n_a] = kwargs["x_hum_is_n"].flatten()
             self.v_reak_is_ns[:, n_a] = kwargs["v_leak_is_n"].flatten()
             self.v_ntrl_is_ns[:, n_a] = kwargs["v_vent_ntr_is_n"].flatten()
-            self.v_hum_is_ns[:, n_a] = kwargs["v_hum_is_n"].flatten()
-            self.clo_is_ns[:, n_a] = kwargs["clo_is_n"].flatten()
 
     def export_pd(self):
 

@@ -893,9 +893,7 @@ def _run_tick(self, n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditio
             q_hum_is_n=q_hum_is_n,
             x_hum_is_n=x_hum_is_n,
             v_leak_is_n=v_leak_is_n,
-            v_vent_ntr_is_n=v_vent_ntr_is_n,
-            v_hum_is_n=v_hum_is_n,
-            clo_is_n=clo_is_n
+            v_vent_ntr_is_n=v_vent_ntr_is_n
         )
 
     return Conditions(
