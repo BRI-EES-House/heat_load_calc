@@ -5,7 +5,7 @@ import logging
 
 from heat_load_calc.matrix_method import v_diag
 from heat_load_calc import next_condition, schedule, rooms, boundaries
-from heat_load_calc import infiltration, occupants_form_factor, shape_factor, solar_absorption
+from heat_load_calc import occupants_form_factor, shape_factor, solar_absorption
 from heat_load_calc import operation, interval
 from heat_load_calc import occupants, psychrometrics as psy
 from heat_load_calc.global_number import get_c_a, get_rho_a, get_l_wtr
@@ -126,9 +126,6 @@ class Sequence:
             n_rm=rms.n_rm
         )
 
-        # すきま風を計算する関数
-        get_infiltration = infiltration.make_get_infiltration_function(v_rm_is=rms.v_rm_is, building=building)
-
         # 次のステップの室温と負荷を計算する関数
         calc_next_temp_and_load = next_condition.make_get_next_temp_and_load_function(
             ac_demand_is_ns=scd.ac_demand_is_ns,
@@ -185,9 +182,6 @@ class Sequence:
         # Operation Class
         self._op: Operation = op
 
-        # 隙間風を計算する関数
-        self._get_infiltration = get_infiltration
-
         # 次のステップの室温と負荷を計算する関数
         self._calc_next_temp_and_load = calc_next_temp_and_load
 
@@ -235,18 +229,6 @@ class Sequence:
     @property
     def op(self) -> Operation:
         return self._op
-
-    @property
-    def get_infiltration(self) -> Callable[[np.ndarray, float], np.ndarray]:
-        """隙間風を計算する関数
-
-        引数:
-          theta_r_is_n: 時刻nの室温, degree C, [i,1]
-          theta_o_n: 時刻n+1の外気温度, degree C
-        戻り値:
-          すきま風量, m3/s, [i,1]
-        """
-        return self._get_infiltration
 
     @property
     def calc_next_temp_and_load(self) -> Callable[[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray], Tuple[np.ndarray, np.ndarray, np.ndarray]]:
@@ -447,7 +429,11 @@ def _run_tick(self, n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditio
     )
 
     # ステップnの室iにおけるすきま風量, m3/s, [i, 1]
-    v_leak_is_n = self.get_infiltration(theta_r_is_n=c_n.theta_r_is_n, theta_o_n=self.weather.theta_o_ns_plus[n])
+    v_leak_is_n = self.building.get_v_leak_is_n(
+        theta_r_is_n=c_n.theta_r_is_n,
+        theta_o_n=self.weather.theta_o_ns_plus[n],
+        v_room_is=self.rms.v_rm_is
+    )
 
     # ステップ n+1 の境界 j における項別公比法の指数項 m の貫流応答の項別成分, degree C, [j, m] (m=12), eq.(29)
     theta_dsh_s_t_js_ms_n_pls = get_theta_dsh_s_t_js_ms_n_pls(
