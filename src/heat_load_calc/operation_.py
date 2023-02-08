@@ -174,25 +174,35 @@ class Operation:
         lower_target_is_n = self._lower_target_is_ns[:, n].reshape(-1, 1)
         upper_target_is_n = self._upper_target_is_ns[:, n].reshape(-1, 1)
 
+        # ステップnの室iにおけるClo値, [i, 1]
+        clo_is_n = get_clo_is_ns(operation_mode_is_n=operation_mode_is_n)
+
+        # ステップnにおける室iの在室者周りの風速, m/s, [i, 1]
+        v_hum_is_n = get_v_hum_is_n(
+            operation_mode_is=operation_mode_is_n,
+            is_radiative_heating_is=is_radiative_heating_is,
+            is_radiative_cooling_is=is_radiative_cooling_is
+        )
+
+        # (1) ステップ n における室 i の在室者周りの対流熱伝達率, W/m2K, [i, 1]
+        # (2) ステップ n における室 i の在室者周りの放射熱伝達率, W/m2K, [i, 1]
+        # (3) ステップ n における室 i の在室者周りの総合熱伝達率, W/m2K, [i, 1]
+        h_hum_c_is_n, h_hum_r_is_n, h_hum_is_n = pmv.get_h_hum(
+            theta_mrt_is_n=theta_mrt_hum_is_n,
+            theta_r_is_n=theta_r_is_n,
+            clo_is_n=clo_is_n,
+            v_hum_is_n=v_hum_is_n,
+            method='constant',
+            met_is=met_is
+        )
+
         if self.ac_method in [ACMethod.AIR_TEMPERATURE, ACMethod.SIMPLE, ACMethod.OT]:
 
-            return _get_theta_target_simple(
-                p_v_r_is_n=p_v_r_is_n,
-                operation_mode_is_n=operation_mode_is_n,
-                theta_r_is_n=theta_r_is_n,
-                theta_mrt_hum_is_n=theta_mrt_hum_is_n,
-                theta_lower_target_is_ns=self._lower_target_is_ns,
-                theta_upper_target_is_ns=self._upper_target_is_ns,
-                n=n,
-                is_radiative_heating_is=is_radiative_heating_is,
-                is_radiative_cooling_is=is_radiative_cooling_is,
-                lower_target_is_n=lower_target_is_n,
-                upper_target_is_n=upper_target_is_n
-            )
+            return lower_target_is_n, upper_target_is_n, h_hum_c_is_n, h_hum_r_is_n
 
         elif self.ac_method == ACMethod.PMV:
 
-            return _get_theta_target(
+            lower_target_is_n, upper_target_is_n = _get_theta_target(
                 is_radiative_heating_is=is_radiative_heating_is,
                 is_radiative_cooling_is=is_radiative_cooling_is,
                 method='constant',
@@ -205,8 +215,12 @@ class Operation:
                 theta_lower_target_is_ns=self._lower_target_is_ns,
                 theta_upper_target_is_ns=self._upper_target_is_ns,
                 lower_target_is_n=lower_target_is_n,
-                upper_target_is_n=upper_target_is_n
+                upper_target_is_n=upper_target_is_n,
+                h_hum_is_n=h_hum_is_n,
+                clo_is_n=clo_is_n
             )
+
+            return lower_target_is_n, upper_target_is_n, h_hum_c_is_n, h_hum_r_is_n
 
         else:
 
@@ -323,26 +337,6 @@ def _get_operation_mode_pmv_is_n(
     return x_cooling_is_n_pls, x_window_open_is_n_pls, x_heating_is_n_pls
 
 
-def _get_theta_target_simple(
-        p_v_r_is_n: np.ndarray,
-        operation_mode_is_n: np.ndarray,
-        theta_r_is_n: np.ndarray,
-        theta_mrt_hum_is_n: np.ndarray,
-        theta_lower_target_is_ns: np.ndarray,
-        theta_upper_target_is_ns: np.ndarray,
-        n: int,
-        is_radiative_heating_is: np.ndarray,
-        is_radiative_cooling_is: np.ndarray,
-        lower_target_is_n: np.ndarray,
-        upper_target_is_n: np.ndarray
-):
-
-    h_hum_c_is_n = np.full_like(theta_r_is_n, fill_value=1.0, dtype=float)
-    h_hum_r_is_n = np.full_like(theta_r_is_n, fill_value=1.0, dtype=float)
-
-    return lower_target_is_n, upper_target_is_n, h_hum_c_is_n, h_hum_r_is_n
-
-
 def _get_theta_target(
         is_radiative_cooling_is: np.ndarray,
         is_radiative_heating_is: np.ndarray,
@@ -356,23 +350,10 @@ def _get_theta_target(
         theta_lower_target_is_ns: np.ndarray,
         theta_upper_target_is_ns: np.ndarray,
         lower_target_is_n: np.ndarray,
-        upper_target_is_n: np.ndarray
+        upper_target_is_n: np.ndarray,
+        h_hum_is_n: np.ndarray,
+        clo_is_n: np.ndarray
 ):
-
-    # ステップnの室iにおけるClo値, [i, 1]
-    clo_is_n = get_clo_is_ns(operation_mode_is_n=operation_mode_is_n)
-
-    # is_window_open_is_n = operation_mode_is_n == OperationMode.STOP_OPEN
-    is_window_open_is_n = OperationMode.u_is_window_open(oms=operation_mode_is_n)
-    is_convective_ac_is_n = ((operation_mode_is_n == OperationMode.HEATING) & np.logical_not(is_radiative_heating_is)) | (
-                (operation_mode_is_n == OperationMode.COOLING) & np.logical_not(is_radiative_cooling_is))
-    is_convective_ac_is_n = OperationMode.u_is_convective_ac(oms=operation_mode_is_n, is_radiative_heating_is=is_radiative_heating_is, is_radiative_cooling_is=is_radiative_cooling_is)
-
-    # ステップnにおける室iの在室者周りの風速, m/s, [i, 1]
-    v_hum_is_n = occupants.get_v_hum_is_n(
-        is_window_open_is_n=is_window_open_is_n,
-        is_convective_ac_is_n=is_convective_ac_is_n
-    )
 
     # ステップnの室iにおける目標PMV, [i, 1]
     pmv_target_is_n = _get_pmv_target_is_n(operation_mode_is_n)
@@ -384,18 +365,6 @@ def _get_theta_target(
     # 計算する必要がない場合は、0.0（初期値）とする。
     # 計算する必要がある場合は、上書きする。
     f = (operation_mode_is_n == OperationMode.HEATING) | (operation_mode_is_n == OperationMode.COOLING)
-
-    # (1) ステップ n における室 i の在室者周りの対流熱伝達率, W/m2K, [i, 1]
-    # (2) ステップ n における室 i の在室者周りの放射熱伝達率, W/m2K, [i, 1]
-    # (3) ステップ n における室 i の在室者周りの総合熱伝達率, W/m2K, [i, 1]
-    h_hum_c_is_n, h_hum_r_is_n, h_hum_is_n = pmv.get_h_hum(
-        theta_mrt_is_n=theta_mrt_hum_is_n,
-        theta_r_is_n=theta_r_is_n,
-        clo_is_n=clo_is_n,
-        v_hum_is_n=v_hum_is_n,
-        method=method,
-        met_is=met_is
-    )
 
     theta_ot_target_dsh_is_n = pmv.get_theta_ot_target(
         clo_is_n=clo_is_n,
@@ -414,7 +383,7 @@ def _get_theta_target(
     theta_upper_target_is_n[operation_mode_is_n == OperationMode.COOLING] \
         = theta_ot_target_is_n[operation_mode_is_n == OperationMode.COOLING]
 
-    return theta_lower_target_is_n, theta_upper_target_is_n, h_hum_c_is_n, h_hum_r_is_n
+    return theta_lower_target_is_n, theta_upper_target_is_n
 
 
 def _get_pmv_target_is_n(operation_mode_is_n: np.ndarray) -> np.ndarray:
