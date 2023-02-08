@@ -3,7 +3,8 @@ import unittest
 import numpy as np
 import json
 
-from heat_load_calc import sequence, weather, conditions, operation_mode, schedule, interval, recorder
+from heat_load_calc import sequence, weather, conditions, schedule, interval, recorder
+from heat_load_calc.operation import OperationMode
 
 
 # 定常状態のテスト
@@ -113,8 +114,7 @@ class TestSteadyState(unittest.TestCase):
         # 初期状態値の計算
         theta_r_is_n = np.array([[13.403464558874200, 4.808632169196720]]).reshape(-1, 1)
         c_n = conditions.Conditions(
-            operation_mode_is_n=np.array(
-                [[operation_mode.OperationMode.STOP_CLOSE, operation_mode.OperationMode.STOP_CLOSE]]).reshape(-1, 1),
+            operation_mode_is_n=np.array([[OperationMode.STOP_CLOSE, OperationMode.STOP_CLOSE]]).reshape(-1, 1),
             theta_r_is_n=theta_r_is_n,
             theta_mrt_hum_is_n=np.array([[9.689970497, 4.391663789]]).reshape(-1, 1),
             x_r_is_n=np.array([[0.0, 0.0]]).reshape(-1, 1),

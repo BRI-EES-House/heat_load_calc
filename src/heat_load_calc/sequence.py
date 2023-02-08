@@ -16,11 +16,10 @@ from heat_load_calc.rooms import Rooms
 from heat_load_calc.boundaries import Boundaries
 from heat_load_calc.mechanical_ventilations import MechanicalVentilations
 from heat_load_calc.equipments import Equipments
-from heat_load_calc.operation_mode import OperationMode
 from heat_load_calc.conditions import Conditions
 from heat_load_calc.recorder import Recorder
 from heat_load_calc.conditions import GroundConditions
-from heat_load_calc.operation import Operation
+from heat_load_calc.operation import Operation, OperationMode
 
 
 @dataclass
