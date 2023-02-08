@@ -171,6 +171,9 @@ class Operation:
             met_is: np.ndarray
     ):
 
+        lower_target_is_n = self._lower_target_is_ns[:, n].reshape(-1, 1)
+        upper_target_is_n = self._upper_target_is_ns[:, n].reshape(-1, 1)
+
         if self.ac_method in [ACMethod.AIR_TEMPERATURE, ACMethod.SIMPLE, ACMethod.OT]:
 
             return _get_theta_target_simple(
@@ -182,7 +185,9 @@ class Operation:
                 theta_upper_target_is_ns=self._upper_target_is_ns,
                 n=n,
                 is_radiative_heating_is=is_radiative_heating_is,
-                is_radiative_cooling_is=is_radiative_cooling_is
+                is_radiative_cooling_is=is_radiative_cooling_is,
+                lower_target_is_n=lower_target_is_n,
+                upper_target_is_n=upper_target_is_n
             )
 
         elif self.ac_method == ACMethod.PMV:
@@ -198,7 +203,9 @@ class Operation:
                 met_is=met_is,
                 n=n,
                 theta_lower_target_is_ns=self._lower_target_is_ns,
-                theta_upper_target_is_ns=self._upper_target_is_ns
+                theta_upper_target_is_ns=self._upper_target_is_ns,
+                lower_target_is_n=lower_target_is_n,
+                upper_target_is_n=upper_target_is_n
             )
 
         else:
@@ -326,21 +333,14 @@ def _get_theta_target_simple(
         n: int,
         is_radiative_heating_is: np.ndarray,
         is_radiative_cooling_is: np.ndarray,
+        lower_target_is_n: np.ndarray,
+        upper_target_is_n: np.ndarray
 ):
-
-    # ステップnの室iにおけるClo値, [i, 1]
-    clo_is_n = np.full_like(theta_r_is_n, fill_value=occupants.get_clo_light(), dtype=float)
-
-    # ステップnにおける室iの在室者周りの風速, m/s, [i, 1]
-    v_hum_is_n = np.zeros_like(theta_r_is_n, dtype=float)
 
     h_hum_c_is_n = np.full_like(theta_r_is_n, fill_value=1.0, dtype=float)
     h_hum_r_is_n = np.full_like(theta_r_is_n, fill_value=1.0, dtype=float)
 
-    theta_lower_target_is_n = theta_lower_target_is_ns[:, n].reshape(-1, 1)
-    theta_upper_target_is_n = theta_upper_target_is_ns[:, n].reshape(-1, 1)
-
-    return theta_lower_target_is_n, theta_upper_target_is_n, h_hum_c_is_n, h_hum_r_is_n, v_hum_is_n, clo_is_n
+    return lower_target_is_n, upper_target_is_n, h_hum_c_is_n, h_hum_r_is_n
 
 
 def _get_theta_target(
@@ -354,11 +354,13 @@ def _get_theta_target(
         met_is: np.ndarray,
         n: int,
         theta_lower_target_is_ns: np.ndarray,
-        theta_upper_target_is_ns: np.ndarray
+        theta_upper_target_is_ns: np.ndarray,
+        lower_target_is_n: np.ndarray,
+        upper_target_is_n: np.ndarray
 ):
 
     # ステップnの室iにおけるClo値, [i, 1]
-    clo_is_n = _get_clo_is_n(operation_mode_is_n=operation_mode_is_n)
+    clo_is_n = get_clo_is_ns(operation_mode_is_n=operation_mode_is_n)
 
     # is_window_open_is_n = operation_mode_is_n == OperationMode.STOP_OPEN
     is_window_open_is_n = OperationMode.u_is_window_open(oms=operation_mode_is_n)
@@ -412,35 +414,7 @@ def _get_theta_target(
     theta_upper_target_is_n[operation_mode_is_n == OperationMode.COOLING] \
         = theta_ot_target_is_n[operation_mode_is_n == OperationMode.COOLING]
 
-    return theta_lower_target_is_n, theta_upper_target_is_n, h_hum_c_is_n, h_hum_r_is_n, v_hum_is_n, clo_is_n
-
-
-def _get_clo_is_n(operation_mode_is_n: np.ndarray) -> np.ndarray:
-    """運転モードに応じた在室者のClo値を決定する。
-
-    Args:
-        operation_mode_is_n: ステップnにおける室iの運転状態, [i, 1]
-
-    Returns:
-        ステップnにおける室iの在室者のClo値, [i, 1]
-    """
-
-    # ステップnにおける室iの在室者のClo値, [i, 1]
-    clo_is_n = np.zeros_like(operation_mode_is_n, dtype=float)
-
-    # 運転方法に応じてclo値の設定を決定する。
-
-    # 暖房運転時の場合は厚着とする。
-    clo_is_n[operation_mode_is_n == OperationMode.HEATING] = occupants.get_clo_heavy()
-
-    # 冷房運転時の場合は薄着とする。
-    clo_is_n[operation_mode_is_n == OperationMode.COOLING] = occupants.get_clo_light()
-
-    # 暖冷房停止時は、窓の開閉によらず中間着とする。
-    clo_is_n[operation_mode_is_n == OperationMode.STOP_OPEN] = occupants.get_clo_middle()
-    clo_is_n[operation_mode_is_n == OperationMode.STOP_CLOSE] = occupants.get_clo_middle()
-
-    return clo_is_n
+    return theta_lower_target_is_n, theta_upper_target_is_n, h_hum_c_is_n, h_hum_r_is_n
 
 
 def _get_pmv_target_is_n(operation_mode_is_n: np.ndarray) -> np.ndarray:
@@ -502,20 +476,31 @@ def get_v_hum_is_n(
     return v_hum_is_n
 
 
-def get_clo_is_ns(operation_mode_is: np.ndarray):
+def get_clo_is_ns(operation_mode_is_n: np.ndarray):
+    """運転モードに応じた在室者のClo値を決定する。
 
-    clo_is_ns = np.zeros_like(operation_mode_is, dtype=float)
+    Args:
+        operation_mode_is_n: ステップnにおける室iの運転状態, [i, 1]
+
+    Returns:
+        ステップnにおける室iの在室者のClo値, [i, 1]
+    """
+
+    # ステップnにおける室iの在室者のClo値, [i, 1]
+    clo_is_ns = np.zeros_like(operation_mode_is_n, dtype=float)
+
+    # 運転方法に応じてclo値の設定を決定する。
 
     # 暖房時は厚着とする。
-    clo_is_ns[operation_mode_is == OperationMode.HEATING] = occupants.get_clo_heavy()
+    clo_is_ns[operation_mode_is_n == OperationMode.HEATING] = occupants.get_clo_heavy()
 
     # 冷房時は薄着とする。
-    clo_is_ns[operation_mode_is == OperationMode.COOLING] = occupants.get_clo_light()
+    clo_is_ns[operation_mode_is_n == OperationMode.COOLING] = occupants.get_clo_light()
 
     # 運転停止（窓開）時は薄着とする。
-    clo_is_ns[operation_mode_is == OperationMode.STOP_OPEN] = occupants.get_clo_light()
+    clo_is_ns[operation_mode_is_n == OperationMode.STOP_OPEN] = occupants.get_clo_light()
 
     # 運転停止（窓閉）時は薄着とする。
-    clo_is_ns[operation_mode_is == OperationMode.STOP_CLOSE] = occupants.get_clo_middle()
+    clo_is_ns[operation_mode_is_n == OperationMode.STOP_CLOSE] = occupants.get_clo_middle()
 
     return clo_is_ns

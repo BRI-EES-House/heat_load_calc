@@ -317,7 +317,7 @@ class Recorder:
         # ステップ n+1 の湿度を用いてステップ n からステップ n+1 の平均的な水分流を求めている（後退差分）
         self.q_l_frt_is_ns = np.delete(rms.g_lh_frt_is * (self.x_r_is_ns - self.x_frt_is_ns), 0, axis=1)
 
-        self.clo_is_ns = operation_.get_clo_is_ns(operation_mode_is=self.operation_mode_is_ns)
+        self.clo_is_ns = operation_.get_clo_is_ns(operation_mode_is_n=self.operation_mode_is_ns)
 
         # ステップ n+1 のPMVを計算するのに、ステップ n からステップ n+1 のClo値を用いる。
         # 現在、Clo値の配列数が1つ多いバグがあるため、適切な長さになるようにスライスしている。
