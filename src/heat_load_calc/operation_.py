@@ -203,17 +203,9 @@ class Operation:
         elif self.ac_method == ACMethod.PMV:
 
             lower_target_is_n, upper_target_is_n = _get_theta_target(
-                is_radiative_heating_is=is_radiative_heating_is,
-                is_radiative_cooling_is=is_radiative_cooling_is,
-                method='constant',
                 operation_mode_is_n=operation_mode_is_n,
                 p_v_r_is_n=p_v_r_is_n,
-                theta_mrt_hum_is_n=theta_mrt_hum_is_n,
-                theta_r_is_n=theta_r_is_n,
                 met_is=met_is,
-                n=n,
-                theta_lower_target_is_ns=self._lower_target_is_ns,
-                theta_upper_target_is_ns=self._upper_target_is_ns,
                 lower_target_is_n=lower_target_is_n,
                 upper_target_is_n=upper_target_is_n,
                 h_hum_is_n=h_hum_is_n,
@@ -338,72 +330,41 @@ def _get_operation_mode_pmv_is_n(
 
 
 def _get_theta_target(
-        is_radiative_cooling_is: np.ndarray,
-        is_radiative_heating_is: np.ndarray,
-        method: str,
         operation_mode_is_n: np.ndarray,
         p_v_r_is_n: np.ndarray,
-        theta_mrt_hum_is_n: np.ndarray,
-        theta_r_is_n: np.ndarray,
         met_is: np.ndarray,
-        n: int,
-        theta_lower_target_is_ns: np.ndarray,
-        theta_upper_target_is_ns: np.ndarray,
         lower_target_is_n: np.ndarray,
         upper_target_is_n: np.ndarray,
         h_hum_is_n: np.ndarray,
         clo_is_n: np.ndarray
 ):
 
-    # ステップnの室iにおける目標PMV, [i, 1]
-    pmv_target_is_n = _get_pmv_target_is_n(operation_mode_is_n)
+    f_h = operation_mode_is_n == OperationMode.HEATING
+    f_c = operation_mode_is_n == OperationMode.COOLING
 
     # ステップnにおける室iの目標作用温度, degree C, [i, 1]
-    theta_ot_target_is_n = np.zeros_like(operation_mode_is_n, dtype=float)
-
-    # 目標作用温度を計算する必要の有無（必要あり = True, 必要なし = False)
-    # 計算する必要がない場合は、0.0（初期値）とする。
-    # 計算する必要がある場合は、上書きする。
-    f = (operation_mode_is_n == OperationMode.HEATING) | (operation_mode_is_n == OperationMode.COOLING)
-
-    theta_ot_target_dsh_is_n = pmv.get_theta_ot_target(
-        clo_is_n=clo_is_n,
-        p_a_is_n=p_v_r_is_n,
-        h_hum_is_n=h_hum_is_n,
-        met_is=met_is,
-        pmv_target_is_n=pmv_target_is_n
-    )
-
-    theta_ot_target_is_n[f] = theta_ot_target_dsh_is_n[f]
 
     theta_lower_target_is_n = np.zeros_like(operation_mode_is_n, dtype=float)
-    theta_lower_target_is_n[operation_mode_is_n == OperationMode.HEATING] \
-        = theta_ot_target_is_n[operation_mode_is_n == OperationMode.HEATING]
+
+    theta_lower_target_is_n[f_h] = pmv.get_theta_ot_target(
+        clo_is_n=clo_is_n[f_h],
+        p_a_is_n=p_v_r_is_n[f_h],
+        h_hum_is_n=h_hum_is_n[f_h],
+        met_is=met_is[f_h],
+        pmv_target_is_n=lower_target_is_n[f_h]
+    )
+
     theta_upper_target_is_n = np.zeros_like(operation_mode_is_n, dtype=float)
-    theta_upper_target_is_n[operation_mode_is_n == OperationMode.COOLING] \
-        = theta_ot_target_is_n[operation_mode_is_n == OperationMode.COOLING]
+
+    theta_upper_target_is_n[f_c] = pmv.get_theta_ot_target(
+        clo_is_n=clo_is_n[f_c],
+        p_a_is_n=p_v_r_is_n[f_c],
+        h_hum_is_n=h_hum_is_n[f_c],
+        met_is=met_is[f_c],
+        pmv_target_is_n=upper_target_is_n[f_c]
+    )
 
     return theta_lower_target_is_n, theta_upper_target_is_n
-
-
-def _get_pmv_target_is_n(operation_mode_is_n: np.ndarray) -> np.ndarray:
-    """運転モードから目標とするPMVを決定する。
-
-    Args:
-        operation_mode_is_n: ステップnの室iにおける運転状況, [i, 1]
-
-    Returns:
-        ステップnの室iにおける目標PMV, [i, 1]
-    """
-
-    pmv_target_is_n = np.zeros_like(operation_mode_is_n, dtype=float)
-
-    pmv_target_is_n[operation_mode_is_n == OperationMode.HEATING] = -0.5
-    pmv_target_is_n[operation_mode_is_n == OperationMode.COOLING] = 0.5
-    pmv_target_is_n[operation_mode_is_n == OperationMode.STOP_OPEN] = 0.0
-    pmv_target_is_n[operation_mode_is_n == OperationMode.STOP_CLOSE] = 0.0
-
-    return pmv_target_is_n
 
 
 def get_v_hum_is_n(
