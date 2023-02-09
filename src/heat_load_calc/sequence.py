@@ -125,15 +125,6 @@ class Sequence:
             n_rm=rms.n_rm
         )
 
-        # 次のステップの室温と負荷を計算する関数
-        calc_next_temp_and_load = next_condition.make_get_next_temp_and_load_function(
-            ac_demand_is_ns=scd.ac_demand_is_ns,
-            is_radiative_heating_is=es.is_radiative_heating_is,
-            is_radiative_cooling_is=es.is_radiative_cooling_is,
-            lr_h_max_cap_is=es.q_rs_h_max_is,
-            lr_cs_max_cap_is=es.q_rs_c_max_is
-        )
-
         # 次の係数を求める関数
         #   ステップ n　からステップ n+1 における係数 f_l_cl_wgt, kg/s(kg/kg(DA)), [i, i]
         #   ステップ n　からステップ n+1 における係数 f_l_cl_cst, kg/s, [i, 1]
@@ -181,9 +172,6 @@ class Sequence:
         # Operation Class
         self._op: Operation = op
 
-        # 次のステップの室温と負荷を計算する関数
-        self._calc_next_temp_and_load = calc_next_temp_and_load
-
         # 次の係数を求める関数
         #   ステップ n　からステップ n+1 における係数 f_l_cl_wgt, kg/s(kg/kg(DA)), [i, i]
         #   ステップ n　からステップ n+1 における係数 f_l_cl_cst, kg/s, [i, 1]
@@ -228,15 +216,6 @@ class Sequence:
     @property
     def op(self) -> Operation:
         return self._op
-
-    @property
-    def calc_next_temp_and_load(self) -> Callable[[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray], Tuple[np.ndarray, np.ndarray, np.ndarray]]:
-        """次のステップの室温と負荷を計算する関数
-
-        Returns:
-
-        """
-        return self._calc_next_temp_and_load
 
     @property
     def get_f_l_cl(self) -> Callable[[np.ndarray, np.ndarray, np.ndarray], Tuple[np.ndarray, np.ndarray]]:
@@ -747,13 +726,18 @@ def _run_tick(self, n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditio
     # ステップ n+1 における室 i の作用温度, degree C, [i, 1] (ステップn+1における瞬時値）
     # ステップ n における室 i に設置された対流暖房の放熱量, W, [i, 1] (ステップn～ステップn+1までの平均値）
     # ステップ n における室 i に設置された放射暖房の放熱量, W, [i, 1]　(ステップn～ステップn+1までの平均値）
-    theta_ot_is_n_pls, l_cs_is_n, l_rs_is_n = self.calc_next_temp_and_load(
+    theta_ot_is_n_pls, l_cs_is_n, l_rs_is_n = next_condition.get_next_temp_and_load(
+        ac_demand_is_ns=self.scd.ac_demand_is_ns,
         brc_ot_is_n=f_brc_ot_is_n_pls,
         brm_ot_is_is_n=f_brm_ot_is_is_n_pls,
         brl_ot_is_is_n=f_brl_ot_is_is_n,
         theta_lower_target_is_n=theta_lower_target_is_n_pls,
         theta_upper_target_is_n=theta_upper_target_is_n_pls,
         operation_mode_is_n=operation_mode_is_n,
+        is_radiative_heating_is=self.es.is_radiative_heating_is,
+        is_radiative_cooling_is=self.es.is_radiative_cooling_is,
+        lr_h_max_cap_is=self.es.q_rs_h_max_is,
+        lr_cs_max_cap_is=self.es.q_rs_c_max_is,
         theta_natural_is_n=theta_r_ot_ntr_is_n_pls,
         is_heating_is_n=is_heating_is_n,
         is_cooling_is_n=is_cooling_is_n,

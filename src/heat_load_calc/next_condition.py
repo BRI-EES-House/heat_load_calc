@@ -3,24 +3,6 @@ import numpy as np
 from functools import partial
 
 
-def make_get_next_temp_and_load_function(
-        ac_demand_is_ns: np.ndarray,
-        is_radiative_heating_is: np.ndarray,
-        is_radiative_cooling_is: np.ndarray,
-        lr_h_max_cap_is: np.ndarray,
-        lr_cs_max_cap_is: np.ndarray
-) -> Callable[[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray], Tuple[np.ndarray, np.ndarray, np.ndarray]]:
-
-    return partial(
-        get_next_temp_and_load,
-        ac_demand_is_ns=ac_demand_is_ns,
-        is_radiative_heating_is=is_radiative_heating_is,
-        is_radiative_cooling_is=is_radiative_cooling_is,
-        lr_h_max_cap_is=lr_h_max_cap_is,
-        lr_cs_max_cap_is=lr_cs_max_cap_is
-    )
-
-
 def get_next_temp_and_load(
         ac_demand_is_ns: np.ndarray,
         brc_ot_is_n: np.ndarray,
