@@ -680,28 +680,18 @@ def _run_tick(self, n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditio
             met_is=self.rms.met_is
         )
 
-    # ステップ n から n+1 において室 i で実際に暖房・冷房が行われるかどうかの判定結果, [i, 1]
-    is_heating_is_n, is_cooling_is_n = get_is_heating_is_n_and_is_cooling_is_n(
-        operation_mode_is_n=operation_mode_is_n,
-        theta_lower_target_is_n_pls=theta_lower_target_is_n_pls,
-        theta_r_ot_ntr_is_n_pls=theta_r_ot_ntr_is_n_pls,
-        theta_upper_target_is_n_pls=theta_upper_target_is_n_pls
-    )
-
     # ステップ n+1 における係数 f_flr, -, [j, i]
     f_flr_js_is_n = get_f_flr_js_is_n(
         f_flr_c_js_is=self.es.f_flr_c_js_is,
         f_flr_h_js_is=self.es.f_flr_h_js_is,
-        is_cooling_is_n=is_cooling_is_n,
-        is_heating_is_n=is_heating_is_n
+        operation_mode_is_n=operation_mode_is_n
     )
 
     # ステップ n からステップ n+1 における室 i の放射暖冷房設備の対流成分比率, -, [i, 1]
     beta_is_n = get_beta_is_n(
         beta_c_is=self.es.beta_c_is,
         beta_h_is=self.es.beta_h_is,
-        is_cooling_is_n=is_cooling_is_n,
-        is_heating_is_n=is_heating_is_n
+        operation_mode_is_n=operation_mode_is_n
     )
 
     # ステップ n における係数 f_FLB, K/W, [j, i]
@@ -744,6 +734,14 @@ def _run_tick(self, n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditio
         f_brl_is_is_n=f_brl_is_is_n,
         f_brm_is_is_n_pls=f_brm_is_is_n_pls,
         f_xlr_is_is_n_pls=f_xlr_is_is_n_pls
+    )
+
+    # ステップ n から n+1 において室 i で実際に暖房・冷房が行われるかどうかの判定結果, [i, 1]
+    is_heating_is_n, is_cooling_is_n = get_is_heating_is_n_and_is_cooling_is_n(
+        operation_mode_is_n=operation_mode_is_n,
+        theta_lower_target_is_n_pls=theta_lower_target_is_n_pls,
+        theta_r_ot_ntr_is_n_pls=theta_r_ot_ntr_is_n_pls,
+        theta_upper_target_is_n_pls=theta_upper_target_is_n_pls
     )
 
     # ステップ n+1 における室 i の作用温度, degree C, [i, 1] (ステップn+1における瞬時値）
@@ -1505,14 +1503,17 @@ def get_f_flb_js_is_n_pls(a_s_js, beta_is_n, f_flr_js_is_n, h_s_c_js, h_s_r_js, 
         + np.dot(k_ei_js_js, f_flr_js_is_n * (1.0 - beta_is_n.T)) * phi_t0_js / (h_s_c_js + h_s_r_js) / a_s_js
 
 
-def get_beta_is_n(beta_c_is, beta_h_is, is_cooling_is_n, is_heating_is_n):
+def get_beta_is_n(
+        beta_c_is: np.ndarray,
+        beta_h_is: np.ndarray,
+        operation_mode_is_n: np.ndarray
+):
     """
 
     Args:
         beta_c_is: 室 i の放射冷房設備の対流成分比率, -, [i, 1]
         beta_h_is: 室 i の放射暖房設備の対流成分比率, -, [i, 1]
-        is_cooling_is_n: 「ステップ n から n+1 における室 i の運転が冷房運転時の場合」かの有無, -, [i, 1]
-        is_heating_is_n: 「ステップ n から n+1 における室 i の運転が暖房運転時の場合」かの有無, -, [i, 1]
+        operation_mode_is_n: ステップnにおける室iの運転モード, [i, 1]
 
     Returns:
         ステップ n からステップ n+1 における室 i の放射暖冷房設備の対流成分比率, -, [i, 1]
@@ -1521,17 +1522,21 @@ def get_beta_is_n(beta_c_is, beta_h_is, is_cooling_is_n, is_heating_is_n):
         式(2.13)
     """
 
-    return beta_h_is * is_heating_is_n + beta_c_is * is_cooling_is_n
+    return beta_h_is * (operation_mode_is_n == OperationMode.HEATING)\
+        + beta_c_is * (operation_mode_is_n == OperationMode.COOLING)
 
 
-def get_f_flr_js_is_n(f_flr_c_js_is, f_flr_h_js_is, is_cooling_is_n, is_heating_is_n):
+def get_f_flr_js_is_n(
+        f_flr_c_js_is: np.ndarray,
+        f_flr_h_js_is: np.ndarray,
+        operation_mode_is_n: np.ndarray
+):
     """
 
     Args:
         f_flr_c_js_is: 室 i の放射冷房設備の放熱量の放射成分に対する境界 j の室内側表面の吸収比率, -, [j, i]
         f_flr_h_js_is: 室 i の放射暖房設備の放熱量の放射成分に対する境界 j の室内側表面の吸収比率, -, [j, i]
-        is_cooling_is_n: 「ステップ n から n+1 における室 i の運転が冷房運転時の場合」かの有無, -, [i, 1]
-        is_heating_is_n: 「ステップ n から n+1 における室 i の運転が暖房運転時の場合」かの有無, -, [i, 1]
+        operation_mode_is_n: ステップnにおける室iの運転モード, [i, 1]
 
     Returns:
         ステップ n からステップ n+1 における室 i の放射暖冷房設備の放熱量の放射成分に対する境界 j の室内側表面の吸収比率, -, [j, i]
@@ -1541,7 +1546,8 @@ def get_f_flr_js_is_n(f_flr_c_js_is, f_flr_h_js_is, is_cooling_is_n, is_heating_
 
     """
 
-    return f_flr_h_js_is * is_heating_is_n.flatten() + f_flr_c_js_is * is_cooling_is_n.flatten()
+    return f_flr_h_js_is * (operation_mode_is_n == OperationMode.HEATING).flatten() \
+        + f_flr_c_js_is * (operation_mode_is_n == OperationMode.COOLING).flatten()
 
 
 def get_is_heating_is_n_and_is_cooling_is_n(
