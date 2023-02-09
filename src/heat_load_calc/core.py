@@ -107,7 +107,7 @@ def calc(
             logger.info("{} / 12 calculated.".format(m))
             m = m + 1
 
-    result.post_recording(rms=sqc.rms, bs=sqc.bs, f_mrt_is_js=pp.f_mrt_is_js)
+    result.post_recording(rms=sqc.rms, bs=sqc.bs, f_mrt_is_js=pp.f_mrt_is_js, es=sqc.es)
 
     logger.info('ログ作成')
 

@@ -5,8 +5,8 @@ import logging
 
 from heat_load_calc.matrix_method import v_diag
 from heat_load_calc import next_condition, schedule, rooms, boundaries
-from heat_load_calc import infiltration, occupants_form_factor, shape_factor, solar_absorption
-from heat_load_calc import operation_, interval
+from heat_load_calc import occupants_form_factor, shape_factor, solar_absorption
+from heat_load_calc import operation_mode, interval
 from heat_load_calc import occupants, psychrometrics as psy
 from heat_load_calc.global_number import get_c_a, get_rho_a, get_l_wtr
 from heat_load_calc.weather import Weather
@@ -16,11 +16,10 @@ from heat_load_calc.rooms import Rooms
 from heat_load_calc.boundaries import Boundaries
 from heat_load_calc.mechanical_ventilations import MechanicalVentilations
 from heat_load_calc.equipments import Equipments
-from heat_load_calc.operation_mode import OperationMode
 from heat_load_calc.conditions import Conditions
 from heat_load_calc.recorder import Recorder
 from heat_load_calc.conditions import GroundConditions
-from heat_load_calc.operation_ import Operation
+from heat_load_calc.operation_mode import Operation, OperationMode
 
 
 @dataclass
@@ -115,34 +114,15 @@ class Sequence:
         mvs = MechanicalVentilations(vs=rd['mechanical_ventilations'], n_rm=rms.n_rm)
 
         # Equipments Class
+        # TODO: Equipments Class を作成するのに Boundaries Class 全部をわたしているのはあまりよくない。
         es = Equipments(dict_equipments=rd['equipments'], n_rm=rms.n_rm, n_b=bs.n_b, bs=bs)
 
         # Operation Class
-        op = operation_.Operation.make_operation(
+        op = operation_mode.Operation.make_operation(
             d=rd['common'],
             ac_setting_is_ns=scd.ac_setting_is_ns,
             ac_demand_is_ns=scd.ac_demand_is_ns,
             n_rm=rms.n_rm
-        )
-
-        # すきま風を計算する関数
-        get_infiltration = infiltration.make_get_infiltration_function(v_rm_is=rms.v_rm_is, building=building)
-
-        # 目標作用温度を決定する関数
-        get_theta_target_is_n = op.make_get_theta_target_is_n_function(
-            is_radiative_heating_is=es.is_radiative_heating_is,
-            is_radiative_cooling_is=es.is_radiative_cooling_is,
-            met_is=rms.met_is,
-            ac_setting_is_ns=scd.ac_setting_is_ns
-        )
-
-        # 次のステップの室温と負荷を計算する関数
-        calc_next_temp_and_load = next_condition.make_get_next_temp_and_load_function(
-            ac_demand_is_ns=scd.ac_demand_is_ns,
-            is_radiative_heating_is=es.is_radiative_heating_is,
-            is_radiative_cooling_is=es.is_radiative_cooling_is,
-            lr_h_max_cap_is=es.q_rs_h_max_is,
-            lr_cs_max_cap_is=es.q_rs_c_max_is
         )
 
         # 次の係数を求める関数
@@ -192,15 +172,6 @@ class Sequence:
         # Operation Class
         self._op: Operation = op
 
-        # 隙間風を計算する関数
-        self._get_infiltration = get_infiltration
-
-        # 目標作用温度を決定する関数
-        self._get_theta_target_is_n = get_theta_target_is_n
-
-        # 次のステップの室温と負荷を計算する関数
-        self._calc_next_temp_and_load = calc_next_temp_and_load
-
         # 次の係数を求める関数
         #   ステップ n　からステップ n+1 における係数 f_l_cl_wgt, kg/s(kg/kg(DA)), [i, i]
         #   ステップ n　からステップ n+1 における係数 f_l_cl_cst, kg/s, [i, 1]
@@ -245,36 +216,6 @@ class Sequence:
     @property
     def op(self) -> Operation:
         return self._op
-
-    @property
-    def get_infiltration(self) -> Callable[[np.ndarray, float], np.ndarray]:
-        """隙間風を計算する関数
-
-        引数:
-          theta_r_is_n: 時刻nの室温, degree C, [i,1]
-          theta_o_n: 時刻n+1の外気温度, degree C
-        戻り値:
-          すきま風量, m3/s, [i,1]
-        """
-        return self._get_infiltration
-
-    @property
-    def get_theta_target_is_n(self) -> Callable[[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray], Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]]:
-        """目標作用温度を決定する関数
-
-        Returns:
-
-        """
-        return self._get_theta_target_is_n
-
-    @property
-    def calc_next_temp_and_load(self) -> Callable[[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray], Tuple[np.ndarray, np.ndarray, np.ndarray]]:
-        """次のステップの室温と負荷を計算する関数
-
-        Returns:
-
-        """
-        return self._calc_next_temp_and_load
 
     @property
     def get_f_l_cl(self) -> Callable[[np.ndarray, np.ndarray, np.ndarray], Tuple[np.ndarray, np.ndarray]]:
@@ -466,7 +407,11 @@ def _run_tick(self, n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditio
     )
 
     # ステップnの室iにおけるすきま風量, m3/s, [i, 1]
-    v_leak_is_n = self.get_infiltration(theta_r_is_n=c_n.theta_r_is_n, theta_o_n=self.weather.theta_o_ns_plus[n])
+    v_leak_is_n = self.building.get_v_leak_is_n(
+        theta_r_is_n=c_n.theta_r_is_n,
+        theta_o_n=self.weather.theta_o_ns_plus[n],
+        v_room_is=self.rms.v_rm_is
+    )
 
     # ステップ n+1 の境界 j における項別公比法の指数項 m の貫流応答の項別成分, degree C, [j, m] (m=12), eq.(29)
     theta_dsh_s_t_js_ms_n_pls = get_theta_dsh_s_t_js_ms_n_pls(
@@ -628,7 +573,6 @@ def _run_tick(self, n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditio
 
     # ステップ n における室 i の運転モード, [i, 1]
     operation_mode_is_n = self.op.get_operation_mode_is_n(
-        operation_mode_is_n_mns=c_n.operation_mode_is_n,
         n=n,
         is_radiative_heating_is=self.es.is_radiative_heating_is,
         is_radiative_cooling_is=self.es.is_radiative_cooling_is,
@@ -641,24 +585,6 @@ def _run_tick(self, n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditio
         theta_mrt_hum_ntr_nv_is_n_pls=theta_mrt_hum_ntr_nv_is_n_pls,
         x_r_ntr_non_nv_is_n_pls=x_r_ntr_non_nv_is_n_pls,
         x_r_ntr_nv_is_n_pls=x_r_ntr_nv_is_n_pls
-    )
-
-    f_h_cst_is_n = np.where(
-        operation_mode_is_n == OperationMode.STOP_OPEN,
-        f_h_cst_nv_is_n,
-        f_h_cst_non_nv_is_n
-    )
-
-    f_h_wgt_is_is_n = np.where(
-        operation_mode_is_n == OperationMode.STOP_OPEN,
-        f_h_wgt_nv_is_is_n,
-        f_h_wgt_non_nv_is_is_n
-    )
-
-    x_r_ntr_is_n_pls = np.where(
-        operation_mode_is_n == OperationMode.STOP_OPEN,
-        x_r_ntr_nv_is_n_pls,
-        x_r_ntr_non_nv_is_n_pls
     )
 
     f_brm_is_is_n_pls = np.where(
@@ -685,46 +611,66 @@ def _run_tick(self, n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditio
         f_brc_ot_non_nv_is_n_pls
     )
 
+    f_h_cst_is_n = np.where(
+        operation_mode_is_n == OperationMode.STOP_OPEN,
+        f_h_cst_nv_is_n,
+        f_h_cst_non_nv_is_n
+    )
+
+    f_h_wgt_is_is_n = np.where(
+        operation_mode_is_n == OperationMode.STOP_OPEN,
+        f_h_wgt_nv_is_is_n,
+        f_h_wgt_non_nv_is_is_n
+    )
+
     theta_r_ot_ntr_is_n_pls = np.where(
         operation_mode_is_n == OperationMode.STOP_OPEN,
         theta_r_ot_ntr_nv_is_n_pls,
         theta_r_ot_ntr_non_nv_is_n_pls
     )
 
-    # ステップnにおける室iの水蒸気圧, Pa, [i, 1]
-    p_v_r_is_n = psy.get_p_v_r_is_n(x_r_is_n=c_n.x_r_is_n)
-
-    theta_lower_target_is_n_pls, theta_upper_target_is_n_pls, h_hum_c_is_n, h_hum_r_is_n, v_hum_is_n, clo_is_n \
-        = self.get_theta_target_is_n(
-            p_v_r_is_n=p_v_r_is_n,
-            operation_mode_is_n=operation_mode_is_n,
-            theta_r_is_n=c_n.theta_r_is_n,
-            theta_mrt_hum_is_n=c_n.theta_mrt_hum_is_n,
-            n=n
-        )
-
-    # ステップ n から n+1 において室 i で実際に暖房・冷房が行われるかどうかの判定結果, [i, 1]
-    is_heating_is_n, is_cooling_is_n = get_is_heating_is_n_and_is_cooling_is_n(
-        operation_mode_is_n=operation_mode_is_n,
-        theta_lower_target_is_n_pls=theta_lower_target_is_n_pls,
-        theta_r_ot_ntr_is_n_pls=theta_r_ot_ntr_is_n_pls,
-        theta_upper_target_is_n_pls=theta_upper_target_is_n_pls
+    theta_r_ntr_is_n_pls = np.where(
+        operation_mode_is_n == OperationMode.STOP_OPEN,
+        theta_r_ntr_nv_is_n_pls,
+        theta_r_ntr_non_nv_is_n_pls
     )
+
+    theta_mrt_hum_ntr_is_n_pls = np.where(
+        operation_mode_is_n == OperationMode.STOP_OPEN,
+        theta_mrt_hum_ntr_nv_is_n_pls,
+        theta_mrt_hum_ntr_non_nv_is_n_pls
+    )
+
+    x_r_ntr_is_n_pls = np.where(
+        operation_mode_is_n == OperationMode.STOP_OPEN,
+        x_r_ntr_nv_is_n_pls,
+        x_r_ntr_non_nv_is_n_pls
+    )
+
+    theta_lower_target_is_n_pls, theta_upper_target_is_n_pls, h_hum_c_is_n, h_hum_r_is_n \
+        = self.op.get_theta_target_is_n(
+            operation_mode_is_n=operation_mode_is_n,
+            theta_r_is_n=theta_r_ntr_is_n_pls,
+            theta_mrt_hum_is_n=theta_mrt_hum_ntr_is_n_pls,
+            x_r_ntr_is_n_pls=x_r_ntr_is_n_pls,
+            n=n,
+            is_radiative_heating_is=self.es.is_radiative_heating_is,
+            is_radiative_cooling_is=self.es.is_radiative_cooling_is,
+            met_is=self.rms.met_is
+        )
 
     # ステップ n+1 における係数 f_flr, -, [j, i]
     f_flr_js_is_n = get_f_flr_js_is_n(
         f_flr_c_js_is=self.es.f_flr_c_js_is,
         f_flr_h_js_is=self.es.f_flr_h_js_is,
-        is_cooling_is_n=is_cooling_is_n,
-        is_heating_is_n=is_heating_is_n
+        operation_mode_is_n=operation_mode_is_n
     )
 
     # ステップ n からステップ n+1 における室 i の放射暖冷房設備の対流成分比率, -, [i, 1]
     beta_is_n = get_beta_is_n(
         beta_c_is=self.es.beta_c_is,
         beta_h_is=self.es.beta_h_is,
-        is_cooling_is_n=is_cooling_is_n,
-        is_heating_is_n=is_heating_is_n
+        operation_mode_is_n=operation_mode_is_n
     )
 
     # ステップ n における係数 f_FLB, K/W, [j, i]
@@ -772,16 +718,19 @@ def _run_tick(self, n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditio
     # ステップ n+1 における室 i の作用温度, degree C, [i, 1] (ステップn+1における瞬時値）
     # ステップ n における室 i に設置された対流暖房の放熱量, W, [i, 1] (ステップn～ステップn+1までの平均値）
     # ステップ n における室 i に設置された放射暖房の放熱量, W, [i, 1]　(ステップn～ステップn+1までの平均値）
-    theta_ot_is_n_pls, l_cs_is_n, l_rs_is_n = self.calc_next_temp_and_load(
+    theta_ot_is_n_pls, l_cs_is_n, l_rs_is_n = next_condition.get_next_temp_and_load(
+        ac_demand_is_ns=self.scd.ac_demand_is_ns,
         brc_ot_is_n=f_brc_ot_is_n_pls,
         brm_ot_is_is_n=f_brm_ot_is_is_n_pls,
         brl_ot_is_is_n=f_brl_ot_is_is_n,
         theta_lower_target_is_n=theta_lower_target_is_n_pls,
         theta_upper_target_is_n=theta_upper_target_is_n_pls,
         operation_mode_is_n=operation_mode_is_n,
+        is_radiative_heating_is=self.es.is_radiative_heating_is,
+        is_radiative_cooling_is=self.es.is_radiative_cooling_is,
+        lr_h_max_cap_is=self.es.q_rs_h_max_is,
+        lr_cs_max_cap_is=self.es.q_rs_c_max_is,
         theta_natural_is_n=theta_r_ot_ntr_is_n_pls,
-        is_heating_is_n=is_heating_is_n,
-        is_cooling_is_n=is_cooling_is_n,
         n=n
     )
 
@@ -911,9 +860,7 @@ def _run_tick(self, n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditio
             q_hum_is_n=q_hum_is_n,
             x_hum_is_n=x_hum_is_n,
             v_leak_is_n=v_leak_is_n,
-            v_vent_ntr_is_n=v_vent_ntr_is_n,
-            v_hum_is_n=v_hum_is_n,
-            clo_is_n=clo_is_n
+            v_vent_ntr_is_n=v_vent_ntr_is_n
         )
 
     return Conditions(
@@ -1530,14 +1477,17 @@ def get_f_flb_js_is_n_pls(a_s_js, beta_is_n, f_flr_js_is_n, h_s_c_js, h_s_r_js, 
         + np.dot(k_ei_js_js, f_flr_js_is_n * (1.0 - beta_is_n.T)) * phi_t0_js / (h_s_c_js + h_s_r_js) / a_s_js
 
 
-def get_beta_is_n(beta_c_is, beta_h_is, is_cooling_is_n, is_heating_is_n):
+def get_beta_is_n(
+        beta_c_is: np.ndarray,
+        beta_h_is: np.ndarray,
+        operation_mode_is_n: np.ndarray
+):
     """
 
     Args:
         beta_c_is: 室 i の放射冷房設備の対流成分比率, -, [i, 1]
         beta_h_is: 室 i の放射暖房設備の対流成分比率, -, [i, 1]
-        is_cooling_is_n: 「ステップ n から n+1 における室 i の運転が冷房運転時の場合」かの有無, -, [i, 1]
-        is_heating_is_n: 「ステップ n から n+1 における室 i の運転が暖房運転時の場合」かの有無, -, [i, 1]
+        operation_mode_is_n: ステップnにおける室iの運転モード, [i, 1]
 
     Returns:
         ステップ n からステップ n+1 における室 i の放射暖冷房設備の対流成分比率, -, [i, 1]
@@ -1546,17 +1496,21 @@ def get_beta_is_n(beta_c_is, beta_h_is, is_cooling_is_n, is_heating_is_n):
         式(2.13)
     """
 
-    return beta_h_is * is_heating_is_n + beta_c_is * is_cooling_is_n
+    return beta_h_is * (operation_mode_is_n == OperationMode.HEATING)\
+        + beta_c_is * (operation_mode_is_n == OperationMode.COOLING)
 
 
-def get_f_flr_js_is_n(f_flr_c_js_is, f_flr_h_js_is, is_cooling_is_n, is_heating_is_n):
+def get_f_flr_js_is_n(
+        f_flr_c_js_is: np.ndarray,
+        f_flr_h_js_is: np.ndarray,
+        operation_mode_is_n: np.ndarray
+):
     """
 
     Args:
         f_flr_c_js_is: 室 i の放射冷房設備の放熱量の放射成分に対する境界 j の室内側表面の吸収比率, -, [j, i]
         f_flr_h_js_is: 室 i の放射暖房設備の放熱量の放射成分に対する境界 j の室内側表面の吸収比率, -, [j, i]
-        is_cooling_is_n: 「ステップ n から n+1 における室 i の運転が冷房運転時の場合」かの有無, -, [i, 1]
-        is_heating_is_n: 「ステップ n から n+1 における室 i の運転が暖房運転時の場合」かの有無, -, [i, 1]
+        operation_mode_is_n: ステップnにおける室iの運転モード, [i, 1]
 
     Returns:
         ステップ n からステップ n+1 における室 i の放射暖冷房設備の放熱量の放射成分に対する境界 j の室内側表面の吸収比率, -, [j, i]
@@ -1566,36 +1520,8 @@ def get_f_flr_js_is_n(f_flr_c_js_is, f_flr_h_js_is, is_cooling_is_n, is_heating_
 
     """
 
-    return f_flr_h_js_is * is_heating_is_n.flatten() + f_flr_c_js_is * is_cooling_is_n.flatten()
-
-
-def get_is_heating_is_n_and_is_cooling_is_n(
-        operation_mode_is_n, theta_lower_target_is_n_pls, theta_r_ot_ntr_is_n_pls, theta_upper_target_is_n_pls
-):
-    """
-
-    Args:
-        operation_mode_is_n: ステップ n からステップ n+1 における室 i の運転モード, [i, 1]
-        theta_lower_target_is_n_pls: ステップ n+1 における室 i の目標作用温度の下限値 , degree C, [i, 1]
-        theta_r_ot_ntr_is_n_pls: ステップ n+1 における室 i の自然作用温度 , degree C, [i, 1]
-        theta_upper_target_is_n_pls: ステップ n+1 における室 i の目標作用温度の上限値 , degree C, [i, 1]
-
-    Returns:
-        「ステップ n から n+1 における室 i の運転が暖房運転時の場合」かの有無, -, [i, 1]
-        「ステップ n から n+1 における室 i の運転が冷房運転時の場合」かの有無, -, [i, 1]
-
-    Notes:
-        式(2.15a), 式(2.15b)
-    """
-
-    is_heating_is_n = (
-            (operation_mode_is_n == OperationMode.HEATING) | (operation_mode_is_n == OperationMode.HEATING_AND_COOLING)
-        ) & (theta_r_ot_ntr_is_n_pls < theta_lower_target_is_n_pls)
-    is_cooling_is_n = (
-            (operation_mode_is_n == OperationMode.COOLING) | (operation_mode_is_n == OperationMode.HEATING_AND_COOLING)
-        ) & (theta_upper_target_is_n_pls < theta_r_ot_ntr_is_n_pls)
-
-    return is_heating_is_n, is_cooling_is_n
+    return f_flr_h_js_is * (operation_mode_is_n == OperationMode.HEATING).flatten() \
+        + f_flr_c_js_is * (operation_mode_is_n == OperationMode.COOLING).flatten()
 
 
 def get_theta_r_ot_ntr_is_n_pls(

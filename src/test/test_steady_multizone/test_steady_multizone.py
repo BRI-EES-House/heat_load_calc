@@ -3,7 +3,8 @@ import unittest
 import numpy as np
 import json
 
-from heat_load_calc import sequence, weather, conditions, operation_mode, schedule, interval, recorder
+from heat_load_calc import sequence, weather, conditions, schedule, interval, recorder
+from heat_load_calc.operation_mode import OperationMode
 
 
 # 定常状態のテスト
@@ -113,8 +114,7 @@ class TestSteadyState(unittest.TestCase):
         # 初期状態値の計算
         theta_r_is_n = np.array([[13.403464558874200, 4.808632169196720]]).reshape(-1, 1)
         c_n = conditions.Conditions(
-            operation_mode_is_n=np.array(
-                [[operation_mode.OperationMode.STOP_CLOSE, operation_mode.OperationMode.STOP_CLOSE]]).reshape(-1, 1),
+            operation_mode_is_n=np.array([[OperationMode.STOP_CLOSE, OperationMode.STOP_CLOSE]]).reshape(-1, 1),
             theta_r_is_n=theta_r_is_n,
             theta_mrt_hum_is_n=np.array([[9.689970497, 4.391663789]]).reshape(-1, 1),
             x_r_is_n=np.array([[0.0, 0.0]]).reshape(-1, 1),
@@ -133,7 +133,7 @@ class TestSteadyState(unittest.TestCase):
         c_n_init = c_n
         c_n = sqc.run_tick(n=0, c_n=c_n, recorder=result)
 
-        result.post_recording(rms=sqc.rms, bs=sqc.bs, f_mrt_is_js=ss.f_mrt_is_js)
+        result.post_recording(rms=sqc.rms, bs=sqc.bs, f_mrt_is_js=ss.f_mrt_is_js, es=sqc.es)
 
         # 計算結果格納
         cls._c_n = c_n_init

@@ -3,7 +3,7 @@ import json
 import os
 import time
 
-from heat_load_calc import core2, schedule, weather, furniture, interval
+from heat_load_calc import core, schedule, weather, furniture, interval
 
 
 class TestAllAtOnce(unittest.TestCase):
@@ -36,7 +36,7 @@ class TestAllAtOnce(unittest.TestCase):
             a_floor_is=[r['floor_area'] for r in rd['rooms']]
         )
 
-        dd_i, dd_a, bs = core2.calc(rd=rd, w=oc, scd=scd)
+        dd_i, dd_a, bs = core.calc(rd=rd, w=oc, scd=scd)
 
         cls._dd_i = dd_i
         cls._dd_a = dd_a
@@ -66,11 +66,11 @@ class TestAllAtOnce(unittest.TestCase):
 
     def test_theta_r_and_humid(self):
 
-        self.assertAlmostEqual(18.03592826157648, self._dd_i['rm0_t_r']['1989-01-01  00:15:00'], delta=0.001)
+        self.assertAlmostEqual(18.034305764153416, self._dd_i['rm0_t_r']['1989-01-01  00:15:00'], delta=0.001)
         self.assertAlmostEqual(0.0132424999251325, self._dd_i['rm0_x_r']['1989/8/24  16:15:00'], delta=0.001)
-        self.assertAlmostEqual(24.125871211320607, self._dd_i['rm1_t_r']['1989-01-01  00:15:00'], delta=0.001)
+        self.assertAlmostEqual(24.120487178872175, self._dd_i['rm1_t_r']['1989-01-01  00:15:00'], delta=0.001)
         self.assertAlmostEqual(0.00329462168533435, self._dd_i['rm1_x_r']['1989-01-01  00:15:00'], delta=0.001)
-        self.assertAlmostEqual(19.590454473895015, self._dd_i['rm2_t_r']['1989-01-01  00:15:00'], delta=0.001)
+        self.assertAlmostEqual(19.588481928509882, self._dd_i['rm2_t_r']['1989-01-01  00:15:00'], delta=0.001)
         self.assertAlmostEqual(0.00324620597913465, self._dd_i['rm2_x_r']['1989-01-01  00:15:00'], delta=0.001)
 
     # 室空気の熱収支のテスト（主たる居室）

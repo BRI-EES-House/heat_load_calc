@@ -9,7 +9,9 @@ from heat_load_calc.interval import Interval
 from heat_load_calc.weather import Weather
 from heat_load_calc.schedule import Schedule
 from heat_load_calc.rooms import Rooms
+from heat_load_calc.equipments import Equipments
 from heat_load_calc.boundaries import Boundaries
+from heat_load_calc import operation_mode
 
 
 class Recorder:
@@ -286,7 +288,7 @@ class Recorder:
         # ステップ n の室 i における人体発湿を除く内部発湿, kg/s, [i, n_step_a]
         self.x_gen_is_ns = scd.x_gen_is_ns[:, 0:self._n_step_a]
 
-    def post_recording(self, rms: Rooms, bs: Boundaries, f_mrt_is_js: np.ndarray):
+    def post_recording(self, rms: Rooms, bs: Boundaries, f_mrt_is_js: np.ndarray, es: Equipments):
 
         # ---瞬時値---
 
@@ -315,10 +317,19 @@ class Recorder:
         # ステップ n+1 の湿度を用いてステップ n からステップ n+1 の平均的な水分流を求めている（後退差分）
         self.q_l_frt_is_ns = np.delete(rms.g_lh_frt_is * (self.x_r_is_ns - self.x_frt_is_ns), 0, axis=1)
 
+        self.clo_is_ns = operation_mode.get_clo_is_ns(operation_mode_is_n=self.operation_mode_is_ns)
+
         # ステップ n+1 のPMVを計算するのに、ステップ n からステップ n+1 のClo値を用いる。
         # 現在、Clo値の配列数が1つ多いバグがあるため、適切な長さになるようにスライスしている。
         # TODO: 本来であれば、助走期間における、n=-1 の時の値を用いないといけないが、とりあえず、配列最後の値を先頭に持ってきて代用している。
         clo_pls = np.append(self.clo_is_ns[:, -1:], self.clo_is_ns, axis=1)[:, 0:self._n_step_i]
+
+        self.v_hum_is_ns = operation_mode.get_v_hum_is_n(
+            operation_mode_is=self.operation_mode_is_ns,
+            is_radiative_cooling_is=es.is_radiative_cooling_is,
+            is_radiative_heating_is=es.is_radiative_heating_is
+        )
+
         # ステップ n+1 のPMVを計算するのに、ステップ n からステップ n+1 の人体周りの風速を用いる。
         # TODO: 本来であれば、助走期間における、n=-1 の時の値を用いないといけないが、とりあえず、配列最後の値を先頭に持ってきて代用している。
         v_hum_pls = np.append(self.v_hum_is_ns[:, -1:], self.v_hum_is_ns, axis=1)
@@ -384,8 +395,6 @@ class Recorder:
             self.x_hum_is_ns[:, n_a] = kwargs["x_hum_is_n"].flatten()
             self.v_reak_is_ns[:, n_a] = kwargs["v_leak_is_n"].flatten()
             self.v_ntrl_is_ns[:, n_a] = kwargs["v_vent_ntr_is_n"].flatten()
-            self.v_hum_is_ns[:, n_a] = kwargs["v_hum_is_n"].flatten()
-            self.clo_is_ns[:, n_a] = kwargs["clo_is_n"].flatten()
 
     def export_pd(self):
 
