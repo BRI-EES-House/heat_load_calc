@@ -64,10 +64,33 @@ class Window:
                                                     glass_type=glass_type)
         self._tau_w_g_s2_j = self._get_tau_w_g_s2_j(tau_w_g_s1_j=self._tau_w_g_s1_j, glass_type=glass_type)
         self._rho_w_g_s1b_j = self._get_rho_w_g_s1b_j(tau_w_g_s1_j=self._tau_w_g_s1_j, glass_type=glass_type)
-        self._eta_w_r_j, self._eta_w_s_j, self._alpha_w_r_j, self._alpha_w_s_j, tau_w_c_j, b_w_c_j = self._get_tau_eta_alpha_w_j()
+
+        tau_w_c_j, b_w_c_j = self._get_tau_b_w_c_j()
 
         self._tau_w_c_j = tau_w_c_j
         self._b_w_c_j = b_w_c_j
+
+    def get_tau_w_d_j_ns(self, phi_j_ns: Union[float, np.ndarray]) -> Union[float, np.ndarray]:
+        """窓の直達日射に対する日射透過率を計算する。
+        Args:
+            phi_j_ns: ステップnにおける境界jの窓の直達日射の入射角, rad, [N+1]
+        Returns:
+            ステップnにおける境界jの窓の直達日射に対する日射透過率, -, [N+1]
+        Notes:
+            eq.1
+        """
+        return self._get_tau_w_j_phi(phi_j_ns=phi_j_ns)
+
+    def get_b_w_d_j_ns(self, phi_j_ns: Union[float, np.ndarray]) -> Union[float, np.ndarray]:
+        """窓の直達日射に対する吸収日射熱取得率を計算する。
+        Args:
+            phi_j_ns: ステップnにおける境界jの窓の直達日射の入射角, rad, [N+1]
+        Returns:
+            ステップnにおける境界jの窓の直達日射に対する吸収日射熱取得率, [n]
+        Notes:
+            eq.2
+        """
+        return self._get_b_w_j_phi(phi_j_ns=phi_j_ns)
 
     @property
     def tau_w_s_j(self) -> float:
@@ -108,6 +131,24 @@ class Window:
             eq.6
         """
         return self._b_w_c_j
+
+    def _get_tau_b_w_c_j(self) -> Tuple[float, float]:
+        """境界jの窓の1/4球の一様拡散日射に対する日射透過率及び吸収日射熱取得率を計算する。
+        Returns:
+            境界jの窓の1/4球の一様拡散日射に対する日射透過率, -
+            境界jの窓の1/4球の一様拡散日射に対する吸収日射熱取得率, -
+        Notes:
+            eq.7
+            eq.8
+        """
+
+        M = 1000
+        ms = np.arange(1, M + 1)
+        phi_ms = np.pi / 2 * (ms - 1 / 2) / M
+        tau_w_c_j = np.pi / M * np.sum(self._get_tau_w_j_phi(phi_j_ns=phi_ms) * np.sin(phi_ms) * np.cos(phi_ms))
+        b_w_c_j = np.pi / M * np.sum(self._get_b_w_j_phi(phi_j_ns=phi_ms) * np.sin(phi_ms) * np.cos(phi_ms))
+
+        return tau_w_c_j, b_w_c_j
 
     @property
     def u_w_f_j(self):
@@ -153,52 +194,6 @@ class Window:
             境界 j の窓のガラス部分の日射透過率, -
         """
         return self._tau_w_g_j
-
-    @property
-    def alpha_w_r_j(self):
-        """窓の地面反射に対する日射吸収率を取得する。
-        Returns:
-            境界 j の窓の地面反射に対する日射吸収率, -
-        """
-        return self._alpha_w_r_j
-
-    @property
-    def eta_w_r_j(self):
-        """窓の地面反射に対する日射熱取得率を取得する。
-        Returns:
-            境界 j の窓の地面反射に対する日射熱取得率, -
-        """
-        return self._eta_w_r_j
-
-    @property
-    def eta_w_s_j(self):
-        """窓の天空放射に対する日射熱取得率を取得する。
-        Returns:
-            境界 j の窓の天空放射に対する日射熱取得率, -
-        """
-        return self._eta_w_s_j
-
-    def get_tau_w_d_j_ns(self, phi_j_ns: Union[float, np.ndarray]) -> Union[float, np.ndarray]:
-        """窓の直達日射に対する日射透過率を計算する。
-        Args:
-            phi_j_ns: ステップnにおける境界jの窓の直達日射の入射角, rad, [N+1]
-        Returns:
-            ステップnにおける境界jの窓の直達日射に対する日射透過率, -, [N+1]
-        Notes:
-            eq.1
-        """
-        return self._get_tau_w_j_phi(phi_j_ns=phi_j_ns)
-
-    def get_b_w_d_j_ns(self, phi_j_ns: Union[float, np.ndarray]) -> Union[float, np.ndarray]:
-        """窓の直達日射に対する吸収日射熱取得率を計算する。
-        Args:
-            phi_j_ns: ステップnにおける境界jの窓の直達日射の入射角, rad, [N+1]
-        Returns:
-            ステップnにおける境界jの窓の直達日射に対する吸収日射熱取得率, [n]
-        Notes:
-            eq.2
-        """
-        return self._get_b_w_j_phi(phi_j_ns=phi_j_ns)
 
     @staticmethod
     def _get_u_w_f_j(flame_type: FlameType) -> float:
@@ -603,15 +598,6 @@ class Window:
         """
         return self._get_tau_w_g_j_phi(phi_ns=phi_j_ns) * self.r_a_w_g_j
 
-    def _get_alpha_w_j_phi(self, phi_ns: Union[float, np.ndarray]) -> Union[float, np.ndarray]:
-        """任意の入射角に対する境界 j の窓の日射吸収率を取得する。
-        Args:
-            phi_ns: ステップnにおける入射角, rad, [n]
-        Returns:
-            ステップnにおける境界jの窓の日射吸収率, -
-        """
-        return self._get_alpha_w_g_j_phi(phi_ns=phi_ns) * self.r_a_w_g_j
-
     def _get_eta_w_j_phi(self, phi_ns: Union[float, np.ndarray]) -> Union[float, np.ndarray]:
         """任意の入射角に対する境界 j の窓の日射熱取得率を取得する。
         Args:
@@ -630,35 +616,4 @@ class Window:
         """
         return self._get_b_w_g_j_phi(phi_ns=phi_j_ns) * self._r_a_w_g_j
 
-    def _get_tau_eta_alpha_w_j(self) -> Tuple[float, float, float, float, float, float]:
-        """境界 j の窓の天空放射または地面反射に対する日射熱取得率または日射透過率を計算する。
-        Returns:
-            境界 j の窓の地面反射に対する日射透過率, -
-            境界 j の窓の天空放射に対する日射透過率, -
-            境界 j の窓の地面反射に対する日射熱取得率, -
-            境界 j の窓の天空放射に対する日射熱取得率, -
-            境界 j の窓の地面反射に対する日射吸収率, -
-            境界 j の窓の天空放射に対する日射吸収率, -
-        """
-        M = 1000
-        # ms = list(range(1, M + 1))
-        ms = np.arange(1, M+1)
-        # phis_m = [pi / 2 * (m - 1 / 2) / M for m in ms]
-        phis_m = np.pi / 2 * (ms - 1 / 2) / M
-        # tau_w_c_j = pi / M * sum([self._get_tau_w_j_phi(phi=phi_m) * sin(phi_m) * cos(phi_m) for phi_m in phis_m])
-        tau_w_c_j = np.pi / M * np.sum(self._get_tau_w_j_phi(phi_j_ns=phis_m) * np.sin(phis_m) * np.cos(phis_m))
-        # eta_w_c_j = pi / M * sum([self._get_eta_w_j_phi(phi=phi_m) * sin(phi_m) * cos(phi_m) for phi_m in phis_m])
-        eta_w_c_j = np.pi / M * np.sum(self._get_eta_w_j_phi(phi_ns=phis_m) * np.sin(phis_m) * np.cos(phis_m))
-        # alpha_w_c_j = pi / M * sum([self._get_alpha_w_j_phi(phi=phi_m) * sin(phi_m) * cos(phi_m) for phi_m in phis_m])
-        alpha_w_c_j = np.pi / M * np.sum(self._get_alpha_w_j_phi(phi_ns=phis_m) * np.sin(phis_m) * np.cos(phis_m))
-        b_w_c_j = np.pi / M * np.sum(self._get_b_w_j_phi(phi_j_ns=phis_m) * np.sin(phis_m) * np.cos(phis_m))
-
-        eta_w_r_j = eta_w_c_j
-        eta_w_s_j = eta_w_c_j
-        alpha_w_r_j = alpha_w_c_j
-        alpha_w_s_j = alpha_w_c_j
-        b_w_r_j = b_w_c_j
-        b_w_s_j = b_w_c_j
-
-        return eta_w_r_j, eta_w_s_j, alpha_w_r_j, alpha_w_s_j, tau_w_c_j, b_w_c_j
 
