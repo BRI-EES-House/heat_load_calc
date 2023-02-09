@@ -64,7 +64,7 @@ class Window:
                                                     glass_type=glass_type)
         self._tau_w_g_s2_j = self._get_tau_w_g_s2_j(tau_w_g_s1_j=self._tau_w_g_s1_j, glass_type=glass_type)
         self._rho_w_g_s1b_j = self._get_rho_w_g_s1b_j(tau_w_g_s1_j=self._tau_w_g_s1_j, glass_type=glass_type)
-        self._tau_w_r_j, self._tau_w_s_j, self._eta_w_r_j, self._eta_w_s_j, self._alpha_w_r_j, self._alpha_w_s_j, self._b_w_r_j, self._b_w_s_j, tau_w_c_j= self._get_tau_eta_alpha_w_j()
+        self._eta_w_r_j, self._eta_w_s_j, self._alpha_w_r_j, self._alpha_w_s_j, self._b_w_r_j, self._b_w_s_j, tau_w_c_j= self._get_tau_eta_alpha_w_j()
 
         self._tau_w_c_j = tau_w_c_j
 
@@ -80,8 +80,13 @@ class Window:
 
     @property
     def tau_w_r_j(self) -> float:
-        """境界jの窓の地面反射日射に対する日射透過率, -"""
-        return self._tau_w_r_j
+        """
+        Returns:
+            境界jの窓の地面反射日射に対する日射透過率, -
+        Notes:
+            eq.4
+        """
+        return self._tau_w_c_j
 
     @property
     def u_w_f_j(self):
@@ -642,8 +647,7 @@ class Window:
         # alpha_w_c_j = pi / M * sum([self._get_alpha_w_j_phi(phi=phi_m) * sin(phi_m) * cos(phi_m) for phi_m in phis_m])
         alpha_w_c_j = np.pi / M * np.sum(self._get_alpha_w_j_phi(phi_ns=phis_m) * np.sin(phis_m) * np.cos(phis_m))
         b_w_c_j = np.pi / M * np.sum(self._get_b_w_j_phi(phi_j_ns=phis_m) * np.sin(phis_m) * np.cos(phis_m))
-        tau_w_r_j = tau_w_c_j
-        tau_w_s_j = tau_w_c_j
+
         eta_w_r_j = eta_w_c_j
         eta_w_s_j = eta_w_c_j
         alpha_w_r_j = alpha_w_c_j
@@ -651,5 +655,5 @@ class Window:
         b_w_r_j = b_w_c_j
         b_w_s_j = b_w_c_j
 
-        return tau_w_r_j, tau_w_s_j, eta_w_r_j, eta_w_s_j, alpha_w_r_j, alpha_w_s_j, b_w_r_j, b_w_s_j, tau_w_c_j
+        return eta_w_r_j, eta_w_s_j, alpha_w_r_j, alpha_w_s_j, b_w_r_j, b_w_s_j, tau_w_c_j
 
