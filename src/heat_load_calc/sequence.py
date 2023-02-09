@@ -6,7 +6,7 @@ import logging
 from heat_load_calc.matrix_method import v_diag
 from heat_load_calc import next_condition, schedule, rooms, boundaries
 from heat_load_calc import occupants_form_factor, shape_factor, solar_absorption
-from heat_load_calc import operation, interval
+from heat_load_calc import operation_mode, interval
 from heat_load_calc import occupants, psychrometrics as psy
 from heat_load_calc.global_number import get_c_a, get_rho_a, get_l_wtr
 from heat_load_calc.weather import Weather
@@ -19,7 +19,7 @@ from heat_load_calc.equipments import Equipments
 from heat_load_calc.conditions import Conditions
 from heat_load_calc.recorder import Recorder
 from heat_load_calc.conditions import GroundConditions
-from heat_load_calc.operation import Operation, OperationMode
+from heat_load_calc.operation_mode import Operation, OperationMode
 
 
 @dataclass
@@ -118,7 +118,7 @@ class Sequence:
         es = Equipments(dict_equipments=rd['equipments'], n_rm=rms.n_rm, n_b=bs.n_b, bs=bs)
 
         # Operation Class
-        op = operation.Operation.make_operation(
+        op = operation_mode.Operation.make_operation(
             d=rd['common'],
             ac_setting_is_ns=scd.ac_setting_is_ns,
             ac_demand_is_ns=scd.ac_demand_is_ns,
@@ -715,14 +715,6 @@ def _run_tick(self, n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditio
         f_xlr_is_is_n_pls=f_xlr_is_is_n_pls
     )
 
-    # ステップ n から n+1 において室 i で実際に暖房・冷房が行われるかどうかの判定結果, [i, 1]
-    is_heating_is_n, is_cooling_is_n = get_is_heating_is_n_and_is_cooling_is_n(
-        operation_mode_is_n=operation_mode_is_n,
-        theta_lower_target_is_n_pls=theta_lower_target_is_n_pls,
-        theta_r_ot_ntr_is_n_pls=theta_r_ot_ntr_is_n_pls,
-        theta_upper_target_is_n_pls=theta_upper_target_is_n_pls
-    )
-
     # ステップ n+1 における室 i の作用温度, degree C, [i, 1] (ステップn+1における瞬時値）
     # ステップ n における室 i に設置された対流暖房の放熱量, W, [i, 1] (ステップn～ステップn+1までの平均値）
     # ステップ n における室 i に設置された放射暖房の放熱量, W, [i, 1]　(ステップn～ステップn+1までの平均値）
@@ -739,8 +731,6 @@ def _run_tick(self, n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditio
         lr_h_max_cap_is=self.es.q_rs_h_max_is,
         lr_cs_max_cap_is=self.es.q_rs_c_max_is,
         theta_natural_is_n=theta_r_ot_ntr_is_n_pls,
-        is_heating_is_n=is_heating_is_n,
-        is_cooling_is_n=is_cooling_is_n,
         n=n
     )
 
@@ -1532,31 +1522,6 @@ def get_f_flr_js_is_n(
 
     return f_flr_h_js_is * (operation_mode_is_n == OperationMode.HEATING).flatten() \
         + f_flr_c_js_is * (operation_mode_is_n == OperationMode.COOLING).flatten()
-
-
-def get_is_heating_is_n_and_is_cooling_is_n(
-        operation_mode_is_n, theta_lower_target_is_n_pls, theta_r_ot_ntr_is_n_pls, theta_upper_target_is_n_pls
-):
-    """
-
-    Args:
-        operation_mode_is_n: ステップ n からステップ n+1 における室 i の運転モード, [i, 1]
-        theta_lower_target_is_n_pls: ステップ n+1 における室 i の目標作用温度の下限値 , degree C, [i, 1]
-        theta_r_ot_ntr_is_n_pls: ステップ n+1 における室 i の自然作用温度 , degree C, [i, 1]
-        theta_upper_target_is_n_pls: ステップ n+1 における室 i の目標作用温度の上限値 , degree C, [i, 1]
-
-    Returns:
-        「ステップ n から n+1 における室 i の運転が暖房運転時の場合」かの有無, -, [i, 1]
-        「ステップ n から n+1 における室 i の運転が冷房運転時の場合」かの有無, -, [i, 1]
-
-    Notes:
-        式(2.15a), 式(2.15b)
-    """
-
-    is_heating_is_n = (operation_mode_is_n == OperationMode.HEATING) & (theta_r_ot_ntr_is_n_pls < theta_lower_target_is_n_pls)
-    is_cooling_is_n = (operation_mode_is_n == OperationMode.COOLING) & (theta_upper_target_is_n_pls < theta_r_ot_ntr_is_n_pls)
-
-    return is_heating_is_n, is_cooling_is_n
 
 
 def get_theta_r_ot_ntr_is_n_pls(

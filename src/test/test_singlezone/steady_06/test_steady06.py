@@ -4,7 +4,7 @@ import numpy as np
 import json
 
 from heat_load_calc import sequence, weather, conditions, schedule, interval
-from heat_load_calc.operation import OperationMode
+from heat_load_calc.operation_mode import OperationMode
 
 
 # 定常状態のテスト

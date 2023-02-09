@@ -1,6 +1,6 @@
 import numpy as np
 
-from heat_load_calc.operation import OperationMode
+from heat_load_calc.operation_mode import OperationMode
 from heat_load_calc import psychrometrics as psy
 
 

@@ -1,6 +1,8 @@
 from typing import Callable, Tuple
 import numpy as np
-from functools import partial
+
+
+from heat_load_calc.operation_mode import OperationMode
 
 
 def get_next_temp_and_load(
@@ -16,8 +18,6 @@ def get_next_temp_and_load(
         lr_h_max_cap_is: np.ndarray,
         lr_cs_max_cap_is: np.ndarray,
         theta_natural_is_n: np.ndarray,
-        is_heating_is_n: np.ndarray,
-        is_cooling_is_n: np.ndarray,
         n: int
 ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
 
@@ -42,10 +42,10 @@ def get_next_temp_and_load(
     k = brc_ot_is_n
 
     # 実際に暖房が行われるかどうか。
-#    is_heating = (operation_mode_is_n == OperationMode.HEATING) & (theta_natural_is_n < theta_lower_target_is_n)
-#    is_cooling = (operation_mode_is_n == OperationMode.COOLING) & (theta_upper_target_is_n < theta_natural_is_n)
-    is_heating = is_heating_is_n
-    is_cooling = is_cooling_is_n
+    is_heating = (operation_mode_is_n == OperationMode.HEATING) & (theta_natural_is_n < theta_lower_target_is_n)
+    is_cooling = (operation_mode_is_n == OperationMode.COOLING) & (theta_upper_target_is_n < theta_natural_is_n)
+#    is_heating = is_heating_is_n
+#    is_cooling = is_cooling_is_n
 
     # 室温指定を表す係数, [i, 1], int型
     # 指定する = 0, 指定しない = 1
