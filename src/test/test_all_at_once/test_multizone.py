@@ -66,11 +66,11 @@ class TestAllAtOnce(unittest.TestCase):
 
     def test_theta_r_and_humid(self):
 
-        self.assertAlmostEqual(18.034305764153416, self._dd_i['rm0_t_r']['1989-01-01  00:15:00'], delta=0.001)
+        self.assertAlmostEqual(18.038779199062652, self._dd_i['rm0_t_r']['1989-01-01  00:15:00'], delta=0.001)
         self.assertAlmostEqual(0.0132424999251325, self._dd_i['rm0_x_r']['1989/8/24  16:15:00'], delta=0.001)
-        self.assertAlmostEqual(24.120487178872175, self._dd_i['rm1_t_r']['1989-01-01  00:15:00'], delta=0.001)
+        self.assertAlmostEqual(24.131442282166653, self._dd_i['rm1_t_r']['1989-01-01  00:15:00'], delta=0.001)
         self.assertAlmostEqual(0.00329462168533435, self._dd_i['rm1_x_r']['1989-01-01  00:15:00'], delta=0.001)
-        self.assertAlmostEqual(19.588481928509882, self._dd_i['rm2_t_r']['1989-01-01  00:15:00'], delta=0.001)
+        self.assertAlmostEqual(19.6068753662844, self._dd_i['rm2_t_r']['1989-01-01  00:15:00'], delta=0.001)
         self.assertAlmostEqual(0.00324620597913465, self._dd_i['rm2_x_r']['1989-01-01  00:15:00'], delta=0.001)
 
     # 室空気の熱収支のテスト（主たる居室）
