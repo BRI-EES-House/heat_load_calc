@@ -64,7 +64,7 @@ class Window:
                                                     glass_type=glass_type)
         self._tau_w_g_s2_j = self._get_tau_w_g_s2_j(tau_w_g_s1_j=self._tau_w_g_s1_j, glass_type=glass_type)
         self._rho_w_g_s1b_j = self._get_rho_w_g_s1b_j(tau_w_g_s1_j=self._tau_w_g_s1_j, glass_type=glass_type)
-        self._eta_w_r_j, self._eta_w_s_j, self._alpha_w_r_j, self._alpha_w_s_j, self._b_w_r_j, self._b_w_s_j, tau_w_c_j, b_w_c_j = self._get_tau_eta_alpha_w_j()
+        self._eta_w_r_j, self._eta_w_s_j, self._alpha_w_r_j, self._alpha_w_s_j, tau_w_c_j, b_w_c_j = self._get_tau_eta_alpha_w_j()
 
         self._tau_w_c_j = tau_w_c_j
         self._b_w_c_j = b_w_c_j
@@ -103,9 +103,11 @@ class Window:
     def b_w_r_j(self):
         """窓の地面反射に対する吸収日射熱取得率を取得する。
         Returns:
-            境界 j の窓の地面反射に対する吸収日射熱取得率, -
+            境界jの窓の地面反射日射に対する吸収日射熱取得率, -
+        Notes:
+            eq.6
         """
-        return self._b_w_r_j
+        return self._b_w_c_j
 
     @property
     def u_w_f_j(self):
@@ -658,5 +660,5 @@ class Window:
         b_w_r_j = b_w_c_j
         b_w_s_j = b_w_c_j
 
-        return eta_w_r_j, eta_w_s_j, alpha_w_r_j, alpha_w_s_j, b_w_r_j, b_w_s_j, tau_w_c_j, b_w_c_j
+        return eta_w_r_j, eta_w_s_j, alpha_w_r_j, alpha_w_s_j, tau_w_c_j, b_w_c_j
 
