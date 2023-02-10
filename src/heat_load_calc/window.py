@@ -592,29 +592,3 @@ class Window:
         else:
             raise ValueError()
 
-    def _get_alpha_w_g_j_phi(self, phi_ns: Union[float,np.ndarray]) -> Union[float,np.ndarray]:
-        """任意の入射角に対する境界 j の窓のガラス部分の日射吸収率を取得する。
-        Args:
-            phi_ns: ステップnにおける入射角, rad, [n]
-        Returns:
-            ステップnにおける境界jの窓のガラス部分の日射吸収率, -
-        """
-        tau_w_g_j_phi_ns = self._get_tau_w_g_j_phis(phis=phi_ns)
-        rho_w_g_j_phi_ns = self._get_rho_w_g_j_phi(phi_ns=phi_ns)
-        return 1 - tau_w_g_j_phi_ns - rho_w_g_j_phi_ns
-
-    def _get_eta_w_g_j_phi(self, phi_ns: Union[float, np.ndarray]) -> Union[float, np.ndarray]:
-        """任意の入射角に対する境界 j の窓のガラス部分の日射熱取得率を取得する。
-        Args:
-            phi_ns: ステップnにおける入射角, rad, [n]
-        Returns:
-            ステップnにおける境界 j の窓のガラス部分の日射熱取得率, -, [n]
-        """
-
-        tau_w_g_j_phi_ns = self._get_tau_w_g_j_phis(phis=phi_ns)
-        rho_w_g_j_phi_ns = self._get_rho_w_g_j_phi(phi_ns=phi_ns)
-        return tau_w_g_j_phi_ns + (1 - tau_w_g_j_phi_ns - rho_w_g_j_phi_ns) * self._r_r_w_g_j
-
-
-
-
