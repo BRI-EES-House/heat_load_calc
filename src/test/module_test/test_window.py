@@ -180,23 +180,23 @@ class TestWindow(unittest.TestCase):
 
         w_s = Window(u_w_j=3.0, eta_w_j=0.5, glass_type=Window.GlassType.SINGLE, r_a_w_g_j=0.72, flame_type=Window.FlameType.RESIN)
         # 0.0
-        self.assertAlmostEqual(w_s._get_rho_w_g_j_phi(phi_ns=radians(0.0)), 0.1402048)
+        self.assertAlmostEqual(w_s._get_rho_w_g_j_phis(phis=radians(0.0)), 0.1402048)
         # 0.14271797
-        self.assertAlmostEqual(w_s._get_rho_w_g_j_phi(phi_ns=radians(30.0)), 0.14271797)
+        self.assertAlmostEqual(w_s._get_rho_w_g_j_phis(phis=radians(30.0)), 0.14271797)
         # 0.19343152
-        self.assertAlmostEqual(w_s._get_rho_w_g_j_phi(phi_ns=radians(60.0)), 0.19343152)
+        self.assertAlmostEqual(w_s._get_rho_w_g_j_phis(phis=radians(60.0)), 0.19343152)
         #  0.99999999
-        self.assertAlmostEqual(w_s._get_rho_w_g_j_phi(phi_ns=radians(90.0)), 0.99999999)
+        self.assertAlmostEqual(w_s._get_rho_w_g_j_phis(phis=radians(90.0)), 0.99999999)
 
         w_m = Window(u_w_j=3.0, eta_w_j=0.5, glass_type=Window.GlassType.MULTIPLE, r_a_w_g_j=0.72, flame_type=Window.FlameType.RESIN)
         # 0.12652496 + 0.79310266 * 0.79310266 * 0.077 / (1 - 0.0781132 * 0.077)
-        self.assertAlmostEqual(w_m._get_rho_w_g_j_phi(phi_ns=radians(0.0)), 0.17525195)
+        self.assertAlmostEqual(w_m._get_rho_w_g_j_phis(phis=radians(0.0)), 0.17525195)
         # 0.12907808 + 0.78525703 * 0.78525703 * 0.07969788 / (1 - 0.08080783 * 0.07969788)
-        self.assertAlmostEqual(w_m._get_rho_w_g_j_phi(phi_ns=radians(30.0)), 0.17854063)
+        self.assertAlmostEqual(w_m._get_rho_w_g_j_phis(phis=radians(30.0)), 0.17854063)
         # 0.18059852 + 0.70160608 * 0.70160608 * 0.13413946 / (1 - 0.13518375 * 0.13413946)
-        self.assertAlmostEqual(w_m._get_rho_w_g_j_phi(phi_ns=radians(60.0)), 0.24784829)
+        self.assertAlmostEqual(w_m._get_rho_w_g_j_phis(phis=radians(60.0)), 0.24784829)
         # 0.99999999 + 0.0 * 0.0 * 1.0 / (1 - 1.0 * 1.0)
-        self.assertAlmostEqual(w_m._get_rho_w_g_j_phi(phi_ns=radians(90.0)), 0.99999999)
+        self.assertAlmostEqual(w_m._get_rho_w_g_j_phis(phis=radians(90.0)), 0.99999999)
 
     def test_get_tau_w_g_j_phi_function(self):
 
