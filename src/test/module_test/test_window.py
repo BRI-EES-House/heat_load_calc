@@ -1,6 +1,7 @@
 import unittest
 from math import radians
 
+from heat_load_calc import window
 from heat_load_calc.window import Window
 
 
@@ -88,16 +89,16 @@ class TestWindow(unittest.TestCase):
         self.assertAlmostEqual(Window(u_w_j=3.0, eta_w_j=0.5, glass_type=Window.GlassType.MULTIPLE, r_a_w_g_j=0.72, flame_type=Window.FlameType.RESIN)._rho_w_g_s1b_j, 0.07811320)
 
     def test_get_rho_n_function(self):
-        self.assertAlmostEqual(Window._get_rho_n_phi(phi_ns=radians(0.0)), 0.0)
-        self.assertAlmostEqual(Window._get_rho_n_phi(phi_ns=radians(30.0)), 0.00292295)
-        self.assertAlmostEqual(Window._get_rho_n_phi(phi_ns=radians(60.0)), 0.06190624)
-        self.assertAlmostEqual(Window._get_rho_n_phi(phi_ns=radians(90.0)), 1.0)
+        self.assertAlmostEqual(window._get_rho_n_phi(phi_ns=radians(0.0)), 0.0)
+        self.assertAlmostEqual(window._get_rho_n_phi(phi_ns=radians(30.0)), 0.00292295)
+        self.assertAlmostEqual(window._get_rho_n_phi(phi_ns=radians(60.0)), 0.06190624)
+        self.assertAlmostEqual(window._get_rho_n_phi(phi_ns=radians(90.0)), 1.0)
 
     def test_get_tau_n_function(self):
-        self.assertAlmostEqual(Window._get_tau_n_phi(phi=radians(0.0)), 0.999)
-        self.assertAlmostEqual(Window._get_tau_n_phi(phi=radians(30.0)), 0.98911757)
-        self.assertAlmostEqual(Window._get_tau_n_phi(phi=radians(60.0)), 0.88375)
-        self.assertAlmostEqual(Window._get_tau_n_phi(phi=radians(90.0)), 0.0)
+        self.assertAlmostEqual(window._get_tau_n_phi(phi=radians(0.0)), 0.999)
+        self.assertAlmostEqual(window._get_tau_n_phi(phi=radians(30.0)), 0.98911757)
+        self.assertAlmostEqual(window._get_tau_n_phi(phi=radians(60.0)), 0.88375)
+        self.assertAlmostEqual(window._get_tau_n_phi(phi=radians(90.0)), 0.0)
 
     def test_get_rho_w_g_s2f_j_phi_function(self):
         w_m = Window(u_w_j=3.0, eta_w_j=0.5, glass_type=Window.GlassType.MULTIPLE, r_a_w_g_j=0.72, flame_type=Window.FlameType.RESIN)
