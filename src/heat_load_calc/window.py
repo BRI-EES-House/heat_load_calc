@@ -58,18 +58,20 @@ class Window:
         self._r_r_w_g_j = self._get_r_r_w_g_j(u_w_g_j=self._u_w_g_j, u_w_g_s_j=self._u_w_g_s_j, r_w_o_w=r_w_o_w,
                                               r_w_i_w=r_w_i_w, r_w_o_s=r_w_o_s, glass_type=glass_type)
         self._rho_w_g_s1f_j = self._get_rho_w_g_s1f_j(r_r_w_g_j=self._r_r_w_g_j, eta_w_g_j=self._eta_w_g_j)
-        self._rho_w_g_s2f_j = self._get_rho_w_g_s2f_j(glass_type=glass_type)
+
+        rho_w_g_s2f_j = _get_rho_w_g_s2f_j(glass_type=glass_type)
         tau_w_g_j = _get_tau_w_g_j(
             eta_w_g_j=self._eta_w_g_j,
             r_r_w_g_j=self._r_r_w_g_j,
             rho_w_g_s1f_j=self._rho_w_g_s1f_j,
-            rho_w_g_s2f_j=self._rho_w_g_s2f_j,
+            rho_w_g_s2f_j=rho_w_g_s2f_j,
             glass_type=glass_type
         )
-        tau_w_g_s1_j = _get_tau_w_g_s1_j(tau_w_g_j=tau_w_g_j, rho_w_g_s2f_j=self._rho_w_g_s2f_j, glass_type=glass_type)
+        tau_w_g_s1_j = _get_tau_w_g_s1_j(tau_w_g_j=tau_w_g_j, rho_w_g_s2f_j=rho_w_g_s2f_j, glass_type=glass_type)
         tau_w_g_s2_j = _get_tau_w_g_s2_j(tau_w_g_s1_j=tau_w_g_s1_j, glass_type=glass_type)
         rho_w_g_s1b_j = _get_rho_w_g_s1b_j(tau_w_g_s1_j=tau_w_g_s1_j, glass_type=glass_type)
 
+        self._rho_w_g_s2f_j = rho_w_g_s2f_j
         self._tau_w_g_j = tau_w_g_j
         self._tau_w_g_s1_j = tau_w_g_s1_j
         self._tau_w_g_s2_j = tau_w_g_s2_j
@@ -485,27 +487,6 @@ class Window:
                     2 * (1 - 1.846 * r_r_w_g_j))
         return 0.923 * (t_j ** 2) - 1.846 * t_j + 1
 
-    @staticmethod
-    def _get_rho_w_g_s2f_j(glass_type: GlassType) -> Optional[float]:
-        """窓のガラス部分の室外側から2枚目の板ガラスの反射率（正面側）を計算する。
-
-        Args:
-            glass_type: 境界 j の窓のガラス構成
-
-        Returns:
-            境界 j の窓のガラス部分の室外側から2枚目の板ガラスの反射率（正面側）
-
-        Notes:
-            複層ガラスの場合のみ定義される。
-        """
-        if glass_type == GlassType.SINGLE:
-            return None
-        elif glass_type == GlassType.MULTIPLE:
-            return 0.077
-        else:
-            raise ValueError()
-
-
 def _get_tau_n_phi(phi: Union[float, np.ndarray]) -> Union[float, np.ndarray]:
     """規準化透過率を計算する。
     Args:
@@ -619,4 +600,23 @@ def _get_tau_w_g_j(
         return (eta_w_g_j - (1 - rho_w_g_s1f_j) * r_r_w_g_j) / ((1 - r_r_w_g_j) - rho_w_g_s2f_j * r_r_w_g_j)
     else:
         raise ValueError()
+
+
+def _get_rho_w_g_s2f_j(glass_type: GlassType) -> Optional[float]:
+    """境界jの窓のガラス部分の室外側から2枚目の板ガラスの反射率（正面側）を計算する。
+    Args:
+        glass_type: 境界 j の窓のガラス構成
+    Returns:
+        境界jの窓のガラス部分の室外側から2枚目の板ガラスの反射率（正面側）
+    Notes:
+        複層ガラスの場合のみ定義される。
+        eq.25
+    """
+    if glass_type == GlassType.SINGLE:
+        return None
+    elif glass_type == GlassType.MULTIPLE:
+        return 0.077
+    else:
+        raise ValueError()
+
 
