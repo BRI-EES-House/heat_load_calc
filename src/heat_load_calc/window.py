@@ -57,13 +57,12 @@ class Window:
                                               r_w_i_s=r_w_i_s)
         self._r_r_w_g_j = self._get_r_r_w_g_j(u_w_g_j=self._u_w_g_j, u_w_g_s_j=self._u_w_g_s_j, r_w_o_w=r_w_o_w,
                                               r_w_i_w=r_w_i_w, r_w_o_s=r_w_o_s, glass_type=glass_type)
-        self._rho_w_g_s1f_j = self._get_rho_w_g_s1f_j(r_r_w_g_j=self._r_r_w_g_j, eta_w_g_j=self._eta_w_g_j)
-
+        rho_w_g_s1f_j = _get_rho_w_g_s1f_j(r_r_w_g_j=self._r_r_w_g_j, eta_w_g_j=self._eta_w_g_j)
         rho_w_g_s2f_j = _get_rho_w_g_s2f_j(glass_type=glass_type)
         tau_w_g_j = _get_tau_w_g_j(
             eta_w_g_j=self._eta_w_g_j,
             r_r_w_g_j=self._r_r_w_g_j,
-            rho_w_g_s1f_j=self._rho_w_g_s1f_j,
+            rho_w_g_s1f_j=rho_w_g_s1f_j,
             rho_w_g_s2f_j=rho_w_g_s2f_j,
             glass_type=glass_type
         )
@@ -71,6 +70,7 @@ class Window:
         tau_w_g_s2_j = _get_tau_w_g_s2_j(tau_w_g_s1_j=tau_w_g_s1_j, glass_type=glass_type)
         rho_w_g_s1b_j = _get_rho_w_g_s1b_j(tau_w_g_s1_j=tau_w_g_s1_j, glass_type=glass_type)
 
+        self._rho_w_g_s1f_j = rho_w_g_s1f_j
         self._rho_w_g_s2f_j = rho_w_g_s2f_j
         self._tau_w_g_j = tau_w_g_j
         self._tau_w_g_s1_j = tau_w_g_s1_j
@@ -473,20 +473,6 @@ class Window:
         else:
             raise ValueError()
 
-    @staticmethod
-    def _get_rho_w_g_s1f_j(r_r_w_g_j: float, eta_w_g_j: float) -> float:
-        """窓のガラス部分の室外側から1枚目の板ガラスの反射率（正面側）を計算する。
-
-        Args:
-            r_r_w_g_j: 境界jの窓のガラス部分の日射吸収量に対する室内側に放出される量の割合, -
-            eta_w_g_j: 境界jの窓のガラス部分の日射熱取得率, -
-        Returns:
-            境界jの窓のガラス部分の室外側から1枚目の板ガラスの反射率（正面側）, -
-        """
-        t_j = (-1.846 * r_r_w_g_j + ((1.846 * r_r_w_g_j) ** 2 + 4 * (1 - 1.846 * r_r_w_g_j) * eta_w_g_j) ** 0.5) / (
-                    2 * (1 - 1.846 * r_r_w_g_j))
-        return 0.923 * (t_j ** 2) - 1.846 * t_j + 1
-
 def _get_tau_n_phi(phi: Union[float, np.ndarray]) -> Union[float, np.ndarray]:
     """規準化透過率を計算する。
     Args:
@@ -619,4 +605,19 @@ def _get_rho_w_g_s2f_j(glass_type: GlassType) -> Optional[float]:
     else:
         raise ValueError()
 
+
+def _get_rho_w_g_s1f_j(r_r_w_g_j: float, eta_w_g_j: float) -> float:
+    """境界jの窓のガラス部分の室外側から1枚目の板ガラスの反射率（正面側）を計算する。
+
+    Args:
+        r_r_w_g_j: 境界jの窓のガラス部分の日射吸収量に対する室内側に放出される量の割合, -
+        eta_w_g_j: 境界jの窓のガラス部分の日射熱取得率, -
+    Returns:
+        境界jの窓のガラス部分の室外側から1枚目の板ガラスの反射率（正面側）, -
+    Notes:
+        eq.26, 27
+    """
+    t_j = (-1.846 * r_r_w_g_j + ((1.846 * r_r_w_g_j) ** 2 + 4 * (1 - 1.846 * r_r_w_g_j) * eta_w_g_j) ** 0.5) / (
+                2 * (1 - 1.846 * r_r_w_g_j))
+    return 0.923 * (t_j ** 2) - 1.846 * t_j + 1
 
