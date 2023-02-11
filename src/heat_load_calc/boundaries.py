@@ -10,6 +10,7 @@ from heat_load_calc.direction import Direction
 from heat_load_calc.solar_shading import SolarShading
 from heat_load_calc import outside_eqv_temp
 from heat_load_calc import transmission_solar_radiation
+from heat_load_calc import window
 from heat_load_calc.window import Window
 
 
@@ -339,9 +340,9 @@ class Boundaries:
                     raise ValueError("境界(ID=" + str(boundary_id) + ")の開口部の面積に対するグレージング面積の比率で1.0より大の値が指定されました。")
 
                 # グレージングの種類
-                glazing_type = Window.GlassType(b['incident_angle_characteristics'])
+                glazing_type = window.GlassType(b['incident_angle_characteristics'])
 
-                window = Window(
+                wdw = Window(
                     u_w_j=u_value, eta_w_j=eta_value, glass_type=glazing_type, r_a_w_g_j=glass_area_ratio
                 )
 
@@ -351,12 +352,12 @@ class Boundaries:
 
                 # 相当外気温度, ℃
                 theta_o_sol = outside_eqv_temp.get_theta_o_sol_i_j_ns_for_external_transparent_part(
-                    direction=direction, eps_r=eps_r, r_surf_o=r_surf, u_value_j=u_value, ss=ssp, window=window, w=w
+                    direction=direction, eps_r=eps_r, r_surf_o=r_surf, u_value_j=u_value, ss=ssp, window=wdw, w=w
                 )
 
                 # 透過日射量, W, [N+1]
                 q_trs_sol = transmission_solar_radiation.get_qgt_for_transparent_sun_strike(
-                    direction=direction, area=area, ss=ssp, window=window, w=w
+                    direction=direction, area=area, ss=ssp, window=wdw, w=w
                 )
 
             else:

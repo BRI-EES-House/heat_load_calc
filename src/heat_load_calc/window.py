@@ -4,33 +4,35 @@ from math import sin, cos, pi
 import numpy as np
 
 
+class FlameType(Enum):
+    """フレーム材質
+    """
+
+    # 樹脂製製建具
+    RESIN = auto()
+    # 木製建具
+    WOOD = auto()
+    # 木と金属の複合材料製建具
+    MIXED_WOOD = auto()
+    # 樹脂と金属の複合材料製建具
+    MIXED_RESIN = auto()
+    # 金属製建具
+    ALUMINUM = auto()
+
+
+class GlassType(Enum):
+    """ガラスの構成
+    """
+
+    # 単層
+    SINGLE = 'single'
+    # 複層
+    MULTIPLE = 'multiple'
+
+
 class Window:
     """窓を表すクラス
     """
-
-    class FlameType(Enum):
-        """フレーム材質
-        """
-
-        # 樹脂製製建具
-        RESIN = auto()
-        # 木製建具
-        WOOD = auto()
-        # 木と金属の複合材料製建具
-        MIXED_WOOD = auto()
-        # 樹脂と金属の複合材料製建具
-        MIXED_RESIN = auto()
-        # 金属製建具
-        ALUMINUM = auto()
-
-    class GlassType(Enum):
-        """ガラスの構成
-        """
-
-        # 単層
-        SINGLE = 'single'
-        # 複層
-        MULTIPLE = 'multiple'
 
     def __init__(self, u_w_j: float, eta_w_j: float, glass_type: GlassType, r_a_w_g_j: Optional[float] = None,
                  flame_type: FlameType = FlameType.MIXED_WOOD):
@@ -60,15 +62,23 @@ class Window:
         self._tau_w_g_j = self._get_tau_w_g_j(eta_w_g_j=self._eta_w_g_j, r_r_w_g_j=self._r_r_w_g_j,
                                               rho_w_g_s1f_j=self._rho_w_g_s1f_j, rho_w_g_s2f_j=self._rho_w_g_s2f_j,
                                               glass_type=glass_type)
-        self._tau_w_g_s1_j = self._get_tau_w_g_s1_j(tau_w_g_j=self._tau_w_g_j, rho_w_g_s2f_j=self._rho_w_g_s2f_j,
-                                                    glass_type=glass_type)
-        self._tau_w_g_s2_j = self._get_tau_w_g_s2_j(tau_w_g_s1_j=self._tau_w_g_s1_j, glass_type=glass_type)
-        self._rho_w_g_s1b_j = self._get_rho_w_g_s1b_j(tau_w_g_s1_j=self._tau_w_g_s1_j, glass_type=glass_type)
+        tau_w_g_s1_j = _get_tau_w_g_s1_j(
+            tau_w_g_j=self._tau_w_g_j,
+            rho_w_g_s2f_j=self._rho_w_g_s2f_j,
+            glass_type=glass_type
+        )
+        tau_w_g_s2_j = _get_tau_w_g_s2_j(tau_w_g_s1_j=tau_w_g_s1_j, glass_type=glass_type)
+        rho_w_g_s1b_j = _get_rho_w_g_s1b_j(tau_w_g_s1_j=tau_w_g_s1_j, glass_type=glass_type)
+
+        self._tau_w_g_s1_j = tau_w_g_s1_j
+        self._tau_w_g_s2_j = tau_w_g_s2_j
+        self._rho_w_g_s1b_j = rho_w_g_s1b_j
 
         tau_w_c_j, b_w_c_j = self._get_tau_b_w_c_j()
 
         self._tau_w_c_j = tau_w_c_j
         self._b_w_c_j = b_w_c_j
+
 
     def get_tau_w_d_j_ns(self, phi_j_ns: Union[float, np.ndarray]) -> Union[float, np.ndarray]:
         """窓の直達日射に対する日射透過率を計算する。
@@ -195,10 +205,10 @@ class Window:
             eq.12
         """
 
-        if self._glass_type == Window.GlassType.SINGLE:
+        if self._glass_type == GlassType.SINGLE:
             tau_w_g_s1_j_phis = self._get_tau_w_g_s1_j_phis(phis=phis)
             return tau_w_g_s1_j_phis
-        elif self._glass_type == Window.GlassType.MULTIPLE:
+        elif self._glass_type == GlassType.MULTIPLE:
             rho_w_g_s1b_j_phis = self._get_rho_w_g_s1b_j_phis(phis=phis)
             rho_w_g_s2f_j_phis = self._get_rho_w_g_s2f_j_phis(phis=phis)
             tau_w_g_s1_j_phis = self._get_tau_w_g_s1_j_phis(phis=phis)
@@ -217,10 +227,10 @@ class Window:
             eq.13
         """
 
-        if self._glass_type == Window.GlassType.SINGLE:
+        if self._glass_type == GlassType.SINGLE:
             rho_w_g_s1f_j_phis = self._get_rho_w_g_s1f_j_phis(phis=phis)
             return rho_w_g_s1f_j_phis
-        elif self._glass_type == Window.GlassType.MULTIPLE:
+        elif self._glass_type == GlassType.MULTIPLE:
             rho_w_g_s1f_j_phis = self._get_rho_w_g_s1f_j_phis(phis=phis)
             rho_w_g_s1b_j_phis = self._get_rho_w_g_s1b_j_phis(phis=phis)
             rho_w_g_s2f_j_phis = self._get_rho_w_g_s2f_j_phis(phis=phis)
@@ -346,11 +356,11 @@ class Window:
         """
 
         return {
-            Window.FlameType.RESIN: 2.2,
-            Window.FlameType.WOOD: 2.2,
-            Window.FlameType.ALUMINUM: 6.6,
-            Window.FlameType.MIXED_WOOD: 4.7,
-            Window.FlameType.MIXED_RESIN: 4.7
+            FlameType.RESIN: 2.2,
+            FlameType.WOOD: 2.2,
+            FlameType.ALUMINUM: 6.6,
+            FlameType.MIXED_WOOD: 4.7,
+            FlameType.MIXED_RESIN: 4.7
         }[flame_type]
 
     @staticmethod
@@ -366,11 +376,11 @@ class Window:
 
         if r_a_w_g_j is None:
             return {
-                Window.FlameType.RESIN: 0.72,
-                Window.FlameType.WOOD: 0.72,
-                Window.FlameType.ALUMINUM: 0.8,
-                Window.FlameType.MIXED_WOOD: 0.8,
-                Window.FlameType.MIXED_RESIN: 0.8
+                FlameType.RESIN: 0.72,
+                FlameType.WOOD: 0.72,
+                FlameType.ALUMINUM: 0.8,
+                FlameType.MIXED_WOOD: 0.8,
+                FlameType.MIXED_RESIN: 0.8
             }[flame_type]
         else:
             return r_a_w_g_j
@@ -451,9 +461,9 @@ class Window:
             境界jの窓のガラス部分の日射吸収量に対する室内側に放出される量の割合, -
         """
 
-        if glass_type == Window.GlassType.SINGLE:
+        if glass_type == GlassType.SINGLE:
             return (1 / 2 * (1 / u_w_g_j - r_w_o_w - r_w_i_w) + r_w_o_s) * u_w_g_s_j
-        elif glass_type == Window.GlassType.MULTIPLE:
+        elif glass_type == GlassType.MULTIPLE:
             # 複層ガラスにおける窓の中空層の熱伝達抵抗, m2K/W
             r_w_air = 0.003
             return (1 / 4 * (1 / u_w_g_j - r_w_o_w - r_w_i_w - r_w_air) + r_w_o_s) * u_w_g_s_j
@@ -487,9 +497,9 @@ class Window:
         Notes:
             複層ガラスの場合のみ定義される。
         """
-        if glass_type == Window.GlassType.SINGLE:
+        if glass_type == GlassType.SINGLE:
             return None
-        elif glass_type == Window.GlassType.MULTIPLE:
+        elif glass_type == GlassType.MULTIPLE:
             return 0.077
         else:
             raise ValueError()
@@ -510,69 +520,10 @@ class Window:
             境界 j の窓のガラス部分の日射透過率, -
         """
 
-        if glass_type == Window.GlassType.SINGLE:
+        if glass_type == GlassType.SINGLE:
             return (eta_w_g_j - (1 - rho_w_g_s1f_j) * r_r_w_g_j) / (1 - r_r_w_g_j)
-        elif glass_type == Window.GlassType.MULTIPLE:
+        elif glass_type == GlassType.MULTIPLE:
             return (eta_w_g_j - (1 - rho_w_g_s1f_j) * r_r_w_g_j) / ((1 - r_r_w_g_j) - rho_w_g_s2f_j * r_r_w_g_j)
-        else:
-            raise ValueError()
-
-    @staticmethod
-    def _get_tau_w_g_s1_j(tau_w_g_j: float, rho_w_g_s2f_j: Optional[float], glass_type: GlassType) -> float:
-        """窓のガラス部分の室外側から1枚目の板ガラスの透過率を計算する。
-
-        Args:
-            tau_w_g_j: 境界 j の窓のガラス部分の日射透過率, -
-            rho_w_g_s2f_j: 境界 j の窓のガラス部分の室外側から2枚目の板ガラスの反射率（正面側）, -
-            glass_type: 境界 j の窓のガラス構成
-
-        Returns:
-            境界 j の窓のガラス部分の室外側から1枚目の板ガラスの透過率, -
-        """
-
-        if glass_type == Window.GlassType.SINGLE:
-            return tau_w_g_j
-        elif glass_type == Window.GlassType.MULTIPLE:
-            return (0.379 * rho_w_g_s2f_j * tau_w_g_j + ((0.379 * rho_w_g_s2f_j * tau_w_g_j) ** 2 - 4 * (
-                        0.379 * rho_w_g_s2f_j - 1) * tau_w_g_j) ** 0.5) / 2
-        else:
-            raise ValueError()
-
-    @staticmethod
-    def _get_tau_w_g_s2_j(tau_w_g_s1_j: Optional[float], glass_type: GlassType) -> Optional[float]:
-        """窓のガラス部分の室外側から2枚目の板ガラスの透過率を計算する。
-
-        Args:
-            tau_w_g_s1_j: 境界jの窓のガラス部分の室外側から1枚目の板ガラスの透過率, -
-            glass_type: 境界 j の窓のガラス構成
-        Returns:
-            境界jの窓のガラス部分の室外側から2枚目の板ガラスの透過率, -
-        Notes:
-            複層ガラスの場合のみ定義される。
-        """
-        if glass_type == Window.GlassType.SINGLE:
-            return None
-        elif glass_type == Window.GlassType.MULTIPLE:
-            return tau_w_g_s1_j
-        else:
-            raise ValueError()
-
-    @staticmethod
-    def _get_rho_w_g_s1b_j(tau_w_g_s1_j: Optional[float], glass_type: GlassType) -> Optional[float]:
-        """窓のガラス部分の室外側から1枚目の板ガラスの反射率（背面側）を計算する。
-
-        Args:
-            tau_w_g_s1_j: 境界 j の窓のガラス部分の室外側から1枚目の板ガラスの透過率, -
-            glass_type: 境界 j の窓のガラス構成
-        Returns:
-            境界 j の窓のガラス部分の室外側から1枚目の板ガラスの反射率（背面側）, -
-        Notes:
-            複層ガラスの場合のみ定義される。
-        """
-        if glass_type == Window.GlassType.SINGLE:
-            return None
-        elif glass_type == Window.GlassType.MULTIPLE:
-            return 0.379 * (1 - tau_w_g_s1_j)
         else:
             raise ValueError()
 
@@ -600,4 +551,66 @@ def _get_rho_n_phi(phi_ns: Union[float, np.ndarray]) -> Union[float, np.ndarray]
     """
     return 1.0 - 5.189 * np.cos(phi_ns) + 12.392 * np.power(np.cos(phi_ns), 2) - 16.593 * np.power(np.cos(phi_ns), 3) \
            + 11.851 * np.power(np.cos(phi_ns), 4) - 3.461 * np.power(np.cos(phi_ns), 5)
+
+
+def _get_rho_w_g_s1b_j(tau_w_g_s1_j: Optional[float], glass_type: GlassType) -> Optional[float]:
+    """境界jの窓のガラス部分の室外側から1枚目の板ガラスの反射率（背面側）を計算する。
+
+    Args:
+        tau_w_g_s1_j: 境界jの窓のガラス部分の室外側から1枚目の板ガラスの透過率, -
+        glass_type: 境界jの窓のガラス構成
+    Returns:
+        境界jの窓のガラス部分の室外側から1枚目の板ガラスの反射率（背面側）, -
+    Notes:
+        複層ガラスの場合のみ定義される。
+        eq.21
+    """
+    if glass_type == GlassType.SINGLE:
+        return None
+    elif glass_type == GlassType.MULTIPLE:
+        return 0.379 * (1 - tau_w_g_s1_j)
+    else:
+        raise ValueError()
+
+
+def _get_tau_w_g_s2_j(tau_w_g_s1_j: Optional[float], glass_type: GlassType) -> Optional[float]:
+    """境界jの窓のガラス部分の室外側から2枚目の板ガラスの透過率を計算する。
+
+    Args:
+        tau_w_g_s1_j: 境界jの窓のガラス部分の室外側から1枚目の板ガラスの透過率, -
+        glass_type: 境界jの窓のガラス構成
+    Returns:
+        境界jの窓のガラス部分の室外側から2枚目の板ガラスの透過率, -
+    Notes:
+        複層ガラスの場合のみ定義される。
+        eq.22
+    """
+    if glass_type == GlassType.SINGLE:
+        return None
+    elif glass_type == GlassType.MULTIPLE:
+        return tau_w_g_s1_j
+    else:
+        raise ValueError()
+
+
+def _get_tau_w_g_s1_j(tau_w_g_j: float, rho_w_g_s2f_j: Optional[float], glass_type: GlassType) -> float:
+    """境界jの窓のガラス部分の室外側から1枚目の板ガラスの透過率を計算する。
+    Args:
+        tau_w_g_j: 境界jの窓のガラス部分の日射透過率, -
+        rho_w_g_s2f_j: 境界jの窓のガラス部分の室外側から2枚目の板ガラスの反射率（正面側）, -
+        glass_type: 境界jの窓のガラス構成
+    Returns:
+        境界jの窓のガラス部分の室外側から1枚目の板ガラスの透過率, -
+    Notes:
+        eq.23
+    """
+
+    if glass_type == GlassType.SINGLE:
+        return tau_w_g_j
+    elif glass_type == GlassType.MULTIPLE:
+        return (0.379 * rho_w_g_s2f_j * tau_w_g_j + ((0.379 * rho_w_g_s2f_j * tau_w_g_j) ** 2 - 4 * (
+                    0.379 * rho_w_g_s2f_j - 1) * tau_w_g_j) ** 0.5) / 2
+    else:
+        raise ValueError()
+
 
