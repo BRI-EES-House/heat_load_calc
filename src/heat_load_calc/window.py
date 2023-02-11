@@ -55,13 +55,20 @@ class Window:
         r_w_o_w, r_w_i_w, r_w_o_s, r_w_i_s = self._get_r_w()
         self._u_w_g_s_j = self._get_u_w_g_s_j(u_w_g_j=self._u_w_g_j, r_w_o_w=r_w_o_w, r_w_i_w=r_w_i_w, r_w_o_s=r_w_o_s,
                                               r_w_i_s=r_w_i_s)
-        self._r_r_w_g_j = self._get_r_r_w_g_j(u_w_g_j=self._u_w_g_j, u_w_g_s_j=self._u_w_g_s_j, r_w_o_w=r_w_o_w,
-                                              r_w_i_w=r_w_i_w, r_w_o_s=r_w_o_s, glass_type=glass_type)
-        rho_w_g_s1f_j = _get_rho_w_g_s1f_j(r_r_w_g_j=self._r_r_w_g_j, eta_w_g_j=self._eta_w_g_j)
+
+        r_r_w_g_j = _get_r_r_w_g_j(
+            u_w_g_j=self._u_w_g_j,
+            u_w_g_s_j=self._u_w_g_s_j,
+            r_w_o_w=r_w_o_w,
+            r_w_i_w=r_w_i_w,
+            r_w_o_s=r_w_o_s,
+            glass_type=glass_type
+        )
+        rho_w_g_s1f_j = _get_rho_w_g_s1f_j(r_r_w_g_j=r_r_w_g_j, eta_w_g_j=self._eta_w_g_j)
         rho_w_g_s2f_j = _get_rho_w_g_s2f_j(glass_type=glass_type)
         tau_w_g_j = _get_tau_w_g_j(
             eta_w_g_j=self._eta_w_g_j,
-            r_r_w_g_j=self._r_r_w_g_j,
+            r_r_w_g_j=r_r_w_g_j,
             rho_w_g_s1f_j=rho_w_g_s1f_j,
             rho_w_g_s2f_j=rho_w_g_s2f_j,
             glass_type=glass_type
@@ -70,6 +77,7 @@ class Window:
         tau_w_g_s2_j = _get_tau_w_g_s2_j(tau_w_g_s1_j=tau_w_g_s1_j, glass_type=glass_type)
         rho_w_g_s1b_j = _get_rho_w_g_s1b_j(tau_w_g_s1_j=tau_w_g_s1_j, glass_type=glass_type)
 
+        self._r_r_w_g_j = r_r_w_g_j
         self._rho_w_g_s1f_j = rho_w_g_s1f_j
         self._rho_w_g_s2f_j = rho_w_g_s2f_j
         self._tau_w_g_j = tau_w_g_j
@@ -447,31 +455,6 @@ class Window:
         """
         return 1 / (1 / u_w_g_j - r_w_o_w - r_w_i_w + r_w_o_s + r_w_i_s)
 
-    @staticmethod
-    def _get_r_r_w_g_j(u_w_g_j: float, u_w_g_s_j: float, r_w_o_w: float, r_w_i_w: float, r_w_o_s: float,
-                       glass_type: GlassType) -> float:
-        """窓のガラス部分の日射吸収量に対する室内側に放出される量の割合を計算する。
-
-        Args:
-            u_w_g_j: 境界jの窓のガラス部分の熱損失係数（U値）, W/m2K
-            u_w_g_s_j: 境界jの窓のガラス部分の熱損失係数（夏期条件）, W/m2K
-            r_w_o_w: 窓の室外側表面熱伝達抵抗（冬期条件）, m2K/W
-            r_w_i_w: 窓の室内側表面熱伝達抵抗（冬期条件）, m2K/W
-            r_w_o_s: 窓の室外側表面熱伝達抵抗（夏期条件）, m2K/W
-            glass_type: 境界 j の窓のガラス構成
-
-        Returns:
-            境界jの窓のガラス部分の日射吸収量に対する室内側に放出される量の割合, -
-        """
-
-        if glass_type == GlassType.SINGLE:
-            return (1 / 2 * (1 / u_w_g_j - r_w_o_w - r_w_i_w) + r_w_o_s) * u_w_g_s_j
-        elif glass_type == GlassType.MULTIPLE:
-            # 複層ガラスにおける窓の中空層の熱伝達抵抗, m2K/W
-            r_w_air = 0.003
-            return (1 / 4 * (1 / u_w_g_j - r_w_o_w - r_w_i_w - r_w_air) + r_w_o_s) * u_w_g_s_j
-        else:
-            raise ValueError()
 
 def _get_tau_n_phi(phi: Union[float, np.ndarray]) -> Union[float, np.ndarray]:
     """規準化透過率を計算する。
@@ -620,4 +603,36 @@ def _get_rho_w_g_s1f_j(r_r_w_g_j: float, eta_w_g_j: float) -> float:
     t_j = (-1.846 * r_r_w_g_j + ((1.846 * r_r_w_g_j) ** 2 + 4 * (1 - 1.846 * r_r_w_g_j) * eta_w_g_j) ** 0.5) / (
                 2 * (1 - 1.846 * r_r_w_g_j))
     return 0.923 * (t_j ** 2) - 1.846 * t_j + 1
+
+
+def _get_r_r_w_g_j(
+        u_w_g_j: float,
+        u_w_g_s_j: float,
+        r_w_o_w: float,
+        r_w_i_w: float,
+        r_w_o_s: float,
+        glass_type: GlassType
+) -> float:
+    """境界jの窓のガラス部分の日射吸収量に対する室内側に放出される量の割合を計算する。
+    Args:
+        u_w_g_j: 境界jの窓のガラス部分の熱損失係数（U値）, W/m2K
+        u_w_g_s_j: 境界jの窓のガラス部分の熱損失係数（夏期条件）, W/m2K
+        r_w_o_w: 窓の室外側表面熱伝達抵抗（冬期条件）, m2K/W
+        r_w_i_w: 窓の室内側表面熱伝達抵抗（冬期条件）, m2K/W
+        r_w_o_s: 窓の室外側表面熱伝達抵抗（夏期条件）, m2K/W
+        glass_type: 境界 j の窓のガラス構成
+    Returns:
+        境界jの窓のガラス部分の日射吸収量に対する室内側に放出される量の割合, -
+    Notes:
+        eq.28
+    """
+
+    if glass_type == GlassType.SINGLE:
+        return (1 / 2 * (1 / u_w_g_j - r_w_o_w - r_w_i_w) + r_w_o_s) * u_w_g_s_j
+    elif glass_type == GlassType.MULTIPLE:
+        # 複層ガラスにおける窓の中空層の熱伝達抵抗, m2K/W
+        r_w_air = 0.003
+        return (1 / 4 * (1 / u_w_g_j - r_w_o_w - r_w_i_w - r_w_air) + r_w_o_s) * u_w_g_s_j
+    else:
+        raise ValueError()
 
