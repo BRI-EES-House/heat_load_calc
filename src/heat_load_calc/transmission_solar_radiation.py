@@ -73,20 +73,20 @@ def get_qgt_for_transparent_sun_strike(
     # ステップnにおける境界jの窓の直達日射に対する日射透過率, -, [N+1]
     tau_w_d_j_ns = window.get_tau_w_d_j_ns(phi_j_ns=phi_j_ns)
 
-    # 境界 j の透明な開口部の天空日射に対する日射透過率, -, [N+1]
-    tau_s_j = window.tau_w_s_j
+    # 境界jの窓の天空日射に対する日射透過率, -
+    tau_w_s_j = window.tau_w_s_j
 
-    # 境界 j の透明な開口部の地盤反射日射に対する日射透過率, -, [N+1]
-    tau_r_j = window.tau_w_r_j
+    # 境界jの窓の地盤反射日射に対する日射透過率, -
+    tau_w_r_j = window.tau_w_r_j
 
     # 直達日射に対する透過日射量, W/m2, [N+1]
     q_gt_d_j_ns = tau_w_d_j_ns * (1.0 - f_ss_d_j_ns) * i_inc_d_j_ns
 
     # 天空日射に対する透過日射量, W/m2, [N+1]
-    q_gt_sky_j_ns = tau_s_j * (1.0 - f_ss_s_j_ns) * i_inc_sky_j_ns
+    q_gt_sky_j_ns = tau_w_s_j * (1.0 - f_ss_s_j_ns) * i_inc_sky_j_ns
 
     # 地盤反射日射に対する透過日射量, W/m2, [N+1]
-    q_gt_ref_j_ns = tau_r_j * (1.0 - f_ss_r_j_ns) * i_inc_ref_j_ns
+    q_gt_ref_j_ns = tau_w_r_j * (1.0 - f_ss_r_j_ns) * i_inc_ref_j_ns
 
     # 透過日射量, W, [N+1]
     q_gt_ns = (q_gt_d_j_ns + q_gt_sky_j_ns + q_gt_ref_j_ns) * area
