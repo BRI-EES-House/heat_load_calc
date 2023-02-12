@@ -33,17 +33,7 @@ jobs:
       run: |
         mkdir out
         mkdir out/data_example1
-        mkdir out/example_single_room1
-        mkdir out/example_single_room2
-        mkdir out/example_single_room3
-        mkdir out/example_single_room4
-        mkdir out/example_single_room5
-        python heat_load_calc/heat_load_calc.py src/heat_load_calc/example/data_example1.json -o out/data_example1 --region 6
-        python heat_load_calc/heat_load_calc.py src/heat_load_calc/example/example_single_room1.json -o out/example_single_room1 --region 6
-        python heat_load_calc/heat_load_calc.py src/heat_load_calc/example/example_single_room2.json -o out/example_single_room2 --region 6
-        python heat_load_calc/heat_load_calc.py src/heat_load_calc/example/example_single_room3.json -o out/example_single_room3 --region 6
-        python heat_load_calc/heat_load_calc.py src/heat_load_calc/example/example_single_room4.json -o out/example_single_room4 --region 6
-        python heat_load_calc/heat_load_calc.py src/heat_load_calc/example/example_single_room5.json -o out/example_single_room5 --region 6
+        python heat_load_calc/heat_load_calc.py heat_load_calc/example/data_example1.json -o out/data_example1 --region 6
 
     - name: Archive example results
       uses: actions/upload-artifact@v2
