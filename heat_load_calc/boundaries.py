@@ -317,7 +317,7 @@ class Boundaries:
 
         elif boundary_type == BoundaryType.ExternalTransparentPart:
 
-            u_value = _read_u_nominal_j(b=b, boundary_id=boundary_id)
+            u_value_j = _read_u_nominal_j(b=b, boundary_id=boundary_id)
 
             if is_sun_striked_outside:
 
@@ -342,8 +342,8 @@ class Boundaries:
                 # グレージングの種類
                 glazing_type = window.GlassType(b['incident_angle_characteristics'])
 
-                wdw = Window(
-                    u_w_j=u_value, eta_w_j=eta_value, glass_type=glazing_type, r_a_w_g_j=glass_area_ratio
+                wdw_j = Window(
+                    u_w_j=u_value_j, eta_w_j=eta_value, glass_type=glazing_type, r_a_w_g_j=glass_area_ratio
                 )
 
                 r_s_o_j = _read_r_s_o_j(b=b, boundary_id=boundary_id)
@@ -351,13 +351,13 @@ class Boundaries:
                 eps_r_o_j = _read_eps_r_o_j(b=b, boundary_id=boundary_id)
 
                 # 相当外気温度, ℃
-                theta_o_eqv_j_ns = outside_eqv_temp.get_theta_o_sol_i_j_ns_for_external_transparent_part(
-                    direction=drct_j, eps_r=eps_r_o_j, r_surf_o=r_s_o_j, u_value_j=u_value, ss=ssp_j, window=wdw, w=w
+                theta_o_eqv_j_ns = outside_eqv_temp.get_theta_o_eqv_j_ns_for_external_transparent_part(
+                    drct_j=drct_j, eps_r_o_j=eps_r_o_j, r_s_o_j=r_s_o_j, u_j=u_value_j, ssp_j=ssp_j, wdw_j=wdw_j, w=w
                 )
 
                 # 透過日射量, W, [N+1]
                 q_trs_sol = transmission_solar_radiation.get_qgt_for_transparent_sun_strike(
-                    direction=drct_j, area=area, ss=ssp_j, window=wdw, w=w
+                    direction=drct_j, area=area, ss=ssp_j, window=wdw_j, w=w
                 )
 
             else:
@@ -372,7 +372,7 @@ class Boundaries:
             r_i_nominal = _read_r_i_nominal(b=b, boundary_id=boundary_id)
 
             # 応答係数
-            rf = ResponseFactor.create_for_steady(u_w=u_value, r_i=r_i_nominal)
+            rf = ResponseFactor.create_for_steady(u_w=u_value_j, r_i=r_i_nominal)
 
             u_value_nominal = float(b['u_value'])
 
@@ -411,9 +411,9 @@ class Boundaries:
             # 室内側熱伝達抵抗, m2K/W
             r_i_nominal = _read_r_i_nominal(b=b, boundary_id=boundary_id)
 
-            u_value = _read_u_nominal_j(b=b, boundary_id=boundary_id)
+            u_value_j = _read_u_nominal_j(b=b, boundary_id=boundary_id)
 
-            rf = ResponseFactor.create_for_steady(u_w=u_value, r_i=r_i_nominal)
+            rf = ResponseFactor.create_for_steady(u_w=u_value_j, r_i=r_i_nominal)
 
             r_i_nominal = b['inside_heat_transfer_resistance']
             u_value_nominal = float(b['u_value'])

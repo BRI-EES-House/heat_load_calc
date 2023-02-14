@@ -140,7 +140,7 @@ class Weather:
 
         return self.number_of_data + 1
 
-    def get_theta_o_ns_average(self) -> float:
+    def get_theta_o_ave(self) -> float:
         """外気温度の年間平均値を取得する。
 
         Returns:

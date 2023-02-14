@@ -4,7 +4,7 @@ import numpy as np
 from heat_load_calc.direction import Direction
 
 
-def get_i_is_j_ns(
+def get_i_s_j_ns(
         i_dn_ns: np.ndarray,
         i_sky_ns: np.ndarray,
         r_n_ns: np.ndarray,
@@ -34,7 +34,7 @@ def get_i_is_j_ns(
     beta_w_j = drct_j.beta_w_j
 
     # ステップnの境界jにおける傾斜面に入射する太陽の入射角, deg, [n]
-    theta_aoi_j_ns = get_theta_aoi_j_ns(h_sun_ns=h_sun_ns, a_sun_ns=a_sun_ns, direction=drct_j)
+    theta_aoi_j_ns = get_phi_j_ns(h_sun_ns=h_sun_ns, a_sun_ns=a_sun_ns, direction=drct_j)
 
     # ステップ n における水平面全天日射量, W/m2, [n]
     i_hrz_ns = _get_i_hrz_ns(i_dn_ns=i_dn_ns, i_sky_ns=i_sky_ns, h_sun_ns=h_sun_ns)
@@ -46,18 +46,18 @@ def get_i_is_j_ns(
     f_gnd_j = _get_f_gnd_j(f_sky_j=f_sky_j)
 
     # ステップ n における境界 j の傾斜面の夜間放射量, W/m2, [n]
-    r_srf_eff_j_ns = _get_r_srf_eff_j_ns(r_eff_ns=r_n_ns, f_sky_j=f_sky_j)
+    r_s_n_j_ns = _get_r_srf_eff_j_ns(r_eff_ns=r_n_ns, f_sky_j=f_sky_j)
 
     # ステップ n における境界 j の傾斜面に入射する日射量の地盤反射成分, W/m2, [n]
-    i_srf_ref_j_ns = _get_i_srf_ref_j_ns(f_gnd_j=f_gnd_j, i_hrz_ns=i_hrz_ns)
+    i_s_ref_j_ns = _get_i_srf_ref_j_ns(f_gnd_j=f_gnd_j, i_hrz_ns=i_hrz_ns)
 
     # ステップ n における境界 j の傾斜面に入射する日射量の天空成分, W/m2, [n]
-    i_srf_sky_j_ns = _get_i_srf_sky_j_ns(i_sky_ns=i_sky_ns, f_sky_j=f_sky_j)
+    i_s_sky_j_ns = _get_i_srf_sky_j_ns(i_sky_ns=i_sky_ns, f_sky_j=f_sky_j)
 
     # ステップ n における境界 j の傾斜面に入射する日射量の直達成分, W/m2, [n]
-    i_srf_dn_j_ns = _get_i_srf_dn_j_ns(i_dn_ns=i_dn_ns, theta_aoi_j_ns=theta_aoi_j_ns)
+    i_s_dn_j_ns = _get_i_srf_dn_j_ns(i_dn_ns=i_dn_ns, theta_aoi_j_ns=theta_aoi_j_ns)
 
-    return i_srf_dn_j_ns, i_srf_sky_j_ns, i_srf_ref_j_ns, r_srf_eff_j_ns
+    return i_s_dn_j_ns, i_s_sky_j_ns, i_s_ref_j_ns, r_s_n_j_ns
 
 
 def _get_i_srf_dn_j_ns(i_dn_ns: np.ndarray, theta_aoi_j_ns: np.ndarray) -> np.ndarray:
@@ -212,7 +212,7 @@ def _get_i_hrz_ns(i_dn_ns: np.ndarray, i_sky_ns: np.ndarray, h_sun_ns: np.ndarra
     return i_hsr_ns
 
 
-def get_theta_aoi_j_ns(h_sun_ns: np.ndarray, a_sun_ns: np.ndarray, direction: Direction) -> np.ndarray:
+def get_phi_j_ns(h_sun_ns: np.ndarray, a_sun_ns: np.ndarray, direction: Direction) -> np.ndarray:
     """
     傾斜面に入射する太陽の入射角を計算する。
 
