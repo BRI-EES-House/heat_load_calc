@@ -28,13 +28,13 @@ class Weather:
         """
 
         Args:
-            a_sun_ns: 外気温度, degree C, [n]
-            h_sun_ns: 外気絶対湿度, kg/kg(DA), [n]
+            a_sun_ns: 太陽方位角, rad, [n]
+            h_sun_ns: 太陽高度, rad, [n]
             i_dn_ns: 法線面直達日射量, W/m2, [n]
             i_sky_ns: 水平面天空日射量, W/m2, [n]
             r_n_ns: 夜間放射量, W/m2, [n]
-            theta_o_ns: 太陽高度, rad, [n]
-            x_o_ns: 太陽方位角, rad, [n]
+            theta_o_ns: 外気温度, degree C, [n]
+            x_o_ns: 外気絶対湿度, kg/kg(DA), [n]
             itv: 時間間隔
         """
 
@@ -140,7 +140,7 @@ class Weather:
 
         return self.number_of_data + 1
 
-    def get_theta_o_ns_average(self) -> float:
+    def get_theta_o_ave(self) -> float:
         """外気温度の年間平均値を取得する。
 
         Returns:

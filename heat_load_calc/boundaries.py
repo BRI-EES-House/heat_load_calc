@@ -256,7 +256,7 @@ class Boundaries:
         if boundary_type == BoundaryType.Internal:
 
             # 相当外気温度, ℃
-            theta_o_sol = outside_eqv_temp.get_theta_o_sol_i_j_ns_for_internal(w=w)
+            theta_o_eqv_j_ns = outside_eqv_temp.get_theta_o_eqv_j_ns_for_internal(w=w)
 
             # 透過日射量, W, [N+1]
             q_trs_sol = transmission_solar_radiation.get_qgt_for_not(w=w)
@@ -280,27 +280,27 @@ class Boundaries:
             if is_sun_striked_outside:
 
                 # 方位
-                direction = Direction(b['direction'])
+                drct_j = Direction(b['direction'])
 
                 # 日除け
-                ssp = SolarShading.create(ssp_dict=b['solar_shading_part'], direction=direction)
+                ssp_j = SolarShading.create(ssp_dict=b['solar_shading_part'], direction=drct_j)
 
-                # 室外側日射吸収率
-                a_s = _read_a_s(b=b)
+                # 境界jの室外側日射吸収率, -
+                a_s_j = _read_a_s_j(b=b, boundary_id=boundary_id)
 
-                r_surf = _read_r_surf(b=b, boundary_id=boundary_id)
+                r_s_o_j = _read_r_s_o_j(b=b, boundary_id=boundary_id)
 
-                eps_r = _read_eps_r(b=b, boundary_id=boundary_id)
+                eps_r_o_j = _read_eps_r_o_j(b=b, boundary_id=boundary_id)
 
                 # 相当外気温度, ℃
-                theta_o_sol = outside_eqv_temp.get_theta_o_sol_i_j_ns_for_external_general_part_and_external_opaque_part(
-                    direction=direction, a_s=a_s, eps_r=eps_r, r_surf=r_surf, ss=ssp, w=w
+                theta_o_eqv_j_ns = outside_eqv_temp.get_theta_o_eqv_j_ns_for_external_general_part_and_external_opaque_part(
+                    drct_j=drct_j, a_s_j=a_s_j, eps_r_o_j=eps_r_o_j, r_s_o_j=r_s_o_j, ssp_j=ssp_j, w=w
                 )
 
             else:
 
                 # 相当外気温度, ℃
-                theta_o_sol = outside_eqv_temp.get_theta_o_sol_i_j_ns_for_external_not_sun_striked(w=w)
+                theta_o_eqv_j_ns = outside_eqv_temp.get_theta_o_eqv_j_ns_for_external_not_sun_striked(w=w)
 
             # 透過日射量, W, [N+1]
             q_trs_sol = transmission_solar_radiation.get_qgt_for_not(w=w)
@@ -317,15 +317,15 @@ class Boundaries:
 
         elif boundary_type == BoundaryType.ExternalTransparentPart:
 
-            u_value = _read_u_nominal_j(b=b, boundary_id=boundary_id)
+            u_value_j = _read_u_nominal_j(b=b, boundary_id=boundary_id)
 
             if is_sun_striked_outside:
 
                 # 方位
-                direction = Direction(b['direction'])
+                drct_j = Direction(b['direction'])
 
                 # 日除け
-                ssp = SolarShading.create(ssp_dict=b['solar_shading_part'], direction=direction)
+                ssp_j = SolarShading.create(ssp_dict=b['solar_shading_part'], direction=drct_j)
 
                 # 日射熱取得率
                 eta_value = float(b['eta_value'])
@@ -342,28 +342,28 @@ class Boundaries:
                 # グレージングの種類
                 glazing_type = window.GlassType(b['incident_angle_characteristics'])
 
-                wdw = Window(
-                    u_w_j=u_value, eta_w_j=eta_value, glass_type=glazing_type, r_a_w_g_j=glass_area_ratio
+                wdw_j = Window(
+                    u_w_j=u_value_j, eta_w_j=eta_value, glass_type=glazing_type, r_a_w_g_j=glass_area_ratio
                 )
 
-                r_surf = _read_r_surf(b=b, boundary_id=boundary_id)
+                r_s_o_j = _read_r_s_o_j(b=b, boundary_id=boundary_id)
 
-                eps_r = _read_eps_r(b=b, boundary_id=boundary_id)
+                eps_r_o_j = _read_eps_r_o_j(b=b, boundary_id=boundary_id)
 
                 # 相当外気温度, ℃
-                theta_o_sol = outside_eqv_temp.get_theta_o_sol_i_j_ns_for_external_transparent_part(
-                    direction=direction, eps_r=eps_r, r_surf_o=r_surf, u_value_j=u_value, ss=ssp, window=wdw, w=w
+                theta_o_eqv_j_ns = outside_eqv_temp.get_theta_o_eqv_j_ns_for_external_transparent_part(
+                    drct_j=drct_j, eps_r_o_j=eps_r_o_j, r_s_o_j=r_s_o_j, u_j=u_value_j, ssp_j=ssp_j, wdw_j=wdw_j, w=w
                 )
 
                 # 透過日射量, W, [N+1]
                 q_trs_sol = transmission_solar_radiation.get_qgt_for_transparent_sun_strike(
-                    direction=direction, area=area, ss=ssp, window=wdw, w=w
+                    direction=drct_j, area=area, ss=ssp_j, window=wdw_j, w=w
                 )
 
             else:
 
                 # 相当外気温度, ℃
-                theta_o_sol = outside_eqv_temp.get_theta_o_sol_i_j_ns_for_external_not_sun_striked(w=w)
+                theta_o_eqv_j_ns = outside_eqv_temp.get_theta_o_eqv_j_ns_for_external_not_sun_striked(w=w)
 
                 # 透過日射量, W, [N+1]
                 q_trs_sol = transmission_solar_radiation.get_qgt_for_not(w=w)
@@ -372,7 +372,7 @@ class Boundaries:
             r_i_nominal = _read_r_i_nominal(b=b, boundary_id=boundary_id)
 
             # 応答係数
-            rf = ResponseFactor.create_for_steady(u_w=u_value, r_i=r_i_nominal)
+            rf = ResponseFactor.create_for_steady(u_w=u_value_j, r_i=r_i_nominal)
 
             u_value_nominal = float(b['u_value'])
 
@@ -383,27 +383,27 @@ class Boundaries:
             if is_sun_striked_outside:
 
                 # 方位
-                direction = Direction(b['direction'])
+                drct_j = Direction(b['direction'])
 
                 # 日除け
-                ssp = SolarShading.create(ssp_dict=b['solar_shading_part'], direction=direction)
+                ssp_j = SolarShading.create(ssp_dict=b['solar_shading_part'], direction=drct_j)
 
                 # 室外側日射吸収率
-                a_s = _read_a_s(b=b)
+                a_s_j = _read_a_s_j(b=b, boundary_id=boundary_id)
 
-                r_surf = _read_r_surf(b=b, boundary_id=boundary_id)
+                r_s_o_j = _read_r_s_o_j(b=b, boundary_id=boundary_id)
 
-                eps_r = _read_eps_r(b=b, boundary_id=boundary_id)
+                eps_r_o_j = _read_eps_r_o_j(b=b, boundary_id=boundary_id)
 
                 # 相当外気温度, ℃
-                theta_o_sol = outside_eqv_temp.get_theta_o_sol_i_j_ns_for_external_general_part_and_external_opaque_part(
-                    direction=direction, a_s=a_s, eps_r=eps_r, r_surf=r_surf, ss=ssp, w=w
+                theta_o_eqv_j_ns = outside_eqv_temp.get_theta_o_eqv_j_ns_for_external_general_part_and_external_opaque_part(
+                    drct_j=drct_j, a_s_j=a_s_j, eps_r_o_j=eps_r_o_j, r_s_o_j=r_s_o_j, ssp_j=ssp_j, w=w
                 )
 
             else:
 
                 # 相当外気温度, ℃
-                theta_o_sol = outside_eqv_temp.get_theta_o_sol_i_j_ns_for_external_not_sun_striked(w=w)
+                theta_o_eqv_j_ns = outside_eqv_temp.get_theta_o_eqv_j_ns_for_external_not_sun_striked(w=w)
 
             # 透過日射量, W, [N+1]
             q_trs_sol = transmission_solar_radiation.get_qgt_for_not(w=w)
@@ -411,9 +411,9 @@ class Boundaries:
             # 室内側熱伝達抵抗, m2K/W
             r_i_nominal = _read_r_i_nominal(b=b, boundary_id=boundary_id)
 
-            u_value = _read_u_nominal_j(b=b, boundary_id=boundary_id)
+            u_value_j = _read_u_nominal_j(b=b, boundary_id=boundary_id)
 
-            rf = ResponseFactor.create_for_steady(u_w=u_value, r_i=r_i_nominal)
+            rf = ResponseFactor.create_for_steady(u_w=u_value_j, r_i=r_i_nominal)
 
             r_i_nominal = b['inside_heat_transfer_resistance']
             u_value_nominal = float(b['u_value'])
@@ -422,7 +422,7 @@ class Boundaries:
         elif boundary_type == BoundaryType.Ground:
 
             # 相当外気温度, ℃
-            theta_o_sol = outside_eqv_temp.get_theta_o_sol_i_j_ns_for_ground(w=w)
+            theta_o_eqv_j_ns = outside_eqv_temp.get_theta_o_eqv_j_ns_for_ground(w=w)
 
             # 透過日射量, W, [N+1]
             q_trs_sol = transmission_solar_radiation.get_qgt_for_not(w=w)
@@ -509,7 +509,7 @@ class Boundaries:
             h_s_c=h_s_c,
             h_s_r=h_s_r,
             simulation_u_value=simulation_u_value,
-            theta_o_sol=theta_o_sol,
+            theta_o_sol=theta_o_eqv_j_ns,
             q_trs_sol=q_trs_sol,
             rf=rf,
             k_ei_js_j=k_ei_js_j,
@@ -549,7 +549,7 @@ class Boundaries:
         return self._n_ground
 
     @property
-    def id_bs_js(self) -> np.ndarray:
+    def id_b_js(self) -> np.ndarray:
         """境界jのID, [j, 1]"""
         return self._id_bs_js
 
@@ -729,17 +729,14 @@ def _read_rs_j_l(layer: Dict) -> float:
     return float(layer['thermal_resistance'])
 
 
-def _read_a_s(b: Dict) -> float:
-    """
-
+def _read_a_s_j(b: Dict, boundary_id: int) -> float:
+    """境界jの室外側日射吸収率を取得する。
     Args:
-        b:
-
+        b: 境界を表す辞書
     Returns:
-        室外側日射吸収率
+        境界jの室外側日射吸収率, -
     """
 
-    # 室外側日射吸収率
     a_s = float(b['outside_solar_absorption'])
 
     if a_s < 0.0:
@@ -761,7 +758,7 @@ def _read_u_nominal_j(b: Dict, boundary_id: int) -> float:
     return u_nominal_j
 
 
-def _read_r_surf(b: Dict, boundary_id: int) -> float:
+def _read_r_s_o_j(b: Dict, boundary_id: int) -> float:
 
     r_surf = float(b['outside_heat_transfer_resistance'])
 
@@ -771,7 +768,7 @@ def _read_r_surf(b: Dict, boundary_id: int) -> float:
     return r_surf
 
 
-def _read_eps_r(b: Dict, boundary_id: int) -> float:
+def _read_eps_r_o_j(b: Dict, boundary_id: int) -> float:
 
     eps_r = float(b['outside_emissivity'])
 
