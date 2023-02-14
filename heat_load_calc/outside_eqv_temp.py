@@ -179,7 +179,7 @@ def get_theta_o_eqv_j_ns_for_external_transparent_part(
     return w.theta_o_ns_plus - eps_r_o_j * r_s_n_j_ns * r_s_o_j + q_b_all_j_ns / u_j
 
 
-def get_theta_o_sol_i_j_ns_for_external_not_sun_striked(w: Weather) -> np.ndarray:
+def get_theta_o_eqv_j_ns_for_external_not_sun_striked(w: Weather) -> np.ndarray:
     """
     日射があたっていない場合の外皮の相当外気温度を計算する。
 
@@ -195,7 +195,7 @@ def get_theta_o_sol_i_j_ns_for_external_not_sun_striked(w: Weather) -> np.ndarra
     return w.theta_o_ns_plus
 
 
-def get_theta_o_sol_i_j_ns_for_ground(w: Weather) -> np.ndarray:
+def get_theta_o_eqv_j_ns_for_ground(w: Weather) -> np.ndarray:
     """地盤の相当外気温度を計算する。
 
     Args:

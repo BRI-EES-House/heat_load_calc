@@ -300,7 +300,7 @@ class Boundaries:
             else:
 
                 # 相当外気温度, ℃
-                theta_o_eqv_j_ns = outside_eqv_temp.get_theta_o_sol_i_j_ns_for_external_not_sun_striked(w=w)
+                theta_o_eqv_j_ns = outside_eqv_temp.get_theta_o_eqv_j_ns_for_external_not_sun_striked(w=w)
 
             # 透過日射量, W, [N+1]
             q_trs_sol = transmission_solar_radiation.get_qgt_for_not(w=w)
@@ -363,7 +363,7 @@ class Boundaries:
             else:
 
                 # 相当外気温度, ℃
-                theta_o_eqv_j_ns = outside_eqv_temp.get_theta_o_sol_i_j_ns_for_external_not_sun_striked(w=w)
+                theta_o_eqv_j_ns = outside_eqv_temp.get_theta_o_eqv_j_ns_for_external_not_sun_striked(w=w)
 
                 # 透過日射量, W, [N+1]
                 q_trs_sol = transmission_solar_radiation.get_qgt_for_not(w=w)
@@ -403,7 +403,7 @@ class Boundaries:
             else:
 
                 # 相当外気温度, ℃
-                theta_o_eqv_j_ns = outside_eqv_temp.get_theta_o_sol_i_j_ns_for_external_not_sun_striked(w=w)
+                theta_o_eqv_j_ns = outside_eqv_temp.get_theta_o_eqv_j_ns_for_external_not_sun_striked(w=w)
 
             # 透過日射量, W, [N+1]
             q_trs_sol = transmission_solar_radiation.get_qgt_for_not(w=w)
@@ -422,7 +422,7 @@ class Boundaries:
         elif boundary_type == BoundaryType.Ground:
 
             # 相当外気温度, ℃
-            theta_o_eqv_j_ns = outside_eqv_temp.get_theta_o_sol_i_j_ns_for_ground(w=w)
+            theta_o_eqv_j_ns = outside_eqv_temp.get_theta_o_eqv_j_ns_for_ground(w=w)
 
             # 透過日射量, W, [N+1]
             q_trs_sol = transmission_solar_radiation.get_qgt_for_not(w=w)
