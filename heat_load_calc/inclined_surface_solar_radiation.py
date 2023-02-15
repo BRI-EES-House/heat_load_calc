@@ -35,7 +35,7 @@ def get_i_s_j_ns(
     beta_w_j = drct_j.beta_w_j
 
     # ステップnにおける境界jに入射する太陽の入射角, deg, [N+1]
-    phi_j_ns = get_phi_j_ns(h_sun_ns=h_sun_ns, a_sun_ns=a_sun_ns, direction=drct_j)
+    phi_j_ns = get_phi_j_ns(h_sun_ns=h_sun_ns, a_sun_ns=a_sun_ns, drct_j=drct_j)
 
     # ステップ n における水平面全天日射量, W/m2, [n]
     i_hrz_ns = _get_i_hrz_ns(i_dn_ns=i_dn_ns, i_sky_ns=i_sky_ns, h_sun_ns=h_sun_ns)
@@ -186,12 +186,12 @@ def _get_i_hrz_ns(i_dn_ns: np.ndarray, i_sky_ns: np.ndarray, h_sun_ns: np.ndarra
     return i_hsr_ns
 
 
-def get_phi_j_ns(h_sun_ns: np.ndarray, a_sun_ns: np.ndarray, direction: Direction) -> np.ndarray:
+def get_phi_j_ns(h_sun_ns: np.ndarray, a_sun_ns: np.ndarray, drct_j: Direction) -> np.ndarray:
     """傾斜面に入射する太陽の入射角を計算する。
     Args:
         h_sun_ns: ステップnにおける太陽高度, rad, [N+1]
         a_sun_ns: ステップnにおける太陽方位角, rad, [N+1]
-        direction: Direction クラス
+        drct_j: Direction Class
     Returns:
         ステップnにおける境界jに入射する太陽の入射角, rad, [N+1]
     Notes:
@@ -199,17 +199,17 @@ def get_phi_j_ns(h_sun_ns: np.ndarray, a_sun_ns: np.ndarray, direction: Directio
     """
 
     # 方位が上面・下面（beta_w_j=0）の場合は、厳密には方位角（alpha_w_j）は定義できないため、条件分岐により式を分ける。
-    if direction in [Direction.TOP, Direction.BOTTOM]:
+    if drct_j in [Direction.TOP, Direction.BOTTOM]:
 
         cos_phi_j_ns = np.clip(np.sin(h_sun_ns), 0.0, None)
 
     else:
 
         # 境界jの方位角, rad
-        alpha_w_j = direction.alpha_w_j
+        alpha_w_j = drct_j.alpha_w_j
 
         # 境界jの傾斜角, rad
-        beta_w_j = direction.beta_w_j
+        beta_w_j = drct_j.beta_w_j
 
         # ステップnにおける境界jに入射する太陽の入射角の余弦, -, [n]
         # cos(h_sun_ns) == 0.0 の場合は太陽が天頂にある時であり、太陽の方位角が定義されない。
@@ -217,14 +217,22 @@ def get_phi_j_ns(h_sun_ns: np.ndarray, a_sun_ns: np.ndarray, direction: Directio
         # これを回避するために場合分けを行っている。
         # 余弦がマイナス（入射角が90°～270°）の場合は傾斜面の裏面に太陽が位置していることになるため、値をゼロにする。
         # （法線面直達日射量にこの値をかけるため、結果的に日射があたらないという計算になる。）
-        cos_phi_j_ns = np.where(
-            np.cos(h_sun_ns) == 0.0,
-            np.clip(np.sin(h_sun_ns) * np.cos(beta_w_j), 0.0, None),
-            np.clip(np.sin(h_sun_ns) * np.cos(beta_w_j)
-                    + np.cos(h_sun_ns) * np.sin(a_sun_ns) * np.sin(beta_w_j) * np.sin(alpha_w_j)
-                    + np.cos(h_sun_ns) * np.cos(a_sun_ns) * np.sin(beta_w_j) * np.cos(alpha_w_j)
-                    , 0.0, None)
-        )
+        cos_phi_j_ns = np.zeros_like(a=h_sun_ns, dtype=float)
+        f = np.cos(h_sun_ns) == 0.0
+        cos_phi_j_ns[f] = np.clip(np.sin(h_sun_ns[f]) * np.cos(beta_w_j), 0.0, None)
+        cos_phi_j_ns[~f] = np.clip(np.sin(h_sun_ns[~f]) * np.cos(beta_w_j)
+            + np.cos(h_sun_ns[~f]) * np.sin(a_sun_ns[~f]) * np.sin(beta_w_j) * np.sin(alpha_w_j)
+            + np.cos(h_sun_ns[~f]) * np.cos(a_sun_ns[~f]) * np.sin(beta_w_j) * np.cos(alpha_w_j)
+            , 0.0, None)
+
+        # cos_phi_j_ns = np.where(
+        #     np.cos(h_sun_ns) == 0.0,
+        #     np.clip(np.sin(h_sun_ns) * np.cos(beta_w_j), 0.0, None),
+        #     np.clip(np.sin(h_sun_ns) * np.cos(beta_w_j)
+        #             + np.cos(h_sun_ns) * np.sin(a_sun_ns) * np.sin(beta_w_j) * np.sin(alpha_w_j)
+        #             + np.cos(h_sun_ns) * np.cos(a_sun_ns) * np.sin(beta_w_j) * np.cos(alpha_w_j)
+        #             , 0.0, None)
+        # )
 
     # ステップnにおける境界jに入射する日射の入射角, rad, [N+1]
     phi_j_ns = np.arccos(cos_phi_j_ns)

@@ -39,7 +39,7 @@ def get_q_trs_sol_j_ns_for_transparent_sun_striked(
 
     # ステップnにおける境界jの傾斜面に入射する太陽の入射角, rad, [N+1]
     phi_j_ns = inclined_surface_solar_radiation.get_phi_j_ns(
-        h_sun_ns=w.h_sun_ns_plus, a_sun_ns=w.a_sun_ns_plus, direction=drct_j)
+        h_sun_ns=w.h_sun_ns_plus, a_sun_ns=w.a_sun_ns_plus, drct_j=drct_j)
 
     # ステップnにおける境界jの傾斜面に入射する日射量のうち直達成分, W/m2 [N+1]
     # ステップnにおける境界jの傾斜面に入射する日射量のうち天空成分, W/m2 [N+1]

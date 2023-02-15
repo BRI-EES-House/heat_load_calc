@@ -115,7 +115,7 @@ def get_theta_o_eqv_j_ns_for_external_transparent_part(
 
     # ステップ n の境界 j における傾斜面に入射する太陽の入射角, rad, [n]
     phi_j_ns = inclined_surface_solar_radiation.get_phi_j_ns(
-        h_sun_ns=w.h_sun_ns_plus, a_sun_ns=w.a_sun_ns_plus, direction=drct_j)
+        h_sun_ns=w.h_sun_ns_plus, a_sun_ns=w.a_sun_ns_plus, drct_j=drct_j)
 
     # ステップnにおける境界jに入射する日射量の直達成分, W / m2, [n]
     # ステップnにおける境界jに入射する日射量の天空成分, W / m2, [n]

@@ -40,7 +40,7 @@ class TestTransmissionSolarRadiation(unittest.TestCase):
         phis = inclined_surface_solar_radiation.get_phi_j_ns(
             h_sun_ns=self.w.h_sun_ns_plus,
             a_sun_ns=self.w.a_sun_ns_plus,
-            direction=Direction.SE
+            drct_j=Direction.SE
         )
         i_s_dn, i_s_sky, i_s_ref, _ = inclined_surface_solar_radiation.get_i_s_j_ns(
             w=self.w,
