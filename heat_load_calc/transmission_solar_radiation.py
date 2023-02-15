@@ -51,6 +51,7 @@ def get_q_trs_sol_j_ns_for_transparent_sun_striked(
         r_n_ns=w.r_n_ns_plus,
         h_sun_ns=w.h_sun_ns_plus,
         a_sun_ns=w.a_sun_ns_plus,
+        w=w,
         drct_j=drct_j
     )
 

@@ -72,6 +72,7 @@ def get_theta_o_eqv_j_ns_for_external_general_part_and_external_opaque_part(
         r_n_ns=w.r_n_ns_plus,
         h_sun_ns=w.h_sun_ns_plus,
         a_sun_ns=w.a_sun_ns_plus,
+        w=w,
         drct_j=drct_j
     )
 
@@ -131,6 +132,7 @@ def get_theta_o_eqv_j_ns_for_external_transparent_part(
         r_n_ns=w.r_n_ns_plus,
         h_sun_ns=w.h_sun_ns_plus,
         a_sun_ns=w.a_sun_ns_plus,
+        w=w,
         drct_j=drct_j
     )
 

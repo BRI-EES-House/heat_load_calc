@@ -48,6 +48,7 @@ class TestTransmissionSolarRadiation(unittest.TestCase):
             r_n_ns=self.w.r_n_ns_plus,
             h_sun_ns=self.w.h_sun_ns_plus,
             a_sun_ns=self.w.a_sun_ns_plus,
+            w=self.w,
             drct_j=Direction.SE
         )
         f_ss_d = ssp.get_f_ss_dn_j_ns(h_sun_ns=self.w.h_sun_ns_plus, a_sun_ns=self.w.a_sun_ns_plus)
