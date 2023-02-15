@@ -46,11 +46,6 @@ def get_q_trs_sol_j_ns_for_transparent_sun_striked(
     # ステップnにおける境界jの傾斜面に入射する日射量のうち地盤反射成分, W/m2 [N+1]
     # ステップnにおける境界jの傾斜面の夜間放射量, W/m2, [N+1]
     i_s_dn_j_ns, i_s_sky_j_ns, i_s_ref_j_ns, _ = inclined_surface_solar_radiation.get_i_s_j_ns(
-        i_dn_ns=w.i_dn_ns_plus,
-        i_sky_ns=w.i_sky_ns_plus,
-        r_n_ns=w.r_n_ns_plus,
-        h_sun_ns=w.h_sun_ns_plus,
-        a_sun_ns=w.a_sun_ns_plus,
         w=w,
         drct_j=drct_j
     )

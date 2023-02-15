@@ -6,31 +6,18 @@ from heat_load_calc.weather import Weather
 
 
 def get_i_s_j_ns(
-    i_dn_ns: np.ndarray,
-    i_sky_ns: np.ndarray,
-    r_n_ns: np.ndarray,
-    h_sun_ns: np.ndarray,
-    a_sun_ns: np.ndarray,
     w: Weather,
     drct_j: Direction
 ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     """傾斜面の方位角・傾斜角に応じて傾斜面の日射量を計算する。
-
     Args:
-        i_dn_ns: ステップnにおける法線面直達日射量, W/m2K [N+1]
-        i_sky_ns: ステップnにおける水平面天空日射量, W/m2K [N+1]
-        r_n_ns: ステップnにおける夜間放射量, W/m2, [N+1]
-        h_sun_ns: ステップnにおける太陽高度, rad [N+1]
-        a_sun_ns: ステップnにおける太陽方位角, rad [N+1]
         w: Weather Class
         drct_j: Direction Class
-
     Returns:
-        (1) ステップ n における境界 j の傾斜面に入射する日射量のうち直達成分, W/m2 [n]
-        (2) ステップ n における境界 j の傾斜面に入射する日射量のうち天空成分, W/m2 [n]
-        (3) ステップ n における境界 j の傾斜面に入射する日射量のうち地盤反射成分, W/m2 [n]
-        (4) ステップ n における境界 j の傾斜面の夜間放射量, W/m2, [n]
-
+        (1) ステップnにおける境界jの傾斜面に入射する日射量のうち直達成分, W/m2, [N+1]
+        (2) ステップnにおける境界jの傾斜面に入射する日射量のうち天空成分, W/m2, [N+1]
+        (3) ステップnにおける境界jの傾斜面に入射する日射量のうち地盤反射成分, W/m2, [N+1]
+        (4) ステップnにおける境界jの傾斜面の夜間放射量, W/m2, [N+1]
     """
 
     # ステップnにおける法線面直達日射量, W/m2K [N+1]
