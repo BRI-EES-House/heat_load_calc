@@ -66,13 +66,13 @@ class SolarShading:
 
             return SolarShadingNot()
 
-    def get_f_ss_dn_j_ns(self, h_sun_n: np.ndarray, a_sun_n: np.ndarray) -> np.ndarray:
+    def get_f_ss_dn_j_ns(self, h_sun_ns: np.ndarray, a_sun_ns: np.ndarray) -> np.ndarray:
         """
         直達日射に対する日よけの影面積比率を計算する。
 
         Args:
-            h_sun_n: 太陽高度, rad, [N+1]
-            a_sun_n: 太陽方位角, rad, [N+1]
+            h_sun_ns: 太陽高度, rad, [N+1]
+            a_sun_ns: 太陽方位角, rad, [N+1]
 
         Returns:
             直達日射に対する日除けの影面積比率, [N+1]
@@ -119,12 +119,12 @@ class SolarShadingSimple(SolarShading):
         self._l_y_h_j = l_y_h_j
         self._l_y_e_j = l_y_e_j
 
-    def get_f_ss_dn_j_ns(self, h_sun_n: np.ndarray, a_sun_n: np.ndarray) -> np.ndarray:
+    def get_f_ss_dn_j_ns(self, h_sun_ns: np.ndarray, a_sun_ns: np.ndarray) -> np.ndarray:
         """無限に長い庇がある場合の直達日射に対する日よけの日影面積比率を計算する。
 
         Args:
-            h_sun_n: ステップ n における太陽高度, rad, [N+1]
-            a_sun_n: ステップ n における太陽方位角, rad, [N+1]
+            h_sun_ns: ステップ n における太陽高度, rad, [N+1]
+            a_sun_ns: ステップ n における太陽方位角, rad, [N+1]
 
         Returns:
             ステップ n における直達日射に対する日除けの日影面積比率, [N+1]
@@ -134,8 +134,8 @@ class SolarShadingSimple(SolarShading):
             その場合は値として 0.0 を返す。
         """
 
-        h_s_n = np.where(h_sun_n > 0.0, h_sun_n, 0.0)
-        a_s_n = np.where(h_sun_n > 0.0, a_sun_n, 0.0)
+        h_s_n = np.where(h_sun_ns > 0.0, h_sun_ns, 0.0)
+        a_s_n = np.where(h_sun_ns > 0.0, a_sun_ns, 0.0)
 
         cos_a = np.where(np.cos(a_s_n - self._alpha_w_j) > 0, np.cos(a_s_n - self._alpha_w_j), 1.0)
 
@@ -151,7 +151,7 @@ class SolarShadingSimple(SolarShading):
         f_ss_d_j_n = np.clip(l_ss_d_y_j_n / self._l_y_h_j, 0.0, 1.0)
 
         # 日が出ていないときは 0.0 とする。
-        f_ss_d_j_n[h_sun_n <= 0.0] = 0.0
+        f_ss_d_j_n[h_sun_ns <= 0.0] = 0.0
 
         # 太陽位置が背面にある場合は 0.0 とする。
         f_ss_d_j_n[np.cos(a_s_n - self._alpha_w_j) <= 0.0] = 0.0
@@ -199,13 +199,13 @@ class SolarShadingDetail(SolarShading):
         self.z_y_pls = z_y_pls
         self.z_y_mns = z_y_mns
 
-    def get_f_ss_dn_j_ns(self, h_sun_n: np.ndarray, a_sun_n: np.ndarray) -> np.ndarray:
+    def get_f_ss_dn_j_ns(self, h_sun_ns: np.ndarray, a_sun_ns: np.ndarray) -> np.ndarray:
         """
         直達日射に対する日よけの影面積比率を計算する。
 
         Args:
-            h_sun_n: 太陽高度, rad, [N+1]
-            a_sun_n: 太陽方位角, rad, [N+1]
+            h_sun_ns: 太陽高度, rad, [N+1]
+            a_sun_ns: 太陽方位角, rad, [N+1]
 
         Returns:
             直達日射に対する日除けの影面積比率, [N+1]
@@ -239,19 +239,19 @@ class SolarShadingNot(SolarShading):
 
         super().__init__()
 
-    def get_f_ss_dn_j_ns(self, h_sun_n: np.ndarray, a_sun_n: np.ndarray) -> np.ndarray:
+    def get_f_ss_dn_j_ns(self, h_sun_ns: np.ndarray, a_sun_ns: np.ndarray) -> np.ndarray:
         """
         直達日射に対する日よけの影面積比率を計算する。
 
         Args:
-            h_sun_n: 太陽高度, rad, [N+1]
-            a_sun_n: 太陽方位角, rad, [N+1]
+            h_sun_ns: 太陽高度, rad, [N+1]
+            a_sun_ns: 太陽方位角, rad, [N+1]
 
         Returns:
             直達日射に対する日除けの影面積比率, [N+1]
         """
 
-        return np.full(len(h_sun_n), 0.0)
+        return np.full(len(h_sun_ns), 0.0)
 
     def get_f_ss_sky_j(self) -> float:
         """

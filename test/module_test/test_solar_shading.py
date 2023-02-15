@@ -16,7 +16,7 @@ class TestSolarShading(unittest.TestCase):
             direction=Direction.S
         )
 
-        self.assertEqual(ss.get_f_ss_dn_j_ns(h_sun_n=np.array([0.0]), a_sun_n=np.array([0.0])), np.array([0.0]))
+        self.assertEqual(ss.get_f_ss_dn_j_ns(h_sun_ns=np.array([0.0]), a_sun_ns=np.array([0.0])), np.array([0.0]))
         self.assertEqual(ss.get_f_ss_sky_j(), 0.0)
         self.assertEqual(ss.get_f_ss_ref_j(), 0.0)
 
@@ -34,8 +34,8 @@ class TestSolarShading(unittest.TestCase):
         )
 
         results = ss.get_f_ss_dn_j_ns(
-            h_sun_n=np.array([0.0, np.pi/4, np.pi/4]),
-            a_sun_n=np.array([0.0, 0.0, np.pi/4])
+            h_sun_ns=np.array([0.0, np.pi/4, np.pi/4]),
+            a_sun_ns=np.array([0.0, 0.0, np.pi/4])
         )
         expected = [0.0, 0.15, (0.4*2**0.5-0.1)/2.0]
 

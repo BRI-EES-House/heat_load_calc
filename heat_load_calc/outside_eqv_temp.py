@@ -54,7 +54,7 @@ def get_theta_o_eqv_j_ns_for_external_general_part_and_external_opaque_part(
     """
 
     # ステップnにおける境界jの直達日射に対する日よけの影面積比率, -, [N+1]
-    f_ss_dn_j_ns = ssp_j.get_f_ss_dn_j_ns(h_sun_n=w.h_sun_ns_plus, a_sun_n=w.a_sun_ns_plus)
+    f_ss_dn_j_ns = ssp_j.get_f_ss_dn_j_ns(h_sun_ns=w.h_sun_ns_plus, a_sun_ns=w.a_sun_ns_plus)
 
     # ステップnにおける境界jの天空日射に対する日よけの影面積比率, -
     f_ss_sky_j_ns = ssp_j.get_f_ss_sky_j()
@@ -137,7 +137,7 @@ def get_theta_o_eqv_j_ns_for_external_transparent_part(
     # ---日よけの影面積比率
 
     # ステップ n における境界ｊの直達日射に対する日よけの影面積比率, [N+1]
-    f_ss_d_j_ns = ssp_j.get_f_ss_dn_j_ns(h_sun_n=w.h_sun_ns_plus, a_sun_n=w.a_sun_ns_plus)
+    f_ss_d_j_ns = ssp_j.get_f_ss_dn_j_ns(h_sun_ns=w.h_sun_ns_plus, a_sun_ns=w.a_sun_ns_plus)
 
     # 天空日射に対する日よけの影面積比率
     f_ss_s_j_ns = ssp_j.get_f_ss_sky_j()

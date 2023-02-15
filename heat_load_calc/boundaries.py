@@ -259,7 +259,7 @@ class Boundaries:
             theta_o_eqv_j_ns = outside_eqv_temp.get_theta_o_eqv_j_ns_for_internal(w=w)
 
             # 透過日射量, W, [N+1]
-            q_trs_sol = transmission_solar_radiation.get_qgt_for_not(w=w)
+            q_trs_sol = transmission_solar_radiation.get_q_trs_sol_j_ns_for_not(w=w)
 
             cs = np.array([_read_cs_j_l(layer=layer) for layer in b['layers']])
             rs = np.array([_read_rs_j_l(layer=layer) for layer in b['layers']])
@@ -303,7 +303,7 @@ class Boundaries:
                 theta_o_eqv_j_ns = outside_eqv_temp.get_theta_o_eqv_j_ns_for_external_not_sun_striked(w=w)
 
             # 透過日射量, W, [N+1]
-            q_trs_sol = transmission_solar_radiation.get_qgt_for_not(w=w)
+            q_trs_sol = transmission_solar_radiation.get_q_trs_sol_j_ns_for_not(w=w)
 
             cs = np.array([_read_cs_j_l(layer=layer) for layer in b['layers']])
             rs = np.array([_read_rs_j_l(layer=layer) for layer in b['layers']])
@@ -356,8 +356,8 @@ class Boundaries:
                 )
 
                 # 透過日射量, W, [N+1]
-                q_trs_sol = transmission_solar_radiation.get_qgt_for_transparent_sun_strike(
-                    direction=drct_j, area=area, ss=ssp_j, window=wdw_j, w=w
+                q_trs_sol = transmission_solar_radiation.get_q_trs_sol_j_ns_for_transparent_sun_striked(
+                    drct_j=drct_j, a_s_j=area, ssp_j=ssp_j, wdw_j=wdw_j, w=w
                 )
 
             else:
@@ -366,7 +366,7 @@ class Boundaries:
                 theta_o_eqv_j_ns = outside_eqv_temp.get_theta_o_eqv_j_ns_for_external_not_sun_striked(w=w)
 
                 # 透過日射量, W, [N+1]
-                q_trs_sol = transmission_solar_radiation.get_qgt_for_not(w=w)
+                q_trs_sol = transmission_solar_radiation.get_q_trs_sol_j_ns_for_not(w=w)
 
             # 室内側熱伝達抵抗, m2K/W
             r_i_nominal = _read_r_i_nominal(b=b, boundary_id=boundary_id)
@@ -406,7 +406,7 @@ class Boundaries:
                 theta_o_eqv_j_ns = outside_eqv_temp.get_theta_o_eqv_j_ns_for_external_not_sun_striked(w=w)
 
             # 透過日射量, W, [N+1]
-            q_trs_sol = transmission_solar_radiation.get_qgt_for_not(w=w)
+            q_trs_sol = transmission_solar_radiation.get_q_trs_sol_j_ns_for_not(w=w)
 
             # 室内側熱伝達抵抗, m2K/W
             r_i_nominal = _read_r_i_nominal(b=b, boundary_id=boundary_id)
@@ -425,7 +425,7 @@ class Boundaries:
             theta_o_eqv_j_ns = outside_eqv_temp.get_theta_o_eqv_j_ns_for_ground(w=w)
 
             # 透過日射量, W, [N+1]
-            q_trs_sol = transmission_solar_radiation.get_qgt_for_not(w=w)
+            q_trs_sol = transmission_solar_radiation.get_q_trs_sol_j_ns_for_not(w=w)
 
             cs = np.array([_read_cs_j_l(layer=layer) for layer in b['layers']])
             rs = np.array([_read_rs_j_l(layer=layer) for layer in b['layers']])
