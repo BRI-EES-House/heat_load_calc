@@ -59,7 +59,7 @@ class TestOutsideEqvTemp(unittest.TestCase):
             drct_j=Direction.SE
         )
 
-        f_ss_dn = self.ssp.get_f_ss_dn_j_ns(h_sun_n=self.w.h_sun_ns_plus, a_sun_n=self.w.a_sun_ns_plus)
+        f_ss_dn = self.ssp.get_f_ss_dn_j_ns(h_sun_ns=self.w.h_sun_ns_plus, a_sun_ns=self.w.a_sun_ns_plus)
         f_ss_sky = self.ssp.get_f_ss_sky_j()
         f_ss_ref = self.ssp.get_f_ss_ref_j()
 
@@ -98,7 +98,7 @@ class TestOutsideEqvTemp(unittest.TestCase):
             a_sun_ns=self.w.a_sun_ns_plus,
             drct_j=Direction.SE
         )
-        f_ss_dn = self.ssp.get_f_ss_dn_j_ns(h_sun_n=self.w.h_sun_ns_plus, a_sun_n=self.w.a_sun_ns_plus)
+        f_ss_dn = self.ssp.get_f_ss_dn_j_ns(h_sun_ns=self.w.h_sun_ns_plus, a_sun_ns=self.w.a_sun_ns_plus)
         f_ss_sky = self.ssp.get_f_ss_sky_j()
         f_ss_ref = self.ssp.get_f_ss_ref_j()
 
