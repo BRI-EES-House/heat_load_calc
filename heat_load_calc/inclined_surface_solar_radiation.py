@@ -47,7 +47,7 @@ def get_i_s_j_ns(
     f_gnd_j = _get_f_gnd_j(f_sky_j=f_sky_j)
 
     # ステップ n における境界 j の傾斜面の夜間放射量, W/m2, [N+1]
-    r_s_n_j_ns = _get_r_s_n_j_ns(r_eff_ns=r_n_ns, f_sky_j=f_sky_j)
+    r_s_n_j_ns = _get_r_s_n_j_ns(r_n_ns=r_n_ns, f_sky_j=f_sky_j)
 
     # ステップnにおける境界jに入射する日射量の地盤反射成分, W/m2, [N+1]
     i_s_ref_j_ns = _get_i_s_ref_j_ns(f_gnd_j=f_gnd_j, i_hrz_ns=i_hrz_ns)
@@ -112,12 +112,12 @@ def _get_i_s_ref_j_ns(f_gnd_j: float, i_hrz_ns: np.ndarray) -> np.ndarray:
     return i_s_ref_j_ns
 
 
-def _get_r_s_n_j_ns(r_eff_ns: np.ndarray, f_sky_j: float) -> np.ndarray:
+def _get_r_s_n_j_ns(r_n_ns: np.ndarray, f_sky_j: float) -> np.ndarray:
     """
     傾斜面の方位角・傾斜角に応じて傾斜面の夜間放射量を計算する。
 
     Args:
-        r_eff_ns: ステップnにおける水平面の夜間放射量, W/m2, [N+1]
+        r_n_ns: ステップnにおける水平面の夜間放射量, W/m2, [N+1]
         f_sky_j: 境界jの天空に対する傾斜面の形態係数, -
     Returns:
         ステップnにおける境界jの夜間放射量, W/m2, [N+1]
@@ -125,7 +125,7 @@ def _get_r_s_n_j_ns(r_eff_ns: np.ndarray, f_sky_j: float) -> np.ndarray:
         式(4)
     """
 
-    r_srf_eff_j_ns = f_sky_j * r_eff_ns
+    r_srf_eff_j_ns = f_sky_j * r_n_ns
 
     return r_srf_eff_j_ns
 
@@ -198,10 +198,15 @@ def get_phi_j_ns(h_sun_ns: np.ndarray, a_sun_ns: np.ndarray, drct_j: Direction) 
         式(8), 式(9)
     """
 
-    # 方位が上面・下面（beta_w_j=0）の場合は、厳密には方位角（alpha_w_j）は定義できないため、条件分岐により式を分ける。
-    if drct_j in [Direction.TOP, Direction.BOTTOM]:
+    # 方位が上面（beta_w_j=0）の場合は、厳密には方位角（alpha_w_j）は定義できないため、条件分岐により式を分ける。
+    if drct_j == Direction.TOP:
 
         cos_phi_j_ns = np.clip(np.sin(h_sun_ns), 0.0, None)
+    
+    # 方位が下面（beta_w_j=0）の場合は、厳密には方位角（alpha_w_j）は定義できないため、条件分岐により式を分ける。
+    elif drct_j == Direction.BOTTOM:
+
+        cos_phi_j_ns = np.zeros_like(a=h_sun_ns, dtype=float)
 
     else:
 
