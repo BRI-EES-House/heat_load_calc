@@ -67,11 +67,7 @@ def get_theta_o_eqv_j_ns_for_external_general_part_and_external_opaque_part(
     # ステップnにおける境界jに入射する日射量の地盤反射成分, W/m2 [N+1]
     # ステップnにおける境界jの夜間放射量, W/m2, [N+1]
     i_s_dn_j_ns, i_s_sky_j_ns, i_s_ref_j_ns, r_s_n_j_ns = inclined_surface_solar_radiation.get_i_s_j_ns(
-        i_dn_ns=w.i_dn_ns_plus,
-        i_sky_ns=w.i_sky_ns_plus,
-        r_n_ns=w.r_n_ns_plus,
-        h_sun_ns=w.h_sun_ns_plus,
-        a_sun_ns=w.a_sun_ns_plus,
+        w=w,
         drct_j=drct_j
     )
 
@@ -119,18 +115,14 @@ def get_theta_o_eqv_j_ns_for_external_transparent_part(
 
     # ステップ n の境界 j における傾斜面に入射する太陽の入射角, rad, [n]
     phi_j_ns = inclined_surface_solar_radiation.get_phi_j_ns(
-        h_sun_ns=w.h_sun_ns_plus, a_sun_ns=w.a_sun_ns_plus, direction=drct_j)
+        h_sun_ns=w.h_sun_ns_plus, a_sun_ns=w.a_sun_ns_plus, drct_j=drct_j)
 
     # ステップnにおける境界jに入射する日射量の直達成分, W / m2, [n]
     # ステップnにおける境界jに入射する日射量の天空成分, W / m2, [n]
     # ステップnにおける境界jに入射する日射量の地盤反射成分, W / m2, [n]
     # ステップnにおける境界jの夜間放射量, W/m2, [n]
     i_s_dn_j_ns, i_s_sky_j_ns, i_s_ref_j_ns, r_s_n_j_ns = inclined_surface_solar_radiation.get_i_s_j_ns(
-        i_dn_ns=w.i_dn_ns_plus,
-        i_sky_ns=w.i_sky_ns_plus,
-        r_n_ns=w.r_n_ns_plus,
-        h_sun_ns=w.h_sun_ns_plus,
-        a_sun_ns=w.a_sun_ns_plus,
+        w=w,
         drct_j=drct_j
     )
 
