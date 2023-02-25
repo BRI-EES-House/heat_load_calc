@@ -43,4 +43,4 @@ def _get_r_sol_frt() -> float:
 
     """
 
-    return 0.5
+    return 0.0
