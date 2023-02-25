@@ -156,7 +156,7 @@ class Boundaries:
         self._k_ei_js_js = np.array([bs.k_ei_js_j for bs in self._bss])
         self._k_eo_js = np.array([bs.h_td for bs in self._bss]).reshape(-1, 1)
         self._k_s_r_js = np.array([bs.k_s_r_j_is for bs in self._bss])
-        self._p_s_sol_abs_js = np.array([bs.is_solar_absorbed_inside for bs in self._bss]).reshape(-1, 1)
+        self._p_s_sol_abs_js = np.array([1 for bs in self._bss]).reshape(-1, 1)
         self._h_s_r_js = np.array([bs.h_s_r for bs in self._bss]).reshape(-1, 1)
         self._h_s_c_js = np.array([bs.h_s_c for bs in self._bss]).reshape(-1, 1)
         self._simulation_u_value = np.array([bs.simulation_u_value for bs in self._bss]).reshape(-1, 1)
