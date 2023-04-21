@@ -31,7 +31,7 @@ class MechanicalVentilation:
 
 class MechanicalVentilations:
 
-    def __init__(self, vs: Dict, n_rm: int):
+    def __init__(self, vs: List[Dict], n_rm: int):
 
         self._mechanical_ventilations = [
             MechanicalVentilation(
