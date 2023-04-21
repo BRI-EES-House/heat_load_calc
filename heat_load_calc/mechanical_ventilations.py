@@ -18,13 +18,14 @@ class MechanicalVentilation:
     # id
     id: int
 
-    # 換気経路のタイプ
+    # ventilation root type
     root_type: VentilationType
 
-    # 換気量, m3/h
+    # the amount of ventilation, m3/h
     volume: float
 
-    # 換気ルート
+    # root of ventilation
+    # the list of 'id's of rooms
     root: List[int]
 
 
@@ -50,51 +51,77 @@ class MechanicalVentilations:
 
     @property
     def v_vent_mec_general_is(self) -> np.ndarray:
-        """室iの機械換気量（局所換気を除く）, m3/s, [i, 1]"""
+        """mechanical ventilation amount (excluding local ventilation) of room i, m3/s, [i, 1]"""
         return self._v_vent_mec_general_is
 
     @property
     def v_vent_int_is_is(self) -> np.ndarray:
-        """室iの隣室からの機械換気量, m3/s, [i, i]"""
+        """mechanical ventilation amount from the upstream room of room i, m3/s, [i, i]"""
         return self._v_vent_int_is_is
 
     def get_v_vent_mec_general_is(self) -> np.ndarray:
+        """Calculate the mechanical ventilation (general) of room i.
+
+        Returns:
+            mechanical ventilation (general) of room i, m3/s
+        
+        Note:
+            eq. 1
+        """
 
         v1 = np.zeros(shape=self._n_rm, dtype=float)
 
-        for v in self._mechanical_ventilations:
+        # calculate one loop
+        # mv: one mechanical ventilation loop
+        for mv in self._mechanical_ventilations:
 
-            if v.root_type in [VentilationType.TYPE1, VentilationType.TYPE2, VentilationType.TYPE3]:
+            # In case that the mechanical ventialtion tyepe is type1, type2 or type3,
+            # the outdoor air flows into the room with top ID.
+            # Therefore, add the ventilation amount to the matrix of the room ID.
+            if mv.root_type in [VentilationType.TYPE1, VentilationType.TYPE2, VentilationType.TYPE3]:
+                
+                # the list of the mechanical ventilation loot
+                r = mv.root
 
-                r = v.root
-
-                v1[r[0]] = v1[r[0]] + v.volume / 3600
+                # Add the ventilation amount to the room which ID equals to the top ID of mechanical ventilation list.
+                # Convert the unit from m3/h to m3/s.
+                v1[r[0]] = v1[r[0]] + mv.volume / 3600
 
         v1 = v1.reshape(-1, 1)
 
         return v1
 
     def get_v_vent_int_is_is(self) -> np.ndarray:
+        """Calculate the tamount of the air moved from the room i* to the room i.
 
-        v2 = np.zeros(shape=(self._n_rm, self._n_rm), dtype=float)
+        Returns:
+            the amount of the air moved from the room i* to tohe room i, [i, i], m3/s
+        
+        """
 
-        for v in self._mechanical_ventilations:
+        # Make the matrix N times N.
+        # The initial values are zero.
+        # N is the number of rooms.
+        v = np.zeros(shape=(self._n_rm, self._n_rm), dtype=float)
 
-            if v.root_type in [VentilationType.TYPE1, VentilationType.TYPE2, VentilationType.TYPE3]:
+        # mv: one mechanical ventilation root
+        for mv in self._mechanical_ventilations:
 
-                r = v.root
+            if mv.root_type in [VentilationType.TYPE1, VentilationType.TYPE2, VentilationType.TYPE3]:
+
+                r = mv.root
 
                 for i in range(len(r)):
 
                     if i == 0:
                         pass
                     else:
-                        v2[r[i], r[i-1]] = v2[r[i], r[i-1]] + v.volume / 3600
-                        v2[r[i], r[i]] = v2[r[i], r[i]] - v.volume / 3600
+                        v[r[i], r[i-1]] = v[r[i], r[i-1]] + mv.volume / 3600
+                        v[r[i], r[i]] = v[r[i], r[i]] - mv.volume / 3600
 
-            elif v.root_type == VentilationType.NATURAL_LOOP:
+            elif mv.root_type == VentilationType.NATURAL_LOOP:
 
-                r = v.root
+                r = mv.root
 
                 for i in range(len(r)):
 
@@ -103,11 +130,11 @@ class MechanicalVentilations:
                     else:
                         i_upstream = i - 1
 
-                    v2[r[i], r[i_upstream]] = v2[r[i], r[i_upstream]] + v.volume / 3600
-                    v2[r[i], r[i]] = v2[r[i], r[i]] - v.volume / 3600
+                    v[r[i], r[i_upstream]] = v[r[i], r[i_upstream]] + mv.volume / 3600
+                    v[r[i], r[i]] = v[r[i], r[i]] - mv.volume / 3600
 
             else:
 
                 raise KeyError()
 
-        return v2
+        return v
