@@ -68,7 +68,7 @@ class Building:
 
             elif ifl['c_value_estimate'] == 'calculate':
 
-                c_value = cls._estimate_c_value(ua_value=ifl['ua_value'], struct=Structure(ifl['struct']))
+                c_value = _estimate_c_value(ua_value=ifl['ua_value'], struct=Structure(ifl['struct']))
 
             else:
 
@@ -104,81 +104,99 @@ class Building:
     def inside_pressure(self):
         return self._inside_pressure
 
-    @classmethod
-    def _estimate_c_value(cls, ua_value: float, struct: Structure):
-
-        """
-        Args
-            ua_value: UA値, W/m2 K
-            struct: 構造
-        Returns:
-            C値, cm2/m2
-        """
-
-        a = {
-            Structure.RC: 4.16,       # RC造
-            Structure.SRC: 4.16,      # SRC造
-            Structure.WOODEN: 8.28,   # 木造
-            Structure.STEEL: 8.28,    # 鉄骨造
-        }[struct]
-
-        return a * ua_value
-
     def get_v_leak_is_n(
             self,
             theta_r_is_n: np.ndarray,
             theta_o_n: float,
-            v_room_is: np.ndarray,
+            v_rm_is: np.ndarray,
     ):
-        """すきま風量を取得する関数（住宅用、圧力バランスを解いた近似式バージョン）
-        住宅を１つの空間に見立てて予め圧力バランスを解き、
+        """Calculate the leakage air volume
+        This calculation is approx. expression based on the elaborate results obtained by solving for pressure balance
         Args:
-            theta_r_is_n: 時刻nの室温, degree C, [i,1]
-            theta_o_n: 時刻n+1の外気温度, degree C
-            v_room_is: 室iの容積, m3, [i,1]
+            theta_r_is_n: room temperature of room i in step n, degree C, [i,1]
+            theta_o_n: outdoor temperature at step n, degree C
+            v_room_is: room volume of room i, m3, [i,1]
         Returns:
-            すきま風量, m3/s, [i,1]
+            leakage air volume of rooms at step n, m3/s, [i,1]
         """
 
-        return _get_infiltration_residential(
-            theta_r_is_n=theta_r_is_n,
-            theta_o_n=theta_o_n,
+        # average air temperature at step n which is weghted by room volumes, degree C
+        theta_average_r_n = _get_theta_average_r_n(theta_r_is_n=theta_r_is_n, v_rm_is=v_rm_is)
+
+        # temperature difference between room and outdoor at step n, K
+        delta_theta_n = _get_delta_theta_n(theta_average_r_n=theta_average_r_n, theta_o_n=theta_o_n)
+
+        # ventilation rate of air leakage at step n, 1/h
+        n_leak_n = _get_n_leak_n(
             c_value=self.c_value,
-            v_room_is=v_room_is,
             story=self.story,
-            inside_pressure=self.inside_pressure
+            inside_pressure=self.inside_pressure,
+            delta_theta_n=delta_theta_n
         )
 
+        # leakage air volume of rooms at step n, m3/s, [i, 1]
+        v_leak_is_n = _get_v_leak_is_n(n_leak_n=n_leak_n, v_rm_is=v_rm_is)
+    
+        return v_leak_is_n
 
-def _get_infiltration_residential(
-        theta_r_is_n: np.ndarray,
-        theta_o_n: float,
-        c_value: float,
-        v_room_is: np.ndarray,
-        story: Story,
-        inside_pressure: InsidePressure
-) -> np.ndarray:
-    """すきま風量を取得する関数（住宅用、圧力バランスを解いた近似式バージョン）
 
-    Args:
-        theta_r_is_n: 時刻nの室温, degree C, [i,1]
-        theta_o_n: 時刻n+1の外気温度, degree C
-        c_value: 相当隙間面積, cm2/m2
-        v_room_is: 室iの容積, m3, [i,1]
-        story: 階
-        inside_pressure: 室内側の圧力
-            'negative': 負圧
-            'positive': 正圧
-            'balanced': バランス圧力
+def _estimate_c_value(ua_value: float, struct: Structure):
+    """Estimate C value.
+    Args
+        ua_value: UA value, W/m2 K
+        struct: structure(RC, SRC, Wooden, Steel)
     Returns:
-        すきま風量, m3/s, [i,1]
+        C value, cm2/m2
+    Note:
+        eq.1
     """
 
-    # 室気積加重平均室温theta_r_nの計算, degree C, float
-    theta_average_r_n = np.average(theta_r_is_n, weights=v_room_is)
+    a = {
+        Structure.RC: 4.16,       # RC造
+        Structure.SRC: 4.16,      # SRC造
+        Structure.WOODEN: 8.28,   # 木造
+        Structure.STEEL: 8.28,    # 鉄骨造
+    }[struct]
 
-    # 室内外温度差の計算, degree C, float
-    delta_theta = abs(theta_average_r_n - theta_o_n)
+    return a * ua_value
+
+
+def _get_v_leak_is_n(n_leak_n: float, v_rm_is: np.ndarray) -> np.ndarray:
+    """calculate leakage air volume of rooms at step n
+    Args:
+        n_leak_n: ventilation rate of air leakage at step n, 1/h
+        v_rm_is: room volume of rooms, m3, [i, 1]
+    Returns:
+        air leakage volume of rooms at step n, m3/s, [i, 1]
+    Note:
+        eq.2
+    """
+
+    v_leak_is_n = n_leak_n * v_rm_is / 3600
+
+    return v_leak_is_n
+
+
+def _get_n_leak_n(
+        c_value: float,
+        story: Story,
+        inside_pressure: InsidePressure,
+        delta_theta_n: float
+) -> np.ndarray:
+    """Calculate the leakage air volume
+    This calculation is approx. expression based on the elaborate results obtained by solving for pressure balance
+    Args:
+        c_value: equivalent leakage area (C value), cm2/m2
+        story: story
+        inside_pressure: inside pressure against outdoor pressure
+            'negative': negative pressure
+            'positive': positive pressure
+            'balanced': balanced
+    Returns:
+        air leakage volume at step n, m3/s, [i,1]
+    Note:
+        eq.3    
+    """
 
     # 係数aの計算, 回/(h (cm2/m2 K^0.5))
     a = {
@@ -207,9 +225,45 @@ def _get_infiltration_residential(
 
     # 換気回数の計算
     # Note: 切片bの符号は-が正解（報告書は間違っている）
-    infiltration_rate = np.maximum(a * (c_value * math.sqrt(delta_theta)) - b, 0)
+    n_leak_n = np.maximum(a * (c_value * math.sqrt(delta_theta_n)) - b, 0)
 
-    # すきま風量の計算
-    infiltration = infiltration_rate * v_room_is / 3600.0
+    return n_leak_n
 
-    return infiltration
+
+def _get_delta_theta_n(theta_average_r_n: float, theta_o_n: float) -> float:
+    """Calculate the temperature difference between room and outdoor.
+
+    Args:
+        theta_average_r_n: averate room temperature at step n, degree C
+        theta_o_n: outdoor temperature at step n, degree C
+
+    Returns:
+        temperature difference between room and outdoor at step n, K
+    
+    Notes:
+        eq.4
+    """
+
+    delta_theta_n = abs(theta_average_r_n - theta_o_n)
+
+    return delta_theta_n
+
+
+def _get_theta_average_r_n(theta_r_is_n: np.ndarray, v_rm_is: np.ndarray) -> float:
+    """Calculate the average air temperature at step n which is weghted by room volumes.
+
+    Args:
+        theta_r_is_n: room temperature of room i in step n, degree C, [i, 1]
+        v_rm_is: room volume of room i, m3, [i, 1]
+
+    Returns:
+        average air temperature at step n, degree C
+
+    Note:
+        eq.5
+    """
+
+    theta_average_r_n = np.average(theta_r_is_n, weights=v_rm_is)
+
+    return theta_average_r_n
+
