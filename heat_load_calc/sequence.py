@@ -270,8 +270,6 @@ def _pre_calc(
 
     # 室 i の在室者に対する境界jの形態係数, [i, j]
     f_mrt_hum_is_js = occupants_form_factor.get_f_mrt_hum_js(
-        n_rm=rms.n_rm,
-        n_b=bs.n_b,
         p_is_js=bs.p_is_js,
         a_s_js=bs.a_s_js,
         is_floor_js=bs.is_floor_js
