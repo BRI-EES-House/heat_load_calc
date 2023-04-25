@@ -184,6 +184,45 @@ def get_theta_ot_target(
             )/(0.0014 * m_is + f_cl_is_n * h_hum_is_n / (1 + i_cl_is_n * f_cl_is_n * h_hum_is_n))
 
 
+def _get_pmv(
+        theta_r_is_n: np.ndarray,
+        p_a_is_n: np.ndarray,
+        h_hum_is_n: np.ndarray,
+        theta_ot_is_n: np.ndarray,
+        i_cl_is_n: np.ndarray,
+        f_cl_is_n: np.ndarray,
+        met_is: np.ndarray
+) -> np.ndarray:
+    """PMVを計算する
+
+    Args:
+        theta_r_is_n: ステップnにおける室iの空気温度, degree C, [i, 1]
+        p_a_is_n:　ステップnにおける室iの水蒸気圧, Pa, [i, 1]
+        h_hum_is_n: ステップnにおける室iの在室者周りの総合熱伝達率, W/m2K, [i, 1]
+        theta_ot_is_n: ステップnにおける室iの在室者の作用温度, degree C, [i, 1]
+        i_cl_is_n: ステップ n における室 i の在室者の着衣抵抗, m2K/W, [i, 1]
+        f_cl_is_n: ステップnにおける室iの在室者の着衣面積率, [i, 1]
+        met_is: 室 i の在室者のMet値, [i, 1]
+
+    Returns:
+        ステップnにおける室iの在室者のPMV, [i, 1]
+
+    Notes:
+        ISOで定める計算方法ではなく、前の時刻に求めた人体周りの熱伝達率、着衣温度を使用して収束計算が生じないようにしている。
+
+    """
+
+    m_is = _get_m_is(met_is=met_is)
+
+    return (0.303 * np.exp(-0.036 * m_is) + 0.028) * (
+            m_is  # 活動量, W/m2
+            - 3.05 * 10 ** (-3) * (5733.0 - 6.99 * m_is - p_a_is_n)  # 皮膚からの潜熱損失, W/m2
+            - np.maximum(0.42 * (m_is - 58.15), 0.0)  # 発汗熱損失, W/m2
+            - 1.7 * 10 ** (-5) * m_is * (5867.0 - p_a_is_n)  # 呼吸に伴う潜熱損失, W/m2
+            - 0.0014 * m_is * (34.0 - theta_r_is_n)  # 呼吸に伴う顕熱損失, W/m2 ( = 呼吸量, (g/s)/m2 ✕ (34.0 - 室温)
+            - f_cl_is_n * h_hum_is_n * (35.7 - 0.028 * m_is - theta_ot_is_n) / (1 + i_cl_is_n * f_cl_is_n * h_hum_is_n))  # 着衣からの熱損失
+
+
 def _get_theta_cl_is_n(
         clo_is_n: np.ndarray,
         theta_ot_is_n: np.ndarray,
@@ -252,45 +291,6 @@ def _get_h_hum_r_is_n(
 
     return 3.96 * 10 ** (-8) * (
                 t_cl_is_n ** 3.0 + t_cl_is_n ** 2.0 * t_mrt_is_n + t_cl_is_n * t_mrt_is_n ** 2.0 + t_mrt_is_n ** 3.0)
-
-
-def _get_pmv(
-        theta_r_is_n: np.ndarray,
-        p_a_is_n: np.ndarray,
-        h_hum_is_n: np.ndarray,
-        theta_ot_is_n: np.ndarray,
-        i_cl_is_n: np.ndarray,
-        f_cl_is_n: np.ndarray,
-        met_is: np.ndarray
-) -> np.ndarray:
-    """PMVを計算する
-
-    Args:
-        theta_r_is_n: ステップnにおける室iの空気温度, degree C, [i, 1]
-        p_a_is_n:　ステップnにおける室iの水蒸気圧, Pa, [i, 1]
-        h_hum_is_n: ステップnにおける室iの在室者周りの総合熱伝達率, W/m2K, [i, 1]
-        theta_ot_is_n: ステップnにおける室iの在室者の作用温度, degree C, [i, 1]
-        i_cl_is_n: ステップ n における室 i の在室者の着衣抵抗, m2K/W, [i, 1]
-        f_cl_is_n: ステップnにおける室iの在室者の着衣面積率, [i, 1]
-        met_is: 室 i の在室者のMet値, [i, 1]
-
-    Returns:
-        ステップnにおける室iの在室者のPMV, [i, 1]
-
-    Notes:
-        ISOで定める計算方法ではなく、前の時刻に求めた人体周りの熱伝達率、着衣温度を使用して収束計算が生じないようにしている。
-
-    """
-
-    m_is = _get_m_is(met_is=met_is)
-
-    return (0.303 * np.exp(-0.036 * m_is) + 0.028) * (
-            m_is  # 活動量, W/m2
-            - 3.05 * 10 ** (-3) * (5733.0 - 6.99 * m_is - p_a_is_n)  # 皮膚からの潜熱損失, W/m2
-            - np.maximum(0.42 * (m_is - 58.15), 0.0)  # 発汗熱損失, W/m2
-            - 1.7 * 10 ** (-5) * m_is * (5867.0 - p_a_is_n)  # 呼吸に伴う潜熱損失, W/m2
-            - 0.0014 * m_is * (34.0 - theta_r_is_n)  # 呼吸に伴う顕熱損失, W/m2 ( = 呼吸量, (g/s)/m2 ✕ (34.0 - 室温)
-            - f_cl_is_n * h_hum_is_n * (35.7 - 0.028 * m_is - theta_ot_is_n) / (1 + i_cl_is_n * f_cl_is_n * h_hum_is_n))  # 着衣からの熱損失
 
 
 def _get_m_is(met_is: np.ndarray) -> np.ndarray:
