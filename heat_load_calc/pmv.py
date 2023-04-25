@@ -40,7 +40,7 @@ def get_pmv_is_n(
     )
 
     # ステップnにおける室iの在室者の作用温度, degree C, [i, 1]
-    theta_ot_is_n = _get_theta_ot_is_n(h_hum_r_is_n=h_hum_r_is_n, theta_mrt_is_n=theta_mrt_is_n, h_hum_c_is_n=h_hum_c_is_n, theta_r_is_n=theta_r_is_n, h_hum_is_n=h_hum_is_n)
+    theta_ot_is_n = _get_theta_ot_is_n(h_hum_r_is_n=h_hum_r_is_n, theta_mrt_is_n=theta_mrt_is_n, h_hum_c_is_n=h_hum_c_is_n, theta_r_is_n=theta_r_is_n)
 
     # ステップ n における室 i の在室者の着衣抵抗, m2K/W, [i, 1]
     i_cl_is_n = _get_i_cl_is_n(clo_is_n=clo_is_n)
@@ -322,7 +322,7 @@ def _get_theta_ot_target_is_n(p_a_is_n: np.ndarray, h_hum_is_n: np.ndarray, pmv_
             )/(0.0014 * m_is + f_cl_is_n * h_hum_is_n / (1 + i_cl_is_n * f_cl_is_n * h_hum_is_n))
 
 
-def _get_theta_ot_is_n(h_hum_r_is_n: np.ndarray, theta_mrt_is_n: np.ndarray, h_hum_c_is_n: np.ndarray, theta_r_is_n: np.ndarray, h_hum_is_n: np.ndarray) -> np.ndarray:
+def _get_theta_ot_is_n(h_hum_r_is_n: np.ndarray, theta_mrt_is_n: np.ndarray, h_hum_c_is_n: np.ndarray, theta_r_is_n: np.ndarray) -> np.ndarray:
     """在室者の作用温度を計算する。
     Calculate the operative temperature of the occupant.
     Args:
@@ -330,14 +330,13 @@ def _get_theta_ot_is_n(h_hum_r_is_n: np.ndarray, theta_mrt_is_n: np.ndarray, h_h
         theta_mrt_is_n: ステップ n における室 i の在室者の平均放射温度, degree C, [i, 1]
         h_hum_c_is_n: ステップ n における室 i の在室者周りの対流熱伝達率, W/m2K, [i, 1]
         theta_r_is_n: ステップ n における室 i の空気温度, degree C, [i, 1]
-        h_hum_is_n: ステップ n における室 i の在室者周りの総合熱伝達率, W/m2K, [i, 1]
     Returns:
         ステップ n における室 i の在室者の作用温度, degree C, [i, 1]
     Notes:
         eq.(5)
     """
 
-    return (h_hum_r_is_n * theta_mrt_is_n + h_hum_c_is_n * theta_r_is_n) / h_hum_is_n
+    return (h_hum_r_is_n * theta_mrt_is_n + h_hum_c_is_n * theta_r_is_n) / (h_hum_r_is_n + h_hum_c_is_n)
 
 
 def _get_theta_cl_is_n(
