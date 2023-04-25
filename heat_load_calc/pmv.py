@@ -196,22 +196,19 @@ def _get_pmv_is_n(
         m_is: np.ndarray
 ) -> np.ndarray:
     """PMVを計算する
-
+    Calculate the PMV.
     Args:
-        theta_r_is_n: ステップnにおける室iの空気温度, degree C, [i, 1]
-        p_a_is_n:　ステップnにおける室iの水蒸気圧, Pa, [i, 1]
-        h_hum_is_n: ステップnにおける室iの在室者周りの総合熱伝達率, W/m2K, [i, 1]
-        theta_ot_is_n: ステップnにおける室iの在室者の作用温度, degree C, [i, 1]
+        theta_r_is_n: ステップ n における室 i の温度, degree C, [i, 1]
+        p_a_is_n: ステップ n における室 i の水蒸気圧, Pa, [i, 1]
+        h_hum_is_n: ステップ n における室 i の在室者周りの総合熱伝達率, W/m2K, [i, 1]
+        theta_ot_is_n: ステップ n における室 i の在室者の作用温度, degree C, [i, 1]
         i_cl_is_n: ステップ n における室 i の在室者の着衣抵抗, m2K/W, [i, 1]
-        f_cl_is_n: ステップnにおける室iの在室者の着衣面積率, [i, 1]
+        f_cl_is_n: ステップ n における室 i の在室者の着衣面積率, [i, 1]
         m_is: 室 i の在室者の代謝量, W/m2, [i, 1]
-
     Returns:
-        ステップnにおける室iの在室者のPMV, [i, 1]
-
+        ステップ n における室 i の在室者のPMV, [i, 1]
     Notes:
-        ISOで定める計算方法ではなく、前の時刻に求めた人体周りの熱伝達率、着衣温度を使用して収束計算が生じないようにしている。
-
+        eq.(1)
     """
 
     return (0.303 * np.exp(-0.036 * m_is) + 0.028) * (
