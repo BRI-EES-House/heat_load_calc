@@ -100,6 +100,8 @@ class TestSteadyState(unittest.TestCase):
         # ステップnにおける室iの在室者の着衣面積率, [i, 1]
         f_cl_is_n = pmv._get_f_cl_is_n(i_cl_is_n=i_cl_is_n)
 
+        m_is = pmv._get_m_is(met_is=met_is)
+
         pmv_confirm = pmv._get_pmv(
             theta_r_is_n=np.array([theta_ot]),
             p_a_is_n=np.array([p_a]),
@@ -107,7 +109,7 @@ class TestSteadyState(unittest.TestCase):
             theta_ot_is_n=np.array([theta_ot]),
             i_cl_is_n=i_cl_is_n,
             f_cl_is_n=f_cl_is_n,
-            met_is=met_is
+            m_is=m_is
         )
 
         self.assertAlmostEqual(self._dd['rm0_pmv_target']['1989-12-31 00:00:00'], pmv_confirm[0][0])
@@ -120,7 +122,7 @@ class TestSteadyState(unittest.TestCase):
             theta_ot_is_n=np.array([theta_ot]),
             i_cl_is_n=i_cl_is_n,
             f_cl_is_n=f_cl_is_n,
-            met_is=met_is
+            m_is=m_is
         )
 
         print(pmv_practical[0][0])

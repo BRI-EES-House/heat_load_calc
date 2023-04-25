@@ -48,6 +48,8 @@ def get_pmv_is_n(
     # ステップ n における室 i の在室者の着衣面積率, [i, 1]
     f_cl_is_n = _get_f_cl_is_n(i_cl_is_n=i_cl_is_n)
 
+    m_is = _get_m_is(met_is=met_is)
+
     # ステップnにおける室iの在室者の厚着時のPMV, [i, 1]
     pmv_is_n = _get_pmv(
         theta_r_is_n=theta_r_is_n,
@@ -56,7 +58,7 @@ def get_pmv_is_n(
         theta_ot_is_n=theta_ot_is_n,
         i_cl_is_n=i_cl_is_n,
         f_cl_is_n=f_cl_is_n,
-        met_is=met_is
+        m_is=m_is
     )
 
     return pmv_is_n
@@ -191,7 +193,7 @@ def _get_pmv(
         theta_ot_is_n: np.ndarray,
         i_cl_is_n: np.ndarray,
         f_cl_is_n: np.ndarray,
-        met_is: np.ndarray
+        m_is: np.ndarray
 ) -> np.ndarray:
     """PMVを計算する
 
@@ -202,7 +204,7 @@ def _get_pmv(
         theta_ot_is_n: ステップnにおける室iの在室者の作用温度, degree C, [i, 1]
         i_cl_is_n: ステップ n における室 i の在室者の着衣抵抗, m2K/W, [i, 1]
         f_cl_is_n: ステップnにおける室iの在室者の着衣面積率, [i, 1]
-        met_is: 室 i の在室者のMet値, [i, 1]
+        m_is: 室 i の在室者の代謝量, W/m2, [i, 1]
 
     Returns:
         ステップnにおける室iの在室者のPMV, [i, 1]
@@ -211,8 +213,6 @@ def _get_pmv(
         ISOで定める計算方法ではなく、前の時刻に求めた人体周りの熱伝達率、着衣温度を使用して収束計算が生じないようにしている。
 
     """
-
-    m_is = _get_m_is(met_is=met_is)
 
     return (0.303 * np.exp(-0.036 * m_is) + 0.028) * (
             m_is  # 活動量, W/m2
