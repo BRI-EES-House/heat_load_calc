@@ -239,7 +239,7 @@ def _get_h_hum_c_is_n_and_h_hum_r_is_n(
         h_hum = h_hum_r + h_hum_c
 
         # ステップnにおける室iの在室者の作用温度, degree C, [i, 1]
-        theta_ot_is_n = (h_hum_r * theta_mrt_is_n + h_hum_c * theta_r_is_n) / h_hum
+        theta_ot_is_n = _get_theta_ot_is_n(h_hum_r_is_n=h_hum_r, theta_mrt_is_n=theta_mrt_is_n, h_hum_c_is_n=h_hum_c, theta_r_is_n=theta_r_is_n)
 
         return _get_theta_cl_is_n(clo_is_n=clo_is_n, theta_ot_is_n=theta_ot_is_n, h_hum_is_n=h_hum, m_is=m_is)
 
