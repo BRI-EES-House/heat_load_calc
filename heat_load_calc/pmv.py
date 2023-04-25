@@ -66,13 +66,13 @@ def get_pmv_is_n(
 
 def get_ppd_is_n(pmv_is_n: np.array) -> np.array:
     """PPDを計算する。
-
+    Calculate the PPD of a ocupant.
     Args:
         pmv_is_n: ステップ n における室 i の在室者のPMV, [i, 1]
-
     Returns:
         ステップ n における室 i の在室者のPPD, [i, 1]
-
+    Note:
+        eq.(3)
     """
 
     return 100.0 - 95.0 * np.exp(-0.03353 * pmv_is_n ** 4.0 - 0.2179 * pmv_is_n ** 2.0)
@@ -196,7 +196,7 @@ def _get_pmv_is_n(
         m_is: np.ndarray
 ) -> np.ndarray:
     """PMVを計算する
-    Calculate the PMV.
+    Calculate the PMV of a occupant.
     Args:
         theta_r_is_n: ステップ n における室 i の空気温度, degree C, [i, 1]
         p_a_is_n: ステップ n における室 i の水蒸気圧, Pa, [i, 1]
