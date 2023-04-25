@@ -51,7 +51,7 @@ def get_pmv_is_n(
     m_is = _get_m_is(met_is=met_is)
 
     # ステップnにおける室iの在室者の厚着時のPMV, [i, 1]
-    pmv_is_n = _get_pmv(
+    pmv_is_n = _get_pmv_is_n(
         theta_r_is_n=theta_r_is_n,
         p_a_is_n=p_a_is_n,
         h_hum_is_n=h_hum_is_n,
@@ -186,7 +186,7 @@ def get_theta_ot_target(
             )/(0.0014 * m_is + f_cl_is_n * h_hum_is_n / (1 + i_cl_is_n * f_cl_is_n * h_hum_is_n))
 
 
-def _get_pmv(
+def _get_pmv_is_n(
         theta_r_is_n: np.ndarray,
         p_a_is_n: np.ndarray,
         h_hum_is_n: np.ndarray,

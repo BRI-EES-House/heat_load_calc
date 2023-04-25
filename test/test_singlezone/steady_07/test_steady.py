@@ -102,7 +102,7 @@ class TestSteadyState(unittest.TestCase):
 
         m_is = pmv._get_m_is(met_is=met_is)
 
-        pmv_confirm = pmv._get_pmv(
+        pmv_confirm = pmv._get_pmv_is_n(
             theta_r_is_n=np.array([theta_ot]),
             p_a_is_n=np.array([p_a]),
             h_hum_is_n=np.array([h_hum]),
@@ -115,7 +115,7 @@ class TestSteadyState(unittest.TestCase):
         self.assertAlmostEqual(self._dd['rm0_pmv_target']['1989-12-31 00:00:00'], pmv_confirm[0][0])
 
         # 実現PMV
-        pmv_practical = pmv._get_pmv(
+        pmv_practical = pmv._get_pmv_is_n(
             theta_r_is_n=np.array([theta_r]),
             p_a_is_n=np.array([p_a]),
             h_hum_is_n=np.array([h_hum]),
