@@ -142,6 +142,48 @@ def get_h_hum(
     return h_hum_c_is_n, h_hum_r_is_n, h_hum_is_n
 
 
+def get_theta_ot_target(
+        clo_is_n: np.ndarray,
+        p_a_is_n: np.ndarray,
+        h_hum_is_n: np.ndarray,
+        met_is: np.ndarray,
+        pmv_target_is_n: np.ndarray
+) -> np.ndarray:
+    """指定したPMVを満たすOTを計算する
+
+    Args:
+        clo_is_n: ステップnにおける室iの在室者のClo値, [i, 1]
+        p_a_is_n:　ステップnにおける室iの水蒸気圧, Pa, [i, 1]
+        h_hum_is_n: ステップnにおける室iの在室者周りの総合熱伝達率, W/m2K, [i, 1]
+        met_is: 室 i における在室者のMet, [i, 1]
+        pmv_target_is_n: ステップnにおける室iの在室者の目標PMV, [i, 1]
+
+    Returns:
+        ステップnにおける室iの在室者の目標OT, [i, 1]
+
+    Notes:
+        ISOで定める計算方法ではなく、前の時刻に求めた人体周りの熱伝達率、着衣温度を使用して収束計算が生じないようにしている。
+
+    """
+
+    # 着衣抵抗, m2K/W, [i, 1]
+    i_cl_is_n = _get_i_cl_is_n(clo_is_n=clo_is_n)
+
+    # 代謝量（人体内部発熱量）, W/m2
+    m_is = _get_m_is(met_is=met_is)
+
+    # ステップnにおける室iの着衣面積率, [i, 1]
+    f_cl_is_n = _get_f_cl_is_n(i_cl_is_n=i_cl_is_n)
+
+    return (pmv_target_is_n / (0.303 * np.exp(-0.036 * m_is) + 0.028) - m_is
+            + 3.05 * 10 ** (-3) * (5733.0 - 6.99 * m_is - p_a_is_n)
+            + np.maximum(0.42 * (m_is - 58.15), 0.0)
+            + 1.7 * 10 ** (-5) * m_is * (5867.0 - p_a_is_n)
+            + 0.0014 * m_is * 34.0
+            + f_cl_is_n * h_hum_is_n * (35.7 - 0.028 * m_is) / (1 + i_cl_is_n * f_cl_is_n * h_hum_is_n)
+            )/(0.0014 * m_is + f_cl_is_n * h_hum_is_n / (1 + i_cl_is_n * f_cl_is_n * h_hum_is_n))
+
+
 def _get_theta_cl_is_n(
         clo_is_n: np.ndarray,
         theta_ot_is_n: np.ndarray,
@@ -249,48 +291,6 @@ def _get_pmv(
             - 1.7 * 10 ** (-5) * m_is * (5867.0 - p_a_is_n)  # 呼吸に伴う潜熱損失, W/m2
             - 0.0014 * m_is * (34.0 - theta_r_is_n)  # 呼吸に伴う顕熱損失, W/m2 ( = 呼吸量, (g/s)/m2 ✕ (34.0 - 室温)
             - f_cl_is_n * h_hum_is_n * (35.7 - 0.028 * m_is - theta_ot_is_n) / (1 + i_cl_is_n * f_cl_is_n * h_hum_is_n))  # 着衣からの熱損失
-
-
-def get_theta_ot_target(
-        clo_is_n: np.ndarray,
-        p_a_is_n: np.ndarray,
-        h_hum_is_n: np.ndarray,
-        met_is: np.ndarray,
-        pmv_target_is_n: np.ndarray
-) -> np.ndarray:
-    """指定したPMVを満たすOTを計算する
-
-    Args:
-        clo_is_n: ステップnにおける室iの在室者のClo値, [i, 1]
-        p_a_is_n:　ステップnにおける室iの水蒸気圧, Pa, [i, 1]
-        h_hum_is_n: ステップnにおける室iの在室者周りの総合熱伝達率, W/m2K, [i, 1]
-        met_is: 室 i における在室者のMet, [i, 1]
-        pmv_target_is_n: ステップnにおける室iの在室者の目標PMV, [i, 1]
-
-    Returns:
-        ステップnにおける室iの在室者の目標OT, [i, 1]
-
-    Notes:
-        ISOで定める計算方法ではなく、前の時刻に求めた人体周りの熱伝達率、着衣温度を使用して収束計算が生じないようにしている。
-
-    """
-
-    # 着衣抵抗, m2K/W, [i, 1]
-    i_cl_is_n = _get_i_cl_is_n(clo_is_n=clo_is_n)
-
-    # 代謝量（人体内部発熱量）, W/m2
-    m_is = _get_m_is(met_is=met_is)
-
-    # ステップnにおける室iの着衣面積率, [i, 1]
-    f_cl_is_n = _get_f_cl_is_n(i_cl_is_n=i_cl_is_n)
-
-    return (pmv_target_is_n / (0.303 * np.exp(-0.036 * m_is) + 0.028) - m_is
-            + 3.05 * 10 ** (-3) * (5733.0 - 6.99 * m_is - p_a_is_n)
-            + np.maximum(0.42 * (m_is - 58.15), 0.0)
-            + 1.7 * 10 ** (-5) * m_is * (5867.0 - p_a_is_n)
-            + 0.0014 * m_is * 34.0
-            + f_cl_is_n * h_hum_is_n * (35.7 - 0.028 * m_is) / (1 + i_cl_is_n * f_cl_is_n * h_hum_is_n)
-            )/(0.0014 * m_is + f_cl_is_n * h_hum_is_n / (1 + i_cl_is_n * f_cl_is_n * h_hum_is_n))
 
 
 def _get_m_is(met_is: np.ndarray) -> np.ndarray:
