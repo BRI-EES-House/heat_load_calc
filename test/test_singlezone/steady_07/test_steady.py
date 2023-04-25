@@ -97,9 +97,6 @@ class TestSteadyState(unittest.TestCase):
         # 室 i の在室者のMet値, [i, 1]
         met_is = np.full_like(clo_is_n, fill_value=1.0, dtype=float)
 
-        # 室 i の在室者の代謝量（人体内部発熱量）, W/m2
-        m_is = pmv._get_m_is(met_is=met_is)
-
         # ステップnにおける室iの在室者の着衣面積率, [i, 1]
         f_cl_is_n = pmv._get_f_cl_is_n(i_cl_is_n=i_cl_is_n)
 
