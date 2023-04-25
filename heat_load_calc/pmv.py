@@ -196,6 +196,8 @@ def _get_h_hum_is_n(h_hum_c_is_n: np.ndarray, h_hum_r_is_n: np.ndarray) -> np.nd
         h_hum_r_is_n: ステップ n における室 i の在室者周りの放射熱伝達率, W/m2K, [i, 1]
     Returns:
         ステップ n における室 i の在室者周りの総合熱伝達率, W/m2K, [i, 1]
+    Note:
+        eq.(4)
     """
 
     return h_hum_c_is_n + h_hum_r_is_n
@@ -212,10 +214,10 @@ def _get_h_hum_c_is_n_and_h_hum_r_is_n(
     """ 在室者周りの熱伝達率を計算する。
 
     Args:
-        theta_mrt_is_n: ステップnにおける室iの在室者の平均放射温度, degree C, [i, 1]
-        theta_r_is_n: ステップnにおける室iの空気温度, degree C, [i, 1]
+        theta_mrt_is_n: ステップ n における室 i の平均放射温度, degree C, [i, 1]
+        theta_r_is_n: ステップ n における室 i の空気温度, degree C, [i, 1]
         clo_is_n: CLO値, [i, 1]
-        v_hum_is_n: ステップnにおける室iの在室者周りの風速, m/s, [i, 1]
+        v_hum_is_n: ステップ n における室 i の在室者周りの風速, m/s, [i, 1]
         method: 在室者周りの熱伝達率を求める際に収束計算を行うかどうか
         m_is: 室 i の在室者の代謝量, W/m2, [i, 1]
     Returns:
@@ -241,7 +243,9 @@ def _get_h_hum_c_is_n_and_h_hum_r_is_n(
 
         return _get_theta_cl_is_n(clo_is_n=clo_is_n, theta_ot_is_n=theta_ot_is_n, h_hum_is_n=h_hum, m_is=m_is)
 
+    # 収束計算による方法
     if method == 'convergence':
+    
         # ステップnにおける室iの在室者の着衣温度, degree C, [i, 1]
         theta_cl_is_n: np.ndarray = newton(lambda t: f(t) - t, np.zeros_like(theta_r_is_n, dtype=float))
 
@@ -251,6 +255,7 @@ def _get_h_hum_c_is_n_and_h_hum_r_is_n(
         # ステップnにおける室iの在室者周りの放射熱伝達率, W/m2K, [i, 1]
         h_hum_r_is_n = _get_h_hum_r_is_n(theta_cl_is_n=theta_cl_is_n, theta_mrt_is_n=theta_mrt_is_n)
 
+    # 収束計算によらない方法
     elif method == 'constant':
 
         h_hum_c_is_n = np.full_like(theta_r_is_n, 4.0)
