@@ -216,7 +216,7 @@ def _get_h_hum_c_is_n_and_h_hum_r_is_n(
     Args:
         theta_mrt_is_n: ステップ n における室 i の平均放射温度, degree C, [i, 1]
         theta_r_is_n: ステップ n における室 i の空気温度, degree C, [i, 1]
-        clo_is_n: CLO値, [i, 1]
+        clo_is_n: 室 i の在室者のClo値, [i, 1]
         v_hum_is_n: ステップ n における室 i の在室者周りの風速, m/s, [i, 1]
         method: 在室者周りの熱伝達率を求める際に収束計算を行うかどうか
         m_is: 室 i の在室者の代謝量, W/m2, [i, 1]
@@ -313,7 +313,7 @@ def _get_theta_ot_target_is_n(p_a_is_n: np.ndarray, h_hum_is_n: np.ndarray, pmv_
         m_is: 室 i の在室者の代謝量, W/m2, [i, 1]
         f_cl_is_n: ステップ n における室 i の在室者の着衣面積率, [i, 1]
     Returns:
-        ステップ n における室 i の目標作用温度, degree C, [i, 1]
+        ステップ n における室 i の在室者の目標作用温度, degree C, [i, 1]
     NOte:
         eq.(3)
     """
@@ -342,36 +342,6 @@ def _get_theta_ot_is_n(h_hum_r_is_n: np.ndarray, theta_mrt_is_n: np.ndarray, h_h
     """
 
     return (h_hum_r_is_n * theta_mrt_is_n + h_hum_c_is_n * theta_r_is_n) / (h_hum_r_is_n + h_hum_c_is_n)
-
-
-def _get_theta_cl_is_n(
-        clo_is_n: np.ndarray,
-        theta_ot_is_n: np.ndarray,
-        h_hum_is_n: np.ndarray,
-        m_is: np.ndarray
-) -> np.ndarray:
-    """着衣温度を計算する。
-
-    Args:
-        clo_is_n: ステップnにおける室iの在室者のClo値, [i, 1]　又は、（厚着・中間着・薄着時の）Clo値（定数）
-        theta_ot_is_n: ステップnにおける室iの在室者の作用温度, degree C, [i, 1]
-        h_hum_is_n: ステップnにおける室iの在室者周りの総合熱伝達率, W/m2K, [i, 1]
-        m_is: 室 i の在室者の代謝量（人体内部発熱量）, W/m2
-
-    Returns:
-        ステップnにおける室iの着衣温度, degree C, [i, 1]
-    """
-
-    # ステップnにおける室iの在室者の着衣抵抗, m2K/W, [i, 1]
-    i_cl_is_n = _get_i_cl_is_n(clo_is_n=clo_is_n)
-
-    # ステップnにおける室iの在室者の着衣面積率, [i]
-    f_cl_is_n = _get_f_cl_is_n(i_cl_is_n=i_cl_is_n)
-
-    # ステップnにおける室iの在室者の着衣温度, degree C
-    t_cl_i_n = (35.7 - 0.028 * m_is - theta_ot_is_n) / (1 + i_cl_is_n * f_cl_is_n * h_hum_is_n) + theta_ot_is_n
-
-    return t_cl_i_n
 
 
 def _get_h_hum_c_is_n(theta_r_is_n: np.array, theta_cl_is_n: np.array, v_hum_is_n: np.array) -> np.array:
@@ -412,6 +382,36 @@ def _get_h_hum_r_is_n(
 
     return 3.96 * 10 ** (-8) * (
                 t_cl_is_n ** 3.0 + t_cl_is_n ** 2.0 * t_mrt_is_n + t_cl_is_n * t_mrt_is_n ** 2.0 + t_mrt_is_n ** 3.0)
+
+
+def _get_theta_cl_is_n(
+        clo_is_n: np.ndarray,
+        theta_ot_is_n: np.ndarray,
+        h_hum_is_n: np.ndarray,
+        m_is: np.ndarray
+) -> np.ndarray:
+    """着衣温度を計算する。
+
+    Args:
+        clo_is_n: ステップnにおける室iの在室者のClo値, [i, 1]　又は、（厚着・中間着・薄着時の）Clo値（定数）
+        theta_ot_is_n: ステップnにおける室iの在室者の作用温度, degree C, [i, 1]
+        h_hum_is_n: ステップnにおける室iの在室者周りの総合熱伝達率, W/m2K, [i, 1]
+        m_is: 室 i の在室者の代謝量（人体内部発熱量）, W/m2
+
+    Returns:
+        ステップnにおける室iの着衣温度, degree C, [i, 1]
+    """
+
+    # ステップnにおける室iの在室者の着衣抵抗, m2K/W, [i, 1]
+    i_cl_is_n = _get_i_cl_is_n(clo_is_n=clo_is_n)
+
+    # ステップnにおける室iの在室者の着衣面積率, [i]
+    f_cl_is_n = _get_f_cl_is_n(i_cl_is_n=i_cl_is_n)
+
+    # ステップnにおける室iの在室者の着衣温度, degree C
+    t_cl_i_n = (35.7 - 0.028 * m_is - theta_ot_is_n) / (1 + i_cl_is_n * f_cl_is_n * h_hum_is_n) + theta_ot_is_n
+
+    return t_cl_i_n
 
 
 def _get_m_is(met_is: np.ndarray) -> np.ndarray:
