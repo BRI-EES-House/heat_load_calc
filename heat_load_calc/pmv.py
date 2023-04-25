@@ -40,7 +40,7 @@ def get_pmv_is_n(
     )
 
     # ステップnにおける室iの在室者の作用温度, degree C, [i, 1]
-    theta_ot_is_n = (h_hum_r_is_n * theta_mrt_is_n + h_hum_c_is_n * theta_r_is_n) / h_hum_is_n
+    theta_ot_is_n = _get_theta_ot_is_n(h_hum_r_is_n=h_hum_r_is_n, theta_mrt_is_n=theta_mrt_is_n, h_hum_c_is_n=h_hum_c_is_n, theta_r_is_n=theta_r_is_n, h_hum_is_n=h_hum_c_is_n)
 
     # ステップ n における室 i の在室者の着衣抵抗, m2K/W, [i, 1]
     i_cl_is_n = _get_i_cl_is_n(clo_is_n=clo_is_n)
@@ -198,7 +198,7 @@ def _get_pmv_is_n(
     """PMVを計算する
     Calculate the PMV.
     Args:
-        theta_r_is_n: ステップ n における室 i の温度, degree C, [i, 1]
+        theta_r_is_n: ステップ n における室 i の空気温度, degree C, [i, 1]
         p_a_is_n: ステップ n における室 i の水蒸気圧, Pa, [i, 1]
         h_hum_is_n: ステップ n における室 i の在室者周りの総合熱伝達率, W/m2K, [i, 1]
         theta_ot_is_n: ステップ n における室 i の在室者の作用温度, degree C, [i, 1]
@@ -218,6 +218,25 @@ def _get_pmv_is_n(
             - 1.7 * 10 ** (-5) * m_is * (5867.0 - p_a_is_n)  # 呼吸に伴う潜熱損失, W/m2
             - 0.0014 * m_is * (34.0 - theta_r_is_n)  # 呼吸に伴う顕熱損失, W/m2 ( = 呼吸量, (g/s)/m2 ✕ (34.0 - 室温)
             - f_cl_is_n * h_hum_is_n * (35.7 - 0.028 * m_is - theta_ot_is_n) / (1 + i_cl_is_n * f_cl_is_n * h_hum_is_n))  # 着衣からの熱損失
+
+
+def _get_theta_ot_is_n(h_hum_r_is_n: np.ndarray, theta_mrt_is_n: np.ndarray, h_hum_c_is_n: np.ndarray, theta_r_is_n: np.ndarray, h_hum_is_n: np.ndarray) -> np.ndarray:
+    """在室者の作用温度を計算する。
+    Calculate the operative temperature of the occupant.
+    Args:
+        h_hum_r_is_n: ステップ n における室 i の在室者周りの放射熱伝達率, W/m2K, [i, 1]
+        theta_mrt_is_n: ステップ n における室 i の在室者の平均放射温度, degree C, [i, 1]
+        h_hum_c_is_n: ステップ n における室 i の在室者周りの対流熱伝達率, W/m2K, [i, 1]
+        theta_r_is_n: ステップ n における室 i の空気温度, degree C, [i, 1]
+        h_hum_is_n: ステップ n における室 i の在室者周りの総合熱伝達率, W/m2K, [i, 1]
+    Returns:
+        ステップ n における室 i の在室者の作用温度, degree C, [i, 1]
+    Notes:
+        eq.(2)
+    """
+
+    return (h_hum_r_is_n * theta_mrt_is_n + h_hum_c_is_n * theta_r_is_n) / h_hum_is_n
+
 
 
 def _get_theta_cl_is_n(
