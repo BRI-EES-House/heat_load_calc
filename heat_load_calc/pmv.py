@@ -16,9 +16,9 @@ def get_pmv_is_n(
     人体周りの熱伝達率を着衣温度との収束計算をした上でPMVを計算する。
 
     Args:
-        p_a_is_n:　ステップnにおける室iの水蒸気圧, Pa, [i, 1]
+        p_a_is_n: ステップ n における室 i の水蒸気圧, Pa, [i, 1]
         theta_r_is_n: ステップ n における室 i の空気温度, degree C, [i, 1]
-        theta_mrt_is_n: ステップ n における室 i の在室者の平均放射温度, degree C, [i, 1]
+        theta_mrt_is_n: ステップ n における室 i の平均放射温度, degree C, [i, 1]
         clo_is_n: ステップ n における室 i のClo値, [i, 1]
         v_hum_is_n: ステップ n における室 i の在室者周りの風速, m/s, [i, 1]
         met_is: 室 i の在室者のMet値, [i, 1]
@@ -48,9 +48,10 @@ def get_pmv_is_n(
     # ステップ n における室 i の在室者の着衣面積率, [i, 1]
     f_cl_is_n = _get_f_cl_is_n(i_cl_is_n=i_cl_is_n)
 
+    # ステップ n における室 i の在室者の代謝量, W/m2, [i, 1]
     m_is = _get_m_is(met_is=met_is)
 
-    # ステップnにおける室iの在室者の厚着時のPMV, [i, 1]
+    # ステップ n における室 i の在室者のPMV, [i, 1]
     pmv_is_n = _get_pmv_is_n(
         theta_r_is_n=theta_r_is_n,
         p_a_is_n=p_a_is_n,
@@ -102,13 +103,13 @@ def get_theta_ot_target(
 
     """
 
-    # 着衣抵抗, m2K/W, [i, 1]
+    # ステップ n における室 i の在室者の着衣抵抗, m2K/W, [i, 1]
     i_cl_is_n = _get_i_cl_is_n(clo_is_n=clo_is_n)
 
-    # 代謝量（人体内部発熱量）, W/m2
+    # 室 i の在室者の代謝量（人体内部発熱量）, W/m2
     m_is = _get_m_is(met_is=met_is)
 
-    # ステップnにおける室iの着衣面積率, [i, 1]
+    # ステップ n における室 i の着衣面積率, [i, 1]
     f_cl_is_n = _get_f_cl_is_n(i_cl_is_n=i_cl_is_n)
 
     return _get_theta_ot_target_is_n(p_a_is_n, h_hum_is_n, pmv_target_is_n, i_cl_is_n, m_is, f_cl_is_n)
@@ -150,6 +151,7 @@ def get_h_hum(
     h_hum_is_n = _get_h_hum_is_n(h_hum_c_is_n=h_hum_c_is_n, h_hum_r_is_n=h_hum_r_is_n)
 
     return h_hum_c_is_n, h_hum_r_is_n, h_hum_is_n
+
 
 def _get_h_hum_is_n(h_hum_c_is_n: np.ndarray, h_hum_r_is_n: np.ndarray) -> np.ndarray:
     """在室者周りの総合熱伝達率を計算する。
