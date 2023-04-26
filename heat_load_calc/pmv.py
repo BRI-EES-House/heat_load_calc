@@ -230,16 +230,16 @@ def _get_h_hum_c_is_n_and_h_hum_r_is_n(
     def f(t):
 
         # ステップnにおける室iの在室者周りの対流熱伝達率, W/m2K, [i, 1]
-        h_hum_c = _get_h_hum_c_is_n(theta_r_is_n=theta_r_is_n, theta_cl_is_n=t, v_hum_is_n=v_hum_is_n)
+        h_hum_c_is_n = _get_h_hum_c_is_n_convergence(theta_r_is_n=theta_r_is_n, theta_cl_is_n=t, v_hum_is_n=v_hum_is_n)
 
         # ステップnにおける室iの在室者周りの放射熱伝達率, W/m2K, [i, 1]
-        h_hum_r = _get_h_hum_r_is_n(theta_cl_is_n=t, theta_mrt_is_n=theta_mrt_is_n)
+        h_hum_r_is_n = _get_h_hum_r_is_n_convergence(theta_cl_is_n=t, theta_mrt_is_n=theta_mrt_is_n)
 
         # ステップnにおける室iの在室者周りの総合熱伝達率, W/m2K, [i, 1]
-        h_hum = h_hum_r + h_hum_c
+        h_hum = h_hum_r_is_n + h_hum_c_is_n
 
         # ステップnにおける室iの在室者の作用温度, degree C, [i, 1]
-        theta_ot_is_n = _get_theta_ot_is_n(h_hum_r_is_n=h_hum_r, theta_mrt_is_n=theta_mrt_is_n, h_hum_c_is_n=h_hum_c, theta_r_is_n=theta_r_is_n)
+        theta_ot_is_n = _get_theta_ot_is_n(h_hum_r_is_n=h_hum_r_is_n, theta_mrt_is_n=theta_mrt_is_n, h_hum_c_is_n=h_hum_c_is_n, theta_r_is_n=theta_r_is_n)
 
         return _get_theta_cl_is_n(clo_is_n=clo_is_n, theta_ot_is_n=theta_ot_is_n, h_hum_is_n=h_hum, m_is=m_is)
 
@@ -250,16 +250,19 @@ def _get_h_hum_c_is_n_and_h_hum_r_is_n(
         theta_cl_is_n: np.ndarray = newton(lambda t: f(t) - t, np.zeros_like(theta_r_is_n, dtype=float))
 
         # ステップnにおける室iの在室者周りの対流熱伝達率, W/m2K, [i, 1]
-        h_hum_c_is_n = _get_h_hum_c_is_n(theta_r_is_n=theta_r_is_n, theta_cl_is_n=theta_cl_is_n, v_hum_is_n=v_hum_is_n)
+        h_hum_c_is_n = _get_h_hum_c_is_n_convergence(theta_r_is_n=theta_r_is_n, theta_cl_is_n=theta_cl_is_n, v_hum_is_n=v_hum_is_n)
 
         # ステップnにおける室iの在室者周りの放射熱伝達率, W/m2K, [i, 1]
-        h_hum_r_is_n = _get_h_hum_r_is_n(theta_cl_is_n=theta_cl_is_n, theta_mrt_is_n=theta_mrt_is_n)
+        h_hum_r_is_n = _get_h_hum_r_is_n_convergence(theta_cl_is_n=theta_cl_is_n, theta_mrt_is_n=theta_mrt_is_n)
 
     # 収束計算によらない方法
     elif method == 'constant':
 
-        h_hum_c_is_n = np.full_like(theta_r_is_n, 4.0)
-        h_hum_r_is_n = np.full_like(theta_r_is_n, 4 * 3.96 * 10 ** (-8) * (20.0 + 273.15) ** 3.0)
+        # ステップnにおける室iの在室者周りの対流熱伝達率, W/m2K, [i, 1]
+        h_hum_c_is_n = _get_h_hum_c_is_n_constant(theta_r_is_n=theta_r_is_n)
+
+        # ステップnにおける室iの在室者周りの放射熱伝達率, W/m2K, [i, 1]
+        h_hum_r_is_n = _get_h_hum_r_is_n_constant(theta_r_is_n=theta_r_is_n)
 
     else:
 
@@ -344,34 +347,46 @@ def _get_theta_ot_is_n(h_hum_r_is_n: np.ndarray, theta_mrt_is_n: np.ndarray, h_h
     return (h_hum_r_is_n * theta_mrt_is_n + h_hum_c_is_n * theta_r_is_n) / (h_hum_r_is_n + h_hum_c_is_n)
 
 
-def _get_h_hum_c_is_n(theta_r_is_n: np.array, theta_cl_is_n: np.array, v_hum_is_n: np.array) -> np.array:
-    """人体周りの対流熱伝達率を計算する。
-
+def _get_h_hum_c_is_n_convergence(theta_r_is_n: np.array, theta_cl_is_n: np.array, v_hum_is_n: np.array) -> np.array:
+    """人体周りの対流熱伝達率を計算する。（収束計算による方法の場合）
+    Calculate the convective heat transfer coefficient of the occupant. (Convergence Method)
     Args:
         theta_r_is_n: ステップ n における室 i の空気温度, degree C, [i, 1]
         theta_cl_is_n: ステップ n における室 i の在室者の着衣温度, degree C, [i, 1]
         v_hum_is_n: ステップ n における室 i の在室者周りの風速, m/s, [i, 1]
-
     Returns:
         ステップ n の室 i における在室者周りの対流熱伝達率, W/m2K, [i, 1]
-
+    Note:
+        eq.(5a)
     """
 
     return np.maximum(12.1 * np.sqrt(v_hum_is_n), 2.38 * np.fabs(theta_cl_is_n - theta_r_is_n) ** 0.25)
 
 
-def _get_h_hum_r_is_n(
-        theta_cl_is_n: np.ndarray,
-        theta_mrt_is_n: np.ndarray
-) -> np.ndarray:
-    """在室者周りの放射熱伝達率を計算する。
+def _get_h_hum_c_is_n_constant(theta_r_is_n: np.array) -> np.ndarray:
+    """人体周りの対流熱伝達率を計算する。（収束計算によらず定数を用いる場合）
+    Calculate the convective heat transfer coefficient of the occupant. (Constant Method)
+    Args:
+        theta_r_is_n: ステップ n における室 i の空気温度, degree C, [i, 1]
+    Returns:
+        ステップ n の室 i における在室者周りの対流熱伝達率, W/m2K, [i, 1]
+    Note:
+        eq.(5b)
+    """ 
 
+    return np.full_like(theta_r_is_n, 4.0)
+
+
+def _get_h_hum_r_is_n_convergence(theta_cl_is_n: np.ndarray, theta_mrt_is_n: np.ndarray) -> np.ndarray:
+    """在室者周りの放射熱伝達率を計算する。（収束計算による方法の場合）
+    Calculate the radiative heat transfer coefficient of the occupnat. (Convergence Method)
     Args:
         theta_cl_is_n: ステップ n における室 i の在室者の着衣温度, degree C, [i, 1]
         theta_mrt_is_n: ステップ n における室 i の在室者の平均放射温度, degree C, [i, 1]
-
     Returns:
         ステップ n における室 i の在室者周りの放射熱伝達率, W/m2K, [i, 1]
+    Note:
+        eq.(6a), eq.(6b), eq.(6c)
     """
 
     # ステップ n における室 i の在室者の着衣温度, K, [i, 1]
@@ -382,6 +397,20 @@ def _get_h_hum_r_is_n(
 
     return 3.96 * 10 ** (-8) * (
                 t_cl_is_n ** 3.0 + t_cl_is_n ** 2.0 * t_mrt_is_n + t_cl_is_n * t_mrt_is_n ** 2.0 + t_mrt_is_n ** 3.0)
+
+
+def _get_h_hum_r_is_n_constant(theta_r_is_n: np.array) -> np.ndarray:
+    """人体周りの放射熱伝達率を計算する。（周桑計算によらず定数を用いる場合）
+    Calculate the radiative heat transfer coefficient of the occupant. (Constant Method)
+    Args:
+        theta_r_is_n: ステップ n における室 i の空気温度, degree C, [i, 1]
+    Returns:
+        ステップ n の室 i における在室者周りの放射熱伝達率, W/m2K, [i, 1]
+    Note:
+        eq.(6d)
+    """
+
+    return np.full_like(theta_r_is_n, 4 * 3.96 * 10 ** (-8) * (20.0 + 273.15) ** 3.0)
 
 
 def _get_theta_cl_is_n(
