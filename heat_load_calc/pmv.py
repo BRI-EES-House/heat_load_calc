@@ -198,13 +198,10 @@ def _get_h_hum_c_is_n_and_h_hum_r_is_n(
         # ステップnにおける室iの在室者周りの放射熱伝達率, W/m2K, [i, 1]
         h_hum_r_is_n = _get_h_hum_r_is_n_convergence(theta_cl_is_n=t, theta_mrt_is_n=theta_mrt_is_n)
 
-        # ステップnにおける室iの在室者周りの総合熱伝達率, W/m2K, [i, 1]
-        h_hum = h_hum_r_is_n + h_hum_c_is_n
-
         # ステップnにおける室iの在室者の作用温度, degree C, [i, 1]
         theta_ot_is_n = _get_theta_ot_is_n(h_hum_r_is_n=h_hum_r_is_n, theta_mrt_is_n=theta_mrt_is_n, h_hum_c_is_n=h_hum_c_is_n, theta_r_is_n=theta_r_is_n)
 
-        return _get_theta_cl_is_n(clo_is_n=clo_is_n, theta_ot_is_n=theta_ot_is_n, h_hum_is_n=h_hum, met_is=met_is)
+        return _get_theta_cl_is_n(clo_is_n=clo_is_n, theta_ot_is_n=theta_ot_is_n, met_is=met_is, h_hum_r_is_n=h_hum_r_is_n, h_hum_c_is_n=h_hum_c_is_n)
 
     # 収束計算による方法
     if method == 'convergence':
@@ -379,16 +376,18 @@ def _get_h_hum_r_is_n_constant(theta_r_is_n: np.array) -> np.ndarray:
 def _get_theta_cl_is_n(
         clo_is_n: np.ndarray,
         theta_ot_is_n: np.ndarray,
-        h_hum_is_n: np.ndarray,
-        met_is: np.ndarray
+        met_is: np.ndarray,
+        h_hum_r_is_n: np.ndarray,
+        h_hum_c_is_n: np.ndarray
 ) -> np.ndarray:
     """着衣温度を計算する。
-
+    Calculate the temperature on the clothes of the cuuupant.
     Args:
-        clo_is_n: ステップnにおける室iの在室者のClo値, [i, 1]　又は、（厚着・中間着・薄着時の）Clo値（定数）
-        theta_ot_is_n: ステップnにおける室iの在室者の作用温度, degree C, [i, 1]
-        h_hum_is_n: ステップnにおける室iの在室者周りの総合熱伝達率, W/m2K, [i, 1]
+        clo_is_n: ステップ n における室 i の在室者のClo値, [i, 1]
+        theta_ot_is_n: ステップ n における室 i の在室者の作用温度, degree C, [i, 1]
         met_is: 室 i の在室者のMet値, [i, 1]
+        h_hum_r_is_n: ステップ n における室 i の在室者周りの放射熱伝達率, W/m2K, [i, 1]
+        h_hum_c_is_n: ステップ n における室 i の在室者周りの対流熱伝達率, W/m2K, [i, 1]
     Returns:
         ステップnにおける室iの着衣温度, degree C, [i, 1]
     """
@@ -403,7 +402,7 @@ def _get_theta_cl_is_n(
     f_cl_is_n = _get_f_cl_is_n(i_cl_is_n=i_cl_is_n)
 
     # ステップnにおける室iの在室者の着衣温度, degree C
-    t_cl_i_n = (35.7 - 0.028 * m_is - theta_ot_is_n) / (1 + i_cl_is_n * f_cl_is_n * h_hum_is_n) + theta_ot_is_n
+    t_cl_i_n = (35.7 - 0.028 * m_is - theta_ot_is_n) / (1 + i_cl_is_n * f_cl_is_n * (h_hum_r_is_n + h_hum_c_is_n) ) + theta_ot_is_n
 
     return t_cl_i_n
 
