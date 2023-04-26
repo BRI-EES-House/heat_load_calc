@@ -408,18 +408,14 @@ def _get_theta_cl_is_n(
 
 
 def _get_m_is(met_is: np.ndarray) -> np.ndarray:
-    """代謝量を得る。
-
+    """代謝量を計算する。
+    Calculate the metabolic rate of the occupant.
     Args:
-        met_is: 居室 i の在室者のMet値, [i, 1]
-
+        met_is: 室 i の在室者のMet値, [i, 1]
     Returns:
-        居室 i の在室者の代謝量, W/m2, [i, 1]
-
+        室 i の在室者の代謝量, W/m2, [i, 1]
     Notes:
-        代謝量は1.0 met に固定とする。
-        1.0 met は、ISOにおける、Resting - Seated, quiet に相当
-        1 met = 58.15 W/m2
+        eq.(9)
     """
 
     return met_is * 58.15
@@ -427,12 +423,13 @@ def _get_m_is(met_is: np.ndarray) -> np.ndarray:
 
 def _get_f_cl_is_n(i_cl_is_n: np.ndarray) -> np.ndarray:
     """着衣面積率を計算する。
-
+    Calculate the clothing surface area factor of the occupant.
     Args:
         i_cl_is_n: ステップ n における室 i の在室者の着衣抵抗, m2K/W, [i, 1]
-
     Returns:
         ステップ n における室 i の在室者の着衣面積率, [i, 1]
+    Notes:
+        eq.(10)
     """
 
     return np.where(i_cl_is_n <= 0.078, 1.00 + 1.290 * i_cl_is_n, 1.05 + 0.645 * i_cl_is_n)
@@ -440,16 +437,14 @@ def _get_f_cl_is_n(i_cl_is_n: np.ndarray) -> np.ndarray:
 
 def _get_i_cl_is_n(clo_is_n: np.array) -> np.array:
     """Clo値から着衣抵抗を計算する。
-
+    Calculate clo of the occupant.
     Args:
         clo_is_n: ステップ n における室 i の在室者のClo値, [i, 1]
-
     Returns:
         ステップ n における室 i の在室者の着衣抵抗, m2K/W, [i, 1]
-
     Notes:
+        eq.(11)
         1 clo = 0.155 m2K/W
-
     """
 
     return clo_is_n * 0.155
