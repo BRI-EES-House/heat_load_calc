@@ -182,10 +182,10 @@ class Operation:
         upper_target_is_n = self._upper_target_is_ns[:, n].reshape(-1, 1)
 
         # ステップnの室iにおけるClo値, [i, 1]
-        clo_is_n = get_clo_is_ns(operation_mode_is_n=operation_mode_is_n)
+        clo_is_n = _get_clo_is_ns(operation_mode_is_n=operation_mode_is_n)
 
         # ステップnにおける室iの在室者周りの風速, m/s, [i, 1]
-        v_hum_is_n = get_v_hum_is_n(
+        v_hum_is_n = _get_v_hum_is_n(
             operation_mode_is=operation_mode_is_n,
             is_radiative_heating_is=is_radiative_heating_is,
             is_radiative_cooling_is=is_radiative_cooling_is
@@ -376,7 +376,7 @@ def _get_theta_target(
     return theta_lower_target_is_n, theta_upper_target_is_n
 
 
-def get_v_hum_is_n(
+def _get_v_hum_is_n(
         operation_mode_is: np.ndarray,
         is_radiative_cooling_is: np.ndarray,
         is_radiative_heating_is: np.ndarray
@@ -415,7 +415,7 @@ def get_v_hum_is_n(
     return v_hum_is_n
 
 
-def get_clo_is_ns(operation_mode_is_n: np.ndarray):
+def _get_clo_is_ns(operation_mode_is_n: np.ndarray):
     """運転モードに応じた在室者のClo値を決定する。
 
     Args:
