@@ -39,14 +39,12 @@ class Operation:
     def __init__(
             self,
             ac_method: ACMethod,
-            ac_config: Dict,
             lower_target_is_ns: np.ndarray,
             upper_target_is_ns: np.ndarray,
             ac_demand_is_ns: np.ndarray,
             n_rm
     ):
         self._ac_method = ac_method
-        self._ac_config = ac_config
         self._lower_target_is_ns = lower_target_is_ns
         self._upper_target_is_ns = upper_target_is_ns
         self._ac_demand_is_ns = ac_demand_is_ns
@@ -82,7 +80,6 @@ class Operation:
 
         return Operation(
             ac_method=ac_method,
-            ac_config=ac_config,
             lower_target_is_ns=lower_target_is_ns,
             upper_target_is_ns=upper_target_is_ns,
             ac_demand_is_ns=ac_demand_is_ns,
@@ -92,10 +89,6 @@ class Operation:
     @property
     def ac_method(self):
         return self._ac_method
-
-    @property
-    def ac_config(self):
-        return self._ac_config
 
     def get_operation_mode_is_n(
             self,
