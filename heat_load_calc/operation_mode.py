@@ -51,7 +51,7 @@ class Operation:
         self._n_rm = n_rm
 
     @classmethod
-    def make_operation(cls, d: Dict, ac_setting_is_ns: np.ndarray, ac_demand_is_ns: np.ndarray, n_rm: int):
+    def make_operation(cls, d: Dict, t_ac_mode_is_ns: np.ndarray, r_ac_demand_is_ns: np.ndarray, n_rm: int):
 
         ac_method = ACMethod(d['ac_method'])
 
@@ -71,18 +71,18 @@ class Operation:
             else:
                 raise Exception()
 
-        lower_target_is_ns = np.full_like(ac_setting_is_ns, fill_value=np.nan, dtype=float)
-        upper_target_is_ns = np.full_like(ac_setting_is_ns, fill_value=np.nan, dtype=float)
+        lower_target_is_ns = np.full_like(t_ac_mode_is_ns, fill_value=np.nan, dtype=float)
+        upper_target_is_ns = np.full_like(t_ac_mode_is_ns, fill_value=np.nan, dtype=float)
 
         for conf in ac_config:
-            lower_target_is_ns[ac_setting_is_ns == conf['mode']] = conf['lower']
-            upper_target_is_ns[ac_setting_is_ns == conf['mode']] = conf['upper']
+            lower_target_is_ns[t_ac_mode_is_ns == conf['mode']] = conf['lower']
+            upper_target_is_ns[t_ac_mode_is_ns == conf['mode']] = conf['upper']
 
         return Operation(
             ac_method=ac_method,
             lower_target_is_ns=lower_target_is_ns,
             upper_target_is_ns=upper_target_is_ns,
-            ac_demand_is_ns=ac_demand_is_ns,
+            ac_demand_is_ns=r_ac_demand_is_ns,
             n_rm=n_rm
         )
 

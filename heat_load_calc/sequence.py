@@ -120,8 +120,8 @@ class Sequence:
         # Operation Class
         op = operation_mode.Operation.make_operation(
             d=rd['common'],
-            ac_setting_is_ns=scd.ac_setting_is_ns,
-            ac_demand_is_ns=scd.ac_demand_is_ns,
+            t_ac_mode_is_ns=scd.ac_setting_is_ns,
+            r_ac_demand_is_ns=scd.ac_demand_is_ns,
             n_rm=rms.n_rm
         )
 
