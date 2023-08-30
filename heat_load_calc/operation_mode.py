@@ -39,21 +39,39 @@ class Operation:
     def __init__(
             self,
             ac_method: ACMethod,
-            ac_config: Dict,
-            lower_target_is_ns: np.ndarray,
-            upper_target_is_ns: np.ndarray,
-            ac_demand_is_ns: np.ndarray,
+            x_lower_target_is_ns: np.ndarray,
+            x_upper_target_is_ns: np.ndarray,
+            r_ac_demand_is_ns: np.ndarray,
             n_rm
     ):
+        """
+
+        Args:
+            ac_method: 運転モードの決定方法
+            x_lower_target_is_ns: ステップ n における室 i の目標下限値
+            x_upper_target_is_ns: ステップ n における室 i の目標上限値
+            r_ac_demand_is_ns: ステップ n における室 i の空調需要
+            n_rm: 室の数
+        """
+        
         self._ac_method = ac_method
-        self._ac_config = ac_config
-        self._lower_target_is_ns = lower_target_is_ns
-        self._upper_target_is_ns = upper_target_is_ns
-        self._ac_demand_is_ns = ac_demand_is_ns
+        self._x_lower_target_is_ns = x_lower_target_is_ns
+        self._x_upper_target_is_ns = x_upper_target_is_ns
+        self._r_ac_demand_is_ns = r_ac_demand_is_ns
         self._n_rm = n_rm
 
     @classmethod
-    def make_operation(cls, d: Dict, ac_setting_is_ns: np.ndarray, ac_demand_is_ns: np.ndarray, n_rm: int):
+    def make_operation(cls, d: Dict, t_ac_mode_is_ns: np.ndarray, r_ac_demand_is_ns: np.ndarray, n_rm: int):
+        """Operation クラスを作成する。
+        Make Operation Class.
+        Args:
+            d: 運転モードに関する入力情報
+            t_ac_mode_is_ns: ステップ n における室 i の空調モード
+            r_ac_demand_is_ns: ステップ n における室 i の空調需要
+            n_rm: 室の数
+        Returns:
+            Operation クラス
+        """
 
         ac_method = ACMethod(d['ac_method'])
 
@@ -73,19 +91,18 @@ class Operation:
             else:
                 raise Exception()
 
-        lower_target_is_ns = np.full_like(ac_setting_is_ns, fill_value=np.nan, dtype=float)
-        upper_target_is_ns = np.full_like(ac_setting_is_ns, fill_value=np.nan, dtype=float)
+        x_lower_target_is_ns = np.full_like(t_ac_mode_is_ns, fill_value=np.nan, dtype=float)
+        x_upper_target_is_ns = np.full_like(t_ac_mode_is_ns, fill_value=np.nan, dtype=float)
 
         for conf in ac_config:
-            lower_target_is_ns[ac_setting_is_ns == conf['mode']] = conf['lower']
-            upper_target_is_ns[ac_setting_is_ns == conf['mode']] = conf['upper']
+            x_lower_target_is_ns[t_ac_mode_is_ns == conf['mode']] = conf['lower']
+            x_upper_target_is_ns[t_ac_mode_is_ns == conf['mode']] = conf['upper']
 
         return Operation(
             ac_method=ac_method,
-            ac_config=ac_config,
-            lower_target_is_ns=lower_target_is_ns,
-            upper_target_is_ns=upper_target_is_ns,
-            ac_demand_is_ns=ac_demand_is_ns,
+            x_lower_target_is_ns=x_lower_target_is_ns,
+            x_upper_target_is_ns=x_upper_target_is_ns,
+            r_ac_demand_is_ns=r_ac_demand_is_ns,
             n_rm=n_rm
         )
 
@@ -93,11 +110,7 @@ class Operation:
     def ac_method(self):
         return self._ac_method
 
-    @property
-    def ac_config(self):
-        return self._ac_config
-
-    def get_operation_mode_is_n(
+    def get_t_operation_mode_is_n(
             self,
             n: int,
             is_radiative_heating_is: np.ndarray,
@@ -132,20 +145,16 @@ class Operation:
 
         """
 
-        upper_target_is_n = self._upper_target_is_ns[:, n].reshape(-1, 1)
-        lower_target_is_n = self._lower_target_is_ns[:, n].reshape(-1, 1)
-        ac_demand_is_n = self._ac_demand_is_ns[:, n].reshape(-1, 1)
-
         if self.ac_method in [ACMethod.AIR_TEMPERATURE, ACMethod.SIMPLE, ACMethod.OT]:
 
-            x_cooling_is_n_pls, x_window_open_is_n_pls, x_heating_is_n_pls = _get_operation_mode_simple_is_n(
+            x_cooling_is_n_pls, x_window_open_is_n_pls, x_heating_is_n_pls = _get_x_is_n_pls_ot_and_air_temperature_control(
                 theta_r_ot_ntr_non_nv_is_n_pls=theta_r_ot_ntr_non_nv_is_n_pls,
                 theta_r_ot_ntr_nv_is_n_pls=theta_r_ot_ntr_nv_is_n_pls,
             )
 
         elif self.ac_method == ACMethod.PMV:
 
-            x_cooling_is_n_pls, x_window_open_is_n_pls, x_heating_is_n_pls = _get_operation_mode_pmv_is_n(
+            x_cooling_is_n_pls, x_window_open_is_n_pls, x_heating_is_n_pls = _get_x_is_n_pls_pmv_control(
                 is_radiative_cooling_is=is_radiative_cooling_is,
                 is_radiative_heating_is=is_radiative_heating_is,
                 method='constant',
@@ -161,17 +170,27 @@ class Operation:
         else:
             raise Exception()
 
-        v = np.full((self._n_rm, 1), OperationMode.STOP_CLOSE)
+        x_upper_target_is_n = self._x_upper_target_is_ns[:, n].reshape(-1, 1)
+        x_lower_target_is_n = self._x_lower_target_is_ns[:, n].reshape(-1, 1)
+        r_ac_demand_is_n = self._r_ac_demand_is_ns[:, n].reshape(-1, 1)
 
-        is_op = ac_demand_is_n > 0
+        is_op = r_ac_demand_is_n > 0
 
-        v[is_op & (x_cooling_is_n_pls > upper_target_is_n) & (x_window_open_is_n_pls > upper_target_is_n)] \
+        # ケース 1, 2-3
+        t_operation_mode_is_n = np.full((r_ac_demand_is_n.shape[0], 1), OperationMode.STOP_CLOSE)
+
+        # ケース 2-1
+        t_operation_mode_is_n[is_op & (x_heating_is_n_pls < x_lower_target_is_n)] = OperationMode.HEATING
+
+        # ケース 2-2-1
+        t_operation_mode_is_n[is_op & (x_cooling_is_n_pls > x_upper_target_is_n) & (x_window_open_is_n_pls > x_upper_target_is_n)] \
             = OperationMode.COOLING
-        v[is_op & (x_cooling_is_n_pls > upper_target_is_n) & (x_window_open_is_n_pls <= upper_target_is_n)] \
-            = OperationMode.STOP_OPEN
-        v[is_op & (x_heating_is_n_pls < lower_target_is_n)] = OperationMode.HEATING
 
-        return v
+        # ケース 2-2-2
+        t_operation_mode_is_n[is_op & (x_cooling_is_n_pls > x_upper_target_is_n) & (x_window_open_is_n_pls <= x_upper_target_is_n)] \
+            = OperationMode.STOP_OPEN
+
+        return t_operation_mode_is_n
 
     def get_theta_target_is_n(
             self,
@@ -185,14 +204,14 @@ class Operation:
             met_is: np.ndarray
     ):
 
-        lower_target_is_n = self._lower_target_is_ns[:, n].reshape(-1, 1)
-        upper_target_is_n = self._upper_target_is_ns[:, n].reshape(-1, 1)
+        lower_target_is_n = self._x_lower_target_is_ns[:, n].reshape(-1, 1)
+        upper_target_is_n = self._x_upper_target_is_ns[:, n].reshape(-1, 1)
 
         # ステップnの室iにおけるClo値, [i, 1]
-        clo_is_n = get_clo_is_ns(operation_mode_is_n=operation_mode_is_n)
+        clo_is_n = _get_clo_is_ns(operation_mode_is_n=operation_mode_is_n)
 
         # ステップnにおける室iの在室者周りの風速, m/s, [i, 1]
-        v_hum_is_n = get_v_hum_is_n(
+        v_hum_is_n = _get_v_hum_is_n(
             operation_mode_is=operation_mode_is_n,
             is_radiative_heating_is=is_radiative_heating_is,
             is_radiative_cooling_is=is_radiative_cooling_is
@@ -255,10 +274,22 @@ class Operation:
         return k_c_is, k_r_is
 
 
-def _get_operation_mode_simple_is_n(
+def _get_x_is_n_pls_ot_and_air_temperature_control(
         theta_r_ot_ntr_non_nv_is_n_pls: np.ndarray,
         theta_r_ot_ntr_nv_is_n_pls: np.ndarray,
-):
+) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """作用温度制御・空気温度制御の場合の暖房用参照温度・冷房用参照温度・窓開け用参照温度を計算する。
+    Calculate the reference temperature for heating, cooling and window-opening in the case of the operative temperature and air temperature controll.
+    Args:
+        theta_r_ot_ntr_non_nv_is_n_pls: ステップ n+1 における室 i の自然風非利用時の自然作用温度, ℃
+        theta_r_ot_ntr_nv_is_n_pls: ステップ n+1 における室 i の自然風利用時の自然作用温度, ℃
+    Returns:
+        ステップ n+1 における室 i の暖房用参照温度, ℃
+        ステップ n+1 における室 i の冷房用参照温度, ℃
+        ステップ n+1 における室 i の窓開け用参照温度, ℃
+    Note:
+        eq.(1a),(1b),(1c)
+    """
 
     x_cooling_is_n_pls = theta_r_ot_ntr_nv_is_n_pls
     x_window_open_is_n_pls = theta_r_ot_ntr_non_nv_is_n_pls
@@ -267,7 +298,7 @@ def _get_operation_mode_simple_is_n(
     return x_cooling_is_n_pls, x_window_open_is_n_pls, x_heating_is_n_pls
 
 
-def _get_operation_mode_pmv_is_n(
+def _get_x_is_n_pls_pmv_control(
         is_radiative_cooling_is: np.ndarray,
         is_radiative_heating_is: np.ndarray,
         method: str,
@@ -383,7 +414,7 @@ def _get_theta_target(
     return theta_lower_target_is_n, theta_upper_target_is_n
 
 
-def get_v_hum_is_n(
+def _get_v_hum_is_n(
         operation_mode_is: np.ndarray,
         is_radiative_cooling_is: np.ndarray,
         is_radiative_heating_is: np.ndarray
@@ -422,7 +453,7 @@ def get_v_hum_is_n(
     return v_hum_is_n
 
 
-def get_clo_is_ns(operation_mode_is_n: np.ndarray):
+def _get_clo_is_ns(operation_mode_is_n: np.ndarray):
     """運転モードに応じた在室者のClo値を決定する。
 
     Args:
