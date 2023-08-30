@@ -132,8 +132,11 @@ class Boundaries:
         # 室の数
         n_rm = id_rm_is.size
 
+        # 境界の数
+        n_b = len(ds)
+
         # 境界 j, [J]
-        bss = [self._get_boundary(b=b, h_c_js=h_c_js, h_s_r_js=h_s_r_js, w=w, n_rm=n_rm) for b in ds]
+        bss = [self._get_boundary(b=b, h_c_js=h_c_js, h_s_r_js=h_s_r_js, w=w, n_rm=n_rm, n_b=n_b) for b in ds]
 
         # 室iと境界jの関係を表す係数（境界jから室iへの変換）, [i, j]
         p_is_js = self._get_p_is_js(n_rm=n_rm, bss=bss)
@@ -170,7 +173,7 @@ class Boundaries:
         self._q_trs_sol_is_ns = q_trs_sol_is_ns
 
     @staticmethod
-    def _get_boundary(b: Dict, h_c_js: np.ndarray, h_s_r_js: np.ndarray, w: Weather, n_rm: int) -> Boundary:
+    def _get_boundary(b: Dict, h_c_js: np.ndarray, h_s_r_js: np.ndarray, w: Weather, n_rm: int, n_b: int) -> Boundary:
         """
 
         Args:
@@ -179,6 +182,7 @@ class Boundaries:
             h_s_r_js: 境界 j の室内側表面放射熱伝達率, W/m2K, [J, 1]
             w: Weather クラス
             n_rm: 室の数
+            n_b: 境界の数
 
         Returns:
             Boundary クラス
@@ -439,9 +443,6 @@ class Boundaries:
         else:
 
             raise KeyError()
-
-        # Boundary の数
-        n_b = h_c_js.size
 
         k_ei_js_j = [0.0] * n_b
 
