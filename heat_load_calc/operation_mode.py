@@ -42,7 +42,7 @@ class Operation:
             x_lower_target_is_ns: np.ndarray,
             x_upper_target_is_ns: np.ndarray,
             r_ac_demand_is_ns: np.ndarray,
-            n_rm
+            n_rm: int
     ):
         """
 
@@ -128,19 +128,18 @@ class Operation:
         """
 
         Args:
-            operation_mode_is_n_mns:
-            n:
-            is_radiative_heating_is:
-            is_radiative_cooling_is:
-            met_is:
+            n: ステップ
+            is_radiative_heating_is: 室iの放射暖房の有無, [i, 1]
+            is_radiative_cooling_is: 室iの放射冷房の有無, [i, 1]
+            met_is: 室 i の在室者のMet値, [i, 1]
             theta_r_ot_ntr_non_nv_is_n_pls: ステップn+1における自然風非利用時の自然作用温度, degree C, [i, 1]
             theta_r_ot_ntr_nv_is_n_pls: ステップn+1における自然風利用時の自然作用温度, degree C, [i, 1]
-            theta_r_ntr_non_nv_is_n_pls:
-            theta_r_ntr_nv_is_n_pls:
-            theta_mrt_hum_ntr_non_nv_is_n_pls:
-            theta_mrt_hum_ntr_nv_is_n_pls:
-            x_r_ntr_non_nv_is_n_pls:
-            x_r_ntr_nv_is_n_pls:
+            theta_r_ntr_non_nv_is_n_pls: ステップn+1における自然風非利用時の空気温度, degree C, [i, 1]
+            theta_r_ntr_nv_is_n_pls: ステップn+1における自然風利用時の空気温度, degree C, [i, 1]
+            theta_mrt_hum_ntr_non_nv_is_n_pls: ステップn+1における室iの自然風非利用時の平均放射温度, degree C, [i, 1]
+            theta_mrt_hum_ntr_nv_is_n_pls: ステップn+1における室iの自然風利用時の平均放射温度, degree C, [i, 1]
+            x_r_ntr_non_nv_is_n_pls: ステップn+1における室iの自然風非利用時の絶対湿度, kg/kg(DA), [i, 1]
+            x_r_ntr_nv_is_n_pls: ステップn+1における室iの自然風利用時の絶対湿度, kg/kg(DA), [i, 1]
         Returns:
 
         """
@@ -174,19 +173,33 @@ class Operation:
         x_lower_target_is_n = self._x_lower_target_is_ns[:, n].reshape(-1, 1)
         r_ac_demand_is_n = self._r_ac_demand_is_ns[:, n].reshape(-1, 1)
 
+        # 空調需要が0より大の場合をTrueとする。
         is_op = r_ac_demand_is_n > 0
 
         # ケース 1, 2-3
+        # 次を満たす場合は「暖房・冷房停止で窓「閉」」とする。
+        # ・空調需要が0
+        # ・空港需要が0より大であるが、次のケース2-1, 2-2-1, 2-2-2 を満たさない場合
         t_operation_mode_is_n = np.full((r_ac_demand_is_n.shape[0], 1), OperationMode.STOP_CLOSE)
 
         # ケース 2-1
+        # 次を満たす場合は「暖房」とする。
+        # ・空調需要が0より大
+        # ・暖房用参照値が目標下限値を下回る場合は「暖房」とする。
         t_operation_mode_is_n[is_op & (x_heating_is_n_pls < x_lower_target_is_n)] = OperationMode.HEATING
 
         # ケース 2-2-1
+        # 次を満たす場合は「冷房」とする。
+        # ・空調需要が0より大
+        # ・冷房用参照値が目標上限値を上回る場合
+        # ・窓開け用参照値が目標上限値を上回る場合
         t_operation_mode_is_n[is_op & (x_cooling_is_n_pls > x_upper_target_is_n) & (x_window_open_is_n_pls > x_upper_target_is_n)] \
             = OperationMode.COOLING
 
         # ケース 2-2-2
+        # 次を満たす場合は「暖房・冷房停止で窓「開」」とする。
+        # ・冷房用参照値が目標上限値を上回る場合
+        # ・窓開け用参照値が目標上限値以下の場合
         t_operation_mode_is_n[is_op & (x_cooling_is_n_pls > x_upper_target_is_n) & (x_window_open_is_n_pls <= x_upper_target_is_n)] \
             = OperationMode.STOP_OPEN
 
@@ -195,17 +208,32 @@ class Operation:
     def get_theta_target_is_n(
             self,
             operation_mode_is_n: np.ndarray,
-            theta_r_is_n: np.ndarray,
-            theta_mrt_hum_is_n: np.ndarray,
+            theta_r_ntr_is_n_pls: np.ndarray,
+            theta_mrt_hum_ntr_is_n_pls: np.ndarray,
             x_r_ntr_is_n_pls: np.ndarray,
             n: int,
             is_radiative_heating_is: np.ndarray,
             is_radiative_cooling_is: np.ndarray,
             met_is: np.ndarray
     ):
+        """目標上下限値の計算
 
-        lower_target_is_n = self._x_lower_target_is_ns[:, n].reshape(-1, 1)
-        upper_target_is_n = self._x_upper_target_is_ns[:, n].reshape(-1, 1)
+        Args:
+            operation_mode_is_n: ステップnにおける室iの運転モード, [i, 1]
+            theta_r_ntr_is_n_pls: ステップn+1における室iの自然空気温度, degree C, [i, 1]
+            theta_mrt_hum_ntr_is_n_pls: ステップn+1における室iの自然平均放射温度, degree C, [i, 1]
+            x_r_ntr_is_n_pls: ステップn+1における室iの自然絶対湿度, kg/kg(DA), [i, 1]
+            n: ステップ
+            is_radiative_heating_is: 室iの放射暖房の有無
+            is_radiative_cooling_is: 室iの放射冷房の有無
+            met_is: 室iの居住者のMet値
+
+        Returns:
+            _description_
+        """
+
+        x_lower_target_is_n = self._x_lower_target_is_ns[:, n].reshape(-1, 1)
+        x_upper_target_is_n = self._x_upper_target_is_ns[:, n].reshape(-1, 1)
 
         # ステップnの室iにおけるClo値, [i, 1]
         clo_is_n = _get_clo_is_ns(operation_mode_is_n=operation_mode_is_n)
@@ -221,8 +249,8 @@ class Operation:
         # (2) ステップ n における室 i の在室者周りの放射熱伝達率, W/m2K, [i, 1]
         # (3) ステップ n における室 i の在室者周りの総合熱伝達率, W/m2K, [i, 1]
         h_hum_c_is_n, h_hum_r_is_n, h_hum_is_n = pmv.get_h_hum(
-            theta_mrt_is_n=theta_mrt_hum_is_n,
-            theta_r_is_n=theta_r_is_n,
+            theta_mrt_is_n=theta_mrt_hum_ntr_is_n_pls,
+            theta_r_is_n=theta_r_ntr_is_n_pls,
             clo_is_n=clo_is_n,
             v_hum_is_n=v_hum_is_n,
             method='constant',
@@ -231,28 +259,32 @@ class Operation:
 
         if self.ac_method in [ACMethod.AIR_TEMPERATURE, ACMethod.SIMPLE, ACMethod.OT]:
 
-            return lower_target_is_n, upper_target_is_n, h_hum_c_is_n, h_hum_r_is_n
+            theta_lower_target_is_n_pls = x_lower_target_is_n
+            theta_upper_target_is_n_pls = x_upper_target_is_n
+
+            return theta_lower_target_is_n_pls, theta_upper_target_is_n_pls, h_hum_c_is_n, h_hum_r_is_n
 
         elif self.ac_method == ACMethod.PMV:
 
             # ステップnにおける室iの水蒸気圧, Pa, [i, 1]
             p_v_r_is_n = psy.get_p_v_r_is_n(x_r_is_n=x_r_ntr_is_n_pls)
 
-            lower_target_is_n, upper_target_is_n = _get_theta_target(
+            theta_lower_target_is_n_pls, theta_upper_target_is_n_pls = _get_theta_target(
                 operation_mode_is_n=operation_mode_is_n,
                 p_v_r_is_n=p_v_r_is_n,
                 met_is=met_is,
-                lower_target_is_n=lower_target_is_n,
-                upper_target_is_n=upper_target_is_n,
+                lower_target_is_n=x_lower_target_is_n,
+                upper_target_is_n=x_upper_target_is_n,
                 h_hum_is_n=h_hum_is_n,
                 clo_is_n=clo_is_n
             )
 
-            return lower_target_is_n, upper_target_is_n, h_hum_c_is_n, h_hum_r_is_n
+            return theta_lower_target_is_n_pls, theta_upper_target_is_n_pls, h_hum_c_is_n, h_hum_r_is_n
 
         else:
 
             raise Exception()
+        
 
     def get_k_is(self) -> Tuple[np.ndarray, np.ndarray]:
         """
@@ -284,9 +316,9 @@ def _get_x_is_n_pls_ot_and_air_temperature_control(
         theta_r_ot_ntr_non_nv_is_n_pls: ステップ n+1 における室 i の自然風非利用時の自然作用温度, ℃
         theta_r_ot_ntr_nv_is_n_pls: ステップ n+1 における室 i の自然風利用時の自然作用温度, ℃
     Returns:
-        ステップ n+1 における室 i の暖房用参照温度, ℃
-        ステップ n+1 における室 i の冷房用参照温度, ℃
-        ステップ n+1 における室 i の窓開け用参照温度, ℃
+        ステップ n+1 における室 i の暖房用参照温度, degree C, [i, 1]
+        ステップ n+1 における室 i の冷房用参照温度, degree C, [i, 1]
+        ステップ n+1 における室 i の窓開け用参照温度, degree C, [i, 1]
     Note:
         eq.(1a),(1b),(1c)
     """
@@ -477,7 +509,7 @@ def _get_clo_is_ns(operation_mode_is_n: np.ndarray):
     # 運転停止（窓開）時は薄着とする。
     clo_is_ns[operation_mode_is_n == OperationMode.STOP_OPEN] = occupants.get_clo_light()
 
-    # 運転停止（窓閉）時は薄着とする。
+    # 運転停止（窓閉）時は中間着とする。
     clo_is_ns[operation_mode_is_n == OperationMode.STOP_CLOSE] = occupants.get_clo_middle()
 
     return clo_is_ns
