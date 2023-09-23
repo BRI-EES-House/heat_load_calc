@@ -213,9 +213,9 @@ class Sequence:
     def es(self) -> Equipments:
         return self._es
 
-    @property
-    def op(self) -> Operation:
-        return self._op
+#    @property
+#    def op(self) -> Operation:
+#        return self._op
 
     @property
     def get_f_l_cl(self) -> Callable[[np.ndarray, np.ndarray, np.ndarray], Tuple[np.ndarray, np.ndarray]]:
@@ -238,7 +238,502 @@ class Sequence:
         ss = self.pre_calc_parameter
         delta_t = self._delta_t
 
-        return _run_tick(self=self, n=n, delta_t=delta_t, ss=ss, c_n=c_n, recorder=recorder)
+        # region 人体発熱・人体発湿
+
+        # ステップnからステップn+1における室iの1人あたりの人体発熱, W, [i, 1]
+        q_hum_psn_is_n = occupants.get_q_hum_psn_is_n(theta_r_is_n=c_n.theta_r_is_n)
+
+        # ステップ n からステップ n+1 における室 i の人体発熱, W, [i, 1]
+        q_hum_is_n = get_q_hum_is_n(n_hum_is_n=self.scd.n_hum_is_ns[:, n].reshape(-1, 1), q_hum_psn_is_n=q_hum_psn_is_n)
+
+        # ステップnの室iにおける1人あたりの人体発湿, kg/s, [i, 1]
+        x_hum_psn_is_n = occupants.get_x_hum_psn_is_n(theta_r_is_n=c_n.theta_r_is_n)
+
+        # ステップnの室iにおける人体発湿, kg/s, [i, 1]
+        x_hum_is_n = get_x_hum_is_n(n_hum_is_n=self.scd.n_hum_is_ns[:, n].reshape(-1, 1), x_hum_psn_is_n=x_hum_psn_is_n)
+
+        # endregion
+
+        # ステップ n の境界 j における裏面温度, degree C, [j, 1]
+        theta_rear_js_n = get_theta_s_rear_js_n(
+            k_s_er_js_js=self.bs.k_ei_js_js,
+            theta_er_js_n=c_n.theta_ei_js_n,
+            k_s_eo_js=self.bs.k_eo_js,
+            theta_eo_js_n=self.bs.theta_o_eqv_js_ns[:, n].reshape(-1, 1),
+            k_s_r_js_is=self.bs.k_s_r_js_is,
+            theta_r_is_n=c_n.theta_r_is_n
+        )
+
+        # ステップnの室iにおけるすきま風量, m3/s, [i, 1]
+        v_leak_is_n = self.building.get_v_leak_is_n(
+            theta_r_is_n=c_n.theta_r_is_n,
+            theta_o_n=self.weather.theta_o_ns_plus[n],
+            v_rm_is=self.rms.v_rm_is
+        )
+
+        # ステップ n+1 の境界 j における項別公比法の指数項 m の貫流応答の項別成分, degree C, [j, m] (m=12), eq.(29)
+        theta_dsh_s_t_js_ms_n_pls = get_theta_dsh_s_t_js_ms_n_pls(
+            phi_t1_js_ms=self.bs.phi_t1_js_ms,
+            r_js_ms=self.bs.r_js_ms,
+            theta_dsh_srf_t_js_ms_n=c_n.theta_dsh_srf_t_js_ms_n,
+            theta_rear_js_n=theta_rear_js_n
+        )
+
+        # ステップ n+1 の境界 j における項別公比法の指数項 m の吸熱応答の項別成分, degree C, [j, m]
+        theta_dsh_s_a_js_ms_n_pls = get_theta_dsh_s_a_js_ms_n_pls(
+            phi_a1_js_ms=self.bs.phi_a1_js_ms,
+            q_s_js_n=c_n.q_s_js_n,
+            r_js_ms=self.bs.r_js_ms,
+            theta_dsh_srf_a_js_ms_n=c_n.theta_dsh_srf_a_js_ms_n
+        )
+
+        # ステップ n+1 の境界 j における係数f_CVL, degree C, [j, 1]
+        f_cvl_js_n_pls = get_f_cvl_js_n_pls(
+            theta_dsh_s_a_js_ms_n_pls=theta_dsh_s_a_js_ms_n_pls,
+            theta_dsh_s_t_js_ms_n_pls=theta_dsh_s_t_js_ms_n_pls
+        )
+
+        # ステップ n+1 の境界 j における係数 f_WSV, degree C, [j, 1]
+        f_wsv_js_n_pls = get_f_wsv_js_n_pls(
+            f_cvl_js_n_pls=f_cvl_js_n_pls,
+            f_ax_js_js=ss.f_ax_js_js
+        )
+
+        # ステップnからステップn+1における室iの換気・隙間風による外気の流入量, m3/s, [i, 1]
+        v_vent_out_non_nv_is_n = get_v_vent_out_non_ntr_is_n(
+            v_leak_is_n=v_leak_is_n,
+            v_vent_mec_is_n=ss.v_vent_mec_is_ns[:, n].reshape(-1, 1)
+        )
+
+        # ステップ n+1 の室 i における係数 f_BRC, W, [i, 1]
+        # TODO: q_sol_frt_is_ns の値は n+1 の値を使用するべき？
+        f_brc_non_nv_is_n_pls, f_brc_nv_is_n_pls = get_f_brc_is_n_pls(
+            a_s_js=self.bs.a_s_js,
+            c_a=get_c_a(),
+            v_rm_is=self.rms.v_rm_is,
+            c_sh_frt_is=self.rms.c_sh_frt_is,
+            delta_t=delta_t,
+            f_wsc_js_n_pls=ss.f_wsc_js_ns[:, n + 1].reshape(-1, 1),
+            f_wsv_js_n_pls=f_wsv_js_n_pls,
+            g_sh_frt_is=self.rms.g_sh_frt_is,
+            h_s_c_js=self.bs.h_s_c_js,
+            p_is_js=self.bs.p_is_js,
+            q_gen_is_n=self.scd.q_gen_is_ns[:, n].reshape(-1, 1),
+            q_hum_is_n=q_hum_is_n,
+            q_sol_frt_is_n=ss.q_sol_frt_is_ns[:, n].reshape(-1, 1),
+            rho_a=get_rho_a(),
+            theta_frt_is_n=c_n.theta_frt_is_n,
+            theta_o_n_pls=self.weather.theta_o_ns_plus[n + 1],
+            theta_r_is_n=c_n.theta_r_is_n,
+            v_vent_out_non_nv_is_n=v_vent_out_non_nv_is_n,
+            v_vent_ntr_is_n=self.rms.v_vent_ntr_set_is
+        )
+
+        # ステップ n+1 における係数 f_BRM, W/K, [i, i]
+        f_brm_non_nv_is_is_n_pls, f_brm_nv_is_is_n_pls = get_f_brm_is_is_n_pls(
+            a_s_js=self.bs.a_s_js,
+            c_a=get_c_a(),
+            v_rm_is=self.rms.v_rm_is,
+            c_sh_frt_is=self.rms.c_sh_frt_is,
+            delta_t=delta_t,
+            f_wsr_js_is=ss.f_wsr_js_is,
+            g_sh_frt_is=self.rms.g_sh_frt_is,
+            h_s_c_js=self.bs.h_s_c_js,
+            p_is_js=self.bs.p_is_js,
+            p_js_is=self.bs.p_js_is,
+            rho_a=get_rho_a(),
+            v_vent_int_is_is_n=self.mvs.v_vent_int_is_is,
+            v_vent_out_non_nv_is_n=v_vent_out_non_nv_is_n,
+            v_vent_ntr_set_is=self.rms.v_vent_ntr_set_is
+        )
+
+        # ステップn+1における室iの係数 XC, [i, 1]
+        f_xc_is_n_pls = get_f_xc_is_n_pls(
+            f_mrt_hum_is_js=ss.f_mrt_hum_is_js,
+            f_wsc_js_n_pls=ss.f_wsc_js_ns[:, n + 1].reshape(-1, 1),
+            f_wsv_js_n_pls=f_wsv_js_n_pls,
+            f_xot_is_is_n_pls=ss.f_xot_is_is_n_pls,
+            k_r_is_n=ss.k_r_is_n
+        )
+
+        # ステップ n における係数 f_BRM,OT, W/K, [i, i]
+        f_brm_ot_non_nv_is_is_n_pls, f_brm_ot_nv_is_is_n_pls = get_f_brm_ot_is_is_n_pls(
+            f_xot_is_is_n_pls=ss.f_xot_is_is_n_pls,
+            f_brm_non_nv_is_is_n_pls=f_brm_non_nv_is_is_n_pls,
+            f_brm_nv_is_is_n_pls=f_brm_nv_is_is_n_pls
+        )
+
+        # ステップ n における係数 f_BRC,OT, W, [i, 1]
+        f_brc_ot_non_nv_is_n_pls, f_brc_ot_nv_is_n_pls = get_f_brc_ot_is_n_pls(
+            f_xc_is_n_pls=f_xc_is_n_pls,
+            f_brc_non_nv_is_n_pls=f_brc_non_nv_is_n_pls,
+            f_brc_nv_is_n_pls=f_brc_nv_is_n_pls,
+            f_brm_non_nv_is_is_n_pls=f_brm_non_nv_is_is_n_pls,
+            f_brm_nv_is_is_n_pls=f_brm_nv_is_is_n_pls
+        )
+
+        # ステップnにおける室iの自然風の非利用時の潜熱バランスに関する係数f_h_cst, kg / s, [i, 1]
+        # ステップnにおける室iの自然風の利用時の潜熱バランスに関する係数f_h_cst, kg / s, [i, 1]
+        f_h_cst_non_nv_is_n, f_h_cst_nv_is_n = get_f_h_cst_is_n(
+            c_lh_frt_is=self.rms.c_lh_frt_is,
+            delta_t=delta_t,
+            g_lh_frt_is=self.rms.g_lh_frt_is,
+            rho_a=get_rho_a(),
+            v_rm_is=self.rms.v_rm_is,
+            x_frt_is_n=c_n.x_frt_is_n,
+            x_gen_is_n=self.scd.x_gen_is_ns[:, n].reshape(-1, 1),
+            x_hum_is_n=x_hum_is_n,
+            x_o_n_pls=self.weather.x_o_ns_plus[n + 1],
+            x_r_is_n=c_n.x_r_is_n,
+            v_vent_out_non_nv_is_n=v_vent_out_non_nv_is_n,
+            v_vent_ntr_is= self.rms.v_vent_ntr_set_is
+        )
+
+        # ステップnにおける自然風非利用時の室i*の絶対湿度が室iの潜熱バランスに与える影響を表す係数,　kg/(s kg/kg(DA)), [i, i]
+        # ステップnにおける自然風利用時の室i*の絶対湿度が室iの潜熱バランスに与える影響を表す係数,　kg/(s kg/kg(DA)), [i, i]
+        f_h_wgt_non_nv_is_is_n, f_h_wgt_nv_is_is_n = get_f_h_wgt_is_is_n(
+            c_lh_frt_is=self.rms.c_lh_frt_is,
+            delta_t=delta_t,
+            g_lh_frt_is=self.rms.g_lh_frt_is,
+            rho_a=get_rho_a(),
+            v_rm_is=self.rms.v_rm_is,
+            v_vent_int_is_is_n=self.mvs.v_vent_int_is_is,
+            v_vent_out_non_nv_is_n=v_vent_out_non_nv_is_n,
+            v_vent_ntr_is=self.rms.v_vent_ntr_set_is
+        )
+
+        # ステップn+1における自然風非利用時の自然作用温度, degree C, [i, 1]
+        # ステップn+1における自然風利用時の自然作用温度, degree C, [i, 1]
+        theta_r_ot_ntr_non_nv_is_n_pls, theta_r_ot_ntr_nv_is_n_pls = get_theta_r_ot_ntr_is_n_pls(
+            f_brc_ot_non_nv_is_n_pls=f_brc_ot_non_nv_is_n_pls,
+            f_brc_ot_nv_is_n_pls=f_brc_ot_nv_is_n_pls,
+            f_brm_ot_non_nv_is_is_n_pls=f_brm_ot_non_nv_is_is_n_pls,
+            f_brm_ot_nv_is_is_n_pls=f_brm_ot_nv_is_is_n_pls
+        )
+
+        theta_r_ntr_non_nv_is_n_pls = np.dot(ss.f_xot_is_is_n_pls, theta_r_ot_ntr_non_nv_is_n_pls) - f_xc_is_n_pls
+        theta_r_ntr_nv_is_n_pls = np.dot(ss.f_xot_is_is_n_pls, theta_r_ot_ntr_nv_is_n_pls) - f_xc_is_n_pls
+
+        theta_s_ntr_non_nv_js_n_pls = np.dot(ss.f_wsr_js_is, theta_r_ntr_non_nv_is_n_pls) + ss.f_wsc_js_ns[:, n + 1].reshape(-1, 1) + f_wsv_js_n_pls
+        theta_s_ntr_nv_js_n_pls = np.dot(ss.f_wsr_js_is, theta_r_ntr_nv_is_n_pls) + ss.f_wsc_js_ns[:, n + 1].reshape(-1, 1) + f_wsv_js_n_pls
+
+        theta_mrt_hum_ntr_non_nv_is_n_pls = np.dot(ss.f_mrt_is_js, theta_s_ntr_non_nv_js_n_pls)
+        theta_mrt_hum_ntr_nv_is_n_pls = np.dot(ss.f_mrt_is_js, theta_s_ntr_nv_js_n_pls)
+
+        # ステップn+1における室iの自然風非利用時の加湿・除湿を行わない場合の絶対湿度, kg/kg(DA) [i, 1]
+        # ステップn+1における室iの自然風利用時の加湿・除湿を行わない場合の絶対湿度, kg/kg(DA) [i, 1]
+        x_r_ntr_non_nv_is_n_pls, x_r_ntr_nv_is_n_pls = get_x_r_ntr_is_n_pls(
+            f_h_cst_non_nv_is_n=f_h_cst_non_nv_is_n,
+            f_h_wgt_non_nv_is_is_n=f_h_wgt_non_nv_is_is_n,
+            f_h_cst_nv_is_n=f_h_cst_nv_is_n,
+            f_h_wgt_nv_is_is_n=f_h_wgt_nv_is_is_n
+        )
+
+        # ステップ n における室 i の運転モード, [i, 1]
+        operation_mode_is_n = self._op.get_t_operation_mode_is_n(
+            n=n,
+            is_radiative_heating_is=self.es.is_radiative_heating_is,
+            is_radiative_cooling_is=self.es.is_radiative_cooling_is,
+            met_is=self.rms.met_is,
+            theta_r_ot_ntr_non_nv_is_n_pls=theta_r_ot_ntr_non_nv_is_n_pls,
+            theta_r_ot_ntr_nv_is_n_pls=theta_r_ot_ntr_nv_is_n_pls,
+            theta_r_ntr_non_nv_is_n_pls=theta_r_ntr_non_nv_is_n_pls,
+            theta_r_ntr_nv_is_n_pls=theta_r_ntr_nv_is_n_pls,
+            theta_mrt_hum_ntr_non_nv_is_n_pls=theta_mrt_hum_ntr_non_nv_is_n_pls,
+            theta_mrt_hum_ntr_nv_is_n_pls=theta_mrt_hum_ntr_nv_is_n_pls,
+            x_r_ntr_non_nv_is_n_pls=x_r_ntr_non_nv_is_n_pls,
+            x_r_ntr_nv_is_n_pls=x_r_ntr_nv_is_n_pls
+        )
+
+        f_brm_is_is_n_pls = np.where(
+            operation_mode_is_n == OperationMode.STOP_OPEN,
+            f_brm_nv_is_is_n_pls,
+            f_brm_non_nv_is_is_n_pls
+        )
+
+        v_vent_ntr_is_n = np.where(
+            operation_mode_is_n == OperationMode.STOP_OPEN,
+            self.rms.v_vent_ntr_set_is,
+            0.0
+        )
+
+        f_brm_ot_is_is_n_pls = np.where(
+            operation_mode_is_n == OperationMode.STOP_OPEN,
+            f_brm_ot_nv_is_is_n_pls,
+            f_brm_ot_non_nv_is_is_n_pls
+        )
+
+        f_brc_ot_is_n_pls = np.where(
+            operation_mode_is_n == OperationMode.STOP_OPEN,
+            f_brc_ot_nv_is_n_pls,
+            f_brc_ot_non_nv_is_n_pls
+        )
+
+        f_h_cst_is_n = np.where(
+            operation_mode_is_n == OperationMode.STOP_OPEN,
+            f_h_cst_nv_is_n,
+            f_h_cst_non_nv_is_n
+        )
+
+        f_h_wgt_is_is_n = np.where(
+            operation_mode_is_n == OperationMode.STOP_OPEN,
+            f_h_wgt_nv_is_is_n,
+            f_h_wgt_non_nv_is_is_n
+        )
+
+        theta_r_ot_ntr_is_n_pls = np.where(
+            operation_mode_is_n == OperationMode.STOP_OPEN,
+            theta_r_ot_ntr_nv_is_n_pls,
+            theta_r_ot_ntr_non_nv_is_n_pls
+        )
+
+        theta_r_ntr_is_n_pls = np.where(
+            operation_mode_is_n == OperationMode.STOP_OPEN,
+            theta_r_ntr_nv_is_n_pls,
+            theta_r_ntr_non_nv_is_n_pls
+        )
+
+        theta_mrt_hum_ntr_is_n_pls = np.where(
+            operation_mode_is_n == OperationMode.STOP_OPEN,
+            theta_mrt_hum_ntr_nv_is_n_pls,
+            theta_mrt_hum_ntr_non_nv_is_n_pls
+        )
+
+        x_r_ntr_is_n_pls = np.where(
+            operation_mode_is_n == OperationMode.STOP_OPEN,
+            x_r_ntr_nv_is_n_pls,
+            x_r_ntr_non_nv_is_n_pls
+        )
+
+        theta_lower_target_is_n_pls, theta_upper_target_is_n_pls, h_hum_c_is_n, h_hum_r_is_n \
+            = self._op.get_theta_target_is_n(
+                operation_mode_is_n=operation_mode_is_n,
+                theta_r_ntr_is_n_pls=theta_r_ntr_is_n_pls,
+                theta_mrt_hum_ntr_is_n_pls=theta_mrt_hum_ntr_is_n_pls,
+                x_r_ntr_is_n_pls=x_r_ntr_is_n_pls,
+                n=n,
+                is_radiative_heating_is=self.es.is_radiative_heating_is,
+                is_radiative_cooling_is=self.es.is_radiative_cooling_is,
+                met_is=self.rms.met_is
+            )
+
+        # ステップ n+1 における係数 f_flr, -, [j, i]
+        f_flr_js_is_n = get_f_flr_js_is_n(
+            f_flr_c_js_is=self.es.f_flr_c_js_is,
+            f_flr_h_js_is=self.es.f_flr_h_js_is,
+            operation_mode_is_n=operation_mode_is_n
+        )
+
+        # ステップ n からステップ n+1 における室 i の放射暖冷房設備の対流成分比率, -, [i, 1]
+        beta_is_n = get_beta_is_n(
+            beta_c_is=self.es.beta_c_is,
+            beta_h_is=self.es.beta_h_is,
+            operation_mode_is_n=operation_mode_is_n
+        )
+
+        # ステップ n における係数 f_FLB, K/W, [j, i]
+        f_flb_js_is_n_pls = get_f_flb_js_is_n_pls(
+            a_s_js=self.bs.a_s_js,
+            beta_is_n=beta_is_n,
+            f_flr_js_is_n=f_flr_js_is_n,
+            h_s_c_js=self.bs.h_s_c_js,
+            h_s_r_js=self.bs.h_s_r_js,
+            k_ei_js_js=self.bs.k_ei_js_js,
+            phi_a0_js=self.bs.phi_a0_js,
+            phi_t0_js=self.bs.phi_t0_js
+        )
+
+        # ステップ n における係数 f_WSB, K/W, [j, i]
+        f_wsb_js_is_n_pls = get_f_wsb_js_is_n_pls(
+            f_flb_js_is_n_pls=f_flb_js_is_n_pls,
+            f_ax_js_js=ss.f_ax_js_js
+        )
+
+        # ステップ n における係数 f_BRL, -, [i, i]
+        f_brl_is_is_n = get_f_brl_is_is_n(
+            a_s_js=self.bs.a_s_js,
+            beta_is_n=beta_is_n,
+            f_wsb_js_is_n_pls=f_wsb_js_is_n_pls,
+            h_s_c_js=self.bs.h_s_c_js,
+            p_is_js=self.bs.p_is_js
+        )
+
+        # ステップn+1における室iの係数 f_XLR, K/W, [i, i]
+        f_xlr_is_is_n_pls = get_f_xlr_is_is_n_pls(
+            f_mrt_hum_is_js=ss.f_mrt_hum_is_js,
+            f_wsb_js_is_n_pls=f_wsb_js_is_n_pls,
+            f_xot_is_is_n_pls=ss.f_xot_is_is_n_pls,
+            k_r_is_n=ss.k_r_is_n
+        )
+
+        # ステップ n における係数 f_BRL_OT, -, [i, i]
+        f_brl_ot_is_is_n = get_f_brl_ot_is_is_n(
+            f_brl_is_is_n=f_brl_is_is_n,
+            f_brm_is_is_n_pls=f_brm_is_is_n_pls,
+            f_xlr_is_is_n_pls=f_xlr_is_is_n_pls
+        )
+
+        # ステップ n+1 における室 i の作用温度, degree C, [i, 1] (ステップn+1における瞬時値）
+        # ステップ n における室 i に設置された対流暖房の放熱量, W, [i, 1] (ステップn～ステップn+1までの平均値）
+        # ステップ n における室 i に設置された放射暖房の放熱量, W, [i, 1]　(ステップn～ステップn+1までの平均値）
+        theta_ot_is_n_pls, l_cs_is_n, l_rs_is_n = next_condition.get_next_temp_and_load(
+            ac_demand_is_ns=self.scd.ac_demand_is_ns,
+            brc_ot_is_n=f_brc_ot_is_n_pls,
+            brm_ot_is_is_n=f_brm_ot_is_is_n_pls,
+            brl_ot_is_is_n=f_brl_ot_is_is_n,
+            theta_lower_target_is_n=theta_lower_target_is_n_pls,
+            theta_upper_target_is_n=theta_upper_target_is_n_pls,
+            operation_mode_is_n=operation_mode_is_n,
+            is_radiative_heating_is=self.es.is_radiative_heating_is,
+            is_radiative_cooling_is=self.es.is_radiative_cooling_is,
+            lr_h_max_cap_is=self.es.q_rs_h_max_is,
+            lr_cs_max_cap_is=self.es.q_rs_c_max_is,
+            theta_natural_is_n=theta_r_ot_ntr_is_n_pls,
+            n=n
+        )
+
+        # ステップ n+1 における室 i の室温, degree C, [i, 1]
+        theta_r_is_n_pls = get_theta_r_is_n_pls(
+            f_xc_is_n_pls=f_xc_is_n_pls,
+            f_xlr_is_is_n_pls=f_xlr_is_is_n_pls,
+            f_xot_is_is_n_pls=ss.f_xot_is_is_n_pls,
+            l_rs_is_n=l_rs_is_n,
+            theta_ot_is_n_pls=theta_ot_is_n_pls
+        )
+
+        # ステップ n+1 における境界 j の表面温度, degree C, [j, 1]
+        theta_s_js_n_pls = get_theta_s_js_n_pls(
+            f_wsb_js_is_n_pls=f_wsb_js_is_n_pls,
+            f_wsc_js_n_pls=ss.f_wsc_js_ns[:, n + 1].reshape(-1, 1),
+            f_wsr_js_is=ss.f_wsr_js_is,
+            f_wsv_js_n_pls=f_wsv_js_n_pls,
+            l_rs_is_n=l_rs_is_n,
+            theta_r_is_n_pls=theta_r_is_n_pls
+        )
+
+        # ステップ n+1 における室 i　の備品等の温度, degree C, [i, 1]
+        # TODO: q_sol_frt_is_ns の値は n+1 の値を使用するべき？
+        theta_frt_is_n_pls = get_theta_frt_is_n_pls(
+            c_sh_frt_is=self.rms.c_sh_frt_is,
+            delta_t=delta_t,
+            g_sh_frt_is=self.rms.g_sh_frt_is,
+            q_sol_frt_is_n=ss.q_sol_frt_is_ns[:, n].reshape(-1, 1),
+            theta_frt_is_n=c_n.theta_frt_is_n,
+            theta_r_is_n_pls=theta_r_is_n_pls
+        )
+
+        # ステップ n+1 における室 i の人体に対する平均放射温度, degree C, [i, 1]
+        theta_mrt_hum_is_n_pls = get_theta_mrt_hum_is_n_pls(
+            f_mrt_hum_is_js=ss.f_mrt_hum_is_js,
+            theta_s_js_n_pls=theta_s_js_n_pls
+        )
+
+        # ステップ n+1 における境界 j の等価温度, degree C, [j, 1]
+        theta_ei_js_n_pls = get_theta_ei_js_n_pls(
+            a_s_js=self.bs.a_s_js,
+            beta_is_n=beta_is_n,
+            f_mrt_is_js=ss.f_mrt_is_js,
+            f_flr_js_is_n=f_flr_js_is_n,
+            h_s_c_js=self.bs.h_s_c_js,
+            h_s_r_js=self.bs.h_s_r_js,
+            l_rs_is_n=l_rs_is_n,
+            p_js_is=self.bs.p_js_is,
+            q_s_sol_js_n_pls=ss.q_s_sol_js_ns[:, n + 1].reshape(-1, 1),
+            theta_r_is_n_pls=theta_r_is_n_pls,
+            theta_s_js_n_pls=theta_s_js_n_pls
+        )
+
+        # ステップ n+1 における境界 j の裏面温度, degree C, [j, 1]
+        # TODO: この値は記録にしか使用していないので、ポスト処理にまわせる。
+        theta_rear_js_n_pls = get_theta_s_rear_js_n(
+            k_s_er_js_js=self.bs.k_ei_js_js,
+            theta_er_js_n=theta_ei_js_n_pls,
+            k_s_eo_js=self.bs.k_eo_js,
+            theta_eo_js_n=self.bs.theta_o_eqv_js_ns[:, n+1].reshape(-1, 1),
+            k_s_r_js_is=self.bs.k_s_r_js_is,
+            theta_r_is_n=theta_r_is_n_pls
+        )
+
+        # ステップ n+1 における境界 j の表面熱流（壁体吸熱を正とする）, W/m2, [j, 1]
+        q_s_js_n_pls = get_q_s_js_n_pls(
+            h_s_c_js=self.bs.h_s_c_js,
+            h_s_r_js=self.bs.h_s_r_js,
+            theta_ei_js_n_pls=theta_ei_js_n_pls,
+            theta_s_js_n_pls=theta_s_js_n_pls
+        )
+
+        # ステップ n+1 における室 i∗ の絶対湿度がステップ n から n+1 における室 i の潜熱負荷に与える影響を表す係数, kg/(s (kg/kg(DA))), [i, i*]
+        # ステップ n から n+1 における室 i の潜熱負荷に与える影響を表す係数, kg/s, [i, 1]
+        f_l_cl_cst_is_n, f_l_cl_wgt_is_is_n = self.get_f_l_cl(
+            l_cs_is_n=l_cs_is_n,
+            theta_r_is_n_pls=theta_r_is_n_pls,
+            x_r_ntr_is_n_pls=x_r_ntr_is_n_pls
+        )
+
+        # ステップ n+1 における室 i の 絶対湿度, kg/kg(DA), [i, 1]
+        x_r_is_n_pls = get_x_r_is_n_pls(
+            f_h_cst_is_n=f_h_cst_is_n,
+            f_h_wgt_is_is_n=f_h_wgt_is_is_n,
+            f_l_cl_cst_is_n=f_l_cl_cst_is_n,
+            f_l_cl_wgt_is_is_n=f_l_cl_wgt_is_is_n
+        )
+
+        # ステップ n から ステップ n+1 における室 i の潜熱負荷（加湿を正・除湿を負とする）, W, [i, 1]
+        l_cl_is_n = get_l_cl_is_n(
+            f_l_cl_wgt_is_is_n=f_l_cl_wgt_is_is_n,
+            f_l_cl_cst_is_n=f_l_cl_cst_is_n,
+            l_wtr=get_l_wtr(),
+            x_r_is_n_pls=x_r_is_n_pls
+        )
+
+        # ステップ n+1 における室 i の備品等等の絶対湿度, kg/kg(DA), [i, 1]
+        x_frt_is_n_pls = get_x_frt_is_n_pls(
+            c_lh_frt_is=self.rms.c_lh_frt_is,
+            delta_t=delta_t,
+            g_lh_frt_is=self.rms.g_lh_frt_is,
+            x_frt_is_n=c_n.x_frt_is_n,
+            x_r_is_n_pls=x_r_is_n_pls
+        )
+
+        if recorder is not None:
+            recorder.recording(
+                n=n,
+                theta_r_is_n_pls=theta_r_is_n_pls,
+                theta_mrt_hum_is_n_pls=theta_mrt_hum_is_n_pls,
+                x_r_is_n_pls=x_r_is_n_pls,
+                theta_frt_is_n_pls=theta_frt_is_n_pls,
+                x_frt_is_n_pls=x_frt_is_n_pls,
+                theta_ei_js_n_pls=theta_ei_js_n_pls,
+                q_s_js_n_pls=q_s_js_n_pls,
+                theta_ot_is_n_pls=theta_ot_is_n_pls,
+                theta_s_js_n_pls=theta_s_js_n_pls,
+                theta_rear_js_n=theta_rear_js_n_pls,
+                f_cvl_js_n_pls=f_cvl_js_n_pls,
+                operation_mode_is_n=operation_mode_is_n,
+                l_cs_is_n=l_cs_is_n,
+                l_rs_is_n=l_rs_is_n,
+                l_cl_is_n=l_cl_is_n,
+                h_hum_c_is_n=h_hum_c_is_n,
+                h_hum_r_is_n=h_hum_r_is_n,
+                q_hum_is_n=q_hum_is_n,
+                x_hum_is_n=x_hum_is_n,
+                v_leak_is_n=v_leak_is_n,
+                v_vent_ntr_is_n=v_vent_ntr_is_n
+            )
+
+        return Conditions(
+            operation_mode_is_n=operation_mode_is_n,
+            theta_r_is_n=theta_r_is_n_pls,
+            theta_mrt_hum_is_n=theta_mrt_hum_is_n_pls,
+            x_r_is_n=x_r_is_n_pls,
+            theta_dsh_s_a_js_ms_n=theta_dsh_s_a_js_ms_n_pls,
+            theta_dsh_s_t_js_ms_n=theta_dsh_s_t_js_ms_n_pls,
+            q_s_js_n=q_s_js_n_pls,
+            theta_frt_is_n=theta_frt_is_n_pls,
+            x_frt_is_n=x_frt_is_n_pls,
+            theta_ei_js_n=theta_ei_js_n_pls
+        )
+
 
     def run_tick_ground(self, gc_n: GroundConditions, n: int):
 
@@ -363,516 +858,6 @@ def _pre_calc(
     )
 
     return pre_calc_parameters
-
-
-def _run_tick(self, n: int, delta_t: float, ss: PreCalcParameters, c_n: Conditions, recorder: Recorder) -> Conditions:
-    """
-    室の温湿度・熱負荷の計算
-    Args:
-        n: ステップ
-        delta_t: 時間間隔, s
-        ss: ループ計算前に計算可能なパラメータを含めたクラス
-        c_n: 前の時刻からの状態量
-        recorder: Recorder クラス
-    Returns:
-        次の時刻にわたす状態量
-    """
-
-    # region 人体発熱・人体発湿
-
-    # ステップnからステップn+1における室iの1人あたりの人体発熱, W, [i, 1]
-    q_hum_psn_is_n = occupants.get_q_hum_psn_is_n(theta_r_is_n=c_n.theta_r_is_n)
-
-    # ステップ n からステップ n+1 における室 i の人体発熱, W, [i, 1]
-    q_hum_is_n = get_q_hum_is_n(n_hum_is_n=self.scd.n_hum_is_ns[:, n].reshape(-1, 1), q_hum_psn_is_n=q_hum_psn_is_n)
-
-    # ステップnの室iにおける1人あたりの人体発湿, kg/s, [i, 1]
-    x_hum_psn_is_n = occupants.get_x_hum_psn_is_n(theta_r_is_n=c_n.theta_r_is_n)
-
-    # ステップnの室iにおける人体発湿, kg/s, [i, 1]
-    x_hum_is_n = get_x_hum_is_n(n_hum_is_n=self.scd.n_hum_is_ns[:, n].reshape(-1, 1), x_hum_psn_is_n=x_hum_psn_is_n)
-
-    # endregion
-
-    # ステップ n の境界 j における裏面温度, degree C, [j, 1]
-    theta_rear_js_n = get_theta_s_rear_js_n(
-        k_s_er_js_js=self.bs.k_ei_js_js,
-        theta_er_js_n=c_n.theta_ei_js_n,
-        k_s_eo_js=self.bs.k_eo_js,
-        theta_eo_js_n=self.bs.theta_o_eqv_js_ns[:, n].reshape(-1, 1),
-        k_s_r_js_is=self.bs.k_s_r_js_is,
-        theta_r_is_n=c_n.theta_r_is_n
-    )
-
-    # ステップnの室iにおけるすきま風量, m3/s, [i, 1]
-    v_leak_is_n = self.building.get_v_leak_is_n(
-        theta_r_is_n=c_n.theta_r_is_n,
-        theta_o_n=self.weather.theta_o_ns_plus[n],
-        v_rm_is=self.rms.v_rm_is
-    )
-
-    # ステップ n+1 の境界 j における項別公比法の指数項 m の貫流応答の項別成分, degree C, [j, m] (m=12), eq.(29)
-    theta_dsh_s_t_js_ms_n_pls = get_theta_dsh_s_t_js_ms_n_pls(
-        phi_t1_js_ms=self.bs.phi_t1_js_ms,
-        r_js_ms=self.bs.r_js_ms,
-        theta_dsh_srf_t_js_ms_n=c_n.theta_dsh_srf_t_js_ms_n,
-        theta_rear_js_n=theta_rear_js_n
-    )
-
-    # ステップ n+1 の境界 j における項別公比法の指数項 m の吸熱応答の項別成分, degree C, [j, m]
-    theta_dsh_s_a_js_ms_n_pls = get_theta_dsh_s_a_js_ms_n_pls(
-        phi_a1_js_ms=self.bs.phi_a1_js_ms,
-        q_s_js_n=c_n.q_s_js_n,
-        r_js_ms=self.bs.r_js_ms,
-        theta_dsh_srf_a_js_ms_n=c_n.theta_dsh_srf_a_js_ms_n
-    )
-
-    # ステップ n+1 の境界 j における係数f_CVL, degree C, [j, 1]
-    f_cvl_js_n_pls = get_f_cvl_js_n_pls(
-        theta_dsh_s_a_js_ms_n_pls=theta_dsh_s_a_js_ms_n_pls,
-        theta_dsh_s_t_js_ms_n_pls=theta_dsh_s_t_js_ms_n_pls
-    )
-
-    # ステップ n+1 の境界 j における係数 f_WSV, degree C, [j, 1]
-    f_wsv_js_n_pls = get_f_wsv_js_n_pls(
-        f_cvl_js_n_pls=f_cvl_js_n_pls,
-        f_ax_js_js=ss.f_ax_js_js
-    )
-
-    # ステップnからステップn+1における室iの換気・隙間風による外気の流入量, m3/s, [i, 1]
-    v_vent_out_non_nv_is_n = get_v_vent_out_non_ntr_is_n(
-        v_leak_is_n=v_leak_is_n,
-        v_vent_mec_is_n=ss.v_vent_mec_is_ns[:, n].reshape(-1, 1)
-    )
-
-    # ステップ n+1 の室 i における係数 f_BRC, W, [i, 1]
-    # TODO: q_sol_frt_is_ns の値は n+1 の値を使用するべき？
-    f_brc_non_nv_is_n_pls, f_brc_nv_is_n_pls = get_f_brc_is_n_pls(
-        a_s_js=self.bs.a_s_js,
-        c_a=get_c_a(),
-        v_rm_is=self.rms.v_rm_is,
-        c_sh_frt_is=self.rms.c_sh_frt_is,
-        delta_t=delta_t,
-        f_wsc_js_n_pls=ss.f_wsc_js_ns[:, n + 1].reshape(-1, 1),
-        f_wsv_js_n_pls=f_wsv_js_n_pls,
-        g_sh_frt_is=self.rms.g_sh_frt_is,
-        h_s_c_js=self.bs.h_s_c_js,
-        p_is_js=self.bs.p_is_js,
-        q_gen_is_n=self.scd.q_gen_is_ns[:, n].reshape(-1, 1),
-        q_hum_is_n=q_hum_is_n,
-        q_sol_frt_is_n=ss.q_sol_frt_is_ns[:, n].reshape(-1, 1),
-        rho_a=get_rho_a(),
-        theta_frt_is_n=c_n.theta_frt_is_n,
-        theta_o_n_pls=self.weather.theta_o_ns_plus[n + 1],
-        theta_r_is_n=c_n.theta_r_is_n,
-        v_vent_out_non_nv_is_n=v_vent_out_non_nv_is_n,
-        v_vent_ntr_is_n=self.rms.v_vent_ntr_set_is
-    )
-
-    # ステップ n+1 における係数 f_BRM, W/K, [i, i]
-    f_brm_non_nv_is_is_n_pls, f_brm_nv_is_is_n_pls = get_f_brm_is_is_n_pls(
-        a_s_js=self.bs.a_s_js,
-        c_a=get_c_a(),
-        v_rm_is=self.rms.v_rm_is,
-        c_sh_frt_is=self.rms.c_sh_frt_is,
-        delta_t=delta_t,
-        f_wsr_js_is=ss.f_wsr_js_is,
-        g_sh_frt_is=self.rms.g_sh_frt_is,
-        h_s_c_js=self.bs.h_s_c_js,
-        p_is_js=self.bs.p_is_js,
-        p_js_is=self.bs.p_js_is,
-        rho_a=get_rho_a(),
-        v_vent_int_is_is_n=self.mvs.v_vent_int_is_is,
-        v_vent_out_non_nv_is_n=v_vent_out_non_nv_is_n,
-        v_vent_ntr_set_is=self.rms.v_vent_ntr_set_is
-    )
-
-    # ステップn+1における室iの係数 XC, [i, 1]
-    f_xc_is_n_pls = get_f_xc_is_n_pls(
-        f_mrt_hum_is_js=ss.f_mrt_hum_is_js,
-        f_wsc_js_n_pls=ss.f_wsc_js_ns[:, n + 1].reshape(-1, 1),
-        f_wsv_js_n_pls=f_wsv_js_n_pls,
-        f_xot_is_is_n_pls=ss.f_xot_is_is_n_pls,
-        k_r_is_n=ss.k_r_is_n
-    )
-
-    # ステップ n における係数 f_BRM,OT, W/K, [i, i]
-    f_brm_ot_non_nv_is_is_n_pls, f_brm_ot_nv_is_is_n_pls = get_f_brm_ot_is_is_n_pls(
-        f_xot_is_is_n_pls=ss.f_xot_is_is_n_pls,
-        f_brm_non_nv_is_is_n_pls=f_brm_non_nv_is_is_n_pls,
-        f_brm_nv_is_is_n_pls=f_brm_nv_is_is_n_pls
-    )
-
-    # ステップ n における係数 f_BRC,OT, W, [i, 1]
-    f_brc_ot_non_nv_is_n_pls, f_brc_ot_nv_is_n_pls = get_f_brc_ot_is_n_pls(
-        f_xc_is_n_pls=f_xc_is_n_pls,
-        f_brc_non_nv_is_n_pls=f_brc_non_nv_is_n_pls,
-        f_brc_nv_is_n_pls=f_brc_nv_is_n_pls,
-        f_brm_non_nv_is_is_n_pls=f_brm_non_nv_is_is_n_pls,
-        f_brm_nv_is_is_n_pls=f_brm_nv_is_is_n_pls
-    )
-
-    # ステップnにおける室iの自然風の非利用時の潜熱バランスに関する係数f_h_cst, kg / s, [i, 1]
-    # ステップnにおける室iの自然風の利用時の潜熱バランスに関する係数f_h_cst, kg / s, [i, 1]
-    f_h_cst_non_nv_is_n, f_h_cst_nv_is_n = get_f_h_cst_is_n(
-        c_lh_frt_is=self.rms.c_lh_frt_is,
-        delta_t=delta_t,
-        g_lh_frt_is=self.rms.g_lh_frt_is,
-        rho_a=get_rho_a(),
-        v_rm_is=self.rms.v_rm_is,
-        x_frt_is_n=c_n.x_frt_is_n,
-        x_gen_is_n=self.scd.x_gen_is_ns[:, n].reshape(-1, 1),
-        x_hum_is_n=x_hum_is_n,
-        x_o_n_pls=self.weather.x_o_ns_plus[n + 1],
-        x_r_is_n=c_n.x_r_is_n,
-        v_vent_out_non_nv_is_n=v_vent_out_non_nv_is_n,
-        v_vent_ntr_is= self.rms.v_vent_ntr_set_is
-    )
-
-    # ステップnにおける自然風非利用時の室i*の絶対湿度が室iの潜熱バランスに与える影響を表す係数,　kg/(s kg/kg(DA)), [i, i]
-    # ステップnにおける自然風利用時の室i*の絶対湿度が室iの潜熱バランスに与える影響を表す係数,　kg/(s kg/kg(DA)), [i, i]
-    f_h_wgt_non_nv_is_is_n, f_h_wgt_nv_is_is_n = get_f_h_wgt_is_is_n(
-        c_lh_frt_is=self.rms.c_lh_frt_is,
-        delta_t=delta_t,
-        g_lh_frt_is=self.rms.g_lh_frt_is,
-        rho_a=get_rho_a(),
-        v_rm_is=self.rms.v_rm_is,
-        v_vent_int_is_is_n=self.mvs.v_vent_int_is_is,
-        v_vent_out_non_nv_is_n=v_vent_out_non_nv_is_n,
-        v_vent_ntr_is=self.rms.v_vent_ntr_set_is
-    )
-
-    # ステップn+1における自然風非利用時の自然作用温度, degree C, [i, 1]
-    # ステップn+1における自然風利用時の自然作用温度, degree C, [i, 1]
-    theta_r_ot_ntr_non_nv_is_n_pls, theta_r_ot_ntr_nv_is_n_pls = get_theta_r_ot_ntr_is_n_pls(
-        f_brc_ot_non_nv_is_n_pls=f_brc_ot_non_nv_is_n_pls,
-        f_brc_ot_nv_is_n_pls=f_brc_ot_nv_is_n_pls,
-        f_brm_ot_non_nv_is_is_n_pls=f_brm_ot_non_nv_is_is_n_pls,
-        f_brm_ot_nv_is_is_n_pls=f_brm_ot_nv_is_is_n_pls
-    )
-
-    theta_r_ntr_non_nv_is_n_pls = np.dot(ss.f_xot_is_is_n_pls, theta_r_ot_ntr_non_nv_is_n_pls) - f_xc_is_n_pls
-    theta_r_ntr_nv_is_n_pls = np.dot(ss.f_xot_is_is_n_pls, theta_r_ot_ntr_nv_is_n_pls) - f_xc_is_n_pls
-
-    theta_s_ntr_non_nv_js_n_pls = np.dot(ss.f_wsr_js_is, theta_r_ntr_non_nv_is_n_pls) + ss.f_wsc_js_ns[:, n + 1].reshape(-1, 1) + f_wsv_js_n_pls
-    theta_s_ntr_nv_js_n_pls = np.dot(ss.f_wsr_js_is, theta_r_ntr_nv_is_n_pls) + ss.f_wsc_js_ns[:, n + 1].reshape(-1, 1) + f_wsv_js_n_pls
-
-    theta_mrt_hum_ntr_non_nv_is_n_pls = np.dot(ss.f_mrt_is_js, theta_s_ntr_non_nv_js_n_pls)
-    theta_mrt_hum_ntr_nv_is_n_pls = np.dot(ss.f_mrt_is_js, theta_s_ntr_nv_js_n_pls)
-
-    # ステップn+1における室iの自然風非利用時の加湿・除湿を行わない場合の絶対湿度, kg/kg(DA) [i, 1]
-    # ステップn+1における室iの自然風利用時の加湿・除湿を行わない場合の絶対湿度, kg/kg(DA) [i, 1]
-    x_r_ntr_non_nv_is_n_pls, x_r_ntr_nv_is_n_pls = get_x_r_ntr_is_n_pls(
-        f_h_cst_non_nv_is_n=f_h_cst_non_nv_is_n,
-        f_h_wgt_non_nv_is_is_n=f_h_wgt_non_nv_is_is_n,
-        f_h_cst_nv_is_n=f_h_cst_nv_is_n,
-        f_h_wgt_nv_is_is_n=f_h_wgt_nv_is_is_n
-    )
-
-    # ステップ n における室 i の運転モード, [i, 1]
-    operation_mode_is_n = self.op.get_t_operation_mode_is_n(
-        n=n,
-        is_radiative_heating_is=self.es.is_radiative_heating_is,
-        is_radiative_cooling_is=self.es.is_radiative_cooling_is,
-        met_is=self.rms.met_is,
-        theta_r_ot_ntr_non_nv_is_n_pls=theta_r_ot_ntr_non_nv_is_n_pls,
-        theta_r_ot_ntr_nv_is_n_pls=theta_r_ot_ntr_nv_is_n_pls,
-        theta_r_ntr_non_nv_is_n_pls=theta_r_ntr_non_nv_is_n_pls,
-        theta_r_ntr_nv_is_n_pls=theta_r_ntr_nv_is_n_pls,
-        theta_mrt_hum_ntr_non_nv_is_n_pls=theta_mrt_hum_ntr_non_nv_is_n_pls,
-        theta_mrt_hum_ntr_nv_is_n_pls=theta_mrt_hum_ntr_nv_is_n_pls,
-        x_r_ntr_non_nv_is_n_pls=x_r_ntr_non_nv_is_n_pls,
-        x_r_ntr_nv_is_n_pls=x_r_ntr_nv_is_n_pls
-    )
-
-    f_brm_is_is_n_pls = np.where(
-        operation_mode_is_n == OperationMode.STOP_OPEN,
-        f_brm_nv_is_is_n_pls,
-        f_brm_non_nv_is_is_n_pls
-    )
-
-    v_vent_ntr_is_n = np.where(
-        operation_mode_is_n == OperationMode.STOP_OPEN,
-        self.rms.v_vent_ntr_set_is,
-        0.0
-    )
-
-    f_brm_ot_is_is_n_pls = np.where(
-        operation_mode_is_n == OperationMode.STOP_OPEN,
-        f_brm_ot_nv_is_is_n_pls,
-        f_brm_ot_non_nv_is_is_n_pls
-    )
-
-    f_brc_ot_is_n_pls = np.where(
-        operation_mode_is_n == OperationMode.STOP_OPEN,
-        f_brc_ot_nv_is_n_pls,
-        f_brc_ot_non_nv_is_n_pls
-    )
-
-    f_h_cst_is_n = np.where(
-        operation_mode_is_n == OperationMode.STOP_OPEN,
-        f_h_cst_nv_is_n,
-        f_h_cst_non_nv_is_n
-    )
-
-    f_h_wgt_is_is_n = np.where(
-        operation_mode_is_n == OperationMode.STOP_OPEN,
-        f_h_wgt_nv_is_is_n,
-        f_h_wgt_non_nv_is_is_n
-    )
-
-    theta_r_ot_ntr_is_n_pls = np.where(
-        operation_mode_is_n == OperationMode.STOP_OPEN,
-        theta_r_ot_ntr_nv_is_n_pls,
-        theta_r_ot_ntr_non_nv_is_n_pls
-    )
-
-    theta_r_ntr_is_n_pls = np.where(
-        operation_mode_is_n == OperationMode.STOP_OPEN,
-        theta_r_ntr_nv_is_n_pls,
-        theta_r_ntr_non_nv_is_n_pls
-    )
-
-    theta_mrt_hum_ntr_is_n_pls = np.where(
-        operation_mode_is_n == OperationMode.STOP_OPEN,
-        theta_mrt_hum_ntr_nv_is_n_pls,
-        theta_mrt_hum_ntr_non_nv_is_n_pls
-    )
-
-    x_r_ntr_is_n_pls = np.where(
-        operation_mode_is_n == OperationMode.STOP_OPEN,
-        x_r_ntr_nv_is_n_pls,
-        x_r_ntr_non_nv_is_n_pls
-    )
-
-    theta_lower_target_is_n_pls, theta_upper_target_is_n_pls, h_hum_c_is_n, h_hum_r_is_n \
-        = self.op.get_theta_target_is_n(
-            operation_mode_is_n=operation_mode_is_n,
-            theta_r_is_n=theta_r_ntr_is_n_pls,
-            theta_mrt_hum_is_n=theta_mrt_hum_ntr_is_n_pls,
-            x_r_ntr_is_n_pls=x_r_ntr_is_n_pls,
-            n=n,
-            is_radiative_heating_is=self.es.is_radiative_heating_is,
-            is_radiative_cooling_is=self.es.is_radiative_cooling_is,
-            met_is=self.rms.met_is
-        )
-
-    # ステップ n+1 における係数 f_flr, -, [j, i]
-    f_flr_js_is_n = get_f_flr_js_is_n(
-        f_flr_c_js_is=self.es.f_flr_c_js_is,
-        f_flr_h_js_is=self.es.f_flr_h_js_is,
-        operation_mode_is_n=operation_mode_is_n
-    )
-
-    # ステップ n からステップ n+1 における室 i の放射暖冷房設備の対流成分比率, -, [i, 1]
-    beta_is_n = get_beta_is_n(
-        beta_c_is=self.es.beta_c_is,
-        beta_h_is=self.es.beta_h_is,
-        operation_mode_is_n=operation_mode_is_n
-    )
-
-    # ステップ n における係数 f_FLB, K/W, [j, i]
-    f_flb_js_is_n_pls = get_f_flb_js_is_n_pls(
-        a_s_js=self.bs.a_s_js,
-        beta_is_n=beta_is_n,
-        f_flr_js_is_n=f_flr_js_is_n,
-        h_s_c_js=self.bs.h_s_c_js,
-        h_s_r_js=self.bs.h_s_r_js,
-        k_ei_js_js=self.bs.k_ei_js_js,
-        phi_a0_js=self.bs.phi_a0_js,
-        phi_t0_js=self.bs.phi_t0_js
-    )
-
-    # ステップ n における係数 f_WSB, K/W, [j, i]
-    f_wsb_js_is_n_pls = get_f_wsb_js_is_n_pls(
-        f_flb_js_is_n_pls=f_flb_js_is_n_pls,
-        f_ax_js_js=ss.f_ax_js_js
-    )
-
-    # ステップ n における係数 f_BRL, -, [i, i]
-    f_brl_is_is_n = get_f_brl_is_is_n(
-        a_s_js=self.bs.a_s_js,
-        beta_is_n=beta_is_n,
-        f_wsb_js_is_n_pls=f_wsb_js_is_n_pls,
-        h_s_c_js=self.bs.h_s_c_js,
-        p_is_js=self.bs.p_is_js
-    )
-
-    # ステップn+1における室iの係数 f_XLR, K/W, [i, i]
-    f_xlr_is_is_n_pls = get_f_xlr_is_is_n_pls(
-        f_mrt_hum_is_js=ss.f_mrt_hum_is_js,
-        f_wsb_js_is_n_pls=f_wsb_js_is_n_pls,
-        f_xot_is_is_n_pls=ss.f_xot_is_is_n_pls,
-        k_r_is_n=ss.k_r_is_n
-    )
-
-    # ステップ n における係数 f_BRL_OT, -, [i, i]
-    f_brl_ot_is_is_n = get_f_brl_ot_is_is_n(
-        f_brl_is_is_n=f_brl_is_is_n,
-        f_brm_is_is_n_pls=f_brm_is_is_n_pls,
-        f_xlr_is_is_n_pls=f_xlr_is_is_n_pls
-    )
-
-    # ステップ n+1 における室 i の作用温度, degree C, [i, 1] (ステップn+1における瞬時値）
-    # ステップ n における室 i に設置された対流暖房の放熱量, W, [i, 1] (ステップn～ステップn+1までの平均値）
-    # ステップ n における室 i に設置された放射暖房の放熱量, W, [i, 1]　(ステップn～ステップn+1までの平均値）
-    theta_ot_is_n_pls, l_cs_is_n, l_rs_is_n = next_condition.get_next_temp_and_load(
-        ac_demand_is_ns=self.scd.ac_demand_is_ns,
-        brc_ot_is_n=f_brc_ot_is_n_pls,
-        brm_ot_is_is_n=f_brm_ot_is_is_n_pls,
-        brl_ot_is_is_n=f_brl_ot_is_is_n,
-        theta_lower_target_is_n=theta_lower_target_is_n_pls,
-        theta_upper_target_is_n=theta_upper_target_is_n_pls,
-        operation_mode_is_n=operation_mode_is_n,
-        is_radiative_heating_is=self.es.is_radiative_heating_is,
-        is_radiative_cooling_is=self.es.is_radiative_cooling_is,
-        lr_h_max_cap_is=self.es.q_rs_h_max_is,
-        lr_cs_max_cap_is=self.es.q_rs_c_max_is,
-        theta_natural_is_n=theta_r_ot_ntr_is_n_pls,
-        n=n
-    )
-
-    # ステップ n+1 における室 i の室温, degree C, [i, 1]
-    theta_r_is_n_pls = get_theta_r_is_n_pls(
-        f_xc_is_n_pls=f_xc_is_n_pls,
-        f_xlr_is_is_n_pls=f_xlr_is_is_n_pls,
-        f_xot_is_is_n_pls=ss.f_xot_is_is_n_pls,
-        l_rs_is_n=l_rs_is_n,
-        theta_ot_is_n_pls=theta_ot_is_n_pls
-    )
-
-    # ステップ n+1 における境界 j の表面温度, degree C, [j, 1]
-    theta_s_js_n_pls = get_theta_s_js_n_pls(
-        f_wsb_js_is_n_pls=f_wsb_js_is_n_pls,
-        f_wsc_js_n_pls=ss.f_wsc_js_ns[:, n + 1].reshape(-1, 1),
-        f_wsr_js_is=ss.f_wsr_js_is,
-        f_wsv_js_n_pls=f_wsv_js_n_pls,
-        l_rs_is_n=l_rs_is_n,
-        theta_r_is_n_pls=theta_r_is_n_pls
-    )
-
-    # ステップ n+1 における室 i　の備品等の温度, degree C, [i, 1]
-    # TODO: q_sol_frt_is_ns の値は n+1 の値を使用するべき？
-    theta_frt_is_n_pls = get_theta_frt_is_n_pls(
-        c_sh_frt_is=self.rms.c_sh_frt_is,
-        delta_t=delta_t,
-        g_sh_frt_is=self.rms.g_sh_frt_is,
-        q_sol_frt_is_n=ss.q_sol_frt_is_ns[:, n].reshape(-1, 1),
-        theta_frt_is_n=c_n.theta_frt_is_n,
-        theta_r_is_n_pls=theta_r_is_n_pls
-    )
-
-    # ステップ n+1 における室 i の人体に対する平均放射温度, degree C, [i, 1]
-    theta_mrt_hum_is_n_pls = get_theta_mrt_hum_is_n_pls(
-        f_mrt_hum_is_js=ss.f_mrt_hum_is_js,
-        theta_s_js_n_pls=theta_s_js_n_pls
-    )
-
-    # ステップ n+1 における境界 j の等価温度, degree C, [j, 1]
-    theta_ei_js_n_pls = get_theta_ei_js_n_pls(
-        a_s_js=self.bs.a_s_js,
-        beta_is_n=beta_is_n,
-        f_mrt_is_js=ss.f_mrt_is_js,
-        f_flr_js_is_n=f_flr_js_is_n,
-        h_s_c_js=self.bs.h_s_c_js,
-        h_s_r_js=self.bs.h_s_r_js,
-        l_rs_is_n=l_rs_is_n,
-        p_js_is=self.bs.p_js_is,
-        q_s_sol_js_n_pls=ss.q_s_sol_js_ns[:, n + 1].reshape(-1, 1),
-        theta_r_is_n_pls=theta_r_is_n_pls,
-        theta_s_js_n_pls=theta_s_js_n_pls
-    )
-
-    # ステップ n+1 における境界 j の裏面温度, degree C, [j, 1]
-    # TODO: この値は記録にしか使用していないので、ポスト処理にまわせる。
-    theta_rear_js_n_pls = get_theta_s_rear_js_n(
-        k_s_er_js_js=self.bs.k_ei_js_js,
-        theta_er_js_n=theta_ei_js_n_pls,
-        k_s_eo_js=self.bs.k_eo_js,
-        theta_eo_js_n=self.bs.theta_o_eqv_js_ns[:, n+1].reshape(-1, 1),
-        k_s_r_js_is=self.bs.k_s_r_js_is,
-        theta_r_is_n=theta_r_is_n_pls
-    )
-
-    # ステップ n+1 における境界 j の表面熱流（壁体吸熱を正とする）, W/m2, [j, 1]
-    q_s_js_n_pls = get_q_s_js_n_pls(
-        h_s_c_js=self.bs.h_s_c_js,
-        h_s_r_js=self.bs.h_s_r_js,
-        theta_ei_js_n_pls=theta_ei_js_n_pls,
-        theta_s_js_n_pls=theta_s_js_n_pls
-    )
-
-    # ステップ n+1 における室 i∗ の絶対湿度がステップ n から n+1 における室 i の潜熱負荷に与える影響を表す係数, kg/(s (kg/kg(DA))), [i, i*]
-    # ステップ n から n+1 における室 i の潜熱負荷に与える影響を表す係数, kg/s, [i, 1]
-    f_l_cl_cst_is_n, f_l_cl_wgt_is_is_n = self.get_f_l_cl(
-        l_cs_is_n=l_cs_is_n,
-        theta_r_is_n_pls=theta_r_is_n_pls,
-        x_r_ntr_is_n_pls=x_r_ntr_is_n_pls
-    )
-
-    # ステップ n+1 における室 i の 絶対湿度, kg/kg(DA), [i, 1]
-    x_r_is_n_pls = get_x_r_is_n_pls(
-        f_h_cst_is_n=f_h_cst_is_n,
-        f_h_wgt_is_is_n=f_h_wgt_is_is_n,
-        f_l_cl_cst_is_n=f_l_cl_cst_is_n,
-        f_l_cl_wgt_is_is_n=f_l_cl_wgt_is_is_n
-    )
-
-    # ステップ n から ステップ n+1 における室 i の潜熱負荷（加湿を正・除湿を負とする）, W, [i, 1]
-    l_cl_is_n = get_l_cl_is_n(
-        f_l_cl_wgt_is_is_n=f_l_cl_wgt_is_is_n,
-        f_l_cl_cst_is_n=f_l_cl_cst_is_n,
-        l_wtr=get_l_wtr(),
-        x_r_is_n_pls=x_r_is_n_pls
-    )
-
-    # ステップ n+1 における室 i の備品等等の絶対湿度, kg/kg(DA), [i, 1]
-    x_frt_is_n_pls = get_x_frt_is_n_pls(
-        c_lh_frt_is=self.rms.c_lh_frt_is,
-        delta_t=delta_t,
-        g_lh_frt_is=self.rms.g_lh_frt_is,
-        x_frt_is_n=c_n.x_frt_is_n,
-        x_r_is_n_pls=x_r_is_n_pls
-    )
-
-    if recorder is not None:
-        recorder.recording(
-            n=n,
-            theta_r_is_n_pls=theta_r_is_n_pls,
-            theta_mrt_hum_is_n_pls=theta_mrt_hum_is_n_pls,
-            x_r_is_n_pls=x_r_is_n_pls,
-            theta_frt_is_n_pls=theta_frt_is_n_pls,
-            x_frt_is_n_pls=x_frt_is_n_pls,
-            theta_ei_js_n_pls=theta_ei_js_n_pls,
-            q_s_js_n_pls=q_s_js_n_pls,
-            theta_ot_is_n_pls=theta_ot_is_n_pls,
-            theta_s_js_n_pls=theta_s_js_n_pls,
-            theta_rear_js_n=theta_rear_js_n_pls,
-            f_cvl_js_n_pls=f_cvl_js_n_pls,
-            operation_mode_is_n=operation_mode_is_n,
-            l_cs_is_n=l_cs_is_n,
-            l_rs_is_n=l_rs_is_n,
-            l_cl_is_n=l_cl_is_n,
-            h_hum_c_is_n=h_hum_c_is_n,
-            h_hum_r_is_n=h_hum_r_is_n,
-            q_hum_is_n=q_hum_is_n,
-            x_hum_is_n=x_hum_is_n,
-            v_leak_is_n=v_leak_is_n,
-            v_vent_ntr_is_n=v_vent_ntr_is_n
-        )
-
-    return Conditions(
-        operation_mode_is_n=operation_mode_is_n,
-        theta_r_is_n=theta_r_is_n_pls,
-        theta_mrt_hum_is_n=theta_mrt_hum_is_n_pls,
-        x_r_is_n=x_r_is_n_pls,
-        theta_dsh_s_a_js_ms_n=theta_dsh_s_a_js_ms_n_pls,
-        theta_dsh_s_t_js_ms_n=theta_dsh_s_t_js_ms_n_pls,
-        q_s_js_n=q_s_js_n_pls,
-        theta_frt_is_n=theta_frt_is_n_pls,
-        x_frt_is_n=x_frt_is_n_pls,
-        theta_ei_js_n=theta_ei_js_n_pls
-    )
 
 
 def _run_tick_ground(self, pp: PreCalcParameters, gc_n: GroundConditions, n: int):
