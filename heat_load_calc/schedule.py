@@ -260,6 +260,24 @@ class Schedule:
 
         # スケジュールを記述した辞書の読み込み
         # d = cls._load_schedule(filename='schedules')
+        # {
+        #  "schedule_type": "const/number",
+        #  "schedule": {
+        #    "const/1/2/3/4": {
+        #      "Weekday": {
+        #        "number_of_people": [],
+        #        "heat_generation_appliances": [],
+        #        "heat_generation_lighting": [],
+        #        "heat_generation_cooking": [],
+        #        "vapor_generation_cooking": [],
+        #        "local_vent_amount": [],
+        #        "is_temp_limit_set": []
+        #      },
+        #      "Holiday_In": ...
+        #      "Holiday_Out": ...
+        #    }
+        #  }
+        #}
         d = cls._load_schedule(filename=schedule_name_i)
 
         def convert_schedule(day_type: str):
