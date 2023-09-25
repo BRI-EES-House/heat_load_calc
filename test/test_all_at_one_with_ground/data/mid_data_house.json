@@ -1,6 +1,12 @@
 {
     "common": {
-        "ac_method": "pmv"
+        "ac_method": "pmv",
+        "weather": {
+            "method": "file",
+            "file_path": "weather_zero.csv",
+            "latitude": 35.0,
+            "longitude": 125.0
+    }
     },
     "building": {
         "infiltration": {

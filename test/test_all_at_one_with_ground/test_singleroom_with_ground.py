@@ -32,16 +32,7 @@ class TestSigleRoomWithGround(unittest.TestCase):
         file_path = os.path.abspath(os.path.join(s_folder, "weather.csv"))
 
         # 気象データ読み出し
-        w = weather.Weather(
-            a_sun_ns=np.zeros(8760*4, dtype=float),
-            h_sun_ns=np.zeros(8760*4, dtype=float),
-            i_dn_ns=np.zeros(8760*4, dtype=float),
-            i_sky_ns=np.zeros(8760*4, dtype=float),
-            r_n_ns=np.zeros(8760*4, dtype=float),
-            theta_o_ns=np.full(8760*4, fill_value=10.0, dtype=float),
-            x_o_ns=np.zeros(8760*4, dtype=float),
-            itv=interval.Interval.M15
-        )
+        w = weather.Weather.make_weather(rd=rd,itv=interval.Interval.M15,entry_point_dir=os.path.dirname(__file__))
 
         # 計算実行
         dd_i, dd_a, _, _ = core.calc(rd=rd, w=w, n_d_main=30, n_d_run_up=10, n_d_run_up_build=0)
