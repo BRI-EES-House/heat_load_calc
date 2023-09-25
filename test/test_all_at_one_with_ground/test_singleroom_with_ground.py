@@ -43,15 +43,8 @@ class TestSigleRoomWithGround(unittest.TestCase):
             itv=interval.Interval.M15
         )
 
-        # スケジュールの設定
-        scd = schedule.Schedule.get_schedule(
-            number_of_occupants='auto',
-            s_name_is=[rm['schedule']['name'] for rm in rd['rooms']],
-            a_floor_is=[r['floor_area'] for r in rd['rooms']]
-        )
-
         # 計算実行
-        dd_i, dd_a, _ = core.calc(rd=rd, w=w, scd=scd, n_d_main=30, n_d_run_up=10, n_d_run_up_build=0)
+        dd_i, dd_a, _, _ = core.calc(rd=rd, w=w, n_d_main=30, n_d_run_up=10, n_d_run_up_build=0)
 
         # 計算結果格納
         cls._dd_i = dd_i

@@ -66,16 +66,10 @@ def run(
         itv=interval.Interval.M15
     )
 
-    scd = schedule.Schedule.get_schedule(
-        number_of_occupants='auto',
-        s_name_is=[rm['schedule']['name'] for rm in rd['rooms']],
-        a_floor_is=[r['floor_area'] for r in rd['rooms']]
-    )
-
     # ---- 計算 ----
 
     # 計算
-    dd_i, dd_a, _ = core.calc(rd=rd, w=w, scd=scd, itv=itv)
+    dd_i, dd_a, _, scd = core.calc(rd=rd, w=w, itv=itv)
 
     # 気象データの保存
     if is_weather_saved:

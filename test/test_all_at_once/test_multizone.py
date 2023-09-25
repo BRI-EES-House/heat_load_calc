@@ -30,13 +30,7 @@ class TestAllAtOnce(unittest.TestCase):
 
         oc = weather.Weather.make_weather(method='ees', region=6, itv=interval.Interval.M15)
 
-        scd = schedule.Schedule.get_schedule(
-            number_of_occupants='auto',
-            s_name_is=[rm['schedule']['name'] for rm in rd['rooms']],
-            a_floor_is=[r['floor_area'] for r in rd['rooms']]
-        )
-
-        dd_i, dd_a, bs = core.calc(rd=rd, w=oc, scd=scd)
+        dd_i, dd_a, bs, scd = core.calc(rd=rd, w=oc)
 
         cls._dd_i = dd_i
         cls._dd_a = dd_a

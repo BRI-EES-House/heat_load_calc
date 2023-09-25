@@ -11,7 +11,6 @@ logger = logging.getLogger('HeatLoadCalc').getChild('core')
 def calc(
         rd: Dict,
         w: weather.Weather,
-        scd: schedule.Schedule,
         itv: interval.Interval = interval.Interval.M15,
         n_step_hourly: int = 4,
         n_d_main: int = 365,
@@ -23,7 +22,6 @@ def calc(
     Args:
         rd: 住宅計算条件
         w: 外界気象条件
-        scd: スケジュール
         itv: 時間間隔
         n_step_hourly: 計算間隔（1時間を何分割するかどうか）（デフォルトは4（15分間隔））
         n_d_main: 本計算を行う日数（デフォルトは365日（1年間））, d
@@ -34,10 +32,19 @@ def calc(
         以下のタプル
             (1) 計算結果（詳細版）をいれたDataFrame
             (2) 計算結果（簡易版）をいれたDataFrame
+            (3)
+            (4) Sc
 
     Notes:
         「助走計算のうち建物全体を解く日数」は「助走計算を行う日数」で指定した値以下でないといけない。
     """
+
+    # Schedule Class
+    scd: schedule.Schedule = schedule.Schedule.get_schedule(
+        number_of_occupants='auto',
+        s_name_is=[rm['schedule']['name'] for rm in rd['rooms']],
+        a_floor_is=[r['floor_area'] for r in rd['rooms']]
+    )
 
     # 本計算のステップ数
     # 助走計算のステップ数
@@ -114,4 +121,4 @@ def calc(
     # dd: data detail, 15分間隔のすべてのパラメータ pd.DataFrame
     dd_i, dd_a = result.export_pd()
 
-    return dd_i, dd_a, sqc.bs
+    return dd_i, dd_a, sqc.bs, scd
