@@ -1,7 +1,7 @@
 ﻿import os
 import numpy as np
 import csv
-from typing import List, Dict, Tuple, Optional
+from typing import List, Dict, Tuple, Optional, Union
 import logging
 import json
 from os import path
@@ -69,31 +69,31 @@ class Schedule:
 
         # ステップ n の室 i における局所換気量, m3/s, [i, n]
         # jsonファイルでは、 m3/h で示されているため、単位換算(m3/h -> m3/s)を行っている。
-        v_mec_vent_local_is_ns = cls._get_schedules(s_name_is=s_name_is, noo=noo, n_p=n_p, schedule_type='local_vent_amount') / 3600.0
+        v_mec_vent_local_is_ns = cls._get_schedules(s_name_is=s_name_is, noo=noo, n_p=n_p, schedule_type='local_vent_amount', itv=itv) / 3600.0
 
         # ステップ n の室 i における機器発熱, W, [i, n]
-        q_gen_app_is_ns = cls._get_schedules(s_name_is=s_name_is, noo=noo, n_p=n_p, schedule_type='heat_generation_appliances')
+        q_gen_app_is_ns = cls._get_schedules(s_name_is=s_name_is, noo=noo, n_p=n_p, schedule_type='heat_generation_appliances', itv=itv)
 
         # ステップ n の室 i における調理発熱, W, [i, n]
-        q_gen_ckg_is_ns = cls._get_schedules(s_name_is=s_name_is, noo=noo, n_p=n_p, schedule_type='heat_generation_cooking')
+        q_gen_ckg_is_ns = cls._get_schedules(s_name_is=s_name_is, noo=noo, n_p=n_p, schedule_type='heat_generation_cooking', itv=itv)
 
         # ステップ n の室 i における調理発湿, kg/s, [i, n]
         # jsonファイルでは、g/h で示されているため、単位換算(g/h->kg/s)を行っている。
-        x_gen_ckg_is_ns = cls._get_schedules(s_name_is=s_name_is, noo=noo, n_p=n_p, schedule_type='vapor_generation_cooking') / 1000.0 / 3600.0
+        x_gen_ckg_is_ns = cls._get_schedules(s_name_is=s_name_is, noo=noo, n_p=n_p, schedule_type='vapor_generation_cooking', itv=itv) / 1000.0 / 3600.0
 
         # ステップ n の室 i における照明発熱, W/m2, [i, n]
         # 単位面積あたりで示されていることに注意
-        q_gen_lght_is_ns = cls._get_schedules(s_name_is=s_name_is, noo=noo, n_p=n_p, schedule_type='heat_generation_lighting')
+        q_gen_lght_is_ns = cls._get_schedules(s_name_is=s_name_is, noo=noo, n_p=n_p, schedule_type='heat_generation_lighting', itv=itv)
 
         # ステップ n の室 i における在室人数, [i, n]
         # 居住人数で按分しているため、整数ではなく小数であることに注意
-        n_hum_is_ns = cls._get_schedules(s_name_is=s_name_is, noo=noo, n_p=n_p, schedule_type='number_of_people')
+        n_hum_is_ns = cls._get_schedules(s_name_is=s_name_is, noo=noo, n_p=n_p, schedule_type='number_of_people', itv=itv)
 
         # ステップ n の室 i における空調割合, [i, n]
-        ac_demand_is_ns = cls._get_schedules(s_name_is=s_name_is, noo=noo, n_p=n_p, schedule_type='is_temp_limit_set', is_zero_one=True)
+        ac_demand_is_ns = cls._get_schedules(s_name_is=s_name_is, noo=noo, n_p=n_p, schedule_type='is_temp_limit_set', itv=itv, is_zero_one=True)
 
         # ステップ n の室 i における空調モード, [i, n]
-        ac_setting_is_ns = cls._get_schedules(s_name_is=s_name_is, noo=noo, n_p=n_p, schedule_type='is_temp_limit_set', is_proportionable=False)
+        ac_setting_is_ns = cls._get_schedules(s_name_is=s_name_is, noo=noo, n_p=n_p, schedule_type='is_temp_limit_set', itv=itv, is_proportionable=False)
 
         a_floor_is = np.array(a_floor_is)
 
@@ -214,12 +214,13 @@ class Schedule:
             noo: NumberOfOccupants,
             n_p: float,
             schedule_type: str,
+            itv: interval.Interval,
             is_proportionable: Optional[bool] = True,
             is_zero_one: Optional[bool] = False
     ):
 
         return np.concatenate([
-            [cls._get_schedule(schedule_name_i=schedule_name_i, noo=noo, n_p=n_p, schedule_type=schedule_type, is_proportionable=is_proportionable, is_zero_one=is_zero_one)]
+            [cls._get_schedule(schedule_name_i=schedule_name_i, noo=noo, n_p=n_p, schedule_type=schedule_type, itv=itv, is_proportionable=is_proportionable, is_zero_one=is_zero_one)]
             for schedule_name_i in s_name_is
         ])
 
@@ -230,6 +231,7 @@ class Schedule:
             noo: NumberOfOccupants,
             n_p: float,
             schedule_type: str,
+            itv: interval.Interval,
             is_proportionable: Optional[bool] = True,
             is_zero_one: Optional[bool] = False
     ) -> np.ndarray:
@@ -247,6 +249,7 @@ class Schedule:
                 'heat_generation_lighting'
                 'number_of_people'
                 'is_temp_limit_set'
+            itv: Interval class
             is_proportionable: 按分可能かどうか
                 按分可能な場合は居住人数により按分が行われる
                 按分可能でない場合は2つの数字のうち大きい方の値が採用される
@@ -256,9 +259,9 @@ class Schedule:
                 例：　[0, 3, 5, 7, 0] -> [0, 1, 1, 1, 0]
                 ac_demand に適用されることを想定している
         Returns:
-            スケジュール, [365*96]
+            スケジュール, [35040 (15min)] or [17520 (30min)] or [8760 (1h)] 
         """
-
+        
         # カレンダーの読み込み（日にちの種類（'平日', '休日外', '休日在'））, [365]
         calendar = cls._load_calendar()
 
@@ -284,19 +287,22 @@ class Schedule:
         #}
         d = cls._load_schedule(filename=schedule_name_i)
 
+        # 1日のうちのステップ数 / the number of steps in a day 
+        n_step_day = itv.get_n_hour() * 24 
+
         def convert_schedule(day_type: str):
             if d['schedule_type'] == 'number':
                 return {
                     'schedule_type': 'number',
-                    '1': d['schedule']['1'][day_type][schedule_type],
-                    '2': d['schedule']['2'][day_type][schedule_type],
-                    '3': d['schedule']['3'][day_type][schedule_type],
-                    '4': d['schedule']['4'][day_type][schedule_type],
+                    '1': _check_and_read_value(d=d['schedule']['1'][day_type], schedule_type=schedule_type, n_step_day=n_step_day),
+                    '2': _check_and_read_value(d=d['schedule']['2'][day_type], schedule_type=schedule_type, n_step_day=n_step_day),
+                    '3': _check_and_read_value(d=d['schedule']['3'][day_type], schedule_type=schedule_type, n_step_day=n_step_day),
+                    '4': _check_and_read_value(d=d['schedule']['4'][day_type], schedule_type=schedule_type, n_step_day=n_step_day),
                 }
             elif d['schedule_type'] == 'const':
                 return {
                     'schedule_type': 'const',
-                    'const': d['schedule']['const'][day_type][schedule_type]
+                    'const': _check_and_read_value(d=d['schedule']['const'][day_type], schedule_type=schedule_type, n_step_day=n_step_day)
                 }
             else:
                 raise KeyError()
@@ -305,13 +311,28 @@ class Schedule:
         d_holiday_out = convert_schedule(day_type='Holiday_Out')
         d_holiday_in = convert_schedule(day_type='Holiday_In')
 
-        d_365_96 = np.full((365, 96), np.nan, dtype=float)
+        d_365_96 = np.full((365, n_step_day), np.nan, dtype=float)
         d_365_96[calendar == 'W'] = _get_interpolated_schedule(daily_schedule=d_weekday, noo=noo, n_p=n_p, is_proportionable=is_proportionable, is_zero_one=is_zero_one)
         d_365_96[calendar == 'HO'] = _get_interpolated_schedule(daily_schedule=d_holiday_out, noo=noo, n_p=n_p, is_proportionable=is_proportionable, is_zero_one=is_zero_one)
         d_365_96[calendar == 'HI'] = _get_interpolated_schedule(daily_schedule=d_holiday_in, noo=noo, n_p=n_p, is_proportionable=is_proportionable, is_zero_one=is_zero_one)
         d = d_365_96.flatten()
 
         return d
+
+
+def _check_and_read_value(d: Dict, schedule_type: str, n_step_day: int):
+
+    # If the schedule_type key is not exist in the dictionary d, make the zero list.
+    if schedule_type not in d:
+        return [0] * n_step_day
+    else:
+        v = d[schedule_type]
+        if v == 'zero':
+            return [0] * n_step_day
+        else:
+            if len(v) != n_step_day:
+                raise ValueError("Number of the list in the schedule does not match the interval.")
+            return v
 
 
 def _get_interpolated_schedule(
