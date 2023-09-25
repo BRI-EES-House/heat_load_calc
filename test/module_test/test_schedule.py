@@ -6,6 +6,7 @@ import numpy as np
 
 from heat_load_calc.schedule import Schedule
 from heat_load_calc import schedule
+from heat_load_calc.interval import Interval
 
 
 class TestSchedule(unittest.TestCase):
@@ -46,12 +47,19 @@ class TestSchedule(unittest.TestCase):
         cls._nor = nor['schedule']
         cls._zero = zero2
 
+        cls._scd_is = [
+            {"name": "main_occupant_room"},
+            {"name": "other_occupant_room"},
+            {"name": "non_occupant_room"},
+            {"name": "zero"}
+        ]
+
 
     def test_one(self):
 
         a_floor_is = [10.0, 10.0, 10.0, 10.0]
 
-        s = Schedule.get_schedule(number_of_occupants='1', s_name_is=self._s_name_is, a_floor_is=a_floor_is)
+        s = Schedule.get_schedule(number_of_occupants='1', s_name_is=self._s_name_is, a_floor_is=a_floor_is, itv=Interval.M15, scd_is=self._scd_is)
 
         for i, d in zip([0, 1, 2, 3], [self._mor, self._oor, self._nor, self._zero]):
 
@@ -63,7 +71,7 @@ class TestSchedule(unittest.TestCase):
 
         a_floor_is = [10.0, 10.0, 10.0, 10.0]
 
-        s = Schedule.get_schedule(number_of_occupants='2', s_name_is=self._s_name_is, a_floor_is=a_floor_is)
+        s = Schedule.get_schedule(number_of_occupants='2', s_name_is=self._s_name_is, a_floor_is=a_floor_is, itv=Interval.M15, scd_is=self._scd_is)
 
         for i, d in zip([0, 1, 2, 3], [self._mor, self._oor, self._nor, self._zero]):
 
@@ -75,7 +83,7 @@ class TestSchedule(unittest.TestCase):
 
         a_floor_is = [10.0, 10.0, 10.0, 10.0]
 
-        s = Schedule.get_schedule(number_of_occupants='3', s_name_is=self._s_name_is, a_floor_is=a_floor_is)
+        s = Schedule.get_schedule(number_of_occupants='3', s_name_is=self._s_name_is, a_floor_is=a_floor_is, itv=Interval.M15, scd_is=self._scd_is)
 
         for i, d in zip([0, 1, 2, 3], [self._mor, self._oor, self._nor, self._zero]):
 
@@ -87,7 +95,7 @@ class TestSchedule(unittest.TestCase):
 
         a_floor_is = [10.0, 10.0, 10.0, 10.0]
 
-        s = Schedule.get_schedule(number_of_occupants='4', s_name_is=self._s_name_is, a_floor_is=a_floor_is)
+        s = Schedule.get_schedule(number_of_occupants='4', s_name_is=self._s_name_is, a_floor_is=a_floor_is, itv=Interval.M15, scd_is=self._scd_is)
 
         for i, d in zip([0, 1, 2, 3], [self._mor, self._oor, self._nor, self._zero]):
 
@@ -99,7 +107,7 @@ class TestSchedule(unittest.TestCase):
 
         a_floor_is = [5.0, 5.0, 5.0, 5.0]
 
-        s = Schedule.get_schedule(number_of_occupants='auto', s_name_is=self._s_name_is, a_floor_is=a_floor_is)
+        s = Schedule.get_schedule(number_of_occupants='auto', s_name_is=self._s_name_is, a_floor_is=a_floor_is, itv=Interval.M15, scd_is=self._scd_is)
 
         for i, d in zip([0, 1, 2, 3], [self._mor, self._oor, self._nor, self._zero]):
 
@@ -111,7 +119,7 @@ class TestSchedule(unittest.TestCase):
 
         a_floor_is = [7.5, 7.5, 7.5, 7.5]
 
-        s = Schedule.get_schedule(number_of_occupants='auto', s_name_is=self._s_name_is, a_floor_is=a_floor_is)
+        s = Schedule.get_schedule(number_of_occupants='auto', s_name_is=self._s_name_is, a_floor_is=a_floor_is, itv=Interval.M15, scd_is=self._scd_is)
 
         for i, d in zip([0, 1, 2, 3], [self._mor, self._oor, self._nor, self._zero]):
 
@@ -123,7 +131,7 @@ class TestSchedule(unittest.TestCase):
 
         a_floor_is = [10.0, 10.0, 10.0, 10.0]
 
-        s = Schedule.get_schedule(number_of_occupants='auto', s_name_is=self._s_name_is, a_floor_is=a_floor_is)
+        s = Schedule.get_schedule(number_of_occupants='auto', s_name_is=self._s_name_is, a_floor_is=a_floor_is, itv=Interval.M15, scd_is=self._scd_is)
 
         for i, d in zip([0, 1, 2, 3], [self._mor, self._oor, self._nor, self._zero]):
 
@@ -145,7 +153,7 @@ class TestSchedule(unittest.TestCase):
 
         a_floor_is = [15.0, 15.0, 15.0, 15.0]
 
-        s = Schedule.get_schedule(number_of_occupants='auto', s_name_is=self._s_name_is, a_floor_is=a_floor_is)
+        s = Schedule.get_schedule(number_of_occupants='auto', s_name_is=self._s_name_is, a_floor_is=a_floor_is, itv=Interval.M15, scd_is=self._scd_is)
 
         for i, d in zip([0, 1, 2, 3], [self._mor, self._oor, self._nor, self._zero]):
 
@@ -157,7 +165,7 @@ class TestSchedule(unittest.TestCase):
 
         a_floor_is = [20.0, 20.0, 20.0, 20.0]
 
-        s = Schedule.get_schedule(number_of_occupants='auto', s_name_is=self._s_name_is, a_floor_is=a_floor_is)
+        s = Schedule.get_schedule(number_of_occupants='auto', s_name_is=self._s_name_is, a_floor_is=a_floor_is, itv=Interval.M15, scd_is=self._scd_is)
 
         for i, d in zip([0, 1, 2, 3], [self._mor, self._oor, self._nor, self._zero]):
 
@@ -179,7 +187,7 @@ class TestSchedule(unittest.TestCase):
 
         a_floor_is = [22.5, 22.5, 22.5, 22.5]
 
-        s = Schedule.get_schedule(number_of_occupants='auto', s_name_is=self._s_name_is, a_floor_is=a_floor_is)
+        s = Schedule.get_schedule(number_of_occupants='auto', s_name_is=self._s_name_is, a_floor_is=a_floor_is, itv=Interval.M15, scd_is=self._scd_is)
 
         for i, d in zip([0, 1, 2, 3], [self._mor, self._oor, self._nor, self._zero]):
 
@@ -191,7 +199,7 @@ class TestSchedule(unittest.TestCase):
 
         a_floor_is = [26.25, 26.25, 26.25, 26.25]
 
-        s = Schedule.get_schedule(number_of_occupants='auto', s_name_is=self._s_name_is, a_floor_is=a_floor_is)
+        s = Schedule.get_schedule(number_of_occupants='auto', s_name_is=self._s_name_is, a_floor_is=a_floor_is, itv=Interval.M15, scd_is=self._scd_is)
 
         for i, d in zip([0, 1, 2, 3], [self._mor, self._oor, self._nor, self._zero]):
 
@@ -213,7 +221,7 @@ class TestSchedule(unittest.TestCase):
 
         a_floor_is = [30.0, 30.0, 30.0, 30.0]
 
-        s = Schedule.get_schedule(number_of_occupants='auto', s_name_is=self._s_name_is, a_floor_is=a_floor_is)
+        s = Schedule.get_schedule(number_of_occupants='auto', s_name_is=self._s_name_is, a_floor_is=a_floor_is, itv=Interval.M15, scd_is=self._scd_is)
 
         for i, d in zip([0, 1, 2, 3], [self._mor, self._oor, self._nor, self._zero]):
 
@@ -225,7 +233,7 @@ class TestSchedule(unittest.TestCase):
 
         a_floor_is = [37.5, 37.5, 37.5, 37.5]
 
-        s = Schedule.get_schedule(number_of_occupants='auto', s_name_is=self._s_name_is, a_floor_is=a_floor_is)
+        s = Schedule.get_schedule(number_of_occupants='auto', s_name_is=self._s_name_is, a_floor_is=a_floor_is, itv=Interval.M15, scd_is=self._scd_is)
 
         for i, d in zip([0, 1, 2, 3], [self._mor, self._oor, self._nor, self._zero]):
 

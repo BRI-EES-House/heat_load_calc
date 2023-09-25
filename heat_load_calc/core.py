@@ -44,7 +44,8 @@ def calc(
         number_of_occupants='auto',
         s_name_is=[rm['schedule']['name'] for rm in rd['rooms']],
         a_floor_is=[r['floor_area'] for r in rd['rooms']],
-        itv=itv
+        itv=itv,
+        scd_is=[rm['schedule'] for rm in rd['rooms']]
     )
 
     # 本計算のステップ数

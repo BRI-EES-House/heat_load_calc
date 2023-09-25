@@ -48,7 +48,7 @@ class Schedule:
         self._ac_setting_is_ns = ac_setting_is_ns
 
     @classmethod
-    def get_schedule(cls, number_of_occupants: str, s_name_is: List[str], a_floor_is: List[float], itv: interval.Interval = interval.Interval.M15):
+    def get_schedule(cls, number_of_occupants: str, s_name_is: List[str], a_floor_is: List[float], itv: interval.Interval, scd_is: List[Dict]):
         """Schedule クラスを生成する。
 
         Args:
@@ -56,6 +56,7 @@ class Schedule:
             s_name_is: 室 i のスケジュールの名称, [i]
             a_floor_is: 室 i の床面積, m2, [i]
             itv: Interval class
+            scds: list of the dictionary for schedule
 
         Returns:
             Schedule class
@@ -69,31 +70,31 @@ class Schedule:
 
         # ステップ n の室 i における局所換気量, m3/s, [i, n]
         # jsonファイルでは、 m3/h で示されているため、単位換算(m3/h -> m3/s)を行っている。
-        v_mec_vent_local_is_ns = cls._get_schedules(s_name_is=s_name_is, noo=noo, n_p=n_p, schedule_type='local_vent_amount', itv=itv) / 3600.0
+        v_mec_vent_local_is_ns = cls._get_schedules(noo=noo, n_p=n_p, schedule_type='local_vent_amount', itv=itv, scd_is=scd_is) / 3600.0
 
         # ステップ n の室 i における機器発熱, W, [i, n]
-        q_gen_app_is_ns = cls._get_schedules(s_name_is=s_name_is, noo=noo, n_p=n_p, schedule_type='heat_generation_appliances', itv=itv)
+        q_gen_app_is_ns = cls._get_schedules(noo=noo, n_p=n_p, schedule_type='heat_generation_appliances', itv=itv, scd_is=scd_is)
 
         # ステップ n の室 i における調理発熱, W, [i, n]
-        q_gen_ckg_is_ns = cls._get_schedules(s_name_is=s_name_is, noo=noo, n_p=n_p, schedule_type='heat_generation_cooking', itv=itv)
+        q_gen_ckg_is_ns = cls._get_schedules(noo=noo, n_p=n_p, schedule_type='heat_generation_cooking', itv=itv, scd_is=scd_is)
 
         # ステップ n の室 i における調理発湿, kg/s, [i, n]
         # jsonファイルでは、g/h で示されているため、単位換算(g/h->kg/s)を行っている。
-        x_gen_ckg_is_ns = cls._get_schedules(s_name_is=s_name_is, noo=noo, n_p=n_p, schedule_type='vapor_generation_cooking', itv=itv) / 1000.0 / 3600.0
+        x_gen_ckg_is_ns = cls._get_schedules(noo=noo, n_p=n_p, schedule_type='vapor_generation_cooking', itv=itv, scd_is=scd_is) / 1000.0 / 3600.0
 
         # ステップ n の室 i における照明発熱, W/m2, [i, n]
         # 単位面積あたりで示されていることに注意
-        q_gen_lght_is_ns = cls._get_schedules(s_name_is=s_name_is, noo=noo, n_p=n_p, schedule_type='heat_generation_lighting', itv=itv)
+        q_gen_lght_is_ns = cls._get_schedules(noo=noo, n_p=n_p, schedule_type='heat_generation_lighting', itv=itv, scd_is=scd_is)
 
         # ステップ n の室 i における在室人数, [i, n]
         # 居住人数で按分しているため、整数ではなく小数であることに注意
-        n_hum_is_ns = cls._get_schedules(s_name_is=s_name_is, noo=noo, n_p=n_p, schedule_type='number_of_people', itv=itv)
+        n_hum_is_ns = cls._get_schedules(noo=noo, n_p=n_p, schedule_type='number_of_people', itv=itv, scd_is=scd_is)
 
         # ステップ n の室 i における空調割合, [i, n]
-        ac_demand_is_ns = cls._get_schedules(s_name_is=s_name_is, noo=noo, n_p=n_p, schedule_type='is_temp_limit_set', itv=itv, is_zero_one=True)
+        ac_demand_is_ns = cls._get_schedules(noo=noo, n_p=n_p, schedule_type='is_temp_limit_set', itv=itv, scd_is=scd_is, is_zero_one=True)
 
         # ステップ n の室 i における空調モード, [i, n]
-        ac_setting_is_ns = cls._get_schedules(s_name_is=s_name_is, noo=noo, n_p=n_p, schedule_type='is_temp_limit_set', itv=itv, is_proportionable=False)
+        ac_setting_is_ns = cls._get_schedules(noo=noo, n_p=n_p, schedule_type='is_temp_limit_set', itv=itv, scd_is=scd_is, is_proportionable=False)
 
         a_floor_is = np.array(a_floor_is)
 
@@ -186,59 +187,36 @@ class Schedule:
         return self._ac_setting_is_ns
 
     @classmethod
-    def _load_calendar(cls) -> np.ndarray:
-        """365日分のカレンダーを取得する。
-
-        Returns:
-            365日分のカレンダー
-        """
-
-        calender_dict = cls._load_schedule(filename='calendar')
-
-        return np.array(calender_dict['calendar'])
-
-    @classmethod
-    def _load_schedule(cls, filename: str) -> Dict:
-        """スケジュールを読み込む
-        """
-
-        js = open(str(os.path.dirname(__file__)) + '/schedule/' + filename + '.json', 'r', encoding='utf-8')
-        d_json = json.load(js)
-        js.close()
-        return d_json
-
-    @classmethod
     def _get_schedules(
             cls,
-            s_name_is: List[str],
             noo: NumberOfOccupants,
             n_p: float,
             schedule_type: str,
             itv: interval.Interval,
+            scd_is: List[Dict],
             is_proportionable: Optional[bool] = True,
             is_zero_one: Optional[bool] = False
     ):
 
         return np.concatenate([
-            [cls._get_schedule(schedule_name_i=schedule_name_i, noo=noo, n_p=n_p, schedule_type=schedule_type, itv=itv, is_proportionable=is_proportionable, is_zero_one=is_zero_one)]
-            for schedule_name_i in s_name_is
+            [cls._get_schedule(noo=noo, n_p=n_p, schedule_type=schedule_type, itv=itv, scd_i=scd_i, is_proportionable=is_proportionable, is_zero_one=is_zero_one)]
+            for scd_i in scd_is
         ])
 
     @classmethod
     def _get_schedule(
             cls,
-            schedule_name_i: str,
             noo: NumberOfOccupants,
             n_p: float,
             schedule_type: str,
             itv: interval.Interval,
+            scd_i: Dict,
             is_proportionable: Optional[bool] = True,
             is_zero_one: Optional[bool] = False
     ) -> np.ndarray:
         """
         スケジュールを取得する。
         Args:
-            schedule_name_i: 室 i のスケジュールの名称
             noo: 居住人数の指定方法（NumberOfOccupants 列挙体）
             n_p: 居住人数
             schedule_type: どのようなスケジュールを扱うのか？　以下から指定する。
@@ -250,20 +228,25 @@ class Schedule:
                 'number_of_people'
                 'is_temp_limit_set'
             itv: Interval class
+            scd_i: dictionary for schedule of room i
             is_proportionable: 按分可能かどうか
                 按分可能な場合は居住人数により按分が行われる
                 按分可能でない場合は2つの数字のうち大きい方の値が採用される
                 按分作業が発生しない場合（schedule_type が const の場合または schedule_type が number でかつ居住人数が auto ではない場合）、本パラメータは無視される。
                 これが適用されないのは唯一、ac_setting を想定している。
             is_zero_one: 数字データの意味をゼロ・イチの意味に読み替えるかどうか
-                例：　[0, 3, 5, 7, 0] -> [0, 1, 1, 1, 0]
+                example: [0, 3, 5, 7, 0] -> [0, 1, 1, 1, 0]
                 ac_demand に適用されることを想定している
         Returns:
             スケジュール, [35040 (15min)] or [17520 (30min)] or [8760 (1h)] 
         """
         
-        # カレンダーの読み込み（日にちの種類（'平日', '休日外', '休日在'））, [365]
-        calendar = cls._load_calendar()
+        # Load the calendar. / カレンダーの読み込み, [365]
+        # type of the day / 日にちの種類
+        # "W" = weekday / 平日
+        # "HO" = go outside in holiday / 休日外
+        # "HI" = stay inside in holiday / 休日在
+        calendar = _load_calendar()
 
         # スケジュールを記述した辞書の読み込み
         # d = cls._load_schedule(filename='schedules')
@@ -285,7 +268,8 @@ class Schedule:
         #    }
         #  }
         #}
-        d = cls._load_schedule(filename=schedule_name_i)
+
+        d = _load_json_file(filename=scd_i["name"])
 
         # 1日のうちのステップ数 / the number of steps in a day 
         n_step_day = itv.get_n_hour() * 24 
@@ -318,6 +302,28 @@ class Schedule:
         d = d_365_96.flatten()
 
         return d
+
+
+def _load_calendar() -> np.ndarray:
+    """365日分のカレンダーを取得する。
+
+    Returns:
+        365日分のカレンダー
+    """
+
+    calender_dict = _load_json_file(filename='calendar')
+
+    return np.array(calender_dict['calendar'])
+
+
+def _load_json_file(filename: str) -> Dict:
+    """Load the json file. / json ファイルを読み込む。
+    """
+
+    js = open(str(os.path.dirname(__file__)) + '/schedule/' + filename + '.json', 'r', encoding='utf-8')
+    d_json = json.load(js)
+    js.close()
+    return d_json
 
 
 def _check_and_read_value(d: Dict, schedule_type: str, n_step_day: int):
