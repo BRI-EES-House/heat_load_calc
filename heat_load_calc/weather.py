@@ -58,6 +58,8 @@ class Weather:
                 region = int(w['region'])
             elif method == 'file':
                 file_path = os.path.join(entry_point_dir, w['file_path'])
+                latitude = float(w['latitude'])
+                longitude = float(w['longitude'])
             else:
                 raise Exception()
         else:
@@ -70,7 +72,7 @@ class Weather:
 
             logger.info('Load weather data from `{}`'.format(file_path))
 
-            return cls.make_from_pd(file_path=file_path, itv=itv)
+            return cls.make_from_pd(file_path=file_path, itv=itv, latitude=latitude, longitude=longitude)
 
         elif method == 'ees':
 
@@ -165,7 +167,7 @@ class Weather:
         return np.average(self._theta_o_ns)
 
     @classmethod
-    def make_from_pd(cls, file_path, itv: Interval):
+    def make_from_pd(cls, file_path, itv: Interval, latitude: float, longitude: float):
         """
         気象データを読み込む。
 
@@ -183,9 +185,6 @@ class Weather:
 
         if not len(pp) == 8760:
             raise Exception("Error: Row length of the file should be 8760.")
-
-        latitude = pp['longitude'][0]
-        longitude = pp['latitude'][0]
 
         phi_loc, lambda_loc = math.radians(latitude), math.radians(longitude)
 

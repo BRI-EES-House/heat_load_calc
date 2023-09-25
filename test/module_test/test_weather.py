@@ -22,7 +22,9 @@ class TestWeather(unittest.TestCase):
         "common": {
             "weather": {
                 "method": "file",
-                "file_path": "weather_for_method_file.csv"
+                "file_path": "weather_for_method_file.csv",
+                "latitude": 26.21,
+                "longitude": 127.685
             }
         }
     }
