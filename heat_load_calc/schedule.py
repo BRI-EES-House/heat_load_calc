@@ -248,8 +248,7 @@ class Schedule:
         # "HI" = stay inside in holiday / 休日在
         calendar = _load_calendar()
 
-        # スケジュールを記述した辞書の読み込み
-        # d = cls._load_schedule(filename='schedules')
+        # format of dictuonary descriving schedule / スケジュールを記述した辞書の形式
         # {
         #  "schedule_type": "const/number",
         #  "schedule": {
@@ -269,7 +268,13 @@ class Schedule:
         #  }
         #}
 
-        d = _load_json_file(filename=scd_i["name"])
+        if "schedule_type" in scd_i:    # read from input file
+            d = {
+                "schedule_type": scd_i["schedule_type"],
+                "schedule": scd_i["schedule"]
+            }
+        else:   # read from json file
+            d = _load_json_file(filename=scd_i["name"])
 
         # 1日のうちのステップ数 / the number of steps in a day 
         n_step_day = itv.get_n_hour() * 24 
@@ -295,11 +300,11 @@ class Schedule:
         d_holiday_out = convert_schedule(day_type='Holiday_Out')
         d_holiday_in = convert_schedule(day_type='Holiday_In')
 
-        d_365_96 = np.full((365, n_step_day), np.nan, dtype=float)
-        d_365_96[calendar == 'W'] = _get_interpolated_schedule(daily_schedule=d_weekday, noo=noo, n_p=n_p, is_proportionable=is_proportionable, is_zero_one=is_zero_one)
-        d_365_96[calendar == 'HO'] = _get_interpolated_schedule(daily_schedule=d_holiday_out, noo=noo, n_p=n_p, is_proportionable=is_proportionable, is_zero_one=is_zero_one)
-        d_365_96[calendar == 'HI'] = _get_interpolated_schedule(daily_schedule=d_holiday_in, noo=noo, n_p=n_p, is_proportionable=is_proportionable, is_zero_one=is_zero_one)
-        d = d_365_96.flatten()
+        d_365_n = np.full((365, n_step_day), np.nan, dtype=float)
+        d_365_n[calendar == 'W'] = _get_interpolated_schedule(daily_schedule=d_weekday, noo=noo, n_p=n_p, is_proportionable=is_proportionable, is_zero_one=is_zero_one)
+        d_365_n[calendar == 'HO'] = _get_interpolated_schedule(daily_schedule=d_holiday_out, noo=noo, n_p=n_p, is_proportionable=is_proportionable, is_zero_one=is_zero_one)
+        d_365_n[calendar == 'HI'] = _get_interpolated_schedule(daily_schedule=d_holiday_in, noo=noo, n_p=n_p, is_proportionable=is_proportionable, is_zero_one=is_zero_one)
+        d = d_365_n.flatten()
 
         return d
 
