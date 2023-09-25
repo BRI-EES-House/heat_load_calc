@@ -5,6 +5,7 @@ from typing import Dict, List
 import numpy as np
 
 from heat_load_calc.schedule import Schedule
+from heat_load_calc import schedule
 
 
 class TestSchedule(unittest.TestCase):
@@ -307,3 +308,17 @@ class TestSchedule(unittest.TestCase):
         #ds = [d[str(nop)][p][target_key] for p in ["休日在", "平日", "休日外"]]
         ds = [d[str(nop)][p][target_key] for p in ["Holiday_In", "Weekday", "Holiday_Out"]]
         return np.array(list(itertools.chain(*ds)))
+
+
+class TestConvertToZeroOne(unittest.TestCase):
+
+    def test(self):
+
+        self.assertTrue(
+            (
+                schedule._convert_to_zero_one(v=np.array([0.0, 0.001, 0.5, 1.0, 1.1]))
+                == np.array([0, 1, 1, 1, 1])
+            ).all()
+        )
+
+

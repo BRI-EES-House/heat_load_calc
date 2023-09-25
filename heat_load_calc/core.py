@@ -43,7 +43,8 @@ def calc(
     scd: schedule.Schedule = schedule.Schedule.get_schedule(
         number_of_occupants='auto',
         s_name_is=[rm['schedule']['name'] for rm in rd['rooms']],
-        a_floor_is=[r['floor_area'] for r in rd['rooms']]
+        a_floor_is=[r['floor_area'] for r in rd['rooms']],
+        itv=itv
     )
 
     # 本計算のステップ数

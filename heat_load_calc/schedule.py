@@ -7,6 +7,8 @@ import json
 from os import path
 from enum import Enum
 
+from heat_load_calc import interval
+
 logger = logging.getLogger(name='HeatLoadCalc').getChild('Schedule')
 
 
@@ -25,7 +27,8 @@ class NumberOfOccupants(Enum):
 
 class Schedule:
 
-    def __init__(self, q_gen_is_ns: np.ndarray, x_gen_is_ns: np.ndarray, v_mec_vent_local_is_ns: np.ndarray, n_hum_is_ns: np.ndarray, ac_demand_is_ns: np.ndarray, ac_setting_is_ns: np.ndarray):
+    def __init__(
+            self, q_gen_is_ns: np.ndarray, x_gen_is_ns: np.ndarray, v_mec_vent_local_is_ns: np.ndarray, n_hum_is_ns: np.ndarray, ac_demand_is_ns: np.ndarray, ac_setting_is_ns: np.ndarray):
         """
 
         Args:
@@ -45,23 +48,24 @@ class Schedule:
         self._ac_setting_is_ns = ac_setting_is_ns
 
     @classmethod
-    def get_schedule(cls, number_of_occupants: str, s_name_is: List[str], a_floor_is: List[float]):
+    def get_schedule(cls, number_of_occupants: str, s_name_is: List[str], a_floor_is: List[float], itv: interval.Interval = interval.Interval.M15):
         """Schedule クラスを生成する。
 
         Args:
             number_of_occupants: 居住人数の指定方法
             s_name_is: 室 i のスケジュールの名称, [i]
             a_floor_is: 室 i の床面積, m2, [i]
+            itv: Interval class
 
         Returns:
-            Schedule クラス
+            Schedule class
         """
 
         # 居住人数の指定モード
         noo = NumberOfOccupants(number_of_occupants)
 
         # 居住人数
-        n_p = cls._get_n_p(noo=noo, a_floor_is=a_floor_is)
+        n_p = _get_n_p(noo=noo, a_floor_is=a_floor_is)
 
         # ステップ n の室 i における局所換気量, m3/s, [i, n]
         # jsonファイルでは、 m3/h で示されているため、単位換算(m3/h -> m3/s)を行っている。
@@ -355,7 +359,7 @@ class Schedule:
             scd = np.array(daily_schedule['const'])
 
             if is_zero_one:
-                return cls.convert_to_zero_one(scd=scd)
+                return _convert_to_zero_one(v=scd)
             else:
                 return scd
 
@@ -366,17 +370,17 @@ class Schedule:
                 scd = np.array(daily_schedule[str(noo.value)])
 
                 if is_zero_one:
-                    return cls.convert_to_zero_one(scd=scd)
+                    return _convert_to_zero_one(v=scd)
                 else:
                     return scd
 
             elif noo == NumberOfOccupants.Auto:
 
-                ceil_np, floor_np = cls._get_ceil_floor_np(n_p)
+                ceil_np, floor_np = _get_ceil_floor_np(n_p)
 
                 if is_zero_one:
-                    ceil_schedule = cls.convert_to_zero_one(scd=np.array(daily_schedule[str(ceil_np)]))
-                    floor_schedule = cls.convert_to_zero_one(scd=np.array(daily_schedule[str(floor_np)]))
+                    ceil_schedule = _convert_to_zero_one(v=np.array(daily_schedule[str(ceil_np)]))
+                    floor_schedule = _convert_to_zero_one(v=np.array(daily_schedule[str(floor_np)]))
                 else:
                     ceil_schedule = np.array(daily_schedule[str(ceil_np)])
                     floor_schedule = np.array(daily_schedule[str(floor_np)])
@@ -395,75 +399,82 @@ class Schedule:
 
             raise KeyError()
 
-    @classmethod
-    def convert_to_zero_one(cls, scd: np.ndarray):
+def _convert_to_zero_one(v: np.ndarray) -> np.ndarray:
+    """Return zero if the argument is zero and return one if the argument is more than zero. / 引数が0の場合は0を返し0より大の場合は1を返す。
 
-        return np.where(scd > 0.0, np.ones_like(scd, dtype=float), np.zeros_like(scd, dtype=float))
+    Args:
+        v: argument / 引数
 
-    @classmethod
-    def _get_ceil_floor_np(cls, n_p: float) -> Tuple[int, int]:
-        """世帯人数から切り上げ・切り下げた人数を整数値で返す
+    Returns:
+        0 or 1
+    """
 
-        Args:
-            n_p: 世帯人数
+    return np.where(v > 0.0, np.ones_like(v, dtype=float), np.zeros_like(v, dtype=float))
 
-        Returns:
-            タプル：
-                切り上げた世帯人数
-                切り下げた世帯人数
 
-        Notes:
-            1人未満、4人より大の人数を指定した場合はエラーを返す。
-        """
+def _get_ceil_floor_np(n_p: float) -> Tuple[int, int]:
+    """Calculate the floor and ceiled number of the number of people. / 世帯人数から切り上げ・切り下げた人数を整数値で返す
 
-        if 1.0 <= n_p < 2.0:
-            ceil_np = 2
-            floor_np = 1
-        elif 2.0 <= n_p < 3.0:
-            ceil_np = 3
-            floor_np = 2
-        elif 3.0 <= n_p <= 4.0:
-            ceil_np = 4
-            floor_np = 3
-        else:
-            raise logger.error(msg='The number of people is out of range.')
+    Args:
+        n_p: number of people / 世帯人数
 
-        return ceil_np, floor_np
+    Returns:
+        1) ceiled number of the number of people / 切り上げた世帯人数
+        2) floor number of the number of people / 切り下げた世帯人数
 
-    @classmethod
-    def _get_n_p(cls, noo: NumberOfOccupants, a_floor_is: List[float]) -> float:
-        """
-        床面積の合計から居住人数を計算する。
-        Args:
-            noo: 居住人数の指定方法
-            a_floor_is: 室 i の床面積, m2, [i]
+    Notes:
+        ERROR in case that the number is less than one or more than four.
+        1人未満、4人より大の人数を指定した場合はエラーを返す。
+    """
 
-        Returns:
-            居住人数
-        """
+    if 1.0 <= n_p < 2.0:
+        ceil_np = 2
+        floor_np = 1
+    elif 2.0 <= n_p < 3.0:
+        ceil_np = 3
+        floor_np = 2
+    elif 3.0 <= n_p <= 4.0:
+        ceil_np = 4
+        floor_np = 3
+    else:
+        raise logger.error(msg='The number of people is out of range.')
 
-        if noo == NumberOfOccupants.One:
+    return ceil_np, floor_np
+
+
+def _get_n_p(noo: NumberOfOccupants, a_floor_is: List[float]) -> float:
+    """Calculate the number of people based on the total floor area. / 床面積の合計から居住人数を計算する。
+    
+    Args:
+        noo: specified method of number of people / 居住人数の指定方法
+        a_floor_is: floor area of room i / 室iの床面積, m2, [i]
+
+    Returns:
+        number of people / 居住人数
+    """
+
+    if noo == NumberOfOccupants.One:
+        return 1.0
+
+    elif noo == NumberOfOccupants.Two:
+        return 2.0
+
+    elif noo == NumberOfOccupants.Three:
+        return 3.0
+
+    elif noo == NumberOfOccupants.Four:
+        return 4.0
+
+    elif noo == NumberOfOccupants.Auto:
+
+        # total floor area / 床面積の合計, m2
+        a_floor_total = sum(a_floor_is)
+
+        if a_floor_total < 30.0:
             return 1.0
-
-        elif noo == NumberOfOccupants.Two:
-            return 2.0
-
-        elif noo == NumberOfOccupants.Three:
-            return 3.0
-
-        elif noo == NumberOfOccupants.Four:
-            return 4.0
-
-        elif noo == NumberOfOccupants.Auto:
-
-            # 床面積の合計, m2
-            a_floor_total = sum(a_floor_is)
-
-            if a_floor_total < 30.0:
-                return 1.0
-            elif a_floor_total < 120.0:
-                return a_floor_total / 30.0
-            else:
-                return 4.0
+        elif a_floor_total < 120.0:
+            return a_floor_total / 30.0
         else:
-            raise ValueError()
+            return 4.0
+    else:
+        raise ValueError()
