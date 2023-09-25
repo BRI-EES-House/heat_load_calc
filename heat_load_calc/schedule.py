@@ -306,98 +306,101 @@ class Schedule:
         d_holiday_in = convert_schedule(day_type='Holiday_In')
 
         d_365_96 = np.full((365, 96), np.nan, dtype=float)
-        d_365_96[calendar == 'W'] = cls._get_interpolated_schedule(daily_schedule=d_weekday, noo=noo, n_p=n_p, is_proportionable=is_proportionable, is_zero_one=is_zero_one)
-        d_365_96[calendar == 'HO'] = cls._get_interpolated_schedule(daily_schedule=d_holiday_out, noo=noo, n_p=n_p, is_proportionable=is_proportionable, is_zero_one=is_zero_one)
-        d_365_96[calendar == 'HI'] = cls._get_interpolated_schedule(daily_schedule=d_holiday_in, noo=noo, n_p=n_p, is_proportionable=is_proportionable, is_zero_one=is_zero_one)
+        d_365_96[calendar == 'W'] = _get_interpolated_schedule(daily_schedule=d_weekday, noo=noo, n_p=n_p, is_proportionable=is_proportionable, is_zero_one=is_zero_one)
+        d_365_96[calendar == 'HO'] = _get_interpolated_schedule(daily_schedule=d_holiday_out, noo=noo, n_p=n_p, is_proportionable=is_proportionable, is_zero_one=is_zero_one)
+        d_365_96[calendar == 'HI'] = _get_interpolated_schedule(daily_schedule=d_holiday_in, noo=noo, n_p=n_p, is_proportionable=is_proportionable, is_zero_one=is_zero_one)
         d = d_365_96.flatten()
 
         return d
 
-    @classmethod
-    def _get_interpolated_schedule(
-            cls,
-            daily_schedule: Dict,
-            noo: NumberOfOccupants,
-            n_p: Optional[float] = None,
-            is_proportionable: Optional[bool] = True,
-            is_zero_one: Optional[bool] = False
-    ) -> np.ndarray:
-        """
-        世帯人数で線形補間してリストを返す
-        Args:
-            daily_schedule: スケジュール
-                Keyは必ず'1', '2', '3', '4'
-                Valueは96個のリスト形式の値（15分インターバル）
-                {
-                    'schedule_type': 'number',
-                    '1': d['schedule']['1'][day_type][schedule_type],
-                    '2': d['schedule']['2'][day_type][schedule_type],
-                    '3': d['schedule']['3'][day_type][schedule_type],
-                    '4': d['schedule']['4'][day_type][schedule_type],
-                }
-                または
-                {
-                    'schedule_type': 'const',
-                    'const': d['schedule']['const'][day_type][schedule_type]
-                }
-            noo: 居住人数の指定方法
-            n_p: 居住人数
-            is_proportionable: 按分可能かどうか
-                按分可能な場合は居住人数により按分が行われる
-                按分可能でない場合は2つの数字のうち大きい方の値が採用される
-                按分作業が発生しない場合（schedule_type が const の場合または schedule_type が number でかつ居住人数が auto ではない場合）、本パラメータは無視される。
-                これが適用されないのは唯一、ac_setting を想定している。
-            is_zero_one: 数字データの意味をゼロ・イチの意味に読み替えるかどうか
-                例：　[0, 3, 5, 7, 0] -> [0, 1, 1, 1, 0]
-                ac_demand に適用されることを想定している
-        Returns:
-            線形補間したリスト, [96]
-        """
 
-        if daily_schedule['schedule_type'] == 'const':
+def _get_interpolated_schedule(
+        daily_schedule: Dict,
+        noo: NumberOfOccupants,
+        n_p: Optional[float] = None,
+        is_proportionable: Optional[bool] = True,
+        is_zero_one: Optional[bool] = False
+) -> np.ndarray:
+    """Returns a list linearly interpolated by the number of occupants. / 世帯人数で線形補間したリストを返す
+    Args:
+        daily_schedule: schedule value
+            Key: "const", "1", "2", "3", or "4"
+            Value: values
+                Number of values is
+                    24 (itv = H1)
+                    48 (itv = M30)
+                    96 (itv = M15)
+            {
+                'schedule_type': 'number',
+                '1': d['schedule']['1'][day_type][schedule_type],
+                '2': d['schedule']['2'][day_type][schedule_type],
+                '3': d['schedule']['3'][day_type][schedule_type],
+                '4': d['schedule']['4'][day_type][schedule_type],
+            }
+            or
+            {
+                'schedule_type': 'const',
+                'const': d['schedule']['const'][day_type][schedule_type]
+            }
+        noo: specified method of number of occupants / 居住人数の指定方法
+        n_p: number of occupants / 居住人数
+        is_proportionable: 按分可能かどうか
+            If proportionable, the value is proportioned by the number of occupants. / 按分可能な場合は居住人数により按分が行われる。
+            If not proportionable, the maximum vale is applied. / 按分可能でない場合は2つの数字のうち大きい方の値が採用される。
+            按分作業が発生しない場合（schedule_type が const の場合または schedule_type が number でかつ居住人数が auto ではない場合）、本パラメータは無視される。
+            これが適用されないのは唯一、ac_setting を想定している。
+        is_zero_one: 数字データの意味をゼロ・イチの意味に読み替えるかどうか
+            example: [0, 3, 5, 7, 0] -> [0, 1, 1, 1, 0]
+            ac_demand に適用されることを想定している
+    Returns:
+        list linerly interpolated / 線形補間したリスト, [24 or 48 or 96]
+    """
 
-            scd = np.array(daily_schedule['const'])
+    if daily_schedule['schedule_type'] == 'const':
+
+        scd = np.array(daily_schedule['const'])
+
+        if is_zero_one:
+            return _convert_to_zero_one(v=scd)
+        else:
+            return scd
+
+    elif daily_schedule['schedule_type'] == 'number':
+
+        if noo in [NumberOfOccupants.One, NumberOfOccupants.Two, NumberOfOccupants.Three, NumberOfOccupants.Four]:
+
+            scd = np.array(daily_schedule[str(noo.value)])
 
             if is_zero_one:
                 return _convert_to_zero_one(v=scd)
             else:
                 return scd
 
-        elif daily_schedule['schedule_type'] == 'number':
+        elif noo == NumberOfOccupants.Auto:
 
-            if noo in [NumberOfOccupants.One, NumberOfOccupants.Two, NumberOfOccupants.Three, NumberOfOccupants.Four]:
+            ceil_np, floor_np = _get_ceil_floor_np(n_p)
 
-                scd = np.array(daily_schedule[str(noo.value)])
-
-                if is_zero_one:
-                    return _convert_to_zero_one(v=scd)
-                else:
-                    return scd
-
-            elif noo == NumberOfOccupants.Auto:
-
-                ceil_np, floor_np = _get_ceil_floor_np(n_p)
-
-                if is_zero_one:
-                    ceil_schedule = _convert_to_zero_one(v=np.array(daily_schedule[str(ceil_np)]))
-                    floor_schedule = _convert_to_zero_one(v=np.array(daily_schedule[str(floor_np)]))
-                else:
-                    ceil_schedule = np.array(daily_schedule[str(ceil_np)])
-                    floor_schedule = np.array(daily_schedule[str(floor_np)])
-
-                if is_proportionable:
-                    interpolate_np_schedule = ceil_schedule * (n_p - float(floor_np)) + floor_schedule * (float(ceil_np) - n_p)
-                else:
-                    interpolate_np_schedule = np.maximum(ceil_schedule, floor_schedule)
-
-                return interpolate_np_schedule
-
+            if is_zero_one:
+                ceil_schedule = _convert_to_zero_one(v=np.array(daily_schedule[str(ceil_np)]))
+                floor_schedule = _convert_to_zero_one(v=np.array(daily_schedule[str(floor_np)]))
             else:
+                ceil_schedule = np.array(daily_schedule[str(ceil_np)])
+                floor_schedule = np.array(daily_schedule[str(floor_np)])
 
-                raise KeyError()
+            if is_proportionable:
+                interpolate_np_schedule = ceil_schedule * (n_p - float(floor_np)) + floor_schedule * (float(ceil_np) - n_p)
+            else:
+                interpolate_np_schedule = np.maximum(ceil_schedule, floor_schedule)
+
+            return interpolate_np_schedule
+
         else:
 
             raise KeyError()
+    else:
+
+        raise KeyError()
+
 
 def _convert_to_zero_one(v: np.ndarray) -> np.ndarray:
     """Return zero if the argument is zero and return one if the argument is more than zero. / 引数が0の場合は0を返し0より大の場合は1を返す。
@@ -413,14 +416,14 @@ def _convert_to_zero_one(v: np.ndarray) -> np.ndarray:
 
 
 def _get_ceil_floor_np(n_p: float) -> Tuple[int, int]:
-    """Calculate the floor and ceiled number of the number of people. / 世帯人数から切り上げ・切り下げた人数を整数値で返す
+    """Calculate the floor and ceiled number of the number of occupants. / 世帯人数から切り上げ・切り下げた人数を整数値で返す
 
     Args:
-        n_p: number of people / 世帯人数
+        n_p: number of occupants / 世帯人数
 
     Returns:
-        1) ceiled number of the number of people / 切り上げた世帯人数
-        2) floor number of the number of people / 切り下げた世帯人数
+        1) ceiled number of the number of occupants / 切り上げた世帯人数
+        2) floor number of the number of occupants / 切り下げた世帯人数
 
     Notes:
         ERROR in case that the number is less than one or more than four.
@@ -437,20 +440,20 @@ def _get_ceil_floor_np(n_p: float) -> Tuple[int, int]:
         ceil_np = 4
         floor_np = 3
     else:
-        raise logger.error(msg='The number of people is out of range.')
+        raise logger.error(msg='The number of the occupants is out of range.')
 
     return ceil_np, floor_np
 
 
 def _get_n_p(noo: NumberOfOccupants, a_floor_is: List[float]) -> float:
-    """Calculate the number of people based on the total floor area. / 床面積の合計から居住人数を計算する。
+    """Calculate the number of the occupants based on the total floor area. / 床面積の合計から居住人数を計算する。
     
     Args:
-        noo: specified method of number of people / 居住人数の指定方法
+        noo: specified method of number of occupants / 居住人数の指定方法
         a_floor_is: floor area of room i / 室iの床面積, m2, [i]
 
     Returns:
-        number of people / 居住人数
+        number of occupants / 居住人数
     """
 
     if noo == NumberOfOccupants.One:
