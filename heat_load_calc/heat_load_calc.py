@@ -60,10 +60,12 @@ def run(
 
     # 気象データの生成 => weather_for_method_file.csv
     w = weather.Weather.make_weather(
-        method=weather_specify_method,
-        file_path=path.abspath(weather_file_path),
-        region=region,
-        itv=interval.Interval.M15
+        rd=rd,
+        cl_method=weather_specify_method,
+        cl_file_path=path.abspath(weather_file_path),
+        cl_region=region,
+        itv=interval.Interval.M15,
+        entry_point_dir=path.dirname(__file__)
     )
 
     # ---- 計算 ----

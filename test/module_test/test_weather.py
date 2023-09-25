@@ -7,12 +7,30 @@ from heat_load_calc.interval import Interval
 
 class TestWeather(unittest.TestCase):
 
-    file_path = os.path.join(os.path.dirname(__file__), 'weather_for_method_file.csv')
+    entry_point_dir = os.path.dirname(__file__)
+
+    _rd_ees = {
+        "common": {
+            "weather": {
+                "method": "ees",
+                "region": "1"
+            }
+        }
+    }
+
+    _rd_file = {
+        "common": {
+            "weather": {
+                "method": "file",
+                "file_path": "weather_for_method_file.csv"
+            }
+        }
+    }
 
     def test_weather_values_solar_position_ees_m15(self):
 
         # データの取得
-        w = Weather.make_weather(method="ees", itv=Interval.M15, region=1)
+        w = Weather.make_weather(rd=self._rd_ees, itv=Interval.M15)
         d = w.get_weather_as_pandas_data_frame()
 
         # 確認する時刻のタイムスタンプとインデックス
@@ -41,7 +59,7 @@ class TestWeather(unittest.TestCase):
     def test_weather_values_solar_position_ees_m30(self):
 
         # データの取得
-        w = Weather.make_weather(method="ees", itv=Interval.M30, region=1)
+        w = Weather.make_weather(rd=self._rd_ees, itv=Interval.M30)
         d = w.get_weather_as_pandas_data_frame()
 
         # 確認する時刻のタイムスタンプとインデックス
@@ -70,7 +88,7 @@ class TestWeather(unittest.TestCase):
     def test_weather_values_solar_position_ees_1h(self):
 
         # データの取得
-        w = Weather.make_weather(method="ees", itv=Interval.H1, region=1)
+        w = Weather.make_weather(rd=self._rd_ees, itv=Interval.H1)
         d = w.get_weather_as_pandas_data_frame()
 
         # 確認する時刻のタイムスタンプとインデックス
@@ -99,7 +117,7 @@ class TestWeather(unittest.TestCase):
     def test_weather_values_solar_position_file_m15(self):
 
         # データの取得
-        w = Weather.make_weather(method="file", itv=Interval.M15, file_path=self.file_path)
+        w = Weather.make_weather(rd=self._rd_file, itv=Interval.M15, entry_point_dir=self.entry_point_dir)
         d = w.get_weather_as_pandas_data_frame()
 
         # 確認する時刻のタイムスタンプとインデックス
@@ -128,7 +146,7 @@ class TestWeather(unittest.TestCase):
     def test_weather_values_solar_position_file_m30(self):
 
         # データの取得
-        w = Weather.make_weather(method="file", itv=Interval.M30, file_path=self.file_path)
+        w = Weather.make_weather(rd=self._rd_file, itv=Interval.M30, entry_point_dir=self.entry_point_dir)
         d = w.get_weather_as_pandas_data_frame()
 
         # 確認する時刻のタイムスタンプとインデックス
@@ -157,7 +175,7 @@ class TestWeather(unittest.TestCase):
     def test_weather_values_solar_position_file_h1(self):
 
         # データの取得
-        w = Weather.make_weather(method="file", itv=Interval.H1, file_path=self.file_path)
+        w = Weather.make_weather(rd=self._rd_file, itv=Interval.H1, entry_point_dir=self.entry_point_dir)
         d = w.get_weather_as_pandas_data_frame()
 
         # 確認する時刻のタイムスタンプとインデックス
@@ -193,7 +211,7 @@ class TestWeather(unittest.TestCase):
         """
 
         # データの取得
-        w = Weather.make_weather(method="ees", itv=Interval.M15, region=1)
+        w = Weather.make_weather(rd=self._rd_ees, itv=Interval.M15)
         d = w.get_weather_as_pandas_data_frame()
 
         # 確認する時刻のタイムスタンプとインデックス
@@ -251,7 +269,7 @@ class TestWeather(unittest.TestCase):
         """
 
         # データの取得
-        w = Weather.make_weather(method="ees", itv=Interval.M30, region=1)
+        w = Weather.make_weather(rd=self._rd_ees, itv=Interval.M30)
         d = w.get_weather_as_pandas_data_frame()
 
         # 確認する時刻のタイムスタンプとインデックス
@@ -309,7 +327,7 @@ class TestWeather(unittest.TestCase):
         """
 
         # データの取得
-        w = Weather.make_weather(method="ees", itv=Interval.H1, region=1)
+        w = Weather.make_weather(rd=self._rd_ees, itv=Interval.H1)
         d = w.get_weather_as_pandas_data_frame()
 
         # 確認する時刻のタイムスタンプとインデックス
@@ -356,7 +374,7 @@ class TestWeather(unittest.TestCase):
         """
 
         # データの取得
-        w = Weather.make_weather(method="file", itv=Interval.M15, file_path=self.file_path)
+        w = Weather.make_weather(rd=self._rd_file, itv=Interval.M15, entry_point_dir=self.entry_point_dir)
         d = w.get_weather_as_pandas_data_frame()
 
         # 確認する時刻のタイムスタンプとインデックス
@@ -414,7 +432,7 @@ class TestWeather(unittest.TestCase):
         """
 
         # データの取得
-        w = Weather.make_weather(method="file", itv=Interval.M30, file_path=self.file_path)
+        w = Weather.make_weather(rd=self._rd_file, itv=Interval.M30, entry_point_dir=self.entry_point_dir)
         d = w.get_weather_as_pandas_data_frame()
 
         # 確認する時刻のタイムスタンプとインデックス
@@ -472,7 +490,7 @@ class TestWeather(unittest.TestCase):
         """
 
         # データの取得
-        w = Weather.make_weather(method="file", itv=Interval.H1, file_path=self.file_path)
+        w = Weather.make_weather(rd=self._rd_file, itv=Interval.H1, entry_point_dir=self.entry_point_dir)
         d = w.get_weather_as_pandas_data_frame()
 
         # 確認する時刻のタイムスタンプとインデックス

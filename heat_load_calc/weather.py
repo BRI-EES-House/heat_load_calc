@@ -2,7 +2,7 @@
 import pandas as pd
 import os
 import logging
-from typing import Tuple
+from typing import Tuple, Dict
 import math
 
 from heat_load_calc import solar_position
@@ -49,7 +49,22 @@ class Weather:
         self._itv = itv
 
     @classmethod
-    def make_weather(cls, method: str, itv: Interval = Interval.M15, file_path: str = "", region: int = None):
+    def make_weather(cls, rd: Dict, cl_method: str = "", itv: Interval = Interval.M15, cl_file_path: str = "", cl_region: int = None, entry_point_dir: str = ""):
+
+        if 'weather' in rd['common']:
+            w = rd['common']['weather']
+            method = w['method']
+            if method == 'ees':
+                region = int(w['region'])
+            elif method == 'file':
+                file_path = os.path.join(entry_point_dir, w['file_path'])
+            else:
+                raise Exception()
+        else:
+            method = cl_method
+            region = cl_region
+            file_path = cl_file_path
+
 
         if method == 'file':
 
