@@ -70,7 +70,7 @@ class Weather:
 
             logger.info('make weather data based on the EES region')
 
-            return cls._make_weather_ees(rgn=region, itv=itv)
+            return cls._make_weather_ees(region=region, itv=itv)
 
         elif method == 'file':
 
@@ -201,20 +201,20 @@ class Weather:
         h_sun_ns, a_sun_ns = solar_position.calc_solar_position(phi_loc=phi_loc, lambda_loc=lambda_loc, interval=itv)
 
         # 外気温度, degree C
-        theta_o_ns = cls._interpolate(weather_data=pp['temperature'].values, interval=itv, rolling=False)
+        theta_o_ns = _interpolate(weather_data=pp['temperature'].values, interval=itv, rolling=False)
 
         # 外気絶対湿度, kg/kg(DA)
         # g/kgDA から kg/kgDA へ単位変換を行う。
-        x_o_ns = cls._interpolate(weather_data=pp['absolute humidity'].values, interval=itv, rolling=False) / 1000.0
+        x_o_ns = _interpolate(weather_data=pp['absolute humidity'].values, interval=itv, rolling=False) / 1000.0
 
         # 法線面直達日射量, W/m2
-        i_dn_ns = cls._interpolate(weather_data=pp['normal direct solar radiation'].values, interval=itv, rolling=False)
+        i_dn_ns = _interpolate(weather_data=pp['normal direct solar radiation'].values, interval=itv, rolling=False)
 
         # 水平面天空日射量, W/m2
-        i_sky_ns = cls._interpolate(weather_data=pp['horizontal sky solar radiation'].values, interval=itv, rolling=False)
+        i_sky_ns = _interpolate(weather_data=pp['horizontal sky solar radiation'].values, interval=itv, rolling=False)
 
         # 夜間放射量, W/m2
-        r_n_ns = cls._interpolate(weather_data=pp['outward radiation'].values, interval=itv, rolling=False)
+        r_n_ns = _interpolate(weather_data=pp['outward radiation'].values, interval=itv, rolling=False)
 
         return Weather(
             a_sun_ns=a_sun_ns,
@@ -242,33 +242,35 @@ class Weather:
         return np.append(d, d[0])
 
     @classmethod
-    def _make_weather_ees(cls, rgn: Region, itv: Interval):
-        """気象データを作成する。
+    def _make_weather_ees(cls, region: Region, itv: Interval):
+        """Make the climate data. / 気象データを作成する。
+
         Args:
             rgn: 地域の区分
             itv: Interval 列挙体
         Returns:
-            OutdoorCondition クラス
+            Weather Class
         """
 
-        # 気象データの読み込み
-        #   (1)ステップnにおける外気温度, degree C, [n]
-        #   (2)ステップnにおける法線面直達日射量, W/m2, [n]
-        #   (3)ステップnにおける水平面天空日射量, W/m2, [n]
-        #   (4)ステップnにおける夜間放射量, W/m2, [n]
-        #   (5)ステップnにおける外気絶対湿度, kg/kgDA, [n]
+        # Load the climate data.
+        #   (1) outside temperature at step n / ステップnにおける外気温度, degree C, [N]
+        #   (2) normal surface direct solar radiation at step n / ステップnにおける法線面直達日射量, W / m2, [N]
+        #   (3) horizontal sky solar radiation at step n / ステップnにおける水平面天空日射量, W / m2, [N]
+        #   (4) nighttime radiation at step n / ステップnにおける夜間放射量, W / m2, [N]
+        #   (5) outside absolute humidity at step n / ステップnにおける外気絶対湿度, kg / kg(DA), [N]
         # インターバルごとの要素数について
         #   interval = '1h' -> n = 8760
         #   interval = '30m' -> n = 8760 * 2
         #   interval = '15m' -> n = 8760 * 4
-        theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, x_o_ns = cls._load(rgn=rgn, itv=itv)
+        theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, x_o_ns = cls._load(region=region, itv=itv)
 
-        # 緯度, rad & 経度, rad
-        phi_loc, lambda_loc = rgn.get_phi_loc_and_lambda_loc()
+        # latitude / 緯度, rad
+        # longitude / 経度, rad
+        phi_loc, lambda_loc = region.get_phi_loc_and_lambda_loc()
 
-        # 太陽位置
-        #   (1) ステップ n における太陽高度, rad, [n]
-        #   (2) ステップ n における太陽方位角, rad, [n]
+        # solar position / 太陽位置
+        #   solar altitude at step n / ステップnにおける太陽高度, rad, [N]
+        #   solar azimuth at step n / ステップnにおける太陽方位角, rad, [N]
         h_sun_ns, a_sun_ns = solar_position.calc_solar_position(phi_loc=phi_loc, lambda_loc=lambda_loc, interval=itv)
 
         return Weather(
@@ -283,21 +285,19 @@ class Weather:
         )
 
     @classmethod
-    def _load(cls, rgn: Region, itv: Interval) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
-        """
-        地域の区分に応じて気象データを読み込み、指定された時間間隔で必要に応じて補間を行いデータを作成する。
+    def _load(cls, region: Region, itv: Interval) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+        """Read the weather data depend on the region and interpolates at specified time intervals to create data. / 地域の区分に応じて気象データを読み込み、指定された時間間隔で補間を行いデータを作成する。
 
         Args:
-            rgn: 地域の区分
+            region: 地域の区分
             itv: Interval 列挙体
 
         Returns:
-            以下の5項目
-                (1) ステップnにおける外気温度, degree C [n]
-                (2) ステップnにおける法線面直達日射量, W/m2 [n]
-                (3) ステップnにおける水平面天空日射量, W/m2 [n]
-                (4) ステップnにおける夜間放射量, W/m2 [n]
-                (5) ステップnにおける外気絶対湿度, g/kgDA [n]
+            (1) outside temperature at step n / ステップnにおける外気温度, degree C, [N]
+            (2) normal surface direct solar radiation at step n / ステップnにおける法線面直達日射量, W / m2, [N]
+            (3) horizontal sky solar radiation at step n / ステップnにおける水平面天空日射量, W / m2, [N]
+            (4) nighttime radiation at step n / ステップnにおける夜間放射量, W / m2, [N]
+            (5) outside absolute humidity at step n / ステップnにおける外気絶対湿度, g / kg(DA), [N]
 
         Notes:
             interval = '1h' -> n = 8760
@@ -305,108 +305,119 @@ class Weather:
             interval = '15m' -> n = 8760 * 4
         """
 
-        # 地域の区分に応じたファイル名の取得
-        weather_data_filename = cls._get_filename(rgn=rgn)
+        # Get the file name corresponding to the region. / 地域の区分に応じたファイル名の取得する。
+        weather_data_filename = _get_filename(region=region)
 
-        # ファイル読み込み
+        # absolute file path
         path_and_filename = str(os.path.dirname(__file__)) + '/expanded_amedas/' + weather_data_filename
 
+        # read the file
+        if not os.path.isfile(path_and_filename):
+            raise FileExistsError('The ees file does not exist.')
         data = np.loadtxt(path_and_filename, delimiter=",", skiprows=2, usecols=(2, 3, 4, 5, 6), encoding="utf-8")
 
-        # 扱いにくいので転地（列：項目・行：時刻　→　列：時刻・行：項目
+        # 扱いにくいので転地（列：項目・行：時刻　→　列：時刻・行：項目）
         # [5項目, 8760データ]
+        # Change of place.
         # [8760, 5] -> [5, 8760]
         weather = data.T
 
-        # ステップnにおける外気温度, degree C
-        theta_o_ns = cls._interpolate(weather_data=weather[0], interval=itv, rolling=True)
+        # outside temperature at step n / ステップnにおける外気温度, degree C, [N]
+        theta_o_ns = _interpolate(weather_data=weather[0], interval=itv, rolling=True)
 
-        # ステップnにおける法線面直達日射量, W/m2
-        i_dn_ns = cls._interpolate(weather_data=weather[1], interval=itv, rolling=True)
+        # normal surface direct solar radiation at step n / ステップnにおける法線面直達日射量, W / m2, [N]
+        i_dn_ns = _interpolate(weather_data=weather[1], interval=itv, rolling=True)
 
-        # ステップnにおける水平面天空日射量, W/m2
-        i_sky_ns = cls._interpolate(weather_data=weather[2], interval=itv, rolling=True)
+        # horizontal sky solar radiation at step n / ステップnにおける水平面天空日射量, W / m2, [N]
+        i_sky_ns = _interpolate(weather_data=weather[2], interval=itv, rolling=True)
 
-        # ステップnにおける夜間放射量, W/m2
-        r_n_ns = cls._interpolate(weather_data=weather[3], interval=itv, rolling=True)
+        # nighttime radiation at step n / ステップnにおける夜間放射量, W / m2, [N]
+        r_n_ns = _interpolate(weather_data=weather[3], interval=itv, rolling=True)
 
-        # ステップnにおける外気絶対湿度, kg/kgDA
+        # outside absolute humidity at step n / ステップnにおける外気絶対湿度, kg / kg(DA)
+        # Convert to the unit kg / kg(DA) because the unit in file is g / kg(DA)
         # g/kgDA から kg/kgDA へ単位変換を行う。
-        x_o_ns = cls._interpolate(weather_data=weather[4], interval=itv, rolling=True) / 1000.0
+        x_o_ns = _interpolate(weather_data=weather[4], interval=itv, rolling=True) / 1000.0
 
         return theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, x_o_ns
 
-    @classmethod
-    def _interpolate(cls, weather_data: np.ndarray, interval: Interval, rolling: bool) -> np.ndarray:
-        """
-        1時間ごとの8760データを指定された間隔のデータに補間する。
-        '1h': 1時間間隔の場合、 n = 8760
-        '30m': 30分間隔の場合、 n = 8760 * 2 = 17520
-        '15m': 15分間隔の場合、 n = 8760 * 4 = 35040
 
-        Args:
-            weather_data: 1時間ごとの気象データ [8760]
-            interval: 生成するデータの時間間隔
-            rolling: rolling するか否か。データが1時始まりの場合は最終行の 12/31 24:00 のデータを 1/1 0:00 に持ってくるため、この値は True にすること。
+def _interpolate(weather_data: np.ndarray, interval: Interval, rolling: bool) -> np.ndarray:
+    """Interpolate the hourly 8760 data to the specified interval. / 1時間ごとの8760データを指定された間隔のデータに補間する。
+    '1h': 1時間間隔の場合、 n = 8760
+    '30m': 30分間隔の場合、 n = 8760 * 2 = 17520
+    '15m': 15分間隔の場合、 n = 8760 * 4 = 35040
 
-        Returns:
-            指定する時間間隔に補間された気象データ [n]
-        """
+    Args:
+        weather_data: hourly weather data / 1時間ごとの気象データ, [8760]
+        interval: interval / 時間間隔
+        rolling: is rolling? / rolling するか否か。
+            If the data starts at 1:00, this value should be TRUE in order to move the data at 24:00 in 12/31 to 1/1 0:00.
+            データが1時始まりの場合は最終行の 12/31 24:00 のデータを 1/1 0:00 に持ってくるため、この値は True にすること。
 
-        if interval == Interval.H1:
+    Returns:
+        interpolated weather data of specified interval / 指定する時間間隔に補間された気象データ, [N]
+    
+    Notes:
+        N is;
+            8760 * 1 =  8760 in case of  '1h' / 1時間間隔の場合
+            8760 * 2 = 17520 in case of '30m' / 30分間隔の場合 
+            8760 * 4 = 35040 in case of '30m' / 15分間隔の場合 
+    """
 
-            if rolling:
-                # 拡張アメダスのデータが1月1日の1時から始まっているため1時間ずらして0時始まりのデータに修正する。
-                return np.roll(weather_data, 1)
-            else:
-                return weather_data
+    if interval == Interval.H1:
 
+        if rolling:
+            # 拡張アメダスのデータが1月1日の1時から始まっているため1時間ずらして0時始まりのデータに修正する。
+            return np.roll(weather_data, 1)
         else:
+            return weather_data
 
-            # 補間比率の係数
-            alpha = {
-                Interval.M30: np.array([1.0, 0.5]),
-                Interval.M15: np.array([1.0, 0.75, 0.5, 0.25])
-            }[interval]
+    else:
 
-            # 補間元データ1, 補間元データ2
-            if rolling:
-                # 拡張アメダスのデータが1月1日の1時から始まっているため1時間ずらして0時始まりのデータに修正する。
-                data1 = np.roll(weather_data, 1)     # 0時=24時のため、1回分前のデータを参照
-                data2 = weather_data
-            else:
-                data1 = weather_data
-                data2 = np.roll(weather_data, -1)
+        # 補間比率の係数
+        alpha = {
+            Interval.M30: np.array([1.0, 0.5]),
+            Interval.M15: np.array([1.0, 0.75, 0.5, 0.25])
+        }[interval]
 
-            # 直線補完 8760×4 の2次元配列
-            data_interp_2d = alpha[np.newaxis, :] * data1[:, np.newaxis] + (1.0 - alpha[np.newaxis, :]) * data2[:, np.newaxis]
+        # 補間元データ1, 補間元データ2
+        if rolling:
+            # 拡張アメダスのデータが1月1日の1時から始まっているため1時間ずらして0時始まりのデータに修正する。
+            data1 = np.roll(weather_data, 1)     # 0時=24時のため、1回分前のデータを参照
+            data2 = weather_data
+        else:
+            data1 = weather_data
+            data2 = np.roll(weather_data, -1)
 
-            # 1次元配列へ変換
-            data_interp_1d = data_interp_2d.flatten()
+        # Interporats. / 直線補完 2 dimentional array [2, 8760] or [4, 8760]
+        data_interp_2d = alpha[np.newaxis, :] * data1[:, np.newaxis] + (1.0 - alpha[np.newaxis, :]) * data2[:, np.newaxis]
 
-            return data_interp_1d
+        # Convert 2 dim to 1 dim. / 2次元配列を1次元配列へ変換
+        data_interp_1d = data_interp_2d.flatten()
 
-    @classmethod
-    def _get_filename(cls, rgn: Region) -> str:
-        """
-        地域の区分に応じたファイル名を取得する。
+        return data_interp_1d
 
-        Args:
-            rgn: 地域の区分
 
-        Returns:
-            地域の区分に応じたファイル名（CSVファイル）（拡張子も含む）
-        """
+def _get_filename(region: Region) -> str:
+    """Get the file name depending on the region. / 地域の区分に応じたファイル名を取得する。
 
-        weather_data_filename = {
-            Region.Region1: '01_kitami.csv',  # 1地域（北見）
-            Region.Region2: '02_iwamizawa.csv',  # 2地域（岩見沢）
-            Region.Region3: '03_morioka.csv',  # 3地域（盛岡）
-            Region.Region4: '04_nagano.csv',  # 4地域（長野）
-            Region.Region5: '05_utsunomiya.csv',  # 5地域（宇都宮）
-            Region.Region6: '06_okayama.csv',  # 6地域（岡山）
-            Region.Region7: '07_miyazaki.csv',  # 7地域（宮崎）
-            Region.Region8: '08_naha.csv'  # 8地域（那覇）
-        }[rgn]
+    Args:
+        region: 地域の区分
 
-        return weather_data_filename
+    Returns:
+        file name (csv, including the extention). / 地域の区分に応じたファイル名(CSVファイル)(拡張子も含む)
+    """
+
+    weather_data_filename = {
+        Region.Region1: '01_kitami.csv',  # 1地域（北見）
+        Region.Region2: '02_iwamizawa.csv',  # 2地域（岩見沢）
+        Region.Region3: '03_morioka.csv',  # 3地域（盛岡）
+        Region.Region4: '04_nagano.csv',  # 4地域（長野）
+        Region.Region5: '05_utsunomiya.csv',  # 5地域（宇都宮）
+        Region.Region6: '06_okayama.csv',  # 6地域（岡山）
+        Region.Region7: '07_miyazaki.csv',  # 7地域（宮崎）
+        Region.Region8: '08_naha.csv'  # 8地域（那覇）
+    }[region]
+
+    return weather_data_filename
