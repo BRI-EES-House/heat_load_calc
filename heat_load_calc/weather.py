@@ -49,37 +49,47 @@ class Weather:
         self._itv = itv
 
     @classmethod
-    def make_weather(cls, rd: Dict, itv: Interval = Interval.M15, entry_point_dir: str = ""):
+    def make_weather(cls, rd: Dict, itv: Interval, entry_point_dir: str = ""):
 
         if 'weather' not in rd['common']:
             raise KeyError('Key weather could not be found in common tag.')
         
-        w = rd['common']['weather']
-        method = w['method']
-        if method == 'ees':
-            region = int(w['region'])
-        elif method == 'file':
-            file_path = os.path.join(entry_point_dir, w['file_path'])
-            latitude = float(w['latitude'])
-            longitude = float(w['longitude'])
-        else:
-            raise Exception()
+        weather = rd['common']['weather']
 
-        if method == 'file':
+        if 'method' not in weather:
+            raise KeyError('Key method could not be found in weather tag.')
+        
+        method = weather['method']
+        
+        if method == 'ees':
+
+            if 'region' not in weather:
+                raise KeyError('Key region should be specified if the ees method applied.')
+
+            region = Region(int(weather['region']))
+
+            logger.info('make weather data based on the EES region')
+
+            return cls._make_weather_ees(rgn=region, itv=itv)
+
+        elif method == 'file':
+
+            file_path = os.path.join(entry_point_dir, weather['file_path'])
+
+            if not os.path.isfile(file_path):
+                raise FileExistsError('The specified file does not exist when file method is applied.')
+            
+            latitude = float(weather['latitude'])
+            longitude = float(weather['longitude'])
 
             logger.info('Load weather data from `{}`'.format(file_path))
 
             return cls.make_from_pd(file_path=file_path, itv=itv, latitude=latitude, longitude=longitude)
 
-        elif method == 'ees':
-
-            logger.info('make weather data based on the EES region')
-
-            return cls._make_weather_ees(rgn=Region(region), itv=itv)
-
         else:
 
-            raise Exception()
+            raise ValueError('Invalid value is specified for the method.')
+
 
     def get_weather_as_pandas_data_frame(self):
 
