@@ -17,9 +17,6 @@ def run(
         house_data_path: str,
         output_data_dir: str,
         is_schedule_saved: bool = False,
-        weather_specify_method: str = 'ees',
-        weather_file_path: str = "",
-        region: int = 0,
         is_weather_saved: bool = False
 ):
     """負荷計算処理の実行
@@ -29,9 +26,6 @@ def run(
         house_data_path (str): 住宅計算条件JSONファイルへのパス
         output_data_dir (str): 出力フォルダへのパス
         is_schedule_saved: スケジュールを出力するか否か
-        weather_specify_method: 気象データの指定方法
-        weather_file_path: 気象データのファイルパス
-        region: 地域の区分
         is_weather_saved: 気象データを出力するか否か
     """
 
@@ -58,20 +52,19 @@ def run(
         with open(house_data_path, 'r', encoding='utf-8') as js:
             rd = json.load(js)
 
+    entry_point_dir=path.dirname(__file__)
+
     # 気象データの生成 => weather_for_method_file.csv
     w = weather.Weather.make_weather(
         rd=rd,
-        cl_method=weather_specify_method,
-        cl_file_path=path.abspath(weather_file_path),
-        cl_region=region,
-        itv=interval.Interval.M15,
-        entry_point_dir=path.dirname(__file__)
+        itv=itv,
+        entry_point_dir=entry_point_dir
     )
 
     # ---- 計算 ----
 
     # 計算
-    dd_i, dd_a, _, scd = core.calc(rd=rd, w=w, itv=itv)
+    dd_i, dd_a, _, scd = core.calc(rd=rd, w=w, itv=itv, entry_point_dir=entry_point_dir)
 
     # 気象データの保存
     if is_weather_saved:
@@ -122,25 +115,6 @@ def main():
     )
 
     parser.add_argument(
-        '--weather',
-        choices=['ees', 'file'],
-        default='ees',
-        help="気象データの作成方法を指定します。"
-    )
-    parser.add_argument(
-        '--weather_path',
-        default="",
-        type=str,
-        help="気象データの絶対パスを指定します。 weather オプションで file が指定された場合は必ず指定します。"
-    )
-    parser.add_argument(
-        '--region',
-        choices=[1, 2, 3, 4, 5, 6, 7, 8],
-        default=0,
-        type=int,
-        help="地域の区分を指定します。気象データの作成方法として建築物省エネ法を指定した場合には必ず指定します。"
-    )
-    parser.add_argument(
         '--weather_saved',
         action='store_true',
         help="気象データを出力するか否かを指定します。"
@@ -179,9 +153,6 @@ def main():
         house_data_path=args.house_data,
         output_data_dir=args.output_data_dir,
         is_schedule_saved=args.schedule_saved,
-        weather_specify_method=args.weather,
-        weather_file_path=args.weather_path,
-        region=args.region,
         is_weather_saved=args.weather_saved
     )
 

@@ -11,7 +11,8 @@ logger = logging.getLogger('HeatLoadCalc').getChild('core')
 def calc(
         rd: Dict,
         w: weather.Weather,
-        itv: interval.Interval = interval.Interval.M15,
+        itv: interval.Interval,
+        entry_point_dir: str,
         n_step_hourly: int = 4,
         n_d_main: int = 365,
         n_d_run_up: int = 365,

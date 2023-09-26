@@ -49,24 +49,21 @@ class Weather:
         self._itv = itv
 
     @classmethod
-    def make_weather(cls, rd: Dict, cl_method: str = "", itv: Interval = Interval.M15, cl_file_path: str = "", cl_region: int = None, entry_point_dir: str = ""):
+    def make_weather(cls, rd: Dict, itv: Interval = Interval.M15, entry_point_dir: str = ""):
 
-        if 'weather' in rd['common']:
-            w = rd['common']['weather']
-            method = w['method']
-            if method == 'ees':
-                region = int(w['region'])
-            elif method == 'file':
-                file_path = os.path.join(entry_point_dir, w['file_path'])
-                latitude = float(w['latitude'])
-                longitude = float(w['longitude'])
-            else:
-                raise Exception()
+        if 'weather' not in rd['common']:
+            raise KeyError('Key weather could not be found in common tag.')
+        
+        w = rd['common']['weather']
+        method = w['method']
+        if method == 'ees':
+            region = int(w['region'])
+        elif method == 'file':
+            file_path = os.path.join(entry_point_dir, w['file_path'])
+            latitude = float(w['latitude'])
+            longitude = float(w['longitude'])
         else:
-            method = cl_method
-            region = cl_region
-            file_path = cl_file_path
-
+            raise Exception()
 
         if method == 'file':
 
