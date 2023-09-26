@@ -6,16 +6,13 @@ from enum import Enum
 
 
 class Interval(Enum):
-    """
-    計算するインターバル
-    現状以下を用意する。
-        1時間
-        30分
-        15分
+    """Interval for calculation. / 計算するインターバル。
+    
     Notes:
-        1時間を正数で分割する必要があるため、列挙型で管理することにした。
-        上記に挙げたインターバール以外にも例えば以下のインターバールを将来的に実装することが考えられる。
-        20分, 12分, 10分, 6分, 5分, 4分, 3分, 2分, 1分
+        Interval is selected by;
+            1 hour
+            30 minutes
+            15 minutes.
     """
 
     H1 = '1h'
@@ -23,15 +20,15 @@ class Interval(Enum):
     M15 = '15m'
 
     def get_n_hour(self):
-        """1時間を分割するステップ数を求める。
+        """Calculate the number of steps deviding the hour. / 1時間を分割するステップ数を求める。
 
         Returns:
-            1時間を分割するステップ数
+            number of steps divideing hour / 1時間を分割するステップ数
 
         Notes:
-            1時間: 1
-            30分: 2
-            15分: 4
+            1 hour / 1時間: 1
+            30 minutes / 30分: 2
+            15 minutes / 15分: 4
         """
 
         return {
@@ -41,10 +38,10 @@ class Interval(Enum):
         }[self]
 
     def get_time(self):
-        """1時間を分割するステップに応じてインターバル時間を取得する。
+        """Get the interval time depending the number of steps dividing one hour. / 1時間を分割するステップに応じてインターバル時間を取得する。
 
         Returns:
-            インターバル時間, h
+            interval time / インターバル時間, h
         """
 
         return {
@@ -54,10 +51,10 @@ class Interval(Enum):
         }[self]
 
     def get_delta_t(self):
-        """1時間を分割するステップに応じてインターバル時間を取得する。
+        """Get the interval time depending the number of steps dividing one hour. / 1時間を分割するステップに応じてインターバル時間を取得する。
 
         Returns:
-            インターバル時間, s
+            interval time / インターバル時間, s
         """
 
         return {
@@ -67,10 +64,10 @@ class Interval(Enum):
         }[self]
 
     def get_annual_number(self):
-        """対応するインターバルにおいて1年間は何ステップに対応するのか、その数を取得する。
+        """Get the annual number of steps. / 1年間のステップ数を取得する。
 
         Returns:
-            1年間のステップ数
+            annual number of steps / 1年間のステップ数
         Notes:
             瞬時値の結果は、1/1 0:00 と 12/31 24:00(=翌年の1/1 0:00) の値を含むため、+1 される。
             この関数で返す値は「+1されない」値である。
@@ -79,7 +76,7 @@ class Interval(Enum):
         return 8760 * self.get_n_hour()
 
     def get_pandas_freq(self):
-        """pandas 用の freq 引数を取得する。
+        """Get the freq argument for pandas. / pandas 用の freq 引数を取得する。
 
         Returns:
             freq 引数
