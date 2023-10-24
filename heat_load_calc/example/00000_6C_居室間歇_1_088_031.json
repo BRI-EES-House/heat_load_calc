@@ -1,0 +1,6563 @@
+{
+  "common": {
+    "ac_method": "air_temperature",
+    "ac_config": [
+      {
+        "mode": 1,
+        "lower": 20,
+        "upper": 27
+      },
+      {
+        "mode": 2,
+        "lower": 0,
+        "upper": 28
+      }
+    ]
+  },
+  "building": {
+    "infiltration": {
+      "method": "balance_residential",
+      "c_value_estimate": "specify",
+      "story": 2,
+      "c_value": 0.0,
+      "inside_pressure": "negative"
+    }
+  },
+  "rooms": [
+    {
+      "id": 0,
+      "name": "japanese",
+      "sub_name": "和室",
+      "floor_area": 16.56,
+      "volume": 455.0485074626865,
+      "ventilation": {
+        "natural": 0.0
+      },
+      "furniture": {
+        "input_method": "specify",
+        "heat_capacity": 0.0,
+        "heat_cond": 85.0,
+        "moisture_capacity": 0.0,
+        "moisture_cond": 0.9
+      },
+      "schedule": {
+        "name": "japanese_kyoshitsu_kanketsu"
+      }
+    },
+    {
+      "id": 1,
+      "name": "ld",
+      "sub_name": "LD",
+      "floor_area": 21.53,
+      "volume": 591.5058208955224,
+      "ventilation": {
+        "natural": 0.0
+      },
+      "furniture": {
+        "input_method": "specify",
+        "heat_capacity": 0.0,
+        "heat_cond": 85.0,
+        "moisture_capacity": 0.0,
+        "moisture_cond": 0.9
+      },
+      "schedule": {
+        "name": "ld_kyoshitsu_kanketsu"
+      }
+    },
+    {
+      "id": 2,
+      "name": "kitchen",
+      "sub_name": "台所",
+      "floor_area": 8.28,
+      "volume": 220.36940298507457,
+      "ventilation": {
+        "natural": 0.0
+      },
+      "furniture": {
+        "input_method": "specify",
+        "heat_capacity": 0.0,
+        "heat_cond": 85.0,
+        "moisture_capacity": 0.0,
+        "moisture_cond": 0.9
+      },
+      "schedule": {
+        "name": "kitchen_kyoshitsu_kanketsu"
+      }
+    },
+    {
+      "id": 3,
+      "name": "bath",
+      "sub_name": "浴室",
+      "floor_area": 3.31,
+      "volume": 85.28582089552239,
+      "ventilation": {
+        "natural": 0.0
+      },
+      "furniture": {
+        "input_method": "specify",
+        "heat_capacity": 0.0,
+        "heat_cond": 85.0,
+        "moisture_capacity": 0.0,
+        "moisture_cond": 0.9
+      },
+      "schedule": {
+        "name": "bath_kyoshitsu_kanketsu"
+      }
+    },
+    {
+      "id": 4,
+      "name": "wc_1f",
+      "sub_name": "1F便所",
+      "floor_area": 1.66,
+      "volume": 42.70014925373134,
+      "ventilation": {
+        "natural": 0.0
+      },
+      "furniture": {
+        "input_method": "specify",
+        "heat_capacity": 0.0,
+        "heat_cond": 85.0,
+        "moisture_capacity": 0.0,
+        "moisture_cond": 0.9
+      },
+      "schedule": {
+        "name": "wc_1f_kyoshitsu_kanketsu"
+      }
+    },
+    {
+      "id": 5,
+      "name": "washroom",
+      "sub_name": "洗面所",
+      "floor_area": 3.31,
+      "volume": 85.28582089552239,
+      "ventilation": {
+        "natural": 0.0
+      },
+      "furniture": {
+        "input_method": "specify",
+        "heat_capacity": 0.0,
+        "heat_cond": 85.0,
+        "moisture_capacity": 0.0,
+        "moisture_cond": 0.9
+      },
+      "schedule": {
+        "name": "washroom_kyoshitsu_kanketsu"
+      }
+    },
+    {
+      "id": 6,
+      "name": "hall_1f",
+      "sub_name": "ホール",
+      "floor_area": 13.25,
+      "volume": 378.5774626865672,
+      "ventilation": {
+        "natural": 0.0
+      },
+      "furniture": {
+        "input_method": "specify",
+        "heat_capacity": 0.0,
+        "heat_cond": 85.0,
+        "moisture_capacity": 0.0,
+        "moisture_cond": 0.9
+      },
+      "schedule": {
+        "name": "hall_1f_kyoshitsu_kanketsu"
+      }
+    },
+    {
+      "id": 7,
+      "name": "closet",
+      "sub_name": "クローゼット",
+      "floor_area": 4.97,
+      "volume": 136.4573134328358,
+      "ventilation": {
+        "natural": 0.0
+      },
+      "furniture": {
+        "input_method": "specify",
+        "heat_capacity": 0.0,
+        "heat_cond": 85.0,
+        "moisture_capacity": 0.0,
+        "moisture_cond": 0.9
+      },
+      "schedule": {
+        "name": "closet_kyoshitsu_kanketsu"
+      }
+    },
+    {
+      "id": 8,
+      "name": "main_bed",
+      "sub_name": "主寝室",
+      "floor_area": 13.25,
+      "volume": 364.03880597014927,
+      "ventilation": {
+        "natural": 0.0
+      },
+      "furniture": {
+        "input_method": "specify",
+        "heat_capacity": 0.0,
+        "heat_cond": 85.0,
+        "moisture_capacity": 0.0,
+        "moisture_cond": 0.9
+      },
+      "schedule": {
+        "name": "main_bed_kyoshitsu_kanketsu"
+      }
+    },
+    {
+      "id": 9,
+      "name": "child_1",
+      "sub_name": "子供室1",
+      "floor_area": 10.76,
+      "volume": 295.69567164179097,
+      "ventilation": {
+        "natural": 0.0
+      },
+      "furniture": {
+        "input_method": "specify",
+        "heat_capacity": 0.0,
+        "heat_cond": 85.0,
+        "moisture_capacity": 0.0,
+        "moisture_cond": 0.9
+      },
+      "schedule": {
+        "name": "child_1_kyoshitsu_kanketsu"
+      }
+    },
+    {
+      "id": 10,
+      "name": "child_2",
+      "sub_name": "子供室2",
+      "floor_area": 10.77,
+      "volume": 295.8101492537313,
+      "ventilation": {
+        "natural": 0.0
+      },
+      "furniture": {
+        "input_method": "specify",
+        "heat_capacity": 0.0,
+        "heat_cond": 85.0,
+        "moisture_capacity": 0.0,
+        "moisture_cond": 0.9
+      },
+      "schedule": {
+        "name": "child_2_kyoshitsu_kanketsu"
+      }
+    },
+    {
+      "id": 11,
+      "name": "hall_2f",
+      "sub_name": "2Fホール",
+      "floor_area": 10.77,
+      "volume": 312.4094029850746,
+      "ventilation": {
+        "natural": 0.0
+      },
+      "furniture": {
+        "input_method": "specify",
+        "heat_capacity": 0.0,
+        "heat_cond": 85.0,
+        "moisture_capacity": 0.0,
+        "moisture_cond": 0.9
+      },
+      "schedule": {
+        "name": "hall_2f_kyoshitsu_kanketsu"
+      }
+    },
+    {
+      "id": 12,
+      "name": "kaima",
+      "sub_name": "階間(L4)",
+      "floor_area": 52.17,
+      "volume": 282.0728358208955,
+      "ventilation": {
+        "natural": 0.0
+      },
+      "furniture": {
+        "input_method": "specify",
+        "heat_capacity": 0.0,
+        "heat_cond": 85.0,
+        "moisture_capacity": 0.0,
+        "moisture_cond": 0.9
+      },
+      "schedule": {
+        "name": "kaima_kyoshitsu_kanketsu"
+      }
+    },
+    {
+      "id": 13,
+      "name": "wc_2f",
+      "sub_name": "2F便所",
+      "floor_area": 1.66,
+      "volume": 45.44761194029851,
+      "ventilation": {
+        "natural": 0.0
+      },
+      "furniture": {
+        "input_method": "specify",
+        "heat_capacity": 0.0,
+        "heat_cond": 85.0,
+        "moisture_capacity": 0.0,
+        "moisture_cond": 0.9
+      },
+      "schedule": {
+        "name": "wc_2f_kyoshitsu_kanketsu"
+      }
+    },
+    {
+      "id": 14,
+      "name": "attic1",
+      "sub_name": "小屋裏1",
+      "floor_area": 52.1703,
+      "volume": 537.5098222388059,
+      "ventilation": {
+        "natural": 0.0
+      },
+      "furniture": {
+        "input_method": "specify",
+        "heat_capacity": 0.0,
+        "heat_cond": 85.0,
+        "moisture_capacity": 0.0,
+        "moisture_cond": 0.9
+      },
+      "schedule": {
+        "name": "zero"
+      }
+    },
+    {
+      "id": 15,
+      "name": "attic2",
+      "sub_name": "小屋裏2",
+      "floor_area": 12.421499999999998,
+      "volume": 127.97852910447759,
+      "ventilation": {
+        "natural": 0.0
+      },
+      "furniture": {
+        "input_method": "specify",
+        "heat_capacity": 0.0,
+        "heat_cond": 85.0,
+        "moisture_capacity": 0.0,
+        "moisture_cond": 0.9
+      },
+      "schedule": {
+        "name": "zero"
+      }
+    },
+    {
+      "id": 16,
+      "name": "attic3",
+      "sub_name": "小屋裏3",
+      "floor_area": 3.3124000000000002,
+      "volume": 34.12760776119404,
+      "ventilation": {
+        "natural": 0.0
+      },
+      "furniture": {
+        "input_method": "specify",
+        "heat_capacity": 0.0,
+        "heat_cond": 85.0,
+        "moisture_capacity": 0.0,
+        "moisture_cond": 0.9
+      },
+      "schedule": {
+        "name": "zero"
+      }
+    },
+    {
+      "id": 17,
+      "name": "found",
+      "sub_name": "床下",
+      "floor_area": 66.05,
+      "volume": 378.06231343283577,
+      "ventilation": {
+        "natural": 0.0
+      },
+      "furniture": {
+        "input_method": "specify",
+        "heat_capacity": 0.0,
+        "heat_cond": 85.0,
+        "moisture_capacity": 0.0,
+        "moisture_cond": 0.9
+      },
+      "schedule": {
+        "name": "zero"
+      }
+    }
+  ],
+  "boundaries": [
+    {
+      "id": 0,
+      "name": "外壁",
+      "sub_name": "2Fホール",
+      "connected_room_id": 11,
+      "boundary_type": "external_general_part",
+      "area": 2.18,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.04318181818181818,
+          "thermal_capacity": 7.885
+        },
+        {
+          "name": "中空層",
+          "thermal_resistance": 0.09,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "住宅用グラスウール断熱材16K相当",
+          "thermal_resistance": 1.405290111392433,
+          "thermal_capacity": 0.8220947151645733
+        },
+        {
+          "name": "合板",
+          "thermal_resistance": 0.075,
+          "thermal_capacity": 8.64
+        },
+        {
+          "name": "木片セメント板",
+          "thermal_resistance": 0.08823529411764705,
+          "thermal_capacity": 25.178849999999997
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "is_sun_striked_outside": true,
+      "direction": "e",
+      "outside_emissivity": 0.9,
+      "outside_heat_transfer_resistance": 0.04,
+      "outside_solar_absorption": 0.8,
+      "temp_dif_coef": 1.0
+    },
+    {
+      "id": 1,
+      "name": "外壁",
+      "sub_name": "2F便所",
+      "connected_room_id": 13,
+      "boundary_type": "external_general_part",
+      "area": 2.18,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.04318181818181818,
+          "thermal_capacity": 7.885
+        },
+        {
+          "name": "中空層",
+          "thermal_resistance": 0.09,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "住宅用グラスウール断熱材16K相当",
+          "thermal_resistance": 1.405290111392433,
+          "thermal_capacity": 0.8220947151645733
+        },
+        {
+          "name": "合板",
+          "thermal_resistance": 0.075,
+          "thermal_capacity": 8.64
+        },
+        {
+          "name": "木片セメント板",
+          "thermal_resistance": 0.08823529411764705,
+          "thermal_capacity": 25.178849999999997
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "is_sun_striked_outside": true,
+      "direction": "e",
+      "outside_emissivity": 0.9,
+      "outside_heat_transfer_resistance": 0.04,
+      "outside_solar_absorption": 0.8,
+      "temp_dif_coef": 1.0
+    },
+    {
+      "id": 2,
+      "name": "外壁",
+      "sub_name": "LD",
+      "connected_room_id": 1,
+      "boundary_type": "external_general_part",
+      "area": 6.59,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.04318181818181818,
+          "thermal_capacity": 7.885
+        },
+        {
+          "name": "中空層",
+          "thermal_resistance": 0.09,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "住宅用グラスウール断熱材16K相当",
+          "thermal_resistance": 1.405290111392433,
+          "thermal_capacity": 0.8220947151645733
+        },
+        {
+          "name": "合板",
+          "thermal_resistance": 0.075,
+          "thermal_capacity": 8.64
+        },
+        {
+          "name": "木片セメント板",
+          "thermal_resistance": 0.08823529411764705,
+          "thermal_capacity": 25.178849999999997
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "is_sun_striked_outside": true,
+      "direction": "e",
+      "outside_emissivity": 0.9,
+      "outside_heat_transfer_resistance": 0.04,
+      "outside_solar_absorption": 0.8,
+      "temp_dif_coef": 1.0
+    },
+    {
+      "id": 3,
+      "name": "外壁",
+      "sub_name": "階間(L4)",
+      "connected_room_id": 12,
+      "boundary_type": "external_general_part",
+      "area": 2.73,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.04318181818181818,
+          "thermal_capacity": 7.885
+        },
+        {
+          "name": "中空層",
+          "thermal_resistance": 0.09,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "住宅用グラスウール断熱材16K相当",
+          "thermal_resistance": 1.405290111392433,
+          "thermal_capacity": 0.8220947151645733
+        },
+        {
+          "name": "合板",
+          "thermal_resistance": 0.075,
+          "thermal_capacity": 8.64
+        },
+        {
+          "name": "木片セメント板",
+          "thermal_resistance": 0.08823529411764705,
+          "thermal_capacity": 25.178849999999997
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "is_sun_striked_outside": true,
+      "direction": "e",
+      "outside_emissivity": 0.9,
+      "outside_heat_transfer_resistance": 0.04,
+      "outside_solar_absorption": 0.8,
+      "temp_dif_coef": 1.0
+    },
+    {
+      "id": 4,
+      "name": "外壁",
+      "sub_name": "子供室2",
+      "connected_room_id": 10,
+      "boundary_type": "external_general_part",
+      "area": 8.08,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.04318181818181818,
+          "thermal_capacity": 7.885
+        },
+        {
+          "name": "中空層",
+          "thermal_resistance": 0.09,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "住宅用グラスウール断熱材16K相当",
+          "thermal_resistance": 1.405290111392433,
+          "thermal_capacity": 0.8220947151645733
+        },
+        {
+          "name": "合板",
+          "thermal_resistance": 0.075,
+          "thermal_capacity": 8.64
+        },
+        {
+          "name": "木片セメント板",
+          "thermal_resistance": 0.08823529411764705,
+          "thermal_capacity": 25.178849999999997
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "is_sun_striked_outside": true,
+      "direction": "e",
+      "outside_emissivity": 0.9,
+      "outside_heat_transfer_resistance": 0.04,
+      "outside_solar_absorption": 0.8,
+      "temp_dif_coef": 1.0
+    },
+    {
+      "id": 5,
+      "name": "外壁",
+      "sub_name": "台所",
+      "connected_room_id": 2,
+      "boundary_type": "external_general_part",
+      "area": 7.48,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.04318181818181818,
+          "thermal_capacity": 7.885
+        },
+        {
+          "name": "中空層",
+          "thermal_resistance": 0.09,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "住宅用グラスウール断熱材16K相当",
+          "thermal_resistance": 1.405290111392433,
+          "thermal_capacity": 0.8220947151645733
+        },
+        {
+          "name": "合板",
+          "thermal_resistance": 0.075,
+          "thermal_capacity": 8.64
+        },
+        {
+          "name": "木片セメント板",
+          "thermal_resistance": 0.08823529411764705,
+          "thermal_capacity": 25.178849999999997
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "is_sun_striked_outside": true,
+      "direction": "e",
+      "outside_emissivity": 0.9,
+      "outside_heat_transfer_resistance": 0.04,
+      "outside_solar_absorption": 0.8,
+      "temp_dif_coef": 1.0
+    },
+    {
+      "id": 6,
+      "name": "外壁",
+      "sub_name": "1F便所",
+      "connected_room_id": 4,
+      "boundary_type": "external_general_part",
+      "area": 1.51,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.04318181818181818,
+          "thermal_capacity": 7.885
+        },
+        {
+          "name": "中空層",
+          "thermal_resistance": 0.09,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "住宅用グラスウール断熱材16K相当",
+          "thermal_resistance": 1.405290111392433,
+          "thermal_capacity": 0.8220947151645733
+        },
+        {
+          "name": "合板",
+          "thermal_resistance": 0.075,
+          "thermal_capacity": 8.64
+        },
+        {
+          "name": "木片セメント板",
+          "thermal_resistance": 0.08823529411764705,
+          "thermal_capacity": 25.178849999999997
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "is_sun_striked_outside": true,
+      "direction": "n",
+      "outside_emissivity": 0.9,
+      "outside_heat_transfer_resistance": 0.04,
+      "outside_solar_absorption": 0.8,
+      "temp_dif_coef": 1.0
+    },
+    {
+      "id": 7,
+      "name": "外壁",
+      "sub_name": "2Fホール",
+      "connected_room_id": 11,
+      "boundary_type": "external_general_part",
+      "area": 10.34,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.04318181818181818,
+          "thermal_capacity": 7.885
+        },
+        {
+          "name": "中空層",
+          "thermal_resistance": 0.09,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "住宅用グラスウール断熱材16K相当",
+          "thermal_resistance": 1.405290111392433,
+          "thermal_capacity": 0.8220947151645733
+        },
+        {
+          "name": "合板",
+          "thermal_resistance": 0.075,
+          "thermal_capacity": 8.64
+        },
+        {
+          "name": "木片セメント板",
+          "thermal_resistance": 0.08823529411764705,
+          "thermal_capacity": 25.178849999999997
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "is_sun_striked_outside": true,
+      "direction": "n",
+      "outside_emissivity": 0.9,
+      "outside_heat_transfer_resistance": 0.04,
+      "outside_solar_absorption": 0.8,
+      "temp_dif_coef": 1.0
+    },
+    {
+      "id": 8,
+      "name": "外壁",
+      "sub_name": "2F便所",
+      "connected_room_id": 13,
+      "boundary_type": "external_general_part",
+      "area": 3.58,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.04318181818181818,
+          "thermal_capacity": 7.885
+        },
+        {
+          "name": "中空層",
+          "thermal_resistance": 0.09,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "住宅用グラスウール断熱材16K相当",
+          "thermal_resistance": 1.405290111392433,
+          "thermal_capacity": 0.8220947151645733
+        },
+        {
+          "name": "合板",
+          "thermal_resistance": 0.075,
+          "thermal_capacity": 8.64
+        },
+        {
+          "name": "木片セメント板",
+          "thermal_resistance": 0.08823529411764705,
+          "thermal_capacity": 25.178849999999997
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "is_sun_striked_outside": true,
+      "direction": "n",
+      "outside_emissivity": 0.9,
+      "outside_heat_transfer_resistance": 0.04,
+      "outside_solar_absorption": 0.8,
+      "temp_dif_coef": 1.0
+    },
+    {
+      "id": 9,
+      "name": "外壁",
+      "sub_name": "クローゼット",
+      "connected_room_id": 7,
+      "boundary_type": "external_general_part",
+      "area": 6.55,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.04318181818181818,
+          "thermal_capacity": 7.885
+        },
+        {
+          "name": "中空層",
+          "thermal_resistance": 0.09,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "住宅用グラスウール断熱材16K相当",
+          "thermal_resistance": 1.405290111392433,
+          "thermal_capacity": 0.8220947151645733
+        },
+        {
+          "name": "合板",
+          "thermal_resistance": 0.075,
+          "thermal_capacity": 8.64
+        },
+        {
+          "name": "木片セメント板",
+          "thermal_resistance": 0.08823529411764705,
+          "thermal_capacity": 25.178849999999997
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "is_sun_striked_outside": true,
+      "direction": "n",
+      "outside_emissivity": 0.9,
+      "outside_heat_transfer_resistance": 0.04,
+      "outside_solar_absorption": 0.8,
+      "temp_dif_coef": 1.0
+    },
+    {
+      "id": 10,
+      "name": "外壁",
+      "sub_name": "ホール",
+      "connected_room_id": 6,
+      "boundary_type": "external_general_part",
+      "area": 3.55,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.04318181818181818,
+          "thermal_capacity": 7.885
+        },
+        {
+          "name": "中空層",
+          "thermal_resistance": 0.09,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "住宅用グラスウール断熱材16K相当",
+          "thermal_resistance": 1.405290111392433,
+          "thermal_capacity": 0.8220947151645733
+        },
+        {
+          "name": "合板",
+          "thermal_resistance": 0.075,
+          "thermal_capacity": 8.64
+        },
+        {
+          "name": "木片セメント板",
+          "thermal_resistance": 0.08823529411764705,
+          "thermal_capacity": 25.178849999999997
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "is_sun_striked_outside": true,
+      "direction": "n",
+      "outside_emissivity": 0.9,
+      "outside_heat_transfer_resistance": 0.04,
+      "outside_solar_absorption": 0.8,
+      "temp_dif_coef": 1.0
+    },
+    {
+      "id": 11,
+      "name": "外壁",
+      "sub_name": "ホール",
+      "connected_room_id": 6,
+      "boundary_type": "external_general_part",
+      "area": 2.74,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.04318181818181818,
+          "thermal_capacity": 7.885
+        },
+        {
+          "name": "中空層",
+          "thermal_resistance": 0.09,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "住宅用グラスウール断熱材16K相当",
+          "thermal_resistance": 1.405290111392433,
+          "thermal_capacity": 0.8220947151645733
+        },
+        {
+          "name": "合板",
+          "thermal_resistance": 0.075,
+          "thermal_capacity": 8.64
+        },
+        {
+          "name": "木片セメント板",
+          "thermal_resistance": 0.08823529411764705,
+          "thermal_capacity": 25.178849999999997
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "is_sun_striked_outside": true,
+      "direction": "n",
+      "outside_emissivity": 0.9,
+      "outside_heat_transfer_resistance": 0.04,
+      "outside_solar_absorption": 0.8,
+      "temp_dif_coef": 1.0
+    },
+    {
+      "id": 12,
+      "name": "外壁",
+      "sub_name": "階間(L4)",
+      "connected_room_id": 12,
+      "boundary_type": "external_general_part",
+      "area": 1.37,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.04318181818181818,
+          "thermal_capacity": 7.885
+        },
+        {
+          "name": "中空層",
+          "thermal_resistance": 0.09,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "住宅用グラスウール断熱材16K相当",
+          "thermal_resistance": 1.405290111392433,
+          "thermal_capacity": 0.8220947151645733
+        },
+        {
+          "name": "合板",
+          "thermal_resistance": 0.075,
+          "thermal_capacity": 8.64
+        },
+        {
+          "name": "木片セメント板",
+          "thermal_resistance": 0.08823529411764705,
+          "thermal_capacity": 25.178849999999997
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "is_sun_striked_outside": true,
+      "direction": "n",
+      "outside_emissivity": 0.9,
+      "outside_heat_transfer_resistance": 0.04,
+      "outside_solar_absorption": 0.8,
+      "temp_dif_coef": 1.0
+    },
+    {
+      "id": 13,
+      "name": "外壁",
+      "sub_name": "洗面所",
+      "connected_room_id": 5,
+      "boundary_type": "external_general_part",
+      "area": 3.56,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.04318181818181818,
+          "thermal_capacity": 7.885
+        },
+        {
+          "name": "中空層",
+          "thermal_resistance": 0.09,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "住宅用グラスウール断熱材16K相当",
+          "thermal_resistance": 1.405290111392433,
+          "thermal_capacity": 0.8220947151645733
+        },
+        {
+          "name": "合板",
+          "thermal_resistance": 0.075,
+          "thermal_capacity": 8.64
+        },
+        {
+          "name": "木片セメント板",
+          "thermal_resistance": 0.08823529411764705,
+          "thermal_capacity": 25.178849999999997
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "is_sun_striked_outside": true,
+      "direction": "n",
+      "outside_emissivity": 0.9,
+      "outside_heat_transfer_resistance": 0.04,
+      "outside_solar_absorption": 0.8,
+      "temp_dif_coef": 1.0
+    },
+    {
+      "id": 14,
+      "name": "外壁",
+      "sub_name": "台所",
+      "connected_room_id": 2,
+      "boundary_type": "external_general_part",
+      "area": 3.5,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.04318181818181818,
+          "thermal_capacity": 7.885
+        },
+        {
+          "name": "中空層",
+          "thermal_resistance": 0.09,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "住宅用グラスウール断熱材16K相当",
+          "thermal_resistance": 1.405290111392433,
+          "thermal_capacity": 0.8220947151645733
+        },
+        {
+          "name": "合板",
+          "thermal_resistance": 0.075,
+          "thermal_capacity": 8.64
+        },
+        {
+          "name": "木片セメント板",
+          "thermal_resistance": 0.08823529411764705,
+          "thermal_capacity": 25.178849999999997
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "is_sun_striked_outside": true,
+      "direction": "n",
+      "outside_emissivity": 0.9,
+      "outside_heat_transfer_resistance": 0.04,
+      "outside_solar_absorption": 0.8,
+      "temp_dif_coef": 1.0
+    },
+    {
+      "id": 15,
+      "name": "外壁",
+      "sub_name": "浴室",
+      "connected_room_id": 3,
+      "boundary_type": "external_general_part",
+      "area": 4.1,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.04318181818181818,
+          "thermal_capacity": 7.885
+        },
+        {
+          "name": "中空層",
+          "thermal_resistance": 0.09,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "住宅用グラスウール断熱材16K相当",
+          "thermal_resistance": 1.405290111392433,
+          "thermal_capacity": 0.8220947151645733
+        },
+        {
+          "name": "合板",
+          "thermal_resistance": 0.075,
+          "thermal_capacity": 8.64
+        },
+        {
+          "name": "木片セメント板",
+          "thermal_resistance": 0.08823529411764705,
+          "thermal_capacity": 25.178849999999997
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "is_sun_striked_outside": true,
+      "direction": "n",
+      "outside_emissivity": 0.9,
+      "outside_heat_transfer_resistance": 0.04,
+      "outside_solar_absorption": 0.8,
+      "temp_dif_coef": 1.0
+    },
+    {
+      "id": 16,
+      "name": "外壁",
+      "sub_name": "和室",
+      "connected_room_id": 0,
+      "boundary_type": "external_general_part",
+      "area": 2.18,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.04318181818181818,
+          "thermal_capacity": 7.885
+        },
+        {
+          "name": "中空層",
+          "thermal_resistance": 0.09,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "住宅用グラスウール断熱材16K相当",
+          "thermal_resistance": 1.405290111392433,
+          "thermal_capacity": 0.8220947151645733
+        },
+        {
+          "name": "合板",
+          "thermal_resistance": 0.075,
+          "thermal_capacity": 8.64
+        },
+        {
+          "name": "木片セメント板",
+          "thermal_resistance": 0.08823529411764705,
+          "thermal_capacity": 25.178849999999997
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "is_sun_striked_outside": true,
+      "direction": "n",
+      "outside_emissivity": 0.9,
+      "outside_heat_transfer_resistance": 0.04,
+      "outside_solar_absorption": 0.8,
+      "temp_dif_coef": 1.0
+    },
+    {
+      "id": 17,
+      "name": "外壁",
+      "sub_name": "LD",
+      "connected_room_id": 1,
+      "boundary_type": "external_general_part",
+      "area": 7.27,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.04318181818181818,
+          "thermal_capacity": 7.885
+        },
+        {
+          "name": "中空層",
+          "thermal_resistance": 0.09,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "住宅用グラスウール断熱材16K相当",
+          "thermal_resistance": 1.405290111392433,
+          "thermal_capacity": 0.8220947151645733
+        },
+        {
+          "name": "合板",
+          "thermal_resistance": 0.075,
+          "thermal_capacity": 8.64
+        },
+        {
+          "name": "木片セメント板",
+          "thermal_resistance": 0.08823529411764705,
+          "thermal_capacity": 25.178849999999997
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "is_sun_striked_outside": true,
+      "direction": "s",
+      "outside_emissivity": 0.9,
+      "outside_heat_transfer_resistance": 0.04,
+      "outside_solar_absorption": 0.8,
+      "temp_dif_coef": 1.0
+    },
+    {
+      "id": 18,
+      "name": "外壁",
+      "sub_name": "階間(L4)",
+      "connected_room_id": 12,
+      "boundary_type": "external_general_part",
+      "area": 4.78,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.04318181818181818,
+          "thermal_capacity": 7.885
+        },
+        {
+          "name": "中空層",
+          "thermal_resistance": 0.09,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "住宅用グラスウール断熱材16K相当",
+          "thermal_resistance": 1.405290111392433,
+          "thermal_capacity": 0.8220947151645733
+        },
+        {
+          "name": "合板",
+          "thermal_resistance": 0.075,
+          "thermal_capacity": 8.64
+        },
+        {
+          "name": "木片セメント板",
+          "thermal_resistance": 0.08823529411764705,
+          "thermal_capacity": 25.178849999999997
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "is_sun_striked_outside": true,
+      "direction": "s",
+      "outside_emissivity": 0.9,
+      "outside_heat_transfer_resistance": 0.04,
+      "outside_solar_absorption": 0.8,
+      "temp_dif_coef": 1.0
+    },
+    {
+      "id": 19,
+      "name": "外壁",
+      "sub_name": "子供室1",
+      "connected_room_id": 9,
+      "boundary_type": "external_general_part",
+      "area": 3.88,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.04318181818181818,
+          "thermal_capacity": 7.885
+        },
+        {
+          "name": "中空層",
+          "thermal_resistance": 0.09,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "住宅用グラスウール断熱材16K相当",
+          "thermal_resistance": 1.405290111392433,
+          "thermal_capacity": 0.8220947151645733
+        },
+        {
+          "name": "合板",
+          "thermal_resistance": 0.075,
+          "thermal_capacity": 8.64
+        },
+        {
+          "name": "木片セメント板",
+          "thermal_resistance": 0.08823529411764705,
+          "thermal_capacity": 25.178849999999997
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "is_sun_striked_outside": true,
+      "direction": "s",
+      "outside_emissivity": 0.9,
+      "outside_heat_transfer_resistance": 0.04,
+      "outside_solar_absorption": 0.8,
+      "temp_dif_coef": 1.0
+    },
+    {
+      "id": 20,
+      "name": "外壁",
+      "sub_name": "子供室2",
+      "connected_room_id": 10,
+      "boundary_type": "external_general_part",
+      "area": 3.88,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.04318181818181818,
+          "thermal_capacity": 7.885
+        },
+        {
+          "name": "中空層",
+          "thermal_resistance": 0.09,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "住宅用グラスウール断熱材16K相当",
+          "thermal_resistance": 1.405290111392433,
+          "thermal_capacity": 0.8220947151645733
+        },
+        {
+          "name": "合板",
+          "thermal_resistance": 0.075,
+          "thermal_capacity": 8.64
+        },
+        {
+          "name": "木片セメント板",
+          "thermal_resistance": 0.08823529411764705,
+          "thermal_capacity": 25.178849999999997
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "is_sun_striked_outside": true,
+      "direction": "s",
+      "outside_emissivity": 0.9,
+      "outside_heat_transfer_resistance": 0.04,
+      "outside_solar_absorption": 0.8,
+      "temp_dif_coef": 1.0
+    },
+    {
+      "id": 21,
+      "name": "外壁",
+      "sub_name": "主寝室",
+      "connected_room_id": 8,
+      "boundary_type": "external_general_part",
+      "area": 7.0,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.04318181818181818,
+          "thermal_capacity": 7.885
+        },
+        {
+          "name": "中空層",
+          "thermal_resistance": 0.09,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "住宅用グラスウール断熱材16K相当",
+          "thermal_resistance": 1.405290111392433,
+          "thermal_capacity": 0.8220947151645733
+        },
+        {
+          "name": "合板",
+          "thermal_resistance": 0.075,
+          "thermal_capacity": 8.64
+        },
+        {
+          "name": "木片セメント板",
+          "thermal_resistance": 0.08823529411764705,
+          "thermal_capacity": 25.178849999999997
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "is_sun_striked_outside": true,
+      "direction": "s",
+      "outside_emissivity": 0.9,
+      "outside_heat_transfer_resistance": 0.04,
+      "outside_solar_absorption": 0.8,
+      "temp_dif_coef": 1.0
+    },
+    {
+      "id": 22,
+      "name": "外壁",
+      "sub_name": "和室",
+      "connected_room_id": 0,
+      "boundary_type": "external_general_part",
+      "area": 6.33,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.04318181818181818,
+          "thermal_capacity": 7.885
+        },
+        {
+          "name": "中空層",
+          "thermal_resistance": 0.09,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "住宅用グラスウール断熱材16K相当",
+          "thermal_resistance": 1.405290111392433,
+          "thermal_capacity": 0.8220947151645733
+        },
+        {
+          "name": "合板",
+          "thermal_resistance": 0.075,
+          "thermal_capacity": 8.64
+        },
+        {
+          "name": "木片セメント板",
+          "thermal_resistance": 0.08823529411764705,
+          "thermal_capacity": 25.178849999999997
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "is_sun_striked_outside": true,
+      "direction": "s",
+      "outside_emissivity": 0.9,
+      "outside_heat_transfer_resistance": 0.04,
+      "outside_solar_absorption": 0.8,
+      "temp_dif_coef": 1.0
+    },
+    {
+      "id": 23,
+      "name": "外壁",
+      "sub_name": "クローゼット",
+      "connected_room_id": 7,
+      "boundary_type": "external_general_part",
+      "area": 3.83,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.04318181818181818,
+          "thermal_capacity": 7.885
+        },
+        {
+          "name": "中空層",
+          "thermal_resistance": 0.09,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "住宅用グラスウール断熱材16K相当",
+          "thermal_resistance": 1.405290111392433,
+          "thermal_capacity": 0.8220947151645733
+        },
+        {
+          "name": "合板",
+          "thermal_resistance": 0.075,
+          "thermal_capacity": 8.64
+        },
+        {
+          "name": "木片セメント板",
+          "thermal_resistance": 0.08823529411764705,
+          "thermal_capacity": 25.178849999999997
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "is_sun_striked_outside": true,
+      "direction": "w",
+      "outside_emissivity": 0.9,
+      "outside_heat_transfer_resistance": 0.04,
+      "outside_solar_absorption": 0.8,
+      "temp_dif_coef": 1.0
+    },
+    {
+      "id": 24,
+      "name": "外壁",
+      "sub_name": "ホール",
+      "connected_room_id": 6,
+      "boundary_type": "external_general_part",
+      "area": 2.84,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.04318181818181818,
+          "thermal_capacity": 7.885
+        },
+        {
+          "name": "中空層",
+          "thermal_resistance": 0.09,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "住宅用グラスウール断熱材16K相当",
+          "thermal_resistance": 1.405290111392433,
+          "thermal_capacity": 0.8220947151645733
+        },
+        {
+          "name": "合板",
+          "thermal_resistance": 0.075,
+          "thermal_capacity": 8.64
+        },
+        {
+          "name": "木片セメント板",
+          "thermal_resistance": 0.08823529411764705,
+          "thermal_capacity": 25.178849999999997
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "is_sun_striked_outside": true,
+      "direction": "w",
+      "outside_emissivity": 0.9,
+      "outside_heat_transfer_resistance": 0.04,
+      "outside_solar_absorption": 0.8,
+      "temp_dif_coef": 1.0
+    },
+    {
+      "id": 25,
+      "name": "外壁",
+      "sub_name": "階間(L4)",
+      "connected_room_id": 12,
+      "boundary_type": "external_general_part",
+      "area": 0.25,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.04318181818181818,
+          "thermal_capacity": 7.885
+        },
+        {
+          "name": "中空層",
+          "thermal_resistance": 0.09,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "住宅用グラスウール断熱材16K相当",
+          "thermal_resistance": 1.405290111392433,
+          "thermal_capacity": 0.8220947151645733
+        },
+        {
+          "name": "合板",
+          "thermal_resistance": 0.075,
+          "thermal_capacity": 8.64
+        },
+        {
+          "name": "木片セメント板",
+          "thermal_resistance": 0.08823529411764705,
+          "thermal_capacity": 25.178849999999997
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "is_sun_striked_outside": true,
+      "direction": "w",
+      "outside_emissivity": 0.9,
+      "outside_heat_transfer_resistance": 0.04,
+      "outside_solar_absorption": 0.8,
+      "temp_dif_coef": 1.0
+    },
+    {
+      "id": 26,
+      "name": "外壁",
+      "sub_name": "主寝室",
+      "connected_room_id": 8,
+      "boundary_type": "external_general_part",
+      "area": 7.75,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.04318181818181818,
+          "thermal_capacity": 7.885
+        },
+        {
+          "name": "中空層",
+          "thermal_resistance": 0.09,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "住宅用グラスウール断熱材16K相当",
+          "thermal_resistance": 1.405290111392433,
+          "thermal_capacity": 0.8220947151645733
+        },
+        {
+          "name": "合板",
+          "thermal_resistance": 0.075,
+          "thermal_capacity": 8.64
+        },
+        {
+          "name": "木片セメント板",
+          "thermal_resistance": 0.08823529411764705,
+          "thermal_capacity": 25.178849999999997
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "is_sun_striked_outside": true,
+      "direction": "w",
+      "outside_emissivity": 0.9,
+      "outside_heat_transfer_resistance": 0.04,
+      "outside_solar_absorption": 0.8,
+      "temp_dif_coef": 1.0
+    },
+    {
+      "id": 27,
+      "name": "外壁",
+      "sub_name": "浴室",
+      "connected_room_id": 3,
+      "boundary_type": "external_general_part",
+      "area": 3.56,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.04318181818181818,
+          "thermal_capacity": 7.885
+        },
+        {
+          "name": "中空層",
+          "thermal_resistance": 0.09,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "住宅用グラスウール断熱材16K相当",
+          "thermal_resistance": 1.405290111392433,
+          "thermal_capacity": 0.8220947151645733
+        },
+        {
+          "name": "合板",
+          "thermal_resistance": 0.075,
+          "thermal_capacity": 8.64
+        },
+        {
+          "name": "木片セメント板",
+          "thermal_resistance": 0.08823529411764705,
+          "thermal_capacity": 25.178849999999997
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "is_sun_striked_outside": true,
+      "direction": "w",
+      "outside_emissivity": 0.9,
+      "outside_heat_transfer_resistance": 0.04,
+      "outside_solar_absorption": 0.8,
+      "temp_dif_coef": 1.0
+    },
+    {
+      "id": 28,
+      "name": "外壁",
+      "sub_name": "和室",
+      "connected_room_id": 0,
+      "boundary_type": "external_general_part",
+      "area": 8.74,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.04318181818181818,
+          "thermal_capacity": 7.885
+        },
+        {
+          "name": "中空層",
+          "thermal_resistance": 0.09,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "住宅用グラスウール断熱材16K相当",
+          "thermal_resistance": 1.405290111392433,
+          "thermal_capacity": 0.8220947151645733
+        },
+        {
+          "name": "合板",
+          "thermal_resistance": 0.075,
+          "thermal_capacity": 8.64
+        },
+        {
+          "name": "木片セメント板",
+          "thermal_resistance": 0.08823529411764705,
+          "thermal_capacity": 25.178849999999997
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "is_sun_striked_outside": true,
+      "direction": "w",
+      "outside_emissivity": 0.9,
+      "outside_heat_transfer_resistance": 0.04,
+      "outside_solar_absorption": 0.8,
+      "temp_dif_coef": 1.0
+    },
+    {
+      "id": 29,
+      "name": "玄関ドア",
+      "sub_name": "ホール",
+      "connected_room_id": 6,
+      "boundary_type": "external_opaque_part",
+      "area": 1.89,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "solar_shading_part": {
+        "existence": false
+      },
+      "is_sun_striked_outside": true,
+      "direction": "w",
+      "outside_emissivity": 0.9,
+      "outside_heat_transfer_resistance": 0.04,
+      "u_value": 4.789053266542422,
+      "inside_heat_transfer_resistance": 0.11,
+      "outside_solar_absorption": 0.8,
+      "temp_dif_coef": 1.0
+    },
+    {
+      "id": 30,
+      "name": "台所ドア",
+      "sub_name": "台所",
+      "connected_room_id": 2,
+      "boundary_type": "external_opaque_part",
+      "area": 1.62,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "solar_shading_part": {
+        "existence": false
+      },
+      "is_sun_striked_outside": true,
+      "direction": "n",
+      "outside_emissivity": 0.9,
+      "outside_heat_transfer_resistance": 0.04,
+      "u_value": 4.789053266542422,
+      "inside_heat_transfer_resistance": 0.11,
+      "outside_solar_absorption": 0.8,
+      "temp_dif_coef": 1.0
+    },
+    {
+      "id": 31,
+      "name": "小屋裏１屋根",
+      "sub_name": "小屋裏1",
+      "connected_room_id": 14,
+      "boundary_type": "external_opaque_part",
+      "area": 52.1703,
+      "h_c": 5.0,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "solar_shading_part": {
+        "existence": false
+      },
+      "is_sun_striked_outside": true,
+      "direction": "top",
+      "outside_emissivity": 0.9,
+      "outside_heat_transfer_resistance": 0.09,
+      "u_value": 4.51,
+      "inside_heat_transfer_resistance": 0.11,
+      "outside_solar_absorption": 0.8,
+      "temp_dif_coef": 1.0
+    },
+    {
+      "id": 32,
+      "name": "小屋裏２屋根",
+      "sub_name": "小屋裏2",
+      "connected_room_id": 15,
+      "boundary_type": "external_opaque_part",
+      "area": 12.421499999999998,
+      "h_c": 5.0,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "solar_shading_part": {
+        "existence": false
+      },
+      "is_sun_striked_outside": true,
+      "direction": "top",
+      "outside_emissivity": 0.9,
+      "outside_heat_transfer_resistance": 0.09,
+      "u_value": 4.51,
+      "inside_heat_transfer_resistance": 0.11,
+      "outside_solar_absorption": 0.8,
+      "temp_dif_coef": 1.0
+    },
+    {
+      "id": 33,
+      "name": "小屋裏３屋根",
+      "sub_name": "小屋裏3",
+      "connected_room_id": 16,
+      "boundary_type": "external_opaque_part",
+      "area": 3.3124000000000002,
+      "h_c": 5.0,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "solar_shading_part": {
+        "existence": false
+      },
+      "is_sun_striked_outside": true,
+      "direction": "top",
+      "outside_emissivity": 0.9,
+      "outside_heat_transfer_resistance": 0.09,
+      "u_value": 4.51,
+      "inside_heat_transfer_resistance": 0.11,
+      "outside_solar_absorption": 0.8,
+      "temp_dif_coef": 1.0
+    },
+    {
+      "id": 34,
+      "name": "窓",
+      "sub_name": "和室",
+      "connected_room_id": 0,
+      "boundary_type": "external_transparent_part",
+      "area": 4.59,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "solar_shading_part": {
+        "existence": true,
+        "input_method": "simple",
+        "depth": 0.3,
+        "d_h": 1.8,
+        "d_e": 0.6
+      },
+      "is_sun_striked_outside": true,
+      "direction": "s",
+      "outside_emissivity": 0.9,
+      "outside_heat_transfer_resistance": 0.04,
+      "u_value": 4.789053266542422,
+      "inside_heat_transfer_resistance": 0.11,
+      "eta_value": 0.7823717825406673,
+      "incident_angle_characteristics": "multiple",
+      "glass_area_ratio": 1.0,
+      "temp_dif_coef": 1.0
+    },
+    {
+      "id": 35,
+      "name": "窓",
+      "sub_name": "LD",
+      "connected_room_id": 1,
+      "boundary_type": "external_transparent_part",
+      "area": 3.47,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "solar_shading_part": {
+        "existence": true,
+        "input_method": "simple",
+        "depth": 0.91,
+        "d_h": 2.1,
+        "d_e": 0.48
+      },
+      "is_sun_striked_outside": true,
+      "direction": "s",
+      "outside_emissivity": 0.9,
+      "outside_heat_transfer_resistance": 0.04,
+      "u_value": 4.789053266542422,
+      "inside_heat_transfer_resistance": 0.11,
+      "eta_value": 0.7823717825406673,
+      "incident_angle_characteristics": "multiple",
+      "glass_area_ratio": 1.0,
+      "temp_dif_coef": 1.0
+    },
+    {
+      "id": 36,
+      "name": "窓",
+      "sub_name": "LD",
+      "connected_room_id": 1,
+      "boundary_type": "external_transparent_part",
+      "area": 3.47,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "solar_shading_part": {
+        "existence": true,
+        "input_method": "simple",
+        "depth": 0.91,
+        "d_h": 2.1,
+        "d_e": 0.48
+      },
+      "is_sun_striked_outside": true,
+      "direction": "s",
+      "outside_emissivity": 0.9,
+      "outside_heat_transfer_resistance": 0.04,
+      "u_value": 4.789053266542422,
+      "inside_heat_transfer_resistance": 0.11,
+      "eta_value": 0.7823717825406673,
+      "incident_angle_characteristics": "multiple",
+      "glass_area_ratio": 1.0,
+      "temp_dif_coef": 1.0
+    },
+    {
+      "id": 37,
+      "name": "窓",
+      "sub_name": "LD",
+      "connected_room_id": 1,
+      "boundary_type": "external_transparent_part",
+      "area": 2.15,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "solar_shading_part": {
+        "existence": false
+      },
+      "is_sun_striked_outside": true,
+      "direction": "e",
+      "outside_emissivity": 0.9,
+      "outside_heat_transfer_resistance": 0.04,
+      "u_value": 4.789053266542422,
+      "inside_heat_transfer_resistance": 0.11,
+      "eta_value": 0.7823717825406673,
+      "incident_angle_characteristics": "multiple",
+      "glass_area_ratio": 1.0,
+      "temp_dif_coef": 1.0
+    },
+    {
+      "id": 38,
+      "name": "窓",
+      "sub_name": "台所",
+      "connected_room_id": 2,
+      "boundary_type": "external_transparent_part",
+      "area": 0.98,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "solar_shading_part": {
+        "existence": false
+      },
+      "is_sun_striked_outside": true,
+      "direction": "e",
+      "outside_emissivity": 0.9,
+      "outside_heat_transfer_resistance": 0.04,
+      "u_value": 4.789053266542422,
+      "inside_heat_transfer_resistance": 0.11,
+      "eta_value": 0.7823717825406673,
+      "incident_angle_characteristics": "multiple",
+      "glass_area_ratio": 1.0,
+      "temp_dif_coef": 1.0
+    },
+    {
+      "id": 39,
+      "name": "窓",
+      "sub_name": "1F便所",
+      "connected_room_id": 4,
+      "boundary_type": "external_transparent_part",
+      "area": 0.54,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "solar_shading_part": {
+        "existence": false
+      },
+      "is_sun_striked_outside": true,
+      "direction": "n",
+      "outside_emissivity": 0.9,
+      "outside_heat_transfer_resistance": 0.04,
+      "u_value": 4.789053266542422,
+      "inside_heat_transfer_resistance": 0.11,
+      "eta_value": 0.7823717825406673,
+      "incident_angle_characteristics": "multiple",
+      "glass_area_ratio": 1.0,
+      "temp_dif_coef": 1.0
+    },
+    {
+      "id": 40,
+      "name": "窓",
+      "sub_name": "洗面所",
+      "connected_room_id": 5,
+      "boundary_type": "external_transparent_part",
+      "area": 0.54,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "solar_shading_part": {
+        "existence": false
+      },
+      "is_sun_striked_outside": true,
+      "direction": "n",
+      "outside_emissivity": 0.9,
+      "outside_heat_transfer_resistance": 0.04,
+      "u_value": 4.789053266542422,
+      "inside_heat_transfer_resistance": 0.11,
+      "eta_value": 0.7823717825406673,
+      "incident_angle_characteristics": "multiple",
+      "glass_area_ratio": 1.0,
+      "temp_dif_coef": 1.0
+    },
+    {
+      "id": 41,
+      "name": "窓",
+      "sub_name": "浴室",
+      "connected_room_id": 3,
+      "boundary_type": "external_transparent_part",
+      "area": 0.54,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "solar_shading_part": {
+        "existence": false
+      },
+      "is_sun_striked_outside": true,
+      "direction": "w",
+      "outside_emissivity": 0.9,
+      "outside_heat_transfer_resistance": 0.04,
+      "u_value": 4.789053266542422,
+      "inside_heat_transfer_resistance": 0.11,
+      "eta_value": 0.7823717825406673,
+      "incident_angle_characteristics": "multiple",
+      "glass_area_ratio": 1.0,
+      "temp_dif_coef": 1.0
+    },
+    {
+      "id": 42,
+      "name": "窓",
+      "sub_name": "ホール",
+      "connected_room_id": 6,
+      "boundary_type": "external_transparent_part",
+      "area": 0.54,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "solar_shading_part": {
+        "existence": false
+      },
+      "is_sun_striked_outside": true,
+      "direction": "n",
+      "outside_emissivity": 0.9,
+      "outside_heat_transfer_resistance": 0.04,
+      "u_value": 4.789053266542422,
+      "inside_heat_transfer_resistance": 0.11,
+      "eta_value": 0.7823717825406673,
+      "incident_angle_characteristics": "multiple",
+      "glass_area_ratio": 1.0,
+      "temp_dif_coef": 1.0
+    },
+    {
+      "id": 43,
+      "name": "窓",
+      "sub_name": "主寝室",
+      "connected_room_id": 8,
+      "boundary_type": "external_transparent_part",
+      "area": 1.73,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "solar_shading_part": {
+        "existence": true,
+        "input_method": "simple",
+        "depth": 0.65,
+        "d_h": 1.05,
+        "d_e": 0.45
+      },
+      "is_sun_striked_outside": true,
+      "direction": "s",
+      "outside_emissivity": 0.9,
+      "outside_heat_transfer_resistance": 0.04,
+      "u_value": 4.789053266542422,
+      "inside_heat_transfer_resistance": 0.11,
+      "eta_value": 0.7823717825406673,
+      "incident_angle_characteristics": "multiple",
+      "glass_area_ratio": 1.0,
+      "temp_dif_coef": 1.0
+    },
+    {
+      "id": 44,
+      "name": "窓",
+      "sub_name": "子供室1",
+      "connected_room_id": 9,
+      "boundary_type": "external_transparent_part",
+      "area": 3.22,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "solar_shading_part": {
+        "existence": true,
+        "input_method": "simple",
+        "depth": 0.65,
+        "d_h": 1.95,
+        "d_e": 0.45
+      },
+      "is_sun_striked_outside": true,
+      "direction": "s",
+      "outside_emissivity": 0.9,
+      "outside_heat_transfer_resistance": 0.04,
+      "u_value": 4.789053266542422,
+      "inside_heat_transfer_resistance": 0.11,
+      "eta_value": 0.7823717825406673,
+      "incident_angle_characteristics": "multiple",
+      "glass_area_ratio": 1.0,
+      "temp_dif_coef": 1.0
+    },
+    {
+      "id": 45,
+      "name": "窓",
+      "sub_name": "子供室2",
+      "connected_room_id": 10,
+      "boundary_type": "external_transparent_part",
+      "area": 3.22,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "solar_shading_part": {
+        "existence": true,
+        "input_method": "simple",
+        "depth": 0.65,
+        "d_h": 1.95,
+        "d_e": 0.45
+      },
+      "is_sun_striked_outside": true,
+      "direction": "s",
+      "outside_emissivity": 0.9,
+      "outside_heat_transfer_resistance": 0.04,
+      "u_value": 4.789053266542422,
+      "inside_heat_transfer_resistance": 0.11,
+      "eta_value": 0.7823717825406673,
+      "incident_angle_characteristics": "multiple",
+      "glass_area_ratio": 1.0,
+      "temp_dif_coef": 1.0
+    },
+    {
+      "id": 46,
+      "name": "窓",
+      "sub_name": "子供室2",
+      "connected_room_id": 10,
+      "boundary_type": "external_transparent_part",
+      "area": 0.66,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "solar_shading_part": {
+        "existence": false
+      },
+      "is_sun_striked_outside": true,
+      "direction": "e",
+      "outside_emissivity": 0.9,
+      "outside_heat_transfer_resistance": 0.04,
+      "u_value": 4.789053266542422,
+      "inside_heat_transfer_resistance": 0.11,
+      "eta_value": 0.7823717825406673,
+      "incident_angle_characteristics": "multiple",
+      "glass_area_ratio": 1.0,
+      "temp_dif_coef": 1.0
+    },
+    {
+      "id": 47,
+      "name": "窓",
+      "sub_name": "2Fホール",
+      "connected_room_id": 11,
+      "boundary_type": "external_transparent_part",
+      "area": 0.99,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "solar_shading_part": {
+        "existence": false
+      },
+      "is_sun_striked_outside": true,
+      "direction": "n",
+      "outside_emissivity": 0.9,
+      "outside_heat_transfer_resistance": 0.04,
+      "u_value": 4.789053266542422,
+      "inside_heat_transfer_resistance": 0.11,
+      "eta_value": 0.7823717825406673,
+      "incident_angle_characteristics": "multiple",
+      "glass_area_ratio": 1.0,
+      "temp_dif_coef": 1.0
+    },
+    {
+      "id": 48,
+      "name": "窓",
+      "sub_name": "主寝室",
+      "connected_room_id": 8,
+      "boundary_type": "external_transparent_part",
+      "area": 0.99,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "solar_shading_part": {
+        "existence": false
+      },
+      "is_sun_striked_outside": true,
+      "direction": "w",
+      "outside_emissivity": 0.9,
+      "outside_heat_transfer_resistance": 0.04,
+      "u_value": 4.789053266542422,
+      "inside_heat_transfer_resistance": 0.11,
+      "eta_value": 0.7823717825406673,
+      "incident_angle_characteristics": "multiple",
+      "glass_area_ratio": 1.0,
+      "temp_dif_coef": 1.0
+    },
+    {
+      "id": 49,
+      "name": "窓",
+      "sub_name": "2F便所",
+      "connected_room_id": 13,
+      "boundary_type": "external_transparent_part",
+      "area": 0.54,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "solar_shading_part": {
+        "existence": false
+      },
+      "is_sun_striked_outside": true,
+      "direction": "n",
+      "outside_emissivity": 0.9,
+      "outside_heat_transfer_resistance": 0.04,
+      "u_value": 4.789053266542422,
+      "inside_heat_transfer_resistance": 0.11,
+      "eta_value": 0.7823717825406673,
+      "incident_angle_characteristics": "multiple",
+      "glass_area_ratio": 1.0,
+      "temp_dif_coef": 1.0
+    },
+    {
+      "id": 50,
+      "name": "窓",
+      "sub_name": "クローゼット",
+      "connected_room_id": 7,
+      "boundary_type": "external_transparent_part",
+      "area": 0.54,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "solar_shading_part": {
+        "existence": false
+      },
+      "is_sun_striked_outside": true,
+      "direction": "w",
+      "outside_emissivity": 0.9,
+      "outside_heat_transfer_resistance": 0.04,
+      "u_value": 4.789053266542422,
+      "inside_heat_transfer_resistance": 0.11,
+      "eta_value": 0.7823717825406673,
+      "incident_angle_characteristics": "multiple",
+      "glass_area_ratio": 1.0,
+      "temp_dif_coef": 1.0
+    },
+    {
+      "id": 51,
+      "name": "和室",
+      "sub_name": null,
+      "connected_room_id": 0,
+      "boundary_type": "internal",
+      "area": 16.56,
+      "h_c": 0.7,
+      "is_solar_absorbed_inside": true,
+      "is_floor": true,
+      "layers": [
+        {
+          "name": "コンクリート",
+          "thermal_resistance": 0.0,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "合板",
+          "thermal_resistance": 0.075,
+          "thermal_capacity": 8.64
+        },
+        {
+          "name": "グラスウール16K",
+          "thermal_resistance": 1.669593392826472,
+          "thermal_capacity": 0.976712134803486
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.15,
+      "rear_surface_boundary_id": 52
+    },
+    {
+      "id": 52,
+      "name": "床下",
+      "sub_name": null,
+      "connected_room_id": 17,
+      "boundary_type": "internal",
+      "area": 16.56,
+      "h_c": 5.0,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "グラスウール16K",
+          "thermal_resistance": 1.669593392826472,
+          "thermal_capacity": 0.976712134803486
+        },
+        {
+          "name": "合板",
+          "thermal_resistance": 0.075,
+          "thermal_capacity": 8.64
+        },
+        {
+          "name": "コンクリート",
+          "thermal_resistance": 0.0,
+          "thermal_capacity": 0.0
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.09,
+      "rear_surface_boundary_id": 51
+    },
+    {
+      "id": 53,
+      "name": "LD",
+      "sub_name": null,
+      "connected_room_id": 1,
+      "boundary_type": "internal",
+      "area": 21.53,
+      "h_c": 0.7,
+      "is_solar_absorbed_inside": true,
+      "is_floor": true,
+      "layers": [
+        {
+          "name": "コンクリート",
+          "thermal_resistance": 0.0,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "合板",
+          "thermal_resistance": 0.075,
+          "thermal_capacity": 8.64
+        },
+        {
+          "name": "グラスウール16K",
+          "thermal_resistance": 1.669593392826472,
+          "thermal_capacity": 0.976712134803486
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.15,
+      "rear_surface_boundary_id": 54
+    },
+    {
+      "id": 54,
+      "name": "床下",
+      "sub_name": null,
+      "connected_room_id": 17,
+      "boundary_type": "internal",
+      "area": 21.53,
+      "h_c": 5.0,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "グラスウール16K",
+          "thermal_resistance": 1.669593392826472,
+          "thermal_capacity": 0.976712134803486
+        },
+        {
+          "name": "合板",
+          "thermal_resistance": 0.075,
+          "thermal_capacity": 8.64
+        },
+        {
+          "name": "コンクリート",
+          "thermal_resistance": 0.0,
+          "thermal_capacity": 0.0
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.09,
+      "rear_surface_boundary_id": 53
+    },
+    {
+      "id": 55,
+      "name": "LD",
+      "sub_name": null,
+      "connected_room_id": 1,
+      "boundary_type": "internal",
+      "area": 8.64,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.05681818181818182,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "中空層",
+          "thermal_resistance": 0.09,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.05681818181818182,
+          "thermal_capacity": 0.0
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.11,
+      "rear_surface_boundary_id": 56
+    },
+    {
+      "id": 56,
+      "name": "和室",
+      "sub_name": null,
+      "connected_room_id": 0,
+      "boundary_type": "internal",
+      "area": 8.64,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.05681818181818182,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "中空層",
+          "thermal_resistance": 0.09,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.05681818181818182,
+          "thermal_capacity": 0.0
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.11,
+      "rear_surface_boundary_id": 55
+    },
+    {
+      "id": 57,
+      "name": "台所",
+      "sub_name": null,
+      "connected_room_id": 2,
+      "boundary_type": "internal",
+      "area": 5.46,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.05681818181818182,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "中空層",
+          "thermal_resistance": 0.09,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.05681818181818182,
+          "thermal_capacity": 0.0
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.11,
+      "rear_surface_boundary_id": 58
+    },
+    {
+      "id": 58,
+      "name": "LD",
+      "sub_name": null,
+      "connected_room_id": 1,
+      "boundary_type": "internal",
+      "area": 5.46,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.05681818181818182,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "中空層",
+          "thermal_resistance": 0.09,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.05681818181818182,
+          "thermal_capacity": 0.0
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.11,
+      "rear_surface_boundary_id": 57
+    },
+    {
+      "id": 59,
+      "name": "ホール",
+      "sub_name": null,
+      "connected_room_id": 6,
+      "boundary_type": "internal",
+      "area": 5.46,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.05681818181818182,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "中空層",
+          "thermal_resistance": 0.09,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.05681818181818182,
+          "thermal_capacity": 0.0
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.11,
+      "rear_surface_boundary_id": 60
+    },
+    {
+      "id": 60,
+      "name": "和室",
+      "sub_name": null,
+      "connected_room_id": 0,
+      "boundary_type": "internal",
+      "area": 5.46,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.05681818181818182,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "中空層",
+          "thermal_resistance": 0.09,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.05681818181818182,
+          "thermal_capacity": 0.0
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.11,
+      "rear_surface_boundary_id": 59
+    },
+    {
+      "id": 61,
+      "name": "ホール",
+      "sub_name": null,
+      "connected_room_id": 6,
+      "boundary_type": "internal",
+      "area": 8.73,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.05681818181818182,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "中空層",
+          "thermal_resistance": 0.09,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.05681818181818182,
+          "thermal_capacity": 0.0
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.11,
+      "rear_surface_boundary_id": 62
+    },
+    {
+      "id": 62,
+      "name": "LD",
+      "sub_name": null,
+      "connected_room_id": 1,
+      "boundary_type": "internal",
+      "area": 8.73,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.05681818181818182,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "中空層",
+          "thermal_resistance": 0.09,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.05681818181818182,
+          "thermal_capacity": 0.0
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.11,
+      "rear_surface_boundary_id": 61
+    },
+    {
+      "id": 63,
+      "name": "1F便所",
+      "sub_name": null,
+      "connected_room_id": 4,
+      "boundary_type": "internal",
+      "area": 4.1,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.05681818181818182,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "中空層",
+          "thermal_resistance": 0.09,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.05681818181818182,
+          "thermal_capacity": 0.0
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.11,
+      "rear_surface_boundary_id": 64
+    },
+    {
+      "id": 64,
+      "name": "台所",
+      "sub_name": null,
+      "connected_room_id": 2,
+      "boundary_type": "internal",
+      "area": 4.1,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.05681818181818182,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "中空層",
+          "thermal_resistance": 0.09,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.05681818181818182,
+          "thermal_capacity": 0.0
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.11,
+      "rear_surface_boundary_id": 63
+    },
+    {
+      "id": 65,
+      "name": "ホール",
+      "sub_name": null,
+      "connected_room_id": 6,
+      "boundary_type": "internal",
+      "area": 4.37,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.05681818181818182,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "中空層",
+          "thermal_resistance": 0.09,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.05681818181818182,
+          "thermal_capacity": 0.0
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.11,
+      "rear_surface_boundary_id": 66
+    },
+    {
+      "id": 66,
+      "name": "台所",
+      "sub_name": null,
+      "connected_room_id": 2,
+      "boundary_type": "internal",
+      "area": 4.37,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.05681818181818182,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "中空層",
+          "thermal_resistance": 0.09,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.05681818181818182,
+          "thermal_capacity": 0.0
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.11,
+      "rear_surface_boundary_id": 65
+    },
+    {
+      "id": 67,
+      "name": "洗面所",
+      "sub_name": null,
+      "connected_room_id": 5,
+      "boundary_type": "internal",
+      "area": 4.1,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.05681818181818182,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "中空層",
+          "thermal_resistance": 0.09,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.05681818181818182,
+          "thermal_capacity": 0.0
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.11,
+      "rear_surface_boundary_id": 68
+    },
+    {
+      "id": 68,
+      "name": "浴室",
+      "sub_name": null,
+      "connected_room_id": 3,
+      "boundary_type": "internal",
+      "area": 4.1,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.05681818181818182,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "中空層",
+          "thermal_resistance": 0.09,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.05681818181818182,
+          "thermal_capacity": 0.0
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.11,
+      "rear_surface_boundary_id": 67
+    },
+    {
+      "id": 69,
+      "name": "ホール",
+      "sub_name": null,
+      "connected_room_id": 6,
+      "boundary_type": "internal",
+      "area": 4.1,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.05681818181818182,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "中空層",
+          "thermal_resistance": 0.09,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.05681818181818182,
+          "thermal_capacity": 0.0
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.11,
+      "rear_surface_boundary_id": 70
+    },
+    {
+      "id": 70,
+      "name": "浴室",
+      "sub_name": null,
+      "connected_room_id": 3,
+      "boundary_type": "internal",
+      "area": 4.1,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.05681818181818182,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "中空層",
+          "thermal_resistance": 0.09,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.05681818181818182,
+          "thermal_capacity": 0.0
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.11,
+      "rear_surface_boundary_id": 69
+    },
+    {
+      "id": 71,
+      "name": "洗面所",
+      "sub_name": null,
+      "connected_room_id": 5,
+      "boundary_type": "internal",
+      "area": 4.1,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.05681818181818182,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "中空層",
+          "thermal_resistance": 0.09,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.05681818181818182,
+          "thermal_capacity": 0.0
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.11,
+      "rear_surface_boundary_id": 72
+    },
+    {
+      "id": 72,
+      "name": "1F便所",
+      "sub_name": null,
+      "connected_room_id": 4,
+      "boundary_type": "internal",
+      "area": 4.1,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.05681818181818182,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "中空層",
+          "thermal_resistance": 0.09,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.05681818181818182,
+          "thermal_capacity": 0.0
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.11,
+      "rear_surface_boundary_id": 71
+    },
+    {
+      "id": 73,
+      "name": "ホール",
+      "sub_name": null,
+      "connected_room_id": 6,
+      "boundary_type": "internal",
+      "area": 2.05,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.05681818181818182,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "中空層",
+          "thermal_resistance": 0.09,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.05681818181818182,
+          "thermal_capacity": 0.0
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.11,
+      "rear_surface_boundary_id": 74
+    },
+    {
+      "id": 74,
+      "name": "1F便所",
+      "sub_name": null,
+      "connected_room_id": 4,
+      "boundary_type": "internal",
+      "area": 2.05,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.05681818181818182,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "中空層",
+          "thermal_resistance": 0.09,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.05681818181818182,
+          "thermal_capacity": 0.0
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.11,
+      "rear_surface_boundary_id": 73
+    },
+    {
+      "id": 75,
+      "name": "ホール",
+      "sub_name": null,
+      "connected_room_id": 6,
+      "boundary_type": "internal",
+      "area": 4.09,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.05681818181818182,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "中空層",
+          "thermal_resistance": 0.09,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.05681818181818182,
+          "thermal_capacity": 0.0
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.11,
+      "rear_surface_boundary_id": 76
+    },
+    {
+      "id": 76,
+      "name": "洗面所",
+      "sub_name": null,
+      "connected_room_id": 5,
+      "boundary_type": "internal",
+      "area": 4.09,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.05681818181818182,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "中空層",
+          "thermal_resistance": 0.09,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.05681818181818182,
+          "thermal_capacity": 0.0
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.11,
+      "rear_surface_boundary_id": 75
+    },
+    {
+      "id": 77,
+      "name": "和室",
+      "sub_name": null,
+      "connected_room_id": 0,
+      "boundary_type": "internal",
+      "area": 3.28,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.05681818181818182,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "中空層",
+          "thermal_resistance": 0.09,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.05681818181818182,
+          "thermal_capacity": 0.0
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.11,
+      "rear_surface_boundary_id": 78
+    },
+    {
+      "id": 78,
+      "name": "ホール",
+      "sub_name": null,
+      "connected_room_id": 6,
+      "boundary_type": "internal",
+      "area": 3.28,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.05681818181818182,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "中空層",
+          "thermal_resistance": 0.09,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.05681818181818182,
+          "thermal_capacity": 0.0
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.11,
+      "rear_surface_boundary_id": 77
+    },
+    {
+      "id": 79,
+      "name": "2Fホール",
+      "sub_name": null,
+      "connected_room_id": 11,
+      "boundary_type": "internal",
+      "area": 2.9,
+      "h_c": 0.7,
+      "is_solar_absorbed_inside": true,
+      "is_floor": true,
+      "layers": [
+        {
+          "name": "コンクリート",
+          "thermal_resistance": 0.0,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "合板",
+          "thermal_resistance": 0.075,
+          "thermal_capacity": 0.0
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.15,
+      "rear_surface_boundary_id": 80
+    },
+    {
+      "id": 80,
+      "name": "ホール",
+      "sub_name": null,
+      "connected_room_id": 6,
+      "boundary_type": "internal",
+      "area": 2.9,
+      "h_c": 5.0,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "合板",
+          "thermal_resistance": 0.075,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "コンクリート",
+          "thermal_resistance": 0.0,
+          "thermal_capacity": 0.0
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.09,
+      "rear_surface_boundary_id": 79
+    },
+    {
+      "id": 81,
+      "name": "台所",
+      "sub_name": null,
+      "connected_room_id": 2,
+      "boundary_type": "internal",
+      "area": 4.14,
+      "h_c": 5.0,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.04318181818181818,
+          "thermal_capacity": 7.885
+        },
+        {
+          "name": "住宅用グラスウール断熱材10K相当",
+          "thermal_resistance": 3.8660049674711257,
+          "thermal_capacity": 1.5464019869884504
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.09,
+      "rear_surface_boundary_id": 82
+    },
+    {
+      "id": 82,
+      "name": "小屋裏2",
+      "sub_name": null,
+      "connected_room_id": 15,
+      "boundary_type": "internal",
+      "area": 4.14,
+      "h_c": 0.7,
+      "is_solar_absorbed_inside": true,
+      "is_floor": true,
+      "layers": [
+        {
+          "name": "住宅用グラスウール断熱材10K相当",
+          "thermal_resistance": 3.8660049674711257,
+          "thermal_capacity": 1.5464019869884504
+        },
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.04318181818181818,
+          "thermal_capacity": 7.885
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.15,
+      "rear_surface_boundary_id": 81
+    },
+    {
+      "id": 83,
+      "name": "浴室",
+      "sub_name": null,
+      "connected_room_id": 3,
+      "boundary_type": "internal",
+      "area": 3.31,
+      "h_c": 5.0,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.04318181818181818,
+          "thermal_capacity": 7.885
+        },
+        {
+          "name": "住宅用グラスウール断熱材10K相当",
+          "thermal_resistance": 3.8660049674711257,
+          "thermal_capacity": 1.5464019869884504
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.09,
+      "rear_surface_boundary_id": 84
+    },
+    {
+      "id": 84,
+      "name": "小屋裏2",
+      "sub_name": null,
+      "connected_room_id": 15,
+      "boundary_type": "internal",
+      "area": 3.31,
+      "h_c": 0.7,
+      "is_solar_absorbed_inside": true,
+      "is_floor": true,
+      "layers": [
+        {
+          "name": "住宅用グラスウール断熱材10K相当",
+          "thermal_resistance": 3.8660049674711257,
+          "thermal_capacity": 1.5464019869884504
+        },
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.04318181818181818,
+          "thermal_capacity": 7.885
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.15,
+      "rear_surface_boundary_id": 83
+    },
+    {
+      "id": 85,
+      "name": "1F便所",
+      "sub_name": null,
+      "connected_room_id": 4,
+      "boundary_type": "internal",
+      "area": 1.66,
+      "h_c": 5.0,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.04318181818181818,
+          "thermal_capacity": 7.885
+        },
+        {
+          "name": "住宅用グラスウール断熱材10K相当",
+          "thermal_resistance": 3.8660049674711257,
+          "thermal_capacity": 1.5464019869884504
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.09,
+      "rear_surface_boundary_id": 86
+    },
+    {
+      "id": 86,
+      "name": "小屋裏2",
+      "sub_name": null,
+      "connected_room_id": 15,
+      "boundary_type": "internal",
+      "area": 1.66,
+      "h_c": 0.7,
+      "is_solar_absorbed_inside": true,
+      "is_floor": true,
+      "layers": [
+        {
+          "name": "住宅用グラスウール断熱材10K相当",
+          "thermal_resistance": 3.8660049674711257,
+          "thermal_capacity": 1.5464019869884504
+        },
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.04318181818181818,
+          "thermal_capacity": 7.885
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.15,
+      "rear_surface_boundary_id": 85
+    },
+    {
+      "id": 87,
+      "name": "洗面所",
+      "sub_name": null,
+      "connected_room_id": 5,
+      "boundary_type": "internal",
+      "area": 3.31,
+      "h_c": 5.0,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.04318181818181818,
+          "thermal_capacity": 7.885
+        },
+        {
+          "name": "住宅用グラスウール断熱材10K相当",
+          "thermal_resistance": 3.8660049674711257,
+          "thermal_capacity": 1.5464019869884504
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.09,
+      "rear_surface_boundary_id": 88
+    },
+    {
+      "id": 88,
+      "name": "小屋裏2",
+      "sub_name": null,
+      "connected_room_id": 15,
+      "boundary_type": "internal",
+      "area": 3.31,
+      "h_c": 0.7,
+      "is_solar_absorbed_inside": true,
+      "is_floor": true,
+      "layers": [
+        {
+          "name": "住宅用グラスウール断熱材10K相当",
+          "thermal_resistance": 3.8660049674711257,
+          "thermal_capacity": 1.5464019869884504
+        },
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.04318181818181818,
+          "thermal_capacity": 7.885
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.15,
+      "rear_surface_boundary_id": 87
+    },
+    {
+      "id": 89,
+      "name": "主寝室",
+      "sub_name": null,
+      "connected_room_id": 8,
+      "boundary_type": "internal",
+      "area": 6.55,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.05681818181818182,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "中空層",
+          "thermal_resistance": 0.09,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.05681818181818182,
+          "thermal_capacity": 0.0
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.11,
+      "rear_surface_boundary_id": 90
+    },
+    {
+      "id": 90,
+      "name": "クローゼット",
+      "sub_name": null,
+      "connected_room_id": 7,
+      "boundary_type": "internal",
+      "area": 6.55,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.05681818181818182,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "中空層",
+          "thermal_resistance": 0.09,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.05681818181818182,
+          "thermal_capacity": 0.0
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.11,
+      "rear_surface_boundary_id": 89
+    },
+    {
+      "id": 91,
+      "name": "子供室1",
+      "sub_name": null,
+      "connected_room_id": 9,
+      "boundary_type": "internal",
+      "area": 8.74,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.05681818181818182,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "中空層",
+          "thermal_resistance": 0.09,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.05681818181818182,
+          "thermal_capacity": 0.0
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.11,
+      "rear_surface_boundary_id": 92
+    },
+    {
+      "id": 92,
+      "name": "主寝室",
+      "sub_name": null,
+      "connected_room_id": 8,
+      "boundary_type": "internal",
+      "area": 8.74,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.05681818181818182,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "中空層",
+          "thermal_resistance": 0.09,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.05681818181818182,
+          "thermal_capacity": 0.0
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.11,
+      "rear_surface_boundary_id": 91
+    },
+    {
+      "id": 93,
+      "name": "子供室2",
+      "sub_name": null,
+      "connected_room_id": 10,
+      "boundary_type": "internal",
+      "area": 8.74,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.05681818181818182,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "中空層",
+          "thermal_resistance": 0.09,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.05681818181818182,
+          "thermal_capacity": 0.0
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.11,
+      "rear_surface_boundary_id": 94
+    },
+    {
+      "id": 94,
+      "name": "子供室1",
+      "sub_name": null,
+      "connected_room_id": 9,
+      "boundary_type": "internal",
+      "area": 8.74,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.05681818181818182,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "中空層",
+          "thermal_resistance": 0.09,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.05681818181818182,
+          "thermal_capacity": 0.0
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.11,
+      "rear_surface_boundary_id": 93
+    },
+    {
+      "id": 95,
+      "name": "2Fホール",
+      "sub_name": null,
+      "connected_room_id": 11,
+      "boundary_type": "internal",
+      "area": 4.37,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.05681818181818182,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "中空層",
+          "thermal_resistance": 0.09,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.05681818181818182,
+          "thermal_capacity": 0.0
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.11,
+      "rear_surface_boundary_id": 96
+    },
+    {
+      "id": 96,
+      "name": "クローゼット",
+      "sub_name": null,
+      "connected_room_id": 7,
+      "boundary_type": "internal",
+      "area": 4.37,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.05681818181818182,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "中空層",
+          "thermal_resistance": 0.09,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.05681818181818182,
+          "thermal_capacity": 0.0
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.11,
+      "rear_surface_boundary_id": 95
+    },
+    {
+      "id": 97,
+      "name": "2Fホール",
+      "sub_name": null,
+      "connected_room_id": 11,
+      "boundary_type": "internal",
+      "area": 2.18,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.05681818181818182,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "中空層",
+          "thermal_resistance": 0.09,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.05681818181818182,
+          "thermal_capacity": 0.0
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.11,
+      "rear_surface_boundary_id": 98
+    },
+    {
+      "id": 98,
+      "name": "主寝室",
+      "sub_name": null,
+      "connected_room_id": 8,
+      "boundary_type": "internal",
+      "area": 2.18,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.05681818181818182,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "中空層",
+          "thermal_resistance": 0.09,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.05681818181818182,
+          "thermal_capacity": 0.0
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.11,
+      "rear_surface_boundary_id": 97
+    },
+    {
+      "id": 99,
+      "name": "2Fホール",
+      "sub_name": null,
+      "connected_room_id": 11,
+      "boundary_type": "internal",
+      "area": 7.09,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.05681818181818182,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "中空層",
+          "thermal_resistance": 0.09,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.05681818181818182,
+          "thermal_capacity": 0.0
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.11,
+      "rear_surface_boundary_id": 100
+    },
+    {
+      "id": 100,
+      "name": "子供室1",
+      "sub_name": null,
+      "connected_room_id": 9,
+      "boundary_type": "internal",
+      "area": 7.09,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.05681818181818182,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "中空層",
+          "thermal_resistance": 0.09,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.05681818181818182,
+          "thermal_capacity": 0.0
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.11,
+      "rear_surface_boundary_id": 99
+    },
+    {
+      "id": 101,
+      "name": "2Fホール",
+      "sub_name": null,
+      "connected_room_id": 11,
+      "boundary_type": "internal",
+      "area": 7.1,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.05681818181818182,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "中空層",
+          "thermal_resistance": 0.09,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.05681818181818182,
+          "thermal_capacity": 0.0
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.11,
+      "rear_surface_boundary_id": 102
+    },
+    {
+      "id": 102,
+      "name": "子供室2",
+      "sub_name": null,
+      "connected_room_id": 10,
+      "boundary_type": "internal",
+      "area": 7.1,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.05681818181818182,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "中空層",
+          "thermal_resistance": 0.09,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.05681818181818182,
+          "thermal_capacity": 0.0
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.11,
+      "rear_surface_boundary_id": 101
+    },
+    {
+      "id": 103,
+      "name": "クローゼット",
+      "sub_name": null,
+      "connected_room_id": 7,
+      "boundary_type": "internal",
+      "area": 4.97,
+      "h_c": 5.0,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.04318181818181818,
+          "thermal_capacity": 7.885
+        },
+        {
+          "name": "住宅用グラスウール断熱材10K相当",
+          "thermal_resistance": 3.8660049674711257,
+          "thermal_capacity": 1.5464019869884504
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.09,
+      "rear_surface_boundary_id": 104
+    },
+    {
+      "id": 104,
+      "name": "小屋裏1",
+      "sub_name": null,
+      "connected_room_id": 14,
+      "boundary_type": "internal",
+      "area": 4.97,
+      "h_c": 0.7,
+      "is_solar_absorbed_inside": true,
+      "is_floor": true,
+      "layers": [
+        {
+          "name": "住宅用グラスウール断熱材10K相当",
+          "thermal_resistance": 3.8660049674711257,
+          "thermal_capacity": 1.5464019869884504
+        },
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.04318181818181818,
+          "thermal_capacity": 7.885
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.15,
+      "rear_surface_boundary_id": 103
+    },
+    {
+      "id": 105,
+      "name": "主寝室",
+      "sub_name": null,
+      "connected_room_id": 8,
+      "boundary_type": "internal",
+      "area": 13.25,
+      "h_c": 5.0,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.04318181818181818,
+          "thermal_capacity": 7.885
+        },
+        {
+          "name": "住宅用グラスウール断熱材10K相当",
+          "thermal_resistance": 3.8660049674711257,
+          "thermal_capacity": 1.5464019869884504
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.09,
+      "rear_surface_boundary_id": 106
+    },
+    {
+      "id": 106,
+      "name": "小屋裏1",
+      "sub_name": null,
+      "connected_room_id": 14,
+      "boundary_type": "internal",
+      "area": 13.25,
+      "h_c": 0.7,
+      "is_solar_absorbed_inside": true,
+      "is_floor": true,
+      "layers": [
+        {
+          "name": "住宅用グラスウール断熱材10K相当",
+          "thermal_resistance": 3.8660049674711257,
+          "thermal_capacity": 1.5464019869884504
+        },
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.04318181818181818,
+          "thermal_capacity": 7.885
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.15,
+      "rear_surface_boundary_id": 105
+    },
+    {
+      "id": 107,
+      "name": "子供室1",
+      "sub_name": null,
+      "connected_room_id": 9,
+      "boundary_type": "internal",
+      "area": 10.76,
+      "h_c": 5.0,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.04318181818181818,
+          "thermal_capacity": 7.885
+        },
+        {
+          "name": "住宅用グラスウール断熱材10K相当",
+          "thermal_resistance": 3.8660049674711257,
+          "thermal_capacity": 1.5464019869884504
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.09,
+      "rear_surface_boundary_id": 108
+    },
+    {
+      "id": 108,
+      "name": "小屋裏1",
+      "sub_name": null,
+      "connected_room_id": 14,
+      "boundary_type": "internal",
+      "area": 10.76,
+      "h_c": 0.7,
+      "is_solar_absorbed_inside": true,
+      "is_floor": true,
+      "layers": [
+        {
+          "name": "住宅用グラスウール断熱材10K相当",
+          "thermal_resistance": 3.8660049674711257,
+          "thermal_capacity": 1.5464019869884504
+        },
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.04318181818181818,
+          "thermal_capacity": 7.885
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.15,
+      "rear_surface_boundary_id": 107
+    },
+    {
+      "id": 109,
+      "name": "子供室2",
+      "sub_name": null,
+      "connected_room_id": 10,
+      "boundary_type": "internal",
+      "area": 10.77,
+      "h_c": 5.0,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.04318181818181818,
+          "thermal_capacity": 7.885
+        },
+        {
+          "name": "住宅用グラスウール断熱材10K相当",
+          "thermal_resistance": 3.8660049674711257,
+          "thermal_capacity": 1.5464019869884504
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.09,
+      "rear_surface_boundary_id": 110
+    },
+    {
+      "id": 110,
+      "name": "小屋裏1",
+      "sub_name": null,
+      "connected_room_id": 14,
+      "boundary_type": "internal",
+      "area": 10.77,
+      "h_c": 0.7,
+      "is_solar_absorbed_inside": true,
+      "is_floor": true,
+      "layers": [
+        {
+          "name": "住宅用グラスウール断熱材10K相当",
+          "thermal_resistance": 3.8660049674711257,
+          "thermal_capacity": 1.5464019869884504
+        },
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.04318181818181818,
+          "thermal_capacity": 7.885
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.15,
+      "rear_surface_boundary_id": 109
+    },
+    {
+      "id": 111,
+      "name": "2Fホール",
+      "sub_name": null,
+      "connected_room_id": 11,
+      "boundary_type": "internal",
+      "area": 10.77,
+      "h_c": 5.0,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.04318181818181818,
+          "thermal_capacity": 7.885
+        },
+        {
+          "name": "住宅用グラスウール断熱材10K相当",
+          "thermal_resistance": 3.8660049674711257,
+          "thermal_capacity": 1.5464019869884504
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.09,
+      "rear_surface_boundary_id": 112
+    },
+    {
+      "id": 112,
+      "name": "小屋裏1",
+      "sub_name": null,
+      "connected_room_id": 14,
+      "boundary_type": "internal",
+      "area": 10.77,
+      "h_c": 0.7,
+      "is_solar_absorbed_inside": true,
+      "is_floor": true,
+      "layers": [
+        {
+          "name": "住宅用グラスウール断熱材10K相当",
+          "thermal_resistance": 3.8660049674711257,
+          "thermal_capacity": 1.5464019869884504
+        },
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.04318181818181818,
+          "thermal_capacity": 7.885
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.15,
+      "rear_surface_boundary_id": 111
+    },
+    {
+      "id": 113,
+      "name": "2Fホール",
+      "sub_name": null,
+      "connected_room_id": 11,
+      "boundary_type": "internal",
+      "area": 1.59,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.04318181818181818,
+          "thermal_capacity": 7.885
+        },
+        {
+          "name": "中空層",
+          "thermal_resistance": 0.09,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "住宅用グラスウール断熱材16K相当",
+          "thermal_resistance": 1.405290111392433,
+          "thermal_capacity": 0.8220947151645733
+        },
+        {
+          "name": "合板",
+          "thermal_resistance": 0.075,
+          "thermal_capacity": 8.64
+        },
+        {
+          "name": "木片セメント板",
+          "thermal_resistance": 0.08823529411764705,
+          "thermal_capacity": 25.178849999999997
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.11,
+      "rear_surface_boundary_id": 114
+    },
+    {
+      "id": 114,
+      "name": "小屋裏1",
+      "sub_name": null,
+      "connected_room_id": 14,
+      "boundary_type": "internal",
+      "area": 1.59,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "木片セメント板",
+          "thermal_resistance": 0.08823529411764705,
+          "thermal_capacity": 25.178849999999997
+        },
+        {
+          "name": "合板",
+          "thermal_resistance": 0.075,
+          "thermal_capacity": 8.64
+        },
+        {
+          "name": "住宅用グラスウール断熱材16K相当",
+          "thermal_resistance": 1.405290111392433,
+          "thermal_capacity": 0.8220947151645733
+        },
+        {
+          "name": "中空層",
+          "thermal_resistance": 0.09,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.04318181818181818,
+          "thermal_capacity": 7.885
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.11,
+      "rear_surface_boundary_id": 113
+    },
+    {
+      "id": 115,
+      "name": "2Fホール",
+      "sub_name": null,
+      "connected_room_id": 11,
+      "boundary_type": "internal",
+      "area": 0.69,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.04318181818181818,
+          "thermal_capacity": 7.885
+        },
+        {
+          "name": "中空層",
+          "thermal_resistance": 0.09,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "住宅用グラスウール断熱材16K相当",
+          "thermal_resistance": 1.405290111392433,
+          "thermal_capacity": 0.8220947151645733
+        },
+        {
+          "name": "合板",
+          "thermal_resistance": 0.075,
+          "thermal_capacity": 8.64
+        },
+        {
+          "name": "木片セメント板",
+          "thermal_resistance": 0.08823529411764705,
+          "thermal_capacity": 25.178849999999997
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.11,
+      "rear_surface_boundary_id": 116
+    },
+    {
+      "id": 116,
+      "name": "小屋裏1",
+      "sub_name": null,
+      "connected_room_id": 14,
+      "boundary_type": "internal",
+      "area": 0.69,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "木片セメント板",
+          "thermal_resistance": 0.08823529411764705,
+          "thermal_capacity": 25.178849999999997
+        },
+        {
+          "name": "合板",
+          "thermal_resistance": 0.075,
+          "thermal_capacity": 8.64
+        },
+        {
+          "name": "住宅用グラスウール断熱材16K相当",
+          "thermal_resistance": 1.405290111392433,
+          "thermal_capacity": 0.8220947151645733
+        },
+        {
+          "name": "中空層",
+          "thermal_resistance": 0.09,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.04318181818181818,
+          "thermal_capacity": 7.885
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.11,
+      "rear_surface_boundary_id": 115
+    },
+    {
+      "id": 117,
+      "name": "和室",
+      "sub_name": null,
+      "connected_room_id": 0,
+      "boundary_type": "internal",
+      "area": 3.31,
+      "h_c": 5.0,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.04318181818181818,
+          "thermal_capacity": 7.885
+        },
+        {
+          "name": "中空層",
+          "thermal_resistance": 0.09,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "住宅用グラスウール断熱材16K相当",
+          "thermal_resistance": 1.405290111392433,
+          "thermal_capacity": 0.8220947151645733
+        },
+        {
+          "name": "合板",
+          "thermal_resistance": 0.075,
+          "thermal_capacity": 8.64
+        },
+        {
+          "name": "木片セメント板",
+          "thermal_resistance": 0.08823529411764705,
+          "thermal_capacity": 25.178849999999997
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.09,
+      "rear_surface_boundary_id": 118
+    },
+    {
+      "id": 118,
+      "name": "小屋裏3",
+      "sub_name": null,
+      "connected_room_id": 16,
+      "boundary_type": "internal",
+      "area": 3.31,
+      "h_c": 0.7,
+      "is_solar_absorbed_inside": true,
+      "is_floor": true,
+      "layers": [
+        {
+          "name": "木片セメント板",
+          "thermal_resistance": 0.08823529411764705,
+          "thermal_capacity": 25.178849999999997
+        },
+        {
+          "name": "合板",
+          "thermal_resistance": 0.075,
+          "thermal_capacity": 8.64
+        },
+        {
+          "name": "住宅用グラスウール断熱材16K相当",
+          "thermal_resistance": 1.405290111392433,
+          "thermal_capacity": 0.8220947151645733
+        },
+        {
+          "name": "中空層",
+          "thermal_resistance": 0.09,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.04318181818181818,
+          "thermal_capacity": 7.885
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.15,
+      "rear_surface_boundary_id": 117
+    },
+    {
+      "id": 119,
+      "name": "階間(L4)",
+      "sub_name": null,
+      "connected_room_id": 12,
+      "boundary_type": "internal",
+      "area": 13.25,
+      "h_c": 0.7,
+      "is_solar_absorbed_inside": true,
+      "is_floor": true,
+      "layers": [
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.05681818181818182,
+          "thermal_capacity": 0.0
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.15,
+      "rear_surface_boundary_id": 120
+    },
+    {
+      "id": 120,
+      "name": "和室",
+      "sub_name": null,
+      "connected_room_id": 0,
+      "boundary_type": "internal",
+      "area": 13.25,
+      "h_c": 5.0,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.05681818181818182,
+          "thermal_capacity": 0.0
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.09,
+      "rear_surface_boundary_id": 119
+    },
+    {
+      "id": 121,
+      "name": "階間(L4)",
+      "sub_name": null,
+      "connected_room_id": 12,
+      "boundary_type": "internal",
+      "area": 21.53,
+      "h_c": 0.7,
+      "is_solar_absorbed_inside": true,
+      "is_floor": true,
+      "layers": [
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.05681818181818182,
+          "thermal_capacity": 0.0
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.15,
+      "rear_surface_boundary_id": 122
+    },
+    {
+      "id": 122,
+      "name": "LD",
+      "sub_name": null,
+      "connected_room_id": 1,
+      "boundary_type": "internal",
+      "area": 21.53,
+      "h_c": 5.0,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.05681818181818182,
+          "thermal_capacity": 0.0
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.09,
+      "rear_surface_boundary_id": 121
+    },
+    {
+      "id": 123,
+      "name": "階間(L4)",
+      "sub_name": null,
+      "connected_room_id": 12,
+      "boundary_type": "internal",
+      "area": 2.48,
+      "h_c": 0.7,
+      "is_solar_absorbed_inside": true,
+      "is_floor": true,
+      "layers": [
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.05681818181818182,
+          "thermal_capacity": 0.0
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.15,
+      "rear_surface_boundary_id": 124
+    },
+    {
+      "id": 124,
+      "name": "ホール",
+      "sub_name": null,
+      "connected_room_id": 6,
+      "boundary_type": "internal",
+      "area": 2.48,
+      "h_c": 5.0,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.05681818181818182,
+          "thermal_capacity": 0.0
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.09,
+      "rear_surface_boundary_id": 123
+    },
+    {
+      "id": 125,
+      "name": "階間(L4)",
+      "sub_name": null,
+      "connected_room_id": 12,
+      "boundary_type": "internal",
+      "area": 7.87,
+      "h_c": 0.7,
+      "is_solar_absorbed_inside": true,
+      "is_floor": true,
+      "layers": [
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.05681818181818182,
+          "thermal_capacity": 0.0
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.15,
+      "rear_surface_boundary_id": 126
+    },
+    {
+      "id": 126,
+      "name": "ホール",
+      "sub_name": null,
+      "connected_room_id": 6,
+      "boundary_type": "internal",
+      "area": 7.87,
+      "h_c": 5.0,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.05681818181818182,
+          "thermal_capacity": 0.0
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.09,
+      "rear_surface_boundary_id": 125
+    },
+    {
+      "id": 127,
+      "name": "階間(L4)",
+      "sub_name": null,
+      "connected_room_id": 12,
+      "boundary_type": "internal",
+      "area": 0.46,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.05681818181818182,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "中空層",
+          "thermal_resistance": 0.09,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.05681818181818182,
+          "thermal_capacity": 0.0
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.11,
+      "rear_surface_boundary_id": 128
+    },
+    {
+      "id": 128,
+      "name": "2Fホール",
+      "sub_name": null,
+      "connected_room_id": 11,
+      "boundary_type": "internal",
+      "area": 0.46,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.05681818181818182,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "中空層",
+          "thermal_resistance": 0.09,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.05681818181818182,
+          "thermal_capacity": 0.0
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.11,
+      "rear_surface_boundary_id": 127
+    },
+    {
+      "id": 129,
+      "name": "階間(L4)",
+      "sub_name": null,
+      "connected_room_id": 12,
+      "boundary_type": "internal",
+      "area": 0.46,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.05681818181818182,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "中空層",
+          "thermal_resistance": 0.09,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.05681818181818182,
+          "thermal_capacity": 0.0
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.11,
+      "rear_surface_boundary_id": 130
+    },
+    {
+      "id": 130,
+      "name": "2Fホール",
+      "sub_name": null,
+      "connected_room_id": 11,
+      "boundary_type": "internal",
+      "area": 0.46,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.05681818181818182,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "中空層",
+          "thermal_resistance": 0.09,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.05681818181818182,
+          "thermal_capacity": 0.0
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.11,
+      "rear_surface_boundary_id": 129
+    },
+    {
+      "id": 131,
+      "name": "階間(L4)",
+      "sub_name": null,
+      "connected_room_id": 12,
+      "boundary_type": "internal",
+      "area": 1.59,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.05681818181818182,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "中空層",
+          "thermal_resistance": 0.09,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.05681818181818182,
+          "thermal_capacity": 0.0
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.11,
+      "rear_surface_boundary_id": 132
+    },
+    {
+      "id": 132,
+      "name": "2Fホール",
+      "sub_name": null,
+      "connected_room_id": 11,
+      "boundary_type": "internal",
+      "area": 1.59,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.05681818181818182,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "中空層",
+          "thermal_resistance": 0.09,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.05681818181818182,
+          "thermal_capacity": 0.0
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.11,
+      "rear_surface_boundary_id": 131
+    },
+    {
+      "id": 133,
+      "name": "クローゼット",
+      "sub_name": null,
+      "connected_room_id": 7,
+      "boundary_type": "internal",
+      "area": 4.97,
+      "h_c": 0.7,
+      "is_solar_absorbed_inside": true,
+      "is_floor": true,
+      "layers": [
+        {
+          "name": "コンクリート",
+          "thermal_resistance": 0.0,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "合板",
+          "thermal_resistance": 0.075,
+          "thermal_capacity": 0.0
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.15,
+      "rear_surface_boundary_id": 134
+    },
+    {
+      "id": 134,
+      "name": "階間(L4)",
+      "sub_name": null,
+      "connected_room_id": 12,
+      "boundary_type": "internal",
+      "area": 4.97,
+      "h_c": 5.0,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "合板",
+          "thermal_resistance": 0.075,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "コンクリート",
+          "thermal_resistance": 0.0,
+          "thermal_capacity": 0.0
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.09,
+      "rear_surface_boundary_id": 133
+    },
+    {
+      "id": 135,
+      "name": "主寝室",
+      "sub_name": null,
+      "connected_room_id": 8,
+      "boundary_type": "internal",
+      "area": 13.25,
+      "h_c": 0.7,
+      "is_solar_absorbed_inside": true,
+      "is_floor": true,
+      "layers": [
+        {
+          "name": "コンクリート",
+          "thermal_resistance": 0.0,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "合板",
+          "thermal_resistance": 0.075,
+          "thermal_capacity": 0.0
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.15,
+      "rear_surface_boundary_id": 136
+    },
+    {
+      "id": 136,
+      "name": "階間(L4)",
+      "sub_name": null,
+      "connected_room_id": 12,
+      "boundary_type": "internal",
+      "area": 13.25,
+      "h_c": 5.0,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "合板",
+          "thermal_resistance": 0.075,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "コンクリート",
+          "thermal_resistance": 0.0,
+          "thermal_capacity": 0.0
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.09,
+      "rear_surface_boundary_id": 135
+    },
+    {
+      "id": 137,
+      "name": "子供室1",
+      "sub_name": null,
+      "connected_room_id": 9,
+      "boundary_type": "internal",
+      "area": 10.76,
+      "h_c": 0.7,
+      "is_solar_absorbed_inside": true,
+      "is_floor": true,
+      "layers": [
+        {
+          "name": "コンクリート",
+          "thermal_resistance": 0.0,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "合板",
+          "thermal_resistance": 0.075,
+          "thermal_capacity": 0.0
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.15,
+      "rear_surface_boundary_id": 138
+    },
+    {
+      "id": 138,
+      "name": "階間(L4)",
+      "sub_name": null,
+      "connected_room_id": 12,
+      "boundary_type": "internal",
+      "area": 10.76,
+      "h_c": 5.0,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "合板",
+          "thermal_resistance": 0.075,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "コンクリート",
+          "thermal_resistance": 0.0,
+          "thermal_capacity": 0.0
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.09,
+      "rear_surface_boundary_id": 137
+    },
+    {
+      "id": 139,
+      "name": "子供室2",
+      "sub_name": null,
+      "connected_room_id": 10,
+      "boundary_type": "internal",
+      "area": 10.77,
+      "h_c": 0.7,
+      "is_solar_absorbed_inside": true,
+      "is_floor": true,
+      "layers": [
+        {
+          "name": "コンクリート",
+          "thermal_resistance": 0.0,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "合板",
+          "thermal_resistance": 0.075,
+          "thermal_capacity": 0.0
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.15,
+      "rear_surface_boundary_id": 140
+    },
+    {
+      "id": 140,
+      "name": "階間(L4)",
+      "sub_name": null,
+      "connected_room_id": 12,
+      "boundary_type": "internal",
+      "area": 10.77,
+      "h_c": 5.0,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "合板",
+          "thermal_resistance": 0.075,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "コンクリート",
+          "thermal_resistance": 0.0,
+          "thermal_capacity": 0.0
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.09,
+      "rear_surface_boundary_id": 139
+    },
+    {
+      "id": 141,
+      "name": "2Fホール",
+      "sub_name": null,
+      "connected_room_id": 11,
+      "boundary_type": "internal",
+      "area": 7.87,
+      "h_c": 0.7,
+      "is_solar_absorbed_inside": true,
+      "is_floor": true,
+      "layers": [
+        {
+          "name": "コンクリート",
+          "thermal_resistance": 0.0,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "合板",
+          "thermal_resistance": 0.075,
+          "thermal_capacity": 0.0
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.15,
+      "rear_surface_boundary_id": 142
+    },
+    {
+      "id": 142,
+      "name": "階間(L4)",
+      "sub_name": null,
+      "connected_room_id": 12,
+      "boundary_type": "internal",
+      "area": 7.87,
+      "h_c": 5.0,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "合板",
+          "thermal_resistance": 0.075,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "コンクリート",
+          "thermal_resistance": 0.0,
+          "thermal_capacity": 0.0
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.09,
+      "rear_surface_boundary_id": 141
+    },
+    {
+      "id": 143,
+      "name": "階間(L4)",
+      "sub_name": null,
+      "connected_room_id": 12,
+      "boundary_type": "internal",
+      "area": 1.82,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.04318181818181818,
+          "thermal_capacity": 7.885
+        },
+        {
+          "name": "中空層",
+          "thermal_resistance": 0.09,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "住宅用グラスウール断熱材16K相当",
+          "thermal_resistance": 1.405290111392433,
+          "thermal_capacity": 0.8220947151645733
+        },
+        {
+          "name": "合板",
+          "thermal_resistance": 0.075,
+          "thermal_capacity": 8.64
+        },
+        {
+          "name": "木片セメント板",
+          "thermal_resistance": 0.08823529411764705,
+          "thermal_capacity": 25.178849999999997
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.11,
+      "rear_surface_boundary_id": 144
+    },
+    {
+      "id": 144,
+      "name": "小屋裏2",
+      "sub_name": null,
+      "connected_room_id": 15,
+      "boundary_type": "internal",
+      "area": 1.82,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "木片セメント板",
+          "thermal_resistance": 0.08823529411764705,
+          "thermal_capacity": 25.178849999999997
+        },
+        {
+          "name": "合板",
+          "thermal_resistance": 0.075,
+          "thermal_capacity": 8.64
+        },
+        {
+          "name": "住宅用グラスウール断熱材16K相当",
+          "thermal_resistance": 1.405290111392433,
+          "thermal_capacity": 0.8220947151645733
+        },
+        {
+          "name": "中空層",
+          "thermal_resistance": 0.09,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.04318181818181818,
+          "thermal_capacity": 7.885
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.11,
+      "rear_surface_boundary_id": 143
+    },
+    {
+      "id": 145,
+      "name": "階間(L4)",
+      "sub_name": null,
+      "connected_room_id": 12,
+      "boundary_type": "internal",
+      "area": 2.48,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.04318181818181818,
+          "thermal_capacity": 7.885
+        },
+        {
+          "name": "中空層",
+          "thermal_resistance": 0.09,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "住宅用グラスウール断熱材16K相当",
+          "thermal_resistance": 1.405290111392433,
+          "thermal_capacity": 0.8220947151645733
+        },
+        {
+          "name": "合板",
+          "thermal_resistance": 0.075,
+          "thermal_capacity": 8.64
+        },
+        {
+          "name": "木片セメント板",
+          "thermal_resistance": 0.08823529411764705,
+          "thermal_capacity": 25.178849999999997
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.11,
+      "rear_surface_boundary_id": 146
+    },
+    {
+      "id": 146,
+      "name": "小屋裏3",
+      "sub_name": null,
+      "connected_room_id": 16,
+      "boundary_type": "internal",
+      "area": 2.48,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "木片セメント板",
+          "thermal_resistance": 0.08823529411764705,
+          "thermal_capacity": 25.178849999999997
+        },
+        {
+          "name": "合板",
+          "thermal_resistance": 0.075,
+          "thermal_capacity": 8.64
+        },
+        {
+          "name": "住宅用グラスウール断熱材16K相当",
+          "thermal_resistance": 1.405290111392433,
+          "thermal_capacity": 0.8220947151645733
+        },
+        {
+          "name": "中空層",
+          "thermal_resistance": 0.09,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.04318181818181818,
+          "thermal_capacity": 7.885
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.11,
+      "rear_surface_boundary_id": 145
+    },
+    {
+      "id": 147,
+      "name": "階間(L4)",
+      "sub_name": null,
+      "connected_room_id": 12,
+      "boundary_type": "internal",
+      "area": 4.14,
+      "h_c": 0.7,
+      "is_solar_absorbed_inside": true,
+      "is_floor": true,
+      "layers": [
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.05681818181818182,
+          "thermal_capacity": 0.0
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.15,
+      "rear_surface_boundary_id": 148
+    },
+    {
+      "id": 148,
+      "name": "台所",
+      "sub_name": null,
+      "connected_room_id": 2,
+      "boundary_type": "internal",
+      "area": 4.14,
+      "h_c": 5.0,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.05681818181818182,
+          "thermal_capacity": 0.0
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.09,
+      "rear_surface_boundary_id": 147
+    },
+    {
+      "id": 149,
+      "name": "台所",
+      "sub_name": null,
+      "connected_room_id": 2,
+      "boundary_type": "internal",
+      "area": 0.34,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.04318181818181818,
+          "thermal_capacity": 7.885
+        },
+        {
+          "name": "中空層",
+          "thermal_resistance": 0.09,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "住宅用グラスウール断熱材16K相当",
+          "thermal_resistance": 1.405290111392433,
+          "thermal_capacity": 0.8220947151645733
+        },
+        {
+          "name": "合板",
+          "thermal_resistance": 0.075,
+          "thermal_capacity": 8.64
+        },
+        {
+          "name": "木片セメント板",
+          "thermal_resistance": 0.08823529411764705,
+          "thermal_capacity": 25.178849999999997
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.11,
+      "rear_surface_boundary_id": 150
+    },
+    {
+      "id": 150,
+      "name": "小屋裏2",
+      "sub_name": null,
+      "connected_room_id": 15,
+      "boundary_type": "internal",
+      "area": 0.34,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "木片セメント板",
+          "thermal_resistance": 0.08823529411764705,
+          "thermal_capacity": 25.178849999999997
+        },
+        {
+          "name": "合板",
+          "thermal_resistance": 0.075,
+          "thermal_capacity": 8.64
+        },
+        {
+          "name": "住宅用グラスウール断熱材16K相当",
+          "thermal_resistance": 1.405290111392433,
+          "thermal_capacity": 0.8220947151645733
+        },
+        {
+          "name": "中空層",
+          "thermal_resistance": 0.09,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.04318181818181818,
+          "thermal_capacity": 7.885
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.11,
+      "rear_surface_boundary_id": 149
+    },
+    {
+      "id": 151,
+      "name": "ホール",
+      "sub_name": null,
+      "connected_room_id": 6,
+      "boundary_type": "internal",
+      "area": 0.68,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.04318181818181818,
+          "thermal_capacity": 7.885
+        },
+        {
+          "name": "中空層",
+          "thermal_resistance": 0.09,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "住宅用グラスウール断熱材16K相当",
+          "thermal_resistance": 1.405290111392433,
+          "thermal_capacity": 0.8220947151645733
+        },
+        {
+          "name": "合板",
+          "thermal_resistance": 0.075,
+          "thermal_capacity": 8.64
+        },
+        {
+          "name": "木片セメント板",
+          "thermal_resistance": 0.08823529411764705,
+          "thermal_capacity": 25.178849999999997
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.11,
+      "rear_surface_boundary_id": 152
+    },
+    {
+      "id": 152,
+      "name": "小屋裏2",
+      "sub_name": null,
+      "connected_room_id": 15,
+      "boundary_type": "internal",
+      "area": 0.68,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "木片セメント板",
+          "thermal_resistance": 0.08823529411764705,
+          "thermal_capacity": 25.178849999999997
+        },
+        {
+          "name": "合板",
+          "thermal_resistance": 0.075,
+          "thermal_capacity": 8.64
+        },
+        {
+          "name": "住宅用グラスウール断熱材16K相当",
+          "thermal_resistance": 1.405290111392433,
+          "thermal_capacity": 0.8220947151645733
+        },
+        {
+          "name": "中空層",
+          "thermal_resistance": 0.09,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.04318181818181818,
+          "thermal_capacity": 7.885
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.11,
+      "rear_surface_boundary_id": 151
+    },
+    {
+      "id": 153,
+      "name": "2F便所",
+      "sub_name": null,
+      "connected_room_id": 13,
+      "boundary_type": "internal",
+      "area": 4.37,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.05681818181818182,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "中空層",
+          "thermal_resistance": 0.09,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.05681818181818182,
+          "thermal_capacity": 0.0
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.11,
+      "rear_surface_boundary_id": 154
+    },
+    {
+      "id": 154,
+      "name": "2Fホール",
+      "sub_name": null,
+      "connected_room_id": 11,
+      "boundary_type": "internal",
+      "area": 4.37,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.05681818181818182,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "中空層",
+          "thermal_resistance": 0.09,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.05681818181818182,
+          "thermal_capacity": 0.0
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.11,
+      "rear_surface_boundary_id": 153
+    },
+    {
+      "id": 155,
+      "name": "2F便所",
+      "sub_name": null,
+      "connected_room_id": 13,
+      "boundary_type": "internal",
+      "area": 2.18,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.05681818181818182,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "中空層",
+          "thermal_resistance": 0.09,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.05681818181818182,
+          "thermal_capacity": 0.0
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.11,
+      "rear_surface_boundary_id": 156
+    },
+    {
+      "id": 156,
+      "name": "2Fホール",
+      "sub_name": null,
+      "connected_room_id": 11,
+      "boundary_type": "internal",
+      "area": 2.18,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.05681818181818182,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "中空層",
+          "thermal_resistance": 0.09,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.05681818181818182,
+          "thermal_capacity": 0.0
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.11,
+      "rear_surface_boundary_id": 155
+    },
+    {
+      "id": 157,
+      "name": "2F便所",
+      "sub_name": null,
+      "connected_room_id": 13,
+      "boundary_type": "internal",
+      "area": 1.66,
+      "h_c": 5.0,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.04318181818181818,
+          "thermal_capacity": 7.885
+        },
+        {
+          "name": "住宅用グラスウール断熱材10K相当",
+          "thermal_resistance": 3.8660049674711257,
+          "thermal_capacity": 1.5464019869884504
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.09,
+      "rear_surface_boundary_id": 158
+    },
+    {
+      "id": 158,
+      "name": "小屋裏1",
+      "sub_name": null,
+      "connected_room_id": 14,
+      "boundary_type": "internal",
+      "area": 1.66,
+      "h_c": 0.7,
+      "is_solar_absorbed_inside": true,
+      "is_floor": true,
+      "layers": [
+        {
+          "name": "住宅用グラスウール断熱材10K相当",
+          "thermal_resistance": 3.8660049674711257,
+          "thermal_capacity": 1.5464019869884504
+        },
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.04318181818181818,
+          "thermal_capacity": 7.885
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.15,
+      "rear_surface_boundary_id": 157
+    },
+    {
+      "id": 159,
+      "name": "2F便所",
+      "sub_name": null,
+      "connected_room_id": 13,
+      "boundary_type": "internal",
+      "area": 0.25,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.04318181818181818,
+          "thermal_capacity": 7.885
+        },
+        {
+          "name": "中空層",
+          "thermal_resistance": 0.09,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "住宅用グラスウール断熱材16K相当",
+          "thermal_resistance": 1.405290111392433,
+          "thermal_capacity": 0.8220947151645733
+        },
+        {
+          "name": "合板",
+          "thermal_resistance": 0.075,
+          "thermal_capacity": 8.64
+        },
+        {
+          "name": "木片セメント板",
+          "thermal_resistance": 0.08823529411764705,
+          "thermal_capacity": 25.178849999999997
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.11,
+      "rear_surface_boundary_id": 160
+    },
+    {
+      "id": 160,
+      "name": "小屋裏2",
+      "sub_name": null,
+      "connected_room_id": 15,
+      "boundary_type": "internal",
+      "area": 0.25,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "木片セメント板",
+          "thermal_resistance": 0.08823529411764705,
+          "thermal_capacity": 25.178849999999997
+        },
+        {
+          "name": "合板",
+          "thermal_resistance": 0.075,
+          "thermal_capacity": 8.64
+        },
+        {
+          "name": "住宅用グラスウール断熱材16K相当",
+          "thermal_resistance": 1.405290111392433,
+          "thermal_capacity": 0.8220947151645733
+        },
+        {
+          "name": "中空層",
+          "thermal_resistance": 0.09,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.04318181818181818,
+          "thermal_capacity": 7.885
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.11,
+      "rear_surface_boundary_id": 159
+    },
+    {
+      "id": 161,
+      "name": "2F便所",
+      "sub_name": null,
+      "connected_room_id": 13,
+      "boundary_type": "internal",
+      "area": 1.66,
+      "h_c": 0.7,
+      "is_solar_absorbed_inside": true,
+      "is_floor": true,
+      "layers": [
+        {
+          "name": "コンクリート",
+          "thermal_resistance": 0.0,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "合板",
+          "thermal_resistance": 0.075,
+          "thermal_capacity": 0.0
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.15,
+      "rear_surface_boundary_id": 162
+    },
+    {
+      "id": 162,
+      "name": "階間(L4)",
+      "sub_name": null,
+      "connected_room_id": 12,
+      "boundary_type": "internal",
+      "area": 1.66,
+      "h_c": 5.0,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "合板",
+          "thermal_resistance": 0.075,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "コンクリート",
+          "thermal_resistance": 0.0,
+          "thermal_capacity": 0.0
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.09,
+      "rear_surface_boundary_id": 161
+    },
+    {
+      "id": 163,
+      "name": "台所",
+      "sub_name": null,
+      "connected_room_id": 2,
+      "boundary_type": "internal",
+      "area": 8.28,
+      "h_c": 0.7,
+      "is_solar_absorbed_inside": true,
+      "is_floor": true,
+      "layers": [
+        {
+          "name": "コンクリート",
+          "thermal_resistance": 0.0,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "合板",
+          "thermal_resistance": 0.075,
+          "thermal_capacity": 8.64
+        },
+        {
+          "name": "グラスウール16K",
+          "thermal_resistance": 1.669593392826472,
+          "thermal_capacity": 0.976712134803486
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.15,
+      "rear_surface_boundary_id": 164
+    },
+    {
+      "id": 164,
+      "name": "床下",
+      "sub_name": null,
+      "connected_room_id": 17,
+      "boundary_type": "internal",
+      "area": 8.28,
+      "h_c": 5.0,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "グラスウール16K",
+          "thermal_resistance": 1.669593392826472,
+          "thermal_capacity": 0.976712134803486
+        },
+        {
+          "name": "合板",
+          "thermal_resistance": 0.075,
+          "thermal_capacity": 8.64
+        },
+        {
+          "name": "コンクリート",
+          "thermal_resistance": 0.0,
+          "thermal_capacity": 0.0
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.09,
+      "rear_surface_boundary_id": 163
+    },
+    {
+      "id": 165,
+      "name": "1F便所",
+      "sub_name": null,
+      "connected_room_id": 4,
+      "boundary_type": "internal",
+      "area": 1.66,
+      "h_c": 0.7,
+      "is_solar_absorbed_inside": true,
+      "is_floor": true,
+      "layers": [
+        {
+          "name": "コンクリート",
+          "thermal_resistance": 0.0,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "合板",
+          "thermal_resistance": 0.075,
+          "thermal_capacity": 8.64
+        },
+        {
+          "name": "グラスウール16K",
+          "thermal_resistance": 1.669593392826472,
+          "thermal_capacity": 0.976712134803486
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.15,
+      "rear_surface_boundary_id": 166
+    },
+    {
+      "id": 166,
+      "name": "床下",
+      "sub_name": null,
+      "connected_room_id": 17,
+      "boundary_type": "internal",
+      "area": 1.66,
+      "h_c": 5.0,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "グラスウール16K",
+          "thermal_resistance": 1.669593392826472,
+          "thermal_capacity": 0.976712134803486
+        },
+        {
+          "name": "合板",
+          "thermal_resistance": 0.075,
+          "thermal_capacity": 8.64
+        },
+        {
+          "name": "コンクリート",
+          "thermal_resistance": 0.0,
+          "thermal_capacity": 0.0
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.09,
+      "rear_surface_boundary_id": 165
+    },
+    {
+      "id": 167,
+      "name": "洗面所",
+      "sub_name": null,
+      "connected_room_id": 5,
+      "boundary_type": "internal",
+      "area": 3.31,
+      "h_c": 0.7,
+      "is_solar_absorbed_inside": true,
+      "is_floor": true,
+      "layers": [
+        {
+          "name": "コンクリート",
+          "thermal_resistance": 0.0,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "合板",
+          "thermal_resistance": 0.075,
+          "thermal_capacity": 8.64
+        },
+        {
+          "name": "グラスウール16K",
+          "thermal_resistance": 1.669593392826472,
+          "thermal_capacity": 0.976712134803486
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.15,
+      "rear_surface_boundary_id": 168
+    },
+    {
+      "id": 168,
+      "name": "床下",
+      "sub_name": null,
+      "connected_room_id": 17,
+      "boundary_type": "internal",
+      "area": 3.31,
+      "h_c": 5.0,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "グラスウール16K",
+          "thermal_resistance": 1.669593392826472,
+          "thermal_capacity": 0.976712134803486
+        },
+        {
+          "name": "合板",
+          "thermal_resistance": 0.075,
+          "thermal_capacity": 8.64
+        },
+        {
+          "name": "コンクリート",
+          "thermal_resistance": 0.0,
+          "thermal_capacity": 0.0
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.09,
+      "rear_surface_boundary_id": 167
+    },
+    {
+      "id": 169,
+      "name": "ホール",
+      "sub_name": null,
+      "connected_room_id": 6,
+      "boundary_type": "internal",
+      "area": 10.77,
+      "h_c": 0.7,
+      "is_solar_absorbed_inside": true,
+      "is_floor": true,
+      "layers": [
+        {
+          "name": "コンクリート",
+          "thermal_resistance": 0.0,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "合板",
+          "thermal_resistance": 0.075,
+          "thermal_capacity": 8.64
+        },
+        {
+          "name": "グラスウール16K",
+          "thermal_resistance": 1.669593392826472,
+          "thermal_capacity": 0.976712134803486
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.15,
+      "rear_surface_boundary_id": 170
+    },
+    {
+      "id": 170,
+      "name": "床下",
+      "sub_name": null,
+      "connected_room_id": 17,
+      "boundary_type": "internal",
+      "area": 10.77,
+      "h_c": 5.0,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "グラスウール16K",
+          "thermal_resistance": 1.669593392826472,
+          "thermal_capacity": 0.976712134803486
+        },
+        {
+          "name": "合板",
+          "thermal_resistance": 0.075,
+          "thermal_capacity": 8.64
+        },
+        {
+          "name": "コンクリート",
+          "thermal_resistance": 0.0,
+          "thermal_capacity": 0.0
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.09,
+      "rear_surface_boundary_id": 169
+    },
+    {
+      "id": 171,
+      "name": "ホール",
+      "sub_name": null,
+      "connected_room_id": 6,
+      "boundary_type": "internal",
+      "area": 0.27,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.04318181818181818,
+          "thermal_capacity": 7.885
+        },
+        {
+          "name": "中空層",
+          "thermal_resistance": 0.09,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "住宅用グラスウール断熱材16K相当",
+          "thermal_resistance": 1.405290111392433,
+          "thermal_capacity": 0.8220947151645733
+        },
+        {
+          "name": "合板",
+          "thermal_resistance": 0.075,
+          "thermal_capacity": 8.64
+        },
+        {
+          "name": "木片セメント板",
+          "thermal_resistance": 0.08823529411764705,
+          "thermal_capacity": 25.178849999999997
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.11,
+      "rear_surface_boundary_id": 172
+    },
+    {
+      "id": 172,
+      "name": "床下",
+      "sub_name": null,
+      "connected_room_id": 17,
+      "boundary_type": "internal",
+      "area": 0.27,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "木片セメント板",
+          "thermal_resistance": 0.08823529411764705,
+          "thermal_capacity": 25.178849999999997
+        },
+        {
+          "name": "合板",
+          "thermal_resistance": 0.075,
+          "thermal_capacity": 8.64
+        },
+        {
+          "name": "住宅用グラスウール断熱材16K相当",
+          "thermal_resistance": 1.405290111392433,
+          "thermal_capacity": 0.8220947151645733
+        },
+        {
+          "name": "中空層",
+          "thermal_resistance": 0.09,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.04318181818181818,
+          "thermal_capacity": 7.885
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.11,
+      "rear_surface_boundary_id": 171
+    },
+    {
+      "id": 173,
+      "name": "ホール",
+      "sub_name": null,
+      "connected_room_id": 6,
+      "boundary_type": "internal",
+      "area": 0.36,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.04318181818181818,
+          "thermal_capacity": 7.885
+        },
+        {
+          "name": "中空層",
+          "thermal_resistance": 0.09,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "住宅用グラスウール断熱材16K相当",
+          "thermal_resistance": 1.405290111392433,
+          "thermal_capacity": 0.8220947151645733
+        },
+        {
+          "name": "合板",
+          "thermal_resistance": 0.075,
+          "thermal_capacity": 8.64
+        },
+        {
+          "name": "木片セメント板",
+          "thermal_resistance": 0.08823529411764705,
+          "thermal_capacity": 25.178849999999997
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.11,
+      "rear_surface_boundary_id": 174
+    },
+    {
+      "id": 174,
+      "name": "床下",
+      "sub_name": null,
+      "connected_room_id": 17,
+      "boundary_type": "internal",
+      "area": 0.36,
+      "h_c": 2.5,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "木片セメント板",
+          "thermal_resistance": 0.08823529411764705,
+          "thermal_capacity": 25.178849999999997
+        },
+        {
+          "name": "合板",
+          "thermal_resistance": 0.075,
+          "thermal_capacity": 8.64
+        },
+        {
+          "name": "住宅用グラスウール断熱材16K相当",
+          "thermal_resistance": 1.405290111392433,
+          "thermal_capacity": 0.8220947151645733
+        },
+        {
+          "name": "中空層",
+          "thermal_resistance": 0.09,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "せっこうボード",
+          "thermal_resistance": 0.04318181818181818,
+          "thermal_capacity": 7.885
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.11,
+      "rear_surface_boundary_id": 173
+    },
+    {
+      "id": 175,
+      "name": "浴室",
+      "sub_name": null,
+      "connected_room_id": 3,
+      "boundary_type": "internal",
+      "area": 3.31,
+      "h_c": 0.7,
+      "is_solar_absorbed_inside": true,
+      "is_floor": true,
+      "layers": [
+        {
+          "name": "コンクリート",
+          "thermal_resistance": 0.0,
+          "thermal_capacity": 0.0
+        },
+        {
+          "name": "合板",
+          "thermal_resistance": 0.075,
+          "thermal_capacity": 8.64
+        },
+        {
+          "name": "グラスウール16K",
+          "thermal_resistance": 1.669593392826472,
+          "thermal_capacity": 0.976712134803486
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.15,
+      "rear_surface_boundary_id": 176
+    },
+    {
+      "id": 176,
+      "name": "床下",
+      "sub_name": null,
+      "connected_room_id": 17,
+      "boundary_type": "internal",
+      "area": 3.31,
+      "h_c": 5.0,
+      "is_solar_absorbed_inside": false,
+      "is_floor": false,
+      "layers": [
+        {
+          "name": "グラスウール16K",
+          "thermal_resistance": 1.669593392826472,
+          "thermal_capacity": 0.976712134803486
+        },
+        {
+          "name": "合板",
+          "thermal_resistance": 0.075,
+          "thermal_capacity": 8.64
+        },
+        {
+          "name": "コンクリート",
+          "thermal_resistance": 0.0,
+          "thermal_capacity": 0.0
+        }
+      ],
+      "solar_shading_part": {
+        "existence": false
+      },
+      "outside_heat_transfer_resistance": 0.09,
+      "rear_surface_boundary_id": 175
+    },
+    {
+      "id": 177,
+      "name": "土間床",
+      "sub_name": "ホール",
+      "connected_room_id": 6,
+      "boundary_type": "ground",
+      "area": 2.48,
+      "is_solar_absorbed_inside": true,
+      "is_floor": true,
+      "h_c": 0.7,
+      "layers": [
+        {
+          "name": "コンクリート",
+          "thermal_resistance": 0.075,
+          "thermal_capacity": 227.5512
+        }
+      ]
+    },
+    {
+      "id": 178,
+      "name": "土間床",
+      "sub_name": "床下",
+      "connected_room_id": 17,
+      "boundary_type": "ground",
+      "area": 66.05,
+      "is_solar_absorbed_inside": true,
+      "is_floor": true,
+      "h_c": 0.7,
+      "layers": [
+        {
+          "name": "コンクリート",
+          "thermal_resistance": 0.075,
+          "thermal_capacity": 227.5512
+        }
+      ]
+    }
+  ],
+  "mechanical_ventilations": [
+    {
+      "id": 0,
+      "root_type": "type3",
+      "volume": 20.0,
+      "root": [
+        7,
+        8,
+        11
+      ]
+    },
+    {
+      "id": 1,
+      "root_type": "type3",
+      "volume": 20.0,
+      "root": [
+        8,
+        11
+      ]
+    },
+    {
+      "id": 2,
+      "root_type": "type3",
+      "volume": 20.0,
+      "root": [
+        9,
+        11,
+        13
+      ]
+    },
+    {
+      "id": 3,
+      "root_type": "type3",
+      "volume": 20.0,
+      "root": [
+        10,
+        11,
+        13
+      ]
+    },
+    {
+      "id": 4,
+      "root_type": "type3",
+      "volume": 20.0,
+      "root": [
+        0,
+        6
+      ]
+    },
+    {
+      "id": 5,
+      "root_type": "type3",
+      "volume": 6.67,
+      "root": [
+        1,
+        6
+      ]
+    },
+    {
+      "id": 6,
+      "root_type": "type3",
+      "volume": 26.67,
+      "root": [
+        1,
+        6,
+        5
+      ]
+    },
+    {
+      "id": 7,
+      "root_type": "type3",
+      "volume": 6.66,
+      "root": [
+        1,
+        6,
+        4
+      ]
+    },
+    {
+      "id": 8,
+      "root_type": "type3",
+      "volume": 20,
+      "root": [
+        2,
+        1,
+        6,
+        4
+      ]
+    },
+    {
+      "id": 9,
+      "root_type": "natural_loop",
+      "volume": 5000.0,
+      "root": [
+        1,
+        2
+      ]
+    },
+    {
+      "id": 10,
+      "root_type": "natural_loop",
+      "volume": 273,
+      "root": [
+        6,
+        11
+      ]
+    },
+    {
+      "id": 11,
+      "root_type": "type3",
+      "volume": 234.76635,
+      "root": [
+        14
+      ]
+    },
+    {
+      "id": 12,
+      "root_type": "type3",
+      "volume": 55.89675,
+      "root": [
+        15
+      ]
+    },
+    {
+      "id": 13,
+      "root_type": "type3",
+      "volume": 14.9058,
+      "root": [
+        16
+      ]
+    },
+    {
+      "id": 14,
+      "root_type": "type3",
+      "volume": 161.125,
+      "root": [
+        17
+      ]
+    }
+  ],
+  "equipments": {
+    "heating_equipments": [],
+    "cooling_equipments": []
+  }
+}
