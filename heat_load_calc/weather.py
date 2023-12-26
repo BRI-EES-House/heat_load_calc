@@ -51,28 +51,45 @@ class Weather:
     @classmethod
     def make_weather(cls, rd: Dict, itv: Interval, entry_point_dir: str = ""):
 
+        # Check the existance of the item "weather" in common item.
         if 'weather' not in rd['common']:
             raise KeyError('Key weather could not be found in common tag.')
-        
+
+        # item "weather"
         weather = rd['common']['weather']
 
+        # Check the existance of the item "method" in weather item.
         if 'method' not in weather:
             raise KeyError('Key method could not be found in weather tag.')
-        
+
+        # item "method"
         method = weather['method']
         
+        # The method "ees" is the method that the weather data is loaded from the pre set data based on the region of the Japanese Energy Efficiency Standard.
         if method == 'ees':
 
+            # Chech the existance of the item "region" in weather item.
             if 'region' not in weather:
                 raise KeyError('Key region should be specified if the ees method applied.')
 
+            # item "region"
             region = Region(int(weather['region']))
 
             logger.info('make weather data based on the EES region')
 
-            return cls._make_weather_ees(region=region, itv=itv)
+            return _make_weather_ees(region=region, itv=itv)
 
         elif method == 'file':
+
+            # Check the existance of the item "file_path" in weather item.
+            if 'file_path' not in weather:
+                raise KeyError('Key file_path should be specified if the file method applied.')
+            
+            # Check the existance of the item "latitude" and "longitude" in weather item.
+            if 'latitude' not in weather:
+                raise KeyError('Key latitude should be specified if the file method applied.')
+            if 'longitude' not in weather:
+                raise KeyError('Key longitude should be specified if the file method applied.')
 
             file_path = os.path.join(entry_point_dir, weather['file_path'])
 
@@ -84,7 +101,7 @@ class Weather:
 
             logger.info('Load weather data from `{}`'.format(file_path))
 
-            return cls.make_from_pd(file_path=file_path, itv=itv, latitude=latitude, longitude=longitude)
+            return _make_from_pd(file_path=file_path, itv=itv, latitude=latitude, longitude=longitude)
 
         else:
 
@@ -111,235 +128,237 @@ class Weather:
 
     @property
     def a_sun_ns_plus(self) -> np.ndarray:
-        """ステップnの太陽方位角, rad, [N+1]"""
-        return self._add_index_0_data_to_end(d=self._a_sun_ns)
+        """solar direction at step n / ステップnの太陽方位角, rad, [N+1]"""
+        return _add_index_0_data_to_end(d=self._a_sun_ns)
 
     @property
     def h_sun_ns_plus(self) -> np.ndarray:
-        """ステップnの太陽高度, rad, [N+1]"""
-        return self._add_index_0_data_to_end(d=self._h_sun_ns)
+        """solar altitude at step n / ステップnの太陽高度, rad, [N+1]"""
+        return _add_index_0_data_to_end(d=self._h_sun_ns)
 
     @property
     def i_dn_ns_plus(self) -> np.ndarray:
-        """ステップnの法線面直達日射量, W / m2, [N+1]"""
-        return self._add_index_0_data_to_end(d=self._i_dn_ns)
+        """normal surface direct solar radiation at step n / ステップnの法線面直達日射量, W/m2, [N+1]"""
+        return _add_index_0_data_to_end(d=self._i_dn_ns)
 
     @property
     def i_sky_ns_plus(self) -> np.ndarray:
-        """ステップnの水平面天空日射量, W / m2, [N+1]"""
-        return self._add_index_0_data_to_end(d=self._i_sky_ns)
+        """horizontal sky solar radiation at step n / ステップnの水平面天空日射量, W/m2, [N+1]"""
+        return _add_index_0_data_to_end(d=self._i_sky_ns)
 
     @property
     def r_n_ns_plus(self) -> np.ndarray:
-        """ステップnの夜間放射量, W / m2, [N+1]"""
-        return self._add_index_0_data_to_end(d=self._r_n_ns)
+        """nighttime solar radiation at step n / ステップnの夜間放射量, W/m2, [N+1]"""
+        return _add_index_0_data_to_end(d=self._r_n_ns)
 
     @property
     def theta_o_ns_plus(self) -> np.ndarray:
-        """ステップnの外気温度, degree C, [N+1]"""
-        return self._add_index_0_data_to_end(d=self._theta_o_ns)
+        """outside temperature at step n / ステップnの外気温度, degree C, [N+1]"""
+        return _add_index_0_data_to_end(d=self._theta_o_ns)
 
     @property
     def x_o_ns_plus(self) -> np.ndarray:
-        """ステップnの外気絶対湿度, kg / kg(DA), [N+1]"""
-        return self._add_index_0_data_to_end(d=self._x_o_ns)
+        """outside absolute humidity at step n / ステップnの外気絶対湿度, kg/kg(DA), [N+1]"""
+        return _add_index_0_data_to_end(d=self._x_o_ns)
 
     @property
     def number_of_data(self) -> int:
-        """データの数を取得する。
+        """Get the number of the data. / データの数を取得する。
+        
         Returns:
-            データの数
+            number of the data / データの数
         """
 
         return self._itv.get_n_hour() * 8760
 
     @property
     def number_of_data_plus(self) -> int:
-        """データの数に1を足したものを取得する。
+        """Get the number of the data added one. / データの数に1を足したものを取得する。
         例えば、1時間間隔の場合、データの数は8760なので、返す値は8761
         15分間隔の場合、データの数は35040なので、返す値は35041
         Returns:
-            データの数に1を足したもの
+            the number of the data added one / データの数に1を足したもの
         """
 
         return self.number_of_data + 1
 
     def get_theta_o_ave(self) -> float:
-        """外気温度の年間平均値を取得する。
+        """Get the annual average outside temperature. / 外気温度の年間平均値を取得する。
 
         Returns:
-            外気温度の年間平均値, degree C
+            annual average outside temperature / 外気温度の年間平均値, degree C
         """
 
         return np.average(self._theta_o_ns)
 
-    @classmethod
-    def make_from_pd(cls, file_path, itv: Interval, latitude: float, longitude: float):
-        """
-        気象データを読み込む。
 
-        Args:
-            file_path: 気象データのファイルのパス
-            itv: Interval 列挙体
-        Returns:
-            OutdoorCondition クラス
-        """
+def _add_index_0_data_to_end(d: np.ndarray) -> np.ndarray:
+    """ Add the first data to the end of the list. / リストの最後に一番最初のデータを追加する。
 
-        if not os.path.isfile(file_path):
-            raise FileNotFoundError("Error: File {} is not exist.".format(file_path))
+    Args:
+        d: list / リスト
 
-        pp = pd.read_csv(file_path)
+    Returns:
+        added list / 追加されたリスト
+    """
 
-        if not len(pp) == 8760:
-            raise Exception("Error: Row length of the file should be 8760.")
+    return np.append(d, d[0])
 
-        phi_loc, lambda_loc = math.radians(latitude), math.radians(longitude)
 
-        # 太陽位置
-        #   (1) ステップ n における太陽高度, rad, [n]
-        #   (2) ステップ n における太陽方位角, rad, [n]
-        h_sun_ns, a_sun_ns = solar_position.calc_solar_position(phi_loc=phi_loc, lambda_loc=lambda_loc, interval=itv)
+def _make_from_pd(file_path, itv: Interval, latitude: float, longitude: float):
+    """Read the weather data from the specified file. / 気象データを読み込む。
 
-        # 外気温度, degree C
-        theta_o_ns = _interpolate(weather_data=pp['temperature'].values, interval=itv, rolling=False)
+    Args:
+        file_path: the file path of the weather data / 気象データのファイルのパス
+        itv: interval, Interval 列挙体
+        latitude: latitude / 緯度（北緯）, degree
+        longitude: longitude / 経度（東経）, degree
+    Returns:
+        OutdoorCondition class
+    """
 
-        # 外気絶対湿度, kg/kg(DA)
-        # g/kgDA から kg/kgDA へ単位変換を行う。
-        x_o_ns = _interpolate(weather_data=pp['absolute humidity'].values, interval=itv, rolling=False) / 1000.0
+    if not os.path.isfile(file_path):
+        raise FileNotFoundError("Error: File {} is not exist.".format(file_path))
 
-        # 法線面直達日射量, W/m2
-        i_dn_ns = _interpolate(weather_data=pp['normal direct solar radiation'].values, interval=itv, rolling=False)
+    pp = pd.read_csv(file_path)
 
-        # 水平面天空日射量, W/m2
-        i_sky_ns = _interpolate(weather_data=pp['horizontal sky solar radiation'].values, interval=itv, rolling=False)
+    if not len(pp) == 8760:
+        raise Exception("Error: Row length of the file should be 8760.")
 
-        # 夜間放射量, W/m2
-        r_n_ns = _interpolate(weather_data=pp['outward radiation'].values, interval=itv, rolling=False)
+    phi_loc, lambda_loc = math.radians(latitude), math.radians(longitude)
 
-        return Weather(
-            a_sun_ns=a_sun_ns,
-            h_sun_ns=h_sun_ns,
-            i_dn_ns=i_dn_ns,
-            i_sky_ns=i_sky_ns,
-            r_n_ns=r_n_ns,
-            theta_o_ns=theta_o_ns,
-            x_o_ns=x_o_ns,
-            itv=itv
-        )
+    # solar position / 太陽位置
+    #   (1) solar altitude at step n / 太陽高度, rad, [N]
+    #   (2) solar direction at step n, rad / 太陽方位角, [N]
+    h_sun_ns, a_sun_ns = solar_position.calc_solar_position(phi_loc=phi_loc, lambda_loc=lambda_loc, interval=itv)
 
-    @classmethod
-    def _add_index_0_data_to_end(cls, d: np.ndarray):
-        """
-        リストの最後に一番最初のデータを追加する。
+    # outside temperature at step n / ステップnにおける外気温度, degree C, [N]
+    theta_o_ns = _interpolate(weather_data=pp['temperature'].values, interval=itv, rolling=False)
 
-        Args:
-            d: リスト
+    # outside absolute humidity at step n / ステップnにおける外気絶対湿度, kg / kg(DA), [N]
+    # Convert to the unit kg / kg(DA) because the unit in file is g / kg(DA)
+    # g/kgDA から kg/kgDA へ単位変換を行う。
+    x_o_ns = _interpolate(weather_data=pp['absolute humidity'].values, interval=itv, rolling=False) / 1000.0
 
-        Returns:
-            追加されたリスト
-        """
+    # normal surface direct solar radiation at step n / ステップnにおける法線面直達日射量, W / m2, [N]
+    i_dn_ns = _interpolate(weather_data=pp['normal direct solar radiation'].values, interval=itv, rolling=False)
 
-        return np.append(d, d[0])
+    # horizontal sky solar radiation at step n / ステップnにおける水平面天空日射量, W / m2, [N]
+    i_sky_ns = _interpolate(weather_data=pp['horizontal sky solar radiation'].values, interval=itv, rolling=False)
 
-    @classmethod
-    def _make_weather_ees(cls, region: Region, itv: Interval):
-        """Make the climate data. / 気象データを作成する。
+    # nighttime radiation at step n / ステップnにおける夜間放射量, W / m2, [N]
+    r_n_ns = _interpolate(weather_data=pp['outward radiation'].values, interval=itv, rolling=False)
 
-        Args:
-            rgn: 地域の区分
-            itv: Interval 列挙体
-        Returns:
-            Weather Class
-        """
+    return Weather(
+        a_sun_ns=a_sun_ns,
+        h_sun_ns=h_sun_ns,
+        i_dn_ns=i_dn_ns,
+        i_sky_ns=i_sky_ns,
+        r_n_ns=r_n_ns,
+        theta_o_ns=theta_o_ns,
+        x_o_ns=x_o_ns,
+        itv=itv
+    )
 
-        # Load the climate data.
-        #   (1) outside temperature at step n / ステップnにおける外気温度, degree C, [N]
-        #   (2) normal surface direct solar radiation at step n / ステップnにおける法線面直達日射量, W / m2, [N]
-        #   (3) horizontal sky solar radiation at step n / ステップnにおける水平面天空日射量, W / m2, [N]
-        #   (4) nighttime radiation at step n / ステップnにおける夜間放射量, W / m2, [N]
-        #   (5) outside absolute humidity at step n / ステップnにおける外気絶対湿度, kg / kg(DA), [N]
-        # インターバルごとの要素数について
-        #   interval = '1h' -> n = 8760
-        #   interval = '30m' -> n = 8760 * 2
-        #   interval = '15m' -> n = 8760 * 4
-        theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, x_o_ns = cls._load(region=region, itv=itv)
 
-        # latitude / 緯度, rad
-        # longitude / 経度, rad
-        phi_loc, lambda_loc = region.get_phi_loc_and_lambda_loc()
+def _make_weather_ees(region: Region, itv: Interval):
+    """Make the climate data. / 気象データを作成する。
 
-        # solar position / 太陽位置
-        #   solar altitude at step n / ステップnにおける太陽高度, rad, [N]
-        #   solar azimuth at step n / ステップnにおける太陽方位角, rad, [N]
-        h_sun_ns, a_sun_ns = solar_position.calc_solar_position(phi_loc=phi_loc, lambda_loc=lambda_loc, interval=itv)
+    Args:
+        region: region of ees / 地域の区分
+        itv: Interval 列挙体
+    Returns:
+        Weather Class
+    """
 
-        return Weather(
-            a_sun_ns=a_sun_ns,
-            h_sun_ns=h_sun_ns,
-            i_dn_ns=i_dn_ns,
-            i_sky_ns=i_sky_ns,
-            r_n_ns=r_n_ns,
-            theta_o_ns=theta_o_ns.round(3),
-            x_o_ns=x_o_ns.round(6),
-            itv=itv
-        )
+    # Load the climate data.
+    #   (1) outside temperature at step n / ステップnにおける外気温度, degree C, [N]
+    #   (2) normal surface direct solar radiation at step n / ステップnにおける法線面直達日射量, W / m2, [N]
+    #   (3) horizontal sky solar radiation at step n / ステップnにおける水平面天空日射量, W / m2, [N]
+    #   (4) nighttime radiation at step n / ステップnにおける夜間放射量, W / m2, [N]
+    #   (5) outside absolute humidity at step n / ステップnにおける外気絶対湿度, kg / kg(DA), [N]
+    # The number of items. / 要素数について
+    #   interval = '1h' -> n = 8760
+    #   interval = '30m' -> n = 8760 * 2
+    #   interval = '15m' -> n = 8760 * 4
+    theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, x_o_ns = _load(region=region, itv=itv)
 
-    @classmethod
-    def _load(cls, region: Region, itv: Interval) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
-        """Read the weather data depend on the region and interpolates at specified time intervals to create data. / 地域の区分に応じて気象データを読み込み、指定された時間間隔で補間を行いデータを作成する。
+    # latitude / 緯度, rad
+    # longitude / 経度, rad
+    phi_loc, lambda_loc = region.get_phi_loc_and_lambda_loc()
 
-        Args:
-            region: 地域の区分
-            itv: Interval 列挙体
+    # solar position / 太陽位置
+    #   solar altitude at step n / ステップnにおける太陽高度, rad, [N]
+    #   solar azimuth at step n / ステップnにおける太陽方位角, rad, [N]
+    h_sun_ns, a_sun_ns = solar_position.calc_solar_position(phi_loc=phi_loc, lambda_loc=lambda_loc, interval=itv)
 
-        Returns:
-            (1) outside temperature at step n / ステップnにおける外気温度, degree C, [N]
-            (2) normal surface direct solar radiation at step n / ステップnにおける法線面直達日射量, W / m2, [N]
-            (3) horizontal sky solar radiation at step n / ステップnにおける水平面天空日射量, W / m2, [N]
-            (4) nighttime radiation at step n / ステップnにおける夜間放射量, W / m2, [N]
-            (5) outside absolute humidity at step n / ステップnにおける外気絶対湿度, g / kg(DA), [N]
+    return Weather(
+        a_sun_ns=a_sun_ns,
+        h_sun_ns=h_sun_ns,
+        i_dn_ns=i_dn_ns,
+        i_sky_ns=i_sky_ns,
+        r_n_ns=r_n_ns,
+        theta_o_ns=theta_o_ns.round(3),
+        x_o_ns=x_o_ns.round(6),
+        itv=itv
+    )
 
-        Notes:
-            interval = '1h' -> n = 8760
-            interval = '30m' -> n = 8760 * 2
-            interval = '15m' -> n = 8760 * 4
-        """
 
-        # Get the file name corresponding to the region. / 地域の区分に応じたファイル名の取得する。
-        weather_data_filename = _get_filename(region=region)
+def _load(region: Region, itv: Interval) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    """Read the weather data depend on the region and interpolates at specified time intervals to create data. / 地域の区分に応じて気象データを読み込み、指定された時間間隔で補間を行いデータを作成する。
 
-        # absolute file path
-        path_and_filename = str(os.path.dirname(__file__)) + '/expanded_amedas/' + weather_data_filename
+    Args:
+        region: 地域の区分
+        itv: Interval 列挙体
 
-        # read the file
-        if not os.path.isfile(path_and_filename):
-            raise FileExistsError('The ees file does not exist.')
-        data = np.loadtxt(path_and_filename, delimiter=",", skiprows=2, usecols=(2, 3, 4, 5, 6), encoding="utf-8")
+    Returns:
+        (1) outside temperature at step n / ステップnにおける外気温度, degree C, [N]
+        (2) normal surface direct solar radiation at step n / ステップnにおける法線面直達日射量, W / m2, [N]
+        (3) horizontal sky solar radiation at step n / ステップnにおける水平面天空日射量, W / m2, [N]
+        (4) nighttime radiation at step n / ステップnにおける夜間放射量, W / m2, [N]
+        (5) outside absolute humidity at step n / ステップnにおける外気絶対湿度, g / kg(DA), [N]
 
-        # 扱いにくいので転地（列：項目・行：時刻　→　列：時刻・行：項目）
-        # [5項目, 8760データ]
-        # Change of place.
-        # [8760, 5] -> [5, 8760]
-        weather = data.T
+    Notes:
+        interval = '1h' -> n = 8760
+        interval = '30m' -> n = 8760 * 2
+        interval = '15m' -> n = 8760 * 4
+    """
 
-        # outside temperature at step n / ステップnにおける外気温度, degree C, [N]
-        theta_o_ns = _interpolate(weather_data=weather[0], interval=itv, rolling=True)
+    # Get the file name corresponding to the region. / 地域の区分に応じたファイル名の取得する。
+    weather_data_filename = _get_filename(region=region)
 
-        # normal surface direct solar radiation at step n / ステップnにおける法線面直達日射量, W / m2, [N]
-        i_dn_ns = _interpolate(weather_data=weather[1], interval=itv, rolling=True)
+    # absolute file path
+    path_and_filename = str(os.path.dirname(__file__)) + '/expanded_amedas/' + weather_data_filename
 
-        # horizontal sky solar radiation at step n / ステップnにおける水平面天空日射量, W / m2, [N]
-        i_sky_ns = _interpolate(weather_data=weather[2], interval=itv, rolling=True)
+    # read the file
+    if not os.path.isfile(path_and_filename):
+        raise FileExistsError('The ees file does not exist.')
+    data = np.loadtxt(path_and_filename, delimiter=",", skiprows=2, usecols=(2, 3, 4, 5, 6), encoding="utf-8")
 
-        # nighttime radiation at step n / ステップnにおける夜間放射量, W / m2, [N]
-        r_n_ns = _interpolate(weather_data=weather[3], interval=itv, rolling=True)
+    # 扱いにくいので転地（列：項目・行：時刻　→　列：時刻・行：項目）
+    # [5項目, 8760データ]
+    # Change of place.
+    # [8760, 5] -> [5, 8760]
+    weather = data.T
 
-        # outside absolute humidity at step n / ステップnにおける外気絶対湿度, kg / kg(DA)
-        # Convert to the unit kg / kg(DA) because the unit in file is g / kg(DA)
-        # g/kgDA から kg/kgDA へ単位変換を行う。
-        x_o_ns = _interpolate(weather_data=weather[4], interval=itv, rolling=True) / 1000.0
+    # outside temperature at step n / ステップnにおける外気温度, degree C, [N]
+    theta_o_ns = _interpolate(weather_data=weather[0], interval=itv, rolling=True)
 
-        return theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, x_o_ns
+    # normal surface direct solar radiation at step n / ステップnにおける法線面直達日射量, W / m2, [N]
+    i_dn_ns = _interpolate(weather_data=weather[1], interval=itv, rolling=True)
+
+    # horizontal sky solar radiation at step n / ステップnにおける水平面天空日射量, W / m2, [N]
+    i_sky_ns = _interpolate(weather_data=weather[2], interval=itv, rolling=True)
+
+    # nighttime radiation at step n / ステップnにおける夜間放射量, W / m2, [N]
+    r_n_ns = _interpolate(weather_data=weather[3], interval=itv, rolling=True)
+
+    # outside absolute humidity at step n / ステップnにおける外気絶対湿度, kg / kg(DA)
+    # Convert to the unit kg / kg(DA) because the unit in file is g / kg(DA)
+    # g/kgDA から kg/kgDA へ単位変換を行う。
+    x_o_ns = _interpolate(weather_data=weather[4], interval=itv, rolling=True) / 1000.0
+
+    return theta_o_ns, i_dn_ns, i_sky_ns, r_n_ns, x_o_ns
 
 
 def _interpolate(weather_data: np.ndarray, interval: Interval, rolling: bool) -> np.ndarray:
