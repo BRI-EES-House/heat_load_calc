@@ -5,6 +5,8 @@ from typing import Dict, List
 import numpy as np
 
 from heat_load_calc.schedule import Schedule
+from heat_load_calc import schedule
+from heat_load_calc.interval import Interval
 
 
 class TestSchedule(unittest.TestCase):
@@ -45,12 +47,19 @@ class TestSchedule(unittest.TestCase):
         cls._nor = nor['schedule']
         cls._zero = zero2
 
+        cls._scd_is = [
+            {"name": "main_occupant_room"},
+            {"name": "other_occupant_room"},
+            {"name": "non_occupant_room"},
+            {"name": "zero"}
+        ]
+
 
     def test_one(self):
 
         a_floor_is = [10.0, 10.0, 10.0, 10.0]
 
-        s = Schedule.get_schedule(number_of_occupants='1', s_name_is=self._s_name_is, a_floor_is=a_floor_is)
+        s = Schedule.get_schedule(number_of_occupants='1', a_floor_is=a_floor_is, itv=Interval.M15, scd_is=self._scd_is)
 
         for i, d in zip([0, 1, 2, 3], [self._mor, self._oor, self._nor, self._zero]):
 
@@ -62,7 +71,7 @@ class TestSchedule(unittest.TestCase):
 
         a_floor_is = [10.0, 10.0, 10.0, 10.0]
 
-        s = Schedule.get_schedule(number_of_occupants='2', s_name_is=self._s_name_is, a_floor_is=a_floor_is)
+        s = Schedule.get_schedule(number_of_occupants='2', a_floor_is=a_floor_is, itv=Interval.M15, scd_is=self._scd_is)
 
         for i, d in zip([0, 1, 2, 3], [self._mor, self._oor, self._nor, self._zero]):
 
@@ -74,7 +83,7 @@ class TestSchedule(unittest.TestCase):
 
         a_floor_is = [10.0, 10.0, 10.0, 10.0]
 
-        s = Schedule.get_schedule(number_of_occupants='3', s_name_is=self._s_name_is, a_floor_is=a_floor_is)
+        s = Schedule.get_schedule(number_of_occupants='3', a_floor_is=a_floor_is, itv=Interval.M15, scd_is=self._scd_is)
 
         for i, d in zip([0, 1, 2, 3], [self._mor, self._oor, self._nor, self._zero]):
 
@@ -86,7 +95,7 @@ class TestSchedule(unittest.TestCase):
 
         a_floor_is = [10.0, 10.0, 10.0, 10.0]
 
-        s = Schedule.get_schedule(number_of_occupants='4', s_name_is=self._s_name_is, a_floor_is=a_floor_is)
+        s = Schedule.get_schedule(number_of_occupants='4', a_floor_is=a_floor_is, itv=Interval.M15, scd_is=self._scd_is)
 
         for i, d in zip([0, 1, 2, 3], [self._mor, self._oor, self._nor, self._zero]):
 
@@ -98,7 +107,7 @@ class TestSchedule(unittest.TestCase):
 
         a_floor_is = [5.0, 5.0, 5.0, 5.0]
 
-        s = Schedule.get_schedule(number_of_occupants='auto', s_name_is=self._s_name_is, a_floor_is=a_floor_is)
+        s = Schedule.get_schedule(number_of_occupants='auto', a_floor_is=a_floor_is, itv=Interval.M15, scd_is=self._scd_is)
 
         for i, d in zip([0, 1, 2, 3], [self._mor, self._oor, self._nor, self._zero]):
 
@@ -110,7 +119,7 @@ class TestSchedule(unittest.TestCase):
 
         a_floor_is = [7.5, 7.5, 7.5, 7.5]
 
-        s = Schedule.get_schedule(number_of_occupants='auto', s_name_is=self._s_name_is, a_floor_is=a_floor_is)
+        s = Schedule.get_schedule(number_of_occupants='auto', a_floor_is=a_floor_is, itv=Interval.M15, scd_is=self._scd_is)
 
         for i, d in zip([0, 1, 2, 3], [self._mor, self._oor, self._nor, self._zero]):
 
@@ -122,7 +131,7 @@ class TestSchedule(unittest.TestCase):
 
         a_floor_is = [10.0, 10.0, 10.0, 10.0]
 
-        s = Schedule.get_schedule(number_of_occupants='auto', s_name_is=self._s_name_is, a_floor_is=a_floor_is)
+        s = Schedule.get_schedule(number_of_occupants='auto', a_floor_is=a_floor_is, itv=Interval.M15, scd_is=self._scd_is)
 
         for i, d in zip([0, 1, 2, 3], [self._mor, self._oor, self._nor, self._zero]):
 
@@ -144,7 +153,7 @@ class TestSchedule(unittest.TestCase):
 
         a_floor_is = [15.0, 15.0, 15.0, 15.0]
 
-        s = Schedule.get_schedule(number_of_occupants='auto', s_name_is=self._s_name_is, a_floor_is=a_floor_is)
+        s = Schedule.get_schedule(number_of_occupants='auto', a_floor_is=a_floor_is, itv=Interval.M15, scd_is=self._scd_is)
 
         for i, d in zip([0, 1, 2, 3], [self._mor, self._oor, self._nor, self._zero]):
 
@@ -156,7 +165,7 @@ class TestSchedule(unittest.TestCase):
 
         a_floor_is = [20.0, 20.0, 20.0, 20.0]
 
-        s = Schedule.get_schedule(number_of_occupants='auto', s_name_is=self._s_name_is, a_floor_is=a_floor_is)
+        s = Schedule.get_schedule(number_of_occupants='auto', a_floor_is=a_floor_is, itv=Interval.M15, scd_is=self._scd_is)
 
         for i, d in zip([0, 1, 2, 3], [self._mor, self._oor, self._nor, self._zero]):
 
@@ -178,7 +187,7 @@ class TestSchedule(unittest.TestCase):
 
         a_floor_is = [22.5, 22.5, 22.5, 22.5]
 
-        s = Schedule.get_schedule(number_of_occupants='auto', s_name_is=self._s_name_is, a_floor_is=a_floor_is)
+        s = Schedule.get_schedule(number_of_occupants='auto', a_floor_is=a_floor_is, itv=Interval.M15, scd_is=self._scd_is)
 
         for i, d in zip([0, 1, 2, 3], [self._mor, self._oor, self._nor, self._zero]):
 
@@ -190,7 +199,7 @@ class TestSchedule(unittest.TestCase):
 
         a_floor_is = [26.25, 26.25, 26.25, 26.25]
 
-        s = Schedule.get_schedule(number_of_occupants='auto', s_name_is=self._s_name_is, a_floor_is=a_floor_is)
+        s = Schedule.get_schedule(number_of_occupants='auto', a_floor_is=a_floor_is, itv=Interval.M15, scd_is=self._scd_is)
 
         for i, d in zip([0, 1, 2, 3], [self._mor, self._oor, self._nor, self._zero]):
 
@@ -212,7 +221,7 @@ class TestSchedule(unittest.TestCase):
 
         a_floor_is = [30.0, 30.0, 30.0, 30.0]
 
-        s = Schedule.get_schedule(number_of_occupants='auto', s_name_is=self._s_name_is, a_floor_is=a_floor_is)
+        s = Schedule.get_schedule(number_of_occupants='auto', a_floor_is=a_floor_is, itv=Interval.M15, scd_is=self._scd_is)
 
         for i, d in zip([0, 1, 2, 3], [self._mor, self._oor, self._nor, self._zero]):
 
@@ -224,7 +233,7 @@ class TestSchedule(unittest.TestCase):
 
         a_floor_is = [37.5, 37.5, 37.5, 37.5]
 
-        s = Schedule.get_schedule(number_of_occupants='auto', s_name_is=self._s_name_is, a_floor_is=a_floor_is)
+        s = Schedule.get_schedule(number_of_occupants='auto', a_floor_is=a_floor_is, itv=Interval.M15, scd_is=self._scd_is)
 
         for i, d in zip([0, 1, 2, 3], [self._mor, self._oor, self._nor, self._zero]):
 
@@ -307,3 +316,17 @@ class TestSchedule(unittest.TestCase):
         #ds = [d[str(nop)][p][target_key] for p in ["休日在", "平日", "休日外"]]
         ds = [d[str(nop)][p][target_key] for p in ["Holiday_In", "Weekday", "Holiday_Out"]]
         return np.array(list(itertools.chain(*ds)))
+
+
+class TestConvertToZeroOne(unittest.TestCase):
+
+    def test(self):
+
+        self.assertTrue(
+            (
+                schedule._convert_to_zero_one(v=np.array([0.0, 0.001, 0.5, 1.0, 1.1]))
+                == np.array([0, 1, 1, 1, 1])
+            ).all()
+        )
+
+

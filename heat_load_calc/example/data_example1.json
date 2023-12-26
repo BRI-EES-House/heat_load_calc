@@ -1,6 +1,10 @@
 {
 	"common": {
-        "ac_method": "pmv"
+        "ac_method": "pmv",
+        "weather": {
+            "method": "ees",
+            "region": "6"
+        }
 	},
     "building": {
         "infiltration": {

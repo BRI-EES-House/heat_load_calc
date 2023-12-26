@@ -4,27 +4,21 @@ import numpy as np
 
 from heat_load_calc.interval import Interval
 
-"""
-ステップnにおける太陽位置を計算する。
-"""
-
 
 def calc_solar_position(phi_loc: float, lambda_loc: float, interval: Interval) -> Tuple[np.ndarray, np.ndarray]:
-    """
-    太陽位置を計算する
+    """Calculate the sun position. / 太陽位置を計算する。
 
     Args:
-        phi_loc: 緯度, rad
-        lambda_loc: 経度, rad
+        phi_loc: latitude / 緯度, rad
+        lambda_loc: longitude / 経度, rad
         interval: 生成するデータの時間間隔であり、以下の文字列で指定する。
             1h: 1時間間隔
             30m: 30分間隔
             15m: 15分間隔
 
     Returns:
-        タプル
-            (1) 太陽高度, rad [n]
-            (2) 太陽方位角, rad [n]
+        (1) solar altitude / 太陽高度, rad, [N]
+        (2) solar azimuth / 太陽方位角, rad, [N]
     """
 
     # 標準子午線(meridian), rad
@@ -82,17 +76,16 @@ def calc_solar_position(phi_loc: float, lambda_loc: float, interval: Interval) -
 
 
 def _get_lambda_loc_mer() -> float:
-    """
-    標準子午線を取得する。
+    """Get the standard meridian. / 標準子午線を取得する。
 
     Returns:
         標準子午線における経度, rad
 
     Notes:
-        式(14)
+        eq.14
     """
 
-    # 標準子午線における経度を135°とする。
+    # The standard meridian in Japan is 135 degrees. / 標準子午線における経度を135°とする。
     return math.radians(135.0)
 
 
@@ -113,7 +106,7 @@ def _get_d_ns(interval: Interval) -> np.ndarray:
         出力イメージ （n_hour = 1 の場合）
         1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,2,2,2,2,.....365,365,365,365
 
-        式(13)
+        eq.13
     """
 
     # 1時間を分割するステップ数
@@ -129,7 +122,7 @@ def _get_n() -> int:
     Returns:
         1968年との年差, year
     Notes:
-        式(12)
+        eq.12
     """
 
     # 太陽位置の計算においては1989年で行う。
@@ -149,7 +142,7 @@ def _get_d_0(n: int) -> float:
         平均軌道上の近日点通過日（暦表時による1968年1月1日正午基準の日差）, d
 
     Notes:
-        式(11)
+        eq.11
     """
 
     return 3.71 + 0.2596 * n - int((n + 3.0) / 4.0)
@@ -166,7 +159,7 @@ def _get_m_ns(d_ns: np.ndarray, d_0: float) -> np.ndarray:
         ステップnにおける平均近点離角, rad [n]
 
     Notes:
-        式(10)
+        eq.10
     """
 
     # 近点年（近日点基準の公転周期日数）
@@ -190,7 +183,7 @@ def _get_epsilon_ns(m_ns: np.ndarray, n: int) -> np.ndarray:
         ステップnにおける近日点と冬至点の角度, rad [n]
 
     Notes:
-        式(9)
+        eq.9
     """
 
     return np.radians(12.3901 + 0.0172 * (n + m_ns / (2 * math.pi)))
@@ -206,7 +199,7 @@ def _get_v_ns(m_ns: np.ndarray) -> np.ndarray:
     Returns:
         ステップnにおける真近点離角, rad [n]
     Notes:
-        式(8)
+        eq.8
     """
 
     return m_ns + np.radians(1.914 * np.sin(m_ns) + 0.02 * np.sin(2 * m_ns))
@@ -222,7 +215,7 @@ def _get_e_t_ns(m_ns: np.ndarray, epsilon_ns: np.ndarray, v_ns: np.ndarray) -> n
     Returns:
         ステップnにおける均時差, rad, [n]
     Notes:
-        式(7)
+        eq.7
     """
 
     e_t_ns = (m_ns - v_ns)\
@@ -244,7 +237,7 @@ def _get_delta_ns(epsilon_ns: np.ndarray, v_ns: np.ndarray) -> np.ndarray:
 
     Notes:
         赤緯は -π/2 ～ 0 π/2 の値をとる
-        式(6)
+        eq.6
     """
 
     # 北半球の冬至の日赤緯, rad
@@ -291,7 +284,7 @@ def _get_omega_ns(t_m_ns: np.ndarray, lambda_loc: float, lambda_loc_mer: float, 
         ステップnにおける時角, rad, [n]
 
     Notes:
-        式(5)
+        eq.5
     """
 
     return np.radians((t_m_ns - 12.0) * 15.0) + (lambda_loc - lambda_loc_mer) + e_t_ns
@@ -311,7 +304,7 @@ def _get_h_sun_ns(phi_loc: float, omega_ns: np.ndarray, delta_ns: np.ndarray) ->
 
     Notes:
         太陽高度はマイナスの値もとり得る。（太陽が沈んでいる場合）
-        式(4)
+        eq.4
     """
 
     h_sun_ns = np.arcsin(np.sin(phi_loc) * np.sin(delta_ns) + np.cos(phi_loc) * np.cos(delta_ns) * np.cos(omega_ns))
@@ -344,7 +337,7 @@ def _get_sin_a_sun_ns(delta_ns, h_sun_ns, omega_ns, inzs):
         ステップnにおける太陽の方位角の正弦（太陽が天頂に無い場合のみに定義される）, [n]
 
     Notes:
-        式(3)
+        eq.3
     """
 
     # 太陽が天頂にある場合は「定義なし = np.nan」とするため、まずは、np.nan で埋める。
@@ -369,7 +362,7 @@ def _get_cos_a_sun_ns(delta_ns, h_sun_ns, phi_loc, inzs):
         ステップnにおける太陽の方位角の余弦（太陽が天頂に無い場合のみに定義される）, [n]
 
     Notes:
-        式(2)
+        eq.2
 
     """
 
@@ -395,7 +388,7 @@ def _get_a_sun_ns(cos_a_sun_ns, sin_a_sun_ns, inzs):
         ステップ n における太陽の方位角（太陽が天頂に無い場合のみに定義される）, rad, [n]
 
     Notes:
-        式(1)
+        eq.1
     """
 
     # 太陽が天頂にある場合は「定義なし = np.nan」とするため、まずは、np.nan で埋める。
