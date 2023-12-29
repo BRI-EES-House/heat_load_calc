@@ -59,7 +59,7 @@ class TestSchedule(unittest.TestCase):
 
         a_floor_is = [10.0, 10.0, 10.0, 10.0]
 
-        s = Schedule.get_schedule(number_of_occupants='1', a_floor_is=a_floor_is, itv=Interval.M15, scd_is=self._scd_is)
+        s = Schedule.get_schedule(number_of_occupants='1', a_f_is=a_floor_is, itv=Interval.M15, scd_is=self._scd_is)
 
         for i, d in zip([0, 1, 2, 3], [self._mor, self._oor, self._nor, self._zero]):
 
@@ -71,7 +71,7 @@ class TestSchedule(unittest.TestCase):
 
         a_floor_is = [10.0, 10.0, 10.0, 10.0]
 
-        s = Schedule.get_schedule(number_of_occupants='2', a_floor_is=a_floor_is, itv=Interval.M15, scd_is=self._scd_is)
+        s = Schedule.get_schedule(number_of_occupants='2', a_f_is=a_floor_is, itv=Interval.M15, scd_is=self._scd_is)
 
         for i, d in zip([0, 1, 2, 3], [self._mor, self._oor, self._nor, self._zero]):
 
@@ -83,7 +83,7 @@ class TestSchedule(unittest.TestCase):
 
         a_floor_is = [10.0, 10.0, 10.0, 10.0]
 
-        s = Schedule.get_schedule(number_of_occupants='3', a_floor_is=a_floor_is, itv=Interval.M15, scd_is=self._scd_is)
+        s = Schedule.get_schedule(number_of_occupants='3', a_f_is=a_floor_is, itv=Interval.M15, scd_is=self._scd_is)
 
         for i, d in zip([0, 1, 2, 3], [self._mor, self._oor, self._nor, self._zero]):
 
@@ -95,7 +95,7 @@ class TestSchedule(unittest.TestCase):
 
         a_floor_is = [10.0, 10.0, 10.0, 10.0]
 
-        s = Schedule.get_schedule(number_of_occupants='4', a_floor_is=a_floor_is, itv=Interval.M15, scd_is=self._scd_is)
+        s = Schedule.get_schedule(number_of_occupants='4', a_f_is=a_floor_is, itv=Interval.M15, scd_is=self._scd_is)
 
         for i, d in zip([0, 1, 2, 3], [self._mor, self._oor, self._nor, self._zero]):
 
@@ -107,7 +107,7 @@ class TestSchedule(unittest.TestCase):
 
         a_floor_is = [5.0, 5.0, 5.0, 5.0]
 
-        s = Schedule.get_schedule(number_of_occupants='auto', a_floor_is=a_floor_is, itv=Interval.M15, scd_is=self._scd_is)
+        s = Schedule.get_schedule(number_of_occupants='auto', a_f_is=a_floor_is, itv=Interval.M15, scd_is=self._scd_is)
 
         for i, d in zip([0, 1, 2, 3], [self._mor, self._oor, self._nor, self._zero]):
 
@@ -119,7 +119,7 @@ class TestSchedule(unittest.TestCase):
 
         a_floor_is = [7.5, 7.5, 7.5, 7.5]
 
-        s = Schedule.get_schedule(number_of_occupants='auto', a_floor_is=a_floor_is, itv=Interval.M15, scd_is=self._scd_is)
+        s = Schedule.get_schedule(number_of_occupants='auto', a_f_is=a_floor_is, itv=Interval.M15, scd_is=self._scd_is)
 
         for i, d in zip([0, 1, 2, 3], [self._mor, self._oor, self._nor, self._zero]):
 
@@ -131,7 +131,7 @@ class TestSchedule(unittest.TestCase):
 
         a_floor_is = [10.0, 10.0, 10.0, 10.0]
 
-        s = Schedule.get_schedule(number_of_occupants='auto', a_floor_is=a_floor_is, itv=Interval.M15, scd_is=self._scd_is)
+        s = Schedule.get_schedule(number_of_occupants='auto', a_f_is=a_floor_is, itv=Interval.M15, scd_is=self._scd_is)
 
         for i, d in zip([0, 1, 2, 3], [self._mor, self._oor, self._nor, self._zero]):
 
@@ -153,7 +153,7 @@ class TestSchedule(unittest.TestCase):
 
         a_floor_is = [15.0, 15.0, 15.0, 15.0]
 
-        s = Schedule.get_schedule(number_of_occupants='auto', a_floor_is=a_floor_is, itv=Interval.M15, scd_is=self._scd_is)
+        s = Schedule.get_schedule(number_of_occupants='auto', a_f_is=a_floor_is, itv=Interval.M15, scd_is=self._scd_is)
 
         for i, d in zip([0, 1, 2, 3], [self._mor, self._oor, self._nor, self._zero]):
 
@@ -165,7 +165,7 @@ class TestSchedule(unittest.TestCase):
 
         a_floor_is = [20.0, 20.0, 20.0, 20.0]
 
-        s = Schedule.get_schedule(number_of_occupants='auto', a_floor_is=a_floor_is, itv=Interval.M15, scd_is=self._scd_is)
+        s = Schedule.get_schedule(number_of_occupants='auto', a_f_is=a_floor_is, itv=Interval.M15, scd_is=self._scd_is)
 
         for i, d in zip([0, 1, 2, 3], [self._mor, self._oor, self._nor, self._zero]):
 
@@ -187,7 +187,7 @@ class TestSchedule(unittest.TestCase):
 
         a_floor_is = [22.5, 22.5, 22.5, 22.5]
 
-        s = Schedule.get_schedule(number_of_occupants='auto', a_floor_is=a_floor_is, itv=Interval.M15, scd_is=self._scd_is)
+        s = Schedule.get_schedule(number_of_occupants='auto', a_f_is=a_floor_is, itv=Interval.M15, scd_is=self._scd_is)
 
         for i, d in zip([0, 1, 2, 3], [self._mor, self._oor, self._nor, self._zero]):
 
@@ -199,7 +199,7 @@ class TestSchedule(unittest.TestCase):
 
         a_floor_is = [26.25, 26.25, 26.25, 26.25]
 
-        s = Schedule.get_schedule(number_of_occupants='auto', a_floor_is=a_floor_is, itv=Interval.M15, scd_is=self._scd_is)
+        s = Schedule.get_schedule(number_of_occupants='auto', a_f_is=a_floor_is, itv=Interval.M15, scd_is=self._scd_is)
 
         for i, d in zip([0, 1, 2, 3], [self._mor, self._oor, self._nor, self._zero]):
 
@@ -221,7 +221,7 @@ class TestSchedule(unittest.TestCase):
 
         a_floor_is = [30.0, 30.0, 30.0, 30.0]
 
-        s = Schedule.get_schedule(number_of_occupants='auto', a_floor_is=a_floor_is, itv=Interval.M15, scd_is=self._scd_is)
+        s = Schedule.get_schedule(number_of_occupants='auto', a_f_is=a_floor_is, itv=Interval.M15, scd_is=self._scd_is)
 
         for i, d in zip([0, 1, 2, 3], [self._mor, self._oor, self._nor, self._zero]):
 
@@ -233,7 +233,7 @@ class TestSchedule(unittest.TestCase):
 
         a_floor_is = [37.5, 37.5, 37.5, 37.5]
 
-        s = Schedule.get_schedule(number_of_occupants='auto', a_floor_is=a_floor_is, itv=Interval.M15, scd_is=self._scd_is)
+        s = Schedule.get_schedule(number_of_occupants='auto', a_f_is=a_floor_is, itv=Interval.M15, scd_is=self._scd_is)
 
         for i, d in zip([0, 1, 2, 3], [self._mor, self._oor, self._nor, self._zero]):
 
@@ -261,19 +261,19 @@ class TestSchedule(unittest.TestCase):
                     self.assertAlmostEqual(s.n_hum_is_ns[i, n], expected)
 
             for n, expected in zip(self._test_indices, test_patterns["ac_demand_is_ns"]):
-                with self.subTest(name="ac_demand", n=n, i=i, result=s.ac_demand_is_ns[i, n], expected=expected):
-                    self.assertAlmostEqual(s.ac_demand_is_ns[i, n], expected)
+                with self.subTest(name="ac_demand", n=n, i=i, result=s.r_ac_demand_is_ns[i, n], expected=expected):
+                    self.assertAlmostEqual(s.r_ac_demand_is_ns[i, n], expected)
 
             for n, expected in zip(self._test_indices, test_patterns["ac_setting_is_ns"]):
-                with self.subTest(name="ac_setting", n=n, i=i, result=s.ac_setting_is_ns[i, n], expected=expected):
-                    self.assertAlmostEqual(s.ac_setting_is_ns[i, n], expected)
+                with self.subTest(name="ac_setting", n=n, i=i, result=s.t_ac_mode_is_ns[i, n], expected=expected):
+                    self.assertAlmostEqual(s.t_ac_mode_is_ns[i, n], expected)
 
         else:
             self.assertTrue((s.q_gen_is_ns[i][self._test_indices] == test_patterns["q_gen_is_ns"]).all())
             self.assertTrue((s.x_gen_is_ns[i][self._test_indices] == test_patterns["x_gen_is_ns"]).all())
             self.assertTrue((s.v_mec_vent_local_is_ns[i][self._test_indices] == test_patterns["v_mec_vent_local_is_ns"]).all())
             self.assertTrue((s.n_hum_is_ns[i][self._test_indices] == test_patterns["n_hum_is_ns"]).all())
-            self.assertTrue((s.ac_demand_is_ns[i][self._test_indices] == test_patterns["ac_demand_is_ns"]).all())
+            self.assertTrue((s.r_ac_demand_is_ns[i][self._test_indices] == test_patterns["ac_demand_is_ns"]).all())
 
     @classmethod
     def make_test_patterns_all(cls, d:Dict, nop: int, a_floor_i: float):

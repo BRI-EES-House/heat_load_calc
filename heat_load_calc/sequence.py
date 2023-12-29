@@ -120,8 +120,8 @@ class Sequence:
         # Operation Class
         op = operation_mode.Operation.make_operation(
             d=rd['common'],
-            t_ac_mode_is_ns=scd.ac_setting_is_ns,
-            r_ac_demand_is_ns=scd.ac_demand_is_ns,
+            t_ac_mode_is_ns=scd.t_ac_mode_is_ns,
+            r_ac_demand_is_ns=scd.r_ac_demand_is_ns,
             n_rm=rms.n_rm
         )
 
@@ -577,7 +577,7 @@ class Sequence:
         # ステップ n における室 i に設置された対流暖房の放熱量, W, [i, 1] (ステップn～ステップn+1までの平均値）
         # ステップ n における室 i に設置された放射暖房の放熱量, W, [i, 1]　(ステップn～ステップn+1までの平均値）
         theta_ot_is_n_pls, l_cs_is_n, l_rs_is_n = next_condition.get_next_temp_and_load(
-            ac_demand_is_ns=self.scd.ac_demand_is_ns,
+            ac_demand_is_ns=self.scd.r_ac_demand_is_ns,
             brc_ot_is_n=f_brc_ot_is_n_pls,
             brm_ot_is_is_n=f_brm_ot_is_is_n_pls,
             brl_ot_is_is_n=f_brl_ot_is_is_n,
