@@ -25,20 +25,20 @@ def get_n_step(
     """
 
     # 計算間隔（1時間を何分割するかどうか）
-    n_step_hourly = itv.get_n_hour()
+    n_hour = itv.get_n_hour()
 
     # n_d_run_up（助走計算を行う日数）はn_d_run_up_build（助走計算のうち建物全体を解く日数）以上の値としないといけない。
     if n_d_run_up < n_d_run_up_build:
         raise ValueError('n_d_run_up should be more than or equal to n_d_run_up_build.')
 
     # 本計算のステップ数
-    n_step_main = _get_n_step_main(n_step_hourly=n_step_hourly, n_d_main=n_d_main)
+    n_step_main = _get_n_step_main(n_step_hourly=n_hour, n_d_main=n_d_main)
 
     # 助走計算のステップ数
-    n_step_run_up = _get_n_step_run_up(n_step_hourly=n_step_hourly, n_d_run_up=n_d_run_up)
+    n_step_run_up = _get_n_step_run_up(n_step_hourly=n_hour, n_d_run_up=n_d_run_up)
 
     # 助走計算のうち建物全体を解くステップ数
-    n_step_run_up_build = _get_n_step_run_up_build(n_step_hourly=n_step_hourly, n_d_run_up_build=n_d_run_up_build)
+    n_step_run_up_build = _get_n_step_run_up_build(n_step_hourly=n_hour, n_d_run_up_build=n_d_run_up_build)
 
     return n_step_main, n_step_run_up, n_step_run_up_build
 

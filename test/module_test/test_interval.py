@@ -13,9 +13,9 @@ class TestInterval(unittest.TestCase):
 
     def test_get_time(self):
 
-        self.assertEqual(0.25, Interval.M15.get_time())
-        self.assertEqual(0.5, Interval.M30.get_time())
-        self.assertEqual(1.0, Interval.H1.get_time())
+        self.assertEqual(0.25, Interval.M15.get_delta_h())
+        self.assertEqual(0.5, Interval.M30.get_delta_h())
+        self.assertEqual(1.0, Interval.H1.get_delta_h())
 
     def test_get_delta_t(self):
 
@@ -25,9 +25,9 @@ class TestInterval(unittest.TestCase):
 
     def test_get_annual_number(self):
 
-        self.assertEqual(8760*4, Interval.M15.get_annual_number())
-        self.assertEqual(8760*2, Interval.M30.get_annual_number())
-        self.assertEqual(8760*1, Interval.H1.get_annual_number())
+        self.assertEqual(8760*4, Interval.M15.get_n_step_annual())
+        self.assertEqual(8760*2, Interval.M30.get_n_step_annual())
+        self.assertEqual(8760*1, Interval.H1.get_n_step_annual())
 
     def test_get_pandas_freq(self):
 

@@ -114,7 +114,7 @@ class Weather:
         freq = self._itv.get_pandas_freq()
 
         # 時系列インデクスの作成
-        dd = pd.DataFrame(index=pd.date_range(start='1/1/1989', periods=self._itv.get_annual_number(), freq=freq))
+        dd = pd.DataFrame(index=pd.date_range(start='1/1/1989', periods=self._itv.get_n_step_annual(), freq=freq))
 
         dd['temperature'] = self._theta_o_ns.round(3)
         dd['absolute humidity'] = self._x_o_ns.round(6)
