@@ -135,7 +135,7 @@ class TestBuilding(unittest.TestCase):
             }
         )
 
-        result = bdg.get_v_leak_is_n(theta_r_is_n=np.array([20.0, 30.0]), theta_o_n=0.0, v_rm_is=np.array([40.0, 60.0]))
+        result = bdg.get_v_leak_is_n(theta_r_is_n=np.array([20.0, 30.0]), theta_o_n=0.0, v_r_is=np.array([40.0, 60.0]))
 
         n_leak = max(0.022 * 0.2 * pow(26.0, 0.5) - 0.28, 0.0)
 
@@ -156,7 +156,7 @@ class TestBuilding(unittest.TestCase):
             }
         )
 
-        result = bdg.get_v_leak_is_n(theta_r_is_n=np.array([20.0, 30.0]), theta_o_n=0.0, v_rm_is=np.array([40.0, 60.0]))
+        result = bdg.get_v_leak_is_n(theta_r_is_n=np.array([20.0, 30.0]), theta_o_n=0.0, v_r_is=np.array([40.0, 60.0]))
 
         n_leak = max(0.022 * 0.2 * pow(26.0, 0.5) - 0.26, 0.0)
 
@@ -177,7 +177,7 @@ class TestBuilding(unittest.TestCase):
             }
         )
 
-        result = bdg.get_v_leak_is_n(theta_r_is_n=np.array([20.0, 30.0]), theta_o_n=0.0, v_rm_is=np.array([40.0, 60.0]))
+        result = bdg.get_v_leak_is_n(theta_r_is_n=np.array([20.0, 30.0]), theta_o_n=0.0, v_r_is=np.array([40.0, 60.0]))
 
         n_leak = max(0.022 * 0.2 * pow(26.0, 0.5), 0.0)
 
@@ -198,7 +198,7 @@ class TestBuilding(unittest.TestCase):
             }
         )
 
-        result = bdg.get_v_leak_is_n(theta_r_is_n=np.array([20.0, 30.0]), theta_o_n=0.0, v_rm_is=np.array([40.0, 60.0]))
+        result = bdg.get_v_leak_is_n(theta_r_is_n=np.array([20.0, 30.0]), theta_o_n=0.0, v_r_is=np.array([40.0, 60.0]))
 
         n_leak = max(0.020 * 0.2 * pow(26.0, 0.5) - 0.13, 0.0)
 
@@ -219,7 +219,7 @@ class TestBuilding(unittest.TestCase):
             }
         )
 
-        result = bdg.get_v_leak_is_n(theta_r_is_n=np.array([20.0, 30.0]), theta_o_n=0.0, v_rm_is=np.array([40.0, 60.0]))
+        result = bdg.get_v_leak_is_n(theta_r_is_n=np.array([20.0, 30.0]), theta_o_n=0.0, v_r_is=np.array([40.0, 60.0]))
 
         n_leak = max(0.020 * 0.2 * pow(26.0, 0.5) - 0.14, 0.0)
 
@@ -240,7 +240,7 @@ class TestBuilding(unittest.TestCase):
             }
         )
 
-        result = bdg.get_v_leak_is_n(theta_r_is_n=np.array([20.0, 30.0]), theta_o_n=0.0, v_rm_is=np.array([40.0, 60.0]))
+        result = bdg.get_v_leak_is_n(theta_r_is_n=np.array([20.0, 30.0]), theta_o_n=0.0, v_r_is=np.array([40.0, 60.0]))
 
         n_leak = max(0.020 * 0.2 * pow(26.0, 0.5), 0.0)
 

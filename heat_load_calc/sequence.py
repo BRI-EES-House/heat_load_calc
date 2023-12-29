@@ -268,7 +268,7 @@ class Sequence:
         v_leak_is_n = self.building.get_v_leak_is_n(
             theta_r_is_n=c_n.theta_r_is_n,
             theta_o_n=self.weather.theta_o_ns_plus[n],
-            v_rm_is=self.rms.v_rm_is
+            v_r_is=self.rms.v_rm_is
         )
 
         # ステップ n+1 の境界 j における項別公比法の指数項 m の貫流応答の項別成分, degree C, [j, m] (m=12), eq.(29)
