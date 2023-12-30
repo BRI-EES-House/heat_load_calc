@@ -36,10 +36,10 @@ class TestBuilding(unittest.TestCase):
             }
         )
 
-        self.assertEqual(bdg.infiltration_method, 'balance_residential')
-        self.assertEqual(bdg.story, building.Story.ONE)
-        self.assertEqual(bdg.c_value, 1.0)
-        self.assertEqual(bdg.inside_pressure, building.InsidePressure.NEGATIVE)
+        self.assertEqual(bdg._infiltration_method, 'balance_residential')
+        self.assertEqual(bdg._story, building.Story.ONE)
+        self.assertEqual(bdg._c, 1.0)
+        self.assertEqual(bdg._inside_pressure, building.InsidePressure.NEGATIVE)
 
     def test_calculate_c_value_rc(self):
 
@@ -56,7 +56,7 @@ class TestBuilding(unittest.TestCase):
             }
         )
 
-        self.assertAlmostEqual(bdg.c_value, 4.16)
+        self.assertAlmostEqual(bdg._c, 4.16)
 
     def test_calculate_c_value_src(self):
         bdg = building.Building.create_building(
@@ -72,7 +72,7 @@ class TestBuilding(unittest.TestCase):
             }
         )
 
-        self.assertAlmostEqual(bdg.c_value, 4.16)
+        self.assertAlmostEqual(bdg._c, 4.16)
 
     def test_calculate_c_value_wooden(self):
         bdg = building.Building.create_building(
@@ -88,7 +88,7 @@ class TestBuilding(unittest.TestCase):
             }
         )
 
-        self.assertAlmostEqual(bdg.c_value, 8.28)
+        self.assertAlmostEqual(bdg._c, 8.28)
 
     def test_calculate_c_value_steel(self):
         bdg = building.Building.create_building(
@@ -104,7 +104,7 @@ class TestBuilding(unittest.TestCase):
             }
         )
 
-        self.assertAlmostEqual(bdg.c_value, 8.28)
+        self.assertAlmostEqual(bdg._c, 8.28)
 
     def test_define_c_value(self):
         bdg = building.Building.create_building(
@@ -119,7 +119,7 @@ class TestBuilding(unittest.TestCase):
             }
         )
 
-        self.assertEqual(bdg.c_value, 0.2)
+        self.assertEqual(bdg._c, 0.2)
 
     def test_calculate_air_leakage_one_story_negative_pressure(self):
 

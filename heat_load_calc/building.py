@@ -88,22 +88,6 @@ class Building:
             inside_pressure=inside_pressure
         )
 
-    @property
-    def infiltration_method(self):
-        return self._infiltration_method
-
-    @property
-    def story(self):
-        return self._story
-
-    @property
-    def c_value(self):
-        return self._c
-
-    @property
-    def inside_pressure(self):
-        return self._inside_pressure
-
     def get_v_leak_is_n(
             self,
             theta_r_is_n: np.ndarray,
