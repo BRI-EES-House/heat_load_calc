@@ -6,12 +6,12 @@ import numpy as np
 from typing import List, Dict, Tuple
 
 
-def get_furniture_specs(dict_furniture_i: Dict[str, str], v_rm_i: float) -> Tuple[float, float, float, float]:
+def get_furniture_specs(dict_furniture_i: Dict[str, str], v_r_i: float) -> Tuple[float, float, float, float]:
     """
         備品等に関する物性値を取得する。
     Args:
         dict_furniture_i: 室 i の備品等に関する入力情報
-        v_rm_i: 室 i の容量, m3
+        v_r_i: 室 i の容量, m3
     Returns:
         備品等に関する物性値
             室 i の備品等の熱容量, J/K
@@ -26,9 +26,9 @@ def get_furniture_specs(dict_furniture_i: Dict[str, str], v_rm_i: float) -> Tupl
 
         # 入力方法がデフォルト指定している場合は室容積から各物性値を推定する。
 
-        c_sh_frt_i = _get_c_sh_frt_i(v_rm_i=v_rm_i)
+        c_sh_frt_i = _get_c_sh_frt_i(v_rm_i=v_r_i)
         g_sh_frt_i = _get_g_sh_frt_i(c_sh_frt_i=c_sh_frt_i)
-        c_lh_frt_i = _get_c_lh_frt_i(v_rm_i=v_rm_i)
+        c_lh_frt_i = _get_c_lh_frt_i(v_rm_i=v_r_i)
         g_lh_frt_i = _get_g_lh_frt_i(c_lh_frt_i=c_lh_frt_i)
 
     elif dict_furniture_i['input_method'] == 'specify':

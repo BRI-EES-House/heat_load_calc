@@ -92,7 +92,7 @@ class Sequence:
         rms = rooms.Rooms(ds=rd['rooms'])
 
         # Boundaries Class
-        bs = boundaries.Boundaries(id_rm_is=rms.id_rm_is, ds=rd['boundaries'], w=weather)
+        bs = boundaries.Boundaries(id_rm_is=rms.id_r_is, ds=rd['boundaries'], w=weather)
 
         # ステップ n の室 i における窓の透過日射熱取得, W, [n]
         # 　この操作は、これまで実施してきたテストを維持するために設けている。
@@ -111,18 +111,18 @@ class Sequence:
             bs.set_theta_o_eqv_js_ns(theta_o_eqv_js_ns=np.append(theta_o_eqv_js_ns, theta_o_eqv_js_ns[:, 0:1], axis=1))
 
         # MechanicalVentilation Class
-        mvs = MechanicalVentilations(vs=rd['mechanical_ventilations'], n_rm=rms.n_rm)
+        mvs = MechanicalVentilations(vs=rd['mechanical_ventilations'], n_rm=rms.n_r)
 
         # Equipments Class
         # TODO: Equipments Class を作成するのに Boundaries Class 全部をわたしているのはあまりよくない。
-        es = Equipments(dict_equipments=rd['equipments'], n_rm=rms.n_rm, n_b=bs.n_b, bs=bs)
+        es = Equipments(dict_equipments=rd['equipments'], n_rm=rms.n_r, n_b=bs.n_b, bs=bs)
 
         # Operation Class
         op = operation_mode.Operation.make_operation(
             d=rd['common'],
             t_ac_mode_is_ns=scd.t_ac_mode_is_ns,
             r_ac_demand_is_ns=scd.r_ac_demand_is_ns,
-            n_rm=rms.n_rm
+            n_rm=rms.n_r
         )
 
         # 次の係数を求める関数
@@ -268,7 +268,7 @@ class Sequence:
         v_leak_is_n = self.building.get_v_leak_is_n(
             theta_r_is_n=c_n.theta_r_is_n,
             theta_o_n=self.weather.theta_o_ns_plus[n],
-            v_r_is=self.rms.v_rm_is
+            v_r_is=self.rms.v_r_is
         )
 
         # ステップ n+1 の境界 j における項別公比法の指数項 m の貫流応答の項別成分, degree C, [j, m] (m=12), eq.(29)
@@ -310,7 +310,7 @@ class Sequence:
         f_brc_non_nv_is_n_pls, f_brc_nv_is_n_pls = get_f_brc_is_n_pls(
             a_s_js=self.bs.a_s_js,
             c_a=get_c_a(),
-            v_rm_is=self.rms.v_rm_is,
+            v_rm_is=self.rms.v_r_is,
             c_sh_frt_is=self.rms.c_sh_frt_is,
             delta_t=delta_t,
             f_wsc_js_n_pls=ss.f_wsc_js_ns[:, n + 1].reshape(-1, 1),
@@ -333,7 +333,7 @@ class Sequence:
         f_brm_non_nv_is_is_n_pls, f_brm_nv_is_is_n_pls = get_f_brm_is_is_n_pls(
             a_s_js=self.bs.a_s_js,
             c_a=get_c_a(),
-            v_rm_is=self.rms.v_rm_is,
+            v_rm_is=self.rms.v_r_is,
             c_sh_frt_is=self.rms.c_sh_frt_is,
             delta_t=delta_t,
             f_wsr_js_is=ss.f_wsr_js_is,
@@ -379,7 +379,7 @@ class Sequence:
             delta_t=delta_t,
             g_lh_frt_is=self.rms.g_lh_frt_is,
             rho_a=get_rho_a(),
-            v_rm_is=self.rms.v_rm_is,
+            v_rm_is=self.rms.v_r_is,
             x_frt_is_n=c_n.x_frt_is_n,
             x_gen_is_n=self.scd.x_gen_is_ns[:, n].reshape(-1, 1),
             x_hum_is_n=x_hum_is_n,
@@ -396,7 +396,7 @@ class Sequence:
             delta_t=delta_t,
             g_lh_frt_is=self.rms.g_lh_frt_is,
             rho_a=get_rho_a(),
-            v_rm_is=self.rms.v_rm_is,
+            v_rm_is=self.rms.v_r_is,
             v_vent_int_is_is_n=self.mvs.v_vent_int_is_is,
             v_vent_out_non_nv_is_n=v_vent_out_non_nv_is_n,
             v_vent_ntr_is=self.rms.v_vent_ntr_set_is

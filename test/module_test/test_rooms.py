@@ -42,22 +42,22 @@ class TestRooms(unittest.TestCase):
             }
         ])
 
-        self.assertEqual(rms.n_rm, 2)
+        self.assertEqual(rms.n_r, 2)
 
-        self.assertEqual(rms.id_rm_is[0, 0], 0)
-        self.assertEqual(rms.id_rm_is[1, 0], 1)
+        self.assertEqual(rms.id_r_is[0, 0], 0)
+        self.assertEqual(rms.id_r_is[1, 0], 1)
 
-        self.assertEqual(rms.name_rm_is[0, 0], 'test0')
-        self.assertEqual(rms.name_rm_is[1, 0], 'test1')
+        self.assertEqual(rms.name_r_is[0, 0], 'test0')
+        self.assertEqual(rms.name_r_is[1, 0], 'test1')
 
-        self.assertEqual(rms.sub_name_rm_is[0, 0], 'sub_test0')
-        self.assertEqual(rms.sub_name_rm_is[1, 0], 'sub_test1')
+        self.assertEqual(rms.sub_name_r_is[0, 0], 'sub_test0')
+        self.assertEqual(rms.sub_name_r_is[1, 0], 'sub_test1')
 
-        self.assertEqual(rms.a_f_rm_is[0, 0], 30.0)
-        self.assertEqual(rms.a_f_rm_is[1, 0], 40.0)
+        self.assertEqual(rms.a_f_r_is[0, 0], 30.0)
+        self.assertEqual(rms.a_f_r_is[1, 0], 40.0)
 
-        self.assertEqual(rms.v_rm_is[0, 0], 70.0)
-        self.assertEqual(rms.v_rm_is[1, 0], 130.0)
+        self.assertEqual(rms.v_r_is[0, 0], 70.0)
+        self.assertEqual(rms.v_r_is[1, 0], 130.0)
 
         self.assertEqual(rms.c_sh_frt_is[0, 0], 882000.0)
         self.assertEqual(rms.c_sh_frt_is[1, 0], 1638000.0)
@@ -122,22 +122,22 @@ class TestRooms(unittest.TestCase):
             }
         ])
 
-        self.assertEqual(rms.n_rm, 2)
+        self.assertEqual(rms.n_r, 2)
 
-        self.assertEqual(rms.id_rm_is[0, 0], 0)
-        self.assertEqual(rms.id_rm_is[1, 0], 1)
+        self.assertEqual(rms.id_r_is[0, 0], 0)
+        self.assertEqual(rms.id_r_is[1, 0], 1)
 
-        self.assertEqual(rms.name_rm_is[0, 0], 'test0')
-        self.assertEqual(rms.name_rm_is[1, 0], 'test1')
+        self.assertEqual(rms.name_r_is[0, 0], 'test0')
+        self.assertEqual(rms.name_r_is[1, 0], 'test1')
 
-        self.assertEqual(rms.sub_name_rm_is[0, 0], 'sub_test0')
-        self.assertEqual(rms.sub_name_rm_is[1, 0], 'sub_test1')
+        self.assertEqual(rms.sub_name_r_is[0, 0], 'sub_test0')
+        self.assertEqual(rms.sub_name_r_is[1, 0], 'sub_test1')
 
-        self.assertEqual(rms.a_f_rm_is[0, 0], 30.0)
-        self.assertEqual(rms.a_f_rm_is[1, 0], 40.0)
+        self.assertEqual(rms.a_f_r_is[0, 0], 30.0)
+        self.assertEqual(rms.a_f_r_is[1, 0], 40.0)
 
-        self.assertEqual(rms.v_rm_is[0, 0], 70.0)
-        self.assertEqual(rms.v_rm_is[1, 0], 130.0)
+        self.assertEqual(rms.v_r_is[0, 0], 70.0)
+        self.assertEqual(rms.v_r_is[1, 0], 130.0)
 
         self.assertEqual(rms.c_sh_frt_is[0, 0], 882000.0)
         self.assertEqual(rms.c_sh_frt_is[1, 0], 1638000.0)

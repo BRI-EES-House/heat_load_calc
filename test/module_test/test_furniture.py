@@ -9,7 +9,7 @@ class TestFurniture(unittest.TestCase):
 
         c_lh_frt_i, c_sh_frt_i, g_lh_frt_i, g_sh_frt_i = furniture.get_furniture_specs(
             dict_furniture_i={'input_method': 'default'},
-            v_rm_i=100.0
+            v_r_i=100.0
         )
 
         self.assertAlmostEqual(1260000, c_sh_frt_i)
@@ -27,7 +27,7 @@ class TestFurniture(unittest.TestCase):
                 'moisture_capacity': 1680,
                 'moisture_cond': 1680*0.0018
             },
-            v_rm_i=100.0
+            v_r_i=100.0
         )
 
         self.assertAlmostEqual(1260000, c_sh_frt_i)

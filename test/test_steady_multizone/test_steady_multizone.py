@@ -65,7 +65,7 @@ class TestSteadyState(unittest.TestCase):
 
         result = recorder.Recorder(
             n_step_main=8760 * 4,
-            id_rm_is=list(sqc.rms.id_rm_is.flatten()),
+            id_rm_is=list(sqc.rms.id_r_is.flatten()),
             id_bs_js=list(sqc.bs.id_b_js.flatten())
         )
 

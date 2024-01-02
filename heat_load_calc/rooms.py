@@ -44,29 +44,30 @@ class Rooms:
     def __init__(self, ds: List[Dict]):
 
         # room の数
-        self._n_rm = len(ds)
+        self._n_r = len(ds)
 
-        self._rms = [self._get_rm(d=d) for d in ds]
-        self._id_rm_is = np.array([rm.id for rm in self._rms]).reshape(-1, 1)
-        self._name_rm_is = np.array([rm.name for rm in self._rms]).reshape(-1, 1)
-        self._sub_name_rm_is = np.array([rm.sub_name for rm in self._rms]).reshape(-1, 1)
-        self._a_f_rm_is = np.array([rm.a_f for rm in self._rms]).reshape(-1, 1)
-        self._v_rm_is = np.array([rm.v for rm in self._rms]).reshape(-1, 1)
-        self._c_sh_frt_is = np.array([rm.c_sh_frt for rm in self._rms]).reshape(-1, 1)
-        self._g_sh_frt_is = np.array([rm.g_sh_frt for rm in self._rms]).reshape(-1, 1)
-        self._c_lh_frt_is = np.array([rm.c_lh_frt for rm in self._rms]).reshape(-1, 1)
-        self._g_lh_frt_is = np.array([rm.g_lh_frt for rm in self._rms]).reshape(-1, 1)
-        self._v_vent_ntr_set_is = np.array([rm.v_vent_ntr_set for rm in self._rms]).reshape(-1, 1)
-        self._met_is = np.full(shape=(self._n_rm, 1), fill_value=1.0, dtype=float)
+        rms : List[Room] = [self._get_rm(d=d) for d in ds]
+
+        self._id_r_is = np.array([rm.id for rm in rms]).reshape(-1, 1)
+        self._name_r_is = np.array([rm.name for rm in rms]).reshape(-1, 1)
+        self._sub_name_r_is = np.array([rm.sub_name for rm in rms]).reshape(-1, 1)
+        self._a_f_r_is = np.array([rm.a_f for rm in rms]).reshape(-1, 1)
+        self._v_r_is = np.array([rm.v for rm in rms]).reshape(-1, 1)
+        self._c_sh_frt_is = np.array([rm.c_sh_frt for rm in rms]).reshape(-1, 1)
+        self._g_sh_frt_is = np.array([rm.g_sh_frt for rm in rms]).reshape(-1, 1)
+        self._c_lh_frt_is = np.array([rm.c_lh_frt for rm in rms]).reshape(-1, 1)
+        self._g_lh_frt_is = np.array([rm.g_lh_frt for rm in rms]).reshape(-1, 1)
+        self._v_vent_ntr_set_is = np.array([rm.v_vent_ntr_set for rm in rms]).reshape(-1, 1)
+        self._met_is = np.full(shape=(self._n_r, 1), fill_value=1.0, dtype=float)
 
     @staticmethod
     def _get_rm(d: Dict):
 
-        v_rm_i = float(d['volume'])
+        v_r_i = float(d['volume'])
 
         c_lh_frt, c_sh_frt, g_lh_frt, g_sh_frt = furniture.get_furniture_specs(
             dict_furniture_i=d['furniture'],
-            v_rm_i=v_rm_i
+            v_r_i=v_r_i
         )
 
         # v_vent_ntr_set については m3/h から m3/s の単位変換を行う。
@@ -75,7 +76,7 @@ class Rooms:
             name=str(d['name']),
             sub_name=str(d['sub_name']),
             a_f=float(d['floor_area']),
-            v=v_rm_i,
+            v=v_r_i,
             c_sh_frt=c_sh_frt,
             g_sh_frt=g_sh_frt,
             c_lh_frt=c_lh_frt,
@@ -84,61 +85,61 @@ class Rooms:
         )
 
     @property
-    def n_rm(self) -> int:
-        """室の数"""
-        return self._n_rm
+    def n_r(self) -> int:
+        """number of room / 室の数"""
+        return self._n_r
 
     @property
-    def id_rm_is(self) -> np.ndarray:
-        """空間のID, [i, 1]"""
-        return self._id_rm_is
+    def id_r_is(self) -> np.ndarray:
+        """ID of room i / 室iのID, [I, 1]"""
+        return self._id_r_is
 
     @property
-    def name_rm_is(self) -> np.ndarray:
-        """室iの名前, [i, 1]"""
-        return self._name_rm_is
+    def name_r_is(self) -> np.ndarray:
+        """name of room i / 室iの名前, [I, 1]"""
+        return self._name_r_is
 
     @property
-    def sub_name_rm_is(self) -> np.ndarray:
-        """室iの名前2, [i, 1]"""
-        return self._sub_name_rm_is
+    def sub_name_r_is(self) -> np.ndarray:
+        """sub name of room i / 室iの名前2, [I, 1]"""
+        return self._sub_name_r_is
 
     @property
-    def a_f_rm_is(self) -> np.ndarray:
-        """室iの面積, m2, [i, 1]"""
-        return self._a_f_rm_is
+    def a_f_r_is(self) -> np.ndarray:
+        """area of room i / 室iの面積, m2, [I, 1]"""
+        return self._a_f_r_is
 
     @property
-    def v_rm_is(self) -> np.ndarray:
-        """室iの容積, m3, [i, 1]"""
-        return self._v_rm_is
+    def v_r_is(self) -> np.ndarray:
+        """volume of room i / 室iの容積, m3, [I, 1]"""
+        return self._v_r_is
 
     @property
     def c_sh_frt_is(self) -> np.ndarray:
-        """室iの備品等の熱容量, J/K, [i, 1]"""
+        """thermal capacity of furniture in room i / 室iの備品等の熱容量, J/K, [I, 1]"""
         return self._c_sh_frt_is
 
     @property
     def g_sh_frt_is(self) -> np.ndarray:
-        """室iの空気と備品等間の熱コンダクタンス, W/K, [i, 1]"""
+        """thermal conductance between air and furniture in room i / 室iの空気と備品等間の熱コンダクタンス, W/K, [I, 1]"""
         return self._g_sh_frt_is
 
     @property
     def c_lh_frt_is(self) -> np.ndarray:
-        """室iの備品等の湿気容量, kg/(kg/kgDA), [i, 1]"""
+        """moisture capacity of furniture in room i / 室iの備品等の湿気容量, kg/(kg/kgDA), [I, 1]"""
         return self._c_lh_frt_is
 
     @property
     def g_lh_frt_is(self) -> np.ndarray:
-        """室iの空気と備品等間の湿気コンダクタンス, kg/(s (kg/kgDA)), [i, 1]"""
+        """moisture conductance between air and furniture in room i / 室iの空気と備品等間の湿気コンダクタンス, kg/(s (kg/kgDA)), [I, 1]"""
         return self._g_lh_frt_is
 
     @property
     def v_vent_ntr_set_is(self) -> np.ndarray:
-        """室iの自然風利用時の換気量, m3/s, [i, 1]"""
+        """ventilation amount of room i when using natural ventilation / 室iの自然換気利用時の換気量, m3/s, [I, 1]"""
         return self._v_vent_ntr_set_is
 
     @property
     def met_is(self) -> np.ndarray:
-        """室iの在室者のMet値, [i, 1]"""
+        """MET value of occupants in room i / 室iの在室者のMet値, [i, 1]"""
         return self._met_is
