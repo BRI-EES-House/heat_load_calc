@@ -34,7 +34,8 @@ class TestRooms(unittest.TestCase):
                     'natural': 620.0
                 },
                 'furniture': {
-                    'input_method': 'default'
+                    'input_method': 'default',
+                    'solar_absorption_ratio': 0.3
                 },
                 'schedule': {
                     'name': 'test1'
@@ -77,6 +78,9 @@ class TestRooms(unittest.TestCase):
 
         self.assertAlmostEqual(rms.met_is[0, 0], 1.0)
         self.assertAlmostEqual(rms.met_is[1, 0], 2.0)
+
+        self.assertAlmostEqual(rms.r_sol_frt_is[0, 0], 0.5)
+        self.assertAlmostEqual(rms.r_sol_frt_is[1, 0], 0.3)
 
     def test_rooms_furniture_specify(self):
 
@@ -116,6 +120,7 @@ class TestRooms(unittest.TestCase):
                     'heat_cond': 360.36,
                     'moisture_capacity': 2184.0,
                     'moisture_cond': 3.9312,
+                    'solar_absorption_ratio': 0.3
                 },
                 'schedule': {
                     'name': 'test1'
@@ -158,3 +163,6 @@ class TestRooms(unittest.TestCase):
 
         self.assertAlmostEqual(rms.met_is[0, 0], 1.0)
         self.assertAlmostEqual(rms.met_is[1, 0], 2.0)
+
+        self.assertAlmostEqual(rms.r_sol_frt_is[0, 0], 0.5)
+        self.assertAlmostEqual(rms.r_sol_frt_is[1, 0], 0.3)

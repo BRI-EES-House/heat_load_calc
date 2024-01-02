@@ -780,7 +780,7 @@ def _pre_calc(
     )
 
     # ステップ n における室 i に設置された備品等による透過日射吸収熱量, W, [i, n+1]
-    q_sol_frt_is_ns = solar_absorption.get_q_sol_frt_is_ns(q_trs_sor_is_ns=bs.q_trs_sol_is_ns)
+    q_sol_frt_is_ns = solar_absorption.get_q_sol_frt_is_ns(q_trs_sor_is_ns=bs.q_trs_sol_is_ns, r_sol_frt_is=rms.r_sol_frt_is)
 
     # ステップ n における境界 j の透過日射吸収熱量, W/m2, [j, n]
     q_s_sol_js_ns = solar_absorption.get_q_s_sol_js_ns(
@@ -788,7 +788,8 @@ def _pre_calc(
         a_s_js=bs.a_s_js,
         p_s_sol_abs_js=bs.p_s_sol_abs_js,
         p_js_is=bs.p_js_is,
-        q_trs_sol_is_ns=bs.q_trs_sol_is_ns
+        q_trs_sol_is_ns=bs.q_trs_sol_is_ns,
+        r_sol_frt_is=rms.r_sol_frt_is
     )
 
     # 係数 f_AX, -, [j, j]

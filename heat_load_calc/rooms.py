@@ -65,6 +65,7 @@ class Rooms:
         self._g_lh_frt_is = np.array([rm.g_lh_frt for rm in rms]).reshape(-1, 1)
         self._v_vent_ntr_set_is = np.array([rm.v_vent_ntr_set for rm in rms]).reshape(-1, 1)
         self._met_is = np.array([rm.met for rm in rms]).reshape(-1, 1)
+        self._r_sol_frt_is = np.array([rm.r_sol_frt for rm in rms]).reshape(-1, 1)
 
     @staticmethod
     def _get_rm(d: Dict):
@@ -170,5 +171,10 @@ class Rooms:
 
     @property
     def met_is(self) -> np.ndarray:
-        """MET value of occupants in room i / 室iの在室者のMet値, [i, 1]"""
+        """MET value of occupants in room i / 室iの在室者のMet値, [I, 1]"""
         return self._met_is
+    
+    @property
+    def r_sol_frt_is(self) -> np.ndarray:
+        """solar absoption ratio of furniture in room i / 室iの備品等の日射吸収割合, [I, 1]"""
+        return self._r_sol_frt_is
