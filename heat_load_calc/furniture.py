@@ -11,14 +11,14 @@ def get_furniture_specs(dict_furniture_i: Dict[str, str], v_r_i: float) -> Tuple
         備品等に関する物性値を取得する。
     Args:
         dict_furniture_i: 室 i の備品等に関する入力情報
-        v_r_i: 室 i の容量, m3
+        v_r_i: volume of room i / 室iの容量, m3
     Returns:
-        備品等に関する物性値
-            室iの備品等の熱容量, J/K
-            室iの空気と備品等間の熱コンダクタンス, W/K
-            室iの備品等の湿気容量, kg/(kg/kgDA)
-            室iの空気と備品等間の湿気コンダクタンス, kg/(s (kg/kgDA))
-            室iの備品等の日射吸収割合, -
+        spec / 備品等に関する物性値
+            thermal capacity of furniture in room i / 室iの備品等の熱容量, J/K
+            thermal conductance between air and furniture in room i / 室iの空気と備品等間の熱コンダクタンス, W/K
+            moisture capacity of furniture in room i / 室iの備品等の湿気容量, kg/(kg/kgDA)
+            moisture conductance between air and furniture in room i / 室iの空気と備品等間の湿気コンダクタンス, kg/(s (kg/kgDA))
+            solar absorption ratio of furniture in room i / 室iの備品等の日射吸収割合, -
     Notes:
         各値は、特定の値の入力を受け付ける他に、以下の式(1)～(4)により室容積から推定する方法を設定する。
     """
