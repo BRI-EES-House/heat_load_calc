@@ -9,19 +9,19 @@ from heat_load_calc import furniture
 class Room:
 
     # id
-    id: int
+    id_r: int
 
     # 名称
-    name: str
+    name_r: str
 
     # 副名称
-    sub_name: str
+    sub_name_r: str
 
     # 気積, m3
-    v: float
+    v_r: float
 
     # 床面積, m2
-    a_f: float
+    a_f_r: float
 
     # 備品等の熱容量, J/K
     c_sh_frt: float
@@ -41,6 +41,9 @@ class Room:
     # MET value
     met: float
 
+    # ratio of solar absorption to furniture, -
+    r_sol_frt: float
+
 
 class Rooms:
 
@@ -51,11 +54,11 @@ class Rooms:
 
         rms : List[Room] = [self._get_rm(d=d) for d in ds]
 
-        self._id_r_is = np.array([rm.id for rm in rms]).reshape(-1, 1)
-        self._name_r_is = np.array([rm.name for rm in rms]).reshape(-1, 1)
-        self._sub_name_r_is = np.array([rm.sub_name for rm in rms]).reshape(-1, 1)
-        self._a_f_r_is = np.array([rm.a_f for rm in rms]).reshape(-1, 1)
-        self._v_r_is = np.array([rm.v for rm in rms]).reshape(-1, 1)
+        self._id_r_is = np.array([rm.id_r for rm in rms]).reshape(-1, 1)
+        self._name_r_is = np.array([rm.name_r for rm in rms]).reshape(-1, 1)
+        self._sub_name_r_is = np.array([rm.sub_name_r for rm in rms]).reshape(-1, 1)
+        self._a_f_r_is = np.array([rm.a_f_r for rm in rms]).reshape(-1, 1)
+        self._v_r_is = np.array([rm.v_r for rm in rms]).reshape(-1, 1)
         self._c_sh_frt_is = np.array([rm.c_sh_frt for rm in rms]).reshape(-1, 1)
         self._g_sh_frt_is = np.array([rm.g_sh_frt for rm in rms]).reshape(-1, 1)
         self._c_lh_frt_is = np.array([rm.c_lh_frt for rm in rms]).reshape(-1, 1)
@@ -66,31 +69,48 @@ class Rooms:
     @staticmethod
     def _get_rm(d: Dict):
 
-        v_r_i = float(d['volume'])
+        id_r = int(d['id'])
+        if id_r < 0:
+            raise ValueError("room 要素の id は 0 以上の整数を指定してください。")
+        
+        a_f_r = float(d['floor_area'])
+        if a_f_r <= 0:
+            raise ValueError("room 要素の floor_area は 0 より大の小数を指定してください。")
 
-        c_lh_frt, c_sh_frt, g_lh_frt, g_sh_frt = furniture.get_furniture_specs(
+        v_r = float(d['volume'])
+        if v_r <= 0:
+            raise ValueError("room 要素の volume は 0 より大の小数を指定してください。")
+
+        c_lh_frt, c_sh_frt, g_lh_frt, g_sh_frt, r_sol_frt = furniture.get_furniture_specs(
             dict_furniture_i=d['furniture'],
-            v_r_i=v_r_i
+            v_r_i=v_r
         )
+
+        v_vent_ntr_set = float(d['ventilation']['natural']) / 3600.0
+        if v_vent_ntr_set < 0.0:
+            raise ValueError("room 要素の ventilation 要素の natural は 0 以上の小数を指定してください。")
 
         if 'MET' in d:
             met = float(d['MET'])
         else:
             met = 1.0
-
+        if met <= 0.0:
+            raise ValueError("room 要素の MET は 0 より大の小数を指定してください。")
+        
         # v_vent_ntr_set については m3/h から m3/s の単位変換を行う。
         return Room(
-            id=int(d['id']),
-            name=str(d['name']),
-            sub_name=str(d['sub_name']),
-            a_f=float(d['floor_area']),
-            v=v_r_i,
+            id_r=id_r,
+            name_r=str(d['name']),
+            sub_name_r=str(d['sub_name']),
+            a_f_r=a_f_r,
+            v_r=v_r,
             c_sh_frt=c_sh_frt,
             g_sh_frt=g_sh_frt,
             c_lh_frt=c_lh_frt,
             g_lh_frt=g_lh_frt,
-            v_vent_ntr_set=float(d['ventilation']['natural']) / 3600.0,
-            met=met
+            v_vent_ntr_set=v_vent_ntr_set,
+            met=met,
+            r_sol_frt=r_sol_frt
         )
 
     @property
