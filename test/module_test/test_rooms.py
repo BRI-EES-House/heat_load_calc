@@ -38,7 +38,8 @@ class TestRooms(unittest.TestCase):
                 },
                 'schedule': {
                     'name': 'test1'
-                }
+                },
+                'MET': 2.0
             }
         ])
 
@@ -75,7 +76,7 @@ class TestRooms(unittest.TestCase):
         self.assertAlmostEqual(rms.v_vent_ntr_set_is[1, 0], 620.0 / 3600.0)
 
         self.assertAlmostEqual(rms.met_is[0, 0], 1.0)
-        self.assertAlmostEqual(rms.met_is[1, 0], 1.0)
+        self.assertAlmostEqual(rms.met_is[1, 0], 2.0)
 
     def test_rooms_furniture_specify(self):
 
@@ -118,7 +119,8 @@ class TestRooms(unittest.TestCase):
                 },
                 'schedule': {
                     'name': 'test1'
-                }
+                },
+                'MET': 2.0
             }
         ])
 
@@ -155,4 +157,4 @@ class TestRooms(unittest.TestCase):
         self.assertAlmostEqual(rms.v_vent_ntr_set_is[1, 0], 620.0 / 3600.0)
 
         self.assertAlmostEqual(rms.met_is[0, 0], 1.0)
-        self.assertAlmostEqual(rms.met_is[1, 0], 1.0)
+        self.assertAlmostEqual(rms.met_is[1, 0], 2.0)
