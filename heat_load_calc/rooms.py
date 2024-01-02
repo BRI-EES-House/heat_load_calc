@@ -38,6 +38,9 @@ class Room:
     # 自然風利用時の換気量, m3/s
     v_vent_ntr_set: float
 
+    # MET value
+    met: float
+
 
 class Rooms:
 
@@ -58,7 +61,7 @@ class Rooms:
         self._c_lh_frt_is = np.array([rm.c_lh_frt for rm in rms]).reshape(-1, 1)
         self._g_lh_frt_is = np.array([rm.g_lh_frt for rm in rms]).reshape(-1, 1)
         self._v_vent_ntr_set_is = np.array([rm.v_vent_ntr_set for rm in rms]).reshape(-1, 1)
-        self._met_is = np.full(shape=(self._n_r, 1), fill_value=1.0, dtype=float)
+        self._met_is = np.array([rm.met for rm in rms]).reshape(-1, 1)
 
     @staticmethod
     def _get_rm(d: Dict):
@@ -69,6 +72,11 @@ class Rooms:
             dict_furniture_i=d['furniture'],
             v_r_i=v_r_i
         )
+
+        if 'MET' in d:
+            met = float(d['MET'])
+        else:
+            met = 1.0
 
         # v_vent_ntr_set については m3/h から m3/s の単位変換を行う。
         return Room(
@@ -81,7 +89,8 @@ class Rooms:
             g_sh_frt=g_sh_frt,
             c_lh_frt=c_lh_frt,
             g_lh_frt=g_lh_frt,
-            v_vent_ntr_set=float(d['ventilation']['natural']) / 3600.0
+            v_vent_ntr_set=float(d['ventilation']['natural']) / 3600.0,
+            met=met
         )
 
     @property
