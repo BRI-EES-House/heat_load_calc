@@ -27,28 +27,24 @@ def get_f_mrt_is_js(a_s_js: np.ndarray, h_s_r_js: np.ndarray, p_is_js: np.ndarra
     return p_is_js * ah.T / np.dot(p_is_js, ah)
 
 
-def get_h_s_r_js(id_rm_is: np.ndarray, a_s_js: np.ndarray, connected_room_id_js: np.ndarray) -> np.ndarray:
+def get_h_s_r_js(a_s_js: np.ndarray, p_is_js: np.ndarray) -> np.ndarray:
     """境界 j の室内側放射熱伝達率を求める。
 
     Args:
-        id_rm_is: 室のID, [i, 1]
         a_s_js: 境界 j の面積, m2, [j, 1]
-        connected_room_id_js: 境界 j が接する室のID, [j, 1]
+        p_is_js: 
 
     Returns:
         境界 j の室内側放射熱伝達率, W/m2K, [j, 1]
     """
 
-    id_rm_is = id_rm_is.flatten()
     a_s_js = a_s_js.flatten()
-
-    connected_room_id_js = connected_room_id_js.flatten()
 
     h_s_r_is = np.zeros_like(a=a_s_js, dtype=float)
 
-    for id_rm_i in id_rm_is:
+    for p_i_js in p_is_js:
 
-        is_connected = connected_room_id_js == id_rm_i
+        is_connected = p_i_js.astype(bool)
 
         h_s_r_is[is_connected] = _calc_h_s_r_i_js(a_s_i_js=a_s_js[is_connected])
 

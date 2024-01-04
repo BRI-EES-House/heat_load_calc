@@ -119,39 +119,32 @@ class Boundaries:
             Boundary クラスを生成する時に必要な情報としておく。
         """
 
-        print("x1")
-        print(id_r_is)
-        print(np.array([b['area'] for b in ds]).reshape(-1, 1))
-        print(np.array([b['connected_room_id'] for b in ds]).reshape(-1, 1))
-
         # 室の数
         n_rm = id_r_is.size
 
         # 境界の数
         n_b = len(ds)
 
+        # 接続する室のID, [J]
         connected_room_id_js = np.array([b['connected_room_id'] for b in ds])
 
         # 室iと境界jの関係を表す係数（境界jから室iへの変換）, [i, j]
-        p_is_js = self._get_p_is_js(n_rm=n_rm, connected_room_id_js=connected_room_id_js)
+        p_is_js = _get_p_is_js(id_r_is=id_r_is, connected_room_id_js=connected_room_id_js)
 
         # 境界jの室内側表面放射熱伝達率, W/m2K, [J, 1]
         h_s_r_js = shape_factor.get_h_s_r_js(
-            id_rm_is=id_r_is,
             a_s_js=np.array([b['area'] for b in ds]).reshape(-1, 1),
-            connected_room_id_js=np.array([b['connected_room_id'] for b in ds]).reshape(-1, 1)
+            p_is_js=p_is_js
         )
 
-        print("x2")
-
         # 境界jの室内側表面対流熱伝達率, W/m2K, [J, 1]
-        h_c_js = np.array([b['h_c'] for b in ds]).reshape(-1, 1)
+        h_s_c_js = np.array([b['h_c'] for b in ds]).reshape(-1, 1)
 
         # 境界 j, [J]
-        bss = [self._get_boundary(b=b, h_c_js=h_c_js, h_s_r_js=h_s_r_js, w=w, n_rm=n_rm, n_b=n_b) for b in ds]
+        bss = [self._get_boundary(b=b, h_s_c_js=h_s_c_js, h_s_r_js=h_s_r_js, w=w, n_rm=n_rm, n_b=n_b, p_is_js=p_is_js) for b in ds]
 
         # ステップ n の室 i における窓の透過日射熱取得, W, [n]
-        q_trs_sol_is_ns = self.get_q_trs_sol_is_ns(n_rm=n_rm, bss=bss)
+        q_trs_sol_is_ns = self.get_q_trs_sol_is_ns(n_rm=n_rm, bss=bss, p_is_js=p_is_js)
 
         self._bss = bss
 
@@ -182,16 +175,17 @@ class Boundaries:
         self._q_trs_sol_is_ns = q_trs_sol_is_ns
 
     @staticmethod
-    def _get_boundary(b: Dict, h_c_js: np.ndarray, h_s_r_js: np.ndarray, w: Weather, n_rm: int, n_b: int) -> Boundary:
+    def _get_boundary(b: Dict, h_s_c_js: np.ndarray, h_s_r_js: np.ndarray, w: Weather, n_rm: int, n_b: int, p_is_js: np.ndarray) -> Boundary:
         """
 
         Args:
             b: Boundary　の辞書
-            h_c_js: 境界 j の室内側表面対流熱伝達率, W/m2K, [J, 1]
-            h_s_r_js: 境界 j の室内側表面放射熱伝達率, W/m2K, [J, 1]
+            h_s_c_js: 境界jの室内側表面対流熱伝達率, W/m2K, [J, 1]
+            h_s_r_js: 境界jの室内側表面放射熱伝達率, W/m2K, [J, 1]
             w: Weather クラス
             n_rm: 室の数
             n_b: 境界の数
+            p_is_js:
 
         Returns:
             Boundary クラス
@@ -277,7 +271,7 @@ class Boundaries:
             cs = np.array([_read_cs_j_l(layer=layer) for layer in b['layers']])
             rs = np.array([_read_rs_j_l(layer=layer) for layer in b['layers']])
 
-            rear_h_c = h_c_js[b['rear_surface_boundary_id'], 0]
+            rear_h_c = h_s_c_js[b['rear_surface_boundary_id'], 0]
             rear_h_r = h_s_r_js[b['rear_surface_boundary_id'], 0]
 
             r_o = 1.0 / (rear_h_c + rear_h_r)
@@ -527,31 +521,21 @@ class Boundaries:
         )
 
     @staticmethod
-    def _get_p_is_js(n_rm, connected_room_id_js):
-        # 室iと境界jの関係を表す係数（境界jから室iへの変換）
-        # [[p_0_0 ... ... p_0_j]
-        #  [ ...  ... ...  ... ]
-        #  [p_i_0 ... ... p_i_j]]
-
-        p_is_js = np.zeros((n_rm, len(connected_room_id_js)), dtype=int)
-
-        for i, bs in enumerate(connected_room_id_js):
-            p_is_js[bs, i] = 1
-
-        return p_is_js
-
-    @staticmethod
-    def get_q_trs_sol_is_ns(n_rm, bss):
+    def get_q_trs_sol_is_ns(n_rm, bss, p_is_js):
 
         print("printing q_trs_sol")
         print([len(bs.q_trs_sol) for bs in bss])
         print("printing q_trs_sol")
         print([bs.q_trs_sol for bs in bss])
 
-        return np.array([
-            np.sum(np.array([bs.q_trs_sol for bs in bss if bs.connected_room_id == i]), axis=0)
-            for i in range(n_rm)
-        ])
+        q_trs_sol_js_ns = np.array([bs.q_trs_sol for bs in bss])
+
+        return np.dot(p_is_js, q_trs_sol_js_ns)
+
+#        return np.array([
+#            np.sum(np.array([bs.q_trs_sol for bs in bss if bs.connected_room_id == i]), axis=0)
+#            for i in range(n_rm)
+#        ])
 
     @property
     def n_b(self) -> int:
@@ -711,6 +695,61 @@ class Boundaries:
             raise Exception("指定された boundary_id に一致する boundary が複数見つかりました。")
 
         return bss[0]
+
+
+def _get_p_is_js(id_r_is, connected_room_id_js):
+    # 室iと境界jの関係を表す係数（境界jから室iへの変換）
+    # [[p_0_0 ... ... p_0_j]
+    #  [ ...  ... ...  ... ]
+    #  [p_i_0 ... ... p_i_j]]
+
+#    p_is_js = []
+
+#    for room_id_j in connected_room_id_js:
+        # p_is_j = np.zeros(id_r_is.size, dtype=int)
+        # p_is_j[_get_index(id_r_is=id_r_is, id=room_id_j)] = 1
+#        p_is_j = _get_p_is_j(id_r_is=id_r_is, connected_room_id_j=room_id_j)
+#        p_is_js.append(p_is_j)
+    
+    p_is_js = [
+        _get_p_is_j(id_r_is=id_r_is, connected_room_id_j=connected_room_id_j)
+        for connected_room_id_j in connected_room_id_js
+    ]
+
+    p_is_js = np.array(p_is_js).T
+    
+    return p_is_js
+
+def _get_p_is_j(id_r_is: np.ndarray, connected_room_id_j: int):
+
+    p_is_j = np.zeros(id_r_is.size, dtype=int)
+    p_is_j[_get_index(id_r_is=id_r_is, id=connected_room_id_j)] = 1
+    return p_is_j
+
+
+def _get_index(id_r_is: np.ndarray, id: int):
+    """Get the index of rooms matched to the specify id.
+
+    Args:
+        id_r_is: list of the indices of rooms
+        id: specified room id
+
+    Raises:
+        ValueError: There is no room index corresponding to the specified index.
+        ValueError: Multiple indices were found corresponding to the specified index.
+
+    Returns:
+        the index of the room
+    """
+
+    matched_indices = [index for (index, id_r_i) in enumerate(id_r_is) if id_r_i == id]
+
+    if len(matched_indices) == 0:
+        raise ValueError("Boundary が接続する room のIDが存在しませんでした。")
+    if len(matched_indices) > 1:
+        raise ValueError("Boundary が接続する room のIDが複数存在しました。")
+    
+    return matched_indices[0]
 
 
 def _read_r_i_nominal(b: Dict, boundary_id: int) -> float:

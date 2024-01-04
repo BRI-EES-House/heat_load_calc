@@ -99,9 +99,11 @@ class TestShapeFactor(unittest.TestCase):
     def test_get_h_r_is(self):
 
         h_s_r_js = sf.get_h_s_r_js(
-            id_rm_is=np.array([[0], [1]]),
             a_s_js=np.array([20.0, 0.0, 15.0, 15.0, 20.0, 20.0, 15.0, 15.0, 30.0, 30.0, 30.0, 30.0]).reshape(-1, 1),
-            connected_room_id_js=np.array([0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1]).reshape(-1, 1)
+            p_is_js=np.array([
+                [1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0],
+                [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1]
+            ])
         )
 
         self.assertAlmostEqual(5.92104643, h_s_r_js[0][0])
