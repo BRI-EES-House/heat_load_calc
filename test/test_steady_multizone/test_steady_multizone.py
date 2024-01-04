@@ -74,7 +74,8 @@ class TestSteadyState(unittest.TestCase):
             scd=sqc.scd,
             bs=sqc.bs,
             q_sol_frt_is_ns=ss.q_sol_frt_is_ns,
-            q_s_sol_js_ns=ss.q_s_sol_js_ns
+            q_s_sol_js_ns=ss.q_s_sol_js_ns,
+            q_trs_sol_is_ns=sqc.q_trs_sol_is_ns
         )
 
         q_srf_js_n = np.array([[

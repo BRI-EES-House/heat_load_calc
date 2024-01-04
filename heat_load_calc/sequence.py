@@ -66,7 +66,7 @@ class Sequence:
             rd: Dict,
             weather: Weather,
             scd: schedule.Schedule,
-            q_trs_sol_is_ns: Optional[np.ndarray] = None,
+            _q_trs_sol_is_ns: Optional[np.ndarray] = None,
             theta_o_eqv_js_ns: Optional[np.ndarray] = None
     ):
         """
@@ -75,7 +75,7 @@ class Sequence:
             rd:
             weather:
             scd:
-            q_trs_sol_is_ns:
+            _q_trs_sol_is_ns:
             theta_o_eqv_js_ns:
         """
 
@@ -98,9 +98,16 @@ class Sequence:
         # 　この操作は、これまで実施してきたテストを維持するために設けている。
         # いずれテスト方法を整理して、csvで与える方式を削除すべきである。
         # CSVで与える方式があることは（将来的に削除予定であるため）仕様書には記述しない。
-        if q_trs_sol_is_ns is not None:
+        if _q_trs_sol_is_ns is not None:
             # ステップn+1に対応するために0番要素に最終要素を代入
-            bs.set_q_trs_sol_is_ns(q_trs_sol_is_ns=np.append(q_trs_sol_is_ns, q_trs_sol_is_ns[:, 0:1], axis=1))
+            # q_trs_sol_is_ns_pls = np.append(_q_trs_sol_is_ns, _q_trs_sol_is_ns[:, 0:1], axis=1)
+            # bs.set_q_trs_sol_is_ns(q_trs_sol_is_ns=np.append(_q_trs_sol_is_ns, _q_trs_sol_is_ns[:, 0:1], axis=1))
+            # bs.set_q_trs_sol_is_ns(q_trs_sol_is_ns=q_trs_sol_is_ns_pls)
+            # q_trs_sol_is_ns = bs.q_trs_sol_is_ns
+            q_trs_sol_is_ns = np.append(_q_trs_sol_is_ns, _q_trs_sol_is_ns[:, 0:1], axis=1)
+        else:
+            # q_trs_sol_is_ns = bs.q_trs_sol_is_ns
+            q_trs_sol_is_ns = np.dot(bs.p_is_js, bs.q_trs_sol_js_ns)
 
         # ステップ n の境界 j における相当外気温度, ℃, [j, n]
         # 　このif文は、これまで実施してきたテストを維持するために設けている。
@@ -130,13 +137,14 @@ class Sequence:
         #   ステップ n　からステップ n+1 における係数 f_l_cl_cst, kg/s, [i, 1]
         get_f_l_cl = es.make_get_f_l_cl_funcs()
 
-        pre_calc_parameters = _pre_calc(
+        pre_calc_parameters, _ = _pre_calc(
             scd=scd,
             rms=rms,
             bs=bs,
             mvs=mvs,
             es=es,
-            op=op
+            op=op,
+            q_trs_sol_is_ns=q_trs_sol_is_ns
         )
 
         # 時間間隔クラス
@@ -177,6 +185,8 @@ class Sequence:
         #   ステップ n　からステップ n+1 における係数 f_l_cl_cst, kg/s, [i, 1]
         self._get_f_l_cl = get_f_l_cl
 
+        self._q_trs_sol_is_ns = q_trs_sol_is_ns
+
         self._pre_calc_parameters = pre_calc_parameters
 
     @property
@@ -213,10 +223,6 @@ class Sequence:
     def es(self) -> Equipments:
         return self._es
 
-#    @property
-#    def op(self) -> Operation:
-#        return self._op
-
     @property
     def get_f_l_cl(self) -> Callable[[np.ndarray, np.ndarray, np.ndarray], Tuple[np.ndarray, np.ndarray]]:
         """次の係数を求める関数
@@ -228,6 +234,10 @@ class Sequence:
 
         """
         return self._get_f_l_cl
+    
+    @property
+    def q_trs_sol_is_ns(self):
+        return self._q_trs_sol_is_ns
 
     @property
     def pre_calc_parameter(self):
@@ -748,7 +758,8 @@ def _pre_calc(
         bs: Boundaries,
         mvs: MechanicalVentilations,
         es: Equipments,
-        op: Operation
+        op: Operation,
+        q_trs_sol_is_ns: np.ndarray
 ) -> PreCalcParameters:
     """助走計算用パラメータの生成
 
@@ -779,8 +790,11 @@ def _pre_calc(
         v_vent_mec_local_is_ns=scd.v_mec_vent_local_is_ns
     )
 
+    # ステップnにおける室iの透過日射量, W, [I, N+1]
+    # q_trs_sol_is_ns = bs.q_trs_sol_is_ns
+
     # ステップ n における室 i に設置された備品等による透過日射吸収熱量, W, [i, n+1]
-    q_sol_frt_is_ns = solar_absorption.get_q_sol_frt_is_ns(q_trs_sor_is_ns=bs.q_trs_sol_is_ns, r_sol_frt_is=rms.r_sol_frt_is)
+    q_sol_frt_is_ns = solar_absorption.get_q_sol_frt_is_ns(q_trs_sor_is_ns=q_trs_sol_is_ns, r_sol_frt_is=rms.r_sol_frt_is)
 
     # ステップ n における境界 j の透過日射吸収熱量, W/m2, [j, n]
     q_s_sol_js_ns = solar_absorption.get_q_s_sol_js_ns(
@@ -788,7 +802,7 @@ def _pre_calc(
         a_s_js=bs.a_s_js,
         p_s_sol_abs_js=bs.p_s_sol_abs_js,
         p_js_is=bs.p_js_is,
-        q_trs_sol_is_ns=bs.q_trs_sol_is_ns,
+        q_trs_sol_is_ns=q_trs_sol_is_ns,
         r_sol_frt_is=rms.r_sol_frt_is
     )
 
@@ -858,7 +872,7 @@ def _pre_calc(
         f_xot_is_is_n_pls=f_xot_is_is_n_pls
     )
 
-    return pre_calc_parameters
+    return pre_calc_parameters, q_trs_sol_is_ns
 
 
 def _run_tick_ground(self, pp: PreCalcParameters, gc_n: GroundConditions, n: int):

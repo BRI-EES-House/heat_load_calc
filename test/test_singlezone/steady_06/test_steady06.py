@@ -66,7 +66,7 @@ class TestSteadyState(unittest.TestCase):
 
         # pre_calc_parametersの構築
         sqc = sequence.Sequence(
-            itv=interval.Interval.M15, rd=rd, weather=w, scd=scd, q_trs_sol_is_ns=q_trs_sol_is_ns
+            itv=interval.Interval.M15, rd=rd, weather=w, scd=scd, _q_trs_sol_is_ns=q_trs_sol_is_ns
         )
 
         ss = sqc.pre_calc_parameter

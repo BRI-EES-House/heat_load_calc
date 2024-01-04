@@ -144,8 +144,12 @@ class Boundaries:
         bss = [self._get_boundary(b=b, h_s_c_js=h_s_c_js, h_s_r_js=h_s_r_js, w=w, n_rm=n_rm, n_b=n_b, p_is_js=p_is_js) for b in ds]
 
         # ステップ n の室 i における窓の透過日射熱取得, W, [n]
-        q_trs_sol_is_ns = self.get_q_trs_sol_is_ns(n_rm=n_rm, bss=bss, p_is_js=p_is_js)
+        # q_trs_sol_is_ns = self.get_q_trs_sol_is_ns(n_rm=n_rm, bss=bss, p_is_js=p_is_js)
 
+        q_trs_sol_js_ns = np.array([bs.q_trs_sol for bs in bss])
+
+        q_trs_sol_is_ns = np.dot(p_is_js, q_trs_sol_js_ns)
+    
         self._bss = bss
 
         self._n_b = len(bss)
@@ -173,6 +177,7 @@ class Boundaries:
         self._r_js_ms = np.array([bs.rf.row for bs in self._bss])
         self._theta_o_eqv_js_ns = np.array([bs.theta_o_sol for bs in bss])
         self._q_trs_sol_is_ns = q_trs_sol_is_ns
+        self._q_trs_sol_js_ns = q_trs_sol_js_ns
 
     @staticmethod
     def _get_boundary(b: Dict, h_s_c_js: np.ndarray, h_s_r_js: np.ndarray, w: Weather, n_rm: int, n_b: int, p_is_js: np.ndarray) -> Boundary:
@@ -520,23 +525,6 @@ class Boundaries:
             k_s_r_j_is=k_s_r_j_is
         )
 
-    @staticmethod
-    def get_q_trs_sol_is_ns(n_rm, bss, p_is_js):
-
-        print("printing q_trs_sol")
-        print([len(bs.q_trs_sol) for bs in bss])
-        print("printing q_trs_sol")
-        print([bs.q_trs_sol for bs in bss])
-
-        q_trs_sol_js_ns = np.array([bs.q_trs_sol for bs in bss])
-
-        return np.dot(p_is_js, q_trs_sol_js_ns)
-
-#        return np.array([
-#            np.sum(np.array([bs.q_trs_sol for bs in bss if bs.connected_room_id == i]), axis=0)
-#            for i in range(n_rm)
-#        ])
-
     @property
     def n_b(self) -> int:
         """境界の数"""
@@ -668,14 +656,19 @@ class Boundaries:
     def set_theta_o_eqv_js_ns(self, theta_o_eqv_js_ns):
         self._theta_o_eqv_js_ns = theta_o_eqv_js_ns
 
+    #@property
+    #def q_trs_sol_is_ns(self) -> np.ndarray:
+    #    """ステップ n の室 i における窓の透過日射熱取得, W, [n]"""
+    #    return self._q_trs_sol_is_ns
+    
     @property
-    def q_trs_sol_is_ns(self) -> np.ndarray:
-        """ステップ n の室 i における窓の透過日射熱取得, W, [n]"""
-        return self._q_trs_sol_is_ns
+    def q_trs_sol_js_ns(self) -> np.ndarray:
+        """transmitted solar heat gain of boundary j at step n, ステップnにおける境界jの透過日射熱取得, W, [J, N+1]"""
+        return self._q_trs_sol_js_ns
 
     # TODO: 一部のテストを通すためだけに、後から上書きできる機能を作成した。将来的には消すこと。
-    def set_q_trs_sol_is_ns(self, q_trs_sol_is_ns):
-        self._q_trs_sol_is_ns = q_trs_sol_is_ns
+    # def set_q_trs_sol_is_ns(self, q_trs_sol_is_ns):
+    #    self._q_trs_sol_is_ns = q_trs_sol_is_ns
 
     def get_room_id_by_boundary_id(self, boundary_id: int):
 
