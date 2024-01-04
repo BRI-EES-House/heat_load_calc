@@ -48,6 +48,9 @@ class Weather:
 
         self._itv = itv
 
+        # self._number_of_data = itv.get_n_hour() * 8760
+        self._number_of_data = len(theta_o_ns)
+
     @classmethod
     def make_weather(cls, rd: Dict, itv: Interval, entry_point_dir: str = ""):
 
@@ -169,7 +172,8 @@ class Weather:
             number of the data / データの数
         """
 
-        return self._itv.get_n_hour() * 8760
+        return self._number_of_data
+    
 
     @property
     def number_of_data_plus(self) -> int:
