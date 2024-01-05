@@ -47,9 +47,6 @@ class Boundary:
     # 副名称
     sub_name: str
 
-    # 接する室のID
-    connected_room_id: int
-
     # 境界の種類
     boundary_type: BoundaryType
 
@@ -93,8 +90,8 @@ class Boundary:
     # 裏面温度に他の境界 j の等価室温が与える影響, [j, j]
     k_ei_js_j: List
 
-    # 裏面温度に室 i の室温が与える影響, [i]
-    k_s_r_j_is: List
+    # 裏面温度に室の空気温度が与える影響
+    k_s_r_j: float
 
     # 計算で使用する熱貫流率, W/m2K
     simulation_u_value: float
@@ -141,16 +138,15 @@ class Boundaries:
         h_s_c_js = np.array([b['h_c'] for b in ds]).reshape(-1, 1)
 
         # 境界 j, [J]
-        bss = [self._get_boundary(b=b, h_s_c_js=h_s_c_js, h_s_r_js=h_s_r_js, w=w, n_rm=n_rm, n_b=n_b, p_is_js=p_is_js) for b in ds]
+        bss = [
+            self._get_boundary(b=b, h_s_c_js=h_s_c_js, h_s_r_js=h_s_r_js, w=w, n_rm=n_rm, n_b=n_b, p_is_js=p_is_js, p_j_is=p_is_js[:, j])
+            for (j, b) in enumerate(ds)
+        ]
 
-        # ステップ n の室 i における窓の透過日射熱取得, W, [n]
-        # q_trs_sol_is_ns = self.get_q_trs_sol_is_ns(n_rm=n_rm, bss=bss, p_is_js=p_is_js)
-
-        q_trs_sol_js_ns = np.array([bs.q_trs_sol for bs in bss])
-
-        q_trs_sol_is_ns = np.dot(p_is_js, q_trs_sol_js_ns)
-    
         self._bss = bss
+
+        k_s_r_js_2 = np.array([bs.k_s_r_j for bs in bss])
+        k_s_r_js_is = p_is_js.T * k_s_r_js_2[:, np.newaxis]
 
         self._n_b = len(bss)
         self._n_ground = sum(bs.boundary_type == BoundaryType.Ground for bs in bss)
@@ -164,7 +160,11 @@ class Boundaries:
         self._is_ground_js = np.array([bs.boundary_type == BoundaryType.Ground for bs in self._bss]).reshape(-1, 1)
         self._k_ei_js_js = np.array([bs.k_ei_js_j for bs in self._bss])
         self._k_eo_js = np.array([bs.h_td for bs in self._bss]).reshape(-1, 1)
-        self._k_s_r_js = np.array([bs.k_s_r_j_is for bs in self._bss])
+
+        self._k_s_r_js = k_s_r_js_is
+
+        self._connected_room_id_js = connected_room_id_js
+
         self._p_s_sol_abs_js = np.array([bs.is_solar_absorbed_inside for bs in self._bss]).reshape(-1, 1)
         self._h_s_r_js = np.array([bs.h_s_r for bs in self._bss]).reshape(-1, 1)
         self._h_s_c_js = np.array([bs.h_s_c for bs in self._bss]).reshape(-1, 1)
@@ -176,11 +176,10 @@ class Boundaries:
         self._phi_t1_js_ms = np.array([bs.rf.rft1 for bs in self._bss])
         self._r_js_ms = np.array([bs.rf.row for bs in self._bss])
         self._theta_o_eqv_js_ns = np.array([bs.theta_o_sol for bs in bss])
-        self._q_trs_sol_is_ns = q_trs_sol_is_ns
-        self._q_trs_sol_js_ns = q_trs_sol_js_ns
+        self._q_trs_sol_js_ns = np.array([bs.q_trs_sol for bs in bss])
 
     @staticmethod
-    def _get_boundary(b: Dict, h_s_c_js: np.ndarray, h_s_r_js: np.ndarray, w: Weather, n_rm: int, n_b: int, p_is_js: np.ndarray) -> Boundary:
+    def _get_boundary(b: Dict, h_s_c_js: np.ndarray, h_s_r_js: np.ndarray, w: Weather, n_rm: int, n_b: int, p_is_js: np.ndarray, p_j_is: np.ndarray) -> Boundary:
         """
 
         Args:
@@ -205,10 +204,6 @@ class Boundaries:
 
         # 副名称
         sub_name = b['sub_name']
-
-        # 接する室のID
-        # TODO: 指定された room_id が存在するかどうかをチェックするコードを追記する。
-        connected_room_id = int(b['connected_room_id'])
 
         # 境界の種類
         boundary_type = BoundaryType(b['boundary_type'])
@@ -481,8 +476,6 @@ class Boundaries:
             # 外皮に面していない場合、室内壁ではない場合（地盤の場合が該当）は、k_ei_js に操作は行わない。
             pass
 
-        k_s_r_j_is = [0.0] * n_rm
-
         if boundary_type in [
             BoundaryType.ExternalOpaquePart,
             BoundaryType.ExternalTransparentPart,
@@ -494,20 +487,18 @@ class Boundaries:
             # 温度差係数が1.0でない場合はk_ei_jsに値を代入する。
             # id は自分自身の境界IDとし、自分自身の表面の影響は1.0から温度差係数を減じた値になる。
             if h < 1.0:
-                k_s_r_j_is[connected_room_id] = round(1.0 - h, 2)
+                k_s_r_j = round(1.0 - h, 2)
             else:
                 # 温度差係数が1.0の場合は裏面の影響は何もないため k_ei_js に操作は行わない。
-                pass
+                k_s_r_j = 0.0
 
         else:
-
-            pass
+            k_s_r_j = 0.0
 
         return Boundary(
             id=boundary_id,
             name=name,
             sub_name=sub_name,
-            connected_room_id=connected_room_id,
             boundary_type=boundary_type,
             area=area,
             h_td=h_td,
@@ -522,7 +513,7 @@ class Boundaries:
             q_trs_sol=q_trs_sol,
             rf=rf,
             k_ei_js_j=k_ei_js_j,
-            k_s_r_j_is=k_s_r_j_is
+            k_s_r_j=k_s_r_j
         )
 
     @property
@@ -672,22 +663,21 @@ class Boundaries:
 
     def get_room_id_by_boundary_id(self, boundary_id: int):
 
-        bs = self._get_boundary_by_id(boundary_id=boundary_id)
+        room_id = self._connected_room_id_js[self._get_index_by_id(boundary_id=boundary_id)]
+    
+        return room_id
 
-        return bs.connected_room_id
+    def _get_index_by_id(self, boundary_id: int) -> int:
 
-    def _get_boundary_by_id(self, boundary_id: int) -> Boundary:
+        indices = [i for (i, id_b_j) in enumerate(self.id_b_js) if id_b_j == boundary_id]
 
-        # 指定された boundary_id に一致する Boundary を取得する。
-        bss = [bs for bs in self._bss if bs.id == boundary_id]
-
-        # 取得された Boundary は必ず1つのはずなので、「見つからない場合」「複数該当した場合」にはエラーを出す。
-        if len(bss) == 0:
+        if len(indices) == 0:
             raise Exception("指定された boundary_id に一致する boundary が見つかりませんでした。")
-        if len(bss) >1:
+        if len(indices) >1:
             raise Exception("指定された boundary_id に一致する boundary が複数見つかりました。")
+        
+        return indices[0]
 
-        return bss[0]
 
 
 def _get_p_is_js(id_r_is, connected_room_id_js):
@@ -696,14 +686,6 @@ def _get_p_is_js(id_r_is, connected_room_id_js):
     #  [ ...  ... ...  ... ]
     #  [p_i_0 ... ... p_i_j]]
 
-#    p_is_js = []
-
-#    for room_id_j in connected_room_id_js:
-        # p_is_j = np.zeros(id_r_is.size, dtype=int)
-        # p_is_j[_get_index(id_r_is=id_r_is, id=room_id_j)] = 1
-#        p_is_j = _get_p_is_j(id_r_is=id_r_is, connected_room_id_j=room_id_j)
-#        p_is_js.append(p_is_j)
-    
     p_is_js = [
         _get_p_is_j(id_r_is=id_r_is, connected_room_id_j=connected_room_id_j)
         for connected_room_id_j in connected_room_id_js
@@ -712,6 +694,7 @@ def _get_p_is_js(id_r_is, connected_room_id_js):
     p_is_js = np.array(p_is_js).T
     
     return p_is_js
+
 
 def _get_p_is_j(id_r_is: np.ndarray, connected_room_id_j: int):
 
