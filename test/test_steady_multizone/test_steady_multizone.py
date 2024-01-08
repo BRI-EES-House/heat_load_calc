@@ -66,7 +66,7 @@ class TestSteadyState(unittest.TestCase):
         result = recorder.Recorder(
             n_step_main=8760 * 4,
             id_rm_is=list(sqc.rms.id_r_is.flatten()),
-            id_bs_js=list(sqc.bs.id_b_js.flatten())
+            id_bs_js=list(sqc.bs.id_js.flatten())
         )
 
         result.pre_recording(
@@ -122,7 +122,7 @@ class TestSteadyState(unittest.TestCase):
             theta_dsh_s_a_js_ms_n=q_srf_js_n * sqc.bs.phi_a1_js_ms / (1.0 - sqc.bs.r_js_ms),
             theta_dsh_s_t_js_ms_n=(
                     np.dot(sqc.bs.k_ei_js_js, theta_ei_js_n)
-                    + sqc.bs.k_eo_js * sqc.bs.theta_o_eqv_js_ns[:, 1].reshape(-1, 1)
+                    + sqc.bs.k_eo_js * sqc.bs.theta_o_eqv_js_nspls[:, 1].reshape(-1, 1)
                     + np.dot(sqc.bs.k_s_r_js_is, theta_r_is_n)
                 ) * sqc.bs.phi_t1_js_ms / (1.0 - sqc.bs.r_js_ms),
             q_s_js_n=q_srf_js_n,

@@ -107,7 +107,7 @@ class Sequence:
             q_trs_sol_is_ns = np.append(_q_trs_sol_is_ns, _q_trs_sol_is_ns[:, 0:1], axis=1)
         else:
             # q_trs_sol_is_ns = bs.q_trs_sol_is_ns
-            q_trs_sol_is_ns = np.dot(bs.p_is_js, bs.q_trs_sol_js_ns)
+            q_trs_sol_is_ns = np.dot(bs.p_is_js, bs.q_trs_sol_js_nspls)
 
         # ステップ n の境界 j における相当外気温度, ℃, [j, n]
         # 　このif文は、これまで実施してきたテストを維持するために設けている。
@@ -115,7 +115,7 @@ class Sequence:
         # CSVで与える方式があることは（将来的に削除予定であるため）仕様書には記述しない。
         if theta_o_eqv_js_ns is not None:
             # ステップn+1に対応するために0番要素に最終要素を代入
-            bs.set_theta_o_eqv_js_ns(theta_o_eqv_js_ns=np.append(theta_o_eqv_js_ns, theta_o_eqv_js_ns[:, 0:1], axis=1))
+            bs.set_theta_o_eqv_js_nspls(theta_o_eqv_js_nspls=np.append(theta_o_eqv_js_ns, theta_o_eqv_js_ns[:, 0:1], axis=1))
 
         # MechanicalVentilation Class
         mvs = MechanicalVentilations(vs=rd['mechanical_ventilations'], n_rm=rms.n_r)
@@ -269,7 +269,7 @@ class Sequence:
             k_s_er_js_js=self.bs.k_ei_js_js,
             theta_er_js_n=c_n.theta_ei_js_n,
             k_s_eo_js=self.bs.k_eo_js,
-            theta_eo_js_n=self.bs.theta_o_eqv_js_ns[:, n].reshape(-1, 1),
+            theta_eo_js_n=self.bs.theta_o_eqv_js_nspls[:, n].reshape(-1, 1),
             k_s_r_js_is=self.bs.k_s_r_js_is,
             theta_r_is_n=c_n.theta_r_is_n
         )
@@ -659,7 +659,7 @@ class Sequence:
             k_s_er_js_js=self.bs.k_ei_js_js,
             theta_er_js_n=theta_ei_js_n_pls,
             k_s_eo_js=self.bs.k_eo_js,
-            theta_eo_js_n=self.bs.theta_o_eqv_js_ns[:, n+1].reshape(-1, 1),
+            theta_eo_js_n=self.bs.theta_o_eqv_js_nspls[:, n+1].reshape(-1, 1),
             k_s_r_js_is=self.bs.k_s_r_js_is,
             theta_r_is_n=theta_r_is_n_pls
         )
@@ -778,7 +778,7 @@ def _pre_calc(
     f_mrt_hum_is_js = occupants_form_factor.get_f_mrt_hum_js(
         p_is_js=bs.p_is_js,
         a_s_js=bs.a_s_js,
-        is_floor_js=bs.is_floor_js
+        is_floor_js=bs.b_floor_js
     )
 
     # 室 i の微小球に対する境界 j の形態係数, -, [i, j]
@@ -800,7 +800,7 @@ def _pre_calc(
     q_s_sol_js_ns = solar_absorption.get_q_s_sol_js_ns(
         p_is_js=bs.p_is_js,
         a_s_js=bs.a_s_js,
-        p_s_sol_abs_js=bs.p_s_sol_abs_js,
+        p_s_sol_abs_js=bs.b_s_sol_abs_js,
         p_js_is=bs.p_js_is,
         q_trs_sol_is_ns=q_trs_sol_is_ns,
         r_sol_frt_is=rms.r_sol_frt_is
@@ -837,7 +837,7 @@ def _pre_calc(
         phi_t0_js=bs.phi_t0_js,
         q_s_sol_js_ns=q_s_sol_js_ns,
         k_eo_js=bs.k_eo_js,
-        theta_o_eqv_js_ns=bs.theta_o_eqv_js_ns
+        theta_o_eqv_js_ns=bs.theta_o_eqv_js_nspls
     )
 
     # 係数 f_WSR, -, [j, i]
@@ -887,9 +887,9 @@ def _run_tick_ground(self, pp: PreCalcParameters, gc_n: GroundConditions, n: int
 
     """
 
-    is_ground = self.bs.is_ground_js.flatten()
+    is_ground = self.bs.b_ground_js.flatten()
 
-    theta_o_eqv_js_ns = self.bs.theta_o_eqv_js_ns[is_ground, :]
+    theta_o_eqv_js_ns = self.bs.theta_o_eqv_js_nspls[is_ground, :]
 
     h_i_js = self.bs.h_s_r_js[is_ground, :] + self.bs.h_s_c_js[is_ground, :]
 

@@ -12,7 +12,7 @@ class ResponseFactor:
     # 根の数
     n_root = 12
 
-    def __init__(self, rft0: float, rfa0: float, rft1: np.ndarray, rfa1: np.ndarray, row: np.ndarray):
+    def __init__(self, rft0: float, rfa0: float, rft1: np.ndarray, rfa1: np.ndarray, row: np.ndarray, r_total: float):
         """イニシャライザ
 
         Args:
@@ -21,6 +21,7 @@ class ResponseFactor:
             rft1: 貫流応答係数
             rfa1: 吸熱応答係数
             row: 公比
+            r_total: 室内側表面から裏面空気までの熱抵抗, m2 K / W
         """
 
         self._rft0 = rft0
@@ -28,6 +29,8 @@ class ResponseFactor:
         self._rft1 = rft1
         self._rfa1 = rfa1
         self._row = row
+        self._r_total = r_total
+
 
     @property
     def rft0(self):
@@ -48,6 +51,10 @@ class ResponseFactor:
     @property
     def row(self):
         return self._row
+    
+    @property
+    def r_total(self):
+        return self._r_total
 
     @classmethod
     def create_for_steady(cls, u_w: float, r_i: float):
@@ -64,12 +71,15 @@ class ResponseFactor:
         # 開口部の室内表面から屋外までの熱コンダクタンス, W/m2K
         u_so = 1.0 / (1.0 / u_w - r_i)
 
+        r_total = u_w - r_i
+
         return ResponseFactor(
             rft0=1.0,
             rfa0=1.0 / u_so,
             rft1=np.zeros(cls.n_root, dtype=float),
             rfa1=np.zeros(cls.n_root, dtype=float),
-            row=np.zeros(cls.n_root, dtype=float)
+            row=np.zeros(cls.n_root, dtype=float),
+            r_total=r_total
         )
 
     @classmethod
@@ -96,7 +106,9 @@ class ResponseFactor:
         # 応答係数
         frt0, rfa0, rft1, rfa1, row = calc_response_factor_non_residential(C_i_k_p=cs, R_i_k_p=rs)
 
-        return ResponseFactor(rft0=frt0, rfa0=rfa0, rft1=rft1, rfa1=rfa1, row=row)
+        r_total = rs.sum() + r_o
+
+        return ResponseFactor(rft0=frt0, rfa0=rfa0, rft1=rft1, rfa1=rfa1, row=row, r_total=r_total)
 
     @classmethod
     def create_for_unsteady_ground(cls, cs: np.ndarray, rs: np.ndarray):
@@ -127,7 +139,9 @@ class ResponseFactor:
         rft0 = 1.0
         rft1 = np.zeros(12)
 
-        return ResponseFactor(rft0=rft0, rfa0=rfa0, rft1=rft1, rfa1=rfa1, row=row)
+        r_total = rs.sum()
+
+        return ResponseFactor(rft0=rft0, rfa0=rfa0, rft1=rft1, rfa1=rfa1, row=row, r_total=r_total)
 
 
 # ラプラス変数の設定
