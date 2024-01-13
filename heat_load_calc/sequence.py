@@ -92,7 +92,18 @@ class Sequence:
         rms = rooms.Rooms(ds=rd['rooms'])
 
         # Boundaries Class
-        bs = boundaries.Boundaries(id_r_is=rms.id_r_is, ds=rd['boundaries'], w=weather)
+        if 'mutual_radiation_method' in rd['common']:
+            rad_method_str = str(rd['common']['mutual_radiation_method'])
+            if rad_method_str == 'area_average':
+                rad_method = 'area_average'
+            elif rad_method_str == 'Nagata':
+                rad_method = 'Nagata'
+            else:
+                raise KeyError()
+        else:
+            rad_method = 'Nagata'
+            
+        bs = boundaries.Boundaries(id_r_is=rms.id_r_is, ds=rd['boundaries'], w=weather, rad_method=rad_method)
 
         # ステップ n の室 i における窓の透過日射熱取得, W, [n]
         # 　この操作は、これまで実施してきたテストを維持するために設けている。

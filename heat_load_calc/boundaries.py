@@ -80,7 +80,7 @@ class Boundary:
 
 class Boundaries:
 
-    def __init__(self, id_r_is: np.ndarray, ds: List[Dict], w: Weather):
+    def __init__(self, id_r_is: np.ndarray, ds: List[Dict], w: Weather, rad_method: str = 'Nagata'):
         """
 
         Args:
@@ -113,7 +113,7 @@ class Boundaries:
         a_s_js = np.array([_read_a_s(d=d, id=id_j) for (d, id_j) in zip(ds, id_js)]).reshape(-1, 1)
 
         # indoor surface radiant heat transfer coefficient of boundary j / 境界jの室内側表面放射熱伝達率, W/m2K, [J, 1]
-        h_s_r_js = shape_factor.get_h_s_r_js(a_s_js=a_s_js, p_is_js=p_is_js)
+        h_s_r_js = shape_factor.get_h_s_r_js(a_s_js=a_s_js, p_is_js=p_is_js, method=rad_method)
 
         # indoor surface convection heat transfer coefficient of boundary j / 境界jの室内側表面対流熱伝達率, W/m2K, [J, 1]
         h_s_c_js = np.array([b['h_c'] for b in ds]).reshape(-1, 1)
