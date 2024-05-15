@@ -148,13 +148,27 @@ class Sequence:
         #   ステップ n　からステップ n+1 における係数 f_l_cl_cst, kg/s, [i, 1]
         get_f_l_cl = es.make_get_f_l_cl_funcs()
 
-        pre_calc_parameters, _ = _pre_calc(
+        v_vent_mec_is_ns, f_mrt_hum_is_js,f_mrt_is_js, q_s_sol_js_ns, q_sol_frt_is_ns, f_wsr_js_is, f_ax_js_js, f_wsc_js_ns, k_r_is_n, k_c_is_n, f_xot_is_is_n_pls = _pre_calc(
             scd=scd,
             rms=rms,
             bs=bs,
             mvs=mvs,
             op=op,
             q_trs_sol_is_ns=q_trs_sol_is_ns
+        )
+
+        pre_calc_parameters = PreCalcParameters(
+            v_vent_mec_is_ns=v_vent_mec_is_ns,
+            q_sol_frt_is_ns=q_sol_frt_is_ns,
+            q_s_sol_js_ns=q_s_sol_js_ns,
+            f_ax_js_js=f_ax_js_js,
+            f_mrt_hum_is_js=f_mrt_hum_is_js,
+            f_mrt_is_js=f_mrt_is_js,
+            f_wsr_js_is=f_wsr_js_is,
+            f_wsc_js_ns=f_wsc_js_ns,
+            k_r_is_n=k_r_is_n,
+            k_c_is_n=k_c_is_n,
+            f_xot_is_is_n_pls=f_xot_is_is_n_pls
         )
 
         # 時間間隔クラス
@@ -867,21 +881,7 @@ def _pre_calc(
         k_r_is_n=k_r_is_n
     )
 
-    pre_calc_parameters = PreCalcParameters(
-        v_vent_mec_is_ns=v_vent_mec_is_ns,
-        f_mrt_hum_is_js=f_mrt_hum_is_js,
-        f_mrt_is_js=f_mrt_is_js,
-        q_s_sol_js_ns=q_s_sol_js_ns,
-        q_sol_frt_is_ns=q_sol_frt_is_ns,
-        f_wsr_js_is=f_wsr_js_is,
-        f_ax_js_js=f_ax_js_js,
-        f_wsc_js_ns=f_wsc_js_ns,
-        k_r_is_n=k_r_is_n,
-        k_c_is_n=k_c_is_n,
-        f_xot_is_is_n_pls=f_xot_is_is_n_pls
-    )
-
-    return pre_calc_parameters, q_trs_sol_is_ns
+    return v_vent_mec_is_ns, f_mrt_hum_is_js,f_mrt_is_js, q_s_sol_js_ns, q_sol_frt_is_ns, f_wsr_js_is, f_ax_js_js, f_wsc_js_ns, k_r_is_n, k_c_is_n, f_xot_is_is_n_pls
 
 
 def _run_tick_ground(self, pp: PreCalcParameters, gc_n: GroundConditions, n: int):
