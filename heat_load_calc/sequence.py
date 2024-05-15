@@ -153,7 +153,6 @@ class Sequence:
             rms=rms,
             bs=bs,
             mvs=mvs,
-            es=es,
             op=op,
             q_trs_sol_is_ns=q_trs_sol_is_ns
         )
@@ -768,18 +767,17 @@ def _pre_calc(
         rms: Rooms,
         bs: Boundaries,
         mvs: MechanicalVentilations,
-        es: Equipments,
         op: Operation,
         q_trs_sol_is_ns: np.ndarray
 ) -> PreCalcParameters:
     """助走計算用パラメータの生成
 
     Args:
-        scd: Scheduleクラス
-        rms: Roomsクラス
-        bs: Boundariesクラス
-        mvs: MechanicalVentilationsクラス
-        es: Equipmenstクラス
+        scd: Schedule class
+        rms: Rooms class
+        bs: Boundaries class
+        mvs: MechanicalVentilations class
+        op: Operation class
 
     Returns:
         PreCalcParameters
