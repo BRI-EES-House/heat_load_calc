@@ -158,11 +158,15 @@ class Sequence:
         # the shape factor of boundaries j for the microsphier in the room i, [i, j]
         f_mrt_is_js = shape_factor.get_f_mrt_is_js(a_s_js=bs.a_s_js, h_s_r_js=bs.h_s_r_js, p_is_js=bs.p_is_js)
 
-        v_vent_mec_is_ns, q_s_sol_js_ns, q_sol_frt_is_ns, f_wsr_js_is, f_ax_js_js, f_wsc_js_ns, k_r_is_n, k_c_is_n, f_xot_is_is_n_pls = _pre_calc(
-            scd=scd,
+        # the mechanical ventilation amount(the sum of the general ventilation amount and local ventilation amount) of room i from step n to step n+1, m3/s, [i, 1]
+        v_vent_mec_is_ns = get_v_vent_mec_is_ns(
+            v_vent_mec_general_is=mvs.v_vent_mec_general_is,
+            v_vent_mec_local_is_ns=scd.v_mec_vent_local_is_ns
+        )
+
+        q_s_sol_js_ns, q_sol_frt_is_ns, f_wsr_js_is, f_ax_js_js, f_wsc_js_ns, k_r_is_n, k_c_is_n, f_xot_is_is_n_pls = _pre_calc(
             rms=rms,
             bs=bs,
-            mvs=mvs,
             op=op,
             q_trs_sol_is_ns=q_trs_sol_is_ns,
             f_mrt_hum_is_js=f_mrt_hum_is_js,
@@ -789,10 +793,8 @@ class Sequence:
 
 
 def _pre_calc(
-        scd: schedule.Schedule,
         rms: Rooms,
         bs: Boundaries,
-        mvs: MechanicalVentilations,
         op: Operation,
         q_trs_sol_is_ns: np.ndarray,
         f_mrt_hum_is_js: np.ndarray,
@@ -801,24 +803,13 @@ def _pre_calc(
     """助走計算用パラメータの生成
 
     Args:
-        scd: Schedule class
         rms: Rooms class
         bs: Boundaries class
-        mvs: MechanicalVentilations class
         op: Operation class
 
     Returns:
         PreCalcParameters
     """
-
-    # ステップ n からステップ n+1 における室 i の機械換気量（全般換気量と局所換気量の合計値）, m3/s, [i, 1]
-    v_vent_mec_is_ns = get_v_vent_mec_is_ns(
-        v_vent_mec_general_is=mvs.v_vent_mec_general_is,
-        v_vent_mec_local_is_ns=scd.v_mec_vent_local_is_ns
-    )
-
-    # ステップnにおける室iの透過日射量, W, [I, N+1]
-    # q_trs_sol_is_ns = bs.q_trs_sol_is_ns
 
     # ステップ n における室 i に設置された備品等による透過日射吸収熱量, W, [i, n+1]
     q_sol_frt_is_ns = solar_absorption.get_q_sol_frt_is_ns(q_trs_sor_is_ns=q_trs_sol_is_ns, r_sol_frt_is=rms.r_sol_frt_is)
@@ -885,7 +876,7 @@ def _pre_calc(
         k_r_is_n=k_r_is_n
     )
 
-    return v_vent_mec_is_ns, q_s_sol_js_ns, q_sol_frt_is_ns, f_wsr_js_is, f_ax_js_js, f_wsc_js_ns, k_r_is_n, k_c_is_n, f_xot_is_is_n_pls
+    return q_s_sol_js_ns, q_sol_frt_is_ns, f_wsr_js_is, f_ax_js_js, f_wsc_js_ns, k_r_is_n, k_c_is_n, f_xot_is_is_n_pls
 
 
 def _run_tick_ground(self, pp: PreCalcParameters, gc_n: GroundConditions, n: int):
