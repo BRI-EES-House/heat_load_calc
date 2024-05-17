@@ -155,14 +155,18 @@ class Sequence:
             is_floor_js=bs.b_floor_js
         )
 
-        v_vent_mec_is_ns, f_mrt_hum_is_js,f_mrt_is_js, q_s_sol_js_ns, q_sol_frt_is_ns, f_wsr_js_is, f_ax_js_js, f_wsc_js_ns, k_r_is_n, k_c_is_n, f_xot_is_is_n_pls = _pre_calc(
+        # the shape factor of boundaries j for the microsphier in the room i, [i, j]
+        f_mrt_is_js = shape_factor.get_f_mrt_is_js(a_s_js=bs.a_s_js, h_s_r_js=bs.h_s_r_js, p_is_js=bs.p_is_js)
+
+        v_vent_mec_is_ns, q_s_sol_js_ns, q_sol_frt_is_ns, f_wsr_js_is, f_ax_js_js, f_wsc_js_ns, k_r_is_n, k_c_is_n, f_xot_is_is_n_pls = _pre_calc(
             scd=scd,
             rms=rms,
             bs=bs,
             mvs=mvs,
             op=op,
             q_trs_sol_is_ns=q_trs_sol_is_ns,
-            f_mrt_hum_is_js=f_mrt_hum_is_js
+            f_mrt_hum_is_js=f_mrt_hum_is_js,
+            f_mrt_is_js=f_mrt_is_js
         )
 
         pre_calc_parameters = PreCalcParameters(
@@ -791,7 +795,8 @@ def _pre_calc(
         mvs: MechanicalVentilations,
         op: Operation,
         q_trs_sol_is_ns: np.ndarray,
-        f_mrt_hum_is_js: np.ndarray
+        f_mrt_hum_is_js: np.ndarray,
+        f_mrt_is_js: np.ndarray
 ) -> PreCalcParameters:
     """助走計算用パラメータの生成
 
@@ -805,9 +810,6 @@ def _pre_calc(
     Returns:
         PreCalcParameters
     """
-
-    # 室 i の微小球に対する境界 j の形態係数, -, [i, j]
-    f_mrt_is_js = shape_factor.get_f_mrt_is_js(a_s_js=bs.a_s_js, h_s_r_js=bs.h_s_r_js, p_is_js=bs.p_is_js)
 
     # ステップ n からステップ n+1 における室 i の機械換気量（全般換気量と局所換気量の合計値）, m3/s, [i, 1]
     v_vent_mec_is_ns = get_v_vent_mec_is_ns(
@@ -883,7 +885,7 @@ def _pre_calc(
         k_r_is_n=k_r_is_n
     )
 
-    return v_vent_mec_is_ns, f_mrt_hum_is_js,f_mrt_is_js, q_s_sol_js_ns, q_sol_frt_is_ns, f_wsr_js_is, f_ax_js_js, f_wsc_js_ns, k_r_is_n, k_c_is_n, f_xot_is_is_n_pls
+    return v_vent_mec_is_ns, q_s_sol_js_ns, q_sol_frt_is_ns, f_wsr_js_is, f_ax_js_js, f_wsc_js_ns, k_r_is_n, k_c_is_n, f_xot_is_is_n_pls
 
 
 def _run_tick_ground(self, pp: PreCalcParameters, gc_n: GroundConditions, n: int):
