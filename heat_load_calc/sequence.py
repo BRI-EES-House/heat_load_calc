@@ -148,13 +148,21 @@ class Sequence:
         #   ステップ n　からステップ n+1 における係数 f_l_cl_cst, kg/s, [i, 1]
         get_f_l_cl = es.make_get_f_l_cl_funcs()
 
+        # the shape factor of boundaries j for the occupant in room i, [i, j]
+        f_mrt_hum_is_js = occupants_form_factor.get_f_mrt_hum_js(
+            p_is_js=bs.p_is_js,
+            a_s_js=bs.a_s_js,
+            is_floor_js=bs.b_floor_js
+        )
+
         v_vent_mec_is_ns, f_mrt_hum_is_js,f_mrt_is_js, q_s_sol_js_ns, q_sol_frt_is_ns, f_wsr_js_is, f_ax_js_js, f_wsc_js_ns, k_r_is_n, k_c_is_n, f_xot_is_is_n_pls = _pre_calc(
             scd=scd,
             rms=rms,
             bs=bs,
             mvs=mvs,
             op=op,
-            q_trs_sol_is_ns=q_trs_sol_is_ns
+            q_trs_sol_is_ns=q_trs_sol_is_ns,
+            f_mrt_hum_is_js=f_mrt_hum_is_js
         )
 
         pre_calc_parameters = PreCalcParameters(
@@ -782,7 +790,8 @@ def _pre_calc(
         bs: Boundaries,
         mvs: MechanicalVentilations,
         op: Operation,
-        q_trs_sol_is_ns: np.ndarray
+        q_trs_sol_is_ns: np.ndarray,
+        f_mrt_hum_is_js: np.ndarray
 ) -> PreCalcParameters:
     """助走計算用パラメータの生成
 
@@ -796,13 +805,6 @@ def _pre_calc(
     Returns:
         PreCalcParameters
     """
-
-    # 室 i の在室者に対する境界jの形態係数, [i, j]
-    f_mrt_hum_is_js = occupants_form_factor.get_f_mrt_hum_js(
-        p_is_js=bs.p_is_js,
-        a_s_js=bs.a_s_js,
-        is_floor_js=bs.b_floor_js
-    )
 
     # 室 i の微小球に対する境界 j の形態係数, -, [i, j]
     f_mrt_is_js = shape_factor.get_f_mrt_is_js(a_s_js=bs.a_s_js, h_s_r_js=bs.h_s_r_js, p_is_js=bs.p_is_js)
