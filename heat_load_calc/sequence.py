@@ -164,7 +164,10 @@ class Sequence:
             v_vent_mec_local_is_ns=scd.v_mec_vent_local_is_ns
         )
 
-        q_s_sol_js_ns, q_sol_frt_is_ns, f_wsr_js_is, f_ax_js_js, f_wsc_js_ns, k_r_is_n, k_c_is_n, f_xot_is_is_n_pls = _pre_calc(
+        # the average value of the transparented solar radiation absorbed by the furniture in room i at step n
+        q_sol_frt_is_ns = solar_absorption.get_q_sol_frt_is_ns(q_trs_sor_is_ns=q_trs_sol_is_ns, r_sol_frt_is=rms.r_sol_frt_is)
+
+        q_s_sol_js_ns, f_wsr_js_is, f_ax_js_js, f_wsc_js_ns, k_r_is_n, k_c_is_n, f_xot_is_is_n_pls = _pre_calc(
             rms=rms,
             bs=bs,
             op=op,
@@ -811,9 +814,6 @@ def _pre_calc(
         PreCalcParameters
     """
 
-    # ステップ n における室 i に設置された備品等による透過日射吸収熱量, W, [i, n+1]
-    q_sol_frt_is_ns = solar_absorption.get_q_sol_frt_is_ns(q_trs_sor_is_ns=q_trs_sol_is_ns, r_sol_frt_is=rms.r_sol_frt_is)
-
     # ステップ n における境界 j の透過日射吸収熱量, W/m2, [j, n]
     q_s_sol_js_ns = solar_absorption.get_q_s_sol_js_ns(
         p_is_js=bs.p_is_js,
@@ -876,7 +876,7 @@ def _pre_calc(
         k_r_is_n=k_r_is_n
     )
 
-    return q_s_sol_js_ns, q_sol_frt_is_ns, f_wsr_js_is, f_ax_js_js, f_wsc_js_ns, k_r_is_n, k_c_is_n, f_xot_is_is_n_pls
+    return q_s_sol_js_ns, f_wsr_js_is, f_ax_js_js, f_wsc_js_ns, k_r_is_n, k_c_is_n, f_xot_is_is_n_pls
 
 
 def _run_tick_ground(self, pp: PreCalcParameters, gc_n: GroundConditions, n: int):
