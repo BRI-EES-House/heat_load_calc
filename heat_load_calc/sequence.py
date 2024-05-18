@@ -336,6 +336,10 @@ class Sequence:
     
     @property
     def q_trs_sol_is_ns(self):
+        """the solar heat gain transmitted through the windows of room i at step n
+        Notes:
+            this property is only used for pre-recording
+        """
         return self._q_trs_sol_is_ns
 
     @property
