@@ -167,13 +167,22 @@ class Sequence:
         # the average value of the transparented solar radiation absorbed by the furniture in room i at step n
         q_sol_frt_is_ns = solar_absorption.get_q_sol_frt_is_ns(q_trs_sor_is_ns=q_trs_sol_is_ns, r_sol_frt_is=rms.r_sol_frt_is)
 
-        q_s_sol_js_ns, f_wsr_js_is, f_ax_js_js, f_wsc_js_ns, k_r_is_n, k_c_is_n, f_xot_is_is_n_pls = _pre_calc(
-            rms=rms,
+        # the transparent solar radiation absorbed by the boundary j at step n, W/m2, [J, N]
+        q_s_sol_js_ns = solar_absorption.get_q_s_sol_js_ns(
+            p_is_js=bs.p_is_js,
+            a_s_js=bs.a_s_js,
+            p_s_sol_abs_js=bs.b_s_sol_abs_js,
+            p_js_is=bs.p_js_is,
+            q_trs_sol_is_ns=q_trs_sol_is_ns,
+            r_sol_frt_is=rms.r_sol_frt_is
+        )
+
+        f_wsr_js_is, f_ax_js_js, f_wsc_js_ns, k_r_is_n, k_c_is_n, f_xot_is_is_n_pls = _pre_calc(
             bs=bs,
             op=op,
-            q_trs_sol_is_ns=q_trs_sol_is_ns,
             f_mrt_hum_is_js=f_mrt_hum_is_js,
-            f_mrt_is_js=f_mrt_is_js
+            f_mrt_is_js=f_mrt_is_js,
+            q_s_sol_js_ns=q_s_sol_js_ns
         )
 
         pre_calc_parameters = PreCalcParameters(
@@ -796,33 +805,21 @@ class Sequence:
 
 
 def _pre_calc(
-        rms: Rooms,
         bs: Boundaries,
         op: Operation,
-        q_trs_sol_is_ns: np.ndarray,
         f_mrt_hum_is_js: np.ndarray,
-        f_mrt_is_js: np.ndarray
+        f_mrt_is_js: np.ndarray,
+        q_s_sol_js_ns: np.ndarray
 ) -> PreCalcParameters:
     """助走計算用パラメータの生成
 
     Args:
-        rms: Rooms class
         bs: Boundaries class
         op: Operation class
 
     Returns:
         PreCalcParameters
     """
-
-    # ステップ n における境界 j の透過日射吸収熱量, W/m2, [j, n]
-    q_s_sol_js_ns = solar_absorption.get_q_s_sol_js_ns(
-        p_is_js=bs.p_is_js,
-        a_s_js=bs.a_s_js,
-        p_s_sol_abs_js=bs.b_s_sol_abs_js,
-        p_js_is=bs.p_js_is,
-        q_trs_sol_is_ns=q_trs_sol_is_ns,
-        r_sol_frt_is=rms.r_sol_frt_is
-    )
 
     # 係数 f_AX, -, [j, j]
     f_ax_js_js = get_f_ax_js_is(
@@ -876,7 +873,7 @@ def _pre_calc(
         k_r_is_n=k_r_is_n
     )
 
-    return q_s_sol_js_ns, f_wsr_js_is, f_ax_js_js, f_wsc_js_ns, k_r_is_n, k_c_is_n, f_xot_is_is_n_pls
+    return f_wsr_js_is, f_ax_js_js, f_wsc_js_ns, k_r_is_n, k_c_is_n, f_xot_is_is_n_pls
 
 
 def _run_tick_ground(self, pp: PreCalcParameters, gc_n: GroundConditions, n: int):
