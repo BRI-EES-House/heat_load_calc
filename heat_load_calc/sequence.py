@@ -177,7 +177,7 @@ class Sequence:
             r_sol_frt_is=rms.r_sol_frt_is
         )
 
-        # coefficient f_AX, -, [j, j]
+        # f_AX, -, [j, j]
         f_ax_js_js = get_f_ax_js_is(
             f_mrt_is_js=f_mrt_is_js,
             h_s_c_js=bs.h_s_c_js,
@@ -188,12 +188,48 @@ class Sequence:
             phi_t0_js=bs.phi_t0_js
         )
 
-        f_wsr_js_is, f_wsc_js_ns, k_r_is_n, k_c_is_n, f_xot_is_is_n_pls = _pre_calc(
-            bs=bs,
-            op=op,
-            f_mrt_hum_is_js=f_mrt_hum_is_js,
+        # f_FIA, -, [J, I]
+        f_fia_js_is = get_f_fia_js_is(
+            h_s_c_js=bs.h_s_c_js,
+            h_s_r_js=bs.h_s_r_js,
+            k_ei_js_js=bs.k_ei_js_js,
+            p_js_is=bs.p_js_is,
+            phi_a0_js=bs.phi_a0_js,
+            phi_t0_js=bs.phi_t0_js,
+            k_s_r_js_is=bs.k_s_r_js_is
+        )
+
+        # f_CRX, degree C, [J, N]
+        f_crx_js_ns = get_f_crx_js_ns(
+            h_s_c_js=bs.h_s_c_js,
+            h_s_r_js=bs.h_s_r_js,
+            k_ei_js_js=bs.k_ei_js_js,
+            phi_a0_js=bs.phi_a0_js,
+            phi_t0_js=bs.phi_t0_js,
             q_s_sol_js_ns=q_s_sol_js_ns,
-            f_ax_js_js=f_ax_js_js
+            k_eo_js=bs.k_eo_js,
+            theta_o_eqv_js_ns=bs.theta_o_eqv_js_nspls
+        )
+
+        # f_WSR, -, [J, I]
+        f_wsr_js_is = get_f_wsr_js_is(f_ax_js_js=f_ax_js_js, f_fia_js_is=f_fia_js_is)
+
+        # f_WSR, -, [J, I]
+        f_wsr_js_is = get_f_wsr_js_is(f_ax_js_js=f_ax_js_js, f_fia_js_is=f_fia_js_is)
+
+        # f_{WSC, n}, degree C, [J, N]
+        f_wsc_js_ns = get_f_wsc_js_ns(f_ax_js_js=f_ax_js_js, f_crx_js_ns=f_crx_js_ns)
+
+        # ステップnにおける室iの在室者表面における対流熱伝達率の総合熱伝達率に対する比, -, [i, 1]
+        # ステップ n における室 i の在室者表面における放射熱伝達率の総合熱伝達率に対する比, -, [i, 1]
+        k_c_is_n, k_r_is_n = op.get_k_is()
+
+        # ステップn+1における室iの係数 XOT, [i, i]
+        f_xot_is_is_n_pls = get_f_xot_is_is_n_pls(
+            f_mrt_hum_is_js=f_mrt_hum_is_js,
+            f_wsr_js_is= f_wsr_js_is,
+            k_c_is_n=k_c_is_n,
+            k_r_is_n=k_r_is_n
         )
 
         pre_calc_parameters = PreCalcParameters(
@@ -813,67 +849,6 @@ class Sequence:
         pp = self.pre_calc_parameter
 
         return _run_tick_ground(self=self, pp=pp, gc_n=gc_n, n=n)
-
-
-def _pre_calc(
-        bs: Boundaries,
-        op: Operation,
-        f_mrt_hum_is_js: np.ndarray,
-        q_s_sol_js_ns: np.ndarray,
-        f_ax_js_js: np.ndarray
-) -> PreCalcParameters:
-    """助走計算用パラメータの生成
-
-    Args:
-        bs: Boundaries class
-        op: Operation class
-
-    Returns:
-        PreCalcParameters
-    """
-
-    # 係数 f_FIA, -, [j, i]
-    f_fia_js_is = get_f_fia_js_is(
-        h_s_c_js=bs.h_s_c_js,
-        h_s_r_js=bs.h_s_r_js,
-        k_ei_js_js=bs.k_ei_js_js,
-        p_js_is=bs.p_js_is,
-        phi_a0_js=bs.phi_a0_js,
-        phi_t0_js=bs.phi_t0_js,
-        k_s_r_js_is=bs.k_s_r_js_is
-    )
-
-    # 係数 f_CRX, degree C, [j, n]
-    f_crx_js_ns = get_f_crx_js_ns(
-        h_s_c_js=bs.h_s_c_js,
-        h_s_r_js=bs.h_s_r_js,
-        k_ei_js_js=bs.k_ei_js_js,
-        phi_a0_js=bs.phi_a0_js,
-        phi_t0_js=bs.phi_t0_js,
-        q_s_sol_js_ns=q_s_sol_js_ns,
-        k_eo_js=bs.k_eo_js,
-        theta_o_eqv_js_ns=bs.theta_o_eqv_js_nspls
-    )
-
-    # 係数 f_WSR, -, [j, i]
-    f_wsr_js_is = get_f_wsr_js_is(f_ax_js_js=f_ax_js_js, f_fia_js_is=f_fia_js_is)
-
-    # 係数 f_{WSC, n}, degree C, [j, n]
-    f_wsc_js_ns = get_f_wsc_js_ns(f_ax_js_js=f_ax_js_js, f_crx_js_ns=f_crx_js_ns)
-
-    # ステップnにおける室iの在室者表面における対流熱伝達率の総合熱伝達率に対する比, -, [i, 1]
-    # ステップ n における室 i の在室者表面における放射熱伝達率の総合熱伝達率に対する比, -, [i, 1]
-    k_c_is_n, k_r_is_n = op.get_k_is()
-
-    # ステップn+1における室iの係数 XOT, [i, i]
-    f_xot_is_is_n_pls = get_f_xot_is_is_n_pls(
-        f_mrt_hum_is_js=f_mrt_hum_is_js,
-        f_wsr_js_is= f_wsr_js_is,
-        k_c_is_n=k_c_is_n,
-        k_r_is_n=k_r_is_n
-    )
-
-    return f_wsr_js_is, f_wsc_js_ns, k_r_is_n, k_c_is_n, f_xot_is_is_n_pls
 
 
 def _run_tick_ground(self, pp: PreCalcParameters, gc_n: GroundConditions, n: int):
