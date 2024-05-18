@@ -177,12 +177,23 @@ class Sequence:
             r_sol_frt_is=rms.r_sol_frt_is
         )
 
-        f_wsr_js_is, f_ax_js_js, f_wsc_js_ns, k_r_is_n, k_c_is_n, f_xot_is_is_n_pls = _pre_calc(
+        # coefficient f_AX, -, [j, j]
+        f_ax_js_js = get_f_ax_js_is(
+            f_mrt_is_js=f_mrt_is_js,
+            h_s_c_js=bs.h_s_c_js,
+            h_s_r_js=bs.h_s_r_js,
+            k_ei_js_js=bs.k_ei_js_js,
+            p_js_is=bs.p_js_is,
+            phi_a0_js=bs.phi_a0_js,
+            phi_t0_js=bs.phi_t0_js
+        )
+
+        f_wsr_js_is, f_wsc_js_ns, k_r_is_n, k_c_is_n, f_xot_is_is_n_pls = _pre_calc(
             bs=bs,
             op=op,
             f_mrt_hum_is_js=f_mrt_hum_is_js,
-            f_mrt_is_js=f_mrt_is_js,
-            q_s_sol_js_ns=q_s_sol_js_ns
+            q_s_sol_js_ns=q_s_sol_js_ns,
+            f_ax_js_js=f_ax_js_js
         )
 
         pre_calc_parameters = PreCalcParameters(
@@ -808,8 +819,8 @@ def _pre_calc(
         bs: Boundaries,
         op: Operation,
         f_mrt_hum_is_js: np.ndarray,
-        f_mrt_is_js: np.ndarray,
-        q_s_sol_js_ns: np.ndarray
+        q_s_sol_js_ns: np.ndarray,
+        f_ax_js_js: np.ndarray
 ) -> PreCalcParameters:
     """助走計算用パラメータの生成
 
@@ -820,17 +831,6 @@ def _pre_calc(
     Returns:
         PreCalcParameters
     """
-
-    # 係数 f_AX, -, [j, j]
-    f_ax_js_js = get_f_ax_js_is(
-        f_mrt_is_js=f_mrt_is_js,
-        h_s_c_js=bs.h_s_c_js,
-        h_s_r_js=bs.h_s_r_js,
-        k_ei_js_js=bs.k_ei_js_js,
-        p_js_is=bs.p_js_is,
-        phi_a0_js=bs.phi_a0_js,
-        phi_t0_js=bs.phi_t0_js
-    )
 
     # 係数 f_FIA, -, [j, i]
     f_fia_js_is = get_f_fia_js_is(
@@ -873,7 +873,7 @@ def _pre_calc(
         k_r_is_n=k_r_is_n
     )
 
-    return f_wsr_js_is, f_ax_js_js, f_wsc_js_ns, k_r_is_n, k_c_is_n, f_xot_is_is_n_pls
+    return f_wsr_js_is, f_wsc_js_ns, k_r_is_n, k_c_is_n, f_xot_is_is_n_pls
 
 
 def _run_tick_ground(self, pp: PreCalcParameters, gc_n: GroundConditions, n: int):
