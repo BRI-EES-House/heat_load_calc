@@ -25,9 +25,6 @@ from heat_load_calc.operation_mode import Operation, OperationMode
 @dataclass
 class PreCalcParameters:
 
-    # ステップnの室iにおける機械換気量（全般換気量+局所換気量）, m3/s, [i, 8760*4]
-    v_vent_mec_is_ns: np.ndarray
-
     # ステップ n における室 i に設置された備品等による透過日射吸収熱量, W, [i, n+1]
     q_sol_frt_is_ns: np.ndarray
 
@@ -233,7 +230,6 @@ class Sequence:
         )
 
         pre_calc_parameters = PreCalcParameters(
-            v_vent_mec_is_ns=v_vent_mec_is_ns,
             q_sol_frt_is_ns=q_sol_frt_is_ns,
             q_s_sol_js_ns=q_s_sol_js_ns,
             f_ax_js_js=f_ax_js_js,
@@ -284,7 +280,11 @@ class Sequence:
         #   ステップ n　からステップ n+1 における係数 f_l_cl_cst, kg/s, [i, 1]
         self._get_f_l_cl = get_f_l_cl
 
+        # the solar heat gain transmitted through the windows of room i at step n, W, [I, N]
         self._q_trs_sol_is_ns = q_trs_sol_is_ns
+
+        # mechanical ventilation amount(general ventiration amount + local ventiration amount) of room i at step n, m3/s, [I,N]
+        self._v_vent_mec_is_ns = v_vent_mec_is_ns
 
         self._pre_calc_parameters = pre_calc_parameters
 
@@ -341,6 +341,11 @@ class Sequence:
             this property is only used for pre-recording
         """
         return self._q_trs_sol_is_ns
+
+    @property
+    def v_vent_mec_is_ns(self):
+        """mechanical ventiration amount, m3/s, [I,N]"""
+        return self._v_vent_mec_is_ns
 
     @property
     def pre_calc_parameter(self):
@@ -415,7 +420,7 @@ class Sequence:
         # ステップnからステップn+1における室iの換気・隙間風による外気の流入量, m3/s, [i, 1]
         v_vent_out_non_nv_is_n = get_v_vent_out_non_ntr_is_n(
             v_leak_is_n=v_leak_is_n,
-            v_vent_mec_is_n=ss.v_vent_mec_is_ns[:, n].reshape(-1, 1)
+            v_vent_mec_is_n=self.v_vent_mec_is_ns[:, n].reshape(-1, 1)
         )
 
         # ステップ n+1 の室 i における係数 f_BRC, W, [i, 1]
