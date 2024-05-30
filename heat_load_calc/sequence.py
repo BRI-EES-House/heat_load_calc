@@ -25,9 +25,6 @@ from heat_load_calc.operation_mode import Operation, OperationMode
 @dataclass
 class PreCalcParameters:
 
-    # ステップnの境界jにおける透過日射熱取得量のうち表面に吸収される日射量, W/m2, [j, 8760*4]
-    q_s_sol_js_ns: np.ndarray
-
     f_ax_js_js: np.ndarray
 
     # 室iの在室者に対する境界j*の形態係数
@@ -227,7 +224,6 @@ class Sequence:
         )
 
         pre_calc_parameters = PreCalcParameters(
-            q_s_sol_js_ns=q_s_sol_js_ns,
             f_ax_js_js=f_ax_js_js,
             f_mrt_hum_is_js=f_mrt_hum_is_js,
             f_mrt_is_js=f_mrt_is_js,
@@ -284,6 +280,9 @@ class Sequence:
 
         # the average value of the transparented solar radiation absorbed by the furniture in room i at step n
         self._q_sol_frt_is_ns = q_sol_frt_is_ns
+
+        # the transparent solar radiation absorbed by the boundary j at step n, W/m2, [J, N]
+        self._q_s_sol_js_ns = q_s_sol_js_ns
 
         self._pre_calc_parameters = pre_calc_parameters
 
@@ -350,6 +349,11 @@ class Sequence:
     def q_sol_frt_is_ns(self):
         """the average value of the transparented solar radiation absorbed by the furniture in room i at step n"""
         return self._q_sol_frt_is_ns
+    
+    @property
+    def q_s_sol_js_ns(self):
+        """the transparent solar radiation absorbed by the boundary j at step n, W/m2, [J, N]"""
+        return self._q_s_sol_js_ns
 
     @property
     def pre_calc_parameter(self):
@@ -761,7 +765,7 @@ class Sequence:
             h_s_r_js=self.bs.h_s_r_js,
             l_rs_is_n=l_rs_is_n,
             p_js_is=self.bs.p_js_is,
-            q_s_sol_js_n_pls=ss.q_s_sol_js_ns[:, n + 1].reshape(-1, 1),
+            q_s_sol_js_n_pls=self.q_s_sol_js_ns[:, n + 1].reshape(-1, 1),
             theta_r_is_n_pls=theta_r_is_n_pls,
             theta_s_js_n_pls=theta_s_js_n_pls
         )

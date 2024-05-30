@@ -74,7 +74,7 @@ class TestSteadyState(unittest.TestCase):
             scd=sqc.scd,
             bs=sqc.bs,
             q_sol_frt_is_ns=sqc.q_sol_frt_is_ns,
-            q_s_sol_js_ns=ss.q_s_sol_js_ns,
+            q_s_sol_js_ns=sqc.q_s_sol_js_ns,
             q_trs_sol_is_ns=sqc.q_trs_sol_is_ns
         )
 
