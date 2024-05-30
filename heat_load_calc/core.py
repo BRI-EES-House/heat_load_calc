@@ -84,7 +84,7 @@ def calc(
         weather=sqc.weather,
         scd=sqc.scd,
         bs=sqc.bs,
-        q_sol_frt_is_ns=pp.q_sol_frt_is_ns,
+        q_sol_frt_is_ns=sqc.q_sol_frt_is_ns,
         q_s_sol_js_ns=pp.q_s_sol_js_ns,
         q_trs_sol_is_ns=sqc.q_trs_sol_is_ns
     )

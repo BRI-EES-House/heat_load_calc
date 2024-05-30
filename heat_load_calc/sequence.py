@@ -25,9 +25,6 @@ from heat_load_calc.operation_mode import Operation, OperationMode
 @dataclass
 class PreCalcParameters:
 
-    # ステップ n における室 i に設置された備品等による透過日射吸収熱量, W, [i, n+1]
-    q_sol_frt_is_ns: np.ndarray
-
     # ステップnの境界jにおける透過日射熱取得量のうち表面に吸収される日射量, W/m2, [j, 8760*4]
     q_s_sol_js_ns: np.ndarray
 
@@ -230,7 +227,6 @@ class Sequence:
         )
 
         pre_calc_parameters = PreCalcParameters(
-            q_sol_frt_is_ns=q_sol_frt_is_ns,
             q_s_sol_js_ns=q_s_sol_js_ns,
             f_ax_js_js=f_ax_js_js,
             f_mrt_hum_is_js=f_mrt_hum_is_js,
@@ -285,6 +281,9 @@ class Sequence:
 
         # mechanical ventilation amount(general ventiration amount + local ventiration amount) of room i at step n, m3/s, [I,N]
         self._v_vent_mec_is_ns = v_vent_mec_is_ns
+
+        # the average value of the transparented solar radiation absorbed by the furniture in room i at step n
+        self._q_sol_frt_is_ns = q_sol_frt_is_ns
 
         self._pre_calc_parameters = pre_calc_parameters
 
@@ -348,8 +347,14 @@ class Sequence:
         return self._v_vent_mec_is_ns
 
     @property
+    def q_sol_frt_is_ns(self):
+        """the average value of the transparented solar radiation absorbed by the furniture in room i at step n"""
+        return self._q_sol_frt_is_ns
+
+    @property
     def pre_calc_parameter(self):
-        return self._pre_calc_parameters
+        return self._pre_calc_parameters    
+
 
     def run_tick(self, n: int, c_n: Conditions, recorder: Recorder) -> Conditions:
 
@@ -438,7 +443,7 @@ class Sequence:
             p_is_js=self.bs.p_is_js,
             q_gen_is_n=self.scd.q_gen_is_ns[:, n].reshape(-1, 1),
             q_hum_is_n=q_hum_is_n,
-            q_sol_frt_is_n=ss.q_sol_frt_is_ns[:, n].reshape(-1, 1),
+            q_sol_frt_is_n=self.q_sol_frt_is_ns[:, n].reshape(-1, 1),
             rho_a=get_rho_a(),
             theta_frt_is_n=c_n.theta_frt_is_n,
             theta_o_n_pls=self.weather.theta_o_ns_plus[n + 1],
@@ -735,7 +740,7 @@ class Sequence:
             c_sh_frt_is=self.rms.c_sh_frt_is,
             delta_t=delta_t,
             g_sh_frt_is=self.rms.g_sh_frt_is,
-            q_sol_frt_is_n=ss.q_sol_frt_is_ns[:, n].reshape(-1, 1),
+            q_sol_frt_is_n=self.q_sol_frt_is_ns[:, n].reshape(-1, 1),
             theta_frt_is_n=c_n.theta_frt_is_n,
             theta_r_is_n_pls=theta_r_is_n_pls
         )
