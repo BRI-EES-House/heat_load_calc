@@ -25,8 +25,6 @@ from heat_load_calc.operation_mode import Operation, OperationMode
 @dataclass
 class PreCalcParameters:
 
-    f_ax_js_js: np.ndarray
-
     # 室iの在室者に対する境界j*の形態係数
     f_mrt_hum_is_js: np.ndarray
 
@@ -224,7 +222,6 @@ class Sequence:
         )
 
         pre_calc_parameters = PreCalcParameters(
-            f_ax_js_js=f_ax_js_js,
             f_mrt_hum_is_js=f_mrt_hum_is_js,
             f_mrt_is_js=f_mrt_is_js,
             f_wsr_js_is=f_wsr_js_is,
@@ -283,6 +280,9 @@ class Sequence:
 
         # the transparent solar radiation absorbed by the boundary j at step n, W/m2, [J, N]
         self._q_s_sol_js_ns = q_s_sol_js_ns
+
+        # f_AX, -, [j, j]
+        self._f_ax_js_js = f_ax_js_js
 
         self._pre_calc_parameters = pre_calc_parameters
 
@@ -354,6 +354,11 @@ class Sequence:
     def q_s_sol_js_ns(self):
         """the transparent solar radiation absorbed by the boundary j at step n, W/m2, [J, N]"""
         return self._q_s_sol_js_ns
+    
+    @property
+    def f_ax_js_js(self):
+        """f_AX, -, [j, j]"""
+        return self._f_ax_js_js
 
     @property
     def pre_calc_parameter(self):
@@ -423,7 +428,7 @@ class Sequence:
         # ステップ n+1 の境界 j における係数 f_WSV, degree C, [j, 1]
         f_wsv_js_n_pls = get_f_wsv_js_n_pls(
             f_cvl_js_n_pls=f_cvl_js_n_pls,
-            f_ax_js_js=ss.f_ax_js_js
+            f_ax_js_js=self.f_ax_js_js
         )
 
         # ステップnからステップn+1における室iの換気・隙間風による外気の流入量, m3/s, [i, 1]
@@ -673,7 +678,7 @@ class Sequence:
         # ステップ n における係数 f_WSB, K/W, [j, i]
         f_wsb_js_is_n_pls = get_f_wsb_js_is_n_pls(
             f_flb_js_is_n_pls=f_flb_js_is_n_pls,
-            f_ax_js_js=ss.f_ax_js_js
+            f_ax_js_js=self.f_ax_js_js
         )
 
         # ステップ n における係数 f_BRL, -, [i, i]
