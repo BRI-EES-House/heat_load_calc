@@ -25,9 +25,6 @@ from heat_load_calc.operation_mode import Operation, OperationMode
 @dataclass
 class PreCalcParameters:
 
-    # 室iの在室者に対する境界j*の形態係数
-    f_mrt_hum_is_js: np.ndarray
-
     # 平均放射温度計算時の境界 j* の表面温度が境界 j に与える重み, [j, j]
     f_mrt_is_js: np.ndarray
 
@@ -222,7 +219,6 @@ class Sequence:
         )
 
         pre_calc_parameters = PreCalcParameters(
-            f_mrt_hum_is_js=f_mrt_hum_is_js,
             f_mrt_is_js=f_mrt_is_js,
             f_wsr_js_is=f_wsr_js_is,
             f_wsc_js_ns=f_wsc_js_ns,
@@ -283,6 +279,9 @@ class Sequence:
 
         # f_AX, -, [j, j]
         self._f_ax_js_js = f_ax_js_js
+
+        # the shape factor of boundaries j for the occupant in room i, [i, j]
+        self._f_mrt_hum_is_js = f_mrt_hum_is_js
 
         self._pre_calc_parameters = pre_calc_parameters
 
@@ -359,6 +358,11 @@ class Sequence:
     def f_ax_js_js(self):
         """f_AX, -, [j, j]"""
         return self._f_ax_js_js
+    
+    @property
+    def f_mrt_hum_is_js(self):
+        """the shape factor of boundaries j for the occupant in room i, [i, j]"""
+        return self._f_mrt_hum_is_js
 
     @property
     def pre_calc_parameter(self):
@@ -481,7 +485,7 @@ class Sequence:
 
         # ステップn+1における室iの係数 XC, [i, 1]
         f_xc_is_n_pls = get_f_xc_is_n_pls(
-            f_mrt_hum_is_js=ss.f_mrt_hum_is_js,
+            f_mrt_hum_is_js=self.f_mrt_hum_is_js,
             f_wsc_js_n_pls=ss.f_wsc_js_ns[:, n + 1].reshape(-1, 1),
             f_wsv_js_n_pls=f_wsv_js_n_pls,
             f_xot_is_is_n_pls=ss.f_xot_is_is_n_pls,
@@ -692,7 +696,7 @@ class Sequence:
 
         # ステップn+1における室iの係数 f_XLR, K/W, [i, i]
         f_xlr_is_is_n_pls = get_f_xlr_is_is_n_pls(
-            f_mrt_hum_is_js=ss.f_mrt_hum_is_js,
+            f_mrt_hum_is_js=self.f_mrt_hum_is_js,
             f_wsb_js_is_n_pls=f_wsb_js_is_n_pls,
             f_xot_is_is_n_pls=ss.f_xot_is_is_n_pls,
             k_r_is_n=ss.k_r_is_n
@@ -756,7 +760,7 @@ class Sequence:
 
         # ステップ n+1 における室 i の人体に対する平均放射温度, degree C, [i, 1]
         theta_mrt_hum_is_n_pls = get_theta_mrt_hum_is_n_pls(
-            f_mrt_hum_is_js=ss.f_mrt_hum_is_js,
+            f_mrt_hum_is_js=self.f_mrt_hum_is_js,
             theta_s_js_n_pls=theta_s_js_n_pls
         )
 
