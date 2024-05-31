@@ -25,9 +25,6 @@ from heat_load_calc.operation_mode import Operation, OperationMode
 @dataclass
 class PreCalcParameters:
 
-    # 平均放射温度計算時の境界 j* の表面温度が境界 j に与える重み, [j, j]
-    f_mrt_is_js: np.ndarray
-
     # WSR, WSB の計算 式(24)
     f_wsr_js_is: np.ndarray
 
@@ -219,7 +216,6 @@ class Sequence:
         )
 
         pre_calc_parameters = PreCalcParameters(
-            f_mrt_is_js=f_mrt_is_js,
             f_wsr_js_is=f_wsr_js_is,
             f_wsc_js_ns=f_wsc_js_ns,
             k_r_is_n=k_r_is_n,
@@ -282,6 +278,9 @@ class Sequence:
 
         # the shape factor of boundaries j for the occupant in room i, [i, j]
         self._f_mrt_hum_is_js = f_mrt_hum_is_js
+
+        # the shape factor of boundaries j for the microsphier in the room i, [i, j]
+        self._f_mrt_is_js = f_mrt_is_js
 
         self._pre_calc_parameters = pre_calc_parameters
 
@@ -363,6 +362,11 @@ class Sequence:
     def f_mrt_hum_is_js(self):
         """the shape factor of boundaries j for the occupant in room i, [i, j]"""
         return self._f_mrt_hum_is_js
+
+    @property
+    def f_mrt_is_js(self):
+        """the shape factor of boundaries j for the microsphier in the room i, [i, j]"""
+        return self._f_mrt_is_js
 
     @property
     def pre_calc_parameter(self):
@@ -553,8 +557,8 @@ class Sequence:
         theta_s_ntr_non_nv_js_n_pls = np.dot(ss.f_wsr_js_is, theta_r_ntr_non_nv_is_n_pls) + ss.f_wsc_js_ns[:, n + 1].reshape(-1, 1) + f_wsv_js_n_pls
         theta_s_ntr_nv_js_n_pls = np.dot(ss.f_wsr_js_is, theta_r_ntr_nv_is_n_pls) + ss.f_wsc_js_ns[:, n + 1].reshape(-1, 1) + f_wsv_js_n_pls
 
-        theta_mrt_hum_ntr_non_nv_is_n_pls = np.dot(ss.f_mrt_is_js, theta_s_ntr_non_nv_js_n_pls)
-        theta_mrt_hum_ntr_nv_is_n_pls = np.dot(ss.f_mrt_is_js, theta_s_ntr_nv_js_n_pls)
+        theta_mrt_hum_ntr_non_nv_is_n_pls = np.dot(self.f_mrt_is_js, theta_s_ntr_non_nv_js_n_pls)
+        theta_mrt_hum_ntr_nv_is_n_pls = np.dot(self.f_mrt_is_js, theta_s_ntr_nv_js_n_pls)
 
         # ステップn+1における室iの自然風非利用時の加湿・除湿を行わない場合の絶対湿度, kg/kg(DA) [i, 1]
         # ステップn+1における室iの自然風利用時の加湿・除湿を行わない場合の絶対湿度, kg/kg(DA) [i, 1]
@@ -768,7 +772,7 @@ class Sequence:
         theta_ei_js_n_pls = get_theta_ei_js_n_pls(
             a_s_js=self.bs.a_s_js,
             beta_is_n=beta_is_n,
-            f_mrt_is_js=ss.f_mrt_is_js,
+            f_mrt_is_js=self.f_mrt_is_js,
             f_flr_js_is_n=f_flr_js_is_n,
             h_s_c_js=self.bs.h_s_c_js,
             h_s_r_js=self.bs.h_s_r_js,

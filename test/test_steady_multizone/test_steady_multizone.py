@@ -134,7 +134,7 @@ class TestSteadyState(unittest.TestCase):
         c_n_init = c_n
         c_n = sqc.run_tick(n=0, c_n=c_n, recorder=result)
 
-        result.post_recording(rms=sqc.rms, bs=sqc.bs, f_mrt_is_js=ss.f_mrt_is_js, es=sqc.es)
+        result.post_recording(rms=sqc.rms, bs=sqc.bs, f_mrt_is_js=sqc.f_mrt_is_js, es=sqc.es)
 
         # 計算結果格納
         cls._c_n = c_n_init
