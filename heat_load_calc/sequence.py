@@ -25,8 +25,7 @@ from heat_load_calc.operation_mode import Operation, OperationMode
 @dataclass
 class PreCalcParameters:
 
-    # ステップn+1における室iの係数 XOT, [i, i]
-    f_xot_is_is_n_pls: np.ndarray
+    pass
 
 
 class Sequence:
@@ -203,9 +202,7 @@ class Sequence:
             k_r_is_n=k_r_is_n
         )
 
-        pre_calc_parameters = PreCalcParameters(
-            f_xot_is_is_n_pls=f_xot_is_is_n_pls
-        )
+        pre_calc_parameters = PreCalcParameters()
 
         # 時間間隔クラス
         self._itv = itv
@@ -277,6 +274,9 @@ class Sequence:
 
         # the ratio of the convective heat transfer coefficient to the integrated heat transfer coefficient on the surface of the occuapnts in room i at step n, -, [I, 1]
         self._k_c_is_n = k_c_is_n
+
+        # f_{XOT, i, i}, [I, I]
+        self._f_xot_is_is_n_pls = f_xot_is_is_n_pls
 
         self._pre_calc_parameters = pre_calc_parameters
 
@@ -383,6 +383,11 @@ class Sequence:
     def k_c_is_n(self):
         """the ratio of the convective heat transfer coefficient to the integrated heat transfer coefficient on the surface of the occuapnts in room i at step n, -, [I, 1]"""
         return self._k_c_is_n
+    
+    @property
+    def f_xot_is_is_n_pls(self):
+        """f_{XOT, i, i}, [I, I]"""
+        return self._f_xot_is_is_n_pls
     
     @property
     def pre_calc_parameter(self):
@@ -508,13 +513,13 @@ class Sequence:
             f_mrt_hum_is_js=self.f_mrt_hum_is_js,
             f_wsc_js_n_pls=self.f_wsc_js_ns[:, n + 1].reshape(-1, 1),
             f_wsv_js_n_pls=f_wsv_js_n_pls,
-            f_xot_is_is_n_pls=ss.f_xot_is_is_n_pls,
+            f_xot_is_is_n_pls=self.f_xot_is_is_n_pls,
             k_r_is_n=self.k_r_is_n
         )
 
         # ステップ n における係数 f_BRM,OT, W/K, [i, i]
         f_brm_ot_non_nv_is_is_n_pls, f_brm_ot_nv_is_is_n_pls = get_f_brm_ot_is_is_n_pls(
-            f_xot_is_is_n_pls=ss.f_xot_is_is_n_pls,
+            f_xot_is_is_n_pls=self.f_xot_is_is_n_pls,
             f_brm_non_nv_is_is_n_pls=f_brm_non_nv_is_is_n_pls,
             f_brm_nv_is_is_n_pls=f_brm_nv_is_is_n_pls
         )
@@ -567,8 +572,8 @@ class Sequence:
             f_brm_ot_nv_is_is_n_pls=f_brm_ot_nv_is_is_n_pls
         )
 
-        theta_r_ntr_non_nv_is_n_pls = np.dot(ss.f_xot_is_is_n_pls, theta_r_ot_ntr_non_nv_is_n_pls) - f_xc_is_n_pls
-        theta_r_ntr_nv_is_n_pls = np.dot(ss.f_xot_is_is_n_pls, theta_r_ot_ntr_nv_is_n_pls) - f_xc_is_n_pls
+        theta_r_ntr_non_nv_is_n_pls = np.dot(self.f_xot_is_is_n_pls, theta_r_ot_ntr_non_nv_is_n_pls) - f_xc_is_n_pls
+        theta_r_ntr_nv_is_n_pls = np.dot(self.f_xot_is_is_n_pls, theta_r_ot_ntr_nv_is_n_pls) - f_xc_is_n_pls
 
         theta_s_ntr_non_nv_js_n_pls = np.dot(self.f_wsr_js_is, theta_r_ntr_non_nv_is_n_pls) + self.f_wsc_js_ns[:, n + 1].reshape(-1, 1) + f_wsv_js_n_pls
         theta_s_ntr_nv_js_n_pls = np.dot(self.f_wsr_js_is, theta_r_ntr_nv_is_n_pls) + self.f_wsc_js_ns[:, n + 1].reshape(-1, 1) + f_wsv_js_n_pls
@@ -718,7 +723,7 @@ class Sequence:
         f_xlr_is_is_n_pls = get_f_xlr_is_is_n_pls(
             f_mrt_hum_is_js=self.f_mrt_hum_is_js,
             f_wsb_js_is_n_pls=f_wsb_js_is_n_pls,
-            f_xot_is_is_n_pls=ss.f_xot_is_is_n_pls,
+            f_xot_is_is_n_pls=self.f_xot_is_is_n_pls,
             k_r_is_n=self.k_r_is_n
         )
 
@@ -752,7 +757,7 @@ class Sequence:
         theta_r_is_n_pls = get_theta_r_is_n_pls(
             f_xc_is_n_pls=f_xc_is_n_pls,
             f_xlr_is_is_n_pls=f_xlr_is_is_n_pls,
-            f_xot_is_is_n_pls=ss.f_xot_is_is_n_pls,
+            f_xot_is_is_n_pls=self.f_xot_is_is_n_pls,
             l_rs_is_n=l_rs_is_n,
             theta_ot_is_n_pls=theta_ot_is_n_pls
         )
