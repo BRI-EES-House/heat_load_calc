@@ -25,9 +25,6 @@ from heat_load_calc.operation_mode import Operation, OperationMode
 @dataclass
 class PreCalcParameters:
 
-    # WSC, W, [j, n]
-    f_wsc_js_ns: np.ndarray
-
     # ステップ n における室 i の在室者表面における放射熱伝達率の総合熱伝達率に対する比, -, [i, 1]
     k_r_is_n: np.ndarray
 
@@ -213,7 +210,6 @@ class Sequence:
         )
 
         pre_calc_parameters = PreCalcParameters(
-            f_wsc_js_ns=f_wsc_js_ns,
             k_r_is_n=k_r_is_n,
             k_c_is_n=k_c_is_n,
             f_xot_is_is_n_pls=f_xot_is_is_n_pls
@@ -280,6 +276,9 @@ class Sequence:
 
         # f_WSR, -, [J, I]
         self._f_wsr_js_is = f_wsr_js_is
+
+        # f_{WSC, n}, degree C, [J, N]
+        self._f_wsc_js_ns = f_wsc_js_ns
 
         self._pre_calc_parameters = pre_calc_parameters
 
@@ -371,6 +370,11 @@ class Sequence:
     def f_wsr_js_is(self):
         """f_WSR, -, [J, I]"""
         return self._f_wsr_js_is
+    
+    @property
+    def f_wsc_js_ns(self):
+        """f_{WSC, n}, degree C, [J, N]"""
+        return self._f_wsc_js_ns
 
     @property
     def pre_calc_parameter(self):
@@ -457,7 +461,7 @@ class Sequence:
             v_rm_is=self.rms.v_r_is,
             c_sh_frt_is=self.rms.c_sh_frt_is,
             delta_t=delta_t,
-            f_wsc_js_n_pls=ss.f_wsc_js_ns[:, n + 1].reshape(-1, 1),
+            f_wsc_js_n_pls=self.f_wsc_js_ns[:, n + 1].reshape(-1, 1),
             f_wsv_js_n_pls=f_wsv_js_n_pls,
             g_sh_frt_is=self.rms.g_sh_frt_is,
             h_s_c_js=self.bs.h_s_c_js,
@@ -494,7 +498,7 @@ class Sequence:
         # ステップn+1における室iの係数 XC, [i, 1]
         f_xc_is_n_pls = get_f_xc_is_n_pls(
             f_mrt_hum_is_js=self.f_mrt_hum_is_js,
-            f_wsc_js_n_pls=ss.f_wsc_js_ns[:, n + 1].reshape(-1, 1),
+            f_wsc_js_n_pls=self.f_wsc_js_ns[:, n + 1].reshape(-1, 1),
             f_wsv_js_n_pls=f_wsv_js_n_pls,
             f_xot_is_is_n_pls=ss.f_xot_is_is_n_pls,
             k_r_is_n=ss.k_r_is_n
@@ -558,8 +562,8 @@ class Sequence:
         theta_r_ntr_non_nv_is_n_pls = np.dot(ss.f_xot_is_is_n_pls, theta_r_ot_ntr_non_nv_is_n_pls) - f_xc_is_n_pls
         theta_r_ntr_nv_is_n_pls = np.dot(ss.f_xot_is_is_n_pls, theta_r_ot_ntr_nv_is_n_pls) - f_xc_is_n_pls
 
-        theta_s_ntr_non_nv_js_n_pls = np.dot(self.f_wsr_js_is, theta_r_ntr_non_nv_is_n_pls) + ss.f_wsc_js_ns[:, n + 1].reshape(-1, 1) + f_wsv_js_n_pls
-        theta_s_ntr_nv_js_n_pls = np.dot(self.f_wsr_js_is, theta_r_ntr_nv_is_n_pls) + ss.f_wsc_js_ns[:, n + 1].reshape(-1, 1) + f_wsv_js_n_pls
+        theta_s_ntr_non_nv_js_n_pls = np.dot(self.f_wsr_js_is, theta_r_ntr_non_nv_is_n_pls) + self.f_wsc_js_ns[:, n + 1].reshape(-1, 1) + f_wsv_js_n_pls
+        theta_s_ntr_nv_js_n_pls = np.dot(self.f_wsr_js_is, theta_r_ntr_nv_is_n_pls) + self.f_wsc_js_ns[:, n + 1].reshape(-1, 1) + f_wsv_js_n_pls
 
         theta_mrt_hum_ntr_non_nv_is_n_pls = np.dot(self.f_mrt_is_js, theta_s_ntr_non_nv_js_n_pls)
         theta_mrt_hum_ntr_nv_is_n_pls = np.dot(self.f_mrt_is_js, theta_s_ntr_nv_js_n_pls)
@@ -748,7 +752,7 @@ class Sequence:
         # ステップ n+1 における境界 j の表面温度, degree C, [j, 1]
         theta_s_js_n_pls = get_theta_s_js_n_pls(
             f_wsb_js_is_n_pls=f_wsb_js_is_n_pls,
-            f_wsc_js_n_pls=ss.f_wsc_js_ns[:, n + 1].reshape(-1, 1),
+            f_wsc_js_n_pls=self.f_wsc_js_ns[:, n + 1].reshape(-1, 1),
             f_wsr_js_is=self.f_wsr_js_is,
             f_wsv_js_n_pls=f_wsv_js_n_pls,
             l_rs_is_n=l_rs_is_n,
