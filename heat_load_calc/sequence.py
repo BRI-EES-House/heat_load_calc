@@ -25,12 +25,6 @@ from heat_load_calc.operation_mode import Operation, OperationMode
 @dataclass
 class PreCalcParameters:
 
-    # ステップ n における室 i の在室者表面における放射熱伝達率の総合熱伝達率に対する比, -, [i, 1]
-    k_r_is_n: np.ndarray
-
-    # ステップnにおける室iの在室者表面における対流熱伝達率の総合熱伝達率に対する比, -, [i, 1]
-    k_c_is_n: np.ndarray
-
     # ステップn+1における室iの係数 XOT, [i, i]
     f_xot_is_is_n_pls: np.ndarray
 
@@ -210,8 +204,6 @@ class Sequence:
         )
 
         pre_calc_parameters = PreCalcParameters(
-            k_r_is_n=k_r_is_n,
-            k_c_is_n=k_c_is_n,
             f_xot_is_is_n_pls=f_xot_is_is_n_pls
         )
 
@@ -279,6 +271,12 @@ class Sequence:
 
         # f_{WSC, n}, degree C, [J, N]
         self._f_wsc_js_ns = f_wsc_js_ns
+
+        # the ratio of the radiative heat transfer coefficient to the integrated heat transfer coefficient on the surface of the occuapnts in room i at step n, -, [I, 1]
+        self._k_r_is_n = k_r_is_n
+
+        # the ratio of the convective heat transfer coefficient to the integrated heat transfer coefficient on the surface of the occuapnts in room i at step n, -, [I, 1]
+        self._k_c_is_n = k_c_is_n
 
         self._pre_calc_parameters = pre_calc_parameters
 
@@ -376,6 +374,16 @@ class Sequence:
         """f_{WSC, n}, degree C, [J, N]"""
         return self._f_wsc_js_ns
 
+    @property
+    def k_r_is_n(self):
+        """the ratio of the radiative heat transfer coefficient to the integrated heat transfer coefficient on the surface of the occuapnts in room i at step n, -, [I, 1]"""
+        return self._k_r_is_n
+    
+    @property
+    def k_c_is_n(self):
+        """the ratio of the convective heat transfer coefficient to the integrated heat transfer coefficient on the surface of the occuapnts in room i at step n, -, [I, 1]"""
+        return self._k_c_is_n
+    
     @property
     def pre_calc_parameter(self):
         return self._pre_calc_parameters    
@@ -501,7 +509,7 @@ class Sequence:
             f_wsc_js_n_pls=self.f_wsc_js_ns[:, n + 1].reshape(-1, 1),
             f_wsv_js_n_pls=f_wsv_js_n_pls,
             f_xot_is_is_n_pls=ss.f_xot_is_is_n_pls,
-            k_r_is_n=ss.k_r_is_n
+            k_r_is_n=self.k_r_is_n
         )
 
         # ステップ n における係数 f_BRM,OT, W/K, [i, i]
@@ -711,7 +719,7 @@ class Sequence:
             f_mrt_hum_is_js=self.f_mrt_hum_is_js,
             f_wsb_js_is_n_pls=f_wsb_js_is_n_pls,
             f_xot_is_is_n_pls=ss.f_xot_is_is_n_pls,
-            k_r_is_n=ss.k_r_is_n
+            k_r_is_n=self.k_r_is_n
         )
 
         # ステップ n における係数 f_BRL_OT, -, [i, i]
