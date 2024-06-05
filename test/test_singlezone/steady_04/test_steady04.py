@@ -59,8 +59,6 @@ class TestSteadyState(unittest.TestCase):
         # pre_calc_parametersの構築
         sqc = sequence.Sequence(itv=interval.Interval.M15, rd=rd, weather=w, scd=scd)
 
-        ss = sqc.pre_calc_parameter
-
         q_srf_js_n = np.array([[16.51262564317, 16.51262564317, 16.51262564317, 16.51262564317,
             15.78267683477, 15.78267683477]]).reshape(-1, 1)
 

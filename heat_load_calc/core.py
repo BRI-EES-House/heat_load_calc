@@ -65,8 +65,6 @@ def calc(
     # （ループ計算する必要の無い）事前計算を行い, クラス PreCalcParameters, PreCalcParametersGround に必要な変数を格納する。
     sqc = sequence.Sequence(itv=itv, rd=rd, weather=w, scd=scd)
 
-    pp = sqc.pre_calc_parameter
-
     gc_n = conditions.initialize_ground_conditions(n_grounds=sqc.bs.n_ground)
 
     logger.info('助走計算（土壌のみ）')

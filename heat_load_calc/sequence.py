@@ -22,12 +22,6 @@ from heat_load_calc.conditions import GroundConditions
 from heat_load_calc.operation_mode import Operation, OperationMode
 
 
-@dataclass
-class PreCalcParameters:
-
-    pass
-
-
 class Sequence:
 
     def __init__(
@@ -202,8 +196,6 @@ class Sequence:
             k_r_is_n=k_r_is_n
         )
 
-        pre_calc_parameters = PreCalcParameters()
-
         # 時間間隔クラス
         self._itv = itv
 
@@ -277,8 +269,6 @@ class Sequence:
 
         # f_{XOT, i, i}, [I, I]
         self._f_xot_is_is_n_pls = f_xot_is_is_n_pls
-
-        self._pre_calc_parameters = pre_calc_parameters
 
     @property
     def weather(self) -> Weather:
@@ -389,14 +379,9 @@ class Sequence:
         """f_{XOT, i, i}, [I, I]"""
         return self._f_xot_is_is_n_pls
     
-    @property
-    def pre_calc_parameter(self):
-        return self._pre_calc_parameters    
-
 
     def run_tick(self, n: int, c_n: Conditions, recorder: Recorder) -> Conditions:
 
-        ss = self.pre_calc_parameter
         delta_t = self._delta_t
 
         # region 人体発熱・人体発湿
@@ -898,12 +883,10 @@ class Sequence:
 
     def run_tick_ground(self, gc_n: GroundConditions, n: int):
 
-        pp = self.pre_calc_parameter
-
-        return _run_tick_ground(self=self, pp=pp, gc_n=gc_n, n=n)
+        return _run_tick_ground(self=self, gc_n=gc_n, n=n)
 
 
-def _run_tick_ground(self, pp: PreCalcParameters, gc_n: GroundConditions, n: int):
+def _run_tick_ground(self, gc_n: GroundConditions, n: int):
     """地盤の計算
 
     Args:

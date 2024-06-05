@@ -69,8 +69,6 @@ class TestSteadyState(unittest.TestCase):
             itv=interval.Interval.M15, rd=rd, weather=w, scd=scd, _q_trs_sol_is_ns=q_trs_sol_is_ns
         )
 
-        ss = sqc.pre_calc_parameter
-
         q_srf_js_n = np.array([[12.7809219004777, 12.7809219004777, 12.7809219004777, 12.7809219004777,
             36.6603793746687, 12.2159349302242]]).reshape(-1, 1)
 

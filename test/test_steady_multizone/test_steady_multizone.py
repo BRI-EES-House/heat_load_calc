@@ -61,8 +61,6 @@ class TestSteadyState(unittest.TestCase):
         # pre_calc_parametersの構築
         sqc = sequence.Sequence(itv=interval.Interval.M15, rd=rd, weather=w, scd=scd)
 
-        ss = sqc.pre_calc_parameter
-
         result = recorder.Recorder(
             n_step_main=8760 * 4,
             id_rm_is=list(sqc.rms.id_r_is.flatten()),
@@ -139,7 +137,6 @@ class TestSteadyState(unittest.TestCase):
         # 計算結果格納
         cls._c_n = c_n_init
         cls._c_n_pls = c_n
-        cls._pp = ss
         cls._dd_i, cls._dd_a = result.export_pd()
         cls._sqc = sqc
 
