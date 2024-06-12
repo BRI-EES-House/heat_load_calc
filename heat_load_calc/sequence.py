@@ -178,9 +178,6 @@ class Sequence:
         # f_WSR, -, [J, I]
         f_wsr_js_is = get_f_wsr_js_is(f_ax_js_js=f_ax_js_js, f_fia_js_is=f_fia_js_is)
 
-        # f_WSR, -, [J, I]
-        f_wsr_js_is = get_f_wsr_js_is(f_ax_js_js=f_ax_js_js, f_fia_js_is=f_fia_js_is)
-
         # f_{WSC, n}, degree C, [J, N]
         f_wsc_js_ns = get_f_wsc_js_ns(f_ax_js_js=f_ax_js_js, f_crx_js_ns=f_crx_js_ns)
 
