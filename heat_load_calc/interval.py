@@ -85,5 +85,5 @@ class Interval(Enum):
         return {
             Interval.M15: '15min',
             Interval.M30: '30min',
-            Interval.H1: 'H'
+            Interval.H1: 'h'
         }[self]

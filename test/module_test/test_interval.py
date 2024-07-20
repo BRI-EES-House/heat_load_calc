@@ -33,5 +33,5 @@ class TestInterval(unittest.TestCase):
 
         self.assertEqual('15min', Interval.M15.get_pandas_freq())
         self.assertEqual('30min', Interval.M30.get_pandas_freq())
-        self.assertEqual('H', Interval.H1.get_pandas_freq())
+        self.assertEqual('h', Interval.H1.get_pandas_freq())
 
