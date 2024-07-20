@@ -19,10 +19,10 @@ def get_q_trs_sol_j_ns_for_not(w: Weather) -> np.ndarray:
 
 
 def get_q_trs_sol_j_ns_for_transparent_sun_striked(
-        drct_j: Direction,
+        t_drct_j: Direction,
         a_s_j: float,
         ssp_j: SolarShading,
-        wdw_j: Window,
+        window_j: Window,
         w: Weather
 ) -> np.ndarray:
     """
@@ -39,7 +39,7 @@ def get_q_trs_sol_j_ns_for_transparent_sun_striked(
 
     # ステップnにおける境界jの傾斜面に入射する太陽の入射角, rad, [N+1]
     phi_j_ns = inclined_surface_solar_radiation.get_phi_j_ns(
-        h_sun_ns=w.h_sun_ns_plus, a_sun_ns=w.a_sun_ns_plus, drct_j=drct_j)
+        h_sun_ns=w.h_sun_ns_plus, a_sun_ns=w.a_sun_ns_plus, drct_j=t_drct_j)
 
     # ステップnにおける境界jの傾斜面に入射する日射量のうち直達成分, W/m2 [N+1]
     # ステップnにおける境界jの傾斜面に入射する日射量のうち天空成分, W/m2 [N+1]
@@ -47,7 +47,7 @@ def get_q_trs_sol_j_ns_for_transparent_sun_striked(
     # ステップnにおける境界jの傾斜面の夜間放射量, W/m2, [N+1]
     i_s_dn_j_ns, i_s_sky_j_ns, i_s_ref_j_ns, _ = inclined_surface_solar_radiation.get_i_s_j_ns(
         w=w,
-        drct_j=drct_j
+        drct_j=t_drct_j
     )
 
     # ---日よけの影面積比率
@@ -62,13 +62,13 @@ def get_q_trs_sol_j_ns_for_transparent_sun_striked(
     f_ss_r_j_ns = ssp_j.get_f_ss_ref_j()
 
     # ステップnにおける境界jの窓の直達日射に対する日射透過率, -, [N+1]
-    tau_w_d_j_ns = wdw_j.get_tau_w_d_j_ns(phi_j_ns=phi_j_ns)
+    tau_w_d_j_ns = window_j.get_tau_w_d_j_ns(phi_j_ns=phi_j_ns)
 
     # 境界jの窓の天空日射に対する日射透過率, -
-    tau_w_s_j = wdw_j.tau_w_s_j
+    tau_w_s_j = window_j.tau_w_s_j
 
     # 境界jの窓の地盤反射日射に対する日射透過率, -
-    tau_w_r_j = wdw_j.tau_w_r_j
+    tau_w_r_j = window_j.tau_w_r_j
 
     # ステップnにおける境界jの直達日射に対する単位面積当たりの透過日射量, W/m2, [N+1]
     q_trs_sol_dn_j_ns = tau_w_d_j_ns * (1.0 - f_ss_d_j_ns) * i_s_dn_j_ns

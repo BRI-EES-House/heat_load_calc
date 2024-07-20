@@ -54,14 +54,12 @@ class TestSteadyState(unittest.TestCase):
             x_gen_is_ns=np.zeros((1, 8760*4), dtype=float),
             v_mec_vent_local_is_ns=np.zeros((1, 8760*4), dtype=float),
             n_hum_is_ns=np.zeros((1, 8760*4), dtype=float),
-            ac_demand_is_ns=np.zeros((1, 8760*4), dtype=float),
-            ac_setting_is_ns=np.zeros((1, 8760 * 4), dtype=float)
+            r_ac_demand_is_ns=np.zeros((1, 8760*4), dtype=float),
+            t_ac_mode_is_ns=np.zeros((1, 8760 * 4), dtype=float)
         )
 
         # pre_calc_parametersの構築
         sqc = sequence.Sequence(itv=interval.Interval.M15, rd=rd, weather=w, scd=scd)
-
-        ss = sqc.pre_calc_parameter
 
         q_srf_js_n = np.array([[16.66666667, 16.66666667, 16.66666667, 16.66666667,
                                 16.66666667, 16.66666667]]).reshape(-1, 1)
@@ -78,7 +76,7 @@ class TestSteadyState(unittest.TestCase):
             theta_mrt_hum_is_n=np.array([[31.66666667]]),
             x_r_is_n=np.array([[0.0]]),
             theta_dsh_s_a_js_ms_n=q_srf_js_n * sqc.bs.phi_a1_js_ms / (1.0 - sqc.bs.r_js_ms),
-            theta_dsh_s_t_js_ms_n=(np.dot(sqc.bs.k_ei_js_js, theta_ei_js_n) + sqc.bs.k_eo_js * sqc.bs.theta_o_eqv_js_ns[:, 1].reshape(-1, 1) + np.dot(sqc.bs.k_s_r_js_is, theta_r_is_n)) * sqc.bs.phi_t1_js_ms / (1.0 - sqc.bs.r_js_ms),
+            theta_dsh_s_t_js_ms_n=(np.dot(sqc.bs.k_ei_js_js, theta_ei_js_n) + sqc.bs.k_eo_js * sqc.bs.theta_o_eqv_js_nspls[:, 1].reshape(-1, 1) + np.dot(sqc.bs.k_s_r_js_is, theta_r_is_n)) * sqc.bs.phi_t1_js_ms / (1.0 - sqc.bs.r_js_ms),
             q_s_js_n=q_srf_js_n,
             theta_frt_is_n=np.array([[34.999999999999900]]),
             x_frt_is_n=np.array([[0.0]]),

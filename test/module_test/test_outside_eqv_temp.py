@@ -42,8 +42,8 @@ class TestOutsideEqvTemp(unittest.TestCase):
     def test_get_theta_o_eqv_j_ns_for_external_general_part_and_external_opaque_part(self):
 
         result = oet.get_theta_o_eqv_j_ns_for_external_general_part_and_external_opaque_part(
-            drct_j=Direction.SE,
-            a_s_j=0.8,
+            t_drct_j=Direction.SE,
+            a_sol_j=0.8,
             eps_r_o_j=0.9,
             r_s_o_j=0.04,
             ssp_j=self.ssp,
@@ -70,14 +70,14 @@ class TestOutsideEqvTemp(unittest.TestCase):
 
     def test_get_theta_o_eqv_j_ns_for_external_transparent_part(self):
         
-        wdw = Window(u_w_j=3.0, eta_w_j=0.8, glass_type=GlassType.SINGLE)        
+        wdw = Window(u_w_std_j=3.0, eta_w_std_j=0.8, t_glz_j=GlassType.SINGLE)        
         result = oet.get_theta_o_eqv_j_ns_for_external_transparent_part(
-            drct_j=Direction.SE,
+            t_drct_j=Direction.SE,
             eps_r_o_j=0.9,
             r_s_o_j=0.04,
-            u_j=3.0,
+            u_w_std_j=3.0,
             ssp_j=self.ssp,
-            wdw_j=wdw,
+            window_j=wdw,
             w=self.w
         )
 

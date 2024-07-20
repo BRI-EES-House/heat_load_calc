@@ -43,9 +43,9 @@ def calc(
     # Schedule Class
     scd: schedule.Schedule = schedule.Schedule.get_schedule(
         number_of_occupants='auto',
-        a_floor_is=[r['floor_area'] for r in rd['rooms']],
+        a_f_is=[r['floor_area'] for r in rd['rooms']],
         itv=itv,
-        scd_is=[rm['schedule'] for rm in rd['rooms']]
+        scd_is=[r['schedule'] for r in rd['rooms']]
     )
 
     # 本計算のステップ数
@@ -65,8 +65,6 @@ def calc(
     # （ループ計算する必要の無い）事前計算を行い, クラス PreCalcParameters, PreCalcParametersGround に必要な変数を格納する。
     sqc = sequence.Sequence(itv=itv, rd=rd, weather=w, scd=scd)
 
-    pp = sqc.pre_calc_parameter
-
     gc_n = conditions.initialize_ground_conditions(n_grounds=sqc.bs.n_ground)
 
     logger.info('助走計算（土壌のみ）')
@@ -76,24 +74,25 @@ def calc(
 
     result = recorder.Recorder(
         n_step_main=n_step_main,
-        id_rm_is=list(sqc.rms.id_rm_is.flatten()),
-        id_bs_js=list(sqc.bs.id_b_js.flatten())
+        id_rm_is=list(sqc.rms.id_r_is.flatten()),
+        id_bs_js=list(sqc.bs.id_js.flatten())
     )
 
     result.pre_recording(
         weather=sqc.weather,
         scd=sqc.scd,
         bs=sqc.bs,
-        q_sol_frt_is_ns=pp.q_sol_frt_is_ns,
-        q_s_sol_js_ns=pp.q_s_sol_js_ns
+        q_sol_frt_is_ns=sqc.q_sol_frt_is_ns,
+        q_s_sol_js_ns=sqc.q_s_sol_js_ns,
+        q_trs_sol_is_ns=sqc.q_trs_sol_is_ns
     )
 
     # 建物を計算するにあたって初期値を与える
-    c_n = conditions.initialize_conditions(n_spaces=sqc.rms.n_rm, n_bdries=sqc.bs.n_b)
+    c_n = conditions.initialize_conditions(n_spaces=sqc.rms.n_r, n_bdries=sqc.bs.n_b)
 
     # 地盤計算の結果（項別公比法の指数項mの吸熱応答の項別成分・表面熱流）を建物の計算に引き継ぐ
     c_n = conditions.update_conditions_by_ground_conditions(
-        is_ground=sqc.bs.is_ground_js.flatten(),
+        is_ground=sqc.bs.b_ground_js.flatten(),
         c=c_n,
         gc=gc_n
     )
@@ -116,7 +115,7 @@ def calc(
             logger.info("{} / 12 calculated.".format(m))
             m = m + 1
 
-    result.post_recording(rms=sqc.rms, bs=sqc.bs, f_mrt_is_js=pp.f_mrt_is_js, es=sqc.es)
+    result.post_recording(rms=sqc.rms, bs=sqc.bs, f_mrt_is_js=sqc.f_mrt_is_js, es=sqc.es)
 
     logger.info('ログ作成')
 

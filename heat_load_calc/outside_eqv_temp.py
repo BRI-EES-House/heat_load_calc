@@ -29,8 +29,8 @@ def get_theta_o_eqv_j_ns_for_internal(w: Weather) -> np.ndarray:
 
 
 def get_theta_o_eqv_j_ns_for_external_general_part_and_external_opaque_part(
-        drct_j: Direction,
-        a_s_j: float,
+        t_drct_j: Direction,
+        a_sol_j: float,
         eps_r_o_j: float,
         r_s_o_j: float,
         ssp_j: SolarShading,
@@ -68,14 +68,14 @@ def get_theta_o_eqv_j_ns_for_external_general_part_and_external_opaque_part(
     # ステップnにおける境界jの夜間放射量, W/m2, [N+1]
     i_s_dn_j_ns, i_s_sky_j_ns, i_s_ref_j_ns, r_s_n_j_ns = inclined_surface_solar_radiation.get_i_s_j_ns(
         w=w,
-        drct_j=drct_j
+        drct_j=t_drct_j
     )
 
     # ステップnにおける境界jの相当外気温度, ℃, [N+1]
     # 一般部位・不透明な開口部の場合、日射・長波長放射を考慮する。
     # eq.2
     theta_o_eqv_j_ns = w.theta_o_ns_plus + (
-        a_s_j * (
+        a_sol_j * (
             i_s_dn_j_ns * (1.0 - f_ss_dn_j_ns)
             + i_s_sky_j_ns * (1.0 - f_ss_sky_j_ns)
             + i_s_ref_j_ns * (1.0 - f_ss_ref_j_ns)
@@ -86,12 +86,12 @@ def get_theta_o_eqv_j_ns_for_external_general_part_and_external_opaque_part(
 
 
 def get_theta_o_eqv_j_ns_for_external_transparent_part(
-    drct_j: Direction,
+    t_drct_j: Direction,
     eps_r_o_j: float,
     r_s_o_j: float,
-    u_j: float,
+    u_w_std_j: float,
     ssp_j: SolarShading,
-    wdw_j: Window,
+    window_j: Window,
     w: Weather
 ) -> np.ndarray:
     """
@@ -115,7 +115,7 @@ def get_theta_o_eqv_j_ns_for_external_transparent_part(
 
     # ステップ n の境界 j における傾斜面に入射する太陽の入射角, rad, [n]
     phi_j_ns = inclined_surface_solar_radiation.get_phi_j_ns(
-        h_sun_ns=w.h_sun_ns_plus, a_sun_ns=w.a_sun_ns_plus, drct_j=drct_j)
+        h_sun_ns=w.h_sun_ns_plus, a_sun_ns=w.a_sun_ns_plus, drct_j=t_drct_j)
 
     # ステップnにおける境界jに入射する日射量の直達成分, W / m2, [n]
     # ステップnにおける境界jに入射する日射量の天空成分, W / m2, [n]
@@ -123,7 +123,7 @@ def get_theta_o_eqv_j_ns_for_external_transparent_part(
     # ステップnにおける境界jの夜間放射量, W/m2, [n]
     i_s_dn_j_ns, i_s_sky_j_ns, i_s_ref_j_ns, r_s_n_j_ns = inclined_surface_solar_radiation.get_i_s_j_ns(
         w=w,
-        drct_j=drct_j
+        drct_j=t_drct_j
     )
 
     # ---日よけの影面積比率
@@ -139,15 +139,15 @@ def get_theta_o_eqv_j_ns_for_external_transparent_part(
 
     # ステップ n における境界ｊの開口部の直達日射に対する吸収日射熱取得率, -, [N+1]
     # b_w_d_j_ns = window.get_alpha_w_j_n(phi_ns=theta_aoi_j_ns)
-    b_w_d_j_ns = wdw_j.get_b_w_d_j_ns(phi_j_ns=phi_j_ns)
+    b_w_d_j_ns = window_j.get_b_w_d_j_ns(phi_j_ns=phi_j_ns)
 
     # 境界 ｊ　の開口部の天空日射に対する吸収日射熱取得率, -
     # b_w_s_j = window.alpha_w_s_j
-    b_w_s_j = wdw_j.b_w_s_j
+    b_w_s_j = window_j.b_w_s_j
 
     # 境界 ｊ　の開口部の地盤反射日射に対する吸収日射熱取得率, -
     # b_w_r_j = window.alpha_w_r_j
-    b_w_r_j = wdw_j.b_w_r_j
+    b_w_r_j = window_j.b_w_r_j
 
     # 直達日射に起因する吸収日射熱取得量, W/m2, [N+1]
     # eq.5
@@ -168,7 +168,7 @@ def get_theta_o_eqv_j_ns_for_external_transparent_part(
     # 室iの境界jの傾斜面のステップnにおける相当外気温度, ℃, [N+1]
     # 透明な開口部の場合、透過日射はガラス面への透過の項で扱うため、ここでは吸収日射、長波長放射のみ考慮する。
     # eq.3
-    return w.theta_o_ns_plus - eps_r_o_j * r_s_n_j_ns * r_s_o_j + q_b_all_j_ns / u_j
+    return w.theta_o_ns_plus - eps_r_o_j * r_s_n_j_ns * r_s_o_j + q_b_all_j_ns / u_w_std_j
 
 
 def get_theta_o_eqv_j_ns_for_external_not_sun_striked(w: Weather) -> np.ndarray:

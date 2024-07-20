@@ -34,22 +34,28 @@ class Window:
     """窓を表すクラス
     """
 
-    def __init__(self, u_w_j: float, eta_w_j: float, glass_type: GlassType, r_a_w_g_j: Optional[float] = None,
-                 flame_type: FlameType = FlameType.MIXED_WOOD):
+    def __init__(
+            self,
+            u_w_std_j: float,
+            eta_w_std_j: float,
+            t_glz_j: GlassType,
+            r_a_w_g_j: Optional[float] = None,
+            t_flame: FlameType = FlameType.MIXED_WOOD
+        ):
         """
 
         Args:
-            u_w_j: 境界 j の窓の熱損失係数, W/m2K
-            eta_w_j: 境界 j の窓の日射熱取得率, -
-            glass_type: 境界 j の窓のガラス構成
-            r_a_w_g_j: 境界 j の窓の面積に対するグレージングの面積の比, -
-            flame_type: _description_. Defaults to FlameType.MIXED.
+            u_w_std_j: standard heat transmittance coefficient (U value) of boundary j / 境界jの窓の熱損失係数, W/m2K
+            eta_w_j: solar gain ratio (eta value) of boundary j / 境界 j の窓の日射熱取得率, -
+            t_glz_j: grazing type of boundary j / 境界jの窓ガラスの種類
+            r_a_w_g_j: grazing area ratio of boundary i / 境界jの窓の面積に対するグレージングの面積の比, -
+            t_flame: _description_. Defaults to FlameType.MIXED.
         """
 
-        u_w_f_j = _get_u_w_f_j(flame_type=flame_type)
-        r_a_w_g_j = _get_r_a_w_g_j(r_a_w_g_j=r_a_w_g_j, flame_type=flame_type)
-        u_w_g_j = _get_u_w_g_j(u_w_j=u_w_j, u_w_f_j=u_w_f_j, r_a_w_g_j=r_a_w_g_j)
-        eta_w_g_j = _get_eta_w_g_j(eta_w_j=eta_w_j, r_a_w_g_j=r_a_w_g_j)
+        u_w_f_j = _get_u_w_f_j(flame_type=t_flame)
+        r_a_w_g_j = _get_r_a_w_g_j(r_a_w_g_j=r_a_w_g_j, flame_type=t_flame)
+        u_w_g_j = _get_u_w_g_j(u_w_j=u_w_std_j, u_w_f_j=u_w_f_j, r_a_w_g_j=r_a_w_g_j)
+        eta_w_g_j = _get_eta_w_g_j(eta_w_j=eta_w_std_j, r_a_w_g_j=r_a_w_g_j)
         r_w_o_w, r_w_i_w, r_w_o_s, r_w_i_s = _get_r_w()
         u_w_g_s_j = _get_u_w_g_s_j(u_w_g_j=u_w_g_j, r_w_o_w=r_w_o_w, r_w_i_w=r_w_i_w, r_w_o_s=r_w_o_s, r_w_i_s=r_w_i_s)
         r_r_w_g_j = _get_r_r_w_g_j(
@@ -58,22 +64,22 @@ class Window:
             r_w_o_w=r_w_o_w,
             r_w_i_w=r_w_i_w,
             r_w_o_s=r_w_o_s,
-            glass_type=glass_type
+            glass_type=t_glz_j
         )
         rho_w_g_s1f_j = _get_rho_w_g_s1f_j(r_r_w_g_j=r_r_w_g_j, eta_w_g_j=eta_w_g_j)
-        rho_w_g_s2f_j = _get_rho_w_g_s2f_j(glass_type=glass_type)
+        rho_w_g_s2f_j = _get_rho_w_g_s2f_j(glass_type=t_glz_j)
         tau_w_g_j = _get_tau_w_g_j(
             eta_w_g_j=eta_w_g_j,
             r_r_w_g_j=r_r_w_g_j,
             rho_w_g_s1f_j=rho_w_g_s1f_j,
             rho_w_g_s2f_j=rho_w_g_s2f_j,
-            glass_type=glass_type
+            glass_type=t_glz_j
         )
-        tau_w_g_s1_j = _get_tau_w_g_s1_j(tau_w_g_j=tau_w_g_j, rho_w_g_s2f_j=rho_w_g_s2f_j, glass_type=glass_type)
-        tau_w_g_s2_j = _get_tau_w_g_s2_j(tau_w_g_s1_j=tau_w_g_s1_j, glass_type=glass_type)
-        rho_w_g_s1b_j = _get_rho_w_g_s1b_j(tau_w_g_s1_j=tau_w_g_s1_j, glass_type=glass_type)
+        tau_w_g_s1_j = _get_tau_w_g_s1_j(tau_w_g_j=tau_w_g_j, rho_w_g_s2f_j=rho_w_g_s2f_j, glass_type=t_glz_j)
+        tau_w_g_s2_j = _get_tau_w_g_s2_j(tau_w_g_s1_j=tau_w_g_s1_j, glass_type=t_glz_j)
+        rho_w_g_s1b_j = _get_rho_w_g_s1b_j(tau_w_g_s1_j=tau_w_g_s1_j, glass_type=t_glz_j)
 
-        self._glass_type = glass_type
+        self._glass_type = t_glz_j
         self._u_w_f_j = u_w_f_j
         self._r_a_w_g_j = r_a_w_g_j
         self._u_w_g_j = u_w_g_j

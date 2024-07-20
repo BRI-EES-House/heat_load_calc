@@ -262,12 +262,12 @@ def _get_t_m_ns(interval: Interval) -> np.ndarray:
     n_hour = interval.get_n_hour()
 
     # インターバル時間, h
-    int_interval = interval.get_time()
+    delta_h = interval.get_delta_h()
 
     # 1h: 0, 1.0, .... , 23.0, 0, 1.0, ...23.0
     # 30m: 0, 0.5, 1.0, 1.5, .... , 23.5, 0, 0.5, ...23.5
     # 15m: 0, 0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, .... , 23.75, 0, 0.25, ...23.75
-    return np.tile(np.arange(24 * n_hour) * int_interval, 365)
+    return np.tile(np.arange(24 * n_hour) * delta_h, 365)
 
 
 def _get_omega_ns(t_m_ns: np.ndarray, lambda_loc: float, lambda_loc_mer: float, e_t_ns: np.ndarray) -> np.ndarray:

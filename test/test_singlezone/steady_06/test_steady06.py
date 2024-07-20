@@ -56,8 +56,8 @@ class TestSteadyState(unittest.TestCase):
             x_gen_is_ns=np.zeros((1, 8760*4), dtype=float),
             v_mec_vent_local_is_ns=np.zeros((1, 8760*4), dtype=float),
             n_hum_is_ns=np.zeros((1, 8760*4), dtype=float),
-            ac_demand_is_ns=np.zeros((1, 8760*4), dtype=float),
-            ac_setting_is_ns=np.zeros((1, 8760*4), dtype=float)
+            r_ac_demand_is_ns=np.zeros((1, 8760*4), dtype=float),
+            t_ac_mode_is_ns=np.zeros((1, 8760*4), dtype=float)
         )
 
         # ステップnの室iにおける窓の透過日射熱取得, W, [8760*4]
@@ -66,10 +66,8 @@ class TestSteadyState(unittest.TestCase):
 
         # pre_calc_parametersの構築
         sqc = sequence.Sequence(
-            itv=interval.Interval.M15, rd=rd, weather=w, scd=scd, q_trs_sol_is_ns=q_trs_sol_is_ns
+            itv=interval.Interval.M15, rd=rd, weather=w, scd=scd, _q_trs_sol_is_ns=q_trs_sol_is_ns
         )
-
-        ss = sqc.pre_calc_parameter
 
         q_srf_js_n = np.array([[12.7809219004777, 12.7809219004777, 12.7809219004777, 12.7809219004777,
             36.6603793746687, 12.2159349302242]]).reshape(-1, 1)
@@ -84,7 +82,7 @@ class TestSteadyState(unittest.TestCase):
             theta_mrt_hum_is_n=np.array([[2.642487123]]),
             x_r_is_n=np.array([[0.0]]),
             theta_dsh_s_a_js_ms_n=q_srf_js_n * sqc.bs.phi_a1_js_ms / (1.0 - sqc.bs.r_js_ms),
-            theta_dsh_s_t_js_ms_n=(np.dot(sqc.bs.k_ei_js_js, theta_ei_js_n) + sqc.bs.k_eo_js * sqc.bs.theta_o_eqv_js_ns[:, 1].reshape(-1, 1)) * sqc.bs.phi_t1_js_ms / (1.0 - sqc.bs.r_js_ms),
+            theta_dsh_s_t_js_ms_n=(np.dot(sqc.bs.k_ei_js_js, theta_ei_js_n) + sqc.bs.k_eo_js * sqc.bs.theta_o_eqv_js_nspls[:, 1].reshape(-1, 1)) * sqc.bs.phi_t1_js_ms / (1.0 - sqc.bs.r_js_ms),
             q_s_js_n=q_srf_js_n,
             theta_frt_is_n=np.array([[22.60960613]]),
             x_frt_is_n=np.array([[0.0]]),

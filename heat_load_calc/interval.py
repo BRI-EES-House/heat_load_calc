@@ -37,11 +37,11 @@ class Interval(Enum):
             Interval.M15: 4
         }[self]
 
-    def get_time(self):
+    def get_delta_h(self):
         """Get the interval time depending the number of steps dividing one hour. / 1時間を分割するステップに応じてインターバル時間を取得する。
 
         Returns:
-            interval time / インターバル時間, h
+            interval time for calculation/ 計算時間間隔, h
         """
 
         return {
@@ -54,7 +54,7 @@ class Interval(Enum):
         """Get the interval time depending the number of steps dividing one hour. / 1時間を分割するステップに応じてインターバル時間を取得する。
 
         Returns:
-            interval time / インターバル時間, s
+            interval time for calculation/ 計算時間間隔, s
         """
 
         return {
@@ -63,7 +63,7 @@ class Interval(Enum):
             Interval.M15: 900
         }[self]
 
-    def get_annual_number(self):
+    def get_n_step_annual(self):
         """Get the annual number of steps. / 1年間のステップ数を取得する。
 
         Returns:

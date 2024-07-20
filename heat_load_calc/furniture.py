@@ -6,18 +6,19 @@ import numpy as np
 from typing import List, Dict, Tuple
 
 
-def get_furniture_specs(dict_furniture_i: Dict[str, str], v_rm_i: float) -> Tuple[float, float, float, float]:
+def get_furniture_specs(dict_furniture_i: Dict[str, str], v_r_i: float) -> Tuple[float, float, float, float, float]:
     """
         備品等に関する物性値を取得する。
     Args:
         dict_furniture_i: 室 i の備品等に関する入力情報
-        v_rm_i: 室 i の容量, m3
+        v_r_i: volume of room i / 室iの容量, m3
     Returns:
-        備品等に関する物性値
-            室 i の備品等の熱容量, J/K
-            室 i の空気と備品等間の熱コンダクタンス, W/K
-            室 i の備品等の湿気容量, kg/(kg/kgDA)
-            室 i の空気と備品等間の湿気コンダクタンス, kg/(s (kg/kgDA))
+        spec / 備品等に関する物性値
+            thermal capacity of furniture in room i / 室iの備品等の熱容量, J/K
+            thermal conductance between air and furniture in room i / 室iの空気と備品等間の熱コンダクタンス, W/K
+            moisture capacity of furniture in room i / 室iの備品等の湿気容量, kg/(kg/kgDA)
+            moisture conductance between air and furniture in room i / 室iの空気と備品等間の湿気コンダクタンス, kg/(s (kg/kgDA))
+            solar absorption ratio of furniture in room i / 室iの備品等の日射吸収割合, -
     Notes:
         各値は、特定の値の入力を受け付ける他に、以下の式(1)～(4)により室容積から推定する方法を設定する。
     """
@@ -26,9 +27,9 @@ def get_furniture_specs(dict_furniture_i: Dict[str, str], v_rm_i: float) -> Tupl
 
         # 入力方法がデフォルト指定している場合は室容積から各物性値を推定する。
 
-        c_sh_frt_i = _get_c_sh_frt_i(v_rm_i=v_rm_i)
+        c_sh_frt_i = _get_c_sh_frt_i(v_rm_i=v_r_i)
         g_sh_frt_i = _get_g_sh_frt_i(c_sh_frt_i=c_sh_frt_i)
-        c_lh_frt_i = _get_c_lh_frt_i(v_rm_i=v_rm_i)
+        c_lh_frt_i = _get_c_lh_frt_i(v_rm_i=v_r_i)
         g_lh_frt_i = _get_g_lh_frt_i(c_lh_frt_i=c_lh_frt_i)
 
     elif dict_furniture_i['input_method'] == 'specify':
@@ -43,7 +44,16 @@ def get_furniture_specs(dict_furniture_i: Dict[str, str], v_rm_i: float) -> Tupl
     else:
         raise Exception()
 
-    return c_lh_frt_i, c_sh_frt_i, g_lh_frt_i, g_sh_frt_i
+    if 'solar_absorption_ratio' in dict_furniture_i:
+        r_sol_frt_i = float(dict_furniture_i['solar_absorption_ratio'])
+        if r_sol_frt_i < 0.0:
+            raise ValueError("room 要素の furniture 要素の solar_absorption_ratio は 0.0 以上の数値を指定してください。")
+        if r_sol_frt_i > 1.0:
+            raise ValueError("room 要素の furniture 要素の solar_absorption_ratio は 1.0 以下の数値を指定してください。")
+    else:
+        r_sol_frt_i = 0.5
+
+    return c_lh_frt_i, c_sh_frt_i, g_lh_frt_i, g_sh_frt_i, r_sol_frt_i
 
 
 def _get_c_sh_frt_i(v_rm_i: float) -> float:

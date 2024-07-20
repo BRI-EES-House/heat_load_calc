@@ -28,12 +28,12 @@ class TestTransmissionSolarRadiation(unittest.TestCase):
     def test_get_q_trs_sol_j_ns_for_transparent_sun_striked(self):
         
         ssp = SolarShadingSimple(alpha_w_j=-np.pi/4, l_z_j=0.4, l_y_h_j=1.5, l_y_e_j=0.3)
-        wdw = Window(u_w_j=3.0, eta_w_j=0.8, glass_type=GlassType.SINGLE)
+        wdw = Window(u_w_std_j=3.0, eta_w_std_j=0.8, t_glz_j=GlassType.SINGLE)
         result = tsr.get_q_trs_sol_j_ns_for_transparent_sun_striked(
-            drct_j=Direction.SE,
+            t_drct_j=Direction.SE,
             a_s_j=10.0,
             ssp_j=ssp,
-            wdw_j=wdw,
+            window_j=wdw,
             w=self.w
         )
 

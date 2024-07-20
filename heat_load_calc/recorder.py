@@ -250,6 +250,7 @@ class Recorder:
             bs: Boundaries,
             q_sol_frt_is_ns: np.ndarray,
             q_s_sol_js_ns: np.ndarray,
+            q_trs_sol_is_ns: np.ndarray
     ):
 
         # 注意：用意された1年分のデータと実行期間が異なる場合があるためデータスライスする必要がある。
@@ -263,7 +264,7 @@ class Recorder:
         self.x_o_ns = weather.x_o_ns_plus[0: self._n_step_i]
 
         # ステップ n における室 i の窓の透過日射熱取得, W, [i, n+1]
-        self.q_trs_sol_is_ns = bs.q_trs_sol_is_ns[:, 0:self._n_step_i]
+        self.q_trs_sol_is_ns = q_trs_sol_is_ns[:, 0:self._n_step_i]
 
         # ステップ n における室 i に設置された備品等による透過日射吸収熱量, W, [i, n+1]
         self.q_sol_frt_is_ns = q_sol_frt_is_ns[:, 0:self._n_step_i]
@@ -280,7 +281,7 @@ class Recorder:
         # ---平均値・積算値---
 
         # ステップ n の室 i における当該時刻の空調需要, [i, n_step_a]
-        self.ac_demand_is_ns = scd.ac_demand_is_ns[:, 0:self._n_step_a]
+        self.ac_demand_is_ns = scd.r_ac_demand_is_ns[:, 0:self._n_step_a]
 
         # ステップnの室iにおける人体発熱を除く内部発熱, W, [i, n_step_a]
         self.q_gen_is_ns = scd.q_gen_is_ns[:, 0:self._n_step_a]

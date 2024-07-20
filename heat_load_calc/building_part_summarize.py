@@ -166,19 +166,19 @@ def integrate(bss: List[Boundary]) -> List[Boundary]:
             name=name_js[j],
             sub_name=sub_name_js[j],
             connected_room_id=connected_room_id_js[j],
-            boundary_type=boundary_type_js[j],
-            area=a_js[j],
-            h_td=h_td_js[j],
+            t_b=boundary_type_js[j],
+            a_s=a_js[j],
+            k_eo=h_td_js[j],
             next_room_type=next_room_type_js[j],
             rear_surface_boundary_id=rear_surface_boundary_id_js[j],
-            is_floor=is_floor_js[j],
-            is_solar_absorbed_inside=is_solar_absorbed_inside_js[j],
+            b_floor=is_floor_js[j],
+            b_sol_abs=is_solar_absorbed_inside_js[j],
             is_sun_striked_outside=is_sun_striked_outside_js[j],
             direction=direction_js[j],
             h_i=h_i_js[j],
             h_c=h_c_js[j],
-            theta_o_sol=theta_o_sol_js_ns[j],
-            q_trs_sol=q_trs_sol_js_ns[j],
+            theta_o_eqv_nspls=theta_o_sol_js_ns[j],
+            q_trs_sol_nplus=q_trs_sol_js_ns[j],
             row=rows_js[j],
             rft0=phi_t0_js[j],
             rfa0=phi_a0_js[j],
@@ -258,15 +258,15 @@ def _is_boundary_integratable(bs1: Boundary, bs2: Boundary) -> bool:
         return False
 
     # 境界の種類
-    if bs1.boundary_type != bs2.boundary_type:
+    if bs1.t_b != bs2.t_b:
         return False
 
     # 床か否か
-    if bs1.is_floor != bs2.is_floor:
+    if bs1.b_floor != bs2.b_floor:
         return False
 
     # 室内侵入日射吸収の有無
-    if bs1.is_solar_absorbed_inside != bs2.is_solar_absorbed_inside:
+    if bs1.b_sol_abs != bs2.b_sol_abs:
         return False
 
     # 室内側熱伝達率
@@ -274,16 +274,16 @@ def _is_boundary_integratable(bs1: Boundary, bs2: Boundary) -> bool:
         return False
 
     # 境界の種類が「外皮_一般部位」、「外皮_透明な開口部」又は「外皮_不透明な開口部」の場合
-    if (bs1.boundary_type == BoundaryType.ExternalGeneralPart) \
-            or (bs1.boundary_type == BoundaryType.ExternalTransparentPart) \
-            or (bs1.boundary_type == BoundaryType.ExternalOpaquePart):
+    if (bs1.t_b == BoundaryType.EXTERNAL_GENERAL_PART) \
+            or (bs1.t_b == BoundaryType.EXTERNAL_TRANSPARENT_PART) \
+            or (bs1.t_b == BoundaryType.EXTERNAL_OPAQUE_PART):
 
         # 日射の有無
         if bs1.is_sun_striked_outside != bs2.is_sun_striked_outside:
             return False
 
         # 温度差係数
-        if not _is_almost_equal(bs1.h_td, bs2.h_td):
+        if not _is_almost_equal(bs1.k_eo, bs2.k_eo):
             return False
 
         # 日射の有無が当たるの場合
@@ -294,7 +294,7 @@ def _is_boundary_integratable(bs1: Boundary, bs2: Boundary) -> bool:
                 return False
 
     # 境界の種類が間仕切りの場合
-    if bs1.boundary_type == BoundaryType.Internal:
+    if bs1.t_b == BoundaryType.INTERNAL:
 
         # 隣室タイプ
         if bs1.next_room_type != bs2.next_room_type:
