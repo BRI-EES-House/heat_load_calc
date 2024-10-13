@@ -323,6 +323,8 @@ def _get_schedule(
     # "W" = weekday / 平日
     # "HO" = go outside in holiday / 休日外
     # "HI" = stay inside in holiday / 休日在
+    # example
+    # ["HI", "W", "W", "W", "W", "W", "HI",...]
     calendar = _load_calendar()
 
     # 1日のうちのステップ数 / the number of steps in a day 
@@ -340,7 +342,7 @@ def _get_schedule(
 def _get_interpolated_schedule(
         day_type,
         schedule_item: ScheduleItem,
-        schedule_type_i,
+        schedule_type_i: ScheduleType,
         schedule_i,
         n_step_day,
         noo: NumberOfOccupants,
@@ -348,6 +350,7 @@ def _get_interpolated_schedule(
 ) -> np.ndarray:
     """Returns a list linearly interpolated by the number of occupants. / 世帯人数で線形補間したリストを返す
     Args:
+        schedule_item: ScheduleItem class
         daily_schedule: schedule value
             Key: "const", "1", "2", "3", or "4"
             Value: values
@@ -373,17 +376,17 @@ def _get_interpolated_schedule(
         list linerly interpolated / 線形補間したリスト, [24 or 48 or 96]
     """
 
-    schedule_item_name = schedule_item.get_item_name_in_dictionary()
-
+    # TRUE is the list consisting of 0 or 1 value.
+    # Only AC_DEMMAND is the 0 or 1 list.
     is_zero_one = schedule_item.is_zero_one()
 
+    # Is the list proportionable ?
+    # Only AC_MODE is NOT proportionable. 
     is_proportionable = schedule_item.is_proportionable()
 
     if schedule_type_i == ScheduleType.CONST:
 
-        scd = np.array(
-            _check_and_read_value(d=schedule_i['const'][day_type], schedule_item_name=schedule_item_name, n_step_day=n_step_day)
-        )
+        scd = _check_and_read_value(d=schedule_i['const'][day_type], schedule_item=schedule_item, n_step_day=n_step_day)
 
         if is_zero_one:
             return _convert_to_zero_one(v=scd)
@@ -394,9 +397,7 @@ def _get_interpolated_schedule(
 
         if noo in [NumberOfOccupants.One, NumberOfOccupants.Two, NumberOfOccupants.Three, NumberOfOccupants.Four]:
 
-            scd = np.array(
-                _check_and_read_value(d=schedule_i[str(noo.value)][day_type], schedule_item_name=schedule_item_name, n_step_day=n_step_day)
-            )
+            scd = _check_and_read_value(d=schedule_i[str(noo.value)][day_type], schedule_item=schedule_item, n_step_day=n_step_day)
 
             if is_zero_one:
                 return _convert_to_zero_one(v=scd)
@@ -407,12 +408,9 @@ def _get_interpolated_schedule(
 
             ceil_np, floor_np = _get_ceil_floor_np(n_p)
 
-            ceiled_scd = np.array(
-                _check_and_read_value(d=schedule_i[str(ceil_np)][day_type], schedule_item_name=schedule_item_name, n_step_day=n_step_day)
-            )
-            floored_scd = np.array(
-                _check_and_read_value(d=schedule_i[str(floor_np)][day_type], schedule_item_name=schedule_item_name, n_step_day=n_step_day)
-            )
+            ceiled_scd = _check_and_read_value(d=schedule_i[str(ceil_np)][day_type], schedule_item=schedule_item, n_step_day=n_step_day)
+
+            floored_scd = _check_and_read_value(d=schedule_i[str(floor_np)][day_type], schedule_item=schedule_item, n_step_day=n_step_day)
 
             if is_zero_one:
                 ceil_schedule = _convert_to_zero_one(v=ceiled_scd)
@@ -436,19 +434,26 @@ def _get_interpolated_schedule(
         raise KeyError()
 
 
-def _check_and_read_value(d: Dict, schedule_item_name: str, n_step_day: int) -> List:
-    """_summary_
+def _check_and_read_value(d: Dict, schedule_item: ScheduleItem, n_step_day: int) -> np.ndarray:
+    """make ndarray list from the input dictionary.
 
+    Check which the schedule item name is included in the item name of thy input jason file.
+        If not included, make the zero list. The number of list is equal to n_step_day.
+        If included, check the contents.
+            When the contents is the list of number, check which the length of the list equals to n_step_day.
+                If the length is equal to n_step_day, return the list.
+                If not, return the ERROR.
+            When the contents is the string "zero", return the zero list. 
     Args:
         d: dictionary of the input file (see Notes)
             {
-                "number_of_people": [],
-                "heat_generation_appliances": [],
-                "heat_generation_lighting": [],
-                "heat_generation_cooking": [],
-                "vapor_generation_cooking": [],
-                "local_vent_amount": [],
-                "is_temp_limit_set": []
+                "number_of_people": [] / "zero",
+                "heat_generation_appliances": [] / "zero",
+                "heat_generation_lighting": [] / "zero",
+                "heat_generation_cooking": [] / "zero",
+                "vapor_generation_cooking": [] / "zero",
+                "local_vent_amount": [] / "zero",
+                "is_temp_limit_set": [] / "zero"
             }
         schedule_item_name: schedule item name which is the name of the dictionary;
             number_of_people
@@ -460,21 +465,23 @@ def _check_and_read_value(d: Dict, schedule_item_name: str, n_step_day: int) -> 
         n_step_day: numbe of the steps in a day
 
     Returns:
-        value of schedule pattern t_scd_d, type of occupants t_p and step n_d in day d
-        居住人数タイプ t_p の日付 d のスケジュールパターン t_{scd,d} の値
+        ndarray list of the schedule
     """
 
-    # If the schedule_type key is not exist in the dictionary d, make the zero list.
+    # get the item name in dictionary according to the schedule item.
+    schedule_item_name = schedule_item.get_item_name_in_dictionary()
+
+    # If the schedule_type item name is not exist in the dictionary d, make the zero list.
     if schedule_item_name not in d:
-        return [0] * n_step_day
+        return np.zeros(n_step_day)
     else:
         v = d[schedule_item_name]
         if v == 'zero':
-            return [0] * n_step_day
+            return np.zeros(n_step_day)
         else:
             if len(v) != n_step_day:
                 raise ValueError("Number of the list in the schedule does not match the interval.")
-            return v
+            return np.array(v)
 
 
 def _convert_to_zero_one(v: np.ndarray) -> np.ndarray:
@@ -553,7 +560,11 @@ def _load_calendar() -> np.ndarray:
     """Get the calender of 365 days. / 365日分のカレンダーを取得する。
 
     Returns:
-        calendar
+        list of calendar
+    
+    Note:
+        ["HI", "W", "W", "W", "W", "W", "HI",...]
+        The length of list is 365.
     """
 
     calender_dict = _load_json_file(filename='calendar')

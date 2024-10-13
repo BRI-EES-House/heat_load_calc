@@ -5,7 +5,7 @@ import time
 
 from heat_load_calc import core, schedule, weather, furniture, interval
 
-
+#@unittest.skip("")
 class TestAllAtOnce(unittest.TestCase):
 
     @classmethod
