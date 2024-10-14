@@ -26,7 +26,7 @@ class EarthenFloor:
     n_root: int
 
 
-def get_rf_parameters_t() -> np.ndarray:
+def _get_rf_parameters_t() -> np.ndarray:
     """
     土間床外周部の貫流応答特性のパラメータを返す
     Returns:
@@ -47,7 +47,7 @@ def get_rf_parameters_t() -> np.ndarray:
     ])
 
 
-def get_rf_parameters_a() -> np.ndarray:
+def _get_rf_parameters_a() -> np.ndarray:
     """
     土間床外周部の吸熱応答特性のパラメータを返す
     Returns:
@@ -68,7 +68,7 @@ def get_rf_parameters_a() -> np.ndarray:
     ])
 
 
-def rf_initial_term(parameters: np.ndarray, alpha_m: np.ndarray) -> float:
+def _rf_initial_term(parameters: np.ndarray, alpha_m: np.ndarray) -> float:
     """
     土間床外周部の応答係数の初項を計算する
     Args:
@@ -82,7 +82,7 @@ def rf_initial_term(parameters: np.ndarray, alpha_m: np.ndarray) -> float:
     return 1.0 + np.sum(parameters / (alpha_m * 900) * (1.0 - np.exp(-alpha_m * 900)))
 
 
-def calc_rf_exponential(parameters: np.ndarray, alpha_m: np.ndarray) -> np.ndarray:
+def _calc_rf_exponential(parameters: np.ndarray, alpha_m: np.ndarray) -> np.ndarray:
     """
     土間床外周部の指数項別応答係数を計算する
     Args:
@@ -104,22 +104,22 @@ class EarthenFloorRF(EarthenFloor):
         self.psi = psi
 
         # 貫流応答、吸熱応答のパラメータ取得
-        parameters_t = get_rf_parameters_t()
-        parameters_a = get_rf_parameters_a()
+        parameters_t = _get_rf_parameters_t()
+        parameters_a = _get_rf_parameters_a()
 
         # 土壌の根を取得
-        alpha_m = rf.get_alpha_m(is_ground=True)
+        alpha_m = rf._get_alpha_m(is_ground=True)
 
         # 根の数
         self.n_root = len(alpha_m)
 
         # 吸熱応答の初項
-        self.rfa0 = psi * rf_initial_term(parameters=parameters_a, alpha_m=alpha_m)
+        self.rfa0 = psi * _rf_initial_term(parameters=parameters_a, alpha_m=alpha_m)
         # 貫流応答の初項
-        self.rft0 = psi * rf_initial_term(parameters=parameters_t, alpha_m=alpha_m)
+        self.rft0 = psi * _rf_initial_term(parameters=parameters_t, alpha_m=alpha_m)
         # 指数項別吸熱応答係数
-        self.rfa1 = psi * calc_rf_exponential(parameters=parameters_a, alpha_m=alpha_m)
-        self.rft1 = psi * calc_rf_exponential(parameters=parameters_t, alpha_m=alpha_m)
+        self.rfa1 = psi * _calc_rf_exponential(parameters=parameters_a, alpha_m=alpha_m)
+        self.rft1 = psi * _calc_rf_exponential(parameters=parameters_t, alpha_m=alpha_m)
 
 
 if __name__ == "__main__":
@@ -136,17 +136,17 @@ if __name__ == "__main__":
     print(erf2.rfa1)
     print(erf2.rft1)
 
-    parameters_t = get_rf_parameters_t()
-    parameters_a = get_rf_parameters_a()
+    parameters_t = _get_rf_parameters_t()
+    parameters_a = _get_rf_parameters_a()
 
-    alpha_m = rf.get_alpha_m(is_ground=True)
+    alpha_m = rf._get_alpha_m(is_ground=True)
 
-    at0 = rf_initial_term(parameters=parameters_t, alpha_m=alpha_m)
-    aa0 = rf_initial_term(parameters=parameters_a, alpha_m=alpha_m)
+    at0 = _rf_initial_term(parameters=parameters_t, alpha_m=alpha_m)
+    aa0 = _rf_initial_term(parameters=parameters_a, alpha_m=alpha_m)
 
     print(aa0, at0)
 
-    rft1 = calc_rf_exponential(parameters=parameters_t, alpha_m=alpha_m)
-    rfa1 = calc_rf_exponential(parameters=parameters_a, alpha_m=alpha_m)
+    rft1 = _calc_rf_exponential(parameters=parameters_t, alpha_m=alpha_m)
+    rfa1 = _calc_rf_exponential(parameters=parameters_a, alpha_m=alpha_m)
 
     print(rfa1, rft1)

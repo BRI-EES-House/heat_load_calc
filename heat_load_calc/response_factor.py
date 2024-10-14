@@ -104,7 +104,7 @@ class ResponseFactor:
         cs = cs * 1000.0
 
         # 応答係数
-        frt0, rfa0, rft1, rfa1, row = calc_response_factor_non_residential(C_i_k_p=cs, R_i_k_p=rs)
+        frt0, rfa0, rft1, rfa1, row = _calc_response_factor_non_residential(C_i_k_p=cs, R_i_k_p=rs)
 
         r_total = rs.sum() + r_o
 
@@ -131,7 +131,7 @@ class ResponseFactor:
         cs = cs * 1000.0
 
         # 応答係数
-        rft0, rfa0, rft1, rfa1, row = calc_response_factor(is_ground=True, cs=cs, rs=rs)
+        rft0, rfa0, rft1, rfa1, row = _calc_response_factor(is_ground=True, cs=cs, rs=rs)
 
         # 貫流応答係数の上書
         # 土壌の計算は吸熱応答のみで計算するため、畳み込み積分に必要な指数項別応答係数はすべて０にする
@@ -145,7 +145,7 @@ class ResponseFactor:
 
 
 # ラプラス変数の設定
-def get_laps(alp: np.ndarray) -> np.ndarray:
+def _get_laps(alp: np.ndarray) -> np.ndarray:
     """
     :param alp: 固定根
     :return: ラプラス変数の配列
@@ -168,7 +168,7 @@ def get_laps(alp: np.ndarray) -> np.ndarray:
     return np.array(laps)
 
 
-def get_alpha_m(is_ground: bool) -> np.ndarray:
+def _get_alpha_m(is_ground: bool) -> np.ndarray:
     """
     固定根を取得する。
 
@@ -208,7 +208,7 @@ def get_alpha_m(is_ground: bool) -> np.ndarray:
 
 
 # 壁体の単位応答の計算
-def get_step_reps_of_wall(C_i_k_p, R_i_k_p, laps: List[float], alp: List[float]):
+def _get_step_reps_of_wall(C_i_k_p, R_i_k_p, laps: List[float], alp: List[float]):
     """
     :param layers: 壁体構成部材
     :param laps: ラプラス変数
@@ -240,7 +240,7 @@ def get_step_reps_of_wall(C_i_k_p, R_i_k_p, laps: List[float], alp: List[float])
     # 吸熱、貫流の各伝達関数ベクトルの作成
     for lngI, lap in enumerate(laps):
         # 伝達関数の計算
-        (GA, GT) = calc_transfer_function(C_i_k_p=C_i_k_p, R_i_k_p=R_i_k_p, laps=lap)
+        (GA, GT) = _calc_transfer_function(C_i_k_p=C_i_k_p, R_i_k_p=R_i_k_p, laps=lap)
 
         # 吸熱、貫流の各伝達関数ベクトルの作成
         matGA[lngI] = GA - dblGA0
@@ -278,7 +278,7 @@ def get_step_reps_of_wall(C_i_k_p, R_i_k_p, laps: List[float], alp: List[float])
 
 
 # 伝達関数の計算
-def calc_transfer_function(C_i_k_p: List[float], R_i_k_p: List[float], laps: float) -> (float, float):
+def _calc_transfer_function(C_i_k_p: List[float], R_i_k_p: List[float], laps: float) -> (float, float):
 
     """
 
@@ -332,7 +332,7 @@ def calc_transfer_function(C_i_k_p: List[float], R_i_k_p: List[float], laps: flo
 
 
 # 壁体の単位応答の計算（非住宅向け重み付き最小二乗法適用）
-def get_step_reps_of_wall_weighted(C_i_k_p, R_i_k_p, laps: List[float], alp: List[float], weight: float):
+def _get_step_reps_of_wall_weighted(C_i_k_p, R_i_k_p, laps: List[float], alp: List[float], weight: float):
     """
     重み付き最小二乗法の適用
     :param layers: 壁体構成部材
@@ -364,7 +364,7 @@ def get_step_reps_of_wall_weighted(C_i_k_p, R_i_k_p, laps: List[float], alp: Lis
     for lngI, lap in enumerate(laps):
 
         # 伝達関数の計算
-        (GA, GT) = calc_transfer_function(C_i_k_p=C_i_k_p, R_i_k_p=R_i_k_p, laps=lap)
+        (GA, GT) = _calc_transfer_function(C_i_k_p=C_i_k_p, R_i_k_p=R_i_k_p, laps=lap)
 
         # 吸熱、貫流の各伝達関数ベクトルの作成
         matGA[lngI, 0] = GA - dblGA0
@@ -407,7 +407,7 @@ def get_step_reps_of_wall_weighted(C_i_k_p, R_i_k_p, laps: List[float], alp: Lis
 
 
 # 二等辺三角波励振の応答係数、指数項別応答係数、公比の計算
-def get_RFTRI(alp, AT0, AA0, AT, AA):
+def _get_RFTRI(alp, AT0, AA0, AT, AA):
 
     # 二等辺三角波励振の応答係数の初項を計算
     dblTemp = np.array(alp) * 900
@@ -425,7 +425,7 @@ def get_RFTRI(alp, AT0, AA0, AT, AA):
 
 
 # 応答係数
-def calc_response_factor(is_ground: bool, cs, rs):
+def _calc_response_factor(is_ground: bool, cs, rs):
     """
     VBAからの主な変更点：
     (1)二次元配列（objArray）で壁体の情報を受け取っていたが、壁体情報クラスで受け取るように変更
@@ -441,16 +441,16 @@ def calc_response_factor(is_ground: bool, cs, rs):
     M = int(NcalTime * 3600 / 900) + 1  # 応答係数で作成する項数
 
     # 固定根, 一般部位の場合[8], 地盤の場合[10]
-    alpha_m = get_alpha_m(is_ground)
+    alpha_m = _get_alpha_m(is_ground)
 
     # ラプラス変数の設定
-    laps = get_laps(alpha_m)
+    laps = _get_laps(alpha_m)
 
     # 単位応答の計算
-    AT0, AA0, AT, AA = get_step_reps_of_wall(cs, rs, laps, alpha_m)
+    AT0, AA0, AT, AA = _get_step_reps_of_wall(cs, rs, laps, alpha_m)
 
     # 二等辺三角波励振の応答係数、指数項別応答係数、公比の計算
-    RFT0, RFA0, RFT1, RFA1, Row = get_RFTRI(alpha_m, AT0, AA0, AT, AA)
+    RFT0, RFA0, RFT1, RFA1, Row = _get_RFTRI(alpha_m, AT0, AA0, AT, AA)
 
     Nroot = len(alpha_m)  # 根の数
 
@@ -465,7 +465,7 @@ def calc_response_factor(is_ground: bool, cs, rs):
 
 
 # 応答係数（非住宅用　住宅との相違は固定根と重み付き最小二乗法を使用する点）
-def calc_response_factor_non_residential(C_i_k_p, R_i_k_p):
+def _calc_response_factor_non_residential(C_i_k_p, R_i_k_p):
     """
     VBAからの主な変更点：
     (1)二次元配列（objArray）で壁体の情報を受け取っていたが、壁体情報クラスで受け取るように変更
@@ -487,7 +487,7 @@ def calc_response_factor_non_residential(C_i_k_p, R_i_k_p):
     GT = np.zeros_like(alpha_m_temp, dtype=float)
     # 固定根をラプラスパラメータとして伝達関数を計算
     for i, lap in enumerate(alpha_m_temp):
-        (GA[i], GT[i]) = calc_transfer_function(C_i_k_p=C_i_k_p, R_i_k_p=R_i_k_p, laps=lap)
+        (GA[i], GT[i]) = _calc_transfer_function(C_i_k_p=C_i_k_p, R_i_k_p=R_i_k_p, laps=lap)
 
     GT2 = np.zeros(nroot + 2, dtype=float)
     # 配列0に定常の伝達関数を入力
@@ -519,13 +519,13 @@ def calc_response_factor_non_residential(C_i_k_p, R_i_k_p):
             alpha_m_temp = np.delete(alpha_m_temp, nroot - i - 1)
 
     # ラプラス変数の設定
-    laps = get_laps(alpha_m_temp)
+    laps = _get_laps(alpha_m_temp)
 
     # 単位応答の計算
-    AT0, AA0, AT, AA = get_step_reps_of_wall_weighted(C_i_k_p=C_i_k_p, R_i_k_p=R_i_k_p, laps=laps, alp=alpha_m_temp, weight=0.0)
+    AT0, AA0, AT, AA = _get_step_reps_of_wall_weighted(C_i_k_p=C_i_k_p, R_i_k_p=R_i_k_p, laps=laps, alp=alpha_m_temp, weight=0.0)
 
     # 二等辺三角波励振の応答係数の初項、指数項別応答係数、公比の計算
-    RFT0, RFA0, RFT1, RFA1, Row = get_RFTRI(alpha_m_temp, AT0, AA0, AT, AA)
+    RFT0, RFA0, RFT1, RFA1, Row = _get_RFTRI(alpha_m_temp, AT0, AA0, AT, AA)
 
     RFT1_12 = np.zeros(12)
     RFA1_12 = np.zeros(12)
@@ -541,6 +541,7 @@ def calc_response_factor_non_residential(C_i_k_p, R_i_k_p):
                 Row_12[i] = Row[j]
 
     return RFT0, RFA0, RFT1_12, RFA1_12, Row_12
+
 
 if __name__ == '__main__':
 
@@ -558,10 +559,10 @@ if __name__ == '__main__':
         0.120289612356129
     ])
 
-    print(calc_response_factor_non_residential(C, R))
+    print(_calc_response_factor_non_residential(C, R))
 
     # 単位面積あたりの熱容量, kJ / m2 K
     cs = np.array([7470, 0.0, 180000.0, 3600, 48000.0, 0.0])
     # 熱抵抗, m2 K/W
     rs = np.array([0.0409090909, 0.070000, 0.0562500000, 2.9411764706, 0.020000, 0.04])
-    print(calc_response_factor_non_residential(cs, rs))
+    print(_calc_response_factor_non_residential(cs, rs))
