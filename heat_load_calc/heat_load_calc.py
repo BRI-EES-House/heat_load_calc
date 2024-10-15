@@ -56,7 +56,7 @@ def run(
 
     # 気象データの生成 => weather_for_method_file.csv
     w = weather.Weather.make_weather(
-        rd=rd,
+        d=rd,
         itv=itv,
         entry_point_dir=entry_point_dir
     )

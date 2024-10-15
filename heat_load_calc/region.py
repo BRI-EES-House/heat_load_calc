@@ -36,3 +36,21 @@ class Region(IntEnum):
         phi_loc, lambda_loc = math.radians(latitude), math.radians(longitude)
 
         return phi_loc, lambda_loc
+    
+    def get_season(self):
+        """Get the season of spring, summer, autumn, winter.
+        """
+
+        summer_start, summer_end, winter_start, winter_end = {
+            Region.Region1: ("9/24", "6/7", "7/10", "8/30"),
+            Region.Region2: ("9/26", "6/4", "7/15", "8/31"),
+            Region.Region3: ("9/30", "5/31", "7/10", "8/31"),
+            Region.Region4: ("10/1", "5/30", "7/10", "8/31"),
+            Region.Region5: ("10/10", "5/15", "7/6", "8/31"),
+            Region.Region6: ("11/4", "4/21", "5/30", "9/23"),
+            Region.Region7: ("11/26", "3/27", "5/15", "10/13"),
+            Region.Region8: ("なし", "なし", "3/25", "12/14")
+        }[self]
+
+
+

@@ -5,29 +5,21 @@ import pytest
 from heat_load_calc import season
 
 
-class TestInterval(unittest.TestCase):
+class TestSeason(unittest.TestCase):
 
-    def assert_season(self, spring, summer, autumn, winter, i, s):
-        if s == "spring":
-            self.assertEqual(spring[i], True)
-            self.assertEqual(summer[i], False)
-            self.assertEqual(autumn[i], False)
-            self.assertEqual(winter[i], False)
-        elif s == "summer":
-            self.assertEqual(spring[i], False)
+    def assert_season(self, summer, winter, middle, i, s):
+        if s == "summer":
             self.assertEqual(summer[i], True)
-            self.assertEqual(autumn[i], False)
             self.assertEqual(winter[i], False)
-        elif s == "autumn":
-            self.assertEqual(spring[i], False)
-            self.assertEqual(summer[i], False)
-            self.assertEqual(autumn[i], True)
-            self.assertEqual(winter[i], False)
+            self.assertEqual(middle[i], False)
         elif s == "winter":
-            self.assertEqual(spring[i], False)
             self.assertEqual(summer[i], False)
-            self.assertEqual(autumn[i], False)
             self.assertEqual(winter[i], True)
+            self.assertEqual(middle[i], False)
+        elif s == "middle":
+            self.assertEqual(summer[i], False)
+            self.assertEqual(winter[i], False)
+            self.assertEqual(middle[i], True)
         else:
             raise Exception()
 
@@ -115,307 +107,327 @@ class TestInterval(unittest.TestCase):
 
         assert_season = self.assert_season
 
-        spring, summer, autumn, winter = season._get_bool_list_for_four_season_as_int(summer_start=100, summer_end=150, winter_start=200, winter_end=250)
+        summer, winter, middle = season._get_bool_list_for_four_season_as_int(summer_start=100, summer_end=150, winter_start=200, winter_end=250)
 
-        self.assertEqual(np.all(spring | summer | autumn | winter), True)
-        assert_season(spring, summer, autumn, winter, 0, "spring")
-        assert_season(spring, summer, autumn, winter, 98, "spring")
-        assert_season(spring, summer, autumn, winter, 99, "summer")
-        assert_season(spring, summer, autumn, winter, 100, "summer")
-        assert_season(spring, summer, autumn, winter, 148, "summer")
-        assert_season(spring, summer, autumn, winter, 149, "summer")
-        assert_season(spring, summer, autumn, winter, 150, "autumn")
-        assert_season(spring, summer, autumn, winter, 198, "autumn")
-        assert_season(spring, summer, autumn, winter, 199, "winter")
-        assert_season(spring, summer, autumn, winter, 200, "winter")
-        assert_season(spring, summer, autumn, winter, 248, "winter")
-        assert_season(spring, summer, autumn, winter, 249, "winter")
-        assert_season(spring, summer, autumn, winter, 250, "spring")
-        assert_season(spring, summer, autumn, winter, 364, "spring")
+        self.assertEqual(np.all(summer | winter | middle), True)
+
+        assert_season(summer, winter, middle, 0, "middle")
+        assert_season(summer, winter, middle, 98, "middle")
+        assert_season(summer, winter, middle, 99, "summer")
+        assert_season(summer, winter, middle, 100, "summer")
+        assert_season(summer, winter, middle, 148, "summer")
+        assert_season(summer, winter, middle, 149, "summer")
+        assert_season(summer, winter, middle, 150, "middle")
+        assert_season(summer, winter, middle, 198, "middle")
+        assert_season(summer, winter, middle, 199, "winter")
+        assert_season(summer, winter, middle, 200, "winter")
+        assert_season(summer, winter, middle, 248, "winter")
+        assert_season(summer, winter, middle, 249, "winter")
+        assert_season(summer, winter, middle, 250, "middle")
+        assert_season(summer, winter, middle, 364, "middle")
         
         with pytest.raises(ValueError):
-            spring, summer, autumn, winter = season._get_bool_list_for_four_season_as_int(summer_start=100, summer_end=150, winter_end=200, winter_start=250)
+            _ = season._get_bool_list_for_four_season_as_int(summer_start=100, summer_end=150, winter_end=200, winter_start=250)
 
         with pytest.raises(ValueError):
-            spring, summer, autumn, winter = season._get_bool_list_for_four_season_as_int(summer_start=100, winter_start=150, summer_end=200, winter_end=250)
+            _ = season._get_bool_list_for_four_season_as_int(summer_start=100, winter_start=150, summer_end=200, winter_end=250)
         
         with pytest.raises(ValueError):
-            spring, summer, autumn, winter = season._get_bool_list_for_four_season_as_int(summer_start=100, winter_start=150, winter_end=200, summer_end=250)
+            _ = season._get_bool_list_for_four_season_as_int(summer_start=100, winter_start=150, winter_end=200, summer_end=250)
         
         with pytest.raises(ValueError):
-            spring, summer, autumn, winter = season._get_bool_list_for_four_season_as_int(summer_start=100, winter_end=150, summer_end=200, winter_start=250)
+            _ = season._get_bool_list_for_four_season_as_int(summer_start=100, winter_end=150, summer_end=200, winter_start=250)
 
         with pytest.raises(ValueError):
-            spring, summer, autumn, winter = season._get_bool_list_for_four_season_as_int(summer_start=100, winter_end=150, winter_start=200, summer_end=250)
-
-
-        with pytest.raises(ValueError):
-            spring, summer, autumn, winter = season._get_bool_list_for_four_season_as_int(summer_end=100, summer_start=150, winter_start=200, winter_end=250)
+            _ = season._get_bool_list_for_four_season_as_int(summer_start=100, winter_end=150, winter_start=200, summer_end=250)
 
         with pytest.raises(ValueError):
-            spring, summer, autumn, winter = season._get_bool_list_for_four_season_as_int(summer_end=100, summer_start=150, winter_end=200, winter_start=250)
+            _ = season._get_bool_list_for_four_season_as_int(summer_end=100, summer_start=150, winter_start=200, winter_end=250)
 
         with pytest.raises(ValueError):
-            spring, summer, autumn, winter = season._get_bool_list_for_four_season_as_int(summer_end=100, winter_start=150, summer_start=200, winter_end=250)
-
-        spring, summer, autumn, winter = season._get_bool_list_for_four_season_as_int(summer_end=100, winter_start=150, winter_end=200, summer_start=250)
-
-        self.assertEqual(np.all(spring | summer | autumn | winter), True)
-        assert_season(spring, summer, autumn, winter, 0, "summer")
-        assert_season(spring, summer, autumn, winter, 98, "summer")
-        assert_season(spring, summer, autumn, winter, 99, "summer")
-        assert_season(spring, summer, autumn, winter, 100, "autumn")
-        assert_season(spring, summer, autumn, winter, 148, "autumn")
-        assert_season(spring, summer, autumn, winter, 149, "winter")
-        assert_season(spring, summer, autumn, winter, 150, "winter")
-        assert_season(spring, summer, autumn, winter, 198, "winter")
-        assert_season(spring, summer, autumn, winter, 199, "winter")
-        assert_season(spring, summer, autumn, winter, 200, "spring")
-        assert_season(spring, summer, autumn, winter, 248, "spring")
-        assert_season(spring, summer, autumn, winter, 249, "summer")
-        assert_season(spring, summer, autumn, winter, 250, "summer")
-        assert_season(spring, summer, autumn, winter, 364, "summer")
+            _ = season._get_bool_list_for_four_season_as_int(summer_end=100, summer_start=150, winter_end=200, winter_start=250)
 
         with pytest.raises(ValueError):
-            spring, summer, autumn, winter = season._get_bool_list_for_four_season_as_int(summer_end=100, winter_end=150, summer_start=200, winter_start=250)
+            _ = season._get_bool_list_for_four_season_as_int(summer_end=100, winter_start=150, summer_start=200, winter_end=250)
+
+        summer, winter, middle = season._get_bool_list_for_four_season_as_int(summer_end=100, winter_start=150, winter_end=200, summer_start=250)
+
+        self.assertEqual(np.all(summer | winter | middle), True)
+
+        assert_season(summer, winter, middle, 0, "summer")
+        assert_season(summer, winter, middle, 98, "summer")
+        assert_season(summer, winter, middle, 99, "summer")
+        assert_season(summer, winter, middle, 100, "middle")
+        assert_season(summer, winter, middle, 148, "middle")
+        assert_season(summer, winter, middle, 149, "winter")
+        assert_season(summer, winter, middle, 150, "winter")
+        assert_season(summer, winter, middle, 198, "winter")
+        assert_season(summer, winter, middle, 199, "winter")
+        assert_season(summer, winter, middle, 200, "middle")
+        assert_season(summer, winter, middle, 248, "middle")
+        assert_season(summer, winter, middle, 249, "summer")
+        assert_season(summer, winter, middle, 250, "summer")
+        assert_season(summer, winter, middle, 364, "summer")
 
         with pytest.raises(ValueError):
-            spring, summer, autumn, winter = season._get_bool_list_for_four_season_as_int(summer_end=100, winter_end=150, winter_start=200, summer_start=250)
-
-
-        with pytest.raises(ValueError):
-            spring, summer, autumn, winter = season._get_bool_list_for_four_season_as_int(winter_start=100, summer_start=150, summer_end=200, winter_end=250)
+            _ = season._get_bool_list_for_four_season_as_int(summer_end=100, winter_end=150, summer_start=200, winter_start=250)
 
         with pytest.raises(ValueError):
-            spring, summer, autumn, winter = season._get_bool_list_for_four_season_as_int(winter_start=100, summer_start=150, winter_end=200, summer_end=250)
+            _ = season._get_bool_list_for_four_season_as_int(summer_end=100, winter_end=150, winter_start=200, summer_start=250)
 
         with pytest.raises(ValueError):
-            spring, summer, autumn, winter = season._get_bool_list_for_four_season_as_int(winter_start=100, summer_end=150, summer_start=200, winter_end=250)
+            _ = season._get_bool_list_for_four_season_as_int(winter_start=100, summer_start=150, summer_end=200, winter_end=250)
 
         with pytest.raises(ValueError):
-            spring, summer, autumn, winter = season._get_bool_list_for_four_season_as_int(winter_start=100, summer_end=150, winter_end=200, summer_start=250)
-
-        spring, summer, autumn, winter = season._get_bool_list_for_four_season_as_int(winter_start=100, winter_end=150, summer_start=200, summer_end=250)
-
-        self.assertEqual(np.all(spring | summer | autumn | winter), True)
-        assert_season(spring, summer, autumn, winter, 0, "autumn")
-        assert_season(spring, summer, autumn, winter, 98, "autumn")
-        assert_season(spring, summer, autumn, winter, 99, "winter")
-        assert_season(spring, summer, autumn, winter, 100, "winter")
-        assert_season(spring, summer, autumn, winter, 148, "winter")
-        assert_season(spring, summer, autumn, winter, 149, "winter")
-        assert_season(spring, summer, autumn, winter, 150, "spring")
-        assert_season(spring, summer, autumn, winter, 198, "spring")
-        assert_season(spring, summer, autumn, winter, 199, "summer")
-        assert_season(spring, summer, autumn, winter, 200, "summer")
-        assert_season(spring, summer, autumn, winter, 248, "summer")
-        assert_season(spring, summer, autumn, winter, 249, "summer")
-        assert_season(spring, summer, autumn, winter, 250, "autumn")
-        assert_season(spring, summer, autumn, winter, 364, "autumn")
+            _ = season._get_bool_list_for_four_season_as_int(winter_start=100, summer_start=150, winter_end=200, summer_end=250)
 
         with pytest.raises(ValueError):
-            spring, summer, autumn, winter = season._get_bool_list_for_four_season_as_int(winter_start=100, winter_end=150, summer_end=200, summer_start=250)
-
-
-        spring, summer, autumn, winter = season._get_bool_list_for_four_season_as_int(winter_end=100, summer_start=150, summer_end=200, winter_start=250)
-
-        self.assertEqual(np.all(spring | summer | autumn | winter), True)
-        assert_season(spring, summer, autumn, winter, 0, "winter")
-        assert_season(spring, summer, autumn, winter, 98, "winter")
-        assert_season(spring, summer, autumn, winter, 99, "winter")
-        assert_season(spring, summer, autumn, winter, 100, "spring")
-        assert_season(spring, summer, autumn, winter, 148, "spring")
-        assert_season(spring, summer, autumn, winter, 149, "summer")
-        assert_season(spring, summer, autumn, winter, 150, "summer")
-        assert_season(spring, summer, autumn, winter, 198, "summer")
-        assert_season(spring, summer, autumn, winter, 199, "summer")
-        assert_season(spring, summer, autumn, winter, 200, "autumn")
-        assert_season(spring, summer, autumn, winter, 248, "autumn")
-        assert_season(spring, summer, autumn, winter, 249, "winter")
-        assert_season(spring, summer, autumn, winter, 250, "winter")
-        assert_season(spring, summer, autumn, winter, 364, "winter")
+            _ = season._get_bool_list_for_four_season_as_int(winter_start=100, summer_end=150, summer_start=200, winter_end=250)
 
         with pytest.raises(ValueError):
-            spring, summer, autumn, winter = season._get_bool_list_for_four_season_as_int(winter_end=100, summer_start=150, winter_start=200, summer_end=250)
+            _ = season._get_bool_list_for_four_season_as_int(winter_start=100, summer_end=150, winter_end=200, summer_start=250)
+
+        summer, winter, middle = season._get_bool_list_for_four_season_as_int(winter_start=100, winter_end=150, summer_start=200, summer_end=250)
+
+        self.assertEqual(np.all(summer | winter | middle), True)
+
+        assert_season(summer, winter, middle, 0, "middle")
+        assert_season(summer, winter, middle, 98, "middle")
+        assert_season(summer, winter, middle, 99, "winter")
+        assert_season(summer, winter, middle, 100, "winter")
+        assert_season(summer, winter, middle, 148, "winter")
+        assert_season(summer, winter, middle, 149, "winter")
+        assert_season(summer, winter, middle, 150, "middle")
+        assert_season(summer, winter, middle, 198, "middle")
+        assert_season(summer, winter, middle, 199, "summer")
+        assert_season(summer, winter, middle, 200, "summer")
+        assert_season(summer, winter, middle, 248, "summer")
+        assert_season(summer, winter, middle, 249, "summer")
+        assert_season(summer, winter, middle, 250, "middle")
+        assert_season(summer, winter, middle, 364, "middle")
 
         with pytest.raises(ValueError):
-            spring, summer, autumn, winter = season._get_bool_list_for_four_season_as_int(winter_end=100, summer_end=150, summer_start=200, winter_start=250)
+            _ = season._get_bool_list_for_four_season_as_int(winter_start=100, winter_end=150, summer_end=200, summer_start=250)
+
+
+        summer, winter, middle = season._get_bool_list_for_four_season_as_int(winter_end=100, summer_start=150, summer_end=200, winter_start=250)
+
+        self.assertEqual(np.all(summer | winter | middle), True)
+
+        assert_season(summer, winter, middle, 0, "winter")
+        assert_season(summer, winter, middle, 98, "winter")
+        assert_season(summer, winter, middle, 99, "winter")
+        assert_season(summer, winter, middle, 100, "middle")
+        assert_season(summer, winter, middle, 148, "middle")
+        assert_season(summer, winter, middle, 149, "summer")
+        assert_season(summer, winter, middle, 150, "summer")
+        assert_season(summer, winter, middle, 198, "summer")
+        assert_season(summer, winter, middle, 199, "summer")
+        assert_season(summer, winter, middle, 200, "middle")
+        assert_season(summer, winter, middle, 248, "middle")
+        assert_season(summer, winter, middle, 249, "winter")
+        assert_season(summer, winter, middle, 250, "winter")
+        assert_season(summer, winter, middle, 364, "winter")
 
         with pytest.raises(ValueError):
-            spring, summer, autumn, winter = season._get_bool_list_for_four_season_as_int(winter_end=100, summer_end=150, winter_start=200, summer_start=250)
+            _ = season._get_bool_list_for_four_season_as_int(winter_end=100, summer_start=150, winter_start=200, summer_end=250)
 
         with pytest.raises(ValueError):
-            spring, summer, autumn, winter = season._get_bool_list_for_four_season_as_int(winter_end=100, winter_start=150, summer_start=200, summer_end=250)
+            _ = season._get_bool_list_for_four_season_as_int(winter_end=100, summer_end=150, summer_start=200, winter_start=250)
 
         with pytest.raises(ValueError):
-            spring, summer, autumn, winter = season._get_bool_list_for_four_season_as_int(winter_end=100, winter_start=150, summer_end=200, summer_start=250)
+            _ = season._get_bool_list_for_four_season_as_int(winter_end=100, summer_end=150, winter_start=200, summer_start=250)
+
+        with pytest.raises(ValueError):
+            _ = season._get_bool_list_for_four_season_as_int(winter_end=100, winter_start=150, summer_start=200, summer_end=250)
+
+        with pytest.raises(ValueError):
+            _ = season._get_bool_list_for_four_season_as_int(winter_end=100, winter_start=150, summer_end=200, summer_start=250)
 
 
-        spring, summer, autumn, winter = season._get_bool_list_for_four_season_as_int(summer_start=1, summer_end=199, winter_start=200, winter_end=365)
+        summer, winter, middle = season._get_bool_list_for_four_season_as_int(summer_start=1, summer_end=199, winter_start=200, winter_end=365)
 
-        self.assertEqual(np.all(spring | summer | autumn | winter), True)
-        assert_season(spring, summer, autumn, winter, 0, "summer")
-        assert_season(spring, summer, autumn, winter, 197, "summer")
-        assert_season(spring, summer, autumn, winter, 198, "summer")
-        assert_season(spring, summer, autumn, winter, 199, "winter")
-        assert_season(spring, summer, autumn, winter, 200, "winter")
-        assert_season(spring, summer, autumn, winter, 364, "winter")
+        self.assertEqual(np.all(summer | winter | middle), True)
 
-        spring, summer, autumn, winter = season._get_bool_list_for_four_season_as_int(summer_end=149, winter_start=150, winter_end=249, summer_start=250)
+        assert_season(summer, winter, middle, 0, "summer")
+        assert_season(summer, winter, middle, 197, "summer")
+        assert_season(summer, winter, middle, 198, "summer")
+        assert_season(summer, winter, middle, 199, "winter")
+        assert_season(summer, winter, middle, 200, "winter")
+        assert_season(summer, winter, middle, 364, "winter")
 
-        self.assertEqual(np.all(spring | summer | autumn | winter), True)
-        assert_season(spring, summer, autumn, winter, 0, "summer")
-        assert_season(spring, summer, autumn, winter, 147, "summer")
-        assert_season(spring, summer, autumn, winter, 148, "summer")
-        assert_season(spring, summer, autumn, winter, 149, "winter")
-        assert_season(spring, summer, autumn, winter, 247, "winter")
-        assert_season(spring, summer, autumn, winter, 248, "winter")
-        assert_season(spring, summer, autumn, winter, 249, "summer")
-        assert_season(spring, summer, autumn, winter, 364, "summer")
+        summer, winter, middle = season._get_bool_list_for_four_season_as_int(summer_end=149, winter_start=150, winter_end=249, summer_start=250)
 
-        spring, summer, autumn, winter = season._get_bool_list_for_four_season_as_int(winter_start=1, winter_end=199, summer_start=200, summer_end=365)
+        self.assertEqual(np.all(summer | winter | middle), True)
 
-        self.assertEqual(np.all(spring | summer | autumn | winter), True)
-        assert_season(spring, summer, autumn, winter, 0, "winter")
-        assert_season(spring, summer, autumn, winter, 198, "winter")
-        assert_season(spring, summer, autumn, winter, 199, "summer")
-        assert_season(spring, summer, autumn, winter, 200, "summer")
-        assert_season(spring, summer, autumn, winter, 364, "summer")
+        assert_season(summer, winter, middle, 0, "summer")
+        assert_season(summer, winter, middle, 147, "summer")
+        assert_season(summer, winter, middle, 148, "summer")
+        assert_season(summer, winter, middle, 149, "winter")
+        assert_season(summer, winter, middle, 247, "winter")
+        assert_season(summer, winter, middle, 248, "winter")
+        assert_season(summer, winter, middle, 249, "summer")
+        assert_season(summer, winter, middle, 364, "summer")
 
-        spring, summer, autumn, winter = season._get_bool_list_for_four_season_as_int(winter_end=149, summer_start=150, summer_end=249, winter_start=250)
+        summer, winter, middle = season._get_bool_list_for_four_season_as_int(winter_start=1, winter_end=199, summer_start=200, summer_end=365)
 
-        self.assertEqual(np.all(spring | summer | autumn | winter), True)
-        assert_season(spring, summer, autumn, winter, 0, "winter")
-        assert_season(spring, summer, autumn, winter, 147, "winter")
-        assert_season(spring, summer, autumn, winter, 148, "winter")
-        assert_season(spring, summer, autumn, winter, 149, "summer")
-        assert_season(spring, summer, autumn, winter, 247, "summer")
-        assert_season(spring, summer, autumn, winter, 248, "summer")
-        assert_season(spring, summer, autumn, winter, 249, "winter")
-        assert_season(spring, summer, autumn, winter, 364, "winter")
+        self.assertEqual(np.all(summer | winter | middle), True)
+
+        assert_season(summer, winter, middle, 0, "winter")
+        assert_season(summer, winter, middle, 198, "winter")
+        assert_season(summer, winter, middle, 199, "summer")
+        assert_season(summer, winter, middle, 200, "summer")
+        assert_season(summer, winter, middle, 364, "summer")
+
+        summer, winter, middle = season._get_bool_list_for_four_season_as_int(winter_end=149, summer_start=150, summer_end=249, winter_start=250)
+
+        self.assertEqual(np.all(summer | winter | middle), True)
+
+        assert_season(summer, winter, middle, 0, "winter")
+        assert_season(summer, winter, middle, 147, "winter")
+        assert_season(summer, winter, middle, 148, "winter")
+        assert_season(summer, winter, middle, 149, "summer")
+        assert_season(summer, winter, middle, 247, "summer")
+        assert_season(summer, winter, middle, 248, "summer")
+        assert_season(summer, winter, middle, 249, "winter")
+        assert_season(summer, winter, middle, 364, "winter")
 
 
     def test_get_bool_list_for_four_season_as_str(self):
 
         assert_season = self.assert_season
 
-        spring, summer, autumn, winter = season.get_bool_list_for_four_season_as_str(summer_start="4/10", summer_end="5/30", winter_start="7/19", winter_end="9/7")
+        summer, winter, middle = season.get_bool_list_for_four_season_as_str(summer_start="4/10", summer_end="5/30", winter_start="7/19", winter_end="9/7")
 
-        self.assertEqual(np.all(spring | summer | autumn | winter), True)
-        self.assertEqual(np.all(spring & summer & autumn & winter), False)
-        assert_season(spring, summer, autumn, winter, 0, "spring")
-        assert_season(spring, summer, autumn, winter, 98, "spring")
-        assert_season(spring, summer, autumn, winter, 99, "summer")
-        assert_season(spring, summer, autumn, winter, 100, "summer")
-        assert_season(spring, summer, autumn, winter, 148, "summer")
-        assert_season(spring, summer, autumn, winter, 149, "summer")
-        assert_season(spring, summer, autumn, winter, 150, "autumn")
-        assert_season(spring, summer, autumn, winter, 198, "autumn")
-        assert_season(spring, summer, autumn, winter, 199, "winter")
-        assert_season(spring, summer, autumn, winter, 200, "winter")
-        assert_season(spring, summer, autumn, winter, 248, "winter")
-        assert_season(spring, summer, autumn, winter, 249, "winter")
-        assert_season(spring, summer, autumn, winter, 250, "spring")
-        assert_season(spring, summer, autumn, winter, 364, "spring")
+        self.assertEqual(np.all(summer | winter | middle), True)
+        self.assertEqual(np.all(summer & winter & middle), False)
 
-
-        spring, summer, autumn, winter = season.get_bool_list_for_four_season_as_str(summer_end="4/10", winter_start="5/30", winter_end="7/19", summer_start="9/7")
-
-        self.assertEqual(np.all(spring | summer | autumn | winter), True)
-        assert_season(spring, summer, autumn, winter, 0, "summer")
-        assert_season(spring, summer, autumn, winter, 98, "summer")
-        assert_season(spring, summer, autumn, winter, 99, "summer")
-        assert_season(spring, summer, autumn, winter, 100, "autumn")
-        assert_season(spring, summer, autumn, winter, 148, "autumn")
-        assert_season(spring, summer, autumn, winter, 149, "winter")
-        assert_season(spring, summer, autumn, winter, 150, "winter")
-        assert_season(spring, summer, autumn, winter, 198, "winter")
-        assert_season(spring, summer, autumn, winter, 199, "winter")
-        assert_season(spring, summer, autumn, winter, 200, "spring")
-        assert_season(spring, summer, autumn, winter, 248, "spring")
-        assert_season(spring, summer, autumn, winter, 249, "summer")
-        assert_season(spring, summer, autumn, winter, 250, "summer")
-        assert_season(spring, summer, autumn, winter, 364, "summer")
+        assert_season(summer, winter, middle, 0, "middle")
+        assert_season(summer, winter, middle, 98, "middle")
+        assert_season(summer, winter, middle, 99, "summer")
+        assert_season(summer, winter, middle, 100, "summer")
+        assert_season(summer, winter, middle, 148, "summer")
+        assert_season(summer, winter, middle, 149, "summer")
+        assert_season(summer, winter, middle, 150, "middle")
+        assert_season(summer, winter, middle, 198, "middle")
+        assert_season(summer, winter, middle, 199, "winter")
+        assert_season(summer, winter, middle, 200, "winter")
+        assert_season(summer, winter, middle, 248, "winter")
+        assert_season(summer, winter, middle, 249, "winter")
+        assert_season(summer, winter, middle, 250, "middle")
+        assert_season(summer, winter, middle, 364, "middle")
 
 
-        spring, summer, autumn, winter = season.get_bool_list_for_four_season_as_str(winter_start="4/10", winter_end="5/30", summer_start="7/19", summer_end="9/7")
+        summer, winter, middle = season.get_bool_list_for_four_season_as_str(summer_end="4/10", winter_start="5/30", winter_end="7/19", summer_start="9/7")
 
-        self.assertEqual(np.all(spring | summer | autumn | winter), True)
-        assert_season(spring, summer, autumn, winter, 0, "autumn")
-        assert_season(spring, summer, autumn, winter, 98, "autumn")
-        assert_season(spring, summer, autumn, winter, 99, "winter")
-        assert_season(spring, summer, autumn, winter, 100, "winter")
-        assert_season(spring, summer, autumn, winter, 148, "winter")
-        assert_season(spring, summer, autumn, winter, 149, "winter")
-        assert_season(spring, summer, autumn, winter, 150, "spring")
-        assert_season(spring, summer, autumn, winter, 198, "spring")
-        assert_season(spring, summer, autumn, winter, 199, "summer")
-        assert_season(spring, summer, autumn, winter, 200, "summer")
-        assert_season(spring, summer, autumn, winter, 248, "summer")
-        assert_season(spring, summer, autumn, winter, 249, "summer")
-        assert_season(spring, summer, autumn, winter, 250, "autumn")
-        assert_season(spring, summer, autumn, winter, 364, "autumn")
+        self.assertEqual(np.all(summer | winter | middle), True)
+        self.assertEqual(np.all(summer & winter & middle), False)
 
-        spring, summer, autumn, winter = season.get_bool_list_for_four_season_as_str(winter_end="4/10", summer_start="5/30", summer_end="7/19", winter_start="9/7")
+        assert_season(summer, winter, middle, 0, "summer")
+        assert_season(summer, winter, middle, 98, "summer")
+        assert_season(summer, winter, middle, 99, "summer")
+        assert_season(summer, winter, middle, 100, "middle")
+        assert_season(summer, winter, middle, 148, "middle")
+        assert_season(summer, winter, middle, 149, "winter")
+        assert_season(summer, winter, middle, 150, "winter")
+        assert_season(summer, winter, middle, 198, "winter")
+        assert_season(summer, winter, middle, 199, "winter")
+        assert_season(summer, winter, middle, 200, "middle")
+        assert_season(summer, winter, middle, 248, "middle")
+        assert_season(summer, winter, middle, 249, "summer")
+        assert_season(summer, winter, middle, 250, "summer")
+        assert_season(summer, winter, middle, 364, "summer")
 
-        self.assertEqual(np.all(spring | summer | autumn | winter), True)
-        assert_season(spring, summer, autumn, winter, 0, "winter")
-        assert_season(spring, summer, autumn, winter, 98, "winter")
-        assert_season(spring, summer, autumn, winter, 99, "winter")
-        assert_season(spring, summer, autumn, winter, 100, "spring")
-        assert_season(spring, summer, autumn, winter, 148, "spring")
-        assert_season(spring, summer, autumn, winter, 149, "summer")
-        assert_season(spring, summer, autumn, winter, 150, "summer")
-        assert_season(spring, summer, autumn, winter, 198, "summer")
-        assert_season(spring, summer, autumn, winter, 199, "summer")
-        assert_season(spring, summer, autumn, winter, 200, "autumn")
-        assert_season(spring, summer, autumn, winter, 248, "autumn")
-        assert_season(spring, summer, autumn, winter, 249, "winter")
-        assert_season(spring, summer, autumn, winter, 250, "winter")
-        assert_season(spring, summer, autumn, winter, 364, "winter")
+        summer, winter, middle = season.get_bool_list_for_four_season_as_str(winter_start="4/10", winter_end="5/30", summer_start="7/19", summer_end="9/7")
 
-        spring, summer, autumn, winter = season.get_bool_list_for_four_season_as_str(summer_start="1/1", summer_end="7/18", winter_start="7/19", winter_end="12/31")
+        self.assertEqual(np.all(summer | winter | middle), True)
+        self.assertEqual(np.all(summer & winter & middle), False)
 
-        self.assertEqual(np.all(spring | summer | autumn | winter), True)
-        assert_season(spring, summer, autumn, winter, 0, "summer")
-        assert_season(spring, summer, autumn, winter, 197, "summer")
-        assert_season(spring, summer, autumn, winter, 198, "summer")
-        assert_season(spring, summer, autumn, winter, 199, "winter")
-        assert_season(spring, summer, autumn, winter, 200, "winter")
-        assert_season(spring, summer, autumn, winter, 364, "winter")
+        assert_season(summer, winter, middle, 0, "middle")
+        assert_season(summer, winter, middle, 98, "middle")
+        assert_season(summer, winter, middle, 99, "winter")
+        assert_season(summer, winter, middle, 100, "winter")
+        assert_season(summer, winter, middle, 148, "winter")
+        assert_season(summer, winter, middle, 149, "winter")
+        assert_season(summer, winter, middle, 150, "middle")
+        assert_season(summer, winter, middle, 198, "middle")
+        assert_season(summer, winter, middle, 199, "summer")
+        assert_season(summer, winter, middle, 200, "summer")
+        assert_season(summer, winter, middle, 248, "summer")
+        assert_season(summer, winter, middle, 249, "summer")
+        assert_season(summer, winter, middle, 250, "middle")
+        assert_season(summer, winter, middle, 364, "middle")
 
-        spring, summer, autumn, winter = season.get_bool_list_for_four_season_as_str(summer_end="5/29", winter_start="5/30", winter_end="9/6", summer_start="9/7")
+        summer, winter, middle = season.get_bool_list_for_four_season_as_str(winter_end="4/10", summer_start="5/30", summer_end="7/19", winter_start="9/7")
 
-        self.assertEqual(np.all(spring | summer | autumn | winter), True)
-        assert_season(spring, summer, autumn, winter, 0, "summer")
-        assert_season(spring, summer, autumn, winter, 147, "summer")
-        assert_season(spring, summer, autumn, winter, 148, "summer")
-        assert_season(spring, summer, autumn, winter, 149, "winter")
-        assert_season(spring, summer, autumn, winter, 247, "winter")
-        assert_season(spring, summer, autumn, winter, 248, "winter")
-        assert_season(spring, summer, autumn, winter, 249, "summer")
-        assert_season(spring, summer, autumn, winter, 364, "summer")
+        self.assertEqual(np.all(summer | winter | middle), True)
+        self.assertEqual(np.all(summer & winter & middle), False)
 
-        spring, summer, autumn, winter = season.get_bool_list_for_four_season_as_str(winter_start="1/1", winter_end="7/18", summer_start="7/19", summer_end="12/31")
+        assert_season(summer, winter, middle, 0, "winter")
+        assert_season(summer, winter, middle, 98, "winter")
+        assert_season(summer, winter, middle, 99, "winter")
+        assert_season(summer, winter, middle, 100, "middle")
+        assert_season(summer, winter, middle, 148, "middle")
+        assert_season(summer, winter, middle, 149, "summer")
+        assert_season(summer, winter, middle, 150, "summer")
+        assert_season(summer, winter, middle, 198, "summer")
+        assert_season(summer, winter, middle, 199, "summer")
+        assert_season(summer, winter, middle, 200, "middle")
+        assert_season(summer, winter, middle, 248, "middle")
+        assert_season(summer, winter, middle, 249, "winter")
+        assert_season(summer, winter, middle, 250, "winter")
+        assert_season(summer, winter, middle, 364, "winter")
 
-        self.assertEqual(np.all(spring | summer | autumn | winter), True)
-        assert_season(spring, summer, autumn, winter, 0, "winter")
-        assert_season(spring, summer, autumn, winter, 198, "winter")
-        assert_season(spring, summer, autumn, winter, 199, "summer")
-        assert_season(spring, summer, autumn, winter, 200, "summer")
-        assert_season(spring, summer, autumn, winter, 364, "summer")
+        summer, winter, middle = season.get_bool_list_for_four_season_as_str(summer_start="1/1", summer_end="7/18", winter_start="7/19", winter_end="12/31")
 
-        spring, summer, autumn, winter = season.get_bool_list_for_four_season_as_str(winter_end="5/29", summer_start="5/30", summer_end="9/6", winter_start="9/7")
+        self.assertEqual(np.all(summer | winter | middle), True)
+        self.assertEqual(np.all(summer & winter & middle), False)
 
-        self.assertEqual(np.all(spring | summer | autumn | winter), True)
-        assert_season(spring, summer, autumn, winter, 0, "winter")
-        assert_season(spring, summer, autumn, winter, 147, "winter")
-        assert_season(spring, summer, autumn, winter, 148, "winter")
-        assert_season(spring, summer, autumn, winter, 149, "summer")
-        assert_season(spring, summer, autumn, winter, 247, "summer")
-        assert_season(spring, summer, autumn, winter, 248, "summer")
-        assert_season(spring, summer, autumn, winter, 249, "winter")
-        assert_season(spring, summer, autumn, winter, 364, "winter")
+        assert_season(summer, winter, middle, 0, "summer")
+        assert_season(summer, winter, middle, 197, "summer")
+        assert_season(summer, winter, middle, 198, "summer")
+        assert_season(summer, winter, middle, 199, "winter")
+        assert_season(summer, winter, middle, 200, "winter")
+        assert_season(summer, winter, middle, 364, "winter")
+
+        summer, winter, middle = season.get_bool_list_for_four_season_as_str(summer_end="5/29", winter_start="5/30", winter_end="9/6", summer_start="9/7")
+
+        self.assertEqual(np.all(summer | winter | middle), True)
+        self.assertEqual(np.all(summer & winter & middle), False)
+
+        assert_season(summer, winter, middle, 0, "summer")
+        assert_season(summer, winter, middle, 147, "summer")
+        assert_season(summer, winter, middle, 148, "summer")
+        assert_season(summer, winter, middle, 149, "winter")
+        assert_season(summer, winter, middle, 247, "winter")
+        assert_season(summer, winter, middle, 248, "winter")
+        assert_season(summer, winter, middle, 249, "summer")
+        assert_season(summer, winter, middle, 364, "summer")
+
+        summer, winter, middle = season.get_bool_list_for_four_season_as_str(winter_start="1/1", winter_end="7/18", summer_start="7/19", summer_end="12/31")
+
+        self.assertEqual(np.all(summer | winter | middle), True)
+        self.assertEqual(np.all(summer & winter & middle), False)
+
+        assert_season(summer, winter, middle, 0, "winter")
+        assert_season(summer, winter, middle, 198, "winter")
+        assert_season(summer, winter, middle, 199, "summer")
+        assert_season(summer, winter, middle, 200, "summer")
+        assert_season(summer, winter, middle, 364, "summer")
+
+        summer, winter, middle = season.get_bool_list_for_four_season_as_str(winter_end="5/29", summer_start="5/30", summer_end="9/6", winter_start="9/7")
+
+        self.assertEqual(np.all(summer | winter | middle), True)
+        self.assertEqual(np.all(summer & winter & middle), False)
+
+        assert_season(summer, winter, middle, 0, "winter")
+        assert_season(summer, winter, middle, 147, "winter")
+        assert_season(summer, winter, middle, 148, "winter")
+        assert_season(summer, winter, middle, 149, "summer")
+        assert_season(summer, winter, middle, 247, "summer")
+        assert_season(summer, winter, middle, 248, "summer")
+        assert_season(summer, winter, middle, 249, "winter")
+        assert_season(summer, winter, middle, 364, "winter")
 
 
 

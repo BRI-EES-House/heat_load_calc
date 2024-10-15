@@ -52,55 +52,55 @@ class Weather:
         self._number_of_data = len(theta_o_ns)
 
     @classmethod
-    def make_weather(cls, rd: Dict, itv: Interval, entry_point_dir: str = ""):
+    def make_weather(cls, d: Dict, itv: Interval, entry_point_dir: str = ""):
 
         # Check the existance of the item "weather" in common item.
-        if 'weather' not in rd['common']:
+        if 'weather' not in d['common']:
             raise KeyError('Key weather could not be found in common tag.')
 
         # item "weather"
-        weather = rd['common']['weather']
+        d_weather = d['common']['weather']
 
         # Check the existance of the item "method" in weather item.
-        if 'method' not in weather:
+        if 'method' not in d_weather:
             raise KeyError('Key method could not be found in weather tag.')
 
         # item "method"
-        method = weather['method']
+        d_method = d_weather['method']
         
         # The method "ees" is the method that the weather data is loaded from the pre set data based on the region of the Japanese Energy Efficiency Standard.
-        if method == 'ees':
+        if d_method == 'ees':
 
             # Chech the existance of the item "region" in weather item.
-            if 'region' not in weather:
+            if 'region' not in d_weather:
                 raise KeyError('Key region should be specified if the ees method applied.')
 
             # item "region"
-            region = Region(int(weather['region']))
+            region = Region(int(d_weather['region']))
 
             logger.info('make weather data based on the EES region')
 
             return _make_weather_ees(region=region, itv=itv)
 
-        elif method == 'file':
+        elif d_method == 'file':
 
             # Check the existance of the item "file_path" in weather item.
-            if 'file_path' not in weather:
+            if 'file_path' not in d_weather:
                 raise KeyError('Key file_path should be specified if the file method applied.')
             
             # Check the existance of the item "latitude" and "longitude" in weather item.
-            if 'latitude' not in weather:
+            if 'latitude' not in d_weather:
                 raise KeyError('Key latitude should be specified if the file method applied.')
-            if 'longitude' not in weather:
+            if 'longitude' not in d_weather:
                 raise KeyError('Key longitude should be specified if the file method applied.')
 
-            file_path = os.path.join(entry_point_dir, weather['file_path'])
+            file_path = os.path.join(entry_point_dir, d_weather['file_path'])
 
             if not os.path.isfile(file_path):
                 raise FileExistsError('The specified file does not exist when file method is applied.')
             
-            latitude = float(weather['latitude'])
-            longitude = float(weather['longitude'])
+            latitude = float(d_weather['latitude'])
+            longitude = float(d_weather['longitude'])
 
             logger.info('Load weather data from `{}`'.format(file_path))
 

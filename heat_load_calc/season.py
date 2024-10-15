@@ -1,7 +1,7 @@
 from typing import Dict, Tuple
 from datetime import datetime
 import numpy as np
-
+from enum import Enum
 
 class Season:
 
@@ -9,60 +9,43 @@ class Season:
 
         pass
 
-def get_bool_list_for_four_season_as_str(summer_start: str, summer_end: str, winter_start: str, winter_end: str) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
 
-    spring, summer, autumn, winter = _get_bool_list_for_four_season_as_int(
+def get_bool_list_for_four_season_as_str(
+        summer_start: str, summer_end: str, winter_start: str, winter_end: str, is_summer_period_set: bool = True, is_winter_period_set: bool = True
+    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+
+    summer, winter, middle = _get_bool_list_for_four_season_as_int(
         summer_start=_get_total_day(date_str=summer_start),
         summer_end=_get_total_day(date_str=summer_end),
         winter_start=_get_total_day(winter_start),
-        winter_end=_get_total_day(winter_end)
+        winter_end=_get_total_day(winter_end),
+        is_summer_period_set=is_summer_period_set,
+        is_winter_period_set=is_winter_period_set
     )
 
-    return spring, summer, autumn, winter
+    return summer, winter, middle
 
 
-def _get_bool_list_for_four_season_as_int(summer_start: int, summer_end: int, winter_start: int, winter_end: int) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+def _get_bool_list_for_four_season_as_int(
+        summer_start: int, summer_end: int, winter_start: int, winter_end: int, is_summer_period_set: bool = True, is_winter_period_set: bool = True
+    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
 
-    summer_list = _get_bool_list_by_start_day_and_end_day(nstart=summer_start, nend=summer_end)
+    if is_summer_period_set:
+        summer_list = _get_bool_list_by_start_day_and_end_day(nstart=summer_start, nend=summer_end)
+    else:
+        summer_list = np.full(shape=365, fill_value=False, dtype=bool)
 
-    winter_list = _get_bool_list_by_start_day_and_end_day(nstart=winter_start, nend=winter_end)
+    if is_winter_period_set:
+        winter_list = _get_bool_list_by_start_day_and_end_day(nstart=winter_start, nend=winter_end)
+    else:
+        winter_list = np.full(shape=365, fill_value=False, dtype=bool)
 
     if np.any(summer_list & winter_list) == True:
         raise ValueError("The summer period and the winter period are duplicated.")
 
-    # if the next day of the end of winter is the day of the start of summer, the period of spring is not set.
-    if _add_the_day_of_year(winter_end) == summer_start:
-        spring_list = np.full(365, False, dtype=bool)
-    else:
-        spring_list = _get_bool_list_by_start_day_and_end_day(nstart=_add_the_day_of_year(winter_end), nend=_subtract_the_day_of_year(summer_start))
+    middle_list = (~summer_list) & (~winter_list)
 
-    # if the next day of the end of summer is the day of the start of winter, the period of autumn is not set.
-    if _add_the_day_of_year(summer_end) == winter_start:
-        autmun_list = np.full(365, False, dtype=bool)
-    else:
-        autmun_list = _get_bool_list_by_start_day_and_end_day(nstart=_add_the_day_of_year(summer_end), nend=_subtract_the_day_of_year(winter_start))
-
-    return spring_list, summer_list, autmun_list, winter_list
-
-
-def _add_the_day_of_year(n: int) -> int:
-
-    _check_day_index(n)
-
-    if n == 365:
-        return 1
-    else:
-        return n + 1
-
-
-def _subtract_the_day_of_year(n: int) -> int:
-
-    _check_day_index(n)
-
-    if n == 1:
-        return 365
-    else:
-        return n - 1
+    return summer_list, winter_list, middle_list
 
 
 def _get_bool_list_by_start_day_and_end_day(nstart: int, nend: int) -> np.ndarray:

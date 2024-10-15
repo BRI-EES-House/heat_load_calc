@@ -28,7 +28,7 @@ class TestAllAtOnce(unittest.TestCase):
 
         js.close()
 
-        oc = weather.Weather.make_weather(rd=rd, itv=interval.Interval.M15)
+        oc = weather.Weather.make_weather(d=rd, itv=interval.Interval.M15)
 
         dd_i, dd_a, bs, scd = core.calc(rd=rd, w=oc, itv=interval.Interval.M15, entry_point_dir=os.path.dirname(__file__))
 
