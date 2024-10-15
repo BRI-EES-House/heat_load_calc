@@ -1,4 +1,4 @@
-from typing import Dict, Tuple
+from typing import Dict, Tuple, Optional
 from datetime import datetime
 import numpy as np
 from enum import Enum
@@ -27,7 +27,12 @@ def get_bool_list_for_four_season_as_str(
 
 
 def _get_bool_list_for_four_season_as_int(
-        summer_start: int, summer_end: int, winter_start: int, winter_end: int, is_summer_period_set: bool = True, is_winter_period_set: bool = True
+        summer_start: Optional[int] = None,
+        summer_end: Optional[int] = None,
+        winter_start: Optional[int] = None,
+        winter_end: Optional[int] = None,
+        is_summer_period_set: Optional[bool] = True,
+        is_winter_period_set: Optional[bool] = True
     ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
 
     if is_summer_period_set:
