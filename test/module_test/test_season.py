@@ -455,8 +455,30 @@ class TestSeason(unittest.TestCase):
         assert_season(summer, winter, middle, 249, "winter")
         assert_season(summer, winter, middle, 364, "winter")
 
+        summer, winter, middle = season.get_bool_list_for_four_season_as_str(summer_start="5/30", summer_end="9/6", is_winter_period_set=False)
 
+        self.assertEqual(np.all(summer | winter | middle), True)
+        self.assertEqual(np.all(summer & winter & middle), False)
 
+        assert_season(summer, winter, middle, 0, "middle")
+        assert_season(summer, winter, middle, 147, "middle")
+        assert_season(summer, winter, middle, 148, "middle")
+        assert_season(summer, winter, middle, 149, "summer")
+        assert_season(summer, winter, middle, 247, "summer")
+        assert_season(summer, winter, middle, 248, "summer")
+        assert_season(summer, winter, middle, 249, "middle")
+        assert_season(summer, winter, middle, 364, "middle")
 
+        summer, winter, middle = season.get_bool_list_for_four_season_as_str(winter_end="5/29", winter_start="9/7", is_summer_period_set=False)
 
+        self.assertEqual(np.all(summer | winter | middle), True)
+        self.assertEqual(np.all(summer & winter & middle), False)
 
+        assert_season(summer, winter, middle, 0, "winter")
+        assert_season(summer, winter, middle, 147, "winter")
+        assert_season(summer, winter, middle, 148, "winter")
+        assert_season(summer, winter, middle, 149, "middle")
+        assert_season(summer, winter, middle, 247, "middle")
+        assert_season(summer, winter, middle, 248, "middle")
+        assert_season(summer, winter, middle, 249, "winter")
+        assert_season(summer, winter, middle, 364, "winter")

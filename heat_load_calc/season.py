@@ -11,14 +11,29 @@ class Season:
 
 
 def get_bool_list_for_four_season_as_str(
-        summer_start: str, summer_end: str, winter_start: str, winter_end: str, is_summer_period_set: bool = True, is_winter_period_set: bool = True
-    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+        summer_start: Optional[str] = None,
+        summer_end: Optional[str] = None,
+        winter_start: Optional[str] = None,
+        winter_end: Optional[str] = None,
+        is_summer_period_set: Optional[bool] = True,
+        is_winter_period_set: Optional[bool] = True
+    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+
+    if is_summer_period_set:
+        summer_start_num, summer_end_num = _get_total_day(date_str=summer_start), _get_total_day(date_str=summer_end)
+    else:
+        summer_start_num, summer_end_num = None, None
+    
+    if is_winter_period_set:
+        winter_start_num, winter_end_num = _get_total_day(date_str=winter_start), _get_total_day(date_str=winter_end)
+    else:
+        winter_start_num, winter_end_num = None, None
 
     summer, winter, middle = _get_bool_list_for_four_season_as_int(
-        summer_start=_get_total_day(date_str=summer_start),
-        summer_end=_get_total_day(date_str=summer_end),
-        winter_start=_get_total_day(winter_start),
-        winter_end=_get_total_day(winter_end),
+        summer_start=summer_start_num,
+        summer_end=summer_end_num,
+        winter_start=winter_start_num,
+        winter_end=winter_end_num,
         is_summer_period_set=is_summer_period_set,
         is_winter_period_set=is_winter_period_set
     )
@@ -33,7 +48,7 @@ def _get_bool_list_for_four_season_as_int(
         winter_end: Optional[int] = None,
         is_summer_period_set: Optional[bool] = True,
         is_winter_period_set: Optional[bool] = True
-    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
 
     if is_summer_period_set:
         summer_list = _get_bool_list_by_start_day_and_end_day(nstart=summer_start, nend=summer_end)
