@@ -9,7 +9,7 @@ import urllib.request, urllib.error
 # 絶対パスでモジュールを探索できるようにする
 sys.path.insert(0, path.abspath(path.join(path.dirname(__file__), '..')))
 
-from heat_load_calc import core, schedule, weather, interval
+from heat_load_calc import core, weather, interval
 
 
 def run(
@@ -47,16 +47,16 @@ def run(
     if house_data_path.lower()[:4] == 'http':
         with urllib.request.urlopen(url=house_data_path) as response:
             json_text = response.read()
-            rd = json.loads(json_text.decode())
+            d = json.loads(json_text.decode())
     else:
         with open(house_data_path, 'r', encoding='utf-8') as js:
-            rd = json.load(js)
+            d = json.load(js)
 
     entry_point_dir=path.dirname(__file__)
 
     # 気象データの生成 => weather_for_method_file.csv
     w = weather.Weather.make_weather(
-        d=rd,
+        d=d,
         itv=itv,
         entry_point_dir=entry_point_dir
     )
@@ -64,7 +64,7 @@ def run(
     # ---- 計算 ----
 
     # 計算
-    dd_i, dd_a, _, scd = core.calc(rd=rd, w=w, itv=itv, entry_point_dir=entry_point_dir)
+    dd_i, dd_a, _, scd = core.calc(d=d, w=w, itv=itv, entry_point_dir=entry_point_dir)
 
     # 気象データの保存
     if is_weather_saved:

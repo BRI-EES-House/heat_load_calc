@@ -33,7 +33,7 @@ class TestSigleRoomWithGround(unittest.TestCase):
         w = weather.Weather.make_weather(d=rd, itv=interval.Interval.M15, entry_point_dir=os.path.dirname(__file__))
 
         # 計算実行
-        dd_i, dd_a, _, _ = core.calc(rd=rd, w=w, itv=interval.Interval.M15, entry_point_dir=os.path.dirname(__file__), n_d_main=30, n_d_run_up=10, n_d_run_up_build=0)
+        dd_i, dd_a, _, _ = core.calc(d=rd, w=w, itv=interval.Interval.M15, entry_point_dir=os.path.dirname(__file__), n_d_main=30, n_d_run_up=10, n_d_run_up_build=0)
 
         # 計算結果格納
         cls._dd_i = dd_i

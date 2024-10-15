@@ -9,7 +9,7 @@ logger = logging.getLogger('HeatLoadCalc').getChild('core')
 
 
 def calc(
-        rd: Dict,
+        d: Dict,
         w: weather.Weather,
         itv: interval.Interval,
         entry_point_dir: str,
@@ -17,11 +17,11 @@ def calc(
         n_d_main: int = 365,
         n_d_run_up: int = 365,
         n_d_run_up_build: int = 183
-) -> Tuple[pd.DataFrame, pd.DataFrame, sequence.Boundaries]:
+) -> Tuple[pd.DataFrame, pd.DataFrame, sequence.Boundaries, schedule.Schedule]:
     """coreメインプログラム
 
     Args:
-        rd: 住宅計算条件
+        d: 住宅計算条件
         w: 外界気象条件
         itv: 時間間隔
         n_step_hourly: 計算間隔（1時間を何分割するかどうか）（デフォルトは4（15分間隔））
@@ -43,9 +43,9 @@ def calc(
     # Schedule Class
     scd: schedule.Schedule = schedule.Schedule.get_schedule(
         number_of_occupants='auto',
-        a_f_is=[r['floor_area'] for r in rd['rooms']],
+        a_f_is=[r['floor_area'] for r in d['rooms']],
         itv=itv,
-        scd_is=[r['schedule'] for r in rd['rooms']]
+        scd_is=[r['schedule'] for r in d['rooms']]
     )
 
     # 本計算のステップ数
@@ -63,7 +63,7 @@ def calc(
 
     # json, csv ファイルからパラメータをロードする。
     # （ループ計算する必要の無い）事前計算を行い, クラス PreCalcParameters, PreCalcParametersGround に必要な変数を格納する。
-    sqc = sequence.Sequence(itv=itv, rd=rd, weather=w, scd=scd)
+    sqc = sequence.Sequence(itv=itv, rd=d, weather=w, scd=scd)
 
     gc_n = conditions.initialize_ground_conditions(n_grounds=sqc.bs.n_ground)
 
