@@ -28,7 +28,7 @@ class TestAllAtOnce(unittest.TestCase):
 
         js.close()
 
-        dd_i, dd_a, bs, scd, _ = core.calc(d=d, itv=interval.Interval.M15, entry_point_dir=os.path.dirname(__file__))
+        dd_i, dd_a, bs, scd, _ = core.calc(d=d, entry_point_dir=os.path.dirname(__file__))
 
         cls._dd_i = dd_i
         cls._dd_a = dd_a

@@ -29,10 +29,6 @@ def run(
         is_weather_saved: 気象データを出力するか否か
     """
 
-    # 時間間隔
-    # TODO: 現在、時間間隔が15分間隔であることを前提として作成されているモジュールがいくつかあるため、当分の間15分間隔固定とする。
-    itv = interval.Interval.M15
-
     # ---- 事前準備 ----
 
     # 出力ディレクトリの作成
@@ -57,7 +53,7 @@ def run(
     # ---- 計算 ----
 
     # 計算
-    dd_i, dd_a, _, scd, w = core.calc(d=d, itv=itv, entry_point_dir=entry_point_dir)
+    dd_i, dd_a, _, scd, w = core.calc(d=d, entry_point_dir=entry_point_dir)
 
     # 気象データの保存
     if is_weather_saved:

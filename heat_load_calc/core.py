@@ -10,7 +10,6 @@ logger = logging.getLogger('HeatLoadCalc').getChild('core')
 
 def calc(
         d: Dict,
-        itv: interval.Interval,
         entry_point_dir: str,
         n_step_hourly: int = 4,
         n_d_main: int = 365,
@@ -21,7 +20,6 @@ def calc(
 
     Args:
         d: input data as dictionary / 住宅計算条件
-        itv: 時間間隔
         n_step_hourly: 計算間隔（1時間を何分割するかどうか）（デフォルトは4（15分間隔））
         n_d_main: 本計算を行う日数（デフォルトは365日（1年間））, d
         n_d_run_up: 助走計算を行う日数（デフォルトは365日（1年間））, d
@@ -37,6 +35,14 @@ def calc(
     Notes:
         「助走計算のうち建物全体を解く日数」は「助走計算を行う日数」で指定した値以下でないといけない。
     """
+
+    # Check the existance of the item "weather" in common item.
+    if 'weather' not in d['common']:
+        raise KeyError('Key weather could not be found in common tag.')
+
+    # 時間間隔
+    # TODO: 現在、時間間隔が15分間隔であることを前提として作成されているモジュールがいくつかあるため、当分の間15分間隔固定とする。
+    itv: interval.Interval = interval.Interval.M15
 
     # make Weather class.
     w: weather.Weather = weather.Weather.make_weather(
