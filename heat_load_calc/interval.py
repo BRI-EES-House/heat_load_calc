@@ -1,4 +1,5 @@
 from enum import Enum
+from typing import Dict
 
 """
 時間間隔に関するモジュール
@@ -87,3 +88,18 @@ class Interval(Enum):
             Interval.M30: '30min',
             Interval.H1: 'h'
         }[self]
+
+
+def set_interval(d_common: Dict):
+
+    # Check the existance of the item "interval" in the common tag.
+    # If not exist, M15 is set as default value.
+    if 'interval' not in d_common:
+
+        return Interval.M15
+
+    else:
+    
+        s_itv = d_common['interval']
+
+        return Interval(s_itv)
