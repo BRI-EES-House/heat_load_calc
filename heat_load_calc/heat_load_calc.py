@@ -54,17 +54,10 @@ def run(
 
     entry_point_dir=path.dirname(__file__)
 
-    # 気象データの生成 => weather_for_method_file.csv
-    w = weather.Weather.make_weather(
-        d=d,
-        itv=itv,
-        entry_point_dir=entry_point_dir
-    )
-
     # ---- 計算 ----
 
     # 計算
-    dd_i, dd_a, _, scd = core.calc(d=d, w=w, itv=itv, entry_point_dir=entry_point_dir)
+    dd_i, dd_a, _, scd, w = core.calc(d=d, itv=itv, entry_point_dir=entry_point_dir)
 
     # 気象データの保存
     if is_weather_saved:

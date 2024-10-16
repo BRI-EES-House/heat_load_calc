@@ -27,13 +27,10 @@ class TestSigleRoomWithGround(unittest.TestCase):
         # 住宅計算条件JSONファイルの読み込み
         house_data_path = os.path.join(s_folder, "mid_data_house.json")
         with open(house_data_path, 'r', encoding='utf-8') as js:
-            rd = json.load(js)
-
-        # 気象データ読み出し
-        w = weather.Weather.make_weather(d=rd, itv=interval.Interval.M15, entry_point_dir=os.path.dirname(__file__))
+            d = json.load(js)
 
         # 計算実行
-        dd_i, dd_a, _, _ = core.calc(d=rd, w=w, itv=interval.Interval.M15, entry_point_dir=os.path.dirname(__file__), n_d_main=30, n_d_run_up=10, n_d_run_up_build=0)
+        dd_i, dd_a, _, _, _ = core.calc(d=d, itv=interval.Interval.M15, entry_point_dir=os.path.dirname(__file__), n_d_main=30, n_d_run_up=10, n_d_run_up_build=0)
 
         # 計算結果格納
         cls._dd_i = dd_i
