@@ -36,17 +36,19 @@ def calc(
         「助走計算のうち建物全体を解く日数」は「助走計算を行う日数」で指定した値以下でないといけない。
     """
 
-    # Check the existance of the item "weather" in common item.
-    if 'weather' not in d['common']:
-        raise KeyError('Key weather could not be found in common tag.')
+    # Check the existance of the item "common" in the input file.
+    if 'common' not in d:
+        raise KeyError('Key common could not be found in the input file.')
+    
+    d_common = d['common']
 
-    # 時間間隔
-    # TODO: 現在、時間間隔が15分間隔であることを前提として作成されているモジュールがいくつかあるため、当分の間15分間隔固定とする。
-    itv: interval.Interval = interval.Interval.M15
+    # set inteval class depending on the item 'interval' in common tag.
+    # If not specified in the file, 15 minute interval is set as default.   
+    itv: interval.Interval = interval.set_interval(d_common=d_common)
 
     # make Weather class.
     w: weather.Weather = weather.Weather.make_weather(
-        d=d,
+        d_common=d_common,
         itv=itv,
         entry_point_dir=entry_point_dir
     )

@@ -52,14 +52,14 @@ class Weather:
         self._number_of_data = len(theta_o_ns)
 
     @classmethod
-    def make_weather(cls, d: Dict, itv: Interval, entry_point_dir: str = ""):
+    def make_weather(cls, d_common: Dict, itv: Interval, entry_point_dir: str = ""):
 
         # Check the existance of the item "weather" in common item.
-        if 'weather' not in d['common']:
+        if 'weather' not in d_common:
             raise KeyError('Key weather could not be found in common tag.')
 
         # item "weather"
-        d_weather = d['common']['weather']
+        d_weather = d_common['weather']
 
         # Check the existance of the item "method" in weather item.
         if 'method' not in d_weather:
