@@ -39,7 +39,19 @@ class Weather:
         """
 
         if a_sun_ns.size != itv.get_n_step_annual():
-            raise ValueError()
+            raise ValueError('The length of a_sun_ns array does not match the number of the annual steps.')
+        if h_sun_ns.size != itv.get_n_step_annual():
+            raise ValueError('The length of h_sun_ns array does not match the number of the annual steps.')
+        if i_dn_ns.size != itv.get_n_step_annual():
+            raise ValueError('The length of i_dn_ns array does not match the numeber of the annual steps.')
+        if i_sky_ns.size != itv.get_n_step_annual():
+            raise ValueError('The length of i_sky_ns array does not match the numeber of the annual steps.')
+        if r_n_ns.size != itv.get_n_step_annual():
+            raise ValueError('The length of r_n_ns array does not match the numeber of the annual steps.')
+        if theta_o_ns.size != itv.get_n_step_annual():
+            raise ValueError('The length of theta_o_ns array does not match the numeber of the annual steps.')
+        if x_o_ns.size != itv.get_n_step_annual():
+            raise ValueError('The length of x_o_ns array does not match the numeber of the annual steps.')
 
         self._a_sun_ns = a_sun_ns
         self._h_sun_ns = h_sun_ns
