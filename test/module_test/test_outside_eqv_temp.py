@@ -13,14 +13,23 @@ from heat_load_calc.window import Window, GlassType
 
 class TestOutsideEqvTemp(unittest.TestCase):
 
-    a_sun_ns = np.array([0.0, np.pi/6, np.pi/3, np.pi/2, np.pi*2/3, np.pi*5/6, np.pi])
-    h_sun_ns = np.array([0.0, np.pi/6, np.pi/3, np.pi/2, np.pi/3, np.pi/6, 0.0])
-    i_dn_ns = np.array([10.0, 100.0, 200.0, 300.0, 200.0, 100.0, 10.0])
-    i_sky_ns = np.array([10.0, 100.0, 200.0, 300.0, 200.0, 100.0, 10.0])
-    r_n_ns = np.array([20.0, 19.0, 18.0, 17.0, 18.0, 19.0, 20.0])
-    theta_o_ns = np.array([-15.0, -12.0, 3.0, 5.0, 4.0, -3.0, -7.0])
-    x_o_ns = np.array([0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0])
     itv = Interval.M15
+    n = itv.get_n_step_annual()
+
+    a_sun_ns = np.zeros(n, dtype=float)
+    a_sun_ns[:7] = np.array([0.0, np.pi/6, np.pi/3, np.pi/2, np.pi*2/3, np.pi*5/6, np.pi])
+    h_sun_ns = np.zeros(n, dtype=float)
+    h_sun_ns[:7] = np.array([0.0, np.pi/6, np.pi/3, np.pi/2, np.pi/3, np.pi/6, 0.0])
+    i_dn_ns = np.zeros(n, dtype=float)
+    i_dn_ns[:7] = np.array([10.0, 100.0, 200.0, 300.0, 200.0, 100.0, 10.0])
+    i_sky_ns = np.zeros(n, dtype=float)
+    i_sky_ns[:7] = np.array([10.0, 100.0, 200.0, 300.0, 200.0, 100.0, 10.0])
+    r_n_ns = np.zeros(n, dtype=float)
+    r_n_ns[:7] = np.array([20.0, 19.0, 18.0, 17.0, 18.0, 19.0, 20.0])
+    theta_o_ns = np.zeros(n, dtype=float)
+    theta_o_ns[:7] = np.array([-15.0, -12.0, 3.0, 5.0, 4.0, -3.0, -7.0])
+    x_o_ns = np.zeros(n, dtype=float)
+    x_o_ns[:7] = np.array([0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0])
 
     w = Weather(a_sun_ns=a_sun_ns, h_sun_ns=h_sun_ns, i_dn_ns=i_dn_ns, i_sky_ns=i_sky_ns, r_n_ns=r_n_ns, theta_o_ns=theta_o_ns, x_o_ns=x_o_ns)
 
@@ -37,7 +46,6 @@ class TestOutsideEqvTemp(unittest.TestCase):
         self.assertEqual(result[4], 0.0)
         self.assertEqual(result[5], 0.0)
         self.assertEqual(result[6], 0.0)
-        self.assertEqual(result[7], 0.0)
 
     def test_get_theta_o_eqv_j_ns_for_external_general_part_and_external_opaque_part(self):
 
@@ -66,7 +74,6 @@ class TestOutsideEqvTemp(unittest.TestCase):
         self.assertEqual(result[4], 4.0 + (0.8 * ((1 - f_ss_dn[4]) * i_s_dn[4] + (1 - f_ss_sky) * i_s_sky[4] + (1 - f_ss_ref) * i_s_ref[4]) - 0.9 * r_s_n[4]) * 0.04)
         self.assertEqual(result[5], -3.0 + (0.8 * ((1 - f_ss_dn[5]) * i_s_dn[5] + (1 - f_ss_sky) * i_s_sky[5] + (1 - f_ss_ref) * i_s_ref[5]) - 0.9 * r_s_n[5]) * 0.04)
         self.assertEqual(result[6], -7.0 + (0.8 * ((1 - f_ss_dn[6]) * i_s_dn[6] + (1 - f_ss_sky) * i_s_sky[6] + (1 - f_ss_ref) * i_s_ref[6]) - 0.9 * r_s_n[6]) * 0.04)
-        self.assertEqual(result[7], -15.0 + (0.8 * ((1 - f_ss_dn[7]) * i_s_dn[7] + (1 - f_ss_sky) * i_s_sky[7] + (1 - f_ss_ref) * i_s_ref[7]) - 0.9 * r_s_n[7]) * 0.04)
 
     def test_get_theta_o_eqv_j_ns_for_external_transparent_part(self):
         
@@ -107,7 +114,6 @@ class TestOutsideEqvTemp(unittest.TestCase):
         self.assertEqual(result[4], 4.0 - 0.9 * r_s_n[4] * 0.04 + q[4]/3.0)
         self.assertEqual(result[5], -3.0 - 0.9 * r_s_n[5] * 0.04 + q[5]/3.0)
         self.assertEqual(result[6], -7.0 - 0.9 * r_s_n[6] * 0.04 + q[6]/3.0)
-        self.assertEqual(result[7], -15.0 - 0.9 * r_s_n[7] * 0.04 + q[7]/3.0)
 
     def test_get_theta_o_eqv_j_ns_for_external_not_sun_striked(self):
 
@@ -120,19 +126,19 @@ class TestOutsideEqvTemp(unittest.TestCase):
         self.assertEqual(result[4], 4.0)
         self.assertEqual(result[5], -3.0)
         self.assertEqual(result[6], -7.0)
-        self.assertEqual(result[7], -15.0)
 
     def test_get_theta_o_eqv_j_ns_for_ground(self):
 
         result = oet.get_theta_o_eqv_j_ns_for_ground(w=self.w)
 
-        self.assertAlmostEqual(result[0], -3.571428571)
-        self.assertAlmostEqual(result[2], -3.571428571)
-        self.assertAlmostEqual(result[3], -3.571428571)
-        self.assertAlmostEqual(result[4], -3.571428571)
-        self.assertAlmostEqual(result[5], -3.571428571)
-        self.assertAlmostEqual(result[6], -3.571428571)
-        self.assertAlmostEqual(result[7], -3.571428571)
+        t_o_ave = self.w.get_theta_o_ave()
+
+        self.assertAlmostEqual(result[0], t_o_ave)
+        self.assertAlmostEqual(result[2], t_o_ave)
+        self.assertAlmostEqual(result[3], t_o_ave)
+        self.assertAlmostEqual(result[4], t_o_ave)
+        self.assertAlmostEqual(result[5], t_o_ave)
+        self.assertAlmostEqual(result[6], t_o_ave)
         
 
 

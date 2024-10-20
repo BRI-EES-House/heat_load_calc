@@ -28,15 +28,18 @@ class Weather:
         """
 
         Args:
-            a_sun_ns: 太陽方位角, rad, [n]
-            h_sun_ns: 太陽高度, rad, [n]
-            i_dn_ns: 法線面直達日射量, W/m2, [n]
-            i_sky_ns: 水平面天空日射量, W/m2, [n]
-            r_n_ns: 夜間放射量, W/m2, [n]
-            theta_o_ns: 外気温度, degree C, [n]
-            x_o_ns: 外気絶対湿度, kg/kg(DA), [n]
-            itv: 時間間隔
+            a_sun_ns: solar direction at step n, ステップnにおける太陽方位角, rad, [N]
+            h_sun_ns: solar altitude at step n, ステップnにおける太陽高度, rad, [N]
+            i_dn_ns: normal surface direct solar radiation at step n, ステップnにおける法線面直達日射量, W/m2, [N]
+            i_sky_ns: horizontal sky solar radiation at step n, ステップnにおける水平面天空日射量, W/m2, [N]
+            r_n_ns: nighttime radiation at step n, ステップnにおける夜間放射量, W/m2, [N]
+            theta_o_ns: outside temperature at step n, ステップnにおける外気温度, degree C, [N]
+            x_o_ns: outside absolute humidity at step n, ステップnにおける外気絶対湿度, kg/kg(DA), [N]
+            itv: interval class
         """
+
+        if a_sun_ns.size != itv.get_n_step_annual():
+            raise ValueError()
 
         self._a_sun_ns = a_sun_ns
         self._h_sun_ns = h_sun_ns
@@ -48,8 +51,9 @@ class Weather:
 
         self._itv = itv
 
-        # self._number_of_data = itv.get_n_hour() * 8760
+        # the number of the data.self._number_of_data = itv.get_n_hour() * 8760
         self._number_of_data = len(theta_o_ns)
+        # self._number_of_data = itv.get_n_step_annual()
 
     @classmethod
     def make_weather(cls, d_common: Dict, itv: Interval, entry_point_dir: str = ""):

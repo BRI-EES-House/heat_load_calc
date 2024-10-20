@@ -8,23 +8,37 @@ from heat_load_calc import inclined_surface_solar_radiation as issr
 
 class TestInclinedSurfaceSolarRadiation(unittest.TestCase):
 
-    a_sun_ns = np.array([
-        0.0, 0.0, 0.0, 0.0,
-        np.pi, np.pi, np.pi, np.pi
-    ])
-    h_sun_ns = np.array([
-        -np.pi/4, 0.0, np.pi/4, np.pi/2,
-        -np.pi/4, 0.0, np.pi/4, np.pi/2,
-    ])
+    itv = Interval.M15
+
+    n = itv.get_n_step_annual()
+
+    a_sun_ns = np.zeros(n, dtype=float)
+
+#    a_sun_ns = np.array([
+#        0.0, 0.0, 0.0, 0.0,
+#        np.pi, np.pi, np.pi, np.pi
+#    ])
+
+    a_sun_ns[:8] = np.array([-np.pi/4, 0.0, np.pi/4, np.pi/2, -np.pi/4, 0.0, np.pi/4, np.pi/2])
+
+    h_sun_ns = np.zeros(n, dtype=float)
+
+#    h_sun_ns = np.array([
+#        -np.pi/4, 0.0, np.pi/4, np.pi/2,
+#        -np.pi/4, 0.0, np.pi/4, np.pi/2,
+#    ])
+
+    h_sun_ns[:8] = np.array([-np.pi/4, 0.0, np.pi/4, np.pi/2, -np.pi/4, 0.0, np.pi/4, np.pi/2])
+
     w = Weather(
         a_sun_ns=a_sun_ns,
         h_sun_ns=h_sun_ns,
-        i_dn_ns=np.full(shape=(8), fill_value=100.0, dtype=float),
-        i_sky_ns=np.full(shape=(8), fill_value=50.0, dtype=float),
-        r_n_ns=np.full(shape=(8), fill_value=30.0, dtype=float),
-        theta_o_ns=np.full(shape=(8), fill_value=3.0, dtype=float),
-        x_o_ns=np.full(shape=(8), fill_value=0.0, dtype=float),
-        itv=Interval.M15
+        i_dn_ns=np.full(shape=(n), fill_value=100.0, dtype=float),
+        i_sky_ns=np.full(shape=(n), fill_value=50.0, dtype=float),
+        r_n_ns=np.full(shape=(n), fill_value=30.0, dtype=float),
+        theta_o_ns=np.full(shape=(n), fill_value=3.0, dtype=float),
+        x_o_ns=np.full(shape=(n), fill_value=0.0, dtype=float),
+        itv=itv
     )
 
     def test_get_phi_j_ns_top(self):
