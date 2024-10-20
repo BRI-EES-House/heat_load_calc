@@ -11,7 +11,6 @@ logger = logging.getLogger('HeatLoadCalc').getChild('core')
 def calc(
         d: Dict,
         entry_point_dir: str,
-        n_step_hourly: int = 4,
         n_d_main: int = 365,
         n_d_run_up: int = 365,
         n_d_run_up_build: int = 183
@@ -20,7 +19,7 @@ def calc(
 
     Args:
         d: input data as dictionary / 住宅計算条件
-        n_step_hourly: 計算間隔（1時間を何分割するかどうか）（デフォルトは4（15分間隔））
+        entry_point_dir: the pass of the entry point directory
         n_d_main: 本計算を行う日数（デフォルトは365日（1年間））, d
         n_d_run_up: 助走計算を行う日数（デフォルトは365日（1年間））, d
         n_d_run_up_build: 助走計算のうち建物全体を解く日数（デフォルトは183日（およそ半年））, d
