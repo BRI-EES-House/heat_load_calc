@@ -63,9 +63,8 @@ class Weather:
 
         self._itv = itv
 
-        # the number of the data.self._number_of_data = itv.get_n_hour() * 8760
-        self._number_of_data = len(theta_o_ns)
-        # self._number_of_data = itv.get_n_step_annual()
+        # the number of data
+        self._number_of_data = itv.get_n_step_annual()
 
     @classmethod
     def make_weather(cls, d_common: Dict, itv: Interval, entry_point_dir: str = ""):
@@ -225,7 +224,7 @@ def _add_index_0_data_to_end(d: np.ndarray) -> np.ndarray:
     return np.append(d, d[0])
 
 
-def _make_from_pd(file_path, itv: Interval, latitude: float, longitude: float):
+def _make_from_pd(file_path, itv: Interval, latitude: float, longitude: float) -> Weather:
     """Read the weather data from the specified file. / 気象データを読み込む。
 
     Args:
@@ -234,7 +233,7 @@ def _make_from_pd(file_path, itv: Interval, latitude: float, longitude: float):
         latitude: latitude / 緯度（北緯）, degree
         longitude: longitude / 経度（東経）, degree
     Returns:
-        OutdoorCondition class
+        Weather class
     """
 
     if not os.path.isfile(file_path):
@@ -281,7 +280,7 @@ def _make_from_pd(file_path, itv: Interval, latitude: float, longitude: float):
     )
 
 
-def _make_weather_ees(region: Region, itv: Interval):
+def _make_weather_ees(region: Region, itv: Interval) -> Weather:
     """Make the climate data. / 気象データを作成する。
 
     Args:
