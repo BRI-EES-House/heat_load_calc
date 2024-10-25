@@ -135,9 +135,12 @@ def _get_season_status(d_common: Dict, w: weather.Weather = None) -> Tuple[Optio
 
             return summer_start, summer_end, winter_start, winter_end, is_summer_period_set, is_winter_period_set
         
+        # The method "file" is the method that the weather data is loaded from the file specified by user.
+        # If the method "file" is specified, the season are automatically calculated based on the outdoor air temperature,
+        # which is replaced to the simplified sin/cos curve througy the Fourier tranform method.
         elif d_method == 'file':
 
-            raise Exception("Not implemented.")
+            return _get_season_status_by_fourier_tranform(w=w)
         
         else:
 
@@ -294,3 +297,29 @@ def _check_day_index(n: int):
     
     if n < 1:
         raise IndexError("Under 1 cna't be specified.")
+
+
+def _get_season_status_by_fourier_tranform(w: weather.Weather) -> Tuple[str, str, str, str, bool, bool]:
+    """Calculate the summer and winter season by the outdoor temperature.
+
+    Args:
+        w: Weather class.
+
+    Returns:
+        Tuple data consists of six parameters as follows.
+        - summer start date
+        - summer end date
+        - winter start date
+        - winter end date
+        - is summer period set?
+        - is winter period set?
+    """
+    # Outside temperatures, degree C, [N+1]
+    theta_o_ns_plus = w.theta_o_ns_plus
+
+    # Interval class
+    itv = w._itv
+    
+    raise Exception("Not implemented.")
+
+    return summer_start, summer_end, winter_start, winter_end, is_summer_period_set, is_winter_period_set
