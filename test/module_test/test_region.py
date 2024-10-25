@@ -53,7 +53,7 @@ class TestRegionLocation(unittest.TestCase):
     def test_region_season_status(self):
 
         # region 1, Kitami
-        winter_start, winter_end, summer_start, summer_end, is_summer_period_set, is_winter_period_set = Region.Region1.get_season_status() 
+        summer_start, summer_end, winter_start, winter_end, is_summer_period_set, is_winter_period_set = Region.Region1.get_season_status() 
         self.assertEqual(winter_start, '9/24')
         self.assertEqual(winter_end, '6/7')
         self.assertEqual(summer_start, '7/10')
@@ -62,7 +62,7 @@ class TestRegionLocation(unittest.TestCase):
         self.assertEqual(is_winter_period_set, True)
 
         # region 2, Iwamizawa
-        winter_start, winter_end, summer_start, summer_end, is_summer_period_set, is_winter_period_set = Region.Region2.get_season_status() 
+        summer_start, summer_end, winter_start, winter_end, is_summer_period_set, is_winter_period_set = Region.Region2.get_season_status() 
         self.assertEqual(winter_start, '9/26')
         self.assertEqual(winter_end, '6/4')
         self.assertEqual(summer_start, '7/15')
@@ -71,7 +71,7 @@ class TestRegionLocation(unittest.TestCase):
         self.assertEqual(is_winter_period_set, True)
 
         # region 3, Morioka
-        winter_start, winter_end, summer_start, summer_end, is_summer_period_set, is_winter_period_set = Region.Region3.get_season_status() 
+        summer_start, summer_end, winter_start, winter_end, is_summer_period_set, is_winter_period_set = Region.Region3.get_season_status() 
         self.assertEqual(winter_start, '9/30')
         self.assertEqual(winter_end, '5/31')
         self.assertEqual(summer_start, '7/10')
@@ -80,7 +80,7 @@ class TestRegionLocation(unittest.TestCase):
         self.assertEqual(is_winter_period_set, True)
 
         # region 4, Nagano
-        winter_start, winter_end, summer_start, summer_end, is_summer_period_set, is_winter_period_set = Region.Region4.get_season_status() 
+        summer_start, summer_end, winter_start, winter_end, is_summer_period_set, is_winter_period_set = Region.Region4.get_season_status() 
         self.assertEqual(winter_start, '10/1')
         self.assertEqual(winter_end, '5/30')
         self.assertEqual(summer_start, '7/10')
@@ -89,7 +89,7 @@ class TestRegionLocation(unittest.TestCase):
         self.assertEqual(is_winter_period_set, True)
 
         # region 5, Utsunomiya
-        winter_start, winter_end, summer_start, summer_end, is_summer_period_set, is_winter_period_set = Region.Region5.get_season_status() 
+        summer_start, summer_end, winter_start, winter_end, is_summer_period_set, is_winter_period_set = Region.Region5.get_season_status() 
         self.assertEqual(winter_start, '10/10')
         self.assertEqual(winter_end, '5/15')
         self.assertEqual(summer_start, '7/6')
@@ -98,7 +98,7 @@ class TestRegionLocation(unittest.TestCase):
         self.assertEqual(is_winter_period_set, True)
 
         # region 6, Okayama
-        winter_start, winter_end, summer_start, summer_end, is_summer_period_set, is_winter_period_set = Region.Region6.get_season_status() 
+        summer_start, summer_end, winter_start, winter_end, is_summer_period_set, is_winter_period_set = Region.Region6.get_season_status() 
         self.assertEqual(winter_start, '11/4')
         self.assertEqual(winter_end, '4/21')
         self.assertEqual(summer_start, '5/30')
@@ -107,7 +107,7 @@ class TestRegionLocation(unittest.TestCase):
         self.assertEqual(is_winter_period_set, True)
 
         # region 7, Miyazaki
-        winter_start, winter_end, summer_start, summer_end, is_summer_period_set, is_winter_period_set = Region.Region7.get_season_status() 
+        summer_start, summer_end, winter_start, winter_end, is_summer_period_set, is_winter_period_set = Region.Region7.get_season_status() 
         self.assertEqual(winter_start, '11/26')
         self.assertEqual(winter_end, '3/27')
         self.assertEqual(summer_start, '5/15')
@@ -116,7 +116,7 @@ class TestRegionLocation(unittest.TestCase):
         self.assertEqual(is_winter_period_set, True)
 
         # region 8, Naha
-        winter_start, winter_end, summer_start, summer_end, is_summer_period_set, is_winter_period_set = Region.Region8.get_season_status() 
+        summer_start, summer_end, winter_start, winter_end, is_summer_period_set, is_winter_period_set = Region.Region8.get_season_status() 
         self.assertEqual(winter_start, None)
         self.assertEqual(winter_end, None)
         self.assertEqual(summer_start, '3/25')

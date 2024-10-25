@@ -1,16 +1,150 @@
 from typing import Dict, Tuple, Optional
 from datetime import datetime
 import numpy as np
-from enum import Enum
+
+from heat_load_calc import region
+from heat_load_calc import weather
 
 class Season:
 
-    def __init__(self, d: Dict):
+    def __init__(self, summer: np.ndarray, winter: np.ndarray, middle: np.ndarray):
 
-        pass
+        self._summer = summer
+        self._winter = winter
+        self._middle = middle
+    
+    @property
+    def summer(self):
+        return self._summer
+    
+    @property
+    def winter(self):
+        return self._winter
+    
+    @property
+    def middle(self):
+        return self._middle
 
 
-def get_bool_list_for_four_season_as_str(
+def make_season(d_common: Dict, w: weather.Weather):
+    """make season class
+
+    Args:
+        d_common: The item 'common' tag of the input file.
+    """
+
+    summer_start, summer_end, winter_start, winter_end, is_summer_period_set, is_winter_period_set = _get_season_status(d_common=d_common, w=w)
+
+    summer, winter, middle = _get_bool_list_for_season_as_str(
+        summer_start=summer_start,
+        summer_end=summer_end,
+        winter_start=winter_start,
+        winter_end=winter_end,
+        is_summer_period_set=is_summer_period_set,
+        is_winter_period_set=is_winter_period_set
+    )
+
+    return Season(summer=summer, winter=winter, middle=middle)
+
+
+def _get_season_status(d_common: Dict, w: weather.Weather = None) -> Tuple[Optional[str], Optional[str], Optional[str], Optional[str], bool, bool]:
+    """get season status
+
+    Args:
+        d_common: common tag in input file.
+        w: Weather class. Defaults to None.
+
+    Returns:
+        - The date the summer begins.
+        - The date the summer ends.
+        - The date the winter begins.
+        - The date the winter ends.
+        - Is the summer period specified ?
+        - Is the winter period specified ?
+    
+    Notes:
+        If the summer period set, the date the summer begins and the date the summer ends should be defined.
+        If the sinter period set, the date the winter begins and the date the sinter ends should be defined.
+    """
+
+    # Check the existance of the item season in common item.
+    if 'season' in d_common:
+        
+        # item 'season'
+        d_season = d_common['season']
+
+        # Check the existance of the item "is_summer_period_set" in season item.
+        if 'is_summer_period_set' not in d_season:
+            raise KeyError('Key is_summer_period_set could not be found')
+
+        is_summer_period_set = d_season['is_summer_period_set']
+
+        # Check the existance of the item "is_winter_period_set" in season item.
+        if 'is_winter_period_set' not in d_season:
+            raise KeyError('Key is_winter_period_set could not be found')
+        
+        is_winter_period_set = d_season['is_winter_period_set']
+        
+        if is_summer_period_set:
+            summer_start = d_season['summer_start']
+            summer_end = d_season['summer_end']
+        else:
+            summer_start = None
+            summer_end = None
+        
+        if is_winter_period_set:
+            winter_start = d_season['winter_start']
+            winter_end = d_season['winter_end']
+        else:
+            winter_start = None
+            winter_end = None
+
+        return summer_start, summer_end, winter_start, winter_end, is_summer_period_set, is_winter_period_set
+
+    # If tag 'season' is not defined, the season status are decided as follows.
+    # In case that the method is 'ees', these status depends on the region.
+    # In case that the method is 'file', these status are decided depending on the outside air temperature analyzed bassed on Fourier analysis.
+    else:
+
+        # Check the existance of the item 'weather' in common item.
+        if 'weather' not in d_common:
+            raise KeyError('Key weather could not be found in common tag.')
+    
+        # item 'weather'
+        d_weather = d_common['weather']
+
+        # Check the existance of the item  'method' in weather item.
+        if 'method' not in d_weather:
+            raise KeyError('Key method could not be found in weather tag.')
+
+        # item 'method'
+        d_method = d_weather['method']
+
+        # The method "ees" is the method that the weather data is loaded from the pre set data based on the region of the Japanese Energy Efficiency Standard.
+        # And the season of heating(winter) and cooling(summer) are desided depends on the region.
+        if d_method == 'ees':
+
+            # Check the existance of the item "region" in weather item.
+            if 'region' not in d_weather:
+                raise KeyError('Key region should be specified if the ees method applied.')
+        
+            # item 'region'
+            r = region.Region(int(d_weather['region']))
+
+            summer_start, summer_end, winter_start, winter_end, is_summer_period_set, is_winter_period_set = r.get_season_status()
+
+            return summer_start, summer_end, winter_start, winter_end, is_summer_period_set, is_winter_period_set
+        
+        elif d_method == 'file':
+
+            raise Exception("Not implemented.")
+        
+        else:
+
+            raise ValueError('Invalid value is specified for the method.')
+
+
+def _get_bool_list_for_season_as_str(
         summer_start: Optional[str] = None,
         summer_end: Optional[str] = None,
         winter_start: Optional[str] = None,
@@ -18,6 +152,14 @@ def get_bool_list_for_four_season_as_str(
         is_summer_period_set: Optional[bool] = True,
         is_winter_period_set: Optional[bool] = True
     ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """get the bool list of summer, winter and middle season
+
+    Returns:
+        - Bool array for summer season.
+        - Bool array for winter season.
+        - Bool array for middle season.
+        Every array length is 365.
+    """
 
     if is_summer_period_set:
         summer_start_num, summer_end_num = _get_total_day(date_str=summer_start), _get_total_day(date_str=summer_end)
