@@ -17,6 +17,11 @@ class TestSteadyState(unittest.TestCase):
         屋根と床が合板12mm、壁が複層ガラスの1m角の立方体の単室モデル。
         内部発熱なし。
         透過日射熱取得は100W固定
+        
+        Weather: 0
+        Heat Generation: 0 W
+        Ventilation: 0 m3/s
+        sun trans. 100 W
         """
 
         print('\n testing single zone steady 06')
@@ -74,6 +79,8 @@ class TestSteadyState(unittest.TestCase):
 
         theta_ei_js_n = np.array(
             [[2.748585309, 2.748585309, 2.748585309, 2.748585309, 8.248585309, 2.748585309]]).reshape(-1, 1)
+        
+        theta_rear_js = np.zeros(shape=(6,1), dtype=float)
 
         # 初期状態値の計算
         c_n = conditions.Conditions(
@@ -82,7 +89,7 @@ class TestSteadyState(unittest.TestCase):
             theta_mrt_hum_is_n=np.array([[2.642487123]]),
             x_r_is_n=np.array([[0.0]]),
             theta_dsh_s_a_js_ms_n=q_srf_js_n * sqc.bs.phi_a1_js_ms / (1.0 - sqc.bs.r_js_ms),
-            theta_dsh_s_t_js_ms_n=(np.dot(sqc.bs.k_ei_js_js, theta_ei_js_n) + sqc.bs.k_eo_js * sqc.bs.theta_o_eqv_js_nspls[:, 1].reshape(-1, 1)) * sqc.bs.phi_t1_js_ms / (1.0 - sqc.bs.r_js_ms),
+            theta_dsh_s_t_js_ms_n= theta_rear_js * sqc.bs.phi_t1_js_ms / (1.0 - sqc.bs.r_js_ms),
             q_s_js_n=q_srf_js_n,
             theta_frt_is_n=np.array([[22.60960613]]),
             x_frt_is_n=np.array([[0.0]]),

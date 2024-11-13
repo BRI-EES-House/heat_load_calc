@@ -16,6 +16,12 @@ class TestSteadyState(unittest.TestCase):
         屋根と床が合板12mm、壁が複層ガラスの1m角の立方体の単室モデル。
         相当外気温度が屋根と南壁10℃、他は0℃。
         内部発熱なし。
+
+        Weather: 0, 10 deg C at ID 2, 5
+        Heat Generation: 0 W
+        Ventilation: 0 m3/s
+        sun trans. 0W
+
         """
 
         print('\n testing single zone steady 05')
@@ -58,9 +64,9 @@ class TestSteadyState(unittest.TestCase):
         # ステップ n の境界 j における相当外気温度, ℃, [j, 8760*4]
         # 南（ID=2)と屋根(ID=5)の壁の相当外気温度を 10.0 ℃とする。
         theta_o_eqv_js_ns = np.stack([
-            np.zeros(8760*4, dtype=float),
             np.zeros(8760 * 4, dtype=float),
-            np.full(8760*4, 10.0, dtype=float),
+            np.zeros(8760 * 4, dtype=float),
+            np.full(8760 * 4, 10.0, dtype=float),
             np.zeros(8760 * 4, dtype=float),
             np.zeros(8760 * 4, dtype=float),
             np.full(8760 * 4, 10.0, dtype=float)
@@ -76,6 +82,8 @@ class TestSteadyState(unittest.TestCase):
 
         theta_ei_js_n = np.array(
             [[3.308407437, 3.308407437, 3.308407437, 3.308407437, 3.308407437, 3.308407437]]).reshape(-1, 1)
+        
+        theta_rear_js_n = np.array([0.0, 0.0, 10.0, 0.0, 0.0, 10.0]).reshape(-1, 1)
 
         # 初期状態値の計算
         c_n = conditions.Conditions(
@@ -84,7 +92,7 @@ class TestSteadyState(unittest.TestCase):
             theta_mrt_hum_is_n=np.array([[2.758476601]]),
             x_r_is_n=np.array([[0.0]]),
             theta_dsh_s_a_js_ms_n=q_srf_js_n * sqc.bs.phi_a1_js_ms / (1.0 - sqc.bs.r_js_ms),
-            theta_dsh_s_t_js_ms_n=(np.dot(sqc.bs.k_ei_js_js, theta_ei_js_n) + sqc.bs.k_eo_js * sqc.bs.theta_o_eqv_js_nspls[:, 1].reshape(-1, 1)) * sqc.bs.phi_t1_js_ms / (1.0 - sqc.bs.r_js_ms),
+            theta_dsh_s_t_js_ms_n= theta_rear_js_n * sqc.bs.phi_t1_js_ms / (1.0 - sqc.bs.r_js_ms),
             q_s_js_n=q_srf_js_n,
             theta_frt_is_n=np.array([[3.3084074373484]]),
             x_frt_is_n=np.array([[0.0]]),
