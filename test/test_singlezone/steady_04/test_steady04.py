@@ -10,10 +10,18 @@ from heat_load_calc.operation_mode import OperationMode
 # 定常状態のテスト
 class TestSteadyState(unittest.TestCase):
     """
-    屋根と床が合板12mm、壁が複層ガラスの1m角の立方体の単室モデル。
-    外気温度一定。日射、夜間放射は考慮なし。
-    内部発熱一定。
-    換気あり
+    テストの目的
+    定常状態を想定した壁体の貫流熱損失が解析解と一致することを確認する。
+    壁体からの合計熱損失と換気熱損失の和が内部発熱と一致することを確認する。
+    
+    計算条件
+    建物モデル  1m角の立方体単室モデル
+    部位構成    垂直外皮は熱貫流率4.65W/(m2・K)の窓、床・屋根はせっこうボード12mmで構成される。
+    すきま風    なし
+    換気        1m3/h=0.000278m3/s（換気スケジュールで与える）
+    外気温度    0.0℃
+    日射、夜間放射  なし
+    内部発熱    100W（対流成分のみ）
     """
 
     @classmethod
@@ -59,9 +67,11 @@ class TestSteadyState(unittest.TestCase):
         # pre_calc_parametersの構築
         sqc = sequence.Sequence(itv=interval.Interval.M15, rd=rd, weather=w, scd=scd)
 
+        # ステップnにおける表面熱流[W/m2]の設定
         q_srf_js_n = np.array([[16.51262564317, 16.51262564317, 16.51262564317, 16.51262564317,
             15.78267683477, 15.78267683477]]).reshape(-1, 1)
 
+        # ステップnにおける等価室温[℃]の設定
         theta_ei_js_n = np.array(
             [[3.551102289, 3.551102289, 3.551102289, 3.551102289, 3.551102289, 3.551102289]]).reshape(-1, 1)
 
