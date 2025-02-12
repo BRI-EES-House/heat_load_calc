@@ -16,19 +16,20 @@ class TestSteadyState(unittest.TestCase):
         テストの目的
         定常状態を想定した壁体の貫流熱損失と透過日射熱取得が解析解と一致することを確認する。
         日射を考慮（太陽位置、法線面直達日射、水平面天空日射を与える）して透過日射熱取得、相当外気温度を計算する。
+        ただし、透過日射熱取得はすべて備品が吸収することとする。
         
         計算条件
         建物モデル  1m角の立方体単室モデル
         部位構成    南面以外の部位（5面）はせっこうボード12mm、南面は複層ガラスで構成される。
         すきま風    なし
         換気        なし
-        外気温度    それぞれの部位の入射日射量より計算
+        相当外気温度    それぞれの部位の入射日射量より計算
         日射、夜間放射  法線面直達日射量:700W/m2、水平面天空日射量:200W/m2、地面反射率は0.1
         太陽位置    太陽高度:30度、太陽方位角:0度
         内部発熱    なし
         """
 
-        print('\n testing single zone steady 06')
+        print('\n testing single zone steady 09')
 
         # 計算用フォルダ
         s_folder = os.path.join(os.path.dirname(__file__), 'data')
@@ -72,21 +73,21 @@ class TestSteadyState(unittest.TestCase):
         )
 
         # ステップnにおける表面熱流[W/m2]の設定
-        q_srf_js_n = np.array([[98.6886590738378, 98.6886590738378, 153.201616409054, 98.6886590738378, 108.999770184949, 38.5997701849489]]).reshape(-1, 1)
+        q_srf_js_n = np.array([[97.516763310527, 97.516763310527, 159.061095225609, 97.516763310527, 107.827874421638, 37.4278744216381]]).reshape(-1, 1)
 
         theta_ei_js_n = np.array(
-            [[26.2849482916135, 26.2849482916135, 26.2849482916135, 26.2849482916135, 26.2849482916135, 26.2849482916135]]).reshape(-1, 1)
+            [[26.0212717448686, 26.0212717448686, 26.0212717448686, 26.0212717448686, 26.0212717448686, 26.0212717448686]]).reshape(-1, 1)
 
         # 初期状態値の計算
         c_n = conditions.Conditions(
             operation_mode_is_n=np.array([[OperationMode.STOP_CLOSE]]),
-            theta_r_is_n=np.array([[48.05272652610]]),
-            theta_mrt_hum_is_n=np.array([[14.98626457]]),
+            theta_r_is_n=np.array([[47.78904997936]]),
+            theta_mrt_hum_is_n=np.array([[14.76641692]]),
             x_r_is_n=np.array([[0.0]]),
             theta_dsh_s_a_js_ms_n=q_srf_js_n * sqc.bs.phi_a1_js_ms / (1.0 - sqc.bs.r_js_ms),
             theta_dsh_s_t_js_ms_n=(np.dot(sqc.bs.k_ei_js_js, theta_ei_js_n) + sqc.bs.k_eo_js * sqc.bs.theta_o_eqv_js_nspls[:, 1].reshape(-1, 1)) * sqc.bs.phi_t1_js_ms / (1.0 - sqc.bs.r_js_ms),
             q_s_js_n=q_srf_js_n,
-            theta_frt_is_n=np.array([[263.3727604]]),
+            theta_frt_is_n=np.array([[263.1090839]]),
             x_frt_is_n=np.array([[0.0]]),
             theta_ei_js_n=theta_ei_js_n
         )
