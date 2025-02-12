@@ -30,7 +30,7 @@
     "boundaries": [
         {
             "id": 0,
-            "name": "north_exterior_window",
+            "name": "west_exterior_wall",
             "sub_name": "",
             "connected_room_id": 0,
             "boundary_type": "external_general_part",
@@ -49,7 +49,7 @@
                 "existence": false
             },
             "is_sun_striked_outside": true,
-            "direction": "n",
+            "direction": "w",
             "outside_emissivity": 0.9,
             "outside_heat_transfer_resistance": 0.04,
             "outside_solar_absorption": 0.8,
@@ -57,7 +57,7 @@
         },
         {
             "id": 1,
-            "name": "east_exterior_window",
+            "name": "east_exterior_wall",
             "sub_name": "",
             "connected_room_id": 0,
             "boundary_type": "external_general_part",
@@ -108,7 +108,7 @@
         },
         {
             "id": 3,
-            "name": "west_exterior_window",
+            "name": "north_exterior_window",
             "sub_name": "",
             "connected_room_id": 0,
             "boundary_type": "external_general_part",
@@ -127,7 +127,7 @@
                 "existence": false
             },
             "is_sun_striked_outside": true,
-            "direction": "w",
+            "direction": "n",
             "outside_emissivity": 0.9,
             "outside_heat_transfer_resistance": 0.04,
             "outside_solar_absorption": 0.8,
