@@ -22,8 +22,7 @@
                 "natural": 0.0
             },
             "furniture": {
-                "input_method": "default",
-                "solar_absorption_ratio": 1.0
+                "input_method": "default"
             }
         }
     ],
