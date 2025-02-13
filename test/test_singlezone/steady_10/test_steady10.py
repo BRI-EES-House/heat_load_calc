@@ -16,7 +16,6 @@ class TestSteadyState(unittest.TestCase):
         テストの目的
         定常状態を想定した壁体の貫流熱損失と透過日射熱取得が解析解と一致することを確認する。
         日射を考慮（太陽位置、法線面直達日射、水平面天空日射を与える）して透過日射熱取得、相当外気温度を計算する。
-        ただし、透過日射熱取得はすべて備品が吸収することとする。
         
         計算条件
         建物モデル  1m角の立方体単室モデル
@@ -29,7 +28,7 @@ class TestSteadyState(unittest.TestCase):
         内部発熱    なし
         """
 
-        print('\n testing single zone steady 09')
+        print('\n testing single zone steady 10')
 
         # 計算用フォルダ
         s_folder = os.path.join(os.path.dirname(__file__), 'data')
@@ -73,21 +72,21 @@ class TestSteadyState(unittest.TestCase):
         )
 
         # ステップnにおける表面熱流[W/m2]の設定
-        q_srf_js_n = np.array([[97.516763310527, 97.516763310527, 159.061095225609, 97.516763310527, 107.827874421638, 37.4278744216381]]).reshape(-1, 1)
+        q_srf_js_n = np.array([[73.3859624045288, 73.3859624045288, 133.814244777708, 73.3859624045288, 229.597928493532, 13.2970735156399]]).reshape(-1, 1)
 
         theta_ei_js_n = np.array(
-            [[26.0212717448686, 26.0212717448686, 26.0212717448686, 26.0212717448686, 26.0212717448686, 26.0212717448686]]).reshape(-1, 1)
+            [[20.591841541019, 20.591841541019, 20.591841541019, 20.591841541019, 53.4195339110447, 20.591841541019]]).reshape(-1, 1)
 
         # 初期状態値の計算
         c_n = conditions.Conditions(
             operation_mode_is_n=np.array([[OperationMode.STOP_CLOSE]]),
-            theta_r_is_n=np.array([[47.78904997936]]),
-            theta_mrt_hum_is_n=np.array([[14.76641692]]),
+            theta_r_is_n=np.array([[31.47573065826]]),
+            theta_mrt_hum_is_n=np.array([[19.55524826]]),
             x_r_is_n=np.array([[0.0]]),
             theta_dsh_s_a_js_ms_n=q_srf_js_n * sqc.bs.phi_a1_js_ms / (1.0 - sqc.bs.r_js_ms),
             theta_dsh_s_t_js_ms_n=(np.dot(sqc.bs.k_ei_js_js, theta_ei_js_n) + sqc.bs.k_eo_js * sqc.bs.theta_o_eqv_js_nspls[:, 1].reshape(-1, 1)) * sqc.bs.phi_t1_js_ms / (1.0 - sqc.bs.r_js_ms),
             q_s_js_n=q_srf_js_n,
-            theta_frt_is_n=np.array([[263.1090839]]),
+            theta_frt_is_n=np.array([[139.1357476]]),
             x_frt_is_n=np.array([[0.0]]),
             theta_ei_js_n=theta_ei_js_n
         )
