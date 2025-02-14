@@ -10,11 +10,20 @@ from heat_load_calc.operation_mode import OperationMode
 # 定常状態のテスト
 class TestSteadyState(unittest.TestCase):
     """
+    テストの目的
+    定常状態を想定した壁体の貫流熱損失と透過日射熱取得が解析解と一致することを確認する。
+    日射、夜間放射を無視。
+    
     計算条件
-    屋根と床が合板12mm、壁が複層ガラスの1m角の立方体の単室モデル。
-    外気温度一定。日射、夜間放射は考慮なし。
-    内部発熱一定。
-
+    建物モデル  1m角立方体を上下に重ねた2室モデル
+    部位構成    一般部位（8面）はせっこうボード12mm、南面窓は複層ガラスで構成される。
+    　　　　　　内壁はボード壁
+    すきま風    なし
+    換気        なし
+    相当外気温度    0℃
+    日射、夜間放射  なし
+    太陽位置    なし
+    内部発熱    1F:100W、2F:50W
     """
 
     @classmethod
@@ -50,7 +59,7 @@ class TestSteadyState(unittest.TestCase):
         # ステップ n の室 i における空調需要, [i, n] ( = 0.0 )
         scd = schedule.Schedule(
             q_gen_is_ns=np.concatenate(
-                [np.full(8760 * 4, 1000.0, dtype=float), np.full(8760 * 4, 100.0, dtype=float)]).flatten().reshape(2, -1),
+                [np.full(8760 * 4, 100.0, dtype=float), np.full(8760 * 4, 50.0, dtype=float)]).flatten().reshape(2, -1),
             x_gen_is_ns=np.zeros((2, 8760 * 4), dtype=float),
             v_mec_vent_local_is_ns=np.zeros((2, 8760 * 4), dtype=float),
             n_hum_is_ns=np.zeros((2, 8760 * 4), dtype=float),
@@ -76,46 +85,24 @@ class TestSteadyState(unittest.TestCase):
             q_trs_sol_is_ns=sqc.q_trs_sol_is_ns
         )
 
-        q_srf_js_n = np.array([[
-            3.615155079132,
-            3.601529520124,
-            3.601529520124,
-            3.218198428266,
-            3.738979305479,
-            1.509356057488,
-            1.510822067846,
-            1.510822067846,
-            1.426055294333,
-            1.518645098305,
-            47.479197099042,
-            19.866797252780,
-            15.010461644437,
-            - 15.010461644437
+        q_srf_js_n = np.array([[7.76358335006654, 7.74050433879964, 7.74050433879964, 7.74050433879964, 7.74050433879964, 5.80030516395384, 5.79401025839501, 5.79401025839501, 5.79401025839501, 5.79401025839501, 101.973705196886, 76.1862895226058, 14.1693383740909, -14.1693383740943
+
         ]]).reshape(-1, 1)
 
-        theta_ei_js_n = np.array([[
-            10.9196525,
-            10.8516512,
-            10.8516512,
-            10.1033362,
-            11.3248286,
-            4.5590419,
-            4.5522087,
-            4.5522087,
-            4.4770130,
-            4.5997568,
-            10.8879303,
-            4.5558543,
-            10.8516512,
-            4.5522087
+        theta_ei_js_n = np.array([[23.4262422676557, 23.2949714656255, 23.2949714656255, 23.2949714656255, 23.2949714656255, 17.5021440319776, 17.4370167282659, 17.4370167282659, 17.4370167282659, 17.4370167282659, 23.4262422676557, 17.5021440319776, 23.2949714656255, 17.4370167282659
+
         ]]).reshape(-1, 1)
 
         # 初期状態値の計算
-        theta_r_is_n = np.array([[13.403464558874200, 4.808632169196720]]).reshape(-1, 1)
+        theta_r_is_n = np.array([[27.9654986265184, 19.7542025471838
+
+]]).reshape(-1, 1)
         c_n = conditions.Conditions(
             operation_mode_is_n=np.array([[OperationMode.STOP_CLOSE, OperationMode.STOP_CLOSE]]).reshape(-1, 1),
             theta_r_is_n=theta_r_is_n,
-            theta_mrt_hum_is_n=np.array([[9.689970497, 4.391663789]]).reshape(-1, 1),
+            theta_mrt_hum_is_n=np.array([[21.6703591329716, 17.3286299196982
+
+]]).reshape(-1, 1),
             x_r_is_n=np.array([[0.0, 0.0]]).reshape(-1, 1),
             theta_dsh_s_a_js_ms_n=q_srf_js_n * sqc.bs.phi_a1_js_ms / (1.0 - sqc.bs.r_js_ms),
             theta_dsh_s_t_js_ms_n=(
