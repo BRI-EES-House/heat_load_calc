@@ -36,7 +36,7 @@ jobs:
         python heat_load_calc/heat_load_calc.py heat_load_calc/example/data_example1.json -o out/data_example1
 
     - name: Archive example results
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: example-out
         path: out
