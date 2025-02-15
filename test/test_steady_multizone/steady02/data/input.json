@@ -373,7 +373,7 @@
       "connected_room_id": 0,
       "boundary_type": "external_transparent_part",
       "area": 0.5,
-      "h_c": 2.5,
+      "h_c": 3.570022738,
       "is_solar_absorbed_inside": false,
       "is_floor": false,
       "solar_shading_part": {
@@ -397,7 +397,7 @@
       "connected_room_id": 1,
       "boundary_type": "external_transparent_part",
       "area": 0.5,
-      "h_c": 2.5,
+      "h_c": 3.570022738,
       "is_solar_absorbed_inside": false,
       "is_floor": false,
       "solar_shading_part": {
