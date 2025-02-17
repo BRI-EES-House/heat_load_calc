@@ -71,7 +71,7 @@ class ResponseFactor:
         # 開口部の室内表面から屋外までの熱コンダクタンス, W/m2K
         u_so = 1.0 / (1.0 / u_w - r_i)
 
-        r_total = u_w - r_i
+        r_total = 1.0 / u_w - r_i
 
         return ResponseFactor(
             rft0=1.0,
