@@ -31,7 +31,7 @@ def get_h_s_r_js(a_s_js: np.ndarray, p_is_js: np.ndarray, eps_r_is_js: np.ndarra
     if method == 'area_average':
         return get_h_s_r_js_AreaAverage(a_s_js=a_s_js)
     elif method == 'Nagata':
-        return get_h_s_r_js_Nagata(a_s_js=a_s_js, p_is_js=p_is_js, eps_r_is_js=eps_r_is_js)
+        return get_h_s_r_js_Nagata(a_s_js=a_s_js, p_is_js=p_is_js, eps_r_js=eps_r_is_js)
     else:
         raise ValueError()
 
@@ -99,7 +99,7 @@ def _get_h_s_r_is_js(p_is_js, a_s_js, eps_r_js) -> np.ndarray:
         if abs(np.sum(f_i_js) - 1.0) > 1.0e-3:
             logging.warning('形態係数の合計値が不正 TotalFF=', np.sum(f_i_js))
 
-    h_s_r_is_js = _get_h_s_r_i_js(f_is_js=f_is_js, p_is_js=p_is_js)
+    h_s_r_is_js = _get_h_s_r_i_js(f_is_js=f_is_js, eps_r_is_js=eps_r_is_js, p_is_js=p_is_js)
 
     return h_s_r_is_js
 
