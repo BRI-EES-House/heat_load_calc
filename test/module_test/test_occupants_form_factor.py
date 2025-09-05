@@ -21,6 +21,8 @@ class TestOccupantsFormFactor(unittest.TestCase):
         18.0, 19.0, 20.0, 21.0
     ]).reshape(-1, 1)
 
+    eps_r_js = np.full_like(a_s_js, 0.9)
+
     is_floor_js = np.array([
         True, False, False, False,
         True, True, False, False,
@@ -33,6 +35,7 @@ class TestOccupantsFormFactor(unittest.TestCase):
         results = occupants_form_factor.get_f_mrt_hum_js(
             p_is_js=self.p_is_js,
             a_s_js=self.a_s_js,
+            eps_r_js=self.eps_r_js,
             is_floor_js=self.is_floor_js
         )
 
