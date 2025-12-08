@@ -583,6 +583,12 @@ class Boundaries:
         
         return theta_dsh_s_t_js_ms_n_pls, theta_dsh_s_a_js_ms_n_pls, f_cvl_js_n_pls
 
+    def get_wall_steady_state_status(self, q_srf_js_n, theta_rear_js_n):
+
+        theta_dsh_s_a_js_ms_n = q_srf_js_n * self._phi_a1_js_ms / (1.0 - self._r_js_ms)
+        theta_dsh_s_t_js_ms_n = theta_rear_js_n * self._phi_t1_js_ms / (1.0 - self._r_js_ms)
+        return theta_dsh_s_a_js_ms_n, theta_dsh_s_t_js_ms_n
+
 
 def _get_p_is_js(id_r_is, connected_room_id_js):
     # 室iと境界jの関係を表す係数（境界jから室iへの変換）

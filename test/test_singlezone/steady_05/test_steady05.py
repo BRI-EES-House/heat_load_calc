@@ -85,14 +85,15 @@ class TestSteadyState(unittest.TestCase):
         
         theta_rear_js_n = np.array([0.0, 0.0, 10.0, 0.0, 0.0, 10.0]).reshape(-1, 1)
 
-        # 初期状態値の計算
+        theta_dsh_s_a_js_ms_n, theta_dsh_s_t_js_ms_n = sqc.bs.get_wall_steady_state_status(q_srf_js_n=q_srf_js_n, theta_rear_js_n=theta_rear_js_n)
+
         c_n = conditions.Conditions(
             operation_mode_is_n=np.array([[OperationMode.STOP_CLOSE]]),
             theta_r_is_n=np.array([[3.3084074373484]]),
             theta_mrt_hum_is_n=np.array([[2.758476601]]),
             x_r_is_n=np.array([[0.0]]),
-            theta_dsh_s_a_js_ms_n=q_srf_js_n * sqc.bs.phi_a1_js_ms / (1.0 - sqc.bs.r_js_ms),
-            theta_dsh_s_t_js_ms_n= theta_rear_js_n * sqc.bs.phi_t1_js_ms / (1.0 - sqc.bs.r_js_ms),
+            theta_dsh_s_a_js_ms_n=theta_dsh_s_a_js_ms_n,
+            theta_dsh_s_t_js_ms_n=theta_dsh_s_t_js_ms_n,
             q_s_js_n=q_srf_js_n,
             theta_frt_is_n=np.array([[3.3084074373484]]),
             x_frt_is_n=np.array([[0.0]]),
