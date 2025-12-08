@@ -1,6 +1,7 @@
 from typing import Dict, Tuple, Optional
 from datetime import datetime
 import numpy as np
+import pandas as pd
 
 from heat_load_calc import region
 from heat_load_calc import weather
@@ -315,11 +316,94 @@ def _get_season_status_by_fourier_tranform(w: weather.Weather) -> Tuple[str, str
         - is winter period set?
     """
     # Outside temperatures, degree C, [N+1]
-    theta_o_ns_plus = w.theta_o_ns_plus
+    theta_o_array = np.array(w.theta_o_ns_plus[np.arange(len(w.theta_o_ns_plus)) % 4 == 0])
 
-    # Interval class
-    itv = w._itv
+    # インデックス用の日時データを生成
+    start_time = pd.Timestamp("1989-01-01 00:00")
+    date_index = pd.date_range(start=start_time, periods=8761, freq="H")
+    df = pd.DataFrame({'theta_o': theta_o_array}, index=date_index)
     
-    raise Exception("Not implemented.")
+    # 日平均外気温度、日最高外気温度の計算
+    df_daily = pd.DataFrame(
+        index=pd.date_range(start=start_time, periods=365, freq="D"),
+        columns=['theta_o_average', 'theta_o_max', 'theta_o_average_fft', 'theta_o_max_fft']
+        )
+    theta_o_average = df['theta_o'].resample('D').mean().to_numpy()[:-1]
+    theta_o_max = df['theta_o'].resample('D').max().to_numpy()[:-1]
+    df_daily['theta_o_average'] = theta_o_average
+    df_daily['theta_o_max'] = theta_o_max
 
-    return summer_start, summer_end, winter_start, winter_end, is_summer_period_set, is_winter_period_set
+    n_samples = len(theta_o_average)
+    sample_freq = 1
+    frequencies = np.fft.fftfreq(n_samples, d=sample_freq)
+
+    # フーリエ変換
+    fft_result_average = np.fft.fft(theta_o_average)
+    fft_result_max = np.fft.fft(theta_o_max)
+
+    # 年周期成分 (1/365 周期/日) のインデックスを取得
+    target_frequency = 1 / 365  # 周波数
+    frequency_tolerance = 1e-6  # 周波数の誤差許容範囲
+    filtered_fft_average = np.zeros_like(fft_result_average)
+    filtered_fft_max = np.zeros_like(fft_result_max)
+
+    # 年周期成分に対応する周波数をフィルタリング
+    for i, freq in enumerate(frequencies):
+        if np.abs(freq - target_frequency) < frequency_tolerance or np.abs(freq + target_frequency) < frequency_tolerance:
+            filtered_fft_average[i] = fft_result_average[i]
+            filtered_fft_max[i] = fft_result_max[i]
+
+    # 直流成分（平均値）を加える
+    filtered_fft_average[0] = fft_result_average[0]
+    filtered_fft_max[0] = fft_result_max[0]
+
+    # 逆フーリエ変換でフィルタ後のデータを取得
+    theta_o_average_fft = np.fft.ifft(filtered_fft_average).real
+    theta_o_max_fft = np.fft.ifft(filtered_fft_max).real
+    df_daily['theta_o_average_fft'] = theta_o_average_fft
+    df_daily['theta_o_max_fft'] = theta_o_max_fft
+
+    # 暖房日、冷房日配列の作成
+    df_daily['is_heating_day'] = theta_o_average_fft < 15.0
+    df_daily['is_cooling_day'] = theta_o_max_fft > 24.0
+    summer_start, summer_end = find_first_and_last_true_days_with_special_conditions(df_daily, 'is_heating_day')
+    winter_start, winter_end = find_first_and_last_true_days_with_special_conditions(df_daily, 'is_cooling_day')
+
+    return (
+        summer_start.strftime("%m/%d")  if not summer_start is None else None, \
+        summer_end.strftime("%m/%d")  if not summer_end is None else None, \
+        winter_start.strftime("%m/%d")  if not winter_start is None else None, \
+        winter_end.strftime("%m/%d")  if not winter_end is None else None, \
+        (summer_end != None), \
+        (winter_end != None)
+    )
+
+def find_first_and_last_true_days_with_special_conditions(df, column_name):
+    """
+    1年間で指定された列(column_name)が最初にTrueになる日と最後にTrueになる日を抽出する関数。
+    is_heating_dayが年に0, 1, 2回しか切り替わらない性質を考慮。
+
+    Args:
+        df (pd.DataFrame): データフレーム
+        column_name (str): 対象のブール列名
+
+    Returns:
+        tuple: 最初にTrueになる日、最後にTrueになる日のタプル (Timestamp or None)
+    """
+    # シフトして前後の値を比較
+    previous_value = df[column_name].shift(1, fill_value=df[column_name].iloc[-1])
+    next_value = df[column_name].shift(-1, fill_value=df[column_name].iloc[0])
+
+    # True の開始と終了を特定
+    true_start_days = df.index[(~previous_value) & df[column_name]]
+    true_end_days = df.index[df[column_name] & (~next_value)]
+
+    # True が全く存在しない場合
+    if len(true_start_days) == 0 or len(true_end_days) == 0:
+        return None, None
+
+    # 最初と最後のTrueの日を抽出
+    first_true_day = true_start_days[0]
+    last_true_day = true_end_days[-1]  # 最後に記録されたTrueの日を正確に取得
+
+    return first_true_day, last_true_day
