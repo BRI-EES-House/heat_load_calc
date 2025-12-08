@@ -72,21 +72,21 @@ class TestSteadyState(unittest.TestCase):
         )
 
         # ステップnにおける表面熱流[W/m2]の設定
-        q_srf_js_n = np.array([[73.3859624045288, 73.3859624045288, 133.814244777708, 73.3859624045288, 229.597928493532, 13.2970735156399]]).reshape(-1, 1)
+        q_srf_js_n = np.array([[76.0848894580407, 76.0848894580407, 74.8593319687941, 76.0848894580407, 217.589118695429, 15.9960005691518]]).reshape(-1, 1)
 
         theta_ei_js_n = np.array(
-            [[20.591841541019, 20.591841541019, 20.591841541019, 20.591841541019, 53.4195339110447, 20.591841541019]]).reshape(-1, 1)
+            [[21.1991001280591, 21.1991001280591, 21.1991001280591, 21.1991001280591, 50.7175517064714, 21.1991001280591]]).reshape(-1, 1)
 
         # 初期状態値の計算
         c_n = conditions.Conditions(
             operation_mode_is_n=np.array([[OperationMode.STOP_CLOSE]]),
-            theta_r_is_n=np.array([[31.47573065826]]),
-            theta_mrt_hum_is_n=np.array([[19.55524826]]),
+            theta_r_is_n=np.array([[30.98582379632]]),
+            theta_mrt_hum_is_n=np.array([[19.85051095]]),
             x_r_is_n=np.array([[0.0]]),
             theta_dsh_s_a_js_ms_n=q_srf_js_n * sqc.bs.phi_a1_js_ms / (1.0 - sqc.bs.r_js_ms),
             theta_dsh_s_t_js_ms_n=(np.dot(sqc.bs.k_ei_js_js, theta_ei_js_n) + sqc.bs.k_eo_js * sqc.bs.theta_o_eqv_js_nspls[:, 1].reshape(-1, 1)) * sqc.bs.phi_t1_js_ms / (1.0 - sqc.bs.r_js_ms),
             q_s_js_n=q_srf_js_n,
-            theta_frt_is_n=np.array([[139.1357476]]),
+            theta_frt_is_n=np.array([[127.7930243]]),
             x_frt_is_n=np.array([[0.0]]),
             theta_ei_js_n=theta_ei_js_n
         )
