@@ -76,11 +76,12 @@ class TestSteadyState(unittest.TestCase):
             32.9770141072531, -37.4229858927469]]).reshape(-1, 1)
 
         theta_ei_js_n = np.array(
-            [[2.748585309, 2.748585309, 2.748585309, 2.748585309, 8.248585309, 2.748585309]]).reshape(-1, 1)
+        #    [[2.748585309, 2.748585309, 2.748585309, 2.748585309, 8.248585309, 2.748585309]]).reshape(-1, 1)
+            [[9.179828174, 9.179828174, 9.179828174, 9.179828174, 9.179828174, 9.179828174]]).reshape(-1, 1)
         
-        theta_rear_js_n = np.zeros(shape=(6,1), dtype=float)
+        # theta_rear_js_n = np.zeros(shape=(6,1), dtype=float)
 
-        theta_dsh_s_a_js_ms_n, theta_dsh_s_t_js_ms_n = sqc.bs.get_wall_steady_state_status(q_srf_js_n=q_srf_js_n, theta_rear_js_n=theta_rear_js_n)
+        # theta_dsh_s_a_js_ms_n, theta_dsh_s_t_js_ms_n = sqc.bs.get_wall_steady_state_status(q_srf_js_n=q_srf_js_n, theta_rear_js_n=theta_rear_js_n)
 
         # 初期状態値の計算
         c_n = conditions.Conditions(
@@ -88,13 +89,16 @@ class TestSteadyState(unittest.TestCase):
             theta_r_is_n=np.array([[9.17982817413]]),
             theta_mrt_hum_is_n=np.array([[7.946487847]]),
             x_r_is_n=np.array([[0.0]]),
-            theta_dsh_s_a_js_ms_n=theta_dsh_s_a_js_ms_n,
-            theta_dsh_s_t_js_ms_n=theta_dsh_s_t_js_ms_n,
+            # theta_dsh_s_a_js_ms_n=theta_dsh_s_a_js_ms_n,
+            # theta_dsh_s_t_js_ms_n=theta_dsh_s_t_js_ms_n,
+            theta_dsh_s_a_js_ms_n=q_srf_js_n * sqc.bs.phi_a1_js_ms / (1.0 - sqc.bs.r_js_ms),
+            theta_dsh_s_t_js_ms_n=(np.dot(sqc.bs.k_ei_js_js, theta_ei_js_n) + sqc.bs.k_eo_js * sqc.bs.theta_o_eqv_js_nspls[:, 1].reshape(-1, 1)) * sqc.bs.phi_t1_js_ms / (1.0 - sqc.bs.r_js_ms),
             q_s_js_n=q_srf_js_n,
             theta_frt_is_n=np.array([[9.17982817413]]),
             x_frt_is_n=np.array([[0.0]]),
             theta_ei_js_n=theta_ei_js_n
         )
+
 
         # 計算実行
         c_n_pls = sqc.run_tick(n=-2, c_n=c_n, recorder=None)
