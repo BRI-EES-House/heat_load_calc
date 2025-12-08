@@ -13,15 +13,19 @@ class TestSteadyState(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         """
-        テスト条件
-        屋根と床が合板12mm、壁が複層ガラスの1m角の立方体の単室モデル。
-        内部発熱なし。
-        透過日射熱取得は100W固定
+        テストの目的
+        定常状態を想定した壁体の貫流熱損失が解析解と一致することを確認する。
+        日射を考慮（太陽位置、法線面直達日射、水平面天空日射を与える）して相当外気温度を計算する。
         
-        Weather: 0
-        Heat Generation: 0 W
-        Ventilation: 0 m3/s
-        sun trans. 100 W
+        計算条件
+        建物モデル  1m角の立方体単室モデル
+        部位構成    全ての部位（6面）はせっこうボード12mmで構成される。
+        すきま風    なし
+        換気        なし
+        外気温度    それぞれの部位の入射日射量より計算
+        日射、夜間放射  法線面直達日射量:700W/m2、水平面天空日射量:200W/m2、地面反射率は0.1
+        太陽位置    太陽高度:30度、太陽方位角:0度
+        内部発熱    なし
         """
 
         print('\n testing single zone steady 06')
@@ -35,21 +39,18 @@ class TestSteadyState(unittest.TestCase):
             rd = json.load(js)
 
         # 気象データ読み出し
-        # 全ての値は0.0で一定とする。日射・夜間放射はなし。
+        # 太陽高度は30度、太陽方位角は0度、それ以外は0とする。
+        # 法線面直達日射量は700W/m2、水平面天空日射量は200W/m2、それ以外は0とする。
         w = weather.Weather(
             a_sun_ns=np.zeros(8760*4, dtype=float),
-            h_sun_ns=np.zeros(8760*4, dtype=float),
-            i_dn_ns=np.zeros(8760*4, dtype=float),
-            i_sky_ns=np.zeros(8760*4, dtype=float),
+            h_sun_ns=np.full(8760*4, fill_value=np.radians(30.0), dtype=float),
+            i_dn_ns=np.full(8760*4, fill_value=700.0, dtype=float),
+            i_sky_ns=np.full(8760*4, fill_value=200.0, dtype=float),
             r_n_ns=np.zeros(8760*4, dtype=float),
             theta_o_ns=np.zeros(8760*4, dtype=float),
             x_o_ns=np.zeros(8760*4, dtype=float),
             itv=interval.Interval.M15
         )
-
-        # ステップnの室iにおける局所換気量, m3/s, [i, 8760*4]
-        # 局所換気量は常に 0.0 m3/s とする。
-        v_mec_vent_local_is_ns = np.zeros((1, 8760*4), dtype=float)
 
         # ステップ n の室 i における内部発熱, W, [i, n] ( = 0.0 )
         # ステップ n の室 i における人体発湿を除く内部発湿, kg/s, [i, n] ( = 0.0 )
@@ -65,17 +66,14 @@ class TestSteadyState(unittest.TestCase):
             t_ac_mode_is_ns=np.zeros((1, 8760*4), dtype=float)
         )
 
-        # ステップnの室iにおける窓の透過日射熱取得, W, [8760*4]
-        # 等価日射量は常に 100 W とする。
-        q_trs_sol_is_ns = np.full((1, 8760*4), 100.0, dtype=float)
-
         # pre_calc_parametersの構築
         sqc = sequence.Sequence(
-            itv=interval.Interval.M15, rd=rd, weather=w, scd=scd, _q_trs_sol_is_ns=q_trs_sol_is_ns
+            itv=interval.Interval.M15, rd=rd, weather=w, scd=scd
         )
 
-        q_srf_js_n = np.array([[12.7809219004777, 12.7809219004777, 12.7809219004777, 12.7809219004777,
-            36.6603793746687, 12.2159349302242]]).reshape(-1, 1)
+        # ステップnにおける表面熱流[W/m2]の設定
+        q_srf_js_n = np.array([[-63.5517372028421, 22.6659029961419, 22.6659029961419, 22.6659029961419,
+            32.9770141072531, -37.4229858927469]]).reshape(-1, 1)
 
         theta_ei_js_n = np.array(
             [[2.748585309, 2.748585309, 2.748585309, 2.748585309, 8.248585309, 2.748585309]]).reshape(-1, 1)
@@ -87,13 +85,13 @@ class TestSteadyState(unittest.TestCase):
         # 初期状態値の計算
         c_n = conditions.Conditions(
             operation_mode_is_n=np.array([[OperationMode.STOP_CLOSE]]),
-            theta_r_is_n=np.array([[4.57208809459]]),
-            theta_mrt_hum_is_n=np.array([[2.642487123]]),
+            theta_r_is_n=np.array([[9.17982817413]]),
+            theta_mrt_hum_is_n=np.array([[7.946487847]]),
             x_r_is_n=np.array([[0.0]]),
             theta_dsh_s_a_js_ms_n=theta_dsh_s_a_js_ms_n,
             theta_dsh_s_t_js_ms_n=theta_dsh_s_t_js_ms_n,
             q_s_js_n=q_srf_js_n,
-            theta_frt_is_n=np.array([[22.60960613]]),
+            theta_frt_is_n=np.array([[9.17982817413]]),
             x_frt_is_n=np.array([[0.0]]),
             theta_ei_js_n=theta_ei_js_n
         )

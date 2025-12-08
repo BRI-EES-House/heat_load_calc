@@ -10,15 +10,20 @@ from heat_load_calc.operation_mode import OperationMode
 # 定常状態のテスト
 class TestSteadyState(unittest.TestCase):
     """
+    テストの目的
+    定常状態を想定した壁体の貫流熱損失が解析解と一致することを確認する。
+    日射、夜間放射は無視。
+    全ての部位の温度差係数は0.15とする。
+    
     計算条件
-    屋根と床が合板12mm、壁が複層ガラスの1m角の立方体の単室モデル。
-    外気温度一定。日射、夜間放射は考慮なし。
-    内部発熱一定。
-
-    Weather: 0
-    Heat Generation: 100 W
-    Ventilation: 0 m3/s
-    sun trans. 0W
+    建物モデル  1m角の立方体単室モデル
+    部位構成    全ての部位（6面）はせっこうボード12mmで構成される。
+    すきま風    なし
+    換気        なし
+    外気温度    0℃（全ての部位の隣室温度差係数を0.15とする）
+    日射、夜間放射  なし
+    太陽位置    －
+    内部発熱    100W
     """
 
     @classmethod

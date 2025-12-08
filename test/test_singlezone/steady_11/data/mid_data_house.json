@@ -29,34 +29,7 @@
     "boundaries": [
         {
             "id": 0,
-            "name": "north_exterior_window",
-            "sub_name": "",
-            "connected_room_id": 0,
-            "boundary_type": "external_general_part",
-            "area": 1.0,
-            "h_c": 3.041174396,
-            "is_solar_absorbed_inside": false,
-            "is_floor": false,
-            "layers": [
-                {
-                    "name": "plywood",
-                    "thermal_resistance": 0.075,
-                    "thermal_capacity": 8.64
-                }
-            ],
-            "solar_shading_part": {
-                "existence": false
-            },
-            "is_sun_striked_outside": true,
-            "direction": "s",
-            "outside_emissivity": 0.9,
-            "outside_heat_transfer_resistance": 0.04,
-            "outside_solar_absorption": 0.8,
-            "temp_dif_coef": 1.0
-        },
-        {
-            "id": 1,
-            "name": "east_exterior_window",
+            "name": "west_exterior_wall",
             "sub_name": "",
             "connected_room_id": 0,
             "boundary_type": "external_general_part",
@@ -82,22 +55,15 @@
             "temp_dif_coef": 1.0
         },
         {
-            "id": 2,
-            "name": "south_exterior_window",
+            "id": 1,
+            "name": "east_exterior_window",
             "sub_name": "",
             "connected_room_id": 0,
-            "boundary_type": "external_general_part",
+            "boundary_type": "external_transparent_part",
             "area": 1.0,
             "h_c": 3.041174396,
             "is_solar_absorbed_inside": false,
             "is_floor": false,
-            "layers": [
-                {
-                    "name": "plywood",
-                    "thermal_resistance": 0.075,
-                    "thermal_capacity": 8.64
-                }
-            ],
             "solar_shading_part": {
                 "existence": false
             },
@@ -105,12 +71,40 @@
             "direction": "e",
             "outside_emissivity": 0.9,
             "outside_heat_transfer_resistance": 0.04,
-            "outside_solar_absorption": 0.8,
+            "u_value": 4.65,
+            "inside_heat_transfer_resistance": 0.11,
+            "eta_value": 0.792,
+            "incident_angle_characteristics": "multiple",
+            "glass_area_ratio": 0.8,
+            "temp_dif_coef": 1.0
+        },
+        {
+            "id": 2,
+            "name": "south_exterior_window",
+            "sub_name": "",
+            "connected_room_id": 0,
+            "boundary_type": "external_transparent_part",
+            "area": 1.0,
+            "h_c": 3.041174396,
+            "is_solar_absorbed_inside": false,
+            "is_floor": false,
+            "solar_shading_part": {
+                "existence": false
+            },
+            "is_sun_striked_outside": true,
+            "direction": "s",
+            "outside_emissivity": 0.9,
+            "outside_heat_transfer_resistance": 0.04,
+            "u_value": 4.65,
+            "inside_heat_transfer_resistance": 0.11,
+            "eta_value": 0.792,
+            "incident_angle_characteristics": "multiple",
+            "glass_area_ratio": 0.8,
             "temp_dif_coef": 1.0
         },
         {
             "id": 3,
-            "name": "west_exterior_window",
+            "name": "north_exterior_window",
             "sub_name": "",
             "connected_room_id": 0,
             "boundary_type": "external_general_part",
