@@ -68,9 +68,9 @@ class TestSteadyState(unittest.TestCase):
         # 南（ID=2)と屋根(ID=5)の壁の相当外気温度を 10.0 ℃とする。
         # それ以外は 0.0 ℃とする。
         theta_o_eqv_js_ns = np.stack([
-            np.zeros(8760*4, dtype=float),
             np.zeros(8760 * 4, dtype=float),
-            np.full(8760*4, 10.0, dtype=float),
+            np.zeros(8760 * 4, dtype=float),
+            np.full(8760 * 4, 10.0, dtype=float),
             np.zeros(8760 * 4, dtype=float),
             np.zeros(8760 * 4, dtype=float),
             np.full(8760 * 4, 10.0, dtype=float)
@@ -88,15 +88,18 @@ class TestSteadyState(unittest.TestCase):
         # ステップnの等価室温[℃], [j, 1]
         theta_ei_js_n = np.array(
             [[3.308407437, 3.308407437, 3.308407437, 3.308407437, 3.308407437, 3.308407437]]).reshape(-1, 1)
+        
+        theta_rear_js_n = np.array([0.0, 0.0, 10.0, 0.0, 0.0, 10.0]).reshape(-1, 1)
 
-        # 初期状態値の計算
+        theta_dsh_s_a_js_ms_n, theta_dsh_s_t_js_ms_n = sqc.bs.get_wall_steady_state_status(q_srf_js_n=q_srf_js_n, theta_rear_js_n=theta_rear_js_n)
+
         c_n = conditions.Conditions(
             operation_mode_is_n=np.array([[OperationMode.STOP_CLOSE]]),
             theta_r_is_n=np.array([[3.3084074373484]]),
             theta_mrt_hum_is_n=np.array([[2.758476601]]),
             x_r_is_n=np.array([[0.0]]),
-            theta_dsh_s_a_js_ms_n=q_srf_js_n * sqc.bs.phi_a1_js_ms / (1.0 - sqc.bs.r_js_ms),
-            theta_dsh_s_t_js_ms_n=(np.dot(sqc.bs.k_ei_js_js, theta_ei_js_n) + sqc.bs.k_eo_js * sqc.bs.theta_o_eqv_js_nspls[:, 1].reshape(-1, 1)) * sqc.bs.phi_t1_js_ms / (1.0 - sqc.bs.r_js_ms),
+            theta_dsh_s_a_js_ms_n=theta_dsh_s_a_js_ms_n,
+            theta_dsh_s_t_js_ms_n=theta_dsh_s_t_js_ms_n,
             q_s_js_n=q_srf_js_n,
             theta_frt_is_n=np.array([[3.3084074373484]]),
             x_frt_is_n=np.array([[0.0]]),

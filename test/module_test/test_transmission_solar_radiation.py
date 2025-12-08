@@ -13,14 +13,23 @@ from heat_load_calc.window import Window, GlassType
 
 class TestTransmissionSolarRadiation(unittest.TestCase):
 
-    a_sun_ns = np.array([0.0, np.pi/6, np.pi/3, np.pi/2, np.pi*2/3, np.pi*5/6, np.pi])
-    h_sun_ns = np.array([0.0, np.pi/6, np.pi/3, np.pi/2, np.pi/3, np.pi/6, 0.0])
-    i_dn_ns = np.array([10.0, 100.0, 200.0, 300.0, 200.0, 100.0, 10.0])
-    i_sky_ns = np.array([10.0, 100.0, 200.0, 300.0, 200.0, 100.0, 10.0])
-    r_n_ns = np.array([20.0, 19.0, 18.0, 17.0, 18.0, 19.0, 20.0])
-    theta_o_ns = np.array([-15.0, -12.0, 3.0, 5.0, 4.0, -3.0, -7.0])
-    x_o_ns = np.array([0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0])
     itv = Interval.M15
+    n = itv.get_n_step_annual()
+
+    a_sun_ns = np.zeros(n, dtype=float)
+    a_sun_ns[:7] = np.array([0.0, np.pi/6, np.pi/3, np.pi/2, np.pi*2/3, np.pi*5/6, np.pi])
+    h_sun_ns = np.zeros(n, dtype=float)
+    h_sun_ns[:7] = np.array([0.0, np.pi/6, np.pi/3, np.pi/2, np.pi/3, np.pi/6, 0.0])
+    i_dn_ns = np.zeros(n, dtype=float)
+    i_dn_ns[:7] = np.array([10.0, 100.0, 200.0, 300.0, 200.0, 100.0, 10.0])
+    i_sky_ns = np.zeros(n, dtype=float)
+    i_sky_ns[:7] = np.array([10.0, 100.0, 200.0, 300.0, 200.0, 100.0, 10.0])
+    r_n_ns = np.zeros(n, dtype=float)
+    r_n_ns[:7] = np.array([20.0, 19.0, 18.0, 17.0, 18.0, 19.0, 20.0])
+    theta_o_ns = np.zeros(n, dtype=float)
+    theta_o_ns[:7] = np.array([-15.0, -12.0, 3.0, 5.0, 4.0, -3.0, -7.0])
+    x_o_ns = np.zeros(n, dtype=float)
+    x_o_ns[:7] = np.array([0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0])
 
     w = Weather(a_sun_ns=a_sun_ns, h_sun_ns=h_sun_ns, i_dn_ns=i_dn_ns, i_sky_ns=i_sky_ns, r_n_ns=r_n_ns, theta_o_ns=theta_o_ns, x_o_ns=x_o_ns)
 

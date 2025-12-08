@@ -5,7 +5,7 @@ import time
 
 from heat_load_calc import core, schedule, weather, furniture, interval
 
-
+#@unittest.skip("")
 class TestAllAtOnce(unittest.TestCase):
 
     @classmethod
@@ -24,13 +24,11 @@ class TestAllAtOnce(unittest.TestCase):
 
         js = open(cls._data_dir + '/mid_data_house.json', 'r', encoding='utf-8')
 
-        rd = json.load(js)
+        d = json.load(js)
 
         js.close()
 
-        oc = weather.Weather.make_weather(rd=rd, itv=interval.Interval.M15)
-
-        dd_i, dd_a, bs, scd = core.calc(rd=rd, w=oc, itv=interval.Interval.M15, entry_point_dir=os.path.dirname(__file__))
+        dd_i, dd_a, bs, scd, _ = core.calc(d=d, entry_point_dir=os.path.dirname(__file__))
 
         cls._dd_i = dd_i
         cls._dd_a = dd_a
