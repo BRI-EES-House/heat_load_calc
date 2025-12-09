@@ -19,26 +19,28 @@ def run(
         is_schedule_saved: bool = False,
         is_weather_saved: bool = False
 ):
-    """負荷計算処理の実行
+    """run the heat load calculation
 
     Args:
-        logger
-        house_data_path (str): 住宅計算条件JSONファイルへのパス
-        output_data_dir (str): 出力フォルダへのパス
-        is_schedule_saved: スケジュールを出力するか否か
-        is_weather_saved: 気象データを出力するか否か
+        logger: logger
+        house_data_path: path of the input file (json)
+        output_data_dir:path of the directory for output files
+        is_schedule_saved: is the schedule written out ?
+        is_weather_saved: is the climate data written out ?
     """
 
-    # ---- 事前準備 ----
+    # ---- preparations for this calculation ----
 
-    # 出力ディレクトリの作成
+    # create the output directory
+    # if the output directory does not exist, create a new directory
     if path.exists(output_data_dir) is False:
         mkdir(output_data_dir)
 
+    # if the specified directory was not created for some reason, an error message is displayed
     if path.isdir(output_data_dir) is False:
         logger.error('`{}` is not directory.'.format(output_data_dir), file=sys.stderr)
 
-    # 住宅計算条件JSONファイルの読み込み
+    # read the input data(json) of the building setting for calculation
     logger.info('Load house data from `{}`'.format(house_data_path))
     if house_data_path.lower()[:4] == 'http':
         with urllib.request.urlopen(url=house_data_path) as response:
@@ -48,34 +50,39 @@ def run(
         with open(house_data_path, 'r', encoding='utf-8') as js:
             d = json.load(js)
 
+    # obtain the entry point to load an external files
     entry_point_dir=path.dirname(__file__)
 
-    # ---- 計算 ----
+    # ---- calculation !!! ----
 
-    # 計算
+    # calculation
+    # obtain the datas bellow
+    # - data file containing the instantaneous values of the calculation results (pandas data format)
+    # - data file containing the integrated values and average values of the calculation results (pandas data format)
+    # - boundaries class (which is only used for debugging)
+    # - Schedule class
+    # - Weather class
     dd_i, dd_a, _, scd, w = core.calc(d=d, entry_point_dir=entry_point_dir)
 
-    # 気象データの保存
+    # write out the climate data
     if is_weather_saved:
-
         weather_path = path.join(output_data_dir, 'weather_for_method_file.csv')
         logger.info('Save weather data to `{}`'.format(weather_path))
         dd = w.get_weather_as_pandas_data_frame()
         dd.to_csv(weather_path, encoding='utf-8')
 
-    # スケジュールファイルの保存
+    # write out schedule file
     if is_schedule_saved:
-
         scd.save_schedule(output_data_dir)
 
-    # ---- 計算結果ファイルの保存 ----
+    # ---- save the calculated results ----
 
-    # 計算結果（瞬時値）
+    # instantaneous values
     result_detail_i_path = path.join(output_data_dir, 'result_detail_i.csv')
     logger.info('Save calculation results data (detailed version) to `{}`'.format(result_detail_i_path))
     dd_i.to_csv(result_detail_i_path, encoding='cp932')
 
-    # 計算結果（平均・積算値）
+    # integrated values and average values
     result_detail_a_path = path.join(output_data_dir, 'result_detail_a.csv')
     logger.info('Save calculation results data (simplified version) to `{}`'.format(result_detail_a_path))
     dd_a.to_csv(result_detail_a_path, encoding='cp932')
@@ -85,11 +92,11 @@ def main():
 
     parser = argparse.ArgumentParser(description='建築物の負荷計算を行うプログラムです。')
 
-    # parser.add_argumentで受け取る引数を追加していく
     parser.add_argument(
         'house_data',
         help='計算を実行するJSONファイル'
     )
+
     parser.add_argument(
         '-o', '--output_data_dir',
         dest="output_data_dir",
@@ -116,25 +123,13 @@ def main():
         help="ログレベルを指定します. (Default=ERROR)"
     )
 
-    # 引数を受け取る
+    # make args
     args = parser.parse_args()
 
-    level = {
-        'DEBUG': logging.DEBUG,
-        'INFO': logging.INFO,
-        'WARN': logging.WARN,
-        'ERROR': logging.ERROR,
-        'CRITICAL': logging.CRITICAL
-    }[args.log]
+    # make logger
+    logger = _make_logger(log=args.log)
 
-    logger = logging.getLogger(name='HeatLoadCalc')
-    handler = logging.StreamHandler()
-    logger.setLevel(level=level)
-    handler.setLevel(level=level)
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    handler.setFormatter(formatter)
-    logger.addHandler(handler)
-
+    # record start time
     start = time.time()
 
     run(
@@ -145,9 +140,50 @@ def main():
         is_weather_saved=args.weather_saved
     )
 
+    # take the difference between the start time and the end time
     elapsed_time = time.time() - start
 
+    # output the time taken for the calculation
     logger.info("elapsed_time:{0}".format(elapsed_time) + "[sec]")
+
+
+def _make_logger(
+        log: str
+    ) -> logging.Logger:
+    """make logger
+
+    Args:
+        log: logging level
+    Returns:
+        logging.Logger: logger
+    """
+
+    # set logging level
+    level = {
+        'DEBUG': logging.DEBUG,
+        'INFO': logging.INFO,
+        'WARN': logging.WARN,
+        'ERROR': logging.ERROR,
+        'CRITICAL': logging.CRITICAL
+    }[log]
+
+    # set logger
+    logger = logging.getLogger(name='HeatLoadCalc')
+    logger.setLevel(level=level)
+
+    # set handler
+    handler = logging.StreamHandler()
+    handler.setLevel(level=level)
+
+    # set log output format
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    handler.setFormatter(formatter)
+
+    # set handler to logger
+    logger.addHandler(handler)
+
+    return logger
+
 
 
 if __name__ == '__main__':
