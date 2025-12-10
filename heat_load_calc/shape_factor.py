@@ -72,6 +72,7 @@ def _get_h_s_r_is_js(p_is_js, a_s_js, eps_r_js) -> np.ndarray:
     Args:
         p_is_js:
         a_s_js: 境界jの面積, m2, [J, 1]
+        eps_r_js: 境界jの室内側長波長放射率, -, [J, 1]
     Returns:
         放射熱伝達率, W/m2K, [I, J]
     """
