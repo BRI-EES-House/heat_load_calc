@@ -116,6 +116,7 @@ class Sequence:
         f_mrt_hum_is_js = occupants_form_factor.get_f_mrt_hum_js(
             p_is_js=bs.p_is_js,
             a_s_js=bs.a_s_js,
+            eps_r_js=bs.eps_r_js,
             is_floor_js=bs.b_floor_js
         )
 

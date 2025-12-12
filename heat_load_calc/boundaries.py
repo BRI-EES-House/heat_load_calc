@@ -114,8 +114,11 @@ class Boundaries:
         # surface area of boundary j / 境界jの面積, m2, [J, 1]
         a_s_js = np.array([_read_a_s(d=d, id=id_j) for (d, id_j) in zip(ds, id_js)]).reshape(-1, 1)
 
+        # indoor surface emissivity of boundary j / 境界jの室内側長波長放射率
+        eps_r_js = np.array([_read_eps_s(d=d, id=id_j) for (d, id_j) in zip(ds, id_js)]).reshape(-1, 1)
+
         # indoor surface radiant heat transfer coefficient of boundary j / 境界jの室内側表面放射熱伝達率, W/m2K, [J, 1]
-        h_s_r_js = shape_factor.get_h_s_r_js(a_s_js=a_s_js, p_is_js=p_is_js, method=rad_method)
+        h_s_r_js = shape_factor.get_h_s_r_js(a_s_js=a_s_js, p_is_js=p_is_js, eps_r_is_js=eps_r_js, method=rad_method)
 
         # indoor surface convection heat transfer coefficient of boundary j / 境界jの室内側表面対流熱伝達率, W/m2K, [J, 1]
         h_s_c_js = np.array([b['h_c'] for b in ds]).reshape(-1, 1)
@@ -179,6 +182,7 @@ class Boundaries:
         self._p_is_js = p_is_js
         self._p_js_is = p_is_js.T
         self._a_s_js = a_s_js
+        self._eps_r_js = eps_r_js
         self._h_s_r_js = h_s_r_js
         self._h_s_c_js = h_s_c_js
         self._n_ground = n_ground
@@ -405,6 +409,11 @@ class Boundaries:
     def a_s_js(self) -> np.ndarray:
         """境界jの面積, m2, [j, 1]"""
         return self._a_s_js
+
+    @property
+    def eps_r_js(self) -> np.ndarray:
+        """境界jの放射率, -, [j, 1]"""
+        return self._eps_r_js
 
     @property
     def phi_a0_js(self) -> np.ndarray:
@@ -704,6 +713,25 @@ def _read_a_s(d: Dict, id: int) -> float:
         raise ValueError("境界(ID=" + str(id) + ")の面積で0以下の値が指定されました。")
     
     return a_s
+
+
+def _read_eps_s(d: Dict, id: int) -> float:
+    """Read the surface emissivity.
+
+    Args:
+        d: dictionary of boundary
+        id: boundary id
+    Regurns:
+        surface emissivity, -
+    """
+
+    # surface emissivity / 放射率, -
+    eps_s = float(d.get('inside_emissivity', 0.9))
+
+    if eps_s <= 0.0:
+        raise ValueError("境界(ID=" + str(id) + ")の放射率で0以下の値が指定されました。")
+
+    return eps_s
 
 
 def _read_k_eo(d: Dict, id: int, t_b: BoundaryType) -> float:

@@ -15,8 +15,11 @@ class TestShapeFactor(unittest.TestCase):
         # 面積（北外壁、東外壁、南外壁、西外壁、床、天井
         surf_area = np.array([[20.0], [15.0], [20.0], [15.0], [30.0], [30.0]])
 
+        # 放射率
+        eps_r_js = np.array([[0.9] * 6])
+
         # 放射熱伝達率を計算
-        hr_js = sf._get_h_s_r_is_js(p_is_js=np.array([[1,1,1,1,1,1]]), a_s_js=surf_area)
+        hr_js = sf._get_h_s_r_is_js(p_is_js=np.array([[1,1,1,1,1,1]]), a_s_js=surf_area, eps_r_js=eps_r_js)
 
         # 北外壁の放射熱伝達率
         self.assertAlmostEqual(5.92104643, hr_js[0][0])
@@ -45,8 +48,11 @@ class TestShapeFactor(unittest.TestCase):
         # 面積（北外壁、東外壁、南外壁、西外壁、床、天井
         surf_area = np.array([[0.0], [15.0], [20.0], [15.0], [30.0], [30.0]])
 
+        # 放射率
+        eps_r_js = np.array([[0.9] * 6])
+
         # 放射熱伝達率を計算
-        hr_js = sf._get_h_s_r_is_js(p_is_js=np.array([[1,1,1,1,1,1]]), a_s_js=surf_area)
+        hr_js = sf._get_h_s_r_is_js(p_is_js=np.array([[1,1,1,1,1,1]]), a_s_js=surf_area, eps_r_js=eps_r_js)
 
         # 北外壁の放射熱伝達率
         self.assertAlmostEqual(5.14227449, hr_js[0][0])
@@ -75,8 +81,11 @@ class TestShapeFactor(unittest.TestCase):
         # 面積（北外壁、東外壁、南外壁、西外壁、床、天井
         surf_area = np.array([[0.0], [0.0], [0.0], [0.0], [0.0], [30.0]])
 
+        # 放射率
+        eps_r_js = np.array([[0.9] * 6])
+
         # 放射熱伝達率を計算
-        hr_js = sf._get_h_s_r_is_js(p_is_js=np.array([[1,1,1,1,1,1]]), a_s_js=surf_area)
+        hr_js = sf._get_h_s_r_is_js(p_is_js=np.array([[1,1,1,1,1,1]]), a_s_js=surf_area, eps_r_js=eps_r_js)
 
         # 北外壁の放射熱伝達率
         self.assertAlmostEqual(5.14227449, hr_js[0][0])
@@ -102,8 +111,10 @@ class TestShapeFactor(unittest.TestCase):
             a_s_js=np.array([20.0, 0.0, 15.0, 15.0, 20.0, 20.0, 15.0, 15.0, 30.0, 30.0, 30.0, 30.0]).reshape(-1, 1),
             p_is_js=np.array([
                 [1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0],
-                [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1]
-            ])
+                [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1],
+            ]
+            ),
+            eps_r_js=np.array([0.9] * 12).reshape(-1, 1)
         )
 
         self.assertAlmostEqual(5.92104643, h_s_r_js[0][0])

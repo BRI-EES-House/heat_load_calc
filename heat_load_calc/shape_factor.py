@@ -26,12 +26,12 @@ def get_f_mrt_is_js(a_s_js: np.ndarray, h_s_r_js: np.ndarray, p_is_js: np.ndarra
     return p_is_js * ah.T / np.dot(p_is_js, ah)
 
 
-def get_h_s_r_js(a_s_js: np.ndarray, p_is_js: np.ndarray, method: str):
+def get_h_s_r_js(a_s_js: np.ndarray, p_is_js: np.ndarray, eps_r_is_js: np.ndarray, method: str):
 
     if method == 'area_average':
         return get_h_s_r_js_AreaAverage(a_s_js=a_s_js)
     elif method == 'Nagata':
-        return get_h_s_r_js_Nagata(a_s_js=a_s_js, p_is_js=p_is_js)
+        return get_h_s_r_js_Nagata(a_s_js=a_s_js, p_is_js=p_is_js, eps_r_js=eps_r_is_js)
     else:
         raise ValueError()
 
@@ -47,30 +47,32 @@ def get_h_s_r_js_AreaAverage(a_s_js: np.ndarray) -> np.ndarray:
     return np.full_like(a=a_s_js, fill_value=h_s_r, dtype=float)
 
 
-def get_h_s_r_js_Nagata(a_s_js: np.ndarray, p_is_js: np.ndarray) -> np.ndarray:
+def get_h_s_r_js_Nagata(a_s_js: np.ndarray, eps_r_js: np.ndarray, p_is_js: np.ndarray) -> np.ndarray:
     """境界 j の室内側放射熱伝達率を求める。
 
     Args:
         a_s_js: 境界 j の面積, m2, [j, 1]
+        eps_r_js: 境界 j の室内側長波長放射率, -, [j, 1]
         p_is_js: 
 
     Returns:
         境界 j の室内側放射熱伝達率, W/m2K, [j, 1]
     """
 
-    h_s_r_is_js = _get_h_s_r_is_js(p_is_js=p_is_js, a_s_js=a_s_js)
+    h_s_r_is_js = _get_h_s_r_is_js(p_is_js=p_is_js, a_s_js=a_s_js, eps_r_js=eps_r_js)
 
     h_s_r_is = h_s_r_is_js.sum(axis=0)
 
     return h_s_r_is.reshape(-1, 1)
 
 
-def _get_h_s_r_is_js(p_is_js, a_s_js) -> np.ndarray:
+def _get_h_s_r_is_js(p_is_js, a_s_js, eps_r_js) -> np.ndarray:
     """ 放射熱伝達率（室単位で計算する）
 
     Args:
         p_is_js:
         a_s_js: 境界jの面積, m2, [J, 1]
+        eps_r_js: 境界jの室内側長波長放射率, -, [J, 1]
     Returns:
         放射熱伝達率, W/m2K, [I, J]
     """
@@ -84,6 +86,9 @@ def _get_h_s_r_is_js(p_is_js, a_s_js) -> np.ndarray:
     # area ratio of the boundary j in room i, [I, J]
     r_a_is_js = p_is_js * r_a_js.flatten()[np.newaxis, :]
 
+    # inside emissivity of the boundary j in room i, [I, J]
+    eps_r_is_js = p_is_js * eps_r_js.flatten()[np.newaxis, :]
+
     # 非線形方程式L(f̅)=0の解, [I, 1]
     f_ver_is = _get_f_ver_is(r_a_is_js=r_a_is_js)
 
@@ -95,17 +100,18 @@ def _get_h_s_r_is_js(p_is_js, a_s_js) -> np.ndarray:
         if abs(np.sum(f_i_js) - 1.0) > 1.0e-3:
             logging.warning('形態係数の合計値が不正 TotalFF=', np.sum(f_i_js))
 
-    h_s_r_is_js = _get_h_s_r_i_js(f_is_js=f_is_js, p_is_js=p_is_js)
+    h_s_r_is_js = _get_h_s_r_i_js(f_is_js=f_is_js, eps_r_is_js=eps_r_is_js, p_is_js=p_is_js)
 
     return h_s_r_is_js
 
 
-def _get_h_s_r_i_js(f_is_js: np.ndarray, p_is_js: np.ndarray):
+def _get_h_s_r_i_js(f_is_js: np.ndarray, eps_r_is_js: np.ndarray, p_is_js: np.ndarray):
     """室 i に接する境界 j の放射熱伝達率を計算する。
 
     Args:
         f_is_js: 室 i の微小球からみた境界 j への形態係数, [I, J]
-        p_is_js
+        eps_r_is_js: 室 i の境界 j の室内側長波長放射率, -, [I, J]
+        p_is_js: 室 i と境界 j の関係を表す係数（境界から室への変換）, [I, J]
 
     Returns:
         室 i に接する境界 j の放射熱伝達率, W/m2K, [j]
@@ -115,7 +121,7 @@ def _get_h_s_r_i_js(f_is_js: np.ndarray, p_is_js: np.ndarray):
     theta_mrt = 20.0
 
     # 室と境界が接していない部分についても放射熱伝達率が計算されてしまうので、p_is_js をかけることによって 0 になおす。
-    return (get_eps() / (1.0 - get_eps() * f_is_js) * 4.0 * get_sgm() * (273.15 + theta_mrt) ** 3.0) * p_is_js
+    return (eps_r_is_js / (1.0 - eps_r_is_js * f_is_js) * 4.0 * get_sgm() * (273.15 + theta_mrt) ** 3.0) * p_is_js
 
 
 def _get_f_ver_is(r_a_is_js: np.ndarray) -> np.ndarray:
