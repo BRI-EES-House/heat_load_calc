@@ -143,38 +143,13 @@ class Sequence:
         )
 
         # f_AX, -, [j, j]
-        f_ax_js_js = get_f_ax_js_is(
-            f_mrt_is_js=f_mrt_is_js,
-            h_s_c_js=bs.h_s_c_js,
-            h_s_r_js=bs.h_s_r_js,
-            k_ei_js_js=bs.k_ei_js_js,
-            p_js_is=bs.p_js_is,
-            phi_a0_js=bs.phi_a0_js,
-            phi_t0_js=bs.phi_t0_js
-        )
+        f_ax_js_js = bs.get_f_ax_js_is(f_mrt_is_js=f_mrt_is_js)
 
         # f_FIA, -, [J, I]
-        f_fia_js_is = get_f_fia_js_is(
-            h_s_c_js=bs.h_s_c_js,
-            h_s_r_js=bs.h_s_r_js,
-            k_ei_js_js=bs.k_ei_js_js,
-            p_js_is=bs.p_js_is,
-            phi_a0_js=bs.phi_a0_js,
-            phi_t0_js=bs.phi_t0_js,
-            k_s_r_js_is=bs.k_s_r_js_is
-        )
+        f_fia_js_is = bs.get_f_fia_js_is()
 
         # f_CRX, degree C, [J, N]
-        f_crx_js_ns = get_f_crx_js_ns(
-            h_s_c_js=bs.h_s_c_js,
-            h_s_r_js=bs.h_s_r_js,
-            k_ei_js_js=bs.k_ei_js_js,
-            phi_a0_js=bs.phi_a0_js,
-            phi_t0_js=bs.phi_t0_js,
-            q_s_sol_js_ns=q_s_sol_js_ns,
-            k_eo_js=bs.k_eo_js,
-            theta_o_eqv_js_ns=bs.theta_o_eqv_js_nspls
-        )
+        f_crx_js_ns = bs.get_f_crx_js_ns(q_s_sol_js_ns=q_s_sol_js_ns)
 
         # f_WSR, -, [J, I]
         f_wsr_js_is = get_f_wsr_js_is(f_ax_js_js=f_ax_js_js, f_fia_js_is=f_fia_js_is)
@@ -416,25 +391,13 @@ class Sequence:
         )
 
         # ステップ n+1 の境界 j における項別公比法の指数項 m の貫流応答の項別成分, degree C, [j, m] (m=12), eq.(29)
-        theta_dsh_s_t_js_ms_n_pls = get_theta_dsh_s_t_js_ms_n_pls(
-            phi_t1_js_ms=self.bs.phi_t1_js_ms,
-            r_js_ms=self.bs.r_js_ms,
-            theta_dsh_srf_t_js_ms_n=c_n.theta_dsh_srf_t_js_ms_n,
-            theta_rear_js_n=theta_rear_js_n
-        )
-
         # ステップ n+1 の境界 j における項別公比法の指数項 m の吸熱応答の項別成分, degree C, [j, m]
-        theta_dsh_s_a_js_ms_n_pls = get_theta_dsh_s_a_js_ms_n_pls(
-            phi_a1_js_ms=self.bs.phi_a1_js_ms,
-            q_s_js_n=c_n.q_s_js_n,
-            r_js_ms=self.bs.r_js_ms,
-            theta_dsh_srf_a_js_ms_n=c_n.theta_dsh_srf_a_js_ms_n
-        )
-
         # ステップ n+1 の境界 j における係数f_CVL, degree C, [j, 1]
-        f_cvl_js_n_pls = get_f_cvl_js_n_pls(
-            theta_dsh_s_a_js_ms_n_pls=theta_dsh_s_a_js_ms_n_pls,
-            theta_dsh_s_t_js_ms_n_pls=theta_dsh_s_t_js_ms_n_pls
+        theta_dsh_s_t_js_ms_n_pls, theta_dsh_s_a_js_ms_n_pls, f_cvl_js_n_pls = self.bs.get_f_cvl_js_n_pls(
+            theta_dsh_srf_t_js_ms_n=c_n.theta_dsh_srf_t_js_ms_n,
+            theta_dsh_srf_a_js_ms_n=c_n.theta_dsh_srf_a_js_ms_n,
+            theta_rear_js_n=theta_rear_js_n,
+            q_s_js_n=c_n.q_s_js_n
         )
 
         # ステップ n+1 の境界 j における係数 f_WSV, degree C, [j, 1]
@@ -676,16 +639,17 @@ class Sequence:
         )
 
         # ステップ n における係数 f_FLB, K/W, [j, i]
-        f_flb_js_is_n_pls = get_f_flb_js_is_n_pls(
-            a_s_js=self.bs.a_s_js,
-            beta_is_n=beta_is_n,
-            f_flr_js_is_n=f_flr_js_is_n,
-            h_s_c_js=self.bs.h_s_c_js,
-            h_s_r_js=self.bs.h_s_r_js,
-            k_ei_js_js=self.bs.k_ei_js_js,
-            phi_a0_js=self.bs.phi_a0_js,
-            phi_t0_js=self.bs.phi_t0_js
-        )
+        #f_flb_js_is_n_pls = get_f_flb_js_is_n_pls(
+            #a_s_js=self.bs.a_s_js,
+            #beta_is_n=beta_is_n,
+            #f_flr_js_is_n=f_flr_js_is_n,
+            #h_s_c_js=self.bs.h_s_c_js,
+            #h_s_r_js=self.bs.h_s_r_js,
+            #k_ei_js_js=self.bs.k_ei_js_js,
+            #phi_a0_js=self.bs.phi_a0_js,
+            #phi_t0_js=self.bs.phi_t0_js
+        #)
+        f_flb_js_is_n_pls = self.bs.get_f_flb_js_is_n_pls(beta_is_n=beta_is_n, f_flr_js_is_n=f_flr_js_is_n)
 
         # ステップ n における係数 f_WSB, K/W, [j, i]
         f_wsb_js_is_n_pls = get_f_wsb_js_is_n_pls(
@@ -956,76 +920,6 @@ def get_f_wsr_js_is(f_ax_js_js, f_fia_js_is):
     """
 
     return np.linalg.solve(f_ax_js_js, f_fia_js_is)
-
-
-def get_f_crx_js_ns(h_s_c_js, h_s_r_js, k_ei_js_js, phi_a0_js, phi_t0_js, q_s_sol_js_ns, k_eo_js, theta_o_eqv_js_ns):
-    """
-
-    Args:
-        h_s_c_js: 境界 j の室内側対流熱伝達率, W/(m2 K), [j, 1]
-        h_s_r_js: 境界 j の室内側放射熱伝達率, W/(m2 K), [j, 1]
-        k_ei_js_js: 境界 j の裏面温度に境界　j∗ の等価温度が与える影響, -, [j, j]
-        phi_a0_js: 境界 j の吸熱応答係数の初項, m2 K/W, [j, 1]
-        phi_t0_js: 境界 j の貫流応答係数の初項, -, [j, 1]
-        q_s_sol_js_ns: ステップ n における境界 j の透過日射吸収熱量, W/m2, [j, n]
-        k_eo_js: 境界 j の裏面温度に境界 j の相当外気温度が与える影響, -, [j, 1]
-        theta_o_eqv_js_ns: ステップ n における境界 j の相当外気温度, degree C, [j, 1]
-
-    Returns:
-        係数 f_CRX, degree C, [j, n]
-
-    Notes:
-        式(4.3)
-    """
-
-    return phi_a0_js * q_s_sol_js_ns\
-        + phi_t0_js * np.dot(k_ei_js_js, q_s_sol_js_ns / (h_s_c_js + h_s_r_js))\
-        + phi_t0_js * theta_o_eqv_js_ns * k_eo_js
-
-
-def get_f_fia_js_is(h_s_c_js, h_s_r_js, k_ei_js_js, p_js_is, phi_a0_js, phi_t0_js, k_s_r_js_is):
-    """
-
-    Args:
-        h_s_c_js: 境界 j の室内側対流熱伝達率, W/(m2 K), [j, 1]
-        h_s_r_js: 境界 j の室内側放射熱伝達率, W/(m2 K), [j, 1]
-        k_ei_js_js: 境界 j の裏面温度に境界　j∗ の等価温度が与える影響, -, [j, j]
-        p_js_is: 室 i と境界 j の接続に関する係数（境界 j が室 i に接している場合は 1 とし、それ以外の場合は 0 とする。）, -, [j, i]
-        phi_a0_js: 境界 j の吸熱応答係数の初項, m2 K/W, [j, 1]
-        phi_t0_js: 境界 j の貫流応答係数の初項, -, [j, 1]
-
-    Returns:
-        係数 f_FIA, -, [j, i]
-
-    Notes:
-        式(4.4)
-    """
-
-    return phi_a0_js * h_s_c_js * p_js_is + np.dot(k_ei_js_js, p_js_is * h_s_c_js / (h_s_c_js + h_s_r_js)) * phi_t0_js + phi_t0_js * k_s_r_js_is
-
-
-def get_f_ax_js_is(f_mrt_is_js, h_s_c_js, h_s_r_js, k_ei_js_js, p_js_is, phi_a0_js, phi_t0_js):
-    """
-
-    Args:
-        f_mrt_is_js: 室 i の微小球に対する境界 j の形態係数, -, [i, j]
-        h_s_c_js: 境界 j の室内側対流熱伝達率, W/(m2 K), [j, 1]
-        h_s_r_js: 境界 j の室内側放射熱伝達率, W/(m2 K), [j, 1]
-        k_ei_js_js: 境界 j の裏面温度に境界　j∗ の等価温度が与える影響, -, [j, j]
-        p_js_is: 室 i と境界 j の接続に関する係数（境界 j が室 i に接している場合は 1 とし、それ以外の場合は 0 とする。）, -, [j, i]
-        phi_a0_js: 境界 j の吸熱応答係数の初項, m2 K/W, [j, 1]
-        phi_t0_js: 境界 j の貫流応答係数の初項, -, [j, 1]
-
-    Returns:
-        係数 f_AX, -, [j, j]
-
-    Notes:
-        式(4.5)
-    """
-
-    return v_diag(1.0 + phi_a0_js * (h_s_c_js + h_s_r_js)) \
-        - np.dot(p_js_is, f_mrt_is_js) * h_s_r_js * phi_a0_js \
-        - np.dot(k_ei_js_js, np.dot(p_js_is, f_mrt_is_js) * h_s_r_js / (h_s_c_js + h_s_r_js)) * phi_t0_js
 
 
 def get_v_vent_mec_is_ns(v_vent_mec_general_is, v_vent_mec_local_is_ns):
@@ -1459,31 +1353,6 @@ def get_f_wsb_js_is_n_pls(f_flb_js_is_n_pls, f_ax_js_js):
     return np.linalg.solve(f_ax_js_js, f_flb_js_is_n_pls)
 
 
-def get_f_flb_js_is_n_pls(a_s_js, beta_is_n, f_flr_js_is_n, h_s_c_js, h_s_r_js, k_ei_js_js, phi_a0_js, phi_t0_js):
-    """
-
-    Args:
-        a_s_js: 境界 j の面積, m2, [j, 1]
-        beta_is_n: ステップ n からステップ n+1 における室 i の放射暖冷房設備の対流成分比率, -, [i, 1]
-        f_flr_js_is_n: ステップ n からステップ n+1 における室 i の放射暖冷房設備の放熱量の放射成分に対する境界 j の室内側表面の吸収比率, -, [j, i]
-        h_s_c_js: 境界 j の室内側対流熱伝達率, W/(m2 K), [j, 1]
-        h_s_r_js: 境界 j の室内側放射熱伝達率, W/(m2 K), [j, 1]
-        k_ei_js_js: 境界 j の裏面温度に境界　j* の等価温度が与える影響, -, [j*, j]
-        phi_a0_js: 境界 j の吸熱応答係数の初項, m2 K/W, [j]
-        phi_t0_js: 境界 |j| の貫流応答係数の初項, -, [j]
-
-    Returns:
-        ステップ n+1 における係数 f_FLB, K/W, [j, i]
-
-    Notes:
-        式(2.12)
-
-    """
-
-    return f_flr_js_is_n * (1.0 - beta_is_n.T) * phi_a0_js / a_s_js \
-        + np.dot(k_ei_js_js, f_flr_js_is_n * (1.0 - beta_is_n.T)) * phi_t0_js / (h_s_c_js + h_s_r_js) / a_s_js
-
-
 def get_beta_is_n(
         beta_c_is: np.ndarray,
         beta_h_is: np.ndarray,
@@ -1790,59 +1659,6 @@ def get_f_wsv_js_n_pls(f_cvl_js_n_pls, f_ax_js_js):
     """
 
     return np.linalg.solve(f_ax_js_js, f_cvl_js_n_pls)
-
-
-def get_f_cvl_js_n_pls(theta_dsh_s_a_js_ms_n_pls, theta_dsh_s_t_js_ms_n_pls):
-    """
-
-    Args:
-        theta_dsh_s_a_js_ms_n_pls: ステップ n+1 における境界 j の項別公比法の指数項 m の吸熱応答の項別成分, degree C, [j, m]
-        theta_dsh_s_t_js_ms_n_pls: ステップ n+1 における境界 j の項別公比法の指数項 m の貫流応答の項別成分, degree C, [j, m]
-
-    Returns:
-        ステップ n+1 における係数 f_CVL, degree C, [j, 1]
-    Notes:
-        式(2.28)
-    """
-    return np.sum(theta_dsh_s_t_js_ms_n_pls + theta_dsh_s_a_js_ms_n_pls, axis=1, keepdims=True)
-
-
-def get_theta_dsh_s_a_js_ms_n_pls(phi_a1_js_ms, q_s_js_n, r_js_ms, theta_dsh_srf_a_js_ms_n):
-    """
-
-    Args:
-        phi_a1_js_ms: 境界 j の項別公比法の指数項 m の吸熱応答係数, m2 K/W, [j, m]
-        q_s_js_n: ステップ n における境界 j の表面熱流（壁体吸熱を正とする）, W/m2, [j, 1]
-        r_js_ms: 境界 j の項別公比法の指数項 m の公比, -, [j, m]
-        theta_dsh_srf_a_js_ms_n: ステップ n における境界 j の項別公比法の指数項 m の吸熱応答の項別成分, degree C, [j, m]
-
-    Returns:
-        ステップ n+1 における境界 j の項別公比法の指数項 m の吸熱応答の項別成分, degree C, [j, m]
-
-    Notes:
-        式(2.29)
-    """
-
-    return phi_a1_js_ms * q_s_js_n + r_js_ms * theta_dsh_srf_a_js_ms_n
-
-
-def get_theta_dsh_s_t_js_ms_n_pls(phi_t1_js_ms, r_js_ms, theta_dsh_srf_t_js_ms_n, theta_rear_js_n):
-    """
-
-    Args:
-        phi_t1_js_ms: 境界 j の項別公比法の指数項 m の貫流応答係数, -, [j, m]
-        r_js_ms: 境界 j の項別公比法の指数項 m の公比, -, [j, m]
-        theta_dsh_srf_t_js_ms_n: ステップ n における境界 j の項別公比法の指数項 m の貫流応答の項別成分, degree C, [j, m]
-        theta_rear_js_n: ステップ n における境界 j の裏面温度, degree C, [j, 1]
-
-    Returns:
-        ステップ n+1 における境界 j の項別公比法の指数項 m の貫流応答の項別成分, degree C, [j, m]
-
-    Notes:
-        式(2.30)
-    """
-
-    return phi_t1_js_ms * theta_rear_js_n + r_js_ms * theta_dsh_srf_t_js_ms_n
 
 
 def get_q_hum_is_n(n_hum_is_n, q_hum_psn_is_n):

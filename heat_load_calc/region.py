@@ -1,7 +1,7 @@
 ﻿from enum import IntEnum
 import math
 from typing import Tuple
-
+import numpy as np
 
 class Region(IntEnum):
 
@@ -36,3 +36,25 @@ class Region(IntEnum):
         phi_loc, lambda_loc = math.radians(latitude), math.radians(longitude)
 
         return phi_loc, lambda_loc
+    
+    def get_season_status(self) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+        """Get the summer season, winter season, and middle season in each region.
+
+        Return:
+            the summer season, winter season, and middle season.
+            the season is represented by the ndarry list of bool which length is 365.
+        """
+
+        winter_start, winter_end, summer_start, summer_end, is_winter_period_set, is_summer_period_set = {
+            Region.Region1: ("9/24", "6/7", "7/10", "8/30", True, True),
+            Region.Region2: ("9/26", "6/4", "7/15", "8/31", True, True),
+            Region.Region3: ("9/30", "5/31", "7/10", "8/31", True, True),
+            Region.Region4: ("10/1", "5/30", "7/10", "8/31", True, True),
+            Region.Region5: ("10/10", "5/15", "7/6", "8/31", True, True),
+            Region.Region6: ("11/4", "4/21", "5/30", "9/23", True, True),
+            Region.Region7: ("11/26", "3/27", "5/15", "10/13", True, True),
+            Region.Region8: (None, None, "3/25", "12/14", False, True)
+        }[self]
+
+        return summer_start, summer_end, winter_start, winter_end, is_summer_period_set, is_winter_period_set
+

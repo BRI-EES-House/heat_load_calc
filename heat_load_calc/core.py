@@ -9,22 +9,17 @@ logger = logging.getLogger('HeatLoadCalc').getChild('core')
 
 
 def calc(
-        rd: Dict,
-        w: weather.Weather,
-        itv: interval.Interval,
+        d: Dict,
         entry_point_dir: str,
-        n_step_hourly: int = 4,
         n_d_main: int = 365,
         n_d_run_up: int = 365,
         n_d_run_up_build: int = 183
-) -> Tuple[pd.DataFrame, pd.DataFrame, sequence.Boundaries]:
+) -> Tuple[pd.DataFrame, pd.DataFrame, sequence.Boundaries, schedule.Schedule, weather.Weather]:
     """coreメインプログラム
 
     Args:
-        rd: 住宅計算条件
-        w: 外界気象条件
-        itv: 時間間隔
-        n_step_hourly: 計算間隔（1時間を何分割するかどうか）（デフォルトは4（15分間隔））
+        d: input data as dictionary / 住宅計算条件
+        entry_point_dir: the pass of the entry point directory
         n_d_main: 本計算を行う日数（デフォルトは365日（1年間））, d
         n_d_run_up: 助走計算を行う日数（デフォルトは365日（1年間））, d
         n_d_run_up_build: 助走計算のうち建物全体を解く日数（デフォルトは183日（およそ半年））, d
@@ -40,12 +35,29 @@ def calc(
         「助走計算のうち建物全体を解く日数」は「助走計算を行う日数」で指定した値以下でないといけない。
     """
 
-    # Schedule Class
+    # Check the existance of the item "common" in the input file.
+    if 'common' not in d:
+        raise KeyError('Key common could not be found in the input file.')
+    
+    d_common = d['common']
+
+    # set inteval class depending on the item 'interval' in common tag.
+    # If not specified in the file, 15 minute interval is set as default.   
+    itv: interval.Interval = interval.set_interval(d_common=d_common)
+
+    # make Weather class.
+    w: weather.Weather = weather.Weather.make_weather(
+        d_common=d_common,
+        itv=itv,
+        entry_point_dir=entry_point_dir
+    )
+
+    # make Schedule class.
     scd: schedule.Schedule = schedule.Schedule.get_schedule(
         number_of_occupants='auto',
-        a_f_is=[r['floor_area'] for r in rd['rooms']],
+        a_f_is=[r['floor_area'] for r in d['rooms']],
         itv=itv,
-        scd_is=[r['schedule'] for r in rd['rooms']]
+        scd_is=[r['schedule'] for r in d['rooms']]
     )
 
     # 本計算のステップ数
@@ -63,7 +75,7 @@ def calc(
 
     # json, csv ファイルからパラメータをロードする。
     # （ループ計算する必要の無い）事前計算を行い, クラス PreCalcParameters, PreCalcParametersGround に必要な変数を格納する。
-    sqc = sequence.Sequence(itv=itv, rd=rd, weather=w, scd=scd)
+    sqc = sequence.Sequence(itv=itv, rd=d, weather=w, scd=scd)
 
     gc_n = conditions.initialize_ground_conditions(n_grounds=sqc.bs.n_ground)
 
@@ -122,4 +134,4 @@ def calc(
     # dd: data detail, 15分間隔のすべてのパラメータ pd.DataFrame
     dd_i, dd_a = result.export_pd()
 
-    return dd_i, dd_a, sqc.bs, scd
+    return dd_i, dd_a, sqc.bs, scd, w
