@@ -6,7 +6,7 @@ import argparse
 from os import path, getcwd, mkdir
 import urllib.request, urllib.error
 
-# 絶対パスでモジュールを探索できるようにする
+# Obtain absolute paths for module discovery
 sys.path.insert(0, path.abspath(path.join(path.dirname(__file__), '..')))
 
 from heat_load_calc import core, weather, interval
@@ -90,37 +90,37 @@ def run(
 
 def main():
 
-    parser = argparse.ArgumentParser(description='建築物の負荷計算を行うプログラムです。')
+    parser = argparse.ArgumentParser(description='heat load calculation')
 
     parser.add_argument(
         'house_data',
-        help='計算を実行するJSONファイル'
+        help='Relative path of the input json file'
     )
 
     parser.add_argument(
         '-o', '--output_data_dir',
         dest="output_data_dir",
         default=getcwd(),
-        help="出力フォルダ"
+        help="Relative path of output directory"
     )
 
     parser.add_argument(
         '--schedule_saved',
         action='store_true',
-        help="スケジュールを出力するか否かを指定します。"
+        help="Specify whether to output the schedule."
     )
 
     parser.add_argument(
         '--weather_saved',
         action='store_true',
-        help="気象データを出力するか否かを指定します。"
+        help="Specify whether to output the weather data."
     )
 
     parser.add_argument(
         "--log",
         choices=['DEBUG', 'INFO', 'WARN', 'ERROR', 'CRITICAL'],
         default='ERROR',
-        help="ログレベルを指定します. (Default=ERROR)"
+        help="Specify the log level. (Default=ERROR)"
     )
 
     # make args
