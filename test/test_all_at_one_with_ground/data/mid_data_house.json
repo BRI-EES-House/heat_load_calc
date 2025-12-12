@@ -1,5 +1,10 @@
 {
     "common": {
+        "calculation_day": {
+            "main": 30,
+            "run_up": 10,
+            "run_up_building": 0
+        },
         "ac_method": "pmv",
         "weather": {
             "method": "file",

@@ -10,19 +10,13 @@ logger = logging.getLogger('HeatLoadCalc').getChild('core')
 
 def calc(
         d: Dict,
-        entry_point_dir: str,
-        n_d_main: int = 365,
-        n_d_run_up: int = 365,
-        n_d_run_up_build: int = 183
-) -> Tuple[pd.DataFrame, pd.DataFrame, sequence.Boundaries, schedule.Schedule, weather.Weather]:
-    """coreメインプログラム
+        entry_point_dir: str
+    ) -> Tuple[pd.DataFrame, pd.DataFrame, sequence.Boundaries, schedule.Schedule, weather.Weather]:
+    """core main program
 
     Args:
         d: input data as dictionary / 住宅計算条件
         entry_point_dir: the pass of the entry point directory
-        n_d_main: 本計算を行う日数（デフォルトは365日（1年間））, d
-        n_d_run_up: 助走計算を行う日数（デフォルトは365日（1年間））, d
-        n_d_run_up_build: 助走計算のうち建物全体を解く日数（デフォルトは183日（およそ半年））, d
 
     Returns:
         以下のタプル
@@ -41,18 +35,18 @@ def calc(
     
     d_common = d['common']
 
-    # set inteval class depending on the item 'interval' in common tag.
+    # Set inteval class depending on the item 'interval' in common tag.
     # If not specified in the file, 15 minute interval is set as default.   
     itv: interval.Interval = interval.set_interval(d_common=d_common)
 
-    # make Weather class.
+    # Make Weather class.
     w: weather.Weather = weather.Weather.make_weather(
         d_common=d_common,
         itv=itv,
         entry_point_dir=entry_point_dir
     )
 
-    # make Schedule class.
+    # Make Schedule class.
     scd: schedule.Schedule = schedule.Schedule.get_schedule(
         number_of_occupants='auto',
         a_f_is=[r['floor_area'] for r in d['rooms']],
@@ -64,9 +58,7 @@ def calc(
     # 助走計算のステップ数
     # 助走計算のうち建物全体を解くステップ数
     n_step_main, n_step_run_up, n_step_run_up_build = period.get_n_step(
-        n_d_main=n_d_main,
-        n_d_run_up=n_d_run_up,
-        n_d_run_up_build=n_d_run_up_build,
+        d_common=d_common,
         itv=itv
     )
 
