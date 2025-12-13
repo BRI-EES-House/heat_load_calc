@@ -1,5 +1,8 @@
 {
 	"common": {
+        "calculation_day": {
+            "main": 240
+        },
         "ac_method": "pmv",
         "weather": {
             "method": "ees",
