@@ -124,11 +124,11 @@ class Schedule:
 
     @classmethod
     def get_schedule(cls, number_of_occupants: str, a_f_is: List[float], itv: interval.Interval, scd_is: List[Dict]):
-        """Schedule クラスを生成する。
+        """Make Schedule class.
 
         Args:
-            number_of_occupants: 居住人数の指定方法
-            a_floor_is: 室 i の床面積, m2, [i]
+            number_of_occupants: how to identify the occupants number. ('1', '2', '3', '4', or 'auto')
+            a_floor_is: floor area of room i, m2, [i]
             itv: Interval class
             scds: list of the dictionary for schedule
 
@@ -136,7 +136,7 @@ class Schedule:
             Schedule class
         """
 
-        # 居住人数の指定モード
+        # identify mode for the number of occupants (One, Two, Three, Four, Auto)
         noo = NumberOfOccupants(number_of_occupants)
 
         # number of occupants for calculation / 計算で用いられる居住人数
@@ -270,9 +270,13 @@ def _get_schedules(
         scd_is: List[Dict]
 ):
     
+    # Read the list of the schedule type(ScheduleType Enum Class) and scheduled dictionary.
     ds = [_load_schedule(scd_i=scd_i) for scd_i in scd_is]
 
+    # List of the schedule type (ScheduleType Enum Class)
     schedule_type_is = [d[0] for d in ds]
+
+    # List of the dictionary describing the schedule.
     schedule_is = [d[1] for d in ds]
 
     return np.concatenate([
@@ -543,6 +547,9 @@ def _load_schedule(scd_i: Dict):
         {
             "name": ...,
         }
+    Returns:
+        ScheduleType class
+        schedule dictionary
     """
     
     if "schedule_type" in scd_i:    # read from input file
