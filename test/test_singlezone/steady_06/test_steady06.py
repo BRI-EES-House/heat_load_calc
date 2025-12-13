@@ -36,7 +36,7 @@ class TestSteadyState(unittest.TestCase):
         # 住宅計算条件JSONファイルの読み込み
         house_data_path = os.path.join(s_folder, "mid_data_house.json")
         with open(house_data_path, 'r', encoding='utf-8') as js:
-            rd = json.load(js)
+            d = json.load(js)
 
         # 気象データ読み出し
         # 太陽高度は30度、太陽方位角は0度、それ以外は0とする。
@@ -68,7 +68,7 @@ class TestSteadyState(unittest.TestCase):
 
         # pre_calc_parametersの構築
         sqc = sequence.Sequence(
-            itv=interval.Interval.M15, rd=rd, weather=w, scd=scd
+            itv=interval.Interval.M15, d=d, weather=w, scd=scd
         )
 
         # ステップnにおける表面熱流[W/m2]の設定

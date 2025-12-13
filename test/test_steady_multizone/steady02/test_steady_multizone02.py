@@ -37,7 +37,7 @@ class TestSteadyState(unittest.TestCase):
         # 住宅計算条件JSONファイルの読み込み
         house_data_path = os.path.join(s_folder, "input.json")
         with open(house_data_path, 'r', encoding='utf-8') as js:
-            rd = json.load(js)
+            d = json.load(js)
 
         # 外界条件
         # 全ての値は0.0で一定とする。日射・夜間放射はなし。
@@ -68,7 +68,7 @@ class TestSteadyState(unittest.TestCase):
         )
 
         # pre_calc_parametersの構築
-        sqc = sequence.Sequence(itv=interval.Interval.M15, rd=rd, weather=w, scd=scd)
+        sqc = sequence.Sequence(itv=interval.Interval.M15, d=d, weather=w, scd=scd)
 
         result = recorder.Recorder(
             n_step_main=8760 * 4,

@@ -27,7 +27,7 @@ class Sequence:
     def __init__(
             self,
             itv: interval.Interval,
-            rd: Dict,
+            d: Dict,
             weather: Weather,
             scd: schedule.Schedule,
             _q_trs_sol_is_ns: Optional[np.ndarray] = None,
@@ -50,14 +50,14 @@ class Sequence:
         logger = logging.getLogger('HeatLoadCalc').getChild('core').getChild('pre_calc_parameters')
 
         # Building Class
-        building = Building.create_building(d=rd['building'])
+        building = Building.create_building(d=d['building'])
 
         # Rooms Class
-        rms = rooms.Rooms(ds=rd['rooms'])
+        rms = rooms.Rooms(ds=d['rooms'])
 
         # Boundaries Class
-        if 'mutual_radiation_method' in rd['common']:
-            rad_method_str = str(rd['common']['mutual_radiation_method'])
+        if 'mutual_radiation_method' in d['common']:
+            rad_method_str = str(d['common']['mutual_radiation_method'])
             if rad_method_str == 'area_average':
                 rad_method = 'area_average'
             elif rad_method_str == 'Nagata':
@@ -67,7 +67,7 @@ class Sequence:
         else:
             rad_method = 'Nagata'
             
-        bs = boundaries.Boundaries(id_r_is=rms.id_r_is, ds=rd['boundaries'], w=weather, rad_method=rad_method)
+        bs = boundaries.Boundaries(id_r_is=rms.id_r_is, ds=d['boundaries'], w=weather, rad_method=rad_method)
 
         # ステップ n の室 i における窓の透過日射熱取得, W, [n]
         # 　この操作は、これまで実施してきたテストを維持するために設けている。
@@ -93,15 +93,15 @@ class Sequence:
             bs.set_theta_o_eqv_js_nspls(theta_o_eqv_js_nspls=np.append(theta_o_eqv_js_ns, theta_o_eqv_js_ns[:, 0:1], axis=1))
 
         # MechanicalVentilation Class
-        mvs = MechanicalVentilations(vs=rd['mechanical_ventilations'], n_rm=rms.n_r)
+        mvs = MechanicalVentilations(vs=d['mechanical_ventilations'], n_rm=rms.n_r)
 
         # Equipments Class
         # TODO: Equipments Class を作成するのに Boundaries Class 全部をわたしているのはあまりよくない。
-        es = Equipments(dict_equipments=rd['equipments'], n_rm=rms.n_r, n_b=bs.n_b, bs=bs)
+        es = Equipments(dict_equipments=d['equipments'], n_rm=rms.n_r, n_b=bs.n_b, bs=bs)
 
         # Operation Class
         op = operation_mode.Operation.make_operation(
-            d=rd['common'],
+            d=d['common'],
             t_ac_mode_is_ns=scd.t_ac_mode_is_ns,
             r_ac_demand_is_ns=scd.r_ac_demand_is_ns,
             n_rm=rms.n_r

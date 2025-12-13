@@ -61,7 +61,7 @@ def calc(
 
     # json, csv ファイルからパラメータをロードする。
     # （ループ計算する必要の無い）事前計算を行い, クラス PreCalcParameters, PreCalcParametersGround に必要な変数を格納する。
-    sqc = sequence.Sequence(itv=itv, rd=d, weather=w, scd=scd)
+    sqc = sequence.Sequence(itv=itv, d=d, weather=w, scd=scd)
 
     gc_n = conditions.initialize_ground_conditions(n_grounds=sqc.bs.n_ground)
 
