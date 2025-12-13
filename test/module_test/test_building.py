@@ -11,7 +11,7 @@ class TestBuilding(unittest.TestCase):
         with self.assertRaises(KeyError):
 
             _ = building.Building.create_building(
-                d_building={
+                d={
                     'infiltration': {
                         'method': 'error',
                         'story': 1,
@@ -25,7 +25,7 @@ class TestBuilding(unittest.TestCase):
     def test_specify(self):
 
         bdg = building.Building.create_building(
-            d_building={
+            d={
                 'infiltration': {
                     'method': 'balance_residential',
                     'story': 1,
@@ -36,15 +36,14 @@ class TestBuilding(unittest.TestCase):
             }
         )
 
-        self.assertEqual(bdg._infiltration_method, 'balance_residential')
-        self.assertEqual(bdg._story, building.Story.ONE)
-        self.assertEqual(bdg._c, 1.0)
-        self.assertEqual(bdg._inside_pressure, building.InsidePressure.NEGATIVE)
+        self.assertEqual(bdg._air_tightness._story, building.Story.ONE)
+        self.assertEqual(bdg._air_tightness._c, 1.0)
+        self.assertEqual(bdg._air_tightness._inside_pressure, building.InsidePressure.NEGATIVE)
 
     def test_calculate_c_value_rc(self):
 
         bdg = building.Building.create_building(
-            d_building={
+            d={
                 'infiltration': {
                     'method': 'balance_residential',
                     'story': 1,
@@ -56,11 +55,11 @@ class TestBuilding(unittest.TestCase):
             }
         )
 
-        self.assertAlmostEqual(bdg._c, 4.16)
+        self.assertAlmostEqual(bdg._air_tightness._c, 4.16)
 
     def test_calculate_c_value_src(self):
         bdg = building.Building.create_building(
-            d_building={
+            d={
                 'infiltration': {
                     'method': 'balance_residential',
                     'story': 1,
@@ -72,11 +71,11 @@ class TestBuilding(unittest.TestCase):
             }
         )
 
-        self.assertAlmostEqual(bdg._c, 4.16)
+        self.assertAlmostEqual(bdg._air_tightness._c, 4.16)
 
     def test_calculate_c_value_wooden(self):
         bdg = building.Building.create_building(
-            d_building={
+            d={
                 'infiltration': {
                     'method': 'balance_residential',
                     'story': 1,
@@ -88,11 +87,11 @@ class TestBuilding(unittest.TestCase):
             }
         )
 
-        self.assertAlmostEqual(bdg._c, 8.28)
+        self.assertAlmostEqual(bdg._air_tightness._c, 8.28)
 
     def test_calculate_c_value_steel(self):
         bdg = building.Building.create_building(
-            d_building={
+            d={
                 'infiltration': {
                     'method': 'balance_residential',
                     'story': 1,
@@ -104,11 +103,11 @@ class TestBuilding(unittest.TestCase):
             }
         )
 
-        self.assertAlmostEqual(bdg._c, 8.28)
+        self.assertAlmostEqual(bdg._air_tightness._c, 8.28)
 
     def test_define_c_value(self):
         bdg = building.Building.create_building(
-            d_building={
+            d={
                 'infiltration': {
                     'method': 'balance_residential',
                     'story': 1,
@@ -119,12 +118,12 @@ class TestBuilding(unittest.TestCase):
             }
         )
 
-        self.assertEqual(bdg._c, 0.2)
+        self.assertEqual(bdg._air_tightness._c, 0.2)
 
     def test_calculate_air_leakage_one_story_negative_pressure(self):
 
         bdg = building.Building.create_building(
-            d_building={
+            d={
                 'infiltration': {
                     'method': 'balance_residential',
                     'story': 1,
@@ -145,7 +144,7 @@ class TestBuilding(unittest.TestCase):
     def test_calculate_air_leakage_one_story_positive_pressure(self):
 
         bdg = building.Building.create_building(
-            d_building={
+            d={
                 'infiltration': {
                     'method': 'balance_residential',
                     'story': 1,
@@ -166,7 +165,7 @@ class TestBuilding(unittest.TestCase):
     def test_calculate_air_leakage_one_story_positive_balanced(self):
 
         bdg = building.Building.create_building(
-            d_building={
+            d={
                 'infiltration': {
                     'method': 'balance_residential',
                     'story': 1,
@@ -187,7 +186,7 @@ class TestBuilding(unittest.TestCase):
     def test_calculate_air_leakage_second_story_negative_pressure(self):
 
         bdg = building.Building.create_building(
-            d_building={
+            d={
                 'infiltration': {
                     'method': 'balance_residential',
                     'story': 2,
@@ -208,7 +207,7 @@ class TestBuilding(unittest.TestCase):
     def test_calculate_air_leakage_second_story_positive_pressure(self):
 
         bdg = building.Building.create_building(
-            d_building={
+            d={
                 'infiltration': {
                     'method': 'balance_residential',
                     'story': 2,
@@ -229,7 +228,7 @@ class TestBuilding(unittest.TestCase):
     def test_calculate_air_leakage_second_story_positive_balanced(self):
 
         bdg = building.Building.create_building(
-            d_building={
+            d={
                 'infiltration': {
                     'method': 'balance_residential',
                     'story': 2,

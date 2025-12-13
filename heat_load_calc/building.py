@@ -40,60 +40,69 @@ class Structure(Enum):
     STEEL = 'steel'
 
 
-class Building:
+class AirTightness:
 
-    def __init__(self, infiltration_method: str, story: Story, c: float, inside_pressure: InsidePressure):
-
-        self._infiltration_method = infiltration_method
-        self._story = story
-        self._c = c
-        self._inside_pressure = inside_pressure
-
+    def __init__(self):
+        pass
+    
     @classmethod
-    def create_building(cls, d_building: Dict):
+    def create(cls, d:Dict):
+        """_summary_
 
-        d_building_infiltration = d_building['infiltration']
+        Args:
+            d: input data (d['building']['infiltration'])
+        """
 
-        d_building_infiltration_method = d_building_infiltration['method']
+        match d['method']:
 
-        if d_building_infiltration_method == 'balance_residential':
+            case 'balance_residential':
+                return AirTightnessBalanceResidential(d=d)
+            
+            case _:
+                raise KeyError('Item "method" in "infiltration" is NOT defined.')
 
-            # 建物の階数
-            story = Story(d_building_infiltration['story'])
+    def get_v_leak_is_n(self, theta_r_is_n: np.ndarray, theta_o_n: float, v_r_is: np.ndarray) -> np.ndarray:
+        pass
 
-            # C値
-            if d_building_infiltration['c_value_estimate'] == 'specify':
 
-                c = float(d_building_infiltration['c_value'])
+class AirTightnessBalanceResidential(AirTightness):
 
-            elif d_building_infiltration['c_value_estimate'] == 'calculate':
+    def __init__(self, d: Dict):
+        """_summary_
 
-                c = _estimate_c_value(u_a=d_building_infiltration['ua_value'], struct=Structure(d_building_infiltration['struct']))
+        Args:
+            d: input data (d['building']['infiltration'])
+        """
 
-            else:
+        super().__init__()
 
-                raise ValueError()
+        if 'story' not in d:
+            raise KeyError('Item "story" is NOT defined in Air Tightness Balance Residential calculation.')
 
-            # 換気の種類
-            inside_pressure = InsidePressure(d_building_infiltration['inside_pressure'])
+        self._story = Story(d['story'])
 
-        else:
+        if 'c_value_estimate' not in d:
+            raise KeyError('Item "c_value_estimate" is NOT defined in Air Tightness Balance Residential calculation.')
+        
+        match d['c_value_estimate']:
+            
+            case 'specify':
+                c = float(d['c_value'])
+            
+            case 'calculate':
+                c = _estimate_c_value(u_a=d['ua_value'], struct=Structure(d['struct']))
+            
+            case _:
+                raise KeyError('Wrong name is identified in the item "c_value_estimate".')
+        
+        self._c = c
 
-            raise KeyError()
-
-        return Building(
-            infiltration_method=d_building_infiltration_method,
-            story=story,
-            c=c,
-            inside_pressure=inside_pressure
-        )
-
-    def get_v_leak_is_n(
-            self,
-            theta_r_is_n: np.ndarray,
-            theta_o_n: float,
-            v_r_is: np.ndarray,
-    ):
+        if 'inside_pressure' not in d:
+            raise KeyError('Item "inside_pressure" is NOT defined in Air Tightness Balance Residential calculation.')
+        
+        self._inside_pressure = InsidePressure(d['inside_pressure'])
+    
+    def get_v_leak_is_n(self, theta_r_is_n: np.ndarray, theta_o_n: float, v_r_is: np.ndarray) -> np.ndarray:
         """Calculate the leakage air volume
         This calculation is approx. expression based on the elaborate results obtained by solving for pressure balance
         Args:
@@ -111,15 +120,47 @@ class Building:
         delta_theta_n = _get_delta_theta_n(bar_theta_r_n=bar_theta_r_n, theta_o_n=theta_o_n)
 
         # ventilation rate of air leakage at step n, 1/h
-        n_leak_n = _get_n_leak_n(
-            c_value=self._c,
-            story=self._story,
-            inside_pressure=self._inside_pressure,
-            delta_theta_n=delta_theta_n
-        )
+        n_leak_n = _get_n_leak_n(c_value=self._c, story=self._story, inside_pressure=self._inside_pressure, delta_theta_n=delta_theta_n)
 
         # leakage air volume of rooms at step n, m3/s, [i, 1]
         v_leak_is_n = _get_v_leak_is_n(n_leak_n=n_leak_n, v_r_is=v_r_is)
+
+        return v_leak_is_n
+
+
+class Building:
+
+    def __init__(self, air_tightness: AirTightness):
+
+        self._air_tightness = air_tightness
+
+    @classmethod
+    def create_building(cls, d: Dict):
+
+        d_infiltration = d['infiltration']
+
+        air_tightness = AirTightness.create(d=d_infiltration)
+
+        return Building(air_tightness=air_tightness)
+
+    def get_v_leak_is_n(
+            self,
+            theta_r_is_n: np.ndarray,
+            theta_o_n: float,
+            v_r_is: np.ndarray,
+    ):
+        """Calculate the leakage air volume
+        This calculation is approx. expression based on the elaborate results obtained by solving for pressure balance
+        Args:
+            theta_r_is_n: air temperature in room i in step n, degree C, [I,1]
+            theta_o_n: outdoor temperature at step n, degree C
+            v_r_is: room volume of room i, m3, [I,1]
+        Returns:
+            leakage air volume of rooms at step n, m3/s, [I,1]
+        """
+
+        # leakage air volume of rooms at step n, m3/s, [i, 1]
+        v_leak_is_n = self._air_tightness.get_v_leak_is_n(theta_r_is_n=theta_r_is_n, theta_o_n=theta_o_n, v_r_is=v_r_is)
     
         return v_leak_is_n
 

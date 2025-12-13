@@ -50,7 +50,7 @@ class Sequence:
         logger = logging.getLogger('HeatLoadCalc').getChild('core').getChild('pre_calc_parameters')
 
         # Building Class
-        building = Building.create_building(d_building=d['building'])
+        building = Building.create_building(d=d['building'])
 
         # Rooms Class
         rms = rooms.Rooms(ds=d['rooms'])

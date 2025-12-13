@@ -65,7 +65,7 @@ def calc(
 
     gc_n = conditions.initialize_ground_conditions(n_grounds=sqc.bs.n_ground)
 
-    logger.info('助走計算（土壌のみ）')
+    logger.info('run up calculation for ground')
 
     for n in range(-n_step_run_up, -n_step_run_up_build):
         gc_n = sqc.run_tick_ground(gc_n=gc_n, n=n)
