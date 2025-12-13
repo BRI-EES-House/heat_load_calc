@@ -22,6 +22,10 @@ from heat_load_calc.conditions import GroundConditions
 from heat_load_calc.operation_mode import Operation, OperationMode
 
 
+# ロガー
+logger = logging.getLogger('HeatLoadCalc').getChild('core').getChild('pre_calc_parameters')
+
+
 class Sequence:
 
     def __init__(
@@ -35,19 +39,16 @@ class Sequence:
     ):
         """
         Args:
-            itv: 時間間隔
-            rd:
-            weather:
-            scd:
+            itv: interval class
+            d: directory of input file
+            weather: weather class
+            scd: schedule class
             _q_trs_sol_is_ns:
             theta_o_eqv_js_ns:
         """
 
         # 時間間隔, s
         delta_t = itv.get_delta_t()
-
-        # ロガー
-        logger = logging.getLogger('HeatLoadCalc').getChild('core').getChild('pre_calc_parameters')
 
         # Building Class
         building = Building.create_building(d=d['building'])
