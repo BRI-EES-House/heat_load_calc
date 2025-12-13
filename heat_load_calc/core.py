@@ -54,16 +54,10 @@ def calc(
         scd_is=[r['schedule'] for r in d['rooms']]
     )
 
-    # 本計算のステップ数
-    # 助走計算のステップ数
-    # 助走計算のうち建物全体を解くステップ数
-    n_step_main, n_step_run_up, n_step_run_up_build = period.get_n_step(
-        d_common=d_common,
-        itv=itv
-    )
-
-    # 時間間隔, s
-    delta_t = itv.get_delta_t()
+    # number of steps for main calculation
+    # number of steps for run-up calculation
+    # number of steps to calculate building in run-up calculation
+    n_step_main, n_step_run_up, n_step_run_up_build = period.get_n_step(d_common=d_common, itv=itv)
 
     # json, csv ファイルからパラメータをロードする。
     # （ループ計算する必要の無い）事前計算を行い, クラス PreCalcParameters, PreCalcParametersGround に必要な変数を格納する。
