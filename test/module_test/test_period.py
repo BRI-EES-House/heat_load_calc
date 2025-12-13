@@ -94,3 +94,27 @@ class TestPeriod(unittest.TestCase):
                 },
                 itv=Interval.H1
             )
+
+    def test_out_of_range_of_main_calculation_day(self):
+
+        with self.assertRaises(ValueError):
+            _, _, _ = period.get_n_step(
+                d_common={
+                    'calculation_day':{
+                        'main': 366
+                    }
+                },
+                itv=Interval.M15
+            )
+
+    def test_out_of_range_of_run_up_calculation_day(self):
+
+        with self.assertRaises(ValueError):
+            _, _, _ = period.get_n_step(
+                d_common={
+                    'calculation_day':{
+                        'run_up': 366
+                    }
+                },
+                itv=Interval.M15
+            )

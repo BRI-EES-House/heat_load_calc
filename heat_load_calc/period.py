@@ -8,10 +8,7 @@ N_D_RUN_UP_DEFAULT = 365            # 365 days
 N_D_RUN_UP_BUILD_DEFAULT = 183      # 183 days
 
 
-def get_n_step(
-        d_common: Dict,
-        itv: interval.Interval
-) -> Tuple[int, int, int]:
+def get_n_step(d_common: Dict, itv: interval.Interval) -> Tuple[int, int, int]:
     """Calculate the number of steps for calculation based on the calculation days.
 
     Args:
@@ -48,13 +45,20 @@ def get_n_step(
         n_d_run_up =N_D_RUN_UP_DEFAULT
         n_d_run_up_build = N_D_RUN_UP_BUILD_DEFAULT
 
-
-    # number of steps divideing hour / 1時間を分割するステップ数
-    n_hour = itv.get_n_hour()
+    # check the value n_d_main
+    if n_d_main > 365:
+        raise ValueError('The identified number of the calculation day should not be more than 365.')
+    
+    # check the value n_d_run_up
+    if n_d_run_up > 365:
+        raise ValueError('THe identified number of the run-up calculation day should not be more than 365.')
 
     # n_d_run_up must not be less than n_d_run_up_build.
     if n_d_run_up < n_d_run_up_build:
         raise ValueError('n_d_run_up should be more than or equal to n_d_run_up_build.')
+
+    # number of steps divideing hour / 1時間を分割するステップ数
+    n_hour = itv.get_n_hour()
 
     # number of steps for main calculation
     n_step_main = _get_n_step_main(n_hour=n_hour, n_d_main=n_d_main)

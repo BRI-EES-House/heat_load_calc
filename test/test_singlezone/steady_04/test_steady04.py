@@ -35,7 +35,7 @@ class TestSteadyState(unittest.TestCase):
         # 住宅計算条件JSONファイルの読み込み
         house_data_path = os.path.join(s_folder, "mid_data_house.json")
         with open(house_data_path, 'r', encoding='utf-8') as js:
-            rd = json.load(js)
+            d = json.load(js)
 
         # 外界条件
         # 全ての値は0.0で一定とする。日射・夜間放射はなし。
@@ -65,7 +65,7 @@ class TestSteadyState(unittest.TestCase):
         )
 
         # pre_calc_parametersの構築
-        sqc = sequence.Sequence(itv=interval.Interval.M15, rd=rd, weather=w, scd=scd)
+        sqc = sequence.Sequence(itv=interval.Interval.M15, d=d, weather=w, scd=scd)
 
         # ステップnにおける表面熱流[W/m2]の設定
         q_srf_js_n = np.array([[16.51262564317, 16.51262564317, 16.51262564317, 16.51262564317,

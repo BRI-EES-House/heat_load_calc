@@ -22,42 +22,41 @@ from heat_load_calc.conditions import GroundConditions
 from heat_load_calc.operation_mode import Operation, OperationMode
 
 
+# ロガー
+logger = logging.getLogger('HeatLoadCalc').getChild('core').getChild('pre_calc_parameters')
+
+
 class Sequence:
 
     def __init__(
             self,
             itv: interval.Interval,
-            rd: Dict,
+            d: Dict,
             weather: Weather,
             scd: schedule.Schedule,
-            _q_trs_sol_is_ns: Optional[np.ndarray] = None,
             theta_o_eqv_js_ns: Optional[np.ndarray] = None
     ):
         """
         Args:
-            itv: 時間間隔
-            rd:
-            weather:
-            scd:
-            _q_trs_sol_is_ns:
+            itv: interval class
+            d: directory of input file
+            weather: weather class
+            scd: schedule class
             theta_o_eqv_js_ns:
         """
 
         # 時間間隔, s
         delta_t = itv.get_delta_t()
 
-        # ロガー
-        logger = logging.getLogger('HeatLoadCalc').getChild('core').getChild('pre_calc_parameters')
-
         # Building Class
-        building = Building.create_building(d=rd['building'])
+        building = Building.create_building(d=d['building'])
 
         # Rooms Class
-        rms = rooms.Rooms(ds=rd['rooms'])
+        rms = rooms.Rooms(ds=d['rooms'])
 
         # Boundaries Class
-        if 'mutual_radiation_method' in rd['common']:
-            rad_method_str = str(rd['common']['mutual_radiation_method'])
+        if 'mutual_radiation_method' in d['common']:
+            rad_method_str = str(d['common']['mutual_radiation_method'])
             if rad_method_str == 'area_average':
                 rad_method = 'area_average'
             elif rad_method_str == 'Nagata':
@@ -67,22 +66,10 @@ class Sequence:
         else:
             rad_method = 'Nagata'
             
-        bs = boundaries.Boundaries(id_r_is=rms.id_r_is, ds=rd['boundaries'], w=weather, rad_method=rad_method)
+        bs = boundaries.Boundaries(id_r_is=rms.id_r_is, ds=d['boundaries'], w=weather, rad_method=rad_method)
 
         # ステップ n の室 i における窓の透過日射熱取得, W, [n]
-        # 　この操作は、これまで実施してきたテストを維持するために設けている。
-        # いずれテスト方法を整理して、csvで与える方式を削除すべきである。
-        # CSVで与える方式があることは（将来的に削除予定であるため）仕様書には記述しない。
-        if _q_trs_sol_is_ns is not None:
-            # ステップn+1に対応するために0番要素に最終要素を代入
-            # q_trs_sol_is_ns_pls = np.append(_q_trs_sol_is_ns, _q_trs_sol_is_ns[:, 0:1], axis=1)
-            # bs.set_q_trs_sol_is_ns(q_trs_sol_is_ns=np.append(_q_trs_sol_is_ns, _q_trs_sol_is_ns[:, 0:1], axis=1))
-            # bs.set_q_trs_sol_is_ns(q_trs_sol_is_ns=q_trs_sol_is_ns_pls)
-            # q_trs_sol_is_ns = bs.q_trs_sol_is_ns
-            q_trs_sol_is_ns = np.append(_q_trs_sol_is_ns, _q_trs_sol_is_ns[:, 0:1], axis=1)
-        else:
-            # q_trs_sol_is_ns = bs.q_trs_sol_is_ns
-            q_trs_sol_is_ns = np.dot(bs.p_is_js, bs.q_trs_sol_js_nspls)
+        q_trs_sol_is_ns = np.dot(bs.p_is_js, bs.q_trs_sol_js_nspls)
 
         # ステップ n の境界 j における相当外気温度, ℃, [j, n]
         # 　このif文は、これまで実施してきたテストを維持するために設けている。
@@ -93,15 +80,15 @@ class Sequence:
             bs.set_theta_o_eqv_js_nspls(theta_o_eqv_js_nspls=np.append(theta_o_eqv_js_ns, theta_o_eqv_js_ns[:, 0:1], axis=1))
 
         # MechanicalVentilation Class
-        mvs = MechanicalVentilations(vs=rd['mechanical_ventilations'], n_rm=rms.n_r)
+        mvs = MechanicalVentilations(vs=d['mechanical_ventilations'], n_rm=rms.n_r)
 
         # Equipments Class
         # TODO: Equipments Class を作成するのに Boundaries Class 全部をわたしているのはあまりよくない。
-        es = Equipments(dict_equipments=rd['equipments'], n_rm=rms.n_r, n_b=bs.n_b, bs=bs)
+        es = Equipments(dict_equipments=d['equipments'], n_rm=rms.n_r, n_b=bs.n_b, bs=bs)
 
         # Operation Class
         op = operation_mode.Operation.make_operation(
-            d=rd['common'],
+            d=d['common'],
             t_ac_mode_is_ns=scd.t_ac_mode_is_ns,
             r_ac_demand_is_ns=scd.r_ac_demand_is_ns,
             n_rm=rms.n_r
