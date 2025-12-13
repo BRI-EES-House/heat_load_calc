@@ -11,7 +11,7 @@ class TestBuilding(unittest.TestCase):
         with self.assertRaises(KeyError):
 
             _ = building.Building.create_building(
-                d={
+                d_building={
                     'infiltration': {
                         'method': 'error',
                         'story': 1,
@@ -25,7 +25,7 @@ class TestBuilding(unittest.TestCase):
     def test_specify(self):
 
         bdg = building.Building.create_building(
-            d={
+            d_building={
                 'infiltration': {
                     'method': 'balance_residential',
                     'story': 1,
@@ -44,7 +44,7 @@ class TestBuilding(unittest.TestCase):
     def test_calculate_c_value_rc(self):
 
         bdg = building.Building.create_building(
-            d={
+            d_building={
                 'infiltration': {
                     'method': 'balance_residential',
                     'story': 1,
@@ -60,7 +60,7 @@ class TestBuilding(unittest.TestCase):
 
     def test_calculate_c_value_src(self):
         bdg = building.Building.create_building(
-            d={
+            d_building={
                 'infiltration': {
                     'method': 'balance_residential',
                     'story': 1,
@@ -76,7 +76,7 @@ class TestBuilding(unittest.TestCase):
 
     def test_calculate_c_value_wooden(self):
         bdg = building.Building.create_building(
-            d={
+            d_building={
                 'infiltration': {
                     'method': 'balance_residential',
                     'story': 1,
@@ -92,7 +92,7 @@ class TestBuilding(unittest.TestCase):
 
     def test_calculate_c_value_steel(self):
         bdg = building.Building.create_building(
-            d={
+            d_building={
                 'infiltration': {
                     'method': 'balance_residential',
                     'story': 1,
@@ -108,7 +108,7 @@ class TestBuilding(unittest.TestCase):
 
     def test_define_c_value(self):
         bdg = building.Building.create_building(
-            d={
+            d_building={
                 'infiltration': {
                     'method': 'balance_residential',
                     'story': 1,
@@ -124,7 +124,7 @@ class TestBuilding(unittest.TestCase):
     def test_calculate_air_leakage_one_story_negative_pressure(self):
 
         bdg = building.Building.create_building(
-            d={
+            d_building={
                 'infiltration': {
                     'method': 'balance_residential',
                     'story': 1,
@@ -145,7 +145,7 @@ class TestBuilding(unittest.TestCase):
     def test_calculate_air_leakage_one_story_positive_pressure(self):
 
         bdg = building.Building.create_building(
-            d={
+            d_building={
                 'infiltration': {
                     'method': 'balance_residential',
                     'story': 1,
@@ -166,7 +166,7 @@ class TestBuilding(unittest.TestCase):
     def test_calculate_air_leakage_one_story_positive_balanced(self):
 
         bdg = building.Building.create_building(
-            d={
+            d_building={
                 'infiltration': {
                     'method': 'balance_residential',
                     'story': 1,
@@ -187,7 +187,7 @@ class TestBuilding(unittest.TestCase):
     def test_calculate_air_leakage_second_story_negative_pressure(self):
 
         bdg = building.Building.create_building(
-            d={
+            d_building={
                 'infiltration': {
                     'method': 'balance_residential',
                     'story': 2,
@@ -208,7 +208,7 @@ class TestBuilding(unittest.TestCase):
     def test_calculate_air_leakage_second_story_positive_pressure(self):
 
         bdg = building.Building.create_building(
-            d={
+            d_building={
                 'infiltration': {
                     'method': 'balance_residential',
                     'story': 2,
@@ -229,7 +229,7 @@ class TestBuilding(unittest.TestCase):
     def test_calculate_air_leakage_second_story_positive_balanced(self):
 
         bdg = building.Building.create_building(
-            d={
+            d_building={
                 'infiltration': {
                     'method': 'balance_residential',
                     'story': 2,

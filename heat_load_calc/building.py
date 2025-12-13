@@ -50,39 +50,39 @@ class Building:
         self._inside_pressure = inside_pressure
 
     @classmethod
-    def create_building(cls, d: Dict):
+    def create_building(cls, d_building: Dict):
 
-        infiltration = d['infiltration']
+        d_building_infiltration = d_building['infiltration']
 
-        infiltration_method = infiltration['method']
+        d_building_infiltration_method = d_building_infiltration['method']
 
-        if infiltration_method == 'balance_residential':
+        if d_building_infiltration_method == 'balance_residential':
 
             # 建物の階数
-            story = Story(infiltration['story'])
+            story = Story(d_building_infiltration['story'])
 
             # C値
-            if infiltration['c_value_estimate'] == 'specify':
+            if d_building_infiltration['c_value_estimate'] == 'specify':
 
-                c = infiltration['c_value']
+                c = float(d_building_infiltration['c_value'])
 
-            elif infiltration['c_value_estimate'] == 'calculate':
+            elif d_building_infiltration['c_value_estimate'] == 'calculate':
 
-                c = _estimate_c_value(u_a=infiltration['ua_value'], struct=Structure(infiltration['struct']))
+                c = _estimate_c_value(u_a=d_building_infiltration['ua_value'], struct=Structure(d_building_infiltration['struct']))
 
             else:
 
                 raise ValueError()
 
             # 換気の種類
-            inside_pressure = InsidePressure(infiltration['inside_pressure'])
+            inside_pressure = InsidePressure(d_building_infiltration['inside_pressure'])
 
         else:
 
             raise KeyError()
 
         return Building(
-            infiltration_method=infiltration_method,
+            infiltration_method=d_building_infiltration_method,
             story=story,
             c=c,
             inside_pressure=inside_pressure
@@ -124,7 +124,7 @@ class Building:
         return v_leak_is_n
 
 
-def _estimate_c_value(u_a: float, struct: Structure):
+def _estimate_c_value(u_a: float, struct: Structure) -> float:
     """Estimate C value.
     Args
         ua_value: UA value, W/m2 K
