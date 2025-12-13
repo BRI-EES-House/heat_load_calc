@@ -34,7 +34,6 @@ class Sequence:
             d: Dict,
             weather: Weather,
             scd: schedule.Schedule,
-            _q_trs_sol_is_ns: Optional[np.ndarray] = None,
             theta_o_eqv_js_ns: Optional[np.ndarray] = None
     ):
         """
@@ -43,7 +42,6 @@ class Sequence:
             d: directory of input file
             weather: weather class
             scd: schedule class
-            _q_trs_sol_is_ns:
             theta_o_eqv_js_ns:
         """
 
@@ -71,19 +69,7 @@ class Sequence:
         bs = boundaries.Boundaries(id_r_is=rms.id_r_is, ds=d['boundaries'], w=weather, rad_method=rad_method)
 
         # ステップ n の室 i における窓の透過日射熱取得, W, [n]
-        # 　この操作は、これまで実施してきたテストを維持するために設けている。
-        # いずれテスト方法を整理して、csvで与える方式を削除すべきである。
-        # CSVで与える方式があることは（将来的に削除予定であるため）仕様書には記述しない。
-        if _q_trs_sol_is_ns is not None:
-            # ステップn+1に対応するために0番要素に最終要素を代入
-            # q_trs_sol_is_ns_pls = np.append(_q_trs_sol_is_ns, _q_trs_sol_is_ns[:, 0:1], axis=1)
-            # bs.set_q_trs_sol_is_ns(q_trs_sol_is_ns=np.append(_q_trs_sol_is_ns, _q_trs_sol_is_ns[:, 0:1], axis=1))
-            # bs.set_q_trs_sol_is_ns(q_trs_sol_is_ns=q_trs_sol_is_ns_pls)
-            # q_trs_sol_is_ns = bs.q_trs_sol_is_ns
-            q_trs_sol_is_ns = np.append(_q_trs_sol_is_ns, _q_trs_sol_is_ns[:, 0:1], axis=1)
-        else:
-            # q_trs_sol_is_ns = bs.q_trs_sol_is_ns
-            q_trs_sol_is_ns = np.dot(bs.p_is_js, bs.q_trs_sol_js_nspls)
+        q_trs_sol_is_ns = np.dot(bs.p_is_js, bs.q_trs_sol_js_nspls)
 
         # ステップ n の境界 j における相当外気温度, ℃, [j, n]
         # 　このif文は、これまで実施してきたテストを維持するために設けている。
