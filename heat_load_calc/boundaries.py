@@ -605,12 +605,12 @@ def _get_p_is_js(id_r_is, connected_room_id_js):
     #  [ ...  ... ...  ... ]
     #  [p_i_0 ... ... p_i_j]]
 
-    p_is_js = [
+    p_js_is = [
         _get_p_is_j(id_r_is=id_r_is, connected_room_id_j=connected_room_id_j)
         for connected_room_id_j in connected_room_id_js
     ]
 
-    p_is_js = np.array(p_is_js).T
+    p_is_js = np.array(p_js_is).T
     
     return p_is_js
 
