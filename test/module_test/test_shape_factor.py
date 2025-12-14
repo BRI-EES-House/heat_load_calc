@@ -19,25 +19,25 @@ class TestShapeFactor(unittest.TestCase):
         eps_r_js = np.array([[0.9] * 6])
 
         # 放射熱伝達率を計算
-        hr_js = sf._get_h_s_r_is_js(p_is_js=np.array([[1,1,1,1,1,1]]), a_s_js=surf_area, eps_r_js=eps_r_js)
+        hr_js = sf.get_h_s_r_js_Nagata(p_is_js=np.array([[1,1,1,1,1,1]]), a_s_js=surf_area, eps_r_js=eps_r_js)
 
         # 北外壁の放射熱伝達率
         self.assertAlmostEqual(5.92104643, hr_js[0][0])
 
         # 東外壁の放射熱伝達率
-        self.assertAlmostEqual(5.67616719, hr_js[0][1])
+        self.assertAlmostEqual(5.67616719, hr_js[1][0])
 
         # 南外壁の放射熱伝達率
-        self.assertAlmostEqual(5.92104643, hr_js[0][2])
+        self.assertAlmostEqual(5.92104643, hr_js[2][0])
 
         # 西外壁の放射熱伝達率
-        self.assertAlmostEqual(5.67616719, hr_js[0][3])
+        self.assertAlmostEqual(5.67616719, hr_js[3][0])
 
         # 床の放射熱伝達率
-        self.assertAlmostEqual(6.63019048, hr_js[0][4])
+        self.assertAlmostEqual(6.63019048, hr_js[4][0])
 
         # 天井の放射熱伝達率
-        self.assertAlmostEqual(6.63019048, hr_js[0][5])
+        self.assertAlmostEqual(6.63019048, hr_js[5][0])
 
     def test_hr_case1(self):
         """
@@ -52,25 +52,25 @@ class TestShapeFactor(unittest.TestCase):
         eps_r_js = np.array([[0.9] * 6])
 
         # 放射熱伝達率を計算
-        hr_js = sf._get_h_s_r_is_js(p_is_js=np.array([[1,1,1,1,1,1]]), a_s_js=surf_area, eps_r_js=eps_r_js)
+        hr_js = sf.get_h_s_r_js_Nagata(p_is_js=np.array([[1,1,1,1,1,1]]), a_s_js=surf_area, eps_r_js=eps_r_js)
 
         # 北外壁の放射熱伝達率
         self.assertAlmostEqual(5.14227449, hr_js[0][0])
 
         # 東外壁の放射熱伝達率
-        self.assertAlmostEqual(5.75676599, hr_js[0][1])
+        self.assertAlmostEqual(5.75676599, hr_js[1][0])
 
         # 南外壁の放射熱伝達率
-        self.assertAlmostEqual(6.05447714, hr_js[0][2])
+        self.assertAlmostEqual(6.05447714, hr_js[2][0])
 
         # 西外壁の放射熱伝達率
-        self.assertAlmostEqual(5.75676599, hr_js[0][3])
+        self.assertAlmostEqual(5.75676599, hr_js[3][0])
 
         # 床の放射熱伝達率
-        self.assertAlmostEqual(7.02424180, hr_js[0][4])
+        self.assertAlmostEqual(7.02424180, hr_js[4][0])
 
         # 天井の放射熱伝達率
-        self.assertAlmostEqual(7.02424180, hr_js[0][5])
+        self.assertAlmostEqual(7.02424180, hr_js[5][0])
 
     def test_hr_case2(self):
         """
@@ -85,25 +85,126 @@ class TestShapeFactor(unittest.TestCase):
         eps_r_js = np.array([[0.9] * 6])
 
         # 放射熱伝達率を計算
-        hr_js = sf._get_h_s_r_is_js(p_is_js=np.array([[1,1,1,1,1,1]]), a_s_js=surf_area, eps_r_js=eps_r_js)
+        hr_js = sf.get_h_s_r_js_Nagata(p_is_js=np.array([[1,1,1,1,1,1]]), a_s_js=surf_area, eps_r_js=eps_r_js)
 
         # 北外壁の放射熱伝達率
         self.assertAlmostEqual(5.14227449, hr_js[0][0])
 
         # 東外壁の放射熱伝達率
-        self.assertAlmostEqual(5.14227449, hr_js[0][1])
+        self.assertAlmostEqual(5.14227449, hr_js[1][0])
 
         # 南外壁の放射熱伝達率
-        self.assertAlmostEqual(5.14227449, hr_js[0][2])
+        self.assertAlmostEqual(5.14227449, hr_js[2][0])
 
         # 西外壁の放射熱伝達率
-        self.assertAlmostEqual(5.14227449, hr_js[0][3])
+        self.assertAlmostEqual(5.14227449, hr_js[3][0])
 
         # 床の放射熱伝達率
-        self.assertAlmostEqual(5.14227449, hr_js[0][4])
+        self.assertAlmostEqual(5.14227449, hr_js[4][0])
 
         # 天井の放射熱伝達率
-        self.assertAlmostEqual(51.4227449, hr_js[0][5])
+        self.assertAlmostEqual(51.4227449, hr_js[5][0])
+
+    def test_hr_case3(self):
+        """
+        永田先生の放射伝熱計算のテスト
+        面積比率を与え、放射熱伝達率の計算結果をテストする
+        北外壁の放射率は0.1、その他の境界は0.9とする。
+        """
+
+        # 面積（北外壁、東外壁、南外壁、西外壁、床、天井
+        surf_area = np.array([[20.0], [15.0], [20.0], [15.0], [30.0], [30.0]])
+
+        # 放射率
+        eps_r_js = np.array([[0.1] + [0.9] * 5])
+
+        # 放射熱伝達率を計算
+        hr_js = sf.get_h_s_r_js_Nagata(p_is_js=np.array([[1,1,1,1,1,1]]), a_s_js=surf_area, eps_r_js=eps_r_js)
+
+        # 北外壁の放射熱伝達率
+        self.assertAlmostEqual(0.57983758, hr_js[0][0])
+
+        # 東外壁の放射熱伝達率
+        self.assertAlmostEqual(5.67616719, hr_js[1][0])
+
+        # 南外壁の放射熱伝達率
+        self.assertAlmostEqual(5.92104643, hr_js[2][0])
+
+        # 西外壁の放射熱伝達率
+        self.assertAlmostEqual(5.67616719, hr_js[3][0])
+
+        # 床の放射熱伝達率
+        self.assertAlmostEqual(6.63019048, hr_js[4][0])
+
+        # 天井の放射熱伝達率
+        self.assertAlmostEqual(6.63019048, hr_js[5][0])
+
+    def test_hr_case4(self):
+        """
+        形態係数を面積比で代用する放射伝熱計算のテスト
+        面積比率を与え、放射熱伝達率の計算結果をテストする
+        """
+
+        # 面積（北外壁、東外壁、南外壁、西外壁、床、天井
+        surf_area = np.array([[20.0], [15.0], [20.0], [15.0], [30.0], [30.0]])
+
+        # 放射率
+        eps_r_js = np.array([[0.9] * 6])
+
+        # 放射熱伝達率を計算
+        hr_js = sf.get_h_s_r_js_AreaAverage(p_is_js=np.array([[1,1,1,1,1,1]]), a_s_js=surf_area, eps_r_js=eps_r_js)
+
+        # 北外壁の放射熱伝達率
+        self.assertAlmostEqual(5.96871146, hr_js[0][0])
+
+        # 東外壁の放射熱伝達率
+        self.assertAlmostEqual(5.73816038, hr_js[1][0])
+
+        # 南外壁の放射熱伝達率
+        self.assertAlmostEqual(5.96871146, hr_js[2][0])
+
+        # 西外壁の放射熱伝達率
+        self.assertAlmostEqual(5.73816038, hr_js[3][0])
+
+        # 床の放射熱伝達率
+        self.assertAlmostEqual(6.49024936, hr_js[4][0])
+
+        # 天井の放射熱伝達率
+        self.assertAlmostEqual(6.49024936, hr_js[5][0])
+
+    def test_hr_case5(self):
+        """
+        形態係数を面積比で代用する放射伝熱計算のテスト
+        面積比率を与え、放射熱伝達率の計算結果をテストする
+        北外壁の放射率は0.1、その他の境界は0.9とする。
+        """
+
+        # 面積（北外壁、東外壁、南外壁、西外壁、床、天井
+        surf_area = np.array([[20.0], [15.0], [20.0], [15.0], [30.0], [30.0]])
+
+        # 放射率
+        eps_r_js = np.array([[0.1] + [0.9] * 5])
+
+        # 放射熱伝達率を計算
+        hr_js = sf.get_h_s_r_js_AreaAverage(p_is_js=np.array([[1,1,1,1,1,1]]), a_s_js=surf_area, eps_r_js=eps_r_js)
+
+        # 北外壁の放射熱伝達率
+        self.assertAlmostEqual(0.58029139, hr_js[0][0])
+
+        # 東外壁の放射熱伝達率
+        self.assertAlmostEqual(5.73816038, hr_js[1][0])
+
+        # 南外壁の放射熱伝達率
+        self.assertAlmostEqual(5.96871146, hr_js[2][0])
+
+        # 西外壁の放射熱伝達率
+        self.assertAlmostEqual(5.73816038, hr_js[3][0])
+
+        # 床の放射熱伝達率
+        self.assertAlmostEqual(6.49024936, hr_js[4][0])
+
+        # 天井の放射熱伝達率
+        self.assertAlmostEqual(6.49024936, hr_js[5][0])
 
     def test_get_h_r_is(self):
 
