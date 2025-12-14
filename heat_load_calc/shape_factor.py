@@ -50,9 +50,11 @@ def get_h_s_r_js_AreaAverage(a_s_js: np.ndarray, eps_r_js: np.ndarray, p_is_js: 
     """
 
     # 室と境界が接していない部分についても放射熱伝達率が計算されてしまうので、p_is_js をかけることによって 0 になおす。
-    h_s_r = _get_h_s_r_is_js_area_ratio(p_is_js=p_is_js, a_s_js=a_s_js, eps_r_js=eps_r_js)
+    h_s_r_is_js = _get_h_s_r_is_js_area_ratio(p_is_js=p_is_js, a_s_js=a_s_js, eps_r_js=eps_r_js)
 
-    return np.full_like(a=a_s_js, fill_value=h_s_r, dtype=float)
+    h_s_r_is = h_s_r_is_js.sum(axis=0)
+
+    return h_s_r_is.reshape(-1, 1)
 
 
 def _get_h_s_r_is_js_area_ratio(p_is_js, a_s_js, eps_r_js) -> np.ndarray:
