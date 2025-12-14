@@ -20,6 +20,7 @@ from heat_load_calc.conditions import Conditions
 from heat_load_calc.recorder import Recorder
 from heat_load_calc.conditions import GroundConditions
 from heat_load_calc.operation_mode import Operation, OperationMode
+from heat_load_calc.shape_factor import ShapeFactorMethod
 
 
 # ロガー
@@ -56,15 +57,10 @@ class Sequence:
 
         # Boundaries Class
         if 'mutual_radiation_method' in d['common']:
-            rad_method_str = str(d['common']['mutual_radiation_method'])
-            if rad_method_str == 'area_average':
-                rad_method = 'area_average'
-            elif rad_method_str == 'Nagata':
-                rad_method = 'Nagata'
-            else:
-                raise KeyError()
+            rad_method = ShapeFactorMethod(str(d['common']['mutual_radiation_method']))
         else:
-            rad_method = 'Nagata'
+            rad_method = ShapeFactorMethod.NAGATA
+        
             
         bs = boundaries.Boundaries(id_r_is=rms.id_r_is, ds=d['boundaries'], w=weather, rad_method=rad_method)
 

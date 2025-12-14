@@ -14,6 +14,7 @@ from heat_load_calc import transmission_solar_radiation
 from heat_load_calc import window
 from heat_load_calc.window import Window
 from heat_load_calc import wall_rf
+from heat_load_calc.shape_factor import ShapeFactorMethod
 
 
 class BoundaryType(Enum):
@@ -82,7 +83,7 @@ class Boundary:
 
 class Boundaries:
 
-    def __init__(self, id_r_is: np.ndarray, ds: List[Dict], w: Weather, rad_method: str = 'Nagata'):
+    def __init__(self, id_r_is: np.ndarray, ds: List[Dict], w: Weather, rad_method: ShapeFactorMethod):
         """
 
         Args:
