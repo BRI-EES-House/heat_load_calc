@@ -116,10 +116,10 @@ class Boundaries:
         a_s_js = np.array([_read_a_s(d=d, id=id_j) for (d, id_j) in zip(ds, id_js)]).reshape(-1, 1)
 
         # indoor surface emissivity of boundary j / 境界jの室内側長波長放射率
-        eps_r_js = np.array([_read_eps_s(d=d, id=id_j) for (d, id_j) in zip(ds, id_js)]).reshape(-1, 1)
+        eps_r_i_js = np.array([_read_eps_s(d=d, id=id_j) for (d, id_j) in zip(ds, id_js)]).reshape(-1, 1)
 
         # indoor surface radiant heat transfer coefficient of boundary j / 境界jの室内側表面放射熱伝達率, W/m2K, [J, 1]
-        h_s_r_js = shape_factor.get_h_s_r_js(a_s_js=a_s_js, p_is_js=p_is_js, eps_r_is_js=eps_r_js, method=rad_method)
+        h_s_r_js = shape_factor.get_h_s_r_js(a_s_js=a_s_js, p_is_js=p_is_js, eps_r_i_js=eps_r_i_js, method=rad_method)
 
         # indoor surface convection heat transfer coefficient of boundary j / 境界jの室内側表面対流熱伝達率, W/m2K, [J, 1]
         h_s_c_js = np.array([b['h_c'] for b in ds]).reshape(-1, 1)
@@ -183,7 +183,7 @@ class Boundaries:
         self._p_is_js = p_is_js
         self._p_js_is = p_is_js.T
         self._a_s_js = a_s_js
-        self._eps_r_js = eps_r_js
+        self._eps_r_js = eps_r_i_js
         self._h_s_r_js = h_s_r_js
         self._h_s_c_js = h_s_c_js
         self._n_ground = n_ground
