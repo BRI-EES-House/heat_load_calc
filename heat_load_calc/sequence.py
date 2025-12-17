@@ -64,9 +64,6 @@ class Sequence:
             
         bs = boundaries.Boundaries(id_r_is=rms.id_r_is, ds=d['boundaries'], w=weather, rad_method=rad_method)
 
-        # ステップ n の室 i における窓の透過日射熱取得, W, [n]
-        q_trs_sol_is_ns = np.dot(bs.p_is_js, bs.q_trs_sol_js_nspls)
-
         # ステップ n の境界 j における相当外気温度, ℃, [j, n]
         # 　このif文は、これまで実施してきたテストを維持するために設けている。
         # いずれテスト方法を整理して、csvで与える方式を削除すべきである。
@@ -94,6 +91,9 @@ class Sequence:
         #   ステップ n　からステップ n+1 における係数 f_l_cl_wgt, kg/s(kg/kg(DA)), [i, i]
         #   ステップ n　からステップ n+1 における係数 f_l_cl_cst, kg/s, [i, 1]
         get_f_l_cl = es.make_get_f_l_cl_funcs()
+
+        # ステップ n の室 i における窓の透過日射熱取得, W, [n]
+        q_trs_sol_is_ns = np.dot(bs.p_is_js, bs.q_trs_sol_js_nspls)
 
         # the shape factor of boundaries j for the occupant in room i, [i, j]
         f_mrt_hum_is_js = occupants_form_factor.get_f_mrt_hum_js(
