@@ -5,6 +5,7 @@ from heat_load_calc import boundaries
 from heat_load_calc.boundaries import Boundaries
 from heat_load_calc.interval import Interval
 from heat_load_calc.weather import Weather
+from heat_load_calc.shape_factor import ShapeFactorMethod
 
 
 class TestBoundaries(unittest.TestCase):
@@ -128,7 +129,7 @@ class TestBoundaries(unittest.TestCase):
 
         ds = _get_boundary_dict()
 
-        bs = Boundaries(id_r_is=np.array([0,1,2]), ds=ds, w=self.w)
+        bs = Boundaries(id_r_is=np.array([0,1,2]), ds=ds, w=self.w, rad_method=ShapeFactorMethod.NAGATA)
         
         self.assertAlmostEqual(0.0, 0.0)
 

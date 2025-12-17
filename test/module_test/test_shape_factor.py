@@ -16,10 +16,10 @@ class TestShapeFactor(unittest.TestCase):
         surf_area = np.array([[20.0], [15.0], [20.0], [15.0], [30.0], [30.0]])
 
         # 放射率
-        eps_r_js = np.array([[0.9] * 6])
+        eps_r_js = np.array([[0.9] * 6]).reshape(-1, 1)
 
         # 放射熱伝達率を計算
-        hr_js = sf.get_h_s_r_js_Nagata(p_is_js=np.array([[1,1,1,1,1,1]]), a_s_js=surf_area, eps_r_js=eps_r_js)
+        hr_js = sf._get_h_s_r_js_Nagata(p_is_js=np.array([[1,1,1,1,1,1]]), a_s_js=surf_area, eps_r_js=eps_r_js)
 
         # 北外壁の放射熱伝達率
         self.assertAlmostEqual(5.92104643, hr_js[0][0])
@@ -49,10 +49,10 @@ class TestShapeFactor(unittest.TestCase):
         surf_area = np.array([[0.0], [15.0], [20.0], [15.0], [30.0], [30.0]])
 
         # 放射率
-        eps_r_js = np.array([[0.9] * 6])
+        eps_r_js = np.array([[0.9] * 6]).reshape(-1, 1)
 
         # 放射熱伝達率を計算
-        hr_js = sf.get_h_s_r_js_Nagata(p_is_js=np.array([[1,1,1,1,1,1]]), a_s_js=surf_area, eps_r_js=eps_r_js)
+        hr_js = sf._get_h_s_r_js_Nagata(p_is_js=np.array([[1,1,1,1,1,1]]), a_s_js=surf_area, eps_r_js=eps_r_js)
 
         # 北外壁の放射熱伝達率
         self.assertAlmostEqual(5.14227449, hr_js[0][0])
@@ -82,10 +82,10 @@ class TestShapeFactor(unittest.TestCase):
         surf_area = np.array([[0.0], [0.0], [0.0], [0.0], [0.0], [30.0]])
 
         # 放射率
-        eps_r_js = np.array([[0.9] * 6])
+        eps_r_js = np.array([[0.9] * 6]).reshape(-1, 1)
 
         # 放射熱伝達率を計算
-        hr_js = sf.get_h_s_r_js_Nagata(p_is_js=np.array([[1,1,1,1,1,1]]), a_s_js=surf_area, eps_r_js=eps_r_js)
+        hr_js = sf._get_h_s_r_js_Nagata(p_is_js=np.array([[1,1,1,1,1,1]]), a_s_js=surf_area, eps_r_js=eps_r_js)
 
         # 北外壁の放射熱伝達率
         self.assertAlmostEqual(5.14227449, hr_js[0][0])
@@ -116,10 +116,10 @@ class TestShapeFactor(unittest.TestCase):
         surf_area = np.array([[20.0], [15.0], [20.0], [15.0], [30.0], [30.0]])
 
         # 放射率
-        eps_r_js = np.array([[0.1] + [0.9] * 5])
+        eps_r_js = np.array([[0.1] + [0.9] * 5]).reshape(-1, 1)
 
         # 放射熱伝達率を計算
-        hr_js = sf.get_h_s_r_js_Nagata(p_is_js=np.array([[1,1,1,1,1,1]]), a_s_js=surf_area, eps_r_js=eps_r_js)
+        hr_js = sf._get_h_s_r_js_Nagata(p_is_js=np.array([[1,1,1,1,1,1]]), a_s_js=surf_area, eps_r_js=eps_r_js)
 
         # 北外壁の放射熱伝達率
         self.assertAlmostEqual(0.57983758, hr_js[0][0])
@@ -149,10 +149,10 @@ class TestShapeFactor(unittest.TestCase):
         surf_area = np.array([[20.0], [15.0], [20.0], [15.0], [30.0], [30.0]])
 
         # 放射率
-        eps_r_js = np.array([[0.9] * 6])
+        eps_r_js = np.array([[0.9] * 6]).reshape(-1, 1)
 
         # 放射熱伝達率を計算
-        hr_js = sf.get_h_s_r_js_AreaAverage(p_is_js=np.array([[1,1,1,1,1,1]]), a_s_js=surf_area, eps_r_js=eps_r_js)
+        hr_js = sf._get_h_s_r_js_AreaAverage(p_is_js=np.array([[1,1,1,1,1,1]]), a_s_js=surf_area, eps_r_i_js=eps_r_js)
 
         # 北外壁の放射熱伝達率
         self.assertAlmostEqual(5.96871146, hr_js[0][0])
@@ -183,10 +183,10 @@ class TestShapeFactor(unittest.TestCase):
         surf_area = np.array([[20.0], [15.0], [20.0], [15.0], [30.0], [30.0]])
 
         # 放射率
-        eps_r_js = np.array([[0.1] + [0.9] * 5])
+        eps_r_js = np.array([[0.1] + [0.9] * 5]).reshape(-1, 1)
 
         # 放射熱伝達率を計算
-        hr_js = sf.get_h_s_r_js_AreaAverage(p_is_js=np.array([[1,1,1,1,1,1]]), a_s_js=surf_area, eps_r_js=eps_r_js)
+        hr_js = sf._get_h_s_r_js_AreaAverage(p_is_js=np.array([[1,1,1,1,1,1]]), a_s_js=surf_area, eps_r_i_js=eps_r_js)
 
         # 北外壁の放射熱伝達率
         self.assertAlmostEqual(0.58029139, hr_js[0][0])
@@ -208,7 +208,7 @@ class TestShapeFactor(unittest.TestCase):
 
     def test_get_h_r_is(self):
 
-        h_s_r_js = sf.get_h_s_r_js_Nagata(
+        h_s_r_js = sf._get_h_s_r_js_Nagata(
             a_s_js=np.array([20.0, 0.0, 15.0, 15.0, 20.0, 20.0, 15.0, 15.0, 30.0, 30.0, 30.0, 30.0]).reshape(-1, 1),
             p_is_js=np.array([
                 [1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0],
