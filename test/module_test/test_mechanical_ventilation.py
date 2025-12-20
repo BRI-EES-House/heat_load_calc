@@ -9,7 +9,7 @@ class TestMechanicalVentilations(unittest.TestCase):
     def test_v_vent_mec_general_is_type1(self):
 
         mv = MechanicalVentilations(
-            vs=[
+            ds=[
                 {
                     'id': 0,
                     'root_type': 'type1',
@@ -29,7 +29,7 @@ class TestMechanicalVentilations(unittest.TestCase):
     def test_v_vent_mec_general_is_type2(self):
 
         mv = MechanicalVentilations(
-            vs=[
+            ds=[
                 {
                     'id': 0,
                     'root_type': 'type2',
@@ -49,7 +49,7 @@ class TestMechanicalVentilations(unittest.TestCase):
     def test_v_vent_mec_general_is_type3(self):
 
         mv = MechanicalVentilations(
-            vs=[
+            ds=[
                 {
                     'id': 0,
                     'root_type': 'type3',
@@ -69,7 +69,7 @@ class TestMechanicalVentilations(unittest.TestCase):
     def test_v_vent_mec_general_is_natural_loop(self):
 
         mv = MechanicalVentilations(
-            vs=[
+            ds=[
                 {
                     'id': 0,
                     'root_type': 'natural_loop',
@@ -89,7 +89,7 @@ class TestMechanicalVentilations(unittest.TestCase):
     def test_v_vent_int_is_is_type1(self):
 
         mv = MechanicalVentilations(
-            vs=[
+            ds=[
                 {
                     'id': 0,
                     'root_type': 'type1',
@@ -115,7 +115,7 @@ class TestMechanicalVentilations(unittest.TestCase):
     def test_v_vent_int_is_is_type2(self):
 
         mv = MechanicalVentilations(
-            vs=[
+            ds=[
                 {
                     'id': 0,
                     'root_type': 'type2',
@@ -141,7 +141,7 @@ class TestMechanicalVentilations(unittest.TestCase):
     def test_v_vent_int_is_is_type3(self):
 
         mv = MechanicalVentilations(
-            vs=[
+            ds=[
                 {
                     'id': 0,
                     'root_type': 'type3',
@@ -167,7 +167,7 @@ class TestMechanicalVentilations(unittest.TestCase):
     def test_v_vent_int_is_is_natural_loop(self):
 
         mv = MechanicalVentilations(
-            vs=[
+            ds=[
                 {
                     'id': 0,
                     'root_type': 'natural_loop',

@@ -73,7 +73,7 @@ class Sequence:
             bs.set_theta_o_eqv_js_nspls(theta_o_eqv_js_nspls=np.append(theta_o_eqv_js_ns, theta_o_eqv_js_ns[:, 0:1], axis=1))
 
         # MechanicalVentilation Class
-        mvs = MechanicalVentilations(vs=d['mechanical_ventilations'], n_rm=rms.n_r)
+        mvs = MechanicalVentilations(ds=d['mechanical_ventilations'], n_rm=rms.n_r)
 
         # Equipments Class
         # TODO: Equipments Class を作成するのに Boundaries Class 全部をわたしているのはあまりよくない。
