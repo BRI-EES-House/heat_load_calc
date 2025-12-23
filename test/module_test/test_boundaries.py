@@ -1,5 +1,8 @@
+import os
+import json
 import unittest
 import numpy as np
+from typing import Dict
 
 from heat_load_calc import boundaries
 from heat_load_calc.boundaries import Boundaries
@@ -10,31 +13,24 @@ from heat_load_calc.shape_factor import ShapeFactorMethod
 
 class TestBoundaries(unittest.TestCase):
 
-    itv = Interval.M15
-    n = itv.get_n_step_annual()
+    @classmethod
+    def setUpClass(cls):
 
-    a_sun_ns = np.zeros(n, dtype=float)    
-    a_sun_ns[:7] = np.array([0.0, np.pi/6, np.pi/3, np.pi/2, np.pi*2/3, np.pi*5/6, np.pi])
-    h_sun_ns = np.zeros(n, dtype=float)
-    h_sun_ns[:7] = np.array([0.0, np.pi/6, np.pi/3, np.pi/2, np.pi/3, np.pi/6, 0.0])
-    i_dn_ns = np.zeros(n, dtype=float)
-    i_dn_ns[:7] = np.array([10.0, 100.0, 200.0, 300.0, 200.0, 100.0, 10.0])
-    i_sky_ns = np.zeros(n, dtype=float)
-    i_sky_ns[:7] = np.array([10.0, 100.0, 200.0, 300.0, 200.0, 100.0, 10.0])
-    r_n_ns = np.zeros(n, dtype=float)
-    r_n_ns[:7] = np.array([20.0, 19.0, 18.0, 17.0, 18.0, 19.0, 20.0])
-    theta_o_ns = np.zeros(n, dtype=float)
-    theta_o_ns[:7] = np.array([-15.0, -12.0, 3.0, 5.0, 4.0, -3.0, -7.0])
-    x_o_ns = np.zeros(n, dtype=float)
-    x_o_ns[:7] = np.array([0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0])
+        d = _read_input_file()
 
-    w = Weather(a_sun_ns=a_sun_ns, h_sun_ns=h_sun_ns, i_dn_ns=i_dn_ns, i_sky_ns=i_sky_ns, r_n_ns=r_n_ns, theta_o_ns=theta_o_ns, x_o_ns=x_o_ns)
+        w = _get_weather_class()
+
+        id_r_is = np.array([2,4]).reshape(-1, 1)
+
+        bs = Boundaries(id_r_is=id_r_is, ds=d['boundaries'], w=w, rad_method=ShapeFactorMethod.NAGATA)
+
+        cls._bs: Boundaries = bs
 
     def test_get_p_is_js_ptn0(self):
 
         result = boundaries._get_p_is_js(
-            id_r_is=np.array([0,1,2]),
-            connected_room_id_js=np.array([0,0,0,1,1,1,1,2,2,2])
+            id_r_is=np.array([0,1,2]).reshape(-1, 1),
+            connected_room_id_js=np.array([0,0,0,1,1,1,1,2,2,2]).reshape(-1, 1)
         )
 
         self.assertEqual(result.ndim, 2)
@@ -75,8 +71,8 @@ class TestBoundaries(unittest.TestCase):
     def test_get_p_is_js_ptn1(self):
 
         result = boundaries._get_p_is_js(
-            id_r_is=np.array([3,7,5]),
-            connected_room_id_js=np.array([3,3,3,7,7,7,7,5,5,5])
+            id_r_is=np.array([3,7,5]).reshape(-1, 1),
+            connected_room_id_js=np.array([3,3,3,7,7,7,7,5,5,5]).reshape(-1, 1)
         )
 
         self.assertEqual(result.ndim, 2)
@@ -120,19 +116,179 @@ class TestBoundaries(unittest.TestCase):
 
         with self.assertRaises(ValueError):
             result = boundaries._get_p_is_js(
-                id_r_is=np.array([3,7,5]),
-                connected_room_id_js=np.array([0,3,3,7,7,7,7,5,5,5])
+                id_r_is=np.array([3,7,5]).reshape(-1,1),
+                connected_room_id_js=np.array([0,3,3,7,7,7,7,5,5,5]).reshape(-1, 1)
             )
-        
+
+    def test_n_b(self):
+
+        # number of boundaries        
+        self.assertEqual(14, self._bs.n_b)
+    
+    def test_n_ground(self):
+
+        # number of grounds
+        self.assertEqual(0, self._bs.n_ground)
+
 
     def test_id(self):
 
-        ds = _get_boundary_dict()
+        # id
+        np.testing.assert_array_equal(
+            np.array([1,3,5,7,9,11,13,15,17,19,21,23,25,27]).reshape(-1,1),
+            self._bs.id_js
+        )
 
-        bs = Boundaries(id_r_is=np.array([0,1,2]), ds=ds, w=self.w, rad_method=ShapeFactorMethod.NAGATA)
+    def test_name(self):
+
+        # name
+        np.testing.assert_array_equal(
+            np.array([
+                "s_wall_1F_room",
+                "w_wall_1F_room",
+                "e_wall_1F_room",
+                "n_wall_1F_room",
+                "floor_1F_room",
+                "s_wall_2F_room",
+                "w_wall_2F_room",
+                "e_wall_2F_room",
+                "n_wall_2F_room",
+                "roof_2F_room",
+                "south_window_1F_room",
+                "south_window_2F_room",
+                "internal_1",
+                "internal_2"
+            ]).reshape(-1, 1),
+            self._bs.name_js
+        )
+    
+    def test_sub_name(self):
+
+        # sub name
+        np.testing.assert_array_equal(
+            np.full(shape=(14,1), fill_value="", dtype=str),
+            self._bs.sub_name_js
+        )
+    
+    def test_connected_room_id(self):
+
+        # connected room id
+        np.testing.assert_equal(
+            np.array([2,2,2,2,2,4,4,4,4,4,2,4,2,4]).reshape(-1, 1),
+            self._bs.connected_room_id_js
+        )
+    
+    def test_p_is_js(self):
+
+        # matrix of relationship between rooms and boundaries
+        np.testing.assert_equal(
+            np.array([
+                [1,1,1,1,1,0,0,0,0,0,1,0,1,0],
+                [0,0,0,0,0,1,1,1,1,1,0,1,0,1]
+            ]),
+            self._bs.p_is_js
+        )
+    
+    def test_p_js_is(self):
+
+        # matrix of relationship between rooms and boundaries
+        np.testing.assert_equal(
+            np.array([
+                [1,0],
+                [1,0],
+                [1,0],
+                [1,0],
+                [1,0],
+                [0,1],
+                [0,1],
+                [0,1],
+                [0,1],
+                [0,1],
+                [1,0],
+                [0,1],
+                [1,0],
+                [0,1]
+            ]),
+            self._bs.p_js_is
+        )
+    
+    def test_b_floor(self):
+
+        # is boundary floor ?
+        np.testing.assert_equal(
+            np.array([False, False, False, False, True, False, False, False, False, False, False, False, False, True]).reshape(-1, 1),
+            self._bs.b_floor_js
+        )
+
+    def test_b_ground(self):
+
+        # is boundary ground?
+        np.testing.assert_equal(
+            np.full(shape=(14,1), fill_value=False),
+            self._bs.b_ground_js
+        )
+
+    def test_k_ei(self):
+
+        # effect of equivalent room temperature of other boundary surface to rear temperature of given boundary
+        np.testing.assert_equal(
+            np.array([
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0]
+            ]),
+            self._bs.k_ei_js_js
+        )
+    
+    def test_k_eo(self):
         
-        self.assertAlmostEqual(0.0, 0.0)
+        # effect of outdoor temperature to the rear surface temperature of given boundary (temperature difference coefficient)
+        np.testing.assert_equal(
+            np.array([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0]).reshape(-1, 1),
+            self._bs.k_eo_js
+        )
 
+    def test_k_s_r(self):
+
+        # coefficient of effects of room temperature to rear surface temperature of boundary
+        np.testing.assert_equal(
+            np.array([
+                [0, 0],
+                [0, 0],
+                [0, 0],
+                [0, 0],
+                [0, 0],
+                [0, 0],
+                [0, 0],
+                [0, 0],
+                [0, 0],
+                [0, 0],
+                [0, 0],
+                [0, 0],
+                [0, 0],
+                [0, 0]
+            ]),
+            self._bs.k_s_r_js_is
+        )
+
+    def test_b_s_sol_abs(self):
+
+        # is inside solar radiationn absorbed of boundary
+        np.testing.assert_equal(
+            np.array([False, False, False, False, True, False, False, False, False, False, False, False, False, True]).reshape(-1, 1),
+            self._bs.b_s_sol_abs_js
+        )
 
 def _get_boundary_dict():
 
@@ -1887,3 +2043,41 @@ def _get_boundary_dict():
                 "rear_surface_boundary_id": 17
             }
         ]
+
+
+def _get_weather_class():
+
+    itv = Interval.M15
+    n = itv.get_n_step_annual()
+
+    a_sun_ns = np.zeros(n, dtype=float)    
+    a_sun_ns[:7] = np.array([0.0, np.pi/6, np.pi/3, np.pi/2, np.pi*2/3, np.pi*5/6, np.pi])
+    h_sun_ns = np.zeros(n, dtype=float)
+    h_sun_ns[:7] = np.array([0.0, np.pi/6, np.pi/3, np.pi/2, np.pi/3, np.pi/6, 0.0])
+    i_dn_ns = np.zeros(n, dtype=float)
+    i_dn_ns[:7] = np.array([10.0, 100.0, 200.0, 300.0, 200.0, 100.0, 10.0])
+    i_sky_ns = np.zeros(n, dtype=float)
+    i_sky_ns[:7] = np.array([10.0, 100.0, 200.0, 300.0, 200.0, 100.0, 10.0])
+    r_n_ns = np.zeros(n, dtype=float)
+    r_n_ns[:7] = np.array([20.0, 19.0, 18.0, 17.0, 18.0, 19.0, 20.0])
+    theta_o_ns = np.zeros(n, dtype=float)
+    theta_o_ns[:7] = np.array([-15.0, -12.0, 3.0, 5.0, 4.0, -3.0, -7.0])
+    x_o_ns = np.zeros(n, dtype=float)
+    x_o_ns[:7] = np.array([0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0])
+
+    w = Weather(a_sun_ns=a_sun_ns, h_sun_ns=h_sun_ns, i_dn_ns=i_dn_ns, i_sky_ns=i_sky_ns, r_n_ns=r_n_ns, theta_o_ns=theta_o_ns, x_o_ns=x_o_ns)
+
+    return w
+
+
+def _read_input_file() -> Dict:
+
+    # directory of input file
+    s_folder = os.path.dirname(__file__)
+
+    # read jason file
+    data_path = os.path.join(s_folder, "test_boundaries_input_file.json")
+    with open(data_path, 'r', encoding='utf-8') as js:
+        d = json.load(js)
+    
+    return d

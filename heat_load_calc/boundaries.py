@@ -87,7 +87,7 @@ class Boundaries:
         """
 
         Args:
-            id_r_is: 室のID, [i, 1]
+            id_r_is: room id, [I, 1]
             ds: 境界に関する辞書
             w: Weather クラス
         Notes:
@@ -107,7 +107,7 @@ class Boundaries:
         id_js = np.array([int(d['id']) for d in ds]).reshape(-1, 1)
 
         # connected foom id, [J]
-        connected_room_id_js = np.array([b['connected_room_id'] for b in ds])
+        connected_room_id_js = np.array([b['connected_room_id'] for b in ds]).reshape(-1, 1)
 
         # coefficient of relation between room i and boundary j / 室iと境界jの関係を表す係数（境界jから室iへの変換）, [I, J]
         p_is_js = _get_p_is_js(id_r_is=id_r_is, connected_room_id_js=connected_room_id_js)
@@ -321,23 +321,28 @@ class Boundaries:
 
     @property
     def n_ground(self) -> int:
-        """地盤の数"""
+        """nomber of boundaries for ground / 地盤の数"""
         return self._n_ground
 
     @property
     def id_js(self) -> np.ndarray:
-        """境界jのID, [j, 1]"""
+        """ID of boundary j / 境界jのID, [J, 1]"""
         return self._id_js
 
     @property
     def name_js(self) -> np.ndarray:
-        """境界jの名前, [j, 1]"""
+        """name of boundary j / 境界jの名前, [J, 1]"""
         return self._name_js
 
     @property
     def sub_name_js(self) -> np.ndarray:
-        """境界jの名前2, [j, 1]"""
+        """sub name of boundary j / 境界jの名前2, [J, 1]"""
         return self._sub_name_js
+    
+    @property
+    def connected_room_id_js(self) -> np.ndarray:
+        """connected room id, [J, 1]"""
+        return self._connected_room_id_js
 
     @property
     def p_is_js(self) -> np.ndarray:
@@ -363,32 +368,32 @@ class Boundaries:
 
     @property
     def b_floor_js(self) -> np.ndarray:
-        """境界jが床かどうか, [j, 1]"""
+        """is boundary j floor ? / 境界jが床かどうか, [J, 1]"""
         return self._b_floor_js
 
     @property
     def b_ground_js(self) -> np.ndarray:
-        """境界jが地盤かどうか, [j, 1]"""
+        """is boundary j ground ? / 境界jが地盤かどうか, [J, 1]"""
         return self._b_ground_js
 
     @property
     def k_ei_js_js(self) -> np.ndarray:
-        """境界jの裏面温度に他の境界の等価室温が与える影響, [j, j]"""
+        """coefficient of effects of equivallent temperature of other boundary to rear surface temperature of given boundary"""
         return self._k_ei_js_js
         
     @property
     def k_eo_js(self) -> np.ndarray:
-        """境界jの裏面温度に外気温度が与える影響（温度差係数）, [j, 1]"""
+        """coefficient of effects of outdoor air temperature to rear surface temperature of given boundary j / 境界jの裏面温度に外気温度が与える影響（温度差係数）, [j, 1]"""
         return self._k_eo_js
 
     @property
     def k_s_r_js_is(self) -> np.ndarray:
-        """境界jの裏面温度に室温が与える影響, [j, i]"""
+        """coefficient of effects of room temperature to rear surface temperature of boundary / 境界jの裏面温度に室温が与える影響, [j, i]"""
         return self._k_s_r_js_is
 
     @property
     def b_s_sol_abs_js(self) -> np.ndarray:
-        """境界jの日射吸収の有無, [j, 1]"""
+        """whether does the surface of boundary j absorb solar radiation ? / 境界jの日射吸収の有無, [J, 1]"""
         return self._b_s_sol_abs_js
 
     @property
@@ -457,7 +462,7 @@ class Boundaries:
 
     def get_room_id_by_boundary_id(self, boundary_id: int):
 
-        room_id = self._connected_room_id_js[self._get_index_by_id(boundary_id=boundary_id)]
+        room_id = self._connected_room_id_js.flatten()[self._get_index_by_id(boundary_id=boundary_id)]
     
         return room_id
 
@@ -600,11 +605,22 @@ class Boundaries:
         return theta_dsh_s_a_js_ms_n, theta_dsh_s_t_js_ms_n
 
 
-def _get_p_is_js(id_r_is, connected_room_id_js):
+def _get_p_is_js(id_r_is:np.ndarray, connected_room_id_js: np.ndarray):
+    """
+
+    Args:
+        id_r_is: room id, [I, 1]
+        connected_room_id_js: connected room id, [J, 1]
+
+    Returns:
+        _type_: _description_
+    """
     # 室iと境界jの関係を表す係数（境界jから室iへの変換）
     # [[p_0_0 ... ... p_0_j]
     #  [ ...  ... ...  ... ]
     #  [p_i_0 ... ... p_i_j]]
+
+    connected_room_id_js = connected_room_id_js.flatten()
 
     p_js_is = [
         _get_p_is_j(id_r_is=id_r_is, connected_room_id_j=connected_room_id_j)
@@ -618,9 +634,13 @@ def _get_p_is_js(id_r_is, connected_room_id_js):
 
 def _get_p_is_j(id_r_is: np.ndarray, connected_room_id_j: int):
 
-    p_is_j = np.zeros(id_r_is.size, dtype=int)
-    p_is_j[_get_room_index(id_r_is=id_r_is, id=connected_room_id_j)] = 1
-    return p_is_j
+    try:
+        p_is_j = np.zeros(id_r_is.size, dtype=int)
+        p_is_j[_get_room_index(id_r_is=id_r_is, id=connected_room_id_j)] = 1
+        return p_is_j
+    except Exception as e:
+        raise ValueError("id_r_is = " + str(id_r_is) + ", connected_room_id_j = " + str(connected_room_id_j))
+
 
 
 def _get_room_index(id_r_is: np.ndarray, id: int):
@@ -641,9 +661,9 @@ def _get_room_index(id_r_is: np.ndarray, id: int):
     matched_indices = [index for (index, id_r_i) in enumerate(id_r_is) if id_r_i == id]
 
     if len(matched_indices) == 0:
-        raise ValueError("Boundary が接続する room のIDが存在しませんでした。")
+        raise ValueError("Boundary が接続する room のIDが存在しませんでした。(id=" + str(id) + ")")
     if len(matched_indices) > 1:
-        raise ValueError("Boundary が接続する room のIDが複数存在しました。")
+        raise ValueError("Boundary が接続する room のIDが複数存在しました。(id=" + str(id) + ")")
     
     return matched_indices[0]
 
