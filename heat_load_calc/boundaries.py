@@ -183,7 +183,7 @@ class Boundaries:
         self._p_is_js = p_is_js
         self._p_js_is = p_is_js.T
         self._a_s_js = a_s_js
-        self._eps_r_js = eps_r_i_js
+        self._eps_r_i_js = eps_r_i_js
         self._h_s_r_js = h_s_r_js
         self._h_s_c_js = h_s_c_js
         self._n_ground = n_ground
@@ -423,9 +423,9 @@ class Boundaries:
         return self._a_s_js
 
     @property
-    def eps_r_js(self) -> np.ndarray:
+    def eps_r_i_js(self) -> np.ndarray:
         """境界jの放射率, -, [j, 1]"""
-        return self._eps_r_js
+        return self._eps_r_i_js
 
     @property
     def phi_a0_js(self) -> np.ndarray:

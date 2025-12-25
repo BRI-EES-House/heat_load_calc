@@ -1,12 +1,12 @@
 import numpy as np
 
 
-def get_f_mrt_hum_js(p_is_js: np.ndarray, a_s_js: np.ndarray, eps_r_js: np.ndarray, is_floor_js: np.ndarray) -> np.ndarray:
+def get_f_mrt_hum_js(p_is_js: np.ndarray, a_s_js: np.ndarray, eps_r_i_js: np.ndarray, is_floor_js: np.ndarray) -> np.ndarray:
     """Calculate the shape factor of boundaries j for the occupant in room i
     Args:
         p_is_js: vector of the relation between rooms and boundaries
         a_s_js: area of boundary j, m2, [j, 1]
-        eps_r_js: emissivity of boundary j, -, [j, 1]
+        eps_r_i_js: emissivity of boundary j, -, [j, 1]
         is_floor_js: is boundary j floor?, [j, 1]
     Returns:
         shape factor of boundaries j for the occupant in room i, [i, j]
@@ -19,9 +19,9 @@ def get_f_mrt_hum_js(p_is_js: np.ndarray, a_s_js: np.ndarray, eps_r_js: np.ndarr
     a_s_js_not_floor = a_s_js * np.logical_not(is_floor_js)
 
     # boundaries emissivity which is floor, -, [j, 1]
-    eps_r_js_floor = eps_r_js * is_floor_js
+    eps_r_js_floor = eps_r_i_js * is_floor_js
     # boundaries emissivity which is not floor, -, [j, 1]
-    eps_r_js_not_floor = eps_r_js * np.logical_not(is_floor_js)
+    eps_r_js_not_floor = eps_r_i_js * np.logical_not(is_floor_js)
 
     # shape factor of boundaries j for the occupant in room i, [i, j]
     f_mrt_hum_is_js = p_is_js * a_s_js_floor.flatten() * eps_r_js_floor.flatten() / (p_is_js @ (a_s_js_floor * eps_r_js_floor)) * 0.45 \

@@ -35,7 +35,7 @@ class TestOccupantsFormFactor(unittest.TestCase):
         results = occupants_form_factor.get_f_mrt_hum_js(
             p_is_js=self.p_is_js,
             a_s_js=self.a_s_js,
-            eps_r_js=self.eps_r_js,
+            eps_r_i_js=self.eps_r_js,
             is_floor_js=self.is_floor_js
         )
 
