@@ -113,18 +113,18 @@ class Boundaries:
         p_is_js = _get_p_is_js(id_r_is=id_r_is, connected_room_id_js=connected_room_id_js)
 
         # surface area of boundary j / 境界jの面積, m2, [J, 1]
-        a_s_js = np.array([_read_a_s(d=d, id=id_j) for (d, id_j) in zip(ds, id_js)]).reshape(-1, 1)
+        a_s_js = np.array([_read_a_s(d=d) for d in ds]).reshape(-1, 1)
 
         # indoor surface emissivity of boundary j / 境界jの室内側長波長放射率
-        eps_r_i_js = np.array([_read_eps_s(d=d, id=id_j) for (d, id_j) in zip(ds, id_js)]).reshape(-1, 1)
+        eps_r_i_js = np.array([_read_eps_s(d=d) for d in ds]).reshape(-1, 1)
 
         # indoor surface radiant heat transfer coefficient of boundary j / 境界jの室内側表面放射熱伝達率, W/m2K, [J, 1]
         h_s_r_js = shape_factor.get_h_s_r_js(a_s_js=a_s_js, p_is_js=p_is_js, eps_r_i_js=eps_r_i_js, method=rad_method)
 
         # indoor surface convection heat transfer coefficient of boundary j / 境界jの室内側表面対流熱伝達率, W/m2K, [J, 1]
-        h_s_c_js = np.array([b['h_c'] for b in ds]).reshape(-1, 1)
+        h_s_c_js = np.array([float(b['h_c']) for b in ds]).reshape(-1, 1)
 
-        # 境界 j, [J]
+        # boundary j / 境界 j, [J]
         bss = [self._get_boundary(d=d, h_s_c_js=h_s_c_js, h_s_r_js=h_s_r_js, w=w, id_js=id_js) for d in ds]
 
         # GOUND の数
@@ -233,7 +233,7 @@ class Boundaries:
         t_b_j = BoundaryType(d['boundary_type'])
 
         # surface area of boundary j/ 面積, m2
-        a_s_j = _read_a_s(d=d, id=id_j)
+        a_s_j = _read_a_s(d=d)
 
         # temperature difference coefficient of boundary j / 温度差係数
         k_eo_j = _read_k_eo(d=d, id=id_j, t_b=t_b_j)
@@ -286,8 +286,14 @@ class Boundaries:
         # transmitted solar radiation of boundary j at step n, W, [N+1]
         q_trs_sol_j_nspls = _get_q_trs_sol_j_ns(t_b_j=t_b_j, w=w, b_sun_strkd_out_j=b_sun_strkd_out_j, t_drct_j=t_drct_j, a_s_j=a_s_j, ssp_j=ssp_j, window_j=window_j)
 
+        # convective heat transfer coefficient of the rear surface of boundary j, W/m2K
+        h_s_c_rear_j = h_s_c_js[j_rear_j, 0] if t_b_j == BoundaryType.INTERNAL else None
+
+        # radiative heat transfer coefficient of the rear surface of boundary j, W/m2K
+        h_s_r_rear_j = h_s_r_js[j_rear_j, 0] if t_b_j == BoundaryType.INTERNAL else None
+
         # response factor of boundary j
-        rf = _get_response_factor(d=d, h_s_c_js=h_s_c_js, h_s_r_js=h_s_r_js, id_j=id_j, t_b_j=t_b_j, j_rear_j=j_rear_j, r_s_o_j=r_s_o_j, u_w_std_j=u_w_std_j)
+        rf = _get_response_factor(d=d, h_s_c_rear_j=h_s_c_rear_j, h_s_r_rear_j=h_s_r_rear_j, id_j=id_j, t_b_j=t_b_j, r_s_o_j=r_s_o_j, u_w_std_j=u_w_std_j)
         
         # coefficient representing the effect of equivalent room temperature of other boundary j to the rear temperature of boundary j
         # 裏面温度に他の境界 j の等価室温が与える影響, [J]
@@ -398,12 +404,12 @@ class Boundaries:
 
     @property
     def h_s_r_js(self) -> np.ndarray:
-        """境界jの室内側表面放射熱伝達率, W/m2K, [j, 1]"""
+        """radiative heat transfer coefficient of inside surface of boundary j / 境界jの室内側表面放射熱伝達率, W/m2K, [J, 1]"""
         return self._h_s_r_js
 
     @property
     def h_s_c_js(self) -> np.ndarray:
-        """境界jの室内側表面対流熱伝達率, W/m2K, [j, 1]"""
+        """convective heat transfer coefficient of inside surface of boundary j / 境界jの室内側表面対流熱伝達率, W/m2K, [j, 1]"""
         return self._h_s_c_js
 
     @property
@@ -717,12 +723,11 @@ def _get_boundary_index(id_js: np.ndarray, rear_surface_boundary_id: int, id: in
     return matched_indices[0]
 
 
-def _read_a_s(d: Dict, id: int) -> float:
+def _read_a_s(d: Dict) -> float:
     """Read the surface area.
 
     Args:
         d: dictionary of boundary
-        id: boundary id
     Regurns:
         surface area, m2
     """
@@ -731,17 +736,17 @@ def _read_a_s(d: Dict, id: int) -> float:
     a_s = float(d['area'])
 
     if a_s <= 0.0:
+        id = int(d['id'])        
         raise ValueError("境界(ID=" + str(id) + ")の面積で0以下の値が指定されました。")
     
     return a_s
 
 
-def _read_eps_s(d: Dict, id: int) -> float:
+def _read_eps_s(d: Dict) -> float:
     """Read the surface emissivity.
 
     Args:
         d: dictionary of boundary
-        id: boundary id
     Regurns:
         surface emissivity, -
     """
@@ -750,6 +755,7 @@ def _read_eps_s(d: Dict, id: int) -> float:
     eps_s = float(d.get('inside_emissivity', 0.9))
 
     if eps_s <= 0.0:
+        id = int(d['id'])
         raise ValueError("境界(ID=" + str(id) + ")の放射率で0以下の値が指定されました。")
 
     return eps_s
@@ -1169,16 +1175,15 @@ def _read_r_i_std_j(d: Dict, boundary_id: int) -> float:
     return r_i
 
 
-def _get_response_factor(d: Dict, h_s_c_js: np.ndarray, h_s_r_js: np.ndarray, id_j: int, t_b_j: BoundaryType, j_rear_j: Optional[int], r_s_o_j: Optional[float], u_w_std_j: Optional[float]) -> ResponseFactor:
+def _get_response_factor(d: Dict, h_s_c_rear_j: Optional[float], h_s_r_rear_j: Optional[float], id_j: int, t_b_j: BoundaryType, r_s_o_j: Optional[float], u_w_std_j: Optional[float]) -> ResponseFactor:
     """Get response factor of boundary j.
 
     Args:
         d: dictionary of boundary j
-        h_s_c_js: indoor surface convection heat transfer coefficient of boundary j, W/m2K, [J, 1]
-        h_s_r_js: indoor surface radiation heat transfer coefficient of boundary j, W/m2K, [J, 1]
+        h_s_c_rear_j: convective heat transfer coefficient of rear surface of boundary j, W/m2K
+        h_s_r_rear_j: radiative heat transfer coefficient of rear surface of boundary j, W/m2K
         id_j: id of boundary j
         t_b_j: typoe of boundary j
-        j_rear_j: boundary index j of the rear side of boundary j
         r_s_o_j: outside heat transfer resistance of boundary j, m2 K / W
         u_w_std_j: standard heat transmittance coefficient (U value) of boundary j, W/m2K
 
@@ -1191,9 +1196,6 @@ def _get_response_factor(d: Dict, h_s_c_js: np.ndarray, h_s_r_js: np.ndarray, id
 
         c_j_ls = np.array([_read_cs_j_l(layer=layer, id=id, layer_id=l) for (l, layer) in enumerate(d['layers'])])
         r_j_ls = np.array([_read_rs_j_l(layer=layer, id=id, layer_id=l) for (l, layer) in enumerate(d['layers'])])
-
-        h_s_c_rear_j = h_s_c_js[j_rear_j, 0]
-        h_s_r_rear_j = h_s_r_js[j_rear_j, 0]
 
         r_rear_j = 1.0 / (h_s_c_rear_j + h_s_r_rear_j)
 
