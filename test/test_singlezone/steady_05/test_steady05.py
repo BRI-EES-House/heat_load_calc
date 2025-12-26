@@ -40,11 +40,11 @@ class TestSteadyState(unittest.TestCase):
         # 気象データ読み出し
         # 全ての値は0.0で一定とする。日射・夜間放射はなし。
         w = weather.Weather(
-            a_sun_ns=np.zeros(8760*4, dtype=float),
-            h_sun_ns=np.zeros(8760*4, dtype=float),
-            i_dn_ns=np.zeros(8760*4, dtype=float),
-            i_sky_ns=np.zeros(8760*4, dtype=float),
-            r_n_ns=np.zeros(8760*4, dtype=float),
+            a_sun_ns=np.full(8760*4, 0.0, dtype=float),
+            h_sun_ns=np.full(8760*4, np.radians(30.0), dtype=float),
+            i_dn_ns=np.full(8760*4, 500.0, dtype=float),
+            i_sky_ns=np.full(8760*4, 100.0, dtype=float),
+            r_n_ns=np.full(8760*4, 120.0, dtype=float),
             theta_o_ns=np.zeros(8760*4, dtype=float),
             x_o_ns=np.zeros(8760*4, dtype=float),
             itv=interval.Interval.M15
@@ -64,44 +64,31 @@ class TestSteadyState(unittest.TestCase):
             t_ac_mode_is_ns=np.zeros((1, 8760 * 4), dtype=float)
         )
 
-        # ステップ n の境界 j における相当外気温度, ℃, [j, 8760*4]
-        # 南（ID=2)と屋根(ID=5)の壁の相当外気温度を 10.0 ℃とする。
-        # それ以外は 0.0 ℃とする。
-        theta_o_eqv_js_ns = np.stack([
-            np.zeros(8760 * 4, dtype=float),
-            np.zeros(8760 * 4, dtype=float),
-            np.full(8760 * 4, 10.0, dtype=float),
-            np.zeros(8760 * 4, dtype=float),
-            np.zeros(8760 * 4, dtype=float),
-            np.full(8760 * 4, 10.0, dtype=float)
-        ])
-
         # pre_calc_parametersの構築
         sqc = sequence.Sequence(
-            itv=interval.Interval.M15, d=d, weather=w, theta_o_eqv_js_ns=theta_o_eqv_js_ns, scd=scd
+            itv=interval.Interval.M15, d=d, weather=w, scd=scd
         )
 
         # ステップnの表面熱流[W/m2], [j, 1]
-        q_srf_js_n = np.array([[15.384094583670, 15.384094583670, -31.115905416330, 15.384094583670,
-            14.704033054882, -29.740411389563]]).reshape(-1, 1)
+        q_srf_js_n = np.array([[16.9138695967501, 16.9138695967501, -47.5184204448122, 16.9138695967501, 11.1884058272393, -14.4115941727606]]).reshape(-1, 1)
 
         # ステップnの等価室温[℃], [j, 1]
         theta_ei_js_n = np.array(
-            [[3.308407437, 3.308407437, 3.308407437, 3.308407437, 3.308407437, 3.308407437]]).reshape(-1, 1)
+            [[3.63739131113281, 3.63739131113281, 3.63739131113281, 3.63739131113281, 3.63739131113281, 3.63739131113281]]).reshape(-1, 1)
         
-        theta_rear_js_n = np.array([0.0, 0.0, 10.0, 0.0, 0.0, 10.0]).reshape(-1, 1)
+        theta_rear_js_n = np.array([0, 0, 13.856406460551, 0, 1.12, 6.88]).reshape(-1, 1)
 
         theta_dsh_s_a_js_ms_n, theta_dsh_s_t_js_ms_n = sqc.bs.get_wall_steady_state_status(q_srf_js_n=q_srf_js_n, theta_rear_js_n=theta_rear_js_n)
 
         c_n = conditions.Conditions(
             operation_mode_is_n=np.array([[OperationMode.STOP_CLOSE]]),
-            theta_r_is_n=np.array([[3.3084074373484]]),
-            theta_mrt_hum_is_n=np.array([[2.758476601]]),
+            theta_r_is_n=np.array([[3.6373913111329]]),
+            theta_mrt_hum_is_n=np.array([[3.218944933]]),
             x_r_is_n=np.array([[0.0]]),
             theta_dsh_s_a_js_ms_n=theta_dsh_s_a_js_ms_n,
             theta_dsh_s_t_js_ms_n=theta_dsh_s_t_js_ms_n,
             q_s_js_n=q_srf_js_n,
-            theta_frt_is_n=np.array([[3.3084074373484]]),
+            theta_frt_is_n=np.array([[3.6373913111329]]),
             x_frt_is_n=np.array([[0.0]]),
             theta_ei_js_n=theta_ei_js_n
         )
