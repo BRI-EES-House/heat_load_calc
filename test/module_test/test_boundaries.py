@@ -292,7 +292,7 @@ class TestBoundaries(unittest.TestCase):
         # convective heat transfer coefficient of inside surface of boundary, W/m2K
         np.testing.assert_equal(_get_h_s_c_js(), self._bs.h_s_c_js)
     
-    def test_u_js(self):
+    def test_u(self):
 
         h_s_c_js = _get_h_s_c_js()
         h_s_r_js = _get_h_s_r_js()
@@ -336,6 +336,12 @@ class TestBoundaries(unittest.TestCase):
         # surface area of boundary, m2
         np.testing.assert_equal(_get_a_s_js(), self._bs.a_s_js)
 
+    def test_eps_r_i(self):
+
+        # long wave emissivity of internal surface of boundary, -
+        np.testing.assert_equal(_get_eps_r_i_js(), self._bs.eps_r_i_js)
+
+
 
 def _get_id_js():
     """[J, 1]"""
@@ -359,11 +365,17 @@ def _get_h_s_r_js():
 
     p_is_js = _get_p_is_js()
 
-    eps_r_i_js = np.full(shape=(14, 1), fill_value=0.9)
+    eps_r_i_js = _get_eps_r_i_js()
 
     method = ShapeFactorMethod.NAGATA
 
     return shape_factor.get_h_s_r_js(a_s_js=a_s_js, p_is_js=p_is_js, eps_r_i_js=eps_r_i_js, method=method)
+
+
+def _get_eps_r_i_js():
+    """[J, 1]"""
+
+    return np.full(shape=(14,1), fill_value=0.9)
 
 
 def _get_a_s_js():

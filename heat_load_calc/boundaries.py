@@ -409,22 +409,22 @@ class Boundaries:
 
     @property
     def h_s_c_js(self) -> np.ndarray:
-        """convective heat transfer coefficient of inside surface of boundary j / 境界jの室内側表面対流熱伝達率, W/m2K, [j, 1]"""
+        """convective heat transfer coefficient of inside surface of boundary j / 境界jの室内側表面対流熱伝達率, W/m2K, [J, 1]"""
         return self._h_s_c_js
 
     @property
     def u_js(self) -> np.ndarray:
-        """境界jにおけるシミュレーションに用いる表面熱伝達抵抗での熱貫流率, W/m2K, [j,1]"""
+        """境界jにおけるシミュレーションに用いる表面熱伝達抵抗での熱貫流率, W/m2K, [J, 1]"""
         return self._u_js
 
     @property
     def a_s_js(self) -> np.ndarray:
-        """境界jの面積, m2, [j, 1]"""
+        """area of boundary j / 境界jの面積, m2, [J, 1]"""
         return self._a_s_js
 
     @property
     def eps_r_i_js(self) -> np.ndarray:
-        """境界jの放射率, -, [j, 1]"""
+        """long wave emissivity of boundary j / 境界jの放射率, -, [J, 1]"""
         return self._eps_r_i_js
 
     @property
