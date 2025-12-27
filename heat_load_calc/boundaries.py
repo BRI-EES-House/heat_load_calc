@@ -87,7 +87,7 @@ class Boundaries:
         """
 
         Args:
-            id_r_is: 室のID, [i, 1]
+            id_r_is: room id, [I, 1]
             ds: 境界に関する辞書
             w: Weather クラス
         Notes:
@@ -107,24 +107,24 @@ class Boundaries:
         id_js = np.array([int(d['id']) for d in ds]).reshape(-1, 1)
 
         # connected foom id, [J]
-        connected_room_id_js = np.array([b['connected_room_id'] for b in ds])
+        connected_room_id_js = np.array([b['connected_room_id'] for b in ds]).reshape(-1, 1)
 
         # coefficient of relation between room i and boundary j / 室iと境界jの関係を表す係数（境界jから室iへの変換）, [I, J]
         p_is_js = _get_p_is_js(id_r_is=id_r_is, connected_room_id_js=connected_room_id_js)
 
         # surface area of boundary j / 境界jの面積, m2, [J, 1]
-        a_s_js = np.array([_read_a_s(d=d, id=id_j) for (d, id_j) in zip(ds, id_js)]).reshape(-1, 1)
+        a_s_js = np.array([_read_a_s(d=d) for d in ds]).reshape(-1, 1)
 
         # indoor surface emissivity of boundary j / 境界jの室内側長波長放射率
-        eps_r_i_js = np.array([_read_eps_s(d=d, id=id_j) for (d, id_j) in zip(ds, id_js)]).reshape(-1, 1)
+        eps_r_i_js = np.array([_read_eps_s(d=d) for d in ds]).reshape(-1, 1)
 
         # indoor surface radiant heat transfer coefficient of boundary j / 境界jの室内側表面放射熱伝達率, W/m2K, [J, 1]
         h_s_r_js = shape_factor.get_h_s_r_js(a_s_js=a_s_js, p_is_js=p_is_js, eps_r_i_js=eps_r_i_js, method=rad_method)
 
         # indoor surface convection heat transfer coefficient of boundary j / 境界jの室内側表面対流熱伝達率, W/m2K, [J, 1]
-        h_s_c_js = np.array([b['h_c'] for b in ds]).reshape(-1, 1)
+        h_s_c_js = np.array([float(b['h_c']) for b in ds]).reshape(-1, 1)
 
-        # 境界 j, [J]
+        # boundary j / 境界 j, [J]
         bss = [self._get_boundary(d=d, h_s_c_js=h_s_c_js, h_s_r_js=h_s_r_js, w=w, id_js=id_js) for d in ds]
 
         # GOUND の数
@@ -183,7 +183,7 @@ class Boundaries:
         self._p_is_js = p_is_js
         self._p_js_is = p_is_js.T
         self._a_s_js = a_s_js
-        self._eps_r_js = eps_r_i_js
+        self._eps_r_i_js = eps_r_i_js
         self._h_s_r_js = h_s_r_js
         self._h_s_c_js = h_s_c_js
         self._n_ground = n_ground
@@ -233,7 +233,7 @@ class Boundaries:
         t_b_j = BoundaryType(d['boundary_type'])
 
         # surface area of boundary j/ 面積, m2
-        a_s_j = _read_a_s(d=d, id=id_j)
+        a_s_j = _read_a_s(d=d)
 
         # temperature difference coefficient of boundary j / 温度差係数
         k_eo_j = _read_k_eo(d=d, id=id_j, t_b=t_b_j)
@@ -271,7 +271,7 @@ class Boundaries:
         # standard solar gain coefficient (eta value) of boundary j, -
         eta_w_std_j = _read_eta_std(d=d, id=id_j, t_b=t_b_j)
 
-        # grazing area ratio fo boundary j, -
+        # grazing area ratio of boundary j, -
         r_a_w_g_j = _read_r_a_w_g(d=d, id=id_j, t_b=t_b_j)
 
         # grazing type of boundary j/ グレージングの種類
@@ -286,8 +286,14 @@ class Boundaries:
         # transmitted solar radiation of boundary j at step n, W, [N+1]
         q_trs_sol_j_nspls = _get_q_trs_sol_j_ns(t_b_j=t_b_j, w=w, b_sun_strkd_out_j=b_sun_strkd_out_j, t_drct_j=t_drct_j, a_s_j=a_s_j, ssp_j=ssp_j, window_j=window_j)
 
+        # convective heat transfer coefficient of the rear surface of boundary j, W/m2K
+        h_s_c_rear_j = h_s_c_js[j_rear_j, 0] if t_b_j == BoundaryType.INTERNAL else None
+
+        # radiative heat transfer coefficient of the rear surface of boundary j, W/m2K
+        h_s_r_rear_j = h_s_r_js[j_rear_j, 0] if t_b_j == BoundaryType.INTERNAL else None
+
         # response factor of boundary j
-        rf = _get_response_factor(d=d, h_s_c_js=h_s_c_js, h_s_r_js=h_s_r_js, id_j=id_j, t_b_j=t_b_j, j_rear_j=j_rear_j, r_s_o_j=r_s_o_j, u_w_std_j=u_w_std_j)
+        rf = _get_response_factor(d=d, h_s_c_rear_j=h_s_c_rear_j, h_s_r_rear_j=h_s_r_rear_j, id_j=id_j, t_b_j=t_b_j, r_s_o_j=r_s_o_j, u_w_std_j=u_w_std_j)
         
         # coefficient representing the effect of equivalent room temperature of other boundary j to the rear temperature of boundary j
         # 裏面温度に他の境界 j の等価室温が与える影響, [J]
@@ -321,23 +327,28 @@ class Boundaries:
 
     @property
     def n_ground(self) -> int:
-        """地盤の数"""
+        """nomber of boundaries for ground / 地盤の数"""
         return self._n_ground
 
     @property
     def id_js(self) -> np.ndarray:
-        """境界jのID, [j, 1]"""
+        """ID of boundary j / 境界jのID, [J, 1]"""
         return self._id_js
 
     @property
     def name_js(self) -> np.ndarray:
-        """境界jの名前, [j, 1]"""
+        """name of boundary j / 境界jの名前, [J, 1]"""
         return self._name_js
 
     @property
     def sub_name_js(self) -> np.ndarray:
-        """境界jの名前2, [j, 1]"""
+        """sub name of boundary j / 境界jの名前2, [J, 1]"""
         return self._sub_name_js
+    
+    @property
+    def connected_room_id_js(self) -> np.ndarray:
+        """connected room id, [J, 1]"""
+        return self._connected_room_id_js
 
     @property
     def p_is_js(self) -> np.ndarray:
@@ -363,58 +374,58 @@ class Boundaries:
 
     @property
     def b_floor_js(self) -> np.ndarray:
-        """境界jが床かどうか, [j, 1]"""
+        """is boundary j floor ? / 境界jが床かどうか, [J, 1]"""
         return self._b_floor_js
 
     @property
     def b_ground_js(self) -> np.ndarray:
-        """境界jが地盤かどうか, [j, 1]"""
+        """is boundary j ground ? / 境界jが地盤かどうか, [J, 1]"""
         return self._b_ground_js
 
     @property
     def k_ei_js_js(self) -> np.ndarray:
-        """境界jの裏面温度に他の境界の等価室温が与える影響, [j, j]"""
+        """coefficient of effects of equivallent temperature of other boundary to rear surface temperature of given boundary"""
         return self._k_ei_js_js
         
     @property
     def k_eo_js(self) -> np.ndarray:
-        """境界jの裏面温度に外気温度が与える影響（温度差係数）, [j, 1]"""
+        """coefficient of effects of outdoor air temperature to rear surface temperature of given boundary j / 境界jの裏面温度に外気温度が与える影響（温度差係数）, [j, 1]"""
         return self._k_eo_js
 
     @property
     def k_s_r_js_is(self) -> np.ndarray:
-        """境界jの裏面温度に室温が与える影響, [j, i]"""
+        """coefficient of effects of room temperature to rear surface temperature of boundary / 境界jの裏面温度に室温が与える影響, [j, i]"""
         return self._k_s_r_js_is
 
     @property
     def b_s_sol_abs_js(self) -> np.ndarray:
-        """境界jの日射吸収の有無, [j, 1]"""
+        """whether does the surface of boundary j absorb solar radiation ? / 境界jの日射吸収の有無, [J, 1]"""
         return self._b_s_sol_abs_js
 
     @property
     def h_s_r_js(self) -> np.ndarray:
-        """境界jの室内側表面放射熱伝達率, W/m2K, [j, 1]"""
+        """radiative heat transfer coefficient of inside surface of boundary j / 境界jの室内側表面放射熱伝達率, W/m2K, [J, 1]"""
         return self._h_s_r_js
 
     @property
     def h_s_c_js(self) -> np.ndarray:
-        """境界jの室内側表面対流熱伝達率, W/m2K, [j, 1]"""
+        """convective heat transfer coefficient of inside surface of boundary j / 境界jの室内側表面対流熱伝達率, W/m2K, [J, 1]"""
         return self._h_s_c_js
 
     @property
     def u_js(self) -> np.ndarray:
-        """境界jにおけるシミュレーションに用いる表面熱伝達抵抗での熱貫流率, W/m2K, [j,1]"""
+        """境界jにおけるシミュレーションに用いる表面熱伝達抵抗での熱貫流率, W/m2K, [J, 1]"""
         return self._u_js
 
     @property
     def a_s_js(self) -> np.ndarray:
-        """境界jの面積, m2, [j, 1]"""
+        """area of boundary j / 境界jの面積, m2, [J, 1]"""
         return self._a_s_js
 
     @property
-    def eps_r_js(self) -> np.ndarray:
-        """境界jの放射率, -, [j, 1]"""
-        return self._eps_r_js
+    def eps_r_i_js(self) -> np.ndarray:
+        """long wave emissivity of boundary j / 境界jの放射率, -, [J, 1]"""
+        return self._eps_r_i_js
 
     @property
     def phi_a0_js(self) -> np.ndarray:
@@ -457,7 +468,7 @@ class Boundaries:
 
     def get_room_id_by_boundary_id(self, boundary_id: int):
 
-        room_id = self._connected_room_id_js[self._get_index_by_id(boundary_id=boundary_id)]
+        room_id = self._connected_room_id_js.flatten()[self._get_index_by_id(boundary_id=boundary_id)]
     
         return room_id
 
@@ -600,11 +611,22 @@ class Boundaries:
         return theta_dsh_s_a_js_ms_n, theta_dsh_s_t_js_ms_n
 
 
-def _get_p_is_js(id_r_is, connected_room_id_js):
+def _get_p_is_js(id_r_is:np.ndarray, connected_room_id_js: np.ndarray):
+    """
+
+    Args:
+        id_r_is: room id, [I, 1]
+        connected_room_id_js: connected room id, [J, 1]
+
+    Returns:
+        _type_: _description_
+    """
     # 室iと境界jの関係を表す係数（境界jから室iへの変換）
     # [[p_0_0 ... ... p_0_j]
     #  [ ...  ... ...  ... ]
     #  [p_i_0 ... ... p_i_j]]
+
+    connected_room_id_js = connected_room_id_js.flatten()
 
     p_js_is = [
         _get_p_is_j(id_r_is=id_r_is, connected_room_id_j=connected_room_id_j)
@@ -618,9 +640,13 @@ def _get_p_is_js(id_r_is, connected_room_id_js):
 
 def _get_p_is_j(id_r_is: np.ndarray, connected_room_id_j: int):
 
-    p_is_j = np.zeros(id_r_is.size, dtype=int)
-    p_is_j[_get_room_index(id_r_is=id_r_is, id=connected_room_id_j)] = 1
-    return p_is_j
+    try:
+        p_is_j = np.zeros(id_r_is.size, dtype=int)
+        p_is_j[_get_room_index(id_r_is=id_r_is, id=connected_room_id_j)] = 1
+        return p_is_j
+    except Exception as e:
+        raise ValueError("id_r_is = " + str(id_r_is) + ", connected_room_id_j = " + str(connected_room_id_j))
+
 
 
 def _get_room_index(id_r_is: np.ndarray, id: int):
@@ -641,9 +667,9 @@ def _get_room_index(id_r_is: np.ndarray, id: int):
     matched_indices = [index for (index, id_r_i) in enumerate(id_r_is) if id_r_i == id]
 
     if len(matched_indices) == 0:
-        raise ValueError("Boundary が接続する room のIDが存在しませんでした。")
+        raise ValueError("Boundary が接続する room のIDが存在しませんでした。(id=" + str(id) + ")")
     if len(matched_indices) > 1:
-        raise ValueError("Boundary が接続する room のIDが複数存在しました。")
+        raise ValueError("Boundary が接続する room のIDが複数存在しました。(id=" + str(id) + ")")
     
     return matched_indices[0]
 
@@ -697,12 +723,11 @@ def _get_boundary_index(id_js: np.ndarray, rear_surface_boundary_id: int, id: in
     return matched_indices[0]
 
 
-def _read_a_s(d: Dict, id: int) -> float:
+def _read_a_s(d: Dict) -> float:
     """Read the surface area.
 
     Args:
         d: dictionary of boundary
-        id: boundary id
     Regurns:
         surface area, m2
     """
@@ -711,17 +736,17 @@ def _read_a_s(d: Dict, id: int) -> float:
     a_s = float(d['area'])
 
     if a_s <= 0.0:
+        id = int(d['id'])        
         raise ValueError("境界(ID=" + str(id) + ")の面積で0以下の値が指定されました。")
     
     return a_s
 
 
-def _read_eps_s(d: Dict, id: int) -> float:
+def _read_eps_s(d: Dict) -> float:
     """Read the surface emissivity.
 
     Args:
         d: dictionary of boundary
-        id: boundary id
     Regurns:
         surface emissivity, -
     """
@@ -730,6 +755,7 @@ def _read_eps_s(d: Dict, id: int) -> float:
     eps_s = float(d.get('inside_emissivity', 0.9))
 
     if eps_s <= 0.0:
+        id = int(d['id'])
         raise ValueError("境界(ID=" + str(id) + ")の放射率で0以下の値が指定されました。")
 
     return eps_s
@@ -1149,16 +1175,15 @@ def _read_r_i_std_j(d: Dict, boundary_id: int) -> float:
     return r_i
 
 
-def _get_response_factor(d: Dict, h_s_c_js: np.ndarray, h_s_r_js: np.ndarray, id_j: int, t_b_j: BoundaryType, j_rear_j: Optional[int], r_s_o_j: Optional[float], u_w_std_j: Optional[float]) -> ResponseFactor:
+def _get_response_factor(d: Dict, h_s_c_rear_j: Optional[float], h_s_r_rear_j: Optional[float], id_j: int, t_b_j: BoundaryType, r_s_o_j: Optional[float], u_w_std_j: Optional[float]) -> ResponseFactor:
     """Get response factor of boundary j.
 
     Args:
         d: dictionary of boundary j
-        h_s_c_js: indoor surface convection heat transfer coefficient of boundary j, W/m2K, [J, 1]
-        h_s_r_js: indoor surface radiation heat transfer coefficient of boundary j, W/m2K, [J, 1]
+        h_s_c_rear_j: convective heat transfer coefficient of rear surface of boundary j, W/m2K
+        h_s_r_rear_j: radiative heat transfer coefficient of rear surface of boundary j, W/m2K
         id_j: id of boundary j
         t_b_j: typoe of boundary j
-        j_rear_j: boundary index j of the rear side of boundary j
         r_s_o_j: outside heat transfer resistance of boundary j, m2 K / W
         u_w_std_j: standard heat transmittance coefficient (U value) of boundary j, W/m2K
 
@@ -1171,9 +1196,6 @@ def _get_response_factor(d: Dict, h_s_c_js: np.ndarray, h_s_r_js: np.ndarray, id
 
         c_j_ls = np.array([_read_cs_j_l(layer=layer, id=id, layer_id=l) for (l, layer) in enumerate(d['layers'])])
         r_j_ls = np.array([_read_rs_j_l(layer=layer, id=id, layer_id=l) for (l, layer) in enumerate(d['layers'])])
-
-        h_s_c_rear_j = h_s_c_js[j_rear_j, 0]
-        h_s_r_rear_j = h_s_r_js[j_rear_j, 0]
 
         r_rear_j = 1.0 / (h_s_c_rear_j + h_s_r_rear_j)
 

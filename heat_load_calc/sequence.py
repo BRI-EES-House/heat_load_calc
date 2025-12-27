@@ -64,9 +64,6 @@ class Sequence:
             
         bs = boundaries.Boundaries(id_r_is=rms.id_r_is, ds=d['boundaries'], w=weather, rad_method=rad_method)
 
-        # ステップ n の室 i における窓の透過日射熱取得, W, [n]
-        q_trs_sol_is_ns = np.dot(bs.p_is_js, bs.q_trs_sol_js_nspls)
-
         # ステップ n の境界 j における相当外気温度, ℃, [j, n]
         # 　このif文は、これまで実施してきたテストを維持するために設けている。
         # いずれテスト方法を整理して、csvで与える方式を削除すべきである。
@@ -76,7 +73,7 @@ class Sequence:
             bs.set_theta_o_eqv_js_nspls(theta_o_eqv_js_nspls=np.append(theta_o_eqv_js_ns, theta_o_eqv_js_ns[:, 0:1], axis=1))
 
         # MechanicalVentilation Class
-        mvs = MechanicalVentilations(vs=d['mechanical_ventilations'], n_rm=rms.n_r)
+        mvs = MechanicalVentilations(ds=d['mechanical_ventilations'], n_rm=rms.n_r)
 
         # Equipments Class
         # TODO: Equipments Class を作成するのに Boundaries Class 全部をわたしているのはあまりよくない。
@@ -95,11 +92,14 @@ class Sequence:
         #   ステップ n　からステップ n+1 における係数 f_l_cl_cst, kg/s, [i, 1]
         get_f_l_cl = es.make_get_f_l_cl_funcs()
 
+        # ステップ n の室 i における窓の透過日射熱取得, W, [n]
+        q_trs_sol_is_ns = np.dot(bs.p_is_js, bs.q_trs_sol_js_nspls)
+
         # the shape factor of boundaries j for the occupant in room i, [i, j]
         f_mrt_hum_is_js = occupants_form_factor.get_f_mrt_hum_js(
             p_is_js=bs.p_is_js,
             a_s_js=bs.a_s_js,
-            eps_r_js=bs.eps_r_js,
+            eps_r_i_js=bs.eps_r_i_js,
             is_floor_js=bs.b_floor_js
         )
 

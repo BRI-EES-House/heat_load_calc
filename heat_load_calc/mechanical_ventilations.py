@@ -31,16 +31,16 @@ class MechanicalVentilation:
 
 class MechanicalVentilations:
 
-    def __init__(self, vs: List[Dict], n_rm: int):
+    def __init__(self, ds: List[Dict], n_rm: int):
 
         self._mechanical_ventilations = [
             MechanicalVentilation(
-                id=v['id'],
-                root_type=VentilationType(v['root_type']),
-                volume=v['volume'],
-                root=v['root']
+                id=d['id'],
+                root_type=VentilationType(d['root_type']),
+                volume=d['volume'],
+                root=d['root']
             )
-            for v in vs
+            for d in ds
         ]
 
         self._n_rm = n_rm
@@ -51,19 +51,19 @@ class MechanicalVentilations:
 
     @property
     def v_vent_mec_general_is(self) -> np.ndarray:
-        """mechanical ventilation amount (excluding local ventilation) of room i, m3/s, [i, 1]"""
+        """mechanical ventilation amount (excluding local ventilation) of room i, m3/s, [I, 1]"""
         return self._v_vent_mec_general_is
 
     @property
     def v_vent_int_is_is(self) -> np.ndarray:
-        """mechanical ventilation amount from the upstream room of room i, m3/s, [i, i]"""
+        """mechanical ventilation amount from the upstream room of room i, m3/s, [I, I]"""
         return self._v_vent_int_is_is
 
     def get_v_vent_mec_general_is(self) -> np.ndarray:
         """Calculate the mechanical ventilation (general) of room i.
 
         Returns:
-            mechanical ventilation (general) of room i, m3/s
+            mechanical ventilation (general) of room i, m3/s, [I, 1]
         
         Note:
             eq. 1
@@ -95,7 +95,7 @@ class MechanicalVentilations:
         """Calculate the tamount of the air moved from the room i* to the room i.
 
         Returns:
-            the amount of the air moved from the room i* to tohe room i, [i, i], m3/s
+            the amount of the air moved from the room i* to tohe room i, [I, I], m3/s
         
         """
 
