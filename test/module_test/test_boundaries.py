@@ -11,6 +11,12 @@ from heat_load_calc.interval import Interval
 from heat_load_calc.weather import Weather
 from heat_load_calc import shape_factor
 from heat_load_calc.shape_factor import ShapeFactorMethod
+from heat_load_calc.window import GlassType
+from heat_load_calc.window import Window
+from heat_load_calc.direction import Direction
+from heat_load_calc.solar_shading import SolarShading
+from heat_load_calc import outside_eqv_temp
+from heat_load_calc import transmission_solar_radiation
 
 
 class TestBoundaries(unittest.TestCase):
@@ -27,6 +33,9 @@ class TestBoundaries(unittest.TestCase):
         bs = Boundaries(id_r_is=id_r_is, ds=d['boundaries'], w=w, rad_method=ShapeFactorMethod.NAGATA)
 
         cls._bs: Boundaries = bs
+
+        cls._w: Weather = w
+    
 
     def test_get_p_is_js_ptn0(self):
 
@@ -296,34 +305,8 @@ class TestBoundaries(unittest.TestCase):
 
         h_s_c_js = _get_h_s_c_js()
         h_s_r_js = _get_h_s_r_js()
-        h_s_c_rear_js = np.array([None, None, None, None, None, None, None, None, None, None, None, None, h_s_c_js[13,0], h_s_c_js[12,0]])
-        h_s_r_rear_js = np.array([None, None, None, None, None, None, None, None, None, None, None, None, h_s_r_js[13,0], h_s_r_js[12,0]])
 
-        t_b_js = np.array([
-            BoundaryType.EXTERNAL_GENERAL_PART,
-            BoundaryType.EXTERNAL_GENERAL_PART,
-            BoundaryType.EXTERNAL_GENERAL_PART,
-            BoundaryType.EXTERNAL_GENERAL_PART,
-            BoundaryType.EXTERNAL_GENERAL_PART,
-            BoundaryType.EXTERNAL_GENERAL_PART,
-            BoundaryType.EXTERNAL_GENERAL_PART,
-            BoundaryType.EXTERNAL_GENERAL_PART,
-            BoundaryType.EXTERNAL_GENERAL_PART,
-            BoundaryType.EXTERNAL_GENERAL_PART,
-            BoundaryType.EXTERNAL_TRANSPARENT_PART,
-            BoundaryType.EXTERNAL_TRANSPARENT_PART,
-            BoundaryType.INTERNAL,
-            BoundaryType.INTERNAL
-        ])
-        id_js = _get_id_js().flatten()
-        r_s_o_js = np.array([0.04, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04, None, None])
-        u_w_std_js = np.array([None, None, None, None, None, None, None, None, None, None, 4.65, 4.65, None, None])
-        ds = _read_input_file()
-        rfs = [
-            boundaries._get_response_factor(d=d, h_s_c_rear_j=h_s_c_rear_j, h_s_r_rear_j=h_s_r_rear_j, id_j=id_j, t_b_j=t_b_j, r_s_o_j=r_s_o_j, u_w_std_j=u_w_std_j)
-            for (d, h_s_c_rear_j, h_s_r_rear_j, id_j, t_b_j, r_s_o_j, u_w_std_j)
-            in zip(ds['boundaries'], h_s_c_rear_js, h_s_r_rear_js, id_js, t_b_js, r_s_o_js, u_w_std_js)
-        ]
+        rfs = _get_response_factor()
 
         r_total_js = np.array([rf.r_total for rf in rfs]).reshape(-1, 1)
 
@@ -341,6 +324,257 @@ class TestBoundaries(unittest.TestCase):
         # long wave emissivity of internal surface of boundary, -
         np.testing.assert_equal(_get_eps_r_i_js(), self._bs.eps_r_i_js)
 
+    def test_phi_a0_js(self):
+
+        rfs = _get_response_factor()
+        np.testing.assert_equal(
+            np.array([rf.rfa0 for rf in rfs]).reshape(-1, 1),
+            self._bs.phi_a0_js
+        )
+    
+    def test_phi_a1_js(self):
+
+        rfs = _get_response_factor()
+        np.testing.assert_equal(
+            np.array([rf.rfa1 for rf in rfs]),
+            self._bs.phi_a1_js_ms
+        )
+
+    def test_phi_t0_js(self):
+
+        rfs = _get_response_factor()
+        np.testing.assert_equal(
+            np.array([rf.rft0 for rf in rfs]).reshape(-1, 1),
+            self._bs.phi_t0_js
+        )
+    
+    def test_phi_t1_js(self):
+
+        rfs = _get_response_factor()
+        np.testing.assert_equal(
+            np.array([rf.rft1 for rf in rfs]),
+            self._bs.phi_t1_js_ms
+        )
+    
+    def test_r_js_ms(self):
+
+        rfs = _get_response_factor()
+        np.testing.assert_equal(
+            np.array([rf.row for rf in rfs]),
+            self._bs.r_js_ms
+        )
+    
+    def test_o_eqv_js_nspls(self):
+
+        window_js = _get_window_js()
+
+        ssp_js = _get_ssp_js()
+
+        # boundary type, [J]
+        t_b_js = _get_t_b_js()
+
+        # standard u value of boundary, [J]
+        u_w_std_js = np.array([None, None, None, None, None, None, None, None, None, None, 4.65, 4.65, None, None])
+
+        b_sun_stkd_out_js = np.array([True, True, True, True, True, True, True, True, True, True, True, True, False, False])
+
+        t_drct_js = _get_t_drct_js()
+
+        a_sol_js = np.array([0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, None, None, None, None])
+
+        eps_r_o_js = np.array([0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, None, None])
+
+        r_s_o_js = np.array([0.04, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04, None, None])
+
+        def get_theta_o_eqv_j_n_pls(t_b_j, b_sun_strkd_out_j, t_drct_j, a_sol_j, eps_r_o_j, r_s_o_j, ssp_j, u_w_std_j, window_j):
+
+            match t_b_j:
+
+                case BoundaryType.INTERNAL:
+                    return outside_eqv_temp.get_theta_o_eqv_j_ns_for_internal(w=self._w)
+
+                case BoundaryType.EXTERNAL_GENERAL_PART:
+                    
+                    if b_sun_strkd_out_j:
+                        
+                        return outside_eqv_temp.get_theta_o_eqv_j_ns_for_external_general_part_and_external_opaque_part(
+                            t_drct_j=t_drct_j, a_sol_j=a_sol_j, eps_r_o_j=eps_r_o_j, r_s_o_j=r_s_o_j, ssp_j=ssp_j, w=self._w
+                        )
+                    
+                    else:
+
+                        return outside_eqv_temp.get_theta_o_eqv_j_ns_for_external_not_sun_striked(w=self._w)
+
+                case BoundaryType.EXTERNAL_TRANSPARENT_PART:
+
+                    if b_sun_strkd_out_j:
+
+                        return outside_eqv_temp.get_theta_o_eqv_j_ns_for_external_transparent_part(
+                            t_drct_j=t_drct_j, eps_r_o_j=eps_r_o_j, r_s_o_j=r_s_o_j, u_w_std_j=u_w_std_j, ssp_j=ssp_j, window_j=window_j, w=self._w
+                        )
+                    
+                    else:
+
+                        return outside_eqv_temp.get_theta_o_eqv_j_ns_for_external_not_sun_striked(w=self._w)
+                
+                case _:
+
+                    raise Exception()
+
+        theta_o_eqv_js_n_pls = np.array([
+            get_theta_o_eqv_j_n_pls(t_b_j=t_b_j, b_sun_strkd_out_j=b_sun_strkd_out_j, t_drct_j=t_drct_j, a_sol_j=a_sol_j, eps_r_o_j=eps_r_o_j, r_s_o_j=r_s_o_j, ssp_j=ssp_j, u_w_std_j=u_w_std_j, window_j=window_j)
+            for (t_b_j, b_sun_strkd_out_j, t_drct_j, a_sol_j, eps_r_o_j, r_s_o_j, ssp_j, u_w_std_j, window_j)
+            in zip(t_b_js, b_sun_stkd_out_js, t_drct_js, a_sol_js, eps_r_o_js, r_s_o_js, ssp_js, u_w_std_js, window_js)
+        ])
+
+        np.testing.assert_equal(
+            theta_o_eqv_js_n_pls,
+            self._bs.theta_o_eqv_js_nspls
+        )
+
+    def test_q_trs_sol_j_nspls(self):
+
+        t_b_js = _get_t_b_js()
+
+        t_drct_js = _get_t_drct_js()
+
+        a_s_js = _get_a_s_js()
+
+        ssp_js = _get_ssp_js()
+
+        window_js = _get_window_js()
+
+        b_sun_stkd_out_js = np.array([True, True, True, True, True, True, True, True, True, True, True, True, False, False])
+
+        def get_q_trs_sol_j_ns(t_b_j, b_sun_strkd_out_j, t_drct_j, a_s_j, ssp_j, window_j):
+
+            match t_b_j:
+
+                case BoundaryType.INTERNAL | BoundaryType.EXTERNAL_GENERAL_PART:
+
+                    return transmission_solar_radiation.get_q_trs_sol_j_ns_for_not(w=self._w)
+                
+                case BoundaryType.EXTERNAL_TRANSPARENT_PART:
+
+                    return transmission_solar_radiation.get_q_trs_sol_j_ns_for_transparent_sun_striked(
+                        t_drct_j=t_drct_j, a_s_j=a_s_j, ssp_j=ssp_j, window_j=window_j, w=self._w
+                    )
+
+                case _:
+                    
+                    raise Exception()
+
+        q_trs_sol_j_ns = np.array([
+            get_q_trs_sol_j_ns(t_b_j=t_b_j, b_sun_strkd_out_j=b_sun_strkd_out_j, t_drct_j=t_drct_j, a_s_j=a_s_j, ssp_j=ssp_j, window_j=window_j)
+            for (t_b_j, b_sun_strkd_out_j, t_drct_j, a_s_j, ssp_j, window_j)
+            in zip(t_b_js, b_sun_stkd_out_js, t_drct_js, a_s_js, ssp_js, window_js)
+        ])     
+
+        np.testing.assert_equal(q_trs_sol_j_ns, self._bs.q_trs_sol_js_nspls)
+
+
+def _get_t_drct_js():
+
+    return np.array([Direction.S, Direction.W, Direction.E, Direction.N, Direction.BOTTOM, Direction.S, Direction.W, Direction.E, Direction.N, Direction.TOP, Direction.S, Direction.S, None, None])
+
+
+def _get_ssp_js():
+
+    b_sun_stkd_out_js = np.array([True, True, True, True, True, True, True, True, True, True, True, True, False, False])
+
+    t_drct_js = np.array([Direction.S, Direction.W, Direction.E, Direction.N, Direction.BOTTOM, Direction.S, Direction.W, Direction.E, Direction.N, Direction.TOP, Direction.S, Direction.S, None, None])
+
+    ssp_dict = {"existence": False}
+
+    ssp_dict_js = np.array([ssp_dict, ssp_dict, ssp_dict, ssp_dict, ssp_dict, ssp_dict, ssp_dict, ssp_dict, ssp_dict, ssp_dict, ssp_dict, ssp_dict, None, None])
+
+    ssp_js = [
+        SolarShading.create(ssp_dict=ssp_dict_j, direction=t_drct_j) if b_sun_strkd_out_j else None
+        for (ssp_dict_j, t_drct_j, b_sun_strkd_out_j)
+        in zip(ssp_dict_js, t_drct_js, b_sun_stkd_out_js)
+    ]
+
+    return ssp_js
+
+
+def _get_window_js():
+
+    # boundary type, [J]
+    t_b_js = _get_t_b_js()
+
+    # standard u value of boundary, [J]
+    u_w_std_js = np.array([None, None, None, None, None, None, None, None, None, None, 4.65, 4.65, None, None])
+
+    # eta value of boundary, [J]
+    eta_w_std_js = np.array([None, None, None, None, None, None, None, None, None, None, 0.792, 0.792, None, None])
+
+    # grazing area ratio of boundary, [J]
+    r_a_w_g_js = np.array([None, None, None, None, None, None, None, None, None, None, 0.8, 0.8, None, None])
+
+    # grazing type of boundary, [J]
+    t_glz_js = np.array([None, None, None, None, None, None, None, None, None, None, GlassType.MULTIPLE, GlassType.MULTIPLE, None, None])
+
+    window_js = np.array([Window(u_w_std_j=u_w_std_j, eta_w_std_j=eta_w_std_j, t_glz_j=t_glz_j, r_a_w_g_j=r_a_w_g_j) if t_b_j == BoundaryType.EXTERNAL_TRANSPARENT_PART else None
+        for (t_b_j, u_w_std_j, eta_w_std_j, t_glz_j, r_a_w_g_j)
+        in zip(t_b_js, u_w_std_js, eta_w_std_js, t_glz_js, r_a_w_g_js)
+    ])
+
+    return window_js
+
+
+def _get_h_s_c_rear_js():
+    """[J]"""
+
+    h_s_c_js = _get_h_s_c_js()
+    return np.array([None, None, None, None, None, None, None, None, None, None, None, None, h_s_c_js[13,0], h_s_c_js[12,0]])
+
+
+def _get_h_s_r_rear_js():
+    """[J]"""
+
+    h_s_r_js = _get_h_s_r_js()
+    return np.array([None, None, None, None, None, None, None, None, None, None, None, None, h_s_r_js[13,0], h_s_r_js[12,0]])
+
+
+def _get_t_b_js():
+    """[J]"""
+
+    return np.array([
+        BoundaryType.EXTERNAL_GENERAL_PART,
+        BoundaryType.EXTERNAL_GENERAL_PART,
+        BoundaryType.EXTERNAL_GENERAL_PART,
+        BoundaryType.EXTERNAL_GENERAL_PART,
+        BoundaryType.EXTERNAL_GENERAL_PART,
+        BoundaryType.EXTERNAL_GENERAL_PART,
+        BoundaryType.EXTERNAL_GENERAL_PART,
+        BoundaryType.EXTERNAL_GENERAL_PART,
+        BoundaryType.EXTERNAL_GENERAL_PART,
+        BoundaryType.EXTERNAL_GENERAL_PART,
+        BoundaryType.EXTERNAL_TRANSPARENT_PART,
+        BoundaryType.EXTERNAL_TRANSPARENT_PART,
+        BoundaryType.INTERNAL,
+        BoundaryType.INTERNAL
+    ])   
+
+
+def _get_response_factor():
+
+    ds = _read_input_file()
+    h_s_c_rear_js = _get_h_s_c_rear_js()
+    h_s_r_rear_js = _get_h_s_r_rear_js()
+    id_js = _get_id_js().flatten()
+    t_b_js = _get_t_b_js()
+    r_s_o_js = np.array([0.04, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04, None, None])
+    u_w_std_js = np.array([None, None, None, None, None, None, None, None, None, None, 4.65, 4.65, None, None])
+
+
+    rfs = [
+        boundaries._get_response_factor(d=d, h_s_c_rear_j=h_s_c_rear_j, h_s_r_rear_j=h_s_r_rear_j, id_j=id_j, t_b_j=t_b_j, r_s_o_j=r_s_o_j, u_w_std_j=u_w_std_j)
+        for (d, h_s_c_rear_j, h_s_r_rear_j, id_j, t_b_j, r_s_o_j, u_w_std_j)
+        in zip(ds['boundaries'], h_s_c_rear_js, h_s_r_rear_js, id_js, t_b_js, r_s_o_js, u_w_std_js)
+    ]
+
+    return rfs
 
 
 def _get_id_js():

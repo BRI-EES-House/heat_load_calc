@@ -271,7 +271,7 @@ class Boundaries:
         # standard solar gain coefficient (eta value) of boundary j, -
         eta_w_std_j = _read_eta_std(d=d, id=id_j, t_b=t_b_j)
 
-        # grazing area ratio fo boundary j, -
+        # grazing area ratio of boundary j, -
         r_a_w_g_j = _read_r_a_w_g(d=d, id=id_j, t_b=t_b_j)
 
         # grazing type of boundary j/ グレージングの種類
