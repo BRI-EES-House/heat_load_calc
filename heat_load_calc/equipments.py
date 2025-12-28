@@ -117,16 +117,16 @@ class CoolingEquipmentFloorCooling:
 
 class Equipments:
 
-    def __init__(self, dict_equipments: Dict, n_rm: int, n_b: int, bs: boundaries.Boundaries):
+    def __init__(self, d: Dict, n_rm: int, n_b: int, bs: boundaries.Boundaries):
         """設備に関する情報を辞書形式で受け取り、データクラスに変換して保持する。
         暖房・冷房それぞれにおいて、
         辞書の中の "equipment_type" の種類に応じて対応するデータクラスを生成する。
 
         Args:
-            dict_equipments: 設備の情報が記された辞書
-            n_rm: 部屋の数
-            n_b: 境界の数
-            bs: Boundariesクラス
+            ds: dictionary of equipments spec / 設備の情報が記された辞書
+            n_rm: number of rooms / 部屋の数
+            n_b: number of boundaries / 境界の数
+            bs: Boundaries class
 
         Notes:
             ここで Boundaries クラスは、境界IDと室IDとの対応関係を見ることだけに使用される。
@@ -136,15 +136,21 @@ class Equipments:
             Equipments を initialize する際に、あらかじめ放射暖冷房にも room_id を付与しておくこととする。
         """
 
-        hes = [
-            self._create_heating_equipment(dict_heating_equipment=he, bs=bs)
-            for he in dict_equipments['heating_equipments']
-        ]
+        if 'heating_equipments' in d:
+            hes = [
+                self._create_heating_equipment(dict_heating_equipment=he, bs=bs)
+                for he in d['heating_equipments']
+            ]
+        else:
+            raise KeyError("Can't find the heating_equipments key in equipments dictionary.")
 
-        ces = [
-            self._create_cooling_equipment(dict_cooling_equipment=ce, bs=bs)
-            for ce in dict_equipments['cooling_equipments']
-        ]
+        if 'cooling_equipments' in d:
+            ces = [
+                self._create_cooling_equipment(dict_cooling_equipment=ce, bs=bs)
+                for ce in d['cooling_equipments']
+            ]
+        else:
+            raise KeyError("Can't find the cooling_equipments key in equipments dictionary.")
 
         self._hes = hes
         self._ces = ces

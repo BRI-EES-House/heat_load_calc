@@ -77,7 +77,7 @@ class Sequence:
 
         # Equipments Class
         # TODO: Equipments Class を作成するのに Boundaries Class 全部をわたしているのはあまりよくない。
-        es = Equipments(dict_equipments=d['equipments'], n_rm=rms.n_r, n_b=bs.n_b, bs=bs)
+        es = Equipments(d=d['equipments'], n_rm=rms.n_r, n_b=bs.n_b, bs=bs)
 
         # Operation Class
         op = operation_mode.Operation.make_operation(
