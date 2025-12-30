@@ -2,11 +2,24 @@
 from typing import Union
 import numpy as np
 from dataclasses import dataclass
+from enum import Enum
 
 from heat_load_calc import boundaries
 from heat_load_calc.psychrometrics import get_x, get_p_vs
 from heat_load_calc.global_number import get_c_a, get_rho_a
 from heat_load_calc.matrix_method import v_diag
+
+
+class HeatingEquipment(Enum):
+
+    RAC = 'rac'
+    FLOOR_HEATING = 'floor_heating'
+
+
+class CoolingEquipment(Enum):
+
+    RAC = 'rac'
+    FLOOR_COOLING = 'floor_cooling'
 
 
 @dataclass
@@ -138,16 +151,16 @@ class Equipments:
 
         if 'heating_equipments' in d:
             hes = [
-                self._create_heating_equipment(dict_heating_equipment=he, bs=bs)
-                for he in d['heating_equipments']
+                _create_heating_equipment(d_he=d_he, bs=bs)
+                for d_he in d['heating_equipments']
             ]
         else:
             raise KeyError("Can't find the heating_equipments key in equipments dictionary.")
 
         if 'cooling_equipments' in d:
             ces = [
-                self._create_cooling_equipment(dict_cooling_equipment=ce, bs=bs)
-                for ce in d['cooling_equipments']
+                _create_cooling_equipment(d_ce=d_ce, bs=bs)
+                for d_ce in d['cooling_equipments']
             ]
         else:
             raise KeyError("Can't find the cooling_equipments key in equipments dictionary.")
@@ -166,82 +179,6 @@ class Equipments:
 
         self._n_rm = n_rm
         self._n_b = n_b
-
-    @staticmethod
-    def _create_heating_equipment(dict_heating_equipment, bs: boundaries.Boundaries):
-
-        he_type = dict_heating_equipment['equipment_type']
-        id = dict_heating_equipment['id']
-        name = dict_heating_equipment['name']
-        prop = dict_heating_equipment['property']
-
-        if he_type == 'rac':
-
-            return HeatingEquipmentRAC(
-                id=id,
-                name=name,
-                room_id=prop['space_id'],
-                q_min=prop['q_min'],
-                q_max=prop['q_max'],
-                v_min=prop['v_min'],
-                v_max=prop['v_max'],
-                bf=prop['bf']
-            )
-
-        elif he_type == 'floor_heating':
-
-            room_id = bs.get_room_id_by_boundary_id(boundary_id=prop['boundary_id'])
-
-            return HeatingEquipmentFloorHeating(
-                id=id,
-                name=name,
-                room_id=room_id,
-                boundary_id=prop['boundary_id'],
-                max_capacity=prop['max_capacity'],
-                area=prop['area'],
-                convection_ratio=prop['convection_ratio']
-            )
-
-        else:
-            raise Exception
-
-    @staticmethod
-    def _create_cooling_equipment(dict_cooling_equipment, bs: boundaries.Boundaries):
-
-        ce_type = dict_cooling_equipment['equipment_type']
-        id = dict_cooling_equipment['id']
-        name = dict_cooling_equipment['name']
-        prop = dict_cooling_equipment['property']
-
-        if ce_type == 'rac':
-
-            return CoolingEquipmentRAC(
-                id=id,
-                name=name,
-                room_id=prop['space_id'],
-                q_min=prop['q_min'],
-                q_max=prop['q_max'],
-                v_min=prop['v_min'],
-                v_max=prop['v_max'],
-                bf=prop['bf']
-            )
-
-        elif ce_type == 'floor_cooling':
-
-            room_id = bs.get_room_id_by_boundary_id(boundary_id=prop['boundary_id'])
-
-            return CoolingEquipmentFloorCooling(
-                id=id,
-                name=name,
-                room_id=room_id,
-                boundary_id=prop['boundary_id'],
-                max_capacity=prop['max_capacity'],
-                area=prop['area'],
-                convection_ratio=prop['convection_ratio']
-            )
-
-        else:
-            raise Exception
 
     @property
     def is_radiative_heating_is(self) -> np.ndarray:
@@ -559,4 +496,83 @@ class Equipments:
 
         return v_rac_i_n
 
+
+def _create_heating_equipment(d_he: Dict, bs: boundaries.Boundaries):
+
+    he = HeatingEquipment(d_he['equipment_type'])
+    id = d_he['id']
+    name = d_he['name']
+    prop = d_he['property']
+
+    match he:
+
+        case HeatingEquipment.RAC:
+
+            return HeatingEquipmentRAC(
+                id=id,
+                name=name,
+                room_id=prop['space_id'],
+                q_min=prop['q_min'],
+                q_max=prop['q_max'],
+                v_min=prop['v_min'],
+                v_max=prop['v_max'],
+                bf=prop['bf']
+            )
+
+        case HeatingEquipment.FLOOR_HEATING:
+
+            room_id = bs.get_room_id_by_boundary_id(boundary_id=prop['boundary_id'])
+
+            return HeatingEquipmentFloorHeating(
+                id=id,
+                name=name,
+                room_id=room_id,
+                boundary_id=prop['boundary_id'],
+                max_capacity=prop['max_capacity'],
+                area=prop['area'],
+                convection_ratio=prop['convection_ratio']
+            )
+        
+        case _:
+            raise Exception()
+
+
+def _create_cooling_equipment(d_ce, bs: boundaries.Boundaries):
+
+    ce = CoolingEquipment(d_ce['equipment_type'])
+    id = d_ce['id']
+    name = d_ce['name']
+    prop = d_ce['property']
+
+    match ce:
+        
+        case CoolingEquipment.RAC:
+
+            return CoolingEquipmentRAC(
+                id=id,
+                name=name,
+                room_id=prop['space_id'],
+                q_min=prop['q_min'],
+                q_max=prop['q_max'],
+                v_min=prop['v_min'],
+                v_max=prop['v_max'],
+                bf=prop['bf']
+            )
+
+        case CoolingEquipment.FLOOR_COOLING:
+
+            room_id = bs.get_room_id_by_boundary_id(boundary_id=prop['boundary_id'])
+
+            return CoolingEquipmentFloorCooling(
+                id=id,
+                name=name,
+                room_id=room_id,
+                boundary_id=prop['boundary_id'],
+                max_capacity=prop['max_capacity'],
+                area=prop['area'],
+                convection_ratio=prop['convection_ratio']
+            )
+        
+        case _:
+            raise Exception
 
