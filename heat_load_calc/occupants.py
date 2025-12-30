@@ -4,32 +4,32 @@ from heat_load_calc.global_number import get_l_wtr
 
 
 def get_x_hum_psn_is_n(theta_r_is_n: np.ndarray) -> np.ndarray:
-    """1人あたりの人体発湿を計算する。
+    """Calculate the moisture generated from one occupant in room i at step n.
 
     Args:
-        theta_r_is_n: ステップnの室iにおける室温, degree C, [i, 1]
+        theta_r_is_n: room temperature of room i at step n, degree C, [I, 1]
 
     Returns:
-        ステップnの室iにおける1人あたりの人体発湿, kg/s, [i, 1]
+        moisture generated from one occupant in room i at step n, kg/s, [I, 1]
     """
 
-    # 水の蒸発潜熱, J/kg
+    # latent heat of vaporization of water, J/kg
     l_wtr = get_l_wtr()
 
-    # ステップnの室iにおける1人あたりの人体発熱, W, [i]
+    # sensitive heat generated from one occupant in room i at step n, W, [I, 1]
     q_hum_psn_is_n = get_q_hum_psn_is_n(theta_r_is_n=theta_r_is_n)
 
     return (119.0 - q_hum_psn_is_n) / l_wtr
 
 
 def get_q_hum_psn_is_n(theta_r_is_n: np.ndarray) -> np.ndarray:
-    """1人あたりの人体発湿を計算する。
+    """Calculate the sensitive heat generated from one occupant in room i at step n.
 
     Args:
-        theta_r_is_n: ステップnの室iにおける室温, degree C, [i, 1]
+        theta_r_is_n: room temperature of room i at step n, degree C, [I, 1]
 
     Returns:
-        ステップnの室iにおける1人あたりの人体発熱, W, [i, 1]
+        sensitive heat generated from one occupant in room i at step n, W, [I, 1]
     """
 
     return np.minimum(63.0 - 4.0 * (theta_r_is_n - 24.0), 119.0)
