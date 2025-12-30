@@ -373,51 +373,46 @@ class Equipments:
 
         return f_flr_eqp_js_ks
 
-    def make_get_f_l_cl_funcs(self) -> Callable[[np.ndarray, np.ndarray, np.ndarray], Tuple[np.ndarray, np.ndarray]]:
+    def get_f_l_cl(
+        self,
+        l_cs_is_n: np.ndarray,
+        theta_r_is_n_pls: np.ndarray,
+        x_r_ntr_is_n_pls: np.ndarray
+    ) -> Tuple[np.ndarray, np.ndarray]:
+        """
 
-        # 顕熱負荷、室温、加湿・除湿をしない場合の自然絶対湿度から、係数 f_l_cl を求める関数を定義する。
-        # 対流式と放射式に分けて係数を設定して、それぞれの除湿量を出す式に将来的に変更した方が良いかもしれない。
+        Args:
+            l_cs_is_n: ステップ n からステップ n+1 における室 i の暖冷房設備の顕熱処理量（暖房を正・冷房を負とする）, W, [i, 1]
+            theta_r_is_n_pls: ステップ n+1 における室 i の温度, degree C, [i, 1]
+            x_r_ntr_is_n_pls: ステップ n+1 における室 i の加湿・除湿を行わない場合の絶対湿度, kg/kg(DA), [i, 1]
 
-        def get_f_l_cl(
-            l_cs_is_n: np.ndarray,
-            theta_r_is_n_pls: np.ndarray,
-            x_r_ntr_is_n_pls: np.ndarray
-        ) -> Tuple[np.ndarray, np.ndarray]:
-            """
+        Returns:
+            タプル
+                ステップ n　からステップ n+1 における係数 f_l_cl_wgt, kg/s(kg/kg(DA)), [i, i]
+                ステップ n　からステップ n+1 における係数 f_l_cl_cst, kg/s, [i, 1]
+        """
 
-            Args:
-                l_cs_is_n: ステップ n からステップ n+1 における室 i の暖冷房設備の顕熱処理量（暖房を正・冷房を負とする）, W, [i, 1]
-                theta_r_is_n_pls: ステップ n+1 における室 i の温度, degree C, [i, 1]
-                x_r_ntr_is_n_pls: ステップ n+1 における室 i の加湿・除湿を行わない場合の絶対湿度, kg/kg(DA), [i, 1]
+        ls = [
+            self._get_ls_a_ls_b(
+                l_cs_is_n=l_cs_is_n,
+                theta_r_is_n_pls=theta_r_is_n_pls,
+                x_r_ntr_is_n_pls=x_r_ntr_is_n_pls,
+                ce=ce
+            )
+            for ce in self._ces
+        ]
 
-            Returns:
-                タプル
-                    ステップ n　からステップ n+1 における係数 f_l_cl_wgt, kg/s(kg/kg(DA)), [i, i]
-                    ステップ n　からステップ n+1 における係数 f_l_cl_cst, kg/s, [i, 1]
-            """
+        # 係数 la と 係数 lb をタプルから別々に取り出す。
+        ls_a = np.array([l[0] for l in ls])
+        ls_b = np.array([l[1] for l in ls])
+        # 係数 la 及び lb それぞれ合計する。
+        # la [i,i] kg/s(kg/kg(DA))
+        # lb [i,1] kg/kg(DA)
+        # TODO: La は正負が仕様書と逆になっている
+        f_l_cl_wgt_is_is_n = - ls_a.sum(axis=0)
+        f_l_cl_cst_is_n = ls_b.sum(axis=0)
+        return f_l_cl_cst_is_n, f_l_cl_wgt_is_is_n
 
-            ls = [
-                self._get_ls_a_ls_b(
-                    l_cs_is_n=l_cs_is_n,
-                    theta_r_is_n_pls=theta_r_is_n_pls,
-                    x_r_ntr_is_n_pls=x_r_ntr_is_n_pls,
-                    ce=ce
-                )
-                for ce in self._ces
-            ]
-
-            # 係数 la と 係数 lb をタプルから別々に取り出す。
-            ls_a = np.array([l[0] for l in ls])
-            ls_b = np.array([l[1] for l in ls])
-            # 係数 la 及び lb それぞれ合計する。
-            # la [i,i] kg/s(kg/kg(DA))
-            # lb [i,1] kg/kg(DA)
-            # TODO: La は正負が仕様書と逆になっている
-            f_l_cl_wgt_is_is_n = - ls_a.sum(axis=0)
-            f_l_cl_cst_is_n = ls_b.sum(axis=0)
-            return f_l_cl_cst_is_n, f_l_cl_wgt_is_is_n
-
-        return get_f_l_cl
 
     def _get_ls_a_ls_b(
         self,
