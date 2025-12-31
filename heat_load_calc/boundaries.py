@@ -466,23 +466,6 @@ class Boundaries:
         """transmitted solar heat gain of boundary j at step n, ステップnにおける境界jの透過日射熱取得, W, [J, N+1]"""
         return self._q_trs_sol_js_nspls
 
-    def get_room_id_by_boundary_id(self, boundary_id: int):
-
-        room_id = self._connected_room_id_js.flatten()[self._get_index_by_id(boundary_id=boundary_id)]
-    
-        return room_id
-
-    def _get_index_by_id(self, boundary_id: int) -> int:
-
-        indices = [i for (i, id_b_j) in enumerate(self.id_js) if id_b_j == boundary_id]
-
-        if len(indices) == 0:
-            raise Exception("指定された boundary_id に一致する boundary が見つかりませんでした。")
-        if len(indices) >1:
-            raise Exception("指定された boundary_id に一致する boundary が複数見つかりました。")
-        
-        return indices[0]
-
     def get_f_ax_js_is(self, f_mrt_is_js: np.ndarray) -> np.ndarray:
 
         return _get_f_ax_js_is(

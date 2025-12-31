@@ -1,4 +1,4 @@
-﻿from typing import Callable, Dict, Tuple
+﻿from typing import Callable, Dict, Tuple, List
 from typing import Union
 import numpy as np
 from dataclasses import dataclass
@@ -130,7 +130,7 @@ class CoolingEquipmentFloorCooling:
 
 class Equipments:
 
-    def __init__(self, d: Dict, n_rm: int, n_b: int, bs: boundaries.Boundaries):
+    def __init__(self, d: Dict, n_rm: int, n_b: int, bs: boundaries.Boundaries, id_r_is: np.ndarray):
         """設備に関する情報を辞書形式で受け取り、データクラスに変換して保持する。
         暖房・冷房それぞれにおいて、
         辞書の中の "equipment_type" の種類に応じて対応するデータクラスを生成する。
@@ -168,14 +168,14 @@ class Equipments:
         self._hes = hes
         self._ces = ces
 
-        self._is_radiative_heating_is = self._get_is_radiative_is(es=hes, n_rm=n_rm)
-        self._is_radiative_cooling_is = self._get_is_radiative_is(es=ces, n_rm=n_rm)
-        self._q_rs_h_max_is = self._get_q_rs_max_is(es=hes, n_rm=n_rm)
-        self._q_rs_c_max_is = self._get_q_rs_max_is(es=ces, n_rm=n_rm)
-        self._beta_h_is = self._get_beta_is(es=hes, n_rm=n_rm)
-        self._beta_c_is = self._get_beta_is(es=ces, n_rm=n_rm)
-        self._f_flr_h_js_is = self._get_f_flr_js_is(es=hes, n_rm=n_rm, n_b=n_b)
-        self._f_flr_c_js_is = self._get_f_flr_js_is(es=ces, n_rm=n_rm, n_b=n_b)
+        self._is_radiative_heating_is = self._get_is_radiative_is(es=hes, id_r_is=id_r_is)
+        self._is_radiative_cooling_is = self._get_is_radiative_is(es=ces, id_r_is=id_r_is)
+        self._q_rs_h_max_is = self._get_q_rs_max_is(es=hes, id_r_is=id_r_is)
+        self._q_rs_c_max_is = self._get_q_rs_max_is(es=ces, id_r_is=id_r_is)
+        self._beta_h_is = self._get_beta_is(es=hes, n_rm=n_rm, id_r_is=id_r_is)
+        self._beta_c_is = self._get_beta_is(es=ces, n_rm=n_rm, id_r_is=id_r_is)
+        self._f_flr_h_js_is = self._get_f_flr_js_is(es=hes, n_rm=n_rm, n_b=n_b, id_r_is=id_r_is)
+        self._f_flr_c_js_is = self._get_f_flr_js_is(es=ces, n_rm=n_rm, n_b=n_b, id_r_is=id_r_is)
 
         self._n_rm = n_rm
         self._n_b = n_b
@@ -210,67 +210,77 @@ class Equipments:
         """室iの放射冷房設備の対流成分比率, -, [i, 1]"""
         return self._beta_c_is
 
-    def _get_q_rs_max_is(self, es, n_rm):
+    def _get_q_rs_max_is(self, es, id_r_is: np.ndarray):
 
-        q_rs_max_is = np.zeros(shape=(n_rm, 1), dtype=float)
+        q_rs_max_is = np.zeros_like(a=id_r_is, dtype=float)
 
         for e in es:
             if type(e) in [HeatingEquipmentFloorHeating, CoolingEquipmentFloorCooling]:
-                q_rs_max_is[e.room_id, 0] = q_rs_max_is[e.room_id, 0] + e.max_capacity * e.area
+                index = _get_index_by_id(id_list=list(id_r_is.flatten()), searching_id=e.room_id)
+                q_rs_max_is[index, 0] = q_rs_max_is[index, 0] + e.max_capacity * e.area
 
         return q_rs_max_is
 
-    def _get_is_radiative_is(self, es, n_rm):
+    def _get_is_radiative_is(self, es, id_r_is: np.ndarray):
         """室に放射暖冷房があるか否かを判定する。
 
         Returns:
             放射暖冷房の有無, [i, 1]
         """
 
-        is_radiative_is = np.full(shape=(n_rm, 1), fill_value=False)
+        # is_radiative_is = np.full(shape=(n_rm, 1), fill_value=False)
+        is_radiative_is = np.full_like(a=id_r_is, fill_value=False, dtype=bool)
 
         for e in es:
             if type(e) in [HeatingEquipmentFloorHeating, CoolingEquipmentFloorCooling]:
-                is_radiative_is[e.room_id, 0] = True
+                index = _get_index_by_id(id_list=list(id_r_is.flatten()), searching_id=e.room_id)
+                is_radiative_is[index, 0] = True
 
         return is_radiative_is
 
-    def _get_beta_is(self, es, n_rm):
+    def _get_beta_is(self, es, n_rm, id_r_is: np.ndarray):
 
-        f_beta_eqp_ks_is = self._get_f_beta_eqp_ks_is(es=es, n_rm=n_rm)
-        r_max_ks_is = self._get_r_max_ks_is(es=es, n_rm=n_rm)
+        f_beta_eqp_ks_is = self._get_f_beta_eqp_ks_is(es=es, n_rm=n_rm, id_r_is=id_r_is)
+        r_max_ks_is = self._get_r_max_ks_is(es=es, n_rm=n_rm, id_r_is=id_r_is)
 
         return np.sum(f_beta_eqp_ks_is * r_max_ks_is, axis=0).reshape(-1, 1)
 
-    def _get_p_ks_is(self, es, n_rm):
+    def _get_p_ks_is(self, es, n_rm, id_r_is: np.ndarray):
 
+        n_rm = id_r_is.shape[1]
         p_ks_is = np.zeros(shape=(len(es), n_rm), dtype=float)
 
         for k, e in enumerate(es):
             if type(e) in [HeatingEquipmentFloorHeating, CoolingEquipmentFloorCooling]:
-                p_ks_is[k, e.room_id] = 1.0
+                index = _get_index_by_id(id_list=id_r_is, searching_id=e.room_id)
+                p_ks_is[k, index] = 1.0
 
         return p_ks_is
 
     @staticmethod
-    def _get_f_beta_eqp_ks_is(es, n_rm):
+    def _get_f_beta_eqp_ks_is(es, n_rm, id_r_is: np.ndarray):
+
+        n_rm = id_r_is.shape[0]
 
         f_beta_eqp_ks_is = np.zeros(shape=(len(es), n_rm), dtype=float)
 
         for k, e in enumerate(es):
             if type(e) in [HeatingEquipmentFloorHeating, CoolingEquipmentFloorCooling]:
-                f_beta_eqp_ks_is[k, e.room_id] = e.convection_ratio
+                index = _get_index_by_id(id_list=id_r_is, searching_id=e.room_id)
+                f_beta_eqp_ks_is[k, index] = e.convection_ratio
 
         return f_beta_eqp_ks_is
 
     @staticmethod
-    def _get_r_max_ks_is(es, n_rm):
+    def _get_r_max_ks_is(es, n_rm, id_r_is: np.ndarray):
 
+        n_rm = id_r_is.shape[0]
         q_max_ks_is = np.zeros(shape=(len(es), n_rm), dtype=float)
 
         for k, e in enumerate(es):
             if type(e) in [HeatingEquipmentFloorHeating, CoolingEquipmentFloorCooling]:
-                q_max_ks_is[k, e.room_id] = e.max_capacity * e.area
+                index = _get_index_by_id(id_list=id_r_is, searching_id=e.room_id)
+                q_max_ks_is[k, index] = e.max_capacity * e.area
 
         sum_of_q_max_is = q_max_ks_is.sum(axis=0)
 
@@ -290,22 +300,25 @@ class Equipments:
         """室iの放射冷房の吸熱量の放射成分に対する境界jの室内側表面の放熱比率, - [j, i]"""
         return self._f_flr_c_js_is
 
-    def _get_f_flr_js_is(self, es, n_rm, n_b):
+    def _get_f_flr_js_is(self, es, n_rm, n_b, id_r_is: np.ndarray):
 
-        f_flr_eqp_js_ks = self._get_f_flr_eqp_js_ks(es=es, n_b=n_b)
-        f_beta_eqp_ks_is = self._get_f_beta_eqp_ks_is(es=es, n_rm=n_rm)
-        r_max_ks_is = self._get_r_max_ks_is(es=es, n_rm=n_rm)
-        beta_is = self._get_beta_is(es=es, n_rm=n_rm)
-        p_ks_is = self._get_p_ks_is(es=es, n_rm=n_rm)
+        f_flr_eqp_js_ks = self._get_f_flr_eqp_js_ks(es=es, n_b=n_b, id_r_is=id_r_is)
+        f_beta_eqp_ks_is = self._get_f_beta_eqp_ks_is(es=es, n_rm=n_rm, id_r_is=id_r_is)
+        r_max_ks_is = self._get_r_max_ks_is(es=es, n_rm=n_rm, id_r_is=id_r_is)
+        beta_is = self._get_beta_is(es=es, n_rm=n_rm, id_r_is=id_r_is)
+        p_ks_is = self._get_p_ks_is(es=es, n_rm=n_rm, id_r_is=id_r_is)
 
         return np.dot(np.dot(f_flr_eqp_js_ks, (p_ks_is - f_beta_eqp_ks_is) * r_max_ks_is), v_diag(1 / (1 - beta_is)))
 
-    def _get_f_flr_eqp_js_ks(self, es, n_b):
+    def _get_f_flr_eqp_js_ks(self, es, n_b, id_r_is:np.ndarray):
 
         f_flr_eqp_js_ks = np.zeros(shape=(n_b, len(es)), dtype=float)
 
         for k, e in enumerate(es):
+
+
             if type(e) in [HeatingEquipmentFloorHeating, CoolingEquipmentFloorCooling]:
+                #TODO ここもidからboundaryのindexへの変換をしないといけないかもしれない。
                 f_flr_eqp_js_ks[e.boundary_id, k] = e.convection_ratio
 
         return f_flr_eqp_js_ks
@@ -521,7 +534,13 @@ def _create_heating_equipment(d_he: Dict, bs: boundaries.Boundaries):
 
         case HeatingEquipment.FLOOR_HEATING:
 
-            room_id = bs.get_room_id_by_boundary_id(boundary_id=prop['boundary_id'])
+            # room_id = bs.get_room_id_by_boundary_id(boundary_id=prop['boundary_id'])
+
+            boundary_id = prop['boundary_id']
+            
+            boundary_index = _get_index_by_id(id_list=bs.id_js, searching_id=boundary_id)
+
+            room_id = bs._connected_room_id_js.flatten()[boundary_index]
 
             return HeatingEquipmentFloorHeating(
                 id=id,
@@ -561,8 +580,14 @@ def _create_cooling_equipment(d_ce, bs: boundaries.Boundaries):
 
         case CoolingEquipment.FLOOR_COOLING:
 
-            room_id = bs.get_room_id_by_boundary_id(boundary_id=prop['boundary_id'])
+            # room_id = bs.get_room_id_by_boundary_id(boundary_id=prop['boundary_id'])
 
+            boundary_id = prop['boundary_id']
+
+            boundary_index = _get_index_by_id(id_list=bs.id_js, searching_id=boundary_id)
+
+            room_id = bs._connected_room_id_js.flatten()[boundary_index]
+            
             return CoolingEquipmentFloorCooling(
                 id=id,
                 name=name,
@@ -575,4 +600,16 @@ def _create_cooling_equipment(d_ce, bs: boundaries.Boundaries):
         
         case _:
             raise Exception
+
+
+def _get_index_by_id(id_list: List, searching_id: int) -> int:
+
+    indices = [i for (i, id) in enumerate(id_list) if id == searching_id]
+
+    if len(indices) == 0:
+        raise Exception("指定された id に一致するものが見つかりませんでした。")
+    if len(indices) >1:
+        raise Exception("指定された id に一致するものが複数見つかりました。")
+    
+    return indices[0]
 
