@@ -252,7 +252,7 @@ class Equipments:
 
         for k, e in enumerate(es):
             if type(e) in [HeatingEquipmentFloorHeating, CoolingEquipmentFloorCooling]:
-                index = _get_index_by_id(id_list=id_r_is, searching_id=e.room_id)
+                index = _get_index_by_id(id_list=list(id_r_is.flatten()), searching_id=e.room_id)
                 p_ks_is[k, index] = 1.0
 
         return p_ks_is
@@ -266,7 +266,7 @@ class Equipments:
 
         for k, e in enumerate(es):
             if type(e) in [HeatingEquipmentFloorHeating, CoolingEquipmentFloorCooling]:
-                index = _get_index_by_id(id_list=id_r_is, searching_id=e.room_id)
+                index = _get_index_by_id(id_list=list(id_r_is.flatten()), searching_id=e.room_id)
                 f_beta_eqp_ks_is[k, index] = e.convection_ratio
 
         return f_beta_eqp_ks_is
@@ -279,7 +279,7 @@ class Equipments:
 
         for k, e in enumerate(es):
             if type(e) in [HeatingEquipmentFloorHeating, CoolingEquipmentFloorCooling]:
-                index = _get_index_by_id(id_list=id_r_is, searching_id=e.room_id)
+                index = _get_index_by_id(id_list=list(id_r_is.flatten()), searching_id=e.room_id)
                 q_max_ks_is[k, index] = e.max_capacity * e.area
 
         sum_of_q_max_is = q_max_ks_is.sum(axis=0)
@@ -538,7 +538,7 @@ def _create_heating_equipment(d_he: Dict, bs: boundaries.Boundaries):
 
             boundary_id = prop['boundary_id']
             
-            boundary_index = _get_index_by_id(id_list=bs.id_js, searching_id=boundary_id)
+            boundary_index = _get_index_by_id(id_list=list(bs.id_js.flatten()), searching_id=boundary_id)
 
             room_id = bs._connected_room_id_js.flatten()[boundary_index]
 
@@ -584,7 +584,7 @@ def _create_cooling_equipment(d_ce, bs: boundaries.Boundaries):
 
             boundary_id = prop['boundary_id']
 
-            boundary_index = _get_index_by_id(id_list=bs.id_js, searching_id=boundary_id)
+            boundary_index = _get_index_by_id(id_list=list(bs.id_js.flatten()), searching_id=boundary_id)
 
             room_id = bs._connected_room_id_js.flatten()[boundary_index]
             
