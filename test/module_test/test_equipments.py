@@ -51,16 +51,38 @@ class TestEquipments(unittest.TestCase):
                     "id": 2,
                     "name": "floor_heating_1",
                     "property": {
-                        "boundary_id": 1,
+                        "boundary_id": 9,
                         "max_capacity": 40,
                         "area": 8.0,
                         "convection_ratio": 0.1
                     }
                 }
-
             ],
             "cooling_equipments":[
-
+                {
+                    "equipment_type": "rac",
+                    "id": 1,
+                    "name": "rac_1",
+                    "property": {
+                        "space_id": 4,
+                        "q_min": 200,
+                        "q_max": 4000,
+                        "v_min": 10,
+                        "v_max": 30,
+                        "bf": 0.2
+                    }
+                },
+                {
+                    "equipment_type": "floor_cooling",
+                    "id": 2,
+                    "name": "floor_cooling_1",
+                    "property": {
+                        "boundary_id": 9,
+                        "max_capacity": 40,
+                        "area": 8.0,
+                        "convection_ratio": 0.1
+                    }
+                }
             ]
         }
 
@@ -75,6 +97,8 @@ class TestEquipments(unittest.TestCase):
         e = Equipments(d=d, n_rm=_get_n_rm(), n_b=bs.n_b, bs=bs, id_r_is=id_r_is)
 
         np.testing.assert_equal(np.array([True, False]).reshape(-1, 1), e.is_radiative_heating_is)
+
+        np.testing.assert_equal(np.array([True, False]).reshape(-1, 1), e.is_radiative_cooling_is)
 
 
 def _get_n_rm():

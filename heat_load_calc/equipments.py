@@ -3,6 +3,7 @@ from typing import Union
 import numpy as np
 from dataclasses import dataclass
 from enum import Enum
+from abc import ABC
 
 from heat_load_calc import boundaries
 from heat_load_calc.psychrometrics import get_x, get_p_vs
@@ -23,109 +24,188 @@ class CoolingEquipment(Enum):
 
 
 @dataclass
-class HeatingEquipmentRAC:
+class Equipment(ABC):
 
     # ID
     id: int
 
-    # 名前
+    # name
     name: str
-
-    # 暖房する室のID
-    room_id: int
-
-    # 最小暖房能力, W
-    q_min: float
-
-    # 最大暖房能力, W
-    q_max: float
-
-    # 最小風量, m3/min
-    v_min: float
-
-    # 最大風量, m3/min
-    v_max: float
-
-    # バイパスファクター
-    bf: float
 
 
 @dataclass
-class HeatingEquipmentFloorHeating:
+class Radiative_HC(Equipment, ABC):
 
-    # ID
-    id: int
-
-    # 名前
-    name: str
-
-    # 暖房する室のID
+    # id of the room which this radiative heating or cooling is equipped in.
     room_id: int
 
-    # 放射暖房が設置される境界の番号
+    # boundary id which radiative heating or cooling set at.
     boundary_id: int
 
-    # 面積あたりの放熱能力, W/m2
-    max_capacity: float
+    def room_index(self, id_r_is: np.ndarray[int]) -> int:
+        """Get the room index of the room which this raddiative heating or cooling is equipped in.
 
-    # 面積, m2
-    area: float
+            Args:
+                id_r_is: room indices, [I, 1]
+            Returns:
+                index number
+        """
 
-    # 対流成分比率
-    convection_ratio: float
+        return _get_index_by_id(id_list=list(id_r_is.flatten()), searching_id=self.room_id)
 
 
 @dataclass
-class CoolingEquipmentRAC:
+class Convective_HC(Equipment, ABC):
 
-    # ID
-    id: int
-
-    # 名前
-    name: str
-
-    # 冷房する室のID
+    # room id which is heated or cooled by this RAC
     room_id: int
 
-    # 最小冷房能力, W
+
+@dataclass
+class RAC_HC(Convective_HC, ABC):
+
+    # minimum heating or cooling capacity, W
     q_min: float
 
-    # 最大冷房能力, W
+    # maximum heating or cooling capacity, W
     q_max: float
 
-    # 最小風量, m3/min
+    # minimum air flow volume, m3/min
     v_min: float
 
-    # 最大風量, m3/min
+    # maximum air flow volume, m3/min
     v_max: float
 
-    # バイパスファクター
+    # bypass factor, -
     bf: float
+
+    @classmethod
+    def create_rac_hc(cls, d:Dict):
+
+        prop = d['property']
+
+        return RAC_HC(
+            id=d['id'],
+            name=d['name'],
+            room_id=prop['space_id'],
+            q_min=prop['q_min'],
+            q_max=prop['q_max'],
+            v_min=prop['v_min'],
+            v_max=prop['v_max'],
+            bf=prop['bf']
+        )
 
 
 @dataclass
-class CoolingEquipmentFloorCooling:
+class Floor_HC(Radiative_HC, ABC):
 
-    # ID
-    id: int
-
-    # 名前
-    name: str
-
-    # 冷房する室のID
-    room_id: int
-
-    # 放射冷房が設置される境界の番号
-    boundary_id: int
-
-    # 面積あたりの放熱能力, W/m2
+    # heating or cooling capacity per area, W/m2
     max_capacity: float
 
-    # 面積, m2
+    # area, m2
     area: float
 
-    # 対流成分比率
+    # ratio of convective heat flow to sum of convective and radiative heat flow, -
     convection_ratio: float
+
+    @classmethod
+    def create_floor_hc(cls, d: Dict, id_js: np.ndarray, connected_room_id_js: np.ndarray):
+        
+        prop = d['property']
+
+        boundary_id = prop['boundary_id']
+        boundary_index = _get_index_by_id(id_list=list(id_js.flatten()), searching_id=boundary_id)
+        room_id = connected_room_id_js.flatten()[boundary_index]
+
+        instance = Floor_HC(
+            id=d['id'],
+            name=d['name'],
+            room_id=room_id,
+            boundary_id=boundary_id,
+            max_capacity=prop['max_capacity'],
+            area=prop['area'],
+            convection_ratio=prop['convection_ratio']
+        )
+
+        return instance
+        
+
+@dataclass
+class RAC_H(RAC_HC):
+
+    @classmethod
+    def create_rac_h(cls, d:Dict):
+
+        e = RAC_HC.create_rac_hc(d=d)
+
+        return RAC_H(
+            id=e.id,
+            name=e.name,
+            room_id=e.room_id,
+            q_min=e.q_min,
+            q_max=e.q_max,
+            v_min=e.v_min,
+            v_max=e.v_max,
+            bf=e.bf
+        )
+
+
+@dataclass
+class Floor_H(Floor_HC):
+    
+    @classmethod
+    def create_floor_h(cls, d: Dict, id_js: np.ndarray, connected_room_id_js: np.ndarray):
+
+        e = Floor_HC.create_floor_hc(d=d, id_js=id_js, connected_room_id_js=connected_room_id_js)
+
+        return Floor_H(
+            e.id,
+            name=e.name,
+            room_id=e.room_id,
+            boundary_id=e.boundary_id,
+            max_capacity=e.max_capacity,
+            area=e.area,
+            convection_ratio=e.convection_ratio
+        )
+
+
+@dataclass
+class RAC_C(RAC_HC):
+
+    @classmethod
+    def create_rac_c(cls, d:Dict):
+
+        e = RAC_HC.create_rac_hc(d=d)
+
+        return RAC_C(
+            id=e.id,
+            name=e.name,
+            room_id=e.room_id,
+            q_min=e.q_min,
+            q_max=e.q_max,
+            v_min=e.v_min,
+            v_max=e.v_max,
+            bf=e.bf
+        )
+
+
+@dataclass
+class Floor_C(Floor_HC):
+
+    @classmethod
+    def create_floor_c(cls, d:Dict, id_js: np.ndarray, connected_room_id_js: np.ndarray):
+
+        e = Floor_HC.create_floor_hc(d=d, id_js=id_js, connected_room_id_js=connected_room_id_js)
+
+        return Floor_C(
+            id=e.id,
+            name=e.name,
+            room_id=e.room_id,
+            boundary_id=e.boundary_id,
+            max_capacity=e.max_capacity,
+            area=e.area,
+            convection_ratio=e.convection_ratio
+        )
 
 
 class Equipments:
@@ -151,7 +231,7 @@ class Equipments:
 
         if 'heating_equipments' in d:
             hes = [
-                _create_heating_equipment(d_he=d_he, bs=bs)
+                _create_heating_equipment(d_he=d_he, id_js=bs.id_js, connected_room_id_js=bs.connected_room_id_js)
                 for d_he in d['heating_equipments']
             ]
         else:
@@ -159,7 +239,7 @@ class Equipments:
 
         if 'cooling_equipments' in d:
             ces = [
-                _create_cooling_equipment(d_ce=d_ce, bs=bs)
+                _create_cooling_equipment(d_ce=d_ce, id_js=bs.id_js, connected_room_id_js=bs.connected_room_id_js)
                 for d_ce in d['cooling_equipments']
             ]
         else:
@@ -168,8 +248,8 @@ class Equipments:
         self._hes = hes
         self._ces = ces
 
-        self._is_radiative_heating_is = self._get_is_radiative_is(es=hes, id_r_is=id_r_is)
-        self._is_radiative_cooling_is = self._get_is_radiative_is(es=ces, id_r_is=id_r_is)
+        self._is_radiative_heating_is = _get_is_radiative_is(es=hes, id_r_is=id_r_is)
+        self._is_radiative_cooling_is = _get_is_radiative_is(es=ces, id_r_is=id_r_is)
         self._q_rs_h_max_is = self._get_q_rs_max_is(es=hes, id_r_is=id_r_is)
         self._q_rs_c_max_is = self._get_q_rs_max_is(es=ces, id_r_is=id_r_is)
         self._beta_h_is = self._get_beta_is(es=hes, n_rm=n_rm, id_r_is=id_r_is)
@@ -215,28 +295,18 @@ class Equipments:
         q_rs_max_is = np.zeros_like(a=id_r_is, dtype=float)
 
         for e in es:
-            if type(e) in [HeatingEquipmentFloorHeating, CoolingEquipmentFloorCooling]:
-                index = _get_index_by_id(id_list=list(id_r_is.flatten()), searching_id=e.room_id)
+            if type(e) is Floor_H:
+                er: Radiative_HC = e
+                # index = _get_index_by_id(id_list=list(id_r_is.flatten()), searching_id=e.room_id)
+                index = er.room_index(id_r_is=id_r_is)
+                q_rs_max_is[index, 0] = q_rs_max_is[index, 0] + e.max_capacity * e.area
+            elif type(e) is Floor_C:
+                er: Radiative_HC = e
+                #index = _get_index_by_id(id_list=list(id_r_is.flatten()), searching_id=e.room_id)
+                index = er.room_index(id_r_is=id_r_is)
                 q_rs_max_is[index, 0] = q_rs_max_is[index, 0] + e.max_capacity * e.area
 
         return q_rs_max_is
-
-    def _get_is_radiative_is(self, es, id_r_is: np.ndarray):
-        """室に放射暖冷房があるか否かを判定する。
-
-        Returns:
-            放射暖冷房の有無, [i, 1]
-        """
-
-        # is_radiative_is = np.full(shape=(n_rm, 1), fill_value=False)
-        is_radiative_is = np.full_like(a=id_r_is, fill_value=False, dtype=bool)
-
-        for e in es:
-            if type(e) in [HeatingEquipmentFloorHeating, CoolingEquipmentFloorCooling]:
-                index = _get_index_by_id(id_list=list(id_r_is.flatten()), searching_id=e.room_id)
-                is_radiative_is[index, 0] = True
-
-        return is_radiative_is
 
     def _get_beta_is(self, es, n_rm, id_r_is: np.ndarray):
 
@@ -247,11 +317,11 @@ class Equipments:
 
     def _get_p_ks_is(self, es, n_rm, id_r_is: np.ndarray):
 
-        n_rm = id_r_is.shape[1]
+        n_rm = id_r_is.shape[0]
         p_ks_is = np.zeros(shape=(len(es), n_rm), dtype=float)
 
         for k, e in enumerate(es):
-            if type(e) in [HeatingEquipmentFloorHeating, CoolingEquipmentFloorCooling]:
+            if type(e) in [Floor_H, Floor_C]:
                 index = _get_index_by_id(id_list=list(id_r_is.flatten()), searching_id=e.room_id)
                 p_ks_is[k, index] = 1.0
 
@@ -265,7 +335,7 @@ class Equipments:
         f_beta_eqp_ks_is = np.zeros(shape=(len(es), n_rm), dtype=float)
 
         for k, e in enumerate(es):
-            if type(e) in [HeatingEquipmentFloorHeating, CoolingEquipmentFloorCooling]:
+            if type(e) in [Floor_H, Floor_C]:
                 index = _get_index_by_id(id_list=list(id_r_is.flatten()), searching_id=e.room_id)
                 f_beta_eqp_ks_is[k, index] = e.convection_ratio
 
@@ -278,7 +348,7 @@ class Equipments:
         q_max_ks_is = np.zeros(shape=(len(es), n_rm), dtype=float)
 
         for k, e in enumerate(es):
-            if type(e) in [HeatingEquipmentFloorHeating, CoolingEquipmentFloorCooling]:
+            if type(e) in [Floor_H, Floor_C]:
                 index = _get_index_by_id(id_list=list(id_r_is.flatten()), searching_id=e.room_id)
                 q_max_ks_is[k, index] = e.max_capacity * e.area
 
@@ -317,7 +387,7 @@ class Equipments:
         for k, e in enumerate(es):
 
 
-            if type(e) in [HeatingEquipmentFloorHeating, CoolingEquipmentFloorCooling]:
+            if type(e) in [Floor_H, Floor_C]:
                 #TODO ここもidからboundaryのindexへの変換をしないといけないかもしれない。
                 f_flr_eqp_js_ks[e.boundary_id, k] = e.convection_ratio
 
@@ -369,17 +439,17 @@ class Equipments:
         l_cs_is_n: np.ndarray,
         theta_r_is_n_pls: np.ndarray,
         x_r_ntr_is_n_pls: np.ndarray,
-        ce: CoolingEquipmentRAC
+        ce: RAC_C
     ) -> Tuple[np.ndarray, np.ndarray]:
 
-        if type(ce) is CoolingEquipmentRAC:
+        if type(ce) is RAC_C:
             return self._func_rac(
                 l_cs_is_n=l_cs_is_n,
                 theta_r_is_n_pls=theta_r_is_n_pls,
                 x_r_ntr_is_n_pls=x_r_ntr_is_n_pls,
                 ce=ce
             )
-        elif type(ce) is CoolingEquipmentFloorCooling:
+        elif type(ce) is Floor_C:
             raise NotImplementedError
         else:
             raise Exception
@@ -389,7 +459,7 @@ class Equipments:
             l_cs_is_n: np.ndarray,
             theta_r_is_n_pls: np.ndarray,
             x_r_ntr_is_n_pls: np.ndarray,
-            ce: CoolingEquipmentRAC
+            ce: RAC_C
     ) -> Tuple[np.ndarray, np.ndarray]:
 
         # 室の数
@@ -510,93 +580,37 @@ class Equipments:
         return v_rac_i_n
 
 
-def _create_heating_equipment(d_he: Dict, bs: boundaries.Boundaries):
+def _create_heating_equipment(d_he: Dict, id_js: np.ndarray, connected_room_id_js: np.ndarray):
 
     he = HeatingEquipment(d_he['equipment_type'])
-    id = d_he['id']
-    name = d_he['name']
-    prop = d_he['property']
 
     match he:
 
         case HeatingEquipment.RAC:
 
-            return HeatingEquipmentRAC(
-                id=id,
-                name=name,
-                room_id=prop['space_id'],
-                q_min=prop['q_min'],
-                q_max=prop['q_max'],
-                v_min=prop['v_min'],
-                v_max=prop['v_max'],
-                bf=prop['bf']
-            )
+            return RAC_H.create_rac_h(d=d_he)
 
         case HeatingEquipment.FLOOR_HEATING:
 
-            # room_id = bs.get_room_id_by_boundary_id(boundary_id=prop['boundary_id'])
+            return Floor_H.create_floor_h(d=d_he, id_js=id_js, connected_room_id_js=connected_room_id_js)
 
-            boundary_id = prop['boundary_id']
-            
-            boundary_index = _get_index_by_id(id_list=list(bs.id_js.flatten()), searching_id=boundary_id)
-
-            room_id = bs._connected_room_id_js.flatten()[boundary_index]
-
-            return HeatingEquipmentFloorHeating(
-                id=id,
-                name=name,
-                room_id=room_id,
-                boundary_id=prop['boundary_id'],
-                max_capacity=prop['max_capacity'],
-                area=prop['area'],
-                convection_ratio=prop['convection_ratio']
-            )
-        
         case _:
             raise Exception()
 
 
-def _create_cooling_equipment(d_ce, bs: boundaries.Boundaries):
+def _create_cooling_equipment(d_ce, id_js: np.ndarray, connected_room_id_js: np.ndarray):
 
     ce = CoolingEquipment(d_ce['equipment_type'])
-    id = d_ce['id']
-    name = d_ce['name']
-    prop = d_ce['property']
 
     match ce:
         
         case CoolingEquipment.RAC:
 
-            return CoolingEquipmentRAC(
-                id=id,
-                name=name,
-                room_id=prop['space_id'],
-                q_min=prop['q_min'],
-                q_max=prop['q_max'],
-                v_min=prop['v_min'],
-                v_max=prop['v_max'],
-                bf=prop['bf']
-            )
+            return RAC_C.create_rac_c(d=d_ce)
 
         case CoolingEquipment.FLOOR_COOLING:
-
-            # room_id = bs.get_room_id_by_boundary_id(boundary_id=prop['boundary_id'])
-
-            boundary_id = prop['boundary_id']
-
-            boundary_index = _get_index_by_id(id_list=list(bs.id_js.flatten()), searching_id=boundary_id)
-
-            room_id = bs._connected_room_id_js.flatten()[boundary_index]
             
-            return CoolingEquipmentFloorCooling(
-                id=id,
-                name=name,
-                room_id=room_id,
-                boundary_id=prop['boundary_id'],
-                max_capacity=prop['max_capacity'],
-                area=prop['area'],
-                convection_ratio=prop['convection_ratio']
-            )
+            return Floor_C.create_floor_c(d=d_ce, id_js=id_js, connected_room_id_js=connected_room_id_js)
         
         case _:
             raise Exception
@@ -613,3 +627,23 @@ def _get_index_by_id(id_list: List, searching_id: int) -> int:
     
     return indices[0]
 
+
+def _get_is_radiative_is(es, id_r_is: np.ndarray):
+    """Get bool type indices which the radiative heating or cooling exists.
+
+    Args:
+        id_r_is: room id, [I, 1]
+
+    Returns:
+        matrix of room which radiative heating or cooling is equipped in., [I, 1]
+    """
+
+    is_radiative_is = np.full_like(a=id_r_is, fill_value=False, dtype=bool)
+
+    for e in es:
+        if type(e) in [Floor_H, Floor_C]:
+            er: Radiative_HC = e
+            index = er.room_index(id_r_is=id_r_is)
+            is_radiative_is[index, 0] = True
+
+    return is_radiative_is
