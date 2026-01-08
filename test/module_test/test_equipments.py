@@ -257,6 +257,10 @@ class TestEquipments(unittest.TestCase):
 
         np.testing.assert_equal(np.array([320.0, 0.0]).reshape(-1, 1), e.q_rs_c_max_is)
 
+        np.testing.assert_equal(np.array([0.1, 0.0]).reshape(-1, 1), e.beta_h_is)
+
+        np.testing.assert_equal(np.array([0.1, 0.0]).reshape(-1, 1), e.beta_c_is)
+
 
 def _get_n_rm():
 

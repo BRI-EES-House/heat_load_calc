@@ -68,6 +68,9 @@ class Equipment(ABC):
     @abstractmethod
     def get_q_rs_max_is(self, id_r_is: np.ndarray) -> np.ndarray: ...
 
+    @abstractmethod
+    def get_f_beta_eqp_is(self, id_r_is: np.ndarray) -> np.ndarray: ...
+
 
 @dataclass
 class RAC_HC(Equipment, ABC):
@@ -126,6 +129,18 @@ class RAC_HC(Equipment, ABC):
 
         Returns:
             matrix of maximum capacity of radiative heating or cooling, W, [I, 1]
+        """
+
+        return np.zeros_like(a=id_r_is, dtype=float)
+
+    def get_f_beta_eqp_is(self, id_r_is: np.ndarray) -> np.ndarray:
+        """Get the convective heat ratio of radiative heating or cooling.
+
+        Args:
+            id_r_is: room index, [I, 1]
+
+        Returns:
+            convective heat ratio of radiative heating or cooling, -, [I, 1]
         """
 
         return np.zeros_like(a=id_r_is, dtype=float)
@@ -257,6 +272,24 @@ class Floor_HC(Equipment, ABC):
 
         return q_rs_max_is
 
+    def get_f_beta_eqp_is(self, id_r_is: np.ndarray) -> np.ndarray:
+        """Get the convective heat ratio of radiative heating or cooling.
+
+        Args:
+            id_r_is: room index, [I, 1]
+
+        Returns:
+            convective heat ratio of radiative heating or cooling, -, [I, 1]
+        """
+
+        f_beta_eqp_is = np.zeros_like(a=id_r_is, dtype=float)
+
+        room_index = self.get_room_index(id_r_is=id_r_is)
+
+        f_beta_eqp_is[room_index, 0] = self.convection_ratio
+
+        return f_beta_eqp_is
+
 
 @dataclass
 class Floor_H(Floor_HC):
@@ -354,8 +387,9 @@ class Equipments:
         self._q_rs_h_max_is = _get_q_rs_max_is(es=hes, id_r_is=id_r_is)
         self._q_rs_c_max_is = _get_q_rs_max_is(es=ces, id_r_is=id_r_is)
 
-        self._beta_h_is = self._get_beta_is(es=hes, n_rm=n_rm, id_r_is=id_r_is)
-        self._beta_c_is = self._get_beta_is(es=ces, n_rm=n_rm, id_r_is=id_r_is)
+        self._beta_h_is = _get_beta_is(es=hes, id_r_is=id_r_is)
+        self._beta_c_is = _get_beta_is(es=ces, id_r_is=id_r_is)
+
         self._f_flr_h_js_is = self._get_f_flr_js_is(es=hes, n_rm=n_rm, n_b=n_b, id_r_is=id_r_is)
         self._f_flr_c_js_is = self._get_f_flr_js_is(es=ces, n_rm=n_rm, n_b=n_b, id_r_is=id_r_is)
 
@@ -392,13 +426,6 @@ class Equipments:
         """室iの放射冷房設備の対流成分比率, -, [i, 1]"""
         return self._beta_c_is
 
-    def _get_beta_is(self, es, n_rm, id_r_is: np.ndarray):
-
-        f_beta_eqp_ks_is = self._get_f_beta_eqp_ks_is(es=es, n_rm=n_rm, id_r_is=id_r_is)
-        r_max_ks_is = self._get_r_max_ks_is(es=es, n_rm=n_rm, id_r_is=id_r_is)
-
-        return np.sum(f_beta_eqp_ks_is * r_max_ks_is, axis=0).reshape(-1, 1)
-
     def _get_p_ks_is(self, es, n_rm, id_r_is: np.ndarray):
 
         n_rm = id_r_is.shape[0]
@@ -410,39 +437,6 @@ class Equipments:
                 p_ks_is[k, index] = 1.0
 
         return p_ks_is
-
-    @staticmethod
-    def _get_f_beta_eqp_ks_is(es, n_rm, id_r_is: np.ndarray):
-
-        n_rm = id_r_is.shape[0]
-
-        f_beta_eqp_ks_is = np.zeros(shape=(len(es), n_rm), dtype=float)
-
-        for k, e in enumerate(es):
-            if type(e) in [Floor_H, Floor_C]:
-                index = _get_index_by_id(id_list=list(id_r_is.flatten()), searching_id=e.room_id)
-                f_beta_eqp_ks_is[k, index] = e.convection_ratio
-
-        return f_beta_eqp_ks_is
-
-    @staticmethod
-    def _get_r_max_ks_is(es, n_rm, id_r_is: np.ndarray):
-
-        n_rm = id_r_is.shape[0]
-        q_max_ks_is = np.zeros(shape=(len(es), n_rm), dtype=float)
-
-        for k, e in enumerate(es):
-            if type(e) in [Floor_H, Floor_C]:
-                index = _get_index_by_id(id_list=list(id_r_is.flatten()), searching_id=e.room_id)
-                q_max_ks_is[k, index] = e.max_capacity * e.area
-
-        sum_of_q_max_is = q_max_ks_is.sum(axis=0)
-
-        # 各室の放熱量の合計値がゼロだった場合、次の式のゼロ割を防ぐためにダミーの数字1.0を代入する。
-        # この場合、次の式の分子の数はゼロであるため、結果として 0.0/1.0 = 0.0 となり、結果には影響を及ぼさない。
-        sum_of_q_max_is[np.where(sum_of_q_max_is == 0.0)] = 1.0
-
-        return q_max_ks_is / sum_of_q_max_is
 
     @property
     def f_flr_h_js_is(self) -> np.ndarray:
@@ -457,12 +451,9 @@ class Equipments:
     def _get_f_flr_js_is(self, es, n_rm, n_b, id_r_is: np.ndarray):
 
         f_flr_eqp_js_ks = self._get_f_flr_eqp_js_ks(es=es, n_b=n_b, id_r_is=id_r_is)
-        f_beta_eqp_ks_is = self._get_f_beta_eqp_ks_is(es=es, n_rm=n_rm, id_r_is=id_r_is)
-        r_max_ks_is = self._get_r_max_ks_is(es=es, n_rm=n_rm, id_r_is=id_r_is)
-        beta_is = self._get_beta_is(es=es, n_rm=n_rm, id_r_is=id_r_is)
         p_ks_is = self._get_p_ks_is(es=es, n_rm=n_rm, id_r_is=id_r_is)
 
-        return np.dot(np.dot(f_flr_eqp_js_ks, (p_ks_is - f_beta_eqp_ks_is) * r_max_ks_is), v_diag(1 / (1 - beta_is)))
+        return np.dot(f_flr_eqp_js_ks, p_ks_is)
 
     def _get_f_flr_eqp_js_ks(self, es, n_b, id_r_is:np.ndarray):
 
@@ -704,4 +695,20 @@ def _get_q_rs_max_is(es: List[Equipment], id_r_is: np.ndarray) -> np.ndarray:
     q_rs_max_ks_is = np.stack([e.get_q_rs_max_is(id_r_is=id_r_is) for e in es])
 
     return np.sum(a=q_rs_max_ks_is, axis=0)
+
+
+def _get_beta_is(es: List[Equipment], id_r_is: np.ndarray) -> np.ndarray:
+    """Get convective heat ratio of radiative heating or cooling.
+
+    Args:
+        es: list of Equipment class, [K]
+        id_r_is: room id, [I, 1]
+
+    Returns:
+        convective heat ratio of radiative heating or cooling, -, [I, 1]
+    """
+
+    f_beta_eqp_ks_is = np.stack([e.get_f_beta_eqp_is(id_r_is=id_r_is) for e in es])
+
+    return np.sum(f_beta_eqp_ks_is, axis=0)
 
