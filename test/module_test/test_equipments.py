@@ -106,7 +106,6 @@ class TestEquipments(unittest.TestCase):
         with self.assertRaises(Exception):
             Equipments(d=d, n_rm=_get_n_rm(), n_b=n_b, id_r_is=id_r_is, id_js=id_js, connected_room_id_js=connected_room_id_js)
 
-
     def test_radiative_heating_equipments_duplicated_error(self):
 
         d = {
@@ -253,6 +252,10 @@ class TestEquipments(unittest.TestCase):
         np.testing.assert_equal(np.array([True, False]).reshape(-1, 1), e.is_radiative_heating_is)
 
         np.testing.assert_equal(np.array([True, False]).reshape(-1, 1), e.is_radiative_cooling_is)
+
+        np.testing.assert_equal(np.array([320.0, 0.0]).reshape(-1, 1), e.q_rs_h_max_is)
+
+        np.testing.assert_equal(np.array([320.0, 0.0]).reshape(-1, 1), e.q_rs_c_max_is)
 
 
 def _get_n_rm():

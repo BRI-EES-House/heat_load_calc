@@ -65,6 +65,9 @@ class Equipment(ABC):
     @abstractmethod
     def get_is_radiative_is(self, id_r_is: np.ndarray) -> np.ndarray: ...
 
+    @abstractmethod
+    def get_q_rs_max_is(self, id_r_is: np.ndarray) -> np.ndarray: ...
+
 
 @dataclass
 class RAC_HC(Equipment, ABC):
@@ -114,6 +117,18 @@ class RAC_HC(Equipment, ABC):
         """
 
         return np.full_like(a=id_r_is, fill_value=False, dtype=bool)
+
+    def get_q_rs_max_is(self, id_r_is: np.ndarray) -> np.ndarray:
+        """Get maximum capacity of radiative heating or cooling.
+
+        Args:
+            id_r_is: room id, [I, 1]
+
+        Returns:
+            matrix of maximum capacity of radiative heating or cooling, W, [I, 1]
+        """
+
+        return np.zeros_like(a=id_r_is, dtype=float)
 
 
 @dataclass
@@ -195,7 +210,7 @@ class Floor_HC(Equipment, ABC):
 
         return instance
         
-    def room_index(self, id_r_is: np.ndarray[int]) -> int:
+    def get_room_index(self, id_r_is: np.ndarray[int]) -> int:
         """Get the room index of the room which this raddiative heating or cooling is equipped in.
 
             Args:
@@ -218,11 +233,29 @@ class Floor_HC(Equipment, ABC):
 
         is_radiative_is = np.full_like(a=id_r_is, fill_value=False, dtype=bool)
 
-        room_index = self.room_index(id_r_is=id_r_is)
+        room_index = self.get_room_index(id_r_is=id_r_is)
 
         is_radiative_is[room_index, 0] = True
 
         return is_radiative_is
+
+    def get_q_rs_max_is(self, id_r_is: np.ndarray) -> np.ndarray:
+        """Get maximum capacity of radiative heating or cooling.
+
+        Args:
+            id_r_is: room id, [I, 1]
+
+        Returns:
+            matrix of maximum capacity of radiative heating or cooling, W, [I, 1]
+        """
+
+        q_rs_max_is = np.zeros_like(a=id_r_is, dtype=float)
+
+        room_index = self.get_room_index(id_r_is=id_r_is)
+
+        q_rs_max_is[room_index, 0] = self.max_capacity * self.area
+
+        return q_rs_max_is
 
 
 @dataclass
@@ -318,8 +351,9 @@ class Equipments:
         self._is_radiative_heating_is = np.any(a=is_radiative_heating_ks_is, axis=0)
         self._is_radiative_cooling_is = np.any(a=is_radiative_cooling_ks_is, axis=0)
 
-        self._q_rs_h_max_is = self._get_q_rs_max_is(es=hes, id_r_is=id_r_is)
-        self._q_rs_c_max_is = self._get_q_rs_max_is(es=ces, id_r_is=id_r_is)
+        self._q_rs_h_max_is = _get_q_rs_max_is(es=hes, id_r_is=id_r_is)
+        self._q_rs_c_max_is = _get_q_rs_max_is(es=ces, id_r_is=id_r_is)
+
         self._beta_h_is = self._get_beta_is(es=hes, n_rm=n_rm, id_r_is=id_r_is)
         self._beta_c_is = self._get_beta_is(es=ces, n_rm=n_rm, id_r_is=id_r_is)
         self._f_flr_h_js_is = self._get_f_flr_js_is(es=hes, n_rm=n_rm, n_b=n_b, id_r_is=id_r_is)
@@ -357,21 +391,6 @@ class Equipments:
     def beta_c_is(self) -> np.ndarray:
         """室iの放射冷房設備の対流成分比率, -, [i, 1]"""
         return self._beta_c_is
-
-    def _get_q_rs_max_is(self, es, id_r_is: np.ndarray):
-
-        q_rs_max_is = np.zeros_like(a=id_r_is, dtype=float)
-
-        for e in es:
-            if type(e) in [Floor_H, Floor_C]:
-
-                er: Floor_HC = e
-
-                index = er.room_index(id_r_is=id_r_is)
-
-                q_rs_max_is[index, 0] = q_rs_max_is[index, 0] + e.max_capacity * e.area
-
-        return q_rs_max_is
 
     def _get_beta_is(self, es, n_rm, id_r_is: np.ndarray):
 
@@ -661,6 +680,7 @@ def _get_is_radiative_is(es: List[Equipment], id_r_is: np.ndarray) -> np.ndarray
     """Get bool type indices which the radiative heating or cooling exists.
 
     Args:
+        es: list of Equipment class, [K]
         id_r_is: room id, [I, 1]
 
     Returns:
@@ -668,3 +688,20 @@ def _get_is_radiative_is(es: List[Equipment], id_r_is: np.ndarray) -> np.ndarray
     """
 
     return np.stack([e.get_is_radiative_is(id_r_is=id_r_is) for e in es])
+
+
+def _get_q_rs_max_is(es: List[Equipment], id_r_is: np.ndarray) -> np.ndarray:
+    """Get maximum capacity of radiative heating or cooling.
+
+    Args:
+        es: list of Equipment class, [K]
+        id_r_is: room id, [I, 1]
+
+    Returns:
+        maximum capacity of radiative heating or cooling, W, [I, 1]
+    """
+
+    q_rs_max_ks_is = np.stack([e.get_q_rs_max_is(id_r_is=id_r_is) for e in es])
+
+    return np.sum(a=q_rs_max_ks_is, axis=0)
+
