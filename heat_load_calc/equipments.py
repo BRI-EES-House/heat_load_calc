@@ -265,7 +265,7 @@ class Floor_C(Floor_HC):
 
 class Equipments:
 
-    def __init__(self, d: Dict, n_rm: int, n_b: int, bs: boundaries.Boundaries, id_r_is: np.ndarray):
+    def __init__(self, d: Dict, n_rm: int, n_b: int, id_r_is: np.ndarray, id_js: np.ndarray, connected_room_id_js: np.ndarray):
         """設備に関する情報を辞書形式で受け取り、データクラスに変換して保持する。
         暖房・冷房それぞれにおいて、
         辞書の中の "equipment_type" の種類に応じて対応するデータクラスを生成する。
@@ -286,7 +286,7 @@ class Equipments:
         
         if 'heating_equipments' in d:
             hes = [
-                Equipment.create_heating_equipment(d=d_he, id_js=bs.id_js, connected_room_id_js=bs.connected_room_id_js)
+                Equipment.create_heating_equipment(d=d_he, id_js=id_js, connected_room_id_js=connected_room_id_js)
                 for d_he in d['heating_equipments']
             ]
         else:
@@ -294,7 +294,7 @@ class Equipments:
 
         if 'cooling_equipments' in d:
             ces = [
-                Equipment.create_cooling_equipment(d=d_ce, id_js=bs.id_js, connected_room_id_js=bs.connected_room_id_js)
+                Equipment.create_cooling_equipment(d=d_ce, id_js=id_js, connected_room_id_js=connected_room_id_js)
                 for d_ce in d['cooling_equipments']
             ]
         else:

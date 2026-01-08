@@ -19,7 +19,7 @@ class TestEquipments(unittest.TestCase):
         }
 
         with self.assertRaises(KeyError):
-            Equipments(d=d, n_rm=None, n_b=None, bs=None, id_r_is=None)
+            Equipments(d=d, n_rm=None, n_b=None, id_r_is=None, id_js=None, connected_room_id_js=None)
     
     def test_cooling_equipments_not_exist_error(self):
         d = {
@@ -27,7 +27,7 @@ class TestEquipments(unittest.TestCase):
         }
 
         with self.assertRaises(KeyError):
-            Equipments(d=d, n_rm=None, n_b=None, bs=None, id_r_is=None)
+            Equipments(d=d, n_rm=None, n_b=None, id_r_is=None, id_js=None, connected_room_id_js=None)
 
     def test_(self):
 
@@ -86,15 +86,14 @@ class TestEquipments(unittest.TestCase):
             ]
         }
 
-        d_input = _read_input_file()
-
-        w = _get_weather_class()
-
         id_r_is = np.array([2, 4]).reshape(-1, 1)
 
-        bs = Boundaries(id_r_is=id_r_is, ds=d_input['boundaries'], w=w, rad_method=ShapeFactorMethod.NAGATA)
+        n_b = 14
+        id_js = np.array([1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27]).reshape(-1, 1)
+        connected_room_id_js = np.array([2, 2, 2, 2, 2, 4, 4, 4, 4, 4, 2, 4, 2, 4]).reshape(-1, 1)
 
-        e = Equipments(d=d, n_rm=_get_n_rm(), n_b=bs.n_b, bs=bs, id_r_is=id_r_is)
+
+        e = Equipments(d=d, n_rm=_get_n_rm(), n_b=n_b, id_r_is=id_r_is, id_js=id_js, connected_room_id_js=connected_room_id_js)
 
         np.testing.assert_equal(np.array([True, False]).reshape(-1, 1), e.is_radiative_heating_is)
 
