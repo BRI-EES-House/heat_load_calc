@@ -34,35 +34,10 @@ class Equipment(ABC):
 
 
 @dataclass
-class Radiative_HC(Equipment, ABC):
-
-    # id of the room which this radiative heating or cooling is equipped in.
-    room_id: int
-
-    # boundary id which radiative heating or cooling set at.
-    boundary_id: int
-
-    def room_index(self, id_r_is: np.ndarray[int]) -> int:
-        """Get the room index of the room which this raddiative heating or cooling is equipped in.
-
-            Args:
-                id_r_is: room indices, [I, 1]
-            Returns:
-                index number
-        """
-
-        return _get_index_by_id(id_list=list(id_r_is.flatten()), searching_id=self.room_id)
-
-
-@dataclass
-class Convective_HC(Equipment, ABC):
+class RAC_HC(Equipment, ABC):
 
     # room id which is heated or cooled by this RAC
     room_id: int
-
-
-@dataclass
-class RAC_HC(Convective_HC, ABC):
 
     # minimum heating or cooling capacity, W
     q_min: float
@@ -97,7 +72,13 @@ class RAC_HC(Convective_HC, ABC):
 
 
 @dataclass
-class Floor_HC(Radiative_HC, ABC):
+class Floor_HC(Equipment, ABC):
+
+    # id of the room which this radiative heating or cooling is equipped in.
+    room_id: int
+
+    # boundary id which radiative heating or cooling set at.
+    boundary_id: int
 
     # heating or cooling capacity per area, W/m2
     max_capacity: float
@@ -129,6 +110,17 @@ class Floor_HC(Radiative_HC, ABC):
 
         return instance
         
+    def room_index(self, id_r_is: np.ndarray[int]) -> int:
+        """Get the room index of the room which this raddiative heating or cooling is equipped in.
+
+            Args:
+                id_r_is: room indices, [I, 1]
+            Returns:
+                index number
+        """
+
+        return _get_index_by_id(id_list=list(id_r_is.flatten()), searching_id=self.room_id)
+
 
 @dataclass
 class RAC_H(RAC_HC):
@@ -295,15 +287,12 @@ class Equipments:
         q_rs_max_is = np.zeros_like(a=id_r_is, dtype=float)
 
         for e in es:
-            if type(e) is Floor_H:
-                er: Radiative_HC = e
-                # index = _get_index_by_id(id_list=list(id_r_is.flatten()), searching_id=e.room_id)
+            if type(e) in [Floor_H, Floor_C]:
+
+                er: Floor_HC = e
+
                 index = er.room_index(id_r_is=id_r_is)
-                q_rs_max_is[index, 0] = q_rs_max_is[index, 0] + e.max_capacity * e.area
-            elif type(e) is Floor_C:
-                er: Radiative_HC = e
-                #index = _get_index_by_id(id_list=list(id_r_is.flatten()), searching_id=e.room_id)
-                index = er.room_index(id_r_is=id_r_is)
+
                 q_rs_max_is[index, 0] = q_rs_max_is[index, 0] + e.max_capacity * e.area
 
         return q_rs_max_is
@@ -642,7 +631,7 @@ def _get_is_radiative_is(es, id_r_is: np.ndarray):
 
     for e in es:
         if type(e) in [Floor_H, Floor_C]:
-            er: Radiative_HC = e
+            er: Floor_HC = e
             index = er.room_index(id_r_is=id_r_is)
             is_radiative_is[index, 0] = True
 
