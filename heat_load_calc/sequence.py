@@ -77,7 +77,7 @@ class Sequence:
 
         # Equipments Class
         # TODO: Equipments Class を作成するのに Boundaries Class 全部をわたしているのはあまりよくない。
-        es = Equipments(dict_equipments=d['equipments'], n_rm=rms.n_r, n_b=bs.n_b, bs=bs)
+        es = Equipments(d=d['equipments'], n_rm=rms.n_r, n_b=bs.n_b, bs=bs, id_r_is=rms.id_r_is)
 
         # Operation Class
         op = operation_mode.Operation.make_operation(
@@ -86,11 +86,6 @@ class Sequence:
             r_ac_demand_is_ns=scd.r_ac_demand_is_ns,
             n_rm=rms.n_r
         )
-
-        # 次の係数を求める関数
-        #   ステップ n　からステップ n+1 における係数 f_l_cl_wgt, kg/s(kg/kg(DA)), [i, i]
-        #   ステップ n　からステップ n+1 における係数 f_l_cl_cst, kg/s, [i, 1]
-        get_f_l_cl = es.make_get_f_l_cl_funcs()
 
         # ステップ n の室 i における窓の透過日射熱取得, W, [n]
         q_trs_sol_is_ns = np.dot(bs.p_is_js, bs.q_trs_sol_js_nspls)
@@ -188,7 +183,7 @@ class Sequence:
         # 次の係数を求める関数
         #   ステップ n　からステップ n+1 における係数 f_l_cl_wgt, kg/s(kg/kg(DA)), [i, i]
         #   ステップ n　からステップ n+1 における係数 f_l_cl_cst, kg/s, [i, 1]
-        self._get_f_l_cl = get_f_l_cl
+        self._get_f_l_cl = es.get_f_l_cl
 
         # the solar heat gain transmitted through the windows of room i at step n, W, [I, N]
         self._q_trs_sol_is_ns = q_trs_sol_is_ns
