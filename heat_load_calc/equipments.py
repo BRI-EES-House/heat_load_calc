@@ -11,18 +11,6 @@ from heat_load_calc.global_number import get_c_a, get_rho_a
 from heat_load_calc.matrix_method import v_diag
 
 
-class HeatingEquipment(Enum):
-
-    RAC = 'rac'
-    FLOOR_HEATING = 'floor_heating'
-
-
-class CoolingEquipment(Enum):
-
-    RAC = 'rac'
-    FLOOR_COOLING = 'floor_cooling'
-
-
 @dataclass
 class Equipment(ABC):
 
@@ -31,6 +19,48 @@ class Equipment(ABC):
 
     # name
     name: str
+
+    @classmethod
+    def create_heating_equipment(cls, d: Dict, id_js: np.ndarray, connected_room_id_js: np.ndarray):
+
+        class HeatingEquipment(Enum):
+
+            RAC = 'rac'
+            FLOOR_HEATING = 'floor_heating'
+
+        match HeatingEquipment(d['equipment_type']):
+
+            case HeatingEquipment.RAC:
+
+                return RAC_H.create_rac_h(d=d)
+
+            case HeatingEquipment.FLOOR_HEATING:
+
+                return Floor_H.create_floor_h(d=d, id_js=id_js, connected_room_id_js=connected_room_id_js)
+
+            case _:
+                raise Exception()
+    
+    @classmethod
+    def create_cooling_equipment(cls, d: Dict, id_js: np.ndarray, connected_room_id_js: np.ndarray):
+
+        class CoolingEquipment(Enum):
+
+            RAC = 'rac'
+            FLOOR_COOLING = 'floor_cooling'
+
+        match CoolingEquipment(d['equipment_type']):
+            
+            case CoolingEquipment.RAC:
+
+                return RAC_C.create_rac_c(d=d)
+
+            case CoolingEquipment.FLOOR_COOLING:
+                
+                return Floor_C.create_floor_c(d=d, id_js=id_js, connected_room_id_js=connected_room_id_js)
+            
+            case _:
+                raise Exception
 
 
 @dataclass
@@ -68,6 +98,46 @@ class RAC_HC(Equipment, ABC):
             v_min=prop['v_min'],
             v_max=prop['v_max'],
             bf=prop['bf']
+        )
+
+
+@dataclass
+class RAC_H(RAC_HC):
+
+    @classmethod
+    def create_rac_h(cls, d:Dict):
+
+        e = RAC_HC.create_rac_hc(d=d)
+
+        return RAC_H(
+            id=e.id,
+            name=e.name,
+            room_id=e.room_id,
+            q_min=e.q_min,
+            q_max=e.q_max,
+            v_min=e.v_min,
+            v_max=e.v_max,
+            bf=e.bf
+        )
+
+
+@dataclass
+class RAC_C(RAC_HC):
+
+    @classmethod
+    def create_rac_c(cls, d:Dict):
+
+        e = RAC_HC.create_rac_hc(d=d)
+
+        return RAC_C(
+            id=e.id,
+            name=e.name,
+            room_id=e.room_id,
+            q_min=e.q_min,
+            q_max=e.q_max,
+            v_min=e.v_min,
+            v_max=e.v_max,
+            bf=e.bf
         )
 
 
@@ -123,26 +193,6 @@ class Floor_HC(Equipment, ABC):
 
 
 @dataclass
-class RAC_H(RAC_HC):
-
-    @classmethod
-    def create_rac_h(cls, d:Dict):
-
-        e = RAC_HC.create_rac_hc(d=d)
-
-        return RAC_H(
-            id=e.id,
-            name=e.name,
-            room_id=e.room_id,
-            q_min=e.q_min,
-            q_max=e.q_max,
-            v_min=e.v_min,
-            v_max=e.v_max,
-            bf=e.bf
-        )
-
-
-@dataclass
 class Floor_H(Floor_HC):
     
     @classmethod
@@ -158,26 +208,6 @@ class Floor_H(Floor_HC):
             max_capacity=e.max_capacity,
             area=e.area,
             convection_ratio=e.convection_ratio
-        )
-
-
-@dataclass
-class RAC_C(RAC_HC):
-
-    @classmethod
-    def create_rac_c(cls, d:Dict):
-
-        e = RAC_HC.create_rac_hc(d=d)
-
-        return RAC_C(
-            id=e.id,
-            name=e.name,
-            room_id=e.room_id,
-            q_min=e.q_min,
-            q_max=e.q_max,
-            v_min=e.v_min,
-            v_max=e.v_max,
-            bf=e.bf
         )
 
 
@@ -220,10 +250,11 @@ class Equipments:
             その放射暖冷房がどの室に属しているのかの情報が必要になるため、
             Equipments を initialize する際に、あらかじめ放射暖冷房にも room_id を付与しておくこととする。
         """
-
+        
         if 'heating_equipments' in d:
             hes = [
-                _create_heating_equipment(d_he=d_he, id_js=bs.id_js, connected_room_id_js=bs.connected_room_id_js)
+                Equipment.create_heating_equipment(d=d_he, id_js=bs.id_js, connected_room_id_js=bs.connected_room_id_js)
+                #_create_heating_equipment(d_he=d_he, id_js=bs.id_js, connected_room_id_js=bs.connected_room_id_js)
                 for d_he in d['heating_equipments']
             ]
         else:
@@ -231,7 +262,8 @@ class Equipments:
 
         if 'cooling_equipments' in d:
             ces = [
-                _create_cooling_equipment(d_ce=d_ce, id_js=bs.id_js, connected_room_id_js=bs.connected_room_id_js)
+                Equipment.create_cooling_equipment(d=d_ce, id_js=bs.id_js, connected_room_id_js=bs.connected_room_id_js)
+                #_create_cooling_equipment(d_ce=d_ce, id_js=bs.id_js, connected_room_id_js=bs.connected_room_id_js)
                 for d_ce in d['cooling_equipments']
             ]
         else:
@@ -567,42 +599,6 @@ class Equipments:
         v_rac_i_n = np.clip(v, a_min=v_rac_min_i, a_max=v_rac_max_i)
 
         return v_rac_i_n
-
-
-def _create_heating_equipment(d_he: Dict, id_js: np.ndarray, connected_room_id_js: np.ndarray):
-
-    he = HeatingEquipment(d_he['equipment_type'])
-
-    match he:
-
-        case HeatingEquipment.RAC:
-
-            return RAC_H.create_rac_h(d=d_he)
-
-        case HeatingEquipment.FLOOR_HEATING:
-
-            return Floor_H.create_floor_h(d=d_he, id_js=id_js, connected_room_id_js=connected_room_id_js)
-
-        case _:
-            raise Exception()
-
-
-def _create_cooling_equipment(d_ce, id_js: np.ndarray, connected_room_id_js: np.ndarray):
-
-    ce = CoolingEquipment(d_ce['equipment_type'])
-
-    match ce:
-        
-        case CoolingEquipment.RAC:
-
-            return RAC_C.create_rac_c(d=d_ce)
-
-        case CoolingEquipment.FLOOR_COOLING:
-            
-            return Floor_C.create_floor_c(d=d_ce, id_js=id_js, connected_room_id_js=connected_room_id_js)
-        
-        case _:
-            raise Exception
 
 
 def _get_index_by_id(id_list: List, searching_id: int) -> int:
