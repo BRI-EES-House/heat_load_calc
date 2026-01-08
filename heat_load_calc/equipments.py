@@ -3,7 +3,7 @@ from typing import Union
 import numpy as np
 from dataclasses import dataclass
 from enum import Enum
-from abc import ABC
+from abc import ABC, abstractmethod
 
 from heat_load_calc import boundaries
 from heat_load_calc.psychrometrics import get_x, get_p_vs
@@ -62,6 +62,9 @@ class Equipment(ABC):
             case _:
                 raise Exception
 
+    @abstractmethod
+    def get_is_radiative_is(self, id_r_is: np.ndarray) -> np.ndarray: ...
+
 
 @dataclass
 class RAC_HC(Equipment, ABC):
@@ -99,6 +102,10 @@ class RAC_HC(Equipment, ABC):
             v_max=prop['v_max'],
             bf=prop['bf']
         )
+    
+    def get_is_radiative_is(self, id_r_is: np.ndarray) -> np.ndarray:
+
+        return np.full_like(a=id_r_is, fill_value=False, dtype=bool)
 
 
 @dataclass
@@ -190,6 +197,16 @@ class Floor_HC(Equipment, ABC):
         """
 
         return _get_index_by_id(id_list=list(id_r_is.flatten()), searching_id=self.room_id)
+    
+    def get_is_radiative_is(self, id_r_is: np.ndarray) -> np.ndarray:
+
+        is_radiative_is = np.full_like(a=id_r_is, fill_value=False, dtype=bool)
+
+        room_index = self.room_index(id_r_is=id_r_is)
+
+        is_radiative_is[room_index, 0] = True
+
+        return is_radiative_is
 
 
 @dataclass
@@ -238,7 +255,7 @@ class Equipments:
         辞書の中の "equipment_type" の種類に応じて対応するデータクラスを生成する。
 
         Args:
-            ds: dictionary of equipments spec / 設備の情報が記された辞書
+            d: dictionary of equipments spec / 設備の情報が記された辞書
             n_rm: number of rooms / 部屋の数
             n_b: number of boundaries / 境界の数
             bs: Boundaries class
@@ -254,7 +271,6 @@ class Equipments:
         if 'heating_equipments' in d:
             hes = [
                 Equipment.create_heating_equipment(d=d_he, id_js=bs.id_js, connected_room_id_js=bs.connected_room_id_js)
-                #_create_heating_equipment(d_he=d_he, id_js=bs.id_js, connected_room_id_js=bs.connected_room_id_js)
                 for d_he in d['heating_equipments']
             ]
         else:
@@ -263,7 +279,6 @@ class Equipments:
         if 'cooling_equipments' in d:
             ces = [
                 Equipment.create_cooling_equipment(d=d_ce, id_js=bs.id_js, connected_room_id_js=bs.connected_room_id_js)
-                #_create_cooling_equipment(d_ce=d_ce, id_js=bs.id_js, connected_room_id_js=bs.connected_room_id_js)
                 for d_ce in d['cooling_equipments']
             ]
         else:
@@ -613,7 +628,7 @@ def _get_index_by_id(id_list: List, searching_id: int) -> int:
     return indices[0]
 
 
-def _get_is_radiative_is(es, id_r_is: np.ndarray):
+def _get_is_radiative_is(es: List[Equipment], id_r_is: np.ndarray):
     """Get bool type indices which the radiative heating or cooling exists.
 
     Args:
@@ -623,12 +638,14 @@ def _get_is_radiative_is(es, id_r_is: np.ndarray):
         matrix of room which radiative heating or cooling is equipped in., [I, 1]
     """
 
-    is_radiative_is = np.full_like(a=id_r_is, fill_value=False, dtype=bool)
+    # is_radiative_is = np.full_like(a=id_r_is, fill_value=False, dtype=bool)
 
-    for e in es:
-        if type(e) in [Floor_H, Floor_C]:
-            er: Floor_HC = e
-            index = er.room_index(id_r_is=id_r_is)
-            is_radiative_is[index, 0] = True
+    # for e in es:
+    #     if type(e) in [Floor_H, Floor_C]:
+    #         er: Floor_HC = e
+    #         index = er.room_index(id_r_is=id_r_is)
+    #         is_radiative_is[index, 0] = True
 
-    return is_radiative_is
+    # return is_radiative_is
+
+    return np.any(a=np.stack([e.get_is_radiative_is(id_r_is=id_r_is) for e in es]), axis=0)
