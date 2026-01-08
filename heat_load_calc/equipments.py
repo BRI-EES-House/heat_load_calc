@@ -104,6 +104,14 @@ class RAC_HC(Equipment, ABC):
         )
     
     def get_is_radiative_is(self, id_r_is: np.ndarray) -> np.ndarray:
+        """GGet bool type indices which the radiative heating or cooling exists.
+
+        Args:
+            id_r_is: room id, [I, 1]
+
+        Returns:
+            matrix of room which radiative heating or cooling is equipped in., [I, 1]
+        """
 
         return np.full_like(a=id_r_is, fill_value=False, dtype=bool)
 
@@ -199,6 +207,14 @@ class Floor_HC(Equipment, ABC):
         return _get_index_by_id(id_list=list(id_r_is.flatten()), searching_id=self.room_id)
     
     def get_is_radiative_is(self, id_r_is: np.ndarray) -> np.ndarray:
+        """GGet bool type indices which the radiative heating or cooling exists.
+
+        Args:
+            id_r_is: room id, [I, 1]
+
+        Returns:
+            matrix of room which radiative heating or cooling is equipped in., [I, 1]
+        """
 
         is_radiative_is = np.full_like(a=id_r_is, fill_value=False, dtype=bool)
 
@@ -287,8 +303,21 @@ class Equipments:
         self._hes = hes
         self._ces = ces
 
-        self._is_radiative_heating_is = _get_is_radiative_is(es=hes, id_r_is=id_r_is)
-        self._is_radiative_cooling_is = _get_is_radiative_is(es=ces, id_r_is=id_r_is)
+        is_radiative_heating_ks_is = _get_is_radiative_is(es=hes, id_r_is=id_r_is)
+        is_radiative_cooling_ks_is = _get_is_radiative_is(es=ces, id_r_is=id_r_is)
+
+        is_radiative_heating_duplicate_is = np.all(is_radiative_heating_ks_is)
+        is_radiative_cooling_duplicate_is = np.all(is_radiative_cooling_ks_is)
+
+        if(np.any(is_radiative_heating_duplicate_is)):
+            raise Exception("Multiple radiative heating are installed in one room.")
+        
+        if(np.any(is_radiative_cooling_duplicate_is)):
+            raise Exception("Multiple radiative cooling are installed in one room.")
+
+        self._is_radiative_heating_is = np.any(a=is_radiative_heating_ks_is, axis=0)
+        self._is_radiative_cooling_is = np.any(a=is_radiative_cooling_ks_is, axis=0)
+
         self._q_rs_h_max_is = self._get_q_rs_max_is(es=hes, id_r_is=id_r_is)
         self._q_rs_c_max_is = self._get_q_rs_max_is(es=ces, id_r_is=id_r_is)
         self._beta_h_is = self._get_beta_is(es=hes, n_rm=n_rm, id_r_is=id_r_is)
@@ -628,24 +657,14 @@ def _get_index_by_id(id_list: List, searching_id: int) -> int:
     return indices[0]
 
 
-def _get_is_radiative_is(es: List[Equipment], id_r_is: np.ndarray):
+def _get_is_radiative_is(es: List[Equipment], id_r_is: np.ndarray) -> np.ndarray:
     """Get bool type indices which the radiative heating or cooling exists.
 
     Args:
         id_r_is: room id, [I, 1]
 
     Returns:
-        matrix of room which radiative heating or cooling is equipped in., [I, 1]
+        matrix of room which radiative heating or cooling is equipped in., [K, I, 1]
     """
 
-    # is_radiative_is = np.full_like(a=id_r_is, fill_value=False, dtype=bool)
-
-    # for e in es:
-    #     if type(e) in [Floor_H, Floor_C]:
-    #         er: Floor_HC = e
-    #         index = er.room_index(id_r_is=id_r_is)
-    #         is_radiative_is[index, 0] = True
-
-    # return is_radiative_is
-
-    return np.any(a=np.stack([e.get_is_radiative_is(id_r_is=id_r_is) for e in es]), axis=0)
+    return np.stack([e.get_is_radiative_is(id_r_is=id_r_is) for e in es])
