@@ -369,8 +369,8 @@ class Equipments:
         self._hes = hes
         self._ces = ces
 
-        is_radiative_heating_ks_is = _get_is_radiative_is(es=hes, id_r_is=id_r_is)
-        is_radiative_cooling_ks_is = _get_is_radiative_is(es=ces, id_r_is=id_r_is)
+        is_radiative_heating_ks_is = _get_is_radiative_ks_is(es=hes, id_r_is=id_r_is)
+        is_radiative_cooling_ks_is = _get_is_radiative_ks_is(es=ces, id_r_is=id_r_is)
 
         is_radiative_heating_count_is = np.count_nonzero(a=is_radiative_heating_ks_is, axis=0)
         is_radiative_cooling_count_is = np.count_nonzero(a=is_radiative_cooling_ks_is, axis=0)
@@ -667,7 +667,7 @@ def _get_index_by_id(id_list: List, searching_id: int) -> int:
     return indices[0]
 
 
-def _get_is_radiative_is(es: List[Equipment], id_r_is: np.ndarray) -> np.ndarray:
+def _get_is_radiative_ks_is(es: List[Equipment], id_r_is: np.ndarray) -> np.ndarray:
     """Get bool type indices which the radiative heating or cooling exists.
 
     Args:
