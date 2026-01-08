@@ -306,13 +306,13 @@ class Equipments:
         is_radiative_heating_ks_is = _get_is_radiative_is(es=hes, id_r_is=id_r_is)
         is_radiative_cooling_ks_is = _get_is_radiative_is(es=ces, id_r_is=id_r_is)
 
-        is_radiative_heating_duplicate_is = np.all(is_radiative_heating_ks_is)
-        is_radiative_cooling_duplicate_is = np.all(is_radiative_cooling_ks_is)
+        is_radiative_heating_count_is = np.count_nonzero(a=is_radiative_heating_ks_is, axis=0)
+        is_radiative_cooling_count_is = np.count_nonzero(a=is_radiative_cooling_ks_is, axis=0)
 
-        if(np.any(is_radiative_heating_duplicate_is)):
+        if(np.any(is_radiative_heating_count_is > 1)):
             raise Exception("Multiple radiative heating are installed in one room.")
         
-        if(np.any(is_radiative_cooling_duplicate_is)):
+        if(np.any(is_radiative_cooling_count_is > 1)):
             raise Exception("Multiple radiative cooling are installed in one room.")
 
         self._is_radiative_heating_is = np.any(a=is_radiative_heating_ks_is, axis=0)
