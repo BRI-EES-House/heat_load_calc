@@ -71,6 +71,9 @@ class Equipment(ABC):
     @abstractmethod
     def get_f_beta_eqp_is(self, id_r_is: np.ndarray) -> np.ndarray: ...
 
+    @abstractmethod
+    def get_f_flr_js(self, id_js: np.ndarray) -> np.ndarray: ...
+
 
 @dataclass
 class RAC_HC(Equipment, ABC):
@@ -144,6 +147,19 @@ class RAC_HC(Equipment, ABC):
         """
 
         return np.zeros_like(a=id_r_is, dtype=float)
+
+
+    def get_f_flr_js(self, id_js: np.ndarray) -> np.ndarray:
+        """Get the absoption ratio of the inside room surface of boundary to radiative heat flow from the radiative heating or cooling.
+
+        Args:
+            id_js: room id, [J, 1]
+
+        Returns:
+            absorption ratio of inside room surface of boundary j to radiative heat flow from radiative heating or cooling in room i, -, [J, 1]
+        """
+
+        return np.zeros_like(a=id_js, dtype=float)
 
 
 @dataclass
@@ -290,6 +306,24 @@ class Floor_HC(Equipment, ABC):
 
         return f_beta_eqp_is
 
+    def get_f_flr_js(self, id_js: np.ndarray) -> np.ndarray:
+        """Get the absoption ratio of the inside room surface of boundary to radiative heat flow from the radiative heating or cooling.
+
+        Args:
+            id_js: room id, [J, 1]
+
+        Returns:
+            absorption ratio of inside room surface of boundary j to radiative heat flow from radiative heating or cooling in room i, -, [J, 1]
+        """
+
+        f_flr_js = np.zeros_like(a=id_js, dtype=float)
+
+        boundary_index = _get_index_by_id(id_list=list(id_js.flatten()), searching_id=self.boundary_id)
+
+        f_flr_js[boundary_index, 0] = 1.0
+
+        return f_flr_js
+
 
 @dataclass
 class Floor_H(Floor_HC):
@@ -331,7 +365,7 @@ class Floor_C(Floor_HC):
 
 class Equipments:
 
-    def __init__(self, d: Dict, n_rm: int, n_b: int, id_r_is: np.ndarray, id_js: np.ndarray, connected_room_id_js: np.ndarray):
+    def __init__(self, d: Dict, n_rm: int, n_b: int, id_r_is: np.ndarray, id_js: np.ndarray, connected_room_id_js: np.ndarray, p_is_js: np.ndarray):
         """設備に関する情報を辞書形式で受け取り、データクラスに変換して保持する。
         暖房・冷房それぞれにおいて、
         辞書の中の "equipment_type" の種類に応じて対応するデータクラスを生成する。
@@ -390,8 +424,8 @@ class Equipments:
         self._beta_h_is = _get_beta_is(es=hes, id_r_is=id_r_is)
         self._beta_c_is = _get_beta_is(es=ces, id_r_is=id_r_is)
 
-        self._f_flr_h_js_is = self._get_f_flr_js_is(es=hes, n_rm=n_rm, n_b=n_b, id_r_is=id_r_is)
-        self._f_flr_c_js_is = self._get_f_flr_js_is(es=ces, n_rm=n_rm, n_b=n_b, id_r_is=id_r_is)
+        self._f_flr_h_js_is = _get_f_flr_js_is(es=hes, p_is_js=p_is_js, id_js=id_js)
+        self._f_flr_c_js_is = _get_f_flr_js_is(es=ces, p_is_js=p_is_js, id_js=id_js)
 
         self._n_rm = n_rm
         self._n_b = n_b
@@ -426,18 +460,6 @@ class Equipments:
         """室iの放射冷房設備の対流成分比率, -, [i, 1]"""
         return self._beta_c_is
 
-    def _get_p_ks_is(self, es, n_rm, id_r_is: np.ndarray):
-
-        n_rm = id_r_is.shape[0]
-        p_ks_is = np.zeros(shape=(len(es), n_rm), dtype=float)
-
-        for k, e in enumerate(es):
-            if type(e) in [Floor_H, Floor_C]:
-                index = _get_index_by_id(id_list=list(id_r_is.flatten()), searching_id=e.room_id)
-                p_ks_is[k, index] = 1.0
-
-        return p_ks_is
-
     @property
     def f_flr_h_js_is(self) -> np.ndarray:
         """室iの放射暖房の放熱量の放射成分に対する境界jの室内側表面の吸収比率, - [j, i]"""
@@ -447,26 +469,6 @@ class Equipments:
     def f_flr_c_js_is(self) -> np.ndarray:
         """室iの放射冷房の吸熱量の放射成分に対する境界jの室内側表面の放熱比率, - [j, i]"""
         return self._f_flr_c_js_is
-
-    def _get_f_flr_js_is(self, es, n_rm, n_b, id_r_is: np.ndarray):
-
-        f_flr_eqp_js_ks = self._get_f_flr_eqp_js_ks(es=es, n_b=n_b, id_r_is=id_r_is)
-        p_ks_is = self._get_p_ks_is(es=es, n_rm=n_rm, id_r_is=id_r_is)
-
-        return np.dot(f_flr_eqp_js_ks, p_ks_is)
-
-    def _get_f_flr_eqp_js_ks(self, es, n_b, id_r_is:np.ndarray):
-
-        f_flr_eqp_js_ks = np.zeros(shape=(n_b, len(es)), dtype=float)
-
-        for k, e in enumerate(es):
-
-
-            if type(e) in [Floor_H, Floor_C]:
-                #TODO ここもidからboundaryのindexへの変換をしないといけないかもしれない。
-                f_flr_eqp_js_ks[e.boundary_id, k] = e.convection_ratio
-
-        return f_flr_eqp_js_ks
 
     def get_f_l_cl(
         self,
@@ -711,4 +713,26 @@ def _get_beta_is(es: List[Equipment], id_r_is: np.ndarray) -> np.ndarray:
     f_beta_eqp_ks_is = np.stack([e.get_f_beta_eqp_is(id_r_is=id_r_is) for e in es])
 
     return np.sum(f_beta_eqp_ks_is, axis=0)
+
+
+def _get_f_flr_js_is(es: List[Equipment], p_is_js: np.ndarray, id_js: np.ndarray) -> np.ndarray:
+    """Get the absorption ratio of inside surface of boundary to the radiative heat flow from the radiative heating or cooling in the room.
+
+    Args:
+        es: list of Equipment class, [K]
+        p_is_js: matrix representing relationship between room i and boundary j, [I, J]
+        id_js: boundary id, [J]
+
+    Returns:
+        absorption ratio of inside surface of boundary j to radiative heat flow from radiative heating or cooling in room i, -, [J, I]
+    """
+
+    # [K, J, 1]
+    f_flr_ks_js = np.stack([e.get_f_flr_js(id_js=id_js) for e in es])
+
+    # [J, 1]
+    f_flr_js = f_flr_ks_js.sum(axis=0)
+
+    # [J, I]
+    return f_flr_js * p_is_js.T
 

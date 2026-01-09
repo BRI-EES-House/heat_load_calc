@@ -19,7 +19,7 @@ class TestEquipments(unittest.TestCase):
         }
 
         with self.assertRaises(KeyError):
-            Equipments(d=d, n_rm=None, n_b=None, id_r_is=None, id_js=None, connected_room_id_js=None)
+            Equipments(d=d, n_rm=None, n_b=None, id_r_is=None, id_js=None, connected_room_id_js=None, p_is_js=None)
     
     def test_cooling_equipments_not_exist_error(self):
         d = {
@@ -27,7 +27,7 @@ class TestEquipments(unittest.TestCase):
         }
 
         with self.assertRaises(KeyError):
-            Equipments(d=d, n_rm=None, n_b=None, id_r_is=None, id_js=None, connected_room_id_js=None)
+            Equipments(d=d, n_rm=None, n_b=None, id_r_is=None, id_js=None, connected_room_id_js=None, p_is_js=None)
 
     def test_radiative_heating_equipments_duplicated_error(self):
 
@@ -102,9 +102,13 @@ class TestEquipments(unittest.TestCase):
         n_b = 14
         id_js = np.array([1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27]).reshape(-1, 1)
         connected_room_id_js = np.array([2, 2, 2, 2, 2, 4, 4, 4, 4, 4, 2, 4, 2, 4]).reshape(-1, 1)
+        p_is_js = np.array([
+            [1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0],
+            [0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 1, 0, 1]
+        ])
 
         with self.assertRaises(Exception):
-            Equipments(d=d, n_rm=_get_n_rm(), n_b=n_b, id_r_is=id_r_is, id_js=id_js, connected_room_id_js=connected_room_id_js)
+            Equipments(d=d, n_rm=_get_n_rm(), n_b=n_b, id_r_is=id_r_is, id_js=id_js, connected_room_id_js=connected_room_id_js, p_is_js=p_is_js)
 
     def test_radiative_heating_equipments_duplicated_error(self):
 
@@ -179,9 +183,13 @@ class TestEquipments(unittest.TestCase):
         n_b = 14
         id_js = np.array([1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27]).reshape(-1, 1)
         connected_room_id_js = np.array([2, 2, 2, 2, 2, 4, 4, 4, 4, 4, 2, 4, 2, 4]).reshape(-1, 1)
+        p_is_js = np.array([
+            [1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0],
+            [0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 1, 0, 1]
+        ])
 
         with self.assertRaises(Exception):
-            Equipments(d=d, n_rm=_get_n_rm(), n_b=n_b, id_r_is=id_r_is, id_js=id_js, connected_room_id_js=connected_room_id_js)
+            Equipments(d=d, n_rm=_get_n_rm(), n_b=n_b, id_r_is=id_r_is, id_js=id_js, connected_room_id_js=connected_room_id_js, p_is_js=p_is_js)
 
     def test_(self):
 
@@ -245,9 +253,13 @@ class TestEquipments(unittest.TestCase):
         n_b = 14
         id_js = np.array([1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27]).reshape(-1, 1)
         connected_room_id_js = np.array([2, 2, 2, 2, 2, 4, 4, 4, 4, 4, 2, 4, 2, 4]).reshape(-1, 1)
+        p_is_js = np.array([
+            [1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0],
+            [0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 1, 0, 1]
+        ])
 
 
-        e = Equipments(d=d, n_rm=_get_n_rm(), n_b=n_b, id_r_is=id_r_is, id_js=id_js, connected_room_id_js=connected_room_id_js)
+        e = Equipments(d=d, n_rm=_get_n_rm(), n_b=n_b, id_r_is=id_r_is, id_js=id_js, connected_room_id_js=connected_room_id_js, p_is_js=p_is_js)
 
         np.testing.assert_equal(np.array([True, False]).reshape(-1, 1), e.is_radiative_heating_is)
 

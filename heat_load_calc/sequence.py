@@ -76,7 +76,7 @@ class Sequence:
         mvs = MechanicalVentilations(ds=d['mechanical_ventilations'], n_rm=rms.n_r)
 
         # Equipments Class
-        es = Equipments(d=d['equipments'], n_rm=rms.n_r, n_b=bs.n_b, id_r_is=rms.id_r_is, id_js=bs.id_js, connected_room_id_js=bs.connected_room_id_js)
+        es = Equipments(d=d['equipments'], n_rm=rms.n_r, n_b=bs.n_b, id_r_is=rms.id_r_is, id_js=bs.id_js, connected_room_id_js=bs.connected_room_id_js, p_is_js=bs.p_is_js)
 
         # Operation Class
         op = operation_mode.Operation.make_operation(
