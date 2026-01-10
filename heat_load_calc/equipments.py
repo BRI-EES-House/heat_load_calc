@@ -29,6 +29,9 @@ class Individual:
         # room_indices
         self.id_r_is: np.ndarray[int] = id_r_is
 
+        # number of room
+        self.n_rm = len(id_r_is)
+
         # boundary_id
         self.boundary_id: int | None = boundary_id
 
@@ -169,8 +172,24 @@ class Individual:
         else:
             return f_flr_js
 
-    def get_f_l_cl2(self, n_rm: int, q_s_is_n: np.ndarray, theta_r_is_n_pls: np.ndarray, x_r_ntr_is_n_pls: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
-        return self.e.get_f_l_cl2(n_rm=n_rm, q_s_is_n=q_s_is_n, theta_r_is_n_pls=theta_r_is_n_pls, x_r_ntr_is_n_pls=x_r_ntr_is_n_pls)
+    def get_f_l_cl2(self, q_s_is_n: np.ndarray, theta_r_is_n_pls: np.ndarray, x_r_ntr_is_n_pls: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+
+        # ここでidをひいているのは間違い
+        q_s_i_n = q_s_is_n[self.room_id, 0]
+        theta_r_i_n_pls = theta_r_is_n_pls[self.room_id, 0]
+        x_r_ntr_i_n_pls = x_r_ntr_is_n_pls[self.room_id, 0]
+
+        brmx_rac_is, brcx_rac_is = self.e.get_f_l_cl(q_s=q_s_i_n, theta_r=theta_r_i_n_pls, x_r=x_r_ntr_i_n_pls)
+
+        brmx_is_is = np.zeros((self.n_rm, self.n_rm), dtype=float)
+        brxc_is = np.zeros((self.n_rm, 1), dtype=float)
+
+        # ここでidをひいているのは間違い
+        brmx_is_is[self.room_id, self.room_id] = brmx_rac_is
+        brxc_is[self.room_id, 0] = brcx_rac_is
+
+        return brmx_is_is, brxc_is
+        
 
 
 @dataclass
@@ -195,7 +214,13 @@ class Equipment(ABC):
         ...
 
     @abstractmethod
-    def get_f_l_cl2(self, n_rm: int, q_s_is_n: np.ndarray, theta_r_is_n_pls: np.ndarray, x_r_ntr_is_n_pls: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+    def get_f_l_cl(self, q_s: float, theta_r: float, x_r: float) -> Tuple[float, float]:
+        """get parameters of constant and weighted for f_l_cl function.
+
+        Args:
+            q_s: sensitive heat load.
+            theta_r: room temperature.
+        """
         ...
 
 
@@ -286,8 +311,8 @@ class RAC_HC(Equipment, ABC):
 
         return v
 
-    def get_f_l_cl2(self, n_rm: int, q_s_is_n: np.ndarray, theta_r_is_n_pls: np.ndarray, x_r_ntr_is_n_pls: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
-        raise NotImplementedError
+    def get_f_l_cl(self, q_s: float, theta_r: float, x_r: float) -> Tuple[float, float]:
+        return NotImplementedError
 
 
 @dataclass
@@ -307,7 +332,13 @@ class RAC_H(RAC_HC):
             bf=e.bf
         )
 
-    def get_f_l_cl2(self, n_rm: int, q_s_is_n: np.ndarray, theta_r_is_n_pls: np.ndarray, x_r_ntr_is_n_pls: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+    def get_f_l_cl(self, q_s: float, theta_r: float, x_r: float) -> Tuple[float, float]:
+        """get parameters of constant and weighted for f_l_cl function.
+
+        Args:
+            q_s: sensitive heat load.
+            theta_r: room temperature.
+        """
         raise NotImplementedError
 
 
@@ -348,26 +379,7 @@ class RAC_C(RAC_HC):
         return theta_r - q_s / (get_c_a() * get_rho_a() * v * (1.0 - self.bf))
 
 
-    def get_f_l_cl2(self, n_rm: int, q_s_is_n: np.ndarray, theta_r_is_n_pls: np.ndarray, x_r_ntr_is_n_pls: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
-
-        # ここでidをひいているのは間違い
-        q_s_i_n = q_s_is_n[self.room_id, 0]
-        theta_r_i_n_pls = theta_r_is_n_pls[self.room_id, 0]
-        x_r_ntr_i_n_pls = x_r_ntr_is_n_pls[self.room_id, 0]
-
-        brmx_rac_is, brcx_rac_is = self.get_f_l_cl(q_s=q_s_i_n, theta_r=theta_r_i_n_pls, x_r=x_r_ntr_i_n_pls)
-
-        brmx_is_is = np.zeros((n_rm, n_rm), dtype=float)
-        brxc_is = np.zeros((n_rm, 1), dtype=float)
-
-        # ここでidをひいているのは間違い
-        brmx_is_is[self.room_id, self.room_id] = brmx_rac_is
-        brxc_is[self.room_id, 0] = brcx_rac_is
-
-        return brmx_is_is, brxc_is
-   
-
-    def get_f_l_cl(self, q_s: float, theta_r: float, x_r: float):
+    def get_f_l_cl(self, q_s: float, theta_r: float, x_r: float) -> Tuple[float, float]:
         """get parameters of constant and weighted for f_l_cl function.
 
         Args:
@@ -448,7 +460,13 @@ class Floor_HC(Equipment, ABC):
         """convective heat ratio of radiative heating or cooling, -"""
         return self.convection_ratio
 
-    def get_f_l_cl2(self, n_rm: int, q_s_is_n: np.ndarray, theta_r_is_n_pls: np.ndarray, x_r_ntr_is_n_pls: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+    def get_f_l_cl(self, q_s: float, theta_r: float, x_r: float) -> Tuple[float, float]:
+        """get parameters of constant and weighted for f_l_cl function.
+
+        Args:
+            q_s: sensitive heat load.
+            theta_r: room temperature.
+        """
         raise NotImplementedError
 
 
@@ -550,9 +568,6 @@ class Equipments:
         self._f_flr_h_js_is = _get_f_flr_js_is(es=hes, p_is_js=p_is_js)
         self._f_flr_c_js_is = _get_f_flr_js_is(es=ces, p_is_js=p_is_js)
 
-        self._n_rm = n_rm
-        self._n_b = n_b
-
     @property
     def is_radiative_heating_is(self) -> np.ndarray:
         """室iの暖房方式として放射空調が設置されているかどうか, bool値, [i, 1]"""
@@ -612,10 +627,11 @@ class Equipments:
                 ステップ n　からステップ n+1 における係数 f_l_cl_cst, kg/s, [i, 1]
         """
 
+        q_s_is_n = -l_cs_is_n
+
         ls = [
             ce.get_f_l_cl2(
-                n_rm=self._n_rm,
-                q_s_is_n=-l_cs_is_n,
+                q_s_is_n=q_s_is_n,
                 theta_r_is_n_pls=theta_r_is_n_pls,
                 x_r_ntr_is_n_pls=x_r_ntr_is_n_pls
             )
