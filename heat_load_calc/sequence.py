@@ -781,6 +781,41 @@ class Sequence:
             x_r_is_n_pls=x_r_is_n_pls
         )
 
+        DEBUG = True
+        if DEBUG:
+            #### 室空気の熱収支テスト ####
+            rho_c_a = get_c_a() * get_rho_a()
+            # 室空気の熱容量, [J/K]
+            cap_r_air_is = rho_c_a * self.rms.v_r_is
+            # 室空気の温度変化に伴う熱負荷, W
+            left = (theta_r_is_n_pls - c_n.theta_r_is_n) * cap_r_air_is / delta_t
+            # 部位からの対流熱取得量, W
+            q_c_surf_js = (theta_s_js_n_pls - np.dot(self.bs.p_js_is, theta_r_is_n_pls)) * self.bs.h_s_c_js * self.bs.a_s_js
+            q_c_surf = np.dot(self.bs.p_is_js, q_c_surf_js)
+            # 備品からの熱取得量, W
+            q_c_frt = (theta_frt_is_n_pls - theta_r_is_n_pls) * self.rms.g_sh_frt_is
+            # すきま風による熱取得量, W
+            q_c_leak = rho_c_a * v_leak_is_n * (self.weather.theta_o_ns_plus[n + 1] - theta_r_is_n_pls)
+            # 機械換気による熱取得量, W
+            v_vent_mec_is_n = self.v_vent_mec_is_ns[:, n].reshape(-1, 1)
+            q_c_vent = rho_c_a * v_vent_mec_is_n * (self.weather.theta_o_ns_plus[n + 1] - theta_r_is_n_pls)
+            # 自然換気による熱取得量, W
+            q_c_ntrl_vent = rho_c_a * v_vent_ntr_is_n * (self.weather.theta_o_ns_plus[n + 1] - theta_r_is_n_pls)
+            # 隣室間換気による熱取得量, W
+            theta_pls = theta_r_is_n_pls  # (n_pls時点の室温) shape=(n_room,1) を想定
+            v_in = np.clip(self.mvs.v_vent_int_is_is, 0.0, None)  # 負→0、正はそのまま
+            v_sum_in = v_in.sum(axis=1, keepdims=True)            # 各室への総流入量  shape=(n_room,1)
+            q_c_int_vent = rho_c_a * (v_in @ theta_pls - v_sum_in * theta_pls)
+            # 局所換気による熱取得量, W
+            # 内部発熱による熱取得量, W
+            q_c_gen = self.scd.q_gen_is_ns[:, n].reshape(-1, 1) + q_hum_is_n
+            # 顕熱負荷, W
+            l_cs = l_cs_is_n + l_rs_is_n * beta_is_n
+            # 熱収支式の右辺, W
+            right = q_c_surf + q_c_frt + q_c_leak + q_c_vent + q_c_ntrl_vent + q_c_int_vent + q_c_gen + l_cs
+
+            np.testing.assert_allclose(left,right)
+
         if recorder is not None:
             recorder.recording(
                 n=n,
