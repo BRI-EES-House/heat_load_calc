@@ -839,7 +839,24 @@ class Sequence:
             # 湿収支式の右辺, W
             right = q_w_frt + q_w_leak + q_w_vent + q_w_ntrl_vent + q_w_int_vent + q_w_gen + l_cl
             np.testing.assert_allclose(left, right)
+        
+            #### 備品の熱収支のテスト ####
+            # 備品等の熱容量, [J/K]
+            cap_frt_is = self.rms.c_sh_frt_is
+            # 備品等の温度変化に伴う熱負荷, W
+            left = (theta_frt_is_n_pls - c_n.theta_frt_is_n) * cap_frt_is / delta_t
+            # 備品等の熱収支式の右辺, W
+            right = (theta_r_is_n_pls - theta_frt_is_n_pls) * self.rms.g_sh_frt_is + self.q_sol_frt_is_ns[:, n].reshape(-1, 1)
+            np.testing.assert_allclose(left, right)
 
+            #### 備品の湿収支のテスト ####
+            # 備品等の湿容量, [kg/(kg(DA))]
+            cap_lh_frt_is = self.rms.c_lh_frt_is
+            # 備品等の湿度変化に伴う湿負荷, W
+            left = (x_frt_is_n_pls - c_n.x_frt_is_n) * cap_lh_frt_is / delta_t
+            # 備品等の湿収支式の右辺, W
+            right = (x_r_is_n_pls - x_frt_is_n_pls) * self.rms.g_lh_frt_is
+            np.testing.assert_allclose(left, right)
 
         if recorder is not None:
             recorder.recording(
