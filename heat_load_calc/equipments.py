@@ -196,6 +196,43 @@ class RAC_HC(Equipment, ABC):
 
         return np.zeros_like(a=id_js, dtype=float)
 
+    def _get_v(self, q_s: float) -> float:
+        """Calculate the air flow rate.
+
+        Args:
+            q_s: sensitive heat load, W
+
+        Returns:
+            air flow rate, m3/s
+
+        Notes:
+            繰り返し計算（湿度と潜熱） eq.14
+
+            Although the rated maximum and minimum capacities are total heat capacities,
+            the values measured by the current test method are almost entirely dominated by sensible heat load.
+            Therefore, we will calculate the airflow rate based on the sensible heat load.
+        """
+
+        # maximum air flow rate, m3/s
+        v_max_per_sec = self.v_max / 60.0
+
+        # minimum air flow rate, m3/s
+        v_min_per_sec = self.v_min / 60.0
+
+        # maximum capacity, W
+        q_max = self.q_max
+
+        # minimum capacity, W
+        q_min = self.q_min
+
+        # air flow rate without upper and lower limitation, m3/s
+        v2 = v_min_per_sec * (q_max - q_s) / (q_max - q_min) + v_max_per_sec * (q_min - q_s) / (q_min - q_max)
+
+        # air flow rate, m3/s
+        v = np.clip(v2, a_min=v_min_per_sec, a_max=v_max_per_sec)
+
+        return v
+
 
 @dataclass
 class RAC_H(RAC_HC):
@@ -262,7 +299,7 @@ class Floor_HC(Equipment, ABC):
 
         boundary_id = prop['boundary_id']
 
-        boundary_index = _get_boundary_index(boundary_id_is=id_js, spcf_boundary_id=boundary_id)
+        boundary_index = _get_boundary_index(boundary_id_js=id_js, spcf_boundary_id=boundary_id)
         
         room_id = connected_room_id_js.flatten()[boundary_index]
 
@@ -344,7 +381,7 @@ class Floor_HC(Equipment, ABC):
 
         f_flr_js = np.zeros_like(a=id_js, dtype=float)
 
-        boundary_index = _get_boundary_index(boundary_id_is=id_js, spcf_boundary_id=self.boundary_id)
+        boundary_index = _get_boundary_index(boundary_id_js=id_js, spcf_boundary_id=self.boundary_id)
         
         f_flr_js[boundary_index, 0] = 1.0
 
@@ -577,13 +614,7 @@ class Equipments:
         theta_r_i_n_pls = theta_r_is_n_pls[ce.room_id, 0]
         x_r_ntr_i_n_pls = x_r_ntr_is_n_pls[ce.room_id, 0]
 
-        v_rac_i_n = self._get_vac_rac_i_n(
-            q_rac_max_i=ce.q_max,
-            q_rac_min_i=ce.q_min,
-            q_s_i_n=q_s_i_n,
-            v_rac_max_i=ce.v_max / 60,
-            v_rac_min_i=ce.v_min / 60
-        )
+        v_rac_i_n = ce._get_v(q_s=q_s_i_n)
 
         theta_rac_ex_srf_i_n_pls = self._get_theta_rac_ex_srf_i_n_pls(
             bf_rac_i=ce.bf,
@@ -650,44 +681,32 @@ class Equipments:
 
         return theta_r_i_n_pls - q_s_i_n / (get_c_a() * get_rho_a() * v_rac_i_n * (1.0 - bf_rac_i))
 
-    @staticmethod
-    def _get_vac_rac_i_n(
-            q_rac_max_i: Union[float, np.ndarray],
-            q_rac_min_i: Union[float, np.ndarray],
-            q_s_i_n: Union[float, np.ndarray],
-            v_rac_max_i: Union[float, np.ndarray],
-            v_rac_min_i: Union[float, np.ndarray]
-    ) -> Union[float, np.ndarray]:
-        """
-        ルームエアコンディショナーの吹き出し風量を顕熱負荷に応じて計算する。
 
-        Args:
-            q_rac_max_i: 室 i に設置されたルームエアコンディショナーの最大能力, W
-            q_rac_min_i: 室 i に設置されたルームエアコンディショナーの最小能力, W
-            q_s_i_n:　ステップ n からステップ n+1 における室 i の顕熱負荷, W
-            v_rac_max_i: 室 i に設置されたルームエアコンディショナーの最小能力時における風量, m3/s
-            v_rac_min_i: 室 i に設置されたルームエアコンディショナーの最大能力時における風量, m3/s
-        Returns:
-            室iに設置されたルームエアコンディショナーの吹き出し風量, m3/s
-        Notes:
-            繰り返し計算（湿度と潜熱） eq.14
-        """
+def _get_boundary_index(boundary_id_js: np.ndarray, spcf_boundary_id: int) -> int:
+    """Find the boundary index corresponding to the boundary id.
 
-        # 吹き出し風量（仮）, m3/s
-        v = v_rac_min_i * (q_rac_max_i - q_s_i_n) / (q_rac_max_i - q_rac_min_i)\
-            + v_rac_max_i * (q_rac_min_i - q_s_i_n) / (q_rac_min_i - q_rac_max_i)
+    Args:
+        boundary_id_js: boundary id, [J, 1]
+        spcf_boundary_id: specified boundary id
 
-        # 下限値・上限値でクリップ後の吹き出し風量, m3/s
-        v_rac_i_n = np.clip(v, a_min=v_rac_min_i, a_max=v_rac_max_i)
+    Returns:
+        boundary index
+    """
 
-        return v_rac_i_n
+    return _get_index_by_id(id_list=list(boundary_id_js.flatten()), searching_id=spcf_boundary_id)
 
 
-def _get_boundary_index(boundary_id_is, spcf_boundary_id):
-    return _get_index_by_id(id_list=list(boundary_id_is.flatten()), searching_id=spcf_boundary_id)
+def _get_room_index(room_id_is: np.ndarray, spcf_room_id: int) -> int:
+    """Find the room index corresponding to the room id.
 
+    Args:
+        room_id_is: room id, [I, 1]
+        spcf_room_id: specified room id
 
-def _get_room_index(room_id_is, spcf_room_id):
+    Returns:
+        room index
+    """
+
     return _get_index_by_id(id_list=list(room_id_is.flatten()), searching_id=spcf_room_id)
 
 
