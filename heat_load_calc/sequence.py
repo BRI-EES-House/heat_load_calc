@@ -816,6 +816,31 @@ class Sequence:
 
             np.testing.assert_allclose(left,right)
 
+            #### 室空気の湿収支テスト ####
+            rho_a = get_rho_a()
+            # 室空気の湿度変化に伴う湿負荷, W
+            left = (x_r_is_n_pls - c_n.x_r_is_n) * rho_a * self.rms.v_r_is / delta_t
+            # 備品等からの湿取得量, W
+            q_w_frt = (x_frt_is_n_pls - x_r_is_n_pls) * self.rms.g_lh_frt_is
+            # すきま風による湿取得量, W
+            q_w_leak = rho_a * v_leak_is_n * (self.weather.x_o_ns_plus[n + 1] - x_r_is_n_pls)
+            # 機械換気による湿取得量, W
+            v_vent_mec_is_n = self.v_vent_mec_is_ns[:, n].reshape(-1, 1)
+            q_w_vent = rho_a * v_vent_mec_is_n * (self.weather.x_o_ns_plus[n + 1] - x_r_is_n_pls)
+            # 自然換気による湿取得量, W
+            q_w_ntrl_vent = rho_a * v_vent_ntr_is_n * (self.weather.x_o_ns_plus[n + 1] - x_r_is_n_pls)
+            # 隣室間換気による湿取得量, W
+            x_pls = x_r_is_n_pls  # (n_pls時点の室湿度) shape=(n_room,1) を想定
+            q_w_int_vent = rho_a * (v_in @ x_pls - v_sum_in * x_pls)
+            # 内部発湿による湿取得量, W
+            q_w_gen = self.scd.x_gen_is_ns[:, n].reshape(-1, 1) + x_hum_is_n
+            # 潜熱負荷, W
+            l_cl = l_cl_is_n
+            # 湿収支式の右辺, W
+            right = q_w_frt + q_w_leak + q_w_vent + q_w_ntrl_vent + q_w_int_vent + q_w_gen + l_cl
+            np.testing.assert_allclose(left, right)
+
+
         if recorder is not None:
             recorder.recording(
                 n=n,
