@@ -109,6 +109,10 @@ class Equipment(ABC):
         """
         ...
 
+    @abstractmethod
+    def get_f_l_cl2(self, n_rm: int, q_s_is_n: np.ndarray, theta_r_is_n_pls: np.ndarray, x_r_ntr_is_n_pls: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+        ...
+
 
 @dataclass
 class RAC_HC(Equipment, ABC):
@@ -183,7 +187,6 @@ class RAC_HC(Equipment, ABC):
 
         return np.zeros_like(a=id_r_is, dtype=float)
 
-
     def get_f_flr_js(self, id_js: np.ndarray) -> np.ndarray:
         """Get the absoption ratio of the inside room surface of boundary to radiative heat flow from the radiative heating or cooling.
 
@@ -233,6 +236,8 @@ class RAC_HC(Equipment, ABC):
 
         return v
 
+    def get_f_l_cl2(self, n_rm: int, q_s_is_n: np.ndarray, theta_r_is_n_pls: np.ndarray, x_r_ntr_is_n_pls: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+        raise NotImplementedError
 
 @dataclass
 class RAC_H(RAC_HC):
@@ -252,6 +257,9 @@ class RAC_H(RAC_HC):
             v_max=e.v_max,
             bf=e.bf
         )
+
+    def get_f_l_cl2(self, n_rm: int, q_s_is_n: np.ndarray, theta_r_is_n_pls: np.ndarray, x_r_ntr_is_n_pls: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+        raise NotImplementedError
 
 
 @dataclass
@@ -291,7 +299,26 @@ class RAC_C(RAC_HC):
         """
 
         return theta_r - q_s / (get_c_a() * get_rho_a() * v * (1.0 - self.bf))
-    
+
+
+    def get_f_l_cl2(self, n_rm: int, q_s_is_n: np.ndarray, theta_r_is_n_pls: np.ndarray, x_r_ntr_is_n_pls: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+
+        # ここでidをひいているのは間違い
+        q_s_i_n = q_s_is_n[self.room_id, 0]
+        theta_r_i_n_pls = theta_r_is_n_pls[self.room_id, 0]
+        x_r_ntr_i_n_pls = x_r_ntr_is_n_pls[self.room_id, 0]
+
+        brmx_rac_is, brcx_rac_is = self.get_f_l_cl(q_s=q_s_i_n, theta_r=theta_r_i_n_pls, x_r=x_r_ntr_i_n_pls)
+
+        brmx_is_is = np.zeros((n_rm, n_rm), dtype=float)
+        brxc_is = np.zeros((n_rm, 1), dtype=float)
+
+        # ここでidをひいているのは間違い
+        brmx_is_is[self.room_id, self.room_id] = brmx_rac_is
+        brxc_is[self.room_id, 0] = brcx_rac_is
+
+        return brmx_is_is, brxc_is
+   
 
     def get_f_l_cl(self, q_s: float, theta_r: float, x_r: float):
         """get parameters of constant and weighted for f_l_cl function.
@@ -433,6 +460,9 @@ class Floor_HC(Equipment, ABC):
         f_flr_js[boundary_index, 0] = 1.0
 
         return f_flr_js
+
+    def get_f_l_cl2(self, n_rm: int, q_s_is_n: np.ndarray, theta_r_is_n_pls: np.ndarray, x_r_ntr_is_n_pls: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+        raise NotImplementedError
 
 
 @dataclass
@@ -600,11 +630,11 @@ class Equipments:
         """
 
         ls = [
-            self._get_ls_a_ls_b(
-                l_cs_is_n=l_cs_is_n,
+            ce.get_f_l_cl2(
+                n_rm=self._n_rm,
+                q_s_is_n=-l_cs_is_n,
                 theta_r_is_n_pls=theta_r_is_n_pls,
-                x_r_ntr_is_n_pls=x_r_ntr_is_n_pls,
-                ce=ce
+                x_r_ntr_is_n_pls=x_r_ntr_is_n_pls
             )
             for ce in self._ces
         ]
@@ -619,57 +649,6 @@ class Equipments:
         f_l_cl_wgt_is_is_n = - ls_a.sum(axis=0)
         f_l_cl_cst_is_n = ls_b.sum(axis=0)
         return f_l_cl_cst_is_n, f_l_cl_wgt_is_is_n
-
-
-    def _get_ls_a_ls_b(
-        self,
-        l_cs_is_n: np.ndarray,
-        theta_r_is_n_pls: np.ndarray,
-        x_r_ntr_is_n_pls: np.ndarray,
-        ce: RAC_C
-    ) -> Tuple[np.ndarray, np.ndarray]:
-
-        if type(ce) is RAC_C:
-            return self._func_rac(
-                l_cs_is_n=l_cs_is_n,
-                theta_r_is_n_pls=theta_r_is_n_pls,
-                x_r_ntr_is_n_pls=x_r_ntr_is_n_pls,
-                ce=ce
-            )
-        elif type(ce) is Floor_C:
-            raise NotImplementedError
-        else:
-            raise Exception
-
-    def _func_rac(
-            self,
-            l_cs_is_n: np.ndarray,
-            theta_r_is_n_pls: np.ndarray,
-            x_r_ntr_is_n_pls: np.ndarray,
-            ce: RAC_C
-    ) -> Tuple[np.ndarray, np.ndarray]:
-
-        # 室の数
-        n_rm = self._n_rm
-
-        # Lcsは加熱が正で表される。
-        # 加熱時は除湿しない。
-        # 以下の取り扱いを簡単にするため（冷房負荷を正とするため）、正負を反転させる
-        q_s_is_n = -l_cs_is_n
-
-        q_s_i_n = q_s_is_n[ce.room_id, 0]
-        theta_r_i_n_pls = theta_r_is_n_pls[ce.room_id, 0]
-        x_r_ntr_i_n_pls = x_r_ntr_is_n_pls[ce.room_id, 0]
-
-        brmx_rac_is, brcx_rac_is = ce.get_f_l_cl(q_s=q_s_i_n, theta_r=theta_r_i_n_pls, x_r=x_r_ntr_i_n_pls)
-
-        brmx_is_is = np.zeros((n_rm, n_rm), dtype=float)
-        brxc_is = np.zeros((n_rm, 1), dtype=float)
-
-        brmx_is_is[ce.room_id, ce.room_id] = brmx_rac_is
-        brxc_is[ce.room_id, 0] = brcx_rac_is
-
-        return brmx_is_is, brxc_is
 
 
 def _get_boundary_index(boundary_id_js: np.ndarray, spcf_boundary_id: int) -> int:
