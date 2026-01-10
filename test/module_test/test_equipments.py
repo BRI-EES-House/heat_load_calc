@@ -273,6 +273,16 @@ class TestEquipments(unittest.TestCase):
 
         np.testing.assert_equal(np.array([0.1, 0.0]).reshape(-1, 1), e.beta_c_is)
 
+        np.testing.assert_equal(np.array([
+            [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            ]).T, e.f_flr_h_js_is)
+
+        np.testing.assert_equal(np.array([
+            [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            ]).T, e.f_flr_c_js_is)
+
 
 def _get_n_rm():
 
