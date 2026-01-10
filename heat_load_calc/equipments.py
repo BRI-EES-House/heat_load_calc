@@ -1,11 +1,10 @@
-﻿from typing import Callable, Dict, Tuple, List
+﻿from typing import Dict, Tuple, List
 from typing import Union
 import numpy as np
 from dataclasses import dataclass
 from enum import Enum
 from abc import ABC, abstractmethod
 
-from heat_load_calc import boundaries
 from heat_load_calc.psychrometrics import get_x, get_p_vs
 from heat_load_calc.global_number import get_c_a, get_rho_a
 from heat_load_calc.matrix_method import v_diag
@@ -63,16 +62,52 @@ class Equipment(ABC):
                 raise Exception
 
     @abstractmethod
-    def get_is_radiative_is(self, id_r_is: np.ndarray) -> np.ndarray: ...
+    def get_is_radiative_is(self, id_r_is: np.ndarray) -> np.ndarray:
+        """Get bool type indices which the radiative heating or cooling exists.
+
+        Args:
+            id_r_is: room id, [I, 1]
+
+        Returns:
+            matrix of room which radiative heating or cooling is equipped in., [I, 1]
+        """
+        ...
 
     @abstractmethod
-    def get_q_rs_max_is(self, id_r_is: np.ndarray) -> np.ndarray: ...
+    def get_q_rs_max_is(self, id_r_is: np.ndarray) -> np.ndarray:
+        """Get maximum capacity of radiative heating or cooling.
+
+        Args:
+            id_r_is: room id, [I, 1]
+
+        Returns:
+            matrix of maximum capacity of radiative heating or cooling, W, [I, 1]
+        """
+        ...
 
     @abstractmethod
-    def get_f_beta_eqp_is(self, id_r_is: np.ndarray) -> np.ndarray: ...
+    def get_f_beta_eqp_is(self, id_r_is: np.ndarray) -> np.ndarray:
+        """Get the convective heat ratio of radiative heating or cooling.
+
+        Args:
+            id_r_is: room index, [I, 1]
+
+        Returns:
+            convective heat ratio of radiative heating or cooling, -, [I, 1]
+        """
+        ...
 
     @abstractmethod
-    def get_f_flr_js(self, id_js: np.ndarray) -> np.ndarray: ...
+    def get_f_flr_js(self, id_js: np.ndarray) -> np.ndarray:
+        """Get the absoption ratio of the inside room surface of boundary to radiative heat flow from the radiative heating or cooling.
+
+        Args:
+            id_js: room id, [J, 1]
+
+        Returns:
+            absorption ratio of inside room surface of boundary j to radiative heat flow from radiative heating or cooling in room i, -, [J, 1]
+        """
+        ...
 
 
 @dataclass
@@ -113,7 +148,7 @@ class RAC_HC(Equipment, ABC):
         )
     
     def get_is_radiative_is(self, id_r_is: np.ndarray) -> np.ndarray:
-        """GGet bool type indices which the radiative heating or cooling exists.
+        """Get bool type indices which the radiative heating or cooling exists.
 
         Args:
             id_r_is: room id, [I, 1]
@@ -226,7 +261,9 @@ class Floor_HC(Equipment, ABC):
         prop = d['property']
 
         boundary_id = prop['boundary_id']
-        boundary_index = _get_index_by_id(id_list=list(id_js.flatten()), searching_id=boundary_id)
+
+        boundary_index = _get_boundary_index(boundary_id_is=id_js, spcf_boundary_id=boundary_id)
+        
         room_id = connected_room_id_js.flatten()[boundary_index]
 
         instance = Floor_HC(
@@ -241,17 +278,6 @@ class Floor_HC(Equipment, ABC):
 
         return instance
         
-    def get_room_index(self, id_r_is: np.ndarray[int]) -> int:
-        """Get the room index of the room which this raddiative heating or cooling is equipped in.
-
-            Args:
-                id_r_is: room indices, [I, 1]
-            Returns:
-                index number
-        """
-
-        return _get_index_by_id(id_list=list(id_r_is.flatten()), searching_id=self.room_id)
-    
     def get_is_radiative_is(self, id_r_is: np.ndarray) -> np.ndarray:
         """GGet bool type indices which the radiative heating or cooling exists.
 
@@ -264,7 +290,7 @@ class Floor_HC(Equipment, ABC):
 
         is_radiative_is = np.full_like(a=id_r_is, fill_value=False, dtype=bool)
 
-        room_index = self.get_room_index(id_r_is=id_r_is)
+        room_index = _get_room_index(room_id_is=id_r_is, spcf_room_id=self.room_id)
 
         is_radiative_is[room_index, 0] = True
 
@@ -282,7 +308,7 @@ class Floor_HC(Equipment, ABC):
 
         q_rs_max_is = np.zeros_like(a=id_r_is, dtype=float)
 
-        room_index = self.get_room_index(id_r_is=id_r_is)
+        room_index = _get_room_index(room_id_is=id_r_is, spcf_room_id=self.room_id)
 
         q_rs_max_is[room_index, 0] = self.max_capacity * self.area
 
@@ -300,7 +326,7 @@ class Floor_HC(Equipment, ABC):
 
         f_beta_eqp_is = np.zeros_like(a=id_r_is, dtype=float)
 
-        room_index = self.get_room_index(id_r_is=id_r_is)
+        room_index = _get_room_index(room_id_is=id_r_is, spcf_room_id=self.room_id)
 
         f_beta_eqp_is[room_index, 0] = self.convection_ratio
 
@@ -318,8 +344,8 @@ class Floor_HC(Equipment, ABC):
 
         f_flr_js = np.zeros_like(a=id_js, dtype=float)
 
-        boundary_index = _get_index_by_id(id_list=list(id_js.flatten()), searching_id=self.boundary_id)
-
+        boundary_index = _get_boundary_index(boundary_id_is=id_js, spcf_boundary_id=self.boundary_id)
+        
         f_flr_js[boundary_index, 0] = 1.0
 
         return f_flr_js
@@ -655,6 +681,14 @@ class Equipments:
         v_rac_i_n = np.clip(v, a_min=v_rac_min_i, a_max=v_rac_max_i)
 
         return v_rac_i_n
+
+
+def _get_boundary_index(boundary_id_is, spcf_boundary_id):
+    return _get_index_by_id(id_list=list(boundary_id_is.flatten()), searching_id=spcf_boundary_id)
+
+
+def _get_room_index(room_id_is, spcf_room_id):
+    return _get_index_by_id(id_list=list(room_id_is.flatten()), searching_id=spcf_room_id)
 
 
 def _get_index_by_id(id_list: List, searching_id: int) -> int:
