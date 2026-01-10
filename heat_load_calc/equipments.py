@@ -196,7 +196,7 @@ class RAC_HC(Equipment, ABC):
 
         return np.zeros_like(a=id_js, dtype=float)
 
-    def _get_v(self, q_s: float) -> float:
+    def get_v(self, q_s: float) -> float:
         """Calculate the air flow rate.
 
         Args:
@@ -272,8 +272,9 @@ class RAC_C(RAC_HC):
             v_max=e.v_max,
             bf=e.bf
         )
+    
 
-    def _get_theta_ex_srf(self, q_s: float, theta_r: float, v: float) -> float:
+    def get_theta_ex_srf(self, q_s: float, theta_r: float, v: float) -> float:
         """Calculate the surface temperature of internal heat exchange unit of RAC.
         
         Args:
@@ -290,6 +291,34 @@ class RAC_C(RAC_HC):
         """
 
         return theta_r - q_s / (get_c_a() * get_rho_a() * v * (1.0 - self.bf))
+    
+
+    def get_f_l_cl(self, q_s: float, theta_r: float, x_r: float):
+        """get parameters of constant and weighted for f_l_cl function.
+
+        Args:
+            q_s: sensitive heat load.
+            theta_r: room temperature.
+        """
+
+        # air flow rate, m3/s
+        v = self.get_v(q_s=q_s)
+
+        # surface temperature of internal heat exchanger unit, deg. C
+        theta_ex_srf = self.get_theta_ex_srf(q_s=q_s, theta_r=theta_r, v=v)
+
+        # absolute humidity of internal heat exchanger unit, kg/kg(DA)
+        x_ex_srf = get_x(get_p_vs(theta_ex_srf))
+
+        if (x_r > x_ex_srf) & (q_s > 0.0):
+            f_l_cl_wgt = get_rho_a() * v * (1 - self.bf)
+            f_l_cl_cst = get_rho_a() * v * (1 - self.bf) * x_ex_srf
+        else:
+            f_l_cl_wgt = 0.0
+            f_l_cl_cst = 0.0
+
+        return f_l_cl_wgt, f_l_cl_cst
+
 
 
 @dataclass
@@ -632,23 +661,7 @@ class Equipments:
         theta_r_i_n_pls = theta_r_is_n_pls[ce.room_id, 0]
         x_r_ntr_i_n_pls = x_r_ntr_is_n_pls[ce.room_id, 0]
 
-        v_rac_i_n = ce._get_v(q_s=q_s_i_n)
-
-        theta_rac_ex_srf_i_n_pls = ce._get_theta_ex_srf(q_s=q_s_i_n, theta_r=theta_r_i_n_pls, v=v_rac_i_n)
-
-        x_rac_ex_srf_i_n_pls = self._get_x_rac_ex_srf_i_n_pls(theta_rac_ex_srf_i_n_pls=theta_rac_ex_srf_i_n_pls)
-
-        brmx_rac_is = np.where(
-            (x_r_ntr_i_n_pls > x_rac_ex_srf_i_n_pls) & (q_s_i_n > 0.0),
-            get_rho_a() * v_rac_i_n * (1 - ce.bf),
-            0.0
-        )
-
-        brcx_rac_is = np.where(
-            (x_r_ntr_i_n_pls > x_rac_ex_srf_i_n_pls) & (q_s_i_n > 0.0),
-            get_rho_a() * v_rac_i_n * (1 - ce.bf) * x_rac_ex_srf_i_n_pls,
-            0.0
-        )
+        brmx_rac_is, brcx_rac_is = ce.get_f_l_cl(q_s=q_s_i_n, theta_r=theta_r_i_n_pls, x_r=x_r_ntr_i_n_pls)
 
         brmx_is_is = np.zeros((n_rm, n_rm), dtype=float)
         brxc_is = np.zeros((n_rm, 1), dtype=float)
@@ -657,20 +670,6 @@ class Equipments:
         brxc_is[ce.room_id, 0] = brcx_rac_is
 
         return brmx_is_is, brxc_is
-
-    @staticmethod
-    def _get_x_rac_ex_srf_i_n_pls(theta_rac_ex_srf_i_n_pls: float) -> float:
-        """
-        ルームエアコンディショナーの室内機の熱交換器表面の絶対湿度を求める。
-        Args:
-            theta_rac_ex_srf_i_n_pls: ステップ n+1 における室 i に設置されたルームエアコンディショナーの室内機の熱交換器表面温度,degree C
-        Returns:
-            ステップ n+1 における室 i に設置されたルームエアコンディショナーの室内機の熱交換器表面の絶対湿度, kg/kg(DA)
-        Notes:
-            繰り返し計算（温度と湿度） eq.12
-        """
-
-        return get_x(get_p_vs(theta_rac_ex_srf_i_n_pls))
 
 
 def _get_boundary_index(boundary_id_js: np.ndarray, spcf_boundary_id: int) -> int:
