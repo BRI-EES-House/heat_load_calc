@@ -74,7 +74,7 @@ class Individual:
                 
                 room_id = connected_room_id_js.flatten()[boundary_index]
 
-                e = Floor_H.create_floor_h(d=d, id_js=id_js, connected_room_id_js=connected_room_id_js)
+                e = Floor_H.create_floor_h(d=d)
 
             case _:
                 raise Exception()
@@ -111,7 +111,7 @@ class Individual:
                 
                 room_id = connected_room_id_js.flatten()[boundary_index]
 
-                e = Floor_C.create_floor_c(d=d, id_js=id_js, connected_room_id_js=connected_room_id_js)
+                e = Floor_C.create_floor_c(d=d)
             
             case _:
                 raise Exception
@@ -225,9 +225,6 @@ class Equipment(ABC):
 @dataclass
 class RAC_HC(Equipment, ABC):
 
-    # room id which is heated or cooled by this RAC
-    room_id: int
-
     # minimum heating or cooling capacity, W
     q_min: float
 
@@ -249,7 +246,6 @@ class RAC_HC(Equipment, ABC):
         prop = d['property']
 
         return RAC_HC(
-            room_id=prop['space_id'],
             q_min=prop['q_min'],
             q_max=prop['q_max'],
             v_min=prop['v_min'],
@@ -322,7 +318,6 @@ class RAC_H(RAC_HC):
         e = RAC_HC.create_rac_hc(d=d)
 
         return RAC_H(
-            room_id=e.room_id,
             q_min=e.q_min,
             q_max=e.q_max,
             v_min=e.v_min,
@@ -349,7 +344,6 @@ class RAC_C(RAC_HC):
         e = RAC_HC.create_rac_hc(d=d)
 
         return RAC_C(
-            room_id=e.room_id,
             q_min=e.q_min,
             q_max=e.q_max,
             v_min=e.v_min,
@@ -407,12 +401,6 @@ class RAC_C(RAC_HC):
 @dataclass
 class Floor_HC(Equipment, ABC):
 
-    # id of the room which this radiative heating or cooling is equipped in.
-    room_id: int
-
-    # boundary id which radiative heating or cooling set at.
-    boundary_id: int
-
     # heating or cooling capacity per area, W/m2
     max_capacity: float
 
@@ -423,19 +411,11 @@ class Floor_HC(Equipment, ABC):
     convection_ratio: float
 
     @classmethod
-    def create_floor_hc(cls, d: Dict, id_js: np.ndarray, connected_room_id_js: np.ndarray):
+    def create_floor_hc(cls, d: Dict):
         
         prop = d['property']
 
-        boundary_id = prop['boundary_id']
-
-        boundary_index = _get_boundary_index(boundary_id_js=id_js, spcf_boundary_id=boundary_id)
-        
-        room_id = connected_room_id_js.flatten()[boundary_index]
-
         instance = Floor_HC(
-            room_id=room_id,
-            boundary_id=boundary_id,
             max_capacity=prop['max_capacity'],
             area=prop['area'],
             convection_ratio=prop['convection_ratio']
@@ -472,13 +452,11 @@ class Floor_HC(Equipment, ABC):
 class Floor_H(Floor_HC):
     
     @classmethod
-    def create_floor_h(cls, d: Dict, id_js: np.ndarray, connected_room_id_js: np.ndarray):
+    def create_floor_h(cls, d: Dict):
 
-        e = Floor_HC.create_floor_hc(d=d, id_js=id_js, connected_room_id_js=connected_room_id_js)
+        e = Floor_HC.create_floor_hc(d=d)
 
         return Floor_H(
-            room_id=e.room_id,
-            boundary_id=e.boundary_id,
             max_capacity=e.max_capacity,
             area=e.area,
             convection_ratio=e.convection_ratio
@@ -489,13 +467,11 @@ class Floor_H(Floor_HC):
 class Floor_C(Floor_HC):
 
     @classmethod
-    def create_floor_c(cls, d:Dict, id_js: np.ndarray, connected_room_id_js: np.ndarray):
+    def create_floor_c(cls, d:Dict):
 
-        e = Floor_HC.create_floor_hc(d=d, id_js=id_js, connected_room_id_js=connected_room_id_js)
+        e = Floor_HC.create_floor_hc(d=d)
 
         return Floor_C(
-            room_id=e.room_id,
-            boundary_id=e.boundary_id,
             max_capacity=e.max_capacity,
             area=e.area,
             convection_ratio=e.convection_ratio
