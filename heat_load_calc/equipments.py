@@ -12,29 +12,108 @@ from heat_load_calc.matrix_method import v_diag
 
 class Individual:
 
-    def __init__(self, e):
+    def __init__(self, id: int, name: str, room_id: int, e, id_r_is: np.ndarray):
+
+        # ID
+        self.id: int = id
+
+        # name
+        self.name: str = name
+
+        # room_id
+        self.room_id: int = room_id
+
+        # room_index
+        self.room_index: int = _get_room_index(room_id_is=id_r_is, spcf_room_id=room_id)
+
+        # room_indices
+        self.id_r_is: np.ndarray[int] = id_r_is
+
+        # equipment
         self.e: Equipment = e
     
     @classmethod
-    def create_heating_equipment(cls, d: Dict, id_js: np.ndarray, connected_room_id_js: np.ndarray):
-        e = Equipment.create_heating_equipment(d=d, id_js=id_js, connected_room_id_js=connected_room_id_js)
-        return Individual(e=e)
+    def create_heating_equipment(cls, d: Dict, id_js: np.ndarray, connected_room_id_js: np.ndarray, id_r_is: np.ndarray):
+
+        class HeatingEquipment(Enum):
+
+            RAC = 'rac'
+            FLOOR_HEATING = 'floor_heating'
+
+        id = d['id']
+        name = d['name']
+        prop = d['property']
+
+        match HeatingEquipment(d['equipment_type']):
+
+            case HeatingEquipment.RAC:
+
+                room_id = prop['space_id']
+
+                e = RAC_H.create_rac_h(d=d)
+
+            case HeatingEquipment.FLOOR_HEATING:
+
+                boundary_id = prop['boundary_id']
+
+                boundary_index = _get_boundary_index(boundary_id_js=id_js, spcf_boundary_id=boundary_id)
+                
+                room_id = connected_room_id_js.flatten()[boundary_index]
+
+                e = Floor_H.create_floor_h(d=d, id_js=id_js, connected_room_id_js=connected_room_id_js)
+
+            case _:
+                raise Exception()
+
+        return Individual(id=id, name=name, room_id=room_id, e=e, id_r_is=id_r_is)
     
     @classmethod
-    def create_cooling_equipment(cls, d: Dict, id_js: np.ndarray, connected_room_id_js: np.ndarray):
-        e = Equipment.create_cooling_equipment(d=d, id_js=id_js, connected_room_id_js=connected_room_id_js)
-        return Individual(e=e)
-    
-    def get_is_radiative_is(self, id_r_is: np.ndarray) -> np.ndarray:
-        """Get bool type indices which the radiative heating or cooling exists.
+    def create_cooling_equipment(cls, d: Dict, id_js: np.ndarray, connected_room_id_js: np.ndarray, id_r_is: np.ndarray):
 
-        Args:
-            id_r_is: room id, [I, 1]
+        class CoolingEquipment(Enum):
+
+            RAC = 'rac'
+            FLOOR_COOLING = 'floor_cooling'
+
+        id = d['id']
+        name = d['name']
+        prop = d['property']
+
+        match CoolingEquipment(d['equipment_type']):
+            
+            case CoolingEquipment.RAC:
+
+                room_id = prop['space_id']
+
+                e = RAC_C.create_rac_c(d=d)
+
+            case CoolingEquipment.FLOOR_COOLING:
+                
+                boundary_id = prop['boundary_id']
+
+                boundary_index = _get_boundary_index(boundary_id_js=id_js, spcf_boundary_id=boundary_id)
+                
+                room_id = connected_room_id_js.flatten()[boundary_index]
+
+                e = Floor_C.create_floor_c(d=d, id_js=id_js, connected_room_id_js=connected_room_id_js)
+            
+            case _:
+                raise Exception
+
+        return Individual(id=id, name=name, room_id=room_id, e=e, id_r_is=id_r_is)
+    
+    def get_is_radiative_is(self) -> np.ndarray:
+        """Get bool type indices which the radiative heating or cooling exists.
 
         Returns:
             matrix of room which radiative heating or cooling is equipped in., [I, 1]
         """
-        return self.e.get_is_radiative_is(id_r_is=id_r_is)
+
+        is_radiative_is = np.full_like(self.id_r_is, fill_value=False, dtype=bool)
+        
+        is_radiative_is[self.room_index, 0] = self.e.get_is_radiative
+
+        return is_radiative_is
 
     def get_q_rs_max_is(self, id_r_is: np.ndarray) -> np.ndarray:
         """Get maximum capacity of radiative heating or cooling.
@@ -76,63 +155,13 @@ class Individual:
 @dataclass
 class Equipment(ABC):
 
-    # ID
-    id: int
-
-    # name
-    name: str
-
-    @classmethod
-    def create_heating_equipment(cls, d: Dict, id_js: np.ndarray, connected_room_id_js: np.ndarray):
-
-        class HeatingEquipment(Enum):
-
-            RAC = 'rac'
-            FLOOR_HEATING = 'floor_heating'
-
-        match HeatingEquipment(d['equipment_type']):
-
-            case HeatingEquipment.RAC:
-
-                return RAC_H.create_rac_h(d=d)
-
-            case HeatingEquipment.FLOOR_HEATING:
-
-                return Floor_H.create_floor_h(d=d, id_js=id_js, connected_room_id_js=connected_room_id_js)
-
-            case _:
-                raise Exception()
-    
-    @classmethod
-    def create_cooling_equipment(cls, d: Dict, id_js: np.ndarray, connected_room_id_js: np.ndarray):
-
-        class CoolingEquipment(Enum):
-
-            RAC = 'rac'
-            FLOOR_COOLING = 'floor_cooling'
-
-        match CoolingEquipment(d['equipment_type']):
-            
-            case CoolingEquipment.RAC:
-
-                return RAC_C.create_rac_c(d=d)
-
-            case CoolingEquipment.FLOOR_COOLING:
-                
-                return Floor_C.create_floor_c(d=d, id_js=id_js, connected_room_id_js=connected_room_id_js)
-            
-            case _:
-                raise Exception
-
+    @property
     @abstractmethod
-    def get_is_radiative_is(self, id_r_is: np.ndarray) -> np.ndarray:
-        """Get bool type indices which the radiative heating or cooling exists.
-
-        Args:
-            id_r_is: room id, [I, 1]
+    def get_is_radiative(self) -> bool:
+        """Get which the radiative heating or cooling exists.
 
         Returns:
-            matrix of room which radiative heating or cooling is equipped in., [I, 1]
+            room which radiative heating or cooling is equipped in.
         """
         ...
 
@@ -204,8 +233,6 @@ class RAC_HC(Equipment, ABC):
         prop = d['property']
 
         return RAC_HC(
-            id=d['id'],
-            name=d['name'],
             room_id=prop['space_id'],
             q_min=prop['q_min'],
             q_max=prop['q_max'],
@@ -214,17 +241,10 @@ class RAC_HC(Equipment, ABC):
             bf=prop['bf']
         )
     
-    def get_is_radiative_is(self, id_r_is: np.ndarray) -> np.ndarray:
-        """Get bool type indices which the radiative heating or cooling exists.
-
-        Args:
-            id_r_is: room id, [I, 1]
-
-        Returns:
-            matrix of room which radiative heating or cooling is equipped in., [I, 1]
-        """
-
-        return np.full_like(a=id_r_is, fill_value=False, dtype=bool)
+    @property
+    def get_is_radiative(self) -> bool:
+        """is radiative ?"""
+        return False
 
     def get_q_rs_max_is(self, id_r_is: np.ndarray) -> np.ndarray:
         """Get maximum capacity of radiative heating or cooling.
@@ -302,6 +322,7 @@ class RAC_HC(Equipment, ABC):
     def get_f_l_cl2(self, n_rm: int, q_s_is_n: np.ndarray, theta_r_is_n_pls: np.ndarray, x_r_ntr_is_n_pls: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
         raise NotImplementedError
 
+
 @dataclass
 class RAC_H(RAC_HC):
 
@@ -311,8 +332,6 @@ class RAC_H(RAC_HC):
         e = RAC_HC.create_rac_hc(d=d)
 
         return RAC_H(
-            id=e.id,
-            name=e.name,
             room_id=e.room_id,
             q_min=e.q_min,
             q_max=e.q_max,
@@ -334,8 +353,6 @@ class RAC_C(RAC_HC):
         e = RAC_HC.create_rac_hc(d=d)
 
         return RAC_C(
-            id=e.id,
-            name=e.name,
             room_id=e.room_id,
             q_min=e.q_min,
             q_max=e.q_max,
@@ -410,7 +427,6 @@ class RAC_C(RAC_HC):
         return f_l_cl_wgt, f_l_cl_cst
 
 
-
 @dataclass
 class Floor_HC(Equipment, ABC):
 
@@ -441,8 +457,6 @@ class Floor_HC(Equipment, ABC):
         room_id = connected_room_id_js.flatten()[boundary_index]
 
         instance = Floor_HC(
-            id=d['id'],
-            name=d['name'],
             room_id=room_id,
             boundary_id=boundary_id,
             max_capacity=prop['max_capacity'],
@@ -451,24 +465,11 @@ class Floor_HC(Equipment, ABC):
         )
 
         return instance
-        
-    def get_is_radiative_is(self, id_r_is: np.ndarray) -> np.ndarray:
-        """GGet bool type indices which the radiative heating or cooling exists.
 
-        Args:
-            id_r_is: room id, [I, 1]
-
-        Returns:
-            matrix of room which radiative heating or cooling is equipped in., [I, 1]
-        """
-
-        is_radiative_is = np.full_like(a=id_r_is, fill_value=False, dtype=bool)
-
-        room_index = _get_room_index(room_id_is=id_r_is, spcf_room_id=self.room_id)
-
-        is_radiative_is[room_index, 0] = True
-
-        return is_radiative_is
+    @property        
+    def get_is_radiative(self) -> bool:
+        """is radiative ?"""
+        return True
 
     def get_q_rs_max_is(self, id_r_is: np.ndarray) -> np.ndarray:
         """Get maximum capacity of radiative heating or cooling.
@@ -537,8 +538,6 @@ class Floor_H(Floor_HC):
         e = Floor_HC.create_floor_hc(d=d, id_js=id_js, connected_room_id_js=connected_room_id_js)
 
         return Floor_H(
-            e.id,
-            name=e.name,
             room_id=e.room_id,
             boundary_id=e.boundary_id,
             max_capacity=e.max_capacity,
@@ -556,8 +555,6 @@ class Floor_C(Floor_HC):
         e = Floor_HC.create_floor_hc(d=d, id_js=id_js, connected_room_id_js=connected_room_id_js)
 
         return Floor_C(
-            id=e.id,
-            name=e.name,
             room_id=e.room_id,
             boundary_id=e.boundary_id,
             max_capacity=e.max_capacity,
@@ -589,7 +586,7 @@ class Equipments:
         
         if 'heating_equipments' in d:
             hes = [
-                Individual.create_heating_equipment(d=d_he, id_js=id_js, connected_room_id_js=connected_room_id_js)
+                Individual.create_heating_equipment(d=d_he, id_js=id_js, connected_room_id_js=connected_room_id_js, id_r_is=id_r_is)
                 for d_he in d['heating_equipments']
             ]
         else:
@@ -597,7 +594,7 @@ class Equipments:
 
         if 'cooling_equipments' in d:
             ces = [
-                Individual.create_cooling_equipment(d=d_ce, id_js=id_js, connected_room_id_js=connected_room_id_js)
+                Individual.create_cooling_equipment(d=d_ce, id_js=id_js, connected_room_id_js=connected_room_id_js, id_r_is=id_r_is)
                 for d_ce in d['cooling_equipments']
             ]
         else:
@@ -606,8 +603,8 @@ class Equipments:
         self._hes = hes
         self._ces = ces
 
-        is_radiative_heating_ks_is = _get_is_radiative_ks_is(es=hes, id_r_is=id_r_is)
-        is_radiative_cooling_ks_is = _get_is_radiative_ks_is(es=ces, id_r_is=id_r_is)
+        is_radiative_heating_ks_is = _get_is_radiative_ks_is(es=hes)
+        is_radiative_cooling_ks_is = _get_is_radiative_ks_is(es=ces)
 
         is_radiative_heating_count_is = np.count_nonzero(a=is_radiative_heating_ks_is, axis=0)
         is_radiative_cooling_count_is = np.count_nonzero(a=is_radiative_cooling_ks_is, axis=0)
@@ -754,7 +751,7 @@ def _get_index_by_id(id_list: List, searching_id: int) -> int:
     return indices[0]
 
 
-def _get_is_radiative_ks_is(es: List[Equipment], id_r_is: np.ndarray) -> np.ndarray:
+def _get_is_radiative_ks_is(es: List[Individual]) -> np.ndarray:
     """Get bool type indices which the radiative heating or cooling exists.
 
     Args:
@@ -765,7 +762,7 @@ def _get_is_radiative_ks_is(es: List[Equipment], id_r_is: np.ndarray) -> np.ndar
         matrix of room which radiative heating or cooling is equipped in., [K, I, 1]
     """
 
-    return np.stack([e.get_is_radiative_is(id_r_is=id_r_is) for e in es])
+    return np.stack([e.get_is_radiative_is() for e in es])
 
 
 def _get_q_rs_max_is(es: List[Equipment], id_r_is: np.ndarray) -> np.ndarray:
