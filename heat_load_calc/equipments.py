@@ -200,7 +200,7 @@ class RAC_HC(Equipment, ABC):
         """Calculate the air flow rate.
 
         Args:
-            q_s: sensitive heat load, W
+            q_s: sensitive heat load, W (Both heating and cooling load should be positive.)
 
         Returns:
             air flow rate, m3/s
@@ -272,6 +272,24 @@ class RAC_C(RAC_HC):
             v_max=e.v_max,
             bf=e.bf
         )
+
+    def _get_theta_ex_srf(self, q_s: float, theta_r: float, v: float) -> float:
+        """Calculate the surface temperature of internal heat exchange unit of RAC.
+        
+        Args:
+            q_s: sensitive heat load, W
+            theta_r: room temperature, degree C
+            v: air flow rate, m3/s
+        
+        Returns:
+            surface temperature of internal heat exchange unit, deg. C
+        
+        Notes:
+            繰り返し計算（温度と湿度） eq.14
+
+        """
+
+        return theta_r - q_s / (get_c_a() * get_rho_a() * v * (1.0 - self.bf))
 
 
 @dataclass
@@ -616,12 +634,7 @@ class Equipments:
 
         v_rac_i_n = ce._get_v(q_s=q_s_i_n)
 
-        theta_rac_ex_srf_i_n_pls = self._get_theta_rac_ex_srf_i_n_pls(
-            bf_rac_i=ce.bf,
-            q_s_i_n=q_s_i_n,
-            theta_r_i_n_pls=theta_r_i_n_pls,
-            v_rac_i_n=v_rac_i_n
-        )
+        theta_rac_ex_srf_i_n_pls = ce._get_theta_ex_srf(q_s=q_s_i_n, theta_r=theta_r_i_n_pls, v=v_rac_i_n)
 
         x_rac_ex_srf_i_n_pls = self._get_x_rac_ex_srf_i_n_pls(theta_rac_ex_srf_i_n_pls=theta_rac_ex_srf_i_n_pls)
 
@@ -658,28 +671,6 @@ class Equipments:
         """
 
         return get_x(get_p_vs(theta_rac_ex_srf_i_n_pls))
-
-    @staticmethod
-    def _get_theta_rac_ex_srf_i_n_pls(
-            bf_rac_i: float,
-            q_s_i_n: float,
-            theta_r_i_n_pls: float,
-            v_rac_i_n: float
-    ) -> float:
-        """
-        ステップ n+1 における室 i に設置されたルームエアコンディショナーの室内機の熱交換器表面温度を計算する。
-        Args:
-            bf_rac_i: 室 i に設置されたルームエアコンディショナーの室内機の熱交換器のバイパスファクター, -
-            q_s_i_n: ステップ n から n+1 における室 i の顕熱負荷, W
-            theta_r_i_n_pls: ステップ n+1 における室 i の温度, degree C
-            v_rac_i_n: ステップ n から n+1 における室 i に設置されたルームエアコンディショナーの吹き出し風量, m3/s
-        Returns:
-            ステップ n+1 における室 i に設置されたルームエアコンディショナーの室内機の熱交換器表面温度, degree C
-        Notes:
-            繰り返し計算（温度と湿度） eq.14
-        """
-
-        return theta_r_i_n_pls - q_s_i_n / (get_c_a() * get_rho_a() * v_rac_i_n * (1.0 - bf_rac_i))
 
 
 def _get_boundary_index(boundary_id_js: np.ndarray, spcf_boundary_id: int) -> int:
