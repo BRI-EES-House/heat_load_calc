@@ -858,6 +858,15 @@ class Sequence:
             right = (x_r_is_n_pls - x_frt_is_n_pls) * self.rms.g_lh_frt_is
             np.testing.assert_allclose(left, right)
 
+            #### 室内表面の放射熱収支のテスト ####
+            # 部位jの表面放射熱収支式の左辺, W
+            theta_mrt_is_n_pls = np.dot(np.dot(self.bs.p_js_is, self.f_mrt_is_js), theta_s_js_n_pls)
+            q_r_surf = self.bs.h_s_r_js * self.bs.a_s_js * (theta_mrt_is_n_pls - theta_s_js_n_pls)
+            left = np.dot(self.bs.p_is_js, q_r_surf)
+            # 部位jの表面放射熱収支式の右辺, W
+            right = np.zeros_like(left)
+            np.testing.assert_allclose(left, right, rtol=1e-6, atol=1e-6)
+
         if recorder is not None:
             recorder.recording(
                 n=n,
