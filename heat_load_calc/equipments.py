@@ -172,23 +172,21 @@ class Individual:
         else:
             return f_flr_js
 
-    def get_f_l_cl2(self, q_s_is_n: np.ndarray, theta_r_is_n_pls: np.ndarray, x_r_ntr_is_n_pls: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+    def get_f_l_is_n(self, q_s_is_n: np.ndarray, theta_r_is_n_pls: np.ndarray, x_r_ntr_is_n_pls: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
 
-        # ここでidをひいているのは間違い
         q_s_i_n = q_s_is_n[self.room_index, 0]
         theta_r_i_n_pls = theta_r_is_n_pls[self.room_index, 0]
         x_r_ntr_i_n_pls = x_r_ntr_is_n_pls[self.room_index, 0]
 
         brmx_rac_is, brcx_rac_is = self.e.get_f_l_cl(q_s=q_s_i_n, theta_r=theta_r_i_n_pls, x_r=x_r_ntr_i_n_pls)
 
-        brmx_is_is = np.zeros((self.n_rm, self.n_rm), dtype=float)
-        brxc_is = np.zeros((self.n_rm, 1), dtype=float)
+        f_l_cl_wgt_is_is_n = np.zeros((self.n_rm, self.n_rm), dtype=float)
+        f_l_cl_cst_is_n = np.zeros((self.n_rm, 1), dtype=float)
 
-        # ここでidをひいているのは間違い
-        brmx_is_is[self.room_index, self.room_index] = brmx_rac_is
-        brxc_is[self.room_index, 0] = brcx_rac_is
+        f_l_cl_wgt_is_is_n[self.room_index, self.room_index] = brmx_rac_is
+        f_l_cl_cst_is_n[self.room_index, 0] = brcx_rac_is
 
-        return brmx_is_is, brxc_is
+        return f_l_cl_wgt_is_is_n, f_l_cl_cst_is_n
         
 
 
@@ -630,7 +628,7 @@ class Equipments:
         q_s_is_n = -l_cs_is_n
 
         ls = [
-            ce.get_f_l_cl2(
+            ce.get_f_l_is_n(
                 q_s_is_n=q_s_is_n,
                 theta_r_is_n_pls=theta_r_is_n_pls,
                 x_r_ntr_is_n_pls=x_r_ntr_is_n_pls
