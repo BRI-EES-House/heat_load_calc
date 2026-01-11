@@ -619,14 +619,15 @@ class Equipments:
         ]
 
         # 係数 la と 係数 lb をタプルから別々に取り出す。
-        ls_a = np.array([l[0] for l in ls])
-        ls_b = np.array([l[1] for l in ls])
-        # 係数 la 及び lb それぞれ合計する。
-        # la [i,i] kg/s(kg/kg(DA))
-        # lb [i,1] kg/kg(DA)
+        # coeff la, kg/s(kg/kg(DA)), [K, I, I]
+        f_l_cl_wgt_ks_is_is_n = np.array([l[0] for l in ls])
+        # coeff lb, kg/kg(DA), [K, I, 1]
+        f_l_cl_cst_ks_is_n = np.array([l[1] for l in ls])
+        
         # TODO: La は正負が仕様書と逆になっている
-        f_l_cl_wgt_is_is_n = - ls_a.sum(axis=0)
-        f_l_cl_cst_is_n = ls_b.sum(axis=0)
+        f_l_cl_wgt_is_is_n = - f_l_cl_wgt_ks_is_is_n.sum(axis=0)
+        f_l_cl_cst_is_n = f_l_cl_cst_ks_is_n.sum(axis=0)
+
         return f_l_cl_cst_is_n, f_l_cl_wgt_is_is_n
 
 
