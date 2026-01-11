@@ -19,7 +19,7 @@ class TestEquipments(unittest.TestCase):
         }
 
         with self.assertRaises(KeyError):
-            Equipments(d=d, n_rm=None, n_b=None, id_r_is=None, id_js=None, connected_room_id_js=None, p_is_js=None)
+            Equipments(d=d, id_r_is=None, id_b_js=None, connected_room_id_js=None, p_is_js=None)
     
     def test_cooling_equipments_not_exist_error(self):
         d = {
@@ -27,7 +27,7 @@ class TestEquipments(unittest.TestCase):
         }
 
         with self.assertRaises(KeyError):
-            Equipments(d=d, n_rm=None, n_b=None, id_r_is=None, id_js=None, connected_room_id_js=None, p_is_js=None)
+            Equipments(d=d, id_r_is=None, id_b_js=None, connected_room_id_js=None, p_is_js=None)
 
     def test_radiative_heating_equipments_duplicated_error(self):
 
@@ -108,7 +108,7 @@ class TestEquipments(unittest.TestCase):
         ])
 
         with self.assertRaises(Exception):
-            Equipments(d=d, n_rm=_get_n_rm(), n_b=n_b, id_r_is=id_r_is, id_js=id_js, connected_room_id_js=connected_room_id_js, p_is_js=p_is_js)
+            Equipments(d=d, id_r_is=id_r_is, id_b_js=id_js, connected_room_id_js=connected_room_id_js, p_is_js=p_is_js)
 
     def test_radiative_heating_equipments_duplicated_error(self):
 
@@ -189,7 +189,7 @@ class TestEquipments(unittest.TestCase):
         ])
 
         with self.assertRaises(Exception):
-            Equipments(d=d, n_rm=_get_n_rm(), n_b=n_b, id_r_is=id_r_is, id_js=id_js, connected_room_id_js=connected_room_id_js, p_is_js=p_is_js)
+            Equipments(d=d, id_r_is=id_r_is, id_b_js=id_js, connected_room_id_js=connected_room_id_js, p_is_js=p_is_js)
 
     def test_(self):
 
@@ -259,7 +259,7 @@ class TestEquipments(unittest.TestCase):
         ])
 
 
-        e = Equipments(d=d, n_rm=_get_n_rm(), n_b=n_b, id_r_is=id_r_is, id_js=id_js, connected_room_id_js=connected_room_id_js, p_is_js=p_is_js)
+        e = Equipments(d=d, id_r_is=id_r_is, id_b_js=id_js, connected_room_id_js=connected_room_id_js, p_is_js=p_is_js)
 
         np.testing.assert_equal(np.array([True, False]).reshape(-1, 1), e.is_radiative_heating_is)
 
@@ -282,9 +282,4 @@ class TestEquipments(unittest.TestCase):
             [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
             ]).T, e.f_flr_c_js_is)
-
-
-def _get_n_rm():
-
-    return 2
 

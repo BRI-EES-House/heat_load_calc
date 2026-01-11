@@ -12,7 +12,7 @@ from heat_load_calc.matrix_method import v_diag
 
 class Individual:
 
-    def __init__(self, id: int, name: str, room_id: int, boundary_id: int | None, e, id_r_is: np.ndarray, id_js: np.ndarray):
+    def __init__(self, id: int, name: str, room_id: int, boundary_id: int | None, e, id_r_is: np.ndarray, id_js: np.ndarray, p_is_js: np.ndarray):
 
         # ID
         self.id: int = id
@@ -39,13 +39,16 @@ class Individual:
         self.boundary_index: int | None = _get_boundary_index(boundary_id_js=id_js, spcf_boundary_id=boundary_id) if boundary_id is not None else None
 
         # boundary indices
-        self.id_b_js: np.ndarray[int] =id_js
+        self.id_b_js: np.ndarray[int] = id_js
+
+        # relationship beween rooms and boundaries, [I, J]
+        self.p_is_js: np.ndarray[int] = p_is_js
 
         # equipment
-        self.e: Equipment = e
+        self.e: IndividualEquipment = e
     
     @classmethod
-    def create_heating_equipment(cls, d: Dict, id_js: np.ndarray, connected_room_id_js: np.ndarray, id_r_is: np.ndarray):
+    def create_for_heating(cls, d: Dict, id_b_js: np.ndarray, connected_room_id_js: np.ndarray, id_r_is: np.ndarray, p_is_js: np.ndarray):
 
         class HeatingEquipment(Enum):
 
@@ -64,25 +67,25 @@ class Individual:
 
                 boundary_id = None
 
-                e = RAC_H.create_rac_h(d=d)
+                e = RAC_HC.create_for_heating(d=d)
 
             case HeatingEquipment.FLOOR_HEATING:
 
                 boundary_id = prop['boundary_id']
 
-                boundary_index = _get_boundary_index(boundary_id_js=id_js, spcf_boundary_id=boundary_id)
+                boundary_index = _get_boundary_index(boundary_id_js=id_b_js, spcf_boundary_id=boundary_id)
                 
                 room_id = connected_room_id_js.flatten()[boundary_index]
 
-                e = Floor_H.create_floor_h(d=d)
+                e = Floor_HC.create_for_heating(d=d)
 
             case _:
                 raise Exception()
 
-        return Individual(id=id, name=name, room_id=room_id, boundary_id=boundary_id, e=e, id_r_is=id_r_is, id_js=id_js)
+        return Individual(id=id, name=name, room_id=room_id, boundary_id=boundary_id, e=e, id_r_is=id_r_is, id_js=id_b_js, p_is_js=p_is_js)
     
     @classmethod
-    def create_cooling_equipment(cls, d: Dict, id_js: np.ndarray, connected_room_id_js: np.ndarray, id_r_is: np.ndarray):
+    def create_for_cooling(cls, d: Dict, id_b_js: np.ndarray, connected_room_id_js: np.ndarray, id_r_is: np.ndarray, p_is_js: np.ndarray):
 
         class CoolingEquipment(Enum):
 
@@ -101,22 +104,22 @@ class Individual:
 
                 boundary_id = None
 
-                e = RAC_C.create_rac_c(d=d)
+                e = RAC_HC.create_for_cooling(d=d)
 
             case CoolingEquipment.FLOOR_COOLING:
                 
                 boundary_id = prop['boundary_id']
 
-                boundary_index = _get_boundary_index(boundary_id_js=id_js, spcf_boundary_id=boundary_id)
+                boundary_index = _get_boundary_index(boundary_id_js=id_b_js, spcf_boundary_id=boundary_id)
                 
                 room_id = connected_room_id_js.flatten()[boundary_index]
 
-                e = Floor_C.create_floor_c(d=d)
+                e = Floor_HC.create_for_cooling(d=d)
             
             case _:
                 raise Exception
 
-        return Individual(id=id, name=name, room_id=room_id, boundary_id=boundary_id, e=e, id_r_is=id_r_is, id_js=id_js)
+        return Individual(id=id, name=name, room_id=room_id, boundary_id=boundary_id, e=e, id_r_is=id_r_is, id_js=id_b_js, p_is_js=p_is_js)
     
     def get_is_radiative_is(self) -> np.ndarray:
         """Get bool type indices which the radiative heating or cooling exists.
@@ -125,11 +128,21 @@ class Individual:
             matrix of room which radiative heating or cooling is equipped in., [I, 1]
         """
 
-        is_radiative_is = np.full_like(a=self.id_r_is, fill_value=False, dtype=bool)
+        if self.e.is_radiative:
         
-        is_radiative_is[self.room_index, 0] = self.e.is_radiative
+            is_radiative_js = np.full_like(a=self.id_b_js, fill_value=False, dtype=bool)
+        
+            is_radiative_js[self.boundary_index, 0] = True
+        
+            return np.dot(self.p_is_js, is_radiative_js)
+        
+        else:
 
-        return is_radiative_is
+            is_radiative_is = np.full_like(a=self.id_r_is, fill_value=False, dtype=bool)
+        
+            is_radiative_is[self.room_index, 0] = self.e.is_radiative
+
+            return is_radiative_is
 
     def get_q_rs_max_is(self) -> np.ndarray:
         """Get maximum capacity of radiative heating or cooling.
@@ -191,7 +204,7 @@ class Individual:
 
 
 @dataclass
-class Equipment(ABC):
+class IndividualEquipment(ABC):
 
     @property
     @abstractmethod
@@ -223,7 +236,7 @@ class Equipment(ABC):
 
 
 @dataclass
-class RAC_HC(Equipment, ABC):
+class RAC_HC(IndividualEquipment, ABC):
 
     # minimum heating or cooling capacity, W
     q_min: float
@@ -241,18 +254,44 @@ class RAC_HC(Equipment, ABC):
     bf: float
 
     @classmethod
-    def create_rac_hc(cls, d:Dict):
+    def _read(cls, d:Dict):
 
         prop = d['property']
 
-        return RAC_HC(
-            q_min=prop['q_min'],
-            q_max=prop['q_max'],
-            v_min=prop['v_min'],
-            v_max=prop['v_max'],
-            bf=prop['bf']
+        q_min = float(prop['q_min'])
+        q_max = float(prop['q_max'])
+        v_min = float(prop['v_min'])
+        v_max = float(prop['v_max'])
+        bf = float(prop['bf'])
+
+        return q_min, q_max, v_min, v_max, bf
+
+    @classmethod
+    def create_for_heating(cls, d:Dict):
+
+        q_min, q_max, v_min, v_max, bf = cls._read(d=d)
+
+        return RAC_H(
+            q_min=q_min,
+            q_max=q_max,
+            v_min=v_min,
+            v_max=v_max,
+            bf=bf
         )
     
+    @classmethod
+    def create_for_cooling(cls, d:Dict):
+
+        q_min, q_max, v_min, v_max, bf = cls._read(d=d)
+
+        return RAC_C(
+            q_min=q_min,
+            q_max=q_max,
+            v_min=v_min,
+            v_max=v_max,
+            bf=bf
+        )
+
     @property
     def is_radiative(self) -> bool:
         """is radiative ?"""
@@ -305,25 +344,13 @@ class RAC_HC(Equipment, ABC):
 
         return v
 
+    @abstractmethod
     def get_f_l_cl(self, q_s: float, theta_r: float, x_r: float) -> Tuple[float, float]:
-        return NotImplementedError
+        ...
 
 
 @dataclass
 class RAC_H(RAC_HC):
-
-    @classmethod
-    def create_rac_h(cls, d:Dict):
-
-        e = RAC_HC.create_rac_hc(d=d)
-
-        return RAC_H(
-            q_min=e.q_min,
-            q_max=e.q_max,
-            v_min=e.v_min,
-            v_max=e.v_max,
-            bf=e.bf
-        )
 
     def get_f_l_cl(self, q_s: float, theta_r: float, x_r: float) -> Tuple[float, float]:
         """get parameters of constant and weighted for f_l_cl function.
@@ -338,21 +365,33 @@ class RAC_H(RAC_HC):
 @dataclass
 class RAC_C(RAC_HC):
 
-    @classmethod
-    def create_rac_c(cls, d:Dict):
+    def get_f_l_cl(self, q_s: float, theta_r: float, x_r: float) -> Tuple[float, float]:
+        """get parameters of constant and weighted for f_l_cl function.
 
-        e = RAC_HC.create_rac_hc(d=d)
+        Args:
+            q_s: sensitive heat load.
+            theta_r: room temperature.
+        """
 
-        return RAC_C(
-            q_min=e.q_min,
-            q_max=e.q_max,
-            v_min=e.v_min,
-            v_max=e.v_max,
-            bf=e.bf
-        )
-    
+        # air flow rate, m3/s
+        v = self.get_v(q_s=q_s)
 
-    def get_theta_ex_srf(self, q_s: float, theta_r: float, v: float) -> float:
+        # surface temperature of internal heat exchanger unit, deg. C
+        theta_ex_srf = self._get_theta_ex_srf(q_s=q_s, theta_r=theta_r, v=v)
+
+        # absolute humidity of internal heat exchanger unit, kg/kg(DA)
+        x_ex_srf = get_x(get_p_vs(theta_ex_srf))
+
+        if (x_r > x_ex_srf) & (q_s > 0.0):
+            f_l_cl_wgt = get_rho_a() * v * (1 - self.bf)
+            f_l_cl_cst = get_rho_a() * v * (1 - self.bf) * x_ex_srf
+        else:
+            f_l_cl_wgt = 0.0
+            f_l_cl_cst = 0.0
+
+        return f_l_cl_wgt, f_l_cl_cst
+
+    def _get_theta_ex_srf(self, q_s: float, theta_r: float, v: float) -> float:
         """Calculate the surface temperature of internal heat exchange unit of RAC.
         
         Args:
@@ -371,35 +410,8 @@ class RAC_C(RAC_HC):
         return theta_r - q_s / (get_c_a() * get_rho_a() * v * (1.0 - self.bf))
 
 
-    def get_f_l_cl(self, q_s: float, theta_r: float, x_r: float) -> Tuple[float, float]:
-        """get parameters of constant and weighted for f_l_cl function.
-
-        Args:
-            q_s: sensitive heat load.
-            theta_r: room temperature.
-        """
-
-        # air flow rate, m3/s
-        v = self.get_v(q_s=q_s)
-
-        # surface temperature of internal heat exchanger unit, deg. C
-        theta_ex_srf = self.get_theta_ex_srf(q_s=q_s, theta_r=theta_r, v=v)
-
-        # absolute humidity of internal heat exchanger unit, kg/kg(DA)
-        x_ex_srf = get_x(get_p_vs(theta_ex_srf))
-
-        if (x_r > x_ex_srf) & (q_s > 0.0):
-            f_l_cl_wgt = get_rho_a() * v * (1 - self.bf)
-            f_l_cl_cst = get_rho_a() * v * (1 - self.bf) * x_ex_srf
-        else:
-            f_l_cl_wgt = 0.0
-            f_l_cl_cst = 0.0
-
-        return f_l_cl_wgt, f_l_cl_cst
-
-
 @dataclass
-class Floor_HC(Equipment, ABC):
+class Floor_HC(IndividualEquipment, ABC):
 
     # heating or cooling capacity per area, W/m2
     max_capacity: float
@@ -411,17 +423,37 @@ class Floor_HC(Equipment, ABC):
     convection_ratio: float
 
     @classmethod
-    def create_floor_hc(cls, d: Dict):
+    def _read(cls, d: Dict):
         
-        prop = d['property']
+        prop: Dict = d['property']
 
-        instance = Floor_HC(
-            max_capacity=prop['max_capacity'],
-            area=prop['area'],
-            convection_ratio=prop['convection_ratio']
+        max_capacity = float(prop['max_capacity'])
+        area = float(prop['area'])
+        convection_ratio = float(prop['convection_ratio'])
+
+        return max_capacity, area, convection_ratio
+
+    @classmethod
+    def create_for_heating(cls, d: Dict):
+
+        max_capacity, area, convection_ratio = cls._read(d=d)
+
+        return Floor_H(
+            max_capacity=max_capacity,
+            area=area,
+            convection_ratio=convection_ratio
         )
 
-        return instance
+    @classmethod
+    def create_for_cooling(cls, d:Dict):
+
+        max_capacity, area, convection_ratio = cls._read(d=d)
+
+        return Floor_C(
+            max_capacity=max_capacity,
+            area=area,
+            convection_ratio=convection_ratio
+        )
 
     @property        
     def is_radiative(self) -> bool:
@@ -450,58 +482,32 @@ class Floor_HC(Equipment, ABC):
 
 @dataclass
 class Floor_H(Floor_HC):
+
+    ...
     
-    @classmethod
-    def create_floor_h(cls, d: Dict):
-
-        e = Floor_HC.create_floor_hc(d=d)
-
-        return Floor_H(
-            max_capacity=e.max_capacity,
-            area=e.area,
-            convection_ratio=e.convection_ratio
-        )
-
-
 @dataclass
 class Floor_C(Floor_HC):
 
-    @classmethod
-    def create_floor_c(cls, d:Dict):
-
-        e = Floor_HC.create_floor_hc(d=d)
-
-        return Floor_C(
-            max_capacity=e.max_capacity,
-            area=e.area,
-            convection_ratio=e.convection_ratio
-        )
+    ...
 
 
 class Equipments:
 
-    def __init__(self, d: Dict, n_rm: int, n_b: int, id_r_is: np.ndarray, id_js: np.ndarray, connected_room_id_js: np.ndarray, p_is_js: np.ndarray):
+    def __init__(self, d: Dict, id_r_is: np.ndarray, id_b_js: np.ndarray, connected_room_id_js: np.ndarray, p_is_js: np.ndarray):
         """設備に関する情報を辞書形式で受け取り、データクラスに変換して保持する。
         暖房・冷房それぞれにおいて、
         辞書の中の "equipment_type" の種類に応じて対応するデータクラスを生成する。
 
         Args:
             d: dictionary of equipments spec / 設備の情報が記された辞書
-            n_rm: number of rooms / 部屋の数
-            n_b: number of boundaries / 境界の数
-            bs: Boundaries class
+            id_r_is: room ID, [I, 1]
+            id_b_js: boundary ID, [J, 1]
 
-        Notes:
-            ここで Boundaries クラスは、境界IDと室IDとの対応関係を見ることだけに使用される。
-            放射暖冷房に関する設備情報には対応する境界IDしか記されていない。
-            一方で、放射暖冷房においても、beta, f_flr の係数を計算する際には、
-            その放射暖冷房がどの室に属しているのかの情報が必要になるため、
-            Equipments を initialize する際に、あらかじめ放射暖冷房にも room_id を付与しておくこととする。
         """
         
         if 'heating_equipments' in d:
             hes = [
-                Individual.create_heating_equipment(d=d_he, id_js=id_js, connected_room_id_js=connected_room_id_js, id_r_is=id_r_is)
+                Individual.create_for_heating(d=d_he, id_b_js=id_b_js, connected_room_id_js=connected_room_id_js, id_r_is=id_r_is, p_is_js=p_is_js)
                 for d_he in d['heating_equipments']
             ]
         else:
@@ -509,7 +515,7 @@ class Equipments:
 
         if 'cooling_equipments' in d:
             ces = [
-                Individual.create_cooling_equipment(d=d_ce, id_js=id_js, connected_room_id_js=connected_room_id_js, id_r_is=id_r_is)
+                Individual.create_for_cooling(d=d_ce, id_b_js=id_b_js, connected_room_id_js=connected_room_id_js, id_r_is=id_r_is, p_is_js=p_is_js)
                 for d_ce in d['cooling_equipments']
             ]
         else:
