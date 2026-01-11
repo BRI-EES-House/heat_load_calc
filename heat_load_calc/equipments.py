@@ -10,9 +10,9 @@ from heat_load_calc.global_number import get_c_a, get_rho_a
 from heat_load_calc.matrix_method import v_diag
 
 
-class Individual:
+class Individual(ABC):
 
-    def __init__(self, id: int, name: str, room_id: int, boundary_id: int | None, e, id_r_is: np.ndarray, id_js: np.ndarray, p_is_js: np.ndarray):
+    def __init__(self, id: int, name: str, room_id: int, e, id_r_is: np.ndarray, id_js: np.ndarray, p_is_js: np.ndarray):
 
         # ID
         self.id: int = id
@@ -31,12 +31,6 @@ class Individual:
 
         # number of room
         self.n_rm = len(id_r_is)
-
-        # boundary_id
-        self.boundary_id: int | None = boundary_id
-
-        # boundary_index
-        self.boundary_index: int | None = _get_boundary_index(boundary_id_js=id_js, spcf_boundary_id=boundary_id) if boundary_id is not None else None
 
         # boundary indices
         self.id_b_js: np.ndarray[int] = id_js
@@ -65,9 +59,9 @@ class Individual:
 
                 room_id = prop['space_id']
 
-                boundary_id = None
-
                 e = RAC_HC.create_for_heating(d=d)
+
+                return IndividualConvective(id=id, name=name, room_id=room_id, e=e, id_r_is=id_r_is, id_js=id_b_js, p_is_js=p_is_js)
 
             case HeatingEquipment.FLOOR_HEATING:
 
@@ -79,10 +73,11 @@ class Individual:
 
                 e = Floor_HC.create_for_heating(d=d)
 
+                return IndividualRadiative(id=id, name=name, room_id=room_id, boundary_id=boundary_id, e=e, id_r_is=id_r_is, id_js=id_b_js, p_is_js=p_is_js)
+
             case _:
                 raise Exception()
 
-        return Individual(id=id, name=name, room_id=room_id, boundary_id=boundary_id, e=e, id_r_is=id_r_is, id_js=id_b_js, p_is_js=p_is_js)
     
     @classmethod
     def create_for_cooling(cls, d: Dict, id_b_js: np.ndarray, connected_room_id_js: np.ndarray, id_r_is: np.ndarray, p_is_js: np.ndarray):
@@ -102,9 +97,9 @@ class Individual:
 
                 room_id = prop['space_id']
 
-                boundary_id = None
-
                 e = RAC_HC.create_for_cooling(d=d)
+
+                return IndividualConvective(id=id, name=name, room_id=room_id, e=e, id_r_is=id_r_is, id_js=id_b_js, p_is_js=p_is_js)
 
             case CoolingEquipment.FLOOR_COOLING:
                 
@@ -116,33 +111,78 @@ class Individual:
 
                 e = Floor_HC.create_for_cooling(d=d)
             
+                return IndividualRadiative(id=id, name=name, room_id=room_id, boundary_id=boundary_id, e=e, id_r_is=id_r_is, id_js=id_b_js, p_is_js=p_is_js)
+
             case _:
                 raise Exception
-
-        return Individual(id=id, name=name, room_id=room_id, boundary_id=boundary_id, e=e, id_r_is=id_r_is, id_js=id_b_js, p_is_js=p_is_js)
     
+    @abstractmethod
     def get_is_radiative_is(self) -> np.ndarray:
         """Get bool type indices which the radiative heating or cooling exists.
 
         Returns:
             matrix of room which radiative heating or cooling is equipped in., [I, 1]
         """
+        ...
 
-        if self.e.is_radiative:
-        
-            is_radiative_js = np.full_like(a=self.id_b_js, fill_value=False, dtype=bool)
-        
-            is_radiative_js[self.boundary_index, 0] = True
-        
-            return np.dot(self.p_is_js, is_radiative_js)
-        
-        else:
+    @abstractmethod
+    def get_q_rs_max_is(self) -> np.ndarray:
+        """Get maximum capacity of radiative heating or cooling.
 
-            is_radiative_is = np.full_like(a=self.id_r_is, fill_value=False, dtype=bool)
-        
-            is_radiative_is[self.room_index, 0] = self.e.is_radiative
+        Returns:
+            matrix of maximum capacity of radiative heating or cooling, W, [I, 1]
+        """
+        ...
 
-            return is_radiative_is
+    @abstractmethod
+    def get_f_beta_eqp_is(self) -> np.ndarray:
+        """Get the convective heat ratio of radiative heating or cooling.
+
+        Returns:
+            convective heat ratio of radiative heating or cooling, -, [I, 1]
+        """
+        ...
+
+    @abstractmethod
+    def get_f_flr_js(self) -> np.ndarray:
+        """Get the absoption ratio of the inside room surface of boundary to radiative heat flow from the radiative heating or cooling.
+
+        Returns:
+            absorption ratio of inside room surface of boundary j to radiative heat flow from radiative heating or cooling in room i, -, [J, 1]
+        """
+        ...
+
+    def get_f_l_is_n(self, q_s_is_n: np.ndarray, theta_r_is_n_pls: np.ndarray, x_r_ntr_is_n_pls: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+
+        q_s_i_n = q_s_is_n[self.room_index, 0]
+        theta_r_i_n_pls = theta_r_is_n_pls[self.room_index, 0]
+        x_r_ntr_i_n_pls = x_r_ntr_is_n_pls[self.room_index, 0]
+
+        f_l_cl_wgt, f_l_cl_cst = self.e.get_f_l_cl(q_s=q_s_i_n, theta_r=theta_r_i_n_pls, x_r=x_r_ntr_i_n_pls)
+
+        f_l_cl_wgt_is_is_n = np.zeros((self.n_rm, self.n_rm), dtype=float)
+        f_l_cl_cst_is_n = np.zeros((self.n_rm, 1), dtype=float)
+
+        f_l_cl_wgt_is_is_n[self.room_index, self.room_index] = f_l_cl_wgt
+        f_l_cl_cst_is_n[self.room_index, 0] = f_l_cl_cst
+
+        return f_l_cl_wgt_is_is_n, f_l_cl_cst_is_n
+
+
+class IndividualConvective(Individual):
+
+    def __init__(self, id: int, name: str, room_id: int, e, id_r_is: np.ndarray[int], id_js: np.ndarray[int], p_is_js: np.ndarray[int]):
+        
+        super().__init__(id=id, name=name, room_id=room_id, e=e, id_r_is=id_r_is, id_js=id_js, p_is_js=p_is_js)
+
+    def get_is_radiative_is(self) -> np.ndarray[bool]:
+        """Get bool type indices which the radiative heating or cooling exists.
+
+        Returns:
+            matrix of room which radiative heating or cooling is equipped in., [I, 1]
+        """
+
+        return np.full_like(a=self.id_r_is, fill_value=False, dtype=bool)
 
     def get_q_rs_max_is(self) -> np.ndarray:
         """Get maximum capacity of radiative heating or cooling.
@@ -151,11 +191,7 @@ class Individual:
             matrix of maximum capacity of radiative heating or cooling, W, [I, 1]
         """
 
-        q_rs_max_is = np.zeros_like(a=self.id_r_is, dtype=float)
-        
-        q_rs_max_is[self.room_index, 0] = self.e.q_rs_max
-
-        return q_rs_max_is
+        return np.zeros_like(a=self.id_r_is, dtype=float)
 
     def get_f_beta_eqp_is(self) -> np.ndarray:
         """Get the convective heat ratio of radiative heating or cooling.
@@ -164,11 +200,68 @@ class Individual:
             convective heat ratio of radiative heating or cooling, -, [I, 1]
         """
 
-        f_beta_eqp_is = np.zeros_like(a=self.id_r_is, dtype=float)
+        return np.zeros_like(a=self.id_r_is, dtype=float)
 
-        f_beta_eqp_is[self.room_index, 0] = self.e.f_beta_eqp
+    def get_f_flr_js(self) -> np.ndarray:
+        """Get the absoption ratio of the inside room surface of boundary to radiative heat flow from the radiative heating or cooling.
 
-        return f_beta_eqp_is
+        Returns:
+            absorption ratio of inside room surface of boundary j to radiative heat flow from radiative heating or cooling in room i, -, [J, 1]
+        """
+
+        return np.zeros_like(a=self.id_b_js, dtype=float)
+
+
+class IndividualRadiative(Individual):
+
+    def __init__(self, id: int, name: str, room_id: int, boundary_id: int, e, id_r_is: np.ndarray[int], id_js: np.ndarray[int], p_is_js: np.ndarray):
+
+        super().__init__(id=id, name=name, room_id=room_id, e=e, id_r_is=id_r_is, id_js=id_js, p_is_js=p_is_js)
+
+        # boundary id
+        self.boundary_id: int = boundary_id
+
+        # boundary index
+        self.boundary_index: int = _get_boundary_index(boundary_id_js=id_js, spcf_boundary_id=boundary_id)
+
+    def get_is_radiative_is(self) -> np.ndarray[bool]:
+        """Get bool type indices which the radiative heating or cooling exists.
+
+        Returns:
+            matrix of room which radiative heating or cooling is equipped in., [I, 1]
+        """
+
+        is_radiative_js = np.full_like(a=self.id_b_js, fill_value=False, dtype=bool)
+    
+        is_radiative_js[self.boundary_index, 0] = True
+    
+        return np.dot(self.p_is_js, is_radiative_js)
+
+    def get_q_rs_max_is(self) -> np.ndarray:
+        """Get maximum capacity of radiative heating or cooling.
+
+        Returns:
+            matrix of maximum capacity of radiative heating or cooling, W, [I, 1]
+        """
+
+        q_rs_max_js = np.zeros_like(a=self.id_b_js, dtype=float)
+
+        q_rs_max_js[self.boundary_index, 0] = self.e.q_rs_max
+
+        return np.dot(self.p_is_js, q_rs_max_js)
+
+    def get_f_beta_eqp_is(self) -> np.ndarray:
+        """Get the convective heat ratio of radiative heating or cooling.
+
+        Returns:
+            convective heat ratio of radiative heating or cooling, -, [I, 1]
+        """
+
+        f_beta_eqp_js = np.zeros_like(a=self.id_b_js, dtype=float)
+
+        f_beta_eqp_js[self.boundary_index, 0] = self.e.f_beta_eqp
+
+        return np.dot(self.p_is_js, f_beta_eqp_js)
 
     def get_f_flr_js(self) -> np.ndarray:
         """Get the absoption ratio of the inside room surface of boundary to radiative heat flow from the radiative heating or cooling.
@@ -179,28 +272,9 @@ class Individual:
 
         f_flr_js = np.zeros_like(a=self.id_b_js, dtype=float)
 
-        if self.e.is_radiative:
-            f_flr_js[self.boundary_index, 0] = 1.0
-            return f_flr_js
-        else:
-            return f_flr_js
-
-    def get_f_l_is_n(self, q_s_is_n: np.ndarray, theta_r_is_n_pls: np.ndarray, x_r_ntr_is_n_pls: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
-
-        q_s_i_n = q_s_is_n[self.room_index, 0]
-        theta_r_i_n_pls = theta_r_is_n_pls[self.room_index, 0]
-        x_r_ntr_i_n_pls = x_r_ntr_is_n_pls[self.room_index, 0]
-
-        brmx_rac_is, brcx_rac_is = self.e.get_f_l_cl(q_s=q_s_i_n, theta_r=theta_r_i_n_pls, x_r=x_r_ntr_i_n_pls)
-
-        f_l_cl_wgt_is_is_n = np.zeros((self.n_rm, self.n_rm), dtype=float)
-        f_l_cl_cst_is_n = np.zeros((self.n_rm, 1), dtype=float)
-
-        f_l_cl_wgt_is_is_n[self.room_index, self.room_index] = brmx_rac_is
-        f_l_cl_cst_is_n[self.room_index, 0] = brcx_rac_is
-
-        return f_l_cl_wgt_is_is_n, f_l_cl_cst_is_n
+        f_flr_js[self.boundary_index, 0] = 1.0
         
+        return f_flr_js
 
 
 @dataclass
