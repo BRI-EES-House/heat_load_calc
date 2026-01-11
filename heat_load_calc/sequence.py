@@ -781,7 +781,7 @@ class Sequence:
             x_r_is_n_pls=x_r_is_n_pls
         )
 
-        DEBUG = True
+        DEBUG = False
         if DEBUG:
             #### 室空気の熱収支テスト ####
             rho_c_a = get_c_a() * get_rho_a()
