@@ -781,91 +781,37 @@ class Sequence:
             x_r_is_n_pls=x_r_is_n_pls
         )
 
-        DEBUG = False
+        DEBUG = True
         if DEBUG:
-            #### 室空気の熱収支テスト ####
-            rho_c_a = get_c_a() * get_rho_a()
-            # 室空気の熱容量, [J/K]
-            cap_r_air_is = rho_c_a * self.rms.v_r_is
-            # 室空気の温度変化に伴う熱負荷, W
-            left = (theta_r_is_n_pls - c_n.theta_r_is_n) * cap_r_air_is / delta_t
-            # 部位からの対流熱取得量, W
-            q_c_surf_js = (theta_s_js_n_pls - np.dot(self.bs.p_js_is, theta_r_is_n_pls)) * self.bs.h_s_c_js * self.bs.a_s_js
-            q_c_surf = np.dot(self.bs.p_is_js, q_c_surf_js)
-            # 備品からの熱取得量, W
-            q_c_frt = (theta_frt_is_n_pls - theta_r_is_n_pls) * self.rms.g_sh_frt_is
-            # すきま風による熱取得量, W
-            q_c_leak = rho_c_a * v_leak_is_n * (self.weather.theta_o_ns_plus[n + 1] - theta_r_is_n_pls)
-            # 機械換気による熱取得量, W
-            v_vent_mec_is_n = self.v_vent_mec_is_ns[:, n].reshape(-1, 1)
-            q_c_vent = rho_c_a * v_vent_mec_is_n * (self.weather.theta_o_ns_plus[n + 1] - theta_r_is_n_pls)
-            # 自然換気による熱取得量, W
-            q_c_ntrl_vent = rho_c_a * v_vent_ntr_is_n * (self.weather.theta_o_ns_plus[n + 1] - theta_r_is_n_pls)
-            # 隣室間換気による熱取得量, W
-            theta_pls = theta_r_is_n_pls  # (n_pls時点の室温) shape=(n_room,1) を想定
-            v_in = np.clip(self.mvs.v_vent_int_is_is, 0.0, None)  # 負→0、正はそのまま
-            v_sum_in = v_in.sum(axis=1, keepdims=True)            # 各室への総流入量  shape=(n_room,1)
-            q_c_int_vent = rho_c_a * (v_in @ theta_pls - v_sum_in * theta_pls)
-            # 局所換気による熱取得量, W
-            # 内部発熱による熱取得量, W
-            q_c_gen = self.scd.q_gen_is_ns[:, n].reshape(-1, 1) + q_hum_is_n
-            # 顕熱負荷, W
-            l_cs = l_cs_is_n + l_rs_is_n * beta_is_n
-            # 熱収支式の右辺, W
-            right = q_c_surf + q_c_frt + q_c_leak + q_c_vent + q_c_ntrl_vent + q_c_int_vent + q_c_gen + l_cs
 
-            np.testing.assert_allclose(left, right, rtol=1e-6, atol=1e-6)
+            # 室空気の熱収支のテスト
+            test_air_heat_balance(theta_o_ns_plus=self.weather.theta_o_ns_plus[n+1].reshape(-1, 1),
+                                  theta_r_is_n_pls=theta_r_is_n_pls, theta_r_is_n=c_n.theta_r_is_n, theta_s_js_n_pls=theta_s_js_n_pls,
+                              theta_frt_is_n_pls=theta_frt_is_n_pls, v_r_is=self.rms.v_r_is, a_s_js=self.bs.a_s_js, v_leak_is_n=v_leak_is_n, v_vent_ntr_is_n=v_vent_ntr_is_n,
+                              v_vent_int_is_is= self.mvs.v_vent_int_is_is, v_vent_mec_is_ns=self.v_vent_mec_is_ns[:, n].reshape(-1, 1), q_gen_is_ns=self.scd.q_gen_is_ns[:, n].reshape(-1, 1),
+                               q_hum_is_n=q_hum_is_n, l_cs_is_n=l_cs_is_n, l_rs_is_n=l_rs_is_n, beta_is_n=beta_is_n,
+                               p_js_is=self.bs.p_js_is, p_is_js=self.bs.p_is_js, h_s_c_js=self.bs.h_s_c_js, g_sh_frt_is=self.rms.g_sh_frt_is, delta_t=delta_t)
 
-            #### 室空気の湿収支テスト ####
-            rho_a = get_rho_a()
-            # 室空気の湿度変化に伴う湿負荷, kg/s
-            left = (x_r_is_n_pls - c_n.x_r_is_n) * rho_a * self.rms.v_r_is / delta_t
-            # 備品等からの湿取得量, kg/s
-            q_w_frt = (x_frt_is_n_pls - x_r_is_n_pls) * self.rms.g_lh_frt_is
-            # すきま風による湿取得量, kg/s
-            q_w_leak = rho_a * v_leak_is_n * (self.weather.x_o_ns_plus[n + 1] - x_r_is_n_pls)
-            # 機械換気による湿取得量, kg/s
-            v_vent_mec_is_n = self.v_vent_mec_is_ns[:, n].reshape(-1, 1)
-            q_w_vent = rho_a * v_vent_mec_is_n * (self.weather.x_o_ns_plus[n + 1] - x_r_is_n_pls)
-            # 自然換気による湿取得量, kg/s
-            q_w_ntrl_vent = rho_a * v_vent_ntr_is_n * (self.weather.x_o_ns_plus[n + 1] - x_r_is_n_pls)
-            # 隣室間換気による湿取得量, kg/s
-            x_pls = x_r_is_n_pls  # (n_pls時点の室湿度) shape=(n_room,1) を想定
-            q_w_int_vent = rho_a * (v_in @ x_pls - v_sum_in * x_pls)
-            # 内部発湿による湿取得量, kg/s
-            q_w_gen = self.scd.x_gen_is_ns[:, n].reshape(-1, 1) + x_hum_is_n
-            # 潜熱負荷, kg/s
-            l_cl = l_cl_is_n / get_l_wtr()
-            # 湿収支式の右辺, kg/s
-            right = q_w_frt + q_w_leak + q_w_vent + q_w_ntrl_vent + q_w_int_vent + q_w_gen + l_cl
-            np.testing.assert_allclose(left, right, rtol=1e-6, atol=1e-6)
+            # 室空気の湿収支のテスト
+            test_air_moisture_balance(x_o_ns_plus=self.weather.x_o_ns_plus[n+1].reshape(-1, 1), x_r_is_n_pls=x_r_is_n_pls, x_r_is_n=c_n.x_r_is_n, x_frt_is_n_pls=x_frt_is_n_pls,
+                                      v_r_is=self.rms.v_r_is, v_vent_int_is_is=self.mvs.v_vent_int_is_is,
+                            v_leak_is_n=v_leak_is_n, v_vent_ntr_is_n=v_vent_ntr_is_n, v_vent_mec_is_n=self.v_vent_mec_is_ns[:, n].reshape(-1, 1),
+                            x_gen_is_n=self.scd.x_gen_is_ns[:, n].reshape(-1,1), l_cl_is_n=l_cl_is_n,
+                            x_hum_is_n=x_hum_is_n, g_lh_frt_is=self.rms.g_lh_frt_is, delta_t=delta_t)
         
             #### 備品の熱収支のテスト ####
-            # 備品等の熱容量, [J/K]
-            cap_frt_is = self.rms.c_sh_frt_is
-            # 備品等の温度変化に伴う熱負荷, W
-            left = (theta_frt_is_n_pls - c_n.theta_frt_is_n) * cap_frt_is / delta_t
-            # 備品等の熱収支式の右辺, W
-            right = (theta_r_is_n_pls - theta_frt_is_n_pls) * self.rms.g_sh_frt_is + self.q_sol_frt_is_ns[:, n].reshape(-1, 1)
-            np.testing.assert_allclose(left, right, rtol=1e-6, atol=1e-6)
-
-            #### 備品の湿収支のテスト ####
-            # 備品等の湿容量, [kg/(kg(DA))]
-            cap_lh_frt_is = self.rms.c_lh_frt_is
-            # 備品等の湿度変化に伴う湿負荷, kg/s
-            left = (x_frt_is_n_pls - c_n.x_frt_is_n) * cap_lh_frt_is / delta_t
-            # 備品等の湿収支式の右辺, kg/s
-            right = (x_r_is_n_pls - x_frt_is_n_pls) * self.rms.g_lh_frt_is
-            np.testing.assert_allclose(left, right, rtol=1e-6, atol=1e-6)
+            test_frt_heat_balance(theta_frt_is_n_pls=theta_frt_is_n_pls, theta_frt_is_n=c_n.theta_frt_is_n,
+                            theta_r_is_n_pls=theta_r_is_n_pls, q_sol_frt_is_ns=self.q_sol_frt_is_ns[:, n].reshape(-1, 1),
+                            c_sh_frt_is=self.rms.c_sh_frt_is, g_sh_frt_is=self.rms.g_sh_frt_is, delta_t=delta_t)
+            
+            # 備品の湿収支のテスト
+            test_frt_moisture_balance(x_frt_is_n_pls=x_frt_is_n_pls, x_frt_is_n=c_n.x_frt_is_n,
+                            x_r_is_n_pls=x_r_is_n_pls,
+                            c_lh_frt_is=self.rms.c_lh_frt_is, g_lh_frt_is=self.rms.g_lh_frt_is, delta_t=delta_t)
 
             #### 室内表面の放射熱収支のテスト ####
-            # 部位jの表面放射熱収支式の左辺, W
-            theta_mrt_is_n_pls = np.dot(np.dot(self.bs.p_js_is, self.f_mrt_is_js), theta_s_js_n_pls)
-            q_r_surf = self.bs.h_s_r_js * self.bs.a_s_js * (theta_mrt_is_n_pls - theta_s_js_n_pls)
-            left = np.dot(self.bs.p_is_js, q_r_surf)
-            # 部位jの表面放射熱収支式の右辺, W
-            right = np.zeros_like(left)
-            np.testing.assert_allclose(left, right, rtol=1e-6, atol=1e-6)
+            test_surface_radiation_balance(theta_s_js_n_pls=theta_s_js_n_pls, p_js_is=self.bs.p_js_is,
+                            f_mrt_is_js=self.f_mrt_is_js, h_s_r_js=self.bs.h_s_r_js, a_s_js=self.bs.a_s_js, p_is_js=self.bs.p_is_js)
 
         if recorder is not None:
             recorder.recording(
@@ -911,6 +857,226 @@ class Sequence:
 
         return _run_tick_ground(self=self, gc_n=gc_n, n=n)
 
+
+def test_air_heat_balance(theta_r_is_n_pls: np.ndarray, theta_o_ns_plus: np.ndarray, theta_r_is_n: np.ndarray, theta_s_js_n_pls: np.ndarray,
+                            theta_frt_is_n_pls: np.ndarray, v_r_is: np.ndarray, a_s_js: np.ndarray, v_leak_is_n: np.ndarray, v_vent_ntr_is_n: np.ndarray, v_vent_int_is_is: np.ndarray,
+                            v_vent_mec_is_ns: np.ndarray, q_gen_is_ns: np.ndarray, q_hum_is_n: np.ndarray, l_cs_is_n: np.ndarray, l_rs_is_n: np.ndarray, beta_is_n: np.ndarray,
+                            p_js_is: np.ndarray, p_is_js: np.ndarray, h_s_c_js: np.ndarray, g_sh_frt_is: np.ndarray,
+                            delta_t: float):
+    """
+    test_air_heat_balance の Docstring
+    
+    :param theta_o_ns_plus: ステップn+1の外気温, degree C, [i, 1]
+    :type theta_o_ns_plus: np.ndarray
+    :param theta_r_is_n_pls: ステップn+1の室温, degree C, [i, 1]
+    :type theta_r_is_n_pls: np.ndarray
+    :param theta_r_is_n: ステップnの室温, degree C, [i, 1]
+    :type theta_r_is_n: np.ndarray
+    :param theta_s_js_n_pls: ステップn+1の境界jの表面温度, degree C, [j, 1]
+    :type theta_s_js_n_pls: np.ndarray
+    :param theta_frt_is_n_pls: ステップn+1の備品等の温度, degree C, [i, 1]
+    :type theta_frt_is_n_pls: np.ndarray
+    :param v_r_is: 室容積, m3, [i, 1]
+    :type v_r_is: np.ndarray
+    :param a_s_js: 部位面積, m2, [j, 1]
+    :type a_s_js: np.ndarray
+    :param v_leak_is_n: ステップnのすきま風量, m3/s, [i, 1]
+    :type v_leak_is_n: np.ndarray
+    :param v_vent_ntr_is_n: ステップnの自然換気量, m3/s, [i, 1]
+    :type v_vent_ntr_is_n: np.ndarray
+    :param v_vent_mec_is_ns: ステップnの機械換気量, m3/s, [i, 1]
+    :type v_vent_mec_is_ns: np.ndarray
+    :param q_gen_is_ns: ステップnの内部発熱量, W, [i, 1]
+    :type q_gen_is_ns: np.ndarray
+    :param q_hum_is_n: ステップnの人体発熱量, W, [i, 1]
+    :type q_hum_is_n: np.ndarray
+    :param l_cs_is_n: ステップnの顕熱負荷, W, [i, 1]
+    :type l_cs_is_n: np.ndarray
+    :param l_rs_is_n: ステップnの放射顕熱負荷, W, [i, 1]
+    :type l_rs_is_n: np.ndarray
+    :param beta_is_n: ステップnの室iにおける放射暖冷房設備の対流成分比率, -, [i, 1]
+    :type beta_is_n: np.ndarray
+    :param delta_t: 時間間隔, s
+    :type delta_t: float
+    """
+
+    #### 室空気の熱収支テスト ####
+    rho_c_a = get_c_a() * get_rho_a()
+    # 室空気の熱容量, [J/K]
+    cap_r_air_is = rho_c_a * v_r_is
+    # 室空気の温度変化に伴う熱負荷, W
+    left = (theta_r_is_n_pls - theta_r_is_n) * cap_r_air_is / delta_t
+    # 部位からの対流熱取得量, W
+    q_c_surf_js = (theta_s_js_n_pls - np.dot(p_js_is, theta_r_is_n_pls)) * h_s_c_js * a_s_js
+    q_c_surf = np.dot(p_is_js, q_c_surf_js)
+    # 備品からの熱取得量, W
+    q_c_frt = (theta_frt_is_n_pls - theta_r_is_n_pls) * g_sh_frt_is
+    # すきま風による熱取得量, W
+    q_c_leak = rho_c_a * v_leak_is_n * (theta_o_ns_plus - theta_r_is_n_pls)
+    # 機械換気による熱取得量, W
+    v_vent_mec_is_n = v_vent_mec_is_ns
+    q_c_vent = rho_c_a * v_vent_mec_is_n * (theta_o_ns_plus - theta_r_is_n_pls)
+    # 自然換気による熱取得量, W
+    q_c_ntrl_vent = rho_c_a * v_vent_ntr_is_n * (theta_o_ns_plus - theta_r_is_n_pls)
+    # 隣室間換気による熱取得量, W
+    theta_pls = theta_r_is_n_pls  # (n_pls時点の室温) shape=(n_room,1) を想定
+    v_in = np.clip(v_vent_int_is_is, 0.0, None)  # 負→0、正はそのまま
+    v_sum_in = v_in.sum(axis=1, keepdims=True)            # 各室への総流入量  shape=(n_room,1)
+    q_c_int_vent = rho_c_a * (v_in @ theta_pls - v_sum_in * theta_pls)
+    # 局所換気による熱取得量, W
+    # 内部発熱による熱取得量, W
+    q_c_gen = q_gen_is_ns + q_hum_is_n
+    # 顕熱負荷, W
+    l_cs = l_cs_is_n + l_rs_is_n * beta_is_n
+    # 熱収支式の右辺, W
+    right = q_c_surf + q_c_frt + q_c_leak + q_c_vent + q_c_ntrl_vent + q_c_int_vent + q_c_gen + l_cs
+
+    test_balance_check(left=left, right=right, quantity="air heat")
+
+
+def test_balance_check(left: np.ndarray, right: np.ndarray, quantity: str):
+    """
+    test_balance_check の Docstring
+    
+    :param left: 収支式の左辺
+    :type left: np.ndarray
+    :param right: 収支式の右辺
+    :type right: np.ndarray
+    :param quantity: 収支の対象（例：heat, moisture）
+    :type quantity: str
+    """
+
+    if not np.allclose(left, right, rtol=1e-6, atol=1e-6, equal_nan=True):
+        diff = left - right
+        max_abs = np.max(np.abs(diff))
+        idx = np.unravel_index(np.argmax(np.abs(diff)), diff.shape)
+        logger.error(
+            f"{quantity} balance is not correct. "
+            f"max|left-right|={max_abs} at index={idx}, "
+            f"left={left[idx]}, right={right[idx]}"
+        )
+
+
+def test_air_moisture_balance(x_o_ns_plus: np.ndarray, x_r_is_n_pls: np.ndarray, x_r_is_n: np.ndarray, x_frt_is_n_pls: np.ndarray,
+                              v_r_is: np.ndarray, v_vent_mec_is_n: np.ndarray, v_vent_int_is_is: np.ndarray,
+                            v_leak_is_n: np.ndarray, v_vent_ntr_is_n: np.ndarray, x_gen_is_n: np.ndarray,
+                            x_hum_is_n: np.ndarray, g_lh_frt_is: np.ndarray, l_cl_is_n: np.ndarray, delta_t: float):
+    """
+    test_air_moisture_balance の Docstring
+    
+    :param n: 計算ステップ
+    :type n: int
+    :param x_r_is_n_pls: ステップn+1の室絶対湿度, kg/kg(DA), [i, 1]
+    :type x_r_is_n_pls: np.ndarray
+    :param x_r_is_n: ステップnの室絶対湿度, kg/kg(DA), [i, 1]
+    :type x_r_is_n: np.ndarray
+    :param x_frt_is_n_pls: ステップn+1の備品等の絶対湿度, kg/kg(DA), [i, 1]
+    :type x_frt_is_n_pls: np.ndarray
+    :param v_leak_is_n: ステップnのすきま風量, m3/s, [i, 1]
+    :type v_leak_is_n: np.ndarray
+    :param v_vent_ntr_is_n: ステップnの自然換気風量, m3/s, [i, 1]
+    :type v_vent_ntr_is_n: np.ndarray
+    :param x_hum_is_n: ステップnの人体発湿量, kg/s, [i, 1]
+    :type x_hum_is_n: np.ndarray
+    :param l_cl_is_n: 潜熱負荷, W, [i, 1]
+    :type l_cl_is_n: np.ndarray
+    :param delta_t: 時間間隔, s
+    :type delta_t: float
+    """
+
+    #### 室空気の湿収支テスト ####
+    rho_a = get_rho_a()
+    # 室空気の湿度変化に伴う湿負荷, kg/s
+    left = (x_r_is_n_pls - x_r_is_n) * rho_a * v_r_is / delta_t
+    # 備品等からの湿取得量, kg/s
+    q_w_frt = (x_frt_is_n_pls - x_r_is_n_pls) * g_lh_frt_is
+    # すきま風による湿取得量, kg/s
+    q_w_leak = rho_a * v_leak_is_n * (x_o_ns_plus - x_r_is_n_pls)
+    # 機械換気による湿取得量, kg/s
+    q_w_vent = rho_a * v_vent_mec_is_n * (x_o_ns_plus - x_r_is_n_pls)
+    # 自然換気による湿取得量, kg/s
+    q_w_ntrl_vent = rho_a * v_vent_ntr_is_n * (x_o_ns_plus - x_r_is_n_pls)
+    # 隣室間換気による湿取得量, kg/s
+    x_pls = x_r_is_n_pls  # (n_pls時点の室湿度) shape=(n_room,1) を想定
+    v_in = np.clip(v_vent_int_is_is, 0.0, None)  # 負→0、正はそのまま
+    v_sum_in = v_in.sum(axis=1, keepdims=True)            # 各室への総流入量  shape=(n_room,1)
+    q_w_int_vent = rho_a * (v_in @ x_pls - v_sum_in * x_pls)
+    # 内部発湿による湿取得量, kg/s
+    q_w_gen = x_gen_is_n + x_hum_is_n
+    # 潜熱負荷, kg/s
+    l_cl = l_cl_is_n / get_l_wtr()
+    # 湿収支式の右辺, kg/s
+    right = q_w_frt + q_w_leak + q_w_vent + q_w_ntrl_vent + q_w_int_vent + q_w_gen + l_cl
+
+    test_balance_check(left=left, right=right, quantity="air moisture")
+
+def test_frt_heat_balance(theta_frt_is_n_pls: np.ndarray, theta_frt_is_n: np.ndarray, theta_r_is_n_pls: np.ndarray,
+                          c_sh_frt_is: np.ndarray, g_sh_frt_is: np.ndarray, q_sol_frt_is_ns: np.ndarray, delta_t: float):
+    """
+    test_frt_heat_balance の Docstring
+    
+    :param n: 計算ステップ
+    :type n: int
+    :param theta_frt_is_n_pls: ステップn+1の備品等の温度, degree C, [i, 1]
+    :type theta_frt_is_n_pls: np.ndarray
+    :param theta_frt_is_n: ステップnの備品等の温度, degree C, [i, 1]
+    :type theta_frt_is_n: np.ndarray
+    :param theta_r_is_n_pls: ステップn+1の室温, degree C, [i, 1]
+    :type theta_r_is_n_pls: np.ndarray
+    :param delta_t: 時間間隔, s
+    :type delta_t: float
+    """
+
+    #### 備品の熱収支のテスト ####
+    # 備品等の熱容量, [J/K]
+    cap_frt_is = c_sh_frt_is
+    # 備品等の温度変化に伴う熱負荷, W
+    left = (theta_frt_is_n_pls - theta_frt_is_n) * cap_frt_is / delta_t
+    # 備品等の熱収支式の右辺, W
+    right = (theta_r_is_n_pls - theta_frt_is_n_pls) * g_sh_frt_is + q_sol_frt_is_ns
+    test_balance_check(left=left, right=right, quantity="furniture heat")
+
+def test_frt_moisture_balance(x_frt_is_n_pls: np.ndarray, x_frt_is_n: np.ndarray, x_r_is_n_pls: np.ndarray, c_lh_frt_is: np.ndarray, g_lh_frt_is: np.ndarray, delta_t: float):
+    """
+    test_frt_moisture_balance の Docstring
+    
+    :param self: 説明
+    :param n: 計算ステップ
+    :type n: int
+    :param x_frt_is_n_pls: ステップn+1の備品等の絶対湿度, kg/kg(DA), [i, 1]
+    :type x_frt_is_n_pls: np.ndarray
+    :param x_frt_is_n: ステップnの備品等の絶対湿度, kg/kg(DA), [i, 1]
+    :type x_frt_is_n: np.ndarray
+    :param x_r_is_n_pls: ステップn+1の室絶対湿度, kg/kg(DA), [i, 1]
+    :type x_r_is_n_pls: np.ndarray
+    :param delta_t: 時間間隔, s
+    :type delta_t: float
+    """
+
+    # 備品等の湿容量, [kg/(kg(DA))]
+    cap_frt_is = c_lh_frt_is
+    # 備品等の湿度変化に伴う湿負荷, kg/s
+    left = (x_frt_is_n_pls - x_frt_is_n) * cap_frt_is / delta_t
+    # 備品等の湿収支式の右辺, kg/s
+    right = (x_r_is_n_pls - x_frt_is_n_pls) * g_lh_frt_is
+    test_balance_check(left=left, right=right, quantity="furniture moisture")
+
+def test_surface_radiation_balance(theta_s_js_n_pls: np.ndarray, p_js_is: np.ndarray, f_mrt_is_js: np.ndarray, h_s_r_js: np.ndarray, a_s_js: np.ndarray, p_is_js: np.ndarray):
+    """
+    test_surface_radiation_balance の Docstring
+    
+    :param theta_s_js_n_pls: ステップn+1の境界jの表面温度, degree C, [j, 1]
+    :type theta_s_js_n_pls: np.ndarray
+    """
+
+    #### 室内表面の放射熱収支のテスト ####
+    # 部位jの表面放射熱収支式の左辺, W
+    theta_mrt_is_n_pls = np.dot(np.dot(p_js_is, f_mrt_is_js), theta_s_js_n_pls)
+    q_r_surf = h_s_r_js * a_s_js * (theta_mrt_is_n_pls - theta_s_js_n_pls)
+    left = np.dot(p_is_js, q_r_surf)
+    # 部位jの表面放射熱収支式の右辺, W
+    right = np.zeros_like(left)
+    test_balance_check(left=left, right=right, quantity="surface radiation heat")
 
 def _run_tick_ground(self, gc_n: GroundConditions, n: int):
     """地盤の計算
