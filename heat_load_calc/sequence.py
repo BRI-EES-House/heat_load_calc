@@ -331,7 +331,7 @@ class Sequence:
         return self._f_xot_is_is_n_pls
     
 
-    def run_tick(self, n: int, c_n: Conditions, recorder: Recorder) -> Conditions:
+    def run_tick(self, n: int, c_n: Conditions, recorder: Recorder, exe_verify: bool = False) -> Conditions:
 
         delta_t = self._delta_t
 
@@ -781,9 +781,10 @@ class Sequence:
             x_r_is_n_pls=x_r_is_n_pls
         )
 
-        DEBUG = True
-        if DEBUG:
-
+        if exe_verify:
+            
+            if n % 100 == 0:
+                print("Executing verification tests at step {}.".format(n))
             # 室空気の熱収支のテスト
             test_air_heat_balance(theta_o_ns_plus=self.weather.theta_o_ns_plus[n+1].reshape(-1, 1),
                                   theta_r_is_n_pls=theta_r_is_n_pls, theta_r_is_n=c_n.theta_r_is_n, theta_s_js_n_pls=theta_s_js_n_pls,
