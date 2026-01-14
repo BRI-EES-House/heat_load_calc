@@ -17,7 +17,8 @@ def run(
         house_data_path: str,
         output_data_dir: str,
         is_schedule_saved: bool = False,
-        is_weather_saved: bool = False
+        is_weather_saved: bool = False,
+        exe_specify: bool = False
 ):
     """run the heat load calculation
 
@@ -62,7 +63,7 @@ def run(
     # - boundaries class (which is only used for debugging)
     # - Schedule class
     # - Weather class
-    dd_i, dd_a, _, scd, w = core.calc(d=d, entry_point_dir=entry_point_dir)
+    dd_i, dd_a, _, scd, w = core.calc(d=d, entry_point_dir=entry_point_dir, exe_verify=exe_specify)
 
     # write out the climate data
     if is_weather_saved:
@@ -123,6 +124,13 @@ def main():
         help="Specify the log level. (Default=ERROR)"
     )
 
+    parser.add_argument(
+        '--exe_specify',
+        action='store_true',
+        default=False,   # 省略しても store_true ならデフォルトは False
+        help='If specified, set exe_specify=True.'
+    )
+
     # make args
     args = parser.parse_args()
 
@@ -137,7 +145,8 @@ def main():
         house_data_path=args.house_data,
         output_data_dir=args.output_data_dir,
         is_schedule_saved=args.schedule_saved,
-        is_weather_saved=args.weather_saved
+        is_weather_saved=args.weather_saved,
+        exe_specify=args.exe_specify
     )
 
     # take the difference between the start time and the end time
