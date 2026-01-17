@@ -125,7 +125,6 @@ class Weather:
 
             raise ValueError('Invalid value is specified for the method.')
 
-
     def get_weather_as_pandas_data_frame(self):
 
         # インターバル指定文字をpandasのfreq引数に文字変換する。
@@ -189,7 +188,6 @@ class Weather:
 
         return self._number_of_data
     
-
     @property
     def number_of_data_plus(self) -> int:
         """Get the number of the data added one. / データの数に1を足したものを取得する。
@@ -209,6 +207,17 @@ class Weather:
         """
 
         return np.average(self._theta_o_ns)
+
+    def get_theta_o_hourly_plus(self) -> np.ndarray:
+        """Get hourly outside temperature.
+
+        Returns:
+            theta_o_hourly_plus, deg C, [8761]
+        """
+        
+        n_hour = self._itv.get_n_hour()
+
+        return self.theta_o_ns_plus[::n_hour]
 
 
 def _add_index_0_data_to_end(d: np.ndarray) -> np.ndarray:
