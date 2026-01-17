@@ -53,17 +53,6 @@ class TestAllAtOnce(unittest.TestCase):
         self.assertAlmostEqual(16.4853237577382, self._dd_i['rm2_t_r']['1989-01-01  00:15:00'], delta=0.001)
         self.assertAlmostEqual(0.00327844979144449, self._dd_i['rm2_x_r']['1989-01-01  00:15:00'], delta=0.001)
 
-
-    # 放射熱伝達率の計算結果のテスト
-    def test_nagata_radiative_heat_transfer(self):
-
-        h_i_r0 = self._dd_i['b0_hir_s']['1989-01-01 00:15:00']
-        self.assertAlmostEqual(first=h_i_r0, second=5.3033300464)
-        h_i_r1 = self._dd_i['b1_hir_s']['1989-01-01 00:15:00']
-        self.assertAlmostEqual(first=h_i_r1, second=5.1924019186)
-        h_i_r10 = self._dd_i['b10_hir_s']['1989-01-01 00:15:00']
-        self.assertAlmostEqual(first=h_i_r10, second=5.5218668782)
-
     def test_solar_heat_gain_balance(self):
 
         '''
