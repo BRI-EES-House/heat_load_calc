@@ -198,6 +198,20 @@ class Weather:
         """
 
         return self.number_of_data + 1
+    
+    @property
+    def theta_o_hourly(self) -> np.ndarray:
+        """Outside hourly temperature, deg. C, [8760]"""
+        
+        n_hour = self._itv.get_n_hour()
+
+        return self._theta_o_ns[::n_hour]
+
+    @property
+    def theta_o_hourly_plus(self) -> np.ndarray:
+        """Outside hourly temperature, deg. C, [8761]"""
+        
+        return _add_index_0_data_to_end(d=self.theta_o_hourly)
 
     def get_theta_o_ave(self) -> float:
         """Get the annual average outside temperature. / 外気温度の年間平均値を取得する。
@@ -207,17 +221,6 @@ class Weather:
         """
 
         return np.average(self._theta_o_ns)
-
-    def get_theta_o_hourly_plus(self) -> np.ndarray:
-        """Get hourly outside temperature.
-
-        Returns:
-            theta_o_hourly_plus, deg C, [8761]
-        """
-        
-        n_hour = self._itv.get_n_hour()
-
-        return self.theta_o_ns_plus[::n_hour]
 
 
 def _add_index_0_data_to_end(d: np.ndarray) -> np.ndarray:

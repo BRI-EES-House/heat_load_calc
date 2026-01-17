@@ -334,7 +334,8 @@ def _get_season_status_by_fourier_tranform(w: weather.Weather) -> tuple[str | No
         - is winter period set?
     """
     # Outside temperatures, degree C, [N+1]
-    theta_o_array = np.array(w.theta_o_ns_plus[np.arange(len(w.theta_o_ns_plus)) % 4 == 0])
+    # theta_o_array = np.array(w.theta_o_ns_plus[np.arange(len(w.theta_o_ns_plus)) % 4 == 0])
+    theta_o_array = w.theta_o_hourly_plus
 
     # インデックス用の日時データを生成
     start_time = pd.Timestamp("1989-01-01 00:00")

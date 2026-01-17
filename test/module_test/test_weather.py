@@ -532,9 +532,9 @@ class TestWeather(unittest.TestCase):
         w_m30 = Weather.make_weather(d_common=self._d_common_file, itv=Interval.M30, entry_point_dir=self.entry_point_dir)
         w_h1 = Weather.make_weather(d_common=self._d_common_file, itv=Interval.H1, entry_point_dir=self.entry_point_dir)
 
-        w_m15_h = w_m15.get_theta_o_hourly_plus()
-        w_m30_h = w_m30.get_theta_o_hourly_plus()
-        w_h1_h = w_h1.get_theta_o_hourly_plus()
+        w_m15_h = w_m15.theta_o_hourly_plus
+        w_m30_h = w_m30.theta_o_hourly_plus
+        w_h1_h = w_h1.theta_o_hourly_plus
 
         self.assertEqual(w_m15_h[12], 20.6)
         self.assertEqual(w_m30_h[12], 20.6)
