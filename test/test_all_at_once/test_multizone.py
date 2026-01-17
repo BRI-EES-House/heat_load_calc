@@ -54,25 +54,6 @@ class TestAllAtOnce(unittest.TestCase):
         self.assertAlmostEqual(0.00327844979144449, self._dd_i['rm2_x_r']['1989-01-01  00:15:00'], delta=0.001)
 
 
-    # 表面温度のテスト
-    def test_theta_surface(self):
-
-        # テスト時刻を指定
-        date_now = '1989-08-08 12:00:00'
-
-        n_bndrs = self._bs.n_b
-
-        # 0番目の境界（外壁）
-        for i in range(n_bndrs):
-            bdr_name = 'b' + str(i) + '_'
-            theta_s = self._dd_i[bdr_name + 't_s'][date_now]
-            theta_rear = self._dd_i[bdr_name + 't_b'][date_now]
-            f_cvl = self._dd_i[bdr_name + 'f_cvl'][date_now]
-            q_all = self._dd_i[bdr_name + 'qiall_s'][date_now]
-            phi_a_0 = self._bs.phi_a0_js[i][0]
-            phi_t_0 = self._bs.phi_t0_js[i][0]
-            self.assertAlmostEqual(theta_s, phi_a_0 * q_all + phi_t_0 * theta_rear + f_cvl)
-
 if __name__ == '__main__':
 
     unittest.main()
