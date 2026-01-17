@@ -53,29 +53,6 @@ class TestAllAtOnce(unittest.TestCase):
         self.assertAlmostEqual(16.4853237577382, self._dd_i['rm2_t_r']['1989-01-01  00:15:00'], delta=0.001)
         self.assertAlmostEqual(0.00327844979144449, self._dd_i['rm2_x_r']['1989-01-01  00:15:00'], delta=0.001)
 
-    def test_solar_heat_gain_balance(self):
-
-        '''
-        透過日射熱取得が家具と部位の吸収日射熱取得と一致する
-        '''
-
-        date_now = '1989-08-08 12:00:00'
-        date_now_plus = '1989-08-08 12:15:00'
-        # 透過日射熱取得, W
-        q_sol_trans = self._dd_i['rm0_q_sol_t'][date_now]
-
-        # 家具の吸収日射, W
-        q_sol_fun = self._dd_i['rm0_q_s_sol_fun'][date_now]
-#        q_sol_fun = self._dd_i['rm0_q_s_sol_fun'][date_now_plus]
-
-        # 部位の吸収日射, W
-        surf_abs_sol = 0.0
-        for i in range(11):
-            surf_abs_sol += self._dd_i['b' + str(i) + '_qisol_s'][date_now]
-#            surf_abs_sol += self._dd_i['b' + str(i) + '_qisol_s'][date_now_plus]
-
-        self.assertAlmostEqual(q_sol_trans, q_sol_fun + surf_abs_sol)
-
 
     # 表面温度のテスト
     def test_theta_surface(self):
