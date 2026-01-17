@@ -333,32 +333,25 @@ def _get_season_status_by_fourier_tranform(w: weather.Weather) -> tuple[str | No
         - is summer period set?
         - is winter period set?
     """
-    # Outside temperatures, degree C, [N+1]
-    # theta_o_array = np.array(w.theta_o_ns_plus[np.arange(len(w.theta_o_ns_plus)) % 4 == 0])
-    theta_o_array = w.theta_o_hourly_plus
 
     # インデックス用の日時データを生成
     start_time = pd.Timestamp("1989-01-01 00:00")
-    date_index = pd.date_range(start=start_time, periods=8761, freq="H")
-    df = pd.DataFrame({'theta_o': theta_o_array}, index=date_index)
     
     # 日平均外気温度、日最高外気温度の計算
     df_daily = pd.DataFrame(
         index=pd.date_range(start=start_time, periods=365, freq="D"),
         columns=['theta_o_average', 'theta_o_max', 'theta_o_average_fft', 'theta_o_max_fft']
         )
-    theta_o_average = df['theta_o'].resample('D').mean().to_numpy()[:-1]
-    theta_o_max = df['theta_o'].resample('D').max().to_numpy()[:-1]
-    df_daily['theta_o_average'] = theta_o_average
-    df_daily['theta_o_max'] = theta_o_max
+    df_daily['theta_o_average'] = w.theta_o_ave_d
+    df_daily['theta_o_max'] = w.theta_o_max_d
 
-    n_samples = len(theta_o_average)
+    n_samples = 365
     sample_freq = 1
     frequencies = np.fft.fftfreq(n_samples, d=sample_freq)
 
     # フーリエ変換
-    fft_result_average = np.fft.fft(theta_o_average)
-    fft_result_max = np.fft.fft(theta_o_max)
+    fft_result_average = np.fft.fft(w.theta_o_ave_d)
+    fft_result_max = np.fft.fft(w.theta_o_max_d)
 
     # 年周期成分 (1/365 周期/日) のインデックスを取得
     target_frequency = 1 / 365  # 周波数

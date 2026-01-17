@@ -532,9 +532,9 @@ class TestWeather(unittest.TestCase):
         w_m30 = Weather.make_weather(d_common=self._d_common_file, itv=Interval.M30, entry_point_dir=self.entry_point_dir)
         w_h1 = Weather.make_weather(d_common=self._d_common_file, itv=Interval.H1, entry_point_dir=self.entry_point_dir)
 
-        w_m15_h = w_m15.theta_o_hourly_plus
-        w_m30_h = w_m30.theta_o_hourly_plus
-        w_h1_h = w_h1.theta_o_hourly_plus
+        w_m15_h = w_m15.theta_o_h_plus
+        w_m30_h = w_m30.theta_o_h_plus
+        w_h1_h = w_h1.theta_o_h_plus
 
         self.assertEqual(w_m15_h[12], 20.6)
         self.assertEqual(w_m30_h[12], 20.6)
@@ -555,6 +555,33 @@ class TestWeather(unittest.TestCase):
         self.assertEqual(w_m15_h[8760], 19.1)
         self.assertEqual(w_m30_h[8760], 19.1)
         self.assertEqual(w_h1_h[8760], 19.1)
+    
+    def test_weather_values_file_daily(self):
+
+        # get data
+        w_m15 = Weather.make_weather(d_common=self._d_common_file, itv=Interval.M15, entry_point_dir=self.entry_point_dir)
+        w_m30 = Weather.make_weather(d_common=self._d_common_file, itv=Interval.M30, entry_point_dir=self.entry_point_dir)
+        w_h1 = Weather.make_weather(d_common=self._d_common_file, itv=Interval.H1, entry_point_dir=self.entry_point_dir)
+
+        w_m15_ave_d = w_m15.theta_o_ave_d
+        w_m30_ave_d = w_m30.theta_o_ave_d
+        w_h1_ave_d = w_h1.theta_o_ave_d
+
+        self.assertAlmostEqual(w_m15_ave_d[0], 19.60416667)
+        self.assertAlmostEqual(w_m30_ave_d[0], 19.60416667)
+        self.assertAlmostEqual(w_h1_ave_d[0], 19.60416667)
+
+        w_m15_max_d = w_m15.theta_o_max_d
+        w_m30_max_d = w_m30.theta_o_max_d
+        w_h1_max_d = w_h1.theta_o_max_d
+
+        self.assertAlmostEqual(w_m15_max_d[0], 21.3)
+        self.assertAlmostEqual(w_m30_max_d[0], 21.3)
+        self.assertAlmostEqual(w_h1_max_d[0], 21.3)
+
+        self.assertEqual(w_m15_ave_d.size, 365)
+        self.assertEqual(w_m30_ave_d.size, 365)
+        self.assertEqual(w_h1_ave_d.size, 365)
 
 
 if __name__ == '__main__':
