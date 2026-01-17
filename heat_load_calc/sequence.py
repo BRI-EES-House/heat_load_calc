@@ -785,34 +785,79 @@ class Sequence:
             
             if n == 0:
                 print("Executing verification tests at step {}.".format(n))
+
             # 室空気の熱収支のテスト
-            test_air_heat_balance(theta_o_ns_plus=self.weather.theta_o_ns_plus[n+1].reshape(-1, 1),
-                                  theta_r_is_n_pls=theta_r_is_n_pls, theta_r_is_n=c_n.theta_r_is_n, theta_s_js_n_pls=theta_s_js_n_pls,
-                              theta_frt_is_n_pls=theta_frt_is_n_pls, v_r_is=self.rms.v_r_is, a_s_js=self.bs.a_s_js, v_leak_is_n=v_leak_is_n, v_vent_ntr_is_n=v_vent_ntr_is_n,
-                              v_vent_int_is_is= self.mvs.v_vent_int_is_is, v_vent_mec_is_ns=self.v_vent_mec_is_ns[:, n].reshape(-1, 1), q_gen_is_ns=self.scd.q_gen_is_ns[:, n].reshape(-1, 1),
-                               q_hum_is_n=q_hum_is_n, l_cs_is_n=l_cs_is_n, l_rs_is_n=l_rs_is_n, beta_is_n=beta_is_n,
-                               p_js_is=self.bs.p_js_is, p_is_js=self.bs.p_is_js, h_s_c_js=self.bs.h_s_c_js, g_sh_frt_is=self.rms.g_sh_frt_is, delta_t=delta_t)
+            test_air_heat_balance(
+                theta_o_ns_plus=self.weather.theta_o_ns_plus[n+1].reshape(-1, 1),
+                theta_r_is_n_pls=theta_r_is_n_pls,
+                theta_r_is_n=c_n.theta_r_is_n,
+                theta_s_js_n_pls=theta_s_js_n_pls,
+                theta_frt_is_n_pls=theta_frt_is_n_pls,
+                v_r_is=self.rms.v_r_is, a_s_js=self.bs.a_s_js,
+                v_leak_is_n=v_leak_is_n,
+                v_vent_ntr_is_n=v_vent_ntr_is_n,
+                v_vent_int_is_is=self.mvs.v_vent_int_is_is,
+                v_vent_mec_is_ns=self.v_vent_mec_is_ns[:, n].reshape(-1, 1),
+                q_gen_is_ns=self.scd.q_gen_is_ns[:, n].reshape(-1, 1),
+                q_hum_is_n=q_hum_is_n,
+                l_cs_is_n=l_cs_is_n,
+                l_rs_is_n=l_rs_is_n,
+                beta_is_n=beta_is_n,
+                p_js_is=self.bs.p_js_is,
+                p_is_js=self.bs.p_is_js,
+                h_s_c_js=self.bs.h_s_c_js,
+                g_sh_frt_is=self.rms.g_sh_frt_is,
+                delta_t=delta_t
+            )
 
             # 室空気の湿収支のテスト
-            test_air_moisture_balance(x_o_ns_plus=self.weather.x_o_ns_plus[n+1].reshape(-1, 1), x_r_is_n_pls=x_r_is_n_pls, x_r_is_n=c_n.x_r_is_n, x_frt_is_n_pls=x_frt_is_n_pls,
-                                      v_r_is=self.rms.v_r_is, v_vent_int_is_is=self.mvs.v_vent_int_is_is,
-                            v_leak_is_n=v_leak_is_n, v_vent_ntr_is_n=v_vent_ntr_is_n, v_vent_mec_is_n=self.v_vent_mec_is_ns[:, n].reshape(-1, 1),
-                            x_gen_is_n=self.scd.x_gen_is_ns[:, n].reshape(-1,1), l_cl_is_n=l_cl_is_n,
-                            x_hum_is_n=x_hum_is_n, g_lh_frt_is=self.rms.g_lh_frt_is, delta_t=delta_t)
+            test_air_moisture_balance(
+                x_o_ns_plus=self.weather.x_o_ns_plus[n+1].reshape(-1, 1),
+                x_r_is_n_pls=x_r_is_n_pls,
+                x_r_is_n=c_n.x_r_is_n,
+                x_frt_is_n_pls=x_frt_is_n_pls,
+                v_r_is=self.rms.v_r_is,
+                v_vent_int_is_is=self.mvs.v_vent_int_is_is,
+                v_leak_is_n=v_leak_is_n,
+                v_vent_ntr_is_n=v_vent_ntr_is_n,
+                v_vent_mec_is_n=self.v_vent_mec_is_ns[:, n].reshape(-1, 1),
+                x_gen_is_n=self.scd.x_gen_is_ns[:, n].reshape(-1,1),
+                l_cl_is_n=l_cl_is_n,
+                x_hum_is_n=x_hum_is_n,
+                g_lh_frt_is=self.rms.g_lh_frt_is,
+                delta_t=delta_t
+            )
         
             #### 備品の熱収支のテスト ####
-            test_frt_heat_balance(theta_frt_is_n_pls=theta_frt_is_n_pls, theta_frt_is_n=c_n.theta_frt_is_n,
-                            theta_r_is_n_pls=theta_r_is_n_pls, q_sol_frt_is_ns=self.q_sol_frt_is_ns[:, n].reshape(-1, 1),
-                            c_sh_frt_is=self.rms.c_sh_frt_is, g_sh_frt_is=self.rms.g_sh_frt_is, delta_t=delta_t)
+            test_frt_heat_balance(
+                theta_frt_is_n_pls=theta_frt_is_n_pls,
+                theta_frt_is_n=c_n.theta_frt_is_n,
+                theta_r_is_n_pls=theta_r_is_n_pls,
+                q_sol_frt_is_ns=self.q_sol_frt_is_ns[:, n].reshape(-1, 1),
+                c_sh_frt_is=self.rms.c_sh_frt_is,
+                g_sh_frt_is=self.rms.g_sh_frt_is,
+                delta_t=delta_t
+            )
             
             # 備品の湿収支のテスト
-            test_frt_moisture_balance(x_frt_is_n_pls=x_frt_is_n_pls, x_frt_is_n=c_n.x_frt_is_n,
-                            x_r_is_n_pls=x_r_is_n_pls,
-                            c_lh_frt_is=self.rms.c_lh_frt_is, g_lh_frt_is=self.rms.g_lh_frt_is, delta_t=delta_t)
+            test_frt_moisture_balance(
+                x_frt_is_n_pls=x_frt_is_n_pls,
+                x_frt_is_n=c_n.x_frt_is_n,
+                x_r_is_n_pls=x_r_is_n_pls,
+                c_lh_frt_is=self.rms.c_lh_frt_is,
+                g_lh_frt_is=self.rms.g_lh_frt_is,
+                delta_t=delta_t
+            )
 
             #### 室内表面の放射熱収支のテスト ####
-            test_surface_radiation_balance(theta_s_js_n_pls=theta_s_js_n_pls, p_js_is=self.bs.p_js_is,
-                            f_mrt_is_js=self.f_mrt_is_js, h_s_r_js=self.bs.h_s_r_js, a_s_js=self.bs.a_s_js, p_is_js=self.bs.p_is_js)
+            test_surface_radiation_balance(
+                theta_s_js_n_pls=theta_s_js_n_pls,
+                p_js_is=self.bs.p_js_is,
+                f_mrt_is_js=self.f_mrt_is_js,
+                h_s_r_js=self.bs.h_s_r_js,
+                a_s_js=self.bs.a_s_js,
+                p_is_js=self.bs.p_is_js
+            )
             
             #### 透過日射熱取得の収支のテスト ####
             test_solar_heat_gain_balance(
@@ -878,11 +923,29 @@ class Sequence:
         return _run_tick_ground(self=self, gc_n=gc_n, n=n)
 
 
-def test_air_heat_balance(theta_r_is_n_pls: np.ndarray, theta_o_ns_plus: np.ndarray, theta_r_is_n: np.ndarray, theta_s_js_n_pls: np.ndarray,
-                            theta_frt_is_n_pls: np.ndarray, v_r_is: np.ndarray, a_s_js: np.ndarray, v_leak_is_n: np.ndarray, v_vent_ntr_is_n: np.ndarray, v_vent_int_is_is: np.ndarray,
-                            v_vent_mec_is_ns: np.ndarray, q_gen_is_ns: np.ndarray, q_hum_is_n: np.ndarray, l_cs_is_n: np.ndarray, l_rs_is_n: np.ndarray, beta_is_n: np.ndarray,
-                            p_js_is: np.ndarray, p_is_js: np.ndarray, h_s_c_js: np.ndarray, g_sh_frt_is: np.ndarray,
-                            delta_t: float):
+def test_air_heat_balance(
+        theta_r_is_n_pls: np.ndarray,
+        theta_o_ns_plus: np.ndarray,
+        theta_r_is_n: np.ndarray,
+        theta_s_js_n_pls: np.ndarray,
+        theta_frt_is_n_pls: np.ndarray,
+        v_r_is: np.ndarray,
+        a_s_js: np.ndarray,
+        v_leak_is_n: np.ndarray,
+        v_vent_ntr_is_n: np.ndarray,
+        v_vent_int_is_is: np.ndarray,
+        v_vent_mec_is_ns: np.ndarray,
+        q_gen_is_ns: np.ndarray,
+        q_hum_is_n: np.ndarray,
+        l_cs_is_n: np.ndarray,
+        l_rs_is_n: np.ndarray,
+        beta_is_n: np.ndarray,
+        p_js_is: np.ndarray,
+        p_is_js: np.ndarray,
+        h_s_c_js: np.ndarray,
+        g_sh_frt_is: np.ndarray,
+        delta_t: float
+    ):
     """
     test_air_heat_balance の Docstring
     
@@ -977,10 +1040,22 @@ def test_balance_check(left: np.ndarray, right: np.ndarray, quantity: str):
         )
 
 
-def test_air_moisture_balance(x_o_ns_plus: np.ndarray, x_r_is_n_pls: np.ndarray, x_r_is_n: np.ndarray, x_frt_is_n_pls: np.ndarray,
-                              v_r_is: np.ndarray, v_vent_mec_is_n: np.ndarray, v_vent_int_is_is: np.ndarray,
-                            v_leak_is_n: np.ndarray, v_vent_ntr_is_n: np.ndarray, x_gen_is_n: np.ndarray,
-                            x_hum_is_n: np.ndarray, g_lh_frt_is: np.ndarray, l_cl_is_n: np.ndarray, delta_t: float):
+def test_air_moisture_balance(
+        x_o_ns_plus: np.ndarray,
+        x_r_is_n_pls: np.ndarray,
+        x_r_is_n: np.ndarray,
+        x_frt_is_n_pls: np.ndarray,
+        v_r_is: np.ndarray,
+        v_vent_mec_is_n: np.ndarray,
+        v_vent_int_is_is: np.ndarray,
+        v_leak_is_n: np.ndarray,
+        v_vent_ntr_is_n: np.ndarray,
+        x_gen_is_n: np.ndarray,
+        x_hum_is_n: np.ndarray,
+        g_lh_frt_is: np.ndarray,
+        l_cl_is_n: np.ndarray,
+        delta_t: float
+    ):
     """
     test_air_moisture_balance の Docstring
     
@@ -1030,8 +1105,16 @@ def test_air_moisture_balance(x_o_ns_plus: np.ndarray, x_r_is_n_pls: np.ndarray,
 
     test_balance_check(left=left, right=right, quantity="air moisture")
 
-def test_frt_heat_balance(theta_frt_is_n_pls: np.ndarray, theta_frt_is_n: np.ndarray, theta_r_is_n_pls: np.ndarray,
-                          c_sh_frt_is: np.ndarray, g_sh_frt_is: np.ndarray, q_sol_frt_is_ns: np.ndarray, delta_t: float):
+
+def test_frt_heat_balance(
+        theta_frt_is_n_pls: np.ndarray,
+        theta_frt_is_n: np.ndarray,
+        theta_r_is_n_pls: np.ndarray,
+        c_sh_frt_is: np.ndarray,
+        g_sh_frt_is: np.ndarray,
+        q_sol_frt_is_ns: np.ndarray,
+        delta_t: float
+    ):
     """
     test_frt_heat_balance の Docstring
     
@@ -1056,7 +1139,14 @@ def test_frt_heat_balance(theta_frt_is_n_pls: np.ndarray, theta_frt_is_n: np.nda
     right = (theta_r_is_n_pls - theta_frt_is_n_pls) * g_sh_frt_is + q_sol_frt_is_ns
     test_balance_check(left=left, right=right, quantity="furniture heat")
 
-def test_frt_moisture_balance(x_frt_is_n_pls: np.ndarray, x_frt_is_n: np.ndarray, x_r_is_n_pls: np.ndarray, c_lh_frt_is: np.ndarray, g_lh_frt_is: np.ndarray, delta_t: float):
+def test_frt_moisture_balance(
+        x_frt_is_n_pls: np.ndarray,
+        x_frt_is_n: np.ndarray,
+        x_r_is_n_pls: np.ndarray,
+        c_lh_frt_is: np.ndarray,
+        g_lh_frt_is: np.ndarray,
+        delta_t: float
+    ):
     """
     test_frt_moisture_balance の Docstring
     
@@ -1081,7 +1171,14 @@ def test_frt_moisture_balance(x_frt_is_n_pls: np.ndarray, x_frt_is_n: np.ndarray
     right = (x_r_is_n_pls - x_frt_is_n_pls) * g_lh_frt_is
     test_balance_check(left=left, right=right, quantity="furniture moisture")
 
-def test_surface_radiation_balance(theta_s_js_n_pls: np.ndarray, p_js_is: np.ndarray, f_mrt_is_js: np.ndarray, h_s_r_js: np.ndarray, a_s_js: np.ndarray, p_is_js: np.ndarray):
+def test_surface_radiation_balance(
+        theta_s_js_n_pls: np.ndarray,
+        p_js_is: np.ndarray,
+        f_mrt_is_js: np.ndarray,
+        h_s_r_js: np.ndarray,
+        a_s_js: np.ndarray,
+        p_is_js: np.ndarray
+    ):
     """
     test_surface_radiation_balance の Docstring
     
@@ -1098,7 +1195,13 @@ def test_surface_radiation_balance(theta_s_js_n_pls: np.ndarray, p_js_is: np.nda
     right = np.zeros_like(left)
     test_balance_check(left=left, right=right, quantity="surface radiation heat")
 
-def test_solar_heat_gain_balance(p_is_js: np.ndarray, q_trs_sol_is_ns: np.ndarray, q_sol_frt_is_ns: np.ndarray, q_s_sol_js_ns: np.ndarray, a_s_js: np.ndarray):
+def test_solar_heat_gain_balance(
+        p_is_js: np.ndarray,
+        q_trs_sol_is_ns: np.ndarray,
+        q_sol_frt_is_ns: np.ndarray,
+        q_s_sol_js_ns: np.ndarray,
+        a_s_js: np.ndarray
+    ):
     """
     test_solar_heat_gain_balance の Docstring
     透過日射熱取得が家具と部位の吸収日射熱取得と一致することのテスト
@@ -1152,7 +1255,6 @@ def test_theta_surface(
     left = theta_s_js
     right = phi_a0_js * q_i_s_js + phi_t0_js * theta_rear_js + f_cvl_js
     test_balance_check(left=left, right=right, quantity="surface temperature")
-
 
 def _run_tick_ground(self, gc_n: GroundConditions, n: int):
     """地盤の計算
