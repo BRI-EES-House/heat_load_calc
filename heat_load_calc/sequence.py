@@ -822,6 +822,16 @@ class Sequence:
                 q_s_sol_js_ns=self.q_s_sol_js_ns[:, n + 1].reshape(-1, 1),
                 a_s_js=self.bs.a_s_js
                 )
+            
+            #### 境界表面温度の計算結果のテスト ####
+            test_theta_surface(
+                theta_s_js=theta_s_js_n_pls,
+                theta_rear_js=theta_rear_js_n_pls,
+                f_cvl_js=f_cvl_js_n_pls,
+                q_i_s_js=q_s_js_n_pls,
+                phi_a0_js=self.bs.phi_a0_js,
+                phi_t0_js=self.bs.phi_t0_js
+            )
 
         if recorder is not None:
             recorder.recording(
@@ -1111,6 +1121,37 @@ def test_solar_heat_gain_balance(p_is_js: np.ndarray, q_trs_sol_is_ns: np.ndarra
     right = q_sol_frt_is_ns + np.dot(p_is_js, Q_s_sol_js_ns)
 
     test_balance_check(left=left, right=right, quantity="solar heat gain")
+
+def test_theta_surface(
+    theta_s_js: np.ndarray,
+    theta_rear_js: np.ndarray,
+    f_cvl_js: np.ndarray,
+    q_i_s_js: np.ndarray,
+    phi_a0_js: np.ndarray,
+    phi_t0_js: np.ndarray
+):
+    """
+    test_theta_surface の Docstring
+    表面温度の計算結果のテスト
+    
+    :param theta_s_js: 表面温度, degree C, [j, 1]
+    :type theta_s_js: np.ndarray
+    :param theta_rear_js: 裏面温度, degree C, [j, 1]
+    :type theta_rear_js: np.ndarray
+    :param f_cvl_js: 係数 f_{CVL}, -, [j, 1]
+    :type f_cvl_js: np.ndarray
+    :param q_i_s_js: 室内表面熱流, W/m2, [j, 1]
+    :type q_i_s_js: np.ndarray
+    :param phi_a0_js: 吸熱応答の初項, m2 K/W, [j, 1]
+    :type phi_a0_js: np.ndarray
+    :param phi_t0_js: 貫流応答の初項, -, [j, 1]
+    :type phi_t0_js: np.ndarray
+    """
+
+    # 表面温度
+    left = theta_s_js
+    right = phi_a0_js * q_i_s_js + phi_t0_js * theta_rear_js + f_cvl_js
+    test_balance_check(left=left, right=right, quantity="surface temperature")
 
 
 def _run_tick_ground(self, gc_n: GroundConditions, n: int):
