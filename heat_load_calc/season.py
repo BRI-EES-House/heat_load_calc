@@ -48,7 +48,7 @@ def make_season(d_common: Dict, w: weather.Weather):
     return Season(summer=summer, winter=winter, middle=middle)
 
 
-def _get_season_status(d_common: Dict, w: weather.Weather = None) -> Tuple[Optional[str], Optional[str], Optional[str], Optional[str], bool, bool]:
+def _get_season_status(d_common: Dict, w: weather.Weather | None = None) -> Tuple[Optional[str], Optional[str], Optional[str], Optional[str], bool, bool]:
     """get season status
 
     Args:
@@ -141,7 +141,13 @@ def _get_season_status(d_common: Dict, w: weather.Weather = None) -> Tuple[Optio
         # which is replaced to the simplified sin/cos curve througy the Fourier tranform method.
         elif d_method == 'file':
 
-            return _get_season_status_by_fourier_tranform(w=w)
+            if w is None:
+
+                raise ValueError('Argument as Weather class is not defined. Weather should be defined when using file method in making season period.')
+
+            else:
+
+                return _get_season_status_by_fourier_tranform(w=w)
         
         else:
 
@@ -166,12 +172,18 @@ def _get_bool_list_for_season_as_str(
     """
 
     if is_summer_period_set:
-        summer_start_num, summer_end_num = _get_total_day(date_str=summer_start), _get_total_day(date_str=summer_end)
+        if (summer_start is None) or (summer_end is None):
+            raise ValueError('If summer period is set, both summer_start and summer_end should be set.')
+        else:
+            summer_start_num, summer_end_num = _get_total_day(date_str=summer_start), _get_total_day(date_str=summer_end)
     else:
         summer_start_num, summer_end_num = None, None
     
     if is_winter_period_set:
-        winter_start_num, winter_end_num = _get_total_day(date_str=winter_start), _get_total_day(date_str=winter_end)
+        if (winter_start is None) or (winter_end is None):
+            raise ValueError('If winter period is set, both winter_start and winter_end should be set.')
+        else:
+            winter_start_num, winter_end_num = _get_total_day(date_str=winter_start), _get_total_day(date_str=winter_end)
     else:
         winter_start_num, winter_end_num = None, None
 
@@ -197,12 +209,18 @@ def _get_bool_list_for_four_season_as_int(
     ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
 
     if is_summer_period_set:
-        summer_list = _get_bool_list_by_start_day_and_end_day(nstart=summer_start, nend=summer_end)
+        if (summer_start is None) or (summer_end is None):
+            raise ValueError('If summer period is set, both summer_start and summer_end should be set.')
+        else:
+            summer_list = _get_bool_list_by_start_day_and_end_day(nstart=summer_start, nend=summer_end)
     else:
         summer_list = np.full(shape=365, fill_value=False, dtype=bool)
 
     if is_winter_period_set:
-        winter_list = _get_bool_list_by_start_day_and_end_day(nstart=winter_start, nend=winter_end)
+        if (winter_start is None) or (winter_end is None):
+            raise ValueError('If winter period is set, both winter_start and winter_end should be set.')
+        else:
+            winter_list = _get_bool_list_by_start_day_and_end_day(nstart=winter_start, nend=winter_end)
     else:
         winter_list = np.full(shape=365, fill_value=False, dtype=bool)
 
@@ -300,7 +318,7 @@ def _check_day_index(n: int):
         raise IndexError("Under 1 cna't be specified.")
 
 
-def _get_season_status_by_fourier_tranform(w: weather.Weather) -> Tuple[str, str, str, str, bool, bool]:
+def _get_season_status_by_fourier_tranform(w: weather.Weather) -> tuple[str | None, str | None, str | None, str | None, bool, bool]:
     """Calculate the summer and winter season by the outdoor temperature.
 
     Args:
@@ -366,8 +384,8 @@ def _get_season_status_by_fourier_tranform(w: weather.Weather) -> Tuple[str, str
     # 暖房日、冷房日配列の作成
     df_daily['is_heating_day'] = theta_o_average_fft < 15.0
     df_daily['is_cooling_day'] = theta_o_max_fft > 24.0
-    summer_start, summer_end = find_first_and_last_true_days_with_special_conditions(df_daily, 'is_heating_day')
-    winter_start, winter_end = find_first_and_last_true_days_with_special_conditions(df_daily, 'is_cooling_day')
+    summer_start, summer_end = _find_first_and_last_true_days_with_special_conditions(df_daily, 'is_heating_day')
+    winter_start, winter_end = _find_first_and_last_true_days_with_special_conditions(df_daily, 'is_cooling_day')
 
     return (
         summer_start.strftime("%m/%d")  if not summer_start is None else None, \
@@ -378,7 +396,8 @@ def _get_season_status_by_fourier_tranform(w: weather.Weather) -> Tuple[str, str
         (winter_end != None)
     )
 
-def find_first_and_last_true_days_with_special_conditions(df, column_name):
+
+def _find_first_and_last_true_days_with_special_conditions(df, column_name):
     """
     1年間で指定された列(column_name)が最初にTrueになる日と最後にTrueになる日を抽出する関数。
     is_heating_dayが年に0, 1, 2回しか切り替わらない性質を考慮。
