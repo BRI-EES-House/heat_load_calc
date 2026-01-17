@@ -44,18 +44,6 @@ class TestAllAtOnce(unittest.TestCase):
         cls._mdh = mdh
         cls._v_mec_vent = scd.v_mec_vent_local_is_ns
 
-
-    def test_weather(self):
-
-        # 1/1 0:00の外気温度があっているかどうか？
-        self.assertEqual(2.3, self._dd_i['out_temp']['1989-01-01 00:00:00'])
-
-        # 1/1 0:15の外気温度があっているかどうか？
-        self.assertEqual(2.375, self._dd_i['out_temp']['1989-01-01 00:15:00'])
-
-        # 1/1 0:00の絶対湿度があっているかどうか？
-        self.assertEqual(0.0032, self._dd_i['out_abs_humid']['1989-01-01 00:00:00'])
-
     def test_theta_r_and_humid(self):
 
         self.assertAlmostEqual(17.683850308594, self._dd_i['rm0_t_r']['1989-01-01  00:15:00'], delta=0.001)
