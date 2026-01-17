@@ -783,7 +783,7 @@ class Sequence:
 
         if exe_verify:
             
-            if n % 100 == 0:
+            if n == 0:
                 print("Executing verification tests at step {}.".format(n))
             # 室空気の熱収支のテスト
             test_air_heat_balance(theta_o_ns_plus=self.weather.theta_o_ns_plus[n+1].reshape(-1, 1),
@@ -813,6 +813,15 @@ class Sequence:
             #### 室内表面の放射熱収支のテスト ####
             test_surface_radiation_balance(theta_s_js_n_pls=theta_s_js_n_pls, p_js_is=self.bs.p_js_is,
                             f_mrt_is_js=self.f_mrt_is_js, h_s_r_js=self.bs.h_s_r_js, a_s_js=self.bs.a_s_js, p_is_js=self.bs.p_is_js)
+            
+            #### 透過日射熱取得の収支のテスト ####
+            test_solar_heat_gain_balance(
+                p_is_js=self.bs.p_is_js,
+                q_trs_sol_is_ns=self.q_trs_sol_is_ns[:, n + 1].reshape(-1, 1),
+                q_sol_frt_is_ns=self.q_sol_frt_is_ns[:, n + 1].reshape(-1, 1),
+                q_s_sol_js_ns=self.q_s_sol_js_ns[:, n + 1].reshape(-1, 1),
+                a_s_js=self.bs.a_s_js
+                )
 
         if recorder is not None:
             recorder.recording(
@@ -951,7 +960,7 @@ def test_balance_check(left: np.ndarray, right: np.ndarray, quantity: str):
         diff = left - right
         max_abs = np.max(np.abs(diff))
         idx = np.unravel_index(np.argmax(np.abs(diff)), diff.shape)
-        logger.error(
+        logger.info(
             f"{quantity} balance is not correct. "
             f"max|left-right|={max_abs} at index={idx}, "
             f"left={left[idx]}, right={right[idx]}"
@@ -1078,6 +1087,31 @@ def test_surface_radiation_balance(theta_s_js_n_pls: np.ndarray, p_js_is: np.nda
     # 部位jの表面放射熱収支式の右辺, W
     right = np.zeros_like(left)
     test_balance_check(left=left, right=right, quantity="surface radiation heat")
+
+def test_solar_heat_gain_balance(p_is_js: np.ndarray, q_trs_sol_is_ns: np.ndarray, q_sol_frt_is_ns: np.ndarray, q_s_sol_js_ns: np.ndarray, a_s_js: np.ndarray):
+    """
+    test_solar_heat_gain_balance の Docstring
+    透過日射熱取得が家具と部位の吸収日射熱取得と一致することのテスト
+    :param p_is_js: 部位-室分布係数, -, [i, j]
+    :type p_is_js: np.ndarray
+    :param q_trs_sol_is_ns: 透過日射熱取得, W, [i, 1]
+    :type q_trs_sol_is_ns: np.ndarray
+    :param q_sol_frt_is_ns: 備品の吸収日射熱取得, W, [i, 1]
+    :type q_sol_frt_is_ns: np.ndarray
+    :param q_s_sol_js_ns: 部位の吸収日射熱取得, W/m2, [j, 1]
+    :type q_s_sol_js_ns: np.ndarray
+    :param a_s_js: 部位の面積, m2, [j, 1]
+    :type a_s_js: np.ndarray
+    """
+
+    # 透過日射熱取得の合計, W
+    left = q_trs_sol_is_ns
+    # 備品の吸収日射熱取得と部位の吸収日射熱取得の合計, W
+    Q_s_sol_js_ns = q_s_sol_js_ns * a_s_js  # 部位の吸収日射熱取得を面積で換
+    right = q_sol_frt_is_ns + np.dot(p_is_js, Q_s_sol_js_ns)
+
+    test_balance_check(left=left, right=right, quantity="solar heat gain")
+
 
 def _run_tick_ground(self, gc_n: GroundConditions, n: int):
     """地盤の計算
