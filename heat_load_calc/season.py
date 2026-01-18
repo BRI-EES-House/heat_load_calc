@@ -15,15 +15,18 @@ class Season:
         self._middle = middle
     
     @property
-    def summer(self):
+    def summer(self) -> np.ndarray:
+        """is summer period ? [365]"""
         return self._summer
     
     @property
-    def winter(self):
+    def winter(self) -> np.ndarray:
+        """is winter period ? [365]"""
         return self._winter
     
     @property
-    def middle(self):
+    def middle(self) -> np.ndarray:
+        """is middle period ? [365]"""
         return self._middle
 
 
