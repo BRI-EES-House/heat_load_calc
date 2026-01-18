@@ -223,6 +223,16 @@ class Weather:
         """Daily maximum outside temperature, deg. C, [365]"""
         return self.theta_o_h.reshape(365, 24).max(axis=1)
 
+    @property
+    def theta_o_ave_hrm_d(self) -> np.ndarray:
+        """Daily harmonized average outside temperature, deg. C, [365]"""
+        return _harmonizing(d=self.theta_o_ave_d)
+
+    @property
+    def theta_o_max_hrm_d(self) -> np.ndarray:
+        """Daily harmonized maximum outside temperature, deg. C, [365]"""
+        return _harmonizing(d=self.theta_o_max_d)
+
     def get_theta_o_ave(self) -> float:
         """Get the annual average outside temperature. / 外気温度の年間平均値を取得する。
 
@@ -481,3 +491,34 @@ def _get_filename(region: Region) -> str:
     }[region]
 
     return weather_data_filename
+
+
+def _harmonizing(d: np.ndarray) -> np.ndarray:
+    """Calculate the time-series data transformed via Fourier transform and extracted as sine and cosine waves containing only the mean, 1 Hz, and -1 Hz components.
+
+    Args:
+        d: time series data, deg.C, [365]
+
+    Returns:
+        Time-series data transformed via Fourier transform and extracted as sine and cosine waves containing only the mean, 1 Hz, and -1 Hz components, deg_c, [365]
+    """
+
+    # Fourier transform, complex number, [365]
+    fft_result = np.fft.fft(d)
+
+    # Filtered FFT values, complex number, [365]
+    filtered_fft_result = np.zeros(shape=(365), dtype=complex)
+
+    # Add a 1-hertz component
+    filtered_fft_result[1] = fft_result[1]
+
+    # Add a -1-hertz component
+    filtered_fft_result[-1] = fft_result[-1]
+
+    # Add average
+    filtered_fft_result[0] = fft_result[0]
+
+    # Inverse Fourier transform
+    d_harmonized = np.fft.ifft(filtered_fft_result).real
+
+    return d_harmonized
