@@ -284,21 +284,21 @@ def _make_from_pd(file_path, itv: Interval, latitude: float, longitude: float) -
     h_sun_ns, a_sun_ns = solar_position.calc_solar_position(phi_loc=phi_loc, lambda_loc=lambda_loc, interval=itv)
 
     # outside temperature at step n / ステップnにおける外気温度, degree C, [N]
-    theta_o_ns = _interpolate(weather_data=pp['temperature'].values, interval=itv, rolling=False)
+    theta_o_ns = _interpolate(weather_data=pp['temperature'].to_numpy(), interval=itv, rolling=False)
 
     # outside absolute humidity at step n / ステップnにおける外気絶対湿度, kg / kg(DA), [N]
     # Convert to the unit kg / kg(DA) because the unit in file is g / kg(DA)
     # g/kgDA から kg/kgDA へ単位変換を行う。
-    x_o_ns = _interpolate(weather_data=pp['absolute humidity'].values, interval=itv, rolling=False) / 1000.0
+    x_o_ns = _interpolate(weather_data=pp['absolute humidity'].to_numpy(), interval=itv, rolling=False) / 1000.0
 
     # normal surface direct solar radiation at step n / ステップnにおける法線面直達日射量, W / m2, [N]
-    i_dn_ns = _interpolate(weather_data=pp['normal direct solar radiation'].values, interval=itv, rolling=False)
+    i_dn_ns = _interpolate(weather_data=pp['normal direct solar radiation'].to_numpy(), interval=itv, rolling=False)
 
     # horizontal sky solar radiation at step n / ステップnにおける水平面天空日射量, W / m2, [N]
-    i_sky_ns = _interpolate(weather_data=pp['horizontal sky solar radiation'].values, interval=itv, rolling=False)
+    i_sky_ns = _interpolate(weather_data=pp['horizontal sky solar radiation'].to_numpy(), interval=itv, rolling=False)
 
     # nighttime radiation at step n / ステップnにおける夜間放射量, W / m2, [N]
-    r_n_ns = _interpolate(weather_data=pp['outward radiation'].values, interval=itv, rolling=False)
+    r_n_ns = _interpolate(weather_data=pp['outward radiation'].to_numpy(), interval=itv, rolling=False)
 
     return Weather(
         a_sun_ns=a_sun_ns,
