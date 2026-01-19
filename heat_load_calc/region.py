@@ -37,7 +37,7 @@ class Region(IntEnum):
 
         return phi_loc, lambda_loc
     
-    def get_season_status(self) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+    def get_season_status(self) -> tuple[str, str, str | None, str | None, bool, bool]:
         """Get the summer season, winter season, and middle season in each region.
 
         Return:

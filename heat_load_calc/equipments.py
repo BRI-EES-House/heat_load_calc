@@ -27,16 +27,16 @@ class Individual(ABC):
         self.room_index: int = _get_room_index(room_id_is=id_r_is, spcf_room_id=room_id)
 
         # room_indices
-        self.id_r_is: np.ndarray[int] = id_r_is
+        self.id_r_is: np.ndarray = id_r_is
 
         # number of room
         self.n_rm = len(id_r_is)
 
         # boundary indices
-        self.id_b_js: np.ndarray[int] = id_js
+        self.id_b_js: np.ndarray = id_js
 
         # relationship beween rooms and boundaries, [I, J]
-        self.p_is_js: np.ndarray[int] = p_is_js
+        self.p_is_js: np.ndarray = p_is_js
 
         # equipment
         self.e: IndividualEquipment = e
@@ -171,11 +171,11 @@ class Individual(ABC):
 
 class IndividualConvective(Individual):
 
-    def __init__(self, id: int, name: str, room_id: int, e, id_r_is: np.ndarray[int], id_js: np.ndarray[int], p_is_js: np.ndarray[int]):
+    def __init__(self, id: int, name: str, room_id: int, e, id_r_is: np.ndarray, id_js: np.ndarray, p_is_js: np.ndarray):
         
         super().__init__(id=id, name=name, room_id=room_id, e=e, id_r_is=id_r_is, id_js=id_js, p_is_js=p_is_js)
 
-    def get_is_radiative_is(self) -> np.ndarray[bool]:
+    def get_is_radiative_is(self) -> np.ndarray:
         """Get bool type indices which the radiative heating or cooling exists.
 
         Returns:
@@ -214,7 +214,7 @@ class IndividualConvective(Individual):
 
 class IndividualRadiative(Individual):
 
-    def __init__(self, id: int, name: str, room_id: int, boundary_id: int, e, id_r_is: np.ndarray[int], id_js: np.ndarray[int], p_is_js: np.ndarray):
+    def __init__(self, id: int, name: str, room_id: int, boundary_id: int, e, id_r_is: np.ndarray, id_js: np.ndarray, p_is_js: np.ndarray):
 
         super().__init__(id=id, name=name, room_id=room_id, e=e, id_r_is=id_r_is, id_js=id_js, p_is_js=p_is_js)
 
@@ -224,7 +224,7 @@ class IndividualRadiative(Individual):
         # boundary index
         self.boundary_index: int = _get_boundary_index(boundary_id_js=id_js, spcf_boundary_id=boundary_id)
 
-    def get_is_radiative_is(self) -> np.ndarray[bool]:
+    def get_is_radiative_is(self) -> np.ndarray:
         """Get bool type indices which the radiative heating or cooling exists.
 
         Returns:
@@ -454,7 +454,7 @@ class RAC_C(RAC_HC):
         theta_ex_srf = self._get_theta_ex_srf(q_s=q_s, theta_r=theta_r, v=v)
 
         # absolute humidity of internal heat exchanger unit, kg/kg(DA)
-        x_ex_srf = get_x(get_p_vs(theta_ex_srf))
+        x_ex_srf = get_x(p_v=get_p_vs(theta_ex_srf))
 
         if (x_r > x_ex_srf) & (q_s > 0.0):
             f_l_cl_wgt = get_rho_a() * v * (1 - self.bf)

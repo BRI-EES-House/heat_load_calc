@@ -15,15 +15,18 @@ class Season:
         self._middle = middle
     
     @property
-    def summer(self):
+    def summer(self) -> np.ndarray:
+        """is summer period ? [365]"""
         return self._summer
     
     @property
-    def winter(self):
+    def winter(self) -> np.ndarray:
+        """is winter period ? [365]"""
         return self._winter
     
     @property
-    def middle(self):
+    def middle(self) -> np.ndarray:
+        """is middle period ? [365]"""
         return self._middle
 
 
@@ -48,7 +51,7 @@ def make_season(d_common: Dict, w: weather.Weather):
     return Season(summer=summer, winter=winter, middle=middle)
 
 
-def _get_season_status(d_common: Dict, w: weather.Weather = None) -> Tuple[Optional[str], Optional[str], Optional[str], Optional[str], bool, bool]:
+def _get_season_status(d_common: Dict, w: weather.Weather | None = None) -> Tuple[Optional[str], Optional[str], Optional[str], Optional[str], bool, bool]:
     """get season status
 
     Args:
@@ -141,7 +144,13 @@ def _get_season_status(d_common: Dict, w: weather.Weather = None) -> Tuple[Optio
         # which is replaced to the simplified sin/cos curve througy the Fourier tranform method.
         elif d_method == 'file':
 
-            return _get_season_status_by_fourier_tranform(w=w)
+            if w is None:
+
+                raise ValueError('Argument as Weather class is not defined. Weather should be defined when using file method in making season period.')
+
+            else:
+
+                return _get_season_status_by_fourier_tranform(w=w)
         
         else:
 
@@ -166,12 +175,18 @@ def _get_bool_list_for_season_as_str(
     """
 
     if is_summer_period_set:
-        summer_start_num, summer_end_num = _get_total_day(date_str=summer_start), _get_total_day(date_str=summer_end)
+        if (summer_start is None) or (summer_end is None):
+            raise ValueError('If summer period is set, both summer_start and summer_end should be set.')
+        else:
+            summer_start_num, summer_end_num = _get_total_day(date_str=summer_start), _get_total_day(date_str=summer_end)
     else:
         summer_start_num, summer_end_num = None, None
     
     if is_winter_period_set:
-        winter_start_num, winter_end_num = _get_total_day(date_str=winter_start), _get_total_day(date_str=winter_end)
+        if (winter_start is None) or (winter_end is None):
+            raise ValueError('If winter period is set, both winter_start and winter_end should be set.')
+        else:
+            winter_start_num, winter_end_num = _get_total_day(date_str=winter_start), _get_total_day(date_str=winter_end)
     else:
         winter_start_num, winter_end_num = None, None
 
@@ -197,12 +212,18 @@ def _get_bool_list_for_four_season_as_int(
     ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
 
     if is_summer_period_set:
-        summer_list = _get_bool_list_by_start_day_and_end_day(nstart=summer_start, nend=summer_end)
+        if (summer_start is None) or (summer_end is None):
+            raise ValueError('If summer period is set, both summer_start and summer_end should be set.')
+        else:
+            summer_list = _get_bool_list_by_start_day_and_end_day(nstart=summer_start, nend=summer_end)
     else:
         summer_list = np.full(shape=365, fill_value=False, dtype=bool)
 
     if is_winter_period_set:
-        winter_list = _get_bool_list_by_start_day_and_end_day(nstart=winter_start, nend=winter_end)
+        if (winter_start is None) or (winter_end is None):
+            raise ValueError('If winter period is set, both winter_start and winter_end should be set.')
+        else:
+            winter_list = _get_bool_list_by_start_day_and_end_day(nstart=winter_start, nend=winter_end)
     else:
         winter_list = np.full(shape=365, fill_value=False, dtype=bool)
 
@@ -300,7 +321,7 @@ def _check_day_index(n: int):
         raise IndexError("Under 1 cna't be specified.")
 
 
-def _get_season_status_by_fourier_tranform(w: weather.Weather) -> Tuple[str, str, str, str, bool, bool]:
+def _get_season_status_by_fourier_tranform(w: weather.Weather) -> tuple[str | None, str | None, str | None, str | None, bool, bool]:
     """Calculate the summer and winter season by the outdoor temperature.
 
     Args:
@@ -315,59 +336,18 @@ def _get_season_status_by_fourier_tranform(w: weather.Weather) -> Tuple[str, str
         - is summer period set?
         - is winter period set?
     """
-    # Outside temperatures, degree C, [N+1]
-    theta_o_array = np.array(w.theta_o_ns_plus[np.arange(len(w.theta_o_ns_plus)) % 4 == 0])
-
-    # インデックス用の日時データを生成
-    start_time = pd.Timestamp("1989-01-01 00:00")
-    date_index = pd.date_range(start=start_time, periods=8761, freq="H")
-    df = pd.DataFrame({'theta_o': theta_o_array}, index=date_index)
-    
-    # 日平均外気温度、日最高外気温度の計算
-    df_daily = pd.DataFrame(
-        index=pd.date_range(start=start_time, periods=365, freq="D"),
-        columns=['theta_o_average', 'theta_o_max', 'theta_o_average_fft', 'theta_o_max_fft']
-        )
-    theta_o_average = df['theta_o'].resample('D').mean().to_numpy()[:-1]
-    theta_o_max = df['theta_o'].resample('D').max().to_numpy()[:-1]
-    df_daily['theta_o_average'] = theta_o_average
-    df_daily['theta_o_max'] = theta_o_max
-
-    n_samples = len(theta_o_average)
-    sample_freq = 1
-    frequencies = np.fft.fftfreq(n_samples, d=sample_freq)
 
     # フーリエ変換
-    fft_result_average = np.fft.fft(theta_o_average)
-    fft_result_max = np.fft.fft(theta_o_max)
-
-    # 年周期成分 (1/365 周期/日) のインデックスを取得
-    target_frequency = 1 / 365  # 周波数
-    frequency_tolerance = 1e-6  # 周波数の誤差許容範囲
-    filtered_fft_average = np.zeros_like(fft_result_average)
-    filtered_fft_max = np.zeros_like(fft_result_max)
-
-    # 年周期成分に対応する周波数をフィルタリング
-    for i, freq in enumerate(frequencies):
-        if np.abs(freq - target_frequency) < frequency_tolerance or np.abs(freq + target_frequency) < frequency_tolerance:
-            filtered_fft_average[i] = fft_result_average[i]
-            filtered_fft_max[i] = fft_result_max[i]
-
-    # 直流成分（平均値）を加える
-    filtered_fft_average[0] = fft_result_average[0]
-    filtered_fft_max[0] = fft_result_max[0]
-
-    # 逆フーリエ変換でフィルタ後のデータを取得
-    theta_o_average_fft = np.fft.ifft(filtered_fft_average).real
-    theta_o_max_fft = np.fft.ifft(filtered_fft_max).real
-    df_daily['theta_o_average_fft'] = theta_o_average_fft
-    df_daily['theta_o_max_fft'] = theta_o_max_fft
+    theta_o_ave_filtered_d = w.theta_o_ave_hrm_d
+    theta_o_max_filtered_d = w.theta_o_max_hrm_d
+    
 
     # 暖房日、冷房日配列の作成
-    df_daily['is_heating_day'] = theta_o_average_fft < 15.0
-    df_daily['is_cooling_day'] = theta_o_max_fft > 24.0
-    summer_start, summer_end = find_first_and_last_true_days_with_special_conditions(df_daily, 'is_heating_day')
-    winter_start, winter_end = find_first_and_last_true_days_with_special_conditions(df_daily, 'is_cooling_day')
+    is_heating_day = theta_o_ave_filtered_d < 15.0
+    is_cooling_day = theta_o_max_filtered_d > 24.0
+
+    summer_start, summer_end = _find_first_and_last_true_days_with_special_conditions('is_heating_day', is_heating_day)
+    winter_start, winter_end = _find_first_and_last_true_days_with_special_conditions('is_cooling_day', is_cooling_day)
 
     return (
         summer_start.strftime("%m/%d")  if not summer_start is None else None, \
@@ -378,7 +358,8 @@ def _get_season_status_by_fourier_tranform(w: weather.Weather) -> Tuple[str, str
         (winter_end != None)
     )
 
-def find_first_and_last_true_days_with_special_conditions(df, column_name):
+
+def _find_first_and_last_true_days_with_special_conditions(column_name, is_day):
     """
     1年間で指定された列(column_name)が最初にTrueになる日と最後にTrueになる日を抽出する関数。
     is_heating_dayが年に0, 1, 2回しか切り替わらない性質を考慮。
@@ -390,6 +371,15 @@ def find_first_and_last_true_days_with_special_conditions(df, column_name):
     Returns:
         tuple: 最初にTrueになる日、最後にTrueになる日のタプル (Timestamp or None)
     """
+    
+    # インデックス用の日時データを生成
+    start_time = pd.Timestamp("1989-01-01 00:00")
+
+    # 日平均外気温度、日最高外気温度の計算
+    df = pd.DataFrame(index=pd.date_range(start=start_time, periods=365, freq="D"), columns=[])
+
+    df[column_name] = is_day
+    
     # シフトして前後の値を比較
     previous_value = df[column_name].shift(1, fill_value=df[column_name].iloc[-1])
     next_value = df[column_name].shift(-1, fill_value=df[column_name].iloc[0])

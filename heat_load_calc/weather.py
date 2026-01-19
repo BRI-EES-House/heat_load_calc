@@ -198,6 +198,40 @@ class Weather:
         """
 
         return self.number_of_data + 1
+    
+    @property
+    def theta_o_h(self) -> np.ndarray:
+        """Outside hourly temperature, deg. C, [8760]"""
+        
+        n_hour = self._itv.get_n_hour()
+
+        return self._theta_o_ns[::n_hour]
+
+    @property
+    def theta_o_h_plus(self) -> np.ndarray:
+        """Outside hourly temperature, deg. C, [8761]"""
+        
+        return _add_index_0_data_to_end(d=self.theta_o_h)
+
+    @property
+    def theta_o_ave_d(self) -> np.ndarray:
+        """Daily average outside temperature, deg. C, [365]"""
+        return self.theta_o_h.reshape(365, 24).mean(axis=1)
+    
+    @property
+    def theta_o_max_d(self) -> np.ndarray:
+        """Daily maximum outside temperature, deg. C, [365]"""
+        return self.theta_o_h.reshape(365, 24).max(axis=1)
+
+    @property
+    def theta_o_ave_hrm_d(self) -> np.ndarray:
+        """Daily harmonized average outside temperature, deg. C, [365]"""
+        return _harmonizing(d=self.theta_o_ave_d)
+
+    @property
+    def theta_o_max_hrm_d(self) -> np.ndarray:
+        """Daily harmonized maximum outside temperature, deg. C, [365]"""
+        return _harmonizing(d=self.theta_o_max_d)
 
     def get_theta_o_ave(self) -> float:
         """Get the annual average outside temperature. / 外気温度の年間平均値を取得する。
@@ -207,17 +241,6 @@ class Weather:
         """
 
         return np.average(self._theta_o_ns)
-
-    def get_theta_o_hourly_plus(self) -> np.ndarray:
-        """Get hourly outside temperature.
-
-        Returns:
-            theta_o_hourly_plus, deg C, [8761]
-        """
-        
-        n_hour = self._itv.get_n_hour()
-
-        return self.theta_o_ns_plus[::n_hour]
 
 
 def _add_index_0_data_to_end(d: np.ndarray) -> np.ndarray:
@@ -261,21 +284,21 @@ def _make_from_pd(file_path, itv: Interval, latitude: float, longitude: float) -
     h_sun_ns, a_sun_ns = solar_position.calc_solar_position(phi_loc=phi_loc, lambda_loc=lambda_loc, interval=itv)
 
     # outside temperature at step n / ステップnにおける外気温度, degree C, [N]
-    theta_o_ns = _interpolate(weather_data=pp['temperature'].values, interval=itv, rolling=False)
+    theta_o_ns = _interpolate(weather_data=pp['temperature'].to_numpy(), interval=itv, rolling=False)
 
     # outside absolute humidity at step n / ステップnにおける外気絶対湿度, kg / kg(DA), [N]
     # Convert to the unit kg / kg(DA) because the unit in file is g / kg(DA)
     # g/kgDA から kg/kgDA へ単位変換を行う。
-    x_o_ns = _interpolate(weather_data=pp['absolute humidity'].values, interval=itv, rolling=False) / 1000.0
+    x_o_ns = _interpolate(weather_data=pp['absolute humidity'].to_numpy(), interval=itv, rolling=False) / 1000.0
 
     # normal surface direct solar radiation at step n / ステップnにおける法線面直達日射量, W / m2, [N]
-    i_dn_ns = _interpolate(weather_data=pp['normal direct solar radiation'].values, interval=itv, rolling=False)
+    i_dn_ns = _interpolate(weather_data=pp['normal direct solar radiation'].to_numpy(), interval=itv, rolling=False)
 
     # horizontal sky solar radiation at step n / ステップnにおける水平面天空日射量, W / m2, [N]
-    i_sky_ns = _interpolate(weather_data=pp['horizontal sky solar radiation'].values, interval=itv, rolling=False)
+    i_sky_ns = _interpolate(weather_data=pp['horizontal sky solar radiation'].to_numpy(), interval=itv, rolling=False)
 
     # nighttime radiation at step n / ステップnにおける夜間放射量, W / m2, [N]
-    r_n_ns = _interpolate(weather_data=pp['outward radiation'].values, interval=itv, rolling=False)
+    r_n_ns = _interpolate(weather_data=pp['outward radiation'].to_numpy(), interval=itv, rolling=False)
 
     return Weather(
         a_sun_ns=a_sun_ns,
@@ -468,3 +491,34 @@ def _get_filename(region: Region) -> str:
     }[region]
 
     return weather_data_filename
+
+
+def _harmonizing(d: np.ndarray) -> np.ndarray:
+    """Calculate the time-series data transformed via Fourier transform and extracted as sine and cosine waves containing only the mean, 1 Hz, and -1 Hz components.
+
+    Args:
+        d: time series data, deg.C, [365]
+
+    Returns:
+        Time-series data transformed via Fourier transform and extracted as sine and cosine waves containing only the mean, 1 Hz, and -1 Hz components, deg_c, [365]
+    """
+
+    # Fourier transform, complex number, [365]
+    fft_result = np.fft.fft(d)
+
+    # Filtered FFT values, complex number, [365]
+    filtered_fft_result = np.zeros(shape=(365), dtype=complex)
+
+    # Add a 1-hertz component
+    filtered_fft_result[1] = fft_result[1]
+
+    # Add a -1-hertz component
+    filtered_fft_result[-1] = fft_result[-1]
+
+    # Add average
+    filtered_fft_result[0] = fft_result[0]
+
+    # Inverse Fourier transform
+    d_harmonized = np.fft.ifft(filtered_fft_result).real
+
+    return d_harmonized
