@@ -19,6 +19,39 @@ class FlameType(Enum):
     # 金属製建具
     ALUMINUM = auto()
 
+    def get_default_r_a_w_g(self) -> float:
+        """Get the ratio of area of glazing to window.
+
+        Returns:
+            境界jの窓の面積に対するグレージングの面積の比
+        """
+
+        return {
+            FlameType.RESIN: 0.72,
+            FlameType.WOOD: 0.72,
+            FlameType.ALUMINUM: 0.8,
+            FlameType.MIXED_WOOD: 0.8,
+            FlameType.MIXED_RESIN: 0.8
+        }[self]
+    
+    def get_u_w_f_j(self) -> float:
+        """建具部分の熱損失係数（U値）を取得する。
+        Args:
+            flame_type: 建具（フレーム）材質の種類
+        Returns:
+            境界jの窓の建具部分の熱損失係数（U値）, W/m2K
+        Notes:
+            table 4
+        """
+
+        return {
+            FlameType.RESIN: 2.2,
+            FlameType.WOOD: 2.2,
+            FlameType.ALUMINUM: 6.6,
+            FlameType.MIXED_WOOD: 4.7,
+            FlameType.MIXED_RESIN: 4.7
+        }[self]
+
 
 class GlassType(Enum):
     """ガラスの構成
@@ -52,7 +85,7 @@ class Window:
             t_flame: _description_. Defaults to FlameType.MIXED.
         """
 
-        u_w_f_j = _get_u_w_f_j(flame_type=t_flame)
+        u_w_f_j = t_flame.get_u_w_f_j()
         r_a_w_g_j = _get_r_a_w_g_j(r_a_w_g_j=r_a_w_g_j, flame_type=t_flame)
         u_w_g_j = _get_u_w_g_j(u_w_j=u_w_std_j, u_w_f_j=u_w_f_j, r_a_w_g_j=r_a_w_g_j)
         eta_w_g_j = _get_eta_w_g_j(eta_w_j=eta_w_std_j, r_a_w_g_j=r_a_w_g_j)
@@ -618,13 +651,7 @@ def _get_r_a_w_g_j(r_a_w_g_j: Optional[float], flame_type: FlameType) -> float:
     """
 
     if r_a_w_g_j is None:
-        return {
-            FlameType.RESIN: 0.72,
-            FlameType.WOOD: 0.72,
-            FlameType.ALUMINUM: 0.8,
-            FlameType.MIXED_WOOD: 0.8,
-            FlameType.MIXED_RESIN: 0.8
-        }[flame_type]
+        return flame_type.get_default_r_a_w_g()
     else:
         return r_a_w_g_j
 
