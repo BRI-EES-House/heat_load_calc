@@ -142,6 +142,56 @@ class SingleGlazing(Glazing):
         # reflectance (back side) of the first sheet of plate glass on the exterior side
         self._rho_w_g_s1b_j = rho_w_g_s1b_j
 
+    def _get_tau_w_g_j_phis[T: float | np.ndarray](self, phis: T) -> T:
+        """入射角Φに対する境界jの窓のガラス部分の日射透過率を計算する。
+        Args:
+            phis: 入射角Φ, rad
+        Returns:
+            入射角Φに対する境界jの窓のガラス部分の日射透過率, -
+        Notes:
+            eq.12
+            単層版
+        """
+
+        tau_w_g_s1_j_phis = self._get_tau_w_g_s1_j_phis(phis=phis)
+        return tau_w_g_s1_j_phis
+
+    def _get_rho_w_g_j_phis[T: float | np.ndarray](self, phis: T) -> T:
+        """入射角Φに対する境界jの窓のガラス部分の日射反射率を計算する。
+        Args:
+            phis: 入射角, rad
+        Returns:
+            入射角Φに対する境界jの窓のガラス部分の日射反射率, -
+        Notes:
+            eq.13
+            単層版
+        """
+
+        rho_w_g_s1f_j_phis = self._get_rho_w_g_s1f_j_phis(phis=phis)
+        return rho_w_g_s1f_j_phis
+
+    def _get_tau_w_g_s1_j_phis[T: float | np.ndarray](self, phis: T) -> T:
+        """入射角Φに対する境界jの窓のガラス部分の室外側から1枚目の板ガラスの透過率を計算する。
+        Args:
+            phis: 入射角Φ, rad
+        Returns:
+            入射角Φに対する境界jの窓のガラス部分の室外側から1枚目の板ガラスの透過率, -
+        Notes:
+            eq.14
+        """
+        return self._tau_w_g_s1_j * _get_tau_n_phi(phi=phis)
+
+    def _get_rho_w_g_s1f_j_phis[T: float | np.ndarray](self, phis: T) -> T:
+        """入射角Φに対する境界jの窓のガラス部分の室外側から1枚目の板ガラスの反射率（正面側）を計算する。
+        Args:
+            phis: 入射角Φ, rad
+        Returns:
+            入射角Φに対する境界jの窓のガラス部分の室外側から1枚目の板ガラスの反射率（正面側）, -
+        Notes:
+            eq.16
+        """
+        return self._rho_w_g_s1f_j + (1 - self._rho_w_g_s1f_j) * _get_rho_n_phi(phi_ns=phis)
+
     @staticmethod
     def _get_r_r_w_g_j(u_w_g_j: float, u_w_g_s_j: float, r_w_o_w: float, r_w_i_w: float, r_w_o_s: float) -> float:
         """境界jの窓のガラス部分の日射吸収量に対する室内側に放出される量の割合を計算する。
@@ -237,6 +287,101 @@ class DoubleGlazing(Glazing):
 
         # reflectance (back side) of the first sheet of plate glass on the exterior side
         self._rho_w_g_s1b_j = rho_w_g_s1b_j
+
+    def _get_tau_w_g_j_phis[T: float | np.ndarray](self, phis: T) -> T:
+        """入射角Φに対する境界jの窓のガラス部分の日射透過率を計算する。
+        Args:
+            phis: 入射角Φ, rad
+        Returns:
+            入射角Φに対する境界jの窓のガラス部分の日射透過率, -
+        Notes:
+            eq.12
+            複層版
+        """
+
+        rho_w_g_s1b_j_phis = self._get_rho_w_g_s1b_j_phis(phis=phis)
+        rho_w_g_s2f_j_phis = self._get_rho_w_g_s2f_j_phis(phis=phis)
+        tau_w_g_s1_j_phis = self._get_tau_w_g_s1_j_phis(phis=phis)
+        tau_w_g_s2_j_phis = self._get_tau_w_g_s2_j_phis(phis=phis)
+        return tau_w_g_s1_j_phis * tau_w_g_s2_j_phis / (1 - np.minimum(rho_w_g_s1b_j_phis * rho_w_g_s2f_j_phis, 0.9999))
+
+    def _get_rho_w_g_j_phis[T: float | np.ndarray](self, phis: T) -> T:
+        """入射角Φに対する境界jの窓のガラス部分の日射反射率を計算する。
+        Args:
+            phis: 入射角, rad
+        Returns:
+            入射角Φに対する境界jの窓のガラス部分の日射反射率, -
+        Notes:
+            eq.13
+            複層版
+        """
+
+        rho_w_g_s1f_j_phis = self._get_rho_w_g_s1f_j_phis(phis=phis)
+        rho_w_g_s1b_j_phis = self._get_rho_w_g_s1b_j_phis(phis=phis)
+        rho_w_g_s2f_j_phis = self._get_rho_w_g_s2f_j_phis(phis=phis)
+        tau_w_g_s1_j_phis = self._get_tau_w_g_s1_j_phis(phis=phis)
+        tau_w_g_s2_j_phis = self._get_tau_w_g_s2_j_phis(phis=phis)
+        return rho_w_g_s1f_j_phis + tau_w_g_s1_j_phis * tau_w_g_s2_j_phis * rho_w_g_s2f_j_phis / (
+                    1 - np.minimum(rho_w_g_s1b_j_phis * rho_w_g_s2f_j_phis, 0.9999))
+
+    def _get_tau_w_g_s1_j_phis[T: float | np.ndarray](self, phis: T) -> T:
+        """入射角Φに対する境界jの窓のガラス部分の室外側から1枚目の板ガラスの透過率を計算する。
+        Args:
+            phis: 入射角Φ, rad
+        Returns:
+            入射角Φに対する境界jの窓のガラス部分の室外側から1枚目の板ガラスの透過率, -
+        Notes:
+            eq.14
+        """
+        return self._tau_w_g_s1_j * _get_tau_n_phi(phi=phis)
+
+    def _get_tau_w_g_s2_j_phis[T: float | np.ndarray](self, phis: T) -> T:
+        """入射角Φに対する境界jの窓のガラス部分の室外側から2枚目の板ガラスの透過率を計算する。
+        Args:
+            phis: 入射角Φ, rad
+        Returns:
+            入射角Φに対する境界jの窓のガラス部分の室外側から2枚目の板ガラスの透過率, -
+        Notes:
+            この値は複層ガラスのみ計算される。
+            eq.15
+        """
+        return self._tau_w_g_s2_j * _get_tau_n_phi(phi=phis)
+
+    def _get_rho_w_g_s1f_j_phis[T: float | np.ndarray](self, phis: T) -> T:
+        """入射角Φに対する境界jの窓のガラス部分の室外側から1枚目の板ガラスの反射率（正面側）を計算する。
+        Args:
+            phis: 入射角Φ, rad
+        Returns:
+            入射角Φに対する境界jの窓のガラス部分の室外側から1枚目の板ガラスの反射率（正面側）, -
+        Notes:
+            eq.16
+        """
+        return self._rho_w_g_s1f_j + (1 - self._rho_w_g_s1f_j) * _get_rho_n_phi(phi_ns=phis)
+
+    def _get_rho_w_g_s1b_j_phis[T: float | np.ndarray](self, phis: T) -> T:
+        """入射角Φに対する境界jの窓のガラス部分の室外側から1枚目の板ガラスの反射率（背面側）を計算する。
+        Args:
+            phis: 入射角Φ, rad
+        Returns:
+            入射角Φに対する境界jの窓のガラス部分の室外側から1枚目の板ガラスの反射率（背面側）, -
+        Notes:
+            この値は複層ガラスのみ計算される。
+            eq.17
+        """
+        return self._rho_w_g_s1b_j + (1 - self._rho_w_g_s1b_j) * _get_rho_n_phi(phi_ns=phis)
+
+    def _get_rho_w_g_s2f_j_phis[T: float | np.ndarray](self, phis: T) -> T:
+        """入射角Φに対する境界jの窓のガラス部分の室外側から2枚目の板ガラスの反射率（正面側）を計算する。
+        Args:
+            phis: 入射角Φ, rad
+        Returns:
+            入射角Φに対する境界jの窓のガラス部分の室外側から2枚目の板ガラスの反射率（正面側）, -
+        Notes:
+            この値は複層ガラスのみ計算される。
+            eq.18
+        """
+        return self._rho_w_g_s2f_j + (1 - self._rho_w_g_s2f_j) * _get_rho_n_phi(phi_ns=phis)
+
 
     @staticmethod
     def _get_r_r_w_g_j(u_w_g_j: float, u_w_g_s_j: float, r_w_o_w: float, r_w_i_w: float, r_w_o_s: float) -> float:
@@ -351,7 +496,6 @@ class Window:
         # solar transmittance of the second plate glass from the exterior side
         tau_w_g_s2_j = glazing._tau_w_g_s2_j
 
-        #rho_w_g_s1b_j = _get_rho_w_g_s1b_j(tau_w_g_s1_j=tau_w_g_s1_j, glass_type=t_glz_j)
         # reflectance (back side) of the first sheet of plate glass on the exterior side
         rho_w_g_s1b_j = glazing._rho_w_g_s1b_j
 
@@ -368,13 +512,13 @@ class Window:
         self._tau_w_g_s1_j = tau_w_g_s1_j
         self._tau_w_g_s2_j = tau_w_g_s2_j
         self._rho_w_g_s1b_j = rho_w_g_s1b_j
+        self._glazing = glazing
 
         tau_w_c_j, b_w_c_j = self._get_tau_b_w_c_j()
 
         self._tau_w_c_j = tau_w_c_j
         self._b_w_c_j = b_w_c_j
 
-        self._glazing = glazing
 
 
     def get_tau_w_d_j_ns(self, phi_j_ns: Union[float, np.ndarray]) -> Union[float, np.ndarray]:
@@ -466,7 +610,7 @@ class Window:
         Notes:
             eq.9
         """
-        return self._get_tau_w_g_j_phis(phis=phis) * self.r_a_w_g_j
+        return self._glazing._get_tau_w_g_j_phis(phis=phis) * self.r_a_w_g_j
 
     def _get_b_w_j_phis(self, phis: Union[float, np.ndarray]) -> Union[float, np.ndarray]:
         """入射角Φに対する境界jの窓の吸収日射熱取得率を取得する。
@@ -479,7 +623,7 @@ class Window:
         """
         return self._get_b_w_g_j_phis(phis=phis) * self._r_a_w_g_j
 
-    def _get_b_w_g_j_phis(self, phis: Union[float, np.ndarray]) -> Union[float, np.ndarray]:
+    def _get_b_w_g_j_phis[T: float | np.ndarray](self, phis: T) -> T:
         """入射角Φに対する境界jの窓のガラス部分の吸収日射熱取得率を取得する。
         Args:
             phis: ステップnにおける入射角, rad
@@ -488,113 +632,9 @@ class Window:
         Notes:
             eq.11
         """
-        tau_w_g_j_phis = self._get_tau_w_g_j_phis(phis=phis)
-        rho_w_g_j_phis = self._get_rho_w_g_j_phis(phis=phis)
+        tau_w_g_j_phis = self._glazing._get_tau_w_g_j_phis(phis=phis)
+        rho_w_g_j_phis = self._glazing._get_rho_w_g_j_phis(phis=phis)
         return (1 - tau_w_g_j_phis - rho_w_g_j_phis) * self._r_r_w_g_j
-
-    def _get_tau_w_g_j_phis(self, phis: Union[float, np.ndarray]) -> Union[float, np.ndarray]:
-        """入射角Φに対する境界jの窓のガラス部分の日射透過率を計算する。
-        Args:
-            phis: 入射角Φ, rad
-        Returns:
-            入射角Φに対する境界jの窓のガラス部分の日射透過率, -
-        Notes:
-            eq.12
-        """
-
-        if self._glass_type == GlassType.SINGLE:
-            tau_w_g_s1_j_phis = self._get_tau_w_g_s1_j_phis(phis=phis)
-            return tau_w_g_s1_j_phis
-        elif self._glass_type == GlassType.MULTIPLE:
-            rho_w_g_s1b_j_phis = self._get_rho_w_g_s1b_j_phis(phis=phis)
-            rho_w_g_s2f_j_phis = self._get_rho_w_g_s2f_j_phis(phis=phis)
-            tau_w_g_s1_j_phis = self._get_tau_w_g_s1_j_phis(phis=phis)
-            tau_w_g_s2_j_phis = self._get_tau_w_g_s2_j_phis(phis=phis)
-            return tau_w_g_s1_j_phis * tau_w_g_s2_j_phis / (1 - np.minimum(rho_w_g_s1b_j_phis * rho_w_g_s2f_j_phis, 0.9999))
-        else:
-            raise ValueError()
-
-    def _get_rho_w_g_j_phis(self, phis: Union[float, np.ndarray]) -> Union[float, np.ndarray]:
-        """入射角Φに対する境界jの窓のガラス部分の日射反射率を計算する。
-        Args:
-            phis: 入射角, rad
-        Returns:
-            入射角Φに対する境界jの窓のガラス部分の日射反射率, -
-        Notes:
-            eq.13
-        """
-
-        if self._glass_type == GlassType.SINGLE:
-            rho_w_g_s1f_j_phis = self._get_rho_w_g_s1f_j_phis(phis=phis)
-            return rho_w_g_s1f_j_phis
-        elif self._glass_type == GlassType.MULTIPLE:
-            rho_w_g_s1f_j_phis = self._get_rho_w_g_s1f_j_phis(phis=phis)
-            rho_w_g_s1b_j_phis = self._get_rho_w_g_s1b_j_phis(phis=phis)
-            rho_w_g_s2f_j_phis = self._get_rho_w_g_s2f_j_phis(phis=phis)
-            tau_w_g_s1_j_phis = self._get_tau_w_g_s1_j_phis(phis=phis)
-            tau_w_g_s2_j_phis = self._get_tau_w_g_s2_j_phis(phis=phis)
-            return rho_w_g_s1f_j_phis + tau_w_g_s1_j_phis * tau_w_g_s2_j_phis * rho_w_g_s2f_j_phis / (
-                        1 - np.minimum(rho_w_g_s1b_j_phis * rho_w_g_s2f_j_phis, 0.9999))
-        else:
-            raise ValueError()
-
-    def _get_tau_w_g_s1_j_phis(self, phis: Union[float, np.ndarray]) -> Union[float, np.ndarray]:
-        """入射角Φに対する境界jの窓のガラス部分の室外側から1枚目の板ガラスの透過率を計算する。
-        Args:
-            phis: 入射角Φ, rad
-        Returns:
-            入射角Φに対する境界jの窓のガラス部分の室外側から1枚目の板ガラスの透過率, -
-        Notes:
-            eq.14
-        """
-        return self._tau_w_g_s1_j * _get_tau_n_phi(phi=phis)
-
-    def _get_tau_w_g_s2_j_phis(self, phis: Union[float, np.ndarray]) -> Union[float, np.ndarray]:
-        """入射角Φに対する境界jの窓のガラス部分の室外側から2枚目の板ガラスの透過率を計算する。
-        Args:
-            phis: 入射角Φ, rad
-        Returns:
-            入射角Φに対する境界jの窓のガラス部分の室外側から2枚目の板ガラスの透過率, -
-        Notes:
-            この値は複層ガラスのみ計算される。
-            eq.15
-        """
-        return self._tau_w_g_s2_j * _get_tau_n_phi(phi=phis)
-
-    def _get_rho_w_g_s1f_j_phis(self, phis: Union[float, np.ndarray]) -> Union[float, np.ndarray]:
-        """入射角Φに対する境界jの窓のガラス部分の室外側から1枚目の板ガラスの反射率（正面側）を計算する。
-        Args:
-            phis: 入射角Φ, rad
-        Returns:
-            入射角Φに対する境界jの窓のガラス部分の室外側から1枚目の板ガラスの反射率（正面側）, -
-        Notes:
-            eq.16
-        """
-        return self._rho_w_g_s1f_j + (1 - self._rho_w_g_s1f_j) * _get_rho_n_phi(phi_ns=phis)
-
-    def _get_rho_w_g_s1b_j_phis(self, phis: Union[float, np.ndarray]) -> Union[float, np.ndarray]:
-        """入射角Φに対する境界jの窓のガラス部分の室外側から1枚目の板ガラスの反射率（背面側）を計算する。
-        Args:
-            phis: 入射角Φ, rad
-        Returns:
-            入射角Φに対する境界jの窓のガラス部分の室外側から1枚目の板ガラスの反射率（背面側）, -
-        Notes:
-            この値は複層ガラスのみ計算される。
-            eq.17
-        """
-        return self._rho_w_g_s1b_j + (1 - self._rho_w_g_s1b_j) * _get_rho_n_phi(phi_ns=phis)
-
-    def _get_rho_w_g_s2f_j_phis(self, phis: Union[float, np.ndarray]) -> Union[float, np.ndarray]:
-        """入射角Φに対する境界jの窓のガラス部分の室外側から2枚目の板ガラスの反射率（正面側）を計算する。
-        Args:
-            phis: 入射角Φ, rad
-        Returns:
-            入射角Φに対する境界jの窓のガラス部分の室外側から2枚目の板ガラスの反射率（正面側）, -
-        Notes:
-            この値は複層ガラスのみ計算される。
-            eq.18
-        """
-        return self._rho_w_g_s2f_j + (1 - self._rho_w_g_s2f_j) * _get_rho_n_phi(phi_ns=phis)
 
     @property
     def u_w_f_j(self):
