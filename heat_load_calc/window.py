@@ -2,6 +2,7 @@ from enum import Enum, auto
 from typing import Optional, Tuple, Union
 from math import sin, cos, pi
 import numpy as np
+from abc import ABC, abstractclassmethod
 
 
 class FlameType(Enum):
@@ -63,6 +64,233 @@ class GlassType(Enum):
     MULTIPLE = 'multiple'
 
 
+class Glazing(ABC):
+
+    @classmethod
+    def create(cls, t_glz_j: GlassType, u_w_g_j: float, u_w_g_s_j: float, eta_w_g_j: float, r_w_o_w: float, r_w_i_w: float, r_w_o_s: float, r_w_i_s: float):
+        """create class
+
+        Args:
+            t_glz_j: GlassType
+            u_w_g_j: u value of glazing(normal, at winter condition), W/m2K
+            u_w_g_s_j: uvalue of glazing(at summer condition), W/m2K
+            eta_w_g_j: eta value of glazing
+            r_w_o_w: outside thermal resistance of window surface at winter condition, m2K/W
+            r_w_i_w: inside thermal resistance of window surface at winter condition, m2K/W
+            r_w_o_s: outside thermal resistance of window surface at summer condition, m2K/W
+            r_w_i_s: inside thermal resistance of window surface at summer condition, m2K/W
+        """
+
+        match t_glz_j:
+
+            case GlassType.SINGLE:
+
+                return SingleGlazing(u_w_g_j=u_w_g_j, u_w_g_s_j=u_w_g_s_j, eta_w_g_j=eta_w_g_j, r_w_o_w=r_w_o_w, r_w_i_w=r_w_i_w, r_w_o_s=r_w_o_s, r_w_i_s=r_w_i_s)
+
+            case GlassType.MULTIPLE:
+
+                # When glass type is multiple, double glazing is assumed as multiple in this calculation.
+                return DoubleGlazing(u_w_g_j=u_w_g_j, u_w_g_s_j=u_w_g_s_j, eta_w_g_j=eta_w_g_j, r_w_o_w=r_w_o_w, r_w_i_w=r_w_i_w, r_w_o_s=r_w_o_s, r_w_i_s=r_w_i_s)
+
+
+class SingleGlazing(Glazing):
+
+    def __init__(self, u_w_g_j: float, u_w_g_s_j: float, eta_w_g_j: float, r_w_o_w: float, r_w_i_w: float, r_w_o_s: float, r_w_i_s: float):
+
+        # ratio of inside heat flow to absorbed heat of glazing
+        r_r_w_g_j = self._get_r_r_w_g_j(u_w_g_j=u_w_g_j, u_w_g_s_j=u_w_g_s_j, r_w_o_w=r_w_o_w, r_w_i_w=r_w_i_w, r_w_o_s=r_w_o_s)
+
+        # reflectance of the first plate glass (front side) from the exterior side
+        rho_w_g_s1f_j = _get_rho_w_g_s1f_j(r_r_w_g_j=r_r_w_g_j, eta_w_g_j=eta_w_g_j)
+
+        # reflectance of the second plate glass (front side) from the exterior side
+        # NOT DEFINED
+        rho_w_g_s2f_j = None
+
+        # solar transmittance
+        tau_w_g_j = self._get_tau_w_g_j(eta_w_g_j=eta_w_g_j, r_r_w_g_j=r_r_w_g_j, rho_w_g_s1f_j=rho_w_g_s1f_j)
+
+        # solar transmittance of the first plate glass from the exterior side
+        tau_w_g_s1_j = self._get_tau_w_g_s1_j(tau_w_g_j=tau_w_g_j)
+
+        # solar transmittance of the second plate glass from the exterior side
+        # NOT DEFINED
+        tau_w_g_s2_j = None
+
+        # reflectance (back side) of the first sheet of plate glass on the exterior side
+        # NOT DEFINED
+        rho_w_g_s1b_j = None
+
+        # ratio of inside heat flow to absorbed heat of glazing
+        self._r_r_w_g_j = r_r_w_g_j
+
+        # reflectance of the first plate glass (front side) from the exterior side
+        self._rho_w_g_s1f_j = rho_w_g_s1f_j
+
+        # reflectance of the second plate glass (front side) from the exterior side
+        self._rho_w_g_s2f_j = rho_w_g_s2f_j
+
+        # solar transmittance
+        self._tau_w_g_j = tau_w_g_j
+
+        # solar transmittance of the first plate glass from the exterior side
+        self._tau_w_g_s1_j = tau_w_g_s1_j
+
+        # solar transmittance of the second plate glass from the exterior side
+        self._tau_w_g_s2_j = tau_w_g_s2_j
+
+        # reflectance (back side) of the first sheet of plate glass on the exterior side
+        self._rho_w_g_s1b_j = rho_w_g_s1b_j
+
+    @staticmethod
+    def _get_r_r_w_g_j(u_w_g_j: float, u_w_g_s_j: float, r_w_o_w: float, r_w_i_w: float, r_w_o_s: float) -> float:
+        """境界jの窓のガラス部分の日射吸収量に対する室内側に放出される量の割合を計算する。
+        Args:
+            u_w_g_j: 境界jの窓のガラス部分の熱損失係数（U値）, W/m2K
+            u_w_g_s_j: 境界jの窓のガラス部分の熱損失係数（夏期条件）, W/m2K
+            r_w_o_w: 窓の室外側表面熱伝達抵抗（冬期条件）, m2K/W
+            r_w_i_w: 窓の室内側表面熱伝達抵抗（冬期条件）, m2K/W
+            r_w_o_s: 窓の室外側表面熱伝達抵抗（夏期条件）, m2K/W
+        Returns:
+            境界jの窓のガラス部分の日射吸収量に対する室内側に放出される量の割合, -
+        Notes:
+            eq.28
+        """
+
+        return (1 / 2 * (1 / u_w_g_j - r_w_o_w - r_w_i_w) + r_w_o_s) * u_w_g_s_j
+
+    @staticmethod
+    def _get_tau_w_g_j(eta_w_g_j: float, r_r_w_g_j: float, rho_w_g_s1f_j: float) -> float:
+        """窓のガラス部分の日射透過率を計算する。
+        Args:
+            eta_w_g_j: 境界jの窓のガラス部分の日射熱取得率, -
+            r_r_w_g_j: 境界jの窓のガラス部分の日射吸収量に対する室内側に放出される量の割合, -
+            rho_w_g_s1f_j: 境界jの窓のガラス部分の室外側から1枚目の板ガラスの反射率（正面側）, -
+        Returns:
+            境界jの窓のガラス部分の日射透過率, -
+        Notes:
+            eq.24
+            単層ガラス用
+        """
+
+        return (eta_w_g_j - (1 - rho_w_g_s1f_j) * r_r_w_g_j) / (1 - r_r_w_g_j)
+
+    @staticmethod
+    def _get_tau_w_g_s1_j(tau_w_g_j: float) -> float:
+        """境界jの窓のガラス部分の室外側から1枚目の板ガラスの透過率を計算する。
+
+        Args:
+            tau_w_g_j: 境界jの窓のガラス部分の日射透過率, -
+
+        Returns:
+            境界jの窓のガラス部分の室外側から1枚目の板ガラスの透過率, -
+        Notes:
+            eq.23
+            単層用
+        """
+
+        return tau_w_g_j
+
+
+class DoubleGlazing(Glazing):
+
+    def __init__(self, u_w_g_j: float, u_w_g_s_j: float, eta_w_g_j: float, r_w_o_w: float, r_w_i_w: float, r_w_o_s: float, r_w_i_s: float):
+
+        # ratio of inside heat flow to absorbed heat of glazing
+        r_r_w_g_j = self._get_r_r_w_g_j(u_w_g_j=u_w_g_j, u_w_g_s_j=u_w_g_s_j, r_w_o_w=r_w_o_w, r_w_i_w=r_w_i_w, r_w_o_s=r_w_o_s)
+
+        # reflectance of the first plate glass (front side) from the exterior side
+        rho_w_g_s1f_j = _get_rho_w_g_s1f_j(r_r_w_g_j=r_r_w_g_j, eta_w_g_j=eta_w_g_j)
+
+        # reflectance of the second plate glass (front side) from the exterior side
+        rho_w_g_s2f_j = _get_rho_w_g_s2f_j()
+
+        # solar transmittance
+        tau_w_g_j = self._get_tau_w_g_j(eta_w_g_j=eta_w_g_j, r_r_w_g_j=r_r_w_g_j, rho_w_g_s1f_j=rho_w_g_s1f_j, rho_w_g_s2f_j=rho_w_g_s2f_j)
+
+        # solar transmittance of the first plate glass from the exterior side
+        tau_w_g_s1_j = self._get_tau_w_g_s1_j(tau_w_g_j=tau_w_g_j, rho_w_g_s2f_j=rho_w_g_s2f_j)
+
+        # solar transmittance of the second plate glass from the exterior side
+        tau_w_g_s2_j = _get_tau_w_g_s2_j(tau_w_g_s1_j=tau_w_g_s1_j)
+
+        # reflectance (back side) of the first sheet of plate glass on the exterior side
+        rho_w_g_s1b_j = _get_rho_w_g_s1b_j(tau_w_g_s1_j=tau_w_g_s1_j)
+
+        # ratio of inside heat flow to absorbed heat of glazing
+        self._r_r_w_g_j = r_r_w_g_j
+
+        # reflectance of the first plate glass (front side) from the exterior side
+        self._rho_w_g_s1f_j = rho_w_g_s1f_j
+
+        # reflectance of the second plate glass (front side) from the exterior side
+        self._rho_w_g_s2f_j = rho_w_g_s2f_j
+
+        # solar transmittance
+        self._tau_w_g_j = tau_w_g_j
+
+        # solar transmittance of the first plate glass from the exterior side
+        self._tau_w_g_s1_j = tau_w_g_s1_j
+
+        # solar transmittance of the second plate glass from the exterior side
+        self._tau_w_g_s2_j = tau_w_g_s2_j
+
+        # reflectance (back side) of the first sheet of plate glass on the exterior side
+        self._rho_w_g_s1b_j = rho_w_g_s1b_j
+
+    @staticmethod
+    def _get_r_r_w_g_j(u_w_g_j: float, u_w_g_s_j: float, r_w_o_w: float, r_w_i_w: float, r_w_o_s: float) -> float:
+        """境界jの窓のガラス部分の日射吸収量に対する室内側に放出される量の割合を計算する。
+        Args:
+            u_w_g_j: 境界jの窓のガラス部分の熱損失係数（U値）, W/m2K
+            u_w_g_s_j: 境界jの窓のガラス部分の熱損失係数（夏期条件）, W/m2K
+            r_w_o_w: 窓の室外側表面熱伝達抵抗（冬期条件）, m2K/W
+            r_w_i_w: 窓の室内側表面熱伝達抵抗（冬期条件）, m2K/W
+            r_w_o_s: 窓の室外側表面熱伝達抵抗（夏期条件）, m2K/W
+        Returns:
+            境界jの窓のガラス部分の日射吸収量に対する室内側に放出される量の割合, -
+        Notes:
+            eq.28
+        """
+
+        # 複層ガラスにおける窓の中空層の熱伝達抵抗, m2K/W
+        r_w_air = 0.003
+        return (1 / 4 * (1 / u_w_g_j - r_w_o_w - r_w_i_w - r_w_air) + r_w_o_s) * u_w_g_s_j
+
+    @staticmethod
+    def _get_tau_w_g_j(eta_w_g_j: float, r_r_w_g_j: float, rho_w_g_s1f_j: float, rho_w_g_s2f_j: float) -> float:
+        """窓のガラス部分の日射透過率を計算する。
+        Args:
+            eta_w_g_j: 境界jの窓のガラス部分の日射熱取得率, -
+            r_r_w_g_j: 境界jの窓のガラス部分の日射吸収量に対する室内側に放出される量の割合, -
+            rho_w_g_s1f_j: 境界jの窓のガラス部分の室外側から1枚目の板ガラスの反射率（正面側）, -
+            rho_w_g_s2f_j: 境界jの窓のガラス部分の室外側から2枚目の板ガラスの反射率（正面側）, -
+        Returns:
+            境界jの窓のガラス部分の日射透過率, -
+        Notes:
+            eq.24
+            複層ガラス用
+        """
+
+        return (eta_w_g_j - (1 - rho_w_g_s1f_j) * r_r_w_g_j) / ((1 - r_r_w_g_j) - rho_w_g_s2f_j * r_r_w_g_j)
+
+    @staticmethod
+    def _get_tau_w_g_s1_j(tau_w_g_j: float, rho_w_g_s2f_j: float) -> float:
+        """境界jの窓のガラス部分の室外側から1枚目の板ガラスの透過率を計算する。
+        Args:
+            tau_w_g_j: 境界jの窓のガラス部分の日射透過率, -
+            rho_w_g_s2f_j: 境界jの窓のガラス部分の室外側から2枚目の板ガラスの反射率（正面側）, -
+
+        Returns:
+            境界jの窓のガラス部分の室外側から1枚目の板ガラスの透過率, -
+
+        Notes:
+            eq.23
+        """
+
+        return (0.379 * rho_w_g_s2f_j * tau_w_g_j + ((0.379 * rho_w_g_s2f_j * tau_w_g_j) ** 2 - 4 * (0.379 * rho_w_g_s2f_j - 1) * tau_w_g_j) ** 0.5) / 2
+
+
 class Window:
     """窓を表すクラス
     """
@@ -85,32 +313,47 @@ class Window:
             t_flame: _description_. Defaults to FlameType.MIXED.
         """
 
+        # u value of flame, W/m2K
         u_w_f_j = t_flame.get_u_w_f_j()
+
+        # ratio of glazing area to window area
         r_a_w_g_j = _get_r_a_w_g_j(r_a_w_g_j=r_a_w_g_j, flame_type=t_flame)
+
+        # u value of glazing(normal, at winter condition), W/m2K
         u_w_g_j = _get_u_w_g_j(u_w_j=u_w_std_j, u_w_f_j=u_w_f_j, r_a_w_g_j=r_a_w_g_j)
+
+        # eta value of glazing
         eta_w_g_j = _get_eta_w_g_j(eta_w_j=eta_w_std_j, r_a_w_g_j=r_a_w_g_j)
+
+        # thermal resistance of surface, m2K/W
         r_w_o_w, r_w_i_w, r_w_o_s, r_w_i_s = _get_r_w()
+
+        # u value of glazing(at summer condition), W/m2K
         u_w_g_s_j = _get_u_w_g_s_j(u_w_g_j=u_w_g_j, r_w_o_w=r_w_o_w, r_w_i_w=r_w_i_w, r_w_o_s=r_w_o_s, r_w_i_s=r_w_i_s)
-        r_r_w_g_j = _get_r_r_w_g_j(
-            u_w_g_j=u_w_g_j,
-            u_w_g_s_j=u_w_g_s_j,
-            r_w_o_w=r_w_o_w,
-            r_w_i_w=r_w_i_w,
-            r_w_o_s=r_w_o_s,
-            glass_type=t_glz_j
-        )
-        rho_w_g_s1f_j = _get_rho_w_g_s1f_j(r_r_w_g_j=r_r_w_g_j, eta_w_g_j=eta_w_g_j)
-        rho_w_g_s2f_j = _get_rho_w_g_s2f_j(glass_type=t_glz_j)
-        tau_w_g_j = _get_tau_w_g_j(
-            eta_w_g_j=eta_w_g_j,
-            r_r_w_g_j=r_r_w_g_j,
-            rho_w_g_s1f_j=rho_w_g_s1f_j,
-            rho_w_g_s2f_j=rho_w_g_s2f_j,
-            glass_type=t_glz_j
-        )
-        tau_w_g_s1_j = _get_tau_w_g_s1_j(tau_w_g_j=tau_w_g_j, rho_w_g_s2f_j=rho_w_g_s2f_j, glass_type=t_glz_j)
-        tau_w_g_s2_j = _get_tau_w_g_s2_j(tau_w_g_s1_j=tau_w_g_s1_j, glass_type=t_glz_j)
-        rho_w_g_s1b_j = _get_rho_w_g_s1b_j(tau_w_g_s1_j=tau_w_g_s1_j, glass_type=t_glz_j)
+
+        glazing = Glazing.create(t_glz_j=t_glz_j, u_w_g_j=u_w_g_j, u_w_g_s_j=u_w_g_s_j, eta_w_g_j=eta_w_g_j, r_w_o_w=r_w_o_w, r_w_i_w=r_w_i_w, r_w_o_s=r_w_o_s, r_w_i_s=r_w_i_s)
+
+        # ratio of inside heat flow to absorbed heat of glazing
+        r_r_w_g_j = glazing._r_r_w_g_j
+
+        # reflectance of the first plate glass (front side) from the exterior side
+        rho_w_g_s1f_j = glazing._rho_w_g_s1f_j
+
+        # reflectance of the second plate glass (front side) from the exterior side
+        rho_w_g_s2f_j = glazing._rho_w_g_s2f_j
+
+        # solar transmittance
+        tau_w_g_j = glazing._tau_w_g_j
+
+        # solar transmittance of the first plate glass from the exterior side
+        tau_w_g_s1_j = glazing._tau_w_g_s1_j
+
+        # solar transmittance of the second plate glass from the exterior side
+        tau_w_g_s2_j = glazing._tau_w_g_s2_j
+
+        #rho_w_g_s1b_j = _get_rho_w_g_s1b_j(tau_w_g_s1_j=tau_w_g_s1_j, glass_type=t_glz_j)
+        # reflectance (back side) of the first sheet of plate glass on the exterior side
+        rho_w_g_s1b_j = glazing._rho_w_g_s1b_j
 
         self._glass_type = t_glz_j
         self._u_w_f_j = u_w_f_j
@@ -130,6 +373,8 @@ class Window:
 
         self._tau_w_c_j = tau_w_c_j
         self._b_w_c_j = b_w_c_j
+
+        self._glazing = glazing
 
 
     def get_tau_w_d_j_ns(self, phi_j_ns: Union[float, np.ndarray]) -> Union[float, np.ndarray]:
@@ -397,7 +642,7 @@ class Window:
         return self._tau_w_g_j
 
 
-def _get_tau_n_phi(phi: Union[float, np.ndarray]) -> Union[float, np.ndarray]:
+def _get_tau_n_phi[T: float | np.ndarray](phi: T) -> T:
     """規準化透過率を計算する。
     Args:
         phi: 入射角Φ, rad
@@ -410,7 +655,7 @@ def _get_tau_n_phi(phi: Union[float, np.ndarray]) -> Union[float, np.ndarray]:
         + 13.617 * np.power(np.cos(phi), 4) - 5.146 * np.power(np.cos(phi), 5)
 
 
-def _get_rho_n_phi(phi_ns: Union[float, np.ndarray]) -> Union[float, np.ndarray]:
+def _get_rho_n_phi[T: float | np.ndarray](phi_ns: T) -> T:
     """規準化反射率を計算する。
     Args:
         phi: 入射角Φ, rad
@@ -423,111 +668,50 @@ def _get_rho_n_phi(phi_ns: Union[float, np.ndarray]) -> Union[float, np.ndarray]
            + 11.851 * np.power(np.cos(phi_ns), 4) - 3.461 * np.power(np.cos(phi_ns), 5)
 
 
-def _get_rho_w_g_s1b_j(tau_w_g_s1_j: Optional[float], glass_type: GlassType) -> Optional[float]:
+def _get_rho_w_g_s1b_j(tau_w_g_s1_j: float) -> float:
     """境界jの窓のガラス部分の室外側から1枚目の板ガラスの反射率（背面側）を計算する。
 
     Args:
         tau_w_g_s1_j: 境界jの窓のガラス部分の室外側から1枚目の板ガラスの透過率, -
-        glass_type: 境界jの窓のガラス構成
+        
     Returns:
         境界jの窓のガラス部分の室外側から1枚目の板ガラスの反射率（背面側）, -
     Notes:
         複層ガラスの場合のみ定義される。
         eq.21
     """
-    if glass_type == GlassType.SINGLE:
-        return None
-    elif glass_type == GlassType.MULTIPLE:
-        return 0.379 * (1 - tau_w_g_s1_j)
-    else:
-        raise ValueError()
+
+    return 0.379 * (1 - tau_w_g_s1_j)
 
 
-def _get_tau_w_g_s2_j(tau_w_g_s1_j: Optional[float], glass_type: GlassType) -> Optional[float]:
+def _get_tau_w_g_s2_j(tau_w_g_s1_j: float) -> float:
     """境界jの窓のガラス部分の室外側から2枚目の板ガラスの透過率を計算する。
 
     Args:
         tau_w_g_s1_j: 境界jの窓のガラス部分の室外側から1枚目の板ガラスの透過率, -
-        glass_type: 境界jの窓のガラス構成
+
     Returns:
         境界jの窓のガラス部分の室外側から2枚目の板ガラスの透過率, -
     Notes:
         複層ガラスの場合のみ定義される。
         eq.22
     """
-    if glass_type == GlassType.SINGLE:
-        return None
-    elif glass_type == GlassType.MULTIPLE:
-        return tau_w_g_s1_j
-    else:
-        raise ValueError()
+    
+    return tau_w_g_s1_j
 
 
-def _get_tau_w_g_s1_j(tau_w_g_j: float, rho_w_g_s2f_j: Optional[float], glass_type: GlassType) -> float:
-    """境界jの窓のガラス部分の室外側から1枚目の板ガラスの透過率を計算する。
-    Args:
-        tau_w_g_j: 境界jの窓のガラス部分の日射透過率, -
-        rho_w_g_s2f_j: 境界jの窓のガラス部分の室外側から2枚目の板ガラスの反射率（正面側）, -
-        glass_type: 境界jの窓のガラス構成
-    Returns:
-        境界jの窓のガラス部分の室外側から1枚目の板ガラスの透過率, -
-    Notes:
-        eq.23
-    """
-
-    if glass_type == GlassType.SINGLE:
-        return tau_w_g_j
-    elif glass_type == GlassType.MULTIPLE:
-        return (0.379 * rho_w_g_s2f_j * tau_w_g_j + ((0.379 * rho_w_g_s2f_j * tau_w_g_j) ** 2 - 4 * (
-                    0.379 * rho_w_g_s2f_j - 1) * tau_w_g_j) ** 0.5) / 2
-    else:
-        raise ValueError()
-
-
-def _get_tau_w_g_j(
-        eta_w_g_j: float,
-        r_r_w_g_j: float,
-        rho_w_g_s1f_j: float,
-        rho_w_g_s2f_j: Optional[float],
-        glass_type: GlassType
-) -> float:
-    """窓のガラス部分の日射透過率を計算する。
-    Args:
-        eta_w_g_j: 境界jの窓のガラス部分の日射熱取得率, -
-        r_r_w_g_j: 境界jの窓のガラス部分の日射吸収量に対する室内側に放出される量の割合, -
-        rho_w_g_s1f_j: 境界jの窓のガラス部分の室外側から1枚目の板ガラスの反射率（正面側）, -
-        rho_w_g_s2f_j: 境界jの窓のガラス部分の室外側から2枚目の板ガラスの反射率（正面側）, -
-        glass_type: 境界jの窓のガラス構成
-    Returns:
-        境界jの窓のガラス部分の日射透過率, -
-    Notes:
-        eq.24
-    """
-
-    if glass_type == GlassType.SINGLE:
-        return (eta_w_g_j - (1 - rho_w_g_s1f_j) * r_r_w_g_j) / (1 - r_r_w_g_j)
-    elif glass_type == GlassType.MULTIPLE:
-        return (eta_w_g_j - (1 - rho_w_g_s1f_j) * r_r_w_g_j) / ((1 - r_r_w_g_j) - rho_w_g_s2f_j * r_r_w_g_j)
-    else:
-        raise ValueError()
-
-
-def _get_rho_w_g_s2f_j(glass_type: GlassType) -> Optional[float]:
+def _get_rho_w_g_s2f_j() -> float:
     """境界jの窓のガラス部分の室外側から2枚目の板ガラスの反射率（正面側）を計算する。
-    Args:
-        glass_type: 境界 j の窓のガラス構成
+
     Returns:
         境界jの窓のガラス部分の室外側から2枚目の板ガラスの反射率（正面側）
+
     Notes:
         複層ガラスの場合のみ定義される。
         eq.25
     """
-    if glass_type == GlassType.SINGLE:
-        return None
-    elif glass_type == GlassType.MULTIPLE:
-        return 0.077
-    else:
-        raise ValueError()
+ 
+    return 0.077
 
 
 def _get_rho_w_g_s1f_j(r_r_w_g_j: float, eta_w_g_j: float) -> float:
@@ -544,38 +728,6 @@ def _get_rho_w_g_s1f_j(r_r_w_g_j: float, eta_w_g_j: float) -> float:
     t_j = (-1.846 * r_r_w_g_j + ((1.846 * r_r_w_g_j) ** 2 + 4 * (1 - 1.846 * r_r_w_g_j) * eta_w_g_j) ** 0.5) / (
                 2 * (1 - 1.846 * r_r_w_g_j))
     return 0.923 * (t_j ** 2) - 1.846 * t_j + 1
-
-
-def _get_r_r_w_g_j(
-        u_w_g_j: float,
-        u_w_g_s_j: float,
-        r_w_o_w: float,
-        r_w_i_w: float,
-        r_w_o_s: float,
-        glass_type: GlassType
-) -> float:
-    """境界jの窓のガラス部分の日射吸収量に対する室内側に放出される量の割合を計算する。
-    Args:
-        u_w_g_j: 境界jの窓のガラス部分の熱損失係数（U値）, W/m2K
-        u_w_g_s_j: 境界jの窓のガラス部分の熱損失係数（夏期条件）, W/m2K
-        r_w_o_w: 窓の室外側表面熱伝達抵抗（冬期条件）, m2K/W
-        r_w_i_w: 窓の室内側表面熱伝達抵抗（冬期条件）, m2K/W
-        r_w_o_s: 窓の室外側表面熱伝達抵抗（夏期条件）, m2K/W
-        glass_type: 境界 j の窓のガラス構成
-    Returns:
-        境界jの窓のガラス部分の日射吸収量に対する室内側に放出される量の割合, -
-    Notes:
-        eq.28
-    """
-
-    if glass_type == GlassType.SINGLE:
-        return (1 / 2 * (1 / u_w_g_j - r_w_o_w - r_w_i_w) + r_w_o_s) * u_w_g_s_j
-    elif glass_type == GlassType.MULTIPLE:
-        # 複層ガラスにおける窓の中空層の熱伝達抵抗, m2K/W
-        r_w_air = 0.003
-        return (1 / 4 * (1 / u_w_g_j - r_w_o_w - r_w_i_w - r_w_air) + r_w_o_s) * u_w_g_s_j
-    else:
-        raise ValueError()
 
 
 def _get_u_w_g_s_j(u_w_g_j: float, r_w_o_w: float, r_w_i_w: float, r_w_o_s: float, r_w_i_s: float) -> float:
