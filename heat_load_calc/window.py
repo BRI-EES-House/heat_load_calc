@@ -104,23 +104,11 @@ class SingleGlazing(Glazing):
         # reflectance of the first plate glass (front side) from the exterior side
         rho_w_g_s1f_j = _get_rho_w_g_s1f_j(r_r_w_g_j=r_r_w_g_j, eta_w_g_j=eta_w_g_j)
 
-        # reflectance of the second plate glass (front side) from the exterior side
-        # NOT DEFINED
-        rho_w_g_s2f_j = None
-
         # solar transmittance
         tau_w_g_j = self._get_tau_w_g_j(eta_w_g_j=eta_w_g_j, r_r_w_g_j=r_r_w_g_j, rho_w_g_s1f_j=rho_w_g_s1f_j)
 
         # solar transmittance of the first plate glass from the exterior side
         tau_w_g_s1_j = self._get_tau_w_g_s1_j(tau_w_g_j=tau_w_g_j)
-
-        # solar transmittance of the second plate glass from the exterior side
-        # NOT DEFINED
-        tau_w_g_s2_j = None
-
-        # reflectance (back side) of the first sheet of plate glass on the exterior side
-        # NOT DEFINED
-        rho_w_g_s1b_j = None
 
         # u value of glazing(at summer condition), W/m2K
         self._u_w_g_s_j = u_w_g_s_j
@@ -131,20 +119,11 @@ class SingleGlazing(Glazing):
         # reflectance of the first plate glass (front side) from the exterior side
         self._rho_w_g_s1f_j = rho_w_g_s1f_j
 
-        # reflectance of the second plate glass (front side) from the exterior side
-        self._rho_w_g_s2f_j = rho_w_g_s2f_j
-
         # solar transmittance
         self._tau_w_g_j = tau_w_g_j
 
         # solar transmittance of the first plate glass from the exterior side
         self._tau_w_g_s1_j = tau_w_g_s1_j
-
-        # solar transmittance of the second plate glass from the exterior side
-        self._tau_w_g_s2_j = tau_w_g_s2_j
-
-        # reflectance (back side) of the first sheet of plate glass on the exterior side
-        self._rho_w_g_s1b_j = rho_w_g_s1b_j
 
     def _get_b_w_g_j_phis[T: float | np.ndarray](self, phis: T) -> T:
         """入射角Φに対する境界jの窓のガラス部分の吸収日射熱取得率を取得する。
