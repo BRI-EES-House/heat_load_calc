@@ -47,22 +47,22 @@ class TestWindow(unittest.TestCase):
 
     def test_r_r_w_g_j(self):
         # ((1 / 2) * (1 / 3.3111111 - 0.0415 - 0.1228) + 0.0756) * 2.89843795
-        self.assertAlmostEqual(Window(u_w_std_j=3.0, eta_w_std_j=0.5, t_glz_j=GlassType.SINGLE, r_a_w_g_j=0.72, t_flame=FlameType.RESIN)._r_r_w_g_j, 0.4186988)
+        self.assertAlmostEqual(Window(u_w_std_j=3.0, eta_w_std_j=0.5, t_glz_j=GlassType.SINGLE, r_a_w_g_j=0.72, t_flame=FlameType.RESIN)._glazing._r_r_w_g_j, 0.4186988)
         # ((1 / 4) * (1 / 3.3111111 - 0.0415 - 0.1228 - 0.003) + 0.0756) * 2.89843795
-        self.assertAlmostEqual(Window(u_w_std_j=3.0, eta_w_std_j=0.5, t_glz_j=GlassType.MULTIPLE, r_a_w_g_j=0.72, t_flame=FlameType.RESIN)._r_r_w_g_j, 0.3167365)
+        self.assertAlmostEqual(Window(u_w_std_j=3.0, eta_w_std_j=0.5, t_glz_j=GlassType.MULTIPLE, r_a_w_g_j=0.72, t_flame=FlameType.RESIN)._glazing._r_r_w_g_j, 0.3167365)
 
     def test_rho_w_g_s1f_j(self):
         # t_j = (-1.846 * 0.4186988 + ((1.846 * 0.4186988)**2 + 4 * (1 - 1.846 * 0.4186988) * 0.6944444)**0.5) / (2 * (1 - 1.846 * 0.4186988))
         # 0.923 * (t_j ** 2) - 1.846 * t_j + 1
-        self.assertAlmostEqual(Window(u_w_std_j=3.0, eta_w_std_j=0.5, t_glz_j=GlassType.SINGLE, r_a_w_g_j=0.72, t_flame=FlameType.RESIN)._rho_w_g_s1f_j, 0.1402048)
+        self.assertAlmostEqual(Window(u_w_std_j=3.0, eta_w_std_j=0.5, t_glz_j=GlassType.SINGLE, r_a_w_g_j=0.72, t_flame=FlameType.RESIN)._glazing._rho_w_g_s1f_j, 0.1402048)
 
         # t_j = (-1.846 * 0.3167365 + ((1.846 * 0.3167365)**2 + 4 * (1 - 1.846 * 0.3167365) * 0.6944444)**0.5) / (2 * (1 - 1.846 * 0.3167365))
         # 0.923 * (t_j ** 2) - 1.846 * t_j + 1
-        self.assertAlmostEqual(Window(u_w_std_j=3.0, eta_w_std_j=0.5, t_glz_j=GlassType.MULTIPLE, r_a_w_g_j=0.72, t_flame=FlameType.RESIN)._rho_w_g_s1f_j, 0.12652496)
+        self.assertAlmostEqual(Window(u_w_std_j=3.0, eta_w_std_j=0.5, t_glz_j=GlassType.MULTIPLE, r_a_w_g_j=0.72, t_flame=FlameType.RESIN)._glazing._rho_w_g_s1f_j, 0.12652496)
 
     def test_rho_w_g_s2f_j(self):
-        self.assertEqual(Window(u_w_std_j=3.0, eta_w_std_j=0.5, t_glz_j=GlassType.SINGLE, r_a_w_g_j=0.72, t_flame=FlameType.RESIN)._rho_w_g_s2f_j, None)
-        self.assertEqual(Window(u_w_std_j=3.0, eta_w_std_j=0.5, t_glz_j=GlassType.MULTIPLE, r_a_w_g_j=0.72, t_flame=FlameType.RESIN)._rho_w_g_s2f_j, 0.077)
+        self.assertEqual(Window(u_w_std_j=3.0, eta_w_std_j=0.5, t_glz_j=GlassType.SINGLE, r_a_w_g_j=0.72, t_flame=FlameType.RESIN)._glazing._rho_w_g_s2f_j, None)
+        self.assertEqual(Window(u_w_std_j=3.0, eta_w_std_j=0.5, t_glz_j=GlassType.MULTIPLE, r_a_w_g_j=0.72, t_flame=FlameType.RESIN)._glazing._rho_w_g_s2f_j, 0.077)
 
     def test_tau_w_g_j(self):
         # (0.6944444 - (1 - 0.1402048) * 0.4186988) / (1 - 0.4186988)
@@ -72,21 +72,21 @@ class TestWindow(unittest.TestCase):
 
     def test_tau_w_g_s1_j(self):
         # 0.57534585
-        self.assertAlmostEqual(Window(u_w_std_j=3.0, eta_w_std_j=0.5, t_glz_j=GlassType.SINGLE, r_a_w_g_j=0.72, t_flame=FlameType.RESIN)._tau_w_g_s1_j, 0.57534585)
+        self.assertAlmostEqual(Window(u_w_std_j=3.0, eta_w_std_j=0.5, t_glz_j=GlassType.SINGLE, r_a_w_g_j=0.72, t_flame=FlameType.RESIN)._glazing._tau_w_g_s1_j, 0.57534585)
         # (0.379 * 0.077 * 0.63408559 + ((0.379 * 0.077 * 0.63408559)**2 - 4 * (0.379 * 0.077 - 1) * 0.63408559)**0.5) / 2
-        self.assertAlmostEqual(Window(u_w_std_j=3.0, eta_w_std_j=0.5, t_glz_j=GlassType.MULTIPLE, r_a_w_g_j=0.72, t_flame=FlameType.RESIN)._tau_w_g_s1_j, 0.79389655)
+        self.assertAlmostEqual(Window(u_w_std_j=3.0, eta_w_std_j=0.5, t_glz_j=GlassType.MULTIPLE, r_a_w_g_j=0.72, t_flame=FlameType.RESIN)._glazing._tau_w_g_s1_j, 0.79389655)
 
     def test_tau_w_g_s2_j(self):
         # 定義なし
-        self.assertEqual(Window(u_w_std_j=3.0, eta_w_std_j=0.5, t_glz_j=GlassType.SINGLE, r_a_w_g_j=0.72, t_flame=FlameType.RESIN)._tau_w_g_s2_j, None)
+        self.assertEqual(Window(u_w_std_j=3.0, eta_w_std_j=0.5, t_glz_j=GlassType.SINGLE, r_a_w_g_j=0.72, t_flame=FlameType.RESIN)._glazing._tau_w_g_s2_j, None)
         # 0.79389655
-        self.assertAlmostEqual(Window(u_w_std_j=3.0, eta_w_std_j=0.5, t_glz_j=GlassType.MULTIPLE, r_a_w_g_j=0.72, t_flame=FlameType.RESIN)._tau_w_g_s2_j, 0.79389655)
+        self.assertAlmostEqual(Window(u_w_std_j=3.0, eta_w_std_j=0.5, t_glz_j=GlassType.MULTIPLE, r_a_w_g_j=0.72, t_flame=FlameType.RESIN)._glazing._tau_w_g_s2_j, 0.79389655)
 
     def test_rho_w_g_s1b_j(self):
         # 定義なし
-        self.assertEqual(Window(u_w_std_j=3.0, eta_w_std_j=0.5, t_glz_j=GlassType.SINGLE, r_a_w_g_j=0.72, t_flame=FlameType.RESIN)._rho_w_g_s1b_j, None)
+        self.assertEqual(Window(u_w_std_j=3.0, eta_w_std_j=0.5, t_glz_j=GlassType.SINGLE, r_a_w_g_j=0.72, t_flame=FlameType.RESIN)._glazing._rho_w_g_s1b_j, None)
         # 0.379 * (1 - 0.79389655)
-        self.assertAlmostEqual(Window(u_w_std_j=3.0, eta_w_std_j=0.5, t_glz_j=GlassType.MULTIPLE, r_a_w_g_j=0.72, t_flame=FlameType.RESIN)._rho_w_g_s1b_j, 0.07811320)
+        self.assertAlmostEqual(Window(u_w_std_j=3.0, eta_w_std_j=0.5, t_glz_j=GlassType.MULTIPLE, r_a_w_g_j=0.72, t_flame=FlameType.RESIN)._glazing._rho_w_g_s1b_j, 0.07811320)
 
     def test_get_rho_n_function(self):
         self.assertAlmostEqual(window._get_rho_n_phi(phi_ns=radians(0.0)), 0.0)
@@ -225,7 +225,7 @@ class TestWindow(unittest.TestCase):
 
         w_s = Window(u_w_std_j=3.0, eta_w_std_j=0.5, t_glz_j=GlassType.SINGLE, r_a_w_g_j=0.72, t_flame=FlameType.RESIN)
         # 0.41869881
-        self.assertAlmostEqual(w_s._r_r_w_g_j, 0.41869881)
+        self.assertAlmostEqual(w_s._glazing._r_r_w_g_j, 0.41869881)
         # (1 - 0.57477050 - 0.1402048) * 0.41869881
         self.assertAlmostEqual(w_s._glazing._get_b_w_g_j_phis(phis=radians(0.0)), 0.11933949)
         # (1 - 0.56908469 - 0.14271797) * 0.41869881
@@ -236,7 +236,7 @@ class TestWindow(unittest.TestCase):
         self.assertAlmostEqual(w_s._glazing._get_b_w_g_j_phis(phis=radians(90.0)), 0.0)
         w_m = Window(u_w_std_j=3.0, eta_w_std_j=0.5, t_glz_j=GlassType.MULTIPLE, r_a_w_g_j=0.72, t_flame=FlameType.RESIN)
         # 0.31673653
-        self.assertAlmostEqual(w_m._r_r_w_g_j, 0.31673653)
+        self.assertAlmostEqual(w_m._glazing._r_r_w_g_j, 0.31673653)
         # (1 - 0.63281805 - 0.17525195) * 0.31673653
         self.assertAlmostEqual(w_m._glazing._get_b_w_g_j_phis(phis=radians(0.0)), 0.06079124)
         # (1 - 0.62062557 - 0.17854063) * 0.31673653

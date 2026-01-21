@@ -530,40 +530,27 @@ class Window:
 
         glazing = Glazing.create(t_glz_j=t_glz_j, u_w_g_j=u_w_g_j, u_w_g_s_j=u_w_g_s_j, eta_w_g_j=eta_w_g_j, r_w_o_w=r_w_o_w, r_w_i_w=r_w_i_w, r_w_o_s=r_w_o_s, r_w_i_s=r_w_i_s)
 
-        # ratio of inside heat flow to absorbed heat of glazing
-        r_r_w_g_j = glazing._r_r_w_g_j
-
-        # reflectance of the first plate glass (front side) from the exterior side
-        rho_w_g_s1f_j = glazing._rho_w_g_s1f_j
-
-        # reflectance of the second plate glass (front side) from the exterior side
-        rho_w_g_s2f_j = glazing._rho_w_g_s2f_j
-
         # solar transmittance
         tau_w_g_j = glazing._tau_w_g_j
 
-        # solar transmittance of the first plate glass from the exterior side
-        tau_w_g_s1_j = glazing._tau_w_g_s1_j
-
-        # solar transmittance of the second plate glass from the exterior side
-        tau_w_g_s2_j = glazing._tau_w_g_s2_j
-
-        # reflectance (back side) of the first sheet of plate glass on the exterior side
-        rho_w_g_s1b_j = glazing._rho_w_g_s1b_j
-
-        self._glass_type = t_glz_j
+        # u value of flame, W/m2K
         self._u_w_f_j = u_w_f_j
+
+        # ratio of glazing area to window area
         self._r_a_w_g_j = r_a_w_g_j
+
+        # u value of glazing(normal, at winter condition), W/m2K
         self._u_w_g_j = u_w_g_j
+
+        # eta value of glazing
         self._eta_w_g_j = eta_w_g_j
+
+        # u value of glazing(at summer condition), W/m2K
         self._u_w_g_s_j = u_w_g_s_j
-        self._r_r_w_g_j = r_r_w_g_j
-        self._rho_w_g_s1f_j = rho_w_g_s1f_j
-        self._rho_w_g_s2f_j = rho_w_g_s2f_j
+
+        # solar transmittance of glazing
         self._tau_w_g_j = tau_w_g_j
-        self._tau_w_g_s1_j = tau_w_g_s1_j
-        self._tau_w_g_s2_j = tau_w_g_s2_j
-        self._rho_w_g_s1b_j = rho_w_g_s1b_j
+
         self._glazing = glazing
 
         tau_w_c_j, b_w_c_j = self._get_tau_b_w_c_j()
