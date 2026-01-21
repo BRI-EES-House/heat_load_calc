@@ -67,35 +67,36 @@ class GlassType(Enum):
 class Glazing(ABC):
 
     @classmethod
-    def create(cls, t_glz_j: GlassType, u_w_g_j: float, u_w_g_s_j: float, eta_w_g_j: float, r_w_o_w: float, r_w_i_w: float, r_w_o_s: float, r_w_i_s: float):
+    def create(cls, t_glz_j: GlassType, u_w_g_j: float, eta_w_g_j: float):
         """create class
 
         Args:
             t_glz_j: GlassType
             u_w_g_j: u value of glazing(normal, at winter condition), W/m2K
-            u_w_g_s_j: uvalue of glazing(at summer condition), W/m2K
             eta_w_g_j: eta value of glazing
-            r_w_o_w: outside thermal resistance of window surface at winter condition, m2K/W
-            r_w_i_w: inside thermal resistance of window surface at winter condition, m2K/W
-            r_w_o_s: outside thermal resistance of window surface at summer condition, m2K/W
-            r_w_i_s: inside thermal resistance of window surface at summer condition, m2K/W
         """
 
         match t_glz_j:
 
             case GlassType.SINGLE:
 
-                return SingleGlazing(u_w_g_j=u_w_g_j, u_w_g_s_j=u_w_g_s_j, eta_w_g_j=eta_w_g_j, r_w_o_w=r_w_o_w, r_w_i_w=r_w_i_w, r_w_o_s=r_w_o_s, r_w_i_s=r_w_i_s)
+                return SingleGlazing(u_w_g_j=u_w_g_j, eta_w_g_j=eta_w_g_j)
 
             case GlassType.MULTIPLE:
 
                 # When glass type is multiple, double glazing is assumed as multiple in this calculation.
-                return DoubleGlazing(u_w_g_j=u_w_g_j, u_w_g_s_j=u_w_g_s_j, eta_w_g_j=eta_w_g_j, r_w_o_w=r_w_o_w, r_w_i_w=r_w_i_w, r_w_o_s=r_w_o_s, r_w_i_s=r_w_i_s)
+                return DoubleGlazing(u_w_g_j=u_w_g_j, eta_w_g_j=eta_w_g_j)
 
 
 class SingleGlazing(Glazing):
 
-    def __init__(self, u_w_g_j: float, u_w_g_s_j: float, eta_w_g_j: float, r_w_o_w: float, r_w_i_w: float, r_w_o_s: float, r_w_i_s: float):
+    def __init__(self, u_w_g_j: float, eta_w_g_j: float):
+
+        # thermal resistance of surface, m2K/W
+        r_w_o_w, r_w_i_w, r_w_o_s, r_w_i_s = _get_r_w()
+
+        # u value of glazing(at summer condition), W/m2K
+        u_w_g_s_j = _get_u_w_g_s_j(u_w_g_j=u_w_g_j, r_w_o_w=r_w_o_w, r_w_i_w=r_w_i_w, r_w_o_s=r_w_o_s, r_w_i_s=r_w_i_s)
 
         # ratio of inside heat flow to absorbed heat of glazing
         r_r_w_g_j = self._get_r_r_w_g_j(u_w_g_j=u_w_g_j, u_w_g_s_j=u_w_g_s_j, r_w_o_w=r_w_o_w, r_w_i_w=r_w_i_w, r_w_o_s=r_w_o_s)
@@ -120,6 +121,9 @@ class SingleGlazing(Glazing):
         # reflectance (back side) of the first sheet of plate glass on the exterior side
         # NOT DEFINED
         rho_w_g_s1b_j = None
+
+        # u value of glazing(at summer condition), W/m2K
+        self._u_w_g_s_j = u_w_g_s_j
 
         # ratio of inside heat flow to absorbed heat of glazing
         self._r_r_w_g_j = r_r_w_g_j
@@ -270,7 +274,13 @@ class SingleGlazing(Glazing):
 
 class DoubleGlazing(Glazing):
 
-    def __init__(self, u_w_g_j: float, u_w_g_s_j: float, eta_w_g_j: float, r_w_o_w: float, r_w_i_w: float, r_w_o_s: float, r_w_i_s: float):
+    def __init__(self, u_w_g_j: float, eta_w_g_j: float):
+
+        # thermal resistance of surface, m2K/W
+        r_w_o_w, r_w_i_w, r_w_o_s, r_w_i_s = _get_r_w()
+
+        # u value of glazing(at summer condition), W/m2K
+        u_w_g_s_j = _get_u_w_g_s_j(u_w_g_j=u_w_g_j, r_w_o_w=r_w_o_w, r_w_i_w=r_w_i_w, r_w_o_s=r_w_o_s, r_w_i_s=r_w_i_s)
 
         # ratio of inside heat flow to absorbed heat of glazing
         r_r_w_g_j = self._get_r_r_w_g_j(u_w_g_j=u_w_g_j, u_w_g_s_j=u_w_g_s_j, r_w_o_w=r_w_o_w, r_w_i_w=r_w_i_w, r_w_o_s=r_w_o_s)
@@ -292,6 +302,9 @@ class DoubleGlazing(Glazing):
 
         # reflectance (back side) of the first sheet of plate glass on the exterior side
         rho_w_g_s1b_j = _get_rho_w_g_s1b_j(tau_w_g_s1_j=tau_w_g_s1_j)
+
+        # u value of glazing(at summer condition), W/m2K
+        self._u_w_g_s_j = u_w_g_s_j
 
         # ratio of inside heat flow to absorbed heat of glazing
         self._r_r_w_g_j = r_r_w_g_j
@@ -522,13 +535,7 @@ class Window:
         # eta value of glazing
         eta_w_g_j = _get_eta_w_g_j(eta_w_j=eta_w_std_j, r_a_w_g_j=r_a_w_g_j)
 
-        # thermal resistance of surface, m2K/W
-        r_w_o_w, r_w_i_w, r_w_o_s, r_w_i_s = _get_r_w()
-
-        # u value of glazing(at summer condition), W/m2K
-        u_w_g_s_j = _get_u_w_g_s_j(u_w_g_j=u_w_g_j, r_w_o_w=r_w_o_w, r_w_i_w=r_w_i_w, r_w_o_s=r_w_o_s, r_w_i_s=r_w_i_s)
-
-        glazing = Glazing.create(t_glz_j=t_glz_j, u_w_g_j=u_w_g_j, u_w_g_s_j=u_w_g_s_j, eta_w_g_j=eta_w_g_j, r_w_o_w=r_w_o_w, r_w_i_w=r_w_i_w, r_w_o_s=r_w_o_s, r_w_i_s=r_w_i_s)
+        glazing = Glazing.create(t_glz_j=t_glz_j, u_w_g_j=u_w_g_j, eta_w_g_j=eta_w_g_j)
 
         # solar transmittance
         tau_w_g_j = glazing._tau_w_g_j
@@ -545,9 +552,6 @@ class Window:
         # eta value of glazing
         self._eta_w_g_j = eta_w_g_j
 
-        # u value of glazing(at summer condition), W/m2K
-        self._u_w_g_s_j = u_w_g_s_j
-
         # solar transmittance of glazing
         self._tau_w_g_j = tau_w_g_j
 
@@ -558,7 +562,10 @@ class Window:
         self._tau_w_c_j = tau_w_c_j
         self._b_w_c_j = b_w_c_j
 
-
+    @property
+    def glazing(self):
+        """glazing of window"""
+        return self._glazing
 
     def get_tau_w_d_j_ns(self, phi_j_ns: Union[float, np.ndarray]) -> Union[float, np.ndarray]:
         """窓の直達日射に対する日射透過率を計算する。
@@ -635,8 +642,12 @@ class Window:
         M = 1000
         ms = np.arange(1, M + 1)
         phi_ms = np.pi / 2 * (ms - 1 / 2) / M
-        tau_w_c_j = np.pi / M * np.sum(self._get_tau_w_j_phis(phis=phi_ms) * np.sin(phi_ms) * np.cos(phi_ms))
-        b_w_c_j = np.pi / M * np.sum(self._get_b_w_j_phis(phis=phi_ms) * np.sin(phi_ms) * np.cos(phi_ms))
+        # tau_w_c_j = np.pi / M * np.sum(self._get_tau_w_j_phis(phis=phi_ms) * np.sin(phi_ms) * np.cos(phi_ms))
+        # b_w_c_j = np.pi / M * np.sum(self._get_b_w_j_phis(phis=phi_ms) * np.sin(phi_ms) * np.cos(phi_ms))
+        tau_w_g_c_j = np.pi / M * np.sum(self._glazing._get_tau_w_g_j_phis(phis=phi_ms) * np.sin(phi_ms) * np.cos(phi_ms))
+        b_w_g_c_j = np.pi / M * np.sum(self._glazing._get_b_w_g_j_phis(phis=phi_ms) * np.sin(phi_ms) * np.cos(phi_ms))
+        tau_w_c_j = tau_w_g_c_j * self._r_a_w_g_j
+        b_w_c_j = b_w_g_c_j * self._r_a_w_g_j
 
         return tau_w_c_j, b_w_c_j
 
