@@ -2,7 +2,7 @@ from enum import Enum, auto
 from typing import Optional, Tuple, Union
 from math import sin, cos, pi
 import numpy as np
-from abc import ABC, abstractclassmethod
+from abc import ABC, abstractmethod
 
 
 class FlameType(Enum):
@@ -66,6 +66,10 @@ class GlassType(Enum):
 
 class Glazing(ABC):
 
+    # The number of segments
+    # for numerical integration to calculate the difference in sky radiation transmittance
+    M = 1000
+
     @classmethod
     def create(cls, t_glz_j: GlassType, u_w_g_j: float, eta_w_g_j: float):
         """create class
@@ -86,7 +90,46 @@ class Glazing(ABC):
 
                 # When glass type is multiple, double glazing is assumed as multiple in this calculation.
                 return DoubleGlazing(u_w_g_j=u_w_g_j, eta_w_g_j=eta_w_g_j)
+    
+    @abstractmethod
+    def get_b_w_g_j_phis[T: float | np.ndarray](self, phis: T) -> T:
+        pass
 
+    @abstractmethod
+    def get_tau_w_g_j_phis[T: float | np.ndarray](self, phis: T) -> T:
+        pass
+
+    def get_tau_w_g_c_j(self) -> float:
+        """Calculate solar transmittance of a quarter-sphere for uniformly diffuse solar radiation.
+
+        Returns:
+            solar transmittance of quarter-sphere for uniformly diffuse solar radiation
+        """
+
+        phi_ms = self._get_phi_ms()
+
+        return np.pi / self.M * np.sum(self.get_tau_w_g_j_phis(phis=phi_ms) * np.sin(phi_ms) * np.cos(phi_ms))
+
+    def get_b_w_g_c_j(self) -> float:
+        """Calculate absorbed solar heat of a quater-sphere for uniformly diffuse solar radiation.
+
+        Returns:
+            absorbed solar heat of quater-sphere for uniformly diffuse solar radiation
+        """
+
+        phi_ms = self._get_phi_ms()
+
+        return np.pi / self.M * np.sum(self.get_b_w_g_j_phis(phis=phi_ms) * np.sin(phi_ms) * np.cos(phi_ms))
+
+    @classmethod
+    def _get_phi_ms(cls):
+
+        M = cls.M
+
+        ms = np.arange(1, M + 1)
+
+        return np.pi / 2 * (ms - 1 / 2) / M
+        
 
 class SingleGlazing(Glazing):
 
@@ -125,7 +168,7 @@ class SingleGlazing(Glazing):
         # solar transmittance of the first plate glass from the exterior side
         self._tau_w_g_s1_j = tau_w_g_s1_j
 
-    def _get_b_w_g_j_phis[T: float | np.ndarray](self, phis: T) -> T:
+    def get_b_w_g_j_phis[T: float | np.ndarray](self, phis: T) -> T:
         """入射角Φに対する境界jの窓のガラス部分の吸収日射熱取得率を取得する。
         Args:
             phis: ステップnにおける入射角, rad
@@ -134,24 +177,11 @@ class SingleGlazing(Glazing):
         Notes:
             eq.11
         """
-        tau_w_g_j_phis = self._get_tau_w_g_j_phis(phis=phis)
+        tau_w_g_j_phis = self.get_tau_w_g_j_phis(phis=phis)
         rho_w_g_j_phis = self._get_rho_w_g_j_phis(phis=phis)
         return (1 - tau_w_g_j_phis - rho_w_g_j_phis) * self._r_r_w_g_j
 
-    def _get_b_w_g_j_phis[T: float | np.ndarray](self, phis: T) -> T:
-        """入射角Φに対する境界jの窓のガラス部分の吸収日射熱取得率を取得する。
-        Args:
-            phis: ステップnにおける入射角, rad
-        Returns:
-            入射角Φに対する境界jの窓のガラス部分の吸収日射熱取得率, -
-        Notes:
-            eq.11
-        """
-        tau_w_g_j_phis = self._get_tau_w_g_j_phis(phis=phis)
-        rho_w_g_j_phis = self._get_rho_w_g_j_phis(phis=phis)
-        return (1 - tau_w_g_j_phis - rho_w_g_j_phis) * self._r_r_w_g_j
-
-    def _get_tau_w_g_j_phis[T: float | np.ndarray](self, phis: T) -> T:
+    def get_tau_w_g_j_phis[T: float | np.ndarray](self, phis: T) -> T:
         """入射角Φに対する境界jの窓のガラス部分の日射透過率を計算する。
         Args:
             phis: 入射角Φ, rad
@@ -306,7 +336,7 @@ class DoubleGlazing(Glazing):
         # reflectance (back side) of the first sheet of plate glass on the exterior side
         self._rho_w_g_s1b_j = rho_w_g_s1b_j
 
-    def _get_b_w_g_j_phis[T: float | np.ndarray](self, phis: T) -> T:
+    def get_b_w_g_j_phis[T: float | np.ndarray](self, phis: T) -> T:
         """入射角Φに対する境界jの窓のガラス部分の吸収日射熱取得率を取得する。
         Args:
             phis: ステップnにおける入射角, rad
@@ -315,24 +345,11 @@ class DoubleGlazing(Glazing):
         Notes:
             eq.11
         """
-        tau_w_g_j_phis = self._get_tau_w_g_j_phis(phis=phis)
+        tau_w_g_j_phis = self.get_tau_w_g_j_phis(phis=phis)
         rho_w_g_j_phis = self._get_rho_w_g_j_phis(phis=phis)
         return (1 - tau_w_g_j_phis - rho_w_g_j_phis) * self._r_r_w_g_j
 
-    def _get_b_w_g_j_phis[T: float | np.ndarray](self, phis: T) -> T:
-        """入射角Φに対する境界jの窓のガラス部分の吸収日射熱取得率を取得する。
-        Args:
-            phis: ステップnにおける入射角, rad
-        Returns:
-            入射角Φに対する境界jの窓のガラス部分の吸収日射熱取得率, -
-        Notes:
-            eq.11
-        """
-        tau_w_g_j_phis = self._get_tau_w_g_j_phis(phis=phis)
-        rho_w_g_j_phis = self._get_rho_w_g_j_phis(phis=phis)
-        return (1 - tau_w_g_j_phis - rho_w_g_j_phis) * self._r_r_w_g_j
-
-    def _get_tau_w_g_j_phis[T: float | np.ndarray](self, phis: T) -> T:
+    def get_tau_w_g_j_phis[T: float | np.ndarray](self, phis: T) -> T:
         """入射角Φに対する境界jの窓のガラス部分の日射透過率を計算する。
         Args:
             phis: 入射角Φ, rad
@@ -516,9 +533,6 @@ class Window:
 
         glazing = Glazing.create(t_glz_j=t_glz_j, u_w_g_j=u_w_g_j, eta_w_g_j=eta_w_g_j)
 
-        # solar transmittance
-        tau_w_g_j = glazing._tau_w_g_j
-
         # u value of flame, W/m2K
         self._u_w_f_j = u_w_f_j
 
@@ -532,47 +546,26 @@ class Window:
         self._eta_w_g_j = eta_w_g_j
 
         # solar transmittance of glazing
-        self._tau_w_g_j = tau_w_g_j
+        self._tau_w_g_j = glazing._tau_w_g_j
 
+        # glazing
         self._glazing = glazing
 
-        tau_w_c_j, b_w_c_j = self._get_tau_b_w_c_j()
+        # solar transmittance of quarter-sphere for uniformly diffuse solar radiation
+        self._tau_w_c_j = self._get_tau_w_c_j()
 
-        self._tau_w_c_j = tau_w_c_j
-        self._b_w_c_j = b_w_c_j
+        # absorbed solar heat of quater-sphere for uniformly diffuse solar radiation
+        self._b_w_c_j = self._get_b_w_c_j()
 
     @property
     def glazing(self):
         """glazing of window"""
         return self._glazing
 
-    def get_tau_w_d_j_ns(self, phi_j_ns: Union[float, np.ndarray]) -> Union[float, np.ndarray]:
-        """窓の直達日射に対する日射透過率を計算する。
-        Args:
-            phi_j_ns: ステップnにおける境界jの窓の直達日射の入射角, rad, [N+1]
-        Returns:
-            ステップnにおける境界jの窓の直達日射に対する日射透過率, -, [N+1]
-        Notes:
-            eq.1
-        """
-        return self._get_tau_w_j_phis(phis=phi_j_ns)
-
-    def get_b_w_d_j_ns(self, phi_j_ns: Union[float, np.ndarray]) -> Union[float, np.ndarray]:
-        """窓の直達日射に対する吸収日射熱取得率を計算する。
-        Args:
-            phi_j_ns: ステップnにおける境界jの窓の直達日射の入射角, rad, [N+1]
-        Returns:
-            ステップnにおける境界jの窓の直達日射に対する吸収日射熱取得率, [n]
-        Notes:
-            eq.2
-        """
-        return self._get_b_w_j_phis(phis=phi_j_ns)
-
     @property
     def tau_w_s_j(self) -> float:
-        """
-        Returns:
-            境界jの窓の天空日射に対する日射透過率, -
+        """境界jの窓の天空日射に対する日射透過率, -
+        
         Notes:
             eq.3
         """
@@ -580,9 +573,7 @@ class Window:
 
     @property
     def tau_w_r_j(self) -> float:
-        """
-        Returns:
-            境界jの窓の地面反射日射に対する日射透過率, -
+        """境界jの窓の地面反射日射に対する日射透過率, -
         Notes:
             eq.4
         """
@@ -590,9 +581,7 @@ class Window:
 
     @property
     def b_w_s_j(self):
-        """
-        Returns:
-            境界jの窓の天空日射に対する吸収日射熱取得率, -
+        """境界jの窓の天空日射に対する吸収日射熱取得率, -
         Notes:
             eq.5
         """
@@ -601,34 +590,68 @@ class Window:
     @property
     def b_w_r_j(self):
         """窓の地面反射に対する吸収日射熱取得率を取得する。
-        Returns:
-            境界jの窓の地面反射日射に対する吸収日射熱取得率, -
         Notes:
             eq.6
         """
         return self._b_w_c_j
 
-    def _get_tau_b_w_c_j(self) -> Tuple[float, float]:
-        """境界jの窓の1/4球の一様拡散日射に対する日射透過率及び吸収日射熱取得率を計算する。
+    def get_tau_w_d_j_ns[T: float | np.ndarray](self, phi_j_ns: T) -> T:
+        """窓の直達日射に対する日射透過率を計算する。
+
+        Args:
+            phi_j_ns: ステップnにおける境界jの窓の直達日射の入射角, rad, [N+1]
+
+        Returns:
+            ステップnにおける境界jの窓の直達日射に対する日射透過率, -, [N+1]
+
+        Notes:
+            eq.1
+        """
+
+        return self._get_tau_w_j_phis(phis=phi_j_ns)
+
+    def get_b_w_d_j_ns[T: float | np.ndarray](self, phi_j_ns: T) -> T:
+        """窓の直達日射に対する吸収日射熱取得率を計算する。
+
+        Args:
+            phi_j_ns: ステップnにおける境界jの窓の直達日射の入射角, rad, [N+1]
+
+        Returns:
+            ステップnにおける境界jの窓の直達日射に対する吸収日射熱取得率, [n]
+
+        Notes:
+            eq.2
+        """
+        
+        return self._get_b_w_j_phis(phis=phi_j_ns)
+
+    def _get_tau_w_c_j(self) -> float:
+        """境界jの窓の1/4球の一様拡散日射に対する日射透過率を計算する。
+
         Returns:
             境界jの窓の1/4球の一様拡散日射に対する日射透過率, -
-            境界jの窓の1/4球の一様拡散日射に対する吸収日射熱取得率, -
+
         Notes:
             eq.7
+        """
+
+        tau_w_g_c_j = self.glazing.get_tau_w_g_c_j()
+
+        return tau_w_g_c_j * self._r_a_w_g_j
+        
+    def _get_b_w_c_j(self) -> float:
+        """境界jの窓の1/4球の一様拡散日射に対する吸収日射熱取得率を計算する。
+
+        Returns:
+            境界jの窓の1/4球の一様拡散日射に対する吸収日射熱取得率, -
+
+        Notes:
             eq.8
         """
 
-        M = 1000
-        ms = np.arange(1, M + 1)
-        phi_ms = np.pi / 2 * (ms - 1 / 2) / M
-        # tau_w_c_j = np.pi / M * np.sum(self._get_tau_w_j_phis(phis=phi_ms) * np.sin(phi_ms) * np.cos(phi_ms))
-        # b_w_c_j = np.pi / M * np.sum(self._get_b_w_j_phis(phis=phi_ms) * np.sin(phi_ms) * np.cos(phi_ms))
-        tau_w_g_c_j = np.pi / M * np.sum(self._glazing._get_tau_w_g_j_phis(phis=phi_ms) * np.sin(phi_ms) * np.cos(phi_ms))
-        b_w_g_c_j = np.pi / M * np.sum(self._glazing._get_b_w_g_j_phis(phis=phi_ms) * np.sin(phi_ms) * np.cos(phi_ms))
-        tau_w_c_j = tau_w_g_c_j * self._r_a_w_g_j
-        b_w_c_j = b_w_g_c_j * self._r_a_w_g_j
+        b_w_g_c_j = self.glazing.get_b_w_g_c_j()
 
-        return tau_w_c_j, b_w_c_j
+        return b_w_g_c_j * self._r_a_w_g_j
 
     def _get_tau_w_j_phis(self, phis: Union[float, np.ndarray]) -> Union[float, np.ndarray]:
         """入射角Φに対する境界jの窓の日射透過率を取得する。
@@ -639,7 +662,7 @@ class Window:
         Notes:
             eq.9
         """
-        return self._glazing._get_tau_w_g_j_phis(phis=phis) * self.r_a_w_g_j
+        return self._glazing.get_tau_w_g_j_phis(phis=phis) * self.r_a_w_g_j
 
     def _get_b_w_j_phis(self, phis: Union[float, np.ndarray]) -> Union[float, np.ndarray]:
         """入射角Φに対する境界jの窓の吸収日射熱取得率を取得する。
@@ -650,7 +673,7 @@ class Window:
         Notes:
             eq.10
         """
-        return self._glazing._get_b_w_g_j_phis(phis=phis) * self._r_a_w_g_j
+        return self._glazing.get_b_w_g_j_phis(phis=phis) * self._r_a_w_g_j
 
     @property
     def u_w_f_j(self):
