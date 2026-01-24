@@ -26,8 +26,8 @@ jobs:
         pwd
         ls -la
 
-    - name: Test with unittest
-      run: python -m unittest discover
+    - name: Test with pytest
+      run: python -m pytest -v
 
     - name: Test example
       run: |

@@ -10,7 +10,8 @@ logger = logging.getLogger('HeatLoadCalc').getChild('core')
 
 def calc(
         d: Dict,
-        entry_point_dir: str
+        entry_point_dir: str,
+        exe_verify: bool = False
     ) -> Tuple[pd.DataFrame, pd.DataFrame, sequence.Boundaries, schedule.Schedule, weather.Weather]:
     """core main program
 
@@ -107,7 +108,7 @@ def calc(
 
     for n in range(0, n_step_main):
 
-        c_n = sqc.run_tick(n=n, c_n=c_n, recorder=result)
+        c_n = sqc.run_tick(n=n, c_n=c_n, recorder=result, exe_verify=exe_verify)
 
         if n == int(n_step_main / 12 * m):
             logger.info("{} / 12 calculated.".format(m))
