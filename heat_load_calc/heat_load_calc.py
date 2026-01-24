@@ -60,10 +60,9 @@ def run(
     # obtain the datas bellow
     # - data file containing the instantaneous values of the calculation results (pandas data format)
     # - data file containing the integrated values and average values of the calculation results (pandas data format)
-    # - boundaries class (which is only used for debugging)
     # - Schedule class
     # - Weather class
-    dd_i, dd_a, _, scd, w = core.calc(d=d, entry_point_dir=entry_point_dir, exe_verify=exe_specify)
+    dd_i, dd_a, scd, w = core.calc(d=d, entry_point_dir=entry_point_dir, exe_verify=exe_specify)
 
     # write out the climate data
     if is_weather_saved:

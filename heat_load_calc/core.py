@@ -11,7 +11,7 @@ def calc(
         d: Dict,
         entry_point_dir: str,
         exe_verify: bool = False
-    ) -> Tuple[pd.DataFrame, pd.DataFrame, sequence.Boundaries, schedule.Schedule, weather.Weather]:
+    ) -> tuple[pd.DataFrame, pd.DataFrame, schedule.Schedule, weather.Weather]:
     """core main program
 
     Args:
@@ -120,4 +120,4 @@ def calc(
     # dd: data detail, 15分間隔のすべてのパラメータ pd.DataFrame
     dd_i, dd_a = result.export_pd()
 
-    return dd_i, dd_a, sqc.bs, scd, w
+    return dd_i, dd_a, scd, w
