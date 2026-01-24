@@ -1033,7 +1033,7 @@ def test_balance_check(left: np.ndarray, right: np.ndarray, quantity: str):
         diff = left - right
         max_abs = np.max(np.abs(diff))
         idx = np.unravel_index(np.argmax(np.abs(diff)), diff.shape)
-        logger.info(
+        logger.error(
             f"{quantity} balance is not correct. "
             f"max|left-right|={max_abs} at index={idx}, "
             f"left={left[idx]}, right={right[idx]}"
