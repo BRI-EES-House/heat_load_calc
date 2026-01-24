@@ -150,7 +150,7 @@ def initialize_ground_conditions(n_grounds: int):
     )
 
 
-def update_conditions_by_ground_conditions(is_ground: np.array, c: Conditions, gc: GroundConditions):
+def update_conditions_by_ground_conditions(is_ground: np.ndarray, c: Conditions, gc: GroundConditions):
 
     c.theta_dsh_srf_a_js_ms_n[is_ground, :] = gc.theta_dsh_srf_a_js_ms_n
 

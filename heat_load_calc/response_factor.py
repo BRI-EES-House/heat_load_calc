@@ -208,7 +208,7 @@ def _get_alpha_m(is_ground: bool) -> np.ndarray:
 
 
 # 壁体の単位応答の計算
-def _get_step_reps_of_wall(C_i_k_p, R_i_k_p, laps: List[float], alp: List[float]):
+def _get_step_reps_of_wall(C_i_k_p, R_i_k_p, laps: np.ndarray, alp: np.ndarray):
     """
     :param layers: 壁体構成部材
     :param laps: ラプラス変数
@@ -278,7 +278,7 @@ def _get_step_reps_of_wall(C_i_k_p, R_i_k_p, laps: List[float], alp: List[float]
 
 
 # 伝達関数の計算
-def _calc_transfer_function(C_i_k_p: List[float], R_i_k_p: List[float], laps: float) -> (float, float):
+def _calc_transfer_function(C_i_k_p: List[float], R_i_k_p: List[float], laps: float) -> tuple[float, float]:
 
     """
 
@@ -425,7 +425,7 @@ def _get_RFTRI(alp, AT0, AA0, AT, AA):
 
 
 # 応答係数
-def _calc_response_factor(is_ground: bool, cs, rs):
+def _calc_response_factor(is_ground: bool, cs: np.ndarray, rs: np.ndarray):
     """
     VBAからの主な変更点：
     (1)二次元配列（objArray）で壁体の情報を受け取っていたが、壁体情報クラスで受け取るように変更

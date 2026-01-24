@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 
 
-def hasp_read(file_name: str) -> (np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray):
+def hasp_read(file_name: str) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     '''
     HASP形式のテキストファイル（utf-8）から気温、絶対湿度、法線面直達日射量、水平面天空日射量、夜間放射量、風向、風速を読み込む
     Args:

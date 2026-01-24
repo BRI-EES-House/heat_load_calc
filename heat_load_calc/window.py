@@ -722,7 +722,7 @@ class Window:
         return self._tau_w_g_j
 
 
-def _get_tau_n_phi[T: float | np.ndarray](phi: T) -> T:
+def _get_tau_n_phi(phi: T) -> T:
     """規準化透過率を計算する。
     Args:
         phi: 入射角Φ, rad
@@ -735,7 +735,7 @@ def _get_tau_n_phi[T: float | np.ndarray](phi: T) -> T:
         + 13.617 * np.power(np.cos(phi), 4) - 5.146 * np.power(np.cos(phi), 5)
 
 
-def _get_rho_n_phi[T: float | np.ndarray](phi_ns: T) -> T:
+def _get_rho_n_phi(phi_ns: T) -> T:
     """規準化反射率を計算する。
     Args:
         phi: 入射角Φ, rad

@@ -65,7 +65,7 @@ def get_pmv_is_n(
     return pmv_is_n
 
 
-def get_ppd_is_n(pmv_is_n: np.array) -> np.array:
+def get_ppd_is_n(pmv_is_n: np.ndarray) -> np.ndarray:
     """PPDを計算する。
     Calculate the PPD of a ocupant.
     Args:
@@ -309,7 +309,7 @@ def _get_theta_ot_is_n(h_hum_r_is_n: np.ndarray, theta_mrt_is_n: np.ndarray, h_h
     return (h_hum_r_is_n * theta_mrt_is_n + h_hum_c_is_n * theta_r_is_n) / (h_hum_r_is_n + h_hum_c_is_n)
 
 
-def _get_h_hum_c_is_n_convergence(theta_r_is_n: np.array, theta_cl_is_n: np.array, v_hum_is_n: np.array) -> np.array:
+def _get_h_hum_c_is_n_convergence(theta_r_is_n: np.ndarray, theta_cl_is_n: np.ndarray, v_hum_is_n: np.ndarray) -> np.ndarray:
     """人体周りの対流熱伝達率を計算する。（収束計算による方法の場合）
     Calculate the convective heat transfer coefficient of the occupant. (Convergence Method)
     Args:
@@ -325,7 +325,7 @@ def _get_h_hum_c_is_n_convergence(theta_r_is_n: np.array, theta_cl_is_n: np.arra
     return np.maximum(12.1 * np.sqrt(v_hum_is_n), 2.38 * np.fabs(theta_cl_is_n - theta_r_is_n) ** 0.25)
 
 
-def _get_h_hum_c_is_n_constant(theta_r_is_n: np.array) -> np.ndarray:
+def _get_h_hum_c_is_n_constant(theta_r_is_n: np.ndarray) -> np.ndarray:
     """人体周りの対流熱伝達率を計算する。（収束計算によらず定数を用いる場合）
     Calculate the convective heat transfer coefficient of the occupant. (Constant Method)
     Args:
@@ -361,7 +361,7 @@ def _get_h_hum_r_is_n_convergence(theta_cl_is_n: np.ndarray, theta_mrt_is_n: np.
                 t_cl_is_n ** 3.0 + t_cl_is_n ** 2.0 * t_mrt_is_n + t_cl_is_n * t_mrt_is_n ** 2.0 + t_mrt_is_n ** 3.0)
 
 
-def _get_h_hum_r_is_n_constant(theta_r_is_n: np.array) -> np.ndarray:
+def _get_h_hum_r_is_n_constant(theta_r_is_n: np.ndarray) -> np.ndarray:
     """人体周りの放射熱伝達率を計算する。（周桑計算によらず定数を用いる場合）
     Calculate the radiative heat transfer coefficient of the occupant. (Constant Method)
     Args:
@@ -437,7 +437,7 @@ def _get_f_cl_is_n(i_cl_is_n: np.ndarray) -> np.ndarray:
     return np.where(i_cl_is_n <= 0.078, 1.00 + 1.290 * i_cl_is_n, 1.05 + 0.645 * i_cl_is_n)
 
 
-def _get_i_cl_is_n(clo_is_n: np.array) -> np.array:
+def _get_i_cl_is_n(clo_is_n: np.ndarray) -> np.ndarray:
     """Clo値から着衣抵抗を計算する。
     Calculate clo of the occupant.
     Args:

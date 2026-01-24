@@ -87,9 +87,7 @@ class MechanicalVentilations:
                 # Convert the unit from m3/h to m3/s.
                 v1[r[0]] = v1[r[0]] + mv.volume / 3600
 
-        v1 = v1.reshape(-1, 1)
-
-        return v1
+        return v1.reshape(-1, 1)
 
     def get_v_vent_int_is_is(self) -> np.ndarray:
         """Calculate the tamount of the air moved from the room i* to the room i.

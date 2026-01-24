@@ -136,11 +136,13 @@ class Schedule:
             Schedule class
         """
 
+        _a_f_is = np.array(a_f_is)
+
         # identify mode for the number of occupants (One, Two, Three, Four, Auto)
         noo = NumberOfOccupants(number_of_occupants)
 
         # number of occupants for calculation / 計算で用いられる居住人数
-        n_p_calc = _get_n_p_calc(noo=noo, a_f_is=a_f_is)
+        n_p_calc = _get_n_p_calc(noo=noo, a_f_is=_a_f_is)
 
         # local ventilation amount in room i at step n / ステップnの室iにおける局所換気量, m3/s, [I, N]
         # The value is defined as the unit m3/h. Here, the unit is converted from m3/h to m3/s.
@@ -171,10 +173,8 @@ class Schedule:
         # mode of air conditioning in room i at step n / ステップnの室iにおける空調モード, [I, N]
         t_ac_mode_is_ns = _get_schedules(noo=noo, n_p=n_p_calc, schedule_item=ScheduleItem.AC_MODE, itv=itv, scd_is=scd_is)
 
-        a_f_is = np.array(a_f_is)
-
         # internal heat generation excluding human body heat generation in room i at step n / ステップnの室iにおける人体発熱を除く内部発熱, W, [I, N]
-        q_gen_is_ns = q_gen_app_is_ns + q_gen_ckg_is_ns + q_gen_lght_is_ns * a_f_is[:, np.newaxis]
+        q_gen_is_ns = q_gen_app_is_ns + q_gen_ckg_is_ns + q_gen_lght_is_ns * _a_f_is[:, np.newaxis]
 
         # internal vapor generation excluding human body vapor generation in room i at step n / ステップnの室iにおける人体発湿を除く内部発湿, kg/s, [I, N]
         x_gen_is_ns = x_gen_ckg_is_ns
@@ -410,6 +410,9 @@ def _get_interpolated_schedule(
 
         elif noo == NumberOfOccupants.Auto:
 
+            if n_p is None:
+                raise Exception("n_p should be defined.")
+
             ceil_np, floor_np = _get_ceil_floor_np(n_p)
 
             ceiled_scd = _check_and_read_value(d=schedule_i[str(ceil_np)][day_type], schedule_item=schedule_item, n_step_day=n_step_day)
@@ -526,7 +529,7 @@ def _get_ceil_floor_np(n_p: float) -> Tuple[int, int]:
         ceil_np = 4
         floor_np = 3
     else:
-        raise logger.error(msg='The number of the occupants is out of range.')
+        raise ValueError('The number of the occupants is out of range.')
 
     return ceil_np, floor_np
 
@@ -589,39 +592,42 @@ def _load_json_file(filename: str) -> Dict:
     return d_json
 
 
-def _get_n_p_calc(noo: NumberOfOccupants, a_f_is: List[float]) -> float:
+def _get_n_p_calc(noo: NumberOfOccupants, a_f_is: np.ndarray) -> float:
     """Calculate the number of the occupants based on the total floor area. / 床面積の合計から居住人数を計算する。
     
     Args:
         noo: specified method of number of occupants / 居住人数の指定方法
-        a_f_is: floor area of room i / 室iの床面積, m2, [i]
+        a_f_is: floor area of room i / 室iの床面積, m2, [I]
 
     Returns:
         number of occupants for calculation / 計算で用いられる居住人数
     """
 
-    if noo == NumberOfOccupants.One:
-        return 1.0
+    match noo:
 
-    elif noo == NumberOfOccupants.Two:
-        return 2.0
+        case NumberOfOccupants.One:
 
-    elif noo == NumberOfOccupants.Three:
-        return 3.0
-
-    elif noo == NumberOfOccupants.Four:
-        return 4.0
-
-    elif noo == NumberOfOccupants.Auto:
-
-        # total floor area / 床面積の合計, m2
-        a_f_total = sum(a_f_is)
-
-        if a_f_total < 30.0:
             return 1.0
-        elif a_f_total < 120.0:
-            return a_f_total / 30.0
-        else:
+
+        case NumberOfOccupants.Two:
+
+            return 2.0
+
+        case NumberOfOccupants.Three:
+
+            return 3.0
+        
+        case NumberOfOccupants.Four:
+
             return 4.0
-    else:
-        raise ValueError()
+        
+        case NumberOfOccupants.Auto:
+
+            # total floor area / 床面積の合計, m2
+            a_f_total = a_f_is.sum()
+
+            return np.clip(a_f_total / 30.0, 1.0, 4.0)
+        
+        case _:
+    
+            raise ValueError()

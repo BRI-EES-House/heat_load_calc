@@ -348,22 +348,22 @@ def _get_x_is_n_pls_pmv_control(
     p_v_r_ntr_nv_is_n_pls = psy.get_p_v_r_is_n(x_r_is_n=x_r_ntr_nv_is_n_pls)
 
     # 薄着時のClo値
-    clo_light = occupants.get_clo_light()
+    clo_light_is = np.full_like(a=theta_r_ntr_nv_is_n_pls, fill_value=occupants.get_clo_light(), dtype=float)
 
     # 厚着時のClo値
-    clo_heavy = occupants.get_clo_heavy()
+    clo_heavy_is = np.full_like(a=theta_r_ntr_nv_is_n_pls, fill_value=occupants.get_clo_heavy(), dtype=float)
 
     ### 冷房判定用（窓開け時）のPMV計算
 
     # 窓を開けている時の風速を 0.1 m/s とする
-    v_hum_window_open_is_n = 0.1
+    v_hum_window_open_is_n = np.full_like(a=theta_r_ntr_nv_is_n_pls, fill_value=0.1, dtype=float)
 
     # 冷房判定用（窓開け時）のPMV
     pmv_window_open_is_n = pmv.get_pmv_is_n(
         p_a_is_n=p_v_r_ntr_nv_is_n_pls,
         theta_r_is_n=theta_r_ntr_nv_is_n_pls,
         theta_mrt_is_n=theta_mrt_hum_ntr_nv_is_n_pls,
-        clo_is_n=clo_light,
+        clo_is_n=clo_light_is,
         v_hum_is_n=v_hum_window_open_is_n,
         met_is=met_is,
         method=method
@@ -379,7 +379,7 @@ def _get_x_is_n_pls_pmv_control(
         p_a_is_n=p_v_r_ntr_non_nv_is_n_pls,
         theta_r_is_n=theta_r_ntr_non_nv_is_n_pls,
         theta_mrt_is_n=theta_mrt_hum_ntr_non_nv_is_n_pls,
-        clo_is_n=clo_light,
+        clo_is_n=clo_light_is,
         v_hum_is_n=v_hum_cooling_is_n,
         met_is=met_is,
         method=method
@@ -395,7 +395,7 @@ def _get_x_is_n_pls_pmv_control(
         p_a_is_n=p_v_r_ntr_non_nv_is_n_pls,
         theta_r_is_n=theta_r_ntr_non_nv_is_n_pls,
         theta_mrt_is_n=theta_mrt_hum_ntr_non_nv_is_n_pls,
-        clo_is_n=clo_heavy,
+        clo_is_n=clo_heavy_is,
         v_hum_is_n=v_hum_heating_is_n,
         met_is=met_is,
         method=method
