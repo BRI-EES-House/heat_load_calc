@@ -23,6 +23,9 @@ def house_data():
         return json.load(f)
 
 def test_all_at_once_verify_by_handler(house_data):
+
+    print('\n testing all at once multizone')
+
     # --- [MOD] ここから: Handlerでログ捕捉 ---
     # まずは確実に拾うため root logger に付けます（必要なら特定loggerに変更可）
     root = logging.getLogger()
