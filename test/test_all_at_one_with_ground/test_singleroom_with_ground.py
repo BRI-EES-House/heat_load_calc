@@ -30,7 +30,7 @@ class TestSigleRoomWithGround(unittest.TestCase):
             d = json.load(js)
 
         # 計算実行
-        dd_i, dd_a, _, _, _ = core.calc(d=d, entry_point_dir=os.path.dirname(__file__))
+        dd_i, dd_a, _, _ = core.calc(d=d, entry_point_dir=os.path.dirname(__file__))
 
         # 計算結果格納
         cls._dd_i = dd_i

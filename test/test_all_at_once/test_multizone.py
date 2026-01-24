@@ -36,7 +36,7 @@ def test_all_at_once_verify_by_handler(house_data):
     root.addHandler(handler)
     root.setLevel(logging.ERROR)
     try:
-        dd_i, _, _, _, _ = core.calc(
+        dd_i, _, _, _ = core.calc(
             d=house_data,
             entry_point_dir=os.path.dirname(__file__),
             exe_verify=True,

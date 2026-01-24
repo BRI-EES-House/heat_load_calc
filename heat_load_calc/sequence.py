@@ -29,21 +29,13 @@ logger = logging.getLogger('HeatLoadCalc').getChild('core').getChild('pre_calc_p
 
 class Sequence:
 
-    def __init__(
-            self,
-            itv: interval.Interval,
-            d: Dict,
-            weather: Weather,
-            scd: schedule.Schedule,
-            theta_o_eqv_js_ns: Optional[np.ndarray] = None
-    ):
+    def __init__(self, itv: interval.Interval, d: Dict, weather: Weather, scd: schedule.Schedule):
         """
         Args:
             itv: interval class
             d: directory of input file
             weather: weather class
             scd: schedule class
-            theta_o_eqv_js_ns:
         """
 
         # 時間間隔, s
@@ -61,16 +53,7 @@ class Sequence:
         else:
             rad_method = ShapeFactorMethod.NAGATA
         
-            
         bs = boundaries.Boundaries(id_r_is=rms.id_r_is, ds=d['boundaries'], w=weather, rad_method=rad_method)
-
-        # ステップ n の境界 j における相当外気温度, ℃, [j, n]
-        # 　このif文は、これまで実施してきたテストを維持するために設けている。
-        # いずれテスト方法を整理して、csvで与える方式を削除すべきである。
-        # CSVで与える方式があることは（将来的に削除予定であるため）仕様書には記述しない。
-        if theta_o_eqv_js_ns is not None:
-            # ステップn+1に対応するために0番要素に最終要素を代入
-            bs.set_theta_o_eqv_js_nspls(theta_o_eqv_js_nspls=np.append(theta_o_eqv_js_ns, theta_o_eqv_js_ns[:, 0:1], axis=1))
 
         # MechanicalVentilation Class
         mvs = MechanicalVentilations(ds=d['mechanical_ventilations'], n_rm=rms.n_r)
