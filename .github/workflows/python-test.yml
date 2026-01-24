@@ -27,7 +27,7 @@ jobs:
         ls -la
 
     - name: Test with pytest
-      run: pytest -q -s test
+      run: python -m pytest -v
 
     - name: Test example
       run: |
