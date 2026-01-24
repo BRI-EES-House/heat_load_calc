@@ -75,7 +75,7 @@ class Boundary:
     rf: response_factor.ResponseFactor
 
     # 裏面温度に他の境界 j の等価室温が与える影響, [j, j]
-    k_ei_js: List
+    k_ei_js: np.ndarray
 
     # 裏面温度に室の空気温度が与える影響
     k_s_r: float
@@ -287,10 +287,10 @@ class Boundaries:
         q_trs_sol_j_nspls = _get_q_trs_sol_j_ns(t_b_j=t_b_j, w=w, b_sun_strkd_out_j=b_sun_strkd_out_j, t_drct_j=t_drct_j, a_s_j=a_s_j, ssp_j=ssp_j, window_j=window_j)
 
         # convective heat transfer coefficient of the rear surface of boundary j, W/m2K
-        h_s_c_rear_j = h_s_c_js[j_rear_j, 0] if t_b_j == BoundaryType.INTERNAL else None
+        h_s_c_rear_j = float(h_s_c_js[j_rear_j, 0]) if t_b_j == BoundaryType.INTERNAL else None
 
         # radiative heat transfer coefficient of the rear surface of boundary j, W/m2K
-        h_s_r_rear_j = h_s_r_js[j_rear_j, 0] if t_b_j == BoundaryType.INTERNAL else None
+        h_s_r_rear_j = float(h_s_r_js[j_rear_j, 0]) if t_b_j == BoundaryType.INTERNAL else None
 
         # response factor of boundary j
         rf = _get_response_factor(d=d, h_s_c_rear_j=h_s_c_rear_j, h_s_r_rear_j=h_s_r_rear_j, id_j=id_j, t_b_j=t_b_j, r_s_o_j=r_s_o_j, u_w_std_j=u_w_std_j)
@@ -554,7 +554,7 @@ class Boundaries:
             theta_dsh_srf_a_js_ms_n: np.ndarray,
             theta_rear_js_n: np.ndarray,
             q_s_js_n: np.ndarray
-        ) -> np.ndarray:
+        ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
         """
 
         Args:
@@ -659,7 +659,7 @@ def _get_room_index(id_r_is: np.ndarray, id: int):
     return matched_indices[0]
 
 
-def _read_j_rear(b: Dict, id: int, t_b: BoundaryType, id_js: np.ndarray) -> int:
+def _read_j_rear(b: Dict, id: int, t_b: BoundaryType, id_js: np.ndarray) -> int | None:
     """Get the rear surface boundary index.
 
     Args:
@@ -805,11 +805,17 @@ def _read_t_drct(d: Dict, b_sun_strkd_out: bool) -> Optional[Direction]:
         return None
 
 
-def _read_ssp(ssp_dict: Dict, b_sun_strkd_out: bool, t_drct: Direction) -> SolarShading:
+def _read_ssp(ssp_dict: Dict, b_sun_strkd_out: bool, t_drct: Direction | None) -> SolarShading | None:
     
     if b_sun_strkd_out:
+
+        if t_drct is None:
+            raise Exception('t_drct should be defined when b_sun_strkd_out is True.')
+
         return SolarShading.create(ssp_dict=ssp_dict, direction=t_drct)
+
     else:
+
         return None
 
 
@@ -966,7 +972,7 @@ def _read_eta_std(d: Dict, id: int, t_b: BoundaryType) -> Optional[float]:
         raise Exception()
 
         
-def _read_r_a_w_g(d: Dict, id: int, t_b: BoundaryType) -> Optional[float]:
+def _read_r_a_w_g(d: Dict, id: int, t_b: BoundaryType) -> float | None:
     """Get the ratio of the grazing area to the opening area.
 
     Args:
@@ -977,23 +983,29 @@ def _read_r_a_w_g(d: Dict, id: int, t_b: BoundaryType) -> Optional[float]:
     Returns:
         ratio of the grazing area to the opening area
     """
-    
-    if t_b == BoundaryType.EXTERNAL_TRANSPARENT_PART:
 
-        # 開口部の面積に対するグレージングの面積の比率
-        r_a_w_g = d['glass_area_ratio']
-        
-        if r_a_w_g < 0.0:
-            raise ValueError("境界(ID=" + str(id) + ")の開口部の面積に対するグレージング面積の比率で0.0未満の値が指定されました。")
-        
-        if r_a_w_g > 1.0:
-            raise ValueError("境界(ID=" + str(id) + ")の開口部の面積に対するグレージング面積の比率で1.0より大の値が指定されました。")
-        
-        return r_a_w_g
-    
-    elif t_b in [BoundaryType.EXTERNAL_GENERAL_PART, BoundaryType.EXTERNAL_OPAQUE_PART, BoundaryType.INTERNAL, BoundaryType.GROUND]:
+    match t_b:
 
-        return None
+        case BoundaryType.EXTERNAL_TRANSPARENT_PART:
+
+            # 開口部の面積に対するグレージングの面積の比率
+            r_a_w_g = d['glass_area_ratio']
+        
+            if r_a_w_g < 0.0:
+                raise ValueError("境界(ID=" + str(id) + ")の開口部の面積に対するグレージング面積の比率で0.0未満の値が指定されました。")
+            
+            if r_a_w_g > 1.0:
+                raise ValueError("境界(ID=" + str(id) + ")の開口部の面積に対するグレージング面積の比率で1.0より大の値が指定されました。")
+            
+            return r_a_w_g
+    
+        case BoundaryType.EXTERNAL_GENERAL_PART | BoundaryType.EXTERNAL_OPAQUE_PART | BoundaryType.INTERNAL | BoundaryType.GROUND:
+
+            return None
+    
+        case _:
+
+            raise ValueError()
 
 
 def _read_t_glz(d: Dict, id: int, t_b: BoundaryType) -> Optional[window.GlassType]:
@@ -1027,6 +1039,15 @@ def _get_window_class_j(t_b_j: BoundaryType, u_w_std_j: Optional[float], eta_w_s
         return None
     
     elif t_b_j == BoundaryType.EXTERNAL_TRANSPARENT_PART:
+
+        if u_w_std_j is None:
+            raise Exception("u_w_std should be decided when boundary type is external transparent part.")
+        
+        if eta_w_std_j is None:
+            raise Exception("eta_w_std should be decided when boundary type is external transparent part.")
+
+        if t_glz_j is None:
+            raise Exception("t_glz should be decided when boundary type is external transparent part.")
     
         return Window(u_w_std_j=u_w_std_j, eta_w_std_j=eta_w_std_j, t_glz_j=t_glz_j, r_a_w_g_j=r_a_w_g_j)
 
@@ -1072,6 +1093,21 @@ def _get_theta_o_eqv_j_ns(
     elif t_b_j in [BoundaryType.EXTERNAL_GENERAL_PART, BoundaryType.EXTERNAL_OPAQUE_PART]:
 
         if b_sun_strkd_out_j:
+
+            if t_drct_j is None:
+                raise Exception("t_drct should be decided when boundary type is external transparent part.")
+            
+            if a_sol_j is None:
+                raise Exception("a_sol should be decided when boundary type is external transparent part.")
+            
+            if eps_r_o_j is None:
+                raise Exception("eps_r_o should be decided when boundary type is external transparent part.")
+            
+            if r_s_o_j is None:
+                raise Exception("r_s_o should be decided when boundary type is external transparent part.")
+            
+            if ssp_j is None:
+                raise Exception("ssp should be decided when boundary type is external transparent part.")
         
             return outside_eqv_temp.get_theta_o_eqv_j_ns_for_external_general_part_and_external_opaque_part(
                 t_drct_j=t_drct_j, a_sol_j=a_sol_j, eps_r_o_j=eps_r_o_j, r_s_o_j=r_s_o_j, ssp_j=ssp_j, w=w
@@ -1084,6 +1120,24 @@ def _get_theta_o_eqv_j_ns(
     elif t_b_j == BoundaryType.EXTERNAL_TRANSPARENT_PART:
 
         if b_sun_strkd_out_j:
+
+            if t_drct_j is None:
+                raise Exception("t_drct should be defined when sun is striked out.")
+
+            if eps_r_o_j is None:
+                raise Exception("eps_r_o should be defined when sun is striked out.")
+
+            if r_s_o_j is None:
+                raise Exception("r_s_o should be defined when sun is striked out.")
+
+            if u_w_std_j is None:
+                raise Exception("u_w_std should be defined when sun is striked out.")
+
+            if ssp_j is None:
+                raise Exception("ssp should be defined when sun is striked out.")
+
+            if window_j is None:
+                raise Exception("window should be defined when sun is striked out.")
 
             return outside_eqv_temp.get_theta_o_eqv_j_ns_for_external_transparent_part(
                 t_drct_j=t_drct_j, eps_r_o_j=eps_r_o_j, r_s_o_j=r_s_o_j, u_w_std_j=u_w_std_j, ssp_j=ssp_j, window_j=window_j, w=w
@@ -1125,6 +1179,15 @@ def _get_q_trs_sol_j_ns(t_b_j: BoundaryType, w: Weather, b_sun_strkd_out_j: Opti
     elif t_b_j == BoundaryType.EXTERNAL_TRANSPARENT_PART:
 
         if b_sun_strkd_out_j:
+
+            if t_drct_j is None:
+                raise Exception("t_drct should be defined when sun is striked out.")
+
+            if ssp_j is None:
+                raise Exception("ssp should be defined when sun is striked out.")
+
+            if window_j is None:
+                raise Exception("window should be defined when sun is striked out.")
 
             return transmission_solar_radiation.get_q_trs_sol_j_ns_for_transparent_sun_striked(
                 t_drct_j=t_drct_j, a_s_j=a_s_j, ssp_j=ssp_j, window_j=window_j, w=w
@@ -1179,8 +1242,16 @@ def _get_response_factor(d: Dict, h_s_c_rear_j: Optional[float], h_s_r_rear_j: O
 
     if t_b_j == BoundaryType.INTERNAL:
 
-        c_j_ls = np.array([_read_cs_j_l(layer=layer, id=id, layer_id=l) for (l, layer) in enumerate(d['layers'])])
-        r_j_ls = np.array([_read_rs_j_l(layer=layer, id=id, layer_id=l) for (l, layer) in enumerate(d['layers'])])
+        layers: List[Dict] = d['layers']
+
+        c_j_ls = np.array([_read_cs_j_l(layer=layer, id=id_j, layer_id=l) for (l, layer) in enumerate(layers)])
+        r_j_ls = np.array([_read_rs_j_l(layer=layer, id=id_j, layer_id=l) for (l, layer) in enumerate(layers)])
+
+        if h_s_c_rear_j is None:
+            raise Exception("h_s_c_rear should be defined when boundary type is internal.")
+
+        if h_s_r_rear_j is None:
+            raise Exception("h_s_r_rear should be defined when boundary type is internal.")
 
         r_rear_j = 1.0 / (h_s_c_rear_j + h_s_r_rear_j)
 
@@ -1188,8 +1259,11 @@ def _get_response_factor(d: Dict, h_s_c_rear_j: Optional[float], h_s_r_rear_j: O
 
     elif t_b_j == BoundaryType.EXTERNAL_GENERAL_PART:
 
-        c_j_ls = np.array([_read_cs_j_l(layer=layer, id=id, layer_id=l) for (l, layer) in enumerate(d['layers'])])
-        r_j_ls = np.array([_read_rs_j_l(layer=layer, id=id, layer_id=l) for (l, layer) in enumerate(d['layers'])])
+        c_j_ls = np.array([_read_cs_j_l(layer=layer, id=id_j, layer_id=l) for (l, layer) in enumerate(d['layers'])])
+        r_j_ls = np.array([_read_rs_j_l(layer=layer, id=id_j, layer_id=l) for (l, layer) in enumerate(d['layers'])])
+
+        if r_s_o_j is None:
+            raise Exception("r_s_o should be defined when boundary type is external general part.")
 
         return ResponseFactor.create_for_unsteady_not_ground(cs=c_j_ls, rs=r_j_ls, r_o=r_s_o_j)
 
@@ -1197,12 +1271,15 @@ def _get_response_factor(d: Dict, h_s_c_rear_j: Optional[float], h_s_r_rear_j: O
 
         r_i_std_j = _read_r_i_std_j(d=d, boundary_id=id_j)
 
+        if u_w_std_j is None:
+            raise Exception("u_w_std should be defined when boundary type is external transparent part or external opaque part.")
+
         return ResponseFactor.create_for_steady(u_w=u_w_std_j, r_i=r_i_std_j)
 
     elif t_b_j == BoundaryType.GROUND:
 
-        c_j_ls = np.array([_read_cs_j_l(layer=layer, id=id, layer_id=l) for (l, layer) in enumerate(d['layers'])])
-        r_j_ls = np.array([_read_rs_j_l(layer=layer, id=id, layer_id=l) for (l, layer) in enumerate(d['layers'])])
+        c_j_ls = np.array([_read_cs_j_l(layer=layer, id=id_j, layer_id=l) for (l, layer) in enumerate(d['layers'])])
+        r_j_ls = np.array([_read_rs_j_l(layer=layer, id=id_j, layer_id=l) for (l, layer) in enumerate(d['layers'])])
 
         return ResponseFactor.create_for_unsteady_ground(cs=c_j_ls, rs=r_j_ls)
 
@@ -1253,7 +1330,7 @@ def _get_k_ei_js_j(id_js: np.ndarray, t_b_j: BoundaryType, j_rear_j: Optional[in
     return k_ei_js_j
 
 
-def _get_k_s_r_j(t_b_j: BoundaryType, k_eo_j: Optional[float]) -> Optional[float]:
+def _get_k_s_r_j(t_b_j: BoundaryType, k_eo_j: Optional[float]) -> float:
     """Get the coefficient representing the effect of the room air temperature to the rear temperature of boundary j.
 
     Args:
@@ -1264,20 +1341,22 @@ def _get_k_s_r_j(t_b_j: BoundaryType, k_eo_j: Optional[float]) -> Optional[float
         coefficient representing the effect of room air temperature to rear temperature of boundary j
     """
 
-    if t_b_j in [
-        BoundaryType.EXTERNAL_OPAQUE_PART,
-        BoundaryType.EXTERNAL_TRANSPARENT_PART,
-        BoundaryType.EXTERNAL_GENERAL_PART
-    ]:
+    match t_b_j:
+
+        case BoundaryType.EXTERNAL_OPAQUE_PART | BoundaryType.EXTERNAL_TRANSPARENT_PART | BoundaryType.EXTERNAL_GENERAL_PART:
+
+            if k_eo_j is None:
+                raise Exception("k_eo_j should be defined when boundary type is external opaque part, external transparent part, or external general part.")
+
+            return round(1.0 - k_eo_j, 2)
+
+        case BoundaryType.INTERNAL | BoundaryType.GROUND:
+
+            return 0.0
         
-        return round(1.0 - k_eo_j, 2)
+        case _:
 
-    elif t_b_j in [BoundaryType.INTERNAL, BoundaryType.GROUND]:
-
-        return 0.0
-
-    else:
-        raise Exception()
+            raise Exception()
 
 
 def _get_f_ax_js_is(f_mrt_is_js, h_s_c_js, h_s_r_js, k_ei_js_js, p_js_is, phi_a0_js, phi_t0_js):

@@ -2,8 +2,7 @@ import pandas as pd
 import logging
 from typing import Tuple, Dict
 
-from heat_load_calc import schedule, recorder, sequence, weather, period, \
-    conditions, interval
+from heat_load_calc import schedule, recorder, sequence, weather, period, conditions, interval
 
 logger = logging.getLogger('HeatLoadCalc').getChild('core')
 

@@ -1,6 +1,8 @@
 import math
 import numpy as np
-from typing import Union
+from typing import Union, TypeVar
+
+T = TypeVar("T", float, np.ndarray)
 
 
 def get_h(p_v: np.ndarray, p_vs: np.ndarray) -> np.ndarray:
@@ -60,7 +62,7 @@ def get_p_v_r_is_n(x_r_is_n: np.ndarray) -> np.ndarray:
     return f * x_r_is_n / (x_r_is_n + 0.62198)
 
 
-def get_p_vs[T: float | np.ndarray](theta: T) -> T:
+def get_p_vs(theta: T) -> T:
     """飽和水蒸気圧を計算する。
 
     Args:

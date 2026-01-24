@@ -3,6 +3,7 @@ from typing import Dict
 import logging
 import numpy as np
 import math
+from abc import ABC, abstractmethod
 
 
 logger = logging.getLogger('HeatLoadCalc').getChild('building')
@@ -40,7 +41,7 @@ class Structure(Enum):
     STEEL = 'steel'
 
 
-class AirTightness:
+class AirTightness(ABC):
 
     def __init__(self):
         pass
@@ -61,6 +62,7 @@ class AirTightness:
             case _:
                 raise KeyError('Item "method" in "infiltration" is NOT defined.')
 
+    @abstractmethod
     def get_v_leak_is_n(self, theta_r_is_n: np.ndarray, theta_o_n: float, v_r_is: np.ndarray) -> np.ndarray:
         pass
 
