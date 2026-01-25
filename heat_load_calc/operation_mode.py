@@ -3,10 +3,12 @@ from functools import partial
 from enum import Enum
 from typing import Dict, Tuple, Callable
 from abc import ABC
+import logging
 
 from heat_load_calc import pmv, occupants
 from heat_load_calc import psychrometrics as psy
 
+logger = logging.getLogger(name='HeatLoadCalc').getChild('Weather')
 
 class ACMethod(Enum):
 
@@ -240,7 +242,7 @@ class Operation:
 
         elif self.ac_method == ACMethod.PMV:
 
-            x_cooling_is_n_pls = _get_x_is_n_pls_pmv_control(
+            x_cooling_is_n_pls = _get_x_is_n_pls_pmv_control_cooling(
                 is_radiative_cooling_is=is_radiative_cooling_is,
                 method='constant',
                 met_is=met_is,
@@ -250,7 +252,7 @@ class Operation:
                 x_r_ntr_non_nv_is_n_pls=x_r_ntr_non_nv_is_n_pls
             )
 
-            x_window_open_is_n_pls = _get_x_is_n_pls_pmv_control2(
+            x_window_open_is_n_pls = _get_x_is_n_pls_pmv_control_window_open(
                 method='constant',
                 met_is=met_is,
                 theta_r_ntr_nv_is_n_pls=theta_r_ntr_nv_is_n_pls,
@@ -258,7 +260,7 @@ class Operation:
                 x_r_ntr_nv_is_n_pls=x_r_ntr_nv_is_n_pls
             )
 
-            x_heating_is_n_pls = _get_x_is_n_pls_pmv_control3(
+            x_heating_is_n_pls = _get_x_is_n_pls_pmv_control_heating(
                 is_radiative_heating_is=is_radiative_heating_is,
                 method='constant',
                 met_is=met_is,
@@ -405,7 +407,7 @@ def _get_x_is_n_pls_ot_and_air_temperature_control(
     return x_cooling_is_n_pls, x_window_open_is_n_pls, x_heating_is_n_pls
 
 
-def _get_x_is_n_pls_pmv_control(
+def _get_x_is_n_pls_pmv_control_cooling(
         is_radiative_cooling_is: np.ndarray,
         method: str,
         met_is: np.ndarray,
@@ -442,7 +444,7 @@ def _get_x_is_n_pls_pmv_control(
     return x_cooling_is_n_pls
 
 
-def _get_x_is_n_pls_pmv_control2(
+def _get_x_is_n_pls_pmv_control_window_open(
         method: str,
         met_is: np.ndarray,
         theta_r_ntr_nv_is_n_pls: np.ndarray,
@@ -477,7 +479,7 @@ def _get_x_is_n_pls_pmv_control2(
     return x_window_open_is_n_pls
 
 
-def _get_x_is_n_pls_pmv_control3(
+def _get_x_is_n_pls_pmv_control_heating(
         is_radiative_heating_is: np.ndarray,
         method: str,
         met_is: np.ndarray,
