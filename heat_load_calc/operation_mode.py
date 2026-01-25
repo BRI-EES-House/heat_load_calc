@@ -130,7 +130,7 @@ class OperationSchedule:
         self._x_upper_target = x_upper_target
         self._r_ac_demand = r_ac_demand
 
-    def f(self, x_h:float, x_c:float, x_wop:float) -> OperationMode:
+    def get_opmode_heating_cooling(self, x_h: float, x_c: float, x_wop: float) -> OperationMode:
 
         # 空調需要が0より大の場合（ケース 2）
         if self._r_ac_demand > 0:
@@ -295,9 +295,10 @@ class Operation:
 
         operation_schedule_is_n = self._operation_schedule_is_ns[:, n].reshape(-1, 1)
 
-        t_operation_mode_is_n = np.vectorize(
-            lambda c, x_h, x_c, x_wop: c.f(x_h, x_c, x_wop)
-            )(operation_schedule_is_n, x_heating_is_n_pls, x_cooling_is_n_pls, x_window_open_is_n_pls)
+        def apply_f(c: OperationSchedule, x_h: float, x_c: float, x_wop: float) -> OperationMode:
+            return c.get_opmode_heating_cooling(x_h, x_c, x_wop)
+
+        t_operation_mode_is_n = np.vectorize(apply_f)(operation_schedule_is_n, x_heating_is_n_pls, x_cooling_is_n_pls, x_window_open_is_n_pls)
 
         return t_operation_mode_is_n
 
