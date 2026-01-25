@@ -262,17 +262,32 @@ class Operation:
 
         elif self.ac_method == ACMethod.PMV:
 
-            x_cooling_is_n_pls, x_window_open_is_n_pls, x_heating_is_n_pls = _get_x_is_n_pls_pmv_control(
+            x_cooling_is_n_pls = _get_x_is_n_pls_pmv_control(
                 is_radiative_cooling_is=is_radiative_cooling_is,
+                method='constant',
+                met_is=met_is,
+                theta_r_ntr_non_nv_is_n_pls=theta_r_ntr_non_nv_is_n_pls,
+                theta_r_ntr_nv_is_n_pls=theta_r_ntr_nv_is_n_pls,
+                theta_mrt_hum_ntr_non_nv_is_n_pls=theta_mrt_hum_ntr_non_nv_is_n_pls,
+                x_r_ntr_non_nv_is_n_pls=x_r_ntr_non_nv_is_n_pls
+            )
+
+            x_window_open_is_n_pls = _get_x_is_n_pls_pmv_control2(
+                method='constant',
+                met_is=met_is,
+                theta_r_ntr_nv_is_n_pls=theta_r_ntr_nv_is_n_pls,
+                theta_mrt_hum_ntr_nv_is_n_pls=theta_mrt_hum_ntr_nv_is_n_pls,
+                x_r_ntr_nv_is_n_pls=x_r_ntr_nv_is_n_pls
+            )
+
+            x_heating_is_n_pls = _get_x_is_n_pls_pmv_control3(
                 is_radiative_heating_is=is_radiative_heating_is,
                 method='constant',
                 met_is=met_is,
                 theta_r_ntr_non_nv_is_n_pls=theta_r_ntr_non_nv_is_n_pls,
                 theta_r_ntr_nv_is_n_pls=theta_r_ntr_nv_is_n_pls,
                 theta_mrt_hum_ntr_non_nv_is_n_pls=theta_mrt_hum_ntr_non_nv_is_n_pls,
-                theta_mrt_hum_ntr_nv_is_n_pls=theta_mrt_hum_ntr_nv_is_n_pls,
                 x_r_ntr_non_nv_is_n_pls=x_r_ntr_non_nv_is_n_pls,
-                x_r_ntr_nv_is_n_pls=x_r_ntr_nv_is_n_pls
             )
 
         else:
@@ -413,42 +428,19 @@ def _get_x_is_n_pls_ot_and_air_temperature_control(
 
 def _get_x_is_n_pls_pmv_control(
         is_radiative_cooling_is: np.ndarray,
-        is_radiative_heating_is: np.ndarray,
         method: str,
         met_is: np.ndarray,
         theta_r_ntr_non_nv_is_n_pls: np.ndarray,
         theta_r_ntr_nv_is_n_pls: np.ndarray,
         theta_mrt_hum_ntr_non_nv_is_n_pls: np.ndarray,
-        theta_mrt_hum_ntr_nv_is_n_pls: np.ndarray,
-        x_r_ntr_non_nv_is_n_pls: np.ndarray,
-        x_r_ntr_nv_is_n_pls: np.ndarray
+        x_r_ntr_non_nv_is_n_pls: np.ndarray
 ):
 
     # ステップnにおける室iの水蒸気圧, Pa, [i, 1]
     p_v_r_ntr_non_nv_is_n_pls = psy.get_p_v_r_is_n(x_r_is_n=x_r_ntr_non_nv_is_n_pls)
-    p_v_r_ntr_nv_is_n_pls = psy.get_p_v_r_is_n(x_r_is_n=x_r_ntr_nv_is_n_pls)
 
     # 薄着時のClo値
     clo_light_is = np.full_like(a=theta_r_ntr_nv_is_n_pls, fill_value=occupants.get_clo_light(), dtype=float)
-
-    # 厚着時のClo値
-    clo_heavy_is = np.full_like(a=theta_r_ntr_nv_is_n_pls, fill_value=occupants.get_clo_heavy(), dtype=float)
-
-    ### 冷房判定用（窓開け時）のPMV計算
-
-    # 窓を開けている時の風速を 0.1 m/s とする
-    v_hum_window_open_is_n = np.full_like(a=theta_r_ntr_nv_is_n_pls, fill_value=0.1, dtype=float)
-
-    # 冷房判定用（窓開け時）のPMV
-    pmv_window_open_is_n = pmv.get_pmv_is_n(
-        p_a_is_n=p_v_r_ntr_nv_is_n_pls,
-        theta_r_is_n=theta_r_ntr_nv_is_n_pls,
-        theta_mrt_is_n=theta_mrt_hum_ntr_nv_is_n_pls,
-        clo_is_n=clo_light_is,
-        v_hum_is_n=v_hum_window_open_is_n,
-        met_is=met_is,
-        method=method
-    )
 
     # 冷房判定用（窓閉め時）のPMV計算
 
@@ -466,6 +458,62 @@ def _get_x_is_n_pls_pmv_control(
         method=method
     )
 
+    x_cooling_is_n_pls = pmv_cooling_is_n
+
+    return x_cooling_is_n_pls
+
+
+def _get_x_is_n_pls_pmv_control2(
+        method: str,
+        met_is: np.ndarray,
+        theta_r_ntr_nv_is_n_pls: np.ndarray,
+        theta_mrt_hum_ntr_nv_is_n_pls: np.ndarray,
+        x_r_ntr_nv_is_n_pls: np.ndarray
+):
+
+    # ステップnにおける室iの水蒸気圧, Pa, [i, 1]
+    p_v_r_ntr_nv_is_n_pls = psy.get_p_v_r_is_n(x_r_is_n=x_r_ntr_nv_is_n_pls)
+
+    # 薄着時のClo値
+    clo_light_is = np.full_like(a=theta_r_ntr_nv_is_n_pls, fill_value=occupants.get_clo_light(), dtype=float)
+
+    ### 冷房判定用（窓開け時）のPMV計算
+
+    # 窓を開けている時の風速を 0.1 m/s とする
+    v_hum_window_open_is_n = np.full_like(a=theta_r_ntr_nv_is_n_pls, fill_value=0.1, dtype=float)
+
+    # 冷房判定用（窓開け時）のPMV
+    pmv_window_open_is_n = pmv.get_pmv_is_n(
+        p_a_is_n=p_v_r_ntr_nv_is_n_pls,
+        theta_r_is_n=theta_r_ntr_nv_is_n_pls,
+        theta_mrt_is_n=theta_mrt_hum_ntr_nv_is_n_pls,
+        clo_is_n=clo_light_is,
+        v_hum_is_n=v_hum_window_open_is_n,
+        met_is=met_is,
+        method=method
+    )
+
+    x_window_open_is_n_pls = pmv_window_open_is_n
+
+    return x_window_open_is_n_pls
+
+
+def _get_x_is_n_pls_pmv_control3(
+        is_radiative_heating_is: np.ndarray,
+        method: str,
+        met_is: np.ndarray,
+        theta_r_ntr_non_nv_is_n_pls: np.ndarray,
+        theta_r_ntr_nv_is_n_pls: np.ndarray,
+        theta_mrt_hum_ntr_non_nv_is_n_pls: np.ndarray,
+        x_r_ntr_non_nv_is_n_pls: np.ndarray
+):
+
+    # ステップnにおける室iの水蒸気圧, Pa, [i, 1]
+    p_v_r_ntr_non_nv_is_n_pls = psy.get_p_v_r_is_n(x_r_is_n=x_r_ntr_non_nv_is_n_pls)
+
+    # 厚着時のClo値
+    clo_heavy_is = np.full_like(a=theta_r_ntr_nv_is_n_pls, fill_value=occupants.get_clo_heavy(), dtype=float)
+
     # 暖房判定用のPMV計算
 
     # 暖房時の風速を対流暖房時0.2m/s・放射暖房時0.0m/sに設定する。
@@ -482,11 +530,9 @@ def _get_x_is_n_pls_pmv_control(
         method=method
     )
 
-    x_cooling_is_n_pls = pmv_cooling_is_n
-    x_window_open_is_n_pls = pmv_window_open_is_n
     x_heating_is_n_pls = pmv_heating_is_n
 
-    return x_cooling_is_n_pls, x_window_open_is_n_pls, x_heating_is_n_pls
+    return x_heating_is_n_pls
 
 
 def _get_theta_target(
