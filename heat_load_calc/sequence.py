@@ -21,6 +21,7 @@ from heat_load_calc.recorder import Recorder
 from heat_load_calc.conditions import GroundConditions
 from heat_load_calc.operation_mode import Operation, OperationMode
 from heat_load_calc.shape_factor import ShapeFactorMethod
+from heat_load_calc import season
 
 
 # ロガー
@@ -62,8 +63,8 @@ class Sequence:
         es = Equipments(d=d['equipments'], id_r_is=rms.id_r_is, id_b_js=bs.id_js, connected_room_id_js=bs.connected_room_id_js, p_is_js=bs.p_is_js)
 
         # Operation Class
-        op = operation_mode.Operation.make_operation(
-            d=d['common'],
+        op = operation_mode.Operation(
+            d_common=d['common'],
             t_ac_mode_is_ns=scd.t_ac_mode_is_ns,
             r_ac_demand_is_ns=scd.r_ac_demand_is_ns,
             n_rm=rms.n_r

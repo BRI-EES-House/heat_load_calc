@@ -5,14 +5,16 @@ import pandas as pd
 
 from heat_load_calc import region
 from heat_load_calc import weather
+from heat_load_calc.interval import Interval
 
 class Season:
 
-    def __init__(self, summer: np.ndarray, winter: np.ndarray, middle: np.ndarray):
+    def __init__(self, summer: np.ndarray, winter: np.ndarray, middle: np.ndarray, itv: Interval):
 
         self._summer = summer
         self._winter = winter
         self._middle = middle
+        self._itv = itv
     
     @property
     def summer(self) -> np.ndarray:
@@ -29,8 +31,16 @@ class Season:
         """is middle period ? [365]"""
         return self._middle
 
+    def get_is_summer_season(self) -> np.ndarray:
+        """is summer period ? [N]"""
+        return self._summer.repeat(self._itv.get_n_hour())
+    
+    def get_is_winter_season(self) -> np.ndarray:
+        """is winter period ? [N]"""
+        return self._winter.repeat(self._itv.get_n_hour())
 
-def make_season(d_common: Dict, w: weather.Weather):
+
+def make_season(d_common: Dict, w: weather.Weather, itv: Interval = Interval.M15):
     """make season class
 
     Args:
@@ -48,7 +58,7 @@ def make_season(d_common: Dict, w: weather.Weather):
         is_winter_period_set=is_winter_period_set
     )
 
-    return Season(summer=summer, winter=winter, middle=middle)
+    return Season(summer=summer, winter=winter, middle=middle, itv=itv)
 
 
 def _get_season_status(d_common: Dict, w: weather.Weather | None = None) -> Tuple[Optional[str], Optional[str], Optional[str], Optional[str], bool, bool]:

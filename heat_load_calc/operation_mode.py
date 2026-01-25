@@ -161,24 +161,30 @@ class OperationSchedule:
 
 class Operation:
 
-    def __init__(
-            self,
-            ac_method: ACMethod,
-            x_lower_target_is_ns: np.ndarray,
-            x_upper_target_is_ns: np.ndarray,
-            r_ac_demand_is_ns: np.ndarray,
-            n_rm: int
-    ):
+    def __init__(self, d_common: dict, t_ac_mode_is_ns: np.ndarray, r_ac_demand_is_ns: np.ndarray, n_rm: int):
         """
 
         Args:
-            ac_method: 運転モードの決定方法
-            x_lower_target_is_ns: ステップ n における室 i の目標下限値
-            x_upper_target_is_ns: ステップ n における室 i の目標上限値
-            r_ac_demand_is_ns: ステップ n における室 i の空調需要
-            n_rm: 室の数
+            d_common: input dictionary
+            t_ac_mode_is_ns: ac mode of room i at step n, [I, N]
+            r_ac_demand_is_ns: AC demmand of room i at step n, [I, N]
+            n_rm: number of rooms
         """
-        
+
+        # get AC method
+        ac_method = ACMethod(d_common['ac_method'])
+
+        # AC configs
+        # One config consists of the parameters below.
+        # - ID
+        # - upper limit
+        # - lower limit
+        ac_configs = ACConfigs.set_ac_configs(d_common=d_common)
+
+        # lower and upper target, [I, N]
+        x_lower_target_is_ns = np.vectorize(ac_configs.get_lower)(t_ac_mode_is_ns)
+        x_upper_target_is_ns = np.vectorize(ac_configs.get_upper)(t_ac_mode_is_ns)
+
         self._ac_method = ac_method
         self._x_lower_target_is_ns = x_lower_target_is_ns
         self._x_upper_target_is_ns = x_upper_target_is_ns
@@ -186,34 +192,6 @@ class Operation:
         self._n_rm = n_rm
 
         self._operation_schedule_is_ns = np.vectorize(OperationSchedule)(x_lower_target_is_ns, x_upper_target_is_ns, r_ac_demand_is_ns)
-                                         
-    @classmethod
-    def make_operation(cls, d: Dict, t_ac_mode_is_ns: np.ndarray, r_ac_demand_is_ns: np.ndarray, n_rm: int):
-        """Operation クラスを作成する。
-        Make Operation Class.
-        Args:
-            d: 運転モードに関する入力情報
-            t_ac_mode_is_ns: ステップ n における室 i の空調モード
-            r_ac_demand_is_ns: ステップ n における室 i の空調需要
-            n_rm: 室の数
-        Returns:
-            Operation クラス
-        """
-
-        ac_method = ACMethod(d['ac_method'])
-
-        ac_configs = ACConfigs.set_ac_configs(d_common=d)
-
-        x_lower_target_is_ns = np.vectorize(ac_configs.get_lower)(t_ac_mode_is_ns)
-        x_upper_target_is_ns = np.vectorize(ac_configs.get_upper)(t_ac_mode_is_ns)
-
-        return Operation(
-            ac_method=ac_method,
-            x_lower_target_is_ns=x_lower_target_is_ns,
-            x_upper_target_is_ns=x_upper_target_is_ns,
-            r_ac_demand_is_ns=r_ac_demand_is_ns,
-            n_rm=n_rm
-        )
 
     @property
     def ac_method(self):
