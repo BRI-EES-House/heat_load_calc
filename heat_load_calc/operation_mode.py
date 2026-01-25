@@ -2,6 +2,7 @@
 from functools import partial
 from enum import Enum
 from typing import Dict, Tuple, Callable
+from abc import ABC
 
 from heat_load_calc import pmv, occupants
 from heat_load_calc import psychrometrics as psy
@@ -32,6 +33,93 @@ class OperationMode(Enum):
 
     # 暖房・冷房停止で窓「閉」
     STOP_CLOSE = 4
+
+
+class ACConfigs:
+
+    class ACConfig:
+        def __init__(self, mode: int, lower: float, upper: float):
+
+            if lower >= upper:
+                raise ValueError('Lower value should be lower than upper value.')
+
+            self._mode = mode
+            self._lower = lower
+            self._upper = upper
+
+    def __init__(self, ac_configs: list[ACConfig]):
+        
+        self._ac_configs = ac_configs
+
+    @classmethod    
+    def set_ac_configs(cls, d_common: dict):
+
+        if 'ac_config' in d_common:
+
+            d_ac_configs = d_common['ac_config']
+
+            ac_configs = [cls.ACConfig(mode=d_ac_config['mode'], lower=d_ac_config['lower'], upper=d_ac_config['upper']) for d_ac_config in d_ac_configs]
+
+            # check the duplicated mode number
+            modes = [ac_config._mode for ac_config in ac_configs]
+
+            if len(modes) != len(set(modes)):
+                raise ValueError("Duplicated mode number was defined.")
+
+            return ACConfigs(ac_configs=ac_configs)
+        
+        else:
+
+            ac_method = ACMethod(d_common['ac_method'])
+
+            match ac_method:
+
+                case ACMethod.AIR_TEMPERATURE | ACMethod.SIMPLE | ACMethod.OT:
+
+                    return ACConfigs([
+                        cls.ACConfig(mode=1, lower=20.0, upper=27.0),
+                        cls.ACConfig(mode=2, lower=20.0, upper=27.0)
+                    ])
+                
+                case ACMethod.PMV:
+
+                    return ACConfigs([
+                        cls.ACConfig(mode=1, lower=-0.5, upper=0.5),
+                        cls.ACConfig(mode=2, lower=-0.5, upper=0.5)
+                    ])
+                
+                case _:
+                    raise ValueError()
+    
+    def get_lower(self, t_ac_mode: int) -> float | None:
+        
+        if t_ac_mode == 0:
+
+            return np.nan
+        
+        else:
+
+            x_lower_target = next((ac_config._lower for ac_config in self._ac_configs if ac_config._mode == t_ac_mode), None)
+
+            if x_lower_target is None:
+                ValueError()
+            
+            return x_lower_target
+
+    def get_upper(self, t_ac_mode: int) -> float | None:
+
+        if t_ac_mode == 0:
+
+            return np.nan
+        
+        else:
+
+            x_upper_target = next((ac_config._upper for ac_config in self._ac_configs if ac_config._mode == t_ac_mode), None)
+
+            if x_upper_target is None:
+                ValueError()
+            
+            return x_upper_target
 
 
 class Operation:
@@ -75,28 +163,10 @@ class Operation:
 
         ac_method = ACMethod(d['ac_method'])
 
-        if 'ac_config' in d:
-            ac_config = d['ac_config']
-        else:
-            if ac_method in [ACMethod.AIR_TEMPERATURE, ACMethod.SIMPLE, ACMethod.OT]:
-                ac_config = [
-                    {'mode': 1, 'lower': 20.0, 'upper': 27.0},
-                    {'mode': 2, 'lower': 20.0, 'upper': 27.0}
-                ]
-            elif ac_method == ACMethod.PMV:
-                ac_config = [
-                    {'mode': 1, 'lower': -0.5, 'upper': 0.5},
-                    {'mode': 2, 'lower': -0.5, 'upper': 0.5}
-                ]
-            else:
-                raise Exception()
+        ac_configs = ACConfigs.set_ac_configs(d_common=d)
 
-        x_lower_target_is_ns = np.full_like(t_ac_mode_is_ns, fill_value=np.nan, dtype=float)
-        x_upper_target_is_ns = np.full_like(t_ac_mode_is_ns, fill_value=np.nan, dtype=float)
-
-        for conf in ac_config:
-            x_lower_target_is_ns[t_ac_mode_is_ns == conf['mode']] = conf['lower']
-            x_upper_target_is_ns[t_ac_mode_is_ns == conf['mode']] = conf['upper']
+        x_lower_target_is_ns = np.vectorize(ac_configs.get_lower)(t_ac_mode_is_ns)
+        x_upper_target_is_ns = np.vectorize(ac_configs.get_upper)(t_ac_mode_is_ns)
 
         return Operation(
             ac_method=ac_method,
