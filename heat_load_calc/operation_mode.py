@@ -122,6 +122,43 @@ class ACConfigs:
             return x_upper_target
 
 
+class OperationSchedule:
+
+    def __init__(self, x_lower_target: float, x_upper_target: float, r_ac_demand: float):
+
+        self._x_lower_target = x_lower_target
+        self._x_upper_target = x_upper_target
+        self._r_ac_demand = r_ac_demand
+
+    def f(self, x_h:float, x_c:float, x_wop:float) -> OperationMode:
+
+        # 空調需要が0より大の場合（ケース 2）
+        if self._r_ac_demand > 0:
+
+            # 暖房用参照値が目標下限値を下回る場合は「暖房」とする。（ケース 2-1）
+            if x_h < self._x_lower_target:
+
+                return OperationMode.HEATING
+                
+            # 冷房用参照値が目標上限値を上回り、かつ、窓開け用参照値が目標上限値を上回る場合は「冷房」とする。（ケース 2-2-1）
+            elif (x_c > self._x_upper_target) & (x_wop > self._x_upper_target):
+                
+                return OperationMode.COOLING
+
+            # 冷房用参照値が目標上限値を上回り、かつ、窓開け用参照値が目標上限値以下の場合は「暖房・冷房停止で窓「開」」とする。（ケース 2-2-2）
+            elif (x_c > self._x_upper_target) & (x_wop <= self._x_upper_target):
+                return OperationMode.STOP_OPEN
+            
+            # 空港需要が0より大であるが、上記のケース2-1, 2-2-1, 2-2-2 を満たさない場合は「暖房・冷房停止で窓「閉」」とする。（ケース 2-3）
+            else:
+                return OperationMode.STOP_CLOSE
+
+        # 空調需要が0の場合は「暖房・冷房停止で窓「閉」」とする。（ケース 1）
+        else:
+
+            return OperationMode.STOP_CLOSE
+        
+
 class Operation:
 
     def __init__(
@@ -148,6 +185,8 @@ class Operation:
         self._r_ac_demand_is_ns = r_ac_demand_is_ns
         self._n_rm = n_rm
 
+        self._operation_schedule_is_ns = np.vectorize(OperationSchedule)(x_lower_target_is_ns, x_upper_target_is_ns, r_ac_demand_is_ns)
+                                         
     @classmethod
     def make_operation(cls, d: Dict, t_ac_mode_is_ns: np.ndarray, r_ac_demand_is_ns: np.ndarray, n_rm: int):
         """Operation クラスを作成する。
@@ -239,39 +278,11 @@ class Operation:
         else:
             raise Exception()
 
-        x_upper_target_is_n = self._x_upper_target_is_ns[:, n].reshape(-1, 1)
-        x_lower_target_is_n = self._x_lower_target_is_ns[:, n].reshape(-1, 1)
-        r_ac_demand_is_n = self._r_ac_demand_is_ns[:, n].reshape(-1, 1)
+        operation_schedule_is_n = self._operation_schedule_is_ns[:, n].reshape(-1, 1)
 
-        # 空調需要が0より大の場合をTrueとする。
-        is_op = r_ac_demand_is_n > 0
-
-        # ケース 1, 2-3
-        # 次を満たす場合は「暖房・冷房停止で窓「閉」」とする。
-        # ・空調需要が0
-        # ・空港需要が0より大であるが、次のケース2-1, 2-2-1, 2-2-2 を満たさない場合
-        t_operation_mode_is_n = np.full((r_ac_demand_is_n.shape[0], 1), OperationMode.STOP_CLOSE)
-
-        # ケース 2-1
-        # 次を満たす場合は「暖房」とする。
-        # ・空調需要が0より大
-        # ・暖房用参照値が目標下限値を下回る場合は「暖房」とする。
-        t_operation_mode_is_n[is_op & (x_heating_is_n_pls < x_lower_target_is_n)] = OperationMode.HEATING
-
-        # ケース 2-2-1
-        # 次を満たす場合は「冷房」とする。
-        # ・空調需要が0より大
-        # ・冷房用参照値が目標上限値を上回る場合
-        # ・窓開け用参照値が目標上限値を上回る場合
-        t_operation_mode_is_n[is_op & (x_cooling_is_n_pls > x_upper_target_is_n) & (x_window_open_is_n_pls > x_upper_target_is_n)] \
-            = OperationMode.COOLING
-
-        # ケース 2-2-2
-        # 次を満たす場合は「暖房・冷房停止で窓「開」」とする。
-        # ・冷房用参照値が目標上限値を上回る場合
-        # ・窓開け用参照値が目標上限値以下の場合
-        t_operation_mode_is_n[is_op & (x_cooling_is_n_pls > x_upper_target_is_n) & (x_window_open_is_n_pls <= x_upper_target_is_n)] \
-            = OperationMode.STOP_OPEN
+        t_operation_mode_is_n = np.vectorize(
+            lambda c, x_h, x_c, x_wop: c.f(x_h, x_c, x_wop)
+            )(operation_schedule_is_n, x_heating_is_n_pls, x_cooling_is_n_pls, x_window_open_is_n_pls)
 
         return t_operation_mode_is_n
 
