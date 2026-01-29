@@ -1,4 +1,4 @@
-from enum import Enum
+from enum import Enum, IntEnum
 
 
 class EInterval(Enum):
@@ -22,3 +22,14 @@ class EWeatherMethod(Enum):
     EES = 'ees'
     FILE = 'file'
 
+
+class ERegion(IntEnum):
+
+    Region1 = '1'
+    Region2 = '2'
+    Region3 = '3'
+    Region4 = '4'
+    Region5 = '5'
+    Region6 = '6'
+    Region7 = '7'
+    Region8 = '8'

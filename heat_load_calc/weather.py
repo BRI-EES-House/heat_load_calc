@@ -7,7 +7,7 @@ import math
 
 from heat_load_calc import solar_position
 from heat_load_calc.interval import Interval, EInterval
-from heat_load_calc.region import Region
+from heat_load_calc.region import ERegion, Region
 
 logger = logging.getLogger(name='HeatLoadCalc').getChild('Weather')
 
@@ -91,7 +91,7 @@ class Weather:
                 raise KeyError('Key region should be specified if the ees method applied.')
 
             # item "region"
-            region = Region(int(d_weather['region']))
+            region = Region(region=ERegion(int(d_weather['region'])))
 
             logger.info('make weather data based on the EES region')
 
@@ -496,15 +496,15 @@ def _get_filename(region: Region) -> str:
     """
 
     weather_data_filename = {
-        Region.Region1: '01_kitami.csv',  # 1地域（北見）
-        Region.Region2: '02_iwamizawa.csv',  # 2地域（岩見沢）
-        Region.Region3: '03_morioka.csv',  # 3地域（盛岡）
-        Region.Region4: '04_nagano.csv',  # 4地域（長野）
-        Region.Region5: '05_utsunomiya.csv',  # 5地域（宇都宮）
-        Region.Region6: '06_okayama.csv',  # 6地域（岡山）
-        Region.Region7: '07_miyazaki.csv',  # 7地域（宮崎）
-        Region.Region8: '08_naha.csv'  # 8地域（那覇）
-    }[region]
+        ERegion.Region1: '01_kitami.csv',  # 1地域（北見）
+        ERegion.Region2: '02_iwamizawa.csv',  # 2地域（岩見沢）
+        ERegion.Region3: '03_morioka.csv',  # 3地域（盛岡）
+        ERegion.Region4: '04_nagano.csv',  # 4地域（長野）
+        ERegion.Region5: '05_utsunomiya.csv',  # 5地域（宇都宮）
+        ERegion.Region6: '06_okayama.csv',  # 6地域（岡山）
+        ERegion.Region7: '07_miyazaki.csv',  # 7地域（宮崎）
+        ERegion.Region8: '08_naha.csv'  # 8地域（那覇）
+    }[region.region]
 
     return weather_data_filename
 

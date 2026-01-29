@@ -6,6 +6,7 @@ import pandas as pd
 from heat_load_calc import region
 from heat_load_calc import weather
 from heat_load_calc.interval import EInterval, Interval
+from heat_load_calc.region import Region, ERegion
 
 class Season:
 
@@ -143,7 +144,7 @@ def _get_season_status(d_common: Dict, w: weather.Weather | None = None) -> Tupl
                 raise KeyError('Key region should be specified if the ees method applied.')
         
             # item 'region'
-            r = region.Region(int(d_weather['region']))
+            r = Region(region=ERegion(int(d_weather['region'])))
 
             summer_start, summer_end, winter_start, winter_end, is_summer_period_set, is_winter_period_set = r.get_season_status()
 
