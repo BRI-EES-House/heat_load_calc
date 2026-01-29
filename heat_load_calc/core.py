@@ -2,7 +2,10 @@ import pandas as pd
 import logging
 from typing import Tuple, Dict
 
-from heat_load_calc import schedule, recorder, sequence, weather, period, conditions, interval
+from heat_load_calc import schedule, recorder, sequence, weather, period, conditions
+from heat_load_calc.interval import Interval
+from heat_load_calc.weather import Weather
+from heat_load_calc.input_all import InputAll
 
 logger = logging.getLogger('HeatLoadCalc').getChild('core')
 
@@ -29,18 +32,14 @@ def calc(
         「助走計算のうち建物全体を解く日数」は「助走計算を行う日数」で指定した値以下でないといけない。
     """
 
-    # Check the existance of the item "common" in the input file.
-    if 'common' not in d:
-        raise KeyError('Key common could not be found in the input file.')
-    
-    d_common = d['common']
+    ipt_all = InputAll(d=d)
 
-    # Set inteval class depending on the item 'interval' in common tag.
-    # If not specified in the file, 15 minute interval is set as default.   
-    itv: interval.Interval = interval.set_interval(d_common=d_common)
+    d_common = ipt_all.d_common
+
+    itv: Interval = Interval.create(ipt_common=ipt_all.ipt_common)
 
     # Make Weather class.
-    w: weather.Weather = weather.Weather.make_weather(
+    w: Weather = Weather.make_weather(
         d_common=d_common,
         itv=itv,
         entry_point_dir=entry_point_dir

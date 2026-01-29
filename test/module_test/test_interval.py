@@ -37,22 +37,3 @@ class TestInterval(unittest.TestCase):
         self.assertEqual('30min', Interval(eitv=EInterval.M30).get_pandas_freq())
         self.assertEqual('h', Interval(eitv=EInterval.H1).get_pandas_freq())
     
-    def test_set_interval(self):
-
-        itv = interval.set_interval(d_common={'interval': '1h'})
-        self.assertEqual(itv._eitv, EInterval.H1)
-    
-        itv = interval.set_interval(d_common={'interval': '30m'})
-        self.assertEqual(itv._eitv, EInterval.M30)
-
-        itv = interval.set_interval(d_common={'interval': '15m'})
-        self.assertEqual(itv._eitv, EInterval.M15)
-
-        itv = interval.set_interval(d_common={})
-        self.assertEqual(itv._eitv, EInterval.M15)
-    
-    def test_set_interval_read_error_wrong_item(self):
-
-        with pytest.raises(ValueError):
-            _ = interval.set_interval(d_common={'interval': '20min'})
-            

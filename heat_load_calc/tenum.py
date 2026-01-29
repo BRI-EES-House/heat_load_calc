@@ -14,3 +14,11 @@ class EInterval(Enum):
     H1 = '1h'
     M30 = '30m'
     M15 = '15m'
+
+
+class EWeatherMethod(Enum):
+    """Weather input method"""
+
+    EES = 'ees'
+    FILE = 'file'
+

@@ -2,6 +2,7 @@ from typing import Dict
 
 
 from heat_load_calc.tenum import EInterval
+from heat_load_calc.input_all import InputCommon
 
 
 """
@@ -88,17 +89,8 @@ class Interval:
             EInterval.H1: 'h'
         }[self._eitv]
 
+    @classmethod
+    def create(cls, ipt_common: InputCommon):
 
-def set_interval(d_common: Dict):
+        return Interval(eitv=ipt_common.itv)
 
-    # Check the existance of the item "interval" in the common tag.
-    # If not exist, M15 is set as default value.
-    if 'interval' not in d_common:
-
-        return Interval(eitv=EInterval.M15)
-
-    else:
-    
-        s_itv = d_common['interval']
-
-        return Interval(eitv=EInterval(s_itv))
