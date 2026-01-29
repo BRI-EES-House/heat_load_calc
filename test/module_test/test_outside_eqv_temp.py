@@ -4,7 +4,7 @@ import numpy as np
 
 from heat_load_calc import outside_eqv_temp as oet
 from heat_load_calc.weather import Weather
-from heat_load_calc.interval import Interval
+from heat_load_calc.interval import EInterval, Interval
 from heat_load_calc.direction import Direction
 from heat_load_calc.solar_shading import SolarShading, SolarShadingSimple
 from heat_load_calc import inclined_surface_solar_radiation
@@ -13,7 +13,7 @@ from heat_load_calc.window import Window, GlassType
 
 class TestOutsideEqvTemp(unittest.TestCase):
 
-    itv = Interval.M15
+    itv = Interval(EInterval.M15)
     n = itv.get_n_step_annual()
 
     a_sun_ns = np.zeros(n, dtype=float)

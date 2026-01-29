@@ -6,7 +6,7 @@ from typing import Tuple, Dict
 import math
 
 from heat_load_calc import solar_position
-from heat_load_calc.interval import Interval
+from heat_load_calc.interval import Interval, EInterval
 from heat_load_calc.region import Region
 
 logger = logging.getLogger(name='HeatLoadCalc').getChild('Weather')
@@ -23,7 +23,7 @@ class Weather:
             r_n_ns: np.ndarray,
             theta_o_ns: np.ndarray,
             x_o_ns: np.ndarray,
-            itv: Interval = Interval.M15
+            itv: Interval = Interval(eitv=EInterval.M15)
     ):
         """
 
@@ -124,6 +124,22 @@ class Weather:
         else:
 
             raise ValueError('Invalid value is specified for the method.')
+
+    @classmethod
+    def create_constant(cls, a_sun: float, h_sun: float, i_dn: float, i_sky: float, r_n: float, theta_o: float, x_o: float, itv: Interval = Interval(eitv=EInterval.M15)):
+
+        n_step_annual = itv.get_n_step_annual()
+
+        return Weather(
+            a_sun_ns=np.full(n_step_annual, fill_value=a_sun, dtype=float),
+             h_sun_ns=np.full(n_step_annual, fill_value=h_sun, dtype=float),
+            i_dn_ns=np.full(n_step_annual, fill_value=i_dn, dtype=float),
+            i_sky_ns=np.full(n_step_annual, fill_value=i_sky, dtype=float),
+            r_n_ns=np.full(n_step_annual, fill_value=r_n, dtype=float),
+            theta_o_ns=np.full(n_step_annual, fill_value=theta_o, dtype=float),
+            x_o_ns=np.full(n_step_annual, fill_value=x_o, dtype=float),
+            itv=Interval(eitv=EInterval.M15)           
+        )
 
     def get_weather_as_pandas_data_frame(self):
 
@@ -435,7 +451,7 @@ def _interpolate(weather_data: np.ndarray, interval: Interval, rolling: bool) ->
             8760 * 4 = 35040 in case of '30m' / 15分間隔の場合 
     """
 
-    if interval == Interval.H1:
+    if interval.interval == EInterval.H1:
 
         if rolling:
             # 拡張アメダスのデータが1月1日の1時から始まっているため1時間ずらして0時始まりのデータに修正する。
@@ -447,9 +463,9 @@ def _interpolate(weather_data: np.ndarray, interval: Interval, rolling: bool) ->
 
         # 補間比率の係数
         alpha = {
-            Interval.M30: np.array([1.0, 0.5]),
-            Interval.M15: np.array([1.0, 0.75, 0.5, 0.25])
-        }[interval]
+            EInterval.M30: np.array([1.0, 0.5]),
+            EInterval.M15: np.array([1.0, 0.75, 0.5, 0.25])
+        }[interval.interval]
 
         # 補間元データ1, 補間元データ2
         if rolling:

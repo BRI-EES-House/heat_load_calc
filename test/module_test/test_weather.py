@@ -2,7 +2,7 @@ import unittest
 import os
 
 from heat_load_calc.weather import Weather
-from heat_load_calc.interval import Interval
+from heat_load_calc.interval import EInterval, Interval
 
 
 class TestWeather(unittest.TestCase):
@@ -28,7 +28,7 @@ class TestWeather(unittest.TestCase):
     def test_weather_values_solar_position_ees_m15(self):
 
         # データの取得
-        w = Weather.make_weather(d_common=self._d_common_ees, itv=Interval.M15)
+        w = Weather.make_weather(d_common=self._d_common_ees, itv=Interval(eitv=EInterval.M15))
         d = w.get_weather_as_pandas_data_frame()
 
         # 確認する時刻のタイムスタンプとインデックス
@@ -57,7 +57,7 @@ class TestWeather(unittest.TestCase):
     def test_weather_values_solar_position_ees_m30(self):
 
         # データの取得
-        w = Weather.make_weather(d_common=self._d_common_ees, itv=Interval.M30)
+        w = Weather.make_weather(d_common=self._d_common_ees, itv=Interval(EInterval.M30))
         d = w.get_weather_as_pandas_data_frame()
 
         # 確認する時刻のタイムスタンプとインデックス
@@ -86,7 +86,7 @@ class TestWeather(unittest.TestCase):
     def test_weather_values_solar_position_ees_1h(self):
 
         # データの取得
-        w = Weather.make_weather(d_common=self._d_common_ees, itv=Interval.H1)
+        w = Weather.make_weather(d_common=self._d_common_ees, itv=Interval(EInterval.H1))
         d = w.get_weather_as_pandas_data_frame()
 
         # 確認する時刻のタイムスタンプとインデックス
@@ -115,7 +115,7 @@ class TestWeather(unittest.TestCase):
     def test_weather_values_solar_position_file_m15(self):
 
         # データの取得
-        w = Weather.make_weather(d_common=self._d_common_file, itv=Interval.M15, entry_point_dir=self.entry_point_dir)
+        w = Weather.make_weather(d_common=self._d_common_file, itv=Interval(EInterval.M15), entry_point_dir=self.entry_point_dir)
         d = w.get_weather_as_pandas_data_frame()
 
         # 確認する時刻のタイムスタンプとインデックス
@@ -144,7 +144,7 @@ class TestWeather(unittest.TestCase):
     def test_weather_values_solar_position_file_m30(self):
 
         # データの取得
-        w = Weather.make_weather(d_common=self._d_common_file, itv=Interval.M30, entry_point_dir=self.entry_point_dir)
+        w = Weather.make_weather(d_common=self._d_common_file, itv=Interval(EInterval.M30), entry_point_dir=self.entry_point_dir)
         d = w.get_weather_as_pandas_data_frame()
 
         # 確認する時刻のタイムスタンプとインデックス
@@ -173,7 +173,7 @@ class TestWeather(unittest.TestCase):
     def test_weather_values_solar_position_file_h1(self):
 
         # データの取得
-        w = Weather.make_weather(d_common=self._d_common_file, itv=Interval.H1, entry_point_dir=self.entry_point_dir)
+        w = Weather.make_weather(d_common=self._d_common_file, itv=Interval(EInterval.H1), entry_point_dir=self.entry_point_dir)
         d = w.get_weather_as_pandas_data_frame()
 
         # 確認する時刻のタイムスタンプとインデックス
@@ -209,7 +209,7 @@ class TestWeather(unittest.TestCase):
         """
 
         # データの取得
-        w = Weather.make_weather(d_common=self._d_common_ees, itv=Interval.M15)
+        w = Weather.make_weather(d_common=self._d_common_ees, itv=Interval(EInterval.M15))
         d = w.get_weather_as_pandas_data_frame()
 
         # 確認する時刻のタイムスタンプとインデックス
@@ -267,7 +267,7 @@ class TestWeather(unittest.TestCase):
         """
 
         # データの取得
-        w = Weather.make_weather(d_common=self._d_common_ees, itv=Interval.M30)
+        w = Weather.make_weather(d_common=self._d_common_ees, itv=Interval(EInterval.M30))
         d = w.get_weather_as_pandas_data_frame()
 
         # 確認する時刻のタイムスタンプとインデックス
@@ -325,7 +325,7 @@ class TestWeather(unittest.TestCase):
         """
 
         # データの取得
-        w = Weather.make_weather(d_common=self._d_common_ees, itv=Interval.H1)
+        w = Weather.make_weather(d_common=self._d_common_ees, itv=Interval(EInterval.H1))
         d = w.get_weather_as_pandas_data_frame()
 
         # 確認する時刻のタイムスタンプとインデックス
@@ -372,7 +372,7 @@ class TestWeather(unittest.TestCase):
         """
 
         # データの取得
-        w = Weather.make_weather(d_common=self._d_common_file, itv=Interval.M15, entry_point_dir=self.entry_point_dir)
+        w = Weather.make_weather(d_common=self._d_common_file, itv=Interval(EInterval.M15), entry_point_dir=self.entry_point_dir)
         d = w.get_weather_as_pandas_data_frame()
 
         # 確認する時刻のタイムスタンプとインデックス
@@ -430,7 +430,7 @@ class TestWeather(unittest.TestCase):
         """
 
         # データの取得
-        w = Weather.make_weather(d_common=self._d_common_file, itv=Interval.M30, entry_point_dir=self.entry_point_dir)
+        w = Weather.make_weather(d_common=self._d_common_file, itv=Interval(EInterval.M30), entry_point_dir=self.entry_point_dir)
         d = w.get_weather_as_pandas_data_frame()
 
         # 確認する時刻のタイムスタンプとインデックス
@@ -488,7 +488,7 @@ class TestWeather(unittest.TestCase):
         """
 
         # データの取得
-        w = Weather.make_weather(d_common=self._d_common_file, itv=Interval.H1, entry_point_dir=self.entry_point_dir)
+        w = Weather.make_weather(d_common=self._d_common_file, itv=Interval(EInterval.H1), entry_point_dir=self.entry_point_dir)
         d = w.get_weather_as_pandas_data_frame()
 
         # 確認する時刻のタイムスタンプとインデックス
@@ -528,9 +528,9 @@ class TestWeather(unittest.TestCase):
     def test_weather_values_file_hourly(self):
 
         # get data
-        w_m15 = Weather.make_weather(d_common=self._d_common_file, itv=Interval.M15, entry_point_dir=self.entry_point_dir)
-        w_m30 = Weather.make_weather(d_common=self._d_common_file, itv=Interval.M30, entry_point_dir=self.entry_point_dir)
-        w_h1 = Weather.make_weather(d_common=self._d_common_file, itv=Interval.H1, entry_point_dir=self.entry_point_dir)
+        w_m15 = Weather.make_weather(d_common=self._d_common_file, itv=Interval(EInterval.M15), entry_point_dir=self.entry_point_dir)
+        w_m30 = Weather.make_weather(d_common=self._d_common_file, itv=Interval(EInterval.M30), entry_point_dir=self.entry_point_dir)
+        w_h1 = Weather.make_weather(d_common=self._d_common_file, itv=Interval(EInterval.H1), entry_point_dir=self.entry_point_dir)
 
         w_m15_h = w_m15.theta_o_h_plus
         w_m30_h = w_m30.theta_o_h_plus
@@ -559,9 +559,9 @@ class TestWeather(unittest.TestCase):
     def test_weather_values_file_daily(self):
 
         # get data
-        w_m15 = Weather.make_weather(d_common=self._d_common_file, itv=Interval.M15, entry_point_dir=self.entry_point_dir)
-        w_m30 = Weather.make_weather(d_common=self._d_common_file, itv=Interval.M30, entry_point_dir=self.entry_point_dir)
-        w_h1 = Weather.make_weather(d_common=self._d_common_file, itv=Interval.H1, entry_point_dir=self.entry_point_dir)
+        w_m15 = Weather.make_weather(d_common=self._d_common_file, itv=Interval(EInterval.M15), entry_point_dir=self.entry_point_dir)
+        w_m30 = Weather.make_weather(d_common=self._d_common_file, itv=Interval(EInterval.M30), entry_point_dir=self.entry_point_dir)
+        w_h1 = Weather.make_weather(d_common=self._d_common_file, itv=Interval(EInterval.H1), entry_point_dir=self.entry_point_dir)
 
         w_m15_ave_d = w_m15.theta_o_ave_d
         w_m30_ave_d = w_m30.theta_o_ave_d

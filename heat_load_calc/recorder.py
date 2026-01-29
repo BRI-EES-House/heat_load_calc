@@ -5,7 +5,7 @@ import itertools
 from typing import List
 
 from heat_load_calc import pmv as pmv, psychrometrics as psy
-from heat_load_calc.interval import Interval
+from heat_load_calc.interval import EInterval, Interval
 from heat_load_calc.weather import Weather
 from heat_load_calc.schedule import Schedule
 from heat_load_calc.rooms import Rooms
@@ -33,7 +33,7 @@ class Recorder:
     # 本負荷計算に年の概念は無いが、便宜上1989年として記録する。（閏年でなければ、任意）
     YEAR = '1989'
 
-    def __init__(self, n_step_main: int, id_rm_is: List[int], id_bs_js: List[int], itv: Interval = Interval.M15):
+    def __init__(self, n_step_main: int, id_rm_is: List[int], id_bs_js: List[int], itv: Interval = Interval(eitv=EInterval.M15)):
         """
         ロギング用に numpy の配列を用意する。
 

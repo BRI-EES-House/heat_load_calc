@@ -1,6 +1,6 @@
 ﻿import unittest
 
-from heat_load_calc.interval import Interval
+from heat_load_calc.interval import EInterval, Interval
 from heat_load_calc import period
 
 
@@ -16,7 +16,7 @@ class TestPeriod(unittest.TestCase):
                     'run_up_building': 30
                 }
             },
-            itv=Interval.M15
+            itv=Interval(eitv=EInterval.M15)
         )
 
         self.assertEqual(365*4*24, n_step_main)
@@ -33,7 +33,7 @@ class TestPeriod(unittest.TestCase):
                     'run_up_building': 30
                 }
             },
-            itv=Interval.M30
+            itv=Interval(eitv=EInterval.M30)
         )
 
         self.assertEqual(365*2*24, n_step_main)
@@ -50,7 +50,7 @@ class TestPeriod(unittest.TestCase):
                     'run_up_building': 30
                 }
             },
-            itv=Interval.H1
+            itv=Interval(eitv=EInterval.H1)
         )
 
         self.assertEqual(365*24, n_step_main)
@@ -61,7 +61,7 @@ class TestPeriod(unittest.TestCase):
 
         n_step_main, n_step_run_up, n_step_run_up_build = period.get_n_step(
             d_common={},
-            itv=Interval.H1
+            itv=Interval(eitv=EInterval.H1)
         )
 
         self.assertEqual(365*24, n_step_main)
@@ -74,7 +74,7 @@ class TestPeriod(unittest.TestCase):
             d_common={
                 'calculation_days':{}
             },
-            itv=Interval.H1
+            itv=Interval(eitv=EInterval.H1)
         )
 
         self.assertEqual(365*24, n_step_main)
@@ -92,7 +92,7 @@ class TestPeriod(unittest.TestCase):
                         'run_up_building': 180
                     }
                 },
-                itv=Interval.H1
+                itv=Interval(eitv=EInterval.H1)
             )
 
     def test_out_of_range_of_main_calculation_day(self):
@@ -104,7 +104,7 @@ class TestPeriod(unittest.TestCase):
                         'main': 366
                     }
                 },
-                itv=Interval.M15
+                itv=Interval(eitv=EInterval.M15)
             )
 
     def test_out_of_range_of_run_up_calculation_day(self):
@@ -116,5 +116,5 @@ class TestPeriod(unittest.TestCase):
                         'run_up': 366
                     }
                 },
-                itv=Interval.M15
+                itv=Interval(eitv=EInterval.M15)
             )

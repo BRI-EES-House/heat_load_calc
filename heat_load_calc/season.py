@@ -5,7 +5,7 @@ import pandas as pd
 
 from heat_load_calc import region
 from heat_load_calc import weather
-from heat_load_calc.interval import Interval
+from heat_load_calc.interval import EInterval, Interval
 
 class Season:
 
@@ -33,14 +33,14 @@ class Season:
 
     def get_is_summer_season(self) -> np.ndarray:
         """is summer period ? [N]"""
-        return self._summer.repeat(self._itv.get_n_hour())
+        return self._summer.repeat(self.get_n_hour())
     
     def get_is_winter_season(self) -> np.ndarray:
         """is winter period ? [N]"""
-        return self._winter.repeat(self._itv.get_n_hour())
+        return self._winter.repeat(self.get_n_hour())
 
 
-def make_season(d_common: Dict, w: weather.Weather, itv: Interval = Interval.M15):
+def make_season(d_common: Dict, w: weather.Weather, itv: EInterval = EInterval.M15):
     """make season class
 
     Args:

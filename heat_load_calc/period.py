@@ -1,6 +1,6 @@
 from typing import Tuple, Dict
 
-from heat_load_calc import interval
+from heat_load_calc.interval import Interval
 
 
 N_D_MAIN_DEFAULT = 365              # 365 days
@@ -8,7 +8,7 @@ N_D_RUN_UP_DEFAULT = 365            # 365 days
 N_D_RUN_UP_BUILD_DEFAULT = 183      # 183 days
 
 
-def get_n_step(d_common: Dict, itv: interval.Interval) -> Tuple[int, int, int]:
+def get_n_step(d_common: dict, itv: Interval) -> tuple[int, int, int]:
     """Calculate the number of steps for calculation based on the calculation days.
 
     Args:

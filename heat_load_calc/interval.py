@@ -1,24 +1,23 @@
-from enum import Enum
 from typing import Dict
+
+
+from heat_load_calc.tenum import EInterval
+
 
 """
 時間間隔に関するモジュール
 """
 
 
-class Interval(Enum):
-    """Interval for calculation. / 計算するインターバル。
-    
-    Notes:
-        Interval is selected by;
-            1 hour
-            30 minutes
-            15 minutes.
-    """
+class Interval:
 
-    H1 = '1h'
-    M30 = '30m'
-    M15 = '15m'
+    def __init__(self, eitv: EInterval):
+
+        self._eitv = eitv
+    
+    @property
+    def interval(self):
+        return self._eitv
 
     def get_n_hour(self):
         """Calculate the number of steps deviding the hour. / 1時間を分割するステップ数を求める。
@@ -33,10 +32,10 @@ class Interval(Enum):
         """
 
         return {
-            Interval.H1: 1,
-            Interval.M30: 2,
-            Interval.M15: 4
-        }[self]
+            EInterval.H1: 1,
+            EInterval.M30: 2,
+            EInterval.M15: 4
+        }[self._eitv]
 
     def get_delta_h(self):
         """Get the interval time depending the number of steps dividing one hour. / 1時間を分割するステップに応じてインターバル時間を取得する。
@@ -46,10 +45,10 @@ class Interval(Enum):
         """
 
         return {
-            Interval.H1: 1.0,
-            Interval.M30: 0.5,
-            Interval.M15: 0.25
-        }[self]
+            EInterval.H1: 1.0,
+            EInterval.M30: 0.5,
+            EInterval.M15: 0.25
+        }[self._eitv]
 
     def get_delta_t(self):
         """Get the interval time depending the number of steps dividing one hour. / 1時間を分割するステップに応じてインターバル時間を取得する。
@@ -59,10 +58,10 @@ class Interval(Enum):
         """
 
         return {
-            Interval.H1: 3600,
-            Interval.M30: 1800,
-            Interval.M15: 900
-        }[self]
+            EInterval.H1: 3600,
+            EInterval.M30: 1800,
+            EInterval.M15: 900
+        }[self._eitv]
 
     def get_n_step_annual(self):
         """Get the annual number of steps. / 1年間のステップ数を取得する。
@@ -84,10 +83,10 @@ class Interval(Enum):
         """
 
         return {
-            Interval.M15: '15min',
-            Interval.M30: '30min',
-            Interval.H1: 'h'
-        }[self]
+            EInterval.M15: '15min',
+            EInterval.M30: '30min',
+            EInterval.H1: 'h'
+        }[self._eitv]
 
 
 def set_interval(d_common: Dict):
@@ -96,10 +95,10 @@ def set_interval(d_common: Dict):
     # If not exist, M15 is set as default value.
     if 'interval' not in d_common:
 
-        return Interval.M15
+        return Interval(eitv=EInterval.M15)
 
     else:
     
         s_itv = d_common['interval']
 
-        return Interval(s_itv)
+        return Interval(eitv=EInterval(s_itv))

@@ -3,8 +3,10 @@ import unittest
 import numpy as np
 import json
 
-from heat_load_calc import sequence, weather, conditions, schedule, interval
+from heat_load_calc import sequence, weather, conditions, schedule
 from heat_load_calc.operation_mode import OperationMode
+from heat_load_calc.interval import Interval
+from heat_load_calc.tenum import EInterval
 
 
 # 定常状態のテスト
@@ -40,33 +42,19 @@ class TestSteadyState(unittest.TestCase):
 
         # 外界条件
         # 全ての値は0.0で一定とする。日射・夜間放射はなし。
-        w = weather.Weather(
-            a_sun_ns=np.zeros(8760*4, dtype=float),
-            h_sun_ns=np.zeros(8760*4, dtype=float),
-            i_dn_ns=np.zeros(8760*4, dtype=float),
-            i_sky_ns=np.zeros(8760*4, dtype=float),
-            r_n_ns=np.zeros(8760*4, dtype=float),
-            theta_o_ns=np.zeros(8760*4, dtype=float),
-            x_o_ns=np.zeros(8760*4, dtype=float),
-            itv=interval.Interval.M15
-        )
+        w = weather.Weather.create_constant(a_sun=0.0, h_sun=0.0, i_dn=0.0, i_sky=0.0, r_n=0.0, theta_o=0.0, x_o=0.0)
 
-        # ステップ n の室 i における内部発熱, W, [i, n] ( = 100.0 )
-        # ステップ n の室 i における人体発湿を除く内部発湿, kg/s, [i, n] ( = 0.0 )
-        # ステップ n の室 i における局所換気量, m3/s, [i, n] ( = 0.0 )
-        # ステップ n の室 i における在室人数, [i, n] ( = 0 )
-        # ステップ n の室 i における空調需要, [i, n] ( = 0.0 )
-        scd = schedule.Schedule(
-            q_gen_is_ns=np.full((1, 8760*4), 100.0, dtype=float),
-            x_gen_is_ns=np.zeros((1, 8760*4), dtype=float),
-            v_mec_vent_local_is_ns=np.zeros((1, 8760*4), dtype=float),
-            n_hum_is_ns=np.zeros((1, 8760*4), dtype=float),
-            r_ac_demand_is_ns=np.zeros((1, 8760*4), dtype=float),
-            t_ac_mode_is_ns=np.zeros((1, 8760 * 4), dtype=float)
-        )
+        # 内部発熱：100 W
+        # 人体発湿を除く内部発湿： 0.0 kg/s
+        # 局所換気量： 0.0 m3/s
+        # 在室人数： 0 人
+        # 空調需要： 0.0
+        scd = schedule.Schedule.create_constant(n_rm=1, q_gen=100.0, x_gen=0.0, v_mec_vent_local=0.0, n_hum=0.0, r_ac_demanc=0.0, t_ac_mode=0)
+
+        itv = Interval(eitv=EInterval.M15)
 
         # pre_calc_parametersの構築
-        sqc = sequence.Sequence(itv=interval.Interval.M15, d=d, weather=w, scd=scd)
+        sqc = sequence.Sequence(itv=itv, d=d, weather=w, scd=scd)
 
         # ステップnの表面熱流は、別途計算した定常状態表面熱流とする
         q_srf_js_n = np.array([[16.915925628103, 16.915925628103, 16.915925628103, 16.915925628103, 16.168148743794,

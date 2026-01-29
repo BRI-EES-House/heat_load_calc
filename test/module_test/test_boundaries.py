@@ -7,7 +7,7 @@ from typing import Dict
 from heat_load_calc import boundaries
 from heat_load_calc.boundaries import Boundaries
 from heat_load_calc.boundaries import BoundaryType
-from heat_load_calc.interval import Interval
+from heat_load_calc.interval import EInterval, Interval
 from heat_load_calc.weather import Weather
 from heat_load_calc import shape_factor
 from heat_load_calc.shape_factor import ShapeFactorMethod
@@ -626,7 +626,7 @@ def _get_h_s_c_js():
 
 def _get_weather_class():
 
-    itv = Interval.M15
+    itv = Interval(eitv=EInterval.M15)
     n = itv.get_n_step_annual()
 
     a_sun_ns = np.zeros(n, dtype=float)    

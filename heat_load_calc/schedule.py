@@ -188,6 +188,22 @@ class Schedule:
             t_ac_mode_is_ns=t_ac_mode_is_ns
         )
 
+    @classmethod
+    def create_constant(cls, n_rm: int, q_gen: float | list[float], x_gen: float | list[float], v_mec_vent_local: float | list[float], n_hum: float | list[float], r_ac_demanc: float | list[float], t_ac_mode: int | list[int], itv: interval.Interval = interval.Interval(eitv=interval.EInterval.M15)):
+
+        n_step = itv.get_n_step_annual()
+
+        return Schedule(
+            q_gen_is_ns=np.array(q_gen).reshape(-1, 1).repeat(n_step, axis=1),
+            x_gen_is_ns=np.array(x_gen).reshape(-1, 1).repeat(n_step, axis=1),
+            v_mec_vent_local_is_ns=np.array(v_mec_vent_local).reshape(-1, 1).repeat(n_step, axis=1),
+            n_hum_is_ns=np.array(n_hum).reshape(-1, 1).repeat(n_step, axis=1),
+            r_ac_demand_is_ns=np.array(r_ac_demanc).reshape(-1, 1).repeat(n_step, axis=1),
+            t_ac_mode_is_ns=np.array(t_ac_mode).reshape(-1, 1).repeat(n_step, axis=1)
+        )
+
+
+
     def save_schedule(self, output_data_dir):
         """スケジュールをCSV形式で保存する
 
