@@ -6,8 +6,11 @@ from typing import Tuple, Dict
 import math
 
 from heat_load_calc import solar_position
-from heat_load_calc.interval import Interval, EInterval
-from heat_load_calc.region import ERegion, Region
+from heat_load_calc.interval import Interval
+from heat_load_calc.region import Region
+from heat_load_calc.tenum import ERegion, EInterval, EWeatherMethod
+from heat_load_calc.input_all import InputWeather, InputWeatherEES, InputWeatherFile
+
 
 logger = logging.getLogger(name='HeatLoadCalc').getChild('Weather')
 
@@ -67,63 +70,35 @@ class Weather:
         self._number_of_data = itv.get_n_step_annual()
 
     @classmethod
-    def make_weather(cls, d_common: Dict, itv: Interval, entry_point_dir: str = ""):
+    def make_weather(cls, ipt_weather: InputWeather, itv: Interval, entry_point_dir: str = ""):
 
-        # Check the existance of the item "weather" in common item.
-        if 'weather' not in d_common:
-            raise KeyError('Key weather could not be found in common tag.')
+        if ipt_weather.method == EWeatherMethod.EES:
 
-        # item "weather"
-        d_weather = d_common['weather']
-
-        # Check the existance of the item "method" in weather item.
-        if 'method' not in d_weather:
-            raise KeyError('Key method could not be found in weather tag.')
-
-        # item "method"
-        d_method = d_weather['method']
-        
-        # The method "ees" is the method that the weather data is loaded from the pre set data based on the region of the Japanese Energy Efficiency Standard.
-        if d_method == 'ees':
-
-            # Chech the existance of the item "region" in weather item.
-            if 'region' not in d_weather:
-                raise KeyError('Key region should be specified if the ees method applied.')
-
-            # item "region"
-            region = Region(region=ERegion(int(d_weather['region'])))
+            ipt_weather_ees: InputWeatherEES = ipt_weather
 
             logger.info('make weather data based on the EES region')
 
+            region = Region(ipt_weather_ees.region)
+
             return _make_weather_ees(region=region, itv=itv)
 
-        elif d_method == 'file':
+        elif ipt_weather.method == EWeatherMethod.FILE:
 
-            # Check the existance of the item "file_path" in weather item.
-            if 'file_path' not in d_weather:
-                raise KeyError('Key file_path should be specified if the file method applied.')
-            
-            # Check the existance of the item "latitude" and "longitude" in weather item.
-            if 'latitude' not in d_weather:
-                raise KeyError('Key latitude should be specified if the file method applied.')
-            if 'longitude' not in d_weather:
-                raise KeyError('Key longitude should be specified if the file method applied.')
+            ipt_weather_file: InputWeatherFile = ipt_weather
 
-            file_path = os.path.join(entry_point_dir, d_weather['file_path'])
+            file_path = os.path.join(entry_point_dir, ipt_weather_file.file_path)
+
+            latitude = ipt_weather_file.latitude
+
+            longitude = ipt_weather_file.longitude
 
             if not os.path.isfile(file_path):
                 raise FileExistsError('The specified file does not exist when file method is applied.')
-            
-            latitude = float(d_weather['latitude'])
-            longitude = float(d_weather['longitude'])
 
             logger.info('Load weather data from `{}`'.format(file_path))
 
             return _make_from_pd(file_path=file_path, itv=itv, latitude=latitude, longitude=longitude)
 
-        else:
-
-            raise ValueError('Invalid value is specified for the method.')
 
     @classmethod
     def create_constant(cls, a_sun: float, h_sun: float, i_dn: float, i_sky: float, r_n: float, theta_o: float, x_o: float, itv: Interval = Interval(eitv=EInterval.M15)):

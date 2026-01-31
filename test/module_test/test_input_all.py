@@ -274,5 +274,176 @@ def test_common_weather13():
     assert ipt_weather.longitude == 139.44
 
 
+def for_test_common_season():
+
+    return {
+        'weather': {
+            'method': 'ees',
+            'region': 6
+        }
+    }
 
 
+def test_common_season1():
+
+    d_common = for_test_common_season()
+
+    d_common['season'] = {
+        'is_winter_period_set': False
+    }
+
+    with pytest.raises(KeyError) as e:
+        input_all.InputCommon.read(d_common=d_common)
+    
+    assert 'Key is_summer_period_set could not be found in season tag.' in str(e.value)
+
+
+def test_common_season2():
+
+    d_common = for_test_common_season()
+
+    d_common['season'] = {
+        'is_summer_period_set': False
+    }
+
+    with pytest.raises(KeyError) as e:
+        input_all.InputCommon.read(d_common=d_common)
+    
+    assert 'Key is_winter_period_set could not be found in season tag.' in str(e.value)
+
+
+def test_common_season3():
+
+    d_common = for_test_common_season()
+
+    d_common['season'] = {
+        'is_summer_period_set': 'test',
+        'is_winter_period_set': False
+    }
+
+    with pytest.raises(ValueError) as e:
+        input_all.InputCommon.read(d_common=d_common)
+    
+    assert 'Value of tag is_summer_period_set should be bool.' in str(e.value)
+
+
+def test_common_season4():
+
+    d_common = for_test_common_season()
+
+    d_common['season'] = {
+        'is_summer_period_set': False,
+        'is_winter_period_set': 'test'
+    }
+
+    with pytest.raises(ValueError) as e:
+        input_all.InputCommon.read(d_common=d_common)
+    
+    assert 'Value of tag is_winter_period_set should be bool.' in str(e.value)
+
+
+def test_common_season5():
+
+    d_common = for_test_common_season()
+
+    d_common['season'] = {
+        'is_summer_period_set': False,
+        'is_winter_period_set': 'test'
+    }
+
+    with pytest.raises(ValueError) as e:
+        input_all.InputCommon.read(d_common=d_common)
+    
+    assert 'Value of tag is_winter_period_set should be bool.' in str(e.value)
+
+
+def test_common_season6():
+
+    def f(v1: str, v2: str):
+
+        d_common = for_test_common_season()
+
+        d_common['season'] = {
+            'is_summer_period_set': True,
+            'is_winter_period_set': False,
+            'summer_start': v1,
+            'summer_end': v2
+        }
+
+        return d_common
+
+    with pytest.raises(ValueError) as e:
+        input_all.InputCommon.read(d_common=f('7/1/1', '9/30'))
+    
+    assert 'Value of summer_start is wrong format or not exist day.' in str(e.value)
+
+    with pytest.raises(ValueError) as e:
+        input_all.InputCommon.read(d_common=f('7/32', '9/30'))
+    
+    assert 'Value of summer_start is wrong format or not exist day.' in str(e.value)
+
+    with pytest.raises(TypeError) as e:
+        input_all.InputCommon.read(d_common=f(2, '9/30'))
+    
+    assert 'Value of summer_start is not str.' in str(e.value)
+
+    with pytest.raises(ValueError) as e:
+        input_all.InputCommon.read(d_common=f('7/1', '9/30/1'))
+    
+    assert 'Value of summer_end is wrong format or not exist day.' in str(e.value)
+
+    with pytest.raises(ValueError) as e:
+        input_all.InputCommon.read(d_common=f('7/1', '9/31'))
+    
+    assert 'Value of summer_end is wrong format or not exist day.' in str(e.value)
+
+    with pytest.raises(TypeError) as e:
+        input_all.InputCommon.read(d_common=f('7/1', 2))
+    
+    assert 'Value of summer_end is not str.' in str(e.value)
+
+
+def test_common_season7():
+
+    def f(v1: str, v2: str):
+
+        d_common = for_test_common_season()
+
+        d_common['season'] = {
+            'is_summer_period_set': False,
+            'is_winter_period_set': True,
+            'winter_start': v1,
+            'winter_end': v2
+        }
+
+        return d_common
+
+    with pytest.raises(ValueError) as e:
+        input_all.InputCommon.read(d_common=f('11/1/1', '3/31'))
+    
+    assert 'Value of winter_start is wrong format or not exist day.' in str(e.value)
+
+    with pytest.raises(ValueError) as e:
+        input_all.InputCommon.read(d_common=f('11/32', '3/31'))
+    
+    assert 'Value of winter_start is wrong format or not exist day.' in str(e.value)
+
+    with pytest.raises(TypeError) as e:
+        input_all.InputCommon.read(d_common=f(2, '3/31'))
+    
+    assert 'Value of winter_start is not str.' in str(e.value)
+
+    with pytest.raises(ValueError) as e:
+        input_all.InputCommon.read(d_common=f('11/1', '3/31/1'))
+    
+    assert 'Value of winter_end is wrong format or not exist day.' in str(e.value)
+
+    with pytest.raises(ValueError) as e:
+        input_all.InputCommon.read(d_common=f('11/1', '3/32'))
+    
+    assert 'Value of winter_end is wrong format or not exist day.' in str(e.value)
+
+    with pytest.raises(TypeError) as e:
+        input_all.InputCommon.read(d_common=f('11/1', 2))
+    
+    assert 'Value of winter_end is not str.' in str(e.value)

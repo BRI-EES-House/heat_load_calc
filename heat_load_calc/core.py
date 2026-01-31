@@ -40,7 +40,7 @@ def calc(
 
     # Make Weather class.
     w: Weather = Weather.make_weather(
-        d_common=d_common,
+        ipt_weather=ipt_all.ipt_common.ipt_weather,
         itv=itv,
         entry_point_dir=entry_point_dir
     )
