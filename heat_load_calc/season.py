@@ -35,32 +35,33 @@ class Season:
 
     def get_is_summer_season(self) -> np.ndarray:
         """is summer period ? [N]"""
-        return self._summer.repeat(self.get_n_hour())
+        return self._summer.repeat(self._itv.get_n_hour())
     
     def get_is_winter_season(self) -> np.ndarray:
         """is winter period ? [N]"""
-        return self._winter.repeat(self.get_n_hour())
+        return self._winter.repeat(self._itv.get_n_hour())
 
 
-def make_season(ipt_season: InputSeason, w: weather.Weather, itv: EInterval = EInterval.M15, ipt_weather: InputWeather = None):
-    """make season class
+    @classmethod
+    def make_season(cls, ipt_season: InputSeason, w: weather.Weather, itv: EInterval = EInterval.M15, ipt_weather: InputWeather = None):
+        """make season class
 
-    Args:
-        d_common: The item 'common' tag of the input file.
-    """
+        Args:
+            d_common: The item 'common' tag of the input file.
+        """
 
-    summer_start, summer_end, winter_start, winter_end, is_summer_period_set, is_winter_period_set = _get_season_status(ipt_season=ipt_season, ipt_weather=ipt_weather, w=w)
+        summer_start, summer_end, winter_start, winter_end, is_summer_period_set, is_winter_period_set = _get_season_status(ipt_season=ipt_season, ipt_weather=ipt_weather, w=w)
 
-    summer, winter, middle = _get_bool_list_for_season_as_str(
-        summer_start=summer_start,
-        summer_end=summer_end,
-        winter_start=winter_start,
-        winter_end=winter_end,
-        is_summer_period_set=is_summer_period_set,
-        is_winter_period_set=is_winter_period_set
-    )
+        summer, winter, middle = _get_bool_list_for_season_as_str(
+            summer_start=summer_start,
+            summer_end=summer_end,
+            winter_start=winter_start,
+            winter_end=winter_end,
+            is_summer_period_set=is_summer_period_set,
+            is_winter_period_set=is_winter_period_set
+        )
 
-    return Season(summer=summer, winter=winter, middle=middle, itv=itv)
+        return Season(summer=summer, winter=winter, middle=middle, itv=itv)
 
 
 def _get_season_status(ipt_season: InputSeason, ipt_weather: InputWeather, w: weather.Weather | None = None) -> Tuple[Optional[str], Optional[str], Optional[str], Optional[str], bool, bool]:

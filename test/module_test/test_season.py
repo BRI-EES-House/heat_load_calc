@@ -495,7 +495,7 @@ class TestSeason(unittest.TestCase):
             winter_end='1/3'
         )
 
-        s = season.make_season(ipt_season=ipt_season, w=None)
+        s = season.Season.make_season(ipt_season=ipt_season, w=None)
 
         # 1/1
         self.assertEqual(s.summer[0], False)
@@ -567,14 +567,14 @@ class TestSeason(unittest.TestCase):
 
 
         with pytest.raises(ValueError):
-            season.make_season(ipt_season=ipt_season, w=None)
+            season.Season.make_season(ipt_season=ipt_season, w=None)
     
     def test_make_season_ees(self):
 
         ipt_season: InputSeason = InputSeasonNotDefined()
         ipt_weather: InputWeather = InputWeatherEES(method=EWeatherMethod.EES, region=ERegion.Region1)
 
-        s = season.make_season(ipt_season=ipt_season, w=None, ipt_weather=ipt_weather)
+        s = season.Season.make_season(ipt_season=ipt_season, w=None, ipt_weather=ipt_weather)
 
         # region 1(Kitami)
         # winter: 9/24 ~ 6/7

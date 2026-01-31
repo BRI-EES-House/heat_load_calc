@@ -5,7 +5,8 @@ from typing import Tuple, Dict
 from heat_load_calc import schedule, recorder, sequence, weather, period, conditions
 from heat_load_calc.interval import Interval
 from heat_load_calc.weather import Weather
-from heat_load_calc.input_all import InputAll
+from heat_load_calc.input_all import InputAll, InputCommon
+from heat_load_calc.season import Season
 
 logger = logging.getLogger('HeatLoadCalc').getChild('core')
 
@@ -34,16 +35,20 @@ def calc(
 
     ipt_all = InputAll(d=d)
 
+    ipt_common: InputCommon = ipt_all.ipt_common
+
     d_common = ipt_all.d_common
 
     itv: Interval = Interval.create(ipt_common=ipt_all.ipt_common)
 
     # Make Weather class.
     w: Weather = Weather.make_weather(
-        ipt_weather=ipt_all.ipt_common.ipt_weather,
+        ipt_weather=ipt_common.ipt_weather,
         itv=itv,
         entry_point_dir=entry_point_dir
     )
+
+    season: Season = Season.make_season(ipt_season=ipt_common.ipt_season, w=w, itv=itv, ipt_weather=ipt_common.ipt_weather)
 
     # Make Schedule class.
     scd: schedule.Schedule = schedule.Schedule.get_schedule(
