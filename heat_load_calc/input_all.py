@@ -120,7 +120,9 @@ class InputSeasonNotDefined(InputSeason):
 @dataclass
 class InputWeather(ABC):
 
-    method: EWeatherMethod
+    @property
+    @abstractmethod
+    def method(self) -> EWeatherMethod: ...
 
     @classmethod
     def read(cls, d_weather: dict):
@@ -129,10 +131,8 @@ class InputWeather(ABC):
         if 'method' not in d_weather:
             raise KeyError('Key method could not be found in weather tag.')
         
-        method =  EWeatherMethod(d_weather['method'])
-
         # 'method' takes the value of either 'ees' or 'file'.
-        match method:
+        match EWeatherMethod(d_weather['method']):
 
             case EWeatherMethod.EES:
 
@@ -143,7 +143,7 @@ class InputWeather(ABC):
                 # Tag 'region' should be number which is 1, 2, 3, 4, 5, 6, 7, or 8 with representing the region.
                 region = ERegion(int(d_weather['region']))
                 
-                return InputWeatherEES(method=method, region=region)
+                return InputWeatherEES(region=region)
                             
             case EWeatherMethod.FILE:
 
@@ -173,7 +173,7 @@ class InputWeather(ABC):
                 if (longitude < -180.0) or (longitude > 180.0):
                     raise ValueError('Longitude should be defined between -180.0 deg. and 180.0 deg.')
                 
-                return InputWeatherFile(method=method, file_path=file_path, latitude=latitude, longitude=longitude)
+                return InputWeatherFile(file_path=file_path, latitude=latitude, longitude=longitude)
             
             case _:
 
@@ -183,6 +183,7 @@ class InputWeather(ABC):
 class InputWeatherEES(InputWeather):
 
     region: ERegion
+    method: EWeatherMethod = EWeatherMethod.EES
 
 @dataclass
 class InputWeatherFile(InputWeather):
@@ -190,6 +191,7 @@ class InputWeatherFile(InputWeather):
     file_path: str
     latitude: float
     longitude: float
+    method: EWeatherMethod = EWeatherMethod.FILE
 
 @dataclass
 class InputCommon:
