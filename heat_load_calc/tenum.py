@@ -33,3 +33,18 @@ class ERegion(IntEnum):
     Region6 = '6'
     Region7 = '7'
     Region8 = '8'
+
+
+class ENumberOfOccupants(Enum):
+    """specified method of number of occupants / 居住人数の指定方法
+    Specify the number of the occupants from one to four, or "auto".
+    "auto" is the way that the number of the occupants is decided based on the total floor area.
+    1~4人を指定するか、auto の場合は床面積から居住人数を指定する方法を選択する。
+
+    """
+
+    One = "1"
+    Two = "2"
+    Three = "3"
+    Four = "4"
+    Auto = "auto"

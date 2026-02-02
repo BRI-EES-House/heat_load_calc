@@ -2,7 +2,7 @@ import unittest
 import pytest
 
 from heat_load_calc import input_all
-from heat_load_calc.tenum import EInterval, ERegion, EWeatherMethod
+from heat_load_calc.tenum import EInterval, ERegion, EWeatherMethod, ENumberOfOccupants
 
 
 def for_test_common_interval():
@@ -447,3 +447,51 @@ def test_common_season7():
         input_all.InputCommon.read(d_common=f('11/1', 2))
     
     assert 'Value of winter_end is not str.' in str(e.value)
+
+
+def test_common_number_of_occupants1():
+
+    d_common = {
+        'weather': {
+            'method': 'ees',
+            'region': 6
+        }
+    }
+
+    ipt_common = input_all.InputCommon.read(d_common=d_common)
+
+    assert ipt_common.n_ocp == ENumberOfOccupants.Auto
+
+
+def test_common_number_of_occupants2():
+
+    def f(n: str):
+        return {
+            'weather': {
+                'method': 'ees',
+                'region': 6
+            },
+            'number_of_occupants': n
+        }
+
+    ipt_common = input_all.InputCommon.read(d_common=f('1'))
+
+    assert ipt_common.n_ocp == ENumberOfOccupants.One
+
+    ipt_common = input_all.InputCommon.read(d_common=f('2'))
+
+    assert ipt_common.n_ocp == ENumberOfOccupants.Two
+
+    ipt_common = input_all.InputCommon.read(d_common=f('3'))
+
+    assert ipt_common.n_ocp == ENumberOfOccupants.Three
+
+    ipt_common = input_all.InputCommon.read(d_common=f('4'))
+
+    assert ipt_common.n_ocp == ENumberOfOccupants.Four
+
+    with pytest.raises(ValueError) as e:
+        input_all.InputCommon.read(d_common=f('5'))
+    
+    assert '\'5\' is not a valid ENumberOfOccupants' in str(e.value)
+

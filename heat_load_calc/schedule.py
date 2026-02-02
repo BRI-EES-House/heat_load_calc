@@ -8,23 +8,9 @@ from os import path
 from enum import Enum, auto
 
 from heat_load_calc import interval
+from heat_load_calc.tenum import ENumberOfOccupants
 
 logger = logging.getLogger(name='HeatLoadCalc').getChild('Schedule')
-
-
-class NumberOfOccupants(Enum):
-    """specified method of number of occupants / 居住人数の指定方法
-    Specify the number of the occupants from one to four, or "auto".
-    "auto" is the way that the number of the occupants is decided based on the total floor area.
-    1~4人を指定するか、auto の場合は床面積から居住人数を指定する方法を選択する。
-
-    """
-
-    One = "1"
-    Two = "2"
-    Three = "3"
-    Four = "4"
-    Auto = "auto"
 
 
 class ScheduleType(Enum):
@@ -123,11 +109,11 @@ class Schedule:
         self._t_ac_mode_is_ns = t_ac_mode_is_ns
 
     @classmethod
-    def get_schedule(cls, number_of_occupants: str, a_f_is: List[float], itv: interval.Interval, scd_is: List[Dict]):
+    def get_schedule(cls, n_ocp: ENumberOfOccupants, a_f_is: List[float], itv: interval.Interval, scd_is: List[Dict]):
         """Make Schedule class.
 
         Args:
-            number_of_occupants: how to identify the occupants number. ('1', '2', '3', '4', or 'auto')
+            n_ocp: how to identify the occupants number. ('1', '2', '3', '4', or 'auto')
             a_floor_is: floor area of room i, m2, [i]
             itv: Interval class
             scds: list of the dictionary for schedule
@@ -139,7 +125,8 @@ class Schedule:
         _a_f_is = np.array(a_f_is)
 
         # identify mode for the number of occupants (One, Two, Three, Four, Auto)
-        noo = NumberOfOccupants(number_of_occupants)
+        #noo = ENumberOfOccupants(number_of_occupants)
+        noo = n_ocp
 
         # number of occupants for calculation / 計算で用いられる居住人数
         n_p_calc = _get_n_p_calc(noo=noo, a_f_is=_a_f_is)
@@ -279,7 +266,7 @@ class Schedule:
 
 
 def _get_schedules(
-        noo: NumberOfOccupants,
+        noo: ENumberOfOccupants,
         n_p: float,
         schedule_item: ScheduleItem,
         itv: interval.Interval,
@@ -302,7 +289,7 @@ def _get_schedules(
 
 
 def _get_schedule(
-        noo: NumberOfOccupants,
+        noo: ENumberOfOccupants,
         n_p: float,
         schedule_item: ScheduleItem,
         itv: interval.Interval,
@@ -365,7 +352,7 @@ def _get_interpolated_schedule(
         schedule_type_i: ScheduleType,
         schedule_i,
         n_step_day,
-        noo: NumberOfOccupants,
+        noo: ENumberOfOccupants,
         n_p: Optional[float] = None
 ) -> np.ndarray:
     """Returns a list linearly interpolated by the number of occupants. / 世帯人数で線形補間したリストを返す
@@ -415,7 +402,7 @@ def _get_interpolated_schedule(
 
     elif schedule_type_i == ScheduleType.NUMBER:
 
-        if noo in [NumberOfOccupants.One, NumberOfOccupants.Two, NumberOfOccupants.Three, NumberOfOccupants.Four]:
+        if noo in [ENumberOfOccupants.One, ENumberOfOccupants.Two, ENumberOfOccupants.Three, ENumberOfOccupants.Four]:
 
             scd = _check_and_read_value(d=schedule_i[str(noo.value)][day_type], schedule_item=schedule_item, n_step_day=n_step_day)
 
@@ -424,7 +411,7 @@ def _get_interpolated_schedule(
             else:
                 return scd
 
-        elif noo == NumberOfOccupants.Auto:
+        elif noo == ENumberOfOccupants.Auto:
 
             if n_p is None:
                 raise Exception("n_p should be defined.")
@@ -608,7 +595,7 @@ def _load_json_file(filename: str) -> Dict:
     return d_json
 
 
-def _get_n_p_calc(noo: NumberOfOccupants, a_f_is: np.ndarray) -> float:
+def _get_n_p_calc(noo: ENumberOfOccupants, a_f_is: np.ndarray) -> float:
     """Calculate the number of the occupants based on the total floor area. / 床面積の合計から居住人数を計算する。
     
     Args:
@@ -621,23 +608,23 @@ def _get_n_p_calc(noo: NumberOfOccupants, a_f_is: np.ndarray) -> float:
 
     match noo:
 
-        case NumberOfOccupants.One:
+        case ENumberOfOccupants.One:
 
             return 1.0
 
-        case NumberOfOccupants.Two:
+        case ENumberOfOccupants.Two:
 
             return 2.0
 
-        case NumberOfOccupants.Three:
+        case ENumberOfOccupants.Three:
 
             return 3.0
         
-        case NumberOfOccupants.Four:
+        case ENumberOfOccupants.Four:
 
             return 4.0
         
-        case NumberOfOccupants.Auto:
+        case ENumberOfOccupants.Auto:
 
             # total floor area / 床面積の合計, m2
             a_f_total = a_f_is.sum()

@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 from datetime import datetime
 
 
-from heat_load_calc.tenum import EInterval, EWeatherMethod, ERegion
+from heat_load_calc.tenum import EInterval, EWeatherMethod, ERegion, ENumberOfOccupants
 
 
 @dataclass
@@ -202,6 +202,8 @@ class InputCommon:
 
     ipt_season: InputSeason
 
+    n_ocp: ENumberOfOccupants
+
     @classmethod
     def read(self, d_common: dict):
 
@@ -227,11 +229,16 @@ class InputCommon:
         else:
 
             ipt_season = InputSeasonNotDefined()
+        
+        _n_ocp = d_common['number_of_occupants'] if 'number_of_occupants' in d_common else 'auto'
+
+        n_ocp = ENumberOfOccupants(_n_ocp)
 
         return InputCommon(
             itv = itv,
             ipt_weather=ipt_weather,
-            ipt_season=ipt_season
+            ipt_season=ipt_season,
+            n_ocp=n_ocp
         )
 
 

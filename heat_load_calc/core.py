@@ -52,7 +52,7 @@ def calc(
 
     # Make Schedule class.
     scd: schedule.Schedule = schedule.Schedule.get_schedule(
-        number_of_occupants='auto',
+        n_ocp=ipt_common.n_ocp,
         a_f_is=[r['floor_area'] for r in d['rooms']],
         itv=itv,
         scd_is=[r['schedule'] for r in d['rooms']]

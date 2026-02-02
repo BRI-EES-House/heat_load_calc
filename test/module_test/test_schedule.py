@@ -6,7 +6,8 @@ import numpy as np
 
 from heat_load_calc.schedule import Schedule
 from heat_load_calc import schedule
-from heat_load_calc.interval import EInterval, Interval
+from heat_load_calc.interval import Interval
+from heat_load_calc.tenum import EInterval, ENumberOfOccupants
 
 
 class TestSchedule(unittest.TestCase):
@@ -59,7 +60,7 @@ class TestSchedule(unittest.TestCase):
 
         a_floor_is = [10.0, 10.0, 10.0, 10.0]
 
-        s = Schedule.get_schedule(number_of_occupants='1', a_f_is=a_floor_is, itv=Interval(eitv=EInterval.M15), scd_is=self._scd_is)
+        s = Schedule.get_schedule(n_ocp=ENumberOfOccupants.One, a_f_is=a_floor_is, itv=Interval(eitv=EInterval.M15), scd_is=self._scd_is)
 
         for i, d in zip([0, 1, 2, 3], [self._mor, self._oor, self._nor, self._zero]):
 
@@ -71,7 +72,7 @@ class TestSchedule(unittest.TestCase):
 
         a_floor_is = [10.0, 10.0, 10.0, 10.0]
 
-        s = Schedule.get_schedule(number_of_occupants='2', a_f_is=a_floor_is, itv=Interval(EInterval.M15), scd_is=self._scd_is)
+        s = Schedule.get_schedule(n_ocp=ENumberOfOccupants.Two, a_f_is=a_floor_is, itv=Interval(EInterval.M15), scd_is=self._scd_is)
 
         for i, d in zip([0, 1, 2, 3], [self._mor, self._oor, self._nor, self._zero]):
 
@@ -83,7 +84,7 @@ class TestSchedule(unittest.TestCase):
 
         a_floor_is = [10.0, 10.0, 10.0, 10.0]
 
-        s = Schedule.get_schedule(number_of_occupants='3', a_f_is=a_floor_is, itv=Interval(EInterval.M15), scd_is=self._scd_is)
+        s = Schedule.get_schedule(n_ocp=ENumberOfOccupants.Three, a_f_is=a_floor_is, itv=Interval(EInterval.M15), scd_is=self._scd_is)
 
         for i, d in zip([0, 1, 2, 3], [self._mor, self._oor, self._nor, self._zero]):
 
@@ -95,7 +96,7 @@ class TestSchedule(unittest.TestCase):
 
         a_floor_is = [10.0, 10.0, 10.0, 10.0]
 
-        s = Schedule.get_schedule(number_of_occupants='4', a_f_is=a_floor_is, itv=Interval(EInterval.M15), scd_is=self._scd_is)
+        s = Schedule.get_schedule(n_ocp=ENumberOfOccupants.Four, a_f_is=a_floor_is, itv=Interval(EInterval.M15), scd_is=self._scd_is)
 
         for i, d in zip([0, 1, 2, 3], [self._mor, self._oor, self._nor, self._zero]):
 
@@ -107,7 +108,7 @@ class TestSchedule(unittest.TestCase):
 
         a_floor_is = [5.0, 5.0, 5.0, 5.0]
 
-        s = Schedule.get_schedule(number_of_occupants='auto', a_f_is=a_floor_is, itv=Interval(EInterval.M15), scd_is=self._scd_is)
+        s = Schedule.get_schedule(n_ocp=ENumberOfOccupants.Auto, a_f_is=a_floor_is, itv=Interval(EInterval.M15), scd_is=self._scd_is)
 
         for i, d in zip([0, 1, 2, 3], [self._mor, self._oor, self._nor, self._zero]):
 
@@ -119,7 +120,7 @@ class TestSchedule(unittest.TestCase):
 
         a_floor_is = [7.5, 7.5, 7.5, 7.5]
 
-        s = Schedule.get_schedule(number_of_occupants='auto', a_f_is=a_floor_is, itv=Interval(EInterval.M15), scd_is=self._scd_is)
+        s = Schedule.get_schedule(n_ocp=ENumberOfOccupants.Auto, a_f_is=a_floor_is, itv=Interval(EInterval.M15), scd_is=self._scd_is)
 
         for i, d in zip([0, 1, 2, 3], [self._mor, self._oor, self._nor, self._zero]):
 
@@ -131,7 +132,7 @@ class TestSchedule(unittest.TestCase):
 
         a_floor_is = [10.0, 10.0, 10.0, 10.0]
 
-        s = Schedule.get_schedule(number_of_occupants='auto', a_f_is=a_floor_is, itv=Interval(EInterval.M15), scd_is=self._scd_is)
+        s = Schedule.get_schedule(n_ocp=ENumberOfOccupants.Auto, a_f_is=a_floor_is, itv=Interval(EInterval.M15), scd_is=self._scd_is)
 
         for i, d in zip([0, 1, 2, 3], [self._mor, self._oor, self._nor, self._zero]):
 
@@ -153,7 +154,7 @@ class TestSchedule(unittest.TestCase):
 
         a_floor_is = [15.0, 15.0, 15.0, 15.0]
 
-        s = Schedule.get_schedule(number_of_occupants='auto', a_f_is=a_floor_is, itv=Interval(EInterval.M15), scd_is=self._scd_is)
+        s = Schedule.get_schedule(n_ocp=ENumberOfOccupants.Auto, a_f_is=a_floor_is, itv=Interval(EInterval.M15), scd_is=self._scd_is)
 
         for i, d in zip([0, 1, 2, 3], [self._mor, self._oor, self._nor, self._zero]):
 
@@ -165,7 +166,7 @@ class TestSchedule(unittest.TestCase):
 
         a_floor_is = [20.0, 20.0, 20.0, 20.0]
 
-        s = Schedule.get_schedule(number_of_occupants='auto', a_f_is=a_floor_is, itv=Interval(EInterval.M15), scd_is=self._scd_is)
+        s = Schedule.get_schedule(n_ocp=ENumberOfOccupants.Auto, a_f_is=a_floor_is, itv=Interval(EInterval.M15), scd_is=self._scd_is)
 
         for i, d in zip([0, 1, 2, 3], [self._mor, self._oor, self._nor, self._zero]):
 
@@ -187,7 +188,7 @@ class TestSchedule(unittest.TestCase):
 
         a_floor_is = [22.5, 22.5, 22.5, 22.5]
 
-        s = Schedule.get_schedule(number_of_occupants='auto', a_f_is=a_floor_is, itv=Interval(EInterval.M15), scd_is=self._scd_is)
+        s = Schedule.get_schedule(n_ocp=ENumberOfOccupants.Auto, a_f_is=a_floor_is, itv=Interval(EInterval.M15), scd_is=self._scd_is)
 
         for i, d in zip([0, 1, 2, 3], [self._mor, self._oor, self._nor, self._zero]):
 
@@ -199,7 +200,7 @@ class TestSchedule(unittest.TestCase):
 
         a_floor_is = [26.25, 26.25, 26.25, 26.25]
 
-        s = Schedule.get_schedule(number_of_occupants='auto', a_f_is=a_floor_is, itv=Interval(EInterval.M15), scd_is=self._scd_is)
+        s = Schedule.get_schedule(n_ocp=ENumberOfOccupants.Auto, a_f_is=a_floor_is, itv=Interval(EInterval.M15), scd_is=self._scd_is)
 
         for i, d in zip([0, 1, 2, 3], [self._mor, self._oor, self._nor, self._zero]):
 
@@ -221,7 +222,7 @@ class TestSchedule(unittest.TestCase):
 
         a_floor_is = [30.0, 30.0, 30.0, 30.0]
 
-        s = Schedule.get_schedule(number_of_occupants='auto', a_f_is=a_floor_is, itv=Interval(EInterval.M15), scd_is=self._scd_is)
+        s = Schedule.get_schedule(n_ocp=ENumberOfOccupants.Auto, a_f_is=a_floor_is, itv=Interval(EInterval.M15), scd_is=self._scd_is)
 
         for i, d in zip([0, 1, 2, 3], [self._mor, self._oor, self._nor, self._zero]):
 
@@ -233,7 +234,7 @@ class TestSchedule(unittest.TestCase):
 
         a_floor_is = [37.5, 37.5, 37.5, 37.5]
 
-        s = Schedule.get_schedule(number_of_occupants='auto', a_f_is=a_floor_is, itv=Interval(EInterval.M15), scd_is=self._scd_is)
+        s = Schedule.get_schedule(n_ocp=ENumberOfOccupants.Auto, a_f_is=a_floor_is, itv=Interval(EInterval.M15), scd_is=self._scd_is)
 
         for i, d in zip([0, 1, 2, 3], [self._mor, self._oor, self._nor, self._zero]):
 
