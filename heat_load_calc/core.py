@@ -60,6 +60,7 @@ def calc(
         itv=itv,
         scd_is=[r['schedule'] for r in ipt_all.d_rooms]
     )
+    #[ipt_room.floor_area for ipt_room in ipt_all.ipt_rooms]
 
     # number of steps for main calculation
     # number of steps for run-up calculation
