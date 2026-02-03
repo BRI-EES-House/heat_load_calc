@@ -8,6 +8,7 @@ from os import path
 from enum import Enum, auto
 
 from heat_load_calc import interval
+from heat_load_calc.input_rooms import InputSchedule
 from heat_load_calc.tenum import ENumberOfOccupants
 
 logger = logging.getLogger(name='HeatLoadCalc').getChild('Schedule')
@@ -109,7 +110,7 @@ class Schedule:
         self._t_ac_mode_is_ns = t_ac_mode_is_ns
 
     @classmethod
-    def get_schedule(cls, n_ocp: ENumberOfOccupants, a_f_is: List[float], itv: interval.Interval, scd_is: List[Dict]):
+    def get_schedule(cls, n_ocp: ENumberOfOccupants, a_f_is: List[float], itv: interval.Interval, scd_is: List[InputSchedule]):
         """Make Schedule class.
 
         Args:
@@ -270,7 +271,7 @@ def _get_schedules(
         n_p: float,
         schedule_item: ScheduleItem,
         itv: interval.Interval,
-        scd_is: List[Dict]
+        scd_is: List[InputSchedule]
 ):
     
     # Read the list of the schedule type(ScheduleType Enum Class) and scheduled dictionary.
@@ -537,7 +538,7 @@ def _get_ceil_floor_np(n_p: float) -> Tuple[int, int]:
     return ceil_np, floor_np
 
 
-def _load_schedule(scd_i: Dict):
+def _load_schedule(scd_i: InputSchedule):
     """Load the schedule from the input dictionary or specified csv file.
     
     Args:
@@ -558,11 +559,11 @@ def _load_schedule(scd_i: Dict):
         schedule dictionary
     """
     
-    if "schedule_type" in scd_i:    # read from input file
-        schedule_type = ScheduleType(scd_i["schedule_type"])
-        schedule = scd_i["schedule"]
+    if "schedule_type" in scd_i.d_schedule:    # read from input file
+        schedule_type = ScheduleType(scd_i.d_schedule["schedule_type"])
+        schedule = scd_i.d_schedule["schedule"]
     else:   # read from json file
-        js = _load_json_file(filename=scd_i["name"])
+        js = _load_json_file(filename=scd_i.d_schedule["name"])
         schedule_type = ScheduleType(js["schedule_type"])
         schedule = js["schedule"]
 

@@ -65,9 +65,9 @@ def calc(
         n_ocp=ipt_common.n_ocp,
         a_f_is=[ipt_room.a_f for ipt_room in ipt_rooms],
         itv=itv,
-        scd_is=[r['schedule'] for r in ipt_all.d_rooms]
+        #scd_is=[r['schedule'] for r in ipt_all.d_rooms]
+        scd_is=[ipt_room.ipt_schedule for ipt_room in ipt_rooms]
     )
-    #[ipt_room.floor_area for ipt_room in ipt_all.ipt_rooms]
 
     # number of steps for main calculation
     # number of steps for run-up calculation
