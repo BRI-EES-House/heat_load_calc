@@ -7,6 +7,7 @@ from heat_load_calc.interval import Interval
 from heat_load_calc.weather import Weather
 from heat_load_calc.input_common import InputCommon
 from heat_load_calc.input_all import InputAll
+from heat_load_calc.input_rooms import InputRoom
 from heat_load_calc.season import Season
 
 logger = logging.getLogger('HeatLoadCalc').getChild('core')
@@ -37,12 +38,13 @@ def calc(
     ipt_all = InputAll(d=d)
 
     ipt_common: InputCommon = ipt_all.ipt_common
+    ipt_rooms: list[InputRoom] = ipt_all.ipt_rooms
 
     d_common = ipt_all.d_common
 
     d_rooms = ipt_all.d_rooms
 
-    itv: Interval = Interval.create(ipt_common=ipt_all.ipt_common)
+    itv: Interval = Interval.create(ipt_common=ipt_common)
 
     # Make Weather class.
     w: Weather = Weather.make_weather(
@@ -51,12 +53,17 @@ def calc(
         entry_point_dir=entry_point_dir
     )
 
-    season: Season = Season.make_season(ipt_season=ipt_common.ipt_season, w=w, itv=itv, ipt_weather=ipt_common.ipt_weather)
+    season: Season = Season.make_season(
+        ipt_season=ipt_common.ipt_season,
+        w=w,
+        itv=itv,
+        ipt_weather=ipt_common.ipt_weather
+    )
 
     # Make Schedule class.
     scd: schedule.Schedule = schedule.Schedule.get_schedule(
         n_ocp=ipt_common.n_ocp,
-        a_f_is=[r['floor_area'] for r in ipt_all.d_rooms],
+        a_f_is=[ipt_room.a_f for ipt_room in ipt_rooms],
         itv=itv,
         scd_is=[r['schedule'] for r in ipt_all.d_rooms]
     )
