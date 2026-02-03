@@ -2,7 +2,7 @@ from typing import Dict
 
 
 from heat_load_calc.tenum import EInterval
-from heat_load_calc.input_all import InputCommon
+from heat_load_calc.input_common import InputCommon
 
 
 """

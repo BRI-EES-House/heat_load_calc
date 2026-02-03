@@ -5,7 +5,8 @@ from typing import Tuple, Dict
 from heat_load_calc import schedule, recorder, sequence, weather, period, conditions
 from heat_load_calc.interval import Interval
 from heat_load_calc.weather import Weather
-from heat_load_calc.input_all import InputAll, InputCommon
+from heat_load_calc.input_common import InputCommon
+from heat_load_calc.input_all import InputAll
 from heat_load_calc.season import Season
 
 logger = logging.getLogger('HeatLoadCalc').getChild('core')
@@ -39,6 +40,8 @@ def calc(
 
     d_common = ipt_all.d_common
 
+    d_rooms = ipt_all.d_rooms
+
     itv: Interval = Interval.create(ipt_common=ipt_all.ipt_common)
 
     # Make Weather class.
@@ -53,9 +56,9 @@ def calc(
     # Make Schedule class.
     scd: schedule.Schedule = schedule.Schedule.get_schedule(
         n_ocp=ipt_common.n_ocp,
-        a_f_is=[r['floor_area'] for r in d['rooms']],
+        a_f_is=[r['floor_area'] for r in ipt_all.d_rooms],
         itv=itv,
-        scd_is=[r['schedule'] for r in d['rooms']]
+        scd_is=[r['schedule'] for r in ipt_all.d_rooms]
     )
 
     # number of steps for main calculation

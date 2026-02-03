@@ -3,7 +3,7 @@ import numpy as np
 import pytest
 
 from heat_load_calc import season
-from heat_load_calc.input_all import InputSeason, InputSeasonDefined, InputSeasonNotDefined, InputWeather, InputWeatherEES
+from heat_load_calc.input_common import InputSeason, InputSeasonDefined, InputSeasonNotDefined, InputWeather, InputWeatherEES
 from heat_load_calc.tenum import ERegion, EInterval, EWeatherMethod
 
 

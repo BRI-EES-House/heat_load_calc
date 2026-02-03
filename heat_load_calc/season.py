@@ -6,7 +6,7 @@ import pandas as pd
 from heat_load_calc import weather
 from heat_load_calc.interval import Interval
 from heat_load_calc.region import Region
-from heat_load_calc.input_all import InputSeason, InputSeasonDefined, InputWeather, InputWeatherEES
+from heat_load_calc.input_common import InputSeason, InputSeasonDefined, InputWeather, InputWeatherEES
 from heat_load_calc.tenum import ERegion, EInterval, EWeatherMethod
 
 class Season:

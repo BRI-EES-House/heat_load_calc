@@ -3,7 +3,7 @@ import os
 
 from heat_load_calc.weather import Weather
 from heat_load_calc.interval import EInterval, Interval
-from heat_load_calc.input_all import InputWeather
+from heat_load_calc.input_common import InputWeather
 
 
 class TestWeather(unittest.TestCase):
