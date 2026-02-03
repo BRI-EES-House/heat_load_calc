@@ -50,10 +50,10 @@ class TestSchedule(unittest.TestCase):
         cls._zero = zero2
 
         cls._scd_is = [
-            InputSchedule.read(d_schedule={"name": "main_occupant_room"}),
-            InputSchedule.read(d_schedule={"name": "other_occupant_room"}),
-            InputSchedule.read(d_schedule={"name": "non_occupant_room"}),
-            InputSchedule.read(d_schedule={"name": "zero"})
+            InputSchedule.read(id=1, d_schedule={"name": "main_occupant_room"}),
+            InputSchedule.read(id=1, d_schedule={"name": "other_occupant_room"}),
+            InputSchedule.read(id=1, d_schedule={"name": "non_occupant_room"}),
+            InputSchedule.read(id=1, d_schedule={"name": "zero"})
         ]
 
 

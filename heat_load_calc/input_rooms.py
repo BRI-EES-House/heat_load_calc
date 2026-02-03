@@ -3,38 +3,75 @@ from abc import ABC, abstractmethod
 from datetime import datetime
 
 
-from heat_load_calc.tenum import EInterval, EWeatherMethod, ERegion, ENumberOfOccupants
-
+from heat_load_calc.tenum import EInterval, EWeatherMethod, ERegion, ENumberOfOccupants, EScheduleType
 
 @dataclass
-class InputSchedule:
+class InputScheduleData:
+    
+    id: int
+    d: dict
+
+    @classmethod
+    def read(cls, id: int, d_schedule_data: dict):
+        return InputScheduleData(id=id, d=d_schedule_data)
+
+@dataclass
+class InputSchedule(ABC):
 
     d_schedule: dict
 
-    is_schedule_type_defined: bool
+    # room id (this is used only for display error message.)
+    id: int
+
+    @property
+    @abstractmethod
+    def is_schedule_type_defined(self) -> bool: ...
 
     @classmethod
-    def read(cls, d_schedule: dict):
+    def read(cls, id: int, d_schedule: dict):
 
         if 'schedule_type' in d_schedule:
 
+            try:
+                schedule_type = EScheduleType(d_schedule['schedule_type'])
+            except ValueError:
+                raise ValueError(f'An invalid value was specified for \'schedule_type\' in \'schedule\' tag. (ID={id})')          
             
+            if 'schedule' not in d_schedule:
 
-            return InputScheduleDirect(d_schedule=d_schedule)
+                raise KeyError(f'Key \'schedule\' could not be found in \'schedule\' tag. (ID={id})')
+            
+            d_schedule_data = d_schedule['schedule']
+
+            ipt_schedule_data = InputScheduleData.read(id=id, d_schedule_data=d_schedule_data)
+
+            return InputScheduleDirect(id=id, d_schedule=d_schedule, schedule_type=schedule_type, ipt_schedule_data=ipt_schedule_data)
         
         else:
 
-            return InputScheduleFile(d_schedule=d_schedule)
+            if 'name' not in d_schedule:
+
+                raise KeyError(f'Key \'name\' could not be found in \'schedule\' tag. (ID={id})')
+
+            name = d_schedule['name']
+
+            return InputScheduleFile(id=id, d_schedule=d_schedule, name=name)
 
 
 @dataclass
 class InputScheduleDirect(InputSchedule):
 
+    schedule_type: EScheduleType
+
+    ipt_schedule_data: InputScheduleData
+    
     is_schedule_type_defined: bool = True
 
 
 @dataclass
 class InputScheduleFile(InputSchedule):
+
+    name: str
 
     is_schedule_type_defined: bool = False
 
@@ -98,7 +135,7 @@ class InputRoom:
 
         d_schedule = d_room['schedule']
 
-        ipt_schedule = InputSchedule.read(d_schedule=d_schedule)
+        ipt_schedule = InputSchedule.read(id=id, d_schedule=d_schedule)
 
         return InputRoom(
             id=id,

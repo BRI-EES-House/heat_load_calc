@@ -84,3 +84,54 @@ def test_room_floor_area2():
     assert '\'floor_area\' should be greater than 0.0. (ID=1)' in str(e)
 
 
+def test_room_schedule1():
+
+    d_room = get_default_dict()
+
+    del d_room['schedule']
+
+    with pytest.raises(KeyError) as e:
+        InputRoom.read(d_room=d_room)
+    
+    assert 'Key \'schedule\' could not be found in \'room\' tag. (ID=1)' in str(e)
+
+
+def test_room_schedule2():
+
+    d_room = get_default_dict()
+
+    d_room['schedule'] = {
+        'schedule_type': 1
+    }
+
+    with pytest.raises(ValueError) as e:
+        InputRoom.read(d_room=d_room)
+    
+    assert 'An invalid value was specified for \'schedule_type\' in \'schedule\' tag. (ID=1)' in str(e)
+
+
+def test_room_schedule3():
+
+    d_room = get_default_dict()
+
+    d_room['schedule'] = {
+        'schedule_type': 'const'
+    }
+
+    with pytest.raises(KeyError) as e:
+        InputRoom.read(d_room=d_room)
+    
+    assert 'Key \'schedule\' could not be found in \'schedule\' tag. (ID=1)' in str(e)
+
+
+def test_room_schedule4():
+
+    d_room = get_default_dict()
+
+    d_room['schedule'] = {
+    }
+
+    with pytest.raises(KeyError) as e:
+        InputRoom.read(d_room=d_room)
+    
+    assert 'Key \'name\' could not be found in \'schedule\' tag. (ID=1)' in str(e)

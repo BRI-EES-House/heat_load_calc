@@ -48,3 +48,13 @@ class ENumberOfOccupants(Enum):
     Three = "3"
     Four = "4"
     Auto = "auto"
+
+
+class EScheduleType(Enum):
+    """Schedule type
+    number = specify each schedule for one, two theree and four occupant(s)
+    const = specify constant schedule not depending the number of occupants
+    """
+
+    NUMBER = "number"
+    CONST = "const"
