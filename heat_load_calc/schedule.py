@@ -8,7 +8,7 @@ from os import path
 from enum import Enum, auto
 
 from heat_load_calc import interval
-from heat_load_calc.input_rooms import InputSchedule
+from heat_load_calc.input_rooms import InputSchedule, InputScheduleDirect, InputScheduleFile
 from heat_load_calc.tenum import ENumberOfOccupants
 
 logger = logging.getLogger(name='HeatLoadCalc').getChild('Schedule')
@@ -559,11 +559,13 @@ def _load_schedule(scd_i: InputSchedule):
         schedule dictionary
     """
     
-    if "schedule_type" in scd_i.d_schedule:    # read from input file
-        schedule_type = ScheduleType(scd_i.d_schedule["schedule_type"])
-        schedule = scd_i.d_schedule["schedule"]
+    if scd_i.is_schedule_type_defined:
+        ipt_schedule_direct: InputScheduleDirect = scd_i
+        schedule_type = ScheduleType(ipt_schedule_direct.d_schedule["schedule_type"])
+        schedule = ipt_schedule_direct.d_schedule["schedule"]
     else:   # read from json file
-        js = _load_json_file(filename=scd_i.d_schedule["name"])
+        ipt_schedule_file: InputScheduleFile = scd_i
+        js = _load_json_file(filename=ipt_schedule_file.d_schedule["name"])
         schedule_type = ScheduleType(js["schedule_type"])
         schedule = js["schedule"]
 

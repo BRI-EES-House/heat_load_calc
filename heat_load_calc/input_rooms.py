@@ -11,10 +11,32 @@ class InputSchedule:
 
     d_schedule: dict
 
+    is_schedule_type_defined: bool
+
     @classmethod
     def read(cls, d_schedule: dict):
 
-        return InputSchedule(d_schedule=d_schedule)
+        if 'schedule_type' in d_schedule:
+
+            
+
+            return InputScheduleDirect(d_schedule=d_schedule)
+        
+        else:
+
+            return InputScheduleFile(d_schedule=d_schedule)
+
+
+@dataclass
+class InputScheduleDirect(InputSchedule):
+
+    is_schedule_type_defined: bool = True
+
+
+@dataclass
+class InputScheduleFile(InputSchedule):
+
+    is_schedule_type_defined: bool = False
 
 
 @dataclass
