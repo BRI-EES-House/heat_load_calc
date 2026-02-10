@@ -25,13 +25,13 @@ class InputScheduleElements:
 
         def read_each(tag: str, arg_type: str):
 
-            def length_check(s: str, ds: list[int | float]) -> None:
+            if tag in d:
+
+                ds = d[tag]
 
                 if len(ds) not in [1, 24, 48, 96]:
 
-                    raise ValueError(f'The length of the list should be 1, 24, 48, or 96 for \'{s}\' in \'schedule\' tag. (ID={id})')
-            
-            def get_value(s: str, ds: list[str], arg_type: str) -> list[int | float]:
+                    raise ValueError(f'The length of the list should be 1, 24, 48, or 96 for \'{tag}\' in \'schedule\' tag. (ID={id})')
 
                 try:
 
@@ -46,23 +46,17 @@ class InputScheduleElements:
                     
                 except:
 
-                    raise ValueError(f'An invalid value was specified for \'{s}\' in \'schedule\' tag. (ID={id})')
+                    raise ValueError(f'An invalid value was specified for \'{tag}\' in \'schedule\' tag. (ID={id})')
 
-            if tag in d:
-
-                ds = d[tag]
-
-                length_check(s=tag, ds=ds)
-
-                return get_value(s=tag, ds=ds, arg_type=arg_type)
+                #return get_value(s=tag, ds=ds, arg_type=arg_type)
             
             else:
 
                 match arg_type:
                     case 'float':
-                        return [0.0] * 96
+                        return [0.0]
                     case 'int':
-                        return [0] * 96
+                        return [0]
                     case _:
                         raise Exception()
 
@@ -74,43 +68,6 @@ class InputScheduleElements:
         local_vent_amount = read_each(tag='local_vent_amount', arg_type='float')
         is_temp_limit_set = read_each(tag='is_temp_limit_set', arg_type='int')
         
-        
-        # if 'vapor_generation_cooking' in d:
-        #     d_vapor_generation_cooking = d['vapor_generation_cooking']
-        #     if d_vapor_generation_cooking == 'zero':
-        #         vapor_generation_cooking = [0.0] * n_step_day_default
-        #     else:
-        #         try:
-        #             vapor_generation_cooking = [float(v) for v in d_vapor_generation_cooking]
-        #         except:
-        #             raise ValueError(f'An invalid value was specified for \'vapor_generation_cooking\' in \'schedule\' tag. (ID={id})')
-        # else:
-        #     vapor_generation_cooking = [0.0] * n_step_day_default
-        
-        # if 'local_vent_amount' in d:
-        #     d_local_vent_amount = d['local_vent_amount']
-        #     if d_local_vent_amount == 'zero':
-        #         local_vent_amount = [0.0] * n_step_day_default
-        #     else:
-        #         try:
-        #             local_vent_amount = [float(v) for v in d_local_vent_amount]
-        #         except:
-        #             raise ValueError(f'An invalid value was specified for \'local_vent_amount\' in \'schedule\' tag. (ID={id})')
-        # else:
-        #     local_vent_amount = [0.0] * n_step_day_default
-        
-        # if 'is_temp_limit_set' in d:
-        #     d_is_temp_limit_set = d['is_temp_limit_set']
-        #     if d_is_temp_limit_set == 'zero':
-        #         is_temp_limit_set = [0] * n_step_day_default
-        #     else:
-        #         try:
-        #             is_temp_limit_set = [int(v) for v in d_is_temp_limit_set]
-        #         except:
-        #             raise ValueError(f'An invalid value was specified for \'is_temp_limit_set\' in \'schedule\' tag. (ID={id})')
-        # else:
-        #     is_temp_limit_set = [0] * n_step_day_default
-
         return InputScheduleElements(
             number_of_people=number_of_people,
             heat_generation_appliances=heat_generation_appliances,

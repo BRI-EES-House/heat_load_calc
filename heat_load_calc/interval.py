@@ -37,6 +37,10 @@ class Interval:
             EInterval.M30: 2,
             EInterval.M15: 4
         }[self._eitv]
+    
+    def get_n_day(self):
+        """Get number of steps of day."""
+        return self.get_n_hour() * 24
 
     def get_delta_h(self):
         """Get the interval time depending the number of steps dividing one hour. / 1時間を分割するステップに応じてインターバル時間を取得する。

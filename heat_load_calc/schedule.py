@@ -305,12 +305,12 @@ def _get_schedule(
     calendar = _load_calendar()
 
     # 1日のうちのステップ数 / the number of steps in a day 
-    n_step_day = itv.get_n_hour() * 24 
+    n_step_day = itv.get_n_day()
 
     d_365_n = np.full((365, n_step_day), np.nan, dtype=float)
-    d_365_n[calendar == 'W'] = _get_interpolated_schedule(day_type=EDayType.Weekday, schedule_item=schedule_item, ipt_schedule_data=ipt_schedule_data, n_step_day=n_step_day, noo=noo, n_p=n_p)
-    d_365_n[calendar == 'HO'] = _get_interpolated_schedule(day_type=EDayType.HolidayOut, schedule_item=schedule_item, ipt_schedule_data=ipt_schedule_data, n_step_day=n_step_day, noo=noo, n_p=n_p)
-    d_365_n[calendar == 'HI'] = _get_interpolated_schedule(day_type=EDayType.HolidayIn, schedule_item=schedule_item, ipt_schedule_data=ipt_schedule_data, n_step_day=n_step_day, noo=noo, n_p=n_p)
+    d_365_n[calendar == 'W'] = _get_interpolated_schedule(day_type=EDayType.Weekday, schedule_item=schedule_item, ipt_schedule_data=ipt_schedule_data, noo=noo, n_p=n_p, itv=itv)
+    d_365_n[calendar == 'HO'] = _get_interpolated_schedule(day_type=EDayType.HolidayOut, schedule_item=schedule_item, ipt_schedule_data=ipt_schedule_data, noo=noo, n_p=n_p, itv=itv)
+    d_365_n[calendar == 'HI'] = _get_interpolated_schedule(day_type=EDayType.HolidayIn, schedule_item=schedule_item, ipt_schedule_data=ipt_schedule_data, noo=noo, n_p=n_p, itv=itv)
     d = d_365_n.flatten()
 
     return d
@@ -320,9 +320,9 @@ def _get_interpolated_schedule(
         day_type: EDayType,
         schedule_item: ScheduleItem,
         ipt_schedule_data: InputScheduleData,
-        n_step_day: int,
         noo: ENumberOfOccupants,
-        n_p: float
+        n_p: float,
+        itv: interval.Interval
 ) -> np.ndarray:
     """Returns a list linearly interpolated by the number of occupants. / 世帯人数で線形補間したリストを返す
     Args:
@@ -356,7 +356,7 @@ def _get_interpolated_schedule(
 
             input_const_schedule_elements: InputScheduleElements = ipt_schedule_data_const.ipt_schedule_data_day_types_const.day_type(day_type=day_type)
 
-            scd = _make_list(input_schedule_elements=input_const_schedule_elements, schedule_item=schedule_item, n_step_day=n_step_day)
+            scd = _make_list(input_schedule_elements=input_const_schedule_elements, schedule_item=schedule_item, itv=itv)
 
             if is_zero_one:
                 return _convert_to_zero_one(v=scd)
@@ -374,7 +374,7 @@ def _get_interpolated_schedule(
 
                 input_number_schedule_elements: InputScheduleElements = ipt_schedule_data_number.num(noo=noo).day_type(day_type=day_type)
 
-                scd = _make_list(input_schedule_elements=input_number_schedule_elements, schedule_item=schedule_item, n_step_day=n_step_day)
+                scd = _make_list(input_schedule_elements=input_number_schedule_elements, schedule_item=schedule_item, itv=itv)
 
                 if is_zero_one:
                     return _convert_to_zero_one(v=scd)
@@ -386,10 +386,10 @@ def _get_interpolated_schedule(
                 ceil_np, floor_np = _get_ceil_floor_np(n_p)
 
                 ceiled_input_schedule_elements: InputScheduleElements = ipt_schedule_data_number.num(noo=ENumberOfOccupants(str(ceil_np))).day_type(day_type=day_type)
-                ceiled_scd = _make_list(input_schedule_elements=ceiled_input_schedule_elements, schedule_item=schedule_item, n_step_day=n_step_day)
+                ceiled_scd = _make_list(input_schedule_elements=ceiled_input_schedule_elements, schedule_item=schedule_item, itv=itv)
 
                 floored_input_schedule_elements: InputScheduleElements = ipt_schedule_data_number.num(noo=ENumberOfOccupants(str(floor_np))).day_type(day_type=day_type)
-                floored_scd = _make_list(input_schedule_elements=floored_input_schedule_elements, schedule_item=schedule_item, n_step_day=n_step_day)
+                floored_scd = _make_list(input_schedule_elements=floored_input_schedule_elements, schedule_item=schedule_item, itv=itv)
                 
                 if is_zero_one:
                     ceil_schedule = _convert_to_zero_one(v=ceiled_scd)
@@ -413,13 +413,13 @@ def _get_interpolated_schedule(
             raise KeyError()
 
 
-def _make_list(input_schedule_elements: InputScheduleElements, schedule_item: ScheduleItem, n_step_day: int) -> np.ndarray:
+def _make_list(input_schedule_elements: InputScheduleElements, schedule_item: ScheduleItem, itv: interval.Interval) -> np.ndarray:
     """make ndarray list from the input dictionary.
 
     Args:
         input_schedule_elements: InputScheduleElements class
         schedule_item: ScheduleItem enum class
-        n_step_day: number of steps in a day
+        itv: Interval class
 
     Returns:
         ndarray list of the schedule
@@ -435,34 +435,65 @@ def _make_list(input_schedule_elements: InputScheduleElements, schedule_item: Sc
 
     """
 
-    v: list[float] | list[int]
+    n_step_day = itv.get_n_day()
+
+    list_v: list[float] | list[int]
 
     match schedule_item:
         case ScheduleItem.LOCAL_VENTILATION_AMMOUNT:
-            v = input_schedule_elements.local_vent_amount
+            list_v = input_schedule_elements.local_vent_amount
         case ScheduleItem.APPLIANCE_HEAT_GENERATION:
-            v = input_schedule_elements.heat_generation_appliances
+            list_v = input_schedule_elements.heat_generation_appliances
         case ScheduleItem.COOKING_HEAT_GENERATION:
-            v = input_schedule_elements.heat_generation_cooking
+            list_v = input_schedule_elements.heat_generation_cooking
         case ScheduleItem.COOKING_VAPOUR_GENERATION:
-            v = input_schedule_elements.vapor_generation_cooking
+            list_v = input_schedule_elements.vapor_generation_cooking
         case ScheduleItem.LIGHTING_HEAT_GENERATION:
-            v = input_schedule_elements.heat_generation_lighting
+            list_v = input_schedule_elements.heat_generation_lighting
         case ScheduleItem.NUMBER_OF_PEOPLE:
-            v = input_schedule_elements.number_of_people
+            list_v = input_schedule_elements.number_of_people
         case ScheduleItem.AC_DEMMAND:
-            v = input_schedule_elements.is_temp_limit_set
+            list_v = input_schedule_elements.is_temp_limit_set
         case ScheduleItem.AC_MODE:
-            v = input_schedule_elements.is_temp_limit_set
+            list_v = input_schedule_elements.is_temp_limit_set
         case _:
             raise KeyError()
-
     
+    vs = np.array(list_v)
 
-    if len(v) != n_step_day:
-        raise ValueError("Number of the list in the schedule does not match the interval.")
+    if len(list_v) == 1:
 
-    return np.array(v)
+        return vs.repeat(n_step_day)
+
+    elif len(list_v) == 24:
+
+        if n_step_day == 24:
+            return vs
+        elif n_step_day == 48:
+            return vs.repeat(2)
+        elif n_step_day == 96:
+            return vs.repeat(4)
+
+    elif len(list_v) == 48:
+
+        if n_step_day == 24:
+            return vs.reshape(-1, 2).mean(axis=1)
+        elif n_step_day == 48:
+            return vs
+        elif n_step_day == 96:
+            return vs.repeat(2)
+
+    elif len(list_v) == 96:
+
+        if n_step_day == 24:
+            raise vs.reshape(-1, 4).mean(axis=1)
+        elif n_step_day == 48:
+            raise vs.reshape(-1, 2).mean(axis=1)
+        elif n_step_day == 96:
+            return vs
+    
+    else:
+        raise Exception()
 
 
 def _convert_to_zero_one(v: np.ndarray) -> np.ndarray:
