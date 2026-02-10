@@ -58,3 +58,25 @@ class EScheduleType(Enum):
 
     NUMBER = "number"
     CONST = "const"
+
+
+class EDayType(Enum):
+    """Day type for schedule interpolation"""
+
+    Weekday = 'Weekday'
+    HolidayOut = 'Holiday_Out'
+    HolidayIn = 'Holiday_In'
+
+
+class EScheduleItem(Enum):
+
+    LOCAL_VENTILATION_AMMOUNT = 'local_ventilation_ammount'
+    APPLIANCE_HEAT_GENERATION = 'appliance_heat_generation'
+    COOKING_HEAT_GENERATION = 'cooking_heat_generation'
+    COOKING_VAPOUR_GENERATION = 'cooking_vapour_generation'
+    LIGHTING_HEAT_GENERATION = 'lighting_heat_generation'
+    NUMBER_OF_PEOPLE = 'number_of_people'
+    AC_DEMMAND = 'adc_demand'
+    AC_MODE = 'ac_mode'
+
+    

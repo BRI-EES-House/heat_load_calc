@@ -3,17 +3,248 @@ from abc import ABC, abstractmethod
 from datetime import datetime
 
 
-from heat_load_calc.tenum import EInterval, EWeatherMethod, ERegion, ENumberOfOccupants, EScheduleType
+from heat_load_calc.tenum import EInterval, EWeatherMethod, ERegion, ENumberOfOccupants, EScheduleType, EDayType
+
 
 @dataclass
-class InputScheduleData:
-    
-    id: int
+class InputScheduleElements:
+
+    number_of_people: list[float]
+    heat_generation_appliances: list[float]
+    heat_generation_lighting: list[float]
+    heat_generation_cooking: list[float]
+    vapor_generation_cooking: list[float]
+    local_vent_amount: list[float]
+    is_temp_limit_set: list[int]
     d: dict
 
     @classmethod
-    def read(cls, id: int, d_schedule_data: dict):
-        return InputScheduleData(id=id, d=d_schedule_data)
+    def read(cls, id: int, d: dict):
+
+        n_step_day_default = 96
+        
+        if 'number_of_people' in d:
+            d_number_of_people = d['number_of_people']
+            if d_number_of_people == 'zero':
+                number_of_people = [0.0] * n_step_day_default
+            else:
+                try:
+                    number_of_people = [float(v) for v in d_number_of_people]
+                except:
+                    raise ValueError(f'An invalid value was specified for \'number_of_people\' in \'schedule\' tag. (ID={id})')                
+        else:
+            number_of_people = [0.0] * n_step_day_default
+            
+        if 'heat_generation_appliances' in d:
+            d_heat_generation_appliances = d['heat_generation_appliances']
+            if d_heat_generation_appliances == 'zero':
+                heat_generation_appliances = [0.0] * n_step_day_default
+            else:
+                try:
+                    heat_generation_appliances = [float(v) for v in d_heat_generation_appliances]
+                except:
+                    raise ValueError(f'An invalid value was specified for \'heat_generation_appliances\' in \'schedule\' tag. (ID={id})')
+        else:
+            heat_generation_appliances = [0.0] * n_step_day_default
+        
+        if 'heat_generation_lighting' in d:
+            d_heat_generation_lighting = d['heat_generation_lighting']
+            if d_heat_generation_lighting == 'zero':
+                heat_generation_lighting = [0.0] * n_step_day_default
+            else:
+                try:
+                    heat_generation_lighting = [float(v) for v in d_heat_generation_lighting]
+                except:
+                    raise ValueError(f'An invalid value was specified for \'heat_generation_lighting\' in \'schedule\' tag. (ID={id})')
+        else:
+            heat_generation_lighting = [0.0] * n_step_day_default
+        
+        if 'heat_generation_cooking' in d:
+            d_heat_generation_cooking = d['heat_generation_cooking']
+            if d_heat_generation_cooking == 'zero':
+                heat_generation_cooking = [0.0] * n_step_day_default
+            else:
+                try:
+                    heat_generation_cooking = [float(v) for v in d_heat_generation_cooking]
+                except:
+                    raise ValueError(f'An invalid value was specified for \'heat_generation_cooking\' in \'schedule\' tag. (ID={id})')
+        else:
+            heat_generation_cooking = [0.0] * n_step_day_default
+        
+        if 'vapor_generation_cooking' in d:
+            d_vapor_generation_cooking = d['vapor_generation_cooking']
+            if d_vapor_generation_cooking == 'zero':
+                vapor_generation_cooking = [0.0] * n_step_day_default
+            else:
+                try:
+                    vapor_generation_cooking = [float(v) for v in d_vapor_generation_cooking]
+                except:
+                    raise ValueError(f'An invalid value was specified for \'vapor_generation_cooking\' in \'schedule\' tag. (ID={id})')
+        else:
+            vapor_generation_cooking = [0.0] * n_step_day_default
+        
+        if 'local_vent_amount' in d:
+            d_local_vent_amount = d['local_vent_amount']
+            if d_local_vent_amount == 'zero':
+                local_vent_amount = [0.0] * n_step_day_default
+            else:
+                try:
+                    local_vent_amount = [float(v) for v in d_local_vent_amount]
+                except:
+                    raise ValueError(f'An invalid value was specified for \'local_vent_amount\' in \'schedule\' tag. (ID={id})')
+        else:
+            local_vent_amount = [0.0] * n_step_day_default
+        
+        if 'is_temp_limit_set' in d:
+            d_is_temp_limit_set = d['is_temp_limit_set']
+            if d_is_temp_limit_set == 'zero':
+                is_temp_limit_set = [0] * n_step_day_default
+            else:
+                try:
+                    is_temp_limit_set = [int(v) for v in d_is_temp_limit_set]
+                except:
+                    raise ValueError(f'An invalid value was specified for \'is_temp_limit_set\' in \'schedule\' tag. (ID={id})')
+        else:
+            is_temp_limit_set = [0] * n_step_day_default
+
+        return InputScheduleElements(
+            number_of_people=number_of_people,
+            heat_generation_appliances=heat_generation_appliances,
+            heat_generation_lighting=heat_generation_lighting,
+            heat_generation_cooking=heat_generation_cooking,
+            vapor_generation_cooking=vapor_generation_cooking,
+            local_vent_amount=local_vent_amount,
+            is_temp_limit_set=is_temp_limit_set,
+            d=d
+        )
+
+
+@dataclass
+class InputScheduleDataDayTypes:
+
+    d_weekday: dict
+    d_holiday_out: dict
+    d_holiday_in: dict
+    input_schedule_elements_weekday: InputScheduleElements
+    input_schedule_elements_holiday_out: InputScheduleElements
+    input_schedule_elements_holiday_in: InputScheduleElements
+
+    def day_type(self, day_type: EDayType) -> InputScheduleElements:
+
+        return{
+            EDayType.Weekday: self.input_schedule_elements_weekday,
+            EDayType.HolidayOut: self.input_schedule_elements_holiday_out,
+            EDayType.HolidayIn: self.input_schedule_elements_holiday_in
+        }[day_type]
+
+    @classmethod
+    def read(cls, id: int, d: dict):
+
+        try:
+
+            d_weekday = d[EDayType.Weekday.value]
+            d_holiday_out = d[EDayType.HolidayOut.value]
+            d_holiday_in = d[EDayType.HolidayIn.value]
+
+        except KeyError as e:
+            raise KeyError(f'Key {e} could not be found in \'const\' tag. (ID={id})')
+
+        input_schedule_elements_weekday = InputScheduleElements.read(id=id, d=d_weekday)
+        input_schedule_elements_holiday_out = InputScheduleElements.read(id=id, d=d_holiday_out)
+        input_schedule_elements_holiday_in = InputScheduleElements.read(id=id, d=d_holiday_in)
+        
+
+        return InputScheduleDataDayTypes(
+            d_weekday=d_weekday,
+            d_holiday_out=d_holiday_out,
+            d_holiday_in=d_holiday_in,
+            input_schedule_elements_weekday=input_schedule_elements_weekday,
+            input_schedule_elements_holiday_out=input_schedule_elements_holiday_out,
+            input_schedule_elements_holiday_in=input_schedule_elements_holiday_in
+        )
+
+
+@dataclass
+class InputScheduleData(ABC):
+    
+    @property
+    @abstractmethod
+    def schedule_type(self) -> EScheduleType: ...
+
+    @classmethod
+    def read(cls, id: int, d_schedule_data: dict, schedule_type: EScheduleType):
+
+        match schedule_type:
+
+            case EScheduleType.CONST:
+                
+                try:
+
+                    d_const = d_schedule_data['const']
+                
+                except KeyError as e:
+                
+                    raise KeyError(f'Key {e} could not be found in \'schedule\' tag. (ID={id})')
+                
+                ipt_schedule_data_day_const = InputScheduleDataDayTypes.read(id=id, d=d_const)
+                
+                return InputScheduleDataConst(ipt_schedule_data_day_types_const=ipt_schedule_data_day_const)
+
+            case EScheduleType.NUMBER:
+
+                try:
+
+                    d_one = d_schedule_data['1']
+                    d_two = d_schedule_data['2']
+                    d_three = d_schedule_data['3']
+                    d_four = d_schedule_data['4']
+
+                except KeyError as e:
+
+                    raise KeyError(f'Key {e} could not be found in \'schedule\' tag. (ID={id})')
+                
+                ipt_schedule_data_day_types_one = InputScheduleDataDayTypes.read(id=id, d=d_one)
+                ipt_schedule_data_day_types_two = InputScheduleDataDayTypes.read(id=id, d=d_two)
+                ipt_schedule_data_day_types_three = InputScheduleDataDayTypes.read(id=id, d=d_three)
+                ipt_schedule_data_day_types_four = InputScheduleDataDayTypes.read(id=id, d=d_four)
+
+                return InputScheduleDataNumber(
+                    ipt_schedule_data_day_types_one=ipt_schedule_data_day_types_one,
+                    ipt_schedule_data_day_types_two=ipt_schedule_data_day_types_two,
+                    ipt_schedule_data_day_types_three=ipt_schedule_data_day_types_three,
+                    ipt_schedule_data_day_types_four=ipt_schedule_data_day_types_four
+                )
+            
+            case _:
+                raise ValueError(f'An invalid schedule_type was specified in \'schedule\' tag. (ID={id})')
+
+@dataclass
+class InputScheduleDataConst(InputScheduleData):
+
+    ipt_schedule_data_day_types_const: InputScheduleDataDayTypes
+
+    schedule_type: EScheduleType = EScheduleType.CONST
+
+
+@dataclass
+class InputScheduleDataNumber(InputScheduleData):
+
+    ipt_schedule_data_day_types_one: InputScheduleDataDayTypes
+    ipt_schedule_data_day_types_two: InputScheduleDataDayTypes
+    ipt_schedule_data_day_types_three: InputScheduleDataDayTypes
+    ipt_schedule_data_day_types_four: InputScheduleDataDayTypes
+
+    schedule_type: EScheduleType = EScheduleType.NUMBER
+
+    def num(self, noo: ENumberOfOccupants) -> InputScheduleDataDayTypes:
+
+        return{
+            ENumberOfOccupants.One: self.ipt_schedule_data_day_types_one,
+            ENumberOfOccupants.Two: self.ipt_schedule_data_day_types_two,
+            ENumberOfOccupants.Three: self.ipt_schedule_data_day_types_three,
+            ENumberOfOccupants.Four: self.ipt_schedule_data_day_types_four
+        }[noo]
+    
 
 @dataclass
 class InputSchedule(ABC):
@@ -43,7 +274,7 @@ class InputSchedule(ABC):
             
             d_schedule_data = d_schedule['schedule']
 
-            ipt_schedule_data = InputScheduleData.read(id=id, d_schedule_data=d_schedule_data)
+            ipt_schedule_data = InputScheduleData.read(id=id, d_schedule_data=d_schedule_data, schedule_type=schedule_type)
 
             return InputScheduleDirect(id=id, d_schedule=d_schedule, schedule_type=schedule_type, ipt_schedule_data=ipt_schedule_data)
         

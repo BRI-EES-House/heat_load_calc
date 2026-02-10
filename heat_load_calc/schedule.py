@@ -8,8 +8,8 @@ from os import path
 from enum import Enum, auto
 
 from heat_load_calc import interval
-from heat_load_calc.input_rooms import InputSchedule, InputScheduleDirect, InputScheduleFile, InputScheduleData
-from heat_load_calc.tenum import ENumberOfOccupants, EScheduleType
+from heat_load_calc.input_rooms import InputSchedule, InputScheduleDirect, InputScheduleFile, InputScheduleData, InputScheduleDataConst, InputScheduleDataNumber, InputScheduleDataDayTypes, InputScheduleElements
+from heat_load_calc.tenum import ENumberOfOccupants, EScheduleType, EDayType
 
 
 logger = logging.getLogger(name='HeatLoadCalc').getChild('Schedule')
@@ -266,19 +266,12 @@ def _get_schedules(
 ):
     
     # Read the list of the schedule type(ScheduleType Enum Class) and scheduled dictionary.
-    ds = [_load_schedule(ipt_schedule=ipt_schedule) for ipt_schedule in ipt_schedules]
-
-    # List of the schedule type (ScheduleType Enum Class)
-    schedule_type_is: list[EScheduleType] = [d[0] for d in ds]
-
     # List of the dictionary describing the schedule.
-    ipt_schedule_datas = [d[1] for d in ds]
-    schedule_is: list[dict] = [ipt_schedule_data.d for ipt_schedule_data in ipt_schedule_datas]
-    #schedule_is: list[dict] = [d[1].d for d in ds]
+    ipt_schedule_datas: list[InputScheduleData] = [_load_schedule(ipt_schedule=ipt_schedule) for ipt_schedule in ipt_schedules]
 
     return np.concatenate([
-        [_get_schedule(noo=noo, n_p=n_p, schedule_item=schedule_item, itv=itv, schedule_type_i=schedule_type_i, ipt_schedule_data=ipt_schedule_data)]
-        for (schedule_type_i, ipt_schedule_data) in zip(schedule_type_is, ipt_schedule_datas)
+        [_get_schedule(noo=noo, n_p=n_p, schedule_item=schedule_item, itv=itv, ipt_schedule_data=ipt_schedule_data)]
+        for ipt_schedule_data in ipt_schedule_datas
     ])
 
 
@@ -287,7 +280,6 @@ def _get_schedule(
         n_p: float,
         schedule_item: ScheduleItem,
         itv: interval.Interval,
-        schedule_type_i: EScheduleType,
         ipt_schedule_data: InputScheduleData
 ) -> np.ndarray:
     """Get the schedule. / スケジュールを取得する。
@@ -297,26 +289,10 @@ def _get_schedule(
         n_p: number of occupants / 居住人数
         schedule_item: ScheduleItem enum class
         itv: Interval class
-        schedule_type_i: ScheduleType enum type class
-        schedule_i: dictionary for schedule of room i
-            format of dictuonary descriving schedule / スケジュールを記述した辞書の形式
-                {
-                    "const/1/2/3/4": {
-                        "Weekday": {
-                            "number_of_people": [],
-                            "heat_generation_appliances": [],
-                            "heat_generation_lighting": [],
-                            "heat_generation_cooking": [],
-                            "vapor_generation_cooking": [],
-                            "local_vent_amount": [],
-                            "is_temp_limit_set": []
-                        },
-                        "Holiday_In": ...
-                        "Holiday_Out": ...
-                    }
-                }
+        ipt_schedule_data: InputScheduleData class
+
     Returns:
-        スケジュール, [35040 (15min)] or [17520 (30min)] or [8760 (1h)] 
+        schedule value, [35040 (15min)] or [17520 (30min)] or [8760 (1h)] 
     """
 
     # Load the calendar. / カレンダーの読み込み, [365]
@@ -332,53 +308,35 @@ def _get_schedule(
     n_step_day = itv.get_n_hour() * 24 
 
     d_365_n = np.full((365, n_step_day), np.nan, dtype=float)
-    d_365_n[calendar == 'W'] = _get_interpolated_schedule(day_type='Weekday', schedule_item=schedule_item, schedule_type_i=schedule_type_i, ipt_schedule_data=ipt_schedule_data, n_step_day=n_step_day, noo=noo, n_p=n_p)
-    d_365_n[calendar == 'HO'] = _get_interpolated_schedule(day_type='Holiday_Out', schedule_item=schedule_item, schedule_type_i=schedule_type_i, ipt_schedule_data=ipt_schedule_data, n_step_day=n_step_day, noo=noo, n_p=n_p)
-    d_365_n[calendar == 'HI'] = _get_interpolated_schedule(day_type='Holiday_In', schedule_item=schedule_item, schedule_type_i=schedule_type_i, ipt_schedule_data=ipt_schedule_data, n_step_day=n_step_day, noo=noo, n_p=n_p)
+    d_365_n[calendar == 'W'] = _get_interpolated_schedule(day_type=EDayType.Weekday, schedule_item=schedule_item, ipt_schedule_data=ipt_schedule_data, n_step_day=n_step_day, noo=noo, n_p=n_p)
+    d_365_n[calendar == 'HO'] = _get_interpolated_schedule(day_type=EDayType.HolidayOut, schedule_item=schedule_item, ipt_schedule_data=ipt_schedule_data, n_step_day=n_step_day, noo=noo, n_p=n_p)
+    d_365_n[calendar == 'HI'] = _get_interpolated_schedule(day_type=EDayType.HolidayIn, schedule_item=schedule_item, ipt_schedule_data=ipt_schedule_data, n_step_day=n_step_day, noo=noo, n_p=n_p)
     d = d_365_n.flatten()
 
     return d
 
 
 def _get_interpolated_schedule(
-        day_type,
+        day_type: EDayType,
         schedule_item: ScheduleItem,
-        schedule_type_i: EScheduleType,
         ipt_schedule_data: InputScheduleData,
-        n_step_day,
+        n_step_day: int,
         noo: ENumberOfOccupants,
-        n_p: Optional[float] = None
+        n_p: float
 ) -> np.ndarray:
     """Returns a list linearly interpolated by the number of occupants. / 世帯人数で線形補間したリストを返す
     Args:
+        day_type: day type for schedule interpolation
         schedule_item: ScheduleItem class
-        daily_schedule: schedule value
-            Key: "const", "1", "2", "3", or "4"
-            Value: values
-                Number of values is
-                    24 (itv = H1)
-                    48 (itv = M30)
-                    96 (itv = M15)
-            {
-                'schedule_type': 'number',
-                '1': d['schedule']['1'][day_type][schedule_type],
-                '2': d['schedule']['2'][day_type][schedule_type],
-                '3': d['schedule']['3'][day_type][schedule_type],
-                '4': d['schedule']['4'][day_type][schedule_type],
-            }
-            or
-            {
-                'schedule_type': 'const',
-                'const': d['schedule']['const'][day_type][schedule_type]
-            }
+        ipt_schedule_data: InputScheduleData class
+        n_step_day: number of steps in a day
         noo: specified method of number of occupants / 居住人数の指定方法
         n_p: number of occupants / 居住人数
+
     Returns:
         list linerly interpolated / 線形補間したリスト, [24 or 48 or 96]
     """
 
-    schedule_i = ipt_schedule_data.d
-    
     # TRUE is the list consisting of 0 or 1 value.
     # Only AC_DEMMAND is the 0 or 1 list.
     is_zero_one = schedule_item.is_zero_one()
@@ -387,80 +345,86 @@ def _get_interpolated_schedule(
     # Only AC_MODE is NOT proportionable. 
     is_proportionable = schedule_item.is_proportionable()
 
-    if schedule_type_i == EScheduleType.CONST:
+    match ipt_schedule_data.schedule_type:
 
-        scd = _check_and_read_value(d=schedule_i['const'][day_type], schedule_item=schedule_item, n_step_day=n_step_day)
+        case EScheduleType.CONST:
 
-        if is_zero_one:
-            return _convert_to_zero_one(v=scd)
-        else:
-            return scd
+            if not isinstance(ipt_schedule_data, InputScheduleDataConst):
+                raise Exception()
 
-    elif schedule_type_i == EScheduleType.NUMBER:
+            ipt_schedule_data_const: InputScheduleDataConst = ipt_schedule_data
 
-        if noo in [ENumberOfOccupants.One, ENumberOfOccupants.Two, ENumberOfOccupants.Three, ENumberOfOccupants.Four]:
+            input_const_schedule_elements: InputScheduleElements = ipt_schedule_data_const.ipt_schedule_data_day_types_const.day_type(day_type=day_type)
 
-            scd = _check_and_read_value(d=schedule_i[str(noo.value)][day_type], schedule_item=schedule_item, n_step_day=n_step_day)
+            scd = _make_list(input_schedule_elements=input_const_schedule_elements, schedule_item=schedule_item, n_step_day=n_step_day)
 
             if is_zero_one:
                 return _convert_to_zero_one(v=scd)
             else:
                 return scd
 
-        elif noo == ENumberOfOccupants.Auto:
+        case EScheduleType.NUMBER:
 
-            if n_p is None:
-                raise Exception("n_p should be defined.")
+            if not isinstance(ipt_schedule_data, InputScheduleDataNumber):
+                raise Exception()
 
-            ceil_np, floor_np = _get_ceil_floor_np(n_p)
+            ipt_schedule_data_number: InputScheduleDataNumber = ipt_schedule_data
 
-            ceiled_scd = _check_and_read_value(d=schedule_i[str(ceil_np)][day_type], schedule_item=schedule_item, n_step_day=n_step_day)
+            if noo in [ENumberOfOccupants.One, ENumberOfOccupants.Two, ENumberOfOccupants.Three, ENumberOfOccupants.Four]:
 
-            floored_scd = _check_and_read_value(d=schedule_i[str(floor_np)][day_type], schedule_item=schedule_item, n_step_day=n_step_day)
+                input_number_schedule_elements: InputScheduleElements = ipt_schedule_data_number.num(noo=noo).day_type(day_type=day_type)
 
-            if is_zero_one:
-                ceil_schedule = _convert_to_zero_one(v=ceiled_scd)
-                floor_schedule = _convert_to_zero_one(v=floored_scd)
+                scd = _make_list(input_schedule_elements=input_number_schedule_elements, schedule_item=schedule_item, n_step_day=n_step_day)
+
+                if is_zero_one:
+                    return _convert_to_zero_one(v=scd)
+                else:
+                    return scd
+
+            elif noo == ENumberOfOccupants.Auto:
+
+                ceil_np, floor_np = _get_ceil_floor_np(n_p)
+
+                ceiled_input_schedule_elements: InputScheduleElements = ipt_schedule_data_number.num(noo=ENumberOfOccupants(str(ceil_np))).day_type(day_type=day_type)
+                ceiled_scd = _make_list(input_schedule_elements=ceiled_input_schedule_elements, schedule_item=schedule_item, n_step_day=n_step_day)
+
+                floored_input_schedule_elements: InputScheduleElements = ipt_schedule_data_number.num(noo=ENumberOfOccupants(str(floor_np))).day_type(day_type=day_type)
+                floored_scd = _make_list(input_schedule_elements=floored_input_schedule_elements, schedule_item=schedule_item, n_step_day=n_step_day)
+                
+                if is_zero_one:
+                    ceil_schedule = _convert_to_zero_one(v=ceiled_scd)
+                    floor_schedule = _convert_to_zero_one(v=floored_scd)
+                else:
+                    ceil_schedule = ceiled_scd
+                    floor_schedule = floored_scd
+
+                if is_proportionable:
+                    interpolate_np_schedule = ceil_schedule * (n_p - float(floor_np)) + floor_schedule * (float(ceil_np) - n_p)
+                else:
+                    interpolate_np_schedule = np.maximum(ceil_schedule, floor_schedule)
+
+                return interpolate_np_schedule
+
             else:
-                ceil_schedule = ceiled_scd
-                floor_schedule = floored_scd
 
-            if is_proportionable:
-                interpolate_np_schedule = ceil_schedule * (n_p - float(floor_np)) + floor_schedule * (float(ceil_np) - n_p)
-            else:
-                interpolate_np_schedule = np.maximum(ceil_schedule, floor_schedule)
+                raise KeyError()
 
-            return interpolate_np_schedule
-
-        else:
-
+        case _:
             raise KeyError()
-    else:
-
-        raise KeyError()
 
 
-def _check_and_read_value(d: Dict, schedule_item: ScheduleItem, n_step_day: int) -> np.ndarray:
+def _make_list(input_schedule_elements: InputScheduleElements, schedule_item: ScheduleItem, n_step_day: int) -> np.ndarray:
     """make ndarray list from the input dictionary.
 
-    Check which the schedule item name is included in the item name of thy input jason file.
-        If not included, make the zero list. The number of list is equal to n_step_day.
-        If included, check the contents.
-            When the contents is the list of number, check which the length of the list equals to n_step_day.
-                If the length is equal to n_step_day, return the list.
-                If not, return the ERROR.
-            When the contents is the string "zero", return the zero list. 
     Args:
-        d: dictionary of the input file (see Notes)
-            {
-                "number_of_people": [] / "zero",
-                "heat_generation_appliances": [] / "zero",
-                "heat_generation_lighting": [] / "zero",
-                "heat_generation_cooking": [] / "zero",
-                "vapor_generation_cooking": [] / "zero",
-                "local_vent_amount": [] / "zero",
-                "is_temp_limit_set": [] / "zero"
-            }
+        input_schedule_elements: InputScheduleElements class
+        schedule_item: ScheduleItem enum class
+        n_step_day: number of steps in a day
+
+    Returns:
+        ndarray list of the schedule
+    
+    Notes:
         schedule_item_name: schedule item name which is the name of the dictionary;
             number_of_people
             heat_generation_appliances
@@ -468,26 +432,37 @@ def _check_and_read_value(d: Dict, schedule_item: ScheduleItem, n_step_day: int)
             vapor_generation_cooking
             local_vent_amount
             is_temp_limit_set
-        n_step_day: numbe of the steps in a day
 
-    Returns:
-        ndarray list of the schedule
     """
 
-    # get the item name in dictionary according to the schedule item.
-    schedule_item_name = schedule_item.get_item_name_in_dictionary()
+    v: list[float] | list[int]
 
-    # If the schedule_type item name is not exist in the dictionary d, make the zero list.
-    if schedule_item_name not in d:
-        return np.zeros(n_step_day)
-    else:
-        v = d[schedule_item_name]
-        if v == 'zero':
-            return np.zeros(n_step_day)
-        else:
-            if len(v) != n_step_day:
-                raise ValueError("Number of the list in the schedule does not match the interval.")
-            return np.array(v)
+    match schedule_item:
+        case ScheduleItem.LOCAL_VENTILATION_AMMOUNT:
+            v = input_schedule_elements.local_vent_amount
+        case ScheduleItem.APPLIANCE_HEAT_GENERATION:
+            v = input_schedule_elements.heat_generation_appliances
+        case ScheduleItem.COOKING_HEAT_GENERATION:
+            v = input_schedule_elements.heat_generation_cooking
+        case ScheduleItem.COOKING_VAPOUR_GENERATION:
+            v = input_schedule_elements.vapor_generation_cooking
+        case ScheduleItem.LIGHTING_HEAT_GENERATION:
+            v = input_schedule_elements.heat_generation_lighting
+        case ScheduleItem.NUMBER_OF_PEOPLE:
+            v = input_schedule_elements.number_of_people
+        case ScheduleItem.AC_DEMMAND:
+            v = input_schedule_elements.is_temp_limit_set
+        case ScheduleItem.AC_MODE:
+            v = input_schedule_elements.is_temp_limit_set
+        case _:
+            raise KeyError()
+
+    
+
+    if len(v) != n_step_day:
+        raise ValueError("Number of the list in the schedule does not match the interval.")
+
+    return np.array(v)
 
 
 def _convert_to_zero_one(v: np.ndarray) -> np.ndarray:
@@ -533,46 +508,44 @@ def _get_ceil_floor_np(n_p: float) -> tuple[int, int]:
     return ceil_np, floor_np
 
 
-def _load_schedule(ipt_schedule: InputSchedule) -> tuple[EScheduleType, InputScheduleData]:
+def _load_schedule(ipt_schedule: InputSchedule) -> InputScheduleData:
     """Load the schedule from the input dictionary or specified csv file.
     
     Args:
         ipt_schedule: InputSchedule Class
-    Notes:
-        scd_i
-        In case that item "schedule_type" is defined.
-        {
-            "schedule_type": ...,
-            "schedule": ...
-        }
-        In case that item "schedule_type" is not defined.
-        {
-            "name": ...,
-        }
+
     Returns:
-        ScheduleType class
-        schedule dictionary
+        InputScheduleData class
     """
+    
+    ipt_schedule_direct: InputScheduleDirect
     
     if ipt_schedule.is_schedule_type_defined:
 
-        ipt_schedule_direct: InputScheduleDirect = ipt_schedule
+        if not isinstance(ipt_schedule, InputScheduleDirect):
+            raise ValueError('Input schedule is not InputScheduleDirect class.')
 
-        schedule_type = ipt_schedule_direct.schedule_type
-
-        ipt_schedule_data = ipt_schedule_direct.ipt_schedule_data
+        ipt_schedule_direct = ipt_schedule
 
     else:   # read from json file
+
+        if not isinstance(ipt_schedule, InputScheduleFile):
+            raise ValueError('Input schedule is not InputScheduleFile class.')
 
         ipt_schedule_file: InputScheduleFile = ipt_schedule
 
         js = _load_json_file(filename=ipt_schedule_file.name)
 
-        schedule_type = EScheduleType(js["schedule_type"])
+        ipt_schedule_from_file = InputSchedule.read(id=ipt_schedule_file.id, d_schedule=js)
 
-        ipt_schedule_data = InputScheduleData.read(id=ipt_schedule_file.id, d_schedule_data=js["schedule"])
+        if not ipt_schedule_from_file.is_schedule_type_defined:
+            raise ValueError('Schedule type is not defined in the json file.')
+        
+        ipt_schedule_direct = ipt_schedule_from_file
 
-    return schedule_type, ipt_schedule_data
+    ipt_schedule_data: InputScheduleData = ipt_schedule_direct.ipt_schedule_data
+
+    return ipt_schedule_data
 
 
 def _load_calendar() -> np.ndarray:

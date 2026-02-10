@@ -46,15 +46,15 @@ class Weather:
         if h_sun_ns.size != itv.get_n_step_annual():
             raise ValueError('The length of h_sun_ns array does not match the number of the annual steps.')
         if i_dn_ns.size != itv.get_n_step_annual():
-            raise ValueError('The length of i_dn_ns array does not match the numeber of the annual steps.')
+            raise ValueError('The length of i_dn_ns array does not match the number of the annual steps.')
         if i_sky_ns.size != itv.get_n_step_annual():
-            raise ValueError('The length of i_sky_ns array does not match the numeber of the annual steps.')
+            raise ValueError('The length of i_sky_ns array does not match the number of the annual steps.')
         if r_n_ns.size != itv.get_n_step_annual():
-            raise ValueError('The length of r_n_ns array does not match the numeber of the annual steps.')
+            raise ValueError('The length of r_n_ns array does not match the number of the annual steps.')
         if theta_o_ns.size != itv.get_n_step_annual():
-            raise ValueError('The length of theta_o_ns array does not match the numeber of the annual steps.')
+            raise ValueError('The length of theta_o_ns array does not match the number of the annual steps.')
         if x_o_ns.size != itv.get_n_step_annual():
-            raise ValueError('The length of x_o_ns array does not match the numeber of the annual steps.')
+            raise ValueError('The length of x_o_ns array does not match the number of the annual steps.')
 
         self._a_sun_ns = a_sun_ns
         self._h_sun_ns = h_sun_ns
@@ -74,6 +74,9 @@ class Weather:
 
         if ipt_weather.method == EWeatherMethod.EES:
 
+            if not isinstance(ipt_weather, InputWeatherEES):
+                raise Exception()
+
             ipt_weather_ees: InputWeatherEES = ipt_weather
 
             logger.info('make weather data based on the EES region')
@@ -83,6 +86,9 @@ class Weather:
             return _make_weather_ees(region=region, itv=itv)
 
         elif ipt_weather.method == EWeatherMethod.FILE:
+
+            if not isinstance(ipt_weather, InputWeatherFile):
+                raise Exception()
 
             ipt_weather_file: InputWeatherFile = ipt_weather
 
@@ -107,7 +113,7 @@ class Weather:
 
         return Weather(
             a_sun_ns=np.full(n_step_annual, fill_value=a_sun, dtype=float),
-             h_sun_ns=np.full(n_step_annual, fill_value=h_sun, dtype=float),
+            h_sun_ns=np.full(n_step_annual, fill_value=h_sun, dtype=float),
             i_dn_ns=np.full(n_step_annual, fill_value=i_dn, dtype=float),
             i_sky_ns=np.full(n_step_annual, fill_value=i_sky, dtype=float),
             r_n_ns=np.full(n_step_annual, fill_value=r_n, dtype=float),

@@ -43,7 +43,7 @@ class Season:
 
 
     @classmethod
-    def make_season(cls, ipt_season: InputSeason, w: weather.Weather, itv: EInterval = EInterval.M15, ipt_weather: InputWeather = None):
+    def make_season(cls, ipt_season: InputSeason, w: weather.Weather, itv: Interval = Interval(eitv=EInterval.M15), ipt_weather: InputWeather | None = None):
         """make season class
 
         Args:
@@ -64,7 +64,7 @@ class Season:
         return Season(summer=summer, winter=winter, middle=middle, itv=itv)
 
 
-def _get_season_status(ipt_season: InputSeason, ipt_weather: InputWeather, w: weather.Weather | None = None) -> Tuple[Optional[str], Optional[str], Optional[str], Optional[str], bool, bool]:
+def _get_season_status(ipt_season: InputSeason, ipt_weather: InputWeather | None, w: weather.Weather | None = None) -> Tuple[Optional[str], Optional[str], Optional[str], Optional[str], bool, bool]:
     """get season status
 
     Args:
@@ -84,6 +84,9 @@ def _get_season_status(ipt_season: InputSeason, ipt_weather: InputWeather, w: we
     """
 
     if ipt_season.is_defined:
+
+        if not isinstance(ipt_season, InputSeasonDefined):
+            raise Exception()
 
         ipt_season_defined: InputSeasonDefined = ipt_season
 
@@ -111,6 +114,9 @@ def _get_season_status(ipt_season: InputSeason, ipt_weather: InputWeather, w: we
         match ipt_weather.method:
             
             case EWeatherMethod.EES:
+
+                if not isinstance(ipt_weather, InputWeatherEES):
+                    raise Exception()
 
                 ipt_weather_ees: InputWeatherEES = ipt_weather
 
