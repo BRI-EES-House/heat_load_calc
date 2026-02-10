@@ -18,94 +18,98 @@ class InputScheduleElements:
     is_temp_limit_set: list[int]
     d: dict
 
+
+
     @classmethod
     def read(cls, id: int, d: dict):
 
-        n_step_day_default = 96
-        
-        if 'number_of_people' in d:
-            d_number_of_people = d['number_of_people']
-            if d_number_of_people == 'zero':
-                number_of_people = [0.0] * n_step_day_default
-            else:
-                try:
-                    number_of_people = [float(v) for v in d_number_of_people]
-                except:
-                    raise ValueError(f'An invalid value was specified for \'number_of_people\' in \'schedule\' tag. (ID={id})')                
-        else:
-            number_of_people = [0.0] * n_step_day_default
+        def read_each(tag: str, arg_type: str):
+
+            def length_check(s: str, ds: list[int | float]) -> None:
+
+                if len(ds) not in [1, 24, 48, 96]:
+
+                    raise ValueError(f'The length of the list should be 1, 24, 48, or 96 for \'{s}\' in \'schedule\' tag. (ID={id})')
             
-        if 'heat_generation_appliances' in d:
-            d_heat_generation_appliances = d['heat_generation_appliances']
-            if d_heat_generation_appliances == 'zero':
-                heat_generation_appliances = [0.0] * n_step_day_default
-            else:
+            def get_value(s: str, ds: list[str], arg_type: str) -> list[int | float]:
+
                 try:
-                    heat_generation_appliances = [float(v) for v in d_heat_generation_appliances]
+
+                    match arg_type:
+
+                        case 'float':
+                            return [float(d) for d in ds]
+                        case 'int':
+                            return [int(d) for d in ds]
+                        case _:
+                            raise Exception()
+                    
                 except:
-                    raise ValueError(f'An invalid value was specified for \'heat_generation_appliances\' in \'schedule\' tag. (ID={id})')
-        else:
-            heat_generation_appliances = [0.0] * n_step_day_default
+
+                    raise ValueError(f'An invalid value was specified for \'{s}\' in \'schedule\' tag. (ID={id})')
+
+            if tag in d:
+
+                ds = d[tag]
+
+                length_check(s=tag, ds=ds)
+
+                return get_value(s=tag, ds=ds, arg_type=arg_type)
+            
+            else:
+
+                match arg_type:
+                    case 'float':
+                        return [0.0] * 96
+                    case 'int':
+                        return [0] * 96
+                    case _:
+                        raise Exception()
+
+        number_of_people = read_each(tag='number_of_people', arg_type='float')
+        heat_generation_appliances = read_each(tag='heat_generation_appliances', arg_type='float')
+        heat_generation_lighting = read_each(tag='heat_generation_lighting', arg_type='float')
+        heat_generation_cooking = read_each(tag='heat_generation_cooking', arg_type='float')
+        vapor_generation_cooking= read_each(tag='vapor_generation_cooking', arg_type='float')
+        local_vent_amount = read_each(tag='local_vent_amount', arg_type='float')
+        is_temp_limit_set = read_each(tag='is_temp_limit_set', arg_type='int')
         
-        if 'heat_generation_lighting' in d:
-            d_heat_generation_lighting = d['heat_generation_lighting']
-            if d_heat_generation_lighting == 'zero':
-                heat_generation_lighting = [0.0] * n_step_day_default
-            else:
-                try:
-                    heat_generation_lighting = [float(v) for v in d_heat_generation_lighting]
-                except:
-                    raise ValueError(f'An invalid value was specified for \'heat_generation_lighting\' in \'schedule\' tag. (ID={id})')
-        else:
-            heat_generation_lighting = [0.0] * n_step_day_default
         
-        if 'heat_generation_cooking' in d:
-            d_heat_generation_cooking = d['heat_generation_cooking']
-            if d_heat_generation_cooking == 'zero':
-                heat_generation_cooking = [0.0] * n_step_day_default
-            else:
-                try:
-                    heat_generation_cooking = [float(v) for v in d_heat_generation_cooking]
-                except:
-                    raise ValueError(f'An invalid value was specified for \'heat_generation_cooking\' in \'schedule\' tag. (ID={id})')
-        else:
-            heat_generation_cooking = [0.0] * n_step_day_default
+        # if 'vapor_generation_cooking' in d:
+        #     d_vapor_generation_cooking = d['vapor_generation_cooking']
+        #     if d_vapor_generation_cooking == 'zero':
+        #         vapor_generation_cooking = [0.0] * n_step_day_default
+        #     else:
+        #         try:
+        #             vapor_generation_cooking = [float(v) for v in d_vapor_generation_cooking]
+        #         except:
+        #             raise ValueError(f'An invalid value was specified for \'vapor_generation_cooking\' in \'schedule\' tag. (ID={id})')
+        # else:
+        #     vapor_generation_cooking = [0.0] * n_step_day_default
         
-        if 'vapor_generation_cooking' in d:
-            d_vapor_generation_cooking = d['vapor_generation_cooking']
-            if d_vapor_generation_cooking == 'zero':
-                vapor_generation_cooking = [0.0] * n_step_day_default
-            else:
-                try:
-                    vapor_generation_cooking = [float(v) for v in d_vapor_generation_cooking]
-                except:
-                    raise ValueError(f'An invalid value was specified for \'vapor_generation_cooking\' in \'schedule\' tag. (ID={id})')
-        else:
-            vapor_generation_cooking = [0.0] * n_step_day_default
+        # if 'local_vent_amount' in d:
+        #     d_local_vent_amount = d['local_vent_amount']
+        #     if d_local_vent_amount == 'zero':
+        #         local_vent_amount = [0.0] * n_step_day_default
+        #     else:
+        #         try:
+        #             local_vent_amount = [float(v) for v in d_local_vent_amount]
+        #         except:
+        #             raise ValueError(f'An invalid value was specified for \'local_vent_amount\' in \'schedule\' tag. (ID={id})')
+        # else:
+        #     local_vent_amount = [0.0] * n_step_day_default
         
-        if 'local_vent_amount' in d:
-            d_local_vent_amount = d['local_vent_amount']
-            if d_local_vent_amount == 'zero':
-                local_vent_amount = [0.0] * n_step_day_default
-            else:
-                try:
-                    local_vent_amount = [float(v) for v in d_local_vent_amount]
-                except:
-                    raise ValueError(f'An invalid value was specified for \'local_vent_amount\' in \'schedule\' tag. (ID={id})')
-        else:
-            local_vent_amount = [0.0] * n_step_day_default
-        
-        if 'is_temp_limit_set' in d:
-            d_is_temp_limit_set = d['is_temp_limit_set']
-            if d_is_temp_limit_set == 'zero':
-                is_temp_limit_set = [0] * n_step_day_default
-            else:
-                try:
-                    is_temp_limit_set = [int(v) for v in d_is_temp_limit_set]
-                except:
-                    raise ValueError(f'An invalid value was specified for \'is_temp_limit_set\' in \'schedule\' tag. (ID={id})')
-        else:
-            is_temp_limit_set = [0] * n_step_day_default
+        # if 'is_temp_limit_set' in d:
+        #     d_is_temp_limit_set = d['is_temp_limit_set']
+        #     if d_is_temp_limit_set == 'zero':
+        #         is_temp_limit_set = [0] * n_step_day_default
+        #     else:
+        #         try:
+        #             is_temp_limit_set = [int(v) for v in d_is_temp_limit_set]
+        #         except:
+        #             raise ValueError(f'An invalid value was specified for \'is_temp_limit_set\' in \'schedule\' tag. (ID={id})')
+        # else:
+        #     is_temp_limit_set = [0] * n_step_day_default
 
         return InputScheduleElements(
             number_of_people=number_of_people,
