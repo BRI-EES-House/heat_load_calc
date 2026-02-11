@@ -1,4 +1,4 @@
-from typing import Dict, Tuple, Optional
+from typing import Tuple, Optional
 from datetime import datetime
 import numpy as np
 import pandas as pd
@@ -6,8 +6,10 @@ import pandas as pd
 from heat_load_calc import weather
 from heat_load_calc.interval import Interval
 from heat_load_calc.region import Region
-from heat_load_calc.input_common import InputSeason, InputSeasonDefined, InputWeather, InputWeatherEES
-from heat_load_calc.tenum import ERegion, EInterval, EWeatherMethod
+from heat_load_calc.input_models.input_weather import InputWeather, InputWeatherEES
+from heat_load_calc.input_models.input_season import InputSeason, InputSeasonDefined
+from heat_load_calc.tenum import EInterval, EWeatherMethod
+
 
 class Season:
 
