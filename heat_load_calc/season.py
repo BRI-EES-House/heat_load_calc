@@ -3,16 +3,20 @@ from datetime import datetime
 import numpy as np
 import pandas as pd
 
-from heat_load_calc import region
 from heat_load_calc import weather
+from heat_load_calc.interval import Interval
+from heat_load_calc.region import Region
+from heat_load_calc.input_common import InputSeason, InputSeasonDefined, InputWeather, InputWeatherEES
+from heat_load_calc.tenum import ERegion, EInterval, EWeatherMethod
 
 class Season:
 
-    def __init__(self, summer: np.ndarray, winter: np.ndarray, middle: np.ndarray):
+    def __init__(self, summer: np.ndarray, winter: np.ndarray, middle: np.ndarray, itv: Interval):
 
         self._summer = summer
         self._winter = winter
         self._middle = middle
+        self._itv = itv
     
     @property
     def summer(self) -> np.ndarray:
@@ -29,33 +33,41 @@ class Season:
         """is middle period ? [365]"""
         return self._middle
 
-
-def make_season(d_common: Dict, w: weather.Weather):
-    """make season class
-
-    Args:
-        d_common: The item 'common' tag of the input file.
-    """
-
-    summer_start, summer_end, winter_start, winter_end, is_summer_period_set, is_winter_period_set = _get_season_status(d_common=d_common, w=w)
-
-    summer, winter, middle = _get_bool_list_for_season_as_str(
-        summer_start=summer_start,
-        summer_end=summer_end,
-        winter_start=winter_start,
-        winter_end=winter_end,
-        is_summer_period_set=is_summer_period_set,
-        is_winter_period_set=is_winter_period_set
-    )
-
-    return Season(summer=summer, winter=winter, middle=middle)
+    def get_is_summer_season(self) -> np.ndarray:
+        """is summer period ? [N]"""
+        return self._summer.repeat(self._itv.get_n_hour())
+    
+    def get_is_winter_season(self) -> np.ndarray:
+        """is winter period ? [N]"""
+        return self._winter.repeat(self._itv.get_n_hour())
 
 
-def _get_season_status(d_common: Dict, w: weather.Weather | None = None) -> Tuple[Optional[str], Optional[str], Optional[str], Optional[str], bool, bool]:
+    @classmethod
+    def make_season(cls, ipt_season: InputSeason, w: weather.Weather, itv: Interval = Interval(eitv=EInterval.M15), ipt_weather: InputWeather | None = None):
+        """make season class
+
+        Args:
+            d_common: The item 'common' tag of the input file.
+        """
+
+        summer_start, summer_end, winter_start, winter_end, is_summer_period_set, is_winter_period_set = _get_season_status(ipt_season=ipt_season, ipt_weather=ipt_weather, w=w)
+
+        summer, winter, middle = _get_bool_list_for_season_as_str(
+            summer_start=summer_start,
+            summer_end=summer_end,
+            winter_start=winter_start,
+            winter_end=winter_end,
+            is_summer_period_set=is_summer_period_set,
+            is_winter_period_set=is_winter_period_set
+        )
+
+        return Season(summer=summer, winter=winter, middle=middle, itv=itv)
+
+
+def _get_season_status(ipt_season: InputSeason, ipt_weather: InputWeather | None, w: weather.Weather | None = None) -> Tuple[Optional[str], Optional[str], Optional[str], Optional[str], bool, bool]:
     """get season status
 
     Args:
-        d_common: common tag in input file.
         w: Weather class. Defaults to None.
 
     Returns:
@@ -71,90 +83,58 @@ def _get_season_status(d_common: Dict, w: weather.Weather | None = None) -> Tupl
         If the sinter period set, the date the winter begins and the date the sinter ends should be defined.
     """
 
-    # Check the existance of the item season in common item.
-    if 'season' in d_common:
-        
-        # item 'season'
-        d_season = d_common['season']
+    if ipt_season.is_defined:
 
-        # Check the existance of the item "is_summer_period_set" in season item.
-        if 'is_summer_period_set' not in d_season:
-            raise KeyError('Key is_summer_period_set could not be found')
+        if not isinstance(ipt_season, InputSeasonDefined):
+            raise Exception()
 
-        is_summer_period_set = d_season['is_summer_period_set']
+        ipt_season_defined: InputSeasonDefined = ipt_season
 
-        # Check the existance of the item "is_winter_period_set" in season item.
-        if 'is_winter_period_set' not in d_season:
-            raise KeyError('Key is_winter_period_set could not be found')
-        
-        is_winter_period_set = d_season['is_winter_period_set']
-        
+        is_summer_period_set = ipt_season_defined.is_summer_period_set
+        is_winter_period_set =ipt_season_defined.is_winter_period_set
+
         if is_summer_period_set:
-            summer_start = d_season['summer_start']
-            summer_end = d_season['summer_end']
+            summer_start = ipt_season_defined.summer_start
+            summer_end = ipt_season_defined.summer_end
         else:
             summer_start = None
             summer_end = None
-        
+
         if is_winter_period_set:
-            winter_start = d_season['winter_start']
-            winter_end = d_season['winter_end']
+            winter_start = ipt_season_defined.winter_start
+            winter_end = ipt_season_defined.winter_end
         else:
             winter_start = None
             winter_end = None
 
         return summer_start, summer_end, winter_start, winter_end, is_summer_period_set, is_winter_period_set
-
-    # If tag 'season' is not defined, the season status are decided as follows.
-    # In case that the method is 'ees', these status depends on the region.
-    # In case that the method is 'file', these status are decided depending on the outside air temperature analyzed bassed on Fourier analysis.
+    
     else:
 
-        # Check the existance of the item 'weather' in common item.
-        if 'weather' not in d_common:
-            raise KeyError('Key weather could not be found in common tag.')
-    
-        # item 'weather'
-        d_weather = d_common['weather']
+        match ipt_weather.method:
+            
+            case EWeatherMethod.EES:
 
-        # Check the existance of the item  'method' in weather item.
-        if 'method' not in d_weather:
-            raise KeyError('Key method could not be found in weather tag.')
+                if not isinstance(ipt_weather, InputWeatherEES):
+                    raise Exception()
 
-        # item 'method'
-        d_method = d_weather['method']
+                ipt_weather_ees: InputWeatherEES = ipt_weather
 
-        # The method "ees" is the method that the weather data is loaded from the pre set data based on the region of the Japanese Energy Efficiency Standard.
-        # And the season of heating(winter) and cooling(summer) are desided depends on the region.
-        if d_method == 'ees':
+                r = Region(region=ipt_weather_ees.region)
 
-            # Check the existance of the item "region" in weather item.
-            if 'region' not in d_weather:
-                raise KeyError('Key region should be specified if the ees method applied.')
-        
-            # item 'region'
-            r = region.Region(int(d_weather['region']))
+                summer_start, summer_end, winter_start, winter_end, is_summer_period_set, is_winter_period_set = r.get_season_status()
 
-            summer_start, summer_end, winter_start, winter_end, is_summer_period_set, is_winter_period_set = r.get_season_status()
+                return summer_start, summer_end, winter_start, winter_end, is_summer_period_set, is_winter_period_set
 
-            return summer_start, summer_end, winter_start, winter_end, is_summer_period_set, is_winter_period_set
-        
-        # The method "file" is the method that the weather data is loaded from the file specified by user.
-        # If the method "file" is specified, the season are automatically calculated based on the outdoor air temperature,
-        # which is replaced to the simplified sin/cos curve througy the Fourier tranform method.
-        elif d_method == 'file':
+            case EWeatherMethod.FILE:
 
-            if w is None:
-
-                raise ValueError('Argument as Weather class is not defined. Weather should be defined when using file method in making season period.')
-
-            else:
+                if w is None:
+                    raise ValueError('Argument as Weather class is not defined. Weather should be defined when using file method in making season period.')
 
                 return _get_season_status_by_fourier_tranform(w=w)
-        
-        else:
-
-            raise ValueError('Invalid value is specified for the method.')
+            
+            case _:
+                raise Exception()
 
 
 def _get_bool_list_for_season_as_str(

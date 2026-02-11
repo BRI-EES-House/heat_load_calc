@@ -2,10 +2,13 @@
 from functools import partial
 from enum import Enum
 from typing import Dict, Tuple, Callable
+from abc import ABC
+import logging
 
 from heat_load_calc import pmv, occupants
 from heat_load_calc import psychrometrics as psy
 
+logger = logging.getLogger(name='HeatLoadCalc').getChild('Weather')
 
 class ACMethod(Enum):
 
@@ -34,77 +37,163 @@ class OperationMode(Enum):
     STOP_CLOSE = 4
 
 
+class ACConfigs:
+
+    class ACConfig:
+        def __init__(self, mode: int, lower: float, upper: float):
+
+            if lower >= upper:
+                raise ValueError('Lower value should be lower than upper value.')
+
+            self._mode = mode
+            self._lower = lower
+            self._upper = upper
+
+    def __init__(self, ac_configs: list[ACConfig]):
+        
+        self._ac_configs = ac_configs
+
+    @classmethod    
+    def set_ac_configs(cls, d_common: dict):
+
+        if 'ac_config' in d_common:
+
+            d_ac_configs = d_common['ac_config']
+
+            ac_configs = [cls.ACConfig(mode=d_ac_config['mode'], lower=d_ac_config['lower'], upper=d_ac_config['upper']) for d_ac_config in d_ac_configs]
+
+            # check the duplicated mode number
+            modes = [ac_config._mode for ac_config in ac_configs]
+
+            if len(modes) != len(set(modes)):
+                raise ValueError("Duplicated mode number was defined.")
+
+            return ACConfigs(ac_configs=ac_configs)
+        
+        else:
+
+            ac_method = ACMethod(d_common['ac_method'])
+
+            match ac_method:
+
+                case ACMethod.AIR_TEMPERATURE | ACMethod.SIMPLE | ACMethod.OT:
+
+                    return ACConfigs([
+                        cls.ACConfig(mode=1, lower=20.0, upper=27.0),
+                        cls.ACConfig(mode=2, lower=20.0, upper=27.0)
+                    ])
+                
+                case ACMethod.PMV:
+
+                    return ACConfigs([
+                        cls.ACConfig(mode=1, lower=-0.5, upper=0.5),
+                        cls.ACConfig(mode=2, lower=-0.5, upper=0.5)
+                    ])
+                
+                case _:
+                    raise ValueError()
+    
+    def get_lower(self, t_ac_mode: int) -> float | None:
+        
+        if t_ac_mode == 0:
+
+            return np.nan
+        
+        else:
+
+            x_lower_target = next((ac_config._lower for ac_config in self._ac_configs if ac_config._mode == t_ac_mode), None)
+
+            if x_lower_target is None:
+                ValueError()
+            
+            return x_lower_target
+
+    def get_upper(self, t_ac_mode: int) -> float | None:
+
+        if t_ac_mode == 0:
+
+            return np.nan
+        
+        else:
+
+            x_upper_target = next((ac_config._upper for ac_config in self._ac_configs if ac_config._mode == t_ac_mode), None)
+
+            if x_upper_target is None:
+                ValueError()
+            
+            return x_upper_target
+
+
+class OperationSchedule:
+
+    def __init__(self, x_lower_target: float, x_upper_target: float, r_ac_demand: float):
+
+        self._x_lower_target = x_lower_target
+        self._x_upper_target = x_upper_target
+        self._r_ac_demand = r_ac_demand
+
+    def get_opmode_heating_cooling(self, x_h: float, x_c: float, x_wop: float) -> OperationMode:
+
+        # 空調需要が0より大の場合（ケース 2）
+        if self._r_ac_demand > 0:
+
+            # 暖房用参照値が目標下限値を下回る場合は「暖房」とする。（ケース 2-1）
+            if x_h < self._x_lower_target:
+
+                return OperationMode.HEATING
+                
+            # 冷房用参照値が目標上限値を上回り、かつ、窓開け用参照値が目標上限値を上回る場合は「冷房」とする。（ケース 2-2-1）
+            elif (x_c > self._x_upper_target) & (x_wop > self._x_upper_target):
+                
+                return OperationMode.COOLING
+
+            # 冷房用参照値が目標上限値を上回り、かつ、窓開け用参照値が目標上限値以下の場合は「暖房・冷房停止で窓「開」」とする。（ケース 2-2-2）
+            elif (x_c > self._x_upper_target) & (x_wop <= self._x_upper_target):
+                return OperationMode.STOP_OPEN
+            
+            # 空港需要が0より大であるが、上記のケース2-1, 2-2-1, 2-2-2 を満たさない場合は「暖房・冷房停止で窓「閉」」とする。（ケース 2-3）
+            else:
+                return OperationMode.STOP_CLOSE
+
+        # 空調需要が0の場合は「暖房・冷房停止で窓「閉」」とする。（ケース 1）
+        else:
+
+            return OperationMode.STOP_CLOSE
+        
+
 class Operation:
 
-    def __init__(
-            self,
-            ac_method: ACMethod,
-            x_lower_target_is_ns: np.ndarray,
-            x_upper_target_is_ns: np.ndarray,
-            r_ac_demand_is_ns: np.ndarray,
-            n_rm: int
-    ):
+    def __init__(self, d_common: dict, t_ac_mode_is_ns: np.ndarray, r_ac_demand_is_ns: np.ndarray, n_rm: int):
         """
 
         Args:
-            ac_method: 運転モードの決定方法
-            x_lower_target_is_ns: ステップ n における室 i の目標下限値
-            x_upper_target_is_ns: ステップ n における室 i の目標上限値
-            r_ac_demand_is_ns: ステップ n における室 i の空調需要
-            n_rm: 室の数
+            d_common: input dictionary
+            t_ac_mode_is_ns: ac mode of room i at step n, [I, N]
+            r_ac_demand_is_ns: AC demmand of room i at step n, [I, N]
+            n_rm: number of rooms
         """
-        
+
+        # get AC method
+        ac_method = ACMethod(d_common['ac_method'])
+
+        # AC configs
+        # One config consists of the parameters below.
+        # - ID
+        # - upper limit
+        # - lower limit
+        ac_configs = ACConfigs.set_ac_configs(d_common=d_common)
+
+        # lower and upper target, [I, N]
+        x_lower_target_is_ns = np.vectorize(ac_configs.get_lower)(t_ac_mode_is_ns)
+        x_upper_target_is_ns = np.vectorize(ac_configs.get_upper)(t_ac_mode_is_ns)
+
         self._ac_method = ac_method
         self._x_lower_target_is_ns = x_lower_target_is_ns
         self._x_upper_target_is_ns = x_upper_target_is_ns
         self._r_ac_demand_is_ns = r_ac_demand_is_ns
         self._n_rm = n_rm
 
-    @classmethod
-    def make_operation(cls, d: Dict, t_ac_mode_is_ns: np.ndarray, r_ac_demand_is_ns: np.ndarray, n_rm: int):
-        """Operation クラスを作成する。
-        Make Operation Class.
-        Args:
-            d: 運転モードに関する入力情報
-            t_ac_mode_is_ns: ステップ n における室 i の空調モード
-            r_ac_demand_is_ns: ステップ n における室 i の空調需要
-            n_rm: 室の数
-        Returns:
-            Operation クラス
-        """
-
-        ac_method = ACMethod(d['ac_method'])
-
-        if 'ac_config' in d:
-            ac_config = d['ac_config']
-        else:
-            if ac_method in [ACMethod.AIR_TEMPERATURE, ACMethod.SIMPLE, ACMethod.OT]:
-                ac_config = [
-                    {'mode': 1, 'lower': 20.0, 'upper': 27.0},
-                    {'mode': 2, 'lower': 20.0, 'upper': 27.0}
-                ]
-            elif ac_method == ACMethod.PMV:
-                ac_config = [
-                    {'mode': 1, 'lower': -0.5, 'upper': 0.5},
-                    {'mode': 2, 'lower': -0.5, 'upper': 0.5}
-                ]
-            else:
-                raise Exception()
-
-        x_lower_target_is_ns = np.full_like(t_ac_mode_is_ns, fill_value=np.nan, dtype=float)
-        x_upper_target_is_ns = np.full_like(t_ac_mode_is_ns, fill_value=np.nan, dtype=float)
-
-        for conf in ac_config:
-            x_lower_target_is_ns[t_ac_mode_is_ns == conf['mode']] = conf['lower']
-            x_upper_target_is_ns[t_ac_mode_is_ns == conf['mode']] = conf['upper']
-
-        return Operation(
-            ac_method=ac_method,
-            x_lower_target_is_ns=x_lower_target_is_ns,
-            x_upper_target_is_ns=x_upper_target_is_ns,
-            r_ac_demand_is_ns=r_ac_demand_is_ns,
-            n_rm=n_rm
-        )
+        self._operation_schedule_is_ns = np.vectorize(OperationSchedule)(x_lower_target_is_ns, x_upper_target_is_ns, r_ac_demand_is_ns)
 
     @property
     def ac_method(self):
@@ -153,55 +242,43 @@ class Operation:
 
         elif self.ac_method == ACMethod.PMV:
 
-            x_cooling_is_n_pls, x_window_open_is_n_pls, x_heating_is_n_pls = _get_x_is_n_pls_pmv_control(
+            x_cooling_is_n_pls = _get_x_is_n_pls_pmv_control_cooling(
                 is_radiative_cooling_is=is_radiative_cooling_is,
+                method='constant',
+                met_is=met_is,
+                theta_r_ntr_non_nv_is_n_pls=theta_r_ntr_non_nv_is_n_pls,
+                theta_r_ntr_nv_is_n_pls=theta_r_ntr_nv_is_n_pls,
+                theta_mrt_hum_ntr_non_nv_is_n_pls=theta_mrt_hum_ntr_non_nv_is_n_pls,
+                x_r_ntr_non_nv_is_n_pls=x_r_ntr_non_nv_is_n_pls
+            )
+
+            x_window_open_is_n_pls = _get_x_is_n_pls_pmv_control_window_open(
+                method='constant',
+                met_is=met_is,
+                theta_r_ntr_nv_is_n_pls=theta_r_ntr_nv_is_n_pls,
+                theta_mrt_hum_ntr_nv_is_n_pls=theta_mrt_hum_ntr_nv_is_n_pls,
+                x_r_ntr_nv_is_n_pls=x_r_ntr_nv_is_n_pls
+            )
+
+            x_heating_is_n_pls = _get_x_is_n_pls_pmv_control_heating(
                 is_radiative_heating_is=is_radiative_heating_is,
                 method='constant',
                 met_is=met_is,
                 theta_r_ntr_non_nv_is_n_pls=theta_r_ntr_non_nv_is_n_pls,
                 theta_r_ntr_nv_is_n_pls=theta_r_ntr_nv_is_n_pls,
                 theta_mrt_hum_ntr_non_nv_is_n_pls=theta_mrt_hum_ntr_non_nv_is_n_pls,
-                theta_mrt_hum_ntr_nv_is_n_pls=theta_mrt_hum_ntr_nv_is_n_pls,
                 x_r_ntr_non_nv_is_n_pls=x_r_ntr_non_nv_is_n_pls,
-                x_r_ntr_nv_is_n_pls=x_r_ntr_nv_is_n_pls
             )
 
         else:
             raise Exception()
 
-        x_upper_target_is_n = self._x_upper_target_is_ns[:, n].reshape(-1, 1)
-        x_lower_target_is_n = self._x_lower_target_is_ns[:, n].reshape(-1, 1)
-        r_ac_demand_is_n = self._r_ac_demand_is_ns[:, n].reshape(-1, 1)
+        operation_schedule_is_n = self._operation_schedule_is_ns[:, n].reshape(-1, 1)
 
-        # 空調需要が0より大の場合をTrueとする。
-        is_op = r_ac_demand_is_n > 0
+        def apply_f(c: OperationSchedule, x_h: float, x_c: float, x_wop: float) -> OperationMode:
+            return c.get_opmode_heating_cooling(x_h, x_c, x_wop)
 
-        # ケース 1, 2-3
-        # 次を満たす場合は「暖房・冷房停止で窓「閉」」とする。
-        # ・空調需要が0
-        # ・空港需要が0より大であるが、次のケース2-1, 2-2-1, 2-2-2 を満たさない場合
-        t_operation_mode_is_n = np.full((r_ac_demand_is_n.shape[0], 1), OperationMode.STOP_CLOSE)
-
-        # ケース 2-1
-        # 次を満たす場合は「暖房」とする。
-        # ・空調需要が0より大
-        # ・暖房用参照値が目標下限値を下回る場合は「暖房」とする。
-        t_operation_mode_is_n[is_op & (x_heating_is_n_pls < x_lower_target_is_n)] = OperationMode.HEATING
-
-        # ケース 2-2-1
-        # 次を満たす場合は「冷房」とする。
-        # ・空調需要が0より大
-        # ・冷房用参照値が目標上限値を上回る場合
-        # ・窓開け用参照値が目標上限値を上回る場合
-        t_operation_mode_is_n[is_op & (x_cooling_is_n_pls > x_upper_target_is_n) & (x_window_open_is_n_pls > x_upper_target_is_n)] \
-            = OperationMode.COOLING
-
-        # ケース 2-2-2
-        # 次を満たす場合は「暖房・冷房停止で窓「開」」とする。
-        # ・冷房用参照値が目標上限値を上回る場合
-        # ・窓開け用参照値が目標上限値以下の場合
-        t_operation_mode_is_n[is_op & (x_cooling_is_n_pls > x_upper_target_is_n) & (x_window_open_is_n_pls <= x_upper_target_is_n)] \
-            = OperationMode.STOP_OPEN
+        t_operation_mode_is_n = np.vectorize(apply_f)(operation_schedule_is_n, x_heating_is_n_pls, x_cooling_is_n_pls, x_window_open_is_n_pls)
 
         return t_operation_mode_is_n
 
@@ -330,44 +407,21 @@ def _get_x_is_n_pls_ot_and_air_temperature_control(
     return x_cooling_is_n_pls, x_window_open_is_n_pls, x_heating_is_n_pls
 
 
-def _get_x_is_n_pls_pmv_control(
+def _get_x_is_n_pls_pmv_control_cooling(
         is_radiative_cooling_is: np.ndarray,
-        is_radiative_heating_is: np.ndarray,
         method: str,
         met_is: np.ndarray,
         theta_r_ntr_non_nv_is_n_pls: np.ndarray,
         theta_r_ntr_nv_is_n_pls: np.ndarray,
         theta_mrt_hum_ntr_non_nv_is_n_pls: np.ndarray,
-        theta_mrt_hum_ntr_nv_is_n_pls: np.ndarray,
-        x_r_ntr_non_nv_is_n_pls: np.ndarray,
-        x_r_ntr_nv_is_n_pls: np.ndarray
+        x_r_ntr_non_nv_is_n_pls: np.ndarray
 ):
 
     # ステップnにおける室iの水蒸気圧, Pa, [i, 1]
     p_v_r_ntr_non_nv_is_n_pls = psy.get_p_v_r_is_n(x_r_is_n=x_r_ntr_non_nv_is_n_pls)
-    p_v_r_ntr_nv_is_n_pls = psy.get_p_v_r_is_n(x_r_is_n=x_r_ntr_nv_is_n_pls)
 
     # 薄着時のClo値
     clo_light_is = np.full_like(a=theta_r_ntr_nv_is_n_pls, fill_value=occupants.get_clo_light(), dtype=float)
-
-    # 厚着時のClo値
-    clo_heavy_is = np.full_like(a=theta_r_ntr_nv_is_n_pls, fill_value=occupants.get_clo_heavy(), dtype=float)
-
-    ### 冷房判定用（窓開け時）のPMV計算
-
-    # 窓を開けている時の風速を 0.1 m/s とする
-    v_hum_window_open_is_n = np.full_like(a=theta_r_ntr_nv_is_n_pls, fill_value=0.1, dtype=float)
-
-    # 冷房判定用（窓開け時）のPMV
-    pmv_window_open_is_n = pmv.get_pmv_is_n(
-        p_a_is_n=p_v_r_ntr_nv_is_n_pls,
-        theta_r_is_n=theta_r_ntr_nv_is_n_pls,
-        theta_mrt_is_n=theta_mrt_hum_ntr_nv_is_n_pls,
-        clo_is_n=clo_light_is,
-        v_hum_is_n=v_hum_window_open_is_n,
-        met_is=met_is,
-        method=method
-    )
 
     # 冷房判定用（窓閉め時）のPMV計算
 
@@ -385,6 +439,62 @@ def _get_x_is_n_pls_pmv_control(
         method=method
     )
 
+    x_cooling_is_n_pls = pmv_cooling_is_n
+
+    return x_cooling_is_n_pls
+
+
+def _get_x_is_n_pls_pmv_control_window_open(
+        method: str,
+        met_is: np.ndarray,
+        theta_r_ntr_nv_is_n_pls: np.ndarray,
+        theta_mrt_hum_ntr_nv_is_n_pls: np.ndarray,
+        x_r_ntr_nv_is_n_pls: np.ndarray
+):
+
+    # ステップnにおける室iの水蒸気圧, Pa, [i, 1]
+    p_v_r_ntr_nv_is_n_pls = psy.get_p_v_r_is_n(x_r_is_n=x_r_ntr_nv_is_n_pls)
+
+    # 薄着時のClo値
+    clo_light_is = np.full_like(a=theta_r_ntr_nv_is_n_pls, fill_value=occupants.get_clo_light(), dtype=float)
+
+    ### 冷房判定用（窓開け時）のPMV計算
+
+    # 窓を開けている時の風速を 0.1 m/s とする
+    v_hum_window_open_is_n = np.full_like(a=theta_r_ntr_nv_is_n_pls, fill_value=0.1, dtype=float)
+
+    # 冷房判定用（窓開け時）のPMV
+    pmv_window_open_is_n = pmv.get_pmv_is_n(
+        p_a_is_n=p_v_r_ntr_nv_is_n_pls,
+        theta_r_is_n=theta_r_ntr_nv_is_n_pls,
+        theta_mrt_is_n=theta_mrt_hum_ntr_nv_is_n_pls,
+        clo_is_n=clo_light_is,
+        v_hum_is_n=v_hum_window_open_is_n,
+        met_is=met_is,
+        method=method
+    )
+
+    x_window_open_is_n_pls = pmv_window_open_is_n
+
+    return x_window_open_is_n_pls
+
+
+def _get_x_is_n_pls_pmv_control_heating(
+        is_radiative_heating_is: np.ndarray,
+        method: str,
+        met_is: np.ndarray,
+        theta_r_ntr_non_nv_is_n_pls: np.ndarray,
+        theta_r_ntr_nv_is_n_pls: np.ndarray,
+        theta_mrt_hum_ntr_non_nv_is_n_pls: np.ndarray,
+        x_r_ntr_non_nv_is_n_pls: np.ndarray
+):
+
+    # ステップnにおける室iの水蒸気圧, Pa, [i, 1]
+    p_v_r_ntr_non_nv_is_n_pls = psy.get_p_v_r_is_n(x_r_is_n=x_r_ntr_non_nv_is_n_pls)
+
+    # 厚着時のClo値
+    clo_heavy_is = np.full_like(a=theta_r_ntr_nv_is_n_pls, fill_value=occupants.get_clo_heavy(), dtype=float)
+
     # 暖房判定用のPMV計算
 
     # 暖房時の風速を対流暖房時0.2m/s・放射暖房時0.0m/sに設定する。
@@ -401,11 +511,9 @@ def _get_x_is_n_pls_pmv_control(
         method=method
     )
 
-    x_cooling_is_n_pls = pmv_cooling_is_n
-    x_window_open_is_n_pls = pmv_window_open_is_n
     x_heating_is_n_pls = pmv_heating_is_n
 
-    return x_cooling_is_n_pls, x_window_open_is_n_pls, x_heating_is_n_pls
+    return x_heating_is_n_pls
 
 
 def _get_theta_target(

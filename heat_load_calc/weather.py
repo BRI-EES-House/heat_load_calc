@@ -8,6 +8,9 @@ import math
 from heat_load_calc import solar_position
 from heat_load_calc.interval import Interval
 from heat_load_calc.region import Region
+from heat_load_calc.tenum import ERegion, EInterval, EWeatherMethod
+from heat_load_calc.input_common import InputWeather, InputWeatherEES, InputWeatherFile
+
 
 logger = logging.getLogger(name='HeatLoadCalc').getChild('Weather')
 
@@ -23,7 +26,7 @@ class Weather:
             r_n_ns: np.ndarray,
             theta_o_ns: np.ndarray,
             x_o_ns: np.ndarray,
-            itv: Interval = Interval.M15
+            itv: Interval = Interval(eitv=EInterval.M15)
     ):
         """
 
@@ -43,15 +46,15 @@ class Weather:
         if h_sun_ns.size != itv.get_n_step_annual():
             raise ValueError('The length of h_sun_ns array does not match the number of the annual steps.')
         if i_dn_ns.size != itv.get_n_step_annual():
-            raise ValueError('The length of i_dn_ns array does not match the numeber of the annual steps.')
+            raise ValueError('The length of i_dn_ns array does not match the number of the annual steps.')
         if i_sky_ns.size != itv.get_n_step_annual():
-            raise ValueError('The length of i_sky_ns array does not match the numeber of the annual steps.')
+            raise ValueError('The length of i_sky_ns array does not match the number of the annual steps.')
         if r_n_ns.size != itv.get_n_step_annual():
-            raise ValueError('The length of r_n_ns array does not match the numeber of the annual steps.')
+            raise ValueError('The length of r_n_ns array does not match the number of the annual steps.')
         if theta_o_ns.size != itv.get_n_step_annual():
-            raise ValueError('The length of theta_o_ns array does not match the numeber of the annual steps.')
+            raise ValueError('The length of theta_o_ns array does not match the number of the annual steps.')
         if x_o_ns.size != itv.get_n_step_annual():
-            raise ValueError('The length of x_o_ns array does not match the numeber of the annual steps.')
+            raise ValueError('The length of x_o_ns array does not match the number of the annual steps.')
 
         self._a_sun_ns = a_sun_ns
         self._h_sun_ns = h_sun_ns
@@ -67,63 +70,57 @@ class Weather:
         self._number_of_data = itv.get_n_step_annual()
 
     @classmethod
-    def make_weather(cls, d_common: Dict, itv: Interval, entry_point_dir: str = ""):
+    def make_weather(cls, ipt_weather: InputWeather, itv: Interval, entry_point_dir: str = ""):
 
-        # Check the existance of the item "weather" in common item.
-        if 'weather' not in d_common:
-            raise KeyError('Key weather could not be found in common tag.')
+        if ipt_weather.method == EWeatherMethod.EES:
 
-        # item "weather"
-        d_weather = d_common['weather']
+            if not isinstance(ipt_weather, InputWeatherEES):
+                raise Exception()
 
-        # Check the existance of the item "method" in weather item.
-        if 'method' not in d_weather:
-            raise KeyError('Key method could not be found in weather tag.')
-
-        # item "method"
-        d_method = d_weather['method']
-        
-        # The method "ees" is the method that the weather data is loaded from the pre set data based on the region of the Japanese Energy Efficiency Standard.
-        if d_method == 'ees':
-
-            # Chech the existance of the item "region" in weather item.
-            if 'region' not in d_weather:
-                raise KeyError('Key region should be specified if the ees method applied.')
-
-            # item "region"
-            region = Region(int(d_weather['region']))
+            ipt_weather_ees: InputWeatherEES = ipt_weather
 
             logger.info('make weather data based on the EES region')
 
+            region = Region(ipt_weather_ees.region)
+
             return _make_weather_ees(region=region, itv=itv)
 
-        elif d_method == 'file':
+        elif ipt_weather.method == EWeatherMethod.FILE:
 
-            # Check the existance of the item "file_path" in weather item.
-            if 'file_path' not in d_weather:
-                raise KeyError('Key file_path should be specified if the file method applied.')
-            
-            # Check the existance of the item "latitude" and "longitude" in weather item.
-            if 'latitude' not in d_weather:
-                raise KeyError('Key latitude should be specified if the file method applied.')
-            if 'longitude' not in d_weather:
-                raise KeyError('Key longitude should be specified if the file method applied.')
+            if not isinstance(ipt_weather, InputWeatherFile):
+                raise Exception()
 
-            file_path = os.path.join(entry_point_dir, d_weather['file_path'])
+            ipt_weather_file: InputWeatherFile = ipt_weather
+
+            file_path = os.path.join(entry_point_dir, ipt_weather_file.file_path)
+
+            latitude = ipt_weather_file.latitude
+
+            longitude = ipt_weather_file.longitude
 
             if not os.path.isfile(file_path):
                 raise FileExistsError('The specified file does not exist when file method is applied.')
-            
-            latitude = float(d_weather['latitude'])
-            longitude = float(d_weather['longitude'])
 
             logger.info('Load weather data from `{}`'.format(file_path))
 
             return _make_from_pd(file_path=file_path, itv=itv, latitude=latitude, longitude=longitude)
 
-        else:
 
-            raise ValueError('Invalid value is specified for the method.')
+    @classmethod
+    def create_constant(cls, a_sun: float, h_sun: float, i_dn: float, i_sky: float, r_n: float, theta_o: float, x_o: float, itv: Interval = Interval(eitv=EInterval.M15)):
+
+        n_step_annual = itv.get_n_step_annual()
+
+        return Weather(
+            a_sun_ns=np.full(n_step_annual, fill_value=a_sun, dtype=float),
+            h_sun_ns=np.full(n_step_annual, fill_value=h_sun, dtype=float),
+            i_dn_ns=np.full(n_step_annual, fill_value=i_dn, dtype=float),
+            i_sky_ns=np.full(n_step_annual, fill_value=i_sky, dtype=float),
+            r_n_ns=np.full(n_step_annual, fill_value=r_n, dtype=float),
+            theta_o_ns=np.full(n_step_annual, fill_value=theta_o, dtype=float),
+            x_o_ns=np.full(n_step_annual, fill_value=x_o, dtype=float),
+            itv=Interval(eitv=EInterval.M15)           
+        )
 
     def get_weather_as_pandas_data_frame(self):
 
@@ -435,7 +432,7 @@ def _interpolate(weather_data: np.ndarray, interval: Interval, rolling: bool) ->
             8760 * 4 = 35040 in case of '30m' / 15分間隔の場合 
     """
 
-    if interval == Interval.H1:
+    if interval.interval == EInterval.H1:
 
         if rolling:
             # 拡張アメダスのデータが1月1日の1時から始まっているため1時間ずらして0時始まりのデータに修正する。
@@ -447,9 +444,9 @@ def _interpolate(weather_data: np.ndarray, interval: Interval, rolling: bool) ->
 
         # 補間比率の係数
         alpha = {
-            Interval.M30: np.array([1.0, 0.5]),
-            Interval.M15: np.array([1.0, 0.75, 0.5, 0.25])
-        }[interval]
+            EInterval.M30: np.array([1.0, 0.5]),
+            EInterval.M15: np.array([1.0, 0.75, 0.5, 0.25])
+        }[interval.interval]
 
         # 補間元データ1, 補間元データ2
         if rolling:
@@ -480,15 +477,15 @@ def _get_filename(region: Region) -> str:
     """
 
     weather_data_filename = {
-        Region.Region1: '01_kitami.csv',  # 1地域（北見）
-        Region.Region2: '02_iwamizawa.csv',  # 2地域（岩見沢）
-        Region.Region3: '03_morioka.csv',  # 3地域（盛岡）
-        Region.Region4: '04_nagano.csv',  # 4地域（長野）
-        Region.Region5: '05_utsunomiya.csv',  # 5地域（宇都宮）
-        Region.Region6: '06_okayama.csv',  # 6地域（岡山）
-        Region.Region7: '07_miyazaki.csv',  # 7地域（宮崎）
-        Region.Region8: '08_naha.csv'  # 8地域（那覇）
-    }[region]
+        ERegion.Region1: '01_kitami.csv',  # 1地域（北見）
+        ERegion.Region2: '02_iwamizawa.csv',  # 2地域（岩見沢）
+        ERegion.Region3: '03_morioka.csv',  # 3地域（盛岡）
+        ERegion.Region4: '04_nagano.csv',  # 4地域（長野）
+        ERegion.Region5: '05_utsunomiya.csv',  # 5地域（宇都宮）
+        ERegion.Region6: '06_okayama.csv',  # 6地域（岡山）
+        ERegion.Region7: '07_miyazaki.csv',  # 7地域（宮崎）
+        ERegion.Region8: '08_naha.csv'  # 8地域（那覇）
+    }[region.region]
 
     return weather_data_filename
 

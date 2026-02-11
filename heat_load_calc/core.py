@@ -2,7 +2,13 @@ import pandas as pd
 import logging
 from typing import Tuple, Dict
 
-from heat_load_calc import schedule, recorder, sequence, weather, period, conditions, interval
+from heat_load_calc import schedule, recorder, sequence, weather, period, conditions
+from heat_load_calc.interval import Interval
+from heat_load_calc.weather import Weather
+from heat_load_calc.input_common import InputCommon
+from heat_load_calc.input_all import InputAll
+from heat_load_calc.input_rooms import InputRoom
+from heat_load_calc.season import Season
 
 logger = logging.getLogger('HeatLoadCalc').getChild('core')
 
@@ -29,29 +35,38 @@ def calc(
         「助走計算のうち建物全体を解く日数」は「助走計算を行う日数」で指定した値以下でないといけない。
     """
 
-    # Check the existance of the item "common" in the input file.
-    if 'common' not in d:
-        raise KeyError('Key common could not be found in the input file.')
-    
-    d_common = d['common']
+    ipt_all = InputAll(d=d)
 
-    # Set inteval class depending on the item 'interval' in common tag.
-    # If not specified in the file, 15 minute interval is set as default.   
-    itv: interval.Interval = interval.set_interval(d_common=d_common)
+    ipt_common: InputCommon = ipt_all.ipt_common
+    ipt_rooms: list[InputRoom] = ipt_all.ipt_rooms
+
+    d_common = ipt_all.d_common
+
+    d_rooms = ipt_all.d_rooms
+
+    itv: Interval = Interval.create(ipt_common=ipt_common)
 
     # Make Weather class.
-    w: weather.Weather = weather.Weather.make_weather(
-        d_common=d_common,
+    w: Weather = Weather.make_weather(
+        ipt_weather=ipt_common.ipt_weather,
         itv=itv,
         entry_point_dir=entry_point_dir
     )
 
+    season: Season = Season.make_season(
+        ipt_season=ipt_common.ipt_season,
+        w=w,
+        itv=itv,
+        ipt_weather=ipt_common.ipt_weather
+    )
+
     # Make Schedule class.
     scd: schedule.Schedule = schedule.Schedule.get_schedule(
-        number_of_occupants='auto',
-        a_f_is=[r['floor_area'] for r in d['rooms']],
+        n_ocp=ipt_common.n_ocp,
+        a_f_is=[ipt_room.a_f for ipt_room in ipt_rooms],
         itv=itv,
-        scd_is=[r['schedule'] for r in d['rooms']]
+        #scd_is=[r['schedule'] for r in ipt_all.d_rooms]
+        scd_is=[ipt_room.ipt_schedule for ipt_room in ipt_rooms]
     )
 
     # number of steps for main calculation

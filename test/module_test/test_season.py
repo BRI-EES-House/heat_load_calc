@@ -3,6 +3,8 @@ import numpy as np
 import pytest
 
 from heat_load_calc import season
+from heat_load_calc.input_common import InputSeason, InputSeasonDefined, InputSeasonNotDefined, InputWeather, InputWeatherEES
+from heat_load_calc.tenum import ERegion, EInterval, EWeatherMethod
 
 
 class TestSeason(unittest.TestCase):
@@ -318,7 +320,6 @@ class TestSeason(unittest.TestCase):
         assert_season(summer, winter, middle, 300, "middle")
         assert_season(summer, winter, middle, 364, "middle")
 
-
     def test_get_bool_list_for_four_season_as_str(self):
 
         assert_season = self.assert_season
@@ -483,59 +484,18 @@ class TestSeason(unittest.TestCase):
         assert_season(summer, winter, middle, 249, "winter")
         assert_season(summer, winter, middle, 364, "winter")
 
-    def test_make_season_season_specified_error(self):
-
-        d_common_1 = {
-            'season': {}
-        }
-
-        with pytest.raises(KeyError):
-
-            _ = season.make_season(d_common=d_common_1, w=None)
-
-        d_common_2 = {
-            'season': {
-                'is_summer_period_set': False
-            }
-        }
-
-        with pytest.raises(KeyError):
-
-            _ = season.make_season(d_common=d_common_2, w=None)
-
-        d_common_3 = {
-            'season': {
-                'is_winter_period_set': False
-            }
-        }
-
-        with pytest.raises(KeyError):
-
-            _ = season.make_season(d_common=d_common_3, w=None)
-
-        d_common_4 = {
-            'season': {
-                'is_summer_period_set': False,
-                'is_winter_period_set': False
-            }
-        }
-        
-        _ = season.make_season(d_common=d_common_4, w=None)
-
     def test_make_season_season_specified(self):
 
-        d_common = {
-            'season': {
-                'is_summer_period_set': True,
-                'is_winter_period_set': True,
-                'summer_start': '1/31',
-                'summer_end': '12/1',
-                'winter_start': '12/10',
-                'winter_end': '1/3'
-            }
-        }
+        ipt_season: InputSeason = InputSeasonDefined(
+            is_summer_period_set=True,
+            is_winter_period_set=True,
+            summer_start='1/31',
+            summer_end='12/1',
+            winter_start='12/10',
+            winter_end='1/3'
+        )
 
-        s = season.make_season(d_common=d_common, w=None)
+        s = season.Season.make_season(ipt_season=ipt_season, w=None)
 
         # 1/1
         self.assertEqual(s.summer[0], False)
@@ -596,31 +556,25 @@ class TestSeason(unittest.TestCase):
 
     def test_make_season_season_specified_duplicated_error(self):
 
-        d_common = {
-            'season': {
-                'is_summer_period_set': True,
-                'is_winter_period_set': True,
-                'summer_start': '1/1',
-                'summer_end': '12/20',
-                'winter_start': '12/10',
-                'winter_end': '1/10'
-            }
-        }
+        ipt_season: InputSeason = InputSeasonDefined(
+            is_summer_period_set=True,
+            is_winter_period_set=True,
+            summer_start='1/1',
+            summer_end='12/20',
+            winter_start='12/10',
+            winter_end='1/10'
+        )
+
 
         with pytest.raises(ValueError):
-            s = season.make_season(d_common=d_common, w=None)
+            season.Season.make_season(ipt_season=ipt_season, w=None)
     
     def test_make_season_ees(self):
 
-        d_common = {
-            'weather': {
-                'method': 'ees',
-                'region': '1'
-            }
-        }
+        ipt_season: InputSeason = InputSeasonNotDefined()
+        ipt_weather: InputWeather = InputWeatherEES(method=EWeatherMethod.EES, region=ERegion.Region1)
 
-        s = season.make_season(d_common=d_common, w=None)
-        st = season._get_season_status(d_common=d_common)
+        s = season.Season.make_season(ipt_season=ipt_season, w=None, ipt_weather=ipt_weather)
 
         # region 1(Kitami)
         # winter: 9/24 ~ 6/7

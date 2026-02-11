@@ -2,13 +2,14 @@ import unittest
 import numpy as np
 
 from heat_load_calc.direction import Direction
-from heat_load_calc.weather import Weather, Interval
+from heat_load_calc.weather import Weather, EInterval
 from heat_load_calc import inclined_surface_solar_radiation as issr
+from heat_load_calc.interval import EInterval, Interval
 
 
 class TestInclinedSurfaceSolarRadiation(unittest.TestCase):
 
-    itv = Interval.M15
+    itv = Interval(eitv=EInterval.M15)
 
     n = itv.get_n_step_annual()
 
