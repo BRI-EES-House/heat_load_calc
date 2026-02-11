@@ -5,7 +5,10 @@ from typing import Tuple, Dict
 from heat_load_calc import schedule, recorder, sequence, weather, period, conditions
 from heat_load_calc.interval import Interval
 from heat_load_calc.weather import Weather
-from heat_load_calc.input_common import InputCommon
+from heat_load_calc.input_models.input_common import InputCommon
+from heat_load_calc.input_models.input_weather import InputWeather
+from heat_load_calc.input_models.input_season import InputSeason
+from heat_load_calc.input_models.input_calculation_day import InputCalculationDay
 from heat_load_calc.input_all import InputAll
 from heat_load_calc.input_rooms import InputRoom
 from heat_load_calc.season import Season
@@ -38,6 +41,13 @@ def calc(
     ipt_all = InputAll(d=d)
 
     ipt_common: InputCommon = ipt_all.ipt_common
+
+    ipt_weather: InputWeather = ipt_common.ipt_weather
+
+    ipt_season: InputSeason = ipt_common.ipt_season
+
+    ipt_calculation_day: InputCalculationDay = ipt_common.ipt_calculation_day
+
     ipt_rooms: list[InputRoom] = ipt_all.ipt_rooms
 
     d_common = ipt_all.d_common
@@ -47,32 +57,22 @@ def calc(
     itv: Interval = Interval.create(ipt_common=ipt_common)
 
     # Make Weather class.
-    w: Weather = Weather.make_weather(
-        ipt_weather=ipt_common.ipt_weather,
-        itv=itv,
-        entry_point_dir=entry_point_dir
-    )
+    w: Weather = Weather.make_weather(ipt_weather=ipt_weather, itv=itv, entry_point_dir=entry_point_dir)
 
-    season: Season = Season.make_season(
-        ipt_season=ipt_common.ipt_season,
-        w=w,
-        itv=itv,
-        ipt_weather=ipt_common.ipt_weather
-    )
+    season: Season = Season.make_season(ipt_season=ipt_season, w=w, itv=itv, ipt_weather=ipt_weather)
 
     # Make Schedule class.
     scd: schedule.Schedule = schedule.Schedule.get_schedule(
         n_ocp=ipt_common.n_ocp,
         a_f_is=[ipt_room.a_f for ipt_room in ipt_rooms],
         itv=itv,
-        #scd_is=[r['schedule'] for r in ipt_all.d_rooms]
         scd_is=[ipt_room.ipt_schedule for ipt_room in ipt_rooms]
     )
 
     # number of steps for main calculation
     # number of steps for run-up calculation
     # number of steps to calculate building in run-up calculation
-    n_step_main, n_step_run_up, n_step_run_up_build = period.get_n_step(d_common=d_common, itv=itv)
+    n_step_main, n_step_run_up, n_step_run_up_build = period.get_n_step(itv=itv, ipt_calculation_day=ipt_calculation_day)
 
     # json, csv ファイルからパラメータをロードする。
     # （ループ計算する必要の無い）事前計算を行い, クラス PreCalcParameters, PreCalcParametersGround に必要な変数を格納する。

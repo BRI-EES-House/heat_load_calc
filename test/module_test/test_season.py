@@ -3,8 +3,9 @@ import numpy as np
 import pytest
 
 from heat_load_calc import season
-from heat_load_calc.input_common import InputSeason, InputSeasonDefined, InputSeasonNotDefined, InputWeather, InputWeatherEES
-from heat_load_calc.tenum import ERegion, EInterval, EWeatherMethod
+from heat_load_calc.input_models.input_common import InputSeason, InputSeasonDefined, InputSeasonNotDefined
+from heat_load_calc.input_models.input_weather import InputWeather, InputWeatherEES
+from heat_load_calc.tenum import ERegion, EWeatherMethod
 
 
 class TestSeason(unittest.TestCase):

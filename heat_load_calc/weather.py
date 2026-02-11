@@ -9,7 +9,7 @@ from heat_load_calc import solar_position
 from heat_load_calc.interval import Interval
 from heat_load_calc.region import Region
 from heat_load_calc.tenum import ERegion, EInterval, EWeatherMethod
-from heat_load_calc.input_common import InputWeather, InputWeatherEES, InputWeatherFile
+from heat_load_calc.input_models.input_weather import InputWeather, InputWeatherEES, InputWeatherFile
 
 
 logger = logging.getLogger(name='HeatLoadCalc').getChild('Weather')

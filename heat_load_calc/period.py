@@ -1,6 +1,5 @@
-from typing import Tuple, Dict
-
 from heat_load_calc.interval import Interval
+from heat_load_calc.input_models.input_calculation_day import InputCalculationDay
 
 
 N_D_MAIN_DEFAULT = 365              # 365 days
@@ -8,42 +7,31 @@ N_D_RUN_UP_DEFAULT = 365            # 365 days
 N_D_RUN_UP_BUILD_DEFAULT = 183      # 183 days
 
 
-def get_n_step(d_common: dict, itv: Interval) -> tuple[int, int, int]:
+def get_n_step(itv: Interval, ipt_calculation_day: InputCalculationDay = None) -> tuple[int, int, int]:
     """Calculate the number of steps for calculation based on the calculation days.
 
     Args:
-        d_common: common dictionary
         itv: time interval
+        ipt_calculation_day: InputcalculationDay Class
 
     Returns:
         (1) number of steps for main calculation
         (2) number of steps for run-up calculation
         (3) number of steps to calculate the building in the run-up calculation
     """
-
-    if 'calculation_day' in d_common:
         
-        d_common_calculation_day = d_common['calculation_day']
-        
-        if 'main' in d_common_calculation_day:
-            n_d_main = int(d_common_calculation_day['main'])
-        else:
-            n_d_main = N_D_MAIN_DEFAULT
-        
-        if 'run_up' in d_common_calculation_day:
-            n_d_run_up = int(d_common_calculation_day['run_up'])
-        else:
-            n_d_run_up = N_D_RUN_UP_DEFAULT
-        
-        if 'run_up_building' in d_common_calculation_day:
-            n_d_run_up_build = int(d_common_calculation_day['run_up_building'])
-        else:
-            n_d_run_up_build = N_D_RUN_UP_BUILD_DEFAULT
-    
-    else:
+    if ipt_calculation_day is None:
         n_d_main = N_D_MAIN_DEFAULT
-        n_d_run_up =N_D_RUN_UP_DEFAULT
+        n_d_run_up = N_D_RUN_UP_DEFAULT
         n_d_run_up_build = N_D_RUN_UP_BUILD_DEFAULT
+
+    else:
+
+        n_d_main = ipt_calculation_day.n_d_main
+
+        n_d_run_up = ipt_calculation_day.n_d_run_up if ipt_calculation_day.n_d_run_up is not None else N_D_RUN_UP_DEFAULT
+        n_d_run_up_build = ipt_calculation_day.n_d_run_up_build if ipt_calculation_day.n_d_run_up_build is not None else N_D_RUN_UP_BUILD_DEFAULT
+
 
     # check the value n_d_main
     if n_d_main > 365:
