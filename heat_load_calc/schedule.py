@@ -9,7 +9,7 @@ from enum import Enum, auto
 
 from heat_load_calc import interval
 from heat_load_calc.input_rooms import InputSchedule, InputScheduleDirect, InputScheduleFile, InputScheduleData, InputScheduleDataConst, InputScheduleDataNumber, InputScheduleDataDayTypes, InputScheduleElements
-from heat_load_calc.tenum import ENumberOfOccupants, EScheduleType, EDayType
+from heat_load_calc.tenum import ENumberOfOccupants, EScheduleType, EDayType, EInterval
 
 
 logger = logging.getLogger(name='HeatLoadCalc').getChild('Schedule')
@@ -356,12 +356,7 @@ def _get_interpolated_schedule(
 
             input_const_schedule_elements: InputScheduleElements = ipt_schedule_data_const.ipt_schedule_data_day_types_const.day_type(day_type=day_type)
 
-            scd = _make_list(input_schedule_elements=input_const_schedule_elements, schedule_item=schedule_item, itv=itv)
-
-            if is_zero_one:
-                return _convert_to_zero_one(v=scd)
-            else:
-                return scd
+            return _make_list(input_schedule_elements=input_const_schedule_elements, schedule_item=schedule_item, itv=itv)
 
         case EScheduleType.NUMBER:
 
@@ -374,30 +369,18 @@ def _get_interpolated_schedule(
 
                 input_number_schedule_elements: InputScheduleElements = ipt_schedule_data_number.num(noo=noo).day_type(day_type=day_type)
 
-                scd = _make_list(input_schedule_elements=input_number_schedule_elements, schedule_item=schedule_item, itv=itv)
-
-                if is_zero_one:
-                    return _convert_to_zero_one(v=scd)
-                else:
-                    return scd
+                return _make_list(input_schedule_elements=input_number_schedule_elements, schedule_item=schedule_item, itv=itv)
 
             elif noo == ENumberOfOccupants.Auto:
 
                 ceil_np, floor_np = _get_ceil_floor_np(n_p)
 
                 ceiled_input_schedule_elements: InputScheduleElements = ipt_schedule_data_number.num(noo=ENumberOfOccupants(str(ceil_np))).day_type(day_type=day_type)
-                ceiled_scd = _make_list(input_schedule_elements=ceiled_input_schedule_elements, schedule_item=schedule_item, itv=itv)
+                ceil_schedule = _make_list(input_schedule_elements=ceiled_input_schedule_elements, schedule_item=schedule_item, itv=itv)
 
                 floored_input_schedule_elements: InputScheduleElements = ipt_schedule_data_number.num(noo=ENumberOfOccupants(str(floor_np))).day_type(day_type=day_type)
-                floored_scd = _make_list(input_schedule_elements=floored_input_schedule_elements, schedule_item=schedule_item, itv=itv)
+                floor_schedule = _make_list(input_schedule_elements=floored_input_schedule_elements, schedule_item=schedule_item, itv=itv)
                 
-                if is_zero_one:
-                    ceil_schedule = _convert_to_zero_one(v=ceiled_scd)
-                    floor_schedule = _convert_to_zero_one(v=floored_scd)
-                else:
-                    ceil_schedule = ceiled_scd
-                    floor_schedule = floored_scd
-
                 if is_proportionable:
                     interpolate_np_schedule = ceil_schedule * (n_p - float(floor_np)) + floor_schedule * (float(ceil_np) - n_p)
                 else:
@@ -435,65 +418,72 @@ def _make_list(input_schedule_elements: InputScheduleElements, schedule_item: Sc
 
     """
 
-    n_step_day = itv.get_n_day()
+    vs: np.ndarray = _make_schedule_list(input_schedule_elements, schedule_item)
 
-    list_v: list[float] | list[int]
+    # The ratio for scaling the list length
+    # 1 -> 24 : 24
+    # 1 -> 48 : 48
+    # 1 -> 96 : 96
+    # 24 -> 24 : 1
+    # 24 -> 48 : 2
+    # 24 -> 96 : 4
+    # 48 -> 24 : 0.5
+    # 48 -> 48 : 1
+    # 48 -> 96 : 2
+    # 96 -> 24 : 0.25
+    # 96 -> 48 : 0.5
+    # 96 -> 96 : 1 
+    ratio = itv.get_n_day() / len(vs)
+
+    if ratio >= 1:
+
+        expanding_ratio = int(ratio)
+
+        if expanding_ratio not in [1, 2, 4, 24, 48, 96]:
+            raise Exception()
+
+        return vs.repeat(expanding_ratio)
+
+    else:
+
+        shrinking_ratio = int(1/ratio)
+
+        if shrinking_ratio not in [2, 4]:
+            raise Exception()
+
+        if schedule_item.is_proportionable():
+            return vs.reshape(-1, shrinking_ratio).mean(axis=1) 
+        else:
+            return vs.reshape(-1, shrinking_ratio).max(axis=1)
+
+
+def _make_schedule_list(input_schedule_elements: InputScheduleElements, schedule_item: ScheduleItem) -> list[float] | list[int]:
 
     match schedule_item:
         case ScheduleItem.LOCAL_VENTILATION_AMMOUNT:
-            list_v = input_schedule_elements.local_vent_amount
+            vs = input_schedule_elements.local_vent_amount
         case ScheduleItem.APPLIANCE_HEAT_GENERATION:
-            list_v = input_schedule_elements.heat_generation_appliances
+            vs = input_schedule_elements.heat_generation_appliances
         case ScheduleItem.COOKING_HEAT_GENERATION:
-            list_v = input_schedule_elements.heat_generation_cooking
+            vs = input_schedule_elements.heat_generation_cooking
         case ScheduleItem.COOKING_VAPOUR_GENERATION:
-            list_v = input_schedule_elements.vapor_generation_cooking
+            vs = input_schedule_elements.vapor_generation_cooking
         case ScheduleItem.LIGHTING_HEAT_GENERATION:
-            list_v = input_schedule_elements.heat_generation_lighting
+            vs = input_schedule_elements.heat_generation_lighting
         case ScheduleItem.NUMBER_OF_PEOPLE:
-            list_v = input_schedule_elements.number_of_people
+            vs = input_schedule_elements.number_of_people
         case ScheduleItem.AC_DEMMAND:
-            list_v = input_schedule_elements.is_temp_limit_set
+            vs = input_schedule_elements.is_temp_limit_set
         case ScheduleItem.AC_MODE:
-            list_v = input_schedule_elements.is_temp_limit_set
+            vs = input_schedule_elements.is_temp_limit_set
         case _:
             raise KeyError()
-    
-    vs = np.array(list_v)
-
-    if len(list_v) == 1:
-
-        return vs.repeat(n_step_day)
-
-    elif len(list_v) == 24:
-
-        if n_step_day == 24:
-            return vs
-        elif n_step_day == 48:
-            return vs.repeat(2)
-        elif n_step_day == 96:
-            return vs.repeat(4)
-
-    elif len(list_v) == 48:
-
-        if n_step_day == 24:
-            return vs.reshape(-1, 2).mean(axis=1)
-        elif n_step_day == 48:
-            return vs
-        elif n_step_day == 96:
-            return vs.repeat(2)
-
-    elif len(list_v) == 96:
-
-        if n_step_day == 24:
-            raise vs.reshape(-1, 4).mean(axis=1)
-        elif n_step_day == 48:
-            raise vs.reshape(-1, 2).mean(axis=1)
-        elif n_step_day == 96:
-            return vs
-    
+        
+    if schedule_item.is_zero_one():
+        return _convert_to_zero_one(v=np.array(vs))
     else:
-        raise Exception()
+        return np.array(vs)
+
 
 
 def _convert_to_zero_one(v: np.ndarray) -> np.ndarray:
