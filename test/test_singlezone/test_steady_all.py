@@ -3,10 +3,14 @@ import unittest
 import numpy as np
 import json
 
-from heat_load_calc import sequence, weather, conditions, schedule
+from heat_load_calc import sequence, conditions
+from heat_load_calc.sequence import Sequence
 from heat_load_calc.operation_mode import OperationMode
 from heat_load_calc.interval import Interval
 from heat_load_calc.tenum import EInterval
+from heat_load_calc.boundaries import Boundaries
+
+from test.test_steady.test_steady import TestCase, initialize, get_steady_state_conditions
 
 
 # 定常状態のテスト
@@ -25,13 +29,6 @@ class TestSteadyState(unittest.TestCase):
         計算条件
         建物モデル  1m角の立方体単室モデル
         部位構成    南面、東面以外の部位（4面）は合板、南面、東面は複層ガラスで構成される。
-        すきま風    なし
-        換気        あり（局所換気量1/3600 m3/s）
-        外気温度    0℃（床の部位の隣室温度差係数を0.7とする。その他の部位の隣室温度差係数は1.0とする）
-        相当外気温度    それぞれの部位の入射日射量より計算
-        日射、夜間放射  法線面直達日射量:700W/m2、水平面天空日射量:200W/m2、地面反射率は0.1
-        太陽位置    太陽高度:30度、太陽方位角:-15度
-        内部発熱    あり（100 W）
         """
 
         print('\n testing single zone steady')
@@ -44,52 +41,18 @@ class TestSteadyState(unittest.TestCase):
         with open(house_data_path, 'r', encoding='utf-8') as js:
             d = json.load(js)
 
-        # 気象データ読み出し
-        # 太陽高度は30度、太陽方位角は-15度。
-        # 法線面直達日射量は700W/m2、水平面天空日射量は200W/m2、それ以外は0とする。
-        w = weather.Weather.create_constant(a_sun=np.radians(-15.0), h_sun=np.radians(30.0), i_dn=700.0, i_sky=200.0, r_n=0.0, theta_o=0.0, x_o=0.0)
+        sqc: Sequence = initialize(test_case=TestCase.SINGLE_ZONE, d=d)
 
-        # 内部発熱：100 W
-        # 人体発湿を除く内部発湿： 0.0 kg/s
-        # 局所換気量： 1/3600 m3/s
-        # 在室人数： 0 人
-        # 空調需要： 0.0
-        scd = schedule.Schedule.create_constant(n_rm=1, q_gen=100.0, x_gen=0.0, v_mec_vent_local=1.0/3600.0, n_hum=0.0, r_ac_demanc=0.0, t_ac_mode=0)
+        bs: Boundaries = sqc.bs
 
-        itv = Interval(eitv=EInterval.M15)
-
-        # pre_calc_parametersの構築
-        sqc = sequence.Sequence(itv=itv, d=d, weather=w, scd=scd)
-
-        # ステップnにおける表面熱流[W/m2]の設定
-        q_srf_js_n = np.array([[111.791801018316, 115.054074456381, 110.951576197515, 111.791801018316, 221.710603408839, 51.7029121294266]]).reshape(-1, 1)
-
-        theta_ei_js_n = np.array(
-            [[29.233155229121, 29.233155229121, 29.233155229121, 29.233155229121, 64.3084919621933, 29.233155229121]]).reshape(-1, 1)
+        c_n = get_steady_state_conditions(test_case=TestCase.SINGLE_ZONE, bs=bs)
 
         # 初期状態値の計算
-        c_n = conditions.Conditions(
-            operation_mode_is_n=np.array([[OperationMode.STOP_CLOSE]]),
-            theta_r_is_n=np.array([[43.97202065068]]),
-            theta_mrt_hum_is_n=np.array([[27.9767467]]),
-            x_r_is_n=np.array([[0.0]]),
-            theta_dsh_s_a_js_ms_n=q_srf_js_n * sqc.bs.phi_a1_js_ms / (1.0 - sqc.bs.r_js_ms),
-            theta_dsh_s_t_js_ms_n=(
-                np.dot(sqc.bs.k_ei_js_js, theta_ei_js_n) + sqc.bs.k_eo_js * sqc.bs.theta_o_eqv_js_nspls[:, 1].reshape(-1, 1)
-                + np.dot(sqc.bs.k_s_r_js_is, np.array([[43.97202065068]]))
-                ) * sqc.bs.phi_t1_js_ms / (1.0 - sqc.bs.r_js_ms),
-            q_s_js_n=q_srf_js_n,
-            theta_frt_is_n=np.array([[159.003296832]]),
-            x_frt_is_n=np.array([[0.0]]),
-            theta_ei_js_n=theta_ei_js_n
-        )
-
-        # 計算実行
-        c_n_pls = sqc.run_tick(n=-2, c_n=c_n, recorder=None)
 
         # 計算結果格納
         cls._c_n = c_n
-        cls._c_n_pls = c_n_pls
+
+        cls._c_n_pls = sqc.run_tick(n=-2, c_n=c_n, recorder=None)
 
     # 室空気温[℃]のテスト
     def test_room_temp(self):

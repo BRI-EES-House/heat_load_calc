@@ -12,6 +12,7 @@ from heat_load_calc.input_models.input_calculation_day import InputCalculationDa
 from heat_load_calc.input_all import InputAll
 from heat_load_calc.input_rooms import InputRoom
 from heat_load_calc.season import Season
+from heat_load_calc.building import Building
 
 logger = logging.getLogger('HeatLoadCalc').getChild('core')
 
@@ -68,6 +69,10 @@ def calc(
         itv=itv,
         scd_is=[ipt_room.ipt_schedule for ipt_room in ipt_rooms]
     )
+
+    # Building Class
+    building = Building.create_building(d=d['building'])
+
 
     # number of steps for main calculation
     # number of steps for run-up calculation
