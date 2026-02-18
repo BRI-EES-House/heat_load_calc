@@ -1,6 +1,7 @@
 import pytest
 
 from heat_load_calc.input_models.input_infiltration import InputInfiltration
+from heat_load_calc.tenum import EStory, EStructure, EInsidePressure
 
 
 def get_default_dict_c_value_specify():
@@ -49,6 +50,19 @@ def test_key_method_wrong_value():
     assert 'An invalid value is specified for value \'method\' in \'infiltration\' tag.' in str(e)
 
 
+def test_key_method_value():
+
+    d1 = get_default_dict_c_value_specify()
+    d2 = get_default_dict_c_value_calculate()
+
+    ipt1 = InputInfiltration.read(d_infiltration=d1)
+    ipt2 = InputInfiltration.read(d_infiltration=d2)
+
+    assert ipt1.method == 'balance_residential'
+    assert ipt2.method == 'balance_residential'
+
+
+
 def test_key_story_not_exists():
 
     d_infiltration = get_default_dict_c_value_specify()
@@ -85,6 +99,18 @@ def test_value_story_wrong_type():
     assert '\'first\' is not a valid EStory' in str(e)
 
 
+def test_value_story():
+
+    d1 = get_default_dict_c_value_specify()
+    d2 = get_default_dict_c_value_calculate()
+
+    ipt1 = InputInfiltration.read(d_infiltration=d1)
+    ipt2 = InputInfiltration.read(d_infiltration=d2)
+
+    assert ipt1.story == EStory.TWO
+    assert ipt2.story == EStory.TWO
+
+
 def test_key_c_value_estimate_not_exits():
 
     d_infiltration = get_default_dict_c_value_specify()
@@ -107,6 +133,18 @@ def test_value_c_value_estimate_wrong_value():
         InputInfiltration.read(d_infiltration=d_infiltration)
 
     assert 'An invalid value is specified in key \'c_value_estimate\' in tag \'infiltration\'.' in str(e)
+
+
+def test_value_c_value_estimate():
+
+    d1 = get_default_dict_c_value_specify()
+    d2 = get_default_dict_c_value_calculate()
+
+    ipt1 = InputInfiltration.read(d_infiltration=d1)
+    ipt2 = InputInfiltration.read(d_infiltration=d2)
+
+    assert ipt1.c_value_estimate == 'specify'
+    assert ipt2.c_value_estimate == 'calculate'
 
 
 def test_key_c_value_not_exists():
@@ -145,6 +183,18 @@ def test_value_c_value_out_of_range():
     assert 'Value \'c_value\' should be more than or equal to zero.' in str(e.value)
 
 
+def test_vale_c_value():
+
+    d1 = get_default_dict_c_value_specify()
+    d2 = get_default_dict_c_value_calculate()
+
+    ipt1 = InputInfiltration.read(d_infiltration=d1)
+    ipt2 = InputInfiltration.read(d_infiltration=d2)
+
+    assert ipt1.c_value == 2.0
+    assert ipt2.c_value is None
+
+
 def test_key_ua_value_not_exists():
 
     d_infiltration = get_default_dict_c_value_calculate()
@@ -181,6 +231,18 @@ def test_value_ua_value_out_of_range():
     assert 'Invalid value was specified in key \'ua_value\' in \'infiltration\' tag.' in str(e)
 
 
+def test_value_ua_value():
+
+    d1 = get_default_dict_c_value_specify()
+    d2 = get_default_dict_c_value_calculate()
+
+    ipt1 = InputInfiltration.read(d_infiltration=d1)
+    ipt2 = InputInfiltration.read(d_infiltration=d2)
+
+    assert ipt1.ua_value is None
+    assert ipt2.ua_value == 0.2
+
+
 def test_key_struct_not_exists():
 
     d_infiltration = get_default_dict_c_value_calculate()
@@ -205,6 +267,18 @@ def test_value_struct_wrong_value():
     assert 'Invalid value was specified in key \'struct\' in \'infiltration\' tag.' in str(e)
 
 
+def test_value_struct():
+
+    d1 = get_default_dict_c_value_specify()
+    d2 = get_default_dict_c_value_calculate()
+
+    ipt1 = InputInfiltration.read(d_infiltration=d1)
+    ipt2 = InputInfiltration.read(d_infiltration=d2)
+
+    assert ipt1.struct is None
+    assert ipt2.struct == EStructure.WOODEN
+
+
 def test_key_inside_pressure_not_exists():
 
     d_infiltration = get_default_dict_c_value_calculate()
@@ -227,3 +301,16 @@ def test_value_inside_pressure_wrong_value():
         InputInfiltration.read(d_infiltration=d_infiltration)
 
     assert '\'wrong_value\' is not a valid EInsidePressure' in str(e)
+
+
+def test_value_inside_pressure():
+
+    d1 = get_default_dict_c_value_specify()
+    d2 = get_default_dict_c_value_calculate()
+
+    ipt1 = InputInfiltration.read(d_infiltration=d1)
+    ipt2 = InputInfiltration.read(d_infiltration=d2)
+
+    assert ipt1.inside_pressure == EInsidePressure.NEGATIVE
+    assert ipt2.inside_pressure == EInsidePressure.NEGATIVE
+    

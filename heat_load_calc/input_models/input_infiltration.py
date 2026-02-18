@@ -94,7 +94,7 @@ class InputInfiltration:
                 
                 raise ValueError('An invalid value is specified for value \'method\' in \'infiltration\' tag.')
         
-        InputInfiltration(
+        return InputInfiltration(
             method=method,
             story=story,
             c_value_estimate=c_value_estimate,
