@@ -6,39 +6,12 @@ import math
 from abc import ABC, abstractmethod
 
 
+from heat_load_calc.tenum import EStory, EStructure, EInsidePressure
+
 logger = logging.getLogger('HeatLoadCalc').getChild('building')
 
 
-class Story(Enum):
-    """
-    建物の階数（共同住宅の場合は住戸の階数）
-    """
-    # 1階
-    ONE = 1
-    # 2階（2階以上の階数の場合も2階とする。）
-    TWO = 2
 
-
-class InsidePressure(Enum):
-    """
-    室内圧力
-    """
-    # 正圧
-    POSITIVE = 'positive'
-    # 負圧
-    NEGATIVE = 'negative'
-    # ゼロバランス
-    BALANCED = 'balanced'
-
-
-class Structure(Enum):
-    """構造を表す列挙型
-    """
-
-    RC = 'rc'
-    SRC = 'src'
-    WOODEN = 'wooden'
-    STEEL = 'steel'
 
 
 class AirTightness(ABC):
@@ -81,7 +54,7 @@ class AirTightnessBalanceResidential(AirTightness):
         if 'story' not in d:
             raise KeyError('Item "story" is NOT defined in Air Tightness Balance Residential calculation.')
 
-        self._story = Story(d['story'])
+        self._story = EStory(d['story'])
 
         if 'c_value_estimate' not in d:
             raise KeyError('Item "c_value_estimate" is NOT defined in Air Tightness Balance Residential calculation.')
@@ -92,7 +65,7 @@ class AirTightnessBalanceResidential(AirTightness):
                 c = float(d['c_value'])
             
             case 'calculate':
-                c = _estimate_c_value(u_a=d['ua_value'], struct=Structure(d['struct']))
+                c = _estimate_c_value(u_a=d['ua_value'], struct=EStructure(d['struct']))
             
             case _:
                 raise KeyError('Wrong name is identified in the item "c_value_estimate".')
@@ -102,7 +75,7 @@ class AirTightnessBalanceResidential(AirTightness):
         if 'inside_pressure' not in d:
             raise KeyError('Item "inside_pressure" is NOT defined in Air Tightness Balance Residential calculation.')
         
-        self._inside_pressure = InsidePressure(d['inside_pressure'])
+        self._inside_pressure = EInsidePressure(d['inside_pressure'])
     
     def get_v_leak_is_n(self, theta_r_is_n: np.ndarray, theta_o_n: float, v_r_is: np.ndarray) -> np.ndarray:
         """Calculate the leakage air volume
@@ -167,7 +140,7 @@ class Building:
         return v_leak_is_n
 
 
-def _estimate_c_value(u_a: float, struct: Structure) -> float:
+def _estimate_c_value(u_a: float, struct: EStructure) -> float:
     """Estimate C value.
     Args
         ua_value: UA value, W/m2 K
@@ -179,10 +152,10 @@ def _estimate_c_value(u_a: float, struct: Structure) -> float:
     """
 
     a = {
-        Structure.RC: 4.16,       # RC造
-        Structure.SRC: 4.16,      # SRC造
-        Structure.WOODEN: 8.28,   # 木造
-        Structure.STEEL: 8.28,    # 鉄骨造
+        EStructure.RC: 4.16,       # RC造
+        EStructure.SRC: 4.16,      # SRC造
+        EStructure.WOODEN: 8.28,   # 木造
+        EStructure.STEEL: 8.28,    # 鉄骨造
     }[struct]
 
     return a * u_a
@@ -206,8 +179,8 @@ def _get_v_leak_is_n(n_leak_n: float, v_r_is: np.ndarray) -> np.ndarray:
 
 def _get_n_leak_n(
         c_value: float,
-        story: Story,
-        inside_pressure: InsidePressure,
+        story: EStory,
+        inside_pressure: EInsidePressure,
         delta_theta_n: float
 ) -> float:
     """Calculate the leakage air volume
@@ -228,25 +201,25 @@ def _get_n_leak_n(
     # 係数aの計算, 回/(h (cm2/m2 K^0.5))
     b_1 = {
         # 1階建ての時の係数
-        Story.ONE: 0.022,
+        EStory.ONE: 0.022,
         # 2階建ての時の係数
-        Story.TWO: 0.020
+        EStory.TWO: 0.020
     }[story]
 
     # 係数bの計算, 回/h
     # 階数と換気方式の組み合わせで決定する
     b_2 = {
-        InsidePressure.BALANCED: {
-            Story.ONE: 0.00,
-            Story.TWO: 0.0
+        EInsidePressure.BALANCED: {
+            EStory.ONE: 0.00,
+            EStory.TWO: 0.0
         }[story],
-        InsidePressure.POSITIVE: {
-            Story.ONE: 0.26,
-            Story.TWO: 0.14
+        EInsidePressure.POSITIVE: {
+            EStory.ONE: 0.26,
+            EStory.TWO: 0.14
         }[story],
-        InsidePressure.NEGATIVE: {
-            Story.ONE: 0.28,
-            Story.TWO: 0.13
+        EInsidePressure.NEGATIVE: {
+            EStory.ONE: 0.28,
+            EStory.TWO: 0.13
         }[story]
     }[inside_pressure]
 

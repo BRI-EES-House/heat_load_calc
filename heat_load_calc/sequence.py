@@ -30,20 +30,18 @@ logger = logging.getLogger('HeatLoadCalc').getChild('core').getChild('pre_calc_p
 
 class Sequence:
 
-    def __init__(self, itv: interval.Interval, d: Dict, weather: Weather, scd: schedule.Schedule):
+    def __init__(self, itv: interval.Interval, d: Dict, weather: Weather, scd: schedule.Schedule, bdg: Building):
         """
         Args:
-            itv: interval class
+            itv: Interval class
             d: directory of input file
-            weather: weather class
-            scd: schedule class
+            weather: Weather class
+            scd: Schedule class
+            building: Building class
         """
 
         # 時間間隔, s
         delta_t = itv.get_delta_t()
-
-        # Building Class
-        building = Building.create_building(d=d['building'])
 
         # Rooms Class
         rms = rooms.Rooms(ds=d['rooms'])
@@ -146,7 +144,7 @@ class Sequence:
         self._scd: Schedule = scd
 
         # Building Class
-        self._building: Building = building
+        self._building: Building = bdg
 
         # Rooms Class
         self._rms: Rooms = rms

@@ -79,4 +79,36 @@ class EScheduleItem(Enum):
     AC_DEMMAND = 'adc_demand'
     AC_MODE = 'ac_mode'
 
+
+class EStory(Enum):
+    """Story of building or unit of appartment house.
+
+    """
     
+    # single story
+    ONE = 1
+    
+    # two-story or more
+    TWO = 2
+
+
+class EStructure(Enum):
+    """Structure of residents
+    """
+
+    RC = 'rc'
+    SRC = 'src'
+    WOODEN = 'wooden'
+    STEEL = 'steel'
+
+
+class EInsidePressure(Enum):
+    """
+    室内圧力
+    """
+    # 正圧
+    POSITIVE = 'positive'
+    # 負圧
+    NEGATIVE = 'negative'
+    # ゼロバランス
+    BALANCED = 'balanced'

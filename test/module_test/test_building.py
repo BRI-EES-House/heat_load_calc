@@ -2,6 +2,7 @@
 import numpy as np
 
 from heat_load_calc import building
+from heat_load_calc.tenum import EStory, EStructure, EInsidePressure
 
 
 class TestBuilding(unittest.TestCase):
@@ -36,9 +37,9 @@ class TestBuilding(unittest.TestCase):
             }
         )
 
-        self.assertEqual(bdg._air_tightness._story, building.Story.ONE)
+        self.assertEqual(bdg._air_tightness._story, EStory.ONE)
         self.assertEqual(bdg._air_tightness._c, 1.0)
-        self.assertEqual(bdg._air_tightness._inside_pressure, building.InsidePressure.NEGATIVE)
+        self.assertEqual(bdg._air_tightness._inside_pressure, building.EInsidePressure.NEGATIVE)
 
     def test_calculate_c_value_rc(self):
 

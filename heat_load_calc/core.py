@@ -53,6 +53,8 @@ def calc(
 
     d_common = ipt_all.d_common
 
+    d_building = ipt_all.d_building
+
     d_rooms = ipt_all.d_rooms
 
     itv: Interval = Interval.create(ipt_common=ipt_common)
@@ -71,7 +73,7 @@ def calc(
     )
 
     # Building Class
-    building = Building.create_building(d=d['building'])
+    bdg = Building.create_building(d=d_building)
 
 
     # number of steps for main calculation
@@ -81,7 +83,7 @@ def calc(
 
     # json, csv ファイルからパラメータをロードする。
     # （ループ計算する必要の無い）事前計算を行い, クラス PreCalcParameters, PreCalcParametersGround に必要な変数を格納する。
-    sqc = sequence.Sequence(itv=itv, d=d, weather=w, scd=scd)
+    sqc = sequence.Sequence(itv=itv, d=d, weather=w, scd=scd, bdg=bdg)
 
     gc_n = conditions.initialize_ground_conditions(n_grounds=sqc.bs.n_ground)
 

@@ -9,6 +9,7 @@ from heat_load_calc.sequence import Sequence
 from heat_load_calc.operation_mode import OperationMode
 from heat_load_calc.boundaries import Boundaries
 from heat_load_calc.conditions import Conditions
+from heat_load_calc.building import Building
 
 
 class TestCase(Enum):
@@ -119,8 +120,6 @@ steady_condition = {
 }
 
 
-
-
 def make_weather():
 
     return Weather.create_constant(
@@ -155,7 +154,9 @@ def initialize(test_case: TestCase, d: dict):
 
     itv = Interval(eitv=EInterval.M15)
 
-    sqc = Sequence(itv=itv, d=d, weather=w, scd=scd)
+    bdg = Building.create_building(d=d['building'])
+
+    sqc = Sequence(itv=itv, d=d, weather=w, scd=scd, bdg=bdg)
 
     return sqc
 

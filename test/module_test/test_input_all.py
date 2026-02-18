@@ -3,39 +3,59 @@ import pytest
 from heat_load_calc.input_all import InputAll
 
 
-def test_common1():
+def _get_default_dict():
 
-    d = {
-        'rooms': None
+    return {
+        'common': {},
+        'building': {},
+        'rooms': [],
     }
+
+
+def test_key_common_not_exists():
+
+    d = _get_default_dict()
+
+    del d['common']
 
     with pytest.raises(KeyError) as e:
         InputAll(d=d)
 
-    assert 'Key common could not be found in the input file.' in str(e.value)
+    assert 'Key \'common\' is not defined.' in str(e.value)
 
 
-def test_common2():
+def test_key_building_not_exists():
 
-    d = {
-        'common': None
-    }
+    d = _get_default_dict()
+
+    del d['building']
+
+    with pytest.raises(KeyError) as e:
+        InputAll(d=d)
+    
+    assert 'Key \'building\' is not defined.' in str(e.value)
+
+
+def test_key_rooms_not_exists():
+
+    d = _get_default_dict()
+
+    del d['rooms']
 
     with pytest.raises(KeyError) as e:
         InputAll(d=d)
 
-    assert 'Key rooms could not be found in the input file.' in str(e.value)
+    assert 'Key \'rooms\' is not defined.' in str(e.value)
 
 
-def test_common3():
+def test_value_rooms_not_list():
 
-    d = {
-        'common': None,
-        'rooms': 3
-    }
+    d = _get_default_dict()
+
+    d['rooms'] = {}
 
     with pytest.raises(TypeError) as e:
         InputAll(d=d)
 
-    assert 'Item rooms should be list in the input file.' in str(e.value)
+    assert 'Value \'rooms\' should be list.' in str(e.value)
  
