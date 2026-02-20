@@ -8,9 +8,10 @@ from os import path
 from enum import Enum, auto
 
 from heat_load_calc import interval
-from heat_load_calc.input_rooms import InputSchedule, InputScheduleDirect, InputScheduleFile, InputScheduleData, InputScheduleDataConst, InputScheduleDataNumber
+from heat_load_calc.input_rooms import InputSchedule, InputScheduleDirect, InputScheduleFile
 from heat_load_calc.tenum import ENumberOfOccupants, EScheduleType, EDayType, EInterval
 from heat_load_calc.input_models.input_schedule_element import InputScheduleElement
+from heat_load_calc.input_models.input_schedule_data import InputScheduleData, InputScheduleDataConst, InputScheduleDataNumber
 
 
 logger = logging.getLogger(name='HeatLoadCalc').getChild('Schedule')
