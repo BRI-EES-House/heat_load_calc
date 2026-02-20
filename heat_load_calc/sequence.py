@@ -1,12 +1,12 @@
 import numpy as np
 from dataclasses import dataclass
-from typing import Dict, List, Callable, Optional, Tuple
+from typing import Dict, Callable, Tuple
 import logging
 
 from heat_load_calc.matrix_method import v_diag
-from heat_load_calc import next_condition, schedule, rooms, boundaries
+from heat_load_calc import next_condition, rooms, boundaries
 from heat_load_calc import occupants_form_factor, shape_factor, solar_absorption
-from heat_load_calc import operation_mode, interval
+from heat_load_calc import operation_mode
 from heat_load_calc import occupants, psychrometrics as psy
 from heat_load_calc.global_number import get_c_a, get_rho_a, get_l_wtr
 from heat_load_calc.weather import Weather
@@ -20,8 +20,8 @@ from heat_load_calc.conditions import Conditions
 from heat_load_calc.recorder import Recorder
 from heat_load_calc.conditions import GroundConditions
 from heat_load_calc.operation_mode import Operation, OperationMode
-from heat_load_calc.shape_factor import ShapeFactorMethod
-from heat_load_calc import season
+from heat_load_calc.interval import Interval
+from heat_load_calc.tenum import EShapeFactorMethod
 
 
 # ロガー
@@ -30,14 +30,14 @@ logger = logging.getLogger('HeatLoadCalc').getChild('core').getChild('pre_calc_p
 
 class Sequence:
 
-    def __init__(self, itv: interval.Interval, d: Dict, weather: Weather, scd: schedule.Schedule, bdg: Building):
+    def __init__(self, itv: Interval, d: Dict, weather: Weather, scd: Schedule, bdg: Building, shape_factor_method: EShapeFactorMethod):
         """
         Args:
             itv: Interval class
             d: directory of input file
             weather: Weather class
             scd: Schedule class
-            building: Building class
+            bdg: Building class
         """
 
         # 時間間隔, s
@@ -47,10 +47,12 @@ class Sequence:
         rms = rooms.Rooms(ds=d['rooms'])
 
         # Boundaries Class
-        if 'mutual_radiation_method' in d['common']:
-            rad_method = ShapeFactorMethod(str(d['common']['mutual_radiation_method']))
-        else:
-            rad_method = ShapeFactorMethod.NAGATA
+        #if 'mutual_radiation_method' in d['common']:
+        #    rad_method = EShapeFactorMethod(str(d['common']['mutual_radiation_method']))
+        #else:
+        #    rad_method = EShapeFactorMethod.NAGATA
+        
+        rad_method = shape_factor_method
         
         bs = boundaries.Boundaries(id_r_is=rms.id_r_is, ds=d['boundaries'], w=weather, rad_method=rad_method)
 

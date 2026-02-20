@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
 
-from heat_load_calc.tenum import EInterval, ENumberOfOccupants
+from heat_load_calc.tenum import EInterval, ENumberOfOccupants, EShapeFactorMethod
 from heat_load_calc.input_models.input_season import InputSeason, InputSeasonDefined, InputSeasonNotDefined
 from heat_load_calc.input_models.input_weather import InputWeather, InputWeatherEES, InputWeatherFile
 from heat_load_calc.input_models.input_calculation_day import InputCalculationDay
@@ -19,6 +19,8 @@ class InputCommon:
     n_ocp: ENumberOfOccupants
 
     ipt_calculation_day: InputCalculationDay
+
+    shape_factor_method: EShapeFactorMethod
 
     @classmethod
     def read(self, d_common: dict):
@@ -58,32 +60,17 @@ class InputCommon:
 
             ipt_calculation_day = None
 
+        # If 'interval' tag is not exist, '15m' is set as the default value.
+        # 'interval' takes the value of either '15m', '30m', or '1h'.
+        shape_factor_method = EShapeFactorMethod(d_common.get('mutual_radiation_method', 'Nagata'))
 
         return InputCommon(
             itv = itv,
             ipt_weather=ipt_weather,
             ipt_season=ipt_season,
             n_ocp=n_ocp,
-            ipt_calculation_day=ipt_calculation_day
+            ipt_calculation_day=ipt_calculation_day,
+            shape_factor_method=shape_factor_method
         )
     
-    @staticmethod
-    def _get_n_d(d_common: dict):
-
-        if 'calculation_day' in d_common:
-            
-            d_calculation_day = d_common['calculation_day']
-
-            n_d_main = int(d_calculation_day['main']) if 'main' in d_calculation_day else None
-            n_d_run_up = int(d_calculation_day['run_up']) if 'run_up' in d_calculation_day else None
-            n_d_run_up_build = int(d_calculation_day['run_up_building']) if 'run_up_building' in d_calculation_day else None
-        
-        else:
-
-            n_d_main = None
-            n_d_run_up = None
-            n_d_run_up_build = None
-
-        return n_d_main, n_d_run_up, n_d_run_up_build
-
 

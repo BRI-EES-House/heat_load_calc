@@ -10,13 +10,13 @@ from heat_load_calc.boundaries import BoundaryType
 from heat_load_calc.interval import EInterval, Interval
 from heat_load_calc.weather import Weather
 from heat_load_calc import shape_factor
-from heat_load_calc.shape_factor import ShapeFactorMethod
 from heat_load_calc.window import GlassType
 from heat_load_calc.window import Window
 from heat_load_calc.direction import Direction
 from heat_load_calc.solar_shading import SolarShading
 from heat_load_calc import outside_eqv_temp
 from heat_load_calc import transmission_solar_radiation
+from heat_load_calc.tenum import EShapeFactorMethod
 
 
 class TestBoundaries(unittest.TestCase):
@@ -30,7 +30,7 @@ class TestBoundaries(unittest.TestCase):
 
         id_r_is = np.array([2,4]).reshape(-1, 1)
 
-        bs = Boundaries(id_r_is=id_r_is, ds=d['boundaries'], w=w, rad_method=ShapeFactorMethod.NAGATA)
+        bs = Boundaries(id_r_is=id_r_is, ds=d['boundaries'], w=w, rad_method=EShapeFactorMethod.NAGATA)
 
         cls._bs: Boundaries = bs
 
@@ -601,7 +601,7 @@ def _get_h_s_r_js():
 
     eps_r_i_js = _get_eps_r_i_js()
 
-    method = ShapeFactorMethod.NAGATA
+    method = EShapeFactorMethod.NAGATA
 
     return shape_factor.get_h_s_r_js(a_s_js=a_s_js, p_is_js=p_is_js, eps_r_i_js=eps_r_i_js, method=method)
 

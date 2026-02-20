@@ -2,15 +2,10 @@ import numpy as np
 import logging
 from typing import Union
 from enum import Enum
-
-from heat_load_calc.global_number import get_sgm, get_eps
 from scipy import optimize
 
-
-class ShapeFactorMethod(Enum):
-
-    AREA_AVERAGE = 'area_average'
-    NAGATA = 'Nagata'
+from heat_load_calc.global_number import get_sgm, get_eps
+from heat_load_calc.tenum import EShapeFactorMethod
 
 
 def get_f_mrt_is_js(a_s_js: np.ndarray, h_s_r_js: np.ndarray, p_is_js: np.ndarray) -> np.ndarray:
@@ -33,7 +28,7 @@ def get_f_mrt_is_js(a_s_js: np.ndarray, h_s_r_js: np.ndarray, p_is_js: np.ndarra
     return p_is_js * ah.T / np.dot(p_is_js, ah)
 
 
-def get_h_s_r_js(a_s_js: np.ndarray, p_is_js: np.ndarray, eps_r_i_js: np.ndarray, method: ShapeFactorMethod) -> np.ndarray:
+def get_h_s_r_js(a_s_js: np.ndarray, p_is_js: np.ndarray, eps_r_i_js: np.ndarray, method: EShapeFactorMethod) -> np.ndarray:
     """Calculate indoor surface radiant heat transfer coefficient of boundary j.
 
     Args:
@@ -48,9 +43,9 @@ def get_h_s_r_js(a_s_js: np.ndarray, p_is_js: np.ndarray, eps_r_i_js: np.ndarray
 
     match method:
 
-        case ShapeFactorMethod.AREA_AVERAGE:
+        case EShapeFactorMethod.AREA_AVERAGE:
             return _get_h_s_r_js_AreaAverage(a_s_js=a_s_js, p_is_js=p_is_js, eps_r_i_js=eps_r_i_js)
-        case ShapeFactorMethod.NAGATA:
+        case EShapeFactorMethod.NAGATA:
             return _get_h_s_r_js_Nagata(a_s_js=a_s_js, p_is_js=p_is_js, eps_r_js=eps_r_i_js)
         case _:
             raise ValueError()

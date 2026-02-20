@@ -126,3 +126,10 @@ class ECValueEstimateMethod(Enum):
     SPECIFY = 'specify'
 
     CALCULATE = 'calculate'
+
+
+class EShapeFactorMethod(Enum):
+
+    AREA_AVERAGE = 'area_average'
+    NAGATA = 'Nagata'
+

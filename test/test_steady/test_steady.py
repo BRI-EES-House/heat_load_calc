@@ -12,7 +12,7 @@ from heat_load_calc.conditions import Conditions
 from heat_load_calc.building import Building
 from heat_load_calc.input_models.input_building import InputBuilding
 from heat_load_calc.input_models.input_infiltration import InputInfiltration
-from heat_load_calc.tenum import EInfiltrationMethod, EStory, ECValueEstimateMethod, EInsidePressure
+from heat_load_calc.tenum import EInfiltrationMethod, EStory, ECValueEstimateMethod, EInsidePressure, EShapeFactorMethod
 
 class TestCase(Enum):
 
@@ -121,6 +121,12 @@ steady_condition = {
     },
 }
 
+s_building = {
+    'story': EStory.ONE,
+    'c_value': 0.0,
+    'inside_pressure': EInsidePressure.NEGATIVE
+}
+
 
 def make_weather():
 
@@ -148,6 +154,21 @@ def make_schedule(test_case: TestCase):
             )
 
 
+def make_building():
+    
+    return InputBuilding(
+        ipt_infiltration=InputInfiltration(
+            method=EInfiltrationMethod.BALANCE_RESIDENTIAL,
+            story=s_building['story'],
+            c_value_estimate=ECValueEstimateMethod.SPECIFY,
+            c_value=s_building['c_value'],
+            ua_value=None,
+            struct=None,
+            inside_pressure=s_building['inside_pressure']
+        )
+    )
+
+
 def initialize(test_case: TestCase, d: dict):
 
     w = make_weather()
@@ -156,8 +177,9 @@ def initialize(test_case: TestCase, d: dict):
 
     itv = Interval(eitv=EInterval.M15)
 
+    shape_factor_method = EShapeFactorMethod.NAGATA
+
     ipt_building = InputBuilding(
-        d_infiltration=None,
         ipt_infiltration=InputInfiltration(
             method=EInfiltrationMethod.BALANCE_RESIDENTIAL,
             story=EStory.ONE,
@@ -169,9 +191,11 @@ def initialize(test_case: TestCase, d: dict):
         )
     )
 
+    ipt_building = make_building()
+
     bdg = Building.create_building(ipt_building=ipt_building)
 
-    sqc = Sequence(itv=itv, d=d, weather=w, scd=scd, bdg=bdg)
+    sqc = Sequence(itv=itv, d=d, weather=w, scd=scd, bdg=bdg, shape_factor_method=shape_factor_method)
 
     return sqc
 

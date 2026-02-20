@@ -6,8 +6,6 @@ from heat_load_calc.input_models.input_infiltration import InputInfiltration
 @dataclass
 class InputBuilding:
 
-    d_infiltration: dict
-
     ipt_infiltration: InputInfiltration
 
     @classmethod
@@ -21,5 +19,5 @@ class InputBuilding:
 
         ipt_infiltration = InputInfiltration.read(d_infiltration=d_infiltration)
 
-        return InputBuilding(d_infiltration=d_infiltration, ipt_infiltration=ipt_infiltration)
+        return InputBuilding(ipt_infiltration=ipt_infiltration)
 

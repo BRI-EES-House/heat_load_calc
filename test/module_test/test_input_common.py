@@ -3,7 +3,7 @@ import pytest
 from heat_load_calc.input_models.input_common import InputCommon
 from heat_load_calc.input_models.input_weather import InputWeather
 from heat_load_calc.input_models.input_season import InputSeasonDefined, InputSeasonNotDefined
-from heat_load_calc.tenum import EInterval, ENumberOfOccupants
+from heat_load_calc.tenum import EInterval, ENumberOfOccupants, EShapeFactorMethod
 from heat_load_calc.input_models.input_calculation_day import InputCalculationDay
 
 
@@ -159,5 +159,28 @@ def test_key__calculation_day__exists():
     assert isinstance(input_common.ipt_calculation_day, InputCalculationDay)
 
 
+def test_value__shape_factor_method():
 
+    d1 = default_dict()
+    d1['mutual_radiation_method'] = 'Nagata'
+
+    ipt1 = InputCommon.read(d_common=d1)
+
+    assert ipt1.shape_factor_method == EShapeFactorMethod.NAGATA
+
+    d2 = default_dict()
+    d2['mutual_radiation_method'] = 'area_average'
+
+    ipt2 = InputCommon.read(d_common=d2)
+
+    assert ipt2.shape_factor_method == EShapeFactorMethod.AREA_AVERAGE
+
+
+def test_value__shape_factor_method_default():
+
+    d = default_dict()
+
+    ipt = InputCommon.read(d_common=d)
+
+    assert ipt.shape_factor_method == EShapeFactorMethod.NAGATA
 

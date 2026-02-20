@@ -14,7 +14,6 @@ def test_air_tightness_values():
     
     bdg = Building.create_building(
         ipt_building=InputBuilding(
-            d_infiltration=None,
             ipt_infiltration=InputInfiltration(
                 method=EInfiltrationMethod.BALANCE_RESIDENTIAL,
                 story=EStory.ONE,
@@ -40,7 +39,6 @@ def test_calculate_c_value():
 
         bdg = Building.create_building(
             ipt_building=InputBuilding(
-                d_infiltration=None,
                 ipt_infiltration=InputInfiltration(
                     method=EInfiltrationMethod.BALANCE_RESIDENTIAL,
                     story=EStory.ONE,
@@ -78,7 +76,6 @@ def test_specify_c_value():
 
     bdg = Building.create_building(
         ipt_building=InputBuilding(
-            d_infiltration=None,
             ipt_infiltration=InputInfiltration(
                 method=EInfiltrationMethod.BALANCE_RESIDENTIAL,
                 story=EStory.ONE,
@@ -102,7 +99,6 @@ def test_air_leakage():
 
         return Building.create_building(
             ipt_building=InputBuilding(
-                d_infiltration=None,
                 ipt_infiltration=InputInfiltration(
                     method=EInfiltrationMethod.BALANCE_RESIDENTIAL,
                     story=EStory(story),

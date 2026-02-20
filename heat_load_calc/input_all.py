@@ -27,8 +27,6 @@ class InputAll:
 
         self.d_common = d_common
 
-        self.d_building = d_building
-
         self.d_rooms = d_rooms
 
         self.ipt_common: InputCommon = InputCommon.read(d_common=d_common)

@@ -17,6 +17,7 @@ from heat_load_calc.season import Season
 from heat_load_calc.building import Building
 from heat_load_calc.schedule import Schedule
 from heat_load_calc.sequence import Sequence
+from heat_load_calc.tenum import EShapeFactorMethod
 
 logger = logging.getLogger('HeatLoadCalc').getChild('core')
 
@@ -59,11 +60,11 @@ def calc(
 
     d_common = ipt_all.d_common
 
-    d_building = ipt_all.d_building
-
     d_rooms = ipt_all.d_rooms
 
     itv: Interval = Interval.create(ipt_common=ipt_common)
+
+    shape_factor_method: EShapeFactorMethod = ipt_common.shape_factor_method
 
     # Make Weather class.
     w: Weather = Weather.make_weather(ipt_weather=ipt_weather, itv=itv, entry_point_dir=entry_point_dir)
@@ -88,7 +89,7 @@ def calc(
 
     # json, csv ファイルからパラメータをロードする。
     # （ループ計算する必要の無い）事前計算を行い, クラス PreCalcParameters, PreCalcParametersGround に必要な変数を格納する。
-    sqc = Sequence(itv=itv, d=d, weather=w, scd=scd, bdg=bdg)
+    sqc = Sequence(itv=itv, d=d, weather=w, scd=scd, bdg=bdg, shape_factor_method=shape_factor_method)
 
     gc_n = conditions.initialize_ground_conditions(n_grounds=sqc.bs.n_ground)
 
