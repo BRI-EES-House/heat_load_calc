@@ -112,3 +112,17 @@ class EInsidePressure(Enum):
     NEGATIVE = 'negative'
     # ゼロバランス
     BALANCED = 'balanced'
+
+
+class EInfiltrationMethod(Enum):
+    """method for calculating infiltrating air flow"""
+
+    BALANCE_RESIDENTIAL = 'balance_residential'
+
+
+class ECValueEstimateMethod(Enum):
+    """method for calculating c value(air tightness)"""
+
+    SPECIFY = 'specify'
+
+    CALCULATE = 'calculate'

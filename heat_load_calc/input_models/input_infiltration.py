@@ -1,13 +1,13 @@
 from dataclasses import dataclass
 
-from heat_load_calc.tenum import EStory, EStructure, EInsidePressure
+from heat_load_calc.tenum import EStory, EStructure, EInsidePressure, EInfiltrationMethod, ECValueEstimateMethod
 
 @dataclass
 class InputInfiltration:
 
-    method: str
+    method: EInfiltrationMethod
     story: EStory
-    c_value_estimate: str
+    c_value_estimate: ECValueEstimateMethod
     c_value: float | None
     ua_value: float | None
     struct: EStructure | None
@@ -20,11 +20,11 @@ class InputInfiltration:
 
             raise KeyError('Key \'method\' should be defined in \'infiltration\' tag.')
 
-        method = d_infiltration['method']
+        method = EInfiltrationMethod(d_infiltration['method'])
 
         match method:
 
-            case 'balance_residential':
+            case EInfiltrationMethod.BALANCE_RESIDENTIAL:
 
                 if not 'story' in d_infiltration:
 
@@ -36,11 +36,11 @@ class InputInfiltration:
 
                     raise KeyError('Key \'c_value_estimate\' should be defined in \'infiltration\' tag.')
                 
-                c_value_estimate = d_infiltration['c_value_estimate']
+                c_value_estimate = ECValueEstimateMethod(d_infiltration['c_value_estimate'])
 
                 match c_value_estimate:
 
-                    case 'specify':
+                    case ECValueEstimateMethod.SPECIFY:
 
                         if 'c_value' not in d_infiltration:
                             raise KeyError('Key \'c_value\' should be defined in \'infiltration\' tag.')
@@ -57,7 +57,7 @@ class InputInfiltration:
 
                         struct = None
                     
-                    case 'calculate':
+                    case ECValueEstimateMethod.CALCULATE:
 
                         c_value = None
 

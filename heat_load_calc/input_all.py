@@ -1,5 +1,6 @@
 from heat_load_calc.input_models.input_common import InputCommon
 from heat_load_calc.input_rooms import InputRoom
+from heat_load_calc.input_models.input_building import InputBuilding
 
 class InputAll:
 
@@ -31,5 +32,7 @@ class InputAll:
         self.d_rooms = d_rooms
 
         self.ipt_common: InputCommon = InputCommon.read(d_common=d_common)
+
+        self.ipt_building: InputBuilding = InputBuilding.read(d_building=d_building)
 
         self.ipt_rooms: list[InputRoom] = [InputRoom.read(d_room=d_room) for d_room in d_rooms]

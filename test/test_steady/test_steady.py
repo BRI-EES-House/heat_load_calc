@@ -10,7 +10,9 @@ from heat_load_calc.operation_mode import OperationMode
 from heat_load_calc.boundaries import Boundaries
 from heat_load_calc.conditions import Conditions
 from heat_load_calc.building import Building
-
+from heat_load_calc.input_models.input_building import InputBuilding
+from heat_load_calc.input_models.input_infiltration import InputInfiltration
+from heat_load_calc.tenum import EInfiltrationMethod, EStory, ECValueEstimateMethod, EInsidePressure
 
 class TestCase(Enum):
 
@@ -154,7 +156,20 @@ def initialize(test_case: TestCase, d: dict):
 
     itv = Interval(eitv=EInterval.M15)
 
-    bdg = Building.create_building(d=d['building'])
+    ipt_building = InputBuilding(
+        d_infiltration=None,
+        ipt_infiltration=InputInfiltration(
+            method=EInfiltrationMethod.BALANCE_RESIDENTIAL,
+            story=EStory.ONE,
+            c_value_estimate=ECValueEstimateMethod.SPECIFY,
+            c_value=0.0,
+            ua_value=None,
+            struct=None,
+            inside_pressure=EInsidePressure.NEGATIVE
+        )
+    )
+
+    bdg = Building.create_building(ipt_building=ipt_building)
 
     sqc = Sequence(itv=itv, d=d, weather=w, scd=scd, bdg=bdg)
 

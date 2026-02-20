@@ -8,6 +8,7 @@ from heat_load_calc.input_models.input_weather import InputWeather
 from heat_load_calc.input_models.input_season import InputSeason
 from heat_load_calc.input_rooms import InputRoom
 from heat_load_calc.input_models.input_calculation_day import InputCalculationDay
+from heat_load_calc.input_models.input_building import InputBuilding
 
 from heat_load_calc import recorder, period, conditions
 from heat_load_calc.interval import Interval
@@ -52,6 +53,8 @@ def calc(
 
     ipt_calculation_day: InputCalculationDay = ipt_common.ipt_calculation_day
 
+    ipt_building: InputBuilding = ipt_all.ipt_building
+
     ipt_rooms: list[InputRoom] = ipt_all.ipt_rooms
 
     d_common = ipt_all.d_common
@@ -76,7 +79,7 @@ def calc(
     )
 
     # Building Class
-    bdg = Building.create_building(d=d_building)
+    bdg = Building.create_building(ipt_building=ipt_building)
 
     # number of steps for main calculation
     # number of steps for run-up calculation

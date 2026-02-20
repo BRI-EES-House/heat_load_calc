@@ -1,7 +1,7 @@
 import pytest
 
 from heat_load_calc.input_models.input_infiltration import InputInfiltration
-from heat_load_calc.tenum import EStory, EStructure, EInsidePressure
+from heat_load_calc.tenum import EStory, EStructure, EInsidePressure, EInfiltrationMethod, ECValueEstimateMethod
 
 
 def get_default_dict_c_value_specify():
@@ -47,7 +47,7 @@ def test_key_method_wrong_value():
     with pytest.raises(ValueError) as e:
         InputInfiltration.read(d_infiltration=d_infiltration)
 
-    assert 'An invalid value is specified for value \'method\' in \'infiltration\' tag.' in str(e)
+    assert '\'wrong_value\' is not a valid EInfiltrationMethod' in str(e)
 
 
 def test_key_method_value():
@@ -58,8 +58,8 @@ def test_key_method_value():
     ipt1 = InputInfiltration.read(d_infiltration=d1)
     ipt2 = InputInfiltration.read(d_infiltration=d2)
 
-    assert ipt1.method == 'balance_residential'
-    assert ipt2.method == 'balance_residential'
+    assert ipt1.method == EInfiltrationMethod.BALANCE_RESIDENTIAL
+    assert ipt2.method == EInfiltrationMethod.BALANCE_RESIDENTIAL
 
 
 
@@ -132,7 +132,7 @@ def test_value_c_value_estimate_wrong_value():
     with pytest.raises(ValueError) as e:
         InputInfiltration.read(d_infiltration=d_infiltration)
 
-    assert 'An invalid value is specified in key \'c_value_estimate\' in tag \'infiltration\'.' in str(e)
+    assert '\'wrong_value\' is not a valid ECValueEstimateMethod' in str(e)
 
 
 def test_value_c_value_estimate():
@@ -143,8 +143,8 @@ def test_value_c_value_estimate():
     ipt1 = InputInfiltration.read(d_infiltration=d1)
     ipt2 = InputInfiltration.read(d_infiltration=d2)
 
-    assert ipt1.c_value_estimate == 'specify'
-    assert ipt2.c_value_estimate == 'calculate'
+    assert ipt1.c_value_estimate == ECValueEstimateMethod.SPECIFY
+    assert ipt2.c_value_estimate == ECValueEstimateMethod.CALCULATE
 
 
 def test_key_c_value_not_exists():
