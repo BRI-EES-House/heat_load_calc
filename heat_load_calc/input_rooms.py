@@ -4,52 +4,8 @@ from datetime import datetime
 
 
 from heat_load_calc.tenum import EInterval, EWeatherMethod, ERegion, ENumberOfOccupants, EScheduleType, EDayType
-from heat_load_calc.input_models.input_schedule_elements import InputScheduleElements
-
-
-@dataclass
-class InputScheduleDataDayTypes:
-
-    d_weekday: dict
-    d_holiday_out: dict
-    d_holiday_in: dict
-    input_schedule_elements_weekday: InputScheduleElements
-    input_schedule_elements_holiday_out: InputScheduleElements
-    input_schedule_elements_holiday_in: InputScheduleElements
-
-    def day_type(self, day_type: EDayType) -> InputScheduleElements:
-
-        return{
-            EDayType.Weekday: self.input_schedule_elements_weekday,
-            EDayType.HolidayOut: self.input_schedule_elements_holiday_out,
-            EDayType.HolidayIn: self.input_schedule_elements_holiday_in
-        }[day_type]
-
-    @classmethod
-    def read(cls, id: int, d: dict):
-
-        try:
-
-            d_weekday = d[EDayType.Weekday.value]
-            d_holiday_out = d[EDayType.HolidayOut.value]
-            d_holiday_in = d[EDayType.HolidayIn.value]
-
-        except KeyError as e:
-            raise KeyError(f'Key {e} could not be found in \'const\' tag. (ID={id})')
-
-        input_schedule_elements_weekday = InputScheduleElements.read(id=id, d=d_weekday)
-        input_schedule_elements_holiday_out = InputScheduleElements.read(id=id, d=d_holiday_out)
-        input_schedule_elements_holiday_in = InputScheduleElements.read(id=id, d=d_holiday_in)
-        
-
-        return InputScheduleDataDayTypes(
-            d_weekday=d_weekday,
-            d_holiday_out=d_holiday_out,
-            d_holiday_in=d_holiday_in,
-            input_schedule_elements_weekday=input_schedule_elements_weekday,
-            input_schedule_elements_holiday_out=input_schedule_elements_holiday_out,
-            input_schedule_elements_holiday_in=input_schedule_elements_holiday_in
-        )
+from heat_load_calc.input_models.input_schedule_element import InputScheduleElement
+from heat_load_calc.input_models.input_schedule_elements_day_types import InputScheduleElementsDayTypes
 
 
 @dataclass
@@ -74,7 +30,7 @@ class InputScheduleData(ABC):
                 
                     raise KeyError(f'Key {e} could not be found in \'schedule\' tag. (ID={id})')
                 
-                ipt_schedule_data_day_const = InputScheduleDataDayTypes.read(id=id, d=d_const)
+                ipt_schedule_data_day_const = InputScheduleElementsDayTypes.read(id=id, d=d_const)
                 
                 return InputScheduleDataConst(ipt_schedule_data_day_types_const=ipt_schedule_data_day_const)
 
@@ -91,10 +47,10 @@ class InputScheduleData(ABC):
 
                     raise KeyError(f'Key {e} could not be found in \'schedule\' tag. (ID={id})')
                 
-                ipt_schedule_data_day_types_one = InputScheduleDataDayTypes.read(id=id, d=d_one)
-                ipt_schedule_data_day_types_two = InputScheduleDataDayTypes.read(id=id, d=d_two)
-                ipt_schedule_data_day_types_three = InputScheduleDataDayTypes.read(id=id, d=d_three)
-                ipt_schedule_data_day_types_four = InputScheduleDataDayTypes.read(id=id, d=d_four)
+                ipt_schedule_data_day_types_one = InputScheduleElementsDayTypes.read(id=id, d=d_one)
+                ipt_schedule_data_day_types_two = InputScheduleElementsDayTypes.read(id=id, d=d_two)
+                ipt_schedule_data_day_types_three = InputScheduleElementsDayTypes.read(id=id, d=d_three)
+                ipt_schedule_data_day_types_four = InputScheduleElementsDayTypes.read(id=id, d=d_four)
 
                 return InputScheduleDataNumber(
                     ipt_schedule_data_day_types_one=ipt_schedule_data_day_types_one,
@@ -109,7 +65,7 @@ class InputScheduleData(ABC):
 @dataclass
 class InputScheduleDataConst(InputScheduleData):
 
-    ipt_schedule_data_day_types_const: InputScheduleDataDayTypes
+    ipt_schedule_data_day_types_const: InputScheduleElementsDayTypes
 
     schedule_type: EScheduleType = EScheduleType.CONST
 
@@ -117,14 +73,14 @@ class InputScheduleDataConst(InputScheduleData):
 @dataclass
 class InputScheduleDataNumber(InputScheduleData):
 
-    ipt_schedule_data_day_types_one: InputScheduleDataDayTypes
-    ipt_schedule_data_day_types_two: InputScheduleDataDayTypes
-    ipt_schedule_data_day_types_three: InputScheduleDataDayTypes
-    ipt_schedule_data_day_types_four: InputScheduleDataDayTypes
+    ipt_schedule_data_day_types_one: InputScheduleElementsDayTypes
+    ipt_schedule_data_day_types_two: InputScheduleElementsDayTypes
+    ipt_schedule_data_day_types_three: InputScheduleElementsDayTypes
+    ipt_schedule_data_day_types_four: InputScheduleElementsDayTypes
 
     schedule_type: EScheduleType = EScheduleType.NUMBER
 
-    def num(self, noo: ENumberOfOccupants) -> InputScheduleDataDayTypes:
+    def num(self, noo: ENumberOfOccupants) -> InputScheduleElementsDayTypes:
 
         return{
             ENumberOfOccupants.One: self.ipt_schedule_data_day_types_one,

@@ -8,9 +8,9 @@ from os import path
 from enum import Enum, auto
 
 from heat_load_calc import interval
-from heat_load_calc.input_rooms import InputSchedule, InputScheduleDirect, InputScheduleFile, InputScheduleData, InputScheduleDataConst, InputScheduleDataNumber, InputScheduleDataDayTypes
+from heat_load_calc.input_rooms import InputSchedule, InputScheduleDirect, InputScheduleFile, InputScheduleData, InputScheduleDataConst, InputScheduleDataNumber
 from heat_load_calc.tenum import ENumberOfOccupants, EScheduleType, EDayType, EInterval
-from heat_load_calc.input_models.input_schedule_elements import InputScheduleElements
+from heat_load_calc.input_models.input_schedule_element import InputScheduleElement
 
 
 logger = logging.getLogger(name='HeatLoadCalc').getChild('Schedule')
@@ -355,7 +355,7 @@ def _get_interpolated_schedule(
 
             ipt_schedule_data_const: InputScheduleDataConst = ipt_schedule_data
 
-            input_const_schedule_elements: InputScheduleElements = ipt_schedule_data_const.ipt_schedule_data_day_types_const.day_type(day_type=day_type)
+            input_const_schedule_elements: InputScheduleElement = ipt_schedule_data_const.ipt_schedule_data_day_types_const.day_type(day_type=day_type)
 
             return _make_list(input_schedule_elements=input_const_schedule_elements, schedule_item=schedule_item, itv=itv)
 
@@ -368,7 +368,7 @@ def _get_interpolated_schedule(
 
             if noo in [ENumberOfOccupants.One, ENumberOfOccupants.Two, ENumberOfOccupants.Three, ENumberOfOccupants.Four]:
 
-                input_number_schedule_elements: InputScheduleElements = ipt_schedule_data_number.num(noo=noo).day_type(day_type=day_type)
+                input_number_schedule_elements: InputScheduleElement = ipt_schedule_data_number.num(noo=noo).day_type(day_type=day_type)
 
                 return _make_list(input_schedule_elements=input_number_schedule_elements, schedule_item=schedule_item, itv=itv)
 
@@ -376,10 +376,10 @@ def _get_interpolated_schedule(
 
                 ceil_np, floor_np = _get_ceil_floor_np(n_p)
 
-                ceiled_input_schedule_elements: InputScheduleElements = ipt_schedule_data_number.num(noo=ENumberOfOccupants(str(ceil_np))).day_type(day_type=day_type)
+                ceiled_input_schedule_elements: InputScheduleElement = ipt_schedule_data_number.num(noo=ENumberOfOccupants(str(ceil_np))).day_type(day_type=day_type)
                 ceil_schedule = _make_list(input_schedule_elements=ceiled_input_schedule_elements, schedule_item=schedule_item, itv=itv)
 
-                floored_input_schedule_elements: InputScheduleElements = ipt_schedule_data_number.num(noo=ENumberOfOccupants(str(floor_np))).day_type(day_type=day_type)
+                floored_input_schedule_elements: InputScheduleElement = ipt_schedule_data_number.num(noo=ENumberOfOccupants(str(floor_np))).day_type(day_type=day_type)
                 floor_schedule = _make_list(input_schedule_elements=floored_input_schedule_elements, schedule_item=schedule_item, itv=itv)
                 
                 if is_proportionable:
@@ -397,7 +397,7 @@ def _get_interpolated_schedule(
             raise KeyError()
 
 
-def _make_list(input_schedule_elements: InputScheduleElements, schedule_item: ScheduleItem, itv: interval.Interval) -> np.ndarray:
+def _make_list(input_schedule_elements: InputScheduleElement, schedule_item: ScheduleItem, itv: interval.Interval) -> np.ndarray:
     """make ndarray list from the input dictionary.
 
     Args:
@@ -458,7 +458,7 @@ def _make_list(input_schedule_elements: InputScheduleElements, schedule_item: Sc
             return vs.reshape(-1, shrinking_ratio).max(axis=1)
 
 
-def _make_schedule_list(input_schedule_elements: InputScheduleElements, schedule_item: ScheduleItem) -> list[float] | list[int]:
+def _make_schedule_list(input_schedule_elements: InputScheduleElement, schedule_item: ScheduleItem) -> list[float] | list[int]:
 
     match schedule_item:
         case ScheduleItem.LOCAL_VENTILATION_AMMOUNT:

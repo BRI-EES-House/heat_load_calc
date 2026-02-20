@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 
 @dataclass
-class InputScheduleElements:
+class InputScheduleElement:
     """List of schedules.
 
     Shcedule consits of 7 types as below;
@@ -77,7 +77,7 @@ class InputScheduleElements:
         local_vent_amount = read_each(tag='local_vent_amount', arg_type='float')
         is_temp_limit_set = read_each(tag='is_temp_limit_set', arg_type='int')
         
-        return InputScheduleElements(
+        return InputScheduleElement(
             number_of_people=number_of_people,
             heat_generation_appliances=heat_generation_appliances,
             heat_generation_lighting=heat_generation_lighting,
