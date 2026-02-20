@@ -2,9 +2,8 @@ from dataclasses import dataclass
 from abc import ABC, abstractmethod
 import os
 
-from heat_load_calc.tenum import EScheduleType
 from heat_load_calc.input_models.input_schedule_data import InputScheduleData, InputScheduleDataConst, InputScheduleDataNumber
-from heat_load_calc.input_models.input_schedule import InputSchedule, InputScheduleDirect, InputScheduleFile
+from heat_load_calc.input_models.input_schedule import InputSchedule
 
 
 @dataclass

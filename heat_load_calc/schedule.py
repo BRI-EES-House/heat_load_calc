@@ -11,7 +11,7 @@ from heat_load_calc import interval
 from heat_load_calc.tenum import ENumberOfOccupants, EScheduleType, EDayType
 from heat_load_calc.input_models.input_schedule_element import InputScheduleElement
 from heat_load_calc.input_models.input_schedule_data import InputScheduleData, InputScheduleDataConst, InputScheduleDataNumber
-from heat_load_calc.input_models.input_schedule import InputSchedule, InputScheduleDirect, InputScheduleFile
+from heat_load_calc.input_models.input_schedule import InputSchedule
 
 
 logger = logging.getLogger(name='HeatLoadCalc').getChild('Schedule')
@@ -541,32 +541,7 @@ def _load_schedule(ipt_schedule: InputSchedule) -> InputScheduleData:
         InputScheduleData class
     """
     
-    ipt_schedule_direct: InputScheduleDirect
-    
-    if ipt_schedule.is_schedule_type_defined:
-
-        if not isinstance(ipt_schedule, InputScheduleDirect):
-            raise ValueError('Input schedule is not InputScheduleDirect class.')
-
-        ipt_schedule_direct = ipt_schedule
-
-    else:   # read from json file
-
-        if not isinstance(ipt_schedule, InputScheduleFile):
-            raise ValueError('Input schedule is not InputScheduleFile class.')
-
-        ipt_schedule_file: InputScheduleFile = ipt_schedule
-
-        js = _load_json_file(filename=ipt_schedule_file.name)
-
-        ipt_schedule_from_file = InputSchedule.read(id=ipt_schedule_file.id, d_schedule=js)
-
-        if not ipt_schedule_from_file.is_schedule_type_defined:
-            raise ValueError('Schedule type is not defined in the json file.')
-        
-        ipt_schedule_direct = ipt_schedule_from_file
-
-    ipt_schedule_data: InputScheduleData = ipt_schedule_direct.ipt_schedule_data
+    ipt_schedule_data: InputScheduleData = ipt_schedule.ipt_schedule_data
 
     return ipt_schedule_data
 
