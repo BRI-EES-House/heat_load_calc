@@ -1,14 +1,14 @@
 ﻿import unittest
 import os, json
 import itertools
-from typing import Dict, List
+from typing import Dict
 import numpy as np
 
 from heat_load_calc.schedule import Schedule
 from heat_load_calc import schedule
 from heat_load_calc.interval import Interval
 from heat_load_calc.tenum import EInterval, ENumberOfOccupants
-from heat_load_calc.input_rooms import InputSchedule
+from heat_load_calc.input_models.input_schedule import InputSchedule
 
 
 class TestSchedule(unittest.TestCase):

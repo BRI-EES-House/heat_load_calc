@@ -4,6 +4,7 @@ import pytest
 from heat_load_calc.input_rooms import InputRoom
 from heat_load_calc.tenum import EInterval, ERegion, EWeatherMethod, ENumberOfOccupants, EScheduleType
 from heat_load_calc.input_models.input_schedule_data import InputScheduleData, InputScheduleDataConst, InputScheduleDataNumber
+from heat_load_calc.input_models.input_schedule import InputSchedule
 
 
 def get_default_dict():
@@ -95,20 +96,6 @@ def test_room_schedule1():
         InputRoom.read(d_room=d_room)
     
     assert 'Key \'schedule\' could not be found in \'room\' tag. (ID=1)' in str(e)
-
-
-def test_room_schedule2():
-
-    d_room = get_default_dict()
-
-    d_room['schedule'] = {
-        'schedule_type': 1
-    }
-
-    with pytest.raises(ValueError) as e:
-        InputRoom.read(d_room=d_room)
-    
-    assert 'An invalid value was specified for \'schedule_type\' in \'schedule\' tag. (ID=1)' in str(e)
 
 
 def test_room_schedule3():

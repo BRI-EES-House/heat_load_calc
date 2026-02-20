@@ -1,17 +1,17 @@
 ﻿import os
 import numpy as np
 import csv
-from typing import List, Dict, Tuple, Optional, Union
+from typing import List, Dict
 import logging
 import json
 from os import path
 from enum import Enum, auto
 
 from heat_load_calc import interval
-from heat_load_calc.input_rooms import InputSchedule, InputScheduleDirect, InputScheduleFile
-from heat_load_calc.tenum import ENumberOfOccupants, EScheduleType, EDayType, EInterval
+from heat_load_calc.tenum import ENumberOfOccupants, EScheduleType, EDayType
 from heat_load_calc.input_models.input_schedule_element import InputScheduleElement
 from heat_load_calc.input_models.input_schedule_data import InputScheduleData, InputScheduleDataConst, InputScheduleDataNumber
+from heat_load_calc.input_models.input_schedule import InputSchedule, InputScheduleDirect, InputScheduleFile
 
 
 logger = logging.getLogger(name='HeatLoadCalc').getChild('Schedule')

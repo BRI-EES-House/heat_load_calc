@@ -1,69 +1,10 @@
 from dataclasses import dataclass
 from abc import ABC, abstractmethod
+import os
 
 from heat_load_calc.tenum import EScheduleType
 from heat_load_calc.input_models.input_schedule_data import InputScheduleData, InputScheduleDataConst, InputScheduleDataNumber
-
-
-@dataclass
-class InputSchedule(ABC):
-
-    d_schedule: dict
-
-    # room id (this is used only for display error message.)
-    id: int
-
-    @property
-    @abstractmethod
-    def is_schedule_type_defined(self) -> bool: ...
-
-    @classmethod
-    def read(cls, id: int, d_schedule: dict):
-
-        if 'schedule_type' in d_schedule:
-
-            try:
-                schedule_type = EScheduleType(d_schedule['schedule_type'])
-            except ValueError:
-                raise ValueError(f'An invalid value was specified for \'schedule_type\' in \'schedule\' tag. (ID={id})')          
-            
-            if 'schedule' not in d_schedule:
-
-                raise KeyError(f'Key \'schedule\' could not be found in \'schedule\' tag. (ID={id})')
-            
-            d_schedule_data = d_schedule['schedule']
-
-            ipt_schedule_data = InputScheduleData.read(id=id, d_schedule_data=d_schedule_data, schedule_type=schedule_type)
-
-            return InputScheduleDirect(id=id, d_schedule=d_schedule, schedule_type=schedule_type, ipt_schedule_data=ipt_schedule_data)
-        
-        else:
-
-            if 'name' not in d_schedule:
-
-                raise KeyError(f'Key \'name\' could not be found in \'schedule\' tag. (ID={id})')
-
-            name = d_schedule['name']
-
-            return InputScheduleFile(id=id, d_schedule=d_schedule, name=name)
-
-
-@dataclass
-class InputScheduleDirect(InputSchedule):
-
-    schedule_type: EScheduleType
-
-    ipt_schedule_data: InputScheduleData
-    
-    is_schedule_type_defined: bool = True
-
-
-@dataclass
-class InputScheduleFile(InputSchedule):
-
-    name: str
-
-    is_schedule_type_defined: bool = False
+from heat_load_calc.input_models.input_schedule import InputSchedule, InputScheduleDirect, InputScheduleFile
 
 
 @dataclass

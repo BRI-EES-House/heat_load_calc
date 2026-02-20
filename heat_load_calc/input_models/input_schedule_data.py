@@ -14,7 +14,21 @@ class InputScheduleData(ABC):
     def schedule_type(self) -> EScheduleType: ...
 
     @classmethod
-    def read(cls, id: int, d_schedule_data: dict, schedule_type: EScheduleType):
+    def read(cls, id: int, d_schedule: dict):
+
+        if 'schedule_type' not in d_schedule:
+            raise KeyError(f'Key \'schedule_type\' should be defined in \'schedule\' tag. (ID={id})')
+        
+        try:
+            schedule_type = EScheduleType(d_schedule['schedule_type'])
+        
+        except ValueError:
+            raise ValueError(f'An invalid value was specified for \'schedule_type\' in \'schedule\' tag. (ID={id})')          
+
+        if 'schedule' not in d_schedule:
+            raise KeyError(f'Key \'schedule\' could not be found in \'schedule\' tag. (ID={id})')
+        
+        d_schedule_data = d_schedule['schedule']
 
         match schedule_type:
 
