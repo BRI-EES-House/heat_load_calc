@@ -60,8 +60,7 @@ class InputCommon:
 
             ipt_calculation_day = None
 
-        # If 'interval' tag is not exist, '15m' is set as the default value.
-        # 'interval' takes the value of either '15m', '30m', or '1h'.
+        # If key 'mutual_radiation_method' is not exist, 'Nagata' is set as the default value.
         shape_factor_method = EShapeFactorMethod(d_common.get('mutual_radiation_method', 'Nagata'))
 
         return InputCommon(
