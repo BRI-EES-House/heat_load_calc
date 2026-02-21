@@ -11,7 +11,6 @@ from heat_load_calc import interval
 from heat_load_calc.tenum import ENumberOfOccupants, EScheduleType, EDayType
 from heat_load_calc.input_models.input_schedule_element import InputScheduleElement
 from heat_load_calc.input_models.input_schedule_data import InputScheduleData, InputScheduleDataConst, InputScheduleDataNumber
-from heat_load_calc.input_models.input_schedule import InputSchedule
 
 
 logger = logging.getLogger(name='HeatLoadCalc').getChild('Schedule')
@@ -103,14 +102,14 @@ class Schedule:
         self._t_ac_mode_is_ns = t_ac_mode_is_ns
 
     @classmethod
-    def get_schedule(cls, n_ocp: ENumberOfOccupants, a_f_is: List[float], itv: interval.Interval, scd_is: List[InputSchedule]):
+    def get_schedule(cls, n_ocp: ENumberOfOccupants, a_f_is: List[float], itv: interval.Interval, scd_is: List[InputScheduleData]):
         """Make Schedule class.
 
         Args:
             n_ocp: how to identify the occupants number. ('1', '2', '3', '4', or 'auto')
             a_floor_is: floor area of room i, m2, [i]
             itv: Interval class
-            scds: list of the dictionary for schedule
+            scds: list of the InputScheduleData
 
         Returns:
             Schedule class
@@ -128,31 +127,31 @@ class Schedule:
         # local ventilation amount in room i at step n / ステップnの室iにおける局所換気量, m3/s, [I, N]
         # The value is defined as the unit m3/h. Here, the unit is converted from m3/h to m3/s.
         # jsonファイルでは、 m3/h で示されているため、単位換算(m3/h -> m3/s)を行っている。
-        v_mec_vent_local_is_ns = _get_schedules(noo=noo, n_p=n_p_calc, schedule_item=ScheduleItem.LOCAL_VENTILATION_AMMOUNT, itv=itv, ipt_schedules=scd_is) / 3600.0
+        v_mec_vent_local_is_ns = _get_schedules(noo=noo, n_p=n_p_calc, schedule_item=ScheduleItem.LOCAL_VENTILATION_AMMOUNT, itv=itv, ipt_schedule_datas=scd_is) / 3600.0
 
         # appliance heat generation in room i at step n / ステップnの室iにおける機器発熱, W, [I, N]
-        q_gen_app_is_ns = _get_schedules(noo=noo, n_p=n_p_calc, schedule_item=ScheduleItem.APPLIANCE_HEAT_GENERATION, itv=itv, ipt_schedules=scd_is)
+        q_gen_app_is_ns = _get_schedules(noo=noo, n_p=n_p_calc, schedule_item=ScheduleItem.APPLIANCE_HEAT_GENERATION, itv=itv, ipt_schedule_datas=scd_is)
 
         # cooking heat generation in room i in step n / ステップnの室iにおける調理発熱, W, [I, N]
-        q_gen_ckg_is_ns = _get_schedules(noo=noo, n_p=n_p_calc, schedule_item=ScheduleItem.COOKING_HEAT_GENERATION, itv=itv, ipt_schedules=scd_is)
+        q_gen_ckg_is_ns = _get_schedules(noo=noo, n_p=n_p_calc, schedule_item=ScheduleItem.COOKING_HEAT_GENERATION, itv=itv, ipt_schedule_datas=scd_is)
 
         # cooking vapour generation in rom i at step n / ステップnの室iにおける調理発湿, kg/s, [I, N]
         # jsonファイルでは、g/h で示されているため、単位換算(g/h->kg/s)を行っている。
-        x_gen_ckg_is_ns = _get_schedules(noo=noo, n_p=n_p_calc, schedule_item=ScheduleItem.COOKING_VAPOUR_GENERATION, itv=itv, ipt_schedules=scd_is) / 1000.0 / 3600.0
+        x_gen_ckg_is_ns = _get_schedules(noo=noo, n_p=n_p_calc, schedule_item=ScheduleItem.COOKING_VAPOUR_GENERATION, itv=itv, ipt_schedule_datas=scd_is) / 1000.0 / 3600.0
 
         # lighting heat generation in room i at step n / ステップnの室iにおける照明発熱, W/m2, [I, N]
         # 単位面積あたりで示されていることに注意
-        q_gen_lght_is_ns = _get_schedules(noo=noo, n_p=n_p_calc, schedule_item=ScheduleItem.LIGHTING_HEAT_GENERATION, itv=itv, ipt_schedules=scd_is)
+        q_gen_lght_is_ns = _get_schedules(noo=noo, n_p=n_p_calc, schedule_item=ScheduleItem.LIGHTING_HEAT_GENERATION, itv=itv, ipt_schedule_datas=scd_is)
 
         # number of pople in room i at step n / ステップnの室iにおける在室人数, [I, N]
         # 居住人数で按分しているため、整数ではなく小数であることに注意
-        n_hum_is_ns = _get_schedules(noo=noo, n_p=n_p_calc, schedule_item=ScheduleItem.NUMBER_OF_PEOPLE, itv=itv, ipt_schedules=scd_is)
+        n_hum_is_ns = _get_schedules(noo=noo, n_p=n_p_calc, schedule_item=ScheduleItem.NUMBER_OF_PEOPLE, itv=itv, ipt_schedule_datas=scd_is)
 
         # ratio of air conditioning in room i at step n / ステップnの室iにおける空調割合, [I, N]
-        r_ac_demand_is_ns = _get_schedules(noo=noo, n_p=n_p_calc, schedule_item=ScheduleItem.AC_DEMMAND, itv=itv, ipt_schedules=scd_is)
+        r_ac_demand_is_ns = _get_schedules(noo=noo, n_p=n_p_calc, schedule_item=ScheduleItem.AC_DEMMAND, itv=itv, ipt_schedule_datas=scd_is)
 
         # mode of air conditioning in room i at step n / ステップnの室iにおける空調モード, [I, N]
-        t_ac_mode_is_ns = _get_schedules(noo=noo, n_p=n_p_calc, schedule_item=ScheduleItem.AC_MODE, itv=itv, ipt_schedules=scd_is)
+        t_ac_mode_is_ns = _get_schedules(noo=noo, n_p=n_p_calc, schedule_item=ScheduleItem.AC_MODE, itv=itv, ipt_schedule_datas=scd_is)
 
         # internal heat generation excluding human body heat generation in room i at step n / ステップnの室iにおける人体発熱を除く内部発熱, W, [I, N]
         q_gen_is_ns = q_gen_app_is_ns + q_gen_ckg_is_ns + q_gen_lght_is_ns * _a_f_is[:, np.newaxis]
@@ -264,13 +263,9 @@ def _get_schedules(
         n_p: float,
         schedule_item: ScheduleItem,
         itv: interval.Interval,
-        ipt_schedules: List[InputSchedule]
+        ipt_schedule_datas: List[InputScheduleData]
 ):
     
-    # Read the list of the schedule type(ScheduleType Enum Class) and scheduled dictionary.
-    # List of the dictionary describing the schedule.
-    ipt_schedule_datas: list[InputScheduleData] = [_load_schedule(ipt_schedule=ipt_schedule) for ipt_schedule in ipt_schedules]
-
     return np.concatenate([
         [_get_schedule(noo=noo, n_p=n_p, schedule_item=schedule_item, itv=itv, ipt_schedule_data=ipt_schedule_data)]
         for ipt_schedule_data in ipt_schedule_datas
@@ -531,7 +526,7 @@ def _get_ceil_floor_np(n_p: float) -> tuple[int, int]:
     return ceil_np, floor_np
 
 
-def _load_schedule(ipt_schedule: InputSchedule) -> InputScheduleData:
+def _load_schedule(ipt_schedule: InputScheduleData) -> InputScheduleData:
     """Load the schedule from the input dictionary or specified csv file.
     
     Args:
@@ -541,9 +536,7 @@ def _load_schedule(ipt_schedule: InputSchedule) -> InputScheduleData:
         InputScheduleData class
     """
     
-    ipt_schedule_data: InputScheduleData = ipt_schedule.ipt_schedule_data
-
-    return ipt_schedule_data
+    return ipt_schedule
 
 
 def _load_calendar() -> np.ndarray:

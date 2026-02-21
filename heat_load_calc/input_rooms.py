@@ -3,7 +3,6 @@ from abc import ABC, abstractmethod
 import os
 
 from heat_load_calc.input_models.input_schedule_data import InputScheduleData, InputScheduleDataConst, InputScheduleDataNumber
-from heat_load_calc.input_models.input_schedule import InputSchedule
 
 
 @dataclass
@@ -20,7 +19,7 @@ class InputRoom:
 
     d_schedule: dict
 
-    ipt_schedule: InputSchedule
+    ipt_schedule_data: InputScheduleData
 
     @classmethod
     def read(cls, d_room: dict):
@@ -65,12 +64,12 @@ class InputRoom:
 
         d_schedule = d_room['schedule']
 
-        ipt_schedule = InputSchedule.read(id=id, d_schedule=d_schedule)
+        ipt_schedule_data = InputScheduleData.read(id=id, d_schedule=d_schedule)
 
         return InputRoom(
             id=id,
             name=name,
             a_f=a_f,
             d_schedule=d_schedule,
-            ipt_schedule=ipt_schedule
+            ipt_schedule_data=ipt_schedule_data
         )

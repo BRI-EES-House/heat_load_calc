@@ -4,7 +4,6 @@ import pytest
 from heat_load_calc.input_rooms import InputRoom
 from heat_load_calc.tenum import EInterval, ERegion, EWeatherMethod, ENumberOfOccupants, EScheduleType
 from heat_load_calc.input_models.input_schedule_data import InputScheduleData, InputScheduleDataConst, InputScheduleDataNumber
-from heat_load_calc.input_models.input_schedule import InputSchedule
 
 
 def get_default_dict():

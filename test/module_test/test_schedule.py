@@ -8,7 +8,7 @@ from heat_load_calc.schedule import Schedule
 from heat_load_calc import schedule
 from heat_load_calc.interval import Interval
 from heat_load_calc.tenum import EInterval, ENumberOfOccupants
-from heat_load_calc.input_models.input_schedule import InputSchedule
+from heat_load_calc.input_models.input_schedule_data import InputScheduleData
 
 
 class TestSchedule(unittest.TestCase):
@@ -50,10 +50,10 @@ class TestSchedule(unittest.TestCase):
         cls._zero = zero2
 
         cls._scd_is = [
-            InputSchedule.read(id=1, d_schedule={"name": "main_occupant_room"}),
-            InputSchedule.read(id=1, d_schedule={"name": "other_occupant_room"}),
-            InputSchedule.read(id=1, d_schedule={"name": "non_occupant_room"}),
-            InputSchedule.read(id=1, d_schedule={"name": "zero"})
+            InputScheduleData.read(id=1, d_schedule={"name": "main_occupant_room"}),
+            InputScheduleData.read(id=1, d_schedule={"name": "other_occupant_room"}),
+            InputScheduleData.read(id=1, d_schedule={"name": "non_occupant_room"}),
+            InputScheduleData.read(id=1, d_schedule={"name": "zero"})
         ]
 
 

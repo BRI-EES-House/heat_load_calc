@@ -76,7 +76,7 @@ def calc(
         n_ocp=ipt_common.n_ocp,
         a_f_is=[ipt_room.a_f for ipt_room in ipt_rooms],
         itv=itv,
-        scd_is=[ipt_room.ipt_schedule for ipt_room in ipt_rooms]
+        scd_is=[ipt_room.ipt_schedule_data for ipt_room in ipt_rooms]
     )
 
     # Building Class
