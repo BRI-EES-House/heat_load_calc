@@ -1,48 +1,49 @@
 ﻿import unittest
 
 from heat_load_calc.rooms import Rooms
+from heat_load_calc.input_models.input_room import InputRoom
 
+
+def make_rooms():
+
+    return [
+        InputRoom(id=0, name='test0', sub_name='sub_test0', a_f=30.0, v=70.0, ipt_schedule_data=None),
+        InputRoom(id=1, name='test1', sub_name='sub_test1', a_f=40.0, v=130.0, ipt_schedule_data=None),
+    ]
 
 class TestRooms(unittest.TestCase):
 
     def test_rooms_furniture_default(self):
 
-        rms = Rooms(ds=[
-            {
-                'id': 0,
-                'name': 'test0',
-                'sub_name': 'sub_test0',
-                'floor_area': 30.0,
-                'volume': 70.0,
-                'ventilation': {
-                    'natural': 350.0
+        rms = Rooms(
+            ds=[
+                {
+                    'ventilation': {
+                        'natural': 350.0
+                    },
+                    'furniture': {
+                        'input_method': 'default'
+                    },
+                    'schedule': {
+                        'name': 'test1'
+                    }
                 },
-                'furniture': {
-                    'input_method': 'default'
+                {
+                    'ventilation': {
+                        'natural': 620.0
+                    },
+                    'furniture': {
+                        'input_method': 'default',
+                        'solar_absorption_ratio': 0.3
+                    },
+                    'schedule': {
+                        'name': 'test1'
+                    },
+                    'MET': 2.0
                 },
-                'schedule': {
-                    'name': 'test1'
-                }
-            },
-            {
-                'id': 1,
-                'name': 'test1',
-                'sub_name': 'sub_test1',
-                'floor_area': 40.0,
-                'volume': 130.0,
-                'ventilation': {
-                    'natural': 620.0
-                },
-                'furniture': {
-                    'input_method': 'default',
-                    'solar_absorption_ratio': 0.3
-                },
-                'schedule': {
-                    'name': 'test1'
-                },
-                'MET': 2.0
-            }
-        ])
+            ],
+            ipt_rooms=make_rooms()
+        )
 
         self.assertEqual(rms.n_r, 2)
 
@@ -84,50 +85,43 @@ class TestRooms(unittest.TestCase):
 
     def test_rooms_furniture_specify(self):
 
-        rms = Rooms(ds=[
-            {
-                'id': 0,
-                'name': 'test0',
-                'sub_name': 'sub_test0',
-                'floor_area': 30.0,
-                'volume': 70.0,
-                'ventilation': {
-                    'natural': 350.0
+        rms = Rooms(
+            ds=[
+                {
+                    'ventilation': {
+                        'natural': 350.0
+                    },
+                    'furniture': {
+                        'input_method': 'specify',
+                        'heat_capacity': 882000.0,
+                        'heat_cond': 194.04000000000002,
+                        'moisture_capacity': 1176.0,
+                        'moisture_cond': 2.1168,
+                    },
+                    'schedule': {
+                        'name': 'test1'
+                    }
                 },
-                'furniture': {
-                    'input_method': 'specify',
-                    'heat_capacity': 882000.0,
-                    'heat_cond': 194.04000000000002,
-                    'moisture_capacity': 1176.0,
-                    'moisture_cond': 2.1168,
+                {
+                    'ventilation': {
+                        'natural': 620.0
+                    },
+                    'furniture': {
+                        'input_method': 'specify',
+                        'heat_capacity': 1638000.0,
+                        'heat_cond': 360.36,
+                        'moisture_capacity': 2184.0,
+                        'moisture_cond': 3.9312,
+                        'solar_absorption_ratio': 0.3
+                    },
+                    'schedule': {
+                        'name': 'test1'
+                    },
+                    'MET': 2.0
                 },
-                'schedule': {
-                    'name': 'test1'
-                }
-            },
-            {
-                'id': 1,
-                'name': 'test1',
-                'sub_name': 'sub_test1',
-                'floor_area': 40.0,
-                'volume': 130.0,
-                'ventilation': {
-                    'natural': 620.0
-                },
-                'furniture': {
-                    'input_method': 'specify',
-                    'heat_capacity': 1638000.0,
-                    'heat_cond': 360.36,
-                    'moisture_capacity': 2184.0,
-                    'moisture_cond': 3.9312,
-                    'solar_absorption_ratio': 0.3
-                },
-                'schedule': {
-                    'name': 'test1'
-                },
-                'MET': 2.0
-            }
-        ])
+            ],
+            ipt_rooms=make_rooms()
+        )
 
         self.assertEqual(rms.n_r, 2)
 

@@ -14,10 +14,14 @@ class InputRoom:
     # name
     name: str
 
+    # sub_name
+    sub_name: str
+
     # floor area, m2 (>0.0)
     a_f: float
 
-    d_schedule: dict
+    # volume, m3 (>0.0)
+    v: float
 
     ipt_schedule_data: InputScheduleData
 
@@ -42,9 +46,13 @@ class InputRoom:
         if 'name' not in d_room:
             raise KeyError(f'Key \'name\' could not be found in \'room\' tag. (ID={id})')
         
-        name = d_room['name']
+        name = str(d_room['name'])
 
-        # floor area
+        # sub name
+
+        sub_name = str(d_room.get('sub_name', ''))
+
+        # floor area, m2
 
         if 'floor_area' not in d_room:
             raise KeyError(f'Key \'floor_area\' could not be found in \'room\' tag. (ID={id})')
@@ -56,6 +64,19 @@ class InputRoom:
 
         if a_f <= 0.0:
             raise ValueError(f'\'floor_area\' should be greater than 0.0. (ID={id})')
+        
+        # volume, m3
+
+        if 'volume' not in d_room:
+            raise KeyError(f'Key \'volume\' could not be found in \'room\' key. (ID={id})')
+        
+        try:
+            v = float(d_room['volume'])
+        except ValueError:
+            raise ValueError(f'An invalid value was specified for \'volume\' in \'room\' key. (ID={id})')
+        
+        if v <= 0.0:
+            raise ValueError(f'\'volume\' should be greater than 0.0. (ID={id})')
 
         # schedule
 
@@ -69,7 +90,8 @@ class InputRoom:
         return InputRoom(
             id=id,
             name=name,
+            sub_name=sub_name,
             a_f=a_f,
-            d_schedule=d_schedule,
+            v=v,
             ipt_schedule_data=ipt_schedule_data
         )

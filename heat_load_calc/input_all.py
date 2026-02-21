@@ -1,5 +1,5 @@
 from heat_load_calc.input_models.input_common import InputCommon
-from heat_load_calc.input_rooms import InputRoom
+from heat_load_calc.input_models.input_room import InputRoom
 from heat_load_calc.input_models.input_building import InputBuilding
 
 class InputAll:

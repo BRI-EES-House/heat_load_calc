@@ -6,7 +6,7 @@ from heat_load_calc.input_all import InputAll
 from heat_load_calc.input_models.input_common import InputCommon
 from heat_load_calc.input_models.input_weather import InputWeather
 from heat_load_calc.input_models.input_season import InputSeason
-from heat_load_calc.input_rooms import InputRoom
+from heat_load_calc.input_models.input_room import InputRoom
 from heat_load_calc.input_models.input_calculation_day import InputCalculationDay
 from heat_load_calc.input_models.input_building import InputBuilding
 
@@ -18,6 +18,7 @@ from heat_load_calc.building import Building
 from heat_load_calc.schedule import Schedule
 from heat_load_calc.sequence import Sequence
 from heat_load_calc.tenum import EShapeFactorMethod
+from heat_load_calc.rooms import Rooms
 
 logger = logging.getLogger('HeatLoadCalc').getChild('core')
 
@@ -82,6 +83,9 @@ def calc(
     # Building Class
     bdg = Building.create_building(ipt_building=ipt_building)
 
+    # Rooms Class
+    rms = Rooms(ds=d_rooms, ipt_rooms=ipt_rooms)
+
     # number of steps for main calculation
     # number of steps for run-up calculation
     # number of steps to calculate building in run-up calculation
@@ -89,7 +93,7 @@ def calc(
 
     # json, csv ファイルからパラメータをロードする。
     # （ループ計算する必要の無い）事前計算を行い, クラス PreCalcParameters, PreCalcParametersGround に必要な変数を格納する。
-    sqc = Sequence(itv=itv, d=d, weather=w, scd=scd, bdg=bdg, shape_factor_method=shape_factor_method)
+    sqc = Sequence(itv=itv, d=d, weather=w, scd=scd, bdg=bdg, shape_factor_method=shape_factor_method, rms=rms)
 
     gc_n = conditions.initialize_ground_conditions(n_grounds=sqc.bs.n_ground)
 

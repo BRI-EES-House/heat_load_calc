@@ -27,19 +27,6 @@ class ScheduleItem(Enum):
     AC_DEMMAND = auto()
     AC_MODE = auto()
 
-    def get_item_name_in_dictionary(self) -> str:
-
-        return {
-            ScheduleItem.LOCAL_VENTILATION_AMMOUNT: 'local_vent_amount',
-            ScheduleItem.APPLIANCE_HEAT_GENERATION: 'heat_generation_appliances',
-            ScheduleItem.COOKING_HEAT_GENERATION: 'heat_generation_cooking',
-            ScheduleItem.COOKING_VAPOUR_GENERATION: 'vapor_generation_cooking',
-            ScheduleItem.LIGHTING_HEAT_GENERATION: 'heat_generation_lighting',
-            ScheduleItem.NUMBER_OF_PEOPLE: 'number_of_people',
-            ScheduleItem.AC_DEMMAND: 'is_temp_limit_set',
-            ScheduleItem.AC_MODE: 'is_temp_limit_set'
-        }[self]
-    
     def is_zero_one(self) -> bool:
         """Bool value which the value are converted to zero or one value. / 数字データの意味をゼロ・イチの意味に読み替えるかどうか
         example: [0, 3, 5, 7, 0] -> [0, 1, 1, 1, 0]
@@ -333,10 +320,6 @@ def _get_interpolated_schedule(
     Returns:
         list linerly interpolated / 線形補間したリスト, [24 or 48 or 96]
     """
-
-    # TRUE is the list consisting of 0 or 1 value.
-    # Only AC_DEMMAND is the 0 or 1 list.
-    is_zero_one = schedule_item.is_zero_one()
 
     # Is the list proportionable ?
     # Only AC_MODE is NOT proportionable. 

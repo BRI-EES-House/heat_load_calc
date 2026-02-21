@@ -30,7 +30,16 @@ logger = logging.getLogger('HeatLoadCalc').getChild('core').getChild('pre_calc_p
 
 class Sequence:
 
-    def __init__(self, itv: Interval, d: Dict, weather: Weather, scd: Schedule, bdg: Building, shape_factor_method: EShapeFactorMethod):
+    def __init__(
+            self,
+            itv: Interval,
+            d: Dict,
+            weather: Weather,
+            scd: Schedule,
+            bdg: Building,
+            shape_factor_method: EShapeFactorMethod,
+            rms: Rooms
+        ):
         """
         Args:
             itv: Interval class
@@ -38,23 +47,14 @@ class Sequence:
             weather: Weather class
             scd: Schedule class
             bdg: Building class
+            shape_factor_method: method for calculating shape factor inside the room (Nagata or Area Averaged)
+            rooms: Rooms class
         """
 
         # 時間間隔, s
         delta_t = itv.get_delta_t()
 
-        # Rooms Class
-        rms = rooms.Rooms(ds=d['rooms'])
-
-        # Boundaries Class
-        #if 'mutual_radiation_method' in d['common']:
-        #    rad_method = EShapeFactorMethod(str(d['common']['mutual_radiation_method']))
-        #else:
-        #    rad_method = EShapeFactorMethod.NAGATA
-        
-        rad_method = shape_factor_method
-        
-        bs = boundaries.Boundaries(id_r_is=rms.id_r_is, ds=d['boundaries'], w=weather, rad_method=rad_method)
+        bs = boundaries.Boundaries(id_r_is=rms.id_r_is, ds=d['boundaries'], w=weather, rad_method=shape_factor_method)
 
         # MechanicalVentilation Class
         mvs = MechanicalVentilations(ds=d['mechanical_ventilations'], n_rm=rms.n_r)

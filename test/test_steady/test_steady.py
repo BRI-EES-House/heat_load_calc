@@ -1,6 +1,11 @@
 import numpy as np
 from enum import Enum, auto
 
+from heat_load_calc.input_models.input_building import InputBuilding
+from heat_load_calc.input_models.input_infiltration import InputInfiltration
+from heat_load_calc.input_models.input_room import InputRoom
+from heat_load_calc.input_models.input_schedule_data import InputScheduleData, InputScheduleDataConst
+
 from heat_load_calc.weather import Weather
 from heat_load_calc.schedule import Schedule
 from heat_load_calc.interval import Interval
@@ -10,8 +15,7 @@ from heat_load_calc.operation_mode import OperationMode
 from heat_load_calc.boundaries import Boundaries
 from heat_load_calc.conditions import Conditions
 from heat_load_calc.building import Building
-from heat_load_calc.input_models.input_building import InputBuilding
-from heat_load_calc.input_models.input_infiltration import InputInfiltration
+from heat_load_calc.rooms import Rooms
 from heat_load_calc.tenum import EInfiltrationMethod, EStory, ECValueEstimateMethod, EInsidePressure, EShapeFactorMethod
 
 class TestCase(Enum):
@@ -127,6 +131,30 @@ s_building = {
     'inside_pressure': EInsidePressure.NEGATIVE
 }
 
+s_rooms = {
+    TestCase.SINGLE_ZONE:[
+        {
+            'id': 0,
+            'name': 'main_occupant_room',
+            'a_f': 1.0,
+            'volume': 1.0,
+        }
+    ],
+    TestCase.MULTI_ZONE:[
+        {
+            'id': 0,
+            'name': '1F_room',
+            'a_f': 1.0,
+            'volume': 1.0,
+        },
+        {
+            'id': 1,
+            'name': '2F_room',
+            'a_f': 1.0,
+            'volume': 1.0,
+        }
+    ]
+}
 
 def make_weather():
 
@@ -144,14 +172,14 @@ def make_weather():
 def make_schedule(test_case: TestCase):
 
     return Schedule.create_constant(
-                n_rm=s_schedule[test_case]['number_of_room'],
-                q_gen=s_schedule[test_case]['heat_generated_inside'],
-                x_gen=s_schedule[test_case]['moisture_generated_insid'],
-                v_mec_vent_local=s_schedule[test_case]['local_ventilation_amount'],
-                n_hum=s_schedule[test_case]['number_of_people'],
-                r_ac_demanc=s_schedule[test_case]['air_conditioning_demand'],
-                t_ac_mode=s_schedule[test_case]['ac_mode']
-            )
+        n_rm=s_schedule[test_case]['number_of_room'],
+        q_gen=s_schedule[test_case]['heat_generated_inside'],
+        x_gen=s_schedule[test_case]['moisture_generated_insid'],
+        v_mec_vent_local=s_schedule[test_case]['local_ventilation_amount'],
+        n_hum=s_schedule[test_case]['number_of_people'],
+        r_ac_demanc=s_schedule[test_case]['air_conditioning_demand'],
+        t_ac_mode=s_schedule[test_case]['ac_mode']
+    )
 
 
 def make_building():
@@ -169,6 +197,22 @@ def make_building():
     )
 
 
+def make_rooms(test_case: TestCase):
+
+    return [
+        InputRoom(
+            id=d['id'],
+            name=d['name'],
+            sub_name='',
+            a_f=d['a_f'],
+            v=d['volume'],
+            ipt_schedule_data=None
+        )
+        for d
+        in s_rooms[test_case]
+    ]
+
+
 def initialize(test_case: TestCase, d: dict):
 
     w = make_weather()
@@ -179,23 +223,15 @@ def initialize(test_case: TestCase, d: dict):
 
     shape_factor_method = EShapeFactorMethod.NAGATA
 
-    ipt_building = InputBuilding(
-        ipt_infiltration=InputInfiltration(
-            method=EInfiltrationMethod.BALANCE_RESIDENTIAL,
-            story=EStory.ONE,
-            c_value_estimate=ECValueEstimateMethod.SPECIFY,
-            c_value=0.0,
-            ua_value=None,
-            struct=None,
-            inside_pressure=EInsidePressure.NEGATIVE
-        )
-    )
-
     ipt_building = make_building()
 
     bdg = Building.create_building(ipt_building=ipt_building)
 
-    sqc = Sequence(itv=itv, d=d, weather=w, scd=scd, bdg=bdg, shape_factor_method=shape_factor_method)
+    ipt_rooms = make_rooms(test_case=test_case)
+
+    rms = Rooms(ds=d['rooms'], ipt_rooms=ipt_rooms)
+
+    sqc = Sequence(itv=itv, d=d, weather=w, scd=scd, bdg=bdg, shape_factor_method=shape_factor_method, rms=rms)
 
     return sqc
 
