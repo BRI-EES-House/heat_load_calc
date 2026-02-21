@@ -1,5 +1,7 @@
 from dataclasses import dataclass
 from abc import ABC, abstractmethod
+import json
+import os
 
 
 from heat_load_calc.tenum import ENumberOfOccupants, EScheduleType
@@ -15,6 +17,33 @@ class InputScheduleData(ABC):
 
     @classmethod
     def read(cls, id: int, d_schedule: dict):
+
+        if 'schedule' in d_schedule:
+
+            return cls.read_from_dict(id=id, d_schedule=d_schedule)
+        
+        else:
+
+            if 'name' not in d_schedule:
+
+                raise KeyError(f'Key \'name\' should be defined in \'schedule\' tag. (ID={id})')
+
+            name = str(d_schedule['name'])
+
+            try:
+
+                with open(str(os.path.dirname(os.path.dirname(__file__))) + '/schedule/' + name + '.json', 'r', encoding='utf-8') as f:
+                    d_schedule = json.load(f)
+            
+            except FileNotFoundError as e:
+
+                raise FileNotFoundError(f'Schedule file \'{name}\' could not found.')
+
+            return cls.read_from_dict(id=id, d_schedule=d_schedule)
+
+
+    @staticmethod
+    def read_from_dict(id: int, d_schedule: dict):
 
         if 'schedule_type' not in d_schedule:
             raise KeyError(f'Key \'schedule_type\' should be defined in \'schedule\' tag. (ID={id})')

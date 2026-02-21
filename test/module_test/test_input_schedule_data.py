@@ -47,23 +47,85 @@ def get_default_dict_number():
     }
 
 
-def test_schedule_type_not_exists():
+def get_default_dict_correct_file():
 
-    dc = get_default_dict_const()
-    dn = get_default_dict_number()
+    return {
+        'name': 'dammy_for_test_correct'
+    }
 
-    del dc['schedule_type']
-    del dn['schedule_type']
 
-    with pytest.raises(KeyError) as ec:
-        InputScheduleData.read(id=0, d_schedule=dc)
+def get_default_dict_incorrect_file():
 
-    assert 'Key \'schedule_type\' should be defined in \'schedule\' tag. (ID=0)' in str(ec)
+    return {
+        'name': 'dammy_for_test_incorrect'
+    }
 
-    with pytest.raises(KeyError) as en:
-        InputScheduleData.read(id=0, d_schedule=dn)
 
-    assert 'Key \'schedule_type\' should be defined in \'schedule\' tag. (ID=0)' in str(en)
+def test_key__name__not_exists():
+
+    d = get_default_dict_correct_file()
+    
+    del d['name']
+
+    with pytest.raises(KeyError) as e:
+        InputScheduleData.read(id=0, d_schedule=d)
+
+    assert 'Key \'name\' should be defined in \'schedule\' tag. (ID=0)' in str(e)
+
+
+def test_value__name__invalid():
+
+    d = get_default_dict_correct_file()
+
+    d['name'] = 'wrong_file_name'
+
+    with pytest.raises(FileNotFoundError) as e:
+        InputScheduleData.read(id=0, d_schedule=d)
+    
+    assert "Schedule file \'wrong_file_name\' could not found." in str(e)
+
+
+def test_read_correct_file():
+
+    d = get_default_dict_correct_file()
+
+    ipt = InputScheduleData.read(id=0, d_schedule=d)
+
+    assert ipt.schedule_type == EScheduleType.CONST
+
+    assert ipt.ipt_schedule_data_day_types_const.input_schedule_elements_weekday.number_of_people == [0.0]
+    assert ipt.ipt_schedule_data_day_types_const.input_schedule_elements_weekday.heat_generation_appliances == [100.0]
+    assert ipt.ipt_schedule_data_day_types_const.input_schedule_elements_weekday.heat_generation_lighting == [70.0]
+    assert ipt.ipt_schedule_data_day_types_const.input_schedule_elements_weekday.heat_generation_cooking == [230.0]
+    assert ipt.ipt_schedule_data_day_types_const.input_schedule_elements_weekday.vapor_generation_cooking == [0.7]
+    assert ipt.ipt_schedule_data_day_types_const.input_schedule_elements_weekday.local_vent_amount == [30.0]
+    assert ipt.ipt_schedule_data_day_types_const.input_schedule_elements_weekday.is_temp_limit_set == [1]
+
+    assert ipt.ipt_schedule_data_day_types_const.input_schedule_elements_holiday_in.number_of_people == [0.0]
+    assert ipt.ipt_schedule_data_day_types_const.input_schedule_elements_holiday_in.heat_generation_appliances == [100.0]
+    assert ipt.ipt_schedule_data_day_types_const.input_schedule_elements_holiday_in.heat_generation_lighting == [70.0]
+    assert ipt.ipt_schedule_data_day_types_const.input_schedule_elements_holiday_in.heat_generation_cooking == [230.0]
+    assert ipt.ipt_schedule_data_day_types_const.input_schedule_elements_holiday_in.vapor_generation_cooking == [0.7]
+    assert ipt.ipt_schedule_data_day_types_const.input_schedule_elements_holiday_in.local_vent_amount == [30.0]
+    assert ipt.ipt_schedule_data_day_types_const.input_schedule_elements_holiday_in.is_temp_limit_set == [1]
+
+    assert ipt.ipt_schedule_data_day_types_const.input_schedule_elements_holiday_out.number_of_people == [0.0]
+    assert ipt.ipt_schedule_data_day_types_const.input_schedule_elements_holiday_out.heat_generation_appliances == [100.0]
+    assert ipt.ipt_schedule_data_day_types_const.input_schedule_elements_holiday_out.heat_generation_lighting == [70.0]
+    assert ipt.ipt_schedule_data_day_types_const.input_schedule_elements_holiday_out.heat_generation_cooking == [230.0]
+    assert ipt.ipt_schedule_data_day_types_const.input_schedule_elements_holiday_out.vapor_generation_cooking == [0.7]
+    assert ipt.ipt_schedule_data_day_types_const.input_schedule_elements_holiday_out.local_vent_amount == [30.0]
+    assert ipt.ipt_schedule_data_day_types_const.input_schedule_elements_holiday_out.is_temp_limit_set == [1]
+
+
+def test_read_incorrect_file():
+
+    d = get_default_dict_incorrect_file()
+
+    with pytest.raises(KeyError) as e:
+        InputScheduleData.read(id=0, d_schedule=d)
+    
+    assert 'Key \'schedule_type\' should be defined in \'schedule\' tag. (ID=0)' in str(e)
 
 
 def test_schedule_type_exists():
@@ -78,7 +140,7 @@ def test_schedule_type_exists():
     assert ipt_n.schedule_type == EScheduleType.NUMBER
 
 
-def test_schedule_not_exists():
+def test_schedule_and_name_not_exists():
 
     dc = get_default_dict_const()
     dn = get_default_dict_number()
@@ -89,12 +151,12 @@ def test_schedule_not_exists():
     with pytest.raises(KeyError) as ec:
         InputScheduleData.read(id=0, d_schedule=dc)
     
-    assert 'Key \'schedule\' could not be found in \'schedule\' tag. (ID=0)' in str(ec)
+    assert 'Key \'name\' should be defined in \'schedule\' tag. (ID=0)' in str(ec)
 
     with pytest.raises(KeyError) as en:
         InputScheduleData.read(id=0, d_schedule=dn)
     
-    assert 'Key \'schedule\' could not be found in \'schedule\' tag. (ID=0)' in str(en)
+    assert 'Key \'name\' should be defined in \'schedule\' tag. (ID=0)' in str(en)
 
 
 def test_schedule_type_invalid_value():
