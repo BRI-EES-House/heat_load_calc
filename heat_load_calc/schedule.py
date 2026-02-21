@@ -437,7 +437,9 @@ def _make_list(input_schedule_elements: InputScheduleElement, schedule_item: Sch
             return vs.reshape(-1, shrinking_ratio).max(axis=1)
 
 
-def _make_schedule_list(input_schedule_elements: InputScheduleElement, schedule_item: ScheduleItem) -> list[float] | list[int]:
+def _make_schedule_list(input_schedule_elements: InputScheduleElement, schedule_item: ScheduleItem) -> np.ndarray:
+
+    vs: List[float] | List[int]
 
     match schedule_item:
         case ScheduleItem.LOCAL_VENTILATION_AMMOUNT:

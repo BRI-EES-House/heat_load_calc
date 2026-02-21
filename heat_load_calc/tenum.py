@@ -133,3 +133,8 @@ class EShapeFactorMethod(Enum):
     AREA_AVERAGE = 'area_average'
     NAGATA = 'Nagata'
 
+
+class EFurnitureSpecifyMethod(Enum):
+
+    DEFAULT = 'default'
+    SPECIFY = 'specify'
