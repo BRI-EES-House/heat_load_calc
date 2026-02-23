@@ -4,6 +4,7 @@ from enum import Enum, auto
 from heat_load_calc.input_models.input_building import InputBuilding
 from heat_load_calc.input_models.input_infiltration import InputInfiltration
 from heat_load_calc.input_models.input_room import InputRoom
+from heat_load_calc.input_models.input_furniture import InputFurniture, InputFurnitureDefault, InputFurnitureSpecify
 from heat_load_calc.input_models.input_schedule_data import InputScheduleData, InputScheduleDataConst
 
 from heat_load_calc.weather import Weather
@@ -138,6 +139,7 @@ s_rooms = {
             'name': 'main_occupant_room',
             'a_f': 1.0,
             'volume': 1.0,
+            'natural_ventilation': 0.0,
         }
     ],
     TestCase.MULTI_ZONE:[
@@ -146,12 +148,14 @@ s_rooms = {
             'name': '1F_room',
             'a_f': 1.0,
             'volume': 1.0,
+            'natural_ventilation': 0.0,
         },
         {
             'id': 1,
             'name': '2F_room',
             'a_f': 1.0,
             'volume': 1.0,
+            'natural_ventilation': 0.0,
         }
     ]
 }
@@ -206,6 +210,9 @@ def make_rooms(test_case: TestCase):
             sub_name='',
             a_f=d['a_f'],
             v=d['volume'],
+            ipt_furniture=InputFurnitureDefault(solar_absorption_ratio=0.5),
+            v_vent_ntr_set=d['natural_ventilation'],
+            met=1.0,
             ipt_schedule_data=None
         )
         for d
@@ -229,7 +236,7 @@ def initialize(test_case: TestCase, d: dict):
 
     ipt_rooms = make_rooms(test_case=test_case)
 
-    rms = Rooms(ds=d['rooms'], ipt_rooms=ipt_rooms)
+    rms = Rooms(ipt_rooms=ipt_rooms)
 
     sqc = Sequence(itv=itv, d=d, weather=w, scd=scd, bdg=bdg, shape_factor_method=shape_factor_method, rms=rms)
 

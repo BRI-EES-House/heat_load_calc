@@ -22,13 +22,16 @@ class InputFurniture(ABC):
         if 'input_method' not in d_furniture:
             raise KeyError(mKNE('input_method', 'furniture'))
         
-        method = EFurnitureSpecifyMethod(d_furniture['input_method'])
+        try:
+            method = EFurnitureSpecifyMethod(d_furniture['input_method'])
+        except ValueError:
+            raise ValueError(mVI('input_method', 'furniture'))
 
         match method:
 
             case EFurnitureSpecifyMethod.DEFAULT:
 
-                return InputFurnitureDefault()
+                return InputFurnitureDefault.read(d_furniture=d_furniture)
             
             case EFurnitureSpecifyMethod.SPECIFY:
 
@@ -37,11 +40,8 @@ class InputFurniture(ABC):
     @staticmethod
     def get_solar_absorption_ratio(d_furniture: dict):
 
-        if 'solar_absorption_ratio' not in d_furniture:
-            raise KeyError(mKNE('solar_absorption_ratio', 'furniture'))
-        
         try:
-            solar_absorption_ratio = float(d_furniture['solar_absorption_ratio'])
+            solar_absorption_ratio = float(d_furniture.get('solar_absorption_ratio', 0.5))
         except:
             raise ValueError(mVI('solar_absorption_ratio', 'furniture'))
 
@@ -58,7 +58,7 @@ class InputFurniture(ABC):
 class InputFurnitureDefault(InputFurniture):
 
     @classmethod
-    def read(d_furniture: dict):
+    def read(cls, d_furniture: dict):
         solar_absorption_ratio = InputFurniture.get_solar_absorption_ratio(d_furniture=d_furniture)
 
         return InputFurnitureDefault(
@@ -82,7 +82,7 @@ class InputFurnitureSpecify(InputFurniture):
     moisture_cond: float
 
     @classmethod
-    def read(d_furniture: dict):
+    def read(cls, d_furniture: dict):
 
         if 'heat_capacity' not in d_furniture:
             raise KeyError(mKNE('heat_capacity', 'furniture'))

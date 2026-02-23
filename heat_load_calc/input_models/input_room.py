@@ -2,8 +2,17 @@ from dataclasses import dataclass
 from abc import ABC, abstractmethod
 import os
 
-from heat_load_calc.input_models.input_schedule_data import InputScheduleData, InputScheduleDataConst, InputScheduleDataNumber
 
+from heat_load_calc.error_message import (
+    key_not_exists as KNE,
+    value_invalid as VI,
+    value_out_of_range_GE as RGE,
+    value_out_of_range_LE as RLE,
+    value_out_of_range_GT as RGT,
+    value_out_of_range_LT as RLT
+)
+from heat_load_calc.input_models.input_schedule_data import InputScheduleData, InputScheduleDataConst, InputScheduleDataNumber
+from heat_load_calc.input_models.input_furniture import InputFurniture
 
 @dataclass
 class InputRoom:
@@ -23,6 +32,14 @@ class InputRoom:
     # volume, m3 (>0.0)
     v: float
 
+    ipt_furniture: InputFurniture
+
+    # amont of natural ventilation with opening window, m3/h (>=0.0)
+    v_vent_ntr_set: float
+
+    # MET
+    met: float
+
     ipt_schedule_data: InputScheduleData
 
     @classmethod
@@ -31,20 +48,20 @@ class InputRoom:
         # id
 
         if 'id' not in d_room:
-            raise KeyError('Key \'id\' could not be found in \'room\' tag.')
+            raise KeyError(KNE('id', 'room'))
         
         try:
             id = int(d_room['id'])
         except ValueError:
-            raise ValueError('An invalid value was specified for \'id\'. \'id\' must be an integer.')
+            raise ValueError(VI('id', 'room'))
         
         if id < 0:
-            raise ValueError('\'id\' should be greater than or equal to 0.')
+            raise ValueError(RGE('id', 'room', '0.0'))
 
         # name
        
         if 'name' not in d_room:
-            raise KeyError(f'Key \'name\' could not be found in \'room\' tag. (ID={id})')
+            raise KeyError(KNE('name', 'room'))
         
         name = str(d_room['name'])
 
@@ -55,33 +72,66 @@ class InputRoom:
         # floor area, m2
 
         if 'floor_area' not in d_room:
-            raise KeyError(f'Key \'floor_area\' could not be found in \'room\' tag. (ID={id})')
+            raise KeyError(KNE('floor_area', 'room'))
         
         try:
             a_f = float(d_room['floor_area'])
         except:
-            raise ValueError(f'An invalid value was specified for \'floor_area\'. \'floor_area\' must be an float. (ID={id})')
+            raise ValueError(VI('floor_area', 'room'))
 
         if a_f <= 0.0:
-            raise ValueError(f'\'floor_area\' should be greater than 0.0. (ID={id})')
+            raise ValueError(RGT('floor_area', 'room', '0.0'))
         
         # volume, m3
 
         if 'volume' not in d_room:
-            raise KeyError(f'Key \'volume\' could not be found in \'room\' key. (ID={id})')
+            raise KeyError(KNE('floor_area', 'room'))
         
         try:
             v = float(d_room['volume'])
         except ValueError:
-            raise ValueError(f'An invalid value was specified for \'volume\' in \'room\' key. (ID={id})')
+            raise ValueError(VI('floor_area', 'room'))
         
         if v <= 0.0:
-            raise ValueError(f'\'volume\' should be greater than 0.0. (ID={id})')
+            raise ValueError(RGT('floor_area', 'room', '0.0'))
+        
+        if 'furniture' not in d_room:
+            raise KeyError(KNE('furniture', 'room'))
+        
+        d_furniture = d_room['furniture']
 
+        ipt_furniture = InputFurniture.read(d_furniture=d_furniture)
+
+        # natural ventilation, m3/h
+
+        if 'ventilation' not in d_room:
+            raise KeyError(KNE('ventilation', 'room'))
+        
+        if 'natural' not in d_room['ventilation']:
+            raise KeyError(KNE('natural', 'ventilation'))
+        
+        try:
+            v_vent_ntr_set = float(d_room['ventilation']['natural'])
+        except ValueError:
+            raise ValueError(VI('natural', 'ventilation'))
+
+        if v_vent_ntr_set < 0.0:
+            raise ValueError(RGE('natural', 'ventilation', 0.0))
+        
+        # MET
+
+        try:
+            met = float(d_room.get('MET', 1.0))
+        except ValueError:
+            raise ValueError(VI('MET', 'room'))
+        
+        if met <= 0.0:
+            raise ValueError(RGT('MET', 'room', '0.0'))
+            
         # schedule
 
         if 'schedule' not in d_room:
-            raise KeyError(f'Key \'schedule\' could not be found in \'room\' tag. (ID={id})')
+            raise KeyError(KNE('schedule', 'room'))
 
         d_schedule = d_room['schedule']
 
@@ -93,5 +143,8 @@ class InputRoom:
             sub_name=sub_name,
             a_f=a_f,
             v=v,
+            ipt_furniture=ipt_furniture,
+            v_vent_ntr_set=v_vent_ntr_set,
+            met=met,
             ipt_schedule_data=ipt_schedule_data
         )

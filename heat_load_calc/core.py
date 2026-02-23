@@ -84,7 +84,7 @@ def calc(
     bdg = Building.create_building(ipt_building=ipt_building)
 
     # Rooms Class
-    rms = Rooms(ds=d_rooms, ipt_rooms=ipt_rooms)
+    rms = Rooms(ipt_rooms=ipt_rooms)
 
     # number of steps for main calculation
     # number of steps for run-up calculation
