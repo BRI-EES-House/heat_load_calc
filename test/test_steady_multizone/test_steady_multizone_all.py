@@ -43,30 +43,11 @@ class TestSteadyState(unittest.TestCase):
 
         bs: Boundaries = sqc.bs
 
-        result = recorder.Recorder(
-            n_step_main=8760 * 4,
-            id_rm_is=list(sqc.rms.id_r_is.flatten()),
-            id_bs_js=list(sqc.bs.id_js.flatten())
-        )
-
-        result.pre_recording(
-            weather=sqc.weather,
-            scd=sqc.scd,
-            bs=sqc.bs,
-            q_sol_frt_is_ns=sqc.q_sol_frt_is_ns,
-            q_s_sol_js_ns=sqc.q_s_sol_js_ns,
-            q_trs_sol_is_ns=sqc.q_trs_sol_is_ns
-        )
-
         c_n = get_steady_state_conditions(test_case=TestCase.MULTI_ZONE, bs=bs)
-
-
-        result.post_recording(rms=sqc.rms, bs=sqc.bs, f_mrt_is_js=sqc.f_mrt_is_js, es=sqc.es)
 
         # 計算結果格納
         cls._c_n = c_n
-        cls._c_n_pls = sqc.run_tick(n=0, c_n=c_n, recorder=result)
-        cls._dd_i, cls._dd_a = result.export_pd()
+        cls._c_n_pls = sqc.run_tick(n=0, c_n=c_n, recorder=None)
         cls._sqc = sqc
 
     # 室空気温[℃]のテスト
