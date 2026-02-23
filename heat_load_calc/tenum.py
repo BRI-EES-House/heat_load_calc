@@ -79,4 +79,62 @@ class EScheduleItem(Enum):
     AC_DEMMAND = 'adc_demand'
     AC_MODE = 'ac_mode'
 
+
+class EStory(Enum):
+    """Story of building or unit of appartment house.
+
+    """
     
+    # single story
+    ONE = 1
+    
+    # two-story or more
+    TWO = 2
+
+
+class EStructure(Enum):
+    """Structure of residents
+    """
+
+    RC = 'rc'
+    SRC = 'src'
+    WOODEN = 'wooden'
+    STEEL = 'steel'
+
+
+class EInsidePressure(Enum):
+    """
+    室内圧力
+    """
+    # 正圧
+    POSITIVE = 'positive'
+    # 負圧
+    NEGATIVE = 'negative'
+    # ゼロバランス
+    BALANCED = 'balanced'
+
+
+class EInfiltrationMethod(Enum):
+    """method for calculating infiltrating air flow"""
+
+    BALANCE_RESIDENTIAL = 'balance_residential'
+
+
+class ECValueEstimateMethod(Enum):
+    """method for calculating c value(air tightness)"""
+
+    SPECIFY = 'specify'
+
+    CALCULATE = 'calculate'
+
+
+class EShapeFactorMethod(Enum):
+
+    AREA_AVERAGE = 'area_average'
+    NAGATA = 'Nagata'
+
+
+class EFurnitureSpecifyMethod(Enum):
+
+    DEFAULT = 'default'
+    SPECIFY = 'specify'

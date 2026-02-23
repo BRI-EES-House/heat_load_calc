@@ -1,12 +1,12 @@
 import numpy as np
 from dataclasses import dataclass
-from typing import Dict, List, Callable, Optional, Tuple
+from typing import Dict, Callable, Tuple
 import logging
 
 from heat_load_calc.matrix_method import v_diag
-from heat_load_calc import next_condition, schedule, rooms, boundaries
+from heat_load_calc import next_condition, rooms, boundaries
 from heat_load_calc import occupants_form_factor, shape_factor, solar_absorption
-from heat_load_calc import operation_mode, interval
+from heat_load_calc import operation_mode
 from heat_load_calc import occupants, psychrometrics as psy
 from heat_load_calc.global_number import get_c_a, get_rho_a, get_l_wtr
 from heat_load_calc.weather import Weather
@@ -20,8 +20,8 @@ from heat_load_calc.conditions import Conditions
 from heat_load_calc.recorder import Recorder
 from heat_load_calc.conditions import GroundConditions
 from heat_load_calc.operation_mode import Operation, OperationMode
-from heat_load_calc.shape_factor import ShapeFactorMethod
-from heat_load_calc import season
+from heat_load_calc.interval import Interval
+from heat_load_calc.tenum import EShapeFactorMethod
 
 
 # ロガー
@@ -30,31 +30,31 @@ logger = logging.getLogger('HeatLoadCalc').getChild('core').getChild('pre_calc_p
 
 class Sequence:
 
-    def __init__(self, itv: interval.Interval, d: Dict, weather: Weather, scd: schedule.Schedule):
+    def __init__(
+            self,
+            itv: Interval,
+            d: Dict,
+            weather: Weather,
+            scd: Schedule,
+            bdg: Building,
+            shape_factor_method: EShapeFactorMethod,
+            rms: Rooms
+        ):
         """
         Args:
-            itv: interval class
+            itv: Interval class
             d: directory of input file
-            weather: weather class
-            scd: schedule class
+            weather: Weather class
+            scd: Schedule class
+            bdg: Building class
+            shape_factor_method: method for calculating shape factor inside the room (Nagata or Area Averaged)
+            rooms: Rooms class
         """
 
         # 時間間隔, s
         delta_t = itv.get_delta_t()
 
-        # Building Class
-        building = Building.create_building(d=d['building'])
-
-        # Rooms Class
-        rms = rooms.Rooms(ds=d['rooms'])
-
-        # Boundaries Class
-        if 'mutual_radiation_method' in d['common']:
-            rad_method = ShapeFactorMethod(str(d['common']['mutual_radiation_method']))
-        else:
-            rad_method = ShapeFactorMethod.NAGATA
-        
-        bs = boundaries.Boundaries(id_r_is=rms.id_r_is, ds=d['boundaries'], w=weather, rad_method=rad_method)
+        bs = boundaries.Boundaries(id_r_is=rms.id_r_is, ds=d['boundaries'], w=weather, rad_method=shape_factor_method)
 
         # MechanicalVentilation Class
         mvs = MechanicalVentilations(ds=d['mechanical_ventilations'], n_rm=rms.n_r)
@@ -146,7 +146,7 @@ class Sequence:
         self._scd: Schedule = scd
 
         # Building Class
-        self._building: Building = building
+        self._building: Building = bdg
 
         # Rooms Class
         self._rms: Rooms = rms

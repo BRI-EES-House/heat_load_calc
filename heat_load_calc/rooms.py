@@ -3,6 +3,7 @@ import numpy as np
 from dataclasses import dataclass
 
 from heat_load_calc import furniture
+from heat_load_calc.input_models.input_room import InputRoom
 
 
 @dataclass
@@ -47,12 +48,12 @@ class Room:
 
 class Rooms:
 
-    def __init__(self, ds: List[Dict]):
+    def __init__(self, ipt_rooms: list[InputRoom]):
 
         # room の数
-        self._n_r = len(ds)
+        self._n_r = len(ipt_rooms)
 
-        rms : List[Room] = [self._get_rm(d=d) for d in ds]
+        rms : List[Room] = [self._get_rm(ipt_room=ipt_room) for ipt_room in ipt_rooms]
 
         self._id_r_is = np.array([rm.id_r for rm in rms]).reshape(-1, 1)
         self._name_r_is = np.array([rm.name_r for rm in rms]).reshape(-1, 1)
@@ -68,41 +69,34 @@ class Rooms:
         self._r_sol_frt_is = np.array([rm.r_sol_frt for rm in rms]).reshape(-1, 1)
 
     @staticmethod
-    def _get_rm(d: Dict):
+    def _get_rm(ipt_room: InputRoom):
 
-        id_r = int(d['id'])
-        if id_r < 0:
-            raise ValueError("room 要素の id は 0 以上の整数を指定してください。")
-        
-        a_f_r = float(d['floor_area'])
-        if a_f_r <= 0:
-            raise ValueError("room 要素の floor_area は 0 より大の小数を指定してください。")
+        id_r = ipt_room.id
 
-        v_r = float(d['volume'])
-        if v_r <= 0:
-            raise ValueError("room 要素の volume は 0 より大の小数を指定してください。")
+        name_r = ipt_room.name
+
+        sub_name_r = ipt_room.sub_name
+
+        a_f_r = ipt_room.a_f
+
+        v_r = ipt_room.v
+
+        ipt_furniture = ipt_room.ipt_furniture
 
         c_lh_frt, c_sh_frt, g_lh_frt, g_sh_frt, r_sol_frt = furniture.get_furniture_specs(
-            dict_furniture_i=d['furniture'],
+            input_furniture=ipt_furniture,
             v_r_i=v_r
         )
 
-        v_vent_ntr_set = float(d['ventilation']['natural']) / 3600.0
-        if v_vent_ntr_set < 0.0:
-            raise ValueError("room 要素の ventilation 要素の natural は 0 以上の小数を指定してください。")
+        # convert the unit from m3/h to m3/s
+        v_vent_ntr_set = ipt_room.v_vent_ntr_set / 3600.0
 
-        if 'MET' in d:
-            met = float(d['MET'])
-        else:
-            met = 1.0
-        if met <= 0.0:
-            raise ValueError("room 要素の MET は 0 より大の小数を指定してください。")
+        met = ipt_room.met
         
-        # v_vent_ntr_set については m3/h から m3/s の単位変換を行う。
         return Room(
             id_r=id_r,
-            name_r=str(d['name']),
-            sub_name_r=str(d['sub_name']),
+            name_r=name_r,
+            sub_name_r=sub_name_r,
             a_f_r=a_f_r,
             v_r=v_r,
             c_sh_frt=c_sh_frt,

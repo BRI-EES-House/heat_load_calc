@@ -13,8 +13,7 @@ from heat_load_calc import outside_eqv_temp
 from heat_load_calc import transmission_solar_radiation
 from heat_load_calc import window
 from heat_load_calc.window import Window
-from heat_load_calc import wall_rf
-from heat_load_calc.shape_factor import ShapeFactorMethod
+from heat_load_calc.tenum import EShapeFactorMethod
 
 
 class BoundaryType(Enum):
@@ -83,7 +82,7 @@ class Boundary:
 
 class Boundaries:
 
-    def __init__(self, id_r_is: np.ndarray, ds: List[Dict], w: Weather, rad_method: ShapeFactorMethod):
+    def __init__(self, id_r_is: np.ndarray, ds: List[Dict], w: Weather, rad_method: EShapeFactorMethod):
         """
 
         Args:

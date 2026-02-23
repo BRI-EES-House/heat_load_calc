@@ -1,15 +1,16 @@
 ﻿import os
 import numpy as np
 import csv
-from typing import List, Dict, Tuple, Optional, Union
+from typing import List, Dict
 import logging
 import json
 from os import path
 from enum import Enum, auto
 
 from heat_load_calc import interval
-from heat_load_calc.input_rooms import InputSchedule, InputScheduleDirect, InputScheduleFile, InputScheduleData, InputScheduleDataConst, InputScheduleDataNumber, InputScheduleDataDayTypes, InputScheduleElements
-from heat_load_calc.tenum import ENumberOfOccupants, EScheduleType, EDayType, EInterval
+from heat_load_calc.tenum import ENumberOfOccupants, EScheduleType, EDayType
+from heat_load_calc.input_models.input_schedule_element import InputScheduleElement
+from heat_load_calc.input_models.input_schedule_data import InputScheduleData, InputScheduleDataConst, InputScheduleDataNumber
 
 
 logger = logging.getLogger(name='HeatLoadCalc').getChild('Schedule')
@@ -26,19 +27,6 @@ class ScheduleItem(Enum):
     AC_DEMMAND = auto()
     AC_MODE = auto()
 
-    def get_item_name_in_dictionary(self) -> str:
-
-        return {
-            ScheduleItem.LOCAL_VENTILATION_AMMOUNT: 'local_vent_amount',
-            ScheduleItem.APPLIANCE_HEAT_GENERATION: 'heat_generation_appliances',
-            ScheduleItem.COOKING_HEAT_GENERATION: 'heat_generation_cooking',
-            ScheduleItem.COOKING_VAPOUR_GENERATION: 'vapor_generation_cooking',
-            ScheduleItem.LIGHTING_HEAT_GENERATION: 'heat_generation_lighting',
-            ScheduleItem.NUMBER_OF_PEOPLE: 'number_of_people',
-            ScheduleItem.AC_DEMMAND: 'is_temp_limit_set',
-            ScheduleItem.AC_MODE: 'is_temp_limit_set'
-        }[self]
-    
     def is_zero_one(self) -> bool:
         """Bool value which the value are converted to zero or one value. / 数字データの意味をゼロ・イチの意味に読み替えるかどうか
         example: [0, 3, 5, 7, 0] -> [0, 1, 1, 1, 0]
@@ -101,14 +89,14 @@ class Schedule:
         self._t_ac_mode_is_ns = t_ac_mode_is_ns
 
     @classmethod
-    def get_schedule(cls, n_ocp: ENumberOfOccupants, a_f_is: List[float], itv: interval.Interval, scd_is: List[InputSchedule]):
+    def get_schedule(cls, n_ocp: ENumberOfOccupants, a_f_is: List[float], itv: interval.Interval, scd_is: List[InputScheduleData]):
         """Make Schedule class.
 
         Args:
             n_ocp: how to identify the occupants number. ('1', '2', '3', '4', or 'auto')
             a_floor_is: floor area of room i, m2, [i]
             itv: Interval class
-            scds: list of the dictionary for schedule
+            scds: list of the InputScheduleData
 
         Returns:
             Schedule class
@@ -126,31 +114,31 @@ class Schedule:
         # local ventilation amount in room i at step n / ステップnの室iにおける局所換気量, m3/s, [I, N]
         # The value is defined as the unit m3/h. Here, the unit is converted from m3/h to m3/s.
         # jsonファイルでは、 m3/h で示されているため、単位換算(m3/h -> m3/s)を行っている。
-        v_mec_vent_local_is_ns = _get_schedules(noo=noo, n_p=n_p_calc, schedule_item=ScheduleItem.LOCAL_VENTILATION_AMMOUNT, itv=itv, ipt_schedules=scd_is) / 3600.0
+        v_mec_vent_local_is_ns = _get_schedules(noo=noo, n_p=n_p_calc, schedule_item=ScheduleItem.LOCAL_VENTILATION_AMMOUNT, itv=itv, ipt_schedule_datas=scd_is) / 3600.0
 
         # appliance heat generation in room i at step n / ステップnの室iにおける機器発熱, W, [I, N]
-        q_gen_app_is_ns = _get_schedules(noo=noo, n_p=n_p_calc, schedule_item=ScheduleItem.APPLIANCE_HEAT_GENERATION, itv=itv, ipt_schedules=scd_is)
+        q_gen_app_is_ns = _get_schedules(noo=noo, n_p=n_p_calc, schedule_item=ScheduleItem.APPLIANCE_HEAT_GENERATION, itv=itv, ipt_schedule_datas=scd_is)
 
         # cooking heat generation in room i in step n / ステップnの室iにおける調理発熱, W, [I, N]
-        q_gen_ckg_is_ns = _get_schedules(noo=noo, n_p=n_p_calc, schedule_item=ScheduleItem.COOKING_HEAT_GENERATION, itv=itv, ipt_schedules=scd_is)
+        q_gen_ckg_is_ns = _get_schedules(noo=noo, n_p=n_p_calc, schedule_item=ScheduleItem.COOKING_HEAT_GENERATION, itv=itv, ipt_schedule_datas=scd_is)
 
         # cooking vapour generation in rom i at step n / ステップnの室iにおける調理発湿, kg/s, [I, N]
         # jsonファイルでは、g/h で示されているため、単位換算(g/h->kg/s)を行っている。
-        x_gen_ckg_is_ns = _get_schedules(noo=noo, n_p=n_p_calc, schedule_item=ScheduleItem.COOKING_VAPOUR_GENERATION, itv=itv, ipt_schedules=scd_is) / 1000.0 / 3600.0
+        x_gen_ckg_is_ns = _get_schedules(noo=noo, n_p=n_p_calc, schedule_item=ScheduleItem.COOKING_VAPOUR_GENERATION, itv=itv, ipt_schedule_datas=scd_is) / 1000.0 / 3600.0
 
         # lighting heat generation in room i at step n / ステップnの室iにおける照明発熱, W/m2, [I, N]
         # 単位面積あたりで示されていることに注意
-        q_gen_lght_is_ns = _get_schedules(noo=noo, n_p=n_p_calc, schedule_item=ScheduleItem.LIGHTING_HEAT_GENERATION, itv=itv, ipt_schedules=scd_is)
+        q_gen_lght_is_ns = _get_schedules(noo=noo, n_p=n_p_calc, schedule_item=ScheduleItem.LIGHTING_HEAT_GENERATION, itv=itv, ipt_schedule_datas=scd_is)
 
         # number of pople in room i at step n / ステップnの室iにおける在室人数, [I, N]
         # 居住人数で按分しているため、整数ではなく小数であることに注意
-        n_hum_is_ns = _get_schedules(noo=noo, n_p=n_p_calc, schedule_item=ScheduleItem.NUMBER_OF_PEOPLE, itv=itv, ipt_schedules=scd_is)
+        n_hum_is_ns = _get_schedules(noo=noo, n_p=n_p_calc, schedule_item=ScheduleItem.NUMBER_OF_PEOPLE, itv=itv, ipt_schedule_datas=scd_is)
 
         # ratio of air conditioning in room i at step n / ステップnの室iにおける空調割合, [I, N]
-        r_ac_demand_is_ns = _get_schedules(noo=noo, n_p=n_p_calc, schedule_item=ScheduleItem.AC_DEMMAND, itv=itv, ipt_schedules=scd_is)
+        r_ac_demand_is_ns = _get_schedules(noo=noo, n_p=n_p_calc, schedule_item=ScheduleItem.AC_DEMMAND, itv=itv, ipt_schedule_datas=scd_is)
 
         # mode of air conditioning in room i at step n / ステップnの室iにおける空調モード, [I, N]
-        t_ac_mode_is_ns = _get_schedules(noo=noo, n_p=n_p_calc, schedule_item=ScheduleItem.AC_MODE, itv=itv, ipt_schedules=scd_is)
+        t_ac_mode_is_ns = _get_schedules(noo=noo, n_p=n_p_calc, schedule_item=ScheduleItem.AC_MODE, itv=itv, ipt_schedule_datas=scd_is)
 
         # internal heat generation excluding human body heat generation in room i at step n / ステップnの室iにおける人体発熱を除く内部発熱, W, [I, N]
         q_gen_is_ns = q_gen_app_is_ns + q_gen_ckg_is_ns + q_gen_lght_is_ns * _a_f_is[:, np.newaxis]
@@ -262,13 +250,9 @@ def _get_schedules(
         n_p: float,
         schedule_item: ScheduleItem,
         itv: interval.Interval,
-        ipt_schedules: List[InputSchedule]
+        ipt_schedule_datas: List[InputScheduleData]
 ):
     
-    # Read the list of the schedule type(ScheduleType Enum Class) and scheduled dictionary.
-    # List of the dictionary describing the schedule.
-    ipt_schedule_datas: list[InputScheduleData] = [_load_schedule(ipt_schedule=ipt_schedule) for ipt_schedule in ipt_schedules]
-
     return np.concatenate([
         [_get_schedule(noo=noo, n_p=n_p, schedule_item=schedule_item, itv=itv, ipt_schedule_data=ipt_schedule_data)]
         for ipt_schedule_data in ipt_schedule_datas
@@ -337,10 +321,6 @@ def _get_interpolated_schedule(
         list linerly interpolated / 線形補間したリスト, [24 or 48 or 96]
     """
 
-    # TRUE is the list consisting of 0 or 1 value.
-    # Only AC_DEMMAND is the 0 or 1 list.
-    is_zero_one = schedule_item.is_zero_one()
-
     # Is the list proportionable ?
     # Only AC_MODE is NOT proportionable. 
     is_proportionable = schedule_item.is_proportionable()
@@ -354,7 +334,7 @@ def _get_interpolated_schedule(
 
             ipt_schedule_data_const: InputScheduleDataConst = ipt_schedule_data
 
-            input_const_schedule_elements: InputScheduleElements = ipt_schedule_data_const.ipt_schedule_data_day_types_const.day_type(day_type=day_type)
+            input_const_schedule_elements: InputScheduleElement = ipt_schedule_data_const.ipt_schedule_data_day_types_const.day_type(day_type=day_type)
 
             return _make_list(input_schedule_elements=input_const_schedule_elements, schedule_item=schedule_item, itv=itv)
 
@@ -367,7 +347,7 @@ def _get_interpolated_schedule(
 
             if noo in [ENumberOfOccupants.One, ENumberOfOccupants.Two, ENumberOfOccupants.Three, ENumberOfOccupants.Four]:
 
-                input_number_schedule_elements: InputScheduleElements = ipt_schedule_data_number.num(noo=noo).day_type(day_type=day_type)
+                input_number_schedule_elements: InputScheduleElement = ipt_schedule_data_number.num(noo=noo).day_type(day_type=day_type)
 
                 return _make_list(input_schedule_elements=input_number_schedule_elements, schedule_item=schedule_item, itv=itv)
 
@@ -375,10 +355,10 @@ def _get_interpolated_schedule(
 
                 ceil_np, floor_np = _get_ceil_floor_np(n_p)
 
-                ceiled_input_schedule_elements: InputScheduleElements = ipt_schedule_data_number.num(noo=ENumberOfOccupants(str(ceil_np))).day_type(day_type=day_type)
+                ceiled_input_schedule_elements: InputScheduleElement = ipt_schedule_data_number.num(noo=ENumberOfOccupants(str(ceil_np))).day_type(day_type=day_type)
                 ceil_schedule = _make_list(input_schedule_elements=ceiled_input_schedule_elements, schedule_item=schedule_item, itv=itv)
 
-                floored_input_schedule_elements: InputScheduleElements = ipt_schedule_data_number.num(noo=ENumberOfOccupants(str(floor_np))).day_type(day_type=day_type)
+                floored_input_schedule_elements: InputScheduleElement = ipt_schedule_data_number.num(noo=ENumberOfOccupants(str(floor_np))).day_type(day_type=day_type)
                 floor_schedule = _make_list(input_schedule_elements=floored_input_schedule_elements, schedule_item=schedule_item, itv=itv)
                 
                 if is_proportionable:
@@ -396,7 +376,7 @@ def _get_interpolated_schedule(
             raise KeyError()
 
 
-def _make_list(input_schedule_elements: InputScheduleElements, schedule_item: ScheduleItem, itv: interval.Interval) -> np.ndarray:
+def _make_list(input_schedule_elements: InputScheduleElement, schedule_item: ScheduleItem, itv: interval.Interval) -> np.ndarray:
     """make ndarray list from the input dictionary.
 
     Args:
@@ -457,7 +437,9 @@ def _make_list(input_schedule_elements: InputScheduleElements, schedule_item: Sc
             return vs.reshape(-1, shrinking_ratio).max(axis=1)
 
 
-def _make_schedule_list(input_schedule_elements: InputScheduleElements, schedule_item: ScheduleItem) -> list[float] | list[int]:
+def _make_schedule_list(input_schedule_elements: InputScheduleElement, schedule_item: ScheduleItem) -> np.ndarray:
+
+    vs: List[float] | List[int]
 
     match schedule_item:
         case ScheduleItem.LOCAL_VENTILATION_AMMOUNT:
@@ -529,7 +511,7 @@ def _get_ceil_floor_np(n_p: float) -> tuple[int, int]:
     return ceil_np, floor_np
 
 
-def _load_schedule(ipt_schedule: InputSchedule) -> InputScheduleData:
+def _load_schedule(ipt_schedule: InputScheduleData) -> InputScheduleData:
     """Load the schedule from the input dictionary or specified csv file.
     
     Args:
@@ -539,34 +521,7 @@ def _load_schedule(ipt_schedule: InputSchedule) -> InputScheduleData:
         InputScheduleData class
     """
     
-    ipt_schedule_direct: InputScheduleDirect
-    
-    if ipt_schedule.is_schedule_type_defined:
-
-        if not isinstance(ipt_schedule, InputScheduleDirect):
-            raise ValueError('Input schedule is not InputScheduleDirect class.')
-
-        ipt_schedule_direct = ipt_schedule
-
-    else:   # read from json file
-
-        if not isinstance(ipt_schedule, InputScheduleFile):
-            raise ValueError('Input schedule is not InputScheduleFile class.')
-
-        ipt_schedule_file: InputScheduleFile = ipt_schedule
-
-        js = _load_json_file(filename=ipt_schedule_file.name)
-
-        ipt_schedule_from_file = InputSchedule.read(id=ipt_schedule_file.id, d_schedule=js)
-
-        if not ipt_schedule_from_file.is_schedule_type_defined:
-            raise ValueError('Schedule type is not defined in the json file.')
-        
-        ipt_schedule_direct = ipt_schedule_from_file
-
-    ipt_schedule_data: InputScheduleData = ipt_schedule_direct.ipt_schedule_data
-
-    return ipt_schedule_data
+    return ipt_schedule
 
 
 def _load_calendar() -> np.ndarray:
