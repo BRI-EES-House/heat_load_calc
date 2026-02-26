@@ -4,6 +4,7 @@ from enum import Enum, auto
 from heat_load_calc.input_models.input_building import InputBuilding
 from heat_load_calc.input_models.input_infiltration import InputInfiltration
 from heat_load_calc.input_models.input_room import InputRoom
+from heat_load_calc.input_models.input_boundary import InputBoundary
 from heat_load_calc.input_models.input_furniture import InputFurniture, InputFurnitureDefault, InputFurnitureSpecify
 from heat_load_calc.input_models.input_schedule_data import InputScheduleData, InputScheduleDataConst
 
@@ -238,7 +239,11 @@ def initialize(test_case: TestCase, d: dict):
 
     rms = Rooms(ipt_rooms=ipt_rooms)
 
-    sqc = Sequence(itv=itv, d=d, weather=w, scd=scd, bdg=bdg, shape_factor_method=shape_factor_method, rms=rms)
+    ipt_boundaries = [InputBoundary.read(d_boundary=d_boundary) for d_boundary in d['boundaries']]
+
+    bs = Boundaries(id_r_is=rms.id_r_is, ds=d['boundaries'], w=w, rad_method=shape_factor_method, ipt_boundaries=ipt_boundaries)
+
+    sqc = Sequence(itv=itv, d=d, weather=w, scd=scd, bdg=bdg, rms=rms, bs=bs)
 
     return sqc
 

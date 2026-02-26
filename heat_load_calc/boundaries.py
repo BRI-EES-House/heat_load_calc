@@ -14,6 +14,7 @@ from heat_load_calc import transmission_solar_radiation
 from heat_load_calc import window
 from heat_load_calc.window import Window
 from heat_load_calc.tenum import EShapeFactorMethod
+from heat_load_calc.input_models.input_boundary import InputBoundary
 
 
 class BoundaryType(Enum):
@@ -82,7 +83,7 @@ class Boundary:
 
 class Boundaries:
 
-    def __init__(self, id_r_is: np.ndarray, ds: List[Dict], w: Weather, rad_method: EShapeFactorMethod):
+    def __init__(self, id_r_is: np.ndarray, ds: List[Dict], w: Weather, rad_method: EShapeFactorMethod, ipt_boundaries: list[InputBoundary]):
         """
 
         Args:
@@ -100,13 +101,14 @@ class Boundaries:
         """
 
         # number of boundaries
-        n_b = len(ds)
+        #n_b = len(ds)
+        n_b = len(ipt_boundaries)
 
         # boundary id, [J]
-        id_js = np.array([int(d['id']) for d in ds]).reshape(-1, 1)
+        id_js = np.array([ipt_boundary.id for ipt_boundary in ipt_boundaries]).reshape(-1, 1)
 
         # connected foom id, [J, 1]
-        connected_room_id_js = np.array([b['connected_room_id'] for b in ds]).reshape(-1, 1)
+        connected_room_id_js = np.array([ipt_boundary.connected_room_id for ipt_boundary in ipt_boundaries]).reshape(-1, 1)
 
         # coefficient of relation between room i and boundary j / 室iと境界jの関係を表す係数（境界jから室iへの変換）, [I, J]
         p_is_js = _get_p_is_js(id_r_is=id_r_is, connected_room_id_js=connected_room_id_js)

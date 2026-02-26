@@ -4,10 +4,10 @@ from typing import Dict, Callable, Tuple
 import logging
 
 from heat_load_calc.matrix_method import v_diag
-from heat_load_calc import next_condition, rooms, boundaries
+from heat_load_calc import next_condition
 from heat_load_calc import occupants_form_factor, shape_factor, solar_absorption
 from heat_load_calc import operation_mode
-from heat_load_calc import occupants, psychrometrics as psy
+from heat_load_calc import occupants
 from heat_load_calc.global_number import get_c_a, get_rho_a, get_l_wtr
 from heat_load_calc.weather import Weather
 from heat_load_calc.schedule import Schedule
@@ -21,7 +21,6 @@ from heat_load_calc.recorder import Recorder
 from heat_load_calc.conditions import GroundConditions
 from heat_load_calc.operation_mode import Operation, OperationMode
 from heat_load_calc.interval import Interval
-from heat_load_calc.tenum import EShapeFactorMethod
 
 
 # ロガー
@@ -37,8 +36,8 @@ class Sequence:
             weather: Weather,
             scd: Schedule,
             bdg: Building,
-            shape_factor_method: EShapeFactorMethod,
-            rms: Rooms
+            rms: Rooms,
+            bs: Boundaries
         ):
         """
         Args:
@@ -47,14 +46,12 @@ class Sequence:
             weather: Weather class
             scd: Schedule class
             bdg: Building class
-            shape_factor_method: method for calculating shape factor inside the room (Nagata or Area Averaged)
             rooms: Rooms class
+            bs: Boundaries class
         """
 
         # 時間間隔, s
         delta_t = itv.get_delta_t()
-
-        bs = boundaries.Boundaries(id_r_is=rms.id_r_is, ds=d['boundaries'], w=weather, rad_method=shape_factor_method)
 
         # MechanicalVentilation Class
         mvs = MechanicalVentilations(ds=d['mechanical_ventilations'], n_rm=rms.n_r)

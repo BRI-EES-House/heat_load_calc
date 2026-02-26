@@ -1,13 +1,7 @@
 import unittest
-import json
-import os
-from typing import Dict
 import numpy as np
 
 from heat_load_calc.equipments import Equipments
-from heat_load_calc.weather import Weather
-from heat_load_calc.interval import EInterval
-from heat_load_calc.boundaries import Boundaries
 
 
 class TestEquipments(unittest.TestCase):

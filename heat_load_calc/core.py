@@ -7,6 +7,7 @@ from heat_load_calc.input_models.input_common import InputCommon
 from heat_load_calc.input_models.input_weather import InputWeather
 from heat_load_calc.input_models.input_season import InputSeason
 from heat_load_calc.input_models.input_room import InputRoom
+from heat_load_calc.input_models.input_boundary import InputBoundary
 from heat_load_calc.input_models.input_calculation_day import InputCalculationDay
 from heat_load_calc.input_models.input_building import InputBuilding
 
@@ -19,6 +20,7 @@ from heat_load_calc.schedule import Schedule
 from heat_load_calc.sequence import Sequence
 from heat_load_calc.tenum import EShapeFactorMethod
 from heat_load_calc.rooms import Rooms
+from heat_load_calc.boundaries import Boundaries
 
 logger = logging.getLogger('HeatLoadCalc').getChild('core')
 
@@ -59,9 +61,7 @@ def calc(
 
     ipt_rooms: list[InputRoom] = ipt_all.ipt_rooms
 
-    d_common = ipt_all.d_common
-
-    d_rooms = ipt_all.d_rooms
+    ipt_boundaries: list[InputBoundary] = ipt_all.ipt_boundaries
 
     itv: Interval = Interval.create(ipt_common=ipt_common)
 
@@ -86,6 +86,9 @@ def calc(
     # Rooms Class
     rms = Rooms(ipt_rooms=ipt_rooms)
 
+    # Boundaries Class
+    bs = Boundaries(id_r_is=rms.id_r_is, ds=d['boundaries'], w=w, rad_method=shape_factor_method, ipt_boundaries=ipt_boundaries)
+
     # number of steps for main calculation
     # number of steps for run-up calculation
     # number of steps to calculate building in run-up calculation
@@ -93,7 +96,7 @@ def calc(
 
     # json, csv ファイルからパラメータをロードする。
     # （ループ計算する必要の無い）事前計算を行い, クラス PreCalcParameters, PreCalcParametersGround に必要な変数を格納する。
-    sqc = Sequence(itv=itv, d=d, weather=w, scd=scd, bdg=bdg, shape_factor_method=shape_factor_method, rms=rms)
+    sqc = Sequence(itv=itv, d=d, weather=w, scd=scd, bdg=bdg, rms=rms, bs=bs)
 
     gc_n = conditions.initialize_ground_conditions(n_grounds=sqc.bs.n_ground)
 

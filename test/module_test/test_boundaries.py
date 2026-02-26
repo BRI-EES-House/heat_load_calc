@@ -1,6 +1,7 @@
 import os
 import json
 import unittest
+import pytest
 import numpy as np
 from typing import Dict
 
@@ -17,6 +18,75 @@ from heat_load_calc.solar_shading import SolarShading
 from heat_load_calc import outside_eqv_temp
 from heat_load_calc import transmission_solar_radiation
 from heat_load_calc.tenum import EShapeFactorMethod
+from heat_load_calc.input_models.input_boundary import InputBoundary
+
+
+def make_boundaries():
+
+    d = _read_input_file()
+
+    w = _get_weather_class()
+
+    id_r_is = np.array([2,4]).reshape(-1, 1)
+
+    ipt_boundaries = [InputBoundary.read(d_boundary=d_boundary) for d_boundary in d['boundaries']]
+
+    bs = Boundaries(id_r_is=id_r_is, ds=d['boundaries'], w=w, rad_method=EShapeFactorMethod.NAGATA, ipt_boundaries=ipt_boundaries)
+
+    return bs
+
+
+def test_values():
+
+    bs = make_boundaries()
+
+    # number of boundaries
+    assert bs.n_b == 14
+
+    # id
+    np.testing.assert_array_equal(
+        bs.id_js,
+        np.array([1,3,5,7,9,11,13,15,17,19,21,23,25,27]).reshape(-1, 1)
+    )
+
+    # connected room id
+    np.testing.assert_array_equal(
+        bs.connected_room_id_js,
+        np.array([2,2,2,2,2,4,4,4,4,4,2,4,2,4]).reshape(-1, 1)
+    )
+
+    # p_is_js
+    np.testing.assert_array_equal(
+        bs.p_is_js,
+        np.array([
+            [1,1,1,1,1,0,0,0,0,0,1,0,1,0],
+            [0,0,0,0,0,1,1,1,1,1,0,1,0,1]
+        ])
+    )
+
+    # p_js_is
+    np.testing.assert_equal(
+        bs.p_js_is,
+        np.array([
+            [1,0],
+            [1,0],
+            [1,0],
+            [1,0],
+            [1,0],
+            [0,1],
+            [0,1],
+            [0,1],
+            [0,1],
+            [0,1],
+            [1,0],
+            [0,1],
+            [1,0],
+            [0,1]
+        ])
+    )
+
+
+
 
 
 class TestBoundaries(unittest.TestCase):
@@ -30,7 +100,9 @@ class TestBoundaries(unittest.TestCase):
 
         id_r_is = np.array([2,4]).reshape(-1, 1)
 
-        bs = Boundaries(id_r_is=id_r_is, ds=d['boundaries'], w=w, rad_method=EShapeFactorMethod.NAGATA)
+        ipt_boundaries = [InputBoundary.read(d_boundary=d_boundary) for d_boundary in d['boundaries']]
+
+        bs = Boundaries(id_r_is=id_r_is, ds=d['boundaries'], w=w, rad_method=EShapeFactorMethod.NAGATA, ipt_boundaries=ipt_boundaries)
 
         cls._bs: Boundaries = bs
 
@@ -140,11 +212,6 @@ class TestBoundaries(unittest.TestCase):
 
         # number of grounds
         self.assertEqual(0, self._bs.n_ground)
-
-    def test_id(self):
-
-        # id
-        np.testing.assert_array_equal(_get_id_js(), self._bs.id_js)
 
     def test_name(self):
 
