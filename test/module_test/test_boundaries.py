@@ -7,7 +7,6 @@ from typing import Dict
 
 from heat_load_calc import boundaries
 from heat_load_calc.boundaries import Boundaries
-from heat_load_calc.boundaries import BoundaryType
 from heat_load_calc.interval import EInterval, Interval
 from heat_load_calc.weather import Weather
 from heat_load_calc import shape_factor
@@ -17,7 +16,7 @@ from heat_load_calc.direction import Direction
 from heat_load_calc.solar_shading import SolarShading
 from heat_load_calc import outside_eqv_temp
 from heat_load_calc import transmission_solar_radiation
-from heat_load_calc.tenum import EShapeFactorMethod
+from heat_load_calc.tenum import EShapeFactorMethod, BoundaryType
 from heat_load_calc.input_models.input_boundary import InputBoundary
 
 
@@ -36,85 +35,113 @@ def make_boundaries():
             id=1,
             name='s_wall_1F_room',
             sub_name='',
-            connected_room_id=2
+            connected_room_id=2,
+            boundary_type=BoundaryType.EXTERNAL_GENERAL_PART,
+            area=0.5
         ),
         InputBoundary(
             id=3,
             name='w_wall_1F_room',
             sub_name='',
-            connected_room_id=2
+            connected_room_id=2,
+            boundary_type=BoundaryType.EXTERNAL_GENERAL_PART,
+            area=0.5
         ),
         InputBoundary(
             id=5,
             name='e_wall_1F_room',
             sub_name='',
-            connected_room_id=2
+            connected_room_id=2,
+            boundary_type=BoundaryType.EXTERNAL_GENERAL_PART,
+            area=1.0
         ),
         InputBoundary(
             id=7,
             name='n_wall_1F_room',
             sub_name='',
-            connected_room_id=2
+            connected_room_id=2,
+            boundary_type=BoundaryType.EXTERNAL_GENERAL_PART,
+            area=1.0
         ),
         InputBoundary(
             id=9,
             name='floor_1F_room',
             sub_name='',
-            connected_room_id=2
+            connected_room_id=2,
+            boundary_type=BoundaryType.EXTERNAL_GENERAL_PART,
+            area=1.0
         ),
         InputBoundary(
             id=11,
             name='s_wall_2F_room',
             sub_name='',
-            connected_room_id=4
+            connected_room_id=4,
+            boundary_type=BoundaryType.EXTERNAL_GENERAL_PART,
+            area=0.5
         ),
         InputBoundary(
             id=13,
             name='w_wall_2F_room',
             sub_name='',
-            connected_room_id=4
+            connected_room_id=4,
+            boundary_type=BoundaryType.EXTERNAL_GENERAL_PART,
+            area=1.0
         ),
         InputBoundary(
             id=15,
             name='e_wall_2F_room',
             sub_name='',
-            connected_room_id=4
+            connected_room_id=4,
+            boundary_type=BoundaryType.EXTERNAL_GENERAL_PART,
+            area=1.0
         ),
         InputBoundary(
             id=17,
             name='n_wall_2F_room',
             sub_name='',
-            connected_room_id=4
+            connected_room_id=4,
+            boundary_type=BoundaryType.EXTERNAL_GENERAL_PART,
+            area=1.0
         ),
         InputBoundary(
             id=19,
             name='roof_2F_room',
             sub_name='',
-            connected_room_id=4
+            connected_room_id=4,
+            boundary_type=BoundaryType.EXTERNAL_GENERAL_PART,
+            area=1.0
         ),
         InputBoundary(
             id=21,
             name='south_window_1F_room',
             sub_name='',
-            connected_room_id=2
+            connected_room_id=2,
+            boundary_type=BoundaryType.EXTERNAL_TRANSPARENT_PART,
+            area=0.5
         ),
         InputBoundary(
             id=23,
             name='south_window_2F_room',
             sub_name='',
-            connected_room_id=4
+            connected_room_id=4,
+            boundary_type=BoundaryType.EXTERNAL_TRANSPARENT_PART,
+            area=0.5
         ),
         InputBoundary(
             id=25,
             name='internal_1',
             sub_name='',
-            connected_room_id=2
+            connected_room_id=2,
+            boundary_type=BoundaryType.INTERNAL,
+            area=1.0
         ),
         InputBoundary(
             id=27,
             name='internal_2',
             sub_name='',
-            connected_room_id=4
+            connected_room_id=4,
+            boundary_type=BoundaryType.INTERNAL,
+            area=1.0
         ),
     ]
 
@@ -129,6 +156,9 @@ def test_values():
 
     # number of boundaries
     assert bs.n_b == 14
+
+    # number of ground of boundaries
+    assert bs.n_ground == 0
 
     # id
     np.testing.assert_array_equal(
@@ -159,7 +189,7 @@ def test_values():
 
         # sub name
 
-    # sub_name
+    # sub name
     np.testing.assert_array_equal(
         bs.sub_name_js,
         np.full(shape=(14,1), fill_value="", dtype=str)
@@ -202,9 +232,6 @@ def test_values():
     )
 
         # name
-
-
-
 
 
 class TestBoundaries(unittest.TestCase):
@@ -321,83 +348,6 @@ class TestBoundaries(unittest.TestCase):
                 connected_room_id_js=np.array([0,3,3,7,7,7,7,5,5,5]).reshape(-1, 1)
             )
 
-    def test_n_b(self):
-
-        # number of boundaries        
-        self.assertEqual(14, self._bs.n_b)
-    
-    def test_n_ground(self):
-
-        # number of grounds
-        self.assertEqual(0, self._bs.n_ground)
-
-    def test_name(self):
-
-        # name
-        np.testing.assert_array_equal(
-            np.array([
-                "s_wall_1F_room",
-                "w_wall_1F_room",
-                "e_wall_1F_room",
-                "n_wall_1F_room",
-                "floor_1F_room",
-                "s_wall_2F_room",
-                "w_wall_2F_room",
-                "e_wall_2F_room",
-                "n_wall_2F_room",
-                "roof_2F_room",
-                "south_window_1F_room",
-                "south_window_2F_room",
-                "internal_1",
-                "internal_2"
-            ]).reshape(-1, 1),
-            self._bs.name_js
-        )
-    
-    def test_sub_name(self):
-
-        # sub name
-        np.testing.assert_array_equal(
-            np.full(shape=(14,1), fill_value="", dtype=str),
-            self._bs.sub_name_js
-        )
-    
-    def test_connected_room_id(self):
-
-        # connected room id
-        np.testing.assert_equal(
-            np.array([2,2,2,2,2,4,4,4,4,4,2,4,2,4]).reshape(-1, 1),
-            self._bs.connected_room_id_js
-        )
-    
-    def test_p_is_js(self):
-
-        # matrix of relationship between rooms and boundaries
-        np.testing.assert_equal(_get_p_is_js(), self._bs.p_is_js)
-
-    def test_p_js_is(self):
-
-        # matrix of relationship between rooms and boundaries
-        np.testing.assert_equal(
-            np.array([
-                [1,0],
-                [1,0],
-                [1,0],
-                [1,0],
-                [1,0],
-                [0,1],
-                [0,1],
-                [0,1],
-                [0,1],
-                [0,1],
-                [1,0],
-                [0,1],
-                [1,0],
-                [0,1]
-            ]),
-            self._bs.p_js_is
-        )
-    
     def test_b_floor(self):
 
         # is boundary floor ?

@@ -9,6 +9,7 @@ from heat_load_calc.error_message import (
     value_out_of_range_LT as RLT
 )
 from heat_load_calc.input_models.input_boundary import InputBoundary
+from heat_load_calc.tenum import BoundaryType
 
 
 def get_default_dict():
@@ -18,6 +19,8 @@ def get_default_dict():
         'name': 'test',
         'sub_name': 'sub_test',
         'connected_room_id': 0,
+        'boundary_type': 'external_general_part',
+        'area': 3.0
     }
 
 
@@ -155,4 +158,81 @@ def test_value__connected_room_id__out_of_range():
     
     assert RGE('connected_room_id', 'boundary', 0) in str(e.value)
 
+
+def test_value__boundary_type__():
+
+    d = get_default_dict()
+
+    ipt = InputBoundary.read(d_boundary=d)
+
+    assert ipt.boundary_type == BoundaryType.EXTERNAL_GENERAL_PART
+
+
+def test_key__boundary_type__not_exists():
+
+    d = get_default_dict()
+
+    del d['boundary_type']
+
+    with pytest.raises(KeyError) as e:
+        InputBoundary.read(d_boundary=d)
+    
+    assert KNE('boundary_type', 'boundary') in str(e.value)
+
+
+def test_value__boundary_type__invalid():
+
+    d = get_default_dict()
+
+    d['boundary_type'] = 'wrong_value'
+
+    with pytest.raises(ValueError) as e:
+        InputBoundary.read(d_boundary=d)
+
+    assert VI('boundary_type', 'boundary') in str(e.value)
+
+
+def test_value__area__():
+
+    d = get_default_dict()
+
+    ipt = InputBoundary.read(d_boundary=d)
+
+    assert ipt.area == 3.0
+
+
+def test_key__area__not_exists():
+
+    d = get_default_dict()
+
+    del d['area']
+
+    with pytest.raises(KeyError) as e:
+        InputBoundary.read(d_boundary=d)
+    
+    assert KNE('area', 'boundary') in str(e.value)
+
+
+def test_value__area__invalid():
+
+    d = get_default_dict()
+
+    d['area'] = 'wrong_value'
+
+    with pytest.raises(ValueError) as e:
+        InputBoundary.read(d_boundary=d)
+    
+    assert VI('area', 'boundary') in str(e.value)
+
+
+def test_value__area__out_of_range():
+
+    d = get_default_dict()
+
+    d['area'] = 0.0
+
+    with pytest.raises(ValueError) as e:
+        InputBoundary.read(d_boundary=d)
+
+    assert RGT('area', 'boundary', 0.0) in str(e.value)
 

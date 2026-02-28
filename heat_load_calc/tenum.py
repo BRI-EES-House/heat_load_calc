@@ -138,3 +138,22 @@ class EFurnitureSpecifyMethod(Enum):
 
     DEFAULT = 'default'
     SPECIFY = 'specify'
+
+
+class BoundaryType(Enum):
+    """Tyope of boundary"""
+
+    # 'internal': 間仕切り
+    INTERNAL = 'internal'
+
+    # 'external_general_part': 外皮_一般部位
+    EXTERNAL_GENERAL_PART = 'external_general_part'
+
+    # 'external_transparent_part': 外皮_透明な開口部
+    EXTERNAL_TRANSPARENT_PART = 'external_transparent_part'
+
+    # 'external_opaque_part': 外皮_不透明な開口部
+    EXTERNAL_OPAQUE_PART = 'external_opaque_part'
+
+    # 'ground': 地盤
+    GROUND = 'ground'

@@ -10,17 +10,28 @@ from heat_load_calc.error_message import (
     value_out_of_range_GT as RGT,
     value_out_of_range_LT as RLT
 )
+from heat_load_calc.tenum import BoundaryType
 
 @dataclass
 class InputBoundary:
 
+    # id
     id: int
 
+    # name
     name: str
 
+    # sub name (default = '')
     sub_name: str
 
+    # room id connected to this surface
     connected_room_id: int
+
+    # boundary type
+    boundary_type: BoundaryType
+
+    # surface area, m2 (>0.0)
+    area: float
 
     @classmethod
     def read(cls, d_boundary: dict):
@@ -33,11 +44,17 @@ class InputBoundary:
 
         connected_room_id = cls._get_connected_room_id(d_boundary=d_boundary)
 
+        boundary_type = cls._get_boundary_type(d_boundary=d_boundary)
+
+        area = cls._get_area(d_boundary=d_boundary)
+
         return InputBoundary(
             id=id,
             name=name,
             sub_name=sub_name,
-            connected_room_id=connected_room_id
+            connected_room_id=connected_room_id,
+            boundary_type=boundary_type,
+            area=area
         )
     
     @staticmethod
@@ -89,4 +106,33 @@ class InputBoundary:
 
         return connecte_room_id
     
+    @staticmethod
+    def _get_boundary_type(d_boundary: dict):
 
+        if 'boundary_type' not in d_boundary:
+            raise KeyError(KNE('boundary_type', 'boundary'))
+        
+        try:
+            boundary_type = BoundaryType(d_boundary['boundary_type'])
+        except ValueError:
+            raise ValueError(VI('boundary_type', 'boundary'))
+        
+        return boundary_type
+
+    @staticmethod
+    def _get_area(d_boundary: dict):
+
+        if 'area' not in d_boundary:
+            raise KeyError(KNE('area', 'boundary'))
+        
+        try:
+            area = float(d_boundary['area'])
+        except ValueError:
+            raise ValueError(VI('area', 'boundary'))
+        
+        if area <= 0.0:
+            raise ValueError(RGT('area', 'boundary', 0.0))
+        
+        return area
+
+        

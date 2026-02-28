@@ -15,27 +15,7 @@ from heat_load_calc import window
 from heat_load_calc.window import Window
 from heat_load_calc.tenum import EShapeFactorMethod
 from heat_load_calc.input_models.input_boundary import InputBoundary
-
-
-class BoundaryType(Enum):
-    """
-    境界の種類
-    """
-
-    # 'internal': 間仕切り
-    INTERNAL = 'internal'
-
-    # 'external_general_part': 外皮_一般部位
-    EXTERNAL_GENERAL_PART = 'external_general_part'
-
-    # 'external_transparent_part': 外皮_透明な開口部
-    EXTERNAL_TRANSPARENT_PART = 'external_transparent_part'
-
-    # 'external_opaque_part': 外皮_不透明な開口部
-    EXTERNAL_OPAQUE_PART = 'external_opaque_part'
-
-    # 'ground': 地盤
-    GROUND = 'ground'
+from heat_load_calc.tenum import BoundaryType
 
 
 @dataclass
@@ -101,7 +81,6 @@ class Boundaries:
         """
 
         # number of boundaries
-        #n_b = len(ds)
         n_b = len(ipt_boundaries)
 
         # boundary id, [J]
@@ -114,7 +93,7 @@ class Boundaries:
         p_is_js = _get_p_is_js(id_r_is=id_r_is, connected_room_id_js=connected_room_id_js)
 
         # surface area of boundary j / 境界jの面積, m2, [J, 1]
-        a_s_js = np.array([_read_a_s(d=d) for d in ds]).reshape(-1, 1)
+        a_s_js = np.array([ipt_boundary.area for ipt_boundary in ipt_boundaries]).reshape(-1, 1)
 
         # indoor surface emissivity of boundary j / 境界jの室内側長波長放射率
         eps_r_i_js = np.array([_read_eps_s(d=d) for d in ds]).reshape(-1, 1)
@@ -226,18 +205,16 @@ class Boundaries:
         id_j = ipt_boundary.id
 
         # name of boundary j / 名前
-        # name_j = str(d['name'])
         name_j = ipt_boundary.name
 
         # sub name of boundary j / 副名称
-        #sub_name_j = str(d['sub_name'])
         sub_name_j = ipt_boundary.sub_name
 
         # type of boundary j / 境界の種類
-        t_b_j = BoundaryType(d['boundary_type'])
+        t_b_j = ipt_boundary.boundary_type
 
         # surface area of boundary j/ 面積, m2
-        a_s_j = _read_a_s(d=d)
+        a_s_j = ipt_boundary.area
 
         # temperature difference coefficient of boundary j / 温度差係数
         k_eo_j = _read_k_eo(d=d, id=id_j, t_b=t_b_j)
@@ -710,25 +687,6 @@ def _get_boundary_index(id_js: np.ndarray, rear_surface_boundary_id: int, id: in
         raise ValueError("境界(ID=" + str(id) + ")(間仕切りの場合)の裏面のIDとして指定する boundary ID が複数存在しました。")
     
     return matched_indices[0]
-
-
-def _read_a_s(d: Dict) -> float:
-    """Read the surface area.
-
-    Args:
-        d: dictionary of boundary
-    Regurns:
-        surface area, m2
-    """
-
-    # surface area / 表面積, m2
-    a_s = float(d['area'])
-
-    if a_s <= 0.0:
-        id = int(d['id'])        
-        raise ValueError("境界(ID=" + str(id) + ")の面積で0以下の値が指定されました。")
-    
-    return a_s
 
 
 def _read_eps_s(d: Dict) -> float:
