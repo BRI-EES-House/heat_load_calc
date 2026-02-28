@@ -15,6 +15,8 @@ def get_default_dict():
 
     return {
         'id': 0,
+        'name': 'test',
+        'sub_name': 'sub_test',
         'connected_room_id': 0,
     }
 
@@ -64,6 +66,47 @@ def test_value__id__out_of_range():
         InputBoundary.read(d_boundary=d)
     
     assert RGE('id', 'boundary', 0) in str(e.value)
+
+
+def test_value__name__():
+
+    d = get_default_dict()
+
+    ipt = InputBoundary.read(d_boundary=d)
+
+    assert ipt.name == 'test'
+
+
+def test_value__name__not_exists():
+
+    d = get_default_dict()
+
+    del d['name']
+
+    with pytest.raises(KeyError) as e:
+        InputBoundary.read(d_boundary=d)
+    
+    assert KNE('name', 'boundary') in str(e.value)
+
+
+def test_value__sub_name__():
+
+    d = get_default_dict()
+
+    ipt = InputBoundary.read(d_boundary=d)
+
+    assert ipt.sub_name == 'sub_test'
+
+
+def test_value__sub_name__default():
+
+    d = get_default_dict()
+
+    del d['sub_name']
+
+    ipt = InputBoundary.read(d_boundary=d)
+
+    assert ipt.sub_name == ''
 
 
 def test_connected_room__id__():

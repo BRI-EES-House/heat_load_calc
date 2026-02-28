@@ -31,6 +31,93 @@ def make_boundaries():
 
     ipt_boundaries = [InputBoundary.read(d_boundary=d_boundary) for d_boundary in d['boundaries']]
 
+    ipt_boundaries = [
+        InputBoundary(
+            id=1,
+            name='s_wall_1F_room',
+            sub_name='',
+            connected_room_id=2
+        ),
+        InputBoundary(
+            id=3,
+            name='w_wall_1F_room',
+            sub_name='',
+            connected_room_id=2
+        ),
+        InputBoundary(
+            id=5,
+            name='e_wall_1F_room',
+            sub_name='',
+            connected_room_id=2
+        ),
+        InputBoundary(
+            id=7,
+            name='n_wall_1F_room',
+            sub_name='',
+            connected_room_id=2
+        ),
+        InputBoundary(
+            id=9,
+            name='floor_1F_room',
+            sub_name='',
+            connected_room_id=2
+        ),
+        InputBoundary(
+            id=11,
+            name='s_wall_2F_room',
+            sub_name='',
+            connected_room_id=4
+        ),
+        InputBoundary(
+            id=13,
+            name='w_wall_2F_room',
+            sub_name='',
+            connected_room_id=4
+        ),
+        InputBoundary(
+            id=15,
+            name='e_wall_2F_room',
+            sub_name='',
+            connected_room_id=4
+        ),
+        InputBoundary(
+            id=17,
+            name='n_wall_2F_room',
+            sub_name='',
+            connected_room_id=4
+        ),
+        InputBoundary(
+            id=19,
+            name='roof_2F_room',
+            sub_name='',
+            connected_room_id=4
+        ),
+        InputBoundary(
+            id=21,
+            name='south_window_1F_room',
+            sub_name='',
+            connected_room_id=2
+        ),
+        InputBoundary(
+            id=23,
+            name='south_window_2F_room',
+            sub_name='',
+            connected_room_id=4
+        ),
+        InputBoundary(
+            id=25,
+            name='internal_1',
+            sub_name='',
+            connected_room_id=2
+        ),
+        InputBoundary(
+            id=27,
+            name='internal_2',
+            sub_name='',
+            connected_room_id=4
+        ),
+    ]
+
     bs = Boundaries(id_r_is=id_r_is, ds=d['boundaries'], w=w, rad_method=EShapeFactorMethod.NAGATA, ipt_boundaries=ipt_boundaries)
 
     return bs
@@ -47,6 +134,35 @@ def test_values():
     np.testing.assert_array_equal(
         bs.id_js,
         np.array([1,3,5,7,9,11,13,15,17,19,21,23,25,27]).reshape(-1, 1)
+    )
+
+    # name
+    np.testing.assert_array_equal(
+        bs.name_js,
+        np.array([
+            "s_wall_1F_room",
+            "w_wall_1F_room",
+            "e_wall_1F_room",
+            "n_wall_1F_room",
+            "floor_1F_room",
+            "s_wall_2F_room",
+            "w_wall_2F_room",
+            "e_wall_2F_room",
+            "n_wall_2F_room",
+            "roof_2F_room",
+            "south_window_1F_room",
+            "south_window_2F_room",
+            "internal_1",
+            "internal_2"
+        ]).reshape(-1, 1)
+    )
+
+        # sub name
+
+    # sub_name
+    np.testing.assert_array_equal(
+        bs.sub_name_js,
+        np.full(shape=(14,1), fill_value="", dtype=str)
     )
 
     # connected room id
@@ -84,6 +200,8 @@ def test_values():
             [0,1]
         ])
     )
+
+        # name
 
 
 

@@ -126,7 +126,7 @@ class Boundaries:
         h_s_c_js = np.array([float(b['h_c']) for b in ds]).reshape(-1, 1)
 
         # boundary j / 境界 j, [J]
-        bss = [self._get_boundary(d=d, h_s_c_js=h_s_c_js, h_s_r_js=h_s_r_js, w=w, id_js=id_js) for d in ds]
+        bss = [self._get_boundary(d=d, h_s_c_js=h_s_c_js, h_s_r_js=h_s_r_js, w=w, id_js=id_js, ipt_boundary=ipt_boundary) for (d, ipt_boundary) in zip(ds, ipt_boundaries)]
 
         # GOUND の数
         n_ground =sum(bs.t_b == BoundaryType.GROUND for bs in bss)
@@ -207,7 +207,7 @@ class Boundaries:
         self._q_trs_sol_js_nspls = q_trs_sol_js_nspls
 
     @staticmethod
-    def _get_boundary(d: Dict, h_s_c_js: np.ndarray, h_s_r_js: np.ndarray, w: Weather, id_js: np.ndarray) -> Boundary:
+    def _get_boundary(d: Dict, h_s_c_js: np.ndarray, h_s_r_js: np.ndarray, w: Weather, id_js: np.ndarray, ipt_boundary: InputBoundary) -> Boundary:
         """
 
         Args:
@@ -216,19 +216,22 @@ class Boundaries:
             h_s_r_js: 境界jの室内側表面放射熱伝達率, W/m2K, [J, 1]
             w: Weather クラス
             id_js: id of boundaries, [J]
+            ipt_boundary: InputBoundary class
 
         Returns:
             Boundary クラス
         """
 
         # ID of boundary j
-        id_j = int(d['id'])
+        id_j = ipt_boundary.id
 
         # name of boundary j / 名前
-        name_j = str(d['name'])
+        # name_j = str(d['name'])
+        name_j = ipt_boundary.name
 
         # sub name of boundary j / 副名称
-        sub_name_j = str(d['sub_name'])
+        #sub_name_j = str(d['sub_name'])
+        sub_name_j = ipt_boundary.sub_name
 
         # type of boundary j / 境界の種類
         t_b_j = BoundaryType(d['boundary_type'])

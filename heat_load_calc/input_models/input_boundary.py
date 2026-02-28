@@ -16,6 +16,10 @@ class InputBoundary:
 
     id: int
 
+    name: str
+
+    sub_name: str
+
     connected_room_id: int
 
     @classmethod
@@ -23,10 +27,16 @@ class InputBoundary:
         
         id = cls._get_id(d_boundary=d_boundary)
 
+        name = cls._get_name(d_boundary=d_boundary)
+
+        sub_name = cls._get_sub_name(d_boundary=d_boundary)
+
         connected_room_id = cls._get_connected_room_id(d_boundary=d_boundary)
 
         return InputBoundary(
             id=id,
+            name=name,
+            sub_name=sub_name,
             connected_room_id=connected_room_id
         )
     
@@ -46,6 +56,22 @@ class InputBoundary:
 
         return id
     
+    @staticmethod
+    def _get_name(d_boundary: dict):
+
+        if 'name' not in d_boundary:
+            raise KeyError(KNE('name', 'boundary'))
+        
+        name = str(d_boundary['name'])
+        
+        return name
+    
+    @staticmethod
+    def _get_sub_name(d_boundary: dict):
+
+        sub_name = str(d_boundary.get('sub_name', ''))
+
+        return sub_name
 
     @staticmethod
     def _get_connected_room_id(d_boundary: dict):
