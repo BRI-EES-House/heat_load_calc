@@ -14,8 +14,22 @@ from heat_load_calc import transmission_solar_radiation
 from heat_load_calc import window
 from heat_load_calc.window import Window
 from heat_load_calc.tenum import EShapeFactorMethod
-from heat_load_calc.input_models.input_boundary import InputBoundary
-from heat_load_calc.tenum import BoundaryType
+from heat_load_calc.input_models.input_boundary import (
+    InputBoundary,
+    InputBoundaryExternalGeneralPart,
+    InputBoundaryExternalTransparentPart,
+    InputBoundaryExternalOpaquePart,
+    InputBoundaryGround,
+    InputBoundaryInternal
+)
+from heat_load_calc.tenum import EBoundaryType
+
+
+from typing import Protocol, runtime_checkable
+
+@runtime_checkable
+class TempDifCoefHolder(Protocol):
+    temp_dif_coef: float
 
 
 @dataclass
@@ -31,7 +45,7 @@ class Boundary:
     sub_name: str
 
     # 境界の種類
-    t_b: BoundaryType
+    t_b: EBoundaryType
 
     # 面積, m2
     a_s: float
@@ -96,19 +110,19 @@ class Boundaries:
         a_s_js = np.array([ipt_boundary.area for ipt_boundary in ipt_boundaries]).reshape(-1, 1)
 
         # indoor surface emissivity of boundary j / 境界jの室内側長波長放射率
-        eps_r_i_js = np.array([_read_eps_s(d=d) for d in ds]).reshape(-1, 1)
+        eps_r_i_js = np.array([ipt_boundary.inside_emissivity for ipt_boundary in ipt_boundaries]).reshape(-1, 1)
 
         # indoor surface radiant heat transfer coefficient of boundary j / 境界jの室内側表面放射熱伝達率, W/m2K, [J, 1]
         h_s_r_js = shape_factor.get_h_s_r_js(a_s_js=a_s_js, p_is_js=p_is_js, eps_r_i_js=eps_r_i_js, method=rad_method)
 
         # indoor surface convection heat transfer coefficient of boundary j / 境界jの室内側表面対流熱伝達率, W/m2K, [J, 1]
-        h_s_c_js = np.array([float(b['h_c']) for b in ds]).reshape(-1, 1)
+        h_s_c_js = np.array([ipt_boundary.h_c for ipt_boundary in ipt_boundaries]).reshape(-1, 1)
 
         # boundary j / 境界 j, [J]
         bss = [self._get_boundary(d=d, h_s_c_js=h_s_c_js, h_s_r_js=h_s_r_js, w=w, id_js=id_js, ipt_boundary=ipt_boundary) for (d, ipt_boundary) in zip(ds, ipt_boundaries)]
 
         # GOUND の数
-        n_ground =sum(bs.t_b == BoundaryType.GROUND for bs in bss)
+        n_ground =sum(bs.t_b == EBoundaryType.GROUND for bs in bss)
 
         # id of boundary j, [J, 1]
         id_js = np.array([bs.id for bs in bss]).reshape(-1, 1)
@@ -123,7 +137,7 @@ class Boundaries:
         b_floor_js = np.array([bs.b_floor for bs in bss]).reshape(-1, 1)
 
         # is the boundary j ground ?, [J, 1]
-        b_ground_js = np.array([bs.t_b == BoundaryType.GROUND for bs in bss]).reshape(-1, 1)
+        b_ground_js = np.array([bs.t_b == EBoundaryType.GROUND for bs in bss]).reshape(-1, 1)
 
         # coefficient representing the effect of equivalent room temperature of other boundary j to the rear temperature of boundary j
         # 裏面温度に他の境界 j の等価室温が与える影響, [J, J]
@@ -217,7 +231,19 @@ class Boundaries:
         a_s_j = ipt_boundary.area
 
         # temperature difference coefficient of boundary j / 温度差係数
-        k_eo_j = _read_k_eo(d=d, id=id_j, t_b=t_b_j)
+        #k_eo_j = _read_k_eo(d=d, id=id_j, t_b=t_b_j)
+
+        match ipt_boundary.boundary_type:
+            case EBoundaryType.EXTERNAL_GENERAL_PART | EBoundaryType.EXTERNAL_TRANSPARENT_PART | EBoundaryType.EXTERNAL_OPAQUE_PART:
+                if not isinstance(ipt_boundary, TempDifCoefHolder):
+                    raise Exception()
+                k_eo_j = ipt_boundary.temp_dif_coef
+            case EBoundaryType.GROUND:
+                k_eo_j = 1.0
+            case EBoundaryType.INTERNAL:
+                k_eo_j = 0.0
+            case _:
+                raise Exception()                
 
         # rear boundary index of boundary j
         j_rear_j = _read_j_rear(b=d, id=id_j, t_b=t_b_j, id_js=id_js)
@@ -268,10 +294,10 @@ class Boundaries:
         q_trs_sol_j_nspls = _get_q_trs_sol_j_ns(t_b_j=t_b_j, w=w, b_sun_strkd_out_j=b_sun_strkd_out_j, t_drct_j=t_drct_j, a_s_j=a_s_j, ssp_j=ssp_j, window_j=window_j)
 
         # convective heat transfer coefficient of the rear surface of boundary j, W/m2K
-        h_s_c_rear_j = float(h_s_c_js[j_rear_j, 0]) if t_b_j == BoundaryType.INTERNAL else None
+        h_s_c_rear_j = float(h_s_c_js[j_rear_j, 0]) if t_b_j == EBoundaryType.INTERNAL else None
 
         # radiative heat transfer coefficient of the rear surface of boundary j, W/m2K
-        h_s_r_rear_j = float(h_s_r_js[j_rear_j, 0]) if t_b_j == BoundaryType.INTERNAL else None
+        h_s_r_rear_j = float(h_s_r_js[j_rear_j, 0]) if t_b_j == EBoundaryType.INTERNAL else None
 
         # response factor of boundary j
         rf = _get_response_factor(d=d, h_s_c_rear_j=h_s_c_rear_j, h_s_r_rear_j=h_s_r_rear_j, id_j=id_j, t_b_j=t_b_j, r_s_o_j=r_s_o_j, u_w_std_j=u_w_std_j)
@@ -640,7 +666,7 @@ def _get_room_index(id_r_is: np.ndarray, id: int):
     return matched_indices[0]
 
 
-def _read_j_rear(b: Dict, id: int, t_b: BoundaryType, id_js: np.ndarray) -> int | None:
+def _read_j_rear(b: Dict, id: int, t_b: EBoundaryType, id_js: np.ndarray) -> int | None:
     """Get the rear surface boundary index.
 
     Args:
@@ -655,7 +681,7 @@ def _read_j_rear(b: Dict, id: int, t_b: BoundaryType, id_js: np.ndarray) -> int 
         This index is defined only in case of INTERNAL as type of boundary.
     """
 
-    if t_b == BoundaryType.INTERNAL:
+    if t_b == EBoundaryType.INTERNAL:
         rear_surface_boundary_id = int(b['rear_surface_boundary_id'])
         rear_boundary_index = _get_boundary_index(id_js=id_js, rear_surface_boundary_id=rear_surface_boundary_id, id=id)
         return rear_boundary_index
@@ -689,26 +715,7 @@ def _get_boundary_index(id_js: np.ndarray, rear_surface_boundary_id: int, id: in
     return matched_indices[0]
 
 
-def _read_eps_s(d: Dict) -> float:
-    """Read the surface emissivity.
-
-    Args:
-        d: dictionary of boundary
-    Regurns:
-        surface emissivity, -
-    """
-
-    # surface emissivity / 放射率, -
-    eps_s = float(d.get('inside_emissivity', 0.9))
-
-    if eps_s <= 0.0:
-        id = int(d['id'])
-        raise ValueError("境界(ID=" + str(id) + ")の放射率で0以下の値が指定されました。")
-
-    return eps_s
-
-
-def _read_k_eo(d: Dict, id: int, t_b: BoundaryType) -> float:
+def _read_k_eo(d: Dict, id: int, t_b: EBoundaryType) -> float:
     """Read the temperature difference coefficient.
 
     Args:
@@ -721,14 +728,14 @@ def _read_k_eo(d: Dict, id: int, t_b: BoundaryType) -> float:
     """
 
     if t_b in [
-        BoundaryType.EXTERNAL_GENERAL_PART,
-        BoundaryType.EXTERNAL_TRANSPARENT_PART,
-        BoundaryType.EXTERNAL_OPAQUE_PART
+        EBoundaryType.EXTERNAL_GENERAL_PART,
+        EBoundaryType.EXTERNAL_TRANSPARENT_PART,
+        EBoundaryType.EXTERNAL_OPAQUE_PART
     ]:
         k_eo = float(d['temp_dif_coef'])
-    elif t_b == BoundaryType.GROUND:
+    elif t_b == EBoundaryType.GROUND:
         k_eo = 1.0
-    elif t_b == BoundaryType.INTERNAL:
+    elif t_b == EBoundaryType.INTERNAL:
         k_eo = 0.0
     else:
         raise Exception()
@@ -742,17 +749,17 @@ def _read_k_eo(d: Dict, id: int, t_b: BoundaryType) -> float:
     return k_eo
 
 
-def _read_b_sun_strkd_out(d: Dict, id: int, t_b: BoundaryType) -> bool:
+def _read_b_sun_strkd_out(d: Dict, id: int, t_b: EBoundaryType) -> bool:
 
     if t_b in [
-        BoundaryType.EXTERNAL_GENERAL_PART,
-        BoundaryType.EXTERNAL_TRANSPARENT_PART,
-        BoundaryType.EXTERNAL_OPAQUE_PART
+        EBoundaryType.EXTERNAL_GENERAL_PART,
+        EBoundaryType.EXTERNAL_TRANSPARENT_PART,
+        EBoundaryType.EXTERNAL_OPAQUE_PART
     ]:
         return bool(d['is_sun_striked_outside'])
     elif t_b in [
-        BoundaryType.INTERNAL,
-        BoundaryType.GROUND
+        EBoundaryType.INTERNAL,
+        EBoundaryType.GROUND
     ]:
         return False
     else:
@@ -781,7 +788,7 @@ def _read_ssp(ssp_dict: Dict, b_sun_strkd_out: bool, t_drct: Direction | None) -
         return None
 
 
-def _read_a_sol(d: Dict, id: int, t_b: BoundaryType) -> Optional[float]:
+def _read_a_sol(d: Dict, id: int, t_b: EBoundaryType) -> Optional[float]:
     """Get the solar absorption ratio at the outside surface of boundary j.
 
     Args:
@@ -793,7 +800,7 @@ def _read_a_sol(d: Dict, id: int, t_b: BoundaryType) -> Optional[float]:
         solar absorption ratio at outside surface of boundary
     """
 
-    if t_b in [BoundaryType.EXTERNAL_GENERAL_PART, BoundaryType.EXTERNAL_OPAQUE_PART]:
+    if t_b in [EBoundaryType.EXTERNAL_GENERAL_PART, EBoundaryType.EXTERNAL_OPAQUE_PART]:
 
         a_sol = float(d['outside_solar_absorption'])
 
@@ -805,7 +812,7 @@ def _read_a_sol(d: Dict, id: int, t_b: BoundaryType) -> Optional[float]:
 
         return a_sol
 
-    elif t_b in [BoundaryType.INTERNAL, BoundaryType.EXTERNAL_TRANSPARENT_PART, BoundaryType.GROUND]:
+    elif t_b in [EBoundaryType.INTERNAL, EBoundaryType.EXTERNAL_TRANSPARENT_PART, EBoundaryType.GROUND]:
 
         return None
 
@@ -813,7 +820,7 @@ def _read_a_sol(d: Dict, id: int, t_b: BoundaryType) -> Optional[float]:
         raise Exception()
         
 
-def _read_r_s_o(d: Dict, id: int, t_b: BoundaryType) -> Optional[float]:
+def _read_r_s_o(d: Dict, id: int, t_b: EBoundaryType) -> Optional[float]:
     """Get the outside heat transfer resistance.
 
     Args:
@@ -825,11 +832,11 @@ def _read_r_s_o(d: Dict, id: int, t_b: BoundaryType) -> Optional[float]:
         outside heat transfer resistance, m2 K / W
     """
 
-    if t_b in [BoundaryType.INTERNAL, BoundaryType.GROUND]:
+    if t_b in [EBoundaryType.INTERNAL, EBoundaryType.GROUND]:
 
         return None
 
-    elif t_b in [BoundaryType.EXTERNAL_GENERAL_PART, BoundaryType.EXTERNAL_TRANSPARENT_PART, BoundaryType.EXTERNAL_OPAQUE_PART]:
+    elif t_b in [EBoundaryType.EXTERNAL_GENERAL_PART, EBoundaryType.EXTERNAL_TRANSPARENT_PART, EBoundaryType.EXTERNAL_OPAQUE_PART]:
 
         r_s_o = float(d['outside_heat_transfer_resistance'])
 
@@ -843,7 +850,7 @@ def _read_r_s_o(d: Dict, id: int, t_b: BoundaryType) -> Optional[float]:
         raise Exception()
 
 
-def _read_eps_r_o(d: Dict, id: int, t_b: BoundaryType) -> Optional[float]:
+def _read_eps_r_o(d: Dict, id: int, t_b: EBoundaryType) -> Optional[float]:
     """Get the long wavelength emissivity at the outside surface of boundary j.
 
     Args:
@@ -855,11 +862,11 @@ def _read_eps_r_o(d: Dict, id: int, t_b: BoundaryType) -> Optional[float]:
         long wavelength emissivity at outside surface of boundary
     """
     
-    if t_b in [BoundaryType.INTERNAL, BoundaryType.GROUND]:
+    if t_b in [EBoundaryType.INTERNAL, EBoundaryType.GROUND]:
     
         return None
     
-    elif t_b in [BoundaryType.EXTERNAL_GENERAL_PART, BoundaryType.EXTERNAL_TRANSPARENT_PART, BoundaryType.EXTERNAL_OPAQUE_PART]:
+    elif t_b in [EBoundaryType.EXTERNAL_GENERAL_PART, EBoundaryType.EXTERNAL_TRANSPARENT_PART, EBoundaryType.EXTERNAL_OPAQUE_PART]:
     
         eps_r = float(d['outside_emissivity'])
 
@@ -876,7 +883,7 @@ def _read_eps_r_o(d: Dict, id: int, t_b: BoundaryType) -> Optional[float]:
         raise Exception()
 
 
-def _get_u_std(d: Dict, id: int, t_b: BoundaryType) -> Optional[float]:
+def _get_u_std(d: Dict, id: int, t_b: EBoundaryType) -> Optional[float]:
     """Get the standard u value of boundary.
 
     Args:
@@ -888,7 +895,7 @@ def _get_u_std(d: Dict, id: int, t_b: BoundaryType) -> Optional[float]:
         standard u value of boundary
     """
 
-    if t_b in [BoundaryType.EXTERNAL_TRANSPARENT_PART, BoundaryType.EXTERNAL_OPAQUE_PART]:
+    if t_b in [EBoundaryType.EXTERNAL_TRANSPARENT_PART, EBoundaryType.EXTERNAL_OPAQUE_PART]:
 
         u_nmnl = float(d['u_value'])
 
@@ -897,7 +904,7 @@ def _get_u_std(d: Dict, id: int, t_b: BoundaryType) -> Optional[float]:
         
         return u_nmnl
     
-    elif t_b in [BoundaryType.EXTERNAL_GENERAL_PART, BoundaryType.INTERNAL, BoundaryType.GROUND]:
+    elif t_b in [EBoundaryType.EXTERNAL_GENERAL_PART, EBoundaryType.INTERNAL, EBoundaryType.GROUND]:
         
         return None
         
@@ -905,7 +912,7 @@ def _get_u_std(d: Dict, id: int, t_b: BoundaryType) -> Optional[float]:
         raise Exception()
 
 
-def _read_eta_std(d: Dict, id: int, t_b: BoundaryType) -> Optional[float]:
+def _read_eta_std(d: Dict, id: int, t_b: EBoundaryType) -> Optional[float]:
     """Get the standard eta value of the boundary.
 
     Args:
@@ -917,7 +924,7 @@ def _read_eta_std(d: Dict, id: int, t_b: BoundaryType) -> Optional[float]:
         standard eta value of boundary
     """
 
-    if t_b == BoundaryType.EXTERNAL_TRANSPARENT_PART:
+    if t_b == EBoundaryType.EXTERNAL_TRANSPARENT_PART:
 
         eta_value = float(d['eta_value'])
 
@@ -926,7 +933,7 @@ def _read_eta_std(d: Dict, id: int, t_b: BoundaryType) -> Optional[float]:
 
         return eta_value
 
-    elif t_b in [BoundaryType.EXTERNAL_GENERAL_PART, BoundaryType.EXTERNAL_OPAQUE_PART, BoundaryType.INTERNAL, BoundaryType.GROUND]:
+    elif t_b in [EBoundaryType.EXTERNAL_GENERAL_PART, EBoundaryType.EXTERNAL_OPAQUE_PART, EBoundaryType.INTERNAL, EBoundaryType.GROUND]:
 
         return None
 
@@ -934,7 +941,7 @@ def _read_eta_std(d: Dict, id: int, t_b: BoundaryType) -> Optional[float]:
         raise Exception()
 
         
-def _read_r_a_w_g(d: Dict, id: int, t_b: BoundaryType) -> float | None:
+def _read_r_a_w_g(d: Dict, id: int, t_b: EBoundaryType) -> float | None:
     """Get the ratio of the grazing area to the opening area.
 
     Args:
@@ -948,7 +955,7 @@ def _read_r_a_w_g(d: Dict, id: int, t_b: BoundaryType) -> float | None:
 
     match t_b:
 
-        case BoundaryType.EXTERNAL_TRANSPARENT_PART:
+        case EBoundaryType.EXTERNAL_TRANSPARENT_PART:
 
             # 開口部の面積に対するグレージングの面積の比率
             r_a_w_g = d['glass_area_ratio']
@@ -961,7 +968,7 @@ def _read_r_a_w_g(d: Dict, id: int, t_b: BoundaryType) -> float | None:
             
             return r_a_w_g
     
-        case BoundaryType.EXTERNAL_GENERAL_PART | BoundaryType.EXTERNAL_OPAQUE_PART | BoundaryType.INTERNAL | BoundaryType.GROUND:
+        case EBoundaryType.EXTERNAL_GENERAL_PART | EBoundaryType.EXTERNAL_OPAQUE_PART | EBoundaryType.INTERNAL | EBoundaryType.GROUND:
 
             return None
     
@@ -970,7 +977,7 @@ def _read_r_a_w_g(d: Dict, id: int, t_b: BoundaryType) -> float | None:
             raise ValueError()
 
 
-def _read_t_glz(d: Dict, id: int, t_b: BoundaryType) -> Optional[window.GlassType]:
+def _read_t_glz(d: Dict, id: int, t_b: EBoundaryType) -> Optional[window.GlassType]:
     """Get the type of the grazing of the boundary.
 
     Args:
@@ -982,11 +989,11 @@ def _read_t_glz(d: Dict, id: int, t_b: BoundaryType) -> Optional[window.GlassTyp
         type of grazing of boundary
     """
 
-    if t_b == BoundaryType.EXTERNAL_TRANSPARENT_PART:
+    if t_b == EBoundaryType.EXTERNAL_TRANSPARENT_PART:
 
         return window.GlassType(d['incident_angle_characteristics'])
     
-    elif t_b in [BoundaryType.EXTERNAL_GENERAL_PART, BoundaryType.EXTERNAL_OPAQUE_PART, BoundaryType.INTERNAL, BoundaryType.GROUND]:
+    elif t_b in [EBoundaryType.EXTERNAL_GENERAL_PART, EBoundaryType.EXTERNAL_OPAQUE_PART, EBoundaryType.INTERNAL, EBoundaryType.GROUND]:
         
         return None
     else:
@@ -994,13 +1001,13 @@ def _read_t_glz(d: Dict, id: int, t_b: BoundaryType) -> Optional[window.GlassTyp
         raise Exception()
 
 
-def _get_window_class_j(t_b_j: BoundaryType, u_w_std_j: Optional[float], eta_w_std_j: Optional[float], t_glz_j: Optional[window.GlassType], r_a_w_g_j: Optional[float]) -> Optional[Window]:
+def _get_window_class_j(t_b_j: EBoundaryType, u_w_std_j: Optional[float], eta_w_std_j: Optional[float], t_glz_j: Optional[window.GlassType], r_a_w_g_j: Optional[float]) -> Optional[Window]:
 
-    if t_b_j in [BoundaryType.EXTERNAL_GENERAL_PART, BoundaryType.EXTERNAL_OPAQUE_PART, BoundaryType.INTERNAL, BoundaryType.GROUND]:
+    if t_b_j in [EBoundaryType.EXTERNAL_GENERAL_PART, EBoundaryType.EXTERNAL_OPAQUE_PART, EBoundaryType.INTERNAL, EBoundaryType.GROUND]:
         
         return None
     
-    elif t_b_j == BoundaryType.EXTERNAL_TRANSPARENT_PART:
+    elif t_b_j == EBoundaryType.EXTERNAL_TRANSPARENT_PART:
 
         if u_w_std_j is None:
             raise Exception("u_w_std should be decided when boundary type is external transparent part.")
@@ -1019,7 +1026,7 @@ def _get_window_class_j(t_b_j: BoundaryType, u_w_std_j: Optional[float], eta_w_s
 
 
 def _get_theta_o_eqv_j_ns(
-    t_b_j: BoundaryType,
+    t_b_j: EBoundaryType,
     w: Weather,
     b_sun_strkd_out_j: Optional[bool],
     t_drct_j: Optional[Direction],
@@ -1048,11 +1055,11 @@ def _get_theta_o_eqv_j_ns(
         equivalent outside temperature of boundary j at step n, degree C, [N+1]
     """
     
-    if t_b_j == BoundaryType.INTERNAL:
+    if t_b_j == EBoundaryType.INTERNAL:
 
         return outside_eqv_temp.get_theta_o_eqv_j_ns_for_internal(w=w)
 
-    elif t_b_j in [BoundaryType.EXTERNAL_GENERAL_PART, BoundaryType.EXTERNAL_OPAQUE_PART]:
+    elif t_b_j in [EBoundaryType.EXTERNAL_GENERAL_PART, EBoundaryType.EXTERNAL_OPAQUE_PART]:
 
         if b_sun_strkd_out_j:
 
@@ -1079,7 +1086,7 @@ def _get_theta_o_eqv_j_ns(
 
             return outside_eqv_temp.get_theta_o_eqv_j_ns_for_external_not_sun_striked(w=w)  
 
-    elif t_b_j == BoundaryType.EXTERNAL_TRANSPARENT_PART:
+    elif t_b_j == EBoundaryType.EXTERNAL_TRANSPARENT_PART:
 
         if b_sun_strkd_out_j:
 
@@ -1109,7 +1116,7 @@ def _get_theta_o_eqv_j_ns(
 
             return outside_eqv_temp.get_theta_o_eqv_j_ns_for_external_not_sun_striked(w=w)
 
-    elif t_b_j == BoundaryType.GROUND:
+    elif t_b_j == EBoundaryType.GROUND:
 
         return outside_eqv_temp.get_theta_o_eqv_j_ns_for_ground(w=w)
 
@@ -1118,7 +1125,7 @@ def _get_theta_o_eqv_j_ns(
         raise Exception()
 
 
-def _get_q_trs_sol_j_ns(t_b_j: BoundaryType, w: Weather, b_sun_strkd_out_j: Optional[bool], t_drct_j: Optional[Direction], a_s_j: float, ssp_j: Optional[SolarShading], window_j: Optional[Window]) -> np.ndarray:
+def _get_q_trs_sol_j_ns(t_b_j: EBoundaryType, w: Weather, b_sun_strkd_out_j: Optional[bool], t_drct_j: Optional[Direction], a_s_j: float, ssp_j: Optional[SolarShading], window_j: Optional[Window]) -> np.ndarray:
     """Calculate the transmitted solar radiation of boundary j at step n
 
     Args:
@@ -1134,11 +1141,11 @@ def _get_q_trs_sol_j_ns(t_b_j: BoundaryType, w: Weather, b_sun_strkd_out_j: Opti
         transmitted solar radiation of boundary j at step n, W, [N+1]
     """
 
-    if t_b_j in [BoundaryType.INTERNAL, BoundaryType.EXTERNAL_GENERAL_PART, BoundaryType.EXTERNAL_OPAQUE_PART, BoundaryType.GROUND]:
+    if t_b_j in [EBoundaryType.INTERNAL, EBoundaryType.EXTERNAL_GENERAL_PART, EBoundaryType.EXTERNAL_OPAQUE_PART, EBoundaryType.GROUND]:
 
         return transmission_solar_radiation.get_q_trs_sol_j_ns_for_not(w=w)
 
-    elif t_b_j == BoundaryType.EXTERNAL_TRANSPARENT_PART:
+    elif t_b_j == EBoundaryType.EXTERNAL_TRANSPARENT_PART:
 
         if b_sun_strkd_out_j:
 
@@ -1185,7 +1192,7 @@ def _read_r_i_std_j(d: Dict, boundary_id: int) -> float:
     return r_i
 
 
-def _get_response_factor(d: Dict, h_s_c_rear_j: Optional[float], h_s_r_rear_j: Optional[float], id_j: int, t_b_j: BoundaryType, r_s_o_j: Optional[float], u_w_std_j: Optional[float]) -> ResponseFactor:
+def _get_response_factor(d: Dict, h_s_c_rear_j: Optional[float], h_s_r_rear_j: Optional[float], id_j: int, t_b_j: EBoundaryType, r_s_o_j: Optional[float], u_w_std_j: Optional[float]) -> ResponseFactor:
     """Get response factor of boundary j.
 
     Args:
@@ -1202,7 +1209,7 @@ def _get_response_factor(d: Dict, h_s_c_rear_j: Optional[float], h_s_r_rear_j: O
     """
 
 
-    if t_b_j == BoundaryType.INTERNAL:
+    if t_b_j == EBoundaryType.INTERNAL:
 
         layers: List[Dict] = d['layers']
 
@@ -1219,7 +1226,7 @@ def _get_response_factor(d: Dict, h_s_c_rear_j: Optional[float], h_s_r_rear_j: O
 
         return ResponseFactor.create_for_unsteady_not_ground(cs=c_j_ls, rs=r_j_ls, r_o=r_rear_j)
 
-    elif t_b_j == BoundaryType.EXTERNAL_GENERAL_PART:
+    elif t_b_j == EBoundaryType.EXTERNAL_GENERAL_PART:
 
         c_j_ls = np.array([_read_cs_j_l(layer=layer, id=id_j, layer_id=l) for (l, layer) in enumerate(d['layers'])])
         r_j_ls = np.array([_read_rs_j_l(layer=layer, id=id_j, layer_id=l) for (l, layer) in enumerate(d['layers'])])
@@ -1229,7 +1236,7 @@ def _get_response_factor(d: Dict, h_s_c_rear_j: Optional[float], h_s_r_rear_j: O
 
         return ResponseFactor.create_for_unsteady_not_ground(cs=c_j_ls, rs=r_j_ls, r_o=r_s_o_j)
 
-    elif t_b_j in [BoundaryType.EXTERNAL_TRANSPARENT_PART, BoundaryType.EXTERNAL_OPAQUE_PART]:
+    elif t_b_j in [EBoundaryType.EXTERNAL_TRANSPARENT_PART, EBoundaryType.EXTERNAL_OPAQUE_PART]:
 
         r_i_std_j = _read_r_i_std_j(d=d, boundary_id=id_j)
 
@@ -1238,7 +1245,7 @@ def _get_response_factor(d: Dict, h_s_c_rear_j: Optional[float], h_s_r_rear_j: O
 
         return ResponseFactor.create_for_steady(u_w=u_w_std_j, r_i=r_i_std_j)
 
-    elif t_b_j == BoundaryType.GROUND:
+    elif t_b_j == EBoundaryType.GROUND:
 
         c_j_ls = np.array([_read_cs_j_l(layer=layer, id=id_j, layer_id=l) for (l, layer) in enumerate(d['layers'])])
         r_j_ls = np.array([_read_rs_j_l(layer=layer, id=id_j, layer_id=l) for (l, layer) in enumerate(d['layers'])])
@@ -1270,19 +1277,19 @@ def _read_rs_j_l(layer: Dict, id: int, layer_id: int) -> float:
     return rs_j_l
 
 
-def _get_k_ei_js_j(id_js: np.ndarray, t_b_j: BoundaryType, j_rear_j: Optional[int]) -> np.ndarray:
+def _get_k_ei_js_j(id_js: np.ndarray, t_b_j: EBoundaryType, j_rear_j: Optional[int]) -> np.ndarray:
 
     k_ei_js_j = np.zeros_like(id_js, dtype=float).flatten()
 
     if t_b_j in [
-        BoundaryType.EXTERNAL_OPAQUE_PART,
-        BoundaryType.EXTERNAL_TRANSPARENT_PART,
-        BoundaryType.EXTERNAL_GENERAL_PART,
-        BoundaryType.GROUND
+        EBoundaryType.EXTERNAL_OPAQUE_PART,
+        EBoundaryType.EXTERNAL_TRANSPARENT_PART,
+        EBoundaryType.EXTERNAL_GENERAL_PART,
+        EBoundaryType.GROUND
     ]:
         pass
 
-    elif t_b_j == BoundaryType.INTERNAL:
+    elif t_b_j == EBoundaryType.INTERNAL:
         # 室内壁の場合にk_ei_jsを登録する。
         k_ei_js_j[j_rear_j] = 1.0
 
@@ -1292,7 +1299,7 @@ def _get_k_ei_js_j(id_js: np.ndarray, t_b_j: BoundaryType, j_rear_j: Optional[in
     return k_ei_js_j
 
 
-def _get_k_s_r_j(t_b_j: BoundaryType, k_eo_j: Optional[float]) -> float:
+def _get_k_s_r_j(t_b_j: EBoundaryType, k_eo_j: Optional[float]) -> float:
     """Get the coefficient representing the effect of the room air temperature to the rear temperature of boundary j.
 
     Args:
@@ -1305,14 +1312,14 @@ def _get_k_s_r_j(t_b_j: BoundaryType, k_eo_j: Optional[float]) -> float:
 
     match t_b_j:
 
-        case BoundaryType.EXTERNAL_OPAQUE_PART | BoundaryType.EXTERNAL_TRANSPARENT_PART | BoundaryType.EXTERNAL_GENERAL_PART:
+        case EBoundaryType.EXTERNAL_OPAQUE_PART | EBoundaryType.EXTERNAL_TRANSPARENT_PART | EBoundaryType.EXTERNAL_GENERAL_PART:
 
             if k_eo_j is None:
                 raise Exception("k_eo_j should be defined when boundary type is external opaque part, external transparent part, or external general part.")
 
             return round(1.0 - k_eo_j, 2)
 
-        case BoundaryType.INTERNAL | BoundaryType.GROUND:
+        case EBoundaryType.INTERNAL | EBoundaryType.GROUND:
 
             return 0.0
         

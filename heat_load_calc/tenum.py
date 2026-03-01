@@ -140,7 +140,7 @@ class EFurnitureSpecifyMethod(Enum):
     SPECIFY = 'specify'
 
 
-class BoundaryType(Enum):
+class EBoundaryType(Enum):
     """Tyope of boundary"""
 
     # 'internal': 間仕切り

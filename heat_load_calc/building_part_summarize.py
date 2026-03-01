@@ -15,7 +15,7 @@ import numpy as np
 from typing import List
 
 from heat_load_calc.boundaries import Boundary
-from heat_load_calc.tenum import BoundaryType
+from heat_load_calc.tenum import EBoundaryType
 
 
 def integrate(bss: List[Boundary]) -> List[Boundary]:
@@ -274,9 +274,9 @@ def _is_boundary_integratable(bs1: Boundary, bs2: Boundary) -> bool:
         return False
 
     # 境界の種類が「外皮_一般部位」、「外皮_透明な開口部」又は「外皮_不透明な開口部」の場合
-    if (bs1.t_b == BoundaryType.EXTERNAL_GENERAL_PART) \
-            or (bs1.t_b == BoundaryType.EXTERNAL_TRANSPARENT_PART) \
-            or (bs1.t_b == BoundaryType.EXTERNAL_OPAQUE_PART):
+    if (bs1.t_b == EBoundaryType.EXTERNAL_GENERAL_PART) \
+            or (bs1.t_b == EBoundaryType.EXTERNAL_TRANSPARENT_PART) \
+            or (bs1.t_b == EBoundaryType.EXTERNAL_OPAQUE_PART):
 
         # 日射の有無
         if bs1.is_sun_striked_outside != bs2.is_sun_striked_outside:
@@ -294,7 +294,7 @@ def _is_boundary_integratable(bs1: Boundary, bs2: Boundary) -> bool:
                 return False
 
     # 境界の種類が間仕切りの場合
-    if bs1.t_b == BoundaryType.INTERNAL:
+    if bs1.t_b == EBoundaryType.INTERNAL:
 
         # 隣室タイプ
         if bs1.next_room_type != bs2.next_room_type:

@@ -16,8 +16,15 @@ from heat_load_calc.direction import Direction
 from heat_load_calc.solar_shading import SolarShading
 from heat_load_calc import outside_eqv_temp
 from heat_load_calc import transmission_solar_radiation
-from heat_load_calc.tenum import EShapeFactorMethod, BoundaryType
-from heat_load_calc.input_models.input_boundary import InputBoundary
+from heat_load_calc.tenum import EShapeFactorMethod, EBoundaryType
+from heat_load_calc.input_models.input_boundary import (
+    InputBoundary,
+    InputBoundaryExternalGeneralPart,
+    InputBoundaryExternalTransparentPart,
+    InputBoundaryExternalOpaquePart,
+    InputBoundaryGround,
+    InputBoundaryInternal
+)
 
 
 def make_boundaries():
@@ -31,117 +38,157 @@ def make_boundaries():
     ipt_boundaries = [InputBoundary.read(d_boundary=d_boundary) for d_boundary in d['boundaries']]
 
     ipt_boundaries = [
-        InputBoundary(
+        InputBoundaryExternalGeneralPart(
             id=1,
             name='s_wall_1F_room',
             sub_name='',
             connected_room_id=2,
-            boundary_type=BoundaryType.EXTERNAL_GENERAL_PART,
-            area=0.5
+            boundary_type=EBoundaryType.EXTERNAL_GENERAL_PART,
+            area=0.5,
+            inside_emissivity=0.9,
+            h_c=2.5,
+            temp_dif_coef=1.0
         ),
-        InputBoundary(
+        InputBoundaryExternalGeneralPart(
             id=3,
             name='w_wall_1F_room',
             sub_name='',
             connected_room_id=2,
-            boundary_type=BoundaryType.EXTERNAL_GENERAL_PART,
-            area=0.5
+            boundary_type=EBoundaryType.EXTERNAL_GENERAL_PART,
+            area=0.5,
+            inside_emissivity=0.9,
+            h_c=2.5,
+            temp_dif_coef=1.0
         ),
-        InputBoundary(
+        InputBoundaryExternalGeneralPart(
             id=5,
             name='e_wall_1F_room',
             sub_name='',
             connected_room_id=2,
-            boundary_type=BoundaryType.EXTERNAL_GENERAL_PART,
-            area=1.0
+            boundary_type=EBoundaryType.EXTERNAL_GENERAL_PART,
+            area=1.0,
+            inside_emissivity=0.9,
+            h_c=2.5,
+            temp_dif_coef=1.0
         ),
-        InputBoundary(
+        InputBoundaryExternalGeneralPart(
             id=7,
             name='n_wall_1F_room',
             sub_name='',
             connected_room_id=2,
-            boundary_type=BoundaryType.EXTERNAL_GENERAL_PART,
-            area=1.0
+            boundary_type=EBoundaryType.EXTERNAL_GENERAL_PART,
+            area=1.0,
+            inside_emissivity=0.9,
+            h_c=2.5,
+            temp_dif_coef=1.0
         ),
-        InputBoundary(
+        InputBoundaryExternalGeneralPart(
             id=9,
             name='floor_1F_room',
             sub_name='',
             connected_room_id=2,
-            boundary_type=BoundaryType.EXTERNAL_GENERAL_PART,
-            area=1.0
+            boundary_type=EBoundaryType.EXTERNAL_GENERAL_PART,
+            area=1.0,
+            inside_emissivity=0.9,
+            h_c=2.5,
+            temp_dif_coef=1.0
         ),
-        InputBoundary(
+        InputBoundaryExternalGeneralPart(
             id=11,
             name='s_wall_2F_room',
             sub_name='',
             connected_room_id=4,
-            boundary_type=BoundaryType.EXTERNAL_GENERAL_PART,
-            area=0.5
+            boundary_type=EBoundaryType.EXTERNAL_GENERAL_PART,
+            area=0.5,
+            inside_emissivity=0.9,
+            h_c=2.5,
+            temp_dif_coef=1.0
         ),
-        InputBoundary(
+        InputBoundaryExternalGeneralPart(
             id=13,
             name='w_wall_2F_room',
             sub_name='',
             connected_room_id=4,
-            boundary_type=BoundaryType.EXTERNAL_GENERAL_PART,
-            area=1.0
+            boundary_type=EBoundaryType.EXTERNAL_GENERAL_PART,
+            area=1.0,
+            inside_emissivity=0.9,
+            h_c=2.5,
+            temp_dif_coef=1.0
         ),
-        InputBoundary(
+        InputBoundaryExternalGeneralPart(
             id=15,
             name='e_wall_2F_room',
             sub_name='',
             connected_room_id=4,
-            boundary_type=BoundaryType.EXTERNAL_GENERAL_PART,
-            area=1.0
+            boundary_type=EBoundaryType.EXTERNAL_GENERAL_PART,
+            area=1.0,
+            inside_emissivity=0.9,
+            h_c=2.5,
+            temp_dif_coef=1.0
         ),
-        InputBoundary(
+        InputBoundaryExternalGeneralPart(
             id=17,
             name='n_wall_2F_room',
             sub_name='',
             connected_room_id=4,
-            boundary_type=BoundaryType.EXTERNAL_GENERAL_PART,
-            area=1.0
+            boundary_type=EBoundaryType.EXTERNAL_GENERAL_PART,
+            area=1.0,
+            inside_emissivity=0.9,
+            h_c=2.5,
+            temp_dif_coef=1.0
         ),
-        InputBoundary(
+        InputBoundaryExternalGeneralPart(
             id=19,
             name='roof_2F_room',
             sub_name='',
             connected_room_id=4,
-            boundary_type=BoundaryType.EXTERNAL_GENERAL_PART,
-            area=1.0
+            boundary_type=EBoundaryType.EXTERNAL_GENERAL_PART,
+            area=1.0,
+            inside_emissivity=0.9,
+            h_c=2.5,
+            temp_dif_coef=1.0
         ),
-        InputBoundary(
+        InputBoundaryExternalTransparentPart(
             id=21,
             name='south_window_1F_room',
             sub_name='',
             connected_room_id=2,
-            boundary_type=BoundaryType.EXTERNAL_TRANSPARENT_PART,
-            area=0.5
+            boundary_type=EBoundaryType.EXTERNAL_TRANSPARENT_PART,
+            area=0.5,
+            inside_emissivity=0.9,
+            h_c=2.5,
+            temp_dif_coef=1.0
         ),
-        InputBoundary(
+        InputBoundaryExternalTransparentPart(
             id=23,
             name='south_window_2F_room',
             sub_name='',
             connected_room_id=4,
-            boundary_type=BoundaryType.EXTERNAL_TRANSPARENT_PART,
-            area=0.5
+            boundary_type=EBoundaryType.EXTERNAL_TRANSPARENT_PART,
+            area=0.5,
+            inside_emissivity=0.9,
+            h_c=2.5,
+            temp_dif_coef=1.0
         ),
-        InputBoundary(
+        InputBoundaryInternal(
             id=25,
             name='internal_1',
             sub_name='',
             connected_room_id=2,
-            boundary_type=BoundaryType.INTERNAL,
-            area=1.0
+            boundary_type=EBoundaryType.INTERNAL,
+            area=1.0,
+            inside_emissivity=0.9,
+            h_c=2.5
         ),
-        InputBoundary(
+        InputBoundaryInternal(
             id=27,
             name='internal_2',
             sub_name='',
             connected_room_id=4,
-            boundary_type=BoundaryType.INTERNAL,
-            area=1.0
+            boundary_type=EBoundaryType.INTERNAL,
+            area=1.0,
+            inside_emissivity=0.9,
+            h_c=2.5
         ),
     ]
 
@@ -231,7 +278,6 @@ def test_values():
         ])
     )
 
-        # name
 
 
 class TestBoundaries(unittest.TestCase):
@@ -525,10 +571,10 @@ class TestBoundaries(unittest.TestCase):
 
             match t_b_j:
 
-                case BoundaryType.INTERNAL:
+                case EBoundaryType.INTERNAL:
                     return outside_eqv_temp.get_theta_o_eqv_j_ns_for_internal(w=self._w)
 
-                case BoundaryType.EXTERNAL_GENERAL_PART:
+                case EBoundaryType.EXTERNAL_GENERAL_PART:
                     
                     if b_sun_strkd_out_j:
                         
@@ -540,7 +586,7 @@ class TestBoundaries(unittest.TestCase):
 
                         return outside_eqv_temp.get_theta_o_eqv_j_ns_for_external_not_sun_striked(w=self._w)
 
-                case BoundaryType.EXTERNAL_TRANSPARENT_PART:
+                case EBoundaryType.EXTERNAL_TRANSPARENT_PART:
 
                     if b_sun_strkd_out_j:
 
@@ -585,11 +631,11 @@ class TestBoundaries(unittest.TestCase):
 
             match t_b_j:
 
-                case BoundaryType.INTERNAL | BoundaryType.EXTERNAL_GENERAL_PART:
+                case EBoundaryType.INTERNAL | EBoundaryType.EXTERNAL_GENERAL_PART:
 
                     return transmission_solar_radiation.get_q_trs_sol_j_ns_for_not(w=self._w)
                 
-                case BoundaryType.EXTERNAL_TRANSPARENT_PART:
+                case EBoundaryType.EXTERNAL_TRANSPARENT_PART:
 
                     return transmission_solar_radiation.get_q_trs_sol_j_ns_for_transparent_sun_striked(
                         t_drct_j=t_drct_j, a_s_j=a_s_j, ssp_j=ssp_j, window_j=window_j, w=self._w
@@ -649,7 +695,7 @@ def _get_window_js():
     # grazing type of boundary, [J]
     t_glz_js = np.array([None, None, None, None, None, None, None, None, None, None, GlassType.MULTIPLE, GlassType.MULTIPLE, None, None])
 
-    window_js = np.array([Window(u_w_std_j=u_w_std_j, eta_w_std_j=eta_w_std_j, t_glz_j=t_glz_j, r_a_w_g_j=r_a_w_g_j) if t_b_j == BoundaryType.EXTERNAL_TRANSPARENT_PART else None
+    window_js = np.array([Window(u_w_std_j=u_w_std_j, eta_w_std_j=eta_w_std_j, t_glz_j=t_glz_j, r_a_w_g_j=r_a_w_g_j) if t_b_j == EBoundaryType.EXTERNAL_TRANSPARENT_PART else None
         for (t_b_j, u_w_std_j, eta_w_std_j, t_glz_j, r_a_w_g_j)
         in zip(t_b_js, u_w_std_js, eta_w_std_js, t_glz_js, r_a_w_g_js)
     ])
@@ -675,20 +721,20 @@ def _get_t_b_js():
     """[J]"""
 
     return np.array([
-        BoundaryType.EXTERNAL_GENERAL_PART,
-        BoundaryType.EXTERNAL_GENERAL_PART,
-        BoundaryType.EXTERNAL_GENERAL_PART,
-        BoundaryType.EXTERNAL_GENERAL_PART,
-        BoundaryType.EXTERNAL_GENERAL_PART,
-        BoundaryType.EXTERNAL_GENERAL_PART,
-        BoundaryType.EXTERNAL_GENERAL_PART,
-        BoundaryType.EXTERNAL_GENERAL_PART,
-        BoundaryType.EXTERNAL_GENERAL_PART,
-        BoundaryType.EXTERNAL_GENERAL_PART,
-        BoundaryType.EXTERNAL_TRANSPARENT_PART,
-        BoundaryType.EXTERNAL_TRANSPARENT_PART,
-        BoundaryType.INTERNAL,
-        BoundaryType.INTERNAL
+        EBoundaryType.EXTERNAL_GENERAL_PART,
+        EBoundaryType.EXTERNAL_GENERAL_PART,
+        EBoundaryType.EXTERNAL_GENERAL_PART,
+        EBoundaryType.EXTERNAL_GENERAL_PART,
+        EBoundaryType.EXTERNAL_GENERAL_PART,
+        EBoundaryType.EXTERNAL_GENERAL_PART,
+        EBoundaryType.EXTERNAL_GENERAL_PART,
+        EBoundaryType.EXTERNAL_GENERAL_PART,
+        EBoundaryType.EXTERNAL_GENERAL_PART,
+        EBoundaryType.EXTERNAL_GENERAL_PART,
+        EBoundaryType.EXTERNAL_TRANSPARENT_PART,
+        EBoundaryType.EXTERNAL_TRANSPARENT_PART,
+        EBoundaryType.INTERNAL,
+        EBoundaryType.INTERNAL
     ])   
 
 
