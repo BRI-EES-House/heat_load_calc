@@ -39,24 +39,16 @@ class InputBoundary:
     # inside surface convective heat transfer coefficient, W/m2K (>0.0)
     h_c: float
 
+    # is inside solar radiation absorbed of boundary j
+    is_solar_absorbed_inside: bool
+
+    # is boundary j floor
+    is_floor: bool
+
     @classmethod
     def read(cls, d_boundary: dict):
         
-        id = cls._get_id(d_boundary=d_boundary)
-
-        name = cls._get_name(d_boundary=d_boundary)
-
-        sub_name = cls._get_sub_name(d_boundary=d_boundary)
-
-        connected_room_id = cls._get_connected_room_id(d_boundary=d_boundary)
-
         boundary_type = cls._get_boundary_type(d_boundary=d_boundary)
-
-        area = cls._get_area(d_boundary=d_boundary)
-
-        inside_emissivity = cls._get_inside_emissivity(d_boundary=d_boundary)
-
-        h_c = cls._get_h_c(d_boundary=d_boundary)
 
         match boundary_type:
         
@@ -212,12 +204,72 @@ class InputBoundary:
             raise ValueError(RGE('temp_dif_coef', 'boundary', '0.0'))
         
         return temp_dif_coef
+    
+    @staticmethod
+    def _get_is_solar_absorbed_inside(d_boundary: dict):
+
+        if 'is_solar_absorbed_inside' not in d_boundary:
+            raise KeyError(KNE('is_solar_absorbed_inside', 'boundary'))
+        
+        match d_boundary['is_solar_absorbed_inside']:
+            case True:
+                return True
+            case False:
+                return False
+            case _:
+                raise ValueError(VI('is_solar_absorbed_inside', 'boundary'))
+    
+    @staticmethod
+    def _get_is_floor(d_boundary: dict):
+
+        if 'is_floor' not in d_boundary:
+            raise KeyError(KNE('is_floor', 'boundary'))
+        
+        match d_boundary['is_floor']:
+            case True:
+                return True
+            case False:
+                return False
+            case _:
+                raise ValueError(VI('is_floor', 'boundary'))
+
+    @staticmethod
+    def _get_rear_surface_boundary_id(d_boundary: dict):
+
+        if 'rear_surface_boundary_id' not in d_boundary:
+            raise KeyError(KNE('rear_surface_boundary_id', 'boundary'))
+        
+        try:
+            rear_surface_boundary_id = int(d_boundary['rear_surface_boundary_id'])
+        except ValueError:
+            raise ValueError(VI('rear_surface_boundary_id', 'boundary'))
+        
+        if rear_surface_boundary_id < 0:
+            raise ValueError(RGE('rear_surface_boundary_id', 'boundary', '0'))
+        
+        return rear_surface_boundary_id
+    
+    @staticmethod
+    def _get_is_sun_striked_outside(d_boundary: dict):
+
+        if 'is_sun_striked_outside' not in d_boundary:
+            raise KeyError(KNE('is_sun_striked_outside', 'boundary'))
+        
+        match d_boundary['is_sun_striked_outside']:
+            case True:
+                return True
+            case False:
+                return False
+            case _:
+                raise ValueError(VI('is_sun_striked_outside', 'boundary'))            
 
 
 @dataclass
 class InputBoundaryExternalGeneralPart(InputBoundary):
 
     temp_dif_coef: float
+
+    is_sun_striked_outside: bool
 
     @classmethod
     def read(cls, d_boundary: dict):
@@ -238,8 +290,14 @@ class InputBoundaryExternalGeneralPart(InputBoundary):
 
         h_c = cls._get_h_c(d_boundary=d_boundary)
 
+        is_solar_absorbed_inside = cls._get_is_solar_absorbed_inside(d_boundary=d_boundary)
+
+        is_floor = cls._get_is_floor(d_boundary=d_boundary)
+        
         temp_dif_coef = cls._get_temp_dif_coef(d_boundary=d_boundary)
 
+        is_sun_striked_outside = cls._get_is_sun_striked_outside(d_boundary=d_boundary)
+        
         return InputBoundaryExternalGeneralPart(
             id=id,
             name=name,
@@ -249,7 +307,10 @@ class InputBoundaryExternalGeneralPart(InputBoundary):
             area=area,
             inside_emissivity=inside_emissivity,
             h_c=h_c,
-            temp_dif_coef=temp_dif_coef
+            is_solar_absorbed_inside=is_solar_absorbed_inside,
+            is_floor=is_floor,
+            temp_dif_coef=temp_dif_coef,
+            is_sun_striked_outside=is_sun_striked_outside
         )
 
 
@@ -257,6 +318,8 @@ class InputBoundaryExternalGeneralPart(InputBoundary):
 class InputBoundaryExternalTransparentPart(InputBoundary):
 
     temp_dif_coef: float
+
+    is_sun_striked_outside: bool
 
     @classmethod
     def read(cls, d_boundary: dict):
@@ -277,7 +340,13 @@ class InputBoundaryExternalTransparentPart(InputBoundary):
 
         h_c = cls._get_h_c(d_boundary=d_boundary)
 
+        is_solar_absorbed_inside = cls._get_is_solar_absorbed_inside(d_boundary=d_boundary)
+
+        is_floor = cls._get_is_floor(d_boundary=d_boundary)
+
         temp_dif_coef = cls._get_temp_dif_coef(d_boundary=d_boundary)
+
+        is_sun_striked_outside = cls._get_is_sun_striked_outside(d_boundary=d_boundary)
 
         return InputBoundaryExternalTransparentPart(
             id=id,
@@ -288,7 +357,10 @@ class InputBoundaryExternalTransparentPart(InputBoundary):
             area=area,
             inside_emissivity=inside_emissivity,
             h_c=h_c,
-            temp_dif_coef=temp_dif_coef
+            is_solar_absorbed_inside=is_solar_absorbed_inside,
+            is_floor=is_floor,
+            temp_dif_coef=temp_dif_coef,
+            is_sun_striked_outside=is_sun_striked_outside
         )
 
 
@@ -296,6 +368,8 @@ class InputBoundaryExternalTransparentPart(InputBoundary):
 class InputBoundaryExternalOpaquePart(InputBoundary):
 
     temp_dif_coef: float
+
+    is_sun_striked_outside: bool
 
     @classmethod
     def read(cls, d_boundary: dict):
@@ -316,7 +390,13 @@ class InputBoundaryExternalOpaquePart(InputBoundary):
 
         h_c = cls._get_h_c(d_boundary=d_boundary)
 
+        is_solar_absorbed_inside = cls._get_is_solar_absorbed_inside(d_boundary=d_boundary)
+
+        is_floor = cls._get_is_floor(d_boundary=d_boundary)
+
         temp_dif_coef = cls._get_temp_dif_coef(d_boundary=d_boundary)
+
+        is_sun_striked_outside = cls._get_is_sun_striked_outside(d_boundary=d_boundary)
 
         return InputBoundaryExternalOpaquePart(
             id=id,
@@ -327,7 +407,10 @@ class InputBoundaryExternalOpaquePart(InputBoundary):
             area=area,
             inside_emissivity=inside_emissivity,
             h_c=h_c,
-            temp_dif_coef=temp_dif_coef
+            is_solar_absorbed_inside=is_solar_absorbed_inside,
+            is_floor=is_floor,
+            temp_dif_coef=temp_dif_coef,
+            is_sun_striked_outside=is_sun_striked_outside
         )
 
 
@@ -353,6 +436,10 @@ class InputBoundaryGround(InputBoundary):
 
         h_c = cls._get_h_c(d_boundary=d_boundary)
 
+        is_solar_absorbed_inside = cls._get_is_solar_absorbed_inside(d_boundary=d_boundary)
+
+        is_floor = cls._get_is_floor(d_boundary=d_boundary)
+
         return InputBoundaryGround(
             id=id,
             name=name,
@@ -361,12 +448,16 @@ class InputBoundaryGround(InputBoundary):
             boundary_type=boundary_type,
             area=area,
             inside_emissivity=inside_emissivity,
-            h_c=h_c
+            h_c=h_c,
+            is_solar_absorbed_inside=is_solar_absorbed_inside,
+            is_floor=is_floor
         )
 
 
 @dataclass
 class InputBoundaryInternal(InputBoundary):
+
+    rear_surface_boundary_id: int
 
     @classmethod
     def read(cls, d_boundary: dict):
@@ -387,6 +478,12 @@ class InputBoundaryInternal(InputBoundary):
 
         h_c = cls._get_h_c(d_boundary=d_boundary)
 
+        is_solar_absorbed_inside = cls._get_is_solar_absorbed_inside(d_boundary=d_boundary)
+
+        is_floor = cls._get_is_floor(d_boundary=d_boundary)
+
+        rear_surface_boundary_id = cls._get_rear_surface_boundary_id(d_boundary=d_boundary)
+
         return InputBoundaryInternal(
             id=id,
             name=name,
@@ -395,6 +492,9 @@ class InputBoundaryInternal(InputBoundary):
             boundary_type=boundary_type,
             area=area,
             inside_emissivity=inside_emissivity,
-            h_c=h_c
+            h_c=h_c,
+            is_solar_absorbed_inside=is_solar_absorbed_inside,
+            is_floor=is_floor,
+            rear_surface_boundary_id=rear_surface_boundary_id
         )
 

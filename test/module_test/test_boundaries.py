@@ -47,7 +47,10 @@ def make_boundaries():
             area=0.5,
             inside_emissivity=0.9,
             h_c=2.5,
-            temp_dif_coef=1.0
+            is_solar_absorbed_inside=False,
+            is_floor=False,
+            temp_dif_coef=1.0,
+            is_sun_striked_outside=True
         ),
         InputBoundaryExternalGeneralPart(
             id=3,
@@ -58,7 +61,10 @@ def make_boundaries():
             area=0.5,
             inside_emissivity=0.9,
             h_c=2.5,
-            temp_dif_coef=1.0
+            is_solar_absorbed_inside=False,
+            is_floor=False,
+            temp_dif_coef=1.0,
+            is_sun_striked_outside=True
         ),
         InputBoundaryExternalGeneralPart(
             id=5,
@@ -69,7 +75,10 @@ def make_boundaries():
             area=1.0,
             inside_emissivity=0.9,
             h_c=2.5,
-            temp_dif_coef=1.0
+            is_solar_absorbed_inside=False,
+            is_floor=False,
+            temp_dif_coef=1.0,
+            is_sun_striked_outside=True
         ),
         InputBoundaryExternalGeneralPart(
             id=7,
@@ -80,7 +89,10 @@ def make_boundaries():
             area=1.0,
             inside_emissivity=0.9,
             h_c=2.5,
-            temp_dif_coef=1.0
+            is_solar_absorbed_inside=False,
+            is_floor=False,
+            temp_dif_coef=1.0,
+            is_sun_striked_outside=True
         ),
         InputBoundaryExternalGeneralPart(
             id=9,
@@ -91,7 +103,10 @@ def make_boundaries():
             area=1.0,
             inside_emissivity=0.9,
             h_c=2.5,
-            temp_dif_coef=1.0
+            is_solar_absorbed_inside=True,
+            is_floor=True,
+            temp_dif_coef=1.0,
+            is_sun_striked_outside=True
         ),
         InputBoundaryExternalGeneralPart(
             id=11,
@@ -102,7 +117,10 @@ def make_boundaries():
             area=0.5,
             inside_emissivity=0.9,
             h_c=2.5,
-            temp_dif_coef=1.0
+            is_solar_absorbed_inside=False,
+            is_floor=False,
+            temp_dif_coef=1.0,
+            is_sun_striked_outside=True
         ),
         InputBoundaryExternalGeneralPart(
             id=13,
@@ -113,7 +131,10 @@ def make_boundaries():
             area=1.0,
             inside_emissivity=0.9,
             h_c=2.5,
-            temp_dif_coef=1.0
+            is_solar_absorbed_inside=False,
+            is_floor=False,
+            temp_dif_coef=1.0,
+            is_sun_striked_outside=True
         ),
         InputBoundaryExternalGeneralPart(
             id=15,
@@ -124,7 +145,10 @@ def make_boundaries():
             area=1.0,
             inside_emissivity=0.9,
             h_c=2.5,
-            temp_dif_coef=1.0
+            is_solar_absorbed_inside=False,
+            is_floor=False,
+            temp_dif_coef=1.0,
+            is_sun_striked_outside=True
         ),
         InputBoundaryExternalGeneralPart(
             id=17,
@@ -135,7 +159,10 @@ def make_boundaries():
             area=1.0,
             inside_emissivity=0.9,
             h_c=2.5,
-            temp_dif_coef=1.0
+            is_solar_absorbed_inside=False,
+            is_floor=False,
+            temp_dif_coef=1.0,
+            is_sun_striked_outside=True
         ),
         InputBoundaryExternalGeneralPart(
             id=19,
@@ -146,7 +173,10 @@ def make_boundaries():
             area=1.0,
             inside_emissivity=0.9,
             h_c=2.5,
-            temp_dif_coef=1.0
+            is_solar_absorbed_inside=False,
+            is_floor=False,
+            temp_dif_coef=1.0,
+            is_sun_striked_outside=True
         ),
         InputBoundaryExternalTransparentPart(
             id=21,
@@ -157,7 +187,10 @@ def make_boundaries():
             area=0.5,
             inside_emissivity=0.9,
             h_c=2.5,
-            temp_dif_coef=1.0
+            is_solar_absorbed_inside=False,
+            is_floor=False,
+            temp_dif_coef=1.0,
+            is_sun_striked_outside=True
         ),
         InputBoundaryExternalTransparentPart(
             id=23,
@@ -168,7 +201,10 @@ def make_boundaries():
             area=0.5,
             inside_emissivity=0.9,
             h_c=2.5,
-            temp_dif_coef=1.0
+            is_solar_absorbed_inside=False,
+            is_floor=False,
+            temp_dif_coef=1.0,
+            is_sun_striked_outside=True
         ),
         InputBoundaryInternal(
             id=25,
@@ -178,7 +214,10 @@ def make_boundaries():
             boundary_type=EBoundaryType.INTERNAL,
             area=1.0,
             inside_emissivity=0.9,
-            h_c=2.5
+            h_c=2.5,
+            is_solar_absorbed_inside=False,
+            is_floor=False,
+            rear_surface_boundary_id=27
         ),
         InputBoundaryInternal(
             id=27,
@@ -188,7 +227,10 @@ def make_boundaries():
             boundary_type=EBoundaryType.INTERNAL,
             area=1.0,
             inside_emissivity=0.9,
-            h_c=2.5
+            h_c=2.5,
+            is_solar_absorbed_inside=True,
+            is_floor=True,
+            rear_surface_boundary_id=25
         ),
     ]
 

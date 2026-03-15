@@ -28,7 +28,10 @@ def get_default_dict():
         'area': 3.0,
         'inside_emissivity': 0.92,
         'h_c': 2.5,
-        'temp_dif_coef': 1.0
+        'temp_dif_coef': 1.0,
+        'is_solar_absorbed_inside': True,
+        'is_floor': True,
+        'is_sun_striked_outside': True,
     }
 
 
@@ -48,7 +51,10 @@ def get_default_dict_external_transparent_part():
         'area': 3.0,
         'inside_emissivity': 0.92,
         'h_c': 2.5,
-        'temp_dif_coef': 1.0
+        'temp_dif_coef': 1.0,
+        'is_solar_absorbed_inside': False,
+        'is_floor': False,
+        'is_sun_striked_outside': True,
     }
 
 
@@ -63,7 +69,10 @@ def get_default_dict_external_opaque_part():
         'area': 3.0,
         'inside_emissivity': 0.92,
         'h_c': 2.5,
-        'temp_dif_coef': 1.0
+        'temp_dif_coef': 1.0,
+        'is_solar_absorbed_inside': False,
+        'is_floor': False,
+        'is_sun_striked_outside': True,
     }
 
 
@@ -78,7 +87,9 @@ def get_default_dict_ground():
         'area': 3.0,
         'inside_emissivity': 0.92,
         'h_c': 2.5,
-        'temp_dif_coef': 1.0
+        'temp_dif_coef': 1.0,
+        'is_solar_absorbed_inside': False,
+        'is_floor': True
     }
 
 
@@ -93,7 +104,10 @@ def get_default_dict_internal():
         'area': 3.0,
         'inside_emissivity': 0.92,
         'h_c': 2.5,
-        'temp_dif_coef': 1.0
+        'temp_dif_coef': 1.0,
+        'rear_surface_boundary_id': 9,
+        'is_solar_absorbed_inside': False,
+        'is_floor': False
     }
 
 
@@ -528,3 +542,163 @@ def test_value__temp_dif_coef__out_of_range2():
     assert RLE('temp_dif_coef', 'boundary', 1.0) in str(e2.value)
 
     assert RLE('temp_dif_coef', 'boundary', 1.0) in str(e3.value)
+
+
+def test_value__is_solar_absorbed_inside__():
+
+    d = get_default_dict()
+
+    ipt = InputBoundary.read(d_boundary=d)
+
+    assert ipt.is_solar_absorbed_inside == True
+
+
+def test_key__is_solar_absorbed_inside__not_exists():
+
+    d = get_default_dict()
+
+    del d['is_solar_absorbed_inside']
+
+    with pytest.raises(KeyError) as e:
+        InputBoundary.read(d_boundary=d)
+    
+    assert KNE('is_solar_absorbed_inside', 'boundary') in str(e.value)
+
+
+def test_value__is_solar_absorbed_inside__invalid():
+
+    d = get_default_dict()
+
+    d['is_solar_absorbed_inside'] = 'wrong_value'
+
+    with pytest.raises(ValueError) as e:
+        InputBoundary.read(d_boundary=d)
+    
+    assert VI('is_solar_absorbed_inside', 'boundary') in str(e.value)
+
+
+def test_key__is_floor__not_exists():
+
+    d = get_default_dict()
+
+    del d['is_floor']
+
+    with pytest.raises(KeyError) as e:
+        InputBoundary.read(d_boundary=d)
+    
+    assert KNE('is_floor', 'boundary') in str(e.value)
+
+
+def test_value__is_floor__invalid():
+
+    d = get_default_dict()
+
+    d['is_floor'] = 'wrong_value'
+
+    with pytest.raises(ValueError) as e:
+        InputBoundary.read(d_boundary=d)
+    
+    assert VI('is_floor', 'boundary') in str(e.value)
+
+
+def test_key__rear_surface_boundary_id__not_exists():
+    
+    d = get_default_dict_internal()
+
+    del d['rear_surface_boundary_id']
+
+    with pytest.raises(KeyError) as e:
+        InputBoundary.read(d_boundary=d)
+    
+    assert KNE('rear_surface_boundary_id', 'boundary') in str(e.value)
+
+
+def test_value__rear_surface_boundary_id__wrong_value():
+    
+    d = get_default_dict_internal()
+
+    d['rear_surface_boundary_id'] = 'wrong_value'
+
+    with pytest.raises(ValueError) as e:
+        InputBoundary.read(d_boundary=d)
+    
+    assert VI('rear_surface_boundary_id', 'boundary') in str(e.value)
+
+
+def test_value__rear_surface_boundary_id__out_of_range1():
+    
+    d = get_default_dict_internal()
+
+    d['rear_surface_boundary_id'] = -1
+
+    with pytest.raises(ValueError) as e:
+        InputBoundary.read(d_boundary=d)
+    
+    assert RGE('rear_surface_boundary_id', 'boundary', 0) in str(e.value)
+
+
+def test_value__is_sun_striked_outside__():
+
+    d1 = get_default_dict_external_general_part()
+    d2 = get_default_dict_external_transparent_part()
+    d3 = get_default_dict_external_opaque_part()
+
+    ipt1: InputBoundaryExternalGeneralPart = InputBoundary.read(d_boundary=d1)
+    ipt2: InputBoundaryExternalTransparentPart = InputBoundary.read(d_boundary=d2)
+    ipt3: InputBoundaryExternalOpaquePart = InputBoundary.read(d_boundary=d3)
+
+    assert ipt1.is_sun_striked_outside == True
+    assert ipt2.is_sun_striked_outside == True
+    assert ipt3.is_sun_striked_outside == True
+
+
+def test_key__is_sun_striked_outside__not_exists():
+    
+    d1 = get_default_dict_external_general_part()
+    d2 = get_default_dict_external_transparent_part()
+    d3 = get_default_dict_external_opaque_part()
+
+    del d1['is_sun_striked_outside']
+    del d2['is_sun_striked_outside']
+    del d3['is_sun_striked_outside']
+
+    with pytest.raises(KeyError) as e1:
+        InputBoundary.read(d_boundary=d1)
+    
+    with pytest.raises(KeyError) as e2:
+        InputBoundary.read(d_boundary=d2)
+
+    with pytest.raises(KeyError) as e3:
+        InputBoundary.read(d_boundary=d3)
+
+    assert KNE('is_sun_striked_outside', 'boundary') in str(e1.value)
+
+    assert KNE('is_sun_striked_outside', 'boundary') in str(e2.value)
+
+    assert KNE('is_sun_striked_outside', 'boundary') in str(e3.value)
+
+
+def test_value__is_sun_striked_outside__wrong_value():
+    
+    d1 = get_default_dict_external_general_part()
+    d2 = get_default_dict_external_transparent_part()
+    d3 = get_default_dict_external_opaque_part()
+
+    d1['is_sun_striked_outside'] = 'wrong_value'
+    d2['is_sun_striked_outside'] = 'wrong_value'
+    d3['is_sun_striked_outside'] = 'wrong_value'
+
+    with pytest.raises(ValueError) as e1:
+        InputBoundary.read(d_boundary=d1)
+    
+    with pytest.raises(ValueError) as e2:
+        InputBoundary.read(d_boundary=d2)
+
+    with pytest.raises(ValueError) as e3:
+        InputBoundary.read(d_boundary=d3)
+
+    assert VI('is_sun_striked_outside', 'boundary') in str(e1.value)
+
+    assert VI('is_sun_striked_outside', 'boundary') in str(e2.value)
+
+    assert VI('is_sun_striked_outside', 'boundary') in str(e3.value)

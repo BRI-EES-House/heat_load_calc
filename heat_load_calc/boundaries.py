@@ -31,6 +31,13 @@ from typing import Protocol, runtime_checkable
 class TempDifCoefHolder(Protocol):
     temp_dif_coef: float
 
+@runtime_checkable
+class RearSurfaceBoundaryIdHolder(Protocol):
+    rear_surface_boundary_id: int
+
+@runtime_checkable
+class IsSunStrikedOutsideHolder(Protocol):
+    is_sun_striked_outside: bool
 
 @dataclass
 class Boundary:
@@ -231,31 +238,20 @@ class Boundaries:
         a_s_j = ipt_boundary.area
 
         # temperature difference coefficient of boundary j / 温度差係数
-        #k_eo_j = _read_k_eo(d=d, id=id_j, t_b=t_b_j)
-
-        match ipt_boundary.boundary_type:
-            case EBoundaryType.EXTERNAL_GENERAL_PART | EBoundaryType.EXTERNAL_TRANSPARENT_PART | EBoundaryType.EXTERNAL_OPAQUE_PART:
-                if not isinstance(ipt_boundary, TempDifCoefHolder):
-                    raise Exception()
-                k_eo_j = ipt_boundary.temp_dif_coef
-            case EBoundaryType.GROUND:
-                k_eo_j = 1.0
-            case EBoundaryType.INTERNAL:
-                k_eo_j = 0.0
-            case _:
-                raise Exception()                
+        k_eo_j = _get_k_eo_j(ipt_boundary=ipt_boundary)                
 
         # rear boundary index of boundary j
-        j_rear_j = _read_j_rear(b=d, id=id_j, t_b=t_b_j, id_js=id_js)
+        j_rear_j = _get_j_rear_j(ipt_boundary=ipt_boundary, id_js=id_js, id_j=id_j)                
 
         # is inside solar radiation absorbed of boundary j / 室内侵入日射吸収の有無 (True:吸収する/False:吸収しない)
-        b_sol_abs_j = bool(d['is_solar_absorbed_inside'])
+        #b_sol_abs_j = bool(d['is_solar_absorbed_inside'])
+        b_sol_abs_j = ipt_boundary.is_solar_absorbed_inside
 
         # is boundary j floor / 床か否か(True:床/False:床以外)
-        b_floor_j = bool(d['is_floor'])
+        b_floor_j = ipt_boundary.is_floor
 
         # is the sun striked to outside of boundary j / 外気側に日射が当たるか否か
-        b_sun_strkd_out_j = _read_b_sun_strkd_out(d=d, id=id_j, t_b=t_b_j)
+        b_sun_strkd_out_j = _read_b_sun_strkd_out(ipt_boundary=ipt_boundary)
         
         # direction of boundary j / 方位
         t_drct_j = _read_t_drct(d=d, b_sun_strkd_out=b_sun_strkd_out_j)
@@ -325,7 +321,6 @@ class Boundaries:
             k_ei_js=k_ei_js_j,
             k_s_r=k_s_r_j
         )
-
 
     @property
     def n_b(self) -> int:
@@ -666,29 +661,6 @@ def _get_room_index(id_r_is: np.ndarray, id: int):
     return matched_indices[0]
 
 
-def _read_j_rear(b: Dict, id: int, t_b: EBoundaryType, id_js: np.ndarray) -> int | None:
-    """Get the rear surface boundary index.
-
-    Args:
-        b: dictionary of boundries
-        id: boundary id
-        t_b: boundary type
-        id_js: list of the boundaries, [J]
-
-    Returns:
-        rear surface boundary index
-    Notes:
-        This index is defined only in case of INTERNAL as type of boundary.
-    """
-
-    if t_b == EBoundaryType.INTERNAL:
-        rear_surface_boundary_id = int(b['rear_surface_boundary_id'])
-        rear_boundary_index = _get_boundary_index(id_js=id_js, rear_surface_boundary_id=rear_surface_boundary_id, id=id)
-        return rear_boundary_index
-    else:
-        return None
-
-
 def _get_boundary_index(id_js: np.ndarray, rear_surface_boundary_id: int, id: int) -> int:
     """Get the boundary index matched to the specify id.
 
@@ -715,55 +687,42 @@ def _get_boundary_index(id_js: np.ndarray, rear_surface_boundary_id: int, id: in
     return matched_indices[0]
 
 
-def _read_k_eo(d: Dict, id: int, t_b: EBoundaryType) -> float:
-    """Read the temperature difference coefficient.
+def _get_k_eo_j(ipt_boundary: InputBoundary):
 
-    Args:
-        d: dictionary of boundary
-        id: boundary id
-        t_b: boundary type
+    match ipt_boundary.boundary_type:
 
-    Returns:
-        temperature difference coefficient
-    """
+        case EBoundaryType.EXTERNAL_GENERAL_PART | EBoundaryType.EXTERNAL_TRANSPARENT_PART | EBoundaryType.EXTERNAL_OPAQUE_PART:
+            if not isinstance(ipt_boundary, TempDifCoefHolder):
+                raise Exception()
+            k_eo_j = ipt_boundary.temp_dif_coef
 
-    if t_b in [
-        EBoundaryType.EXTERNAL_GENERAL_PART,
-        EBoundaryType.EXTERNAL_TRANSPARENT_PART,
-        EBoundaryType.EXTERNAL_OPAQUE_PART
-    ]:
-        k_eo = float(d['temp_dif_coef'])
-    elif t_b == EBoundaryType.GROUND:
-        k_eo = 1.0
-    elif t_b == EBoundaryType.INTERNAL:
-        k_eo = 0.0
+        case EBoundaryType.GROUND:
+            k_eo_j = 1.0
+
+        case EBoundaryType.INTERNAL:
+            k_eo_j = 0.0
+
+        case _:
+            raise Exception()
+
+    return k_eo_j
+
+def _get_j_rear_j(ipt_boundary: InputBoundary, id_js: np.ndarray, id_j: int):
+
+    if isinstance(ipt_boundary, RearSurfaceBoundaryIdHolder):
+        rear_surface_boundary_id = ipt_boundary.rear_surface_boundary_id
+        return _get_boundary_index(id_js=id_js, rear_surface_boundary_id=rear_surface_boundary_id, id=id_j)
+
     else:
-        raise Exception()
-
-    if k_eo > 1.0:
-        raise ValueError("境界(ID=" + str(id) + ")の温度差係数で1.0を超える値が指定されました。")
-
-    if k_eo < 0.0:
-        raise ValueError("境界(ID=" + str(id) + ")の温度差係数で0.0を下回る値が指定されました。")
-    
-    return k_eo
+        return None
 
 
-def _read_b_sun_strkd_out(d: Dict, id: int, t_b: EBoundaryType) -> bool:
+def _read_b_sun_strkd_out(ipt_boundary: InputBoundary) -> bool:
 
-    if t_b in [
-        EBoundaryType.EXTERNAL_GENERAL_PART,
-        EBoundaryType.EXTERNAL_TRANSPARENT_PART,
-        EBoundaryType.EXTERNAL_OPAQUE_PART
-    ]:
-        return bool(d['is_sun_striked_outside'])
-    elif t_b in [
-        EBoundaryType.INTERNAL,
-        EBoundaryType.GROUND
-    ]:
+    if isinstance(ipt_boundary, IsSunStrikedOutsideHolder):
+        return ipt_boundary.is_sun_striked_outside
+    else:
         return False
-    else:
-        raise Exception()
 
 
 def _read_t_drct(d: Dict, b_sun_strkd_out: bool) -> Optional[Direction]:
