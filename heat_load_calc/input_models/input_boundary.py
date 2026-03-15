@@ -11,6 +11,8 @@ from heat_load_calc.error_message import (
     value_out_of_range_LT as RLT
 )
 from heat_load_calc.tenum import EBoundaryType
+from heat_load_calc.direction import Direction
+
 
 @dataclass
 class InputBoundary:
@@ -263,6 +265,24 @@ class InputBoundary:
             case _:
                 raise ValueError(VI('is_sun_striked_outside', 'boundary'))            
 
+    @staticmethod
+    def _get_direction(d_boundary: dict, is_sun_striked_outside: bool):
+
+        if is_sun_striked_outside:
+
+            if 'direction' not in d_boundary:
+                raise KeyError(KNE('direction', 'boundary'))
+            
+            try:
+                direction = Direction(d_boundary['direction'])
+            except ValueError:
+                raise ValueError(VI('direction', 'boundary'))
+        
+            return direction
+        
+        else:
+            
+            return None
 
 @dataclass
 class InputBoundaryExternalGeneralPart(InputBoundary):
@@ -270,6 +290,8 @@ class InputBoundaryExternalGeneralPart(InputBoundary):
     temp_dif_coef: float
 
     is_sun_striked_outside: bool
+
+    direction: Direction
 
     @classmethod
     def read(cls, d_boundary: dict):
@@ -297,6 +319,8 @@ class InputBoundaryExternalGeneralPart(InputBoundary):
         temp_dif_coef = cls._get_temp_dif_coef(d_boundary=d_boundary)
 
         is_sun_striked_outside = cls._get_is_sun_striked_outside(d_boundary=d_boundary)
+
+        direction = cls._get_direction(d_boundary=d_boundary, is_sun_striked_outside=is_sun_striked_outside)
         
         return InputBoundaryExternalGeneralPart(
             id=id,
@@ -310,7 +334,8 @@ class InputBoundaryExternalGeneralPart(InputBoundary):
             is_solar_absorbed_inside=is_solar_absorbed_inside,
             is_floor=is_floor,
             temp_dif_coef=temp_dif_coef,
-            is_sun_striked_outside=is_sun_striked_outside
+            is_sun_striked_outside=is_sun_striked_outside,
+            direction=direction
         )
 
 
@@ -320,6 +345,8 @@ class InputBoundaryExternalTransparentPart(InputBoundary):
     temp_dif_coef: float
 
     is_sun_striked_outside: bool
+
+    direction: Direction
 
     @classmethod
     def read(cls, d_boundary: dict):
@@ -347,6 +374,8 @@ class InputBoundaryExternalTransparentPart(InputBoundary):
         temp_dif_coef = cls._get_temp_dif_coef(d_boundary=d_boundary)
 
         is_sun_striked_outside = cls._get_is_sun_striked_outside(d_boundary=d_boundary)
+
+        direction = cls._get_direction(d_boundary=d_boundary, is_sun_striked_outside=is_sun_striked_outside)
 
         return InputBoundaryExternalTransparentPart(
             id=id,
@@ -360,7 +389,8 @@ class InputBoundaryExternalTransparentPart(InputBoundary):
             is_solar_absorbed_inside=is_solar_absorbed_inside,
             is_floor=is_floor,
             temp_dif_coef=temp_dif_coef,
-            is_sun_striked_outside=is_sun_striked_outside
+            is_sun_striked_outside=is_sun_striked_outside,
+            direction=direction
         )
 
 
@@ -370,6 +400,8 @@ class InputBoundaryExternalOpaquePart(InputBoundary):
     temp_dif_coef: float
 
     is_sun_striked_outside: bool
+
+    direction: Direction
 
     @classmethod
     def read(cls, d_boundary: dict):
@@ -398,6 +430,8 @@ class InputBoundaryExternalOpaquePart(InputBoundary):
 
         is_sun_striked_outside = cls._get_is_sun_striked_outside(d_boundary=d_boundary)
 
+        direction = cls._get_direction(d_boundary=d_boundary, is_sun_striked_outside=is_sun_striked_outside)
+
         return InputBoundaryExternalOpaquePart(
             id=id,
             name=name,
@@ -410,7 +444,8 @@ class InputBoundaryExternalOpaquePart(InputBoundary):
             is_solar_absorbed_inside=is_solar_absorbed_inside,
             is_floor=is_floor,
             temp_dif_coef=temp_dif_coef,
-            is_sun_striked_outside=is_sun_striked_outside
+            is_sun_striked_outside=is_sun_striked_outside,
+            direction=direction
         )
 
 

@@ -15,6 +15,7 @@ from heat_load_calc.input_models.input_boundary import (
     InputBoundaryExternalOpaquePart
 )
 from heat_load_calc.tenum import EBoundaryType
+from heat_load_calc.direction import Direction
 
 
 def get_default_dict():
@@ -32,6 +33,7 @@ def get_default_dict():
         'is_solar_absorbed_inside': True,
         'is_floor': True,
         'is_sun_striked_outside': True,
+        'direction': 's',
     }
 
 
@@ -55,6 +57,7 @@ def get_default_dict_external_transparent_part():
         'is_solar_absorbed_inside': False,
         'is_floor': False,
         'is_sun_striked_outside': True,
+        'direction': 's',
     }
 
 
@@ -73,6 +76,7 @@ def get_default_dict_external_opaque_part():
         'is_solar_absorbed_inside': False,
         'is_floor': False,
         'is_sun_striked_outside': True,
+        'direction': 's',
     }
 
 
@@ -702,3 +706,80 @@ def test_value__is_sun_striked_outside__wrong_value():
     assert VI('is_sun_striked_outside', 'boundary') in str(e2.value)
 
     assert VI('is_sun_striked_outside', 'boundary') in str(e3.value)
+
+
+def test_value__direction__():
+    
+    d1 = get_default_dict_external_general_part()
+    d2 = get_default_dict_external_transparent_part()
+    d3 = get_default_dict_external_opaque_part()
+
+    ipt1: InputBoundaryExternalGeneralPart = InputBoundary.read(d_boundary=d1)
+    ipt2: InputBoundaryExternalTransparentPart = InputBoundary.read(d_boundary=d2)
+    ipt3: InputBoundaryExternalOpaquePart = InputBoundary.read(d_boundary=d3)
+
+    assert ipt1.direction == Direction.S
+    assert ipt2.direction == Direction.S
+    assert ipt3.direction == Direction.S
+
+
+def test_key__direction__not_exists():
+    
+    d1 = get_default_dict_external_general_part()
+    d2 = get_default_dict_external_transparent_part()
+    d3 = get_default_dict_external_opaque_part()
+    d4 = get_default_dict_external_general_part()
+    d5 = get_default_dict_external_transparent_part()
+    d6 = get_default_dict_external_opaque_part()
+
+    del d1['direction']
+    del d2['direction']
+    del d3['direction']
+    del d4['direction']
+    del d5['direction']
+    del d6['direction']
+
+    d4['is_sun_striked_outside'] = False
+    d5['is_sun_striked_outside'] = False
+    d6['is_sun_striked_outside'] = False
+
+    with pytest.raises(KeyError) as e1:
+        InputBoundary.read(d_boundary=d1)
+    
+    with pytest.raises(KeyError) as e2:
+        InputBoundary.read(d_boundary=d2)
+
+    with pytest.raises(KeyError) as e3:
+        InputBoundary.read(d_boundary=d3)
+
+    assert KNE('direction', 'boundary') in str(e1.value)
+
+    assert KNE('direction', 'boundary') in str(e2.value)
+
+    assert KNE('direction', 'boundary') in str(e3.value)
+
+
+def test_value__direction__wrong_value():
+    
+    d1 = get_default_dict_external_general_part()
+    d2 = get_default_dict_external_transparent_part()
+    d3 = get_default_dict_external_opaque_part()
+
+    d1['direction'] = 'wrong_value'
+    d2['direction'] = 'wrong_value'
+    d3['direction'] = 'wrong_value'
+
+    with pytest.raises(ValueError) as e1:
+        InputBoundary.read(d_boundary=d1)
+    
+    with pytest.raises(ValueError) as e2:
+        InputBoundary.read(d_boundary=d2)
+
+    with pytest.raises(ValueError) as e3:
+        InputBoundary.read(d_boundary=d3)
+
+    assert VI('direction', 'boundary') in str(e1.value)
+
+    assert VI('direction', 'boundary') in str(e2.value)
+
+    assert VI('direction', 'boundary') in str(e3.value)

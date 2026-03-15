@@ -50,7 +50,8 @@ def make_boundaries():
             is_solar_absorbed_inside=False,
             is_floor=False,
             temp_dif_coef=1.0,
-            is_sun_striked_outside=True
+            is_sun_striked_outside=True,
+            direction=Direction.S
         ),
         InputBoundaryExternalGeneralPart(
             id=3,
@@ -64,7 +65,8 @@ def make_boundaries():
             is_solar_absorbed_inside=False,
             is_floor=False,
             temp_dif_coef=1.0,
-            is_sun_striked_outside=True
+            is_sun_striked_outside=True,
+            direction=Direction.W
         ),
         InputBoundaryExternalGeneralPart(
             id=5,
@@ -78,7 +80,8 @@ def make_boundaries():
             is_solar_absorbed_inside=False,
             is_floor=False,
             temp_dif_coef=1.0,
-            is_sun_striked_outside=True
+            is_sun_striked_outside=True,
+            direction=Direction.E
         ),
         InputBoundaryExternalGeneralPart(
             id=7,
@@ -92,7 +95,8 @@ def make_boundaries():
             is_solar_absorbed_inside=False,
             is_floor=False,
             temp_dif_coef=1.0,
-            is_sun_striked_outside=True
+            is_sun_striked_outside=True,
+            direction=Direction.N
         ),
         InputBoundaryExternalGeneralPart(
             id=9,
@@ -106,7 +110,8 @@ def make_boundaries():
             is_solar_absorbed_inside=True,
             is_floor=True,
             temp_dif_coef=1.0,
-            is_sun_striked_outside=True
+            is_sun_striked_outside=True,
+            direction=Direction.BOTTOM
         ),
         InputBoundaryExternalGeneralPart(
             id=11,
@@ -120,7 +125,8 @@ def make_boundaries():
             is_solar_absorbed_inside=False,
             is_floor=False,
             temp_dif_coef=1.0,
-            is_sun_striked_outside=True
+            is_sun_striked_outside=True,
+            direction=Direction.S
         ),
         InputBoundaryExternalGeneralPart(
             id=13,
@@ -134,7 +140,8 @@ def make_boundaries():
             is_solar_absorbed_inside=False,
             is_floor=False,
             temp_dif_coef=1.0,
-            is_sun_striked_outside=True
+            is_sun_striked_outside=True,
+            direction=Direction.W
         ),
         InputBoundaryExternalGeneralPart(
             id=15,
@@ -148,7 +155,8 @@ def make_boundaries():
             is_solar_absorbed_inside=False,
             is_floor=False,
             temp_dif_coef=1.0,
-            is_sun_striked_outside=True
+            is_sun_striked_outside=True,
+            direction=Direction.E
         ),
         InputBoundaryExternalGeneralPart(
             id=17,
@@ -162,7 +170,8 @@ def make_boundaries():
             is_solar_absorbed_inside=False,
             is_floor=False,
             temp_dif_coef=1.0,
-            is_sun_striked_outside=True
+            is_sun_striked_outside=True,
+            direction=Direction.N
         ),
         InputBoundaryExternalGeneralPart(
             id=19,
@@ -176,7 +185,8 @@ def make_boundaries():
             is_solar_absorbed_inside=False,
             is_floor=False,
             temp_dif_coef=1.0,
-            is_sun_striked_outside=True
+            is_sun_striked_outside=True,
+            direction=Direction.TOP
         ),
         InputBoundaryExternalTransparentPart(
             id=21,
@@ -190,7 +200,8 @@ def make_boundaries():
             is_solar_absorbed_inside=False,
             is_floor=False,
             temp_dif_coef=1.0,
-            is_sun_striked_outside=True
+            is_sun_striked_outside=True,
+            direction=Direction.S
         ),
         InputBoundaryExternalTransparentPart(
             id=23,
@@ -204,7 +215,8 @@ def make_boundaries():
             is_solar_absorbed_inside=False,
             is_floor=False,
             temp_dif_coef=1.0,
-            is_sun_striked_outside=True
+            is_sun_striked_outside=True,
+            direction=Direction.S
         ),
         InputBoundaryInternal(
             id=25,

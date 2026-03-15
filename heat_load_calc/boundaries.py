@@ -39,6 +39,11 @@ class RearSurfaceBoundaryIdHolder(Protocol):
 class IsSunStrikedOutsideHolder(Protocol):
     is_sun_striked_outside: bool
 
+@runtime_checkable
+class DirectionHolder(Protocol):
+    direction: Direction
+
+
 @dataclass
 class Boundary:
 
@@ -251,10 +256,10 @@ class Boundaries:
         b_floor_j = ipt_boundary.is_floor
 
         # is the sun striked to outside of boundary j / 外気側に日射が当たるか否か
-        b_sun_strkd_out_j = _read_b_sun_strkd_out(ipt_boundary=ipt_boundary)
+        b_sun_strkd_out_j = _get_b_sun_strkd_out(ipt_boundary=ipt_boundary)
         
         # direction of boundary j / 方位
-        t_drct_j = _read_t_drct(d=d, b_sun_strkd_out=b_sun_strkd_out_j)
+        t_drct_j = _get_t_drct(b_sun_strkd_out=b_sun_strkd_out_j, ipt_boundary=ipt_boundary)
         
         # solar shading of boundary j / 日よけ        
         ssp_j = _read_ssp(ssp_dict=d['solar_shading_part'], b_sun_strkd_out=b_sun_strkd_out_j, t_drct=t_drct_j)
@@ -717,7 +722,7 @@ def _get_j_rear_j(ipt_boundary: InputBoundary, id_js: np.ndarray, id_j: int):
         return None
 
 
-def _read_b_sun_strkd_out(ipt_boundary: InputBoundary) -> bool:
+def _get_b_sun_strkd_out(ipt_boundary: InputBoundary) -> bool:
 
     if isinstance(ipt_boundary, IsSunStrikedOutsideHolder):
         return ipt_boundary.is_sun_striked_outside
@@ -725,10 +730,12 @@ def _read_b_sun_strkd_out(ipt_boundary: InputBoundary) -> bool:
         return False
 
 
-def _read_t_drct(d: Dict, b_sun_strkd_out: bool) -> Optional[Direction]:
+def _get_t_drct(b_sun_strkd_out: bool, ipt_boundary: InputBoundary) -> Optional[Direction]:
 
     if b_sun_strkd_out:
-        return Direction(d['direction'])
+        if not isinstance(ipt_boundary, DirectionHolder):
+            raise Exception()
+        return ipt_boundary.direction
     else:
         return None
 
