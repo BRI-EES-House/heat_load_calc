@@ -22,6 +22,13 @@ from heat_load_calc.input_models.input_boundary import (
     InputBoundaryGround,
     InputBoundaryInternal
 )
+from heat_load_calc.input_models.input_solar_shading_part import (
+    InputSolarShadingPart,
+    InputSolarShadingPartSimple,
+    InputSolarShadingPartDetail,
+    InputSolarShadingPartNot
+)
+
 from heat_load_calc.tenum import EBoundaryType
 
 
@@ -42,6 +49,34 @@ class IsSunStrikedOutsideHolder(Protocol):
 @runtime_checkable
 class DirectionHolder(Protocol):
     direction: Direction
+
+@runtime_checkable
+class SolarShadingPartHolder(Protocol):
+    solar_shading_part: InputSolarShadingPart
+
+@runtime_checkable
+class OutsideSolarAbsorptionHolder(Protocol):
+    outside_solar_absorption: float
+
+@runtime_checkable
+class OutsideHeatTransferResistanceHolder(Protocol):
+    outside_heat_transfer_resistance: float
+
+@runtime_checkable
+class OutsideEmissivityHolder(Protocol):
+    outside_emissivity: float
+
+@runtime_checkable
+class UValueHolder(Protocol):
+    u_value: float
+
+@runtime_checkable
+class EtaValueHolder(Protocol):
+    eta_value: float
+
+@runtime_checkable
+class GlassAreaRatioHolder(Protocol):
+    glass_area_ratio: float
 
 
 @dataclass
@@ -262,25 +297,25 @@ class Boundaries:
         t_drct_j = _get_t_drct(b_sun_strkd_out=b_sun_strkd_out_j, ipt_boundary=ipt_boundary)
         
         # solar shading of boundary j / 日よけ        
-        ssp_j = _read_ssp(ssp_dict=d['solar_shading_part'], b_sun_strkd_out=b_sun_strkd_out_j, t_drct=t_drct_j)
+        ssp_j = _read_ssp(b_sun_strkd_out=b_sun_strkd_out_j, t_drct=t_drct_j, ipt_boundary=ipt_boundary)
 
         # solar absorption ratio at outside surface of boundary j / 境界jの室外側表面日射吸収率, -
-        a_sol_j = _read_a_sol(d=d, id=id_j, t_b=t_b_j)
+        a_sol_j = ipt_boundary.outside_solar_absorption if isinstance(ipt_boundary, OutsideSolarAbsorptionHolder) else None
 
         # outside heat transfer resistance of boundary j / 室外側熱伝達抵抗, m2 K / W
-        r_s_o_j = _read_r_s_o(d=d, id=id_j, t_b=t_b_j)
+        r_s_o_j = ipt_boundary.outside_heat_transfer_resistance if isinstance(ipt_boundary, OutsideHeatTransferResistanceHolder) else None
 
         # long wavelength emissivity at outside surface of boundary j, -
-        eps_r_o_j = _read_eps_r_o(d=d, id=id_j, t_b=t_b_j)
+        eps_r_o_j = ipt_boundary.outside_emissivity if isinstance(ipt_boundary, OutsideEmissivityHolder) else None
 
         # standard heat transmittance coefficient (u value) of boundary j, W / ( m2 K )
-        u_w_std_j = _get_u_std(d=d, id=id_j, t_b=t_b_j)
+        u_w_std_j = ipt_boundary.u_value if isinstance(ipt_boundary, UValueHolder) else None
 
         # standard solar gain coefficient (eta value) of boundary j, -
-        eta_w_std_j = _read_eta_std(d=d, id=id_j, t_b=t_b_j)
+        eta_w_std_j = ipt_boundary.eta_value if isinstance(ipt_boundary, EtaValueHolder) else None
 
         # grazing area ratio of boundary j, -
-        r_a_w_g_j = _read_r_a_w_g(d=d, id=id_j, t_b=t_b_j)
+        r_a_w_g_j = ipt_boundary.glass_area_ratio if isinstance(ipt_boundary, GlassAreaRatioHolder) else None
 
         # grazing type of boundary j/ グレージングの種類
         t_glz_j = _read_t_glz(d=d, id=id_j, t_b=t_b_j)
@@ -740,209 +775,23 @@ def _get_t_drct(b_sun_strkd_out: bool, ipt_boundary: InputBoundary) -> Optional[
         return None
 
 
-def _read_ssp(ssp_dict: Dict, b_sun_strkd_out: bool, t_drct: Direction | None) -> SolarShading | None:
+def _read_ssp(b_sun_strkd_out: bool, t_drct: Direction | None, ipt_boundary: InputBoundary) -> SolarShading | None:
     
     if b_sun_strkd_out:
 
         if t_drct is None:
             raise Exception('t_drct should be defined when b_sun_strkd_out is True.')
+        
+        if not isinstance(ipt_boundary, SolarShadingPartHolder):
+            raise Exception('ipt_boundary should be an instance of SolarShadingPartHolder when b_sun_strkd_out is True.')
 
-        return SolarShading.create(ssp_dict=ssp_dict, direction=t_drct)
+        return SolarShading.create(direction=t_drct, input_solar_shading_part=ipt_boundary.solar_shading_part)
 
     else:
 
         return None
 
-
-def _read_a_sol(d: Dict, id: int, t_b: EBoundaryType) -> Optional[float]:
-    """Get the solar absorption ratio at the outside surface of boundary j.
-
-    Args:
-        d: dictionary of boundary
-        id: boundary id
-        t_b: boundary type
-
-    Returns:
-        solar absorption ratio at outside surface of boundary
-    """
-
-    if t_b in [EBoundaryType.EXTERNAL_GENERAL_PART, EBoundaryType.EXTERNAL_OPAQUE_PART]:
-
-        a_sol = float(d['outside_solar_absorption'])
-
-        if a_sol < 0.0:
-            raise ValueError("境界(ID=" + str(id) + ")の日射吸収率で0.0未満の値が指定されました。")
-
-        if a_sol > 1.0:
-            raise ValueError("境界(ID=" + str(id) + ")の日射吸収率で1.0より大の値が指定されました。")
-
-        return a_sol
-
-    elif t_b in [EBoundaryType.INTERNAL, EBoundaryType.EXTERNAL_TRANSPARENT_PART, EBoundaryType.GROUND]:
-
-        return None
-
-    else:
-        raise Exception()
         
-
-def _read_r_s_o(d: Dict, id: int, t_b: EBoundaryType) -> Optional[float]:
-    """Get the outside heat transfer resistance.
-
-    Args:
-        d: dictionary of boundary
-        id: boundary id
-        t_b: boundary type
-
-    Returns:
-        outside heat transfer resistance, m2 K / W
-    """
-
-    if t_b in [EBoundaryType.INTERNAL, EBoundaryType.GROUND]:
-
-        return None
-
-    elif t_b in [EBoundaryType.EXTERNAL_GENERAL_PART, EBoundaryType.EXTERNAL_TRANSPARENT_PART, EBoundaryType.EXTERNAL_OPAQUE_PART]:
-
-        r_s_o = float(d['outside_heat_transfer_resistance'])
-
-        if r_s_o <= 0.0:
-            raise ValueError("境界(ID=" + str(id) + ")の室外側熱伝達抵抗で0.0以下の値が指定されました。")
-
-        return r_s_o
-
-    else:
-
-        raise Exception()
-
-
-def _read_eps_r_o(d: Dict, id: int, t_b: EBoundaryType) -> Optional[float]:
-    """Get the long wavelength emissivity at the outside surface of boundary j.
-
-    Args:
-        d: dictionary of boundary
-        id: boundary id
-        t_b: boundary type
-
-    Returns:
-        long wavelength emissivity at outside surface of boundary
-    """
-    
-    if t_b in [EBoundaryType.INTERNAL, EBoundaryType.GROUND]:
-    
-        return None
-    
-    elif t_b in [EBoundaryType.EXTERNAL_GENERAL_PART, EBoundaryType.EXTERNAL_TRANSPARENT_PART, EBoundaryType.EXTERNAL_OPAQUE_PART]:
-    
-        eps_r = float(d['outside_emissivity'])
-
-        if eps_r > 1.0:
-            raise ValueError("境界(ID=" + str(id) + ")の室外側長波長放射率で1.0を超える値が指定されました。")
-
-        if eps_r < 0.0:
-            raise ValueError("境界(ID=" + str(id) + ")の室外側長波長放射率で0.0を下回る値が指定されました。")
-
-        return eps_r
-    
-    else:
-    
-        raise Exception()
-
-
-def _get_u_std(d: Dict, id: int, t_b: EBoundaryType) -> Optional[float]:
-    """Get the standard u value of boundary.
-
-    Args:
-        d: dictionary of boundary
-        id: boundary id
-        t_b: boundary type
-
-    Returns:
-        standard u value of boundary
-    """
-
-    if t_b in [EBoundaryType.EXTERNAL_TRANSPARENT_PART, EBoundaryType.EXTERNAL_OPAQUE_PART]:
-
-        u_nmnl = float(d['u_value'])
-
-        if u_nmnl <= 0.0:
-            raise ValueError("境界(ID=" + str(id) + ")の熱貫流率で0.0以下の値が指定されました。")
-        
-        return u_nmnl
-    
-    elif t_b in [EBoundaryType.EXTERNAL_GENERAL_PART, EBoundaryType.INTERNAL, EBoundaryType.GROUND]:
-        
-        return None
-        
-    else:
-        raise Exception()
-
-
-def _read_eta_std(d: Dict, id: int, t_b: EBoundaryType) -> Optional[float]:
-    """Get the standard eta value of the boundary.
-
-    Args:
-        d: dictionary of boundary
-        id: boundary id
-        t_b: boundary type
-
-    Returns:
-        standard eta value of boundary
-    """
-
-    if t_b == EBoundaryType.EXTERNAL_TRANSPARENT_PART:
-
-        eta_value = float(d['eta_value'])
-
-        if eta_value <= 0.0:
-            raise ValueError("境界(ID=" + str(id) + ")の日射熱取得率で0.0以下の値が指定されました。")
-
-        return eta_value
-
-    elif t_b in [EBoundaryType.EXTERNAL_GENERAL_PART, EBoundaryType.EXTERNAL_OPAQUE_PART, EBoundaryType.INTERNAL, EBoundaryType.GROUND]:
-
-        return None
-
-    else:
-        raise Exception()
-
-        
-def _read_r_a_w_g(d: Dict, id: int, t_b: EBoundaryType) -> float | None:
-    """Get the ratio of the grazing area to the opening area.
-
-    Args:
-        d: dictionary of boundary
-        id: boundary id
-        t_b: boundary type
-
-    Returns:
-        ratio of the grazing area to the opening area
-    """
-
-    match t_b:
-
-        case EBoundaryType.EXTERNAL_TRANSPARENT_PART:
-
-            # 開口部の面積に対するグレージングの面積の比率
-            r_a_w_g = d['glass_area_ratio']
-        
-            if r_a_w_g < 0.0:
-                raise ValueError("境界(ID=" + str(id) + ")の開口部の面積に対するグレージング面積の比率で0.0未満の値が指定されました。")
-            
-            if r_a_w_g > 1.0:
-                raise ValueError("境界(ID=" + str(id) + ")の開口部の面積に対するグレージング面積の比率で1.0より大の値が指定されました。")
-            
-            return r_a_w_g
-    
-        case EBoundaryType.EXTERNAL_GENERAL_PART | EBoundaryType.EXTERNAL_OPAQUE_PART | EBoundaryType.INTERNAL | EBoundaryType.GROUND:
-
-            return None
-    
-        case _:
-
-            raise ValueError()
-
-
 def _read_t_glz(d: Dict, id: int, t_b: EBoundaryType) -> Optional[window.GlassType]:
     """Get the type of the grazing of the boundary.
 

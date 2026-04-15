@@ -48,4 +48,4 @@ class InputAll:
 
         self.ipt_rooms: list[InputRoom] = [InputRoom.read(d_room=d_room) for d_room in d_rooms]
 
-        self.ipt_boundaries: list[InputBoundary] = [InputBoundary.read(d_boundary=d_boundary) for d_boundary in d_boundaries]
+        self.ipt_boundaries: list[InputBoundary] = [InputBoundary.read(d=d_boundary) for d_boundary in d_boundaries]

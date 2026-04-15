@@ -239,7 +239,7 @@ def initialize(test_case: TestCase, d: dict):
 
     rms = Rooms(ipt_rooms=ipt_rooms)
 
-    ipt_boundaries = [InputBoundary.read(d_boundary=d_boundary) for d_boundary in d['boundaries']]
+    ipt_boundaries = [InputBoundary.read(d=d_boundary) for d_boundary in d['boundaries']]
 
     bs = Boundaries(id_r_is=rms.id_r_is, ds=d['boundaries'], w=w, rad_method=shape_factor_method, ipt_boundaries=ipt_boundaries)
 

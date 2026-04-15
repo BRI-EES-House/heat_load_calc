@@ -157,3 +157,4 @@ class EBoundaryType(Enum):
 
     # 'ground': 地盤
     GROUND = 'ground'
+

@@ -1,17 +1,18 @@
 import numpy as np
-from typing import Dict
 import math
+from abc import ABC, abstractmethod
 
 from heat_load_calc.direction import Direction
+from heat_load_calc.input_models.input_solar_shading_part import InputSolarShadingPart, InputSolarShadingPartSimple, InputSolarShadingPartDetail, InputSolarShadingPartNot
 
 
-class SolarShading:
+class SolarShading(ABC):
 
     def __init__(self):
         pass
 
     @classmethod
-    def create(cls, ssp_dict: Dict, direction: Direction):
+    def create(cls, direction: Direction, input_solar_shading_part: InputSolarShadingPart):
         """
         入力ファイルの辞書の'solar_shading_part'を読み込む。
 
@@ -23,10 +24,13 @@ class SolarShading:
             SolarShadingPart クラス
         """
 
-        if ssp_dict['existence']:
+        if isinstance(input_solar_shading_part, InputSolarShadingPartNot):
 
-            input_method = ssp_dict['input_method']
+            return SolarShadingNot()
+        
+        elif isinstance(input_solar_shading_part, InputSolarShadingPartSimple) or isinstance(input_solar_shading_part, InputSolarShadingPartDetail):
 
+        #if ssp_dict['existence']:
             if direction in [Direction.TOP, Direction.BOTTOM]:
 
                 raise ValueError("方位が「上方」「下方」の場合に日除けを定義することはできません。")
@@ -34,38 +38,39 @@ class SolarShading:
             # 境界ｊの傾斜面の方位角, rad
             alpha_w_j = direction.alpha_w_j
 
-            if input_method == 'simple':
+            if isinstance(input_solar_shading_part, InputSolarShadingPartSimple):
 
                 return SolarShadingSimple(
                     alpha_w_j=alpha_w_j,
-                    l_z_j=ssp_dict['depth'],
-                    l_y_h_j=ssp_dict['d_h'],
-                    l_y_e_j=ssp_dict['d_e']
+                    l_z_j=input_solar_shading_part.depth,
+                    l_y_h_j=input_solar_shading_part.d_h,
+                    l_y_e_j=input_solar_shading_part.d_e
                 )
 
-            elif input_method == 'detail':
+            elif isinstance(input_solar_shading_part, InputSolarShadingPartDetail):
 
                 return SolarShadingDetail(
                     alpha_w_j=alpha_w_j,
-                    x1=ssp_dict['x1'],
-                    x2=ssp_dict['x2'],
-                    x3=ssp_dict['x3'],
-                    y1=ssp_dict['y1'],
-                    y2=ssp_dict['y2'],
-                    y3=ssp_dict['y3'],
-                    z_x_pls=ssp_dict['z_x_pls'],
-                    z_x_mns=ssp_dict['z_x_mns'],
-                    z_y_pls=ssp_dict['z_y_pls'],
-                    z_y_mns=ssp_dict['z_y_mns']
+                    x1=input_solar_shading_part.x1,
+                    x2=input_solar_shading_part.x2,
+                    x3=input_solar_shading_part.x3,
+                    y1=input_solar_shading_part.y1,
+                    y2=input_solar_shading_part.y2,
+                    y3=input_solar_shading_part.y3,
+                    z_x_pls=input_solar_shading_part.z_x_pls,
+                    z_x_mns=input_solar_shading_part.z_x_mns,
+                    z_y_pls=input_solar_shading_part.z_y_pls,
+                    z_y_mns=input_solar_shading_part.z_y_mns
                 )
 
             else:
-                raise ValueError()
+                raise ValueError('input_solar_shading_part should be an instance of InputSolarShadingPartSimple, InputSolarShadingPartDetail, or InputSolarShadingPartNot.')
 
         else:
+            raise ValueError('input_solar_shading_part should be an instance of InputSolarShadingPartSimple, InputSolarShadingPartDetail, or InputSolarShadingPartNot.')
 
-            return SolarShadingNot()
 
+    @abstractmethod
     def get_f_ss_dn_j_ns(self, h_sun_ns: np.ndarray, a_sun_ns: np.ndarray) -> np.ndarray:
         """
         直達日射に対する日よけの影面積比率を計算する。
@@ -80,6 +85,8 @@ class SolarShading:
 
         raise NotImplementedError()
 
+
+    @abstractmethod
     def get_f_ss_sky_j(self) -> float:
         """
         天空放射に対する日よけの影面積比率を計算する。
@@ -90,6 +97,7 @@ class SolarShading:
 
         raise NotImplementedError()
 
+    @abstractmethod
     def get_f_ss_ref_j(self) -> float:
         """
         地面反射に対する日よけの影面積比率を計算する。

@@ -25,6 +25,12 @@ from heat_load_calc.input_models.input_boundary import (
     InputBoundaryGround,
     InputBoundaryInternal
 )
+from heat_load_calc.input_models.input_solar_shading_part import (
+    InputSolarShadingPart,
+    InputSolarShadingPartSimple,
+    InputSolarShadingPartDetail,
+    InputSolarShadingPartNot
+)
 
 
 def make_boundaries():
@@ -35,7 +41,7 @@ def make_boundaries():
 
     id_r_is = np.array([2,4]).reshape(-1, 1)
 
-    ipt_boundaries = [InputBoundary.read(d_boundary=d_boundary) for d_boundary in d['boundaries']]
+    ipt_boundaries = [InputBoundary.read(d=d_boundary) for d_boundary in d['boundaries']]
 
     ipt_boundaries = [
         InputBoundaryExternalGeneralPart(
@@ -51,7 +57,11 @@ def make_boundaries():
             is_floor=False,
             temp_dif_coef=1.0,
             is_sun_striked_outside=True,
-            direction=Direction.S
+            direction=Direction.S,
+            solar_shading_part=InputSolarShadingPartNot(existence=False),
+            outside_solar_absorption=0.8,
+            outside_heat_transfer_resistance=0.04,
+            outside_emissivity=0.9
         ),
         InputBoundaryExternalGeneralPart(
             id=3,
@@ -66,7 +76,11 @@ def make_boundaries():
             is_floor=False,
             temp_dif_coef=1.0,
             is_sun_striked_outside=True,
-            direction=Direction.W
+            direction=Direction.W,
+            solar_shading_part=InputSolarShadingPartNot(existence=False),
+            outside_solar_absorption=0.8,
+            outside_heat_transfer_resistance=0.04,
+            outside_emissivity=0.9
         ),
         InputBoundaryExternalGeneralPart(
             id=5,
@@ -81,7 +95,11 @@ def make_boundaries():
             is_floor=False,
             temp_dif_coef=1.0,
             is_sun_striked_outside=True,
-            direction=Direction.E
+            direction=Direction.E,
+            solar_shading_part=InputSolarShadingPartNot(existence=False),
+            outside_solar_absorption=0.8,
+            outside_heat_transfer_resistance=0.04,
+            outside_emissivity=0.9
         ),
         InputBoundaryExternalGeneralPart(
             id=7,
@@ -96,7 +114,11 @@ def make_boundaries():
             is_floor=False,
             temp_dif_coef=1.0,
             is_sun_striked_outside=True,
-            direction=Direction.N
+            direction=Direction.N,
+            solar_shading_part=InputSolarShadingPartNot(existence=False),
+            outside_solar_absorption=0.8,
+            outside_heat_transfer_resistance=0.04,
+            outside_emissivity=0.9
         ),
         InputBoundaryExternalGeneralPart(
             id=9,
@@ -111,7 +133,11 @@ def make_boundaries():
             is_floor=True,
             temp_dif_coef=1.0,
             is_sun_striked_outside=True,
-            direction=Direction.BOTTOM
+            direction=Direction.BOTTOM,
+            solar_shading_part=InputSolarShadingPartNot(existence=False),
+            outside_solar_absorption=0.8,
+            outside_heat_transfer_resistance=0.04,
+            outside_emissivity=0.9
         ),
         InputBoundaryExternalGeneralPart(
             id=11,
@@ -126,7 +152,11 @@ def make_boundaries():
             is_floor=False,
             temp_dif_coef=1.0,
             is_sun_striked_outside=True,
-            direction=Direction.S
+            direction=Direction.S,
+            solar_shading_part=InputSolarShadingPartNot(existence=False),
+            outside_solar_absorption=0.8,
+            outside_heat_transfer_resistance=0.04,
+            outside_emissivity=0.9
         ),
         InputBoundaryExternalGeneralPart(
             id=13,
@@ -141,7 +171,11 @@ def make_boundaries():
             is_floor=False,
             temp_dif_coef=1.0,
             is_sun_striked_outside=True,
-            direction=Direction.W
+            direction=Direction.W,
+            solar_shading_part=InputSolarShadingPartNot(existence=False),
+            outside_solar_absorption=0.8,
+            outside_heat_transfer_resistance=0.04,
+            outside_emissivity=0.9
         ),
         InputBoundaryExternalGeneralPart(
             id=15,
@@ -156,7 +190,11 @@ def make_boundaries():
             is_floor=False,
             temp_dif_coef=1.0,
             is_sun_striked_outside=True,
-            direction=Direction.E
+            direction=Direction.E,
+            solar_shading_part=InputSolarShadingPartNot(existence=False),
+            outside_solar_absorption=0.8,
+            outside_heat_transfer_resistance=0.04,
+            outside_emissivity=0.9
         ),
         InputBoundaryExternalGeneralPart(
             id=17,
@@ -171,7 +209,11 @@ def make_boundaries():
             is_floor=False,
             temp_dif_coef=1.0,
             is_sun_striked_outside=True,
-            direction=Direction.N
+            direction=Direction.N,
+            solar_shading_part=InputSolarShadingPartNot(existence=False),
+            outside_solar_absorption=0.8,
+            outside_heat_transfer_resistance=0.04,
+            outside_emissivity=0.9
         ),
         InputBoundaryExternalGeneralPart(
             id=19,
@@ -186,7 +228,11 @@ def make_boundaries():
             is_floor=False,
             temp_dif_coef=1.0,
             is_sun_striked_outside=True,
-            direction=Direction.TOP
+            direction=Direction.TOP,
+            solar_shading_part=InputSolarShadingPartNot(existence=False),
+            outside_solar_absorption=0.8,
+            outside_heat_transfer_resistance=0.04,
+            outside_emissivity=0.9
         ),
         InputBoundaryExternalTransparentPart(
             id=21,
@@ -201,7 +247,13 @@ def make_boundaries():
             is_floor=False,
             temp_dif_coef=1.0,
             is_sun_striked_outside=True,
-            direction=Direction.S
+            direction=Direction.S,
+            solar_shading_part=InputSolarShadingPartNot(existence=False),
+            outside_heat_transfer_resistance=0.04,
+            outside_emissivity=0.9,
+            u_value=4.65,
+            eta_value=0.792,
+            glass_area_ratio=0.8
         ),
         InputBoundaryExternalTransparentPart(
             id=23,
@@ -216,7 +268,13 @@ def make_boundaries():
             is_floor=False,
             temp_dif_coef=1.0,
             is_sun_striked_outside=True,
-            direction=Direction.S
+            direction=Direction.S,
+            solar_shading_part=InputSolarShadingPartNot(existence=False),
+            outside_heat_transfer_resistance=0.04,
+            outside_emissivity=0.9,
+            u_value=4.65,
+            eta_value=0.792,
+            glass_area_ratio=0.8
         ),
         InputBoundaryInternal(
             id=25,
@@ -345,7 +403,7 @@ class TestBoundaries(unittest.TestCase):
 
         id_r_is = np.array([2,4]).reshape(-1, 1)
 
-        ipt_boundaries = [InputBoundary.read(d_boundary=d_boundary) for d_boundary in d['boundaries']]
+        ipt_boundaries = [InputBoundary.read(d=d_boundary) for d_boundary in d['boundaries']]
 
         bs = Boundaries(id_r_is=id_r_is, ds=d['boundaries'], w=w, rad_method=EShapeFactorMethod.NAGATA, ipt_boundaries=ipt_boundaries)
 
@@ -724,7 +782,10 @@ def _get_ssp_js():
     ssp_dict_js = np.array([ssp_dict, ssp_dict, ssp_dict, ssp_dict, ssp_dict, ssp_dict, ssp_dict, ssp_dict, ssp_dict, ssp_dict, ssp_dict, ssp_dict, None, None])
 
     ssp_js = [
-        SolarShading.create(ssp_dict=ssp_dict_j, direction=t_drct_j) if b_sun_strkd_out_j else None
+        SolarShading.create(
+            direction=t_drct_j,
+            input_solar_shading_part=InputSolarShadingPart.read(d=ssp_dict_j, direction=t_drct_j)
+        ) if b_sun_strkd_out_j else None
         for (ssp_dict_j, t_drct_j, b_sun_strkd_out_j)
         in zip(ssp_dict_js, t_drct_js, b_sun_stkd_out_js)
     ]
