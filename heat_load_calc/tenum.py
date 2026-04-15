@@ -158,3 +158,12 @@ class EBoundaryType(Enum):
     # 'ground': 地盤
     GROUND = 'ground'
 
+
+class EGlassType(Enum):
+    """ガラスの構成
+    """
+
+    # 単層
+    SINGLE = 'single'
+    # 複層
+    MULTIPLE = 'multiple'

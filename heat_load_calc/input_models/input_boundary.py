@@ -10,9 +10,10 @@ from heat_load_calc.error_message import (
     value_out_of_range_GT as RGT,
     value_out_of_range_LT as RLT
 )
-from heat_load_calc.tenum import EBoundaryType
+from heat_load_calc.tenum import EBoundaryType, EGlassType
 from heat_load_calc.direction import Direction
 from heat_load_calc.input_models.input_solar_shading_part import InputSolarShadingPart, InputSolarShadingPartSimple, InputSolarShadingPartDetail, InputSolarShadingPartNot
+from heat_load_calc.input_models.input_layer import InputLayer
 
 
 @dataclass
@@ -411,7 +412,39 @@ class InputBoundary:
             raise ValueError(RLE('glass_area_ratio', 'boundary', '1.0'))
         
         return glass_area_ratio
+
+    @staticmethod
+    def _get_incident_angle_characteristics(d: dict):
+
+        if 'incident_angle_characteristics' not in d:
+            raise KeyError(KNE('incident_angle_characteristics', 'boundary'))
+
+        try:
+            incident_angle_characteristics = EGlassType(d['incident_angle_characteristics'])
+        except ValueError:
+            raise ValueError(VI('incident_angle_characteristics', 'boundary'))
+        
+        return incident_angle_characteristics
     
+    @staticmethod
+    def _get_layers(d: dict):
+
+        if 'layers' not in d:
+            raise KeyError(KNE('layers', 'boundary'))
+        
+        try:
+            d_layers = d['layers']
+        except ValueError:
+            raise ValueError(VI('layers', 'boundary'))
+        
+        if not isinstance(d_layers, list):
+            raise TypeError(VI('layers', 'boundary'))
+        
+        ipt_layers = [InputLayer.read(d=d_layer) for d_layer in d_layers]
+
+        return ipt_layers
+        
+
 
 @dataclass
 class InputBoundaryExternalGeneralPart(InputBoundary):
@@ -429,6 +462,8 @@ class InputBoundaryExternalGeneralPart(InputBoundary):
     outside_heat_transfer_resistance: float
 
     outside_emissivity: float
+
+    ipt_layers: list[InputLayer]
 
     @classmethod
     def read(cls, d: dict):
@@ -467,6 +502,8 @@ class InputBoundaryExternalGeneralPart(InputBoundary):
 
         outside_emissivity = cls._get_outside_emissivity(d=d)
 
+        ipt_layers = cls._get_layers(d=d)
+
         return InputBoundaryExternalGeneralPart(
             id=id,
             name=name,
@@ -484,7 +521,8 @@ class InputBoundaryExternalGeneralPart(InputBoundary):
             solar_shading_part=solar_shading_part,
             outside_solar_absorption=outside_solar_absorption,
             outside_heat_transfer_resistance=outside_heat_transfer_resistance,
-            outside_emissivity=outside_emissivity
+            outside_emissivity=outside_emissivity,
+            ipt_layers=ipt_layers
         )
 
 
@@ -508,6 +546,8 @@ class InputBoundaryExternalTransparentPart(InputBoundary):
     eta_value: float
 
     glass_area_ratio: float
+
+    incident_angle_characteristics: EGlassType
 
     @classmethod
     def read(cls, d: dict):
@@ -550,6 +590,8 @@ class InputBoundaryExternalTransparentPart(InputBoundary):
 
         glass_area_ratio = cls._get_glass_area_ratio(d=d)
 
+        incident_angle_characteristics = cls._get_incident_angle_characteristics(d=d)
+
         return InputBoundaryExternalTransparentPart(
             id=id,
             name=name,
@@ -569,7 +611,8 @@ class InputBoundaryExternalTransparentPart(InputBoundary):
             outside_emissivity=outside_emissivity,
             u_value=u_value,
             eta_value=eta_value,
-            glass_area_ratio=glass_area_ratio
+            glass_area_ratio=glass_area_ratio,
+            incident_angle_characteristics=incident_angle_characteristics
         )
 
 
@@ -656,6 +699,8 @@ class InputBoundaryExternalOpaquePart(InputBoundary):
 @dataclass
 class InputBoundaryGround(InputBoundary):
 
+    ipt_layers: list[InputLayer]
+
     @classmethod
     def read(cls, d: dict):
 
@@ -679,6 +724,8 @@ class InputBoundaryGround(InputBoundary):
 
         is_floor = cls._get_is_floor(d=d)
 
+        ipt_layers = cls._get_layers(d=d)
+
         return InputBoundaryGround(
             id=id,
             name=name,
@@ -689,7 +736,8 @@ class InputBoundaryGround(InputBoundary):
             inside_emissivity=inside_emissivity,
             h_c=h_c,
             is_solar_absorbed_inside=is_solar_absorbed_inside,
-            is_floor=is_floor
+            is_floor=is_floor,
+            ipt_layers=ipt_layers
         )
 
 
@@ -697,6 +745,8 @@ class InputBoundaryGround(InputBoundary):
 class InputBoundaryInternal(InputBoundary):
 
     rear_surface_boundary_id: int
+
+    ipt_layers: list[InputLayer]
 
     @classmethod
     def read(cls, d: dict):
@@ -723,6 +773,8 @@ class InputBoundaryInternal(InputBoundary):
 
         rear_surface_boundary_id = cls._get_rear_surface_boundary_id(d=d)
 
+        ipt_layers = cls._get_layers(d=d)
+
         return InputBoundaryInternal(
             id=id,
             name=name,
@@ -734,6 +786,7 @@ class InputBoundaryInternal(InputBoundary):
             h_c=h_c,
             is_solar_absorbed_inside=is_solar_absorbed_inside,
             is_floor=is_floor,
-            rear_surface_boundary_id=rear_surface_boundary_id
+            rear_surface_boundary_id=rear_surface_boundary_id,
+            ipt_layers=ipt_layers
         )
 

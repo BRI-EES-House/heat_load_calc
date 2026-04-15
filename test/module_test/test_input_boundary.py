@@ -12,9 +12,11 @@ from heat_load_calc.input_models.input_boundary import (
     InputBoundary,
     InputBoundaryExternalGeneralPart,
     InputBoundaryExternalTransparentPart,
-    InputBoundaryExternalOpaquePart
+    InputBoundaryExternalOpaquePart,
+    InputBoundaryGround,
+    InputBoundaryInternal
 )
-from heat_load_calc.tenum import EBoundaryType
+from heat_load_calc.tenum import EBoundaryType, EGlassType
 from heat_load_calc.direction import Direction
 
 
@@ -40,6 +42,18 @@ def get_default_dict():
         'outside_solar_absorption': 0.7,
         'outside_heat_transfer_resistance': 0.04,
         'outside_emissivity': 0.9,
+        'layers': [
+            {
+                'name': 'wood_board-12',
+                'thermal_resistance': 0.075,
+                'thermal_capacity': 8.64,
+            },
+            {
+                "name": "hgw24k-100",
+                "thermal_resistance": 2.777777777777778,
+                "thermal_capacity": 2.0,
+            }
+        ]
     }
 
 
@@ -71,7 +85,8 @@ def get_default_dict_external_transparent_part():
         'outside_emissivity': 0.9,
         'u_value': 4.65,
         'eta_value': 0.792,
-        'glass_area_ratio': 0.8
+        'glass_area_ratio': 0.8,
+        'incident_angle_characteristics': 'multiple'
     }
 
 
@@ -114,7 +129,14 @@ def get_default_dict_ground():
         'h_c': 2.5,
         'temp_dif_coef': 1.0,
         'is_solar_absorbed_inside': False,
-        'is_floor': True
+        'is_floor': True,
+        'layers': [
+            {
+                "name": "hgw24k-100",
+                "thermal_resistance": 2.777777777777778,
+                "thermal_capacity": 2.0,
+            }
+        ]
     }
 
 
@@ -132,7 +154,14 @@ def get_default_dict_internal():
         'temp_dif_coef': 1.0,
         'rear_surface_boundary_id': 9,
         'is_solar_absorbed_inside': False,
-        'is_floor': False
+        'is_floor': False,
+        'layers': [
+            {
+                'name': 'wood_board-12',
+                'thermal_resistance': 0.075,
+                'thermal_capacity': 8.64,
+            },
+        ]
     }
 
 
@@ -1340,3 +1369,109 @@ def test_value__glass_area_ratio__out_of_range2():
 
     assert RLE('glass_area_ratio', 'boundary', '1.0') in str(e1.value)
 
+
+def test_value__incident_angle_characteristics__():
+
+    d1 = get_default_dict_external_transparent_part()
+
+    ipt1: InputBoundaryExternalTransparentPart = InputBoundary.read(d=d1)
+
+    assert ipt1.incident_angle_characteristics == EGlassType.MULTIPLE
+
+
+def test_key__incident_angle_characteristics__not_exists():
+
+    d1 = get_default_dict_external_transparent_part()
+
+    del d1['incident_angle_characteristics']
+
+    with pytest.raises(KeyError) as e1:
+        InputBoundary.read(d=d1)
+
+    assert KNE('incident_angle_characteristics', 'boundary') in str(e1.value)
+
+
+def test_value__incident_angle_characteristics__wrong_value():
+
+    d1 = get_default_dict_external_transparent_part()
+
+    d1['incident_angle_characteristics'] = 'wrong_value'
+
+    with pytest.raises(ValueError) as e1:
+        InputBoundary.read(d=d1)
+
+    assert VI('incident_angle_characteristics', 'boundary') in str(e1.value)
+
+
+def test_value__layers__():
+
+    d1 = get_default_dict_external_general_part()
+    d2 = get_default_dict_ground()
+    d3 = get_default_dict_internal()
+
+    ipt1: InputBoundaryExternalGeneralPart = InputBoundary.read(d=d1)
+    ipt2: InputBoundaryGround = InputBoundary.read(d=d2)
+    ipt3: InputBoundaryInternal = InputBoundary.read(d=d3)
+
+    assert ipt1.ipt_layers[0].name == 'wood_board-12'
+    assert ipt1.ipt_layers[0].thermal_resistance == 0.075
+    assert ipt1.ipt_layers[0].thermal_capacity == 8.64
+    assert ipt1.ipt_layers[1].name == 'hgw24k-100'
+    assert ipt1.ipt_layers[1].thermal_resistance == 2.777777777777778
+    assert ipt1.ipt_layers[1].thermal_capacity == 2.0
+
+    assert ipt2.ipt_layers[0].name == 'hgw24k-100'
+    assert ipt2.ipt_layers[0].thermal_resistance == 2.777777777777778
+    assert ipt2.ipt_layers[0].thermal_capacity == 2.0
+
+    assert ipt3.ipt_layers[0].name == 'wood_board-12'
+    assert ipt3.ipt_layers[0].thermal_resistance == 0.075
+    assert ipt3.ipt_layers[0].thermal_capacity == 8.64
+
+
+def test_key__layers__not_exists():
+
+    d1 = get_default_dict_external_general_part()
+    d2 = get_default_dict_ground()
+    d3 = get_default_dict_internal()
+
+    del d1['layers']
+    del d2['layers']
+    del d3['layers']
+
+    with pytest.raises(KeyError) as e1:
+        InputBoundary.read(d=d1)
+
+    with pytest.raises(KeyError) as e2:
+        InputBoundary.read(d=d2)
+
+    with pytest.raises(KeyError) as e3:
+        InputBoundary.read(d=d3)
+
+    assert KNE('layers', 'boundary') in str(e1.value)
+    assert KNE('layers', 'boundary') in str(e2.value)
+    assert KNE('layers', 'boundary') in str(e3.value)
+
+
+def test_key__layers__wrong_value():
+
+    d1 = get_default_dict_external_general_part()
+    d2 = get_default_dict_ground()
+    d3 = get_default_dict_internal()
+
+    d1['layers'] = 'wrong_value'
+    d2['layers'] = 'wrong_value'
+    d3['layers'] = 'wrong_value'
+
+    with pytest.raises(TypeError) as e1:
+        InputBoundary.read(d=d1)
+
+    with pytest.raises(TypeError) as e2:
+        InputBoundary.read(d=d2)
+
+    with pytest.raises(TypeError) as e3:
+        InputBoundary.read(d=d3)
+
+    assert VI('layers', 'boundary') in str(e1.value)
+    assert VI('layers', 'boundary') in str(e2.value)
+    assert VI('layers', 'boundary') in str(e3.value)

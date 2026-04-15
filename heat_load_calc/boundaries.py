@@ -13,7 +13,7 @@ from heat_load_calc import outside_eqv_temp
 from heat_load_calc import transmission_solar_radiation
 from heat_load_calc import window
 from heat_load_calc.window import Window
-from heat_load_calc.tenum import EShapeFactorMethod
+from heat_load_calc.tenum import EShapeFactorMethod, EGlassType
 from heat_load_calc.input_models.input_boundary import (
     InputBoundary,
     InputBoundaryExternalGeneralPart,
@@ -77,6 +77,10 @@ class EtaValueHolder(Protocol):
 @runtime_checkable
 class GlassAreaRatioHolder(Protocol):
     glass_area_ratio: float
+
+@runtime_checkable
+class IncidentAngleCharacteristics(Protocol):
+    incident_angle_characteristics: EGlassType
 
 
 @dataclass
@@ -318,7 +322,7 @@ class Boundaries:
         r_a_w_g_j = ipt_boundary.glass_area_ratio if isinstance(ipt_boundary, GlassAreaRatioHolder) else None
 
         # grazing type of boundary j/ グレージングの種類
-        t_glz_j = _read_t_glz(d=d, id=id_j, t_b=t_b_j)
+        t_glz_j = ipt_boundary.incident_angle_characteristics if isinstance(ipt_boundary, IncidentAngleCharacteristics) else None
 
         # window class of boundary j
         window_j = _get_window_class_j(t_b_j=t_b_j, u_w_std_j=u_w_std_j, eta_w_std_j=eta_w_std_j, t_glz_j=t_glz_j, r_a_w_g_j=r_a_w_g_j)
@@ -792,31 +796,7 @@ def _read_ssp(b_sun_strkd_out: bool, t_drct: Direction | None, ipt_boundary: Inp
         return None
 
         
-def _read_t_glz(d: Dict, id: int, t_b: EBoundaryType) -> Optional[window.GlassType]:
-    """Get the type of the grazing of the boundary.
-
-    Args:
-        d: dictionary of boundary
-        id: boundary id
-        t_b: boundary type
-
-    Returns:
-        type of grazing of boundary
-    """
-
-    if t_b == EBoundaryType.EXTERNAL_TRANSPARENT_PART:
-
-        return window.GlassType(d['incident_angle_characteristics'])
-    
-    elif t_b in [EBoundaryType.EXTERNAL_GENERAL_PART, EBoundaryType.EXTERNAL_OPAQUE_PART, EBoundaryType.INTERNAL, EBoundaryType.GROUND]:
-        
-        return None
-    else:
-
-        raise Exception()
-
-
-def _get_window_class_j(t_b_j: EBoundaryType, u_w_std_j: Optional[float], eta_w_std_j: Optional[float], t_glz_j: Optional[window.GlassType], r_a_w_g_j: Optional[float]) -> Optional[Window]:
+def _get_window_class_j(t_b_j: EBoundaryType, u_w_std_j: Optional[float], eta_w_std_j: Optional[float], t_glz_j: Optional[EGlassType], r_a_w_g_j: Optional[float]) -> Optional[Window]:
 
     if t_b_j in [EBoundaryType.EXTERNAL_GENERAL_PART, EBoundaryType.EXTERNAL_OPAQUE_PART, EBoundaryType.INTERNAL, EBoundaryType.GROUND]:
         

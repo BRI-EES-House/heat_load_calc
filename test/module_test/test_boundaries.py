@@ -10,13 +10,12 @@ from heat_load_calc.boundaries import Boundaries
 from heat_load_calc.interval import EInterval, Interval
 from heat_load_calc.weather import Weather
 from heat_load_calc import shape_factor
-from heat_load_calc.window import GlassType
 from heat_load_calc.window import Window
 from heat_load_calc.direction import Direction
 from heat_load_calc.solar_shading import SolarShading
 from heat_load_calc import outside_eqv_temp
 from heat_load_calc import transmission_solar_radiation
-from heat_load_calc.tenum import EShapeFactorMethod, EBoundaryType
+from heat_load_calc.tenum import EShapeFactorMethod, EBoundaryType, EGlassType
 from heat_load_calc.input_models.input_boundary import (
     InputBoundary,
     InputBoundaryExternalGeneralPart,
@@ -31,6 +30,7 @@ from heat_load_calc.input_models.input_solar_shading_part import (
     InputSolarShadingPartDetail,
     InputSolarShadingPartNot
 )
+from heat_load_calc.input_models.input_layer import InputLayer
 
 
 def make_boundaries():
@@ -61,7 +61,11 @@ def make_boundaries():
             solar_shading_part=InputSolarShadingPartNot(existence=False),
             outside_solar_absorption=0.8,
             outside_heat_transfer_resistance=0.04,
-            outside_emissivity=0.9
+            outside_emissivity=0.9,
+            ipt_layers=[
+                InputLayer(name='wood_board-12', thermal_resistance=0.075, thermal_capacity=8.64),
+                InputLayer(name='hgw24k-100', thermal_resistance=2.777777777777778, thermal_capacity=2.0)
+            ]
         ),
         InputBoundaryExternalGeneralPart(
             id=3,
@@ -80,7 +84,11 @@ def make_boundaries():
             solar_shading_part=InputSolarShadingPartNot(existence=False),
             outside_solar_absorption=0.8,
             outside_heat_transfer_resistance=0.04,
-            outside_emissivity=0.9
+            outside_emissivity=0.9,
+            ipt_layers=[
+                InputLayer(name='wood_board-12', thermal_resistance=0.075, thermal_capacity=8.64),
+                InputLayer(name='hgw24k-100', thermal_resistance=2.777777777777778, thermal_capacity=2.0)
+            ]
         ),
         InputBoundaryExternalGeneralPart(
             id=5,
@@ -99,7 +107,11 @@ def make_boundaries():
             solar_shading_part=InputSolarShadingPartNot(existence=False),
             outside_solar_absorption=0.8,
             outside_heat_transfer_resistance=0.04,
-            outside_emissivity=0.9
+            outside_emissivity=0.9,
+            ipt_layers=[
+                InputLayer(name='wood_board-12', thermal_resistance=0.075, thermal_capacity=8.64),
+                InputLayer(name='hgw24k-100', thermal_resistance=2.777777777777778, thermal_capacity=2.0)
+            ]
         ),
         InputBoundaryExternalGeneralPart(
             id=7,
@@ -118,7 +130,11 @@ def make_boundaries():
             solar_shading_part=InputSolarShadingPartNot(existence=False),
             outside_solar_absorption=0.8,
             outside_heat_transfer_resistance=0.04,
-            outside_emissivity=0.9
+            outside_emissivity=0.9,
+            ipt_layers=[
+                InputLayer(name='wood_board-12', thermal_resistance=0.075, thermal_capacity=8.64),
+                InputLayer(name='hgw24k-100', thermal_resistance=2.777777777777778, thermal_capacity=2.0)
+            ]
         ),
         InputBoundaryExternalGeneralPart(
             id=9,
@@ -137,7 +153,11 @@ def make_boundaries():
             solar_shading_part=InputSolarShadingPartNot(existence=False),
             outside_solar_absorption=0.8,
             outside_heat_transfer_resistance=0.04,
-            outside_emissivity=0.9
+            outside_emissivity=0.9,
+            ipt_layers=[
+                InputLayer(name='wood_board-12', thermal_resistance=0.075, thermal_capacity=8.64),
+                InputLayer(name='hgw24k-100', thermal_resistance=2.777777777777778, thermal_capacity=2.0)
+            ]
         ),
         InputBoundaryExternalGeneralPart(
             id=11,
@@ -156,7 +176,11 @@ def make_boundaries():
             solar_shading_part=InputSolarShadingPartNot(existence=False),
             outside_solar_absorption=0.8,
             outside_heat_transfer_resistance=0.04,
-            outside_emissivity=0.9
+            outside_emissivity=0.9,
+            ipt_layers=[
+                InputLayer(name='wood_board-12', thermal_resistance=0.075, thermal_capacity=8.64),
+                InputLayer(name='hgw24k-100', thermal_resistance=2.777777777777778, thermal_capacity=2.0)
+            ]
         ),
         InputBoundaryExternalGeneralPart(
             id=13,
@@ -175,7 +199,11 @@ def make_boundaries():
             solar_shading_part=InputSolarShadingPartNot(existence=False),
             outside_solar_absorption=0.8,
             outside_heat_transfer_resistance=0.04,
-            outside_emissivity=0.9
+            outside_emissivity=0.9,
+            ipt_layers=[
+                InputLayer(name='wood_board-12', thermal_resistance=0.075, thermal_capacity=8.64),
+                InputLayer(name='hgw24k-100', thermal_resistance=2.777777777777778, thermal_capacity=2.0)
+            ]
         ),
         InputBoundaryExternalGeneralPart(
             id=15,
@@ -194,7 +222,11 @@ def make_boundaries():
             solar_shading_part=InputSolarShadingPartNot(existence=False),
             outside_solar_absorption=0.8,
             outside_heat_transfer_resistance=0.04,
-            outside_emissivity=0.9
+            outside_emissivity=0.9,
+            ipt_layers=[
+                InputLayer(name='wood_board-12', thermal_resistance=0.075, thermal_capacity=8.64),
+                InputLayer(name='hgw24k-100', thermal_resistance=2.777777777777778, thermal_capacity=2.0)
+            ]
         ),
         InputBoundaryExternalGeneralPart(
             id=17,
@@ -213,7 +245,11 @@ def make_boundaries():
             solar_shading_part=InputSolarShadingPartNot(existence=False),
             outside_solar_absorption=0.8,
             outside_heat_transfer_resistance=0.04,
-            outside_emissivity=0.9
+            outside_emissivity=0.9,
+            ipt_layers=[
+                InputLayer(name='wood_board-12', thermal_resistance=0.075, thermal_capacity=8.64),
+                InputLayer(name='hgw24k-100', thermal_resistance=2.777777777777778, thermal_capacity=2.0)
+            ]
         ),
         InputBoundaryExternalGeneralPart(
             id=19,
@@ -232,7 +268,11 @@ def make_boundaries():
             solar_shading_part=InputSolarShadingPartNot(existence=False),
             outside_solar_absorption=0.8,
             outside_heat_transfer_resistance=0.04,
-            outside_emissivity=0.9
+            outside_emissivity=0.9,
+            ipt_layers=[
+                InputLayer(name='wood_board-12', thermal_resistance=0.075, thermal_capacity=8.64),
+                InputLayer(name='hgw24k-100', thermal_resistance=2.777777777777778, thermal_capacity=2.0)
+            ]
         ),
         InputBoundaryExternalTransparentPart(
             id=21,
@@ -253,7 +293,8 @@ def make_boundaries():
             outside_emissivity=0.9,
             u_value=4.65,
             eta_value=0.792,
-            glass_area_ratio=0.8
+            glass_area_ratio=0.8,
+            incident_angle_characteristics=EGlassType.MULTIPLE
         ),
         InputBoundaryExternalTransparentPart(
             id=23,
@@ -274,7 +315,8 @@ def make_boundaries():
             outside_emissivity=0.9,
             u_value=4.65,
             eta_value=0.792,
-            glass_area_ratio=0.8
+            glass_area_ratio=0.8,
+            incident_angle_characteristics=EGlassType.MULTIPLE
         ),
         InputBoundaryInternal(
             id=25,
@@ -287,7 +329,12 @@ def make_boundaries():
             h_c=2.5,
             is_solar_absorbed_inside=False,
             is_floor=False,
-            rear_surface_boundary_id=27
+            rear_surface_boundary_id=27,
+            ipt_layers=[
+                InputLayer(name='gypsum_board-12', thermal_resistance=0.055, thermal_capacity=9.96),
+                InputLayer(name='air_space', thermal_resistance=0.07, thermal_capacity=0.0),
+                InputLayer(name='gypsum_board-12', thermal_resistance=0.055, thermal_capacity=9.96)
+            ]
         ),
         InputBoundaryInternal(
             id=27,
@@ -300,7 +347,12 @@ def make_boundaries():
             h_c=2.5,
             is_solar_absorbed_inside=True,
             is_floor=True,
-            rear_surface_boundary_id=25
+            rear_surface_boundary_id=25,
+            ipt_layers=[
+                InputLayer(name='gypsum_board-12', thermal_resistance=0.055, thermal_capacity=9.96),
+                InputLayer(name='air_space', thermal_resistance=0.07, thermal_capacity=0.0),
+                InputLayer(name='gypsum_board-12', thermal_resistance=0.055, thermal_capacity=9.96)
+            ]
         ),
     ]
 
@@ -808,7 +860,7 @@ def _get_window_js():
     r_a_w_g_js = np.array([None, None, None, None, None, None, None, None, None, None, 0.8, 0.8, None, None])
 
     # grazing type of boundary, [J]
-    t_glz_js = np.array([None, None, None, None, None, None, None, None, None, None, GlassType.MULTIPLE, GlassType.MULTIPLE, None, None])
+    t_glz_js = np.array([None, None, None, None, None, None, None, None, None, None, EGlassType.MULTIPLE, EGlassType.MULTIPLE, None, None])
 
     window_js = np.array([Window(u_w_std_j=u_w_std_j, eta_w_std_j=eta_w_std_j, t_glz_j=t_glz_j, r_a_w_g_j=r_a_w_g_j) if t_b_j == EBoundaryType.EXTERNAL_TRANSPARENT_PART else None
         for (t_b_j, u_w_std_j, eta_w_std_j, t_glz_j, r_a_w_g_j)
