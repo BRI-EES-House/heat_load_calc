@@ -33,15 +33,7 @@ from heat_load_calc.input_models.input_solar_shading_part import (
 from heat_load_calc.input_models.input_layer import InputLayer
 
 
-def make_boundaries():
-
-    d = _read_input_file()
-
-    w = _get_weather_class()
-
-    id_r_is = np.array([2,4]).reshape(-1, 1)
-
-    ipt_boundaries = [InputBoundary.read(d=d_boundary) for d_boundary in d['boundaries']]
+def get_input_boundaries():
 
     ipt_boundaries = [
         InputBoundaryExternalGeneralPart(
@@ -294,7 +286,8 @@ def make_boundaries():
             u_value=4.65,
             eta_value=0.792,
             glass_area_ratio=0.8,
-            incident_angle_characteristics=EGlassType.MULTIPLE
+            incident_angle_characteristics=EGlassType.MULTIPLE,
+            inside_heat_transfer_resistance=0.11
         ),
         InputBoundaryExternalTransparentPart(
             id=23,
@@ -316,7 +309,8 @@ def make_boundaries():
             u_value=4.65,
             eta_value=0.792,
             glass_area_ratio=0.8,
-            incident_angle_characteristics=EGlassType.MULTIPLE
+            incident_angle_characteristics=EGlassType.MULTIPLE,
+            inside_heat_transfer_resistance=0.11
         ),
         InputBoundaryInternal(
             id=25,
@@ -355,6 +349,21 @@ def make_boundaries():
             ]
         ),
     ]
+
+    return ipt_boundaries
+
+
+def make_boundaries():
+
+    d = _read_input_file()
+
+    w = _get_weather_class()
+
+    id_r_is = np.array([2,4]).reshape(-1, 1)
+
+    ipt_boundaries = [InputBoundary.read(d=d_boundary) for d_boundary in d['boundaries']]
+
+    ipt_boundaries = get_input_boundaries()
 
     bs = Boundaries(id_r_is=id_r_is, ds=d['boundaries'], w=w, rad_method=EShapeFactorMethod.NAGATA, ipt_boundaries=ipt_boundaries)
 
@@ -907,28 +916,20 @@ def _get_t_b_js():
 
 def _get_response_factor():
 
-    ds = _read_input_file()
     h_s_c_rear_js = _get_h_s_c_rear_js()
     h_s_r_rear_js = _get_h_s_r_rear_js()
-    id_js = _get_id_js().flatten()
-    t_b_js = _get_t_b_js()
     r_s_o_js = np.array([0.04, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04, None, None])
     u_w_std_js = np.array([None, None, None, None, None, None, None, None, None, None, 4.65, 4.65, None, None])
 
+    ipt_boundaries = get_input_boundaries()
 
     rfs = [
-        boundaries._get_response_factor(d=d, h_s_c_rear_j=h_s_c_rear_j, h_s_r_rear_j=h_s_r_rear_j, id_j=id_j, t_b_j=t_b_j, r_s_o_j=r_s_o_j, u_w_std_j=u_w_std_j)
-        for (d, h_s_c_rear_j, h_s_r_rear_j, id_j, t_b_j, r_s_o_j, u_w_std_j)
-        in zip(ds['boundaries'], h_s_c_rear_js, h_s_r_rear_js, id_js, t_b_js, r_s_o_js, u_w_std_js)
+        boundaries._get_response_factor(h_s_c_rear_j=h_s_c_rear_j, h_s_r_rear_j=h_s_r_rear_j, r_s_o_j=r_s_o_j, u_w_std_j=u_w_std_j, ipt_boundary=ipt_boundary)
+        for (h_s_c_rear_j, h_s_r_rear_j, r_s_o_j, u_w_std_j, ipt_boundary)
+        in zip(h_s_c_rear_js, h_s_r_rear_js, r_s_o_js, u_w_std_js, ipt_boundaries)
     ]
 
     return rfs
-
-
-def _get_id_js():
-    """[J, 1]"""
-
-    return np.array([1,3,5,7,9,11,13,15,17,19,21,23,25,27]).reshape(-1, 1)
 
 
 def _get_p_is_js():

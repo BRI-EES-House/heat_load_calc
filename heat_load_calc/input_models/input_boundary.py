@@ -427,6 +427,22 @@ class InputBoundary:
         return incident_angle_characteristics
     
     @staticmethod
+    def _get_inside_heat_transfer_resistance(d: dict):
+
+        if 'inside_heat_transfer_resistance' not in d:
+            raise KeyError(KNE('inside_heat_transfer_resistance', 'boundary'))
+        
+        try:
+            inside_heat_transfer_resistance = float(d['inside_heat_transfer_resistance'])
+        except ValueError:
+            raise ValueError(VI('inside_heat_transfer_resistance', 'boundary'))
+        
+        if inside_heat_transfer_resistance <= 0.0:
+            raise ValueError(RGT('inside_heat_transfer_resistance', 'boundary', '0.0'))
+        
+        return inside_heat_transfer_resistance
+
+    @staticmethod
     def _get_layers(d: dict):
 
         if 'layers' not in d:
@@ -444,7 +460,6 @@ class InputBoundary:
 
         return ipt_layers
         
-
 
 @dataclass
 class InputBoundaryExternalGeneralPart(InputBoundary):
@@ -549,6 +564,8 @@ class InputBoundaryExternalTransparentPart(InputBoundary):
 
     incident_angle_characteristics: EGlassType
 
+    inside_heat_transfer_resistance: float
+
     @classmethod
     def read(cls, d: dict):
 
@@ -592,6 +609,8 @@ class InputBoundaryExternalTransparentPart(InputBoundary):
 
         incident_angle_characteristics = cls._get_incident_angle_characteristics(d=d)
 
+        inside_heat_transfer_resistance = cls._get_inside_heat_transfer_resistance(d=d)
+
         return InputBoundaryExternalTransparentPart(
             id=id,
             name=name,
@@ -612,7 +631,8 @@ class InputBoundaryExternalTransparentPart(InputBoundary):
             u_value=u_value,
             eta_value=eta_value,
             glass_area_ratio=glass_area_ratio,
-            incident_angle_characteristics=incident_angle_characteristics
+            incident_angle_characteristics=incident_angle_characteristics,
+            inside_heat_transfer_resistance=inside_heat_transfer_resistance
         )
 
 
@@ -634,6 +654,8 @@ class InputBoundaryExternalOpaquePart(InputBoundary):
     outside_emissivity: float
 
     u_value: float
+
+    inside_heat_transfer_resistance: float
 
     @classmethod
     def read(cls, d: dict):
@@ -674,6 +696,8 @@ class InputBoundaryExternalOpaquePart(InputBoundary):
 
         u_value = cls._get_u_value(d=d)
 
+        inside_heat_transfer_resistance = cls._get_inside_heat_transfer_resistance(d=d)
+
         return InputBoundaryExternalOpaquePart(
             id=id,
             name=name,
@@ -692,7 +716,8 @@ class InputBoundaryExternalOpaquePart(InputBoundary):
             outside_solar_absorption=outside_solar_absorption,
             outside_heat_transfer_resistance=outside_heat_transfer_resistance,
             outside_emissivity=outside_emissivity,
-            u_value=u_value
+            u_value=u_value,
+            inside_heat_transfer_resistance=inside_heat_transfer_resistance
         )
 
 

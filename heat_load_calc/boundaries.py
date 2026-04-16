@@ -340,7 +340,7 @@ class Boundaries:
         h_s_r_rear_j = float(h_s_r_js[j_rear_j, 0]) if t_b_j == EBoundaryType.INTERNAL else None
 
         # response factor of boundary j
-        rf = _get_response_factor(d=d, h_s_c_rear_j=h_s_c_rear_j, h_s_r_rear_j=h_s_r_rear_j, id_j=id_j, t_b_j=t_b_j, r_s_o_j=r_s_o_j, u_w_std_j=u_w_std_j)
+        rf = _get_response_factor(h_s_c_rear_j=h_s_c_rear_j, h_s_r_rear_j=h_s_r_rear_j, r_s_o_j=r_s_o_j, u_w_std_j=u_w_std_j, ipt_boundary=ipt_boundary)
         
         # coefficient representing the effect of equivalent room temperature of other boundary j to the rear temperature of boundary j
         # 裏面温度に他の境界 j の等価室温が与える影響, [J]
@@ -966,36 +966,18 @@ def _get_q_trs_sol_j_ns(t_b_j: EBoundaryType, w: Weather, b_sun_strkd_out_j: Opt
         raise Exception()
 
 
-def _read_r_i_std_j(d: Dict, boundary_id: int) -> float:
-    """
-    室内側熱伝達抵抗を取得する。
-    Args:
-        d: 境界の辞書
-        boundary_id: 境界のID
-
-    Returns:
-        室内側熱伝達抵抗, m2K/W
-
-    """
-
-    # 室内側熱伝達抵抗, m2K/W
-    r_i = float(d['inside_heat_transfer_resistance'])
-
-    if r_i <= 0.0:
-        raise ValueError("境界(ID=" + str(boundary_id) + ")の室内側熱伝達抵抗で0.0以下の値が指定されました。")
-
-    return r_i
-
-
-def _get_response_factor(d: Dict, h_s_c_rear_j: Optional[float], h_s_r_rear_j: Optional[float], id_j: int, t_b_j: EBoundaryType, r_s_o_j: Optional[float], u_w_std_j: Optional[float]) -> ResponseFactor:
+def _get_response_factor(
+        h_s_c_rear_j: Optional[float],
+        h_s_r_rear_j: Optional[float],
+        r_s_o_j: Optional[float],
+        u_w_std_j: Optional[float],
+        ipt_boundary: InputBoundary
+    ) -> ResponseFactor:
     """Get response factor of boundary j.
 
     Args:
-        d: dictionary of boundary j
         h_s_c_rear_j: convective heat transfer coefficient of rear surface of boundary j, W/m2K
         h_s_r_rear_j: radiative heat transfer coefficient of rear surface of boundary j, W/m2K
-        id_j: id of boundary j
-        t_b_j: typoe of boundary j
         r_s_o_j: outside heat transfer resistance of boundary j, m2 K / W
         u_w_std_j: standard heat transmittance coefficient (U value) of boundary j, W/m2K
 
@@ -1003,13 +985,10 @@ def _get_response_factor(d: Dict, h_s_c_rear_j: Optional[float], h_s_r_rear_j: O
         response factor class
     """
 
+    if isinstance(ipt_boundary, InputBoundaryInternal):
 
-    if t_b_j == EBoundaryType.INTERNAL:
-
-        layers: List[Dict] = d['layers']
-
-        c_j_ls = np.array([_read_cs_j_l(layer=layer, id=id_j, layer_id=l) for (l, layer) in enumerate(layers)])
-        r_j_ls = np.array([_read_rs_j_l(layer=layer, id=id_j, layer_id=l) for (l, layer) in enumerate(layers)])
+        c_j_ls = np.array([ipt_layer.thermal_capacity for ipt_layer in ipt_boundary.ipt_layers])
+        r_j_ls = np.array([ipt_layer.thermal_resistance for ipt_layer in ipt_boundary.ipt_layers])
 
         if h_s_c_rear_j is None:
             raise Exception("h_s_c_rear should be defined when boundary type is internal.")
@@ -1021,55 +1000,40 @@ def _get_response_factor(d: Dict, h_s_c_rear_j: Optional[float], h_s_r_rear_j: O
 
         return ResponseFactor.create_for_unsteady_not_ground(cs=c_j_ls, rs=r_j_ls, r_o=r_rear_j)
 
-    elif t_b_j == EBoundaryType.EXTERNAL_GENERAL_PART:
+    elif isinstance(ipt_boundary, InputBoundaryExternalGeneralPart):
 
-        c_j_ls = np.array([_read_cs_j_l(layer=layer, id=id_j, layer_id=l) for (l, layer) in enumerate(d['layers'])])
-        r_j_ls = np.array([_read_rs_j_l(layer=layer, id=id_j, layer_id=l) for (l, layer) in enumerate(d['layers'])])
+        c_j_ls = np.array([ipt_layer.thermal_capacity for ipt_layer in ipt_boundary.ipt_layers])
+        r_j_ls = np.array([ipt_layer.thermal_resistance for ipt_layer in ipt_boundary.ipt_layers])
 
         if r_s_o_j is None:
             raise Exception("r_s_o should be defined when boundary type is external general part.")
 
         return ResponseFactor.create_for_unsteady_not_ground(cs=c_j_ls, rs=r_j_ls, r_o=r_s_o_j)
 
-    elif t_b_j in [EBoundaryType.EXTERNAL_TRANSPARENT_PART, EBoundaryType.EXTERNAL_OPAQUE_PART]:
+    elif (
+        isinstance(ipt_boundary, InputBoundaryExternalTransparentPart)
+        or isinstance(ipt_boundary, InputBoundaryExternalOpaquePart)
+    ):
 
-        r_i_std_j = _read_r_i_std_j(d=d, boundary_id=id_j)
+        # r_i_std_j = _read_r_i_std_j(d=d, boundary_id=id_j)
+
+        r_i_std_j = ipt_boundary.inside_heat_transfer_resistance
 
         if u_w_std_j is None:
             raise Exception("u_w_std should be defined when boundary type is external transparent part or external opaque part.")
 
         return ResponseFactor.create_for_steady(u_w=u_w_std_j, r_i=r_i_std_j)
 
-    elif t_b_j == EBoundaryType.GROUND:
+    elif isinstance(ipt_boundary, InputBoundaryGround):
 
-        c_j_ls = np.array([_read_cs_j_l(layer=layer, id=id_j, layer_id=l) for (l, layer) in enumerate(d['layers'])])
-        r_j_ls = np.array([_read_rs_j_l(layer=layer, id=id_j, layer_id=l) for (l, layer) in enumerate(d['layers'])])
+        c_j_ls = np.array([ipt_layer.thermal_capacity for ipt_layer in ipt_boundary.ipt_layers])
+        r_j_ls = np.array([ipt_layer.thermal_resistance for ipt_layer in ipt_boundary.ipt_layers])
 
         return ResponseFactor.create_for_unsteady_ground(cs=c_j_ls, rs=r_j_ls)
 
     else:
 
         raise KeyError()
-
-
-def _read_cs_j_l(layer: Dict, id: int, layer_id: int) -> float:
-
-    cs_j_l = float(layer['thermal_capacity'])
-
-    if cs_j_l < 0.0:
-        raise ValueError("境界(ID=" + str(id) + ")の層(ID=" + str(layer_id) + ")の熱容量で0.0未満の値が指定されました。")
-
-    return cs_j_l
-
-
-def _read_rs_j_l(layer: Dict, id: int, layer_id: int) -> float: 
-
-    rs_j_l = float(layer['thermal_resistance'])
-
-    if rs_j_l <= 0.0:
-        raise ValueError("境界(ID=" + str(id) + ")の層(ID=" + str(layer_id) + ")の熱抵抗で0.0以下の値が指定されました。")
-
-    return rs_j_l
 
 
 def _get_k_ei_js_j(id_js: np.ndarray, t_b_j: EBoundaryType, j_rear_j: Optional[int]) -> np.ndarray:

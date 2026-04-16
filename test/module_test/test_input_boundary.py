@@ -86,7 +86,8 @@ def get_default_dict_external_transparent_part():
         'u_value': 4.65,
         'eta_value': 0.792,
         'glass_area_ratio': 0.8,
-        'incident_angle_characteristics': 'multiple'
+        'incident_angle_characteristics': 'multiple',
+        'inside_heat_transfer_resistance': 0.11,
     }
 
 
@@ -113,6 +114,7 @@ def get_default_dict_external_opaque_part():
         'outside_heat_transfer_resistance': 0.04,
         'outside_emissivity': 0.9,
         'u_value': 4.65,
+        'inside_heat_transfer_resistance': 0.11,
     }
 
 
@@ -1401,6 +1403,75 @@ def test_value__incident_angle_characteristics__wrong_value():
         InputBoundary.read(d=d1)
 
     assert VI('incident_angle_characteristics', 'boundary') in str(e1.value)
+
+
+def test_value__inside_heat_transfer_resistance__():
+
+    d1 = get_default_dict_external_transparent_part()
+    d2 = get_default_dict_external_opaque_part()
+
+    ipt1: InputBoundaryExternalTransparentPart = InputBoundary.read(d=d1)
+    ipt2: InputBoundaryExternalOpaquePart = InputBoundary.read(d=d2)
+
+    assert ipt1.inside_heat_transfer_resistance == 0.11
+    assert ipt2.inside_heat_transfer_resistance == 0.11
+
+
+def test_value__inside_heat_transfer_resistance__not_exists():
+
+    d1 = get_default_dict_external_transparent_part()
+    d2 = get_default_dict_external_opaque_part()
+
+    del d1['inside_heat_transfer_resistance']
+    del d2['inside_heat_transfer_resistance']
+
+    with pytest.raises(KeyError) as e1:
+        InputBoundary.read(d=d1)
+    
+    with pytest.raises(KeyError) as e2:
+        InputBoundary.read(d=d2)
+
+    assert KNE('inside_heat_transfer_resistance', 'boundary') in str(e1.value)
+
+    assert KNE('inside_heat_transfer_resistance', 'boundary') in str(e2.value)
+
+
+def test_value__inside_heat_transfer_resistance__wrong_value():
+
+    d1 = get_default_dict_external_transparent_part()
+    d2 = get_default_dict_external_opaque_part()
+
+    d1['inside_heat_transfer_resistance'] = 'wrong_value'
+    d2['inside_heat_transfer_resistance'] = 'wrong_value'
+
+    with pytest.raises(ValueError) as e1:
+        InputBoundary.read(d=d1)
+
+    with pytest.raises(ValueError) as e2:
+        InputBoundary.read(d=d2)
+
+    assert VI('inside_heat_transfer_resistance', 'boundary') in str(e1.value)
+
+    assert VI('inside_heat_transfer_resistance', 'boundary') in str(e2.value)
+
+
+def test_value__inside_heat_transfer_resistance__out_of_range():
+
+    d1 = get_default_dict_external_transparent_part()
+    d2 = get_default_dict_external_opaque_part()
+
+    d1['inside_heat_transfer_resistance'] = 0.0
+    d2['inside_heat_transfer_resistance'] = 0.0
+
+    with pytest.raises(ValueError) as e1:
+        InputBoundary.read(d=d1)
+
+    with pytest.raises(ValueError) as e2:
+        InputBoundary.read(d=d2)
+
+    assert RGT('inside_heat_transfer_resistance', 'boundary', '0.0') in str(e1.value)
+
+    assert RGT('inside_heat_transfer_resistance', 'boundary', '0.0') in str(e2.value)
 
 
 def test_value__layers__():
