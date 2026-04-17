@@ -916,18 +916,16 @@ def _get_t_b_js():
 
 def _get_response_factor():
 
+    h_s_c_js = _get_h_s_c_js()
+    h_s_r_js = _get_h_s_r_js()
     h_s_c_rear_js = _get_h_s_c_rear_js()
     h_s_r_rear_js = _get_h_s_r_rear_js()
-    r_s_o_js = np.array([0.04, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04, None, None])
-    u_w_std_js = np.array([None, None, None, None, None, None, None, None, None, None, 4.65, 4.65, None, None])
 
     ipt_boundaries = get_input_boundaries()
 
-    rfs = [
-        boundaries._get_response_factor(h_s_c_rear_j=h_s_c_rear_j, h_s_r_rear_j=h_s_r_rear_j, r_s_o_j=r_s_o_j, u_w_std_j=u_w_std_j, ipt_boundary=ipt_boundary)
-        for (h_s_c_rear_j, h_s_r_rear_j, r_s_o_j, u_w_std_j, ipt_boundary)
-        in zip(h_s_c_rear_js, h_s_r_rear_js, r_s_o_js, u_w_std_js, ipt_boundaries)
-    ]
+    id_js = np.array([1,3,5,7,9,11,13,15,17,19,21,23,25,27]).reshape(-1, 1)
+
+    rfs = [boundaries._get_response_factor(ipt_boundary=ipt_boundary, h_s_c_js=h_s_c_js, h_s_r_js=h_s_r_js, id_js=id_js) for ipt_boundary in ipt_boundaries]
 
     return rfs
 
