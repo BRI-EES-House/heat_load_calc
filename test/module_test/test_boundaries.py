@@ -918,15 +918,13 @@ def _get_response_factor():
 
     h_s_c_js = _get_h_s_c_js()
     h_s_r_js = _get_h_s_r_js()
-    h_s_c_rear_js = _get_h_s_c_rear_js()
-    h_s_r_rear_js = _get_h_s_r_rear_js()
 
     ipt_boundaries = get_input_boundaries()
 
     id_js = np.array([1,3,5,7,9,11,13,15,17,19,21,23,25,27]).reshape(-1, 1)
 
-    rfs = [boundaries._get_response_factor(ipt_boundary=ipt_boundary, h_s_c_js=h_s_c_js, h_s_r_js=h_s_r_js, id_js=id_js) for ipt_boundary in ipt_boundaries]
-
+    rfs = [boundaries.Boundary._get_response_factor(ipt_boundary=ipt_boundary, h_s_c_js=h_s_c_js, h_s_r_js=h_s_r_js, id_js=id_js) for ipt_boundary in ipt_boundaries]
+    
     return rfs
 
 
