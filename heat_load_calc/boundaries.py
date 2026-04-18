@@ -523,9 +523,108 @@ class Boundary:
         )
 
 
+@dataclass
 class Boundaries:
 
-    def __init__(self, id_r_is: np.ndarray, w: Weather, rad_method: EShapeFactorMethod, ipt_boundaries: list[InputBoundary]):
+    # number of boundaries
+    n_b: int
+
+    # number_of_boundaries of ground
+    n_ground: int
+
+    # IDs, [J, 1]
+    id_js: np.ndarray
+
+    # name, [J, 1]
+    name_js: np.ndarray
+
+    # subname, [J, 1]
+    sub_name_js: np.ndarray
+
+    # connected room IDs, [J, 1]
+    connected_room_id_js: np.ndarray
+
+    # coefficient of relation between room i and boundary j
+    # example　(vertical axis = room, horizontal axis = boundary)
+    #  [[p_0_0 ... ... p_0_j]
+    #   [ ...  ... ...  ... ]
+    #   [p_i_0 ... ... p_i_j]]
+    p_is_js: np.ndarray
+
+    # p_is_js.T
+    p_js_is: np.ndarray
+
+    # is the boundary floor ?, [J, 1]
+    b_floor_js: np.ndarray
+
+    # is the boundary ground ?, [J, 1]
+    b_ground_js: np.ndarray
+
+    # coefficient of effects
+    # of equivallent temperature of other boundary
+    # to rear surface temperature of the given boundary
+    # [J, J]
+    k_ei_js_js: np.ndarray
+
+    # coefficient of effects
+    # of outdoor air temperature
+    # to rear surface temperature of the given boundary
+    # (temperature different coefficient)
+    # [J, 1] 
+    k_eo_js: np.ndarray
+
+    # coefficient of effects
+    # of room temperature
+    # to rear surface temperature of the given boundary
+    # [J, I]
+    k_s_r_js_is: np.ndarray
+
+    # Wheter does the surface of boundary absorb solar radiation ?
+    b_s_sol_abs_js: np.ndarray
+
+    # radiative heat transfer coefficient of inside surface, W/m2K, [J, 1]
+    h_s_r_js: np.ndarray
+
+    # convective heat transfer coefficient of inside surface, W/m2K, [J, 1]
+    h_s_c_js: np.ndarray
+
+    # thermal transfer coefficient, W/m2K, [J, 1]
+    # the value calculated in this simulation is used as thermal resistance of surface
+    u_js: np.ndarray
+
+    # area, m2, [J, 1]
+    a_s_js: np.ndarray
+
+    # long wave emissivity, -, [J, 1]
+    eps_r_i_js: np.ndarray
+
+    # initial term of heat absorption response factor, m2K/W, [J, 1]
+    phi_a0_js: np.ndarray
+
+    # initial term of m th component of heat absorption response factor
+    # with common ratio method per term
+    # m2K/W, [J, M]
+    phi_a1_js_ms: np.ndarray
+
+    # initial term of heat transmission response factor, -, [J, 1]
+    phi_t0_js: np.ndarray
+
+    # initial term of m th component of heat transmission response factor
+    # with common ratio method per term
+    # -, [J, M]
+    phi_t1_js_ms: np.ndarray
+
+    # common ratio of the m th term, [J, M]
+    r_js_ms: np.ndarray
+
+    # equivalent outdoor temperature at step n+1, deg.C, [J, N+1]
+    theta_o_eqv_js_nspls: np.ndarray
+
+    # transmitted solar heat gain at step n+1, W, [J, N+1]
+    q_trs_sol_js_nspls: np.ndarray
+
+    @classmethod
+    def create(cls, id_r_is: np.ndarray, w: Weather, rad_method: EShapeFactorMethod, ipt_boundaries: list[InputBoundary]):
         """
 
         Args:
@@ -619,189 +718,49 @@ class Boundaries:
         # transmitted solar radiation of boundary j, W, [J, N+1]
         q_trs_sol_js_nspls = np.array([bs.q_trs_sol_nplus for bs in bss])
 
-        self._n_b = n_b
-        self._connected_room_id_js = connected_room_id_js
-        self._p_is_js = p_is_js
-        self._p_js_is = p_is_js.T
-        self._a_s_js = a_s_js
-        self._eps_r_i_js = eps_r_i_js
-        self._h_s_r_js = h_s_r_js
-        self._h_s_c_js = h_s_c_js
-        self._n_ground = n_ground
-        self._id_js = id_js
-        self._name_js = name_js
-        self._sub_name_js = sub_name_js
-        self._b_floor_js = b_floor_js
-        self._b_ground_js = b_ground_js
-        self._k_ei_js_js = k_ei_js_js
-        self._k_eo_js = k_eo_js
-        self._k_s_r_js_is = k_s_r_js_is
-        self._b_s_sol_abs_js = b_sol_abs_js
-        self._u_js = u_js
-        self._phi_a0_js = phi_a0_js
-        self._phi_a1_js_ms = phi_a1_js_ms
-        self._phi_t0_js = phi_t0_js
-        self._phi_t1_js_ms = phi_t1_js_ms
-        self._r_js_ms = r_js_ms
-        self._theta_o_eqv_js_nspls = theta_o_eqv_js_nspls
-        self._q_trs_sol_js_nspls = q_trs_sol_js_nspls
-
-    @property
-    def n_b(self) -> int:
-        """number of boundaries / 境界の数"""
-        return self._n_b
-
-    @property
-    def n_ground(self) -> int:
-        """nomber of boundaries for ground / 地盤の数"""
-        return self._n_ground
-
-    @property
-    def id_js(self) -> np.ndarray:
-        """ID of boundary j / 境界jのID, [J, 1]"""
-        return self._id_js
-
-    @property
-    def name_js(self) -> np.ndarray:
-        """name of boundary j / 境界jの名前, [J, 1]"""
-        return self._name_js
-
-    @property
-    def sub_name_js(self) -> np.ndarray:
-        """sub name of boundary j / 境界jの名前2, [J, 1]"""
-        return self._sub_name_js
-    
-    @property
-    def connected_room_id_js(self) -> np.ndarray:
-        """connected room id, [J, 1]"""
-        return self._connected_room_id_js
-
-    @property
-    def p_is_js(self) -> np.ndarray:
-        """coefficient of relation between room i and boundary j / 室iと境界jの関係を表す係数（境界jから室iへの変換）, [i, j]
-        Notes:
-            室iと境界jの関係を表す係数（境界jから室iへの変換）
-            [[p_0_0 ... ... p_0_j]
-             [ ...  ... ...  ... ]
-             [p_i_0 ... ... p_i_j]]
-        """
-        return self._p_is_js
-
-    @property
-    def p_js_is(self) -> np.ndarray:
-        """coefficient of relation between room i and boundary j / 室iと境界jの関係を表す係数（室iから境界jへの変換）
-        Notes:
-            [[p_0_0 ... p_0_i]
-             [ ...  ...  ... ]
-             [ ...  ...  ... ]
-             [p_j_0 ... p_j_i]]
-        """
-        return self._p_js_is
-
-    @property
-    def b_floor_js(self) -> np.ndarray:
-        """is boundary j floor ? / 境界jが床かどうか, [J, 1]"""
-        return self._b_floor_js
-
-    @property
-    def b_ground_js(self) -> np.ndarray:
-        """is boundary j ground ? / 境界jが地盤かどうか, [J, 1]"""
-        return self._b_ground_js
-
-    @property
-    def k_ei_js_js(self) -> np.ndarray:
-        """coefficient of effects of equivallent temperature of other boundary to rear surface temperature of given boundary"""
-        return self._k_ei_js_js
-        
-    @property
-    def k_eo_js(self) -> np.ndarray:
-        """coefficient of effects of outdoor air temperature to rear surface temperature of given boundary j / 境界jの裏面温度に外気温度が与える影響（温度差係数）, [j, 1]"""
-        return self._k_eo_js
-
-    @property
-    def k_s_r_js_is(self) -> np.ndarray:
-        """coefficient of effects of room temperature to rear surface temperature of boundary / 境界jの裏面温度に室温が与える影響, [j, i]"""
-        return self._k_s_r_js_is
-
-    @property
-    def b_s_sol_abs_js(self) -> np.ndarray:
-        """whether does the surface of boundary j absorb solar radiation ? / 境界jの日射吸収の有無, [J, 1]"""
-        return self._b_s_sol_abs_js
-
-    @property
-    def h_s_r_js(self) -> np.ndarray:
-        """radiative heat transfer coefficient of inside surface of boundary j / 境界jの室内側表面放射熱伝達率, W/m2K, [J, 1]"""
-        return self._h_s_r_js
-
-    @property
-    def h_s_c_js(self) -> np.ndarray:
-        """convective heat transfer coefficient of inside surface of boundary j / 境界jの室内側表面対流熱伝達率, W/m2K, [J, 1]"""
-        return self._h_s_c_js
-
-    @property
-    def u_js(self) -> np.ndarray:
-        """境界jにおけるシミュレーションに用いる表面熱伝達抵抗での熱貫流率, W/m2K, [J, 1]"""
-        return self._u_js
-
-    @property
-    def a_s_js(self) -> np.ndarray:
-        """area of boundary j / 境界jの面積, m2, [J, 1]"""
-        return self._a_s_js
-
-    @property
-    def eps_r_i_js(self) -> np.ndarray:
-        """long wave emissivity of boundary j / 境界jの放射率, -, [J, 1]"""
-        return self._eps_r_i_js
-
-    @property
-    def phi_a0_js(self) -> np.ndarray:
-        """境界jの吸熱応答係数の初項, m2K/W, [j, 1]"""
-        return self._phi_a0_js
-
-    @property
-    def phi_a1_js_ms(self) -> np.ndarray:
-        """境界jの項別公比法における項mの吸熱応答係数の第一項 , m2K/W, [j, 12]"""
-        return self._phi_a1_js_ms
-
-    @property
-    def phi_t0_js(self) -> np.ndarray:
-        """境界jの貫流応答係数の初項, [j, 1]"""
-        return self._phi_t0_js
-
-    @property
-    def phi_t1_js_ms(self) -> np.ndarray:
-        """境界jの項別公比法における項mの貫流応答係数の第一項, [j, 12]"""
-        return self._phi_t1_js_ms
-
-    @property
-    def r_js_ms(self) -> np.ndarray:
-        """境界jの項別公比法における項mの公比, [j, 12]"""
-        return self._r_js_ms
-
-    @property
-    def theta_o_eqv_js_nspls(self) -> np.ndarray:
-        """ステップ n の境界 j における相当外気温度, ℃, [J, N+1]"""
-        return self._theta_o_eqv_js_nspls
+        return Boundaries(
+            n_b=n_b,
+            connected_room_id_js=connected_room_id_js,
+            p_is_js=p_is_js,
+            p_js_is=p_is_js.T,
+            a_s_js=a_s_js,
+            eps_r_i_js=eps_r_i_js,
+            h_s_r_js=h_s_r_js,
+            h_s_c_js=h_s_c_js,
+            n_ground=n_ground,
+            id_js=id_js,
+            name_js=name_js,
+            sub_name_js=sub_name_js,
+            b_floor_js=b_floor_js,
+            b_ground_js=b_ground_js,
+            k_ei_js_js=k_ei_js_js,
+            k_eo_js=k_eo_js,
+            k_s_r_js_is=k_s_r_js_is,
+            b_s_sol_abs_js=b_sol_abs_js,
+            u_js=u_js,
+            phi_a0_js=phi_a0_js,
+            phi_a1_js_ms=phi_a1_js_ms,
+            phi_t0_js=phi_t0_js,
+            phi_t1_js_ms=phi_t1_js_ms,
+            r_js_ms=r_js_ms,
+            theta_o_eqv_js_nspls=theta_o_eqv_js_nspls,
+            q_trs_sol_js_nspls=q_trs_sol_js_nspls
+        )
 
     # TODO: 一部のテストを通すためだけに、後から上書きできる機能を作成した。将来的には消すこと。
     def set_theta_o_eqv_js_nspls(self, theta_o_eqv_js_nspls):
         self._theta_o_eqv_js_nspls = theta_o_eqv_js_nspls
 
-    @property
-    def q_trs_sol_js_nspls(self) -> np.ndarray:
-        """transmitted solar heat gain of boundary j at step n, ステップnにおける境界jの透過日射熱取得, W, [J, N+1]"""
-        return self._q_trs_sol_js_nspls
-
     def get_f_ax_js_is(self, f_mrt_is_js: np.ndarray) -> np.ndarray:
 
         return _get_f_ax_js_is(
             f_mrt_is_js=f_mrt_is_js,
-            h_s_c_js=self._h_s_c_js,
-            h_s_r_js=self._h_s_r_js,
-            k_ei_js_js=self._k_ei_js_js,
-            p_js_is=self._p_js_is,
-            phi_a0_js=self._phi_a0_js,
-            phi_t0_js=self._phi_t0_js
+            h_s_c_js=self.h_s_c_js,
+            h_s_r_js=self.h_s_r_js,
+            k_ei_js_js=self.k_ei_js_js,
+            p_js_is=self.p_js_is,
+            phi_a0_js=self.phi_a0_js,
+            phi_t0_js=self.phi_t0_js
         )
 
     def get_f_fia_js_is(self) -> np.ndarray:
@@ -815,13 +774,13 @@ class Boundaries:
         """
 
         return _get_f_fia_js_is(
-            h_s_c_js=self._h_s_c_js,
-            h_s_r_js=self._h_s_r_js,
-            k_ei_js_js=self._k_ei_js_js,
-            p_js_is=self._p_js_is,
-            phi_a0_js=self._phi_a0_js,
-            phi_t0_js=self._phi_t0_js,
-            k_s_r_js_is=self._k_s_r_js_is
+            h_s_c_js=self.h_s_c_js,
+            h_s_r_js=self.h_s_r_js,
+            k_ei_js_js=self.k_ei_js_js,
+            p_js_is=self.p_js_is,
+            phi_a0_js=self.phi_a0_js,
+            phi_t0_js=self.phi_t0_js,
+            k_s_r_js_is=self.k_s_r_js_is
         )
 
     def get_f_crx_js_ns(self, q_s_sol_js_ns: np.ndarray) -> np.ndarray:
@@ -838,14 +797,14 @@ class Boundaries:
         """
 
         return _get_f_crx_js_ns(
-            h_s_c_js=self._h_s_c_js,
-            h_s_r_js=self._h_s_r_js,
-            k_ei_js_js=self._k_ei_js_js,
-            phi_a0_js=self._phi_a0_js,
-            phi_t0_js=self._phi_t0_js,
+            h_s_c_js=self.h_s_c_js,
+            h_s_r_js=self.h_s_r_js,
+            k_ei_js_js=self.k_ei_js_js,
+            phi_a0_js=self.phi_a0_js,
+            phi_t0_js=self.phi_t0_js,
             q_s_sol_js_ns=q_s_sol_js_ns,
-            k_eo_js=self._k_eo_js,
-            theta_o_eqv_js_ns=self._theta_o_eqv_js_nspls
+            k_eo_js=self.k_eo_js,
+            theta_o_eqv_js_ns=self.theta_o_eqv_js_nspls
         )
 
     def get_f_flb_js_is_n_pls(self, beta_is_n: np.ndarray, f_flr_js_is_n: np.ndarray) -> np.ndarray:
@@ -864,14 +823,14 @@ class Boundaries:
         """
 
         return _get_f_flb_js_is_n_pls(
-            a_s_js=self._a_s_js,
+            a_s_js=self.a_s_js,
             beta_is_n=beta_is_n,
             f_flr_js_is_n=f_flr_js_is_n,
-            h_s_c_js=self._h_s_c_js,
-            h_s_r_js=self._h_s_r_js,
-            k_ei_js_js=self._k_ei_js_js,
-            phi_a0_js=self._phi_a0_js,
-            phi_t0_js=self._phi_t0_js
+            h_s_c_js=self.h_s_c_js,
+            h_s_r_js=self.h_s_r_js,
+            k_ei_js_js=self.k_ei_js_js,
+            phi_a0_js=self.phi_a0_js,
+            phi_t0_js=self.phi_t0_js
         )
 
     def get_f_cvl_js_n_pls(
@@ -896,16 +855,16 @@ class Boundaries:
         """
 
         theta_dsh_s_t_js_ms_n_pls = _get_theta_dsh_s_t_js_ms_n_pls(
-            phi_t1_js_ms=self._phi_t1_js_ms,
-            r_js_ms=self._r_js_ms,
+            phi_t1_js_ms=self.phi_t1_js_ms,
+            r_js_ms=self.r_js_ms,
             theta_dsh_srf_t_js_ms_n=theta_dsh_srf_t_js_ms_n,
             theta_rear_js_n=theta_rear_js_n
         )
 
         theta_dsh_s_a_js_ms_n_pls = _get_theta_dsh_s_a_js_ms_n_pls(
-            phi_a1_js_ms=self._phi_a1_js_ms,
+            phi_a1_js_ms=self.phi_a1_js_ms,
             q_s_js_n=q_s_js_n,
-            r_js_ms=self._r_js_ms,
+            r_js_ms=self.r_js_ms,
             theta_dsh_srf_a_js_ms_n=theta_dsh_srf_a_js_ms_n
         )
 
@@ -915,8 +874,8 @@ class Boundaries:
 
     def get_wall_steady_state_status(self, q_srf_js_n, theta_rear_js_n):
 
-        theta_dsh_s_a_js_ms_n = q_srf_js_n * self._phi_a1_js_ms / (1.0 - self._r_js_ms)
-        theta_dsh_s_t_js_ms_n = theta_rear_js_n * self._phi_t1_js_ms / (1.0 - self._r_js_ms)
+        theta_dsh_s_a_js_ms_n = q_srf_js_n * self.phi_a1_js_ms / (1.0 - self.r_js_ms)
+        theta_dsh_s_t_js_ms_n = theta_rear_js_n * self.phi_t1_js_ms / (1.0 - self.r_js_ms)
         return theta_dsh_s_a_js_ms_n, theta_dsh_s_t_js_ms_n
 
 

@@ -87,7 +87,7 @@ def calc(
     rms = Rooms(ipt_rooms=ipt_rooms)
 
     # Boundaries Class
-    bs = Boundaries(id_r_is=rms.id_r_is, w=w, rad_method=shape_factor_method, ipt_boundaries=ipt_boundaries)
+    bs = Boundaries.create(id_r_is=rms.id_r_is, w=w, rad_method=shape_factor_method, ipt_boundaries=ipt_boundaries)
 
     # number of steps for main calculation
     # number of steps for run-up calculation
