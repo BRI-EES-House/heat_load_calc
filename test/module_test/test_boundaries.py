@@ -365,7 +365,7 @@ def make_boundaries():
 
     ipt_boundaries = get_input_boundaries()
 
-    bs = Boundaries(id_r_is=id_r_is, ds=d['boundaries'], w=w, rad_method=EShapeFactorMethod.NAGATA, ipt_boundaries=ipt_boundaries)
+    bs = Boundaries(id_r_is=id_r_is, w=w, rad_method=EShapeFactorMethod.NAGATA, ipt_boundaries=ipt_boundaries)
 
     return bs
 
@@ -466,7 +466,7 @@ class TestBoundaries(unittest.TestCase):
 
         ipt_boundaries = [InputBoundary.read(d=d_boundary) for d_boundary in d['boundaries']]
 
-        bs = Boundaries(id_r_is=id_r_is, ds=d['boundaries'], w=w, rad_method=EShapeFactorMethod.NAGATA, ipt_boundaries=ipt_boundaries)
+        bs = Boundaries(id_r_is=id_r_is, w=w, rad_method=EShapeFactorMethod.NAGATA, ipt_boundaries=ipt_boundaries)
 
         cls._bs: Boundaries = bs
 

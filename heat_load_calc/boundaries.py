@@ -525,12 +525,11 @@ class Boundary:
 
 class Boundaries:
 
-    def __init__(self, id_r_is: np.ndarray, ds: List[Dict], w: Weather, rad_method: EShapeFactorMethod, ipt_boundaries: list[InputBoundary]):
+    def __init__(self, id_r_is: np.ndarray, w: Weather, rad_method: EShapeFactorMethod, ipt_boundaries: list[InputBoundary]):
         """
 
         Args:
             id_r_is: room id, [I, 1]
-            ds: 境界に関する辞書
             w: Weather クラス
         Notes:
             本来であれば Boundaries クラスにおいて境界に関する入力用辞書から読み込みを境界個別に行う。

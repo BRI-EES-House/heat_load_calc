@@ -241,7 +241,7 @@ def initialize(test_case: TestCase, d: dict):
 
     ipt_boundaries = [InputBoundary.read(d=d_boundary) for d_boundary in d['boundaries']]
 
-    bs = Boundaries(id_r_is=rms.id_r_is, ds=d['boundaries'], w=w, rad_method=shape_factor_method, ipt_boundaries=ipt_boundaries)
+    bs = Boundaries(id_r_is=rms.id_r_is, w=w, rad_method=shape_factor_method, ipt_boundaries=ipt_boundaries)
 
     sqc = Sequence(itv=itv, d=d, weather=w, scd=scd, bdg=bdg, rms=rms, bs=bs)
 
