@@ -11,7 +11,6 @@ from heat_load_calc.direction import Direction
 from heat_load_calc.solar_shading import SolarShading
 from heat_load_calc import outside_eqv_temp
 from heat_load_calc import transmission_solar_radiation
-from heat_load_calc import window
 from heat_load_calc.window import Window
 from heat_load_calc.tenum import EShapeFactorMethod, EGlassType
 from heat_load_calc.input_models.input_boundary import (
@@ -623,6 +622,15 @@ class Boundaries:
     # transmitted solar heat gain at step n+1, W, [J, N+1]
     q_trs_sol_js_nspls: np.ndarray
 
+    # shape factor for microsphier in the room, [I, J]
+    f_mrt_is_js: np.ndarray
+
+    # coeeficient f_ax, -, [J, J]
+    f_ax_js_js: np.ndarray
+
+    # coefficient f_wsr, -, [J, I]
+    f_wsr_js_is: np.ndarray
+
     @classmethod
     def create(cls, id_r_is: np.ndarray, w: Weather, rad_method: EShapeFactorMethod, ipt_boundaries: list[InputBoundary]):
         """
@@ -651,6 +659,8 @@ class Boundaries:
 
         # coefficient of relation between room i and boundary j / 室iと境界jの関係を表す係数（境界jから室iへの変換）, [I, J]
         p_is_js = _get_p_is_js(id_r_is=id_r_is, connected_room_id_js=connected_room_id_js)
+
+        p_js_is = p_is_js.T
 
         # surface area of boundary j / 境界jの面積, m2, [J, 1]
         a_s_js = np.array([ipt_boundary.area for ipt_boundary in ipt_boundaries]).reshape(-1, 1)
@@ -718,11 +728,37 @@ class Boundaries:
         # transmitted solar radiation of boundary j, W, [J, N+1]
         q_trs_sol_js_nspls = np.array([bs.q_trs_sol_nplus for bs in bss])
 
+        # shape factor for microsphier in the room, [I, J]
+        f_mrt_is_js = shape_factor.get_f_mrt_is_js(a_s_js=a_s_js, h_s_r_js=h_s_r_js, p_is_js=p_is_js)
+
+        f_ax_js_js = _get_f_ax_js_is(
+            f_mrt_is_js=f_mrt_is_js,
+            h_s_c_js=h_s_c_js,
+            h_s_r_js=h_s_r_js,
+            k_ei_js_js=k_ei_js_js,
+            p_js_is=p_js_is,
+            phi_a0_js=phi_a0_js,
+            phi_t0_js=phi_t0_js
+        )
+
+        f_fia_js_is = _get_f_fia_js_is(
+            h_s_c_js=h_s_c_js,
+            h_s_r_js=h_s_r_js,
+            k_ei_js_js=k_ei_js_js,
+            p_js_is=p_js_is,
+            phi_a0_js=phi_a0_js,
+            phi_t0_js=phi_t0_js,
+            k_s_r_js_is=k_s_r_js_is
+        )
+
+        f_wsr_js_is = _get_f_wsr_js_is(f_ax_js_js=f_ax_js_js, f_fia_js_is=f_fia_js_is)
+
+
         return Boundaries(
             n_b=n_b,
             connected_room_id_js=connected_room_id_js,
             p_is_js=p_is_js,
-            p_js_is=p_is_js.T,
+            p_js_is=p_js_is,
             a_s_js=a_s_js,
             eps_r_i_js=eps_r_i_js,
             h_s_r_js=h_s_r_js,
@@ -744,43 +780,10 @@ class Boundaries:
             phi_t1_js_ms=phi_t1_js_ms,
             r_js_ms=r_js_ms,
             theta_o_eqv_js_nspls=theta_o_eqv_js_nspls,
-            q_trs_sol_js_nspls=q_trs_sol_js_nspls
-        )
-
-    # TODO: 一部のテストを通すためだけに、後から上書きできる機能を作成した。将来的には消すこと。
-    def set_theta_o_eqv_js_nspls(self, theta_o_eqv_js_nspls):
-        self._theta_o_eqv_js_nspls = theta_o_eqv_js_nspls
-
-    def get_f_ax_js_is(self, f_mrt_is_js: np.ndarray) -> np.ndarray:
-
-        return _get_f_ax_js_is(
+            q_trs_sol_js_nspls=q_trs_sol_js_nspls,
             f_mrt_is_js=f_mrt_is_js,
-            h_s_c_js=self.h_s_c_js,
-            h_s_r_js=self.h_s_r_js,
-            k_ei_js_js=self.k_ei_js_js,
-            p_js_is=self.p_js_is,
-            phi_a0_js=self.phi_a0_js,
-            phi_t0_js=self.phi_t0_js
-        )
-
-    def get_f_fia_js_is(self) -> np.ndarray:
-        """
-
-        Returns:
-            係数 f_FIA, -, [j, i]
-
-        Notes:
-            式(4.4)
-        """
-
-        return _get_f_fia_js_is(
-            h_s_c_js=self.h_s_c_js,
-            h_s_r_js=self.h_s_r_js,
-            k_ei_js_js=self.k_ei_js_js,
-            p_js_is=self.p_js_is,
-            phi_a0_js=self.phi_a0_js,
-            phi_t0_js=self.phi_t0_js,
-            k_s_r_js_is=self.k_s_r_js_is
+            f_ax_js_js=f_ax_js_js,
+            f_wsr_js_is=f_wsr_js_is
         )
 
     def get_f_crx_js_ns(self, q_s_sol_js_ns: np.ndarray) -> np.ndarray:
@@ -807,25 +810,25 @@ class Boundaries:
             theta_o_eqv_js_ns=self.theta_o_eqv_js_nspls
         )
 
-    def get_f_flb_js_is_n_pls(self, beta_is_n: np.ndarray, f_flr_js_is_n: np.ndarray) -> np.ndarray:
+    def get_f_flb_js_is(self, beta_is: np.ndarray, f_flr_js_is: np.ndarray) -> np.ndarray:
         """
 
         Args:
-            beta_is_n: ステップ n からステップ n+1 における室 i の放射暖冷房設備の対流成分比率, -, [i, 1]
-            f_flr_js_is_n: ステップ n からステップ n+1 における室 i の放射暖冷房設備の放熱量の放射成分に対する境界 j の室内側表面の吸収比率, -, [j, i]
+            beta_is: 室 i の放射暖冷房設備の対流成分比率, -, [I, 1]
+            f_flr_js_is: 室 i の放射暖冷房設備の放熱量の放射成分に対する境界 j の室内側表面の吸収比率, -, [J, i]
 
         Returns:
-            ステップ n+1 における係数 f_FLB, K/W, [j, i]
+            係数 f_FLB, K/W, [J, I]
 
         Notes:
             式(2.12)
 
         """
 
-        return _get_f_flb_js_is_n_pls(
+        return _get_f_flb_js_is(
             a_s_js=self.a_s_js,
-            beta_is_n=beta_is_n,
-            f_flr_js_is_n=f_flr_js_is_n,
+            beta_is=beta_is,
+            f_flr_js_is=f_flr_js_is,
             h_s_c_js=self.h_s_c_js,
             h_s_r_js=self.h_s_r_js,
             k_ei_js_js=self.k_ei_js_js,
@@ -871,6 +874,45 @@ class Boundaries:
         f_cvl_js_n_pls = _get_f_cvl_js_n_pls(theta_dsh_s_a_js_ms_n_pls=theta_dsh_s_a_js_ms_n_pls, theta_dsh_s_t_js_ms_n_pls=theta_dsh_s_t_js_ms_n_pls)
         
         return theta_dsh_s_t_js_ms_n_pls, theta_dsh_s_a_js_ms_n_pls, f_cvl_js_n_pls
+
+    def get_f_wsc_js_ns(self, f_ax_js_js, q_s_sol_js_ns):
+        """
+
+        Args:
+            f_ax_js_js: 係数 f_{AX}, -, [j, j]
+            q_s_sol_js_ns: the transparent solar radiation absorbed by the boundary j at step n, W/m2, [J, N]
+
+        Returns:
+            係数 f_{WSC,n}, degree C, [j, n]
+
+        Notes:
+            式(4.1)
+        """
+
+        f_crx_js_ns = self.get_f_crx_js_ns(q_s_sol_js_ns=q_s_sol_js_ns)
+
+        return np.linalg.solve(f_ax_js_js, f_crx_js_ns)
+
+
+    def get_f_wsb_js_is(self, beta_is, f_flr_js_is):
+        """
+
+        Args:
+            beta_is: 室 i の放射暖冷房設備の対流成分比率, -, [i, 1]
+            f_flr_js_is: 室 i の放射暖冷房設備の放熱量の放射成分に対する境界 j の室内側表面の吸収比率, -, [j, i]
+
+        Returns:
+            係数 f_WSB, K/W, [j, i]
+
+        Notes:
+            式(2.11)
+
+        """
+
+        f_flb_js_is = self.get_f_flb_js_is(beta_is= beta_is, f_flr_js_is=f_flr_js_is)
+
+        return np.linalg.solve(self.f_ax_js_js, f_flb_js_is)
+
 
     def get_wall_steady_state_status(self, q_srf_js_n, theta_rear_js_n):
 
@@ -956,7 +998,7 @@ def _get_f_ax_js_is(f_mrt_is_js, h_s_c_js, h_s_r_js, k_ei_js_js, p_js_is, phi_a0
         phi_t0_js: 境界 j の貫流応答係数の初項, -, [j, 1]
 
     Returns:
-        係数 f_AX, -, [j, j]
+        係数 f_AX, -, [J, J]
 
     Notes:
         式(4.5)
@@ -1013,13 +1055,13 @@ def _get_f_crx_js_ns(h_s_c_js, h_s_r_js, k_ei_js_js, phi_a0_js, phi_t0_js, q_s_s
         + phi_t0_js * theta_o_eqv_js_ns * k_eo_js
 
 
-def _get_f_flb_js_is_n_pls(a_s_js, beta_is_n, f_flr_js_is_n, h_s_c_js, h_s_r_js, k_ei_js_js, phi_a0_js, phi_t0_js):
+def _get_f_flb_js_is(a_s_js, beta_is, f_flr_js_is, h_s_c_js, h_s_r_js, k_ei_js_js, phi_a0_js, phi_t0_js):
     """
 
     Args:
         a_s_js: 境界 j の面積, m2, [j, 1]
-        beta_is_n: ステップ n からステップ n+1 における室 i の放射暖冷房設備の対流成分比率, -, [i, 1]
-        f_flr_js_is_n: ステップ n からステップ n+1 における室 i の放射暖冷房設備の放熱量の放射成分に対する境界 j の室内側表面の吸収比率, -, [j, i]
+        beta_is: 室 i の放射暖冷房設備の対流成分比率, -, [i, 1]
+        f_flr_js_is: 室 i の放射暖冷房設備の放熱量の放射成分に対する境界 j の室内側表面の吸収比率, -, [j, i]
         h_s_c_js: 境界 j の室内側対流熱伝達率, W/(m2 K), [j, 1]
         h_s_r_js: 境界 j の室内側放射熱伝達率, W/(m2 K), [j, 1]
         k_ei_js_js: 境界 j の裏面温度に境界　j* の等価温度が与える影響, -, [j*, j]
@@ -1027,15 +1069,15 @@ def _get_f_flb_js_is_n_pls(a_s_js, beta_is_n, f_flr_js_is_n, h_s_c_js, h_s_r_js,
         phi_t0_js: 境界 |j| の貫流応答係数の初項, -, [j]
 
     Returns:
-        ステップ n+1 における係数 f_FLB, K/W, [j, i]
+        係数 f_FLB, K/W, [j, i]
 
     Notes:
         式(2.12)
 
     """
 
-    return f_flr_js_is_n * (1.0 - beta_is_n.T) * phi_a0_js / a_s_js \
-        + np.dot(k_ei_js_js, f_flr_js_is_n * (1.0 - beta_is_n.T)) * phi_t0_js / (h_s_c_js + h_s_r_js) / a_s_js
+    return f_flr_js_is * (1.0 - beta_is.T) * phi_a0_js / a_s_js \
+        + np.dot(k_ei_js_js, f_flr_js_is * (1.0 - beta_is.T)) * phi_t0_js / (h_s_c_js + h_s_r_js) / a_s_js
 
 
 def _get_f_cvl_js_n_pls(theta_dsh_s_a_js_ms_n_pls, theta_dsh_s_t_js_ms_n_pls):
@@ -1090,5 +1132,21 @@ def _get_theta_dsh_s_a_js_ms_n_pls(phi_a1_js_ms, q_s_js_n, r_js_ms, theta_dsh_sr
 
     return phi_a1_js_ms * q_s_js_n + r_js_ms * theta_dsh_srf_a_js_ms_n
 
+
+def _get_f_wsr_js_is(f_ax_js_js, f_fia_js_is):
+    """
+
+    Args:
+        f_ax_js_js: 係数 f_AX, -, [j, j]
+        f_fia_js_is: 係数 f_FIA, -, [j, i]
+
+    Returns:
+        係数 f_WSR, -, [j, i]
+
+    Notes:
+        式(4.2)
+    """
+
+    return np.linalg.solve(f_ax_js_js, f_fia_js_is)
 
 
