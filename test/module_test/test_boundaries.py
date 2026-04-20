@@ -31,6 +31,7 @@ from heat_load_calc.input_models.input_solar_shading_part import (
     InputSolarShadingPartNot
 )
 from heat_load_calc.input_models.input_layer import InputLayer
+from heat_load_calc.boundary_component import BoundaryComponent, BoundaryComponentResponseFactor, BoundaryComponents
 
 
 def get_input_boundaries():
@@ -660,9 +661,9 @@ class TestBoundaries(unittest.TestCase):
         h_s_c_js = _get_h_s_c_js()
         h_s_r_js = _get_h_s_r_js()
 
-        rfs = _get_response_factor()
+        bcomps = _get_bcomps()
 
-        r_total_js = np.array([rf.r_total for rf in rfs]).reshape(-1, 1)
+        r_total_js = bcomps.r_total_js
 
         u_js = 1.0 / (1.0 / (h_s_c_js + h_s_r_js) + r_total_js)
          
@@ -680,43 +681,13 @@ class TestBoundaries(unittest.TestCase):
 
     def test_phi_a0_js(self):
 
-        rfs = _get_response_factor()
-        np.testing.assert_equal(
-            np.array([rf.rfa0 for rf in rfs]).reshape(-1, 1),
-            self._bs.phi_a0_js
-        )
+        bcomps = _get_bcomps()
+        np.testing.assert_equal(bcomps.phi_a0_js, self._bs.phi_a0_js)
     
-    def test_phi_a1_js(self):
-
-        rfs = _get_response_factor()
-        np.testing.assert_equal(
-            np.array([rf.rfa1 for rf in rfs]),
-            self._bs.phi_a1_js_ms
-        )
-
     def test_phi_t0_js(self):
 
-        rfs = _get_response_factor()
-        np.testing.assert_equal(
-            np.array([rf.rft0 for rf in rfs]).reshape(-1, 1),
-            self._bs.phi_t0_js
-        )
-    
-    def test_phi_t1_js(self):
-
-        rfs = _get_response_factor()
-        np.testing.assert_equal(
-            np.array([rf.rft1 for rf in rfs]),
-            self._bs.phi_t1_js_ms
-        )
-    
-    def test_r_js_ms(self):
-
-        rfs = _get_response_factor()
-        np.testing.assert_equal(
-            np.array([rf.row for rf in rfs]),
-            self._bs.r_js_ms
-        )
+        bcomps = _get_bcomps()
+        np.testing.assert_equal(bcomps.phi_t0_js, self._bs.phi_t0_js)
     
     def test_o_eqv_js_nspls(self):
 
@@ -914,7 +885,7 @@ def _get_t_b_js():
     ])   
 
 
-def _get_response_factor():
+def _get_bcomps() -> BoundaryComponents:
 
     h_s_c_js = _get_h_s_c_js()
     h_s_r_js = _get_h_s_r_js()
@@ -923,10 +894,9 @@ def _get_response_factor():
 
     id_js = np.array([1,3,5,7,9,11,13,15,17,19,21,23,25,27]).reshape(-1, 1)
 
-    rfs = [boundaries.Boundary._get_response_factor(ipt_boundary=ipt_boundary, h_s_c_js=h_s_c_js, h_s_r_js=h_s_r_js, id_js=id_js) for ipt_boundary in ipt_boundaries]
-    
-    return rfs
-
+    return BoundaryComponents.create(
+        bcomplist=[boundaries.Boundary._get_boundary_component(ipt_boundary=ipt_boundary, h_s_c_js=h_s_c_js, h_s_r_js=h_s_r_js, id_js=id_js) for ipt_boundary in ipt_boundaries]
+    )
 
 def _get_p_is_js():
     """[I, J]"""

@@ -27,6 +27,10 @@ from heat_load_calc.input_models.input_solar_shading_part import (
     InputSolarShadingPartDetail,
     InputSolarShadingPartNot
 )
+from heat_load_calc.boundary_component import (
+    BoundaryComponentResponseFactor,
+    BoundaryComponents
+)
 
 from heat_load_calc.tenum import EBoundaryType
 
@@ -123,6 +127,9 @@ class Boundary:
 
     # 裏面温度に室の空気温度が与える影響
     k_s_r: float
+
+    # boundary component
+    bcomp: BoundaryComponentResponseFactor
 
     @staticmethod
     def _get_k_eo_j(ipt_boundary: InputBoundary):
@@ -325,12 +332,12 @@ class Boundary:
             raise Exception()
 
     @staticmethod
-    def _get_response_factor(
+    def _get_boundary_component(
             ipt_boundary: InputBoundary,
             h_s_c_js: np.ndarray,
             h_s_r_js: np.ndarray,
             id_js: np.ndarray
-        ) -> ResponseFactor:
+        ) -> BoundaryComponentResponseFactor:
         """Get response factor of boundary j.
 
         Args:
@@ -354,7 +361,9 @@ class Boundary:
 
             r_rear_j = 1.0 / (h_s_c_rear_j + h_s_r_rear_j)
 
-            return ResponseFactor.create_for_unsteady_not_ground(cs=c_j_ls, rs=r_j_ls, r_o=r_rear_j)
+            bcomp = BoundaryComponentResponseFactor.create_for_unsteady_not_ground(cs=c_j_ls, rs=r_j_ls, r_o=r_rear_j)
+
+            return bcomp
 
         elif isinstance(ipt_boundary, InputBoundaryExternalGeneralPart):
 
@@ -363,7 +372,9 @@ class Boundary:
 
             r_s_o_j = ipt_boundary.outside_heat_transfer_resistance
 
-            return ResponseFactor.create_for_unsteady_not_ground(cs=c_j_ls, rs=r_j_ls, r_o=r_s_o_j)
+            bcomp = BoundaryComponentResponseFactor.create_for_unsteady_not_ground(cs=c_j_ls, rs=r_j_ls, r_o=r_s_o_j)
+
+            return bcomp
 
         elif (
             isinstance(ipt_boundary, InputBoundaryExternalTransparentPart)
@@ -374,14 +385,18 @@ class Boundary:
 
             u_w_std_j = ipt_boundary.u_value
 
-            return ResponseFactor.create_for_steady(u_w=u_w_std_j, r_i=r_i_std_j)
+            bcomp = BoundaryComponentResponseFactor.create_for_steady(u_w=u_w_std_j, r_i=r_i_std_j)
+
+            return bcomp
 
         elif isinstance(ipt_boundary, InputBoundaryGround):
 
             c_j_ls = np.array([ipt_layer.thermal_capacity for ipt_layer in ipt_boundary.ipt_layers])
             r_j_ls = np.array([ipt_layer.thermal_resistance for ipt_layer in ipt_boundary.ipt_layers])
 
-            return ResponseFactor.create_for_unsteady_ground(cs=c_j_ls, rs=r_j_ls)
+            bcomp = BoundaryComponentResponseFactor.create_for_unsteady_ground(cs=c_j_ls, rs=r_j_ls)
+
+            return bcomp
 
         else:
 
@@ -495,8 +510,11 @@ class Boundary:
         # transmitted solar radiation of boundary j at step n, W, [N+1]
         q_trs_sol_j_nspls = cls._get_q_trs_sol_j_ns(w=w, ipt_boundary=ipt_boundary)
 
+        # boundary component
+        bcomp = cls._get_boundary_component(ipt_boundary=ipt_boundary, h_s_c_js=h_s_c_js, h_s_r_js=h_s_r_js, id_js=id_js)
+
         # response factor of boundary j
-        rf = cls._get_response_factor(ipt_boundary=ipt_boundary, h_s_c_js=h_s_c_js, h_s_r_js=h_s_r_js, id_js=id_js)
+        rf = bcomp.rf
         
         # coefficient representing the effect of equivalent room temperature of other boundary j to the rear temperature of boundary j
         # 裏面温度に他の境界 j の等価室温が与える影響, [J]
@@ -518,7 +536,8 @@ class Boundary:
             q_trs_sol_nplus=q_trs_sol_j_nspls,
             rf=rf,
             k_ei_js=k_ei_js_j,
-            k_s_r=k_s_r_j
+            k_s_r=k_s_r_j,
+            bcomp=bcomp
         )
 
 
@@ -631,6 +650,12 @@ class Boundaries:
     # coefficient f_wsr, -, [J, I]
     f_wsr_js_is: np.ndarray
 
+    # boundary components class
+    bcomps: BoundaryComponents
+
+    # boundary components class for ground
+    bcomps_ground: BoundaryComponents
+
     @classmethod
     def create(cls, id_r_is: np.ndarray, w: Weather, rad_method: EShapeFactorMethod, ipt_boundaries: list[InputBoundary]):
         """
@@ -710,17 +735,21 @@ class Boundaries:
         b_sol_abs_js = np.array([bs.b_sol_abs for bs in bss]).reshape(-1, 1)
 
         # the resistance from the inside surface of boundary j to the outside air, m2K/W, [J, 1]
-        r_total_js = np.array([bs.rf.r_total for bs in bss]).reshape(-1, 1)
+        # r_total_js = np.array([bs.rf.r_total for bs in bss]).reshape(-1, 1)
+        r_total_js = np.array([bs.bcomp.r_total for bs in bss]).reshape(-1, 1)
 
         # thermal transmittance coefficient of boundary j, W/m2K, [J, 1]
         u_js = 1.0 / (1.0 / (h_s_c_js + h_s_r_js) + r_total_js)
 
         # response factor of boundary j, [J, 1] or [J, M]
-        phi_a0_js = np.array([bs.rf.rfa0 for bs in bss]).reshape(-1, 1)
-        phi_a1_js_ms = np.array([bs.rf.rfa1 for bs in bss])
-        phi_t0_js = np.array([bs.rf.rft0 for bs in bss]).reshape(-1, 1)
-        phi_t1_js_ms = np.array([bs.rf.rft1 for bs in bss])
-        r_js_ms = np.array([bs.rf.row for bs in bss])
+        bcomps = BoundaryComponents.create(bcomplist=[bs.bcomp for bs in bss])
+        phi_a0_js = bcomps.phi_a0_js
+        phi_a1_js_ms = bcomps.phi_a1_js_ms
+        phi_t0_js = bcomps.phi_t0_js
+        phi_t1_js_ms = bcomps.phi_t1_js_ms
+        r_js_ms = bcomps.r_js_ms
+
+        bcomps_ground = BoundaryComponents.create(bcomplist=[bs.bcomp for bs in bss if bs.t_b == EBoundaryType.GROUND])
 
         # outside equivalent temperature of boundary j, degree C, [J, N+1]
         theta_o_eqv_js_nspls = np.array([bs.theta_o_eqv_nspls for bs in bss])
@@ -783,7 +812,9 @@ class Boundaries:
             q_trs_sol_js_nspls=q_trs_sol_js_nspls,
             f_mrt_is_js=f_mrt_is_js,
             f_ax_js_js=f_ax_js_js,
-            f_wsr_js_is=f_wsr_js_is
+            f_wsr_js_is=f_wsr_js_is,
+            bcomps=bcomps,
+            bcomps_ground=bcomps_ground
         )
 
     def get_f_crx_js_ns(self, q_s_sol_js_ns: np.ndarray) -> np.ndarray:
@@ -857,17 +888,13 @@ class Boundaries:
             式(2.28)
         """
 
-        theta_dsh_s_t_js_ms_n_pls = _get_theta_dsh_s_t_js_ms_n_pls(
-            phi_t1_js_ms=self.phi_t1_js_ms,
-            r_js_ms=self.r_js_ms,
+        theta_dsh_s_t_js_ms_n_pls = self.bcomps._get_theta_dsh_s_t_js_ms_n_pls(
             theta_dsh_srf_t_js_ms_n=theta_dsh_srf_t_js_ms_n,
             theta_rear_js_n=theta_rear_js_n
         )
 
-        theta_dsh_s_a_js_ms_n_pls = _get_theta_dsh_s_a_js_ms_n_pls(
-            phi_a1_js_ms=self.phi_a1_js_ms,
+        theta_dsh_s_a_js_ms_n_pls = self.bcomps._get_theta_dsh_s_a_js_ms_n_pls(
             q_s_js_n=q_s_js_n,
-            r_js_ms=self.r_js_ms,
             theta_dsh_srf_a_js_ms_n=theta_dsh_srf_a_js_ms_n
         )
 
@@ -893,7 +920,6 @@ class Boundaries:
 
         return np.linalg.solve(f_ax_js_js, f_crx_js_ns)
 
-
     def get_f_wsb_js_is(self, beta_is, f_flr_js_is):
         """
 
@@ -912,13 +938,6 @@ class Boundaries:
         f_flb_js_is = self.get_f_flb_js_is(beta_is= beta_is, f_flr_js_is=f_flr_js_is)
 
         return np.linalg.solve(self.f_ax_js_js, f_flb_js_is)
-
-
-    def get_wall_steady_state_status(self, q_srf_js_n, theta_rear_js_n):
-
-        theta_dsh_s_a_js_ms_n = q_srf_js_n * self.phi_a1_js_ms / (1.0 - self.r_js_ms)
-        theta_dsh_s_t_js_ms_n = theta_rear_js_n * self.phi_t1_js_ms / (1.0 - self.r_js_ms)
-        return theta_dsh_s_a_js_ms_n, theta_dsh_s_t_js_ms_n
 
 
 def _get_p_is_js(id_r_is:np.ndarray, connected_room_id_js: np.ndarray):
@@ -1095,44 +1114,6 @@ def _get_f_cvl_js_n_pls(theta_dsh_s_a_js_ms_n_pls, theta_dsh_s_t_js_ms_n_pls):
     return np.sum(theta_dsh_s_t_js_ms_n_pls + theta_dsh_s_a_js_ms_n_pls, axis=1, keepdims=True)
 
 
-def _get_theta_dsh_s_t_js_ms_n_pls(phi_t1_js_ms, r_js_ms, theta_dsh_srf_t_js_ms_n, theta_rear_js_n):
-    """
-
-    Args:
-        phi_t1_js_ms: 境界 j の項別公比法の指数項 m の貫流応答係数, -, [j, m]
-        r_js_ms: 境界 j の項別公比法の指数項 m の公比, -, [j, m]
-        theta_dsh_srf_t_js_ms_n: ステップ n における境界 j の項別公比法の指数項 m の貫流応答の項別成分, degree C, [j, m]
-        theta_rear_js_n: ステップ n における境界 j の裏面温度, degree C, [j, 1]
-
-    Returns:
-        ステップ n+1 における境界 j の項別公比法の指数項 m の貫流応答の項別成分, degree C, [j, m]
-
-    Notes:
-        式(2.30)
-    """
-
-    return phi_t1_js_ms * theta_rear_js_n + r_js_ms * theta_dsh_srf_t_js_ms_n
-
-
-def _get_theta_dsh_s_a_js_ms_n_pls(phi_a1_js_ms, q_s_js_n, r_js_ms, theta_dsh_srf_a_js_ms_n):
-    """
-
-    Args:
-        phi_a1_js_ms: 境界 j の項別公比法の指数項 m の吸熱応答係数, m2 K/W, [j, m]
-        q_s_js_n: ステップ n における境界 j の表面熱流（壁体吸熱を正とする）, W/m2, [j, 1]
-        r_js_ms: 境界 j の項別公比法の指数項 m の公比, -, [j, m]
-        theta_dsh_srf_a_js_ms_n: ステップ n における境界 j の項別公比法の指数項 m の吸熱応答の項別成分, degree C, [j, m]
-
-    Returns:
-        ステップ n+1 における境界 j の項別公比法の指数項 m の吸熱応答の項別成分, degree C, [j, m]
-
-    Notes:
-        式(2.29)
-    """
-
-    return phi_a1_js_ms * q_s_js_n + r_js_ms * theta_dsh_srf_a_js_ms_n
-
-
 def _get_f_wsr_js_is(f_ax_js_js, f_fia_js_is):
     """
 
@@ -1148,5 +1129,4 @@ def _get_f_wsr_js_is(f_ax_js_js, f_fia_js_is):
     """
 
     return np.linalg.solve(f_ax_js_js, f_fia_js_is)
-
 

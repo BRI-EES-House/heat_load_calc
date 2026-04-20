@@ -900,7 +900,33 @@ class Sequence:
 
     def run_tick_ground(self, gc_n: GroundConditions, n: int):
 
-        return _run_tick_ground(self=self, gc_n=gc_n, n=n)
+        #return _run_tick_ground(self=self, gc_n=gc_n, n=n)
+
+        is_ground = self.bs.b_ground_js.flatten()
+
+        theta_o_eqv_js_ns = self.bs.theta_o_eqv_js_nspls[is_ground, :]
+
+        h_i_js = self.bs.h_s_r_js[is_ground, :] + self.bs.h_s_c_js[is_ground, :]
+
+        theta_dsh_srf_a_js_ms_npls = self.bs.phi_a1_js_ms[is_ground, :] * gc_n.q_srf_js_n + self.bs.r_js_ms[is_ground, :] * gc_n.theta_dsh_srf_a_js_ms_n
+        #theta_dsh_srf_a_js_ms_npls = self.bs.bcomps_ground.phi_a1_js_ms * gc_n.q_srf_js_n + self.bs.bcomps_ground.r_js_ms * gc_n.theta_dsh_srf_a_js_ms_n
+
+        theta_dsh_srf_t_js_ms_npls = self.bs.phi_t1_js_ms[is_ground, :] * self.bs.k_eo_js[is_ground, :] * theta_o_eqv_js_ns[:, [n]] + self.bs.r_js_ms[is_ground, :] * gc_n.theta_dsh_srf_t_js_ms_n
+
+        theta_s_js_npls = (
+            self.bs.phi_a0_js[is_ground, :] * h_i_js * self.weather.theta_o_ns_plus[n + 1]
+            + self.bs.phi_t0_js[is_ground, :] * self.bs.k_eo_js[is_ground, :] * theta_o_eqv_js_ns[:, [n+1]]
+            + np.sum(theta_dsh_srf_a_js_ms_npls, axis=1, keepdims=True)
+            + np.sum(theta_dsh_srf_t_js_ms_npls, axis=1, keepdims=True)
+        ) / (1.0 + self.bs.phi_a0_js[is_ground, :] * h_i_js)
+
+        q_srf_js_n = h_i_js * (self.weather.theta_o_ns_plus[n + 1] - theta_s_js_npls)
+
+        return GroundConditions(
+            theta_dsh_srf_a_js_ms_n=theta_dsh_srf_a_js_ms_npls,
+            theta_dsh_srf_t_js_ms_n=theta_dsh_srf_t_js_ms_npls,
+            q_srf_js_n=q_srf_js_n,
+        )
 
 
 def test_air_heat_balance(
@@ -1235,43 +1261,6 @@ def test_theta_surface(
     left = theta_s_js
     right = phi_a0_js * q_i_s_js + phi_t0_js * theta_rear_js + f_cvl_js
     test_balance_check(left=left, right=right, quantity="surface temperature")
-
-def _run_tick_ground(self, gc_n: GroundConditions, n: int):
-    """地盤の計算
-
-    Args:
-        pp:
-        gc_n:
-        n:
-
-    Returns:
-
-    """
-
-    is_ground = self.bs.b_ground_js.flatten()
-
-    theta_o_eqv_js_ns = self.bs.theta_o_eqv_js_nspls[is_ground, :]
-
-    h_i_js = self.bs.h_s_r_js[is_ground, :] + self.bs.h_s_c_js[is_ground, :]
-
-    theta_dsh_srf_a_js_ms_npls = self.bs.phi_a1_js_ms[is_ground, :] * gc_n.q_srf_js_n + self.bs.r_js_ms[is_ground, :] * gc_n.theta_dsh_srf_a_js_ms_n
-
-    theta_dsh_srf_t_js_ms_npls = self.bs.phi_t1_js_ms[is_ground, :] * self.bs.k_eo_js[is_ground, :] * theta_o_eqv_js_ns[:, [n]] + self.bs.r_js_ms[is_ground, :] * gc_n.theta_dsh_srf_t_js_ms_n
-
-    theta_s_js_npls = (
-        self.bs.phi_a0_js[is_ground, :] * h_i_js * self.weather.theta_o_ns_plus[n + 1]
-        + self.bs.phi_t0_js[is_ground, :] * self.bs.k_eo_js[is_ground, :] * theta_o_eqv_js_ns[:, [n+1]]
-        + np.sum(theta_dsh_srf_a_js_ms_npls, axis=1, keepdims=True)
-        + np.sum(theta_dsh_srf_t_js_ms_npls, axis=1, keepdims=True)
-    ) / (1.0 + self.bs.phi_a0_js[is_ground, :] * h_i_js)
-
-    q_srf_js_n = h_i_js * (self.weather.theta_o_ns_plus[n + 1] - theta_s_js_npls)
-
-    return GroundConditions(
-        theta_dsh_srf_a_js_ms_n=theta_dsh_srf_a_js_ms_npls,
-        theta_dsh_srf_t_js_ms_n=theta_dsh_srf_t_js_ms_npls,
-        q_srf_js_n=q_srf_js_n,
-    )
 
 
 # region equation 4 (pre calculation)

@@ -274,13 +274,16 @@ def get_steady_state_conditions(test_case: TestCase, bs: Boundaries):
         steady_condition[test_case]['equivalent_surface_temperature']
     ).reshape(-1, 1)
 
-    theta_dsh_s_a_js_ms_n = q_s_js_n * bs.phi_a1_js_ms / (1.0 - bs.r_js_ms)
+    theta_rear_js_n = (
+        np.dot(bs.k_ei_js_js, theta_ei_js_n)
+        + bs.k_eo_js * bs.theta_o_eqv_js_nspls[:, 1].reshape(-1, 1)
+        + np.dot(bs.k_s_r_js_is, theta_r_is_n)
+    )
 
-    theta_dsh_s_t_js_ms_n = (
-                np.dot(bs.k_ei_js_js, theta_ei_js_n)
-                + bs.k_eo_js * bs.theta_o_eqv_js_nspls[:, 1].reshape(-1, 1)
-                + np.dot(bs.k_s_r_js_is, theta_r_is_n)
-                ) * bs.phi_t1_js_ms / (1.0 - bs.r_js_ms)
+    theta_dsh_s_a_js_ms_n, theta_dsh_s_t_js_ms_n = bs.bcomps.get_wall_steady_state_status(
+        q_srf_js_n=q_s_js_n,
+        theta_rear_js_n=theta_rear_js_n
+    )
     
     theta_frt_is_n = np.array(
         steady_condition[test_case]['furniture_temperature']
