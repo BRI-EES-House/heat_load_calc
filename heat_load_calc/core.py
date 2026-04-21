@@ -21,6 +21,7 @@ from heat_load_calc.sequence import Sequence
 from heat_load_calc.tenum import EShapeFactorMethod
 from heat_load_calc.rooms import Rooms
 from heat_load_calc.boundaries import Boundaries
+from heat_load_calc.conditions import GroundConditions
 
 logger = logging.getLogger('HeatLoadCalc').getChild('core')
 
@@ -98,7 +99,7 @@ def calc(
     # （ループ計算する必要の無い）事前計算を行い, クラス PreCalcParameters, PreCalcParametersGround に必要な変数を格納する。
     sqc = Sequence(itv=itv, d=d, weather=w, scd=scd, bdg=bdg, rms=rms, bs=bs)
 
-    gc_n = conditions.initialize_ground_conditions(n_grounds=sqc.bs.n_ground)
+    gc_n = GroundConditions.initialize(n_grounds=sqc.bs.n_ground)
 
     logger.info('run up calculation for ground')
 
@@ -121,14 +122,19 @@ def calc(
     )
 
     # 建物を計算するにあたって初期値を与える
-    c_n = conditions.initialize_conditions(n_spaces=sqc.rms.n_r, n_bdries=sqc.bs.n_b)
+    c_n = conditions.initialize_conditions(
+        n_r=sqc.rms.n_r,
+        n_b=sqc.bs.n_b,
+        is_ground=sqc.bs.b_ground_js.flatten(),
+        gc_n=gc_n
+    )
 
     # 地盤計算の結果（項別公比法の指数項mの吸熱応答の項別成分・表面熱流）を建物の計算に引き継ぐ
-    c_n = conditions.update_conditions_by_ground_conditions(
-        is_ground=sqc.bs.b_ground_js.flatten(),
-        c=c_n,
-        gc=gc_n
-    )
+#    c_n = conditions.update_conditions_by_ground_conditions(
+#        is_ground=sqc.bs.b_ground_js.flatten(),
+#        c=c_n,
+#        gc=gc_n
+#    )
 
     logger.info('助走計算（建物全体）')
 

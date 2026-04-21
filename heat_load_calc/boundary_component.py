@@ -61,6 +61,26 @@ class BoundaryComponentResponseFactor(BoundaryComponent):
     
 
 @dataclass
+class BoundaryComponentsStatus:
+
+    theta_dsh_s_t_js_ms: np.ndarray
+
+    theta_dsh_s_a_js_ms: np.ndarray
+
+    @classmethod
+    def initialize(cls, n_b: int):
+        """initialize status
+
+        Args:
+            n_b: number of boundaries
+        """
+
+        return BoundaryComponentsStatus(
+            theta_dsh_s_t_js_ms=np.full((n_b, 12), 0.0),
+            theta_dsh_s_a_js_ms=np.full((n_b, 12), 0.0)
+        )
+
+@dataclass
 class BoundaryComponents:
 
     # initial term of heat absorption response factor, m2K/W, [J, 1]
@@ -88,23 +108,23 @@ class BoundaryComponents:
     @classmethod
     def create(cls, bcomplist: list[BoundaryComponentResponseFactor]):
 
-        # if len(bcomplist) == 0:
+        if len(bcomplist) == 0:
 
-        #     phi_a0_js = np.array([[]])
-        #     phi_a1_js_ms = np.array([[]])
-        #     phi_t0_js = np.array([[]])
-        #     phi_t1_js_ms = np.array([[]])
-        #     r_js_ms = np.array([[]])
-        #     r_total_js = np.array([[]])
+            phi_a0_js = np.zeros(shape=(0,1))
+            phi_a1_js_ms = np.zeros(shape=(0,12))
+            phi_t0_js = np.zeros(shape=(0,1))
+            phi_t1_js_ms = np.zeros(shape=(0,12))
+            r_js_ms = np.zeros(shape=(0,12))
+            r_total_js = np.zeros(shape=(0,1))
         
-        # else:
+        else:
 
-        phi_a0_js = np.array([bcomp.rf.rfa0 for bcomp in bcomplist]).reshape(-1, 1)
-        phi_a1_js_ms = np.array([bcomp.rf.rfa1 for bcomp in bcomplist])
-        phi_t0_js = np.array([bcomp.rf.rft0 for bcomp in bcomplist]).reshape(-1, 1)
-        phi_t1_js_ms = np.array([bcomp.rf.rft1 for bcomp in bcomplist])
-        r_js_ms = np.array([bcomp.rf.row for bcomp in bcomplist])
-        r_total_js = np.array([bcomp.rf.r_total for bcomp in bcomplist]).reshape(-1, 1)
+            phi_a0_js = np.array([bcomp.rf.rfa0 for bcomp in bcomplist]).reshape(-1, 1)
+            phi_a1_js_ms = np.array([bcomp.rf.rfa1 for bcomp in bcomplist])
+            phi_t0_js = np.array([bcomp.rf.rft0 for bcomp in bcomplist]).reshape(-1, 1)
+            phi_t1_js_ms = np.array([bcomp.rf.rft1 for bcomp in bcomplist])
+            r_js_ms = np.array([bcomp.rf.row for bcomp in bcomplist])
+            r_total_js = np.array([bcomp.rf.r_total for bcomp in bcomplist]).reshape(-1, 1)
 
         return BoundaryComponents(
             phi_a0_js=phi_a0_js,
@@ -114,6 +134,29 @@ class BoundaryComponents:
             r_js_ms=r_js_ms,
             r_total_js=r_total_js
         )
+
+    def _get_next_boundary_components_status(
+            self,
+            bcs_js_n: BoundaryComponentsStatus,
+            theta_rear_js_n: np.ndarray,
+            q_s_js_n: np.ndarray
+    ):
+        
+        theta_dsh_srf_t_js_ms_n_pls = self._get_theta_dsh_s_t_js_ms_n_pls(
+            theta_dsh_srf_t_js_ms_n=bcs_js_n.theta_dsh_s_t_js_ms,
+            theta_rear_js_n=theta_rear_js_n
+        )
+
+        theta_dsh_srf_a_js_ms_n_pls = self._get_theta_dsh_s_a_js_ms_n_pls(
+            q_s_js_n=q_s_js_n,
+            theta_dsh_srf_a_js_ms_n=bcs_js_n.theta_dsh_s_a_js_ms
+        )
+
+        return theta_dsh_srf_t_js_ms_n_pls, theta_dsh_srf_a_js_ms_n_pls, BoundaryComponentsStatus(
+            theta_dsh_s_t_js_ms=theta_dsh_srf_t_js_ms_n_pls,
+            theta_dsh_s_a_js_ms=theta_dsh_srf_a_js_ms_n_pls            
+        )
+        
 
     def _get_theta_dsh_s_t_js_ms_n_pls(self, theta_dsh_srf_t_js_ms_n, theta_rear_js_n):
         """

@@ -22,6 +22,7 @@ from heat_load_calc.conditions import GroundConditions
 from heat_load_calc.operation_mode import Operation, OperationMode
 from heat_load_calc.interval import Interval
 from heat_load_calc import boundaries
+from heat_load_calc.boundary_component import BoundaryComponentsStatus
 
 
 # ロガー
@@ -360,8 +361,8 @@ class Sequence:
         # ステップ n+1 の境界 j における項別公比法の指数項 m の吸熱応答の項別成分, degree C, [j, m]
         # ステップ n+1 の境界 j における係数f_CVL, degree C, [j, 1]
         theta_dsh_s_t_js_ms_n_pls, theta_dsh_s_a_js_ms_n_pls, f_cvl_js_n_pls = self.bs.get_f_cvl_js_n_pls(
-            theta_dsh_srf_t_js_ms_n=c_n.theta_dsh_srf_t_js_ms_n,
-            theta_dsh_srf_a_js_ms_n=c_n.theta_dsh_srf_a_js_ms_n,
+            theta_dsh_srf_t_js_ms_n=c_n.bcs_n.theta_dsh_s_t_js_ms,
+            theta_dsh_srf_a_js_ms_n=c_n.bcs_n.theta_dsh_s_a_js_ms,
             theta_rear_js_n=theta_rear_js_n,
             q_s_js_n=c_n.q_s_js_n
         )
@@ -883,6 +884,11 @@ class Sequence:
                 v_leak_is_n=v_leak_is_n,
                 v_vent_ntr_is_n=v_vent_ntr_is_n
             )
+        
+        bcs_n_pls = BoundaryComponentsStatus(
+            theta_dsh_s_t_js_ms=theta_dsh_s_t_js_ms_n_pls,
+            theta_dsh_s_a_js_ms=theta_dsh_s_a_js_ms_n_pls
+        )
 
         return Conditions(
             operation_mode_is_n=operation_mode_is_n,
@@ -894,38 +900,42 @@ class Sequence:
             q_s_js_n=q_s_js_n_pls,
             theta_frt_is_n=theta_frt_is_n_pls,
             x_frt_is_n=x_frt_is_n_pls,
-            theta_ei_js_n=theta_ei_js_n_pls
+            theta_ei_js_n=theta_ei_js_n_pls,
+            bcs_n=bcs_n_pls
         )
 
 
     def run_tick_ground(self, gc_n: GroundConditions, n: int):
 
-        #return _run_tick_ground(self=self, gc_n=gc_n, n=n)
-
         is_ground = self.bs.b_ground_js.flatten()
 
         theta_o_eqv_js_ns = self.bs.theta_o_eqv_js_nspls[is_ground, :]
 
+        theta_rear_js_n = self.bs.k_eo_js[is_ground, :] * theta_o_eqv_js_ns[:, [n]]
+        theta_rear_js_npls = self.bs.k_eo_js[is_ground, :] * theta_o_eqv_js_ns[:, [n+1]]
+
         h_i_js = self.bs.h_s_r_js[is_ground, :] + self.bs.h_s_c_js[is_ground, :]
 
-        theta_dsh_srf_a_js_ms_npls = self.bs.phi_a1_js_ms[is_ground, :] * gc_n.q_srf_js_n + self.bs.r_js_ms[is_ground, :] * gc_n.theta_dsh_srf_a_js_ms_n
-        #theta_dsh_srf_a_js_ms_npls = self.bs.bcomps_ground.phi_a1_js_ms * gc_n.q_srf_js_n + self.bs.bcomps_ground.r_js_ms * gc_n.theta_dsh_srf_a_js_ms_n
+        bcs_js_n = gc_n.bcs_js_n
 
-        theta_dsh_srf_t_js_ms_npls = self.bs.phi_t1_js_ms[is_ground, :] * self.bs.k_eo_js[is_ground, :] * theta_o_eqv_js_ns[:, [n]] + self.bs.r_js_ms[is_ground, :] * gc_n.theta_dsh_srf_t_js_ms_n
+        theta_dsh_srf_t_js_ms_npls, theta_dsh_srf_a_js_ms_npls, bcs_js_n_pls = self.bs.bcomps_ground._get_next_boundary_components_status(
+            bcs_js_n=bcs_js_n,
+            theta_rear_js_n=theta_rear_js_n,
+            q_s_js_n=gc_n.q_srf_js_n
+        )
 
         theta_s_js_npls = (
-            self.bs.phi_a0_js[is_ground, :] * h_i_js * self.weather.theta_o_ns_plus[n + 1]
-            + self.bs.phi_t0_js[is_ground, :] * self.bs.k_eo_js[is_ground, :] * theta_o_eqv_js_ns[:, [n+1]]
+            self.bs.bcomps_ground.phi_a0_js * h_i_js * self.weather.theta_o_ns_plus[n+1]
+            + self.bs.bcomps_ground.phi_t0_js * theta_rear_js_npls
             + np.sum(theta_dsh_srf_a_js_ms_npls, axis=1, keepdims=True)
             + np.sum(theta_dsh_srf_t_js_ms_npls, axis=1, keepdims=True)
-        ) / (1.0 + self.bs.phi_a0_js[is_ground, :] * h_i_js)
+        ) / (1.0 + self.bs.bcomps_ground.phi_a0_js * h_i_js)
 
         q_srf_js_n = h_i_js * (self.weather.theta_o_ns_plus[n + 1] - theta_s_js_npls)
 
         return GroundConditions(
-            theta_dsh_srf_a_js_ms_n=theta_dsh_srf_a_js_ms_npls,
-            theta_dsh_srf_t_js_ms_n=theta_dsh_srf_t_js_ms_npls,
             q_srf_js_n=q_srf_js_n,
+            bcs_js_n=bcs_js_n_pls
         )
 
 

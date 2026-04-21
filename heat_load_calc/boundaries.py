@@ -29,7 +29,8 @@ from heat_load_calc.input_models.input_solar_shading_part import (
 )
 from heat_load_calc.boundary_component import (
     BoundaryComponentResponseFactor,
-    BoundaryComponents
+    BoundaryComponents,
+    BoundaryComponentsStatus
 )
 
 from heat_load_calc.tenum import EBoundaryType
@@ -619,21 +620,8 @@ class Boundaries:
     # initial term of heat absorption response factor, m2K/W, [J, 1]
     phi_a0_js: np.ndarray
 
-    # initial term of m th component of heat absorption response factor
-    # with common ratio method per term
-    # m2K/W, [J, M]
-    phi_a1_js_ms: np.ndarray
-
     # initial term of heat transmission response factor, -, [J, 1]
     phi_t0_js: np.ndarray
-
-    # initial term of m th component of heat transmission response factor
-    # with common ratio method per term
-    # -, [J, M]
-    phi_t1_js_ms: np.ndarray
-
-    # common ratio of the m th term, [J, M]
-    r_js_ms: np.ndarray
 
     # equivalent outdoor temperature at step n+1, deg.C, [J, N+1]
     theta_o_eqv_js_nspls: np.ndarray
@@ -744,10 +732,7 @@ class Boundaries:
         # response factor of boundary j, [J, 1] or [J, M]
         bcomps = BoundaryComponents.create(bcomplist=[bs.bcomp for bs in bss])
         phi_a0_js = bcomps.phi_a0_js
-        phi_a1_js_ms = bcomps.phi_a1_js_ms
         phi_t0_js = bcomps.phi_t0_js
-        phi_t1_js_ms = bcomps.phi_t1_js_ms
-        r_js_ms = bcomps.r_js_ms
 
         bcomps_ground = BoundaryComponents.create(bcomplist=[bs.bcomp for bs in bss if bs.t_b == EBoundaryType.GROUND])
 
@@ -804,10 +789,7 @@ class Boundaries:
             b_s_sol_abs_js=b_sol_abs_js,
             u_js=u_js,
             phi_a0_js=phi_a0_js,
-            phi_a1_js_ms=phi_a1_js_ms,
             phi_t0_js=phi_t0_js,
-            phi_t1_js_ms=phi_t1_js_ms,
-            r_js_ms=r_js_ms,
             theta_o_eqv_js_nspls=theta_o_eqv_js_nspls,
             q_trs_sol_js_nspls=q_trs_sol_js_nspls,
             f_mrt_is_js=f_mrt_is_js,
@@ -888,14 +870,25 @@ class Boundaries:
             式(2.28)
         """
 
-        theta_dsh_s_t_js_ms_n_pls = self.bcomps._get_theta_dsh_s_t_js_ms_n_pls(
-            theta_dsh_srf_t_js_ms_n=theta_dsh_srf_t_js_ms_n,
-            theta_rear_js_n=theta_rear_js_n
+        # theta_dsh_s_t_js_ms_n_pls = self.bcomps._get_theta_dsh_s_t_js_ms_n_pls(
+        #     theta_dsh_srf_t_js_ms_n=theta_dsh_srf_t_js_ms_n,
+        #     theta_rear_js_n=theta_rear_js_n
+        # )
+
+        # theta_dsh_s_a_js_ms_n_pls = self.bcomps._get_theta_dsh_s_a_js_ms_n_pls(
+        #     q_s_js_n=q_s_js_n,
+        #     theta_dsh_srf_a_js_ms_n=theta_dsh_srf_a_js_ms_n
+        # )
+
+        bcs_js_n = BoundaryComponentsStatus(
+            theta_dsh_s_t_js_ms=theta_dsh_srf_t_js_ms_n,
+            theta_dsh_s_a_js_ms=theta_dsh_srf_a_js_ms_n
         )
 
-        theta_dsh_s_a_js_ms_n_pls = self.bcomps._get_theta_dsh_s_a_js_ms_n_pls(
-            q_s_js_n=q_s_js_n,
-            theta_dsh_srf_a_js_ms_n=theta_dsh_srf_a_js_ms_n
+        theta_dsh_s_t_js_ms_n_pls, theta_dsh_s_a_js_ms_n_pls, bcs_js_n_pls = self.bcomps._get_next_boundary_components_status(
+            bcs_js_n=bcs_js_n,
+            theta_rear_js_n=theta_rear_js_n,
+            q_s_js_n=q_s_js_n
         )
 
         f_cvl_js_n_pls = _get_f_cvl_js_n_pls(theta_dsh_s_a_js_ms_n_pls=theta_dsh_s_a_js_ms_n_pls, theta_dsh_s_t_js_ms_n_pls=theta_dsh_s_t_js_ms_n_pls)

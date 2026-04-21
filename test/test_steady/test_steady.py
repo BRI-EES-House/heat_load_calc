@@ -19,6 +19,7 @@ from heat_load_calc.conditions import Conditions
 from heat_load_calc.building import Building
 from heat_load_calc.rooms import Rooms
 from heat_load_calc.tenum import EInfiltrationMethod, EStory, ECValueEstimateMethod, EInsidePressure, EShapeFactorMethod
+from heat_load_calc.boundary_component import BoundaryComponentsStatus
 
 class TestCase(Enum):
 
@@ -294,16 +295,17 @@ def get_steady_state_conditions(test_case: TestCase, bs: Boundaries):
     ).reshape(-1, 1)
     
     c_n = Conditions(
-            operation_mode_is_n=operation_mode_is_n,
-            theta_r_is_n=theta_r_is_n,
-            theta_mrt_hum_is_n=theta_mrt_hum_is_n,
-            x_r_is_n=x_r_is_n,
-            theta_dsh_s_a_js_ms_n=theta_dsh_s_a_js_ms_n,
-            theta_dsh_s_t_js_ms_n=theta_dsh_s_t_js_ms_n,
-            q_s_js_n=q_s_js_n,
-            theta_frt_is_n=theta_frt_is_n,
-            x_frt_is_n=x_frt_is_n,
-            theta_ei_js_n=theta_ei_js_n
+        operation_mode_is_n=operation_mode_is_n,
+        theta_r_is_n=theta_r_is_n,
+        theta_mrt_hum_is_n=theta_mrt_hum_is_n,
+        x_r_is_n=x_r_is_n,
+        theta_dsh_s_a_js_ms_n=theta_dsh_s_a_js_ms_n,
+        theta_dsh_s_t_js_ms_n=theta_dsh_s_t_js_ms_n,
+        q_s_js_n=q_s_js_n,
+        theta_frt_is_n=theta_frt_is_n,
+        x_frt_is_n=x_frt_is_n,
+        theta_ei_js_n=theta_ei_js_n,
+        bcs_n=BoundaryComponentsStatus(theta_dsh_s_t_js_ms=theta_dsh_s_t_js_ms_n, theta_dsh_s_a_js_ms=theta_dsh_s_a_js_ms_n)
     )
 
     return c_n
